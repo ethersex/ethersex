@@ -204,7 +204,9 @@ void process_packet(void)
             || rpv.received_packet_size < sizeof(struct uip_eth_hdr)
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
-        uart_puts_P("net: packet too large or too small for an ethernet header");
+        uart_puts_P("net: packet too large or too small for an ethernet header: ");
+        uart_puthexbyte(HIGH(rpv.received_packet_size));
+        uart_puthexbyte( LOW(rpv.received_packet_size));
 #       endif
         return;
     }

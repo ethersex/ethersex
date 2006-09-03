@@ -80,6 +80,29 @@ void uart_puthexbyte(uint8_t data)
 
 } /* }}} */
 
+void uart_putdecbyte(uint8_t data)
+/* {{{ */ {
+
+    uint8_t pot10[] = {100, 10};
+
+    for (uint8_t i=0; i<2; i++) {
+
+        uint16_t p = pot10[i];
+        uint8_t digit = 48;
+
+        while (data >= p) {
+            digit++;
+            data -= p;
+        }
+
+        uart_putc(digit);
+
+    }
+
+    uart_putc(data+48);
+
+} /* }}} */
+
 void uart_eol(void)
 /* {{{ */ {
     uart_puts_P("\r\n");
@@ -95,20 +118,20 @@ void uart_puts_mac(struct uip_eth_addr *mac)
 
 } /* }}} */
 
-#if 0
-void uart_puts_ip(struct uip_ip_addr *ip)
+void uart_puts_ip(uip_ipaddr_t *ip)
 /* {{{ */ {
 
-    uart_putdecbyte(ip->byte[0]);
+    uint8_t *byte = (uint8_t *)ip;
+
+    uart_putdecbyte(byte[0]);
     uart_putc('.');
-    uart_putdecbyte(ip->byte[1]);
+    uart_putdecbyte(byte[1]);
     uart_putc('.');
-    uart_putdecbyte(ip->byte[2]);
+    uart_putdecbyte(byte[2]);
     uart_putc('.');
-    uart_putdecbyte(ip->byte[3]);
+    uart_putdecbyte(byte[3]);
 
 } /* }}} */
-#endif
 
 #ifdef DEBUG
 void uip_log(char *message)

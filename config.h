@@ -25,6 +25,8 @@
 
 #include <avr/version.h>
 
+#include "shell.h"
+
 /* check for avr-libc version */
 #if __AVR_LIBC_VERSION__ < 10404UL
 #error newer libc version (>= 1.4.4) needed!
@@ -191,5 +193,7 @@
 
 /* configure global data buffer */
 #define MAX_FRAME_LENGTH 640
+
+extern uint32_t uptime;
 
 #endif /* _CONFIG_H */

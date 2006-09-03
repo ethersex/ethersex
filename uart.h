@@ -26,6 +26,7 @@
 #include <avr/pgmspace.h>
 #include "config.h"
 #include "uip_arp.h"
+#include "uip.h"
 
 /* define uart mode (8N1) */
 #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega32__)
@@ -70,6 +71,9 @@ void uart_puthexnibble(uint8_t data);
 /** output a byte in hex */
 void uart_puthexbyte(uint8_t data);
 
+/** output a byte in decimal */
+void uart_putdecbyte(uint8_t data);
+
 /** output eol (\r\n) */
 void uart_eol(void);
 
@@ -77,7 +81,7 @@ void uart_eol(void);
 void uart_puts_mac(struct uip_eth_addr *mac);
 
 /** output a formatted ip address */
-//void uart_puts_ip(struct ip_address_t *ip);
+void uart_puts_ip(uip_ipaddr_t *ip);
 
 /* macros, for direct string output from flash */
 #define uart_puts_P(s) uart_putf(PSTR(s))

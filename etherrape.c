@@ -28,7 +28,7 @@
 #include "enc28j60.h"
 #include "timer.h"
 #include "network.h"
-#include "hello-world.h"
+#include "shell.h"
 
 #include "uip.h"
 #include "uip_arp.h"
@@ -45,6 +45,8 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 #else
 #   define wdt_kick()
 #endif
+
+uint32_t uptime;
 
 
 void init_spi(void)
@@ -128,18 +130,22 @@ int main(void)
     uip_ethaddr.addr[5] = 0xD0;
 
     uip_ipaddr_t ipaddr;
-    uip_ipaddr(ipaddr, 10,0,0,2);
+    //uip_ipaddr(ipaddr, 10,0,0,2);
+    uip_ipaddr(ipaddr, 137,226,146,58);
     uip_sethostaddr(ipaddr);
-    uip_ipaddr(ipaddr, 10,0,0,1);
+    //uip_ipaddr(ipaddr, 10,0,0,1);
+    uip_ipaddr(ipaddr, 137,226,147,1);
     uip_setdraddr(ipaddr);
-    uip_ipaddr(ipaddr, 255,255,255,0);
+    uip_ipaddr(ipaddr, 255,255,254,0);
     uip_setnetmask(ipaddr);
+
+    uptime = 0;
 
     init_spi();
     timer_init();
     init_enc28j60();
 
-    hello_world_init();
+    shell_init();
 
     while(1) /* main loop {{{ */ {
 
@@ -169,6 +175,9 @@ int main(void)
                     transmit_packet();
                 }
             }
+
+            if (arp_counter % 5 == 0) /* every second */
+                uptime++;
 
             if (arp_counter == 50) { /* every 10 secs */
                 uip_arp_timer();
