@@ -33,6 +33,17 @@ void shell_init(void)
     uip_listen(HTONS(23));
     uip_listen(HTONS(60023));
 
+#if UIP_UDP == 1
+    uip_ipaddr_t ip;
+    uip_ipaddr(&ip, 255,255,255,255);
+    struct uip_udp_conn *c = uip_udp_new(&ip, 0);
+
+    if (c != NULL)
+        uip_udp_bind(c, HTONS(7));
+    else
+        uart_puts_P("shell_udp: udp_new returned NULL\r\n");
+#endif
+
 } /* }}} */
 
 void shell_main(void)
@@ -40,7 +51,7 @@ void shell_main(void)
 
     if (uip_connected()) {
         uart_puts_P("shell: new connection: ");
-        uart_puts_ip(uip_conn->ripaddr);
+        uart_puts_ip(&uip_conn->ripaddr);
         uart_putc(':');
         uart_putdecbyte((uint8_t)(uip_conn->rport >> 8));
         uart_putdecbyte((uint8_t)(uip_conn->rport));
@@ -82,7 +93,7 @@ void shell_main(void)
 
     if (uip_closed() || uip_aborted()) {
         uart_puts_P("shell: connection closed from: ");
-        uart_puts_ip(uip_conn->ripaddr);
+        uart_puts_ip(&uip_conn->ripaddr);
         uart_putc(':');
         uart_putdecbyte((uint8_t)(uip_conn->rport >> 8));
         uart_putdecbyte((uint8_t)(uip_conn->rport));
@@ -115,8 +126,8 @@ void shell_send_response(void)
 
         uint32_t time = uptime;
 
-        uint8_t days = (uint8_t)(time / (60*60*24));
-        time = time % (60*60*24);
+        uint8_t days = time / 86400;
+        time = time - days * 86400;
         uint8_t hours = time / 3600;
         time = time % 3600;
         uint8_t min = time / 60;
@@ -154,6 +165,25 @@ void shell_send_response(void)
         len = len + sprintf_P(&s[len], PSTR("\r\n> "));
 
         uip_send(uip_appdata, len);
+    }
+
+} /* }}} */
+
+void shell_handle_udp(void)
+/* {{{ */ {
+
+    if (uip_connected())
+        uip_send("welcome on the etherrape telnet server! (try HELP)\r\n> ", 54);
+
+    if (uip_newdata()) {
+        uart_puts_P("shell: udp packet received from:");
+        uart_puts_ip(&uip_conn->ripaddr);
+        uart_putc(':');
+        uart_putdecbyte((uint8_t)(uip_conn->rport >> 8));
+        uart_putdecbyte((uint8_t)(uip_conn->rport));
+        uart_eol();
+
+        uip_udp_send(uip_len);
     }
 
 } /* }}} */

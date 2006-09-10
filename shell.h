@@ -39,11 +39,16 @@ typedef struct shell_connection_state_t {
     enum shell_state_t state;
 } uip_tcp_appstate_t;
 
+typedef struct udp_connection_state {
+} uip_udp_appstate_t;
+
 
 #define UIP_APPCALL shell_main
+#define UIP_UDP_APPCALL shell_handle_udp
 
 void shell_init(void);
 void shell_main(void);
 void shell_send_response(void);
+void shell_handle_udp(void);
 
 #endif
