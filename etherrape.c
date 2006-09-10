@@ -29,6 +29,7 @@
 #include "timer.h"
 #include "network.h"
 #include "shell.h"
+#include "clock.h"
 
 #include "uip.h"
 #include "uip_arp.h"
@@ -46,7 +47,6 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 #   define wdt_kick()
 #endif
 
-uint32_t uptime;
 
 
 void init_spi(void)
@@ -120,13 +120,11 @@ int main(void)
     /* send boot message */
     uart_puts_P("booting etherrape firmware " VERSION_STRING "...\r\n");
 
-    uptime = 0;
-
     init_spi();
     timer_init();
 
     network_init();
-
+    clock_set_time(0xC8759F88); /* 29.7.6  10:49:12 */
     shell_init();
 
     while(1) /* main loop {{{ */ {
@@ -139,7 +137,9 @@ int main(void)
         /* check for timer interrupt */
         if (TIFR1 & _BV(OCF1A)) {
 
-            static uint8_t arp_counter = 0;
+            static uint8_t c;
+
+            c++;
 
 #           if UIP_CONNS <= 255
             uint8_t i;
@@ -170,14 +170,13 @@ int main(void)
             }
 #           endif
 
-            if (arp_counter % 5 == 0) /* every second */
-                uptime++;
+            if (c % 5 == 0) /* every second */
+                clock_periodic();
 
-            if (arp_counter == 50) { /* every 10 secs */
+            if (c == 50) { /* every 10 secs */
                 uip_arp_timer();
-                arp_counter = 0;
-            } else
-                arp_counter++;
+                c = 0;
+            }
 
             /* clear flag */
             TIFR1 = _BV(OCF1A);

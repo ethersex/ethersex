@@ -120,8 +120,9 @@ void shell_send_response(void)
 
     if (uip_conn->appstate.state == SHELL_WELCOME)
         uip_send("welcome on the etherrape telnet server! (try HELP)\r\n> ", 54);
-    else if (uip_conn->appstate.state == SHELL_HELP)
+    else if (uip_conn->appstate.state == SHELL_HELP) {
         uip_send("commands: HELP, STATUS, UPTIME, SENSORS, EXIT\r\n> ", 49);
+#if 0
     else if (uip_conn->appstate.state == SHELL_UPTIME) {
 
         uint32_t time = uptime;
@@ -137,6 +138,7 @@ void shell_send_response(void)
 
         uip_send(uip_appdata, len);
 
+#endif
     } else if (uip_conn->appstate.state == SHELL_EXIT) {
         uip_send("bye...\r\n> ", 8);
     } else if (uip_conn->appstate.state == SHELL_STATUS)
