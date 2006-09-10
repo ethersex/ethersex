@@ -120,30 +120,12 @@ int main(void)
     /* send boot message */
     uart_puts_P("booting etherrape firmware " VERSION_STRING "...\r\n");
 
-    uip_init();
-
-    uip_ethaddr.addr[0] = 0xAC;
-    uip_ethaddr.addr[1] = 0xDE;
-    uip_ethaddr.addr[2] = 0x48;
-    uip_ethaddr.addr[3] = 0xFD;
-    uip_ethaddr.addr[4] = 0x0F;
-    uip_ethaddr.addr[5] = 0xD0;
-
-    uip_ipaddr_t ipaddr;
-    //uip_ipaddr(ipaddr, 10,0,0,2);
-    uip_ipaddr(ipaddr, 137,226,146,58);
-    uip_sethostaddr(ipaddr);
-    //uip_ipaddr(ipaddr, 10,0,0,1);
-    uip_ipaddr(ipaddr, 137,226,147,1);
-    uip_setdraddr(ipaddr);
-    uip_ipaddr(ipaddr, 255,255,254,0);
-    uip_setnetmask(ipaddr);
-
     uptime = 0;
 
     init_spi();
     timer_init();
-    init_enc28j60();
+
+    network_init();
 
     shell_init();
 
@@ -175,6 +157,18 @@ int main(void)
                     transmit_packet();
                 }
             }
+
+#           if UIP_UDP == 1
+            for (i = 0; i < UIP_UDP_CONNS; i++) {
+                uip_udp_periodic(i);
+
+                /* if this generated a packet, send it now */
+                if (uip_len > 0) {
+                    uip_arp_out();
+                    transmit_packet();
+                }
+            }
+#           endif
 
             if (arp_counter % 5 == 0) /* every second */
                 uptime++;

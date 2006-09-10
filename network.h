@@ -28,6 +28,9 @@
 
 /* prototypes */
 
+/* do all network initialization stuff */
+void network_init(void);
+
 /* check for ethernet controller interrupts */
 void enc28j60_process_interrupts(void);
 

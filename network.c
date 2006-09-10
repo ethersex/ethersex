@@ -29,6 +29,31 @@
 #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
 #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
 
+void network_init(void)
+/* {{{ */ {
+
+    uip_init();
+
+    uip_ethaddr.addr[0] = 0xAC;
+    uip_ethaddr.addr[1] = 0xDE;
+    uip_ethaddr.addr[2] = 0x48;
+    uip_ethaddr.addr[3] = 0xFD;
+    uip_ethaddr.addr[4] = 0x0F;
+    uip_ethaddr.addr[5] = 0xD1;
+
+    uip_ipaddr_t ipaddr;
+    uip_ipaddr(ipaddr, 10,0,0,2);
+    //uip_ipaddr(ipaddr, 137,226,146,59);
+    uip_sethostaddr(ipaddr);
+    uip_ipaddr(ipaddr, 10,0,0,1);
+    //uip_ipaddr(ipaddr, 137,226,147,1);
+    uip_setdraddr(ipaddr);
+    uip_ipaddr(ipaddr, 255,255,255,0);
+    uip_setnetmask(ipaddr);
+
+    init_enc28j60();
+
+} /* }}} */
 
 void enc28j60_process_interrupts(void)
 /* {{{ */ {
