@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+//#include "sntp.h"
+
 enum shell_state_t {
     SHELL_IDLE = 0,
     SHELL_WELCOME,
@@ -39,7 +41,8 @@ typedef struct shell_connection_state_t {
     enum shell_state_t state;
 } uip_tcp_appstate_t;
 
-typedef struct udp_connection_state {
+typedef union udp_connection_state {
+    // struct sntp_connection_state_t sntp;
 } uip_udp_appstate_t;
 
 

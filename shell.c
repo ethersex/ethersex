@@ -33,7 +33,7 @@ void shell_init(void)
     uip_listen(HTONS(23));
     uip_listen(HTONS(60023));
 
-#if UIP_UDP == 1
+#if 0
     uip_ipaddr_t ip;
     uip_ipaddr(&ip, 255,255,255,255);
     struct uip_udp_conn *c = uip_udp_new(&ip, 0);
