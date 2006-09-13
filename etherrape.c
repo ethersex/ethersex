@@ -71,6 +71,12 @@ void check_serial_input(uint8_t data)
 
     switch (data) {
 
+        case 'R': init_enc28j60();
+                  break;
+
+        case 'd': dump_debug_registers();
+                  break;
+
         case 0x1b:  jump_to_bootloader();
                     break;
 
