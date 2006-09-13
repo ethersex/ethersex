@@ -317,11 +317,17 @@ uint16_t noinline get_write_buffer_pointer(void);
 uint16_t read_phy(uint8_t address);
 void write_phy(uint8_t address, uint16_t data);
 void reset_controller(void);
+void reset_rx(void);
 void init_enc28j60(void);
 void switch_bank(uint8_t bank);
 static inline void cs_low(void);
 static inline void cs_high(void);
+
+#ifdef DEBUG_ENC28J60
 void dump_debug_registers(void);
+#else
+#define dump_debug_registers(x)
+#endif
 
 
 /* small inline functions and macros */
