@@ -42,13 +42,13 @@ void network_init(void)
     uip_ethaddr.addr[5] = 0xD1;
 
     uip_ipaddr_t ipaddr;
-    uip_ipaddr(ipaddr, 10,0,0,2);
-    //uip_ipaddr(ipaddr, 137,226,146,59);
+    //uip_ipaddr(ipaddr, 10,0,0,2);
+    uip_ipaddr(ipaddr, 137,226,146,59);
     uip_sethostaddr(ipaddr);
-    uip_ipaddr(ipaddr, 10,0,0,1);
-    //uip_ipaddr(ipaddr, 137,226,147,1);
+    //uip_ipaddr(ipaddr, 10,0,0,1);
+    uip_ipaddr(ipaddr, 137,226,147,1);
     uip_setdraddr(ipaddr);
-    uip_ipaddr(ipaddr, 255,255,255,0);
+    uip_ipaddr(ipaddr, 255,255,254,0);
     uip_setnetmask(ipaddr);
 
     init_enc28j60();
@@ -169,16 +169,9 @@ void enc28j60_process_interrupts(void)
 
             bit_field_clear(REG_EIR, _BV(RXERIF));
 
-            /* if there are any packets to process, do it now! */
-            if (read_control_register(REG_EPKTCNT) > 0) {
-                process_packet();
-            } else {
 #ifdef ENC28J60_REV4_WORKAROUND
-                /* this is a bug in silicon since there are no packets to process */
-                // FIXME
-                //global.receive_error_counter += 10;
+            init_enc28j60();
 #endif
-            }
 
         }
 
