@@ -20,9 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/eeprom.h>
+#include <util/crc16.h>
+
 #include "network.h"
 #include "config.h"
 #include "uart.h"
+#include "eeprom.h"
+
 #include "uip.h"
 #include "uip_arp.h"
 
@@ -33,23 +38,70 @@ void network_init(void)
 /* {{{ */ {
 
     uip_init();
+    uip_arp_init();
 
-    uip_ethaddr.addr[0] = 0xAC;
-    uip_ethaddr.addr[1] = 0xDE;
-    uip_ethaddr.addr[2] = 0x48;
-    uip_ethaddr.addr[3] = 0xFD;
-    uip_ethaddr.addr[4] = 0x0F;
-    uip_ethaddr.addr[5] = 0xD1;
+    uint8_t crc = 0;
+    uint8_t *config = (uint8_t *)&eeprom_config;
 
+    for (uint8_t i = 0; i < sizeof(struct eeprom_config_t) - 1; i++) {
+        crc = _crc_ibutton_update(crc, eeprom_read_byte(config++));
+    }
+
+    uint8_t config_crc = eeprom_read_byte(&eeprom_config.crc);
     uip_ipaddr_t ipaddr;
-    //uip_ipaddr(ipaddr, 10,0,0,2);
-    uip_ipaddr(ipaddr, 137,226,146,59);
-    uip_sethostaddr(ipaddr);
-    //uip_ipaddr(ipaddr, 10,0,0,1);
-    uip_ipaddr(ipaddr, 137,226,147,1);
-    uip_setdraddr(ipaddr);
-    uip_ipaddr(ipaddr, 255,255,254,0);
-    uip_setnetmask(ipaddr);
+
+    if (crc != config_crc) {
+#ifdef DEBUG
+        uart_puts_P("net: crc mismatch: 0x");
+        uart_puthexbyte(crc);
+        uart_puts_P(" != 0x");
+        uart_puthexbyte(config_crc);
+        uart_puts_P(" loading default settings\r\n");
+#endif
+
+        uip_ethaddr.addr[0] = 0xAC;
+        uip_ethaddr.addr[1] = 0xDE;
+        uip_ethaddr.addr[2] = 0x48;
+        uip_ethaddr.addr[3] = 0xFD;
+        uip_ethaddr.addr[4] = 0x0F;
+        uip_ethaddr.addr[5] = 0xD1;
+
+        uip_ipaddr(ipaddr, 10,0,0,1);
+        uip_sethostaddr(ipaddr);
+        uip_ipaddr(ipaddr, 255,255,255,0);
+        uip_setnetmask(ipaddr);
+    } else {
+
+        uint8_t ip[4];
+
+        /* load config settings */
+
+        /* mac */
+        for (uint8_t i = 0; i < 6; i++)
+            uip_ethaddr.addr[i] = eeprom_read_byte(&eeprom_config.mac[i]);
+
+        /* ip */
+        for (uint8_t i = 0; i < 4; i++)
+            ip[i] = eeprom_read_byte(&eeprom_config.ip[i]);
+
+        uip_ipaddr(ipaddr, ip[0], ip[1], ip[2], ip[3]);
+        uip_sethostaddr(ipaddr);
+
+        /* netmask */
+        for (uint8_t i = 0; i < 4; i++)
+            ip[i] = eeprom_read_byte(&eeprom_config.netmask[i]);
+
+        uip_ipaddr(ipaddr, ip[0], ip[1], ip[2], ip[3]);
+        uip_setnetmask(ipaddr);
+
+        /* gateway */
+        for (uint8_t i = 0; i < 4; i++)
+            ip[i] = eeprom_read_byte(&eeprom_config.gateway[i]);
+
+        uip_ipaddr(ipaddr, ip[0], ip[1], ip[2], ip[3]);
+        uip_setdraddr(ipaddr);
+
+    }
 
     init_enc28j60();
 
