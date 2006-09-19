@@ -28,6 +28,7 @@
 
 #include <avr/io.h>
 #include "config.h"
+#include "common.h"
 
 #define noinline __attribute__((noinline))
 

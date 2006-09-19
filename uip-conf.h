@@ -5,6 +5,7 @@
 
 #include <inttypes.h>
 #include "config.h"
+#include "network.h"
 
 /**
  * 8 bit datatype
@@ -75,7 +76,7 @@ typedef unsigned short uip_stats_t;
 
 /** UDP support on or off */
 #define UIP_CONF_UDP             1
-#define UIP_CONF_UDP_CONNS            1
+#define UIP_CONF_UDP_CONNS            5
 
 /**
  * UDP checksums on or off

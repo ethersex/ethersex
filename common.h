@@ -20,36 +20,34 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _NETWORK_H
-#define _NETWORK_H
+#ifndef _COMMON_H
+#define _COMMON_H
 
-#include "enc28j60.h"
-#include "config.h"
-#include "common.h"
+#include "shell.h"
+#include "sntp_state.h"
+
+#define NULL ((void *)0)
+
+#define HI8(x)  ((uint8_t)((x) >> 8))
+#define LO8(x)  ((uint8_t)(x))
+
+#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
+                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
+                | (uint32_t)(((x) & 0x0000FF00) << 8) \
+                | (uint32_t)(((x) & 0x000000FF) << 24))
+
+#define NTOHL(x) HTONL(x)
+
+
+/* uip appstate */
+typedef union uip_tcp_connection_state {
+    struct shell_connection_state_t shell;
+} uip_tcp_appstate_t;
+
+typedef union uip_udp_connection_state {
+    struct sntp_connection_state_t sntp;
+} uip_udp_appstate_t;
 
 #include "uip.h"
-
-#define UIP_APPCALL network_handle_tcp
-#define UIP_UDP_APPCALL network_handle_udp
-
-/* prototypes */
-
-/* do all network initialization stuff */
-void network_init(void);
-
-/* check for ethernet controller interrupts */
-void enc28j60_process_interrupts(void);
-
-/* process each packet */
-void process_packet(void);
-
-/* send a packet placed in the global buffer */
-void transmit_packet(void);
-
-/* handle tcp connections */
-void network_handle_tcp(void);
-
-/* handle udp connections */
-void network_handle_udp(void);
 
 #endif

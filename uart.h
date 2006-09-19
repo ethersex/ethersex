@@ -24,6 +24,7 @@
 #define _UART_H
 
 #include <avr/pgmspace.h>
+
 #include "config.h"
 #include "uip_arp.h"
 #include "uip.h"

@@ -22,3 +22,19 @@
 
 #include "eeprom.h"
 
+#include "uart.h"
+
+void eeprom_load_ip(uint8_t *ip, uip_ipaddr_t *dest)
+/* {{{ */ {
+
+    uart_puts_P("eeprom: loading from address 0x");
+    uart_puthexbyte(HI8((uint16_t)ip));
+    uart_puthexbyte(LO8((uint16_t)ip));
+    uart_eol();
+
+    for (uint8_t i = 0; i < 4; i++)
+        ip[i] = eeprom_read_byte(&ip[i]);
+
+    uip_ipaddr(*dest, ip[0], ip[1], ip[2], ip[3]);
+
+} /* }}} */

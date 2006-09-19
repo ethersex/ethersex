@@ -23,13 +23,18 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+#include <util/delay.h>
+
 #include "config.h"
+#include "common.h"
+#include "network.h"
 #include "uart.h"
 #include "enc28j60.h"
 #include "timer.h"
-#include "network.h"
 #include "shell.h"
 #include "clock.h"
+#include "sntp.h"
+#include "eeprom.h"
 
 #include "uip.h"
 #include "uip_arp.h"
@@ -66,6 +71,30 @@ void init_spi(void)
 
 } /* }}} */
 
+void wait(void)
+{
+    _delay_loop_2(4500);
+
+    return;
+}
+
+void send1(void)
+{
+    PORTD = 0;
+    wait();
+    PORTD = 0xff;
+    wait();
+}
+
+void send0(void)
+{
+    PORTD = 0xff;
+    wait();
+    PORTD = 0;
+    wait();
+}
+
+
 void check_serial_input(uint8_t data)
 /* {{{ */ {
 
@@ -84,6 +113,88 @@ void check_serial_input(uint8_t data)
 #                   ifdef USE_WATCHDOG
                     while (1);
 #                   endif
+                    break;
+
+        case 's':   {
+                        uart_puts_P("foo");
+                        uip_ipaddr_t ip;
+                        //uip_ipaddr(&ip, 134, 130, 4, 17);
+                        uip_ipaddr(&ip, 137, 226, 147, 211);
+                        //eeprom_load_ip(eeprom_config.sntp_server, &ip);
+                        sntp_prepare_request(&ip);
+                        break;
+                    }
+
+        case 't':   for (uint8_t i = 0; i < UIP_UDP_CONNS; i++) {
+                        uart_puts_P("udp: local 0x");
+                        uart_puthexbyte(LO8(uip_udp_conns[i].lport));
+                        uart_puthexbyte(HI8(uip_udp_conns[i].lport));
+                        uart_eol();
+                    }
+                    break;
+
+        case 'a':   {
+                    DDRD = _BV(PD4) | _BV(PD2);
+
+                    uart_puts_P("rc5: start\r\n");
+                    send1();
+                    send1();
+
+                    static uint8_t state;
+
+                    if (state)
+                        send0();
+                    else
+                        send1();
+
+                    state ^= 0xff;
+
+                    send0();
+                    send0();
+                    send0();
+                    send0();
+                    send0();
+
+                    send0();
+                    send0();
+                    send0();
+                    send0();
+                    send0();
+                    send1();
+
+                    _delay_loop_2(60000);
+
+                    PORTD = 0;
+                    uart_puts_P("rc5: done\r\n");
+
+                    break;
+                    }
+
+        case 'b':
+                    uart_puts_P("adc: starting conversion");
+
+                    DIDR0 = 0xff;
+                    DDRA = 0;
+                    PORTA = _BV(PA7);
+                    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
+                    ADMUX = 7;
+
+                    ADCSRA |= _BV(ADSC);
+
+                    while (!(ADCSRA & _BV(ADIF)))
+                        uart_puts_P(".");
+
+                    uart_puts_P("adc: done, 0x");
+
+                    uint16_t result = ADCL | (ADCH << 8);
+                    uart_puthexbyte(HI8(result));
+                    uart_puthexbyte(LO8(result));
+                    uart_eol();
+
+                    ADCSRA = 0;
+                    DDRA = 0;
+                    PORTA = 0;
+                    DIDR0 = 0;
                     break;
 
         default:    uart_putc('?');
@@ -114,6 +225,12 @@ int main(void)
 
         /* clear flags */
         MCUSR &= ~_BV(WDRF);
+
+#       ifdef DEBUG
+        uart_puts_P("jumping to bootloader...\r\n");
+        jump_to_bootloader();
+#       endif
+
     }
 
     wdt_enable(WDTO_250MS);
@@ -123,15 +240,22 @@ int main(void)
     wdt_disable();
 #   endif
 
+#   ifdef DEBUG
     /* send boot message */
     uart_puts_P("booting etherrape firmware " VERSION_STRING "...\r\n");
+#   endif
 
     init_spi();
     timer_init();
 
     network_init();
-    clock_set_time(0xC8759F88); /* 29.7.6  10:49:12 */
     shell_init();
+
+#   ifdef DEBUG
+    uart_puts_P("ip: ");
+    uart_puts_ip(&uip_hostaddr);
+    uart_eol();
+#   endif
 
     while(1) /* main loop {{{ */ {
 

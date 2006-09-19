@@ -27,6 +27,7 @@
 #include "config.h"
 #include "uart.h"
 #include "eeprom.h"
+#include "sntp.h"
 
 #include "uip.h"
 #include "uip_arp.h"
@@ -72,34 +73,51 @@ void network_init(void)
         uip_setnetmask(ipaddr);
     } else {
 
-        uint8_t ip[4];
-
         /* load config settings */
 
+#ifdef DEBUG
+        uart_puts_P("mac: ");
+#endif
+
         /* mac */
-        for (uint8_t i = 0; i < 6; i++)
-            uip_ethaddr.addr[i] = eeprom_read_byte(&eeprom_config.mac[i]);
+        for (uint8_t i = 0; i < 6; i++) {
+            uint8_t mac = eeprom_read_byte(&eeprom_config.mac[i]);
+#ifdef DEBUG
+            uart_puthexbyte(mac);
+            uart_putc(' ');
+#endif
+            uip_ethaddr.addr[i] = mac;
+        }
+
+#ifdef DEBUG
+        uart_eol();
+#endif
 
         /* ip */
-        for (uint8_t i = 0; i < 4; i++)
-            ip[i] = eeprom_read_byte(&eeprom_config.ip[i]);
-
-        uip_ipaddr(ipaddr, ip[0], ip[1], ip[2], ip[3]);
+        eeprom_load_ip(eeprom_config.ip, &ipaddr);
         uip_sethostaddr(ipaddr);
 
         /* netmask */
-        for (uint8_t i = 0; i < 4; i++)
-            ip[i] = eeprom_read_byte(&eeprom_config.netmask[i]);
-
-        uip_ipaddr(ipaddr, ip[0], ip[1], ip[2], ip[3]);
+        eeprom_load_ip(eeprom_config.netmask, &ipaddr);
         uip_setnetmask(ipaddr);
 
         /* gateway */
-        for (uint8_t i = 0; i < 4; i++)
-            ip[i] = eeprom_read_byte(&eeprom_config.gateway[i]);
-
-        uip_ipaddr(ipaddr, ip[0], ip[1], ip[2], ip[3]);
+        eeprom_load_ip(eeprom_config.gateway, &ipaddr);
         uip_setdraddr(ipaddr);
+
+        /* sntp-server */
+        eeprom_load_ip(eeprom_config.sntp_server, &ipaddr);
+
+        //uip_ipaddr_t ip;
+        //uip_ipaddr(&ip, 134, 130, 4, 17);
+        //uip_ipaddr(&ipaddr, 137, 226, 147, 211);
+
+        uart_puts_P("sntp: server ");
+        uart_puts_ip(&ipaddr);
+        uart_eol();
+
+        //eeprom_load_ip(eeprom_config.sntp_server, &ip);
+        sntp_prepare_request(&ipaddr);
 
     }
 
@@ -420,5 +438,39 @@ void transmit_packet(void)
         bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
     }
+
+} /* }}} */
+
+void network_handle_tcp(void)
+/* {{{ */ {
+
+#ifdef DEBUG_NET
+    uart_puts_P("net_tcp: local port is 0x");
+    uart_puthexbyte(HI8(uip_conn->lport));
+    uart_puthexbyte(LO8(uip_conn->lport));
+    uart_eol();
+#endif
+
+    if (uip_conn->lport == HTONS(23)
+            || uip_conn->lport == HTONS(60023))
+        shell_main();
+
+} /* }}} */
+
+void network_handle_udp(void)
+/* {{{ */ {
+
+#ifdef DEBUG_NET
+    uart_puts_P("net_udp: local 0x");
+    uart_puthexbyte(LO8(uip_udp_conn->lport));
+    uart_puthexbyte(HI8(uip_udp_conn->lport));
+    uart_puts_P(", remote port 0x");
+    uart_puthexbyte(LO8(uip_udp_conn->rport));
+    uart_puthexbyte(HI8(uip_udp_conn->rport));
+    uart_eol();
+#endif
+
+    if (uip_udp_conn->lport == HTONS(SNTP_UDP_PORT))
+        sntp_handle_conn();
 
 } /* }}} */

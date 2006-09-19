@@ -25,8 +25,10 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#include "enc28j60.h"
 #include "config.h"
+#include "common.h"
+#include "enc28j60.h"
+#include "network.h"
 #include "uart.h"
 #include "uip_arp.h"
 

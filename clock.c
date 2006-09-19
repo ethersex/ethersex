@@ -27,9 +27,6 @@
 #include "uart.h"
 #endif
 
-#define HIGH(x)  ((uint8_t)((x) >> 8))
-#define  LOW(x)  ((uint8_t)((x)))
-
 struct clock_global_t clock_global;
 uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
@@ -38,6 +35,17 @@ void clock_periodic(void)
 
     /* pass time */
     clock_global.current_time++;
+
+#   ifdef DEBUG_CLOCK
+    uart_puts_P("clock: timestamp: 0x");
+
+    uint8_t *p = ((uint8_t *)&clock_global.current_time) + 4;
+    for (uint8_t i = 0; i < 4; i++)
+        uart_puthexbyte(*(--p));
+
+    uart_eol();
+
+#   endif
 
     if (clock_global.current_time % 60 == 0) {
 

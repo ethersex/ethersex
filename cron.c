@@ -26,9 +26,6 @@
 #include "uart.h"
 #endif
 
-#define HIGH(x)  ((uint8_t)((x) >> 8))
-#define  LOW(x)  ((uint8_t)((x)))
-
 struct cron_event_t events[] = { { { {-1, -2, -1, -1, -1} } }, /* when hour % 2 == 0 */
                                  { { {51, -1, -1, -1, -1} } }, /* when minute is 51 */
                                  { { {-2, -1, -1, -1, -1} } }, /* when minute % 2 == 0 */
