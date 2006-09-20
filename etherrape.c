@@ -196,6 +196,32 @@ void check_serial_input(uint8_t data)
                     PORTA = 0;
                     DIDR0 = 0;
                     break;
+        case 'f':
+                    DDRA = _BV(PA0) | _BV(PA1);
+                    PORTA = _BV(PA0) | _BV(PA1);
+
+                    /* load */
+                    PORTA &= ~_BV(PA0);
+                    PORTA |= _BV(PA0);
+
+                    /* clock out */
+                    uart_puts_P("status: ");
+                    for (uint8_t i = 0; i < 8; i++) {
+
+                        /* clock down, up */
+                        PORTA &= ~_BV(PA1);
+                        PORTA |= _BV(PA1);
+
+                        /* read bit */
+                        if (PINA & _BV(PA2))
+                            uart_putc('1');
+                        else
+                            uart_putc('0');
+
+                    }
+
+                    uart_eol();
+                    break;
 
         default:    uart_putc('?');
                     break;
