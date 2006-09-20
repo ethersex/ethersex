@@ -1,0 +1,108 @@
+atmega8:
+    low fuse byte:
+        clock-source external xtal: CHKSEL = 0
+
+    -> default: 0xe1
+       new:     0b11100000 = 0xe0
+
+    high fuse byte:
+        512 words bootloader size: BOOTSZ0 = 1
+                                   BOOTSZ1 = 0
+
+        reset vector, jump to bootloader on reset: BOOTRST = 0
+
+        no eeprom erase on chip erase: EESAVE = 0
+
+    -> default: 0b11011001 = 0xd9
+       new:     0b11010010 = 0xd2
+
+    lock byte:
+        SPM is not allowed to write to the Boot Loader section BLB12 = 1
+                                                               BLB11 = 0
+
+    -> default: 0b111111 = 0x3f
+       new:     0b101111 = 0x2f
+
+
+atmega88/168:
+    low fuse byte:
+        clock-source external xtal: CHKSEL = 0
+
+        disable system clock divide by 8: CKDIV8 = 1
+
+    -> default: 0b01100010 = 0x62
+       new:     0b11100000 = 0xe0
+
+
+    high fuse byte:
+        no eeprom erase on chip erase: EESAVE = 0
+
+    -> default: 0b11011111 = 0xdf
+       new:     0b11010111 = 0xd7
+
+
+    extended fuse byte:
+        512 words bootloader size: BOOTSZ0 = 1
+                                   BOOTSZ1 = 0
+
+        reset vector, jump to bootloader on reset: BOOTRST = 0
+
+    -> default: 0b001 = 0x01
+       new:     0b010 = 0x02
+
+    lock byte:
+        SPM is not allowed to write to the Boot Loader section BLB12 = 1
+                                                               BLB11 = 0
+
+    -> default: 0b111111 = 0x3f
+       new:     0b101111 = 0x2f
+
+atmega32:
+    high fuse byte
+        - enable jtag unprogram: JTAGEN = 1
+        - bootloader size 512 words: BOOTSZ1 = 1
+                                     BOOTSZ0 = 0
+        - jump to bootloader: BOORST = 0
+
+    ->  default: 0b10011001 = 0x99
+        neu:     0b11011100 = 0xdc
+
+    low fuse byte:
+        - external crystal clock, fast rising power: CKSEL = 1111
+
+    ->  default: 0b11100001 = 0xe1
+        neu:     0b11101111 = 0xef
+
+    lock byte:
+        SPM is not allowed to write to the Boot Loader section BLB12 = 1
+                                                               BLB11 = 0
+
+    -> default: 0b111111 = 0x3f
+       new:     0b101111 = 0x2f
+
+atmega644:
+    high fuse byte
+
+        - enable jtag unprogram: JTAGEN = 1
+        - bootloader size 1024 words: BOOTSZ1 = 1
+                                      BOOTSZ0 = 0
+        - jump to bootloader: BOORST = 0
+
+    ->  default: 0b10011001 = 0x99
+        neu:     0b11011100 = 0xdc
+
+    low fuse byte:
+
+        - external crystal clock, fast rising power: CKSEL3..0 = 0111
+                                                     SUT1..0 = 10
+        - (unprogram) CKDIV8 = 1
+
+    ->  default: 0b01100010 = 0x62
+        neu:     0b11100111 = 0xe7
+
+    lock byte:
+        SPM is not allowed to write to the Boot Loader section BLB12 = 1
+                                                               BLB11 = 0
+
+    -> default: 0b111111 = 0x3f
+       new:     0b101111 = 0x2f
