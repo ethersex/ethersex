@@ -111,12 +111,14 @@ void sntp_handle_conn(void)
 
             clock_set_time(NTOHL(sntp->transmit_timestamp.seconds));
 
+            #ifdef DEBUG_SNTP
             uint8_t *p = (uint8_t *)&sntp->transmit_timestamp.seconds;
 
             uart_puts_P("sntp: timestamp: 0x");
             for (uint8_t i = 0; i < 4; i++)
                 uart_puthexbyte(*p++);
             uart_eol();
+            #endif
 
             uip_udp_conn->appstate.sntp.state = SNTP_STATE_RESPONSE;
         }
