@@ -31,7 +31,6 @@
 #include "uart.h"
 #include "enc28j60.h"
 #include "timer.h"
-#include "shell.h"
 #include "clock.h"
 #include "sntp.h"
 #include "eeprom.h"
@@ -71,30 +70,6 @@ void init_spi(void)
 
 } /* }}} */
 
-void wait(void)
-{
-    _delay_loop_2(4500);
-
-    return;
-}
-
-void send1(void)
-{
-    PORTD = 0;
-    wait();
-    PORTD = 0xff;
-    wait();
-}
-
-void send0(void)
-{
-    PORTD = 0xff;
-    wait();
-    PORTD = 0;
-    wait();
-}
-
-
 void check_serial_input(uint8_t data)
 /* {{{ */ {
 
@@ -131,96 +106,6 @@ void check_serial_input(uint8_t data)
                         uart_puthexbyte(HI8(uip_udp_conns[i].lport));
                         uart_eol();
                     }
-                    break;
-
-        case 'a':   {
-                    DDRD = _BV(PD4) | _BV(PD2);
-
-                    uart_puts_P("rc5: start\r\n");
-                    send1();
-                    send1();
-
-                    static uint8_t state;
-
-                    if (state)
-                        send0();
-                    else
-                        send1();
-
-                    state ^= 0xff;
-
-                    send0();
-                    send0();
-                    send0();
-                    send0();
-                    send0();
-
-                    send0();
-                    send0();
-                    send0();
-                    send0();
-                    send0();
-                    send1();
-
-                    _delay_loop_2(60000);
-
-                    PORTD = 0;
-                    uart_puts_P("rc5: done\r\n");
-
-                    break;
-                    }
-
-        case 'b':
-                    uart_puts_P("adc: starting conversion");
-
-                    DIDR0 = 0xff;
-                    DDRA = 0;
-                    PORTA = _BV(PA7);
-                    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
-                    ADMUX = 7;
-
-                    ADCSRA |= _BV(ADSC);
-
-                    while (!(ADCSRA & _BV(ADIF)))
-                        uart_puts_P(".");
-
-                    uart_puts_P("adc: done, 0x");
-
-                    uint16_t result = ADCL | (ADCH << 8);
-                    uart_puthexbyte(HI8(result));
-                    uart_puthexbyte(LO8(result));
-                    uart_eol();
-
-                    ADCSRA = 0;
-                    DDRA = 0;
-                    PORTA = 0;
-                    DIDR0 = 0;
-                    break;
-        case 'f':
-                    DDRA = _BV(PA0) | _BV(PA1);
-                    PORTA = _BV(PA0) | _BV(PA1);
-
-                    /* load */
-                    PORTA &= ~_BV(PA0);
-                    PORTA |= _BV(PA0);
-
-                    /* clock out */
-                    uart_puts_P("status: ");
-                    for (uint8_t i = 0; i < 8; i++) {
-
-                        /* clock down, up */
-                        PORTA &= ~_BV(PA1);
-                        PORTA |= _BV(PA1);
-
-                        /* read bit */
-                        if (PINA & _BV(PA2))
-                            uart_putc('1');
-                        else
-                            uart_putc('0');
-
-                    }
-
-                    uart_eol();
                     break;
 
         default:    uart_putc('?');
@@ -275,7 +160,6 @@ int main(void)
     timer_init();
 
     network_init();
-    shell_init();
 
 #   ifdef DEBUG
     uart_puts_P("ip: ");

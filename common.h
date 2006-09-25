@@ -23,7 +23,6 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#include "shell.h"
 #include "sntp_state.h"
 
 #define NULL ((void *)0)
@@ -41,7 +40,6 @@
 
 /* uip appstate */
 typedef union uip_tcp_connection_state {
-    struct shell_connection_state_t shell;
 } uip_tcp_appstate_t;
 
 typedef union uip_udp_connection_state {

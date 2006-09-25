@@ -43,22 +43,6 @@ void network_init(void)
 
     uip_ipaddr_t ipaddr;
 
-    uip_ethaddr.addr[0] = 0xAC;
-    uip_ethaddr.addr[1] = 0xDE;
-    uip_ethaddr.addr[2] = 0x48;
-    uip_ethaddr.addr[3] = 0xFD;
-    uip_ethaddr.addr[4] = 0x0F;
-    uip_ethaddr.addr[5] = 0xD1;
-
-    uip_ipaddr(ipaddr, 137,226,146,59);
-    uip_sethostaddr(ipaddr);
-    uip_ipaddr(ipaddr, 255,255,254,0);
-    uip_setnetmask(ipaddr);
-    uip_ipaddr(ipaddr, 137,226,147,1);
-    uip_setdraddr(ipaddr);
-
-
-#if 0
     uint8_t crc = 0;
     uint8_t *config = (uint8_t *)&eeprom_config;
 
@@ -84,7 +68,7 @@ void network_init(void)
         uip_ethaddr.addr[4] = 0x0F;
         uip_ethaddr.addr[5] = 0xD1;
 
-        uip_ipaddr(ipaddr, 10,0,0,1);
+        uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
@@ -92,67 +76,29 @@ void network_init(void)
 
         /* load config settings */
 
-#ifdef DEBUG
-        uart_puts_P("mac: ");
-#endif
-
         /* mac */
         for (uint8_t i = 0; i < 6; i++) {
             uint8_t mac = eeprom_read_byte(&eeprom_config.mac[i]);
-#ifdef DEBUG
-            uart_puthexbyte(mac);
-            uart_putc(' ');
-#endif
             uip_ethaddr.addr[i] = mac;
         }
 
-#ifdef DEBUG
-        uart_eol();
-#endif
-
         /* ip */
         eeprom_load_ip(eeprom_config.ip, &ipaddr);
-#ifdef DEBUG
-        uart_puts_P("ip: ");
-        uart_puts_ip(&ipaddr);
-        uart_puts_P(", ");
-#endif
         uip_sethostaddr(ipaddr);
 
         /* netmask */
         eeprom_load_ip(eeprom_config.netmask, &ipaddr);
-#ifdef DEBUG
-        uart_puts_P("netmask: ");
-        uart_puts_ip(&ipaddr);
-        uart_puts_P(", ");
-#endif
         uip_setnetmask(ipaddr);
 
         /* gateway */
         eeprom_load_ip(eeprom_config.gateway, &ipaddr);
-#ifdef DEBUG
-        uart_puts_P("gateway: ");
-        uart_puts_ip(&ipaddr);
-        uart_puts_P(", ");
-#endif
         uip_setdraddr(ipaddr);
 
         /* sntp-server */
         eeprom_load_ip(eeprom_config.sntp_server, &ipaddr);
-        //uip_ipaddr_t ip;
-        //uip_ipaddr(&ip, 134, 130, 4, 17);
-        //uip_ipaddr(&ipaddr, 137, 226, 147, 211);
-
-#ifdef DEBUG
-        uart_puts_P("sntp server: ");
-        uart_puts_ip(&ipaddr);
-        uart_puts_P(", ");
-#endif
-
         sntp_prepare_request(&ipaddr);
 
     }
-#endif
 
     init_enc28j60();
 
@@ -484,9 +430,11 @@ void network_handle_tcp(void)
     uart_eol();
 #endif
 
+#if 0
     if (uip_conn->lport == HTONS(23)
             || uip_conn->lport == HTONS(60023))
         shell_main();
+#endif
 
 } /* }}} */
 
