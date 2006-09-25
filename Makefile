@@ -8,7 +8,7 @@ TARGET = etherrape
 # include avr-generic makefile configuration
 include $(CURDIR)/avr.mk
 
-SRC = $(shell echo *.c) uip.c uip_arp.c shell.c
+SRC = $(shell echo *.c)
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 #CFLAGS += -Werror
 #CFLAGS += -Iuip/ -Iuip/apps
