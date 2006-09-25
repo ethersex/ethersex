@@ -40,6 +40,7 @@ struct eeprom_config_t {
     uint8_t crc;
 };
 
+#if 0
 static struct eeprom_config_t eeprom_config EEMEM = {
     { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
     { 137, 226, 146, 59 },
@@ -48,10 +49,18 @@ static struct eeprom_config_t eeprom_config EEMEM = {
     { 134, 130, 4, 17 },
     0x4C,
 };
-
+#else
+static struct eeprom_config_t eeprom_config EEMEM = {
+    { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
+    { 10, 0, 0, 5 },
+    { 255, 255, 255, 0 },
+    { 0, 0, 0, 0 },
+    { 0, 0, 0, 0 },
+    0x92,
+};
+#endif
 
 /* prototypes */
-
-void eeprom_load_ip(uint8_t *ip, uip_ipaddr_t *dest);
+void eeprom_load_ip(uint8_t *addr, uip_ipaddr_t *dest);
 
 #endif
