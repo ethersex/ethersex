@@ -11,18 +11,24 @@ CFLAGS += $(CEXTRA)
 # Name of Makefile for make depend
 MAKEFILE = Makefile
 
+SRC = $(shell echo *.c)
+OBJECTS += $(patsubst %.c,%.o,${SRC})
 TARGETS=ethcmd
-OBJ=ethcmd.o
 
 all: $(TARGETS)
 
-.PHONY: clean clean-target depend undepend
+$(TARGETS): $(OBJECTS)
+
+.PHONY: clean clean-target distclean depend undepend
 
 clean: clean-target
 
 clean-target:
 	rm -f $(TARGETS)
-	rm -f $(OBJ)
+	rm -f $(OBJECTS)
+
+distclean: clean
+	rm -f $(MAKEFILE).dep
 
 depend:
 	$(CC) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE).dep

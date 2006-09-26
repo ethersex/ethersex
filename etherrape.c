@@ -35,8 +35,8 @@
 #include "sntp.h"
 #include "eeprom.h"
 
-#include "uip.h"
-#include "uip_arp.h"
+#include "uip/uip.h"
+#include "uip/uip_arp.h"
 
 /* prototypes */
 void init_spi(void);

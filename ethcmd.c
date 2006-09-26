@@ -21,7 +21,7 @@
  }}} */
 
 #include "ethcmd.h"
-#include "uip.h"
+#include "uip/uip.h"
 #include "uart.h"
 
 void ethcmd_init(void)

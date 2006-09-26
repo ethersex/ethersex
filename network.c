@@ -30,8 +30,8 @@
 #include "sntp.h"
 #include "ethcmd.h"
 
-#include "uip.h"
-#include "uip_arp.h"
+#include "uip/uip.h"
+#include "uip/uip_arp.h"
 
 #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
 #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))

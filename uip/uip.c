@@ -79,7 +79,6 @@
  * the packet back to the peer.
 */
 
-#include "network.h"
 #include "uip.h"
 #include "uipopt.h"
 #include "uip_arch.h"

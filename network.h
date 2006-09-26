@@ -27,7 +27,7 @@
 #include "config.h"
 #include "common.h"
 
-#include "uip.h"
+#include "uip/uip.h"
 
 #define UIP_APPCALL network_handle_tcp
 #define UIP_UDP_APPCALL network_handle_udp

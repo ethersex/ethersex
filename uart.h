@@ -26,8 +26,8 @@
 #include <avr/pgmspace.h>
 
 #include "config.h"
-#include "uip_arp.h"
-#include "uip.h"
+#include "uip/uip_arp.h"
+#include "uip/uip.h"
 
 /* define uart mode (8N1) */
 #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega32__)

@@ -59,7 +59,7 @@
  */
 
 
-#include "network.h"
+#include "../network.h"
 #include "uip_arp.h"
 
 #include <string.h>

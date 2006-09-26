@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 #include "common.h"
-#include "uip.h"
+#include "uip/uip.h"
 
 /* see rfc1769 for details on SNTP */
 

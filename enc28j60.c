@@ -30,7 +30,7 @@
 #include "enc28j60.h"
 #include "network.h"
 #include "uart.h"
-#include "uip_arp.h"
+#include "uip/uip_arp.h"
 
 /* global variables */
 uint8_t enc28j60_current_bank = 0;

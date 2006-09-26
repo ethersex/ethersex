@@ -28,7 +28,7 @@
 #include "config.h"
 #include "common.h"
 
-#include "uip.h"
+#include "uip/uip.h"
 
 /* structures */
 struct eeprom_config_t {

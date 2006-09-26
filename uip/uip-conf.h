@@ -4,8 +4,8 @@
 #define __UIP_CONF_H__
 
 #include <inttypes.h>
-#include "config.h"
-#include "network.h"
+#include "../config.h"
+#include "../network.h"
 
 /**
  * 8 bit datatype

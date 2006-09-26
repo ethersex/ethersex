@@ -48,6 +48,6 @@ typedef union uip_udp_connection_state {
     struct sntp_connection_state_t sntp;
 } uip_udp_appstate_t;
 
-#include "uip.h"
+#include "uip/uip.h"
 
 #endif
