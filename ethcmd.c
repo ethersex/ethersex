@@ -20,34 +20,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _COMMON_H
-#define _COMMON_H
-
 #include "ethcmd.h"
-#include "sntp_state.h"
-
-#define NULL ((void *)0)
-
-#define HI8(x)  ((uint8_t)((x) >> 8))
-#define LO8(x)  ((uint8_t)(x))
-
-#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
-                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
-                | (uint32_t)(((x) & 0x0000FF00) << 8) \
-                | (uint32_t)(((x) & 0x000000FF) << 24))
-
-#define NTOHL(x) HTONL(x)
-
-
-/* uip appstate */
-typedef union uip_tcp_connection_state {
-    struct ethcmd_connection_state_t ethcmd;
-} uip_tcp_appstate_t;
-
-typedef union uip_udp_connection_state {
-    struct sntp_connection_state_t sntp;
-} uip_udp_appstate_t;
-
 #include "uip.h"
+#include "uart.h"
 
-#endif
+void ethcmd_init(void)
+/* {{{ */ {
+
+    uip_listen(HTONS(ETHCMD_PORT));
+
+} /* }}} */
+
+void ethcmd_main(void)
+/* {{{ */ {
+
+    if (uip_poll())
+        return;
+
+    uart_puts_P("cmd: main(), uip_flags 0x");
+    uart_puthexbyte(uip_flags);
+    uart_eol();
+
+    if (uip_aborted())
+        uart_puts_P("cmd: connection aborted\r\n");
+
+    if (uip_timedout())
+        uart_puts_P("cmd: connection aborted\r\n");
+
+    if (uip_closed())
+        uart_puts_P("cmd: connection closed\r\n");
+
+    if (uip_connected())
+        uart_puts_P("cmd: new connection\r\n");
+
+} /* }}} */

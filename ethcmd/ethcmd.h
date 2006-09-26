@@ -20,34 +20,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _COMMON_H
-#define _COMMON_H
-
-#include "ethcmd.h"
-#include "sntp_state.h"
-
-#define NULL ((void *)0)
-
-#define HI8(x)  ((uint8_t)((x) >> 8))
-#define LO8(x)  ((uint8_t)(x))
-
-#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
-                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
-                | (uint32_t)(((x) & 0x0000FF00) << 8) \
-                | (uint32_t)(((x) & 0x000000FF) << 24))
-
-#define NTOHL(x) HTONL(x)
+#ifndef _ETHCMD_H
+#define _ETHCMD_H
 
 
-/* uip appstate */
-typedef union uip_tcp_connection_state {
-    struct ethcmd_connection_state_t ethcmd;
-} uip_tcp_appstate_t;
+/* global configuration struct */
+struct global_config_t {
+    int verbose;                /* verbosity level */
+    char *host;                 /* remote host */
+    unsigned int port;          /* remote port */
+};
 
-typedef union uip_udp_connection_state {
-    struct sntp_connection_state_t sntp;
-} uip_udp_appstate_t;
+extern struct global_config_t cfg;
 
-#include "uip.h"
+/* defaults */
+#define DEFAULT_HOST "10.0.0.5"
+#define DEFAULT_PORT 2847
+
+
+/* debug macros */
+/* {{{ */
+#define VERBOSE_PRINTF(...) do {  \
+        if (cfg.verbose > 0) {    \
+            printf(__VA_ARGS__);  \
+        }                         \
+    } while (0);
+
+#ifdef DEBUG
+#define DEBUG_PRINTF(...) do {    \
+        printf("debug: ");        \
+        printf(__VA_ARGS__);      \
+    } while (0);
+#else
+#define DEBUG_PRINTF(...)
+#endif
+/* }}} */
 
 #endif

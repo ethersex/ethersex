@@ -28,6 +28,7 @@
 #include "uart.h"
 #include "eeprom.h"
 #include "sntp.h"
+#include "ethcmd.h"
 
 #include "uip.h"
 #include "uip_arp.h"
@@ -101,6 +102,8 @@ void network_init(void)
     }
 
     init_enc28j60();
+
+    ethcmd_init();
 
 } /* }}} */
 
@@ -430,26 +433,13 @@ void network_handle_tcp(void)
     uart_eol();
 #endif
 
-#if 0
-    if (uip_conn->lport == HTONS(23)
-            || uip_conn->lport == HTONS(60023))
-        shell_main();
-#endif
+    if (uip_conn->lport == HTONS(ETHCMD_PORT))
+        ethcmd_main();
 
 } /* }}} */
 
 void network_handle_udp(void)
 /* {{{ */ {
-
-#ifdef DEBUG_NET
-    uart_puts_P("net_udp: local 0x");
-    uart_puthexbyte(LO8(uip_udp_conn->lport));
-    uart_puthexbyte(HI8(uip_udp_conn->lport));
-    uart_puts_P(", remote port 0x");
-    uart_puthexbyte(LO8(uip_udp_conn->rport));
-    uart_puthexbyte(HI8(uip_udp_conn->rport));
-    uart_eol();
-#endif
 
     if (uip_udp_conn->lport == HTONS(SNTP_UDP_PORT))
         sntp_handle_conn();

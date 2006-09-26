@@ -20,34 +20,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _COMMON_H
-#define _COMMON_H
+#ifndef _ETHCMD_H
+#define _ETHCMD_H
 
-#include "ethcmd.h"
-#include "sntp_state.h"
+#include <stdint.h>
 
-#define NULL ((void *)0)
+struct ethcmd_connection_state_t {
+    uint8_t foo;
+};
 
-#define HI8(x)  ((uint8_t)((x) >> 8))
-#define LO8(x)  ((uint8_t)(x))
+#define ETHCMD_PORT 2847
 
-#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
-                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
-                | (uint32_t)(((x) & 0x0000FF00) << 8) \
-                | (uint32_t)(((x) & 0x000000FF) << 24))
-
-#define NTOHL(x) HTONL(x)
-
-
-/* uip appstate */
-typedef union uip_tcp_connection_state {
-    struct ethcmd_connection_state_t ethcmd;
-} uip_tcp_appstate_t;
-
-typedef union uip_udp_connection_state {
-    struct sntp_connection_state_t sntp;
-} uip_udp_appstate_t;
-
-#include "uip.h"
+void ethcmd_init(void);
+void ethcmd_main(void);
 
 #endif
