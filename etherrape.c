@@ -175,7 +175,7 @@ int main(void)
         enc28j60_process_interrupts();
 
         /* check for timer interrupt */
-        if (TIFR1 & _BV(OCF1A)) {
+        if (_TIFR_TIMER1 & _BV(OCF1A)) {
 
             static uint8_t c;
 
@@ -219,7 +219,7 @@ int main(void)
             }
 
             /* clear flag */
-            TIFR1 = _BV(OCF1A);
+            _TIFR_TIMER1 = _BV(OCF1A);
 
         }
 
@@ -236,10 +236,10 @@ int main(void)
 
 #       ifdef DEBUG
         /* if we changed to spi slave mode */
-        if (!(SPCR0 & _BV(MSTR0))) {
+        if (!(_SPCR0 & _BV(_MSTR0))) {
             uart_puts_P("switched to spi slave mode? no pullup at SS?\r\n");
 
-            SPCR0 |= _BV(MSTR0);
+            _SPCR0 |= _BV(_MSTR0);
 
         }
 #       endif

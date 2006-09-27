@@ -58,9 +58,15 @@
 #define _UDRE_UART0 UDRE
 #define _RXC_UART0 RXC
 #define _IVREG MCUCR
-#define _TIFR_TIMER1 TIFR1
 #define _SPCR0 SPCR
-#define MCUSR MCUCSR
+#define _SPE0 SPE
+#define _MCUSR MCUCSR
+#define _MSTR0 MSTR
+#define _SPSR0 SPSR
+#define _SPIF0 SPIF
+#define _SPDR0 SPDR
+#define _SPI2X0 SPI2X
+#define _TIFR_TIMER1 TIFR
 
 /* }}} */
 #elif defined(__AVR_ATmega644__)
@@ -86,7 +92,6 @@
 #define _RXC_UART0 RXC0
 #define _TXC_UART0 TXC0
 #define _IVREG MCUCR
-#define _TIFR_TIMER1 TIFR1
 #define _SPCR0 SPCR0
 #define _SPE0 SPE0
 #define _MSTR0 MSTR0

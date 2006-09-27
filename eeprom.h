@@ -54,9 +54,9 @@ static struct eeprom_config_t eeprom_config EEMEM = {
     { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
     { 10, 0, 0, 5 },
     { 255, 255, 255, 0 },
-    { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 },
-    0x92,
+    { 10, 0, 0, 1 },
+    { 10, 0, 0, 1 },
+    0xD7,
 };
 #endif
 
