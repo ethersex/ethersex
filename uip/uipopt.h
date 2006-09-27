@@ -431,7 +431,7 @@
  * This function must be implemented by the module that uses uIP, and
  * is called by uIP whenever a log message is generated.
  */
-void uip_log(char *msg);
+//void uip_log(char *msg);
 
 /**
  * The link level header length.

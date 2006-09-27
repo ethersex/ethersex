@@ -102,7 +102,7 @@ void uip_add32(u8_t *op32, u16_t op16);
  *
  * \return The Internet checksum of the buffer.
  */
-u16_t uip_chksum(u16_t *buf, u16_t len);
+//u16_t uip_chksum(u16_t *buf, u16_t len);
 
 /**
  * Calculate the IP header checksum of the packet header in uip_buf.
@@ -113,7 +113,7 @@ u16_t uip_chksum(u16_t *buf, u16_t len);
  * \return The IP header checksum of the IP header in the uip_buf
  * buffer.
  */
-u16_t uip_ipchksum(void);
+//u16_t uip_ipchksum(void);
 
 /**
  * Calculate the TCP checksum of the packet in uip_buf and uip_appdata.
@@ -128,9 +128,9 @@ u16_t uip_ipchksum(void);
  * \return The TCP checksum of the TCP segment in uip_buf and pointed
  * to by uip_appdata.
  */
-u16_t uip_tcpchksum(void);
+//u16_t uip_tcpchksum(void);
 
-u16_t uip_udpchksum(void);
+//u16_t uip_udpchksum(void);
 
 /** @} */
 /** @} */
