@@ -101,7 +101,7 @@ void uip_arp_arpin(void);
    request and we rely on TCP to retransmit the packet that was
    overwritten. In any case, the uip_len variable holds the length of
    the Ethernet frame that should be transmitted. */
-void uip_arp_out(void);
+uint8_t uip_arp_out(void);
 
 /* The uip_arp_timer() function should be called every ten seconds. It
    is responsible for flushing old entries in the ARP table. */
