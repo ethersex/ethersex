@@ -23,11 +23,18 @@
 #ifndef _SYSLOG_STATE_H
 #define _SYSLOG_STATE_H
 
+#include <avr/pgmspace.h>
+
 struct syslog_connection_state_t {
     uint8_t transmit_state;
     uint8_t state;
-    uint8_t sensor;
-    uint8_t sensor_state;
+    union {
+        struct {
+            uint8_t sensor;
+            uint8_t sensor_state;
+        };
+        PGM_P str;
+    };
 };
 
 #endif

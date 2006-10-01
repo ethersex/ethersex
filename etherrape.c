@@ -77,6 +77,7 @@ void check_serial_input(uint8_t data)
 
     switch (data) {
 
+#ifdef DEBUG
         case 'R': init_enc28j60();
                   break;
 
@@ -113,6 +114,11 @@ void check_serial_input(uint8_t data)
         case 'p':
                     jump_to_bootloader();
                     break;
+
+        case 'Y':   syslog_message_P("foobar?");
+                    syslog_message_P("fump...");
+                    break;
+#endif
 
         default:    uart_putc('?');
                     break;

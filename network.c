@@ -100,6 +100,9 @@ void network_init(void)
         eeprom_load_ip(eeprom_config.sntp_server, &ipaddr);
         sntp_prepare_request(&ipaddr);
 
+        /* syslog-server */
+        eeprom_load_ip(eeprom_config.sntp_server, &syslog_server);
+
     }
 
     init_enc28j60();
@@ -175,7 +178,7 @@ void enc28j60_process_interrupts(void)
 #endif
 
             if (link_state)
-                syslog_boot();
+                syslog_message_P("etherrape booted");
         }
 
         /* packet transmit flag */

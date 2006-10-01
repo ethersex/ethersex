@@ -37,6 +37,7 @@ struct eeprom_config_t {
     uint8_t netmask[4];
     uint8_t gateway[4];
     uint8_t sntp_server[4];
+    uint8_t syslog_server[4];
     uint8_t crc;
 };
 
@@ -56,7 +57,8 @@ static struct eeprom_config_t eeprom_config EEMEM = {
     { 255, 255, 255, 0 },
     { 172, 23, 23, 1 },
     { 172, 23, 23, 1 },
-    0xBD,
+    { 172, 23, 23, 1 },
+    0x5B,
 };
 #endif
 

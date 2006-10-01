@@ -23,17 +23,22 @@
 #ifndef _SYSLOG_H
 #define _SYSLOG_H
 
+#include <avr/pgmspace.h>
+
 #include "config.h"
 #include "syslog_state.h"
 
 #define SYSLOG_UDP_PORT 514
 
-#define SYSLOG_STATE_BOOT_MESSAGE 0
+#define SYSLOG_STATE_MESSAGE 0
 #define SYSLOG_STATE_SENSOR_MESSAGE 1
 
-void syslog_boot(void);
+/* global variables */
+extern uip_ipaddr_t syslog_server;
+
+void syslog_message(PGM_P str);
+#define syslog_message_P(x) syslog_message(PSTR(x))
 void syslog_sensor(uint8_t num, uint8_t state);
 void syslog_handle_conn(void);
-void syslog_send_log(void);
 
 #endif

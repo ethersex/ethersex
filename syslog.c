@@ -26,31 +26,52 @@
 
 #include "uip/uip.h"
 #include "syslog.h"
+#include "eeprom.h"
 
 #ifdef DEBUG_SYSLOG
 #include "uart.h"
 #endif
 
-const char syslog_message_boot[] PROGMEM = "etherrape startup";
 const char syslog_sensor_message_open[] PROGMEM = "sensor %d open";
 const char syslog_sensor_message_close[] PROGMEM = "sensor %d close";
 
-void syslog_boot(void)
-/* {{{ */ {
+/* global variables */
+uip_ipaddr_t syslog_server;
 
-    uip_ipaddr_t syslog_server;
-    uip_ipaddr(syslog_server, 172, 23, 23, 1);
+/* local prototypes */
+struct uip_udp_conn *prepare_connection(void);
+void syslog_send(void);
+
+
+struct uip_udp_conn *prepare_connection(void)
+/* {{{ */ {
 
     struct uip_udp_conn *c = uip_udp_new(&syslog_server, HTONS(SYSLOG_UDP_PORT));
 
     if (c != NULL) {
         uip_udp_bind(c, HTONS(SYSLOG_UDP_PORT));
         c->appstate.syslog.transmit_state = 0;
-        c->appstate.syslog.state = SYSLOG_STATE_BOOT_MESSAGE;
 
 #ifdef DEBUG_SYSLOG
         uart_puts_P("syslog: udp connection prepared\r\n");
 #endif
+
+        return c;
+    } else
+        return NULL;
+
+} /* }}} */
+
+void syslog_message(PGM_P str)
+/* {{{ */ {
+
+    struct uip_udp_conn *c = prepare_connection();
+
+    if (c != NULL) {
+
+        c->appstate.syslog.state = SYSLOG_STATE_MESSAGE;
+        c->appstate.syslog.str = str;
+
     }
 
 } /* }}} */
@@ -58,26 +79,19 @@ void syslog_boot(void)
 void syslog_sensor(uint8_t num, uint8_t state)
 /* {{{ */ {
 
-    uip_ipaddr_t syslog_server;
-    uip_ipaddr(syslog_server, 172, 23, 23, 1);
-
-    struct uip_udp_conn *c = uip_udp_new(&syslog_server, HTONS(SYSLOG_UDP_PORT));
+    struct uip_udp_conn *c = prepare_connection();
 
     if (c != NULL) {
-        uip_udp_bind(c, HTONS(SYSLOG_UDP_PORT));
-        c->appstate.syslog.transmit_state = 0;
+
         c->appstate.syslog.state = SYSLOG_STATE_SENSOR_MESSAGE;
         c->appstate.syslog.sensor = num;
         c->appstate.syslog.sensor_state = state;
 
-#ifdef DEBUG_SYSLOG
-        uart_puts_P("syslog: udp connection prepared\r\n");
-#endif
     }
 
 } /* }}} */
 
-void syslog_send_log(void)
+void syslog_send(void)
 /* {{{ */ {
 
     if (uip_udp_conn->appstate.syslog.transmit_state != 0) {
@@ -85,13 +99,14 @@ void syslog_send_log(void)
         return;
     }
 
-    if (uip_udp_conn->appstate.syslog.state == SYSLOG_STATE_BOOT_MESSAGE) {
+    if (uip_udp_conn->appstate.syslog.state == SYSLOG_STATE_MESSAGE) {
 
 #ifdef DEBUG_SYSLOG
-        uart_puts_P("syslog: sending log\r\n");
+        uart_puts_P("syslog: sending normal message\r\n");
 #endif
 
-        uint16_t length = sprintf_P(uip_appdata, syslog_message_boot);
+        strcpy_P(uip_appdata, uip_udp_conn->appstate.syslog.str);
+        uint16_t length = strlen_P(uip_udp_conn->appstate.syslog.str);
 
         /* send packet */
         uip_udp_send(length);
@@ -131,7 +146,7 @@ void syslog_handle_conn(void)
         uart_eol();
 #endif
 
-        syslog_send_log();
+        syslog_send();
     }
 
 } /* }}} */
