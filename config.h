@@ -189,8 +189,9 @@
 #define VERSION_STRING "0.2"
 
 /* uart defines */
-//#define UART_BAUDRATE 115200
-#define UART_BAUDRATE 38400
+#ifndef UART_BAUDRATE
+#define UART_BAUDRATE 115200
+#endif
 
 /* configure duplex mode */
 #define FULL_DUPLEX 0
