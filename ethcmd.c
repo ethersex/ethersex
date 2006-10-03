@@ -37,20 +37,42 @@ void ethcmd_main(void)
     if (uip_poll())
         return;
 
-    uart_puts_P("cmd: main(), uip_flags 0x");
-    uart_puthexbyte(uip_flags);
-    uart_eol();
+    //uart_puts_P("cmd: main(), uip_flags 0x");
+    //uart_puthexbyte(uip_flags);
+    //uart_eol();
 
     if (uip_aborted())
         uart_puts_P("cmd: connection aborted\r\n");
 
     if (uip_timedout())
-        uart_puts_P("cmd: connection aborted\r\n");
+        uart_puts_P("cmd: connection timed out\r\n");
 
     if (uip_closed())
         uart_puts_P("cmd: connection closed\r\n");
 
-    if (uip_connected())
+    if (uip_connected()) {
         uart_puts_P("cmd: new connection\r\n");
+        strcpy_P(uip_appdata, "foo!");
+        uip_send(uip_appdata, 4);
+    }
+
+    if (uip_newdata()) {
+
+        struct ethcmd_message_t *msg = (struct ethcmd_message_t *)uip_appdata;
+
+        uart_puts_P("cmd: data received, length 0x");
+        uart_puthexbyte(HIGH(uip_len));
+        uart_puthexbyte( LOW(uip_len));
+        uart_eol();
+
+        uart_puts_P("cmd: length: 0x");
+        uart_puthexbyte( LOW(msg->length));
+        uart_puthexbyte(HIGH(msg->length));
+        uart_puts_P(", mesage_type: 0x");
+        uart_puthexbyte( LOW(msg->length));
+        uart_puthexbyte(HIGH(msg->length));
+        uart_eol();
+
+    }
 
 } /* }}} */

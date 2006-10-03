@@ -2,11 +2,12 @@
 #OPTIONS = -DNDEBUG
 
 CC = gcc
-CFLAGS = -Wall -Wstrict-prototypes -std=gnu99 -ggdb3 -fno-inline -O2 -Werror
+CFLAGS = -Wall -Wstrict-prototypes -std=gnu99 -ggdb3 -fno-inline -O2
 CFLAGS += $(OPTIONS)
-CFLAGS += -DDEBUG -Werror
+CFLAGS += -DDEBUG
+#CFLAGS += -Werror
 CFLAGS += $(CEXTRA)
-#LDFLAGS += -lm
+# LDFLAGS += -lreadline
 
 # Name of Makefile for make depend
 MAKEFILE = Makefile

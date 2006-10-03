@@ -20,20 +20,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ETHCMD_H
-#define _ETHCMD_H
+#ifndef _ETHCMD_MESSAGE_H
+#define _ETHCMD_MESSAGE_H
 
 #include <stdint.h>
 
-#include "ethcmd/ethcmd_message.h"
+#define ETHCMD_MESSAGE_TYPE_VERSION 0
 
-struct ethcmd_connection_state_t {
-    uint8_t foo;
+struct ethcmd_message_t {
+    uint16_t length;
+    uint16_t message_type;
 };
-
-#define ETHCMD_PORT 2847
-
-void ethcmd_init(void);
-void ethcmd_main(void);
 
 #endif

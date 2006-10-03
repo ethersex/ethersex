@@ -23,12 +23,14 @@
 #ifndef _ETHCMD_H
 #define _ETHCMD_H
 
+#include "ethcmd_message.h"
 
 /* global configuration struct */
 struct global_config_t {
     int verbose;                /* verbosity level */
     char *host;                 /* remote host */
     unsigned int port;          /* remote port */
+    int sock;                   /* socket fd */
 };
 
 extern struct global_config_t cfg;
@@ -37,6 +39,7 @@ extern struct global_config_t cfg;
 #define DEFAULT_HOST "10.0.0.5"
 #define DEFAULT_PORT 2847
 
+#define BUFSIZE 1024
 
 /* debug macros */
 /* {{{ */
