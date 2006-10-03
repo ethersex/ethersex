@@ -93,7 +93,7 @@ program-isp-eeprom-%: %.eep.hex
 program-serial-%: %.hex launch-bootloader
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -P $(SERIAL_DEV) -U flash:w:$<
 
-program-serial-eeprom-%: %.eep.hex
+program-serial-eeprom-%: %.eep.hex launch-bootloader
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -P $(SERIAL_DEV) -U eeprom:w:$<
 
 %.hex: %

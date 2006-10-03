@@ -52,7 +52,7 @@ install-eeprom: program-serial-eeprom-$(TARGET)
 
 .PHONY: clean clean-$(TARGET) distclean
 
-clean: clean-$(TARGET) ethcmd/clean uip/clean
+clean: clean-$(TARGET) ethcmd/clean uip/clean bootloader/clean
 
 clean-$(TARGET):
 	rm -f $(TARGET)
@@ -61,7 +61,7 @@ clean-$(TARGET):
 distclean: clean
 	$(MAKE) -C ethcmd distclean
 
-depend: $(SUBDIRS)/depend
-	$(CC) $(CFLAGS) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE).dep
+depend:
+	$(CC) $(CFLAGS) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) > $(MAKEFILE).dep
 
 -include $(MAKEFILE).dep
