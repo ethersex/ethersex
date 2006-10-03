@@ -36,7 +36,7 @@ const char syslog_sensor_message_open[] PROGMEM = "sensor %d open";
 const char syslog_sensor_message_close[] PROGMEM = "sensor %d close";
 
 /* global variables */
-uip_ipaddr_t syslog_server;
+struct global_syslog_t global_syslog;
 
 /* local prototypes */
 struct uip_udp_conn *prepare_connection(void);
@@ -46,7 +46,7 @@ void syslog_send(void);
 struct uip_udp_conn *prepare_connection(void)
 /* {{{ */ {
 
-    struct uip_udp_conn *c = uip_udp_new(&syslog_server, HTONS(SYSLOG_UDP_PORT));
+    struct uip_udp_conn *c = uip_udp_new(&global_syslog.server, HTONS(SYSLOG_UDP_PORT));
 
     if (c != NULL) {
         uip_udp_bind(c, HTONS(SYSLOG_UDP_PORT));
@@ -65,6 +65,15 @@ struct uip_udp_conn *prepare_connection(void)
 void syslog_message(PGM_P str)
 /* {{{ */ {
 
+    if (!global_syslog.enabled) {
+#ifdef DEBUG_SYSLOG
+        uart_puts_P("syslog: disabled, unable to send message: ");
+        uart_putf((void *)str);
+        uart_eol();
+#endif
+        return;
+    }
+
     struct uip_udp_conn *c = prepare_connection();
 
     if (c != NULL) {
@@ -78,6 +87,13 @@ void syslog_message(PGM_P str)
 
 void syslog_sensor(uint8_t num, uint8_t state)
 /* {{{ */ {
+
+    if (!global_syslog.enabled) {
+#ifdef DEBUG_SYSLOG
+        uart_puts_P("syslog: disabled, unable to send sensor message...\r\n");
+#endif
+        return;
+    }
 
     struct uip_udp_conn *c = prepare_connection();
 

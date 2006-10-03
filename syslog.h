@@ -34,12 +34,26 @@
 #define SYSLOG_STATE_MESSAGE 0
 #define SYSLOG_STATE_SENSOR_MESSAGE 1
 
-/* global variables */
-extern uip_ipaddr_t syslog_server;
+/* structures */
+struct global_syslog_t {
+    uip_ipaddr_t server;
 
+    /* flags */
+    uint8_t enabled:1;
+};
+
+/* global variables */
+extern struct global_syslog_t global_syslog;
+
+/* prototypes */
 void syslog_message(PGM_P str);
 #define syslog_message_P(x) syslog_message(PSTR(x))
 void syslog_sensor(uint8_t num, uint8_t state);
 void syslog_handle_conn(void);
+
+/* macros */
+#define syslog_init() do {          \
+        global_syslog.enabled = 0;  \
+    } while(0);
 
 #endif

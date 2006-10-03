@@ -160,6 +160,7 @@ int main(void)
 
     init_spi();
     timer_init();
+    syslog_init();
 
     network_init();
 
