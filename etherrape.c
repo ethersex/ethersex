@@ -34,6 +34,8 @@
 #include "clock.h"
 #include "sntp.h"
 #include "eeprom.h"
+#include "74hc165.h"
+#include "syslog.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -171,6 +173,9 @@ int main(void)
     uart_eol();
 #   endif
 
+    hc165_init();
+    DDRA |= _BV(PA4);
+
     while(1) /* main loop {{{ */ {
 
         wdt_kick();
@@ -208,7 +213,9 @@ int main(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
-                    uip_arp_out();
+                    if (uip_arp_out() == 0)
+                        uip_udp_conn->appstate.sntp.transmit_state = 1;
+
                     transmit_packet();
                 }
             }
@@ -249,6 +256,24 @@ int main(void)
 #       endif
 
         wdt_kick();
+
+        /* check for extended io, if all sensors are closed */
+        uint8_t status = hc165_read_byte();
+        static uint8_t old_status;
+
+        if (status == 0)
+            PORTA &= ~_BV(PA4); /* green */
+        else
+            PORTA |= _BV(PA4);  /* red */
+
+        for (uint8_t i = 0; i < 8; i++) {
+
+            if (  (status & _BV(i)) != (old_status & _BV(i))  )
+                syslog_sensor(i, status & _BV(i));
+
+        }
+
+        old_status = status;
 
     } /* }}} */
 

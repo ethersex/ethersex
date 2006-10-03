@@ -20,13 +20,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _SNTP_STATE_H
-#define _SNTP_STATE_H
+#ifndef _SYSLOG_H
+#define _SYSLOG_H
 
-struct sntp_connection_state_t {
-    uint8_t transmit_state;
-    uint8_t state;
-    uint8_t timeout;
-};
+#include "config.h"
+#include "syslog_state.h"
+
+#define SYSLOG_UDP_PORT 514
+
+#define SYSLOG_STATE_BOOT_MESSAGE 0
+#define SYSLOG_STATE_SENSOR_MESSAGE 1
+
+void syslog_boot(void);
+void syslog_sensor(uint8_t num, uint8_t state);
+void syslog_handle_conn(void);
+void syslog_send_log(void);
 
 #endif

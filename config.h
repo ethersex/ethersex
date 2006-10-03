@@ -189,7 +189,8 @@
 #define VERSION_STRING "0.2"
 
 /* uart defines */
-#define UART_BAUDRATE 115200
+//#define UART_BAUDRATE 115200
+#define UART_BAUDRATE 38400
 
 /* configure duplex mode */
 #define FULL_DUPLEX 0
@@ -197,6 +198,7 @@
 /* configure global data buffer */
 #define MAX_FRAME_LENGTH 640
 
-extern uint32_t uptime;
+/* support for 74HC165 */
+#define USE_74HC165
 
 #endif /* _CONFIG_H */

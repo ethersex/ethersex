@@ -52,11 +52,11 @@ static struct eeprom_config_t eeprom_config EEMEM = {
 #else
 static struct eeprom_config_t eeprom_config EEMEM = {
     { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
-    { 10, 0, 0, 5 },
+    { 172, 23, 23, 52 },
     { 255, 255, 255, 0 },
-    { 10, 0, 0, 1 },
-    { 10, 0, 0, 1 },
-    0xD7,
+    { 172, 23, 23, 1 },
+    { 172, 23, 23, 1 },
+    0xBD,
 };
 #endif
 

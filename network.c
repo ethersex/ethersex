@@ -28,6 +28,7 @@
 #include "uart.h"
 #include "eeprom.h"
 #include "sntp.h"
+#include "syslog.h"
 #include "ethcmd.h"
 
 #include "uip/uip.h"
@@ -172,6 +173,9 @@ void enc28j60_process_interrupts(void)
             } else
                 uart_puts_P("net: no link!\r\n");
 #endif
+
+            if (link_state)
+                syslog_boot();
         }
 
         /* packet transmit flag */
@@ -443,5 +447,8 @@ void network_handle_udp(void)
 
     if (uip_udp_conn->lport == HTONS(SNTP_UDP_PORT))
         sntp_handle_conn();
+
+    if (uip_udp_conn->lport == HTONS(SYSLOG_UDP_PORT))
+        syslog_handle_conn();
 
 } /* }}} */

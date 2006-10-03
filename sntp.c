@@ -34,6 +34,7 @@ void sntp_prepare_request(uip_ipaddr_t *server)
 
     if (c != NULL) {
         uip_udp_bind(c, HTONS(SNTP_UDP_PORT));
+        c->appstate.sntp.transmit_state = 0;
         c->appstate.sntp.state = SNTP_STATE_WAIT;
         c->appstate.sntp.timeout = 0;
 #ifdef DEBUG_SNTP

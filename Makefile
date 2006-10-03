@@ -18,7 +18,7 @@ OBJECTS += $(patsubst %.c,%.o,${SRC}) uip/uip.o uip/uip_arp.o
 #LDFLAGS += -L/usr/local/avr/avr/lib
 
 # no safe mode checks, since the bootloader doesn't support this
-AVRDUDE_FLAGS += -u
+AVRDUDE_FLAGS += -u -V
 
 # Name of Makefile for make depend
 MAKEFILE = Makefile

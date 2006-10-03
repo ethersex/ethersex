@@ -49,6 +49,8 @@
 
 #if (UART_BAUDRATE == 115200 && F_CPU == 16000000)
 #   define UART_UBRR 8 /* 16mhz, 115200 */
+#elif (UART_BAUDRATE == 38400 && F_CPU == 16000000)
+#   define UART_UBRR 25 /* 16mhz, 38400 */
 #elif (UART_BAUDRATE == 115200 && F_CPU == 20000000)
 #   define UART_UBRR 10 /* 20mhz, 115200 */
 #else

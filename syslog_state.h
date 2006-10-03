@@ -20,13 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _SNTP_STATE_H
-#define _SNTP_STATE_H
+#ifndef _SYSLOG_STATE_H
+#define _SYSLOG_STATE_H
 
-struct sntp_connection_state_t {
+struct syslog_connection_state_t {
     uint8_t transmit_state;
     uint8_t state;
-    uint8_t timeout;
+    uint8_t sensor;
+    uint8_t sensor_state;
 };
 
 #endif

@@ -1,6 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
+ *          enc28j60 api
+ *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,37 +22,50 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _COMMON_H
-#define _COMMON_H
 
-#include "ethcmd.h"
-#include "sntp_state.h"
-#include "syslog_state.h"
+#include "74hc165.h"
 
-#define NULL ((void *)0)
+#ifdef USE_74HC165
 
-#define HI8(x)  ((uint8_t)((x) >> 8))
-#define LO8(x)  ((uint8_t)(x))
+void hc165_init(void)
+/* {{{ */ {
 
-#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
-                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
-                | (uint32_t)(((x) & 0x0000FF00) << 8) \
-                | (uint32_t)(((x) & 0x000000FF) << 24))
+    HC165_DDR |= _BV(HC165_LOAD) | _BV(HC165_CLOCK);
+    HC165_DDR &= ~_BV(HC165_DATA);
+    HC165_PORT |= _BV(HC165_LOAD) | _BV(HC165_CLOCK) | _BV(HC165_DATA);
 
-#define NTOHL(x) HTONL(x)
+} /* }}} */
 
+uint8_t hc165_read_byte(void)
+/* {{{ */ {
 
-/* uip appstate */
-typedef union uip_tcp_connection_state {
-    struct ethcmd_connection_state_t ethcmd;
-} uip_tcp_appstate_t;
+    uint8_t data = 0;
 
-/* attention: first byte MUST be transmit_state! */
-typedef union uip_udp_connection_state {
-    struct sntp_connection_state_t sntp;
-    struct syslog_connection_state_t syslog;
-} uip_udp_appstate_t;
+    /* load */
+    HC165_PORT &= ~_BV(HC165_LOAD);
+    HC165_DELAY();
+    HC165_PORT |=  _BV(HC165_LOAD);
+    HC165_DELAY();
 
-#include "uip/uip.h"
+    /* clock out */
+    for (uint8_t i = 0; i < 8; i++) {
+
+        /* clock down, up */
+        HC165_PORT &= ~_BV(HC165_CLOCK);
+        HC165_DELAY();
+        HC165_PORT |=  _BV(HC165_CLOCK);
+        HC165_DELAY();
+
+        /* read bit */
+        data <<= 1;
+
+        if (HC165_PIN & _BV(HC165_DATA))
+            data |= 0x01;
+
+    }
+
+    return data;
+
+} /* }}} */
 
 #endif
