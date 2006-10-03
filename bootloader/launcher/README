@@ -1,0 +1,13 @@
+The WAIT_FOR_CHAR_MODE option allows foodloader to be used in applications with no extra pin for bootloader entry. On power-on, the target device checks the UART for a fraction of a second to see if a character is received. If a specific character is received, the bootloader is entered.
+
+The launch-bootloader utility is provided to make using this mode easier. It simply opens the specified serial device and sends a constant stream of the bootloader entry character (as defined in config.h). If the serial device does not exist, the program waits until the serial device is created and then begins sending the character. This allows the bootloader to be used with bus-powered USB devices that are powered on at the same time as the host computer creates the serial device.
+
+The tool returns an exit status of 0 only when the bootloader has been successfully entered. This means that it can be used in Makefiles, like so:
+
+bootload: foo.hex
+	launch-bootloader /dev/tty.usb
+	avrdude -p m88 -b 38400 -u -c avr109 -P /dev/tty.usb -U f:w:foo.hex -F
+
+The tool will then prompt the user to plug in the device at the appropriate time.
+
+Scott Torborg - storborg@mit.edu

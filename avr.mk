@@ -82,7 +82,7 @@ interactive-serial:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -P $(SERIAL_DEV) -t
 
 
-.PHONY: all clean interactive-isp interactive-serial
+.PHONY: all clean interactive-isp interactive-serial launch-bootloader
 
 program-isp-%: %.hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(ISP_PROG) -P $(ISP_DEV) -U flash:w:$<
@@ -90,7 +90,7 @@ program-isp-%: %.hex
 program-isp-eeprom-%: %.eep.hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(ISP_PROG) -P $(ISP_DEV) -U eeprom:w:$<
 
-program-serial-%: %.hex
+program-serial-%: %.hex launch-bootloader
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -P $(SERIAL_DEV) -U flash:w:$<
 
 program-serial-eeprom-%: %.eep.hex
@@ -108,4 +108,5 @@ program-serial-eeprom-%: %.eep.hex
 %-size: %.hex
 	$(SIZE) $<
 
-
+launch-bootloader:
+	launch-bootloader $(SERIAL_DEV) $(AVRDUDE_BAUDRATE)

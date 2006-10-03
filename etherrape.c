@@ -108,6 +108,10 @@ void check_serial_input(uint8_t data)
                     }
                     break;
 
+        case 'p':
+                    jump_to_bootloader();
+                    break;
+
         default:    uart_putc('?');
                     break;
 

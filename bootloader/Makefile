@@ -66,9 +66,9 @@ CFLAGS += -Werror
 LDFLAGS += -L/usr/local/avr/avr/lib
 
 
-.PHONY: all
+.PHONY: all launcher
 
-all: $(TARGET).hex $(TARGET).lss
+all: $(TARGET).hex $(TARGET).lss launcher
 	@echo "==============================="
 	@echo "compiled for: $(MCU)"
 	@echo -n "bootloader size is: "
@@ -84,15 +84,18 @@ $(TARGET): $(OBJECTS) $(TARGET).o
 install: program-isp-$(TARGET)
 	@echo "don't forget: the lock-bits have been cleaned by the chip-erase!"
 
-.PHONY: clean clean-$(TARGET)
+.PHONY: clean clean-$(TARGET) clean-launcher
 
-clean: clean-$(TARGET) clean-uploadtest
+clean: clean-$(TARGET) clean-uploadtest clean-launcher
 
 clean-$(TARGET):
 	rm -f $(TARGET)
 
 clean-uploadtest:
 	rm -f datatestfile.raw
+
+clean-launcher:
+	$(MAKE) -C launcher clean
 
 datatestfile.raw:
 	dd if=/dev/urandom of=datatestfile.raw bs=1 count=$$((1024*62))
@@ -101,3 +104,8 @@ uploadtest: datatestfile.raw
 	@echo "uploading datatestfile"
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -s -u -P $(SERIAL_DEV) -U f:w:$<:r
 
+lock:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -c avr910 -P $(ISP_DEV) -U lock:w:0x2f:m
+
+launcher:
+	$(MAKE) -C launcher
