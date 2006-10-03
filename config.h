@@ -199,6 +199,6 @@
 #define MAX_FRAME_LENGTH 640
 
 /* support for 74HC165 */
-#define USE_74HC165
+//#define USE_74HC165
 
 #endif /* _CONFIG_H */

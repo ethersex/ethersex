@@ -169,8 +169,10 @@ int main(void)
     uart_eol();
 #   endif
 
+#   ifdef USE_74HC165
     hc165_init();
     DDRA |= _BV(PA4);
+#   endif
 
     while(1) /* main loop {{{ */ {
 
@@ -253,6 +255,7 @@ int main(void)
 
         wdt_kick();
 
+#       ifdef USE_74HC165
         /* check for extended io, if all sensors are closed */
         uint8_t status = hc165_read_byte();
         static uint8_t old_status;
@@ -270,6 +273,7 @@ int main(void)
         }
 
         old_status = status;
+#       endif
 
     } /* }}} */
 
