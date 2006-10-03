@@ -97,8 +97,8 @@ void network_init(void)
         uip_setdraddr(ipaddr);
 
         /* sntp-server */
-        eeprom_load_ip(eeprom_config.sntp_server, &ipaddr);
-        sntp_prepare_request(&ipaddr);
+        eeprom_load_ip(eeprom_config.sntp_server, &sntp_server);
+        sntp_synchronize();
 
         /* syslog-server */
         eeprom_load_ip(eeprom_config.sntp_server, &syslog_server);

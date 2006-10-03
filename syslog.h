@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "syslog_state.h"
+#include "uip/uip.h"
 
 #define SYSLOG_UDP_PORT 514
 

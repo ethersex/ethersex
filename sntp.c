@@ -22,31 +22,27 @@
 
 #include "sntp.h"
 #include "clock.h"
+#include "syslog.h"
 
 #ifdef DEBUG_SNTP
 #include "uart.h"
 #endif
 
-void sntp_prepare_request(uip_ipaddr_t *server)
+/* global variables */
+uip_ipaddr_t sntp_server;
+
+void sntp_synchronize(void)
 /* {{{ */ {
 
-    struct uip_udp_conn *c = uip_udp_new(server, HTONS(SNTP_UDP_PORT));
+    struct uip_udp_conn *c = uip_udp_new(&sntp_server, HTONS(SNTP_UDP_PORT));
 
     if (c != NULL) {
         uip_udp_bind(c, HTONS(SNTP_UDP_PORT));
         c->appstate.sntp.transmit_state = 0;
         c->appstate.sntp.state = SNTP_STATE_WAIT;
         c->appstate.sntp.timeout = 0;
-#ifdef DEBUG_SNTP
-        uart_puts_P("sntp: udp connection prepared\r\n");
-
-        uart_puts_P("sntp: local port is 0x");
-        uart_puthexbyte(LO8(c->lport));
-        uart_puthexbyte(HI8(c->lport));
-        uart_puts_P(", remote 0x");
-        uart_puthexbyte(LO8(c->rport));
-        uart_puthexbyte(HI8(c->rport));
-        uart_eol();
+#ifdef SYSLOG_SNTP
+        syslog_message_P("synchronizing clock via sntp...");
 #endif
     }
 
@@ -55,7 +51,8 @@ void sntp_prepare_request(uip_ipaddr_t *server)
 void sntp_send_request(void)
 /* {{{ */ {
 
-    if (uip_udp_conn->appstate.sntp.timeout == 0) {
+    if (uip_udp_conn->appstate.sntp.timeout == 0 ||
+        uip_udp_conn->appstate.sntp.transmit_state == 0) {
 
 #ifdef DEBUG_SNTP
         uart_puts_P("sntp: sending request\r\n");
@@ -108,6 +105,10 @@ void sntp_handle_conn(void)
         if (sntp->mode == SNTP_MODE_SERVER) {
             #ifdef DEBUG_SNTP
             uart_puts_P("sntp: detected answer from server\r\n");
+            #endif
+
+            #ifdef SYSLOG_SNTP
+            syslog_message_P("clock synchronized via sntp");
             #endif
 
             clock_set_time(NTOHL(sntp->transmit_timestamp.seconds));

@@ -21,16 +21,32 @@
  }}} */
 
 #include "cron.h"
+#include "syslog.h"
+#include "sntp.h"
 
 #ifdef DEBUG_CRON
 #include "uart.h"
 #endif
 
-struct cron_event_t events[] = { { { {-1, -2, -1, -1, -1} } }, /* when hour % 2 == 0 */
-                                 { { {51, -1, -1, -1, -1} } }, /* when minute is 51 */
-                                 { { {-2, -1, -1, -1, -1} } }, /* when minute % 2 == 0 */
-                                 { { {-3, -1, -1, -1, -1} } },
-                                 { { {-5, -1, -1, -1, -1} } },
+void test(void);
+
+#if 0
+/* example: */
+
+void test(void)
+{
+    syslog_message_P("cron event matched!");
+}
+
+struct cron_event_t events[] = { { { {-1, -2, -1, -1, -1} }, test}, /* when hour % 2 == 0 */
+                                 { { {51, -1, -1, -1, -1} }, test}, /* when minute is 51 */
+                                 { { {-2, -1, -1, -1, -1} }, test}, /* when minute % 2 == 0 */
+                                 { { {-3, -1, -1, -1, -1} }, test},
+                                 { { {53, 16, -1, -1, -1} }, sntp_synchronize},
+                               };
+#endif
+
+struct cron_event_t events[] = { { { {-30, -1, -1, -1, -1} }, sntp_synchronize}, /* every 30 mins, synchronize */
                                };
 
 void cron_periodic(void)
@@ -44,16 +60,19 @@ void cron_periodic(void)
     struct clock_datetime_t d;
     clock_current_datetime(&d);
 
-    for (uint8_t i = 0; i < 5; i++) {
+    /* check every event for a match */
+    for (uint8_t i = 0; i < 1; i++) {
 
         uint8_t r = cron_check_event(&events[i], &d);
 
+        /* if it matches, execute the handler function */
         if (r > 0) {
 #           ifdef DEBUG_CRON
             uart_puts_P("cron: event ");
             uart_putdecbyte(i);
             uart_puts_P(" matches!\r\n");
 #           endif
+            events[i].handler();
         }
 
     }

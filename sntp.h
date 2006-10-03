@@ -82,10 +82,13 @@ struct sntp_header_t {
 
 /* }}} */
 
+/* global variables */
+extern uip_ipaddr_t sntp_server;
+
 /* prototypes */
 
 /** send an sntp request */
-void sntp_prepare_request(uip_ipaddr_t *server);
+void sntp_synchronize(void);
 void sntp_send_request(void);
 void sntp_handle_conn(void);
 

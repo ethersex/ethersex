@@ -93,16 +93,6 @@ void check_serial_input(uint8_t data)
 #                   endif
                     break;
 
-        case 's':   {
-                        uart_puts_P("foo");
-                        uip_ipaddr_t ip;
-                        //uip_ipaddr(&ip, 134, 130, 4, 17);
-                        uip_ipaddr(&ip, 137, 226, 147, 211);
-                        //eeprom_load_ip(eeprom_config.sntp_server, &ip);
-                        sntp_prepare_request(&ip);
-                        break;
-                    }
-
         case 't':   for (uint8_t i = 0; i < UIP_UDP_CONNS; i++) {
                         uart_puts_P("udp: local 0x");
                         uart_puthexbyte(LO8(uip_udp_conns[i].lport));

@@ -47,6 +47,7 @@ struct cron_event_t {
             int8_t dow;
         };
     };
+    void (*handler)(void);
 };
 
 /* }}} */
