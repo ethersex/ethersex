@@ -101,7 +101,7 @@ void network_init(void)
         sntp_synchronize();
 
         /* syslog-server */
-        eeprom_load_ip(eeprom_config.sntp_server, &syslog_server);
+        eeprom_load_ip(eeprom_config.syslog_server, &syslog_server);
 
     }
 
