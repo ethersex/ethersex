@@ -25,11 +25,20 @@
 
 #include <stdint.h>
 
+#define ETHCMD_PROTOCOL_VERSION 1
+
 #define ETHCMD_MESSAGE_TYPE_VERSION 0
 
 struct ethcmd_message_t {
     uint16_t length;
     uint16_t message_type;
-};
+    uint8_t data[];
+} __attribute__ (( __packed__ ));
+
+struct ethcmd_message_version_t {
+    uint16_t length;
+    uint16_t message_type;
+    uint8_t version;
+} __attribute__ (( __packed__ ));
 
 #endif

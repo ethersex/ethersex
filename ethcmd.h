@@ -28,12 +28,18 @@
 #include "ethcmd/ethcmd_message.h"
 
 struct ethcmd_connection_state_t {
-    uint8_t foo;
+    enum {
+        ETHCMD_STATE_DISCONNECTED,
+        ETHCMD_STATE_IDLE,
+        ETHCMD_STATE_SEND_VERSION,
+    } state;
 };
 
 #define ETHCMD_PORT 2847
 
 void ethcmd_init(void);
 void ethcmd_main(void);
+void ethcmd_parse_message(struct ethcmd_message_t *msg);
+void ethcmd_send(void);
 
 #endif

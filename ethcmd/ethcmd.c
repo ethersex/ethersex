@@ -51,16 +51,21 @@ void print_usage(void);
 int connect_host(char *host, int port);
 void send_message(void);
 void parse_message(struct ethcmd_message_t *msg);
+void wait_for_message(void);
 
 void print_usage(void)
 /* {{{ */ {
 
-     printf("USAGE: ethcmd [options]\n"
+     printf("USAGE: ethcmd [options] COMMAND\n"
            "  -h, --help                display this help and exit\n"
            "  -v, --verbose=[LEVEL]     set verbosity level (range: 0 <= LEVEL <= 255)\n"
            "                            if LEVEL is not given, the verbosity level is set to 1\n"
            "  -H, --host=HOST           set remote host (default: %s)\n"
            "  -P, --port=PORT           set remote port (default: %d)\n"
+           "\n"
+           "  commands:\n"
+           "  ---------\n"
+           "  version                   request protocol version information from device\n"
            , DEFAULT_HOST, DEFAULT_PORT
           );
 
@@ -105,15 +110,16 @@ int connect_host(char *host, int port)
 
 } /* }}} */
 
-void send_message(void)
+void send_version_request(void)
 /* {{{ */ {
 
-    struct ethcmd_message_t msg;
+    struct ethcmd_message_version_t msg;
 
-    msg.length = htons(0);
+    msg.length = sizeof(struct ethcmd_message_version_t) - 4;
     msg.message_type = htons(ETHCMD_MESSAGE_TYPE_VERSION);
+    msg.version = ETHCMD_PROTOCOL_VERSION;
 
-    int len = write(cfg.sock, &msg, sizeof(struct ethcmd_message_t));
+    int len = write(cfg.sock, &msg, sizeof(struct ethcmd_message_version_t));
 
     printf("wrote %d bytes\n", len);
 
@@ -122,9 +128,47 @@ void send_message(void)
 void parse_message(struct ethcmd_message_t *msg)
 /* {{{ */ {
 
-    printf("length: %d, message type %d\n", ntohs(msg->length), ntohs(msg->message_type));
+    printf("length: 0x%x, message type 0x%x\n", ntohs(msg->length), ntohs(msg->message_type));
+
+    switch (ntohs(msg->message_type)) {
+
+        case ETHCMD_MESSAGE_TYPE_VERSION:
+            printf("received version reply, device supports protocol version %d\n", ((struct ethcmd_message_version_t *)msg)->version);
+            shutdown(cfg.sock, SHUT_RDWR);
+            exit(EXIT_SUCCESS);
+            break;
+
+        default:
+            printf("unknown message type: 0x%x\n", ntohs(msg->message_type));
+            break;
+    }
 
 }  /* }}} */
+
+void wait_for_message(void)
+/* {{{ */ {
+
+    /* main select loop */
+    char receive_buffer[BUFSIZE];
+    fd_set fds;
+
+    FD_ZERO(&fds);
+    FD_SET(cfg.sock, &fds);
+
+    while (1) {
+        if (select(cfg.sock+1, &fds, NULL, NULL, NULL)) {
+
+            if (FD_ISSET(cfg.sock, &fds)) { /* data on network */
+                int len = read(cfg.sock, receive_buffer, BUFSIZE);
+
+                printf("received %d bytes\n", len);
+                parse_message((struct ethcmd_message_t *)receive_buffer);
+            }
+        } else
+            errx(EXIT_FAILURE, "select()");
+    }
+
+} /* }}} */
 
 int main(int argc, char *argv[])
 /* {{{ */ {
@@ -172,28 +216,20 @@ int main(int argc, char *argv[])
     DEBUG_PRINTF("verbosity level is %d\n", cfg.verbose);
     DEBUG_PRINTF("remote is %s:%d\n", cfg.host, cfg.port);
 
-    cfg.sock = connect_host(cfg.host, cfg.port);
+    /* parse remaining command line arguments */
+    if (optind == argc) {
+        printf("nothing to do, exiting\n");
+        return EXIT_SUCCESS;
+    }
 
+    cfg.sock = connect_host(cfg.host, cfg.port);
     DEBUG_PRINTF("connected.\n");
 
-    /* main select loop */
-    char receive_buffer[BUFSIZE];
-    fd_set fds;
-
-    FD_ZERO(&fds);
-    FD_SET(cfg.sock, &fds);
-
-    while (1) {
-        if (select(cfg.sock+1, &fds, NULL, NULL, NULL)) {
-
-            if (FD_ISSET(cfg.sock, &fds)) { /* data on network */
-                int len = read(cfg.sock, receive_buffer, BUFSIZE);
-
-                printf("received %d bytes\n", len);
-                parse_message((struct ethcmd_message_t *)receive_buffer);
-            }
-        } else
-            errx(EXIT_FAILURE, "select()");
+    if (strcasecmp("version", argv[optind]) == 0) {
+        send_version_request();
+        wait_for_message();
+    } else {
+        errx(EXIT_FAILURE, "unknown command: \"%s\"", argv[optind]);
     }
 
     return EXIT_SUCCESS;
