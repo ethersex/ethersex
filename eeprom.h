@@ -41,7 +41,7 @@ struct eeprom_config_t {
     uint8_t crc;
 };
 
-#if 1
+#if 0
 static struct eeprom_config_t eeprom_config EEMEM = {
     { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
     { 137, 226, 146, 59 },
@@ -50,6 +50,16 @@ static struct eeprom_config_t eeprom_config EEMEM = {
     { 134, 130, 4, 17 },
     { 137, 226, 147, 211},
     0x13,
+};
+#elif 1
+static struct eeprom_config_t eeprom_config EEMEM = {
+    { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
+    { 10, 0, 0, 2 },
+    { 255, 255, 255, 0 },
+    { 10, 0, 0, 1 },
+    { 10, 0, 0, 1 },
+    { 0, 0, 0, 0 },
+    0x55,
 };
 #else
 static struct eeprom_config_t eeprom_config EEMEM = {

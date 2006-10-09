@@ -46,6 +46,11 @@ void syslog_send(void);
 struct uip_udp_conn *prepare_connection(void)
 /* {{{ */ {
 
+    /* if syslog is disabled, return null */
+    if (global_syslog.server[0] == 0 &&
+            global_syslog.server[1] == 0)
+        return NULL;
+
     struct uip_udp_conn *c = uip_udp_new(&global_syslog.server, HTONS(SYSLOG_UDP_PORT));
 
     if (c != NULL) {

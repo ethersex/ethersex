@@ -36,6 +36,7 @@
 #include "eeprom.h"
 #include "74hc165.h"
 #include "syslog.h"
+#include "httpd.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"

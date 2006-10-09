@@ -20,20 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ETHCMD_H
-#define _ETHCMD_H
+#ifndef _HTTPD_STATE_H
+#define _HTTPD_STATE_H
 
-#include <stdint.h>
-
-#include "ethcmd/ethcmd_message.h"
-
-struct ethcmd_connection_state_t {
-    uint8_t foo;
+struct httpd_connection_state_t {
+    uint8_t state;
+    uint8_t response;
+    char *document;
 };
 
-#define ETHCMD_PORT 2847
-
-void ethcmd_init(void);
-void ethcmd_main(void);
 
 #endif

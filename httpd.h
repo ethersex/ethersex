@@ -20,20 +20,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ETHCMD_H
-#define _ETHCMD_H
+#ifndef _HTTPD_H
+#define _HTTPD_H
 
 #include <stdint.h>
+#include "common.h"
+#include "uip/uip.h"
 
-#include "ethcmd/ethcmd_message.h"
+/* constants */
+#define HTTPD_PORT 80
+#define HTTPD_MAX_URL_LENGTH 20
 
-struct ethcmd_connection_state_t {
-    uint8_t foo;
-};
+/* states */
+#define HTTPD_STATE_WAIT 0 /* wait for GET/POST command */
+#define HTTPD_STATE_SENDSTATUS 1 /* send status line */
+#define HTTPD_STATE_SENDDOCUMENT 2 /* send document */
 
-#define ETHCMD_PORT 2847
+/* responses */
+#define HTTPD_RESPONSE_EMPTY 0
+#define HTTPD_RESPONSE_400 1    /* bad request */
+#define HTTPD_RESPONSE_404 2    /* not found */
+#define HTTPD_RESPONSE_200 3    /* found */
 
-void ethcmd_init(void);
-void ethcmd_main(void);
+/* prototypes */
+void httpd_init(void);
+void httpd_main(void);
 
 #endif

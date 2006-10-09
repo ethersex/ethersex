@@ -30,6 +30,7 @@
 #include "sntp.h"
 #include "syslog.h"
 #include "ethcmd.h"
+#include "httpd.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -109,6 +110,7 @@ void network_init(void)
     init_enc28j60();
 
     ethcmd_init();
+    httpd_init();
 
 } /* }}} */
 
@@ -443,6 +445,9 @@ void network_handle_tcp(void)
 
     if (uip_conn->lport == HTONS(ETHCMD_PORT))
         ethcmd_main();
+
+    if (uip_conn->lport == HTONS(HTTPD_PORT))
+        httpd_main();
 
 } /* }}} */
 

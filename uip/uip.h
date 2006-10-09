@@ -1594,7 +1594,6 @@ u16_t uip_tcpchksum(void);
  */
 u16_t uip_udpchksum(void);
 
-
 #endif /* __UIP_H__ */
 
 

@@ -24,6 +24,7 @@
 #define _COMMON_H
 
 #include "ethcmd.h"
+#include "httpd_state.h"
 #include "sntp_state.h"
 #include "syslog_state.h"
 
@@ -43,6 +44,7 @@
 /* uip appstate */
 typedef union uip_tcp_connection_state {
     struct ethcmd_connection_state_t ethcmd;
+    struct httpd_connection_state_t httpd;
 } uip_tcp_appstate_t;
 
 /* attention: first byte MUST be transmit_state! */
