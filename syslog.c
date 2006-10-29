@@ -84,6 +84,8 @@ void syslog_message(PGM_P str)
     if (c != NULL) {
 
         c->appstate.syslog.state = SYSLOG_STATE_MESSAGE;
+        c->appstate.syslog.retransmit_counter = 0;
+        c->appstate.syslog.retransmit_timeout = 0;
         c->appstate.syslog.str = str;
 
     }
@@ -115,22 +117,26 @@ void syslog_sensor(uint8_t num, uint8_t state)
 void syslog_send(void)
 /* {{{ */ {
 
-    if (uip_udp_conn->appstate.syslog.transmit_state != 0) {
+    if (uip_udp_conn->appstate.syslog.transmit_state != 0 ||
+            uip_udp_conn->appstate.syslog.retransmit_counter == SYSLOG_RETRANSMIT_COUNTER) {
         uip_udp_remove(uip_udp_conn);
         return;
     }
 
+    uint16_t length = 0;
+
     if (uip_udp_conn->appstate.syslog.state == SYSLOG_STATE_MESSAGE) {
 
 #ifdef DEBUG_SYSLOG
-        uart_puts_P("syslog: sending normal message\r\n");
+        uart_puts_P("syslog: sending normal message, retransmit_counter 0x");
+        uart_puthexbyte(uip_udp_conn->appstate.syslog.retransmit_counter);
+        uart_puts_P(", retransmit_timeout: 0x");
+        uart_puthexbyte(uip_udp_conn->appstate.syslog.retransmit_timeout);
+        uart_eol();
 #endif
 
         strcpy_P(uip_appdata, uip_udp_conn->appstate.syslog.str);
-        uint16_t length = strlen_P(uip_udp_conn->appstate.syslog.str);
-
-        /* send packet */
-        uip_udp_send(length);
+        length = strlen_P(uip_udp_conn->appstate.syslog.str);
 
     } else if (uip_udp_conn->appstate.syslog.state == SYSLOG_STATE_SENSOR_MESSAGE) {
 
@@ -138,19 +144,23 @@ void syslog_send(void)
         uart_puts_P("syslog: sending log\r\n");
 #endif
 
-        uint16_t length;
-
         if (uip_udp_conn->appstate.syslog.sensor_state == 0)
             length = sprintf_P(uip_appdata, syslog_sensor_message_close,
                     uip_udp_conn->appstate.syslog.sensor);
         else
             length = sprintf_P(uip_appdata, syslog_sensor_message_open,
                     uip_udp_conn->appstate.syslog.sensor);
+    }
+
+    if (uip_udp_conn->appstate.syslog.retransmit_timeout == 0) {
 
         /* send packet */
         uip_udp_send(length);
+        uip_udp_conn->appstate.syslog.retransmit_counter++;
+        uip_udp_conn->appstate.syslog.retransmit_timeout = SYSLOG_RETRANSMIT_TIMEOUT;
 
-    }
+    } else
+        uip_udp_conn->appstate.syslog.retransmit_timeout--;
 
 } /* }}} */
 

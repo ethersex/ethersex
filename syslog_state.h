@@ -23,10 +23,15 @@
 #ifndef _SYSLOG_STATE_H
 #define _SYSLOG_STATE_H
 
+#define SYSLOG_RETRANSMIT_TIMEOUT 5
+#define SYSLOG_RETRANSMIT_COUNTER 5
+
 #include <avr/pgmspace.h>
 
 struct syslog_connection_state_t {
     uint8_t transmit_state;
+    uint8_t retransmit_timeout;
+    uint8_t retransmit_counter;
     uint8_t state;
     union {
         struct {
