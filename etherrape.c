@@ -41,6 +41,8 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 
+#include "onewire/onewire.h"
+
 /* prototypes */
 void init_spi(void);
 void check_serial_input(uint8_t data);
@@ -70,6 +72,18 @@ void init_spi(void)
     /* enable spi, set master and clock modes (f/2) */
     _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);
     _SPSR0 = _BV(_SPI2X0);
+
+} /* }}} */
+
+void print_rom_code(struct ow_rom_code_t *rom)
+/* {{{ */ {
+
+    uart_puthexbyte(rom->bytewise[0]);
+
+    for (uint8_t j = 1; j < 8; j++) {
+        uart_putc(' ');
+        uart_puthexbyte(rom->bytewise[j]);
+    }
 
 } /* }}} */
 
@@ -110,6 +124,79 @@ void check_serial_input(uint8_t data)
                     syslog_message_P("fump...");
                     break;
 #endif
+
+        case 'o':
+                    {
+                        struct ow_rom_code_t rom;
+                        if (ow_read_rom(&rom) == 1) {
+                            print_rom_code(&rom);
+                            uart_eol();
+
+                        } else
+                            uart_puts_P("error reading rom code, CRC mismatch\r\n");
+
+                        break;
+                    }
+
+        case 's':
+                    {
+                        struct ow_rom_code_t roms[10];
+
+                        int8_t ret = ow_search_rom(roms, 10);
+
+                        uart_puts_P("discovered ");
+                        uart_puthexbyte(ret);
+                        uart_puts_P(" roms codes\r\n");
+
+                        for (uint8_t i = 0; i < ret; i++) {
+                            uart_putc(' ');
+                            uart_putdecbyte(i);
+                            uart_puts_P(":  ");
+                            print_rom_code(&roms[i]);
+                            uart_eol();
+                        }
+
+                        uart_puts_P("starting temperature conversion\r\n");
+#                       ifdef ONEWIRE_PARASITE
+                            ow_start_convert(NULL, 0);
+                            for (uint8_t t = 0; t < 46; t++)
+                                _delay_loop_2(0);
+#                       else
+                            ow_start_convert(NULL, 1);
+#                       endif
+
+                        uart_puts_P("temperatures:\r\n");
+                        for (uint8_t i = 0; i < ret; i++) {
+
+                            struct ow_scratchpad_t scratchpad;
+
+                            if (ow_read_scratchpad(&roms[i], &scratchpad) > 0) {
+
+                                uart_putc(' ');
+                                uart_putdecbyte(i);
+                                uart_puts_P(":  ");
+
+                                if (scratchpad.temperature_high & 0x80)
+                                    uart_putc('-');
+
+                                uart_putdecbyte(scratchpad.temperature_low >> 1);
+
+                                uart_putc('.');
+
+                                if (scratchpad.temperature_low & 0x01)
+                                    uart_putc('5');
+                                else
+                                    uart_putc('0');
+
+                                uart_eol();
+
+                            } else
+                                uart_puts_P("Error, CRC mismatch\r\n");
+
+                        }
+
+                        break;
+                    }
 
         default:    uart_putc('?');
                     break;
@@ -174,6 +261,13 @@ int main(void)
 #   ifdef USE_74HC165
     hc165_init();
     DDRA |= _BV(PA4);
+#   endif
+
+#   ifdef ONEWIRE_SUPPORT
+#   ifdef DEBUG
+    uart_puts_P("onewire init...");
+#   endif
+    init_onewire();
 #   endif
 
     while(1) /* main loop {{{ */ {

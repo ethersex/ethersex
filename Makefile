@@ -12,7 +12,7 @@ export CURDIR
 include $(CURDIR)/avr.mk
 
 SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC}) uip/uip.o uip/uip_arp.o
+OBJECTS += $(patsubst %.c,%.o,${SRC}) uip/uip.o uip/uip_arp.o onewire/onewire.o onewire/crc.o
 #CFLAGS += -Werror
 #CFLAGS += -Iuip/ -Iuip/apps
 #LDFLAGS += -L/usr/local/avr/avr/lib

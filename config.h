@@ -202,4 +202,11 @@
 /* support for 74HC165 */
 //#define USE_74HC165
 
+/* onewire support */
+#define ONEWIRE_SUPPORT
+#define ONEWIRE_PINNUM PD6
+#define ONEWIRE_PIN PIND
+#define ONEWIRE_DDR DDRD
+#define ONEWIRE_PORT PORTD
+
 #endif /* _CONFIG_H */
