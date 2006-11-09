@@ -208,5 +208,6 @@
 #define ONEWIRE_PIN PIND
 #define ONEWIRE_DDR DDRD
 #define ONEWIRE_PORT PORTD
+#define ONEWIRE_PARASITE
 
 #endif /* _CONFIG_H */

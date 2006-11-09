@@ -75,6 +75,7 @@ void init_spi(void)
 
 } /* }}} */
 
+void print_rom_code(struct ow_rom_code_t *rom);
 void print_rom_code(struct ow_rom_code_t *rom)
 /* {{{ */ {
 
@@ -140,59 +141,77 @@ void check_serial_input(uint8_t data)
 
         case 's':
                     {
-                        struct ow_rom_code_t roms[10];
 
-                        int8_t ret = ow_search_rom(roms, 10);
+                        /* initiate temperature convert cycle for all temperature sensors */
+                        ow_temp_start_convert_nowait(NULL);
+                        for (uint8_t t = 0; t < 46; t++)
+                            _delay_loop_2(0);
 
-                        uart_puts_P("discovered ");
-                        uart_puthexbyte(ret);
-                        uart_puts_P(" roms codes\r\n");
+                        int ret = ow_search_rom_first();
 
-                        for (uint8_t i = 0; i < ret; i++) {
-                            uart_putc(' ');
-                            uart_putdecbyte(i);
-                            uart_puts_P(":  ");
-                            print_rom_code(&roms[i]);
-                            uart_eol();
-                        }
+                        while (ret > 0) {
 
-                        uart_puts_P("starting temperature conversion\r\n");
-#                       ifdef ONEWIRE_PARASITE
-                            ow_start_convert(NULL, 0);
-                            for (uint8_t t = 0; t < 46; t++)
-                                _delay_loop_2(0);
-#                       else
-                            ow_start_convert(NULL, 1);
-#                       endif
+                            if (ow_temp_sensor(&ow_global.current_rom)) {
+                                uart_puts_P("ow: found ");
+                                print_rom_code(&ow_global.current_rom);
+                                uart_puts_P(" temperature: ");
 
-                        uart_puts_P("temperatures:\r\n");
-                        for (uint8_t i = 0; i < ret; i++) {
+                                struct ow_temp_scratchpad_t scratchpad;
+                                int8_t sp_ret = ow_temp_read_scratchpad(&ow_global.current_rom, &scratchpad);
 
-                            struct ow_scratchpad_t scratchpad;
+                                if (sp_ret > 0) {
 
-                            if (ow_read_scratchpad(&roms[i], &scratchpad) > 0) {
+                                    int16_t temp = ow_temp_normalize(&ow_global.current_rom, &scratchpad);
 
-                                uart_putc(' ');
-                                uart_putdecbyte(i);
-                                uart_puts_P(":  ");
+                                    if (temp < 0)
+                                        uart_putc('-');
 
-                                if (scratchpad.temperature_high & 0x80)
-                                    uart_putc('-');
+                                    uart_putdecbyte(HIGH(temp));
 
-                                uart_putdecbyte(scratchpad.temperature_low >> 1);
+                                    uart_putc('.');
 
-                                uart_putc('.');
+                                    if (LOW(temp))
+                                        uart_putc('5');
+                                    else
+                                        uart_putc('0');
 
-                                if (scratchpad.temperature_low & 0x01)
-                                    uart_putc('5');
+                                    uart_eol();
+
+                                } else if (sp_ret == -3)
+                                    uart_puts_P("no temperature sensor...\r\n");
+                                else if (sp_ret == -2)
+                                    uart_puts_P("Error, CRC mismatch\r\n");
                                 else
-                                    uart_putc('0');
-
+                                    uart_puts_P("no device detected\r\n");
+                            } else if (ow_global.current_rom.family == OW_FAMILY_DS2502E48) {
+                                uart_puts_P("ow: found mac address: ");
+                                print_rom_code(&ow_global.current_rom);
                                 uart_eol();
 
-                            } else
-                                uart_puts_P("Error, CRC mismatch\r\n");
+                                uint8_t mac[6];
+                                int8_t ret_data = ow_eeprom_read(&ow_global.current_rom, &mac);
 
+                                if (ret_data == 0) {
+
+                                    uart_puts_P(" mac data: ");
+
+                                    uart_puts_mac((struct uip_eth_addr *)&mac);
+
+                                    uart_eol();
+
+                                } else if (ret_data == -1) {
+                                    uart_puts_P("ow: no device??\r\n");
+                                } else if (ret_data == -2) {
+                                    uart_puts_P("ow: crc error\r\n");
+                                }
+
+                            } else {
+                                uart_puts_P("ow: unknown device: ");
+                                print_rom_code(&ow_global.current_rom);
+                                uart_eol();
+                            }
+
+                            ret = ow_search_rom_next();
                         }
 
                         break;
@@ -234,7 +253,8 @@ int main(void)
 
     }
 
-    wdt_enable(WDTO_250MS);
+    //wdt_enable(WDTO_250MS);
+    wdt_enable(WDTO_2S); // temp, for onewire debugging
     wdt_kick();
 #   else
     uart_puts_P("disabling watchdog\r\n");
@@ -264,9 +284,6 @@ int main(void)
 #   endif
 
 #   ifdef ONEWIRE_SUPPORT
-#   ifdef DEBUG
-    uart_puts_P("onewire init...");
-#   endif
     init_onewire();
 #   endif
 

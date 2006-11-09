@@ -42,6 +42,13 @@
 #include "../uart.h"
 #endif
 
+/* global variables */
+struct ow_global_t ow_global;
+
+/* module local prototypes */
+void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val);
+uint8_t ow_read_byte(void);
+
 void init_onewire(void)
 /* {{{ */ {
 
@@ -55,7 +62,7 @@ void init_onewire(void)
 
 /* low-level functions */
 
-uint8_t reset_onewire(void)
+uint8_t noinline reset_onewire(void)
 /* {{{ */ {
 
     /* pull bus low */
@@ -87,7 +94,7 @@ uint8_t reset_onewire(void)
 
 } /* }}} */
 
-void ow_write_0(void)
+void noinline ow_write_0(void)
 /* {{{ */ {
 
     /* a write 0 timeslot is initiated by holding the data line low for
@@ -99,7 +106,7 @@ void ow_write_0(void)
 
 } /* }}} */
 
-void ow_write_1(void)
+void noinline ow_write_1(void)
 /* {{{ */ {
 
     /* a write 1 timeslot is initiated by holding the data line low for
@@ -112,7 +119,7 @@ void ow_write_1(void)
 
 } /* }}} */
 
-void ow_write(uint8_t value)
+void noinline ow_write(uint8_t value)
 /* {{{ */ {
 
     if (value > 0)
@@ -122,7 +129,7 @@ void ow_write(uint8_t value)
 
 } /* }}} */
 
-void ow_write_byte(uint8_t value)
+void noinline ow_write_byte(uint8_t value)
 /* {{{ */ {
 
     OW_CONFIG_OUTPUT();
@@ -134,7 +141,7 @@ void ow_write_byte(uint8_t value)
 } /* }}} */
 
 /* FIXME: (optimization) combine ow_write_1() and ow_read(), as they are very similar */
-uint8_t ow_read(void)
+uint8_t noinline ow_read(void)
 /* {{{ */ {
 
     /* a read timeslot is sent by holding the data line low for
@@ -161,10 +168,22 @@ uint8_t ow_read(void)
 
 } /* }}} */
 
+uint8_t noinline ow_read_byte(void)
+/* {{{ */ {
+
+    uint8_t data = 0;
+
+    for (uint8_t i = 0; i < 8; i++) {
+        data |= (ow_read() << i);
+    }
+
+    return data;
+
+} /* }}} */
 
 
 /* mid-level functions */
-int8_t ow_read_rom(struct ow_rom_code_t *rom)
+int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
 /* {{{ */ {
 
     /* reset the bus */
@@ -178,10 +197,7 @@ int8_t ow_read_rom(struct ow_rom_code_t *rom)
     for (uint8_t i = 0; i < 8; i++) {
 
         /* read byte */
-        rom->bytewise[i] = 0;
-        for (uint8_t j = 0; j < 8; j++) {
-            rom->bytewise[i] |= (ow_read() << j);
-        }
+        rom->bytewise[i] = ow_read_byte();
     }
 
     /* check CRC (last byte) */
@@ -192,7 +208,7 @@ int8_t ow_read_rom(struct ow_rom_code_t *rom)
 
 } /* }}} */
 
-int8_t ow_skip_rom(void)
+int8_t noinline ow_skip_rom(void)
 /* {{{ */ {
 
     /* reset the bus */
@@ -206,7 +222,7 @@ int8_t ow_skip_rom(void)
 
 } /* }}} */
 
-int8_t ow_match_rom(struct ow_rom_code_t *rom)
+int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
 /* {{{ */ {
 
     /* reset the bus */
@@ -229,8 +245,7 @@ int8_t ow_match_rom(struct ow_rom_code_t *rom)
 } /* }}} */
 
 
-void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val);
-void ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
+void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
 /* {{{ */ {
 
     uint8_t byte = idx / 8;
@@ -244,181 +259,129 @@ void ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
 /* }}} */ }
 
 /* high-level functions */
-int8_t ow_search_rom(struct ow_rom_code_t roms[], uint8_t max)
+int8_t noinline ow_search_rom(uint8_t first)
 /* {{{ */ {
 
-    int8_t discrepancy;
-    int8_t last_discrepancy = -1;
-    uint8_t rom_index = 0;
+    /* reset discover state machine */
+    if (first) {
+        ow_global.last_discrepancy = -1;
+        ow_global.rom_index = 0;
 
-    /* reset first rom code */
-    for (uint8_t i = 0; i < 8; i++)
-        roms[0].bytewise[i] = 0;
-
-    do {
-
-        /* copy old path used before */
-        if (rom_index > 0) {
-
-            for (uint8_t i = 0; i < 8; i++)
-                roms[rom_index].bytewise[i] = roms[rom_index-1].bytewise[i];
-
-        }
-
-        uart_puts_P("\r\npre-address: ");
+        /* reset rom code */
         for (uint8_t i = 0; i < 8; i++)
-            uart_puthexbyte(roms[rom_index].bytewise[i]);
-        uart_eol();
+            ow_global.current_rom.bytewise[i] = 0;
 
-        discrepancy = -1;
+    } else {
 
-        /* reset the bus */
-        if (!reset_onewire())
-            return -1;
+        /* if last_discrepancy is below zero, discovery is done */
+        if (ow_global.last_discrepancy < 0)
+            return 0;
 
-        /* transmit command byte */
-        ow_write_byte(OW_ROM_SEARCH_ROM);
+    }
 
-        for (uint8_t i = 0; i <64; i++) {
+    uint8_t discrepancy = -1;
 
-            /* read bits */
-            uint8_t bit1 = ow_read();
-            uint8_t bits = (ow_read() << 1) | bit1;
+    /* reset the bus */
+    if (!reset_onewire())
+        return -1;
 
-            if (bits == 3) {
+    /* transmit command byte */
+    ow_write_byte(OW_ROM_SEARCH_ROM);
 
-                /* no devices, just return */
-                return rom_index;
+    for (uint8_t i = 0; i <64; i++) {
 
-            } else if (bits == 0) {
+        /* read bits */
+        uint8_t bit1 = ow_read();
+        uint8_t bits = (ow_read() << 1) | bit1;
 
-                if (i == last_discrepancy) {
+        if (bits == 3) {
 
-                    /* set one */
-                    ow_set_address_bit(&roms[rom_index], i, 1);
+            /* no devices, just return */
+            return 0;
 
-                    /* transmit one next time */
-                    bit1 = 1;
+        } else if (bits == 0) {
 
-                } else if (i > last_discrepancy) {
+            if (i == ow_global.last_discrepancy) {
 
-                    /* set zero */
-                    ow_set_address_bit(&roms[rom_index], i, 0);
-                    discrepancy = i;
+                /* set one */
+                ow_set_address_bit(&ow_global.current_rom, i, 1);
 
-                } else {
+                /* transmit one next time */
+                bit1 = 1;
 
-                    uint8_t rom_bit = roms[rom_index].bytewise[i / 8] & _BV(i % 8);
+            } else if (i > ow_global.last_discrepancy) {
 
-                    if (rom_bit == 0)
-                        discrepancy = i;
-
-                    /* transmit last bit next time */
-                    bit1 = rom_bit;
-
-                }
+                /* set zero */
+                ow_set_address_bit(&ow_global.current_rom, i, 0);
+                discrepancy = i;
 
             } else {
 
-                /* normal case, no discrepancy */
-                ow_set_address_bit(&roms[rom_index], i, bit1);
+                uint8_t rom_bit = ow_global.current_rom.bytewise[i / 8] & _BV(i % 8);
+
+                if (rom_bit == 0)
+                    discrepancy = i;
+
+                /* transmit last bit next time */
+                bit1 = rom_bit;
 
             }
 
-            OW_CONFIG_OUTPUT();
+        } else {
 
-            /* select next bit */
-            ow_write(bit1);
-
-        }
-
-        last_discrepancy = discrepancy;
-        rom_index++;
-
-    } while(rom_index < max && last_discrepancy >= 0);
-
-    return rom_index;
-
-#if 0
-    uint8_t rom_index = 0;
-
-    int8_t last_diff;
-    int8_t done_diff = 65;
-
-    do {
-
-        /* reset the bus */
-        if (!reset_onewire())
-            return -1;
-
-        /* transmit command byte */
-        ow_write_byte(OW_ROM_SEARCH_ROM);
-
-        last_diff = -1;
-
-        for (uint8_t i = 0; i < 64; i++) {
-
-            uint8_t byte = i / 8;
-            uint8_t index = i % 8;
-
-            if (index == 0)
-                roms[rom_index].bytewise[byte] = 0;
-
-            uint8_t bit1 = ow_read();
-            uint8_t bits = (ow_read() << 1) | bit1;
-
-            /* if we received two ones, something is wrong (no devices attached?) */
-            if ( bits == 3 )
-                return -2;
-
-            /* if we received two zeroes, we found a difference */
-            if (bits == 0) {
-
-                /* if this difference is later than the last difference
-                 * remembered and before the differences already processed,
-                 * remember index and choose zero branch */
-                if (i > last_diff && i < done_diff)
-                    last_diff = i;
-
-                /* if this difference is at index done_diff, choose one branch */
-                else if (i == done_diff)
-                    bit1 = 1;
-
-            }
-
-            /* remember bit1 (there exists at least one device with bit1 in it's id) */
-            if (bit1)
-                roms[rom_index].bytewise[byte] |= _BV(index);
-
-            OW_CONFIG_OUTPUT();
-
-            /* select next bit */
-            ow_write(bit1);
-
-            /* set done_diff to last difference */
-            if (last_diff > -1)
-                done_diff = last_diff;
+            /* normal case, no discrepancy */
+            ow_set_address_bit(&ow_global.current_rom, i, bit1);
 
         }
 
-        rom_index++;
+        OW_CONFIG_OUTPUT();
 
-    } while (rom_index < max && last_diff > -1);
+        /* select next bit */
+        ow_write(bit1);
 
-    return rom_index;
-#endif
+    }
+
+    ow_global.last_discrepancy = discrepancy;
+
+    /* new device discovered */
+    return 1;
 
 } /* }}} */
 
-int8_t ow_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
+/*
+ *
+ * temperature functions
+ *
+ */
+
+int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
+/* {{{ */ {
+
+    /* check for known family code */
+    if (rom->family == OW_FAMILY_DS1820 ||
+            rom->family == OW_FAMILY_DS1822)
+        return 1;
+
+    return 0;
+
+} /* }}} */
+
+int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
 /* {{{ */ {
 
     int8_t ret;
 
     if (rom == NULL)
         ret = ow_skip_rom();
-    else
+    else {
+
+        /* check for known family code */
+        if (!ow_temp_sensor(rom))
+            return -2;
+
         ret = ow_match_rom(rom);
+
+    }
 
     if (ret < 0)
         return ret;
@@ -438,15 +401,21 @@ int8_t ow_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
 
 } /* }}} */
 
-int8_t ow_read_scratchpad(struct ow_rom_code_t *rom, struct ow_scratchpad_t *scratchpad)
+int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad)
 /* {{{ */ {
 
     int8_t ret;
 
     if (rom == NULL)
         ret = ow_skip_rom();
-    else
+    else {
+
+        /* check for known family code */
+        if (!ow_temp_sensor(rom))
+            return -3;
+
         ret = ow_match_rom(rom);
+    }
 
     if (ret < 0)
         return ret;
@@ -457,10 +426,7 @@ int8_t ow_read_scratchpad(struct ow_rom_code_t *rom, struct ow_scratchpad_t *scr
     for (uint8_t i = 0; i < 9; i++) {
 
         /* read byte */
-        scratchpad->bytewise[i] = 0;
-
-        for (uint8_t j = 0; j < 8; j++)
-            scratchpad->bytewise[i] |= (ow_read() << j);
+        scratchpad->bytewise[i] = ow_read_byte();
 
     }
 
@@ -472,15 +438,19 @@ int8_t ow_read_scratchpad(struct ow_rom_code_t *rom, struct ow_scratchpad_t *scr
 
 } /* }}} */
 
-int8_t ow_power(struct ow_rom_code_t *rom)
+int8_t ow_temp_power(struct ow_rom_code_t *rom)
 /* {{{ */ {
 
     int8_t ret;
 
     if (rom == NULL)
         ret = ow_skip_rom();
-    else
+    else {
+        if (!ow_temp_sensor(rom))
+            return -2;
+
         ret = ow_match_rom(rom);
+    }
 
     if (ret < 0)
         return ret;
@@ -492,5 +462,72 @@ int8_t ow_power(struct ow_rom_code_t *rom)
 
 } /* }}} */
 
+int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp)
+/* {{{ */ {
+
+    if (rom->family == OW_FAMILY_DS1820)
+        return sp->temperature << 7;
+    else if (rom->family == OW_FAMILY_DS1822)
+        return sp->temperature << 4;
+    else
+        return 0xffff;
+
+} /* }}} */
+
+/*
+ *
+ * DS2502 data functions
+ *
+ */
+
+int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
+/* {{{ */ {
+
+    int8_t ret;
+
+    if (rom == NULL)
+        ret = ow_skip_rom();
+    else {
+
+        /* check for known family code */
+        if (!(rom->family == OW_FAMILY_DS2502E48))
+            return -2;
+
+        ret = ow_match_rom(rom);
+
+    }
+
+    if (ret < 0)
+        return ret;
+
+    /* transmit command byte */
+    ow_write_byte(OW_FUNC_READ_MEMORY);
+
+    /* transmit address (mac address starts at offset 5 */
+    ow_write_byte(5);
+    ow_write_byte(0);
+
+    /* read back crc sum of the command */
+    uint8_t crc = ow_read_byte();
+
+    /* check crc */
+    uint8_t crc2 = 0;
+    crc2 = _crc_ibutton_update(crc2, OW_FUNC_READ_MEMORY);
+    crc2 = _crc_ibutton_update(crc2, 5);
+    crc2 = _crc_ibutton_update(crc2, 0);
+
+    if (crc != crc2)
+        return -2;
+
+    uint8_t *p = (uint8_t *)data+5;
+
+    /* read 6 byte of data */
+    for (uint8_t i = 0; i < 6; i++)
+        *p-- = ow_read_byte();
+
+
+    return 0;
+
+} /* }}} */
 
 #endif

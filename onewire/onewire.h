@@ -62,15 +62,25 @@
 #define OW_ROM_ALARM_SEARCH 0xEC
 
 /* families */
-#define OW_FAMILY_DS18S20 0x10
+#define OW_FAMILY_DS1820 0x10
+#define OW_FAMILY_DS1822 0x22
+#define OW_FAMILY_DS2502E48 0x89
+#define OW_FAMILY_DS2502 0x09
 
 /* ds18s20 functions commands */
+
+/* temperature */
 #define OW_FUNC_CONVERT 0x44
 #define OW_FUNC_WRITE_SP 0x4E
 #define OW_FUNC_READ_SP 0xBE
 #define OW_FUNC_COPY_SP 0x48
 #define OW_FUNC_RECALL_EE 0xB8
 #define OW_FUNC_READ_POWER 0xB4
+
+/* data (only reading data is supported so far) */
+#define OW_FUNC_READ_MEMORY 0xF0
+#define OW_FUNC_READ_STATUS 0xAA
+#define OW_FUNC_READ_DATA_CRC 0xC3
 
 /* }}} */
 
@@ -160,7 +170,7 @@ struct ow_rom_code_t {
     };
 };
 
-struct ow_scratchpad_t {
+struct ow_temp_scratchpad_t {
     union {
         uint8_t bytewise[9];
         struct {
@@ -182,6 +192,18 @@ struct ow_scratchpad_t {
         };
     };
 };
+
+/* }}} */
+
+/* global variables */
+/* {{{ */
+struct ow_global_t {
+    int8_t last_discrepancy;
+    uint8_t rom_index;
+    struct ow_rom_code_t current_rom;
+};
+
+extern struct ow_global_t ow_global;
 
 /* }}} */
 
@@ -224,35 +246,59 @@ int8_t ow_skip_rom(void);
  */
 int8_t ow_match_rom(struct ow_rom_code_t *rom);
 
-/* detect rom codes of up to max devices on the bus, write their code to the
- * ow_rom_code_t struct array
+/* detect rom codes on the onewire bus. call ow_search_rom_first() for initial
+ * search, ow_search_rom_next() for next device, until 0 is returned.
  *
  * return values:
- *  n>0: successfully learned n device rom codes (n <= max)
+ *    0: no more devices on the bus
+ *    1: next device id has been placed in ow_global.current_rom
  *   -1: no presence pulse has been detected, no device connected?
  */
-int8_t ow_search_rom(struct ow_rom_code_t roms[], uint8_t max);
+#define ow_search_rom_first() ow_search_rom(1)
+#define ow_search_rom_next() ow_search_rom(0)
+int8_t ow_search_rom(uint8_t first);
+
+
+/*
+ *
+ * temperature functions (DS1820, DS1822)
+ *
+ */
+
+/* check if a node is a temperature sensor
+ *
+ * return values:
+ *  0: other node
+ *  1: temperature sensor (DS1820 or DS1822)
+ */
+int8_t ow_temp_sensor(struct ow_rom_code_t *rom);
 
 /* start temperature conversion on sensor with given id, or to all sensors (via
  * skip_rom) if NULL.  If wait is set, busy-loop until conversion is done on all
- * adressed sensors.
+ * adressed sensors.  If rom is not NULL, the rom family code is checked for known
+ * temperature sensors.
  *
  * return values:
  *    0: conversion initiated (but not done)
  *    1: conversion done
  *   -1: no presence pulse has been detected, no device connected?
+ *   -2: family code is unknown
  */
-int8_t ow_start_convert(struct ow_rom_code_t *rom, uint8_t wait);
+#define ow_temp_start_convert_wait(rom) ow_temp_start_convert(rom, 1)
+#define ow_temp_start_convert_nowait(rom) ow_temp_start_convert(rom, 0)
+int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait);
 
 /* read scratchpad memory of sensor with given id (may be null, if only one
- * sensor is connected) skip_rom)
+ * sensor is connected). If rom is not NULL, the rom family code is checked for
+ * known temperature sensors.
  *
  * return values:
  *    1: memory read
  *   -1: no presence pulse has been detected, no device connected?
  *   -2: crc check failed, multiple devices on the same bus?
+ *   -3: family code is unknown
  */
-int8_t ow_read_scratchpad(struct ow_rom_code_t *rom, struct ow_scratchpad_t *scratchpad);
+int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad);
 
 /* check for parasite powered devices, if rom is NULL, all devices are queried.
  *
@@ -260,8 +306,35 @@ int8_t ow_read_scratchpad(struct ow_rom_code_t *rom, struct ow_scratchpad_t *scr
  *    0: device(s) parasite powered
  *    1: device(s) external powered
  *   -1: no presence pulse has been detected, no device connected?
+ *   -2: given rom code is no temperature sensor
  */
-int8_t ow_power(struct ow_rom_code_t *rom);
+int8_t ow_temp_power(struct ow_rom_code_t *rom);
+
+
+/* return normalized temperature for device
+ *
+ * return values:
+ * int16_t, 8.8 fixpoint value
+ * 0xffff on error (eg unknown device)
+ */
+int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp);
+
+
+/*
+ *
+ * DS2502 data functions
+ *
+ */
+
+/* read 6 bit (48 byte) of eeprom memory
+ *
+ * return values:
+ * 0: read successful
+ * -1: no device responded
+ * -2: crc error
+ * -3: unknown rom family code
+ */
+int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data);
 
 #endif
 
