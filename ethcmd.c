@@ -20,9 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <string.h>
+
 #include "ethcmd.h"
 #include "uip/uip.h"
 #include "uart.h"
+#include "onewire/onewire.h"
+
+#define NTOHS(x) ((0x00ff & (x)) << 8 | (0xff00 & (x)) >> 8)
 
 void ethcmd_init(void)
 /* {{{ */ {
@@ -52,8 +57,36 @@ void ethcmd_main(void)
 
     if (uip_connected()) {
         uart_puts_P("cmd: new connection\r\n");
-        strcpy_P(uip_appdata, "foo!");
-        uip_send(uip_appdata, 4);
+        //strcpy_P(uip_appdata, "foo!");
+        //uip_send(uip_appdata, 4);
+        uip_conn->appstate.ethcmd.foo = 0;
+    }
+
+    if (uip_acked() && uip_conn->appstate.ethcmd.foo == 1) {
+
+        struct ethcmd_message_t *msg = (struct ethcmd_message_t *)uip_appdata;
+
+        int ret = ow_search_rom_next();
+
+        if (ret > 0) {
+            uart_puts_P("cmd: sending next ow rom id\r\n");
+
+            msg->length = HTONS(sizeof(struct ethcmd_message_t)
+                    + sizeof(struct ethcmd_onewire_message_t));
+            msg->message_type = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
+
+            struct ethcmd_onewire_message_t *ow_msg = msg->data;
+            memcpy(&ow_msg->id, &ow_global.current_rom, 8);
+
+            uip_send(uip_appdata, sizeof(struct ethcmd_message_t)
+                    + sizeof(struct ethcmd_onewire_message_t));
+        } else {
+            uart_puts_P("cmd: last rom id sent, closing connection\r\n");
+            uip_conn->appstate.ethcmd.foo = 0;
+            uip_close();
+            return;
+        }
+
     }
 
     if (uip_newdata()) {
@@ -69,9 +102,39 @@ void ethcmd_main(void)
         uart_puthexbyte( LOW(msg->length));
         uart_puthexbyte(HIGH(msg->length));
         uart_puts_P(", mesage_type: 0x");
-        uart_puthexbyte( LOW(msg->length));
-        uart_puthexbyte(HIGH(msg->length));
+        uart_puthexbyte( LOW(msg->message_type));
+        uart_puthexbyte(HIGH(msg->message_type));
         uart_eol();
+
+        if (msg->message_type == NTOHS(ETHCMD_MESSAGE_TYPE_ONEWIRE)) {
+            uart_puts_P("cmd: detected onewire discover\r\n");
+
+            /* new discover */
+            uip_conn->appstate.ethcmd.foo = 1;
+
+            int ret = ow_search_rom_first();
+
+            if (ret > 0) {
+
+                uart_puts_P("cmd: found ow rom\r\n");
+
+                msg->length = HTONS(sizeof(struct ethcmd_message_t)
+                                  + sizeof(struct ethcmd_onewire_message_t));
+                msg->message_type = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
+
+                struct ethcmd_onewire_message_t *ow_msg = msg->data;
+                memcpy(&ow_msg->id, &ow_global.current_rom, 8);
+
+                uip_send(uip_appdata, sizeof(struct ethcmd_message_t)
+                                    + sizeof(struct ethcmd_onewire_message_t));
+
+            } else {
+
+                uip_conn->appstate.ethcmd.foo = 0;
+
+            }
+
+        }
 
     }
 

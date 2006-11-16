@@ -24,7 +24,10 @@
 #define _SNTP_STATE_H
 
 struct sntp_connection_state_t {
-    uint8_t transmit_state;
+    struct {
+        uint8_t transmit_state:1;
+        uint8_t retransmit_counter:7;
+    };
     uint8_t state;
     uint8_t timeout;
 };

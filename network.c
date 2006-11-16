@@ -22,6 +22,7 @@
 
 #include <avr/eeprom.h>
 #include <util/crc16.h>
+#include <string.h>
 
 #include "network.h"
 #include "config.h"
@@ -31,12 +32,16 @@
 #include "syslog.h"
 #include "ethcmd.h"
 #include "httpd.h"
+#include "crc.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 
 #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
 #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
+
+#define BASE_CONFIG ((struct eeprom_config_base_t *)uip_buf)
+#define EXT_CONFIG ((struct eeprom_config_ext_t *)uip_buf)
 
 void network_init(void)
 /* {{{ */ {
@@ -46,31 +51,27 @@ void network_init(void)
 
     uip_ipaddr_t ipaddr;
 
-    uint8_t crc = 0;
-    uint8_t *config = (uint8_t *)&eeprom_config;
+    /* load base network settings */
+#   ifdef DEBUG_NET_CONFIG
+    uart_puts_P("net: loading base network settings\r\n");
+#   endif
 
-    for (uint8_t i = 0; i < sizeof(struct eeprom_config_t) - 1; i++) {
-        crc = _crc_ibutton_update(crc, eeprom_read_byte(config++));
-    }
+    /* use global network packet buffer for configuration */
+    eeprom_read_block(uip_buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
 
-    uint8_t config_crc = eeprom_read_byte(&eeprom_config.crc);
+    /* checksum */
+    uint8_t checksum = crc_checksum(uip_buf, sizeof(struct eeprom_config_base_t) - 1);
 
-    if (crc != config_crc) {
-#ifdef DEBUG
+    if (checksum != BASE_CONFIG->crc) {
+#       ifdef DEBUG
         uart_puts_P("net: crc mismatch: 0x");
-        uart_puthexbyte(crc);
+        uart_puthexbyte(checksum);
         uart_puts_P(" != 0x");
-        uart_puthexbyte(config_crc);
+        uart_puthexbyte(BASE_CONFIG->crc);
         uart_puts_P(" loading default settings\r\n");
-#endif
+#       endif
 
-        uip_ethaddr.addr[0] = 0xAC;
-        uip_ethaddr.addr[1] = 0xDE;
-        uip_ethaddr.addr[2] = 0x48;
-        uip_ethaddr.addr[3] = 0xFD;
-        uip_ethaddr.addr[4] = 0x0F;
-        uip_ethaddr.addr[5] = 0xD1;
-
+        memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
         uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
@@ -78,32 +79,66 @@ void network_init(void)
     } else {
 
         /* load config settings */
-
-        /* mac */
-        for (uint8_t i = 0; i < 6; i++) {
-            uint8_t mac = eeprom_read_byte(&eeprom_config.mac[i]);
-            uip_ethaddr.addr[i] = mac;
-        }
-
-        /* ip */
-        eeprom_load_ip(eeprom_config.ip, &ipaddr);
+        memcpy(uip_ethaddr.addr, &BASE_CONFIG->mac, 6);
+        memcpy(&ipaddr, &BASE_CONFIG->ip, 4);
         uip_sethostaddr(ipaddr);
-
-        /* netmask */
-        eeprom_load_ip(eeprom_config.netmask, &ipaddr);
+        memcpy(&ipaddr, &BASE_CONFIG->netmask, 4);
         uip_setnetmask(ipaddr);
-
-        /* gateway */
-        eeprom_load_ip(eeprom_config.gateway, &ipaddr);
+        memcpy(&ipaddr, &BASE_CONFIG->gateway, 4);
         uip_setdraddr(ipaddr);
 
-        /* sntp-server */
-        eeprom_load_ip(eeprom_config.sntp_server, &sntp_server);
+#       ifdef DEBUG_NET_CONFIG
+        uart_puts_P("config: ip: ");
+        uart_puts_ip(&uip_hostaddr);
+        uart_putc('/');
+        uart_puts_ip(&uip_netmask);
+        uart_puts_P(" gw: ");
+        uart_puts_ip(&uip_draddr);
+        uart_eol();
+#       endif
+
+    }
+
+    /* load extended network settings */
+#   ifdef DEBUG_NET_CONFIG
+    uart_puts_P("net: loading extended network settings\r\n");
+#   endif
+
+    /* use global network packet buffer for configuration */
+    eeprom_read_block(uip_buf, (uint8_t *)EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
+
+    /* checksum */
+    checksum = crc_checksum(uip_buf, sizeof(struct eeprom_config_ext_t) - 1);
+
+    if (checksum != EXT_CONFIG->crc) {
+#ifdef DEBUG
+        uart_puts_P("net: crc mismatch: 0x");
+        uart_puthexbyte(checksum);
+        uart_puts_P(" != 0x");
+        uart_puthexbyte(EXT_CONFIG->crc);
+        uart_eol();
+#endif
+
+        memset(&sntp_server, 0, sizeof(sntp_server));
+        memset(&global_syslog.server, 0, sizeof(global_syslog.server));
+        global_syslog.enabled = 0;
+
+    } else {
+
+        memcpy(&sntp_server, &EXT_CONFIG->sntp_server, 4);
         sntp_synchronize();
 
         /* syslog-server */
-        eeprom_load_ip(eeprom_config.syslog_server, &global_syslog.server);
+        memcpy(&global_syslog.server, &EXT_CONFIG->syslog_server, 4);
         global_syslog.enabled = 1;
+
+#       ifdef DEBUG_NET_CONFIG
+        uart_puts_P("ext config: sntp: ");
+        uart_puts_ip(&sntp_server);
+        uart_puts_P(" syslog: ");
+        uart_puts_ip(&global_syslog.server);
+        uart_eol();
+#       endif
 
     }
 

@@ -26,14 +26,3 @@
 #include "uart.h"
 #endif
 
-void eeprom_load_ip(uint8_t *addr, uip_ipaddr_t *dest)
-/* {{{ */ {
-
-    uint8_t ip[4];
-
-    for (uint8_t i = 0; i < 4; i++)
-        ip[i] = eeprom_read_byte(&addr[i]);
-
-    uip_ipaddr(*dest, ip[0], ip[1], ip[2], ip[3]);
-
-} /* }}} */

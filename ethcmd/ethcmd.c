@@ -111,7 +111,7 @@ void send_message(void)
     struct ethcmd_message_t msg;
 
     msg.length = htons(0);
-    msg.message_type = htons(ETHCMD_MESSAGE_TYPE_VERSION);
+    msg.message_type = htons(ETHCMD_MESSAGE_TYPE_ONEWIRE);
 
     int len = write(cfg.sock, &msg, sizeof(struct ethcmd_message_t));
 
@@ -123,6 +123,13 @@ void parse_message(struct ethcmd_message_t *msg)
 /* {{{ */ {
 
     printf("length: %d, message type %d\n", ntohs(msg->length), ntohs(msg->message_type));
+
+    printf("data:");
+
+    for (int i = 0; i < ntohs(msg->length) - sizeof(struct ethcmd_message_t); i++)
+        printf(" %02x", msg->data[i]);
+
+    printf("\n");
 
 }  /* }}} */
 
@@ -176,6 +183,8 @@ int main(int argc, char *argv[])
 
     DEBUG_PRINTF("connected.\n");
 
+    send_message();
+
     /* main select loop */
     char receive_buffer[BUFSIZE];
     fd_set fds;
@@ -184,13 +193,27 @@ int main(int argc, char *argv[])
     FD_SET(cfg.sock, &fds);
 
     while (1) {
-        if (select(cfg.sock+1, &fds, NULL, NULL, NULL)) {
+        if (select(cfg.sock+1, &fds, NULL, NULL, NULL) >= 0) {
 
             if (FD_ISSET(cfg.sock, &fds)) { /* data on network */
                 int len = read(cfg.sock, receive_buffer, BUFSIZE);
 
-                printf("received %d bytes\n", len);
-                parse_message((struct ethcmd_message_t *)receive_buffer);
+                if (len > 0) {
+                    printf("received %d bytes\n", len);
+
+                    struct ethcmd_message_t *msg = (struct ethcmd_message_t *)receive_buffer;
+
+                    if (ntohs(msg->length) != len)
+                        printf("packet with invalid length received!\n");
+                    else
+                        parse_message(msg);
+                } else if (len < 0)
+                    errx(EXIT_FAILURE, "read()");
+                else {
+                    printf("connection closed\n");
+                    break;
+                }
+
             }
         } else
             errx(EXIT_FAILURE, "select()");

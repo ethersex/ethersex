@@ -29,7 +29,7 @@
 #include <util/crc16.h>
 
 #include "../config.h"
-#include "crc.h"
+#include "../crc.h"
 #include "onewire.h"
 
 #if !defined(ONEWIRE_PINNUM) || !defined(ONEWIRE_PIN) || !defined(ONEWIRE_PORT) || !defined(ONEWIRE_DDR)
@@ -37,6 +37,8 @@
 #endif
 
 #ifdef ONEWIRE_SUPPORT
+
+#define noinline __attribute__((noinline))
 
 #ifdef DEBUG
 #include "../uart.h"

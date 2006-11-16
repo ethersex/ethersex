@@ -30,50 +30,25 @@
 
 #include "uip/uip.h"
 
+/* for an eeprom memory map see doc/eeprom */
+
+#define EEPROM_CONFIG_BASE  0x0000
+#define EEPROM_CONFIG_EXT   0x0013
+
 /* structures */
-struct eeprom_config_t {
+
+struct eeprom_config_base_t {
     uint8_t mac[6];
     uint8_t ip[4];
     uint8_t netmask[4];
     uint8_t gateway[4];
+    uint8_t crc;
+};
+
+struct eeprom_config_ext_t {
     uint8_t sntp_server[4];
     uint8_t syslog_server[4];
     uint8_t crc;
 };
-
-#if 0
-static struct eeprom_config_t eeprom_config EEMEM = {
-    { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
-    { 137, 226, 146, 59 },
-    { 255, 255, 254, 0 },
-    { 137, 226, 147, 1 },
-    { 134, 130, 4, 17 },
-    { 137, 226, 147, 211},
-    0x13,
-};
-#elif 1
-static struct eeprom_config_t eeprom_config EEMEM = {
-    { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
-    { 10, 0, 0, 2 },
-    { 255, 255, 255, 0 },
-    { 10, 0, 0, 1 },
-    { 10, 0, 0, 1 },
-    { 0, 0, 0, 0 },
-    0x55,
-};
-#else
-static struct eeprom_config_t eeprom_config EEMEM = {
-    { 0xac, 0xde, 0x48, 0xfd, 0x0f, 0xd1 },
-    { 172, 23, 23, 52 },
-    { 255, 255, 255, 0 },
-    { 172, 23, 23, 1 },
-    { 172, 23, 23, 1 },
-    { 172, 23, 23, 1 },
-    0x5B,
-};
-#endif
-
-/* prototypes */
-void eeprom_load_ip(uint8_t *addr, uip_ipaddr_t *dest);
 
 #endif

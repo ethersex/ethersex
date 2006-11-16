@@ -25,11 +25,17 @@
 
 #include <stdint.h>
 
-#define ETHCMD_MESSAGE_TYPE_VERSION 0
+#define ETHCMD_MESSAGE_TYPE_VERSION 0x0000
+#define ETHCMD_MESSAGE_TYPE_ONEWIRE 0x0005
 
 struct ethcmd_message_t {
     uint16_t length;
     uint16_t message_type;
+    uint8_t data[];
+};
+
+struct ethcmd_onewire_message_t {
+    uint8_t id[8];
 };
 
 #endif

@@ -43,7 +43,7 @@
   29:onewire/onewire.c **** #include <util/crc16.h>
   30:onewire/onewire.c **** 
   31:onewire/onewire.c **** #include "../config.h"
-  32:onewire/onewire.c **** #include "crc.h"
+  32:onewire/onewire.c **** #include "../crc.h"
   33:onewire/onewire.c **** #include "onewire.h"
   34:onewire/onewire.c **** 
   35:onewire/onewire.c **** #if !defined(ONEWIRE_PINNUM) || !defined(ONEWIRE_PIN) || !defined(ONEWIRE_PORT) || !defined(ONEWIRE
@@ -52,31 +52,33 @@
   38:onewire/onewire.c **** 
   39:onewire/onewire.c **** #ifdef ONEWIRE_SUPPORT
   40:onewire/onewire.c **** 
-  41:onewire/onewire.c **** #ifdef DEBUG
-  42:onewire/onewire.c **** #include "../uart.h"
-  43:onewire/onewire.c **** #endif
-  44:onewire/onewire.c **** 
-  45:onewire/onewire.c **** /* global variables */
-  46:onewire/onewire.c **** struct ow_global_t ow_global;
-  47:onewire/onewire.c **** 
-  48:onewire/onewire.c **** /* module local prototypes */
-  49:onewire/onewire.c **** void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val);
-  50:onewire/onewire.c **** uint8_t ow_read_byte(void);
-  51:onewire/onewire.c **** 
-  52:onewire/onewire.c **** void init_onewire(void)
-  53:onewire/onewire.c **** /* {{{ */ {
+  41:onewire/onewire.c **** #define noinline __attribute__((noinline))
+  42:onewire/onewire.c **** 
+  43:onewire/onewire.c **** #ifdef DEBUG
+  44:onewire/onewire.c **** #include "../uart.h"
+  45:onewire/onewire.c **** #endif
+  46:onewire/onewire.c **** 
+  47:onewire/onewire.c **** /* global variables */
+  48:onewire/onewire.c **** struct ow_global_t ow_global;
+  49:onewire/onewire.c **** 
+  50:onewire/onewire.c **** /* module local prototypes */
+  51:onewire/onewire.c **** void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val);
+  52:onewire/onewire.c **** uint8_t ow_read_byte(void);
+  53:onewire/onewire.c **** 
+  54:onewire/onewire.c **** void init_onewire(void)
+  55:onewire/onewire.c **** /* {{{ */ {
  146               	.LM0:
  147               	/* prologue: frame size=0 */
  148               	/* prologue end (size=0) */
-  54:onewire/onewire.c **** 
-  55:onewire/onewire.c ****     /* configure onewire pin as input */
-  56:onewire/onewire.c ****     OW_CONFIG_INPUT();
+  56:onewire/onewire.c **** 
+  57:onewire/onewire.c ****     /* configure onewire pin as input */
+  58:onewire/onewire.c ****     OW_CONFIG_INPUT();
  150               	.LM1:
  151 0000 5E9A      		sbi 43-0x20,6
  152 0002 5698      		cbi 42-0x20,6
-  57:onewire/onewire.c **** 
-  58:onewire/onewire.c ****     /* enable pullup */
-  59:onewire/onewire.c ****     OW_PULLUP();
+  59:onewire/onewire.c **** 
+  60:onewire/onewire.c ****     /* enable pullup */
+  61:onewire/onewire.c ****     OW_PULLUP();
  154               	.LM2:
  155 0004 5E9A      		sbi 43-0x20,6
  156               	/* epilogue: frame size=0 */
@@ -88,203 +90,203 @@
  168               	.global	ow_set_address_bit
  170               	ow_set_address_bit:
  171               		.stabd	46,0,0
-  60:onewire/onewire.c **** 
-  61:onewire/onewire.c **** } /* }}} */
   62:onewire/onewire.c **** 
-  63:onewire/onewire.c **** /* low-level functions */
+  63:onewire/onewire.c **** } /* }}} */
   64:onewire/onewire.c **** 
-  65:onewire/onewire.c **** uint8_t noinline reset_onewire(void)
-  66:onewire/onewire.c **** /* {{{ */ {
-  67:onewire/onewire.c **** 
-  68:onewire/onewire.c ****     /* pull bus low */
-  69:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
-  70:onewire/onewire.c ****     OW_LOW();
-  71:onewire/onewire.c **** 
-  72:onewire/onewire.c ****     /* wait 480us */
-  73:onewire/onewire.c ****     _delay_loop_2(OW_RESET_TIMEOUT_1);
-  74:onewire/onewire.c **** 
-  75:onewire/onewire.c ****     /* release bus */
-  76:onewire/onewire.c ****     OW_HIGH();
-  77:onewire/onewire.c ****     OW_CONFIG_INPUT();
-  78:onewire/onewire.c **** 
-  79:onewire/onewire.c ****     /* wait 60us (maximal pause) + 30 us (half minimum pulse) */
-  80:onewire/onewire.c ****     _delay_loop_2(OW_RESET_TIMEOUT_2);
-  81:onewire/onewire.c **** 
-  82:onewire/onewire.c ****     /* sample data */
-  83:onewire/onewire.c ****     uint8_t data1 = OW_GET_INPUT();
-  84:onewire/onewire.c **** 
-  85:onewire/onewire.c ****     /* wait 390us */
-  86:onewire/onewire.c ****     _delay_loop_2(OW_RESET_TIMEOUT_3);
-  87:onewire/onewire.c **** 
-  88:onewire/onewire.c ****     /* sample data again */
-  89:onewire/onewire.c ****     uint8_t data2 = OW_GET_INPUT();
-  90:onewire/onewire.c **** 
-  91:onewire/onewire.c ****     /* if first sample is low and second sample is high, at least one device is
-  92:onewire/onewire.c ****      * attached to this bus */
-  93:onewire/onewire.c ****     return !data1 && data2;
-  94:onewire/onewire.c **** 
-  95:onewire/onewire.c **** } /* }}} */
+  65:onewire/onewire.c **** /* low-level functions */
+  66:onewire/onewire.c **** 
+  67:onewire/onewire.c **** uint8_t noinline reset_onewire(void)
+  68:onewire/onewire.c **** /* {{{ */ {
+  69:onewire/onewire.c **** 
+  70:onewire/onewire.c ****     /* pull bus low */
+  71:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
+  72:onewire/onewire.c ****     OW_LOW();
+  73:onewire/onewire.c **** 
+  74:onewire/onewire.c ****     /* wait 480us */
+  75:onewire/onewire.c ****     _delay_loop_2(OW_RESET_TIMEOUT_1);
+  76:onewire/onewire.c **** 
+  77:onewire/onewire.c ****     /* release bus */
+  78:onewire/onewire.c ****     OW_HIGH();
+  79:onewire/onewire.c ****     OW_CONFIG_INPUT();
+  80:onewire/onewire.c **** 
+  81:onewire/onewire.c ****     /* wait 60us (maximal pause) + 30 us (half minimum pulse) */
+  82:onewire/onewire.c ****     _delay_loop_2(OW_RESET_TIMEOUT_2);
+  83:onewire/onewire.c **** 
+  84:onewire/onewire.c ****     /* sample data */
+  85:onewire/onewire.c ****     uint8_t data1 = OW_GET_INPUT();
+  86:onewire/onewire.c **** 
+  87:onewire/onewire.c ****     /* wait 390us */
+  88:onewire/onewire.c ****     _delay_loop_2(OW_RESET_TIMEOUT_3);
+  89:onewire/onewire.c **** 
+  90:onewire/onewire.c ****     /* sample data again */
+  91:onewire/onewire.c ****     uint8_t data2 = OW_GET_INPUT();
+  92:onewire/onewire.c **** 
+  93:onewire/onewire.c ****     /* if first sample is low and second sample is high, at least one device is
+  94:onewire/onewire.c ****      * attached to this bus */
+  95:onewire/onewire.c ****     return !data1 && data2;
   96:onewire/onewire.c **** 
-  97:onewire/onewire.c **** void noinline ow_write_0(void)
-  98:onewire/onewire.c **** /* {{{ */ {
-  99:onewire/onewire.c **** 
- 100:onewire/onewire.c ****     /* a write 0 timeslot is initiated by holding the data line low for
- 101:onewire/onewire.c ****      * approximately 80us */
- 102:onewire/onewire.c **** 
- 103:onewire/onewire.c ****     OW_LOW();
- 104:onewire/onewire.c ****     _delay_loop_2(OW_WRITE_0_TIMEOUT);
- 105:onewire/onewire.c ****     OW_HIGH();
- 106:onewire/onewire.c **** 
- 107:onewire/onewire.c **** } /* }}} */
+  97:onewire/onewire.c **** } /* }}} */
+  98:onewire/onewire.c **** 
+  99:onewire/onewire.c **** void noinline ow_write_0(void)
+ 100:onewire/onewire.c **** /* {{{ */ {
+ 101:onewire/onewire.c **** 
+ 102:onewire/onewire.c ****     /* a write 0 timeslot is initiated by holding the data line low for
+ 103:onewire/onewire.c ****      * approximately 80us */
+ 104:onewire/onewire.c **** 
+ 105:onewire/onewire.c ****     OW_LOW();
+ 106:onewire/onewire.c ****     _delay_loop_2(OW_WRITE_0_TIMEOUT);
+ 107:onewire/onewire.c ****     OW_HIGH();
  108:onewire/onewire.c **** 
- 109:onewire/onewire.c **** void noinline ow_write_1(void)
- 110:onewire/onewire.c **** /* {{{ */ {
- 111:onewire/onewire.c **** 
- 112:onewire/onewire.c ****     /* a write 1 timeslot is initiated by holding the data line low for
- 113:onewire/onewire.c ****      * approximately 4us, then restore the idle state and wait at least 80us */
- 114:onewire/onewire.c **** 
- 115:onewire/onewire.c ****     OW_LOW();
- 116:onewire/onewire.c ****     _delay_loop_2(OW_WRITE_1_TIMEOUT_1);
- 117:onewire/onewire.c ****     OW_HIGH();
- 118:onewire/onewire.c ****     _delay_loop_2(OW_WRITE_1_TIMEOUT_2);
- 119:onewire/onewire.c **** 
- 120:onewire/onewire.c **** } /* }}} */
+ 109:onewire/onewire.c **** } /* }}} */
+ 110:onewire/onewire.c **** 
+ 111:onewire/onewire.c **** void noinline ow_write_1(void)
+ 112:onewire/onewire.c **** /* {{{ */ {
+ 113:onewire/onewire.c **** 
+ 114:onewire/onewire.c ****     /* a write 1 timeslot is initiated by holding the data line low for
+ 115:onewire/onewire.c ****      * approximately 4us, then restore the idle state and wait at least 80us */
+ 116:onewire/onewire.c **** 
+ 117:onewire/onewire.c ****     OW_LOW();
+ 118:onewire/onewire.c ****     _delay_loop_2(OW_WRITE_1_TIMEOUT_1);
+ 119:onewire/onewire.c ****     OW_HIGH();
+ 120:onewire/onewire.c ****     _delay_loop_2(OW_WRITE_1_TIMEOUT_2);
  121:onewire/onewire.c **** 
- 122:onewire/onewire.c **** void noinline ow_write(uint8_t value)
- 123:onewire/onewire.c **** /* {{{ */ {
- 124:onewire/onewire.c **** 
- 125:onewire/onewire.c ****     if (value > 0)
- 126:onewire/onewire.c ****         ow_write_1();
- 127:onewire/onewire.c ****     else
- 128:onewire/onewire.c ****         ow_write_0();
- 129:onewire/onewire.c **** 
- 130:onewire/onewire.c **** } /* }}} */
+ 122:onewire/onewire.c **** } /* }}} */
+ 123:onewire/onewire.c **** 
+ 124:onewire/onewire.c **** void noinline ow_write(uint8_t value)
+ 125:onewire/onewire.c **** /* {{{ */ {
+ 126:onewire/onewire.c **** 
+ 127:onewire/onewire.c ****     if (value > 0)
+ 128:onewire/onewire.c ****         ow_write_1();
+ 129:onewire/onewire.c ****     else
+ 130:onewire/onewire.c ****         ow_write_0();
  131:onewire/onewire.c **** 
- 132:onewire/onewire.c **** void noinline ow_write_byte(uint8_t value)
- 133:onewire/onewire.c **** /* {{{ */ {
- 134:onewire/onewire.c **** 
- 135:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
- 136:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
- 137:onewire/onewire.c **** 
- 138:onewire/onewire.c ****         ow_write(value & _BV(i));
- 139:onewire/onewire.c ****     }
- 140:onewire/onewire.c **** 
- 141:onewire/onewire.c **** } /* }}} */
+ 132:onewire/onewire.c **** } /* }}} */
+ 133:onewire/onewire.c **** 
+ 134:onewire/onewire.c **** void noinline ow_write_byte(uint8_t value)
+ 135:onewire/onewire.c **** /* {{{ */ {
+ 136:onewire/onewire.c **** 
+ 137:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
+ 138:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
+ 139:onewire/onewire.c **** 
+ 140:onewire/onewire.c ****         ow_write(value & _BV(i));
+ 141:onewire/onewire.c ****     }
  142:onewire/onewire.c **** 
- 143:onewire/onewire.c **** /* FIXME: (optimization) combine ow_write_1() and ow_read(), as they are very similar */
- 144:onewire/onewire.c **** uint8_t noinline ow_read(void)
- 145:onewire/onewire.c **** /* {{{ */ {
- 146:onewire/onewire.c **** 
- 147:onewire/onewire.c ****     /* a read timeslot is sent by holding the data line low for
- 148:onewire/onewire.c ****      * 1us, then wait approximately 14us, then sample data and
- 149:onewire/onewire.c ****      * wait  */
- 150:onewire/onewire.c **** 
- 151:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
- 152:onewire/onewire.c ****     OW_LOW();
- 153:onewire/onewire.c **** 
- 154:onewire/onewire.c ****     _delay_loop_2(OW_READ_TIMEOUT_1);
+ 143:onewire/onewire.c **** } /* }}} */
+ 144:onewire/onewire.c **** 
+ 145:onewire/onewire.c **** /* FIXME: (optimization) combine ow_write_1() and ow_read(), as they are very similar */
+ 146:onewire/onewire.c **** uint8_t noinline ow_read(void)
+ 147:onewire/onewire.c **** /* {{{ */ {
+ 148:onewire/onewire.c **** 
+ 149:onewire/onewire.c ****     /* a read timeslot is sent by holding the data line low for
+ 150:onewire/onewire.c ****      * 1us, then wait approximately 14us, then sample data and
+ 151:onewire/onewire.c ****      * wait  */
+ 152:onewire/onewire.c **** 
+ 153:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
+ 154:onewire/onewire.c ****     OW_LOW();
  155:onewire/onewire.c **** 
- 156:onewire/onewire.c ****     OW_HIGH();
- 157:onewire/onewire.c ****     OW_CONFIG_INPUT();
- 158:onewire/onewire.c **** 
- 159:onewire/onewire.c ****     _delay_loop_2(OW_READ_TIMEOUT_2);
+ 156:onewire/onewire.c ****     _delay_loop_2(OW_READ_TIMEOUT_1);
+ 157:onewire/onewire.c **** 
+ 158:onewire/onewire.c ****     OW_HIGH();
+ 159:onewire/onewire.c ****     OW_CONFIG_INPUT();
  160:onewire/onewire.c **** 
- 161:onewire/onewire.c ****     /* sample data now */
- 162:onewire/onewire.c ****     uint8_t data = OW_GET_INPUT();
- 163:onewire/onewire.c **** 
- 164:onewire/onewire.c ****     /* wait for remaining slot time */
- 165:onewire/onewire.c ****     _delay_loop_2(OW_READ_TIMEOUT_3);
- 166:onewire/onewire.c **** 
- 167:onewire/onewire.c ****     return data;
+ 161:onewire/onewire.c ****     _delay_loop_2(OW_READ_TIMEOUT_2);
+ 162:onewire/onewire.c **** 
+ 163:onewire/onewire.c ****     /* sample data now */
+ 164:onewire/onewire.c ****     uint8_t data = OW_GET_INPUT();
+ 165:onewire/onewire.c **** 
+ 166:onewire/onewire.c ****     /* wait for remaining slot time */
+ 167:onewire/onewire.c ****     _delay_loop_2(OW_READ_TIMEOUT_3);
  168:onewire/onewire.c **** 
- 169:onewire/onewire.c **** } /* }}} */
+ 169:onewire/onewire.c ****     return data;
  170:onewire/onewire.c **** 
- 171:onewire/onewire.c **** uint8_t noinline ow_read_byte(void)
- 172:onewire/onewire.c **** /* {{{ */ {
- 173:onewire/onewire.c **** 
- 174:onewire/onewire.c ****     uint8_t data = 0;
+ 171:onewire/onewire.c **** } /* }}} */
+ 172:onewire/onewire.c **** 
+ 173:onewire/onewire.c **** uint8_t noinline ow_read_byte(void)
+ 174:onewire/onewire.c **** /* {{{ */ {
  175:onewire/onewire.c **** 
- 176:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
- 177:onewire/onewire.c ****         data |= (ow_read() << i);
- 178:onewire/onewire.c ****     }
- 179:onewire/onewire.c **** 
- 180:onewire/onewire.c ****     return data;
+ 176:onewire/onewire.c ****     uint8_t data = 0;
+ 177:onewire/onewire.c **** 
+ 178:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
+ 179:onewire/onewire.c ****         data |= (ow_read() << i);
+ 180:onewire/onewire.c ****     }
  181:onewire/onewire.c **** 
- 182:onewire/onewire.c **** } /* }}} */
+ 182:onewire/onewire.c ****     return data;
  183:onewire/onewire.c **** 
- 184:onewire/onewire.c **** 
- 185:onewire/onewire.c **** /* mid-level functions */
- 186:onewire/onewire.c **** int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
- 187:onewire/onewire.c **** /* {{{ */ {
- 188:onewire/onewire.c **** 
- 189:onewire/onewire.c ****     /* reset the bus */
- 190:onewire/onewire.c ****     if (!reset_onewire())
- 191:onewire/onewire.c ****         return -1;
- 192:onewire/onewire.c **** 
- 193:onewire/onewire.c ****     /* transmit command byte */
- 194:onewire/onewire.c ****     ow_write_byte(OW_ROM_READ_ROM);
- 195:onewire/onewire.c **** 
- 196:onewire/onewire.c ****     /* read 64bit rom code */
- 197:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
- 198:onewire/onewire.c **** 
- 199:onewire/onewire.c ****         /* read byte */
- 200:onewire/onewire.c ****         rom->bytewise[i] = ow_read_byte();
- 201:onewire/onewire.c ****     }
- 202:onewire/onewire.c **** 
- 203:onewire/onewire.c ****     /* check CRC (last byte) */
- 204:onewire/onewire.c ****     if (rom->crc != crc_checksum(rom->bytewise, 7))
- 205:onewire/onewire.c ****         return -2;
- 206:onewire/onewire.c **** 
- 207:onewire/onewire.c ****     return 1;
+ 184:onewire/onewire.c **** } /* }}} */
+ 185:onewire/onewire.c **** 
+ 186:onewire/onewire.c **** 
+ 187:onewire/onewire.c **** /* mid-level functions */
+ 188:onewire/onewire.c **** int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
+ 189:onewire/onewire.c **** /* {{{ */ {
+ 190:onewire/onewire.c **** 
+ 191:onewire/onewire.c ****     /* reset the bus */
+ 192:onewire/onewire.c ****     if (!reset_onewire())
+ 193:onewire/onewire.c ****         return -1;
+ 194:onewire/onewire.c **** 
+ 195:onewire/onewire.c ****     /* transmit command byte */
+ 196:onewire/onewire.c ****     ow_write_byte(OW_ROM_READ_ROM);
+ 197:onewire/onewire.c **** 
+ 198:onewire/onewire.c ****     /* read 64bit rom code */
+ 199:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
+ 200:onewire/onewire.c **** 
+ 201:onewire/onewire.c ****         /* read byte */
+ 202:onewire/onewire.c ****         rom->bytewise[i] = ow_read_byte();
+ 203:onewire/onewire.c ****     }
+ 204:onewire/onewire.c **** 
+ 205:onewire/onewire.c ****     /* check CRC (last byte) */
+ 206:onewire/onewire.c ****     if (rom->crc != crc_checksum(rom->bytewise, 7))
+ 207:onewire/onewire.c ****         return -2;
  208:onewire/onewire.c **** 
- 209:onewire/onewire.c **** } /* }}} */
+ 209:onewire/onewire.c ****     return 1;
  210:onewire/onewire.c **** 
- 211:onewire/onewire.c **** int8_t noinline ow_skip_rom(void)
- 212:onewire/onewire.c **** /* {{{ */ {
- 213:onewire/onewire.c **** 
- 214:onewire/onewire.c ****     /* reset the bus */
- 215:onewire/onewire.c ****     if (!reset_onewire())
- 216:onewire/onewire.c ****         return -1;
- 217:onewire/onewire.c **** 
- 218:onewire/onewire.c ****     /* transmit command byte */
- 219:onewire/onewire.c ****     ow_write_byte(OW_ROM_SKIP_ROM);
- 220:onewire/onewire.c **** 
- 221:onewire/onewire.c ****     return 1;
+ 211:onewire/onewire.c **** } /* }}} */
+ 212:onewire/onewire.c **** 
+ 213:onewire/onewire.c **** int8_t noinline ow_skip_rom(void)
+ 214:onewire/onewire.c **** /* {{{ */ {
+ 215:onewire/onewire.c **** 
+ 216:onewire/onewire.c ****     /* reset the bus */
+ 217:onewire/onewire.c ****     if (!reset_onewire())
+ 218:onewire/onewire.c ****         return -1;
+ 219:onewire/onewire.c **** 
+ 220:onewire/onewire.c ****     /* transmit command byte */
+ 221:onewire/onewire.c ****     ow_write_byte(OW_ROM_SKIP_ROM);
  222:onewire/onewire.c **** 
- 223:onewire/onewire.c **** } /* }}} */
+ 223:onewire/onewire.c ****     return 1;
  224:onewire/onewire.c **** 
- 225:onewire/onewire.c **** int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
- 226:onewire/onewire.c **** /* {{{ */ {
- 227:onewire/onewire.c **** 
- 228:onewire/onewire.c ****     /* reset the bus */
- 229:onewire/onewire.c ****     if (!reset_onewire())
- 230:onewire/onewire.c ****         return -1;
- 231:onewire/onewire.c **** 
- 232:onewire/onewire.c ****     /* transmit command byte */
- 233:onewire/onewire.c ****     ow_write_byte(OW_ROM_MATCH_ROM);
- 234:onewire/onewire.c **** 
- 235:onewire/onewire.c ****     /* transmit rom code */
- 236:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
- 237:onewire/onewire.c **** 
- 238:onewire/onewire.c ****         for (uint8_t j = 0; j < 8; j++)
- 239:onewire/onewire.c ****             ow_write(rom->bytewise[i] & _BV(j));
- 240:onewire/onewire.c **** 
- 241:onewire/onewire.c ****     }
+ 225:onewire/onewire.c **** } /* }}} */
+ 226:onewire/onewire.c **** 
+ 227:onewire/onewire.c **** int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
+ 228:onewire/onewire.c **** /* {{{ */ {
+ 229:onewire/onewire.c **** 
+ 230:onewire/onewire.c ****     /* reset the bus */
+ 231:onewire/onewire.c ****     if (!reset_onewire())
+ 232:onewire/onewire.c ****         return -1;
+ 233:onewire/onewire.c **** 
+ 234:onewire/onewire.c ****     /* transmit command byte */
+ 235:onewire/onewire.c ****     ow_write_byte(OW_ROM_MATCH_ROM);
+ 236:onewire/onewire.c **** 
+ 237:onewire/onewire.c ****     /* transmit rom code */
+ 238:onewire/onewire.c ****     for (uint8_t i = 0; i < 8; i++) {
+ 239:onewire/onewire.c **** 
+ 240:onewire/onewire.c ****         for (uint8_t j = 0; j < 8; j++)
+ 241:onewire/onewire.c ****             ow_write(rom->bytewise[i] & _BV(j));
  242:onewire/onewire.c **** 
- 243:onewire/onewire.c ****     return 1;
+ 243:onewire/onewire.c ****     }
  244:onewire/onewire.c **** 
- 245:onewire/onewire.c **** } /* }}} */
+ 245:onewire/onewire.c ****     return 1;
  246:onewire/onewire.c **** 
- 247:onewire/onewire.c **** 
- 248:onewire/onewire.c **** void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
- 249:onewire/onewire.c **** /* {{{ */ {
+ 247:onewire/onewire.c **** } /* }}} */
+ 248:onewire/onewire.c **** 
+ 249:onewire/onewire.c **** 
+ 250:onewire/onewire.c **** void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
+ 251:onewire/onewire.c **** /* {{{ */ {
  173               	.LM3:
  174               	/* prologue: frame size=0 */
  175               	/* prologue end (size=0) */
  176 0008 FC01      		movw r30,r24
- 250:onewire/onewire.c **** 
- 251:onewire/onewire.c ****     uint8_t byte = idx / 8;
- 252:onewire/onewire.c ****     uint8_t bit = idx % 8;
+ 252:onewire/onewire.c **** 
+ 253:onewire/onewire.c ****     uint8_t byte = idx / 8;
+ 254:onewire/onewire.c ****     uint8_t bit = idx % 8;
  178               	.LM4:
  179 000a 862F      		mov r24,r22
  180 000c 8770      		andi r24,lo8(7)
@@ -294,12 +296,12 @@
  184 0014 7727      		clr r23
  185 0016 282F      		mov r18,r24
  186 0018 3327      		clr r19
- 253:onewire/onewire.c **** 
- 254:onewire/onewire.c ****     if (val == 0)
+ 255:onewire/onewire.c **** 
+ 256:onewire/onewire.c ****     if (val == 0)
  188               	.LM5:
  189 001a 4423      		tst r20
  190 001c 69F4      		brne .L4
- 255:onewire/onewire.c ****         rom->bytewise[byte] &= ~_BV(bit);
+ 257:onewire/onewire.c ****         rom->bytewise[byte] &= ~_BV(bit);
  192               	.LM6:
  193 001e E60F      		add r30,r22
  194 0020 F71F      		adc r31,r23
@@ -315,8 +317,8 @@
  204 0034 2823      		and r18,r24
  205 0036 0BC0      		rjmp .L8
  206               	.L4:
- 256:onewire/onewire.c ****     else
- 257:onewire/onewire.c ****         rom->bytewise[byte] |= _BV(bit);
+ 258:onewire/onewire.c ****     else
+ 259:onewire/onewire.c ****         rom->bytewise[byte] |= _BV(bit);
  208               	.LM7:
  209 0038 E60F      		add r30,r22
  210 003a F71F      		adc r31,r23
@@ -341,114 +343,114 @@
  236               	.global	ow_temp_sensor
  238               	ow_temp_sensor:
  239               		.stabd	46,0,0
- 258:onewire/onewire.c **** 
- 259:onewire/onewire.c **** /* }}} */ }
  260:onewire/onewire.c **** 
- 261:onewire/onewire.c **** /* high-level functions */
- 262:onewire/onewire.c **** int8_t noinline ow_search_rom(uint8_t first)
- 263:onewire/onewire.c **** /* {{{ */ {
- 264:onewire/onewire.c **** 
- 265:onewire/onewire.c ****     /* reset discover state machine */
- 266:onewire/onewire.c ****     if (first) {
- 267:onewire/onewire.c ****         ow_global.last_discrepancy = -1;
- 268:onewire/onewire.c ****         ow_global.rom_index = 0;
- 269:onewire/onewire.c **** 
- 270:onewire/onewire.c ****         /* reset rom code */
- 271:onewire/onewire.c ****         for (uint8_t i = 0; i < 8; i++)
- 272:onewire/onewire.c ****             ow_global.current_rom.bytewise[i] = 0;
- 273:onewire/onewire.c **** 
- 274:onewire/onewire.c ****     } else {
+ 261:onewire/onewire.c **** /* }}} */ }
+ 262:onewire/onewire.c **** 
+ 263:onewire/onewire.c **** /* high-level functions */
+ 264:onewire/onewire.c **** int8_t noinline ow_search_rom(uint8_t first)
+ 265:onewire/onewire.c **** /* {{{ */ {
+ 266:onewire/onewire.c **** 
+ 267:onewire/onewire.c ****     /* reset discover state machine */
+ 268:onewire/onewire.c ****     if (first) {
+ 269:onewire/onewire.c ****         ow_global.last_discrepancy = -1;
+ 270:onewire/onewire.c ****         ow_global.rom_index = 0;
+ 271:onewire/onewire.c **** 
+ 272:onewire/onewire.c ****         /* reset rom code */
+ 273:onewire/onewire.c ****         for (uint8_t i = 0; i < 8; i++)
+ 274:onewire/onewire.c ****             ow_global.current_rom.bytewise[i] = 0;
  275:onewire/onewire.c **** 
- 276:onewire/onewire.c ****         /* if last_discrepancy is below zero, discovery is done */
- 277:onewire/onewire.c ****         if (ow_global.last_discrepancy < 0)
- 278:onewire/onewire.c ****             return 0;
- 279:onewire/onewire.c **** 
- 280:onewire/onewire.c ****     }
+ 276:onewire/onewire.c ****     } else {
+ 277:onewire/onewire.c **** 
+ 278:onewire/onewire.c ****         /* if last_discrepancy is below zero, discovery is done */
+ 279:onewire/onewire.c ****         if (ow_global.last_discrepancy < 0)
+ 280:onewire/onewire.c ****             return 0;
  281:onewire/onewire.c **** 
- 282:onewire/onewire.c ****     uint8_t discrepancy = -1;
+ 282:onewire/onewire.c ****     }
  283:onewire/onewire.c **** 
- 284:onewire/onewire.c ****     /* reset the bus */
- 285:onewire/onewire.c ****     if (!reset_onewire())
- 286:onewire/onewire.c ****         return -1;
- 287:onewire/onewire.c **** 
- 288:onewire/onewire.c ****     /* transmit command byte */
- 289:onewire/onewire.c ****     ow_write_byte(OW_ROM_SEARCH_ROM);
- 290:onewire/onewire.c **** 
- 291:onewire/onewire.c ****     for (uint8_t i = 0; i <64; i++) {
+ 284:onewire/onewire.c ****     uint8_t discrepancy = -1;
+ 285:onewire/onewire.c **** 
+ 286:onewire/onewire.c ****     /* reset the bus */
+ 287:onewire/onewire.c ****     if (!reset_onewire())
+ 288:onewire/onewire.c ****         return -1;
+ 289:onewire/onewire.c **** 
+ 290:onewire/onewire.c ****     /* transmit command byte */
+ 291:onewire/onewire.c ****     ow_write_byte(OW_ROM_SEARCH_ROM);
  292:onewire/onewire.c **** 
- 293:onewire/onewire.c ****         /* read bits */
- 294:onewire/onewire.c ****         uint8_t bit1 = ow_read();
- 295:onewire/onewire.c ****         uint8_t bits = (ow_read() << 1) | bit1;
- 296:onewire/onewire.c **** 
- 297:onewire/onewire.c ****         if (bits == 3) {
+ 293:onewire/onewire.c ****     for (uint8_t i = 0; i <64; i++) {
+ 294:onewire/onewire.c **** 
+ 295:onewire/onewire.c ****         /* read bits */
+ 296:onewire/onewire.c ****         uint8_t bit1 = ow_read();
+ 297:onewire/onewire.c ****         uint8_t bits = (ow_read() << 1) | bit1;
  298:onewire/onewire.c **** 
- 299:onewire/onewire.c ****             /* no devices, just return */
- 300:onewire/onewire.c ****             return 0;
- 301:onewire/onewire.c **** 
- 302:onewire/onewire.c ****         } else if (bits == 0) {
+ 299:onewire/onewire.c ****         if (bits == 3) {
+ 300:onewire/onewire.c **** 
+ 301:onewire/onewire.c ****             /* no devices, just return */
+ 302:onewire/onewire.c ****             return 0;
  303:onewire/onewire.c **** 
- 304:onewire/onewire.c ****             if (i == ow_global.last_discrepancy) {
+ 304:onewire/onewire.c ****         } else if (bits == 0) {
  305:onewire/onewire.c **** 
- 306:onewire/onewire.c ****                 /* set one */
- 307:onewire/onewire.c ****                 ow_set_address_bit(&ow_global.current_rom, i, 1);
- 308:onewire/onewire.c **** 
- 309:onewire/onewire.c ****                 /* transmit one next time */
- 310:onewire/onewire.c ****                 bit1 = 1;
- 311:onewire/onewire.c **** 
- 312:onewire/onewire.c ****             } else if (i > ow_global.last_discrepancy) {
+ 306:onewire/onewire.c ****             if (i == ow_global.last_discrepancy) {
+ 307:onewire/onewire.c **** 
+ 308:onewire/onewire.c ****                 /* set one */
+ 309:onewire/onewire.c ****                 ow_set_address_bit(&ow_global.current_rom, i, 1);
+ 310:onewire/onewire.c **** 
+ 311:onewire/onewire.c ****                 /* transmit one next time */
+ 312:onewire/onewire.c ****                 bit1 = 1;
  313:onewire/onewire.c **** 
- 314:onewire/onewire.c ****                 /* set zero */
- 315:onewire/onewire.c ****                 ow_set_address_bit(&ow_global.current_rom, i, 0);
- 316:onewire/onewire.c ****                 discrepancy = i;
- 317:onewire/onewire.c **** 
- 318:onewire/onewire.c ****             } else {
+ 314:onewire/onewire.c ****             } else if (i > ow_global.last_discrepancy) {
+ 315:onewire/onewire.c **** 
+ 316:onewire/onewire.c ****                 /* set zero */
+ 317:onewire/onewire.c ****                 ow_set_address_bit(&ow_global.current_rom, i, 0);
+ 318:onewire/onewire.c ****                 discrepancy = i;
  319:onewire/onewire.c **** 
- 320:onewire/onewire.c ****                 uint8_t rom_bit = ow_global.current_rom.bytewise[i / 8] & _BV(i % 8);
+ 320:onewire/onewire.c ****             } else {
  321:onewire/onewire.c **** 
- 322:onewire/onewire.c ****                 if (rom_bit == 0)
- 323:onewire/onewire.c ****                     discrepancy = i;
- 324:onewire/onewire.c **** 
- 325:onewire/onewire.c ****                 /* transmit last bit next time */
- 326:onewire/onewire.c ****                 bit1 = rom_bit;
- 327:onewire/onewire.c **** 
- 328:onewire/onewire.c ****             }
+ 322:onewire/onewire.c ****                 uint8_t rom_bit = ow_global.current_rom.bytewise[i / 8] & _BV(i % 8);
+ 323:onewire/onewire.c **** 
+ 324:onewire/onewire.c ****                 if (rom_bit == 0)
+ 325:onewire/onewire.c ****                     discrepancy = i;
+ 326:onewire/onewire.c **** 
+ 327:onewire/onewire.c ****                 /* transmit last bit next time */
+ 328:onewire/onewire.c ****                 bit1 = rom_bit;
  329:onewire/onewire.c **** 
- 330:onewire/onewire.c ****         } else {
+ 330:onewire/onewire.c ****             }
  331:onewire/onewire.c **** 
- 332:onewire/onewire.c ****             /* normal case, no discrepancy */
- 333:onewire/onewire.c ****             ow_set_address_bit(&ow_global.current_rom, i, bit1);
- 334:onewire/onewire.c **** 
- 335:onewire/onewire.c ****         }
+ 332:onewire/onewire.c ****         } else {
+ 333:onewire/onewire.c **** 
+ 334:onewire/onewire.c ****             /* normal case, no discrepancy */
+ 335:onewire/onewire.c ****             ow_set_address_bit(&ow_global.current_rom, i, bit1);
  336:onewire/onewire.c **** 
- 337:onewire/onewire.c ****         OW_CONFIG_OUTPUT();
+ 337:onewire/onewire.c ****         }
  338:onewire/onewire.c **** 
- 339:onewire/onewire.c ****         /* select next bit */
- 340:onewire/onewire.c ****         ow_write(bit1);
- 341:onewire/onewire.c **** 
- 342:onewire/onewire.c ****     }
+ 339:onewire/onewire.c ****         OW_CONFIG_OUTPUT();
+ 340:onewire/onewire.c **** 
+ 341:onewire/onewire.c ****         /* select next bit */
+ 342:onewire/onewire.c ****         ow_write(bit1);
  343:onewire/onewire.c **** 
- 344:onewire/onewire.c ****     ow_global.last_discrepancy = discrepancy;
+ 344:onewire/onewire.c ****     }
  345:onewire/onewire.c **** 
- 346:onewire/onewire.c ****     /* new device discovered */
- 347:onewire/onewire.c ****     return 1;
- 348:onewire/onewire.c **** 
- 349:onewire/onewire.c **** } /* }}} */
+ 346:onewire/onewire.c ****     ow_global.last_discrepancy = discrepancy;
+ 347:onewire/onewire.c **** 
+ 348:onewire/onewire.c ****     /* new device discovered */
+ 349:onewire/onewire.c ****     return 1;
  350:onewire/onewire.c **** 
- 351:onewire/onewire.c **** /*
- 352:onewire/onewire.c ****  *
- 353:onewire/onewire.c ****  * temperature functions
+ 351:onewire/onewire.c **** } /* }}} */
+ 352:onewire/onewire.c **** 
+ 353:onewire/onewire.c **** /*
  354:onewire/onewire.c ****  *
- 355:onewire/onewire.c ****  */
- 356:onewire/onewire.c **** 
- 357:onewire/onewire.c **** int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
- 358:onewire/onewire.c **** /* {{{ */ {
+ 355:onewire/onewire.c ****  * temperature functions
+ 356:onewire/onewire.c ****  *
+ 357:onewire/onewire.c ****  */
+ 358:onewire/onewire.c **** 
+ 359:onewire/onewire.c **** int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
+ 360:onewire/onewire.c **** /* {{{ */ {
  241               	.LM8:
  242               	/* prologue: frame size=0 */
  243               	/* prologue end (size=0) */
  244 0052 FC01      		movw r30,r24
- 359:onewire/onewire.c **** 
- 360:onewire/onewire.c ****     /* check for known family code */
- 361:onewire/onewire.c ****     if (rom->family == OW_FAMILY_DS1820 ||
+ 361:onewire/onewire.c **** 
+ 362:onewire/onewire.c ****     /* check for known family code */
+ 363:onewire/onewire.c ****     if (rom->family == OW_FAMILY_DS1820 ||
  246               	.LM9:
  247 0054 E081      		ld r30,Z
  248 0056 E031      		cpi r30,lo8(16)
@@ -465,12 +467,12 @@
  260 0068 81E0      		ldi r24,lo8(1)
  261 006a 90E0      		ldi r25,hi8(1)
  262               	.L12:
- 362:onewire/onewire.c ****             rom->family == OW_FAMILY_DS1822)
- 363:onewire/onewire.c ****         return 1;
- 364:onewire/onewire.c **** 
- 365:onewire/onewire.c ****     return 0;
+ 364:onewire/onewire.c ****             rom->family == OW_FAMILY_DS1822)
+ 365:onewire/onewire.c ****         return 1;
  366:onewire/onewire.c **** 
- 367:onewire/onewire.c **** } /* }}} */
+ 367:onewire/onewire.c ****     return 0;
+ 368:onewire/onewire.c **** 
+ 369:onewire/onewire.c **** } /* }}} */
  264               	.LM11:
  265 006c 0895      		ret
  266               	/* epilogue: frame size=0 */
@@ -482,117 +484,117 @@
  277               	.global	ow_temp_normalize
  279               	ow_temp_normalize:
  280               		.stabd	46,0,0
- 368:onewire/onewire.c **** 
- 369:onewire/onewire.c **** int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
- 370:onewire/onewire.c **** /* {{{ */ {
- 371:onewire/onewire.c **** 
- 372:onewire/onewire.c ****     int8_t ret;
+ 370:onewire/onewire.c **** 
+ 371:onewire/onewire.c **** int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
+ 372:onewire/onewire.c **** /* {{{ */ {
  373:onewire/onewire.c **** 
- 374:onewire/onewire.c ****     if (rom == NULL)
- 375:onewire/onewire.c ****         ret = ow_skip_rom();
- 376:onewire/onewire.c ****     else {
- 377:onewire/onewire.c **** 
- 378:onewire/onewire.c ****         /* check for known family code */
- 379:onewire/onewire.c ****         if (!ow_temp_sensor(rom))
- 380:onewire/onewire.c ****             return -2;
- 381:onewire/onewire.c **** 
- 382:onewire/onewire.c ****         ret = ow_match_rom(rom);
+ 374:onewire/onewire.c ****     int8_t ret;
+ 375:onewire/onewire.c **** 
+ 376:onewire/onewire.c ****     if (rom == NULL)
+ 377:onewire/onewire.c ****         ret = ow_skip_rom();
+ 378:onewire/onewire.c ****     else {
+ 379:onewire/onewire.c **** 
+ 380:onewire/onewire.c ****         /* check for known family code */
+ 381:onewire/onewire.c ****         if (!ow_temp_sensor(rom))
+ 382:onewire/onewire.c ****             return -2;
  383:onewire/onewire.c **** 
- 384:onewire/onewire.c ****     }
+ 384:onewire/onewire.c ****         ret = ow_match_rom(rom);
  385:onewire/onewire.c **** 
- 386:onewire/onewire.c ****     if (ret < 0)
- 387:onewire/onewire.c ****         return ret;
- 388:onewire/onewire.c **** 
- 389:onewire/onewire.c ****     /* transmit command byte */
- 390:onewire/onewire.c ****     ow_write_byte(OW_FUNC_CONVERT);
- 391:onewire/onewire.c **** 
- 392:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
- 393:onewire/onewire.c ****     OW_HIGH();
- 394:onewire/onewire.c **** 
- 395:onewire/onewire.c ****     if (!wait)
- 396:onewire/onewire.c ****         return 0;
- 397:onewire/onewire.c **** 
- 398:onewire/onewire.c ****     while(!ow_read());
+ 386:onewire/onewire.c ****     }
+ 387:onewire/onewire.c **** 
+ 388:onewire/onewire.c ****     if (ret < 0)
+ 389:onewire/onewire.c ****         return ret;
+ 390:onewire/onewire.c **** 
+ 391:onewire/onewire.c ****     /* transmit command byte */
+ 392:onewire/onewire.c ****     ow_write_byte(OW_FUNC_CONVERT);
+ 393:onewire/onewire.c **** 
+ 394:onewire/onewire.c ****     OW_CONFIG_OUTPUT();
+ 395:onewire/onewire.c ****     OW_HIGH();
+ 396:onewire/onewire.c **** 
+ 397:onewire/onewire.c ****     if (!wait)
+ 398:onewire/onewire.c ****         return 0;
  399:onewire/onewire.c **** 
- 400:onewire/onewire.c ****     return 1;
+ 400:onewire/onewire.c ****     while(!ow_read());
  401:onewire/onewire.c **** 
- 402:onewire/onewire.c **** } /* }}} */
+ 402:onewire/onewire.c ****     return 1;
  403:onewire/onewire.c **** 
- 404:onewire/onewire.c **** int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad)
- 405:onewire/onewire.c **** /* {{{ */ {
- 406:onewire/onewire.c **** 
- 407:onewire/onewire.c ****     int8_t ret;
+ 404:onewire/onewire.c **** } /* }}} */
+ 405:onewire/onewire.c **** 
+ 406:onewire/onewire.c **** int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad)
+ 407:onewire/onewire.c **** /* {{{ */ {
  408:onewire/onewire.c **** 
- 409:onewire/onewire.c ****     if (rom == NULL)
- 410:onewire/onewire.c ****         ret = ow_skip_rom();
- 411:onewire/onewire.c ****     else {
- 412:onewire/onewire.c **** 
- 413:onewire/onewire.c ****         /* check for known family code */
- 414:onewire/onewire.c ****         if (!ow_temp_sensor(rom))
- 415:onewire/onewire.c ****             return -3;
- 416:onewire/onewire.c **** 
- 417:onewire/onewire.c ****         ret = ow_match_rom(rom);
- 418:onewire/onewire.c ****     }
- 419:onewire/onewire.c **** 
- 420:onewire/onewire.c ****     if (ret < 0)
- 421:onewire/onewire.c ****         return ret;
- 422:onewire/onewire.c **** 
- 423:onewire/onewire.c ****     /* transmit command byte */
- 424:onewire/onewire.c ****     ow_write_byte(OW_FUNC_READ_SP);
- 425:onewire/onewire.c **** 
- 426:onewire/onewire.c ****     for (uint8_t i = 0; i < 9; i++) {
+ 409:onewire/onewire.c ****     int8_t ret;
+ 410:onewire/onewire.c **** 
+ 411:onewire/onewire.c ****     if (rom == NULL)
+ 412:onewire/onewire.c ****         ret = ow_skip_rom();
+ 413:onewire/onewire.c ****     else {
+ 414:onewire/onewire.c **** 
+ 415:onewire/onewire.c ****         /* check for known family code */
+ 416:onewire/onewire.c ****         if (!ow_temp_sensor(rom))
+ 417:onewire/onewire.c ****             return -3;
+ 418:onewire/onewire.c **** 
+ 419:onewire/onewire.c ****         ret = ow_match_rom(rom);
+ 420:onewire/onewire.c ****     }
+ 421:onewire/onewire.c **** 
+ 422:onewire/onewire.c ****     if (ret < 0)
+ 423:onewire/onewire.c ****         return ret;
+ 424:onewire/onewire.c **** 
+ 425:onewire/onewire.c ****     /* transmit command byte */
+ 426:onewire/onewire.c ****     ow_write_byte(OW_FUNC_READ_SP);
  427:onewire/onewire.c **** 
- 428:onewire/onewire.c ****         /* read byte */
- 429:onewire/onewire.c ****         scratchpad->bytewise[i] = ow_read_byte();
- 430:onewire/onewire.c **** 
- 431:onewire/onewire.c ****     }
+ 428:onewire/onewire.c ****     for (uint8_t i = 0; i < 9; i++) {
+ 429:onewire/onewire.c **** 
+ 430:onewire/onewire.c ****         /* read byte */
+ 431:onewire/onewire.c ****         scratchpad->bytewise[i] = ow_read_byte();
  432:onewire/onewire.c **** 
- 433:onewire/onewire.c ****     /* check CRC (last byte) */
- 434:onewire/onewire.c ****     if (scratchpad->crc != crc_checksum(&scratchpad->bytewise, 8))
- 435:onewire/onewire.c ****         return -2;
- 436:onewire/onewire.c **** 
- 437:onewire/onewire.c ****     return 1;
+ 433:onewire/onewire.c ****     }
+ 434:onewire/onewire.c **** 
+ 435:onewire/onewire.c ****     /* check CRC (last byte) */
+ 436:onewire/onewire.c ****     if (scratchpad->crc != crc_checksum(&scratchpad->bytewise, 8))
+ 437:onewire/onewire.c ****         return -2;
  438:onewire/onewire.c **** 
- 439:onewire/onewire.c **** } /* }}} */
+ 439:onewire/onewire.c ****     return 1;
  440:onewire/onewire.c **** 
- 441:onewire/onewire.c **** int8_t ow_temp_power(struct ow_rom_code_t *rom)
- 442:onewire/onewire.c **** /* {{{ */ {
- 443:onewire/onewire.c **** 
- 444:onewire/onewire.c ****     int8_t ret;
+ 441:onewire/onewire.c **** } /* }}} */
+ 442:onewire/onewire.c **** 
+ 443:onewire/onewire.c **** int8_t ow_temp_power(struct ow_rom_code_t *rom)
+ 444:onewire/onewire.c **** /* {{{ */ {
  445:onewire/onewire.c **** 
- 446:onewire/onewire.c ****     if (rom == NULL)
- 447:onewire/onewire.c ****         ret = ow_skip_rom();
- 448:onewire/onewire.c ****     else {
- 449:onewire/onewire.c ****         if (!ow_temp_sensor(rom))
- 450:onewire/onewire.c ****             return -2;
- 451:onewire/onewire.c **** 
- 452:onewire/onewire.c ****         ret = ow_match_rom(rom);
- 453:onewire/onewire.c ****     }
- 454:onewire/onewire.c **** 
- 455:onewire/onewire.c ****     if (ret < 0)
- 456:onewire/onewire.c ****         return ret;
- 457:onewire/onewire.c **** 
- 458:onewire/onewire.c ****     /* transmit command byte */
- 459:onewire/onewire.c ****     ow_write_byte(OW_FUNC_READ_POWER);
- 460:onewire/onewire.c **** 
- 461:onewire/onewire.c ****     return ow_read();
+ 446:onewire/onewire.c ****     int8_t ret;
+ 447:onewire/onewire.c **** 
+ 448:onewire/onewire.c ****     if (rom == NULL)
+ 449:onewire/onewire.c ****         ret = ow_skip_rom();
+ 450:onewire/onewire.c ****     else {
+ 451:onewire/onewire.c ****         if (!ow_temp_sensor(rom))
+ 452:onewire/onewire.c ****             return -2;
+ 453:onewire/onewire.c **** 
+ 454:onewire/onewire.c ****         ret = ow_match_rom(rom);
+ 455:onewire/onewire.c ****     }
+ 456:onewire/onewire.c **** 
+ 457:onewire/onewire.c ****     if (ret < 0)
+ 458:onewire/onewire.c ****         return ret;
+ 459:onewire/onewire.c **** 
+ 460:onewire/onewire.c ****     /* transmit command byte */
+ 461:onewire/onewire.c ****     ow_write_byte(OW_FUNC_READ_POWER);
  462:onewire/onewire.c **** 
- 463:onewire/onewire.c **** } /* }}} */
+ 463:onewire/onewire.c ****     return ow_read();
  464:onewire/onewire.c **** 
- 465:onewire/onewire.c **** int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp)
- 466:onewire/onewire.c **** /* {{{ */ {
+ 465:onewire/onewire.c **** } /* }}} */
+ 466:onewire/onewire.c **** 
+ 467:onewire/onewire.c **** int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp)
+ 468:onewire/onewire.c **** /* {{{ */ {
  282               	.LM12:
  283               	/* prologue: frame size=0 */
  284               	/* prologue end (size=0) */
  285 006e FC01      		movw r30,r24
  286 0070 DB01      		movw r26,r22
- 467:onewire/onewire.c **** 
- 468:onewire/onewire.c ****     if (rom->family == OW_FAMILY_DS1820)
+ 469:onewire/onewire.c **** 
+ 470:onewire/onewire.c ****     if (rom->family == OW_FAMILY_DS1820)
  288               	.LM13:
  289 0072 E081      		ld r30,Z
  290 0074 E031      		cpi r30,lo8(16)
  291 0076 41F4      		brne .L16
- 469:onewire/onewire.c ****         return sp->temperature << 7;
+ 471:onewire/onewire.c ****         return sp->temperature << 7;
  293               	.LM14:
  294 0078 8D91      		ld r24,X+
  295 007a 9C91      		ld r25,X
@@ -603,7 +605,7 @@
  300 0084 8795      		ror r24
  301 0086 0895      		ret
  302               	.L16:
- 470:onewire/onewire.c ****     else if (rom->family == OW_FAMILY_DS1822)
+ 472:onewire/onewire.c ****     else if (rom->family == OW_FAMILY_DS1822)
  304               	.LM15:
  305 0088 E232      		cpi r30,lo8(34)
  306 008a 19F0      		breq .L19
@@ -611,7 +613,7 @@
  308 008e 9FEF      		ldi r25,hi8(-1)
  309 0090 0895      		ret
  310               	.L19:
- 471:onewire/onewire.c ****         return sp->temperature << 4;
+ 473:onewire/onewire.c ****         return sp->temperature << 4;
  312               	.LM16:
  313 0092 8D91      		ld r24,X+
  314 0094 9C91      		ld r25,X
@@ -620,10 +622,10 @@
  317 009a 991F      		rol r25
  318 009c 2A95      		dec r18
  319 009e E1F7      		brne 1b
- 472:onewire/onewire.c ****     else
- 473:onewire/onewire.c ****         return 0xffff;
- 474:onewire/onewire.c **** 
- 475:onewire/onewire.c **** } /* }}} */
+ 474:onewire/onewire.c ****     else
+ 475:onewire/onewire.c ****         return 0xffff;
+ 476:onewire/onewire.c **** 
+ 477:onewire/onewire.c **** } /* }}} */
  321               	.LM17:
  322 00a0 0895      		ret
  323               	/* epilogue: frame size=0 */
@@ -1437,15 +1439,15 @@
  1212               	.global	ow_eeprom_read
  1214               	ow_eeprom_read:
  1215               		.stabd	46,0,0
- 476:onewire/onewire.c **** 
- 477:onewire/onewire.c **** /*
- 478:onewire/onewire.c ****  *
- 479:onewire/onewire.c ****  * DS2502 data functions
+ 478:onewire/onewire.c **** 
+ 479:onewire/onewire.c **** /*
  480:onewire/onewire.c ****  *
- 481:onewire/onewire.c ****  */
- 482:onewire/onewire.c **** 
- 483:onewire/onewire.c **** int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
- 484:onewire/onewire.c **** /* {{{ */ {
+ 481:onewire/onewire.c ****  * DS2502 data functions
+ 482:onewire/onewire.c ****  *
+ 483:onewire/onewire.c ****  */
+ 484:onewire/onewire.c **** 
+ 485:onewire/onewire.c **** int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
+ 486:onewire/onewire.c **** /* {{{ */ {
  1217               	.LM108:
  1218               	/* prologue: frame size=0 */
  1219 039a 1F93      		push r17
@@ -1454,67 +1456,67 @@
  1222               	/* prologue end (size=3) */
  1223 03a0 FC01      		movw r30,r24
  1224 03a2 EB01      		movw r28,r22
- 485:onewire/onewire.c **** 
- 486:onewire/onewire.c ****     int8_t ret;
  487:onewire/onewire.c **** 
- 488:onewire/onewire.c ****     if (rom == NULL)
+ 488:onewire/onewire.c ****     int8_t ret;
+ 489:onewire/onewire.c **** 
+ 490:onewire/onewire.c ****     if (rom == NULL)
  1226               	.LM109:
  1227 03a4 892B      		or r24,r25
  1228 03a6 19F4      		brne .L106
- 489:onewire/onewire.c ****         ret = ow_skip_rom();
+ 491:onewire/onewire.c ****         ret = ow_skip_rom();
  1230               	.LM110:
  1231 03a8 0E94 0000 		call ow_skip_rom
  1232 03ac 07C0      		rjmp .L108
  1233               	.L106:
- 490:onewire/onewire.c ****     else {
- 491:onewire/onewire.c **** 
- 492:onewire/onewire.c ****         /* check for known family code */
- 493:onewire/onewire.c ****         if (!(rom->family == OW_FAMILY_DS2502E48))
+ 492:onewire/onewire.c ****     else {
+ 493:onewire/onewire.c **** 
+ 494:onewire/onewire.c ****         /* check for known family code */
+ 495:onewire/onewire.c ****         if (!(rom->family == OW_FAMILY_DS2502E48))
  1235               	.LM111:
  1236 03ae 8081      		ld r24,Z
  1237 03b0 8938      		cpi r24,lo8(-119)
  1238 03b2 09F0      		breq .+2
  1239 03b4 41C0      		rjmp .L109
- 494:onewire/onewire.c ****             return -2;
- 495:onewire/onewire.c **** 
- 496:onewire/onewire.c ****         ret = ow_match_rom(rom);
+ 496:onewire/onewire.c ****             return -2;
+ 497:onewire/onewire.c **** 
+ 498:onewire/onewire.c ****         ret = ow_match_rom(rom);
  1241               	.LM112:
  1242 03b6 CF01      		movw r24,r30
  1243 03b8 0E94 0000 		call ow_match_rom
  1244               	.L108:
- 497:onewire/onewire.c **** 
- 498:onewire/onewire.c ****     }
  499:onewire/onewire.c **** 
- 500:onewire/onewire.c ****     if (ret < 0)
+ 500:onewire/onewire.c ****     }
+ 501:onewire/onewire.c **** 
+ 502:onewire/onewire.c ****     if (ret < 0)
  1246               	.LM113:
  1247 03bc 87FF      		sbrs r24,7
  1248 03be 04C0      		rjmp .L111
- 501:onewire/onewire.c ****         return ret;
+ 503:onewire/onewire.c ****         return ret;
  1250               	.LM114:
  1251 03c0 9927      		clr r25
  1252 03c2 87FD      		sbrc r24,7
  1253 03c4 9095      		com r25
  1254 03c6 3AC0      		rjmp .L113
  1255               	.L111:
- 502:onewire/onewire.c **** 
- 503:onewire/onewire.c ****     /* transmit command byte */
- 504:onewire/onewire.c ****     ow_write_byte(OW_FUNC_READ_MEMORY);
+ 504:onewire/onewire.c **** 
+ 505:onewire/onewire.c ****     /* transmit command byte */
+ 506:onewire/onewire.c ****     ow_write_byte(OW_FUNC_READ_MEMORY);
  1257               	.LM115:
  1258 03c8 80EF      		ldi r24,lo8(-16)
  1259 03ca 0E94 0000 		call ow_write_byte
- 505:onewire/onewire.c **** 
- 506:onewire/onewire.c ****     /* transmit address (mac address starts at offset 5 */
- 507:onewire/onewire.c ****     ow_write_byte(5);
+ 507:onewire/onewire.c **** 
+ 508:onewire/onewire.c ****     /* transmit address (mac address starts at offset 5 */
+ 509:onewire/onewire.c ****     ow_write_byte(5);
  1261               	.LM116:
  1262 03ce 85E0      		ldi r24,lo8(5)
  1263 03d0 0E94 0000 		call ow_write_byte
- 508:onewire/onewire.c ****     ow_write_byte(0);
+ 510:onewire/onewire.c ****     ow_write_byte(0);
  1265               	.LM117:
  1266 03d4 80E0      		ldi r24,lo8(0)
  1267 03d6 0E94 0000 		call ow_write_byte
- 509:onewire/onewire.c **** 
- 510:onewire/onewire.c ****     /* read back crc sum of the command */
- 511:onewire/onewire.c ****     uint8_t crc = ow_read_byte();
+ 511:onewire/onewire.c **** 
+ 512:onewire/onewire.c ****     /* read back crc sum of the command */
+ 513:onewire/onewire.c ****     uint8_t crc = ow_read_byte();
  1269               	.LM118:
  1270 03da 0E94 0000 		call ow_read_byte
  1271               	.LBB63:
@@ -1893,27 +1895,27 @@
  1326               	.LBE68:
  1327               	.LBE67:
  1329               	.Ltext20:
- 512:onewire/onewire.c **** 
- 513:onewire/onewire.c ****     /* check crc */
- 514:onewire/onewire.c ****     uint8_t crc2 = 0;
- 515:onewire/onewire.c ****     crc2 = _crc_ibutton_update(crc2, OW_FUNC_READ_MEMORY);
- 516:onewire/onewire.c ****     crc2 = _crc_ibutton_update(crc2, 5);
- 517:onewire/onewire.c ****     crc2 = _crc_ibutton_update(crc2, 0);
- 518:onewire/onewire.c **** 
- 519:onewire/onewire.c ****     if (crc != crc2)
+ 514:onewire/onewire.c **** 
+ 515:onewire/onewire.c ****     /* check crc */
+ 516:onewire/onewire.c ****     uint8_t crc2 = 0;
+ 517:onewire/onewire.c ****     crc2 = _crc_ibutton_update(crc2, OW_FUNC_READ_MEMORY);
+ 518:onewire/onewire.c ****     crc2 = _crc_ibutton_update(crc2, 5);
+ 519:onewire/onewire.c ****     crc2 = _crc_ibutton_update(crc2, 0);
+ 520:onewire/onewire.c **** 
+ 521:onewire/onewire.c ****     if (crc != crc2)
  1331               	.LM120:
  1332 041e 8917      		cp r24,r25
  1333 0420 59F4      		brne .L109
  1334 0422 10E0      		ldi r17,lo8(0)
  1335               	.L115:
  1336               	.LBB69:
- 520:onewire/onewire.c ****         return -2;
- 521:onewire/onewire.c **** 
- 522:onewire/onewire.c ****     uint8_t *p = (uint8_t *)data+5;
+ 522:onewire/onewire.c ****         return -2;
  523:onewire/onewire.c **** 
- 524:onewire/onewire.c ****     /* read 6 byte of data */
- 525:onewire/onewire.c ****     for (uint8_t i = 0; i < 6; i++)
- 526:onewire/onewire.c ****         *p-- = ow_read_byte();
+ 524:onewire/onewire.c ****     uint8_t *p = (uint8_t *)data+5;
+ 525:onewire/onewire.c **** 
+ 526:onewire/onewire.c ****     /* read 6 byte of data */
+ 527:onewire/onewire.c ****     for (uint8_t i = 0; i < 6; i++)
+ 528:onewire/onewire.c ****         *p-- = ow_read_byte();
  1338               	.LM121:
  1339 0424 0E94 0000 		call ow_read_byte
  1340 0428 8D83      		std Y+5,r24
@@ -2164,31 +2166,31 @@
  1677               	/* File "onewire/onewire.c": code  740 = 0x02e4 ( 665), prologues  32, epilogues  43 */
 DEFINED SYMBOLS
                             *ABS*:00000000 onewire.c
-     /tmp/cciLTBui.s:3      *ABS*:0000003f __SREG__
-     /tmp/cciLTBui.s:4      *ABS*:0000003e __SP_H__
-     /tmp/cciLTBui.s:5      *ABS*:0000003d __SP_L__
-     /tmp/cciLTBui.s:6      *ABS*:00000000 __tmp_reg__
-     /tmp/cciLTBui.s:7      *ABS*:00000001 __zero_reg__
-     /tmp/cciLTBui.s:143    .text:00000000 init_onewire
-     /tmp/cciLTBui.s:170    .text:00000008 ow_set_address_bit
-     /tmp/cciLTBui.s:238    .text:00000052 ow_temp_sensor
-     /tmp/cciLTBui.s:279    .text:0000006e ow_temp_normalize
-     /tmp/cciLTBui.s:334    .text:000000a2 reset_onewire
-     /tmp/cciLTBui.s:448    .text:000000e2 ow_write_0
-     /tmp/cciLTBui.s:490    .text:000000f0 ow_write_1
-     /tmp/cciLTBui.s:550    .text:00000106 ow_write
-     /tmp/cciLTBui.s:583    .text:00000116 ow_write_byte
-     /tmp/cciLTBui.s:634    .text:0000014a ow_match_rom
-     /tmp/cciLTBui.s:727    .text:000001b6 ow_skip_rom
-     /tmp/cciLTBui.s:764    .text:000001d0 ow_read
-     /tmp/cciLTBui.s:867    .text:00000202 ow_search_rom
+     /tmp/ccIW0Jl5.s:3      *ABS*:0000003f __SREG__
+     /tmp/ccIW0Jl5.s:4      *ABS*:0000003e __SP_H__
+     /tmp/ccIW0Jl5.s:5      *ABS*:0000003d __SP_L__
+     /tmp/ccIW0Jl5.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccIW0Jl5.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccIW0Jl5.s:143    .text:00000000 init_onewire
+     /tmp/ccIW0Jl5.s:170    .text:00000008 ow_set_address_bit
+     /tmp/ccIW0Jl5.s:238    .text:00000052 ow_temp_sensor
+     /tmp/ccIW0Jl5.s:279    .text:0000006e ow_temp_normalize
+     /tmp/ccIW0Jl5.s:334    .text:000000a2 reset_onewire
+     /tmp/ccIW0Jl5.s:448    .text:000000e2 ow_write_0
+     /tmp/ccIW0Jl5.s:490    .text:000000f0 ow_write_1
+     /tmp/ccIW0Jl5.s:550    .text:00000106 ow_write
+     /tmp/ccIW0Jl5.s:583    .text:00000116 ow_write_byte
+     /tmp/ccIW0Jl5.s:634    .text:0000014a ow_match_rom
+     /tmp/ccIW0Jl5.s:727    .text:000001b6 ow_skip_rom
+     /tmp/ccIW0Jl5.s:764    .text:000001d0 ow_read
+     /tmp/ccIW0Jl5.s:867    .text:00000202 ow_search_rom
                             *COM*:0000000a ow_global
-     /tmp/cciLTBui.s:1081   .text:00000308 ow_read_byte
-     /tmp/cciLTBui.s:1135   .text:0000033c ow_read_rom
-     /tmp/cciLTBui.s:1214   .text:0000039a ow_eeprom_read
-     /tmp/cciLTBui.s:1398   .text:00000444 ow_temp_power
-     /tmp/cciLTBui.s:1474   .text:00000484 ow_temp_read_scratchpad
-     /tmp/cciLTBui.s:1586   .text:00000502 ow_temp_start_convert
+     /tmp/ccIW0Jl5.s:1081   .text:00000308 ow_read_byte
+     /tmp/ccIW0Jl5.s:1135   .text:0000033c ow_read_rom
+     /tmp/ccIW0Jl5.s:1214   .text:0000039a ow_eeprom_read
+     /tmp/ccIW0Jl5.s:1398   .text:00000444 ow_temp_power
+     /tmp/ccIW0Jl5.s:1474   .text:00000484 ow_temp_read_scratchpad
+     /tmp/ccIW0Jl5.s:1586   .text:00000502 ow_temp_start_convert
 
 UNDEFINED SYMBOLS
 __do_copy_data

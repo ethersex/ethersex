@@ -23,6 +23,9 @@
 #ifndef _SNTP_H
 #define _SNTP_H
 
+#define SNTP_RETRANSMIT_COUNTER 2
+#define SNTP_RETRANSMIT_TIMEOUT 5
+
 #include <stdint.h>
 #include "common.h"
 #include "uip/uip.h"

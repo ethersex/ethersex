@@ -51,7 +51,7 @@ void sntp_synchronize(void)
 void sntp_send_request(void)
 /* {{{ */ {
 
-    if (uip_udp_conn->appstate.sntp.timeout == 0 ||
+    if (uip_udp_conn->appstate.sntp.timeout == 0 &&
         uip_udp_conn->appstate.sntp.transmit_state == 0) {
 
 #ifdef DEBUG_SNTP
@@ -73,8 +73,9 @@ void sntp_send_request(void)
         /* send packet */
         uip_udp_send(sizeof(struct sntp_header_t));
 
-        /* set timeout for retransmit */
+        /* set timeouts for retransmit */
         uip_udp_conn->appstate.sntp.timeout = SNTP_TIMEOUT;
+        uip_udp_conn->appstate.sntp.retransmit_counter++;
 
     } else
         uip_udp_conn->appstate.sntp.timeout--;

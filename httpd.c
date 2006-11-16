@@ -174,16 +174,24 @@ void httpd_main(void)
 /* {{{ */ {
 
     if (uip_aborted())
+#ifdef DEBUG_HTTPD
         uart_puts_P("httpd: connection aborted\r\n");
+#endif
 
     if (uip_timedout())
+#ifdef DEBUG_HTTPD
         uart_puts_P("httpd: connection aborted\r\n");
+#endif
 
     if (uip_closed())
+#ifdef DEBUG_HTTP
         uart_puts_P("httpd: connection closed\r\n");
+#endif
 
     if (uip_connected()) {
+#ifdef DEBUG_HTTP
         uart_puts_P("httpd: new connection\r\n");
+#endif
         STATE.state = HTTPD_STATE_WAIT;
         STATE.response = HTTPD_RESPONSE_EMPTY;
         STATE.document = NULL;

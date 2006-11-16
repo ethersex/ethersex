@@ -1,0 +1,16 @@
+etherrape eeprom memory map
+===========================
+
+ base    size    content
+address (byte)
+-----------------------------------
+0x0000    6      mac                                  ---\
+0x0006    4      ip
+0x000A    4      netmask                                  base network config
+0x000E    4      gateway
+0x0013    1      crc8 checksum from 0x0000 to 0x000E  ---/
+0x0014    4      sntp_server                          ---\
+0x0018    4      syslog_server                            extended network config
+0x001C    1      crc8 checksum from 0x0017 to 0x001B  ---/
+
+

@@ -12,7 +12,7 @@ export CURDIR
 include $(CURDIR)/avr.mk
 
 SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC}) uip/uip.o uip/uip_arp.o onewire/onewire.o onewire/crc.o
+OBJECTS += $(patsubst %.c,%.o,${SRC}) uip/uip.o uip/uip_arp.o onewire/onewire.o
 #CFLAGS += -Werror
 #CFLAGS += -Iuip/ -Iuip/apps
 #LDFLAGS += -L/usr/local/avr/avr/lib
@@ -60,8 +60,25 @@ clean-$(TARGET):
 
 distclean: clean
 	$(MAKE) -C ethcmd distclean
+	rm -f eeprom-default.raw
 
 depend:
 	$(CC) $(CFLAGS) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) > $(MAKEFILE).dep
 
 -include $(MAKEFILE).dep
+
+.PHONY: eeprom-default.raw
+
+eeprom-default.raw:
+	echo -ne '\xac\xde\x48\xfd\x0f\x23' > eeprom-default.raw
+	echo -ne '\x0a\x00\x00\x02' >> eeprom-default.raw
+	echo -ne '\xff\xff\xff\x00' >> eeprom-default.raw
+	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
+	echo -ne '\x35' >> eeprom-default.raw
+	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
+	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
+	echo -ne '\x24' >> eeprom-default.raw
+
+install-eeprom-default: eeprom-default.raw launch-bootloader
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -P $(SERIAL_DEV) -U eeprom:w:eeprom-default.raw:r
+

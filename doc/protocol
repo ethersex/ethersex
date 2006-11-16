@@ -1,0 +1,37 @@
+etherrape protocol (commandline client)
+=======================================
+
+When the etherrape commandline service is enabled, the etherrape can be
+controlled and configured via TCP on port 2847 using protocol defined below.
+
+DATA PACKET FORMAT:
+===================
+
+field            |  length
+-------------------------------------
+length              16bit
+message_type        16bit
+
+
+
+MESSAGE TYPES:
+==============
+
+message type     |  subsystem
+-------------------------------------
+0x0000              request/send protocol version information
+0x0005              onewire bus control (discover, get, set, ...)
+
+
+
+
+
+SUBSYSTEMS:
+===========
+
+
+
+All integers are in network endian (big endian) byteorder.
+
+
+vim:ts=76
