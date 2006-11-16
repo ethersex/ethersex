@@ -88,6 +88,210 @@ void print_rom_code(struct ow_rom_code_t *rom)
 
 } /* }}} */
 
+void send_zero(void) {
+
+    PORTD |= _BV(PD3);
+    _delay_loop_2(2000);
+    PORTD &= ~_BV(PD3);
+    _delay_loop_2(2000);
+
+}
+
+void send_one(void) {
+
+    PORTD |= _BV(PD3);
+    _delay_loop_2(3000);
+    PORTD &= ~_BV(PD3);
+    _delay_loop_2(3000);
+
+}
+
+void on(void) {
+
+    DDRD |= _BV(PD3);
+
+    for (uint8_t j = 0; j < 3; j++) {
+
+        /* sync */
+        for (uint8_t i = 0; i < 12; i++)
+            send_zero();
+        send_one();
+
+        /* hc1 */
+        send_one();
+        send_one();
+        send_zero();
+        send_one();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+
+        /* parity */
+        send_one();
+
+        /* hc2 */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_one();
+        send_zero();
+
+        /* parity */
+        send_one();
+
+        /* address */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+
+        /* parity */
+        send_zero();
+
+        /* command */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_one();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_one();
+
+        /* parity */
+        send_zero();
+
+        /* quersumme */
+        send_one();
+        send_one();
+        send_one();
+        send_zero();
+        send_one();
+        send_zero();
+        send_zero();
+        send_one();
+
+        /* parity */
+        send_one();
+
+        /* eot */
+        send_zero();
+
+        _delay_loop_2(50000);
+    }
+
+    DDRD &= ~_BV(PD3);
+
+    uart_puts_P("done\r\n");
+
+}
+
+void off(void) {
+    DDRD |= _BV(PD3);
+
+    for (uint8_t j = 0; j < 3; j++) {
+
+        /* sync */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_one();
+
+        /* hc1 */
+        send_one();
+        send_one();
+        send_zero();
+        send_one();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+
+        /* parity */
+        send_one();
+
+        /* hc2 */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_one();
+        send_zero();
+
+        /* parity */
+        send_one();
+
+        /* address */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+
+        /* parity */
+        send_zero();
+
+        /* command */
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+        send_zero();
+
+        /* parity */
+        send_zero();
+
+        /* quersumme */
+        send_one();
+        send_one();
+        send_zero();
+        send_one();
+        send_one();
+        send_zero();
+        send_zero();
+        send_zero();
+
+        /* parity */
+        send_zero();
+
+        /* eot */
+        send_zero();
+
+        _delay_loop_2(50000);
+    }
+
+    DDRD &= ~_BV(PD3);
+
+    uart_puts_P("done\r\n");
+}
+
+
+
 void check_serial_input(uint8_t data)
 /* {{{ */ {
 
@@ -125,6 +329,14 @@ void check_serial_input(uint8_t data)
                     syslog_message_P("fump...");
                     break;
 #endif
+
+        case 'A':
+                    on();
+                    break;
+
+        case 'a':
+                    off();
+                    break;
 
         case 'o':
                     {
@@ -286,6 +498,10 @@ int main(void)
 #   ifdef ONEWIRE_SUPPORT
     init_onewire();
 #   endif
+
+    /* HACKHACKHACK */
+    DDRD &= ~_BV(PD3);
+    PORTD &= ~_BV(PD3);
 
     while(1) /* main loop {{{ */ {
 
