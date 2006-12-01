@@ -31,10 +31,12 @@ void uart_init(void)
     _UBRRL_UART0 = (uint8_t)UART_UBRR;         /* low byte */
 
     /* set mode */
-    _UCSRC_UART0 = UART_UCSRC;
+    //_UCSRC_UART0 = UART_UCSRC;
+    /* 9 bit framesize */
+    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
 
     /* enable transmitter and receiver */
-    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0) | _BV(UCSZ02);
 
 } /* }}} */
 

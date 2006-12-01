@@ -201,8 +201,8 @@ void bit_field_clear(uint8_t address, uint8_t mask)
 void noinline set_read_buffer_pointer(uint16_t address)
 /* {{{ */ {
 
-    write_control_register(REG_ERDPTL, LOW(address));
-    write_control_register(REG_ERDPTH, HIGH(address));
+    write_control_register(REG_ERDPTL, LO8(address));
+    write_control_register(REG_ERDPTH, HI8(address));
 
 } /* }}} */
 
@@ -216,8 +216,8 @@ uint16_t noinline get_read_buffer_pointer(void)
 void noinline set_write_buffer_pointer(uint16_t address)
 /* {{{ */ {
 
-    write_control_register(REG_EWRPTL, LOW(address));
-    write_control_register(REG_EWRPTH, HIGH(address));
+    write_control_register(REG_EWRPTL, LO8(address));
+    write_control_register(REG_EWRPTH, HI8(address));
 
 } /* }}} */
 
@@ -251,8 +251,8 @@ void write_phy(uint8_t address, uint16_t data)
     write_control_register(REG_MIREGADR, address);
 
     /* set data */
-    write_control_register(REG_MIWRL, LOW(data));
-    write_control_register(REG_MIWRH, HIGH(data));
+    write_control_register(REG_MIWRL, LO8(data));
+    write_control_register(REG_MIWRH, HI8(data));
 
     /* start writing and wait */
     while(read_control_register(REG_MISTAT) & _BV(BUSY));
@@ -296,20 +296,20 @@ void init_enc28j60(void)
     reset_controller();
 
     /* set receive buffer to span from 0 to 4kb */
-    write_control_register(REG_ERXSTL, LOW(RXBUFFER_START));
-    write_control_register(REG_ERXSTH, HIGH(RXBUFFER_START));
-    write_control_register(REG_ERXNDL, LOW(RXBUFFER_END));
-    write_control_register(REG_ERXNDH, HIGH(RXBUFFER_END));
+    write_control_register(REG_ERXSTL, LO8(RXBUFFER_START));
+    write_control_register(REG_ERXSTH, HI8(RXBUFFER_START));
+    write_control_register(REG_ERXNDL, LO8(RXBUFFER_END));
+    write_control_register(REG_ERXNDH, HI8(RXBUFFER_END));
 
     /* set transmit buffer start at 4kb */
-    write_control_register(REG_ETXSTL, LOW(TXBUFFER_START));
-    write_control_register(REG_ETXSTH, HIGH(TXBUFFER_START));
+    write_control_register(REG_ETXSTL, LO8(TXBUFFER_START));
+    write_control_register(REG_ETXSTH, HI8(TXBUFFER_START));
 
     /* set receive buffer pointer */
-    write_control_register(REG_ERXRDPTL, LOW(RXBUFFER_START));
-    write_control_register(REG_ERXRDPTH, HIGH(RXBUFFER_START));
-    write_control_register(REG_ERXWRPTL, LOW(RXBUFFER_START));
-    write_control_register(REG_ERXWRPTH, HIGH(RXBUFFER_START));
+    write_control_register(REG_ERXRDPTL, LO8(RXBUFFER_START));
+    write_control_register(REG_ERXRDPTH, HI8(RXBUFFER_START));
+    write_control_register(REG_ERXWRPTL, LO8(RXBUFFER_START));
+    write_control_register(REG_ERXWRPTH, HI8(RXBUFFER_START));
 
     /* init next packet pointer */
     enc28j60_next_packet_pointer = RXBUFFER_START;
@@ -356,8 +356,8 @@ void init_enc28j60(void)
     }
 
     /* write maximum frame length */
-    write_control_register(REG_MAMXFLL, LOW(MAX_FRAME_LENGTH));
-    write_control_register(REG_MAMXFLH, HIGH(MAX_FRAME_LENGTH));
+    write_control_register(REG_MAMXFLL, LO8(MAX_FRAME_LENGTH));
+    write_control_register(REG_MAMXFLH, HI8(MAX_FRAME_LENGTH));
 
     /* program the local mac address */
     write_control_register(REG_MAADR5, uip_ethaddr.addr[0]);

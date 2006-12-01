@@ -20,37 +20,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ETHCMD_MESSAGE_H
-#define _ETHCMD_MESSAGE_H
+#ifndef _FC_H
+#define _FC_H
 
 #include <stdint.h>
+#include "common.h"
+#include "uip/uip.h"
 
-#define packed __attribute__ ((__packed__))
+#define FC_UDP_PORT 2323
 
-#define ETHCMD_MESSAGE_TYPE_VERSION 0x0000
-#define ETHCMD_MESSAGE_TYPE_ONEWIRE 0x0005
-#define ETHCMD_MESSAGE_TYPE_FS20 0x0006
-
-struct ethcmd_message_t {
-    uint16_t length;
-    uint16_t subsystem;
-    uint8_t data[];
-} packed;
-
-struct ethcmd_onewire_message_t {
-    uint8_t id[8];
-} packed;
-
-struct ethcmd_fs20_message_t {
-    uint8_t command;
-    uint16_t fs20_housecode;
-    uint8_t fs20_address;
-    uint8_t fs20_command;
-} packed;
-
-struct ethcmd_fs20_packet_t {
-    struct ethcmd_message_t msg;
-    struct ethcmd_fs20_message_t payload;
-} packed;
+/* prototypes */
+void fc_init(void);
+void fc_handle_conn(void);
 
 #endif

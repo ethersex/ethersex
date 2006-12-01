@@ -24,6 +24,7 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
+#include <stdlib.h>
 
 #include "config.h"
 #include "common.h"
@@ -37,6 +38,9 @@
 #include "74hc165.h"
 #include "syslog.h"
 #include "httpd.h"
+#include "mem-check.h"
+#include "fs20.h"
+#include "fc.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -61,12 +65,12 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 void init_spi(void)
 /* {{{ */ {
 
-    /* configure MOSI, SCK, CS as outputs */
-    SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS);
+    /* configure MOSI, SCK, CS lines as outputs */
+    SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_NET);
     DDRB |= _BV(PB0) | _BV(PB1);
 
     /* set all CS high (output) */
-    SPI_PORT = _BV(SPI_CS);
+    SPI_PORT = _BV(SPI_CS_NET);
     PORTB |= _BV(PB0) | _BV(PB1);
 
     /* enable spi, set master and clock modes (f/2) */
@@ -75,6 +79,7 @@ void init_spi(void)
 
 } /* }}} */
 
+#ifdef DEBUG
 void print_rom_code(struct ow_rom_code_t *rom);
 void print_rom_code(struct ow_rom_code_t *rom)
 /* {{{ */ {
@@ -87,210 +92,7 @@ void print_rom_code(struct ow_rom_code_t *rom)
     }
 
 } /* }}} */
-
-void send_zero(void) {
-
-    PORTD |= _BV(PD3);
-    _delay_loop_2(2000);
-    PORTD &= ~_BV(PD3);
-    _delay_loop_2(2000);
-
-}
-
-void send_one(void) {
-
-    PORTD |= _BV(PD3);
-    _delay_loop_2(3000);
-    PORTD &= ~_BV(PD3);
-    _delay_loop_2(3000);
-
-}
-
-void on(void) {
-
-    DDRD |= _BV(PD3);
-
-    for (uint8_t j = 0; j < 3; j++) {
-
-        /* sync */
-        for (uint8_t i = 0; i < 12; i++)
-            send_zero();
-        send_one();
-
-        /* hc1 */
-        send_one();
-        send_one();
-        send_zero();
-        send_one();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-
-        /* parity */
-        send_one();
-
-        /* hc2 */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_one();
-        send_zero();
-
-        /* parity */
-        send_one();
-
-        /* address */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-
-        /* parity */
-        send_zero();
-
-        /* command */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_one();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_one();
-
-        /* parity */
-        send_zero();
-
-        /* quersumme */
-        send_one();
-        send_one();
-        send_one();
-        send_zero();
-        send_one();
-        send_zero();
-        send_zero();
-        send_one();
-
-        /* parity */
-        send_one();
-
-        /* eot */
-        send_zero();
-
-        _delay_loop_2(50000);
-    }
-
-    DDRD &= ~_BV(PD3);
-
-    uart_puts_P("done\r\n");
-
-}
-
-void off(void) {
-    DDRD |= _BV(PD3);
-
-    for (uint8_t j = 0; j < 3; j++) {
-
-        /* sync */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_one();
-
-        /* hc1 */
-        send_one();
-        send_one();
-        send_zero();
-        send_one();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-
-        /* parity */
-        send_one();
-
-        /* hc2 */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_one();
-        send_zero();
-
-        /* parity */
-        send_one();
-
-        /* address */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-
-        /* parity */
-        send_zero();
-
-        /* command */
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-        send_zero();
-
-        /* parity */
-        send_zero();
-
-        /* quersumme */
-        send_one();
-        send_one();
-        send_zero();
-        send_one();
-        send_one();
-        send_zero();
-        send_zero();
-        send_zero();
-
-        /* parity */
-        send_zero();
-
-        /* eot */
-        send_zero();
-
-        _delay_loop_2(50000);
-    }
-
-    DDRD &= ~_BV(PD3);
-
-    uart_puts_P("done\r\n");
-}
-
-
+#endif
 
 void check_serial_input(uint8_t data)
 /* {{{ */ {
@@ -299,9 +101,6 @@ void check_serial_input(uint8_t data)
 
 #ifdef DEBUG
         case 'R': init_enc28j60();
-                  break;
-
-        case 'd': dump_debug_registers();
                   break;
 
         case 0x1b:  jump_to_bootloader();
@@ -327,15 +126,6 @@ void check_serial_input(uint8_t data)
 
         case 'Y':   syslog_message_P("foobar?");
                     syslog_message_P("fump...");
-                    break;
-#endif
-
-        case 'A':
-                    on();
-                    break;
-
-        case 'a':
-                    off();
                     break;
 
         case 'o':
@@ -428,6 +218,52 @@ void check_serial_input(uint8_t data)
 
                         break;
                     }
+        case 'r':   {
+                        uart_puts_P("unused ram: 0x");
+                        uint16_t ram = get_mem_unused();
+
+                        uart_puthexbyte(HIGH(ram));
+                        uart_puthexbyte(LOW(ram));
+                        uart_eol();
+
+                        break;
+                    }
+#endif
+
+        case '1':   fs20_send(0xd002, 0, 0);
+                    break;
+
+        case '2':   fs20_send(0xd002, 0, 2);
+                    break;
+
+        case '3':   fs20_send(0xd002, 0, 4);
+                    break;
+
+        case '4':   fs20_send(0xd002, 0, 6);
+                    break;
+
+        case '5':   fs20_send(0xd002, 0, 6);
+                    break;
+
+        case 'd':   {
+
+                        PORTB &= ~_BV(PB1);
+
+                        _SPDR0 = 0xd7;
+                        wait_spi_busy();
+                        _SPDR0 = 0x00; /* dummy byte */
+                        wait_spi_busy();
+
+                        uint8_t d = _SPDR0;
+
+                        PORTB |= _BV(PB1);
+
+                        uart_puts_P("status: 0x");
+                        uart_puthexbyte(d);
+                        uart_eol();
+                        break;
+
+                    }
 
         default:    uart_putc('?');
                     break;
@@ -483,6 +319,7 @@ int main(void)
     syslog_init();
 
     network_init();
+    fc_init();
 
 #   ifdef DEBUG
     uart_puts_P("ip: ");
@@ -499,9 +336,9 @@ int main(void)
     init_onewire();
 #   endif
 
-    /* HACKHACKHACK */
-    DDRD &= ~_BV(PD3);
-    PORTD &= ~_BV(PD3);
+#   ifdef FS20_SUPPORT
+    fs20_init();
+#   endif
 
     while(1) /* main loop {{{ */ {
 

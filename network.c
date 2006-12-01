@@ -33,12 +33,18 @@
 #include "ethcmd.h"
 #include "httpd.h"
 #include "crc.h"
+#include "fc.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 
+#ifndef ENC28J60_POLL
 #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
 #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
+#else
+#define interrupt_occured() 0
+#define wol_interrupt_occured() 0
+#endif
 
 #define BASE_CONFIG ((struct eeprom_config_base_t *)uip_buf)
 #define EXT_CONFIG ((struct eeprom_config_ext_t *)uip_buf)
@@ -320,8 +326,8 @@ void process_packet(void)
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
         uart_puts_P("net: packet too large or too small for an ethernet header: ");
-        uart_puthexbyte(HIGH(rpv.received_packet_size));
-        uart_puthexbyte( LOW(rpv.received_packet_size));
+        uart_puthexbyte(HI8(rpv.received_packet_size));
+        uart_puthexbyte( LO8(rpv.received_packet_size));
 #       endif
         return;
     }
@@ -378,8 +384,8 @@ void process_packet(void)
             uart_puts_P(" -> ");
             uart_puts_mac(&packet->dest);
             uart_puts_P(", type 0x");
-            uart_puthexbyte(HIGH(ntohs(packet->type)));
-            uart_puthexbyte( LOW(ntohs(packet->type)));
+            uart_puthexbyte(HI8(ntohs(packet->type)));
+            uart_puthexbyte( LO8(ntohs(packet->type)));
             uart_eol();
             break;
 #       endif
@@ -390,13 +396,13 @@ void process_packet(void)
     if ( (enc28j60_next_packet_pointer - 1) < RXBUFFER_START
             || (enc28j60_next_packet_pointer - 1) > RXBUFFER_END) {
 
-        write_control_register(REG_ERXRDPTL, LOW(RXBUFFER_END));
-        write_control_register(REG_ERXRDPTH, HIGH(RXBUFFER_END));
+        write_control_register(REG_ERXRDPTL, LO8(RXBUFFER_END));
+        write_control_register(REG_ERXRDPTH, HI8(RXBUFFER_END));
 
     } else {
 
-        write_control_register(REG_ERXRDPTL, LOW(enc28j60_next_packet_pointer - 1));
-        write_control_register(REG_ERXRDPTH, HIGH(enc28j60_next_packet_pointer - 1));
+        write_control_register(REG_ERXRDPTL, LO8(enc28j60_next_packet_pointer - 1));
+        write_control_register(REG_ERXRDPTH, HI8(enc28j60_next_packet_pointer - 1));
 
     }
 
@@ -423,11 +429,11 @@ void transmit_packet(void)
         uint16_t start_pointer = TXBUFFER_START;
 
         /* set send control registers */
-        write_control_register(REG_ETXSTL, LOW(start_pointer));
-        write_control_register(REG_ETXSTH, HIGH(start_pointer));
+        write_control_register(REG_ETXSTL, LO8(start_pointer));
+        write_control_register(REG_ETXSTH, HI8(start_pointer));
 
-        write_control_register(REG_ETXNDL, LOW(start_pointer + uip_len));
-        write_control_register(REG_ETXNDH, HIGH(start_pointer + uip_len));
+        write_control_register(REG_ETXNDL, LO8(start_pointer + uip_len));
+        write_control_register(REG_ETXNDH, HI8(start_pointer + uip_len));
 
         /* set pointer to beginning of tx buffer */
         set_write_buffer_pointer(start_pointer);
@@ -494,5 +500,8 @@ void network_handle_udp(void)
 
     if (uip_udp_conn->lport == HTONS(SYSLOG_UDP_PORT))
         syslog_handle_conn();
+
+    if (uip_udp_conn->lport == HTONS(FC_UDP_PORT))
+        fc_handle_conn();
 
 } /* }}} */

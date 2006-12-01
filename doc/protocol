@@ -3,35 +3,77 @@ etherrape protocol (commandline client)
 
 When the etherrape commandline service is enabled, the etherrape can be
 controlled and configured via TCP on port 2847 using protocol defined below.
+This document describes protocol version 1.0. Differences in the minor
+version SHOULD retain compatibility, on both, server and client side.
+Protocol versions with different major number are incompatible.
 
-DATA PACKET FORMAT:
-===================
+After establishing the connection, the etherrape and the client can exchange
+message datagrams.  A datagram consists of a length and a sysbsystem field,
+followed by the actual contents of the datagram.  The contents of the
+datagram is interpreted according to the subsystem field.  All integer
+values MUST be transmitted in network byte-order (=big endian).
 
-field            |  length
--------------------------------------
-length              16bit
-message_type        16bit
+Datagram schematic:
 
+| <-                            32 bit                             ->|
++--------------------------------------------------------------------+
+|     datagram length (16bit)     |       subsystem (16bit)          |
++--------------------------------------------------------------------+
+|                           ... data ...                             |
++--------------------------------------------------------------------+
 
+Length is the number of bytes in the whole datagram, including the bytes for
+length and subsystem (and data, of course).
 
-MESSAGE TYPES:
-==============
+The subsystem field indicates the etherrape subsystem, which is adressed
+by this datagram, see below for a list.
 
-message type     |  subsystem
--------------------------------------
-0x0000              request/send protocol version information
-0x0005              onewire bus control (discover, get, set, ...)
-
-
-
-
-
-SUBSYSTEMS:
-===========
-
-
-
-All integers are in network endian (big endian) byteorder.
+After directly after connecting to the server, the client MUST check the
+servers protocol version.
 
 
-vim:ts=76
+
+
+Subsystem list:
+
+0x0000           request/send protocol version information
+0x0001           error handling
+0x0005           onewire bus control (discover, get, set, ...)
+0x0006           fs20 control (send, ...)
+
+
+subsystem 0x0000 (protocol version information)
+===============================================
+
+A client can request information about the implemented etherrape commandline
+protocol versions by adressing subsystem 0.  The first byte in the data
+string is interpreted as a command:
+
+| <-                            32 bit                             ->|
++--------------------------------------------------------------------+
+|  command (8bit)  |          .... data ....                         |
++--------------------------------------------------------------------+
+
+Commands:
+---------
+0x00    request implemented protocol version (client->server)
+0x01    send implemented protocol version (server->client), the data
+        contains two bytes representing the servers major and minor protocol version
+
+
+subsystem 0x0006 (fs20 control)
+===============================================
+
+A client can send fs20 commands by sending data in the format:
+
+| <-                            32 bit                             ->|
++--------------------------------------------------------------------+
+|  command (8bit)   |  fs20 house code (16bit) | fs20 address (8bit) |
+|  fs20 command (8bit)  |                                            |
++--------------------------------------------------------------------+
+
+Commands:
+---------
+0x01    send fs20 command
+
+vim:tw=76

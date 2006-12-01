@@ -60,7 +60,7 @@ clean-$(TARGET):
 
 distclean: clean
 	$(MAKE) -C ethcmd distclean
-	rm -f eeprom-default.raw
+	rm -f eeprom-default.raw Makefile.dep tags
 
 depend:
 	$(CC) $(CFLAGS) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) > $(MAKEFILE).dep
@@ -69,15 +69,25 @@ depend:
 
 .PHONY: eeprom-default.raw
 
+#eeprom-default.raw:
+#	echo -ne '\xac\xde\x48\xfd\x0f\x23' > eeprom-default.raw
+#	echo -ne '\x0a\x00\x00\x02' >> eeprom-default.raw
+#	echo -ne '\xff\xff\xff\x00' >> eeprom-default.raw
+#	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
+#	echo -ne '\x35' >> eeprom-default.raw
+#	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
+#	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
+#	echo -ne '\x24' >> eeprom-default.raw
+
 eeprom-default.raw:
 	echo -ne '\xac\xde\x48\xfd\x0f\x23' > eeprom-default.raw
-	echo -ne '\x0a\x00\x00\x02' >> eeprom-default.raw
+	echo -ne '\xac\x17\x17\x1a' >> eeprom-default.raw
 	echo -ne '\xff\xff\xff\x00' >> eeprom-default.raw
-	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
-	echo -ne '\x35' >> eeprom-default.raw
-	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
-	echo -ne '\x0a\x00\x00\x01' >> eeprom-default.raw
-	echo -ne '\x24' >> eeprom-default.raw
+	echo -ne '\xac\x17\x17\x01' >> eeprom-default.raw
+	echo -ne '\x12' >> eeprom-default.raw
+	echo -ne '\x00\x00\x00\x00' >> eeprom-default.raw
+	echo -ne '\x00\x00\x00\x00' >> eeprom-default.raw
+	echo -ne '\x00' >> eeprom-default.raw
 
 install-eeprom-default: eeprom-default.raw launch-bootloader
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -P $(SERIAL_DEV) -U eeprom:w:eeprom-default.raw:r

@@ -146,8 +146,14 @@
 
 /* port the enc28j60 is attached to
  * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
-#ifndef SPI_CS
-#define SPI_CS PB4
+#ifndef SPI_CS_NET
+#define SPI_CS_NET PB4
+#endif
+
+/* port the dataflash CS is attached to
+ */
+#ifndef SPI_CS_DF
+#define SPI_CS_DF PB1
 #endif
 
 /* enc28j60 int line */
@@ -209,5 +215,11 @@
 #define ONEWIRE_DDR DDRD
 #define ONEWIRE_PORT PORTD
 #define ONEWIRE_PARASITE
+
+/* fs20 support */
+#define FS20_SUPPORT
+#define FS20_PINNUM PB2
+#define FS20_DDR DDRB
+#define FS20_PORT PORTB
 
 #endif /* _CONFIG_H */

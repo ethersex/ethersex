@@ -31,6 +31,7 @@ struct global_config_t {
     char *host;                 /* remote host */
     unsigned int port;          /* remote port */
     int sock;                   /* socket fd */
+    int command;                /* command to be executed */
 };
 
 extern struct global_config_t cfg;
@@ -41,7 +42,14 @@ extern struct global_config_t cfg;
 
 #define BUFSIZE 1024
 
-/* debug macros */
+#define PROTOCOL_MAJOR 0x01
+#define PROTOCOL_MINOR 0x00
+
+#define CMD_NONE -1
+#define CMD_OW   0x05
+#define CMD_FS20 0x06
+
+/* macros */
 /* {{{ */
 #define VERBOSE_PRINTF(...) do {  \
         if (cfg.verbose > 0) {    \
@@ -58,5 +66,8 @@ extern struct global_config_t cfg;
 #define DEBUG_PRINTF(...)
 #endif
 /* }}} */
+
+/* subsystems */
+#define ETHCMD_SUBSYSTEM_VERSION 0x0000
 
 #endif

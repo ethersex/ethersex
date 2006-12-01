@@ -37,6 +37,7 @@ clean: clean-$(TARGET)
 
 clean-$(TARGET):
 	rm -f $(TARGET)
+	rm -f $(TARGET).lst
 
 depend:
 	$(CC) $(CFLAGS) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE).dep

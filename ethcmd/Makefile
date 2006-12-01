@@ -4,7 +4,7 @@
 CC = gcc
 CFLAGS = -Wall -Wstrict-prototypes -std=gnu99 -ggdb3 -fno-inline -O2
 CFLAGS += $(OPTIONS)
-CFLAGS += -DDEBUG
+#CFLAGS += -DDEBUG
 #CFLAGS += -Werror
 CFLAGS += $(CEXTRA)
 # LDFLAGS += -lreadline

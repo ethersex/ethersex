@@ -32,10 +32,6 @@
 
 #define noinline __attribute__((noinline))
 
-/* 16-bit macros */
-#define HIGH(x) ((uint8_t)((x) >> 8))
-#define LOW(x) ((uint8_t)(x))
-
 /* spi commands */
 #define CMD_RCR    0x00 /* address */
 #define CMD_RBM    0x3A /* no argument */
@@ -335,12 +331,12 @@ void dump_debug_registers(void);
 
 static inline void cs_low(void)
 /* {{{ */ {
-    SPI_PORT &= ~_BV(SPI_CS);
+    SPI_PORT &= ~_BV(SPI_CS_NET);
 } /* }}} */
 
 static inline void cs_high(void)
 /* {{{ */ {
-    SPI_PORT |= _BV(SPI_CS);
+    SPI_PORT |= _BV(SPI_CS_NET);
 } /* }}} */
 
 extern uint8_t current_bank;

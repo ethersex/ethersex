@@ -26,6 +26,7 @@
 #include "uip/uip.h"
 #include "uart.h"
 #include "onewire/onewire.h"
+#include "fs20.h"
 
 #define NTOHS(x) ((0x00ff & (x)) << 8 | (0xff00 & (x)) >> 8)
 
@@ -73,7 +74,7 @@ void ethcmd_main(void)
 
             msg->length = HTONS(sizeof(struct ethcmd_message_t)
                     + sizeof(struct ethcmd_onewire_message_t));
-            msg->message_type = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
+            msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
 
             struct ethcmd_onewire_message_t *ow_msg = msg->data;
             memcpy(&ow_msg->id, &ow_global.current_rom, 8);
@@ -101,12 +102,12 @@ void ethcmd_main(void)
         uart_puts_P("cmd: length: 0x");
         uart_puthexbyte( LOW(msg->length));
         uart_puthexbyte(HIGH(msg->length));
-        uart_puts_P(", mesage_type: 0x");
-        uart_puthexbyte( LOW(msg->message_type));
-        uart_puthexbyte(HIGH(msg->message_type));
+        uart_puts_P(", subsystem: 0x");
+        uart_puthexbyte( LOW(msg->subsystem));
+        uart_puthexbyte(HIGH(msg->subsystem));
         uart_eol();
 
-        if (msg->message_type == NTOHS(ETHCMD_MESSAGE_TYPE_ONEWIRE)) {
+        if (msg->subsystem == NTOHS(ETHCMD_MESSAGE_TYPE_ONEWIRE)) {
             uart_puts_P("cmd: detected onewire discover\r\n");
 
             /* new discover */
@@ -120,7 +121,7 @@ void ethcmd_main(void)
 
                 msg->length = HTONS(sizeof(struct ethcmd_message_t)
                                   + sizeof(struct ethcmd_onewire_message_t));
-                msg->message_type = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
+                msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
 
                 struct ethcmd_onewire_message_t *ow_msg = msg->data;
                 memcpy(&ow_msg->id, &ow_global.current_rom, 8);
@@ -133,6 +134,41 @@ void ethcmd_main(void)
                 uip_conn->appstate.ethcmd.foo = 0;
 
             }
+
+        } else if (msg->subsystem == NTOHS(ETHCMD_MESSAGE_TYPE_FS20)) {
+
+            uart_puts_P("cmd: sending fs20 data: ");
+            for (uint8_t i = 0; i < 5; i++) {
+                uart_puthexbyte(msg->data[i]);
+                uart_putc(' ');
+            }
+            uart_eol();
+
+            struct ethcmd_fs20_message_t *msg2 = (struct ethcmd_fs20_message_t *)msg->data;
+
+            if (msg2->command == 0x01) {
+
+                uart_puts_P("cmd: housecode: 0x");
+                uart_puthexbyte(LOW(msg2->fs20_housecode));
+                uart_puthexbyte(HIGH(msg2->fs20_housecode));
+                uart_puts_P(", addr:");
+                uart_puthexbyte(msg2->fs20_address);
+                uart_puts_P(", cmd:");
+                uart_puthexbyte(msg2->fs20_command);
+                uart_eol();
+
+                fs20_send(NTOHS(msg2->fs20_housecode), msg2->fs20_address, msg2->fs20_command);
+                uip_close();
+            }
+
+        } else if (msg->subsystem == NTOHS(ETHCMD_MESSAGE_TYPE_VERSION)) {
+
+            msg->length = HTONS(sizeof(struct ethcmd_message_t) + 2);
+            msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_VERSION);
+            msg->data[0] = 1;
+            msg->data[1] = 0;
+
+            uip_send(uip_appdata, sizeof(struct ethcmd_message_t) + 2);
 
         }
 

@@ -27,6 +27,7 @@
 #include "httpd_state.h"
 #include "sntp_state.h"
 #include "syslog_state.h"
+#include "fc_state.h"
 
 #define NULL ((void *)0)
 
@@ -51,6 +52,7 @@ typedef union uip_tcp_connection_state {
 typedef union uip_udp_connection_state {
     struct sntp_connection_state_t sntp;
     struct syslog_connection_state_t syslog;
+    struct fc_connection_state_t fc;
 } uip_udp_appstate_t;
 
 #include "uip/uip.h"

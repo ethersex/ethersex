@@ -20,37 +20,48 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ETHCMD_MESSAGE_H
-#define _ETHCMD_MESSAGE_H
+#include "fc.h"
+#include "uart.h"
 
-#include <stdint.h>
+void fc_init(void)
+/* {{{ */ {
 
-#define packed __attribute__ ((__packed__))
+    uip_ipaddr_t ip;
+    uip_ipaddr(&ip, 255,255,255,255);
 
-#define ETHCMD_MESSAGE_TYPE_VERSION 0x0000
-#define ETHCMD_MESSAGE_TYPE_ONEWIRE 0x0005
-#define ETHCMD_MESSAGE_TYPE_FS20 0x0006
+    struct uip_udp_conn *c = uip_udp_new(&ip, 0);
 
-struct ethcmd_message_t {
-    uint16_t length;
-    uint16_t subsystem;
-    uint8_t data[];
-} packed;
+    if (c != NULL) {
+        uip_udp_bind(c, HTONS(FC_UDP_PORT));
 
-struct ethcmd_onewire_message_t {
-    uint8_t id[8];
-} packed;
+        c->appstate.fc.transmit_state = 0;
+    }
 
-struct ethcmd_fs20_message_t {
-    uint8_t command;
-    uint16_t fs20_housecode;
-    uint8_t fs20_address;
-    uint8_t fs20_command;
-} packed;
+} /* }}} */
 
-struct ethcmd_fs20_packet_t {
-    struct ethcmd_message_t msg;
-    struct ethcmd_fs20_message_t payload;
-} packed;
+void fc_handle_conn(void)
+/* {{{ */ {
 
-#endif
+    if (uip_newdata()) {
+
+        uint8_t *buffer = (uint8_t *)uip_appdata;
+
+        /* set address bit */
+        UCSR0B |= _BV(TXB80);
+
+        /* write address */
+        //uart_putc(*buffer);
+        UDR0 = *buffer;
+        //UDR0 = 0x88;
+
+        /* clear address bit */
+        _UCSRB_UART0 &= ~_BV(TXB80);
+
+        /* write data */
+        for (uint16_t i = 1; i < uip_len; i++) {
+            uart_putc(buffer[i]);
+        }
+
+    }
+
+} /* }}} */

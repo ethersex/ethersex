@@ -1,0 +1,26 @@
+atmega644:
+    high fuse byte
+
+        - enable jtag unprogram: JTAGEN = 1
+        - bootloader size 1024 words: BOOTSZ1 = 1
+                                      BOOTSZ0 = 0
+        - jump to bootloader: BOORST = 0
+
+    ->  default: 0b10011001 = 0x99
+        neu:     0b11011100 = 0xdc
+
+    low fuse byte:
+
+        - external crystal clock, fast rising power: CKSEL3..0 = 0111
+                                                     SUT1..0 = 10
+        - (unprogram) CKDIV8 = 1
+
+    ->  default: 0b01100010 = 0x62
+        neu:     0b11100111 = 0xe7
+
+    lock byte:
+        SPM is not allowed to write to the Boot Loader section BLB12 = 1
+                                                               BLB11 = 0
+
+    -> default: 0b111111 = 0x3f
+       new:     0b101111 = 0x2f

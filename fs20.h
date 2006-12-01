@@ -1,6 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
+ *          fs20 sender implementation
+ *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,37 +22,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ETHCMD_MESSAGE_H
-#define _ETHCMD_MESSAGE_H
 
-#include <stdint.h>
+#ifndef _FS20_H
+#define _FS20_H
 
-#define packed __attribute__ ((__packed__))
+#include "config.h"
 
-#define ETHCMD_MESSAGE_TYPE_VERSION 0x0000
-#define ETHCMD_MESSAGE_TYPE_ONEWIRE 0x0005
-#define ETHCMD_MESSAGE_TYPE_FS20 0x0006
+#ifdef FS20_SUPPORT
 
-struct ethcmd_message_t {
-    uint16_t length;
-    uint16_t subsystem;
-    uint8_t data[];
-} packed;
+#if !defined(FS20_PINNUM) || !defined(FS20_DDR) || !defined(FS20_PORT)
+#error FS20_PINNUM, FS20_DDR or FS20_PORT not defined!
+#endif
 
-struct ethcmd_onewire_message_t {
-    uint8_t id[8];
-} packed;
+#if !defined(F_CPU)
+#error F_CPU undefined!
+#endif
 
-struct ethcmd_fs20_message_t {
-    uint8_t command;
-    uint16_t fs20_housecode;
-    uint8_t fs20_address;
-    uint8_t fs20_command;
-} packed;
+#define FS20_DELAY_ZERO (4 * (F_CPU / 10000) / 4) /* 400uS, for delay_loop_2 */
+#define FS20_DELAY_ONE  (6 * (F_CPU / 10000) / 4) /* 600uS, for delay_loop_2 */
+#define FS20_DELAY_CMD  ( F_CPU / 10000 / 4) /* 10ms, for delay_loop_2 */
 
-struct ethcmd_fs20_packet_t {
-    struct ethcmd_message_t msg;
-    struct ethcmd_fs20_message_t payload;
-} packed;
+/* public prototypes */
+void fs20_init(void);
+void fs20_send(uint16_t housecode, uint8_t address, uint8_t command);
+
+#endif
 
 #endif
