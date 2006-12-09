@@ -50,6 +50,188 @@ void (*jump_to_application)(void) = (void *)0x0000;
 
 #define noinline __attribute__((noinline))
 
+/* ENC28J60 user signalling */
+/* {{{ */
+#if defined(SIGNAL_ENC28J60) && defined(_ATMEGA644)
+
+/* global variables */
+uint8_t enc28j60_current_bank;
+
+/* prototypes */
+static inline void cs_low(void);
+static inline void cs_high(void);
+void noinline wait_spi_busy(void);
+void noinline switch_bank(uint8_t bank);
+void noinline bit_field_set(uint8_t address, uint8_t mask);
+void noinline bit_field_clear(uint8_t address, uint8_t mask);
+uint8_t noinline read_control_register(uint8_t address);
+void noinline write_control_register(uint8_t address, uint8_t data);
+void noinline write_phy(uint8_t address, uint16_t data);
+void noinline reset_enc28j60(void);
+
+
+static inline void cs_low(void)
+/* {{{ */ {
+    SPI_PORT &= ~_BV(SPI_CS_ENC28J60);
+} /* }}} */
+
+static inline void cs_high(void)
+/* {{{ */ {
+    SPI_PORT |= _BV(SPI_CS_ENC28J60);
+} /* }}} */
+
+
+void noinline wait_spi_busy(void)
+/* {{{ */ {
+
+    while (!(SPSR0 & _BV(SPIF0)));
+
+} /* }}} */
+
+void switch_bank(uint8_t bank)
+/* {{{ */ {
+
+    bit_field_clear(ENC28J60_REG_ECON1, _BV(ENC28J60_ECON1_BSEL0) | _BV(ENC28J60_ECON1_BSEL1));
+    bit_field_set(ENC28J60_REG_ECON1, bank);
+
+} /* }}} */
+
+uint8_t read_control_register(uint8_t address)
+/* {{{ */ {
+
+    /* change to appropiate bank */
+    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+         ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
+        switch_bank((address & REGISTER_BANK_MASK) >> 5);
+
+    /* aquire device */
+    cs_low();
+
+    /* send opcode and address */
+    SPDR0 = (ENC28J60_CMD_RCR | (address & REGISTER_ADDRESS_MASK) );
+    wait_spi_busy();
+
+    /* read data */
+    SPDR0 = 0x00;
+    wait_spi_busy();
+
+    /* if this is a register in MAC or MII (when MSB is set),
+     * read a dummy byte first */
+    if (address & _BV(7)) {
+        SPDR0 = 0x00;
+        wait_spi_busy();
+    }
+
+    /* release device */
+    cs_high();
+
+    return SPDR0;
+
+} /* }}} */
+
+void write_control_register(uint8_t address, uint8_t data)
+/* {{{ */ {
+
+    /* change to appropiate bank */
+    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+         ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
+        switch_bank((address & REGISTER_BANK_MASK) >> 5);
+
+    /* aquire device */
+    cs_low();
+
+    /* send opcode */
+    SPDR0 = (ENC28J60_CMD_WCR | (address & REGISTER_ADDRESS_MASK) );
+    wait_spi_busy();
+
+    /* send data */
+    SPDR0 = data;
+    wait_spi_busy();
+
+    /* release device */
+    cs_high();
+
+} /* }}} */
+
+void bit_field_set(uint8_t address, uint8_t mask)
+/* {{{ */ {
+
+    /* change to appropiate bank */
+    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+         ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
+        switch_bank((address & REGISTER_BANK_MASK) >> 5);
+
+    /* aquire device */
+    cs_low();
+
+    /* send opcode */
+    SPDR0 = (ENC28J60_CMD_BFS | (address & REGISTER_ADDRESS_MASK) );
+    wait_spi_busy();
+
+    /* send data */
+    SPDR0 = mask;
+    wait_spi_busy();
+
+    /* release device */
+    cs_high();
+
+} /* }}} */
+
+void bit_field_clear(uint8_t address, uint8_t mask)
+/* {{{ */ {
+
+    /* change to appropiate bank */
+    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+         ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
+        switch_bank((address & REGISTER_BANK_MASK) >> 5);
+
+    /* aquire device */
+    cs_low();
+
+    /* send opcode */
+    SPDR0 = (ENC28J60_CMD_BFC | (address & REGISTER_ADDRESS_MASK) );
+    wait_spi_busy();
+
+    /* send data */
+    SPDR0 = mask;
+    wait_spi_busy();
+
+    /* release device */
+    cs_high();
+
+} /* }}} */
+
+
+void write_phy(uint8_t address, uint16_t data)
+/* {{{ */ {
+
+    /* set address */
+    write_control_register(ENC28J60_REG_MIREGADR, address);
+
+    /* set data */
+    write_control_register(ENC28J60_REG_MIWRL, LO8(data));
+    write_control_register(ENC28J60_REG_MIWRH, HI8(data));
+
+    /* start writing and wait */
+    while(read_control_register(ENC28J60_REG_MISTAT) & _BV(ENC28J60_BUSY));
+
+} /* }}} */
+
+void noinline reset_enc28j60(void)
+/* {{{ */ {
+
+    /* select device */
+    cs_low();
+
+    /* reset controller */
+    SPDR0 = ENC28J60_CMD_RESET;
+
+    while (! (read_control_register(ENC28J60_REG_ESTAT) & _BV(ENC28J60_REG_ESTAT_CLKRDY)));
+
+} /* }}} */
+
+#endif
+/* }}} */
 
 /** output one character */
 static noinline void uart_putc(uint8_t data)
@@ -65,8 +247,7 @@ static noinline void uart_putc(uint8_t data)
 
 /** output a string */
 static inline void uart_puts(uint8_t buffer[])
-/*{{{*/ {
-
+/*{{{*/ { 
     /* send everything until end of string */
     while (*buffer != 0) {
         uart_putc(*buffer);
@@ -126,13 +307,55 @@ static inline void init_uart(void)
 static noinline void start_application(void)
 /* {{{ */ {
 
+#       ifdef BOOLOADER_JUMPER
         /* reset input pin */
         BOOTLOADER_PORT &= BOOTLOADER_MASK;
+#       endif
+
+#       if defined(SIGNAL_ENC28J60) && defined(_ATMEGA644)
+        /* reset enc28j60 */
+        reset_enc28j60();
+
+        /* reset pins, disable spi */
+        SPI_DDR = 0;
+        SPI_PORT = 0;
+        SPCR0 = 0;
+        SPSR0 = 0;
+#       endif
 
         /* move interrupt vectors to application section and jump to main program */
         _IVREG = _BV(IVCE);
         _IVREG = 0;
         jump_to_application();
+
+} /* }}} */
+
+/** signal user bootloader activity */
+static noinline void signal_user(void)
+/* {{{ */ {
+
+#   if defined(SIGNAL_ENC28J60) && defined(_ATMEGA644)
+    /* configure MOSI, SCK, CS lines as outputs */
+    SPI_DDR |= _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_ENC28J60);
+
+    /* set CS high (output) */
+    SPI_PORT |= _BV(SPI_CS_ENC28J60);
+
+    /* enable spi, set master and clock modes (f/2) */
+    SPCR0 = _BV(SPE0) | _BV(MSTR0);
+    SPSR0 = _BV(SPI2X0);
+
+
+    reset_enc28j60();
+    uart_putc('r');
+
+    /* configure leds */
+    write_phy(ENC28J60_PHY_PHLCON, _BV(ENC28J60_STRCH) |
+            _BV(ENC28J60_LBCFG3) | _BV(ENC28J60_LBCFG1));
+
+    uart_putc('l');
+
+#   endif
 
 } /* }}} */
 
@@ -161,9 +384,11 @@ int main(void)
         uart_putc('b');
 #   endif
 
+#   ifdef BOOLOADER_JUMPER
     /* configure pin as input and enable pullup */
     BOOTLOADER_DDR &= ~BOOTLOADER_MASK;
     BOOTLOADER_PORT |= BOOTLOADER_MASK;
+#   endif
 
     /* bootloader activation methods */
     if (
@@ -189,6 +414,8 @@ int main(void)
 
 
 start_bootloader:
+
+    signal_user();
 
 #   if SEND_BOOT_MESSAGE
     uart_putc('p');

@@ -291,4 +291,75 @@
 #define VERSION_BYTE_1 '0'
 #define VERSION_BYTE_2 '2'
 
+
+/* user signal configuration */
+#define SIGNAL_ENC28J60
+#ifdef SIGNAL_ENC28J60
+
+    /* spi defines */
+#   ifndef SPI_DDR
+#   define SPI_DDR DDRB
+#   endif
+
+#   ifndef SPI_PORT
+#   define SPI_PORT PORTB
+#   endif
+
+#   ifndef SPI_MOSI
+#   define SPI_MOSI PB5
+#   endif
+
+#   ifndef SPI_MISO
+#   define SPI_MISO PB6
+#   endif
+
+#   ifndef SPI_SCK
+#   define SPI_SCK PB7
+#   endif
+
+    /* enc28j60 */
+#   ifndef SPI_CS_ENC28J60
+#   define SPI_CS_ENC28J60 PB4
+#   endif
+
+#   define ENC28J60_CMD_RCR   0x00 /* read control register */
+#   define ENC28J60_CMD_WCR   0x40 /* write control register */
+#   define ENC28J60_CMD_BFS   0x80 /* address, data */
+#   define ENC28J60_CMD_BFC   0xA0 /* address, data */
+#   define ENC28J60_CMD_RESET 0xff /* reset enc28j60 */
+
+#   define ENC28J60_REG_ESTAT 0x1d /* status register */
+#   define     ENC28J60_REG_ESTAT_CLKRDY   0 /* ready bit in estat */
+#   define ENC28J60_REG_ECON1 0x1F
+#   define     ENC28J60_ECON1_BSEL0   0
+#   define     ENC28J60_ECON1_BSEL1   1
+#   define ENC28J60_REG_MIREGADR  (0x14|0x40|0x80)
+#   define ENC28J60_REG_MIWRL     (0x16|0x40|0x80)
+#   define ENC28J60_REG_MIWRH     (0x17|0x40|0x80)
+#   define ENC28J60_REG_MISTAT    (0x0A|0x60|0x80)
+#   define     ENC28J60_BUSY   0
+#   define ENC28J60_PHY_PHLCON  0x14
+#   define     ENC28J60_STRCH   1
+#   define     ENC28J60_LFRQ0   2
+#   define     ENC28J60_LFRQ1   3
+#   define     ENC28J60_LBCFG0  4
+#   define     ENC28J60_LBCFG1  5
+#   define     ENC28J60_LBCFG2  6
+#   define     ENC28J60_LBCFG3  7
+#   define     ENC28J60_LACFG0  8
+#   define     ENC28J60_LACFG1  9
+#   define     ENC28J60_LACFG2  10
+#   define     ENC28J60_LACFG3  11
+
+/* masks */
+#   define REGISTER_ADDRESS_MASK   0x1F
+#   define REGISTER_BANK_MASK      0x60
+#   define BANK_MASK               0x03
+
+#endif
+
+/* common macros */
+#define HI8(x)  ((uint8_t)((x) >> 8))
+#define LO8(x)  ((uint8_t)(x))
+
 #endif /* _FOODLOADER_CONFIG_H */
