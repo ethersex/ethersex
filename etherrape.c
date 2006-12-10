@@ -30,6 +30,7 @@
 #include "common.h"
 #include "network.h"
 #include "uart.h"
+#include "spi.h"
 #include "enc28j60.h"
 #include "timer.h"
 #include "clock.h"
@@ -48,7 +49,6 @@
 #include "onewire/onewire.h"
 
 /* prototypes */
-void init_spi(void);
 void check_serial_input(uint8_t data);
 
 void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
@@ -61,23 +61,6 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 #endif
 
 
-
-void init_spi(void)
-/* {{{ */ {
-
-    /* configure MOSI, SCK, CS lines as outputs */
-    SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_NET);
-    DDRB |= _BV(PB0) | _BV(PB1);
-
-    /* set all CS high (output) */
-    SPI_PORT = _BV(SPI_CS_NET);
-    PORTB |= _BV(PB0) | _BV(PB1);
-
-    /* enable spi, set master and clock modes (f/2) */
-    _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);
-    _SPSR0 = _BV(_SPI2X0);
-
-} /* }}} */
 
 #ifdef DEBUG
 void print_rom_code(struct ow_rom_code_t *rom);
@@ -224,9 +207,9 @@ void check_serial_input(uint8_t data)
                         PORTB &= ~_BV(PB1);
 
                         _SPDR0 = 0xd7;
-                        wait_spi_busy();
+                        spi_wait_busy();
                         _SPDR0 = 0x00; /* dummy byte */
-                        wait_spi_busy();
+                        spi_wait_busy();
 
                         uint8_t d = _SPDR0;
 
@@ -241,20 +224,20 @@ void check_serial_input(uint8_t data)
                         PORTB &= ~_BV(PB1);
 
                         _SPDR0 = 0x77;
-                        wait_spi_busy();
+                        spi_wait_busy();
                         for (uint8_t i = 0; i < 3; i++) {
                             _SPDR0 = 0x00; /* dummy bytes */
-                            wait_spi_busy();
+                            spi_wait_busy();
                         }
 
                         for (uint8_t i = 0; i < 64; i++) {
                             _SPDR0 = 0x00; /* dummy bytes */
-                            wait_spi_busy();
+                            spi_wait_busy();
                         }
 
                         for (uint8_t i = 0; i < 64; i++) {
                             _SPDR0 = 0x00; /* dummy bytes */
-                            wait_spi_busy();
+                            spi_wait_busy();
 
                             uart_putc(' ');
                             uart_puthexbyte(_SPDR0);
@@ -327,7 +310,7 @@ int main(void)
     uart_puts_P("booting etherrape firmware " VERSION_STRING "...\r\n");
 #   endif
 
-    init_spi();
+    spi_init();
     timer_init();
     syslog_init();
 

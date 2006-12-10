@@ -300,7 +300,6 @@ struct transmit_packet_vector_t {
 };
 
 /* prototypes */
-void noinline wait_spi_busy(void);
 uint8_t noinline read_control_register(uint8_t address);
 uint8_t noinline read_buffer_memory(void);
 void noinline write_control_register(uint8_t address, uint8_t data);

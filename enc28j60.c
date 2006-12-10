@@ -31,27 +31,11 @@
 #include "network.h"
 #include "uart.h"
 #include "uip/uip_arp.h"
+#include "spi.h"
 
 /* global variables */
 uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
-
-void noinline wait_spi_busy(void)
-/* {{{ */ {
-
-#   ifdef SPI_TIMEOUT
-    uint8_t timeout = 200;
-
-    while (!(_SPSR0 & _BV(_SPIF0)) && timeout > 0)
-        timeout--;
-
-    if (timeout == 0)
-        uart_puts_P("ERROR: isp timeout reached!\r\n");
-#   else
-    while (!(_SPSR0 & _BV(_SPIF0)));
-#   endif
-
-} /* }}} */
 
 uint8_t read_control_register(uint8_t address)
 /* {{{ */ {
@@ -65,24 +49,21 @@ uint8_t read_control_register(uint8_t address)
     cs_low();
 
     /* send opcode and address */
-    _SPDR0 = (CMD_RCR | (address & REGISTER_ADDRESS_MASK) );
-    wait_spi_busy();
+    spi_send(CMD_RCR | (address & REGISTER_ADDRESS_MASK));
 
     /* read data */
-    _SPDR0 = 0x00;
-    wait_spi_busy();
+    uint8_t data = spi_send(0);
 
     /* if this is a register in MAC or MII (when MSB is set),
-     * read a dummy byte first */
+     * only a dummy byte has been read so far, read real data now */
     if (address & _BV(7)) {
-        _SPDR0 = 0x00;
-        wait_spi_busy();
+        data = spi_send(0);
     }
 
     /* release device */
     cs_high();
 
-    return _SPDR0;
+    return data;
 
 } /* }}} */
 
@@ -93,17 +74,15 @@ uint8_t read_buffer_memory(void)
     cs_low();
 
     /* send opcode */
-    _SPDR0 = (CMD_RBM);
-    wait_spi_busy();
+    spi_send(CMD_RBM);
 
     /* read data */
-    _SPDR0 = 0x00;
-    wait_spi_busy();
+    uint8_t data = spi_send(0);
 
     /* release device */
     cs_high();
 
-    return _SPDR0;
+    return data;
 
 } /* }}} */
 
@@ -119,12 +98,10 @@ void write_control_register(uint8_t address, uint8_t data)
     cs_low();
 
     /* send opcode */
-    _SPDR0 = (CMD_WCR | (address & REGISTER_ADDRESS_MASK) );
-    wait_spi_busy();
+    spi_send(CMD_WCR | (address & REGISTER_ADDRESS_MASK) );
 
     /* send data */
-    _SPDR0 = data;
-    wait_spi_busy();
+    spi_send(data);
 
     /* release device */
     cs_high();
@@ -138,12 +115,10 @@ void write_buffer_memory(uint8_t data)
     cs_low();
 
     /* send opcode */
-    _SPDR0 = (CMD_WBM);
-    wait_spi_busy();
+    spi_send(CMD_WBM);
 
     /* send data */
-    _SPDR0 = data;
-    wait_spi_busy();
+    spi_send(data);
 
     /* release device */
     cs_high();
@@ -162,12 +137,10 @@ void bit_field_set(uint8_t address, uint8_t mask)
     cs_low();
 
     /* send opcode */
-    _SPDR0 = (CMD_BFS | (address & REGISTER_ADDRESS_MASK) );
-    wait_spi_busy();
+    spi_send(CMD_BFS | (address & REGISTER_ADDRESS_MASK) );
 
     /* send data */
-    _SPDR0 = mask;
-    wait_spi_busy();
+    spi_send(mask);
 
     /* release device */
     cs_high();
@@ -186,12 +159,10 @@ void bit_field_clear(uint8_t address, uint8_t mask)
     cs_low();
 
     /* send opcode */
-    _SPDR0 = (CMD_BFC | (address & REGISTER_ADDRESS_MASK) );
-    wait_spi_busy();
+    spi_send(CMD_BFC | (address & REGISTER_ADDRESS_MASK) );
 
     /* send data */
-    _SPDR0 = mask;
-    wait_spi_busy();
+    spi_send(mask);
 
     /* release device */
     cs_high();
@@ -266,8 +237,7 @@ void reset_controller(void)
     cs_low();
 
     /* send opcode */
-    _SPDR0 = (CMD_RESET);
-    wait_spi_busy();
+    spi_send(CMD_RESET);
 
     /* wait until the controller is ready */
     while (!(read_control_register(REG_ESTAT) & _BV(CLKRDY)));
