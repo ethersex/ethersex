@@ -226,6 +226,7 @@ void noinline reset_enc28j60(void)
     /* reset controller */
     SPDR0 = ENC28J60_CMD_RESET;
 
+    /* wait until reset is done */
     while (! (read_control_register(ENC28J60_REG_ESTAT) & _BV(ENC28J60_REG_ESTAT_CLKRDY)));
 
 } /* }}} */
@@ -247,7 +248,7 @@ static noinline void uart_putc(uint8_t data)
 
 /** output a string */
 static inline void uart_puts(uint8_t buffer[])
-/*{{{*/ { 
+/*{{{*/ {
     /* send everything until end of string */
     while (*buffer != 0) {
         uart_putc(*buffer);
@@ -312,17 +313,6 @@ static noinline void start_application(void)
         BOOTLOADER_PORT &= BOOTLOADER_MASK;
 #       endif
 
-#       if defined(SIGNAL_ENC28J60) && defined(_ATMEGA644)
-        /* reset enc28j60 */
-        reset_enc28j60();
-
-        /* reset pins, disable spi */
-        SPI_DDR = 0;
-        SPI_PORT = 0;
-        SPCR0 = 0;
-        SPSR0 = 0;
-#       endif
-
         /* move interrupt vectors to application section and jump to main program */
         _IVREG = _BV(IVCE);
         _IVREG = 0;
@@ -347,14 +337,29 @@ static noinline void signal_user(void)
 
 
     reset_enc28j60();
-    uart_putc('r');
 
     /* configure leds */
     write_phy(ENC28J60_PHY_PHLCON, _BV(ENC28J60_STRCH) |
             _BV(ENC28J60_LBCFG3) | _BV(ENC28J60_LBCFG1));
 
-    uart_putc('l');
+#   endif
 
+} /* }}} */
+
+/** turn off signal user bootloader activity */
+static noinline void signal_user_off(void)
+/* {{{ */ {
+
+#   if defined(SIGNAL_ENC28J60) && defined(_ATMEGA644)
+    /* reset enc28j60 */
+    reset_enc28j60();
+    cs_high();
+
+    /* reset pins, disable spi */
+    SPI_DDR = 0;
+    SPI_PORT = 0;
+    SPCR0 = 0;
+    SPSR0 = 0;
 #   endif
 
 } /* }}} */
@@ -381,13 +386,17 @@ int main(void)
 
     /* send boot message */
 #   if SEND_BOOT_MESSAGE
-        uart_putc('b');
+    uart_putc('b');
 #   endif
 
 #   ifdef BOOLOADER_JUMPER
     /* configure pin as input and enable pullup */
     BOOTLOADER_DDR &= ~BOOTLOADER_MASK;
     BOOTLOADER_PORT |= BOOTLOADER_MASK;
+#   endif
+
+#   ifdef BOOTLOADER_RESET_VECTOR
+    uint16_t reset_vector = pgm_read_word(0x0000);
 #   endif
 
     /* bootloader activation methods */
@@ -399,6 +408,9 @@ int main(void)
 #   ifdef BOOTLOADER_CHAR
             /* 2) or activation via char */
             wait_for_char() ||
+#   endif
+#   ifdef BOOTLOADER_RESET_VECTOR
+            reset_vector == 0xFFFF ||
 #   endif
             0) {
 
@@ -511,6 +523,7 @@ start_bootloader:
 #endif
             case 'X':   /* start application */
 
+                        signal_user_off();
                         start_application();
                         uart_putc('\r');
 

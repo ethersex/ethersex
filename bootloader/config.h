@@ -266,6 +266,8 @@
 #define BOOTLOADER_SUCCESS_CHAR 'S'
 #endif
 
+/* 3) activation via empty reset vector */
+//#define BOOTLOADER_RESET_VECTOR
 
 
 /* uart configuration */
