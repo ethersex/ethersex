@@ -316,28 +316,11 @@ void reset_controller(void);
 void reset_rx(void);
 void init_enc28j60(void);
 void switch_bank(uint8_t bank);
-static inline void cs_low(void);
-static inline void cs_high(void);
 
 #ifdef DEBUG_ENC28J60
 void dump_debug_registers(void);
 #else
 #define dump_debug_registers(x)
 #endif
-
-
-/* small inline functions and macros */
-
-static inline void cs_low(void)
-/* {{{ */ {
-    SPI_PORT &= ~_BV(SPI_CS_NET);
-} /* }}} */
-
-static inline void cs_high(void)
-/* {{{ */ {
-    SPI_PORT |= _BV(SPI_CS_NET);
-} /* }}} */
-
-extern uint8_t current_bank;
 
 #endif

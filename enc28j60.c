@@ -37,6 +37,24 @@
 uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
 
+
+
+/* module local functions */
+static inline void cs_low(void);
+static inline void cs_high(void);
+
+static inline void cs_low(void)
+/* {{{ */ {
+    SPI_PORT &= ~_BV(SPI_CS_NET);
+} /* }}} */
+
+static inline void cs_high(void)
+/* {{{ */ {
+    SPI_PORT |= _BV(SPI_CS_NET);
+} /* }}} */
+
+
+
 uint8_t read_control_register(uint8_t address)
 /* {{{ */ {
 
