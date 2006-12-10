@@ -52,7 +52,7 @@ install-eeprom: program-serial-eeprom-$(TARGET)
 
 .PHONY: clean clean-$(TARGET) distclean
 
-clean: clean-$(TARGET) ethcmd/clean uip/clean bootloader/clean
+clean: clean-$(TARGET) ethcmd/clean uip/clean bootloader/clean onewire/clean
 
 clean-$(TARGET):
 	rm -f $(TARGET)
