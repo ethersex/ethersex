@@ -46,6 +46,9 @@ void fc_handle_conn(void)
 
         uint8_t *buffer = (uint8_t *)uip_appdata;
 
+        /* select 9 bit frame */
+        _UCSRB_UART0 |= _BV(UCSZ02);
+
         /* set address bit */
         UCSR0B |= _BV(TXB80);
 
@@ -61,6 +64,9 @@ void fc_handle_conn(void)
         for (uint16_t i = 1; i < uip_len; i++) {
             uart_putc(buffer[i]);
         }
+
+        /* disable 9 bit frame */
+        _UCSRB_UART0 &= ~_BV(UCSZ02);
 
     }
 

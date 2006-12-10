@@ -100,12 +100,6 @@ void check_serial_input(uint8_t data)
     switch (data) {
 
 #ifdef DEBUG
-        case 'R': init_enc28j60();
-                  break;
-
-        case 0x1b:  jump_to_bootloader();
-                    break;
-
         case 'w':   /* test watchdog */
 #                   ifdef USE_WATCHDOG
                     while (1);
@@ -118,10 +112,6 @@ void check_serial_input(uint8_t data)
                         uart_puthexbyte(HI8(uip_udp_conns[i].lport));
                         uart_eol();
                     }
-                    break;
-
-        case 'p':
-                    jump_to_bootloader();
                     break;
 
         case 'Y':   syslog_message_P("foobar?");
@@ -228,22 +218,6 @@ void check_serial_input(uint8_t data)
 
                         break;
                     }
-#endif
-
-        case '1':   fs20_send(0xd002, 0, 0);
-                    break;
-
-        case '2':   fs20_send(0xd002, 0, 2);
-                    break;
-
-        case '3':   fs20_send(0xd002, 0, 4);
-                    break;
-
-        case '4':   fs20_send(0xd002, 0, 6);
-                    break;
-
-        case '5':   fs20_send(0xd002, 0, 6);
-                    break;
 
         case 'd':   {
 
@@ -261,9 +235,48 @@ void check_serial_input(uint8_t data)
                         uart_puts_P("status: 0x");
                         uart_puthexbyte(d);
                         uart_eol();
+
+                        uart_puts_P("security register: ");
+
+                        PORTB &= ~_BV(PB1);
+
+                        _SPDR0 = 0x77;
+                        wait_spi_busy();
+                        for (uint8_t i = 0; i < 3; i++) {
+                            _SPDR0 = 0x00; /* dummy bytes */
+                            wait_spi_busy();
+                        }
+
+                        for (uint8_t i = 0; i < 64; i++) {
+                            _SPDR0 = 0x00; /* dummy bytes */
+                            wait_spi_busy();
+                        }
+
+                        for (uint8_t i = 0; i < 64; i++) {
+                            _SPDR0 = 0x00; /* dummy bytes */
+                            wait_spi_busy();
+
+                            uart_putc(' ');
+                            uart_puthexbyte(_SPDR0);
+                        }
+
+                        uart_eol();
+
+                        PORTB |= _BV(PB1);
+
+
                         break;
 
                     }
+
+#endif
+
+        case 0x1b:  jump_to_bootloader();
+                    break;
+
+        case 'p':
+                    jump_to_bootloader();
+                    break;
 
         default:    uart_putc('?');
                     break;
@@ -322,6 +335,10 @@ int main(void)
     fc_init();
 
 #   ifdef DEBUG
+    uart_puts_P("enc28j60 revision 0x");
+    uart_puthexbyte(read_control_register(REG_EREVID));
+    uart_eol();
+
     uart_puts_P("ip: ");
     uart_puts_ip(&uip_hostaddr);
     uart_eol();

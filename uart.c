@@ -36,7 +36,7 @@ void uart_init(void)
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
 
     /* enable transmitter and receiver */
-    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0) | _BV(UCSZ02);
+    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
 
 } /* }}} */
 
