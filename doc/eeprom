@@ -14,3 +14,4 @@ address (byte)
 0x001C    1      crc8 checksum from 0x0017 to 0x001B  ---/
 
 
+vim:tw=76

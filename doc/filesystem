@@ -1,0 +1,45 @@
+etherrape dataflash filesystem description
+==========================================
+
+Resources:
+* introduction about filesystems on flash mediums: http://sources.redhat.com/jffs2/jffs2.pdf
+* AT45DB161D datasheet: http://atmel.com/dyn/resources/prod_documents/doc3500.pdf
+
+All integers are Host-Endian!
+
+Defintions:
+* page: physical memory unit on the dataflash (528 byte in this case)
+* node: virtual entity storing data with unique node number (32bit integer,
+  always increasing), stores data in many pages
+
+
+The dataflash used in the etherrape consists of 4096 pages, 528 bytes each (16
+bytes will be used as structure information and 512 bytes can be used for data
+storage.)  Two 528 byte SRAM buffers can be used read, modify and write
+content.  Additionally, data can directly be read from flash, circumventing
+the SRAM buffers.  See AT45DB161D datasheet for details
+
+The dataflash api consists of these functions:
+* load_page_direct(page_address, offset, *data, len)
+* load_page(buffer, page_address)
+* read_buffer(buffer, offset, *data, len)
+* write_buffer(buffer, offset, *data, len)
+* chip erase()
+
+Each page on the dataflash consists of:
+* 16 bytes structure information, namely:
+  * 8bit: magic byte, 0xFF if erased, 0x23 if used
+  * 32bit: node number
+  * 16bit: index of this page in the node
+  * 32bit: version (always increasing, only pages with same node number and
+           highest version are valid, this helps providing "wear levelling")
+  * 16bit: pointer to the next page for this node
+  * 3 byter reserved
+* 512 bytes of data, if index is 0 the data is preceeded by a nullterminated
+  description string (aka "filename").
+
+The directory hirarchy starts at node number 0, at boot the page with node
+number 0, index 0 and the highest version is searched, this is also known as
+the root node.
+
+vim:tw=76
