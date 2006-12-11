@@ -191,7 +191,6 @@
 #endif
 
 /* global version defines */
-#define VERSION_WORD 0x0002
 #define VERSION_STRING "0.2"
 
 /* uart defines */
