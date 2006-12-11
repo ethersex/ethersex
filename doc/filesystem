@@ -17,7 +17,7 @@ The dataflash used in the etherrape consists of 4096 pages, 528 bytes each (16
 bytes will be used as structure information and 512 bytes can be used for data
 storage.)  Two 528 byte SRAM buffers can be used read, modify and write
 content.  Additionally, data can directly be read from flash, circumventing
-the SRAM buffers.  See AT45DB161D datasheet for details
+the SRAM buffers.  See AT45DB161D datasheet for details.
 
 The dataflash api consists of these functions:
 * read_flash(page_address, offset, *data, len)
@@ -35,9 +35,16 @@ Each page on the dataflash consists of:
   * 32bit: version (always increasing, only pages with same node number and
            highest version are valid, this helps providing "wear levelling")
   * 16bit: pointer to the next page for this node
-  * 3 byter reserved
+  * 8bit: content-type
+  * 2 bytes reserved
 * 512 bytes of data, if index is 0 the data is preceeded by a nullterminated
   description string (aka "filename").
+
+Valid content-types:
+- 0x00: structure information
+- 0x01: simple file (for webserver, eg. javascript and html-files)
+- 0x02: crontab
+- 0x03: temperature record
 
 The directory hirarchy starts at node number 0, at boot the page with node
 number 0, index 0 and the highest version is searched, this is also known as
