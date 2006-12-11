@@ -2,8 +2,10 @@
 TARGET = etherrape
 
 # microcontroller and project specific settings (everything can be overridden using config.mk)
-#F_CPU = 16000000UL
-#MCU = atmega32
+F_CPU = 20000000UL
+MCU = atmega644
+AVRDUDE_BAUDRATE=115200
+UART_BAUDRATE=115200
 
 # export current directory to use in sub-makefiles
 export CURDIR
