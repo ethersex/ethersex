@@ -25,6 +25,9 @@ AVRDUDE_FLAGS += -u
 # Name of Makefile for make depend
 MAKEFILE = Makefile
 
+# if you would like everything to be recompiled when you change config.mk, uncomment this line:
+#$(OBJECTS): config.mk
+
 .PHONY: all ethcmd
 
 all: $(TARGET).hex $(TARGET).eep.hex $(TARGET).lss ethcmd
@@ -35,8 +38,6 @@ all: $(TARGET).hex $(TARGET).eep.hex $(TARGET).lss ethcmd
 	@echo "==============================="
 
 $(TARGET): $(OBJECTS) $(TARGET).o
-
-$(OBJECTS): config.mk
 
 ethcmd:
 	$(MAKE) -e -C ethcmd
