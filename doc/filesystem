@@ -20,11 +20,12 @@ content.  Additionally, data can directly be read from flash, circumventing
 the SRAM buffers.  See AT45DB161D datasheet for details
 
 The dataflash api consists of these functions:
-* load_page_direct(page_address, offset, *data, len)
-* load_page(buffer, page_address)
+* read_flash(page_address, offset, *data, len)
+* load_buffer(buffer, page_address)
 * read_buffer(buffer, offset, *data, len)
 * write_buffer(buffer, offset, *data, len)
-* chip erase()
+* save_buffer(buffer, page_address)
+* erase_page(page_address)
 
 Each page on the dataflash consists of:
 * 16 bytes structure information, namely:
