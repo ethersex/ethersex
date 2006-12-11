@@ -30,7 +30,7 @@ void spi_init(void)
 /* {{{ */ {
 
     /* configure MOSI, SCK, CS lines as outputs */
-    SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_NET);
+    SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_NET) | _BV(SPI_CS_DF);
     DDRB |= _BV(PB0) | _BV(PB1);
 
     /* set all CS high (output) */

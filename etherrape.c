@@ -42,6 +42,7 @@
 #include "mem-check.h"
 #include "fs20.h"
 #include "fc.h"
+#include "dataflash.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -81,6 +82,13 @@ void check_serial_input(uint8_t data)
 /* {{{ */ {
 
     switch (data) {
+
+        case 0x1b:  jump_to_bootloader();
+                    break;
+
+        case 'p':
+                    jump_to_bootloader();
+                    break;
 
 #ifdef DEBUG
         case 'w':   /* test watchdog */
@@ -204,62 +212,140 @@ void check_serial_input(uint8_t data)
 
         case 'd':   {
 
-                        PORTB &= ~_BV(PB1);
-
-                        _SPDR0 = 0xd7;
-                        spi_wait_busy();
-                        _SPDR0 = 0x00; /* dummy byte */
-                        spi_wait_busy();
-
-                        uint8_t d = _SPDR0;
-
-                        PORTB |= _BV(PB1);
-
-                        uart_puts_P("status: 0x");
-                        uart_puthexbyte(d);
+                        uart_puts_P("df status: 0x");
+                        uart_puthexbyte(dataflash_read_status());
                         uart_eol();
-
-                        uart_puts_P("security register: ");
-
-                        PORTB &= ~_BV(PB1);
-
-                        _SPDR0 = 0x77;
-                        spi_wait_busy();
-                        for (uint8_t i = 0; i < 3; i++) {
-                            _SPDR0 = 0x00; /* dummy bytes */
-                            spi_wait_busy();
-                        }
-
-                        for (uint8_t i = 0; i < 64; i++) {
-                            _SPDR0 = 0x00; /* dummy bytes */
-                            spi_wait_busy();
-                        }
-
-                        for (uint8_t i = 0; i < 64; i++) {
-                            _SPDR0 = 0x00; /* dummy bytes */
-                            spi_wait_busy();
-
-                            uart_putc(' ');
-                            uart_puthexbyte(_SPDR0);
-                        }
-
-                        uart_eol();
-
-                        PORTB |= _BV(PB1);
-
 
                         break;
 
                     }
 
+        case 'D':   {
+                        uart_puts_P("df page 1: ");
+                        uint8_t *d = malloc(20);
+                        dataflash_read_flash(1, 0, d, 20);
+
+                        for (uint8_t i = 0; i < 20; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+
+                        uart_eol();
+
+                        free(d);
+
+                        break;
+                    }
+
+        case 'e':
+                    uart_puts_P("erasing page: ");
+                    dataflash_erase_page(1);
+                    dataflash_wait_busy();
+                    uart_puts_P("done\r\n");
+                    break;
+
+        case 'l':   {
+                        dataflash_load_buffer(1, 1);
+                        break;
+                    }
+
+        case 'L':   {
+                        dataflash_load_buffer(2, 1);
+                        break;
+                    }
+
+        case 'b':   {
+                        uart_puts_P("df page 1 from buffer: ");
+                        uint8_t *d = malloc(20);
+                        dataflash_read_buffer(1, 0, d, 20);
+
+                        for (uint8_t i = 0; i < 20; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+
+                        uart_eol();
+
+                        free(d);
+
+                        break;
+                    }
+
+        case 'B':   {
+                        uart_puts_P("df page 1 from buffer: ");
+                        uint8_t *d = malloc(20);
+                        dataflash_read_buffer(2, 0, d, 20);
+
+                        for (uint8_t i = 0; i < 20; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+
+                        uart_eol();
+
+                        free(d);
+
+                        break;
+                    }
+
+        case 'c':   {
+                        uint8_t *d = malloc(20);
+
+                        for (int8_t i = 0; i < 20; i++)
+                            d[i] = i;
+
+                        dataflash_write_buffer(1, 5, d, 20);
+
+                        free(d);
+
+                        dataflash_wait_busy();
+                        uart_putc('.');
+
+                        break;
+                    }
+
+        case 'S':   {
+                        dataflash_save_buffer(1, 1);
+                        break;
+                    }
+
+
+        case 'f':   {
+                        uart_puts_P("searching root node, ");
+                        uint8_t *d = malloc(20);
+                        uint16_t root_node = 0xffff;
+                        uint32_t version;
+                        struct filesystem_node_t *node = (struct filesystem_node_t *)d;
+                        for (uint16_t i = 0; i < 4096; i++) {
+                            /* read first 16 bytes */
+                            dataflash_read_flash(i, 0, d, 16);
+                            if (node->magic == 0x23) {
+                                uart_puts_P("found, ");
+                                root_node = i;
+                                version = node->magic;
+                            }
+                        }
+                        uart_puts_P("done\r\n");
+                        break;
+                    }
+
+#if 0
+        case 'R':   {
+                        uart_puts_P("erasing dataflash: ");
+
+                        spi_send(0xC7);
+                        spi_send(0x94);
+                        spi_send(0x80);
+                        spi_send(0x9A);
+
+                        dataflash_wait_busy();
+                        uart_puts_P("done\r\n");
+                        break;
+                    }
 #endif
 
-        case 0x1b:  jump_to_bootloader();
-                    break;
 
-        case 'p':
-                    jump_to_bootloader();
-                    break;
+#endif
 
         default:    uart_putc('?');
                     break;
