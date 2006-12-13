@@ -21,11 +21,34 @@ the SRAM buffers.  See AT45DB161D datasheet for details.
 
 The dataflash api consists of these functions:
 * read_flash(page_address, offset, *data, len)
+    load data from page to memory
+        page_address in 0..4095
+        offset in 0..527
+        data target buffer
+        len in 528-offset
 * load_buffer(buffer, page_address)
+    load page to buffer (in flash)
+        buffer in 1, 2 (buffer 1 and 2)
+        page_address in 0..4095
 * read_buffer(buffer, offset, *data, len)
+    buffer to memory
+        buffer in 1, 2
+        offset in 0..527
+        data target memory
+        len in 528-offset
 * write_buffer(buffer, offset, *data, len)
+    copy memory to buffer
+        buffer in 1, 2
+        offset in 0..527
+        data target memory
+        len in 528-offset
 * save_buffer(buffer, page_address)
+    write buffer to page
+        buffer in 1, 2
+        page_address in 0..4095
 * erase_page(page_address)
+    erase page (all bytes 0xFF)
+        page_address in 0..4095
 
 Each page on the dataflash consists of:
 * 16 bytes structure information, namely:
