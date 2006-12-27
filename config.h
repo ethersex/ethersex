@@ -27,12 +27,12 @@
 
 /* check for avr-libc version */
 #if __AVR_LIBC_VERSION__ < 10404UL
-#error newer libc version (>= 1.4.4) needed!
+#error "newer libc version (>= 1.4.4) needed!"
 #endif
 
 /* check if cpu speed is defined */
 #ifndef F_CPU
-#error please define F_CPU!
+#error "please define F_CPU!"
 #endif
 
 /* cpu specific configuration registers */
@@ -103,7 +103,7 @@
 
 /* }}} */
 #else
-#error this cpu isn't supported yet!
+#error "this cpu isn't supported yet!"
 #endif
 
 /* use watchdog only when not debugging */

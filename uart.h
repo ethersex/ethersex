@@ -44,7 +44,7 @@
 
 /* }}} */
 #else
-#error this cpu isn't supported by uart.h yet!
+#error "this cpu isn't supported by uart.h yet!"
 #endif
 
 #if (UART_BAUDRATE == 115200 && F_CPU == 16000000)
