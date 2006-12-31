@@ -23,7 +23,8 @@ ifeq ($(MCU),atmega8)
 	# atmega8 with 512 words bootloader:
 	# bootloader section starts at 0xe00 (word-address) == 0x1c00 (byte-address)
 	BOOT_SECTION_START = 0x1c00
-else ifeq ($(MCU),atmega88)
+endif
+ifeq ($(MCU),atmega88)
 	# atmega88 with 1024 words bootloader:
 	# bootloader section starts at 0xc00 (word-address) == 0x1800 (byte-address)
 	#BOOT_SECTION_START = 0x1800
@@ -31,7 +32,8 @@ else ifeq ($(MCU),atmega88)
 	# atmega88 with 512 words bootloader:
 	# bootloader section starts at 0xe00 (word-address) == 0x1c00 (byte-address)
 	BOOT_SECTION_START = 0x1c00
-else ifeq ($(MCU),atmega168)
+endif
+ifeq ($(MCU),atmega168)
 	# atmega168 with 1024 words bootloader:
 	# bootloader section starts at 0x1c00 (word-address) == 0x3800 (byte-address)
 	#BOOT_SECTION_START = 0x3800
@@ -39,7 +41,8 @@ else ifeq ($(MCU),atmega168)
 	# atmega168 with 512 words bootloader:
 	# bootloader section starts at 0x1e00 (word-address) == 0x3c00 (byte-address)
 	BOOT_SECTION_START = 0x3c00
-else ifeq ($(MCU),atmega32)
+endif
+ifeq ($(MCU),atmega32)
 	# atmega32 with 1024 words bootloader:
 	# bootloader section starts at 0x3c00 (word-address) == 0x7800 (byte-address)
 	#BOOT_SECTION_START = 0x7800
@@ -47,7 +50,8 @@ else ifeq ($(MCU),atmega32)
 	# atmega32 with 512 words bootloader:
 	# bootloader section starts at 0x3e00 (word-address) == 0x7c00 (byte-address)
 	BOOT_SECTION_START = 0x7c00
-else ifeq ($(MCU),atmega644)
+endif
+ifeq ($(MCU),atmega644)
 	# atmega644 with 1024 words bootloader:
 	# bootloader section starts at 0x7c00 (word-address) == 0xf800 (byte-address)
 	BOOT_SECTION_START = 0xf800
@@ -104,8 +108,15 @@ uploadtest: datatestfile.raw
 	@echo "uploading datatestfile"
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c $(SERIAL_PROG) -s -u -P $(SERIAL_DEV) -U f:w:$<:r
 
+.PHONY: lock launcher fuses-atmega644
+
 lock:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c avr910 -P $(ISP_DEV) -U lock:w:0x2f:m
 
 launcher:
 	$(MAKE) -C launcher
+
+fuses-atmega644:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -c avr910 -P $(ISP_DEV) -U hfuse:w:0xDC:m
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -c avr910 -P $(ISP_DEV) -U lfuse:w:0xE7:m
+

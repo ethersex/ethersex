@@ -23,13 +23,17 @@ SIZE = avr-size
 # flags for avrdude
 ifeq ($(MCU),atmega8)
 	AVRDUDE_MCU=m8
-else ifeq ($(MCU),atmega88)
+endif
+ifeq ($(MCU),atmega88)
 	AVRDUDE_MCU=m88
-else ifeq ($(MCU),atmega168)
+endif
+ifeq ($(MCU),atmega168)
 	AVRDUDE_MCU=m168
-else ifeq ($(MCU),atmega32)
+endif
+ifeq ($(MCU),atmega32)
 	AVRDUDE_MCU=m32
-else ifeq ($(MCU),atmega644)
+endif
+ifeq ($(MCU),atmega644)
 	AVRDUDE_MCU=m644
 endif
 
