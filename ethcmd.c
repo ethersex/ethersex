@@ -76,7 +76,7 @@ void ethcmd_main(void)
                     + sizeof(struct ethcmd_onewire_message_t));
             msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
 
-            struct ethcmd_onewire_message_t *ow_msg = msg->data;
+            struct ethcmd_onewire_message_t *ow_msg = (struct ethcmd_onewire_message_t *)msg->data;
             memcpy(&ow_msg->id, &ow_global.current_rom, 8);
 
             uip_send(uip_appdata, sizeof(struct ethcmd_message_t)
@@ -123,7 +123,7 @@ void ethcmd_main(void)
                                   + sizeof(struct ethcmd_onewire_message_t));
                 msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
 
-                struct ethcmd_onewire_message_t *ow_msg = msg->data;
+                struct ethcmd_onewire_message_t *ow_msg = (struct ethcmd_onewire_message_t *)msg->data;
                 memcpy(&ow_msg->id, &ow_global.current_rom, 8);
 
                 uip_send(uip_appdata, sizeof(struct ethcmd_message_t)

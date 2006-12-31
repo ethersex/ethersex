@@ -26,7 +26,7 @@
 struct httpd_connection_state_t {
     uint8_t state;
     uint8_t response;
-    char *document;
+    const char *document;
 };
 
 
