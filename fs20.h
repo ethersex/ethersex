@@ -31,11 +31,11 @@
 #ifdef FS20_SUPPORT
 
 #if !defined(FS20_PINNUM) || !defined(FS20_DDR) || !defined(FS20_PORT)
-#error FS20_PINNUM, FS20_DDR or FS20_PORT not defined!
+#error "FS20_PINNUM, FS20_DDR or FS20_PORT not defined!"
 #endif
 
 #if !defined(F_CPU)
-#error F_CPU undefined!
+#error "F_CPU undefined!"
 #endif
 
 #define FS20_DELAY_ZERO (4 * (F_CPU / 10000) / 4) /* 400uS, for delay_loop_2 */

@@ -33,7 +33,7 @@
 #include "onewire.h"
 
 #if !defined(ONEWIRE_PINNUM) || !defined(ONEWIRE_PIN) || !defined(ONEWIRE_PORT) || !defined(ONEWIRE_DDR)
-#error ONEWIRE_PINNUM, ONEWIRE_PIN, ONEWIRE_DDR or ONEWIRE_PORT undefined!
+#error "ONEWIRE_PINNUM, ONEWIRE_PIN, ONEWIRE_DDR or ONEWIRE_PORT undefined!"
 #endif
 
 #ifdef ONEWIRE_SUPPORT

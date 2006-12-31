@@ -94,7 +94,7 @@
 #define OW_RESET_TIMEOUT_3 (F_CPU / 1000000 * 390 / 4)
 
 #if OW_RESET_TIMEOUT_1 > 65535
-#error OW_CONFIG_TIMEOUT_1 bigger than 64k?!
+#error "OW_CONFIG_TIMEOUT_1 bigger than 64k?!"
 #endif
 
 /* a write 0 timeslot is initiated by holding the data line low for

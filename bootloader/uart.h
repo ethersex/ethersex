@@ -39,7 +39,7 @@
 
 /* }}} */
 #else
-#error this cpu isn't supported by uart.h yet!
+#error "this cpu isn't supported by uart.h yet!"
 #endif
 
 /* define UBRR value (see datasheet */
@@ -53,8 +53,8 @@
 /* #define UART_UBRR 25 */ /* 8mhz, 19200 */
 /* #define UART_UBRR 3 */ /* 8mhz, 115200 */
 #else
-#error this cpu frequency is not supported by uart.h yet!
-#error (see datasheet for UBRR value at 115200 baud)
+#error "this cpu frequency is not supported by uart.h yet!"
+#error "(see datasheet for UBRR value at 115200 baud)"
 #endif
 
 #endif /* _UART_H */

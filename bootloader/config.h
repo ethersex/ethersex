@@ -34,17 +34,17 @@
 
     /* check for avr-libc version */
     #if __AVR_LIBC_VERSION__ < 10402UL
-    #error newer libc version (>= 1.4.2) needed!
+    #error "newer libc version (>= 1.4.2) needed!"
     #endif
 
     /* check if cpu speed is defined */
     #ifndef F_CPU
-    #error please define F_CPU!
+    #error "please define F_CPU!"
     #endif
 
     /* check if the bootloader start address has been given */
     #if !(defined(BOOT_SECTION_START))
-    #error please define BOOT_SECTION_START as the byte address of bootloader section
+    #error "please define BOOT_SECTION_START as the byte address of bootloader section"
     #endif
 
     /* cpu specific configuration registers */
