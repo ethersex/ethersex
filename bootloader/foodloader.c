@@ -496,9 +496,9 @@ start_bootloader:
                         break;
 
             case 's':   /* read signature bytes: respond with the three signature bytes for this MCU */
-                        uart_putc(_SIG_BYTE_1);
-                        uart_putc(_SIG_BYTE_2);
                         uart_putc(_SIG_BYTE_3);
+                        uart_putc(_SIG_BYTE_2);
+                        uart_putc(_SIG_BYTE_1);
                         break;
 
             case 't':   /* return supported device codes (only one in this case), and terminate with a nullbyte */
