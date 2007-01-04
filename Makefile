@@ -21,6 +21,8 @@ OBJECTS += $(patsubst %.c,%.o,${SRC}) uip/uip.o uip/uip_arp.o onewire/onewire.o
 
 # no safe mode checks, since the bootloader doesn't support this
 AVRDUDE_FLAGS += -u
+# no signature byte check, -> bootloader bug
+AVRDUDE_FLAGS += -F
 
 # Name of Makefile for make depend
 MAKEFILE = Makefile
