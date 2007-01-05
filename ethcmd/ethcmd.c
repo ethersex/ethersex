@@ -130,9 +130,12 @@ void send_message(struct ethcmd_message_t *msg)
     }
 
     printf("\n");
-#   endif
 
     int len = write(cfg.sock, msg, ntohs(msg->length));
+
+#   else
+    write(cfg.sock, msg, ntohs(msg->length));
+#   endif
 
     DEBUG_PRINTF("send_message: wrote %d bytes\n", len);
 
@@ -171,7 +174,7 @@ void parse_message(struct ethcmd_message_t *msg)
                                             packet->payload.fs20_address = fs20_options.address;
                                             packet->payload.fs20_command = fs20_options.command;
 
-                                            send_message(packet);
+                                            send_message((struct ethcmd_message_t *)packet);
 
                                             free(packet);
 
