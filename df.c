@@ -34,7 +34,7 @@
 void df_init(df_chip_t chip)
 /* {{{ */ {
 
-    /* not supported ATM */
+    /* no init needed atm */
 
 } /* }}} */
 
@@ -65,7 +65,7 @@ void df_buf_load(df_chip_t chip, df_buf_t buffer, df_page_t page)
 void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, df_size_t len)
 /* {{{ */ {
 
-    //df_wait(chip);
+    // df_wait(chip);
 
     cs_low();
 
@@ -80,8 +80,7 @@ void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, 
     spi_send(HI8(offset));
     spi_send(LO8(offset));
 
-    /* send one don't care byte */
-    spi_send(0);
+    /* don't care byte is not needed, as we use the low speed opcodes 0xD1 and 0xD3 */
 
     /* read memory */
     uint8_t *p = (uint8_t *)data;
@@ -95,7 +94,7 @@ void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, 
 void df_buf_write(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, df_size_t len)
 /* {{{ */ {
 
-    // dataflash_wait_busy();
+    // df_wait(chip);
 
     cs_low();
 
