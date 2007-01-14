@@ -89,6 +89,8 @@
 
 #include <string.h>
 
+#define noinline __attribute__((noinline))
+
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */
 
@@ -245,7 +247,7 @@ void uip_log(char *msg);
 #endif /* UIP_LOGGING == 1 */
 
 #if ! UIP_ARCH_ADD32
-void
+void noinline
 uip_add32(u8_t *op32, u16_t op16)
 {
   uip_acc32[3] = op32[3] + (op16 & 0xff);
@@ -277,7 +279,7 @@ uip_add32(u8_t *op32, u16_t op16)
 #if ! UIP_ARCH_CHKSUM
 /*---------------------------------------------------------------------------*/
 static u16_t
-chksum(u16_t sum, const u8_t *data, u16_t len)
+noinline chksum(u16_t sum, const u8_t *data, u16_t len)
 {
   u16_t t;
   const u8_t *dataptr;
