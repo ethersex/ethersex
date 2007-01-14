@@ -26,7 +26,6 @@
 #include "config.h"
 #include "common.h"
 
-
 /* commands */
 #define DATAFLASH_MAIN_MEMORY_PAGE_READ 0xD2
 #define DATAFLASH_READ_BUFFER1 0xD1
@@ -51,32 +50,21 @@
 
 /* structures */
 
-/*
-  * 8bit: magic byte, 0xFF if erased, 0x23 if used
-  * 32bit: node number
-  * 16bit: index of this page in the node
-  * 32bit: version (always increasing, only pages with same node number and
-           highest version are valid, this helps providing "wear levelling")
-  * 16bit: pointer to the next page for this node
-  * 3 byter reserved
-  */
-struct filesystem_node_t {
-    uint8_t magic;
-    uint32_t node_number;
-    uint16_t page_index;
-    uint32_t version;
-    uint16_t next_page;
-    uint8_t reserved[3];
-};
+typedef enum { DF_BUF1 = 0, DF_BUF2 = 1 } df_buf_t;
+typedef void* df_chip_t;
+typedef uint16_t df_page_t;
+typedef uint16_t df_size_t;
+typedef uint8_t df_status_t;
 
 /* prototypes */
-uint8_t dataflash_read_status(void);
-void dataflash_wait_busy(void);
-void dataflash_read_flash(uint16_t page_address, uint16_t offset, uint8_t *data, uint16_t len);
-void dataflash_load_buffer(uint8_t buffer, uint16_t page_address);
-void dataflash_read_buffer(uint8_t buffer, uint16_t offset, uint8_t *data, uint16_t len);
-void dataflash_write_buffer(uint8_t buffer, uint16_t offset, uint8_t *data, uint16_t len);
-void dataflash_save_buffer(uint8_t buffer, uint16_t page_address);
-void dataflash_erase_page(uint16_t page_address);
+void df_init(df_chip_t);
+void df_buf_load(df_chip_t, df_buf_t, df_page_t);
+void df_buf_read(df_chip_t, df_buf_t, void*, df_size_t, df_size_t);
+void df_buf_write(df_chip_t, df_buf_t, void*, df_size_t, df_size_t);
+void df_buf_save(df_chip_t, df_buf_t, df_page_t);
+void df_flash_read(df_chip_t, df_page_t, void*, df_size_t, df_size_t);
+void df_erase(df_chip_t, df_page_t);
+df_status_t df_status(df_chip_t);
+void df_wait(df_chip_t);
 
 #endif

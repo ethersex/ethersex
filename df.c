@@ -20,7 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include "dataflash.h"
+#include "df.h"
 #include "spi.h"
 
 #ifdef DEBUG
@@ -31,38 +31,122 @@
 #define cs_low() SPI_PORT &= ~_BV(SPI_CS_DF)
 #define cs_high() SPI_PORT |= _BV(SPI_CS_DF)
 
-uint8_t dataflash_read_status(void)
+void df_init(df_chip_t chip)
 /* {{{ */ {
 
-    cs_low();
-
-    /* send opcode and read status afterwards */
-    spi_send(DATAFLASH_READ_STATUS);
-    uint8_t data = spi_send(0);
-
-    cs_high();
-
-    return data;
+    /* not supported ATM */
 
 } /* }}} */
 
-void dataflash_wait_busy(void)
+void df_buf_load(df_chip_t chip, df_buf_t buffer, df_page_t page)
 /* {{{ */ {
+
+    // df_wait(chip);
 
     cs_low();
 
-    /* send opcode and read status until BUSY bit is unset */
-    spi_send(DATAFLASH_READ_STATUS);
-    while(!(spi_send(0) & _BV(DATAFLASH_STATUS_BUSY)));
+    /* send opcode */
+    if (buffer == DF_BUF1)
+        spi_send(DATAFLASH_LOAD_BUFFER1);
+    else
+        spi_send(DATAFLASH_LOAD_BUFFER2);
+
+    /* send 3 address bytes: 2 don't care bits, 12 bits page address,
+     * 10 don't care bits */
+    page <<= 2;
+    spi_send(HI8(page));
+    spi_send(LO8(page));
+    spi_send(0);
 
     cs_high();
 
 } /* }}} */
 
-void dataflash_read_flash(uint16_t page_address, uint16_t offset, uint8_t *data, uint16_t len)
+void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, df_size_t len)
 /* {{{ */ {
 
-    dataflash_wait_busy();
+    //df_wait(chip);
+
+    cs_low();
+
+    /* send opcode */
+    if (buffer == DF_BUF1)
+        spi_send(DATAFLASH_READ_BUFFER1);
+    else
+        spi_send(DATAFLASH_READ_BUFFER2);
+
+    /* send 3 address bytes: 14 don't care bits, 10 bits offset within the buffer */
+    spi_send(0);
+    spi_send(HI8(offset));
+    spi_send(LO8(offset));
+
+    /* send one don't care byte */
+    spi_send(0);
+
+    /* read memory */
+    uint8_t *p = (uint8_t *)data;
+    while (len-- != 0)
+        *p++ = spi_send(0);
+
+    cs_high();
+
+} /* }}} */
+
+void df_buf_write(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, df_size_t len)
+/* {{{ */ {
+
+    // dataflash_wait_busy();
+
+    cs_low();
+
+    /* send opcode */
+    if (buffer == DF_BUF1)
+        spi_send(DATAFLASH_WRITE_BUFFER1);
+    else
+        spi_send(DATAFLASH_WRITE_BUFFER2);
+
+    /* send 3 address bytes: 14 don't care bits, 10 bits offset within the buffer */
+    spi_send(0);
+    spi_send(HI8(offset));
+    spi_send(LO8(offset));
+
+    /* send memory */
+    uint8_t *p = (uint8_t *)data;
+    while (len-- != 0)
+        spi_send(*p++);
+
+    cs_high();
+
+} /* }}} */
+
+void df_buf_save(df_chip_t chip, df_buf_t buffer, df_page_t page_address)
+/* {{{ */ {
+
+    // dataflash_wait_busy();
+
+    cs_low();
+
+    /* send opcode */
+    if (buffer == DF_BUF1)
+        spi_send(DATAFLASH_SAVE_BUFFER1);
+    else
+        spi_send(DATAFLASH_SAVE_BUFFER2);
+
+    /* send 3 address bytes: 2 don't care bits, 12 bits page address,
+     * 10 don't care bits */
+    page_address <<= 2;
+    spi_send(HI8(page_address));
+    spi_send(LO8(page_address));
+    spi_send(0);
+
+    cs_high();
+
+} /* }}} */
+
+void df_flash_read(df_chip_t chip, df_page_t page_address, void* data, df_size_t offset, df_size_t len)
+/* {{{ */ {
+
+    // dataflash_wait_busy();
 
     cs_low();
 
@@ -81,120 +165,18 @@ void dataflash_read_flash(uint16_t page_address, uint16_t offset, uint8_t *data,
         spi_send(0);
 
     /* read memory */
+    uint8_t *p = (uint8_t *)data;
     while (len-- != 0)
-        *data++ = spi_send(0);
+        *p++ = spi_send(0);
 
     cs_high();
 
 } /* }}} */
 
-void dataflash_load_buffer(uint8_t buffer, uint16_t page_address)
+void df_erase(df_chip_t chip, df_page_t page_address)
 /* {{{ */ {
 
-    dataflash_wait_busy();
-
-    cs_low();
-
-    /* send opcode */
-    if (buffer == 1)
-        spi_send(DATAFLASH_LOAD_BUFFER1);
-    else
-        spi_send(DATAFLASH_LOAD_BUFFER2);
-
-    /* send 3 address bytes: 2 don't care bits, 12 bits page address,
-     * 10 don't care bits */
-    page_address <<= 2;
-    spi_send(HI8(page_address));
-    spi_send(LO8(page_address));
-    spi_send(0);
-
-    cs_high();
-
-} /* }}} */
-
-void dataflash_read_buffer(uint8_t buffer, uint16_t offset, uint8_t *data, uint16_t len)
-/* {{{ */ {
-
-    dataflash_wait_busy();
-
-    cs_low();
-
-    /* send opcode */
-    if (buffer == 1)
-        spi_send(DATAFLASH_READ_BUFFER1);
-    else
-        spi_send(DATAFLASH_READ_BUFFER2);
-
-    /* send 3 address bytes: 14 don't care bits, 10 bits offset within the buffer */
-    spi_send(0);
-    spi_send(HI8(offset));
-    spi_send(LO8(offset));
-
-    /* send one don't care byte */
-    spi_send(0);
-
-    /* read memory */
-    while (len-- != 0)
-        *data++ = spi_send(0);
-
-    cs_high();
-
-} /* }}} */
-
-void dataflash_write_buffer(uint8_t buffer, uint16_t offset, uint8_t *data, uint16_t len)
-/* {{{ */ {
-
-    dataflash_wait_busy();
-
-    cs_low();
-
-    /* send opcode */
-    if (buffer == 1)
-        spi_send(DATAFLASH_WRITE_BUFFER1);
-    else
-        spi_send(DATAFLASH_WRITE_BUFFER2);
-
-    /* send 3 address bytes: 14 don't care bits, 10 bits offset within the buffer */
-    spi_send(0);
-    spi_send(HI8(offset));
-    spi_send(LO8(offset));
-
-    /* send memory */
-    while (len-- != 0)
-        spi_send(*data++);
-
-    cs_high();
-
-} /* }}} */
-
-void dataflash_save_buffer(uint8_t buffer, uint16_t page_address)
-/* {{{ */ {
-
-    dataflash_wait_busy();
-
-    cs_low();
-
-    /* send opcode */
-    if (buffer == 1)
-        spi_send(DATAFLASH_SAVE_BUFFER1);
-    else
-        spi_send(DATAFLASH_SAVE_BUFFER2);
-
-    /* send 3 address bytes: 2 don't care bits, 12 bits page address,
-     * 10 don't care bits */
-    page_address <<= 2;
-    spi_send(HI8(page_address));
-    spi_send(LO8(page_address));
-    spi_send(0);
-
-    cs_high();
-
-} /* }}} */
-
-void dataflash_erase_page(uint16_t page_address)
-/* {{{ */ {
-
-    dataflash_wait_busy();
+    // dataflash_wait_busy();
 
     cs_low();
 
@@ -211,3 +193,32 @@ void dataflash_erase_page(uint16_t page_address)
     cs_high();
 
 } /* }}} */
+
+df_status_t df_status(df_chip_t chip)
+/* {{{ */ {
+
+    cs_low();
+
+    /* send opcode and read status afterwards */
+    spi_send(DATAFLASH_READ_STATUS);
+    uint8_t data = spi_send(0);
+
+    cs_high();
+
+    return data;
+
+} /* }}} */
+
+void df_wait(df_chip_t chip)
+/* {{{ */ {
+
+    cs_low();
+
+    /* send opcode and read status until BUSY bit is unset */
+    spi_send(DATAFLASH_READ_STATUS);
+    while(!(spi_send(0) & _BV(DATAFLASH_STATUS_BUSY)));
+
+    cs_high();
+
+} /* }}} */
+

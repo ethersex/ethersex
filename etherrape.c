@@ -42,7 +42,7 @@
 #include "mem-check.h"
 #include "fs20.h"
 #include "fc.h"
-#include "dataflash.h"
+#include "df.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -210,6 +210,7 @@ void check_serial_input(uint8_t data)
                         break;
                     }
 
+#if 0
         case 'd':   {
 
                         uart_puts_P("df status: 0x");
@@ -328,6 +329,7 @@ void check_serial_input(uint8_t data)
                         uart_puts_P("done\r\n");
                         break;
                     }
+#endif
 
 #if 0
         case 'R':   {
