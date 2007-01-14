@@ -53,7 +53,7 @@ void noinline spi_wait_busy(void)
         timeout--;
 
     if (timeout == 0)
-        uart_puts_P("ERROR: isp timeout reached!\r\n");
+        uart_puts_P("ERROR: spi timeout reached!\r\n");
 #   else
     while (!(_SPSR0 & _BV(_SPIF0)));
 #   endif
