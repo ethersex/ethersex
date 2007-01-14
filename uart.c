@@ -32,7 +32,6 @@ void uart_init(void)
 
     /* set mode */
     //_UCSRC_UART0 = UART_UCSRC;
-    /* 9 bit framesize */
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
 
     /* enable transmitter and receiver */
