@@ -1,54 +1,118 @@
 etherrape dataflash filesystem description
-==========================================
 
-Resources:
+Resources
+---------
+
 * introduction about filesystems on flash mediums: http://sources.redhat.com/jffs2/jffs2.pdf
 * AT45DB161D datasheet: http://atmel.com/dyn/resources/prod_documents/doc3500.pdf
 
-All integers are Host-Endian!
+Introduction
+------------
 
-Defintions:
+The dataflash used in the etherrape consists of 4096 pages, 528 bytes each.
+Two 528 byte SRAM buffers can be used read, modify and write content.
+Additionally, data can directly be read from flash, circumventing the SRAM
+buffers.  See AT45DB161D datasheet for details.
+
+This implementation does have support for more than one dataflash, although
+this is not used.
+
+Dataflash storage
+=================
+
+Defintions
+----------
+
 * page: physical memory unit on the dataflash (528 byte in this case)
 * node: virtual entity storing data with unique node number (32bit integer,
   always increasing), stores data in many pages
 
+Datatypes
+---------
 
-The dataflash used in the etherrape consists of 4096 pages, 528 bytes each (16
-bytes will be used as structure information and 512 bytes can be used for data
-storage.)  Two 528 byte SRAM buffers can be used read, modify and write
-content.  Additionally, data can directly be read from flash, circumventing
-the SRAM buffers.  See AT45DB161D datasheet for details.
+ * df_chip_t uint8_t, declares the particular dataflash adressed
+ * df_buf_t enum, values DF_BUF1 or DF_BUF2, addresses one of the internal SRAM BUFFERS
+ * df_page_t uint16_t, (0..4095), adresses one page
+ * df_size_t uint16_t, (0..527), used for addressing a byte within a page (offset)
+ * df_status_t uint8_t (structure), see df.h and datasheet
+
+All multi-byte integers are stored host-endian!
+
+Functions
+---------
 
 The dataflash api consists of these functions:
-* read_flash(page_address, offset, *data, len)
-    load data from page to memory
-        page_address in 0..4095
-        offset in 0..527
-        data target buffer
-        len in 528-offset
-* load_buffer(buffer, page_address)
-    load page to buffer (in flash)
-        buffer in 1, 2 (buffer 1 and 2)
-        page_address in 0..4095
-* read_buffer(buffer, offset, *data, len)
-    buffer to memory
-        buffer in 1, 2
-        offset in 0..527
-        data target memory
-        len in 528-offset
-* write_buffer(buffer, offset, *data, len)
-    copy memory to buffer
-        buffer in 1, 2
-        offset in 0..527
-        data target memory
-        len in 528-offset
-* save_buffer(buffer, page_address)
-    write buffer to page
-        buffer in 1, 2
-        page_address in 0..4095
-* erase_page(page_address)
-    erase page (all bytes 0xFF)
-        page_address in 0..4095
+* df_init(chip) - initialize the hardware to access a particular dataflash
+* df_buf_load(chip, buf, page) - load page into buffer
+* df_buf_read(chip, buf, ptr, offset, len) - read len bytes from buffer (to
+        location pointed by ptr), beginning at offset
+* df_buf_write(chip, buf, ptr, offset, len) - write len bytes to buffer
+        (from location pointed by ptr), beginning at offset
+* df_buf_save(chip, buf, page) - program buffer into page
+* df_flash_read(chip, page, ptr, offset, len) - read len bytes directly from
+        flash, beginning at offset, to location pointed by ptr
+* df_erase(chip, page) - erase page in flash
+* df_status(chip) - return status structure for this dataflash
+* df_wait(chip) - busy-wait for this dataflash to be ready again
+
+
+Filesystem
+==========
+
+The first level of abstraction is the translation from nodes (containing
+data or structure information) to pages.  Each node can consist of several
+pages, linked across the whole dataflash.  Each page is preceeded by some
+bytes of information:
+
+* type (fs_type_t):  0xFF -> empty (=erased)
+                   0x00 -> MAP-node
+                   0x01 -> ROOT-node
+* bytes (df_size_t): 1..512: amount of bytes used within this page,
+                             if below 512, this is the last page in the node
+* next (df_page_t): pointer to the next page within this node,
+                    0xFFFF if last page
+* prev (df_page_t): pointer to the previous page within this node
+                    0xFFFF if first page
+* erase counter (fs_erase_t): erase counter
+* version (fs_version_t): version counter
+
+A node can contain different things.  The most important node is the node
+which contains the mapping from a node number to the address of the first
+page containing the data of this node.  This node is called the MAP-node.
+As everything is stored in flash, one must provide 'wear levelling', so we
+cannot just overwrite outdated data, but have to store newer data in another
+page.
+
+As there is exactly one MAP-node at a time, we have to distinguish this one
+from every other (outdated) MAP-node on the flash.  This is archived through
+a 4-byte 'version' field in the structure information of the first page of
+each MAP-node, starting at 1.  Each time a new mapping is needed, the whole
+(updated) MAP-node is stored again, with an increased version field.
+Additionally, an erase counter for each page is stored.
+
+
+
+
+
+At startup, all the pages are scanned for the location of the most actual
+MAP- and ROOT-node, these locations are kept in memory permanently.
+Furthermore, buffer 2 is used as a bit-vector, which describes which pages
+are not used in the current filesystem.
+
+
+Functions
+---------
+
+* fs_init(chip): initialize the filesystem for this dataflash, when no
+                 MAP- or ROOT-node is found, both are initialized
+
+
+
+
+EVERYTHING BELOW IS OBSELETE:
+
+Page Layout
+-----------
 
 Each page on the dataflash consists of:
 * 16 bytes structure information, namely:

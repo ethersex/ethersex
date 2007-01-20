@@ -43,6 +43,7 @@
 #include "fs20.h"
 #include "fc.h"
 #include "df.h"
+#include "fs.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -61,7 +62,8 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 #   define wdt_kick()
 #endif
 
-
+/* global variables */
+fs_t fs;
 
 #ifdef DEBUG
 void print_rom_code(struct ow_rom_code_t *rom);
@@ -210,142 +212,184 @@ void check_serial_input(uint8_t data)
                         break;
                     }
 
-#if 0
         case 'd':   {
 
                         uart_puts_P("df status: 0x");
-                        uart_puthexbyte(dataflash_read_status());
+                        uart_puthexbyte(df_status(NULL));
                         uart_eol();
 
                         break;
 
                     }
-
-        case 'D':   {
-                        uart_puts_P("df page 1: ");
-                        uint8_t *d = malloc(20);
-                        dataflash_read_flash(1, 0, d, 20);
-
-                        for (uint8_t i = 0; i < 20; i++){
-                            uart_putc(' ');
-                            uart_puthexbyte(d[i]);
-                        }
-
-                        uart_eol();
-
-                        free(d);
-
-                        break;
-                    }
-
-        case 'e':
-                    uart_puts_P("erasing page: ");
-                    dataflash_erase_page(1);
-                    dataflash_wait_busy();
-                    uart_puts_P("done\r\n");
-                    break;
-
-        case 'l':   {
-                        dataflash_load_buffer(1, 1);
-                        break;
-                    }
-
-        case 'L':   {
-                        dataflash_load_buffer(2, 1);
-                        break;
-                    }
-
-        case 'b':   {
-                        uart_puts_P("df page 1 from buffer: ");
-                        uint8_t *d = malloc(20);
-                        dataflash_read_buffer(1, 0, d, 20);
-
-                        for (uint8_t i = 0; i < 20; i++){
-                            uart_putc(' ');
-                            uart_puthexbyte(d[i]);
-                        }
-
-                        uart_eol();
-
-                        free(d);
-
-                        break;
-                    }
-
-        case 'B':   {
-                        uart_puts_P("df page 1 from buffer: ");
-                        uint8_t *d = malloc(20);
-                        dataflash_read_buffer(2, 0, d, 20);
-
-                        for (uint8_t i = 0; i < 20; i++){
-                            uart_putc(' ');
-                            uart_puthexbyte(d[i]);
-                        }
-
-                        uart_eol();
-
-                        free(d);
-
-                        break;
-                    }
-
-        case 'c':   {
-                        uint8_t *d = malloc(20);
-
-                        for (int8_t i = 0; i < 20; i++)
-                            d[i] = i;
-
-                        dataflash_write_buffer(1, 5, d, 20);
-
-                        free(d);
-
-                        dataflash_wait_busy();
-                        uart_putc('.');
-
-                        break;
-                    }
-
-        case 'S':   {
-                        dataflash_save_buffer(1, 1);
-                        break;
-                    }
-
-
-        case 'f':   {
-                        uart_puts_P("searching root node, ");
-                        uint8_t *d = malloc(20);
-                        uint16_t root_node = 0xffff;
-                        uint32_t version;
-                        struct filesystem_node_t *node = (struct filesystem_node_t *)d;
-                        for (uint16_t i = 0; i < 4096; i++) {
-                            /* read first 16 bytes */
-                            dataflash_read_flash(i, 0, d, 16);
-                            if (node->magic == 0x23) {
-                                uart_puts_P("found, ");
-                                root_node = i;
-                                version = node->magic;
-                            }
-                        }
-                        uart_puts_P("done\r\n");
-                        break;
-                    }
-#endif
 
 #if 0
-        case 'R':   {
-                        uart_puts_P("erasing dataflash: ");
+        case 'i':   {
 
-                        spi_send(0xC7);
-                        spi_send(0x94);
-                        spi_send(0x80);
-                        spi_send(0x9A);
+                        /* allocate buffer */
+                        uint8_t *d = malloc(20);
 
-                        dataflash_wait_busy();
-                        uart_puts_P("done\r\n");
+                        uart_puts_P("page0,flash: ");
+                        df_flash_read(fs.chip, 0, d, 0, 20);
+
+                        for (uint8_t i = 0; i < 20; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+
+                        uart_eol();
+                        uart_puts_P("loading page 0 into buf 1, buf2:\r\n");
+                        df_buf_load(fs.chip, DF_BUF2, 0);
+                        df_wait(fs.chip);
+                        df_buf_load(fs.chip, DF_BUF1, 0);
+                        df_wait(fs.chip);
+
+                        uart_puts_P("df buffer 1: ");
+                        df_buf_read(fs.chip, DF_BUF1, d, 0, 20);
+
+                        for (uint8_t i = 0; i < 20; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+                        uart_eol();
+
+                        uart_puts_P("df buffer 2: ");
+                        df_buf_read(fs.chip, DF_BUF2, d, 0, 20);
+
+                        for (uint8_t i = 0; i < 20; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+                        uart_eol();
+
+#if 0
+                        uint8_t b;
+
+                        uart_puts_P("testing buffer1: read 0x");
+                        df_buf_read(fs.chip, DF_BUF1, &b, 0, 1);
+                        uart_puthexbyte(b);
+                        b = 0x23;
+                        df_buf_write(fs.chip, DF_BUF1, &b, 0, 1);
+                        uart_puts_P(", read 0x");
+                        df_buf_read(fs.chip, DF_BUF1, &b, 0, 1);
+                        uart_puthexbyte(b);
+                        uart_eol();
+
+
+                        uart_puts_P("testing buffer2: read 0x");
+                        df_buf_read(fs.chip, DF_BUF2, &b, 0, 1);
+                        uart_puthexbyte(b);
+                        b = 0x23;
+                        df_buf_write(fs.chip, DF_BUF2, &b, 0, 1);
+                        uart_puts_P(", read 0x");
+                        df_buf_read(fs.chip, DF_BUF2, &b, 0, 1);
+                        uart_puthexbyte(b);
+                        uart_eol();
+#endif
+                        free(d);
+
                         break;
+
                     }
 #endif
 
+        case 'f':   {
+
+                        fs_format(&fs);
+                        fs_init(&fs, NULL);
+                        break;
+                    }
+
+        case 'l':   {
+                        char name[FS_FILENAME+1];
+
+                        fs_index_t i = 0;
+                        fs_status_t ret;
+
+                        uart_puts_P("listing /:\r\n");
+
+                        while ( (ret = fs_list(&fs, "/", name, i++)) == FS_OK) {
+
+                            name[FS_FILENAME] = '\0';
+
+                            uart_puts_P(" * ");
+                            uart_puts(name);
+                            uart_puts_P(", inode 0x");
+                            fs_inode_t inode = fs_get_inode(&fs, name);
+                            uart_puthexbyte(HI8(inode));
+                            uart_puthexbyte(LO8(inode));
+                            uart_puts_P(", page 0x");
+                            df_page_t page = fs_page(&fs, inode);
+                            uart_puthexbyte(HI8(page));
+                            uart_puthexbyte(LO8(page));
+                            uart_puts_P(", ret 0x");
+                            uart_puthexbyte(ret);
+                            uart_eol();
+
+                        }
+
+                        uart_puts_P("list() returned 0x");
+                        uart_puthexbyte(ret);
+                        uart_eol();
+                        uart_puts_P("done.\r\n");
+
+                        break;
+                    }
+
+        case 'n':   {
+                        fs_status_t ret = fs_create(&fs, "test1");
+
+                        if (ret != FS_OK) {
+                            uart_puts_P("returned 0x");
+                            uart_puthexbyte(ret);
+                            uart_eol();
+                        } else
+                            uart_puts_P("created 'test1'\r\n");
+
+                        fs_inode_t inode = fs_get_inode(&fs, "test1");
+
+                        uart_puts_P("inode is 0x");
+                        uart_puthexbyte(HI8(inode));
+                        uart_puthexbyte(LO8(inode));
+                        uart_eol();
+
+                        break;
+                    }
+
+
+        case 'D':   {
+#if 0
+                        uint8_t *d = malloc(200);
+
+                        if (d == NULL) {
+                            uart_puts_P("NULL!\r\n");
+                            break;
+                        }
+
+                        uart_puts_P("address: 0x");
+                        uart_puthexbyte(HI8((uint16_t)d));
+                        uart_puthexbyte(LO8((uint16_t)d));
+                        uart_eol();
+
+                        uart_puts_P("data:");
+                        df_flash_read(fs.chip, 0x11, d, 0, 200);
+
+                        for (uint8_t i = 0; i < 200; i++){
+                            uart_putc(' ');
+                            uart_puthexbyte(d[i]);
+                        }
+                        uart_eol();
+
+                        uart_puts_P("root:");
+
+                        fs_inspect_node(d);
+
+                        free(d);
+#endif
+
+                        fs_inspect_node(&fs, 0x11);
+
+                        break;
+                    }
 
 #endif
 
@@ -401,6 +445,19 @@ int main(void)
     spi_init();
     timer_init();
     syslog_init();
+
+#   ifdef DEBUG
+    uart_puts_P("initializing filesystem...\r\n");
+#   endif
+    fs_init(&fs, NULL);
+    uart_puts_P("fs: root page is 0x");
+    uart_puthexbyte(HI8(fs.root));
+    uart_puthexbyte(LO8(fs.root));
+    uart_eol();
+#   ifdef DEBUG
+    uart_puts_P("done\r\n");
+#   endif
+
 
     network_init();
     fc_init();
