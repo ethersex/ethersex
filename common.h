@@ -23,13 +23,12 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#include <stdlib.h>
 #include "ethcmd.h"
 #include "httpd_state.h"
 #include "sntp_state.h"
 #include "syslog_state.h"
 #include "fc_state.h"
-
-#define NULL ((void *)0)
 
 #define HI8(x)  ((uint8_t)((x) >> 8))
 #define LO8(x)  ((uint8_t)(x))
