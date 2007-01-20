@@ -61,6 +61,18 @@ void uart_putf(void *buffer)
 
 } /* }}} */
 
+void uart_puts(char *buffer)
+/* {{{ */ {
+
+    uint8_t *b = (uint8_t *)buffer;
+
+    while (*b != '\0') {
+        uart_putc(*b);
+        b++;
+    }
+
+} /* }}} */
+
 void uart_puthexnibble(uint8_t data)
 /* {{{ */ {
 
@@ -140,10 +152,7 @@ void uip_log(char *message)
 /* {{{ */ {
 
     uart_puts_P("uip: ");
-
-    while (*message != '\0')
-        uart_putc(*message++);
-
+    uart_puts(message);
     uart_eol();
 
 } /* }}} */

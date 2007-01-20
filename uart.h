@@ -65,8 +65,11 @@ void uart_init(void);
 /* output one byte, do busy waiting while transfer is in progress */
 void uart_putc(uint8_t data);
 
-/* output data from flash while byte is no-null */
+/* output data from flash while byte is non-null */
 void uart_putf(void *buffer);
+
+/* output data from ram while byte is non-null */
+void uart_puts(char *buffer);
 
 /** output a lower bytes nibble in hex */
 void uart_puthexnibble(uint8_t data);
