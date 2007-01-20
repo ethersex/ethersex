@@ -50,8 +50,8 @@ main(int argc, char* argv[])
             case 57600: bitrate = B57600; break;
             case 115200: bitrate = B115200; break;
             default:
-                fprintf(stderr, "Unknown bitrate \"%s\n\"", argv[2]);
-                exit(1);
+                errx(1, "Unknown bitrate \"%s\"", argv[2]);
+                break;
         }
 
         /* open the serial device in nonblocking mode */
@@ -64,36 +64,24 @@ main(int argc, char* argv[])
                 while((fd = open(argv[1], O_RDWR|O_NONBLOCK, 0)) < 0) {
                     usleep(10000);
                 }
-            } else {
-                fprintf(stderr, "%s: %s\n", argv[1], strerror(errno));
-                close(fd);
-                exit(1);
-            }
+            } else
+                errx(1, "%s: %s", argv[1], strerror(errno));
         }
 
         /* get attributes and fill termios structure */
         err = tcgetattr(fd, &t);
-        if(err < 0) {
-            fprintf(stderr, "tcgetattr: %s\n", strerror(errno));
-            close(fd);
-            exit(2);
-        }
+        if(err < 0)
+            errx(2, "tcgetattr: %s", strerror(errno));
 
         /* set input baud rate */
         err = cfsetispeed(&t, bitrate);
-        if(err < 0) {
-            fprintf(stderr, "cfsetispeed: %s\n", strerror(errno));
-            close(fd);
-            exit(3);
-        }
+        if(err < 0)
+            errx(3, "cfsetispeed: %s", strerror(errno));
 
         /* set baud rate */
         err = cfsetspeed(&t, bitrate);
-        if(err < 0) {
-            fprintf(stderr, "cfsetspeed: %s\n", strerror(errno));
-            close(fd);
-            exit(4);
-        }
+        if(err < 0)
+            errx(4, "cfsetspeed: %s", strerror(errno));
 
         /* disable canonical mode, USB key driver turns this on
          * by default */
@@ -101,11 +89,8 @@ main(int argc, char* argv[])
         /* ignore modem status lines */
         t.c_cflag |= CLOCAL;
         err = tcsetattr (fd, TCSAFLUSH, &t);
-        if (err < 0) {
-            fprintf (stderr, "tcsetattr: %s\n", strerror (errno));
-            close(fd);
-            exit(5);
-        }
+        if (err < 0)
+            errx(5, "tcsetattr: %s", strerror(errno));
 
         /* flush the serial device */
         tcflush(fd, TCIOFLUSH);
@@ -128,10 +113,8 @@ main(int argc, char* argv[])
                     continue;
 
                 /* else report error */
-                else {
-                    fprintf(stderr, "error during write: %s\n", strerror(errno));
-                    exit(6);
-                }
+                else
+                    errx(6, "error during write: %s", strerror(errno));
             }
 
             /* clear file descriptor set */
@@ -143,18 +126,16 @@ main(int argc, char* argv[])
 
             /* check to see if there is data to be read */
             rc = select(fd+1, &fds, NULL, NULL, &tv);
-            if(rc < 0) {
-                fprintf(stderr, "error in select\n");
-                exit(7);
-            } else {
+            if(rc < 0)
+                errx(7, "error in select");
+            else {
                 /* select() completed successfully */
                 if(FD_ISSET(fd, &fds)) {
                     /* select() returned our serial device, so there
                      * is data to be read */
-                    if(read(fd, r, 1) < 1) {
-                        fprintf(stderr, "error during read: %s\n", strerror(errno));
-                        exit(8);
-                    }
+                    if(read(fd, r, 1) < 1)
+                        errx(8, "error during read: %s", strerror(errno));
+
                     /* check if it's the right character, if not keep
                      * looping */
                     if(r[0] == BOOTLOADER_SUCCESS_CHAR) {
