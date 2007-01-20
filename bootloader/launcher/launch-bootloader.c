@@ -15,6 +15,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <termios.h>
@@ -53,14 +54,14 @@ main(int argc, char* argv[])
                 exit(1);
         }
 
-        /* open the serial device */
-        fd = open(argv[1], O_RDWR, 0);
+        /* open the serial device in nonblocking mode */
+        fd = open(argv[1], O_RDWR|O_NONBLOCK, 0);
         if(fd < 0) {
             if(errno == ENOENT) {
                 printf("Serial device does not exist, waiting for it to be plugged in.\n");
                 /* if the serial device isn't there, try opening it again
                  * once every 10,000 microseconds */
-                while((fd = open(argv[1], O_RDWR, 0)) < 0) {
+                while((fd = open(argv[1], O_RDWR|O_NONBLOCK, 0)) < 0) {
                     usleep(10000);
                 }
             } else {
@@ -97,6 +98,8 @@ main(int argc, char* argv[])
         /* disable canonical mode, USB key driver turns this on
          * by default */
         t.c_lflag &= ~ICANON;
+        /* ignore modem status lines */
+        t.c_cflag |= CLOCAL;
         err = tcsetattr (fd, TCSAFLUSH, &t);
         if (err < 0) {
             fprintf (stderr, "tcsetattr: %s\n", strerror (errno));
@@ -119,8 +122,16 @@ main(int argc, char* argv[])
         for(;;) {
             /* write the character to enter bootloader */
             if(write(fd, w, 1) < 1) {
-                fprintf(stderr, "error during write: %s\n", strerror(errno));
-                exit(6);
+
+                /* if this write would block, just try again */
+                if (errno == EWOULDBLOCK)
+                    continue;
+
+                /* else report error */
+                else {
+                    fprintf(stderr, "error during write: %s\n", strerror(errno));
+                    exit(6);
+                }
             }
 
             /* clear file descriptor set */
