@@ -108,9 +108,11 @@ main(int argc, char* argv[])
             /* write the character to enter bootloader */
             if(write(fd, w, 1) < 1) {
 
-                /* if this write would block, just try again */
-                if (errno == EWOULDBLOCK)
+                /* if this write would block, just wait and try again */
+                if (errno == EWOULDBLOCK) {
+                    usleep(2000);
                     continue;
+                }
 
                 /* else report error */
                 else
