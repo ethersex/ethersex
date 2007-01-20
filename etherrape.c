@@ -355,6 +355,43 @@ void check_serial_input(uint8_t data)
                         break;
                     }
 
+        case 'W':   {
+                        fs_inode_t inode = fs_get_inode(&fs, "test1");
+
+                        if (inode == 0xffff)
+                            uart_puts_P("invalid inode\r\n");
+                        else {
+
+                            uart_puts_P("inode is 0x");
+                            uart_puthexbyte(HI8(inode));
+                            uart_puthexbyte(LO8(inode));
+                            uart_eol();
+
+                            fs_status_t ret = fs_write(&fs, inode, "foobar!", 0, 8);
+
+                            uart_puts_P("ret: 0x");
+                            uart_puthexbyte(ret);
+                            uart_eol();
+
+                        }
+
+                        break;
+                    }
+
+        case 'R':   {
+                        uint8_t *data = malloc(20);
+
+                        fs_status_t ret = fs_read(&fs, fs_get_inode(&fs, "test1"), data, 0, 3);
+                        data[3] = '\0';
+
+                        uart_puts_P("data: \"");
+                        uart_puts(data);
+                        uart_puts_P("\"\r\n");
+
+                        free(data);
+                        break;
+                    }
+
 
         case 'D':   {
 #if 0
@@ -386,7 +423,7 @@ void check_serial_input(uint8_t data)
                         free(d);
 #endif
 
-                        fs_inspect_node(&fs, 0x11);
+                        fs_inspect_node(&fs, fs.root);
 
                         break;
                     }
