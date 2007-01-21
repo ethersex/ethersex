@@ -14,8 +14,8 @@ Two 528 byte SRAM buffers can be used read, modify and write content.
 Additionally, data can directly be read from flash, circumventing the SRAM
 buffers.  See AT45DB161D datasheet for details.
 
-This implementation does have support for more than one dataflash, although
-this is not used.
+This filesystem and dataflash driver implementation has support for more
+than one dataflash, although this is not used up to now.
 
 Dataflash storage
 =================
@@ -24,117 +24,53 @@ Defintions
 ----------
 
 * page: physical memory unit on the dataflash (528 byte in this case)
-* node: virtual entity storing data with unique node number (32bit integer,
-  always increasing), stores data in many pages
-
-Datatypes
----------
-
- * df_chip_t uint8_t, declares the particular dataflash adressed
- * df_buf_t enum, values DF_BUF1 or DF_BUF2, addresses one of the internal SRAM BUFFERS
- * df_page_t uint16_t, (0..4095), adresses one page
- * df_size_t uint16_t, (0..527), used for addressing a byte within a page (offset)
- * df_status_t uint8_t (structure), see df.h and datasheet
-
-All multi-byte integers are stored host-endian!
-
-Functions
----------
-
-The dataflash api consists of these functions:
-* df_init(chip) - initialize the hardware to access a particular dataflash
-* df_buf_load(chip, buf, page) - load page into buffer
-* df_buf_read(chip, buf, ptr, offset, len) - read len bytes from buffer (to
-        location pointed by ptr), beginning at offset
-* df_buf_write(chip, buf, ptr, offset, len) - write len bytes to buffer
-        (from location pointed by ptr), beginning at offset
-* df_buf_save(chip, buf, page) - program buffer into page
-* df_flash_read(chip, page, ptr, offset, len) - read len bytes directly from
-        flash, beginning at offset, to location pointed by ptr
-* df_erase(chip, page) - erase page in flash
-* df_status(chip) - return status structure for this dataflash
-* df_wait(chip) - busy-wait for this dataflash to be ready again
+* inode: pointer to a page, whenever data is referenced, an inode is used
 
 
-Filesystem
-==========
+Dataflash Driver Api
+--------------------
 
-The first level of abstraction is the translation from nodes (containing
-data or structure information) to pages.  Each node can consist of several
-pages, linked across the whole dataflash.  Each page is preceeded by some
-bytes of information:
+Datatypes:
 
-* type (fs_type_t):  0xFF -> empty (=erased)
-                   0x00 -> MAP-node
-                   0x01 -> ROOT-node
-* bytes (df_size_t): 1..512: amount of bytes used within this page,
-                             if below 512, this is the last page in the node
-* next (df_page_t): pointer to the next page within this node,
-                    0xFFFF if last page
-* prev (df_page_t): pointer to the previous page within this node
-                    0xFFFF if first page
-* erase counter (fs_erase_t): erase counter
-* version (fs_version_t): version counter
+df_buf_t: represents a buffer in a physical dataflash, values: DF_BUF1, DF_BUF2
+df_chip_t: pointer to a chip structure, unused ATM
+df_page_t: number of a page in flash, values: 0..4095
+df_size_t: amount of bytes used in a page, values: 0..528
+df_status_t: dataflash status byte
 
-A node can contain different things.  The most important node is the node
-which contains the mapping from a node number to the address of the first
-page containing the data of this node.  This node is called the MAP-node.
-As everything is stored in flash, one must provide 'wear levelling', so we
-cannot just overwrite outdated data, but have to store newer data in another
-page.
+Functions:
 
-As there is exactly one MAP-node at a time, we have to distinguish this one
-from every other (outdated) MAP-node on the flash.  This is archived through
-a 4-byte 'version' field in the structure information of the first page of
-each MAP-node, starting at 1.  Each time a new mapping is needed, the whole
-(updated) MAP-node is stored again, with an increased version field.
-Additionally, an erase counter for each page is stored.
+df_init(chip): initialize a chip, configures chip-select line
+df_buf_load(chip, buf, page): loads page into either buffer 1 or 2
+df_buf_read(chip, buf, *ptr, offset, length): copies length bytes at offset
+    from dataflash buffer to ptr
+df_buf_write(chip, buf, *ptr, offset, length): copies length bytes from ptr
+    to dataflash buffer at offset
+df_buf_save(chip, buf, page): saves buffer to page in flash
+df_flash_read(chip, page, *ptr, offset, length): copies length bytes at
+    offset directly from flash to ptr
+df_erase(chip, page): erase page (done automatically at df_buf_write)
+df_status(chip): returns df_status_t byte for this dataflash
+df_wait(chip): busy-wait until the dataflash is idle again
 
 
+Filesystem Api
+--------------
 
+Datatypes:
 
-
-At startup, all the pages are scanned for the location of the most actual
-MAP- and ROOT-node, these locations are kept in memory permanently.
-Furthermore, buffer 2 is used as a bit-vector, which describes which pages
-are not used in the current filesystem.
-
-
-Functions
----------
-
-* fs_init(chip): initialize the filesystem for this dataflash, when no
-                 MAP- or ROOT-node is found, both are initialized
-
-
-
-
-EVERYTHING BELOW IS OBSELETE:
-
-Page Layout
------------
-
-Each page on the dataflash consists of:
-* 16 bytes structure information, namely:
-  * 8bit: magic byte, 0xFF if erased, 0x23 if used
-  * 32bit: node number
-  * 16bit: index of this page in the node
-  * 32bit: version (always increasing, only pages with same node number and
-           highest version are valid, this helps providing "wear levelling")
-  * 16bit: pointer to the next page for this node
-  * 8bit: content-type
-  * 2 bytes reserved
-* 512 bytes of data, if index is 0 the data is preceeded by a nullterminated
-  description string (aka "filename").
-
-Valid content-types:
-- 0x00: structure information
-- 0x01: simple file (for webserver, eg. javascript and html-files)
-- 0x02: crontab
-- 0x03: temperature record
-
-The directory hirarchy starts at node number 0, at boot the page with node
-number 0, index 0 and the highest version is searched, this is also known as
-the root node.
-
-vim:tw=76
+fs_version_t: 32 bit integer, represents the current filesystem version
+fs_inode_t: an inode number, values: 0..4095
+fs_index_t: index of a file within a directory, values: 0..65535
+fs_size_t: 32 bit signed integer, represents the filesize
+fs_status_t: status byte, returned by most functions, values:
+    FS_OK = 0,
+    FS_NOSUCHFILE = 1,
+    FS_EOF = 2,
+    FS_BADPAGE = 3,
+    FS_BADINODE = 4,
+    FS_DUPLICATE = 5,
+    FS_MEM = 6,
+    FS_BADSEEK = 7,
+fs_t: filesystem structure, contains df_chip_t structure, root node number,
+    root version and last_free page pointer
