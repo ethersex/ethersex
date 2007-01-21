@@ -328,7 +328,7 @@ fs_size_t fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_si
         pagenum = fs_page(fs, page.next_inode);
 
         if (pagenum == 0xffff)
-            return FS_BADPAGE;
+            return -1; /* bad page */
 
         printf("\tnext page is at %d\n", pagenum);
         offset -= FS_DATASIZE;
@@ -381,7 +381,7 @@ fs_size_t fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_si
         pagenum = fs_page(fs, page.next_inode);
 
         if (pagenum == 0xffff)
-            return FS_BADPAGE;
+            return -1;
 
         df_size_t read_bytes = page.size-offset;
 

@@ -38,7 +38,7 @@
 typedef uint32_t fs_version_t;
 typedef uint16_t fs_inode_t;
 typedef uint16_t fs_index_t;
-typedef uint32_t fs_size_t;
+typedef int32_t fs_size_t;
 
 typedef enum {
     FS_OK = 0,

@@ -367,7 +367,7 @@ void check_serial_input(uint8_t data)
                             uart_puthexbyte(LO8(inode));
                             uart_eol();
 
-                            fs_status_t ret = fs_write(&fs, inode, "foobar!", 0, 8);
+                            fs_status_t ret = fs_write(&fs, inode, "fnord23", 7, 7);
 
                             uart_puts_P("ret: 0x");
                             uart_puthexbyte(ret);
@@ -381,10 +381,13 @@ void check_serial_input(uint8_t data)
         case 'R':   {
                         uint8_t *data = malloc(20);
 
-                        fs_status_t ret = fs_read(&fs, fs_get_inode(&fs, "test1"), data, 0, 3);
-                        data[3] = '\0';
+                        fs_size_t s = fs_read(&fs, fs_get_inode(&fs, "test1"), data, 0, 10);
+                        data[s] = '\0';
 
-                        uart_puts_P("data: \"");
+                        uart_puts_P("data (0x");
+                        uart_puthexbyte(HI8(s));
+                        uart_puthexbyte(LO8(s));
+                        uart_puts_P("): \"");
                         uart_puts(data);
                         uart_puts_P("\"\r\n");
 
