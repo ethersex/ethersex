@@ -426,7 +426,9 @@ void check_serial_input(uint8_t data)
                         free(d);
 #endif
 
+#ifdef DEBUG_FS
                         fs_inspect_node(&fs, fs.root);
+#endif
 
                         break;
                     }

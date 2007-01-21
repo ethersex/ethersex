@@ -1243,6 +1243,7 @@ fs_status_t fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page)
 } /* }}} */
 
 
+#ifdef DEBUG_FS
 void fs_inspect_node(fs_t *fs, uint16_t p) {
 
     uart_puts_P("root page is 0x");
@@ -1323,5 +1324,6 @@ void fs_inspect_node(fs_t *fs, uint16_t p) {
         free(root);
     }
 }
+#endif
 
 

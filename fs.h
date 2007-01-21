@@ -60,8 +60,11 @@ typedef struct {
 } fs_t;
 
 /* prototypes */
-fs_status_t noinline fs_init(fs_t *fs, df_chip_t chip); /* initialize filesystem, scan dataflash, format if no filesystem is found */
-fs_status_t noinline fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index); /* list files in directory, write filename to buffer, return FS_OK or FS_EOF if no more */
+
+/* initialize filesystem, scan dataflash, format if no filesystem is found */
+fs_status_t noinline fs_init(fs_t *fs, df_chip_t chip);
+/* list files in directory, write filename to buffer, return FS_OK or FS_EOF if no more */
+fs_status_t noinline fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index);
 fs_inode_t noinline fs_get_inode(fs_t *fs, char *file);
 fs_size_t noinline fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length);
 fs_status_t noinline fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length);
