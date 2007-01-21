@@ -443,7 +443,7 @@ void check_serial_input(uint8_t data)
 int main(void)
 /* {{{ */ {
 
-    /* initialize hardware */
+    /* initialize hardware uart */
     uart_init();
 
     /* enable interrupts */
@@ -469,8 +469,8 @@ int main(void)
 
     }
 
-    //wdt_enable(WDTO_250MS);
-    wdt_enable(WDTO_2S); // temp, for onewire debugging
+    /* set watchdog to 2 seconds */
+    wdt_enable(WDTO_2S);
     wdt_kick();
 #   else
     uart_puts_P("disabling watchdog\r\n");
@@ -491,13 +491,14 @@ int main(void)
 #   endif
     fs_init(&fs, NULL);
     uart_puts_P("fs: root page is 0x");
+#   ifdef DEBUG_FS
     uart_puthexbyte(HI8(fs.root));
     uart_puthexbyte(LO8(fs.root));
     uart_eol();
+#   endif
 #   ifdef DEBUG
     uart_puts_P("done\r\n");
 #   endif
-
 
     network_init();
     fc_init();
