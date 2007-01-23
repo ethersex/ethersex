@@ -204,6 +204,10 @@
 /* configure global data buffer */
 #define MAX_FRAME_LENGTH 640
 
+/* configure main callback function for uip */
+#define UIP_APPCALL network_handle_tcp
+#define UIP_UDP_APPCALL network_handle_udp
+
 /* support for 74HC165 */
 //#define USE_74HC165
 

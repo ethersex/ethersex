@@ -29,9 +29,6 @@
 
 #include "uip/uip.h"
 
-#define UIP_APPCALL network_handle_tcp
-#define UIP_UDP_APPCALL network_handle_udp
-
 /* prototypes */
 
 /* do all network initialization stuff */

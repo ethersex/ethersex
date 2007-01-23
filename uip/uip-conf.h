@@ -5,7 +5,7 @@
 
 #include <inttypes.h>
 #include "../config.h"
-#include "../network.h"
+#include "../common.h"
 
 /**
  * 8 bit datatype

@@ -307,7 +307,7 @@ void check_serial_input(uint8_t data)
 
                         uart_puts_P("listing /:\r\n");
 
-                        while ( (ret = fs_list(&fs, "/", name, i++)) == FS_OK) {
+                        while ( (ret = fs_list(&fs, NULL, name, i++)) == FS_OK) {
 
                             name[FS_FILENAME] = '\0';
 

@@ -23,8 +23,10 @@
 #ifndef _SPI_H
 #define _SPI_H
 
+#include <stdint.h>
 #include "config.h"
-#include "common.h"
+
+#define noinline __attribute__((noinline))
 
 /* prototypes */
 void spi_init(void);

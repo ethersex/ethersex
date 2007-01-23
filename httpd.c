@@ -22,6 +22,8 @@
 
 #include <string.h>
 #include "httpd.h"
+#include "uip/pt.h"
+#include "uip/psock.h"
 
 #ifdef DEBUG_HTTPD
 #include "uart.h"
@@ -134,6 +136,12 @@ void httpd_parse(void)
         } else if (strncmp_P(ptr, PSTR("/test"), url_len) == 0) {
 #ifdef DEBUG_HTTPD
             uart_puts_P("httpd: found url /test\r\n");
+#endif
+            STATE.response = HTTPD_RESPONSE_200;
+            STATE.document = document;
+        } else if (strncmp_P(ptr, PSTR("/sensors"), url_len) == 0) {
+#ifdef DEBUG_HTTPD
+            uart_puts_P("httpd: found url /sensors\r\n");
 #endif
             STATE.response = HTTPD_RESPONSE_200;
             STATE.document = document;

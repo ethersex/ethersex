@@ -54,6 +54,4 @@ typedef union uip_udp_connection_state {
     struct fc_connection_state_t fc;
 } uip_udp_appstate_t;
 
-#include "uip/uip.h"
-
 #endif
