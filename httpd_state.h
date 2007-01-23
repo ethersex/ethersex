@@ -23,10 +23,18 @@
 #ifndef _HTTPD_STATE_H
 #define _HTTPD_STATE_H
 
+// #include "uip/psock.h"
+
+typedef enum {
+    HTTPD_STATE_CLOSED = 0,
+    HTTPD_STATE_IDLE,
+} http_state_t;
+
 struct httpd_connection_state_t {
-    uint8_t state;
-    uint8_t response;
-    const char *document;
+    http_state_t state;
+    uint8_t timeout;
+    char buffer[40];
+    // struct psock in, out;
 };
 
 

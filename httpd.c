@@ -21,9 +21,8 @@
  }}} */
 
 #include <string.h>
+// #include "uip/psock.h"
 #include "httpd.h"
-#include "uip/pt.h"
-#include "uip/psock.h"
 
 #ifdef DEBUG_HTTPD
 #include "uart.h"
@@ -31,150 +30,12 @@
 
 #define STATE (uip_conn->appstate.httpd)
 
-static const char *document = "\n<html><head><title>index</title></head><body>" \
-                 "eine Testseite! :)" \
-                 "</body></html>";
-
 /* local prototypes */
-void httpd_send(void);
-void httpd_parse(void);
-void httpd_acked(void);
 
 void httpd_init(void)
 /* {{{ */ {
 
     uip_listen(HTONS(HTTPD_PORT));
-
-} /* }}} */
-
-void httpd_send(void)
-/* {{{ */ {
-
-#ifdef DEBUG_HTTPD
-    uart_puts_P("httpd: send, state is 0x");
-    uart_puthexbyte(STATE.state);
-    uart_eol();
-#endif
-
-    if (STATE.state == HTTPD_STATE_SENDSTATUS) {
-
-        if (STATE.response == HTTPD_RESPONSE_404) {
-            uip_send("HTTP/1.1 404 NOT FOUND\n\n", 23);
-        } else if (STATE.response == HTTPD_RESPONSE_200) {
-            uip_send("HTTP/1.1 200 OK\n", 16);
-        } else {
-            uip_send("HTTP/1.1 400 BAD REQUEST\n\n", 25);
-        }
-    } else if (STATE.state == HTTPD_STATE_SENDDOCUMENT) {
-        uip_send(STATE.document, strlen(STATE.document));
-    }
-#if 0
-    } else if (STATE.state == HTTPD_STATE_INVALID_REQUEST) {
-        uip_send("HTTP/1.0 404 Not Found\n", 23);
-    }
-#endif
-
-} /* }}} */
-
-void httpd_parse(void)
-/* {{{ */ {
-
-    /* search for GET/POST */
-    if (STATE.state == HTTPD_STATE_WAIT) {
-
-        char *ptr = (char *)uip_appdata;
-
-        if (strncasecmp_P(uip_appdata, PSTR("GET "), 4) == 0) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: get request\r\n");
-#endif
-            //STATE.state = HTTPD_STATE_GET;
-            ptr += 4;
-#if 0
-        } else if (strncasecmp_P(uip_appdata, PSTR("POST "), 5) == 0) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: post request\r\n");
-#endif
-            STATE.state = HTTPD_STATE_POST;
-            ptr += 5;
-#endif
-        } else {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: invalid request\r\n");
-#endif
-            STATE.state = HTTPD_STATE_SENDSTATUS;
-            STATE.response = HTTPD_RESPONSE_400;
-            return;
-        }
-
-        /* extract url (search for trailing whitespace) */
-        uint8_t url_len;
-
-        for (url_len = 0; url_len < HTTPD_MAX_URL_LENGTH; url_len++) {
-            if (ptr[url_len] == ' ')
-                break;
-        }
-
-        STATE.state = HTTPD_STATE_SENDSTATUS;
-
-        /* check for length exceeded */
-        if (url_len == HTTPD_MAX_URL_LENGTH) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: url length exceeded\r\n");
-#endif
-            STATE.response = HTTPD_RESPONSE_400;
-            return;
-        }
-
-        /* else we found the url, check for known urls */
-        if (strncmp_P(ptr, PSTR("/"), url_len) == 0) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: found url /\r\n");
-#endif
-            STATE.response = HTTPD_RESPONSE_200;
-            STATE.document = document;
-        } else if (strncmp_P(ptr, PSTR("/test"), url_len) == 0) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: found url /test\r\n");
-#endif
-            STATE.response = HTTPD_RESPONSE_200;
-            STATE.document = document;
-        } else if (strncmp_P(ptr, PSTR("/sensors"), url_len) == 0) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: found url /sensors\r\n");
-#endif
-            STATE.response = HTTPD_RESPONSE_200;
-            STATE.document = document;
-        } else {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: unknown url\r\n");
-#endif
-            STATE.response = HTTPD_RESPONSE_404;
-        }
-
-        STATE.state = HTTPD_STATE_SENDSTATUS;
-
-    }
-
-} /* }}} */
-
-void httpd_acked(void)
-/* {{{ */ {
-
-#ifdef DEBUG_HTTPD
-    uart_puts_P("httpd: acked, state is 0x");
-    uart_puthexbyte(STATE.state);
-    uart_eol();
-#endif
-
-    if (STATE.state == HTTPD_STATE_SENDSTATUS) {
-        if (STATE.response == HTTPD_RESPONSE_200) {
-            STATE.state = HTTPD_STATE_SENDDOCUMENT;
-        } else
-            uip_close();
-    } else if (STATE.state == HTTPD_STATE_SENDDOCUMENT) {
-        uip_close();
-    }
 
 } /* }}} */
 
@@ -191,32 +52,56 @@ void httpd_main(void)
         uart_puts_P("httpd: connection aborted\r\n");
 #endif
 
-    if (uip_closed())
-#ifdef DEBUG_HTTP
+    if (uip_closed()) {
+        STATE.state = HTTPD_STATE_CLOSED;
+#ifdef DEBUG_HTTPD
         uart_puts_P("httpd: connection closed\r\n");
 #endif
-
-    if (uip_connected()) {
-#ifdef DEBUG_HTTP
-        uart_puts_P("httpd: new connection\r\n");
-#endif
-        STATE.state = HTTPD_STATE_WAIT;
-        STATE.response = HTTPD_RESPONSE_EMPTY;
-        STATE.document = NULL;
     }
 
-    if (uip_newdata())
-        httpd_parse();
+    if (uip_poll()) {
+        STATE.timeout++;
 
+        if (STATE.timeout == HTTPD_TIMEOUT) {
+#ifdef DEBUG_HTTPD
+            uart_puts_P("httpd: timeout\r\n");
+#endif
+            uip_close();
+        }
+    }
+
+
+    if (uip_connected()) {
+#ifdef DEBUG_HTTPD
+        uart_puts_P("httpd: new connection\r\n");
+#endif
+        STATE.state = HTTPD_STATE_IDLE;
+        STATE.timeout = 0;
+    }
+
+    if (uip_newdata()) {
+#ifdef DEBUG_HTTPD
+        uart_puts_P("httpd: new data\r\n");
+#endif
+        //http_handle_input();
+    }
+
+#if 0
     if (uip_acked())
         httpd_acked();
 
+#endif
     if(uip_rexmit() ||
        uip_newdata() ||
        uip_acked() ||
        uip_connected() ||
        uip_poll()) {
-        httpd_send();
+
+#ifdef DEBUG_HTTPD
+        if (!uip_poll()) {
+            uart_puts_P("httpd: action\r\n");
+        }
+#endif
     }
 
 } /* }}} */
