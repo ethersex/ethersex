@@ -72,8 +72,6 @@ depend:
 
 -include $(MAKEFILE).dep
 
-.PHONY: eeprom-default.raw
-
 #eeprom-default.raw:
 #	echo -ne '\xac\xde\x48\xfd\x0f\x23' > eeprom-default.raw
 #	echo -ne '\x0a\x00\x00\x02' >> eeprom-default.raw
