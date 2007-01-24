@@ -20,8 +20,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/io.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "fs.h"
 
 #ifdef DEBUG_FS

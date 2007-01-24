@@ -21,7 +21,8 @@
  }}} */
 
 #include <string.h>
-// #include "uip/psock.h"
+#include "uip/pt.h"
+#include "uip/psock.h"
 #include "httpd.h"
 
 #ifdef DEBUG_HTTPD
@@ -30,12 +31,57 @@
 
 #define STATE (uip_conn->appstate.httpd)
 
+char PROGMEM httpd_invalid_request[] =
+/* {{{ */
+"HTTP/1.1 400 Bad Request\n"
+"Content-Length: 16\n"
+"Connection: close\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"\n"
+"Invalid Request\n";
+/* }}} */
+
 /* local prototypes */
+unsigned short psock_send_str_P(void *data);
 
 void httpd_init(void)
 /* {{{ */ {
 
     uip_listen(HTONS(HTTPD_PORT));
+
+} /* }}} */
+
+static PT_THREAD(httpd_handle(void))
+/* {{{ */ {
+
+    PSOCK_BEGIN(&STATE.in);
+
+    PSOCK_READTO(&STATE.in, ' ');
+
+    /* if command is not GET, send 400 */
+    if (strncasecmp_P(STATE.buffer, PSTR("GET "), 4) != 0) {
+        PSOCK_GENERATOR_SEND(&STATE.in, psock_send_str_P, httpd_invalid_request);
+        PSOCK_CLOSE_EXIT(&STATE.in);
+    }
+
+#if 0
+    PSOCK_SEND_STR(&STATE.in, "Hello. What is your name?\n");
+    PSOCK_READTO(&STATE.in, '\n');
+    strncpy(STATE.name, STATE.buffer, sizeof(STATE.name));
+    PSOCK_SEND_STR(&STATE.in, "Hello ");
+    PSOCK_SEND_STR(&STATE.in, STATE.name);
+#endif
+    PSOCK_CLOSE(&STATE.in);
+
+    PSOCK_END(&STATE.in);
+
+} /* }}} */
+
+unsigned short psock_send_str_P(void *data)
+/* {{{ */ {
+
+    strncpy_P(uip_appdata, data, strlen_P(data));
+    return strlen_P(data);
 
 } /* }}} */
 
@@ -70,13 +116,16 @@ void httpd_main(void)
         }
     }
 
-
     if (uip_connected()) {
 #ifdef DEBUG_HTTPD
         uart_puts_P("httpd: new connection\r\n");
 #endif
+        /* initialize struct */
         STATE.state = HTTPD_STATE_IDLE;
         STATE.timeout = 0;
+
+        /* initialize protosockets for in and out */
+        PSOCK_INIT(&STATE.in, STATE.buffer, sizeof(STATE.buffer));
     }
 
     if (uip_newdata()) {
@@ -86,22 +135,19 @@ void httpd_main(void)
         //http_handle_input();
     }
 
-#if 0
-    if (uip_acked())
-        httpd_acked();
-
-#endif
     if(uip_rexmit() ||
        uip_newdata() ||
        uip_acked() ||
        uip_connected() ||
        uip_poll()) {
 
-#ifdef DEBUG_HTTPD
         if (!uip_poll()) {
+            STATE.timeout = 0;
+#ifdef DEBUG_HTTPD
             uart_puts_P("httpd: action\r\n");
-        }
 #endif
+        }
+        httpd_handle();
     }
 
 } /* }}} */

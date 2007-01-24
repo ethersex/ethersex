@@ -24,11 +24,6 @@
 #define _COMMON_H
 
 #include <stdlib.h>
-#include "ethcmd.h"
-#include "httpd_state.h"
-#include "sntp_state.h"
-#include "syslog_state.h"
-#include "fc_state.h"
 
 #define HI8(x)  ((uint8_t)((x) >> 8))
 #define LO8(x)  ((uint8_t)(x))
@@ -40,18 +35,5 @@
 
 #define NTOHL(x) HTONL(x)
 
-
-/* uip appstate */
-typedef union uip_tcp_connection_state {
-    struct ethcmd_connection_state_t ethcmd;
-    struct httpd_connection_state_t httpd;
-} uip_tcp_appstate_t;
-
-/* attention: first byte MUST be transmit_state! */
-typedef union uip_udp_connection_state {
-    struct sntp_connection_state_t sntp;
-    struct syslog_connection_state_t syslog;
-    struct fc_connection_state_t fc;
-} uip_udp_appstate_t;
 
 #endif

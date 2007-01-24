@@ -26,6 +26,10 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
+#include "uip/psock.h"
+#include "uip/uip.h"
+#include "uip/uip_arp.h"
+
 #include "config.h"
 #include "common.h"
 #include "network.h"
@@ -44,9 +48,6 @@
 #include "fc.h"
 #include "df.h"
 #include "fs.h"
-
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
 
 #include "onewire/onewire.h"
 

@@ -54,6 +54,7 @@
 #define __UIP_H__
 
 #include "uipopt.h"
+#include "../network_state.h"
 
 /**
  * Repressentation of an IP address.

@@ -309,7 +309,6 @@ PT_THREAD(psock_readbuf(register struct psock *psock))
   do {
     if(psock->readlen == 0) {
       PT_WAIT_UNTIL(&psock->psockpt, psock_newdata(psock));
-      printf("Waited for newdata\n");
       psock->state = STATE_READ;
       psock->readptr = (u8_t *)uip_appdata;
       psock->readlen = uip_datalen();
