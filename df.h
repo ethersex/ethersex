@@ -23,13 +23,25 @@
 #ifndef _DATAFLASH_H
 #define _DATAFLASH_H
 
+#include <stdint.h>
 #include "config.h"
 #include "common.h"
 
+/* for AT45DB161B (older revision, without the low-speed mode,
+ * define SUPPORT_AT45DB161B */
+
 /* commands */
 #define DATAFLASH_MAIN_MEMORY_PAGE_READ 0xD2
-#define DATAFLASH_READ_BUFFER1 0xD1
-#define DATAFLASH_READ_BUFFER2 0xD3
+
+/* check for at45db161 revision */
+#ifdef SUPPORT_AT45DB161B /* use high-speed mode, no low-speed mode available */
+#   define DATAFLASH_READ_BUFFER1 0xD4
+#   define DATAFLASH_READ_BUFFER2 0xD6
+#else /* default, current revision d, with low speed mode */
+#   define DATAFLASH_READ_BUFFER1 0xD1
+#   define DATAFLASH_READ_BUFFER2 0xD3
+#endif
+
 #define DATAFLASH_WRITE_BUFFER1 0x84
 #define DATAFLASH_WRITE_BUFFER2 0x87
 #define DATAFLASH_LOAD_BUFFER1 0x53

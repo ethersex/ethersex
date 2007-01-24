@@ -80,7 +80,11 @@ void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, 
     spi_send(HI8(offset));
     spi_send(LO8(offset));
 
-    /* don't care byte is not needed, as we use the low speed opcodes 0xD1 and 0xD3 */
+    /* for dataflash revision B use full-speed mode and send one don't care byte */
+#   ifdef SUPPORT_AT45DB161B
+    spi_send(0);
+#   endif
+    /* in current revision D don't care byte is not needed, as we use the low speed opcodes 0xD1 and 0xD3 */
 
     /* read memory */
     uint8_t *p = (uint8_t *)data;
