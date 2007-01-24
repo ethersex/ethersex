@@ -382,7 +382,7 @@ void check_serial_input(uint8_t data)
         case 'R':   {
                         uint8_t *data = malloc(20);
 
-                        fs_size_t s = fs_read(&fs, fs_get_inode(&fs, "test1"), data, 0, 10);
+                        fs_size_t s = fs_read(&fs, fs_get_inode(&fs, "test1"), data, 0, 20);
                         data[s] = '\0';
 
                         uart_puts_P("data (0x");
@@ -393,6 +393,18 @@ void check_serial_input(uint8_t data)
                         uart_puts_P("\"\r\n");
 
                         free(data);
+                        break;
+                    }
+
+        case 'S':   {
+                        fs_size_t s = fs_size(&fs, fs_get_inode(&fs, "test1"));
+                        uint16_t size = (uint16_t)s;
+
+                        uart_puts_P("size is 0x");
+                        uart_puthexbyte(HI8(size));
+                        uart_puthexbyte(LO8(size));
+                        uart_eol();
+
                         break;
                     }
 

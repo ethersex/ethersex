@@ -795,6 +795,66 @@ fs_status_t fs_remove(fs_t *fs, char *name)
 
 } /* }}} */
 
+fs_size_t fs_size(fs_t *fs, fs_inode_t inode)
+/* {{{ */ {
+
+    fs_size_t size = 0;
+
+    /* allocate space */
+    fs_page_t *page = malloc(sizeof(fs_page_t));
+
+    /* return -1 on memory error */
+    if (page == NULL)
+        return -1;
+
+    while(1) {
+
+        /* extract page */
+        df_page_t pagenum = fs_page(fs, inode);
+
+        /* if this inode is empty, this file is either corrupt or empty */
+        if (pagenum == 0xffff) {
+#           ifdef DEBUG_FS
+            uart_puts_P("fs: invalid next inode, return size 0\r\n");
+#           endif
+            size = 0;
+            break;
+        }
+
+        /* else load page */
+        df_flash_read(fs->chip, pagenum, page, FS_STRUCTURE_OFFSET, sizeof(fs_page_t));
+
+        /* append size */
+        size += page->size;
+
+#       ifdef DEBUG_FS
+        uart_puts_P("fs: size in inode 0x");
+        uart_puthexbyte(HI8(inode));
+        uart_puthexbyte(LO8(inode));
+        uart_puts_P(" is 0x");
+        uart_puthexbyte(HI8(page->size));
+        uart_puthexbyte(LO8(page->size));
+        uart_eol();
+#       endif
+
+        /* if this is the last page, we are done */
+        if (page->eof) {
+#           ifdef DEBUG_FS
+            uart_puts_P("fs: last inode in this file, returning\r\n");
+#           endif
+            break;
+        }
+
+        /* else extract next inode */
+        inode = page->next_inode;
+    }
+
+    free(page);
+
+    return size;
+
+} /* }}} */
+
 /* private functions */
 fs_status_t fs_scan(fs_t *fs)
 /* {{{ */ {
