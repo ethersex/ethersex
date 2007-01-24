@@ -368,7 +368,7 @@ void check_serial_input(uint8_t data)
                             uart_puthexbyte(LO8(inode));
                             uart_eol();
 
-                            fs_status_t ret = fs_write(&fs, inode, "fnord23", 7, 7);
+                            fs_status_t ret = fs_write(&fs, inode, "fnord23", 0, 7);
 
                             uart_puts_P("ret: 0x");
                             uart_puthexbyte(ret);
