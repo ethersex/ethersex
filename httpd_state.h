@@ -23,6 +23,8 @@
 #ifndef _HTTPD_STATE_H
 #define _HTTPD_STATE_H
 
+#include "fs.h"
+
 typedef enum {
     HTTPD_STATE_CLOSED = 0,
     HTTPD_STATE_IDLE,
@@ -34,6 +36,7 @@ struct httpd_connection_state_t {
     char buffer[40];
     char name[10];
     struct psock in, out;
+    fs_inode_t inode;
 };
 
 

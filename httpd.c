@@ -20,10 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <stdio.h>
 #include <string.h>
 #include "uip/pt.h"
 #include "uip/psock.h"
 #include "httpd.h"
+#include "fs.h"
 
 #ifdef DEBUG_HTTPD
 #include "uart.h"
@@ -31,18 +33,32 @@
 
 #define STATE (uip_conn->appstate.httpd)
 
-char PROGMEM httpd_invalid_request[] =
+/* quickfix: include fs from etherrape.c */
+extern fs_t fs;
+
+char PROGMEM httpd_header_400[] =
 /* {{{ */
 "HTTP/1.1 400 Bad Request\n"
-"Content-Length: 16\n"
 "Connection: close\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
-"\n"
-"Invalid Request\n";
+"Content-Type: text/plain; charset=iso-8859-1\n";
+
+char PROGMEM httpd_body_400[] =
+"Bad Request\n";
+/* }}} */
+
+char PROGMEM httpd_header_404[] =
+/* {{{ */
+"HTTP/1.1 404 File Not Found\n"
+"Connection: close\n"
+"Content-Type: text/plain; charset=iso-8859-1\n";
+
+char PROGMEM httpd_body_404[] =
+"File Not Found\n";
 /* }}} */
 
 /* local prototypes */
-unsigned short psock_send_str_P(void *data);
+unsigned short send_str_P(void *data);
+unsigned short send_length_P(void *data);
 
 void httpd_init(void)
 /* {{{ */ {
@@ -60,8 +76,48 @@ static PT_THREAD(httpd_handle(void))
 
     /* if command is not GET, send 400 */
     if (strncasecmp_P(STATE.buffer, PSTR("GET "), 4) != 0) {
-        PSOCK_GENERATOR_SEND(&STATE.in, psock_send_str_P, httpd_invalid_request);
+        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_header_400);
+        PSOCK_GENERATOR_SEND(&STATE.in, send_length_P, httpd_body_400);
+        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_body_400);
         PSOCK_CLOSE_EXIT(&STATE.in);
+    }
+
+    /* else search for file */
+    PSOCK_READTO(&STATE.in, '/');
+    PSOCK_READTO(&STATE.in, ' ');
+
+    if (STATE.buffer[0] == ' ')
+        STATE.name[0] = '\0';
+    else
+        strncpy(STATE.name, STATE.buffer, PSOCK_DATALEN(&STATE.in)-1);
+
+#ifdef DEBUG_HTTPD
+    uart_puts_P("fs: httpd: request for file \"");
+    uart_puts(STATE.name);
+    uart_puts_P("\"\r\n");
+    uart_puts_P("fs: searching file inode: 0x");
+#endif
+
+    STATE.inode = fs_get_inode(&fs, STATE.name);
+
+#ifdef DEBUG_HTTPD
+    uart_puthexbyte(HI8(STATE.inode));
+    uart_puthexbyte(LO8(STATE.inode));
+    uart_eol();
+#endif
+
+    if (STATE.inode == 0xffff) {
+#ifdef DEBUG_HTTPD
+        uart_puts_P("httpd: file not found, sending 404\r\n");
+#endif
+        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_header_404);
+        PSOCK_GENERATOR_SEND(&STATE.in, send_length_P, httpd_body_404);
+        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_body_404);
+        PSOCK_CLOSE_EXIT(&STATE.in);
+    } else {
+#ifdef DEBUG_HTTPD
+        uart_puts_P("httpd: file found\r\n");
+#endif
     }
 
 #if 0
@@ -77,11 +133,19 @@ static PT_THREAD(httpd_handle(void))
 
 } /* }}} */
 
-unsigned short psock_send_str_P(void *data)
+unsigned short send_str_P(void *data)
 /* {{{ */ {
 
     strncpy_P(uip_appdata, data, strlen_P(data));
     return strlen_P(data);
+
+} /* }}} */
+
+unsigned short send_length_P(void *data)
+/* {{{ */ {
+
+    sprintf_P(uip_appdata, PSTR("%d\n\n"), strlen_P(data));
+    return strlen(uip_appdata);
 
 } /* }}} */
 
