@@ -322,6 +322,12 @@ void check_serial_input(uint8_t data)
                             df_page_t page = fs_page(&fs, inode);
                             uart_puthexbyte(HI8(page));
                             uart_puthexbyte(LO8(page));
+                            uart_puts_P(", size 0x");
+                            fs_size_t size = fs_size(&fs, inode);
+                            uart_puthexbyte(HI8((uint16_t)(size >> 16)));
+                            uart_puthexbyte(LO8((uint16_t)(size >> 16)));
+                            uart_puthexbyte(HI8((uint16_t)size));
+                            uart_puthexbyte(LO8((uint16_t)size));
                             uart_puts_P(", ret 0x");
                             uart_puthexbyte(ret);
                             uart_eol();
@@ -338,6 +344,26 @@ void check_serial_input(uint8_t data)
 
         case 'n':   {
                         fs_status_t ret = fs_create(&fs, "test1");
+
+                        if (ret != FS_OK) {
+                            uart_puts_P("returned 0x");
+                            uart_puthexbyte(ret);
+                            uart_eol();
+                        } else
+                            uart_puts_P("created 'test1'\r\n");
+
+                        fs_inode_t inode = fs_get_inode(&fs, "test1");
+
+                        uart_puts_P("inode is 0x");
+                        uart_puthexbyte(HI8(inode));
+                        uart_puthexbyte(LO8(inode));
+                        uart_eol();
+
+                        break;
+                    }
+
+        case 'm':   {
+                        fs_status_t ret = fs_create(&fs, "test2");
 
                         if (ret != FS_OK) {
                             uart_puts_P("returned 0x");
@@ -373,6 +399,41 @@ void check_serial_input(uint8_t data)
                             uart_puts_P("ret: 0x");
                             uart_puthexbyte(ret);
                             uart_eol();
+
+                        }
+
+                        break;
+                    }
+
+        case 'F':   {
+                        fs_inode_t inode = fs_get_inode(&fs, "test2");
+
+                        if (inode == 0xffff)
+                            uart_puts_P("invalid inode\r\n");
+                        else {
+
+#define SIZE 800
+
+                            uint8_t *data = malloc(SIZE);
+
+                            uart_puts_P("inode is 0x");
+                            uart_puthexbyte(HI8(inode));
+                            uart_puthexbyte(LO8(inode));
+                            uart_eol();
+
+                            for (uint16_t i = 0; i < SIZE; i++) {
+                                while (!(_UCSRA_UART0 & _BV(_RXC_UART0)));
+
+                                data[i] = _UDR_UART0;
+                            }
+
+                            fs_status_t ret = fs_write(&fs, inode, data, 0, SIZE);
+
+                            uart_puts_P("ret: 0x");
+                            uart_puthexbyte(ret);
+                            uart_eol();
+
+                            free(data);
 
                         }
 
