@@ -445,22 +445,6 @@ void transmit_packet(void)
         for (uint16_t i = 0; i < uip_len; i++)
             write_buffer_memory(uip_buf[i]);
 
-#       if 0
-        uart_puts_P("net: sending packet in from buffer 0x");
-        uart_puthexbyte(i);
-        uart_eol();
-        uint16_t read_buffer_pointer = get_read_buffer_pointer();
-        set_read_buffer_pointer(global_net.send_buffer[i].start_pointer+1);
-        uart_puts_P("net: packet goes to: ");
-        for (uint8_t j = 0; j < 6; j++)
-            uart_puthexbyte(read_buffer_memory());
-        uart_puts_P(" from: ");
-        for (uint8_t j = 0; j < 6; j++)
-            uart_puthexbyte(read_buffer_memory());
-        uart_eol();
-        set_read_buffer_pointer(read_buffer_pointer);
-#       endif
-
 #       ifdef ENC28J60_REV4_WORKAROUND
         /* reset transmit hardware, see errata #12 */
         bit_field_set(REG_ECON1, _BV(ECON1_TXRST));
