@@ -20,6 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/io.h>
 #include "df.h"
 #include "spi.h"
 
