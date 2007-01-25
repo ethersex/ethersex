@@ -330,9 +330,9 @@ void init_enc28j60(void)
 
     }
 
-    /* write maximum frame length */
-    write_control_register(REG_MAMXFLL, LO8(MAX_FRAME_LENGTH));
-    write_control_register(REG_MAMXFLH, HI8(MAX_FRAME_LENGTH));
+    /* write maximum frame length, append 4 bytes for crc (added by enc28j60) */
+    write_control_register(REG_MAMXFLL, LO8(MAX_FRAME_LENGTH + 4));
+    write_control_register(REG_MAMXFLH, HI8(MAX_FRAME_LENGTH + 4));
 
     /* program the local mac address */
     write_control_register(REG_MAADR5, uip_ethaddr.addr[0]);
