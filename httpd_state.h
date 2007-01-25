@@ -37,6 +37,7 @@ struct httpd_connection_state_t {
     char name[10];
     struct psock in, out;
     fs_inode_t inode;
+    fs_size_t offset;
 };
 
 

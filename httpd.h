@@ -32,6 +32,8 @@
 #define HTTPD_ALTERNATE_PORT 8000
 #define HTTPD_TIMEOUT 100 /* in 200ms-steps */
 
+#define HTTPD_INDEX "index"
+
 /* prototypes */
 void httpd_init(void);
 void httpd_main(void);

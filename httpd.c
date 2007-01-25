@@ -31,10 +31,15 @@
 #include "uart.h"
 #endif
 
-#define STATE (uip_conn->appstate.httpd)
-
 /* quickfix: include fs from etherrape.c */
 extern fs_t fs;
+
+char PROGMEM httpd_header_200[] =
+/* {{{ */
+"HTTP/1.1 200 OK\n"
+"Connection: close\n"
+"Content-Type: text/html; charset=iso-8859-1\n";
+/* }}} */
 
 char PROGMEM httpd_header_400[] =
 /* {{{ */
@@ -56,9 +61,13 @@ char PROGMEM httpd_body_404[] =
 "File Not Found\n";
 /* }}} */
 
+char PROGMEM httpd_header_length[] = "Content-Length: ";
+
 /* local prototypes */
 unsigned short send_str_P(void *data);
 unsigned short send_length_P(void *data);
+unsigned short send_length_f(void *data);
+unsigned short send_file_f(struct httpd_connection_state_t *state);
 
 void httpd_init(void)
 /* {{{ */ {
@@ -68,69 +77,94 @@ void httpd_init(void)
 
 } /* }}} */
 
-static PT_THREAD(httpd_handle(void))
+static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
 /* {{{ */ {
 
-    PSOCK_BEGIN(&STATE.in);
+    PSOCK_BEGIN(&state->in);
 
-    PSOCK_READTO(&STATE.in, ' ');
+    PSOCK_READTO(&state->in, ' ');
 
     /* if command is not GET, send 400 */
-    if (strncasecmp_P(STATE.buffer, PSTR("GET "), 4) != 0) {
-        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_header_400);
-        PSOCK_GENERATOR_SEND(&STATE.in, send_length_P, httpd_body_400);
-        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_body_400);
-        PSOCK_CLOSE_EXIT(&STATE.in);
+    if (!(strncasecmp_P(state->buffer, PSTR("GET "), 4) == 0)) {
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_400);
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+        PSOCK_GENERATOR_SEND(&state->in, send_length_P, httpd_body_400);
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_400);
+        PSOCK_CLOSE_EXIT(&state->in);
     }
 
     /* else search for file */
-    PSOCK_READTO(&STATE.in, '/');
-    PSOCK_READTO(&STATE.in, ' ');
+    PSOCK_READTO(&state->in, '/');
+    PSOCK_READTO(&state->in, ' ');
 
-    if (STATE.buffer[0] == ' ')
-        STATE.name[0] = '\0';
-    else
-        strncpy(STATE.name, STATE.buffer, PSOCK_DATALEN(&STATE.in)-1);
+    if (state->buffer[0] == ' ')
+        strncpy_P(state->name, PSTR(HTTPD_INDEX), sizeof(state->name));
+    else {
+        strncpy(state->name, state->buffer, sizeof(state->name));
+        if (PSOCK_DATALEN(&state->in) < sizeof(state->name))
+            state->name[PSOCK_DATALEN(&state->in)-1] = '\0';
+        else
+            state->name[sizeof(state->name)-1] = '\0';
+    }
 
 #ifdef DEBUG_HTTPD
     uart_puts_P("fs: httpd: request for file \"");
-    uart_puts(STATE.name);
+    uart_puts(state->name);
     uart_puts_P("\"\r\n");
     uart_puts_P("fs: searching file inode: 0x");
 #endif
 
-    STATE.inode = fs_get_inode(&fs, STATE.name);
+    /* search inode */
+    state->inode = fs_get_inode(&fs, state->name);
 
 #ifdef DEBUG_HTTPD
-    uart_puthexbyte(HI8(STATE.inode));
-    uart_puthexbyte(LO8(STATE.inode));
+    uart_puthexbyte(HI8(state->inode));
+    uart_puthexbyte(LO8(state->inode));
     uart_eol();
 #endif
 
-    if (STATE.inode == 0xffff) {
+    if (state->inode == 0xffff) {
 #ifdef DEBUG_HTTPD
         uart_puts_P("httpd: file not found, sending 404\r\n");
 #endif
-        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_header_404);
-        PSOCK_GENERATOR_SEND(&STATE.in, send_length_P, httpd_body_404);
-        PSOCK_GENERATOR_SEND(&STATE.in, send_str_P, httpd_body_404);
-        PSOCK_CLOSE_EXIT(&STATE.in);
+
+        /* send headers */
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_404);
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+        PSOCK_GENERATOR_SEND(&state->in, send_length_P, httpd_body_404);
+
+        /* send body text */
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_404);
+        PSOCK_CLOSE_EXIT(&state->in);
     } else {
 #ifdef DEBUG_HTTPD
         uart_puts_P("httpd: file found\r\n");
 #endif
+
+        /* reset offset */
+        state->offset = 0;
+
+        /* send headers */
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+        PSOCK_GENERATOR_SEND(&state->in, send_length_f, &state->inode);
+
+        /* send file */
+        while(state->inode != 0xffff) {
+            PSOCK_GENERATOR_SEND(&state->in, send_file_f, state);
+        }
     }
 
 #if 0
-    PSOCK_SEND_STR(&STATE.in, "Hello. What is your name?\n");
-    PSOCK_READTO(&STATE.in, '\n');
-    strncpy(STATE.name, STATE.buffer, sizeof(STATE.name));
-    PSOCK_SEND_STR(&STATE.in, "Hello ");
-    PSOCK_SEND_STR(&STATE.in, STATE.name);
+    PSOCK_SEND_STR(&state->in, "Hello. What is your name?\n");
+    PSOCK_READTO(&state->in, '\n');
+    strncpy(state->name, state->buffer, sizeof(state->name));
+    PSOCK_SEND_STR(&state->in, "Hello ");
+    PSOCK_SEND_STR(&state->in, state->name);
 #endif
-    PSOCK_CLOSE(&STATE.in);
+    PSOCK_CLOSE(&state->in);
 
-    PSOCK_END(&STATE.in);
+    PSOCK_END(&state->in);
 
 } /* }}} */
 
@@ -150,8 +184,45 @@ unsigned short send_length_P(void *data)
 
 } /* }}} */
 
+unsigned short send_length_f(void *inode)
+/* {{{ */ {
+
+    fs_inode_t i = *((fs_inode_t *)inode);
+
+    sprintf_P(uip_appdata, PSTR("%d\n\n"), fs_size(&fs, i));
+    return strlen(uip_appdata);
+
+} /* }}} */
+
+unsigned short send_file_f(struct httpd_connection_state_t *state)
+/* {{{ */ {
+
+    fs_size_t len = fs_read(&fs, state->inode, uip_appdata, state->offset, uip_mss());
+
+#ifdef DEBUG_HTTPD
+    uart_puts_P("httpd: mss is 0x");
+    uart_puthexbyte(HI8(uip_mss()));
+    uart_puthexbyte(LO8(uip_mss()));
+    uart_puts_P(", len is 0x");
+    uart_puthexbyte(HI8(uip_mss()));
+    uart_puthexbyte(LO8(uip_mss()));
+    uart_eol();
+#endif
+
+    /* if this was all, reset state->inode */
+    if (len < uip_mss())
+        state->inode = 0xffff;
+    else
+        state->offset += len;
+
+    return len;
+
+} /* }}} */
+
 void httpd_main(void)
 /* {{{ */ {
+
+    struct httpd_connection_state_t *state = &uip_conn->appstate.httpd;
 
     if (uip_aborted())
 #ifdef DEBUG_HTTPD
@@ -164,16 +235,16 @@ void httpd_main(void)
 #endif
 
     if (uip_closed()) {
-        STATE.state = HTTPD_STATE_CLOSED;
+        state->state = HTTPD_STATE_CLOSED;
 #ifdef DEBUG_HTTPD
         uart_puts_P("httpd: connection closed\r\n");
 #endif
     }
 
     if (uip_poll()) {
-        STATE.timeout++;
+        state->timeout++;
 
-        if (STATE.timeout == HTTPD_TIMEOUT) {
+        if (state->timeout == HTTPD_TIMEOUT) {
 #ifdef DEBUG_HTTPD
             uart_puts_P("httpd: timeout\r\n");
 #endif
@@ -186,11 +257,11 @@ void httpd_main(void)
         uart_puts_P("httpd: new connection\r\n");
 #endif
         /* initialize struct */
-        STATE.state = HTTPD_STATE_IDLE;
-        STATE.timeout = 0;
+        state->state = HTTPD_STATE_IDLE;
+        state->timeout = 0;
 
         /* initialize protosockets for in and out */
-        PSOCK_INIT(&STATE.in, STATE.buffer, sizeof(STATE.buffer));
+        PSOCK_INIT(&state->in, state->buffer, sizeof(state->buffer));
     }
 
     if (uip_newdata()) {
@@ -207,12 +278,12 @@ void httpd_main(void)
        uip_poll()) {
 
         if (!uip_poll()) {
-            STATE.timeout = 0;
+            state->timeout = 0;
 #ifdef DEBUG_HTTPD
             uart_puts_P("httpd: action\r\n");
 #endif
         }
-        httpd_handle();
+        httpd_handle(state);
     }
 
 } /* }}} */
