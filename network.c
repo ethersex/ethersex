@@ -487,8 +487,9 @@ void network_handle_tcp(void)
     if (uip_conn->lport == HTONS(ETHCMD_PORT))
         ethcmd_main();
 
-    if (uip_conn->lport == HTONS(HTTPD_PORT))
-        httpd_main();
+    if (uip_conn->lport == HTONS(HTTPD_PORT) ||
+        uip_conn->lport == HTONS(HTTPD_ALTERNATE_PORT))
+            httpd_main();
 
 } /* }}} */
 

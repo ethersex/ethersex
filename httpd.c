@@ -64,6 +64,7 @@ void httpd_init(void)
 /* {{{ */ {
 
     uip_listen(HTONS(HTTPD_PORT));
+    uip_listen(HTONS(HTTPD_ALTERNATE_PORT));
 
 } /* }}} */
 
