@@ -505,8 +505,8 @@ int main(void)
     uart_puts_P("initializing filesystem...\r\n");
 #   endif
     fs_init(&fs, NULL);
-    uart_puts_P("fs: root page is 0x");
 #   ifdef DEBUG_FS
+    uart_puts_P("fs: root page is 0x");
     uart_puthexbyte(HI8(fs.root));
     uart_puthexbyte(LO8(fs.root));
     uart_eol();
