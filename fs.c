@@ -427,12 +427,13 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
             offset -= FS_DATASIZE;
         }
 
+        old_pagenum = pagenum;
+
         do {
 
             uint8_t eof = 0;
 
-            printf("\tlength > 0 (%d), old page is %d\n", length, pagenum);
-            old_pagenum = pagenum;
+            printf("\tlength > 0 (%d), old page is %d\n", length, old_pagenum);
 
             /* allocate new page */
             if ( (pagenum = fs_new_page(fs)) == 0xffff)
@@ -448,7 +449,9 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
             if (length+offset > FS_DATASIZE) {
 
-                printf("\t\tlength+offset > FS_DATASIZE\n");
+#ifdef DEBUG_FS
+                uart_puts_P("\t\tlength+offset > FS_DATASIZE\r\n");
+#endif
 
                 /* load old page into buffer */
                 df_buf_load(fs->chip, DF_BUF1, old_pagenum);
@@ -459,9 +462,15 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
                 /* remember if original file ended in this page */
                 if (page.eof) {
-                    printf("\t\toriginal file ended here\n");
+#ifdef DEBUG_FS
+                    uart_puts_P("\t\toriginal file ended here\r\n");
+#endif
                     eof = 1;
                 }
+
+                if (!page.eof)
+                    /* save old pagenum */
+                    old_pagenum = fs_page(fs, page.next_inode);
 
                 page.unused = 0;
                 page.eof = 0;
@@ -478,6 +487,13 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
                 /* save structure */
                 df_buf_write(fs->chip, DF_BUF1, &page, FS_STRUCTURE_OFFSET, sizeof(fs_page_t));
 
+#ifdef DEBUG_FS
+                uart_puts_P("fs: writing1 into page 0x");
+                uart_puthexbyte(HI8(pagenum));
+                uart_puthexbyte(LO8(pagenum));
+                uart_eol();
+#endif
+
                 /* write data */
                 df_buf_write(fs->chip, DF_BUF1, buf, FS_DATA_OFFSET+offset, FS_DATASIZE-offset);
                 df_buf_save(fs->chip, DF_BUF1, pagenum);
@@ -487,7 +503,23 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
             } else {
 
-                printf("\t\tlength+offset <= FS_DATASIZE, length %d, offset %d\n", length, offset);
+#ifdef DEBUG_FS
+                uart_puts_P("\t\tlength+offset <= FS_DATASIZE, length 0x");
+                uart_puthexbyte(HI8((uint16_t)(length >> 16)));
+                uart_puthexbyte(LO8((uint16_t)(length >> 16)));
+                uart_puthexbyte(HI8((uint16_t)length));
+                uart_puthexbyte(LO8((uint16_t)length));
+                uart_puts_P(", offset 0x");
+                uart_puthexbyte(HI8((uint16_t)(offset >> 16)));
+                uart_puthexbyte(LO8((uint16_t)(offset >> 16)));
+                uart_puthexbyte(HI8((uint16_t)offset));
+                uart_puthexbyte(LO8((uint16_t)offset));
+                uart_puts_P(", eof ");
+                uart_puthexbyte(eof);
+                uart_puts_P(", old page 0x");
+                uart_puthexbyte(HI8(old_pagenum));
+                uart_puthexbyte(LO8(old_pagenum));
+#endif
 
                 /* load old page into buffer */
                 df_buf_load(fs->chip, DF_BUF1, old_pagenum);
@@ -499,15 +531,34 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
                 page.eof = 1;
                 page.root = 0;
 
+#ifdef DEBUG_FS
+                uart_puts_P(", page.size: 0x");
+                uart_puthexbyte(HI8(page.size));
+                uart_puthexbyte(LO8(page.size));
+                uart_eol();
+#endif
+
                 if (eof || length+offset > page.size) {
                     page.size = length+offset;
-                    printf("\t\tpage size must be updated to %d\n", page.size);
+#ifdef DEBUG_FS
+                    uart_puts_P("\t\tpage size must be updated to 0x");
+                    uart_puthexbyte(HI8(page.size));
+                    uart_puthexbyte(LO8(page.size));
+                    uart_eol();
+#endif
                 }
 
                 printf("\t\tnew page length is %d\n", page.size);
 
                 /* save structure */
                 df_buf_write(fs->chip, DF_BUF1, &page, FS_STRUCTURE_OFFSET, sizeof(fs_page_t));
+
+#ifdef DEBUG_FS
+                uart_puts_P("fs: writing2 into page 0x");
+                uart_puthexbyte(HI8(pagenum));
+                uart_puthexbyte(LO8(pagenum));
+                uart_eol();
+#endif
 
                 /* write data */
                 df_buf_write(fs->chip, DF_BUF1, buf, FS_DATA_OFFSET+offset, length);
