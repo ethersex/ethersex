@@ -24,6 +24,7 @@
 
 #include "ethcmd.h"
 #include "uip/uip.h"
+#include "pt/pt.h"
 #include "uart.h"
 #include "onewire/onewire.h"
 #include "fs20.h"
@@ -37,141 +38,210 @@ void ethcmd_init(void)
 
 } /* }}} */
 
+static PT_THREAD(ethcmd_readbytes(struct ethcmd_connection_state_t *state, uint16_t count))
+/* {{{ */ {
+
+    PT_BEGIN(&state->datapt);
+
+#ifdef DEBUG_ETHCMD
+    uart_puts_P("cmd: reading 0x");
+    uart_puthexbyte(HI8(count));
+    uart_puthexbyte(LO8(count));
+    uart_puts_P(" bytes\r\n");
+#endif
+
+    while(1) {
+        PT_WAIT_UNTIL(&state->datapt, uip_newdata());
+
+        if (uip_datalen()+state->fill < count) {
+            memcpy(state->buffer+state->fill, uip_appdata, uip_datalen());
+            state->fill += uip_datalen();
+            PT_YIELD(&state->datapt);
+        } else {
+            memcpy(state->buffer+state->fill, uip_appdata, (count-state->fill));
+            state->data_length = uip_datalen()-count+state->fill;
+            state->fill = count;
+            memmove((uint8_t *)uip_appdata,
+                    (uint8_t *)uip_appdata+count,
+                    state->data_length);
+            break;
+        }
+    }
+
+    PT_EXIT(&state->datapt);
+    PT_END(&state->datapt);
+
+} /* }}} */
+
+static PT_THREAD(ethcmd_handle(struct ethcmd_connection_state_t *state))
+/* {{{ */ {
+
+    PT_BEGIN(&state->pt);
+
+    while(1) {
+#ifdef DEBUG_ETHCMD
+        uart_puts_P("cmd: waiting for message\r\n");
+#endif
+
+        /* wait until enough bytes have been received */
+        state->fill = 0;
+        PT_SPAWN(&state->pt, &state->datapt, ethcmd_readbytes(state, sizeof(struct ethcmd_message_t)));
+
+        /* check message type */
+#ifdef DEBUG_ETHCMD
+        uart_puts_P("cmd: subsystem: 0x");
+        uart_puthexbyte(LO8(state->msg.subsystem));
+        uart_puthexbyte(HI8(state->msg.subsystem));
+        uart_puts_P(", length: 0x");
+        uart_puthexbyte(LO8(state->msg.length));
+        uart_puthexbyte(HI8(state->msg.length));
+        uart_puts_P(", still in uip_appdata: 0x");
+        uart_puthexbyte(HI8(state->data_length));
+        uart_puthexbyte(LO8(state->data_length));
+        uart_eol();
+
+        //uip_close();
+#endif
+
+        /* version request */
+        if (state->msg.subsystem == HTONS(ETHCMD_MESSAGE_TYPE_VERSION)) {
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: sending version reply\r\n");
+#endif
+            state->msg.data[0] = ETHCMD_SEND_VERSION;
+            state->msg.data[1] = ETHCMD_PROTOCOL_MAJOR;
+            state->msg.data[2] = ETHCMD_PROTOCOL_MINOR;
+            state->msg.length = HTONS(sizeof(struct ethcmd_message_t)+3);
+
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: sending bytes: 0x");
+            uart_puthexbyte(sizeof(struct ethcmd_message_t)+3);
+            uart_eol();
+#endif
+
+            uip_send(state->buffer, sizeof(struct ethcmd_message_t)+3);
+
+            while(1) {
+
+                if (uip_rexmit()) {
+                    uip_send(state->buffer, sizeof(struct ethcmd_message_t)+3);
+#ifdef DEBUG_ETHCMD
+                    uart_puts_P("cmd: retransmitting...\r\n");
+#endif
+                }
+
+                if (uip_acked())
+                    break;
+
+                PT_YIELD(&state->pt);
+            }
+
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: done sending version request\r\n");
+#endif
+
+        } else if (state->msg.subsystem == HTONS(ETHCMD_MESSAGE_TYPE_FS20)) {
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: fs20 request\r\n");
+#endif
+
+            /* convert length */
+            state->msg.length = HTONS(state->msg.length);
+
+            if (state->msg.length >= sizeof(struct ethcmd_message_t)+
+                                     sizeof(struct ethcmd_fs20_message_t)) {
+                struct ethcmd_fs20_message_t *m = uip_appdata;
+#ifdef DEBUG_ETHCMD
+                uart_puts_P("cmd: command 0x");
+                uart_puthexbyte(m->command);
+                uart_putc(' ');
+                uart_puthexbyte(LO8(m->fs20_housecode));
+                uart_puthexbyte(HI8(m->fs20_housecode));
+                uart_putc(' ');
+                uart_puthexbyte(m->fs20_address);
+                uart_putc(' ');
+                uart_puthexbyte(m->fs20_command);
+                uart_eol();
+#endif
+
+                if (m->command == ETHCMD_FS20_SEND) {
+#ifdef DEBUG_ETHCMD
+                    uart_puts_P("cmd: sending fs20 command\r\n");
+#endif
+                    fs20_send(NTOHS(m->fs20_housecode), m->fs20_address, m->fs20_command);
+                }
+
+            }
+
+        }
+
+
+
+        PT_YIELD(&state->pt);
+    }
+
+    PT_END(&state->pt);
+
+} /* }}} */
+
 void ethcmd_main(void)
 /* {{{ */ {
 
-    if (uip_poll())
-        return;
+    struct ethcmd_connection_state_t *state = &uip_conn->appstate.ethcmd;
 
-    //uart_puts_P("cmd: main(), uip_flags 0x");
-    //uart_puthexbyte(uip_flags);
-    //uart_eol();
-
+#ifdef DEBUG_ETHCMD
     if (uip_aborted())
         uart_puts_P("cmd: connection aborted\r\n");
+#endif
 
+#ifdef DEBUG_ETHCMD
     if (uip_timedout())
         uart_puts_P("cmd: connection timed out\r\n");
+#endif
 
+#ifdef DEBUG_ETHCMD
     if (uip_closed())
         uart_puts_P("cmd: connection closed\r\n");
+#endif
+
+    if (uip_poll()) {
+        state->timeout++;
+
+        if (state->timeout == ETHCMD_TIMEOUT) {
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: timeout\r\n");
+#endif
+            uip_close();
+        }
+    }
 
     if (uip_connected()) {
+#ifdef DEBUG_ETHCMD
         uart_puts_P("cmd: new connection\r\n");
-        //strcpy_P(uip_appdata, "foo!");
-        //uip_send(uip_appdata, 4);
-        uip_conn->appstate.ethcmd.foo = 0;
+#endif
+        /* initialize struct */
+        state->timeout = 0;
+
+        /* init thread */
+        PT_INIT(&state->pt);
     }
 
-    if (uip_acked() && uip_conn->appstate.ethcmd.foo == 1) {
+    if(uip_rexmit() ||
+       uip_newdata() ||
+       uip_acked() ||
+       uip_connected() ||
+       uip_poll()) {
 
-        struct ethcmd_message_t *msg = (struct ethcmd_message_t *)uip_appdata;
+        if (!uip_poll())
+            state->timeout = 0;
 
-        int ret = ow_search_rom_next();
-
-        if (ret > 0) {
-            uart_puts_P("cmd: sending next ow rom id\r\n");
-
-            msg->length = HTONS(sizeof(struct ethcmd_message_t)
-                    + sizeof(struct ethcmd_onewire_message_t));
-            msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
-
-            struct ethcmd_onewire_message_t *ow_msg = (struct ethcmd_onewire_message_t *)msg->data;
-            memcpy(&ow_msg->id, &ow_global.current_rom, 8);
-
-            uip_send(uip_appdata, sizeof(struct ethcmd_message_t)
-                    + sizeof(struct ethcmd_onewire_message_t));
-        } else {
-            uart_puts_P("cmd: last rom id sent, closing connection\r\n");
-            uip_conn->appstate.ethcmd.foo = 0;
+        /* call thread, close connection if the thread has exited */
+        if (PT_SCHEDULE(ethcmd_handle(state)) == 0) {
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: thread has exited, closing connection\r\n");
+#endif
             uip_close();
-            return;
         }
-
-    }
-
-    if (uip_newdata()) {
-
-        struct ethcmd_message_t *msg = (struct ethcmd_message_t *)uip_appdata;
-
-        uart_puts_P("cmd: data received, length 0x");
-        uart_puthexbyte(HIGH(uip_len));
-        uart_puthexbyte( LOW(uip_len));
-        uart_eol();
-
-        uart_puts_P("cmd: length: 0x");
-        uart_puthexbyte( LOW(msg->length));
-        uart_puthexbyte(HIGH(msg->length));
-        uart_puts_P(", subsystem: 0x");
-        uart_puthexbyte( LOW(msg->subsystem));
-        uart_puthexbyte(HIGH(msg->subsystem));
-        uart_eol();
-
-        if (msg->subsystem == NTOHS(ETHCMD_MESSAGE_TYPE_ONEWIRE)) {
-            uart_puts_P("cmd: detected onewire discover\r\n");
-
-            /* new discover */
-            uip_conn->appstate.ethcmd.foo = 1;
-
-            int ret = ow_search_rom_first();
-
-            if (ret > 0) {
-
-                uart_puts_P("cmd: found ow rom\r\n");
-
-                msg->length = HTONS(sizeof(struct ethcmd_message_t)
-                                  + sizeof(struct ethcmd_onewire_message_t));
-                msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_ONEWIRE);
-
-                struct ethcmd_onewire_message_t *ow_msg = (struct ethcmd_onewire_message_t *)msg->data;
-                memcpy(&ow_msg->id, &ow_global.current_rom, 8);
-
-                uip_send(uip_appdata, sizeof(struct ethcmd_message_t)
-                                    + sizeof(struct ethcmd_onewire_message_t));
-
-            } else {
-
-                uip_conn->appstate.ethcmd.foo = 0;
-
-            }
-
-        } else if (msg->subsystem == NTOHS(ETHCMD_MESSAGE_TYPE_FS20)) {
-
-            uart_puts_P("cmd: sending fs20 data: ");
-            for (uint8_t i = 0; i < 5; i++) {
-                uart_puthexbyte(msg->data[i]);
-                uart_putc(' ');
-            }
-            uart_eol();
-
-            struct ethcmd_fs20_message_t *msg2 = (struct ethcmd_fs20_message_t *)msg->data;
-
-            if (msg2->command == 0x01) {
-
-                uart_puts_P("cmd: housecode: 0x");
-                uart_puthexbyte(LOW(msg2->fs20_housecode));
-                uart_puthexbyte(HIGH(msg2->fs20_housecode));
-                uart_puts_P(", addr:");
-                uart_puthexbyte(msg2->fs20_address);
-                uart_puts_P(", cmd:");
-                uart_puthexbyte(msg2->fs20_command);
-                uart_eol();
-
-                fs20_send(NTOHS(msg2->fs20_housecode), msg2->fs20_address, msg2->fs20_command);
-                uip_close();
-            }
-
-        } else if (msg->subsystem == NTOHS(ETHCMD_MESSAGE_TYPE_VERSION)) {
-
-            msg->length = HTONS(sizeof(struct ethcmd_message_t) + 2);
-            msg->subsystem = HTONS(ETHCMD_MESSAGE_TYPE_VERSION);
-            msg->data[0] = 1;
-            msg->data[1] = 0;
-
-            uip_send(uip_appdata, sizeof(struct ethcmd_message_t) + 2);
-
-        }
-
     }
 
 } /* }}} */

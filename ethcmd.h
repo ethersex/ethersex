@@ -24,14 +24,26 @@
 #define _ETHCMD_H
 
 #include <stdint.h>
-
 #include "ethcmd/ethcmd_message.h"
+#include "pt/pt.h"
+
+#define ETHCMD_BUFSIZE 30
 
 struct ethcmd_connection_state_t {
-    uint8_t foo;
+    uint8_t timeout;
+    union {
+        char buffer[ETHCMD_BUFSIZE];
+        struct ethcmd_message_t msg;
+    };
+    uint8_t fill;
+    uint16_t data_length;
+    struct pt pt, datapt;
 };
 
 #define ETHCMD_PORT 2847
+#define ETHCMD_TIMEOUT 100 /* in 200ms-steps */
+#define ETHCMD_PROTOCOL_MAJOR 1
+#define ETHCMD_PROTOCOL_MINOR 0
 
 void ethcmd_init(void);
 void ethcmd_main(void);

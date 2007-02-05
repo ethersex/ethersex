@@ -58,7 +58,8 @@ Commands:
 ---------
 0x00    request implemented protocol version (client->server)
 0x01    send implemented protocol version (server->client), the data
-        contains two bytes representing the servers major and minor protocol version
+        contains two additional bytes representing the servers major and
+        minor protocol version number
 
 
 subsystem 0x0006 (fs20 control)

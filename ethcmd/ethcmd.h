@@ -31,7 +31,8 @@ struct global_config_t {
     char *host;                 /* remote host */
     unsigned int port;          /* remote port */
     int sock;                   /* socket fd */
-    int command;                /* command to be executed */
+    int argc;                   /* remaining command line arguments */
+    char **argv;
 };
 
 extern struct global_config_t cfg;

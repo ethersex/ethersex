@@ -44,15 +44,8 @@ const struct option longopts[] = {
     {"verbose", optional_argument, 0, 'v'},
     {"host", required_argument, 0, 'H'},
     {"port", required_argument, 0, 'P'},
-    {"command", required_argument, 0, 'c'},
     {0, 0, 0, 0},
 };
-
-struct fs20_options_t {
-    uint16_t housecode;
-    uint8_t address;
-    uint8_t command;
-} fs20_options;
 
 /* module-local prototypes */
 void print_usage(void);
@@ -60,6 +53,7 @@ int connect_host(char *host, int port);
 void send_message(struct ethcmd_message_t *msg);
 void parse_message(struct ethcmd_message_t *msg);
 void request_procotol_version(void);
+void parse_commands(void);
 
 void print_usage(void)
 /* {{{ */ {
@@ -73,8 +67,9 @@ void print_usage(void)
            "  -c, --command=CMD         execute command\n"
            "\n"
            " available commands:\n"
-           "  onewire_discover          discover the onewire bus for devices, print ids\n"
-           "  fs20_send                 send fs20 command, parameters: housecode, address, command\n"
+           // "  onewire_discover          discover the onewire bus for devices, print ids\n"
+           // "  fs20_send                 send fs20 command, parameters: housecode, address, command\n"
+           "   (none documented yet...)\n"
            , DEFAULT_HOST, DEFAULT_PORT
           );
 
@@ -157,29 +152,9 @@ void parse_message(struct ethcmd_message_t *msg)
     switch (ntohs(msg->subsystem)) {
 
         case ETHCMD_SUBSYSTEM_VERSION:
-                                        VERBOSE_PRINTF("server speaks protocol version %d.%d\n", msg->data[0], msg->data[1]);
-
-                                        if (cfg.command == CMD_FS20) {
-                                            VERBOSE_PRINTF("sending fs20 command\n");
-
-                                            struct ethcmd_fs20_packet_t *packet = malloc(sizeof(struct ethcmd_fs20_packet_t));
-
-                                            if (msg == NULL)
-                                                errx(EXIT_FAILURE, "malloc()");
-
-                                            packet->msg.length = htons(sizeof(struct ethcmd_fs20_packet_t) + 1);
-                                            packet->msg.subsystem = htons(ETHCMD_MESSAGE_TYPE_FS20);
-                                            packet->payload.command = 0x01;
-                                            packet->payload.fs20_housecode = htons(fs20_options.housecode);
-                                            packet->payload.fs20_address = fs20_options.address;
-                                            packet->payload.fs20_command = fs20_options.command;
-
-                                            send_message((struct ethcmd_message_t *)packet);
-
-                                            free(packet);
-
-                                        } else if (cfg.command == CMD_NONE)
-                                            exit(0);
+                                        VERBOSE_PRINTF("server speaks protocol version %d.%d\n", msg->data[1], msg->data[2]);
+                                        VERBOSE_PRINTF("sending command\r");
+                                        parse_commands();
 
                                         break;
 
@@ -202,11 +177,49 @@ void request_procotol_version(void)
 
     msg->length = htons(sizeof(struct ethcmd_message_t) + 1);
     msg->subsystem = htons(ETHCMD_SUBSYSTEM_VERSION);
-    msg->data[0] = 0;
+    msg->data[0] = ETHCMD_REQUEST_VERSION;
 
     send_message(msg);
 
     free(msg);
+
+} /* }}} */
+
+void parse_commands(void)
+/* {{{ */ {
+
+    for (int i = 0; i < cfg.argc; i++)
+        DEBUG_PRINTF("argument: \"%s\"\n", cfg.argv[i]);
+
+    if (strncasecmp(cfg.argv[0], "fs20_send", strlen("fs20_send")) == 0) {
+
+        if (cfg.argc < 4)
+            errx(1, "need more parameters for fs20_send: housecode address command");
+
+        VERBOSE_PRINTF("sending fs20 command\n");
+
+        struct ethcmd_fs20_packet_t *packet = malloc(sizeof(struct ethcmd_fs20_packet_t));
+
+        if (packet == NULL)
+            errx(EXIT_FAILURE, "malloc()");
+
+        packet->msg.length = htons(sizeof(struct ethcmd_fs20_packet_t) + 1);
+        packet->msg.subsystem = htons(ETHCMD_MESSAGE_TYPE_FS20);
+        packet->payload.command = ETHCMD_FS20_SEND;
+        packet->payload.fs20_housecode = htons(strtol(cfg.argv[1], NULL, 16));
+        packet->payload.fs20_address = strtol(cfg.argv[2], NULL, 16);
+        packet->payload.fs20_command = strtol(cfg.argv[3], NULL, 16);
+
+        VERBOSE_PRINTF("fs20 parameters: 0x%04x 0x%02x 0x%02x\n",
+                packet->payload.fs20_housecode,
+                packet->payload.fs20_address,
+                packet->payload.fs20_command);
+
+        send_message((struct ethcmd_message_t *)packet);
+
+        free(packet);
+    } else
+        errx(1, "unknown command: \"%s\"", cfg.argv[0]);
 
 } /* }}} */
 
@@ -217,14 +230,15 @@ int main(int argc, char *argv[])
     cfg.sock = -1;
     cfg.host = DEFAULT_HOST;
     cfg.port = DEFAULT_PORT;
-    cfg.command = CMD_NONE;
+    cfg.argv = NULL;
+    cfg.argc = 0;
 
     /* read commandline arguments */
     char c;
 
     DEBUG_PRINTF("activated\n");
 
-    while ( (c = getopt_long(argc, argv, "hv::H:P:", longopts, 0)) != -1 ) {
+    while ( (c = getopt_long(argc, argv, "hv:H:P:", longopts, 0)) != -1 ) {
         switch (c) {
 
             case 'h':
@@ -247,15 +261,6 @@ int main(int argc, char *argv[])
                       cfg.port = atoi(optarg);
                       break;
 
-            case 'c':
-                      if (strncasecmp(optarg, "fs20_send", strlen("fs20_send")) == 0)
-                          cfg.command = CMD_FS20;
-                      else if (strncasecmp(optarg, "onewire_discover", strlen("onewire_discover")) == 0)
-                          cfg.command = CMD_OW;
-                      else
-                          errx(EXIT_FAILURE, "unknown command: \"%s\"", optarg);
-                      break;
-
             case '?':
                       errx(EXIT_FAILURE, "try --help");
                       break;
@@ -263,15 +268,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (cfg.command == CMD_FS20) {
-        if (argc - optind != 3)
-            errx(EXIT_FAILURE, "please specify fs20 paramters!");
-
-        fs20_options.housecode = strtol(argv[optind+0], NULL, 16);
-        fs20_options.address = strtol(argv[optind+1], NULL, 16);
-        fs20_options.command = strtol(argv[optind+2], NULL, 16);
-
-        VERBOSE_PRINTF("fs20 parameters: 0x%04x 0x%02x 0x%02x\n", fs20_options.housecode, fs20_options.address, fs20_options.command);
+    if (argc - optind > 0) {
+        cfg.argv = &argv[optind];
+        cfg.argc = argc - optind;
     }
 
     DEBUG_PRINTF("verbosity level is %d\n", cfg.verbose);
