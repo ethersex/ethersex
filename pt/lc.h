@@ -26,11 +26,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * This file is part of the uIP TCP/IP stack
- *
  * Author: Adam Dunkels <adam@sics.se>
  *
- * $Id: lc.h,v 1.2 2006/06/12 08:00:30 adam Exp $
+ * $Id: lc.h,v 1.2 2005/02/24 10:36:59 adam Exp $
  */
 
 /**
@@ -119,11 +117,12 @@
 #ifndef __LC_H__
 #define __LC_H__
 
-#ifdef LC_CONF_INCLUDE
-#include LC_CONF_INCLUDE
+
+#ifdef LC_INCLUDE
+#include LC_INCLUDE
 #else
 #include "lc-switch.h"
-#endif /* LC_CONF_INCLUDE */
+#endif /* LC_INCLUDE */
 
 #endif /* __LC_H__ */
 

@@ -26,11 +26,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * This file is part of the uIP TCP/IP stack
+ * This file is part of the Contiki operating system.
  *
  * Author: Adam Dunkels <adam@sics.se>
  *
- * $Id: lc-switch.h,v 1.2 2006/06/12 08:00:30 adam Exp $
+ * $Id: lc-switch.h,v 1.4 2006/06/03 11:29:43 adam Exp $
  */
 
 /**
@@ -55,7 +55,7 @@
  */
 
 #ifndef __LC_SWITCH_H__
-#define __LC_SWTICH_H__
+#define __LC_SWITCH_H__
 
 /* WARNING! lc implementation using switch() does not work if an
    LC_SET() is done within another switch() statement! */
