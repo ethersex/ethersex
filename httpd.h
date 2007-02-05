@@ -32,7 +32,7 @@
 #define HTTPD_ALTERNATE_PORT 8000
 #define HTTPD_TIMEOUT 100 /* in 200ms-steps */
 
-#define HTTPD_INDEX "index"
+#define HTTPD_INDEX "idx.h"
 
 /* prototypes */
 void httpd_init(void);
