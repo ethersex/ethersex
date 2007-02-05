@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "uip/pt.h"
+#include "pt/pt.h"
 #include "uip/psock.h"
 #include "httpd.h"
 #include "fs.h"

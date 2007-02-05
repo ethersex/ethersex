@@ -5,12 +5,14 @@ This program contains software by other authors:
 * the uIP tcp/ip stack, in the directory uip/ (see http://www.sics.se/~adam/uip),
   written by Adam Dunkels <adam@sics.se>
 
-* The protothreads library, in the directory uip/ by Adam Dunkels <adam@sics.se>
+* The protothreads library, in the directory pt/ by Adam Dunkels <adam@sics.se>
   and Oliver Schmidt <ol.sc@web.de>
 
 * The foodloader serial bootloader with specific enhancements for the
-  etherrape, in the directory bootloader/ see
-  http://www.lochraster.org/foodloader for more information
+  etherrape, in the directory bootloader/
+  written by Alexander Neumann <alexander@bumpern.de> and
+  Lars Noschinski <lars@public.noschinski.de>
+  see http://www.lochraster.org/foodloader for more information
 
 All other code should be licensed as GPL, see the file LICENSE in the main
 directory, but in doubt check the file header. Every file should contain a

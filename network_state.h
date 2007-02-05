@@ -24,7 +24,7 @@
 #define NETWORK_STATE_H
 
 #include "uip/psock.h"
-#include "uip/pt.h"
+#include "pt/pt.h"
 #include "ethcmd.h"
 #include "httpd_state.h"
 #include "sntp_state.h"

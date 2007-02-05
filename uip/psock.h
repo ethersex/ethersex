@@ -82,7 +82,7 @@
 #define __PSOCK_H__
 
 #include "uipopt.h"
-#include "pt.h"
+#include "../pt/pt.h"
 
  /*
  * The structure that holds the state of a buffer.
