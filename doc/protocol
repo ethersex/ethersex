@@ -28,8 +28,8 @@ length and subsystem (and data, of course).
 The subsystem field indicates the etherrape subsystem, which is adressed
 by this datagram, see below for a list.
 
-After directly after connecting to the server, the client MUST check the
-servers protocol version.
+After directly after connecting to the server, the client MUST request and
+check the servers protocol version.
 
 
 
