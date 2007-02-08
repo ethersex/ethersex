@@ -50,8 +50,8 @@ const struct option longopts[] = {
 /* module-local prototypes */
 void print_usage(void);
 int connect_host(char *host, int port);
-void send_message(struct ethcmd_message_t *msg);
-void parse_message(struct ethcmd_message_t *msg);
+void send_message(struct ethcmd_msg_t *msg);
+void parse_message(struct ethcmd_msg_t *msg);
 void request_procotol_version(void);
 void parse_commands(void);
 
@@ -114,53 +114,53 @@ int connect_host(char *host, int port)
 
 } /* }}} */
 
-void send_message(struct ethcmd_message_t *msg)
+void send_message(struct ethcmd_msg_t *msg)
 /* {{{ */ {
 
     DEBUG_PRINTF("send_message: writing data: ");
 #   ifdef DEBUG
     char *p = (char *)msg;
-    for (int i = 0; i < ntohs(msg->length); i++) {
+    for (int i = 0; i < sizeof(struct ethcmd_msg_t); i++) {
         printf(" %02x", *p++);
     }
 
     printf("\n");
 
-    int len = write(cfg.sock, msg, ntohs(msg->length));
+    int len = write(cfg.sock, msg, sizeof(struct ethcmd_msg_t));
 
 #   else
-    write(cfg.sock, msg, ntohs(msg->length));
+    write(cfg.sock, msg, sizeof(struct ethctmd_msg_t));
 #   endif
 
     DEBUG_PRINTF("send_message: wrote %d bytes\n", len);
 
 }  /* }}} */
 
-void parse_message(struct ethcmd_message_t *msg)
+void parse_message(struct ethcmd_msg_t *msg)
 /* {{{ */ {
 
-    DEBUG_PRINTF("parse_message: length %d, subsystem %d, data: ", ntohs(msg->length), ntohs(msg->subsystem));
-#   ifdef DEBUG
-    char *p = (char *)msg->data;
-    for (int i = 0; i < ntohs(msg->length) - sizeof(struct ethcmd_message_t); i++) {
-        printf(" %02x", *p++);
-    }
+    DEBUG_PRINTF("parse_message: subsystem %d\n", msg->sys);
 
-    printf("\n");
-#   endif
+    switch (msg->sys) {
 
-    switch (ntohs(msg->subsystem)) {
+        case ETHCMD_SYS_VERSION:  {
+                                      struct ethcmd_msg_version_t *v = (struct ethcmd_msg_version_t *)msg;
+                                      VERBOSE_PRINTF("server speaks protocol version %d.%d\n", v->major, v->minor);
+                                      VERBOSE_PRINTF("sending command\r");
+                                      parse_commands();
+                                      break;
+                                  }
 
-        case ETHCMD_SUBSYSTEM_VERSION:
-                                        VERBOSE_PRINTF("server speaks protocol version %d.%d\n", msg->data[1], msg->data[2]);
-                                        VERBOSE_PRINTF("sending command\r");
-                                        parse_commands();
-
-                                        break;
+        case ETHCMD_SYS_RESPONSE: {
+                                      struct ethcmd_response_t *r = (struct ethcmd_response_t *)msg;
+                                      VERBOSE_PRINTF("received response from system %d, status: %d\n", r->old_sys, r->status);
+                                      parse_commands();
+                                      break;
+                                  }
 
         default:
-                                        warn("parse_message: unknown subsystem %d", ntohl(msg->subsystem));
-                                        break;
+                                  warn("parse_message: unknown subsystem %d", msg->sys);
+                                  break;
 
     }
 
@@ -170,23 +170,29 @@ void request_procotol_version(void)
 /* {{{ */ {
 
     /* build protocol request message */
-    struct ethcmd_message_t *msg = malloc(sizeof(struct ethcmd_message_t));
+    struct ethcmd_msg_version_t *v = malloc(sizeof(struct ethcmd_msg_version_t));
 
-    if (msg == NULL)
+    if (v == NULL)
         errx(EXIT_FAILURE, "malloc()");
 
-    msg->length = htons(sizeof(struct ethcmd_message_t) + 1);
-    msg->subsystem = htons(ETHCMD_SUBSYSTEM_VERSION);
-    msg->data[0] = ETHCMD_REQUEST_VERSION;
+    v->sys = ETHCMD_SYS_VERSION;
+    v->cmd = ETHCMD_VERSION_REQUEST;
 
-    send_message(msg);
+    send_message((struct ethcmd_msg_t *)v);
 
-    free(msg);
+    free(v);
 
 } /* }}} */
 
 void parse_commands(void)
 /* {{{ */ {
+
+    VERBOSE_PRINTF("parsing %d arguments\n", cfg.argc);
+
+    if (cfg.argc == 0) {
+        VERBOSE_PRINTF("nothing to do, exiting\n");
+        exit(EXIT_SUCCESS);
+    }
 
     for (int i = 0; i < cfg.argc; i++)
         DEBUG_PRINTF("argument: \"%s\"\n", cfg.argv[i]);
@@ -198,26 +204,47 @@ void parse_commands(void)
 
         VERBOSE_PRINTF("sending fs20 command\n");
 
-        struct ethcmd_fs20_packet_t *packet = malloc(sizeof(struct ethcmd_fs20_packet_t));
+        struct ethcmd_msg_fs20_t *msg = malloc(sizeof(struct ethcmd_msg_fs20_t));
 
-        if (packet == NULL)
+        if (msg == NULL)
             errx(EXIT_FAILURE, "malloc()");
 
-        packet->msg.length = htons(sizeof(struct ethcmd_fs20_packet_t) + 1);
-        packet->msg.subsystem = htons(ETHCMD_MESSAGE_TYPE_FS20);
-        packet->payload.command = ETHCMD_FS20_SEND;
-        packet->payload.fs20_housecode = htons(strtol(cfg.argv[1], NULL, 16));
-        packet->payload.fs20_address = strtol(cfg.argv[2], NULL, 16);
-        packet->payload.fs20_command = strtol(cfg.argv[3], NULL, 16);
+        msg->sys = ETHCMD_SYS_FS20;
+        msg->cmd = ETHCMD_FS20_SEND;
+        msg->housecode = htons(strtol(cfg.argv[1], NULL, 16));
+        msg->address = strtol(cfg.argv[2], NULL, 16);
+        msg->command = strtol(cfg.argv[3], NULL, 16);
+
+        cfg.argv = &cfg.argv[4];
+        cfg.argc -= 4;
 
         VERBOSE_PRINTF("fs20 parameters: 0x%04x 0x%02x 0x%02x\n",
-                packet->payload.fs20_housecode,
-                packet->payload.fs20_address,
-                packet->payload.fs20_command);
+                msg->housecode,
+                msg->address,
+                msg->command);
 
-        send_message((struct ethcmd_message_t *)packet);
+        send_message((struct ethcmd_msg_t *)msg);
 
-        free(packet);
+        free(msg);
+    } else if (strncasecmp(cfg.argv[0], "onewire_list", strlen("onewire_list")) == 0) {
+
+        VERBOSE_PRINTF("requesting onewire device id list\n");
+        VERBOSE_PRINTF("(not implemented yet)\n");
+
+        cfg.argv = &cfg.argv[1];
+        cfg.argc -= 1;
+
+    } else if (strncasecmp(cfg.argv[0], "file_upload", strlen("file_upload")) == 0) {
+
+        if (cfg.argc < 3)
+            errx(1, "need more parameters for fs20_send: housecode address command");
+
+        VERBOSE_PRINTF("requesting onewire device id list\n");
+        VERBOSE_PRINTF("(not implemented yet)\n");
+
+        cfg.argv = &cfg.argv[1];
+        cfg.argc -= 1;
+
     } else
         errx(1, "unknown command: \"%s\"", cfg.argv[0]);
 
@@ -298,12 +325,8 @@ int main(int argc, char *argv[])
                 if (len > 0) {
                     VERBOSE_PRINTF("received %d bytes\n", len);
 
-                    struct ethcmd_message_t *msg = (struct ethcmd_message_t *)receive_buffer;
-
-                    if (ntohs(msg->length) != len)
-                        printf("packet with invalid length received!\n");
-                    else
-                        parse_message(msg);
+                    struct ethcmd_msg_t *msg = (struct ethcmd_msg_t *)receive_buffer;
+                    parse_message(msg);
                 } else if (len < 0)
                     errx(EXIT_FAILURE, "read()");
                 else {

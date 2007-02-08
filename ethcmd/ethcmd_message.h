@@ -27,33 +27,51 @@
 
 #define packed __attribute__ ((__packed__))
 
-#define ETHCMD_MESSAGE_TYPE_VERSION 0x0000
-#define ETHCMD_MESSAGE_TYPE_ONEWIRE 0x0005
-#define ETHCMD_MESSAGE_TYPE_FS20 0x0006
-#define ETHCMD_REQUEST_VERSION 0x00
-#define ETHCMD_SEND_VERSION 0x01
-#define ETHCMD_FS20_SEND 0x01
-
-struct ethcmd_message_t {
-    uint16_t length;
-    uint16_t subsystem;
-    uint8_t data[];
+enum ethcmd_subsystem_t {
+    ETHCMD_SYS_VERSION = 0x00,
+    ETHCMD_SYS_ONEWIRE = 0x05,
+    ETHCMD_SYS_FS20 = 0x06,
+    ETHCMD_SYS_STORAGE = 0x07,
+    ETHCMD_SYS_RESPONSE = 0xff,
 } packed;
 
-struct ethcmd_onewire_message_t {
-    uint8_t id[8];
+enum ethcmd_version_cmd_t {
+    ETHCMD_VERSION_REQUEST = 0x00,
+    ETHCMD_VERSION_REPLY = 0x01,
 } packed;
 
-struct ethcmd_fs20_message_t {
+enum ethcmd_fs20_cmd_t {
+    ETHCMD_FS20_SEND = 0x00,
+} packed;
+
+
+struct ethcmd_msg_t {
+    enum ethcmd_subsystem_t sys;
+    uint8_t reserved[7];
+} packed;
+
+struct ethcmd_response_t {
+    enum ethcmd_subsystem_t sys;
+    enum ethcmd_subsystem_t old_sys;
+    uint8_t status;
+    uint8_t reserved[5];
+} packed;
+
+struct ethcmd_msg_version_t {
+    enum ethcmd_subsystem_t sys;
+    enum ethcmd_version_cmd_t cmd;
+    uint8_t major;
+    uint8_t minor;
+    uint8_t reserved[4];
+} packed;
+
+struct ethcmd_msg_fs20_t {
+    enum ethcmd_subsystem_t sys;
+    enum ethcmd_fs20_cmd_t cmd;
+    uint16_t housecode;
+    uint8_t address;
     uint8_t command;
-    uint16_t fs20_housecode;
-    uint8_t fs20_address;
-    uint8_t fs20_command;
-} packed;
-
-struct ethcmd_fs20_packet_t {
-    struct ethcmd_message_t msg;
-    struct ethcmd_fs20_message_t payload;
+    uint8_t reserved[2];
 } packed;
 
 #endif

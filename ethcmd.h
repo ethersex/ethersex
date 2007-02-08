@@ -27,13 +27,18 @@
 #include "ethcmd/ethcmd_message.h"
 #include "pt/pt.h"
 
-#define ETHCMD_BUFSIZE 30
+#define ETHCMD_BUFSIZE 10
 
 struct ethcmd_connection_state_t {
     uint8_t timeout;
     union {
         char buffer[ETHCMD_BUFSIZE];
-        struct ethcmd_message_t msg;
+        union {
+            struct ethcmd_msg_t raw;
+            struct ethcmd_msg_version_t version;
+            struct ethcmd_msg_fs20_t fs20;
+            struct ethcmd_response_t response;
+        } msg;
     };
     uint8_t fill;
     uint16_t data_length;

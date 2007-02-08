@@ -85,97 +85,70 @@ static PT_THREAD(ethcmd_handle(struct ethcmd_connection_state_t *state))
 
         /* wait until enough bytes have been received */
         state->fill = 0;
-        PT_SPAWN(&state->pt, &state->datapt, ethcmd_readbytes(state, sizeof(struct ethcmd_message_t)));
+        PT_SPAWN(&state->pt, &state->datapt, ethcmd_readbytes(state, sizeof(struct ethcmd_msg_t)));
 
         /* check message type */
 #ifdef DEBUG_ETHCMD
         uart_puts_P("cmd: subsystem: 0x");
-        uart_puthexbyte(LO8(state->msg.subsystem));
-        uart_puthexbyte(HI8(state->msg.subsystem));
-        uart_puts_P(", length: 0x");
-        uart_puthexbyte(LO8(state->msg.length));
-        uart_puthexbyte(HI8(state->msg.length));
-        uart_puts_P(", still in uip_appdata: 0x");
-        uart_puthexbyte(HI8(state->data_length));
-        uart_puthexbyte(LO8(state->data_length));
+        uart_puthexbyte(state->msg.raw.sys);
         uart_eol();
-
-        //uip_close();
 #endif
 
-        /* version request */
-        if (state->msg.subsystem == HTONS(ETHCMD_MESSAGE_TYPE_VERSION)) {
-#ifdef DEBUG_ETHCMD
-            uart_puts_P("cmd: sending version reply\r\n");
-#endif
-            state->msg.data[0] = ETHCMD_SEND_VERSION;
-            state->msg.data[1] = ETHCMD_PROTOCOL_MAJOR;
-            state->msg.data[2] = ETHCMD_PROTOCOL_MINOR;
-            state->msg.length = HTONS(sizeof(struct ethcmd_message_t)+3);
+        if (state->msg.raw.sys == ETHCMD_SYS_VERSION &&
+            state->msg.version.cmd == ETHCMD_VERSION_REQUEST) {
 
 #ifdef DEBUG_ETHCMD
-            uart_puts_P("cmd: sending bytes: 0x");
-            uart_puthexbyte(sizeof(struct ethcmd_message_t)+3);
+            uart_puts_P("cmd: version request\r\n");
+#endif
+            /* reply with version information */
+            state->msg.version.cmd = ETHCMD_VERSION_REPLY;
+            state->msg.version.major = ETHCMD_PROTOCOL_MAJOR;
+            state->msg.version.minor = ETHCMD_PROTOCOL_MINOR;
+
+        } else if (state->msg.raw.sys == ETHCMD_SYS_FS20 &&
+            state->msg.fs20.cmd == ETHCMD_FS20_SEND) {
+
+#ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: sending fs20 command: ");
+            uart_puthexbyte(HI8(NTOHS(state->msg.fs20.housecode)));
+            uart_puthexbyte(LO8(NTOHS(state->msg.fs20.housecode)));
+            uart_putc(' ');
+            uart_puthexbyte(state->msg.fs20.address);
+            uart_putc(' ');
+            uart_puthexbyte(state->msg.fs20.command);
             uart_eol();
 #endif
 
-            uip_send(state->buffer, sizeof(struct ethcmd_message_t)+3);
+            fs20_send(NTOHS(state->msg.fs20.housecode), state->msg.fs20.address, state->msg.fs20.command);
 
-            while(1) {
+            /* reply with status 0 */
+            state->msg.response.sys = ETHCMD_SYS_RESPONSE;
+            state->msg.response.old_sys = ETHCMD_SYS_FS20;
+            state->msg.response.status = 0;
 
-                if (uip_rexmit()) {
-                    uip_send(state->buffer, sizeof(struct ethcmd_message_t)+3);
+        } else {
 #ifdef DEBUG_ETHCMD
-                    uart_puts_P("cmd: retransmitting...\r\n");
+            uart_puts_P("cmd: invalid request, aborting\r\n");
 #endif
-                }
-
-                if (uip_acked())
-                    break;
-
-                PT_YIELD(&state->pt);
-            }
-
-#ifdef DEBUG_ETHCMD
-            uart_puts_P("cmd: done sending version request\r\n");
-#endif
-
-        } else if (state->msg.subsystem == HTONS(ETHCMD_MESSAGE_TYPE_FS20)) {
-#ifdef DEBUG_ETHCMD
-            uart_puts_P("cmd: fs20 request\r\n");
-#endif
-
-            /* convert length */
-            state->msg.length = HTONS(state->msg.length);
-
-            if (state->msg.length >= sizeof(struct ethcmd_message_t)+
-                                     sizeof(struct ethcmd_fs20_message_t)) {
-                struct ethcmd_fs20_message_t *m = uip_appdata;
-#ifdef DEBUG_ETHCMD
-                uart_puts_P("cmd: command 0x");
-                uart_puthexbyte(m->command);
-                uart_putc(' ');
-                uart_puthexbyte(LO8(m->fs20_housecode));
-                uart_puthexbyte(HI8(m->fs20_housecode));
-                uart_putc(' ');
-                uart_puthexbyte(m->fs20_address);
-                uart_putc(' ');
-                uart_puthexbyte(m->fs20_command);
-                uart_eol();
-#endif
-
-                if (m->command == ETHCMD_FS20_SEND) {
-#ifdef DEBUG_ETHCMD
-                    uart_puts_P("cmd: sending fs20 command\r\n");
-#endif
-                    fs20_send(NTOHS(m->fs20_housecode), m->fs20_address, m->fs20_command);
-                }
-
-            }
-
+            PT_EXIT(&state->pt);
         }
 
+        uip_send(state->buffer, sizeof(struct ethcmd_msg_t));
 
+        while(1) {
+
+            if (uip_rexmit()) {
+                uip_send(state->buffer, sizeof(struct ethcmd_msg_t));
+#ifdef DEBUG_ETHCMD
+                uart_puts_P("cmd: retransmitting...\r\n");
+#endif
+            }
+
+            if (uip_acked())
+                break;
+
+            PT_YIELD(&state->pt);
+        }
 
         PT_YIELD(&state->pt);
     }

@@ -8,73 +8,76 @@ version SHOULD retain compatibility, on both, server and client side.
 Protocol versions with different major number are incompatible.
 
 After establishing the connection, the etherrape and the client can exchange
-message datagrams.  A datagram consists of a length and a sysbsystem field,
-followed by the actual contents of the datagram.  The contents of the
-datagram is interpreted according to the subsystem field.  All integer
-values MUST be transmitted in network byte-order (=big endian).
-
-Datagram schematic:
+message datagrams.  A message datagram has fixed length of 8 bytes:
 
 | <-                            32 bit                             ->|
 +--------------------------------------------------------------------+
-|     datagram length (16bit)     |       subsystem (16bit)          |
+| subsystem (8bit) | command (8bit) |          parms (rest)          |
 +--------------------------------------------------------------------+
-|                           ... data ...                             |
+|                         ...parameters...                           |
 +--------------------------------------------------------------------+
 
-Length is the number of bytes in the whole datagram, including the bytes for
-length and subsystem (and data, of course).
+Some commands may sepecify that more data follows (eg. for uploading files).
 
-The subsystem field indicates the etherrape subsystem, which is adressed
-by this datagram, see below for a list.
-
-After directly after connecting to the server, the client MUST request and
-check the servers protocol version.
-
-
-
-
-Subsystem list:
-
-0x0000           request/send protocol version information
-0x0001           error handling
-0x0005           onewire bus control (discover, get, set, ...)
-0x0006           fs20 control (send, ...)
-
-
-subsystem 0x0000 (protocol version information)
-===============================================
-
-A client can request information about the implemented etherrape commandline
-protocol versions by adressing subsystem 0.  The first byte in the data
-string is interpreted as a command:
+Each message datagram (command) triggers a response datagram, when no other
+response datagram is specified in the subsystem:
 
 | <-                            32 bit                             ->|
 +--------------------------------------------------------------------+
-|  command (8bit)  |          .... data ....                         |
+| subsystem (8bit) | old_subsys (8bit) | status (8bit) | don't care  |
++--------------------------------------------------------------------+
+|                             don't care                             |
 +--------------------------------------------------------------------+
 
-Commands:
----------
-0x00    request implemented protocol version (client->server)
-0x01    send implemented protocol version (server->client), the data
-        contains two additional bytes representing the servers major and
-        minor protocol version number
+Where status is either 0 (everything ok, command execution done) or nonzero
+to signal different, subsystem-specific error conditions.
+
+subsystems
+==========
+
+0x00 version information
+0x05 onewire communication
+0x06 fs20
+0x07 file storage
+0xff default response
 
 
-subsystem 0x0006 (fs20 control)
-===============================================
+version information
+===================
 
-A client can send fs20 commands by sending data in the format:
+commands (request):
+0x00 request version (no parameters)
 
-| <-                            32 bit                             ->|
-+--------------------------------------------------------------------+
-|  command (8bit)   |  fs20 house code (16bit) | fs20 address (8bit) |
-|  fs20 command (8bit)  |                                            |
-+--------------------------------------------------------------------+
+commands (response):
+0x01 send version, parameters: major (8bit), minor (8bit)
 
-Commands:
----------
-0x01    send fs20 command
 
-vim:tw=76
+onewire communication
+=====================
+
+commands (request):
+0x00 request onewire discover (no parameters)
+
+commands (response):
+0x01 send next onewire id, parameters: status (8bit)
+     status: 0: more ids follow
+             1: last id reached
+     followed by 8 byte additional data, containing the onewire id
+
+
+fs20
+====
+
+commands (request):
+0x00 send fs20 command, parameters: housecode (16bit), address (8bit), command (8bit)
+
+
+file storage
+============
+
+commands (request):
+0x00 request directory listing, parameters: length (8bit)
+     followed by length bytes directory name
+0x01 upload file, parameters: filename length (8bit),
+                              data length (32bit)
+     followed by the filename and the data
