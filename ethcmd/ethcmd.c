@@ -129,7 +129,7 @@ void send_message(struct ethcmd_msg_t *msg)
     int len = write(cfg.sock, msg, sizeof(struct ethcmd_msg_t));
 
 #   else
-    write(cfg.sock, msg, sizeof(struct ethctmd_msg_t));
+    write(cfg.sock, msg, sizeof(struct ethcmd_msg_t));
 #   endif
 
     DEBUG_PRINTF("send_message: wrote %d bytes\n", len);
