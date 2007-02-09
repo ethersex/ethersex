@@ -26,8 +26,9 @@
 #include <stdint.h>
 #include "ethcmd/ethcmd_message.h"
 #include "pt/pt.h"
+#include "fs.h"
 
-#define ETHCMD_BUFSIZE 10
+#define ETHCMD_BUFSIZE 20
 
 struct ethcmd_connection_state_t {
     uint8_t timeout;
@@ -37,9 +38,12 @@ struct ethcmd_connection_state_t {
             struct ethcmd_msg_t raw;
             struct ethcmd_msg_version_t version;
             struct ethcmd_msg_fs20_t fs20;
+            struct ethcmd_msg_storage_t storage;
             struct ethcmd_response_t response;
         } msg;
     };
+    fs_index_t fs_index;
+    fs_status_t fs_status;
     uint8_t fill;
     uint16_t data_length;
     struct pt pt, datapt;

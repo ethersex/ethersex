@@ -20,6 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdint.h>
 #include <getopt.h>
@@ -234,13 +235,49 @@ void parse_commands(void)
         cfg.argv = &cfg.argv[1];
         cfg.argc -= 1;
 
-    } else if (strncasecmp(cfg.argv[0], "file_upload", strlen("file_upload")) == 0) {
+    } else if (strncasecmp(cfg.argv[0], "storage_list", strlen("storage_list")) == 0) {
 
-        if (cfg.argc < 3)
-            errx(1, "need more parameters for fs20_send: housecode address command");
+        VERBOSE_PRINTF("requesting storage file list\n");
 
-        VERBOSE_PRINTF("requesting onewire device id list\n");
-        VERBOSE_PRINTF("(not implemented yet)\n");
+        struct ethcmd_msg_storage_t *msg = malloc(sizeof(struct ethcmd_msg_storage_t));
+
+        if (msg == NULL)
+            errx(EXIT_FAILURE, "malloc()");
+
+        msg->sys = ETHCMD_SYS_STORAGE;
+        msg->cmd = ETHCMD_STORAGE_LIST;
+
+        send_message((struct ethcmd_msg_t *)msg);
+
+        char *filename = malloc(10);
+
+        if (filename == NULL)
+            errx(EXIT_FAILURE, "malloc()");
+
+        do {
+
+            int len;
+
+            len = read(cfg.sock, filename, 7);
+
+            DEBUG_PRINTF("read %d bytes\n", len);
+
+            #ifdef DEBUG
+            printf("data: ");
+            for (int i = 0; i < len; i++) {
+                printf(" %02x", (unsigned char)filename[i]);
+            }
+            printf("\n");
+            #endif
+
+            if ( len < 7 || strlen(filename) == 0)
+                break;
+
+            printf(" * %s\n", filename);
+
+        } while (strnlen(filename, 10) > 0);
+
+        free(filename);
 
         cfg.argv = &cfg.argv[1];
         cfg.argc -= 1;
@@ -324,9 +361,17 @@ int main(int argc, char *argv[])
 
                 if (len > 0) {
                     VERBOSE_PRINTF("received %d bytes\n", len);
+#ifdef DEBUG
+                    printf("data: ");
+                    for (int i = 0; i < len; i++) {
+                        printf(" %x", (uint8_t)receive_buffer[i]);
+                    }
+                    printf("\n");
+#endif
 
                     struct ethcmd_msg_t *msg = (struct ethcmd_msg_t *)receive_buffer;
                     parse_message(msg);
+
                 } else if (len < 0)
                     errx(EXIT_FAILURE, "read()");
                 else {

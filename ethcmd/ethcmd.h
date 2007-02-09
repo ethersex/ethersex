@@ -60,7 +60,7 @@ extern struct global_config_t cfg;
 
 #ifdef DEBUG
 #define DEBUG_PRINTF(...) do {    \
-        printf("debug: ");        \
+        printf("\tdebug: ");        \
         printf(__VA_ARGS__);      \
     } while (0);
 #else

@@ -44,6 +44,11 @@ enum ethcmd_fs20_cmd_t {
     ETHCMD_FS20_SEND = 0x00,
 } packed;
 
+enum ethcmd_storage_cmd_t {
+    ETHCMD_STORAGE_LIST = 0x00,
+    ETHCMD_STORAGE_SEND = 0x01,
+} packed;
+
 
 struct ethcmd_msg_t {
     enum ethcmd_subsystem_t sys;
@@ -72,6 +77,13 @@ struct ethcmd_msg_fs20_t {
     uint8_t address;
     uint8_t command;
     uint8_t reserved[2];
+} packed;
+
+struct ethcmd_msg_storage_t {
+    enum ethcmd_subsystem_t sys;
+    enum ethcmd_version_cmd_t cmd;
+    uint8_t length;
+    uint8_t reserved[5];
 } packed;
 
 #endif
