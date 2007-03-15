@@ -44,6 +44,7 @@ struct ethcmd_connection_state_t {
     };
     fs_index_t fs_index;
     fs_status_t fs_status;
+    uint8_t filename[FS_FILENAME+1];
     uint8_t fill;
     uint16_t data_length;
     struct pt pt, datapt;

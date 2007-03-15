@@ -81,6 +81,8 @@ void print_rom_code(struct ow_rom_code_t *rom)
 } /* }}} */
 #endif
 
+uint16_t tone = 5000;
+
 void check_serial_input(uint8_t data)
 /* {{{ */ {
 
@@ -508,6 +510,26 @@ void check_serial_input(uint8_t data)
                     }
 
 #endif
+
+        case 'q':   {
+
+                        DDRD |= _BV(PD7);
+
+                        for (uint8_t i = 0; i < 150; i++) {
+                            PORTD ^= _BV(PD7);
+                            _delay_loop_2(tone);
+                        }
+
+                        PORTD &= ~_BV(PD7);
+                        DDRD &= ~_BV(PD7);
+
+                        break;
+                    }
+        case '<':   tone += 1000;
+                    break;
+
+        case '>':   tone -= 1000;
+                    break;
 
         default:    uart_putc('?');
                     break;

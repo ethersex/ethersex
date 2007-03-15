@@ -41,7 +41,7 @@ void ethcmd_init(void)
 
 } /* }}} */
 
-static PT_THREAD(ethcmd_readbytes(struct ethcmd_connection_state_t *state, uint16_t count))
+static PT_THREAD(ethcmd_readbytes(struct ethcmd_connection_state_t *state, void *buf, uint16_t count))
 /* {{{ */ {
 
     PT_BEGIN(&state->datapt);
@@ -56,12 +56,14 @@ static PT_THREAD(ethcmd_readbytes(struct ethcmd_connection_state_t *state, uint1
     while(1) {
         PT_WAIT_UNTIL(&state->datapt, uip_newdata());
 
+        uint8_t *b = (uint8_t *)buf;
+
         if (uip_datalen()+state->fill < count) {
-            memcpy(state->buffer+state->fill, uip_appdata, uip_datalen());
+            memcpy(b+state->fill, uip_appdata, uip_datalen());
             state->fill += uip_datalen();
             PT_YIELD(&state->datapt);
         } else {
-            memcpy(state->buffer+state->fill, uip_appdata, (count-state->fill));
+            memcpy(b+state->fill, uip_appdata, (count-state->fill));
             state->data_length = uip_datalen()-count+state->fill;
             state->fill = count;
             memmove((uint8_t *)uip_appdata,
@@ -88,7 +90,7 @@ static PT_THREAD(ethcmd_handle(struct ethcmd_connection_state_t *state))
 
         /* wait until enough bytes have been received */
         state->fill = 0;
-        PT_SPAWN(&state->pt, &state->datapt, ethcmd_readbytes(state, sizeof(struct ethcmd_msg_t)));
+        PT_SPAWN(&state->pt, &state->datapt, ethcmd_readbytes(state, &state->buffer, sizeof(struct ethcmd_msg_t)));
 
         /* check message type */
         #ifdef DEBUG_ETHCMD
@@ -189,6 +191,93 @@ static PT_THREAD(ethcmd_handle(struct ethcmd_connection_state_t *state))
             #ifdef DEBUG_ETHCMD
             uart_puts_P("cmd: listing done\r\n");
             #endif
+
+            /* reply with status 0 */
+            state->msg.response.sys = ETHCMD_SYS_RESPONSE;
+            state->msg.response.old_sys = ETHCMD_SYS_STORAGE;
+            state->msg.response.status = 0;
+
+        } else if (state->msg.raw.sys == ETHCMD_SYS_STORAGE &&
+            state->msg.fs20.cmd == ETHCMD_STORAGE_WRITE) {
+
+            #ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: receiving file, length 0x");
+            uart_puthexbyte(state->msg.storage.length);
+            uart_puts_P(", data_length 0x");
+            uart_puthexbyte((uint8_t)(state->msg.storage.data_length));
+            uart_puthexbyte((uint8_t)(state->msg.storage.data_length >> 8));
+            uart_puthexbyte((uint8_t)(state->msg.storage.data_length >> 16));
+            uart_puthexbyte((uint8_t)(state->msg.storage.data_length >> 24));
+            uart_eol();
+            #endif
+
+            PT_YIELD_UNTIL(&state->pt, 0);
+
+            /* read filename */
+            // state->filename[FS_FILENAME] = '\0';
+            // PT_SPAWN(&state->pt, &state->datapt, ethcmd_readbytes(state, &state->filename, FS_FILENAME));
+
+            #ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: filename is \"");
+            uart_puts(state->filename);
+            uart_puts_P("\"\r\n");
+            #endif
+
+#if 0
+            state->fs_index = 0;
+
+            while ( (state->fs_status = fs_list(&fs, NULL, state->buffer, state->fs_index++)) == FS_OK) {
+                state->buffer[FS_FILENAME] = '\0';
+
+                #ifdef DEBUG_ETHCMD
+                uart_puts_P("cmd: sending: \"");
+                uart_puts(state->buffer);
+                uart_puts_P("\"\r\n");
+                #endif
+
+                uip_send(state->buffer, FS_FILENAME+1);
+                PT_YIELD(&state->pt);
+
+                while (1) {
+
+                    if (uip_rexmit()) {
+                        uip_send(state->buffer, FS_FILENAME+1);
+                        #ifdef DEBUG_ETHCMD
+                        uart_puts_P("cmd: retransmit\r\n");
+                        #endif
+                    }
+
+                    if (uip_acked())
+                        break;
+
+                    PT_YIELD(&state->pt);
+                }
+
+            }
+
+            state->buffer[0] = '\0';
+            uip_send(state->buffer, FS_FILENAME+1);
+            PT_YIELD(&state->pt);
+
+            while (1) {
+
+                if (uip_rexmit()) {
+                    uip_send(state->buffer, FS_FILENAME+1);
+                    #ifdef DEBUG_ETHCMD
+                    uart_puts_P("cmd: retransmit\r\n");
+                    #endif
+                }
+
+                if (uip_acked())
+                    break;
+
+                PT_YIELD(&state->pt);
+            }
+
+            #ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: listing done\r\n");
+            #endif
+#endif
 
             /* reply with status 0 */
             state->msg.response.sys = ETHCMD_SYS_RESPONSE;

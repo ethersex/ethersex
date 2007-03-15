@@ -46,7 +46,7 @@ enum ethcmd_fs20_cmd_t {
 
 enum ethcmd_storage_cmd_t {
     ETHCMD_STORAGE_LIST = 0x00,
-    ETHCMD_STORAGE_SEND = 0x01,
+    ETHCMD_STORAGE_WRITE = 0x01,
 } packed;
 
 
@@ -83,7 +83,8 @@ struct ethcmd_msg_storage_t {
     enum ethcmd_subsystem_t sys;
     enum ethcmd_version_cmd_t cmd;
     uint8_t length;
-    uint8_t reserved[5];
+    uint32_t data_length;
+    uint8_t reserved;
 } packed;
 
 #endif

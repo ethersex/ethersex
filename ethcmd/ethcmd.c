@@ -33,6 +33,9 @@
 #include <string.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "ethcmd.h"
 
@@ -174,7 +177,7 @@ void request_procotol_version(void)
     struct ethcmd_msg_version_t *v = malloc(sizeof(struct ethcmd_msg_version_t));
 
     if (v == NULL)
-        errx(EXIT_FAILURE, "malloc()");
+        err(EXIT_FAILURE, "malloc()");
 
     v->sys = ETHCMD_SYS_VERSION;
     v->cmd = ETHCMD_VERSION_REQUEST;
@@ -208,7 +211,7 @@ void parse_commands(void)
         struct ethcmd_msg_fs20_t *msg = malloc(sizeof(struct ethcmd_msg_fs20_t));
 
         if (msg == NULL)
-            errx(EXIT_FAILURE, "malloc()");
+            err(EXIT_FAILURE, "malloc()");
 
         msg->sys = ETHCMD_SYS_FS20;
         msg->cmd = ETHCMD_FS20_SEND;
@@ -242,7 +245,7 @@ void parse_commands(void)
         struct ethcmd_msg_storage_t *msg = malloc(sizeof(struct ethcmd_msg_storage_t));
 
         if (msg == NULL)
-            errx(EXIT_FAILURE, "malloc()");
+            err(EXIT_FAILURE, "malloc()");
 
         msg->sys = ETHCMD_SYS_STORAGE;
         msg->cmd = ETHCMD_STORAGE_LIST;
@@ -252,15 +255,13 @@ void parse_commands(void)
         char *filename = malloc(10);
 
         if (filename == NULL)
-            errx(EXIT_FAILURE, "malloc()");
+            err(EXIT_FAILURE, "malloc()");
 
         do {
 
             int len;
 
             len = read(cfg.sock, filename, 7);
-
-            DEBUG_PRINTF("read %d bytes\n", len);
 
             #ifdef DEBUG
             printf("data: ");
@@ -281,6 +282,70 @@ void parse_commands(void)
 
         cfg.argv = &cfg.argv[1];
         cfg.argc -= 1;
+
+    } else if (strncasecmp(cfg.argv[0], "storage_write", strlen("storage_write")) == 0) {
+
+        if (cfg.argc < 2)
+            errx(1, "need more parameters for storage_write: filename");
+
+        char *filename = cfg.argv[1];
+        int fd;
+
+        VERBOSE_PRINTF("sending file \"%s\"\n", filename);
+
+        if ( (fd = open(filename, O_RDONLY)) < 0)
+            err(EXIT_FAILURE, "cannot open file \"%s\"", filename);
+
+        DEBUG_PRINTF("successfully opened \"%s\"\n", filename);
+
+        struct stat s;
+
+        if ( fstat(fd, &s) < 0)
+            err(EXIT_FAILURE, "stat failed");
+
+        int size = (int)s.st_size;
+
+        DEBUG_PRINTF("filesize is %d bytes\n", size);
+
+        struct ethcmd_msg_storage_t *msg = malloc(sizeof(struct ethcmd_msg_storage_t));
+
+        if (msg == NULL)
+            err(EXIT_FAILURE, "malloc()");
+
+        msg->sys = ETHCMD_SYS_STORAGE;
+        msg->cmd = ETHCMD_STORAGE_WRITE;
+        msg->length = strlen(filename);
+        msg->data_length = htonl(size);
+
+        send_message((struct ethcmd_msg_t *)msg);
+
+        write(cfg.sock, filename, strlen(filename));
+
+        void *buf = malloc(200);
+
+        if (buf == NULL)
+            err(EXIT_FAILURE, "malloc()");
+
+        int pos = 0;
+
+        while ( pos < size ) {
+
+            int b;
+
+            if (size-pos > 200)
+                b = 200;
+            else
+                b = size-pos;
+
+            read(fd, buf, b);
+            // write(cfg.sock, buf, b);
+            pos += b;
+
+        }
+
+        DEBUG_PRINTF("done sending data\n");
+
+        close(fd);
 
     } else
         errx(1, "unknown command: \"%s\"", cfg.argv[0]);
