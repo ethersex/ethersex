@@ -105,6 +105,8 @@ main(int argc, char* argv[])
         printf("You may now plug in the target device.\n");
 
         for(;;) {
+            usleep(2000);
+
             /* write the character to enter bootloader */
             if(write(fd, w, 1) < 1) {
 
