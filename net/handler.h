@@ -20,28 +20,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef NETWORK_STATE_H
-#define NETWORK_STATE_H
+#ifndef _NETWORK_HANDLER_H
+#define _NETWORK_HANDLER_H
 
-#include "uip/psock.h"
-#include "pt/pt.h"
-#include "ethcmd.h"
-#include "httpd_state.h"
-#include "sntp_state.h"
-#include "syslog_state.h"
-#include "fc_state.h"
+/* handle tcp connections */
+void network_handle_tcp(void);
 
-/* uip appstate */
-typedef union uip_tcp_connection_state {
-    struct ethcmd_connection_state_t ethcmd;
-    struct httpd_connection_state_t httpd;
-} uip_tcp_appstate_t;
-
-/* attention: first byte MUST be transmit_state! */
-typedef union uip_udp_connection_state {
-    struct sntp_connection_state_t sntp;
-    struct syslog_connection_state_t syslog;
-    struct fc_connection_state_t fc;
-} uip_udp_appstate_t;
+/* handle udp connections */
+void network_handle_udp(void);
 
 #endif

@@ -23,31 +23,28 @@
 #include <avr/eeprom.h>
 #include <util/crc16.h>
 #include <string.h>
+#include <avr/pgmspace.h>
 
 #include "network.h"
 #include "config.h"
-#include "uart.h"
 #include "eeprom.h"
-#include "sntp.h"
-#include "syslog.h"
-#include "ethcmd.h"
-#include "httpd.h"
-#include "crc.h"
-#include "fc.h"
+#include "bit-macros.h"
+
+#include "debug.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 
 #ifndef ENC28J60_POLL
-#define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
-#define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
+    #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
+    #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
 #else
-#define interrupt_occured() 0
-#define wol_interrupt_occured() 0
+    #define interrupt_occured() 0
+    #define wol_interrupt_occured() 0
 #endif
 
-#define BASE_CONFIG ((struct eeprom_config_base_t *)uip_buf)
-#define EXT_CONFIG ((struct eeprom_config_ext_t *)uip_buf)
+/* prototypes */
+uint8_t crc_checksum(void *data, uint8_t length);
 
 void network_init(void)
 /* {{{ */ {
@@ -59,7 +56,7 @@ void network_init(void)
 
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
-    uart_puts_P("net: loading base network settings\r\n");
+    debug_print("net: loading base network settings\n");
 #   endif
 
     /* use global network packet buffer for configuration */
@@ -68,13 +65,11 @@ void network_init(void)
     /* checksum */
     uint8_t checksum = crc_checksum(uip_buf, sizeof(struct eeprom_config_base_t) - 1);
 
-    if (checksum != BASE_CONFIG->crc) {
+    struct eeprom_config_base_t *base = (struct eeprom_config_base_t *)uip_buf;
+
+    if (checksum != base->crc) {
 #       ifdef DEBUG
-        uart_puts_P("net: crc mismatch: 0x");
-        uart_puthexbyte(checksum);
-        uart_puts_P(" != 0x");
-        uart_puthexbyte(BASE_CONFIG->crc);
-        uart_puts_P(" loading default settings\r\n");
+        debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n", checksum, base->crc);
 #       endif
 
         memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
@@ -85,29 +80,27 @@ void network_init(void)
     } else {
 
         /* load config settings */
-        memcpy(uip_ethaddr.addr, &BASE_CONFIG->mac, 6);
-        memcpy(&ipaddr, &BASE_CONFIG->ip, 4);
+        memcpy(uip_ethaddr.addr, &base->mac, 6);
+        memcpy(&ipaddr, &base->ip, 4);
         uip_sethostaddr(ipaddr);
-        memcpy(&ipaddr, &BASE_CONFIG->netmask, 4);
+        memcpy(&ipaddr, &base->netmask, 4);
         uip_setnetmask(ipaddr);
-        memcpy(&ipaddr, &BASE_CONFIG->gateway, 4);
+        memcpy(&ipaddr, &base->gateway, 4);
         uip_setdraddr(ipaddr);
-
-#       ifdef DEBUG_NET_CONFIG
-        uart_puts_P("config: ip: ");
-        uart_puts_ip(&uip_hostaddr);
-        uart_putc('/');
-        uart_puts_ip(&uip_netmask);
-        uart_puts_P(" gw: ");
-        uart_puts_ip(&uip_draddr);
-        uart_eol();
-#       endif
 
     }
 
+#   ifdef DEBUG_NET_CONFIG
+    debug_printf("ip: %d.%d.%d.%d/%d.%d.%d.%d, gw: %d.%d.%d.%d\n",
+                            LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
+                            LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
+                            LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
+#   endif
+
+
     /* load extended network settings */
 #   ifdef DEBUG_NET_CONFIG
-    uart_puts_P("net: loading extended network settings\r\n");
+    debug_print("net: loading extended network settings\n");
 #   endif
 
     /* use global network packet buffer for configuration */
@@ -116,27 +109,27 @@ void network_init(void)
     /* checksum */
     checksum = crc_checksum(uip_buf, sizeof(struct eeprom_config_ext_t) - 1);
 
+#if 0
+    FIXME XXX
     if (checksum != EXT_CONFIG->crc) {
 #ifdef DEBUG
-        uart_puts_P("net: crc mismatch: 0x");
-        uart_puthexbyte(checksum);
-        uart_puts_P(" != 0x");
-        uart_puthexbyte(EXT_CONFIG->crc);
-        uart_eol();
+        debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n", checksum, BASE_CONFIG->crc);
 #endif
 
-        memset(&sntp_server, 0, sizeof(sntp_server));
-        memset(&global_syslog.server, 0, sizeof(global_syslog.server));
-        global_syslog.enabled = 0;
+        // FIXME XXX
+        //memset(&sntp_server, 0, sizeof(sntp_server));
+        //memset(&global_syslog.server, 0, sizeof(global_syslog.server));
+        //global_syslog.enabled = 0;
 
     } else {
 
-        memcpy(&sntp_server, &EXT_CONFIG->sntp_server, 4);
-        sntp_synchronize();
-
-        /* syslog-server */
-        memcpy(&global_syslog.server, &EXT_CONFIG->syslog_server, 4);
-        global_syslog.enabled = 1;
+        // FIXME XXX
+        //memcpy(&sntp_server, &EXT_CONFIG->sntp_server, 4);
+        //sntp_synchronize();
+        //
+        ///* syslog-server */
+        //memcpy(&global_syslog.server, &EXT_CONFIG->syslog_server, 4);
+        //global_syslog.enabled = 1;
 
 #       ifdef DEBUG_NET_CONFIG
         uart_puts_P("ext config: sntp: ");
@@ -147,11 +140,13 @@ void network_init(void)
 #       endif
 
     }
+#endif
 
     init_enc28j60();
 
-    ethcmd_init();
-    httpd_init();
+    // FIXME
+    //ethcmd_init();
+    //httpd_init();
 
 } /* }}} */
 
@@ -216,13 +211,11 @@ void enc28j60_process_interrupts(void)
 
 #ifdef DEBUG
             if (link_state) {
-                uart_puts_P("net: got link!\r\n");
+                debug_print("net: got link!\n");
             } else
-                uart_puts_P("net: no link!\r\n");
+                debug_print("net: no link!\n");
 #endif
 
-            if (link_state)
-                syslog_message_P("etherrape booted");
         }
 
         /* packet transmit flag */
@@ -253,7 +246,7 @@ void enc28j60_process_interrupts(void)
             uint8_t ESTAT = read_control_register(REG_ESTAT);
 
             if (ESTAT & _BV(TXABRT))
-                uart_puts_P("net: packet transmit failed\r\n");
+                debug_print("net: packet transmit failed\n");
 #endif
             /* clear flags */
             bit_field_clear(REG_EIR, _BV(TXIF));
@@ -268,7 +261,7 @@ void enc28j60_process_interrupts(void)
 
         /* receive error */
         if (EIR & _BV(RXERIF)) {
-            uart_puts_P("net: receive error!\r\n");
+            debug_print("net: receive error!\n");
 
             bit_field_clear(REG_EIR, _BV(RXERIF));
 
@@ -281,7 +274,7 @@ void enc28j60_process_interrupts(void)
         /* transmit error */
         if (EIR & _BV(TXERIF)) {
 #ifdef DEBUG
-            uart_puts_P("net: transmit error!\r\n");
+            debug_print("net: transmit error!\n");
 #endif
 
             bit_field_clear(REG_EIR, _BV(TXERIF));
@@ -321,13 +314,11 @@ void process_packet(void)
     rpv.received_packet_size -= 4;
 
     /* check size */
-    if (rpv.received_packet_size > MAX_FRAME_LENGTH
+    if (rpv.received_packet_size > NET_MAX_FRAME_LENGTH
             || rpv.received_packet_size < sizeof(struct uip_eth_hdr)
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
-        uart_puts_P("net: packet too large or too small for an ethernet header: ");
-        uart_puthexbyte(HI8(rpv.received_packet_size));
-        uart_puthexbyte( LO8(rpv.received_packet_size));
+        debug_printf("net: packet too large or too small for an ethernet header: %d\n", rpv.received_packet_size);
 #       endif
         return;
     }
@@ -421,7 +412,7 @@ void transmit_packet(void)
     if (timeout == 0) {
 
 #       ifdef DEBUG
-        uart_puts_P("net: timeout waiting for TXRTS!\r\n");
+        debug_print("net: timeout waiting for TXRTS!\r\n");
 #       endif
 
     } else {
@@ -458,35 +449,17 @@ void transmit_packet(void)
 
 } /* }}} */
 
-void network_handle_tcp(void)
+uint8_t crc_checksum(void *data, uint8_t length)
 /* {{{ */ {
 
-#ifdef DEBUG_NET
-    uart_puts_P("net_tcp: local port is 0x");
-    uart_puthexbyte(HI8(uip_conn->lport));
-    uart_puthexbyte(LO8(uip_conn->lport));
-    uart_eol();
-#endif
+    uint8_t crc = 0;
+    uint8_t *p = (uint8_t *)data;
 
-    if (uip_conn->lport == HTONS(ETHCMD_PORT))
-        ethcmd_main();
+    for (uint8_t i = 0; i < length; i++) {
+        crc = _crc_ibutton_update(crc, *p);
+        p++;
+    }
 
-    if (uip_conn->lport == HTONS(HTTPD_PORT) ||
-        uip_conn->lport == HTONS(HTTPD_ALTERNATE_PORT))
-            httpd_main();
-
-} /* }}} */
-
-void network_handle_udp(void)
-/* {{{ */ {
-
-    if (uip_udp_conn->lport == HTONS(SNTP_UDP_PORT))
-        sntp_handle_conn();
-
-    if (uip_udp_conn->lport == HTONS(SYSLOG_UDP_PORT))
-        syslog_handle_conn();
-
-    if (uip_udp_conn->lport == HTONS(FC_UDP_PORT))
-        fc_handle_conn();
+    return crc;
 
 } /* }}} */

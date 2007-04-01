@@ -20,25 +20,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _HTTPD_STATE_H
-#define _HTTPD_STATE_H
+#ifndef CONNECTION_STATE_H
+#define CONNECTION_STATE_H
 
-#include "fs.h"
+#include "../uip/psock.h"
+#include "../pt/pt.h"
 
-typedef enum {
-    HTTPD_STATE_CLOSED = 0,
-    HTTPD_STATE_IDLE,
-} http_state_t;
+/* uip appstate for tcp */
+typedef union uip_tcp_connection_state {
+    /* put tcp application states here, example:
+     * struct httpd_connection_state_t httpd; */
+} uip_tcp_appstate_t;
 
-struct httpd_connection_state_t {
-    http_state_t state;
-    uint8_t timeout;
-    char buffer[40];
-    char name[10];
-    struct psock in, out;
-    fs_inode_t inode;
-    fs_size_t offset;
-};
-
+/* uip appstate for udp
+ * attention: first byte MUST be transmit_state! */
+typedef union uip_udp_connection_state {
+    /* put udp application states here, example:
+     * struct sntp_connection_state_t sntp; */
+} uip_udp_appstate_t;
 
 #endif

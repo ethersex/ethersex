@@ -120,7 +120,7 @@
 #elif defined(_ATMEGA644)
 #   define BOOTLOADER_SECTION 0xf800 /* atmega644 with 1024 words bootloader */
 #else
-#   warning bootloader entry point unknown...
+#   warning "bootloader entry point unknown!"
 #endif
 
 /* spi defines */
@@ -150,8 +150,7 @@
 #define SPI_CS_NET PB4
 #endif
 
-/* port the dataflash CS is attached to
- */
+/* port the dataflash CS is attached to */
 #ifndef SPI_CS_DF
 #define SPI_CS_DF PB1
 #endif
@@ -199,17 +198,14 @@
 #endif
 
 /* configure duplex mode */
-#define FULL_DUPLEX 0
+#define NET_FULL_DUPLEX 0
 
 /* configure global data buffer */
-#define MAX_FRAME_LENGTH 640
+#define NET_MAX_FRAME_LENGTH 640
 
 /* configure main callback function for uip */
 #define UIP_APPCALL network_handle_tcp
 #define UIP_UDP_APPCALL network_handle_udp
-
-/* support for 74HC165 */
-//#define USE_74HC165
 
 /* onewire support */
 #define ONEWIRE_SUPPORT

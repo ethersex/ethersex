@@ -20,22 +20,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _HTTPD_H
-#define _HTTPD_H
+#ifndef _DEBUG_H
+#define _DEBUG_H
 
-#include <stdint.h>
-#include "common.h"
-#include "uip/uip.h"
+#include <stdio.h>
+#include <avr/pgmspace.h>
+#include "bit-macros.h"
+#include "global.h"
 
-/* constants */
-#define HTTPD_PORT 80
-#define HTTPD_ALTERNATE_PORT 8000
-#define HTTPD_TIMEOUT 100 /* in 200ms-steps */
+#ifdef DEBUG
+    #define debug_print(s) printf_P(PSTR(s))
+    #define debug_printf(s, args...) printf_P(PSTR(s), args)
+    #define debug_init() DEBUG_INIT_UART()
+#else
+    #define debug_print(s)
+    #define debug_printf(...)
+    #define debug_init(...)
+#endif /* DEBUG */
 
-#define HTTPD_INDEX "idx.h"
+/* use 115200 baud at 20mhz (see datasheet for other values) */
+#define DEBUG_UART_UBRR 10
 
 /* prototypes */
-void httpd_init(void);
-void httpd_main(void);
+void DEBUG_INIT_UART(void);
 
-#endif
+#endif /* _DEBUG_H */

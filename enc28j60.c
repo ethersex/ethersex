@@ -26,12 +26,11 @@
 #include <util/delay.h>
 
 #include "config.h"
-#include "common.h"
 #include "enc28j60.h"
 #include "network.h"
-#include "uart.h"
 #include "uip/uip_arp.h"
 #include "spi.h"
+#include "bit-macros.h"
 
 /* global variables */
 uint8_t enc28j60_current_bank = 0;
@@ -301,7 +300,7 @@ void init_enc28j60(void)
     bit_field_set(REG_MACON3, _BV(PADCFG0) | _BV(TXCRCEN) | _BV(FRMLNEN));
 
     /* set full-duplex */
-    write_phy(PHY_PHCON1, FULL_DUPLEX * _BV(PDPXMD) );
+    write_phy(PHY_PHCON1, NET_FULL_DUPLEX * _BV(PDPXMD) );
 
     /* read PHCON1 to check if full-duplex is enabled */
     if (read_phy(PHY_PHCON1) & _BV(PDPXMD)) {
@@ -331,8 +330,8 @@ void init_enc28j60(void)
     }
 
     /* write maximum frame length, append 4 bytes for crc (added by enc28j60) */
-    write_control_register(REG_MAMXFLL, LO8(MAX_FRAME_LENGTH + 4));
-    write_control_register(REG_MAMXFLH, HI8(MAX_FRAME_LENGTH + 4));
+    write_control_register(REG_MAMXFLL, LO8(NET_MAX_FRAME_LENGTH + 4));
+    write_control_register(REG_MAMXFLH, HI8(NET_MAX_FRAME_LENGTH + 4));
 
     /* program the local mac address */
     write_control_register(REG_MAADR5, uip_ethaddr.addr[0]);

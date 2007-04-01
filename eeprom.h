@@ -26,9 +26,6 @@
 #include <stdint.h>
 #include <avr/eeprom.h>
 #include "config.h"
-#include "common.h"
-
-#include "uip/uip.h"
 
 /* for an eeprom memory map see doc/eeprom */
 

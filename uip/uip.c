@@ -82,7 +82,8 @@
 #include "uip.h"
 #include "uipopt.h"
 #include "uip_arch.h"
-#include "../network.h"
+#include "../net/handler.h"
+#include "../debug.h"
 
 #if UIP_CONF_IPV6
 #include "uip-neighbor.h"

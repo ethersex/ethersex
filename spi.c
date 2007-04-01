@@ -23,10 +23,6 @@
 #include <avr/io.h>
 #include "spi.h"
 
-#ifdef DEBUG
-#include "uart.h"
-#endif
-
 void spi_init(void)
 /* {{{ */ {
 
@@ -54,7 +50,7 @@ void noinline spi_wait_busy(void)
         timeout--;
 
     if (timeout == 0)
-        uart_puts_P("ERROR: spi timeout reached!\r\n");
+        debug_printf("ERROR: spi timeout reached!\r\n");
 #   else
     while (!(_SPSR0 & _BV(_SPIF0)));
 #   endif

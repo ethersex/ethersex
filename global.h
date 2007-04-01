@@ -20,9 +20,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include "eeprom.h"
+#ifndef _GLOBAL_H
+#define _GLOBAL_H
 
-#ifdef DEBUG
-#include "uart.h"
-#endif
+#include <stdio.h>
 
+/* global configuration struct */
+typedef struct {
+    /* put global variables here */
+} global_config_t;
+
+extern global_config_t cfg;
+
+#endif /* _GLOBAL_H */

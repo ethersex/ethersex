@@ -20,17 +20,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _FC_H
-#define _FC_H
+#ifndef _BIT_MACROS_H
+#define _BIT_MACROS_H
 
-#include <stdint.h>
-#include "common.h"
-#include "uip/uip.h"
+#include <stdlib.h>
 
-#define FC_UDP_PORT 2323
+#define HI8(x)  ((uint8_t)((x) >> 8))
+#define LO8(x)  ((uint8_t)(x))
 
-/* prototypes */
-void fc_init(void);
-void fc_handle_conn(void);
+#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
+                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
+                | (uint32_t)(((x) & 0x0000FF00) << 8) \
+                | (uint32_t)(((x) & 0x000000FF) << 24))
+
+#define NTOHL(x) HTONL(x)
+
 
 #endif

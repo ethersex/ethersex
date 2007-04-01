@@ -1,8 +1,6 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- *          enc28j60 api
- *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,49 +20,53 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <stdio.h>
+#include "config.h"
+#include "debug.h"
 
-#include "74hc165.h"
+#define noinline __attribute__((noinline))
 
-#ifdef USE_74HC165
+/* prototypes */
+void uip_log(char *message);
+int debug_uart_put(char d, FILE *stream);
 
-void hc165_init(void)
+#ifdef DEBUG
+
+void DEBUG_INIT_UART()
 /* {{{ */ {
 
-    HC165_DDR |= _BV(HC165_LOAD) | _BV(HC165_CLOCK);
-    HC165_DDR &= ~_BV(HC165_DATA);
-    HC165_PORT |= _BV(HC165_LOAD) | _BV(HC165_CLOCK) | _BV(HC165_DATA);
+    /* set baud rate */
+    _UBRRH_UART0 = HI8(DEBUG_UART_UBRR);
+    _UBRRL_UART0 = LO8(DEBUG_UART_UBRR);
+
+    /* set mode */
+    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
+
+    /* enable transmitter and receiver */
+    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+
+    /* open stdout/stderr */
+    fdevopen(debug_uart_put, NULL);
 
 } /* }}} */
 
-uint8_t hc165_read_byte(void)
+int noinline debug_uart_put(char d, FILE *stream)
 /* {{{ */ {
 
-    uint8_t data = 0;
+    if (d == '\n')
+        debug_uart_put('\r', stream);
 
-    /* load */
-    HC165_PORT &= ~_BV(HC165_LOAD);
-    HC165_DELAY();
-    HC165_PORT |=  _BV(HC165_LOAD);
-    HC165_DELAY();
+    while (!(_UCSRA_UART0 & _BV(_UDRE_UART0)));
+    _UDR_UART0 = d;
 
-    /* clock out */
-    for (uint8_t i = 0; i < 8; i++) {
+    return 0;
 
-        /* clock down, up */
-        HC165_PORT &= ~_BV(HC165_CLOCK);
-        HC165_DELAY();
-        HC165_PORT |=  _BV(HC165_CLOCK);
-        HC165_DELAY();
+} /* }}} */
 
-        /* read bit */
-        data <<= 1;
+void uip_log(char *message)
+/* {{{ */ {
 
-        if (HC165_PIN & _BV(HC165_DATA))
-            data |= 0x01;
-
-    }
-
-    return data;
+    debug_printf("uip: %s\n", message);
 
 } /* }}} */
 
