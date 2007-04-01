@@ -196,6 +196,51 @@ static PT_THREAD(ethcmd_handle(struct ethcmd_connection_state_t *state))
             state->msg.response.sys = ETHCMD_SYS_RESPONSE;
             state->msg.response.old_sys = ETHCMD_SYS_STORAGE;
             state->msg.response.status = 0;
+        } else if (state->msg.raw.sys == ETHCMD_SYS_IO){
+
+            #ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: io command: ");
+            uart_puthexbyte(state->msg.io.cmd);
+            uart_putc(' ');
+            uart_puthexbyte(state->msg.io.port_nr);
+            uart_putc(' ');
+            uart_puthexbyte(state->msg.io.bit_nr);
+            uart_putc(' ');
+            uart_puthexbyte(state->msg.io.data);
+            uart_eol();
+            #endif
+
+           uint8_t maddress=(state->msg.io.port_nr)*3+(state->msg.io.cmd & 0x03);
+            #ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: io command, calculated adress: ");
+            uart_puthexbyte(maddress);
+            uart_eol();
+            #endif
+
+            if (state->msg.io.cmd == ETHCMD_IO_READ){
+               state->msg.response.data =_SFR_IO8(maddress);
+            } else if ((state->msg.io.cmd == ETHCMD_IO_WRITEDDR) || (state->msg.io.cmd == ETHCMD_IO_WRITE)){
+               _SFR_IO8(maddress)=state->msg.io.data;
+
+            } else if (state->msg.io.cmd == ETHCMD_IO_READ_BIT){
+               state->msg.response.data =(_SFR_IO8(maddress) >> state->msg.io.bit_nr) & 0x01;
+            } else if ((state->msg.io.cmd == ETHCMD_IO_WRITEDDR_BIT) || (state->msg.io.cmd == ETHCMD_IO_WRITE_BIT)){
+               if (state->msg.io.data==0){  // reset bit
+                       _SFR_IO8(maddress)&= ~(1<<state->msg.io.bit_nr);
+               } else {  // set bit
+                       _SFR_IO8(maddress)|= (1<<state->msg.io.bit_nr);
+               }
+            } else {
+            #ifdef DEBUG_ETHCMD
+            uart_puts_P("cmd: invalid io cmd, aborting\r\n");
+            #endif
+            PT_EXIT(&state->pt);
+            }
+            /* reply with status 0 */
+            state->msg.response.sys = ETHCMD_SYS_RESPONSE;
+            state->msg.response.old_sys = ETHCMD_SYS_IO;
+            state->msg.response.status = 0;
+
 
         } else if (state->msg.raw.sys == ETHCMD_SYS_STORAGE &&
             state->msg.fs20.cmd == ETHCMD_STORAGE_WRITE) {

@@ -73,6 +73,8 @@ void print_usage(void)
            " available commands:\n"
            // "  onewire_discover          discover the onewire bus for devices, print ids\n"
            // "  fs20_send                 send fs20 command, parameters: housecode, address, command\n"
+           // "  io                        io command, parameters: cmd (r|w|d), port_nr, data\n"
+           // "  iob                       iobit command, parameters: cmd (r|w|d), port_nr, bit_nr, data\n"
            "   (none documented yet...)\n"
            , DEFAULT_HOST, DEFAULT_PORT
           );
@@ -158,6 +160,9 @@ void parse_message(struct ethcmd_msg_t *msg)
         case ETHCMD_SYS_RESPONSE: {
                                       struct ethcmd_response_t *r = (struct ethcmd_response_t *)msg;
                                       VERBOSE_PRINTF("received response from system %d, status: %d\n", r->old_sys, r->status);
+                                     if (r->old_sys==ETHCMD_SYS_IO){
+                                          printf("Data: %02x\n", r->data);
+                                     }
                                       parse_commands();
                                       break;
                                   }
@@ -282,6 +287,91 @@ void parse_commands(void)
 
         cfg.argv = &cfg.argv[1];
         cfg.argc -= 1;
+    } else if (strncasecmp(cfg.argv[0], "iob", strlen("iob")) == 0) {
+
+        VERBOSE_PRINTF("send io output\n");
+
+        if (cfg.argc < 4)
+            errx(1, "need more parameters for iob: cmd(r|w|d) port_nr(0-3) bit_nr data(not for r)");
+
+       unsigned char cmd=cfg.argv[1][0];
+        VERBOSE_PRINTF("sending io command\n");
+
+        struct ethcmd_msg_io_t *msg = malloc(sizeof(struct ethcmd_msg_io_t));
+
+        if (msg == NULL)
+            errx(EXIT_FAILURE, "malloc()");
+
+        msg->sys = ETHCMD_SYS_IO;
+       if (cmd=='r') msg->cmd = ETHCMD_IO_READ_BIT;
+       if (cmd=='w') msg->cmd = ETHCMD_IO_WRITE_BIT;
+       if (cmd=='d') msg->cmd = ETHCMD_IO_WRITEDDR_BIT;
+
+        msg->port_nr = strtol(cfg.argv[2], NULL, 16);
+        msg->bit_nr = strtol(cfg.argv[3], NULL, 16);
+        if (cmd!='r'){
+               if (cfg.argc < 5)
+                       errx(1, "need more parameters for iob: cmd(r|w|d) port_nr(0-3) bit_nr data(not for r)");
+               msg->data = strtol(cfg.argv[4], NULL, 16);
+               cfg.argv = &cfg.argv[5];
+               cfg.argc -= 5;
+       } else {
+               cfg.argv = &cfg.argv[4];
+               cfg.argc -= 4;
+       }
+
+        VERBOSE_PRINTF("io_write parameters: 0x%04x 0x%02x 0x%02x\n",
+                msg->port_nr,
+                msg->bit_nr,
+                msg->data);
+
+        send_message((struct ethcmd_msg_t *)msg);
+
+        free(msg);
+
+    } else if (strncasecmp(cfg.argv[0], "io", strlen("io")) == 0) {
+
+        VERBOSE_PRINTF("send io output\n");
+
+        if (cfg.argc < 3)
+            errx(1, "need more parameters for io: cmd(r|w|d) port_nr(0-3) data(not for r)");
+
+       unsigned char cmd=cfg.argv[1][0];
+        VERBOSE_PRINTF("sending io command\n");
+       VERBOSE_PRINTF("cmd: %02x\n",cmd);
+
+        struct ethcmd_msg_io_t *msg = malloc(sizeof(struct ethcmd_msg_io_t));
+
+        if (msg == NULL)
+            errx(EXIT_FAILURE, "malloc()");
+
+        msg->sys = ETHCMD_SYS_IO;
+       if (cmd=='r') msg->cmd = ETHCMD_IO_READ;
+       if (cmd=='w') msg->cmd = ETHCMD_IO_WRITE;
+       if (cmd=='d') msg->cmd = ETHCMD_IO_WRITEDDR;
+
+        msg->port_nr = strtol(cfg.argv[2], NULL, 16);
+
+        if (cmd!='r'){
+               if (cfg.argc < 4)
+                       errx(1, "need more parameters for io: cmd(r|w|d) port_nr(0-3) data(not for r)");
+               msg->data = strtol(cfg.argv[3], NULL, 16);
+               cfg.argv = &cfg.argv[4];
+               cfg.argc -= 4;
+       } else {
+               cfg.argv = &cfg.argv[3];
+               cfg.argc -= 3;
+       }
+
+        VERBOSE_PRINTF("io_write parameters: 0x%04x 0x%02x 0x%02x\n",
+                msg->port_nr,
+                msg->bit_nr,
+                msg->data);
+
+        send_message((struct ethcmd_msg_t *)msg);
+
+        free(msg);
+
 
     } else if (strncasecmp(cfg.argv[0], "storage_write", strlen("storage_write")) == 0) {
 

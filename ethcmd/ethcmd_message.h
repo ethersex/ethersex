@@ -32,6 +32,7 @@ enum ethcmd_subsystem_t {
     ETHCMD_SYS_ONEWIRE = 0x05,
     ETHCMD_SYS_FS20 = 0x06,
     ETHCMD_SYS_STORAGE = 0x07,
+    ETHCMD_SYS_IO = 0x08,
     ETHCMD_SYS_RESPONSE = 0xff,
 } packed;
 
@@ -49,6 +50,15 @@ enum ethcmd_storage_cmd_t {
     ETHCMD_STORAGE_WRITE = 0x01,
 } packed;
 
+enum ethcmd_io_cmd_t {
+    ETHCMD_IO_READ = 0x00,
+    ETHCMD_IO_WRITEDDR = 0x01,
+    ETHCMD_IO_WRITE = 0x02,
+    ETHCMD_IO_READ_BIT = 0x10,
+    ETHCMD_IO_WRITEDDR_BIT = 0x11,
+    ETHCMD_IO_WRITE_BIT = 0x12,
+} packed;
+
 
 struct ethcmd_msg_t {
     enum ethcmd_subsystem_t sys;
@@ -59,7 +69,8 @@ struct ethcmd_response_t {
     enum ethcmd_subsystem_t sys;
     enum ethcmd_subsystem_t old_sys;
     uint8_t status;
-    uint8_t reserved[5];
+    uint8_t data;
+    uint8_t reserved[4];
 } packed;
 
 struct ethcmd_msg_version_t {
@@ -86,5 +97,15 @@ struct ethcmd_msg_storage_t {
     uint32_t data_length;
     uint8_t reserved;
 } packed;
+
+struct ethcmd_msg_io_t {
+    enum ethcmd_subsystem_t sys;
+    enum ethcmd_io_cmd_t cmd;
+    uint8_t port_nr;
+    uint8_t bit_nr;
+    uint8_t data;
+    uint8_t reserved[3];
+} packed;
+
 
 #endif

@@ -39,6 +39,7 @@ struct ethcmd_connection_state_t {
             struct ethcmd_msg_version_t version;
             struct ethcmd_msg_fs20_t fs20;
             struct ethcmd_msg_storage_t storage;
+            struct ethcmd_msg_io_t io;
             struct ethcmd_response_t response;
         } msg;
     };

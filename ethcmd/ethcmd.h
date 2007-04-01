@@ -49,6 +49,7 @@ extern struct global_config_t cfg;
 #define CMD_NONE -1
 #define CMD_OW   0x05
 #define CMD_FS20 0x06
+#define CMD_IO   0x08
 
 /* macros */
 /* {{{ */
