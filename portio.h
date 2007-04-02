@@ -20,16 +20,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _NETWORK_HANDLER_H
-#define _NETWORK_HANDLER_H
+#ifndef _IO_H
+#define _IO_H
 
-/* initialize applications */
-void network_init_apps(void);
+#include "config.h"
 
-/* handle tcp connections */
-void network_handle_tcp(void);
+#if defined(_ATMEGA644) || defined(_ATMEGA32)
 
-/* handle udp connections */
-void network_handle_udp(void);
+#define IO_PORTS 3
+#define IO_DDR_ARRAY {&DDRA, &DDRC, &DDRD}
+#define IO_PORT_ARRAY {&PORTA, &PORTC, &PORTD}
 
+#else
+#error "unknown CPU!"
 #endif
+
+/* prototypes */
+
+/* update port information (PORT and DDR) from global status */
+void portio_update(void);
+
+#endif /* _IO_H */

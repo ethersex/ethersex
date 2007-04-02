@@ -26,6 +26,7 @@
 #include <util/delay.h>
 
 #include "config.h"
+#include "debug.h"
 #include "enc28j60.h"
 #include "network.h"
 #include "uip/uip_arp.h"
@@ -370,92 +371,64 @@ void switch_bank(uint8_t bank)
 } /* }}} */
 
 /* dump out all the interesting registers
- * (copied from avrlib) */
+ * (mainly copied from avrlib) */
 #ifdef DEBUG_ENC28J60
 void dump_debug_registers(void)
 /* {{{ */ {
 
-    uart_puts_P("RevID: 0x");
-    uart_puthexbyte(read_control_register(REG_EREVID));
-    uart_puts_P("\r\n");
+    debug_printf("RevID: 0x%02x\n", read_control_register(REG_EREVID));
 
-    uart_puts_P("Cntrl: ECON1 ECON2 ESTAT  EIR  EIE\r\n");
-    uart_puts_P("       0x");
-    uart_puthexbyte(read_control_register(REG_ECON1));
-    uart_puts_P("  0x");
-    uart_puthexbyte(read_control_register(REG_ECON2));
-    uart_puts_P("  0x");
-    uart_puthexbyte(read_control_register(REG_ESTAT));
-    uart_puts_P("   0x");
-    uart_puthexbyte(read_control_register(REG_EIR));
-    uart_puts_P(" 0x");
-    uart_puthexbyte(read_control_register(REG_EIE));
-    uart_puts_P("\r\n");
+    debug_print("Cntrl: ECON1 ECON2 ESTAT  EIR  EIE\n");
+    debug_printf("       0x%02x  0x%02x  0x%02x   0x%02x 0x%02x\n",
+        read_control_register(REG_ECON1),
+        read_control_register(REG_ECON2),
+        read_control_register(REG_ESTAT),
+        read_control_register(REG_EIR),
+        read_control_register(REG_EIE));
 
-    uart_puts_P("MAC  : MACON1  MACON2  MACON3  MACON4  MAC-Address\r\n");
-    uart_puts_P("        0x");
-    uart_puthexbyte(read_control_register(REG_MACON1));
-    uart_puts_P("    0x");
-    uart_puthexbyte(read_control_register(REG_MACON2));
-    uart_puts_P("    0x");
-    uart_puthexbyte(read_control_register(REG_MACON3));
-    uart_puts_P("    0x");
-    uart_puthexbyte(read_control_register(REG_MACON4));
-    uart_puts_P("   ");
-    uart_puthexbyte(read_control_register(REG_MAADR5));
-    uart_puthexbyte(read_control_register(REG_MAADR4));
-    uart_puthexbyte(read_control_register(REG_MAADR3));
-    uart_puthexbyte(read_control_register(REG_MAADR2));
-    uart_puthexbyte(read_control_register(REG_MAADR1));
-    uart_puthexbyte(read_control_register(REG_MAADR0));
-    uart_puts_P("\r\n");
+    debug_print("MAC  : MACON1  MACON2  MACON3  MACON4  MAC-Address\n");
+    debug_printf("        0x%02x    0x%02x    0x%02x    0x%02x  %02x:%02x:%02x:%02x:%02x:%02x\n",
+        read_control_register(REG_MACON1),
+        read_control_register(REG_MACON2),
+        read_control_register(REG_MACON3),
+        read_control_register(REG_MACON4),
+        read_control_register(REG_MAADR5),
+        read_control_register(REG_MAADR4),
+        read_control_register(REG_MAADR3),
+        read_control_register(REG_MAADR2),
+        read_control_register(REG_MAADR1),
+        read_control_register(REG_MAADR0));
 
-    uart_puts_P("Rx   : ERXST  ERXND  ERXWRPT ERXRDPT ERXFCON EPKTCNT MAMXFL\r\n");
-    uart_puts_P("       0x");
-    uart_puthexbyte(read_control_register(REG_ERXSTH));
-    uart_puthexbyte(read_control_register(REG_ERXSTL));
-    uart_puts_P(" 0x");
-    uart_puthexbyte(read_control_register(REG_ERXNDH));
-    uart_puthexbyte(read_control_register(REG_ERXNDL));
-    uart_puts_P("  0x");
-    uart_puthexbyte(read_control_register(REG_ERXWRPTH));
-    uart_puthexbyte(read_control_register(REG_ERXWRPTL));
-    uart_puts_P("  0x");
-    uart_puthexbyte(read_control_register(REG_ERXRDPTH));
-    uart_puthexbyte(read_control_register(REG_ERXRDPTL));
-    uart_puts_P("   0x");
-    uart_puthexbyte(read_control_register(REG_ERXFCON));
-    uart_puts_P("    0x");
-    uart_puthexbyte(read_control_register(REG_EPKTCNT));
-    uart_puts_P("  0x");
-    uart_puthexbyte(read_control_register(REG_MAMXFLH));
-    uart_puthexbyte(read_control_register(REG_MAMXFLL));
-    uart_puts_P("\r\n");
+    debug_print("Rx   : ERXST  ERXND  ERXWRPT ERXRDPT ERXFCON EPKTCNT MAMXFL\n");
+    debug_printf("      0x%02x%02x 0x%02x%02x   0x%02x%02x  0x%02x%02x    0x%02x    0x%02x 0x%02x%02x\n",
+        read_control_register(REG_ERXSTH),
+        read_control_register(REG_ERXSTL),
+        read_control_register(REG_ERXNDH),
+        read_control_register(REG_ERXNDL),
+        read_control_register(REG_ERXWRPTH),
+        read_control_register(REG_ERXWRPTL),
+        read_control_register(REG_ERXRDPTH),
+        read_control_register(REG_ERXRDPTL),
+        read_control_register(REG_ERXFCON),
+        read_control_register(REG_EPKTCNT),
+        read_control_register(REG_MAMXFLH),
+        read_control_register(REG_MAMXFLL));
 
-    uart_puts_P("Tx   : ETXST  ETXND  MACLCON1 MACLCON2 MAPHSUP\r\n");
-    uart_puts_P("       0x");
-    uart_puthexbyte(read_control_register(REG_ETXSTH));
-    uart_puthexbyte(read_control_register(REG_ETXSTL));
-    uart_puts_P(" 0x");
-    uart_puthexbyte(read_control_register(REG_ETXNDH));
-    uart_puthexbyte(read_control_register(REG_ETXNDL));
-    uart_puts_P("   0x");
-    uart_puthexbyte(read_control_register(REG_MACLCON1));
-    uart_puts_P("     0x");
-    uart_puthexbyte(read_control_register(REG_MACLCON2));
-    uart_puts_P("     0x");
-    uart_puthexbyte(read_control_register(REG_MAPHSUP));
-    uart_puts_P("\r\n");
+    debug_print("Tx   : ETXST  ETXND  MACLCON1 MACLCON2 MAPHSUP\n");
+    debug_printf("       0x%02x%02x 0x%02x%02x   0x%02x     0x%02x     0x%02x\n",
+        read_control_register(REG_ETXSTH),
+        read_control_register(REG_ETXSTL),
+        read_control_register(REG_ETXNDH),
+        read_control_register(REG_ETXNDL),
+        read_control_register(REG_MACLCON1),
+        read_control_register(REG_MACLCON2),
+        read_control_register(REG_MAPHSUP));
 
-    uart_puts_P("DMA  : EDMAST EDMAND\r\n");
-    uart_puts_P("       0x");
-    uart_puthexbyte(read_control_register(REG_EDMASTH));
-    uart_puthexbyte(read_control_register(REG_EDMASTL));
-    uart_puts_P(" 0x");
-    uart_puthexbyte(read_control_register(REG_EDMANDH));
-    uart_puthexbyte(read_control_register(REG_EDMANDL));
-    uart_puts_P("\r\n");
+    debug_print("DMA  : EDMAST EDMAND\n");
+    debug_printf("       0x%02x%02x 0x%02x%02x\n",
+        read_control_register(REG_EDMASTH),
+        read_control_register(REG_EDMASTL),
+        read_control_register(REG_EDMANDH),
+        read_control_register(REG_EDMANDL));
 } /* }}} */
 #endif
-
-

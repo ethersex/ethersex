@@ -29,6 +29,7 @@
 #include "config.h"
 #include "eeprom.h"
 #include "bit-macros.h"
+#include "net/handler.h"
 
 #include "debug.h"
 
@@ -45,6 +46,7 @@
 
 /* prototypes */
 uint8_t crc_checksum(void *data, uint8_t length);
+void process_packet(void);
 
 void network_init(void)
 /* {{{ */ {
@@ -54,49 +56,61 @@ void network_init(void)
 
     uip_ipaddr_t ipaddr;
 
+    /* use uip buffer as generic space here, since when this function is called,
+     * no network packets will be processed */
+    void *buf = uip_buf;
+
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
     debug_print("net: loading base network settings\n");
 #   endif
 
     /* use global network packet buffer for configuration */
-    eeprom_read_block(uip_buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+    eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
 
     /* checksum */
-    uint8_t checksum = crc_checksum(uip_buf, sizeof(struct eeprom_config_base_t) - 1);
+    uint8_t checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
 
-    struct eeprom_config_base_t *base = (struct eeprom_config_base_t *)uip_buf;
+    struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
 
-    if (checksum != base->crc) {
-#       ifdef DEBUG
-        debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n", checksum, base->crc);
-#       endif
+    if (checksum != cfg_base->crc) {
 
+        debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n",
+            checksum, cfg_base->crc);
+
+        /* load default settings */
         memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
         uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
+
     } else {
 
-        /* load config settings */
-        memcpy(uip_ethaddr.addr, &base->mac, 6);
-        memcpy(&ipaddr, &base->ip, 4);
+        /* load settings from eeprom */
+        memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
+        memcpy(&ipaddr, &cfg_base->ip, 4);
         uip_sethostaddr(ipaddr);
-        memcpy(&ipaddr, &base->netmask, 4);
+        memcpy(&ipaddr, &cfg_base->netmask, 4);
         uip_setnetmask(ipaddr);
-        memcpy(&ipaddr, &base->gateway, 4);
+        memcpy(&ipaddr, &cfg_base->gateway, 4);
         uip_setdraddr(ipaddr);
+
+        /* optimized version: FIXME: does this work?
+        memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
+        uip_sethostaddr(&cfg_base->ip);
+        uip_sethostaddr(&cfg_base->netmask);
+        uip_setdraddr(&cfg_base->gateway);
+        */
 
     }
 
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("ip: %d.%d.%d.%d/%d.%d.%d.%d, gw: %d.%d.%d.%d\n",
-                            LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
-                            LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
-                            LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
+        LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
+        LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
+        LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
 #   endif
-
 
     /* load extended network settings */
 #   ifdef DEBUG_NET_CONFIG
@@ -104,53 +118,42 @@ void network_init(void)
 #   endif
 
     /* use global network packet buffer for configuration */
-    eeprom_read_block(uip_buf, (uint8_t *)EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
+    eeprom_read_block(buf, EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
 
     /* checksum */
-    checksum = crc_checksum(uip_buf, sizeof(struct eeprom_config_ext_t) - 1);
+    checksum = crc_checksum(buf, sizeof(struct eeprom_config_ext_t) - 1);
 
-#if 0
-    FIXME XXX
-    if (checksum != EXT_CONFIG->crc) {
-#ifdef DEBUG
-        debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n", checksum, BASE_CONFIG->crc);
-#endif
+    struct eeprom_config_ext_t *cfg_ext = (struct eeprom_config_ext_t *)buf;
 
-        // FIXME XXX
-        //memset(&sntp_server, 0, sizeof(sntp_server));
-        //memset(&global_syslog.server, 0, sizeof(global_syslog.server));
-        //global_syslog.enabled = 0;
+    if (checksum != cfg_ext->crc) {
+        debug_printf("net: ext crc mismatch: 0x%x != 0x%x, loading default settings\n",
+                checksum, cfg_ext->crc);
+
+        /* set defaults */
+        memset(&cfg.sntp_server, 0, sizeof(uip_ipaddr_t));
+        cfg.options.sntp = 0;
 
     } else {
 
-        // FIXME XXX
-        //memcpy(&sntp_server, &EXT_CONFIG->sntp_server, 4);
-        //sntp_synchronize();
-        //
-        ///* syslog-server */
-        //memcpy(&global_syslog.server, &EXT_CONFIG->syslog_server, 4);
-        //global_syslog.enabled = 1;
+        /* load settings */
+        memcpy(&cfg.sntp_server, &cfg_ext->sntp_server, 4);
+        memcpy(&cfg.options, &cfg_ext->options, sizeof(global_options_t));
 
 #       ifdef DEBUG_NET_CONFIG
-        uart_puts_P("ext config: sntp: ");
-        uart_puts_ip(&sntp_server);
-        uart_puts_P(" syslog: ");
-        uart_puts_ip(&global_syslog.server);
-        uart_eol();
+        if (cfg.options.sntp)
+            debug_printf("cfg: sntp server is %d.%d.%d.%d\n",
+                    LO8(cfg.sntp_server[0]), HI8(cfg.sntp_server[0]),
+                    LO8(cfg.sntp_server[1]), HI8(cfg.sntp_server[1]));
 #       endif
 
     }
-#endif
 
+    network_init_apps();
     init_enc28j60();
-
-    // FIXME
-    //ethcmd_init();
-    //httpd_init();
 
 } /* }}} */
 
-void enc28j60_process_interrupts(void)
+void network_process(void)
 /* {{{ */ {
 
     /* also check packet counter, see errata #6 */
@@ -169,7 +172,7 @@ void enc28j60_process_interrupts(void)
 
 #   if defined(ENC28J60_REV4_WORKAROUND) && defined(DEBUG_REV4_WORKAROUND)
     if (pktcnt > 5)
-        uart_puts_P("net: BUG: pktcnt > 5\r\n");
+        debug_printf("net: BUG: pktcnt > 5\n");
 #   endif
 
     /* read interrupt register */
@@ -178,113 +181,86 @@ void enc28j60_process_interrupts(void)
     /* clear global interrupt flag */
     bit_field_clear(REG_EIE, _BV(INTIE));
 
+#ifdef DEBUG_INTERRUPT
     /* check if some interrupts occured */
     if (EIR != 0) {
 
-        /* check each interrupt flag the interrupt is activated for, and clear it
-         * if neccessary */
-
-#ifdef DEBUG_INTERRUPT
-        uart_puts_P("net: controller interrupt, EIR = 0x");
-        uart_puthexbyte(EIR);
-        uart_puts_P(" = ");
+        debug_printf("net: controller interrupt, EIR = 0x%02x\n", EIR);
         if (EIR & _BV(LINKIF))
-            uart_putc('L');
+            debug_print("\t* Link\n");
         if (EIR & _BV(TXIF))
-            uart_putc('T');
+            debug_print("\t* Tx\n");
         if (EIR & _BV(PKTIF))
-            uart_putc('P');
+            debug_print("\t* Pkt\n");
         if (EIR & _BV(RXERIF))
-            uart_putc('r');
+            debug_print("\t* rx error\n");
         if (EIR & _BV(TXERIF))
-            uart_putc('t');
-        uart_eol();
+            debug_print("\t* tx error\n");
+    }
 #endif
 
-        /* link change flag */
-        if (EIR & _BV(LINKIF)) {
-            /* clear interrupt flag */
-            read_phy(PHY_PHIR);
+    /* check each interrupt flag the interrupt is activated for, and clear it
+     * if neccessary */
 
-            /* read new link state */
-            uint8_t link_state = (read_phy(PHY_PHSTAT2) & _BV(LSTAT)) > 0;
+    /* link change flag */
+    if (EIR & _BV(LINKIF)) {
+
+        /* clear interrupt flag */
+        read_phy(PHY_PHIR);
+
+        /* read new link state */
+        uint8_t link_state = (read_phy(PHY_PHSTAT2) & _BV(LSTAT)) > 0;
+
+        if (link_state) {
+            debug_print("net: got link!\n");
+        } else
+            debug_print("net: no link!\n");
+
+    }
+
+    /* packet transmit flag */
+    if (EIR & _BV(TXIF)) {
 
 #ifdef DEBUG
-            if (link_state) {
-                debug_print("net: got link!\n");
-            } else
-                debug_print("net: no link!\n");
+        uint8_t ESTAT = read_control_register(REG_ESTAT);
+
+        if (ESTAT & _BV(TXABRT))
+            debug_print("net: packet transmit failed\n");
 #endif
+        /* clear flags */
+        bit_field_clear(REG_EIR, _BV(TXIF));
+        bit_field_clear(REG_ESTAT, _BV(TXABRT) | _BV(LATECOL) );
+    }
 
-        }
+    /* packet receive flag */
+    if (EIR & _BV(PKTIF)) {
 
-        /* packet transmit flag */
-        if (EIR & _BV(TXIF)) {
+        process_packet();
+    }
 
-#if 0
-            /* clear send_buffer, if not waiting for ack */
-            for (uint8_t i = 0; i < NET_SEND_BUFFER_SIZE; i++) {
+    /* receive error */
+    if (EIR & _BV(RXERIF)) {
+        debug_print("net: receive error!\n");
 
-                /* if this buffer is transmitting, remove flag */
-                if (global_net.send_buffer[i].flags & _BV(SEND_BUFFER_TRANSMITTING)) {
-                    global_net.send_buffer[i].flags &= ~_BV(SEND_BUFFER_TRANSMITTING);
-
-                    /* if this buffer is not waiting for an ack, clear it */
-                    if ( !(global_net.send_buffer[i].flags & _BV(SEND_BUFFER_WAIT_ACK))) {
-#ifdef DEBUG_INTERRUPT
-                        uart_puts_P("net: found transmitting send buffer 0x");
-                        uart_puthexbyte(i);
-                        uart_puts_P(", cleaning up\r\n");
-#endif
-                        global_net.send_buffer[i].flags = 0;
-                    }
-                }
-            }
-#endif
-
-#ifdef DEBUG
-            uint8_t ESTAT = read_control_register(REG_ESTAT);
-
-            if (ESTAT & _BV(TXABRT))
-                debug_print("net: packet transmit failed\n");
-#endif
-            /* clear flags */
-            bit_field_clear(REG_EIR, _BV(TXIF));
-            bit_field_clear(REG_ESTAT, _BV(TXABRT) | _BV(LATECOL) );
-        }
-
-        /* packet receive flag */
-        if (EIR & _BV(PKTIF)) {
-
-            process_packet();
-        }
-
-        /* receive error */
-        if (EIR & _BV(RXERIF)) {
-            debug_print("net: receive error!\n");
-
-            bit_field_clear(REG_EIR, _BV(RXERIF));
+        bit_field_clear(REG_EIR, _BV(RXERIF));
 
 #ifdef ENC28J60_REV4_WORKAROUND
-            init_enc28j60();
+        init_enc28j60();
 #endif
 
-        }
+    }
 
-        /* transmit error */
-        if (EIR & _BV(TXERIF)) {
+    /* transmit error */
+    if (EIR & _BV(TXERIF)) {
 #ifdef DEBUG
-            debug_print("net: transmit error!\n");
+        debug_print("net: transmit error!\n");
 #endif
 
-            bit_field_clear(REG_EIR, _BV(TXERIF));
-        }
-
+        bit_field_clear(REG_EIR, _BV(TXERIF));
     }
 
     /* set global interrupt flag */
     bit_field_set(REG_EIE, _BV(INTIE));
-
 
 } /* }}} */
 
@@ -296,7 +272,7 @@ void process_packet(void)
         return;
 
 #   ifdef DEBUG_NET
-    uart_puts_P("net: packet received\r\n");
+    debug_print("net: packet received\n");
 #   endif
 
     /* read next packet pointer */
@@ -323,9 +299,6 @@ void process_packet(void)
         return;
     }
 
-    /* store packet start pointer for checksum calculation */
-    //global_net.packet_start_pointer = get_read_buffer_pointer();
-
     /* read packet */
     p = uip_buf;
     for (uint16_t i = 0; i < rpv.received_packet_size; i++)
@@ -340,7 +313,7 @@ void process_packet(void)
         /* process arp packet */
         case UIP_ETHTYPE_ARP:
 #           ifdef DEBUG_NET
-            uart_puts_P("net: arp packet received\r\n");
+            debug_print("net: arp packet received\n");
 #           endif
             uip_arp_arpin();
 
@@ -353,7 +326,7 @@ void process_packet(void)
         /* process ip packet */
         case UIP_ETHTYPE_IP:
 #           ifdef DEBUG_NET
-            uart_puts_P("net: ip packet received\r\n");
+            debug_print("net: ip packet received\n");
 #           endif
             uip_arp_ipin();
             uip_input();
@@ -370,14 +343,22 @@ void process_packet(void)
 #       ifdef DEBUG_UNKNOWN_PACKETS
         default:
             /* debug output */
-            uart_puts_P("net: unknown packet, ");
-            uart_puts_mac(&packet->src);
-            uart_puts_P(" -> ");
-            uart_puts_mac(&packet->dest);
-            uart_puts_P(", type 0x");
-            uart_puthexbyte(HI8(ntohs(packet->type)));
-            uart_puthexbyte( LO8(ntohs(packet->type)));
-            uart_eol();
+            debug_printf("net: unknown packet, %02x%02x%02x%02x%02x%02x "
+                         "-> %02x%02x%02x%02x%02x%02x, type 0x%02x%02x\n",
+                         packet->src.addr[0],
+                         packet->src.addr[1],
+                         packet->src.addr[2],
+                         packet->src.addr[3],
+                         packet->src.addr[4],
+                         packet->src.addr[5],
+                         packet->dest.addr[0],
+                         packet->dest.addr[1],
+                         packet->dest.addr[2],
+                         packet->dest.addr[3],
+                         packet->dest.addr[4],
+                         packet->dest.addr[5],
+                         HI8(ntohs(packet->type)),
+                         LO8(ntohs(packet->type)));
             break;
 #       endif
     }
@@ -410,42 +391,37 @@ void transmit_packet(void)
     while (read_control_register(REG_ECON1) & _BV(ECON1_TXRTS) && timeout-- > 0);
 
     if (timeout == 0) {
-
-#       ifdef DEBUG
-        debug_print("net: timeout waiting for TXRTS!\r\n");
-#       endif
-
-    } else {
-
-        uint16_t start_pointer = TXBUFFER_START;
-
-        /* set send control registers */
-        write_control_register(REG_ETXSTL, LO8(start_pointer));
-        write_control_register(REG_ETXSTH, HI8(start_pointer));
-
-        write_control_register(REG_ETXNDL, LO8(start_pointer + uip_len));
-        write_control_register(REG_ETXNDH, HI8(start_pointer + uip_len));
-
-        /* set pointer to beginning of tx buffer */
-        set_write_buffer_pointer(start_pointer);
-
-        /* write override byte */
-        write_buffer_memory(0);
-
-        /* write data */
-        for (uint16_t i = 0; i < uip_len; i++)
-            write_buffer_memory(uip_buf[i]);
-
-#       ifdef ENC28J60_REV4_WORKAROUND
-        /* reset transmit hardware, see errata #12 */
-        bit_field_set(REG_ECON1, _BV(ECON1_TXRST));
-        bit_field_clear(REG_ECON1, _BV(ECON1_TXRST));
-#       endif
-
-        /* transmit packet */
-        bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
-
+        debug_print("net: timeout waiting for TXRTS, aborting transmit!\n");
+        return;
     }
+
+    uint16_t start_pointer = TXBUFFER_START;
+
+    /* set send control registers */
+    write_control_register(REG_ETXSTL, LO8(start_pointer));
+    write_control_register(REG_ETXSTH, HI8(start_pointer));
+
+    write_control_register(REG_ETXNDL, LO8(start_pointer + uip_len));
+    write_control_register(REG_ETXNDH, HI8(start_pointer + uip_len));
+
+    /* set pointer to beginning of tx buffer */
+    set_write_buffer_pointer(start_pointer);
+
+    /* write override byte */
+    write_buffer_memory(0);
+
+    /* write data */
+    for (uint16_t i = 0; i < uip_len; i++)
+        write_buffer_memory(uip_buf[i]);
+
+#   ifdef ENC28J60_REV4_WORKAROUND
+    /* reset transmit hardware, see errata #12 */
+    bit_field_set(REG_ECON1, _BV(ECON1_TXRST));
+    bit_field_clear(REG_ECON1, _BV(ECON1_TXRST));
+#   endif
+
+    /* transmit packet */
+    bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
 } /* }}} */
 

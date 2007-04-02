@@ -23,6 +23,13 @@
 #include "handler.h"
 #include "../uip/uip.h"
 
+void network_init_apps(void)
+/* {{{ */ {
+
+    /* initialize your applications here */
+
+} /* }}} */
+
 void network_handle_tcp(void)
 /* {{{ */ {
 

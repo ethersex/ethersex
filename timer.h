@@ -20,16 +20,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _NETWORK_HANDLER_H
-#define _NETWORK_HANDLER_H
+#ifndef _TIMER_H
+#define _TIMER_H
 
-/* initialize applications */
-void network_init_apps(void);
+#include <avr/io.h>
 
-/* handle tcp connections */
-void network_handle_tcp(void);
+/* initialize hardware timers */
+void timer_init(void);
 
-/* handle udp connections */
-void network_handle_udp(void);
+/* check for timer events */
+void timer_process(void);
 
 #endif

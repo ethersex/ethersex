@@ -20,16 +20,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _NETWORK_HANDLER_H
-#define _NETWORK_HANDLER_H
+#include "portio.h"
+#include "debug.h"
 
-/* initialize applications */
-void network_init_apps(void);
+static const volatile uint8_t *ddrs[] = IO_DDR_ARRAY;
+static const volatile uint8_t *ports[] = IO_PORT_ARRAY;
 
-/* handle tcp connections */
-void network_handle_tcp(void);
+#define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
-/* handle udp connections */
-void network_handle_udp(void);
+/* update port information (PORT and DDR) from global status */
+void portio_update(void)
+/* {{{ */ {
 
-#endif
+    for (uint8_t i = 0; i < IO_PORTS; i++) {
+
+#       ifdef DEBUG_PORTIO
+        if (ACCESS_IO(ddrs[i]) != cfg.options.io_ddr[i])
+            debug_printf("io: ddr %d changed to %02x\n", i, cfg.options.io_ddr[i]);
+        if (ACCESS_IO(ports[i]) != cfg.options.io[i])
+            debug_printf("io: port %d changed to %02x\n", i, cfg.options.io[i]);
+#       endif
+
+        ACCESS_IO(ddrs[i]) = cfg.options.io_ddr[i];
+        ACCESS_IO(ports[i]) = cfg.options.io[i];
+    }
+
+} /* }}} */

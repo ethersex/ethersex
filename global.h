@@ -25,9 +25,24 @@
 
 #include <stdio.h>
 
+#include "portio.h"
+#include "uip/uip.h"
+
 /* global configuration struct */
 typedef struct {
-    /* put global variables here */
+    uint8_t sntp:1;
+    uint8_t io_ddr[IO_PORTS];
+    uint8_t io[IO_PORTS];
+} global_options_t;
+
+typedef union {
+    uint8_t link:1;
+} global_status_t;
+
+typedef struct {
+    global_options_t options;
+    global_status_t status;
+    uip_ipaddr_t sntp_server;
 } global_config_t;
 
 extern global_config_t cfg;

@@ -28,9 +28,10 @@
 #include "bit-macros.h"
 #include "global.h"
 
+/* define macros, if debug is enabled */
 #ifdef DEBUG
-    #define debug_print(s) printf_P(PSTR(s))
-    #define debug_printf(s, args...) printf_P(PSTR(s), args)
+    #define debug_print(s) printf_P(PSTR("D: " s))
+    #define debug_printf(s, args...) printf_P(PSTR("D: " s), args)
     #define debug_init() DEBUG_INIT_UART()
 #else
     #define debug_print(s)

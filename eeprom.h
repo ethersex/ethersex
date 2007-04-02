@@ -26,11 +26,12 @@
 #include <stdint.h>
 #include <avr/eeprom.h>
 #include "config.h"
+#include "global.h"
 
 /* for an eeprom memory map see doc/eeprom */
 
-#define EEPROM_CONFIG_BASE  0x0000
-#define EEPROM_CONFIG_EXT   0x0013
+#define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
+#define EEPROM_CONFIG_EXT   (uint8_t *)0x0013
 
 /* structures */
 
@@ -44,7 +45,7 @@ struct eeprom_config_base_t {
 
 struct eeprom_config_ext_t {
     uint8_t sntp_server[4];
-    uint8_t syslog_server[4];
+    global_options_t options;
     uint8_t crc;
 };
 

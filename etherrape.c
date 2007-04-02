@@ -35,6 +35,7 @@
 #include "debug.h"
 #include "spi.h"
 #include "network.h"
+#include "timer.h"
 
 #include "net/handler.h"
 
@@ -66,7 +67,6 @@ int main(void)
     debug_print("enabling watchdog\n");
 
 #   ifdef DEBUG
-
     /* for debugging, test reset cause and jump to bootloader */
     if (MCUSR & _BV(WDRF)) {
         debug_print("BUG: got reset by the watchdog!!\n");
@@ -93,112 +93,31 @@ int main(void)
 
     spi_init();
     network_init();
+    timer_init();
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
-    debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]));
+    debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]),
+                                      HI8(uip_hostaddr[0]),
+                                      LO8(uip_hostaddr[1]),
+                                      HI8(uip_hostaddr[1]));
 
-    while(1) /* main loop {{{ */ {
+    /* main loop */
+    while(1) {
 
         wdt_kick();
 
         /* check for network controller interrupts */
-        enc28j60_process_interrupts();
-
-        /* check for timer interrupt */
-        if (_TIFR_TIMER1 & _BV(OCF1A)) {
-
-            static uint8_t c;
-
-            c++;
-
-#           if UIP_CONNS <= 255
-            uint8_t i;
-#           else
-            uint16_t i;
-#           endif
-
-            /* periodically check connections */
-            for (i = 0; i < UIP_CONNS; i++) {
-                uip_periodic(i);
-
-                /* if this generated a packet, send it now */
-                if (uip_len > 0) {
-                    uip_arp_out();
-                    transmit_packet();
-                }
-            }
-
-#           if UIP_UDP == 1
-            for (i = 0; i < UIP_UDP_CONNS; i++) {
-                uip_udp_periodic(i);
-
-                /* if this generated a packet, send it now */
-                if (uip_len > 0) {
-                    // XXX FIXME if (uip_arp_out() == 0)
-                    // XXX FIXME     uip_udp_conn->appstate.sntp.transmit_state = 1;
-
-                    transmit_packet();
-                }
-            }
-#           endif
-
-            // FIXME
-            //if (c % 5 == 0) /* every second */
-            //    clock_periodic();
-
-            if (c == 50) { /* every 10 secs */
-                uip_arp_timer();
-                c = 0;
-            }
-
-            /* clear flag */
-            _TIFR_TIMER1 = _BV(OCF1A);
-
-        }
-
+        network_process();
         wdt_kick();
 
-        /* check for serial data */
-        // if (_UCSRA_UART0 & _BV(_RXC_UART0)) {
-        // 
-        //     check_serial_input(_UDR_UART0);
-        // 
-        // }
-
+        /* check if any timer expired */
+        timer_process();
         wdt_kick();
 
-#       ifdef DEBUG
-        /* if we changed to spi slave mode */
-        if (!(_SPCR0 & _BV(_MSTR0))) {
-            debug_print("switched to spi slave mode? no pullup at SS?\n");
-
-            _SPCR0 |= _BV(_MSTR0);
-
-        }
-#       endif
-
+        /* update port io information */
+        portio_update();
         wdt_kick();
 
-#       ifdef USE_74HC165
-        /* check for extended io, if all sensors are closed */
-        uint8_t status = hc165_read_byte();
-        static uint8_t old_status;
-
-        if (status == 0)
-            PORTA &= ~_BV(PA4); /* green */
-        else
-            PORTA |= _BV(PA4);  /* red */
-
-        for (uint8_t i = 0; i < 8; i++) {
-
-            if (  (status & _BV(i)) != (old_status & _BV(i))  )
-                syslog_sensor(i, status & _BV(i));
-
-        }
-
-        old_status = status;
-#       endif
-
-    } /* }}} */
+    }
 
 } /* }}} */
