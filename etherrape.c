@@ -106,11 +106,13 @@ int main(void)
 
         wdt_kick();
 
-        /* check for network controller interrupts */
+        /* check for network controller interrupts,
+         * call uip on received packets */
         network_process();
         wdt_kick();
 
-        /* check if any timer expired */
+        /* check if any timer expired,
+         * poll all uip connections */
         timer_process();
         wdt_kick();
 
