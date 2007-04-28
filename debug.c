@@ -63,6 +63,24 @@ int noinline debug_uart_put(char d, FILE *stream)
 
 } /* }}} */
 
+void DEBUG_PROCESS_UART()
+/* {{{ */ {
+
+    /* set baud rate */
+    _UBRRH_UART0 = HI8(DEBUG_UART_UBRR);
+    _UBRRL_UART0 = LO8(DEBUG_UART_UBRR);
+
+    /* set mode */
+    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
+
+    /* enable transmitter and receiver */
+    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+
+    /* open stdout/stderr */
+    fdevopen(debug_uart_put, NULL);
+
+} /* }}} */
+
 void uip_log(char *message)
 /* {{{ */ {
 

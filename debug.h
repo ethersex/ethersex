@@ -33,10 +33,12 @@
     #define debug_print(s) printf_P(PSTR("D: " s))
     #define debug_printf(s, args...) printf_P(PSTR("D: " s), args)
     #define debug_init() DEBUG_INIT_UART()
+    #define debug_process() DEBUG_PROCESS_UART()
 #else
     #define debug_print(s)
     #define debug_printf(...)
     #define debug_init(...)
+    #define debug_process(...)
 #endif /* DEBUG */
 
 /* use 115200 baud at 20mhz (see datasheet for other values) */
@@ -44,5 +46,6 @@
 
 /* prototypes */
 void DEBUG_INIT_UART(void);
+void DEBUG_PROCESS_UART(void);
 
 #endif /* _DEBUG_H */
