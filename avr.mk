@@ -112,5 +112,8 @@ program-serial-eeprom-%: %.eep.hex launch-bootloader
 %-size: %.hex
 	$(SIZE) $<
 
-launch-bootloader:
-	launch-bootloader $(SERIAL_DEV) $(AVRDUDE_BAUDRATE)
+launch-bootloader: bootloader/launcher/launch-bootloader
+	$^ $(SERIAL_DEV) $(AVRDUDE_BAUDRATE)
+
+bootloader/launcher/launch-bootloader:
+	$(MAKE) -C bootloader/launcher launch-bootloader
