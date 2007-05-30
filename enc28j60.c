@@ -46,7 +46,7 @@ uint8_t read_control_register(uint8_t address)
 /* {{{ */ {
 
     /* change to appropiate bank */
-    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+    if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
          ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
         switch_bank((address & REGISTER_BANK_MASK) >> 5);
 
@@ -95,7 +95,7 @@ void write_control_register(uint8_t address, uint8_t data)
 /* {{{ */ {
 
     /* change to appropiate bank */
-    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+    if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
          ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
         switch_bank((address & REGISTER_BANK_MASK) >> 5);
 
@@ -134,7 +134,7 @@ void bit_field_set(uint8_t address, uint8_t mask)
 /* {{{ */ {
 
     /* change to appropiate bank */
-    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+    if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
          ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
         switch_bank((address & REGISTER_BANK_MASK) >> 5);
 
@@ -156,7 +156,7 @@ void bit_field_clear(uint8_t address, uint8_t mask)
 /* {{{ */ {
 
     /* change to appropiate bank */
-    if ( (address & REGISTER_ADDRESS_MASK) < 0x1B &&
+    if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
          ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
         switch_bank((address & REGISTER_BANK_MASK) >> 5);
 
