@@ -275,6 +275,10 @@
 #define REGISTER_BANK_MASK      0x60
 #define BANK_MASK               0x03
 
+/* key registers allows access without switching banks */
+#define KEY_REGISTERS  0x1B         /* (0x1B to 0x1F)
+                                       EIE, EIR, ESTAT, ECON2 and ECON1 */
+
 /* defines */
 #define RXBUFFER_START 0x0000   /* start receive buffer at the beginning */
 #define RXBUFFER_END   0x0FFF   /* end receive buffer at 4kb */
