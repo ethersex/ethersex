@@ -67,7 +67,7 @@ char PROGMEM httpd_header_length[] = "Content-Length: ";
 unsigned short send_str_P(void *data);
 unsigned short send_length_P(void *data);
 unsigned short send_length_f(void *data);
-unsigned short send_file_f(struct httpd_connection_state_t *state);
+unsigned short send_file_f(void *data);
 
 void httpd_init(void)
 /* {{{ */ {
@@ -184,19 +184,20 @@ unsigned short send_length_P(void *data)
 
 } /* }}} */
 
-unsigned short send_length_f(void *inode)
+unsigned short send_length_f(void *data)
 /* {{{ */ {
 
-    fs_inode_t i = *((fs_inode_t *)inode);
+    fs_inode_t i = *((fs_inode_t *)data);
 
     sprintf_P(uip_appdata, PSTR("%d\n\n"), fs_size(&fs, i));
     return strlen(uip_appdata);
 
 } /* }}} */
 
-unsigned short send_file_f(struct httpd_connection_state_t *state)
+unsigned short send_file_f(void *data)
 /* {{{ */ {
 
+    struct httpd_connection_state_t *state = (struct httpd_connection_state_t *)data;
     fs_size_t len = fs_read(&fs, state->inode, uip_appdata, state->offset, uip_mss());
 
 #ifdef DEBUG_HTTPD
