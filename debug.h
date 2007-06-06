@@ -30,8 +30,7 @@
 
 /* define macros, if debug is enabled */
 #ifdef DEBUG
-    #define debug_print(s) printf_P(PSTR("D: " s))
-    #define debug_printf(s, args...) printf_P(PSTR("D: " s), args)
+    #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
     #define debug_init() DEBUG_INIT_UART()
     #define debug_process() DEBUG_PROCESS_UART()
 #else
