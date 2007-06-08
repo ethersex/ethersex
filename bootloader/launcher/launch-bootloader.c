@@ -27,13 +27,19 @@
 /* loop delay time in microseconds */
 #define DELAY_TIME 200
 
+/* use for debugging */
+#define VERBOSE
+
+/* read this many chars as a block */
+#define READ_BLOCK_SIZE 1024
+
 int
 main(int argc, char* argv[])
 {
     int fd, err, rc, bitrate;
     struct termios t;
     struct timeval tv;
-    unsigned char w[1], r[1];
+    unsigned char w[1];
     fd_set fds;
 
     if((argc != 3) || (argv[1] == "-h") || (argv[1] == "--help")) {
@@ -63,7 +69,15 @@ main(int argc, char* argv[])
                  * once every 10,000 microseconds */
                 while((fd = open(argv[1], O_RDWR|O_NONBLOCK, 0)) < 0) {
                     usleep(10000);
+                    #ifdef VERBOSE
+                    printf(".");
+                    fflush(stdout);
+                    #endif
                 }
+                    #ifdef VERBOSE
+                    printf("\n");
+                    fflush(stdout);
+                    #endif
             } else
                 errx(1, "%s: %s", argv[1], strerror(errno));
         }
@@ -119,6 +133,12 @@ main(int argc, char* argv[])
                 /* else report error */
                 else
                     errx(6, "error during write: %s", strerror(errno));
+
+                #ifdef VERBOSE
+                printf(".");
+                fflush(stdout);
+                #endif
+
             }
 
             /* clear file descriptor set */
@@ -127,6 +147,11 @@ main(int argc, char* argv[])
             /* add the serial device to file descriptor set to
              * be observed */
             FD_SET(fd, &fds);
+
+            /* allocate space for data */
+            char *data = malloc(READ_BLOCK_SIZE);
+            if (data == NULL)
+                errx(8, "malloc() failed");
 
             /* check to see if there is data to be read */
             rc = select(fd+1, &fds, NULL, NULL, &tv);
@@ -137,14 +162,19 @@ main(int argc, char* argv[])
                 if(FD_ISSET(fd, &fds)) {
                     /* select() returned our serial device, so there
                      * is data to be read */
-                    if(read(fd, r, 1) < 1)
+                    if(read(fd, data, READ_BLOCK_SIZE) < 1)
                         errx(8, "error during read: %s", strerror(errno));
 
                     /* check if it's the right character, if not keep
                      * looping */
-                    if(r[0] == BOOTLOADER_SUCCESS_CHAR) {
-                        printf("Bootloader running.\n");
+                    if(data[0] == BOOTLOADER_SUCCESS_CHAR) {
+                        printf("\nBootloader running.\n");
                         exit(0);
+                    } else {
+                        #ifdef VERBOSE
+                        printf("#");
+                        fflush(stdout);
+                        #endif
                     }
                 }
             }
