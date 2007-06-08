@@ -161,13 +161,13 @@ void network_process(void)
     uint8_t pktcnt = read_control_register(REG_EPKTCNT);
 #   endif
 
-    /* if no interrupt occured and less than 5 packets are in the receive
+    /* if no interrupt occured and no packets are in the receive
      * buffer, return */
-    if ( ! (interrupt_occured()
+    if ( !interrupt_occured()
 #   ifdef ENC28J60_REV4_WORKAROUND
-                || pktcnt > 5
+                || pktcnt == 5
 #   endif
-           ) )
+           )
         return;
 
 #   if defined(ENC28J60_REV4_WORKAROUND) && defined(DEBUG_REV4_WORKAROUND)
