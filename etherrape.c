@@ -120,6 +120,9 @@ int main(void)
         portio_update();
         wdt_kick();
 
+        /* check if debug input has arrived */
+        debug_process();
+
     }
 
 } /* }}} */

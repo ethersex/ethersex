@@ -21,7 +21,6 @@
  }}} */
 
 #include <avr/eeprom.h>
-#include <util/crc16.h>
 #include <string.h>
 #include <avr/pgmspace.h>
 
@@ -45,7 +44,6 @@
 #endif
 
 /* prototypes */
-uint8_t crc_checksum(void *data, uint8_t length);
 void process_packet(void);
 
 void network_init(void)
@@ -78,12 +76,28 @@ void network_init(void)
         debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n",
             checksum, cfg_base->crc);
 
-        /* load default settings */
+        /* load default settings and save to buffer */
         memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
+        memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
+
         uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
+        memcpy(&cfg_base->ip, &ipaddr, sizeof(uip_ipaddr_t));
+
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
+        memcpy(&cfg_base->netmask, &ipaddr, sizeof(uip_ipaddr_t));
+
+        uip_ipaddr(ipaddr, 0, 0, 0, 0);
+        uip_setdraddr(ipaddr);
+        memcpy(&cfg_base->gateway, &ipaddr, sizeof(uip_ipaddr_t));
+
+        /* calculate new checksum */
+        checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
+        cfg_base->crc = checksum;
+
+        /* save config */
+        eeprom_write_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
 
     } else {
 
@@ -422,20 +436,5 @@ void transmit_packet(void)
 
     /* transmit packet */
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
-
-} /* }}} */
-
-uint8_t crc_checksum(void *data, uint8_t length)
-/* {{{ */ {
-
-    uint8_t crc = 0;
-    uint8_t *p = (uint8_t *)data;
-
-    for (uint8_t i = 0; i < length; i++) {
-        crc = _crc_ibutton_update(crc, *p);
-        p++;
-    }
-
-    return crc;
 
 } /* }}} */

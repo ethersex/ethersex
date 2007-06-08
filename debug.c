@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include "config.h"
 #include "debug.h"
+#include "ecmd/ecmd.h"
 
 #define noinline __attribute__((noinline))
 
@@ -63,21 +64,42 @@ int noinline debug_uart_put(char d, FILE *stream)
 
 } /* }}} */
 
-void DEBUG_PROCESS_UART()
+void DEBUG_PROCESS_UART(void)
 /* {{{ */ {
+#define LEN 60
+#define OUTPUTLEN 40
 
-    /* set baud rate */
-    _UBRRH_UART0 = HI8(DEBUG_UART_UBRR);
-    _UBRRL_UART0 = LO8(DEBUG_UART_UBRR);
+    static char buf[LEN+1];
+    static char *ptr = buf;
 
-    /* set mode */
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
+    if (_UCSRA_UART0 & _BV(_RXC_UART0)) {
+        char data = _UDR_UART0;
 
-    /* enable transmitter and receiver */
-    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+        if (data == '\n' || data == '\r') {
+            char *output = malloc(OUTPUTLEN);
 
-    /* open stdout/stderr */
-    fdevopen(debug_uart_put, NULL);
+            if (output == NULL)
+                debug_printf("malloc() failed!\n");
+
+            *ptr = '\0';
+            printf_P(PSTR("\n"));
+
+            debug_printf("parsing command '%s'\n", buf);
+
+            int l = ecmd_parse_command(buf, output, LEN);
+            if (l > 0)
+                printf_P(PSTR("%s\n"), output);
+            free(output);
+            ptr = buf;
+        } else {
+            debug_uart_put(data, stdout);
+
+            if (ptr < &buf[LEN-1])
+                *ptr++ = data;
+            else
+                debug_printf("not enough space for storing '%c'\n", data);
+        }
+    }
 
 } /* }}} */
 

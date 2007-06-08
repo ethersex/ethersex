@@ -20,35 +20,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _EEPROM_H
-#define _EEPROM_H
+#include <util/crc16.h>
+#include "eeprom.h"
 
-#include <stdint.h>
-#include <avr/eeprom.h>
-#include "config.h"
-#include "global.h"
+uint8_t crc_checksum(void *data, uint8_t length)
+/* {{{ */ {
 
-/* for an eeprom memory map see doc/eeprom */
+    uint8_t crc = 0;
+    uint8_t *p = (uint8_t *)data;
 
-#define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
-#define EEPROM_CONFIG_EXT   (uint8_t *)0x0013
+    for (uint8_t i = 0; i < length; i++) {
+        crc = _crc_ibutton_update(crc, *p);
+        p++;
+    }
 
-/* structures */
+    return crc;
 
-struct eeprom_config_base_t {
-    uint8_t mac[6];
-    uint8_t ip[4];
-    uint8_t netmask[4];
-    uint8_t gateway[4];
-    uint8_t crc;
-};
-
-struct eeprom_config_ext_t {
-    uint8_t sntp_server[4];
-    global_options_t options;
-    uint8_t crc;
-};
-
-uint8_t crc_checksum(void *data, uint8_t length);
-
-#endif
+} /* }}} */

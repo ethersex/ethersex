@@ -20,35 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _EEPROM_H
-#define _EEPROM_H
+#ifndef _ECMD_H
+#define _ECMD_H
 
-#include <stdint.h>
-#include <avr/eeprom.h>
-#include "config.h"
-#include "global.h"
+#include "../config.h"
 
-/* for an eeprom memory map see doc/eeprom */
-
-#define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
-#define EEPROM_CONFIG_EXT   (uint8_t *)0x0013
-
-/* structures */
-
-struct eeprom_config_base_t {
-    uint8_t mac[6];
-    uint8_t ip[4];
-    uint8_t netmask[4];
-    uint8_t gateway[4];
-    uint8_t crc;
-};
-
-struct eeprom_config_ext_t {
-    uint8_t sntp_server[4];
-    global_options_t options;
-    uint8_t crc;
-};
-
-uint8_t crc_checksum(void *data, uint8_t length);
+/* returns >= 0 for output, -1 for parse error */
+int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
 
 #endif

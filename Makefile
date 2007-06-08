@@ -6,7 +6,7 @@ export PWD
 # include avr-generic makefile configuration
 include $(PWD)/avr.mk
 
-SRC = $(shell echo *.c) net/handler.c uip/uip.c uip/uip_arp.c uip/psock.c
+SRC = $(shell echo *.c ecmd/*.c) net/handler.c uip/uip.c uip/uip_arp.c uip/psock.c
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 #CFLAGS += -Werror
 #CFLAGS += -Iuip/ -Iuip/apps
