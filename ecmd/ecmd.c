@@ -25,6 +25,7 @@
 #include <avr/eeprom.h>
 
 #include "../debug.h"
+#include "../uip/uip.h"
 #include "../uip/uip_arp.h"
 #include "../eeprom.h"
 #include "ecmd.h"
@@ -33,6 +34,7 @@
 
 /* module local prototypes */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
+static int8_t parse_mac(char *cmd, uint8_t *ptr);
 static int16_t parse_show(char *cmd, char *output, uint16_t len);
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
@@ -44,7 +46,8 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 
     int ret = -1;
 
-    if (strncasecmp_P(cmd, PSTR("ip "), 3) == 0) {
+    if (strncasecmp_P(cmd, PSTR("ip "), 3) == 0)
+    /* {{{ */ {
         cmd += 2;
 
         /* allocate space for ip, netmask and gateway */
@@ -86,34 +89,37 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 
             /* save new ip addresses, use uip_buf since this buffer is unused when
              * this function is executed */
-            void *buf = uip_buf;
-
-            /* the eeprom section must contain valid data, as the mac address is
-             * not initialized here, but this is assured in network_init() */
-            eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
-            struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
-
-            memcpy(&cfg_base->ip, ips[0], sizeof(uip_ipaddr_t));
-            memcpy(&cfg_base->netmask, ips[1], sizeof(uip_ipaddr_t));
-            memcpy(&cfg_base->gateway, ips[2], sizeof(uip_ipaddr_t));
-
-            /* calculate new checksum */
-            uint8_t checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
-            cfg_base->crc = checksum;
-
-            /* save config */
-            eeprom_write_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
-
-            ret = 0;
+            if ( (ret = eeprom_save_config(NULL, ips[0], ips[1], ips[2])) < 0)
+                debug_printf("malloc failed!\n");
         }
 
         /* free allocated space */
         free(ips);
 
-    } else if (strncasecmp_P(cmd, PSTR("show "), 5) == 0) {
-        cmd += 5;
+    } /* }}} */
+    else if (strncasecmp_P(cmd, PSTR("mac "), 4) == 0)
+    /* {{{ */ {
+        cmd += 4;
 
+        /* allocate space for mac */
+        void *mac = malloc(sizeof(struct uip_eth_addr));
+
+        if (mac == NULL) {
+            debug_printf("malloc failed!\n");
+            ret = -2;
+        } else {
+            ret = parse_mac(cmd, mac);
+            eeprom_save_config(mac, NULL, NULL, NULL);
+            free(mac);
+        }
+
+    } /* }}} */
+    else if (strncasecmp_P(cmd, PSTR("show "), 5) == 0) {
+        cmd += 5;
         ret = parse_show(cmd, output, len);
+    } else if (strncasecmp_P(cmd, PSTR("reset"), 5) == 0) {
+        void (*reset)(void) = (void *)0x0000;
+        reset();
     }
 
     if (ret == -1 && output != NULL) {
@@ -162,6 +168,44 @@ int8_t parse_ip(char *cmd, uint8_t *ptr)
     return ret;
 } /* }}} */
 
+/* parse an ethernet address at cmd, write result to ptr */
+int8_t parse_mac(char *cmd, uint8_t *ptr)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_MAC
+    debug_printf("called parse_mac with string '%s'\n", cmd);
+#endif
+
+    int *mac = malloc(sizeof(int) * 6);
+
+    /* return -2 if malloc() failed */
+    if (mac == NULL)
+        return -2;
+
+    int ret = sscanf_P(cmd, PSTR("%x:%x:%x:%x:%x:%x"), mac, mac+1, mac+2, mac+3, mac+4, mac+5);
+
+#ifdef DEBUG_ECMD_MAC
+    debug_printf("scanf returned %d\n", ret);
+#endif
+
+    if (ret == 6) {
+#ifdef DEBUG_ECMD_MAC
+        debug_printf("read mac %x:%x:%x:%x:%x:%x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+#endif
+
+        /* copy mac to destination */
+        if (ptr != NULL)
+            for (uint8_t i = 0; i < 6; i++)
+                ptr[i] = mac[i];
+
+        ret = 0;
+    } else
+        ret = -1;
+
+    free(mac);
+    return ret;
+} /* }}} */
+
 int16_t parse_show(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -170,6 +214,15 @@ int16_t parse_show(char *cmd, char *output, uint16_t len)
                 LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
                 LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
                 LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
+    } else if (strncasecmp_P(cmd, PSTR("mac"), 3) == 0) {
+        return snprintf_P(output, len, PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
+                uip_ethaddr.addr[0],
+                uip_ethaddr.addr[1],
+                uip_ethaddr.addr[2],
+                uip_ethaddr.addr[3],
+                uip_ethaddr.addr[4],
+                uip_ethaddr.addr[5]
+                );
     }
 
     return -1;

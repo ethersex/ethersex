@@ -100,6 +100,14 @@ int main(void)
                                       HI8(uip_hostaddr[0]),
                                       LO8(uip_hostaddr[1]),
                                       HI8(uip_hostaddr[1]));
+    debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+            uip_ethaddr.addr[0],
+            uip_ethaddr.addr[1],
+            uip_ethaddr.addr[2],
+            uip_ethaddr.addr[3],
+            uip_ethaddr.addr[4],
+            uip_ethaddr.addr[5]
+            );
 
     /* main loop */
     while(1) {

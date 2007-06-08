@@ -84,7 +84,9 @@ void DEBUG_PROCESS_UART(void)
             *ptr = '\0';
             printf_P(PSTR("\n"));
 
+#ifdef DEBUG_ECMD
             debug_printf("parsing command '%s'\n", buf);
+#endif
 
             int l = ecmd_parse_command(buf, output, LEN);
             if (l > 0)

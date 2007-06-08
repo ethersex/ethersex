@@ -20,6 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <stdlib.h>
+#include <string.h>
 #include <util/crc16.h>
 #include "eeprom.h"
 
@@ -35,5 +37,41 @@ uint8_t crc_checksum(void *data, uint8_t length)
     }
 
     return crc;
+
+} /* }}} */
+
+int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
+/* {{{ */ {
+
+    /* save new ip addresses, use uip_buf since this buffer is unused when
+     * this function is executed */
+    void *buf = malloc(sizeof(struct eeprom_config_base_t));
+
+    /* test if malloc failed */
+    if (buf == NULL)
+        return -1;
+
+    /* the eeprom section must contain valid data, if any parameter is NULL */
+    eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+    struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
+
+    if (mac != NULL)
+        memcpy(&cfg_base->mac, mac, 6);
+    if (ip != NULL)
+        memcpy(&cfg_base->ip, ip, 4);
+    if (netmask != NULL)
+        memcpy(&cfg_base->netmask, netmask, 4);
+    if (gateway != NULL)
+        memcpy(&cfg_base->gateway, gateway, 4);
+
+    /* calculate new checksum */
+    uint8_t checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
+    cfg_base->crc = checksum;
+
+    /* save config */
+    eeprom_write_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+
+    free(buf);
+    return 0;
 
 } /* }}} */
