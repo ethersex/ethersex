@@ -378,7 +378,7 @@ void dump_debug_registers(void)
 
     debug_printf("RevID: 0x%02x\n", read_control_register(REG_EREVID));
 
-    debug_print("Cntrl: ECON1 ECON2 ESTAT  EIR  EIE\n");
+    debug_printf("Cntrl: ECON1 ECON2 ESTAT  EIR  EIE\n");
     debug_printf("       0x%02x  0x%02x  0x%02x   0x%02x 0x%02x\n",
         read_control_register(REG_ECON1),
         read_control_register(REG_ECON2),
@@ -386,7 +386,7 @@ void dump_debug_registers(void)
         read_control_register(REG_EIR),
         read_control_register(REG_EIE));
 
-    debug_print("MAC  : MACON1  MACON2  MACON3  MACON4  MAC-Address\n");
+    debug_printf("MAC  : MACON1  MACON2  MACON3  MACON4  MAC-Address\n");
     debug_printf("        0x%02x    0x%02x    0x%02x    0x%02x  %02x:%02x:%02x:%02x:%02x:%02x\n",
         read_control_register(REG_MACON1),
         read_control_register(REG_MACON2),
@@ -399,7 +399,7 @@ void dump_debug_registers(void)
         read_control_register(REG_MAADR1),
         read_control_register(REG_MAADR0));
 
-    debug_print("Rx   : ERXST  ERXND  ERXWRPT ERXRDPT ERXFCON EPKTCNT MAMXFL\n");
+    debug_printf("Rx   : ERXST  ERXND  ERXWRPT ERXRDPT ERXFCON EPKTCNT MAMXFL\n");
     debug_printf("      0x%02x%02x 0x%02x%02x   0x%02x%02x  0x%02x%02x    0x%02x    0x%02x 0x%02x%02x\n",
         read_control_register(REG_ERXSTH),
         read_control_register(REG_ERXSTL),
@@ -414,7 +414,7 @@ void dump_debug_registers(void)
         read_control_register(REG_MAMXFLH),
         read_control_register(REG_MAMXFLL));
 
-    debug_print("Tx   : ETXST  ETXND  MACLCON1 MACLCON2 MAPHSUP\n");
+    debug_printf("Tx   : ETXST  ETXND  MACLCON1 MACLCON2 MAPHSUP\n");
     debug_printf("       0x%02x%02x 0x%02x%02x   0x%02x     0x%02x     0x%02x\n",
         read_control_register(REG_ETXSTH),
         read_control_register(REG_ETXSTL),
@@ -424,7 +424,7 @@ void dump_debug_registers(void)
         read_control_register(REG_MACLCON2),
         read_control_register(REG_MAPHSUP));
 
-    debug_print("DMA  : EDMAST EDMAND\n");
+    debug_printf("DMA  : EDMAST EDMAND\n");
     debug_printf("       0x%02x%02x 0x%02x%02x\n",
         read_control_register(REG_EDMASTH),
         read_control_register(REG_EDMASTL),

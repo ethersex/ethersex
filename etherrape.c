@@ -58,23 +58,23 @@ int main(void)
 /* {{{ */ {
 
     debug_init();
-    debug_print("debugging enabled\n");
+    debug_printf("debugging enabled\n");
 
     /* enable interrupts */
     sei();
 
 #   ifdef USE_WATCHDOG
-    debug_print("enabling watchdog\n");
+    debug_printf("enabling watchdog\n");
 
 #   ifdef DEBUG
     /* for debugging, test reset cause and jump to bootloader */
     if (MCUSR & _BV(WDRF)) {
-        debug_print("BUG: got reset by the watchdog!!\n");
+        debug_printf("BUG: got reset by the watchdog!!\n");
 
         /* clear flags */
         MCUSR &= ~_BV(WDRF);
 
-        debug_print("jumping to bootloader...\n");
+        debug_printf("jumping to bootloader...\n");
         jump_to_bootloader();
 
     }
@@ -84,12 +84,12 @@ int main(void)
     wdt_enable(WDTO_2S);
     wdt_kick();
 #   else
-    debug_print("disabling watchdog\n");
+    debug_printf("disabling watchdog\n");
     wdt_disable();
 #   endif
 
     /* send boot message */
-    debug_print("booting etherrape firmware " VERSION_STRING "...\n");
+    debug_printf("booting etherrape firmware " VERSION_STRING "...\n");
 
     spi_init();
     network_init();

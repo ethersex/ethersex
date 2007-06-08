@@ -34,7 +34,6 @@
     #define debug_init() DEBUG_INIT_UART()
     #define debug_process() DEBUG_PROCESS_UART()
 #else
-    #define debug_print(s)
     #define debug_printf(...)
     #define debug_init(...)
     #define debug_process(...)

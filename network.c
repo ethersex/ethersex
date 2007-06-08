@@ -62,7 +62,7 @@ void network_init(void)
 
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
-    debug_print("net: loading base network settings\n");
+    debug_printf("net: loading base network settings\n");
 #   endif
 
     /* use global network packet buffer for configuration */
@@ -114,7 +114,7 @@ void network_init(void)
 
     /* load extended network settings */
 #   ifdef DEBUG_NET_CONFIG
-    debug_print("net: loading extended network settings\n");
+    debug_printf("net: loading extended network settings\n");
 #   endif
 
     /* use global network packet buffer for configuration */
@@ -187,15 +187,15 @@ void network_process(void)
 
         debug_printf("net: controller interrupt, EIR = 0x%02x\n", EIR);
         if (EIR & _BV(LINKIF))
-            debug_print("\t* Link\n");
+            debug_printf("\t* Link\n");
         if (EIR & _BV(TXIF))
-            debug_print("\t* Tx\n");
+            debug_printf("\t* Tx\n");
         if (EIR & _BV(PKTIF))
-            debug_print("\t* Pkt\n");
+            debug_printf("\t* Pkt\n");
         if (EIR & _BV(RXERIF))
-            debug_print("\t* rx error\n");
+            debug_printf("\t* rx error\n");
         if (EIR & _BV(TXERIF))
-            debug_print("\t* tx error\n");
+            debug_printf("\t* tx error\n");
     }
 #endif
 
@@ -212,9 +212,9 @@ void network_process(void)
         uint8_t link_state = (read_phy(PHY_PHSTAT2) & _BV(LSTAT)) > 0;
 
         if (link_state) {
-            debug_print("net: got link!\n");
+            debug_printf("net: got link!\n");
         } else
-            debug_print("net: no link!\n");
+            debug_printf("net: no link!\n");
 
     }
 
@@ -225,7 +225,7 @@ void network_process(void)
         uint8_t ESTAT = read_control_register(REG_ESTAT);
 
         if (ESTAT & _BV(TXABRT))
-            debug_print("net: packet transmit failed\n");
+            debug_printf("net: packet transmit failed\n");
 #endif
         /* clear flags */
         bit_field_clear(REG_EIR, _BV(TXIF));
@@ -240,7 +240,7 @@ void network_process(void)
 
     /* receive error */
     if (EIR & _BV(RXERIF)) {
-        debug_print("net: receive error!\n");
+        debug_printf("net: receive error!\n");
 
         bit_field_clear(REG_EIR, _BV(RXERIF));
 
@@ -253,7 +253,7 @@ void network_process(void)
     /* transmit error */
     if (EIR & _BV(TXERIF)) {
 #ifdef DEBUG
-        debug_print("net: transmit error!\n");
+        debug_printf("net: transmit error!\n");
 #endif
 
         bit_field_clear(REG_EIR, _BV(TXERIF));
@@ -272,7 +272,7 @@ void process_packet(void)
         return;
 
 #   ifdef DEBUG_NET
-    debug_print("net: packet received\n");
+    debug_printf("net: packet received\n");
 #   endif
 
     /* read next packet pointer */
@@ -313,7 +313,7 @@ void process_packet(void)
         /* process arp packet */
         case UIP_ETHTYPE_ARP:
 #           ifdef DEBUG_NET
-            debug_print("net: arp packet received\n");
+            debug_printf("net: arp packet received\n");
 #           endif
             uip_arp_arpin();
 
@@ -326,7 +326,7 @@ void process_packet(void)
         /* process ip packet */
         case UIP_ETHTYPE_IP:
 #           ifdef DEBUG_NET
-            debug_print("net: ip packet received\n");
+            debug_printf("net: ip packet received\n");
 #           endif
             uip_arp_ipin();
             uip_input();
@@ -391,7 +391,7 @@ void transmit_packet(void)
     while (read_control_register(REG_ECON1) & _BV(ECON1_TXRTS) && timeout-- > 0);
 
     if (timeout == 0) {
-        debug_print("net: timeout waiting for TXRTS, aborting transmit!\n");
+        debug_printf("net: timeout waiting for TXRTS, aborting transmit!\n");
         return;
     }
 

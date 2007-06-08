@@ -89,7 +89,7 @@ void timer_process(void)
         /* expire arp entries every 10 seconds */
         if (counter == 50) {
 #           ifdef DEBUG_TIMER
-            debug_print("timer: 10 seconds have passed, expiring arp entries\n");
+            debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
 
             uip_arp_timer();
