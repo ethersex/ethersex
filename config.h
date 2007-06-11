@@ -92,13 +92,51 @@
 #define _RXC_UART0 RXC0
 #define _TXC_UART0 TXC0
 #define _IVREG MCUCR
-#define _SPCR0 SPCR0
-#define _SPE0 SPE0
-#define _MSTR0 MSTR0
-#define _SPSR0 SPSR0
-#define _SPIF0 SPIF0
-#define _SPDR0 SPDR0
-#define _SPI2X0 SPI2X0
+
+/* workaround for avr-libc devs not being able to decide how these registers
+ * should be named... */
+#ifdef SPCR0
+    #define _SPCR0 SPCR0
+#else
+    #define _SPCR0 SPCR
+#endif
+
+#ifdef SPE0
+    #define _SPE0 SPE0
+#else
+    #define _SPE0 SPE
+#endif
+
+#ifdef MSTR0
+    #define _MSTR0 MSTR0
+#else
+    #define _MSTR0 MSTR
+#endif
+
+#ifdef SPSR0
+    #define _SPSR0 SPSR0
+#else
+    #define _SPSR0 SPSR
+#endif
+
+#ifdef SPIF0
+    #define _SPIF0 SPIF0
+#else
+    #define _SPIF0 SPIF
+#endif
+
+#ifdef SPDR0
+    #define _SPDR0 SPDR0
+#else
+    #define _SPDR0 SPDR
+#endif
+
+#ifdef SPI2X0
+    #define _SPI2X0 SPI2X0
+#else
+    #define _SPI2X0 SPI2X
+#endif
+
 #define _TIFR_TIMER1 TIFR1
 
 /* }}} */
