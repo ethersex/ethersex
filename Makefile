@@ -25,7 +25,7 @@ MAKEFILE = Makefile
 
 .PHONY: all
 
-all: $(TARGET).hex $(TARGET).eep.hex $(TARGET).lss
+all: $(TARGET).hex $(TARGET).lss
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
