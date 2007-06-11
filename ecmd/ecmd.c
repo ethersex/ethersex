@@ -226,10 +226,11 @@ int16_t parse_show(char *cmd, char *output, uint16_t len)
 
         eeprom_read_block(mac, EEPROM_MAC_OFFSET, sizeof(struct uip_eth_addr));
 
-        return snprintf_P(output, len, PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
+        int output_len = snprintf_P(output, len, PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
         free(mac);
+        return output_len;
     }
 
     return -1;
