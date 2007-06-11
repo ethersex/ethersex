@@ -32,7 +32,7 @@ MAKEFILE = Makefile
 
 .PHONY: all ethcmd
 
-all: $(TARGET).hex $(TARGET).eep.hex $(TARGET).lss ethcmd
+all: $(TARGET).hex $(TARGET).lss ethcmd
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
