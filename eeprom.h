@@ -33,6 +33,9 @@
 #define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
 #define EEPROM_CONFIG_EXT   (uint8_t *)0x0013
 
+#define EEPROM_MAC_OFFSET   ((EEPROM_CONFIG_BASE)+0)
+#define EEPROM_IPS_OFFSET   ((EEPROM_CONFIG_BASE)+6)
+
 /* structures */
 
 struct eeprom_config_base_t {

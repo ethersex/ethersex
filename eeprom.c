@@ -43,8 +43,7 @@ uint8_t crc_checksum(void *data, uint8_t length)
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
 
-    /* save new ip addresses, use uip_buf since this buffer is unused when
-     * this function is executed */
+    /* save new ip addresses */
     void *buf = malloc(sizeof(struct eeprom_config_base_t));
 
     /* test if malloc failed */

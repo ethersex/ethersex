@@ -210,19 +210,26 @@ int16_t parse_show(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
     if (strncasecmp_P(cmd, PSTR("ip"), 2) == 0) {
-        return snprintf_P(output, len, PSTR("ip %u.%u.%u.%u/%u.%u.%u.%u, gateway %u.%u.%u.%u"),
-                LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
-                LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
-                LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
+        uint8_t *ips = malloc(sizeof(uip_ipaddr_t)*3);
+
+        eeprom_read_block(ips, EEPROM_IPS_OFFSET, sizeof(uip_ipaddr_t)*3);
+
+        int output_len = snprintf_P(output, len, PSTR("ip %u.%u.%u.%u/%u.%u.%u.%u, gateway %u.%u.%u.%u"),
+                ips[0], ips[1], ips[2], ips[3],
+                ips[4], ips[5], ips[6], ips[7],
+                ips[8], ips[9], ips[10], ips[11]);
+
+        free(ips);
+        return output_len;
     } else if (strncasecmp_P(cmd, PSTR("mac"), 3) == 0) {
+        uint8_t *mac = malloc(sizeof(struct uip_eth_addr));
+
+        eeprom_read_block(mac, EEPROM_MAC_OFFSET, sizeof(struct uip_eth_addr));
+
         return snprintf_P(output, len, PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
-                uip_ethaddr.addr[0],
-                uip_ethaddr.addr[1],
-                uip_ethaddr.addr[2],
-                uip_ethaddr.addr[3],
-                uip_ethaddr.addr[4],
-                uip_ethaddr.addr[5]
-                );
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+        free(mac);
     }
 
     return -1;
