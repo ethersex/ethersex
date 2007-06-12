@@ -18,7 +18,15 @@ AVRDUDE = avrdude
 AVRDUDE_BAUDRATE = 115200
 SIZE = avr-size
 
--include $(CURDIR)/config.mk
+all:
+
+$(PWD)/config.mk:
+	@echo "# Put your own config here!" > $@
+	@echo "#SERIAL_DEV = $(SERIAL_DEV)" >> $@
+	@echo "#DEBUG = 1\n" >> $@
+	@echo "created default config.mk, tune your settings there!"
+
+-include $(PWD)/config.mk
 
 # flags for avrdude
 ifeq ($(MCU),atmega8)
@@ -57,8 +65,6 @@ ifneq ($(DEBUG),)
 	CFLAGS += -DDEBUG
 endif
 
-
-all:
 
 .PHONY: sanity-check
 
