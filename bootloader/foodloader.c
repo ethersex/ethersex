@@ -55,6 +55,7 @@ void (*jump_to_application)(void) = (void *)0x0000;
 #if defined(SIGNAL_ENC28J60) && defined(_ATMEGA644)
 
 /* global variables */
+uint8_t enc28j60_found = 0;
 uint8_t enc28j60_current_bank;
 
 /* prototypes */
@@ -226,8 +227,18 @@ void noinline reset_enc28j60(void)
     /* reset controller */
     SPDR0 = ENC28J60_CMD_RESET;
 
-    /* wait until reset is done */
-    while (! (read_control_register(ENC28J60_REG_ESTAT) & _BV(ENC28J60_REG_ESTAT_CLKRDY)));
+    /* wait until reset is done, but not longer than 1ms (datasheet: 300us) */
+    for (uint8_t i = 0; i < 20; i++) {
+
+        if (read_control_register(ENC28J60_REG_ESTAT) & _BV(ENC28J60_REG_ESTAT_CLKRDY)) {
+            enc28j60_found = 1;
+            return;
+        }
+
+        _delay_loop_2(250);
+    }
+
+    enc28j60_found = 0;
 
 } /* }}} */
 
@@ -335,12 +346,15 @@ static noinline void signal_user(void)
     SPCR0 = _BV(SPE0) | _BV(MSTR0);
     SPSR0 = _BV(SPI2X0);
 
-
     reset_enc28j60();
 
-    /* configure leds */
-    write_phy(ENC28J60_PHY_PHLCON, _BV(ENC28J60_STRCH) |
-            _BV(ENC28J60_LBCFG3) | _BV(ENC28J60_LBCFG1));
+    if (enc28j60_found) {
+
+        /* configure leds */
+        write_phy(ENC28J60_PHY_PHLCON, _BV(ENC28J60_STRCH) |
+                _BV(ENC28J60_LBCFG3) | _BV(ENC28J60_LBCFG1));
+
+    }
 
 #   endif
 
