@@ -23,6 +23,9 @@ all:
 $(PWD)/config.mk:
 	@echo "# Put your own config here!" > $@
 	@echo "#SERIAL_DEV = $(SERIAL_DEV)" >> $@
+	@echo "#SERIAL_PROG = $(SERIAL_PROG)" >> $@
+	@echo "#ISP_DEV = $(ISP_DEV)" >> $@
+	@echo "#ISP_PROG = $(ISP_PROG)" >> $@
 	@echo "#DEBUG = 1\n" >> $@
 	@echo "created default config.mk, tune your settings there!"
 
