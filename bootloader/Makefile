@@ -3,12 +3,14 @@
 TARGET = foodloader
 
 # microcontroller and project specific settings (everything can be overridden using config.mk)
-#F_CPU = 16000000UL
-#MCU = atmega88
+F_CPU = 20000000UL
+MCU = atmega644
 #CFLAGS += -DBOOTLOADER_DDR=DDRC
 #CFLAGS += -DBOOTLOADER_PORT=PORTC
 #CFLAGS += -DBOOTLOADER_PIN=PINC
 #CFLAGS += -DBOOTLOADER_PINNUM=PINC0
+CFLAGS += -DBOOTLOADER_CHAR -DBOOTLOADER_RESET_VECTOR
+
 
 # include avr-generic makefile configuration
 include avr.mk
