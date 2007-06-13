@@ -18,7 +18,15 @@ AVRDUDE = avrdude
 AVRDUDE_BAUDRATE = 115200
 SIZE = avr-size
 
--include config.mk
+all:
+
+$(PWD)/config.mk:
+	@echo "# Put your own config here!" > $@
+	@echo "#SERIAL_DEV = $(SERIAL_DEV)" >> $@
+	@echo "#DEBUG = 1\n" >> $@
+	@echo "created default config.mk, tune your settings there!"
+
+-include $(PWD)/config.mk
 
 # flags for avrdude
 ifeq ($(MCU),atmega8)
@@ -45,18 +53,20 @@ CFLAGS += -g -Os -finline-limit=800 -mmcu=$(MCU) -DF_CPU=$(F_CPU) -std=gnu99
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
 
+DEBUG_CFLAGS += -Wall -W -Wchar-subscripts -Wmissing-prototypes
+DEBUG_CFLAGS += -Wmissing-declarations -Wredundant-decls
+DEBUG_CFLAGS += -Wstrict-prototypes -Wshadow -Wbad-function-cast
+DEBUG_CFLAGS += -Winline -Wpointer-arith -Wsign-compare
+DEBUG_CFLAGS += -Wunreachable-code -Wdisabled-optimization
+DEBUG_CFLAGS += -fshort-enums
+DEBUG_CFLAGS += -Wcast-align -Wwrite-strings -Wnested-externs -Wundef
+DEBUG_CFLAGS += -Wa,-adhlns=$(basename $@).lst
+DEBUG_CFLAGS += -DDEBUG
+
 ifneq ($(DEBUG),)
-	CFLAGS += -Wall -W -Wchar-subscripts -Wmissing-prototypes
-	CFLAGS += -Wmissing-declarations -Wredundant-decls
-	CFLAGS += -Wstrict-prototypes -Wshadow -Wbad-function-cast
-	CFLAGS += -Winline -Wpointer-arith -Wsign-compare
-	CFLAGS += -Wunreachable-code -Wdisabled-optimization -Werror
-	CFLAGS += -Wcast-align -Wwrite-strings -Wnested-externs -Wundef
-	CFLAGS += -Wa,-adhlns=$(basename $@).lst
-	CFLAGS += -DDEBUG
+	CFLAGS += $(DEBUG_CFLAGS)
 endif
 
-all:
 
 .PHONY: sanity-check
 
