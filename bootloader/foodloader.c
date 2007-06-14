@@ -281,6 +281,7 @@ static noinline uint8_t uart_getc(void)
 } /* }}} */
 
 /* loop a few times, and see if the character is received */
+#ifdef BOOTLOADER_CHAR
 static inline uint8_t wait_for_char(void)
 /*{{{*/ {
     uint8_t i;
@@ -298,6 +299,59 @@ static inline uint8_t wait_for_char(void)
     /* never received the character */
     return 0;
 } /* }}} */
+#endif
+
+#ifdef BOOTLOADER_CIRCUIT
+static inline uint8_t bootloader_circuit(void)
+/* {{{ */ {
+
+    uint8_t data = 0;
+
+    /* configure input pin */
+    BOOTLOADER_CIRCUIT_IN_DDR &= ~_BV(BOOTLOADER_CIRCUIT_IN);
+
+    /* enable pullup */
+    BOOTLOADER_CIRCUIT_IN_PORT |= _BV(BOOTLOADER_CIRCUIT_IN);
+
+    /* configure output pin */
+    BOOTLOADER_CIRCUIT_OUT_DDR |= _BV(BOOTLOADER_CIRCUIT_OUT);
+
+    for (uint8_t i = 0; i < 8; i++) {
+
+        /* output */
+        if (BOOTLOADER_CIRCUIT_MAGIC & _BV(i))
+            BOOTLOADER_CIRCUIT_OUT_PORT |= _BV(BOOTLOADER_CIRCUIT_OUT);
+        else
+            BOOTLOADER_CIRCUIT_OUT_PORT &= ~_BV(BOOTLOADER_CIRCUIT_OUT);
+
+        /* wait some time */
+        _delay_loop_2(60);
+
+        /* input */
+        if (BOOTLOADER_CIRCUIT_IN_PIN & _BV(BOOTLOADER_CIRCUIT_IN))
+            data |= _BV(i);
+
+    }
+
+    /* 3 possible cases:
+     *
+     * 1) data = 0xff   -> no circuit, start application
+     * 2) data = 0      -> circuit to ground, something wrong, start bootloader
+     * 3) data = MAGIC  -> circuit to output, start bootloader
+     */
+
+    uart_putc('C');
+    uart_putc(data);
+    uart_putc(BOOTLOADER_CIRCUIT_MAGIC);
+    uart_putc('c');
+
+    if (data == 0 || data == BOOTLOADER_CIRCUIT_MAGIC)
+        return 1;
+    else
+        return 0;
+
+} /* }}} */
+#endif
 
 /** init the hardware uart */
 static inline void init_uart(void)
@@ -425,6 +479,9 @@ int main(void)
 #   endif
 #   ifdef BOOTLOADER_RESET_VECTOR
             reset_vector == 0xFFFF ||
+#   endif
+#   ifdef BOOTLOADER_CIRCUIT
+            bootloader_circuit() ||
 #   endif
             0) {
 

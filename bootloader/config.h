@@ -269,6 +269,44 @@
 /* 3) activation via empty reset vector */
 //#define BOOTLOADER_RESET_VECTOR
 
+/* 4) activation via short circuit on pins */
+//#define BOOTLOADER_CIRCUIT
+
+#ifndef BOOTLOADER_CIRCUIT_IN
+#define BOOTLOADER_CIRCUIT_IN PB6
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_IN_PORT
+#define BOOTLOADER_CIRCUIT_IN_PORT PORTB
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_IN_DDR
+#define BOOTLOADER_CIRCUIT_IN_DDR DDRB
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_IN_PIN
+#define BOOTLOADER_CIRCUIT_IN_PIN PINB
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_OUT
+#define BOOTLOADER_CIRCUIT_OUT PB7
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_OUT_PORT
+#define BOOTLOADER_CIRCUIT_OUT_PORT PORTB
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_OUT_DDR
+#define BOOTLOADER_CIRCUIT_OUT_DDR DDRB
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_OUT_PIN
+#define BOOTLOADER_CIRCUIT_OUT_PIN PINB
+#endif
+
+#ifndef BOOTLOADER_CIRCUIT_MAGIC
+#define BOOTLOADER_CIRCUIT_MAGIC 0xA3
+#endif
 
 /* uart configuration */
 #define UART_BAUDRATE 115200
@@ -291,7 +329,7 @@
 
 /* version information */
 #define VERSION_BYTE_1 '0'
-#define VERSION_BYTE_2 '2'
+#define VERSION_BYTE_2 '3'
 
 
 /* user signal configuration */
