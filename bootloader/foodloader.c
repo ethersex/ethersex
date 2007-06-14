@@ -340,11 +340,6 @@ static inline uint8_t bootloader_circuit(void)
      * 3) data = MAGIC  -> circuit to output, start bootloader
      */
 
-    uart_putc('C');
-    uart_putc(data);
-    uart_putc(BOOTLOADER_CIRCUIT_MAGIC);
-    uart_putc('c');
-
     if (data == 0 || data == BOOTLOADER_CIRCUIT_MAGIC)
         return 1;
     else
