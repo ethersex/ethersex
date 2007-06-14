@@ -23,7 +23,7 @@ all:
 $(PWD)/config.mk:
 	@echo "# Put your own config here!" > $@
 	@echo "#SERIAL_DEV = $(SERIAL_DEV)" >> $@
-	@echo "#DEBUG = 1\n" >> $@
+	@echo "#DEBUG = 1" >> $@
 	@echo "created default config.mk, tune your settings there!"
 
 -include $(PWD)/config.mk
