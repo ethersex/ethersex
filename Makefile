@@ -50,7 +50,7 @@ install-eeprom: program-serial-eeprom-$(TARGET)
 clean: clean-$(TARGET) uip/clean net/clean bootloader/clean
 
 clean-$(TARGET):
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(TARGET).map
 	rm -f $(OBJECTS)
 
 distclean: clean

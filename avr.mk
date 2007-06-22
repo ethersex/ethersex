@@ -70,8 +70,11 @@ DEBUG_CFLAGS += -Wcast-align -Wwrite-strings -Wnested-externs -Wundef
 DEBUG_CFLAGS += -Wa,-adhlns=$(basename $@).lst
 DEBUG_CFLAGS += -DDEBUG
 
+DEBUG_LDFLAGS += -Wl,-Map,$(TARGET).map
+
 ifneq ($(DEBUG),)
 	CFLAGS += $(DEBUG_CFLAGS)
+	LDFLAGS += $(DEBUG_LDFLAGS)
 endif
 
 
