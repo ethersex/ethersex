@@ -38,6 +38,7 @@
 /* prototypes */
 
 /* update port information (PORT and DDR) from global status */
+void portio_init(void);
 void portio_update(void);
 
 #endif /* _IO_H */

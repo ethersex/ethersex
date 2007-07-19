@@ -28,6 +28,16 @@ static const volatile uint8_t *ports[] = IO_PORT_ARRAY;
 
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
+void portio_init(void)
+/* {{{ */ {
+
+    for (uint8_t i = 0; i < IO_PORTS; i++) {
+        cfg.options.io_ddr[i] = ACCESS_IO(ddrs[i]);
+        cfg.options.io[i] = ACCESS_IO(ports[i]);
+    }
+
+} /* }}} */
+
 /* update port information (PORT and DDR) from global status */
 void portio_update(void)
 /* {{{ */ {

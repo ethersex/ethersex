@@ -100,6 +100,9 @@ int main(void)
     fs20_init();
 #endif
 
+    /* must be called AFTER all other initialization */
+    portio_init();
+
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
     debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]),
                                       HI8(uip_hostaddr[0]),
