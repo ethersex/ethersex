@@ -44,33 +44,29 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
 
     /* save new ip addresses */
-    void *buf = malloc(sizeof(struct eeprom_config_base_t));
-
-    /* test if malloc failed */
-    if (buf == NULL)
-        return -1;
+    struct eeprom_config_base_t cfg_base;
 
     /* the eeprom section must contain valid data, if any parameter is NULL */
-    eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
-    struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
+    eeprom_read_block(&cfg_base, EEPROM_CONFIG_BASE,
+            sizeof(struct eeprom_config_base_t));
 
     if (mac != NULL)
-        memcpy(&cfg_base->mac, mac, 6);
+        memcpy(&cfg_base.mac, mac, 6);
     if (ip != NULL)
-        memcpy(&cfg_base->ip, ip, 4);
+        memcpy(&cfg_base.ip, ip, 4);
     if (netmask != NULL)
-        memcpy(&cfg_base->netmask, netmask, 4);
+        memcpy(&cfg_base.netmask, netmask, 4);
     if (gateway != NULL)
-        memcpy(&cfg_base->gateway, gateway, 4);
+        memcpy(&cfg_base.gateway, gateway, 4);
 
     /* calculate new checksum */
-    uint8_t checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
-    cfg_base->crc = checksum;
+    uint8_t checksum = crc_checksum(&cfg_base, sizeof(struct eeprom_config_base_t) - 1);
+    cfg_base.crc = checksum;
 
     /* save config */
-    eeprom_write_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+    eeprom_write_block(&cfg_base, EEPROM_CONFIG_BASE,
+            sizeof(struct eeprom_config_base_t));
 
-    free(buf);
     return 0;
 
 } /* }}} */
