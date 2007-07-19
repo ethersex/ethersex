@@ -38,7 +38,8 @@
 /* high level */
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
 #ifdef FS20_SUPPORT
 static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len);
@@ -54,7 +55,8 @@ struct ecmd_command_t {
     int16_t (*func)(char*, char*, uint16_t);
 };
 
-const char PROGMEM ecmd_show_text[] = "show ";
+const char PROGMEM ecmd_showmac_text[] = "show mac";
+const char PROGMEM ecmd_showip_text[] = "show ip";
 const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_reset_text[] = "reset";
@@ -64,7 +66,8 @@ const char PROGMEM ecmd_fs20_text[] = "fs20 send";
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
-    { ecmd_show_text, parse_cmd_show },
+    { ecmd_showmac_text, parse_cmd_show_mac },
+    { ecmd_showip_text, parse_cmd_show_ip },
     { ecmd_mac_text, parse_cmd_mac },
     { ecmd_reset_text, parse_cmd_reset },
 #ifdef FS20_SUPPORT
@@ -137,40 +140,38 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 
 /* high level parsing functions */
 
-int16_t parse_cmd_show(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
 #ifdef DEBUG_ECMD_MAC
     debug_printf("called parse_cmd_show with rest: \"%s\"\n", cmd);
 #endif
 
-    if (strncasecmp_P(cmd, PSTR("ip"), 2) == 0) {
-        uint8_t *ips = malloc(sizeof(uip_ipaddr_t)*3);
+    struct uip_eth_addr buf;
+    uint8_t *mac = (uint8_t *)&buf;
 
-        eeprom_read_block(ips, EEPROM_IPS_OFFSET, sizeof(uip_ipaddr_t)*3);
+    eeprom_read_block(&buf, EEPROM_MAC_OFFSET, sizeof(struct uip_eth_addr));
 
-        int output_len = snprintf_P(output, len,
-                PSTR("ip %u.%u.%u.%u/%u.%u.%u.%u, gateway %u.%u.%u.%u"),
-                ips[0], ips[1], ips[2], ips[3],
-                ips[4], ips[5], ips[6], ips[7],
-                ips[8], ips[9], ips[10], ips[11]);
+    int output_len = snprintf_P(output, len,
+            PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
+            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-        free(ips);
-        return output_len;
-    } else if (strncasecmp_P(cmd, PSTR("mac"), 3) == 0) {
-        uint8_t *mac = malloc(sizeof(struct uip_eth_addr));
+    return output_len;
+} /* }}} */
 
-        eeprom_read_block(mac, EEPROM_MAC_OFFSET, sizeof(struct uip_eth_addr));
+int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uint8_t ips[sizeof(uip_ipaddr_t)*3];
 
-        int output_len = snprintf_P(output, len,
-                PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
-                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    eeprom_read_block(ips, EEPROM_IPS_OFFSET, sizeof(uip_ipaddr_t)*3);
 
-        free(mac);
-        return output_len;
-    }
+    int output_len = snprintf_P(output, len,
+            PSTR("ip %u.%u.%u.%u/%u.%u.%u.%u, gateway %u.%u.%u.%u"),
+            ips[0], ips[1], ips[2], ips[3],
+            ips[4], ips[5], ips[6], ips[7],
+            ips[8], ips[9], ips[10], ips[11]);
 
-    return -1;
+    return output_len;
 } /* }}} */
 
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
