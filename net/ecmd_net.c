@@ -74,7 +74,7 @@ void newdata(void)
         /* parse command and write output to state->outbuf, reserving at least
          * one byte for the terminating \n */
         int l = ecmd_parse_command(state->inbuf,
-                                    &state->outbuf,
+                                    state->outbuf,
                                     ECMD_OUTPUTBUF_LENGTH-1);
 
         debug_printf("parser returned %d\n", l);
