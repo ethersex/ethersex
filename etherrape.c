@@ -36,6 +36,7 @@
 #include "spi.h"
 #include "network.h"
 #include "timer.h"
+#include "fs20.h"
 
 #include "net/handler.h"
 
@@ -94,6 +95,10 @@ int main(void)
     spi_init();
     network_init();
     timer_init();
+
+#ifdef FS20_SUPPORT
+    fs20_init();
+#endif
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
     debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]),

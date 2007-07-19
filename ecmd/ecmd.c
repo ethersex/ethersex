@@ -28,6 +28,8 @@
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
 #include "../eeprom.h"
+#include "../bit-macros.h"
+#include "../fs20.h"
 #include "ecmd.h"
 #include "parser.h"
 
@@ -38,6 +40,9 @@ static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
+#ifdef FS20_SUPPORT
+static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len);
+#endif
 
 /* low level */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
@@ -53,12 +58,18 @@ const char PROGMEM ecmd_show_text[] = "show ";
 const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_reset_text[] = "reset";
+#ifdef FS20_SUPPORT
+const char PROGMEM ecmd_fs20_text[] = "fs20 send";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
     { ecmd_show_text, parse_cmd_show },
     { ecmd_mac_text, parse_cmd_mac },
     { ecmd_reset_text, parse_cmd_reset },
+#ifdef FS20_SUPPORT
+    { ecmd_fs20_text, parse_cmd_fs20 },
+#endif
     { NULL, NULL },
 };
 
@@ -116,6 +127,9 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     if (ret == -1 && output != NULL) {
         strncpy_P(output, PSTR("parse error"), len);
         ret = 12;
+    } else if (ret == 0) {
+        strncpy_P(output, PSTR("OK"), len);
+        ret = 2;
     }
 
     return ret;
@@ -233,6 +247,32 @@ static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     void (*reset)(void) = (void *)0x0000;
     reset();
     return 0;
+
+} /* }}} */
+
+static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_FS20
+    debug_printf("called with string %s\n", cmd);
+#endif
+
+    uint16_t hc, addr, c;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%x %x %x"),
+            &hc, &addr, &c);
+
+    if (ret == 3) {
+#ifdef DEBUG_ECMD_FS20
+        debug_printf("fs20_send(0x%x,0x%x,0x%x)\n", hc, LO8(addr), LO8(c));
+#endif
+
+        fs20_send(hc, LO8(addr), LO8(c));
+        return 0;
+    }
+
+    return -1;
 
 } /* }}} */
 
