@@ -24,12 +24,14 @@
 #define _IO_H
 
 #include "config.h"
+#include <stdint.h>
 
 #if defined(_ATMEGA644) || defined(_ATMEGA32)
 
 #define IO_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
+#define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
 #define IO_MASK_ARRAY { 0,      /* port a */                        \
                         0xff,   /* port b */                        \
                         _BV(PC0) | _BV(PC1), /* port c */           \
@@ -45,5 +47,6 @@
 /* update port information (PORT and DDR) from global status */
 void portio_init(void);
 void portio_update(void);
+uint8_t portio_input(uint8_t port);
 
 #endif /* _IO_H */

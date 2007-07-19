@@ -32,6 +32,7 @@
 #include "../fs20.h"
 #include "ecmd.h"
 #include "parser.h"
+#include "../portio.h"
 
 
 /* module local prototypes */
@@ -41,6 +42,11 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len);
 #ifdef FS20_SUPPORT
 static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len);
 #endif
@@ -60,6 +66,11 @@ const char PROGMEM ecmd_showip_text[] = "show ip";
 const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_reset_text[] = "reset";
+const char PROGMEM ecmd_io_set_ddr[] = "io set ddr";
+const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
+const char PROGMEM ecmd_io_set_port[] = "io set port";
+const char PROGMEM ecmd_io_get_port[] = "io get port";
+const char PROGMEM ecmd_io_get_pin[] = "io get pin";
 #ifdef FS20_SUPPORT
 const char PROGMEM ecmd_fs20_text[] = "fs20 send";
 #endif
@@ -70,6 +81,11 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_showip_text, parse_cmd_show_ip },
     { ecmd_mac_text, parse_cmd_mac },
     { ecmd_reset_text, parse_cmd_reset },
+    { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
+    { ecmd_io_get_ddr, parse_cmd_io_get_ddr },
+    { ecmd_io_set_port, parse_cmd_io_set_port },
+    { ecmd_io_get_port, parse_cmd_io_get_port },
+    { ecmd_io_get_pin, parse_cmd_io_get_pin },
 #ifdef FS20_SUPPORT
     { ecmd_fs20_text, parse_cmd_fs20 },
 #endif
@@ -276,6 +292,127 @@ static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len)
     return -1;
 
 } /* }}} */
+
+static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_PORTIO
+    debug_printf("called parse_cmd_io_set_ddr with rest: \"%s\"\n", cmd);
+#endif
+
+    uint16_t port, data, mask;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%x %x %x"),
+            &port, &data, &mask);
+
+    if (ret == 3 && port < IO_PORTS) {
+
+        cfg.options.io_ddr[port] = (cfg.options.io_ddr[port] & ~mask) |
+                                   LO8(data & mask);
+
+        return 0;
+    } else
+        return -1;
+
+} /* }}} */
+
+static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_PORTIO
+    debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
+#endif
+
+    uint16_t port;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%x"),
+            &port);
+
+    if (ret == 1 && port < IO_PORTS) {
+
+        return snprintf_P(output, len,
+                PSTR("port %d: 0x%02x"),
+                port,
+                cfg.options.io_ddr[port]);
+    } else
+        return -1;
+
+} /* }}} */
+
+static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_PORTIO
+    debug_printf("called parse_cmd_io_set_port with rest: \"%s\"\n", cmd);
+#endif
+
+    uint16_t port, data, mask;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%x %x %x"),
+            &port, &data, &mask);
+
+    if (ret == 3 && port < IO_PORTS) {
+
+        cfg.options.io[port] = (cfg.options.io[port] & ~mask) |
+                                   LO8(data & mask);
+
+        return 0;
+    } else
+        return -1;
+
+} /* }}} */
+
+static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_PORTIO
+    debug_printf("called parse_cmd_io_get_port with rest: \"%s\"\n", cmd);
+#endif
+
+    uint16_t port;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%x"),
+            &port);
+
+    if (ret == 1 && port < IO_PORTS) {
+
+        return snprintf_P(output, len,
+                PSTR("port %d: 0x%02x"),
+                port,
+                cfg.options.io[port]);
+    } else
+        return -1;
+
+} /* }}} */
+
+static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_PORTIO
+    debug_printf("called parse_cmd_io_get_pin with rest: \"%s\"\n", cmd);
+#endif
+
+    uint16_t port;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%x"),
+            &port);
+
+    if (ret == 1 && port < IO_PORTS) {
+
+        return snprintf_P(output, len,
+                PSTR("port %d: 0x%02x"),
+                port,
+                portio_input(port));
+    } else
+        return -1;
+
+} /* }}} */
+
 
 /* low level parsing functions */
 

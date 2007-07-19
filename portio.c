@@ -25,6 +25,7 @@
 
 static const volatile uint8_t *ddrs[] = IO_DDR_ARRAY;
 static const volatile uint8_t *ports[] = IO_PORT_ARRAY;
+static const volatile uint8_t *pins[] = IO_PIN_ARRAY;
 static const uint8_t masks[] = IO_MASK_ARRAY;
 
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
@@ -58,4 +59,9 @@ void portio_update(void)
                              ((uint8_t)cfg.options.io[i] & ~masks[i]);
     }
 
+} /* }}} */
+
+uint8_t portio_input(uint8_t port)
+/* {{{ */ {
+    return ACCESS_IO(pins[port]);
 } /* }}} */
