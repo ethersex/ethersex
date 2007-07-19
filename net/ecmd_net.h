@@ -20,27 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef CONNECTION_STATE_H
-#define CONNECTION_STATE_H
+#ifndef ECMD_NET_H
+#define ECMD_NET_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
+#define ECMD_NET_PORT 2701
 
-#include "ecmd_state.h"
-
-/* uip appstate for tcp */
-typedef union uip_tcp_connection_state {
-    struct ecmd_connection_state_t ecmd;
-
-    /* put tcp application states here, example:
-     * struct httpd_connection_state_t httpd; */
-} uip_tcp_appstate_t;
-
-/* uip appstate for udp
- * attention: first byte MUST be transmit_state! */
-typedef union uip_udp_connection_state {
-    /* put udp application states here, example:
-     * struct sntp_connection_state_t sntp; */
-} uip_udp_appstate_t;
+void ecmd_net_init(void);
+void ecmd_net_main(void);
 
 #endif

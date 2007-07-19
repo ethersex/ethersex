@@ -99,6 +99,13 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     debug_printf("called ecmd_parse_command\n");
 #endif
 
+    if (strlen(cmd) <= 2) {
+#ifdef DEBUG_ECMD
+        debug_printf("cmd is too short\n");
+#endif
+        return 0;
+    }
+
     int ret = -1;
 
     char *text = NULL;

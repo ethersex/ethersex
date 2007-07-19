@@ -23,8 +23,12 @@
 #include "handler.h"
 #include "../uip/uip.h"
 
+#include "ecmd_net.h"
+
 void network_init_apps(void)
 /* {{{ */ {
+
+    ecmd_net_init();
 
     /* initialize your applications here */
 
@@ -39,6 +43,9 @@ void network_handle_tcp(void)
     uart_puthexbyte(LO8(uip_conn->lport));
     uart_eol();
 #endif
+
+    if (uip_conn->lport == HTONS(ECMD_NET_PORT))
+        ecmd_net_main();
 
     /* put tcp application calls here, example:
      *

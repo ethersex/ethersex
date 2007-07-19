@@ -35,5 +35,4 @@
 
 #define NTOHL(x) HTONL(x)
 
-
 #endif
