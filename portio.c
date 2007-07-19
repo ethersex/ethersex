@@ -25,6 +25,7 @@
 
 static const volatile uint8_t *ddrs[] = IO_DDR_ARRAY;
 static const volatile uint8_t *ports[] = IO_PORT_ARRAY;
+static const uint8_t masks[] = IO_MASK_ARRAY;
 
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
@@ -51,8 +52,10 @@ void portio_update(void)
             debug_printf("io: port %d changed to %02x\n", i, cfg.options.io[i]);
 #       endif
 
-        ACCESS_IO(ddrs[i]) = cfg.options.io_ddr[i];
-        ACCESS_IO(ports[i]) = cfg.options.io[i];
+        ACCESS_IO(ddrs[i]) = ((uint8_t)ACCESS_IO(ddrs[i]) & masks[i]) |
+                             ((uint8_t)cfg.options.io_ddr[i] & ~masks[i]);
+        ACCESS_IO(ports[i]) = ((uint8_t)ACCESS_IO(ports[i]) & masks[i]) |
+                             ((uint8_t)cfg.options.io[i] & ~masks[i]);
     }
 
 } /* }}} */

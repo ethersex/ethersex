@@ -27,9 +27,14 @@
 
 #if defined(_ATMEGA644) || defined(_ATMEGA32)
 
-#define IO_PORTS 3
-#define IO_DDR_ARRAY {&DDRA, &DDRC, &DDRD}
-#define IO_PORT_ARRAY {&PORTA, &PORTC, &PORTD}
+#define IO_PORTS 4
+#define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
+#define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
+#define IO_MASK_ARRAY { 0,      /* port a */                        \
+                        0xff,   /* port b */                        \
+                        _BV(PC0) | _BV(PC1), /* port c */           \
+                        _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
+                      }
 
 #else
 #error "unknown CPU!"
