@@ -315,6 +315,12 @@ static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
             PSTR("%x %x %x"),
             &port, &data, &mask);
 
+    /* use default mask, if no mask has been given */
+    if (ret == 2) {
+        mask = 0xff;
+        ret = 3;
+    }
+
     if (ret == 3 && port < IO_PORTS) {
 
         cfg.options.io_ddr[port] = (cfg.options.io_ddr[port] & ~mask) |
@@ -362,6 +368,12 @@ static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
     int ret = sscanf_P(cmd,
             PSTR("%x %x %x"),
             &port, &data, &mask);
+
+    /* use default mask, if no mask has been given */
+    if (ret == 2) {
+        mask = 0xff;
+        ret = 3;
+    }
 
     if (ret == 3 && port < IO_PORTS) {
 
