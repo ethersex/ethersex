@@ -139,6 +139,8 @@ int main(void)
         /* check if debug input has arrived */
         debug_process();
 
+        /* check if fs20 data has arrived */
+        fs20_process();
     }
 
 } /* }}} */

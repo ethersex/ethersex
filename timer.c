@@ -26,22 +26,23 @@
 #include "debug.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
+#include "fs20.h"
 
 void timer_init(void)
 /* {{{ */ {
 
-    /* init timer1 to expire after ~200ms, with CTC enabled */
+    /* init timer1 to expire after ~20ms, with CTC enabled */
     TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
-    OCR1A = (F_CPU/1024/5);
+    OCR1A = (F_CPU/1024/50);
 
 } /* }}} */
 
 void timer_process(void)
 /* {{{ */ {
 
-    static uint8_t counter = 0;
+    static uint16_t counter = 0;
 
-    /* check timer 1 (timeout after 200ms) */
+    /* check timer 1 (timeout after 50ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
 
         counter++;
@@ -56,38 +57,43 @@ void timer_process(void)
         uint16_t i;
 #       endif
 
-        /* check tcp connections every time */
-        for (i = 0; i < UIP_CONNS; i++) {
-            uip_periodic(i);
+        /* process fs20 stuff */
+        fs20_process_timeout();
 
-            /* if this generated a packet, send it now */
-            if (uip_len > 0) {
-                uip_arp_out();
-                transmit_packet();
+        /* check tcp connections every 200ms */
+        if (counter % 10 == 0) {
+            for (i = 0; i < UIP_CONNS; i++) {
+                uip_periodic(i);
+
+                /* if this generated a packet, send it now */
+                if (uip_len > 0) {
+                    uip_arp_out();
+                    transmit_packet();
+                }
             }
-        }
 
-#       if UIP_UDP == 1
-        /* check udp connections every time */
-        for (i = 0; i < UIP_UDP_CONNS; i++) {
-            uip_udp_periodic(i);
+#           if UIP_UDP == 1
+            /* check udp connections every time */
+            for (i = 0; i < UIP_UDP_CONNS; i++) {
+                uip_udp_periodic(i);
 
-            /* if this generated a packet, send it now */
-            if (uip_len > 0) {
-                // XXX FIXME if (uip_arp_out() == 0)
-                // XXX FIXME     uip_udp_conn->appstate.sntp.transmit_state = 1;
+                /* if this generated a packet, send it now */
+                if (uip_len > 0) {
+                    // XXX FIXME if (uip_arp_out() == 0)
+                    // XXX FIXME     uip_udp_conn->appstate.sntp.transmit_state = 1;
 
-                transmit_packet();
+                    transmit_packet();
+                }
             }
+#           endif
         }
-#       endif
 
         // FIXME
         //if (c % 5 == 0) /* every second */
         //    clock_periodic();
 
         /* expire arp entries every 10 seconds */
-        if (counter == 50) {
+        if (counter == 500) {
 #           ifdef DEBUG_TIMER
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
