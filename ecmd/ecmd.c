@@ -30,8 +30,8 @@
 #include "../eeprom.h"
 #include "../bit-macros.h"
 #include "../fs20.h"
-#include "ecmd.h"
 #include "../portio.h"
+#include "ecmd.h"
 
 
 /* module local prototypes */
@@ -60,6 +60,9 @@ struct ecmd_command_t {
     int16_t (*func)(char*, char*, uint16_t);
 };
 
+/* construct strings.  this is ugly, but the only known way of
+ * storing structs containing string pointer completely in program
+ * space */
 const char PROGMEM ecmd_showmac_text[] = "show mac";
 const char PROGMEM ecmd_showip_text[] = "show ip";
 const char PROGMEM ecmd_ip_text[] = "ip ";
