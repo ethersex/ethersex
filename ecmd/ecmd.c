@@ -31,7 +31,6 @@
 #include "../bit-macros.h"
 #include "../fs20.h"
 #include "ecmd.h"
-#include "parser.h"
 #include "../portio.h"
 
 
