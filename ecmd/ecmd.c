@@ -24,6 +24,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 
+#include "../config.h"
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
@@ -46,8 +47,11 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len);
-#ifdef FS20_SUPPORT
-static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len);
+#ifdef FS20_SUPPORT_SEND
+static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len);
+#endif
+#ifdef FS20_SUPPORT_RECEIVE
+static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len);
 #endif
 
 /* low level */
@@ -73,8 +77,11 @@ const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
 const char PROGMEM ecmd_io_set_port[] = "io set port";
 const char PROGMEM ecmd_io_get_port[] = "io get port";
 const char PROGMEM ecmd_io_get_pin[] = "io get pin";
-#ifdef FS20_SUPPORT
-const char PROGMEM ecmd_fs20_text[] = "fs20 send";
+#ifdef FS20_SUPPORT_SEND
+const char PROGMEM ecmd_fs20_send_text[] = "fs20 send";
+#endif
+#ifdef FS20_SUPPORT_RECEIVE
+const char PROGMEM ecmd_fs20_recv_text[] = "fs20 receive";
 #endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
@@ -88,8 +95,11 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_io_set_port, parse_cmd_io_set_port },
     { ecmd_io_get_port, parse_cmd_io_get_port },
     { ecmd_io_get_pin, parse_cmd_io_get_pin },
-#ifdef FS20_SUPPORT
-    { ecmd_fs20_text, parse_cmd_fs20 },
+#ifdef FS20_SUPPORT_SEND
+    { ecmd_fs20_send_text, parse_cmd_send_fs20 },
+#endif
+#ifdef FS20_SUPPORT_RECEIVE
+    { ecmd_fs20_recv_text, parse_cmd_recv_fs20 },
 #endif
     { NULL, NULL },
 };
@@ -276,7 +286,8 @@ static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 
-static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len)
+#ifdef FS20_SUPPORT_SEND
+static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
 #ifdef DEBUG_ECMD_FS20
@@ -301,6 +312,50 @@ static int16_t parse_cmd_fs20(char *cmd, char *output, uint16_t len)
     return -1;
 
 } /* }}} */
+#endif
+
+#ifdef FS20_SUPPORT_RECEIVE
+static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+    char *s = output;
+    uint8_t l = 0;
+    uint8_t outlen = 0;
+
+#ifdef DEBUG_ECMD_FS20
+    debug_printf("%u positions in queue\n", fs20_global.len);
+#endif
+
+    while (l < fs20_global.len &&
+            (uint8_t)(outlen+9) < len) {
+#ifdef DEBUG_ECMD_FS20
+        debug_printf("generating for pos %u: hc: %02x%02x addr: %02x cmd: %02x\n", l,
+                fs20_global.queue[l].hc1,
+                fs20_global.queue[l].hc2,
+                fs20_global.queue[l].addr,
+                fs20_global.queue[l].cmd);
+#endif
+
+        sprintf_P(s, PSTR("%02x%02x%02x%02x\n"),
+                fs20_global.queue[l].hc1,
+                fs20_global.queue[l].hc2,
+                fs20_global.queue[l].addr,
+                fs20_global.queue[l].cmd);
+
+        s += 9;
+        outlen += 9;
+        l++;
+
+#ifdef DEBUG_ECMD_FS20
+        *s = '\0';
+        debug_printf("output is \"%s\"\n", output);
+#endif
+    }
+
+    return outlen;
+
+} /* }}} */
+#endif
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
