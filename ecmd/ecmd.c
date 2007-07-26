@@ -329,7 +329,7 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
     while (l < fs20_global.len &&
             (uint8_t)(outlen+9) < len) {
 #ifdef DEBUG_ECMD_FS20
-        debug_printf("generating for pos %u: hc: %02x%02x addr: %02x cmd: %02x\n", l,
+        debug_printf("generating for pos %u: %02x%02x%02x%02x", l,
                 fs20_global.queue[l].hc1,
                 fs20_global.queue[l].hc2,
                 fs20_global.queue[l].addr,
@@ -351,6 +351,9 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
         debug_printf("output is \"%s\"\n", output);
 #endif
     }
+
+    /* clear queue */
+    fs20_global.len = 0;
 
     return outlen;
 

@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim: fdm=marker ts=4 et ai
  * {{{
  *
  *          fs20 sender implementation
@@ -198,44 +198,63 @@ void fs20_process(void)
     /* check if something has been received */
     if (fs20_global.rec == 58) {
 #ifdef DEBUG_FS20_REC
-        debug_printf("received new fs20 datagram\n");
+        debug_printf("received new fs20 datagram, queue fill is %u:\n", fs20_global.len);
+
+        for (uint8_t l = 0; l < fs20_global.len; l++) {
+            struct fs20_datagram_t *dg = &fs20_global.queue[l];
+
+            debug_printf("%u: %02x%02x addr %02x cmd %02x\n", l,
+                    dg->hc1, dg->hc2,
+                    dg->addr, dg->cmd);
+        }
+
 #endif
 
-        if (fs20_global.datagram.sync == 0x0001 &&
-                fs20_global.len < FS20_DATAGRAM_LENGTH) {
+        if (fs20_global.datagram.sync == 0x0001) {
+#ifdef DEBUG_FS20_REC
+            debug_printf("valid sync\n");
+#endif
 
-            /* copy datagram to queue */
-            memcpy(&fs20_global.queue[fs20_global.len],
-                   (const void *)&fs20_global.datagram,
-                   sizeof(struct fs20_datagram_t));
-
-            struct fs20_datagram_t *datagram = &fs20_global.queue[fs20_global.len];
+            /* create shortcut to fs20_global.datagram */
+            volatile struct fs20_datagram_t *dg = &fs20_global.datagram;
 
             /* check parity */
             uint8_t p1, p2, p3, p4, p5;
             uint8_t parity = 6; /* magic constant from fs20 protocol definition */
 
-            p1 = parity_even_bit(datagram->hc1)    ^ datagram->p1;
-            p2 = parity_even_bit(datagram->hc2)    ^ datagram->p2;
-            p3 = parity_even_bit(datagram->addr)   ^ datagram->p3;
-            p4 = parity_even_bit(datagram->cmd)    ^ datagram->p4;
-            p5 = parity_even_bit(datagram->parity) ^ datagram->p5;
+            p1 = parity_even_bit(dg->hc1)    ^ dg->p1;
+            p2 = parity_even_bit(dg->hc2)    ^ dg->p2;
+            p3 = parity_even_bit(dg->addr)   ^ dg->p3;
+            p4 = parity_even_bit(dg->cmd)    ^ dg->p4;
+            p5 = parity_even_bit(dg->parity) ^ dg->p5;
 
-            parity += datagram->hc1
-                    + datagram->hc2
-                    + datagram->addr
-                    + datagram->cmd;
+            parity += dg->hc1
+                    + dg->hc2
+                    + dg->addr
+                    + dg->cmd;
 
             /* check parity */
-            if (!p1 && !p2 && !p3 && !p4 && !p5 && parity == datagram->parity) {
+            if (!p1 && !p2 && !p3 && !p4 && !p5 && parity == dg->parity) {
 #ifdef DEBUG_FS20_REC
                 debug_printf("valid datagram\n");
 #endif
+                /* shift queue backwards */
+#ifdef DEBUG_FS20_REC
+                debug_printf("moving queue around...\n");
+#endif
+                memmove(&fs20_global.queue[1],
+                        &fs20_global.queue[0],
+                        (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_datagram_t));
 
-                /* datagram is valid, leave in queue */
-                fs20_global.len++;
+                /* copy datagram to queue */
+                memcpy(&fs20_global.queue[0],
+                        (const void *)&fs20_global.datagram,
+                        sizeof(struct fs20_datagram_t));
 
-                /* set timeout (for 120ms), if received a complete packet */
+                if (fs20_global.len < FS20_QUEUE_LENGTH)
+                    fs20_global.len++;
+
+                /* set timeout (for 120ms = 6 * 20ms), if received a complete packet */
                 fs20_global.timeout = 6;
             } else {
 #ifdef DEBUG_FS20_REC
@@ -244,7 +263,7 @@ void fs20_process(void)
             }
         } else {
 #ifdef DEBUG_FS20_REC
-            debug_printf("fs20 queue full or sync invalid!\n");
+            debug_printf("sync invalid!\n");
 #endif
         }
 
@@ -256,21 +275,11 @@ void fs20_process(void)
 
 void fs20_process_timeout(void)
 /* {{{ */ {
-#   ifdef DEBUG_FS20_REC
-    /* check for fs20 datagrams every 20ms */
-    while (fs20_global.len > 0) {
-        struct fs20_datagram_t *datagram = &fs20_global.queue[0];
-
-        debug_printf("%02x%02x addr %02x cmd %02x\n",
-                        datagram->hc1, datagram->hc2,
-                        datagram->addr, datagram->cmd);
-        fs20_global.len--;
-    }
-#   endif
 
     /* clear fs20 timeout */
     if (fs20_global.timeout > 0)
         fs20_global.timeout--;
+
 } /* }}} */
 
 #endif /* FS20_SUPPORT_RECEIVE */
