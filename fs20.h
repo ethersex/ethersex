@@ -98,6 +98,10 @@ struct fs20_global_t {
     uint8_t len;
     uint8_t timeout;
     #endif
+    #ifdef FS20_RECV_PROFILE
+    uint16_t int_counter;
+    uint16_t ovf_counter;
+    #endif
 };
 
 /* global variables */

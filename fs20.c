@@ -139,6 +139,10 @@ void fs20_send(uint16_t housecode, uint8_t address, uint8_t command)
 
 ISR(ANALOG_COMP_vect)
 /* {{{ */ {
+#ifdef FS20_RECV_PROFILE
+    fs20_global.int_counter++;
+#endif
+
     /* if locked or timeout > 0, return */
     if (fs20_global.timeout > 0 ||
         fs20_global.rec == FS20_DATAGRAM_LENGTH)
@@ -184,6 +188,10 @@ ISR(ANALOG_COMP_vect)
 
 ISR(TIMER2_OVF_vect)
 /* {{{ */ {
+#ifdef FS20_RECV_PROFILE
+    fs20_global.ovf_counter++;
+#endif
+
     /* reset data structures, if not locked */
     if (fs20_global.rec != FS20_DATAGRAM_LENGTH ||
         fs20_global.timeout > 0) {
@@ -322,6 +330,11 @@ void fs20_init(void)
     TCCR2A = 0;
     TCCR2B = _BV(CS20) | _BV(CS22);
     TIMSK2 = _BV(TOIE2);
+#endif
+
+#ifdef FS20_RECV_PROFILE
+    fs20_global.int_counter = 0;
+    fs20_global.ovf_counter = 0;
 #endif
 } /* }}} */
 

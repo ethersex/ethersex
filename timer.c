@@ -60,6 +60,17 @@ void timer_process(void)
         /* process fs20 stuff */
         fs20_process_timeout();
 
+#       ifdef FS20_RECV_PROFILE
+        /* output fs20 profiling information */
+        if (counter % 10 == 0) {
+            uint16_t c1 = fs20_global.int_counter;
+            uint16_t c2 = fs20_global.ovf_counter;
+            fs20_global.int_counter = 0;
+            fs20_global.ovf_counter = 0;
+            debug_printf("fs20 profile: %u %u\n", c1, c2);
+        }
+#       endif
+
         /* check tcp connections every 200ms */
         if (counter % 10 == 0) {
             for (i = 0; i < UIP_CONNS; i++) {
