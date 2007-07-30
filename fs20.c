@@ -305,8 +305,8 @@ void fs20_init(void)
     fs20_global.timeout = 0;
 
     /* configure port pin for use as input to the analoge comparator */
-    FS20_SEND_DDR &= ~_BV(FS20_SEND_PINNUM);
-    FS20_SEND_PORT &= ~_BV(FS20_SEND_PINNUM);
+    FS20_SEND_DDR &= ~_BV(FS20_RECV_PINNUM);
+    FS20_SEND_PORT &= ~_BV(FS20_RECV_PINNUM);
 
     /* enable analog comparator,
      * use fixed voltage reference (1V, connected to AIN0)
