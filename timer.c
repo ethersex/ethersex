@@ -26,7 +26,7 @@
 #include "debug.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
-#include "fs20.h"
+#include "fs20/fs20.h"
 
 void timer_init(void)
 /* {{{ */ {

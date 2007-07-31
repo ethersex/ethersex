@@ -36,7 +36,7 @@
 #include "spi.h"
 #include "network.h"
 #include "timer.h"
-#include "fs20.h"
+#include "fs20/fs20.h"
 
 #include "net/handler.h"
 

@@ -30,7 +30,7 @@
 #include "../uip/uip_arp.h"
 #include "../eeprom.h"
 #include "../bit-macros.h"
-#include "../fs20.h"
+#include "../fs20/fs20.h"
 #include "../portio.h"
 #include "ecmd.h"
 
