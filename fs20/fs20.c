@@ -45,6 +45,9 @@ static inline void fs20_send_byte(uint8_t byte);
 
 #ifdef FS20_SUPPORT_RECEIVE
 /* prototypes for receiving fs20 */
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+uint8_t ws300_parse_datagram(void);
+#endif
 
 #endif /* FS20_SUPPORT_RECEIVE */
 
@@ -143,47 +146,99 @@ ISR(ANALOG_COMP_vect)
     fs20_global.int_counter++;
 #endif
 
-    /* if locked or timeout > 0, return */
-    if (fs20_global.timeout > 0 ||
-        fs20_global.rec == FS20_DATAGRAM_LENGTH)
-        return;
-
-    /* save counter for processing, reset counter */
-    static uint8_t time_old = 0;
+    /* save counter for later processing and reset timer */
     uint8_t time = TCNT2;
     TCNT2 = 0;
 
-    /* check value */
-    if (FS20_PULSE_ZERO(time) &&
-        FS20_PULSE_ZERO(time_old) &&
-        FS20_PULSE_DIFFERENCE(time, time_old)) {
+    /* if fs20 locked or timeout > 0, continue */
+    if (fs20_global.fs20.timeout == 0 &&
+        fs20_global.fs20.rec < FS20_DATAGRAM_LENGTH) {
 
-        /* we received a zero */
-        time_old = 0;
-        fs20_global.err = 0;
-        fs20_global.raw <<= 1;
-        fs20_global.rec++;
-    } else if (FS20_PULSE_ONE(time) &&
-               FS20_PULSE_ONE(time_old) &&
-               FS20_PULSE_DIFFERENCE(time, time_old)) {
+        static uint8_t time_old = 0;
 
-        /* we received a one */
-        time_old = 0;
-        fs20_global.err = 0;
-        fs20_global.raw <<= 1;
-        fs20_global.raw |= 1;
-        fs20_global.rec++;
-    } else {
-        if (fs20_global.err > 3) {
-            fs20_global.err = 0;
-            fs20_global.rec = 0;
+        /* check value */
+        if (FS20_PULSE_ZERO(time) &&
+                FS20_PULSE_ZERO(time_old) &&
+                FS20_PULSE_DIFFERENCE(time, time_old)) {
+
+            /* we received a zero */
             time_old = 0;
-            fs20_global.raw = 0;
+            fs20_global.fs20.err = 0;
+            fs20_global.fs20.raw <<= 1;
+            fs20_global.fs20.rec++;
+        } else if (FS20_PULSE_ONE(time) &&
+                FS20_PULSE_ONE(time_old) &&
+                FS20_PULSE_DIFFERENCE(time, time_old)) {
+
+            /* we received a one */
+            time_old = 0;
+            fs20_global.fs20.err = 0;
+            fs20_global.fs20.raw <<= 1;
+            fs20_global.fs20.raw |= 1;
+            fs20_global.fs20.rec++;
         } else {
-            time_old = time;
-            fs20_global.err++;
+            if (fs20_global.fs20.err > 3) {
+                fs20_global.fs20.err = 0;
+                fs20_global.fs20.rec = 0;
+                time_old = 0;
+                fs20_global.fs20.raw = 0;
+            } else {
+                time_old = time;
+                fs20_global.fs20.err++;
+            }
         }
     }
+
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+    /* if ws300 is not locked, continue */
+    if (fs20_global.ws300.rec < FS20_WS300_DATAGRAM_LENGTH) {
+
+        /* save counter for processing */
+        static uint8_t time_old = 0;
+
+        int8_t v;
+
+        if (WS300_PULSE_ZERO(time_old, time))
+            v = 0;
+        else if (WS300_PULSE_ONE(time_old, time))
+            v = 1;
+        else
+            v = -1;
+
+        /* if we aren't synced */
+        if (!fs20_global.ws300.sync) {
+            if (v == 0) {
+                fs20_global.ws300.null++;
+                time_old = 0;
+            } else if (v == 1) {
+                if (fs20_global.ws300.null >= 8) {
+                    fs20_global.ws300.sync = 1;
+                    time_old = 0;
+                } else {
+                    time_old = time;
+                }
+
+                fs20_global.ws300.null = 0;
+            } else {
+                time_old = time;
+            }
+        } else {
+            /* else we are synced */
+            if (v >= 0) {
+
+                uint8_t byte = fs20_global.ws300.rec / 8;
+                uint8_t bit = fs20_global.ws300.rec % 8;
+
+                if (v == 1)
+                    fs20_global.ws300.bytes[byte] |= _BV(bit);
+
+                time_old = 0;
+                fs20_global.ws300.rec++;
+            } else
+                time_old = time;
+        }
+    }
+#endif
 } /* }}} */
 
 ISR(TIMER2_OVF_vect)
@@ -193,23 +248,33 @@ ISR(TIMER2_OVF_vect)
 #endif
 
     /* reset data structures, if not locked */
-    if (fs20_global.rec != FS20_DATAGRAM_LENGTH ||
-        fs20_global.timeout > 0) {
-        fs20_global.rec = 0;
-        fs20_global.raw = 0;
+    if (fs20_global.fs20.rec != FS20_DATAGRAM_LENGTH ||
+        fs20_global.fs20.timeout > 0) {
+        fs20_global.fs20.rec = 0;
+        memset((void *)&fs20_global.fs20.datagram, 0, sizeof(struct fs20_datagram_t));
     }
+
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+    if (fs20_global.ws300.rec != FS20_DATAGRAM_LENGTH) {
+        fs20_global.ws300.rec = 0;
+        fs20_global.ws300.sync = 0;
+        fs20_global.ws300.null = 0;
+        memset((void *)&fs20_global.ws300.datagram, 0, sizeof(struct ws300_datagram_t));
+    }
+#endif
+
 } /* }}} */
 
 void fs20_process(void)
 /* {{{ */ {
 
     /* check if something has been received */
-    if (fs20_global.rec == 58) {
+    if (fs20_global.fs20.rec == 58) {
 #ifdef DEBUG_FS20_REC
-        debug_printf("received new fs20 datagram, queue fill is %u:\n", fs20_global.len);
+        debug_printf("received new fs20 datagram, queue fill is %u:\n", fs20_global.fs20.len);
 
-        for (uint8_t l = 0; l < fs20_global.len; l++) {
-            struct fs20_datagram_t *dg = &fs20_global.queue[l];
+        for (uint8_t l = 0; l < fs20_global.fs20.len; l++) {
+            struct fs20_datagram_t *dg = &fs20_global.fs20.queue[l];
 
             debug_printf("%u: %02x%02x addr %02x cmd %02x\n", l,
                     dg->hc1, dg->hc2,
@@ -218,13 +283,13 @@ void fs20_process(void)
 
 #endif
 
-        if (fs20_global.datagram.sync == 0x0001) {
+        if (fs20_global.fs20.datagram.sync == 0x0001) {
 #ifdef DEBUG_FS20_REC
             debug_printf("valid sync\n");
 #endif
 
             /* create shortcut to fs20_global.datagram */
-            volatile struct fs20_datagram_t *dg = &fs20_global.datagram;
+            volatile struct fs20_datagram_t *dg = &fs20_global.fs20.datagram;
 
             /* check parity */
             uint8_t p1, p2, p3, p4, p5;
@@ -250,20 +315,20 @@ void fs20_process(void)
 #ifdef DEBUG_FS20_REC
                 debug_printf("moving queue around...\n");
 #endif
-                memmove(&fs20_global.queue[1],
-                        &fs20_global.queue[0],
+                memmove(&fs20_global.fs20.queue[1],
+                        &fs20_global.fs20.queue[0],
                         (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_datagram_t));
 
                 /* copy datagram to queue */
-                memcpy(&fs20_global.queue[0],
-                        (const void *)&fs20_global.datagram,
+                memcpy(&fs20_global.fs20.queue[0],
+                        (const void *)&fs20_global.fs20.datagram,
                         sizeof(struct fs20_datagram_t));
 
-                if (fs20_global.len < FS20_QUEUE_LENGTH)
-                    fs20_global.len++;
+                if (fs20_global.fs20.len < FS20_QUEUE_LENGTH)
+                    fs20_global.fs20.len++;
 
                 /* set timeout (for 120ms = 6 * 20ms), if received a complete packet */
-                fs20_global.timeout = 6;
+                fs20_global.fs20.timeout = 6;
             } else {
 #ifdef DEBUG_FS20_REC
                 debug_printf("invalid datagram\n");
@@ -275,20 +340,75 @@ void fs20_process(void)
 #endif
         }
 
-        fs20_global.raw = 0;
-        fs20_global.rec = 0;
+        fs20_global.fs20.raw = 0;
+        fs20_global.fs20.rec = 0;
     }
 
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+    if (fs20_global.ws300.rec == FS20_WS300_DATAGRAM_LENGTH) {
+
+        for (uint8_t i = 0; i < 10; i++)
+            for (uint8_t j = 0; j < 8; j++) {
+
+                if ( (i*8+j) % 5 == 4 )
+                    printf(" ");
+
+                printf("%u", (fs20_global.ws300.bytes[i] & _BV(j)) > 0);
+
+                if ( (i*8+j) % 5 == 4 )
+                    printf(" ");
+
+            }
+
+        if (ws300_parse_datagram()) {
+            #ifdef DEBUG_FS20_WS300
+            debug_printf("valid datagram\n");
+            #endif
+        } else {
+            #ifdef DEBUG_FS20_WS300
+            debug_printf("invalid datagram\n");
+            #endif
+        }
+
+        /* clear global data structure */
+        memset((void *)&fs20_global.ws300.datagram, 0, sizeof(struct ws300_datagram_t));
+        fs20_global.ws300.sync = 0;
+        fs20_global.ws300.rec = 0;
+    }
+#endif
 } /* }}} */
 
 void fs20_process_timeout(void)
 /* {{{ */ {
 
     /* clear fs20 timeout */
-    if (fs20_global.timeout > 0)
-        fs20_global.timeout--;
+    if (fs20_global.fs20.timeout > 0)
+        fs20_global.fs20.timeout--;
 
 } /* }}} */
+
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+uint8_t ws300_parse_datagram(void)
+/* {{{ */ {
+    #ifdef DEBUG_FS20_WS300
+    debug_printf("received someting via ws300, testing checksums...\n");
+    #endif
+
+    volatile struct ws300_datagram_t *d = &fs20_global.ws300.datagram;
+
+    if (! (d->p1 && d->p2 && d->p3 && d->p4 && d->p5 && d->p6 && d->p7 && d->p8 &&
+           d->p9 && d->p10 && d->p11 && d->p12 && d->p13 && d->p14 && d->p15)) {
+        #ifdef DEBUG_FS20_WS300
+        debug_printf("at least one marker is not 1!\n");
+        #endif
+
+        return 0;
+    }
+
+    return 1;
+
+} /* }}} */
+#endif
 
 #endif /* FS20_SUPPORT_RECEIVE */
 
@@ -306,11 +426,7 @@ void fs20_init(void)
 
 #ifdef FS20_SUPPORT_RECEIVE
     /* reset global data structures */
-    fs20_global.raw = 0;
-    fs20_global.err = 0;
-    fs20_global.rec = 0;
-    fs20_global.len = 0;
-    fs20_global.timeout = 0;
+    memset((void *)&fs20_global.fs20.datagram, 0, sizeof(fs20_global.fs20));
 
     /* configure port pin for use as input to the analoge comparator */
     FS20_SEND_DDR &= ~_BV(FS20_RECV_PINNUM);
@@ -330,6 +446,12 @@ void fs20_init(void)
     TCCR2A = 0;
     TCCR2B = _BV(CS20) | _BV(CS22);
     TIMSK2 = _BV(TOIE2);
+
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+
+    /* reset everything to zero */
+    memset((void *)&fs20_global.ws300, 0, sizeof(fs20_global.ws300));
+#endif
 #endif
 
 #ifdef FS20_RECV_PROFILE

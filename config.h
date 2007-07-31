@@ -267,4 +267,6 @@
 #define FS20_RECV_DDR DDRB
 #define FS20_RECV_PORT PORTB
 
+#define FS20_SUPPORT_RECEIVE_WS300
+
 #endif /* _CONFIG_H */

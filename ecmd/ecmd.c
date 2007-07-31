@@ -326,21 +326,21 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
     debug_printf("%u positions in queue\n", fs20_global.len);
 #endif
 
-    while (l < fs20_global.len &&
+    while (l < fs20_global.fs20.len &&
             (uint8_t)(outlen+9) < len) {
 #ifdef DEBUG_ECMD_FS20
         debug_printf("generating for pos %u: %02x%02x%02x%02x", l,
-                fs20_global.queue[l].hc1,
-                fs20_global.queue[l].hc2,
-                fs20_global.queue[l].addr,
-                fs20_global.queue[l].cmd);
+                fs20_global.fs20.queue[l].hc1,
+                fs20_global.fs20.queue[l].hc2,
+                fs20_global.fs20.queue[l].addr,
+                fs20_global.fs20.queue[l].cmd);
 #endif
 
         sprintf_P(s, PSTR("%02x%02x%02x%02x\n"),
-                fs20_global.queue[l].hc1,
-                fs20_global.queue[l].hc2,
-                fs20_global.queue[l].addr,
-                fs20_global.queue[l].cmd);
+                fs20_global.fs20.queue[l].hc1,
+                fs20_global.fs20.queue[l].hc2,
+                fs20_global.fs20.queue[l].addr,
+                fs20_global.fs20.queue[l].cmd);
 
         s += 9;
         outlen += 9;
@@ -353,7 +353,7 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
     }
 
     /* clear queue */
-    fs20_global.len = 0;
+    fs20_global.fs20.len = 0;
 
     return outlen;
 
