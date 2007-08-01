@@ -467,16 +467,16 @@ void ws300_parse_datagram(void)
 
 
     #ifdef DEBUG_FS20_WS300
-    debug_printf("new values: %u.%u Grad, %u%% Feuchtigkeit, %u.%u km/h Wind, ",
+    debug_printf("new ws300 values: %u.%u deg, %u%% hygro, %u.%u km/h wind, ",
             fs20_global.ws300.temp,
             fs20_global.ws300.temp_frac,
             fs20_global.ws300.hygro,
             fs20_global.ws300.wind,
             fs20_global.ws300.wind_frac);
     if (fs20_global.ws300.rain)
-        debug_printf("Regen, ");
+        debug_printf("rain, ");
 
-    debug_printf("Regenzaehler: %u\n", fs20_global.ws300.rain_value);
+    debug_printf("rain counter: %u\n", fs20_global.ws300.rain_value);
 
     #endif
 
