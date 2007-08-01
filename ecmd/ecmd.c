@@ -373,7 +373,7 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
     return snprintf_P(output, len,
-            PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u, rain: %u, counter: %u"),
+            PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
             fs20_global.ws300.temp,
             fs20_global.ws300.temp_frac,
             fs20_global.ws300.hygro,
