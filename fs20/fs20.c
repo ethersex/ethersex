@@ -272,7 +272,13 @@ void fs20_process(void)
     /* check if something has been received */
     if (fs20_global.fs20.rec == 58) {
 #ifdef DEBUG_FS20_REC
-        debug_printf("received new fs20 datagram, queue fill is %u:\n", fs20_global.fs20.len);
+        debug_printf("received new fs20 datagram:%02x%02x %02x %02x\n",
+                fs20_global.fs20.datagram.hc1,
+                fs20_global.fs20.datagram.hc2,
+                fs20_global.fs20.datagram.addr,
+                fs20_global.fs20.datagram.cmd);
+#ifdef DEBUG_FS20_REC_QUEUE
+        debug_printf("queue fill is %u:\n", fs20_global.fs20.len);
 
         for (uint8_t l = 0; l < fs20_global.fs20.len; l++) {
             struct fs20_datagram_t *dg = &fs20_global.fs20.queue[l];
@@ -281,11 +287,11 @@ void fs20_process(void)
                     dg->hc1, dg->hc2,
                     dg->addr, dg->cmd);
         }
-
+#endif
 #endif
 
         if (fs20_global.fs20.datagram.sync == 0x0001) {
-#ifdef DEBUG_FS20_REC
+#ifdef DEBUG_FS20_REC_VERBOSE
             debug_printf("valid sync\n");
 #endif
 
@@ -313,9 +319,6 @@ void fs20_process(void)
                 debug_printf("valid datagram\n");
 #endif
                 /* shift queue backwards */
-#ifdef DEBUG_FS20_REC
-                debug_printf("moving queue around...\n");
-#endif
                 memmove(&fs20_global.fs20.queue[1],
                         &fs20_global.fs20.queue[0],
                         (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_datagram_t));
