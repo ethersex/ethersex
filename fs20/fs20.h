@@ -109,8 +109,8 @@
  * ================
  *      1 | constant 1110 (bin, LSB first) == 7 (dec), perhaps sensor type?
  *      2 | 1W0T (bin, LSB first),
- *        | W is set if water is detected,
- *        | T is temperature sign bit (set if temperature is negative
+ *        | W is set if water is detected, (bit 1)
+ *        | T is temperature sign bit (set if temperature is negative (bit 3)
  *      3 | temperature fraction part
  *      4 | temperature decimal place 1
  *      5 | temperature decimal place 10
@@ -132,7 +132,13 @@
  * The datagram is terminated by an additional "1", but this is not always received.
  * A datagram consists of 80 bit, including the last "1".
  *
+ *
  */
+
+#define FS20_WS300_CONSTANT 7
+
+#define FS20_WS300_FLAG_WATER 1
+#define FS20_WS300_FLAG_TEMP 3
 
 
 /* queue length */

@@ -46,7 +46,7 @@ static inline void fs20_send_byte(uint8_t byte);
 #ifdef FS20_SUPPORT_RECEIVE
 /* prototypes for receiving fs20 */
 #ifdef FS20_SUPPORT_RECEIVE_WS300
-uint8_t ws300_parse_datagram(void);
+void ws300_parse_datagram(void);
 #endif
 
 #endif /* FS20_SUPPORT_RECEIVE */
@@ -226,6 +226,7 @@ ISR(ANALOG_COMP_vect)
             /* else we are synced */
             if (v >= 0) {
 
+                // printf("%u", v);
                 uint8_t byte = fs20_global.ws300.rec / 8;
                 uint8_t bit = fs20_global.ws300.rec % 8;
 
@@ -255,7 +256,7 @@ ISR(TIMER2_OVF_vect)
     }
 
 #ifdef FS20_SUPPORT_RECEIVE_WS300
-    if (fs20_global.ws300.rec != FS20_DATAGRAM_LENGTH) {
+    if (fs20_global.ws300.rec != FS20_WS300_DATAGRAM_LENGTH) {
         fs20_global.ws300.rec = 0;
         fs20_global.ws300.sync = 0;
         fs20_global.ws300.null = 0;
@@ -346,7 +347,11 @@ void fs20_process(void)
 
 #ifdef FS20_SUPPORT_RECEIVE_WS300
     if (fs20_global.ws300.rec == FS20_WS300_DATAGRAM_LENGTH) {
+        #ifdef DEBUG_FS20_WS300
+        debug_printf("received ws300 datagram\n");
+        #endif
 
+        #ifdef DEBUG_FS20_WS300_VERBOSE
         for (uint8_t i = 0; i < 10; i++)
             for (uint8_t j = 0; j < 8; j++) {
 
@@ -360,15 +365,10 @@ void fs20_process(void)
 
             }
 
-        if (ws300_parse_datagram()) {
-            #ifdef DEBUG_FS20_WS300
-            debug_printf("valid datagram\n");
-            #endif
-        } else {
-            #ifdef DEBUG_FS20_WS300
-            debug_printf("invalid datagram\n");
-            #endif
-        }
+        printf("\n");
+        #endif
+
+        ws300_parse_datagram();
 
         /* clear global data structure */
         memset((void *)&fs20_global.ws300.datagram, 0, sizeof(struct ws300_datagram_t));
@@ -388,24 +388,98 @@ void fs20_process_timeout(void)
 } /* }}} */
 
 #ifdef FS20_SUPPORT_RECEIVE_WS300
-uint8_t ws300_parse_datagram(void)
+void ws300_parse_datagram(void)
 /* {{{ */ {
     #ifdef DEBUG_FS20_WS300
-    debug_printf("received someting via ws300, testing checksums...\n");
+    debug_printf("received something via ws300, testing checksums...\n");
     #endif
 
     volatile struct ws300_datagram_t *d = &fs20_global.ws300.datagram;
 
+    /* check markers, must all be 1 */
     if (! (d->p1 && d->p2 && d->p3 && d->p4 && d->p5 && d->p6 && d->p7 && d->p8 &&
            d->p9 && d->p10 && d->p11 && d->p12 && d->p13 && d->p14 && d->p15)) {
         #ifdef DEBUG_FS20_WS300
         debug_printf("at least one marker is not 1!\n");
         #endif
 
-        return 0;
+        return;
     }
 
-    return 1;
+    /* test constant */
+    if (d->constant != FS20_WS300_CONSTANT) {
+        #ifdef DEBUG_FS20_WS300
+        debug_printf("invalid constant: %02x!\n", d->constant);
+        #endif
+
+        return;
+    }
+
+    /* test checksums */
+    uint8_t xor, sum;
+
+    xor = d->constant ^ d->flags ^ d->temp1 ^ d->temp2 ^ d->temp3
+        ^ d->hygro1 ^ d->hygro2 ^ d->wind1 ^ d-> wind2 ^ d-> wind3
+        ^ d->raincounter1 ^ d->raincounter2 ^ d->raincounter3
+        ^ d->unknown ^ d->checksum1;
+
+    sum = d->constant + d->flags + d->temp1 + d->temp2 + d->temp3
+        + d->hygro1 + d->hygro2 + d->wind1 + d-> wind2 + d-> wind3
+        + d->raincounter1 + d->raincounter2 + d->raincounter3
+        + d->unknown + d->checksum1;
+
+    /* 5 ist a strange magical constant =) */
+    sum = (sum+5) & 0x0f;
+
+    if (xor != 0) {
+        #ifdef DEBUG_FS20_WS300
+        debug_printf("invalid checksum1!\n");
+        #endif
+
+        return;
+    }
+
+    if (sum != d->checksum2) {
+        #ifdef DEBUG_FS20_WS300
+        debug_printf("invalid checksum2: %u != %u!\n", sum, d->checksum2);
+        #endif
+
+        return;
+    }
+
+    /* valid datagram, update global data */
+    fs20_global.ws300.temp_frac = d->temp1;
+    fs20_global.ws300.temp = d->temp2 + 10 * d->temp3;
+
+    fs20_global.ws300.rain = (d->flags & _BV(FS20_WS300_FLAG_WATER)) > 0;
+
+    if (d->flags & _BV(FS20_WS300_FLAG_TEMP))
+        fs20_global.ws300.temp = -fs20_global.ws300.temp;
+
+    fs20_global.ws300.hygro = d->hygro1 + 10 * d->hygro2;
+
+    fs20_global.ws300.wind_frac = d->wind1;
+    fs20_global.ws300.wind = d->wind2 + 10 * d->wind3;
+
+    fs20_global.ws300.rain_value = d->raincounter1
+                            + 10 * d->raincounter2
+                           + 100 * d->raincounter3;
+
+
+    #ifdef DEBUG_FS20_WS300
+    debug_printf("new values: %u.%u Grad, %u%% Feuchtigkeit, %u.%u km/h Wind, ",
+            fs20_global.ws300.temp,
+            fs20_global.ws300.temp_frac,
+            fs20_global.ws300.hygro,
+            fs20_global.ws300.wind,
+            fs20_global.ws300.wind_frac);
+    if (fs20_global.ws300.rain)
+        debug_printf("Regen, ");
+
+    debug_printf("Regenzaehler: %u\n", fs20_global.ws300.rain_value);
+
+    #endif
+
 
 } /* }}} */
 #endif

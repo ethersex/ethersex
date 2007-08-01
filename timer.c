@@ -58,7 +58,9 @@ void timer_process(void)
 #       endif
 
         /* process fs20 stuff */
+#       ifdef FS20_SUPPORT_RECEIVE
         fs20_process_timeout();
+#       endif
 
 #       ifdef FS20_RECV_PROFILE
         /* output fs20 profiling information */
