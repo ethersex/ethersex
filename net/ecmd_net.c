@@ -40,8 +40,6 @@ void newdata(void)
 {
     struct ecmd_connection_state_t *state = &uip_conn->appstate.ecmd;
 
-    // debug_printf("new data received: %d bytes: %s\n", uip_datalen(), uip_appdata);
-
     uint16_t diff = ECMD_INPUTBUF_LENGTH - state->in_len;
     if (diff > 0) {
         int cplen;
@@ -54,9 +52,13 @@ void newdata(void)
         memcpy(state->inbuf, uip_appdata, cplen);
         state->in_len += cplen;
 
+#ifdef DEBUG_ECMD_NET
         debug_printf("copied %d bytes\n", cplen);
+#endif
     } else {
+#ifdef DEBUG_ECMD_NET
         debug_printf("buffer full\n");
+#endif
     }
 
     char *lf = memchr(state->inbuf, '\n', state->in_len);
@@ -64,7 +66,9 @@ void newdata(void)
     if (lf != NULL ||
         memchr(uip_appdata, '\n', uip_datalen()) != NULL) {
 
+#ifdef DEBUG_ECMD_NET
         debug_printf("calling parser\n");
+#endif
 
         if (lf)
             *lf = '\0';
@@ -77,7 +81,9 @@ void newdata(void)
                                     state->outbuf,
                                     ECMD_OUTPUTBUF_LENGTH-1);
 
+#ifdef DEBUG_ECMD_NET
         debug_printf("parser returned %d\n", l);
+#endif
 
         if (l > 0) {
             state->outbuf[l++] = '\n';
@@ -93,8 +99,11 @@ void ecmd_net_main(void)
 {
     struct ecmd_connection_state_t *state = &uip_conn->appstate.ecmd;
 
-    if (!uip_poll())
+    if (!uip_poll()) {
+#ifdef DEBUG_ECMD_NET
         debug_printf("ecmd_net_main()\n");
+#endif
+    }
 
     /*
     if(uip_aborted()) {
@@ -111,7 +120,9 @@ void ecmd_net_main(void)
     */
 
     if(uip_connected()) {
+#ifdef DEBUG_ECMD_NET
         debug_printf("new connection\n");
+#endif
         state->in_len = 0;
         state->out_len = 0;
         memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
