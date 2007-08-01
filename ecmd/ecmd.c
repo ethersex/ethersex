@@ -52,6 +52,9 @@ static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len);
 #endif
 #ifdef FS20_SUPPORT_RECEIVE
 static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len);
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
+#endif
 #endif
 
 /* low level */
@@ -82,6 +85,9 @@ const char PROGMEM ecmd_fs20_send_text[] = "fs20 send";
 #endif
 #ifdef FS20_SUPPORT_RECEIVE
 const char PROGMEM ecmd_fs20_recv_text[] = "fs20 receive";
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
+#endif
 #endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
@@ -100,6 +106,9 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #endif
 #ifdef FS20_SUPPORT_RECEIVE
     { ecmd_fs20_recv_text, parse_cmd_recv_fs20 },
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+    { ecmd_fs20_recv_ws300_text, parse_cmd_recv_fs20_ws300 },
+#endif
 #endif
     { NULL, NULL },
 };
@@ -358,6 +367,24 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
     return outlen;
 
 } /* }}} */
+
+#ifdef FS20_SUPPORT_RECEIVE_WS300
+static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+    return snprintf_P(output, len,
+            PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u, rain: %u, counter: %u"),
+            fs20_global.ws300.temp,
+            fs20_global.ws300.temp_frac,
+            fs20_global.ws300.hygro,
+            fs20_global.ws300.wind,
+            fs20_global.ws300.wind_frac,
+            fs20_global.ws300.rain,
+            fs20_global.ws300.rain_value);
+
+} /* }}} */
+#endif
+
 #endif
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
