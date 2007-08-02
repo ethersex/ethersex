@@ -269,4 +269,23 @@
 
 #define FS20_SUPPORT_RECEIVE_WS300
 
+/* hd44780 support */
+
+// #define HD44780_SUPPORT
+
+/* controller type */
+// #define HD44780_ORIGINAL /* original hd44780 */
+#define HD44780_KS0067B  /* compatibility mode for ks0067b */
+
+#define HD44780_CTRL_PORT A
+#define HD44780_DATA_PORT A
+#define HD44780_RS PA0
+#define HD44780_RW PA1
+#define HD44780_EN PA2
+#define HD44780_D4 PA3
+#define HD44780_D5 PA4
+#define HD44780_D6 PA5
+#define HD44780_D7 PA6
+#define HD44780_DATA_SHIFT 3
+
 #endif /* _CONFIG_H */

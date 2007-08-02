@@ -31,6 +31,8 @@ $(PWD)/config.mk:
 	@echo "# Put your own config here!" > $@
 	@echo "#SERIAL_DEV = $(SERIAL_DEV)" >> $@
 	@echo "#DEBUG = 1" >> $@
+	@echo "# for enabling the hd44780 lcd on port a, uncomment the following line:" >> $@
+	@echo "#CFLAGS += -DHD44780_SUPPORT" >> $@
 	@echo "created default config.mk, tune your settings there!"
 
 -include $(PWD)/config.mk

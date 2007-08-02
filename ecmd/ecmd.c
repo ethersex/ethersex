@@ -32,6 +32,7 @@
 #include "../bit-macros.h"
 #include "../fs20/fs20.h"
 #include "../portio.h"
+#include "../lcd/hd44780.h"
 #include "ecmd.h"
 
 
@@ -55,6 +56,11 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len);
 #ifdef FS20_SUPPORT_RECEIVE_WS300
 static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
 #endif
+#endif
+#ifdef HD44780_SUPPORT
+static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
 #endif
 
 /* low level */
@@ -89,6 +95,11 @@ const char PROGMEM ecmd_fs20_recv_text[] = "fs20 receive";
 const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
 #endif
 #endif
+#ifdef HD44780_SUPPORT
+const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
+const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
+const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
@@ -109,6 +120,11 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #ifdef FS20_SUPPORT_RECEIVE_WS300
     { ecmd_fs20_recv_ws300_text, parse_cmd_recv_fs20_ws300 },
 #endif
+#endif
+#ifdef HD44780_SUPPORT
+    { ecmd_lcd_clear_text, parse_lcd_clear },
+    { ecmd_lcd_write_text, parse_lcd_write },
+    { ecmd_lcd_goto_text, parse_lcd_goto },
 #endif
     { NULL, NULL },
 };
@@ -519,6 +535,45 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 
+#ifdef HD44780_SUPPORT
+static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    hd44780_clear();
+    return 0;
+} /* }}} */
+
+static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    if (strlen(cmd) > 1) {
+        fputs(cmd+1, lcd);
+        return 0;
+    } else
+        return -1;
+} /* }}} */
+
+static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uint16_t line, pos = 0;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%u %u"),
+            &line, & pos);
+
+    if (ret >= 1 && line < 4) {
+        if (ret == 2 && pos >= 20) {
+            pos = 20;
+        } else if (ret == 1)
+            pos = 0;
+
+        debug_printf("going to line %u, pos %u\n", line, pos);
+
+        hd44780_goto(LO8(line), LO8(pos));
+        return 0;
+    } else
+        return -1;
+
+} /* }}} */
+#endif
 
 /* low level parsing functions */
 

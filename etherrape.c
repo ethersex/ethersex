@@ -37,6 +37,7 @@
 #include "network.h"
 #include "timer.h"
 #include "fs20/fs20.h"
+#include "lcd/hd44780.h"
 
 #include "net/handler.h"
 
@@ -60,6 +61,13 @@ int main(void)
 
     debug_init();
     debug_printf("debugging enabled\n");
+
+#   ifdef HD44780_SUPPORT
+    hd44780_init(0, 0);
+#   ifdef DEBUG
+    fprintf_P(lcd, PSTR("booting...\n"));
+#   endif
+#   endif
 
     /* enable interrupts */
     sei();
@@ -116,6 +124,17 @@ int main(void)
             uip_ethaddr.addr[4],
             uip_ethaddr.addr[5]
             );
+
+#   if defined(HD44780_SUPPORT) && defined(DEBUG)
+    fprintf_P(lcd, PSTR("ip: %d.%d.%d.%d\n"),
+        LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]),
+        LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]));
+    fprintf_P(lcd, PSTR("mac: %02x%02x%02x%02x%02x%02x\n"),
+            uip_ethaddr.addr[0], uip_ethaddr.addr[1],
+            uip_ethaddr.addr[2], uip_ethaddr.addr[3],
+            uip_ethaddr.addr[4], uip_ethaddr.addr[5]
+            );
+#   endif
 
     /* main loop */
     while(1) {
