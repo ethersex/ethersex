@@ -28,11 +28,25 @@
 
 #if defined(_ATMEGA644) || defined(_ATMEGA32)
 
+#ifdef HD44780_SUPPORT
+    #define PORTA_MASK (_BV(HD44780_RS) | \
+                        _BV(HD44780_RW) | \
+                        _BV(HD44780_EN) | \
+                        _BV(HD44780_D4) | \
+                        _BV(HD44780_D5) | \
+                        _BV(HD44780_D6) | \
+                        _BV(HD44780_D7) | \
+                        _BV(HD44780_D8))
+#else
+    #define PORTA_MASK 0
+#endif
+
 #define IO_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
-#define IO_MASK_ARRAY { 0,      /* port a */                        \
+#define IO_MASK_ARRAY {                                             \
+                        PORTA_MASK,  /* port a */                   \
                         0xff,   /* port b */                        \
                         _BV(PC0) | _BV(PC1), /* port c */           \
                         _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
