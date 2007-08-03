@@ -63,6 +63,7 @@ int main(void)
     debug_printf("debugging enabled\n");
 
 #   ifdef HD44780_SUPPORT
+    debug_printf("initializing lcd...\n");
     hd44780_init(0, 0);
 #   ifdef DEBUG
     fprintf_P(lcd, PSTR("booting...\n"));
