@@ -27,6 +27,7 @@
 
 #include "hd44780.h"
 #include "../config.h"
+#include "../debug.h"
 
 #ifdef HD44780_SUPPORT
 
@@ -51,7 +52,7 @@ uint8_t current_pos = 0;
 #define CTRL_DDR        CONCAT_DDR(HD44780_CTRL_PORT)
 
 #define DATA_INPUT() do {                               \
-                            DATA_PORT &= ~DATAMASK;     \
+                            DATA_PORT |= DATAMASK;     \
                             DATA_DDR &= ~DATAMASK;      \
                         } while (0)
 #define DATA_OUTPUT() DATA_DDR |= DATAMASK
@@ -85,9 +86,11 @@ static noinline uint8_t clock_rw(uint8_t read);
 #define clock_write() clock_rw(0)
 #define clock_read() clock_rw(1)
 static noinline void output_nibble(uint8_t rs, uint8_t nibble);
-static noinline uint8_t input_nibble(uint8_t rs);
 static noinline void output_byte(uint8_t rs, uint8_t data);
+#ifdef HD44780_READBACK
+static noinline uint8_t input_nibble(uint8_t rs);
 static noinline uint8_t input_byte(uint8_t rs);
+#endif
 
 
 /* busy-loop for ms milliseconds */
@@ -153,10 +156,29 @@ void output_byte(uint8_t rs, uint8_t data)
     output_nibble(rs, HIGH_NIBBLE(data));
     output_nibble(rs, LOW_NIBBLE(data));
 
-    /* wait until command is executed by checking busy flag */
-    while (input_byte(0) & _BV(BUSY_FLAG));
+#ifdef HD44780_READBACK
+    /* wait until command is executed by checking busy flag, with timeout */
+
+    /* max execution time is for return home command,
+     * which takes at most 1.52ms = 152us */
+    uint8_t busy, timeout = 200;
+    do {
+        busy = input_byte(0) & _BV(BUSY_FLAG);
+        _delay_us(1);
+        timeout--;
+    } while (busy && timeout > 0);
+    #ifdef DEBUG
+    if (timeout == 0)
+        debug_printf("lcd timeout!\n");
+    #endif
+#else
+    /* just wait the maximal time a command can take... */
+    _delay_ms(2);
+#endif
+
 }
 
+#ifdef HD44780_READBACK
 uint8_t input_byte(uint8_t rs)
 {
     return input_nibble(rs) << 4 | input_nibble(rs);
@@ -186,6 +208,7 @@ uint8_t input_nibble(uint8_t rs)
 
     return data;
 }
+#endif
 
 void hd44780_clear(void)
 {
@@ -228,9 +251,6 @@ void hd44780_init(uint8_t cursor, uint8_t blink)
     DATA_PORT = _BV(HD44780_D5);
     clock_write();
     delay(1);
-
-    uint8_t d = 0;
-    d = input_nibble(0) << 4 | input_nibble(0);
 
     /* configure for 4 bit, 2 lines, 5x9 font (datasheet, page 24) */
     output_byte(0, CMD_FUNCTIONSET(0, 1, 0));

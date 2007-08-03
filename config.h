@@ -277,6 +277,9 @@
 // #define HD44780_ORIGINAL /* original hd44780 */
 #define HD44780_KS0067B  /* compatibility mode for ks0067b */
 
+/* readback support, check busy flag instead of just waiting for a timeout */
+#define HD44780_READBACK
+
 #define HD44780_CTRL_PORT A
 #define HD44780_DATA_PORT A
 #define HD44780_RS PA0
