@@ -28,9 +28,18 @@
 
 #if defined(_ATMEGA644) || defined(_ATMEGA32)
 
-#if 0
-#ifdef HD44780_SUPPORT
+#if defined(HD44780_SUPPORT) && !defined(HD44780_USE_PORTC)
     #define PORTA_MASK (_BV(HD44780_RS) | \
+                        _BV(HD44780_RW) | \
+                        _BV(HD44780_EN) | \
+                        _BV(HD44780_D4) | \
+                        _BV(HD44780_D5) | \
+                        _BV(HD44780_D6) | \
+                        _BV(HD44780_D7))
+    #define PORTC_MASK 0
+#elif defined(HD44780_SUPPORT) && defined(HD44780_USE_PORTC)
+    #define PORTA_MASK 0
+    #define PORTC_MASK (_BV(HD44780_RS) | \
                         _BV(HD44780_RW) | \
                         _BV(HD44780_EN) | \
                         _BV(HD44780_D4) | \
@@ -39,18 +48,17 @@
                         _BV(HD44780_D7))
 #else
     #define PORTA_MASK 0
+    #define PORTC_MASK 0
 #endif
-#endif
-    #define PORTA_MASK 0xff
 
 #define IO_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
 #define IO_MASK_ARRAY {                                             \
-                        PORTA_MASK,  /* port a */                   \
+                        0 | PORTA_MASK,  /* port a */               \
                         0xff,   /* port b */                        \
-                        _BV(PC0) | _BV(PC1), /* port c */           \
+                        _BV(PC0) | _BV(PC1) | PORTC_MASK, /* port c */ \
                         _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
                       }
 

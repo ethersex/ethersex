@@ -280,15 +280,32 @@
 /* readback support, check busy flag instead of just waiting for a timeout */
 #define HD44780_READBACK
 
-#define HD44780_CTRL_PORT A
-#define HD44780_DATA_PORT A
-#define HD44780_RS PA0
-#define HD44780_RW PA1
-#define HD44780_EN PA2
-#define HD44780_D4 PA3
-#define HD44780_D5 PA4
-#define HD44780_D6 PA5
-#define HD44780_D7 PA6
-#define HD44780_DATA_SHIFT 3
+/* if defined, use portc instead of port a */
+// #define HD44780_USE_PORTC
+
+/* select port for lcd below */
+#ifdef HD44780_USE_PORTC
+    #define HD44780_CTRL_PORT C
+    #define HD44780_DATA_PORT C
+    #define HD44780_RS PC0
+    #define HD44780_RW PC1
+    #define HD44780_EN PC2
+    #define HD44780_D4 PC3
+    #define HD44780_D5 PC4
+    #define HD44780_D6 PC5
+    #define HD44780_D7 PC6
+    #define HD44780_DATA_SHIFT 3
+#else
+    #define HD44780_CTRL_PORT A
+    #define HD44780_DATA_PORT A
+    #define HD44780_RS PA0
+    #define HD44780_RW PA1
+    #define HD44780_EN PA2
+    #define HD44780_D4 PA3
+    #define HD44780_D5 PA4
+    #define HD44780_D6 PA5
+    #define HD44780_D7 PA6
+    #define HD44780_DATA_SHIFT 3
+#endif
 
 #endif /* _CONFIG_H */
