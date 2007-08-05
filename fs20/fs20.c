@@ -468,6 +468,8 @@ void ws300_parse_datagram(void)
                             + 10 * d->raincounter2
                            + 100 * d->raincounter3;
 
+    /* reset update counter */
+    fs20_global.ws300.last_update = 0;
 
     #ifdef DEBUG_FS20_WS300
     debug_printf("new ws300 values: %u.%u deg, %u%% hygro, %u.%u km/h wind, ",

@@ -105,6 +105,11 @@ void timer_process(void)
         //if (c % 5 == 0) /* every second */
         //    clock_periodic();
 
+        /* update last_update timer every second */
+        if (counter % 50 == 0) {
+            fs20_global.ws300.last_update++;
+        }
+
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
 #           ifdef DEBUG_TIMER

@@ -230,6 +230,8 @@ struct fs20_global_t {
 
                 uint8_t wind;
                 uint8_t wind_frac:4;
+
+                uint16_t last_update;
             } ws300;
         #endif
     #endif
