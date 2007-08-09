@@ -64,6 +64,8 @@
 
 #include <string.h>
 
+#if !UIP_CONF_IPV6
+
 struct arp_hdr {
   struct uip_eth_hdr ethhdr;
   u16_t hwtype;
@@ -424,3 +426,5 @@ uip_arp_out(void)
 
 /** @} */
 /** @} */
+
+#endif /* !UIP_CONF_IPV6 */
