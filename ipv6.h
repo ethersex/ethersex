@@ -41,20 +41,6 @@ void uip_router_parse_advertisement(void);
 
 
 /**
- * The Ethernet header.
- */
-struct uip_eth_hdr {
-  struct uip_eth_addr dest;
-  struct uip_eth_addr src;
-  u16_t type;
-};
-
-#define UIP_ETHTYPE_ARP 0x0806
-#define UIP_ETHTYPE_IP  0x0800
-#define UIP_ETHTYPE_IP6 0x86dd
-
-
-/**
  * The ICMPv6 Router Advertisement header.
  */
 struct uip_icmp_radv_hdr {
