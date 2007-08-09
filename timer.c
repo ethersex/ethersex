@@ -1,7 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -26,7 +27,9 @@
 #include "debug.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
+#include "uip/uip_neighbor.h"
 #include "fs20/fs20.h"
+#include "ipv6.h"
 
 void timer_init(void)
 /* {{{ */ {
@@ -80,7 +83,12 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
+#                   if UIP_CONF_IPV6
+                    uip_neighbor_out();
+#                   else
                     uip_arp_out();
+#                   endif
+
                     transmit_packet();
                 }
             }
@@ -95,6 +103,12 @@ void timer_process(void)
                     // XXX FIXME if (uip_arp_out() == 0)
                     // XXX FIXME     uip_udp_conn->appstate.sntp.transmit_state = 1;
 
+#                   if UIP_CONF_IPV6
+                    uip_neighbor_out();
+#                   else
+                    uip_arp_out();
+#                   endif
+
                     transmit_packet();
                 }
             }
@@ -104,6 +118,18 @@ void timer_process(void)
         // FIXME
         //if (c % 5 == 0) /* every second */
         //    clock_periodic();
+
+#       if UIP_CONF_IPV6
+        if (counter == 5) { 
+            /* Send a router solicitation every 10 seconds, as long
+               as we only got a link local address.  First time one
+               second after boot */
+            if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
+                uip_router_send_solicitation();
+                transmit_packet();
+            }
+        }
+#       endif /* UIP_CONF_IPV6 */
 
         /* update last_update timer every second */
         if (counter % 50 == 0) {
@@ -116,7 +142,12 @@ void timer_process(void)
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
 
+#           if UIP_CONF_IPV6
+            uip_neighbor_periodic();
+#           else
             uip_arp_timer();
+#           endif
+
             counter = 0;
         }
 

@@ -136,7 +136,7 @@ void network_init(void)
     uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
 #   endif
 
-#   ifdef DEBUG_NET_CONFIG && !UIP_CONF_IPV6
+#   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
     debug_printf("ip: %d.%d.%d.%d/%d.%d.%d.%d, gw: %d.%d.%d.%d\n",
         LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
         LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
@@ -170,7 +170,7 @@ void network_init(void)
         memcpy(&cfg.sntp_server, &cfg_ext->sntp_server, sizeof(uip_ipaddr_t));
         memcpy(&cfg.options, &cfg_ext->options, sizeof(global_options_t));
 
-#       ifdef DEBUG_NET_CONFIG && !UIP_CONF_IPV6
+#       if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
         if (cfg.options.sntp)
             debug_printf("cfg: sntp server is %d.%d.%d.%d\n",
                     LO8(cfg.sntp_server[0]), HI8(cfg.sntp_server[0]),
@@ -321,7 +321,7 @@ void process_packet(void)
     rpv.received_packet_size -= 4;
 
     /* check size */
-    if (rpv.received_packet_size > MAX_FRAME_LENGTH
+    if (rpv.received_packet_size > NET_MAX_FRAME_LENGTH
             || rpv.received_packet_size < UIP_LLH_LEN
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
