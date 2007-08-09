@@ -39,6 +39,7 @@ extern struct uip_eth_addr uip_ethaddr;
 /* Calculate ICMP6 Checksum, exported from uip/uip.c */
 extern u16_t uip_icmp6chksum(void);
 
+#if UIP_CONF_IPV6
 
 static void 
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
@@ -234,3 +235,5 @@ uip_neighbor_out(void)
   uip_len += sizeof(struct uip_eth_hdr);
   return 0;
 }
+
+#endif /* UIP_CONF_IPV6 */
