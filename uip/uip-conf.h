@@ -91,7 +91,7 @@ typedef unsigned short uip_stats_t;
  */
 #define UIP_CONF_STATISTICS      1
 
-#define UIP_CONF_IPV6            0
+#define UIP_CONF_IPV6            1
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
