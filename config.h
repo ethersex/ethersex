@@ -309,5 +309,6 @@
 #endif
 
 // #define ECMD_SUPPORT
+// #define TETRIRAPE_SUPPORT
 
 #endif /* _CONFIG_H */

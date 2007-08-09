@@ -8,7 +8,7 @@ include $(PWD)/avr.mk
 
 SRC = $(shell echo *.c net/*.c fs20/*.c lcd/*.c)
 #SRC += $(shell echo ecmd/*.c)
-SRC += $(shell echo tetrirape/*.c)
+#SRC += $(shell echo tetrirape/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 #CFLAGS += -Werror

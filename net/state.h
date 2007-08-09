@@ -37,7 +37,9 @@ typedef union uip_tcp_connection_state {
     struct ecmd_connection_state_t ecmd;
 #   endif
 
+#   ifdef TETRIRAPE_SUPPORT
     struct tetrirape_connection_state_t tetrirape;
+#   endif
 
     /* put tcp application states here, example:
      * struct httpd_connection_state_t httpd; */

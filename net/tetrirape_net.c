@@ -26,6 +26,9 @@
 #include "tetrirape_state.h"
 #include "../tetrirape/tetrirape.h"
 #include "../uip/uip.h"
+#include "../config.h"
+
+#ifdef TETRIRAPE_SUPPORT
 
 /*
  * look into packet queue, whether there is a packet that can be sent ...
@@ -69,3 +72,7 @@ tetrirape_net_main(void)
     else if(uip_rexmit())
 	tetrirape_rexmit();
 }
+
+
+
+#endif /* TETRIRAPE_SUPPORT */

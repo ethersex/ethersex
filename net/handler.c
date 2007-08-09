@@ -33,7 +33,9 @@ void network_init_apps(void)
     ecmd_net_init();
 #   endif
 
+#   ifdef TETRIRAPE_SUPPORT
     tetrirape_net_init();
+#   endif
 
     /* initialize your applications here */
 
@@ -54,8 +56,10 @@ void network_handle_tcp(void)
         ecmd_net_main();
 #   endif
 
+#   ifdef TETRIRAPE_SUPPORT
     if (uip_conn->lport == HTONS(TETRIRAPE_PORT))
         tetrirape_net_main();
+#   endif
 
     /* put tcp application calls here, example:
      *
