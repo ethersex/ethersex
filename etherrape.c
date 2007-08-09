@@ -1,7 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -29,6 +30,7 @@
 #include "uip/psock.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
+#include "uip/uip_neighbor.h"
 
 #include "config.h"
 #include "common.h"
@@ -48,6 +50,7 @@
 #include "fc.h"
 #include "df.h"
 #include "fs.h"
+#include "ipv6.h"
 
 #include "onewire/onewire.h"
 
@@ -650,7 +653,12 @@ int main(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
+#                   if UIP_CONF_IPV6
+		    uip_neighbor_out();
+#                   else
                     uip_arp_out();
+#                   endif
+
                     transmit_packet();
                 }
             }
@@ -661,7 +669,11 @@ int main(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
+#                   if UIP_CONF_IPV6
+                    if (uip_neighbor_out() == 0)
+#                   else
                     if (uip_arp_out() == 0)
+#                   endif
                         uip_udp_conn->appstate.sntp.transmit_state = 1;
 
                     transmit_packet();
@@ -672,8 +684,24 @@ int main(void)
             if (c % 5 == 0) /* every second */
                 clock_periodic();
 
+#	    if UIP_CONF_IPV6
+	    if (c == 5) { 
+		/* Send a router solicitation every 10 seconds, as long
+		   as we only got a link local address.  First time one
+		   second after boot */
+		if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
+		    uip_router_send_solicitation();
+		    transmit_packet();
+		}
+	    }
+#           endif /* UIP_CONF_IPV6 */
+
             if (c == 50) { /* every 10 secs */
+#               if UIP_CONF_IPV6
+		uip_neighbor_periodic();
+#               else
                 uip_arp_timer();
+#               endif
                 c = 0;
             }
 

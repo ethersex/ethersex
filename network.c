@@ -1,7 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,6 +22,7 @@
  }}} */
 
 #include <avr/eeprom.h>
+#include <avr/pgmspace.h>
 #include <util/crc16.h>
 #include <string.h>
 
@@ -34,9 +36,11 @@
 #include "httpd.h"
 #include "crc.h"
 #include "fc.h"
+#include "ipv6.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
+#include "uip/uip_neighbor.h"
 
 #ifndef ENC28J60_POLL
 #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
@@ -53,7 +57,12 @@ void network_init(void)
 /* {{{ */ {
 
     uip_init();
+
+#ifdef UIP_CONF_IPV6
+    uip_neighbor_init();
+#else
     uip_arp_init();
+#endif
 
     uip_ipaddr_t ipaddr;
 
@@ -78,14 +87,17 @@ void network_init(void)
 #       endif
 
         memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
+#       ifndef UIP_CONF_IPV6
         uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
+#	endif
     } else {
 
         /* load config settings */
         memcpy(uip_ethaddr.addr, &BASE_CONFIG->mac, 6);
+#       ifndef UIP_CONF_IPV6
         memcpy(&ipaddr, &BASE_CONFIG->ip, 4);
         uip_sethostaddr(ipaddr);
         memcpy(&ipaddr, &BASE_CONFIG->netmask, 4);
@@ -101,9 +113,15 @@ void network_init(void)
         uart_puts_P(" gw: ");
         uart_puts_ip(&uip_draddr);
         uart_eol();
-#       endif
+#       endif /* DEBUG_NET_CONFIG */
+#	endif /* not UIP_CONF_IPV6 */
 
     }
+
+#   ifdef UIP_CONF_IPV6
+    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
+    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
+#   endif
 
     /* load extended network settings */
 #   ifdef DEBUG_NET_CONFIG
@@ -131,11 +149,11 @@ void network_init(void)
 
     } else {
 
-        memcpy(&sntp_server, &EXT_CONFIG->sntp_server, 4);
+	memcpy(&sntp_server, &EXT_CONFIG->sntp_server, sizeof(uip_ipaddr_t));
         sntp_synchronize();
 
         /* syslog-server */
-        memcpy(&global_syslog.server, &EXT_CONFIG->syslog_server, 4);
+        memcpy(&global_syslog.server, &EXT_CONFIG->syslog_server, sizeof(uip_ipaddr_t));
         global_syslog.enabled = 1;
 
 #       ifdef DEBUG_NET_CONFIG
