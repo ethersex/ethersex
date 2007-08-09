@@ -201,7 +201,7 @@ uip_router_parse_advertisement(void)
 }
 
 
-void
+int
 uip_neighbor_out(void) 
 {
   uip_ipaddr_t ipaddr;
@@ -223,7 +223,7 @@ uip_neighbor_out(void)
     /* We don't know the remote MAC so far, therefore send neighbor
      * solicitation packet. */
     uip_neighbor_send_solicitation(ipaddr);
-    return;
+    return 1;
   }
 
   /* Initialize ethernet header. */
@@ -232,4 +232,5 @@ uip_neighbor_out(void)
   ETHBUF->type = HTONS(UIP_ETHTYPE_IP6);
 
   uip_len += sizeof(struct uip_eth_hdr);
+  return 0;
 }

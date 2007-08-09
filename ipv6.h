@@ -27,7 +27,7 @@
 /* prototypes */
 
 /* Prepend ethernet header to outbound IPv6 packet. */
-void uip_neighbor_out(void);
+int uip_neighbor_out(void);
 
 /* Queue `Router Solicitation' packet. */
 void uip_router_send_solicitation(void);
