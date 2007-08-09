@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "uip/uip.h"
-#include "uip/uip-neighbor.h"
+#include "uip/uip_neighbor.h"
 #include "ipv6.h"
 
 #define IPBUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
