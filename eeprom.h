@@ -39,15 +39,21 @@
 
 struct eeprom_config_base_t {
     uint8_t mac[6];
+
+#ifndef UIP_CONF_IPV6
+    /* IPv4 address to use, for IPv6 we use MAC-based autoconfiguration */
     uint8_t ip[4];
     uint8_t netmask[4];
     uint8_t gateway[4];
+#endif /* not UIP_CONF_IPV6 */
+
     uint8_t crc;
 };
 
 struct eeprom_config_ext_t {
     uint8_t sntp_server[4];
     uint8_t syslog_server[4];
+
     uint8_t crc;
 };
 
