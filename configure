@@ -1,0 +1,142 @@
+#! /usr/bin/perl -w
+# Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# For more information on the GPL, please go to:
+# http://www.gnu.org/copyleft/gpl.html
+
+use strict;
+use Term::Prompt;
+
+my %ethersex_modules = (
+  'tetrirape' => {
+                   helptext  => "a tetrinet server",
+                   conflicts => [ "ecmd" ],
+                 },
+  'ecmd'      => { 
+                   helptext  => "telnet-based etherrape control interface",
+                   conflicts => [ "tetrirape" ],
+                 },
+  'fs20'      => { 
+                   helptext  => "fs20 rf-control interface",
+                   conflicts => [ ],
+                 },
+);
+
+
+#
+# scan `config.h' for enabled/disabled modules
+#
+open HANDLE, "< config.h"
+  or die "unable to read config.h file";
+while(<HANDLE>) {
+  chop $_;
+  if(my ($enabled, $modname) = 
+     m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
+
+    unless(defined($ethersex_modules{lc($modname)})) {
+      warn "unknown ethersex module '" . lc($modname) . "' listed in config.h";
+      next;
+    }
+
+    $ethersex_modules{lc($modname)}->{'enabled'} = !length($enabled);
+  }
+}
+close HANDLE or die;
+
+
+#
+# ask user which modules to enable
+#
+my @enable_modules;
+print "\n\n -= ETHERSEX MODULE CONFIGURATION =-\n\n";
+mod: foreach my $module (keys %ethersex_modules) {
+  foreach my $module_conflicts (@{$ethersex_modules{$module}->{'conflicts'}}) {
+    foreach (@enable_modules) {
+      if($_ eq $module_conflicts) {
+        printf "disabling %s (conflicts with %s).\n", $module, $_;
+        next mod;
+      }
+    }
+  }
+
+  $ethersex_modules{$module}->{'new_status'} = 
+    prompt('y', sprintf("enable %s?", $module),
+           $ethersex_modules{$module}->{'helptext'}, 
+           $ethersex_modules{$module}->{'enabled'});
+
+  push(@enable_modules, $module)
+    if($ethersex_modules{$module}->{'new_status'});
+}
+
+
+
+#
+# create config.h.new ...
+#
+open INHANDLE, "< config.h"
+  or die "unable to open config.h for reading";
+open OUTHANDLE, "> config.h.new"
+  or die "unable to open config.h.new for writing";
+while(<INHANDLE>) {
+  chop $_;
+  if(my ($enabled, $modname) = 
+     m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
+
+    if(defined($ethersex_modules{lc($modname)})) {
+      $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "// ") 
+          . "#define " . $modname . "_SUPPORT";
+    }
+  }
+  print OUTHANDLE "$_\n";
+}
+close INHANDLE or die;
+close OUTHANDLE or die;
+
+
+#
+# create Makefile.new ...
+#
+open INHANDLE, "< Makefile"
+  or die "unable to open Makefile for reading";
+open OUTHANDLE, "> Makefile.new"
+  or die "unable to open Makefile.new for writing";
+while(<INHANDLE>) {
+  chop $_;
+  if(my ($modname) = 
+     m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9]+)\/\*\.c\)\s*$/) {
+
+    if(defined($ethersex_modules{lc($modname)})) {
+      $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "#") 
+          . "SRC += \$(shell echo $modname/*.c)";
+    }
+  }
+  print OUTHANDLE "$_\n";
+}
+close INHANDLE or die;
+close OUTHANDLE or die;
+
+
+# 
+# finally unlink/rename the files ...
+#
+unlink("config.h") or die;
+rename("config.h.new", "config.h") or die;
+unlink("Makefile") or die;
+rename("Makefile.new", "Makefile") or die;
+
+print "\n\nsuccessfully configured your ethersex.\n";
+print "don't forget to run `make clean all'.\n\n";
