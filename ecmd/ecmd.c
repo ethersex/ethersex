@@ -227,6 +227,9 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+#if UIP_CONF_IPV6
+    return -1;
+#else 
     uint8_t ips[sizeof(uip_ipaddr_t)*3];
 
     eeprom_read_block(ips, EEPROM_IPS_OFFSET, sizeof(uip_ipaddr_t)*3);
@@ -238,10 +241,14 @@ int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
             ips[8], ips[9], ips[10], ips[11]);
 
     return output_len;
+#endif /* ! UIP_CONF_IPV6 */
 } /* }}} */
 
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+#if UIP_CONF_IPV6
+    return -1;
+#else 
 
 #ifdef DEBUG_ECMD_IP
     debug_printf("called with string %s\n", cmd);
@@ -284,6 +291,7 @@ static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     /* save new ip addresses, use uip_buf since this buffer is unused when
      * this function is executed */
     return eeprom_save_config(NULL, ips[0], ips[1], ips[2]);
+#endif /* ! UIP_CONF_IPV6 */
 
 } /* }}} */
 
