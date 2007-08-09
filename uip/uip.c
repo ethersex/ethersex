@@ -122,13 +122,13 @@ uip_ipaddr_t uip_lladdr;
 
 #endif /* UIP_FIXEDADDR */
 
-static const uip_ipaddr_t all_ones_addr =
+const uip_ipaddr_t all_ones_addr =
 #if UIP_CONF_IPV6
   {0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff};
 #else /* UIP_CONF_IPV6 */
   {0xffff,0xffff};
 #endif /* UIP_CONF_IPV6 */
-static const uip_ipaddr_t all_zeroes_addr =
+const uip_ipaddr_t all_zeroes_addr =
 #if UIP_CONF_IPV6
   {0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};
 #else /* UIP_CONF_IPV6 */

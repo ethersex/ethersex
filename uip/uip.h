@@ -53,6 +53,8 @@
 #ifndef __UIP_H__
 #define __UIP_H__
 
+#include <string.h>
+
 #include "uipopt.h"
 #include "../network_state.h"
 
@@ -1540,6 +1542,8 @@ extern uip_ipaddr_t uip_lladdr;
 #endif /* UIP_CONF_IPV6 */
 #endif /* UIP_FIXEDADDR */
 
+extern const uip_ipaddr_t all_ones_addr;
+extern const uip_ipaddr_t all_zeroes_addr;
 
 
 /**
