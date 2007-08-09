@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "uip/uip.h"
+#include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
 #include "ipv6.h"
 
