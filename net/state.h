@@ -25,13 +25,18 @@
 
 #include "../uip/psock.h"
 #include "../pt/pt.h"
+#include "../config.h"
 
 #include "ecmd_state.h"
 #include "tetrirape_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
+
+#   ifdef ECMD_SUPPORT
     struct ecmd_connection_state_t ecmd;
+#   endif
+
     struct tetrirape_connection_state_t tetrirape;
 
     /* put tcp application states here, example:

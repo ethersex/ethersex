@@ -28,6 +28,9 @@
 
 #include <string.h>
 
+#include "../config.h"
+#ifdef ECMD_SUPPORT
+
 /* module local prototypes */
 void newdata(void);
 
@@ -146,3 +149,6 @@ void ecmd_net_main(void)
             uip_send(state->outbuf, state->out_len);
     }
 }
+
+
+#endif /* ECMD_SUPPORT */

@@ -308,4 +308,6 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
+// #define ECMD_SUPPORT
+
 #endif /* _CONFIG_H */

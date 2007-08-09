@@ -29,7 +29,10 @@
 void network_init_apps(void)
 /* {{{ */ {
 
+#   ifdef ECMD_SUPPORT
     ecmd_net_init();
+#   endif
+
     tetrirape_net_init();
 
     /* initialize your applications here */
@@ -46,8 +49,10 @@ void network_handle_tcp(void)
     uart_eol();
 #endif
 
+#   ifdef ECMD_SUPPORT
     if (uip_conn->lport == HTONS(ECMD_NET_PORT))
         ecmd_net_main();
+#   endif
 
     if (uip_conn->lport == HTONS(TETRIRAPE_PORT))
         tetrirape_net_main();
