@@ -24,11 +24,13 @@
 #include "../uip/uip.h"
 
 #include "ecmd_net.h"
+#include "tetrirape_net.h"
 
 void network_init_apps(void)
 /* {{{ */ {
 
     ecmd_net_init();
+    tetrirape_net_init();
 
     /* initialize your applications here */
 
@@ -46,6 +48,9 @@ void network_handle_tcp(void)
 
     if (uip_conn->lport == HTONS(ECMD_NET_PORT))
         ecmd_net_main();
+
+    if (uip_conn->lport == HTONS(TETRIRAPE_PORT))
+        tetrirape_net_main();
 
     /* put tcp application calls here, example:
      *

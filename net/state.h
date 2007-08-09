@@ -27,10 +27,12 @@
 #include "../pt/pt.h"
 
 #include "ecmd_state.h"
+#include "tetrirape_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
     struct ecmd_connection_state_t ecmd;
+    struct tetrirape_connection_state_t tetrirape;
 
     /* put tcp application states here, example:
      * struct httpd_connection_state_t httpd; */
