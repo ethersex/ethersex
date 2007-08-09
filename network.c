@@ -340,7 +340,7 @@ void process_packet(void)
 
     /* check size */
     if (rpv.received_packet_size > MAX_FRAME_LENGTH
-            || rpv.received_packet_size < sizeof(struct uip_eth_hdr)
+            || rpv.received_packet_size < UIP_LLH_LEN
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
         uart_puts_P("net: packet too large or too small for an ethernet header: ");
@@ -364,6 +364,7 @@ void process_packet(void)
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
     switch (ntohs(packet->type)) {
 
+#       if !UIP_CONF_IPV6
         /* process arp packet */
         case UIP_ETHTYPE_ARP:
 #           ifdef DEBUG_NET
@@ -376,20 +377,34 @@ void process_packet(void)
                 transmit_packet();
 
             break;
+#       endif /* !UIP_CONF_IPV6 */
 
+#       if UIP_CONF_IPV6
+        /* process ip packet */
+        case UIP_ETHTYPE_IP6:
+#           ifdef DEBUG_NET
+            uart_puts_P("net: ip6 packet received\r\n");
+#           endif
+#       else /* !UIP_CONF_IPV6 */
         /* process ip packet */
         case UIP_ETHTYPE_IP:
 #           ifdef DEBUG_NET
             uart_puts_P("net: ip packet received\r\n");
 #           endif
             uip_arp_ipin();
+#       endif /* !UIP_CONF_IPV6 */
+
             uip_input();
 
             /* if there is a packet to send, send it now */
             if (uip_len > 0) {
 
                 /* check if an arp request has to be send */
+#               if UIP_CONF_IPV6
+		uip_neighbor_out();
+#               else
                 uip_arp_out();
+#		endif
                 transmit_packet();
             }
 
