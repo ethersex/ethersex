@@ -1181,7 +1181,7 @@ uip_process(u8_t flag)
   BUF->srcport  = uip_udp_conn->lport;
   BUF->destport = uip_udp_conn->rport;
 
-#ifdef UIP_CONF_IPV6
+#if UIP_CONF_IPV6
   if(((u16_t *)(uip_udp_conn->ripaddr))[0] == HTONS(0xFE80))
     uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
   else
@@ -1294,7 +1294,7 @@ uip_process(u8_t flag)
   
   /* Swap IP addresses. */
   uip_ipaddr_copy(BUF->destipaddr, BUF->srcipaddr);
-#ifdef UIP_CONF_IPV6
+#if UIP_CONF_IPV6
   if(((u16_t *)(BUF->srcipaddr))[0] == HTONS(0xFE80))
     uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
   else
@@ -1852,7 +1852,7 @@ uip_process(u8_t flag)
   BUF->srcport  = uip_connr->lport;
   BUF->destport = uip_connr->rport;
 
-#ifdef UIP_CONF_IPV6
+#if UIP_CONF_IPV6
   if(((u16_t *)(uip_connr->ripaddr))[0] == HTONS(0xFE80))
     uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
   else

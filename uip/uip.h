@@ -1536,7 +1536,7 @@ extern const uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
 #else /* UIP_FIXEDADDR */
 extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
 
-#ifdef UIP_CONF_IPV6
+#if UIP_CONF_IPV6
 /* The link local IPv6 address */
 extern uip_ipaddr_t uip_lladdr;
 #endif /* UIP_CONF_IPV6 */

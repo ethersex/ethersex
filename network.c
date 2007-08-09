@@ -58,7 +58,7 @@ void network_init(void)
 
     uip_init();
 
-#ifdef UIP_CONF_IPV6
+#if UIP_CONF_IPV6
     uip_neighbor_init();
 #else
     uip_arp_init();
@@ -87,17 +87,17 @@ void network_init(void)
 #       endif
 
         memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
-#       ifndef UIP_CONF_IPV6
+#       if !UIP_CONF_IPV6
         uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
-#	endif
+#	    endif
     } else {
 
         /* load config settings */
         memcpy(uip_ethaddr.addr, &BASE_CONFIG->mac, 6);
-#       ifndef UIP_CONF_IPV6
+#       if !UIP_CONF_IPV6
         memcpy(&ipaddr, &BASE_CONFIG->ip, 4);
         uip_sethostaddr(ipaddr);
         memcpy(&ipaddr, &BASE_CONFIG->netmask, 4);
@@ -114,11 +114,11 @@ void network_init(void)
         uart_puts_ip(&uip_draddr);
         uart_eol();
 #       endif /* DEBUG_NET_CONFIG */
-#	endif /* not UIP_CONF_IPV6 */
+#	    endif /* !UIP_CONF_IPV6 */
 
     }
 
-#   ifdef UIP_CONF_IPV6
+#   if UIP_CONF_IPV6
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
     uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
 #   endif
@@ -149,7 +149,7 @@ void network_init(void)
 
     } else {
 
-	memcpy(&sntp_server, &EXT_CONFIG->sntp_server, sizeof(uip_ipaddr_t));
+        memcpy(&sntp_server, &EXT_CONFIG->sntp_server, sizeof(uip_ipaddr_t));
         sntp_synchronize();
 
         /* syslog-server */
