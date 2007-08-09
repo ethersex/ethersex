@@ -3,7 +3,8 @@
  *
  *          enc28j60 api
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -29,11 +30,9 @@
 #include "common.h"
 #include "enc28j60.h"
 #include "network.h"
+#include "uart.h"
+#include "uip/uip_arp.h"
 #include "spi.h"
-
-/* ethersex's ethernet address */
-#include "uip/uip.h"
-extern struct uip_eth_addr uip_ethaddr;
 
 /* global variables */
 uint8_t enc28j60_current_bank = 0;
@@ -343,6 +342,9 @@ void init_enc28j60(void)
     write_control_register(REG_MAADR2, uip_ethaddr.addr[3]);
     write_control_register(REG_MAADR1, uip_ethaddr.addr[4]);
     write_control_register(REG_MAADR0, uip_ethaddr.addr[5]);
+
+    /* receive broadcast, multicast and unicast packets */
+    write_control_register(REG_ERXFCON, _BV(BCEN) | _BV(MCEN) | _BV(UCEN));
 
     /* configure leds: led a link status and receive activity, led b transmit activity */
     write_phy(PHY_PHLCON, _BV(STRCH) | _BV(LACFG3) | _BV(LACFG2) | _BV(LBCFG0));
