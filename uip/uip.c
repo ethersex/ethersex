@@ -21,6 +21,8 @@
 
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
+ * Copyright (c) 2007, Stefan Siegl <stesie@brokenpipe.de>.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +85,7 @@
 #include "uipopt.h"
 #include "uip_arch.h"
 #include "../network.h"
+#include "../ipv6.h"
 
 #if UIP_CONF_IPV6
 #include "uip-neighbor.h"
@@ -111,6 +114,12 @@ const uip_ipaddr_t uip_netmask =
    HTONS((UIP_NETMASK2 << 8) | UIP_NETMASK3)};
 #else
 uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
+
+#if UIP_CONF_IPV6
+/* The link local IPv6 address */
+uip_ipaddr_t uip_lladdr;
+#endif
+
 #endif /* UIP_FIXEDADDR */
 
 static const uip_ipaddr_t all_ones_addr =
@@ -216,6 +225,8 @@ static u16_t tmp16;
 
 #define ICMP6_ECHO_REPLY             129
 #define ICMP6_ECHO                   128
+#define ICMP6_ROUTER_SOLICITATION    133
+#define ICMP6_ROUTER_ADVERTISEMENT   134
 #define ICMP6_NEIGHBOR_SOLICITATION  135
 #define ICMP6_NEIGHBOR_ADVERTISEMENT 136
 
@@ -930,9 +941,11 @@ uip_process(u8_t flag)
        make sure that we listen to certain multicast addresses (all
        hosts multicast address, and the solicited-node multicast
        address) as well. However, we will cheat here and accept all
-       multicast packets that are sent to the ff02::/16 addresses. */
-    if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr) &&
-       BUF->destipaddr[0] != HTONS(0xff02)) {
+       multicast packets that are sent to the ff02::/16 addresses. 
+       Furthermore listen for packets to our link local adress. */
+    if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
+       && !uip_ipaddr_cmp(BUF->destipaddr, uip_lladdr)
+       && BUF->destipaddr[0] != HTONS(0xff02)) {
       UIP_STAT(++uip_stat.ip.drop);
       goto drop;
     }
@@ -1030,11 +1043,13 @@ uip_process(u8_t flag)
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
-    if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)) {
+    if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)
+       || uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_lladdr)) {
 
       if(ICMPBUF->options[0] == ICMP6_OPTION_SOURCE_LINK_ADDRESS) {
 	/* Save the sender's address in our neighbor list. */
-	uip_neighbor_add(ICMPBUF->srcipaddr, &(ICMPBUF->options[2]));
+	uip_neighbor_add(ICMPBUF->srcipaddr,
+			 (struct uip_neighbor_addr *) &(ICMPBUF->options[2]));
       }
       
       /* We should now send a neighbor advertisement back to where the
@@ -1045,7 +1060,7 @@ uip_process(u8_t flag)
       ICMPBUF->reserved1 = ICMPBUF->reserved2 = ICMPBUF->reserved3 = 0;
       
       uip_ipaddr_copy(ICMPBUF->destipaddr, ICMPBUF->srcipaddr);
-      uip_ipaddr_copy(ICMPBUF->srcipaddr, uip_hostaddr);
+      uip_ipaddr_copy(ICMPBUF->srcipaddr, ICMPBUF->icmp6data);
       ICMPBUF->options[0] = ICMP6_OPTION_TARGET_LINK_ADDRESS;
       ICMPBUF->options[1] = 1;  /* Options length, 1 = 8 bytes. */
       memcpy(&(ICMPBUF->options[2]), &uip_ethaddr, sizeof(uip_ethaddr));
@@ -1055,6 +1070,16 @@ uip_process(u8_t flag)
       
     }
     goto drop;
+  } else if(ICMPBUF->type == ICMP6_ROUTER_ADVERTISEMENT) {
+    uip_router_parse_advertisement();
+    goto drop; /* we must not reply. */
+
+  } else if(ICMPBUF->type == ICMP6_NEIGHBOR_ADVERTISEMENT) {
+    if(ICMPBUF->options[0] == ICMP6_OPTION_TARGET_LINK_ADDRESS) {
+      /* Save the sender's address in our neighbor list. */
+      uip_neighbor_add(ICMPBUF->srcipaddr,
+		       (struct uip_neighbor_addr *) &(ICMPBUF->options[2]));
+    }
   } else if(ICMPBUF->type == ICMP6_ECHO) {
     /* ICMP echo (i.e., ping) processing. This is simple, we only
        change the ICMP type from ECHO to ECHO_REPLY and update the
@@ -1156,7 +1181,12 @@ uip_process(u8_t flag)
   BUF->srcport  = uip_udp_conn->lport;
   BUF->destport = uip_udp_conn->rport;
 
-  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+#ifdef UIP_CONF_IPV6
+  if(((u16_t *)(uip_udp_conn->ripaddr))[0] == HTONS(0xFE80))
+    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
+  else
+#endif /* UIP_CONF_IPV6 */
+    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   uip_ipaddr_copy(BUF->destipaddr, uip_udp_conn->ripaddr);
    
   uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
@@ -1264,7 +1294,12 @@ uip_process(u8_t flag)
   
   /* Swap IP addresses. */
   uip_ipaddr_copy(BUF->destipaddr, BUF->srcipaddr);
-  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+#ifdef UIP_CONF_IPV6
+  if(((u16_t *)(BUF->srcipaddr))[0] == HTONS(0xFE80))
+    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
+  else
+#endif /* UIP_CONF_IPV6 */
+    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   
   /* And send out the RST packet! */
   goto tcp_send_noconn;
@@ -1817,7 +1852,12 @@ uip_process(u8_t flag)
   BUF->srcport  = uip_connr->lport;
   BUF->destport = uip_connr->rport;
 
-  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+#ifdef UIP_CONF_IPV6
+  if(((u16_t *)(uip_connr->ripaddr))[0] == HTONS(0xFE80))
+    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
+  else
+#endif /* UIP_CONF_IPV6 */
+    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   uip_ipaddr_copy(BUF->destipaddr, uip_connr->ripaddr);
 
   if(uip_connr->tcpstateflags & UIP_STOPPED) {

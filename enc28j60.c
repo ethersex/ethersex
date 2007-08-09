@@ -29,9 +29,11 @@
 #include "common.h"
 #include "enc28j60.h"
 #include "network.h"
-#include "uart.h"
-#include "uip/uip_arp.h"
 #include "spi.h"
+
+/* ethersex's ethernet address */
+#include "uip/uip.h"
+extern struct uip_eth_addr uip_ethaddr;
 
 /* global variables */
 uint8_t enc28j60_current_bank = 0;

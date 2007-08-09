@@ -1,0 +1,98 @@
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ }}} */
+
+#ifndef _IPV6_H
+#define _IPV6_H
+
+/* prototypes */
+
+/* Prepend ethernet header to outbound IPv6 packet. */
+void uip_neighbor_out(void);
+
+/* Queue `Router Solicitation' packet. */
+void uip_router_send_solicitation(void);
+
+/* Assign IPv6 autoconfiguration address for own MAC address. */
+void uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
+		       uint16_t addr2, uint16_t addr3);
+
+/* Parse an ICMPv6 router advertisement. */
+void uip_router_parse_advertisement(void);
+
+
+/**
+ * The Ethernet header.
+ */
+struct uip_eth_hdr {
+  struct uip_eth_addr dest;
+  struct uip_eth_addr src;
+  u16_t type;
+};
+
+#define UIP_ETHTYPE_ARP 0x0806
+#define UIP_ETHTYPE_IP  0x0800
+#define UIP_ETHTYPE_IP6 0x86dd
+
+
+/**
+ * The ICMPv6 Router Advertisement header.
+ */
+struct uip_icmp_radv_hdr {
+  /* IPv6 header. */
+  u8_t vtc,
+    tcf;
+  u16_t flow;
+  u8_t len[2];
+  u8_t proto, ttl;
+  uip_ip6addr_t srcipaddr, destipaddr;
+  
+  /* ICMP (echo) header. */
+  u8_t type, icode;
+  u16_t icmpchksum;
+
+  u8_t hoplimit;
+  u8_t flags;
+  u16_t router_lifetime;
+  u16_t reachable[2];
+  u16_t retrans[2];
+
+  struct {
+    u8_t type;
+    u8_t length;
+    u8_t prefix_length;
+    u8_t flags;
+    u16_t valid_lifetime[2];
+    u16_t preferred_lifetime[2];
+    u8_t reserved[4];
+    u8_t prefix[16];
+  } prefix;
+
+  struct {
+    u8_t type;
+    u8_t length;
+    u8_t mac[6];
+  } source;
+};
+
+
+#endif
