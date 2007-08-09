@@ -20,15 +20,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _TIMER_H
-#define _TIMER_H
+#ifndef _DEBUG_H
+#define _DEBUG_H
 
-#include <avr/io.h>
+#include <stdio.h>
+#include <avr/pgmspace.h>
+#include "bit-macros.h"
+#include "global.h"
 
-/* initialize hardware timers */
-void timer_init(void);
+/* define macros, if debug is enabled */
+#ifdef DEBUG
+    #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
+    #define debug_init() DEBUG_INIT_UART()
+    #define debug_process() DEBUG_PROCESS_UART()
+#else
+    #define debug_printf(...)
+    #define debug_init(...)
+    #define debug_process(...)
+#endif /* DEBUG */
 
-/* check for timer events */
-void timer_process(void);
+/* use 115200 baud at 20mhz (see datasheet for other values) */
+#define DEBUG_UART_UBRR 10
 
-#endif
+/* prototypes */
+void DEBUG_INIT_UART(void);
+void DEBUG_PROCESS_UART(void);
+
+#endif /* _DEBUG_H */

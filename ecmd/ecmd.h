@@ -20,15 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _TIMER_H
-#define _TIMER_H
+#ifndef _ECMD_H
+#define _ECMD_H
 
-#include <avr/io.h>
+#include "../config.h"
 
-/* initialize hardware timers */
-void timer_init(void);
-
-/* check for timer events */
-void timer_process(void);
+/* returns >= 0 for output, -1 for parse error */
+int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
 
 #endif

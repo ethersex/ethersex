@@ -158,7 +158,7 @@
 #elif defined(_ATMEGA644)
 #   define BOOTLOADER_SECTION 0xf800 /* atmega644 with 1024 words bootloader */
 #else
-#   warning bootloader entry point unknown...
+#   warning "bootloader entry point unknown!"
 #endif
 
 /* spi defines */
@@ -188,8 +188,7 @@
 #define SPI_CS_NET PB4
 #endif
 
-/* port the dataflash CS is attached to
- */
+/* port the dataflash CS is attached to */
 #ifndef SPI_CS_DF
 #define SPI_CS_DF PB1
 #endif
@@ -237,17 +236,14 @@
 #endif
 
 /* configure duplex mode */
-#define FULL_DUPLEX 0
+#define NET_FULL_DUPLEX 0
 
 /* configure global data buffer */
-#define MAX_FRAME_LENGTH 640
+#define NET_MAX_FRAME_LENGTH 640
 
 /* configure main callback function for uip */
 #define UIP_APPCALL network_handle_tcp
 #define UIP_UDP_APPCALL network_handle_udp
-
-/* support for 74HC165 */
-//#define USE_74HC165
 
 /* onewire support */
 #define ONEWIRE_SUPPORT
@@ -259,8 +255,57 @@
 
 /* fs20 support */
 #define FS20_SUPPORT
-#define FS20_PINNUM PB2
-#define FS20_DDR DDRB
-#define FS20_PORT PORTB
+
+#define FS20_SUPPORT_SEND
+#define FS20_SEND_PINNUM PB2
+#define FS20_SEND_DDR DDRB
+#define FS20_SEND_PORT PORTB
+
+#define FS20_SUPPORT_RECEIVE
+/* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
+#define FS20_RECV_PINNUM PB3
+#define FS20_RECV_DDR DDRB
+#define FS20_RECV_PORT PORTB
+
+#define FS20_SUPPORT_RECEIVE_WS300
+
+/* hd44780 support */
+
+// #define HD44780_SUPPORT
+
+/* controller type */
+// #define HD44780_ORIGINAL /* original hd44780 */
+#define HD44780_KS0067B  /* compatibility mode for ks0067b */
+
+/* readback support, check busy flag instead of just waiting for a timeout */
+#define HD44780_READBACK
+
+/* if defined, use portc instead of port a */
+// #define HD44780_USE_PORTC
+
+/* select port for lcd below */
+#ifdef HD44780_USE_PORTC
+    #define HD44780_CTRL_PORT C
+    #define HD44780_DATA_PORT C
+    #define HD44780_RS PC0
+    #define HD44780_RW PC1
+    #define HD44780_EN PC2
+    #define HD44780_D4 PC3
+    #define HD44780_D5 PC4
+    #define HD44780_D6 PC5
+    #define HD44780_D7 PC6
+    #define HD44780_DATA_SHIFT 3
+#else
+    #define HD44780_CTRL_PORT A
+    #define HD44780_DATA_PORT A
+    #define HD44780_RS PA0
+    #define HD44780_RW PA1
+    #define HD44780_EN PA2
+    #define HD44780_D4 PA3
+    #define HD44780_D5 PA4
+    #define HD44780_D6 PA5
+    #define HD44780_D7 PA6
+    #define HD44780_DATA_SHIFT 3
+#endif
 
 #endif /* _CONFIG_H */

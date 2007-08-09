@@ -1,3 +1,10 @@
+# etherrape project specific defaults, each can be overridden in config.mk
+F_CPU = 20000000UL
+MCU = atmega644
+AVRDUDE_BAUDRATE=115200
+UART_BAUDRATE=115200
+
+
 # Programmer used for In System Programming
 ISP_PROG = dapa
 # device the ISP programmer is connected to
@@ -24,6 +31,8 @@ $(PWD)/config.mk:
 	@echo "# Put your own config here!" > $@
 	@echo "#SERIAL_DEV = $(SERIAL_DEV)" >> $@
 	@echo "#DEBUG = 1" >> $@
+	@echo "# for enabling the hd44780 lcd on port a, uncomment the following line:" >> $@
+	@echo "#CFLAGS += -DHD44780_SUPPORT" >> $@
 	@echo "created default config.mk, tune your settings there!"
 
 -include $(PWD)/config.mk
@@ -53,16 +62,21 @@ CFLAGS += -g -Os -finline-limit=800 -mmcu=$(MCU) -DF_CPU=$(F_CPU) -std=gnu99
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
 
+DEBUG_CFLAGS += -Wall -W -Wchar-subscripts -Wmissing-prototypes
+DEBUG_CFLAGS += -Wmissing-declarations -Wredundant-decls
+DEBUG_CFLAGS += -Wstrict-prototypes -Wshadow -Wbad-function-cast
+DEBUG_CFLAGS += -Winline -Wpointer-arith -Wsign-compare
+DEBUG_CFLAGS += -Wunreachable-code -Wdisabled-optimization
+DEBUG_CFLAGS += -fshort-enums
+DEBUG_CFLAGS += -Wcast-align -Wwrite-strings -Wnested-externs -Wundef
+DEBUG_CFLAGS += -Wa,-adhlns=$(basename $@).lst
+DEBUG_CFLAGS += -DDEBUG
+
+DEBUG_LDFLAGS += -Wl,-Map,$(TARGET).map
+
 ifneq ($(DEBUG),)
-	CFLAGS += -Wall -W -Wchar-subscripts -Wmissing-prototypes
-	CFLAGS += -Wmissing-declarations -Wredundant-decls
-	CFLAGS += -Wstrict-prototypes -Wshadow -Wbad-function-cast
-	CFLAGS += -Winline -Wpointer-arith -Wsign-compare
-	CFLAGS += -Wunreachable-code -Wdisabled-optimization
-	CFLAGS += -fshort-enums
-	CFLAGS += -Wcast-align -Wwrite-strings -Wnested-externs -Wundef
-	CFLAGS += -Wa,-adhlns=$(basename $@).lst
-	CFLAGS += -DDEBUG
+	CFLAGS += $(DEBUG_CFLAGS)
+	LDFLAGS += $(DEBUG_LDFLAGS)
 endif
 
 

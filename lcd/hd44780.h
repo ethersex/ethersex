@@ -1,6 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
+ * hd44780 driver library
+ *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,15 +22,38 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _TIMER_H
-#define _TIMER_H
+#ifndef _HD4480_H
+#define _HD4480_H
 
-#include <avr/io.h>
+#include <stdio.h>
+#include "../config.h"
 
-/* initialize hardware timers */
-void timer_init(void);
+#ifdef HD44780_SUPPORT
+/* define data pins, for example:
+     #define HD44780_CTRL_PORT A
+     #define HD44780_DATA_PORT A
+     #define HD44780_RS PA0
+     #define HD44780_RW PA1
+     #define HD44780_EN PA2
+     #define HD44780_D4 PA3
+     #define HD44780_D5 PA4
+     #define HD44780_D6 PA5
+     #define HD44780_D7 PA6
+     #define HD44780_DATA_SHIFT 3
+*/
 
-/* check for timer events */
-void timer_process(void);
+/* lcd stream */
+extern FILE *lcd;
+
+#define noinline __attribute__((noinline))
+
+/* prototypes */
+void hd44780_init(uint8_t cursor, uint8_t blink);
+void noinline hd44780_clear(void);
+void noinline hd44780_home(void);
+void noinline hd44780_goto(uint8_t line, uint8_t pos);
+int noinline hd44780_put(char d, FILE *stream);
+
+#endif
 
 #endif

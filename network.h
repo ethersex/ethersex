@@ -25,7 +25,6 @@
 
 #include "enc28j60.h"
 #include "config.h"
-#include "common.h"
 
 #include "uip/uip.h"
 
@@ -35,18 +34,9 @@
 void network_init(void);
 
 /* check for ethernet controller interrupts */
-void enc28j60_process_interrupts(void);
-
-/* process each packet */
-void process_packet(void);
+void network_process(void);
 
 /* send a packet placed in the global buffer */
 void transmit_packet(void);
-
-/* handle tcp connections */
-void network_handle_tcp(void);
-
-/* handle udp connections */
-void network_handle_udp(void);
 
 #endif

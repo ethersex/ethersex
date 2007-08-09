@@ -53,7 +53,6 @@
 #define __UIP_ARP_H__
 
 #include "uip.h"
-#include "../network.h"
 
 extern struct uip_eth_addr uip_ethaddr;
 

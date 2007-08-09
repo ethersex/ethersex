@@ -28,7 +28,6 @@
 
 #include <avr/io.h>
 #include "config.h"
-#include "common.h"
 
 #define noinline __attribute__((noinline))
 
@@ -314,12 +313,12 @@ void noinline set_read_buffer_pointer(uint16_t address);
 uint16_t noinline get_read_buffer_pointer(void);
 void noinline set_write_buffer_pointer(uint16_t address);
 uint16_t noinline get_write_buffer_pointer(void);
-uint16_t read_phy(uint8_t address);
-void write_phy(uint8_t address, uint16_t data);
-void reset_controller(void);
-void reset_rx(void);
+uint16_t noinline read_phy(uint8_t address);
+void noinline write_phy(uint8_t address, uint16_t data);
+void noinline reset_controller(void);
+void noinline reset_rx(void);
 void init_enc28j60(void);
-void switch_bank(uint8_t bank);
+void noinline switch_bank(uint8_t bank);
 
 #ifdef DEBUG_ENC28J60
 void dump_debug_registers(void);

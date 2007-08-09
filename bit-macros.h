@@ -20,15 +20,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _TIMER_H
-#define _TIMER_H
+#ifndef _BIT_MACROS_H
+#define _BIT_MACROS_H
 
-#include <avr/io.h>
+#include <stdlib.h>
 
-/* initialize hardware timers */
-void timer_init(void);
+#define HI8(x)  ((uint8_t)((x) >> 8))
+#define LO8(x)  ((uint8_t)(x))
 
-/* check for timer events */
-void timer_process(void);
+#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
+                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
+                | (uint32_t)(((x) & 0x0000FF00) << 8) \
+                | (uint32_t)(((x) & 0x000000FF) << 24))
+
+#define NTOHL(x) HTONL(x)
 
 #endif

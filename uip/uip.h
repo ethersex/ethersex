@@ -56,7 +56,7 @@
 #include <string.h>
 
 #include "uipopt.h"
-#include "../network_state.h"
+#include "../net/state.h"
 
 /**
  * Repressentation of an IP address.

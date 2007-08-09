@@ -20,15 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _TIMER_H
-#define _TIMER_H
+#ifndef ECMD_NET_H
+#define ECMD_NET_H
 
-#include <avr/io.h>
+#define ECMD_NET_PORT 2701
 
-/* initialize hardware timers */
-void timer_init(void);
-
-/* check for timer events */
-void timer_process(void);
+void ecmd_net_init(void);
+void ecmd_net_main(void);
 
 #endif

@@ -53,7 +53,7 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_BUFFER_SIZE     MAX_FRAME_LENGTH
+#define UIP_CONF_BUFFER_SIZE     NET_MAX_FRAME_LENGTH
 
 /**
  * CPU byte order.

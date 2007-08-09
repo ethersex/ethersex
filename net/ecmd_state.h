@@ -20,15 +20,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _TIMER_H
-#define _TIMER_H
+#ifndef ECMD_STATE_H
+#define ECMD_STATE_H
 
-#include <avr/io.h>
+#include "../uip/psock.h"
+#include "../pt/pt.h"
 
-/* initialize hardware timers */
-void timer_init(void);
+#define ECMD_INPUTBUF_LENGTH 80
+#define ECMD_OUTPUTBUF_LENGTH 80
 
-/* check for timer events */
-void timer_process(void);
+struct ecmd_connection_state_t {
+    char inbuf[ECMD_INPUTBUF_LENGTH];
+    uint8_t in_len;
+    char outbuf[ECMD_OUTPUTBUF_LENGTH];
+    uint8_t out_len;
+    struct pt thread;
+};
 
 #endif
