@@ -401,10 +401,11 @@ void process_packet(void)
 
                 /* check if an arp request has to be send */
 #               if UIP_CONF_IPV6
-		uip_neighbor_out();
+            	uip_neighbor_out();
 #               else
                 uip_arp_out();
-#		endif
+#		        endif
+
                 transmit_packet();
             }
 

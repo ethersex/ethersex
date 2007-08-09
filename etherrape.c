@@ -654,7 +654,7 @@ int main(void)
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
 #                   if UIP_CONF_IPV6
-		    uip_neighbor_out();
+		            uip_neighbor_out();
 #                   else
                     uip_arp_out();
 #                   endif
@@ -684,21 +684,21 @@ int main(void)
             if (c % 5 == 0) /* every second */
                 clock_periodic();
 
-#	    if UIP_CONF_IPV6
-	    if (c == 5) { 
-		/* Send a router solicitation every 10 seconds, as long
-		   as we only got a link local address.  First time one
-		   second after boot */
-		if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
-		    uip_router_send_solicitation();
-		    transmit_packet();
-		}
-	    }
+#   	    if UIP_CONF_IPV6
+            if (c == 5) { 
+                /* Send a router solicitation every 10 seconds, as long
+                   as we only got a link local address.  First time one
+                   second after boot */
+                if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
+                    uip_router_send_solicitation();
+                    transmit_packet();
+                }
+            }
 #           endif /* UIP_CONF_IPV6 */
 
             if (c == 50) { /* every 10 secs */
 #               if UIP_CONF_IPV6
-		uip_neighbor_periodic();
+        		uip_neighbor_periodic();
 #               else
                 uip_arp_timer();
 #               endif
