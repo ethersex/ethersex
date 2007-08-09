@@ -48,6 +48,7 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len);
+#ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_SEND
 static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len);
 #endif
@@ -57,6 +58,7 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
 #endif
 #endif
+#endif /* FS20_SUPPORT */
 #ifdef HD44780_SUPPORT
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
@@ -86,6 +88,7 @@ const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
 const char PROGMEM ecmd_io_set_port[] = "io set port";
 const char PROGMEM ecmd_io_get_port[] = "io get port";
 const char PROGMEM ecmd_io_get_pin[] = "io get pin";
+#ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_SEND
 const char PROGMEM ecmd_fs20_send_text[] = "fs20 send";
 #endif
@@ -95,6 +98,7 @@ const char PROGMEM ecmd_fs20_recv_text[] = "fs20 receive";
 const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
 #endif
 #endif
+#endif /* FS20_SUPPORT */
 #ifdef HD44780_SUPPORT
 const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
@@ -112,6 +116,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_io_set_port, parse_cmd_io_set_port },
     { ecmd_io_get_port, parse_cmd_io_get_port },
     { ecmd_io_get_pin, parse_cmd_io_get_pin },
+#ifdef FS20_SUPPORT 
 #ifdef FS20_SUPPORT_SEND
     { ecmd_fs20_send_text, parse_cmd_send_fs20 },
 #endif
@@ -121,6 +126,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_fs20_recv_ws300_text, parse_cmd_recv_fs20_ws300 },
 #endif
 #endif
+#endif /* FS20_SUPPORT */
 #ifdef HD44780_SUPPORT
     { ecmd_lcd_clear_text, parse_lcd_clear },
     { ecmd_lcd_write_text, parse_lcd_write },
@@ -311,6 +317,7 @@ static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 
+#ifdef FS20_SUPPORT 
 #ifdef FS20_SUPPORT_SEND
 static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -400,8 +407,8 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 #endif
-
 #endif
+#endif /* FS20_SUPPORT */
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {

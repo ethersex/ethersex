@@ -61,6 +61,7 @@ void timer_process(void)
 #       endif
 
         /* process fs20 stuff */
+#       ifdef FS20_SUPPORT
 #       ifdef FS20_SUPPORT_RECEIVE
         fs20_process_timeout();
 #       endif
@@ -75,6 +76,7 @@ void timer_process(void)
             debug_printf("fs20 profile: %u %u\n", c1, c2);
         }
 #       endif
+#       endif /* FS20_SUPPORT */
 
         /* check tcp connections every 200ms */
         if (counter % 10 == 0) {
@@ -131,10 +133,12 @@ void timer_process(void)
         }
 #       endif /* UIP_CONF_IPV6 */
 
+#       ifdef FS20_SUPPORT
         /* update last_update timer every second */
         if (counter % 50 == 0) {
             fs20_global.ws300.last_update++;
         }
+#       endif
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {

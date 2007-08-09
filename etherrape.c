@@ -163,9 +163,11 @@ int main(void)
         debug_process();
 
         /* check if fs20 data has arrived */
+#ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_RECEIVE
         fs20_process();
 #endif
+#endif /* FS20_SUPPORT */
     }
 
 } /* }}} */
