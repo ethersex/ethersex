@@ -425,6 +425,7 @@ uip_init(void)
 /*---------------------------------------------------------------------------*/
 #if UIP_TCP
 #if UIP_ACTIVE_OPEN
+#ifndef BOOTLOADER_SUPPORT
 struct uip_conn *
 uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
 {
@@ -488,6 +489,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
   
   return conn;
 }
+#endif /* BOOTLOADER_SUPPORT */
 #endif /* UIP_ACTIVE_OPEN */
 #endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
@@ -539,6 +541,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
 #endif /* UIP_ACTIVE_OPEN */
 #endif /* UIP_UDP */
 /*---------------------------------------------------------------------------*/
+#ifndef BOOTLOADER_SUPPORT
 void
 uip_unlisten(u16_t port)
 {
@@ -549,6 +552,7 @@ uip_unlisten(u16_t port)
     }
   }
 }
+#endif
 /*---------------------------------------------------------------------------*/
 void
 uip_listen(u16_t port)
@@ -802,10 +806,12 @@ uip_process(u8_t flag)
 	    goto tcp_send_synack;
 	    
 #if UIP_ACTIVE_OPEN
+#ifndef BOOTLOADER_SUPPORT
 	  case UIP_SYN_SENT:
 	    /* In the SYN_SENT state, we retransmit out SYN. */
 	    BUF->flags = 0;
 	    goto tcp_send_syn;
+#endif /* BOOTLOADER_SUPPORT */
 #endif /* UIP_ACTIVE_OPEN */
 	    
 	  case UIP_ESTABLISHED:
@@ -1412,7 +1418,7 @@ uip_process(u8_t flag)
   }
   
   /* Our response will be a SYNACK. */
-#if UIP_ACTIVE_OPEN
+#if UIP_ACTIVE_OPEN && !defined(BOOTLOADER_SUPPORT)
  tcp_send_synack:
   BUF->flags = TCP_ACK;
   
@@ -1539,6 +1545,7 @@ uip_process(u8_t flag)
     }
     goto drop;
 #if UIP_ACTIVE_OPEN
+#ifndef BOOTLOADER_SUPPORT
   case UIP_SYN_SENT:
     /* In SYN_SENT, we wait for a SYNACK that is sent in response to
        our SYN. The rcv_nxt is set to sequence number in the SYNACK
@@ -1598,6 +1605,7 @@ uip_process(u8_t flag)
     /* The connection is closed after we send the RST */
     uip_conn->tcpstateflags = UIP_CLOSED;
     goto reset;
+#endif /* BOOTLOADER_SUPPORT */
 #endif /* UIP_ACTIVE_OPEN */
     
   case UIP_ESTABLISHED:
