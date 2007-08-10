@@ -91,23 +91,31 @@ void network_init(void)
 #       if !UIP_CONF_IPV6
         uip_ipaddr(ipaddr, 10,0,0,5);
         uip_sethostaddr(ipaddr);
+#       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->ip, &ipaddr, sizeof(uip_ipaddr_t));
+#       endif
 
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
+#       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->netmask, &ipaddr, sizeof(uip_ipaddr_t));
+#       endif
 
         uip_ipaddr(ipaddr, 0, 0, 0, 0);
         uip_setdraddr(ipaddr);
+#       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->gateway, &ipaddr, sizeof(uip_ipaddr_t));
 #       endif
+#       endif /* !UIP_CONF_IPV6 */
 
+#       ifndef BOOTLOADER_SUPPORT        
         /* calculate new checksum */
         checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
         cfg_base->crc = checksum;
 
         /* save config */
         eeprom_write_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+#       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
 
@@ -127,7 +135,7 @@ void network_init(void)
         uip_sethostaddr(&cfg_base->netmask);
         uip_setdraddr(&cfg_base->gateway);
         */
-#	    endif /* !UIP_CONF_IPV6 */
+#	endif /* !UIP_CONF_IPV6 */
 
     }
 
@@ -179,7 +187,7 @@ void network_init(void)
 #       endif
 
     }
-#   endif /* BOOTLOADER_SUPPORT */
+#   endif /* !BOOTLOADER_SUPPORT */
 
     network_init_apps();
     init_enc28j60();
