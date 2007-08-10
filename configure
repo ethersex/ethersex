@@ -34,6 +34,24 @@ my %ethersex_modules = (
                    helptext  => "fs20 rf-control interface",
                    conflicts => [ ],
                  },
+  'bootp'     => { 
+                   helptext  => "DHCP-like autoconfig for IPv4",
+                   conflicts => [ "ipv6" ],
+                   requires  => [ "broadcast" ],
+                 },
+  'ipv6'      => { 
+                   helptext  => "IPv6 support instead of IPv4",
+                   conflicts => [ "bootp" ],
+                 },
+  'broadcast' => { 
+                   helptext  => "(udp) broadcast support",
+                   conflicts => [ "bootp", "udp" ],
+                 },
+  'tftp'      => { 
+                   helptext  => "TFTP-based firmware bootloader",
+                   conflicts => [ ],
+                   requires  => [ "bootloader" ],
+                 },
 );
 
 
