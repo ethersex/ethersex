@@ -143,6 +143,7 @@ void network_init(void)
         LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
 #   endif
 
+#   ifndef BOOTLOADER_SUPPORT
     /* load extended network settings */
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("net: loading extended network settings\n");
@@ -178,6 +179,7 @@ void network_init(void)
 #       endif
 
     }
+#   endif /* BOOTLOADER_SUPPORT */
 
     network_init_apps();
     init_enc28j60();
