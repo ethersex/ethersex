@@ -600,7 +600,7 @@ int8_t parse_ip(char *cmd, uint8_t *ptr)
     debug_printf("called parse_ip with string '%s'\n", cmd);
 #endif
 
-    int *ip = malloc(sizeof(int) * 4);
+    int *ip = __builtin_alloca(sizeof(int) * 4);
 
     /* return -2 if malloc() failed */
     if (ip == NULL)
@@ -626,7 +626,6 @@ int8_t parse_ip(char *cmd, uint8_t *ptr)
     } else
         ret = -1;
 
-    free(ip);
     return ret;
 } /* }}} */
 
@@ -638,7 +637,7 @@ int8_t parse_mac(char *cmd, uint8_t *ptr)
     debug_printf("called parse_mac with string '%s'\n", cmd);
 #endif
 
-    int *mac = malloc(sizeof(int) * 6);
+    int *mac = __builtin_alloca(sizeof(int) * 6);
 
     /* return -2 if malloc() failed */
     if (mac == NULL)
@@ -664,6 +663,5 @@ int8_t parse_mac(char *cmd, uint8_t *ptr)
     } else
         ret = -1;
 
-    free(mac);
     return ret;
 } /* }}} */
