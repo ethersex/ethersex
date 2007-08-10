@@ -79,7 +79,11 @@ void timer_process(void)
 #       endif /* FS20_SUPPORT */
 
         /* check tcp connections every 200ms */
+#       ifdef BOOTLOADER_SUPPORT
+        if ((counter & 7) == 0) {
+#       else
         if (counter % 10 == 0) {
+#       endif
 #           if UIP_TCP == 1
             for (i = 0; i < UIP_CONNS; i++) {
                 uip_periodic(i);
