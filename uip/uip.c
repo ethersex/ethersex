@@ -331,6 +331,7 @@ uip_chksum(u16_t *data, u16_t len)
 }
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
+#if !UIP_CONF_IPV6
 u16_t
 uip_ipchksum(void)
 {
@@ -340,7 +341,8 @@ uip_ipchksum(void)
   DEBUG_PRINTF("uip_ipchksum: sum 0x%04x\n", sum);
   return (sum == 0) ? 0xffff : htons(sum);
 }
-#endif
+#endif /* !UIP_CONF_IPV6 */
+#endif /* UIP_ARCH_IPCHKSUM */
 /*---------------------------------------------------------------------------*/
 static u16_t
 upper_layer_chksum(u8_t proto)
