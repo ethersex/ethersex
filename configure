@@ -89,28 +89,65 @@ while(<HANDLE>) {
 close HANDLE or die;
 
 
-#
-# ask user which modules to enable
-#
+# check whether module may be enabled
+# return: 0 if conflicting (message will be emitted)
 my @enable_modules;
-print "\n\n -= ETHERSEX MODULE CONFIGURATION =-\n\n";
-mod: foreach my $module (keys %ethersex_modules) {
+sub try_enable {
+  my $module = shift;
+  my $trymodule = shift;
+
+  unless(defined($trymodule)) { $trymodule = $module }
+
   foreach my $module_conflicts (@{$ethersex_modules{$module}->{'conflicts'}}) {
     foreach (@enable_modules) {
       if($_ eq $module_conflicts) {
-        printf "disabling %s (conflicts with %s).\n", $module, $_;
-        next mod;
+        printf "disabling %s (conflicts with %s).\n", $trymodule, $_;
+        return 1;
       }
     }
   }
 
-  $ethersex_modules{$module}->{'new_status'} = 
-    prompt('y', sprintf("enable %s?", $module),
-           $ethersex_modules{$module}->{'helptext'}, 
-           $ethersex_modules{$module}->{'enabled'});
+  foreach (@{$ethersex_modules{$module}->{'requires'}}) {
+    if(try_enable($_, $trymodule)) {
+      return 1;
+    }
+  }
 
-  push(@enable_modules, $module)
-    if($ethersex_modules{$module}->{'new_status'});
+  return 0;
+}
+
+sub enable {
+  my $module = shift;
+  my $requiring = shift;
+
+  return if($ethersex_modules{$module}->{'new_status'});
+
+  if(defined($requiring)) {
+    printf "enabling %s (required by %s).\n", $module, $requiring;
+  } else {
+    $requiring = $module;
+  }
+
+  foreach (@{$ethersex_modules{$module}->{'requires'}}) {
+    enable($_, $requiring);
+  }
+
+  $ethersex_modules{$module}->{'new_status'} = 1;
+  push @enable_modules, $module;
+}
+
+#
+# ask user which modules to enable
+#
+print "\n\n -= ETHERSEX MODULE CONFIGURATION =-\n\n";
+foreach my $module (keys %ethersex_modules) {
+  next if($ethersex_modules{$module}->{'new_status'});
+  next if(try_enable($module));
+
+  enable($module)
+    if(prompt('y', sprintf("enable %s?", $module),
+       $ethersex_modules{$module}->{'helptext'}, 
+       $ethersex_modules{$module}->{'enabled'}));
 }
 
 
