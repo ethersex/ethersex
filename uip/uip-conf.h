@@ -91,7 +91,18 @@ typedef unsigned short uip_stats_t;
  */
 #define UIP_CONF_STATISTICS      1
 
-#define UIP_CONF_IPV6            1
+#ifdef IPV6_SUPPORT
+#  define UIP_CONF_IPV6          1
+#else
+#  define UIP_CONF_IPV6          0
+#endif
+
+#ifdef BROADCAST_SUPPORT
+#  define UIP_CONF_BROADCAST     1
+#else
+#  define UIP_CONF_BROADCAST     0
+#endif
+
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
