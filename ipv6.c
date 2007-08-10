@@ -44,6 +44,10 @@ extern u16_t uip_icmp6chksum(void);
 static void 
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 {
+  uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
+  uip_len = UIP_LLH_LEN + UIP_IPH_LEN + 32;
+  memset(uip_buf, 0, uip_len);
+
   ETHBUF->dest.addr[0] = 0x33;
   ETHBUF->dest.addr[1] = 0x33;
   ETHBUF->dest.addr[2] = 0xff;
@@ -55,30 +59,30 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
   ETHBUF->type = HTONS(UIP_ETHTYPE_IP6);
 
   ICMPBUF->vtc = 0x60;
-  ICMPBUF->tcf = 0x00;
-  ICMPBUF->flow = 0;
-  ICMPBUF->len[0] = 0;
+  // ICMPBUF->tcf = 0x00;
+  // ICMPBUF->flow = 0;
+  // ICMPBUF->len[0] = 0;
   ICMPBUF->len[1] = 32;
   ICMPBUF->proto = UIP_PROTO_ICMP6;
   ICMPBUF->ttl = 255;
     
   uip_ipaddr_copy(ICMPBUF->srcipaddr, uip_hostaddr);
   ICMPBUF->destipaddr[0] = HTONS(0xFF02);
-  ICMPBUF->destipaddr[1] = 0;
-  ICMPBUF->destipaddr[2] = 0;
-  ICMPBUF->destipaddr[3] = 0;
-  ICMPBUF->destipaddr[4] = 0;
+  // ICMPBUF->destipaddr[1] = 0;
+  // ICMPBUF->destipaddr[2] = 0;
+  // ICMPBUF->destipaddr[3] = 0;
+  // ICMPBUF->destipaddr[4] = 0;
   ICMPBUF->destipaddr[5] = HTONS(0x0001);
   ICMPBUF->destipaddr[6] = ipaddr[6] | HTONS(0xFF00);
   ICMPBUF->destipaddr[7] = ipaddr[7];
     
   ICMPBUF->type = 135;  /* neighbour solicitation */
-  ICMPBUF->icode = 0;
-  ICMPBUF->icmpchksum = 0;
-  ICMPBUF->flags = 0;
-  ICMPBUF->reserved1 = 0;
-  ICMPBUF->reserved2 = 0;
-  ICMPBUF->reserved3 = 0;
+  // ICMPBUF->icode = 0;
+  // ICMPBUF->icmpchksum = 0;
+  // ICMPBUF->flags = 0;
+  // ICMPBUF->reserved1 = 0;
+  // ICMPBUF->reserved2 = 0;
+  // ICMPBUF->reserved3 = 0;
   memcpy(ICMPBUF->icmp6data, ipaddr, 16);
 
   ICMPBUF->options[0] = 1; /* type: 1, aka source link layer address */
@@ -87,50 +91,51 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 
   /* Calculate checksum */
   ICMPBUF->icmpchksum = ~uip_icmp6chksum();
-
-  uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
-  uip_len = UIP_LLH_LEN + UIP_IPH_LEN + 32;
 }
 
 
 void 
 uip_router_send_solicitation(void)
 {
+  uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
+  uip_len = UIP_LLH_LEN + UIP_IPH_LEN + 16;
+  memset(uip_buf, 0, uip_len);
+
   ETHBUF->dest.addr[0] = 0x33;
   ETHBUF->dest.addr[1] = 0x33;
-  ETHBUF->dest.addr[2] = 0x00;
-  ETHBUF->dest.addr[3] = 0x00;
-  ETHBUF->dest.addr[4] = 0x00;
+  // ETHBUF->dest.addr[2] = 0x00;
+  // ETHBUF->dest.addr[3] = 0x00;
+  // ETHBUF->dest.addr[4] = 0x00;
   ETHBUF->dest.addr[5] = 0x02;
 
   memcpy(ETHBUF->src.addr, uip_ethaddr.addr, 6);
   ETHBUF->type = HTONS(UIP_ETHTYPE_IP6);
 
   ICMPBUF->vtc = 0x60;
-  ICMPBUF->tcf = 0x00;
-  ICMPBUF->flow = 0;
-  ICMPBUF->len[0] = 0;
+  // ICMPBUF->tcf = 0x00;
+  // ICMPBUF->flow = 0;
+  // ICMPBUF->len[0] = 0;
   ICMPBUF->len[1] = 16;
   ICMPBUF->proto = UIP_PROTO_ICMP6;
   ICMPBUF->ttl = 255;
     
   uip_ipaddr_copy(ICMPBUF->srcipaddr, uip_hostaddr);
   ICMPBUF->destipaddr[0] = HTONS(0xFF02);
-  ICMPBUF->destipaddr[1] = 0;
-  ICMPBUF->destipaddr[2] = 0;
-  ICMPBUF->destipaddr[3] = 0;
-  ICMPBUF->destipaddr[4] = 0;
-  ICMPBUF->destipaddr[5] = 0;
-  ICMPBUF->destipaddr[6] = 0;
+  // ICMPBUF->destipaddr[1] = 0;
+  // ICMPBUF->destipaddr[2] = 0;
+  // ICMPBUF->destipaddr[3] = 0;
+  // ICMPBUF->destipaddr[4] = 0;
+  // ICMPBUF->destipaddr[5] = 0;
+  // ICMPBUF->destipaddr[6] = 0;
   ICMPBUF->destipaddr[7] = HTONS(0x0002);
     
   ICMPBUF->type = 133;  /* router solicitation */
-  ICMPBUF->icode = 0;
-  ICMPBUF->icmpchksum = 0;
-  ICMPBUF->flags = 0;
-  ICMPBUF->reserved1 = 0;
-  ICMPBUF->reserved2 = 0;
-  ICMPBUF->reserved3 = 0;
+  // ICMPBUF->icode = 0;
+  // ICMPBUF->icmpchksum = 0;
+  // ICMPBUF->flags = 0;
+  // ICMPBUF->reserved1 = 0;
+  // ICMPBUF->reserved2 = 0;
+  // ICMPBUF->reserved3 = 0;
 
   ICMPBUF->icmp6data[0] = 1; /* type: 1, aka source link layer address */
   ICMPBUF->icmp6data[1] = 1; /* length: 8 bytes */
@@ -138,9 +143,6 @@ uip_router_send_solicitation(void)
 
   /* Calculate checksum */
   ICMPBUF->icmpchksum = ~uip_icmp6chksum();
-
-  uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
-  uip_len = UIP_LLH_LEN + UIP_IPH_LEN + 16;
 }
 
 
