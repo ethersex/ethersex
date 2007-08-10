@@ -25,6 +25,8 @@
 
 #include "ecmd_net.h"
 #include "tetrirape_net.h"
+#include "bootp_net.h"
+#include "tftp_net.h"
 
 void network_init_apps(void)
 /* {{{ */ {
@@ -35,6 +37,14 @@ void network_init_apps(void)
 
 #   ifdef TETRIRAPE_SUPPORT
     tetrirape_net_init();
+#   endif
+
+#   ifdef BOOTP_SUPPORT
+    bootp_net_init();
+#   endif
+
+#   ifdef TFTP_SUPPORT
+    tftp_net_init();
 #   endif
 
     /* initialize your applications here */
@@ -75,6 +85,17 @@ void network_handle_tcp(void)
 
 void network_handle_udp(void)
 /* {{{ */ {
+
+#   ifdef BOOTP_SUPPORT
+    if (uip_udp_conn->lport == HTONS(BOOTPC_PORT))
+	    bootp_net_main();
+#   endif
+
+#   ifdef TFTP_SUPPORT
+    if (uip_udp_conn->lport == HTONS(TFTP_PORT)
+        || uip_udp_conn->lport == HTONS(TFTP_ALT_PORT))
+        tftp_net_main();
+#   endif
 
     /* put udp application calls here, example:
      *

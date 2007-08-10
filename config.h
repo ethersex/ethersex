@@ -153,6 +153,7 @@
 #define ENC28J60_REV4_WORKAROUND
 
 /* bootloader */
+#undef BOOTLOADER_SECTION
 #if defined(_ATMEGA32)
 #   define BOOTLOADER_SECTION 0x7c00 /* atmega32 with 512 words bootloader */
 #elif defined(_ATMEGA644)
@@ -254,7 +255,7 @@
 #define ONEWIRE_PARASITE
 
 /* fs20 support */
-#define FS20_SUPPORT
+// #define FS20_SUPPORT
 
 #define FS20_SUPPORT_SEND
 #define FS20_SEND_PINNUM PB2
@@ -308,7 +309,14 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
-// #define ECMD_SUPPORT
+#define ECMD_SUPPORT
 // #define TETRIRAPE_SUPPORT
+// #define BOOTP_SUPPORT
+// #define TFTP_SUPPORT
+#define IPV6_SUPPORT
+// #define BROADCAST_SUPPORT
+
+/* bootloader config */
+#define APP_ENTER_DELAY 25           /* five seconds */
 
 #endif /* _CONFIG_H */

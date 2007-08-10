@@ -29,6 +29,8 @@
 
 #include "ecmd_state.h"
 #include "tetrirape_state.h"
+#include "bootp_state.h"
+#include "tftp_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -48,6 +50,15 @@ typedef union uip_tcp_connection_state {
 /* uip appstate for udp
  * attention: first byte MUST be transmit_state! */
 typedef union uip_udp_connection_state {
+
+#   ifdef BOOTP_SUPPORT
+    struct bootp_connection_state_t bootp;
+#   endif
+
+#   ifdef TFTP_SUPPORT
+    struct tftp_connection_state_t tftp;
+#   endif
+
     /* put udp application states here, example:
      * struct sntp_connection_state_t sntp; */
 } uip_udp_appstate_t;
