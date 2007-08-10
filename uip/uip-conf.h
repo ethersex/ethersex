@@ -82,14 +82,18 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_UDP_CHECKSUMS   1
+#define UIP_CONF_UDP_CHECKSUMS   0
 
 /**
  * uIP statistics on or off
  *
  * \hideinitializer
  */
+#ifdef BOOTLOADER_SUPPORT
+#define UIP_CONF_STATISTICS      0
+#else
 #define UIP_CONF_STATISTICS      1
+#endif
 
 #ifdef IPV6_SUPPORT
 #  define UIP_CONF_IPV6          1
@@ -103,7 +107,7 @@ typedef unsigned short uip_stats_t;
 #  define UIP_CONF_BROADCAST     0
 #endif
 
-#define UIP_ARCH_ADD32           0
+#define UIP_ARCH_ADD32           1
 #define UIP_ARCH_CHKSUM          0
 
 #endif /* __UIP_CONF_H__ */
