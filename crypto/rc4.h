@@ -27,15 +27,15 @@
 #ifndef _RC4_H
 #define _RC4_H
 
-#include<utils/utils.h>
+#include <stdint.h>
 
 struct rc4_state
 {
-  u08 x, y;
-  u08 m[256];
+  uint8_t x, y;
+  uint8_t m[256];
 };
 
-void rc4_init( u08 *key,  u08 length );
-u08 rc4_crypt_char(u08 data);
+void rc4_init( uint8_t *key,  uint8_t length );
+uint8_t rc4_crypt_char(uint8_t data);
 
 #endif /* rc4.h */

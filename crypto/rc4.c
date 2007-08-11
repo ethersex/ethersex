@@ -24,17 +24,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include<utils/utils.h>
 #include "rc4.h"
 
 struct rc4_state s;
 
-
-
-void rc4_init(u08 *key,  u08 length )
+void rc4_init(uint8_t *key,  uint8_t length )
 {
-  u08 i, j, k, a;
-  u08 * m;
+  uint8_t i, j, k, a;
+  uint8_t * m;
 
   s.x = 0;
   s.y = 0;
@@ -52,14 +49,14 @@ void rc4_init(u08 *key,  u08 length )
 
   i=0;
   a = m[i];
-  j = (u08) ( j + a + key[k] );
+  j = (uint8_t) ( j + a + key[k] );
   m[i] = m[j]; m[j] = a;
   if( ++k >= length ) k = 0;
 
   for( i = 1; i != 0 ; i++ )
     {
       a = m[i];
-      j = (u08) ( j + a + key[k] );
+      j = (uint8_t) ( j + a + key[k] );
       m[i] = m[j]; m[j] = a;
       if( ++k >= length ) k = 0;
     }
@@ -67,16 +64,16 @@ void rc4_init(u08 *key,  u08 length )
 
 
 
-u08 rc4_crypt_char(u08 data)
+uint8_t rc4_crypt_char(uint8_t data)
 { 
-    u08 a, b;
+    uint8_t a, b;
 
-    s.x = (u08) ( s.x + 1 ); 
+    s.x = (uint8_t) ( s.x + 1 ); 
     a = s.m[s.x];
-    s.y = (u08) ( s.y + a );
+    s.y = (uint8_t) ( s.y + a );
     s.m[s.x] = b = s.m[s.y];
     s.m[s.y] = a;
-    data ^= s.m[(u08) ( a + b )];
+    data ^= s.m[(uint8_t) ( a + b )];
 
     return data;
 }
