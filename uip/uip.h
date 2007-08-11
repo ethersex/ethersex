@@ -1104,6 +1104,7 @@ u16_t htons(u16_t val);
  * use this space to write the data into before calling uip_send().
  */
 extern void *uip_appdata;
+extern void *uip_sappdata;
 
 #if UIP_URGDATA > 0
 /* u8_t *uip_urgdata:
@@ -1139,6 +1140,7 @@ extern void *uip_urgdata;
  *
  */
 extern u16_t uip_len;
+extern u16_t uip_slen;
 
 /** @} */
 
@@ -1188,7 +1190,7 @@ struct uip_conn {
 
 #ifdef RC4_SUPPORT
   /** The RC4 stream cipher state */
-  rc4_state_t rc4;
+  rc4_state_t rc4_inbound, rc4_outbound;
 #endif
 };
 
