@@ -58,6 +58,10 @@
 #include "uipopt.h"
 #include "../net/state.h"
 
+#ifdef RC4_SUPPORT
+#include "../crypto/rc4.h"
+#endif
+
 /**
  * Repressentation of an IP address.
  *
@@ -1181,6 +1185,11 @@ struct uip_conn {
 
   /** The application state. */
   uip_tcp_appstate_t appstate;
+
+#ifdef RC4_SUPPORT
+  /** The RC4 stream cipher state */
+  rc4_state_t rc4;
+#endif
 };
 
 
