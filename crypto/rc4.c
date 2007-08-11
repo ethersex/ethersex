@@ -29,6 +29,9 @@
 
 /* struct rc4_state s; */
 
+#ifdef RC4_SUPPORT
+
+
 void rc4_init(uint8_t *key,  uint8_t length )
 {
   uint8_t i, j, k, a;
@@ -79,3 +82,5 @@ uint8_t rc4_crypt_char(uint8_t data)
     return data;
 }
 
+
+#endif /* RC4_SUPPORT */
