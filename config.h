@@ -313,6 +313,7 @@
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
 // #define TFTP_SUPPORT
+// #define BOOTLOADER_SUPPORT
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 #define TCP_SUPPORT

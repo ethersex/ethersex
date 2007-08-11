@@ -62,6 +62,9 @@ my %ethersex_modules = (
   'hd44780'   => {
                    helptext  => "Character-LCD module driver"
                  },
+  'bootloader'=> {
+                   helptext  => "configure as bootloader"
+                 },
 );
 
 
@@ -150,6 +153,13 @@ while(<INHANDLE>) {
     if(defined($ethersex_modules{lc($modname)})) {
       $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "#") 
           . "SRC += \$(shell echo $modname/*.c)";
+    }
+  }
+  if(my ($line, $modname) = 
+     m/^#*\s*([^#]+#\s*([A-Z0-9]+)_SUPPORT)\s*$/) {
+
+    if(defined($ethersex_modules{lc($modname)})) {
+      $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "#") . $line;
     }
   }
   print OUTHANDLE "$_\n";
