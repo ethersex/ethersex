@@ -26,6 +26,8 @@
 #include "tftp_net.h"
 #include "tftp_state.h"
 
+#ifdef TFTP_SUPPORT 
+
 void
 tftp_net_init(void)
 {
@@ -90,3 +92,4 @@ tftp_net_main(void)
     uip_udp_conn->appstate.tftp.transfered = 5; /* retransmit in 2.5 seconds */
 }
 
+#endif /* TFTP_SUPPORT */
