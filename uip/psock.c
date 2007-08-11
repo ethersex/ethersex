@@ -71,6 +71,8 @@
  */
 #define BUF_FOUND 2
 
+#ifdef PSOCK_SUPPORT
+
 /*---------------------------------------------------------------------------*/
 static void
 buf_setup(struct psock_buf *buf,
@@ -336,3 +338,5 @@ psock_init(register struct psock *psock, char *buffer, unsigned int buffersize)
   PT_INIT(&psock->psockpt);
 }
 /*---------------------------------------------------------------------------*/
+
+#endif /* PSOCK_SUPPORT */
