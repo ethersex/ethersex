@@ -17,7 +17,7 @@
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more detailuip_conn->rc4.
+ *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
@@ -32,14 +32,14 @@
 #ifdef RC4_SUPPORT
 
 
-void rc4_init(uint8_t *key,  uint8_t length )
+void rc4_init(rc4_state_t *s, const uint8_t *key,  uint8_t length )
 {
   uint8_t i, j, k, a;
   uint8_t * m;
 
-  uip_conn->rc4.x = 0;
-  uip_conn->rc4.y = 0;
-  m = uip_conn->rc4.m;
+  s->x = 0;
+  s->y = 0;
+  m = s->m;
   
   i=0;
   m[i] = i;
@@ -68,16 +68,16 @@ void rc4_init(uint8_t *key,  uint8_t length )
 
 
 
-uint8_t rc4_crypt_char(uint8_t data)
+uint8_t rc4_crypt_char(rc4_state_t *s, uint8_t data)
 { 
     uint8_t a, b;
 
-    uip_conn->rc4.x = (uint8_t) ( uip_conn->rc4.x + 1 ); 
-    a = uip_conn->rc4.m[uip_conn->rc4.x];
-    uip_conn->rc4.y = (uint8_t) ( uip_conn->rc4.y + a );
-    uip_conn->rc4.m[uip_conn->rc4.x] = b = uip_conn->rc4.m[uip_conn->rc4.y];
-    uip_conn->rc4.m[uip_conn->rc4.y] = a;
-    data ^= uip_conn->rc4.m[(uint8_t) ( a + b )];
+    s->x = (uint8_t) ( s->x + 1 ); 
+    a = s->m[s->x];
+    s->y = (uint8_t) ( s->y + a );
+    s->m[s->x] = b = s->m[s->y];
+    s->m[s->y] = a;
+    data ^= s->m[(uint8_t) ( a + b )];
 
     return data;
 }
