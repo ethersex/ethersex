@@ -59,6 +59,9 @@ my %ethersex_modules = (
                    conflicts => [ ],
                    requires  => [ "bootloader", "udp" ],
                  },
+  'hd44780'   => {
+                   helptext  => "Character-LCD module driver"
+                 },
 );
 
 
