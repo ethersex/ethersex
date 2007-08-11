@@ -315,6 +315,8 @@
 // #define TFTP_SUPPORT
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
+#define TCP_SUPPORT
+#define UDP_SUPPORT
 
 /* bootloader config */
 #define APP_ENTER_DELAY 25           /* five seconds */

@@ -29,6 +29,7 @@ my %ethersex_modules = (
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "tetrirape" ],
+                   requires  => [ "tcp" ],
                  },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
@@ -37,20 +38,26 @@ my %ethersex_modules = (
   'bootp'     => { 
                    helptext  => "DHCP-like autoconfig for IPv4",
                    conflicts => [ "ipv6" ],
-                   requires  => [ "broadcast" ],
+                   requires  => [ "broadcast", "udp" ],
                  },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
                  },
   'broadcast' => { 
-                   helptext  => "(udp) broadcast support",
-                   conflicts => [ "bootp", "udp" ],
+                   helptext  => "broadcast support",
+                   requires  => [ "udp" ],
+                 },
+  'udp'       => { 
+                   helptext  => "udp support",
+                 },
+  'tcp'       => { 
+                   helptext  => "tcp support",
                  },
   'tftp'      => { 
                    helptext  => "TFTP-based firmware bootloader",
                    conflicts => [ ],
-                   requires  => [ "bootloader" ],
+                   requires  => [ "bootloader", "udp" ],
                  },
 );
 

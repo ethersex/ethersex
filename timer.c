@@ -80,6 +80,7 @@ void timer_process(void)
 
         /* check tcp connections every 200ms */
         if (counter % 10 == 0) {
+#           if UIP_TCP == 1
             for (i = 0; i < UIP_CONNS; i++) {
                 uip_periodic(i);
 
@@ -94,6 +95,7 @@ void timer_process(void)
                     transmit_packet();
                 }
             }
+#           endif /* UIP_TCP == 1 */
 
 #           if UIP_UDP == 1
             /* check udp connections every time */

@@ -176,9 +176,11 @@ u8_t uip_flags;     /* The uip_flags variable is used for
 struct uip_conn *uip_conn;   /* uip_conn always points to the current
 				connection. */
 
+#if UIP_TCP
 struct uip_conn uip_conns[UIP_CONNS];
                              /* The uip_conns array holds all TCP
 				connections. */
+#endif /* UIP_TCP */
 u16_t uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
@@ -375,11 +377,13 @@ uip_icmp6chksum(void)
 }
 #endif /* UIP_CONF_IPV6 */
 /*---------------------------------------------------------------------------*/
+#if UIP_TCP
 u16_t
 uip_tcpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_TCP);
 }
+#endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP_CHECKSUMS
 u16_t
@@ -396,9 +400,11 @@ uip_init(void)
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
     uip_listenports[c] = 0;
   }
+#if UIP_TCP
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
   }
+#endif /* UIP_TCP */
 #if UIP_ACTIVE_OPEN
   lastport = 1024;
 #endif /* UIP_ACTIVE_OPEN */
@@ -417,6 +423,7 @@ uip_init(void)
 
 }
 /*---------------------------------------------------------------------------*/
+#if UIP_TCP
 #if UIP_ACTIVE_OPEN
 struct uip_conn *
 uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
@@ -482,8 +489,10 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
   return conn;
 }
 #endif /* UIP_ACTIVE_OPEN */
+#endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP
+#if UIP_ACTIVE_OPEN
 struct uip_udp_conn *
 uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
 {
@@ -527,6 +536,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
   
   return conn;
 }
+#endif /* UIP_ACTIVE_OPEN */
 #endif /* UIP_UDP */
 /*---------------------------------------------------------------------------*/
 void
@@ -706,6 +716,7 @@ uip_process(u8_t flag)
   
   uip_sappdata = uip_appdata = &uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN];
 
+#if UIP_TCP
   /* Check if we were invoked because of a poll request for a
      particular connection. */
   if(flag == UIP_POLL_REQUEST) {
@@ -716,9 +727,10 @@ uip_process(u8_t flag)
 	goto appsend;
     }
     goto drop;
-    
+  }
+
     /* Check if we were invoked because of the perodic timer fireing. */
-  } else if(flag == UIP_TIMER) {
+  if(flag == UIP_TIMER) {
 #if UIP_REASSEMBLY
     if(uip_reasstmr != 0) {
       --uip_reasstmr;
@@ -823,6 +835,7 @@ uip_process(u8_t flag)
     }
     goto drop;
   }
+#endif /* UIP_TCP */
 #if UIP_UDP
   if(flag == UIP_UDP_TIMER) {
     if(uip_udp_conn->lport != 0) {
@@ -963,11 +976,13 @@ uip_process(u8_t flag)
   }
 #endif /* UIP_CONF_IPV6 */
 
+#if UIP_TCP
   if(BUF->proto == UIP_PROTO_TCP) { /* Check for TCP packet. If so,
 				       proceed with TCP input
 				       processing. */
     goto tcp_input;
   }
+#endif /* UIP_TCP */
 
 #if UIP_UDP
   if(BUF->proto == UIP_PROTO_UDP) {
@@ -1203,6 +1218,7 @@ uip_process(u8_t flag)
   goto ip_send_nolen;
 #endif /* UIP_UDP */
   
+#if UIP_TCP
   /* TCP input processing. */
  tcp_input:
   UIP_STAT(++uip_stat.tcp.recv);
@@ -1888,6 +1904,8 @@ uip_process(u8_t flag)
   BUF->tcpchksum = 0;
   BUF->tcpchksum = ~(uip_tcpchksum());
   
+#endif /* UIP_TCP */   //FIXME
+
  ip_send_nolen:
 
 #if UIP_CONF_IPV6
