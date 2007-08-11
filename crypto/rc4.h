@@ -35,6 +35,9 @@ struct rc4_state
   uint8_t m[256];
 };
 
+typedef struct rc4_state rc4_state_t;
+
+
 void rc4_init( uint8_t *key,  uint8_t length );
 uint8_t rc4_crypt_char(uint8_t data);
 
