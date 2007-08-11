@@ -61,6 +61,36 @@ void network_handle_tcp(void)
     uart_eol();
 #endif
 
+#   ifdef RC4_SUPPORT
+    if(uip_connected()) {
+        const char key[16] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                               0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+        /* new connection, initialize rc4 stream generators */
+        rc4_init(&uip_conn->rc4_inbound, key, 16);
+        rc4_init(&uip_conn->rc4_outbound, key, 16);
+    }
+
+    if(uip_rexmit()) {
+        /* our outbound rc4 stream generator is out of sync, 
+         * we cannot retransmit.  reset connection.  FIXME */
+        uip_abort();
+        return;
+    }
+
+    if(uip_newdata()) {
+        /* new data for application, decrypt uip_len bytes from 
+           uip_appdata on. */
+        uint16_t i;
+        for(i = 0; i < uip_len; i ++)
+            ((char *) uip_appdata)[i] = 
+              rc4_crypt_char(&uip_conn->rc4_inbound, ((char *) uip_appdata)[i]);
+    }
+#   endif /* RC4_SUPPORT */
+
+
+    /* 
+     * demultiplex packet
+     */
 #   ifdef ECMD_SUPPORT
     if (uip_conn->lport == HTONS(ECMD_NET_PORT))
         ecmd_net_main();
@@ -80,6 +110,17 @@ void network_handle_tcp(void)
      *     uip_conn->lport == HTONS(HTTPD_ALTERNATE_PORT))
      *         httpd_main();
      */
+
+#    ifdef RC4_SUPPORT
+        /* new data from application, 
+           encrypt uip_slen bytes from uip_sappdata on. */
+     
+     uint16_t i;
+     for(i = 0; i < uip_slen; i ++)
+         ((char *) uip_sappdata)[i] = 
+           rc4_crypt_char(&uip_conn->rc4_outbound, 
+                          ((char *) uip_sappdata)[i]);
+#    endif /* RC4_SUPPORT */
 
 } /* }}} */
 
