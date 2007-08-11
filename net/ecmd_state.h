@@ -26,8 +26,8 @@
 #include "../uip/psock.h"
 #include "../pt/pt.h"
 
-#define ECMD_INPUTBUF_LENGTH 80
-#define ECMD_OUTPUTBUF_LENGTH 80
+#define ECMD_INPUTBUF_LENGTH  40
+#define ECMD_OUTPUTBUF_LENGTH 40
 
 struct ecmd_connection_state_t {
     char inbuf[ECMD_INPUTBUF_LENGTH];
