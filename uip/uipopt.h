@@ -171,6 +171,17 @@
  */
 
 /**
+ * Toggles wether TCP support should be compiled in or not.
+ *
+ * \hideinitializer
+ */
+#ifdef UIP_CONF_TCP
+#define UIP_TCP UIP_CONF_TCP
+#else /* UIP_CONF_TCP */
+#define UIP_TCP           0
+#endif /* UIP_CONF_TCP */
+
+/**
  * Toggles wether UDP support should be compiled in or not.
  *
  * \hideinitializer

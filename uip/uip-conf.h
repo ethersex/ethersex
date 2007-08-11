@@ -73,8 +73,20 @@ typedef unsigned short uip_stats_t;
 #   define UIP_CONF_LOGGING         0
 #endif
 
+/** TCP support on or off */
+#ifdef UDP_SUPPORT
+#   define UIP_CONF_TCP             1
+#else
+#   define UIP_CONF_TCP             0
+#endif
+
 /** UDP support on or off */
-#define UIP_CONF_UDP             1
+#ifdef UDP_SUPPORT
+#   define UIP_CONF_UDP             1
+#else
+#   define UIP_CONF_UDP             0
+#endif
+
 #define UIP_CONF_UDP_CONNS            10
 
 /**
@@ -107,7 +119,7 @@ typedef unsigned short uip_stats_t;
 #  define UIP_CONF_BROADCAST     0
 #endif
 
-#define UIP_ARCH_ADD32           1
+#define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
 #endif /* __UIP_CONF_H__ */
