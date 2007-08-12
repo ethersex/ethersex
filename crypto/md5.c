@@ -10,7 +10,6 @@
 
  #include "md5.h"
  #include "md5_sbox.h"
- #include "uart.h" 
  #include <stdint.h>
  #include <string.h>
  
