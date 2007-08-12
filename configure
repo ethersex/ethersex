@@ -65,6 +65,17 @@ my %ethersex_modules = (
   'bootloader'=> {
                    helptext  => "configure as bootloader"
                  },
+  'rc4'       => {
+                   helptext  => "a stream cipher",
+                   requires  => [ "crypto", "md5" ],
+                 },
+  'md5'       => {
+                   helptext  => "md5 hash support",
+                   requires  => [ "crypto" ],
+                 },
+  'crypto'    => {
+                   helptext  => "generic crypto support",
+                 },
 );
 
 
