@@ -38,7 +38,8 @@ struct rc4_state
 typedef struct rc4_state rc4_state_t;
 
 
-void rc4_init(rc4_state_t *s, const uint8_t *key,  uint8_t length);
+/* void _rc4_init(rc4_state_t *s, const uint8_t *key,  uint8_t length); */
+void rc4_init(rc4_state_t *s, const unsigned char *iv);
 uint8_t rc4_crypt_char(rc4_state_t *s, uint8_t data);
 
 #endif /* rc4.h */

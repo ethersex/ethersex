@@ -1191,6 +1191,11 @@ struct uip_conn {
 #ifdef RC4_SUPPORT
   /** The RC4 stream cipher state */
   rc4_state_t rc4_inbound, rc4_outbound;
+
+  struct {
+    unsigned inbound_initialized    :1;
+    unsigned outbound_initialized   :1;
+  } rc4_flags;
 #endif
 };
 

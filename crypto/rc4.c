@@ -25,14 +25,14 @@
  */
 
 #include "rc4.h"
+#include "md5.h"
 #include "../uip/uip.h"
-
-/* struct rc4_state s; */
 
 #ifdef RC4_SUPPORT
 
 
-void rc4_init(rc4_state_t *s, const uint8_t *key,  uint8_t length )
+static void 
+_rc4_init(rc4_state_t *s, const uint8_t *key,  uint8_t length )
 {
   uint8_t i, j, k, a;
   uint8_t * m;
@@ -67,8 +67,24 @@ void rc4_init(rc4_state_t *s, const uint8_t *key,  uint8_t length )
 }
 
 
+void
+rc4_init(rc4_state_t *s, const unsigned char *iv)
+{
+  md5_ctx_t ctx;
+  char key[24] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                   0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  memcpy(key + 16, iv, 8);
 
-uint8_t rc4_crypt_char(rc4_state_t *s, uint8_t data)
+  md5_init(&ctx);
+  md5_lastBlock(&ctx, key, 24 * 8);
+
+  _rc4_init(s, (void *) &ctx.a[0], 16);
+}
+
+
+uint8_t 
+rc4_crypt_char(rc4_state_t *s, uint8_t data)
 { 
     uint8_t a, b;
 
