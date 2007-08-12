@@ -4,11 +4,12 @@
 	$Id: skipjack.c,v 1.1 2003/03/30 12:42:21 m Exp $
 */
 
-#include <config.h>
-#include <skipjack.h>
-#include <types.h>
+#include <avr/pgmspace.h>
 
-#if CONF_WITH_CRYPT_ALGO==1
+#include "../config.h"
+#include "skipjack.h"
+
+#ifdef SKIPJACK_SUPPORT
 
 #if CONF_SMALL_MEMORY==1
 #define INLINE
@@ -23,7 +24,7 @@
 #define W4_L	6
 #define W4_R	7
 
-static const CODE iu8 fTable[256] = { 
+static const PROGMEM iu8 fTable[256] = { 
 	0xa3,0xd7,0x09,0x83,0xf8,0x48,0xf6,0xf4,0xb3,0x21,0x15,0x78,0x99,0xb1,0xaf,0xf9,
 	0xe7,0x2d,0x4d,0x8a,0xce,0x4c,0xca,0x2e,0x52,0x95,0xd9,0x1e,0x4e,0x38,0x44,0x28,
 	0x0a,0xdf,0x02,0xa0,0x17,0xf1,0x60,0x68,0x12,0xb7,0x7a,0xc3,0xe9,0xfa,0x3d,0x53,
@@ -59,11 +60,11 @@ void g( iu8* v, const iu8* k, iu8 kidx )
 	v[W1_L] ^= fTable[k[kidx++]^v[W1_R]];
 	v[W1_R] ^= fTable[k[kidx++]^v[W1_L]];
 #endif
-	v[W1_L] ^= PRG_RDB(fTable+(k[kidx++]^v[W1_R]));
-	v[W1_R] ^= PRG_RDB(fTable+(k[kidx++]^v[W1_L]));
+	v[W1_L] ^= pgm_read_byte(fTable+(k[kidx++]^v[W1_R]));
+	v[W1_R] ^= pgm_read_byte(fTable+(k[kidx++]^v[W1_L]));
 	if( kidx>=10 ) kidx-=10;
-	v[W1_L] ^= PRG_RDB(fTable+(k[kidx++]^v[W1_R]));
-	v[W1_R] ^= PRG_RDB(fTable+(k[kidx++]^v[W1_L]));
+	v[W1_L] ^= pgm_read_byte(fTable+(k[kidx++]^v[W1_R]));
+	v[W1_R] ^= pgm_read_byte(fTable+(k[kidx++]^v[W1_L]));
 }
 #endif
 
@@ -177,10 +178,10 @@ void ginv( iu8* v, const iu8* k, iu8 kidx )
 	v[W1_R] ^= fTable[k[kidx+1]^v[W1_L]];
 	v[W1_L] ^= fTable[k[kidx]^v[W1_R]];
 #endif
-	v[W1_R] ^= PRG_RDB(fTable+(k[(kidx+3)%10]^v[W1_L]));
-	v[W1_L] ^= PRG_RDB(fTable+(k[(kidx+2)%10]^v[W1_R]));
-	v[W1_R] ^= PRG_RDB(fTable+(k[kidx+1]^v[W1_L]));
-	v[W1_L] ^= PRG_RDB(fTable+(k[kidx]^v[W1_R]));
+	v[W1_R] ^= pgm_read_byte(fTable+(k[(kidx+3)%10]^v[W1_L]));
+	v[W1_L] ^= pgm_read_byte(fTable+(k[(kidx+2)%10]^v[W1_R]));
+	v[W1_R] ^= pgm_read_byte(fTable+(k[kidx+1]^v[W1_L]));
+	v[W1_L] ^= pgm_read_byte(fTable+(k[kidx]^v[W1_R]));
 }
 #endif
 
@@ -308,5 +309,5 @@ int main() {
 }
 #endif /* TEST */
 
-#endif /* CONF_WITH_CRYPT_ALGO==1 */
+#endif /* SKIPJACK_SUPPORT */
 

@@ -10,7 +10,9 @@
 #ifndef SOSSE_SKIPJACK_H
 #define SOSSE_SKIPJACK_H
 
-#include <types.h>
+#include <inttypes.h>
+
+typedef unsigned char iu8;
 
 #define SKIPJACK_KEY_LEN	10	//!< SKIPJACK key size.
 #define SKIPJACK_BLOCK_LEN	8	//!< SKIPJACK block length.
