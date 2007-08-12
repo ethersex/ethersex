@@ -69,6 +69,10 @@ my %ethersex_modules = (
                    helptext  => "a stream cipher",
                    requires  => [ "crypto", "md5" ],
                  },
+  'skipjack'  => {
+                   helptext  => "skipjack block cipher",
+                   requires  => [ "crypto" ],
+                 },
   'md5'       => {
                    helptext  => "md5 hash support",
                    requires  => [ "crypto" ],
