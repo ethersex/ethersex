@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker ts=4 et ai sts=4 sw=4
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
@@ -24,6 +24,7 @@
 
 #include "handler.h"
 #include "../uip/uip.h"
+#include "../crypto/skipjack.h"
 
 #include "ecmd_net.h"
 #include "tetrirape_net.h"
@@ -108,6 +109,73 @@ void network_handle_tcp(void)
     }
 #   endif /* RC4_SUPPORT */
 
+#   ifdef SKIPJACK_SUPPORT 
+    if(uip_connected()) {
+        uip_conn->skipjack_okay = 0;
+
+        if(uip_newdata()) {
+            /* We already got data, what's that, the peer should wait for
+             * our challenge first, reset connection.  */
+            uip_abort();
+            return;
+        }
+
+        /* Generate challenge and store until reception of response. */
+        uint8_t i;
+        for(i = 0; i < 8; i ++)
+            uip_conn->appstate.skipjack[i] = rand() % 0xFF;
+
+        /* Send challenge to peer. */
+        uip_send(uip_conn->appstate.skipjack, 8);
+
+        /* Don't call the application, we'll lie about a new connection
+         * later on. */
+        goto skipjack_out;
+    }
+
+    if(! uip_conn->skipjack_okay) {
+        /* The connection hasn't been authenticated so far, thusly don't
+         * let anything through to the application itself.  */
+        if(uip_rexmit()) {
+            uip_send(uip_conn->appstate.skipjack, 8);
+            goto skipjack_out;
+        }
+
+        if(uip_newdata()) {
+            if(uip_len < 8) {
+                uip_abort();
+                return;
+            }
+
+            unsigned char key[10] = "ABCDEF2342";
+            skipjack_enc(uip_conn->appstate.skipjack, key);
+
+            if(memcmp(uip_conn->appstate.skipjack, uip_appdata, 8)) {
+                /* The response doesn't match the encrypted challenge, 
+                 * i.e. the peer didn't authenticate itself correctly,
+                 * therefore simply reset the connection.  */
+                uip_abort();
+                return;
+            }
+
+            uip_conn->skipjack_okay = 1;
+
+            /* strip received response from incoming data */
+            uip_len -= 8;
+            if(uip_len)
+                memmove(uip_appdata, uip_appdata + 8, uip_len);
+            else
+                /* reset newdata flag for application. */
+                uip_flags &= ~UIP_NEWDATA;
+
+            /* Let's call the application the very first time, i.e.
+             * lie about the connection being new.  */
+            uip_flags |= UIP_CONNECTED;
+        }
+    }
+
+#   endif /* SKIPJACK_SUPPORT */
+
 
     /* 
      * demultiplex packet
@@ -131,6 +199,14 @@ void network_handle_tcp(void)
      *     uip_conn->lport == HTONS(HTTPD_ALTERNATE_PORT))
      *         httpd_main();
      */
+
+#   ifdef SKIPJACK_SUPPORT 
+    /* For skipjack authentication to skip the application calls, if
+     * used in combination with RC4, our challenge will be encapsulated. */
+ skipjack_out:
+    (void) 0;
+     
+#   endif /* SKIPJACK_SUPPORT */
 
 #   ifdef RC4_SUPPORT
     /* new data from application, 
