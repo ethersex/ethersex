@@ -74,10 +74,12 @@ void network_handle_tcp(void)
     }
 
     if(! uip_conn->rc4_flags.inbound_initialized && uip_newdata()) {
-        if(uip_len < 8)
+        if(uip_len < 8) {
             /* not enough bytes for initialization of inbound rc4
                keystream generator.  cannot recover.  */
             uip_abort();
+            return;
+        }
 
         rc4_init(&uip_conn->rc4_inbound, uip_appdata);
         uip_conn->rc4_flags.inbound_initialized = 1;
