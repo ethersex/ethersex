@@ -25,6 +25,7 @@
 #include "handler.h"
 #include "../uip/uip.h"
 #include "../crypto/skipjack.h"
+#include "../crypto/cast5.h"
 
 #include "ecmd_net.h"
 #include "tetrirape_net.h"
@@ -111,9 +112,9 @@ void network_handle_tcp(void)
     }
 #   endif /* RC4_SUPPORT */
 
-#   ifdef SKIPJACK_SUPPORT 
+#   ifdef AUTH_SUPPORT 
     if(uip_connected()) {
-        uip_conn->skipjack_okay = 0;
+        uip_conn->auth_okay = 0;
 
         if(uip_newdata()) {
             /* We already got data, what's that, the peer should wait for
@@ -125,22 +126,22 @@ void network_handle_tcp(void)
         /* Generate challenge and store until reception of response. */
         uint8_t i;
         for(i = 0; i < 8; i ++)
-            uip_conn->appstate.skipjack[i] = rand() % 0xFF;
+            uip_conn->appstate.auth_challenge[i] = rand() % 0xFF;
 
         /* Send challenge to peer. */
-        uip_send(uip_conn->appstate.skipjack, 8);
+        uip_send(uip_conn->appstate.auth_challenge, 8);
 
         /* Don't call the application, we'll lie about a new connection
          * later on. */
-        goto skipjack_out;
+        goto auth_out;
     }
 
-    if(! uip_conn->skipjack_okay) {
+    if(! uip_conn->auth_okay) {
         /* The connection hasn't been authenticated so far, thusly don't
          * let anything through to the application itself.  */
         if(uip_rexmit()) {
-            uip_send(uip_conn->appstate.skipjack, 8);
-            goto skipjack_out;
+            uip_send(uip_conn->appstate.auth_challenge, 8);
+            goto auth_out;
         }
 
         if(uip_newdata()) {
@@ -149,10 +150,21 @@ void network_handle_tcp(void)
                 return;
             }
 
+#           if defined(SKIPJACK_SUPPORT)
             unsigned char key[10] = "ABCDEF2342";
-            skipjack_enc(uip_conn->appstate.skipjack, key);
+            skipjack_enc(uip_conn->appstate.auth_challenge, key);
 
-            if(memcmp(uip_conn->appstate.skipjack, uip_appdata, 8)) {
+#           elif defined(CAST5_SUPPORT)
+            unsigned char key[16] = "ABCDEF23ABCDEF23";
+            cast5_ctx_t ctx;
+            cast5_init(&ctx, key, 128);
+            cast5_enc(&ctx, uip_conn->appstate.auth_challenge);
+
+#           elif !defined(RC4_SUPPORT)
+#           warn "performing (useless) tcp auth without encryption!"
+#           endif
+
+            if(memcmp(uip_conn->appstate.auth_challenge, uip_appdata, 8)) {
                 /* The response doesn't match the encrypted challenge, 
                  * i.e. the peer didn't authenticate itself correctly,
                  * therefore simply reset the connection.  */
@@ -160,7 +172,7 @@ void network_handle_tcp(void)
                 return;
             }
 
-            uip_conn->skipjack_okay = 1;
+            uip_conn->auth_okay = 1;
 
             /* strip received response from incoming data */
             uip_len -= 8;
@@ -176,7 +188,7 @@ void network_handle_tcp(void)
         }
     }
 
-#   endif /* SKIPJACK_SUPPORT */
+#   endif /* AUTH_SUPPORT */
 
 
     /* 
@@ -202,13 +214,13 @@ void network_handle_tcp(void)
      *         httpd_main();
      */
 
-#   ifdef SKIPJACK_SUPPORT 
-    /* For skipjack authentication to skip the application calls, if
+#   ifdef AUTH_SUPPORT 
+    /* For challenge/response authentication to skip the application calls, if
      * used in combination with RC4, our challenge will be encapsulated. */
- skipjack_out:
+ auth_out:
     (void) 0;
      
-#   endif /* SKIPJACK_SUPPORT */
+#   endif /* AUTH_SUPPORT */
 
 #   ifdef RC4_SUPPORT
     /* new data from application, 
