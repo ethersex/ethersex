@@ -51,6 +51,8 @@ void network_init_apps(void)
 
 } /* }}} */
 
+
+#ifdef TCP_SUPPORT 
 void network_handle_tcp(void)
 /* {{{ */ {
 
@@ -82,7 +84,10 @@ void network_handle_tcp(void)
      */
 
 } /* }}} */
+#endif /* TCP_SUPPORT */
 
+
+#ifdef UDP_SUPPORT
 void network_handle_udp(void)
 /* {{{ */ {
 
@@ -110,3 +115,5 @@ void network_handle_udp(void)
      */
 
 } /* }}} */
+#endif /* UDP_SUPPORT */
+
