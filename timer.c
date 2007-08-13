@@ -152,10 +152,12 @@ void timer_process(void)
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
 
+#           ifndef BOOTLOADER_SUPPORT
 #           if UIP_CONF_IPV6
             uip_neighbor_periodic();
 #           else
             uip_arp_timer();
+#           endif
 #           endif
 
             counter = 0;

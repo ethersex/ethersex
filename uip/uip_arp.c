@@ -58,7 +58,7 @@
  *
  */
 
-
+#include "../config.h"
 #include "../network.h"
 #include "uip_arp.h"
 
@@ -141,6 +141,7 @@ uip_arp_init(void)
  *
  */
 /*-----------------------------------------------------------------------------------*/
+#ifndef BOOTLOADER_SUPPORT
 void
 uip_arp_timer(void)
 {
@@ -156,6 +157,7 @@ uip_arp_timer(void)
   }
 
 }
+#endif /* !BOOTLOADER_SUPPORT */
 /*-----------------------------------------------------------------------------------*/
 static void
 uip_arp_update(u16_t *ip, struct uip_eth_addr *ethaddr)

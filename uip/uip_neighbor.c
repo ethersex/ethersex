@@ -72,6 +72,7 @@ uip_neighbor_init(void)
   }
 }
 /*---------------------------------------------------------------------------*/
+#ifndef BOOTLOADER_SUPPORT
 void
 uip_neighbor_periodic(void)
 {
@@ -83,6 +84,7 @@ uip_neighbor_periodic(void)
     }
   }
 }
+#endif /* !BOOTLOADER_SUPPORT */
 /*---------------------------------------------------------------------------*/
 void
 uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr)
