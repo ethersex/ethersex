@@ -113,7 +113,9 @@ int main(void)
 #endif
 
     /* must be called AFTER all other initialization */
+#ifdef PORTIO_SUPPORT
     portio_init();
+#endif 
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
     debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]),
@@ -155,9 +157,11 @@ int main(void)
         timer_process();
         wdt_kick();
 
+#ifdef PORTIO_SUPPORT
         /* update port io information */
         portio_update();
         wdt_kick();
+#endif
 
         /* check if debug input has arrived */
         debug_process();

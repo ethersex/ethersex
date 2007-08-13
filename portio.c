@@ -30,6 +30,8 @@ static const uint8_t masks[] = IO_MASK_ARRAY;
 
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
+#ifdef PORTIO_SUPPORT
+
 void portio_init(void)
 /* {{{ */ {
 
@@ -65,3 +67,6 @@ uint8_t portio_input(uint8_t port)
 /* {{{ */ {
     return ACCESS_IO(pins[port]);
 } /* }}} */
+
+
+#endif /* PORTIO_SUPPORT */
