@@ -180,10 +180,11 @@ struct uip_conn *uip_conn;   /* uip_conn always points to the current
 struct uip_conn uip_conns[UIP_CONNS];
                              /* The uip_conns array holds all TCP
 				connections. */
-#endif /* UIP_TCP */
 u16_t uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
+#endif /* UIP_TCP */
+
 #if UIP_UDP
 struct uip_udp_conn *uip_udp_conn;
 struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
@@ -399,10 +400,10 @@ uip_udpchksum(void)
 void
 uip_init(void)
 {
+#if UIP_TCP
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
     uip_listenports[c] = 0;
   }
-#if UIP_TCP
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
   }
@@ -543,6 +544,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
 #endif /* UIP_ACTIVE_OPEN */
 #endif /* UIP_UDP */
 /*---------------------------------------------------------------------------*/
+#if UIP_TCP
 #ifndef BOOTLOADER_SUPPORT
 void
 uip_unlisten(u16_t port)
@@ -554,7 +556,7 @@ uip_unlisten(u16_t port)
     }
   }
 }
-#endif
+#endif /* !BOOTLOADER_SUPPORT */
 /*---------------------------------------------------------------------------*/
 void
 uip_listen(u16_t port)
@@ -566,6 +568,7 @@ uip_listen(u16_t port)
     }
   }
 }
+#endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
 /* XXX: IP fragment reassembly: not well-tested. */
 
