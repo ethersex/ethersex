@@ -39,6 +39,9 @@
  *         Adam Dunkels <adam@sics.se>
  */
 
+#include "../config.h"
+#ifdef IPV6_SUPPORT 
+
 #include "uip_neighbor.h"
 
 #include <string.h>
@@ -156,3 +159,5 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
+
+#endif /* IPV6_SUPPORT */
