@@ -1197,6 +1197,10 @@ struct uip_conn {
     unsigned outbound_initialized   :1;
   } rc4_flags;
 #endif
+
+#ifdef SKIPJACK_SUPPORT
+  unsigned skipjack_okay :1;
+#endif
 };
 
 

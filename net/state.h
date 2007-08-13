@@ -43,6 +43,9 @@ typedef union uip_tcp_connection_state {
     struct tetrirape_connection_state_t tetrirape;
 #   endif
 
+#   ifdef SKIPJACK_SUPPORT
+    unsigned char skipjack[8];
+#   endif 
     /* put tcp application states here, example:
      * struct httpd_connection_state_t httpd; */
 } uip_tcp_appstate_t;
