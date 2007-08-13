@@ -11,8 +11,6 @@
  #include <stdint.h>
  #include <string.h>
  #include "cast5.h"
- #include "config.h"
- #include "debug.h"
  
  #undef DEBUG
  
