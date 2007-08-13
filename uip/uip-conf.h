@@ -74,7 +74,7 @@ typedef unsigned short uip_stats_t;
 #endif
 
 /** TCP support on or off */
-#ifdef UDP_SUPPORT
+#ifdef TCP_SUPPORT
 #   define UIP_CONF_TCP             1
 #else
 #   define UIP_CONF_TCP             0
