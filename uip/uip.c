@@ -190,11 +190,15 @@ struct uip_udp_conn *uip_udp_conn;
 struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
 #endif /* UIP_UDP */
 
+#if !UIP_CONF_IPV6
 static u16_t ipid;           /* Ths ipid variable is an increasing
 				number that is used for the IP ID
 				field. */
+#endif 
 
+#if 0
 void uip_setipid(u16_t id) { ipid = id; }
+#endif
 
 static u8_t iss[4];          /* The iss variable is used for the TCP
 				initial sequence number. */
