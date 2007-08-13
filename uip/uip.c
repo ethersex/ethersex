@@ -325,11 +325,13 @@ noinline chksum(u16_t sum, const u8_t *data, u16_t len)
   return sum;
 }
 /*---------------------------------------------------------------------------*/
+#if 0
 u16_t
 uip_chksum(u16_t *data, u16_t len)
 {
   return htons(chksum(0, (u8_t *)data, len));
 }
+#endif
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
 #if !UIP_CONF_IPV6
