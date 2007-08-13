@@ -1198,8 +1198,8 @@ struct uip_conn {
   } rc4_flags;
 #endif
 
-#ifdef SKIPJACK_SUPPORT
-  unsigned skipjack_okay :1;
+#ifdef AUTH_SUPPORT
+  unsigned auth_okay :1;
 #endif
 };
 
