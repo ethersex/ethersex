@@ -320,12 +320,12 @@
 #define UDP_SUPPORT
 
 /* crypto stuff */
-#define CRYPTO_SUPPORT
-#define AUTH_SUPPORT
-#define CAST5_SUPPORT
-#define SKIPJACK_SUPPORT
-#define RC4_SUPPORT
-#define MD5_SUPPORT
+// #define CRYPTO_SUPPORT
+// #define AUTH_SUPPORT
+// #define CAST5_SUPPORT
+// #define SKIPJACK_SUPPORT
+// #define RC4_SUPPORT
+// #define MD5_SUPPORT
 
 /* bootloader config */
 #define APP_ENTER_DELAY 25           /* five seconds */
