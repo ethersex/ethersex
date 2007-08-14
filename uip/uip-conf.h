@@ -94,7 +94,11 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
+#if defined(IPV6_SUPPORT) || !defined(BOOTLOADER_SUPPORT)
+#define UIP_CONF_UDP_CHECKSUMS   1
+#else
 #define UIP_CONF_UDP_CHECKSUMS   0
+#endif
 
 /**
  * uIP statistics on or off
