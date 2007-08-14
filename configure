@@ -29,7 +29,10 @@ my %ethersex_modules = (
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "tetrirape" ],
-                   requires  => [ "tcp" ],
+                   requires  => [ "tcp", "portio" ],
+                 },
+  'portio'    => {
+                   helptext  => "port io abstraction layer",
                  },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
