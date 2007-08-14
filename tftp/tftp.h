@@ -50,4 +50,34 @@ struct tftp_hdr {
 /* prototypes */
 void tftp_handle_packet(void);
 
-#endif
+
+#if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
+inline static void
+tftp_fire_tftpomatic(uip_ipaddr_t *ip, const unsigned char *filename) {
+  struct uip_udp_conn *tftp_req_conn = uip_udp_new(ip, HTONS(TFTP_PORT));
+
+  if(! tftp_req_conn) 
+      return;					/* dammit. */
+
+  uip_udp_bind(tftp_req_conn, HTONS(TFTP_ALT_PORT));
+  tftp_req_conn->appstate.tftp.fire_req = 1;
+  memcpy(tftp_req_conn->appstate.tftp.filename, filename,
+         TFTP_FILENAME_MAXLEN);
+  tftp_req_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;
+
+
+  /* create suitable tftp receiver */
+  struct uip_udp_conn *tftp_recv_conn = uip_udp_new(ip, 0);
+
+  if(! tftp_recv_conn) 
+      return;					/* dammit. */
+
+  uip_udp_bind(tftp_recv_conn, HTONS(TFTP_ALT_PORT));
+  tftp_recv_conn->appstate.tftp.download = 0;
+  tftp_recv_conn->appstate.tftp.transfered = 0;
+  tftp_recv_conn->appstate.tftp.finished = 0;
+  tftp_recv_conn->appstate.tftp.bootp_image = 1;
+}
+#endif /* TFTPOMATIC_SUPPORT || BOOTP_SUPPORT */
+
+#endif /* _TFTP_H */

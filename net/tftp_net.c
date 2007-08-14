@@ -42,6 +42,13 @@ tftp_net_init(void)
     uip_udp_bind(tftp_conn, HTONS(TFTP_PORT));
 
     tftp_conn->appstate.tftp.fire_req = 0;
+
+#ifdef TFTPOMATIC_SUPPORT
+    const unsigned char *filename = CONF_TFTP_IMAGE;
+    CONF_TFTP_IP;
+
+    tftp_fire_tftpomatic(&ip, filename);
+#endif /* TFTPOMATIC_SUPPORT */
 }
 
 
@@ -78,6 +85,7 @@ tftp_net_main(void)
 	return;
     }
 
+#if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
     /*
      * fire download request packet ...
      */
@@ -90,6 +98,7 @@ tftp_net_main(void)
 
     /* uip_udp_conn->appstate.tftp.fire_req = 0; */
     uip_udp_conn->appstate.tftp.transfered = 5; /* retransmit in 2.5 seconds */
+#endif
 }
 
 #endif /* TFTP_SUPPORT */

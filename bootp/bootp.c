@@ -27,6 +27,7 @@
 #include "../uip/uip_arp.h"
 #include "../eeprom.h"
 #include "../net/bootp_net.h"
+#include "../tftp/tftp.h"
 
 #include "bootp.h"
 #include "bootphdr.h"
@@ -130,29 +131,7 @@ bootp_handle_reply(void)
     uip_ipaddr(&ip, pk->bp_siaddr[0], pk->bp_siaddr[1],
 	       pk->bp_siaddr[2], pk->bp_siaddr[3]);
 
-    struct uip_udp_conn *tftp_req_conn = uip_udp_new(&ip, HTONS(TFTP_PORT));
-
-    if(! tftp_req_conn) 
-	return;					/* dammit. */
-
-    uip_udp_bind(tftp_req_conn, HTONS(TFTP_ALT_PORT));
-    tftp_req_conn->appstate.tftp.fire_req = 1;
-    memcpy(tftp_req_conn->appstate.tftp.filename, pk->bp_file,
-	   TFTP_FILENAME_MAXLEN);
-    tftp_req_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;
-
-
-    /* create suitable tftp receiver */
-    struct uip_udp_conn *tftp_recv_conn = uip_udp_new(&ip, 0);
-
-    if(! tftp_recv_conn) 
-	return;					/* dammit. */
-
-    uip_udp_bind(tftp_recv_conn, HTONS(TFTP_ALT_PORT));
-    tftp_recv_conn->appstate.tftp.download = 0;
-    tftp_recv_conn->appstate.tftp.transfered = 0;
-    tftp_recv_conn->appstate.tftp.finished = 0;
-    tftp_recv_conn->appstate.tftp.bootp_image = 1;
+    tftp_fire_tftpomatic(&ip, pk->bp_file);
 #endif /* TFTP_SUPPORT */
 }
 
