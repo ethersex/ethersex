@@ -302,13 +302,15 @@ struct transmit_packet_vector_t {
     uint8_t byte[7];
 };
 
+#define bit_field_clear(addr,mask) bit_field_modify(addr, mask, CMD_BFC);
+#define bit_field_set(addr,mask)   bit_field_modify(addr, mask, CMD_BFS);
+
 /* prototypes */
 uint8_t noinline read_control_register(uint8_t address);
 uint8_t noinline read_buffer_memory(void);
 void noinline write_control_register(uint8_t address, uint8_t data);
 void noinline write_buffer_memory(uint8_t data);
-void noinline bit_field_set(uint8_t address, uint8_t mask);
-void noinline bit_field_clear(uint8_t address, uint8_t mask);
+void noinline bit_field_modify(uint8_t address, uint8_t mask, uint8_t opcode);
 void noinline set_read_buffer_pointer(uint16_t address);
 uint16_t noinline get_read_buffer_pointer(void);
 void noinline set_write_buffer_pointer(uint16_t address);

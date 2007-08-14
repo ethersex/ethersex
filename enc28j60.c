@@ -131,7 +131,7 @@ void write_buffer_memory(uint8_t data)
 
 } /* }}} */
 
-void bit_field_set(uint8_t address, uint8_t mask)
+void bit_field_modify(uint8_t address, uint8_t mask, uint8_t opcode)
 /* {{{ */ {
 
     /* change to appropiate bank */
@@ -143,29 +143,7 @@ void bit_field_set(uint8_t address, uint8_t mask)
     cs_low();
 
     /* send opcode */
-    spi_send(CMD_BFS | (address & REGISTER_ADDRESS_MASK) );
-
-    /* send data */
-    spi_send(mask);
-
-    /* release device */
-    cs_high();
-
-} /* }}} */
-
-void bit_field_clear(uint8_t address, uint8_t mask)
-/* {{{ */ {
-
-    /* change to appropiate bank */
-    if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
-         ((address & REGISTER_BANK_MASK) >> 5) != (enc28j60_current_bank))
-        switch_bank((address & REGISTER_BANK_MASK) >> 5);
-
-    /* aquire device */
-    cs_low();
-
-    /* send opcode */
-    spi_send(CMD_BFC | (address & REGISTER_ADDRESS_MASK) );
+    spi_send(opcode | (address & REGISTER_ADDRESS_MASK) );
 
     /* send data */
     spi_send(mask);
