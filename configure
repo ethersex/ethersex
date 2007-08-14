@@ -40,7 +40,7 @@ my %ethersex_modules = (
                  },
   'bootp'     => { 
                    helptext  => "DHCP-like autoconfig for IPv4",
-                   conflicts => [ "ipv6" ],
+                   conflicts => [ "ipv6", "tftpomatic" ],
                    requires  => [ "broadcast", "udp" ],
                  },
   'ipv6'      => { 
@@ -57,10 +57,17 @@ my %ethersex_modules = (
   'tcp'       => { 
                    helptext  => "tcp support",
                  },
+  'tftpomatic'=> {
+                   helptext  => "automatic firmware loading using tftp",
+                   requires  => [ "tftp" ],
+                   conflicts => [ "bootp" ],
+                   preconfigure => [ "ipv6", "bootp" ],
+                   enable_hook  => \&tftpomatic_enable_hook,
+                 },
   'tftp'      => { 
                    helptext  => "TFTP-based firmware bootloader",
                    requires  => [ "bootloader", "udp" ],
-                   preconfigure => [ "ipv6" ],
+                   preconfigure => [ "tftpomatic" ],
                  },
   'hd44780'   => {
                    helptext  => "Character-LCD module driver"
@@ -93,7 +100,14 @@ my %ethersex_modules = (
                    helptext  => "generic crypto support",
                  },
 );
-
+my %ethersex_config = (
+  'tftp_ip'   => {
+                   helptext  => "ip address of tftp server",
+                 },
+  'tftp_image' =>{
+                   helptext  => "name of tftp image to download",
+                 },
+);
 
 #
 # scan `config.h' for enabled/disabled modules
@@ -111,6 +125,16 @@ while(<HANDLE>) {
     }
 
     $ethersex_modules{lc($modname)}->{'enabled'} = !length($enabled);
+  }
+  if(my ($confopt, $confvalue) =
+     m/#define\s+CONF_([A-Z0-9_]+)\s+(.*)$/) {
+
+    unless(defined($ethersex_config{lc($confopt)})) {
+      warn "unknown ethersex config '" . lc($confopt) . "' listed in config.h";
+      next;
+    }
+
+    $ethersex_config{lc($confopt)}->{'value'} = $confvalue;
   }
 }
 close HANDLE or die;
@@ -163,11 +187,21 @@ sub enable {
 
   $ethersex_modules{$module}->{'new_status'} = 1;
   push @enable_modules, $module;
+
+  # call hook, if available
+  if(defined($ethersex_modules{$module}->{'enable_hook'})) {
+    $ethersex_modules{$module}->{'enable_hook'}();
+  }
 }
 
 sub disable {
   my $module = shift;
   $ethersex_modules{$module}->{'new_status'} = 0;
+
+  # call hook, if available
+  if(defined($ethersex_modules{$module}->{'disable_hook'})) {
+    $ethersex_modules{$module}->{'disable_hook'}();
+  }
 }
 
 sub configure_module {
@@ -185,6 +219,9 @@ sub configure_module {
     }
   }
 
+  # recheck, maybe we've been depended on in pre-config
+  return if(defined($ethersex_modules{$module}->{'new_status'}));
+
   if(prompt('y', sprintf("enable %s?", $module),
      $ethersex_modules{$module}->{'helptext'}, 
      $ethersex_modules{$module}->{'enabled'})) {
@@ -193,6 +230,66 @@ sub configure_module {
   else {
     disable($module);
   }
+}
+
+sub check_ip {
+  my $checkval = shift;
+  if($ethersex_modules{'ipv6'}->{'new_status'}) {
+    # validate ipv6 addr
+    if($checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){7}$/i) { return 1; }
+    return 0;
+  } else {
+    # validate ipv4 addr
+    my @parts = split m/\./, $checkval;
+    if(scalar(@parts) != 4) { return 0; }
+    foreach(@parts) {
+      if($_ < 0 || $_ > 255) { return 0; }
+    }
+    return 1;
+  }
+}
+
+sub ask_ip {
+  my $confopt = shift;
+ 
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+  for($default) { s/0x//g; s/\s//g; s/^uip_ip6?addr\(ip,//; s/\)$//; }
+  my $separator = $ethersex_modules{'ipv6'}->{'new_status'} ? ":" : ".";
+  $default = join($separator, split(m/,/, $default));
+  unless (check_ip($default)) { $default = "" }
+
+  my $new_value = 
+    prompt('s', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, 
+           $default, \&check_ip);
+
+  my @parts = split(m/[\.:]/, $new_value);
+  if($ethersex_modules{'ipv6'}->{'new_status'}) {
+    foreach(@parts) { $_ = "0x" . $_ }
+  }
+  $ethersex_config{$confopt}->{'value'} = "uip_" .
+    ($ethersex_modules{'ipv6'}->{'new_status'} ? "ip6addr" : "ipaddr") . "(ip,"
+    . join(",", @parts) . ")"; 
+}
+
+sub ask_anything {
+  my $confopt = shift;
+ 
+  my $d = $ethersex_config{$confopt}->{'value'};
+  unless(defined($d)) { $d = ""; }
+  for($d) { s/^"//; s/"$//; }
+
+  my $v =
+    prompt('x', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, $d); 
+  $ethersex_config{$confopt}->{'value'} = "\"$v\"";
+}
+
+sub tftpomatic_enable_hook {
+  # don't ask for tftp image, if user configured bootp
+  return if($ethersex_modules{'bootp'}->{'new_status'});
+
+  ask_ip("tftp_ip");
+  ask_anything("tftp_image");
 }
 
 #
@@ -245,6 +342,16 @@ sub write_config {
       if(defined($ethersex_modules{lc($modname)})) {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
                     ? "" : "#") . $line;
+      }
+    }
+
+    # write configuration option
+    elsif(($modname) = $confline =~
+          m/#define\s+CONF_([A-Z0-9_]+)\s+/) {
+
+      if(defined($ethersex_config{lc($modname)})) {
+        $confline = "#define CONF_$modname " 
+          . $ethersex_config{lc($modname)}->{'value'};
       }
     }
 

@@ -313,7 +313,6 @@
 #define PORTIO_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
-// #define TFTP_SUPPORT
 // #define BOOTLOADER_SUPPORT
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
@@ -330,5 +329,10 @@
 
 /* bootloader config */
 #define APP_ENTER_DELAY 25           /* five seconds */
+
+// #define TFTP_SUPPORT
+// #define TFTPOMATIC_SUPPORT
+#define CONF_TFTP_IP uip_ip6addr(ip,0x2001,0x4b88,0x10e4,0x0,0x21a,0x92ff,0xfe32,0x53e3)
+#define CONF_TFTP_IMAGE "testsex.bin"
 
 #endif /* _CONFIG_H */
