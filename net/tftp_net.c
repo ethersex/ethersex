@@ -32,7 +32,7 @@ void
 tftp_net_init(void)
 {
     uip_ipaddr_t ip;
-    uip_ipaddr(&ip, 255,255,255,255);
+    uip_ipaddr_copy(&ip, all_ones_addr);
 
     struct uip_udp_conn *tftp_conn = uip_udp_new(&ip, 0);
 
