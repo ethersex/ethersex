@@ -8,12 +8,16 @@
  * 
  */
 
- #include "md5.h"
- #include "md5_sbox.h"
- #include <stdint.h>
- #include <string.h>
- 
- #undef DEBUG
+#include "../config.h"
+
+#ifdef MD5_SUPPORT
+
+#include "md5.h"
+#include "md5_sbox.h"
+#include <stdint.h>
+#include <string.h>
+
+#undef DEBUG
  
 void md5_init(md5_ctx_t *s){
 	s->counter = 0;
@@ -142,3 +146,6 @@ void md5_lastBlock(md5_ctx_t *state, void* block, uint16_t length){
 	*((uint64_t*)&b[64-sizeof(uint64_t)]) = (state->counter * 512) + length;
 	md5_nextBlock(state, b);
 }
+
+
+#endif /* MD5_SUPPORT */

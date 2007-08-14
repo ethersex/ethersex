@@ -7,16 +7,20 @@
  * \brief Implementation of the CAST5 (aka CAST-128) cipher algorithm as described in RFC 2144
  * 
  */
- 
- #include <stdint.h>
- #include <string.h>
- #include "cast5.h"
- 
- #undef DEBUG
- 
- #ifdef DEBUG
+
+#include "../config.h"
+
+#ifdef CAST5_SUPPORT
+
+#include <stdint.h>
+#include <string.h>
+#include "cast5.h"
+
+#undef DEBUG
+
+#ifdef DEBUG
   #include "uart.h"
- #endif
+#endif
  
 #include "cast5-sbox.h"
 
@@ -457,5 +461,4 @@ void cast5_old_init(cast5_ctx_t* s, uint8_t* key, uint8_t keylength){
 #endif
 
 
-
-
+#endif /* CAST5_SUPPORT */
