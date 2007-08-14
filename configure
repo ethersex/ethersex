@@ -200,65 +200,64 @@ foreach my $module (keys %ethersex_modules) { configure_module($module) }
 
 
 #
-# create config.h.new ...
+# update config files ...
 #
-open INHANDLE, "< config.h"
-  or die "unable to open config.h for reading";
-open OUTHANDLE, "> config.h.new"
-  or die "unable to open config.h.new for writing";
-while(<INHANDLE>) {
-  chop $_;
-  if(my ($enabled, $modname) = 
-     m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
+sub write_config {
+  my $filename = shift;
+  print "writing $filename.\n";
 
-    if(defined($ethersex_modules{lc($modname)})) {
-      $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "// ") 
-          . "#define " . $modname . "_SUPPORT";
+  open INHANDLE, "< $filename"
+    or die "unable to open $filename for reading";
+  open OUTHANDLE, "> $filename.new"
+    or die "unable to open $filename.new for writing";
+
+  while(my $confline = <INHANDLE>) {
+    chop $confline;
+    my ($enabled, $modname, $line);
+
+    # enable/disable config.h support flag
+    if(($enabled, $modname) = $confline =~
+       m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
+
+      if(defined($ethersex_modules{lc($modname)})) {
+        $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
+                    ? "" : "// ") . "#define " . $modname . "_SUPPORT";
+      }
     }
+
+    # enable/disable Makefile SRC variable editing
+    elsif(($modname) = $confline =~
+       m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9]+)\/\*\.c\)\s*$/) {
+
+      if(defined($ethersex_modules{lc($modname)})) {
+        $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
+                    ? "" : "#") . "SRC += \$(shell echo $modname/*.c)";
+      }
+    }
+
+    # enable/disable Makefile lines ...
+    elsif(($line, $modname) = $confline =~
+       m/^#*\s*([^#]+#\s*([A-Z0-9]+)_SUPPORT)\s*$/) {
+
+      if(defined($ethersex_modules{lc($modname)})) {
+        $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
+                    ? "" : "#") . $line;
+      }
+    }
+
+    print OUTHANDLE "$confline\n";
   }
-  print OUTHANDLE "$_\n";
+
+  close INHANDLE or die;
+  close OUTHANDLE or die;
+
+  unlink("$filename") or die;
+  rename("$filename.new", "$filename") or die;
 }
-close INHANDLE or die;
-close OUTHANDLE or die;
 
-
-#
-# create Makefile.new ...
-#
-open INHANDLE, "< Makefile"
-  or die "unable to open Makefile for reading";
-open OUTHANDLE, "> Makefile.new"
-  or die "unable to open Makefile.new for writing";
-while(<INHANDLE>) {
-  chop $_;
-  if(my ($modname) = 
-     m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9]+)\/\*\.c\)\s*$/) {
-
-    if(defined($ethersex_modules{lc($modname)})) {
-      $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "#") 
-          . "SRC += \$(shell echo $modname/*.c)";
-    }
-  }
-  if(my ($line, $modname) = 
-     m/^#*\s*([^#]+#\s*([A-Z0-9]+)_SUPPORT)\s*$/) {
-
-    if(defined($ethersex_modules{lc($modname)})) {
-      $_ = ($ethersex_modules{lc($modname)}->{'new_status'} ? "" : "#") . $line;
-    }
-  }
-  print OUTHANDLE "$_\n";
+foreach(qw/config.h Makefile/) {
+  write_config($_);
 }
-close INHANDLE or die;
-close OUTHANDLE or die;
-
-
-# 
-# finally unlink/rename the files ...
-#
-unlink("config.h") or die;
-rename("config.h.new", "config.h") or die;
-unlink("Makefile") or die;
-rename("Makefile.new", "Makefile") or die;
 
 print "\n\nsuccessfully configured your ethersex.\n";
 print "don't forget to run `make clean all'.\n\n";
