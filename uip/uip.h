@@ -58,6 +58,10 @@
 #include "uipopt.h"
 #include "../net/state.h"
 
+#ifdef RC4_SUPPORT
+#include "../crypto/rc4.h"
+#endif
+
 /**
  * Repressentation of an IP address.
  *
@@ -1100,6 +1104,7 @@ u16_t htons(u16_t val);
  * use this space to write the data into before calling uip_send().
  */
 extern void *uip_appdata;
+extern void *uip_sappdata;
 
 #if UIP_URGDATA > 0
 /* u8_t *uip_urgdata:
@@ -1135,6 +1140,7 @@ extern void *uip_urgdata;
  *
  */
 extern u16_t uip_len;
+extern u16_t uip_slen;
 
 /** @} */
 
@@ -1181,6 +1187,20 @@ struct uip_conn {
 
   /** The application state. */
   uip_tcp_appstate_t appstate;
+
+#ifdef RC4_SUPPORT
+  /** The RC4 stream cipher state */
+  rc4_state_t rc4_inbound, rc4_outbound;
+
+  struct {
+    unsigned inbound_initialized    :1;
+    unsigned outbound_initialized   :1;
+  } rc4_flags;
+#endif
+
+#ifdef AUTH_SUPPORT
+  unsigned auth_okay :1;
+#endif
 };
 
 
