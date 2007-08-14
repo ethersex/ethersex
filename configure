@@ -56,8 +56,8 @@ my %ethersex_modules = (
                  },
   'tftp'      => { 
                    helptext  => "TFTP-based firmware bootloader",
-                   conflicts => [ ],
                    requires  => [ "bootloader", "udp" ],
+                   preconfigure => [ "ipv6" ],
                  },
   'hd44780'   => {
                    helptext  => "Character-LCD module driver"
@@ -114,7 +114,7 @@ close HANDLE or die;
 
 
 # check whether module may be enabled
-# return: 0 if conflicting (message will be emitted)
+# return: 1 if conflicting (message will be emitted)
 my @enable_modules;
 sub try_enable {
   my $module = shift;
@@ -126,6 +126,8 @@ sub try_enable {
     foreach (@enable_modules) {
       if($_ eq $module_conflicts) {
         printf "disabling %s (conflicts with %s).\n", $trymodule, $_;
+        disable($trymodule);
+
         return 1;
       }
     }
@@ -160,20 +162,41 @@ sub enable {
   push @enable_modules, $module;
 }
 
+sub disable {
+  my $module = shift;
+  $ethersex_modules{$module}->{'new_status'} = 0;
+}
+
+sub configure_module {
+  my ($module) = @_;
+
+  # check whether we've already asked the user (or implied an answer)
+  return if(defined($ethersex_modules{$module}->{'new_status'}));
+
+  return if(try_enable($module));  # cannot enable, conflicting.
+
+  # do preconfiguration
+  if(defined($ethersex_modules{$module}->{'preconfigure'})) {
+    foreach (@{$ethersex_modules{$module}->{'preconfigure'}}) {
+      configure_module($_);
+    }
+  }
+
+  if(prompt('y', sprintf("enable %s?", $module),
+     $ethersex_modules{$module}->{'helptext'}, 
+     $ethersex_modules{$module}->{'enabled'})) {
+    enable($module);
+  } 
+  else {
+    disable($module);
+  }
+}
+
 #
 # ask user which modules to enable
 #
-print "\n\n -= ETHERSEX MODULE CONFIGURATION =-\n\n";
-foreach my $module (keys %ethersex_modules) {
-  next if($ethersex_modules{$module}->{'new_status'});
-  next if(try_enable($module));
-
-  enable($module)
-    if(prompt('y', sprintf("enable %s?", $module),
-       $ethersex_modules{$module}->{'helptext'}, 
-       $ethersex_modules{$module}->{'enabled'}));
-}
-
+print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
+foreach my $module (keys %ethersex_modules) { configure_module($module) }
 
 
 #
