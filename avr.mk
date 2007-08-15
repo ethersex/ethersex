@@ -123,6 +123,9 @@ program-serial-eeprom-%: %.eep.hex launch-bootloader
 %.hex: %
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
+%.bin: %
+	$(OBJCOPY) -O binary -R .eeprom $< $@
+
 %.eep.hex: %
 	$(OBJCOPY) --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex -j .eeprom $< $@
 
