@@ -25,37 +25,45 @@ my %ethersex_modules = (
   'tetrirape' => {
                    helptext  => "a tetrinet server",
                    conflicts => [ "ecmd" ],
+                   distdflt  => 0,
                  },
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "tetrirape" ],
                    requires  => [ "tcp", "portio" ],
+                   distdflt  => 1,
                  },
   'portio'    => {
                    helptext  => "port io abstraction layer",
+                   distdflt  => 0,
                  },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
-                   conflicts => [ ],
+                   distdflt  => 0,
                  },
   'bootp'     => { 
                    helptext  => "DHCP-like autoconfig for IPv4",
                    conflicts => [ "ipv6", "tftpomatic" ],
                    requires  => [ "broadcast", "udp" ],
+                   distdflt  => 0,
                  },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
+                   distdflt  => 1,
                  },
   'broadcast' => { 
                    helptext  => "broadcast support",
                    requires  => [ "udp" ],
+                   distdflt  => 0,
                  },
   'udp'       => { 
                    helptext  => "udp support",
+                   distdflt  => 1,
                  },
   'tcp'       => { 
                    helptext  => "tcp support",
+                   distdflt  => 1,
                  },
   'tftpomatic'=> {
                    helptext  => "automatic firmware loading using tftp",
@@ -63,41 +71,51 @@ my %ethersex_modules = (
                    conflicts => [ "bootp" ],
                    preconfigure => [ "ipv6", "bootp" ],
                    enable_hook  => \&tftpomatic_enable_hook,
+                   distdflt  => 0,
                  },
   'tftp'      => { 
                    helptext  => "TFTP-based firmware bootloader",
                    requires  => [ "bootloader", "udp" ],
                    preconfigure => [ "tftpomatic" ],
+                   distdflt  => 0,
                  },
   'hd44780'   => {
-                   helptext  => "Character-LCD module driver"
+                   helptext  => "Character-LCD module driver",
+                   distdflt  => 0,
                  },
   'bootloader'=> {
-                   helptext  => "configure as bootloader"
+                   helptext  => "configure as bootloader",
+                   distdflt  => 0,
                  },
   'rc4'       => {
                    helptext  => "a stream cipher",
                    requires  => [ "crypto", "md5" ],
+                   distdflt  => 0,
                  },
   'auth'      => {
                    helptext  => "tcp connection authentication",
+                   distdflt  => 0,
                  },
   'skipjack'  => {
                    helptext  => "skipjack block cipher",
                    requires  => [ "auth", "crypto" ],
                    conflicts => [ "cast5" ],
+                   distdflt  => 0,
                  },
   'cast5'     => {
                    helptext  => "cast5 block cipher",
                    requires  => [ "auth", "crypto" ],
                    conflicts => [ "skipjack" ],
+                   distdflt  => 0,
                  },
   'md5'       => {
                    helptext  => "md5 hash support",
                    requires  => [ "crypto" ],
+                   distdflt  => 0,
                  },
   'crypto'    => {
                    helptext  => "generic crypto support",
+                   distdflt  => 0,
                  },
 );
 my %ethersex_config = (
@@ -108,6 +126,11 @@ my %ethersex_config = (
                    helptext  => "name of tftp image to download",
                  },
 );
+
+my $opt_restore_defaults = 0;
+foreach(@ARGV) {
+  if(m/--restore-defaults/) { $opt_restore_defaults = 1; }
+}
 
 #
 # scan `config.h' for enabled/disabled modules
@@ -222,9 +245,18 @@ sub configure_module {
   # recheck, maybe we've been depended on in pre-config
   return if(defined($ethersex_modules{$module}->{'new_status'}));
 
-  if(prompt('y', sprintf("enable %s?", $module),
-     $ethersex_modules{$module}->{'helptext'}, 
-     $ethersex_modules{$module}->{'enabled'})) {
+  my $answer;
+  if($opt_restore_defaults) { 
+    $answer = $ethersex_modules{$module}->{'distdflt'};
+    printf "%s %s.\n", ($answer ? "enabling" : "disabling"), $module;
+  }
+  else {
+    $answer = prompt('y', sprintf("enable %s?", $module),
+                     $ethersex_modules{$module}->{'helptext'}, 
+                     $ethersex_modules{$module}->{'enabled'});
+  }
+
+  if($answer) {
     enable($module);
   } 
   else {
