@@ -31,6 +31,10 @@
 #include "fs20/fs20.h"
 #include "ipv6.h"
 
+#ifdef BOOTLOADER_SUPPORT
+uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
+#endif
+
 void timer_init(void)
 /* {{{ */ {
 
@@ -162,6 +166,14 @@ void timer_process(void)
 
             counter = 0;
         }
+
+#       ifdef BOOTLOADER_SUPPORT
+        if(bootload_delay)
+            if(-- bootload_delay == 0) {
+                void (*jump_to_application)(void) = NULL;
+                jump_to_application();
+            }
+#       endif
 
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);

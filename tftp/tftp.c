@@ -27,11 +27,8 @@
 #include "../net/tftp_net.h"
 #include "tftp.h"
 
-/*
- * reset vectors
- */
-extern void (*jump_to_application)(void);
-extern void (*jump_to_bootloader)(void);
+/* defined in `timer.c' */
+extern uint8_t bootload_delay;
 
 
 /*
@@ -105,6 +102,8 @@ tftp_handle_packet(void)
 	uip_udp_conn->appstate.tftp.transfered = 0;
 	uip_udp_conn->appstate.tftp.finished = 0;
 
+        bootload_delay = 0;                      /* Stop bootloader. */
+    
 	goto send_data;
 
     case 4: /* acknowledgement */
@@ -120,6 +119,7 @@ tftp_handle_packet(void)
 
     send_data:
 	if(uip_udp_conn->appstate.tftp.finished) {
+            bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
 	    return;                                  /* nothing more to do */
 	}
 
@@ -156,6 +156,8 @@ tftp_handle_packet(void)
 	uip_udp_conn->appstate.tftp.transfered = 0;
 	uip_udp_conn->appstate.tftp.finished = 0;
 
+        bootload_delay = 0;                      /* Stop bootloader. */
+
 	pk->u.ack.block = HTONS(0);
 	goto send_ack;
 
@@ -183,6 +185,12 @@ tftp_handle_packet(void)
 
 	if(uip_datalen() < 512 + 4) {
 	    uip_udp_conn->appstate.tftp.finished = 1;
+
+#           ifdef TFTPOMATIC_SUPPORT
+            bootload_delay = 1;                      /* ack, then start app */
+#           else
+            bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
+#           endif
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);

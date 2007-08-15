@@ -328,7 +328,7 @@
 // #define MD5_SUPPORT
 
 /* bootloader config */
-#define APP_ENTER_DELAY 25           /* five seconds */
+#define CONF_BOOTLOAD_DELAY 250           /* five seconds */
 
 // #define TFTP_SUPPORT
 // #define TFTPOMATIC_SUPPORT
