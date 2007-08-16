@@ -24,27 +24,30 @@ use Term::Prompt;
 my %ethersex_modules = (
   'tetrirape' => {
                    helptext  => "a tetrinet server",
-                   conflicts => [ "ecmd" ],
+                   conflicts => [ "ecmd", "bootloader" ],
                    distdflt  => 0,
                  },
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
-                   conflicts => [ "tetrirape" ],
+                   conflicts => [ "tetrirape", "bootloader" ],
                    requires  => [ "tcp", "portio" ],
                    distdflt  => 1,
                  },
   'portio'    => {
                    helptext  => "port io abstraction layer",
                    distdflt  => 0,
+                   virtual   => 1,
                  },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
                    distdflt  => 0,
+                   conflicts => [ "bootloader" ],
                  },
   'bootp'     => { 
                    helptext  => "DHCP-like autoconfig for IPv4",
                    conflicts => [ "ipv6", "tftpomatic" ],
                    requires  => [ "broadcast", "udp" ],
+                   preconfigure => [ "ipv6" ],
                    distdflt  => 0,
                  },
   'ipv6'      => { 
@@ -89,8 +92,9 @@ my %ethersex_modules = (
                  },
   'rc4'       => {
                    helptext  => "a stream cipher",
-                   requires  => [ "crypto", "md5" ],
+                   requires  => [ "crypto", "md5", "tcp" ],
                    distdflt  => 0,
+                   preconfigure => [ "tcp" ],
                  },
   'auth'      => {
                    helptext  => "tcp connection authentication",
@@ -105,17 +109,19 @@ my %ethersex_modules = (
   'cast5'     => {
                    helptext  => "cast5 block cipher",
                    requires  => [ "auth", "crypto" ],
-                   conflicts => [ "skipjack" ],
+                   conflicts => [ "skipjack", "bootloader" ],
                    distdflt  => 0,
                  },
   'md5'       => {
                    helptext  => "md5 hash support",
                    requires  => [ "crypto" ],
                    distdflt  => 0,
+                   virtual   => 1,
                  },
   'crypto'    => {
                    helptext  => "generic crypto support",
                    distdflt  => 0,
+                   virtual   => 1,
                  },
 );
 my %ethersex_config = (
@@ -184,6 +190,13 @@ sub try_enable {
   }
 
   foreach (@{$ethersex_modules{$module}->{'requires'}}) {
+    if(defined($ethersex_modules{$_}->{'new_status'})
+       && !$ethersex_modules{$_}->{'new_status'}) {
+      printf "disabling %s (would require %s).\n", $trymodule, $_;
+      disable($trymodule);
+
+      return 1;
+    }
     if(try_enable($_, $trymodule)) {
       return 1;
     }
@@ -227,23 +240,41 @@ sub disable {
   }
 }
 
+
+# configure module (return 1, if config has been changed, 0 otherwise)
 sub configure_module {
   my ($module) = @_;
 
+ restart:
   # check whether we've already asked the user (or implied an answer)
-  return if(defined($ethersex_modules{$module}->{'new_status'}));
+  return(0) if(defined($ethersex_modules{$module}->{'new_status'}));
 
-  return if(try_enable($module));  # cannot enable, conflicting.
+  return(0) if(try_enable($module));  # cannot enable, conflicting.
 
-  # do preconfiguration
+  # perform forced preconfiguration ...
   if(defined($ethersex_modules{$module}->{'preconfigure'})) {
     foreach (@{$ethersex_modules{$module}->{'preconfigure'}}) {
-      configure_module($_);
+      if(configure_module($_)) { goto restart; }
     }
   }
 
-  # recheck, maybe we've been depended on in pre-config
-  return if(defined($ethersex_modules{$module}->{'new_status'}));
+  # automatic handling of virtual modules ...
+  if($ethersex_modules{$module}->{'virtual'}) {
+    # configure all modules depending on this module
+    foreach (keys %ethersex_modules) { 
+      next if $_ eq $module;
+      next unless defined $ethersex_modules{$_}->{'requires'};
+      foreach my $dependency (@{$ethersex_modules{$_}->{'requires'}}) {
+        if($dependency eq $module) {
+          if(configure_module($_)) { goto restart; }
+        }
+      }
+    }
+    
+    print "disabling unneeded, virtual module $module.\n";
+    disable $module;
+    return 1;
+  }
 
   my $answer;
   if($opt_restore_defaults) { 
@@ -262,6 +293,8 @@ sub configure_module {
   else {
     disable($module);
   }
+
+  return 1;
 }
 
 sub check_ip {
@@ -328,6 +361,7 @@ sub tftpomatic_enable_hook {
 # ask user which modules to enable
 #
 print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
+configure_module "bootloader";
 foreach my $module (keys %ethersex_modules) { configure_module($module) }
 
 
