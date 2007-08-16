@@ -154,13 +154,7 @@
 
 /* bootloader */
 #undef BOOTLOADER_SECTION
-#if defined(_ATMEGA32)
-#   define BOOTLOADER_SECTION 0x7c00 /* atmega32 with 512 words bootloader */
-#elif defined(_ATMEGA644)
-#   define BOOTLOADER_SECTION 0xf800 /* atmega644 with 1024 words bootloader */
-#else
-#   warning "bootloader entry point unknown!"
-#endif
+#define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
 
 /* spi defines */
 #ifndef SPI_DDR
