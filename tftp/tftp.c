@@ -22,9 +22,12 @@
 #include <avr/boot.h>
 #include <avr/interrupt.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "../uip/uip.h"
 #include "../net/tftp_net.h"
+#include "../crypto/skipjack.h"
+#include "../eeprom.h"
 #include "tftp.h"
 
 /* defined in `timer.c' */
@@ -141,9 +144,45 @@ tftp_handle_packet(void)
 	}
 
 	for(i = 0; i < 512; i ++)
-	    pk->u.data.data[i] = pgm_read_byte_near(base + i);
+#if defined(SKIPJACK_SUPPORT)
+	    pk->u.data.data[i + 8] = 
+#else
+	    pk->u.data.data[i] = 
+#endif            
+              pgm_read_byte_near(base + i);
 
+#if defined(SKIPJACK_SUPPORT)
+        for(i = 0; i < 8; i ++) {
+            /* prepend 8 bytes IV */
+            pk->u.data.data[i] = rand() & 0xFF;
+
+            /* prepare to append CBC-MAC, i.e. initialize to zero,
+             * so we can XOR the CBC carry and afterwards encrypt.  */
+            pk->u.data.data[i + 512 + 8] = 0;
+        }
+
+        unsigned char key[10] = "ABCDEF2342";
+
+        /* perform skipjack-cbc encryption:
+         * leave the first block (iv) untouched,
+         * encrypt blocks 1..64 (data)
+         * then encrypt block 65 (cbc-mac) */
+        for(i = 1; i <= 65; i ++) {
+            /* carry cbc forward (xor) */
+            for(int j = 0; j < 8; j ++) {
+                pk->u.data.data[(i << 3) + j] ^= 
+                  pk->u.data.data[(i << 3) + j - 8];
+            }
+
+            /* encrypt data */
+            skipjack_enc(&pk->u.data.data[i << 3], key);
+        }
+
+        uip_udp_send(4 + 16 + 512);
+#else /* !SKIPJACK_SUPPORT */
 	uip_udp_send(4 + 512);
+#endif
+
 	uip_udp_conn->appstate.tftp.transfered ++;
 	break;
 
