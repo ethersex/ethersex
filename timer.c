@@ -21,6 +21,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/interrupt.h>
+
 #include "timer.h"
 #include "config.h"
 #include "network.h"
@@ -170,6 +172,10 @@ void timer_process(void)
 #       ifdef BOOTLOADER_SUPPORT
         if(bootload_delay)
             if(-- bootload_delay == 0) {
+		cli();
+		_IVREG = _BV(IVCE);	        /* prepare ivec change */
+		_IVREG = 0x00;                  /* change ivec */
+
                 void (*jump_to_application)(void) = NULL;
                 jump_to_application();
             }

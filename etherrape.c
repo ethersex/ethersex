@@ -61,6 +61,10 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 
 int main(void)
 /* {{{ */ {
+#   ifdef BOOTLOADER_SUPPORT
+    _IVREG = _BV(IVCE);	            /* prepare ivec change */
+    _IVREG = _BV(IVSEL);            /* change ivec to bootloader */
+#   endif
 
     debug_init();
     debug_printf("debugging enabled\n");
@@ -177,10 +181,14 @@ int main(void)
 #endif /* FS20_SUPPORT */
 
 #ifndef BOOTLOAD_SUPPORT
-        if(cfg.request_bootloader)
+        if(cfg.request_bootloader) {
+            cli();
             jump_to_bootloader();
+        }
 
         if(cfg.request_reset) {
+            cli();
+
             void (* reset)(void) = NULL;
             reset();
         }
