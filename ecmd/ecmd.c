@@ -1,7 +1,8 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -42,6 +43,7 @@ static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
@@ -82,6 +84,7 @@ const char PROGMEM ecmd_showmac_text[] = "show mac";
 const char PROGMEM ecmd_showip_text[] = "show ip";
 const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_mac_text[] = "mac ";
+const char PROGMEM ecmd_bootloader_text[] = "bootloader";
 const char PROGMEM ecmd_reset_text[] = "reset";
 const char PROGMEM ecmd_io_set_ddr[] = "io set ddr";
 const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
@@ -110,6 +113,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_showmac_text, parse_cmd_show_mac },
     { ecmd_showip_text, parse_cmd_show_ip },
     { ecmd_mac_text, parse_cmd_mac },
+    { ecmd_bootloader_text, parse_cmd_bootloader }, 
     { ecmd_reset_text, parse_cmd_reset },
     { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
     { ecmd_io_get_ddr, parse_cmd_io_get_ddr },
@@ -205,6 +209,13 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 } /* }}} */
 
 /* high level parsing functions */
+
+int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    cfg.request_bootloader = 1;
+    uip_close();
+    return 0;
+} /* }}} */
 
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -318,11 +329,9 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-
-    void (*reset)(void) = (void *)0x0000;
-    reset();
+    cfg.request_reset = 1;
+    uip_close();
     return 0;
-
 } /* }}} */
 
 #ifdef FS20_SUPPORT 

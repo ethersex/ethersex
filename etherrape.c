@@ -142,6 +142,9 @@ int main(void)
             );
 #   endif
 
+    cfg.request_reset = 0;
+    cfg.request_bootloader = 0;
+
     /* main loop */
     while(1) {
 
@@ -172,6 +175,16 @@ int main(void)
         fs20_process();
 #endif
 #endif /* FS20_SUPPORT */
+
+#ifndef BOOTLOAD_SUPPORT
+        if(cfg.request_bootloader)
+            jump_to_bootloader();
+
+        if(cfg.request_reset) {
+            void (* reset)(void) = NULL;
+            reset();
+        }
+#endif
     }
 
 } /* }}} */

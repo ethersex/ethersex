@@ -43,6 +43,9 @@ typedef struct {
     global_options_t options;
     global_status_t status;
     uip_ipaddr_t sntp_server;
+
+    uint8_t request_bootloader :1;
+    uint8_t request_reset      :1;
 } global_config_t;
 
 extern global_config_t cfg;
