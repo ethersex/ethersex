@@ -40,6 +40,8 @@ uint8_t crc_checksum(void *data, uint8_t length)
 
 } /* }}} */
 
+
+#if !defined(BOOTLOADER_SUPPORT) || defined(BOOTP_SUPPORT)
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
 
@@ -72,3 +74,5 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
     return 0;
 
 } /* }}} */
+#endif
+
