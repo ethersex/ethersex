@@ -83,6 +83,10 @@ flash_page(uint32_t page, uint8_t *buf)
 void
 tftp_handle_packet(void)
 {
+#ifdef SKIPJACK_SUPPORT
+    unsigned char key[10] = "ABCDEF2342";
+#endif
+
     /*
      * overwrite udp connection information (i.e. take from incoming packet)
      */
@@ -161,8 +165,6 @@ tftp_handle_packet(void)
             pk->u.data.data[i + 512 + 8] = 0;
         }
 
-        unsigned char key[10] = "ABCDEF2342";
-
         /* perform skipjack-cbc encryption:
          * leave the first block (iv) untouched,
          * encrypt blocks 1..64 (data)
@@ -212,7 +214,36 @@ tftp_handle_packet(void)
 
 	if(HTONS(pk->u.ack.block) > uip_udp_conn->appstate.tftp.transfered + 1)
 	    goto error_out;			/* too late */
-	
+
+#ifdef SKIPJACK_SUPPORT
+        /* the packet looks like this:
+         *   0..3    <packet preamble>
+         *   4..11   IV         <- pk->u.data.data[0]
+         *  12..522  DATA (maybe shorter) --,-  "decrypted"
+         * 523..530  CBC-MAC              --'
+         */
+        for(i = 1; i < (uip_datalen() - 4) >> 3; i ++) {
+            /* decrypt block (we actually encrypted, since used decrypt) */
+            unsigned char buf[8];
+            memmove(buf, pk->u.data.data + (i << 3), 8);
+            skipjack_enc(buf, key);
+
+            /* now XOR the decrypted data onto the block before,
+             * which is still encrypted, i.e. our "cbc carry" */
+            for(int j = 0; j < 8; j ++) 
+                pk->u.data.data[(i << 3) + j - 8] ^= buf[j];
+        }
+
+        uip_datalen() -= 16;   /* lie about packet len */
+
+        /* verify our CBC-MAC (XOR'd to zeroes), which should reside right
+         * after the last datablock, which we've moved 8 bytes to the left */
+        for(i = 0; i < 8; i ++) 
+            if(pk->u.data.data[i + uip_datalen() - 4])
+                goto error_out;
+
+#endif /* SKIPJACK_SUPPORT */
+
 	base = 512 * (HTONS(pk->u.ack.block) - 1);
 
 	for(i = uip_datalen() - 4; i < 512; i ++)
