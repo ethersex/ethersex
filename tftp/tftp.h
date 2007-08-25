@@ -21,6 +21,9 @@
 #ifndef _TFTP_H
 #define _TFTP_H
 
+#include "../config.h"
+#ifdef TFTP_SUPPORT
+
 #include <stdint.h>
 
 /* tftp packet header */
@@ -80,4 +83,5 @@ tftp_fire_tftpomatic(uip_ipaddr_t *ip, const unsigned char *filename) {
 }
 #endif /* TFTPOMATIC_SUPPORT || BOOTP_SUPPORT */
 
+#endif /* TFTP_SUPPORT */
 #endif /* _TFTP_H */
