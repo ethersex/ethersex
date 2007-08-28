@@ -769,8 +769,27 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
 #ifdef HD44780_SUPPORT
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-    hd44780_clear();
-    return 0;
+    uint16_t line;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%u"),
+            &line);
+
+    if (ret == 1) {
+        if (line > 3)
+            return -1;
+
+        hd44780_goto(LO8(line), 0);
+        for (uint8_t i = 0; i < 20; i++)
+            fputc(' ', lcd);
+        hd44780_goto(LO8(line), 0);
+
+        return 0;
+    } else {
+        hd44780_clear();
+        hd44780_goto(0, 0);
+        return 0;
+    }
 } /* }}} */
 
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len)
