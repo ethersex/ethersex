@@ -38,6 +38,7 @@
 #include "timer.h"
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
+#include "onewire/onewire.h"
 
 #include "net/handler.h"
 
@@ -107,6 +108,10 @@ int main(void)
 
 #ifdef FS20_SUPPORT
     fs20_init();
+#endif
+
+#ifdef ONEWIRE_SUPPORT
+    onewire_init();
 #endif
 
     /* must be called AFTER all other initialization */
