@@ -85,13 +85,32 @@ void newdata(void)
         debug_printf("parser returned %d\n", l);
 #endif
 
+        /* check if the parse has to be called again */
+        if (l <= -10) {
+#ifdef DEBUG_ECMD_NET
+            debug_printf("parser needs to be called again\n");
+#endif
+
+            state->parse_again = 1;
+            l = -l - 10;
+        }
+
+#ifdef DEBUG_ECMD_NET
+        debug_printf("parser really returned %d\n", l);
+#endif
+
         if (l > 0) {
             state->outbuf[l++] = '\n';
             state->out_len = l;
         }
 
-        memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
-        state->in_len = 0;
+        if (!state->parse_again) {
+#ifdef DEBUG_ECMD_NET
+            debug_printf("clearing buffer\n");
+#endif
+            memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
+            state->in_len = 0;
+        }
     }
 }
 
@@ -125,12 +144,36 @@ void ecmd_net_main(void)
 #endif
         state->in_len = 0;
         state->out_len = 0;
+        state->parse_again = 0;
         memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
         PT_INIT(&state->thread);
     }
 
     if(uip_acked()) {
         state->out_len = 0;
+
+        if (state->parse_again) {
+#ifdef DEBUG_ECMD_NET
+            debug_printf("transmission done, calling parser again\n");
+#endif
+            /* parse command and write output to state->outbuf, reserving at least
+             * one byte for the terminating \n */
+            int l = ecmd_parse_command(state->inbuf,
+                    state->outbuf,
+                    ECMD_OUTPUTBUF_LENGTH-1);
+
+            /* check if the parse has to be called again */
+            if (l <= -10) {
+                state->parse_again = 1;
+                l = -l - 10;
+            } else
+                state->parse_again = 0;
+
+            if (l > 0) {
+                state->outbuf[l++] = '\n';
+                state->out_len = l;
+            }
+        }
     }
 
     if(uip_newdata()) {
@@ -142,7 +185,11 @@ void ecmd_net_main(void)
             uip_acked() ||
             uip_connected() ||
             uip_poll()) {
-        if (state->out_len > 0)
+        if (state->out_len > 0) {
+#ifdef DEBUG_ECMD_NET
+            debug_printf("sending %d bytes\n", state->out_len);
+#endif
             uip_send(state->outbuf, state->out_len);
+        }
     }
 }

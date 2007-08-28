@@ -24,6 +24,7 @@
 #include "config.h"
 #include "debug.h"
 #include "ecmd/ecmd.h"
+#include "onewire/onewire.h"
 
 #define noinline __attribute__((noinline))
 
@@ -87,10 +88,13 @@ void DEBUG_PROCESS_UART(void)
 #ifdef DEBUG_ECMD
             debug_printf("parsing command '%s'\n", buf);
 #endif
+            int l;
 
-            int l = ecmd_parse_command(buf, output, LEN);
-            if (l > 0)
-                printf_P(PSTR("%s\n"), output);
+            do {
+                l = ecmd_parse_command(buf, output, LEN);
+                if (l > 0 || l < -10)
+                    printf_P(PSTR("%s\n"), output);
+            } while (l <= -10);
             free(output);
             ptr = buf;
         } else {

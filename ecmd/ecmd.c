@@ -23,6 +23,7 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
+#include <avr/interrupt.h>
 
 #include "../config.h"
 #include "../debug.h"
@@ -33,6 +34,7 @@
 #include "../fs20/fs20.h"
 #include "../portio.h"
 #include "../lcd/hd44780.h"
+#include "../onewire/onewire.h"
 #include "ecmd.h"
 
 
@@ -62,6 +64,9 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
+#endif
+#ifdef ONEWIRE_SUPPORT
+static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
 #endif
 
 /* low level */
@@ -102,6 +107,9 @@ const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
 const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
 #endif
+#ifdef ONEWIRE_SUPPORT
+const char PROGMEM ecmd_onewire_list[] = "1w list";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
@@ -128,6 +136,9 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_lcd_clear_text, parse_lcd_clear },
     { ecmd_lcd_write_text, parse_lcd_write },
     { ecmd_lcd_goto_text, parse_lcd_goto },
+#endif
+#ifdef ONEWIRE_SUPPORT
+    { ecmd_onewire_list, parse_onewire_list },
 #endif
     { NULL, NULL },
 };
@@ -410,6 +421,90 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif
 
+#endif
+
+#ifdef ONEWIRE_SUPPORT
+static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    if (ow_global.lock == 0) {
+        ow_global.lock = 1;
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("called onewire list for the first time\n");
+#endif
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        ret = ow_search_rom_first();
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret <= 0) {
+#ifdef DEBUG_ECMD_OW_LIST
+            debug_printf("no devices on the bus\n");
+#endif
+            return 0;
+        }
+    } else {
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("called onewire list again\n");
+#endif
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        ret = ow_search_rom_next();
+
+        SREG = sreg;
+    }
+
+    if (ret == 1) {
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("discovered a device: "
+                "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                ow_global.current_rom.bytewise[0],
+                ow_global.current_rom.bytewise[1],
+                ow_global.current_rom.bytewise[2],
+                ow_global.current_rom.bytewise[3],
+                ow_global.current_rom.bytewise[4],
+                ow_global.current_rom.bytewise[5],
+                ow_global.current_rom.bytewise[6],
+                ow_global.current_rom.bytewise[7]);
+#endif
+        ret = snprintf_P(output, len,
+                PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                ow_global.current_rom.bytewise[0],
+                ow_global.current_rom.bytewise[1],
+                ow_global.current_rom.bytewise[2],
+                ow_global.current_rom.bytewise[3],
+                ow_global.current_rom.bytewise[4],
+                ow_global.current_rom.bytewise[5],
+                ow_global.current_rom.bytewise[6],
+                ow_global.current_rom.bytewise[7]);
+
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("generated %d bytes\n", ret);
+#endif
+
+        /* set return value that the parser has to be called again */
+        if (ret > 0)
+            ret = -ret - 10;
+
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("returning %d\n", ret);
+#endif
+        return ret;
+
+    } else if (ret == 0) {
+        ow_global.lock = 0;
+        return 0;
+    }
+} /* }}} */
 #endif
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
