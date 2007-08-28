@@ -67,11 +67,14 @@ static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
 #endif
 #ifdef ONEWIRE_SUPPORT
 static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
+static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len);
+static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len);
 #endif
 
 /* low level */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
 static int8_t parse_mac(char *cmd, uint8_t *ptr);
+static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
 
 /* struct for storing commands */
 struct ecmd_command_t {
@@ -109,6 +112,8 @@ const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
 #endif
 #ifdef ONEWIRE_SUPPORT
 const char PROGMEM ecmd_onewire_list[] = "1w list";
+const char PROGMEM ecmd_onewire_get[] = "1w get";
+const char PROGMEM ecmd_onewire_convert[] = "1w convert";
 #endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
@@ -139,6 +144,8 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #endif
 #ifdef ONEWIRE_SUPPORT
     { ecmd_onewire_list, parse_onewire_list },
+    { ecmd_onewire_get, parse_onewire_get },
+    { ecmd_onewire_convert, parse_onewire_convert },
 #endif
     { NULL, NULL },
 };
@@ -504,6 +511,126 @@ static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)
         ow_global.lock = 0;
         return 0;
     }
+
+    return -1;
+} /* }}} */
+
+static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    cmd++;
+    debug_printf("called onewire_list with: \"%s\"\n", cmd);
+
+    struct ow_rom_code_t rom;
+
+    ret = parse_ow_rom(cmd, (void *)&rom);
+
+    /* check for parse error */
+    if (ret < 0)
+        return -1;
+
+    if (ow_temp_sensor(&rom)) {
+        debug_printf("reading temperature\n");
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        struct ow_temp_scratchpad_t sp;
+        ret = ow_temp_read_scratchpad(&rom, &sp);
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret != 1) {
+            debug_printf("scratchpad read failed: %d\n", ret);
+            return -2;
+        }
+
+        debug_printf("successfully read scratchpad\n");
+
+        uint16_t temp = ow_temp_normalize(&rom, &sp);
+
+        debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
+
+        ret = snprintf_P(output, len,
+                PSTR("temperature: %d.%d\n"),
+                HI8(temp), LO8(temp) > 0 ? 5 : 0);
+    } else if (ow_eeprom(&rom)) {
+        debug_printf("reading mac\n");
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        uint8_t mac[6];
+        ret = ow_eeprom_read(&rom, mac);
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret != 0) {
+            debug_printf("mac read failed: %d\n", ret);
+            return -2;
+        }
+
+        debug_printf("successfully read mac\n");
+
+        debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+        ret = snprintf_P(output, len,
+                PSTR("mac: %02x:%02x:%02x:%02x:%02x:%02x"),
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    } else {
+        debug_printf("unknown sensor type\n");
+        ret = snprintf_P(output, len, PSTR("unknown sensor type"));
+    }
+
+    return ret;
+} /* }}} */
+
+static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    if (strlen(cmd) > 0)
+        cmd++;
+
+    debug_printf("called onewire_list with: \"%s\"\n", cmd);
+
+    struct ow_rom_code_t rom, *romptr;
+
+    ret = parse_ow_rom(cmd, (void *)&rom);
+
+    /* check for romcode */
+    if (ret < 0)
+        romptr = NULL;
+    else
+        romptr = &rom;
+
+    debug_printf("converting temperature...\n");
+
+    /* disable interrupts */
+    uint8_t sreg = SREG;
+    cli();
+
+    ret = ow_temp_start_convert_wait(romptr);
+
+    SREG = sreg;
+
+    if (ret == 1)
+        /* done */
+        return 0;
+    else if (ret == -1)
+        /* no device attached */
+        return -2;
+    else
+        /* wrong rom family code */
+        return -1;
+
 } /* }}} */
 #endif
 
@@ -755,4 +882,34 @@ int8_t parse_mac(char *cmd, uint8_t *ptr)
 
     free(mac);
     return ret;
+} /* }}} */
+
+/* parse an onewire rom address at cmd, write result to ptr */
+int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_OW_ROM
+    debug_printf("called parse_ow_rom with string '%s'\n", cmd);
+#endif
+
+    /* check if enough bytes have been given */
+    if (strlen(cmd) < 16) {
+#ifdef DEBUG_ECMD_OW_ROM
+        debug_printf("incomplete command\n");
+#endif
+        return -1;
+    }
+
+    char b[3];
+
+    for (uint8_t i = 0; i < 8; i++) {
+        memcpy(b, cmd, 2);
+        cmd += 2;
+        b[2] = '\0';
+        uint16_t val;
+        int16_t ret = sscanf_P(b, PSTR("%x"), &val);
+        *ptr++ = LO8(val);
+    }
+
+    return 1;
 } /* }}} */

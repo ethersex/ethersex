@@ -326,6 +326,14 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
  *
  */
 
+/* check if a node is an eeprom
+ *
+ * return values:
+ *  0: other node
+ *  1: eeprom
+ */
+int8_t ow_eeprom(struct ow_rom_code_t *rom);
+
 /* read 6 bit (48 byte) of eeprom memory
  *
  * return values:

@@ -482,6 +482,17 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
  *
  */
 
+int8_t ow_eeprom(struct ow_rom_code_t *rom)
+/* {{{ */ {
+
+    /* check for known family code */
+    if (rom->family == OW_FAMILY_DS2502E48)
+        return 1;
+
+    return 0;
+
+} /* }}} */
+
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 /* {{{ */ {
 
