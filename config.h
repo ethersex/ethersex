@@ -308,4 +308,10 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
+/* rc5 support */
+#define RC5_SUPPORT
+#define RC5_SEND_PINNUM PD4
+#define RC5_SEND_PORT PORTD
+#define RC5_SEND_DDR DDRD
+
 #endif /* _CONFIG_H */

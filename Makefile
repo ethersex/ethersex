@@ -6,7 +6,7 @@ export PWD
 # include avr-generic makefile configuration
 include $(PWD)/avr.mk
 
-SRC = $(shell echo *.c ecmd/*.c net/*.c fs20/*.c lcd/*.c onewire/*.c)
+SRC = $(shell echo *.c ecmd/*.c net/*.c fs20/*.c lcd/*.c onewire/*.c rc5/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/psock.c
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 #CFLAGS += -Werror
@@ -50,6 +50,7 @@ install-eeprom: program-serial-eeprom-$(TARGET)
 
 clean: clean-$(TARGET) uip/clean net/clean
 clean: bootloader/clean fs20/clean lcd/clean onewire/clean
+clean: rc5/clean
 
 clean-$(TARGET):
 	rm -f $(TARGET) $(TARGET).map

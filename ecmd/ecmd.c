@@ -35,6 +35,7 @@
 #include "../portio.h"
 #include "../lcd/hd44780.h"
 #include "../onewire/onewire.h"
+#include "../rc5/rc5.h"
 #include "ecmd.h"
 
 
@@ -70,6 +71,10 @@ static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
 static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len);
 static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len);
 #endif
+#ifdef RC5_SUPPORT
+static int16_t parse_ir_send(char *cmd, char *output, uint16_t len);
+#endif
+
 
 /* low level */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
@@ -115,6 +120,9 @@ const char PROGMEM ecmd_onewire_list[] = "1w list";
 const char PROGMEM ecmd_onewire_get[] = "1w get";
 const char PROGMEM ecmd_onewire_convert[] = "1w convert";
 #endif
+#ifdef RC5_SUPPORT
+const char PROGMEM ecmd_ir_send[] = "ir send";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
@@ -146,6 +154,9 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_onewire_list, parse_onewire_list },
     { ecmd_onewire_get, parse_onewire_get },
     { ecmd_onewire_convert, parse_onewire_convert },
+#endif
+#ifdef RC5_SUPPORT
+    { ecmd_ir_send, parse_ir_send },
 #endif
     { NULL, NULL },
 };
@@ -375,7 +386,7 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
     uint8_t outlen = 0;
 
 #ifdef DEBUG_ECMD_FS20
-    debug_printf("%u positions in queue\n", fs20_global.len);
+    debug_printf("%u positions in queue\n", fs20_global.fs20.len);
 #endif
 
     while (l < fs20_global.fs20.len &&
@@ -630,6 +641,27 @@ static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len)
     else
         /* wrong rom family code */
         return -1;
+
+} /* }}} */
+#endif
+
+#ifdef RC5_SUPPORT
+static int16_t parse_ir_send(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    uint16_t addr, command;
+
+    ret = sscanf_P(cmd, PSTR("%d %d"), &addr, &command);
+
+    debug_printf("sending ir: device %d, command %d\n", addr, command);
+
+    /* check if two values have been given */
+    if (ret != 2)
+        return -1;
+
+    rc5_send(LO8(addr), LO8(command));
+    return 0;
 
 } /* }}} */
 #endif
