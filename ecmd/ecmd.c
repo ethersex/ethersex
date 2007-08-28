@@ -41,6 +41,7 @@
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len);
@@ -78,6 +79,7 @@ struct ecmd_command_t {
  * space */
 const char PROGMEM ecmd_showmac_text[] = "show mac";
 const char PROGMEM ecmd_showip_text[] = "show ip";
+const char PROGMEM ecmd_showversion_text[] = "show version";
 const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_reset_text[] = "reset";
@@ -105,6 +107,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
     { ecmd_showmac_text, parse_cmd_show_mac },
     { ecmd_showip_text, parse_cmd_show_ip },
+    { ecmd_showversion_text, parse_cmd_show_version },
     { ecmd_mac_text, parse_cmd_mac },
     { ecmd_reset_text, parse_cmd_reset },
     { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
@@ -232,6 +235,12 @@ int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
             ips[8], ips[9], ips[10], ips[11]);
 
     return output_len;
+} /* }}} */
+
+int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    return snprintf_P(output, len,
+            PSTR("version %s"), VERSION_STRING);
 } /* }}} */
 
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
