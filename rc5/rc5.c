@@ -83,6 +83,7 @@ void rc5_send_one(void)
     RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
     _delay_loop_2(RC5_PULSE);
     RC5_SEND_PORT |= _BV(RC5_SEND_PINNUM);
+    _delay_loop_2(RC5_PULSE);
 }
 
 void rc5_send_zero(void)
@@ -90,4 +91,5 @@ void rc5_send_zero(void)
     RC5_SEND_PORT |= _BV(RC5_SEND_PINNUM);
     _delay_loop_2(RC5_PULSE);
     RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
+    _delay_loop_2(RC5_PULSE);
 }
