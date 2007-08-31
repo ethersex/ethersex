@@ -39,6 +39,7 @@
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "onewire/onewire.h"
+#include "rc5/rc5.h"
 
 #include "net/handler.h"
 
@@ -114,6 +115,10 @@ int main(void)
     onewire_init();
 #endif
 
+#ifdef RC5_SUPPORT
+    rc5_init();
+#endif
+
     /* must be called AFTER all other initialization */
     portio_init();
 
@@ -163,10 +168,12 @@ int main(void)
 
         /* check if debug input has arrived */
         debug_process();
+        wdt_kick();
 
         /* check if fs20 data has arrived */
 #ifdef FS20_SUPPORT_RECEIVE
         fs20_process();
+        wdt_kick();
 #endif
     }
 
