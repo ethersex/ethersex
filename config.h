@@ -313,5 +313,6 @@
 #define RC5_SEND_PINNUM PD4
 #define RC5_SEND_PORT PORTD
 #define RC5_SEND_DDR DDRD
+#define RC5_QUEUE_LENGTH 10
 
 #endif /* _CONFIG_H */

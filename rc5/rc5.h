@@ -37,6 +37,10 @@
  * #define RC5_SEND_PORT PORTD
  * #define RC5_SEND_DDR DDRD
  *
+ * for receive:
+ *
+ * #define RC5_QUEUE_LENGTH 10
+ *
  */
 
 #include <stdint.h>
@@ -63,6 +67,8 @@ struct rc5_global_t {
     uint8_t halfbitcount;
     uint8_t interrupts;
     uint8_t temp_disable;           /* disable decoder, used internally! */
+    struct rc5_t queue[RC5_QUEUE_LENGTH];
+    uint8_t len;
 };
 
 extern volatile struct rc5_global_t rc5_global;

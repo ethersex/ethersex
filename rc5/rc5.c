@@ -27,6 +27,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <string.h>
 
 #include "../config.h"
 #include "../debug.h"
@@ -222,16 +223,12 @@ void rc5_init(void)
     EIFR = _BV(INTF0);
     EIMSK |= _BV(INT0);
 
+    /* reset everything to zero */
+    memset((void *)&rc5_global, 0, sizeof(rc5_global));
+
     /* enable rc5 receive, init variables */
     rc5_global.enabled = 1;
-    rc5_global.new_data = 0;
-    rc5_global.interrupts = 0;
-    rc5_global.halfbitcount = 0;
-    rc5_global.temp_disable = 0;
-    rc5_global.received_command.raw = 0;
-
 }
-
 
 void rc5_send(uint8_t addr, uint8_t cmd)
 {
@@ -283,6 +280,8 @@ void rc5_send_zero(void)
 
 void rc5_process(void)
 {
+    static uint8_t toggle = 2;
+
     if (rc5_global.new_data) {
 #ifdef DEBUG_RC5
         debug_printf("received new rc5 data: addr: %d, cmd %d, toggle %d\n",
@@ -290,6 +289,31 @@ void rc5_process(void)
                 rc5_global.received_command.code,
                 rc5_global.received_command.toggle_bit);
 #endif
+        if (toggle != rc5_global.received_command.toggle_bit) {
+
+#ifdef DEBUG_RC5
+            debug_printf("new keypress, queue len is %d:\n", rc5_global.len);
+            for (uint8_t i = 0; i < rc5_global.len; i++)
+                debug_printf("  addr %d, cmd %d, toggle bit %d\n",
+                        rc5_global.queue[i].address,
+                        rc5_global.queue[i].code,
+                        rc5_global.queue[i].toggle_bit);
+
+#endif
+
+            /* shift queue backwards */
+            memmove(&rc5_global.queue[1],
+                    &rc5_global.queue[0],
+                    (RC5_QUEUE_LENGTH-1) * sizeof(struct rc5_t));
+
+            /* copy datagram to queue and increment length */
+            rc5_global.queue[0].raw = rc5_global.received_command.raw;
+            if (rc5_global.len < RC5_QUEUE_LENGTH)
+                rc5_global.len++;
+
+            toggle = rc5_global.received_command.toggle_bit;
+
+        }
         rc5_global.new_data = 0;
     }
 }
