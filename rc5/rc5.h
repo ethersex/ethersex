@@ -43,6 +43,30 @@
 
 #ifdef RC5_SUPPORT
 
+/* structures */
+struct rc5_t {
+    union {
+        uint16_t raw;
+        struct {
+            uint8_t code:6;             /* first 6 bits: control code */
+            uint8_t address:5;          /* next 5 bits: address */
+            uint8_t toggle_bit:1;       /* next bit is the toggle bit */
+            uint8_t spare:4;            /* spare bits */
+        };
+    };
+};
+
+struct rc5_global_t {
+    struct rc5_t received_command;
+    uint8_t enabled;                /* if one, decoder is active */
+    uint8_t new_data;               /* if one, new data is available */
+    uint8_t halfbitcount;
+    uint8_t interrupts;
+    uint8_t temp_disable;           /* disable decoder, used internally! */
+};
+
+extern volatile struct rc5_global_t rc5_global;
+
 /* timing constants */
 
 /* one pulse half is 889us, for _delay_loop_2 */
@@ -51,6 +75,7 @@
 /* prototypes */
 void rc5_init(void);
 void rc5_send(uint8_t addr, uint8_t cmd);
+void rc5_process(void);
 
 #endif
 #endif

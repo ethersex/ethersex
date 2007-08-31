@@ -175,6 +175,12 @@ int main(void)
         fs20_process();
         wdt_kick();
 #endif
+
+        /* check if rc5 data has arrived */
+#ifdef RC5_SUPPORT
+        rc5_process();
+        wdt_kick();
+#endif
     }
 
 } /* }}} */
