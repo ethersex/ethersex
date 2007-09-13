@@ -260,6 +260,9 @@ void rc5_send(uint8_t addr, uint8_t cmd)
             rc5_send_zero();
     }
 
+    /* turn off sender */
+    RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
+
 }
 
 void rc5_send_one(void)
