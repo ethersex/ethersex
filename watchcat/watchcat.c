@@ -42,7 +42,15 @@
 #define FALLING_EDGE(port, pin) (!(vpin[(port)].state & _BV(pin)) \
                                 && (vpin[(port)].old_state & _BV(pin)))
 
+const char text01[] PROGMEM = "io set port0 0x01 0x01\n";
+
 static struct VirtualPin vpin[IO_PORTS];
+
+static struct EcmdSenderReaction ecmd_react[] PROGMEM = {
+  /* port, pin, rising, host[4], *message */
+  {  0,    1,   0, 192, 168, 100, 2, text01},
+  {255, 255, 255, 255, 255, 255, 255, NULL},
+};
 
 void watchcat_edge(uint8_t pin);
 
@@ -52,6 +60,7 @@ watchcat_init(void)
   // FIXME: HACK
   DDRA = 0x55;
   PORTA = 0xAA;
+
   uint8_t i;
   for(i = 0; i < IO_PORTS; i++) {
     vpin[i].old_state = 0;
@@ -87,12 +96,45 @@ watchcat_periodic(void)
 void 
 watchcat_edge(uint8_t pin) 
 {
-  if ( FALLING_EDGE(pin, 1) ) {
-    uip_ipaddr_t ipaddr;
-    uip_ipaddr(&ipaddr, 192,168,100,2);
-    ecmd_sender_send_command(&ipaddr, PSTR("PORTA CHANGED\n"));
+  uint8_t i = 0;
+  uint8_t tmp;
+  while (1) {
+    tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].port);
+    if (tmp == 255)
+      break;
+    if (tmp != pin)
+      goto ecmd_react_loop_end;
+    
+    tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
+
+
+    if ((pgm_read_byte(&ecmd_react[i].rising) 
+         && RISING_EDGE(pin, tmp))
+        || FALLING_EDGE(pin, tmp)) {
+      uint8_t a1, a2, a3, a4;
+      uip_ipaddr_t ipaddr;
+
+      a1 = pgm_read_byte(&ecmd_react[i].address[0]);
+      a2 = pgm_read_byte(&ecmd_react[i].address[1]);
+      a3 = pgm_read_byte(&ecmd_react[i].address[2]);
+      a4 = pgm_read_byte(&ecmd_react[i].address[3]);
+
+      /* assemble ip address */
+      uip_ipaddr(&ipaddr, a1, a2, a3, a4);
+
+      /* send command */
+      const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
+      ecmd_sender_send_command(&ipaddr, text);
+
+    }
+    vpin[pin].old_state &= ~_BV(tmp);
+    if (vpin[pin].state & _BV(tmp))
+      vpin[pin].old_state |= _BV(tmp);
+    /* only one pin at once */
+    return;
+ecmd_react_loop_end:
+    i++;
   }
-  vpin[pin].old_state = vpin[pin].state;
 }
 
 #endif

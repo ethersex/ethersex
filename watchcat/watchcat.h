@@ -33,6 +33,19 @@ struct VirtualPin {
   void (*func)(uint8_t);
 };
 
+struct EcmdSenderReaction {
+  /* On which port */
+  uint8_t port;
+  /* On wich pin */
+  uint8_t pin;
+  /* on rising edge? */
+  uint8_t rising;
+  /* To which host should we connect? */
+  uint8_t address[4];
+  /* What should we send him? */
+  const char *message;
+};
+
 void watchcat_init();
 
 /* Call this e.g. every 20 ms */
