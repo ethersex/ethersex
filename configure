@@ -39,7 +39,7 @@ my %ethersex_modules = (
                    virtual   => 1,
                  },
   'ecmd_sender'  => {
-                   helptext => "send an ecmd to another host on io changes",
+                   helptext => "send an ecmd to another",
                    requires => ["tcp"],
                    distdflt => 1,
                  },
