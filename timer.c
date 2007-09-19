@@ -31,6 +31,7 @@
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
 #include "fs20/fs20.h"
+#include "watchcat/watchcat.h"
 #include "ipv6.h"
 
 #ifdef BOOTLOADER_SUPPORT
@@ -59,6 +60,10 @@ void timer_process(void)
 #       ifdef DEBUG_TIMER
         debug_printf("timer: counter is %d\n", counter);
 #       endif
+
+#ifdef  WATCHCAT_SUPPORT
+        watchcat_periodic();
+#endif
 
 #       if UIP_CONNS <= 255
         uint8_t i;

@@ -40,6 +40,7 @@
 #include "timer.h"
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
+#include "watchcat/watchcat.h"
 #include "ipv6.h"
 
 #include "net/handler.h"
@@ -75,6 +76,10 @@ int main(void)
 #   ifdef DEBUG
     fprintf_P(lcd, PSTR("booting...\n"));
 #   endif
+#   endif
+
+#   ifdef WATCHCAT_SUPPORT
+    watchcat_init();
 #   endif
 
     /* enable interrupts */

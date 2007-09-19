@@ -43,6 +43,11 @@ my %ethersex_modules = (
                    requires => ["tcp"],
                    distdflt => 1,
                  },
+  'watchcat'  => {
+                   helptext => "watch io changes and react",
+                   requires => ["ecmd_sender", "portio"],
+                   distdflt => 1,
+                 },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
                    distdflt  => 0,
