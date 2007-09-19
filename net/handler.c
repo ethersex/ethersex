@@ -204,6 +204,11 @@ void network_handle_tcp(void)
         tetrirape_net_main();
 #   endif
 
+#   ifdef ECMD_SENDER_SUPPORT
+    if (uip_conn->rport == HTONS(ECMD_NET_PORT))
+        ecmd_sender_net_main();
+#   endif
+
     /* put tcp application calls here, example:
      *
      * if (uip_conn->lport == HTONS(ETHCMD_PORT))

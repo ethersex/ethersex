@@ -31,6 +31,7 @@
 #include "tetrirape_state.h"
 #include "bootp_state.h"
 #include "tftp_state.h"
+#include "ecmd_sender_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -41,6 +42,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef TETRIRAPE_SUPPORT
     struct tetrirape_connection_state_t tetrirape;
+#   endif
+
+#   ifdef ECMD_SENDER_SUPPORT
+    struct ecmd_sender_connection_state_t ecmd_sender;
 #   endif
 
 #   ifdef AUTH_SUPPORT

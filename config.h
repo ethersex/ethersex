@@ -304,6 +304,7 @@
 #endif
 
 #define ECMD_SUPPORT
+// #define ECMD_SENDER_SUPPORT
 #define PORTIO_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT

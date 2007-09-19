@@ -38,6 +38,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    virtual   => 1,
                  },
+  'ecmd_sender'  => {
+                   helptext => "send an ecmd to another host on io changes",
+                   requires => ["tcp"],
+                   distdflt => 1,
+                 },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
                    distdflt  => 0,
