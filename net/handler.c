@@ -31,6 +31,7 @@
 #include "tetrirape_net.h"
 #include "bootp_net.h"
 #include "tftp_net.h"
+#include "ecmd_sender_net.h"
 
 void network_init_apps(void)
 /* {{{ */ {

@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Christian Dietrich <stettberger@dokucode.de>
+ * (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -53,6 +53,7 @@ void ecmd_sender_net_main(void)
     if (strlen_P(state->to_be_sent + state->offset) > sizeof(buffer))
       state->offset += sizeof(buffer);
     else
+      /* buffer transmitted, close connection */
       uip_close();
   }
 
@@ -61,6 +62,7 @@ void ecmd_sender_net_main(void)
      uip_acked() ||
      uip_connected() ||
      uip_poll()) {
+    /* Send one buffer of data */
     strncpy_P(buffer, state->to_be_sent + state->offset, 
               sizeof(buffer));
     if (buffer[sizeof(buffer) - 1] == 0)
