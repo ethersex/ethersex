@@ -1,0 +1,2 @@
+PB2 1 192.168.1.3 io set ddr0 0x00
+PB1 1 dokucode.de io set ddr0 0x00
