@@ -53,21 +53,25 @@ while read line; do
     if [ "x$ipv6" = "x0" ]; then
       continue;
     fi
-    host=`echo $host | sed 's/\./, /g'`
+    host=`echo $host | awk -F . '{print $1 " | (" $2 " << 8) , " $3 " | (" $4 " << 8)" }'`
   elif ipv6 $host; then
-    echo "Ipv6 not supported atm"
-    exit -1
+    # Skip entry if address is obviously an ipv4 address and the rape is
+    # confgiured as ipv4
+    if [ "x$ipv6" = "x1" ]; then
+      continue;
+    fi
+    host=`echo $addr | awk '{print "0x" $5 }' | sed 's/:/, 0x/g'`
   else
     # probably an dns name, let's resolv it
     THOST=`host $host | while read addr; do
       if [ "x$ipv6" = "x0" ]; then
         if echo $addr | grep -q 'IPv6 address'; then
-          echo "Ipv6 not supported atm"
-          exit -1
+          echo $addr | awk '{print "0x" $5 }' | sed 's/:/, 0x/g'
         fi
       else
         if echo $addr | grep -q 'has address'; then
-          echo $addr | awk '{ print $4 }' | sed 's/\./, /g'
+          echo $addr | awk '{print $4}' | awk -F . '{print "(" $1 " << 8) | "\
+                $2 ", (" $3 " << 8) | " $4 }'
           break
         fi
       fi
@@ -83,14 +87,18 @@ while read line; do
     textid=$RANDOM
   done
   echo $textid >> $tmp2
-  echo "const char text$textid[] PROGMEM = \"$commando\"";
+  echo "const char text$textid[] PROGMEM = \"$commando\";";
   echo "    {$port, $pin, $rising, $host, text$textid }, " >> $tmp
 done < config
 
 echo
 cat $tmp
-
-echo   "    {255, 255, 255, 255, 255, 255, 255, NULL}
-};"
+if [ "x$ipv6" = "x1" ]; then
+  #ipv4
+  echo   "    {255, 255, 255, 255, 255, NULL}"
+else
+  echo   "    {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, NULL}"
+fi
+echo "};"
 
 rm -f $tmp $tmp2

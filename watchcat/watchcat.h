@@ -41,7 +41,7 @@ struct EcmdSenderReaction {
   /* on rising edge? */
   uint8_t rising;
   /* To which host should we connect? */
-  uint8_t address[4];
+  uip_ipaddr_t address;
   /* What should we send him? */
   const char *message;
 };

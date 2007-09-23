@@ -46,11 +46,7 @@ const char text01[] PROGMEM = "io set port0 0x01 0x01\n";
 
 static struct VirtualPin vpin[IO_PORTS];
 
-static struct EcmdSenderReaction ecmd_react[] PROGMEM = {
-  /* port, pin, rising, host[4], *message */
-  {  0,    1,   0, 192, 168, 100, 2, text01},
-  {255, 255, 255, 255, 255, 255, 255, NULL},
-};
+#include "user_config.h"
 
 void watchcat_edge(uint8_t pin);
 
@@ -111,16 +107,9 @@ watchcat_edge(uint8_t pin)
     if ((pgm_read_byte(&ecmd_react[i].rising) 
          && RISING_EDGE(pin, tmp))
         || FALLING_EDGE(pin, tmp)) {
-      uint8_t a1, a2, a3, a4;
       uip_ipaddr_t ipaddr;
 
-      a1 = pgm_read_byte(&ecmd_react[i].address[0]);
-      a2 = pgm_read_byte(&ecmd_react[i].address[1]);
-      a3 = pgm_read_byte(&ecmd_react[i].address[2]);
-      a4 = pgm_read_byte(&ecmd_react[i].address[3]);
-
-      /* assemble ip address */
-      uip_ipaddr(&ipaddr, a1, a2, a3, a4);
+      memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
 
       /* send command */
       const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
