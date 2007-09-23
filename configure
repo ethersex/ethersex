@@ -156,7 +156,7 @@ open HANDLE, "< config.h"
 while(<HANDLE>) {
   chop $_;
   if(my ($enabled, $modname) = 
-     m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
+     m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9_]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
 
     unless(defined($ethersex_modules{lc($modname)})) {
       warn "unknown ethersex module '" . lc($modname) . "' listed in config.h";
@@ -393,7 +393,7 @@ sub write_config {
 
     # enable/disable config.h support flag
     if(($enabled, $modname) = $confline =~
-       m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
+       m/^(\/*|\/\/)?\s*#define\s+([A-Z0-9_]+)_SUPPORT\s*(?:\*\/)?\s*$/) {
 
       if(defined($ethersex_modules{lc($modname)})) {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
@@ -413,7 +413,7 @@ sub write_config {
 
     # enable/disable Makefile lines ...
     elsif(($line, $modname) = $confline =~
-       m/^#*\s*([^#]+#\s*([A-Z0-9]+)_SUPPORT)\s*$/) {
+       m/^#*\s*([^#]+#\s*([A-Z0-9_]+)_SUPPORT)\s*$/) {
 
       if(defined($ethersex_modules{lc($modname)})) {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
