@@ -225,8 +225,6 @@ ISR(ANALOG_COMP_vect)
         } else {
             /* else we are synced */
             if (v >= 0) {
-
-                // printf("%u", v);
                 uint8_t byte = fs20_global.ws300.rec / 8;
                 uint8_t bit = fs20_global.ws300.rec % 8;
 
