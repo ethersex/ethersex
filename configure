@@ -21,6 +21,8 @@
 use strict;
 use Term::Prompt;
 
+
+
 my %ethersex_modules = (
   'tetrirape' => {
                    helptext  => "a tetrinet server",
@@ -39,14 +41,14 @@ my %ethersex_modules = (
                    virtual   => 1,
                  },
   'ecmd_sender'  => {
-                   helptext => "send an ecmd to another",
+                   helptext => "send an ecmd to another host",
                    requires => ["tcp"],
-                   distdflt => 1,
+                   distdflt => 0,
                  },
   'watchcat'  => {
                    helptext => "watch io changes and react",
                    requires => ["ecmd_sender", "portio"],
-                   distdflt => 1,
+                   distdflt => 0,
                  },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
@@ -143,9 +145,12 @@ my %ethersex_config = (
                  },
 );
 
+
 my $opt_restore_defaults = 0;
+my $opt_only_modules = 0;
 foreach(@ARGV) {
   if(m/--restore-defaults/) { $opt_restore_defaults = 1; }
+  if(m/--only-modules/) { $opt_only_modules = 1; }
 }
 
 #
@@ -367,12 +372,15 @@ sub tftpomatic_enable_hook {
   ask_anything("tftp_image");
 }
 
+
 #
 # ask user which modules to enable
 #
-print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
-configure_module "bootloader";
-foreach my $module (keys %ethersex_modules) { configure_module($module) }
+if ( $opt_only_modules != 1) {
+  print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
+  configure_module "bootloader";
+  foreach my $module (keys %ethersex_modules) { configure_module($module) }
+}
 
 
 #
@@ -441,9 +449,49 @@ sub write_config {
   rename("$filename.new", "$filename") or die;
 }
 
-foreach(qw/config.h Makefile/) {
-  write_config($_);
+#
+# write the config files
+#
+if ($opt_only_modules != 1) {
+  foreach(qw/config.h Makefile/) {
+    write_config($_);
+  }
 }
+
+sub modules_configuration {
+  my %configure_modules = ();
+
+  foreach my $module (keys %ethersex_modules) {
+    if (stat("$module/configure") and stat("$module/cfgpp")
+        and $ethersex_modules{$module}->{'enabled'}) {
+      $configure_modules{$module} = $ethersex_modules{$module};
+    }
+  }
+  my $choose;
+  do {
+    print "\n== configure ethersex modules ==\n\n";
+    my $x = 1;
+    foreach my $t (keys(%configure_modules)) {
+      print "$x. $t - " . $configure_modules{$t}->{'helptext'} . "\n";
+      $x++;
+    }
+    print "\n0. Exit\n";
+    $choose = prompt('n', 'Please Choose:', '', '0');
+    $x =  $choose;
+    foreach my $t (keys(%configure_modules)) {
+      $x--;
+      if ($x == 0) {
+        system($t . "/configure");
+      }
+    }
+  } while ($choose);
+}
+
+#
+# configure the selected modules
+#
+
+modules_configuration
 
 print "\n\nsuccessfully configured your ethersex.\n";
 print "don't forget to run `make clean all'.\n\n";

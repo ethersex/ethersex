@@ -54,6 +54,10 @@ test_path() {
   fi
 }
 
+if [ -d watchcat ]; then
+  cd watchcat
+fi
+
 # Test for essentiel programs
 test_path fgrep
 
