@@ -407,6 +407,9 @@ sub write_config {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
                     ? "" : "// ") . "#define " . $modname . "_SUPPORT";
       }
+      # commit config for later module configuration
+      $ethersex_modules{lc($modname)}->{'enabled'} =
+        $ethersex_modules{lc($modname)}->{'new_status'};
     }
 
     # enable/disable Makefile SRC variable editing
