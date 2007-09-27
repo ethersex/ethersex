@@ -34,6 +34,7 @@
 #include "../fs20/fs20.h"
 #include "../portio.h"
 #include "../lcd/hd44780.h"
+#include "../named_pin/named_pin.h"
 #include "ecmd.h"
 
 
@@ -50,6 +51,11 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len);
+#ifdef NAMED_PIN_SUPPORT
+static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len);
+#endif
 #ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_SEND
 static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len);
@@ -91,6 +97,11 @@ const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
 const char PROGMEM ecmd_io_set_port[] = "io set port";
 const char PROGMEM ecmd_io_get_port[] = "io get port";
 const char PROGMEM ecmd_io_get_pin[] = "io get pin";
+#ifdef NAMED_PIN_SUPPORT
+const char PROGMEM ecmd_pin_get[] = "pin get";
+const char PROGMEM ecmd_pin_set[] = "pin set";
+const char PROGMEM ecmd_pin_toggle[] = "pin toggle";
+#endif
 #ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_SEND
 const char PROGMEM ecmd_fs20_send_text[] = "fs20 send";
@@ -120,6 +131,11 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_io_set_port, parse_cmd_io_set_port },
     { ecmd_io_get_port, parse_cmd_io_get_port },
     { ecmd_io_get_pin, parse_cmd_io_get_pin },
+#ifdef NAMED_PIN_SUPPORT
+    { ecmd_pin_get, parse_cmd_pin_get },
+    { ecmd_pin_set, parse_cmd_pin_set },
+    { ecmd_pin_toggle, parse_cmd_pin_toggle },
+#endif
 #ifdef FS20_SUPPORT 
 #ifdef FS20_SUPPORT_SEND
     { ecmd_fs20_send_text, parse_cmd_send_fs20 },
@@ -558,6 +574,131 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
         return -1;
 
 } /* }}} */
+
+#ifdef NAMED_PIN_SUPPORT
+static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint16_t port, pin;
+
+  uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), &port, &pin);
+  /* Fallback to named pins */
+  if ( ret != 2 && *cmd) {
+    uint8_t pincfg = named_pin_by_name(cmd + 1);
+    if (pincfg != 255) {
+        port = pgm_read_byte(&portio_pincfg[pincfg].port);
+        pin = pgm_read_byte(&portio_pincfg[pincfg].pin);
+        ret = 2;
+    }
+  }
+  if (ret == 2 && port < IO_PORTS && pin < 8) {
+    uint8_t pincfg = named_pin_by_pin(port, pin);
+    uint8_t active_high = 1;
+    if (pincfg != 255)  
+      active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
+    return snprintf_P(output, len, 
+                      XOR_LOG(((portio_input(port)) & _BV(pin)), !(active_high))
+                      ? PSTR("on") : PSTR("off"));
+  } else
+    return -1;
+}
+/* }}} */
+
+static int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint16_t port, pin, on;
+
+  /* Parse String */
+  uint8_t ret = sscanf_P(cmd, PSTR("%u %u %u"), &port, &pin, &on);
+  /* Fallback to named pins */
+  if ( ret != 3 && *cmd) {
+    char *ptr = strchr(cmd + 1, ' ');
+    if (ptr) {
+      *ptr = 0;
+      uint8_t pincfg = named_pin_by_name(cmd + 1);
+      if (pincfg != 255) {
+        port = pgm_read_byte(&portio_pincfg[pincfg].port);
+        pin = pgm_read_byte(&portio_pincfg[pincfg].pin);
+        if (ptr[1]) {
+          ptr++;
+          if(sscanf_P(ptr, PSTR("%u"), &on) == 1)
+            ret = 3;
+          else {
+            if (strcmp_P(ptr, PSTR("on")) == 0) {
+              on = 1;
+              ret = 3;
+            }
+            else if (strcmp_P(ptr, PSTR("off")) == 0) {
+              on = 0;
+              ret = 3;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (ret == 3 && port < IO_PORTS && pin < 8) {
+    /* Set only if it is output */
+    if (cfg.options.io_ddr[port] & _BV(pin)) {
+      uint8_t pincfg = named_pin_by_pin(port, pin);
+      uint8_t active_high = 1;
+      if (pincfg != 255)  
+        active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
+
+      if (XOR_LOG(on, !active_high)) 
+        cfg.options.io[port] = (cfg.options.io[port] ) | _BV(pin);
+      else
+        cfg.options.io[port] = (cfg.options.io[port] ) & ~_BV(pin);
+
+      return snprintf_P(output, len, on ? PSTR("on") : PSTR("off"));
+    } else 
+      return snprintf_P(output, len, PSTR("error: pin is input"));
+
+  } else
+    return -1;
+}
+/* }}} */
+
+static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint16_t port, pin;
+
+  /* Parse String */
+  uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), &port, &pin);
+  /* Fallback to named pins */
+  if ( ret != 2 && *cmd) {
+    uint8_t pincfg = named_pin_by_name(cmd + 1);
+    if (pincfg != 255) {
+        port = pgm_read_byte(&portio_pincfg[pincfg].port);
+        pin = pgm_read_byte(&portio_pincfg[pincfg].pin);
+        ret = 2;
+    }
+  }
+  if (ret == 2 && port < IO_PORTS && pin < 8) {
+    /* Toggle only if it is output */
+    if (cfg.options.io_ddr[port] & _BV(pin)) {
+      uint8_t on = cfg.options.io[port] & _BV(pin);
+
+      uint8_t pincfg = named_pin_by_pin(port, pin);
+      uint8_t active_high = 1;
+      if (pincfg != 255)  
+        active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
+
+      if (on) 
+        cfg.options.io[port] &= ~_BV(pin);
+      else
+        cfg.options.io[port] |= _BV(pin);
+
+      return snprintf_P(output, len, XOR_LOG(!on, !active_high)
+                        ? PSTR("on") : PSTR("off"));
+    } else 
+      return snprintf_P(output, len, PSTR("error: pin is input"));
+
+  } else
+    return -1;
+}
+/* }}} */
+#endif
 
 #ifdef HD44780_SUPPORT
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len)
