@@ -20,7 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#define PORTIO_CONFIG_PGM
 #include "portio.h"
+#include "named_pin/named_pin.h"
 #include "debug.h"
 
 static const volatile uint8_t *ddrs[] = IO_DDR_ARRAY;
@@ -34,18 +36,18 @@ static const uint8_t masks[] = IO_MASK_ARRAY;
 
 void portio_init(void)
 /* {{{ */ {
-
-    for (uint8_t i = 0; i < IO_PORTS; i++) {
-        cfg.options.io_ddr[i] = ACCESS_IO(ddrs[i]);
-        cfg.options.io[i] = ACCESS_IO(ports[i]);
-    }
-
+  for (uint8_t i = 0; i < IO_PORTS; i++) {
+    cfg.options.io_ddr[i] = ACCESS_IO(ddrs[i]);
+    cfg.options.io[i] = ACCESS_IO(ports[i]);
+  }
+#   ifdef NAMED_PIN_SUPPORT
+    named_pin_init();
+#   endif
 } /* }}} */
 
 /* update port information (PORT and DDR) from global status */
 void portio_update(void)
 /* {{{ */ {
-
     for (uint8_t i = 0; i < IO_PORTS; i++) {
 
 #       ifdef DEBUG_PORTIO

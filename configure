@@ -40,6 +40,10 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    virtual   => 1,
                  },
+  'named_pin'  => {
+                   helptext => "pins with names and logic states",
+                   distdflt => 0,
+                 },
   'ecmd_sender'  => {
                    helptext => "send an ecmd to another host",
                    requires => ["tcp"],
@@ -420,7 +424,7 @@ sub write_config {
 
     # enable/disable Makefile SRC variable editing
     elsif(($modname) = $confline =~
-       m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9]+)\/\*\.c\)\s*$/) {
+       m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9_]+)\/\*\.c\)\s*$/) {
 
       if(defined($ethersex_modules{lc($modname)})) {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 

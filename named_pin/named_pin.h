@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,21 +20,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _BIT_MACROS_H
-#define _BIT_MACROS_H
+#ifndef _NAMED_PIN_H
+#define _NAMED_PIN_H
 
-#include <stdlib.h>
+#include "../config.h"
 
-#define HI8(x)  ((uint8_t)((x) >> 8))
-#define LO8(x)  ((uint8_t)(x))
+struct PinConfiguration {
+  uint8_t port, pin;
+  uint8_t input;
+  uint8_t active_high;
+  const char *name;
+};
 
-#define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
-                | (uint32_t)(((x) & 0x00FF0000) >> 8) \
-                | (uint32_t)(((x) & 0x0000FF00) << 8) \
-                | (uint32_t)(((x) & 0x000000FF) << 24))
 
-#define NTOHL(x) HTONL(x)
+void named_pin_init(void);
+uint8_t named_pin_by_name(const char *name);
+uint8_t named_pin_by_pin(uint8_t port, uint8_t pin);
 
-#define XOR_LOG(a,b) ((1 && (a)) ^ ((b) && 1))
+#ifdef NAMED_PIN_SUPPORT
+#ifndef NAMED_PIN_PGM
+const extern struct PinConfiguration portio_pincfg[];
+#endif
+#endif
 
 #endif

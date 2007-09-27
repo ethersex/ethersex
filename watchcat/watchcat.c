@@ -53,10 +53,6 @@ void watchcat_edge(uint8_t pin);
 void 
 watchcat_init(void)
 {
-  // FIXME: HACK
-  DDRA = 0x55;
-  PORTA = 0xAA;
-
   uint8_t i;
   for(i = 0; i < IO_PORTS; i++) {
     vpin[i].old_state = 0;
