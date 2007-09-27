@@ -42,6 +42,7 @@ my %ethersex_modules = (
                  },
   'named_pin'  => {
                    helptext => "pins with names and logic states",
+                   requires  => [ "portio" ],
                    distdflt => 0,
                  },
   'ecmd_sender'  => {
