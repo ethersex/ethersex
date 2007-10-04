@@ -36,7 +36,7 @@ void newdata(void);
 
 void ecmd_net_init()
 {
-    uip_listen(HTONS(ECMD_NET_PORT));
+    uip_listen(HTONS(ECMD_NET_PORT), ecmd_net_main);
 }
 
 void newdata(void)

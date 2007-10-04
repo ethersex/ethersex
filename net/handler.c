@@ -195,20 +195,8 @@ void network_handle_tcp(void)
     /* 
      * demultiplex packet
      */
-#   ifdef ECMD_SUPPORT
-    if (uip_conn->lport == HTONS(ECMD_NET_PORT))
-        ecmd_net_main();
-#   endif
-
-#   ifdef TETRIRAPE_SUPPORT
-    if (uip_conn->lport == HTONS(TETRIRAPE_PORT))
-        tetrirape_net_main();
-#   endif
-
-#   ifdef ECMD_SENDER_SUPPORT
-    if (uip_conn->rport == HTONS(ECMD_NET_PORT))
-        ecmd_sender_net_main();
-#   endif
+    if (uip_conn->callback != NULL) 
+        uip_conn->callback();
 
     /* put tcp application calls here, example:
      *

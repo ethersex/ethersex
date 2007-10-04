@@ -74,6 +74,29 @@ typedef uip_ip6addr_t uip_ipaddr_t;
 typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 */
 
+/**
+ * Callback when something happens on a connection
+ *
+ * If something, like recieving, polling or something else happens on an
+ * connection this callback can be called 
+ */
+typedef void (*uip_conn_callback_t)(void);
+
+/**
+ * Struct of an tcp listenig port
+ *
+ * port is the port which should be listend 
+ *
+ * callback is an place for an application to store an callback, this callback
+ * ist automatically copied to a new uip_conn
+ */
+struct uip_listen_port {
+  u16_t port;
+  uip_conn_callback_t callback;
+};
+
+
+
 /*---------------------------------------------------------------------------*/
 /* First, the functions that should be called from the
  * system. Initialization, the periodic timer and incoming packets are
@@ -449,12 +472,15 @@ extern u8_t uip_buf[UIP_BUFSIZE+2];
  * order, a conversion using HTONS() or htons() is necessary.
  *
  \code
- uip_listen(HTONS(80));
+ uip_listen(HTONS(80), NULL);
  \endcode
  *
  * \param port A 16-bit port number in network byte order.
+ *
+ * \param callback, which is only saved in the uip_conn struct for later use.
+ *        e.g. can it be called when something happens on an connection
  */
-void uip_listen(u16_t port);
+void uip_listen(u16_t port, uip_conn_callback_t callback);
 
 /**
  * Stop listening to the specified port.
@@ -479,7 +505,7 @@ void uip_unlisten(u16_t port);
  * retransmission timer to 0. This will cause a TCP SYN segment to be
  * sent out the next time this connection is periodically processed,
  * which usually is done within 0.5 seconds after the call to
- * uip_connect().
+ * uip_connect(). 
  *
  * \note This function is avaliable only if support for active open
  * has been configured by defining UIP_ACTIVE_OPEN to 1 in uipopt.h.
@@ -491,18 +517,21 @@ void uip_unlisten(u16_t port);
  uip_ipaddr_t ipaddr;
 
  uip_ipaddr(&ipaddr, 192,168,1,2);
- uip_connect(&ipaddr, HTONS(80));
+ uip_connect(&ipaddr, HTONS(80), NULL);
  \endcode
  *
  * \param ripaddr The IP address of the remote hot.
  *
  * \param port A 16-bit port number in network byte order.
  *
+ * \param callback, which is only saved in the uip_conn struct for later use.
+ *        e.g. can it be called when something happens on an connection
+ *
  * \return A pointer to the uIP connection identifier for the new connection,
  * or NULL if no connection could be allocated.
  *
  */
-struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port);
+struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);
 
 
 
@@ -1147,8 +1176,6 @@ extern u16_t uip_slen;
 #if UIP_URGDATA > 0
 extern u16_t uip_urglen, uip_surglen;
 #endif /* UIP_URGDATA > 0 */
-
-
 /**
  * Representation of a uIP TCP connection.
  *
@@ -1188,6 +1215,9 @@ struct uip_conn {
   /** The application state. */
   uip_tcp_appstate_t appstate;
 
+  /** Callback when data arrives for this connection */
+  uip_conn_callback_t callback;
+
 #ifdef RC4_SUPPORT
   /** The RC4 stream cipher state */
   rc4_state_t rc4_inbound, rc4_outbound;
@@ -1202,7 +1232,6 @@ struct uip_conn {
   unsigned auth_okay :1;
 #endif
 };
-
 
 /**
  * Pointer to the current TCP connection.
