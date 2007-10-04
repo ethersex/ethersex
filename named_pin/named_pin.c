@@ -32,22 +32,11 @@
 #include "../bit-macros.h"
 #include "../uip/uip.h"
 #include "../portio.h"
+
 #include "named_pin.h"
+#include "user_config.h"
 
 #ifdef NAMED_PIN_SUPPORT
-
-#define NAMED_PIN_PGM
-const char tester123[] PROGMEM = "led1";
-const char tester122[] PROGMEM = "taster";
-const char tester121[] PROGMEM = "led2";
-
-const struct PinConfiguration portio_pincfg[] PROGMEM = {
-  /* Port  Pin  Input Active_High  name */
-  {   0,    1,   1,     0,         tester122},
-  {   0,    0,   0,     1,         tester123},
-  {   0,    2,   0,     0,         tester121},
-  { 255,  255, 255,   255,         NULL}
-};
 
 void
 named_pin_init(void)
