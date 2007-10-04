@@ -78,9 +78,15 @@ void newdata(void)
         else
             state->inbuf[ECMD_INPUTBUF_LENGTH-1] = '\0';
 
+        /* kill \r */
+        int l;
+        for (l = 0; l < ECMD_INPUTBUF_LENGTH; l++)
+          if (state->inbuf[l] == '\r')
+            state->inbuf[l] = '\0';
+
         /* parse command and write output to state->outbuf, reserving at least
          * one byte for the terminating \n */
-        int l = ecmd_parse_command(state->inbuf,
+        l = ecmd_parse_command(state->inbuf,
                                     state->outbuf,
                                     ECMD_OUTPUTBUF_LENGTH-1);
 
