@@ -85,7 +85,7 @@ void network_init(void)
             checksum, cfg_base->crc);
 
         /* load default settings and save to buffer */
-        memcpy_P(uip_ethaddr.addr, PSTR("\xAC\xDE\x48\xFD\x0F\xD0"), 6);
+        memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
 #       if !UIP_CONF_IPV6

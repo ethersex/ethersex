@@ -308,10 +308,10 @@
 // #define WATCHCAT_SUPPORT
 #define PORTIO_SUPPORT
 // #define TETRIRAPE_SUPPORT
-#define BOOTP_SUPPORT
+// #define BOOTP_SUPPORT
 // #define BOOTLOADER_SUPPORT
-// #define IPV6_SUPPORT
-#define BROADCAST_SUPPORT
+#define IPV6_SUPPORT
+// #define BROADCAST_SUPPORT
 #define TCP_SUPPORT
 #define UDP_SUPPORT
 
@@ -330,5 +330,6 @@
 // #define TFTPOMATIC_SUPPORT
 #define CONF_TFTP_IP uip_ip6addr(ip,0x2001,0x4b88,0x10e4,0x0,0x21a,0x92ff,0xfe32,0x53e3)
 #define CONF_TFTP_IMAGE "testsex.bin"
+#define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
 
 #endif /* _CONFIG_H */

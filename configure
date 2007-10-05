@@ -142,6 +142,9 @@ my %ethersex_modules = (
                  },
 );
 my %ethersex_config = (
+  'etherrape_mac'   => {
+                   helptext  => "mac address of the etherrape",
+                 },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
                  },
@@ -363,6 +366,28 @@ sub ask_ip {
     . join(",", @parts) . ")"; 
 }
 
+sub check_mac {
+  my $checkval = shift;
+  if ($checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){5}$/i) { return 1;}
+  return 0;
+}
+
+sub ask_mac {
+  my $confopt = shift;
+ 
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+
+  for($default) { s/"//g; s/\\x/:/g; s/^:// };
+  my $new_value =
+    prompt('s', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
+           $default, \&check_mac);
+  for($new_value) {s/:/\\x/g }
+  
+  $ethersex_config{$confopt}->{'value'} = '"\\x' . $new_value . '"';
+  
+}
+
 sub ask_anything {
   my $confopt = shift;
  
@@ -389,6 +414,7 @@ sub tftpomatic_enable_hook {
 #
 if ( $opt_only_modules != 1) {
   print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
+  ask_mac "etherrape_mac";
   configure_module "bootloader";
   foreach my $module (keys %ethersex_modules) { configure_module($module) }
 }
