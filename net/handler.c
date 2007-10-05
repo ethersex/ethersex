@@ -254,17 +254,8 @@ void network_handle_tcp(void)
 #ifdef UDP_SUPPORT
 void network_handle_udp(void)
 /* {{{ */ {
-
-#   ifdef BOOTP_SUPPORT
-    if (uip_udp_conn->lport == HTONS(BOOTPC_PORT))
-	    bootp_net_main();
-#   endif
-
-#   ifdef TFTP_SUPPORT
-    if (uip_udp_conn->lport == HTONS(TFTP_PORT)
-        || uip_udp_conn->lport == HTONS(TFTP_ALT_PORT))
-        tftp_net_main();
-#   endif
+    if (uip_udp_conn->callback)
+        uip_udp_conn->callback();
 
     /* put udp application calls here, example:
      *
