@@ -241,12 +241,17 @@
 #define UIP_UDP_APPCALL network_handle_udp
 
 /* onewire support */
-#define ONEWIRE_SUPPORT
 #define ONEWIRE_PINNUM PD6
 #define ONEWIRE_PIN PIND
 #define ONEWIRE_DDR DDRD
 #define ONEWIRE_PORT PORTD
 #define ONEWIRE_PARASITE
+
+/* rc5 support */
+#define RC5_SEND_PINNUM PD4
+#define RC5_SEND_PORT PORTD
+#define RC5_SEND_DDR DDRD
+#define RC5_QUEUE_LENGTH 10
 
 /* fs20 support */
 // #define FS20_SUPPORT
@@ -312,8 +317,10 @@
 // #define BOOTLOADER_SUPPORT
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
+#define ONEWIRE_SUPPORT
 #define TCP_SUPPORT
 #define UDP_SUPPORT
+#define RC5_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT

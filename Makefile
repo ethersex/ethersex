@@ -15,6 +15,8 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo named_pin/*.c)
 #SRC += $(shell echo tftp/*.c)
 #SRC += $(shell echo crypto/*.c)
+SRC += $(shell echo onewire/*.c)
+SRC += $(shell echo rc5/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c
 
 # preprocessed config files
@@ -71,7 +73,9 @@ install-eeprom: program-serial-eeprom-$(TARGET)
 
 .PHONY: clean clean-$(TARGET) distclean
 
-clean: clean-$(TARGET) uip/clean net/clean bootloader/clean fs20/clean
+clean: clean-$(TARGET) uip/clean net/clean
+clean: bootloader/clean fs20/clean lcd/clean onewire/clean
+clean: rc5/clean
 
 clean-$(TARGET):
 	rm -f $(TARGET) $(TARGET).map

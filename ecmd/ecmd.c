@@ -25,6 +25,7 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
+#include <avr/interrupt.h>
 
 #include "../config.h"
 #include "../debug.h"
@@ -36,6 +37,8 @@
 #include "../portio.h"
 #include "../lcd/hd44780.h"
 #include "../named_pin/named_pin.h"
+#include "../onewire/onewire.h"
+#include "../rc5/rc5.h"
 #include "ecmd.h"
 
 
@@ -44,6 +47,7 @@
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
@@ -73,10 +77,21 @@ static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
 #endif
+#ifdef ONEWIRE_SUPPORT
+static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
+static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len);
+static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len);
+#endif
+#ifdef RC5_SUPPORT
+static int16_t parse_ir_send(char *cmd, char *output, uint16_t len);
+static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len);
+#endif
+
 
 /* low level */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
 static int8_t parse_mac(char *cmd, uint8_t *ptr);
+static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
 
 /* struct for storing commands */
 struct ecmd_command_t {
@@ -89,6 +104,7 @@ struct ecmd_command_t {
  * space */
 const char PROGMEM ecmd_showmac_text[] = "show mac";
 const char PROGMEM ecmd_showip_text[] = "show ip";
+const char PROGMEM ecmd_showversion_text[] = "show version";
 const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_bootloader_text[] = "bootloader";
@@ -119,11 +135,21 @@ const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
 const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
 #endif
+#ifdef ONEWIRE_SUPPORT
+const char PROGMEM ecmd_onewire_list[] = "1w list";
+const char PROGMEM ecmd_onewire_get[] = "1w get";
+const char PROGMEM ecmd_onewire_convert[] = "1w convert";
+#endif
+#ifdef RC5_SUPPORT
+const char PROGMEM ecmd_ir_send[] = "ir send";
+const char PROGMEM ecmd_ir_receive[] = "ir receive";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
     { ecmd_showmac_text, parse_cmd_show_mac },
     { ecmd_showip_text, parse_cmd_show_ip },
+    { ecmd_showversion_text, parse_cmd_show_version },
     { ecmd_mac_text, parse_cmd_mac },
     { ecmd_bootloader_text, parse_cmd_bootloader }, 
     { ecmd_reset_text, parse_cmd_reset },
@@ -152,6 +178,15 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_lcd_clear_text, parse_lcd_clear },
     { ecmd_lcd_write_text, parse_lcd_write },
     { ecmd_lcd_goto_text, parse_lcd_goto },
+#endif
+#ifdef ONEWIRE_SUPPORT
+    { ecmd_onewire_list, parse_onewire_list },
+    { ecmd_onewire_get, parse_onewire_get },
+    { ecmd_onewire_convert, parse_onewire_convert },
+#endif
+#ifdef RC5_SUPPORT
+    { ecmd_ir_send, parse_ir_send },
+    { ecmd_ir_receive, parse_ir_receive },
 #endif
     { NULL, NULL },
 };
@@ -272,6 +307,12 @@ int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 #endif /* ! UIP_CONF_IPV6 */
 } /* }}} */
 
+int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    return snprintf_P(output, len,
+            PSTR("version %s"), VERSION_STRING);
+} /* }}} */
+
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 #if UIP_CONF_IPV6
@@ -389,7 +430,7 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
     uint8_t outlen = 0;
 
 #ifdef DEBUG_ECMD_FS20
-    debug_printf("%u positions in queue\n", fs20_global.len);
+    debug_printf("%u positions in queue\n", fs20_global.fs20.len);
 #endif
 
     while (l < fs20_global.fs20.len &&
@@ -443,6 +484,268 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 #endif
 #endif
 #endif /* FS20_SUPPORT */
+
+#ifdef ONEWIRE_SUPPORT
+static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    if (ow_global.lock == 0) {
+        ow_global.lock = 1;
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("called onewire list for the first time\n");
+#endif
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        ret = ow_search_rom_first();
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret <= 0) {
+#ifdef DEBUG_ECMD_OW_LIST
+            debug_printf("no devices on the bus\n");
+#endif
+            return 0;
+        }
+    } else {
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("called onewire list again\n");
+#endif
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        ret = ow_search_rom_next();
+
+        SREG = sreg;
+    }
+
+    if (ret == 1) {
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("discovered a device: "
+                "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                ow_global.current_rom.bytewise[0],
+                ow_global.current_rom.bytewise[1],
+                ow_global.current_rom.bytewise[2],
+                ow_global.current_rom.bytewise[3],
+                ow_global.current_rom.bytewise[4],
+                ow_global.current_rom.bytewise[5],
+                ow_global.current_rom.bytewise[6],
+                ow_global.current_rom.bytewise[7]);
+#endif
+        ret = snprintf_P(output, len,
+                PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                ow_global.current_rom.bytewise[0],
+                ow_global.current_rom.bytewise[1],
+                ow_global.current_rom.bytewise[2],
+                ow_global.current_rom.bytewise[3],
+                ow_global.current_rom.bytewise[4],
+                ow_global.current_rom.bytewise[5],
+                ow_global.current_rom.bytewise[6],
+                ow_global.current_rom.bytewise[7]);
+
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("generated %d bytes\n", ret);
+#endif
+
+        /* set return value that the parser has to be called again */
+        if (ret > 0)
+            ret = -ret - 10;
+
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("returning %d\n", ret);
+#endif
+        return ret;
+
+    } else if (ret == 0) {
+        ow_global.lock = 0;
+        return 0;
+    }
+
+    return -1;
+} /* }}} */
+
+static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    cmd++;
+    debug_printf("called onewire_list with: \"%s\"\n", cmd);
+
+    struct ow_rom_code_t rom;
+
+    ret = parse_ow_rom(cmd, (void *)&rom);
+
+    /* check for parse error */
+    if (ret < 0)
+        return -1;
+
+    if (ow_temp_sensor(&rom)) {
+        debug_printf("reading temperature\n");
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        struct ow_temp_scratchpad_t sp;
+        ret = ow_temp_read_scratchpad(&rom, &sp);
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret != 1) {
+            debug_printf("scratchpad read failed: %d\n", ret);
+            return -2;
+        }
+
+        debug_printf("successfully read scratchpad\n");
+
+        uint16_t temp = ow_temp_normalize(&rom, &sp);
+
+        debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
+
+        ret = snprintf_P(output, len,
+                PSTR("temperature: %d.%d\n"),
+                HI8(temp), LO8(temp) > 0 ? 5 : 0);
+    } else if (ow_eeprom(&rom)) {
+        debug_printf("reading mac\n");
+
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
+
+        uint8_t mac[6];
+        ret = ow_eeprom_read(&rom, mac);
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret != 0) {
+            debug_printf("mac read failed: %d\n", ret);
+            return -2;
+        }
+
+        debug_printf("successfully read mac\n");
+
+        debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+        ret = snprintf_P(output, len,
+                PSTR("mac: %02x:%02x:%02x:%02x:%02x:%02x"),
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    } else {
+        debug_printf("unknown sensor type\n");
+        ret = snprintf_P(output, len, PSTR("unknown sensor type"));
+    }
+
+    return ret;
+} /* }}} */
+
+static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    if (strlen(cmd) > 0)
+        cmd++;
+
+    debug_printf("called onewire_list with: \"%s\"\n", cmd);
+
+    struct ow_rom_code_t rom, *romptr;
+
+    ret = parse_ow_rom(cmd, (void *)&rom);
+
+    /* check for romcode */
+    if (ret < 0)
+        romptr = NULL;
+    else
+        romptr = &rom;
+
+    debug_printf("converting temperature...\n");
+
+    /* disable interrupts */
+    uint8_t sreg = SREG;
+    cli();
+
+    ret = ow_temp_start_convert_wait(romptr);
+
+    SREG = sreg;
+
+    if (ret == 1)
+        /* done */
+        return 0;
+    else if (ret == -1)
+        /* no device attached */
+        return -2;
+    else
+        /* wrong rom family code */
+        return -1;
+
+} /* }}} */
+#endif
+
+#ifdef RC5_SUPPORT
+static int16_t parse_ir_send(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    int16_t ret;
+
+    uint16_t addr, command;
+
+    ret = sscanf_P(cmd, PSTR("%d %d"), &addr, &command);
+
+    debug_printf("sending ir: device %d, command %d\n", addr, command);
+
+    /* check if two values have been given */
+    if (ret != 2)
+        return -1;
+
+    rc5_send(LO8(addr), LO8(command));
+    return 0;
+
+} /* }}} */
+
+static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    char *s = output;
+    uint8_t l = 0;
+    uint8_t outlen = 0;
+
+#ifdef DEBUG_ECMD_RC5
+    debug_printf("%u positions in queue\n", rc5_global.len);
+#endif
+
+    while (l < rc5_global.len && (uint8_t)(outlen+5) < len) {
+#ifdef DEBUG_ECMD_RC5
+        debug_printf("generating for pos %u: %02u/%02u", l,
+                rc5_global.queue[l].address,
+                rc5_global.queue[l].code);
+#endif
+
+        sprintf_P(s, PSTR("%02u%02u\n"),
+                rc5_global.queue[l].address,
+                rc5_global.queue[l].code);
+
+        s += 5;
+        outlen += 5;
+        l++;
+
+#ifdef DEBUG_ECMD_RC5
+        *s = '\0';
+        debug_printf("output is \"%s\"\n", output);
+#endif
+    }
+
+    /* clear queue */
+    rc5_global.len = 0;
+
+    return outlen;
+} /* }}} */
+#endif
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -704,8 +1007,27 @@ static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
 #ifdef HD44780_SUPPORT
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-    hd44780_clear();
-    return 0;
+    uint16_t line;
+
+    int ret = sscanf_P(cmd,
+            PSTR("%u"),
+            &line);
+
+    if (ret == 1) {
+        if (line > 3)
+            return -1;
+
+        hd44780_goto(LO8(line), 0);
+        for (uint8_t i = 0; i < 20; i++)
+            fputc(' ', lcd);
+        hd44780_goto(LO8(line), 0);
+
+        return 0;
+    } else {
+        hd44780_clear();
+        hd44780_goto(0, 0);
+        return 0;
+    }
 } /* }}} */
 
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len)
@@ -815,4 +1137,34 @@ int8_t parse_mac(char *cmd, uint8_t *ptr)
         ret = -1;
 
     return ret;
+} /* }}} */
+
+/* parse an onewire rom address at cmd, write result to ptr */
+int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_OW_ROM
+    debug_printf("called parse_ow_rom with string '%s'\n", cmd);
+#endif
+
+    /* check if enough bytes have been given */
+    if (strlen(cmd) < 16) {
+#ifdef DEBUG_ECMD_OW_ROM
+        debug_printf("incomplete command\n");
+#endif
+        return -1;
+    }
+
+    char b[3];
+
+    for (uint8_t i = 0; i < 8; i++) {
+        memcpy(b, cmd, 2);
+        cmd += 2;
+        b[2] = '\0';
+        uint16_t val;
+        int16_t ret = sscanf_P(b, PSTR("%x"), &val);
+        *ptr++ = LO8(val);
+    }
+
+    return 1;
 } /* }}} */
