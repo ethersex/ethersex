@@ -140,6 +140,14 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    virtual   => 1,
                  },
+  'onewire'    => {
+                   helptext  => "onewire device support",
+                   distdflt  => 0,
+                 },
+  'rc5'        => {
+                   helptext  => "sending rc5 IR codes",
+                   distdflt  => 0,
+                 },
 );
 my %ethersex_config = (
   'etherrape_mac'   => {

@@ -15,8 +15,8 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo named_pin/*.c)
 #SRC += $(shell echo tftp/*.c)
 #SRC += $(shell echo crypto/*.c)
-SRC += $(shell echo onewire/*.c)
-SRC += $(shell echo rc5/*.c)
+#SRC += $(shell echo onewire/*.c)
+#SRC += $(shell echo rc5/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c
 
 # preprocessed config files

@@ -317,10 +317,10 @@
 // #define BOOTLOADER_SUPPORT
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
-#define ONEWIRE_SUPPORT
+// #define ONEWIRE_SUPPORT
 #define TCP_SUPPORT
 #define UDP_SUPPORT
-#define RC5_SUPPORT
+// #define RC5_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT
