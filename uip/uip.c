@@ -509,7 +509,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 #if UIP_UDP
 #if UIP_ACTIVE_OPEN
 struct uip_udp_conn *
-uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
+uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
   register struct uip_udp_conn *conn;
   
@@ -548,6 +548,8 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
     uip_ipaddr_copy(&conn->ripaddr, ripaddr);
   }
   conn->ttl = UIP_TTL;
+  /* Copy the callback to the connection struct */
+  conn->callback = callback;
   
   return conn;
 }
