@@ -510,14 +510,14 @@ sub modules_configuration {
   my %configure_modules = ();
 
   foreach my $module (keys %ethersex_modules) {
-    if (stat("$module/configure") and stat("$module/cfgpp")
+    if (-e("$module/configure") and -e("$module/cfgpp")
         and $ethersex_modules{$module}->{'enabled'}) {
       $configure_modules{$module} = $ethersex_modules{$module};
     }
   }
   return unless scalar(keys %configure_modules);
 
-  my $choose;
+  my $choice;
   do {
     print "\n== configure ethersex modules ==\n\n";
     my $x = 1;
@@ -526,15 +526,18 @@ sub modules_configuration {
       $x++;
     }
     print "\n0. Exit\n";
-    $choose = prompt('n', 'Please Choose:', '', '0');
-    $x =  $choose;
-    foreach my $t (keys(%configure_modules)) {
-      $x--;
-      if ($x == 0) {
-        system($t . "/configure");
-      }
+
+    $choice = prompt('n', 'Please Choose:', '', '0');
+    if($choice > scalar(keys %configure_modules)) {
+      print "invalid choice, try again.\n\n";
+      next;
     }
-  } while ($choose);
+
+    if($choice) {
+      system((keys(%configure_modules))[$choice - 1] . "/configure");
+    }
+
+  } while ($choice);
 }
 
 #
