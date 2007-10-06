@@ -41,6 +41,8 @@
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
+#include "onewire/onewire.h"
+#include "rc5/rc5.h"
 #include "ipv6.h"
 
 #include "net/handler.h"
@@ -121,6 +123,14 @@ int main(void)
     fs20_init();
 #endif
 
+#ifdef ONEWIRE_SUPPORT
+    onewire_init();
+#endif
+
+#ifdef RC5_SUPPORT
+    rc5_init();
+#endif
+
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
@@ -177,11 +187,19 @@ int main(void)
 
         /* check if debug input has arrived */
         debug_process();
+        wdt_kick();
 
         /* check if fs20 data has arrived */
 #ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_RECEIVE
         fs20_process();
+        wdt_kick();
+#endif
+
+        /* check if rc5 data has arrived */
+#ifdef RC5_SUPPORT
+        rc5_process();
+        wdt_kick();
 #endif
 #endif /* FS20_SUPPORT */
 

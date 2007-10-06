@@ -21,6 +21,8 @@
 use strict;
 use Term::Prompt;
 
+
+
 my %ethersex_modules = (
   'tetrirape' => {
                    helptext  => "a tetrinet server",
@@ -38,15 +40,20 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    virtual   => 1,
                  },
+  'named_pin'  => {
+                   helptext => "pins with names and logic states",
+                   requires  => [ "portio" ],
+                   distdflt => 0,
+                 },
   'ecmd_sender'  => {
-                   helptext => "send an ecmd to another",
+                   helptext => "send an ecmd to another host",
                    requires => ["tcp"],
-                   distdflt => 1,
+                   distdflt => 0,
                  },
   'watchcat'  => {
                    helptext => "watch io changes and react",
                    requires => ["ecmd_sender", "portio"],
-                   distdflt => 1,
+                   distdflt => 0,
                  },
   'fs20'      => { 
                    helptext  => "fs20 rf-control interface",
@@ -133,8 +140,19 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    virtual   => 1,
                  },
+  'onewire'    => {
+                   helptext  => "onewire device support",
+                   distdflt  => 0,
+                 },
+  'rc5'        => {
+                   helptext  => "sending rc5 IR codes",
+                   distdflt  => 0,
+                 },
 );
 my %ethersex_config = (
+  'etherrape_mac'   => {
+                   helptext  => "mac address of the etherrape",
+                 },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
                  },
@@ -143,9 +161,18 @@ my %ethersex_config = (
                  },
 );
 
+
 my $opt_restore_defaults = 0;
+my $opt_only_modules = 0;
 foreach(@ARGV) {
   if(m/--restore-defaults/) { $opt_restore_defaults = 1; }
+  if(m/--only-modules/) { $opt_only_modules = 1; }
+  if(m/--help/ or m/-h/) { 
+    print STDERR "ethersex configuration utility\n";
+    print STDERR "  --restore-defaults  - enable only default modules\n";
+    print STDERR "  --only-modules      - configure only the modules\n";
+    exit 0;
+  }
 }
 
 #
@@ -347,6 +374,28 @@ sub ask_ip {
     . join(",", @parts) . ")"; 
 }
 
+sub check_mac {
+  my $checkval = shift;
+  if ($checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){5}$/i) { return 1;}
+  return 0;
+}
+
+sub ask_mac {
+  my $confopt = shift;
+ 
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+
+  for($default) { s/"//g; s/\\x/:/g; s/^:// };
+  my $new_value =
+    prompt('s', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
+           $default, \&check_mac);
+  for($new_value) {s/:/\\x/g }
+  
+  $ethersex_config{$confopt}->{'value'} = '"\\x' . $new_value . '"';
+  
+}
+
 sub ask_anything {
   my $confopt = shift;
  
@@ -367,12 +416,16 @@ sub tftpomatic_enable_hook {
   ask_anything("tftp_image");
 }
 
+
 #
 # ask user which modules to enable
 #
-print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
-configure_module "bootloader";
-foreach my $module (keys %ethersex_modules) { configure_module($module) }
+if ( $opt_only_modules != 1) {
+  print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
+  ask_mac "etherrape_mac";
+  configure_module "bootloader";
+  foreach my $module (keys %ethersex_modules) { configure_module($module) }
+}
 
 
 #
@@ -399,11 +452,14 @@ sub write_config {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
                     ? "" : "// ") . "#define " . $modname . "_SUPPORT";
       }
+      # commit config for later module configuration
+      $ethersex_modules{lc($modname)}->{'enabled'} =
+        $ethersex_modules{lc($modname)}->{'new_status'};
     }
 
     # enable/disable Makefile SRC variable editing
     elsif(($modname) = $confline =~
-       m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9]+)\/\*\.c\)\s*$/) {
+       m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9_]+)\/\*\.c\)\s*$/) {
 
       if(defined($ethersex_modules{lc($modname)})) {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
@@ -441,9 +497,49 @@ sub write_config {
   rename("$filename.new", "$filename") or die;
 }
 
-foreach(qw/config.h Makefile/) {
-  write_config($_);
+#
+# write the config files
+#
+if ($opt_only_modules != 1) {
+  foreach(qw/config.h Makefile/) {
+    write_config($_);
+  }
 }
+
+sub modules_configuration {
+  my %configure_modules = ();
+
+  foreach my $module (keys %ethersex_modules) {
+    if (stat("$module/configure") and stat("$module/cfgpp")
+        and $ethersex_modules{$module}->{'enabled'}) {
+      $configure_modules{$module} = $ethersex_modules{$module};
+    }
+  }
+  my $choose;
+  do {
+    print "\n== configure ethersex modules ==\n\n";
+    my $x = 1;
+    foreach my $t (keys(%configure_modules)) {
+      print "$x. $t - " . $configure_modules{$t}->{'helptext'} . "\n";
+      $x++;
+    }
+    print "\n0. Exit\n";
+    $choose = prompt('n', 'Please Choose:', '', '0');
+    $x =  $choose;
+    foreach my $t (keys(%configure_modules)) {
+      $x--;
+      if ($x == 0) {
+        system($t . "/configure");
+      }
+    }
+  } while ($choose);
+}
+
+#
+# configure the selected modules
+#
+
+modules_configuration
 
 print "\n\nsuccessfully configured your ethersex.\n";
 print "don't forget to run `make clean all'.\n\n";

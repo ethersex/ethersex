@@ -41,7 +41,7 @@
 void
 tetrirape_net_init(void)
 {
-    uip_listen(HTONS(TETRIRAPE_PORT));
+    uip_listen(HTONS(TETRIRAPE_PORT), tetrirape_net_main);
 }
 
 

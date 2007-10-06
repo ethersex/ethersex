@@ -35,4 +35,6 @@
 
 #define NTOHL(x) HTONL(x)
 
+#define XOR_LOG(a,b) ((1 && (a)) ^ ((b) && 1))
+
 #endif

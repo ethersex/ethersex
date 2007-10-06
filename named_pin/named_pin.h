@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,14 +20,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ECMD_H
-#define _ECMD_H
+#ifndef _NAMED_PIN_H
+#define _NAMED_PIN_H
 
 #include "../config.h"
 
-/* returns >= 0 for output, -1 for parse error,
- * < -10 for "generated output, but needs to be caled again,
- *        output bytes: (-ret-10) */
-int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
+struct PinConfiguration {
+  uint8_t port, pin;
+  uint8_t input;
+  uint8_t active_high;
+  const char *name;
+};
+
+
+void named_pin_init(void);
+uint8_t named_pin_by_name(const char *name);
+uint8_t named_pin_by_pin(uint8_t port, uint8_t pin);
+
+#ifdef NAMED_PIN_SUPPORT
+#ifndef NAMED_PIN_PGM
+const extern struct PinConfiguration portio_pincfg[];
+#endif
+#endif
 
 #endif

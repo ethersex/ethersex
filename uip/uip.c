@@ -22,6 +22,7 @@
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
  * Copyright (c) 2007, Stefan Siegl <stesie@brokenpipe.de>.
+ * Copyright (c) 2007, Christian Dietrich <stettberger@dokucode.de>.
  *
  * All rights reserved.
  *
@@ -180,7 +181,7 @@ struct uip_conn *uip_conn;   /* uip_conn always points to the current
 struct uip_conn uip_conns[UIP_CONNS];
                              /* The uip_conns array holds all TCP
 				connections. */
-u16_t uip_listenports[UIP_LISTENPORTS];
+struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
 #endif /* UIP_TCP */
@@ -408,7 +409,7 @@ uip_init(void)
 {
 #if UIP_TCP
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    uip_listenports[c] = 0;
+    uip_listenports[c].port = 0;
   }
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
@@ -436,7 +437,7 @@ uip_init(void)
 #if UIP_ACTIVE_OPEN
 #ifndef BOOTLOADER_SUPPORT
 struct uip_conn *
-uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
+uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
   register struct uip_conn *conn, *cconn;
   
@@ -495,6 +496,9 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
   conn->lport = htons(lastport);
   conn->rport = rport;
   uip_ipaddr_copy(&conn->ripaddr, ripaddr);
+
+  /* Add callback to connection */
+  conn->callback = callback;
   
   return conn;
 }
@@ -505,7 +509,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
 #if UIP_UDP
 #if UIP_ACTIVE_OPEN
 struct uip_udp_conn *
-uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
+uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
   register struct uip_udp_conn *conn;
   
@@ -544,6 +548,8 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
     uip_ipaddr_copy(&conn->ripaddr, ripaddr);
   }
   conn->ttl = UIP_TTL;
+  /* Copy the callback to the connection struct */
+  conn->callback = callback;
   
   return conn;
 }
@@ -556,8 +562,8 @@ void
 uip_unlisten(u16_t port)
 {
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    if(uip_listenports[c] == port) {
-      uip_listenports[c] = 0;
+    if(uip_listenports[c].port == port) {
+      uip_listenports[c].port = 0;
       return;
     }
   }
@@ -565,11 +571,12 @@ uip_unlisten(u16_t port)
 #endif /* !BOOTLOADER_SUPPORT */
 /*---------------------------------------------------------------------------*/
 void
-uip_listen(u16_t port)
+uip_listen(u16_t port, uip_conn_callback_t callback)
 {
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    if(uip_listenports[c] == 0) {
-      uip_listenports[c] = port;
+    if(uip_listenports[c].port == 0) {
+      uip_listenports[c].port = port;
+      uip_listenports[c].callback = callback;
       return;
     }
   }
@@ -1279,7 +1286,7 @@ uip_process(u8_t flag)
   tmp16 = BUF->destport;
   /* Next, check listening connections. */
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    if(tmp16 == uip_listenports[c])
+    if(tmp16 == uip_listenports[c].port)
       goto found_listen;
   }
   
@@ -1376,6 +1383,12 @@ uip_process(u8_t flag)
     goto drop;
   }
   uip_conn = uip_connr;
+
+  /* Set callback to the given value in uip_listenports */
+  for(c = 0; c < UIP_LISTENPORTS; ++c) {
+    if(tmp16 == uip_listenports[c].port)
+      uip_conn->callback = uip_listenports[c].callback;
+  }
   
   /* Fill in the necessary fields for the new connection. */
   uip_connr->rto = uip_connr->timer = UIP_RTO;

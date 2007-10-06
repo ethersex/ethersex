@@ -34,7 +34,7 @@ tftp_net_init(void)
     uip_ipaddr_t ip;
     uip_ipaddr_copy(&ip, all_ones_addr);
 
-    struct uip_udp_conn *tftp_conn = uip_udp_new(&ip, 0);
+    struct uip_udp_conn *tftp_conn = uip_udp_new(&ip, 0, tftp_net_main);
 
     if(! tftp_conn) 
 	return;					/* dammit. */

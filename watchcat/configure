@@ -1,0 +1,110 @@
+#!/bin/sh
+main_menu() {
+  dialog --menu "Watchcat Actions" 0 50 0 \
+    ADD  'Add an action' \
+    LIST 'List Actions' \
+    EDIT 'Edit an Action' \
+    DEL  'Delete an Action' 2> $1
+}
+
+select_menu() {
+  awk '{ a = a " \"" gensub("\"", "\\\\\"", $0) "\" \"\""}
+      END { system("dialog --menu \"Select Action\" 0 50 0" a) }
+      ' < config 2> $1
+}
+
+edit_action() {
+  if [ -z "`cat $1`" ]; then
+    echo "PB1 1 192.168.1.1 io set ddr0 0x00" > $1
+  fi
+  pin=`awk '{print $1}' < $1`
+  rising=`awk '{print $2}' < $1`
+  host=`awk '{print $3}' < $1`
+  commando=`sed 's/^[^ ]* [^ ]* [^ ]* //' < $1`
+  _temp=`mktemp`
+
+  dialog --form "ECMD Sender Action"  0 50 6 \
+    "Pin (e.g. PB3)" 1  1 $pin        1 17   4 3 \
+    "Rising Edge?"   2  1 "$rising"   2 17   2 1 \
+    "Host"           3  1 $host       3 17   20 255 \
+    "Command"        4  1 "$commando" 4 17  20 255 2> $_temp
+  if [ -n "`cat $_temp`" ]; then
+    sed 's/$/ /' < $_temp  | tr -d "\n" | sed 's/ $/\n/' > $1
+  fi
+  rm  -f $_temp
+}
+
+rm_line() {
+  fgrep  -xv "`cat $1`" < $2
+}
+
+test_path() {
+  IFS=":"
+  
+  for check_path in $PATH; do  
+     if [ -e "$check_path/$1" ]; then
+       good="1"
+     fi  
+  done
+  IFS=""
+
+  if [ -z "$good" ]; then
+    echo "Error: $1 not found in your path, can't continue"
+    exit -1
+  fi
+}
+
+if [ -d watchcat ]; then
+  cd watchcat
+fi
+
+# Test for essentiel programs
+test_path fgrep
+
+menu=`mktemp`
+main_menu $menu
+
+while [ -n "`cat $menu`" ]; do
+  case "`cat $menu`" in
+    ADD)
+      tmp=`mktemp`
+      edit_action $tmp
+      if [ -n "`cat $tmp`" ]; then
+        cat $tmp >> config
+      fi
+      rm -f $tmp
+      ;;
+    LIST)
+      select_menu /dev/null
+      ;;
+    EDIT)
+      choose=`mktemp`
+      tmp=`mktemp`
+      tmp2=`mktemp`
+      select_menu $choose
+      if [ -n "`cat $choose`" ]; then
+        cp $choose $tmp
+        edit_action $tmp
+        if [ -n "`cat $choose`" ]; then
+          rm_line $choose config > $tmp2
+          cat $tmp2 $tmp > config
+        fi
+      fi
+      rm -f $tmp $tmp2 $choose
+      ;;
+    DEL)
+      choose=`mktemp`
+      tmp=`mktemp`
+      select_menu $choose
+      if [ -n "`cat $choose`" ]; then
+        rm_line $choose config > $tmp
+        cat $tmp > config
+      fi
+      rm -f $tmp
+      rm -f $choose
+      ;;
+  esac
+  main_menu $menu
+done
+rm -f $menu
+exit

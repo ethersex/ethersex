@@ -195,20 +195,8 @@ void network_handle_tcp(void)
     /* 
      * demultiplex packet
      */
-#   ifdef ECMD_SUPPORT
-    if (uip_conn->lport == HTONS(ECMD_NET_PORT))
-        ecmd_net_main();
-#   endif
-
-#   ifdef TETRIRAPE_SUPPORT
-    if (uip_conn->lport == HTONS(TETRIRAPE_PORT))
-        tetrirape_net_main();
-#   endif
-
-#   ifdef ECMD_SENDER_SUPPORT
-    if (uip_conn->rport == HTONS(ECMD_NET_PORT))
-        ecmd_sender_net_main();
-#   endif
+    if (uip_conn->callback != NULL) 
+        uip_conn->callback();
 
     /* put tcp application calls here, example:
      *
@@ -266,17 +254,8 @@ void network_handle_tcp(void)
 #ifdef UDP_SUPPORT
 void network_handle_udp(void)
 /* {{{ */ {
-
-#   ifdef BOOTP_SUPPORT
-    if (uip_udp_conn->lport == HTONS(BOOTPC_PORT))
-	    bootp_net_main();
-#   endif
-
-#   ifdef TFTP_SUPPORT
-    if (uip_udp_conn->lport == HTONS(TFTP_PORT)
-        || uip_udp_conn->lport == HTONS(TFTP_ALT_PORT))
-        tftp_net_main();
-#   endif
+    if (uip_udp_conn->callback)
+        uip_udp_conn->callback();
 
     /* put udp application calls here, example:
      *
