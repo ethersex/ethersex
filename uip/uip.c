@@ -116,7 +116,7 @@ const uip_ipaddr_t uip_netmask =
 #else
 uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
 
-#if UIP_CONF_IPV6
+#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
 /* The link local IPv6 address */
 uip_ipaddr_t uip_lladdr;
 #endif
@@ -975,7 +975,9 @@ uip_process(u8_t flag)
        multicast packets that are sent to the ff02::/16 addresses. 
        Furthermore listen for packets to our link local adress. */
     if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
+#if UIP_CONF_IPV6_LLADDR    
        && !uip_ipaddr_cmp(BUF->destipaddr, uip_lladdr)
+#endif
        && BUF->destipaddr[0] != HTONS(0xff02)) {
       UIP_STAT(++uip_stat.ip.drop);
       goto drop;
@@ -1077,7 +1079,10 @@ uip_process(u8_t flag)
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
     if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)
-       || uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_lladdr)) {
+#if UIP_CONF_IPV6_LLADDR       
+       || uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_lladdr)
+#endif 
+      ) {
 
       if(ICMPBUF->options[0] == ICMP6_OPTION_SOURCE_LINK_ADDRESS) {
 	/* Save the sender's address in our neighbor list. */
@@ -1214,7 +1219,7 @@ uip_process(u8_t flag)
   BUF->srcport  = uip_udp_conn->lport;
   BUF->destport = uip_udp_conn->rport;
 
-#if UIP_CONF_IPV6
+#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
   if(((u16_t *)(uip_udp_conn->ripaddr))[0] == HTONS(0xFE80))
     uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
   else
@@ -1328,7 +1333,7 @@ uip_process(u8_t flag)
   
   /* Swap IP addresses. */
   uip_ipaddr_copy(BUF->destipaddr, BUF->srcipaddr);
-#if UIP_CONF_IPV6
+#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
   if(((u16_t *)(BUF->srcipaddr))[0] == HTONS(0xFE80))
     uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
   else
@@ -1888,7 +1893,7 @@ uip_process(u8_t flag)
   BUF->srcport  = uip_connr->lport;
   BUF->destport = uip_connr->rport;
 
-#if UIP_CONF_IPV6
+#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
   if(((u16_t *)(uip_connr->ripaddr))[0] == HTONS(0xFE80))
     uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
   else

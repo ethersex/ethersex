@@ -141,7 +141,9 @@ void network_init(void)
 
 #   if UIP_CONF_IPV6
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
+#   if UIP_CONF_IPV6_LLADDR
     uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
+#   endif
 #   endif
 
 #   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
