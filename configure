@@ -515,6 +515,8 @@ sub modules_configuration {
       $configure_modules{$module} = $ethersex_modules{$module};
     }
   }
+  return unless scalar(keys %configure_modules);
+
   my $choose;
   do {
     print "\n== configure ethersex modules ==\n\n";
