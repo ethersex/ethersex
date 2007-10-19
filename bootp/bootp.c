@@ -119,7 +119,7 @@ bootp_handle_reply(void)
     }
 
 
-    eeprom_save_config(NULL, ips[0], ips[1], ips[2]);
+    eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2]);
     uip_udp_conn->appstate.bootp.configured = 1;
 
 #ifdef TFTP_SUPPORT
