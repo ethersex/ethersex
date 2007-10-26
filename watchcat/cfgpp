@@ -89,7 +89,7 @@ while read line; do
     textid=$RANDOM
   done
   echo $textid >> $tmp2
-  echo "static const char text$textid[] PROGMEM = \"$commando\";";
+  echo "static const char text$textid[] PROGMEM = \"$commando\\n\";";
   echo "    {$port, $pin, $rising, $host, text$textid }, " >> $tmp
 done < config
 
