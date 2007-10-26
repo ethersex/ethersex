@@ -89,8 +89,9 @@ void network_init(void)
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
 #       if !UIP_CONF_IPV6
-        uip_ipaddr(ipaddr, 10,0,0,5);
-        uip_sethostaddr(ipaddr);
+        uip_ipaddr_t ip;
+        CONF_ETHERRAPE_IP4;
+        uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->ip, &ipaddr, sizeof(uip_ipaddr_t));
 #       endif

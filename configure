@@ -71,6 +71,7 @@ my %ethersex_modules = (
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
                    distdflt  => 1,
+                   disable_hook  => \&ipv6_disable_hook,
                  },
   'broadcast' => { 
                    helptext  => "broadcast support",
@@ -150,6 +151,9 @@ my %ethersex_modules = (
                  },
 );
 my %ethersex_config = (
+  'etherrape_ip4'   => {
+                   helptext  => "default ip address of the etherrape",
+                 },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
                  },
@@ -414,6 +418,16 @@ sub tftpomatic_enable_hook {
 
   ask_ip("tftp_ip");
   ask_anything("tftp_image");
+}
+
+sub ipv6_disable_hook {
+  # ask user for bootp
+  configure_module "bootp";
+
+  # don't aks default ip when user configured bootp
+  return if($ethersex_modules{'bootp'}->{'new_status'});
+  
+  ask_ip("etherrape_ip4");
 }
 
 
