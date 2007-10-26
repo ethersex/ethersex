@@ -93,7 +93,7 @@ void network_init(void)
         CONF_ETHERRAPE_IP4;
         uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->ip, &ipaddr, sizeof(uip_ipaddr_t));
+        memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
 #       endif
 
         uip_ipaddr(ipaddr, 255,255,255,0);
