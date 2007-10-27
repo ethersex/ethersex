@@ -92,32 +92,35 @@ watchcat_edge(uint8_t pin)
   uint8_t tmp;
   while (1) {
     tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].port);
-    if (tmp == 255)
+    if (tmp == 255) {
+      vpin[pin].old_state = vpin[pin].state;
       break;
-    if (tmp != pin)
-      goto ecmd_react_loop_end;
-    
-    tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
-
-
-    if ((pgm_read_byte(&ecmd_react[i].rising) 
-         && RISING_EDGE(pin, tmp))
-        || FALLING_EDGE(pin, tmp)) {
-      uip_ipaddr_t ipaddr;
-
-      memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
-
-      /* send command */
-      const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
-      ecmd_sender_send_command(&ipaddr, text);
-
     }
-    vpin[pin].old_state &= ~_BV(tmp);
-    if (vpin[pin].state & _BV(tmp))
-      vpin[pin].old_state |= _BV(tmp);
-    /* only one pin at once */
-    return;
-ecmd_react_loop_end:
+    if (tmp == pin) {
+      
+      tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
+
+      uint8_t falling = pgm_read_byte(&ecmd_react[i].rising);
+      if ((falling && RISING_EDGE(pin, tmp)) 
+          || (!falling && FALLING_EDGE(pin, tmp))) {
+        uip_ipaddr_t ipaddr;
+
+        memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
+
+        /* send command */
+        const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
+        ecmd_sender_send_command(&ipaddr, text);
+
+      } else  {
+        i++;
+        continue;
+      }
+      vpin[pin].old_state &= ~_BV(tmp);
+      if (vpin[pin].state & _BV(tmp))
+        vpin[pin].old_state |= _BV(tmp);
+      /* only one pin at once */
+      return;
+    }
     i++;
   }
 }
