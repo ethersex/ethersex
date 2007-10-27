@@ -25,7 +25,6 @@
 #include "rfm12.h"
 
 
-#ifdef RFM12_INTERRUPT
 struct RFM12_stati
 {
   uint8_t Rx:1;
@@ -46,11 +45,10 @@ uint8_t RFM12_Data[RFM12_DataLength+12];  // +12 == paket overhead
 #else
 uint8_t RFM12_Data[RFM12_DataLength+10];	// +10 == paket overhead
 #endif
-#endif
+
 
 //##############################################################################
 //
-#ifdef RFM12_INTERRUPT
 SIGNAL(RFM12_INT_SIGNAL)
 //##############################################################################
 {
@@ -98,7 +96,6 @@ SIGNAL(RFM12_INT_SIGNAL)
       //TODO: what happend
     }
 }
-#endif
 
 //##############################################################################
 //
@@ -177,13 +174,11 @@ void rfm12_init(void)
   rfm12_trans(0xC4F7);			// AFC settings: autotuning: -10kHz...+7,5kHz
   rfm12_trans(0x0000);
   
-#ifdef RFM12_INTERRUPT
   RFM12_status.Rx = 0;
   RFM12_status.Tx = 0;
   RFM12_status.New = 0;
 
   EIMSK |= _BV(RFM12_INT_PIN);
-#endif
 }
 
 //##############################################################################
@@ -230,7 +225,6 @@ void rfm12_setpower(uint8_t power, uint8_t mod)
 
 //##############################################################################
 //
-#ifdef RFM12_INTERRUPT
 uint8_t rfm12_rxstart(void)
 //##############################################################################
 {
@@ -435,174 +429,3 @@ uint8_t rfm12_txto(uint8_t txaddr, uint8_t *txdata, uint8_t len)
 }
 #endif
 
-//##############################################################################
-//
-#else
-void rfm12_ready(void)
-//##############################################################################
-{
-  unsigned long timeout = 0;
-  RF_PORT &=~(1<<CS);
-  asm("nop");
-  asm("nop");
-  asm("nop");
-  //wait until FIFO ready or timeout
-  while (!(RF_PIN & (1<<SDO)))
-    {
-      if ((timeout++)>100000){break;};
-    };
-  RF_PORT |=(1<<CS);
-}
-
-//##############################################################################
-//
-#ifdef RFADDR
-void rfm12_txdata(uint8_t txaddr, uint8_t *data, uint8_t number)
-#else
-void rfm12_txdata(uint8_t *data, uint8_t number)
-#endif
-//##############################################################################
-{	
-  PORTB |= _BV(PB6);
-  uint8_t i;
-  unsigned int crc;
-  rfm12_trans(0x8238);			// TX on
-
-  rfm12_ready();
-  rfm12_trans(0xB8AA);
-  rfm12_ready();
-  rfm12_trans(0xB8AA);
-  rfm12_ready();
-  rfm12_trans(0xB8AA);
-  rfm12_ready();
-  rfm12_trans(0xB82D);
-  rfm12_ready();
-  rfm12_trans(0xB8D4);
-  /*#ifdef RFADDR
-    rfm12_ready();
-    rfm12_trans(0xB800 | (number +2)); 
-    crc = crcUpdate(0, number +2);
-    #else*/
-  rfm12_ready();
-  rfm12_trans(0xB800 | number); 
-  crc = crcUpdate(0, number);
-  // #endif
-#ifdef RFADDR
-  rfm12_ready();
-  rfm12_trans(0xB800 | RFADDR);
-  crc = crcUpdate(crc, RFADDR);
-  rfm12_ready();
-  rfm12_trans(0xB800 | txaddr);
-  crc = crcUpdate(crc, txaddr);
-#endif
-  for (i=0; i<number; i++)
-    {	
-      rfm12_ready();
-      rfm12_trans(0xB800 | data[i]);
-      crc = crcUpdate(crc, data[i]);
-    }
-  rfm12_ready();
-  rfm12_trans(0xB800 | (crc & 0x00FF));
-  rfm12_ready();
-  rfm12_trans(0xB800 | (crc >> 8));
-  rfm12_ready();
-  rfm12_trans(0xB8AA);
-  rfm12_ready();
-  rfm12_trans(0xB8AA);
-  rfm12_ready();
-
-  rfm12_trans(0x8208);			// TX off
-  PORTB &= ~_BV(PB6);
-}
-
-//##############################################################################
-//
-#ifdef RFADDR
-uint8_t rfm12_rxdata(uint8_t *txaddr, uint8_t *data)
-#else
-uint8_t rfm12_rxdata(uint8_t *data)
-#endif
-//##############################################################################
-{	
-  uint8_t i, number, rxaddr = 0, txaddrget = 0;
-  unsigned int crc, crc_chk;
-  rfm12_trans(0x82C8);			// RX on
-  rfm12_trans(0xCA81);			// set FIFO mode
-  rfm12_trans(0xCA83);			// enable FIFO
-	
-  rfm12_ready();
-  number = rfm12_trans(0xB000) & 0x00FF;
-  if (number > 200) number = 200;
-  crc_chk = crcUpdate(0, number);
-
-#ifdef RFADDR
-  if (number > 0){
-    PORTB |= _BV(PB7);
-    rfm12_ready();
-    txaddrget = rfm12_trans(0xB000) & 0x00FF;
-    crc_chk = crcUpdate(crc_chk, txaddrget);
-    rfm12_ready();
-    rxaddr = rfm12_trans(0xB000) & 0x00FF;
-    crc_chk = crcUpdate(crc_chk, rxaddr);
-  }
-#endif
-
-  for (i=0; i<number; i++)
-    {
-      rfm12_ready();
-      data[i] = (uint8_t) (rfm12_trans(0xB000) & 0x00FF);
-      crc_chk = crcUpdate(crc_chk, data[i]);
-    }
-  data[number+1] = 0;
-  rfm12_ready();
-  crc = rfm12_trans(0xB000) & 0x00FF;
-  rfm12_ready();
-  crc |=  rfm12_trans(0xB000) << 8;
-
-  rfm12_trans(0x8208);			// RX off
-  PORTB &= ~_BV(PB7);
-  if (crc != crc_chk)
-    number = 0;
-#ifdef RFADDR
-  else if (rxaddr != RFADDR)
-    number = 0;
-  else if(number > 1){
-    //uint8_t ackdata[2];
-    //ackdata[0] = data[0];
-    //ackdata[1] = data[2];
-    _delay_ms(25);
-    _delay_ms(25);
-    rfm12_txdata(txaddrget, &data[0],1);
-  }
-  if(number > 0)
-    *txaddr = txaddrget;
-#endif
-  return number;
-}
-
-#ifdef RFADDR
-/* paket an eine bestimmte adresse schicken und auf bestaetigung warten */
-uint8_t rfm12_sendto(uint8_t txaddr, uint8_t *rxbuf, uint8_t *txdata,
-		     uint8_t len)
-{
-  memset(rxbuf, 0, 3);
-  uint8_t maxtrytx = 15;
-  uint8_t maxtryrx;
-  uint8_t rxlen = 0;
-  uint8_t rxaddr;
-  do {
-    maxtryrx = 2;
-    rfm12_txdata(txaddr, txdata, len);
-    do {
-      rxlen = rfm12_rxdata(&rxaddr, rxbuf);
-    }
-    while(rxlen != 1 && txaddr != rxaddr && maxtryrx-- > 0);
-  }
-  while(rxaddr != RFADDR && rxbuf[0] != txdata[0] && maxtrytx-- > 0);
-  
-  return maxtrytx;
-}
-
-#endif
-
-#endif

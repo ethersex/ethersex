@@ -33,17 +33,12 @@
 //##############################################################################
 /* config */
 #define SPI_MODE
-#define RFM12_INTERRUPT
 
-#ifdef RFM12_INTERRUPT
-	#define RF_IRQDDR	DDRD
-	#define RF_IRQPIN	PIND
 	//only used if async mode. Had to be INT0
 	//or INT1/2 when change something in rfm12.c
 	#define IRQ		2		
 	//RFM12 Buffer length (max length 244)
 	#define RFM12_DataLength	100
-#endif
 
 #if defined (__AVR_ATmega88__)
 	#define RF_PORT	PORTB
@@ -143,10 +138,6 @@ void rfm12_setpower(uint8_t power, uint8_t mod);
 void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, 
 						uint8_t drssi);
 
-
-//##############################################################################
-#ifdef RFM12_INTERRUPT
-//##############################################################################
 // start receiving a package
 uint8_t rfm12_rxstart(void);
 
@@ -174,31 +165,5 @@ void rfm12_allstop(void);
 #ifdef RFADDR
 uint8_t rfm12_txto(uint8_t txaddr, uint8_t *txdata, uint8_t len);
 #endif
-//##############################################################################
-#else 
-
-// transmit number of bytes from array
-#ifdef RFADDR
-void rfm12_txdata(uint8_t txaddr, uint8_t *data, uint8_t number);
-#else
-void rfm12_txdata(uint8_t *data, uint8_t number);
-#endif
-
-// receive number of bytes into array
-#ifdef RFADDR
-uint8_t rfm12_rxdata(uint8_t *txaddr, uint8_t *data);
-#else
-uint8_t rfm12_rxdata(uint8_t *data);
-#endif
-
-// wait until FIFO ready (to transmit/read data)
-void rfm12_ready(void);
-
-#ifdef RFADDR
-// transmit data to a addressed rfm12 and get an acknolage
-uint8_t rfm12_sendto(uint8_t txaddr, uint8_t *rxbuf, uint8_t *txdata, uint8_t len);
-#endif
-
-#endif //RFM12_INTERRUPT
 
 #endif //__RFM12_H
