@@ -28,9 +28,6 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#ifndef F_CPU
-#define F_CPU 800000UL
-#endif
 #include <util/delay.h>
 
 //##############################################################################
