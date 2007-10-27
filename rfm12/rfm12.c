@@ -126,7 +126,6 @@ unsigned short rfm12_trans(unsigned short wert)
 	
   SPI_CS_RFM12_PORT &= ~_BV(SPI_CS_RFM12);
 	
-#ifdef SPI_MODE	//Routine f�r Hardware SPI
   SPDR = (0xFF00 & wert)>>8;
   while(!(SPSR & (1<<SPIF))){};
   werti = (SPDR<<8);
@@ -135,22 +134,6 @@ unsigned short rfm12_trans(unsigned short wert)
   while(!(SPSR & (1<<SPIF))){};
   werti = werti + SPDR;
 
-#else			//Routine f�r Software SPI
-  for (uint8_t i=0; i<16; i++)
-    {	
-      if (wert&32768)
-	RF_PORT |=(1<<SDI);
-      else
-	RF_PORT &=~(1<<SDI);
-      werti<<=1;
-      if (RF_PIN&(1<<SDO))
-	werti|=1;
-      RF_PORT |=(1<<SCK);
-      wert<<=1;
-      asm("nop");
-      RF_PORT &=~(1<<SCK);
-    }
-#endif
   SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
   return werti;
 }

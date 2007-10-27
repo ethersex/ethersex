@@ -32,7 +32,6 @@
 
 //##############################################################################
 /* config */
-#define SPI_MODE
 
 	//only used if async mode. Had to be INT0
 	//or INT1/2 when change something in rfm12.c
