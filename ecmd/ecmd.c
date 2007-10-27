@@ -39,6 +39,7 @@
 #include "../named_pin/named_pin.h"
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
+#include "../rfm12/rfm12.h"
 #include "ecmd.h"
 
 
@@ -86,7 +87,10 @@ static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len);
 static int16_t parse_ir_send(char *cmd, char *output, uint16_t len);
 static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len);
 #endif
-
+#ifdef RFM12_SUPPORT
+static int16_t parse_rfm12_send(char *cmd, char *output, uint16_t len);
+static int16_t parse_rfm12_receive(char *cmd, char *output, uint16_t len);
+#endif 
 
 /* low level */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
@@ -144,6 +148,10 @@ const char PROGMEM ecmd_onewire_convert[] = "1w convert";
 const char PROGMEM ecmd_ir_send[] = "ir send";
 const char PROGMEM ecmd_ir_receive[] = "ir receive";
 #endif
+#ifdef RFM12_SUPPORT
+const char PROGMEM ecmd_rfm12_send[] = "rfm12 send";
+const char PROGMEM ecmd_rfm12_receive[] = "rfm12 receive";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
@@ -188,6 +196,10 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ir_send, parse_ir_send },
     { ecmd_ir_receive, parse_ir_receive },
 #endif
+#ifdef RFM12_SUPPORT
+    { ecmd_rfm12_send, parse_rfm12_send },
+    { ecmd_rfm12_receive, parse_rfm12_receive },
+#endif 
     { NULL, NULL },
 };
 
@@ -745,7 +757,70 @@ static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len)
 
     return outlen;
 } /* }}} */
-#endif
+#endif /* RC5_SUPPORT */
+
+
+#ifdef RFM12_SUPPORT
+static int16_t parse_rfm12_send(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    while (*cmd == ' ') cmd ++;
+
+    char *ptr = strchr (cmd, ' ');
+    if (! ptr) return sprintf (output, "strchr error.");
+    *(ptr ++) = 0;
+
+    uint8_t buflen = strlen (ptr);
+    if (buflen % 2 != 0 || buflen < 4 || buflen > 128) 
+	return sprintf (output, "buflen error, buflen=%u", buflen);
+    buflen >>= 1;
+
+    uint16_t rfaddr;
+    if (sscanf_P (cmd, PSTR("%u"), &rfaddr) != 1) {
+	return sprintf (output, "rfm12: sscanf_P failed.");
+    }
+    char *buf = __builtin_alloca (buflen);
+
+    for (uint8_t i = 0; i < buflen; i ++) {
+	uint16_t temp;
+	if (sscanf_P (ptr + (i << 1), PSTR("%2x"), &temp) != 1)
+	    return sprintf (output, "dehixfy-error at i=%u", i);
+	buf[i] = temp;
+    }
+
+    int i = rfm12_txstart (rfaddr, buf, buflen);
+    
+    if (i)
+	return sprintf (output, "rfm12: rfm12_txstart failed.");
+    else
+	return sprintf (output, "rfm12: sent %u bytes to %u.", buflen, rfaddr);
+} /* }}} */
+#endif /* RFM12_SUPPORT */
+
+
+#ifdef RFM12_SUPPORT 
+static int16_t parse_rfm12_receive(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uint8_t rfaddr;
+    char buf[RFM12_DataLength];
+    int recv_len = rfm12_rxfinish (&rfaddr, buf);
+
+    if (recv_len == 0 || recv_len >= 254)
+	return -1;
+
+    int rfaddr_len = sprintf_P (output, PSTR("%d "), rfaddr);
+    output += rfaddr_len; 
+    len -= rfaddr_len;
+
+    if (recv_len << 1 > len)
+	recv_len = len >> 1;
+
+    for (int i = 0; i < recv_len; i ++)
+	sprintf_P (output + (i << 1), PSTR("%02x"), buf[i]);
+
+    return (recv_len << 1) + rfaddr_len;
+} /* }}} */
+#endif /* RFM12_SUPPORT */
+
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
