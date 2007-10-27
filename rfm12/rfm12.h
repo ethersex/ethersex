@@ -39,36 +39,6 @@
 	//RFM12 Buffer length (max length 244)
 	#define RFM12_DataLength	100
 
-#if defined (__AVR_ATmega88__)
-	#define RF_PORT	PORTB
-	#define RF_DDR	DDRB
-	#define RF_PIN	PINB
-	#define SDI		3
-	#define SCK		5
-	#define CS		2
-	#define SDO		4
-#endif
-
-#if defined (__AVR_ATmega8__)
-	#define RF_PORT	PORTB
-	#define RF_DDR	DDRB
-	#define RF_PIN	PINB
-	#define SDI		3
-	#define SCK		5
-	#define CS		2
-	#define SDO		4
-#endif
-
-#if defined (__AVR_ATmega32__)
-	#define RF_PORT	PORTB
-	#define RF_DDR	DDRB
-	#define RF_PIN	PINB
-	#define SDI		5
-	#define SCK		7
-	#define CS		4
-	#define SDO		6
-#endif
-
 //##############################################################################
 
 #define RxBW400		1
