@@ -201,6 +201,15 @@
 #define SPI_CS_RFM12 PC3
 #endif
 
+/* rfm12 module interrupt line */
+#ifndef RFM12_INT_PIN 
+#define RFM12_INT_PIN INT0
+#endif
+
+#ifndef RFM12_INT_SIGNAL
+#define RFM12_INT_SIGNAL SIG_INTERRUPT0
+#endif
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
