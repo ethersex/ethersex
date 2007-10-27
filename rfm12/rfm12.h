@@ -39,6 +39,8 @@
 	//RFM12 Buffer length (max length 244)
 	#define RFM12_DataLength	100
 
+        #define RFADDR    23
+
 //##############################################################################
 
 #define RxBW400		1
