@@ -43,6 +43,7 @@
 #include "watchcat/watchcat.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
+#include "rfm12/rfm12.h"
 #include "ipv6.h"
 
 #include "net/handler.h"
@@ -82,10 +83,6 @@ int main(void)
 
 #   ifdef WATCHCAT_SUPPORT
     watchcat_init();
-#   endif
-
-#   ifdef RFM12_SUPPORT
-    rfm12_init();
 #   endif
 
     /* enable interrupts */
@@ -133,6 +130,16 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+#ifdef RFM12_SUPPORT
+    rfm12_init();
+
+    rfm12_setfreq(RFM12FREQ(433.92));
+    rfm12_setbandwidth(5, 1, 4);
+    rfm12_setbaud(9600);
+    rfm12_setpower(0, 2);
+    rfm12_rxstart();
 #endif
 
     /* must be called AFTER all other initialization */
