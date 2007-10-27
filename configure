@@ -386,7 +386,12 @@ sub check_mac {
 
 sub ask_mac {
   my $confopt = shift;
- 
+
+  if($opt_restore_defaults) {
+    $ethersex_config{$confopt}->{'value'} = '"\xAC\xDE\x48\xFD\x0F\xD0"';
+    return;
+  }
+
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
 
@@ -397,7 +402,6 @@ sub ask_mac {
   for($new_value) {s/:/\\x/g }
   
   $ethersex_config{$confopt}->{'value'} = '"\\x' . $new_value . '"';
-  
 }
 
 sub ask_anything {
