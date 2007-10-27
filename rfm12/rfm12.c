@@ -22,6 +22,7 @@
 */
 
 #include "../config.h"
+#include "../spi.h"
 #include "rfm12.h"
 
 
@@ -126,13 +127,8 @@ unsigned short rfm12_trans(unsigned short wert)
 	
   SPI_CS_RFM12_PORT &= ~_BV(SPI_CS_RFM12);
 	
-  SPDR = (0xFF00 & wert)>>8;
-  while(!(SPSR & (1<<SPIF))){};
-  werti = (SPDR<<8);
-	
-  SPDR = (0x00ff & wert);
-  while(!(SPSR & (1<<SPIF))){};
-  werti = werti + SPDR;
+  werti = (spi_send ((0xFF00 & wert) >> 8) << 8);
+  werti += spi_send (0x00ff & wert);
 
   SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
   return werti;
