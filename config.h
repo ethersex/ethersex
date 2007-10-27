@@ -188,6 +188,19 @@
 #define SPI_CS_DF PB1
 #endif
 
+/* port the rfm12 module CS is attached to */
+#ifndef SPI_CS_RFM12_DDR
+#define SPI_CS_RFM12_DDR DDRC
+#endif
+
+#ifndef SPI_CS_RFM12_PORT
+#define SPI_CS_RFM12_PORT PORTC
+#endif
+
+#ifndef SPI_CS_RFM12
+#define SPI_CS_RFM12 PC3
+#endif
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
@@ -322,6 +335,7 @@
 #define TCP_SUPPORT
 #define UDP_SUPPORT
 // #define RC5_SUPPORT
+// #define RFM12_SUPPORT
 
 
 /* crypto stuff */

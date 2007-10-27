@@ -141,12 +141,16 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    virtual   => 1,
                  },
-  'onewire'    => {
+  'onewire'   => {
                    helptext  => "onewire device support",
                    distdflt  => 0,
                  },
-  'rc5'        => {
+  'rc5'       => {
                    helptext  => "sending rc5 IR codes",
+                   distdflt  => 0,
+                 },
+  'rfm12'     => {
+                   helptext  => "rfm12 fsk transmitter",
                    distdflt  => 0,
                  },
 );
