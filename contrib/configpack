@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+  echo "usage: $0 <save | load> file"
+  exit
+fi
+
+if [ x"$1" = x"save" ]; then
+  echo "Saving config to $2"
+  tmpdir="tmp$RANDOM"
+  mkdir -p $tmpdir/uip
+
+  cp config.h $tmpdir
+  cp Makefile $tmpdir
+  cp uip/uip-conf.h $tmpdir
+
+  for i in `ls`; do
+    if [ -d $i -a -e $i/config ]; then
+      mkdir -p $tmpdir/$i
+      cp $i/config $tmpdir/$config/$i
+    fi
+  done
+  cd $tmpdir
+  tar -c . | gzip > ../$2
+  rm -rf $tmpdir
+  echo "done"
+else
+  echo "Applying $2"
+  tar xvzf $2
+  echo "done, please don't forget \`make clean all'"
+fi
+
