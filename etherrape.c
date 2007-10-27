@@ -84,6 +84,10 @@ int main(void)
     watchcat_init();
 #   endif
 
+#   ifdef RFM12_SUPPORT
+    rfm12_init();
+#   endif
+
     /* enable interrupts */
     sei();
 
