@@ -21,6 +21,7 @@
 
 */
 
+#include "../config.h"
 #include "rfm12.h"
 
 
@@ -50,7 +51,7 @@ uint8_t RFM12_Data[RFM12_DataLength+10];	// +10 == paket overhead
 //##############################################################################
 //
 #ifdef RFM12_INTERRUPT
-SIGNAL(SIG_INTERRUPT0)
+SIGNAL(RFM12_INT_SIGNAL)
 //##############################################################################
 {
   if(RFM12_status.Rx)
@@ -126,7 +127,7 @@ unsigned short rfm12_trans(unsigned short wert)
 {	
   unsigned short werti = 0;
 	
-  RF_PORT &=~(1<<CS);
+  SPI_CS_RFM12_PORT &= ~_BV(SPI_CS_RFM12);
 	
 #ifdef SPI_MODE	//Routine f�r Hardware SPI
   SPDR = (0xFF00 & wert)>>8;
@@ -153,7 +154,7 @@ unsigned short rfm12_trans(unsigned short wert)
       RF_PORT &=~(1<<SCK);
     }
 #endif
-  RF_PORT |=(1<<CS);
+  SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
   return werti;
 }
 
@@ -164,18 +165,9 @@ void rfm12_init(void)
 {
   uint8_t i;
 
-  RF_DDR |= (1<<SDI)|(1<<SCK)|(1<<CS);
-  RF_DDR &= ~(1<<SDO);
-  RF_PORT |= (1<<CS);
-#ifdef SPI_MODE
-  //Aktiviren des SPI - Bus, Clock = Idel LOW
-  //SPI Clock teilen durch 128, Enable SPI, SPI in Master Mode
-  SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0)|(1<<SPR1);
-  SPSR &= ~(0<<SPI2X);
-#endif
-  
   for (i=0; i<10; i++)
     _delay_ms(10);			// wait until POR done
+
   rfm12_trans(0xC0E0);			// AVR CLK: 10MHz
   rfm12_trans(0x80D7);			// Enable FIFO
   rfm12_trans(0xC2AB);			// Data Filter: internal
@@ -190,8 +182,7 @@ void rfm12_init(void)
   RFM12_status.Tx = 0;
   RFM12_status.New = 0;
 
-  RF_IRQDDR &= ~(1<<IRQ);
-  GICR |= (1<<INT0);
+  EIMSK |= _BV(RFM12_INT_PIN);
 #endif
 }
 
@@ -265,7 +256,7 @@ uint8_t rfm12_rxstart(void)
 #ifdef RFADDR
 uint8_t rfm12_rxfinish(uint8_t *txaddr, uint8_t *data)
 #else
-  uint8_t rfm12_rxfinish(uint8_t *data)
+uint8_t rfm12_rxfinish(uint8_t *data)
 #endif
 //##############################################################################
 {
