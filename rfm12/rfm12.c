@@ -66,14 +66,14 @@ SIGNAL(RFM12_INT_SIGNAL)
 #ifdef RFADDR
       if(RFM12_Index >= RFM12_Data[0] + 3 +2)		//EOT
 #else
-	if(RFM12_Index >= RFM12_Data[0] + 3)    //EOT
+      if(RFM12_Index >= RFM12_Data[0] + 3)              //EOT
 #endif
-	  {
-	    rfm12_trans(0x8208);
-	    RFM12_status.Rx = 0;
-	    RFM12_status.New = 1;
-	    //GICR &= ~(1<<INT0);		//disable int0
-	  }
+	{
+	  rfm12_trans(0x8208);
+	  RFM12_status.Rx = 0;
+	  RFM12_status.New = 1;
+	  //GICR &= ~(1<<INT0);		//disable int0
+	}
     }
   else if(RFM12_status.Tx)
     {
@@ -81,7 +81,7 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(!RFM12_Index)
 	{
 	  RFM12_status.Tx = 0;
-	  PORTB &= ~_BV(PB6);    // tx led aus
+	  PORTB &= ~_BV(PB6);           // tx led aus
 	  rfm12_trans(0x8208);		// TX off
 	  rfm12_rxstart();
 	}
