@@ -321,6 +321,7 @@
 // #define ONEWIRE_SUPPORT
 #define TCP_SUPPORT
 #define UDP_SUPPORT
+// #define DNS_SUPPORT
 // #define RC5_SUPPORT
 
 
@@ -341,5 +342,6 @@
 #define CONF_TFTP_IMAGE "testsex.bin"
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
 #define CONF_ETHERRAPE_IP4 uip_ipaddr(ip,10,0,0,5)
+#define CONF_DNS_SERVER uip_ipaddr(ip,192,168,100,5)
 
 #endif /* _CONFIG_H */

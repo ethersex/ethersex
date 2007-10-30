@@ -149,6 +149,11 @@ my %ethersex_modules = (
                    helptext  => "sending rc5 IR codes",
                    distdflt  => 0,
                  },
+  'dns'        => {
+                   helptext  => "resolving ipv4 dns names",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {

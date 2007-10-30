@@ -45,6 +45,10 @@ struct eeprom_config_base_t {
     uint8_t gateway[IPADDR_LEN];
 #endif /* not UIP_CONF_IPV6 */
 
+#ifdef DNS_SUPPORT
+    uint8_t dns_server[IPADDR_LEN];
+#endif
+
     uint8_t crc;
 };
 

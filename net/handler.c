@@ -32,6 +32,7 @@
 #include "bootp_net.h"
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
+#include "dns_net.h"
 
 void network_init_apps(void)
 /* {{{ */ {
@@ -50,6 +51,10 @@ void network_init_apps(void)
 
 #   ifdef TFTP_SUPPORT
     tftp_net_init();
+#   endif
+
+#   ifdef DNS_SUPPORT
+    dns_net_init();
 #   endif
 
     /* initialize your applications here */

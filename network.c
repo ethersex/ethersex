@@ -31,6 +31,7 @@
 #include "ipv6.h"
 #include "bit-macros.h"
 #include "net/handler.h"
+#include "dns/resolv.h"
 
 #include "debug.h"
 
@@ -81,6 +82,8 @@ void network_init(void)
 
     if (checksum != cfg_base->crc) {
 
+        uip_ipaddr_t ip;
+
         debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n",
             checksum, cfg_base->crc);
 
@@ -89,7 +92,6 @@ void network_init(void)
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
 #       if !UIP_CONF_IPV6
-        uip_ipaddr_t ip;
         CONF_ETHERRAPE_IP4;
         uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
@@ -108,6 +110,12 @@ void network_init(void)
         memcpy(&cfg_base->gateway, &ipaddr, sizeof(uip_ipaddr_t));
 #       endif
 #       endif /* !UIP_CONF_IPV6 */
+
+#       ifdef DNS_SUPPORT
+        CONF_DNS_SERVER;
+        memcpy(&cfg_base->dns_server, &ip, sizeof(uip_ipaddr_t));
+        resolv_conf(&ip);
+#       endif
 
 #       ifndef BOOTLOADER_SUPPORT        
         /* calculate new checksum */
@@ -129,6 +137,11 @@ void network_init(void)
         uip_setnetmask(ipaddr);
         memcpy(&ipaddr, &cfg_base->gateway, 4);
         uip_setdraddr(ipaddr);
+        
+#       ifdef DNS_SUPPORT
+        memcpy(&ipaddr, &cfg_base->dns_server, 4);
+        resolv_conf(&ipaddr);
+#       endif
 
         /* optimized version: FIXME: does this work?
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
