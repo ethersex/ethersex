@@ -57,6 +57,9 @@ void network_init_apps(void)
     dns_net_init();
 #   endif
 
+#ifdef DYNDNS_SUPPORT && !BOOTP_SUPPORT
+    dyndns_update();
+#endif
     /* initialize your applications here */
 
 } /* }}} */

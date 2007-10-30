@@ -130,6 +130,9 @@ bootp_handle_reply(void)
 
     eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2], ips[3]);
     uip_udp_conn->appstate.bootp.configured = 1;
+#ifdef DYNDNS_SUPPORT
+    dyndns_update();
+#endif
 
 #ifdef TFTP_SUPPORT
     if(pk->bp_file[0] == 0)

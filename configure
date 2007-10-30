@@ -157,6 +157,12 @@ my %ethersex_modules = (
                    preconfigure => [ "ipv6", "bootp" ],
                    enable_hook  => \&dns_enable_hook,
                  },
+  'dyndns'        => {
+                   helptext  => "updating an dns name on dyn.metafnord.de",
+                   distdflt  => 0,
+                   requires => ["tcp"],
+                   enable_hook  => \&dyndns_enable_hook,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {
@@ -174,6 +180,15 @@ my %ethersex_config = (
   'dns_server' =>{
                    helptext  => "name of the default dns server",
                  },
+  'dyndns_hostname' => {
+                   helptext  => "hostname to be updated via dyndns",
+                },
+  'dyndns_username' => {
+                   helptext  => "hostname to be updated via dyndns",
+                },
+  'dyndns_password' => {
+                   helptext  => "hostname to be updated via dyndns",
+                },
 );
 
 
@@ -451,6 +466,13 @@ sub dns_enable_hook {
 
   ask_ip("dns_server");
 }
+
+sub dyndns_enable_hook {
+  ask_anything("dyndns_hostname");
+  ask_anything("dyndns_username");
+  ask_anything("dyndns_password");
+}
+
 
 
 #
