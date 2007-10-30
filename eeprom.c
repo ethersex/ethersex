@@ -42,7 +42,7 @@ uint8_t crc_checksum(void *data, uint8_t length)
 
 
 #if !defined(BOOTLOADER_SUPPORT) || defined(BOOTP_SUPPORT)
-int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
+int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, void *dns_server)
 /* {{{ */ {
 
     /* save new ip addresses */
@@ -61,6 +61,8 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
         memcpy(&cfg_base.netmask, netmask, 4);
     if (gateway != NULL)
         memcpy(&cfg_base.gateway, gateway, 4);
+    if (dns_server != NULL)
+        memcpy(&cfg_base.dns_server, dns_server, 4);
 #endif /* !UIP_CONF_IPV6 */
 
     /* calculate new checksum */

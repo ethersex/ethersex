@@ -39,6 +39,7 @@
 #include "../named_pin/named_pin.h"
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
+#include "../dns/resolv.h"
 #include "ecmd.h"
 
 
@@ -313,6 +314,7 @@ int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
             PSTR("version %s"), VERSION_STRING);
 } /* }}} */
 
+
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 #if UIP_CONF_IPV6
@@ -359,7 +361,7 @@ static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 
     /* save new ip addresses, use uip_buf since this buffer is unused when
      * this function is executed */
-    return eeprom_save_config(NULL, ips[0], ips[1], ips[2]);
+    return eeprom_save_config(NULL, ips[0], ips[1], ips[2], NULL);
 #endif /* ! UIP_CONF_IPV6 */
 
 } /* }}} */
@@ -379,7 +381,7 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
     ret = parse_mac(cmd, (void *)&mac);
 
     if (ret >= 0)
-        return eeprom_save_config(&mac, NULL, NULL, NULL);
+        return eeprom_save_config(&mac, NULL, NULL, NULL, NULL);
     else
         return ret;
 
