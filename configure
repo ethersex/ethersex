@@ -153,6 +153,9 @@ my %ethersex_modules = (
                    helptext  => "resolving ipv4 dns names",
                    distdflt  => 0,
                    requires => ["udp"],
+                   conflicts => [ "ipv6" ],
+                   preconfigure => [ "ipv6", "bootp" ],
+                   enable_hook  => \&dns_enable_hook,
                  },
 );
 my %ethersex_config = (
@@ -167,6 +170,9 @@ my %ethersex_config = (
                  },
   'tftp_image' =>{
                    helptext  => "name of tftp image to download",
+                 },
+  'dns_server' =>{
+                   helptext  => "name of the default dns server",
                  },
 );
 
@@ -437,6 +443,13 @@ sub ipv6_disable_hook {
   return if($ethersex_modules{'bootp'}->{'new_status'});
   
   ask_ip("etherrape_ip4");
+}
+
+sub dns_enable_hook {
+  # don't ask for dns server, if user configured bootp
+  return if($ethersex_modules{'bootp'}->{'new_status'});
+
+  ask_ip("dns_server");
 }
 
 
