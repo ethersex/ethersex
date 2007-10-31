@@ -42,69 +42,59 @@ volatile uint8_t RFM12_Index = 0;
 volatile uint8_t RFM12_Ackdata = 0;
 volatile uint16_t RFM12_delaycount = 0;
 volatile uint8_t RFM12_maxcount = 0;
-uint8_t RFM12_Data[RFM12_DataLength+12];  // +12 == paket overhead
+volatile uint8_t RFM12_Data[RFM12_DataLength + 12];  /* +12 == paket overhead */
 #else
-uint8_t RFM12_Data[RFM12_DataLength+10];	// +10 == paket overhead
+volatile uint8_t RFM12_Data[RFM12_DataLength + 10];  /* +10 == paket overhead */
 #endif
 
 
-//##############################################################################
-//
 SIGNAL(RFM12_INT_SIGNAL)
-//##############################################################################
 {
-  if(RFM12_status.Rx)
-    {
-      if(RFM12_Index < RFM12_DataLength){
-	RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
+  if(RFM12_status.Rx) {
+    if(RFM12_Index < RFM12_DataLength) {
+      RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
 #ifdef RFM12_BLINK_PORT
-        RFM12_BLINK_PORT |= RFM12_RX_PIN;
+      RFM12_BLINK_PORT |= RFM12_RX_PIN;
 #endif
-      }
-      else
-	{
-	  rfm12_trans(0x8208);
-	  RFM12_status.Rx = 0;
-	}
+    }
+    else {
+      rfm12_trans(0x8208);
+      RFM12_status.Rx = 0;
+    }
 #ifdef RFADDR
-      if(RFM12_Index >= RFM12_Data[0] + 3 +2)		//EOT
+    if(RFM12_Index >= RFM12_Data[0] + 3 + 2)
 #else
-      if(RFM12_Index >= RFM12_Data[0] + 3)              //EOT
+    if(RFM12_Index >= RFM12_Data[0] + 3)
 #endif
-	{
-	  rfm12_trans(0x8208);
-	  RFM12_status.Rx = 0;
-	  RFM12_status.New = 1;
-	}
-    }
-  else if(RFM12_status.Tx)
-    {
-      rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
-      if(!RFM12_Index)
-	{
-	  RFM12_status.Tx = 0;
+      {
+	rfm12_trans(0x8208);
+	RFM12_status.Rx = 0;
+	RFM12_status.New = 1;
+      }
+  }
+
+  else if(RFM12_status.Tx) {
+    rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
+    if(!RFM12_Index) {
+      RFM12_status.Tx = 0;
 #ifdef RFM12_BLINK_PORT
-	  RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
+      RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
 #endif
-	  rfm12_trans(0x8208);		// TX off
-	  rfm12_rxstart();
-	}
-      else
-	{
-	  RFM12_Index--;
-	}
+      rfm12_trans(0x8208);	/* TX off */
+      rfm12_rxstart();
     }
-  else
-    {
-      rfm12_trans(0x0000);			//dummy read
-      //TODO: what happend
-    }
+    else
+      RFM12_Index--;
+  }
+  else {
+    rfm12_trans(0x0000);	/* dummy read */
+    /* FIXME what happend */
+  }
 }
 
-//##############################################################################
-//
-unsigned int crcUpdate(unsigned int crc, uint8_t serialData)
-//##############################################################################
+
+unsigned int
+crcUpdate(unsigned int crc, uint8_t serialData)
 {
   unsigned int tmp;
   uint8_t j;
@@ -121,10 +111,9 @@ unsigned int crcUpdate(unsigned int crc, uint8_t serialData)
   return crc;
 }
 
-//##############################################################################
-//
-unsigned short rfm12_trans(unsigned short wert)
-//##############################################################################
+
+unsigned short
+rfm12_trans(unsigned short wert)
 {	
   unsigned short werti = 0;
 	
@@ -143,23 +132,22 @@ unsigned short rfm12_trans(unsigned short wert)
   return werti;
 }
 
-//##############################################################################
-//
-void rfm12_init(void)
-//##############################################################################
+
+void
+rfm12_init(void)
 {
   uint8_t i;
 
   for (i=0; i<10; i++)
-    _delay_ms(10);			// wait until POR done
+    _delay_ms(10);		/* wait until POR done */
 
-  rfm12_trans(0xC0E0);			// AVR CLK: 10MHz
-  rfm12_trans(0x80D7);			// Enable FIFO
-  rfm12_trans(0xC2AB);			// Data Filter: internal
-  rfm12_trans(0xCA81);			// Set FIFO mode
-  rfm12_trans(0xE000);			// disable wakeuptimer
-  rfm12_trans(0xC800);			// disable low duty cycle
-  rfm12_trans(0xC4F7);			// AFC settings: autotuning: -10kHz...+7,5kHz
+  rfm12_trans(0xC0E0);		/* AVR CLK: 10MHz */
+  rfm12_trans(0x80D7);		/* Enable FIFO */
+  rfm12_trans(0xC2AB);		/* Data Filter: internal */
+  rfm12_trans(0xCA81);		/* Set FIFO mode */
+  rfm12_trans(0xE000);		/* disable wakeuptimer */
+  rfm12_trans(0xC800);		/* disable low duty cycle */
+  rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
   rfm12_trans(0x0000);
   
   RFM12_status.Rx = 0;
@@ -169,149 +157,163 @@ void rfm12_init(void)
   EIMSK |= _BV(RFM12_INT_PIN);
 }
 
-//##############################################################################
-//
-void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, 
-			uint8_t drssi)
-//##############################################################################
+
+void
+rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 {
-  rfm12_trans(0x9400|((bandwidth&7)<<5)|((gain&3)<<3)|(drssi&7));
+  rfm12_trans(0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
 }
 
-//##############################################################################
-//
-void rfm12_setfreq(unsigned short freq)
-//##############################################################################
+
+void
+rfm12_setfreq(unsigned short freq)
 {	
-  if (freq<96)					// 430,2400MHz
-    freq=96;
-  else if (freq>3903)			// 439,7575MHz
-    freq=3903;
-  rfm12_trans(0xA000|freq);
+  if (freq < 96)		/* 430,2400MHz */
+    freq = 96;
+
+  else if (freq > 3903)		/* 439,7575MHz */
+    freq = 3903;
+
+  rfm12_trans (0xA000 | freq);
 }
 
-//##############################################################################
-//
-void rfm12_setbaud(unsigned short baud)
-//##############################################################################
+
+void
+rfm12_setbaud(unsigned short baud)
 {
-  if (baud<663)
+  if (baud < 663)
     return;
-  if (baud<5400)					// Baudrate= 344827,58621/(R+1)/(1+CS*7)
-    rfm12_trans(0xC680|((43104/baud)-1));
+
+  /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
+  if (baud < 5400)
+    rfm12_trans(0xC680 | ((43104 / baud) - 1));
   else
-    rfm12_trans(0xC600|((344828UL/baud)-1));
+    rfm12_trans(0xC600 | ((344828UL / baud) - 1));
 }
 
-//##############################################################################
-//
-void rfm12_setpower(uint8_t power, uint8_t mod)
-//##############################################################################
+
+void
+rfm12_setpower(uint8_t power, uint8_t mod)
 {	
   rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
 }
 
-//##############################################################################
-//
-uint8_t rfm12_rxstart(void)
-//##############################################################################
+
+uint8_t
+rfm12_rxstart(void)
 {
   if(RFM12_status.New)
-    return(1);			//buffer not yet empty
+    return(1);			/* buffer not yet empty */
+
   if(RFM12_status.Tx)
-    return(2);			//tx in action
+    return(2);			/* tx in action */
+
   if(RFM12_status.Rx)
-    return(3);			//rx already in action
+    return(3);			/* rx already in action */
   
-  rfm12_trans(0x82C8);			// RX on
-  rfm12_trans(0xCA81);			// set FIFO mode
-  rfm12_trans(0xCA83);			// enable FIFO
+  rfm12_trans(0x82C8);		/* RX on */
+  rfm12_trans(0xCA81);		/* set FIFO mode */
+  rfm12_trans(0xCA83);		/* enable FIFO */
 
   RFM12_Index = 0;
   RFM12_status.Rx = 1;
 	
-  return(0);				//all went fine
+  return(0);
 }
 
-//##############################################################################
-//
+
+uint8_t 
 #ifdef RFADDR
-uint8_t rfm12_rxfinish(uint8_t *txaddr, uint8_t *data)
+rfm12_rxfinish(uint8_t *txaddr, uint8_t *data)
 #else
-uint8_t rfm12_rxfinish(uint8_t *data)
+rfm12_rxfinish(uint8_t *data)
 #endif
-//##############################################################################
 {
   unsigned int crc, crc_chk = 0;
   uint8_t i;
+
   if(RFM12_status.Rx)
-    return(255);				//not finished yet
+    return(255);		/* not finished yet */
   if(!RFM12_status.New)
-    return(254);				//old buffer
+    return(254);		/* old buffer */
+
 #ifdef RFADDR
-  for(i=0; i<RFM12_Data[0] +1 +2 ; i++)
+  for(i = 0; i < RFM12_Data[0] + 1 + 2; i++)
 #else
-  for(i=0; i<RFM12_Data[0] +1; i++)
+  for(i = 0; i < RFM12_Data[0] + 1; i++)
 #endif
     crc_chk = crcUpdate(crc_chk, RFM12_Data[i]);
 
   crc = RFM12_Data[i++];
   crc |= RFM12_Data[i] << 8;
+
   RFM12_status.New = 0;
+
 #ifdef RFM12_BLINK_PORT
   RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
 #endif
+
 #ifdef RFADDR
-  if(crc != crc_chk || RFM12_Data[2] != RFADDR) {
+  if(crc != crc_chk || RFM12_Data[2] != RFADDR)
 #else
-  if(crc != crc_chk) {
+  if(crc != crc_chk)
 #endif
-    rfm12_rxstart();
-    return(0);				//crc err -or- strsize
-  }
+    {
+      rfm12_rxstart();
+      return(0);		/* crc err -or- strsize */
+    }
   else {
     uint8_t i;
+
 #ifdef RFADDR
     if(RFM12_status.Ack == 1 && RFM12_Data[0] == 1) {
       RFM12_status.Ack = 0;
       rfm12_rxstart();
       return(0);
     }
+
     *txaddr = RFM12_Data[1];
-    for(i=0; i<RFM12_Data[0]; i++)
-      data[i] = RFM12_Data[i+1+2];
+
+    for(i = 0; i < RFM12_Data[0]; i++)
+      data[i] = RFM12_Data[i + 1 + 2];
 #else
-    for(i=0; i<RFM12_Data[0]; i++)
-      data[i] = RFM12_Data[i+1];
+    for(i = 0; i<RFM12_Data[0]; i++)
+      data[i] = RFM12_Data[i + 1];
 #endif
-    i =  RFM12_Data[0];
+
+    i = RFM12_Data[0];
+
 #ifdef RFADDR
     if(i > 1)
       rfm12_txstart(*txaddr, data,1);
     else
 #endif
       rfm12_rxstart();
-    return(i);			//strsize
+
+    return(i);                 /* receive size */
   }
 }
 
-//##############################################################################
-//
+
+uint8_t 
 #ifdef RFADDR
-uint8_t rfm12_txstart(uint8_t txaddr, uint8_t *data, uint8_t size)
+rfm12_txstart(uint8_t txaddr, uint8_t *data, uint8_t size)
 #else
-uint8_t rfm12_txstart(uint8_t *data, uint8_t size)
+rfm12_txstart(uint8_t *data, uint8_t size)
 #endif
-//##############################################################################
 {
   uint8_t i, l;
   unsigned int crc;
+
   if(RFM12_status.Tx)
-    return(2);			//tx in action
-  if(RFM12_status.Rx && RFM12_Index > 0)//if(RFM12_status.Rx)
-    return(3);   //rx already in action
+    return(2);			/* tx in action */
+
+  if(RFM12_status.Rx && RFM12_Index > 0)
+    return(3);                  /* rx already in action */
+
   if(size > RFM12_DataLength)
-    return(4);			//str to big to transmit
+    return(4);			/* str to big to transmit */
+
   RFM12_status.Rx = 0;
   RFM12_status.Tx = 1;
 
@@ -324,9 +326,9 @@ uint8_t rfm12_txstart(uint8_t *data, uint8_t size)
     RFM12_status.Ack = 1;
     RFM12_Ackdata = data[0];
   }
-  RFM12_Index = size + 9 + 2;     //act -12
+  RFM12_Index = size + 9 + 2;   /* act -12 */
 #else
-  RFM12_Index = size + 9;			//act -10 
+  RFM12_Index = size + 9;	/* act -10 */
 #endif
   
   i = RFM12_Index;				
@@ -337,84 +339,92 @@ uint8_t rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i--] = 0xD4;
   RFM12_Data[i--] = size;
   crc = crcUpdate(0, size);
+
 #ifdef RFADDR
   RFM12_Data[i--] = RFADDR;
   crc = crcUpdate(crc, RFADDR);
   RFM12_Data[i--] = txaddr;
   crc = crcUpdate(crc, txaddr);
 #endif
+
   for(l=0; l<size; l++) {
     RFM12_Data[i--] = data[l];
     crc = crcUpdate(crc, data[l]);
   }	
+
   RFM12_Data[i--] = (crc & 0x00FF);
   RFM12_Data[i--] = (crc >> 8);
   RFM12_Data[i--] = 0xAA;
   RFM12_Data[i--] = 0xAA;
 
-  rfm12_trans(0x8238);			// TX on
+  rfm12_trans(0x8238);		/* TX on */
   
-  return(0);				//all went fine
-}
-
-//##############################################################################
-//
-uint8_t rfm12_txfinished(void)
-//##############################################################################
-{
-  if(RFM12_status.Tx)
-    return(255);			//not yet finished
   return(0);
 }
 
-uint8_t rfm12_Index(void)
+
+uint8_t
+rfm12_txfinished(void)
+{
+  if(RFM12_status.Tx)
+    return(255);		/* not yet finished */
+
+  return(0);
+}
+
+
+uint8_t 
+rfm12_Index(void)
 {
   return (RFM12_Index);
 }
 
-//##############################################################################
-//
+
 void rfm12_allstop(void)
-//##############################################################################
 {
-  //GICR &= ~(1<<INT0);		//disable int0	
   RFM12_status.Rx = 0;
   RFM12_status.Ack = 0;
   RFM12_status.Tx = 0;
   RFM12_status.Txok = 0;
   RFM12_status.New = 0;
-  rfm12_trans(0x8208);		//shutdown all
-  rfm12_trans(0x0000);		//dummy read
+  rfm12_trans(0x8208);		/* shutdown everything */
+  rfm12_trans(0x0000);		/* dummy read */
 }
 
+
 #ifdef RFADDR
-uint8_t rfm12_txto(uint8_t txaddr, uint8_t *txdata, uint8_t len)
+uint8_t 
+rfm12_txto(uint8_t txaddr, uint8_t *txdata, uint8_t len)
 {
   if(len == 1)
     return rfm12_txstart(txaddr, txdata, len);
-  if( RFM12_status.Txok == 0){
+
+  if( RFM12_status.Txok == 0) {
     rfm12_txstart(txaddr, txdata, len);
     RFM12_status.Txok = 1;
     RFM12_delaycount = 0;
     RFM12_maxcount = 0;
-    return (12); //tx gestartet warte auf ack
+    return (12);                /* tx started, wait for ack. */
   }
-  else{
-    if(RFM12_status.Ack == 1){
-      //_delay_ms(25);
-      if(RFM12_delaycount++ == 0x8fff){
+
+  else {
+    if(RFM12_status.Ack == 1) {
+      if(RFM12_delaycount++ == 0x8fff) {
 	RFM12_delaycount = 0;
+
 	if(RFM12_maxcount++ == 10){
 	  RFM12_status.Txok = 0;
-	  return(1); //zu oft probiert, breche ab
+	  return(1);            /* too many retries, out. */
 	}
+
 	rfm12_txstart(txaddr, txdata, len);
       }
-      return (11); //nochmal versuchen
+      return (11);              /* try again. */
     }
-    else{
+
+    else {
       RFM12_status.Txok = 0;
-      return (0); //ack empfangen
+      return (0);               /* got ack. */
     }
   }
 

@@ -109,8 +109,7 @@ void rfm12_setbaud(unsigned short baud);
 void rfm12_setpower(uint8_t power, uint8_t mod);
 
 // set receiver settings
-void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, 
-						uint8_t drssi);
+void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
 
 // start receiving a package
 uint8_t rfm12_rxstart(void);
