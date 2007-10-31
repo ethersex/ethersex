@@ -61,8 +61,10 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, voi
         memcpy(&cfg_base.netmask, netmask, 4);
     if (gateway != NULL)
         memcpy(&cfg_base.gateway, gateway, 4);
+#ifdef DNS_SUPPORT
     if (dns_server != NULL)
         memcpy(&cfg_base.dns_server, dns_server, 4);
+#endif
 #endif /* !UIP_CONF_IPV6 */
 
     /* calculate new checksum */
