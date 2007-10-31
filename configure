@@ -148,10 +148,12 @@ my %ethersex_modules = (
   'rc5'       => {
                    helptext  => "sending rc5 IR codes",
                    distdflt  => 0,
+		   conflicts => [ "rfm12" ],
                  },
   'rfm12'     => {
                    helptext  => "rfm12 fsk transmitter",
                    distdflt  => 0,
+		   conflicts => [ "rc5" ],
                  },
 );
 my %ethersex_config = (
