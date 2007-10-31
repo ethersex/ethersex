@@ -33,10 +33,7 @@
 //##############################################################################
 /* config */
 
-	//only used if async mode. Had to be INT0
-	//or INT1/2 when change something in rfm12.c
-	#define IRQ		2		
-	//RFM12 Buffer length (max length 244)
+/* RFM12 Buffer length (max length 244) */
 #define RFM12_DataLength	64
 
 #define RFADDR    0x23
