@@ -155,6 +155,20 @@ my %ethersex_modules = (
                    distdflt  => 0,
 		   conflicts => [ "rc5" ],
                  },
+  'dns'        => {
+                   helptext  => "resolving ipv4 dns names",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                   conflicts => [ "ipv6" ],
+                   preconfigure => [ "ipv6", "bootp" ],
+                   enable_hook  => \&dns_enable_hook,
+                 },
+  'dyndns'        => {
+                   helptext  => "updating an dns name on dyn.metafnord.de",
+                   distdflt  => 0,
+                   requires => ["tcp"],
+                   enable_hook  => \&dyndns_enable_hook,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {
@@ -169,6 +183,18 @@ my %ethersex_config = (
   'tftp_image' =>{
                    helptext  => "name of tftp image to download",
                  },
+  'dns_server' =>{
+                   helptext  => "name of the default dns server",
+                 },
+  'dyndns_hostname' => {
+                   helptext  => "hostname to be updated via dyndns",
+                },
+  'dyndns_username' => {
+                   helptext  => "hostname to be updated via dyndns",
+                },
+  'dyndns_password' => {
+                   helptext  => "hostname to be updated via dyndns",
+                },
 );
 
 
@@ -392,7 +418,12 @@ sub check_mac {
 
 sub ask_mac {
   my $confopt = shift;
- 
+
+  if($opt_restore_defaults) {
+    $ethersex_config{$confopt}->{'value'} = '"\xAC\xDE\x48\xFD\x0F\xD0"';
+    return;
+  }
+
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
 
@@ -403,7 +434,6 @@ sub ask_mac {
   for($new_value) {s/:/\\x/g }
   
   $ethersex_config{$confopt}->{'value'} = '"\\x' . $new_value . '"';
-  
 }
 
 sub ask_anything {
@@ -435,6 +465,20 @@ sub ipv6_disable_hook {
   
   ask_ip("etherrape_ip4");
 }
+
+sub dns_enable_hook {
+  # don't ask for dns server, if user configured bootp
+  return if($ethersex_modules{'bootp'}->{'new_status'});
+
+  ask_ip("dns_server");
+}
+
+sub dyndns_enable_hook {
+  ask_anything("dyndns_hostname");
+  ask_anything("dyndns_username");
+  ask_anything("dyndns_password");
+}
+
 
 
 #

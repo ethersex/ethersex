@@ -1,0 +1,22 @@
+Usage example of the dns module
+===============================
+
+#include "dns/resolv.h"
+
+void found_entry(char *name, uip_ipaddr_t *ipaddr) {
+  if (!ipaddr) 
+    printf("no ip found for: %s\n", name)
+  else
+    printf("ip address of %s: %u.%u.%u.%u\n", name, ip[0], ip[1], ip[2],
+           ip[3]);
+}
+
+do_resolv(char *name) {
+  uip_ipaddr_t ip;
+  if (! (ip = resolv_lookup(name)))
+    resolv_query(name, found_entry);
+  else
+    found_entry(name, ip);
+}
+
+

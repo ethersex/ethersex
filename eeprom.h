@@ -45,6 +45,10 @@ struct eeprom_config_base_t {
     uint8_t gateway[IPADDR_LEN];
 #endif /* not UIP_CONF_IPV6 */
 
+#ifdef DNS_SUPPORT
+    uint8_t dns_server[IPADDR_LEN];
+#endif
+
     uint8_t crc;
 };
 
@@ -63,6 +67,6 @@ struct eeprom_config_ext_t {
     offsetof(struct eeprom_config_base_t, ip[0]))
 
 uint8_t crc_checksum(void *data, uint8_t length);
-int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway);
+int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, void *dns_server);
 
 #endif

@@ -28,9 +28,11 @@
 #include "../eeprom.h"
 #include "../net/bootp_net.h"
 #include "../tftp/tftp.h"
+#include "../dns/resolv.h"
 
 #include "bootp.h"
 #include "bootphdr.h"
+#include "../debug.h"
 
 static unsigned char mincookie[] = {99, 130, 83, 99, 255} ;
 static unsigned char replycookie[] = { 0x63, 0x82, 0x53, 0x63 };
@@ -95,7 +97,8 @@ bootp_handle_reply(void)
      * looks like we have received a valid bootp reply, 
      * prepare to override eeprom configuration
      */
-    uip_ipaddr_t ips[3];
+    uip_ipaddr_t ips[4];
+    memset(&ips, 0, sizeof(ips));
 
     /* extract our ip addresses, subnet-mask and gateway ... */
     memcpy(&ips[0], pk->bp_yiaddr, 4);
@@ -113,14 +116,23 @@ bootp_handle_reply(void)
 	    memcpy(&ips[2], &ptr[2], 4);
 	    uip_setdraddr(&ips[2]);
 	    break;
+#ifdef DNS_SUPPORT
+        case TAG_DOMAIN_SERVER:
+	    memcpy(&ips[3], &ptr[2], 4);
+            resolv_conf(&ips[3]);
+            break;
+#endif
 	}
 
 	ptr = ptr + ptr[1] + 2;
     }
 
 
-    eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2]);
+    eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2], ips[3]);
     uip_udp_conn->appstate.bootp.configured = 1;
+#ifdef DYNDNS_SUPPORT
+    dyndns_update();
+#endif
 
 #ifdef TFTP_SUPPORT
     if(pk->bp_file[0] == 0)
