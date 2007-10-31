@@ -162,11 +162,21 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   uint16_t addr7 = (uip_ethaddr.addr[4] << 8) | uip_ethaddr.addr[5];
 
   uip_ip6addr(ipaddr, addr0, addr1, addr2, addr3, addr4, addr5, addr6, addr7);
+
+# ifdef DYNDNS_SUPPORT
+  
+  /* Get old host address */
+  uip_ipaddr_t old_ipaddr;
+  uip_gethostaddr(&old_ipaddr);
+
+  if(! uip_ipaddr_cmp(&ipaddr, &old_ipaddr)) {
+    /* Update the dyndns name only if address has changed */
+    dyndns_update();
+  }
+# endif
+
   uip_sethostaddr(ipaddr);
 
-#ifdef DYNDNS_SUPPORT
-  dyndns_update();
-#endif
 }
 
 

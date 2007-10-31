@@ -104,7 +104,7 @@ dyndns_net_main(void)
     case DYNDNS_IP:
 #ifdef IPV6_SUPPORT
       to_be_sent = __builtin_alloca(strlen_P(PSTR("ip=%x%%3A%x%%3A%x%%3A%x%%3A"
-                                                  "%x%%3A%x%%3A%x%%3A%x%%3A")) + 17);
+                                                  "%x%%3A%x%%3A%x%%3A%x&")) + 17);
 #else
       to_be_sent = __builtin_alloca(strlen_P(PSTR("ip=%u.%u.%u.%u&")) + 4);
 #endif
@@ -118,9 +118,10 @@ dyndns_net_main(void)
 #ifdef IPV6_SUPPORT
       ip6 = (uint16_t *) &ipaddr;
       length = sprintf_P(to_be_sent, PSTR("ip=%x%%3A%x%%3A%x%%3A%x%%3A%x%%3A%x"
-                                          "%%3A%x%%3A%x%%3A"),
-                         ip6[0], ip6[1], ip6[2], ip6[3], ip6[4], ip6[5], ip6[6],
-                         ip6[7]);
+                                          "%%3A%x%%3A%x&"),
+                         HTONS(ip6[0]), HTONS(ip6[1]), HTONS(ip6[2]), 
+                         HTONS(ip6[3]), HTONS(ip6[4]), HTONS(ip6[5]),
+                         HTONS(ip6[6]), HTONS(ip6[7]));
 #else
       ip = (uint8_t *) &ipaddr;
       length = sprintf_P(to_be_sent, PSTR("ip=%u.%u.%u.%u&"), ip[0], ip[1], 

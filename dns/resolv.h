@@ -45,7 +45,6 @@
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
 
-#include "../uip/uipopt.h"
 #include "../uip/uip.h"
 
 /**
