@@ -57,7 +57,9 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       if(RFM12_Index < RFM12_DataLength){
 	RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
-	PORTB |= _BV(PB7);
+#ifdef RFM12_BLINK_PORT
+        RFM12_BLINK_PORT |= RFM12_RX_PIN;
+#endif
       }
       else
 	{
@@ -73,7 +75,6 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  rfm12_trans(0x8208);
 	  RFM12_status.Rx = 0;
 	  RFM12_status.New = 1;
-	  //GICR &= ~(1<<INT0);		//disable int0
 	}
     }
   else if(RFM12_status.Tx)
@@ -82,7 +83,9 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(!RFM12_Index)
 	{
 	  RFM12_status.Tx = 0;
-	  PORTB &= ~_BV(PB6);           // tx led aus
+#ifdef RFM12_BLINK_PORT
+	  RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
+#endif
 	  rfm12_trans(0x8208);		// TX off
 	  rfm12_rxstart();
 	}
@@ -127,8 +130,14 @@ unsigned short rfm12_trans(unsigned short wert)
 	
   SPI_CS_RFM12_PORT &= ~_BV(SPI_CS_RFM12);
 	
+  /* spi clock down */
+  _SPCR0 |= _BV(SPR0);
+
   werti = (spi_send ((0xFF00 & wert) >> 8) << 8);
   werti += spi_send (0x00ff & wert);
+
+  /* spi clock high */
+  _SPCR0 &= ~_BV(SPR0);
 
   SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
   return werti;
@@ -249,7 +258,9 @@ uint8_t rfm12_rxfinish(uint8_t *data)
   crc = RFM12_Data[i++];
   crc |= RFM12_Data[i] << 8;
   RFM12_status.New = 0;
-  PORTB &= ~_BV(PB7);
+#ifdef RFM12_BLINK_PORT
+  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
+#endif
 #ifdef RFADDR
   if(crc != crc_chk || RFM12_Data[2] != RFADDR) {
 #else
@@ -302,10 +313,12 @@ uint8_t rfm12_txstart(uint8_t *data, uint8_t size)
   if(size > RFM12_DataLength)
     return(4);			//str to big to transmit
   RFM12_status.Rx = 0;
-  //PORTD &= ~_BV(PD7); //rx led off
-  PORTB |= _BV(PB6); //tx led on
-  
   RFM12_status.Tx = 1;
+
+#ifdef RFM12_BLINK_PORT
+  RFM12_BLINK_PORT |= RFM12_TX_PIN;
+#endif
+
 #ifdef RFADDR
   if(size > 1) {
     RFM12_status.Ack = 1;

@@ -37,9 +37,15 @@
 	//or INT1/2 when change something in rfm12.c
 	#define IRQ		2		
 	//RFM12 Buffer length (max length 244)
-	#define RFM12_DataLength	100
+#define RFM12_DataLength	64
 
-        #define RFADDR    23
+#define RFADDR    0x23
+
+#define RFM12_BLINK_PORT PORTD
+#define RFM12_BLINK_DDR DDRD
+#define RFM12_TX_PIN _BV(PD4)
+#define RFM12_RX_PIN _BV(PD5)
+
 
 //##############################################################################
 
