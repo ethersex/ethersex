@@ -21,8 +21,6 @@
  }}} */
 
 
-#define MAX_BUFFER_LEN 100
-
 #include "../uip/uip.h"
 #include "../dns/resolv.h"
 #include "../debug.h"
@@ -78,7 +76,7 @@ dyndns_net_main(void)
 {
   if(uip_acked()) {
     state++;
-    if (state == DYNDNS_READY)
+    if (state == DYNDNS_READY) 
       uip_close();
   }
 
@@ -87,8 +85,11 @@ dyndns_net_main(void)
     char *to_be_sent;
     uint8_t length;
     uip_ipaddr_t ipaddr;
-    uint8_t *ip;
+#ifdef IPV6_SUPPORT
     uint16_t *ip6;
+#else
+    uint8_t *ip;
+#endif
 
     switch(state) {
     case  DYNDNS_HOSTNAME:
@@ -155,7 +156,6 @@ dyndns_net_main(void)
       }
 
     uip_send(to_be_sent, length);
-    debug_printf("%s\n", to_be_sent);
   }
 
 }
