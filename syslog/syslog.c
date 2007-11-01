@@ -30,7 +30,7 @@
 
 #ifdef SYSLOG_SUPPORT
 
-static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1];
+static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1] = "";
 
 static void syslog_send_cb_P(void *data) 
 {
@@ -40,8 +40,13 @@ static void syslog_send_cb_P(void *data)
 
 static void syslog_send_cb(void *data) 
 {
-  strcpy(uip_appdata, data);
-  uip_udp_send(strlen(data));
+  char *p = data;
+
+  strcpy(uip_appdata, p);
+  uip_udp_send(strlen(p));
+
+  if (p == send_buffer)
+    p[0] = 0;
 }
 
 
@@ -54,9 +59,13 @@ syslog_send_P(PGM_P message)
 uint8_t 
 syslog_send(const char *message)
 {
-  strncpy(send_buffer, message, MAX_DYNAMIC_SYSLOG_BUFFER);
-  send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
-  return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
+  // only insert a new callback if the old is finished  
+  if (send_buffer[0] == 0) {
+    strncpy(send_buffer, message, MAX_DYNAMIC_SYSLOG_BUFFER);
+    send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
+  } else
+    return 0;
 }
 
 uint8_t 

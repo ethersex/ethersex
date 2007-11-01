@@ -5,7 +5,9 @@ there are three cheap possibilities:
   - syslog_send("error"): here the string "error" is copied to an internal
                           buffer. this buffer is MAX_DYNAMIC_SYSLOG_BUFFER
                           big (default: 40 characters; defined in
-                          syslog/syslog.h).
+                          syslog/syslog.h). Because of this buffer, the last
+                          message had to be flushed before syslog_send can be
+                          called again.
  - syslog_send_ptr(pointer): here is only the pointer copied. The user must
                           ensure that the buffer is long enough valid.
  - syslog_send_P(PSTR("error")): here the message is taken from the
@@ -26,3 +28,5 @@ my_syslog_message(void *data)
 ...
 syslog_insert_callback(my_syslog_message, NULL);
 ...
+
+All the syslog_* will return 1 on success or 0 on failure
