@@ -81,14 +81,4 @@ syslog_insert_callback(syslog_callback_t callback, void *data)
   return 0; /* No empty callback found */
 }
 
-uint8_t 
-syslog_find_callback(syslog_callback_t callback)
-{
-  uint8_t i;
-  for (i = 0; i < SYSLOG_CALLBACKS; i++)
-    if (syslog_callbacks[i].callback == callback)
-      return 1;
-  return 0;
-}
-
 #endif

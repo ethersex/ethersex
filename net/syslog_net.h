@@ -42,6 +42,5 @@ struct SyslogCallbackCtx {
 void syslog_net_init(void);
 void syslog_net_main(void);
 uint8_t syslog_insert_callback(syslog_callback_t callback, void *data);
-uint8_t syslog_find_callback(syslog_callback_t callback);
 
 #endif
