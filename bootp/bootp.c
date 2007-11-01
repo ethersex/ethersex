@@ -29,6 +29,7 @@
 #include "../net/bootp_net.h"
 #include "../tftp/tftp.h"
 #include "../dns/resolv.h"
+#include "../dyndns/dyndns.h"
 
 #include "bootp.h"
 #include "bootphdr.h"

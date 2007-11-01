@@ -23,6 +23,6 @@
 #ifndef _DYNDNS_H
 #define _DYNDNS_H
 
-void update_dyndns(void);
+void dyndns_update(void);
 
 #endif

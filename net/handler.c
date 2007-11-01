@@ -33,6 +33,7 @@
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
+#include "../dyndns/dyndns.h"
 
 void network_init_apps(void)
 /* {{{ */ {
