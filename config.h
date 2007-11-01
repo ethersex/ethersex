@@ -324,6 +324,7 @@
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
 // #define DYNDNS_SUPPORT
+// #define SYSLOG_SUPPORT
 
 
 /* crypto stuff */
@@ -344,6 +345,7 @@
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
 #define CONF_ETHERRAPE_IP4 uip_ipaddr(ip,10,0,0,5)
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
+#define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)
 
 #define CONF_DYNDNS_USERNAME "sexy_guy"
 #define CONF_DYNDNS_PASSWORD "ethersex"
