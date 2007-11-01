@@ -33,6 +33,7 @@
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
+#include "syslog_net.h"
 #include "../dyndns/dyndns.h"
 
 void network_init_apps(void)
@@ -58,7 +59,11 @@ void network_init_apps(void)
     dns_net_init();
 #   endif
 
-#ifdef DYNDNS_SUPPORT && !BOOTP_SUPPORT
+#   ifdef SYSLOG_SUPPORT
+    syslog_net_init();
+#   endif
+
+#if defined(DYNDNS_SUPPORT) &&  !defined(BOOTP_SUPPORT)
     dyndns_update();
 #endif
     /* initialize your applications here */

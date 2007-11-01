@@ -163,6 +163,12 @@ my %ethersex_modules = (
                    requires => ["tcp"],
                    enable_hook  => \&dyndns_enable_hook,
                  },
+  'syslog'        => {
+                   helptext  => "sending syslog messages",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                   enable_hook  => \&syslog_enable_hook,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {
@@ -188,6 +194,9 @@ my %ethersex_config = (
                 },
   'dyndns_password' => {
                    helptext  => "hostname to be updated via dyndns",
+                },
+  'syslog_server' => {
+                   helptext  => "ip address of the syslog server",
                 },
 );
 
@@ -472,6 +481,11 @@ sub dyndns_enable_hook {
   ask_anything("dyndns_username");
   ask_anything("dyndns_password");
 }
+
+sub syslog_enable_hook {
+  ask_ip("syslog_server");
+}
+
 
 
 
