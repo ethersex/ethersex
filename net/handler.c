@@ -34,6 +34,7 @@
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
 #include "syslog_net.h"
+#include "i2c_net.h"
 #include "../dyndns/dyndns.h"
 
 void network_init_apps(void)
@@ -61,6 +62,10 @@ void network_init_apps(void)
 
 #   ifdef SYSLOG_SUPPORT
     syslog_net_init();
+#   endif
+
+#   ifdef I2C_SUPPORT
+    i2c_net_init();
 #   endif
 
 #if defined(DYNDNS_SUPPORT) &&  !defined(BOOTP_SUPPORT)
