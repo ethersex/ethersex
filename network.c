@@ -98,16 +98,16 @@ void network_init(void)
         memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
 #       endif
 
-        uip_ipaddr(ipaddr, 255,255,255,0);
-        uip_setnetmask(ipaddr);
+        CONF_ETHERRAPE_IP4_NETMASK;
+        uip_setnetmask(ip);
 #       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->netmask, &ipaddr, sizeof(uip_ipaddr_t));
+        memcpy(&cfg_base->netmask, &ip, sizeof(uip_ipaddr_t));
 #       endif
 
-        uip_ipaddr(ipaddr, 0, 0, 0, 0);
-        uip_setdraddr(ipaddr);
+        CONF_ETHERRAPE_IP4_GATEWAY;
+        uip_setdraddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->gateway, &ipaddr, sizeof(uip_ipaddr_t));
+        memcpy(&cfg_base->gateway, &ip, sizeof(uip_ipaddr_t));
 #       endif
 #       endif /* !UIP_CONF_IPV6 */
 
