@@ -20,6 +20,7 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo dns/*.c)
 #SRC += $(shell echo dyndns/*.c)
 #SRC += $(shell echo syslog/*.c)
+#SRC += $(shell echo i2c/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c
 
 # preprocessed config files
