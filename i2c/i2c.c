@@ -51,19 +51,23 @@ uint8_t i2c_send ( uint8_t sendbyte )
 	return TWSR;
 }
 
+static void
+i2c_port_init(void)
+{
+  TWCR = 0;
+  TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));//prescaler for twi
+  TWBR = 16; //16;//max speed for twi, ca 400khz by 20Mhz Crystal
+  TWCR |= _BV(TWEN);
+}
 
 void 
 i2c_core_init(struct uip_udp_conn *i2c_conn)
 {
-	TWCR = 0;
-	TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));//prescaler for twi
-	TWBR = 16; //16;//max speed for twi, ca 400khz by 20Mhz Crystal
-	TWCR |= _BV(TWEN);
-	
-        i2c_conn->appstate.i2c.tx = &tx;
-	i2c_conn->appstate.i2c.tx->connstate = I2C_INIT;
-}
+  i2c_port_init();
 
+  i2c_conn->appstate.i2c.tx = &tx;
+  i2c_conn->appstate.i2c.tx->connstate = I2C_INIT;
+}
 
 void 
 i2c_core_periodic(void)
@@ -80,6 +84,9 @@ i2c_core_periodic(void)
     STATS.tx->connstate = I2C_INIT;
     TWCR |= _BV(TWINT) | _BV(TWSTO);
 
+    /* error detection on i2c bus */
+    if(TWSR == 0x00)
+      i2c_port_init();
 /* FIXME:   PORTC &= ~_BV(PC2); */
   }
 }
