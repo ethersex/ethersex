@@ -169,6 +169,11 @@ my %ethersex_modules = (
                    requires => ["udp"],
                    enable_hook  => \&syslog_enable_hook,
                  },
+  'i2c'        => {
+                   helptext  => "i2c to udp gateway",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {

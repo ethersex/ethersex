@@ -21,10 +21,14 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "../net/i2c_state.h"
+#include "../uip/uip.h"
+#include "../config.h"
 #include "i2c.h"
-#define DATAOFFSET 4
 
-#define STATS (uip_udp_conn->appstate.i2creq)
+#ifdef I2C_SUPPORT
+
+#define STATS (uip_udp_conn->appstate.i2c)
 
 /*
  * direkter zugriff zum packet buffer
@@ -33,16 +37,8 @@
 
 static struct i2c_tx tx;
 
-void i2c_init_reg()
-{
-	TWCR = 0;
-	TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));//prescaler for twi
-	TWBR = 16; //16;//max speed for twi, ca 400khz by 20Mhz Crystal
-	TWCR |= _BV(TWEN);
-}
-
-
-void i2c_wait_int()
+void 
+i2c_wait_int()
 {
 	while( (TWCR & _BV(TWINT)) == 0);
 }
@@ -56,43 +52,41 @@ uint8_t i2c_send ( uint8_t sendbyte )
 }
 
 
-void i2c_init(void)
+void 
+i2c_core_init(struct uip_udp_conn *i2c_conn)
 {
-	i2c_init_reg();
-	uip_ipaddr_t ip;
-	uip_ipaddr(&ip, 255,255,255,255);
+	TWCR = 0;
+	TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));//prescaler for twi
+	TWBR = 16; //16;//max speed for twi, ca 400khz by 20Mhz Crystal
+	TWCR |= _BV(TWEN);
 	
-	struct uip_udp_conn *i2c_conn = uip_udp_new(&ip, 0);
-	
-	if(! i2c_conn) 
-		return;					/* keine udp connection !? */
-	
-	uip_udp_bind(i2c_conn, HTONS(I2C_PORT));
-	i2c_conn->appstate.i2creq.tx = &tx;
-	i2c_conn->appstate.i2creq.tx->connstate = I2C_INIT;
-	
+        i2c_conn->appstate.i2c.tx = &tx;
+	i2c_conn->appstate.i2c.tx->connstate = I2C_INIT;
 }
 
 
-void i2c_handle_conn(void)
+void 
+i2c_core_periodic(void)
 {
-	if(uip_poll()){
-		if(STATS.timeout > 1)
-			STATS.timeout--;
-		if(STATS.timeout == 1){
-			uip_ipaddr_t ip;
-			uip_ipaddr(&ip, 255,255,255,255);
-			uip_ipaddr_copy(uip_udp_conn->ripaddr, &ip);
-			uip_udp_conn->rport = 0;
-			STATS.timeout = 0;
-			STATS.tx->seqnum = 0;
-			STATS.tx->connstate = I2C_INIT;
-			TWCR |= _BV(TWINT) | _BV(TWSTO);
-			PORTC &= ~_BV(PC2);
-		}
-	}
+  if(STATS.timeout > 1)
+    STATS.timeout--;
+  if(STATS.timeout == 1){
+    uip_ipaddr_t ip;
+    uip_ipaddr(&ip, 255,255,255,255);
+    uip_ipaddr_copy(uip_udp_conn->ripaddr, &ip);
+    uip_udp_conn->rport = 0;
+    STATS.timeout = 0;
+    STATS.tx->seqnum = 0;
+    STATS.tx->connstate = I2C_INIT;
+    TWCR |= _BV(TWINT) | _BV(TWSTO);
+
+/* FIXME:   PORTC &= ~_BV(PC2); */
+  }
+}
+
+void i2c_core_newdata(void)
+{
 	
-	if(uip_newdata()){
 		struct i2c_request_t *REQ = uip_appdata;
 		/*
 		* ueberschreiben der connection info. 
@@ -107,7 +101,7 @@ void i2c_handle_conn(void)
 		if(REQ->seqnum == STATS.tx->seqnum + 1){
 			STATS.tx->seqnum = REQ->seqnum;
 			STATS.timeout = 10;
-			PORTC |= _BV(PC2);
+/* FIXME:			PORTC |= _BV(PC2); */
 			/* read init des i2c bus */
 			if (REQ->type == I2C_READ || (REQ->type == I2C_READON && STATS.tx->connstate != I2C_READON)){
 				STATS.tx->connstate = REQ->type;
@@ -162,7 +156,7 @@ void i2c_handle_conn(void)
 			
 			
 			/* write init des i2c bus */
-			if (uip_datalen() >= DATAOFFSET && ( REQ->type == I2C_WRITE || (REQ->type == I2C_WRITEON && STATS.tx->connstate != I2C_WRITEON))){
+			if (uip_datalen() >= I2C_DATAOFFSET && ( REQ->type == I2C_WRITE || (REQ->type == I2C_WRITEON && STATS.tx->connstate != I2C_WRITEON))){
 				STATS.tx->connstate = REQ->type;
 					/* sende startcondition */
 				TWCR |= _BV(TWINT) | _BV(TWSTA);
@@ -191,11 +185,11 @@ void i2c_handle_conn(void)
 				}
 			}
 			/* sende daten an den slave */
-			if (uip_datalen() > DATAOFFSET && ( REQ->type == I2C_WRITE || REQ->type == I2C_WRITEON ) && STATS.tx->connstate != I2C_ERROR){
+			if (uip_datalen() > I2C_DATAOFFSET && ( REQ->type == I2C_WRITE || REQ->type == I2C_WRITEON ) && STATS.tx->connstate != I2C_ERROR){
 				uint8_t TWSRtmp;
 				STATS.tx->datalen = 0;
 				/* sende bis paketdaten ende oder bis datalen erreicht ist */
-				while ((STATS.tx->datalen + DATAOFFSET) < uip_datalen() && STATS.tx->datalen < REQ->datalen){
+				while ((STATS.tx->datalen + I2C_DATAOFFSET) < uip_datalen() && STATS.tx->datalen < REQ->datalen){
 					TWSRtmp = i2c_send ( REQ->data[STATS.tx->datalen] );
 					STATS.tx->buf[STATS.tx->datalen] = REQ->data[STATS.tx->datalen];
 						/* fehler protokollieren */
@@ -221,15 +215,16 @@ void i2c_handle_conn(void)
 				STATS.timeout = 0;
 				STATS.tx->seqnum = 0;
 				STATS.tx->connstate = I2C_INIT;
-				PORTC &= ~_BV(PC2);
+				/* FIXME: PORTC &= ~_BV(PC2); */
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
 			}
 			else{
-				uip_send(&tx, STATS.tx->datalen+DATAOFFSET);
+				uip_send(&tx, STATS.tx->datalen+I2C_DATAOFFSET);
 			}
 		}
 		else if(REQ->seqnum == STATS.tx->seqnum){
-			uip_send(&tx, STATS.tx->datalen+DATAOFFSET);
+			uip_send(&tx, STATS.tx->datalen+I2C_DATAOFFSET);
 		}
-	}
 }
+
+#endif

@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,29 +19,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_H
-#define _I2C_H
-
-#include <stdint.h>
-#include "../uip/uip.h"
-
-/* i2c packet header */
-enum i2c_request_type {
-	I2C_INIT,
-	I2C_READ,
-	I2C_WRITE,
-	I2C_READON,
-	I2C_WRITEON,
-	I2C_ERROR
-};
-
+#ifndef _I2C_NET_H
+#define _I2C_NET_H
 /* constants */
 #define I2C_PORT 0x2323
-#define I2C_DATAOFFSET 4
 
 /* prototypes */
-void i2c_core_init(struct uip_udp_conn *i2c_conn);
-void i2c_core_periodic(void);
-void i2c_core_newdata(void);
+void i2c_net_init(void);
+void i2c_net_main(void);
 
 #endif

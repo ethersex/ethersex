@@ -325,6 +325,7 @@
 // #define RC5_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
+// #define I2C_SUPPORT
 
 
 /* crypto stuff */

@@ -48,7 +48,7 @@ struct i2c_request_t {
 	};
 };
 
-struct i2c_state_t {
+struct i2c_connection_state_t {
 	uint8_t txstate;
 	uint8_t timeout;
 	struct i2c_tx *tx;
