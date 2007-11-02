@@ -26,6 +26,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "tftp/tftp.h"
 #include "ipv6.h"
 #include "config.h"
 
@@ -164,7 +165,6 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   uip_ip6addr(ipaddr, addr0, addr1, addr2, addr3, addr4, addr5, addr6, addr7);
 
 # ifdef DYNDNS_SUPPORT
-  
   /* Get old host address */
   uip_ipaddr_t old_ipaddr;
   uip_gethostaddr(&old_ipaddr);
@@ -177,6 +177,13 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
 
   uip_sethostaddr(ipaddr);
 
+# ifdef TFTPOMATIC_SUPPORT
+  const unsigned char *filename = CONF_TFTP_IMAGE;
+  uip_ipaddr_t ip; CONF_TFTP_IP;
+
+  if (addr0 != 0xFE80)
+    tftp_fire_tftpomatic(&ip, filename);
+# endif /* TFTPOMATIC_SUPPORT */
 }
 
 
