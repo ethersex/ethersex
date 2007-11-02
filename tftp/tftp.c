@@ -84,7 +84,7 @@ void
 tftp_handle_packet(void)
 {
 #ifdef SKIPJACK_SUPPORT
-    unsigned char key[10] = "ABCDEF2342";
+    unsigned char key[10] = CONF_TFTP_KEY;
 #endif
 
     /*

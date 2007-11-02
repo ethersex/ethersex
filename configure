@@ -97,7 +97,8 @@ my %ethersex_modules = (
   'tftp'      => { 
                    helptext  => "TFTP-based firmware bootloader",
                    requires  => [ "bootloader", "udp" ],
-                   preconfigure => [ "tftpomatic" ],
+                   preconfigure => [ "tftpomatic", "skipjack" ],
+                   enable_hook  => \&tftp_enable_hook,
                    distdflt  => 0,
                  },
   'hd44780'   => {
@@ -187,6 +188,9 @@ my %ethersex_config = (
                  },
   'tftp_image' =>{
                    helptext  => "name of tftp image to download",
+                 },
+  'tftp_key'   =>{
+                   helptext  => "hex-encoded skipjack key for tftp",
                  },
   'dns_server' =>{
                    helptext  => "name of the default dns server",
@@ -456,12 +460,49 @@ sub ask_anything {
   $ethersex_config{$confopt}->{'value'} = "\"$v\"";
 }
 
+# check key validity, return 0 if invalid.
+sub check_cryptokey {
+  my $checkval = shift;
+  my $keylen = shift;
+
+  unless (length ($checkval) == $keylen * 2) { return 0; }
+  unless ($checkval =~ m/^[0-9a-f]+$/i) { return 0; }
+  return 1;
+}
+
+sub ask_cryptokey {
+  my $confopt = shift;
+  my $keylen = shift;
+
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+
+  for($default) { s/"//g; s/\\x//g; };
+  my $new_value =
+    prompt('s', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
+           $default, 
+           sub { 
+             my $a = shift; 
+             return check_cryptokey ($a, $keylen); 
+           } );
+
+  $new_value =~ s/(..)/\\x$1/g;
+  $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
+}
+
 sub tftpomatic_enable_hook {
   # don't ask for tftp image, if user configured bootp
   return if($ethersex_modules{'bootp'}->{'new_status'});
 
   ask_ip("tftp_ip");
   ask_anything("tftp_image");
+}
+
+sub tftp_enable_hook {
+  # ask for crypto key only if skipjack enabled.
+  return unless($ethersex_modules{'skipjack'}->{'new_status'});
+
+  ask_cryptokey("tftp_key", 10);
 }
 
 sub ipv6_disable_hook {
