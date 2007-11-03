@@ -41,6 +41,10 @@ extern struct uip_eth_addr uip_ethaddr;
 /* Calculate ICMP6 Checksum, exported from uip/uip.c */
 extern u16_t uip_icmp6chksum(void);
 
+#ifdef BOOTLOADER_SUPPORT
+extern uint8_t bootload_delay;
+#endif
+
 #if UIP_CONF_IPV6
 
 static void 
@@ -181,8 +185,10 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   const unsigned char *filename = CONF_TFTP_IMAGE;
   uip_ipaddr_t ip; CONF_TFTP_IP;
 
-  if (addr0 != 0xFE80)
+  if (addr0 != 0xFE80) {
     tftp_fire_tftpomatic(&ip, filename);
+    bootload_delay = CONF_BOOTLOAD_DELAY;
+  }
 # endif /* TFTPOMATIC_SUPPORT */
 }
 
