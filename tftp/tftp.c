@@ -30,6 +30,12 @@
 #include "../eeprom.h"
 #include "tftp.h"
 
+/* Define if you want to support firmware upload only. */
+#undef  TFTP_UPLOAD_ONLY
+
+/* Define if you want to temporarily disable firmware flashing. */
+#undef  TFTP_DEBUG_DO_NOT_FLASH
+
 /* defined in `timer.c' */
 extern uint8_t bootload_delay;
 
@@ -45,6 +51,10 @@ flash_page(uint32_t page, uint8_t *buf)
 {
     uint16_t i;
     uint8_t sreg;
+
+#ifdef TFTP_DEBUG_DO_NOT_FLASH
+    return;
+#endif
 
     for(i = 0; i < SPM_PAGESIZE; i ++)
 	if(buf[i] != pgm_read_byte_near(page + i))
@@ -93,7 +103,6 @@ tftp_handle_packet(void)
     uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
     uip_udp_conn->rport = BUF->srcport;
 
-
     /*
      * care for incoming tftp packet now ...
      */
@@ -101,6 +110,7 @@ tftp_handle_packet(void)
     struct tftp_hdr *pk = uip_appdata;
 
     switch(HTONS(pk->type)) {
+#ifndef TFTP_UPLOAD_ONLY
     /*
      * streaming data back to the client (download) ...
      */
@@ -187,7 +197,7 @@ tftp_handle_packet(void)
 
 	uip_udp_conn->appstate.tftp.transfered ++;
 	break;
-
+#endif /* not TFTP_UPLOAD_ONLY */
 	
     /*
      * streaming data from the client (firmware upload) ...
@@ -197,12 +207,12 @@ tftp_handle_packet(void)
 	uip_udp_conn->appstate.tftp.transfered = 0;
 	uip_udp_conn->appstate.tftp.finished = 0;
 
-        bootload_delay = 0;                      /* Stop bootloader. */
-
 	pk->u.ack.block = HTONS(0);
 	goto send_ack;
 
     case 3: /* data packet */
+        bootload_delay = 0;                      /* Stop bootloader. */
+
 	if(uip_udp_conn->appstate.tftp.download != 0)
 	    goto error_out;
 
