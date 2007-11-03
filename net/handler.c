@@ -2,6 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (C) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -36,6 +37,10 @@
 #include "syslog_net.h"
 #include "i2c_net.h"
 #include "../dyndns/dyndns.h"
+
+/* Define this, if you want every fifth packet to be discarded. */
+#undef  NETWORK_DEBUG_DISCARD_SOME
+
 
 void network_init_apps(void)
 /* {{{ */ {
@@ -74,6 +79,23 @@ void network_init_apps(void)
     /* initialize your applications here */
 
 } /* }}} */
+
+
+#ifdef NETWORK_DEBUG_DISCARD_SOME
+static void network_debug_discard_some(void)
+{
+  if (! uip_slen) return;
+
+  static int i = 0;
+  if (++ i < 5) return;
+  i = 0;
+
+  /* destroy the packet/ */
+  uip_slen = 0;
+}
+#else
+#define network_debug_discard_some(a) (void)(0)
+#endif
 
 
 #ifdef TCP_SUPPORT 
@@ -217,15 +239,7 @@ void network_handle_tcp(void)
     if (uip_conn->callback != NULL) 
         uip_conn->callback();
 
-    /* put tcp application calls here, example:
-     *
-     * if (uip_conn->lport == HTONS(ETHCMD_PORT))
-     *     ethcmd_main();
-     *
-     * if (uip_conn->lport == HTONS(HTTPD_PORT) ||
-     *     uip_conn->lport == HTONS(HTTPD_ALTERNATE_PORT))
-     *         httpd_main();
-     */
+    network_debug_discard_some();
 
 #   ifdef AUTH_SUPPORT 
     /* For challenge/response authentication to skip the application calls, if
@@ -276,17 +290,7 @@ void network_handle_udp(void)
     if (uip_udp_conn->callback)
         uip_udp_conn->callback();
 
-    /* put udp application calls here, example:
-     *
-     * if (uip_udp_conn->lport == HTONS(SNTP_UDP_PORT))
-     *     sntp_handle_conn();
-     * 
-     * if (uip_udp_conn->lport == HTONS(SYSLOG_UDP_PORT))
-     *     syslog_handle_conn();
-     * 
-     * if (uip_udp_conn->lport == HTONS(FC_UDP_PORT))
-     *     fc_handle_conn();
-     */
+    network_debug_discard_some();
 
 } /* }}} */
 #endif /* UDP_SUPPORT */
