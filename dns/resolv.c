@@ -129,6 +129,16 @@ struct namemap {
 #define RESOLV_ENTRIES UIP_CONF_RESOLV_ENTRIES
 #endif /* UIP_CONF_RESOLV_ENTRIES */
 
+#define DNS_RECORD_TYPE_A    0x01
+#define DNS_RECORD_TYPE_AAAA 0x1c
+
+#if UIP_CONF_IPV6
+#define DNS_RECORD_ADDR_TYPE DNS_RECORD_TYPE_AAAA
+#define DNS_RECORD_ADDR_LEN  16
+#else
+#define DNS_RECORD_ADDR_TYPE DNS_RECORD_TYPE_A
+#define DNS_RECORD_ADDR_LEN  4
+#endif
 
 static struct namemap names[RESOLV_ENTRIES];
 
@@ -223,7 +233,7 @@ resolv_periodic(void)
       } while(*nameptr != 0);
       {
 	static unsigned char endquery[] =
-	  {0,0,1,0,1};
+	  {0,0,DNS_RECORD_ADDR_TYPE,0,1};
 	memcpy(query, endquery, 5);
       }
       uip_udp_send((unsigned char)(query + 5 - (char *)uip_appdata));
@@ -305,9 +315,9 @@ resolv_newdata(void)
 
       /* Check for IP address type and Internet class. Others are
 	 discarded. */
-      if(ans->type == HTONS(1) &&
+      if(ans->type == HTONS(DNS_RECORD_ADDR_TYPE) &&
 	 ans->class == HTONS(1) &&
-	 ans->len == HTONS(4)) {
+	 ans->len == HTONS(DNS_RECORD_ADDR_LEN)) {
 	/*	printf("IP address %d.%d.%d.%d\n",
 	       htons(ans->ipaddr[0]) >> 8,
 	       htons(ans->ipaddr[0]) & 0xff,
@@ -315,8 +325,14 @@ resolv_newdata(void)
 	       htons(ans->ipaddr[1]) & 0xff);*/
 	/* XXX: we should really check that this IP address is the one
 	   we want. */
+
+#if UIP_CONF_IPV6
+	memcpy(namemapptr->ipaddr, ans->ipaddr, 16);
+
+#else /* !UIP_CONF_IPV6 */
 	namemapptr->ipaddr[0] = ans->ipaddr[0];
 	namemapptr->ipaddr[1] = ans->ipaddr[1];
+#endif /* !UIP_CONF_IPV6 */
 	
         if (namemapptr->callback)
           namemapptr->callback(namemapptr->name, (uip_ipaddr_t *)namemapptr->ipaddr);
