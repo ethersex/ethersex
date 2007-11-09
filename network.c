@@ -138,11 +138,6 @@ void network_init(void)
         memcpy(&ipaddr, &cfg_base->gateway, 4);
         uip_setdraddr(ipaddr);
         
-#       ifdef DNS_SUPPORT
-        memcpy(&ipaddr, &cfg_base->dns_server, 4);
-        resolv_conf(&ipaddr);
-#       endif
-
         /* optimized version: FIXME: does this work?
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
         uip_sethostaddr(&cfg_base->ip);
@@ -150,6 +145,11 @@ void network_init(void)
         uip_setdraddr(&cfg_base->gateway);
         */
 #	endif /* !UIP_CONF_IPV6 */
+
+#       ifdef DNS_SUPPORT
+        memcpy(&ipaddr, &cfg_base->dns_server, IPADDR_LEN);
+        resolv_conf(&ipaddr);
+#       endif
 
     }
 
