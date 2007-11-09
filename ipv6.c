@@ -27,6 +27,7 @@
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
 #include "tftp/tftp.h"
+#include "dyndns/dyndns.h"
 #include "ipv6.h"
 #include "config.h"
 
