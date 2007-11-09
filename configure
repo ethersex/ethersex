@@ -151,10 +151,9 @@ my %ethersex_modules = (
                    distdflt  => 0,
                  },
   'dns'        => {
-                   helptext  => "resolving ipv4 dns names",
+                   helptext  => "dns name resolver",
                    distdflt  => 0,
                    requires => ["udp"],
-                   conflicts => [ "ipv6" ],
                    preconfigure => [ "ipv6", "bootp" ],
                    enable_hook  => \&dns_enable_hook,
                  },
@@ -199,7 +198,7 @@ my %ethersex_config = (
                    helptext  => "hex-encoded skipjack key for tftp",
                  },
   'dns_server' =>{
-                   helptext  => "name of the default dns server",
+                   helptext  => "ip address of the default dns server",
                  },
   'dyndns_hostname' => {
                    helptext  => "hostname to be updated via dyndns",
