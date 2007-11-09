@@ -29,6 +29,8 @@
 /*
  * Copyright (c) 2002-2003, Adam Dunkels.
  * Copyright (c) 2007, Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007, Stefan Siegl <stesie@brokenpipe.de>
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
