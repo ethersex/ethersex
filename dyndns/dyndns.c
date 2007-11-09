@@ -33,21 +33,15 @@
 static void dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr);
 static void dyndns_net_main(void);
 
-
-enum DynDnsStates {
-  DYNDNS_HOSTNAME,
-  DYNDNS_IP,
-  DYNDNS_USERNAME,
-  DYNDNS_PASSWORD,
-  DYNDNS_READY,
-};
-
-static uint8_t state = DYNDNS_HOSTNAME;
-
 void
 dyndns_update(void)
 {
-  state = DYNDNS_HOSTNAME;
+  uint8_t i;
+  /* Request to close all other dyndns connections */
+  for (i = 0; i < UIP_CONNS; i ++) 
+    if (uip_conns[i].callback == dyndns_net_main)
+      uip_conns[i].appstate.dyndns.state = DYNDNS_CANCEL;
+
 #ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup("dyn.metafnord.de"))) 
@@ -62,22 +56,33 @@ dyndns_update(void)
 #else
   uip_ipaddr(&ipaddr, 78, 47, 210, 243);
 #endif
-  uip_connect(&ipaddr, HTONS(80), dyndns_net_main);
+  struct uip_conn *conn = uip_connect (&ipaddr, HTONS (80), dyndns_net_main);
+  if (conn)
+    conn->appstate.dyndns.state = DYNDNS_HOSTNAME;
+
 #endif
 }
 
 static void
 dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
-  uip_connect(ipaddr, HTONS(80), dyndns_net_main);
+  struct uip_conn *conn = uip_connect (ipaddr, HTONS (80), dyndns_net_main);
+  if (conn)
+    conn->appstate.dyndns.state = DYNDNS_HOSTNAME;
 }
 
 static void
 dyndns_net_main(void) 
-{
+{ 
+  /* Close connection on ready an when cancel was requested */
+  if (uip_conn->appstate.dyndns.state >= DYNDNS_READY) {
+    uip_abort ();
+    return;
+  }
+
   if(uip_acked()) {
-    state++;
-    if (state == DYNDNS_READY) 
+    uip_conn->appstate.dyndns.state ++;
+    if (uip_conn->appstate.dyndns.state == DYNDNS_READY) 
       uip_close();
   }
 
@@ -92,7 +97,7 @@ dyndns_net_main(void)
     uint8_t *ip;
 #endif
 
-    switch(state) {
+    switch(uip_conn->appstate.dyndns.state) {
     case  DYNDNS_HOSTNAME:
       to_be_sent = __builtin_alloca(strlen_P(PSTR("GET /edit.cgi?name=%S&"))
         + strlen(CONF_DYNDNS_HOSTNAME));

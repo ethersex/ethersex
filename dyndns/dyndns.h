@@ -24,6 +24,15 @@
 #ifndef _DYNDNS_H
 #define _DYNDNS_H
 
+enum DynDnsStates {
+  DYNDNS_HOSTNAME,
+  DYNDNS_IP,
+  DYNDNS_USERNAME,
+  DYNDNS_PASSWORD,
+  DYNDNS_READY,
+  DYNDNS_CANCEL,
+};
+
 void dyndns_update(void);
 
 #endif
