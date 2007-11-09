@@ -73,7 +73,7 @@ void network_init_apps(void)
     i2c_net_init();
 #   endif
 
-#if defined(DYNDNS_SUPPORT) &&  !defined(BOOTP_SUPPORT)
+#if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(IPV6_SUPPORT)
     dyndns_update();
 #endif
     /* initialize your applications here */
