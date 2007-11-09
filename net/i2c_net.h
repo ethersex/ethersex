@@ -1,6 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/*
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -19,28 +17,15 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
-#include "dns_net.h"
-#include "../uip/uip.h"
-#include "../debug.h"
-#include "../dns/resolv.h"
+#ifndef _I2C_NET_H
+#define _I2C_NET_H
+/* constants */
+#define I2C_PORT 0x2323
 
-#include "../config.h"
+/* prototypes */
+void i2c_net_init(void);
+void i2c_net_main(void);
 
-#ifdef DNS_SUPPORT
-void dns_net_init(void)
-{
-  resolv_init();
-}
-
-void dns_net_main(void)
-{
-  if(uip_poll()) {
-    resolv_periodic();
-  }
-  if(uip_newdata()) {
-    resolv_newdata();
-  }
-}
 #endif

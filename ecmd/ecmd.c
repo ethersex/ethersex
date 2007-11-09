@@ -92,6 +92,9 @@ static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len);
 static int16_t parse_rfm12_send(char *cmd, char *output, uint16_t len);
 static int16_t parse_rfm12_receive(char *cmd, char *output, uint16_t len);
 #endif 
+#ifdef DNS_SUPPORT
+static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
+#endif
 
 /* low level */
 static int8_t parse_ip(char *cmd, uint8_t *ptr);
@@ -153,6 +156,9 @@ const char PROGMEM ecmd_ir_receive[] = "ir receive";
 const char PROGMEM ecmd_rfm12_send[] = "rfm12 send";
 const char PROGMEM ecmd_rfm12_receive[] = "rfm12 receive";
 #endif
+#ifdef DNS_SUPPORT
+const char PROGMEM ecmd_nslookup[] = "nslookup";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_ip_text, parse_cmd_ip },
@@ -201,8 +207,29 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_rfm12_send, parse_rfm12_send },
     { ecmd_rfm12_receive, parse_rfm12_receive },
 #endif 
+#ifdef DNS_SUPPORT
+    { ecmd_nslookup, parse_nslookup },
+#endif
     { NULL, NULL },
 };
+
+
+static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
+/* {{{ */ {
+#if UIP_CONF_IPV6
+  return snprintf_P (output, len, PSTR ("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
+		     HTONS(((u16_t *)(addr))[0]), HTONS(((u16_t *)(addr))[1]), 
+		     HTONS(((u16_t *)(addr))[2]), HTONS(((u16_t *)(addr))[3]), 
+		     HTONS(((u16_t *)(addr))[4]), HTONS(((u16_t *)(addr))[5]), 
+		     HTONS(((u16_t *)(addr))[6]), HTONS(((u16_t *)(addr))[7]));
+#else
+  uint8_t *ip = (uint8_t *) addr;
+  int output_len = snprintf_P (output, len, PSTR ("%u.%u.%u.%u"), 
+			       ip[0], ip[1], ip[2], ip[3]);
+
+  return output_len;
+#endif  
+} /* }}} */
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -822,6 +849,24 @@ static int16_t parse_rfm12_receive(char *cmd, char *output, uint16_t len)
     return (recv_len << 1) + rfaddr_len;
 } /* }}} */
 #endif /* RFM12_SUPPORT */
+
+
+
+#ifdef DNS_SUPPORT
+static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  while (*cmd == 32) cmd ++;
+  uip_ipaddr_t *addr = resolv_lookup (cmd);
+
+  if (addr) {
+    return print_ipaddr (addr, output, len);
+  }
+  else {
+    resolv_query (cmd, NULL);
+    return snprintf_P (output, len, PSTR ("nslookup triggered, try again for result."));
+  }
+} /* }}} */
+#endif
 
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)

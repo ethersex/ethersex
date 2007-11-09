@@ -1,7 +1,5 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+/*
+ * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,24 +16,31 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
-#ifndef ECMD_STATE_H
-#define ECMD_STATE_H
+#ifndef _I2C_H
+#define _I2C_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
+#include <stdint.h>
+#include "../uip/uip.h"
 
-#define ECMD_INPUTBUF_LENGTH  50
-#define ECMD_OUTPUTBUF_LENGTH 50
-
-struct ecmd_connection_state_t {
-    char inbuf[ECMD_INPUTBUF_LENGTH];
-    uint8_t in_len;
-    char outbuf[ECMD_OUTPUTBUF_LENGTH];
-    uint8_t out_len;
-    struct pt thread;
-    uint8_t parse_again;
+/* i2c packet header */
+enum i2c_request_type {
+	I2C_INIT,
+	I2C_READ,
+	I2C_WRITE,
+	I2C_READON,
+	I2C_WRITEON,
+	I2C_ERROR
 };
+
+/* constants */
+#define I2C_PORT 0x2323
+#define I2C_DATAOFFSET 4
+
+/* prototypes */
+void i2c_core_init(struct uip_udp_conn *i2c_conn);
+void i2c_core_periodic(void);
+void i2c_core_newdata(void);
 
 #endif

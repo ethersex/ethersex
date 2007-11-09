@@ -98,16 +98,16 @@ void network_init(void)
         memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
 #       endif
 
-        uip_ipaddr(ipaddr, 255,255,255,0);
-        uip_setnetmask(ipaddr);
+        CONF_ETHERRAPE_IP4_NETMASK;
+        uip_setnetmask(ip);
 #       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->netmask, &ipaddr, sizeof(uip_ipaddr_t));
+        memcpy(&cfg_base->netmask, &ip, sizeof(uip_ipaddr_t));
 #       endif
 
-        uip_ipaddr(ipaddr, 0, 0, 0, 0);
-        uip_setdraddr(ipaddr);
+        CONF_ETHERRAPE_IP4_GATEWAY;
+        uip_setdraddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->gateway, &ipaddr, sizeof(uip_ipaddr_t));
+        memcpy(&cfg_base->gateway, &ip, sizeof(uip_ipaddr_t));
 #       endif
 #       endif /* !UIP_CONF_IPV6 */
 
@@ -138,11 +138,6 @@ void network_init(void)
         memcpy(&ipaddr, &cfg_base->gateway, 4);
         uip_setdraddr(ipaddr);
         
-#       ifdef DNS_SUPPORT
-        memcpy(&ipaddr, &cfg_base->dns_server, 4);
-        resolv_conf(&ipaddr);
-#       endif
-
         /* optimized version: FIXME: does this work?
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
         uip_sethostaddr(&cfg_base->ip);
@@ -150,6 +145,11 @@ void network_init(void)
         uip_setdraddr(&cfg_base->gateway);
         */
 #	endif /* !UIP_CONF_IPV6 */
+
+#       ifdef DNS_SUPPORT
+        memcpy(&ipaddr, &cfg_base->dns_server, IPADDR_LEN);
+        resolv_conf(&ipaddr);
+#       endif
 
     }
 

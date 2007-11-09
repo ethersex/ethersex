@@ -1,7 +1,5 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+/*
+ * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,24 +16,42 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
-#ifndef ECMD_STATE_H
-#define ECMD_STATE_H
+#ifndef _I2C_STATE_H
+#define _I2C_STATE_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
+/* constants */
+#define I2C_TXBUFMAX 255
 
-#define ECMD_INPUTBUF_LENGTH  50
-#define ECMD_OUTPUTBUF_LENGTH 50
+struct i2c_tx {
+	union {
+		uint8_t raw[0];
+		uint8_t seqnum;
+	};
+	uint8_t connstate;
+	uint8_t i2cstate;
+	uint8_t datalen;
+	uint8_t buf[I2C_TXBUFMAX+1];
+};
 
-struct ecmd_connection_state_t {
-    char inbuf[ECMD_INPUTBUF_LENGTH];
-    uint8_t in_len;
-    char outbuf[ECMD_OUTPUTBUF_LENGTH];
-    uint8_t out_len;
-    struct pt thread;
-    uint8_t parse_again;
+struct i2c_request_t {
+	union{
+		uint8_t raw[0];
+		uint8_t seqnum;
+	};
+	uint8_t type;
+	uint8_t i2c_addr;
+	uint8_t datalen;
+	union{
+		uint8_t data[0];
+	};
+};
+
+struct i2c_connection_state_t {
+	uint8_t txstate;
+	uint8_t timeout;
+	struct i2c_tx *tx;
 };
 
 #endif

@@ -1,6 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/*
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -19,28 +17,40 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
-#include "dns_net.h"
 #include "../uip/uip.h"
-#include "../debug.h"
-#include "../dns/resolv.h"
-
 #include "../config.h"
+#include "../i2c/i2c.h"
+#include "i2c_net.h"
 
-#ifdef DNS_SUPPORT
-void dns_net_init(void)
+#ifdef I2C_SUPPORT
+
+void 
+i2c_net_init(void)
 {
-  resolv_init();
+	uip_ipaddr_t ip;
+	uip_ipaddr(&ip, 255,255,255,255);
+	
+	struct uip_udp_conn *i2c_conn = uip_udp_new(&ip, 0, i2c_net_main);
+	
+	if(! i2c_conn) 
+		return;					/* keine udp connection !? */
+	
+	uip_udp_bind(i2c_conn, HTONS(I2C_PORT));
+
+	// Init the I2C Code
+        i2c_core_init(i2c_conn);
+	
 }
 
-void dns_net_main(void)
+void
+i2c_net_main(void)
 {
-  if(uip_poll()) {
-    resolv_periodic();
-  }
-  if(uip_newdata()) {
-    resolv_newdata();
-  }
+  if (uip_poll()) 
+    i2c_core_periodic();
+  if (uip_newdata())
+    i2c_core_newdata();
 }
+
 #endif

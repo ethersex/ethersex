@@ -21,26 +21,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include "dns_net.h"
-#include "../uip/uip.h"
-#include "../debug.h"
-#include "../dns/resolv.h"
+#ifndef DYNDNS_STATE_H
+#define DYNDNS_STATE_H
 
-#include "../config.h"
+struct dyndns_connection_state_t {
+  uint8_t state;
+};
 
-#ifdef DNS_SUPPORT
-void dns_net_init(void)
-{
-  resolv_init();
-}
-
-void dns_net_main(void)
-{
-  if(uip_poll()) {
-    resolv_periodic();
-  }
-  if(uip_newdata()) {
-    resolv_newdata();
-  }
-}
 #endif

@@ -21,26 +21,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include "dns_net.h"
 #include "../uip/uip.h"
-#include "../debug.h"
-#include "../dns/resolv.h"
 
-#include "../config.h"
+#ifndef _SYSLOG_NET_H
+#define _SYSLOG_NET_H
 
-#ifdef DNS_SUPPORT
-void dns_net_init(void)
-{
-  resolv_init();
-}
+/* constants */
+#define SYSLOG_PORT 514
+#define SYSLOG_CALLBACKS 3
 
-void dns_net_main(void)
-{
-  if(uip_poll()) {
-    resolv_periodic();
-  }
-  if(uip_newdata()) {
-    resolv_newdata();
-  }
-}
+/* This callback is called when the syslog connection is able to send data to
+ * the syslog server
+ */
+typedef void (*syslog_callback_t)(void *data);
+
+struct SyslogCallbackCtx {
+  syslog_callback_t callback;
+  void *data;
+};
+
+void syslog_net_init(void);
+void syslog_net_main(void);
+uint8_t syslog_insert_callback(syslog_callback_t callback, void *data);
+
 #endif

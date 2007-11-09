@@ -32,6 +32,8 @@
 #include "bootp_state.h"
 #include "tftp_state.h"
 #include "ecmd_sender_state.h"
+#include "i2c_state.h"
+#include "dyndns_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -46,6 +48,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef ECMD_SENDER_SUPPORT
     struct ecmd_sender_connection_state_t ecmd_sender;
+#   endif
+
+#   ifdef DYNDNS_SUPPORT
+    struct dyndns_connection_state_t dyndns;
 #   endif
 
 #   ifdef AUTH_SUPPORT
@@ -65,6 +71,10 @@ typedef union uip_udp_connection_state {
 
 #   ifdef TFTP_SUPPORT
     struct tftp_connection_state_t tftp;
+#   endif
+
+#   ifdef I2C_SUPPORT
+    struct i2c_connection_state_t i2c;
 #   endif
 
     /* put udp application states here, example:

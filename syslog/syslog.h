@@ -21,26 +21,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include "dns_net.h"
-#include "../uip/uip.h"
-#include "../debug.h"
-#include "../dns/resolv.h"
+#include <avr/pgmspace.h>
 
-#include "../config.h"
+#define MAX_DYNAMIC_SYSLOG_BUFFER 40
 
-#ifdef DNS_SUPPORT
-void dns_net_init(void)
-{
-  resolv_init();
-}
+#ifndef _SYSLOG_H
+#define _SYSLOG_H
 
-void dns_net_main(void)
-{
-  if(uip_poll()) {
-    resolv_periodic();
-  }
-  if(uip_newdata()) {
-    resolv_newdata();
-  }
-}
+uint8_t syslog_send_P(PGM_P message);
+uint8_t syslog_send(const char *message);
+uint8_t syslog_send_ptr(void *message);
+
 #endif

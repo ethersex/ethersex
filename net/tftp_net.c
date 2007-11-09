@@ -43,12 +43,12 @@ tftp_net_init(void)
 
     tftp_conn->appstate.tftp.fire_req = 0;
 
-#ifdef TFTPOMATIC_SUPPORT
+#if defined(TFTPOMATIC_SUPPORT) && !defined(IPV6_SUPPORT)
     const unsigned char *filename = CONF_TFTP_IMAGE;
     CONF_TFTP_IP;
 
     tftp_fire_tftpomatic(&ip, filename);
-#endif /* TFTPOMATIC_SUPPORT */
+#endif /* TFTPOMATIC_SUPPORT and !IPV6_SUPPORT */
 }
 
 

@@ -26,6 +26,8 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "tftp/tftp.h"
+#include "dyndns/dyndns.h"
 #include "ipv6.h"
 #include "config.h"
 
@@ -39,6 +41,10 @@ extern struct uip_eth_addr uip_ethaddr;
 
 /* Calculate ICMP6 Checksum, exported from uip/uip.c */
 extern u16_t uip_icmp6chksum(void);
+
+#ifdef BOOTLOADER_SUPPORT
+extern uint8_t bootload_delay;
+#endif
 
 #if UIP_CONF_IPV6
 
@@ -164,19 +170,29 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   uip_ip6addr(ipaddr, addr0, addr1, addr2, addr3, addr4, addr5, addr6, addr7);
 
 # ifdef DYNDNS_SUPPORT
-  
-  /* Get old host address */
-  uip_ipaddr_t old_ipaddr;
-  uip_gethostaddr(&old_ipaddr);
+  if (addr0 != 0xFE80) {
+    /* Get old host address */
+    uip_ipaddr_t old_ipaddr;
+    uip_gethostaddr(&old_ipaddr);
 
-  if(! uip_ipaddr_cmp(&ipaddr, &old_ipaddr)) {
-    /* Update the dyndns name only if address has changed */
-    dyndns_update();
+    if(! uip_ipaddr_cmp(&ipaddr, &old_ipaddr)) {
+      /* Update the dyndns name only if address has changed */
+      dyndns_update();
+    }
   }
 # endif
 
   uip_sethostaddr(ipaddr);
 
+# ifdef TFTPOMATIC_SUPPORT
+  const unsigned char *filename = CONF_TFTP_IMAGE;
+  uip_ipaddr_t ip; CONF_TFTP_IP;
+
+  if (addr0 != 0xFE80) {
+    tftp_fire_tftpomatic(&ip, filename);
+    bootload_delay = CONF_BOOTLOAD_DELAY;
+  }
+# endif /* TFTPOMATIC_SUPPORT */
 }
 
 
