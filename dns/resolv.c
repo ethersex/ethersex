@@ -87,6 +87,7 @@ struct dns_hdr {
 #define DNS_FLAG1_TRUNC           0x02
 #define DNS_FLAG1_RD              0x01
 #define DNS_FLAG2_RA              0x80
+#define DNS_FLAG2_NON_AUTH_OK     0x10
 #define DNS_FLAG2_ERR_MASK        0x0f
 #define DNS_FLAG2_ERR_NONE        0x00
 #define DNS_FLAG2_ERR_NAME        0x03
@@ -215,6 +216,7 @@ resolv_periodic(void)
       memset(hdr, 0, sizeof(struct dns_hdr));
       hdr->id = htons(i);
       hdr->flags1 = DNS_FLAG1_RD;
+      hdr->flags2 = DNS_FLAG2_NON_AUTH_OK;
       hdr->numquestions = HTONS(1);
       query = (char *)uip_appdata + 12;
       nameptr = namemapptr->name;
@@ -279,7 +281,7 @@ resolv_newdata(void)
     namemapptr->err = hdr->flags2 & DNS_FLAG2_ERR_MASK;
 
     /* Check for error. If so, call callback to inform. */
-    if(namemapptr->err != 0) {
+    if(namemapptr->err != 0 || hdr->numanswers == 0) {
       namemapptr->state = STATE_ERROR;
       if (namemapptr->callback)
         namemapptr->callback(namemapptr->name, NULL);
