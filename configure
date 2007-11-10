@@ -690,5 +690,4 @@ sub modules_configuration {
 
 modules_configuration
 
-print "\n\nsuccessfully configured your ethersex.\n";
-print "don't forget to run `make clean all'.\n\n";
+print "\n\nsuccessfully configured your ethersex.\n\n";
