@@ -47,8 +47,12 @@
 /* module local prototypes */
 /* high level */
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len);
@@ -94,10 +98,12 @@ static int16_t parse_rfm12_receive(char *cmd, char *output, uint16_t len);
 #endif 
 #ifdef DNS_SUPPORT
 static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
 #endif
 
 /* low level */
-static int8_t parse_ip(char *cmd, uint8_t *ptr);
+static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 static int8_t parse_mac(char *cmd, uint8_t *ptr);
 static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
 
@@ -111,9 +117,17 @@ struct ecmd_command_t {
  * storing structs containing string pointer completely in program
  * space */
 const char PROGMEM ecmd_showmac_text[] = "show mac";
-const char PROGMEM ecmd_showip_text[] = "show ip";
+const char PROGMEM ecmd_show_ip_text[] = "show ip";
+#ifndef IPV6_SUPPORT
+const char PROGMEM ecmd_show_netmask_text[] = "show netmask";
+#endif
+const char PROGMEM ecmd_show_gw_text[] = "show gw";
 const char PROGMEM ecmd_showversion_text[] = "show version";
+#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
 const char PROGMEM ecmd_ip_text[] = "ip ";
+const char PROGMEM ecmd_netmask_text[] = "netmask ";
+const char PROGMEM ecmd_gw_text[] = "gw ";
+#endif
 const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_bootloader_text[] = "bootloader";
 const char PROGMEM ecmd_reset_text[] = "reset";
@@ -157,15 +171,27 @@ const char PROGMEM ecmd_rfm12_send[] = "rfm12 send";
 const char PROGMEM ecmd_rfm12_receive[] = "rfm12 receive";
 #endif
 #ifdef DNS_SUPPORT
-const char PROGMEM ecmd_nslookup[] = "nslookup";
+const char PROGMEM ecmd_nslookup[] = "nslookup ";
+const char PROGMEM ecmd_show_dns_text[] = "show dns";
+#ifndef BOOTP_SUPPORT
+const char PROGMEM ecmd_dns_text[] = "dns ";
 #endif
+#endif /* DNS_SUPPORT */
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
-    { ecmd_ip_text, parse_cmd_ip },
+    { ecmd_show_ip_text, parse_cmd_show_ip },
+    { ecmd_show_gw_text, parse_cmd_show_gw },
     { ecmd_showmac_text, parse_cmd_show_mac },
-    { ecmd_showip_text, parse_cmd_show_ip },
-    { ecmd_showversion_text, parse_cmd_show_version },
     { ecmd_mac_text, parse_cmd_mac },
+#if !UIP_CONF_IPV6
+    { ecmd_show_netmask_text, parse_cmd_show_netmask },
+#endif
+#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+    { ecmd_ip_text, parse_cmd_ip },
+    { ecmd_netmask_text, parse_cmd_netmask },
+    { ecmd_gw_text, parse_cmd_gw },
+#endif
+    { ecmd_showversion_text, parse_cmd_show_version },
     { ecmd_bootloader_text, parse_cmd_bootloader }, 
     { ecmd_reset_text, parse_cmd_reset },
     { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
@@ -209,7 +235,11 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #endif 
 #ifdef DNS_SUPPORT
     { ecmd_nslookup, parse_nslookup },
+    { ecmd_show_dns_text, parse_cmd_show_dns },
+#ifndef BOOTP_SUPPORT
+    { ecmd_dns_text, parse_cmd_dns },
 #endif
+#endif /* DNS_SUPPORT */
     { NULL, NULL },
 };
 
@@ -322,30 +352,49 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
     eeprom_read_block(&buf, EEPROM_MAC_OFFSET, sizeof(struct uip_eth_addr));
 
     int output_len = snprintf_P(output, len,
-            PSTR("mac %02x:%02x:%02x:%02x:%02x:%02x"),
+            PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     return output_len;
 } /* }}} */
 
+
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-#if UIP_CONF_IPV6
-    return -1;
-#else 
-    uint8_t ips[sizeof(uip_ipaddr_t)*3];
+    uip_ipaddr_t hostaddr;
+    uip_gethostaddr(&hostaddr);
 
-    eeprom_read_block(ips, EEPROM_IPS_OFFSET, sizeof(uip_ipaddr_t)*3);
-
-    int output_len = snprintf_P(output, len,
-            PSTR("ip %u.%u.%u.%u/%u.%u.%u.%u, gateway %u.%u.%u.%u"),
-            ips[0], ips[1], ips[2], ips[3],
-            ips[4], ips[5], ips[6], ips[7],
-            ips[8], ips[9], ips[10], ips[11]);
-
-    return output_len;
-#endif /* ! UIP_CONF_IPV6 */
+    return print_ipaddr (&hostaddr, output, len);
 } /* }}} */
+
+
+#ifndef IPV6_SUPPORT
+int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uip_ipaddr_t netmask;
+    uip_getnetmask(&netmask);
+
+    return print_ipaddr (&netmask, output, len);
+} /* }}} */
+#endif /* !IPV6_SUPPORT */
+
+
+int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uip_ipaddr_t draddr;
+    uip_getdraddr(&draddr);
+
+    return print_ipaddr (&draddr, output, len);
+} /* }}} */
+
+
+#ifdef DNS_SUPPORT
+int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    return print_ipaddr (resolv_getserver (), output, len);
+} /* }}} */
+#endif
+
 
 int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -354,56 +403,75 @@ int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
 } /* }}} */
 
 
+#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-#if UIP_CONF_IPV6
-    return -1;
-#else 
+    uip_ipaddr_t hostaddr;
 
-#ifdef DEBUG_ECMD_IP
-    debug_printf("called with string %s\n", cmd);
-#endif
+    while (*cmd == ' ')
+	cmd++;
 
-    int8_t ret;
+    /* try to parse ip */
+    if (parse_ip (cmd, &hostaddr))
+	return -1;
 
-    uip_ipaddr_t ips[3];
-
-    for (uint8_t i = 0; i < 3; i++) {
-
-        if (cmd == NULL)
-            return -1;
-
-        while (*cmd == ' ')
-            cmd++;
-
-        /* try to parse ip */
-        ret = parse_ip(cmd, (uint8_t *)&ips[i]);
-
-        /* locate next whitespace char */
-        cmd = strchr(cmd, ' ');
-
-#ifdef DEBUG_ECMD_IP
-        debug_printf("next string is '%s', ret is %d\n", cmd, ret);
-#endif
-
-        if (ret < 0)
-            return -1;
-
-#ifdef DEBUG_ECMD_IP
-        debug_printf("successfully parsed ip param %u\n", i);
-#endif
-    }
-
-#ifdef DEBUG_ECMD
-    debug_printf("saving new network configuration\n");
-#endif
-
-    /* save new ip addresses, use uip_buf since this buffer is unused when
-     * this function is executed */
-    return eeprom_save_config(NULL, ips[0], ips[1], ips[2], NULL);
-#endif /* ! UIP_CONF_IPV6 */
-
+    return eeprom_save_config(NULL, &hostaddr, NULL, NULL, NULL);
 } /* }}} */
+#endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+
+
+#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uip_ipaddr_t netmask;
+
+    while (*cmd == ' ')
+	cmd++;
+
+    /* try to parse ip */
+    if (parse_ip (cmd, &netmask))
+	return -1;
+
+    return eeprom_save_config(NULL, NULL, &netmask, NULL, NULL);
+} /* }}} */
+#endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+
+
+#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uip_ipaddr_t gwaddr;
+
+    while (*cmd == ' ')
+	cmd++;
+
+    /* try to parse ip */
+    if (parse_ip (cmd, &gwaddr))
+	return -1;
+
+    uip_setdraddr (&gwaddr);
+    return eeprom_save_config (NULL, NULL, NULL, &gwaddr, NULL);
+} /* }}} */
+#endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+
+
+#if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
+static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    uip_ipaddr_t dnsaddr;
+
+    while (*cmd == ' ')
+	cmd++;
+
+    /* try to parse ip */
+    if (parse_ip (cmd, &dnsaddr))
+	return -1;
+
+    resolv_conf (&dnsaddr);
+    return eeprom_save_config (NULL, NULL, NULL, NULL, &dnsaddr);
+} /* }}} */
+#endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+
 
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -1185,44 +1253,40 @@ static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif
 
+
 /* low level parsing functions */
 
 /* parse an ip address at cmd, write result to ptr */
-int8_t parse_ip(char *cmd, uint8_t *ptr)
+int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 /* {{{ */ {
 
 #ifdef DEBUG_ECMD_IP
     debug_printf("called parse_ip with string '%s'\n", cmd);
 #endif
 
-    int *ip = __builtin_alloca(sizeof(int) * 4);
+#if UIP_CONF_IPV6
+    uint16_t *ip = (uint16_t *) ptr;
+    int8_t ret = sscanf_P(cmd, PSTR("%x:%x:%x:%x:%x:%x:%x:%x"),
+			  ip + 0, ip + 1, ip + 2, ip + 3, 
+			  ip + 4, ip + 5, ip + 6, ip + 7);
+    
+    if (ret != 8)
+	return -1;
 
-    /* return -2 if malloc() failed */
-    if (ip == NULL)
-        return -2;
+    for (int i = 0; i < 8; i ++)
+	ip[i] = HTONS (ip[i]);
 
-    int ret = sscanf_P(cmd, PSTR("%u.%u.%u.%u"), ip, ip+1, ip+2, ip+3);
+#else
+    uint8_t *ip = (uint8_t *) ptr;
+    int8_t ret = sscanf_P(cmd, PSTR("%u.%u.%u.%u"), ip, ip+1, ip+2, ip+3);
 
-#ifdef DEBUG_ECMD_IP
-    debug_printf("scanf returned %d\n", ret);
+    if (ret != 4) 
+	return -1;
 #endif
 
-    if (ret == 4) {
-#ifdef DEBUG_ECMD_IP
-        debug_printf("read ip %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
-#endif
-
-        /* copy ip to destination */
-        if (ptr != NULL)
-            for (uint8_t i = 0; i < 4; i++)
-                ptr[i] = ip[i];
-
-        ret = 0;
-    } else
-        ret = -1;
-
-    return ret;
+    return 0;
 } /* }}} */
+
 
 /* parse an ethernet address at cmd, write result to ptr */
 int8_t parse_mac(char *cmd, uint8_t *ptr)

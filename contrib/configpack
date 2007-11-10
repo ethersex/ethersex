@@ -1,18 +1,59 @@
 #!/bin/sh
+#
+# Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+# Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# For more information on the GPL, please go to:
+# http://www.gnu.org/copyleft/gpl.html
+#
+DIRFIX=.
 
-if [ -z "$1" ]; then
+usage() {
   echo "usage: $0 <save | load> file"
-  exit
-fi
+  exit $1
+}
 
-if [ x"$1" = x"save" ]; then
+check_env() {
+  if [ -d uip ]; then
+    true # looks good ...
+  elif [ -d ../uip ]; then
+    DIRFIX=$(basename $(pwd))
+    cd ..  # escape contrib directory ...
+  fi
+
+  [ -e Makefile -a -e uip/uip-conf.h -a -e config.h ] || {
+    echo "$0 must be ran within a etherrape repository."
+    exit 1
+  }
+}
+
+if [ -z "$1" ]; then usage 0; fi
+
+if [ x"$1" = x"save" -o x"$1" = x"--save" ]; then
   echo "Saving config to $2"
+
+  check_env
+
   tmpdir="tmp$RANDOM"
   mkdir -p $tmpdir/uip
 
   cp config.h $tmpdir
   cp Makefile $tmpdir
-  cp uip/uip-conf.h $tmpdir
+  cp uip/uip-conf.h $tmpdir/uip
 
   for i in `ls`; do
     if [ -d $i -a -e $i/config ]; then
@@ -21,12 +62,23 @@ if [ x"$1" = x"save" ]; then
     fi
   done
   cd $tmpdir
-  tar -c . | gzip > ../$2
-  rm -rf $tmpdir
+  tar -c . | gzip > ../$DIRFIX/$2
+  cd ..; rm -rf $tmpdir
   echo "done"
+elif [ x"$1" = x"load" -o x"$1" = x"--load" ]; then
+  [ -e $2 ] || {
+    echo "$0: cannot access $2: No such file or directory"
+    exit 1
+  }
+  check_env
+  echo "restoring configuration saved in $2:"
+  for f in $(tar xvzf $DIRFIX/$2); do
+    # touch every restored file, to make `make' rebuild the
+    # necessary bits.
+    [ -d $f ] || { echo " * $f"; touch $f; }
+  done
+  echo "done.  Now run \`make all'."
 else
-  echo "Applying $2"
-  tar xvzf $2
-  echo "done, please don't forget \`make clean all'"
+  usage 1
 fi
 

@@ -41,7 +41,8 @@ uint8_t crc_checksum(void *data, uint8_t length)
 } /* }}} */
 
 
-#if !defined(BOOTLOADER_SUPPORT) || defined(BOOTP_SUPPORT)
+#if !defined(BOOTLOADER_SUPPORT) || (defined(BOOTP_SUPPORT) \
+				     && defined(BOOTP_TO_EEPROM_SUPPORT))
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, void *dns_server)
 /* {{{ */ {
 
@@ -54,18 +55,21 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, voi
 
     if (mac != NULL)
         memcpy(&cfg_base.mac, mac, 6);
-#if !UIP_CONF_IPV6
+#if !UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT) \
+                       || defined(BOOTP_TO_EEPROM_SUPPORT))
     if (ip != NULL)
         memcpy(&cfg_base.ip, ip, 4);
     if (netmask != NULL)
         memcpy(&cfg_base.netmask, netmask, 4);
     if (gateway != NULL)
         memcpy(&cfg_base.gateway, gateway, 4);
-#ifdef DNS_SUPPORT
+#endif /* not UIP_CONF_IPV6 and (not BOOTP or BOOTP_TO_EEPROM) */
+
+#if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
+			     || defined(BOOTP_TO_EEPROM_SUPPORT))
     if (dns_server != NULL)
-        memcpy(&cfg_base.dns_server, dns_server, 4);
+        memcpy(&cfg_base.dns_server, dns_server, IPADDR_LEN);
 #endif
-#endif /* !UIP_CONF_IPV6 */
 
     /* calculate new checksum */
     uint8_t checksum = crc_checksum(&cfg_base, sizeof(struct eeprom_config_base_t) - 1);

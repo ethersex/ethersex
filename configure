@@ -21,8 +21,6 @@
 use strict;
 use Term::Prompt;
 
-
-
 my %ethersex_modules = (
   'tetrirape' => {
                    helptext  => "a tetrinet server",
@@ -67,6 +65,12 @@ my %ethersex_modules = (
                    preconfigure => [ "ipv6" ],
                    distdflt  => 0,
                  },
+  'bootp_to_eeprom' => {
+                   helptext  => "store BOOTP-aquired data to EEPROM",
+		   requires  => [ "bootp", "bootloader" ],
+		   preconfigure => [ "bootp" ],
+		   distdflt  => 0,
+		 },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
@@ -393,13 +397,24 @@ sub configure_module {
   return 1;
 }
 
+sub ipv6_expand {
+  $_ = shift;
+  my @colons = m/:/g;
+  if(scalar(@colons) > 7) { return undef; }
+  unless(m/::/) { return $_ }
+
+  my $replacement = ":0" x (8 - scalar(@colons)) . ":";
+  $_ =~ s/::/$replacement/;
+  if($_ =~ m/^:/) { $_ = "0$_"; }
+  if($_ =~ m/:$/) { $_ .= "0"; }
+
+  return $_;
+}
+
+# return 1 if provided IP address is valid
 sub check_ip {
   my $checkval = shift;
-  if($ethersex_modules{'ipv6'}->{'new_status'}) {
-    # validate ipv6 addr
-    if($checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){7}$/i) { return 1; }
-    return 0;
-  } else {
+  unless($ethersex_modules{'ipv6'}->{'new_status'}) {
     # validate ipv4 addr
     my @parts = split m/\./, $checkval;
     if(scalar(@parts) != 4) { return 0; }
@@ -408,6 +423,12 @@ sub check_ip {
     }
     return 1;
   }
+
+  # validate ipv6 addr
+  if($checkval =~ m/:::/) { return 1; }
+  $checkval = ipv6_expand($checkval);
+  if($checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){7}$/i) { return 1; }
+  return 0;
 }
 
 sub ask_ip {
@@ -423,6 +444,10 @@ sub ask_ip {
   my $new_value = 
     prompt('s', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, 
            $default, \&check_ip);
+
+  if($ethersex_modules{'ipv6'}->{'new_status'} && $new_value =~ m/::/) {
+    $new_value = ipv6_expand($new_value);
+  }
 
   my @parts = split(m/[\.:]/, $new_value);
   if($ethersex_modules{'ipv6'}->{'new_status'}) {
@@ -677,5 +702,4 @@ sub modules_configuration {
 
 modules_configuration
 
-print "\n\nsuccessfully configured your ethersex.\n";
-print "don't forget to run `make clean all'.\n\n";
+print "\n\nsuccessfully configured your ethersex.\n\n";
