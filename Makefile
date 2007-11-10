@@ -39,9 +39,6 @@ AVRDUDE_FLAGS += -u
 # no signature byte check, -> bootloader bug
 AVRDUDE_FLAGS += -F
 
-# Name of Makefile for make depend
-MAKEFILE = Makefile
-
 # if you would like everything to be recompiled when you change config.mk, uncomment this line:
 #$(OBJECTS): config.mk
 
@@ -57,8 +54,11 @@ all: $(TARGET).hex $(TARGET).lss
 $(TARGET): $(OBJECTS) $(TARGET).o
 
 # subdir magic
-%/% %/%.o %/%.hex %/all %/depend %/install %/clean:
+%/% %/%.o %/%.hex %/all %/install:
 	$(MAKE) -C $(@D) -e $(@F)
+
+%/clean:
+	$(MAKE) -C $(@D) -e $(@F) no_deps=t
 
 # Sorry for this workaround
 %.o: %.c
@@ -82,13 +82,10 @@ clean: bootloader/clean fs20/clean lcd/clean onewire/clean
 clean: rc5/clean
 
 clean-$(TARGET):
-	rm -f $(TARGET) $(TARGET).map
+	rm -f $(TARGET) $(TARGET).map $(TARGET).bin
 	rm -f $(OBJECTS) $(USER_CONFIG)
 
 distclean: clean
 	rm -f eeprom-default.raw Makefile.dep tags
 
-depend:
-	$(CC) $(CFLAGS) -M $(CDEFS) $(CINCS) $(SRC) $(ASRC) > $(MAKEFILE).dep
-
--include $(MAKEFILE).dep
+-include depend.mk
