@@ -53,7 +53,7 @@ if [ x"$1" = x"save" -o x"$1" = x"--save" ]; then
 
   cp config.h $tmpdir
   cp Makefile $tmpdir
-  cp uip/uip-conf.h $tmpdir
+  cp uip/uip-conf.h $tmpdir/uip
 
   for i in `ls`; do
     if [ -d $i -a -e $i/config ]; then
