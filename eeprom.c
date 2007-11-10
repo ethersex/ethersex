@@ -61,11 +61,11 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, voi
         memcpy(&cfg_base.netmask, netmask, 4);
     if (gateway != NULL)
         memcpy(&cfg_base.gateway, gateway, 4);
+#endif /* !UIP_CONF_IPV6 */
 #ifdef DNS_SUPPORT
     if (dns_server != NULL)
-        memcpy(&cfg_base.dns_server, dns_server, 4);
+        memcpy(&cfg_base.dns_server, dns_server, IPADDR_LEN);
 #endif
-#endif /* !UIP_CONF_IPV6 */
 
     /* calculate new checksum */
     uint8_t checksum = crc_checksum(&cfg_base, sizeof(struct eeprom_config_base_t) - 1);
