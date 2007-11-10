@@ -38,14 +38,16 @@
 struct eeprom_config_base_t {
     uint8_t mac[6];
 
-#if !UIP_CONF_IPV6
+#if !UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT) \
+                       || defined(BOOTP_TO_EEPROM_SUPPORT))
     /* IPv4 address to use, for IPv6 we use MAC-based autoconfiguration */
     uint8_t ip[IPADDR_LEN];
     uint8_t netmask[IPADDR_LEN];
     uint8_t gateway[IPADDR_LEN];
-#endif /* not UIP_CONF_IPV6 */
+#endif /* not UIP_CONF_IPV6 and (not BOOTP or BOOTP_TO_EEPROM) */
 
-#ifdef DNS_SUPPORT
+#if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
+			     || defined(BOOTP_TO_EEPROM_SUPPORT))
     uint8_t dns_server[IPADDR_LEN];
 #endif
 

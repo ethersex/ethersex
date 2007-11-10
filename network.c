@@ -91,7 +91,7 @@ void network_init(void)
         memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
-#       if !UIP_CONF_IPV6
+#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
         CONF_ETHERRAPE_IP4;
         uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
@@ -109,9 +109,9 @@ void network_init(void)
 #       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->gateway, &ip, sizeof(uip_ipaddr_t));
 #       endif
-#       endif /* !UIP_CONF_IPV6 */
+#       endif /* not UIP_CONF_IPV6 and not BOOTP */
 
-#       ifdef DNS_SUPPORT
+#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
         CONF_DNS_SERVER;
         memcpy(&cfg_base->dns_server, &ip, sizeof(uip_ipaddr_t));
         resolv_conf(&ip);
@@ -130,13 +130,14 @@ void network_init(void)
 
         /* load settings from eeprom */
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
-#       if !UIP_CONF_IPV6
+#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
         memcpy(&ipaddr, &cfg_base->ip, 4);
         uip_sethostaddr(ipaddr);
         memcpy(&ipaddr, &cfg_base->netmask, 4);
         uip_setnetmask(ipaddr);
         memcpy(&ipaddr, &cfg_base->gateway, 4);
         uip_setdraddr(ipaddr);
+#       endif /* not UIP_CONF_IPV6 and not BOOTP */
         
         /* optimized version: FIXME: does this work?
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
@@ -144,13 +145,11 @@ void network_init(void)
         uip_sethostaddr(&cfg_base->netmask);
         uip_setdraddr(&cfg_base->gateway);
         */
-#	endif /* !UIP_CONF_IPV6 */
 
-#       ifdef DNS_SUPPORT
+#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
         memcpy(&ipaddr, &cfg_base->dns_server, IPADDR_LEN);
         resolv_conf(&ipaddr);
 #       endif
-
     }
 
 #   if UIP_CONF_IPV6

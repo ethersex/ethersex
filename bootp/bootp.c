@@ -128,8 +128,10 @@ bootp_handle_reply(void)
 	ptr = ptr + ptr[1] + 2;
     }
 
-
+#ifdef BOOTP_TO_EEPROM_SUPPORT
     eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2], ips[3]);
+#endif
+
     uip_udp_conn->appstate.bootp.configured = 1;
 #ifdef DYNDNS_SUPPORT
     dyndns_update();

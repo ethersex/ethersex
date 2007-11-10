@@ -65,6 +65,12 @@ my %ethersex_modules = (
                    preconfigure => [ "ipv6" ],
                    distdflt  => 0,
                  },
+  'bootp_to_eeprom' => {
+                   helptext  => "store BOOTP-aquired data to EEPROM",
+		   requires  => [ "bootp", "bootloader" ],
+		   preconfigure => [ "bootp" ],
+		   distdflt  => 0,
+		 },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
