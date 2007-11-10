@@ -71,8 +71,12 @@ elif [ x"$1" = x"load" -o x"$1" = x"--load" ]; then
     exit 1
   }
   check_env
-  echo "Applying $2."
-  tar xvzf $DIRFIX/$2
+  echo "restoring configuration saved in $2:"
+  for f in $(tar xvzf $DIRFIX/$2); do
+    # touch every restored file, to make `make' rebuild the
+    # necessary bits.
+    [ -d $f ] || { echo " * $f"; touch $f; }
+  done
   echo "done.  Now run \`make all'."
 else
   usage 1
