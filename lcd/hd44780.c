@@ -225,20 +225,23 @@ void hd44780_goto(uint8_t line, uint8_t pos)
     current_pos = (line * 20 + pos) % 80;
 }
 
+void hd44780_shift(uint8_t right)
+{
+    output_byte(0, CMD_SHIFT(1, right?1:0));
+}
+
 void
 hd44780_define_char(uint8_t n_char, uint8_t *data)
 {
   if (n_char > 7) return;
   /* set cgram pointer to char number n */
-  output_byte(0, 0x40 | n_char * 8);
+  output_byte(0, CMD_SETCRAMADR(n_char * 8));
   n_char = 0;
   while (n_char < 8) {
     /* send the data to lcd into cgram */
     output_byte(1, *(data + n_char));
     n_char++;
   }
-  /* set pointer back to Home */
-  output_byte(0, 0x80);
 }
 
 void hd44780_init(uint8_t cursor, uint8_t blink)
@@ -285,6 +288,9 @@ void hd44780_init(uint8_t cursor, uint8_t blink)
 
     /* open file descriptor */
     lcd = fdevopen(hd44780_put, NULL);
+    
+    /* set current virtual postion */
+    current_pos = 0;
 }
 
 int hd44780_put(char d, FILE *stream)

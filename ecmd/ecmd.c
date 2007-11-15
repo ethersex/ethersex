@@ -82,6 +82,8 @@ static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_init(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len);
 #endif
 #ifdef ONEWIRE_SUPPORT
 static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
@@ -153,6 +155,8 @@ const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
 const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
 const char PROGMEM ecmd_lcd_char_text[] = "lcd char";
+const char PROGMEM ecmd_lcd_init_text[] = "lcd init";
+const char PROGMEM ecmd_lcd_shift_text[] = "lcd shift";
 #endif
 #ifdef ONEWIRE_SUPPORT
 const char PROGMEM ecmd_onewire_list[] = "1w list";
@@ -213,6 +217,8 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_lcd_write_text, parse_lcd_write },
     { ecmd_lcd_goto_text, parse_lcd_goto },
     { ecmd_lcd_char_text, parse_lcd_char },
+    { ecmd_lcd_init_text, parse_lcd_init },
+    { ecmd_lcd_shift_text, parse_lcd_shift },
 #endif
 #ifdef ONEWIRE_SUPPORT
     { ecmd_onewire_list, parse_onewire_list },
@@ -1193,6 +1199,32 @@ static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len)
     return 0;
   } else
     return -1;
+} /* }}} */
+
+static int16_t parse_lcd_init(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint8_t cursor, blink;
+  int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
+  if ( ret == 2 ) {
+    hd44780_init(cursor, blink);
+    return 0;
+  } else
+    return -1;
+} /* }}} */
+
+static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  if (strlen(cmd) < 1) 
+    return -1;
+
+  if (!strncmp_P(cmd + 1, PSTR("right"), 5))
+    hd44780_shift(1);
+  else if (!strncmp_P(cmd + 1, PSTR("left"), 4)) 
+    hd44780_shift(0);
+  else
+    return -1;
+
+  return 0;
 } /* }}} */
 #endif
 
