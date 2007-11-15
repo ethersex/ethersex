@@ -81,6 +81,7 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len);
 #endif
 #ifdef ONEWIRE_SUPPORT
 static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
@@ -151,6 +152,7 @@ const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
 const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
 const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
+const char PROGMEM ecmd_lcd_char_text[] = "lcd char";
 #endif
 #ifdef ONEWIRE_SUPPORT
 const char PROGMEM ecmd_onewire_list[] = "1w list";
@@ -210,6 +212,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_lcd_clear_text, parse_lcd_clear },
     { ecmd_lcd_write_text, parse_lcd_write },
     { ecmd_lcd_goto_text, parse_lcd_goto },
+    { ecmd_lcd_char_text, parse_lcd_char },
 #endif
 #ifdef ONEWIRE_SUPPORT
     { ecmd_onewire_list, parse_onewire_list },
@@ -1174,6 +1177,22 @@ static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len)
     } else
         return -1;
 
+} /* }}} */
+
+static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  if (strlen(cmd) < 26) 
+    return -1;
+  uint8_t n_char, data[8];
+  int ret = sscanf_P(cmd, PSTR("%u %x %x %x %x %x %x %x %x"), &n_char,
+                     &data[0], &data[1], &data[2], &data[3],
+                     &data[4], &data[5], &data[6], &data[7]);
+
+  if ( ret == 9 && data) {
+    hd44780_define_char(n_char, data);
+    return 0;
+  } else
+    return -1;
 } /* }}} */
 #endif
 
