@@ -57,6 +57,26 @@ openvpn_init (void)
 {
   openvpn_uip_init ();
 
+  /* Initialize OpenVPN stack IP config, if necessary. */
+# if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+  CONF_OPENVPN_IP4;
+  uip_sethostaddr(ip);
+
+  CONF_OPENVPN_IP4_NETMASK;
+  uip_setnetmask(ip);
+
+  CONF_OPENVPN_IP4_GATEWAY;
+  uip_setdraddr(ip);
+# endif /* not UIP_CONF_IPV6 and not BOOTP */
+
+# if UIP_CONF_IPV6
+  uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
+# if UIP_CONF_IPV6_LLADDR
+  uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
+# endif
+# endif
+
+  /* Create OpenVPN UDP listener. */
   uip_ipaddr_t ip;
   uip_ipaddr_copy(&ip, all_ones_addr);
 
