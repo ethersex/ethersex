@@ -26,6 +26,22 @@
 #include "uip_openvpn.h"
 #include "uip.c"
 
-void openvpn_handle_udp(void)
+void 
+openvpn_handle_udp (void)
 {
+}
+
+
+/* Prepare data from inner uIP stack to be sent out to the remote host,
+   this is fill the IP and UDP headers of the outer stack part.  */
+void
+openvpn_process_out (void)
+{
+  if (! uip_slen)
+    return;			/* no data to be sent out. */
+
+  /* We assume that openvpn_udp_conns[0] always is the OpenVPN
+     connection.  */
+  uip_udp_conn = &uip_udp_conns[0];
+  uip_process (UIP_UDP_SEND_CONN);
 }
