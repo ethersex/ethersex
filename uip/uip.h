@@ -1242,18 +1242,6 @@ struct uip_conn {
 extern struct uip_conn *uip_conn;
 /* The array containing all uIP connections. */
 extern struct uip_conn uip_conns[UIP_CONNS];
-/**
- * \addtogroup uiparch
- * @{
- */
-
-/**
- * 4-byte array used for the 32-bit sequence number calculations.
- */
-extern u8_t uip_acc32[4];
-
-/** @} */
-
 
 #if UIP_UDP
 /**
