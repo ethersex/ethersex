@@ -29,6 +29,18 @@
 void 
 openvpn_handle_udp (void)
 {
+  if (uip_udp_conn->lport != HTONS(OPENVPN_PORT))
+    return;
+
+  /* Push data into inner uIP stack. */
+  real_uip_process (UIP_DATA);
+
+  if (! uip_len)
+    return;			/* Inner stack hasn't created a
+				   packet. */
+
+  openvpn_slen = uip_len;	/* Make sure openvpn_process sends
+				   the data. */
 }
 
 
