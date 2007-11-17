@@ -337,7 +337,7 @@ noinline chksum(u16_t sum, const u8_t *data, u16_t len)
 }
 /*---------------------------------------------------------------------------*/
 #if 0
-u16_t
+static u16_t
 uip_chksum(u16_t *data, u16_t len)
 {
   return htons(chksum(0, (u8_t *)data, len));
@@ -346,8 +346,7 @@ uip_chksum(u16_t *data, u16_t len)
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
 #if !UIP_CONF_IPV6
-#ifndef OPENVPN_OUTER
-u16_t
+static u16_t
 uip_ipchksum(void)
 {
   u16_t sum;
@@ -356,7 +355,6 @@ uip_ipchksum(void)
   DEBUG_PRINTF("uip_ipchksum: sum 0x%04x\n", sum);
   return (sum == 0) ? 0xffff : htons(sum);
 }
-#endif /* !OPENVPN_OUTER */
 #endif /* !UIP_CONF_IPV6 */
 #endif /* UIP_ARCH_IPCHKSUM */
 /*---------------------------------------------------------------------------*/
@@ -387,7 +385,7 @@ upper_layer_chksum(u8_t proto)
 }
 /*---------------------------------------------------------------------------*/
 #if UIP_CONF_IPV6
-u16_t
+static u16_t
 uip_icmp6chksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_ICMP6);
@@ -396,7 +394,7 @@ uip_icmp6chksum(void)
 #endif /* UIP_CONF_IPV6 */
 /*---------------------------------------------------------------------------*/
 #if UIP_TCP
-u16_t
+static u16_t
 uip_tcpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_TCP);
@@ -404,13 +402,11 @@ uip_tcpchksum(void)
 #endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP_CHECKSUMS
-#ifndef OPENVPN_OUTER
-u16_t
+static u16_t
 uip_udpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_UDP);
 }
-#endif /* !OPENVPN_OUTER */
 #endif /* UIP_UDP_CHECKSUMS */
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
