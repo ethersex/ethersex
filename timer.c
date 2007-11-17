@@ -61,9 +61,9 @@ void timer_process(void)
         debug_printf("timer: counter is %d\n", counter);
 #       endif
 
-#ifdef  WATCHCAT_SUPPORT
+#       ifdef  WATCHCAT_SUPPORT
         watchcat_periodic();
-#endif
+#       endif
 
 #       if UIP_CONNS <= 255
         uint8_t i;
@@ -101,6 +101,10 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
+#                   ifdef OPENVPN_SUPPORT
+		    openvpn_process_out();
+#                   endif
+
 #                   if UIP_CONF_IPV6
                     uip_neighbor_out();
 #                   else
@@ -119,8 +123,9 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
-                    // XXX FIXME if (uip_arp_out() == 0)
-                    // XXX FIXME     uip_udp_conn->appstate.sntp.transmit_state = 1;
+#                   ifdef OPENVPN_SUPPORT
+		    openvpn_process_out();
+#                   endif
 
 #                   if UIP_CONF_IPV6
                     uip_neighbor_out();
