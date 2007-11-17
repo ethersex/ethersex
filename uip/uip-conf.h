@@ -131,6 +131,22 @@ typedef unsigned short uip_stats_t;
 #  ifdef OPENVPN_OUTER
 #  else
 #    define OPENVPN_INNER
+
+     /* The header of the link layer (of the inner stack) consists of:
+      *
+      *                                       IPv4          IPv6
+      *
+      *     actual link layer (ethernet)        14            14
+      *     IP header of OpenVPN stack          20            40
+      *     UDP header of OpenVPN stack          8             8
+      *   ----------------------------------------------------------
+      *     total                               42            62
+      */
+#    if UIP_CONF_IPV6
+#      define UIP_CONF_LLH_LEN 62
+#    else
+#      define UIP_CONF_LLH_LEN 42
+#    endif
 #  endif
 #endif
 
