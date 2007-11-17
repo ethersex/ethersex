@@ -400,7 +400,11 @@ void process_packet(void)
             uip_arp_ipin();
 #       endif /* !UIP_CONF_IPV6 */
 
+#       ifdef OPENVPN_SUPPORT
+	    openvpn_process(UIP_DATA);
+#       else
             uip_input();
+#       endif
 
             /* if there is a packet to send, send it now */
             if (uip_len > 0) {
