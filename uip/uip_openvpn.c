@@ -50,3 +50,20 @@ openvpn_process_out (void)
   openvpn_udp_conn = &openvpn_udp_conns[0];
   openvpn_process (UIP_UDP_SEND_CONN);
 }
+
+
+void 
+openvpn_init (void)
+{
+  openvpn_uip_init ();
+
+  uip_ipaddr_t ip;
+  uip_ipaddr_copy(&ip, all_ones_addr);
+
+  struct uip_udp_conn *openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
+
+  if(! openvpn_conn) 
+    return;					/* dammit. */
+
+  uip_udp_bind(openvpn_conn, HTONS(OPENVPN_PORT));
+}

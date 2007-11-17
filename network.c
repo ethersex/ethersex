@@ -55,6 +55,10 @@ void network_init(void)
 
     uip_init();
 
+#ifdef OPENVPN_SUPPORT
+    openvpn_init();
+#endif
+
 #if UIP_CONF_IPV6
     uip_neighbor_init();
 #else
@@ -406,7 +410,7 @@ void process_packet(void)
             	uip_neighbor_out();
 #               else
                 uip_arp_out();
-#		        endif
+#		endif
 
                 transmit_packet();
             }
