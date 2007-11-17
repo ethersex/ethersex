@@ -78,5 +78,20 @@ void openvpn_handle_udp(void);
 #define OPENVPN_PORT 1194
 
 
+/* We don't want to have the ``official'' appstate, but our own cut
+   down one. */
+#define CONNECTION_STATE_H	/* make sure we don't include state.h */
+
+#include "../net/bootp_state.h"
+typedef union uip_udp_connection_state {
+
+#   ifdef BOOTP_SUPPORT
+    struct bootp_connection_state_t bootp;
+#   endif
+
+} uip_udp_appstate_t;
+
+
+
 #endif /* OPENVPN_SUPPORT */
 #endif /* UIP_OPENVPN_H */

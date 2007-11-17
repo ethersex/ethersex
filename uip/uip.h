@@ -1186,6 +1186,7 @@ extern u16_t uip_urglen, uip_surglen;
  * file pointers) for the connection. The type of this field is
  * configured in the "uipopt.h" header file.
  */
+#if UIP_TCP
 struct uip_conn {
   uip_ipaddr_t ripaddr;   /**< The IP address of the remote host. */
   
@@ -1242,6 +1243,9 @@ struct uip_conn {
 extern struct uip_conn *uip_conn;
 /* The array containing all uIP connections. */
 extern struct uip_conn uip_conns[UIP_CONNS];
+#endif /* UIP_TCP */
+
+
 
 #if UIP_UDP
 /**
