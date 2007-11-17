@@ -351,7 +351,7 @@ void process_packet(void)
 
     /* check size */
     if (rpv.received_packet_size > NET_MAX_FRAME_LENGTH
-            || rpv.received_packet_size < UIP_LLH_LEN
+            || rpv.received_packet_size < 14
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
         debug_printf("net: packet too large or too small for an ethernet header: %d\n", rpv.received_packet_size);
