@@ -74,5 +74,9 @@ void openvpn_handle_udp(void);
 #endif
 
 
+/* The port number to use for OpenVPN. */
+#define OPENVPN_PORT 1194
+
+
 #endif /* OPENVPN_SUPPORT */
 #endif /* UIP_OPENVPN_H */
