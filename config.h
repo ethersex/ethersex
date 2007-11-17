@@ -355,6 +355,7 @@
 #define CONF_OPENVPN_IP4 uip_ipaddr(ip,10,1,0,5)
 #define CONF_OPENVPN_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_OPENVPN_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
+#define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)

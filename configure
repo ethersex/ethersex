@@ -210,6 +210,9 @@ my %ethersex_config = (
   'openvpn_ip4_gateway'   => {
                    helptext  => "default gateway for openvpn gateway",
                  },
+  'openvpn_key'   =>{
+                   helptext  => "hex-encoded openvpn key",
+                 },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
                  },
@@ -605,6 +608,9 @@ sub openvpn_enable_hook {
   ask_ip("openvpn_ip4");
   ask_ip("openvpn_ip4_netmask");
   ask_ip("openvpn_ip4_gateway");
+
+  ask_cryptokey("openvpn_key", 16)
+    if($ethersex_modules{'cast5'}->{'new_status'});
 }
 
 sub dns_enable_hook {
