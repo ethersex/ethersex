@@ -21,19 +21,32 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-
 /* We're now compiling the outer side of the uIP stack */
 #include "uip_openvpn.h"
 #include "uip.c"
+
+/* for raw access to the packet buffer */
+#define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 void 
 openvpn_handle_udp (void)
 {
   if (uip_udp_conn->lport != HTONS(OPENVPN_PORT))
     return;
+  if (!uip_newdata ())
+    return;
+
+  /* Overwrite udp connection information (i.e. take from incoming packet). */
+  uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
+  uip_udp_conn->rport = BUF->srcport;
+
+  /* ``uip_len'' is the number of payload bytes, however uip_process
+     expects the number of bytes including the LLH. */
+  uip_len += OPENVPN_LLH_LEN;
 
   /* Push data into inner uIP stack. */
-  real_uip_process (UIP_DATA);
+#undef uip_process
+  uip_process (UIP_DATA);
 
   if (! uip_len)
     return;			/* Inner stack hasn't created a
@@ -71,6 +84,8 @@ openvpn_init (void)
 
   /* Initialize OpenVPN stack IP config, if necessary. */
 # if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+  uip_ipaddr_t ip;
+
   CONF_OPENVPN_IP4;
   uip_sethostaddr(ip);
 
@@ -89,7 +104,6 @@ openvpn_init (void)
 # endif
 
   /* Create OpenVPN UDP listener. */
-  uip_ipaddr_t ip;
   uip_ipaddr_copy(&ip, all_ones_addr);
 
   struct uip_udp_conn *openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);

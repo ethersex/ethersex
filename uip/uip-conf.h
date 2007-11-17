@@ -128,10 +128,6 @@ typedef unsigned short uip_stats_t;
 
 
 #ifdef OPENVPN_SUPPORT
-#  ifdef OPENVPN_OUTER
-#  else
-#    define OPENVPN_INNER
-
      /* The header of the link layer (of the inner stack) consists of:
       *
       *                                       IPv4          IPv6
@@ -142,11 +138,17 @@ typedef unsigned short uip_stats_t;
       *   ----------------------------------------------------------
       *     total                               42            62
       */
-#    if UIP_CONF_IPV6
-#      define UIP_CONF_LLH_LEN 62
-#    else
-#      define UIP_CONF_LLH_LEN 42
-#    endif
+#  if UIP_CONF_IPV6
+#    define OPENVPN_LLH_LEN 62
+#  else
+#    define OPENVPN_LLH_LEN 42
+#  endif
+
+
+#  ifdef OPENVPN_OUTER
+#  else
+#    define OPENVPN_INNER
+#    define UIP_CONF_LLH_LEN  OPENVPN_LLH_LEN
 #  endif
 #endif
 

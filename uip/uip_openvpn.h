@@ -37,8 +37,6 @@
 #undef UIP_UDP_APPCALL
 #define UIP_UDP_APPCALL     openvpn_handle_udp
 
-#define real_uip_process    uip_process
-
 #define uip_init            openvpn_uip_init
 #define uip_process         openvpn_process
 #define uip_send            openvpn_send
