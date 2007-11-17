@@ -37,11 +37,16 @@ openvpn_handle_udp (void)
 void
 openvpn_process_out (void)
 {
-  if (! uip_slen)
+  /* uip_len is shared between both stacks.  uip_process (from the
+     inner stack) has set it to the amount of data to be tunnelled
+     (including TCP, etc. headers).  */
+  if (! uip_len)
     return;			/* no data to be sent out. */
+
+  openvpn_slen = uip_len;
 
   /* We assume that openvpn_udp_conns[0] always is the OpenVPN
      connection.  */
-  uip_udp_conn = &uip_udp_conns[0];
-  uip_process (UIP_UDP_SEND_CONN);
+  openvpn_udp_conn = &openvpn_udp_conns[0];
+  openvpn_process (UIP_UDP_SEND_CONN);
 }
