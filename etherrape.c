@@ -137,10 +137,6 @@ int main(void)
 #endif 
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
-    debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]),
-                                      HI8(uip_hostaddr[0]),
-                                      LO8(uip_hostaddr[1]),
-                                      HI8(uip_hostaddr[1]));
     debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
             uip_ethaddr.addr[0],
             uip_ethaddr.addr[1],
@@ -151,9 +147,6 @@ int main(void)
             );
 
 #   if defined(HD44780_SUPPORT) && defined(DEBUG)
-    fprintf_P(lcd, PSTR("ip: %d.%d.%d.%d\n"),
-        LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]),
-        LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]));
     fprintf_P(lcd, PSTR("mac: %02x%02x%02x%02x%02x%02x\n"),
             uip_ethaddr.addr[0], uip_ethaddr.addr[1],
             uip_ethaddr.addr[2], uip_ethaddr.addr[3],

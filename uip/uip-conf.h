@@ -126,4 +126,13 @@ typedef unsigned short uip_stats_t;
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
+
+#ifdef OPENVPN_SUPPORT
+#  ifdef OPENVPN_OUTER
+#  else
+#    define OPENVPN_INNER
+#  endif
+#endif
+
+
 #endif /* __UIP_CONF_H__ */

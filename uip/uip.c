@@ -124,6 +124,8 @@ uip_ipaddr_t uip_lladdr;
 
 #endif /* UIP_FIXEDADDR */
 
+
+#ifndef OPENVPN_OUTER 
 const uip_ipaddr_t all_ones_addr =
 #if UIP_CONF_IPV6
   {0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff};
@@ -148,6 +150,8 @@ const struct uip_eth_addr uip_ethaddr = {{UIP_ETHADDR0,
 #else
 struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
 #endif
+#endif /* !OPENVPN_OUTER */
+
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
 u8_t uip_buf[UIP_BUFSIZE + 2];   /* The packet buffer that contains
@@ -171,9 +175,10 @@ u16_t uip_len, uip_slen;
 				depending on the maximum packet
 				size. */
 
-u8_t uip_flags;     /* The uip_flags variable is used for
+u8_t uip_flags;              /* The uip_flags variable is used for
 				communication between the TCP/IP stack
 				and the application program. */
+
 struct uip_conn *uip_conn;   /* uip_conn always points to the current
 				connection. */
 
@@ -210,7 +215,7 @@ static u16_t lastport;       /* Keeps track of the last port used for
 #endif /* UIP_ACTIVE_OPEN */
 
 /* Temporary variables. */
-u8_t uip_acc32[4];
+static u8_t uip_acc32[4];
 static u8_t c, opt;
 static u16_t tmp16;
 
@@ -268,6 +273,7 @@ void uip_log(char *msg);
 #endif /* UIP_LOGGING == 1 */
 
 #if ! UIP_ARCH_ADD32
+#ifndef OPENVPN_OUTER
 void noinline
 uip_add32(u8_t *op32, u16_t op16)
 {
@@ -294,7 +300,7 @@ uip_add32(u8_t *op32, u16_t op16)
     }
   }
 }
-
+#endif /* !OPENVPN_OUTER */
 #endif /* UIP_ARCH_ADD32 */
 
 #if ! UIP_ARCH_CHKSUM
@@ -340,6 +346,7 @@ uip_chksum(u16_t *data, u16_t len)
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
 #if !UIP_CONF_IPV6
+#ifndef OPENVPN_OUTER
 u16_t
 uip_ipchksum(void)
 {
@@ -349,6 +356,7 @@ uip_ipchksum(void)
   DEBUG_PRINTF("uip_ipchksum: sum 0x%04x\n", sum);
   return (sum == 0) ? 0xffff : htons(sum);
 }
+#endif /* !OPENVPN_OUTER */
 #endif /* !UIP_CONF_IPV6 */
 #endif /* UIP_ARCH_IPCHKSUM */
 /*---------------------------------------------------------------------------*/
@@ -396,11 +404,13 @@ uip_tcpchksum(void)
 #endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP_CHECKSUMS
+#ifndef OPENVPN_OUTER
 u16_t
 uip_udpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_UDP);
 }
+#endif /* !OPENVPN_OUTER */
 #endif /* UIP_UDP_CHECKSUMS */
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
@@ -715,6 +725,7 @@ uip_reass(void)
 }
 #endif /* UIP_REASSEMBLY */
 /*---------------------------------------------------------------------------*/
+#if UIP_TCP
 static void
 uip_add_rcv_nxt(u16_t n)
 {
@@ -724,6 +735,7 @@ uip_add_rcv_nxt(u16_t n)
   uip_conn->rcv_nxt[2] = uip_acc32[2];
   uip_conn->rcv_nxt[3] = uip_acc32[3];
 }
+#endif
 /*---------------------------------------------------------------------------*/
 void
 uip_process(u8_t flag)
@@ -1977,11 +1989,13 @@ uip_process(u8_t flag)
   return;
 }
 /*---------------------------------------------------------------------------*/
+#ifndef OPENVPN_OUTER
 u16_t
 htons(u16_t val)
 {
   return HTONS(val);
 }
+#endif /* !OPENVPN_OUTER */
 /*---------------------------------------------------------------------------*/
 void
 uip_send(const void *data, int len)

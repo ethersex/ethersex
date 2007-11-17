@@ -19,6 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+/* we want to live on the outer stack, if there are two ... */
+#include "../uip/uip_openvpn.h"
+
 #include <stdlib.h>
 
 #include "bootp_net.h"
