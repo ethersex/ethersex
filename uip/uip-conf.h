@@ -128,6 +128,8 @@ typedef unsigned short uip_stats_t;
 
 
 #ifdef OPENVPN_SUPPORT
+#  define UIP_MULTI_STACK        1
+
      /* The header of the link layer (of the inner stack) consists of:
       *
       *                                       IPv4          IPv6
@@ -155,7 +157,59 @@ typedef unsigned short uip_stats_t;
 #    define OPENVPN_INNER
 #    define UIP_CONF_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_CRYPT_LLH_LEN)
 #  endif
+
+#else /* !OPENVPN_SUPPORT */
+#  define UIP_MULTI_STACK        0
 #endif
 
+
+/**
+ * Some forward declarations
+ *
+ */
+
+struct __uip_conn;
+typedef struct __uip_conn uip_conn_t;
+struct __uip_udp_conn;
+typedef struct __uip_udp_conn uip_udp_conn_t;
+
+/**
+ * Repressentation of an IP address.
+ *
+ */
+typedef u16_t uip_ip4addr_t[2];
+typedef u16_t uip_ip6addr_t[8];
+#if UIP_CONF_IPV6
+typedef uip_ip6addr_t uip_ipaddr_t;
+#else /* UIP_CONF_IPV6 */
+typedef uip_ip4addr_t uip_ipaddr_t;
+#endif /* UIP_CONF_IPV6 */
+
+enum {
+  STACK_MAIN,
+#ifdef OPENVPN_SUPPORT
+  STACK_OPENVPN,
+#endif
+  
+  /* STACK_LEN must be the last! */
+  STACK_LEN
+};
+
+
+
+#if UIP_MULTI_STACK
+#  include "uip_multi.h"
+
+#else
+#  ifdef STACK_NAME
+#    undef STACK_NAME
+#    define STACK_NAME(a) uip_ ## a /* keep common function names, since no
+	  			       multi-stack support.*/
+#  endif
+
+#  define uip_stack_get_active()   (0)
+#  define uip_stack_set_active(i)  (0)
+
+#endif
 
 #endif /* __UIP_CONF_H__ */

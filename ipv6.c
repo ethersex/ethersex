@@ -21,9 +21,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-/* we want to live on the outer stack, if there are two ... */
-#include "uip/uip_openvpn.h"
-
 #include <string.h>
 
 #include "uip/uip.h"
@@ -33,6 +30,11 @@
 #include "dyndns/dyndns.h"
 #include "ipv6.h"
 #include "config.h"
+
+#undef UIP_LLH_LEN
+#define UIP_LLH_LEN 14		/* force ethernet LLH, we'll never
+				   ever send solicitations over
+				   tunnelled lines */
 
 #define IPBUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define ETHBUF ((struct uip_eth_hdr *)&uip_buf[0])

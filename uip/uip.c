@@ -82,6 +82,13 @@
  * the packet back to the peer.
 */
 
+/* Set default stackname, if not otherwise set (e.g. by inclusion from
+   uip_openvpn.c). */
+#ifndef STACK_NAME
+#define STACK_PRIMARY 1
+#define STACK_NAME(a) mainstack_ ## a
+#endif
+
 #include "uip.h"
 #include "uipopt.h"
 #include "uip_arch.h"
@@ -125,7 +132,7 @@ uip_ipaddr_t uip_lladdr;
 #endif /* UIP_FIXEDADDR */
 
 
-#ifndef OPENVPN_OUTER 
+#if STACK_PRIMARY
 const uip_ipaddr_t all_ones_addr =
 #if UIP_CONF_IPV6
   {0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff};
@@ -150,7 +157,7 @@ const struct uip_eth_addr uip_ethaddr = {{UIP_ETHADDR0,
 #else
 struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
 #endif
-#endif /* !OPENVPN_OUTER */
+#endif /* STACK_PRIMARY */
 
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
@@ -179,21 +186,23 @@ u8_t uip_flags;              /* The uip_flags variable is used for
 				communication between the TCP/IP stack
 				and the application program. */
 
-struct uip_conn *uip_conn;   /* uip_conn always points to the current
+uip_conn_t *uip_conn;	     /* uip_conn always points to the current
 				connection. */
 
-#if UIP_TCP
-struct uip_conn uip_conns[UIP_CONNS];
+#if UIP_TCP && STACK_PRIMARY
+uip_conn_t uip_conns[UIP_CONNS];
                              /* The uip_conns array holds all TCP
 				connections. */
 struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
-#endif /* UIP_TCP */
+#endif /* UIP_TCP and STACK_PRIMARY */
 
 #if UIP_UDP
-struct uip_udp_conn *uip_udp_conn;
-struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
+uip_udp_conn_t *uip_udp_conn;
+#if STACK_PRIMARY
+uip_udp_conn_t uip_udp_conns[UIP_UDP_CONNS];
+#endif
 #endif /* UIP_UDP */
 
 #if !UIP_CONF_IPV6
@@ -206,11 +215,11 @@ static u16_t ipid;           /* Ths ipid variable is an increasing
 void uip_setipid(u16_t id) { ipid = id; }
 #endif
 
-static u8_t iss[4];          /* The iss variable is used for the TCP
+u8_t iss[4];                 /* The iss variable is used for the TCP
 				initial sequence number. */
 
 #if UIP_ACTIVE_OPEN
-static u16_t lastport;       /* Keeps track of the last port used for
+u16_t lastport;              /* Keeps track of the last port used for
 				a new connection. */
 #endif /* UIP_ACTIVE_OPEN */
 
@@ -273,8 +282,7 @@ void uip_log(char *msg);
 #endif /* UIP_LOGGING == 1 */
 
 #if ! UIP_ARCH_ADD32
-#ifndef OPENVPN_OUTER
-void noinline
+static void noinline
 uip_add32(u8_t *op32, u16_t op16)
 {
   uip_acc32[3] = op32[3] + (op16 & 0xff);
@@ -300,7 +308,6 @@ uip_add32(u8_t *op32, u16_t op16)
     }
   }
 }
-#endif /* !OPENVPN_OUTER */
 #endif /* UIP_ARCH_ADD32 */
 
 #if ! UIP_ARCH_CHKSUM
@@ -410,6 +417,7 @@ uip_udpchksum(void)
 #endif /* UIP_UDP_CHECKSUMS */
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
+#if STACK_PRIMARY
 void
 uip_init(void)
 {
@@ -419,6 +427,9 @@ uip_init(void)
   }
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
+#if UIP_STACK_MULTI
+    uip_conns[c].stack = STACK_MAIN;
+#endif
   }
 #endif /* UIP_TCP */
 #if UIP_ACTIVE_OPEN
@@ -428,6 +439,9 @@ uip_init(void)
 #if UIP_UDP
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
     uip_udp_conns[c].lport = 0;
+#if UIP_STACK_MULTI
+    uip_udp_conns[c].stack = STACK_MAIN;
+#endif
   }
 #endif /* UIP_UDP */
   
@@ -438,14 +452,15 @@ uip_init(void)
 #endif /* UIP_FIXEDADDR */
 
 }
+#endif
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP
+#if UIP_TCP && STACK_PRIMARY
 #if UIP_ACTIVE_OPEN
 #ifndef BOOTLOADER_SUPPORT
-struct uip_conn *
+uip_conn_t *
 uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
-  register struct uip_conn *conn, *cconn;
+  register uip_conn_t *conn, *cconn;
   
   /* Find an unused local port. */
  again:
@@ -506,18 +521,22 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   /* Add callback to connection */
   conn->callback = callback;
   
+#if UIP_MULTI_STACK
+  conn->stack = uip_stack_get_active();
+#endif
+
   return conn;
 }
 #endif /* BOOTLOADER_SUPPORT */
 #endif /* UIP_ACTIVE_OPEN */
-#endif /* UIP_TCP */
+#endif /* UIP_TCP and STACK_PRIMARY */
 /*---------------------------------------------------------------------------*/
-#if UIP_UDP
+#if UIP_UDP && STACK_PRIMARY
 #if UIP_ACTIVE_OPEN
-struct uip_udp_conn *
+uip_udp_conn_t *
 uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
-  register struct uip_udp_conn *conn;
+  register uip_udp_conn_t *conn;
   
   /* Find an unused local port. */
  again:
@@ -554,15 +573,20 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
     uip_ipaddr_copy(&conn->ripaddr, ripaddr);
   }
   conn->ttl = UIP_TTL;
+
   /* Copy the callback to the connection struct */
   conn->callback = callback;
-  
+
+#if UIP_MULTI_STACK
+  conn->stack = uip_stack_get_active();
+#endif
+
   return conn;
 }
 #endif /* UIP_ACTIVE_OPEN */
-#endif /* UIP_UDP */
+#endif /* UIP_UDP && STACK_PRIMARY */
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP
+#if UIP_TCP && STACK_PRIMARY
 #ifndef BOOTLOADER_SUPPORT
 void
 uip_unlisten(u16_t port)
@@ -587,7 +611,7 @@ uip_listen(u16_t port, uip_conn_callback_t callback)
     }
   }
 }
-#endif /* UIP_TCP */
+#endif /* UIP_TCP && STACK_PRIMARY */
 /*---------------------------------------------------------------------------*/
 /* XXX: IP fragment reassembly: not well-tested. */
 
@@ -736,14 +760,14 @@ uip_add_rcv_nxt(u16_t n)
 void
 uip_process(u8_t flag)
 {
-  register struct uip_conn *uip_connr = uip_conn;
+  register uip_conn_t *uip_connr = uip_conn;
 
 #if UIP_UDP
   if(flag == UIP_UDP_SEND_CONN) {
     goto udp_send;
   }
 #endif /* UIP_UDP */
-  
+
   uip_sappdata = uip_appdata = &uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN];
 
 #if UIP_TCP
@@ -885,7 +909,7 @@ uip_process(u8_t flag)
 
   /* This is where the input processing starts. */
   UIP_STAT(++uip_stat.ip.recv);
-
+  
   /* Start of IP input header processing code. */
   
 #if UIP_CONF_IPV6
@@ -905,7 +929,7 @@ uip_process(u8_t flag)
     goto drop;
   }
 #endif /* UIP_CONF_IPV6 */
-  
+
   /* Check the size of the packet. If the size reported to us in
      uip_len is smaller the size reported in the IP header, we assume
      that the packet has been corrupted in transit. If the size of
@@ -1090,6 +1114,7 @@ uip_process(u8_t flag)
 
   UIP_STAT(++uip_stat.icmp.recv);
 
+#ifndef OPENVPN_INNER
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
@@ -1133,7 +1158,10 @@ uip_process(u8_t flag)
       uip_neighbor_add(ICMPBUF->srcipaddr,
 		       (struct uip_neighbor_addr *) &(ICMPBUF->options[2]));
     }
-  } else if(ICMPBUF->type == ICMP6_ECHO) {
+  } else 
+#endif /* not OPENVPN_INNER */
+
+  if(ICMPBUF->type == ICMP6_ECHO) {
     /* ICMP echo (i.e., ping) processing. This is simple, we only
        change the ICMP type from ECHO to ECHO_REPLY and update the
        ICMP checksum before we return the packet. */
@@ -1393,10 +1421,13 @@ uip_process(u8_t flag)
   uip_conn = uip_connr;
 
   /* Set callback to the given value in uip_listenports */
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    if(tmp16 == uip_listenports[c].port)
+  for(c = 0; c < UIP_LISTENPORTS; ++c)
+    if(tmp16 == uip_listenports[c].port) {
       uip_conn->callback = uip_listenports[c].callback;
-  }
+      break;
+    }
+
+  uip_conn->stack = uip_stack_get_active();
   
   /* Fill in the necessary fields for the new connection. */
   uip_connr->rto = uip_connr->timer = UIP_RTO;
@@ -1985,13 +2016,13 @@ uip_process(u8_t flag)
   return;
 }
 /*---------------------------------------------------------------------------*/
-#ifndef OPENVPN_OUTER
+#if STACK_PRIMARY
 u16_t
 htons(u16_t val)
 {
   return HTONS(val);
 }
-#endif /* !OPENVPN_OUTER */
+#endif /* STACK_PRIMARY */
 /*---------------------------------------------------------------------------*/
 void
 uip_send(const void *data, int len)

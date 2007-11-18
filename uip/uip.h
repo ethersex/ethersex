@@ -63,18 +63,6 @@
 #endif
 
 /**
- * Repressentation of an IP address.
- *
- */
-typedef u16_t uip_ip4addr_t[2];
-typedef u16_t uip_ip6addr_t[8];
-#if UIP_CONF_IPV6
-typedef uip_ip6addr_t uip_ipaddr_t;
-#else /* UIP_CONF_IPV6 */
-typedef uip_ip4addr_t uip_ipaddr_t;
-#endif /* UIP_CONF_IPV6 */
-
-/**
  * Callback when something happens on a connection
  *
  * If something, like recieving, polling or something else happens on an
@@ -531,8 +519,9 @@ void uip_unlisten(u16_t port);
  * or NULL if no connection could be allocated.
  *
  */
-struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);
-
+#if !UIP_MULTI_STACK
+uip_conn_t *uip_connect(uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);
+#endif
 
 
 /**
@@ -571,7 +560,9 @@ struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callbac
  *
  * \hideinitializer
  */
+#if !UIP_MULTI_STACK
 void uip_send(const void *data, int len);
+#endif
 
 /**
  * The length of any incoming data that is currently avaliable (if avaliable)
@@ -784,7 +775,7 @@ void uip_send(const void *data, int len);
  * Example:
  \code
  uip_ipaddr_t addr;
- struct uip_udp_conn *c;
+ uip_udp_conn_t *c;
  
  uip_ipaddr(&addr, 192,168,2,1);
  c = uip_udp_new(&addr, HTONS(12345));
@@ -799,7 +790,7 @@ void uip_send(const void *data, int len);
  * \return The uip_udp_conn structure for the new connection or NULL
  * if no connection could be allocated.
  */
-struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback);
+uip_udp_conn_t *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback);
 
 /**
  * Removed a UDP connection.
@@ -857,7 +848,7 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_ca
  * Example:
  \code
  uip_ipaddr_t ipaddr;
- struct uip_conn *c;
+ uip_conn_t *c;
  
  uip_ipaddr(&ipaddr, 192,168,1,2);
  c = uip_connect(&ipaddr, HTONS(80));
@@ -1132,8 +1123,10 @@ u16_t htons(u16_t val);
  * called. If the application wishes to send data, the application may
  * use this space to write the data into before calling uip_send().
  */
+#if !UIP_MULTI_STACK
 extern void *uip_appdata;
 extern void *uip_sappdata;
+#endif
 
 #if UIP_URGDATA > 0
 /* u8_t *uip_urgdata:
@@ -1169,7 +1162,9 @@ extern void *uip_urgdata;
  *
  */
 extern u16_t uip_len;
+#if !UIP_MULTI_STACK
 extern u16_t uip_slen;
+#endif
 
 /** @} */
 
@@ -1187,7 +1182,7 @@ extern u16_t uip_urglen, uip_surglen;
  * configured in the "uipopt.h" header file.
  */
 #if UIP_TCP
-struct uip_conn {
+struct __uip_conn {
   uip_ipaddr_t ripaddr;   /**< The IP address of the remote host. */
   
   u16_t lport;        /**< The local TCP port, in network byte order. */
@@ -1219,6 +1214,10 @@ struct uip_conn {
   /** Callback when data arrives for this connection */
   uip_conn_callback_t callback;
 
+#if UIP_MULTI_STACK
+  u8_t stack;
+#endif
+
 #ifdef RC4_SUPPORT
   /** The RC4 stream cipher state */
   rc4_state_t rc4_inbound, rc4_outbound;
@@ -1240,9 +1239,11 @@ struct uip_conn {
  * The uip_conn pointer can be used to access the current TCP
  * connection.
  */
-extern struct uip_conn *uip_conn;
+#if !UIP_MULTI_STACK
+extern uip_conn_t *uip_conn;
+#endif
 /* The array containing all uIP connections. */
-extern struct uip_conn uip_conns[UIP_CONNS];
+extern uip_conn_t uip_conns[UIP_CONNS];
 #endif /* UIP_TCP */
 
 
@@ -1251,13 +1252,16 @@ extern struct uip_conn uip_conns[UIP_CONNS];
 /**
  * Representation of a uIP UDP connection.
  */
-struct uip_udp_conn {
+struct __uip_udp_conn {
   uip_ipaddr_t ripaddr;   /**< The IP address of the remote peer. */
   u16_t lport;        /**< The local port number in network byte order. */
   u16_t rport;        /**< The remote port number in network byte order. */
   u8_t  ttl;          /**< Default time-to-live. */
   uip_conn_callback_t callback;  /**< Callback can be called when something happens on 
                                    the "connection" */
+#if UIP_MULTI_STACK
+  u8_t stack;
+#endif
 
   /** The application state. */
   uip_udp_appstate_t appstate;
@@ -1266,8 +1270,10 @@ struct uip_udp_conn {
 /**
  * The current UDP connection.
  */
-extern struct uip_udp_conn *uip_udp_conn;
-extern struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
+#if !UIP_MULTI_STACK
+extern uip_udp_conn_t *uip_udp_conn;
+#endif
+extern uip_udp_conn_t uip_udp_conns[UIP_UDP_CONNS];
 #endif /* UIP_UDP */
 
 /**
@@ -1334,8 +1340,9 @@ struct uip_stats {
  *
  * This is the variable in which the uIP TCP/IP statistics are gathered.
  */
+#if !UIP_MULTI_STACK
 extern struct uip_stats uip_stat;
-
+#endif
 
 /*---------------------------------------------------------------------------*/
 /* All the stuff below this point is internal to uIP and should not be
@@ -1348,7 +1355,9 @@ extern struct uip_stats uip_stat;
  * that are defined in this file. Please read below for more
  * infomation.
  */
+#if !UIP_MULTI_STACK
 extern u8_t uip_flags;
+#endif
 
 /* The following flags may be set in the global variable uip_flags
    before calling the application callback. The UIP_ACKDATA,
@@ -1390,7 +1399,9 @@ extern u8_t uip_flags;
  *
  * The actual uIP function which does all the work.
  */
+#if !UIP_MULTI_STACK
 void uip_process(u8_t flag);
+#endif
 
 /* The following flags are passed as an argument to the uip_process()
    function. They are used to distinguish between the two cases where
@@ -1577,7 +1588,9 @@ struct uip_udpip_hdr {
 #if UIP_FIXEDADDR
 extern const uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
 #else /* UIP_FIXEDADDR */
+#if !UIP_MULTI_STACK
 extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
+#endif
 
 #if UIP_CONF_IPV6
 /* The link local IPv6 address */
@@ -1588,6 +1601,7 @@ extern uip_ipaddr_t uip_lladdr;
 extern const uip_ipaddr_t all_ones_addr;
 extern const uip_ipaddr_t all_zeroes_addr;
 
+extern struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
 
 /**
  * Representation of a 48-bit Ethernet address.
@@ -1597,11 +1611,9 @@ struct uip_eth_addr {
 };
 
 
-#ifdef OPENVPN_SUPPORT
-void openvpn_process(u8_t flag);
-void openvpn_init(void);
-void openvpn_process_out (void);
-
+#if UIP_MULTI_STACK
+STACK_PROTOTYPES(mainstack)
+STACK_PROTOTYPES(openvpn)
 #endif
 
 #endif /* __UIP_H__ */

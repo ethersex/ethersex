@@ -39,8 +39,8 @@ enum i2c_request_type {
 #define I2C_DATAOFFSET 4
 
 /* prototypes */
-void i2c_core_init(struct uip_udp_conn *i2c_conn);
-void i2c_core_periodic(void);
-void i2c_core_newdata(void);
+void i2c_core_init (uip_udp_conn_t *i2c_conn);
+void i2c_core_periodic (void);
+void i2c_core_newdata (void);
 
 #endif

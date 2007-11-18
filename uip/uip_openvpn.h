@@ -24,80 +24,21 @@
 #ifndef UIP_OPENVPN_H
 #define UIP_OPENVPN_H
 
-#ifdef __UIP_CONF_H__
-#error "uip_openvpn.h must be included first"
-#endif
-
 #include "../config.h"
 #ifdef OPENVPN_SUPPORT
 
-/* We're now compiling the outer side of the uIP stack */
-#define OPENVPN_OUTER
-
-#undef UIP_UDP_APPCALL
-#define UIP_UDP_APPCALL     openvpn_handle_udp
-
-#define uip_init            openvpn_uip_init
-#define uip_process         openvpn_process
-#define uip_send            openvpn_send
-#define uip_flags           openvpn_flags
-#define uip_appdata         openvpn_appdata
-#define uip_sappdata        openvpn_sappdata
-#define uip_conn            openvpn_conn
-#define uip_draddr          openvpn_draddr
-#define uip_hostaddr        openvpn_hostaddr
-#define uip_netmask         openvpn_netmask
-#define uip_slen            openvpn_slen
-#define uip_stat            openvpn_stat
-#define uip_udp_conn        openvpn_udp_conn
-#define uip_udp_conns       openvpn_udp_conns
-#define uip_udp_new         openvpn_udp_new
-
-void openvpn_handle_udp(void);
-
 #include "uip-conf.h"
 
-/* Now override the current uIP configuration to fit the OpenVPN stack needs. */
-#undef UIP_CONF_TCP
-#define UIP_CONF_TCP 0
-
-#undef UIP_CONF_UDP
-#define UIP_CONF_UDP 1
-
-#undef UIP_CONF_UDP_CONNS
-#ifdef BOOTP_SUPPORT
-#  define UIP_CONF_UDP_CONNS 2
-#  undef UIP_CONF_BROADCAST
-#  define UIP_CONF_BROADCAST 1
-#else /* !BOOTP_SUPPORT */
-#  define UIP_CONF_UDP_CONNS 1
-#endif
-
+void openvpn_handle_udp(void);
+void openvpn_init (void);
 
 /* The port number to use for OpenVPN. */
 #define OPENVPN_PORT 1194
-
-
-/* We don't want to have the ``official'' appstate, but our own cut
-   down one. */
-#define CONNECTION_STATE_H	/* make sure we don't include state.h */
 
 struct openvpn_connection_state_t {
     uint16_t next_seqno[2];
     uint16_t seen_seqno[2];
 };
-
-#include "../net/bootp_state.h"
-typedef union uip_udp_connection_state {
-
-#   ifdef BOOTP_SUPPORT
-    struct bootp_connection_state_t bootp;
-#   endif
-
-    struct openvpn_connection_state_t openvpn;
-} uip_udp_appstate_t;
-
-
 
 #endif /* OPENVPN_SUPPORT */
 #endif /* UIP_OPENVPN_H */

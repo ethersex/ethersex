@@ -1,0 +1,101 @@
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ }}} */
+
+#ifndef UIP_MULTI_H
+#define UIP_MULTI_H
+
+struct uip_stack {
+  /* mapped functions */
+  void (* uip_process) (u8_t flag);
+  void (* uip_send)    (const void *data, int len);
+
+  u8_t *uip_flags;
+  void **uip_appdata;
+  void **uip_sappdata;
+
+  uip_conn_t **uip_conn;
+  uip_udp_conn_t **uip_udp_conn;
+
+  uip_ipaddr_t *uip_hostaddr;
+  uip_ipaddr_t *uip_netmask;
+  uip_ipaddr_t *uip_draddr;
+
+  u16_t *uip_slen;
+
+  struct uip_stats *uip_stat;  
+};
+
+#define STACK_PROTOTYPES(stackname)					\
+  uip_conn_t * stackname ## _connect					\
+    (uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);	\
+  void stackname ## _send(const void *data, int len);			\
+  void stackname ## _process(u8_t flag);				\
+  extern void * stackname ## _appdata;					\
+  extern void * stackname ## _sappdata;					\
+  extern u16_t stackname ## _slen;					\
+  extern uip_conn_t * stackname ## _conn;				\
+  extern uip_udp_conn_t * stackname ## _udp_conn;			\
+  extern struct uip_stats stackname ## _stat;				\
+  extern u8_t stackname ## _flags;					\
+  extern uip_ipaddr_t stackname ## _hostaddr;				\
+  extern uip_ipaddr_t stackname ## _netmask;				\
+  extern uip_ipaddr_t stackname ## _draddr;
+
+extern struct uip_stack uip_stacks[STACK_LEN];
+extern struct uip_stack *uip_stack;
+
+#define uip_stack_get_active()   ((uip_stack - uip_stacks) / sizeof (struct uip_stack))
+#define uip_stack_set_active(i)  (uip_stack = &uip_stacks[(i)])
+
+#ifdef STACK_NAME
+  /* We're now compiling a uIP stack. */
+#  define uip_process      STACK_NAME(process)
+#  define uip_send         STACK_NAME(send)
+#  define uip_flags        STACK_NAME(flags)
+#  define uip_appdata      STACK_NAME(appdata)
+#  define uip_sappdata     STACK_NAME(sappdata)
+#  define uip_conn         STACK_NAME(conn)
+#  define uip_udp_conn     STACK_NAME(udp_conn)
+#  define uip_hostaddr     STACK_NAME(hostaddr)
+#  define uip_netmask      STACK_NAME(netmask)
+#  define uip_draddr       STACK_NAME(draddr)
+#  define uip_slen         STACK_NAME(slen)
+#  define uip_stat         STACK_NAME(stat)
+
+#else
+  /* We're compiling application code (i.e. outside of uIP stack) */
+#  define uip_process      (uip_stack->uip_process)
+#  define uip_send         (uip_stack->uip_send)
+#  define uip_flags        (* (uip_stack->uip_flags))
+#  define uip_appdata      (* (uip_stack->uip_appdata))
+#  define uip_sappdata     (* (uip_stack->uip_sappdata))
+#  define uip_conn         (* (uip_stack->uip_conn))
+#  define uip_udp_conn     (* (uip_stack->uip_udp_conn))
+#  define uip_hostaddr     (* (uip_stack->uip_hostaddr))
+#  define uip_netmask      (* (uip_stack->uip_netmask))
+#  define uip_draddr       (* (uip_stack->uip_draddr))
+#  define uip_slen         (* (uip_stack->uip_slen))
+#  define uip_stat         (* (uip_stack->uip_stat))
+#endif
+
+#endif /* not UIP_MULTI_H */

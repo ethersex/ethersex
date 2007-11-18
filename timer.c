@@ -97,12 +97,14 @@ void timer_process(void)
 #       endif
 #           if UIP_TCP == 1
             for (i = 0; i < UIP_CONNS; i++) {
+		uip_stack_set_active(uip_conns[i].stack);
                 uip_periodic(i);
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
 #                   ifdef OPENVPN_SUPPORT
 		    openvpn_process_out();
+		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
 #                   if UIP_CONF_IPV6
@@ -119,12 +121,14 @@ void timer_process(void)
 #           if UIP_UDP == 1
             /* check udp connections every time */
             for (i = 0; i < UIP_UDP_CONNS; i++) {
+		uip_stack_set_active(uip_udp_conns[i].stack);
                 uip_udp_periodic(i);
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
 #                   ifdef OPENVPN_SUPPORT
 		    openvpn_process_out();
+		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
 #                   if UIP_CONF_IPV6
@@ -149,6 +153,9 @@ void timer_process(void)
                as we only got a link local address.  First time one
                second after boot */
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
+#               ifdef OPENVPN_SUPPORT		
+		uip_stack_set_active(STACK_OPENVPN);
+#               endif
                 uip_router_send_solicitation();
                 transmit_packet();
             }

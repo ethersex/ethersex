@@ -24,6 +24,7 @@
 #define CONNECTION_STATE_H
 
 #include "../uip/psock.h"
+#include "../uip/uip_openvpn.h"
 #include "../pt/pt.h"
 #include "../config.h"
 
@@ -75,6 +76,10 @@ typedef union uip_udp_connection_state {
 
 #   ifdef I2C_SUPPORT
     struct i2c_connection_state_t i2c;
+#   endif
+
+#   ifdef OPENVPN_SUPPORT
+    struct openvpn_connection_state_t openvpn;
 #   endif
 
     /* put udp application states here, example:

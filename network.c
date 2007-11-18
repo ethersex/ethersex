@@ -52,7 +52,7 @@ void process_packet(void);
 
 void network_init(void)
 /* {{{ */ {
-
+    uip_stack_set_active(STACK_MAIN);
     uip_init();
 
 #ifdef OPENVPN_SUPPORT
@@ -366,6 +366,12 @@ void process_packet(void)
 
     uip_len = rpv.received_packet_size;
 
+#   ifdef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_OPENVPN);
+#   else
+    uip_stack_set_active(STACK_MAIN);
+#   endif
+
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
     switch (ntohs(packet->type)) {
@@ -400,11 +406,7 @@ void process_packet(void)
             uip_arp_ipin();
 #       endif /* !UIP_CONF_IPV6 */
 
-#       ifdef OPENVPN_SUPPORT
-	    openvpn_process(UIP_DATA);
-#       else
             uip_input();
-#       endif
 
             /* if there is a packet to send, send it now */
             if (uip_len > 0) {

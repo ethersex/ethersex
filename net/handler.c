@@ -44,17 +44,12 @@
 
 void network_init_apps(void)
 /* {{{ */ {
-
 #   ifdef ECMD_SUPPORT
     ecmd_net_init();
 #   endif
 
 #   ifdef TETRIRAPE_SUPPORT
     tetrirape_net_init();
-#   endif
-
-#   ifdef BOOTP_SUPPORT
-    bootp_net_init();
 #   endif
 
 #   ifdef TFTP_SUPPORT
@@ -71,6 +66,16 @@ void network_init_apps(void)
 
 #   ifdef I2C_SUPPORT
     i2c_net_init();
+#   endif
+
+
+#   ifdef OPENVPN_SUPPORT
+    /* possibly bind these to the outer part of OpenVPN stack system */
+    uip_stack_set_active(STACK_OPENVPN);
+#   endif
+
+#   ifdef BOOTP_SUPPORT
+    bootp_net_init();
 #   endif
 
 #if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(IPV6_SUPPORT)

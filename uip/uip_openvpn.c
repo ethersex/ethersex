@@ -22,14 +22,18 @@
  }}} */
 
 /* We're now compiling the outer side of the uIP stack */
+#define OPENVPN_OUTER
+#define STACK_NAME(a) openvpn_ ## a
+
 #include "uip_openvpn.h"
+
+/* We're set to compile multi stack now ... */
 #include "uip.c"
 
 #include "../crypto/cast5.h"
 
 /* for raw access to the packet buffer */
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
-
 
 #ifdef CAST5_SUPPORT
 static unsigned char *key = CONF_OPENVPN_KEY;
@@ -132,8 +136,9 @@ openvpn_handle_udp (void)
   uip_len += OPENVPN_LLH_LEN;
 
   /* Push data into inner uIP stack. */
-#undef uip_process
-  uip_process (UIP_DATA);
+  uip_stack_set_active (STACK_MAIN);
+  mainstack_process (UIP_DATA);
+  uip_stack_set_active (STACK_OPENVPN);
 
   if (! uip_len)
     return;			/* Inner stack hasn't created a
@@ -156,11 +161,16 @@ openvpn_process_out (void)
   if (! uip_len)
     return;			/* no data to be sent out. */
 
+  uip_stack_set_active (STACK_OPENVPN);
   openvpn_slen = uip_len + OPENVPN_CRYPT_LLH_LEN;
 
-  /* We assume that openvpn_udp_conns[0] always is the OpenVPN
-     connection.  */
-  openvpn_udp_conn = &openvpn_udp_conns[0];
+  for (int i = 0; i < UIP_UDP_CONNS; i++)
+    if (uip_udp_conn[i].callback == openvpn_handle_udp)
+      {
+	openvpn_udp_conn = &uip_udp_conn[i];
+	break;
+      }
+
   openvpn_encrypt ();
   openvpn_process (UIP_UDP_SEND_CONN);
 }
@@ -169,8 +179,6 @@ openvpn_process_out (void)
 void 
 openvpn_init (void)
 {
-  openvpn_uip_init ();
-
 #ifdef CAST5_SUPPORT
   cast5_init(&ctx, key, 128);
 #endif
@@ -199,7 +207,7 @@ openvpn_init (void)
   /* Create OpenVPN UDP listener. */
   uip_ipaddr_copy(&ip, all_ones_addr);
 
-  struct uip_udp_conn *openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
+  uip_udp_conn_t *openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
 
   if(! openvpn_conn) 
     return;					/* dammit. */
