@@ -144,11 +144,16 @@ typedef unsigned short uip_stats_t;
 #    define OPENVPN_LLH_LEN 42
 #  endif
 
+#  ifdef CAST5_SUPPORT
+#    define OPENVPN_CRYPT_LLH_LEN  16 /* 8 bytes IV + 8 bytes packet id */
+#  else
+#    define OPENVPN_CRYPT_LLH_LEN  0
+#  endif
 
 #  ifdef OPENVPN_OUTER
 #  else
 #    define OPENVPN_INNER
-#    define UIP_CONF_LLH_LEN  OPENVPN_LLH_LEN
+#    define UIP_CONF_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_CRYPT_LLH_LEN)
 #  endif
 #endif
 
