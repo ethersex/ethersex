@@ -82,6 +82,11 @@ void openvpn_handle_udp(void);
    down one. */
 #define CONNECTION_STATE_H	/* make sure we don't include state.h */
 
+struct openvpn_connection_state_t {
+    uint16_t next_seqno[2];
+    uint16_t seen_seqno[2];
+};
+
 #include "../net/bootp_state.h"
 typedef union uip_udp_connection_state {
 
@@ -89,6 +94,7 @@ typedef union uip_udp_connection_state {
     struct bootp_connection_state_t bootp;
 #   endif
 
+    struct openvpn_connection_state_t openvpn;
 } uip_udp_appstate_t;
 
 

@@ -32,16 +32,14 @@
 
 
 #ifdef CAST5_SUPPORT
+static unsigned char *key = CONF_OPENVPN_KEY;
+static cast5_ctx_t ctx;
+
 /* Decrypt the cast5 encrypted OpenVPN packet and verify the packet
    id.  Return non-zero on error. */
 int
 openvpn_decrypt_and_verify (void)
 {
-  unsigned char key[] = CONF_OPENVPN_KEY;
-
-  cast5_ctx_t ctx;
-  cast5_init(&ctx, key, 128);
-
   unsigned char buf[8];
 
   unsigned char *cbc_carry_this = uip_appdata; /* initial IV. */
@@ -68,8 +66,49 @@ openvpn_decrypt_and_verify (void)
   return 0;
 }
 
+void
+openvpn_encrypt (void)
+{
+  unsigned char *ptr;
+  openvpn_sappdata = &uip_buf[OPENVPN_LLH_LEN];
+
+  /* Do padding. */
+  if (openvpn_slen % 8)
+    openvpn_slen += 8 - (openvpn_slen % 8);
+
+  /* Generate IV. */
+  for(ptr = openvpn_sappdata;
+      ptr < ((unsigned char *) openvpn_sappdata) + 8; ptr ++)
+    *ptr = rand() & 0xFF;
+
+  /* Fill packet-id. */
+  uint16_t *packet_id = (uint16_t *) (openvpn_sappdata + 8);
+  packet_id[0] = HTONS(uip_udp_conn->appstate.openvpn.next_seqno[0]);
+  packet_id[1] = HTONS(uip_udp_conn->appstate.openvpn.next_seqno[1]);
+
+  /* Initialize timestamp area to zero. */
+  memset (openvpn_sappdata + 12, 0, 4);
+
+  /* Increment sequence number. */
+  if (! (++ uip_udp_conn->appstate.openvpn.next_seqno[1]))
+    uip_udp_conn->appstate.openvpn.next_seqno[0] ++;
+
+  /* Encrypt data. */
+  for (unsigned char *ptr = openvpn_sappdata + 8;
+       ptr < ((unsigned char *) openvpn_sappdata) + openvpn_slen;
+       ptr += 8)
+    {
+      /* apply cbc-carry forward */
+      for (int i = 0; i < 8; i ++)
+	ptr[i] ^= ptr[i - 8];
+
+      cast5_enc (&ctx, ptr);
+    }
+}
+
 #else /* !CAST5_SUPPORT */
 #define openvpn_decrypt_and_verify()  0
+#define openvpn_encrypt() do { (void) 0; } while(0)
 #endif
 
 
@@ -100,8 +139,9 @@ openvpn_handle_udp (void)
     return;			/* Inner stack hasn't created a
 				   packet. */
 
-  openvpn_slen = uip_len;	/* Make sure openvpn_process sends
-				   the data. */
+  /* Make sure openvpn_process sends the data. */
+  openvpn_slen = uip_len + OPENVPN_CRYPT_LLH_LEN;
+  openvpn_encrypt ();
 }
 
 
@@ -116,11 +156,12 @@ openvpn_process_out (void)
   if (! uip_len)
     return;			/* no data to be sent out. */
 
-  openvpn_slen = uip_len;
+  openvpn_slen = uip_len + OPENVPN_CRYPT_LLH_LEN;
 
   /* We assume that openvpn_udp_conns[0] always is the OpenVPN
      connection.  */
   openvpn_udp_conn = &openvpn_udp_conns[0];
+  openvpn_encrypt ();
   openvpn_process (UIP_UDP_SEND_CONN);
 }
 
@@ -129,6 +170,10 @@ void
 openvpn_init (void)
 {
   openvpn_uip_init ();
+
+#ifdef CAST5_SUPPORT
+  cast5_init(&ctx, key, 128);
+#endif
 
   /* Initialize OpenVPN stack IP config, if necessary. */
 # if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
@@ -160,4 +205,7 @@ openvpn_init (void)
     return;					/* dammit. */
 
   uip_udp_bind(openvpn_conn, HTONS(OPENVPN_PORT));
+
+  openvpn_conn->appstate.openvpn.next_seqno[0] = 0;
+  openvpn_conn->appstate.openvpn.next_seqno[1] = 1;
 }
