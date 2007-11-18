@@ -69,16 +69,16 @@ openvpn_decrypt_and_verify (void)
 void
 openvpn_encrypt (void)
 {
-  unsigned char *ptr;
-  openvpn_sappdata = &uip_buf[OPENVPN_LLH_LEN];
+  unsigned char *ptr = openvpn_sappdata = &uip_buf[OPENVPN_LLH_LEN];
 
   /* Do padding. */
-  if (openvpn_slen % 8)
-    openvpn_slen += 8 - (openvpn_slen % 8);
+  unsigned char pad_char = 8 - (openvpn_slen % 8);
+  do
+    ptr[openvpn_slen ++] = pad_char;
+  while(openvpn_slen % 8);
 
   /* Generate IV. */
-  for(ptr = openvpn_sappdata;
-      ptr < ((unsigned char *) openvpn_sappdata) + 8; ptr ++)
+  for(; ptr < ((unsigned char *) openvpn_sappdata) + 8; ptr ++)
     *ptr = rand() & 0xFF;
 
   /* Fill packet-id. */
@@ -94,7 +94,7 @@ openvpn_encrypt (void)
     uip_udp_conn->appstate.openvpn.next_seqno[0] ++;
 
   /* Encrypt data. */
-  for (unsigned char *ptr = openvpn_sappdata + 8;
+  for (ptr = openvpn_sappdata + 8;
        ptr < ((unsigned char *) openvpn_sappdata) + openvpn_slen;
        ptr += 8)
     {
