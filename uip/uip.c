@@ -91,7 +91,6 @@
 
 #include "uip.h"
 #include "uipopt.h"
-#include "uip_arch.h"
 #include "../ipv6.h"
 #include "../net/handler.h"
 #include "../debug.h"
