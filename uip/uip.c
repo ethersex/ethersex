@@ -426,7 +426,7 @@ uip_init(void)
   }
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
-#if UIP_STACK_MULTI
+#if UIP_MULTI_STACK
     uip_conns[c].stack = STACK_MAIN;
 #endif
   }
@@ -438,7 +438,7 @@ uip_init(void)
 #if UIP_UDP
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
     uip_udp_conns[c].lport = 0;
-#if UIP_STACK_MULTI
+#if UIP_MULTI_STACK
     uip_udp_conns[c].stack = STACK_MAIN;
 #endif
   }
@@ -1426,8 +1426,10 @@ uip_process(u8_t flag)
       break;
     }
 
+#if UIP_MULTI_STACK
   uip_conn->stack = uip_stack_get_active();
-  
+#endif
+
   /* Fill in the necessary fields for the new connection. */
   uip_connr->rto = uip_connr->timer = UIP_RTO;
   uip_connr->sa = 0;
