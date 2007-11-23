@@ -45,7 +45,7 @@ AVRDUDE_FLAGS += -F
 
 .PHONY: all
 
-all: $(TARGET).hex $(TARGET).lss
+all: $(TARGET).hex $(TARGET).lss $(TARGET).bin
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
