@@ -138,7 +138,7 @@ void md5_lastBlock(md5_ctx_t *state, void* block, uint16_t length){
 		b[l]=0x80;
 	}
 	/* insert length value */
-	if(l+sizeof(uint64_t) > 512/8){
+	if(l+sizeof(uint64_t) >= 512/8){
 		md5_nextBlock(state, b);
 		state->counter--;
 		memset(b, 0, 64);
