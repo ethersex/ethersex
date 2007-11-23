@@ -30,12 +30,11 @@
 /* We're set to compile multi stack now ... */
 #include "uip.c"
 
-#include "../crypto/cast5.h"
-
 /* for raw access to the packet buffer */
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 #ifdef CAST5_SUPPORT
+#include "../crypto/cast5.h"
 static unsigned char *key = CONF_OPENVPN_KEY;
 static cast5_ctx_t ctx;
 
@@ -46,11 +45,13 @@ openvpn_decrypt_and_verify (void)
 {
   unsigned char buf[8];
 
-  unsigned char *cbc_carry_this = uip_appdata; /* initial IV. */
+  unsigned char *cbc_carry_this =
+    uip_appdata + OPENVPN_HMAC_LLH_LEN;	/* initial IV. */
   unsigned char *cbc_carry_next = buf;
   
-  for (unsigned char *ptr = uip_appdata + 8;
-       ptr < ((unsigned char *) uip_appdata) + uip_len; ptr += 8)
+  for (unsigned char *ptr = uip_appdata + 8 + OPENVPN_HMAC_LLH_LEN;
+       ptr < ((unsigned char *) uip_appdata) + uip_len;
+       ptr += 8)
     {
       /* store cbc-carry for next round */
       memcpy (cbc_carry_next, ptr, 8);
@@ -70,10 +71,14 @@ openvpn_decrypt_and_verify (void)
   return 0;
 }
 
+/* The length in openvpn_slen is already including the extra
+   encryption/hmac header. */
 void
 openvpn_encrypt (void)
 {
-  unsigned char *ptr = openvpn_sappdata = &uip_buf[OPENVPN_LLH_LEN];
+  unsigned char *encrypt_start =
+    &uip_buf[OPENVPN_LLH_LEN + OPENVPN_HMAC_LLH_LEN];
+  unsigned char *ptr = encrypt_start;
 
   /* Do padding. */
   unsigned char pad_char = 8 - (openvpn_slen % 8);
@@ -82,23 +87,23 @@ openvpn_encrypt (void)
   while(openvpn_slen % 8);
 
   /* Generate IV. */
-  for(; ptr < ((unsigned char *) openvpn_sappdata) + 8; ptr ++)
+  for(; ptr < encrypt_start + 8; ptr ++)
     *ptr = rand() & 0xFF;
 
   /* Fill packet-id. */
-  uint16_t *packet_id = (uint16_t *) (openvpn_sappdata + 8);
+  uint16_t *packet_id = (uint16_t *) (encrypt_start + 8);
   packet_id[0] = HTONS(uip_udp_conn->appstate.openvpn.next_seqno[0]);
   packet_id[1] = HTONS(uip_udp_conn->appstate.openvpn.next_seqno[1]);
 
   /* Initialize timestamp area to zero. */
-  memset (openvpn_sappdata + 12, 0, 4);
+  memset (encrypt_start + 12, 0, 4);
 
   /* Increment sequence number. */
   if (! (++ uip_udp_conn->appstate.openvpn.next_seqno[1]))
     uip_udp_conn->appstate.openvpn.next_seqno[0] ++;
 
   /* Encrypt data. */
-  for (ptr = openvpn_sappdata + 8;
+  for (ptr = encrypt_start + 8;
        ptr < ((unsigned char *) openvpn_sappdata) + openvpn_slen;
        ptr += 8)
     {
@@ -116,6 +121,63 @@ openvpn_encrypt (void)
 #endif
 
 
+#ifdef MD5_SUPPORT
+#include "../crypto/md5.h"
+
+void
+openvpn_hmac_calc (unsigned char *dest, unsigned char *src, uint16_t len)
+{
+  const unsigned char *hmac_key = CONF_OPENVPN_HMAC_KEY;
+  unsigned char buf[64];
+  
+  /* perform inner part of hmac */
+  md5_ctx_t ctx_inner;
+  md5_init (&ctx_inner);
+  
+  for (int i = 0; i < 16; i ++) buf[i] = hmac_key[i] ^ 0x36;
+  for (int i = 16; i < 64; i ++) buf[i] = 0x36;
+  
+  md5_nextBlock (&ctx_inner, buf);
+  md5_lastBlock (&ctx_inner, src, len << 3);
+
+  /* perform outer part of hmac */
+  md5_ctx_t ctx_outer;
+  md5_init (&ctx_outer);
+
+  for (int i = 0; i < 16; i ++) buf[i] = hmac_key[i] ^ 0x5c;
+  for (int i = 16; i < 64; i ++) buf[i] = 0x5c;
+  md5_nextBlock (&ctx_outer, buf);
+  md5_lastBlock (&ctx_outer, (void *) &ctx_inner.a[0], 128);
+
+  memmove (dest, (void *) &ctx_outer.a[0], 16);
+}
+
+int
+openvpn_hmac_verify (void)
+{
+  unsigned char hmac_buf[16];
+  openvpn_hmac_calc (hmac_buf, uip_appdata + 16, uip_len - 16);
+
+  if (memcmp (hmac_buf, uip_appdata, 16))
+    {
+      /* hmac error */
+      return 1;
+    }
+
+  return 0;
+}
+
+#define openvpn_hmac_create()					       \
+  openvpn_hmac_calc (uip_buf + OPENVPN_LLH_LEN,			       \
+		     uip_buf + OPENVPN_LLH_LEN + OPENVPN_HMAC_LLH_LEN, \
+		     openvpn_slen - OPENVPN_HMAC_LLH_LEN)
+
+#else /* !MD5_SUPPORT */
+#define openvpn_hmac_verify() 0
+#define openvpn_hmac_create() do { (void) 0; } while(0)
+#endif
+
+
 void 
 openvpn_handle_udp (void)
 {
@@ -128,11 +190,15 @@ openvpn_handle_udp (void)
   uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
   uip_udp_conn->rport = BUF->srcport;
 
+  if (openvpn_hmac_verify ())
+    return;
+
   if (openvpn_decrypt_and_verify ())
     return;
 
-  /* ``uip_len'' is the number of payload bytes, however uip_process
-     expects the number of bytes including the LLH. */
+  /* ``uip_len'' is the number of payload bytes (including
+     hmac/encryption bits), however uip_process expects the number of
+     bytes including the LLH. */
   uip_len += OPENVPN_LLH_LEN;
 
   /* Push data into inner uIP stack. */
@@ -145,8 +211,9 @@ openvpn_handle_udp (void)
 				   packet. */
 
   /* Make sure openvpn_process sends the data. */
-  openvpn_slen = uip_len + OPENVPN_CRYPT_LLH_LEN;
+  openvpn_slen = uip_len + OPENVPN_HMAC_LLH_LEN + OPENVPN_CRYPT_LLH_LEN;
   openvpn_encrypt ();
+  openvpn_hmac_create ();
 }
 
 
@@ -162,7 +229,7 @@ openvpn_process_out (void)
     return;			/* no data to be sent out. */
 
   uip_stack_set_active (STACK_OPENVPN);
-  openvpn_slen = uip_len + OPENVPN_CRYPT_LLH_LEN;
+  openvpn_slen = uip_len + OPENVPN_HMAC_LLH_LEN + OPENVPN_CRYPT_LLH_LEN;
 
   for (int i = 0; i < UIP_UDP_CONNS; i++)
     if (uip_udp_conn[i].callback == openvpn_handle_udp)
@@ -172,6 +239,7 @@ openvpn_process_out (void)
       }
 
   openvpn_encrypt ();
+  openvpn_hmac_create ();
   openvpn_process (UIP_UDP_SEND_CONN);
 }
 
