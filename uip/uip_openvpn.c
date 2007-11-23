@@ -78,16 +78,16 @@ openvpn_encrypt (void)
 {
   unsigned char *encrypt_start =
     &uip_buf[OPENVPN_LLH_LEN + OPENVPN_HMAC_LLH_LEN];
-  unsigned char *ptr = encrypt_start;
 
   /* Do padding. */
   unsigned char pad_char = 8 - (openvpn_slen % 8);
   do
-    ptr[openvpn_slen ++] = pad_char;
-  while(openvpn_slen % 8);
+    ((unsigned char *) uip_sappdata)[openvpn_slen ++] = pad_char;
+  while (openvpn_slen % 8);
 
   /* Generate IV. */
-  for(; ptr < encrypt_start + 8; ptr ++)
+  unsigned char *ptr;
+  for(ptr = encrypt_start; ptr < encrypt_start + 8; ptr ++)
     *ptr = rand() & 0xFF;
 
   /* Fill packet-id. */
