@@ -37,8 +37,9 @@ void openvpn_process_out (void);
 #define OPENVPN_PORT 1194
 
 struct openvpn_connection_state_t {
-    uint16_t next_seqno[2];
-    uint16_t seen_seqno[2];
+  uint32_t next_seqno;
+  uint32_t seen_seqno;
+  uint32_t seen_timestamp;
 };
 
 #endif /* OPENVPN_SUPPORT */

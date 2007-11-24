@@ -68,6 +68,17 @@ openvpn_decrypt_and_verify (void)
       cbc_carry_next = tmp;
     }
 
+  /* verify packet-id */
+  uint32_t *packet_id = (uint32_t *) (uip_appdata + OPENVPN_HMAC_LLH_LEN + 8);
+  if (HTONL(packet_id[1]) <= uip_udp_conn->appstate.openvpn.seen_timestamp)
+    {
+      if (HTONL(packet_id[0]) <= uip_udp_conn->appstate.openvpn.seen_seqno)
+	return 1;
+    }
+
+  uip_udp_conn->appstate.openvpn.seen_seqno = HTONL(packet_id[0]);
+  uip_udp_conn->appstate.openvpn.seen_timestamp = HTONL(packet_id[1]);
+
   return 0;
 }
 
@@ -91,16 +102,12 @@ openvpn_encrypt (void)
     *ptr = rand() & 0xFF;
 
   /* Fill packet-id. */
-  uint16_t *packet_id = (uint16_t *) (encrypt_start + 8);
-  packet_id[0] = HTONS(uip_udp_conn->appstate.openvpn.next_seqno[0]);
-  packet_id[1] = HTONS(uip_udp_conn->appstate.openvpn.next_seqno[1]);
-
-  /* Initialize timestamp area to zero. */
-  memset (encrypt_start + 12, 0, 4);
+  uint32_t *packet_id = (uint32_t *) (encrypt_start + 8);
+  packet_id[0] = HTONL(uip_udp_conn->appstate.openvpn.next_seqno);
+  packet_id[1] = 0;
 
   /* Increment sequence number. */
-  if (! (++ uip_udp_conn->appstate.openvpn.next_seqno[1]))
-    uip_udp_conn->appstate.openvpn.next_seqno[0] ++;
+  uip_udp_conn->appstate.openvpn.next_seqno ++;
 
   /* Encrypt data. */
   for (ptr = encrypt_start + 8;
@@ -282,6 +289,7 @@ openvpn_init (void)
 
   uip_udp_bind(openvpn_conn, HTONS(OPENVPN_PORT));
 
-  openvpn_conn->appstate.openvpn.next_seqno[0] = 0;
-  openvpn_conn->appstate.openvpn.next_seqno[1] = 1;
+  openvpn_conn->appstate.openvpn.next_seqno = 1;
+  openvpn_conn->appstate.openvpn.seen_seqno = 0;
+  openvpn_conn->appstate.openvpn.seen_timestamp = 0;
 }
