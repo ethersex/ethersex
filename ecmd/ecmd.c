@@ -40,6 +40,7 @@
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
 #include "../dns/resolv.h"
+#include "../ntp/ntp.h"
 #include "ecmd.h"
 
 
@@ -98,6 +99,9 @@ static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len);
 static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
+#endif
+#ifdef NTP_SUPPORT
+static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len);
 #endif
 static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
 
@@ -174,6 +178,9 @@ const char PROGMEM ecmd_show_dns_text[] = "show dns";
 #ifndef BOOTP_SUPPORT
 const char PROGMEM ecmd_dns_text[] = "dns ";
 #endif
+#ifdef NTP_SUPPORT
+const char PROGMEM ecmd_time_text[] = "time";
+#endif
 #endif /* DNS_SUPPORT */
 const char PROGMEM ecmd_d_text[] = "d ";
 
@@ -236,6 +243,9 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_show_dns_text, parse_cmd_show_dns },
 #ifndef BOOTP_SUPPORT
     { ecmd_dns_text, parse_cmd_dns },
+#endif
+#ifdef NTP_SUPPORT
+    { ecmd_time_text, parse_cmd_time },
 #endif
 #endif /* DNS_SUPPORT */
     { ecmd_d_text, parse_cmd_d },
@@ -871,6 +881,13 @@ static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
   }
 } /* }}} */
 #endif
+
+#ifdef NTP_SUPPORT
+static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  return snprintf(output, len, "time: %lu", get_time());
+} /* }}} */
+#endif 
 
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
