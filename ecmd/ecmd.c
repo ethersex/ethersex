@@ -99,6 +99,7 @@ static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
 #endif
+static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
 
 /* low level */
 static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
@@ -174,6 +175,7 @@ const char PROGMEM ecmd_show_dns_text[] = "show dns";
 const char PROGMEM ecmd_dns_text[] = "dns ";
 #endif
 #endif /* DNS_SUPPORT */
+const char PROGMEM ecmd_d_text[] = "d ";
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_show_ip_text, parse_cmd_show_ip },
@@ -236,6 +238,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_dns_text, parse_cmd_dns },
 #endif
 #endif /* DNS_SUPPORT */
+    { ecmd_d_text, parse_cmd_d },
     { NULL, NULL },
 };
 
@@ -1329,3 +1332,19 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 
     return 1;
 } /* }}} */
+
+static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    while (*cmd == ' ') cmd ++;
+
+    uint16_t temp;
+    if (sscanf_P (cmd, PSTR("%x"), &temp) != 1)
+      return -1;
+
+    unsigned char *ptr = (void *) temp;
+    for (int i = 0; i < 16; i ++)
+      sprintf_P (output + (i << 1), PSTR("%02x"), * (ptr ++));
+
+    return 32;
+} /* }}} */
+
