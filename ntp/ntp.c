@@ -32,7 +32,8 @@
 static struct uip_udp_conn *ntp_conn = NULL;
 static void ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr);
 static void send_ntp_packet(void);
-static uint32_t timestamp;
+static uint32_t timestamp = 1;
+static uint32_t ntp_timestamp = 0;
 static uint16_t ntp_timer = 1;
 
 
@@ -48,7 +49,6 @@ ntp_init()
     }
     ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
   }
-  ntp_timer = 1;
 }
 
 static void
@@ -63,8 +63,20 @@ ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 void 
 ntp_periodic(void) 
 {
-  if (ntp_timer) 
+  ntp_timer --;
+  if (ntp_timer == 0) 
     send_ntp_packet();
+}
+
+void
+ntp_every_second(void) 
+{
+  /* Decrease ntp timer */
+  if (ntp_timer)
+    ntp_timer --;
+  /* One second gone */
+  if(ntp_timestamp <= timestamp)
+    timestamp ++;
 }
 
 static void 
@@ -86,9 +98,11 @@ ntp_newdata(void)
 {
   struct ntp_packet *pkt = uip_appdata;
   /* We must save an unix timestamp */
-  timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
+  ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
+  if (ntp_timestamp > timestamp)
+    timestamp = ntp_timestamp;
 
-  ntp_timer = 0;
+  ntp_timer = 4096;
 }
 
 uint32_t

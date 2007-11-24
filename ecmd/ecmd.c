@@ -885,7 +885,7 @@ static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
 #ifdef NTP_SUPPORT
 static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  return snprintf(output, len, "time: %lu", get_time());
+  return snprintf_P(output, len, PSTR("%lu"), get_time());
 } /* }}} */
 #endif 
 
