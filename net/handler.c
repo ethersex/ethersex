@@ -36,6 +36,7 @@
 #include "dns_net.h"
 #include "syslog_net.h"
 #include "i2c_net.h"
+#include "ntp_net.h"
 #include "../dyndns/dyndns.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -68,7 +69,6 @@ void network_init_apps(void)
     i2c_net_init();
 #   endif
 
-
 #   ifdef OPENVPN_SUPPORT
     /* possibly bind these to the outer part of OpenVPN stack system */
     uip_stack_set_active(STACK_OPENVPN);
@@ -78,11 +78,14 @@ void network_init_apps(void)
     bootp_net_init();
 #   endif
 
-#if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(IPV6_SUPPORT)
-    dyndns_update();
-#endif
-    /* initialize your applications here */
+#   ifdef NTP_SUPPORT
+    ntp_net_init();
+#   endif
 
+#   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \
+      && !defined(IPV6_SUPPORT)
+    dyndns_update();
+#   endif
 } /* }}} */
 
 

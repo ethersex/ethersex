@@ -32,6 +32,7 @@
 #include "uip/uip_neighbor.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
+#include "ntp/ntp.h"
 #include "ipv6.h"
 
 #ifdef BOOTLOADER_SUPPORT
@@ -162,12 +163,16 @@ void timer_process(void)
         }
 #       endif /* UIP_CONF_IPV6 */
 
-#       ifdef FS20_SUPPORT
-        /* update last_update timer every second */
+#if defined(FS20_SUPPORT) || defined(NTP_SUPPORT)
         if (counter % 50 == 0) {
+#       ifdef FS20_SUPPORT
             fs20_global.ws300.last_update++;
-        }
 #       endif
+#       ifdef NTP_SUPPORT
+            ntp_every_second();
+#       endif
+        }
+#endif
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
