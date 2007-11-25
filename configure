@@ -412,17 +412,17 @@ sub configure_module {
 }
 
 sub ipv6_expand {
-  $_ = shift;
-  my @colons = m/:/g;
+  my $ip = shift;
+  my @colons = $ip =~ m/:/g;
   if(scalar(@colons) > 7) { return undef; }
-  unless(m/::/) { return $_ }
+  unless($ip =~ m/::/) { return $ip }
 
   my $replacement = ":0" x (8 - scalar(@colons)) . ":";
-  $_ =~ s/::/$replacement/;
-  if($_ =~ m/^:/) { $_ = "0$_"; }
-  if($_ =~ m/:$/) { $_ .= "0"; }
+  $ip =~ s/::/$replacement/;
+  if($ip =~ m/^:/) { $ip = "0$ip"; }
+  if($ip =~ m/:$/) { $ip .= "0"; }
 
-  return $_;
+  return $ip;
 }
 
 # return 1 if provided IP address is valid
