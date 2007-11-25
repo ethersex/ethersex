@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,11 +37,8 @@ void ntp_net_init(void)
 
 void ntp_net_main(void)
 {
-  if(uip_poll()) {
-    ntp_periodic();
-  }
-  if(uip_newdata()) {
+  if(uip_newdata())
     ntp_newdata();
-  }
+
 }
 #endif
