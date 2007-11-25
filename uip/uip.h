@@ -58,10 +58,6 @@
 #include "uipopt.h"
 #include "../net/state.h"
 
-#ifdef RC4_SUPPORT
-#include "../crypto/rc4.h"
-#endif
-
 /**
  * Callback when something happens on a connection
  *
@@ -1216,20 +1212,6 @@ struct __uip_conn {
 
 #if UIP_MULTI_STACK
   u8_t stack;
-#endif
-
-#ifdef RC4_SUPPORT
-  /** The RC4 stream cipher state */
-  rc4_state_t rc4_inbound, rc4_outbound;
-
-  struct {
-    unsigned inbound_initialized    :1;
-    unsigned outbound_initialized   :1;
-  } rc4_flags;
-#endif
-
-#ifdef AUTH_SUPPORT
-  unsigned auth_okay :1;
 #endif
 };
 

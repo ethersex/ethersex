@@ -116,17 +116,6 @@ my %ethersex_modules = (
                    helptext  => "configure as bootloader",
                    distdflt  => 0,
                  },
-  'rc4'       => {
-                   helptext  => "encrypt tcp-streams using rc4 stream cipher",
-                   requires  => [ "crypto", "md5", "tcp" ],
-                   distdflt  => 0,
-                   preconfigure => [ "tcp" ],
-                 },
-  'auth'      => {
-                   helptext  => "authenticate rc4 encoded tcp streams",
-		   requires  => [ "rc4" ],
-                   distdflt  => 0,
-                 },
   'skipjack'  => {
                    helptext  => "skipjack block cipher",
                    requires  => [ "crypto" ],

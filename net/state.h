@@ -55,15 +55,10 @@ typedef union uip_tcp_connection_state {
     struct dyndns_connection_state_t dyndns;
 #   endif
 
-#   ifdef AUTH_SUPPORT
-    unsigned char auth_challenge[8];
-#   endif 
-    /* put tcp application states here, example:
-     * struct httpd_connection_state_t httpd; */
 } uip_tcp_appstate_t;
 
-/* uip appstate for udp
- * attention: first byte MUST be transmit_state! */
+
+/* uip appstate for udp */
 typedef union uip_udp_connection_state {
 
 #   ifdef BOOTP_SUPPORT
@@ -82,8 +77,6 @@ typedef union uip_udp_connection_state {
     struct openvpn_connection_state_t openvpn;
 #   endif
 
-    /* put udp application states here, example:
-     * struct sntp_connection_state_t sntp; */
 } uip_udp_appstate_t;
 
 #endif
