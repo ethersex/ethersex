@@ -78,6 +78,7 @@ my %ethersex_modules = (
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
                    distdflt  => 1,
+                   enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
                  },
   'broadcast' => { 
@@ -183,14 +184,14 @@ my %ethersex_modules = (
                  },
 );
 my %ethersex_config = (
-  'etherrape_ip4'   => {
-                   helptext  => "default ip address of the etherrape",
+  'etherrape_ip' => {
+                   helptext  => "default ip address (inner part, if OpenVPN)",
                  },
   'etherrape_ip4_netmask'   => {
-                   helptext  => "default netmask for ipv4",
+                   helptext  => "default netmask (IPv4 only)",
                  },
   'etherrape_ip4_gateway'   => {
-                   helptext  => "default gateway for ipv4",
+                   helptext  => "default gateway (IPv4 only)",
                  },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
@@ -563,6 +564,14 @@ sub bootp_enable_hook {
   enable "broadcast", "bootp";
 }
 
+sub ipv6_enable_hook {
+  # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
+  configure_module "openvpn";
+
+  ask_ip("etherrape_ip")
+    if($ethersex_modules{'openvpn'}->{'new_status'});
+}
+
 sub ipv6_disable_hook {
   # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
   configure_module "openvpn";
@@ -577,7 +586,7 @@ sub ipv6_disable_hook {
     return if($ethersex_modules{'bootp'}->{'new_status'});
   }
   
-  ask_ip("etherrape_ip4");
+  ask_ip("etherrape_ip");
   ask_ip("etherrape_ip4_netmask");
 
   if($ethersex_modules{'openvpn'}->{'new_status'}) {

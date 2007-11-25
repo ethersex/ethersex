@@ -346,7 +346,7 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP4 uip_ipaddr(ip,10,0,0,5)
+#define CONF_ETHERRAPE_IP uip_ipaddr(ip,10,0,0,5)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 

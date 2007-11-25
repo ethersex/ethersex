@@ -98,13 +98,16 @@ void network_init(void)
         memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-        CONF_ETHERRAPE_IP4;
+#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
+  || defined(OPENVPN_SUPPORT)
+        CONF_ETHERRAPE_IP;
         uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
 #       endif
+#       endif
 
+#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT))
         CONF_ETHERRAPE_IP4_NETMASK;
         uip_setnetmask(ip);
 #       ifndef BOOTLOADER_SUPPORT        
