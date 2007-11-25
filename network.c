@@ -79,6 +79,13 @@ void network_init(void)
     debug_printf("net: loading base network settings\n");
 #   endif
 
+#   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
+    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
+#   if UIP_CONF_IPV6_LLADDR
+    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
+#   endif
+#   endif
+
     /* use global network packet buffer for configuration */
     eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
 
@@ -140,9 +147,14 @@ void network_init(void)
 
         /* load settings from eeprom */
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-        memcpy(&ipaddr, &cfg_base->ip, 4);
+
+#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
+  || defined(OPENVPN_SUPPORT)
+        memcpy(&ipaddr, &cfg_base->ip, sizeof(uip_ipaddr_t));
         uip_sethostaddr(ipaddr);
+#       endif
+
+#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
         memcpy(&ipaddr, &cfg_base->netmask, 4);
         uip_setnetmask(ipaddr);
         memcpy(&ipaddr, &cfg_base->gateway, 4);
@@ -161,13 +173,6 @@ void network_init(void)
         resolv_conf(&ipaddr);
 #       endif
     }
-
-#   if UIP_CONF_IPV6
-    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
-#   if UIP_CONF_IPV6_LLADDR
-    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
-#   endif
-#   endif
 
 #   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
     debug_printf("ip: %d.%d.%d.%d/%d.%d.%d.%d, gw: %d.%d.%d.%d\n",
