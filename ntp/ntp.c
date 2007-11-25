@@ -27,7 +27,7 @@
 #include "../dns/resolv.h"
 #include "ntp.h"
 
-static struct uip_udp_conn *ntp_conn = NULL;
+static uip_udp_conn_t *ntp_conn = NULL;
 static void send_ntp_packet(void);
 static uint32_t timestamp = 1;
 static uint32_t ntp_timestamp = 0;
