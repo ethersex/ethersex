@@ -515,9 +515,7 @@ void uip_unlisten(u16_t port);
  * or NULL if no connection could be allocated.
  *
  */
-#if !UIP_MULTI_STACK
 uip_conn_t *uip_connect(uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);
-#endif
 
 
 /**
