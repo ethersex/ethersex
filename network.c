@@ -56,6 +56,7 @@ void network_init(void)
     uip_init();
 
 #ifdef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();
 #endif
 
@@ -64,6 +65,8 @@ void network_init(void)
 #else
     uip_arp_init();
 #endif
+
+    uip_stack_set_active(STACK_MAIN);
 
     uip_ipaddr_t ipaddr;
 

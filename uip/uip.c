@@ -364,7 +364,7 @@ uip_ipchksum(void)
 #endif /* !UIP_CONF_IPV6 */
 #endif /* UIP_ARCH_IPCHKSUM */
 /*---------------------------------------------------------------------------*/
-static u16_t
+u16_t
 upper_layer_chksum(u8_t proto)
 {
   u16_t upper_layer_len;

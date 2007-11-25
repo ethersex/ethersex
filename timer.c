@@ -152,10 +152,10 @@ void timer_process(void)
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
                second after boot */
+#           ifdef OPENVPN_SUPPORT		
+	    uip_stack_set_active(STACK_OPENVPN);
+#           endif
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
-#               ifdef OPENVPN_SUPPORT		
-		uip_stack_set_active(STACK_OPENVPN);
-#               endif
                 uip_router_send_solicitation();
                 transmit_packet();
             }

@@ -44,6 +44,7 @@
   {						\
     stackname ## _process,			\
     stackname ## _send,				\
+    stackname ## _upper_layer_chksum,           \
     &stackname ## _flags,			\
     &stackname ## _appdata,			\
     &stackname ## _sappdata,			\

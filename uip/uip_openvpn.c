@@ -254,14 +254,14 @@ openvpn_process_out (void)
 void 
 openvpn_init (void)
 {
+  uip_ipaddr_t ip;
+
 #ifdef CAST5_SUPPORT
   cast5_init(&ctx, key, 128);
 #endif
 
   /* Initialize OpenVPN stack IP config, if necessary. */
 # if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-  uip_ipaddr_t ip;
-
   CONF_OPENVPN_IP4;
   uip_sethostaddr(ip);
 

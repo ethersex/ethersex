@@ -28,6 +28,7 @@ struct uip_stack {
   /* mapped functions */
   void (* uip_process) (u8_t flag);
   void (* uip_send)    (const void *data, int len);
+  u16_t (* upper_layer_chksum) (u8_t proto);
 
   u8_t *uip_flags;
   void **uip_appdata;
@@ -50,6 +51,7 @@ struct uip_stack {
     (uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);	\
   void stackname ## _send(const void *data, int len);			\
   void stackname ## _process(u8_t flag);				\
+  u16_t stackname ## _upper_layer_chksum(u8_t proto);                   \
   extern void * stackname ## _appdata;					\
   extern void * stackname ## _sappdata;					\
   extern u16_t stackname ## _slen;					\
@@ -71,6 +73,7 @@ extern struct uip_stack *uip_stack;
   /* We're now compiling a uIP stack. */
 #  define uip_process      STACK_NAME(process)
 #  define uip_send         STACK_NAME(send)
+#  define upper_layer_chksum  STACK_NAME(upper_layer_chksum)
 #  define uip_flags        STACK_NAME(flags)
 #  define uip_appdata      STACK_NAME(appdata)
 #  define uip_sappdata     STACK_NAME(sappdata)
@@ -86,6 +89,7 @@ extern struct uip_stack *uip_stack;
   /* We're compiling application code (i.e. outside of uIP stack) */
 #  define uip_process      (uip_stack->uip_process)
 #  define uip_send         (uip_stack->uip_send)
+#  define upper_layer_chksum (uip->stack->upper_layer_chksum)
 #  define uip_flags        (* (uip_stack->uip_flags))
 #  define uip_appdata      (* (uip_stack->uip_appdata))
 #  define uip_sappdata     (* (uip_stack->uip_sappdata))

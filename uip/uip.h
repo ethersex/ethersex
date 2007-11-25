@@ -1606,9 +1606,9 @@ extern struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
 /**
  * Representation of a 48-bit Ethernet address.
  */
-struct uip_eth_addr {
+extern struct uip_eth_addr {
   u8_t addr[6];
-};
+} uip_ethaddr;
 
 
 #if UIP_MULTI_STACK
