@@ -178,10 +178,10 @@ const char PROGMEM ecmd_show_dns_text[] = "show dns";
 #ifndef BOOTP_SUPPORT
 const char PROGMEM ecmd_dns_text[] = "dns ";
 #endif
+#endif /* DNS_SUPPORT */
 #ifdef NTP_SUPPORT
 const char PROGMEM ecmd_time_text[] = "time";
 #endif
-#endif /* DNS_SUPPORT */
 const char PROGMEM ecmd_d_text[] = "d ";
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
@@ -244,10 +244,10 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #ifndef BOOTP_SUPPORT
     { ecmd_dns_text, parse_cmd_dns },
 #endif
+#endif /* DNS_SUPPORT */
 #ifdef NTP_SUPPORT
     { ecmd_time_text, parse_cmd_time },
 #endif
-#endif /* DNS_SUPPORT */
     { ecmd_d_text, parse_cmd_d },
     { NULL, NULL },
 };

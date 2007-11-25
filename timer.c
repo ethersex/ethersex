@@ -48,6 +48,19 @@ void timer_init(void)
 
 } /* }}} */
 
+
+static void fill_llh_and_transmit(void)
+/* {{{ */ {
+# if UIP_CONF_IPV6
+  uip_neighbor_out();
+# else
+  uip_arp_out();
+# endif
+  
+  transmit_packet();
+} /* }}} */
+
+
 void timer_process(void)
 /* {{{ */ {
 
@@ -108,13 +121,7 @@ void timer_process(void)
 		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
-#                   if UIP_CONF_IPV6
-                    uip_neighbor_out();
-#                   else
-                    uip_arp_out();
-#                   endif
-
-                    transmit_packet();
+		    fill_llh_and_transmit();
                 }
             }
 #           endif /* UIP_TCP == 1 */
@@ -132,21 +139,11 @@ void timer_process(void)
 		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
-#                   if UIP_CONF_IPV6
-                    uip_neighbor_out();
-#                   else
-                    uip_arp_out();
-#                   endif
-
-                    transmit_packet();
+		    fill_llh_and_transmit();
                 }
             }
 #           endif
         }
-
-        // FIXME
-        //if (c % 5 == 0) /* every second */
-        //    clock_periodic();
 
 #       if UIP_CONF_IPV6
         if (counter == 5) { 
@@ -163,16 +160,20 @@ void timer_process(void)
         }
 #       endif /* UIP_CONF_IPV6 */
 
-#if defined(FS20_SUPPORT) || defined(NTP_SUPPORT)
         if (counter % 50 == 0) {
-#       ifdef FS20_SUPPORT
+#           ifdef FS20_SUPPORT
             fs20_global.ws300.last_update++;
-#       endif
-#       ifdef NTP_SUPPORT
+#           endif
+
+#           ifdef NTP_SUPPORT
+#           ifdef OPENVPN_SUPPORT
+	    openvpn_process_out();
+	    /* uip_stack_set_active(STACK_OPENVPN); */
+#           endif
             ntp_every_second();
-#       endif
+	    if (uip_len) fill_llh_and_transmit();
+#           endif /* NTP_SUPPORT */
         }
-#endif
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
