@@ -183,6 +183,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
+  'zbus'        => {
+                   helptext  => "serial protocol",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {

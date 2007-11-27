@@ -34,6 +34,7 @@
 #include "ecmd_sender_state.h"
 #include "i2c_state.h"
 #include "dyndns_state.h"
+#include "zbus_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -75,6 +76,10 @@ typedef union uip_udp_connection_state {
 
 #   ifdef I2C_SUPPORT
     struct i2c_connection_state_t i2c;
+#   endif
+
+#   ifdef ZBUS_SUPPORT
+    struct zbus_connection_state_t zbus;
 #   endif
 
     /* put udp application states here, example:
