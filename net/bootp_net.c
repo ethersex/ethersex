@@ -38,7 +38,7 @@ bootp_net_init(void)
     uip_ipaddr_t ip;
     uip_ipaddr(&ip, 255,255,255,255);
 
-    struct uip_udp_conn *bootp_conn = uip_udp_new(&ip, HTONS(BOOTPS_PORT), bootp_net_main);
+    uip_udp_conn_t *bootp_conn = uip_udp_new(&ip, HTONS(BOOTPS_PORT), bootp_net_main);
 
     if(! bootp_conn) 
 	return; /* dammit. */
