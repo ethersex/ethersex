@@ -39,7 +39,7 @@ void
 zbus_net_init(void)
 {
     uip_ipaddr_t ip;
-    uip_ipaddr(&ip, 255,255,255,255);
+    uip_ipaddr_copy(&ip, all_ones_addr);
 
     zbus_conn = uip_udp_new(&ip, 0, zbus_net_main);
 
