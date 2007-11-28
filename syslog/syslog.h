@@ -30,6 +30,7 @@
 
 uint8_t syslog_send_P(PGM_P message);
 uint8_t syslog_send(const char *message);
+uint8_t syslog_sendf(const char *message, ...);
 uint8_t syslog_send_ptr(void *message);
 
 #endif
