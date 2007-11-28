@@ -112,9 +112,10 @@ zbus_net_main(void)
 send_error:
   syslog_sendf("port: %u", HTONS(BUF->srcport));
   /* Send an error */
-  uip_ipaddr_copy(&error_conn.ripaddr, &BUF->srcipaddr);
+  uip_ipaddr_copy(error_conn.ripaddr, BUF->srcipaddr);
   error_conn.rport = BUF->srcport;
   error_conn.lport = HTONS(ZBUS_PORT);
+  error_conn.ttl = uip_udp_conn->ttl;
 
   uip_udp_conn = &error_conn;
 
@@ -126,6 +127,8 @@ send_error:
   uip_arp_out(); 
 #endif
   transmit_packet();
+
+  uip_slen = 0;
 
   uip_udp_conn = zbus_conn;
 }
