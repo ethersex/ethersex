@@ -54,7 +54,7 @@ zbus_net_init(void)
 
     uip_udp_bind(zbus_conn, HTONS(ZBUS_PORT));
 
-    zbus_core_init();
+    zbus_core_init(zbus_conn);
 }
 
 
@@ -106,11 +106,30 @@ zbus_net_main(void)
     if (uip_udp_conn->appstate.zbus.ttl-- == 0 && uip_udp_conn != zbus_conn) {
       uip_udp_remove(uip_udp_conn);
     }
+    if (uip_udp_conn == zbus_conn 
+        && uip_udp_conn->appstate.zbus.state & ZBUS_STATE_RECIEVED) {
+      /* New data arrived 
+       * Send the recieved data to the connection, which sent the last time
+       * to the address ( always the first byte )
+       */
+      for(uip_udp_conn = &uip_udp_conns[0];
+          uip_udp_conn < &uip_udp_conns[UIP_UDP_CONNS];
+          ++uip_udp_conn) {
+        if ((uip_udp_conn->appstate.zbus.buffer[0]  
+             == zbus_conn->appstate.zbus.buffer[0])
+            && uip_udp_conn != zbus_conn) {
+          memcpy(uip_appdata, zbus_conn->appstate.zbus.buffer, 
+                 zbus_conn->appstate.zbus.buffer_len);
+          uip_udp_send(zbus_conn->appstate.zbus.buffer_len);
+        }
+        zbus_conn->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
+      }
+    }
+
   }
   return;
 
 send_error:
-  syslog_sendf("port: %u", HTONS(BUF->srcport));
   /* Send an error */
   uip_ipaddr_copy(error_conn.ripaddr, BUF->srcipaddr);
   error_conn.rport = BUF->srcport;

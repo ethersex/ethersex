@@ -29,16 +29,17 @@
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "zbus.h"
+#include "../net/zbus_state.h"
 
 
 
-static volatile uint8_t escape_data = 0;
+static volatile uint8_t send_escape_data = 0;
+static volatile uint8_t recv_escape_data = 0;
 static volatile zbus_send_byte_callback_t callback = NULL;
 static volatile void *callback_ctx = NULL;
 
-static volatile struct ZBusReciever buffer;
-
 static volatile struct uip_udp_conn *send_connection = NULL;
+static volatile struct uip_udp_conn *recv_connection = NULL;
 
 uint8_t
 zbus_send_conn_data_cb(void **ctx) 
@@ -47,9 +48,9 @@ zbus_send_conn_data_cb(void **ctx)
     zbus_tx_finish();
   else {
     char data = send_connection->
-      appstate.zbus.buffer[send_connection->appstate.zbus.send_offset];
-    send_connection->appstate.zbus.send_offset++;
-    if (send_connection->appstate.zbus.send_offset 
+      appstate.zbus.buffer[send_connection->appstate.zbus.offset];
+    send_connection->appstate.zbus.offset++;
+    if (send_connection->appstate.zbus.offset 
         >= send_connection->appstate.zbus.buffer_len)
       send_connection = NULL;
     return data;
@@ -63,7 +64,7 @@ zbus_send_conn_data(struct uip_udp_conn *conn)
 {
   if (!send_connection) {
     send_connection = conn;
-    conn->appstate.zbus.send_offset = 0;
+    conn->appstate.zbus.offset = 0;
     zbus_tx_start(zbus_send_conn_data_cb, NULL);
     return 1;
   }
@@ -72,7 +73,7 @@ zbus_send_conn_data(struct uip_udp_conn *conn)
 
 
 void
-zbus_core_init(void)
+zbus_core_init(struct uip_udp_conn *recv_conn)
 {
     /* set baud rate */
     _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
@@ -88,9 +89,13 @@ zbus_core_init(void)
     RXTX_DDR |= _BV(RXTX_PIN);
     /* Default is reciever enabled*/
     RXTX_PORT &= ~_BV(RXTX_PIN);
+    
+    /* copy the recieve connection */
+    recv_connection = recv_conn;
 
+    /* Set the recv Buffer to invalid */
+    recv_connection->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
 
-    buffer.valid = 0;
 }
 
 
@@ -108,7 +113,7 @@ zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx)
   callback_ctx = ctx;
   
   /* Transmit Start sequence */
-  escape_data = ZBUS_START;
+  send_escape_data = ZBUS_START;
   _UDR_UART0 = '\\';
 
   /* Enable buffer empty interrupt */
@@ -127,9 +132,9 @@ SIGNAL(USART0_UDRE_vect)
 {
   _delay_ms(1);
 
-  if (escape_data) {
-    _UDR_UART0 = escape_data;
-    escape_data = 0;
+  if (send_escape_data) {
+    _UDR_UART0 = send_escape_data;
+    send_escape_data = 0;
     if (callback == NULL) {
       /* Wait for completion */
       while (!(_UCSRA_UART0 & _BV(_UDRE_UART0)));
@@ -141,18 +146,18 @@ SIGNAL(USART0_UDRE_vect)
     }
   } else {
     if (callback) {
-      escape_data = callback((void *)callback_ctx);
+      send_escape_data = callback((void *)callback_ctx);
       if (callback) {
-        if (escape_data == '\\') 
+        if (send_escape_data == '\\') 
           _UDR_UART0 = '\\';
         else {
-          _UDR_UART0 = escape_data;
-          escape_data = 0;
+          _UDR_UART0 = send_escape_data;
+          send_escape_data = 0;
         }
       } else {
         /* Send Packet end */
         _UDR_UART0 = '\\';
-        escape_data = ZBUS_STOP;
+        send_escape_data = ZBUS_STOP;
       }
     }
   }
@@ -166,34 +171,30 @@ SIGNAL(USART0_RX_vect)
     return; 
   }
   uint8_t data = _UDR_UART0;
-  if (data == '\\') 
-    buffer.escaped = 1;
-  else {
-    if (buffer.escaped){
-      if (data == ZBUS_START) {
-        buffer.length = 0;
-      }
-      else if (data == ZBUS_STOP) {
-        buffer.valid = 1;
-        
-        // FIXME
-        buffer.data[buffer.length] = 0;
-        buffer.valid = 0;
 
+  /* Old data is not read by application, ignore message */
+  if (recv_connection->appstate.zbus.state & ZBUS_STATE_RECIEVED) return;
+
+  if (data == '\\') 
+    recv_escape_data = 1;
+  else {
+    if (recv_escape_data){
+      if (data == ZBUS_START) {
+        recv_connection->appstate.zbus.buffer_len = 0;
       }
+      else if (data == ZBUS_STOP) 
+        recv_connection->appstate.zbus.state |= ZBUS_STATE_RECIEVED;
       else if (data == '\\') {
-        buffer.escaped = 0;
+        recv_escape_data = 0;
         goto append_data;
       }
-      buffer.escaped = 0;
+      recv_escape_data = 0;
     } else {
-      /* Old data is not read by application, ignore message */
-      if (buffer.valid) return;
-      /* Not enough space in buffer */
-      if (buffer.length >= ZBUS_BUFFER_MAX_LENGTH) return;
 append_data:
-      buffer.data[buffer.length] = data;
-      buffer.length++;
+      /* Not enough space in buffer */
+      if (recv_connection->appstate.zbus.buffer_len >= ZBUS_BUFFER_LEN) return;
+      recv_connection->appstate.zbus
+        .buffer[recv_connection->appstate.zbus.buffer_len++] = data;
     }
   }
 }

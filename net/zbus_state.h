@@ -29,11 +29,12 @@
 enum zbus_connection_state {
   ZBUS_STATE_DATA = 1,
   ZBUS_STATE_SENDING = 2,
+  ZBUS_STATE_RECIEVED = 4,
 };
 
 struct zbus_connection_state_t {
   uint8_t state; /* state of the connection */
-  uint8_t send_offset; /* used by the zbus hardware subsystem */
+  uint8_t offset; /* used by the zbus hardware subsystem */
   uint8_t ttl; /* The connection will be closed after n polls */
 
   uint8_t buffer_len;

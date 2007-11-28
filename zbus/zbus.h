@@ -33,21 +33,13 @@
 
 /* use 19200 baud at 20mhz (see datasheet for other values) */
 #define ZBUS_UART_UBRR 64
-#define ZBUS_BUFFER_MAX_LENGTH 65
 
 enum ZBusEscapes {
   ZBUS_START = '0',
   ZBUS_STOP = '1',
 };
 
-struct ZBusReciever {
-  uint8_t escaped;
-  uint8_t valid;
-  uint16_t length;
-  char data[ZBUS_BUFFER_MAX_LENGTH];
-};
-
-void zbus_core_init(void);
+void zbus_core_init(struct uip_udp_conn *recv_conn);
 
 typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
 
