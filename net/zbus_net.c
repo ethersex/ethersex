@@ -21,17 +21,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include <stdlib.h>
 #include <avr/pgmspace.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "zbus_net.h"
 #include "../zbus/zbus.h"
 #include "../uip/uip.h"
+#include "../uip/uip_arp.h"
+#include "../uip/uip_neighbor.h"
+#include "../network.h"
+#include "../syslog/syslog.h"
 #include "../config.h"
 
 #ifdef ZBUS_SUPPORT
 
-#define BUF ((struct uip_udpip_hdr *)uip_appdata-UIP_IPUDPH_LEN)
+#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 struct uip_udp_conn *zbus_conn;
 
@@ -55,29 +61,26 @@ zbus_net_init(void)
 void
 zbus_net_main(void)
 {
+  struct uip_udp_conn error_conn;
+
   if (uip_newdata()) {
     if (uip_datalen() > ZBUS_BUFFER_LEN) {
       /* Send an error */
-      char *p = uip_appdata;
-      *p = ZBUS_UDP_ERROR_TOO_MUCH_DATA;
-      uip_udp_send(1);
-      return;
+      uip_udp_send(sprintf_P(uip_appdata, PSTR("EToo much data")));
+      goto send_error;
     }
     if (uip_udp_conn == zbus_conn) {
       /* Copy to an new connection */
       struct uip_udp_conn *tmp = uip_udp_new(&BUF->srcipaddr, 
                                              BUF->srcport,
                                              zbus_net_main);
+      uip_udp_bind(tmp, HTONS(ZBUS_PORT));
       if (!tmp) {
-        /* Send an error */
-        char *p = uip_appdata;
-        *p = ZBUS_UDP_ERROR_TOO_MUCH_CONNECTIONS;
-        uip_udp_send(1);
-        return;
+        uip_udp_send(sprintf_P(uip_appdata, PSTR("EToo much connections")));
+        goto send_error;
       }
       uip_udp_bind(tmp, HTONS(ZBUS_PORT));
       uip_udp_conn = tmp;
-      syslog_send_P(PSTR("zbus: New Connection"));
     }
     /* Copy data to the connection buffer */
     uip_udp_conn->appstate.zbus.buffer_len = uip_datalen();
@@ -85,12 +88,11 @@ zbus_net_main(void)
 
 
     if (zbus_send_conn_data(uip_udp_conn) == 0) 
-      uip_udp_conn->appstate.zbus.state |= ZBUS_STATE_DATA | ZBUS_STATE_SENDING;  
+      uip_udp_conn->appstate.zbus.state |= ZBUS_STATE_SENDING;  
 
     /* Update the ttl of the connection */
-    uip_udp_conn->appstate.zbus.ttl = 150;
-    sprintf(uip_appdata, "data recieved\n");
-    uip_udp_send(14);
+    uip_udp_conn->appstate.zbus.ttl = 25;
+    uip_udp_send(sprintf_P(uip_appdata, PSTR("data recieved\n")));
   }
   else if (uip_poll()) {
     /* Try to send old data */
@@ -103,9 +105,29 @@ zbus_net_main(void)
     }
     if (uip_udp_conn->appstate.zbus.ttl-- == 0 && uip_udp_conn != zbus_conn) {
       uip_udp_remove(uip_udp_conn);
-      syslog_send_P(PSTR("zbus: Connection timeout"));
     }
   }
+  return;
+
+send_error:
+  syslog_sendf("port: %u", HTONS(BUF->srcport));
+  /* Send an error */
+  uip_ipaddr_copy(&error_conn.ripaddr, &BUF->srcipaddr);
+  error_conn.rport = BUF->srcport;
+  error_conn.lport = HTONS(ZBUS_PORT);
+
+  uip_udp_conn = &error_conn;
+
+  /* Send immediately */
+  uip_process(UIP_UDP_SEND_CONN); 
+#ifdef IPV6_SUPPORT
+  uip_neighbour_out();
+#else
+  uip_arp_out(); 
+#endif
+  transmit_packet();
+
+  uip_udp_conn = zbus_conn;
 }
 
 #endif /* ZBUS_SUPPORT */
