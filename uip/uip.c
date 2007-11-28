@@ -1172,9 +1172,9 @@ uip_process(u8_t flag)
 #endif /* UIP_UDP_CHECKSUMS */
 
   /* Demultiplex this UDP packet between the UDP "connections". */
-  for(uip_udp_conn = &uip_udp_conns[0];
-      uip_udp_conn < &uip_udp_conns[UIP_UDP_CONNS];
-      ++uip_udp_conn) {
+  for(uip_udp_conn = &uip_udp_conns[UIP_UDP_CONNS - 1];
+      uip_udp_conn >= &uip_udp_conns[0];
+      --uip_udp_conn) {
     /* If the local UDP port is non-zero, the connection is considered
        to be used. If so, the local port number is checked against the
        destination port number in the received packet. If the two port
