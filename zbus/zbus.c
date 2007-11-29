@@ -35,6 +35,8 @@
 
 static volatile uint8_t send_escape_data = 0;
 static volatile uint8_t recv_escape_data = 0;
+static volatile uint8_t bus_blocked = 0;
+
 static volatile zbus_send_byte_callback_t callback = NULL;
 static volatile void *callback_ctx = NULL;
 
@@ -62,6 +64,8 @@ zbus_send_conn_data_cb(void **ctx)
 uint8_t
 zbus_send_conn_data(struct uip_udp_conn *conn) 
 {
+  if (bus_blocked) return 0;
+
   if (!send_connection) {
     send_connection = conn;
     conn->appstate.zbus.offset = 0;
@@ -96,6 +100,13 @@ zbus_core_init(struct uip_udp_conn *recv_conn)
     /* Set the recv Buffer to invalid */
     recv_connection->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
 
+}
+
+void
+zbus_core_periodic(void)
+{
+  if(bus_blocked)
+    bus_blocked--;
 }
 
 
@@ -181,9 +192,12 @@ SIGNAL(USART0_RX_vect)
     if (recv_escape_data){
       if (data == ZBUS_START) {
         recv_connection->appstate.zbus.buffer_len = 0;
+        bus_blocked = 3;
       }
-      else if (data == ZBUS_STOP) 
+      else if (data == ZBUS_STOP) {
         recv_connection->appstate.zbus.state |= ZBUS_STATE_RECIEVED;
+        bus_blocked = 0;
+      }
       else if (data == '\\') {
         recv_escape_data = 0;
         goto append_data;
@@ -193,6 +207,9 @@ SIGNAL(USART0_RX_vect)
 append_data:
       /* Not enough space in buffer */
       if (recv_connection->appstate.zbus.buffer_len >= ZBUS_BUFFER_LEN) return;
+      /* If bus is not blocked we aren't on an message */
+      if (!bus_blocked) return;
+
       recv_connection->appstate.zbus
         .buffer[recv_connection->appstate.zbus.buffer_len++] = data;
     }

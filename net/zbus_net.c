@@ -67,7 +67,7 @@ zbus_net_main(void)
     if (uip_datalen() > ZBUS_BUFFER_LEN) {
       /* Send an error */
       uip_udp_send(sprintf_P(uip_appdata, PSTR("EToo much data")));
-      goto send_error;
+      goto send_answer;
     }
     if (uip_udp_conn == zbus_conn) {
       /* Copy to an new connection */
@@ -77,7 +77,7 @@ zbus_net_main(void)
       uip_udp_bind(tmp, HTONS(ZBUS_PORT));
       if (!tmp) {
         uip_udp_send(sprintf_P(uip_appdata, PSTR("EToo much connections")));
-        goto send_error;
+        goto send_answer;
       }
       uip_udp_bind(tmp, HTONS(ZBUS_PORT));
       uip_udp_conn = tmp;
@@ -92,7 +92,6 @@ zbus_net_main(void)
 
     /* Update the ttl of the connection */
     uip_udp_conn->appstate.zbus.ttl = 25;
-    uip_udp_send(sprintf_P(uip_appdata, PSTR("data recieved\n")));
   }
   else if (uip_poll()) {
     /* Try to send old data */
@@ -103,9 +102,14 @@ zbus_net_main(void)
         return;
       }
     }
-    if (uip_udp_conn->appstate.zbus.ttl-- == 0 && uip_udp_conn != zbus_conn) {
+    /* Do timeout for the single zbus connections */
+    if (uip_udp_conn->appstate.zbus.ttl-- == 0 && uip_udp_conn != zbus_conn) 
       uip_udp_remove(uip_udp_conn);
-    }
+
+    /* Poll the hardware subsystem */
+    if (uip_udp_conn == zbus_conn)
+      zbus_core_periodic();
+
     if (uip_udp_conn == zbus_conn 
         && uip_udp_conn->appstate.zbus.state & ZBUS_STATE_RECIEVED) {
       /* New data arrived 
@@ -115,21 +119,28 @@ zbus_net_main(void)
       for(uip_udp_conn = &uip_udp_conns[0];
           uip_udp_conn < &uip_udp_conns[UIP_UDP_CONNS];
           ++uip_udp_conn) {
-        if ((uip_udp_conn->appstate.zbus.buffer[0]  
-             == zbus_conn->appstate.zbus.buffer[0])
+        if (uip_udp_conn->callback == zbus_net_main
+            && uip_udp_conn->lport
+            && (uip_udp_conn->appstate.zbus.buffer[0]  
+                == zbus_conn->appstate.zbus.buffer[0])
             && uip_udp_conn != zbus_conn) {
-          memcpy(uip_appdata, zbus_conn->appstate.zbus.buffer, 
-                 zbus_conn->appstate.zbus.buffer_len);
+          /* Success udp messages always begins with O */
+          /* FIXME: locks strange, why does uip_appdata[0] = 'O'; not work? */
+          char *p = uip_appdata;
+          p[0] = 'O';
+          memcpy(uip_appdata + 1, zbus_conn->appstate.zbus.buffer, 
+                 zbus_conn->appstate.zbus.buffer_len + 1);
           uip_udp_send(zbus_conn->appstate.zbus.buffer_len);
+          zbus_conn->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
+          return;
         }
-        zbus_conn->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
       }
+      zbus_conn->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
     }
-
   }
   return;
 
-send_error:
+send_answer:
   /* Send an error */
   uip_ipaddr_copy(error_conn.ripaddr, BUF->srcipaddr);
   error_conn.rport = BUF->srcport;
