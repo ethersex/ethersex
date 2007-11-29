@@ -66,7 +66,7 @@ struct uip_stack {
 extern struct uip_stack uip_stacks[STACK_LEN];
 extern struct uip_stack *uip_stack;
 
-#define uip_stack_get_active()   ((uip_stack - uip_stacks) / sizeof (struct uip_stack))
+#define uip_stack_get_active()   (uip_stack - uip_stacks)
 #define uip_stack_set_active(i)  (uip_stack = &uip_stacks[(i)])
 
 #ifdef STACK_NAME
