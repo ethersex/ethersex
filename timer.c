@@ -52,6 +52,7 @@ void timer_init(void)
 
 static void fill_llh_and_transmit(void)
 /* {{{ */ {
+#ifdef ENC28J60_SUPPORT
 # if UIP_CONF_IPV6
   uip_neighbor_out();
 # else
@@ -59,6 +60,7 @@ static void fill_llh_and_transmit(void)
 # endif
   
   transmit_packet();
+#endif /* ENC28J60_SUPPORT */
 } /* }}} */
 
 
@@ -180,6 +182,7 @@ void timer_process(void)
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
+#           ifdef ENC28J60_SUPPORT
 #           ifdef DEBUG_TIMER
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
@@ -190,7 +193,8 @@ void timer_process(void)
 #           else
             uip_arp_timer();
 #           endif
-#           endif
+#           endif /* !BOOTLOADER_SUPPORT */
+#           endif /* ENC28J60_SUPPORT */
 
             counter = 0;
         }
@@ -207,7 +211,7 @@ void timer_process(void)
             }
 #       endif
 
-#       ifdef RFM12_SUPPORT
+#       if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
         rfm12_get_receive();
 #       endif
 

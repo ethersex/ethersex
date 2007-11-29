@@ -36,6 +36,8 @@
 #include "spi.h"
 #include "bit-macros.h"
 
+#ifdef ENC28J60_SUPPORT
+
 /* global variables */
 uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
@@ -416,3 +418,5 @@ void dump_debug_registers(void)
         read_control_register(REG_EDMANDL));
 } /* }}} */
 #endif
+
+#endif /* ENC28J60_SUPPORT */

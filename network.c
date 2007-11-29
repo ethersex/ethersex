@@ -60,11 +60,13 @@ void network_init(void)
     openvpn_init();
 #endif
 
+#ifdef ENC28J60_SUPPORT
 #if UIP_CONF_IPV6
     uip_neighbor_init();
 #else
     uip_arp_init();
 #endif
+#endif /* ENC28J60_SUPPORT */
 
     uip_stack_set_active(STACK_MAIN);
 
@@ -220,10 +222,15 @@ void network_init(void)
 #   endif /* !BOOTLOADER_SUPPORT */
 
     network_init_apps();
+
+#   ifdef ENC28J60_SUPPORT
     init_enc28j60();
+#   endif
 
 } /* }}} */
 
+
+#ifdef ENC28J60_SUPPORT
 void network_process(void)
 /* {{{ */ {
 
@@ -334,7 +341,10 @@ void network_process(void)
     bit_field_set(REG_EIE, _BV(INTIE));
 
 } /* }}} */
+#endif /* ENC28J60_SUPPORT */
 
+
+#ifdef ENC28J60_SUPPORT
 void process_packet(void)
 /* {{{ */ {
 
@@ -475,7 +485,10 @@ void process_packet(void)
     bit_field_set(REG_ECON2, _BV(PKTDEC));
 
 } /* }}} */
+#endif
 
+
+#ifdef ENC28J60_SUPPORT
 void transmit_packet(void)
 /* {{{ */ {
 
@@ -517,3 +530,4 @@ void transmit_packet(void)
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
 } /* }}} */
+#endif

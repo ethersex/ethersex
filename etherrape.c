@@ -173,10 +173,12 @@ int main(void)
 
         wdt_kick();
 
+#ifdef ENC28J60_SUPPORT
         /* check for network controller interrupts,
          * call uip on received packets */
         network_process();
         wdt_kick();
+#endif
 
         /* check if any timer expired,
          * poll all uip connections */

@@ -61,7 +61,7 @@ void network_init_apps(void)
     dns_net_init();
 #   endif
 
-#   ifdef RFM12_SUPPORT
+#   if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
     rfm12_net_init();
 #   endif
 
