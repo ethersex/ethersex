@@ -40,6 +40,7 @@
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
 #include "../rfm12/rfm12.h"
+#include "../net/rfm12_net.h"
 #include "../dns/resolv.h"
 #include "../ntp/ntp.h"
 #include "ecmd.h"
@@ -893,11 +894,11 @@ static int16_t parse_rfm12_send(char *cmd, char *output, uint16_t len)
 	return sprintf (output, "buflen error, buflen=%u", buflen);
     buflen >>= 1;
 
-    uint16_t rfaddr;
-    if (sscanf_P (cmd, PSTR("%u"), &rfaddr) != 1) {
+    uint16_t txaddr;
+    if (sscanf_P (cmd, PSTR("%u"), &txaddr) != 1) {
 	return sprintf (output, "rfm12: sscanf_P failed.");
     }
-    char *buf = __builtin_alloca (buflen);
+    unsigned char *buf = __builtin_alloca (buflen);
 
     for (uint8_t i = 0; i < buflen; i ++) {
 	uint16_t temp;
@@ -906,12 +907,12 @@ static int16_t parse_rfm12_send(char *cmd, char *output, uint16_t len)
 	buf[i] = temp;
     }
 
-    int i = rfm12_txstart (rfaddr, buf, buflen);
+    int i = rfm12_txstart (RFADDR, txaddr, buf, buflen);
     
     if (i)
 	return sprintf (output, "rfm12: rfm12_txstart failed.");
     else
-	return sprintf (output, "rfm12: sent %u bytes to %u.", buflen, rfaddr);
+	return sprintf_P (output, PSTR("rfm12: sent %u bytes to %u."), buflen, txaddr);
 } /* }}} */
 #endif /* RFM12_SUPPORT */
 
@@ -919,24 +920,25 @@ static int16_t parse_rfm12_send(char *cmd, char *output, uint16_t len)
 #ifdef RFM12_SUPPORT 
 static int16_t parse_rfm12_receive(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-    uint8_t rfaddr;
-    char buf[RFM12_DataLength];
-    int recv_len = rfm12_rxfinish (&rfaddr, buf);
-
+    int recv_len = rx.rxdata.len;
     if (recv_len == 0 || recv_len >= 254)
-	return -1;
+      return -1;
+  
+    int rxaddr_len = sprintf_P (output, PSTR("%d "), rx.rxdata.fromaddr);
+    output += rxaddr_len; 
+    len -= rxaddr_len;
 
-    int rfaddr_len = sprintf_P (output, PSTR("%d "), rfaddr);
+    int rfaddr_len = sprintf_P (output, PSTR("%d "), rx.rxdata.toaddr);
     output += rfaddr_len; 
     len -= rfaddr_len;
 
     if (recv_len << 1 > len)
-	recv_len = len >> 1;
+      recv_len = len >> 1;
 
     for (int i = 0; i < recv_len; i ++)
-	sprintf_P (output + (i << 1), PSTR("%02x"), buf[i]);
+      sprintf_P (output + (i << 1), PSTR("%02x"), rx.rxdata.data[i]);
 
-    return (recv_len << 1) + rfaddr_len;
+    return (recv_len << 1) + rxaddr_len + rfaddr_len;
 } /* }}} */
 #endif /* RFM12_SUPPORT */
 

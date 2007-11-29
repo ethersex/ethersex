@@ -34,6 +34,7 @@
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
+#include "rfm12_net.h"
 #include "syslog_net.h"
 #include "i2c_net.h"
 #include "ntp_net.h"
@@ -41,7 +42,6 @@
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
-
 
 void network_init_apps(void)
 /* {{{ */ {
@@ -64,6 +64,10 @@ void network_init_apps(void)
 
 #   ifdef DNS_SUPPORT
     dns_net_init();
+#   endif
+
+#   ifdef RFM12_SUPPORT
+    rfm12_net_init();
 #   endif
 
 #   ifdef SYSLOG_SUPPORT

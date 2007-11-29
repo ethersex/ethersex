@@ -21,6 +21,8 @@
 
 */
 
+#include <stdlib.h>
+
 #include "../config.h"
 #include "../spi.h"
 #include "rfm12.h"
@@ -43,6 +45,12 @@ volatile uint8_t RFM12_Ackdata = 0;
 volatile uint16_t RFM12_delaycount = 0;
 volatile uint8_t RFM12_maxcount = 0;
 volatile uint8_t RFM12_Data[RFM12_DataLength + 12];  /* +12 == paket overhead */
+
+struct RFM12_addrlist {
+  struct RFM12_addrlist *nextaddr;
+  uint8_t rfaddr;
+} rfaddrlist;
+
 #else
 volatile uint8_t RFM12_Data[RFM12_DataLength + 10];  /* +10 == paket overhead */
 #endif
@@ -50,46 +58,55 @@ volatile uint8_t RFM12_Data[RFM12_DataLength + 10];  /* +10 == paket overhead */
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
-  if(RFM12_status.Rx) {
-    if(RFM12_Index < RFM12_DataLength) {
-      RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
+  if(RFM12_status.Rx)
+    {
+      if(RFM12_Index < RFM12_DataLength)
+	{
+	  RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
 #ifdef RFM12_BLINK_PORT
-      RFM12_BLINK_PORT |= RFM12_RX_PIN;
+	  RFM12_BLINK_PORT |= RFM12_RX_PIN;
 #endif
-    }
-    else {
-      rfm12_trans(0x8208);
-      RFM12_status.Rx = 0;
-    }
+	}
+      else
+	{
+	  rfm12_trans(0x8208);
+	  RFM12_status.Rx = 0;
+	}
 #ifdef RFADDR
-    if(RFM12_Index >= RFM12_Data[0] + 3 + 2)
+      if(RFM12_Index >= RFM12_Data[0] + 3 + 2)
 #else
-    if(RFM12_Index >= RFM12_Data[0] + 3)
+      if(RFM12_Index >= RFM12_Data[0] + 3)
 #endif
-      {
-	rfm12_trans(0x8208);
-	RFM12_status.Rx = 0;
-	RFM12_status.New = 1;
-      }
-  }
-
-  else if(RFM12_status.Tx) {
-    rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
-    if(!RFM12_Index) {
-      RFM12_status.Tx = 0;
-#ifdef RFM12_BLINK_PORT
-      RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
-#endif
-      rfm12_trans(0x8208);	/* TX off */
-      rfm12_rxstart();
+	{
+	  rfm12_trans(0x8208);
+	  RFM12_status.Rx = 0;
+	  RFM12_status.New = 1;
+	}
     }
-    else
-      RFM12_Index--;
-  }
-  else {
-    rfm12_trans(0x0000);	/* dummy read */
-    /* FIXME what happend */
-  }
+
+  else if(RFM12_status.Tx)
+    {
+      rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
+
+      if(!RFM12_Index)
+	{
+	  RFM12_status.Tx = 0;
+
+#ifdef RFM12_BLINK_PORT
+	  RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
+#endif
+
+	  rfm12_trans(0x8208);	/* TX off */
+	  rfm12_rxstart();
+	}
+      else
+	RFM12_Index--;
+    }
+  else
+    {
+      rfm12_trans(0x0000);	/* dummy read */
+      /* FIXME what happend */
+    }
 }
 
 
@@ -153,6 +170,9 @@ rfm12_init(void)
   RFM12_status.Rx = 0;
   RFM12_status.Tx = 0;
   RFM12_status.New = 0;
+
+  rfaddrlist.nextaddr = 0;
+  rfaddrlist.rfaddr = RFADDR;
 
   EIMSK |= _BV(RFM12_INT_PIN);
 }
@@ -224,7 +244,7 @@ rfm12_rxstart(void)
 
 uint8_t 
 #ifdef RFADDR
-rfm12_rxfinish(uint8_t *txaddr, uint8_t *data)
+rfm12_rxfinish(uint8_t *rfaddr, uint8_t *txaddr, uint8_t *data)
 #else
 rfm12_rxfinish(uint8_t *data)
 #endif
@@ -253,51 +273,62 @@ rfm12_rxfinish(uint8_t *data)
   RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
 #endif
 
-#ifdef RFADDR
-  if(crc != crc_chk || RFM12_Data[2] != RFADDR)
-#else
   if(crc != crc_chk)
-#endif
     {
       rfm12_rxstart();
       return(0);		/* crc err -or- strsize */
     }
-  else {
-    uint8_t i;
+  else
+    {
+      uint8_t i;
 
 #ifdef RFADDR
-    if(RFM12_status.Ack == 1 && RFM12_Data[0] == 1) {
-      RFM12_status.Ack = 0;
-      rfm12_rxstart();
-      return(0);
-    }
+      *txaddr = RFM12_Data[1];
+      *rfaddr = RFM12_Data[2];
 
-    *txaddr = RFM12_Data[1];
-
-    for(i = 0; i < RFM12_Data[0]; i++)
-      data[i] = RFM12_Data[i + 1 + 2];
+      for(i = 0; i < RFM12_Data[0]; i++)
+	data[i] = RFM12_Data[i + 1 + 2];
 #else
-    for(i = 0; i<RFM12_Data[0]; i++)
-      data[i] = RFM12_Data[i + 1];
+      for(i = 0; i<RFM12_Data[0]; i++)
+	data[i] = RFM12_Data[i + 1];
 #endif
 
-    i = RFM12_Data[0];
+      i = RFM12_Data[0];
 
 #ifdef RFADDR
-    if(i > 1)
-      rfm12_txstart(*txaddr, data,1);
-    else
-#endif
-      rfm12_rxstart();
+      struct RFM12_addrlist *addr = &rfaddrlist;
+      do
+	{
+	  if(addr->rfaddr == RFM12_Data[2])
+	    {
+	      if(i > 1)
+		rfm12_txstart(RFADDR, *txaddr, data, 1);
+	      else
+		{
+		  if(RFM12_status.Ack == 1 && i == 1 && RFM12_Ackdata == RFM12_Data[3])
+		    RFM12_status.Ack = 0;
 
-    return(i);                 /* receive size */
-  }
+		  rfm12_rxstart();
+		}
+	      
+	      break;
+	    }
+
+	  addr = addr->nextaddr;
+	}
+      while(addr != 0);
+#else
+      rfm12_rxstart();
+#endif
+
+      return(i);                 /* receive size */
+    }
 }
 
 
 uint8_t 
 #ifdef RFADDR
-rfm12_txstart(uint8_t txaddr, uint8_t *data, uint8_t size)
+rfm12_txstart(uint8_t rfaddr, uint8_t txaddr, uint8_t *data, uint8_t size)
 #else
 rfm12_txstart(uint8_t *data, uint8_t size)
 #endif
@@ -322,10 +353,11 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 #endif
 
 #ifdef RFADDR
-  if(size > 1) {
-    RFM12_status.Ack = 1;
-    RFM12_Ackdata = data[0];
-  }
+  if(size > 1)
+    {
+      RFM12_status.Ack = 1;
+      RFM12_Ackdata = data[0];
+    }
   RFM12_Index = size + 9 + 2;   /* act -12 */
 #else
   RFM12_Index = size + 9;	/* act -10 */
@@ -341,16 +373,21 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   crc = crcUpdate(0, size);
 
 #ifdef RFADDR
-  RFM12_Data[i--] = RFADDR;
-  crc = crcUpdate(crc, RFADDR);
+  if (rfaddr == 0)
+    rfaddr = RFADDR;
+
+  RFM12_Data[i--] = rfaddr;
+  crc = crcUpdate(crc, rfaddr);
+
   RFM12_Data[i--] = txaddr;
   crc = crcUpdate(crc, txaddr);
 #endif
 
-  for(l=0; l<size; l++) {
-    RFM12_Data[i--] = data[l];
-    crc = crcUpdate(crc, data[l]);
-  }	
+  for(l=0; l<size; l++)
+    {
+      RFM12_Data[i--] = data[l];
+      crc = crcUpdate(crc, data[l]);
+    }
 
   RFM12_Data[i--] = (crc & 0x00FF);
   RFM12_Data[i--] = (crc >> 8);
@@ -380,13 +417,15 @@ rfm12_Index(void)
 }
 
 
-void rfm12_allstop(void)
+void
+rfm12_allstop(void)
 {
   RFM12_status.Rx = 0;
   RFM12_status.Ack = 0;
   RFM12_status.Tx = 0;
   RFM12_status.Txok = 0;
   RFM12_status.New = 0;
+  
   rfm12_trans(0x8208);		/* shutdown everything */
   rfm12_trans(0x0000);		/* dummy read */
 }
@@ -394,40 +433,88 @@ void rfm12_allstop(void)
 
 #ifdef RFADDR
 uint8_t 
-rfm12_txto(uint8_t txaddr, uint8_t *txdata, uint8_t len)
+rfm12_txto(uint8_t rfaddr, uint8_t txaddr, uint8_t *txdata, uint8_t len)
 {
   if(len == 1)
-    return rfm12_txstart(txaddr, txdata, len);
+    return rfm12_txstart(rfaddr, txaddr, txdata, len);
 
-  if( RFM12_status.Txok == 0) {
-    rfm12_txstart(txaddr, txdata, len);
-    RFM12_status.Txok = 1;
-    RFM12_delaycount = 0;
-    RFM12_maxcount = 0;
-    return (12);                /* tx started, wait for ack. */
-  }
+  if(RFM12_status.Txok == 0)
+    {
+      rfm12_txstart(rfaddr, txaddr, txdata, len);
+      RFM12_status.Txok = 1;
+      RFM12_delaycount = 0;
+      RFM12_maxcount = 0;
+      return (12);		/* tx started, wait for ack. */
+    }
 
-  else {
-    if(RFM12_status.Ack == 1) {
-      if(RFM12_delaycount++ == 0x8fff) {
-	RFM12_delaycount = 0;
+  else
+    {
+      if(RFM12_status.Ack == 1)
+	{
+	  if(RFM12_delaycount++ == RFM12_TXDELAY)
+	    {
+	      RFM12_delaycount = 0;
 
-	if(RFM12_maxcount++ == 10){
-	  RFM12_status.Txok = 0;
-	  return(1);            /* too many retries, out. */
+	      if(RFM12_maxcount++ == 10)
+		{
+		  RFM12_status.Txok = 0;
+		  return(1);	/* too many retries, out. */
+		}
+
+	      rfm12_txstart (rfaddr, txaddr, txdata, len);
+	    }
+	  return (11);		/* try again. */
 	}
 
-	rfm12_txstart(txaddr, txdata, len);
-      }
-      return (11);              /* try again. */
+      else
+	{
+	  RFM12_status.Txok = 0;
+	  return (0);               /* got ack. */
+	}
     }
-
-    else {
-      RFM12_status.Txok = 0;
-      return (0);               /* got ack. */
-    }
-  }
-
 }
+
+
+uint8_t
+rfm12_addr_add(uint8_t rfaddr)
+{
+  struct RFM12_addrlist *addr = &rfaddrlist;
+
+  while(addr->nextaddr != 0)
+    {
+      addr = addr->nextaddr;
+    }
+
+  struct RFM12_addrlist *newaddr = malloc(sizeof(struct RFM12_addrlist));
+  if (newaddr == NULL)
+    return (0);
+
+  newaddr->rfaddr = rfaddr;
+  newaddr->nextaddr = 0;
+  addr->nextaddr = newaddr;
+
+  return (1);
+}
+
+void
+rfm12_addr_del(uint8_t rfaddr)
+{
+  struct RFM12_addrlist *addr = &rfaddrlist;
+
+  do
+    {
+      if (addr->nextaddr != 0 && addr->nextaddr->rfaddr == rfaddr)
+	{
+	  struct RFM12_addrlist *tmpaddr = addr->nextaddr;
+	  addr->nextaddr = addr->nextaddr->nextaddr;
+	  free(tmpaddr);
+	  break;
+	}
+
+      addr = addr->nextaddr;
+    }
+  while(addr != 0);
+}
+
 #endif
 

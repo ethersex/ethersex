@@ -32,6 +32,7 @@
 #include "bootp_state.h"
 #include "tftp_state.h"
 #include "ecmd_sender_state.h"
+#include "rfm12_state.h"
 #include "i2c_state.h"
 #include "dyndns_state.h"
 
@@ -48,6 +49,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef ECMD_SENDER_SUPPORT
     struct ecmd_sender_connection_state_t ecmd_sender;
+#   endif
+
+#   ifdef RFM12_SUPPORT
+    struct rfm12_connection_state_t rfm12;
 #   endif
 
 #   ifdef DYNDNS_SUPPORT

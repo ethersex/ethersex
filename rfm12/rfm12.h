@@ -88,9 +88,12 @@
 //##############################################################################
 
 #define RFM12TxBDW(kfrq)	((uint8_t)(kfrq/15)-1)
-// macro for calculating frequency value out of frequency in MHz
+
+/* macro for calculating frequency value out of frequency in MHz */
 #define RFM12FREQ(freq)	((freq-430.0)/0.0025)	
 
+/* how many calls to wait before a retransmit */
+#define RFM12_TXDELAY 0x10
 
 
 // initialize module
@@ -116,14 +119,14 @@ uint8_t rfm12_rxstart(void);
 
 // readout the package, if one arrived
 #ifdef RFADDR
-uint8_t rfm12_rxfinish(uint8_t *txaddr, uint8_t *data);
+uint8_t rfm12_rxfinish(uint8_t *rfaddr, uint8_t *txaddr, uint8_t *data);
 #else
 uint8_t rfm12_rxfinish(uint8_t *data);
 #endif
 
 // start transmitting a package of size size
 #ifdef RFADDR
-uint8_t rfm12_txstart(uint8_t txaddr, uint8_t *data, uint8_t size);
+uint8_t rfm12_txstart(uint8_t rfaddr, uint8_t txaddr, uint8_t *data, uint8_t size);
 #else
 uint8_t rfm12_txstart(uint8_t *data, uint8_t size);
 #endif
@@ -136,7 +139,10 @@ uint8_t rfm12_Index(void);
 void rfm12_allstop(void);
 
 #ifdef RFADDR
-uint8_t rfm12_txto(uint8_t txaddr, uint8_t *txdata, uint8_t len);
+uint8_t rfm12_txto(uint8_t rfaddr, uint8_t txaddr, uint8_t *txdata, uint8_t len);
 #endif
+
+uint8_t rfm12_addr_add(uint8_t rfaddr);
+void rfm12_addr_del(uint8_t rfaddr);
 
 #endif //__RFM12_H
