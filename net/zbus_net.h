@@ -25,7 +25,7 @@
 #define ZBUS_NET_H
 
 /* constants */
-#define ZBUS_PORT 5222
+#define ZBUS_PORT 23514
 
 enum zbus_udp_answers {
   ZBUS_UDP_OK,

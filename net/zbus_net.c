@@ -121,7 +121,7 @@ zbus_net_main(void)
           ++uip_udp_conn) {
         if (uip_udp_conn->callback == zbus_net_main
             && uip_udp_conn->lport
-            && (uip_udp_conn->appstate.zbus.buffer[0]  
+            && (uip_udp_conn->appstate.zbus.buffer[1]  
                 == zbus_conn->appstate.zbus.buffer[0])
             && uip_udp_conn != zbus_conn) {
           /* Success udp messages always begins with O */
