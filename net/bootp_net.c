@@ -42,7 +42,6 @@ bootp_net_init(void)
 
     uip_udp_bind(bootp_conn, HTONS(BOOTPC_PORT));
 
-    bootp_conn->appstate.bootp.configured = 0;
     bootp_conn->appstate.bootp.retry_timer = 0;
 }
 
@@ -52,9 +51,6 @@ bootp_net_main(void)
 {
     if(uip_newdata())
 	bootp_handle_reply();
-
-    if(uip_udp_conn->appstate.bootp.configured)
-	return;				        /* no more queries needed */
 
     if(! uip_udp_conn->appstate.bootp.retry_timer) {
 	bootp_send_request();
