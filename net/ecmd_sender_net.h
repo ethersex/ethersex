@@ -26,8 +26,8 @@
 
 #include "../uip/uip.h"
 
-struct uip_conn*
-ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data);
+uip_conn_t *ecmd_sender_send_command (uip_ipaddr_t *ipaddr,
+				      const char *pgm_data);
 
 void ecmd_sender_net_main(void);
 

@@ -23,7 +23,8 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo syslog/*.c)
 #SRC += $(shell echo i2c/*.c)
 #SRC += $(shell echo ntp/*.c)
-SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c
+#SRC += uip/uip_openvpn.c                               # OPENVPN_SUPPORT
+SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c uip/uip_multi.c
 
 # preprocessed config files
 USER_CONFIG = $(patsubst %/cfgpp,%/user_config.h,$(shell echo */cfgpp))

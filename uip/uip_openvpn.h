@@ -1,13 +1,12 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,23 +21,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include "ntp_net.h"
-#include "../uip/uip.h"
-#include "../debug.h"
-#include "../ntp/ntp.h"
+#ifndef UIP_OPENVPN_H
+#define UIP_OPENVPN_H
 
 #include "../config.h"
+#ifdef OPENVPN_SUPPORT
 
-#ifdef NTP_SUPPORT
-void ntp_net_init(void)
-{
-  ntp_init();
-}
+#include "uip-conf.h"
 
-void ntp_net_main(void)
-{
-  if(uip_newdata())
-    ntp_newdata();
+void openvpn_handle_udp(void);
+void openvpn_init (void);
+void openvpn_process_out (void);
 
-}
-#endif
+/* The port number to use for OpenVPN. */
+#define OPENVPN_PORT 1194
+
+struct openvpn_connection_state_t {
+  uint32_t next_seqno;
+  uint32_t seen_seqno;
+  uint32_t seen_timestamp;
+};
+
+#endif /* OPENVPN_SUPPORT */
+#endif /* UIP_OPENVPN_H */

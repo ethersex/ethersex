@@ -355,10 +355,8 @@
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT
-// #define AUTH_SUPPORT
 // #define CAST5_SUPPORT
 // #define SKIPJACK_SUPPORT
-// #define RC4_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */
@@ -371,9 +369,16 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP4 uip_ipaddr(ip,10,0,0,5)
+#define CONF_ETHERRAPE_IP uip_ipaddr(ip,10,0,0,5)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
+
+// #define OPENVPN_SUPPORT
+#define CONF_OPENVPN_IP4 uip_ipaddr(ip,10,1,0,5)
+#define CONF_OPENVPN_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
+#define CONF_OPENVPN_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
+#define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)

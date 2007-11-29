@@ -49,6 +49,19 @@ void timer_init(void)
 
 } /* }}} */
 
+
+static void fill_llh_and_transmit(void)
+/* {{{ */ {
+# if UIP_CONF_IPV6
+  uip_neighbor_out();
+# else
+  uip_arp_out();
+# endif
+  
+  transmit_packet();
+} /* }}} */
+
+
 void timer_process(void)
 /* {{{ */ {
 
@@ -63,9 +76,9 @@ void timer_process(void)
         debug_printf("timer: counter is %d\n", counter);
 #       endif
 
-#ifdef  WATCHCAT_SUPPORT
+#       ifdef  WATCHCAT_SUPPORT
         watchcat_periodic();
-#endif
+#       endif
 
 #       if UIP_CONNS <= 255
         uint8_t i;
@@ -99,17 +112,18 @@ void timer_process(void)
 #       endif
 #           if UIP_TCP == 1
             for (i = 0; i < UIP_CONNS; i++) {
+		uip_stack_set_active(uip_conns[i].stack);
                 uip_periodic(i);
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
-#                   if UIP_CONF_IPV6
-                    uip_neighbor_out();
-#                   else
-                    uip_arp_out();
+#                   ifdef OPENVPN_SUPPORT
+		    if (uip_conns[i].stack == STACK_MAIN)
+			openvpn_process_out();
+		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
-                    transmit_packet();
+		    fill_llh_and_transmit();
                 }
             }
 #           endif /* UIP_TCP == 1 */
@@ -117,34 +131,31 @@ void timer_process(void)
 #           if UIP_UDP == 1
             /* check udp connections every time */
             for (i = 0; i < UIP_UDP_CONNS; i++) {
+		uip_stack_set_active(uip_udp_conns[i].stack);
                 uip_udp_periodic(i);
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
-                    // XXX FIXME if (uip_arp_out() == 0)
-                    // XXX FIXME     uip_udp_conn->appstate.sntp.transmit_state = 1;
-
-#                   if UIP_CONF_IPV6
-                    uip_neighbor_out();
-#                   else
-                    uip_arp_out();
+#                   ifdef OPENVPN_SUPPORT
+		    if (uip_conns[i].stack == STACK_MAIN)
+			openvpn_process_out();
+		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
-                    transmit_packet();
+		    fill_llh_and_transmit();
                 }
             }
 #           endif
         }
-
-        // FIXME
-        //if (c % 5 == 0) /* every second */
-        //    clock_periodic();
 
 #       if UIP_CONF_IPV6
         if (counter == 5) { 
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
                second after boot */
+#           ifdef OPENVPN_SUPPORT		
+	    uip_stack_set_active(STACK_OPENVPN);
+#           endif
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
                 uip_router_send_solicitation();
                 transmit_packet();
@@ -152,16 +163,20 @@ void timer_process(void)
         }
 #       endif /* UIP_CONF_IPV6 */
 
-#if defined(FS20_SUPPORT) || defined(NTP_SUPPORT)
         if (counter % 50 == 0) {
-#       ifdef FS20_SUPPORT
+#           ifdef FS20_SUPPORT
             fs20_global.ws300.last_update++;
-#       endif
-#       ifdef NTP_SUPPORT
+#           endif
+
+#           ifdef NTP_SUPPORT
+#           ifdef OPENVPN_SUPPORT
+	    uip_stack_set_active(STACK_OPENVPN);
+#           endif
             ntp_every_second();
-#       endif
+	    if (uip_len)
+		fill_llh_and_transmit();
+#           endif /* NTP_SUPPORT */
         }
-#endif
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {

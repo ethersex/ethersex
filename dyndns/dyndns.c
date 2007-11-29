@@ -22,12 +22,12 @@
  }}} */
 
 
+#include "../config.h"
 #include "../uip/uip.h"
 #include "../dns/resolv.h"
 #include "../debug.h"
 #include "dyndns.h"
 
-#include "../config.h"
 
 #ifdef DYNDNS_SUPPORT
 static void dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr);
@@ -56,7 +56,7 @@ dyndns_update(void)
 #else
   uip_ipaddr(&ipaddr, 78, 47, 210, 243);
 #endif
-  struct uip_conn *conn = uip_connect (&ipaddr, HTONS (80), dyndns_net_main);
+  uip_conn_t *conn = uip_connect (&ipaddr, HTONS (80), dyndns_net_main);
   if (conn)
     conn->appstate.dyndns.state = DYNDNS_HOSTNAME;
 
@@ -66,7 +66,7 @@ dyndns_update(void)
 static void
 dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
-  struct uip_conn *conn = uip_connect (ipaddr, HTONS (80), dyndns_net_main);
+  uip_conn_t *conn = uip_connect (ipaddr, HTONS (80), dyndns_net_main);
   if (conn)
     conn->appstate.dyndns.state = DYNDNS_HOSTNAME;
 }

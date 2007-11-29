@@ -61,9 +61,12 @@ my %ethersex_modules = (
   'bootp'     => { 
                    helptext  => "DHCP-like autoconfig for IPv4",
                    conflicts => [ "ipv6", "tftpomatic" ],
-                   requires  => [ "broadcast", "udp" ],
+		   # require handled in enable-hook since we don't need to 
+		   # do require here, if openvpn is enabled.
+                   maybe_require  => [ "broadcast", "udp" ],
                    preconfigure => [ "ipv6" ],
                    distdflt  => 0,
+		   enable_hook => \&bootp_enable_hook
                  },
   'bootp_to_eeprom' => {
                    helptext  => "store BOOTP-aquired data to EEPROM",
@@ -75,6 +78,7 @@ my %ethersex_modules = (
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
                    distdflt  => 1,
+                   enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
                  },
   'broadcast' => { 
@@ -113,25 +117,15 @@ my %ethersex_modules = (
                    helptext  => "configure as bootloader",
                    distdflt  => 0,
                  },
-  'rc4'       => {
-                   helptext  => "a stream cipher",
-                   requires  => [ "crypto", "md5", "tcp" ],
-                   distdflt  => 0,
-                   preconfigure => [ "tcp" ],
-                 },
-  'auth'      => {
-                   helptext  => "tcp connection authentication",
-                   distdflt  => 0,
-                 },
   'skipjack'  => {
                    helptext  => "skipjack block cipher",
-                   requires  => [ "auth", "crypto" ],
+                   requires  => [ "crypto" ],
                    conflicts => [ "cast5" ],
                    distdflt  => 0,
                  },
   'cast5'     => {
                    helptext  => "cast5 block cipher",
-                   requires  => [ "auth", "crypto" ],
+                   requires  => [ "crypto" ],
                    conflicts => [ "skipjack", "bootloader" ],
                    distdflt  => 0,
                  },
@@ -139,12 +133,17 @@ my %ethersex_modules = (
                    helptext  => "md5 hash support",
                    requires  => [ "crypto" ],
                    distdflt  => 0,
-                   virtual   => 1,
                  },
   'crypto'    => {
                    helptext  => "generic crypto support",
                    distdflt  => 0,
                    virtual   => 1,
+                 },
+  'openvpn'   => {
+                   helptext  => "openvpn support",
+		   distdflt  => 0,
+		   preconfigure => [ "cast5", "md5" ],
+		   enable_hook => \&openvpn_enable_hook,
                  },
   'onewire'   => {
                    helptext  => "onewire device support",
@@ -191,17 +190,32 @@ my %ethersex_modules = (
                  },
 );
 my %ethersex_config = (
-  'etherrape_ip4'   => {
-                   helptext  => "default ip address of the etherrape",
+  'etherrape_ip' => {
+                   helptext  => "default ip address (inner part, if OpenVPN)",
                  },
   'etherrape_ip4_netmask'   => {
-                   helptext  => "default netmask for ipv4",
+                   helptext  => "default netmask (IPv4 only)",
                  },
   'etherrape_ip4_gateway'   => {
-                   helptext  => "default gateway for ipv4",
+                   helptext  => "default gateway (IPv4 only)",
                  },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
+                 },
+  'openvpn_ip4'   => {
+                   helptext  => "ip address of the openvpn gateway",
+                 },
+  'openvpn_ip4_netmask'   => {
+                   helptext  => "netmask for openvpn gateway",
+                 },
+  'openvpn_ip4_gateway'   => {
+                   helptext  => "default gateway for openvpn gateway",
+                 },
+  'openvpn_key'   =>{
+                   helptext  => "hex-encoded openvpn encryption key",
+                 },
+  'openvpn_hmac_key'   =>{
+                   helptext  => "hex-encoded openvpn hmac auth key",
                  },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
@@ -294,7 +308,8 @@ sub try_enable {
     }
   }
 
-  foreach (@{$ethersex_modules{$module}->{'requires'}}) {
+  foreach (@{$ethersex_modules{$module}->{'requires'}},
+           @{$ethersex_modules{$module}->{'maybe_require'}}) {
     if(defined($ethersex_modules{$_}->{'new_status'})
        && !$ethersex_modules{$_}->{'new_status'}) {
       printf "disabling %s (would require %s).\n", $trymodule, $_;
@@ -403,17 +418,17 @@ sub configure_module {
 }
 
 sub ipv6_expand {
-  $_ = shift;
-  my @colons = m/:/g;
+  my $ip = shift;
+  my @colons = $ip =~ m/:/g;
   if(scalar(@colons) > 7) { return undef; }
-  unless(m/::/) { return $_ }
+  unless($ip =~ m/::/) { return $ip }
 
   my $replacement = ":0" x (8 - scalar(@colons)) . ":";
-  $_ =~ s/::/$replacement/;
-  if($_ =~ m/^:/) { $_ = "0$_"; }
-  if($_ =~ m/:$/) { $_ .= "0"; }
+  $ip =~ s/::/$replacement/;
+  if($ip =~ m/^:/) { $ip = "0$ip"; }
+  if($ip =~ m/:$/) { $ip .= "0"; }
 
-  return $_;
+  return $ip;
 }
 
 # return 1 if provided IP address is valid
@@ -546,16 +561,72 @@ sub tftp_enable_hook {
   ask_cryptokey("tftp_key", 10);
 }
 
+sub bootp_enable_hook {
+  # ask user for openvpn support (we won't need to enable udp/broadcast then)
+  configure_module "openvpn";
+  return if($ethersex_modules{'openvpn'}->{'new_status'});
+  
+  enable "udp", "bootp";
+  enable "broadcast", "bootp";
+}
+
+sub ipv6_enable_hook {
+  # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
+  configure_module "openvpn";
+
+  ask_ip("etherrape_ip")
+    if($ethersex_modules{'openvpn'}->{'new_status'});
+}
+
 sub ipv6_disable_hook {
-  # ask user for bootp
+  # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
+  configure_module "openvpn";
+
+  unless ($ethersex_modules{'openvpn'}->{'new_status'}) {
+    # ask user for bootp (we won't have to configure IPs otherwise)
+    # if openvpn support is disabled.  when openvpn is configured we
+    # need to assign static ips on the inner layer no matter what.
+    configure_module "bootp";
+
+    # don't ask default ip if user configured bootp
+    return if($ethersex_modules{'bootp'}->{'new_status'});
+  }
+  
+  ask_ip("etherrape_ip");
+  ask_ip("etherrape_ip4_netmask");
+
+  if($ethersex_modules{'openvpn'}->{'new_status'}) {
+    print "configuring etherrape_ip4_gateway to 0.0.0.0 (openvpn enabled).\n";
+    $ethersex_config{"etherrape_ip4_gateway"}->{'value'} =
+      "uip_ipaddr(ip,0,0,0,0)"
+  } 
+  else {
+    ask_ip("etherrape_ip4_gateway");
+  }
+}
+
+sub openvpn_enable_hook {
+  print "** WARNING ** tunneled traffic will not be encrypted!\n\n"
+    unless($ethersex_modules{'cast5'}->{'new_status'});
+  print "** WARNING ** tunneled traffic will not be authenticated!\n\n"
+    unless($ethersex_modules{'md5'}->{'new_status'});
+
+  # ask user for bootp (we won't have to configure IPs otherwise)
   configure_module "bootp";
 
-  # don't aks default ip when user configured bootp
+  # don't ask for ip if user configured bootp
   return if($ethersex_modules{'bootp'}->{'new_status'});
   
-  ask_ip("etherrape_ip4");
-  ask_ip("etherrape_ip4_netmask");
-  ask_ip("etherrape_ip4_gateway");
+  unless($ethersex_modules{'ipv6'}->{'new_status'}) {
+    ask_ip("openvpn_ip4");
+    ask_ip("openvpn_ip4_netmask");
+    ask_ip("openvpn_ip4_gateway");
+  }
+
+  ask_cryptokey("openvpn_key", 16)
+    if($ethersex_modules{'cast5'}->{'new_status'});
+  ask_cryptokey("openvpn_hmac_key", 16)
+    if($ethersex_modules{'md5'}->{'new_status'});
 }
 
 sub dns_enable_hook {

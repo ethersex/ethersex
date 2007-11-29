@@ -58,6 +58,9 @@
  *
  */
 
+/* we want to live on the outer stack, if there are two ... */
+#include "uip_openvpn.h"
+
 #include "../config.h"
 #include "../network.h"
 #include "uip_arp.h"
@@ -407,7 +410,7 @@ uip_arp_out(void)
       BUF->protolen = 4;
       BUF->ethhdr.type = HTONS(UIP_ETHTYPE_ARP);
 
-      uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
+      /* FIXME uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN]; */
     
       uip_len = sizeof(struct arp_hdr);
       return 1;

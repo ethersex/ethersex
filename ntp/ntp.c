@@ -27,30 +27,14 @@
 #include "../dns/resolv.h"
 #include "ntp.h"
 
-#ifdef NTP_SUPPORT
-
-static struct uip_udp_conn *ntp_conn = NULL;
-static void ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr);
+static uip_udp_conn_t *ntp_conn = NULL;
 static void send_ntp_packet(void);
 static uint32_t timestamp = 1;
 static uint32_t ntp_timestamp = 0;
 static uint16_t ntp_timer = 1;
 
 
-void
-ntp_init()
-{
-  uip_ipaddr_t *ipaddr;
-  if (!(ipaddr = resolv_lookup(NTP_SERVER))) 
-    resolv_query(NTP_SERVER, ntp_dns_query_cb);
-  else {
-    if(ntp_conn != NULL) {
-      uip_udp_remove(ntp_conn);
-    }
-    ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
-  }
-}
-
+#ifdef DNS_SUPPORT
 static void
 ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
@@ -59,22 +43,42 @@ ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
   }
   ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
 }
+#endif
 
-void 
-ntp_periodic(void) 
+
+void
+ntp_init()
 {
-  ntp_timer --;
-  if (ntp_timer == 0) 
-    send_ntp_packet();
+  if(ntp_conn != NULL)
+    uip_udp_remove(ntp_conn);
+
+#ifdef DNS_SUPPORT
+  uip_ipaddr_t *ipaddr;
+  if (!(ipaddr = resolv_lookup(NTP_SERVER))) 
+    resolv_query(NTP_SERVER, ntp_dns_query_cb);
+
+  else
+    ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
+
+#else /* ! DNS_SUPPORT */
+  uip_ipaddr_t ipaddr;
+  NTP_IPADDR(&ipaddr);
+  ntp_conn = uip_udp_new(&ipaddr, HTONS(NTP_PORT), ntp_net_main);
+#endif
 }
+
 
 void
 ntp_every_second(void) 
 {
-  /* Decrease ntp timer */
-  if (ntp_timer)
-    ntp_timer --;
-  /* One second gone */
+  if(ntp_timer) {
+    if((-- ntp_timer) == 0)
+      send_ntp_packet();
+  }
+
+  if(timestamp <= 50 && (timestamp % 5 == 0))
+    send_ntp_packet();
+
   if(ntp_timestamp <= timestamp)
     timestamp ++;
 }
@@ -82,15 +86,22 @@ ntp_every_second(void)
 static void 
 send_ntp_packet(void)
 {
-  struct ntp_packet pkt = { 0 };
+  /* hardcode for LLH len of 14 bytes (i.e. ethernet frame),
+     this is not suitable for tunneling! */
+  struct ntp_packet *pkt = (void *) &uip_buf[14 + UIP_IPUDPH_LEN];
 
-  pkt.li_vn_mode = 0xe3; /* Clock not synchronized, Version 4, Client Mode */
-  pkt.ppoll = 12; /* About an hour */
-  pkt.precision = 0xfa; /* 0.015625 seconds */
-  pkt.rootdelay = HTONL(0x10000); /* 1 second */
-  pkt.rootdispersion = HTONL(0x10000); /* 1 second */
-  
-  uip_send(&pkt, sizeof(struct ntp_packet));
+  uip_slen = sizeof(struct ntp_packet);
+  memset(pkt, 0, uip_slen);
+
+  pkt->li_vn_mode = 0xe3; /* Clock not synchronized, Version 4, Client Mode */
+  pkt->ppoll = 12; /* About an hour */
+  pkt->precision = 0xfa; /* 0.015625 seconds */
+  pkt->rootdelay = HTONL(0x10000); /* 1 second */
+  pkt->rootdispersion = HTONL(0x10000); /* 1 second */
+
+  /* push the packet out ... */
+  uip_udp_conn = ntp_conn;
+  uip_process(UIP_UDP_SEND_CONN);
 }
 
 void
@@ -99,6 +110,8 @@ ntp_newdata(void)
   struct ntp_packet *pkt = uip_appdata;
   /* We must save an unix timestamp */
   ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
+
+  /* Allow the clock to jump forward, but never ever to go backward. */
   if (ntp_timestamp > timestamp)
     timestamp = ntp_timestamp;
 
@@ -110,5 +123,3 @@ get_time(void)
 {
   return timestamp;
 }
-
-#endif
