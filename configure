@@ -188,6 +188,10 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
+  'enc28j60'  => {
+                   helptext  => "enc28j60 ethernet controller",
+                   distdflt  => 1,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip' => {

@@ -351,6 +351,7 @@
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
 // #define NTP_SUPPORT
+#define ENC28J60_SUPPORT
 
 
 /* crypto stuff */
