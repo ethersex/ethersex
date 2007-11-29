@@ -184,6 +184,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
+  'ntp'        => {
+                   helptext  => "get time via ntp protocol",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip4'   => {

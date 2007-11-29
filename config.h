@@ -350,6 +350,7 @@
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
+// #define NTP_SUPPORT
 
 
 /* crypto stuff */

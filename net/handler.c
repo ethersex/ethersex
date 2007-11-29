@@ -36,6 +36,7 @@
 #include "dns_net.h"
 #include "syslog_net.h"
 #include "i2c_net.h"
+#include "ntp_net.h"
 #include "../dyndns/dyndns.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -71,6 +72,10 @@ void network_init_apps(void)
 
 #   ifdef I2C_SUPPORT
     i2c_net_init();
+#   endif
+
+#   ifdef NTP_SUPPORT
+    ntp_net_init();
 #   endif
 
 #if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(IPV6_SUPPORT)

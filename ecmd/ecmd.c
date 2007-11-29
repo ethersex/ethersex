@@ -41,6 +41,7 @@
 #include "../rc5/rc5.h"
 #include "../rfm12/rfm12.h"
 #include "../dns/resolv.h"
+#include "../ntp/ntp.h"
 #include "ecmd.h"
 
 
@@ -82,6 +83,9 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_init(char *cmd, char *output, uint16_t len);
+static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len);
 #endif
 #ifdef ONEWIRE_SUPPORT
 static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
@@ -101,6 +105,10 @@ static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
 #endif
+#ifdef NTP_SUPPORT
+static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len);
+#endif
+static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
 
 /* low level */
 static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
@@ -156,6 +164,9 @@ const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
 const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
 const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
+const char PROGMEM ecmd_lcd_char_text[] = "lcd char";
+const char PROGMEM ecmd_lcd_init_text[] = "lcd init";
+const char PROGMEM ecmd_lcd_shift_text[] = "lcd shift";
 #endif
 #ifdef ONEWIRE_SUPPORT
 const char PROGMEM ecmd_onewire_list[] = "1w list";
@@ -176,7 +187,11 @@ const char PROGMEM ecmd_show_dns_text[] = "show dns";
 #ifndef BOOTP_SUPPORT
 const char PROGMEM ecmd_dns_text[] = "dns ";
 #endif
+#ifdef NTP_SUPPORT
+const char PROGMEM ecmd_time_text[] = "time";
+#endif
 #endif /* DNS_SUPPORT */
+const char PROGMEM ecmd_d_text[] = "d ";
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_show_ip_text, parse_cmd_show_ip },
@@ -219,6 +234,9 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_lcd_clear_text, parse_lcd_clear },
     { ecmd_lcd_write_text, parse_lcd_write },
     { ecmd_lcd_goto_text, parse_lcd_goto },
+    { ecmd_lcd_char_text, parse_lcd_char },
+    { ecmd_lcd_init_text, parse_lcd_init },
+    { ecmd_lcd_shift_text, parse_lcd_shift },
 #endif
 #ifdef ONEWIRE_SUPPORT
     { ecmd_onewire_list, parse_onewire_list },
@@ -239,7 +257,11 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #ifndef BOOTP_SUPPORT
     { ecmd_dns_text, parse_cmd_dns },
 #endif
+#ifdef NTP_SUPPORT
+    { ecmd_time_text, parse_cmd_time },
+#endif
 #endif /* DNS_SUPPORT */
+    { ecmd_d_text, parse_cmd_d },
     { NULL, NULL },
 };
 
@@ -936,6 +958,13 @@ static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif
 
+#ifdef NTP_SUPPORT
+static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  return snprintf_P(output, len, PSTR("%lu"), get_time());
+} /* }}} */
+#endif 
+
 
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -1251,6 +1280,48 @@ static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len)
         return -1;
 
 } /* }}} */
+
+static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  if (strlen(cmd) < 26) 
+    return -1;
+  uint8_t n_char, data[8];
+  int ret = sscanf_P(cmd, PSTR("%u %x %x %x %x %x %x %x %x"), &n_char,
+                     &data[0], &data[1], &data[2], &data[3],
+                     &data[4], &data[5], &data[6], &data[7]);
+
+  if ( ret == 9 && data) {
+    hd44780_define_char(n_char, data);
+    return 0;
+  } else
+    return -1;
+} /* }}} */
+
+static int16_t parse_lcd_init(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint8_t cursor, blink;
+  int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
+  if ( ret == 2 ) {
+    hd44780_init(cursor, blink);
+    return 0;
+  } else
+    return -1;
+} /* }}} */
+
+static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  if (strlen(cmd) < 1) 
+    return -1;
+
+  if (!strncmp_P(cmd + 1, PSTR("right"), 5))
+    hd44780_shift(1);
+  else if (!strncmp_P(cmd + 1, PSTR("left"), 4)) 
+    hd44780_shift(0);
+  else
+    return -1;
+
+  return 0;
+} /* }}} */
 #endif
 
 
@@ -1354,3 +1425,19 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 
     return 1;
 } /* }}} */
+
+static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    while (*cmd == ' ') cmd ++;
+
+    uint16_t temp;
+    if (sscanf_P (cmd, PSTR("%x"), &temp) != 1)
+      return -1;
+
+    unsigned char *ptr = (void *) temp;
+    for (int i = 0; i < 16; i ++)
+      sprintf_P (output + (i << 1), PSTR("%02x"), * (ptr ++));
+
+    return 32;
+} /* }}} */
+

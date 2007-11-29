@@ -22,6 +22,7 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo dyndns/*.c)
 #SRC += $(shell echo syslog/*.c)
 #SRC += $(shell echo i2c/*.c)
+#SRC += $(shell echo ntp/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c
 
 # preprocessed config files
@@ -45,7 +46,7 @@ AVRDUDE_FLAGS += -F
 
 .PHONY: all
 
-all: $(TARGET).hex $(TARGET).lss
+all: $(TARGET).hex $(TARGET).lss $(TARGET).bin
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
