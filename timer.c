@@ -117,7 +117,8 @@ void timer_process(void)
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
 #                   ifdef OPENVPN_SUPPORT
-		    openvpn_process_out();
+		    if (uip_conns[i].stack == STACK_MAIN)
+			openvpn_process_out();
 		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
@@ -135,7 +136,8 @@ void timer_process(void)
                 /* if this generated a packet, send it now */
                 if (uip_len > 0) {
 #                   ifdef OPENVPN_SUPPORT
-		    openvpn_process_out();
+		    if (uip_conns[i].stack == STACK_MAIN)
+			openvpn_process_out();
 		    /* uip_stack_set_active(STACK_OPENVPN); */
 #                   endif
 
