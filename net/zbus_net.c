@@ -125,12 +125,11 @@ zbus_net_main(void)
                 == zbus_conn->appstate.zbus.buffer[0])
             && uip_udp_conn != zbus_conn) {
           /* Success udp messages always begins with O */
-          /* FIXME: locks strange, why does uip_appdata[0] = 'O'; not work? */
-          char *p = uip_appdata;
-          p[0] = 'O';
+          ((unsigned char *)uip_appdata)[0] = 'O';
+
           memcpy(uip_appdata + 1, zbus_conn->appstate.zbus.buffer, 
                  zbus_conn->appstate.zbus.buffer_len + 1);
-          uip_udp_send(zbus_conn->appstate.zbus.buffer_len);
+          uip_udp_send(zbus_conn->appstate.zbus.buffer_len + 1);
           zbus_conn->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
           return;
         }
