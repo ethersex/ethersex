@@ -169,11 +169,11 @@ void timer_process(void)
 
 #           ifdef NTP_SUPPORT
 #           ifdef OPENVPN_SUPPORT
-	    openvpn_process_out();
-	    /* uip_stack_set_active(STACK_OPENVPN); */
+	    uip_stack_set_active(STACK_OPENVPN);
 #           endif
             ntp_every_second();
-	    if (uip_len) fill_llh_and_transmit();
+	    if (uip_len)
+		fill_llh_and_transmit();
 #           endif /* NTP_SUPPORT */
         }
 
