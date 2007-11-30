@@ -126,6 +126,11 @@ typedef unsigned short uip_stats_t;
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
+#ifdef ENC28J60_SUPPORT
+#define __LLH_LEN  14
+#else /* RFM12_SUPPORT */
+#define __LLH_LEN  0
+#endif
 
 #ifdef OPENVPN_SUPPORT
 #  define UIP_MULTI_STACK        1
@@ -141,9 +146,9 @@ typedef unsigned short uip_stats_t;
       *     total                               42            62
       */
 #  if UIP_CONF_IPV6
-#    define OPENVPN_LLH_LEN 62
+#    define OPENVPN_LLH_LEN (__LLH_LEN + 40 + 8)
 #  else
-#    define OPENVPN_LLH_LEN 42
+#    define OPENVPN_LLH_LEN (__LLH_LEN + 20 + 8)
 #  endif
 
 #  ifdef MD5_SUPPORT
@@ -167,6 +172,7 @@ typedef unsigned short uip_stats_t;
 
 #else /* !OPENVPN_SUPPORT */
 #  define UIP_MULTI_STACK        0
+#  define UIP_CONF_LLH_LEN  __LLH_LEN
 #endif
 
 
