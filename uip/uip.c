@@ -954,6 +954,11 @@ uip_process(u8_t flag)
     goto drop;
   }
 
+#ifdef RFM12_BRIDGE_SUPPORT
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr))
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
+#endif /* RFM12_BRIDGE_SUPPORT */
+
 #if !UIP_CONF_IPV6
   /* Check the fragment flag. */
   if((BUF->ipoffset[0] & 0x3f) != 0 ||
