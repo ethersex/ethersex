@@ -105,7 +105,7 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#ifdef BOOTLOADER_SUPPORT
+#if defined(BOOTLOADER_SUPPORT) || !defined(ENC28J60_SUPPORT)
 #define UIP_CONF_STATISTICS      0
 #else
 #define UIP_CONF_STATISTICS      1
