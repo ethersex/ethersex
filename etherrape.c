@@ -180,7 +180,8 @@ int main(void)
         wdt_kick();
 #endif
 
-#if defined(RFM12_SUPPORT) && !defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT) && (!defined(ENC28J60_SUPPORT) \
+			       || defined(RFM12_BRIDGE_SUPPORT))
 	rfm12_process();
 	wdt_kick();
 #endif
