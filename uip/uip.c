@@ -1118,6 +1118,7 @@ uip_process(u8_t flag)
 
   UIP_STAT(++uip_stat.icmp.recv);
 
+#ifdef ENC28J60_SUPPORT
 #ifndef OPENVPN_INNER
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
@@ -1164,6 +1165,7 @@ uip_process(u8_t flag)
     }
   } else 
 #endif /* not OPENVPN_INNER */
+#endif /* ENC28J60_SUPPORT */
 
   if(ICMPBUF->type == ICMP6_ECHO) {
     /* ICMP echo (i.e., ping) processing. This is simple, we only

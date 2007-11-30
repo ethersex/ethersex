@@ -144,7 +144,7 @@ void timer_process(void)
 #           endif
         }
 
-#       if UIP_CONF_IPV6
+#       if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
         if (counter == 5) { 
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
@@ -157,7 +157,7 @@ void timer_process(void)
                 transmit_packet();
             }
         }
-#       endif /* UIP_CONF_IPV6 */
+#       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
         if (counter % 50 == 0) {
 #           ifdef FS20_SUPPORT

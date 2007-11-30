@@ -77,6 +77,7 @@ my %ethersex_modules = (
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
+                   preconfigure => [ "enc28j60" ],
                    distdflt  => 1,
                    enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
@@ -584,7 +585,8 @@ sub ipv6_enable_hook {
   configure_module "openvpn";
 
   ask_ip("etherrape_ip")
-    if($ethersex_modules{'openvpn'}->{'new_status'});
+    if($ethersex_modules{'openvpn'}->{'new_status'} == 1
+       || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
 }
 
 sub ipv6_disable_hook {

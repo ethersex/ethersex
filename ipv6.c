@@ -57,7 +57,7 @@ extern u16_t upper_layer_chksum(u8_t);
 extern uint8_t bootload_delay;
 #endif
 
-#if UIP_CONF_IPV6
+#if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
 
 static void 
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
@@ -283,4 +283,4 @@ uip_neighbor_out(void)
   return 0;
 }
 
-#endif /* UIP_CONF_IPV6 */
+#endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
