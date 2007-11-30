@@ -159,7 +159,7 @@ my %ethersex_modules = (
                    distdflt  => 0,
 		   conflicts => [ "rc5" ],
                  },
-  'rfm12-bridge' => {
+  'rfm12_bridge' => {
                    helptext  => "ethernet to rfm12 bridge",
                    distdflt  => 0,
                    requires  => [ "rfm12", "enc28j60" ],
