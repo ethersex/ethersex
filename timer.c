@@ -53,6 +53,12 @@ void timer_init(void)
 #ifdef ENC28J60_SUPPORT
 void fill_llh_and_transmit(void)
 /* {{{ */ {
+# ifdef OPENVPN_SUPPORT
+  if (uip_conns[i].stack == STACK_MAIN)
+    openvpn_process_out();
+  /* uip_stack_set_active(STACK_OPENVPN); */
+# endif
+
 # if UIP_CONF_IPV6
   uip_neighbor_out();
 # else
@@ -120,15 +126,8 @@ void timer_process(void)
                 uip_periodic(i);
 
                 /* if this generated a packet, send it now */
-                if (uip_len > 0) {
-#                   ifdef OPENVPN_SUPPORT
-		    if (uip_conns[i].stack == STACK_MAIN)
-			openvpn_process_out();
-		    /* uip_stack_set_active(STACK_OPENVPN); */
-#                   endif
-
+                if (uip_len > 0)
 		    fill_llh_and_transmit();
-                }
             }
 #           endif /* UIP_TCP == 1 */
 
@@ -139,15 +138,8 @@ void timer_process(void)
                 uip_udp_periodic(i);
 
                 /* if this generated a packet, send it now */
-                if (uip_len > 0) {
-#                   ifdef OPENVPN_SUPPORT
-		    if (uip_conns[i].stack == STACK_MAIN)
-			openvpn_process_out();
-		    /* uip_stack_set_active(STACK_OPENVPN); */
-#                   endif
-
+                if (uip_len > 0)
 		    fill_llh_and_transmit();
-                }
             }
 #           endif
         }
