@@ -27,7 +27,6 @@
 #ifdef RFM12_SUPPORT
 #ifdef ENC28J60_SUPPORT
 
-unsigned char testling[6] = { 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff };
 union rx_buffer rx;
 
 void rfm12_get_receive()
