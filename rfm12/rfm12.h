@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include <util/delay.h>
+#include "../config.h"
 
 //##############################################################################
 /* config */
@@ -36,7 +37,9 @@
 /* RFM12 Buffer length (max length 244) */
 #define RFM12_DataLength	64
 
+#ifdef ENC28J60_SUPPORT
 #define RFADDR    0x23
+#endif
 
 #define RFM12_BLINK_PORT PORTD
 #define RFM12_BLINK_DDR DDRD
