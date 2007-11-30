@@ -171,8 +171,10 @@ rfm12_init(void)
   RFM12_status.Tx = 0;
   RFM12_status.New = 0;
 
+#ifdef RFADDR
   rfaddrlist.nextaddr = 0;
   rfaddrlist.rfaddr = RFADDR;
+#endif
 
   EIMSK |= _BV(RFM12_INT_PIN);
 }
@@ -400,6 +402,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 }
 
 
+#if 0
 uint8_t
 rfm12_txfinished(void)
 {
@@ -408,15 +411,19 @@ rfm12_txfinished(void)
 
   return(0);
 }
+#endif
 
 
+#if 0
 uint8_t 
 rfm12_Index(void)
 {
   return (RFM12_Index);
 }
+#endif
 
 
+#if 0
 void
 rfm12_allstop(void)
 {
@@ -429,6 +436,7 @@ rfm12_allstop(void)
   rfm12_trans(0x8208);		/* shutdown everything */
   rfm12_trans(0x0000);		/* dummy read */
 }
+#endif
 
 
 #ifdef RFADDR
