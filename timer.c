@@ -51,7 +51,7 @@ void timer_init(void)
 
 
 #ifdef ENC28J60_SUPPORT
-static void fill_llh_and_transmit(void)
+void fill_llh_and_transmit(void)
 /* {{{ */ {
 # if UIP_CONF_IPV6
   uip_neighbor_out();
