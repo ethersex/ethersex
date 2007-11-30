@@ -27,7 +27,7 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
-
+#include "../net/rfm12_net.h"
 
 struct RFM12_stati
 {
@@ -548,3 +548,22 @@ rfm12_process (void)
 #endif
 
 
+#ifdef RFM12_BRIDGE_SUPPORT
+extern void fill_llh_and_transmit(void);
+
+void
+rfm12_process (void)
+{
+  int recv_len = rfm12_rxfinish (rx.rxdata.data);
+
+  if (recv_len == 0 || recv_len >= 254)
+    return;			/* receive error or no data */
+
+  rx.rxdata.len = recv_len;
+
+  /* bridge packet to ethernet */
+  memcpy (uip_buf + 14, rx.rxdata.data, rx.rxdata.len);
+  uip_len = rx.rxdata.len;
+  fill_llh_and_transmit ();
+}
+#endif
