@@ -25,8 +25,10 @@
 #include "../rfm12/rfm12.h"
 
 struct rfm12_data {
+#ifdef RFADDR
   uint8_t toaddr;
   uint8_t fromaddr;
+#endif
   uint8_t len;
   unsigned char data[0];
 };
