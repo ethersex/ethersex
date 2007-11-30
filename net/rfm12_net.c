@@ -24,10 +24,12 @@
 
 #include "../config.h"
 
-#if defined(RFM12_SUPPORT) && !defined(RFM12_BRIDGE_SUPPORT)
+#if defined(RFM12_SUPPORT)
 #ifdef ENC28J60_SUPPORT
 
 union rx_buffer rx;
+
+#ifndef RFM12_BRIDGE_SUPPORT
 
 void rfm12_get_receive()
 {
@@ -126,5 +128,6 @@ void rfm12_net_main(void)
   
 }
 
+#endif /* not RFM12_BRIDGE_SUPPORT */
 #endif /* ENC28J60_SUPPORT */
-#endif /* RFM12_SUPPORT and not RFM12_BRIDGE_SUPPORT */
+#endif /* RFM12_SUPPORT */
