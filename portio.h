@@ -26,7 +26,11 @@
 #include "config.h"
 #include <stdint.h>
 
-#if defined(_ATMEGA644) || defined(_ATMEGA32)
+#ifdef _ATMEGA8
+/* FIXME portio not yet supported. */
+#define IO_PORTS 0
+
+#elif defined(_ATMEGA644) || defined(_ATMEGA32)
 
 #if defined(HD44780_SUPPORT) && !defined(HD44780_USE_PORTC)
     #define PORTA_MASK (_BV(HD44780_RS) | \

@@ -69,6 +69,21 @@
 #define _TIFR_TIMER1 TIFR
 
 /* }}} */
+#elif defined(__AVR_ATmega8__)
+/* {{{ */
+#define _ATMEGA8
+
+#define _SPCR0 SPCR
+#define _SPE0 SPE
+#define _MSTR0 MSTR
+#define _SPSR0 SPSR
+#define _SPIF0 SPIF
+#define _SPDR0 SPDR
+#define _SPI2X0 SPI2X
+#define _TIFR_TIMER1 TIFR
+#define _EIMSK GICR
+
+/* }}} */
 #elif defined(__AVR_ATmega644__)
 /* {{{ */
 #define _ATMEGA644
@@ -92,6 +107,7 @@
 #define _RXC_UART0 RXC0
 #define _TXC_UART0 TXC0
 #define _IVREG MCUCR
+#define _EIMSK EIMSK
 
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */

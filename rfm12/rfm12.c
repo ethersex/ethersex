@@ -177,7 +177,7 @@ rfm12_init(void)
   rfaddrlist.rfaddr = RFADDR;
 #endif
 
-  EIMSK |= _BV(RFM12_INT_PIN);
+  _EIMSK |= _BV(RFM12_INT_PIN);
 }
 
 
