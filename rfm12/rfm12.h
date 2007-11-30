@@ -148,4 +148,9 @@ uint8_t rfm12_txto(uint8_t rfaddr, uint8_t txaddr, uint8_t *txdata, uint8_t len)
 uint8_t rfm12_addr_add(uint8_t rfaddr);
 void rfm12_addr_del(uint8_t rfaddr);
 
+#if !defined(ENC28J60_SUPPORT)
+void rfm12_process (void);
+#define rfm12_transmit_packet() rfm12_txstart(uip_buf, uip_len)
+#endif /* not ENC28J60_SUPPORT */
+
 #endif //__RFM12_H

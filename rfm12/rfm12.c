@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "../config.h"
+#include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
 
@@ -525,4 +526,25 @@ rfm12_addr_del(uint8_t rfaddr)
 }
 
 #endif
+
+
+#ifndef ENC28J60_SUPPORT
+void
+rfm12_process (void)
+{
+  int recv_len = rfm12_rxfinish (uip_buf);
+  
+  if (recv_len == 0 || recv_len >= 254)
+    return;			/* receive error or no data */
+
+  uip_input ();
+
+  if (uip_len > 0)
+    {
+      /* application has generated output, send it. */
+      rfm12_transmit_packet ();
+    }
+}
+#endif
+
 

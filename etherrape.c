@@ -180,6 +180,11 @@ int main(void)
         wdt_kick();
 #endif
 
+#if defined(RFM12_SUPPORT) && !defined(ENC28J60_SUPPORT)
+	rfm12_process();
+	wdt_kick();
+#endif
+
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();

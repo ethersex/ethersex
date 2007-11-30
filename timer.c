@@ -50,9 +50,9 @@ void timer_init(void)
 } /* }}} */
 
 
+#ifdef ENC28J60_SUPPORT
 static void fill_llh_and_transmit(void)
 /* {{{ */ {
-#ifdef ENC28J60_SUPPORT
 # if UIP_CONF_IPV6
   uip_neighbor_out();
 # else
@@ -60,8 +60,10 @@ static void fill_llh_and_transmit(void)
 # endif
   
   transmit_packet();
-#endif /* ENC28J60_SUPPORT */
 } /* }}} */
+#elif defined(RFM12_SUPPORT)
+#  define fill_llh_and_transmit() rfm12_transmit_packet()
+#endif /* RFM12_SUPPORT */
 
 
 void timer_process(void)
