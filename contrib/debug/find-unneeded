@@ -1,0 +1,23 @@
+#! /usr/bin/perl -w
+use strict;
+my %symbols;
+my $current_symbol;
+
+while (<>) {
+    if (m/^[0-9a-f]+ \<([^\>]+)\>:/) {
+	$current_symbol = $1;
+	unless (defined ($symbols{$current_symbol})) {
+	    $symbols{$current_symbol} = 0;
+	}
+    }
+
+    if (m/^\s.*; 0x[0-9a-f]+ \<([^\>]+)\>/) {
+	next if ($1 eq $current_symbol); # ignore self ref
+	$symbols{$1} = 1;
+    }
+}
+
+foreach (keys %symbols) {
+    next if $symbols{$_};
+    print "possibly unused symbol: $_\n";
+}
