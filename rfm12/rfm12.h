@@ -37,7 +37,7 @@
 /* RFM12 Buffer length (max length 244) */
 #define RFM12_DataLength	64
 
-#ifdef ENC28J60_SUPPORT
+#if defined(ENC28J60_SUPPORT) && !defined(RFM12_BRIDGE_SUPPORT)
 #define RFADDR    0x23
 #endif
 
