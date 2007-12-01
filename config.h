@@ -93,6 +93,12 @@
 #define _TXC_UART0 TXC0
 #define _IVREG MCUCR
 
+#define _TCCR2_PRESCALE TCCR2B
+#define _OUTPUT_COMPARE_IE2 OCIE2B
+#define _OUTPUT_COMPARE_REG2 OCR2B
+#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
+#define _TIMSK_TIMER2 TIMSK2
+
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
 #ifdef SPCR0
