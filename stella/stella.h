@@ -6,6 +6,23 @@
 
 #define PINS 3
 
+enum stella_colors
+{
+  STELLA_RED,
+  STELLA_GREEN,
+  STELLA_BLUE
+};
+
+enum stella_commands
+{
+  STELLA_SET_RED,
+  STELLA_SET_GREEN,
+  STELLA_SET_BLUE,
+  STELLA_FADE_RED,
+  STELLA_FADE_GREEN,
+  STELLA_FADE_BLUE,
+};
+
 extern uint8_t stella_color[];
 extern uint8_t stella_fade[];
 

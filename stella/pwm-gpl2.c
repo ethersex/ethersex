@@ -35,13 +35,6 @@ volatile uint8_t i_overflow_mask = 0;
 volatile uint8_t update_table = 0;
 volatile uint8_t timer_overflow = 0;
 
-enum colors
-{
-  C_RED,
-  C_GREEN,
-  C_BLUE
-};
-
 void
 stella_pwm_init(void)
 {
