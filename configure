@@ -199,6 +199,11 @@ my %ethersex_modules = (
                    distdflt  => 1,
 		   enable_hook => \&enc28j60_enable_hook,
                  },
+  'zbus'        => {
+                   helptext  => "serial protocol",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip' => {

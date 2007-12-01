@@ -21,16 +21,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include <avr/pgmspace.h>
+#ifndef _ZBUS_H
+#define _ZBUS_H
 
-#define MAX_DYNAMIC_SYSLOG_BUFFER 40
+#include <stdint.h>
+#include "../uip/uip.h"
 
-#ifndef _SYSLOG_H
-#define _SYSLOG_H
+#define RXTX_PORT PORTC
+#define RXTX_DDR  DDRC
+#define RXTX_PIN PC2
 
-uint8_t syslog_send_P(PGM_P message);
-uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf(const char *message, ...);
-uint8_t syslog_send_ptr(void *message);
+/* use 19200 baud at 20mhz (see datasheet for other values) */
+#define ZBUS_UART_UBRR 64
 
-#endif
+enum ZBusEscapes {
+  ZBUS_START = '0',
+  ZBUS_STOP = '1',
+};
+
+void zbus_core_init(uip_udp_conn_t *recv_conn);
+void zbus_core_periodic(void);
+
+typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
+
+void  zbus_tx_finish(void);
+uint8_t zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx);
+
+uint8_t zbus_send_conn_data(uip_udp_conn_t *conn);
+
+
+#endif /* _ZBUS_H */
