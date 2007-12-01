@@ -145,6 +145,11 @@ my %ethersex_modules = (
 		   preconfigure => [ "cast5", "md5" ],
 		   enable_hook => \&openvpn_enable_hook,
                  },
+  'stella'    => {
+                   helptext  => "stella light support",
+		   distdflt  => 0,
+		   preconfigure => [ "udp" ],
+                 },
   'onewire'    => {
                    helptext  => "onewire device support",
                    distdflt  => 0,

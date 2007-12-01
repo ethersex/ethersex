@@ -22,6 +22,7 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo syslog/*.c)
 #SRC += $(shell echo i2c/*.c)
 #SRC += $(shell echo ntp/*.c)
+#SRC += $(shell echo stella/*.c)
 #SRC += uip/uip_openvpn.c                               # OPENVPN_SUPPORT
 #SRC += $(shell echo zbus/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c uip/uip_multi.c

@@ -329,7 +329,7 @@
 // #define I2C_SUPPORT
 // #define NTP_SUPPORT
 // #define ZBUS_SUPPORT
-
+// #define STELLA_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT
