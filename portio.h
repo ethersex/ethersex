@@ -51,6 +51,12 @@
     #define PORTC_MASK 0
 #endif
 
+#ifdef STELLA_SUPPORT
+#define STELLA_MASK (_BV(PD5) | _BV(PD6) | _BV(PD7))
+#else
+#define STELLA_MASK 0
+#endif
+
 #define IO_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
@@ -60,6 +66,7 @@
                         0xff,   /* port b */                        \
                         _BV(PC0) | _BV(PC1) | PORTC_MASK, /* port c */ \
                         _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
+			  | STELLA_MASK				    \
                       }
 
 #else
