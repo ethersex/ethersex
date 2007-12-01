@@ -6,6 +6,9 @@
 
 #define PINS 3
 
+extern uint8_t stella_color[];
+extern uint8_t stella_fade[];
+
 void stella_init(void);
 void stella_sort(uint8_t color[]);
-
+void stella_timer(void);

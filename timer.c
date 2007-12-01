@@ -34,6 +34,7 @@
 #include "watchcat/watchcat.h"
 #include "ntp/ntp.h"
 #include "ipv6.h"
+#include "stella/stella.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -204,6 +205,10 @@ void timer_process(void)
                 void (*jump_to_application)(void) = NULL;
                 jump_to_application();
             }
+#       endif
+
+#       ifdef STELLA_SUPPORT
+	stella_timer ();
 #       endif
 
         /* clear flag */
