@@ -1,5 +1,7 @@
 /*
+ Copyright(C) 2006 Christian Dietrich <stettberger@dokucode.de>
  Copyright(C) 2006 Jochen Roessner <jochen@lugrot.de>
+ Copyright(C) 2007 Stefan Siegl <stesie@brokenpipe.de>
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,10 +42,8 @@ enum colors
   C_BLUE
 };
 
-void sort(uint8_t color[]);
-
 void
-init_timer(void)
+stella_init(void)
 {
   /* Normal PWM Mode */
   /* 256 Prescaler */
@@ -87,7 +87,7 @@ SIGNAL(SIG_OVERFLOW2)
 
 
 void
-sort(uint8_t color[])
+stella_sort(uint8_t color[])
 {
   uint8_t i;
   uint8_t y;
