@@ -39,7 +39,7 @@ enum ZBusEscapes {
   ZBUS_STOP = '1',
 };
 
-void zbus_core_init(struct uip_udp_conn *recv_conn);
+void zbus_core_init(uip_udp_conn_t *recv_conn);
 void zbus_core_periodic(void);
 
 typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
@@ -47,7 +47,7 @@ typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
 void  zbus_tx_finish(void);
 uint8_t zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx);
 
-uint8_t zbus_send_conn_data(struct uip_udp_conn *conn);
+uint8_t zbus_send_conn_data(uip_udp_conn_t *conn);
 
 
 #endif /* _ZBUS_H */

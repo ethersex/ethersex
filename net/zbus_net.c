@@ -39,7 +39,7 @@
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
-struct uip_udp_conn *zbus_conn;
+uip_udp_conn_t *zbus_conn;
 
 void
 zbus_net_init(void)
@@ -61,7 +61,7 @@ zbus_net_init(void)
 void
 zbus_net_main(void)
 {
-  struct uip_udp_conn error_conn;
+  uip_udp_conn_t error_conn;
 
   if (uip_newdata()) {
     if (uip_datalen() > ZBUS_BUFFER_LEN) {
@@ -71,9 +71,9 @@ zbus_net_main(void)
     }
     if (uip_udp_conn == zbus_conn) {
       /* Copy to an new connection */
-      struct uip_udp_conn *tmp = uip_udp_new(&BUF->srcipaddr, 
-                                             BUF->srcport,
-                                             zbus_net_main);
+      uip_udp_conn_t *tmp = uip_udp_new(&BUF->srcipaddr, 
+                                        BUF->srcport,
+                                        zbus_net_main);
       uip_udp_bind(tmp, HTONS(ZBUS_PORT));
       if (!tmp) {
         uip_udp_send(sprintf_P(uip_appdata, PSTR("EToo much connections")));

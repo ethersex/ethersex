@@ -40,8 +40,8 @@ static volatile uint8_t bus_blocked = 0;
 static volatile zbus_send_byte_callback_t callback = NULL;
 static volatile void *callback_ctx = NULL;
 
-static volatile struct uip_udp_conn *send_connection = NULL;
-static volatile struct uip_udp_conn *recv_connection = NULL;
+static volatile uip_udp_conn_t *send_connection = NULL;
+static volatile uip_udp_conn_t *recv_connection = NULL;
 
 uint8_t
 zbus_send_conn_data_cb(void **ctx) 
@@ -62,7 +62,7 @@ zbus_send_conn_data_cb(void **ctx)
 }
 
 uint8_t
-zbus_send_conn_data(struct uip_udp_conn *conn) 
+zbus_send_conn_data(uip_udp_conn_t *conn) 
 {
   if (bus_blocked) return 0;
 
@@ -77,7 +77,7 @@ zbus_send_conn_data(struct uip_udp_conn *conn)
 
 
 void
-zbus_core_init(struct uip_udp_conn *recv_conn)
+zbus_core_init(uip_udp_conn_t *recv_conn)
 {
     /* set baud rate */
     _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
