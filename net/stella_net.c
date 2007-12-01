@@ -43,7 +43,8 @@ stella_net_init(void)
     return;
   }
 
-  uip_udp_bind(stella_conn, HTONS(STELLA_UDP_PORT));
+  uip_udp_bind (stella_conn, HTONS(STELLA_UDP_PORT));
+  stella_pwm_init ();
 }
 
 void
