@@ -43,7 +43,7 @@ enum colors
 };
 
 void
-stella_init(void)
+stella_pwm_init(void)
 {
   /* Normal PWM Mode */
   /* 256 Prescaler */
