@@ -33,7 +33,6 @@ volatile uint8_t now = 0;
 volatile uint8_t overflow_mask = 0;
 volatile uint8_t i_overflow_mask = 0;
 volatile uint8_t update_table = 0;
-volatile uint8_t timer_overflow = 0;
 
 void
 stella_pwm_init(void)
@@ -75,7 +74,6 @@ SIGNAL(SIG_OVERFLOW2)
     }
 
   PORTD |= i_overflow_mask;
-  timer_overflow ++;
 }
 
 
