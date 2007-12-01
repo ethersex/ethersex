@@ -21,16 +21,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include <avr/pgmspace.h>
+#ifndef ZBUS_STATE_H
+#define ZBUS_STATE_H
 
-#define MAX_DYNAMIC_SYSLOG_BUFFER 40
+#define ZBUS_BUFFER_LEN 25
 
-#ifndef _SYSLOG_H
-#define _SYSLOG_H
+enum zbus_connection_state {
+  ZBUS_STATE_DATA = 1,
+  ZBUS_STATE_SENDING = 2,
+  ZBUS_STATE_RECIEVED = 4,
+};
 
-uint8_t syslog_send_P(PGM_P message);
-uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf(const char *message, ...);
-uint8_t syslog_send_ptr(void *message);
+struct zbus_connection_state_t {
+  uint8_t state; /* state of the connection */
+  uint8_t offset; /* used by the zbus hardware subsystem */
+  uint8_t ttl; /* The connection will be closed after n polls */
+
+  uint8_t buffer_len;
+  uint8_t buffer[ZBUS_BUFFER_LEN];
+};
 
 #endif

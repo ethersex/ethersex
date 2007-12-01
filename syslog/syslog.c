@@ -22,6 +22,7 @@
  }}} */
 
 #include <avr/pgmspace.h>
+#include <stdarg.h>
 
 #include "../net/syslog_net.h"
 #include "../uip/uip.h"
@@ -67,6 +68,22 @@ syslog_send(const char *message)
     return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
   } else
     return 0;
+}
+
+uint8_t 
+syslog_sendf(const char *message, ...)
+{
+  va_list va;
+  va_start(va, message);
+
+  // only insert a new callback if the old is finished  
+  if (send_buffer[0] == 0) {
+    vsnprintf(send_buffer, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
+    send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
+  } else
+    return 0;
+  va_end(va);
 }
 
 uint8_t 

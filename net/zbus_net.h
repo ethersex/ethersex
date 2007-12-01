@@ -21,16 +21,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include <avr/pgmspace.h>
+#ifndef ZBUS_NET_H
+#define ZBUS_NET_H
 
-#define MAX_DYNAMIC_SYSLOG_BUFFER 40
+/* constants */
+#define ZBUS_PORT 23514
 
-#ifndef _SYSLOG_H
-#define _SYSLOG_H
+enum zbus_udp_answers {
+  ZBUS_UDP_OK,
+  ZBUS_UDP_ERROR,
+  ZBUS_UDP_ERROR_TOO_MUCH_DATA,
+  ZBUS_UDP_ERROR_TOO_MUCH_CONNECTIONS,
+  ZBUS_UDP_ERROR_OLD_DATA,
+};
 
-uint8_t syslog_send_P(PGM_P message);
-uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf(const char *message, ...);
-uint8_t syslog_send_ptr(void *message);
+/* prototypes */
+void zbus_net_init(void);
+void zbus_net_main(void);
 
-#endif
+#endif /* ZBUS_NET_H */
