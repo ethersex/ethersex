@@ -196,6 +196,10 @@ int main(void)
 #endif
 #endif /* FS20_SUPPORT */
 
+#       ifdef STELLA_SUPPORT
+	stella_timer ();
+#       endif
+
 #ifndef BOOTLOAD_SUPPORT
         if(cfg.request_bootloader) {
             cli();

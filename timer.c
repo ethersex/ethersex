@@ -207,10 +207,6 @@ void timer_process(void)
             }
 #       endif
 
-#       ifdef STELLA_SUPPORT
-	stella_timer ();
-#       endif
-
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
     }
