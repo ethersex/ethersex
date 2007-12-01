@@ -197,6 +197,7 @@ my %ethersex_modules = (
   'enc28j60'  => {
                    helptext  => "enc28j60 ethernet controller",
                    distdflt  => 1,
+		   enable_hook => \&enc28j60_enable_hook,
                  },
 );
 my %ethersex_config = (
@@ -263,6 +264,8 @@ foreach(@ARGV) {
     print STDERR "ethersex configuration utility\n";
     print STDERR "  --restore-defaults  - enable only default modules\n";
     print STDERR "  --only-modules      - configure only the modules\n";
+    print STDERR "  --disable-x         - disable feature 'x'\n";
+    print STDERR "  --enable-x          - enable feature 'x'\n";
     exit 0;
   }
 }
@@ -297,6 +300,33 @@ while(<HANDLE>) {
 }
 close HANDLE or die;
 
+my $opt_nogui = 0;
+foreach(@ARGV) {
+  if(m/--enable-([A-Z0-9_]+)/i) {
+    if(defined($ethersex_modules{lc $1})
+       && !defined($ethersex_modules{lc $1}->{'new_status'})
+       && try_enable(lc $1) == 0) {
+      $opt_nogui = 1;
+      printf "enabling %s.\n", lc $1;
+      enable(lc $1);
+    }
+    else {
+      print "FAILED to enable $1.\n";
+    }
+  }
+
+  if(m/--disable-([A-Z0-9_]+)/i) {
+    if(defined($ethersex_modules{lc $1})
+       && !defined($ethersex_modules{lc $1}->{'new_status'})) {
+      $opt_nogui = 1;
+      printf "disabling %s.\n", lc $1;
+      disable(lc $1);
+    }
+    else {
+      print "FAILED to disable $1.\n";
+    }
+  }
+}
 
 # check whether module may be enabled
 # return: 1 if conflicting (message will be emitted)
@@ -409,6 +439,10 @@ sub configure_module {
   my $answer;
   if($opt_restore_defaults) { 
     $answer = $ethersex_modules{$module}->{'distdflt'};
+    printf "%s %s.\n", ($answer ? "enabling" : "disabling"), $module;
+  }
+  elsif($opt_nogui && defined($ethersex_modules{$module}->{'enabled'})) {
+    $answer = $ethersex_modules{$module}->{'enabled'};
     printf "%s %s.\n", ($answer ? "enabling" : "disabling"), $module;
   }
   else {
@@ -556,6 +590,10 @@ sub ask_cryptokey {
   $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
 }
 
+sub enc28j60_enable_hook {
+  ask_mac "etherrape_mac";
+}
+
 sub tftpomatic_enable_hook {
   # don't ask for tftp image, if user configured bootp
   return if($ethersex_modules{'bootp'}->{'new_status'});
@@ -604,6 +642,11 @@ sub ipv6_disable_hook {
   }
   
   ask_ip("etherrape_ip");
+  
+  # don't ask for netmask and gateway, if we don't have ethernet support
+  configure_module "enc28j60";
+  return unless($ethersex_modules{'enc28j60'}->{'new_status'});
+
   ask_ip("etherrape_ip4_netmask");
 
   if($ethersex_modules{'openvpn'}->{'new_status'}) {
@@ -665,7 +708,6 @@ sub syslog_enable_hook {
 #
 if ( $opt_only_modules != 1) {
   print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
-  ask_mac "etherrape_mac";
   configure_module "bootloader";
   foreach my $module (keys %ethersex_modules) { configure_module($module) }
 }
