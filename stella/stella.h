@@ -12,3 +12,4 @@ extern uint8_t stella_fade[];
 void stella_pwm_init(void);
 void stella_sort(uint8_t color[]);
 void stella_timer(void);
+void stella_process(unsigned char *buf, uint8_t len);
