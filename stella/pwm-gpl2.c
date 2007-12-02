@@ -44,6 +44,8 @@ stella_pwm_init(void)
 
   /* Int. bei Overflow und CompareMatch einschalten */
   _TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2); 
+
+  STELLA_DDR = 7 << STELLA_OFFSET;
 }
 
 SIGNAL(_SIG_OUTPUT_COMPARE2)
