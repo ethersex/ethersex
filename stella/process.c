@@ -62,6 +62,28 @@ stella_process (unsigned char *buf, uint8_t len)
       case STELLA_FADE_BLUE:
 	stella_fade[STELLA_BLUE] = buf[1];
 	break;
+
+      case STELLA_FLASH_RED:
+	stella_fade[STELLA_RED] = 0;
+	stella_color[STELLA_RED] = buf[1];
+	re_sort = 1;
+	break;
+
+      case STELLA_FLASH_GREEN:
+	stella_fade[STELLA_GREEN] = 0;
+	stella_color[STELLA_GREEN] = buf[1];
+	re_sort = 1;
+	break;
+
+      case STELLA_FLASH_BLUE:
+	stella_fade[STELLA_BLUE] = 0;
+	stella_color[STELLA_BLUE] = buf[1];
+	re_sort = 1;
+	break;
+
+      case STELLA_SELECT_FADE_FUNC:
+	stella_fade_func = buf[1];
+	break;
       }
 
   if (re_sort)

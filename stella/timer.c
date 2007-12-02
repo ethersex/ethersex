@@ -27,21 +27,50 @@
 uint8_t stella_color[] = { 0, 0, 0};
 uint8_t stella_fade[] = { 0, 0, 0};
 
+static void
+stella_fade_normal (int i)
+{
+  if (stella_color[i] > stella_fade[i])
+    stella_color[i] --;
+
+  else /* stella_color[i] < stella_fade[i] */
+    stella_color[i] ++;
+}
+
+
+static void
+stella_fade_flashy (int i)
+{
+  if (stella_color[i] > stella_fade[i])
+    stella_color[i] <<= 1;
+
+  if (stella_color[i] < stella_fade[i])
+    stella_color[i] = stella_fade[i];
+}
+
+
+static struct 
+{
+  void (* p) (int i);
+} stella_fade_funcs[FADE_FUNC_LEN] =
+  {
+    { stella_fade_normal },
+    { stella_fade_flashy },
+  };
+
+uint8_t stella_fade_func;
+
 void
 stella_timer (void)
 {
   int re_sort = 0;
 
-  for (int i = 0; i < PINS; i ++) 
+  for (int i = 0; i < PINS; i ++)
     {
       if (stella_color[i] == stella_fade[i])
 	continue;
 
-      if (stella_color[i] > stella_fade[i])
-	stella_color[i] --;
-      else /* stella_color[i] < stella_fade[i] */
-	stella_color[i] ++;
-
+      stella_fade_funcs[stella_fade_func].p (i);
       re_sort = 1;
     }
 
