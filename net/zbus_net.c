@@ -70,6 +70,35 @@ zbus_net_main(void)
       goto send_answer;
     }
     if (uip_udp_conn == zbus_conn) {
+      /* See if we have an connection that comes from that ip/port 
+       * or if there an connection to this device */
+      uip_udp_conn_t *conn_ptr;
+      uint8_t device_blocked = 0;
+      
+      for(conn_ptr = &uip_udp_conns[0];
+          conn_ptr < &uip_udp_conns[UIP_UDP_CONNS];
+          ++conn_ptr) {
+        if (conn_ptr->callback == zbus_net_main
+            && conn_ptr->lport
+            && conn_ptr != zbus_conn) {
+
+          if (conn_ptr->rport == BUF->srcport
+              && uip_ipaddr_cmp(BUF->srcipaddr, conn_ptr->ripaddr)) 
+            uip_udp_conn = conn_ptr;
+
+          if (conn_ptr->appstate.zbus.buffer[0] 
+              == ((unsigned char *)uip_appdata)[0]) {
+            device_blocked = 1;
+          }
+        }
+      }
+      if (uip_udp_conn != zbus_conn)
+        goto copy_data;
+      
+      if (device_blocked) {
+        uip_udp_send(sprintf_P(uip_appdata, PSTR("EDevice is blocked")));
+        goto send_answer;
+      }
       /* Copy to an new connection */
       uip_udp_conn_t *tmp = uip_udp_new(&BUF->srcipaddr, 
                                         BUF->srcport,
@@ -82,6 +111,7 @@ zbus_net_main(void)
       uip_udp_bind(tmp, HTONS(ZBUS_PORT));
       uip_udp_conn = tmp;
     }
+copy_data:
     /* Copy data to the connection buffer */
     uip_udp_conn->appstate.zbus.buffer_len = uip_datalen();
     memcpy(uip_udp_conn->appstate.zbus.buffer, uip_appdata, uip_datalen());
