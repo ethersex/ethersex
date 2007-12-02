@@ -53,7 +53,8 @@ typedef union uip_tcp_connection_state {
     struct ecmd_sender_connection_state_t ecmd_sender;
 #   endif
 
-#   ifdef RFM12_SUPPORT
+#   if defined(RFM12_SUPPORT) && !defined(RFM12_BRIDGE_SUPPORT) \
+  && defined(ENC28J60_SUPPORT)
     struct rfm12_connection_state_t rfm12;
 #   endif
 
