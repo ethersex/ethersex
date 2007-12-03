@@ -181,10 +181,21 @@ rfm12_init(void)
 }
 
 
+/* Prologue/epilogue macros, disabling/enabling interrupts. 
+   Be careful, these are not well suited to be used as if-blocks. */
+#define rfm12_prologue()			\
+  uint8_t sreg = SREG; cli();
+#define rfm12_epilogue()			\
+  SREG = sreg;
+
+
+
 void
 rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 {
-  rfm12_trans(0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
+  rfm12_prologue ();
+  rfm12_trans (0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
+  rfm12_epilogue ();
 }
 
 
@@ -197,7 +208,9 @@ rfm12_setfreq(unsigned short freq)
   else if (freq > 3903)		/* 439,7575MHz */
     freq = 3903;
 
+  rfm12_prologue ();
   rfm12_trans (0xA000 | freq);
+  rfm12_epilogue ();
 }
 
 
@@ -207,18 +220,24 @@ rfm12_setbaud(unsigned short baud)
   if (baud < 663)
     return;
 
+  rfm12_prologue ();
+
   /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
   if (baud < 5400)
     rfm12_trans(0xC680 | ((43104 / baud) - 1));
   else
     rfm12_trans(0xC600 | ((344828UL / baud) - 1));
+
+  rfm12_epilogue ();
 }
 
 
 void
 rfm12_setpower(uint8_t power, uint8_t mod)
 {	
+  rfm12_prologue ();
   rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
+  rfm12_epilogue ();
 }
 
 
@@ -234,9 +253,13 @@ rfm12_rxstart(void)
   if(RFM12_status.Rx)
     return(3);			/* rx already in action */
   
+  rfm12_prologue ();
+
   rfm12_trans(0x82C8);		/* RX on */
   rfm12_trans(0xCA81);		/* set FIFO mode */
   rfm12_trans(0xCA83);		/* enable FIFO */
+
+  rfm12_epilogue ();
 
   RFM12_Index = 0;
   RFM12_status.Rx = 1;
@@ -397,8 +420,10 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i--] = 0xAA;
   RFM12_Data[i--] = 0xAA;
 
+  rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
-  
+  rfm12_epilogue ();
+
   return(0);
 }
 
@@ -434,8 +459,12 @@ rfm12_allstop(void)
   RFM12_status.Txok = 0;
   RFM12_status.New = 0;
   
+  rfm12_prologue ();
+
   rfm12_trans(0x8208);		/* shutdown everything */
   rfm12_trans(0x0000);		/* dummy read */
+
+  rfm12_epilogue ();
 }
 #endif
 
