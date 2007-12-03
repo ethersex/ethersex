@@ -177,6 +177,10 @@ rfm12_init(void)
   rfaddrlist.rfaddr = RFADDR;
 #endif
 
+#ifdef RFM12_BLINK_PORT
+  RFM12_BLINK_DDR |= RFM12_RX_PIN | RFM12_TX_PIN;
+#endif
+
   _EIMSK |= _BV(RFM12_INT_PIN);
 }
 
@@ -333,8 +337,6 @@ rfm12_rxfinish(uint8_t *data)
 		{
 		  if(RFM12_status.Ack == 1 && i == 1 && RFM12_Ackdata == RFM12_Data[3])
 		    RFM12_status.Ack = 0;
-
-		  rfm12_rxstart();
 		}
 	      
 	      break;
@@ -343,8 +345,6 @@ rfm12_rxfinish(uint8_t *data)
 	  addr = addr->nextaddr;
 	}
       while(addr != 0);
-#else
-      rfm12_rxstart();
 #endif
 
       return(i);                 /* receive size */
@@ -573,6 +573,8 @@ rfm12_process (void)
       /* application has generated output, send it. */
       rfm12_transmit_packet ();
     }
+
+  rfm12_rxstart ();
 }
 #endif
 
@@ -588,6 +590,7 @@ rfm12_process (void)
   if (recv_len == 0 || recv_len >= 254)
     return;			/* receive error or no data */
 
+  rfm12_rxstart ();
   rx.rxdata.len = recv_len;
 
   /* bridge packet to ethernet */

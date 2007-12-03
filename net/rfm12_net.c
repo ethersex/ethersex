@@ -41,7 +41,8 @@ void rfm12_get_receive()
   
   int recv_len = rfm12_rxfinish (&rx.rxdata.toaddr, &rx.rxdata.fromaddr,
 				 rx.rxdata.data);
-  if (recv_len > 0 && recv_len < 254){
+  if (recv_len > 0 && recv_len < 254) {
+    rfm12_rxstart ();
     rx.rxdata.len = recv_len;
 
     for (i = 0; i < UIP_CONNS; i ++) 
