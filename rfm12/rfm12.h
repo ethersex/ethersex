@@ -41,11 +41,17 @@
 #define RFADDR    0x23
 #endif
 
-#define RFM12_BLINK_PORT PORTD
-#define RFM12_BLINK_DDR DDRD
-#define RFM12_TX_PIN _BV(PD4)
-#define RFM12_RX_PIN _BV(PD5)
-
+#ifdef _ATMEGA8
+#  define RFM12_BLINK_PORT PORTB
+#  define RFM12_BLINK_DDR DDRB
+#  define RFM12_TX_PIN _BV(PB6)
+#  define RFM12_RX_PIN _BV(PB7)
+#else
+#  define RFM12_BLINK_PORT PORTD
+#  define RFM12_BLINK_DDR DDRD
+#  define RFM12_TX_PIN _BV(PD4)
+#  define RFM12_RX_PIN _BV(PD5)
+#endif
 
 //##############################################################################
 
