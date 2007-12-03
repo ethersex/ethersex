@@ -41,11 +41,24 @@ struct RFM12_stati
 struct RFM12_stati RFM12_status;
 volatile uint8_t RFM12_Index = 0;
 
+#ifdef ENC28J60_SUPPORT
+#  define RFM12_SHARE_UIP_BUF
+#  undef RFM12_DataLength
+#  ifdef RFADDR
+#    define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 12)
+#  else
+#    define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 10)
+#  endif
+#  define RFM12_Data uip_buf
+#endif /* no ENC28J60_SUPPORT */
+
 #ifdef RFADDR
 volatile uint8_t RFM12_Ackdata = 0;
 volatile uint16_t RFM12_delaycount = 0;
 volatile uint8_t RFM12_maxcount = 0;
+#ifndef RFM12_SHARE_UIP_BUF
 volatile uint8_t RFM12_Data[RFM12_DataLength + 12];  /* +12 == paket overhead */
+#endif
 
 struct RFM12_addrlist {
   struct RFM12_addrlist *nextaddr;
@@ -53,8 +66,11 @@ struct RFM12_addrlist {
 } rfaddrlist;
 
 #else
+#ifndef RFM12_SHARE_UIP_BUF
 volatile uint8_t RFM12_Data[RFM12_DataLength + 10];  /* +10 == paket overhead */
 #endif
+#endif
+
 
 
 SIGNAL(RFM12_INT_SIGNAL)
@@ -89,7 +105,15 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
 
+#ifdef RFM12_SHARE_UIP_BUF
+#ifdef RFADDR
+      if(RFM12_Index > RFM12_Data[5] + 12)
+#else
+      if(RFM12_Index > RFM12_Data[5] + 10)
+#endif /* not RFADDR */
+#else
       if(!RFM12_Index)
+#endif /* not RFM12_SHARE_UIP_BUF */
 	{
 	  RFM12_status.Tx = 0;
 
@@ -101,7 +125,11 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  rfm12_rxstart();
 	}
       else
+#ifdef RFM12_SHARE_UIP_BUF
+        RFM12_Index++;
+#else
 	RFM12_Index--;
+#endif
     }
   else
     {
@@ -311,11 +339,15 @@ rfm12_rxfinish(uint8_t *data)
   else
     {
       uint8_t i;
+      uint8_t len = RFM12_Data[0];
 
 #ifdef RFADDR
       *txaddr = RFM12_Data[1];
       *rfaddr = RFM12_Data[2];
 
+      /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
+	 first three bytes!  Therefore it is essential to copy the data
+	 in forward direction below (and not use RFM12_Data afterwards. */
       for(i = 0; i < RFM12_Data[0]; i++)
 	data[i] = RFM12_Data[i + 1 + 2];
 #else
@@ -323,19 +355,17 @@ rfm12_rxfinish(uint8_t *data)
 	data[i] = RFM12_Data[i + 1];
 #endif
 
-      i = RFM12_Data[0];
-
 #ifdef RFADDR
       struct RFM12_addrlist *addr = &rfaddrlist;
       do
 	{
-	  if(addr->rfaddr == RFM12_Data[2])
+	  if(addr->rfaddr == *rfaddr)
 	    {
-	      if(i > 1)
+	      if(len > 1)
 		rfm12_txstart(RFADDR, *txaddr, data, 1);
 	      else
 		{
-		  if(RFM12_status.Ack == 1 && i == 1 && RFM12_Ackdata == RFM12_Data[3])
+		  if(RFM12_status.Ack == 1 && len == 1 && RFM12_Ackdata == data[0])
 		    RFM12_status.Ack = 0;
 		}
 	      
@@ -347,7 +377,7 @@ rfm12_rxfinish(uint8_t *data)
       while(addr != 0);
 #endif
 
-      return(i);                 /* receive size */
+      return(len);                 /* receive size */
     }
 }
 
@@ -384,11 +414,35 @@ rfm12_txstart(uint8_t *data, uint8_t size)
       RFM12_status.Ack = 1;
       RFM12_Ackdata = data[0];
     }
+#endif
+
+#ifdef RFM12_SHARE_UIP_BUF
+  crc = crcUpdate(0, size);
+
+  i = size; while (i --)
+#ifdef RFADDR
+	      uip_buf[i + 8] = uip_buf[i];
+#else
+	      uip_buf[i + 6] = uip_buf[i];
+#endif
+
+  i = RFM12_Index = 0;
+  //memmove (uip_buf + 6, uip_buf, size);
+
+  RFM12_Data[i++] = 0xAA;
+  RFM12_Data[i++] = 0xAA;
+  RFM12_Data[i++] = 0xAA;
+  RFM12_Data[i++] = 0x2D;
+  RFM12_Data[i++] = 0xD4;
+  RFM12_Data[i++] = size;
+
+#else  /* not RFM12_SHARE_UIP_BUF */
+#ifdef RFADDR
   RFM12_Index = size + 9 + 2;   /* act -12 */
 #else
   RFM12_Index = size + 9;	/* act -10 */
 #endif
-  
+
   i = RFM12_Index;				
   RFM12_Data[i--] = 0xAA;
   RFM12_Data[i--] = 0xAA;
@@ -397,28 +451,45 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i--] = 0xD4;
   RFM12_Data[i--] = size;
   crc = crcUpdate(0, size);
+#endif /* not RFM12_SHARE_UIP_BUF */
 
 #ifdef RFADDR
   if (rfaddr == 0)
     rfaddr = RFADDR;
 
+#ifdef RFM12_SHARE_UIP_BUF
+  RFM12_Data[i++] = rfaddr;
+  RFM12_Data[i++] = txaddr;
+#else
   RFM12_Data[i--] = rfaddr;
-  crc = crcUpdate(crc, rfaddr);
-
   RFM12_Data[i--] = txaddr;
+#endif
+
+  crc = crcUpdate(crc, rfaddr);
   crc = crcUpdate(crc, txaddr);
 #endif
 
   for(l=0; l<size; l++)
     {
+#ifndef RFM12_SHARE_UIP_BUF
       RFM12_Data[i--] = data[l];
       crc = crcUpdate(crc, data[l]);
+#else
+      crc = crcUpdate(crc, RFM12_Data[i ++]);
+#endif
     }
 
+#ifdef RFM12_SHARE_UIP_BUF
+  RFM12_Data[i++] = (crc & 0x00FF);
+  RFM12_Data[i++] = (crc >> 8);
+  RFM12_Data[i++] = 0xAA;
+  RFM12_Data[i++] = 0xAA;
+#else
   RFM12_Data[i--] = (crc & 0x00FF);
   RFM12_Data[i--] = (crc >> 8);
   RFM12_Data[i--] = 0xAA;
   RFM12_Data[i--] = 0xAA;
+#endif
 
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
