@@ -283,7 +283,12 @@
 #define NET_FULL_DUPLEX 0
 
 /* configure global data buffer */
-#define NET_MAX_FRAME_LENGTH 640
+#ifdef _ATMEGA8
+  /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
+#  define NET_MAX_FRAME_LENGTH 192
+#else
+#  define NET_MAX_FRAME_LENGTH 640
+#endif
 
 /* configure main callback function for uip */
 #define UIP_APPCALL network_handle_tcp
