@@ -82,13 +82,13 @@ void network_init(void)
 #   endif
 
 #   ifdef ENC28J60_SUPPORT
+
 #   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
 #   if UIP_CONF_IPV6_LLADDR
     uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
 #   endif
 #   endif
-#   endif /* ENC28J60_SUPPORT */
 
     /* use global network packet buffer for configuration */
     eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
@@ -110,7 +110,7 @@ void network_init(void)
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
 #       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
-  || defined(OPENVPN_SUPPORT) || (UIP_CONF_IPV6 && !defined(ENC28J60_SUPPORT))
+  || defined(OPENVPN_SUPPORT)
         CONF_ETHERRAPE_IP;
         uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
@@ -222,6 +222,15 @@ void network_init(void)
 
     }
 #   endif /* !BOOTLOADER_SUPPORT */
+
+#   else /* not ENC28J60_SUPPORT */
+    /* Don't allow for eeprom-based configuration of rfm12 IP address,
+       mainly for code size reasons. */
+    uip_ipaddr_t ip;
+    CONF_ETHERRAPE_IP;
+    uip_sethostaddr(ip);
+
+#   endif /* not ENC28J60_SUPPORT */
 
     network_init_apps();
 
