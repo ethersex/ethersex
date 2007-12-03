@@ -561,9 +561,9 @@ rfm12_addr_del(uint8_t rfaddr)
 void
 rfm12_process (void)
 {
-  int recv_len = rfm12_rxfinish (uip_buf);
+  uip_len = rfm12_rxfinish (uip_buf);
   
-  if (recv_len == 0 || recv_len >= 254)
+  if (uip_len == 0 || uip_len >= 254)
     return;			/* receive error or no data */
 
   uip_input ();
