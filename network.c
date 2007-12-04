@@ -55,6 +55,11 @@ void network_init(void)
     uip_stack_set_active(STACK_MAIN);
     uip_init();
 
+#ifdef RFM12_BRIDGE_SUPPORT
+    uip_stack_set_active(STACK_RFM12);
+    rfm12_stack_init();
+#endif
+
 #ifdef OPENVPN_SUPPORT
     uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();

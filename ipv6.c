@@ -49,7 +49,6 @@ extern struct uip_eth_addr uip_ethaddr;
 extern u16_t openvpn_upper_layer_chksum(u8_t);
 #define uip_icmp6chksum() (openvpn_upper_layer_chksum(UIP_PROTO_ICMP6))
 #else /* !OPENVPN_SUPPORT */
-extern u16_t upper_layer_chksum(u8_t);
 #define uip_icmp6chksum() (upper_layer_chksum(UIP_PROTO_ICMP6))
 #endif
 

@@ -41,7 +41,7 @@ struct RFM12_stati
 struct RFM12_stati RFM12_status;
 volatile uint8_t RFM12_Index = 0;
 
-#ifdef ENC28J60_SUPPORT
+#ifndef ENC28J60_SUPPORT
 #  define RFM12_SHARE_UIP_BUF
 #  undef RFM12_DataLength
 #  ifdef RFADDR
@@ -87,7 +87,7 @@ SIGNAL(RFM12_INT_SIGNAL)
       else
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_status.Rx = 0;
+	  RFM12_status.Rx = 0;	/* FIXME this kills ourself */
 	}
 #ifdef RFADDR
       if(RFM12_Index >= RFM12_Data[0] + 3 + 2)
@@ -105,15 +105,11 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
 
-#ifdef RFM12_SHARE_UIP_BUF
 #ifdef RFADDR
       if(RFM12_Index > RFM12_Data[5] + 12)
 #else
       if(RFM12_Index > RFM12_Data[5] + 10)
 #endif /* not RFADDR */
-#else
-      if(!RFM12_Index)
-#endif /* not RFM12_SHARE_UIP_BUF */
 	{
 	  RFM12_status.Tx = 0;
 
@@ -125,11 +121,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  rfm12_rxstart();
 	}
       else
-#ifdef RFM12_SHARE_UIP_BUF
         RFM12_Index++;
-#else
-	RFM12_Index--;
-#endif
     }
   else
     {
@@ -348,10 +340,10 @@ rfm12_rxfinish(uint8_t *data)
       /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
 	 first three bytes!  Therefore it is essential to copy the data
 	 in forward direction below (and not use RFM12_Data afterwards. */
-      for(i = 0; i < RFM12_Data[0]; i++)
+      for(i = 0; i < len; i++)
 	data[i] = RFM12_Data[i + 1 + 2];
 #else
-      for(i = 0; i<RFM12_Data[0]; i++)
+      for(i = 0; i < len; i++)
 	data[i] = RFM12_Data[i + 1];
 #endif
 
@@ -416,18 +408,16 @@ rfm12_txstart(uint8_t *data, uint8_t size)
     }
 #endif
 
-#ifdef RFM12_SHARE_UIP_BUF
   crc = crcUpdate(0, size);
 
   i = size; while (i --)
 #ifdef RFADDR
-	      uip_buf[i + 8] = uip_buf[i];
+	      RFM12_Data[i + 8] = data[i];
 #else
-	      uip_buf[i + 6] = uip_buf[i];
+              RFM12_Data[i + 6] = data[i];
 #endif
 
   i = RFM12_Index = 0;
-  //memmove (uip_buf + 6, uip_buf, size);
 
   RFM12_Data[i++] = 0xAA;
   RFM12_Data[i++] = 0xAA;
@@ -436,60 +426,24 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i++] = 0xD4;
   RFM12_Data[i++] = size;
 
-#else  /* not RFM12_SHARE_UIP_BUF */
-#ifdef RFADDR
-  RFM12_Index = size + 9 + 2;   /* act -12 */
-#else
-  RFM12_Index = size + 9;	/* act -10 */
-#endif
-
-  i = RFM12_Index;				
-  RFM12_Data[i--] = 0xAA;
-  RFM12_Data[i--] = 0xAA;
-  RFM12_Data[i--] = 0xAA;
-  RFM12_Data[i--] = 0x2D;
-  RFM12_Data[i--] = 0xD4;
-  RFM12_Data[i--] = size;
-  crc = crcUpdate(0, size);
-#endif /* not RFM12_SHARE_UIP_BUF */
-
 #ifdef RFADDR
   if (rfaddr == 0)
     rfaddr = RFADDR;
 
-#ifdef RFM12_SHARE_UIP_BUF
   RFM12_Data[i++] = rfaddr;
   RFM12_Data[i++] = txaddr;
-#else
-  RFM12_Data[i--] = rfaddr;
-  RFM12_Data[i--] = txaddr;
-#endif
 
   crc = crcUpdate(crc, rfaddr);
   crc = crcUpdate(crc, txaddr);
 #endif
 
-  for(l=0; l<size; l++)
-    {
-#ifndef RFM12_SHARE_UIP_BUF
-      RFM12_Data[i--] = data[l];
-      crc = crcUpdate(crc, data[l]);
-#else
-      crc = crcUpdate(crc, RFM12_Data[i ++]);
-#endif
-    }
+  for(l = 0; l < size; l++)
+    crc = crcUpdate(crc, RFM12_Data[i ++]);
 
-#ifdef RFM12_SHARE_UIP_BUF
   RFM12_Data[i++] = (crc & 0x00FF);
   RFM12_Data[i++] = (crc >> 8);
   RFM12_Data[i++] = 0xAA;
   RFM12_Data[i++] = 0xAA;
-#else
-  RFM12_Data[i--] = (crc & 0x00FF);
-  RFM12_Data[i--] = (crc >> 8);
-  RFM12_Data[i--] = 0xAA;
-  RFM12_Data[i--] = 0xAA;
-#endif
 
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
@@ -651,7 +605,6 @@ rfm12_process (void)
 
 
 #ifdef RFM12_BRIDGE_SUPPORT
-extern void fill_llh_and_transmit(void);
 
 void
 rfm12_process (void)
@@ -661,12 +614,25 @@ rfm12_process (void)
   if (recv_len == 0 || recv_len >= 254)
     return;			/* receive error or no data */
 
-  rfm12_rxstart ();
   rx.rxdata.len = recv_len;
 
   /* bridge packet to ethernet */
-  memcpy (uip_buf + 14, rx.rxdata.data, rx.rxdata.len);
-  uip_len = rx.rxdata.len;
+  memcpy (uip_buf + RFM12_BRIDGE_OFFSET, rx.rxdata.data, rx.rxdata.len);
+
+  /* uip_input expects the number of bytes including the LLH. */
+  uip_len = rx.rxdata.len + RFM12_BRIDGE_OFFSET;
+
+  /* Push data into inner uIP stack. */
+  uip_stack_set_active (STACK_RFM12);
+  rfm12_stack_process (UIP_DATA);
+
+  if (! uip_len)
+    {
+      rfm12_rxstart ();
+      return;			/* The stack didn't generate any data
+				   that has to be sent back. */
+    }
+
   fill_llh_and_transmit ();
 }
 #endif
