@@ -362,10 +362,10 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
-#define ECMD_SUPPORT
+// #define ECMD_SUPPORT
 // #define ECMD_SENDER_SUPPORT
 // #define WATCHCAT_SUPPORT
-#define PORTIO_SUPPORT
+// #define PORTIO_SUPPORT
 // #define NAMED_PIN_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
@@ -374,17 +374,17 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
-#define TCP_SUPPORT
+// #define TCP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
-// #define RFM12_SUPPORT
+#define RFM12_SUPPORT
 // #define RFM12_BRIDGE_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
 // #define NTP_SUPPORT
-#define ENC28J60_SUPPORT
+// #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
 // #define SENSOR_RFM12_SUPPORT
 
@@ -405,7 +405,7 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP uip_ipaddr(ip,10,0,0,5)
+#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0xf8,0xaede,0x48ff,0xfe0b,0xee52)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 

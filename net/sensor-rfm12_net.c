@@ -21,36 +21,36 @@
 
 #include "../uip/uip.h"
 #include "../config.h"
-#include "../sensor-rfm12/sensor-rfm12.h"
-#include "sensor-rfm12_net.h"
+#include "../sensor_rfm12/sensor_rfm12.h"
+#include "sensor_rfm12_net.h"
 
 #ifdef SENSOR_RFM12_SUPPORT
 
 void 
-sensor-rfm12_net_init(void)
+sensor_rfm12_net_init(void)
 {
 	uip_ipaddr_t ip;
 	uip_ipaddr(&ip, 255,255,255,255);
 	
-  struct uip_udp_conn *sensor-rfm12_conn = uip_udp_new(&ip, 0, sensor-rfm12_net_main);
+  struct uip_udp_conn *sensor_rfm12_conn = uip_udp_new(&ip, 0, sensor_rfm12_net_main);
 	
-  if(! sensor-rfm12_conn) 
+  if(! sensor_rfm12_conn) 
 		return;					/* keine udp connection, tschuess !? */
 	
-  uip_udp_bind(sensor-rfm12_conn, HTONS(SENSOR_RFM12_PORT));
+  uip_udp_bind(sensor_rfm12_conn, HTONS(SENSOR_RFM12_PORT));
 
 	// Inititialisierung
-  sensor-rfm12_core_init(sensor-rfm12_conn);
+  sensor_rfm12_core_init(sensor_rfm12_conn);
 	
 }
 
 void
-sensor-rfm12_net_main(void)
+sensor_rfm12_net_main(void)
 {
   if (uip_poll()) 
-    sensor-rfm12_core_periodic();
+    sensor_rfm12_core_periodic();
   if (uip_newdata())
-    sensor-rfm12_core_newdata();
+    sensor_rfm12_core_newdata();
 }
 
 #endif

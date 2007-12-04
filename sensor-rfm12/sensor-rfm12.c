@@ -36,22 +36,22 @@
 #define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
 
 void 
-sensor-rfm12_core_init(struct uip_udp_conn *sensor-rfm12_conn)
+sensor_rfm12_core_init(struct uip_udp_conn *sensor_rfm12_conn)
 {
 
 }
 
 void 
-sensor-rfm12_core_periodic(void)
+sensor_rfm12_core_periodic(void)
 {
 
 }
 
 void 
-sensor-rfm12_core_newdata(void)
+sensor_rfm12_core_newdata(void)
 {
 	
-    //struct sensor-rfm12_request_t *REQ = uip_appdata;
+    //struct sensor_rfm12_request_t *REQ = uip_appdata;
 		/*
 		* ueberschreiben der connection info. 
 		* port und adresse auf den remotehost begrenzen

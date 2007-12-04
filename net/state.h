@@ -90,7 +90,7 @@ typedef union uip_udp_connection_state {
 #   endif
 
 #   ifdef SENSOR_RFM12_SUPPORT
-    struct sensor-rfm12_connection_state_t sensor-rfm12;
+    struct sensor_rfm12_connection_state_t sensor_rfm12;
 #   endif
 
 } uip_udp_appstate_t;

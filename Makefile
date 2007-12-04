@@ -8,7 +8,7 @@ include $(PWD)/avr.mk
 
 SRC = $(shell echo *.c net/*.c lcd/*.c)
 #SRC += $(shell echo fs20/*.c)
-SRC += $(shell echo ecmd/*.c)
+#SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo tetrirape/*.c)
 #SRC += $(shell echo bootp/*.c)
 #SRC += $(shell echo watchcat/*.c)
@@ -17,7 +17,7 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo crypto/*.c)
 #SRC += $(shell echo onewire/*.c)
 #SRC += $(shell echo rc5/*.c)
-#SRC += $(shell echo rfm12/*.c)
+SRC += $(shell echo rfm12/*.c)
 #SRC += $(shell echo dns/*.c)
 #SRC += $(shell echo dyndns/*.c)
 #SRC += $(shell echo syslog/*.c)
@@ -25,6 +25,7 @@ SRC += $(shell echo ecmd/*.c)
 #SRC += $(shell echo ntp/*.c)
 #SRC += uip/uip_openvpn.c                               # OPENVPN_SUPPORT
 #SRC += $(shell echo zbus/*.c)
+#SRC += $(shell echo sensor-rfm12/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c uip/uip_multi.c
 
 # preprocessed config files

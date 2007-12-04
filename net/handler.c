@@ -93,7 +93,7 @@ void network_init_apps(void)
 #   endif
 
 #   ifdef SENSOR_RFM12_SUPPORT
-    sensor-rfm12_net_init();
+    sensor_rfm12_net_init();
 #   endif
 
 #   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \

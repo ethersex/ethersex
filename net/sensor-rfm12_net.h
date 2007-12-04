@@ -26,7 +26,7 @@
 #define SENSOR_RFM12_PORT 1587
 
 /* prototypes */
-void sensor-rfm12_net_init(void);
-void sensor-rfm12_net_main(void);
+void sensor_rfm12_net_init(void);
+void sensor_rfm12_net_main(void);
 
 #endif

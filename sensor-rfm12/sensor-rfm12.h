@@ -27,8 +27,8 @@
 
 
 /* prototypes */
-void sensor-rfm12_core_init (uip_udp_conn_t *sensor-rfm12_conn);
-void sensor-rfm12_core_periodic (void);
-void sensor-rfm12_core_newdata (void);
+void sensor_rfm12_core_init (uip_udp_conn_t *sensor_rfm12_conn);
+void sensor_rfm12_core_periodic (void);
+void sensor_rfm12_core_newdata (void);
 
 #endif
