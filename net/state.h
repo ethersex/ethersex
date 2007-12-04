@@ -37,6 +37,7 @@
 #include "i2c_state.h"
 #include "dyndns_state.h"
 #include "zbus_state.h"
+#include "sensor-rfm12_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -86,6 +87,10 @@ typedef union uip_udp_connection_state {
 
 #   ifdef ZBUS_SUPPORT
     struct zbus_connection_state_t zbus;
+#   endif
+
+#   ifdef SENSOR_RFM12_SUPPORT
+    struct sensor-rfm12_connection_state_t sensor-rfm12;
 #   endif
 
 } uip_udp_appstate_t;

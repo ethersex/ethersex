@@ -386,6 +386,7 @@
 // #define NTP_SUPPORT
 #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
+// #define SENSOR_RFM12_SUPPORT
 
 
 /* crypto stuff */
