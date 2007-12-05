@@ -37,10 +37,6 @@
 /* RFM12 Buffer length (max length 244) */
 #define RFM12_DataLength	196
 
-#if defined(ENC28J60_SUPPORT) && !defined(RFM12_BRIDGE_SUPPORT)
-#define RFADDR    0x23
-#endif
-
 #ifdef _ATMEGA8
 #  define RFM12_BLINK_PORT PORTB
 #  define RFM12_BLINK_DDR DDRB
@@ -127,18 +123,10 @@ void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
 uint8_t rfm12_rxstart(void);
 
 // readout the package, if one arrived
-#ifdef RFADDR
-uint8_t rfm12_rxfinish(uint8_t *rfaddr, uint8_t *txaddr, uint8_t *data);
-#else
 uint8_t rfm12_rxfinish(uint8_t *data);
-#endif
 
 // start transmitting a package of size size
-#ifdef RFADDR
-uint8_t rfm12_txstart(uint8_t rfaddr, uint8_t txaddr, uint8_t *data, uint8_t size);
-#else
 uint8_t rfm12_txstart(uint8_t *data, uint8_t size);
-#endif
 
 // check whether the package is already transmitted
 uint8_t rfm12_txfinished(void);
@@ -146,13 +134,6 @@ uint8_t rfm12_Index(void);
 
 // stop all Rx and Tx operations
 void rfm12_allstop(void);
-
-#ifdef RFADDR
-uint8_t rfm12_txto(uint8_t rfaddr, uint8_t txaddr, uint8_t *txdata, uint8_t len);
-#endif
-
-uint8_t rfm12_addr_add(uint8_t rfaddr);
-void rfm12_addr_del(uint8_t rfaddr);
 
 #if !defined(ENC28J60_SUPPORT)
 void rfm12_process (void);

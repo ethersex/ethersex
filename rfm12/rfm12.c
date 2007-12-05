@@ -43,33 +43,13 @@ volatile uint8_t RFM12_Index = 0;
 #ifndef ENC28J60_SUPPORT
 #  define RFM12_SHARE_UIP_BUF
 #  undef RFM12_DataLength
-#  ifdef RFADDR
-#    define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 12)
-#  else
-#    define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 10)
-#  endif
+#  define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 10)
 #  define RFM12_Data uip_buf
 #endif /* no ENC28J60_SUPPORT */
 
-#ifdef RFADDR
-volatile uint8_t RFM12_Ackdata = 0;
-volatile uint16_t RFM12_delaycount = 0;
-volatile uint8_t RFM12_maxcount = 0;
 #ifndef RFM12_SHARE_UIP_BUF
-volatile uint8_t RFM12_Data[RFM12_DataLength + 12];  /* +12 == paket overhead */
+volatile uint8_t RFM12_Data[RFM12_DataLength + 10];
 #endif
-
-struct RFM12_addrlist {
-  struct RFM12_addrlist *nextaddr;
-  uint8_t rfaddr;
-} rfaddrlist;
-
-#else
-#ifndef RFM12_SHARE_UIP_BUF
-volatile uint8_t RFM12_Data[RFM12_DataLength + 10];  /* +10 == paket overhead */
-#endif
-#endif
-
 
 
 SIGNAL(RFM12_INT_SIGNAL)
@@ -88,11 +68,8 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  rfm12_trans(0x8208);
 	  RFM12_status.Rx = 0;	/* FIXME this kills ourself */
 	}
-#ifdef RFADDR
-      if(RFM12_Index >= RFM12_Data[0] + 3 + 2)
-#else
+
       if(RFM12_Index >= RFM12_Data[0] + 3)
-#endif
 	{
 	  rfm12_trans(0x8208);
 	  RFM12_status.Rx = 0;
@@ -104,11 +81,7 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
 
-#ifdef RFADDR
-      if(RFM12_Index > RFM12_Data[5] + 12)
-#else
       if(RFM12_Index > RFM12_Data[5] + 10)
-#endif /* not RFADDR */
 	{
 	  RFM12_status.Tx = 0;
 
@@ -190,11 +163,6 @@ rfm12_init(void)
   RFM12_status.Rx = 0;
   RFM12_status.Tx = 0;
   RFM12_status.New = 0;
-
-#ifdef RFADDR
-  rfaddrlist.nextaddr = 0;
-  rfaddrlist.rfaddr = RFADDR;
-#endif
 
 #ifdef RFM12_BLINK_PORT
   RFM12_BLINK_DDR |= RFM12_RX_PIN | RFM12_TX_PIN;
@@ -292,11 +260,7 @@ rfm12_rxstart(void)
 
 
 uint8_t 
-#ifdef RFADDR
-rfm12_rxfinish(uint8_t *rfaddr, uint8_t *txaddr, uint8_t *data)
-#else
 rfm12_rxfinish(uint8_t *data)
-#endif
 {
   unsigned int crc, crc_chk = 0;
   uint8_t i;
@@ -306,11 +270,7 @@ rfm12_rxfinish(uint8_t *data)
   if(!RFM12_status.New)
     return(254);		/* old buffer */
 
-#ifdef RFADDR
-  for(i = 0; i < RFM12_Data[0] + 1 + 2; i++)
-#else
   for(i = 0; i < RFM12_Data[0] + 1; i++)
-#endif
     crc_chk = crcUpdate(crc_chk, RFM12_Data[i]);
 
   crc = RFM12_Data[i++];
@@ -332,41 +292,11 @@ rfm12_rxfinish(uint8_t *data)
       uint8_t i;
       uint8_t len = RFM12_Data[0];
 
-#ifdef RFADDR
-      *txaddr = RFM12_Data[1];
-      *rfaddr = RFM12_Data[2];
-
       /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
-	 first three bytes!  Therefore it is essential to copy the data
-	 in forward direction below (and not use RFM12_Data afterwards. */
-      for(i = 0; i < len; i++)
-	data[i] = RFM12_Data[i + 1 + 2];
-#else
+	 first byte!  Therefore it is essential to copy the data
+	 in forward direction below (and not use RFM12_Data afterwards). */
       for(i = 0; i < len; i++)
 	data[i] = RFM12_Data[i + 1];
-#endif
-
-#ifdef RFADDR
-      struct RFM12_addrlist *addr = &rfaddrlist;
-      do
-	{
-	  if(addr->rfaddr == *rfaddr)
-	    {
-	      if(len > 1)
-		rfm12_txstart(RFADDR, *txaddr, data, 1);
-	      else
-		{
-		  if(RFM12_status.Ack == 1 && len == 1 && RFM12_Ackdata == data[0])
-		    RFM12_status.Ack = 0;
-		}
-	      
-	      break;
-	    }
-
-	  addr = addr->nextaddr;
-	}
-      while(addr != 0);
-#endif
 
       return(len);                 /* receive size */
     }
@@ -374,11 +304,7 @@ rfm12_rxfinish(uint8_t *data)
 
 
 uint8_t 
-#ifdef RFADDR
-rfm12_txstart(uint8_t rfaddr, uint8_t txaddr, uint8_t *data, uint8_t size)
-#else
 rfm12_txstart(uint8_t *data, uint8_t size)
-#endif
 {
   uint8_t i, l;
   unsigned int crc;
@@ -399,22 +325,10 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
 #endif
 
-#ifdef RFADDR
-  if(size > 1)
-    {
-      RFM12_status.Ack = 1;
-      RFM12_Ackdata = data[0];
-    }
-#endif
-
   crc = crcUpdate(0, size);
 
   i = size; while (i --)
-#ifdef RFADDR
-	      RFM12_Data[i + 8] = data[i];
-#else
               RFM12_Data[i + 6] = data[i];
-#endif
 
   i = RFM12_Index = 0;
 
@@ -424,17 +338,6 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i++] = 0x2D;
   RFM12_Data[i++] = 0xD4;
   RFM12_Data[i++] = size;
-
-#ifdef RFADDR
-  if (rfaddr == 0)
-    rfaddr = RFADDR;
-
-  RFM12_Data[i++] = rfaddr;
-  RFM12_Data[i++] = txaddr;
-
-  crc = crcUpdate(crc, rfaddr);
-  crc = crcUpdate(crc, txaddr);
-#endif
 
   for(l = 0; l < size; l++)
     crc = crcUpdate(crc, RFM12_Data[i ++]);
@@ -451,134 +354,6 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   return(0);
 }
 
-
-#if 0
-uint8_t
-rfm12_txfinished(void)
-{
-  if(RFM12_status.Tx)
-    return(255);		/* not yet finished */
-
-  return(0);
-}
-#endif
-
-
-#if 0
-uint8_t 
-rfm12_Index(void)
-{
-  return (RFM12_Index);
-}
-#endif
-
-
-#if 0
-void
-rfm12_allstop(void)
-{
-  RFM12_status.Rx = 0;
-  RFM12_status.Ack = 0;
-  RFM12_status.Tx = 0;
-  RFM12_status.Txok = 0;
-  RFM12_status.New = 0;
-  
-  rfm12_prologue ();
-
-  rfm12_trans(0x8208);		/* shutdown everything */
-  rfm12_trans(0x0000);		/* dummy read */
-
-  rfm12_epilogue ();
-}
-#endif
-
-
-#ifdef RFADDR
-uint8_t 
-rfm12_txto(uint8_t rfaddr, uint8_t txaddr, uint8_t *txdata, uint8_t len)
-{
-  if(len == 1)
-    return rfm12_txstart(rfaddr, txaddr, txdata, len);
-
-  if(RFM12_status.Txok == 0)
-    {
-      rfm12_txstart(rfaddr, txaddr, txdata, len);
-      RFM12_status.Txok = 1;
-      RFM12_delaycount = 0;
-      RFM12_maxcount = 0;
-      return (12);		/* tx started, wait for ack. */
-    }
-
-  else
-    {
-      if(RFM12_status.Ack == 1)
-	{
-	  if(RFM12_delaycount++ == RFM12_TXDELAY)
-	    {
-	      RFM12_delaycount = 0;
-
-	      if(RFM12_maxcount++ == 10)
-		{
-		  RFM12_status.Txok = 0;
-		  return(1);	/* too many retries, out. */
-		}
-
-	      rfm12_txstart (rfaddr, txaddr, txdata, len);
-	    }
-	  return (11);		/* try again. */
-	}
-
-      else
-	{
-	  RFM12_status.Txok = 0;
-	  return (0);               /* got ack. */
-	}
-    }
-}
-
-
-uint8_t
-rfm12_addr_add(uint8_t rfaddr)
-{
-  struct RFM12_addrlist *addr = &rfaddrlist;
-
-  while(addr->nextaddr != 0)
-    {
-      addr = addr->nextaddr;
-    }
-
-  struct RFM12_addrlist *newaddr = malloc(sizeof(struct RFM12_addrlist));
-  if (newaddr == NULL)
-    return (0);
-
-  newaddr->rfaddr = rfaddr;
-  newaddr->nextaddr = 0;
-  addr->nextaddr = newaddr;
-
-  return (1);
-}
-
-void
-rfm12_addr_del(uint8_t rfaddr)
-{
-  struct RFM12_addrlist *addr = &rfaddrlist;
-
-  do
-    {
-      if (addr->nextaddr != 0 && addr->nextaddr->rfaddr == rfaddr)
-	{
-	  struct RFM12_addrlist *tmpaddr = addr->nextaddr;
-	  addr->nextaddr = addr->nextaddr->nextaddr;
-	  free(tmpaddr);
-	  break;
-	}
-
-      addr = addr->nextaddr;
-    }
-  while(addr != 0);
-}
-
-#endif
 
 
 #ifndef ENC28J60_SUPPORT
@@ -604,7 +379,6 @@ rfm12_process (void)
 
 
 #ifdef RFM12_BRIDGE_SUPPORT
-
 void
 rfm12_process (void)
 {
