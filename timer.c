@@ -34,7 +34,6 @@
 #include "watchcat/watchcat.h"
 #include "ntp/ntp.h"
 #include "ipv6.h"
-#include "net/rfm12_net.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -78,7 +77,7 @@ uint8_t fill_llh_and_transmit(void)
 
   return rv;
 } /* }}} */
-#endif /* RFM12_SUPPORT */
+#endif
 
 
 void timer_process(void)
@@ -212,11 +211,6 @@ void timer_process(void)
                 void (*jump_to_application)(void) = NULL;
                 jump_to_application();
             }
-#       endif
-
-#       if (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)		\
-	    && !defined(RFM12_BRIDGE_SUPPORT))
-        rfm12_get_receive();
 #       endif
 
         /* clear flag */

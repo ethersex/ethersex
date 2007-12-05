@@ -27,7 +27,6 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
-#include "../net/rfm12_net.h"
 
 struct RFM12_stati
 {

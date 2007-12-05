@@ -34,7 +34,6 @@
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
-#include "rfm12_net.h"
 #include "syslog_net.h"
 #include "i2c_net.h"
 #include "ntp_net.h"
@@ -61,11 +60,6 @@ void network_init_apps(void)
 
 #   ifdef DNS_SUPPORT
     dns_net_init();
-#   endif
-
-#   if (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)	\
-	&& !defined(RFM12_BRIDGE_SUPPORT))
-    rfm12_net_init();
 #   endif
 
 #   ifdef SYSLOG_SUPPORT

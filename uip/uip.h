@@ -1604,6 +1604,7 @@ STACK_PROTOTYPES(rfm12_stack)
 #ifdef ENC28J60_SUPPORT
 extern uint8_t fill_llh_and_transmit(void);
 #elif defined(RFM12_SUPPORT)
+#  include "../rfm12/rfm12.h"
 #  define fill_llh_and_transmit() (rfm12_transmit_packet(), 0)
 #endif
 
