@@ -34,8 +34,8 @@ struct ecmd_connection_state_t {
     uint8_t in_len;
     char outbuf[ECMD_OUTPUTBUF_LENGTH];
     uint8_t out_len;
-    struct pt thread;
     uint8_t parse_again;
+    uint8_t close_requested;
 };
 
 #endif
