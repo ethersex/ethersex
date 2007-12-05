@@ -384,18 +384,13 @@ rfm12_process (void)
 void
 rfm12_process (void)
 {
-  int recv_len = rfm12_rxfinish (rx.rxdata.data);
+  int recv_len = rfm12_rxfinish (uip_buf + RFM12_BRIDGE_OFFSET);
 
   if (recv_len == 0 || recv_len >= 254)
     return;			/* receive error or no data */
 
-  rx.rxdata.len = recv_len;
-
-  /* bridge packet to ethernet */
-  memcpy (uip_buf + RFM12_BRIDGE_OFFSET, rx.rxdata.data, rx.rxdata.len);
-
   /* uip_input expects the number of bytes including the LLH. */
-  uip_len = rx.rxdata.len + RFM12_BRIDGE_OFFSET;
+  uip_len = recv_len + RFM12_BRIDGE_OFFSET;
 
   /* Push data into inner uIP stack. */
   uip_stack_set_active (STACK_RFM12);
