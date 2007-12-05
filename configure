@@ -204,7 +204,7 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
-  'sensor-rfm12' => {
+  'sensor_rfm12' => {
                    helptext  => "sensor modul mit rfm12",
                    distdflt  => 0,
                    requires => [ "udp", "rfm12" ],

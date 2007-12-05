@@ -45,7 +45,7 @@
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
 #include "ipv6.h"
-#include "sensor-rfm12.h"
+#include "sensor_rfm12/sensor_rfm12.h"
 
 #include "net/handler.h"
 

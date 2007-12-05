@@ -21,14 +21,14 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "../net/sensor-rfm12_state.h"
+#include "../net/sensor_rfm12_state.h"
 #include "../uip/uip.h"
 #include "../config.h"
-#include "sensor-rfm12.h"
+#include "sensor_rfm12.h"
 
 #ifdef SENSOR_RFM12_SUPPORT
 
-#define STATS (uip_udp_conn->appstate.sensor-rfm12)
+#define STATS (uip_udp_conn->appstate.sensor_rfm12)
 
 /*
  * direkter zugriff zum packet buffer
