@@ -1,5 +1,7 @@
 /**********************************************************
- Copyright(C) 2007 Jochen Roessner <jochen@lugrot.de>
+ * Copyright(C) 2007 Jochen Roessner <jochen@lugrot.de>
+ * Copyright(C) 2007 Stefan Siegl <stesie@brokenpipe.de>
+ *
  * @author      Benedikt K.
  * @author      Juergen Eckert
  * @author    Ulrich Radig (mail@ulrichradig.de) www.ulrichradig.de 
