@@ -53,14 +53,14 @@ void timer_init(void)
 #ifdef ENC28J60_SUPPORT
 uint8_t fill_llh_and_transmit(void)
 /* {{{ */ {
-# ifdef RFM12_BRIDGE_SUPPORT
+# ifdef RFM12_SUPPORT
   if (uip_stack_get_active() == STACK_RFM12) {
     /* uip_len is set to the number of data bytes to be sent including
        the UDP/IP header, i.e. not including any byte for LLH. */
     rfm12_txstart (uip_buf + RFM12_BRIDGE_OFFSET, uip_len);
     return 0;
   }
-# endif /* RFM12_BRIDGE_SUPPORT */
+# endif /* RFM12_SUPPORT */
 
 # ifdef OPENVPN_SUPPORT
   if (uip_stack_get_active() == STACK_MAIN)

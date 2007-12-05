@@ -957,7 +957,7 @@ uip_process(u8_t flag)
     goto drop;
   }
 
-#ifdef RFM12_BRIDGE_SUPPORT
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
     /* We're on mainstack and got a packet not directly addressed
@@ -972,7 +972,7 @@ uip_process(u8_t flag)
     goto drop;
 #endif
   }
-#endif /* RFM12_BRIDGE_SUPPORT */
+#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #if !UIP_CONF_IPV6
   /* Check the fragment flag. */

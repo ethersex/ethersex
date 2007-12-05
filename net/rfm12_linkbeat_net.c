@@ -26,7 +26,8 @@
 #include "../uip/uip.h"
 #include "../config.h"
 
-#if defined(RFM12_LINKBEAT_NET_SUPPORT) && defined(RFM12_BRIDGE_SUPPORT)
+#if defined(RFM12_LINKBEAT_NET_SUPPORT) \
+  && defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT) 
 
 const char PROGMEM linkbeat_msg[] = "e'sex rfm12 is cool.";
 #define LINKBEAT_MSG_LEN 20

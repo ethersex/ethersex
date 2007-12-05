@@ -27,9 +27,10 @@
 
 #include "uip_rfm12.h"
 
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+
 /* We're set to compile multi stack now ... */
 #include "uip.c"
-
 
 void 
 rfm12_stack_init (void)
@@ -39,3 +40,5 @@ rfm12_stack_init (void)
   CONF_RFM12_IP;
   uip_sethostaddr(ip);
 }
+
+#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */

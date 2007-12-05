@@ -146,7 +146,7 @@ extern struct uip_stack *uip_stack;
 
 /* We don't have a LLH on RFM12 however we might need to pass
    the packet to ethernet, therefore 14 is simpler. */
-#ifdef RFM12_BRIDGE_SUPPORT
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
 #  ifdef OPENVPN_SUPPORT
 #    define RFM12_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
 #  else
@@ -156,6 +156,6 @@ extern struct uip_stack *uip_stack;
 #ifdef RFM12_OUTER
 #  define UIP_CONF_LLH_LEN       RFM12_BRIDGE_OFFSET
 #endif
-#endif /* RFM12_BRIDGE_SUPPORT */
+#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #endif /* not UIP_MULTI_H */

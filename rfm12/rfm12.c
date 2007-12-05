@@ -380,7 +380,7 @@ rfm12_process (void)
 #endif
 
 
-#ifdef RFM12_BRIDGE_SUPPORT
+#ifdef ENC28J60_SUPPORT
 void
 rfm12_process (void)
 {

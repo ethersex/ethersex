@@ -64,7 +64,7 @@ struct uip_stack uip_stacks[STACK_LEN] = {
   STACK_FUNCS (openvpn),
 #endif
 
-#ifdef RFM12_BRIDGE_SUPPORT
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_FUNCS (rfm12_stack),
 #endif
 };

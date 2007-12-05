@@ -134,7 +134,8 @@ typedef unsigned short uip_stats_t;
 #endif
 
 
-#if defined(OPENVPN_SUPPORT) || defined(RFM12_BRIDGE_SUPPORT)
+#if defined(OPENVPN_SUPPORT) \
+  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))
 #  define UIP_MULTI_STACK        1
 #else
 #  define UIP_MULTI_STACK        0
@@ -172,7 +173,7 @@ enum {
 #ifdef OPENVPN_SUPPORT
   STACK_OPENVPN,
 #endif
-#ifdef RFM12_BRIDGE_SUPPORT
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_RFM12,
 #endif
 

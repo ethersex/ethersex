@@ -164,12 +164,7 @@ my %ethersex_modules = (
                    helptext  => "rfm12 fsk transmitter",
                    distdflt  => 0,
 		   conflicts => [ "rc5" ],
-                 },
-  'rfm12_bridge' => {
-                   helptext  => "ethernet to rfm12 bridge",
-                   distdflt  => 0,
-                   enable_hook => \&rfm12_bridge_enable_hook,
-                   requires  => [ "rfm12", "enc28j60" ],
+		   enable_hook => \&rfm12_enable_hook,
                  },
   'dns'       => {
                    helptext  => "dns name resolver",
@@ -643,8 +638,8 @@ sub ipv6_enable_hook {
        || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
 }
 
-sub rfm12_bridge_enable_hook {
-  ask_ip("rfm12_ip");
+sub rfm12_enable_hook {
+  ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
 }
 
 sub ipv6_disable_hook {

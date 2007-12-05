@@ -55,7 +55,7 @@ void network_init(void)
     uip_stack_set_active(STACK_MAIN);
     uip_init();
 
-#ifdef RFM12_BRIDGE_SUPPORT
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
     uip_stack_set_active(STACK_RFM12);
     rfm12_stack_init();
 #endif

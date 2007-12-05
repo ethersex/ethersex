@@ -78,7 +78,7 @@ void network_init_apps(void)
     udp_echo_net_init();
 #   endif
 
-#   ifdef RFM12_BRIDGE_SUPPORT
+#   if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
     uip_stack_set_active(STACK_RFM12);
 
 #   ifdef RFM12_LINKBEAT_NET_SUPPORT
@@ -88,7 +88,7 @@ void network_init_apps(void)
 #   ifndef OPENVPN_SUPPORT
     uip_stack_set_active(STACK_MAIN);
 #   endif
-#   endif /* RFM12_BRIDGE_SUPPORT */
+#   endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #   ifdef OPENVPN_SUPPORT
     /* possibly bind these to the outer part of OpenVPN stack system */

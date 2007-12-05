@@ -25,12 +25,12 @@
 #define UIP_RFM12_H
 
 #include "../config.h"
-#ifdef RFM12_BRIDGE_SUPPORT
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
 
 #include "uip-conf.h"
 
 void rfm12_stack_init (void);
 
 
-#endif /* RFM12_BRIDGE_SUPPORT */
+#endif /* RFM12_SUPPORT and ENC28J60_SUPPORT */
 #endif /* not UIP_RFM12_H */
