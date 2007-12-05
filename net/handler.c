@@ -39,6 +39,7 @@
 #include "i2c_net.h"
 #include "ntp_net.h"
 #include "zbus_net.h"
+#include "udp_echo_net.h"
 #include "../dyndns/dyndns.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -73,6 +74,18 @@ void network_init_apps(void)
 
 #   ifdef I2C_SUPPORT
     i2c_net_init();
+#   endif
+
+#   ifdef UDP_ECHO_NET_SUPPORT
+    udp_echo_net_init();
+#   endif
+
+#   if defined(RFM12_LINKBEAT_NET_SUPPORT) && defined(RFM12_BRIDGE_SUPPORT)
+    uip_stack_set_active(STACK_RFM12);
+    rfm12_linkbeat_net_init();
+#   ifndef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_MAIN);
+#   endif
 #   endif
 
 #   ifdef OPENVPN_SUPPORT
