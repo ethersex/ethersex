@@ -55,16 +55,23 @@ void network_init(void)
     uip_stack_set_active(STACK_MAIN);
     uip_init();
 
+#ifdef RFM12_BRIDGE_SUPPORT
+    uip_stack_set_active(STACK_RFM12);
+    rfm12_stack_init();
+#endif
+
 #ifdef OPENVPN_SUPPORT
     uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();
 #endif
 
+#ifdef ENC28J60_SUPPORT
 #if UIP_CONF_IPV6
     uip_neighbor_init();
 #else
     uip_arp_init();
 #endif
+#endif /* ENC28J60_SUPPORT */
 
     uip_stack_set_active(STACK_MAIN);
 
@@ -78,6 +85,8 @@ void network_init(void)
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("net: loading base network settings\n");
 #   endif
+
+#   ifdef ENC28J60_SUPPORT
 
 #   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
@@ -219,11 +228,25 @@ void network_init(void)
     }
 #   endif /* !BOOTLOADER_SUPPORT */
 
+#   else /* not ENC28J60_SUPPORT */
+    /* Don't allow for eeprom-based configuration of rfm12 IP address,
+       mainly for code size reasons. */
+    uip_ipaddr_t ip;
+    CONF_ETHERRAPE_IP;
+    uip_sethostaddr(ip);
+
+#   endif /* not ENC28J60_SUPPORT */
+
     network_init_apps();
+
+#   ifdef ENC28J60_SUPPORT
     init_enc28j60();
+#   endif
 
 } /* }}} */
 
+
+#ifdef ENC28J60_SUPPORT
 void network_process(void)
 /* {{{ */ {
 
@@ -334,7 +357,10 @@ void network_process(void)
     bit_field_set(REG_EIE, _BV(INTIE));
 
 } /* }}} */
+#endif /* ENC28J60_SUPPORT */
 
+
+#ifdef ENC28J60_SUPPORT
 void process_packet(void)
 /* {{{ */ {
 
@@ -475,7 +501,10 @@ void process_packet(void)
     bit_field_set(REG_ECON2, _BV(PKTDEC));
 
 } /* }}} */
+#endif
 
+
+#ifdef ENC28J60_SUPPORT
 void transmit_packet(void)
 /* {{{ */ {
 
@@ -517,3 +546,4 @@ void transmit_packet(void)
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
 } /* }}} */
+#endif

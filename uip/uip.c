@@ -160,6 +160,9 @@ struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
 
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
+#ifndef ENC28J60_SUPPORT
+volatile
+#endif
 u8_t uip_buf[UIP_BUFSIZE + 2];   /* The packet buffer that contains
 				    incoming packets. */
 #endif /* UIP_CONF_EXTERNAL_BUFFER */
@@ -954,6 +957,23 @@ uip_process(u8_t flag)
     goto drop;
   }
 
+#ifdef RFM12_BRIDGE_SUPPORT
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
+#if STACK_PRIMARY
+    /* We're on mainstack and got a packet not directly addressed
+       to this uIP stack.  Send it using rfm12. */
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
+
+#elif defined(RFM12_OUTER)
+    /* We're on the rfm12 stack and got a packet not addressed to us.
+       Pass it on to the ethernet. */
+    uip_stack_set_active (STACK_MAIN);
+    fill_llh_and_transmit ();
+    goto drop;
+#endif
+  }
+#endif /* RFM12_BRIDGE_SUPPORT */
+
 #if !UIP_CONF_IPV6
   /* Check the fragment flag. */
   if((BUF->ipoffset[0] & 0x3f) != 0 ||
@@ -1113,6 +1133,7 @@ uip_process(u8_t flag)
 
   UIP_STAT(++uip_stat.icmp.recv);
 
+#ifdef ENC28J60_SUPPORT
 #ifndef OPENVPN_INNER
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
@@ -1159,6 +1180,7 @@ uip_process(u8_t flag)
     }
   } else 
 #endif /* not OPENVPN_INNER */
+#endif /* ENC28J60_SUPPORT */
 
   if(ICMPBUF->type == ICMP6_ECHO) {
     /* ICMP echo (i.e., ping) processing. This is simple, we only

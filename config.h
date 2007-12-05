@@ -69,6 +69,32 @@
 #define _TIFR_TIMER1 TIFR
 
 /* }}} */
+#elif defined(__AVR_ATmega8__)
+/* {{{ */
+#define _ATMEGA8
+
+#define _SPCR0 SPCR
+#define _SPE0 SPE
+#define _MSTR0 MSTR
+#define _SPSR0 SPSR
+#define _SPIF0 SPIF
+#define _SPDR0 SPDR
+#define _SPI2X0 SPI2X
+#define _TIFR_TIMER1 TIFR
+#define _EIMSK GICR
+
+/* on ATmega8 we connect rfm12 directly to SPI. */
+#define SPI_CS_RFM12_DDR DDRB
+#define SPI_CS_RFM12_PORT PORTB
+#define SPI_CS_RFM12 PB2
+
+/* SPI-pinout differs from atmega32/644 one. */
+#define SPI_MOSI PB3
+#define SPI_MISO PB4
+#define SPI_SCK PB5
+
+
+/* }}} */
 #elif defined(__AVR_ATmega644__)
 /* {{{ */
 #define _ATMEGA644
@@ -92,6 +118,7 @@
 #define _RXC_UART0 RXC0
 #define _TXC_UART0 TXC0
 #define _IVREG MCUCR
+#define _EIMSK EIMSK
 
 #define _TCCR2_PRESCALE TCCR2B
 #define _OUTPUT_COMPARE_IE2 OCIE2B
@@ -194,6 +221,28 @@
 #define SPI_CS_DF PB1
 #endif
 
+/* port the rfm12 module CS is attached to */
+#ifndef SPI_CS_RFM12_DDR
+#define SPI_CS_RFM12_DDR DDRC
+#endif
+
+#ifndef SPI_CS_RFM12_PORT
+#define SPI_CS_RFM12_PORT PORTC
+#endif
+
+#ifndef SPI_CS_RFM12
+#define SPI_CS_RFM12 PC3
+#endif
+
+/* rfm12 module interrupt line */
+#ifndef RFM12_INT_PIN 
+#define RFM12_INT_PIN INT0
+#endif
+
+#ifndef RFM12_INT_SIGNAL
+#define RFM12_INT_SIGNAL SIG_INTERRUPT0
+#endif
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
@@ -240,7 +289,12 @@
 #define NET_FULL_DUPLEX 0
 
 /* configure global data buffer */
-#define NET_MAX_FRAME_LENGTH 640
+#ifdef _ATMEGA8
+  /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
+#  define NET_MAX_FRAME_LENGTH 192
+#else
+#  define NET_MAX_FRAME_LENGTH 640
+#endif
 
 /* configure main callback function for uip */
 #define UIP_APPCALL network_handle_tcp
@@ -330,10 +384,13 @@
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
+// #define RFM12_SUPPORT
+// #define RFM12_BRIDGE_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
 // #define NTP_SUPPORT
+#define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
 // #define STELLA_SUPPORT
 
@@ -363,6 +420,8 @@
 #define CONF_OPENVPN_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 #define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
+#define CONF_RFM12_IP uip_ipaddr(ip,10,2,0,5)
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)

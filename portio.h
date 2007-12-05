@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
@@ -26,7 +26,11 @@
 #include "config.h"
 #include <stdint.h>
 
-#if defined(_ATMEGA644) || defined(_ATMEGA32)
+#ifdef _ATMEGA8
+/* FIXME portio not yet supported. */
+#define IO_PORTS 0
+
+#elif defined(_ATMEGA644) || defined(_ATMEGA32)
 
 #if defined(HD44780_SUPPORT) && !defined(HD44780_USE_PORTC)
     #define PORTA_MASK (_BV(HD44780_RS) | \
@@ -55,6 +59,12 @@
 #define STELLA_MASK (_BV(PD5) | _BV(PD6) | _BV(PD7))
 #else
 #define STELLA_MASK 0
+#endif 
+
+#ifdef RFM12_SUPPORT
+    #define RFM12_PORTC_MASK (_BV(SPI_CS_RFM12))
+#else
+    #define RFM12_PORTC_MASK 0
 #endif
 
 #define IO_PORTS 4
@@ -62,9 +72,10 @@
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
 #define IO_MASK_ARRAY {                                             \
-                        0 | PORTA_MASK,  /* port a */               \
-                        0xff,   /* port b */                        \
-                        _BV(PC0) | _BV(PC1) | PORTC_MASK, /* port c */ \
+                        0 | PORTA_MASK,              /* port a */   \
+                        0xff,                        /* port b */   \
+                        _BV(PC0) | _BV(PC1) | PORTC_MASK            \
+                         | RFM12_PORTC_MASK,         /* port c */   \
                         _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
 			  | STELLA_MASK				    \
                       }

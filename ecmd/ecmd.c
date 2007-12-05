@@ -39,6 +39,7 @@
 #include "../named_pin/named_pin.h"
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
+#include "../rfm12/rfm12.h"
 #include "../dns/resolv.h"
 #include "../ntp/ntp.h"
 #include "ecmd.h"
@@ -863,8 +864,7 @@ static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len)
 
     return outlen;
 } /* }}} */
-#endif
-
+#endif /* RC5_SUPPORT */
 
 #ifdef DNS_SUPPORT
 static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)

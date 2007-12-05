@@ -43,6 +43,7 @@
 #include "watchcat/watchcat.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
+#include "rfm12/rfm12.h"
 #include "ipv6.h"
 
 #include "net/handler.h"
@@ -131,6 +132,16 @@ int main(void)
     rc5_init();
 #endif
 
+#ifdef RFM12_SUPPORT
+    rfm12_init();
+
+    rfm12_setfreq(RFM12FREQ(433.92));
+    rfm12_setbandwidth(5, 1, 4);
+    rfm12_setbaud(9600);
+    rfm12_setpower(0, 2);
+    rfm12_rxstart();
+#endif
+
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
@@ -162,10 +173,18 @@ int main(void)
 
         wdt_kick();
 
+#ifdef ENC28J60_SUPPORT
         /* check for network controller interrupts,
          * call uip on received packets */
         network_process();
         wdt_kick();
+#endif
+
+#if defined(RFM12_SUPPORT) && (!defined(ENC28J60_SUPPORT) \
+			       || defined(RFM12_BRIDGE_SUPPORT))
+	rfm12_process();
+	wdt_kick();
+#endif
 
         /* check if any timer expired,
          * poll all uip connections */

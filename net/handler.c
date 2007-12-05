@@ -38,11 +38,11 @@
 #include "i2c_net.h"
 #include "ntp_net.h"
 #include "zbus_net.h"
+#include "udp_echo_net.h"
 #include "../dyndns/dyndns.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
-
 
 void network_init_apps(void)
 /* {{{ */ {
@@ -73,6 +73,22 @@ void network_init_apps(void)
 #   ifdef STELLA_SUPPORT
     stella_net_init();
 #   endif
+
+#   ifdef UDP_ECHO_NET_SUPPORT
+    udp_echo_net_init();
+#   endif
+
+#   ifdef RFM12_BRIDGE_SUPPORT
+    uip_stack_set_active(STACK_RFM12);
+
+#   ifdef RFM12_LINKBEAT_NET_SUPPORT
+    rfm12_linkbeat_net_init();
+#   endif
+
+#   ifndef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_MAIN);
+#   endif
+#   endif /* RFM12_BRIDGE_SUPPORT */
 
 #   ifdef OPENVPN_SUPPORT
     /* possibly bind these to the outer part of OpenVPN stack system */

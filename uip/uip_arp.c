@@ -67,6 +67,7 @@
 
 #include <string.h>
 
+#ifdef ENC28J60_SUPPORT
 #if !UIP_CONF_IPV6
 
 struct arp_hdr {
@@ -433,3 +434,4 @@ uip_arp_out(void)
 /** @} */
 
 #endif /* !UIP_CONF_IPV6 */
+#endif /* ENC28J60_SUPPORT */

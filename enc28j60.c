@@ -25,6 +25,8 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+
 
 #include "config.h"
 #include "debug.h"
@@ -34,13 +36,15 @@
 #include "spi.h"
 #include "bit-macros.h"
 
+#ifdef ENC28J60_SUPPORT
+
 /* global variables */
 uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
 
 /* module local macros */
-#define cs_low() SPI_PORT &= ~_BV(SPI_CS_NET)
-#define cs_high() SPI_PORT |= _BV(SPI_CS_NET)
+#define cs_low()  do { cli(); SPI_PORT &= ~_BV(SPI_CS_NET); } while(0)
+#define cs_high() do { SPI_PORT |= _BV(SPI_CS_NET); sei(); } while(0)
 
 
 uint8_t read_control_register(uint8_t address)
@@ -414,3 +418,5 @@ void dump_debug_registers(void)
         read_control_register(REG_EDMANDL));
 } /* }}} */
 #endif
+
+#endif /* ENC28J60_SUPPORT */

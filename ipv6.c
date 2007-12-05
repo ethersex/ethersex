@@ -49,7 +49,6 @@ extern struct uip_eth_addr uip_ethaddr;
 extern u16_t openvpn_upper_layer_chksum(u8_t);
 #define uip_icmp6chksum() (openvpn_upper_layer_chksum(UIP_PROTO_ICMP6))
 #else /* !OPENVPN_SUPPORT */
-extern u16_t upper_layer_chksum(u8_t);
 #define uip_icmp6chksum() (upper_layer_chksum(UIP_PROTO_ICMP6))
 #endif
 
@@ -57,7 +56,7 @@ extern u16_t upper_layer_chksum(u8_t);
 extern uint8_t bootload_delay;
 #endif
 
-#if UIP_CONF_IPV6
+#if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
 
 static void 
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
@@ -283,4 +282,4 @@ uip_neighbor_out(void)
   return 0;
 }
 
-#endif /* UIP_CONF_IPV6 */
+#endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */

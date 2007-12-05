@@ -433,6 +433,9 @@ void uip_setipid(u16_t id);
  }
  \endcode
  */
+#ifndef ENC28J60_SUPPORT
+volatile
+#endif
 extern u8_t uip_buf[UIP_BUFSIZE+2];
 
 /** @} */
@@ -1594,7 +1597,17 @@ extern struct uip_eth_addr {
 #if UIP_MULTI_STACK
 STACK_PROTOTYPES(mainstack)
 STACK_PROTOTYPES(openvpn)
+STACK_PROTOTYPES(rfm12_stack)
 #endif
+
+
+#ifdef ENC28J60_SUPPORT
+extern uint8_t fill_llh_and_transmit(void);
+#elif defined(RFM12_SUPPORT)
+#  include "../rfm12/rfm12.h"
+#  define fill_llh_and_transmit() (rfm12_transmit_packet(), 0)
+#endif
+
 
 #endif /* __UIP_H__ */
 

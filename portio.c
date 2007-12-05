@@ -25,14 +25,14 @@
 #include "named_pin/named_pin.h"
 #include "debug.h"
 
+#ifdef PORTIO_SUPPORT
+
 static const volatile uint8_t *ddrs[] = IO_DDR_ARRAY;
 static const volatile uint8_t *ports[] = IO_PORT_ARRAY;
 static const volatile uint8_t *pins[] = IO_PIN_ARRAY;
 static const uint8_t masks[] = IO_MASK_ARRAY;
 
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
-
-#ifdef PORTIO_SUPPORT
 
 void portio_init(void)
 /* {{{ */ {

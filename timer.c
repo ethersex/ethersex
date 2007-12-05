@@ -50,16 +50,35 @@ void timer_init(void)
 } /* }}} */
 
 
-static void fill_llh_and_transmit(void)
+#ifdef ENC28J60_SUPPORT
+uint8_t fill_llh_and_transmit(void)
 /* {{{ */ {
+# ifdef RFM12_BRIDGE_SUPPORT
+  if (uip_stack_get_active() == STACK_RFM12) {
+    /* uip_len is set to the number of data bytes to be sent including
+       the UDP/IP header, i.e. not including any byte for LLH. */
+    rfm12_txstart (uip_buf + RFM12_BRIDGE_OFFSET, uip_len);
+    return 0;
+  }
+# endif /* RFM12_BRIDGE_SUPPORT */
+
+# ifdef OPENVPN_SUPPORT
+  if (uip_stack_get_active() == STACK_MAIN)
+    openvpn_process_out();
+  /* uip_stack_set_active(STACK_OPENVPN); */
+# endif
+
 # if UIP_CONF_IPV6
-  uip_neighbor_out();
+  uint8_t rv = uip_neighbor_out();
 # else
-  uip_arp_out();
+  uint8_t rv = uip_arp_out();
 # endif
   
   transmit_packet();
+
+  return rv;
 } /* }}} */
+#endif
 
 
 void timer_process(void)
@@ -116,15 +135,8 @@ void timer_process(void)
                 uip_periodic(i);
 
                 /* if this generated a packet, send it now */
-                if (uip_len > 0) {
-#                   ifdef OPENVPN_SUPPORT
-		    if (uip_conns[i].stack == STACK_MAIN)
-			openvpn_process_out();
-		    /* uip_stack_set_active(STACK_OPENVPN); */
-#                   endif
-
+                if (uip_len > 0)
 		    fill_llh_and_transmit();
-                }
             }
 #           endif /* UIP_TCP == 1 */
 
@@ -135,20 +147,13 @@ void timer_process(void)
                 uip_udp_periodic(i);
 
                 /* if this generated a packet, send it now */
-                if (uip_len > 0) {
-#                   ifdef OPENVPN_SUPPORT
-		    if (uip_conns[i].stack == STACK_MAIN)
-			openvpn_process_out();
-		    /* uip_stack_set_active(STACK_OPENVPN); */
-#                   endif
-
+                if (uip_len > 0)
 		    fill_llh_and_transmit();
-                }
             }
 #           endif
         }
 
-#       if UIP_CONF_IPV6
+#       if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
         if (counter == 5) { 
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
@@ -161,7 +166,7 @@ void timer_process(void)
                 transmit_packet();
             }
         }
-#       endif /* UIP_CONF_IPV6 */
+#       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
         if (counter % 50 == 0) {
 #           ifdef FS20_SUPPORT
@@ -180,6 +185,7 @@ void timer_process(void)
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
+#           ifdef ENC28J60_SUPPORT
 #           ifdef DEBUG_TIMER
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
@@ -190,7 +196,8 @@ void timer_process(void)
 #           else
             uip_arp_timer();
 #           endif
-#           endif
+#           endif /* !BOOTLOADER_SUPPORT */
+#           endif /* ENC28J60_SUPPORT */
 
             counter = 0;
         }
