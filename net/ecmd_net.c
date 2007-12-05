@@ -84,9 +84,19 @@ void newdata(void)
           if (state->inbuf[l] == '\r')
             state->inbuf[l] = '\0';
 
+        /* if the first character is ! close the connection after the last
+         * byte is sent 
+         */
+        uint8_t skip = 0;
+        if (state->inbuf[0] == '!') {
+          skip = 1;
+          state->close_requested = 1;
+        }
+
+
         /* parse command and write output to state->outbuf, reserving at least
          * one byte for the terminating \n */
-        l = ecmd_parse_command(state->inbuf,
+        l = ecmd_parse_command(state->inbuf + skip,
                                     state->outbuf,
                                     ECMD_OUTPUTBUF_LENGTH-1);
 
@@ -154,8 +164,8 @@ void ecmd_net_main(void)
         state->in_len = 0;
         state->out_len = 0;
         state->parse_again = 0;
+        state->close_requested = 0;
         memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
-        PT_INIT(&state->thread);
     }
 
     if(uip_acked()) {
@@ -165,9 +175,18 @@ void ecmd_net_main(void)
 #ifdef DEBUG_ECMD_NET
             debug_printf("transmission done, calling parser again\n");
 #endif
+            /* if the first character is ! close the connection after the last
+             * byte is sent 
+             */
+            uint8_t skip = 0;
+            if (state->inbuf[0] == '!') {
+              skip = 1;
+              state->close_requested = 1;
+            }
+
             /* parse command and write output to state->outbuf, reserving at least
              * one byte for the terminating \n */
-            int l = ecmd_parse_command(state->inbuf,
+            int l = ecmd_parse_command(state->inbuf + skip,
                     state->outbuf,
                     ECMD_OUTPUTBUF_LENGTH-1);
 
@@ -199,7 +218,8 @@ void ecmd_net_main(void)
             debug_printf("sending %d bytes\n", state->out_len);
 #endif
             uip_send(state->outbuf, state->out_len);
-        }
+        } else if (state->close_requested)
+          uip_close();
     }
 }
 
