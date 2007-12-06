@@ -129,6 +129,7 @@ lcd_print(char *string)
   }
 }
 
+#if 0
 void 
 lcd_print_p(const char *progmem_s)
 {
@@ -136,7 +137,9 @@ lcd_print_p(const char *progmem_s)
   while (( c = pgm_read_byte(progmem_s++)))
     lcd_data(c);
 }
+#endif
 
+#if 0
 void
 lcd_define_char(uint8_t n_char, uint8_t *data)
 {
@@ -152,7 +155,9 @@ lcd_define_char(uint8_t n_char, uint8_t *data)
   // set pointer back to Home
   lcd_command(0x80);
 }
+#endif
 
+#if 0
 void
 lcd_define_char_p(uint8_t n_char, const uint8_t *data)
 {
@@ -168,5 +173,5 @@ lcd_define_char_p(uint8_t n_char, const uint8_t *data)
   // set pointer back to Home
   lcd_command(0x80);
 }
-
+#endif
 
