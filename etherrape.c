@@ -135,10 +135,20 @@ int main(void)
 #ifdef RFM12_SUPPORT
     rfm12_init();
 
+#ifdef TEENSY_SUPPORT
+    cli ();
+    rfm12_trans (0xa620);	/* rfm12_setfreq(RFM12FREQ(433.92)); */
+    rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
+    rfm12_trans (0xc622);	/* rfm12_setbaud(9600); */
+    rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
+    sei ();
+#else
     rfm12_setfreq(RFM12FREQ(433.92));
     rfm12_setbandwidth(5, 1, 4);
     rfm12_setbaud(9600);
     rfm12_setpower(0, 2);
+#endif
+
     rfm12_rxstart();
 #endif
 
@@ -180,7 +190,7 @@ int main(void)
         wdt_kick();
 #endif
 
-#ifdef RFM12_SUPPORT)
+#ifdef RFM12_SUPPORT
 	rfm12_process();
 	wdt_kick();
 #endif

@@ -392,6 +392,7 @@
 #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
 // #define STELLA_SUPPORT
+#define TEENSY_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT
