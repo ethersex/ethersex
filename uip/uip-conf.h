@@ -126,54 +126,24 @@ typedef unsigned short uip_stats_t;
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
+
 #ifdef ENC28J60_SUPPORT
 #define __LLH_LEN  14
 #else /* RFM12_SUPPORT */
 #define __LLH_LEN  0
 #endif
 
-#ifdef OPENVPN_SUPPORT
+
+#if defined(OPENVPN_SUPPORT) \
+  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))
 #  define UIP_MULTI_STACK        1
-
-     /* The header of the link layer (of the inner stack) consists of:
-      *
-      *                                       IPv4          IPv6
-      *
-      *     actual link layer (ethernet)        14            14
-      *     IP header of OpenVPN stack          20            40
-      *     UDP header of OpenVPN stack          8             8
-      *   ----------------------------------------------------------
-      *     total                               42            62
-      */
-#  if UIP_CONF_IPV6
-#    define OPENVPN_LLH_LEN (__LLH_LEN + 40 + 8)
-#  else
-#    define OPENVPN_LLH_LEN (__LLH_LEN + 20 + 8)
-#  endif
-
-#  ifdef MD5_SUPPORT
-#    define OPENVPN_HMAC_LLH_LEN   16
-#  else
-#    define OPENVPN_HMAC_LLH_LEN   0
-#  endif
-
-#  ifdef CAST5_SUPPORT
-#    define OPENVPN_CRYPT_LLH_LEN  16 /* 8 bytes IV + 8 bytes packet id */
-#  else
-#    define OPENVPN_CRYPT_LLH_LEN  0
-#  endif
-
-#  ifdef OPENVPN_OUTER
-#  else
-#    define OPENVPN_INNER
-#    define UIP_CONF_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_CRYPT_LLH_LEN \
-			       + OPENVPN_HMAC_LLH_LEN)
-#  endif
-
-#else /* !OPENVPN_SUPPORT */
+#else
 #  define UIP_MULTI_STACK        0
-#  define UIP_CONF_LLH_LEN  __LLH_LEN
-#endif
+#  define UIP_CONF_LLH_LEN       __LLH_LEN
+
+extern u16_t upper_layer_chksum(u8_t);
+
+#endif /* not UIP_MULTI_STACK */
 
 
 /**
@@ -203,11 +173,13 @@ enum {
 #ifdef OPENVPN_SUPPORT
   STACK_OPENVPN,
 #endif
-  
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+  STACK_RFM12,
+#endif
+
   /* STACK_LEN must be the last! */
   STACK_LEN
 };
-
 
 
 #if UIP_MULTI_STACK

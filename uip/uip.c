@@ -957,10 +957,22 @@ uip_process(u8_t flag)
     goto drop;
   }
 
-#ifdef RFM12_BRIDGE_SUPPORT
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr))
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
+#if STACK_PRIMARY
+    /* We're on mainstack and got a packet not directly addressed
+       to this uIP stack.  Send it using rfm12. */
     rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
-#endif /* RFM12_BRIDGE_SUPPORT */
+
+#elif defined(RFM12_OUTER)
+    /* We're on the rfm12 stack and got a packet not addressed to us.
+       Pass it on to the ethernet. */
+    uip_stack_set_active (STACK_MAIN);
+    fill_llh_and_transmit ();
+    goto drop;
+#endif
+  }
+#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #if !UIP_CONF_IPV6
   /* Check the fragment flag. */

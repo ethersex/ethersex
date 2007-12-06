@@ -1,7 +1,6 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*                     -*- mode: C; c-file-style: "stroustrup"; -*-
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,24 +17,13 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
-#ifndef ECMD_STATE_H
-#define ECMD_STATE_H
+#ifndef RFM12_LINKBEAT_NET_H
+#define RFM12_LINKBEAT_NET_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
+/* prototypes */
+void rfm12_linkbeat_net_init(void);
+void rfm12_linkbeat_net_main(void);
 
-#define ECMD_INPUTBUF_LENGTH  50
-#define ECMD_OUTPUTBUF_LENGTH 50
-
-struct ecmd_connection_state_t {
-    char inbuf[ECMD_INPUTBUF_LENGTH];
-    uint8_t in_len;
-    char outbuf[ECMD_OUTPUTBUF_LENGTH];
-    uint8_t out_len;
-    uint8_t parse_again;
-    uint8_t close_requested;
-};
-
-#endif
+#endif /* RFM12_LINKBEAT_NET_H */

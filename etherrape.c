@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
@@ -181,8 +181,7 @@ int main(void)
         wdt_kick();
 #endif
 
-#if defined(RFM12_SUPPORT) && (!defined(ENC28J60_SUPPORT) \
-			       || defined(RFM12_BRIDGE_SUPPORT))
+#ifdef RFM12_SUPPORT)
 	rfm12_process();
 	wdt_kick();
 #endif
@@ -215,6 +214,10 @@ int main(void)
         wdt_kick();
 #endif
 #endif /* FS20_SUPPORT */
+
+#       ifdef STELLA_SUPPORT
+	stella_timer ();
+#       endif
 
 #ifndef BOOTLOAD_SUPPORT
         if(cfg.request_bootloader) {

@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
@@ -55,6 +55,12 @@
     #define PORTC_MASK 0
 #endif
 
+#ifdef STELLA_SUPPORT
+#define STELLA_MASK (_BV(PD5) | _BV(PD6) | _BV(PD7))
+#else
+#define STELLA_MASK 0
+#endif 
+
 #ifdef RFM12_SUPPORT
     #define RFM12_PORTC_MASK (_BV(SPI_CS_RFM12))
 #else
@@ -71,6 +77,7 @@
                         _BV(PC0) | _BV(PC1) | PORTC_MASK            \
                          | RFM12_PORTC_MASK,         /* port c */   \
                         _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
+			  | STELLA_MASK				    \
                       }
 
 #else

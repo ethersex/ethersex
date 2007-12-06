@@ -89,7 +89,7 @@ extern struct uip_stack *uip_stack;
   /* We're compiling application code (i.e. outside of uIP stack) */
 #  define uip_process      (uip_stack->uip_process)
 #  define uip_send         (uip_stack->uip_send)
-#  define upper_layer_chksum (uip->stack->upper_layer_chksum)
+#  define upper_layer_chksum (uip_stack->upper_layer_chksum)
 #  define uip_flags        (* (uip_stack->uip_flags))
 #  define uip_appdata      (* (uip_stack->uip_appdata))
 #  define uip_sappdata     (* (uip_stack->uip_sappdata))
@@ -101,5 +101,61 @@ extern struct uip_stack *uip_stack;
 #  define uip_slen         (* (uip_stack->uip_slen))
 #  define uip_stat         (* (uip_stack->uip_stat))
 #endif
+
+
+
+#ifdef OPENVPN_SUPPORT
+     /* The header of the link layer (of the inner stack) consists of:
+      *
+      *                                       IPv4          IPv6
+      *
+      *     actual link layer (ethernet)        14            14
+      *     IP header of OpenVPN stack          20            40
+      *     UDP header of OpenVPN stack          8             8
+      *   ----------------------------------------------------------
+      *     total                               42            62
+      */
+#  if UIP_CONF_IPV6
+#    define OPENVPN_LLH_LEN (__LLH_LEN + 40 + 8)
+#  else
+#    define OPENVPN_LLH_LEN (__LLH_LEN + 20 + 8)
+#  endif
+
+#  ifdef MD5_SUPPORT
+#    define OPENVPN_HMAC_LLH_LEN   16
+#  else
+#    define OPENVPN_HMAC_LLH_LEN   0
+#  endif
+
+#  ifdef CAST5_SUPPORT
+#    define OPENVPN_CRYPT_LLH_LEN  16 /* 8 bytes IV + 8 bytes packet id */
+#  else
+#    define OPENVPN_CRYPT_LLH_LEN  0
+#  endif
+
+#  define OPENVPN_TOTAL_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_CRYPT_LLH_LEN \
+				  + OPENVPN_HMAC_LLH_LEN)
+
+#  if STACK_PRIMARY && !defined(OPENVPN_OUTER)
+#    define OPENVPN_INNER
+#    define UIP_CONF_LLH_LEN     OPENVPN_TOTAL_LLH_LEN
+#  endif
+#endif /* not OPENVPN_SUPPORT */
+
+
+
+/* We don't have a LLH on RFM12 however we might need to pass
+   the packet to ethernet, therefore 14 is simpler. */
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#  ifdef OPENVPN_SUPPORT
+#    define RFM12_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
+#  else
+#    define RFM12_BRIDGE_OFFSET  14
+#  endif
+
+#ifdef RFM12_OUTER
+#  define UIP_CONF_LLH_LEN       RFM12_BRIDGE_OFFSET
+#endif
+#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #endif /* not UIP_MULTI_H */

@@ -120,6 +120,12 @@
 #define _IVREG MCUCR
 #define _EIMSK EIMSK
 
+#define _TCCR2_PRESCALE TCCR2B
+#define _OUTPUT_COMPARE_IE2 OCIE2B
+#define _OUTPUT_COMPARE_REG2 OCR2B
+#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
+#define _TIMSK_TIMER2 TIMSK2
+
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
 #ifdef SPCR0
@@ -378,8 +384,7 @@
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
-#define RFM12_SUPPORT
-// #define RFM12_BRIDGE_SUPPORT
+// #define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
@@ -387,7 +392,7 @@
 // #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
 #define SENSOR_RFM12_SUPPORT
-
+// #define STELLA_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT
@@ -415,6 +420,8 @@
 #define CONF_OPENVPN_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 #define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
+#define CONF_RFM12_IP uip_ipaddr(ip,10,2,0,5)
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)

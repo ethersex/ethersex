@@ -55,6 +55,11 @@ void network_init(void)
     uip_stack_set_active(STACK_MAIN);
     uip_init();
 
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+    uip_stack_set_active(STACK_RFM12);
+    rfm12_stack_init();
+#endif
+
 #ifdef OPENVPN_SUPPORT
     uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();

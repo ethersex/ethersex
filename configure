@@ -99,7 +99,7 @@ my %ethersex_modules = (
                    helptext  => "automatic firmware loading using tftp",
                    requires  => [ "tftp" ],
                    conflicts => [ "bootp" ],
-                   preconfigure => [ "ipv6", "bootp" ],
+                   preconfigure => [ "bootp" ],
                    enable_hook  => \&tftpomatic_enable_hook,
                    distdflt  => 0,
                  },
@@ -146,6 +146,11 @@ my %ethersex_modules = (
 		   preconfigure => [ "cast5", "md5" ],
 		   enable_hook => \&openvpn_enable_hook,
                  },
+  'stella'    => {
+                   helptext  => "stella light support",
+		   distdflt  => 0,
+		   preconfigure => [ "udp" ],
+                 },
   'onewire'   => {
                    helptext  => "onewire device support",
                    distdflt  => 0,
@@ -159,17 +164,13 @@ my %ethersex_modules = (
                    helptext  => "rfm12 fsk transmitter",
                    distdflt  => 0,
 		   conflicts => [ "rc5" ],
-                 },
-  'rfm12_bridge' => {
-                   helptext  => "ethernet to rfm12 bridge",
-                   distdflt  => 0,
-                   requires  => [ "rfm12", "enc28j60" ],
+		   enable_hook => \&rfm12_enable_hook,
                  },
   'dns'       => {
                    helptext  => "dns name resolver",
                    distdflt  => 0,
                    requires => ["udp"],
-                   preconfigure => [ "ipv6", "bootp" ],
+                   preconfigure => [ "bootp" ],
                    enable_hook  => \&dns_enable_hook,
                  },
   'dyndns'        => {
@@ -222,6 +223,9 @@ my %ethersex_config = (
                  },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
+                 },
+  'rfm12_ip' => {
+                   helptext  => "rfm12 stack ip address",
                  },
   'openvpn_ip4'   => {
                    helptext  => "ip address of the openvpn gateway",
@@ -507,6 +511,8 @@ sub check_ip {
 
 sub ask_ip {
   my $confopt = shift;
+
+  configure_module "ipv6";
  
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
@@ -635,6 +641,10 @@ sub ipv6_enable_hook {
   ask_ip("etherrape_ip")
     if($ethersex_modules{'openvpn'}->{'new_status'} == 1
        || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
+}
+
+sub rfm12_enable_hook {
+  ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
 }
 
 sub ipv6_disable_hook {

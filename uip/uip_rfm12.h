@@ -1,11 +1,12 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,22 +21,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef ECMD_STATE_H
-#define ECMD_STATE_H
+#ifndef UIP_RFM12_H
+#define UIP_RFM12_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
+#include "../config.h"
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
 
-#define ECMD_INPUTBUF_LENGTH  50
-#define ECMD_OUTPUTBUF_LENGTH 50
+#include "uip-conf.h"
 
-struct ecmd_connection_state_t {
-    char inbuf[ECMD_INPUTBUF_LENGTH];
-    uint8_t in_len;
-    char outbuf[ECMD_OUTPUTBUF_LENGTH];
-    uint8_t out_len;
-    uint8_t parse_again;
-    uint8_t close_requested;
-};
+void rfm12_stack_init (void);
 
-#endif
+
+#endif /* RFM12_SUPPORT and ENC28J60_SUPPORT */
+#endif /* not UIP_RFM12_H */

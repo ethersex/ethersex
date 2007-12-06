@@ -34,11 +34,11 @@
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
-#include "rfm12_net.h"
 #include "syslog_net.h"
 #include "i2c_net.h"
 #include "ntp_net.h"
 #include "zbus_net.h"
+#include "udp_echo_net.h"
 #include "../dyndns/dyndns.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -62,11 +62,6 @@ void network_init_apps(void)
     dns_net_init();
 #   endif
 
-#   if (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)	\
-	&& !defined(RFM12_BRIDGE_SUPPORT))
-    rfm12_net_init();
-#   endif
-
 #   ifdef SYSLOG_SUPPORT
     syslog_net_init();
 #   endif
@@ -74,6 +69,26 @@ void network_init_apps(void)
 #   ifdef I2C_SUPPORT
     i2c_net_init();
 #   endif
+
+#   ifdef STELLA_SUPPORT
+    stella_net_init();
+#   endif
+
+#   ifdef UDP_ECHO_NET_SUPPORT
+    udp_echo_net_init();
+#   endif
+
+#   if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+    uip_stack_set_active(STACK_RFM12);
+
+#   ifdef RFM12_LINKBEAT_NET_SUPPORT
+    rfm12_linkbeat_net_init();
+#   endif
+
+#   ifndef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_MAIN);
+#   endif
+#   endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #   ifdef OPENVPN_SUPPORT
     /* possibly bind these to the outer part of OpenVPN stack system */
