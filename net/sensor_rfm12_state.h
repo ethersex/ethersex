@@ -21,8 +21,10 @@
 #ifndef _SENSOR_RFM12_STATE_H
 #define _SENSOR_RFM12_STATE_H
 
+#define SENSOR_RFM12_BUFLEN 40
+
 struct sensor_rfm12_connection_state_t {
-  uint8_t txstate;
+  uint8_t buffer[SENSOR_RFM12_BUFLEN];
 };
 
 #endif

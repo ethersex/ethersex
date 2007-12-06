@@ -26,13 +26,18 @@
 
 #ifdef SENSOR_RFM12_SUPPORT
 
+#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
+#define STATS (uip_udp_conn_t->appstate.sensor_rfm12)
+
+uip_udp_conn_t *sensor_rfm12_conn;
+
 void 
 sensor_rfm12_net_init(void)
 {
 	uip_ipaddr_t ip;
   uip_ipaddr_copy(&ip, all_ones_addr);
 	
-  uip_udp_conn_t *sensor_rfm12_conn = uip_udp_new(&ip, 0, sensor_rfm12_net_main);
+  sensor_rfm12_conn = uip_udp_new(&ip, 0, sensor_rfm12_net_main);
 	
   if(! sensor_rfm12_conn) 
 		return;					/* keine udp connection, tschuess !? */

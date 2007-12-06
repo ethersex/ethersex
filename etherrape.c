@@ -181,7 +181,7 @@ int main(void)
         wdt_kick();
 #endif
 
-#ifdef RFM12_SUPPORT)
+#ifdef RFM12_SUPPORT
 	rfm12_process();
 	wdt_kick();
 #endif

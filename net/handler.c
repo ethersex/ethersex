@@ -40,6 +40,7 @@
 #include "zbus_net.h"
 #include "udp_echo_net.h"
 #include "../dyndns/dyndns.h"
+#include "sensor_rfm12_net.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
