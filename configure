@@ -87,6 +87,10 @@ my %ethersex_modules = (
                    requires  => [ "udp" ],
                    distdflt  => 0,
                  },
+  'icmp'      => { 
+                   helptext  => "icmp support",
+                   distdflt  => 1,
+                 },
   'udp'       => { 
                    helptext  => "udp support",
                    distdflt  => 1,
@@ -116,6 +120,7 @@ my %ethersex_modules = (
                  },
   'bootloader'=> {
                    helptext  => "configure as bootloader",
+		   requires  => [ "teensy" ],
                    distdflt  => 0,
                  },
   'skipjack'  => {
@@ -150,6 +155,10 @@ my %ethersex_modules = (
                    helptext  => "stella light support",
 		   distdflt  => 0,
 		   preconfigure => [ "udp" ],
+                 },
+  'teensy'    => {
+                   helptext  => "try to keep flash memory needs minimal",
+		   distdflt  => 0,
                  },
   'onewire'   => {
                    helptext  => "onewire device support",
