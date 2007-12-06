@@ -380,6 +380,7 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
+#define ICMP_SUPPORT
 #define TCP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT

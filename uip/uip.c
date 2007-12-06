@@ -992,6 +992,7 @@ uip_process(u8_t flag)
   }
 #endif /* UIP_CONF_IPV6 */
 
+#ifdef ICMP_SUPPORT
   if(uip_ipaddr_cmp(uip_hostaddr, all_zeroes_addr)) {
     /* If we are configured to use ping IP address configuration and
        hasn't been assigned an IP address yet, we accept all ICMP
@@ -1005,8 +1006,10 @@ uip_process(u8_t flag)
       goto drop;
     }
 #endif /* UIP_PINGADDRCONF */
-
-  } else {
+  } 
+  else
+#endif /* ICMP_SUPPORT */
+  {
     /* If IP broadcast support is configured, we check for a broadcast
        UDP packet, which may be destined to us. */
 #if UIP_BROADCAST
@@ -1067,6 +1070,7 @@ uip_process(u8_t flag)
   }
 #endif /* UIP_UDP */
 
+#ifdef ICMP_SUPPORT
 #if !UIP_CONF_IPV6
   /* ICMPv4 processing code follows. */
   if(BUF->proto != UIP_PROTO_ICMP) { /* We only allow ICMP packets from
@@ -1207,6 +1211,7 @@ uip_process(u8_t flag)
   /* End of IPv6 ICMP processing. */
   
 #endif /* !UIP_CONF_IPV6 */
+#endif /* ICMP_SUPPORT */
 
 #if UIP_UDP
   /* UDP input processing. */

@@ -87,6 +87,10 @@ my %ethersex_modules = (
                    requires  => [ "udp" ],
                    distdflt  => 0,
                  },
+  'icmp'      => { 
+                   helptext  => "icmp support",
+                   distdflt  => 1,
+                 },
   'udp'       => { 
                    helptext  => "udp support",
                    distdflt  => 1,
