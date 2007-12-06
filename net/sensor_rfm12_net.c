@@ -30,9 +30,9 @@ void
 sensor_rfm12_net_init(void)
 {
 	uip_ipaddr_t ip;
-	uip_ipaddr(&ip, 255,255,255,255);
+  uip_ipaddr_copy(&ip, all_ones_addr);
 	
-  struct uip_udp_conn *sensor_rfm12_conn = uip_udp_new(&ip, 0, sensor_rfm12_net_main);
+  uip_udp_conn_t *sensor_rfm12_conn = uip_udp_new(&ip, 0, sensor_rfm12_net_main);
 	
   if(! sensor_rfm12_conn) 
 		return;					/* keine udp connection, tschuess !? */

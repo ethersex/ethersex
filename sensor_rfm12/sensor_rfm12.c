@@ -28,7 +28,7 @@
 
 #ifdef SENSOR_RFM12_SUPPORT
 
-#define STATS (uip_udp_conn->appstate.sensor_rfm12)
+#define STATS (uip_udp_conn_t->appstate.sensor_rfm12)
 
 /*
  * direkter zugriff zum packet buffer
@@ -36,7 +36,7 @@
 #define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
 
 void 
-sensor_rfm12_core_init(struct uip_udp_conn *sensor_rfm12_conn)
+sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
 {
 
 }
