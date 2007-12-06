@@ -25,6 +25,7 @@
 #include <util/crc16.h>
 #include "eeprom.h"
 
+#ifdef ENC28J60_SUPPORT
 uint8_t crc_checksum(void *data, uint8_t length)
 /* {{{ */ {
 
@@ -39,6 +40,7 @@ uint8_t crc_checksum(void *data, uint8_t length)
     return crc;
 
 } /* }}} */
+#endif /* ENC28J60_SUPPORT */
 
 
 #if defined(ECMD_SUPPORT) || (defined(BOOTP_SUPPORT) \
