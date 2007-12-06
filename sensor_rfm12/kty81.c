@@ -185,7 +185,7 @@ temperatur(uint16_t sensorwert){
 void 
 temp2text(char *textbuf, int16_t temperatur){
   if (temperatur > -1000 && temperatur < 2000){
-    snprintf(textbuf, 5, "%4i", temperatur);
+    snprintf(textbuf, 6, "%4i ", temperatur);
     textbuf[4] = textbuf[3];
     textbuf[3] = '.';
   }
