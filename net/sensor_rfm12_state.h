@@ -21,10 +21,23 @@
 #ifndef _SENSOR_RFM12_STATE_H
 #define _SENSOR_RFM12_STATE_H
 
-#define SENSOR_RFM12_BUFLEN 40
+#define SENSOR_RFM12_ADCMAX 4
+
+struct sensor_rfm12_data_t {
+  uint16_t value;
+  char valuetext[6];
+};
+
+struct sensors_rfm12_datas_t {
+  struct sensor_rfm12_data_t sensor[SENSOR_RFM12_ADCMAX];
+};
+
 
 struct sensor_rfm12_connection_state_t {
-  uint8_t buffer[SENSOR_RFM12_BUFLEN];
+  union {
+    uint8_t buffer[0];
+    struct sensors_rfm12_datas_t sensors;
+  };
 };
 
 #endif

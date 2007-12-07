@@ -58,7 +58,7 @@ sensor_rfm12_net_main(void)
   {
     uip_udp_conn_t return_conn;
     if ( uip_datalen() <= SENSOR_RFM12_LCDTEXTLEN )
-      sensor_rfm12_setlcdtext(*BUF, uip_datalen());
+      sensor_rfm12_setlcdtext(BUF, uip_datalen());
     
     uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
     return_conn.rport = BUF->srcport;
@@ -66,18 +66,10 @@ sensor_rfm12_net_main(void)
     return_conn.ttl = uip_udp_conn->ttl;
     
     uip_udp_conn = &return_conn;
-    
   /* Send immediately */
-    uip_process(UIP_UDP_SEND_CONN); 
-#ifdef IPV6_SUPPORT
-    uip_neighbour_out();
-#else
-    uip_arp_out(); 
-#endif
-    transmit_packet();
-    
+    uip_process(UIP_UDP_SEND_CONN);
+    fill_llh_and_transmit();
     uip_slen = 0;
-    
     uip_udp_conn = sensor_rfm12_conn;
     
     

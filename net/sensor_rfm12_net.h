@@ -23,7 +23,7 @@
 #define _SENSOR_RFM12_NET_H
 /* constants */
 
-#define SENSOR_RFM12_PORT 1587
+#define SENSOR_RFM12_PORT 11587
 
 /* prototypes */
 void sensor_rfm12_net_init(void);

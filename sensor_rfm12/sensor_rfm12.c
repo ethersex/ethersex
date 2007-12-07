@@ -33,7 +33,7 @@
 #include "lcd.h"
 #include "kty81.h"
 
-static uint16_t sensorwert[4];
+//static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
 static uint8_t start = 0;
 static uint8_t startok = 0;
@@ -47,7 +47,7 @@ sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
   PORTD |= _BV(PD3); // Taster Pullup einschalten
   /* Init des ADC mit Taktteiler von 64 */
   ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
-  sensor_i = 3;
+  sensor_i = SENSOR_RFM12_ADCMAX - 1;
   
   /* Aktivierung des Pin 0 (ADC0) fr die Messung 
   */
@@ -111,7 +111,7 @@ sensor_rfm12_core_periodic(void)
   }
   */
   while (ADCSRA & _BV(ADSC));
-  sensorwert[sensor_i] = ADC;
+  STATS.sensors.sensor[sensor_i].value = ADC; //sensorwert[sensor_i] = ADC;
   if(sensor_i < 2  && start != 0){
     char textbuf[6];
     temp2text(textbuf, temperatur(sensorwert[sensor_i]));
@@ -120,12 +120,12 @@ sensor_rfm12_core_periodic(void)
   }
   if(sensor_i == 3  && start != 0){
     char textbuf[6];
-    temp2text(textbuf, sensorwert[sensor_i]);
+    temp2text(textbuf, (sensorwert[sensor_i] - (sensorwert[sensor_i] >> 6) - (sensorwert[sensor_i] >> 7) - (sensorwert[sensor_i] >> 8)));
     lcd_goto_ddram(LCD_SECOND_LINE + 2);
     lcd_print(textbuf);
   }
   
-  if(++sensor_i > 3) sensor_i = 0;
+  if(++sensor_i >= SENSOR_RFM12_ADCMAX) sensor_i = 0;
   ADMUX = sensor_i;
   
   

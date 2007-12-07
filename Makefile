@@ -40,6 +40,8 @@ OBJECTS += $(patsubst %.c,%.o,${SRC})
 #LDFLAGS += -Wl,--section-start=.text=0xE000		# BOOTLOADER_SUPPORT
 #CFLAGS  += -mcall-prologues                            # BOOTLOADER_SUPPORT
 
+#CFLAGS  += -mcall-prologues                            # SENSOR_RFM12_SUPPORT
+
 # no safe mode checks, since the bootloader doesn't support this
 AVRDUDE_FLAGS += -u
 # no signature byte check, -> bootloader bug
