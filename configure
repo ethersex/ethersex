@@ -99,6 +99,14 @@ my %ethersex_modules = (
                    helptext  => "tcp support",
                    distdflt  => 1,
                  },
+  'rfm12_linkbeat_net' => {
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only",
+                   distdflt  => 0,
+                 },
+  'udp_echo_net' => {
+                   helptext  => "udp-bound echo application",
+                   distdflt  => 0,
+                 },
   'tftpomatic'=> {
                    helptext  => "automatic firmware loading using tftp",
                    requires  => [ "tftp" ],
