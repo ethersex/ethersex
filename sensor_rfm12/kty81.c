@@ -18,6 +18,7 @@
 
 #include <avr/io.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -185,11 +186,22 @@ temperatur(uint16_t sensorwert){
 void 
 temp2text(char *textbuf, int16_t temperatur){
   if (temperatur > -1000 && temperatur < 2000){
-    snprintf(textbuf, 6, "%4i ", temperatur);
+    char *ptr = textbuf;
+
+    /* snprintf(textbuf, 6, "%4i ", temperatur); */
+    if (temperatur >= 0 && temperatur < 10)
+      *(ptr ++) = 32;
+    if (temperatur > -10 && temperatur < 100)
+      *(ptr ++) = 32;
+    if (temperatur > -100 && temperatur < 1000)
+      *(ptr ++) = 32;
+
+    itoa (temperatur, ptr, 10);
     textbuf[4] = textbuf[3];
     textbuf[3] = '.';
   }
   else{
-    sprintf(textbuf, "Out!!");
+    /* sprintf(textbuf, "Out!!"); */
+    strcpy_P (textbuf, PSTR("Out!!"));
   }
 }
