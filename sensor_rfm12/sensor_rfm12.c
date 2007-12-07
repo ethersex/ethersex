@@ -39,7 +39,7 @@ static uint8_t start = 0;
 static uint8_t startok = 0;
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
-#define STATS (uip_udp_conn_t->appstate.sensor_rfm12)
+#define STATS (uip_udp_conn->appstate.sensor_rfm12)
 
 void 
 sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
@@ -113,16 +113,16 @@ sensor_rfm12_core_periodic(void)
   while (ADCSRA & _BV(ADSC));
   STATS.sensors.sensor[sensor_i].value = ADC; //sensorwert[sensor_i] = ADC;
   if(sensor_i < 2  && start != 0){
-    char textbuf[6];
-    temp2text(textbuf, temperatur(sensorwert[sensor_i]));
+    //char textbuf[6];
+    temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
     lcd_goto_ddram(2 + (sensor_i * 8));
-    lcd_print(textbuf);
+    lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
   }
   if(sensor_i == 3  && start != 0){
-    char textbuf[6];
-    temp2text(textbuf, (sensorwert[sensor_i] - (sensorwert[sensor_i] >> 6) - (sensorwert[sensor_i] >> 7) - (sensorwert[sensor_i] >> 8)));
+    //char textbuf[6];
+    temp2text(STATS.sensors.sensor[sensor_i].valuetext, (STATS.sensors.sensor[sensor_i].value - (STATS.sensors.sensor[sensor_i].value >> 6) - (STATS.sensors.sensor[sensor_i].value >> 7) - (STATS.sensors.sensor[sensor_i].value >> 8)));
     lcd_goto_ddram(LCD_SECOND_LINE + 2);
-    lcd_print(textbuf);
+    lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
   }
   
   if(++sensor_i >= SENSOR_RFM12_ADCMAX) sensor_i = 0;

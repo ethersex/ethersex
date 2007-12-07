@@ -27,7 +27,7 @@
 #ifdef SENSOR_RFM12_SUPPORT
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
-#define STATS (uip_udp_conn_t->appstate.sensor_rfm12)
+#define STATS (uip_udp_conn->appstate.sensor_rfm12)
 
 uip_udp_conn_t *sensor_rfm12_conn;
 
@@ -66,6 +66,7 @@ sensor_rfm12_net_main(void)
     return_conn.ttl = uip_udp_conn->ttl;
     
     uip_udp_conn = &return_conn;
+    uip_slen = sizeof(struct sensors_rfm12_datas_t);
   /* Send immediately */
     uip_process(UIP_UDP_SEND_CONN);
     fill_llh_and_transmit();
