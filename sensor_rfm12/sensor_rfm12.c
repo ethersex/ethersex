@@ -37,7 +37,6 @@ static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
 static uint8_t start = 0;
 static uint8_t startok = 0;
-uint8_t PROGMEM hearth[8] = {0x0a, 0x15, 0x11, 0x11, 0x0a, 0x0a, 0x04, 0x04};
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 #define STATS (uip_udp_conn_t->appstate.sensor_rfm12)
@@ -54,7 +53,6 @@ sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
   */
   ADMUX = sensor_i;
   lcd_init();
-  lcd_define_char_p(0, hearth);
   char *text = "Japaadappadu";
   lcd_print(text);
   lcd_goto_ddram(LCD_SECOND_LINE);

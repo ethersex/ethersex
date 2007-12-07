@@ -381,6 +381,7 @@
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
 // #define TCP_SUPPORT
+#define ICMP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
@@ -393,6 +394,7 @@
 // #define ZBUS_SUPPORT
 #define SENSOR_RFM12_SUPPORT
 // #define STELLA_SUPPORT
+#define TEENSY_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT

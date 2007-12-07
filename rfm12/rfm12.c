@@ -182,7 +182,7 @@ rfm12_init(void)
   SREG = sreg;
 
 
-
+#ifndef TEENSY_SUPPORT
 void
 rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 {
@@ -232,6 +232,7 @@ rfm12_setpower(uint8_t power, uint8_t mod)
   rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
   rfm12_epilogue ();
 }
+#endif
 
 
 uint8_t

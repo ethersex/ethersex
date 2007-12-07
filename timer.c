@@ -124,7 +124,7 @@ void timer_process(void)
 #       endif /* FS20_SUPPORT */
 
         /* check tcp connections every 200ms */
-#       ifdef BOOTLOADER_SUPPORT
+#       ifdef TEENSY_SUPPORT
         if ((counter & 7) == 0) {
 #       else
         if (counter % 10 == 0) {

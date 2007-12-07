@@ -1,0 +1,65 @@
+#! /usr/bin/perl -w
+use strict;
+
+my %funcs; 
+foreach(qw/rfm12_setbandwidth rfm12_setfreq rfm12_setbaud rfm12_setpower/) {
+  $funcs{$_} = 1;
+}
+
+open HANDLE, ">rfm-compile.c" or die;
+
+print HANDLE <<EOF
+#include <stdio.h>
+
+#define RFM12FREQ(freq) ((freq-430.0)/0.0025)
+#
+#define rfm12_prologue()
+#define rfm12_epilogue()
+#define rfm12_trans(a)   printf("rfm12_trans(0x%04x);\\n", a)
+
+typedef unsigned char uint8_t;
+EOF
+ ;
+
+my $copyout = 0;
+while(<>) {
+  if(my ($funcname) = m/^([A-Za-z0-9_]+)\s*\(/) {
+    if(defined($funcs{$funcname})) {
+      print HANDLE "void\n$_";
+      $copyout = 1;
+      next;
+    }
+  }
+
+  print HANDLE $_ 
+    if($copyout);
+
+  if(m/^}/) { $copyout = 0; }
+}
+
+print HANDLE <<EOF
+int
+main (void) 
+{
+EOF
+ ;
+while(<STDIN>) {
+  print HANDLE "  $_";
+}
+
+print HANDLE <<EOF
+  return 0;
+}
+EOF
+ ;
+
+close HANDLE;
+system ("gcc rfm-compile.c");
+die ("couldn't compile temporary file")
+  unless (-e "a.out");
+
+print "\n\n --- OUTPUT FOLLOWS ---\n\n";
+system ("./a.out");
+
+unlink "a.out";
+unlink "rfm-compile.c";
