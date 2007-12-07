@@ -149,9 +149,14 @@ sensor_rfm12_core_periodic(void)
 }
 
 void 
-sensor_rfm12_core_newdata(void)
+sensor_rfm12_setlcdtext(char *text, uint8_t len)
 {
-	
+  uint8_t i;
+  lcd_goto_ddram(LCD_SECOND_LINE+8);
+  for(i = 0; i<len; i++)
+  {
+    lcd_data(text[i]);
+  }
     //struct sensor_rfm12_request_t *REQ = uip_appdata;
 		/*
 		* ueberschreiben der connection info. 

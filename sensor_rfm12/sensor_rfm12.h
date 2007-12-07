@@ -24,11 +24,11 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
-
+#define SENSOR_RFM12_LCDTEXTLEN 8
 
 /* prototypes */
 void sensor_rfm12_core_init (uip_udp_conn_t *sensor_rfm12_conn);
 void sensor_rfm12_core_periodic (void);
-void sensor_rfm12_core_newdata (void);
+void sensor_rfm12_setlcdtext (char *text, uint8_t len);
 
 #endif

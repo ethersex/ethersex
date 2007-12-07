@@ -55,7 +55,33 @@ sensor_rfm12_net_main(void)
   if (uip_poll()) 
     sensor_rfm12_core_periodic();
   if (uip_newdata())
-    sensor_rfm12_core_newdata();
+  {
+    uip_udp_conn_t return_conn;
+    if ( uip_datalen() <= SENSOR_RFM12_LCDTEXTLEN )
+      sensor_rfm12_setlcdtext(*BUF, uip_datalen());
+    
+    uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
+    return_conn.rport = BUF->srcport;
+    return_conn.lport = HTONS(SENSOR_RFM12_PORT);
+    return_conn.ttl = uip_udp_conn->ttl;
+    
+    uip_udp_conn = &return_conn;
+    
+  /* Send immediately */
+    uip_process(UIP_UDP_SEND_CONN); 
+#ifdef IPV6_SUPPORT
+    uip_neighbour_out();
+#else
+    uip_arp_out(); 
+#endif
+    transmit_packet();
+    
+    uip_slen = 0;
+    
+    uip_udp_conn = sensor_rfm12_conn;
+    
+    
+  }
 }
 
 #endif
