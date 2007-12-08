@@ -102,6 +102,7 @@
 #include <string.h>
 
 #define noinline __attribute__((noinline))
+#define htons(a) HTONS(a)
 
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */
@@ -2042,14 +2043,6 @@ uip_process(u8_t flag)
   uip_flags = 0;
   return;
 }
-/*---------------------------------------------------------------------------*/
-#if STACK_PRIMARY
-u16_t
-htons(u16_t val)
-{
-  return HTONS(val);
-}
-#endif /* STACK_PRIMARY */
 /*---------------------------------------------------------------------------*/
 void
 uip_send(const void *data, int len)
