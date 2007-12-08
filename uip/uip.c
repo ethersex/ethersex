@@ -439,7 +439,7 @@ uip_init(void)
   lastport = 1024;
 #endif /* UIP_ACTIVE_OPEN */
 
-#if UIP_UDP
+#if UIP_UDP && !defined(TEENSY_SUPPORT) /* expect bss to be clear */
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
     uip_udp_conns[c].lport = 0;
 #if UIP_MULTI_STACK
@@ -549,12 +549,13 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
     lastport = 4096;
   }
   
+#ifndef TEENSY_SUPPORT
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
     if(uip_udp_conns[c].lport == htons(lastport)) {
       goto again;
     }
   }
-
+#endif
 
   conn = 0;
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
@@ -589,7 +590,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 #endif /* UIP_UDP && STACK_PRIMARY */
 /*---------------------------------------------------------------------------*/
 #if UIP_TCP && STACK_PRIMARY
-#ifndef BOOTLOADER_SUPPORT
+#ifndef TEENSY_SUPPORT
 void
 uip_unlisten(u16_t port)
 {
@@ -600,7 +601,7 @@ uip_unlisten(u16_t port)
     }
   }
 }
-#endif /* !BOOTLOADER_SUPPORT */
+#endif /* !TEENSY_SUPPORT */
 /*---------------------------------------------------------------------------*/
 void
 uip_listen(u16_t port, uip_conn_callback_t callback)
@@ -992,7 +993,7 @@ uip_process(u8_t flag)
   }
 #endif /* UIP_CONF_IPV6 */
 
-#ifdef ICMP_SUPPORT
+#if defined(ICMP_SUPPORT) && !defined(TEENSY_SUPPORT)
   if(uip_ipaddr_cmp(uip_hostaddr, all_zeroes_addr)) {
     /* If we are configured to use ping IP address configuration and
        hasn't been assigned an IP address yet, we accept all ICMP
@@ -1008,7 +1009,7 @@ uip_process(u8_t flag)
 #endif /* UIP_PINGADDRCONF */
   } 
   else
-#endif /* ICMP_SUPPORT */
+#endif /* ICMP_SUPPORT && !TEENSY_SUPPORT */
   {
     /* If IP broadcast support is configured, we check for a broadcast
        UDP packet, which may be destined to us. */
@@ -1039,7 +1040,10 @@ uip_process(u8_t flag)
 #if UIP_CONF_IPV6_LLADDR    
        && !uip_ipaddr_cmp(BUF->destipaddr, uip_lladdr)
 #endif
-       && BUF->destipaddr[0] != HTONS(0xff02)) {
+#ifdef ENC28J60_SUPPORT
+       && BUF->destipaddr[0] != HTONS(0xff02)
+#endif
+      ) {
       UIP_STAT(++uip_stat.ip.drop);
       goto drop;
     }
