@@ -63,7 +63,6 @@ sensor_rfm12_net_main(void)
     uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
     return_conn.rport = BUF->srcport;
     return_conn.lport = HTONS(SENSOR_RFM12_PORT);
-    return_conn.ttl = uip_udp_conn->ttl;
 
     uip_send (&STATS, sizeof(struct sensors_rfm12_datas_t));
     

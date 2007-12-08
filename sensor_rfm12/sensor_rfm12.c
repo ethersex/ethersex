@@ -57,8 +57,7 @@ sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
   lcd_print(text);
   lcd_goto_ddram(LCD_SECOND_LINE);
   lcd_print("Zerties.org ");
-  lcd_data(0x00);
-  
+
 }
 
 void 
@@ -150,6 +149,7 @@ void
 sensor_rfm12_setlcdtext(char *text, uint8_t len)
 {
   uint8_t i;
+  start++;
   lcd_goto_ddram(LCD_SECOND_LINE+8);
   for(i = 0; i<len; i++)
   {
