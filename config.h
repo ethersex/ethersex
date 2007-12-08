@@ -395,6 +395,8 @@
 #define SENSOR_RFM12_SUPPORT
 // #define STELLA_SUPPORT
 #define TEENSY_SUPPORT
+// #define UDP_ECHO_NET_SUPPORT
+// #define RFM12_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT

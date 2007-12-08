@@ -71,7 +71,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  rfm12_rxstart();
 	}
 
-      if(RFM12_Index >= RFM12_Data[0] + 3)
+      if(RFM12_Index >= RFM12_Data[0] + 1)
 	{
 	  rfm12_trans(0x8208);
 	  RFM12_status.Rx = 0;
@@ -83,7 +83,7 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
 
-      if(RFM12_Index > RFM12_Data[5] + 10)
+      if(RFM12_Index > RFM12_Data[5] + 8)
 	{
 	  RFM12_status.Tx = 0;
 
@@ -102,25 +102,6 @@ SIGNAL(RFM12_INT_SIGNAL)
       rfm12_trans(0x0000);	/* dummy read */
       /* FIXME what happend */
     }
-}
-
-
-unsigned int
-crcUpdate(unsigned int crc, uint8_t serialData)
-{
-  unsigned int tmp;
-  uint8_t j;
-
-  tmp = serialData << 8;
-  for (j=0; j<8; j++)
-    {
-      if((crc^tmp) & 0x8000)
-	crc = (crc<<1) ^ 0x1021;
-      else
-	crc = crc << 1;
-      tmp = tmp << 1;
-    }
-  return crc;
 }
 
 
@@ -262,19 +243,10 @@ rfm12_rxstart(void)
 uint8_t 
 rfm12_rxfinish(uint8_t *data)
 {
-  unsigned int crc, crc_chk = 0;
-  uint8_t i;
-
   if(RFM12_status.Rx)
     return(255);		/* not finished yet */
   if(!RFM12_status.New)
     return(254);		/* old buffer */
-
-  for(i = 0; i < RFM12_Data[0] + 1; i++)
-    crc_chk = crcUpdate(crc_chk, RFM12_Data[i]);
-
-  crc = RFM12_Data[i++];
-  crc |= RFM12_Data[i] << 8;
 
   RFM12_status.New = 0;
 
@@ -282,24 +254,16 @@ rfm12_rxfinish(uint8_t *data)
   RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
 #endif
 
-  if(crc != crc_chk)
-    {
-      rfm12_rxstart();
-      return(0);		/* crc err -or- strsize */
-    }
-  else
-    {
-      uint8_t i;
-      uint8_t len = RFM12_Data[0];
+  uint8_t i;
+  uint8_t len = RFM12_Data[0];
 
-      /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
-	 first byte!  Therefore it is essential to copy the data
-	 in forward direction below (and not use RFM12_Data afterwards). */
-      for(i = 0; i < len; i++)
-	data[i] = RFM12_Data[i + 1];
+  /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
+     first byte!  Therefore it is essential to copy the data
+     in forward direction below (and not use RFM12_Data afterwards). */
+  for(i = 0; i < len; i++)
+    data[i] = RFM12_Data[i + 1];
 
-      return(len);                 /* receive size */
-    }
+  return(len);                 /* receive size */
 }
 
 
@@ -307,7 +271,6 @@ uint8_t
 rfm12_txstart(uint8_t *data, uint8_t size)
 {
   uint8_t i, l;
-  unsigned int crc;
 
   if(RFM12_status.Tx)
     return(2);			/* tx in action */
@@ -325,8 +288,6 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
 #endif
 
-  crc = crcUpdate(0, size);
-
   i = size; while (i --)
               RFM12_Data[i + 6] = data[i];
 
@@ -339,11 +300,6 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i++] = 0xD4;
   RFM12_Data[i++] = size;
 
-  for(l = 0; l < size; l++)
-    crc = crcUpdate(crc, RFM12_Data[i ++]);
-
-  RFM12_Data[i++] = (crc & 0x00FF);
-  RFM12_Data[i++] = (crc >> 8);
   RFM12_Data[i++] = 0xAA;
   RFM12_Data[i++] = 0xAA;
 
