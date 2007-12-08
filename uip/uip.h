@@ -1239,7 +1239,6 @@ struct __uip_udp_conn {
   uip_ipaddr_t ripaddr;   /**< The IP address of the remote peer. */
   u16_t lport;        /**< The local port number in network byte order. */
   u16_t rport;        /**< The remote port number in network byte order. */
-  u8_t  ttl;          /**< Default time-to-live. */
   uip_conn_callback_t callback;  /**< Callback can be called when something happens on 
                                    the "connection" */
 #if UIP_MULTI_STACK

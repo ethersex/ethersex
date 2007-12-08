@@ -574,7 +574,6 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   } else {
     uip_ipaddr_copy(&conn->ripaddr, ripaddr);
   }
-  conn->ttl = UIP_TTL;
 
   /* Copy the callback to the connection struct */
   conn->callback = callback;
@@ -1279,7 +1278,7 @@ uip_process(u8_t flag)
   BUF->len[1] = (uip_len & 0xff);
 #endif /* UIP_CONF_IPV6 */
 
-  BUF->ttl = uip_udp_conn->ttl;
+  BUF->ttl = UIP_TTL;
   BUF->proto = UIP_PROTO_UDP;
 
   UDPBUF->udplen = HTONS(uip_slen + UIP_UDPH_LEN);
