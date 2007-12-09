@@ -35,7 +35,7 @@
  */
 #define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
 
-static struct i2c_tx tx;
+static struct i2c_tx i2ctx;
 
 void 
 i2c_wait_int()
@@ -65,7 +65,7 @@ i2c_core_init(uip_udp_conn_t *i2c_conn)
 {
   i2c_port_init();
 
-  i2c_conn->appstate.i2c.tx = &tx;
+  i2c_conn->appstate.i2c.tx = &i2ctx;
   i2c_conn->appstate.i2c.tx->connstate = I2C_INIT;
 }
 
@@ -226,11 +226,11 @@ void i2c_core_newdata(void)
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
 			}
 			else{
-				uip_send(&tx, STATS.tx->datalen+I2C_DATAOFFSET);
+				uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 			}
 		}
 		else if(REQ->seqnum == STATS.tx->seqnum){
-			uip_send(&tx, STATS.tx->datalen+I2C_DATAOFFSET);
+			uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 		}
 }
 

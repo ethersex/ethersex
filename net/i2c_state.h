@@ -22,7 +22,7 @@
 #define _I2C_STATE_H
 
 /* constants */
-#define I2C_TXBUFMAX 255
+#define I2C_TXBUFMAX 64
 
 struct i2c_tx {
 	union {
