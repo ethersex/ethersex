@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
-#define SENSOR_RFM12_LCDTEXTLEN 8
+#define SENSOR_RFM12_LCDTEXTLEN 9
 
 /* prototypes */
 void sensor_rfm12_core_init (uip_udp_conn_t *sensor_rfm12_conn);

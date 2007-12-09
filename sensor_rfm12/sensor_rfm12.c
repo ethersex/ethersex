@@ -66,7 +66,7 @@ sensor_rfm12_core_periodic(void)
   /* Start der Konvertierung */
   ADCSRA |= _BV(ADSC);
   if((PIND & _BV(PD3)) == 0){
-    start = 1;
+    start++;
   }
   
   /*  if ((rxlen = rfm12_rxdata(&rxaddr, rfdata)) > 0){
@@ -149,8 +149,8 @@ void
 sensor_rfm12_setlcdtext(char *text, uint8_t len)
 {
   uint8_t i;
-  start++;
-  lcd_goto_ddram(LCD_SECOND_LINE+8);
+  start=1;
+  lcd_goto_ddram(LCD_SECOND_LINE+7);
   for(i = 0; i<len; i++)
   {
     lcd_data(text[i]);
