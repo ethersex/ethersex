@@ -61,7 +61,7 @@ i2c_port_init(void)
 }
 
 void 
-i2c_core_init(struct uip_udp_conn *i2c_conn)
+i2c_core_init(uip_udp_conn_t *i2c_conn)
 {
   i2c_port_init();
 
@@ -76,7 +76,7 @@ i2c_core_periodic(void)
     STATS.timeout--;
   if(STATS.timeout == 1){
     uip_ipaddr_t ip;
-    uip_ipaddr(&ip, 255,255,255,255);
+    uip_ipaddr_copy(&ip, all_ones_addr);
     uip_ipaddr_copy(uip_udp_conn->ripaddr, &ip);
     uip_udp_conn->rport = 0;
     STATS.timeout = 0;

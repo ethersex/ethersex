@@ -30,9 +30,9 @@ void
 i2c_net_init(void)
 {
 	uip_ipaddr_t ip;
-	uip_ipaddr(&ip, 255,255,255,255);
+	uip_ipaddr_copy(&ip, all_ones_addr);
 	
-	struct uip_udp_conn *i2c_conn = uip_udp_new(&ip, 0, i2c_net_main);
+	uip_udp_conn_t *i2c_conn = uip_udp_new(&ip, 0, i2c_net_main);
 	
 	if(! i2c_conn) 
 		return;					/* keine udp connection !? */
