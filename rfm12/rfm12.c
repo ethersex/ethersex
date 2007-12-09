@@ -302,7 +302,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_Data[i++] = 0x2D;
   RFM12_Data[i++] = 0xD4;
   RFM12_Data[i++] = size;
-
+  i += size;
   RFM12_Data[i++] = 0xAA;
   RFM12_Data[i++] = 0xAA;
 
