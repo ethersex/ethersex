@@ -1,5 +1,5 @@
 #! /bin/sh
-host=bier.dyn.metafnord.de
+host=ethsex1.dyn.metafnord.de
 port=2701
 
 usage() { echo "usage: $0 <num> [<root_sym> <element>]"; exit 1; }
@@ -20,7 +20,7 @@ fi
 if [ "$root_sym" = "uip_conns" ]; then
   struct="uip_conn_t"
 elif [ "$root_sym" = "uip_udp_conns" ]; then
-  struct="uip_udp_conns_t"
+  struct="uip_udp_conn_t"
 elif [ "$root_sym" = 'rx' ]; then
   struct="union rx_buffer"
 elif [ "$root_sym" = "rfm12_stack_stat" -o "$root_sym" = "uip_stat" ]; then
@@ -36,7 +36,6 @@ sym_offset=`(echo "ibase=16"; avr-nm etherrape|grep " $root_sym\$"|cut -c4-8|tr 
 (cat <<EOF
 #include "uip/uip.h"
 #include "net/state.h"
-#include "net/rfm12_net.h"
 
 int
 main (void)

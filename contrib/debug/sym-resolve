@@ -1,5 +1,5 @@
 #! /bin/sh
-host=bier.dyn.metafnord.de
+host=ethsex1.dyn.metafnord.de
 port=2701
 
 usage() { echo "usage: $0 <sym> ";exit 1; }
