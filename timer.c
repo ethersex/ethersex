@@ -32,7 +32,7 @@
 #include "uip/uip_neighbor.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
-#include "ntp/ntp.h"
+#include "clock/clock.h"
 #include "ipv6.h"
 #include "stella/stella.h"
 
@@ -177,7 +177,7 @@ void timer_process(void)
 #           ifdef OPENVPN_SUPPORT
 	    uip_stack_set_active(STACK_OPENVPN);
 #           endif
-            ntp_every_second();
+            clock_tick();
 	    if (uip_len)
 		fill_llh_and_transmit();
 #           endif /* NTP_SUPPORT */

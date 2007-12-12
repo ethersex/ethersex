@@ -389,11 +389,12 @@
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
+// #define CLOCK_SUPPORT
 // #define NTP_SUPPORT
 #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
 // #define STELLA_SUPPORT
-#define TEENSY_SUPPORT
+// #define TEENSY_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 

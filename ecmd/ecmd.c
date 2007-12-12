@@ -41,7 +41,7 @@
 #include "../rc5/rc5.h"
 #include "../rfm12/rfm12.h"
 #include "../dns/resolv.h"
-#include "../ntp/ntp.h"
+#include "../clock/clock.h"
 #include "ecmd.h"
 
 
@@ -885,7 +885,7 @@ static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
 #ifdef NTP_SUPPORT
 static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  return snprintf_P(output, len, PSTR("%lu"), get_time());
+  return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
 } /* }}} */
 #endif 
 
