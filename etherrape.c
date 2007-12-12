@@ -233,6 +233,9 @@ int main(void)
 
 #ifndef BOOTLOAD_SUPPORT
         if(cfg.request_bootloader) {
+        #ifdef CLOCK_CRYSTAL_SUPPORT
+            TIMSK2 &= ~_BV(TOIE2);
+        #endif
             cli();
             jump_to_bootloader();
         }
