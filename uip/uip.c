@@ -102,7 +102,6 @@
 #include <string.h>
 
 #define noinline __attribute__((noinline))
-#define htons(a) HTONS(a)
 
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */
