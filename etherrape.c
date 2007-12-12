@@ -119,6 +119,9 @@ int main(void)
     spi_init();
     network_init();
     timer_init();
+#ifdef CLOCK_SUPPORT
+    clock_init();
+#endif
 
 #ifdef FS20_SUPPORT
     fs20_init();
