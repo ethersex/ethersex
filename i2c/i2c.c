@@ -86,10 +86,10 @@ i2c_core_periodic(void)
     STATS.tx->connstate = I2C_INIT;
     TWCR |= _BV(TWINT) | _BV(TWSTO);
     i2c_port_init();
-  /* FIXME:   PORTC &= ~_BV(PC2); */
+    /* FIXME:   PORTC &= ~_BV(PC2); */
   }
   /* error detection on i2c bus */
-  if(TWSR == 0x00)
+  if((TWSR & 0xF8) == 0x00)
     i2c_port_init();
 }
 
