@@ -26,4 +26,5 @@
 void clock_init(void);
 void clock_tick(void);
 uint32_t clock_get_time(void);
-void clock_set_time(uint32_t sync_timestamp);
+uint32_t clock_last_sync(void);
+void clock_set_time(uint32_t new_sync_timestamp);

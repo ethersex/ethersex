@@ -81,8 +81,11 @@ clock_tick(void)
 }
 
 void
-clock_set_time(uint32_t sync_timestamp)
+clock_set_time(uint32_t new_sync_timestamp)
 {
+  /* The clock was synced */
+  sync_timestamp = new_sync_timestamp;
+
   /* Allow the clock to jump forward, but never ever to go backward. */
   if (sync_timestamp > timestamp)
     timestamp = sync_timestamp;
@@ -96,4 +99,10 @@ uint32_t
 clock_get_time(void)
 {
   return timestamp;
+}
+
+uint32_t
+clock_last_sync(void)
+{
+  return sync_timestamp;
 }
