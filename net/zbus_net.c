@@ -29,9 +29,6 @@
 #include "zbus_net.h"
 #include "../zbus/zbus.h"
 #include "../uip/uip.h"
-#include "../uip/uip_arp.h"
-#include "../uip/uip_neighbor.h"
-#include "../network.h"
 #include "../syslog/syslog.h"
 #include "../config.h"
 
@@ -174,22 +171,13 @@ send_answer:
   uip_ipaddr_copy(error_conn.ripaddr, BUF->srcipaddr);
   error_conn.rport = BUF->srcport;
   error_conn.lport = HTONS(ZBUS_PORT);
-  error_conn.ttl = uip_udp_conn->ttl;
 
   uip_udp_conn = &error_conn;
 
   /* Send immediately */
   uip_process(UIP_UDP_SEND_CONN); 
-#ifdef IPV6_SUPPORT
-  uip_neighbour_out();
-#else
-  uip_arp_out(); 
-#endif
-  transmit_packet();
-
+  fill_llh_and_transmit();
   uip_slen = 0;
-
-  uip_udp_conn = zbus_conn;
 }
 
 #endif /* ZBUS_SUPPORT */
