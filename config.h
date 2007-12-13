@@ -392,6 +392,7 @@
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define NTP_SUPPORT
+// #define NTPD_SUPPORT
 #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
 // #define STELLA_SUPPORT

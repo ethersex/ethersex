@@ -37,6 +37,7 @@
 #include "syslog_net.h"
 #include "i2c_net.h"
 #include "ntp_net.h"
+#include "ntpd_net.h"
 #include "zbus_net.h"
 #include "udp_echo_net.h"
 #include "../dyndns/dyndns.h"
@@ -102,6 +103,11 @@ void network_init_apps(void)
 #   ifdef NTP_SUPPORT
     ntp_net_init();
 #   endif
+
+#   ifdef NTPD_SUPPORT
+    ntpd_net_init();
+#   endif
+
 
 #   ifdef ZBUS_SUPPORT
     zbus_net_init();

@@ -225,6 +225,11 @@ my %ethersex_modules = (
                    preconfigure => [ "clock" ],
                    requires => ["clock", "udp"],
                  },
+  'ntpd'        => {
+                   helptext  => "provide the system clock via ntp",
+                   distdflt  => 0,
+                   requires => ["clock", "udp"],
+  },
   'enc28j60'  => {
                    helptext  => "enc28j60 ethernet controller",
                    distdflt  => 1,
