@@ -21,6 +21,7 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "../net/i2c_state.h"
 #include "../uip/uip.h"
 #include "../config.h"
@@ -35,7 +36,7 @@
  */
 #define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
 
-static struct i2c_tx tx;
+static struct i2c_tx i2ctx;
 
 void 
 i2c_wait_int()
@@ -48,15 +49,18 @@ uint8_t i2c_send ( uint8_t sendbyte )
 	TWDR = sendbyte;
 	TWCR |= _BV(TWINT);
 	i2c_wait_int();
-	return TWSR;
+	return (TWSR & 0xF8);
 }
 
 static void
 i2c_port_init(void)
 {
   TWCR = 0;
-  TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));//prescaler for twi
-  TWBR = 16; //16;//max speed for twi, ca 400khz by 20Mhz Crystal
+  /* max speed 400khz (problematisch)  ~(_BV(TWPS0) | _BV(TWPS1)) BR = 16
+     speed 100khz (normal) _BV(TWPS0) BR = 92 */
+  TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));
+  //TWSR |= _BV(TWPS0);
+  TWBR = 92;
   TWCR |= _BV(TWEN);
 }
 
@@ -65,7 +69,7 @@ i2c_core_init(struct uip_udp_conn *i2c_conn)
 {
   i2c_port_init();
 
-  i2c_conn->appstate.i2c.tx = &tx;
+  i2c_conn->appstate.i2c.tx = &i2ctx;
   i2c_conn->appstate.i2c.tx->connstate = I2C_INIT;
 }
 
@@ -75,20 +79,18 @@ i2c_core_periodic(void)
   if(STATS.timeout > 1)
     STATS.timeout--;
   if(STATS.timeout == 1){
-    uip_ipaddr_t ip;
-    uip_ipaddr(&ip, 255,255,255,255);
-    uip_ipaddr_copy(uip_udp_conn->ripaddr, &ip);
+    uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
     uip_udp_conn->rport = 0;
     STATS.timeout = 0;
     STATS.tx->seqnum = 0;
     STATS.tx->connstate = I2C_INIT;
     TWCR |= _BV(TWINT) | _BV(TWSTO);
-
-    /* error detection on i2c bus */
-    if(TWSR == 0x00)
-      i2c_port_init();
-/* FIXME:   PORTC &= ~_BV(PC2); */
+    i2c_port_init();
+  /* FIXME:   PORTC &= ~_BV(PC2); */
   }
+  /* error detection on i2c bus */
+  if(TWSR == 0x00)
+    i2c_port_init();
 }
 
 void i2c_core_newdata(void)
@@ -103,6 +105,7 @@ void i2c_core_newdata(void)
 			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
 			uip_udp_conn->rport = BUF->srcport;
 			STATS.tx->seqnum = REQ->seqnum -1;
+			STATS.timeout = 10;
 		}
 		
 		if(REQ->seqnum == STATS.tx->seqnum + 1){
@@ -114,8 +117,8 @@ void i2c_core_newdata(void)
 				STATS.tx->connstate = REQ->type;
 				TWCR |= _BV(TWINT) | _BV(TWSTA);
 				i2c_wait_int();
-				STATS.tx->i2cstate = TWSR;
-				if(TWSR == 0x08 || TWSR == 0x10)
+				STATS.tx->i2cstate = (TWSR & 0xF8);
+				if((TWSR & 0xF8) == 0x08 || (TWSR & 0xF8) == 0x10)
 				{
 					uint8_t TWSRtmp = 0;
 					TWSRtmp = i2c_send ( REQ->i2c_addr<<1 | 0x01 );
@@ -123,14 +126,15 @@ void i2c_core_newdata(void)
 					STATS.tx->i2cstate = TWSRtmp;
 					if(TWSRtmp != 0x40)
 					{
+						STATS.tx->i2cstate = TWSRtmp;
 						TWCR = _BV(TWEN) | _BV(TWSTO);
 						STATS.tx->connstate = I2C_ERROR;
 					}
 				}
 				else
 				{
+					STATS.tx->i2cstate = (TWSR & 0xF8);
 					TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
-					STATS.tx->i2cstate = TWSR;
 					STATS.tx->connstate = I2C_ERROR;
 				}
 				
@@ -146,10 +150,10 @@ void i2c_core_newdata(void)
 						
 						i2c_wait_int();
 						
-						uint8_t TWSRtmp = TWSR;
+						uint8_t TWSRtmp = (TWSR & 0xF8);
 						if(STATS.tx->datalen <= REQ->datalen && TWSRtmp == 0x50){
 							STATS.tx->buf[STATS.tx->datalen++] = TWDR;
-							if(STATS.tx->datalen == REQ->datalen && (REQ->type == I2C_READ || REQ->datalen < 254))
+							if(STATS.tx->datalen == REQ->datalen && (REQ->type == I2C_READ || REQ->datalen < MAXDATAPAKETLEN))
 							{
 								TWCR = (TWCR | _BV(TWINT)) & ~_BV(TWEA);
 							}
@@ -168,17 +172,19 @@ void i2c_core_newdata(void)
 					/* sende startcondition */
 				TWCR |= _BV(TWINT) | _BV(TWSTA);
 				i2c_wait_int();
-				STATS.tx->i2cstate = TWSR;
-				if(TWSR == 0x08 || TWSR == 0x10)
+				STATS.tx->i2cstate = (TWSR & 0xF8);
+				if((TWSR & 0xF8) == 0x08 || (TWSR & 0xF8) == 0x10)
 				{
 						/* loesche startcondition und sende adresse */
 					TWCR &= ~(_BV(TWSTA) | _BV(TWINT));
+					i2c_wait_int();
 					uint8_t TWSRtmp = 0;
 					TWSRtmp = i2c_send ( REQ->i2c_addr<<1 & 0xFE );
 					STATS.tx->i2cstate = TWSRtmp;
-					if(TWSRtmp != 0x18)
+					if(TWSRtmp != 0x18 && TWSRtmp != 0x20)
 					{
-							/* adresse nicht erreichbar */
+						/* adresse nicht erreichbar */
+						STATS.tx->i2cstate = TWSRtmp;
 						TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
 						STATS.tx->connstate = I2C_ERROR;
 					}
@@ -186,8 +192,8 @@ void i2c_core_newdata(void)
 				else
 				{
 						/* startcondition fehlgeschlagen */
+					STATS.tx->i2cstate = (TWSR & 0xF8);
 					TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
-					STATS.tx->i2cstate = TWSR;
 					STATS.tx->connstate = I2C_ERROR;
 				}
 			}
@@ -201,8 +207,8 @@ void i2c_core_newdata(void)
 					STATS.tx->buf[STATS.tx->datalen] = REQ->data[STATS.tx->datalen];
 						/* fehler protokollieren */
 					if(TWSRtmp != 0x28){
-						STATS.tx->buf[STATS.tx->datalen] = TWSR;
-						if(STATS.tx->datalen >= I2C_TXBUFMAX){
+						STATS.tx->buf[STATS.tx->datalen] = (TWSR & 0xF8);
+						if(STATS.tx->datalen >= MAXDATAPAKETLEN){
 							break;
 						}
 						TWCR |= _BV(TWINT) | _BV(TWSTO);
@@ -210,14 +216,14 @@ void i2c_core_newdata(void)
 					STATS.tx->datalen++;
 				}
 			}
-			if(STATS.tx->connstate != I2C_ERROR){
+			if(STATS.tx->connstate == I2C_ERROR){
 				STATS.timeout = 1;
 			}
 			
 			if(REQ->type == I2C_INIT){
-				uip_ipaddr_t ip;
-				uip_ipaddr(&ip, 255,255,255,255);
-				uip_ipaddr_copy(uip_udp_conn->ripaddr, &ip);
+				//uip_ipaddr_t ip;
+				//uip_ipaddr_copy(&ip, all_ones_addr);
+				uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
 				uip_udp_conn->rport = 0;
 				STATS.timeout = 0;
 				STATS.tx->seqnum = 0;
@@ -226,11 +232,11 @@ void i2c_core_newdata(void)
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
 			}
 			else{
-				uip_send(&tx, STATS.tx->datalen+I2C_DATAOFFSET);
+				uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 			}
 		}
 		else if(REQ->seqnum == STATS.tx->seqnum){
-			uip_send(&tx, STATS.tx->datalen+I2C_DATAOFFSET);
+			uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 		}
 }
 
