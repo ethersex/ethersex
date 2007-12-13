@@ -41,7 +41,7 @@
 #include "../rc5/rc5.h"
 #include "../rfm12/rfm12.h"
 #include "../dns/resolv.h"
-#include "../ntp/ntp.h"
+#include "../clock/clock.h"
 #include "ecmd.h"
 
 
@@ -101,7 +101,7 @@ static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
 #endif
-#ifdef NTP_SUPPORT
+#ifdef CLOCK_SUPPORT
 static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len);
 #endif
 static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
@@ -180,7 +180,7 @@ const char PROGMEM ecmd_show_dns_text[] = "show dns";
 const char PROGMEM ecmd_dns_text[] = "dns ";
 #endif
 #endif /* DNS_SUPPORT */
-#ifdef NTP_SUPPORT
+#ifdef CLOCK_SUPPORT
 const char PROGMEM ecmd_time_text[] = "time";
 #endif
 const char PROGMEM ecmd_d_text[] = "d ";
@@ -246,7 +246,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_dns_text, parse_cmd_dns },
 #endif
 #endif /* DNS_SUPPORT */
-#ifdef NTP_SUPPORT
+#ifdef CLOCK_SUPPORT
     { ecmd_time_text, parse_cmd_time },
 #endif
     { ecmd_d_text, parse_cmd_d },
@@ -882,10 +882,10 @@ static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif
 
-#ifdef NTP_SUPPORT
+#ifdef CLOCK_SUPPORT
 static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  return snprintf_P(output, len, PSTR("%lu"), get_time());
+  return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
 } /* }}} */
 #endif 
 

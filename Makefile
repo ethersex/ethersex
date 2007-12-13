@@ -27,6 +27,7 @@ SRC += $(shell echo rfm12/*.c)
 #SRC += uip/uip_openvpn.c                               # OPENVPN_SUPPORT
 #SRC += $(shell echo zbus/*.c)
 SRC += $(shell echo sensor_rfm12/*.c)
+#SRC += $(shell echo clock/*.c)
 SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c uip/uip_multi.c uip/uip_rfm12.c
 
 # preprocessed config files

@@ -207,11 +207,29 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
+  'clock'        => {
+                   helptext  => "system clock",
+                   distdflt  => 0,
+                   enable_hook  => \&clock_enable_hook,
+  },
+  'clock_crystal'        => {
+                   helptext  => "use crystal (32kHz) to tick system clock",
+                   distdflt  => 0,
+                   preconfigure => [ "clock" ],
+                   requires => ["clock"],
+                   conflicts => [ "stella" ],
+                 },
   'ntp'        => {
                    helptext  => "get time via ntp protocol",
                    distdflt  => 0,
-                   requires => ["udp"],
+                   preconfigure => [ "clock" ],
+                   requires => ["clock", "udp"],
                  },
+  'ntpd'        => {
+                   helptext  => "provide the system clock via ntp",
+                   distdflt  => 0,
+                   requires => ["clock", "udp"],
+  },
   'enc28j60'  => {
                    helptext  => "enc28j60 ethernet controller",
                    distdflt  => 1,
@@ -737,8 +755,10 @@ sub syslog_enable_hook {
   ask_ip("syslog_server");
 }
 
-
-
+sub clock_enable_hook {
+  enable("clock_crystal", "clock and teensy") 
+    if ($ethersex_modules{'teensy'}->{'new_status'});
+}
 
 #
 # ask user which modules to enable
@@ -746,6 +766,7 @@ sub syslog_enable_hook {
 if ( $opt_only_modules != 1) {
   print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
   configure_module "bootloader";
+  configure_module "teensy";
   foreach my $module (keys %ethersex_modules) { configure_module($module) }
 }
 

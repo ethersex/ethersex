@@ -79,20 +79,16 @@ i2c_core_periodic(void)
   if(STATS.timeout > 1)
     STATS.timeout--;
   if(STATS.timeout == 1){
-    //uip_ipaddr_t ip;
-    //uip_ipaddr_copy(&ip, all_ones_addr);
     uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
     uip_udp_conn->rport = 0;
     STATS.timeout = 0;
     STATS.tx->seqnum = 0;
-	  //STATS.tx->datalen = 0;
     STATS.tx->connstate = I2C_INIT;
     TWCR |= _BV(TWINT) | _BV(TWSTO);
     i2c_port_init();
-
-/* FIXME:   PORTC &= ~_BV(PC2); */
+    /* FIXME:   PORTC &= ~_BV(PC2); */
   }
-    /* error detection on i2c bus */
+  /* error detection on i2c bus */
   if((TWSR & 0xF8) == 0x00)
     i2c_port_init();
 }

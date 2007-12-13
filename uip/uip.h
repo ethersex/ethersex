@@ -67,6 +67,13 @@
 typedef void (*uip_conn_callback_t)(void);
 
 /**
+ * Define the host to network byte order (short), so that is uses the
+ * preprocessor Version
+ */
+
+#define htons(a) HTONS(a)
+
+/**
  * Struct of an tcp listenig port
  *
  * port is the port which should be listend 

@@ -120,6 +120,9 @@ int main(void)
     spi_init();
     network_init();
     timer_init();
+#ifdef CLOCK_SUPPORT
+    clock_init();
+#endif
 
 #ifdef FS20_SUPPORT
     fs20_init();
@@ -231,6 +234,9 @@ int main(void)
 
 #ifndef BOOTLOAD_SUPPORT
         if(cfg.request_bootloader) {
+        #ifdef CLOCK_CRYSTAL_SUPPORT
+            TIMSK2 &= ~_BV(TOIE2);
+        #endif
             cli();
             jump_to_bootloader();
         }
