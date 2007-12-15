@@ -34,7 +34,7 @@ tftp_net_init(void)
     uip_ipaddr_t ip;
     uip_ipaddr_copy(&ip, all_ones_addr);
 
-    struct uip_udp_conn *tftp_conn = uip_udp_new(&ip, 0, tftp_net_main);
+    uip_udp_conn_t *tftp_conn = uip_udp_new(&ip, 0, tftp_net_main);
 
     if(! tftp_conn) 
 	return;					/* dammit. */
@@ -59,7 +59,7 @@ tftp_net_main(void)
 	if(uip_udp_conn->lport == HTONS(TFTP_ALT_PORT)) {
 	    /* got reply packet for tftp download request,
 	     * seek request connection and shut it down */
-	    struct uip_udp_conn *req_conn;
+	    uip_udp_conn_t *req_conn;
 	    for(req_conn = &uip_udp_conns[0];
 		req_conn < &uip_udp_conns[UIP_UDP_CONNS];
 		++ req_conn) {
