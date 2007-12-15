@@ -379,6 +379,7 @@ foreach(@ARGV) {
 # check whether module may be enabled
 # return: 1 if conflicting (message will be emitted)
 my @enable_modules;
+my @disable_modules;
 sub try_enable {
   my $module = shift;
   my $trymodule = shift;
@@ -433,7 +434,7 @@ sub enable {
   push @enable_modules, $module;
 
   # call hook, if available
-  if(defined($ethersex_modules{$module}->{'enable_hook'})) {
+  if(!$opt_nogui && defined($ethersex_modules{$module}->{'enable_hook'})) {
     $ethersex_modules{$module}->{'enable_hook'}();
   }
 }
@@ -441,9 +442,10 @@ sub enable {
 sub disable {
   my $module = shift;
   $ethersex_modules{$module}->{'new_status'} = 0;
+  push @disable_modules, $module;
 
   # call hook, if available
-  if(defined($ethersex_modules{$module}->{'disable_hook'})) {
+  if(!$opt_nogui && defined($ethersex_modules{$module}->{'disable_hook'})) {
     $ethersex_modules{$module}->{'disable_hook'}();
   }
 }
@@ -772,6 +774,22 @@ if ( $opt_only_modules != 1) {
   foreach my $module (keys %ethersex_modules) { configure_module($module) }
 }
 
+#
+# deferred disable/enable hook handling ...
+#
+if ($opt_nogui) {
+  foreach (@enable_modules) {
+    if(defined($ethersex_modules{$_}->{'enable_hook'})) {
+      $ethersex_modules{$_}->{'enable_hook'}();
+    }
+  }
+
+  foreach (@disable_modules) {
+    if(defined($ethersex_modules{$_}->{'disable_hook'})) {
+      $ethersex_modules{$_}->{'disable_hook'}();
+    }
+  }
+}
 
 #
 # update config files ...
