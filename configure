@@ -182,6 +182,7 @@ my %ethersex_modules = (
                    distdflt  => 0,
 		   conflicts => [ "rc5" ],
 		   enable_hook => \&rfm12_enable_hook,
+		   preconfigure => [ "skipjack" ],
                  },
   'dns'       => {
                    helptext  => "dns name resolver",
@@ -256,6 +257,9 @@ my %ethersex_config = (
                  },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
+                 },
+  'rfm12_key'   =>{
+                   helptext  => "hex-encoded rfm12 encryption key",
                  },
   'openvpn_ip4'   => {
                    helptext  => "ip address of the openvpn gateway",
@@ -675,6 +679,9 @@ sub ipv6_enable_hook {
 
 sub rfm12_enable_hook {
   ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+
+  return unless($ethersex_modules{'skipjack'}->{'new_status'});
+  ask_cryptokey("rfm12_key", 10);
 }
 
 sub ipv6_disable_hook {
