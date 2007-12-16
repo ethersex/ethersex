@@ -41,11 +41,8 @@ static volatile zbus_send_byte_callback_t callback = NULL;
 static volatile void *callback_ctx = NULL;
 
 static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER + 10];
-static volatile struct zbus_ctx *recv_ctx = (void *)recv_buffer;
+static volatile struct zbus_ctx recv_ctx;
 static volatile struct zbus_ctx send_ctx;
-
-static volatile uip_udp_conn_t *send_connection = NULL;
-static volatile uip_udp_conn_t *recv_connection = NULL;
 
 static uint8_t
 zbus_send_data_cb(void **ctx) 
@@ -79,8 +76,8 @@ zbus_send_data(uint8_t *data, uint16_t len)
 struct zbus_ctx *
 zbus_rxfinish(void) 
 {
-  if (recv_ctx->len != 0)
-    return (struct zbus_ctx *)recv_ctx;
+  if (recv_ctx.len != 0)
+    return (struct zbus_ctx *)&recv_ctx;
   return NULL;
 }
 
@@ -104,7 +101,8 @@ zbus_core_init(void)
     
     /* clear the buffers */
     send_ctx.len = 0;
-    recv_ctx->len = 0;
+    recv_ctx.len = 0;
+    recv_ctx.data = (uint8_t *)recv_buffer;
 }
 
 void
@@ -189,18 +187,18 @@ SIGNAL(USART0_RX_vect)
   uint8_t data = _UDR_UART0;
 
   /* Old data is not read by application, ignore message */
-  if (recv_ctx->len != 0) return;
+  if (recv_ctx.len != 0) return;
 
   if (data == '\\') 
     recv_escape_data = 1;
   else {
     if (recv_escape_data){
       if (data == ZBUS_START) {
-        recv_ctx->offset = 0;
+        recv_ctx.offset = 0;
         bus_blocked = 3;
       }
       else if (data == ZBUS_STOP) {
-        recv_ctx->len = recv_ctx->offset;
+        recv_ctx.len = recv_ctx.offset;
         bus_blocked = 0;
       }
       else if (data == '\\') {
@@ -211,11 +209,11 @@ SIGNAL(USART0_RX_vect)
     } else {
 append_data:
       /* Not enough space in buffer */
-      if (recv_ctx->offset >= (ZBUS_RECV_BUFFER + 10)) return;
+      if (recv_ctx.offset >= (ZBUS_RECV_BUFFER + 10)) return;
       /* If bus is not blocked we aren't on an message */
       if (!bus_blocked) return;
 
-      recv_ctx->data[recv_ctx->offset++] = data;
+      recv_ctx.data[recv_ctx.offset++] = data;
     }
   }
 }
