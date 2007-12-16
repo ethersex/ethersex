@@ -21,45 +21,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ZBUS_H
-#define _ZBUS_H
+#include "zbus.h"
+#include "../syslog/syslog.h"
+#define ZBUS_BRIDGE_OFFSET 14
 
-#include <stdint.h>
-#include "../uip/uip.h"
-
-#define ZBUS_RECV_BUFFER 255
-
-#define RXTX_PORT PORTC
-#define RXTX_DDR  DDRC
-#define RXTX_PIN PC2
-
-/* use 19200 baud at 20mhz (see datasheet for other values) */
-#define ZBUS_UART_UBRR 64
-
-enum ZBusEscapes {
-  ZBUS_START = '0',
-  ZBUS_STOP = '1',
-};
-
-struct zbus_ctx {
-  uint16_t len;
-  uint16_t offset;
-  uint8_t *data;
-};
-
-void zbus_core_init(void);
-void zbus_core_periodic(void);
-
-typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
-
-void  zbus_tx_finish(void);
-uint8_t zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx);
-
-// uint8_t zbus_send_conn_data(uip_udp_conn_t *conn);
-
-uint8_t zbus_send_data(uint8_t *data, uint16_t len);
-struct zbus_ctx *zbus_rxfinish(void);
-void zbus_process(void);
-
-
-#endif /* _ZBUS_H */
+void
+zbus_process(void)
+{
+  struct zbus_ctx *recv = zbus_rxfinish();
+  if (recv) {
+    memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
+    uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
+    syslog_sendf("packet: %d", uip_len);
+    /* send buffer out */
+    fill_llh_and_transmit ();
+    /* reset the recieve buffer */
+    recv->len = 0;
+  }
+}

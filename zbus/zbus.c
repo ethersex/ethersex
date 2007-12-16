@@ -40,44 +40,52 @@ static volatile uint8_t bus_blocked = 0;
 static volatile zbus_send_byte_callback_t callback = NULL;
 static volatile void *callback_ctx = NULL;
 
+static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER + 10];
+static volatile struct zbus_ctx *recv_ctx = (void *)recv_buffer;
+static volatile struct zbus_ctx send_ctx;
+
 static volatile uip_udp_conn_t *send_connection = NULL;
 static volatile uip_udp_conn_t *recv_connection = NULL;
 
-uint8_t
-zbus_send_conn_data_cb(void **ctx) 
+static uint8_t
+zbus_send_data_cb(void **ctx) 
 {
-  if (! send_connection ) 
+  if ( send_ctx.len == 0 ) 
     zbus_tx_finish();
   else {
-    char data = send_connection->
-      appstate.zbus.buffer[send_connection->appstate.zbus.offset];
-    send_connection->appstate.zbus.offset++;
-    if (send_connection->appstate.zbus.offset 
-        >= send_connection->appstate.zbus.buffer_len)
-      send_connection = NULL;
+    char data = send_ctx.data[send_ctx.offset];
+    send_ctx.offset++;
+    if (send_ctx.offset >= send_ctx.len)
+      send_ctx.len = 0;
     return data;
   }
 
 
 }
 
-uint8_t
-zbus_send_conn_data(uip_udp_conn_t *conn) 
+uint8_t 
+zbus_send_data(uint8_t *data, uint16_t len)
 {
-  if (bus_blocked) return 0;
-
-  if (!send_connection) {
-    send_connection = conn;
-    conn->appstate.zbus.offset = 0;
-    zbus_tx_start(zbus_send_conn_data_cb, NULL);
+  if (send_ctx.len == 0) {
+    send_ctx.data = data;
+    send_ctx.len = len;
+    send_ctx.offset = 0;
+    zbus_tx_start(zbus_send_data_cb, 0);
     return 1;
   }
   return 0;
 }
 
+struct zbus_ctx *
+zbus_rxfinish(void) 
+{
+  if (recv_ctx->len != 0)
+    return (struct zbus_ctx *)recv_ctx;
+  return NULL;
+}
 
 void
-zbus_core_init(uip_udp_conn_t *recv_conn)
+zbus_core_init(void)
 {
     /* set baud rate */
     _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
@@ -94,12 +102,9 @@ zbus_core_init(uip_udp_conn_t *recv_conn)
     /* Default is reciever enabled*/
     RXTX_PORT &= ~_BV(RXTX_PIN);
     
-    /* copy the recieve connection */
-    recv_connection = recv_conn;
-
-    /* Set the recv Buffer to invalid */
-    recv_connection->appstate.zbus.state &= ~ZBUS_STATE_RECIEVED;
-
+    /* clear the buffers */
+    send_ctx.len = 0;
+    recv_ctx->len = 0;
 }
 
 void
@@ -184,18 +189,18 @@ SIGNAL(USART0_RX_vect)
   uint8_t data = _UDR_UART0;
 
   /* Old data is not read by application, ignore message */
-  if (recv_connection->appstate.zbus.state & ZBUS_STATE_RECIEVED) return;
+  if (recv_ctx->len != 0) return;
 
   if (data == '\\') 
     recv_escape_data = 1;
   else {
     if (recv_escape_data){
       if (data == ZBUS_START) {
-        recv_connection->appstate.zbus.buffer_len = 0;
+        recv_ctx->offset = 0;
         bus_blocked = 3;
       }
       else if (data == ZBUS_STOP) {
-        recv_connection->appstate.zbus.state |= ZBUS_STATE_RECIEVED;
+        recv_ctx->len = recv_ctx->offset;
         bus_blocked = 0;
       }
       else if (data == '\\') {
@@ -206,12 +211,11 @@ SIGNAL(USART0_RX_vect)
     } else {
 append_data:
       /* Not enough space in buffer */
-      if (recv_connection->appstate.zbus.buffer_len >= ZBUS_BUFFER_LEN) return;
+      if (recv_ctx->offset >= (ZBUS_RECV_BUFFER + 10)) return;
       /* If bus is not blocked we aren't on an message */
       if (!bus_blocked) return;
 
-      recv_connection->appstate.zbus
-        .buffer[recv_connection->appstate.zbus.buffer_len++] = data;
+      recv_ctx->data[recv_ctx->offset++] = data;
     }
   }
 }

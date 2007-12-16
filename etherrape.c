@@ -44,6 +44,7 @@
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
+#include "zbus/zbus.h"
 #include "clock/clock.h"
 #include "dcf77/dcf77.h"
 #include "ipv6.h"
@@ -204,6 +205,11 @@ int main(void)
 	wdt_kick();
 #endif
 
+#ifdef ZBUS_SUPPORT
+	zbus_process();
+	wdt_kick();
+#endif
+     
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();

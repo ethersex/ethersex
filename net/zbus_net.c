@@ -51,13 +51,14 @@ zbus_net_init(void)
 
     uip_udp_bind(zbus_conn, HTONS(ZBUS_PORT));
 
-    zbus_core_init(zbus_conn);
+    zbus_core_init();
 }
 
 
 void
 zbus_net_main(void)
 {
+  return;
   uip_udp_conn_t error_conn;
 
   if (uip_newdata()) {
@@ -114,8 +115,8 @@ copy_data:
     memcpy(uip_udp_conn->appstate.zbus.buffer, uip_appdata, uip_datalen());
 
 
-    if (zbus_send_conn_data(uip_udp_conn) == 0) 
-      uip_udp_conn->appstate.zbus.state |= ZBUS_STATE_SENDING;  
+/*    if (zbus_send_conn_data(uip_udp_conn) == 0) 
+      uip_udp_conn->appstate.zbus.state |= ZBUS_STATE_SENDING;  */
 
     /* Update the ttl of the connection */
     uip_udp_conn->appstate.zbus.ttl = 25;
@@ -123,11 +124,13 @@ copy_data:
   else if (uip_poll()) {
     /* Try to send old data */
     if (uip_udp_conn->appstate.zbus.state & ZBUS_STATE_SENDING) {
+#if 0
       if (zbus_send_conn_data(uip_udp_conn) == 1) {
         /* Sending to the hardware layer was successfull */
         uip_udp_conn->appstate.zbus.state &= ~ZBUS_STATE_SENDING;  
         return;
       }
+#endif
     }
     /* Do timeout for the single zbus connections */
     if (uip_udp_conn->appstate.zbus.ttl-- == 0 && uip_udp_conn != zbus_conn) 
