@@ -266,6 +266,10 @@ rfm12_rxfinish(uint8_t *data)
   for(i = 0; i < len; i++)
     data[i] = RFM12_Data[i + 1];
 
+#ifdef SKIPJACK_SUPPORT
+  rfm12_decrypt (RFM12_Data, &len);
+#endif
+
   return(len);                 /* receive size */
 }
 
@@ -289,6 +293,10 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 
 #ifdef RFM12_BLINK_PORT
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
+#endif
+
+#ifdef SKIPJACK_SUPPORT
+  rfm12_encrypt (RFM12_Data, &size);
 #endif
 
   i = size; while (i --)
