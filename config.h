@@ -429,6 +429,7 @@
 #define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 #define CONF_RFM12_IP uip_ipaddr(ip,10,2,0,5)
+#define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)

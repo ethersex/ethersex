@@ -23,11 +23,8 @@
 
 #include "../bit-macros.h"
 #include "../uip/uip.h"
-#include "../uip/uip_arp.h"
-#include "../uip/uip_neighbor.h"
 #include "../clock/clock.h"
 #include "../ntp/ntp.h"
-#include "../network.h"
 #include "../config.h"
 #include "ntpd_net.h"
 
@@ -91,12 +88,7 @@ ntpd_net_main(void)
 
     /* Send immediately */
     uip_process(UIP_UDP_SEND_CONN); 
-#ifdef IPV6_SUPPORT
-    uip_neighbour_out();
-#else
-    uip_arp_out(); 
-#endif
-    transmit_packet();
+    fill_llh_and_transmit();
 
     uip_slen = 0;
   }
