@@ -220,6 +220,13 @@ my %ethersex_modules = (
                    requires => ["clock"],
                    conflicts => [ "stella" ],
                  },
+  'dcf77'        => {
+                   helptext  => "synchronize the clock with the dcf77 signal
+                     (experimental)",
+                   distdflt  => 0,
+                   preconfigure => [ "clock" ],
+                   requires => ["clock", "clock_crystal"],
+                 },
   'ntp'        => {
                    helptext  => "get time via ntp protocol",
                    distdflt  => 0,
