@@ -19,10 +19,6 @@
 #  ifndef CONF_WITH_DECRYPT
 #    define CONF_WITH_DECRYPT 1
 #  endif
-
-#  ifndef INLINE
-#    define INLINE 1   /* XXX the other version doesn't work at the moment. */
-#  endif
 #endif
 
 #define W1_L	0
@@ -241,9 +237,11 @@ void rule_binv( iu8* v, iu8 counter )
 
 void skipjack_dec( iu8* v, iu8* k )
 {
-	iu8 kidx=8, counter=32;
 #ifdef INLINE
+	iu8 kidx=8, counter=32;
 	iu8 tmp;
+#else
+	iu8 kidx=4, counter=32;
 #endif
 
 	while( counter>24 ) {
