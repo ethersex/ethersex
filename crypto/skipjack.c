@@ -15,6 +15,16 @@
 #define INLINE
 #endif
 
+#ifdef RFM12_SUPPORT
+#  ifndef CONF_WITH_DECRYPT
+#    define CONF_WITH_DECRYPT 1
+#  endif
+
+#  ifndef INLINE
+#    define INLINE 1   /* XXX the other version doesn't work at the moment. */
+#  endif
+#endif
+
 #define W1_L	0
 #define W1_R	1
 #define W2_L	2
