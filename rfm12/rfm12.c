@@ -264,7 +264,7 @@ rfm12_rxfinish(uint8_t *data)
     data[i] = RFM12_Data[i + 1];
 
 #ifdef SKIPJACK_SUPPORT
-  rfm12_decrypt (RFM12_Data, &len);
+  rfm12_decrypt (data, &len);
 #endif
 
   return(len);                 /* receive size */
@@ -293,7 +293,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 #endif
 
 #ifdef SKIPJACK_SUPPORT
-  rfm12_encrypt (RFM12_Data, &size);
+  rfm12_encrypt (data, &size);
 #endif
 
   i = size; while (i --)
