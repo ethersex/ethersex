@@ -44,6 +44,8 @@
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
+#include "clock/clock.h"
+#include "dcf77/dcf77.h"
 #include "ipv6.h"
 #include "sensor_rfm12/sensor_rfm12.h"
 
@@ -122,6 +124,10 @@ int main(void)
     timer_init();
 #ifdef CLOCK_SUPPORT
     clock_init();
+#endif
+
+#ifdef DCF77_SUPPORT
+    dcf77_init();
 #endif
 
 #ifdef FS20_SUPPORT
@@ -236,6 +242,9 @@ int main(void)
         if(cfg.request_bootloader) {
         #ifdef CLOCK_CRYSTAL_SUPPORT
             TIMSK2 &= ~_BV(TOIE2);
+        #endif
+        #ifdef DCF77_SUPPORT
+            ACSR &= ~_BV(ACIE);
         #endif
             cli();
             jump_to_bootloader();

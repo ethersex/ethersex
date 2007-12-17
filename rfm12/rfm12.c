@@ -42,13 +42,6 @@ struct RFM12_stati
 struct RFM12_stati RFM12_status;
 volatile uint8_t RFM12_Index = 0;
 
-#ifndef ENC28J60_SUPPORT
-#  define RFM12_SHARE_UIP_BUF
-#  undef RFM12_DataLength
-#  define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 10)
-#  define RFM12_Data uip_buf
-#endif /* no ENC28J60_SUPPORT */
-
 #ifndef RFM12_SHARE_UIP_BUF
 volatile uint8_t RFM12_Data[RFM12_DataLength + 10];
 #endif
@@ -265,9 +258,12 @@ rfm12_rxfinish(uint8_t *data)
 
 #ifdef SKIPJACK_SUPPORT
   rfm12_decrypt (data, &len);
-#endif
 
-  return(len);                 /* receive size */
+  if (!len)
+    rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+#endif
+  
+  return(len);			/* receive size */
 }
 
 
@@ -294,6 +290,9 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 
 #ifdef SKIPJACK_SUPPORT
   rfm12_encrypt (data, &size);
+
+  if (!size)
+    return 4;
 #endif
 
   i = size; while (i --)

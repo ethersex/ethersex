@@ -49,6 +49,13 @@
 #  define RFM12_RX_PIN _BV(PD5)
 #endif
 
+#ifndef ENC28J60_SUPPORT
+#  define RFM12_SHARE_UIP_BUF
+#  undef RFM12_DataLength
+#  define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 10)
+#  define RFM12_Data uip_buf
+#endif /* no ENC28J60_SUPPORT */
+
 //##############################################################################
 
 #define RxBW400		1

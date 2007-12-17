@@ -31,14 +31,20 @@
 
 #ifdef SKIPJACK_SUPPORT
 
-#ifdef SKIPJACK_SUPPORT
 static uint8_t rfm12_key[10] = CONF_RFM12_KEY;
-#endif
 
 
 void
 rfm12_encrypt (uint8_t *data, uint8_t *len)
 {
+  uint8_t pad_char = 8 - (*len % 8);
+
+  if (pad_char + *len + 8 > RFM12_DataLength)
+    {
+      *len = 0; 		/* destroy packet */
+      return;
+    }
+
   /* Make room for IV. */
   memmove (data + 8, data, *len);
   *len += 8;
@@ -48,7 +54,6 @@ rfm12_encrypt (uint8_t *data, uint8_t *len)
     data[i] = rand() & 0xFF;
 
   /* Do padding. */
-  uint8_t pad_char = 8 - (*len % 8);
   do
     {
       data[*len] = pad_char;
