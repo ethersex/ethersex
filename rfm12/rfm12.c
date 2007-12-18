@@ -61,7 +61,10 @@ SIGNAL(RFM12_INT_SIGNAL)
       else
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_status.Rx = 0;	/* FIXME this kills ourself */
+	  rfm12_rxstart();
+#ifdef RFM12_BLINK_PORT
+	  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
+#endif
 	}
 
       if(RFM12_Index >= RFM12_Data[0] + 1)
@@ -218,9 +221,6 @@ rfm12_rxstart(void)
   if(RFM12_status.Tx)
     return(2);			/* tx in action */
 
-  if(RFM12_status.Rx)
-    return(3);			/* rx already in action */
-  
   rfm12_prologue ();
 
   rfm12_trans(0x82C8);		/* RX on */
