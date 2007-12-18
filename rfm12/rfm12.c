@@ -62,6 +62,9 @@ SIGNAL(RFM12_INT_SIGNAL)
 	{
 	  rfm12_trans(0x8208);
 	  rfm12_rxstart();
+#ifdef RFM12_BLINK_PORT
+	  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
+#endif
 	}
 
       if(RFM12_Index >= RFM12_Data[0] + 1)
