@@ -291,17 +291,17 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
 #endif
 
-#ifdef SKIPJACK_SUPPORT
-  rfm12_encrypt (data, &size);
-
-  if (!size)
-    return 4;
-#endif
-
   i = size; while (i --)
               RFM12_Data[i + 6] = data[i];
 
   i = RFM12_Index = 0;
+
+#ifdef SKIPJACK_SUPPORT
+  rfm12_encrypt (RFM12_Data+6, &size);
+
+  if (!size)
+    return 4;
+#endif
 
   RFM12_Data[i++] = 0xAA;
   RFM12_Data[i++] = 0xAA;
