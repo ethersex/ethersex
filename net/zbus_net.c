@@ -43,15 +43,17 @@ zbus_net_init(void)
 {
     uip_ipaddr_t ip;
     uip_ipaddr_copy(&ip, all_ones_addr);
+    
+    zbus_core_init();
 
-    zbus_conn = uip_udp_new(&ip, 0, zbus_net_main);
+//    zbus_conn = uip_udp_new(&ip, 0, zbus_net_main);
+    zbus_conn = NULL;
 
     if(! zbus_conn) 
     	return; /* dammit. */
 
     uip_udp_bind(zbus_conn, HTONS(ZBUS_PORT));
 
-    zbus_core_init();
 }
 
 

@@ -30,12 +30,23 @@ zbus_process(void)
 {
   struct zbus_ctx *recv = zbus_rxfinish();
   if (recv) {
+#ifdef ENC28J60_SUPPORT
     memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
     uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
-    syslog_sendf("packet: %d", uip_len);
-    /* send buffer out */
-    fill_llh_and_transmit ();
     /* reset the recieve buffer */
     recv->len = 0;
+#else
+    memcpy(uip_buf, recv->data, recv->len);
+    uip_len = recv->len;
+    
+    uip_input();
+    /* reset the recieve buffer */
+    recv->len = 0;
+    recv->offset = 0;
+#endif
   }
+  if (!uip_len)
+    return;
+  /* send buffer out */
+  fill_llh_and_transmit ();
 }

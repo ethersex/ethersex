@@ -40,7 +40,10 @@ static volatile uint8_t bus_blocked = 0;
 static volatile zbus_send_byte_callback_t callback = NULL;
 static volatile void *callback_ctx = NULL;
 
-static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER + 10];
+#ifdef ENC28J60_SUPPORT
+static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER];
+#endif
+
 static volatile struct zbus_ctx recv_ctx;
 static volatile struct zbus_ctx send_ctx;
 
@@ -89,7 +92,11 @@ zbus_core_init(void)
     _UBRRL_UART0 = LO8(ZBUS_UART_UBRR);
 
     /* set mode */
+#ifdef URSEL
+    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01) | _BV(URSEL);
+#else
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
+#endif
 
     /* enable transmitter and receiver */
     _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
@@ -98,11 +105,19 @@ zbus_core_init(void)
     RXTX_DDR |= _BV(RXTX_PIN);
     /* Default is reciever enabled*/
     RXTX_PORT &= ~_BV(RXTX_PIN);
+
+#ifdef ZBUS_BLINK_PORT
+  ZBUS_BLINK_DDR |= ZBUS_RX_PIN | ZBUS_TX_PIN;
+#endif
     
     /* clear the buffers */
     send_ctx.len = 0;
     recv_ctx.len = 0;
+#ifdef ENC28J60_SUPPORT
     recv_ctx.data = (uint8_t *)recv_buffer;
+#else
+    recv_ctx.data = (uint8_t *)uip_buf;
+#endif
 }
 
 void
@@ -133,6 +148,10 @@ zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx)
   /* Enable buffer empty interrupt */
   _UCSRB_UART0 |= _BV(UDRIE0); 
 
+#ifdef ZBUS_BLINK_PORT
+  ZBUS_BLINK_PORT |= ZBUS_TX_PIN;
+#endif
+
   return 1;
 }
 
@@ -140,6 +159,9 @@ void
 zbus_tx_finish(void) 
 {
   callback = NULL;
+#ifdef ZBUS_BLINK_PORT
+  ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
+#endif
 }
 
 SIGNAL(USART0_UDRE_vect)
@@ -179,6 +201,9 @@ SIGNAL(USART0_UDRE_vect)
 
 SIGNAL(USART0_RX_vect)
 {
+#ifdef ZBUS_BLINK_PORT
+  ZBUS_BLINK_PORT ^= ZBUS_TX_PIN;
+#endif
   /* Ignore errors */
   if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
     uint8_t v = _UDR_UART0;
@@ -196,8 +221,14 @@ SIGNAL(USART0_RX_vect)
       if (data == ZBUS_START) {
         recv_ctx.offset = 0;
         bus_blocked = 3;
+#ifdef ZBUS_BLINK_PORT
+  ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
+#endif
       }
       else if (data == ZBUS_STOP) {
+#ifdef ZBUS_BLINK_PORT
+  ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
+#endif
         recv_ctx.len = recv_ctx.offset;
         bus_blocked = 0;
       }
@@ -209,7 +240,7 @@ SIGNAL(USART0_RX_vect)
     } else {
 append_data:
       /* Not enough space in buffer */
-      if (recv_ctx.offset >= (ZBUS_RECV_BUFFER + 10)) return;
+      if (recv_ctx.offset >= (ZBUS_RECV_BUFFER)) return;
       /* If bus is not blocked we aren't on an message */
       if (!bus_blocked) return;
 
