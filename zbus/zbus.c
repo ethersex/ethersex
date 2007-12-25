@@ -80,7 +80,7 @@ struct zbus_ctx *
 zbus_rxfinish(void) 
 {
   if (recv_ctx.len != 0)
-    return (struct zbus_ctx *)&recv_ctx;
+    return &recv_ctx;
   return NULL;
 }
 
@@ -201,9 +201,6 @@ SIGNAL(USART0_UDRE_vect)
 
 SIGNAL(USART0_RX_vect)
 {
-#ifdef ZBUS_BLINK_PORT
-  ZBUS_BLINK_PORT ^= ZBUS_TX_PIN;
-#endif
   /* Ignore errors */
   if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
     uint8_t v = _UDR_UART0;
@@ -222,15 +219,18 @@ SIGNAL(USART0_RX_vect)
         recv_ctx.offset = 0;
         bus_blocked = 3;
 #ifdef ZBUS_BLINK_PORT
-  ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
+        ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
 #endif
       }
       else if (data == ZBUS_STOP) {
+        /* Only if there was a start condition before */
+        if (bus_blocked) {
 #ifdef ZBUS_BLINK_PORT
-  ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
+          ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
 #endif
-        recv_ctx.len = recv_ctx.offset;
-        bus_blocked = 0;
+          recv_ctx.len = recv_ctx.offset;
+          bus_blocked = 0;
+        }
       }
       else if (data == '\\') {
         recv_escape_data = 0;
@@ -244,7 +244,8 @@ append_data:
       /* If bus is not blocked we aren't on an message */
       if (!bus_blocked) return;
 
-      recv_ctx.data[recv_ctx.offset++] = data;
+      recv_ctx.data[recv_ctx.offset] = data;
+      recv_ctx.offset++;
     }
   }
 }
