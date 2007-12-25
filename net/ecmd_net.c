@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #ifdef ECMD_SUPPORT
+#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 /* module local prototypes */
 void newdata(void);
@@ -240,7 +241,25 @@ void ecmd_net_main(void)
     }
 #else /* TEENSY _SUPPORT */
     if(uip_newdata()) {
-      uip_udp_send(uip_datalen());
+      uip_udp_conn_t echo_conn;
+      uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
+      echo_conn.rport = BUF->srcport;
+      echo_conn.lport = HTONS(ECMD_NET_PORT);
+
+      uip_udp_conn = &echo_conn;
+      /* Add \0 to the data and remove \n from the data */
+      ((char *)uip_appdata)[uip_datalen()] = 0;
+      if ( ((char * )uip_appdata)[uip_datalen() - 1] == '\n')
+        ((char *)uip_appdata)[uip_datalen() - 1] = 0;
+      /* Parse the Data */
+      uip_slen = ecmd_parse_command(uip_appdata, uip_appdata, 
+                                    UIP_BUFSIZE - UIP_IPUDPH_LEN) + 1;
+      
+      ((char *)uip_appdata)[uip_slen - 1] = '\n';
+      uip_process(UIP_UDP_SEND_CONN); 
+      fill_llh_and_transmit();
+
+      uip_slen = 0;
     }
 #endif
 }

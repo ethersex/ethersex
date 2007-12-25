@@ -44,6 +44,8 @@
 #include "../clock/clock.h"
 #include "ecmd.h"
 
+#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
+
 
 /* module local prototypes */
 /* high level */
@@ -293,6 +295,55 @@ static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len)
 #endif  
 } /* }}} */
 #endif
+
+static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value) 
+/* {{{ */ {
+#ifndef TEENSY_SUPPORT
+        return snprintf_P(output, len,
+                PSTR("port %d: 0x%02x"),
+                port, value);
+#else
+        strncpy_P(output, PSTR("port P: 0xXX"), len);
+        /* Convert to number :) */
+        output[5] = port + 48;
+        output[10] = NIBBLE_TO_HEX((value >> 4) & 0x0F);
+        output[11] = NIBBLE_TO_HEX(value & 0x0F);
+        return 12;
+#endif
+} /* }}} */
+
+static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
+/* {{{ */ {
+#ifndef TEENSY_SUPPORT
+  return sscanf_P(cmd, PSTR("%x %x %x"),
+                  port, data, mask);
+#else
+  char *p;
+  if (! *cmd ) return 0;
+  /* skip first space */
+  while (*cmd == ' ')
+    cmd ++;
+  if (! *cmd ) return 0;
+  *port = *cmd - '0';
+  /* After the second number */
+  p = strchr(cmd, ' ');
+  if (! p) return 1;
+  /* skip spaces */
+  while (*p == ' ')
+    p++;
+  cmd = p;
+  *data = strtol(cmd, NULL, 16);
+  p = strchr(cmd, ' ');
+  if (! p) return 2;
+  /* skip spaces */
+  while (*p == ' ')
+    p++;
+  cmd = p;
+  *mask = strtol(cmd, NULL, 16);
+  return 3;
+#endif
+} /* }}} */
+
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -916,7 +967,6 @@ static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif 
 
-
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -924,12 +974,9 @@ static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_set_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port, data, mask;
+    uint8_t port, data, mask;
 
-    int ret = sscanf_P(cmd,
-            PSTR("%x %x %x"),
-            &port, &data, &mask);
-
+    uint8_t ret = parse_set_command(cmd, &port, &data, &mask);
     /* use default mask, if no mask has been given */
     if (ret == 2) {
         mask = 0xff;
@@ -954,20 +1001,19 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port;
-
+    uint8_t port;
+#ifndef TEENSY_SUPPORT
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-
-    if (ret == 1 && port < IO_PORTS) {
-
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port,
-                cfg.options.io_ddr[port]);
-    } else
-        return -1;
+    if (ret == 1 && port < IO_PORTS) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS)
+#endif
+      return print_port(output, len, port, cfg.options.io_ddr[port]);
+    else
+      return -1;
 
 } /* }}} */
 
@@ -978,12 +1024,8 @@ static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_set_port with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port, data, mask;
-
-    int ret = sscanf_P(cmd,
-            PSTR("%x %x %x"),
-            &port, &data, &mask);
-
+    uint8_t port, data, mask;
+    uint8_t ret = parse_set_command(cmd, &port, &data, &mask);
     /* use default mask, if no mask has been given */
     if (ret == 2) {
         mask = 0xff;
@@ -1008,19 +1050,19 @@ static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_get_port with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port;
+    uint8_t port;
 
+#ifndef TEENSY_SUPPORT
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-
-    if (ret == 1 && port < IO_PORTS) {
-
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port,
-                cfg.options.io[port]);
-    } else
+    if (ret == 1 && port < IO_PORTS) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS)
+#endif
+      return print_port(output, len, port, cfg.options.io[port]);
+    else
         return -1;
 
 } /* }}} */
@@ -1032,19 +1074,19 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_get_pin with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port;
+    uint8_t port;
 
+#ifndef TEENSY_SUPPORT
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-
-    if (ret == 1 && port < IO_PORTS) {
-
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port,
-                portio_input(port));
-    } else
+    if (ret == 1 && port < IO_PORTS) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS)
+#endif
+      return print_port(output, len, port, portio_input(port));
+    else
         return -1;
 
 } /* }}} */
