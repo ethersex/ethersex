@@ -47,17 +47,21 @@
 
 /* module local prototypes */
 /* high level */
+#ifndef TEENSY_SUPPORT
+#ifdef ENC28J60_SUPPORT
+static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
+static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
+#endif
 static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
+#endif /* TEENSY_SUPPORT */
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
 static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
@@ -104,11 +108,17 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
 #ifdef CLOCK_SUPPORT
 static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len);
 #endif
+#ifndef TEENSY_SUPPORT
 static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
+#endif
 
 /* low level */
-static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
+#ifdef ENC28J60_SUPPORT
 static int8_t parse_mac(char *cmd, uint8_t *ptr);
+#endif
+#ifndef TEENSY_SUPPORT
+static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
+#endif
 static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
 
 /* struct for storing commands */
@@ -120,7 +130,11 @@ struct ecmd_command_t {
 /* construct strings.  this is ugly, but the only known way of
  * storing structs containing string pointer completely in program
  * space */
+#ifndef TEENSY_SUPPORT
+#ifdef ENC28J60_SUPPORT
 const char PROGMEM ecmd_showmac_text[] = "show mac";
+const char PROGMEM ecmd_mac_text[] = "mac ";
+#endif
 const char PROGMEM ecmd_show_ip_text[] = "show ip";
 #ifndef IPV6_SUPPORT
 const char PROGMEM ecmd_show_netmask_text[] = "show netmask";
@@ -132,9 +146,9 @@ const char PROGMEM ecmd_ip_text[] = "ip ";
 const char PROGMEM ecmd_netmask_text[] = "netmask ";
 const char PROGMEM ecmd_gw_text[] = "gw ";
 #endif
-const char PROGMEM ecmd_mac_text[] = "mac ";
 const char PROGMEM ecmd_bootloader_text[] = "bootloader";
 const char PROGMEM ecmd_reset_text[] = "reset";
+#endif /* TEENSY_SUPPORT */
 const char PROGMEM ecmd_io_set_ddr[] = "io set ddr";
 const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
 const char PROGMEM ecmd_io_set_port[] = "io set port";
@@ -183,13 +197,18 @@ const char PROGMEM ecmd_dns_text[] = "dns ";
 #ifdef CLOCK_SUPPORT
 const char PROGMEM ecmd_time_text[] = "time";
 #endif
+#ifndef TEENSY_SUPPORT
 const char PROGMEM ecmd_d_text[] = "d ";
+#endif
 
 const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
+#ifndef TEENSY_SUPPORT
     { ecmd_show_ip_text, parse_cmd_show_ip },
     { ecmd_show_gw_text, parse_cmd_show_gw },
+#ifdef ENC28J60_SUPPORT
     { ecmd_showmac_text, parse_cmd_show_mac },
     { ecmd_mac_text, parse_cmd_mac },
+#endif
 #if !UIP_CONF_IPV6
     { ecmd_show_netmask_text, parse_cmd_show_netmask },
 #endif
@@ -201,6 +220,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
     { ecmd_showversion_text, parse_cmd_show_version },
     { ecmd_bootloader_text, parse_cmd_bootloader }, 
     { ecmd_reset_text, parse_cmd_reset },
+#endif /* TEENSY_SUPPORT */
     { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
     { ecmd_io_get_ddr, parse_cmd_io_get_ddr },
     { ecmd_io_set_port, parse_cmd_io_set_port },
@@ -249,11 +269,13 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #ifdef CLOCK_SUPPORT
     { ecmd_time_text, parse_cmd_time },
 #endif
+#ifndef TEENSY_SUPPORT
     { ecmd_d_text, parse_cmd_d },
+#endif
     { NULL, NULL },
 };
 
-
+#ifndef TEENSY_SUPPORT
 static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
 /* {{{ */ {
 #if UIP_CONF_IPV6
@@ -270,6 +292,7 @@ static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len)
   return output_len;
 #endif  
 } /* }}} */
+#endif
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -341,7 +364,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 } /* }}} */
 
 /* high level parsing functions */
-
+#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     cfg.request_bootloader = 1;
@@ -349,8 +372,9 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
     return 0;
 } /* }}} */
 
+#ifdef ENC28J60_SUPPORT
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+/* {{{ */ {#
 
 #ifdef DEBUG_ECMD_MAC
     debug_printf("called parse_cmd_show with rest: \"%s\"\n", cmd);
@@ -367,6 +391,7 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 
     return output_len;
 } /* }}} */
+#endif
 
 
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
@@ -482,7 +507,7 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
-
+#ifdef ENC28J60_SUPPORT
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -503,6 +528,7 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
         return ret;
 
 } /* }}} */
+#endif
 
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -510,6 +536,7 @@ static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     uip_close();
     return 0;
 } /* }}} */
+#endif /* TEENSY_SUPPORT */
 
 #ifdef FS20_SUPPORT 
 #ifdef FS20_SUPPORT_SEND
@@ -1250,7 +1277,7 @@ static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len)
 
 
 /* low level parsing functions */
-
+#ifndef TEENSY_SUPPORT
 /* parse an ip address at cmd, write result to ptr */
 int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 /* {{{ */ {
@@ -1282,7 +1309,7 @@ int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
     return 0;
 } /* }}} */
 
-
+#ifdef ENC28J60_SUPPORT
 /* parse an ethernet address at cmd, write result to ptr */
 int8_t parse_mac(char *cmd, uint8_t *ptr)
 /* {{{ */ {
@@ -1319,7 +1346,9 @@ int8_t parse_mac(char *cmd, uint8_t *ptr)
 
     return ret;
 } /* }}} */
+#endif
 
+#ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */
 int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 /* {{{ */ {
@@ -1349,7 +1378,11 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 
     return 1;
 } /* }}} */
+#endif
 
+#endif
+
+#ifndef TEENSY_SUPPORT
 static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     while (*cmd == ' ') cmd ++;
@@ -1364,4 +1397,5 @@ static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 
     return 32;
 } /* }}} */
+#endif
 

@@ -27,9 +27,14 @@
 #include <stdint.h>
 
 #ifdef _ATMEGA8
-/* FIXME portio not yet supported. */
-#define IO_PORTS 0
+#define IO_PORTS  3
+#define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
+#define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}
+#define IO_PIN_ARRAY { &PINB, &PINC, &PIND}
+/* FIXME portio not really supported. */
+#define IO_MASK_ARRAY { 0, 0, 0 }                                          \
 
+/* ATMega644 | ATMega32 */
 #elif defined(_ATMEGA644) || defined(_ATMEGA32)
 
 #if defined(HD44780_SUPPORT) && !defined(HD44780_USE_PORTC)

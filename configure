@@ -30,8 +30,9 @@ my %ethersex_modules = (
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "tetrirape", "bootloader" ],
-                   requires  => [ "tcp", "portio" ],
+                   requires  => [ "portio" ],
                    distdflt  => 1,
+		   enable_hook => \&ecmd_enable_hook,
                  },
   'portio'    => {
                    helptext  => "port io abstraction layer",
@@ -666,6 +667,14 @@ sub tftp_enable_hook {
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
 
   ask_cryptokey("tftp_key", 10);
+}
+
+sub ecmd_enable_hook {
+  if ($ethersex_modules{'teensy'}->{'new_status'}) {
+    enable("udp", "ecmd and teensy");
+  } else {
+    enable("tcp", "ecmd");
+  }
 }
 
 sub bootp_enable_hook {
