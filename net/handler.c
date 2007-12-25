@@ -38,7 +38,6 @@
 #include "i2c_net.h"
 #include "ntp_net.h"
 #include "ntpd_net.h"
-#include "zbus_net.h"
 #include "udp_echo_net.h"
 #include "../dyndns/dyndns.h"
 
@@ -106,11 +105,6 @@ void network_init_apps(void)
 
 #   ifdef NTPD_SUPPORT
     ntpd_net_init();
-#   endif
-
-
-#   ifdef ZBUS_SUPPORT
-    zbus_net_init();
 #   endif
 
 #   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \

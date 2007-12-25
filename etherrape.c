@@ -142,6 +142,10 @@ int main(void)
     rc5_init();
 #endif
 
+#ifdef ZBUS_SUPPORT
+    zbus_core_init();
+#endif
+
 #ifdef RFM12_SUPPORT
     rfm12_init();
 

@@ -123,6 +123,11 @@ void timer_process(void)
 #       endif
 #       endif /* FS20_SUPPORT */
 
+#       ifdef ZBUS_SUPPORT
+        if (counter % 10 == 0)
+          zbus_core_periodic();
+#       endif /* ZBUS_SUPPORT */
+
         /* check tcp connections every 200ms */
 #       ifdef TEENSY_SUPPORT
         if ((counter & 7) == 0) {
