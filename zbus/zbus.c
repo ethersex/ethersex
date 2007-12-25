@@ -167,7 +167,7 @@ zbus_tx_finish(void)
 
 SIGNAL(USART0_UDRE_vect)
 {
-  //_delay_ms(1);
+  _delay_ms(1);
   if (send_escape_data) {
     _UDR_UART0 = send_escape_data;
     send_escape_data = 0;
