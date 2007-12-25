@@ -292,8 +292,11 @@
 #ifdef _ATMEGA8
   /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
 #  define NET_MAX_FRAME_LENGTH 192
+/* on the ATmega8 we only have 6 adc channels in the pdip version */
+#  define ADC_CHANNELS 6
 #else
 #  define NET_MAX_FRAME_LENGTH 640
+#  define ADC_CHANNELS 8
 #endif
 
 /* configure main callback function for uip */
@@ -399,6 +402,7 @@
 // #define STELLA_SUPPORT
 // #define TEENSY_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
+// #define ADC_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */

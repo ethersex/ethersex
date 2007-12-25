@@ -85,6 +85,9 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
 #endif
 #endif
 #endif /* FS20_SUPPORT */
+#ifdef ADC_SUPPORT
+static int16_t parse_adc_get(char *cmd, char *output, uint16_t len);
+#endif
 #ifdef HD44780_SUPPORT
 static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
 static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
@@ -172,6 +175,9 @@ const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
 #endif
 #endif
 #endif /* FS20_SUPPORT */
+#ifdef ADC_SUPPORT
+const char PROGMEM ecmd_adc_get_text[] = "adc get";
+#endif
 #ifdef HD44780_SUPPORT
 const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
 const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
@@ -244,6 +250,9 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 #endif
 #endif
 #endif /* FS20_SUPPORT */
+#ifdef ADC_SUPPORT
+    { ecmd_adc_get_text, parse_adc_get },
+#endif
 #ifdef HD44780_SUPPORT
     { ecmd_lcd_clear_text, parse_lcd_clear },
     { ecmd_lcd_write_text, parse_lcd_write },
@@ -681,6 +690,40 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 #endif
 #endif
 #endif /* FS20_SUPPORT */
+
+#ifdef ADC_SUPPORT
+static int16_t parse_adc_get(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint16_t adc;
+  uint8_t channel;
+  uint8_t ret = 0;
+  if (cmd[0] && cmd[1]) {
+    if ( (cmd[1] - '0') < ADC_CHANNELS) {
+      ADMUX = cmd[1] - '0';
+      channel = ADC_CHANNELS;
+      goto adc_out; 
+    } else 
+      return -1;
+  }
+  for (channel = 0; channel < ADC_CHANNELS; channel ++) {
+    ADMUX = channel;
+adc_out:
+    /* Start adc conversion */
+    ADCSRA |= _BV(ADSC);
+    /* Wait for completion of adc */
+    while (ADCSRA & _BV(ADSC)) {}
+    adc = ADC;
+    output[0] = NIBBLE_TO_HEX((adc >> 8) & 0x0F);
+    output[1] = NIBBLE_TO_HEX((adc >> 4) & 0x0F);
+    output[2] = NIBBLE_TO_HEX(adc & 0x0F);
+    output[3] = ' ';
+    output[4] = 0;
+    ret += 4;
+    output += 4;
+  }
+  return ret;
+} /* }}} */
+#endif
 
 #ifdef ONEWIRE_SUPPORT
 static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)

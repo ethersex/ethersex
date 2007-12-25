@@ -192,6 +192,11 @@ my %ethersex_modules = (
                    preconfigure => [ "bootp" ],
                    enable_hook  => \&dns_enable_hook,
                  },
+  'adc'       => {
+                   helptext  => "get adc values",
+                   distdflt  => 0,
+                   requires => ["ecmd"],
+                 },
   'dyndns'        => {
                    helptext  => "updating an dns name on dyn.metafnord.de",
                    distdflt  => 0,
@@ -245,9 +250,8 @@ my %ethersex_modules = (
 		   enable_hook => \&enc28j60_enable_hook,
                  },
   'zbus'        => {
-                   helptext  => "serial protocol",
+                   helptext  => "tunnelingip over zbus",
                    distdflt  => 0,
-                   requires => ["udp"],
                  },
 );
 my %ethersex_config = (

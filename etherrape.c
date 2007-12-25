@@ -126,6 +126,11 @@ int main(void)
     clock_init();
 #endif
 
+#ifdef ADC_SUPPORT
+    /* ADC Prescaler to 64 */
+    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
+#endif
+
 #ifdef DCF77_SUPPORT
     dcf77_init();
 #endif
