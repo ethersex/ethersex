@@ -153,6 +153,15 @@ extern struct uip_stack *uip_stack;
 #    define RFM12_BRIDGE_OFFSET  14
 #  endif
 
+/* We don't have a LLH on ZBus however we might need to pass
+   the packet to ethernet, therefore 14 is simpler. */
+#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#  ifdef OPENVPN_SUPPORT
+#    define ZBUS_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
+#  else
+#    define ZBUS_BRIDGE_OFFSET  14
+#  endif
+
 #ifdef RFM12_OUTER
 #  define UIP_CONF_LLH_LEN       RFM12_BRIDGE_OFFSET
 #endif

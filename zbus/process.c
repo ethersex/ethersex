@@ -21,9 +21,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include "../uip/uip.h"
 #include "zbus.h"
-#include "../syslog/syslog.h"
-#define ZBUS_BRIDGE_OFFSET 14
 
 void
 zbus_process(void)
