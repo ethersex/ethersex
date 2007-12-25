@@ -42,13 +42,6 @@ struct RFM12_stati
 struct RFM12_stati RFM12_status;
 volatile uint8_t RFM12_Index = 0;
 
-#ifndef ENC28J60_SUPPORT
-#  define RFM12_SHARE_UIP_BUF
-#  undef RFM12_DataLength
-#  define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE - 10)
-#  define RFM12_Data uip_buf
-#endif /* no ENC28J60_SUPPORT */
-
 #ifndef RFM12_SHARE_UIP_BUF
 volatile uint8_t RFM12_Data[RFM12_DataLength + 10];
 #endif
@@ -68,7 +61,10 @@ SIGNAL(RFM12_INT_SIGNAL)
       else
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_status.Rx = 0;	/* FIXME this kills ourself */
+	  rfm12_rxstart();
+#ifdef RFM12_BLINK_PORT
+	  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
+#endif
 	}
 
       if(RFM12_Index >= RFM12_Data[0] + 1)
@@ -225,9 +221,6 @@ rfm12_rxstart(void)
   if(RFM12_status.Tx)
     return(2);			/* tx in action */
 
-  if(RFM12_status.Rx)
-    return(3);			/* rx already in action */
-  
   rfm12_prologue ();
 
   rfm12_trans(0x82C8);		/* RX on */
@@ -267,10 +260,13 @@ rfm12_rxfinish(uint8_t *data)
     data[i] = RFM12_Data[i + 1];
 
 #ifdef SKIPJACK_SUPPORT
-  rfm12_decrypt (RFM12_Data, &len);
-#endif
+  rfm12_decrypt (data, &len);
 
-  return(len);                 /* receive size */
+  if (!len)
+    rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+#endif
+  
+  return(len);			/* receive size */
 }
 
 
@@ -295,14 +291,17 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
 #endif
 
-#ifdef SKIPJACK_SUPPORT
-  rfm12_encrypt (RFM12_Data, &size);
-#endif
-
   i = size; while (i --)
               RFM12_Data[i + 6] = data[i];
 
   i = RFM12_Index = 0;
+
+#ifdef SKIPJACK_SUPPORT
+  rfm12_encrypt (RFM12_Data+6, &size);
+
+  if (!size)
+    return 4;
+#endif
 
   RFM12_Data[i++] = 0xAA;
   RFM12_Data[i++] = 0xAA;
