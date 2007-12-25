@@ -140,6 +140,8 @@ zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx)
   /* Install send byte callback */
   callback = cb;
   callback_ctx = ctx;
+
+  _delay_ms(1);
   
   /* Transmit Start sequence */
   send_escape_data = ZBUS_START;
