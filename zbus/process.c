@@ -21,8 +21,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include "../config.h"
 #include "../uip/uip.h"
 #include "zbus.h"
+
 
 void
 zbus_process(void)
