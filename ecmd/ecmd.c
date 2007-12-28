@@ -46,245 +46,23 @@
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
-
-/* module local prototypes */
-/* high level */
-#ifndef TEENSY_SUPPORT
-#ifdef ENC28J60_SUPPORT
-static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
-#endif
-static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
-#endif /* TEENSY_SUPPORT */
-static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len);
-#ifdef NAMED_PIN_SUPPORT
-static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef FS20_SUPPORT
-#ifdef FS20_SUPPORT_SEND
-static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef FS20_SUPPORT_RECEIVE
-static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len);
-#ifdef FS20_SUPPORT_RECEIVE_WS300
-static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
-#endif
-#endif
-#endif /* FS20_SUPPORT */
-#ifdef ADC_SUPPORT
-static int16_t parse_adc_get(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef HD44780_SUPPORT
-static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_init(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef ONEWIRE_SUPPORT
-static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
-static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len);
-static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef RC5_SUPPORT
-static int16_t parse_ir_send(char *cmd, char *output, uint16_t len);
-static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef DNS_SUPPORT
-static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef CLOCK_SUPPORT
-static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len);
-#endif
-#ifndef TEENSY_SUPPORT
-static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
-#endif
-
-/* low level */
-#ifdef ENC28J60_SUPPORT
-static int8_t parse_mac(char *cmd, uint8_t *ptr);
-#endif
-#ifndef TEENSY_SUPPORT
-static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
-#endif
-static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
-
 /* struct for storing commands */
 struct ecmd_command_t {
     PGM_P name;
     int16_t (*func)(char*, char*, uint16_t);
 };
 
-/* construct strings.  this is ugly, but the only known way of
- * storing structs containing string pointer completely in program
- * space */
-#ifndef TEENSY_SUPPORT
-#ifdef ENC28J60_SUPPORT
-const char PROGMEM ecmd_showmac_text[] = "show mac";
-const char PROGMEM ecmd_mac_text[] = "mac ";
-#endif
-const char PROGMEM ecmd_show_ip_text[] = "show ip";
-#ifndef IPV6_SUPPORT
-const char PROGMEM ecmd_show_netmask_text[] = "show netmask";
-#endif
-const char PROGMEM ecmd_show_gw_text[] = "show gw";
-const char PROGMEM ecmd_showversion_text[] = "show version";
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-const char PROGMEM ecmd_ip_text[] = "ip ";
-const char PROGMEM ecmd_netmask_text[] = "netmask ";
-const char PROGMEM ecmd_gw_text[] = "gw ";
-#endif
-const char PROGMEM ecmd_bootloader_text[] = "bootloader";
-const char PROGMEM ecmd_reset_text[] = "reset";
-#endif /* TEENSY_SUPPORT */
-const char PROGMEM ecmd_io_set_ddr[] = "io set ddr";
-const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
-const char PROGMEM ecmd_io_set_port[] = "io set port";
-const char PROGMEM ecmd_io_get_port[] = "io get port";
-const char PROGMEM ecmd_io_get_pin[] = "io get pin";
-#ifdef NAMED_PIN_SUPPORT
-const char PROGMEM ecmd_pin_get[] = "pin get";
-const char PROGMEM ecmd_pin_set[] = "pin set";
-const char PROGMEM ecmd_pin_toggle[] = "pin toggle";
-#endif
-#ifdef FS20_SUPPORT
-#ifdef FS20_SUPPORT_SEND
-const char PROGMEM ecmd_fs20_send_text[] = "fs20 send";
-#endif
-#ifdef FS20_SUPPORT_RECEIVE
-const char PROGMEM ecmd_fs20_recv_text[] = "fs20 receive";
-#ifdef FS20_SUPPORT_RECEIVE_WS300
-const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
-#endif
-#endif
-#endif /* FS20_SUPPORT */
-#ifdef ADC_SUPPORT
-const char PROGMEM ecmd_adc_get_text[] = "adc get";
-#endif
-#ifdef HD44780_SUPPORT
-const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
-const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
-const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
-const char PROGMEM ecmd_lcd_char_text[] = "lcd char";
-const char PROGMEM ecmd_lcd_init_text[] = "lcd init";
-const char PROGMEM ecmd_lcd_shift_text[] = "lcd shift";
-#endif
-#ifdef ONEWIRE_SUPPORT
-const char PROGMEM ecmd_onewire_list[] = "1w list";
-const char PROGMEM ecmd_onewire_get[] = "1w get";
-const char PROGMEM ecmd_onewire_convert[] = "1w convert";
-#endif
-#ifdef RC5_SUPPORT
-const char PROGMEM ecmd_ir_send[] = "ir send";
-const char PROGMEM ecmd_ir_receive[] = "ir receive";
-#endif
-#ifdef DNS_SUPPORT
-const char PROGMEM ecmd_nslookup[] = "nslookup ";
-const char PROGMEM ecmd_show_dns_text[] = "show dns";
-#ifndef BOOTP_SUPPORT
-const char PROGMEM ecmd_dns_text[] = "dns ";
-#endif
-#endif /* DNS_SUPPORT */
-#ifdef CLOCK_SUPPORT
-const char PROGMEM ecmd_time_text[] = "time";
-#endif
-#ifndef TEENSY_SUPPORT
-const char PROGMEM ecmd_d_text[] = "d ";
-#endif
+/* Include the function header, generated by m4 */
+#include "ecmd_defs.c"
 
-const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
-#ifndef TEENSY_SUPPORT
-    { ecmd_show_ip_text, parse_cmd_show_ip },
-    { ecmd_show_gw_text, parse_cmd_show_gw },
+/* low level */
 #ifdef ENC28J60_SUPPORT
-    { ecmd_showmac_text, parse_cmd_show_mac },
-    { ecmd_mac_text, parse_cmd_mac },
-#endif
-#if !UIP_CONF_IPV6
-    { ecmd_show_netmask_text, parse_cmd_show_netmask },
-#endif
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-    { ecmd_ip_text, parse_cmd_ip },
-    { ecmd_netmask_text, parse_cmd_netmask },
-    { ecmd_gw_text, parse_cmd_gw },
-#endif
-    { ecmd_showversion_text, parse_cmd_show_version },
-    { ecmd_bootloader_text, parse_cmd_bootloader }, 
-    { ecmd_reset_text, parse_cmd_reset },
-#endif /* TEENSY_SUPPORT */
-    { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
-    { ecmd_io_get_ddr, parse_cmd_io_get_ddr },
-    { ecmd_io_set_port, parse_cmd_io_set_port },
-    { ecmd_io_get_port, parse_cmd_io_get_port },
-    { ecmd_io_get_pin, parse_cmd_io_get_pin },
-#ifdef NAMED_PIN_SUPPORT
-    { ecmd_pin_get, parse_cmd_pin_get },
-    { ecmd_pin_set, parse_cmd_pin_set },
-    { ecmd_pin_toggle, parse_cmd_pin_toggle },
-#endif
-#ifdef FS20_SUPPORT 
-#ifdef FS20_SUPPORT_SEND
-    { ecmd_fs20_send_text, parse_cmd_send_fs20 },
-#endif
-#ifdef FS20_SUPPORT_RECEIVE
-    { ecmd_fs20_recv_text, parse_cmd_recv_fs20 },
-#ifdef FS20_SUPPORT_RECEIVE_WS300
-    { ecmd_fs20_recv_ws300_text, parse_cmd_recv_fs20_ws300 },
-#endif
-#endif
-#endif /* FS20_SUPPORT */
-#ifdef ADC_SUPPORT
-    { ecmd_adc_get_text, parse_adc_get },
-#endif
-#ifdef HD44780_SUPPORT
-    { ecmd_lcd_clear_text, parse_lcd_clear },
-    { ecmd_lcd_write_text, parse_lcd_write },
-    { ecmd_lcd_goto_text, parse_lcd_goto },
-    { ecmd_lcd_char_text, parse_lcd_char },
-    { ecmd_lcd_init_text, parse_lcd_init },
-    { ecmd_lcd_shift_text, parse_lcd_shift },
-#endif
-#ifdef ONEWIRE_SUPPORT
-    { ecmd_onewire_list, parse_onewire_list },
-    { ecmd_onewire_get, parse_onewire_get },
-    { ecmd_onewire_convert, parse_onewire_convert },
-#endif
-#ifdef RC5_SUPPORT
-    { ecmd_ir_send, parse_ir_send },
-    { ecmd_ir_receive, parse_ir_receive },
-#endif
-#ifdef DNS_SUPPORT
-    { ecmd_nslookup, parse_nslookup },
-    { ecmd_show_dns_text, parse_cmd_show_dns },
-#ifndef BOOTP_SUPPORT
-    { ecmd_dns_text, parse_cmd_dns },
-#endif
-#endif /* DNS_SUPPORT */
-#ifdef CLOCK_SUPPORT
-    { ecmd_time_text, parse_cmd_time },
+  static int8_t parse_mac(char *cmd, uint8_t *ptr);
 #endif
 #ifndef TEENSY_SUPPORT
-    { ecmd_d_text, parse_cmd_d },
+  static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 #endif
-    { NULL, NULL },
-};
+static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
 
 #ifndef TEENSY_SUPPORT
 static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
@@ -434,7 +212,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 
 #ifdef ENC28J60_SUPPORT
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
-/* {{{ */ {#
+/* {{{ */ {
 
 #ifdef DEBUG_ECMD_MAC
     debug_printf("called parse_cmd_show with rest: \"%s\"\n", cmd);

@@ -8,7 +8,7 @@ include $(PWD)/avr.mk
 
 SRC = $(shell echo *.c net/*.c lcd/*.c)
 #SRC += $(shell echo fs20/*.c)
-SRC += $(shell echo ecmd/*.c)
+SRC += ecmd/ecmd.c					# ECMD_SUPPORT
 #SRC += $(shell echo tetrirape/*.c)
 #SRC += $(shell echo bootp/*.c)
 #SRC += $(shell echo watchcat/*.c)
@@ -59,6 +59,11 @@ all: $(TARGET).hex $(TARGET).lss $(TARGET).bin
 	@echo "==============================="
 
 $(TARGET): $(OBJECTS) $(TARGET).o
+
+ecmd_defs.m4:
+ecmd.c: ecmd_defs.c
+ecmd_defs.c: ecmd/ecmd_defs.m4
+	m4 $< > ecmd/$@
 
 # subdir magic
 %/% %/%.o %/%.hex %/all %/install:
