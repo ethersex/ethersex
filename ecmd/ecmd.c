@@ -470,7 +470,7 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 #endif /* FS20_SUPPORT */
 
 #ifdef ADC_SUPPORT
-static int16_t parse_adc_get(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint16_t adc;
   uint8_t channel;

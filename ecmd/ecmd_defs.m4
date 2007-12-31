@@ -147,6 +147,10 @@ ecmd_ifdef(CLOCK_SUPPORT)
   ecmd_feature(time, "time")
 ecmd_endif()
 
+ecmd_ifdef(ADC_SUPPORT)
+  ecmd_feature(adc_get, "adc get")
+ecmd_endif()
+
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(d, "d ")
 ecmd_endif()
