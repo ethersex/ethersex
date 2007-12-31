@@ -224,12 +224,6 @@ int main(void)
         timer_process();
         wdt_kick();
 
-#ifdef PORTIO_SUPPORT
-        /* update port io information */
-        portio_update();
-        wdt_kick();
-#endif
-
         /* check if debug input has arrived */
         debug_process();
         wdt_kick();

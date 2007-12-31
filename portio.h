@@ -89,11 +89,21 @@
 #error "unknown CPU!"
 #endif
 
+typedef struct  {
+  uint8_t mask;
+  uint8_t (*read_port)(uint8_t port);
+  uint8_t (*write_port)(uint8_t port, uint8_t data);
+  uint8_t (*read_ddr)(uint8_t port);
+  uint8_t (*write_ddr)(uint8_t port, uint8_t data);
+  uint8_t (*read_pin)(uint8_t port);
+} virtual_port_t;
+
+/* Only if not included by portio.c */
+extern virtual_port_t vport[];
+
 /* prototypes */
 
 /* update port information (PORT and DDR) from global status */
 void portio_init(void);
-void portio_update(void);
-uint8_t portio_input(uint8_t port);
-
+  
 #endif /* _IO_H */

@@ -804,10 +804,10 @@ static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
         ret = 3;
     }
 
-    if (ret == 3 && port < IO_PORTS) {
-
-        cfg.options.io_ddr[port] = (cfg.options.io_ddr[port] & ~mask) |
-                                   LO8(data & mask);
+    if (ret == 3 && port < IO_PORTS && vport[port].write_ddr 
+        && vport[port].read_ddr) {
+        vport[port].write_ddr(port, (vport[port].read_ddr(port) & ~mask)
+                              | LO8(data & mask));
 
         return 0;
     } else
@@ -827,12 +827,12 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-    if (ret == 1 && port < IO_PORTS) 
+    if (ret == 1 && port < IO_PORTS && vport[port].read_ddr) 
 #else
     port = *(cmd + 1) - '0';
-    if (port < IO_PORTS)
+    if (port < IO_PORTS && vport[port].read_ddr)
 #endif
-      return print_port(output, len, port, cfg.options.io_ddr[port]);
+      return print_port(output, len, port, vport[port].read_ddr(port));
     else
       return -1;
 
@@ -853,11 +853,10 @@ static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
         ret = 3;
     }
 
-    if (ret == 3 && port < IO_PORTS) {
-
-        cfg.options.io[port] = (cfg.options.io[port] & ~mask) |
-                                   LO8(data & mask);
-
+    if (ret == 3 && port < IO_PORTS && vport[port].write_port 
+        && vport[port].read_port) {
+        vport[port].write_port(port, (vport[port].read_port(port) & ~mask)
+                               | LO8(data & mask));
         return 0;
     } else
         return -1;
@@ -877,12 +876,12 @@ static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-    if (ret == 1 && port < IO_PORTS) 
+    if (ret == 1 && port < IO_PORTS && vport[port].read_port) 
 #else
     port = *(cmd + 1) - '0';
-    if (port < IO_PORTS)
+    if (port < IO_PORTS && vport[port].read_port)
 #endif
-      return print_port(output, len, port, cfg.options.io[port]);
+      return print_port(output, len, port, vport[port].read_port(port));
     else
         return -1;
 
@@ -901,12 +900,12 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-    if (ret == 1 && port < IO_PORTS) 
+    if (ret == 1 && port < IO_PORTS && vport[port].read_pin) 
 #else
     port = *(cmd + 1) - '0';
-    if (port < IO_PORTS)
+    if (port < IO_PORTS && vport[port].read_pin)
 #endif
-      return print_port(output, len, port, portio_input(port));
+      return print_port(output, len, port, vport[port].read_pin(port));
     else
         return -1;
 
