@@ -147,7 +147,7 @@ static struct namemap names[RESOLV_ENTRIES];
 
 static u8_t seqno;
 
-static struct uip_udp_conn *resolv_conn = NULL;
+static uip_udp_conn_t *resolv_conn = NULL;
 
 
 /*---------------------------------------------------------------------------*/

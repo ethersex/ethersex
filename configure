@@ -30,13 +30,12 @@ my %ethersex_modules = (
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "tetrirape", "bootloader" ],
-                   requires  => [ "tcp", "portio" ],
                    distdflt  => 1,
+		   enable_hook => \&ecmd_enable_hook,
                  },
   'portio'    => {
                    helptext  => "port io abstraction layer",
-                   distdflt  => 0,
-                   virtual   => 1,
+                   distdflt  => 1,
                  },
   'named_pin'  => {
                    helptext => "pins with names and logic states",
@@ -61,9 +60,12 @@ my %ethersex_modules = (
   'bootp'     => { 
                    helptext  => "DHCP-like autoconfig for IPv4",
                    conflicts => [ "ipv6", "tftpomatic" ],
-                   requires  => [ "broadcast", "udp" ],
+		   # require handled in enable-hook since we don't need to 
+		   # do require here, if openvpn is enabled.
+                   maybe_require  => [ "broadcast", "udp" ],
                    preconfigure => [ "ipv6" ],
                    distdflt  => 0,
+		   enable_hook => \&bootp_enable_hook
                  },
   'bootp_to_eeprom' => {
                    helptext  => "store BOOTP-aquired data to EEPROM",
@@ -74,13 +76,19 @@ my %ethersex_modules = (
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
                    conflicts => [ "bootp" ],
+                   preconfigure => [ "enc28j60" ],
                    distdflt  => 1,
+                   enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
                  },
   'broadcast' => { 
                    helptext  => "broadcast support",
                    requires  => [ "udp" ],
                    distdflt  => 0,
+                 },
+  'icmp'      => { 
+                   helptext  => "icmp support",
+                   distdflt  => 1,
                  },
   'udp'       => { 
                    helptext  => "udp support",
@@ -90,11 +98,19 @@ my %ethersex_modules = (
                    helptext  => "tcp support",
                    distdflt  => 1,
                  },
+  'rfm12_linkbeat_net' => {
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only",
+                   distdflt  => 0,
+                 },
+  'udp_echo_net' => {
+                   helptext  => "udp-bound echo application",
+                   distdflt  => 0,
+                 },
   'tftpomatic'=> {
                    helptext  => "automatic firmware loading using tftp",
                    requires  => [ "tftp" ],
                    conflicts => [ "bootp" ],
-                   preconfigure => [ "ipv6", "bootp" ],
+                   preconfigure => [ "bootp" ],
                    enable_hook  => \&tftpomatic_enable_hook,
                    distdflt  => 0,
                  },
@@ -111,27 +127,18 @@ my %ethersex_modules = (
                  },
   'bootloader'=> {
                    helptext  => "configure as bootloader",
-                   distdflt  => 0,
-                 },
-  'rc4'       => {
-                   helptext  => "a stream cipher",
-                   requires  => [ "crypto", "md5", "tcp" ],
-                   distdflt  => 0,
-                   preconfigure => [ "tcp" ],
-                 },
-  'auth'      => {
-                   helptext  => "tcp connection authentication",
+		   requires  => [ "teensy" ],
                    distdflt  => 0,
                  },
   'skipjack'  => {
                    helptext  => "skipjack block cipher",
-                   requires  => [ "auth", "crypto" ],
+                   requires  => [ "crypto" ],
                    conflicts => [ "cast5" ],
                    distdflt  => 0,
                  },
   'cast5'     => {
                    helptext  => "cast5 block cipher",
-                   requires  => [ "auth", "crypto" ],
+                   requires  => [ "crypto" ],
                    conflicts => [ "skipjack", "bootloader" ],
                    distdflt  => 0,
                  },
@@ -139,27 +146,54 @@ my %ethersex_modules = (
                    helptext  => "md5 hash support",
                    requires  => [ "crypto" ],
                    distdflt  => 0,
-                   virtual   => 1,
                  },
   'crypto'    => {
                    helptext  => "generic crypto support",
                    distdflt  => 0,
                    virtual   => 1,
                  },
-  'onewire'    => {
+  'openvpn'   => {
+                   helptext  => "openvpn support",
+		   distdflt  => 0,
+		   preconfigure => [ "cast5", "md5" ],
+		   enable_hook => \&openvpn_enable_hook,
+                 },
+  'stella'    => {
+                   helptext  => "stella light support",
+		   distdflt  => 0,
+		   preconfigure => [ "udp" ],
+                 },
+  'teensy'    => {
+                   helptext  => "try to keep flash memory needs minimal",
+		   distdflt  => 0,
+                 },
+  'onewire'   => {
                    helptext  => "onewire device support",
                    distdflt  => 0,
                  },
-  'rc5'        => {
+  'rc5'       => {
                    helptext  => "sending rc5 IR codes",
                    distdflt  => 0,
+		   conflicts => [ "rfm12" ],
                  },
-  'dns'        => {
+  'rfm12'     => {
+                   helptext  => "rfm12 fsk transmitter",
+                   distdflt  => 0,
+		   conflicts => [ "rc5" ],
+		   enable_hook => \&rfm12_enable_hook,
+		   preconfigure => [ "skipjack" ],
+                 },
+  'dns'       => {
                    helptext  => "dns name resolver",
                    distdflt  => 0,
                    requires => ["udp"],
-                   preconfigure => [ "ipv6", "bootp" ],
+                   preconfigure => [ "bootp" ],
                    enable_hook  => \&dns_enable_hook,
+                 },
+  'adc'       => {
+                   helptext  => "get adc values",
+                   distdflt  => 0,
+                   requires => ["ecmd"],
                  },
   'dyndns'        => {
                    helptext  => "updating an dns name on dyn.metafnord.de",
@@ -178,29 +212,79 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
+  'clock'        => {
+                   helptext  => "system clock",
+                   distdflt  => 0,
+                   enable_hook  => \&clock_enable_hook,
+  },
+  'clock_crystal'        => {
+                   helptext  => "use crystal (32kHz) to tick system clock",
+                   distdflt  => 0,
+                   preconfigure => [ "clock" ],
+                   requires => ["clock"],
+                   conflicts => [ "stella" ],
+                 },
+  'dcf77'        => {
+                   helptext  => "synchronize the clock with the dcf77 signal
+                     (experimental)",
+                   distdflt  => 0,
+                   preconfigure => [ "clock" ],
+                   requires => ["clock", "clock_crystal"],
+                 },
   'ntp'        => {
                    helptext  => "get time via ntp protocol",
                    distdflt  => 0,
-                   requires => ["udp"],
+                   preconfigure => [ "clock" ],
+                   requires => ["clock", "udp"],
+                 },
+  'ntpd'        => {
+                   helptext  => "provide the system clock via ntp",
+                   distdflt  => 0,
+                   requires => ["clock", "udp"],
+  },
+  'enc28j60'  => {
+                   helptext  => "enc28j60 ethernet controller",
+                   distdflt  => 1,
+		   enable_hook => \&enc28j60_enable_hook,
                  },
   'zbus'        => {
-                   helptext  => "serial protocol",
+                   helptext  => "tunnelingip over zbus",
                    distdflt  => 0,
-                   requires => ["udp"],
                  },
 );
 my %ethersex_config = (
-  'etherrape_ip4'   => {
-                   helptext  => "default ip address of the etherrape",
+  'etherrape_ip' => {
+                   helptext  => "default ip address (inner part, if OpenVPN)",
                  },
   'etherrape_ip4_netmask'   => {
-                   helptext  => "default netmask for ipv4",
+                   helptext  => "default netmask (IPv4 only)",
                  },
   'etherrape_ip4_gateway'   => {
-                   helptext  => "default gateway for ipv4",
+                   helptext  => "default gateway (IPv4 only)",
                  },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
+                 },
+  'rfm12_ip' => {
+                   helptext  => "rfm12 stack ip address",
+                 },
+  'rfm12_key'   =>{
+                   helptext  => "hex-encoded rfm12 encryption key",
+                 },
+  'openvpn_ip4'   => {
+                   helptext  => "ip address of the openvpn gateway",
+                 },
+  'openvpn_ip4_netmask'   => {
+                   helptext  => "netmask for openvpn gateway",
+                 },
+  'openvpn_ip4_gateway'   => {
+                   helptext  => "default gateway for openvpn gateway",
+                 },
+  'openvpn_key'   =>{
+                   helptext  => "hex-encoded openvpn encryption key",
+                 },
+  'openvpn_hmac_key'   =>{
+                   helptext  => "hex-encoded openvpn hmac auth key",
                  },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
@@ -238,6 +322,8 @@ foreach(@ARGV) {
     print STDERR "ethersex configuration utility\n";
     print STDERR "  --restore-defaults  - enable only default modules\n";
     print STDERR "  --only-modules      - configure only the modules\n";
+    print STDERR "  --disable-x         - disable feature 'x'\n";
+    print STDERR "  --enable-x          - enable feature 'x'\n";
     exit 0;
   }
 }
@@ -272,10 +358,38 @@ while(<HANDLE>) {
 }
 close HANDLE or die;
 
+my $opt_nogui = 0;
+foreach(@ARGV) {
+  if(m/--enable-([A-Z0-9_]+)/i) {
+    if(defined($ethersex_modules{lc $1})
+       && !defined($ethersex_modules{lc $1}->{'new_status'})
+       && try_enable(lc $1) == 0) {
+      $opt_nogui = 1;
+      printf "enabling %s.\n", lc $1;
+      enable(lc $1);
+    }
+    else {
+      print "FAILED to enable $1.\n";
+    }
+  }
+
+  if(m/--disable-([A-Z0-9_]+)/i) {
+    if(defined($ethersex_modules{lc $1})
+       && !defined($ethersex_modules{lc $1}->{'new_status'})) {
+      $opt_nogui = 1;
+      printf "disabling %s.\n", lc $1;
+      disable(lc $1);
+    }
+    else {
+      print "FAILED to disable $1.\n";
+    }
+  }
+}
 
 # check whether module may be enabled
 # return: 1 if conflicting (message will be emitted)
 my @enable_modules;
+my @disable_modules;
 sub try_enable {
   my $module = shift;
   my $trymodule = shift;
@@ -293,7 +407,8 @@ sub try_enable {
     }
   }
 
-  foreach (@{$ethersex_modules{$module}->{'requires'}}) {
+  foreach (@{$ethersex_modules{$module}->{'requires'}},
+           @{$ethersex_modules{$module}->{'maybe_require'}}) {
     if(defined($ethersex_modules{$_}->{'new_status'})
        && !$ethersex_modules{$_}->{'new_status'}) {
       printf "disabling %s (would require %s).\n", $trymodule, $_;
@@ -329,7 +444,7 @@ sub enable {
   push @enable_modules, $module;
 
   # call hook, if available
-  if(defined($ethersex_modules{$module}->{'enable_hook'})) {
+  if(!$opt_nogui && defined($ethersex_modules{$module}->{'enable_hook'})) {
     $ethersex_modules{$module}->{'enable_hook'}();
   }
 }
@@ -337,9 +452,10 @@ sub enable {
 sub disable {
   my $module = shift;
   $ethersex_modules{$module}->{'new_status'} = 0;
+  push @disable_modules, $module;
 
   # call hook, if available
-  if(defined($ethersex_modules{$module}->{'disable_hook'})) {
+  if(!$opt_nogui && defined($ethersex_modules{$module}->{'disable_hook'})) {
     $ethersex_modules{$module}->{'disable_hook'}();
   }
 }
@@ -385,6 +501,10 @@ sub configure_module {
     $answer = $ethersex_modules{$module}->{'distdflt'};
     printf "%s %s.\n", ($answer ? "enabling" : "disabling"), $module;
   }
+  elsif($opt_nogui && defined($ethersex_modules{$module}->{'enabled'})) {
+    $answer = $ethersex_modules{$module}->{'enabled'};
+    printf "%s %s.\n", ($answer ? "enabling" : "disabling"), $module;
+  }
   else {
     $answer = prompt('y', sprintf("enable %s?", $module),
                      $ethersex_modules{$module}->{'helptext'}, 
@@ -402,17 +522,17 @@ sub configure_module {
 }
 
 sub ipv6_expand {
-  $_ = shift;
-  my @colons = m/:/g;
+  my $ip = shift;
+  my @colons = $ip =~ m/:/g;
   if(scalar(@colons) > 7) { return undef; }
-  unless(m/::/) { return $_ }
+  unless($ip =~ m/::/) { return $ip }
 
   my $replacement = ":0" x (8 - scalar(@colons)) . ":";
-  $_ =~ s/::/$replacement/;
-  if($_ =~ m/^:/) { $_ = "0$_"; }
-  if($_ =~ m/:$/) { $_ .= "0"; }
+  $ip =~ s/::/$replacement/;
+  if($ip =~ m/^:/) { $ip = "0$ip"; }
+  if($ip =~ m/:$/) { $ip .= "0"; }
 
-  return $_;
+  return $ip;
 }
 
 # return 1 if provided IP address is valid
@@ -437,6 +557,8 @@ sub check_ip {
 
 sub ask_ip {
   my $confopt = shift;
+
+  configure_module "ipv6";
  
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
@@ -530,6 +652,10 @@ sub ask_cryptokey {
   $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
 }
 
+sub enc28j60_enable_hook {
+  ask_mac "etherrape_mac";
+}
+
 sub tftpomatic_enable_hook {
   # don't ask for tftp image, if user configured bootp
   return if($ethersex_modules{'bootp'}->{'new_status'});
@@ -545,16 +671,93 @@ sub tftp_enable_hook {
   ask_cryptokey("tftp_key", 10);
 }
 
+sub ecmd_enable_hook {
+  if ($ethersex_modules{'teensy'}->{'new_status'}) {
+    enable("udp", "ecmd and teensy");
+  } else {
+    enable("tcp", "ecmd");
+  }
+}
+
+sub bootp_enable_hook {
+  # ask user for openvpn support (we won't need to enable udp/broadcast then)
+  configure_module "openvpn";
+  return if($ethersex_modules{'openvpn'}->{'new_status'});
+  
+  enable "udp", "bootp";
+  enable "broadcast", "bootp";
+}
+
+sub ipv6_enable_hook {
+  # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
+  configure_module "openvpn";
+
+  ask_ip("etherrape_ip")
+    if($ethersex_modules{'openvpn'}->{'new_status'} == 1
+       || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
+}
+
+sub rfm12_enable_hook {
+  ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+
+  return unless($ethersex_modules{'skipjack'}->{'new_status'});
+  ask_cryptokey("rfm12_key", 10);
+}
+
 sub ipv6_disable_hook {
-  # ask user for bootp
+  # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
+  configure_module "openvpn";
+
+  unless ($ethersex_modules{'openvpn'}->{'new_status'}) {
+    # ask user for bootp (we won't have to configure IPs otherwise)
+    # if openvpn support is disabled.  when openvpn is configured we
+    # need to assign static ips on the inner layer no matter what.
+    configure_module "bootp";
+
+    # don't ask default ip if user configured bootp
+    return if($ethersex_modules{'bootp'}->{'new_status'});
+  }
+  
+  ask_ip("etherrape_ip");
+  
+  # don't ask for netmask and gateway, if we don't have ethernet support
+  configure_module "enc28j60";
+  return unless($ethersex_modules{'enc28j60'}->{'new_status'});
+
+  ask_ip("etherrape_ip4_netmask");
+
+  if($ethersex_modules{'openvpn'}->{'new_status'}) {
+    print "configuring etherrape_ip4_gateway to 0.0.0.0 (openvpn enabled).\n";
+    $ethersex_config{"etherrape_ip4_gateway"}->{'value'} =
+      "uip_ipaddr(ip,0,0,0,0)"
+  } 
+  else {
+    ask_ip("etherrape_ip4_gateway");
+  }
+}
+
+sub openvpn_enable_hook {
+  print "** WARNING ** tunneled traffic will not be encrypted!\n\n"
+    unless($ethersex_modules{'cast5'}->{'new_status'});
+  print "** WARNING ** tunneled traffic will not be authenticated!\n\n"
+    unless($ethersex_modules{'md5'}->{'new_status'});
+
+  # ask user for bootp (we won't have to configure IPs otherwise)
   configure_module "bootp";
 
-  # don't aks default ip when user configured bootp
+  # don't ask for ip if user configured bootp
   return if($ethersex_modules{'bootp'}->{'new_status'});
   
-  ask_ip("etherrape_ip4");
-  ask_ip("etherrape_ip4_netmask");
-  ask_ip("etherrape_ip4_gateway");
+  unless($ethersex_modules{'ipv6'}->{'new_status'}) {
+    ask_ip("openvpn_ip4");
+    ask_ip("openvpn_ip4_netmask");
+    ask_ip("openvpn_ip4_gateway");
+  }
+
+  ask_cryptokey("openvpn_key", 16)
+    if($ethersex_modules{'cast5'}->{'new_status'});
+  ask_cryptokey("openvpn_hmac_key", 16)
+    if($ethersex_modules{'md5'}->{'new_status'});
 }
 
 sub dns_enable_hook {
@@ -574,19 +777,37 @@ sub syslog_enable_hook {
   ask_ip("syslog_server");
 }
 
-
-
+sub clock_enable_hook {
+  enable("clock_crystal", "clock and teensy") 
+    if ($ethersex_modules{'teensy'}->{'new_status'});
+}
 
 #
 # ask user which modules to enable
 #
 if ( $opt_only_modules != 1) {
   print "\n\n -= ETHERSEX CONFIGURATION =-\n\n";
-  ask_mac "etherrape_mac";
   configure_module "bootloader";
+  configure_module "teensy";
   foreach my $module (keys %ethersex_modules) { configure_module($module) }
 }
 
+#
+# deferred disable/enable hook handling ...
+#
+if ($opt_nogui) {
+  foreach (@enable_modules) {
+    if(defined($ethersex_modules{$_}->{'enable_hook'})) {
+      $ethersex_modules{$_}->{'enable_hook'}();
+    }
+  }
+
+  foreach (@disable_modules) {
+    if(defined($ethersex_modules{$_}->{'disable_hook'})) {
+      $ethersex_modules{$_}->{'disable_hook'}();
+    }
+  }
+}
 
 #
 # update config files ...
@@ -617,13 +838,22 @@ sub write_config {
         $ethersex_modules{lc($modname)}->{'new_status'};
     }
 
-    # enable/disable Makefile SRC variable editing
+#   # enable/disable Makefile SRC variable editing
+#   elsif(($modname) = $confline =~
+#      m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9_]+)\/\*\.c\)\s*$/) {
+#
+#     if(defined($ethersex_modules{lc($modname)})) {
+#       $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
+#                   ? "" : "#") . "SRC += \$(shell echo $modname/*.c)";
+#     }
+#   }
+
     elsif(($modname) = $confline =~
-       m/^#*\s*SRC\s*\+=\s*\$\(shell echo ([a-z0-9_]+)\/\*\.c\)\s*$/) {
+       m/^#*\s*SUBDIRS\s*\+=\s*([a-z0-9_]+)\s*$/) {
 
       if(defined($ethersex_modules{lc($modname)})) {
         $confline = ($ethersex_modules{lc($modname)}->{'new_status'} 
-                    ? "" : "#") . "SRC += \$(shell echo $modname/*.c)";
+                    ? "" : "#") . "SUBDIRS += $modname";
       }
     }
 

@@ -1,0 +1,63 @@
+#! /bin/sh
+host=bier.dyn.metafnord.de
+port=2701
+
+usage() { echo "usage: $0 <num> [<root_sym> <element>]"; exit 1; }
+
+[ "x$1" = "x" ] && usage
+num=$1;shift
+
+#struct=uip_conn_t
+root_sym=uip_conns
+element=appstate.rfm12.txdata.toaddr
+
+if [ "x$1" != "x" ]; then
+  [ "x$2" = "x" ] && usage
+  root_sym="$1"
+  element="$2"
+fi
+
+if [ "$root_sym" = "uip_conns" ]; then
+  struct="uip_conn_t"
+elif [ "$root_sym" = "uip_udp_conns" ]; then
+  struct="uip_udp_conns_t"
+elif [ "$root_sym" = 'rx' ]; then
+  struct="union rx_buffer"
+elif [ "$root_sym" = "rfm12_stack_stat" -o "$root_sym" = "uip_stat" ]; then
+  struct="struct uip_stats"
+else
+  echo "symbol offset unknown!"
+  exit 2
+fi
+
+
+sym_offset=`(echo "ibase=16"; avr-nm etherrape|grep " $root_sym\$"|cut -c4-8|tr [a-z] [A-Z]) | bc`
+
+(cat <<EOF
+#include "uip/uip.h"
+#include "net/state.h"
+#include "net/rfm12_net.h"
+
+int
+main (void)
+{
+  void *ptr = ((void *) (&(($struct *) 0)->$element)) + sizeof($struct)*$num;
+  return (int) ptr;
+}
+EOF
+) > tempfile.c
+avr-gcc -mmcu=atmega644 -DF_CPU=20000000UL -std=gnu99 -S tempfile.c  -O2 2> /dev/null || {
+  echo "tempfile.c failed to compile, can't help!"
+  exit 2
+}
+
+offset=$(perl -ne 'if(m/ldi r24,lo8\((\d+)\)/){print $1;exit}' < tempfile.s)
+[ "x$offset" = "x" ] && { echo "extraction failed."; exit 2; }
+
+ptr=$((echo "obase=16"; echo $[$sym_offset + $offset]) | bc)
+
+echo -n "$struct->$element [$ptr]: "
+echo "d $ptr" | nc6 $host $port -q 1
+
+
+rm -f tempfile.[cs]

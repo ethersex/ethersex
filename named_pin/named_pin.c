@@ -53,14 +53,13 @@ named_pin_init(void)
     /* Set Input/Output */
     input = pgm_read_byte(&portio_pincfg[i].input); 
     if (input)
-      cfg.options.io_ddr[port] &= ~_BV(pin);
+      vport[port].write_ddr(port, vport[port].read_ddr(port) & ~_BV(pin));
     else
-      cfg.options.io_ddr[port] |= _BV(pin);
+      vport[port].write_ddr(port, vport[port].read_ddr(port) | _BV(pin));
 
     /* If input and active low set pullup */
     if ((pgm_read_byte(&portio_pincfg[i].active_high) == 0) && input )
-      cfg.options.io[port] |= _BV(pin);
-
+      vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
     i++;
   }
  } 

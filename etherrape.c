@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
@@ -43,6 +43,10 @@
 #include "watchcat/watchcat.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
+#include "rfm12/rfm12.h"
+#include "zbus/zbus.h"
+#include "clock/clock.h"
+#include "dcf77/dcf77.h"
 #include "ipv6.h"
 
 #include "net/handler.h"
@@ -118,6 +122,18 @@ int main(void)
     spi_init();
     network_init();
     timer_init();
+#ifdef CLOCK_SUPPORT
+    clock_init();
+#endif
+
+#ifdef ADC_SUPPORT
+    /* ADC Prescaler to 64 */
+    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
+#endif
+
+#ifdef DCF77_SUPPORT
+    dcf77_init();
+#endif
 
 #ifdef FS20_SUPPORT
     fs20_init();
@@ -131,16 +147,36 @@ int main(void)
     rc5_init();
 #endif
 
+#ifdef ZBUS_SUPPORT
+    zbus_core_init();
+#endif
+
+#ifdef RFM12_SUPPORT
+    rfm12_init();
+
+#ifdef TEENSY_SUPPORT
+    cli ();
+    rfm12_trans (0xa620);	/* rfm12_setfreq(RFM12FREQ(433.92)); */
+    rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
+    rfm12_trans (0xc609);	/* rfm12_setbaud(34482); */
+    rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
+    sei ();
+#else
+    rfm12_setfreq(RFM12FREQ(433.92));
+    rfm12_setbandwidth(5, 1, 4);
+    rfm12_setbaud(34482);
+    rfm12_setpower(0, 2);
+#endif
+
+    rfm12_rxstart();
+#endif
+
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
 #endif 
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
-    debug_printf("ip: %d.%d.%d.%d\n", LO8(uip_hostaddr[0]),
-                                      HI8(uip_hostaddr[0]),
-                                      LO8(uip_hostaddr[1]),
-                                      HI8(uip_hostaddr[1]));
     debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
             uip_ethaddr.addr[0],
             uip_ethaddr.addr[1],
@@ -151,9 +187,6 @@ int main(void)
             );
 
 #   if defined(HD44780_SUPPORT) && defined(DEBUG)
-    fprintf_P(lcd, PSTR("ip: %d.%d.%d.%d\n"),
-        LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]),
-        LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]));
     fprintf_P(lcd, PSTR("mac: %02x%02x%02x%02x%02x%02x\n"),
             uip_ethaddr.addr[0], uip_ethaddr.addr[1],
             uip_ethaddr.addr[2], uip_ethaddr.addr[3],
@@ -169,21 +202,27 @@ int main(void)
 
         wdt_kick();
 
+#ifdef ENC28J60_SUPPORT
         /* check for network controller interrupts,
          * call uip on received packets */
         network_process();
         wdt_kick();
+#endif
 
+#ifdef RFM12_SUPPORT
+	rfm12_process();
+	wdt_kick();
+#endif
+
+#ifdef ZBUS_SUPPORT
+	zbus_process();
+	wdt_kick();
+#endif
+     
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();
         wdt_kick();
-
-#ifdef PORTIO_SUPPORT
-        /* update port io information */
-        portio_update();
-        wdt_kick();
-#endif
 
         /* check if debug input has arrived */
         debug_process();
@@ -203,8 +242,18 @@ int main(void)
 #endif
 #endif /* FS20_SUPPORT */
 
+#       ifdef STELLA_SUPPORT
+	stella_timer ();
+#       endif
+
 #ifndef BOOTLOAD_SUPPORT
         if(cfg.request_bootloader) {
+        #ifdef CLOCK_CRYSTAL_SUPPORT
+            TIMSK2 &= ~_BV(TOIE2);
+        #endif
+        #ifdef DCF77_SUPPORT
+            ACSR &= ~_BV(ACIE);
+        #endif
             cli();
             jump_to_bootloader();
         }

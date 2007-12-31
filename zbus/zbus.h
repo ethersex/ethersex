@@ -27,19 +27,41 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
-#define RXTX_PORT PORTC
-#define RXTX_DDR  DDRC
-#define RXTX_PIN PC2
+#ifdef ENC28J60_SUPPORT
+  #define ZBUS_RECV_BUFFER 128
+#else
+  #define ZBUS_RECV_BUFFER UIP_CONF_BUFFER_SIZE
+#endif
+
+#ifdef _ATMEGA8
+  #define RXTX_PORT PORTD
+  #define RXTX_DDR  DDRD
+  #define RXTX_PIN  PD2
+#else
+  #define RXTX_PORT PORTC
+  #define RXTX_DDR  DDRC
+  #define RXTX_PIN  PC2
+#endif
 
 /* use 19200 baud at 20mhz (see datasheet for other values) */
-#define ZBUS_UART_UBRR 64
+#ifdef _ATMEGA8
+  #define ZBUS_UART_UBRR 25
+#else
+  #define ZBUS_UART_UBRR 64
+#endif
 
 enum ZBusEscapes {
   ZBUS_START = '0',
   ZBUS_STOP = '1',
 };
 
-void zbus_core_init(struct uip_udp_conn *recv_conn);
+struct zbus_ctx {
+  uint16_t len;
+  uint16_t offset;
+  uint8_t *data;
+};
+
+void zbus_core_init(void);
 void zbus_core_periodic(void);
 
 typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
@@ -47,7 +69,42 @@ typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
 void  zbus_tx_finish(void);
 uint8_t zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx);
 
-uint8_t zbus_send_conn_data(struct uip_udp_conn *conn);
+// uint8_t zbus_send_conn_data(uip_udp_conn_t *conn);
 
+uint8_t zbus_send_data(uint8_t *data, uint16_t len);
+struct zbus_ctx *zbus_rxfinish(void);
+
+#if !defined(ENC28J60_SUPPORT)
+#define zbus_transmit_packet() zbus_send_data(uip_buf, uip_len)
+#endif
+
+void zbus_process(void);
+
+#ifndef _UDR_UART0
+  #define _UDR_UART0 UDR
+  #define _UCSRA_UART0 UCSRA
+  #define _UCSRB_UART0 UCSRB
+  #define _UCSRC_UART0 UCSRC
+  #define _UBRRL_UART0 UBRRL
+  #define _UBRRH_UART0 UBRRH
+  #define _TXEN_UART0  TXEN
+  #define _RXEN_UART0  RXEN
+  #define _RXCIE_UART0 RXCIE
+  #define _UDRE_UART0  UDRE
+  #define UDRIE0       UDRIE
+  #define DOR0         DOR
+  #define FE0          FE
+  #define UCSZ00       UCSZ0
+  #define UCSZ01       UCSZ1
+  #define USART0_UDRE_vect USART_UDRE_vect
+  #define USART0_RX_vect USART_RXC_vect
+#endif
+
+#ifdef _ATMEGA8
+  #define ZBUS_BLINK_PORT PORTD
+  #define ZBUS_BLINK_DDR DDRD
+  #define ZBUS_TX_PIN _BV(PD6)
+  #define ZBUS_RX_PIN _BV(PD7)
+#endif
 
 #endif /* _ZBUS_H */

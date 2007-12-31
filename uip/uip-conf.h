@@ -105,7 +105,7 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#ifdef BOOTLOADER_SUPPORT
+#if defined(BOOTLOADER_SUPPORT) || !defined(ENC28J60_SUPPORT)
 #define UIP_CONF_STATISTICS      0
 #else
 #define UIP_CONF_STATISTICS      1
@@ -125,5 +125,78 @@ typedef unsigned short uip_stats_t;
 
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
+
+
+#ifdef ENC28J60_SUPPORT
+#define __LLH_LEN  14
+#else /* RFM12_SUPPORT */
+#define __LLH_LEN  0
+#endif
+
+
+#if defined(OPENVPN_SUPPORT) \
+  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))\
+  || (defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT))
+
+#  define UIP_MULTI_STACK        1
+#else
+#  define UIP_MULTI_STACK        0
+#  define UIP_CONF_LLH_LEN       __LLH_LEN
+
+extern u16_t upper_layer_chksum(u8_t);
+
+#endif /* not UIP_MULTI_STACK */
+
+
+/**
+ * Some forward declarations
+ *
+ */
+
+struct __uip_conn;
+typedef struct __uip_conn uip_conn_t;
+struct __uip_udp_conn;
+typedef struct __uip_udp_conn uip_udp_conn_t;
+
+/**
+ * Repressentation of an IP address.
+ *
+ */
+typedef u16_t uip_ip4addr_t[2];
+typedef u16_t uip_ip6addr_t[8];
+#if UIP_CONF_IPV6
+typedef uip_ip6addr_t uip_ipaddr_t;
+#else /* UIP_CONF_IPV6 */
+typedef uip_ip4addr_t uip_ipaddr_t;
+#endif /* UIP_CONF_IPV6 */
+
+enum {
+  STACK_MAIN,
+#ifdef OPENVPN_SUPPORT
+  STACK_OPENVPN,
+#endif
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+  STACK_RFM12,
+#endif
+
+  /* STACK_LEN must be the last! */
+  STACK_LEN
+};
+
+
+#if UIP_MULTI_STACK
+#  include "uip_multi.h"
+
+#else
+#  ifdef STACK_NAME
+#    undef STACK_NAME
+#    define STACK_NAME(a) uip_ ## a /* keep common function names, since no
+	  			       multi-stack support.*/
+#  endif
+
+#  define uip_stack_get_active()   (0)
+#  define uip_stack_set_active(i)  (0)
+
+#endif
 
 #endif /* __UIP_CONF_H__ */

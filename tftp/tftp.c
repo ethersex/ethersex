@@ -43,7 +43,7 @@ extern uint8_t bootload_delay;
 /*
  * raw access to the packet buffer ...
  */
-#define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
+#define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
 
 
 static void

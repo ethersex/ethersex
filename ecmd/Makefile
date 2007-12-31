@@ -1,8 +1,20 @@
-# include avr-generic makefile configuration
+TARGET = libecmd.a
+TOPDIR = ..
+SRC = \
+	ecmd.c
 
-include ../avr.mk
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk
 
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
+##############################################################################
+# special stuff for this subdirectory
 
-DEBUG = 0
+ecmd.c: ecmd_defs.c
+ecmd_defs.c: ecmd_defs.m4
+	m4 $< > $@
+
+# extend normal clean rule
+clean: clean-common
+	$(RM) ecmd_defs.c

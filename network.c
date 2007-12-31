@@ -52,14 +52,28 @@ void process_packet(void);
 
 void network_init(void)
 /* {{{ */ {
-
+    uip_stack_set_active(STACK_MAIN);
     uip_init();
 
+#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+    uip_stack_set_active(STACK_RFM12);
+    rfm12_stack_init();
+#endif
+
+#ifdef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_OPENVPN);
+    openvpn_init();
+#endif
+
+#ifdef ENC28J60_SUPPORT
 #if UIP_CONF_IPV6
     uip_neighbor_init();
 #else
     uip_arp_init();
 #endif
+#endif /* ENC28J60_SUPPORT */
+
+    uip_stack_set_active(STACK_MAIN);
 
     uip_ipaddr_t ipaddr;
 
@@ -70,6 +84,15 @@ void network_init(void)
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("net: loading base network settings\n");
+#   endif
+
+#   ifdef ENC28J60_SUPPORT
+
+#   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
+    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
+#   if UIP_CONF_IPV6_LLADDR
+    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
+#   endif
 #   endif
 
     /* use global network packet buffer for configuration */
@@ -91,13 +114,16 @@ void network_init(void)
         memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-        CONF_ETHERRAPE_IP4;
+#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
+  || defined(OPENVPN_SUPPORT)
+        CONF_ETHERRAPE_IP;
         uip_sethostaddr(ip);
 #       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
 #       endif
+#       endif
 
+#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT))
         CONF_ETHERRAPE_IP4_NETMASK;
         uip_setnetmask(ip);
 #       ifndef BOOTLOADER_SUPPORT        
@@ -130,9 +156,14 @@ void network_init(void)
 
         /* load settings from eeprom */
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-        memcpy(&ipaddr, &cfg_base->ip, 4);
+
+#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
+  || defined(OPENVPN_SUPPORT)
+        memcpy(&ipaddr, &cfg_base->ip, sizeof(uip_ipaddr_t));
         uip_sethostaddr(ipaddr);
+#       endif
+
+#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
         memcpy(&ipaddr, &cfg_base->netmask, 4);
         uip_setnetmask(ipaddr);
         memcpy(&ipaddr, &cfg_base->gateway, 4);
@@ -151,13 +182,6 @@ void network_init(void)
         resolv_conf(&ipaddr);
 #       endif
     }
-
-#   if UIP_CONF_IPV6
-    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
-#   if UIP_CONF_IPV6_LLADDR
-    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
-#   endif
-#   endif
 
 #   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
     debug_printf("ip: %d.%d.%d.%d/%d.%d.%d.%d, gw: %d.%d.%d.%d\n",
@@ -204,11 +228,25 @@ void network_init(void)
     }
 #   endif /* !BOOTLOADER_SUPPORT */
 
+#   else /* not ENC28J60_SUPPORT */
+    /* Don't allow for eeprom-based configuration of rfm12 IP address,
+       mainly for code size reasons. */
+    uip_ipaddr_t ip;
+    CONF_ETHERRAPE_IP;
+    uip_sethostaddr(ip);
+
+#   endif /* not ENC28J60_SUPPORT */
+
     network_init_apps();
+
+#   ifdef ENC28J60_SUPPORT
     init_enc28j60();
+#   endif
 
 } /* }}} */
 
+
+#ifdef ENC28J60_SUPPORT
 void network_process(void)
 /* {{{ */ {
 
@@ -319,7 +357,10 @@ void network_process(void)
     bit_field_set(REG_EIE, _BV(INTIE));
 
 } /* }}} */
+#endif /* ENC28J60_SUPPORT */
 
+
+#ifdef ENC28J60_SUPPORT
 void process_packet(void)
 /* {{{ */ {
 
@@ -347,7 +388,7 @@ void process_packet(void)
 
     /* check size */
     if (rpv.received_packet_size > NET_MAX_FRAME_LENGTH
-            || rpv.received_packet_size < UIP_LLH_LEN
+            || rpv.received_packet_size < 14
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
         debug_printf("net: packet too large or too small for an ethernet header: %d\n", rpv.received_packet_size);
@@ -361,6 +402,12 @@ void process_packet(void)
         *p++ = read_buffer_memory();
 
     uip_len = rpv.received_packet_size;
+
+#   ifdef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_OPENVPN);
+#   else
+    uip_stack_set_active(STACK_MAIN);
+#   endif
 
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
@@ -406,7 +453,7 @@ void process_packet(void)
             	uip_neighbor_out();
 #               else
                 uip_arp_out();
-#		        endif
+#		endif
 
                 transmit_packet();
             }
@@ -454,7 +501,10 @@ void process_packet(void)
     bit_field_set(REG_ECON2, _BV(PKTDEC));
 
 } /* }}} */
+#endif
 
+
+#ifdef ENC28J60_SUPPORT
 void transmit_packet(void)
 /* {{{ */ {
 
@@ -496,3 +546,4 @@ void transmit_packet(void)
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
 } /* }}} */
+#endif

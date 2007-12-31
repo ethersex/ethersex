@@ -1,11 +1,22 @@
-# include avr-generic makefile configuration
+TARGET = libnet.a
+TOPDIR = ..
+SRC = \
+	bootp_net.c \
+	dns_net.c \
+	ecmd_net.c \
+	ecmd_sender_net.c \
+	handler.c \
+	i2c_net.c \
+	ntpd_net.c \
+	ntp_net.c \
+	rfm12_linkbeat_net.c \
+	stella_net.c \
+	syslog_net.c \
+	tetrirape_net.c \
+	tftp_net.c \
+	udp_echo_net.c \
 
-include ../avr.mk
-
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-
-# Name of Makefile for make depend
-MAKEFILE = Makefile
-
-DEBUG = 0
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk

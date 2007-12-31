@@ -1,8 +1,9 @@
-# include avr-generic makefile configuration
+TARGET = libonewire.a
+TOPDIR = ..
+SRC = \
+	onewire.c \
 
-include ../avr.mk
-
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-
-DEBUG = 0
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk

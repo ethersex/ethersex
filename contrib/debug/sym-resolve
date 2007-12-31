@@ -1,0 +1,18 @@
+#! /bin/sh
+host=bier.dyn.metafnord.de
+port=2701
+
+usage() { echo "usage: $0 <sym> ";exit 1; }
+
+[ "x$1" = "x" ] && usage
+root_sym=$1;shift
+
+
+sym_offset=`avr-nm etherrape|grep " $root_sym\$"|cut -c4-8|tr [a-z] [A-Z] `
+[ "x$sym_offset" = "x" ] && { echo "extraction failed."; exit 2; }
+
+echo -n "$root_sym [$sym_offset]: "
+echo "d $sym_offset" | nc6 $host $port -q 1
+
+
+#rm -f tempfile.[cs]

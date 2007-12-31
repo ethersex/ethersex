@@ -1,11 +1,15 @@
-# include avr-generic makefile configuration
+TARGET = libuip.a
+TOPDIR = ..
+SRC = \
+	psock.c \
+	uip_arp.c \
+	uip.c \
+	uip_multi.c \
+	uip_neighbor.c \
+	uip_openvpn.c \
+	uip_rfm12.c \
 
-include ../avr.mk
-
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-
-# Name of Makefile for make depend
-MAKEFILE = Makefile
-
-DEBUG = 0
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk

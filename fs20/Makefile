@@ -1,11 +1,9 @@
-# include avr-generic makefile configuration
+TARGET = libfs20.a
+TOPDIR = ..
+SRC = \
+	fs20.c \
 
-include ../avr.mk
-
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-
-# Name of Makefile for make depend
-MAKEFILE = Makefile
-
-DEBUG = 0
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk

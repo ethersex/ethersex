@@ -25,13 +25,11 @@
 #include "../uip/uip.h"
 #include "../net/ntp_net.h"
 #include "../dns/resolv.h"
+#include "../clock/clock.h"
 #include "ntp.h"
 
-static struct uip_udp_conn *ntp_conn = NULL;
+static uip_udp_conn_t *ntp_conn = NULL;
 static void send_ntp_packet(void);
-static uint32_t timestamp = 1;
-static uint32_t ntp_timestamp = 0;
-static uint16_t ntp_timer = 1;
 
 
 #ifdef DNS_SUPPORT
@@ -68,23 +66,8 @@ ntp_init()
 }
 
 
-void
-ntp_every_second(void) 
-{
-  if(ntp_timer) {
-    if((-- ntp_timer) == 0)
-      send_ntp_packet();
-  }
-
-  if(timestamp <= 50 && (timestamp % 5 == 0))
-    send_ntp_packet();
-
-  if(ntp_timestamp <= timestamp)
-    timestamp ++;
-}
-
-static void 
-send_ntp_packet(void)
+void 
+ntp_send_packet(void)
 {
   /* hardcode for LLH len of 14 bytes (i.e. ethernet frame),
      this is not suitable for tunneling! */
@@ -107,19 +90,12 @@ send_ntp_packet(void)
 void
 ntp_newdata(void)
 {
+  uint32_t ntp_timestamp;
+
   struct ntp_packet *pkt = uip_appdata;
   /* We must save an unix timestamp */
   ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
 
-  /* Allow the clock to jump forward, but never ever to go backward. */
-  if (ntp_timestamp > timestamp)
-    timestamp = ntp_timestamp;
+  clock_set_time(ntp_timestamp);
 
-  ntp_timer = 4096;
-}
-
-uint32_t
-get_time(void)
-{
-  return timestamp;
 }
