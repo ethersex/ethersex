@@ -1,7 +1,8 @@
-TARGET = libonewire.a
+TARGET = libzbus.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	process.c \
+	zbus.c \
 
 ##############################################################################
 # generic fluff

@@ -1,7 +1,9 @@
-TARGET = libonewire.a
+TARGET = libcrypto.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	cast5.c \
+	md5.c \
+	skipjack.c \
 
 ##############################################################################
 # generic fluff

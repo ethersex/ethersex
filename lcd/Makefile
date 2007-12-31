@@ -1,8 +1,9 @@
-# include avr-generic makefile configuration
+TARGET = liblcd.a
+TOPDIR = ..
+SRC = \
+	hd44780.c \
 
-include ../avr.mk
-
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-
-DEBUG = 0
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk

@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libclock.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	clock.c
 
 ##############################################################################
 # generic fluff

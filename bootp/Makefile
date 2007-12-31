@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libbootp.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	bootp.c
 
 ##############################################################################
 # generic fluff

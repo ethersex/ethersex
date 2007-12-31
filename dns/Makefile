@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libdns.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	resolv.c \
 
 ##############################################################################
 # generic fluff

@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libnamed_pin.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	named_pin.c \
 
 ##############################################################################
 # generic fluff

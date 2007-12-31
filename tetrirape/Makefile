@@ -1,7 +1,8 @@
-TARGET = libonewire.a
+TARGET = libtetrirape.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	crack.c \
+	tetrirape.c \
 
 ##############################################################################
 # generic fluff
