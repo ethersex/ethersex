@@ -69,10 +69,10 @@ watchcat_periodic(void)
   uint8_t i;
   for (i = 0; i < IO_PORTS; i++) {
     /* debounce the buttons */
-    if ( vpin[i].last_input == portio_input(i)) 
-      vpin[i].state = portio_input(i);
+    if ( vpin[i].last_input == vport[i].read_pin(i) ) 
+      vpin[i].state = vport[i].read_pin(i);
     
-    vpin[i].last_input = portio_input(i);
+    vpin[i].last_input = vport[i].read_pin(i);
     
     /* See if something has changed since last call */
     if ( vpin[i].state != vpin[i].old_state ) {
