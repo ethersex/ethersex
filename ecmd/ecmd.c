@@ -932,7 +932,7 @@ static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
     if (pincfg != 255)  
       active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
     return snprintf_P(output, len, 
-                      XOR_LOG(((portio_input(port)) & _BV(pin)), !(active_high))
+                      XOR_LOG(vport[port].read_pin(port) & _BV(pin), !(active_high))
                       ? PSTR("on") : PSTR("off"));
   } else
     return -1;
@@ -975,16 +975,16 @@ static int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
 
   if (ret == 3 && port < IO_PORTS && pin < 8) {
     /* Set only if it is output */
-    if (cfg.options.io_ddr[port] & _BV(pin)) {
+    if (vport[port].read_ddr(port) & _BV(pin)) {
       uint8_t pincfg = named_pin_by_pin(port, pin);
       uint8_t active_high = 1;
       if (pincfg != 255)  
         active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
 
       if (XOR_LOG(on, !active_high)) 
-        cfg.options.io[port] = (cfg.options.io[port] ) | _BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
       else
-        cfg.options.io[port] = (cfg.options.io[port] ) & ~_BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) & ~_BV(pin));
 
       return snprintf_P(output, len, on ? PSTR("on") : PSTR("off"));
     } else 
@@ -1012,8 +1012,8 @@ static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
   }
   if (ret == 2 && port < IO_PORTS && pin < 8) {
     /* Toggle only if it is output */
-    if (cfg.options.io_ddr[port] & _BV(pin)) {
-      uint8_t on = cfg.options.io[port] & _BV(pin);
+    if (vport[port].read_ddr(port) & _BV(pin)) {
+      uint8_t on = vport[port].read_port(port) & _BV(pin);
 
       uint8_t pincfg = named_pin_by_pin(port, pin);
       uint8_t active_high = 1;
@@ -1021,9 +1021,9 @@ static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
         active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
 
       if (on) 
-        cfg.options.io[port] &= ~_BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) & ~_BV(pin));
       else
-        cfg.options.io[port] |= _BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
 
       return snprintf_P(output, len, XOR_LOG(!on, !active_high)
                         ? PSTR("on") : PSTR("off"));

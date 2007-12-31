@@ -97,7 +97,7 @@ ecmd_feature(io_get_pin, "io get pin")
 
 ecmd_ifdef(NAMED_PIN_SUPPORT)
   ecmd_feature(pin_get, "pin get")
-  ecmd_feature(pin_set, "pin toggle")
+  ecmd_feature(pin_set, "pin set")
   ecmd_feature(pin_toggle, "pin toggle")
 ecmd_endif()
 
