@@ -30,14 +30,12 @@ my %ethersex_modules = (
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "tetrirape", "bootloader" ],
-                   requires  => [ "portio" ],
                    distdflt  => 1,
 		   enable_hook => \&ecmd_enable_hook,
                  },
   'portio'    => {
                    helptext  => "port io abstraction layer",
-                   distdflt  => 0,
-                   virtual   => 1,
+                   distdflt  => 1,
                  },
   'named_pin'  => {
                    helptext => "pins with names and logic states",

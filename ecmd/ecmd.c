@@ -788,6 +788,7 @@ static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif 
 
+#ifdef PORTIO_SUPPORT
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -910,6 +911,8 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
         return -1;
 
 } /* }}} */
+
+#endif
 
 #ifdef NAMED_PIN_SUPPORT
 static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
