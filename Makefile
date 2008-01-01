@@ -35,6 +35,7 @@ SUBDIRS += lcd
 #SUBDIRS += zbus
 
 SUBDIRS += ecmd
+#SUBDIRS += crypto
 SUBDIRS += uip
 
 

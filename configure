@@ -887,11 +887,15 @@ sub write_config {
   rename("$filename.new", "$filename") or die;
 }
 
+
+# make sure config.mk exists
+unless (-e "config.mk") { system "make no_deps=t config.mk"; }
+
 #
 # write the config files
 #
 if ($opt_only_modules != 1) {
-  foreach(qw/config.h Makefile/) {
+  foreach(qw/config.h config.mk Makefile/) {
     write_config($_);
   }
 }

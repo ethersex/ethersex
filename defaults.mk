@@ -20,6 +20,7 @@ CFLAGS += -g -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -std=gnu99
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
 
+
 ##############################################################################
 # the default target
 all: $(TARGET)
@@ -31,5 +32,7 @@ $(TOPDIR)/config.mk:
 	@echo "# Put your own config here!" > $@
 	@echo "#F_CPU = $(F_CPU)" >> $@
 	@echo "#MCU = $(MCU)" >> $@
+	@echo "#LDFLAGS += -Wl,--section-start=.text=0xE000	# BOOTLOADER_SUPPORT" >> $@
+	@echo "#CFLAGS  += -mcall-prologues                     # BOOTLOADER_SUPPORT" >> $@
 	@echo "created default config.mk, tune your settings there!"
 -include $(TOPDIR)/config.mk
