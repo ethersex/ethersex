@@ -37,7 +37,7 @@ static volatile uint8_t data;
 static volatile uint8_t is_up;
 static volatile uint8_t parity;
 static volatile uint8_t timeout;
-static volatile uint8_t leds = PS2_NUM_LOCK_LED;
+static volatile uint8_t leds = 0;
 
 uint8_t send_next = 0;
 
@@ -86,6 +86,7 @@ ps2_init(void)
 {
   bitcount = 11;
   parity = 1;
+  key.num = 0;
 
   PCICR |= _BV(PS2_PCIE);
   PS2_PCMSK |= _BV(PS2_CLOCK_PIN);
@@ -176,6 +177,13 @@ decode_key(uint8_t keycode)
   case KEY_LIN:
     key.lin = 0;
     break;
+  case KEY_NUM_LOCK:
+    key.num ^= 1;
+    leds ^= PS2_NUM_LOCK_LED; 
+    ps2_send_byte(PS2_SET_LED);
+    ps2_send_byte(leds);
+    key.lin = 0;
+    break;
   case KEY_CAPS_LOCK:
     key.shift = 1;
     leds |= PS2_CAPS_LOCK_LED; 
@@ -183,9 +191,11 @@ decode_key(uint8_t keycode)
     ps2_send_byte(leds);
     break;
   default:
+    if (key.extended && keycode == 0x70)
+      syslog_send_P(PSTR("HOME"));
     syslog_sendf("Key: %x %c", data, key.shift 
-                 ? pgm_read_byte(&keycodes_shift[data])
-                 : pgm_read_byte(&keycodes[data]));
+                 ? pgm_read_byte(&keycodes_shift[keycode])
+                 : pgm_read_byte(&keycodes[keycode]));
     break;
   }
 }
@@ -194,7 +204,7 @@ SIGNAL(PS2_INTERRUPT)
 {
   if (!(PS2_PIN & _BV(PS2_CLOCK_PIN))) {
     /* Start the timeout to 20ms - 40ms */
-    if (bitcount == 1) 
+    if (bitcount == 11) 
       timeout = 2;
 
     if (bitcount < 11 && bitcount > 2) {
@@ -229,6 +239,12 @@ SIGNAL(PS2_INTERRUPT)
           break;
         case KEY_LIN:
           key.lin = 1;
+          break;
+        case 0xE0:
+          key.extended = 1;
+          break;
+        default:
+          key.extended = 0;
           break;
         }
       }

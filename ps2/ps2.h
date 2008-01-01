@@ -49,14 +49,21 @@
 #define KEY_SHIFT_LEFT 0x59
 #define KEY_LIN 0x1f
 #define KEY_CAPS_LOCK 0x58
+#define KEY_NUM_LOCK 0x77
 
-/* Are the same keycode as on the number block */
+/* Are the same keycode as on the number block 
+ * so you have to loock for the extended flag 
+ */
 #define KEY_DEL 0x71
 #define KEY_INSERT 0x70
 #define KEY_HOME 0x6c
 #define KEY_END 0x69
 #define KEY_PAGE_UP 0x7d
 #define KEY_PAGE_DOWN 0x7a
+#define KEY_LEFT 0x6b
+#define KEY_RIGHT 0x74
+#define KEY_UP 0x75
+#define KEY_DOWN 0x72
 
 /* PS/2 commands */
 #define PS2_SET_LED 0xed
@@ -73,6 +80,7 @@ struct key_press {
   uint8_t lin:1;
   uint8_t num:1;
   uint8_t shift:1;
+  uint8_t extended:1;
 };
 
 void ps2_init(void);
