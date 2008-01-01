@@ -12,17 +12,19 @@ SRC = \
 	spi.c \
 	timer.c
 
-SUBDIRS += net
 
 #SUBDIRS += bootp
 #SUBDIRS += clock
+#SUBDIRS += crypto
 #SUBDIRS += dcf77
 #SUBDIRS += dns
 #SUBDIRS += dyndns
+SUBDIRS += ecmd
 #SUBDIRS += fs20
 #SUBDIRS += i2c
 SUBDIRS += lcd
 #SUBDIRS += named_pin
+SUBDIRS += net
 #SUBDIRS += ntp
 #SUBDIRS += onewire
 #SUBDIRS += rc5
@@ -31,12 +33,9 @@ SUBDIRS += lcd
 #SUBDIRS += syslog
 #SUBDIRS += tetrirape
 #SUBDIRS += tftp
+SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
-
-SUBDIRS += ecmd
-#SUBDIRS += crypto
-SUBDIRS += uip
 
 
 ##############################################################################
@@ -64,10 +63,13 @@ compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
 
+# FIXME how can we omit specifying every file to be linked twice?
+# This is currently necessary because of interdependencies between
+# the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
-	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir))
-
+	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
+	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
 
 
 ##############################################################################
