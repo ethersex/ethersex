@@ -89,8 +89,7 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 
 
 ##############################################################################
-# make ``clean'' recursive
-clean: clean-common
+clean:
 	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda]
 	for subdir in `find -type d`; do \
 	  test "x$$subdir" != "x." \
