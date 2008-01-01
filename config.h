@@ -255,6 +255,9 @@
 #define PS2_PCIE PCIE0
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
 
+/* Comment this out to get an us layout */
+#define PS2_GERMAN_LAYOUT
+
 
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
