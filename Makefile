@@ -13,7 +13,7 @@ SRC = \
 	timer.c
 
 
-#SUBDIRS += bootp
+SUBDIRS += bootp
 #SUBDIRS += clock
 #SUBDIRS += crypto
 #SUBDIRS += dcf77
@@ -27,10 +27,11 @@ SUBDIRS += lcd
 SUBDIRS += net
 #SUBDIRS += ntp
 #SUBDIRS += onewire
+SUBDIRS += ps2
 #SUBDIRS += rc5
 #SUBDIRS += rfm12
 #SUBDIRS += stella
-#SUBDIRS += syslog
+SUBDIRS += syslog
 #SUBDIRS += tetrirape
 #SUBDIRS += tftp
 SUBDIRS += uip

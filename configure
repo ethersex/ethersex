@@ -248,7 +248,11 @@ my %ethersex_modules = (
 		   enable_hook => \&enc28j60_enable_hook,
                  },
   'zbus'        => {
-                   helptext  => "tunnelingip over zbus",
+                   helptext  => "tunneling ip over zbus",
+                   distdflt  => 0,
+                 },
+  'ps2'        => {
+                   helptext  => "ps2 keyboard",
                    distdflt  => 0,
                  },
 );

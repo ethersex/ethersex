@@ -243,6 +243,19 @@
 #define RFM12_INT_SIGNAL SIG_INTERRUPT0
 #endif
 
+/* ps/2 pins and interrupts */
+#define PS2_PIN PINA
+#define PS2_PORT PORTA
+#define PS2_DDR DDRA
+
+#define PS2_DATA_PIN PA7
+#define PS2_CLOCK_PIN PA6
+
+#define PS2_PCMSK PCMSK0 
+#define PS2_PCIE PCIE0
+#define PS2_INTERRUPT SIG_PIN_CHANGE0
+
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
@@ -403,6 +416,7 @@
 // #define TEENSY_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define ADC_SUPPORT
+// #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
