@@ -43,6 +43,13 @@
 #define KEY_ESC 0x76
 #define KEY_TAB 0x0d
 
+#define KEY_ALT 0x11
+#define KEY_CTRL 0x14
+#define KEY_SHIFT_RIGHT 0x12
+#define KEY_SHIFT_LEFT 0x59
+#define KEY_LIN 0x1f
+#define KEY_CAPS_LOCK 0x58
+
 /* Are the same keycode as on the number block */
 #define KEY_DEL 0x71
 #define KEY_INSERT 0x70
@@ -50,6 +57,12 @@
 #define KEY_END 0x69
 #define KEY_PAGE_UP 0x7d
 #define KEY_PAGE_DOWN 0x7a
+
+/* PS/2 commands */
+#define PS2_SET_LED 0xed
+#define PS2_CAPS_LOCK_LED 0x04
+#define PS2_NUM_LOCK_LED 0x02
+#define PS2_SCROLL_LOCK_LED 0x01
 
 struct key_press {
   uint8_t keycode;
