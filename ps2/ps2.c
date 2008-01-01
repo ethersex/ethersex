@@ -31,11 +31,52 @@
 #include "ps2.h"
 
 #ifdef PS2_SUPPORT
-volatile uint8_t bitcount;
-volatile uint8_t data;
-volatile uint8_t is_up;
-volatile uint8_t parity;
-volatile uint8_t timeout;
+
+static volatile uint8_t bitcount;
+static volatile uint8_t data;
+static volatile uint8_t is_up;
+static volatile uint8_t parity;
+static volatile uint8_t timeout;
+
+struct key_press key;
+
+static uint8_t PROGMEM keycodes[] = {
+  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, /* keycode 00-07 */
+  0x00,0x00,0x00,0x00,0x00,0x00, '^',0x00, /* keycode 08-0f */
+  0x00,0x00,0x00,0x00,0x00, 'q', '1',0x00, /* keycode 10-17 */
+  0x00,0x00, 'y', 's', 'a', 'w', '2',0x00, /* keycode 18-1f */
+  0x00, 'c', 'x', 'd', 'e', '4', '3',0x00, /* keycode 20-27 */
+  0x00, ' ', 'v', 'f', 't', 'r', '5',0x00, /* keycode 28-2f */
+  0x00, 'n', 'b', 'h', 'g', 'z', '6',0x00, /* keycode 30-37 */
+  0x00,0x00, 'm', 'j', 'u', '7', '8',0x00, /* keycode 38-3f */
+  0x00, ',', 'k', 'i', 'o', '0', '9',0x00, /* keycode 40-47 */
+  0x00, '.', '-', 'l',0x00, 'p',0x00,0x00, /* keycode 48-4f */
+  0x00,0x00,0x00,0x00,0x00,'\'',0x00,0x00, /* keycode 50-57 */
+  0x00,0x00,0x00, '+',0x00, '#',0x00,0x00, /* keycode 58-5f */
+  0x00, '<',0x00,0x00,0x00,0x00,0x00,0x00, /* keycode 60-67 */
+  0x00, '1',0x00, '4', '7',0x00,0x00,0x00, /* keycode 68-6f */
+   '0', ',', '2', '5', '6', '8',0x00,0x00, /* keycode 70-77 */
+  0x00, '+', '3', '-', '*', '9',0x00,0x00, /* keycode 78-7f	*/
+};
+
+static uint8_t PROGMEM keycodes_shift[] = {
+  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, /* keycode 00-07 */
+  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, /* keycode 08-0f */
+  0x00,0x00,0x00,0x00,0x00, 'Q', '!',0x00, /* keycode 10-17 */
+  0x00,0x00, 'Y', 'S', 'A', 'W', '"',0x00, /* keycode 18-1f */
+  0x00, 'C', 'X', 'D', 'E', '$', '@',0x00, /* keycode 20-27 */
+  0x00, ' ', 'V', 'F', 'T', 'R', '%',0x00, /* keycode 28-2f */
+  0x00, 'N', 'B', 'H', 'G', 'Z', '&',0x00, /* keycode 30-37 */
+  0x00,0x00, 'M', 'J', 'U', '/', '(',0x00, /* keycode 38-3f */
+  0x00, ';', 'K', 'I', 'O', '=', ')',0x00, /* keycode 40-47 */
+  0x00, ':',0x5f, 'L',0x00, 'P', '?',0x00, /* keycode 48-4f */
+  0x00,0x00,0x00,0x00,0x00, '`',0x00,0x00, /* keycode 50-57 */
+  0x00,0x00,0x00, '*',0x00,'\'',0x00,0x00, /* keycode 58-5f */
+  0x00, '>',0x00,0x00,0x00,0x00,0x00,0x00, /* keycode 60-67 */
+  0x00, '1',0x00, '4', '7',0x00,0x00,0x00, /* keycode 68-6f */
+   '0',0x00, '2', '5', '6', '8',0x00,0x00, /* keycode 70-77 */
+  0x00, '+', '3', '-', '*', '9',0x00,0x00, /* keycode 78-7f	*/
+};
 
 void
 ps2_init(void) 
@@ -61,6 +102,13 @@ ps2_periodic(void)
     }
 }
 
+static void
+decode_key(uint8_t keycode) 
+{
+  switch(key)
+
+}
+
 SIGNAL(PS2_INTERRUPT) 
 {
   if (!(PS2_PIN & _BV(PS2_CLOCK_PIN))) {
@@ -82,7 +130,7 @@ SIGNAL(PS2_INTERRUPT)
 
     if (--bitcount == 0) {
       if (is_up) {
-        syslog_sendf("Key: %x %c", data, data);
+        syslog_sendf("Key: %x %c", data, pgm_read_byte(&keycodes[data]));
         is_up = 0;
       } else if (data == 0xF0 && ! is_up) 
         is_up = 1;
