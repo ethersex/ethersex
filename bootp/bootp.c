@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -124,6 +125,14 @@ bootp_handle_reply(void)
         case TAG_DOMAIN_SERVER:
 	    memcpy(&ips[3], &ptr[2], 4);
             resolv_conf(&ips[3]);
+            break;
+#endif
+#ifdef NTP_SUPPORT
+        case TAG_NTP_SERVER:
+            /* This will set the ntp connection to the server set by the bootp
+             * request 
+             */
+            ntp_dns_query_cb(NULL, (uip_ipaddr_t *)&ptr[2]);
             break;
 #endif
 	}

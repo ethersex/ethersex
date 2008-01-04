@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,11 +29,9 @@
 #include "ntp.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
-static void send_ntp_packet(void);
 
-
-#ifdef DNS_SUPPORT
-static void
+#if defined(DNS_SUPPORT) || defined(BOOTP_SUPPORT)
+void
 ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
   if(ntp_conn != NULL) {
