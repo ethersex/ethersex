@@ -32,8 +32,10 @@
 #include "uip/uip_neighbor.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
-#include "ntp/ntp.h"
+#include "clock/clock.h"
 #include "ipv6.h"
+#include "stella/stella.h"
+#include "ps2/ps2.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -49,16 +51,35 @@ void timer_init(void)
 } /* }}} */
 
 
-static void fill_llh_and_transmit(void)
+#ifdef ENC28J60_SUPPORT
+uint8_t fill_llh_and_transmit(void)
 /* {{{ */ {
+# ifdef RFM12_SUPPORT
+  if (uip_stack_get_active() == STACK_RFM12) {
+    /* uip_len is set to the number of data bytes to be sent including
+       the UDP/IP header, i.e. not including any byte for LLH. */
+    rfm12_txstart (uip_buf + RFM12_BRIDGE_OFFSET, uip_len);
+    return 0;
+  }
+# endif /* RFM12_SUPPORT */
+
+# ifdef OPENVPN_SUPPORT
+  if (uip_stack_get_active() == STACK_MAIN)
+    openvpn_process_out();
+  /* uip_stack_set_active(STACK_OPENVPN); */
+# endif
+
 # if UIP_CONF_IPV6
-  uip_neighbor_out();
+  uint8_t rv = uip_neighbor_out();
 # else
-  uip_arp_out();
+  uint8_t rv = uip_arp_out();
 # endif
   
   transmit_packet();
+
+  return rv;
 } /* }}} */
+#endif
 
 
 void timer_process(void)
@@ -75,9 +96,9 @@ void timer_process(void)
         debug_printf("timer: counter is %d\n", counter);
 #       endif
 
-#ifdef  WATCHCAT_SUPPORT
+#       ifdef  WATCHCAT_SUPPORT
         watchcat_periodic();
-#endif
+#       endif
 
 #       if UIP_CONNS <= 255
         uint8_t i;
@@ -103,39 +124,59 @@ void timer_process(void)
 #       endif
 #       endif /* FS20_SUPPORT */
 
+#       ifdef ZBUS_SUPPORT
+        if (counter % 10 == 0)
+          zbus_core_periodic();
+#       endif /* ZBUS_SUPPORT */
+        
+#       ifdef PS2_SUPPORT
+        ps2_periodic();
+#       endif
+
         /* check tcp connections every 200ms */
-#       ifdef BOOTLOADER_SUPPORT
+#       ifdef TEENSY_SUPPORT
         if ((counter & 7) == 0) {
 #       else
         if (counter % 10 == 0) {
 #       endif
 #           if UIP_TCP == 1
             for (i = 0; i < UIP_CONNS; i++) {
+		uip_stack_set_active(uip_conns[i].stack);
                 uip_periodic(i);
-		if (uip_len) fill_llh_and_transmit();
+
+                /* if this generated a packet, send it now */
+                if (uip_len > 0)
+		    fill_llh_and_transmit();
             }
 #           endif /* UIP_TCP == 1 */
 
 #           if UIP_UDP == 1
             /* check udp connections every time */
             for (i = 0; i < UIP_UDP_CONNS; i++) {
+		uip_stack_set_active(uip_udp_conns[i].stack);
                 uip_udp_periodic(i);
-		if (uip_len) fill_llh_and_transmit();
+
+                /* if this generated a packet, send it now */
+                if (uip_len > 0)
+		    fill_llh_and_transmit();
             }
 #           endif
         }
 
-#       if UIP_CONF_IPV6
+#       if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
         if (counter == 5) { 
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
                second after boot */
+#           ifdef OPENVPN_SUPPORT		
+	    uip_stack_set_active(STACK_OPENVPN);
+#           endif
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
                 uip_router_send_solicitation();
                 transmit_packet();
             }
         }
-#       endif /* UIP_CONF_IPV6 */
+#       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
         if (counter % 50 == 0) {
 #           ifdef FS20_SUPPORT
@@ -143,13 +184,18 @@ void timer_process(void)
 #           endif
 
 #           ifdef NTP_SUPPORT
-            ntp_every_second();
-	    if (uip_len) fill_llh_and_transmit();
+#           ifdef OPENVPN_SUPPORT
+	    uip_stack_set_active(STACK_OPENVPN);
 #           endif
+            clock_tick();
+	    if (uip_len)
+		fill_llh_and_transmit();
+#           endif /* NTP_SUPPORT */
         }
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
+#           ifdef ENC28J60_SUPPORT
 #           ifdef DEBUG_TIMER
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
@@ -160,7 +206,8 @@ void timer_process(void)
 #           else
             uip_arp_timer();
 #           endif
-#           endif
+#           endif /* !BOOTLOADER_SUPPORT */
+#           endif /* ENC28J60_SUPPORT */
 
             counter = 0;
         }

@@ -30,9 +30,18 @@ void spi_init(void)
     SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_NET) | _BV(SPI_CS_DF);
     DDRB |= _BV(PB0) | _BV(PB1);
 
+#ifdef ENC28J60_SUPPORT
     /* set all CS high (output) */
     SPI_PORT = _BV(SPI_CS_NET);
+#endif
+
     PORTB |= _BV(PB0) | _BV(PB1);
+
+#ifdef RFM12_SUPPORT
+    /* initialize spi link to rfm12 module */
+    SPI_CS_RFM12_DDR |= _BV(SPI_CS_RFM12);
+    SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
+#endif
 
     /* enable spi, set master and clock modes (f/2) */
     _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);

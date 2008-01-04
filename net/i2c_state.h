@@ -22,7 +22,7 @@
 #define _I2C_STATE_H
 
 /* constants */
-#define I2C_TXBUFMAX 255
+#define MAXDATAPAKETLEN 64
 
 struct i2c_tx {
 	union {
@@ -32,7 +32,7 @@ struct i2c_tx {
 	uint8_t connstate;
 	uint8_t i2cstate;
 	uint8_t datalen;
-	uint8_t buf[I2C_TXBUFMAX+1];
+	uint8_t buf[MAXDATAPAKETLEN];
 };
 
 struct i2c_request_t {

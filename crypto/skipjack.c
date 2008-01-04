@@ -15,6 +15,12 @@
 #define INLINE
 #endif
 
+#ifdef RFM12_SUPPORT
+#  ifndef CONF_WITH_DECRYPT
+#    define CONF_WITH_DECRYPT 1
+#  endif
+#endif
+
 #define W1_L	0
 #define W1_R	1
 #define W2_L	2
@@ -231,9 +237,11 @@ void rule_binv( iu8* v, iu8 counter )
 
 void skipjack_dec( iu8* v, iu8* k )
 {
-	iu8 kidx=8, counter=32;
 #ifdef INLINE
+	iu8 kidx=8, counter=32;
 	iu8 tmp;
+#else
+	iu8 kidx=4, counter=32;
 #endif
 
 	while( counter>24 ) {

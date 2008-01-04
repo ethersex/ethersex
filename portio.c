@@ -25,50 +25,71 @@
 #include "named_pin/named_pin.h"
 #include "debug.h"
 
+#ifdef PORTIO_SUPPORT
+static uint8_t portio_read_port(uint8_t port);
+static uint8_t portio_write_port(uint8_t port, uint8_t data);
+static uint8_t portio_read_ddr(uint8_t port);
+static uint8_t portio_write_ddr(uint8_t port, uint8_t data);
+static uint8_t portio_read_pin(uint8_t port);
+
+
 static const volatile uint8_t *ddrs[] = IO_DDR_ARRAY;
 static const volatile uint8_t *ports[] = IO_PORT_ARRAY;
 static const volatile uint8_t *pins[] = IO_PIN_ARRAY;
-static const uint8_t masks[] = IO_MASK_ARRAY;
 
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
-#ifdef PORTIO_SUPPORT
+virtual_port_t vport[IO_PORTS];
 
 void portio_init(void)
 /* {{{ */ {
+  uint8_t masks[] = IO_MASK_ARRAY;
   for (uint8_t i = 0; i < IO_PORTS; i++) {
-    cfg.options.io_ddr[i] = ACCESS_IO(ddrs[i]);
-    cfg.options.io[i] = ACCESS_IO(ports[i]);
+    /* Insert the read/write handlers */
+    vport[i].read_port = portio_read_port;
+    vport[i].write_port = portio_write_port;
+    vport[i].read_ddr = portio_read_ddr;
+    vport[i].write_ddr = portio_write_ddr;
+    vport[i].read_pin = portio_read_pin;
+    vport[i].mask = masks[i];
   }
 #   ifdef NAMED_PIN_SUPPORT
     named_pin_init();
 #   endif
 } /* }}} */
 
-/* update port information (PORT and DDR) from global status */
-void portio_update(void)
-/* {{{ */ {
-    for (uint8_t i = 0; i < IO_PORTS; i++) {
 
-#       ifdef DEBUG_PORTIO
-        if (ACCESS_IO(ddrs[i]) != cfg.options.io_ddr[i])
-            debug_printf("io: ddr %d changed to %02x\n", i, cfg.options.io_ddr[i]);
-        if (ACCESS_IO(ports[i]) != cfg.options.io[i])
-            debug_printf("io: port %d changed to %02x\n", i, cfg.options.io[i]);
-#       endif
+static uint8_t 
+portio_read_port(uint8_t port) 
+{
+  return ACCESS_IO(ports[port]);
+}
 
-        ACCESS_IO(ddrs[i]) = ((uint8_t)ACCESS_IO(ddrs[i]) & masks[i]) |
-                             ((uint8_t)cfg.options.io_ddr[i] & ~masks[i]);
-        ACCESS_IO(ports[i]) = ((uint8_t)ACCESS_IO(ports[i]) & masks[i]) |
-                             ((uint8_t)cfg.options.io[i] & ~masks[i]);
-    }
+static uint8_t 
+portio_write_port(uint8_t port, uint8_t data) 
+{
+  ACCESS_IO(ports[port]) = ((uint8_t)ACCESS_IO(ports[port]) & vport[port].mask) |
+                        ((uint8_t)data & ~vport[port].mask);
+  return 0;
+}
 
-} /* }}} */
+static uint8_t 
+portio_read_ddr(uint8_t port) 
+{
+  return ACCESS_IO(ddrs[port]);
+}
 
-uint8_t portio_input(uint8_t port)
-/* {{{ */ {
-    return ACCESS_IO(pins[port]);
-} /* }}} */
+static uint8_t 
+portio_write_ddr(uint8_t port, uint8_t data) 
+{
+  ACCESS_IO(ddrs[port]) = ((uint8_t)ACCESS_IO(ddrs[port]) & vport[port].mask) |
+                       ((uint8_t)data & ~vport[port].mask);
+  return 0;
+}
 
-
+static uint8_t 
+portio_read_pin(uint8_t port) 
+{
+  return ACCESS_IO(pins[port]);
+}
 #endif /* PORTIO_SUPPORT */

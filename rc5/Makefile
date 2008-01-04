@@ -1,8 +1,9 @@
-# include avr-generic makefile configuration
+TARGET = librc5.a
+TOPDIR = ..
+SRC = \
+	rc5.c \
 
-include ../avr.mk
-
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-
-DEBUG = 0
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk

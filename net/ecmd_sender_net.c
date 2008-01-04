@@ -32,10 +32,10 @@
 #ifdef ECMD_SENDER_SUPPORT
 
 /* module local prototypes */
-struct uip_conn*
+uip_conn_t *
 ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
 {
-  struct uip_conn *conn = uip_connect(ipaddr, HTONS(2701), ecmd_sender_net_main);
+  uip_conn_t *conn = uip_connect(ipaddr, HTONS(2701), ecmd_sender_net_main);
   if (conn) {
     conn->appstate.ecmd_sender.to_be_sent = pgm_data;
     conn->appstate.ecmd_sender.offset = 0;

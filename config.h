@@ -69,6 +69,32 @@
 #define _TIFR_TIMER1 TIFR
 
 /* }}} */
+#elif defined(__AVR_ATmega8__)
+/* {{{ */
+#define _ATMEGA8
+
+#define _SPCR0 SPCR
+#define _SPE0 SPE
+#define _MSTR0 MSTR
+#define _SPSR0 SPSR
+#define _SPIF0 SPIF
+#define _SPDR0 SPDR
+#define _SPI2X0 SPI2X
+#define _TIFR_TIMER1 TIFR
+#define _EIMSK GICR
+
+/* on ATmega8 we connect rfm12 directly to SPI. */
+#define SPI_CS_RFM12_DDR DDRB
+#define SPI_CS_RFM12_PORT PORTB
+#define SPI_CS_RFM12 PB2
+
+/* SPI-pinout differs from atmega32/644 one. */
+#define SPI_MOSI PB3
+#define SPI_MISO PB4
+#define SPI_SCK PB5
+
+
+/* }}} */
 #elif defined(__AVR_ATmega644__)
 /* {{{ */
 #define _ATMEGA644
@@ -92,6 +118,13 @@
 #define _RXC_UART0 RXC0
 #define _TXC_UART0 TXC0
 #define _IVREG MCUCR
+#define _EIMSK EIMSK
+
+#define _TCCR2_PRESCALE TCCR2B
+#define _OUTPUT_COMPARE_IE2 OCIE2B
+#define _OUTPUT_COMPARE_REG2 OCR2B
+#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
+#define _TIMSK_TIMER2 TIMSK2
 
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
@@ -188,6 +221,44 @@
 #define SPI_CS_DF PB1
 #endif
 
+/* port the rfm12 module CS is attached to */
+#ifndef SPI_CS_RFM12_DDR
+#define SPI_CS_RFM12_DDR DDRC
+#endif
+
+#ifndef SPI_CS_RFM12_PORT
+#define SPI_CS_RFM12_PORT PORTC
+#endif
+
+#ifndef SPI_CS_RFM12
+#define SPI_CS_RFM12 PC3
+#endif
+
+/* rfm12 module interrupt line */
+#ifndef RFM12_INT_PIN 
+#define RFM12_INT_PIN INT0
+#endif
+
+#ifndef RFM12_INT_SIGNAL
+#define RFM12_INT_SIGNAL SIG_INTERRUPT0
+#endif
+
+/* ps/2 pins and interrupts */
+#define PS2_PIN PINA
+#define PS2_PORT PORTA
+#define PS2_DDR DDRA
+
+#define PS2_DATA_PIN PA7
+#define PS2_CLOCK_PIN PA6
+
+#define PS2_PCMSK PCMSK0 
+#define PS2_PCIE PCIE0
+#define PS2_INTERRUPT SIG_PIN_CHANGE0
+
+/* Comment this out to get an us layout */
+#define PS2_GERMAN_LAYOUT
+
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
@@ -234,7 +305,15 @@
 #define NET_FULL_DUPLEX 0
 
 /* configure global data buffer */
-#define NET_MAX_FRAME_LENGTH 640
+#ifdef _ATMEGA8
+  /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
+#  define NET_MAX_FRAME_LENGTH 192
+/* on the ATmega8 we only have 6 adc channels in the pdip version */
+#  define ADC_CHANNELS 6
+#else
+#  define NET_MAX_FRAME_LENGTH 640
+#  define ADC_CHANNELS 8
+#endif
 
 /* configure main callback function for uip */
 #define UIP_APPCALL network_handle_tcp
@@ -320,23 +399,33 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
+#define ICMP_SUPPORT
 #define TCP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
+// #define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
+// #define CLOCK_SUPPORT
+// #define CLOCK_CRYSTAL_SUPPORT
+// #define DCF77_SUPPORT
 // #define NTP_SUPPORT
+// #define NTPD_SUPPORT
+#define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
-
+// #define STELLA_SUPPORT
+// #define TEENSY_SUPPORT
+// #define UDP_ECHO_NET_SUPPORT
+// #define ADC_SUPPORT
+// #define PS2_SUPPORT
+// #define RFM12_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT
-// #define AUTH_SUPPORT
 // #define CAST5_SUPPORT
 // #define SKIPJACK_SUPPORT
-// #define RC4_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */
@@ -349,9 +438,19 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP4 uip_ipaddr(ip,10,0,0,5)
+#define CONF_ETHERRAPE_IP uip_ipaddr(ip,10,0,0,5)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
+
+// #define OPENVPN_SUPPORT
+#define CONF_OPENVPN_IP4 uip_ipaddr(ip,10,1,0,5)
+#define CONF_OPENVPN_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
+#define CONF_OPENVPN_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
+#define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
+#define CONF_RFM12_IP uip_ipaddr(ip,10,2,0,5)
+#define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)

@@ -56,5 +56,4 @@ struct ntp_packet {
 void ntp_init(void);
 void ntp_newdata(void);
 void ntp_periodic(void);
-uint32_t get_time(void);
-void ntp_every_second(void);
+void ntp_send_packet(void);
