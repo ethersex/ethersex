@@ -248,7 +248,11 @@ my %ethersex_modules = (
 		   enable_hook => \&enc28j60_enable_hook,
                  },
   'zbus'        => {
-                   helptext  => "tunnelingip over zbus",
+                   helptext  => "tunneling ip over zbus",
+                   distdflt  => 0,
+                 },
+  'ps2'        => {
+                   helptext  => "ps2 keyboard",
                    distdflt  => 0,
                  },
 );
@@ -887,11 +891,15 @@ sub write_config {
   rename("$filename.new", "$filename") or die;
 }
 
+
+# make sure config.mk exists
+unless (-e "config.mk") { system "make no_deps=t config.mk"; }
+
 #
 # write the config files
 #
 if ($opt_only_modules != 1) {
-  foreach(qw/config.h Makefile/) {
+  foreach(qw/config.h config.mk Makefile/) {
     write_config($_);
   }
 }
