@@ -35,6 +35,7 @@
 #include "clock/clock.h"
 #include "ipv6.h"
 #include "stella/stella.h"
+#include "ps2/ps2.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -122,6 +123,15 @@ void timer_process(void)
         }
 #       endif
 #       endif /* FS20_SUPPORT */
+
+#       ifdef ZBUS_SUPPORT
+        if (counter % 10 == 0)
+          zbus_core_periodic();
+#       endif /* ZBUS_SUPPORT */
+        
+#       ifdef PS2_SUPPORT
+        ps2_periodic();
+#       endif
 
         /* check tcp connections every 200ms */
 #       ifdef TEENSY_SUPPORT

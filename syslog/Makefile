@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libsyslog.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	syslog.c \
 
 ##############################################################################
 # generic fluff

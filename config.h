@@ -243,6 +243,22 @@
 #define RFM12_INT_SIGNAL SIG_INTERRUPT0
 #endif
 
+/* ps/2 pins and interrupts */
+#define PS2_PIN PINA
+#define PS2_PORT PORTA
+#define PS2_DDR DDRA
+
+#define PS2_DATA_PIN PA7
+#define PS2_CLOCK_PIN PA6
+
+#define PS2_PCMSK PCMSK0 
+#define PS2_PCIE PCIE0
+#define PS2_INTERRUPT SIG_PIN_CHANGE0
+
+/* Comment this out to get an us layout */
+#define PS2_GERMAN_LAYOUT
+
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
@@ -292,8 +308,11 @@
 #ifdef _ATMEGA8
   /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
 #  define NET_MAX_FRAME_LENGTH 192
+/* on the ATmega8 we only have 6 adc channels in the pdip version */
+#  define ADC_CHANNELS 6
 #else
 #  define NET_MAX_FRAME_LENGTH 640
+#  define ADC_CHANNELS 8
 #endif
 
 /* configure main callback function for uip */
@@ -400,6 +419,8 @@
 // #define STELLA_SUPPORT
 // #define TEENSY_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
+// #define ADC_SUPPORT
+// #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */

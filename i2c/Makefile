@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libi2c.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	i2c.c \
 
 ##############################################################################
 # generic fluff

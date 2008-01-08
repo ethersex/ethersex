@@ -44,72 +44,7 @@
 #include "../clock/clock.h"
 #include "ecmd.h"
 
-
-/* module local prototypes */
-/* high level */
-static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len);
-#ifdef NAMED_PIN_SUPPORT
-static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef FS20_SUPPORT
-#ifdef FS20_SUPPORT_SEND
-static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef FS20_SUPPORT_RECEIVE
-static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len);
-#ifdef FS20_SUPPORT_RECEIVE_WS300
-static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len);
-#endif
-#endif
-#endif /* FS20_SUPPORT */
-#ifdef HD44780_SUPPORT
-static int16_t parse_lcd_clear(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_write(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_goto(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_char(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_init(char *cmd, char *output, uint16_t len);
-static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef ONEWIRE_SUPPORT
-static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len);
-static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len);
-static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef RC5_SUPPORT
-static int16_t parse_ir_send(char *cmd, char *output, uint16_t len);
-static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef DNS_SUPPORT
-static int16_t parse_nslookup(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len);
-static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len);
-#endif
-#ifdef CLOCK_SUPPORT
-static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len);
-#endif
-static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len);
-
-/* low level */
-static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
-static int8_t parse_mac(char *cmd, uint8_t *ptr);
-static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
+#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
 /* struct for storing commands */
 struct ecmd_command_t {
@@ -117,143 +52,19 @@ struct ecmd_command_t {
     int16_t (*func)(char*, char*, uint16_t);
 };
 
-/* construct strings.  this is ugly, but the only known way of
- * storing structs containing string pointer completely in program
- * space */
-const char PROGMEM ecmd_showmac_text[] = "show mac";
-const char PROGMEM ecmd_show_ip_text[] = "show ip";
-#ifndef IPV6_SUPPORT
-const char PROGMEM ecmd_show_netmask_text[] = "show netmask";
-#endif
-const char PROGMEM ecmd_show_gw_text[] = "show gw";
-const char PROGMEM ecmd_showversion_text[] = "show version";
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-const char PROGMEM ecmd_ip_text[] = "ip ";
-const char PROGMEM ecmd_netmask_text[] = "netmask ";
-const char PROGMEM ecmd_gw_text[] = "gw ";
-#endif
-const char PROGMEM ecmd_mac_text[] = "mac ";
-const char PROGMEM ecmd_bootloader_text[] = "bootloader";
-const char PROGMEM ecmd_reset_text[] = "reset";
-const char PROGMEM ecmd_io_set_ddr[] = "io set ddr";
-const char PROGMEM ecmd_io_get_ddr[] = "io get ddr";
-const char PROGMEM ecmd_io_set_port[] = "io set port";
-const char PROGMEM ecmd_io_get_port[] = "io get port";
-const char PROGMEM ecmd_io_get_pin[] = "io get pin";
-#ifdef NAMED_PIN_SUPPORT
-const char PROGMEM ecmd_pin_get[] = "pin get";
-const char PROGMEM ecmd_pin_set[] = "pin set";
-const char PROGMEM ecmd_pin_toggle[] = "pin toggle";
-#endif
-#ifdef FS20_SUPPORT
-#ifdef FS20_SUPPORT_SEND
-const char PROGMEM ecmd_fs20_send_text[] = "fs20 send";
-#endif
-#ifdef FS20_SUPPORT_RECEIVE
-const char PROGMEM ecmd_fs20_recv_text[] = "fs20 receive";
-#ifdef FS20_SUPPORT_RECEIVE_WS300
-const char PROGMEM ecmd_fs20_recv_ws300_text[] = "fs20 ws300";
-#endif
-#endif
-#endif /* FS20_SUPPORT */
-#ifdef HD44780_SUPPORT
-const char PROGMEM ecmd_lcd_clear_text[] = "lcd clear";
-const char PROGMEM ecmd_lcd_write_text[] = "lcd write";
-const char PROGMEM ecmd_lcd_goto_text[] = "lcd goto";
-const char PROGMEM ecmd_lcd_char_text[] = "lcd char";
-const char PROGMEM ecmd_lcd_init_text[] = "lcd init";
-const char PROGMEM ecmd_lcd_shift_text[] = "lcd shift";
-#endif
-#ifdef ONEWIRE_SUPPORT
-const char PROGMEM ecmd_onewire_list[] = "1w list";
-const char PROGMEM ecmd_onewire_get[] = "1w get";
-const char PROGMEM ecmd_onewire_convert[] = "1w convert";
-#endif
-#ifdef RC5_SUPPORT
-const char PROGMEM ecmd_ir_send[] = "ir send";
-const char PROGMEM ecmd_ir_receive[] = "ir receive";
-#endif
-#ifdef DNS_SUPPORT
-const char PROGMEM ecmd_nslookup[] = "nslookup ";
-const char PROGMEM ecmd_show_dns_text[] = "show dns";
-#ifndef BOOTP_SUPPORT
-const char PROGMEM ecmd_dns_text[] = "dns ";
-#endif
-#endif /* DNS_SUPPORT */
-#ifdef CLOCK_SUPPORT
-const char PROGMEM ecmd_time_text[] = "time";
-#endif
-const char PROGMEM ecmd_d_text[] = "d ";
+/* Include the function header, generated by m4 */
+#include "ecmd_defs.c"
 
-const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
-    { ecmd_show_ip_text, parse_cmd_show_ip },
-    { ecmd_show_gw_text, parse_cmd_show_gw },
-    { ecmd_showmac_text, parse_cmd_show_mac },
-    { ecmd_mac_text, parse_cmd_mac },
-#if !UIP_CONF_IPV6
-    { ecmd_show_netmask_text, parse_cmd_show_netmask },
+/* low level */
+#ifdef ENC28J60_SUPPORT
+  static int8_t parse_mac(char *cmd, uint8_t *ptr);
 #endif
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-    { ecmd_ip_text, parse_cmd_ip },
-    { ecmd_netmask_text, parse_cmd_netmask },
-    { ecmd_gw_text, parse_cmd_gw },
+#ifndef TEENSY_SUPPORT
+  static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 #endif
-    { ecmd_showversion_text, parse_cmd_show_version },
-    { ecmd_bootloader_text, parse_cmd_bootloader }, 
-    { ecmd_reset_text, parse_cmd_reset },
-    { ecmd_io_set_ddr, parse_cmd_io_set_ddr },
-    { ecmd_io_get_ddr, parse_cmd_io_get_ddr },
-    { ecmd_io_set_port, parse_cmd_io_set_port },
-    { ecmd_io_get_port, parse_cmd_io_get_port },
-    { ecmd_io_get_pin, parse_cmd_io_get_pin },
-#ifdef NAMED_PIN_SUPPORT
-    { ecmd_pin_get, parse_cmd_pin_get },
-    { ecmd_pin_set, parse_cmd_pin_set },
-    { ecmd_pin_toggle, parse_cmd_pin_toggle },
-#endif
-#ifdef FS20_SUPPORT 
-#ifdef FS20_SUPPORT_SEND
-    { ecmd_fs20_send_text, parse_cmd_send_fs20 },
-#endif
-#ifdef FS20_SUPPORT_RECEIVE
-    { ecmd_fs20_recv_text, parse_cmd_recv_fs20 },
-#ifdef FS20_SUPPORT_RECEIVE_WS300
-    { ecmd_fs20_recv_ws300_text, parse_cmd_recv_fs20_ws300 },
-#endif
-#endif
-#endif /* FS20_SUPPORT */
-#ifdef HD44780_SUPPORT
-    { ecmd_lcd_clear_text, parse_lcd_clear },
-    { ecmd_lcd_write_text, parse_lcd_write },
-    { ecmd_lcd_goto_text, parse_lcd_goto },
-    { ecmd_lcd_char_text, parse_lcd_char },
-    { ecmd_lcd_init_text, parse_lcd_init },
-    { ecmd_lcd_shift_text, parse_lcd_shift },
-#endif
-#ifdef ONEWIRE_SUPPORT
-    { ecmd_onewire_list, parse_onewire_list },
-    { ecmd_onewire_get, parse_onewire_get },
-    { ecmd_onewire_convert, parse_onewire_convert },
-#endif
-#ifdef RC5_SUPPORT
-    { ecmd_ir_send, parse_ir_send },
-    { ecmd_ir_receive, parse_ir_receive },
-#endif
-#ifdef DNS_SUPPORT
-    { ecmd_nslookup, parse_nslookup },
-    { ecmd_show_dns_text, parse_cmd_show_dns },
-#ifndef BOOTP_SUPPORT
-    { ecmd_dns_text, parse_cmd_dns },
-#endif
-#endif /* DNS_SUPPORT */
-#ifdef CLOCK_SUPPORT
-    { ecmd_time_text, parse_cmd_time },
-#endif
-    { ecmd_d_text, parse_cmd_d },
-    { NULL, NULL },
-};
+static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
 
-
+#ifndef TEENSY_SUPPORT
 static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
 /* {{{ */ {
 #if UIP_CONF_IPV6
@@ -270,6 +81,56 @@ static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len)
   return output_len;
 #endif  
 } /* }}} */
+#endif
+
+static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value) 
+/* {{{ */ {
+#ifndef TEENSY_SUPPORT
+        return snprintf_P(output, len,
+                PSTR("port %d: 0x%02x"),
+                port, value);
+#else
+        strncpy_P(output, PSTR("port P: 0xXX"), len);
+        /* Convert to number :) */
+        output[5] = port + 48;
+        output[10] = NIBBLE_TO_HEX((value >> 4) & 0x0F);
+        output[11] = NIBBLE_TO_HEX(value & 0x0F);
+        return 12;
+#endif
+} /* }}} */
+
+static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
+/* {{{ */ {
+#ifndef TEENSY_SUPPORT
+  return sscanf_P(cmd, PSTR("%x %x %x"),
+                  port, data, mask);
+#else
+  char *p;
+  if (! *cmd ) return 0;
+  /* skip first space */
+  while (*cmd == ' ')
+    cmd ++;
+  if (! *cmd ) return 0;
+  *port = *cmd - '0';
+  /* After the second number */
+  p = strchr(cmd, ' ');
+  if (! p) return 1;
+  /* skip spaces */
+  while (*p == ' ')
+    p++;
+  cmd = p;
+  *data = strtol(cmd, NULL, 16);
+  p = strchr(cmd, ' ');
+  if (! p) return 2;
+  /* skip spaces */
+  while (*p == ' ')
+    p++;
+  cmd = p;
+  *mask = strtol(cmd, NULL, 16);
+  return 3;
+#endif
+} /* }}} */
+
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -341,7 +202,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 } /* }}} */
 
 /* high level parsing functions */
-
+#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     cfg.request_bootloader = 1;
@@ -349,6 +210,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
     return 0;
 } /* }}} */
 
+#ifdef ENC28J60_SUPPORT
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -367,6 +229,7 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 
     return output_len;
 } /* }}} */
+#endif
 
 
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
@@ -482,7 +345,7 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
-
+#ifdef ENC28J60_SUPPORT
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -503,6 +366,7 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
         return ret;
 
 } /* }}} */
+#endif
 
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -510,6 +374,7 @@ static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     uip_close();
     return 0;
 } /* }}} */
+#endif /* TEENSY_SUPPORT */
 
 #ifdef FS20_SUPPORT 
 #ifdef FS20_SUPPORT_SEND
@@ -603,6 +468,40 @@ static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
 #endif
 #endif
 #endif /* FS20_SUPPORT */
+
+#ifdef ADC_SUPPORT
+static int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint16_t adc;
+  uint8_t channel;
+  uint8_t ret = 0;
+  if (cmd[0] && cmd[1]) {
+    if ( (cmd[1] - '0') < ADC_CHANNELS) {
+      ADMUX = cmd[1] - '0';
+      channel = ADC_CHANNELS;
+      goto adc_out; 
+    } else 
+      return -1;
+  }
+  for (channel = 0; channel < ADC_CHANNELS; channel ++) {
+    ADMUX = channel;
+adc_out:
+    /* Start adc conversion */
+    ADCSRA |= _BV(ADSC);
+    /* Wait for completion of adc */
+    while (ADCSRA & _BV(ADSC)) {}
+    adc = ADC;
+    output[0] = NIBBLE_TO_HEX((adc >> 8) & 0x0F);
+    output[1] = NIBBLE_TO_HEX((adc >> 4) & 0x0F);
+    output[2] = NIBBLE_TO_HEX(adc & 0x0F);
+    output[3] = ' ';
+    output[4] = 0;
+    ret += 4;
+    output += 4;
+  }
+  return ret;
+} /* }}} */
+#endif
 
 #ifdef ONEWIRE_SUPPORT
 static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)
@@ -889,7 +788,7 @@ static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif 
 
-
+#ifdef PORTIO_SUPPORT
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -897,22 +796,19 @@ static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_set_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port, data, mask;
+    uint8_t port, data, mask;
 
-    int ret = sscanf_P(cmd,
-            PSTR("%x %x %x"),
-            &port, &data, &mask);
-
+    uint8_t ret = parse_set_command(cmd, &port, &data, &mask);
     /* use default mask, if no mask has been given */
     if (ret == 2) {
         mask = 0xff;
         ret = 3;
     }
 
-    if (ret == 3 && port < IO_PORTS) {
-
-        cfg.options.io_ddr[port] = (cfg.options.io_ddr[port] & ~mask) |
-                                   LO8(data & mask);
+    if (ret == 3 && port < IO_PORTS && vport[port].write_ddr 
+        && vport[port].read_ddr) {
+        vport[port].write_ddr(port, (vport[port].read_ddr(port) & ~mask)
+                              | LO8(data & mask));
 
         return 0;
     } else
@@ -927,20 +823,19 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port;
-
+    uint8_t port;
+#ifndef TEENSY_SUPPORT
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-
-    if (ret == 1 && port < IO_PORTS) {
-
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port,
-                cfg.options.io_ddr[port]);
-    } else
-        return -1;
+    if (ret == 1 && port < IO_PORTS && vport[port].read_ddr) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS && vport[port].read_ddr)
+#endif
+      return print_port(output, len, port, vport[port].read_ddr(port));
+    else
+      return -1;
 
 } /* }}} */
 
@@ -951,23 +846,18 @@ static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_set_port with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port, data, mask;
-
-    int ret = sscanf_P(cmd,
-            PSTR("%x %x %x"),
-            &port, &data, &mask);
-
+    uint8_t port, data, mask;
+    uint8_t ret = parse_set_command(cmd, &port, &data, &mask);
     /* use default mask, if no mask has been given */
     if (ret == 2) {
         mask = 0xff;
         ret = 3;
     }
 
-    if (ret == 3 && port < IO_PORTS) {
-
-        cfg.options.io[port] = (cfg.options.io[port] & ~mask) |
-                                   LO8(data & mask);
-
+    if (ret == 3 && port < IO_PORTS && vport[port].write_port 
+        && vport[port].read_port) {
+        vport[port].write_port(port, (vport[port].read_port(port) & ~mask)
+                               | LO8(data & mask));
         return 0;
     } else
         return -1;
@@ -981,19 +871,19 @@ static int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_get_port with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port;
+    uint8_t port;
 
+#ifndef TEENSY_SUPPORT
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-
-    if (ret == 1 && port < IO_PORTS) {
-
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port,
-                cfg.options.io[port]);
-    } else
+    if (ret == 1 && port < IO_PORTS && vport[port].read_port) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS && vport[port].read_port)
+#endif
+      return print_port(output, len, port, vport[port].read_port(port));
+    else
         return -1;
 
 } /* }}} */
@@ -1005,22 +895,24 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
     debug_printf("called parse_cmd_io_get_pin with rest: \"%s\"\n", cmd);
 #endif
 
-    uint16_t port;
+    uint8_t port;
 
+#ifndef TEENSY_SUPPORT
     int ret = sscanf_P(cmd,
             PSTR("%x"),
             &port);
-
-    if (ret == 1 && port < IO_PORTS) {
-
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port,
-                portio_input(port));
-    } else
+    if (ret == 1 && port < IO_PORTS && vport[port].read_pin) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS && vport[port].read_pin)
+#endif
+      return print_port(output, len, port, vport[port].read_pin(port));
+    else
         return -1;
 
 } /* }}} */
+
+#endif
 
 #ifdef NAMED_PIN_SUPPORT
 static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
@@ -1043,7 +935,7 @@ static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
     if (pincfg != 255)  
       active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
     return snprintf_P(output, len, 
-                      XOR_LOG(((portio_input(port)) & _BV(pin)), !(active_high))
+                      XOR_LOG(vport[port].read_pin(port) & _BV(pin), !(active_high))
                       ? PSTR("on") : PSTR("off"));
   } else
     return -1;
@@ -1086,16 +978,16 @@ static int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
 
   if (ret == 3 && port < IO_PORTS && pin < 8) {
     /* Set only if it is output */
-    if (cfg.options.io_ddr[port] & _BV(pin)) {
+    if (vport[port].read_ddr(port) & _BV(pin)) {
       uint8_t pincfg = named_pin_by_pin(port, pin);
       uint8_t active_high = 1;
       if (pincfg != 255)  
         active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
 
       if (XOR_LOG(on, !active_high)) 
-        cfg.options.io[port] = (cfg.options.io[port] ) | _BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
       else
-        cfg.options.io[port] = (cfg.options.io[port] ) & ~_BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) & ~_BV(pin));
 
       return snprintf_P(output, len, on ? PSTR("on") : PSTR("off"));
     } else 
@@ -1123,8 +1015,8 @@ static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
   }
   if (ret == 2 && port < IO_PORTS && pin < 8) {
     /* Toggle only if it is output */
-    if (cfg.options.io_ddr[port] & _BV(pin)) {
-      uint8_t on = cfg.options.io[port] & _BV(pin);
+    if (vport[port].read_ddr(port) & _BV(pin)) {
+      uint8_t on = vport[port].read_port(port) & _BV(pin);
 
       uint8_t pincfg = named_pin_by_pin(port, pin);
       uint8_t active_high = 1;
@@ -1132,9 +1024,9 @@ static int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
         active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
 
       if (on) 
-        cfg.options.io[port] &= ~_BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) & ~_BV(pin));
       else
-        cfg.options.io[port] |= _BV(pin);
+        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
 
       return snprintf_P(output, len, XOR_LOG(!on, !active_high)
                         ? PSTR("on") : PSTR("off"));
@@ -1250,7 +1142,7 @@ static int16_t parse_lcd_shift(char *cmd, char *output, uint16_t len)
 
 
 /* low level parsing functions */
-
+#ifndef TEENSY_SUPPORT
 /* parse an ip address at cmd, write result to ptr */
 int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 /* {{{ */ {
@@ -1282,7 +1174,7 @@ int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
     return 0;
 } /* }}} */
 
-
+#ifdef ENC28J60_SUPPORT
 /* parse an ethernet address at cmd, write result to ptr */
 int8_t parse_mac(char *cmd, uint8_t *ptr)
 /* {{{ */ {
@@ -1319,7 +1211,9 @@ int8_t parse_mac(char *cmd, uint8_t *ptr)
 
     return ret;
 } /* }}} */
+#endif
 
+#ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */
 int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 /* {{{ */ {
@@ -1349,7 +1243,11 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 
     return 1;
 } /* }}} */
+#endif
 
+#endif
+
+#ifndef TEENSY_SUPPORT
 static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     while (*cmd == ' ') cmd ++;
@@ -1364,4 +1262,5 @@ static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 
     return 32;
 } /* }}} */
+#endif
 

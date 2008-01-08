@@ -44,8 +44,10 @@
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
+#include "zbus/zbus.h"
 #include "clock/clock.h"
 #include "dcf77/dcf77.h"
+#include "ps2/ps2.h"
 #include "ipv6.h"
 #include "sensor_rfm12/sensor_rfm12.h"
 
@@ -126,6 +128,15 @@ int main(void)
     clock_init();
 #endif
 
+#ifdef ADC_SUPPORT
+    /* ADC Prescaler to 64 */
+    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
+#endif
+
+#ifdef PS2_SUPPORT
+    ps2_init();
+#endif
+
 #ifdef DCF77_SUPPORT
     dcf77_init();
 #endif
@@ -140,6 +151,10 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+#ifdef ZBUS_SUPPORT
+    zbus_core_init();
 #endif
 
 #ifdef RFM12_SUPPORT
@@ -205,16 +220,15 @@ int main(void)
 	wdt_kick();
 #endif
 
+#ifdef ZBUS_SUPPORT
+	zbus_process();
+	wdt_kick();
+#endif
+     
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();
         wdt_kick();
-
-#ifdef PORTIO_SUPPORT
-        /* update port io information */
-        portio_update();
-        wdt_kick();
-#endif
 
         /* check if debug input has arrived */
         debug_process();

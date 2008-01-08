@@ -1,8 +1,15 @@
-# include avr-generic makefile configuration
+TARGET = libwatchcat.a
+TOPDIR = ..
+SRC = \
+	watchcat.c \
 
-include ../avr.mk
+##############################################################################
+# generic fluff
+include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/rules.mk
 
-SRC = $(shell echo *.c)
-OBJECTS += $(patsubst %.c,%.o,${SRC})
+##############################################################################
 
-DEBUG = 0
+watchcat.c: user_config.h
+user_config.h: config
+	$(@D)/cfgpp > $@

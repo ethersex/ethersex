@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libtftp.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	tftp.c \
 
 ##############################################################################
 # generic fluff

@@ -35,7 +35,6 @@
 #include "ecmd_sender_state.h"
 #include "i2c_state.h"
 #include "dyndns_state.h"
-#include "zbus_state.h"
 #include "sensor_rfm12_state.h"
 
 /* uip appstate for tcp */
@@ -79,6 +78,7 @@ typedef union uip_udp_connection_state {
     struct openvpn_connection_state_t openvpn;
 #   endif
 
+<<<<<<< HEAD:net/state.h
 #   ifdef ZBUS_SUPPORT
     struct zbus_connection_state_t zbus;
 #   endif
@@ -87,6 +87,8 @@ typedef union uip_udp_connection_state {
     struct sensor_rfm12_connection_state_t sensor_rfm12;
 #   endif
 
+=======
+>>>>>>> origin/master:net/state.h
 } uip_udp_appstate_t;
 
 #endif

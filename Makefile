@@ -1,101 +1,103 @@
-TARGET = etherrape
+TARGET=ethersex
+TOPDIR=.
 
-# export current directory to use in sub-makefiles
-export PWD
+SRC = \
+	debug.c \
+	eeprom.c \
+	enc28j60.c \
+	etherrape.c \
+	ipv6.c \
+	network.c \
+	portio.c \
+	spi.c \
+	timer.c
 
-# include avr-generic makefile configuration
-include $(PWD)/avr.mk
 
-SRC = $(shell echo *.c net/*.c lcd/*.c)
-#SRC += $(shell echo fs20/*.c)
-#SRC += $(shell echo ecmd/*.c)
-#SRC += $(shell echo tetrirape/*.c)
-#SRC += $(shell echo bootp/*.c)
-#SRC += $(shell echo watchcat/*.c)
-#SRC += $(shell echo named_pin/*.c)
-#SRC += $(shell echo tftp/*.c)
-#SRC += $(shell echo crypto/*.c)
-#SRC += $(shell echo onewire/*.c)
-#SRC += $(shell echo rc5/*.c)
-SRC += $(shell echo rfm12/*.c)
-#SRC += $(shell echo dns/*.c)
-#SRC += $(shell echo dyndns/*.c)
-#SRC += $(shell echo syslog/*.c)
-#SRC += $(shell echo i2c/*.c)
-#SRC += $(shell echo ntp/*.c)
-#SRC += $(shell echo stella/*.c)
-#SRC += uip/uip_openvpn.c                               # OPENVPN_SUPPORT
-#SRC += $(shell echo zbus/*.c)
-SRC += $(shell echo sensor_rfm12/*.c)
-#SRC += $(shell echo clock/*.c)
-#SRC += $(shell echo dcf77/*.c)
-SRC += uip/uip.c uip/uip_arp.c uip/uip_neighbor.c uip/psock.c uip/uip_multi.c uip/uip_rfm12.c
+#SUBDIRS += bootp
+#SUBDIRS += clock
+#SUBDIRS += crypto
+#SUBDIRS += dcf77
+#SUBDIRS += dns
+#SUBDIRS += dyndns
+SUBDIRS += ecmd
+#SUBDIRS += fs20
+#SUBDIRS += i2c
+SUBDIRS += lcd
+#SUBDIRS += named_pin
+SUBDIRS += net
+#SUBDIRS += ntp
+#SUBDIRS += onewire
+#SUBDIRS += ps2
+#SUBDIRS += rc5
+#SUBDIRS += rfm12
+#SUBDIRS += stella
+#SUBDIRS += syslog
+#SUBDIRS += tetrirape
+#SUBDIRS += tftp
+SUBDIRS += uip
+#SUBDIRS += watchcat
+#SUBDIRS += zbus
 
-# preprocessed config files
-USER_CONFIG = $(patsubst %/cfgpp,%/user_config.h,$(shell echo */cfgpp))
 
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-#CFLAGS += -Werror
-#CFLAGS += -Iuip/ -Iuip/apps
-#LDFLAGS += -L/usr/local/avr/avr/lib
-
-#LDFLAGS += -Wl,--section-start=.text=0xE000		# BOOTLOADER_SUPPORT
-#CFLAGS  += -mcall-prologues                            # BOOTLOADER_SUPPORT
-
-CFLAGS  += -mcall-prologues                            # SENSOR_RFM12_SUPPORT
-
-# no safe mode checks, since the bootloader doesn't support this
-AVRDUDE_FLAGS += -u
-# no signature byte check, -> bootloader bug
-AVRDUDE_FLAGS += -F
-
-# if you would like everything to be recompiled when you change config.mk, uncomment this line:
-#$(OBJECTS): config.mk
-
-.PHONY: all
-
-all: $(TARGET).hex $(TARGET).lss $(TARGET).bin
+##############################################################################
+all: compile-ethersex
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
 	@$(SIZE) -A $(TARGET).hex | grep "\.sec1" | tr -s " " | cut -d" " -f2
 	@echo "==============================="
 
-$(TARGET): $(OBJECTS) $(TARGET).o
 
-# subdir magic
-%/% %/%.o %/%.hex %/all %/install:
-	$(MAKE) -C $(@D) -e $(@F)
+##############################################################################
+# generic fluff
+include defaults.mk
+#include $(TOPDIR)/rules.mk
+##############################################################################
 
-%/clean:
-	$(MAKE) -C $(@D) -e $(@F) no_deps=t
+.PHONY: compile-subdirs
+compile-subdirs:
+	for dir in $(SUBDIRS); do make -C $$dir lib$$dir.a; done
 
-# Sorry for this workaround
-%.o: %.c
-	@ if [ -x $(@D)/cfgpp -a $(@D)/config -nt $(@D)/user_config.h ]; then \
-	 	echo "Wrote $(@D)/user_config.h"; \
-	 	$(@D)/cfgpp > $(@D)/user_config.h; \
-	  fi
-	$(CC) -c $(CFLAGS) $< -o $@
+.PHONY: compile-$(TARGET)
+compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
 
-.PHONY: install
+OBJECTS += $(patsubst %.c,%.o,${SRC})
+LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
 
-install: program-serial-$(TARGET)
+# FIXME how can we omit specifying every file to be linked twice?
+# This is currently necessary because of interdependencies between
+# the libraries, which aren't denoted in these however.
+$(TARGET): $(OBJECTS) $(LINKLIBS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
+	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
+	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
 
-install-eeprom: program-serial-eeprom-$(TARGET)
+
+##############################################################################
+
+%.hex: %
+	$(OBJCOPY) -O ihex -R .eeprom $< $@
+
+%.bin: %
+	$(OBJCOPY) -O binary -R .eeprom $< $@
+
+%.eep.hex: %
+	$(OBJCOPY) --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex -j .eeprom $< $@
+
+%.lss: %
+	$(OBJDUMP) -h -S $< > $@
+
+%-size: %.hex
+	$(SIZE) $<
 
 
-.PHONY: clean clean-$(TARGET) distclean
 
-clean: clean-$(TARGET) uip/clean net/clean
-clean: bootloader/clean fs20/clean lcd/clean onewire/clean
-clean: rc5/clean
+##############################################################################
+clean:
+	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda]
+	for subdir in `find -type d`; do \
+	  test "x$$subdir" != "x." \
+	  && test -e $$subdir/Makefile \
+	  && make no_deps=t -C $$subdir clean; done
 
-clean-$(TARGET):
-	rm -f $(TARGET) $(TARGET).map $(TARGET).bin
-	rm -f $(OBJECTS) $(USER_CONFIG)
-
-distclean: clean
-	rm -f eeprom-default.raw Makefile.dep tags
-
--include depend.mk
+include depend.mk

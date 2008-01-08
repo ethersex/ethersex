@@ -1,7 +1,7 @@
-TARGET = libecmd.a
+TARGET = libnamed_pin.a
 TOPDIR = ..
 SRC = \
-	ecmd.c
+	named_pin.c \
 
 ##############################################################################
 # generic fluff
@@ -9,12 +9,6 @@ include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
 ##############################################################################
-# special stuff for this subdirectory
-
-ecmd.c: ecmd_defs.c
-ecmd_defs.c: ecmd_defs.m4
-	m4 $< > $@
-
-# extend normal clean rule
-clean: clean-common
-	$(RM) ecmd_defs.c
+named_pin.c: user_config.h
+user_config.h: config
+	$(@D)/cfgpp > $@

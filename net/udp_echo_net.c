@@ -51,7 +51,6 @@ udp_echo_net_main(void)
     uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
     echo_conn.rport = BUF->srcport;
     echo_conn.lport = HTONS(ECHO_PORT);
-    echo_conn.ttl = uip_udp_conn->ttl;
 
     uip_udp_conn = &echo_conn;
 

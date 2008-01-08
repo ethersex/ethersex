@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libdcf77.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	dcf77.c \
 
 ##############################################################################
 # generic fluff

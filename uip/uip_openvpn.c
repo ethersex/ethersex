@@ -21,6 +21,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include "../config.h"
+#ifdef OPENVPN_SUPPORT
+
 /* We're now compiling the outer side of the uIP stack */
 #define OPENVPN_OUTER
 #define STACK_NAME(a) openvpn_ ## a
@@ -293,3 +296,5 @@ openvpn_init (void)
   openvpn_conn->appstate.openvpn.seen_seqno = 0;
   openvpn_conn->appstate.openvpn.seen_timestamp = 0;
 }
+
+#endif

@@ -1,7 +1,9 @@
-TARGET = libonewire.a
+TARGET = librfm12.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	process.c \
+	rfm12.c \
+	skipjack.c \
 
 ##############################################################################
 # generic fluff

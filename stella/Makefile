@@ -1,7 +1,9 @@
-TARGET = libonewire.a
+TARGET = libstella.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	process.c \
+	pwm-gpl2.c \
+	timer.c \
 
 ##############################################################################
 # generic fluff

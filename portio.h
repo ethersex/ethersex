@@ -27,9 +27,14 @@
 #include <stdint.h>
 
 #ifdef _ATMEGA8
-/* FIXME portio not yet supported. */
-#define IO_PORTS 0
+#define IO_PORTS  3
+#define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
+#define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}
+#define IO_PIN_ARRAY { &PINB, &PINC, &PIND}
+/* FIXME portio not really supported. */
+#define IO_MASK_ARRAY { 0, 0, 0 }                                          \
 
+/* ATMega644 | ATMega32 */
 #elif defined(_ATMEGA644) || defined(_ATMEGA32)
 
 #if defined(HD44780_SUPPORT) && !defined(HD44780_USE_PORTC)
@@ -84,11 +89,21 @@
 #error "unknown CPU!"
 #endif
 
+typedef struct  {
+  uint8_t mask;
+  uint8_t (*read_port)(uint8_t port);
+  uint8_t (*write_port)(uint8_t port, uint8_t data);
+  uint8_t (*read_ddr)(uint8_t port);
+  uint8_t (*write_ddr)(uint8_t port, uint8_t data);
+  uint8_t (*read_pin)(uint8_t port);
+} virtual_port_t;
+
+/* Only if not included by portio.c */
+extern virtual_port_t vport[];
+
 /* prototypes */
 
 /* update port information (PORT and DDR) from global status */
 void portio_init(void);
-void portio_update(void);
-uint8_t portio_input(uint8_t port);
-
+  
 #endif /* _IO_H */

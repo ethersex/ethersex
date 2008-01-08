@@ -1,7 +1,7 @@
-TARGET = libonewire.a
+TARGET = libps2.a
 TOPDIR = ..
 SRC = \
-	onewire.c \
+	ps2.c \
 
 ##############################################################################
 # generic fluff

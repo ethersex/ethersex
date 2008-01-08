@@ -21,22 +21,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef ZBUS_NET_H
-#define ZBUS_NET_H
+#include "../config.h"
+#include "../uip/uip.h"
+#include "zbus.h"
 
-/* constants */
-#define ZBUS_PORT 23514
 
-enum zbus_udp_answers {
-  ZBUS_UDP_OK,
-  ZBUS_UDP_ERROR,
-  ZBUS_UDP_ERROR_TOO_MUCH_DATA,
-  ZBUS_UDP_ERROR_TOO_MUCH_CONNECTIONS,
-  ZBUS_UDP_ERROR_OLD_DATA,
-};
+void
+zbus_process(void)
+{
+  uip_len = 0;
+  struct zbus_ctx *recv = zbus_rxfinish();
+  if (recv && recv->len) {
+#ifdef ENC28J60_SUPPORT
+    memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
+    uip_len = recv->len;
+#else
+    memcpy(uip_buf, recv->data, recv->len);
+    uip_len = recv->len;
+    
+    uip_input();
+#endif
+    /* reset the recieve buffer */
+    recv->len = 0;
+  }
+  if (!uip_len)
+    return;
+  /* send buffer out */
+  fill_llh_and_transmit ();
 
-/* prototypes */
-void zbus_net_init(void);
-void zbus_net_main(void);
-
-#endif /* ZBUS_NET_H */
+  uip_len = 0;
+}

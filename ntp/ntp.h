@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -57,3 +57,4 @@ void ntp_init(void);
 void ntp_newdata(void);
 void ntp_periodic(void);
 void ntp_send_packet(void);
+void ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr);
