@@ -78,17 +78,10 @@ typedef union uip_udp_connection_state {
     struct openvpn_connection_state_t openvpn;
 #   endif
 
-<<<<<<< HEAD:net/state.h
-#   ifdef ZBUS_SUPPORT
-    struct zbus_connection_state_t zbus;
-#   endif
-
 #   ifdef SENSOR_RFM12_SUPPORT
     struct sensor_rfm12_connection_state_t sensor_rfm12;
 #   endif
 
-=======
->>>>>>> origin/master:net/state.h
 } uip_udp_appstate_t;
 
 #endif
