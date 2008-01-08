@@ -45,6 +45,7 @@ void
 sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
 {
   PORTD |= _BV(PD3); // Taster Pullup einschalten
+  DDRB |= _BV(PB0) | _BV(PB1); //LED Alarm ausgang
   /* Init des ADC mit Taktteiler von 64 */
   ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
   sensor_i = SENSOR_RFM12_ADCMAX - 1;
@@ -119,7 +120,16 @@ sensor_rfm12_core_periodic(void)
   }
   if(sensor_i == 3  && start != 0){
     //char textbuf[6];
-    temp2text(STATS.sensors.sensor[sensor_i].valuetext, (STATS.sensors.sensor[sensor_i].value - (STATS.sensors.sensor[sensor_i].value >> 6) - (STATS.sensors.sensor[sensor_i].value >> 7) - (STATS.sensors.sensor[sensor_i].value >> 8)));
+    uint16_t promille = STATS.sensors.sensor[sensor_i].value - (STATS.sensors.sensor[sensor_i].value >> 6) - (STATS.sensors.sensor[sensor_i].value >> 7) - (STATS.sensors.sensor[sensor_i].value >> 8);
+    temp2text(STATS.sensors.sensor[sensor_i].valuetext, promille);
+    if(promille > 610)
+      PORTB |= _BV(PB0);
+    if(promille < 570)
+      PORTB &= ~_BV(PB0);
+    if(promille < 510)
+      PORTB |= _BV(PB1);
+    if(promille > 530)
+      PORTB &= ~_BV(PB1);
     lcd_goto_ddram(LCD_SECOND_LINE + 2);
     lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
   }
