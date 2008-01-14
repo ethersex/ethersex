@@ -16,6 +16,7 @@ SRC = \
 	tftp_net.c \
 	udp_echo_net.c \
 	sensor_rfm12_net.c \
+	i2c_slave_net.c \
 
 ##############################################################################
 # generic fluff

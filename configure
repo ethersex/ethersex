@@ -212,6 +212,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["udp"],
                  },
+  'i2c_slave'  => {
+                   helptext  => "i2c slave to udp gateway",
+                   distdflt  => 0,
+                   requires => ["udp"],
+                 },
   'clock'        => {
                    helptext  => "system clock",
                    distdflt  => 0,

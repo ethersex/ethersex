@@ -37,8 +37,8 @@ SUBDIRS += rfm12
 SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
-SUBDIRS += sensor_rfm12
-
+#SUBDIRS += sensor_rfm12
+SUBDIRS += i2c_slave
 
 ##############################################################################
 all: compile-ethersex
