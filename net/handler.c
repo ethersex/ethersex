@@ -36,6 +36,7 @@
 #include "dns_net.h"
 #include "syslog_net.h"
 #include "i2c_net.h"
+#include "i2c_slave_net.h"
 #include "ntp_net.h"
 #include "ntpd_net.h"
 #include "udp_echo_net.h"
@@ -69,6 +70,10 @@ void network_init_apps(void)
 
 #   ifdef I2C_SUPPORT
     i2c_net_init();
+#   endif
+
+#   ifdef I2C_SLAVE_SUPPORT
+    i2c_slave_net_init();
 #   endif
 
 #   ifdef STELLA_SUPPORT

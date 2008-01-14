@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -25,9 +25,9 @@
 #include "../net/i2c_slave_state.h"
 #include "../uip/uip.h"
 #include "../config.h"
+#include "../global.h"
 #include "i2c_slave.h"
 
-#ifdef I2C_SLAVE_SUPPORT
 
 #define STATS (uip_udp_conn->appstate.i2c_slave)
 #define SLAVE (uip_udp_conn->appstate.i2c_slave.slavedata)
@@ -35,7 +35,7 @@
 /*
  * direkter zugriff zum packet buffer
  */
-#define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
+#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void
 init_twi(void){
@@ -62,7 +62,7 @@ init_twi(void){
 
 
 void 
-i2c_slave_core_init(uip_udp_conn_t *i2c_conn)
+i2c_slave_core_init(uip_udp_conn_t *i2c_slave_conn)
 {
   init_twi();
 }
@@ -77,15 +77,14 @@ i2c_slave_core_periodic(void)
 
 void i2c_slave_core_newdata(void)
 {
-
 	struct i2c_slave_request_t *REQ = uip_appdata;
 
 	uip_udp_conn_t return_conn;
-	if ( uip_datalen() == 1 && REQ->type == 0)
+	//if ( uip_datalen() == 1 && REQ->type == 0)
 	
 	uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
 	return_conn.rport = BUF->srcport;
-	return_conn.lport = HTONS(SENSOR_RFM12_PORT);
+	return_conn.lport = HTONS(I2C_SLAVE_PORT);
 	
 	uip_send (&STATS, sizeof(struct i2c_slave_connection_state_t));
 	
@@ -96,10 +95,6 @@ void i2c_slave_core_newdata(void)
 	uip_slen = 0;
 	SLAVE.kommando = 0;
 }
-
-
-i2c_slave_connection_state_t
-
 
 
 /* Interruptroutine des TWI
@@ -118,11 +113,15 @@ SIGNAL (SIG_2WIRE_SERIAL)
     else if (SLAVE.byteanzahl == 1){
       SLAVE.smbuscount = TWDR;
     }
+
+    if(SLAVE.smbuscommand == 0xF0 && SLAVE.smbuscount == 1 && 0xF1 == TWDR){
+      cfg.request_bootloader = 1;
+    }
     else if (SLAVE.smbuscommand == 0x40){
       if (SLAVE.byteanzahl > 1){
         SLAVE.buf[SLAVE.byteanzahl-2] = TWDR;
         if (--SLAVE.smbuscount == 0)
-          SLAVE.kommando = buf[0];
+          SLAVE.kommando = SLAVE.buf[0];
       }
     }
     SLAVE.byteanzahl++;
@@ -177,4 +176,4 @@ SIGNAL (SIG_2WIRE_SERIAL)
 }
 
 
-#endif
+

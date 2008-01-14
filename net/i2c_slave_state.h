@@ -22,7 +22,7 @@
 #define _I2C_SLAVE_STATE_H
 
 /* constants */
-#define MAXDATAPAKETLEN 34
+#define I2C_SLAVE_MAXDATAPAKETLEN 34
 
 struct i2c_slave_data {
 	union {
@@ -33,7 +33,7 @@ struct i2c_slave_data {
 	uint8_t smbuscount; //bytezaehler des smbus 
 	uint8_t kommando;
 	uint8_t bufaddr; //zeiger (zaehler) auf i2cbufferbyte
-	uint8_t buf[MAXDATAPAKETLEN];
+	uint8_t buf[I2C_SLAVE_MAXDATAPAKETLEN];
 };
 
 struct i2c_slave_request_t {

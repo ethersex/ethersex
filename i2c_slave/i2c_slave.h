@@ -25,13 +25,13 @@
 #include "../uip/uip.h"
 
 /* constants */
-#define I2C_PORT 0x2321
+#define I2C_SLAVE_PORT 0x2321
 #define TWIADDR 0x21
 
 
 /* prototypes */
-void i2c_core_init (uip_udp_conn_t *i2c_conn);
-void i2c_core_periodic (void);
-void i2c_core_newdata (void);
+void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
+void i2c_slave_core_periodic (void);
+void i2c_slave_core_newdata (void);
 
 #endif

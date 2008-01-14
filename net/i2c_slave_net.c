@@ -40,7 +40,7 @@ i2c_slave_net_init(void)
 	uip_udp_bind(i2c_slave_conn, HTONS(I2C_SLAVE_PORT));
 
 	// Init the I2C Code
-        i2c_core_init(i2c_slave_conn);
+        i2c_slave_core_init(i2c_slave_conn);
 	
 }
 

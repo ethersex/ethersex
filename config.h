@@ -187,7 +187,11 @@
 
 /* bootloader */
 #undef BOOTLOADER_SECTION
+#ifdef _ATMEGA8
+#define BOOTLOADER_SECTION 0x0E00; /* atmega8 with 256 words bootloader */
+#else
 #define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
+#endif
 
 /* spi defines */
 #ifndef SPI_DDR
@@ -408,6 +412,7 @@
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
+#define I2C_SLAVE_SUPPORT
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define DCF77_SUPPORT
