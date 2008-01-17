@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -58,8 +58,8 @@ i2c_port_init(void)
   TWCR = 0;
   /* max speed 400khz (problematisch)  ~(_BV(TWPS0) | _BV(TWPS1)) BR = 16
      speed 100khz (normal) _BV(TWPS0) BR = 92 */
-  TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));
-  //TWSR |= _BV(TWPS0);
+  //TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));
+  TWSR |= _BV(TWPS0);
   TWBR = 92;
   TWCR |= _BV(TWEN);
 }
@@ -104,11 +104,11 @@ void i2c_core_newdata(void)
 		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0){
 			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
 			uip_udp_conn->rport = BUF->srcport;
-			STATS.tx->seqnum = REQ->seqnum -1;
+			STATS.tx->seqnum = 255;
 			STATS.timeout = 10;
 		}
 		
-		if(REQ->seqnum == STATS.tx->seqnum + 1){
+		if(REQ->seqnum != STATS.tx->seqnum){
 			STATS.tx->seqnum = REQ->seqnum;
 			STATS.timeout = 10;
 /* FIXME:			PORTC |= _BV(PC2); */
@@ -223,19 +223,34 @@ void i2c_core_newdata(void)
 			if(REQ->type == I2C_INIT){
 				//uip_ipaddr_t ip;
 				//uip_ipaddr_copy(&ip, all_ones_addr);
-				uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
-				uip_udp_conn->rport = 0;
 				STATS.timeout = 0;
 				STATS.tx->seqnum = 0;
 				STATS.tx->connstate = I2C_INIT;
+				uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
+				uip_udp_conn->rport = 0;
 				/* FIXME: PORTC &= ~_BV(PC2); */
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
+				STATS.tx->i2cstate = TWSR;
+				
+				
+				uip_udp_conn_t return_conn;
+				uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
+				return_conn.rport = BUF->srcport;
+				return_conn.lport = HTONS(I2C_PORT);
+				uip_send(&i2ctx, I2C_DATAOFFSET);
+				uip_udp_conn = &return_conn;
+				/* Send immediately */
+				uip_process(UIP_UDP_SEND_CONN);
+				fill_llh_and_transmit();
+				
+				
 			}
 			else{
 				uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 			}
 		}
 		else if(REQ->seqnum == STATS.tx->seqnum){
+			STATS.timeout = 10;
 			uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 		}
 }
