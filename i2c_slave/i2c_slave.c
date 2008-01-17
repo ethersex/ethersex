@@ -28,9 +28,10 @@
 #include "../global.h"
 #include "i2c_slave.h"
 
+static uip_udp_conn_t *i2c_slave_conn;
 
-#define STATS (uip_udp_conn->appstate.i2c_slave)
-#define SLAVE (uip_udp_conn->appstate.i2c_slave.slavedata)
+#define STATS (i2c_slave_conn->appstate.i2c_slave)
+#define SLAVE (i2c_slave_conn->appstate.i2c_slave.slavedata)
 
 /*
  * direkter zugriff zum packet buffer
@@ -62,9 +63,10 @@ init_twi(void){
 
 
 void 
-i2c_slave_core_init(uip_udp_conn_t *i2c_slave_conn)
+i2c_slave_core_init(uip_udp_conn_t *conn)
 {
   init_twi();
+  i2c_slave_conn = conn;
 }
 
 void 
@@ -95,6 +97,9 @@ void i2c_slave_core_newdata(void)
 	uip_slen = 0;
 	SLAVE.kommando = 0;
 }
+
+#  define BLINK_PORT PORTB
+#  define BLINK_PIN _BV(PB6)
 
 
 /* Interruptroutine des TWI
