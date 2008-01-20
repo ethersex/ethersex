@@ -122,13 +122,13 @@ SIGNAL (SIG_2WIRE_SERIAL)
     if(SLAVE.smbuscommand == 0xF0 && SLAVE.smbuscount == 1 && 0xF1 == TWDR){
       cfg.request_bootloader = 1;
     }
-/*    else if (SLAVE.smbuscommand == 0x40){
+    else if (SLAVE.smbuscommand == 0x40){
       if (SLAVE.byteanzahl > 1){
         SLAVE.buf[SLAVE.byteanzahl-2] = TWDR;
         if (--SLAVE.smbuscount == 0)
           SLAVE.kommando = SLAVE.buf[0];
       }
-    }*/
+    }
     SLAVE.byteanzahl++;
   break;
   case 0x60:
@@ -140,7 +140,7 @@ SIGNAL (SIG_2WIRE_SERIAL)
   break;
   
   /* hier wird an den Master gesendet */
-/*  case 0xA8:
+  case 0xA8:
     switch (SLAVE.smbuscommand){
       case 0x44:
         TWDR = 0x20;
@@ -163,7 +163,7 @@ SIGNAL (SIG_2WIRE_SERIAL)
       break;
     }
     SLAVE.byteanzahl++;
-  break;*/
+  break;
   default:
 #ifdef BLINK_PORT
     BLINK_PORT &= ~BLINK_PIN;
