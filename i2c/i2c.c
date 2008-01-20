@@ -59,8 +59,13 @@ i2c_port_init(void)
   /* max speed 400khz (problematisch)  ~(_BV(TWPS0) | _BV(TWPS1)) BR = 16
      speed 100khz (normal) _BV(TWPS0) BR = 92 */
   //TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));
+#if F_CPU > 10000000
   TWSR |= _BV(TWPS0);
   TWBR = 92;
+#else
+  TWBR = 52; //max speed for twi bei 8mhz, ca 100khz by 12Mhz Crystal
+  PORTC |= _BV(PC4) | _BV(PC5);
+#endif
   TWCR |= _BV(TWEN);
 }
 

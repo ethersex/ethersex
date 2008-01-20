@@ -135,9 +135,7 @@ typedef unsigned short uip_stats_t;
 
 
 #if defined(OPENVPN_SUPPORT) \
-  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))\
-  || (defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT))
-
+  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))
 #  define UIP_MULTI_STACK        1
 #else
 #  define UIP_MULTI_STACK        0

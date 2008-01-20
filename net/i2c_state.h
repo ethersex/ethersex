@@ -22,7 +22,7 @@
 #define _I2C_STATE_H
 
 /* constants */
-#define MAXDATAPAKETLEN 64
+#define MAXDATAPAKETLEN 36
 
 struct i2c_tx {
 	union {

@@ -54,10 +54,10 @@ sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
   */
   ADMUX = sensor_i;
   lcd_init();
-  char *text = "Japaadappadu";
+  char *text = "Japaadappadu :-)";
   lcd_print(text);
   lcd_goto_ddram(LCD_SECOND_LINE);
-  lcd_print("Zerties.org ");
+  lcd_print("Zerties.org v6 ");
 
 }
 
