@@ -75,22 +75,26 @@ i2c_core_init(uip_udp_conn_t *i2c_conn)
   i2c_port_init();
 
   i2c_conn->appstate.i2c.tx = &i2ctx;
+  uip_ipaddr_copy(i2c_conn->ripaddr, all_ones_addr);
+  i2c_conn->rport = 0;
+  i2c_conn->appstate.i2c.timeout = 0;
+  i2c_conn->appstate.i2c.tx->seqnum = 0;
   i2c_conn->appstate.i2c.tx->connstate = I2C_INIT;
 }
 
-void 
+void
 i2c_core_periodic(void)
 {
   if(STATS.timeout > 1)
     STATS.timeout--;
   if(STATS.timeout == 1){
-    uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
+    i2c_core_init(uip_udp_conn);
+/*    uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
     uip_udp_conn->rport = 0;
     STATS.timeout = 0;
     STATS.tx->seqnum = 0;
     STATS.tx->connstate = I2C_INIT;
-    TWCR |= _BV(TWINT) | _BV(TWSTO);
-    i2c_port_init();
+    i2c_port_init();*/
     /* FIXME:   PORTC &= ~_BV(PC2); */
   }
   /* error detection on i2c bus */
@@ -222,19 +226,21 @@ void i2c_core_newdata(void)
 				}
 			}
 			if(STATS.tx->connstate == I2C_ERROR){
-				STATS.timeout = 1;
+				i2c_core_init(uip_udp_conn);
+				STATS.timeout = 0;
 			}
 			
 			if(REQ->type == I2C_INIT){
 				//uip_ipaddr_t ip;
 				//uip_ipaddr_copy(&ip, all_ones_addr);
-				STATS.timeout = 0;
+				/*STATS.timeout = 0;
 				STATS.tx->seqnum = 0;
 				STATS.tx->connstate = I2C_INIT;
 				uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
-				uip_udp_conn->rport = 0;
+				uip_udp_conn->rport = 0;*/
 				/* FIXME: PORTC &= ~_BV(PC2); */
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
+				i2c_core_init(uip_udp_conn);
 				STATS.tx->i2cstate = TWSR;
 				
 				
