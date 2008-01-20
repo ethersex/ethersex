@@ -122,16 +122,38 @@ sensor_rfm12_core_periodic(void)
     //char textbuf[6];
     uint16_t promille = STATS.sensors.sensor[sensor_i].value - (STATS.sensors.sensor[sensor_i].value >> 6) - (STATS.sensors.sensor[sensor_i].value >> 7) - (STATS.sensors.sensor[sensor_i].value >> 8);
     temp2text(STATS.sensors.sensor[sensor_i].valuetext, promille);
-    if(promille > 610)
+    /* warn leds */
+    int16_t Trel_raum = temperatur(STATS.sensors.sensor[0].value);
+    int16_t Trel_wand = temperatur(STATS.sensors.sensor[1].value);
+    Trel_raum = (Trel_raum >> 3) + (Trel_raum >> 5) + (Trel_raum >> 4) + Trel_raum;
+    Trel_wand = (Trel_wand >> 3) + (Trel_wand >> 5) + (Trel_wand >> 4) + Trel_wand;
+    //Tx1=T/8+T/64+T/16+T
+    //Tx2=T/8+T/64+T/16+T
+    //feuchte(promille)=1000*Tx1/Tx2
+    int16_t maxfeuchte = (100*Trel_wand)/(Trel_raum/10)-50;
+    if(promille > maxfeuchte){ //feuchte zu hoch
       PORTB |= _BV(PB0);
-    if(promille < 570)
-      PORTB &= ~_BV(PB0);
-    if(promille < 510)
-      PORTB |= _BV(PB1);
-    if(promille > 530)
       PORTB &= ~_BV(PB1);
-    lcd_goto_ddram(LCD_SECOND_LINE + 2);
-    lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
+    }
+    else if(promille > (maxfeuchte - 50)){ // feuchte hoch
+      PORTB |= _BV(PB0);
+      PORTB |= _BV(PB1);
+    }
+    else if(promille < (maxfeuchte - 100)){ // feuchte ok
+      PORTB &= ~_BV(PB0);
+      PORTB &= ~_BV(PB1);
+    }else if(promille < 500) //feuchte ist sehr niedrig
+      PORTB |= _BV(PB1);
+    //else if(promille > 510) //feuchte ist ok
+    //  PORTB &= ~_BV(PB1);
+    
+
+    
+    lcd_goto_ddram(LCD_SECOND_LINE + 4);
+    temp2text(STATS.sensors.sensor[2].valuetext, maxfeuchte);
+    lcd_print(STATS.sensors.sensor[2].valuetext);
+    lcd_goto_ddram(LCD_SECOND_LINE);
+    lcd_print(STATS.sensors.sensor[sensor_i].valuetext+1);
   }
   
   if(++sensor_i >= SENSOR_RFM12_ADCMAX) sensor_i = 0;
@@ -147,9 +169,7 @@ sensor_rfm12_core_periodic(void)
     lcd_print("T");
     lcd_goto_ddram(8);
     lcd_print("W");
-    lcd_goto_ddram(LCD_SECOND_LINE);
-    lcd_print("%");
-    
+
     startok = start;
   }
   
