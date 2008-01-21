@@ -25,6 +25,7 @@ parser.add_option("-l", "--log",
                   help="Output all to one Line")
 parser.add_option("-s", "--sleep", dest="sleep", default=10,
                   help="Sleep Time for the Log")
+parser.add_option("-t", "--text", dest="text", help="Sleep Time for the Log")
 (options, args) = parser.parse_args()
 
 
@@ -51,13 +52,13 @@ s.settimeout(10)
 log=1
 while log:
 
-	if (sys.argv.__len__() < 2):
-		s.send(" ")
-	else:
-		text = string.ljust(sys.argv[1][0:8], 8)
-		s.send(" "+text)
 	while 1:
-		data = s.recv(1024)
+		text = string.ljust((str(options.text)[0:8]), 8)
+		s.send(" "+text)
+		try:
+			data = s.recv(1024)
+		except:
+			data = ""
 		if(len(data) > 4):
 			break
 	
@@ -67,7 +68,6 @@ while log:
 			#print data[i+i2], i+i2
 			rawdata = rawdata + data[i+i2]
 	
-	print rawdata
 	if (options.verbose):
 		print 'Received', len(data), binascii.hexlify(data)
 		print data
@@ -109,11 +109,9 @@ while log:
 	if (not options.oneline):
 		print ("Max.Feuchte %2.1f %% Taupunkt %2.1f °C" % (Maxfeuchte, Taupunkt))
 	else:
-		if (options.raw):
-			print "Temp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %% %s" % ( temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte,rawdata)
-
-		else:
-			print "Temp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %%" % ( temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte)
+		if (not options.raw):
+			rawdata = ""
+		print "Temp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %% %s" % ( temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte,rawdata)
 
 	if (options.log):
 		log = 0
