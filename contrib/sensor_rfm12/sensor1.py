@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin-1 -*-
+# -*- coding: UTF-8 -*-
 
 # ethersex rfm12 testprogramm
 import socket
@@ -59,6 +59,7 @@ while log:
 			data = s.recv(1024)
 		except:
 			data = ""
+			print "Network read timeout"
 		if(len(data) > 4):
 			break
 	
