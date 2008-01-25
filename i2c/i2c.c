@@ -65,7 +65,7 @@ i2c_port_init(void)
 }
 
 void 
-i2c_core_init(struct uip_udp_conn *i2c_conn)
+i2c_core_init(uip_udp_conn_t *i2c_conn)
 {
   i2c_port_init();
 
