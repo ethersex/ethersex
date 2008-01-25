@@ -48,7 +48,7 @@
 
 #define FS20_DELAY_ZERO (4 * (F_CPU / 10000) / 4) /* 400uS, for delay_loop_2 */
 #define FS20_DELAY_ONE  (6 * (F_CPU / 10000) / 4) /* 600uS, for delay_loop_2 */
-#define FS20_DELAY_CMD  ( F_CPU / 10000 / 4) /* 10ms, for delay_loop_2 */
+#define FS20_DELAY_CMD  ( F_CPU / 100 / 4) /* 10ms, for delay_loop_2 */
 
 #define FS20_BETWEEN(x, a, b) ((x >= a) && (x <= b))
 #define FS20_SYMM(x, y, r) ( (x-y) <= r && (y-x) <= r )
