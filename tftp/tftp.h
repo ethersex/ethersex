@@ -57,7 +57,7 @@ void tftp_handle_packet(void);
 #if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
 inline static void
 tftp_fire_tftpomatic(uip_ipaddr_t *ip, const unsigned char *filename) {
-  struct uip_udp_conn *tftp_req_conn = 
+  uip_udp_conn_t *tftp_req_conn = 
     uip_udp_new(ip, HTONS(TFTP_PORT), tftp_net_main);
 
   if(! tftp_req_conn) 
@@ -71,7 +71,7 @@ tftp_fire_tftpomatic(uip_ipaddr_t *ip, const unsigned char *filename) {
 
 
   /* create suitable tftp receiver */
-  struct uip_udp_conn *tftp_recv_conn =
+  uip_udp_conn_t *tftp_recv_conn =
     uip_udp_new(ip, 0, tftp_net_main);
 
   if(! tftp_recv_conn) 
