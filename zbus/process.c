@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +35,14 @@ zbus_process(void)
   if (recv && recv->len) {
 #ifdef ENC28J60_SUPPORT
     memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
-    uip_len = recv->len;
+
+    /* uip_input expects the number of bytes including the LLH. */
+    uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
+
+    /* Push data into inner uIP stack. */
+    uip_stack_set_active (STACK_ZBUS);
+    zbus_stack_process (UIP_DATA);
+
 #else
     memcpy(uip_buf, recv->data, recv->len);
     uip_len = recv->len;
@@ -44,8 +52,10 @@ zbus_process(void)
     /* reset the recieve buffer */
     recv->len = 0;
   }
+
   if (!uip_len)
     return;
+
   /* send buffer out */
   fill_llh_and_transmit ();
 

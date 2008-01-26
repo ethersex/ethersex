@@ -178,6 +178,9 @@ enum {
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_RFM12,
 #endif
+#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+  STACK_ZBUS,
+#endif
 
   /* STACK_LEN must be the last! */
   STACK_LEN

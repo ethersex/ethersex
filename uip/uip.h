@@ -1604,6 +1604,7 @@ extern struct uip_eth_addr {
 STACK_PROTOTYPES(mainstack)
 STACK_PROTOTYPES(openvpn)
 STACK_PROTOTYPES(rfm12_stack)
+STACK_PROTOTYPES(zbus_stack)
 #endif
 
 

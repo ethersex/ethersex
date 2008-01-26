@@ -63,6 +63,15 @@ uint8_t fill_llh_and_transmit(void)
   }
 # endif /* RFM12_SUPPORT */
 
+# ifdef ZBUS_SUPPORT
+  if (uip_stack_get_active() == STACK_ZBUS) {
+    /* uip_len is set to the number of data bytes to be sent including
+       the UDP/IP header, i.e. not including any byte for LLH. */
+    zbus_send_data (uip_buf + ZBUS_BRIDGE_OFFSET, uip_len);
+    return 0;
+  }
+# endif /* ZBUS_SUPPORT */
+
 # ifdef OPENVPN_SUPPORT
   if (uip_stack_get_active() == STACK_MAIN)
     openvpn_process_out();

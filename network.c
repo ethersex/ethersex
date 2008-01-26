@@ -2,7 +2,7 @@
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -38,6 +38,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "uip/uip_zbus.h"
 
 #ifndef ENC28J60_POLL
     #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
@@ -58,6 +59,11 @@ void network_init(void)
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
     uip_stack_set_active(STACK_RFM12);
     rfm12_stack_init();
+#endif
+
+#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+    uip_stack_set_active(STACK_ZBUS);
+    zbus_stack_init();
 #endif
 
 #ifdef OPENVPN_SUPPORT
@@ -229,7 +235,7 @@ void network_init(void)
 #   endif /* !BOOTLOADER_SUPPORT */
 
 #   else /* not ENC28J60_SUPPORT */
-    /* Don't allow for eeprom-based configuration of rfm12 IP address,
+    /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
     uip_ipaddr_t ip;
     CONF_ETHERRAPE_IP;
