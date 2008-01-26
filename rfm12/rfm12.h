@@ -147,8 +147,4 @@ void rfm12_process (void);
 #define rfm12_transmit_packet() rfm12_txstart(uip_buf, uip_len)
 #endif /* not ENC28J60_SUPPORT */
 
-
-void rfm12_encrypt (uint8_t *buf, uint8_t *len);
-void rfm12_decrypt (uint8_t *buf, uint8_t *len);
-
 #endif //__RFM12_H

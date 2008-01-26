@@ -281,6 +281,9 @@ my %ethersex_config = (
   'zbus_ip' => {
                    helptext  => "zbus stack ip address",
                  },
+  'zbus_key'   =>{
+                   helptext  => "hex-encoded zbus encryption key",
+                 },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
                  },

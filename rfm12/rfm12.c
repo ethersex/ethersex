@@ -29,6 +29,7 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
+#include "../crypto/encrypt-llh.h"
 
 struct RFM12_stati
 {
