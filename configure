@@ -75,8 +75,9 @@ my %ethersex_modules = (
 		 },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
-                   conflicts => [ "bootp" ],
+                   conflicts => [ "bootp", "broadcast" ],
                    preconfigure => [ "enc28j60" ],
+		   requires => [ "icmp" ],
                    distdflt  => 1,
                    enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
@@ -84,6 +85,7 @@ my %ethersex_modules = (
   'broadcast' => { 
                    helptext  => "broadcast support",
                    requires  => [ "udp" ],
+		   conflicts => [ "ipv6" ],
                    distdflt  => 0,
                  },
   'icmp'      => { 
