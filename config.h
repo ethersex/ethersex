@@ -421,6 +421,7 @@
 // #define ADC_SUPPORT
 // #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
+// #define ZBUS_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
 // #define CRYPTO_SUPPORT

@@ -2,7 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (C) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (C) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -78,12 +78,23 @@ void network_init_apps(void)
     udp_echo_net_init();
 #   endif
 
-#   if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#   if (defined(ZBUS_SUPPORT) || defined(RFM12_SUPPORT)) \
+       && defined(ENC28J60_SUPPORT)
+#   ifdef RFM12_SUPPORT
     uip_stack_set_active(STACK_RFM12);
 
 #   ifdef RFM12_LINKBEAT_NET_SUPPORT
     rfm12_linkbeat_net_init();
 #   endif
+#   endif /* RFM12_SUPPORT */
+
+#   ifdef ZBUS_SUPPORT
+    uip_stack_set_active(STACK_ZBUS);
+
+#   ifdef ZBUS_LINKBEAT_NET_SUPPORT
+    zbus_linkbeat_net_init();
+#   endif
+#   endif /* ZBUS_SUPPORT */
 
 #   ifndef OPENVPN_SUPPORT
     uip_stack_set_active(STACK_MAIN);

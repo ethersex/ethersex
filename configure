@@ -101,7 +101,13 @@ my %ethersex_modules = (
                    distdflt  => 1,
                  },
   'rfm12_linkbeat_net' => {
-                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only",
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only)",
+                   requires  => [ "rfm12" ],
+                   distdflt  => 0,
+                 },
+  'zbus_linkbeat_net' => {
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only)",
+		   requires  => [ "zbus" ],
                    distdflt  => 0,
                  },
   'udp_echo_net' => {
