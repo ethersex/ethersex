@@ -45,7 +45,7 @@ hc595_init(void)
 {
   uint8_t i;
   for (i = 0; i < HC595_REGISTERS; i++)
-    hc595_cache[i] = 0xaa;
+    hc595_cache[i] = 0;
 
   HC595_DDR |= _BV(HC595_DATA_PIN) | _BV(HC595_CLOCK_PIN) 
             |  _BV(HC595_STORE_PIN);
@@ -54,9 +54,6 @@ hc595_init(void)
   PORTD &= ~_BV(PD3);
   DDRD |= _BV(PD3);
 
-
-  hc595_cache[4] = 0xff;
-  
   hc595_update();
 } 
 
