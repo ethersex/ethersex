@@ -22,7 +22,7 @@
  }}} */
 
 /* We're now compiling the outer side of the uIP stack */
-#define RFM12_OUTER
+#define ZBUS_OUTER
 #define STACK_NAME(a) zbus_stack_ ## a
 
 #include "uip_zbus.h"
