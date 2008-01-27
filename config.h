@@ -258,6 +258,14 @@
 /* Comment this out to get an us layout */
 #define PS2_GERMAN_LAYOUT
 
+/* pins for the hc595 shift register */
+#define HC595_PORT PORTB
+#define HC595_DDR DDRB
+#define HC595_DATA_PIN PB6
+#define HC595_CLOCK_PIN PB2
+#define HC595_STORE_PIN PB7
+/* Number of the hc 595 registers */
+#define HC595_REGISTERS 5
 
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
@@ -417,6 +425,7 @@
 // #define ZBUS_SUPPORT
 // #define STELLA_SUPPORT
 // #define TEENSY_SUPPORT
+// #define HC595_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define ADC_SUPPORT
 // #define PS2_SUPPORT

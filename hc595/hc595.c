@@ -1,0 +1,96 @@
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ }}} */
+
+#include <string.h>
+#include <avr/pgmspace.h>
+#include <avr/eeprom.h>
+
+#include "../config.h"
+#include "../debug.h"
+#include "../uip/uip.h"
+#include "../uip/uip_arp.h"
+#include "../eeprom.h"
+#include "../bit-macros.h"
+#include "../uip/uip.h"
+#include "../portio.h"
+#include "../config.h"
+
+#ifdef HC595_SUPPORT
+
+static uint8_t hc595_cache[HC595_REGISTERS];
+void hc595_update(void);
+
+void
+hc595_init(void)
+{
+  uint8_t i;
+  for (i = 0; i < HC595_REGISTERS; i++)
+    hc595_cache[i] = 0xaa;
+
+  HC595_DDR |= _BV(HC595_DATA_PIN) | _BV(HC595_CLOCK_PIN) 
+            |  _BV(HC595_STORE_PIN);
+
+  // FIXME
+  PORTD &= ~_BV(PD3);
+  DDRD |= _BV(PD3);
+
+
+  hc595_cache[4] = 0xff;
+  
+  hc595_update();
+} 
+
+uint8_t 
+hc595_write_port(uint8_t port, uint8_t data) {
+  hc595_cache[port - IO_HARD_PORTS] = data;
+  hc595_update();
+  return 0;
+}
+uint8_t 
+hc595_read_port(uint8_t port) 
+{
+  return hc595_cache[port - IO_HARD_PORTS];
+}
+
+void
+hc595_update(void) 
+{
+  uint8_t i, x;
+  HC595_PORT &= ~(_BV(HC595_CLOCK_PIN) | _BV(HC595_STORE_PIN));
+  for ( i = HC595_REGISTERS; i;) {
+    i --;
+    for ( x = 8; x;) {
+      HC595_PORT &= ~_BV(HC595_DATA_PIN);
+      if (hc595_cache[i] & _BV(--x))
+        HC595_PORT |= _BV(HC595_DATA_PIN);
+      
+      
+      HC595_PORT |= _BV(HC595_CLOCK_PIN);
+      HC595_PORT &= ~_BV(HC595_CLOCK_PIN);
+    }
+  }
+  HC595_PORT |= _BV(HC595_STORE_PIN);
+  HC595_PORT &= ~_BV(HC595_STORE_PIN);
+}
+#endif
+

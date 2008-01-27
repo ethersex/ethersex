@@ -152,6 +152,10 @@ int main(void)
     rc5_init();
 #endif
 
+#ifdef HC595_SUPPORT
+    hc595_init();
+#endif
+
 #ifdef ZBUS_SUPPORT
     zbus_core_init();
 #endif
@@ -223,7 +227,7 @@ int main(void)
 	zbus_process();
 	wdt_kick();
 #endif
-     
+
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();

@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 #ifdef _ATMEGA8
-#define IO_PORTS  3
+#define IO_HARD_PORTS 3
 #define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY { &PINB, &PINC, &PIND}
@@ -72,7 +72,7 @@
     #define RFM12_PORTC_MASK 0
 #endif
 
-#define IO_PORTS 4
+#define IO_HARD_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
@@ -88,6 +88,13 @@
 #else
 #error "unknown CPU!"
 #endif
+
+#ifdef HC595_SUPPORT
+  #define IO_PORTS (IO_HARD_PORTS + HC595_REGISTERS)
+#else
+  #define IO_PORTS IO_HARD_PORTS
+#endif
+
 
 typedef struct  {
   uint8_t mask;
