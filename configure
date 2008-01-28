@@ -343,9 +343,9 @@ my %ethersex_config = (
 my $opt_restore_defaults = 0;
 my $opt_only_modules = 0;
 foreach(@ARGV) {
-  if(m/--restore-defaults/) { $opt_restore_defaults = 1; }
-  if(m/--only-modules/) { $opt_only_modules = 1; }
-  if(m/--help/ or m/-h/) { 
+  if(m/^--restore-defaults$/) { $opt_restore_defaults = 1; }
+  if(m/^--only-modules$/) { $opt_only_modules = 1; }
+  if(m/^--help$/ or m/^-h$/) { 
     print STDERR "ethersex configuration utility\n";
     print STDERR "  --restore-defaults  - enable only default modules\n";
     print STDERR "  --only-modules      - configure only the modules\n";
