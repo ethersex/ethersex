@@ -458,6 +458,8 @@
 #define CONF_RFM12_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0xaede,0x48ff,0xfe1b,0xee52)
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
+#define CONF_I2C_SLAVE_ADDR 0x23
+
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)
 

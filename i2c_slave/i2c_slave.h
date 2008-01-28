@@ -26,8 +26,11 @@
 
 /* constants */
 #define I2C_SLAVE_PORT 0x2321
-#define TWIADDR 0x21
-
+#ifndef CONF_I2C_SLAVE_ADDR
+#  define TWIADDR 0x04
+#else
+#  define TWIADDR CONF_I2C_SLAVE_ADDR
+#endif
 
 /* prototypes */
 void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
