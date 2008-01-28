@@ -89,11 +89,21 @@
 #error "unknown CPU!"
 #endif
 
-#ifdef HC595_SUPPORT
+/* Yeah we like preprocessor macros */
+#if defined(HC595_SUPPORT) && (!defined(HC165_SUPPORT))
   #define IO_PORTS (IO_HARD_PORTS + HC595_REGISTERS)
+#elif (!defined(HC595_SUPPORT)) && defined(HC165_SUPPORT)
+  #define IO_PORTS (IO_HARD_PORTS + HC165_REGISTERS)
+#elif defined(HC595_SUPPORT) && defined(HC165_SUPPORT)
+  #if HC595_REGISTERS > HC165_REGISTERS
+    #define IO_PORTS (IO_HARD_PORTS + HC595_REGISTERS)
+  #else
+    #define IO_PORTS (IO_HARD_PORTS + HC165_REGISTERS)
+  #endif
 #else
   #define IO_PORTS IO_HARD_PORTS
 #endif
+
 
 
 typedef struct  {

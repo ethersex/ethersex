@@ -264,6 +264,14 @@ my %ethersex_modules = (
                    helptext  => "ps2 keyboard",
                    distdflt  => 0,
                  },
+  'hc595'        => {
+                   helptext  => "use an hc595 as output expansion",
+                   distdflt  => 0,
+                 },
+  'hc165'        => {
+                   helptext  => "use an hc165 as input expansion",
+                   distdflt  => 0,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip' => {

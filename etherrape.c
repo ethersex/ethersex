@@ -48,6 +48,8 @@
 #include "clock/clock.h"
 #include "dcf77/dcf77.h"
 #include "ps2/ps2.h"
+#include "hc165/hc165.h"
+#include "hc595/hc595.h"
 #include "ipv6.h"
 
 #include "net/handler.h"
@@ -154,6 +156,10 @@ int main(void)
 
 #ifdef HC595_SUPPORT
     hc595_init();
+#endif
+
+#ifdef HC165_SUPPORT
+    hc165_init();
 #endif
 
 #ifdef ZBUS_SUPPORT

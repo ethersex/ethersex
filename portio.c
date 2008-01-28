@@ -25,6 +25,7 @@
 #include "portio.h"
 #include "named_pin/named_pin.h"
 #include "hc595/hc595.h"
+#include "hc165/hc165.h"
 #include "debug.h"
 
 #ifdef PORTIO_SUPPORT
@@ -44,7 +45,7 @@ static const volatile uint8_t *pins[] = IO_PIN_ARRAY;
 virtual_port_t vport[IO_PORTS];
 
 void portio_init(void)
-/* {{{ */ {
+{
   uint8_t masks[] = IO_MASK_ARRAY;
   uint8_t i;
   for (i = 0; i < IO_HARD_PORTS; i++) {
@@ -63,10 +64,16 @@ void portio_init(void)
     vport[i].read_port = hc595_read_port;
   }
 #endif
+
+#ifdef HC165_SUPPORT
+  for (i = IO_HARD_PORTS; i < (IO_HARD_PORTS + HC165_REGISTERS); i++) {
+    vport[i].read_pin = hc165_read_pin;
+  }
+#endif
 #   ifdef NAMED_PIN_SUPPORT
     named_pin_init();
 #   endif
-} /* }}} */
+} 
 
 
 static uint8_t 

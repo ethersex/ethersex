@@ -267,6 +267,17 @@
 /* Number of the hc 595 registers */
 #define HC595_REGISTERS 5
 
+/* pins for the hc165 shift register */
+#define HC165_PORT PORTB
+#define HC165_DDR DDRB
+#define HC165_PIN PINB
+#define HC165_DATA_PIN PB0
+#define HC165_CLOCK_PIN PB2
+#define HC165_LOAD_PIN PB1
+#define HC165_INVERSE_OUTPUT 1
+/* Number of the hc165 registers */
+#define HC165_REGISTERS 1
+
 /* enc28j60 int line */
 #ifndef INT_PIN_NAME
 #define INT_PIN_NAME PB3
@@ -426,6 +437,7 @@
 // #define STELLA_SUPPORT
 // #define TEENSY_SUPPORT
 // #define HC595_SUPPORT
+// #define HC165_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define ADC_SUPPORT
 // #define PS2_SUPPORT

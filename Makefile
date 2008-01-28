@@ -37,6 +37,8 @@ SUBDIRS += net
 SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
+#SUBDIRS += hc595
+#SUBDIRS += hc165
 
 
 ##############################################################################
