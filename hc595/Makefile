@@ -1,4 +1,4 @@
-TARGET = libdns.a
+TARGET = lib595.a
 TOPDIR = ..
 SRC = \
 	hc595.c \
