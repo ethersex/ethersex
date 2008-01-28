@@ -411,8 +411,8 @@
 #define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
-// #define I2C_SUPPORT
-#define I2C_SLAVE_SUPPORT
+#define I2C_SUPPORT
+// #define I2C_SLAVE_SUPPORT
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define DCF77_SUPPORT
@@ -465,6 +465,6 @@
 
 #define CONF_DYNDNS_USERNAME "jochen"
 #define CONF_DYNDNS_PASSWORD "bier42"
-#define CONF_DYNDNS_HOSTNAME "ethsex1.dyn.metafnord.de"
+#define CONF_DYNDNS_HOSTNAME "ethsex1"
 
 #endif /* _CONFIG_H */

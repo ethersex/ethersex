@@ -109,12 +109,26 @@ void i2c_core_newdata(void)
 		/*
 		* ueberschreiben der connection info. 
 		* port und adresse auf den remotehost begrenzen
+		* und antwort paket senden mit der maximalen pufferlaenge (i2c open)
 		*/
-		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0){
+		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0 && REQ->type == I2C_INIT){
 			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
 			uip_udp_conn->rport = BUF->srcport;
-			STATS.tx->seqnum = 255;
 			STATS.timeout = 10;
+			STATS.tx->connstate = I2C_INIT;
+			STATS.tx->i2cstate = MAXDATAPAKETLEN;
+			STATS.tx->datalen = 0;
+
+			uip_udp_conn_t return_conn;
+			uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
+			return_conn.rport = BUF->srcport;
+			return_conn.lport = HTONS(I2C_PORT);
+			uip_send(&i2ctx, I2C_DATAOFFSET);
+			uip_udp_conn = &return_conn;
+			/* Send immediately */
+			uip_process(UIP_UDP_SEND_CONN);
+			fill_llh_and_transmit();
+
 		}
 		
 		if(REQ->seqnum != STATS.tx->seqnum){
@@ -229,15 +243,12 @@ void i2c_core_newdata(void)
 				i2c_core_init(uip_udp_conn);
 				STATS.timeout = 0;
 			}
-			
+					/*
+			* zuruecksetzten der connection info. 
+			* port und adresse auf alle freigeben
+			* und antwort paket senden mit der info closed (i2c close)
+			*/
 			if(REQ->type == I2C_INIT){
-				//uip_ipaddr_t ip;
-				//uip_ipaddr_copy(&ip, all_ones_addr);
-				/*STATS.timeout = 0;
-				STATS.tx->seqnum = 0;
-				STATS.tx->connstate = I2C_INIT;
-				uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
-				uip_udp_conn->rport = 0;*/
 				/* FIXME: PORTC &= ~_BV(PC2); */
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
 				i2c_core_init(uip_udp_conn);
@@ -260,6 +271,7 @@ void i2c_core_newdata(void)
 				uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 			}
 		}
+		/* retransmit des letzten paketes */
 		else if(REQ->seqnum == STATS.tx->seqnum){
 			STATS.timeout = 10;
 			uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);

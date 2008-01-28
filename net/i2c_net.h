@@ -21,8 +21,6 @@
 
 #ifndef _I2C_NET_H
 #define _I2C_NET_H
-/* constants */
-#define I2C_PORT 0x2323
 
 /* prototypes */
 void i2c_net_init(void);

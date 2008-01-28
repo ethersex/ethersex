@@ -21,7 +21,7 @@ SUBDIRS += crypto
 #SUBDIRS += dyndns
 #SUBDIRS += ecmd
 #SUBDIRS += fs20
-#SUBDIRS += i2c
+SUBDIRS += i2c
 SUBDIRS += lcd
 #SUBDIRS += named_pin
 SUBDIRS += net
@@ -38,7 +38,7 @@ SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
 SUBDIRS += sensor_rfm12
-SUBDIRS += i2c_slave
+#SUBDIRS += i2c_slave
 
 ##############################################################################
 all: compile-ethersex
