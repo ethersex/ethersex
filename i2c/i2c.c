@@ -111,11 +111,11 @@ void i2c_core_newdata(void)
 		* port und adresse auf den remotehost begrenzen
 		* und antwort paket senden mit der maximalen pufferlaenge (i2c open)
 		*/
-		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0 && REQ->type == I2C_INIT){
+		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0 && REQ->type == I2C_OPEN){
 			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
 			uip_udp_conn->rport = BUF->srcport;
 			STATS.timeout = 10;
-			STATS.tx->connstate = I2C_INIT;
+			STATS.tx->connstate = I2C_OPEN;
 			STATS.tx->i2cstate = MAXDATAPAKETLEN;
 			STATS.tx->datalen = 0;
 
