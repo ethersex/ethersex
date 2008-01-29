@@ -47,8 +47,10 @@ hc595_init(void)
   for (i = 0; i < HC595_REGISTERS; i++)
     hc595_cache[i] = 0;
 
-  HC595_DDR |= _BV(HC595_DATA_PIN) | _BV(HC595_CLOCK_PIN) 
-            |  _BV(HC595_STORE_PIN);
+  DDR_CONFIG_OUT(HC595_DATA);
+  DDR_CONFIG_OUT(HC595_CLOCK);
+  DDR_CONFIG_OUT(HC595_STORE);
+  PIN_SET(HC595_STORE);
 
   // FIXME
   PORTD &= ~_BV(PD3);
@@ -73,21 +75,22 @@ void
 hc595_update(void) 
 {
   uint8_t i, x;
-  HC595_PORT &= ~(_BV(HC595_CLOCK_PIN) | _BV(HC595_STORE_PIN));
+  PIN_CLEAR(HC595_CLOCK);
+  PIN_CLEAR(HC595_STORE);
+
   for ( i = HC595_REGISTERS; i;) {
     i --;
     for ( x = 8; x;) {
-      HC595_PORT &= ~_BV(HC595_DATA_PIN);
+      PIN_CLEAR(HC595_DATA);
       if (hc595_cache[i] & _BV(--x))
-        HC595_PORT |= _BV(HC595_DATA_PIN);
+        PIN_SET(HC595_DATA);
       
-      
-      HC595_PORT |= _BV(HC595_CLOCK_PIN);
-      HC595_PORT &= ~_BV(HC595_CLOCK_PIN);
+      PIN_SET(HC595_CLOCK);
+      PIN_CLEAR(HC595_CLOCK);
     }
   }
-  HC595_PORT |= _BV(HC595_STORE_PIN);
-  HC595_PORT &= ~_BV(HC595_STORE_PIN);
+  PIN_SET(HC595_STORE);
+  PIN_CLEAR(HC595_STORE);
 }
 #endif
 

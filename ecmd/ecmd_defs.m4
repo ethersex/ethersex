@@ -109,7 +109,7 @@ ecmd_ifdef(FS20_SUPPORT)
   ecmd_endif()
 
   ecmd_ifdef(FS20_SUPPORT_RECEIVE)
-    ecmd_feature(fs20_recieve, "fs20 recieve")
+    ecmd_feature(fs20_receive, "fs20 receive")
   ecmd_endif()
 
   ecmd_ifdef(FS20_SUPPORT_RECEIVE_WS300)
@@ -134,7 +134,7 @@ ecmd_endif()
 
 ecmd_ifdef(RC5_SUPPORT)
   ecmd_feature(ir_send, "ir send")
-  ecmd_feature(ir_recieve, "ir recieve")
+  ecmd_feature(ir_receive, "ir receive")
 ecmd_endif()
 
 ecmd_ifdef(DNS_SUPPORT)

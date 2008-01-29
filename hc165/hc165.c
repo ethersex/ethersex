@@ -34,11 +34,13 @@ void
 hc165_init(void)
 {
   /* Initialize the pins */
-  HC165_DDR |= _BV(HC165_CLOCK_PIN) |  _BV(HC165_LOAD_PIN);
-  HC165_DDR &= ~_BV(HC165_DATA_PIN);
+  DDR_CONFIG_OUT(HC165_CLOCK);
+  DDR_CONFIG_OUT(HC165_LOAD);
+  DDR_CONFIG_IN(HC165_DATA);
   
-  HC165_PORT &= ~_BV(HC165_CLOCK_PIN);
-  HC165_PORT |= _BV(HC165_LOAD_PIN) | _BV(HC165_DATA_PIN);
+  PIN_CLEAR(HC165_CLOCK);
+  PIN_SET(HC165_LOAD);
+  PIN_SET(HC165_DATA);
 } 
 
 uint8_t 
@@ -49,21 +51,21 @@ hc165_read_pin(uint8_t port)
   port -= IO_HARD_PORTS;
 
   /* Load Parallel */
-  HC165_PORT &= ~_BV(HC165_LOAD_PIN);
-  HC165_PORT |= _BV(HC165_LOAD_PIN);
+  PIN_CLEAR(HC165_LOAD);
+  PIN_SET(HC165_LOAD);
 
   do {
     uint8_t i = 0;
     while (i < 8) {
       result <<= 1;
 #if HC165_INVERSE_OUTPUT
-      if (!(HC165_PIN & _BV(HC165_DATA_PIN))) 
+      if (!PIN_HIGH(HC165_DATA))
 #else
-      if (HC165_PIN & _BV(HC165_DATA_PIN))
+      if (PIN_HIGH(HC165_DATA))
 #endif
         result |= 1;
-      HC165_PORT |= _BV(HC165_CLOCK_PIN);
-      HC165_PORT &= ~_BV(HC165_CLOCK_PIN);
+      PIN_SET(HC165_CLOCK);
+      PIN_CLEAR(HC165_CLOCK);
       i++;
     }
   } while (port--);

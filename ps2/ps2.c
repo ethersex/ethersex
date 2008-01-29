@@ -96,11 +96,12 @@ ps2_init(void)
   key.num = 0;
 
   PCICR |= _BV(PS2_PCIE);
-  PS2_PCMSK |= _BV(PS2_CLOCK_PIN);
+  PS2_PCMSK |= PIN_BV(PS2_CLOCK);
 
-  PS2_DDR &= ~(_BV(PS2_DATA_PIN) | _BV(PS2_CLOCK_PIN));
-  PS2_PORT &= ~(_BV(PS2_DATA_PIN) | _BV(PS2_CLOCK_PIN));
-
+  DDR_CONFIG_IN(PS2_DATA);
+  DDR_CONFIG_IN(PS2_CLOCK);
+  PIN_CLEAR(PS2_DATA);
+  PIN_CLEAR(PS2_CLOCK);
 }
 
 void
@@ -119,47 +120,48 @@ ps2_send_byte(uint8_t byte)
 {
   cli();
   uint8_t i = 11;
-  PS2_DDR |= _BV(PS2_DATA_PIN) | _BV(PS2_CLOCK_PIN);
+  DDR_CONFIG_OUT(PS2_DATA);
+  DDR_CONFIG_OUT(PS2_CLOCK);
   /* > 100 us clock low */
-  PS2_PORT &= ~_BV(PS2_CLOCK_PIN);
+  PIN_CLEAR(PS2_CLOCK);
   while (i--)
     _delay_us(10);
   /* data low */
-  PS2_PORT &= ~_BV(PS2_DATA_PIN);
+  PIN_CLEAR(PS2_DATA);
   /* clock high */
-  PS2_PORT |= _BV(PS2_CLOCK_PIN);
+  PIN_SET(PS2_CLOCK);
   /* Wait until clock is low again */
-  PS2_DDR &= ~_BV(PS2_CLOCK_PIN);
-  while (PS2_PIN & _BV(PS2_CLOCK_PIN));
+  DDR_CONFIG_IN(PS2_CLOCK);
+  while (PIN_HIGH(PS2_CLOCK));
   uint8_t parity = 1;
   bitcount = 0;
   while(bitcount < 9) {
     /* Parity */
     if (bitcount == 8) {
-      PS2_PORT &= ~_BV(PS2_DATA_PIN);
+      PIN_CLEAR(PS2_DATA);
       if (parity)
-        PS2_PORT |= _BV(PS2_DATA_PIN);
+        PIN_SET(PS2_DATA);
     }
     /* data */
     else {
-      PS2_PORT &= ~_BV(PS2_DATA_PIN);
+      PIN_CLEAR(PS2_DATA);
       if (byte & 0x01) {
-        PS2_PORT |= _BV(PS2_DATA_PIN);
+        PIN_SET(PS2_DATA);
         parity ^= 1;
       }
       byte >>= 1;
     }
     /* The keyboard generates the clock */
-    while (!(PS2_PIN & _BV(PS2_CLOCK_PIN)));
-    while (PS2_PIN & _BV(PS2_CLOCK_PIN));
+    while (!PIN_HIGH(PS2_CLOCK));
+    while (PIN_HIGH(PS2_CLOCK));
     bitcount++;
   }
-
-  PS2_DDR &= ~_BV(PS2_DATA_PIN);
-  PS2_PORT &= ~(_BV(PS2_DATA_PIN) | _BV(PS2_CLOCK_PIN));
+  DDR_CONFIG_IN(PS2_DATA);
+  PIN_CLEAR(PS2_DATA);
+  PIN_CLEAR(PS2_CLOCK);
   /* Wait for the ack from the keyboard */
-  while (PS2_PIN & _BV(PS2_DATA_PIN));
-  while (PS2_PIN & _BV(PS2_CLOCK_PIN));
+  while (PIN_HIGH(PS2_DATA));
+  while (PIN_HIGH(PS2_CLOCK));
 
   sei();
 }
@@ -209,19 +211,19 @@ decode_key(uint8_t keycode)
 
 SIGNAL(PS2_INTERRUPT) 
 {
-  if (!(PS2_PIN & _BV(PS2_CLOCK_PIN))) {
+  if (! PIN_HIGH(PS2_CLOCK)) {
     /* Start the timeout to 20ms - 40ms */
     if (bitcount == 11) 
       timeout = 2;
 
     if (bitcount < 11 && bitcount > 2) {
       data >>= 1;
-      if ( PS2_PIN & _BV(PS2_DATA_PIN)) {
+      if ( PIN_HIGH(PS2_DATA)) {
         data |= 0x80;
         parity ^= 1;
       }
     } else if (bitcount == 2) {
-      if (((PS2_PIN & _BV(PS2_DATA_PIN)) ^ (parity << PS2_DATA_PIN)) != 0) {
+      if (((PIN_HIGH(PS2_DATA)) ^ (parity << PIN_NR(PS2_DATA))) != 0) {
         data = 0;
       }
     }

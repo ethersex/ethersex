@@ -102,4 +102,8 @@ clean:
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
 
+pinning.c: pinning.m4
+	m4 $< > $@
+	
+
 include depend.mk

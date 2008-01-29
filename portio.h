@@ -67,7 +67,7 @@
 #endif 
 
 #ifdef RFM12_SUPPORT
-    #define RFM12_PORTC_MASK (_BV(SPI_CS_RFM12))
+    #define RFM12_PORTC_MASK (PIN_BV(SPI_CS_RFM12))
 #else
     #define RFM12_PORTC_MASK 0
 #endif

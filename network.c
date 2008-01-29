@@ -41,8 +41,8 @@
 #include "uip/uip_zbus.h"
 
 #ifndef ENC28J60_POLL
-    #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
-    #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
+    #define interrupt_occured() (! PIN_HIGH(INT_PIN))
+    #define wol_interrupt_occured() (! PIN_HIGH(WOL_PIN))
 #else
     #define interrupt_occured() 0
     #define wol_interrupt_occured() 0

@@ -189,50 +189,10 @@
 #undef BOOTLOADER_SECTION
 #define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
 
-/* spi defines */
-#ifndef SPI_DDR
-#define SPI_DDR DDRB
-#endif
+/* Include pinning.c as output of pinning.m4 
+ * LOOK pinning.m4 for pin definitions */
+#include "pinning.c"
 
-#ifndef SPI_PORT
-#define SPI_PORT PORTB
-#endif
-
-#ifndef SPI_MOSI
-#define SPI_MOSI PB5
-#endif
-
-#ifndef SPI_MISO
-#define SPI_MISO PB6
-#endif
-
-#ifndef SPI_SCK
-#define SPI_SCK PB7
-#endif
-
-/* port the enc28j60 is attached to
- * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
-#ifndef SPI_CS_NET
-#define SPI_CS_NET PB4
-#endif
-
-/* port the dataflash CS is attached to */
-#ifndef SPI_CS_DF
-#define SPI_CS_DF PB1
-#endif
-
-/* port the rfm12 module CS is attached to */
-#ifndef SPI_CS_RFM12_DDR
-#define SPI_CS_RFM12_DDR DDRC
-#endif
-
-#ifndef SPI_CS_RFM12_PORT
-#define SPI_CS_RFM12_PORT PORTC
-#endif
-
-#ifndef SPI_CS_RFM12
-#define SPI_CS_RFM12 PC3
-#endif
 
 /* rfm12 module interrupt line */
 #ifndef RFM12_INT_PIN 
@@ -243,14 +203,7 @@
 #define RFM12_INT_SIGNAL SIG_INTERRUPT0
 #endif
 
-/* ps/2 pins and interrupts */
-#define PS2_PIN PINA
-#define PS2_PORT PORTA
-#define PS2_DDR DDRA
-
-#define PS2_DATA_PIN PA7
-#define PS2_CLOCK_PIN PA6
-
+/* ps/2 interrupts */
 #define PS2_PCMSK PCMSK0 
 #define PS2_PCIE PCIE0
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
@@ -258,59 +211,13 @@
 /* Comment this out to get an us layout */
 #define PS2_GERMAN_LAYOUT
 
-/* pins for the hc595 shift register */
-#define HC595_PORT PORTB
-#define HC595_DDR DDRB
-#define HC595_DATA_PIN PB6
-#define HC595_CLOCK_PIN PB2
-#define HC595_STORE_PIN PB7
 /* Number of the hc 595 registers */
 #define HC595_REGISTERS 5
 
-/* pins for the hc165 shift register */
-#define HC165_PORT PORTB
-#define HC165_DDR DDRB
-#define HC165_PIN PINB
-#define HC165_DATA_PIN PB0
-#define HC165_CLOCK_PIN PB2
-#define HC165_LOAD_PIN PB1
 #define HC165_INVERSE_OUTPUT 1
 /* Number of the hc165 registers */
 #define HC165_REGISTERS 1
 
-/* enc28j60 int line */
-#ifndef INT_PIN_NAME
-#define INT_PIN_NAME PB3
-#endif
-
-#ifndef INT_PORT
-#define INT_PORT PORTB
-#endif
-
-#ifndef INT_PIN
-#define INT_PIN PINB
-#endif
-
-#ifndef INT_DDR
-#define INT_DDR DDRB
-#endif
-
-/* enc28j60 wol line */
-#ifndef WOL_PIN_NAME
-#define WOL_PIN_NAME PB2
-#endif
-
-#ifndef WOL_PORT
-#define WOL_PORT PORTB
-#endif
-
-#ifndef WOL_PIN
-#define WOL_PIN PINB
-#endif
-
-#ifndef WOL_DDR
-#define WOL_DDR DDRB
-#endif
 
 /* global version defines */
 #define VERSION_STRING "0.2"
@@ -339,32 +246,15 @@
 #define UIP_UDP_APPCALL network_handle_udp
 
 /* onewire support */
-#define ONEWIRE_PINNUM PD6
-#define ONEWIRE_PIN PIND
-#define ONEWIRE_DDR DDRD
-#define ONEWIRE_PORT PORTD
 #define ONEWIRE_PARASITE
 
 /* rc5 support */
-#define RC5_SEND_PINNUM PD4
-#define RC5_SEND_PORT PORTD
-#define RC5_SEND_DDR DDRD
 #define RC5_QUEUE_LENGTH 10
 
 /* fs20 support */
 // #define FS20_SUPPORT
-
 #define FS20_SUPPORT_SEND
-#define FS20_SEND_PINNUM PB2
-#define FS20_SEND_DDR DDRB
-#define FS20_SEND_PORT PORTB
-
 #define FS20_SUPPORT_RECEIVE
-/* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
-#define FS20_RECV_PINNUM PB3
-#define FS20_RECV_DDR DDRB
-#define FS20_RECV_PORT PORTB
-
 #define FS20_SUPPORT_RECEIVE_WS300
 
 /* hd44780 support */

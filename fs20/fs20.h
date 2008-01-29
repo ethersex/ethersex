@@ -30,18 +30,6 @@
 
 #ifdef FS20_SUPPORT
 
-#ifdef FS20_SUPPORT_SEND
-    #if !defined(FS20_SEND_PINNUM) || !defined(FS20_SEND_DDR) || !defined(FS20_SEND_PORT)
-    #error "FS20_SEND_PINNUM, FS20_SEND_DDR or FS20_SEND_PORT not defined!"
-    #endif
-#endif
-
-#ifdef FS20_SUPPORT_RECEIVE
-    #if !defined(FS20_RECV_PINNUM) || !defined(FS20_RECV_DDR) || !defined(FS20_RECV_PORT)
-    #error "FS20_RECV_PINNUM, FS20_RECV_DDR or FS20_RECV_PORT not defined!"
-    #endif
-#endif
-
 #if !defined(F_CPU)
 #error "F_CPU undefined!"
 #endif

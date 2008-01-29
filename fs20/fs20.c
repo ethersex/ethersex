@@ -60,21 +60,20 @@ volatile struct fs20_global_t fs20_global;
 
 void fs20_send_zero(void)
 /* {{{ */ {
-
-    FS20_SEND_PORT |= _BV(FS20_SEND_PINNUM);
-    _delay_loop_2(FS20_DELAY_ZERO);
-    FS20_SEND_PORT &= ~_BV(FS20_SEND_PINNUM);
-    _delay_loop_2(FS20_DELAY_ZERO);
+  PIN_SET(FS20_SEND);
+  _delay_loop_2(FS20_DELAY_ZERO);
+  PIN_CLEAR(FS20_SEND);
+  _delay_loop_2(FS20_DELAY_ZERO);
 
 } /* }}} */
 
 void fs20_send_one(void)
 /* {{{ */ {
 
-    FS20_SEND_PORT |= _BV(FS20_SEND_PINNUM);
-    _delay_loop_2(FS20_DELAY_ONE);
-    FS20_SEND_PORT &= ~_BV(FS20_SEND_PINNUM);
-    _delay_loop_2(FS20_DELAY_ONE);
+  PIN_SET(FS20_SEND);
+  _delay_loop_2(FS20_DELAY_ONE);
+  PIN_CLEAR(FS20_SEND);
+  _delay_loop_2(FS20_DELAY_ONE);
 
 } /* }}} */
 
@@ -497,8 +496,8 @@ void fs20_init(void)
 
 #ifdef FS20_SUPPORT_SEND
     /* configure port pin for sending */
-    FS20_SEND_DDR |= _BV(FS20_SEND_PINNUM);
-    FS20_SEND_PORT &= ~_BV(FS20_SEND_PINNUM);
+    DDR_CONFIG_OUT(FS20_SEND);
+    PIN_CLEAR(FS20_SEND);
 #endif
 
 #ifdef FS20_SUPPORT_RECEIVE
@@ -506,8 +505,8 @@ void fs20_init(void)
     memset((void *)&fs20_global.fs20.datagram, 0, sizeof(fs20_global.fs20));
 
     /* configure port pin for use as input to the analoge comparator */
-    FS20_SEND_DDR &= ~_BV(FS20_RECV_PINNUM);
-    FS20_SEND_PORT &= ~_BV(FS20_RECV_PINNUM);
+    DDR_CONFIG_IN(FS20_RECV);
+    PIN_CLEAR(FS20_RECV);
 
     /* enable analog comparator,
      * use fixed voltage reference (1V, connected to AIN0)
