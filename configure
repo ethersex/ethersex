@@ -75,8 +75,9 @@ my %ethersex_modules = (
 		 },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
-                   conflicts => [ "bootp" ],
+                   conflicts => [ "bootp", "broadcast" ],
                    preconfigure => [ "enc28j60" ],
+		   requires => [ "icmp" ],
                    distdflt  => 1,
                    enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
@@ -84,6 +85,7 @@ my %ethersex_modules = (
   'broadcast' => { 
                    helptext  => "broadcast support",
                    requires  => [ "udp" ],
+		   conflicts => [ "ipv6" ],
                    distdflt  => 0,
                  },
   'icmp'      => { 
@@ -99,7 +101,13 @@ my %ethersex_modules = (
                    distdflt  => 1,
                  },
   'rfm12_linkbeat_net' => {
-                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only",
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only)",
+                   requires  => [ "rfm12" ],
+                   distdflt  => 0,
+                 },
+  'zbus_linkbeat_net' => {
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only)",
+		   requires  => [ "zbus" ],
                    distdflt  => 0,
                  },
   'udp_echo_net' => {
@@ -258,15 +266,19 @@ my %ethersex_modules = (
   'zbus'        => {
                    helptext  => "tunneling ip over zbus",
                    distdflt  => 0,
+                   enable_hook => \&zbus_enable_hook,
                  },
   'ps2'        => {
                    helptext  => "ps2 keyboard",
                    distdflt  => 0,
                  },
-  'sensor_rfm12' => {
-                   helptext  => "sensor modul mit rfm12",
+  'hc595'        => {
+                   helptext  => "use an hc595 as output expansion",
                    distdflt  => 0,
-                   requires => [ "udp", "rfm12" ],
+                 },
+  'hc165'        => {
+                   helptext  => "use an hc165 as input expansion",
+                   distdflt  => 0,
                  },
 );
 my %ethersex_config = (
@@ -281,6 +293,12 @@ my %ethersex_config = (
                  },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
+                 },
+  'zbus_ip' => {
+                   helptext  => "zbus stack ip address",
+                 },
+  'zbus_key'   =>{
+                   helptext  => "hex-encoded zbus encryption key",
                  },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
@@ -336,9 +354,9 @@ my %ethersex_config = (
 my $opt_restore_defaults = 0;
 my $opt_only_modules = 0;
 foreach(@ARGV) {
-  if(m/--restore-defaults/) { $opt_restore_defaults = 1; }
-  if(m/--only-modules/) { $opt_only_modules = 1; }
-  if(m/--help/ or m/-h/) { 
+  if(m/^--restore-defaults$/) { $opt_restore_defaults = 1; }
+  if(m/^--only-modules$/) { $opt_only_modules = 1; }
+  if(m/^--help$/ or m/^-h$/) { 
     print STDERR "ethersex configuration utility\n";
     print STDERR "  --restore-defaults  - enable only default modules\n";
     print STDERR "  --only-modules      - configure only the modules\n";
@@ -731,6 +749,13 @@ sub ipv6_enable_hook {
   ask_ip("etherrape_ip")
     if($ethersex_modules{'openvpn'}->{'new_status'} == 1
        || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
+}
+
+sub zbus_enable_hook {
+  ask_ip("zbus_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+
+  #return unless($ethersex_modules{'skipjack'}->{'new_status'});
+  #ask_cryptokey("rfm12_key", 10);
 }
 
 sub rfm12_enable_hook {

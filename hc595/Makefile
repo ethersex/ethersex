@@ -1,14 +1,7 @@
-TARGET = libuip.a
+TARGET = lib595.a
 TOPDIR = ..
 SRC = \
-	psock.c \
-	uip_arp.c \
-	uip.c \
-	uip_multi.c \
-	uip_neighbor.c \
-	uip_openvpn.c \
-	uip_rfm12.c \
-	uip_zbus.c
+	hc595.c \
 
 ##############################################################################
 # generic fluff

@@ -37,8 +37,9 @@ SUBDIRS += rfm12
 SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
-SUBDIRS += sensor_rfm12
 #SUBDIRS += i2c_slave
+#SUBDIRS += hc595
+#SUBDIRS += hc165
 
 ##############################################################################
 all: compile-ethersex
@@ -100,5 +101,9 @@ clean:
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
+
+pinning.c: pinning.m4
+	m4 $< > $@
+	
 
 include depend.mk

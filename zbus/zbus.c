@@ -29,7 +29,7 @@
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "zbus.h"
-
+#include "../crypto/encrypt-llh.h"
 
 
 static volatile uint8_t send_escape_data = 0;
@@ -69,6 +69,9 @@ zbus_send_data(uint8_t *data, uint16_t len)
     send_ctx.data = data;
     send_ctx.len = len;
     send_ctx.offset = 0;
+#ifdef SKIPJACK_SUPPORT
+    zbus_encrypt(send_ctx.data, &send_ctx.len);
+#endif
     zbus_tx_start(zbus_send_data_cb, 0);
     return 1;
   }
@@ -78,8 +81,12 @@ zbus_send_data(uint8_t *data, uint16_t len)
 struct zbus_ctx *
 zbus_rxfinish(void) 
 {
-  if (recv_ctx.len != 0)
+  if (recv_ctx.len != 0) {
+#ifdef SKIPJACK_SUPPORT
+    zbus_decrypt(recv_ctx.data, &recv_ctx.len);
+#endif
     return &recv_ctx;
+  }
   return NULL;
 }
 

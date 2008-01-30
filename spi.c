@@ -26,21 +26,26 @@
 void spi_init(void)
 /* {{{ */ {
 
-    /* configure MOSI, SCK, CS lines as outputs */
-    SPI_DDR = _BV(SPI_MOSI) | _BV(SPI_SCK) | _BV(SPI_CS_NET) | _BV(SPI_CS_DF);
+    /* configure MOSI, SCK, lines as outputs */
+    DDR_CONFIG_OUT(SPI_MOSI);
+    DDR_CONFIG_OUT(SPI_SCK);
+    DDR_CONFIG_IN(SPI_MISO);
+
     DDRB |= _BV(PB0) | _BV(PB1);
 
 #ifdef ENC28J60_SUPPORT
     /* set all CS high (output) */
-    SPI_PORT = _BV(SPI_CS_NET);
+    DDR_CONFIG_OUT(SPI_CS_NET);
+    PIN_SET(SPI_CS_NET);
 #endif
 
     PORTB |= _BV(PB0) | _BV(PB1);
 
 #ifdef RFM12_SUPPORT
     /* initialize spi link to rfm12 module */
-    SPI_CS_RFM12_DDR |= _BV(SPI_CS_RFM12);
-    SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
+    DDR_CONFIG_OUT(SPI_CS_RFM12);
+    /* Enable the pullup */
+    PIN_SET(SPI_CS_RFM12);
 #endif
 
     /* enable spi, set master and clock modes (f/2) */

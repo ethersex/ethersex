@@ -43,8 +43,8 @@ uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
 
 /* module local macros */
-#define cs_low()  do { cli(); SPI_PORT &= ~_BV(SPI_CS_NET); } while(0)
-#define cs_high() do { SPI_PORT |= _BV(SPI_CS_NET); sei(); } while(0)
+#define cs_low()  do { cli(); PIN_CLEAR(SPI_CS_NET); } while(0)
+#define cs_high() do { PIN_SET(SPI_CS_NET); sei(); } while(0)
 
 
 uint8_t read_control_register(uint8_t address)
