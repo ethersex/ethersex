@@ -45,7 +45,7 @@ uint8_t crc_checksum(void *data, uint8_t length)
 
 #if defined(ECMD_SUPPORT)  && ( ! defined(TEENSY_SUPPORT)) \
   || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT))
-int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, void *dns_server)
+int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
 
     /* save new ip addresses */
@@ -67,12 +67,6 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, voi
         memcpy(&cfg_base.gateway, gateway, 4);
 #endif /* not UIP_CONF_IPV6 and (not BOOTP or BOOTP_TO_EEPROM) */
 
-#if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
-			     || defined(BOOTP_TO_EEPROM_SUPPORT))
-    if (dns_server != NULL)
-        memcpy(&cfg_base.dns_server, dns_server, IPADDR_LEN);
-#endif
-
     /* calculate new checksum */
     uint8_t checksum = crc_checksum(&cfg_base, sizeof(struct eeprom_config_base_t) - 1);
     cfg_base.crc = checksum;
@@ -80,6 +74,33 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway, voi
     /* save config */
     eeprom_write_block(&cfg_base, EEPROM_CONFIG_BASE,
             sizeof(struct eeprom_config_base_t));
+
+    return 0;
+
+} /* }}} */
+int8_t eeprom_save_configi_ext(void *dns_server)
+/* {{{ */ {
+
+    /* save new ip addresses */
+    struct eeprom_config_ext_t cfg_ext;
+
+    /* the eeprom section must contain valid data, if any parameter is NULL */
+    eeprom_read_block(&cfg_ext, EEPROM_CONFIG_EXT,
+            sizeof(struct eeprom_config_ext_t));
+
+#if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
+			     || defined(BOOTP_TO_EEPROM_SUPPORT))
+    if (dns_server != NULL)
+        memcpy(&cfg_base.dns_server, dns_server, IPADDR_LEN);
+#endif
+
+    /* calculate new checksum */
+    uint8_t checksum = crc_checksum(&cfg_ext, sizeof(struct eeprom_config_ext_t) - 1);
+    cfg_ext.crc = checksum;
+
+    /* save config */
+    eeprom_write_block(&cfg_ext, EEPROM_CONFIG_EXT,
+            sizeof(struct eeprom_config_ext_t));
 
     return 0;
 

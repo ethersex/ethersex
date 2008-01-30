@@ -29,20 +29,12 @@
 #include "uip/uip.h"
 
 /* global configuration struct */
-typedef struct {
-    uint8_t sntp:1;
-    uint8_t io_ddr[IO_PORTS];
-    uint8_t io[IO_PORTS];
-} global_options_t;
-
 typedef union {
     uint8_t link:1;
 } global_status_t;
 
 typedef struct {
-    global_options_t options;
     global_status_t status;
-    uip_ipaddr_t sntp_server;
 
     uint8_t request_bootloader :1;
     uint8_t request_reset      :1;

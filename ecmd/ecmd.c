@@ -288,7 +288,7 @@ static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     if (parse_ip (cmd, &hostaddr))
 	return -1;
 
-    return eeprom_save_config(NULL, &hostaddr, NULL, NULL, NULL);
+    return eeprom_save_config(NULL, &hostaddr, NULL, NULL);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -305,7 +305,7 @@ static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
     if (parse_ip (cmd, &netmask))
 	return -1;
 
-    return eeprom_save_config(NULL, NULL, &netmask, NULL, NULL);
+    return eeprom_save_config(NULL, NULL, &netmask, NULL);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -323,7 +323,7 @@ static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 	return -1;
 
     uip_setdraddr (&gwaddr);
-    return eeprom_save_config (NULL, NULL, NULL, &gwaddr, NULL);
+    return eeprom_save_config (NULL, NULL, NULL, &gwaddr);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -341,7 +341,7 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 	return -1;
 
     resolv_conf (&dnsaddr);
-    return eeprom_save_config (NULL, NULL, NULL, NULL, &dnsaddr);
+    return eeprom_save_config_ext (&dnsaddr);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -361,7 +361,7 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
     ret = parse_mac(cmd, (void *)&mac);
 
     if (ret >= 0)
-        return eeprom_save_config(&mac, NULL, NULL, NULL, NULL);
+        return eeprom_save_config(&mac, NULL, NULL, NULL);
     else
         return ret;
 
