@@ -169,9 +169,6 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
 {
   uip_ipaddr_t ipaddr;
 
-  uint8_t i = 
-  i = (i & 0xFD) | ((i & 2) ? 0 : 2);
-  
   uint16_t addr4 = ((uip_ethaddr.addr[0] ^ 2) << 8) | uip_ethaddr.addr[1];
   uint16_t addr5 = (uip_ethaddr.addr[2] << 8) | 0xFF;
   uint16_t addr6 = 0xFE00 | uip_ethaddr.addr[3];

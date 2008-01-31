@@ -64,7 +64,9 @@ struct ecmd_command_t {
 #ifndef TEENSY_SUPPORT
   static int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 #endif
-static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
+#ifdef ONEWIRE_SUPPORT
+  static int8_t parse_ow_rom(char *cmd, uint8_t *ptr);
+#endif
 
 #ifndef TEENSY_SUPPORT
 static int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
@@ -207,6 +209,10 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 #ifndef TEENSY_SUPPORT
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
+    (void) output;
+    (void) len;
+
     cfg.request_bootloader = 1;
     uip_close();
     return 0;
@@ -215,6 +221,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 #ifdef ENC28J60_SUPPORT
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
 
 #ifdef DEBUG_ECMD_MAC
     debug_printf("called parse_cmd_show with rest: \"%s\"\n", cmd);
@@ -236,6 +243,8 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
+
     uip_ipaddr_t hostaddr;
     uip_gethostaddr(&hostaddr);
 
@@ -246,6 +255,8 @@ int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 #ifndef IPV6_SUPPORT
 int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
+
     uip_ipaddr_t netmask;
     uip_getnetmask(&netmask);
 
@@ -256,6 +267,8 @@ int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
+
     uip_ipaddr_t draddr;
     uip_getdraddr(&draddr);
 
@@ -273,6 +286,8 @@ int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
+
     return snprintf_P(output, len,
             PSTR("version %s"), VERSION_STRING);
 } /* }}} */
@@ -352,6 +367,8 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 #ifdef ENC28J60_SUPPORT
 static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) output;
+    (void) len;
 
 #ifdef DEBUG_ECMD_MAC
     debug_printf("called with string %s\n", cmd);
@@ -374,6 +391,10 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 
 static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) cmd;
+    (void) output;
+    (void) len;
+
     cfg.request_reset = 1;
     uip_close();
     return 0;
@@ -795,6 +816,8 @@ static int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 #ifdef PORTIO_SUPPORT
 static int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) output;
+    (void) len;
 
 #ifdef DEBUG_ECMD_PORTIO
     debug_printf("called parse_cmd_io_set_ddr with rest: \"%s\"\n", cmd);
@@ -845,6 +868,8 @@ static int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
 
 static int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) output;
+    (void) len;
 
 #ifdef DEBUG_ECMD_PORTIO
     debug_printf("called parse_cmd_io_set_port with rest: \"%s\"\n", cmd);
@@ -1254,6 +1279,8 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
 #ifndef TEENSY_SUPPORT
 static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
+    (void) len;
+
     while (*cmd == ' ') cmd ++;
 
     uint16_t temp;

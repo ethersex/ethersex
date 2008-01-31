@@ -47,6 +47,9 @@ uint8_t crc_checksum(void *data, uint8_t length)
   || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT))
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
+    (void) ip;
+    (void) netmask;
+    (void) gateway;
 
     /* save new ip addresses */
     struct eeprom_config_base_t cfg_base;
@@ -80,6 +83,7 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 } /* }}} */
 int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
 /* {{{ */ {
+    (void) dns_server;
 
     /* save new ip addresses */
     struct eeprom_config_ext_t cfg_ext;
