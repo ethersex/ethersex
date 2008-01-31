@@ -78,7 +78,7 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
     return 0;
 
 } /* }}} */
-int8_t eeprom_save_configi_ext(void *dns_server)
+int8_t eeprom_save_config_ext(void *dns_server)
 /* {{{ */ {
 
     /* save new ip addresses */
@@ -91,7 +91,7 @@ int8_t eeprom_save_configi_ext(void *dns_server)
 #if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
 			     || defined(BOOTP_TO_EEPROM_SUPPORT))
     if (dns_server != NULL)
-        memcpy(&cfg_base.dns_server, dns_server, IPADDR_LEN);
+        memcpy(&cfg_ext.dns_server, dns_server, IPADDR_LEN);
 #endif
 
     /* calculate new checksum */
