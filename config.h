@@ -207,17 +207,12 @@
 #define RFM12_INT_SIGNAL SIG_INTERRUPT0
 #endif
 
-/* ps/2 pins and interrupts */
-#define PS2_PIN PINA
-#define PS2_PORT PORTA
-#define PS2_DDR DDRA
-
-#define PS2_DATA_PIN PA7
-#define PS2_CLOCK_PIN PA6
-
+/* ps/2 interrupts */
 #define PS2_PCMSK PCMSK0
 #define PS2_PCIE PCIE0
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
+
+
 
 /* Comment this out to get an us layout */
 #define PS2_GERMAN_LAYOUT
@@ -307,10 +302,10 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
-// #define ECMD_SUPPORT
+#define ECMD_SUPPORT
 // #define ECMD_SENDER_SUPPORT
 // #define WATCHCAT_SUPPORT
-// #define PORTIO_SUPPORT
+#define PORTIO_SUPPORT
 // #define NAMED_PIN_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
@@ -319,24 +314,24 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
-// #define TCP_SUPPORT
-// #define ICMP_SUPPORT
+#define TCP_SUPPORT
+#define ICMP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
-#define RFM12_SUPPORT
+// #define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
-#define I2C_SUPPORT
+// #define I2C_SUPPORT
 // #define I2C_SLAVE_SUPPORT
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define DCF77_SUPPORT
 // #define NTP_SUPPORT
 // #define NTPD_SUPPORT
-// #define ENC28J60_SUPPORT
+#define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
-#define SENSOR_RFM12_SUPPORT
+// #define SENSOR_RFM12_SUPPORT
 // #define STELLA_SUPPORT
 // #define TEENSY_SUPPORT
 // #define HC595_SUPPORT
@@ -348,9 +343,9 @@
 // #define ZBUS_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
-#define CRYPTO_SUPPORT
+// #define CRYPTO_SUPPORT
 // #define CAST5_SUPPORT
-#define SKIPJACK_SUPPORT
+// #define SKIPJACK_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */
@@ -362,8 +357,8 @@
 #define CONF_TFTP_IMAGE "testsex.bin"
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
-#define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\x0B\xEE\x52"
-#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe2b,0xee52)
+#define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
+#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe1b,0xee52)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 
@@ -374,7 +369,7 @@
 #define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-#define CONF_RFM12_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0xaede,0x48ff,0xfe1b,0xee52)
+#define CONF_RFM12_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0xaede,0x48ff,0xfe0b,0xee52)
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_I2C_SLAVE_ADDR 0x23
