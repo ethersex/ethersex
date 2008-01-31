@@ -143,12 +143,6 @@ void network_init(void)
 #       endif
 #       endif /* not UIP_CONF_IPV6 and not BOOTP */
 
-#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
-        CONF_DNS_SERVER;
-        memcpy(&cfg_base->dns_server, &ip, sizeof(uip_ipaddr_t));
-        resolv_conf(&ip);
-#       endif
-
 #       ifndef BOOTLOADER_SUPPORT        
         /* calculate new checksum */
         checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
@@ -182,11 +176,6 @@ void network_init(void)
         uip_sethostaddr(&cfg_base->netmask);
         uip_setdraddr(&cfg_base->gateway);
         */
-
-#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
-        memcpy(&ipaddr, &cfg_base->dns_server, IPADDR_LEN);
-        resolv_conf(&ipaddr);
-#       endif
     }
 
 #   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
@@ -213,23 +202,28 @@ void network_init(void)
     if (checksum != cfg_ext->crc) {
         debug_printf("net: ext crc mismatch: 0x%x != 0x%x, loading default settings\n",
                 checksum, cfg_ext->crc);
+#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
+        CONF_DNS_SERVER;
+        memcpy(&cfg_ext->dns_server, &ip, sizeof(uip_ipaddr_t));
+        resolv_conf(&ip);
+#       endif
 
-        /* set defaults */
-        memset(&cfg.sntp_server, 0, sizeof(uip_ipaddr_t));
-        cfg.options.sntp = 0;
+#       ifndef BOOTLOADER_SUPPORT        
+        /* calculate new checksum */
+        checksum = crc_checksum(buf, sizeof(struct eeprom_config_ext_t) - 1);
+        cfg_ext->crc = checksum;
+
+        /* save config */
+        eeprom_write_block(buf, EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
+#       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
-
-        /* load settings */
-        memcpy(&cfg.sntp_server, &cfg_ext->sntp_server, sizeof(uip_ipaddr_t));
-        memcpy(&cfg.options, &cfg_ext->options, sizeof(global_options_t));
-
-#       if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
-        if (cfg.options.sntp)
-            debug_printf("cfg: sntp server is %d.%d.%d.%d\n",
-                    LO8(cfg.sntp_server[0]), HI8(cfg.sntp_server[0]),
-                    LO8(cfg.sntp_server[1]), HI8(cfg.sntp_server[1]));
+      /* Here load the config to the eeprom */
+#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
+        memcpy(&ipaddr, &cfg_ext->dns_server, IPADDR_LEN);
+        resolv_conf(&ipaddr);
 #       endif
+
 
     }
 #   endif /* !BOOTLOADER_SUPPORT */

@@ -52,21 +52,32 @@ divert(1)
 
 divert(0)dnl
 dnl
-/* spi defines */
-pin(SPI_MOSI, PB5)
-pin(SPI_MISO, PB6)
-pin(SPI_SCK, PB7)
+#ifdef _ATMEGA8
+  /* spi defines */
+  pin(SPI_MOSI, PB3)
+  pin(SPI_MISO, PB4)
+  pin(SPI_SCK, PB5)
 
-/* port the enc28j60 is attached to
- * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
+  /* port the rfm12 module CS is attached to */
+  pin(SPI_CS_RFM12, PB2)
+#else 
+  /* spi defines */
+  pin(SPI_MOSI, PB5)
+  pin(SPI_MISO, PB6)
+  pin(SPI_SCK, PB7)
 
-pin(SPI_CS_NET, PB4)
+  /* port the rfm12 module CS is attached to */
+  pin(SPI_CS_RFM12, PC3)
 
-/* port the dataflash CS is attached to */
-pin(SPI_CS_DF, PB1)
+#endif
 
-/* port the rfm12 module CS is attached to */
-pin(SPI_CS_RFM12, PC3)
+  /* port the enc28j60 is attached to
+   * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
+
+  pin(SPI_CS_NET, PB4)
+
+  /* port the dataflash CS is attached to */
+  pin(SPI_CS_DF, PB1)
 
 /* ps/2 pins */
 pin(PS2_DATA, PA7)

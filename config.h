@@ -83,17 +83,6 @@
 #define _TIFR_TIMER1 TIFR
 #define _EIMSK GICR
 
-/* on ATmega8 we connect rfm12 directly to SPI. */
-#define SPI_CS_RFM12_DDR DDRB
-#define SPI_CS_RFM12_PORT PORTB
-#define SPI_CS_RFM12 PB2
-
-/* SPI-pinout differs from atmega32/644 one. */
-#define SPI_MOSI PB3
-#define SPI_MISO PB4
-#define SPI_SCK PB5
-
-
 /* }}} */
 #elif defined(__AVR_ATmega644__)
 /* {{{ */
