@@ -368,6 +368,7 @@ foreach(@ARGV) {
     print STDERR "  --only-modules      - configure only the modules\n";
     print STDERR "  --disable-x         - disable feature 'x'\n";
     print STDERR "  --enable-x          - enable feature 'x'\n";
+    print STDERR "  --D<option>=<value> - set option to value\n";
     exit 0;
   }
 }
@@ -426,6 +427,16 @@ foreach(@ARGV) {
     }
     else {
       print "FAILED to disable $1.\n";
+    }
+  }
+  if(m/^-D([^=]*)=(.*$)/) { 
+    if (defined($ethersex_config{$1})) {
+        $ethersex_config{$1}->{'user_value'} = $2;
+        $opt_nogui = 1;
+        print "setting $1 to $2.\n";
+    } else {
+      print STDERR "Invalid define option\n";
+      exit -1;
     }
   }
 }
@@ -601,9 +612,14 @@ sub check_ip {
 
 sub ask_ip {
   my $confopt = shift;
+  my $new_value;
 
   configure_module "ipv6";
- 
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+    goto save_value;
+  }
+
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
   for($default) { s/0x//g; s/\s//g; s/^uip_ip6?addr\(ip,//; s/\)$//; }
@@ -611,10 +627,11 @@ sub ask_ip {
   $default = join($separator, split(m/,/, $default));
   unless (check_ip($default)) { $default = "" }
 
-  my $new_value = 
+  $new_value = 
     prompt('s', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, 
            $default, \&check_ip);
 
+save_value:
   if($ethersex_modules{'ipv6'}->{'new_status'} && $new_value =~ m/::/) {
     $new_value = ipv6_expand($new_value);
   }
@@ -636,19 +653,26 @@ sub check_mac {
 
 sub ask_mac {
   my $confopt = shift;
+  my $new_value;
 
   if($opt_restore_defaults) {
     $ethersex_config{$confopt}->{'value'} = '"\xAC\xDE\x48\xFD\x0F\xD0"';
     return;
   }
 
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+    goto save_value;
+  }
+
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
 
   for($default) { s/"//g; s/\\x/:/g; s/^:// };
-  my $new_value =
+  $new_value =
     prompt('s', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
            $default, \&check_mac);
+save_value:
   for($new_value) {s/:/\\x/g }
   
   $ethersex_config{$confopt}->{'value'} = '"\\x' . $new_value . '"';
@@ -656,14 +680,19 @@ sub ask_mac {
 
 sub ask_anything {
   my $confopt = shift;
- 
-  my $d = $ethersex_config{$confopt}->{'value'};
-  unless(defined($d)) { $d = ""; }
-  for($d) { s/^"//; s/"$//; }
+  my $new_value;
 
-  my $v =
-    prompt('x', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, $d); 
-  $ethersex_config{$confopt}->{'value'} = "\"$v\"";
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+  } else {
+    my $d = $ethersex_config{$confopt}->{'value'};
+    unless(defined($d)) { $d = ""; }
+    for($d) { s/^"//; s/"$//; }
+
+    $new_value =
+      prompt('x', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, $d); 
+  }
+  $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
 }
 
 # check key validity, return 0 if invalid.

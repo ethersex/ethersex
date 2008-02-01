@@ -81,7 +81,7 @@ void network_init(void)
 
     uip_stack_set_active(STACK_MAIN);
 
-    uip_ipaddr_t ipaddr;
+    uip_ipaddr_t ipaddr, ip;
 
     /* use uip buffer as generic space here, since when this function is called,
      * no network packets will be processed */
@@ -110,8 +110,6 @@ void network_init(void)
     struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
 
     if (checksum != cfg_base->crc) {
-
-        uip_ipaddr_t ip;
 
         debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n",
             checksum, cfg_base->crc);
@@ -231,7 +229,6 @@ void network_init(void)
 #   else /* not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
-    uip_ipaddr_t ip;
     CONF_ETHERRAPE_IP;
     uip_sethostaddr(ip);
 
