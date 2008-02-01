@@ -33,11 +33,11 @@
     && (defined(RFM12_SUPPORT) || defined(ZBUS_SUPPORT))
 
 #ifdef RFM12_SUPPORT
-uint8_t rfm12_key[10] = CONF_RFM12_KEY;
+uint8_t *rfm12_key = CONF_RFM12_KEY;
 #endif 
 
 #ifdef ZBUS_SUPPORT
-uint8_t zbus_key[10] = CONF_ZBUS_KEY;
+uint8_t *zbus_key = CONF_ZBUS_KEY;
 #endif 
 
 void
