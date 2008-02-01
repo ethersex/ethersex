@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -66,7 +67,17 @@ uint8_t
 zbus_send_data(uint8_t *data, uint16_t len)
 {
   if (send_ctx.len == 0) {
+#if defined(SKIPJACK_SUPPORT) && defined(ENC28J60_SUPPORT)
+    if (recv_ctx.len != 0 || len > ZBUS_RECV_BUFFER) 
+      return 0;			/* we mustn't use recv buffer yet,
+				   nor may we overflow it. */
+
+    /* we need to duplicate since we mustn't encrypt uip_buf! */
+    send_ctx.data = recv_buffer;
+    memmove (recv_buffer, data, len);
+#else
     send_ctx.data = data;
+#endif
     send_ctx.len = len;
     send_ctx.offset = 0;
 #ifdef SKIPJACK_SUPPORT
@@ -217,6 +228,12 @@ SIGNAL(USART0_RX_vect)
 
   /* Old data is not read by application, ignore message */
   if (recv_ctx.len != 0) return;
+
+#if defined(SKIPJACK_SUPPORT) && defined(ENC28J60_SUPPORT)
+  /* Don't accept incoming message if we're sending and sharing
+     send and receive buffer. */
+  if (send_ctx.len != 0) return;
+#endif
 
   if (data == '\\') 
     recv_escape_data = 1;
