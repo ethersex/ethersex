@@ -15,6 +15,7 @@ SRC = \
 	tetrirape_net.c \
 	tftp_net.c \
 	udp_echo_net.c \
+	i2c_slave_net.c \
 	zbus_linkbeat_net.c \
 
 ##############################################################################

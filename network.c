@@ -408,7 +408,7 @@ void process_packet(void)
 
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
-    switch (ntohs(packet->type)) {
+    switch (HTONS(packet->type)) {
 
 #       if !UIP_CONF_IPV6
         /* process arp packet */

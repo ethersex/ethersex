@@ -34,6 +34,7 @@
 #include "tftp_state.h"
 #include "ecmd_sender_state.h"
 #include "i2c_state.h"
+#include "i2c_slave_state.h"
 #include "dyndns_state.h"
 
 /* uip appstate for tcp */
@@ -71,6 +72,10 @@ typedef union uip_udp_connection_state {
 
 #   ifdef I2C_SUPPORT
     struct i2c_connection_state_t i2c;
+#   endif
+
+#   ifdef I2C_SLAVE_SUPPORT
+    struct i2c_slave_connection_state_t i2c_slave;
 #   endif
 
 #   ifdef OPENVPN_SUPPORT

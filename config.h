@@ -176,7 +176,11 @@
 
 /* bootloader */
 #undef BOOTLOADER_SECTION
+#ifdef _ATMEGA8
+#define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
+#else
 #define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
+#endif
 
 /* Include pinning.c as output of pinning.m4 
  * LOOK pinning.m4 for pin definitions */
@@ -306,6 +310,7 @@
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
+// #define I2C_SLAVE_SUPPORT
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define DCF77_SUPPORT
@@ -352,6 +357,8 @@
 
 #define CONF_RFM12_IP uip_ipaddr(ip,10,2,0,5)
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
+
+#define CONF_I2C_SLAVE_ADDR 0x23
 
 #define CONF_ZBUS_IP uip_ip6addr(ip,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x23)
 #define CONF_ZBUS_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"

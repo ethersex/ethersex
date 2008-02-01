@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,11 +19,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_NET_H
-#define _I2C_NET_H
+#ifndef _I2C_SLAVE_NET_H
+#define _I2C_SLAVE_NET_H
+/* constants */
+#define I2C_SLAVE_PORT 0x2321
 
 /* prototypes */
-void i2c_net_init(void);
-void i2c_net_main(void);
+void i2c_slave_net_init(void);
+void i2c_slave_net_main(void);
 
 #endif

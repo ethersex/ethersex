@@ -218,7 +218,15 @@ my %ethersex_modules = (
   'i2c'        => {
                    helptext  => "i2c to udp gateway",
                    distdflt  => 0,
+                   conflicts => [ "i2c_slave" ],
                    requires => ["udp"],
+                 },
+  'i2c_slave'  => {
+                   helptext  => "i2c slave to udp gateway",
+                   distdflt  => 0,
+                   conflicts => [ "i2c" ],
+                   requires => ["udp"],
+                   enable_hook  => \&i2c_slave_enable_hook,
                  },
   'clock'        => {
                    helptext  => "system clock",
@@ -297,6 +305,9 @@ my %ethersex_config = (
                  },
   'rfm12_key'   =>{
                    helptext  => "hex-encoded rfm12 encryption key",
+                 },
+  'i2c_slave_addr'   =>{
+                   helptext  => "hex-encoded i2c slave address",
                  },
   'openvpn_ip4'   => {
                    helptext  => "ip address of the openvpn gateway",
@@ -708,6 +719,22 @@ sub ask_cryptokey {
   $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
 }
 
+sub ask_hex {
+  my $confopt = shift;
+  my $hexlen = shift;
+  $hexlen = $hexlen * 2;
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+
+  $default =~ s/0x//;
+  my $new_value =
+    prompt('e', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
+           $default, "[A-F0-9]{$hexlen}");
+
+  $new_value =~ s/^/0x/;
+  $ethersex_config{$confopt}->{'value'} = "$new_value";
+}
+
 sub enc28j60_enable_hook {
   ask_mac "etherrape_mac";
 }
@@ -765,6 +792,11 @@ sub rfm12_enable_hook {
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("rfm12_key", 10);
+}
+
+sub i2c_slave_enable_hook {
+  ask_hex("i2c_slave_addr", 1) if($ethersex_modules{'i2c_slave'}->{'new_status'});
+
 }
 
 sub ipv6_disable_hook {

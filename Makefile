@@ -37,6 +37,7 @@ SUBDIRS += net
 SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
+#SUBDIRS += i2c_slave
 #SUBDIRS += hc595
 #SUBDIRS += hc165
 

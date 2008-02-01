@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,11 +19,38 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_NET_H
-#define _I2C_NET_H
+#include "../uip/uip.h"
+#include "../config.h"
+#include "../i2c_slave/i2c_slave.h"
+#include "i2c_slave_net.h"
 
-/* prototypes */
-void i2c_net_init(void);
-void i2c_net_main(void);
+#ifdef I2C_SLAVE_SUPPORT
+
+void 
+i2c_slave_net_init(void)
+{
+	uip_ipaddr_t ip;
+	uip_ipaddr_copy(&ip, all_ones_addr);
+	
+	uip_udp_conn_t *i2c_slave_conn = uip_udp_new(&ip, 0, i2c_slave_net_main);
+	
+	if(! i2c_slave_conn) 
+		return;					/* keine udp connection !? */
+	
+	uip_udp_bind(i2c_slave_conn, HTONS(I2C_SLAVE_PORT));
+
+	// Init the I2C Code
+        i2c_slave_core_init(i2c_slave_conn);
+	
+}
+
+void
+i2c_slave_net_main(void)
+{
+  if (uip_poll()) 
+    i2c_slave_core_periodic();
+  if (uip_newdata())
+    i2c_slave_core_newdata();
+}
 
 #endif

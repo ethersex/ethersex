@@ -18,40 +18,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_STATE_H
-#define _I2C_STATE_H
+#ifndef _I2C_SLAVE_H
+#define _I2C_SLAVE_H
+
+#include <stdint.h>
+#include "../uip/uip.h"
 
 /* constants */
-#define MAXDATAPAKETLEN 36
+#define I2C_SLAVE_PORT 0x2321
+#ifndef CONF_I2C_SLAVE_ADDR
+#  define TWIADDR 0x04
+#else
+#  define TWIADDR CONF_I2C_SLAVE_ADDR
+#endif
 
-struct i2c_tx {
-	union {
-		uint8_t raw[0];
-		uint8_t seqnum;
-	};
-	uint8_t connstate;
-	uint8_t i2cstate;
-	uint8_t datalen;
-	uint8_t buf[MAXDATAPAKETLEN];
-};
-
-struct i2c_request_t {
-	union{
-		uint8_t raw[0];
-		uint8_t seqnum;
-	};
-	uint8_t type;
-	uint8_t i2c_addr;
-	uint8_t datalen;
-	union{
-		uint8_t data[0];
-	};
-};
-
-struct i2c_connection_state_t {
-	uint8_t txstate;
-	uint8_t timeout;
-	struct i2c_tx *tx;
-};
+/* prototypes */
+void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
+void i2c_slave_core_periodic (void);
+void i2c_slave_core_newdata (void);
 
 #endif
