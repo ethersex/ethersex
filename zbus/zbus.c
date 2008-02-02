@@ -94,8 +94,14 @@ zbus_core_init(void)
     _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
     _UBRRL_UART0 = LO8(ZBUS_UART_UBRR);
 
+#ifdef URSEL
+    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart
+       and Set URSEL so we write UCSRC and not UBRRH */
+    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01) | _BV(URSEL);
+#else
     /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
+#endif
 
     /* enable transmitter and receiver as well as their interrupts */
     _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_TXCIE_UART0) \
