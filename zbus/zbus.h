@@ -66,11 +66,6 @@ void zbus_core_periodic(void);
 
 typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
 
-void  zbus_tx_finish(void);
-uint8_t zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx);
-
-// uint8_t zbus_send_conn_data(uip_udp_conn_t *conn);
-
 uint8_t zbus_send_data(uint8_t *data, uint16_t len);
 struct zbus_ctx *zbus_rxfinish(void);
 
@@ -98,6 +93,7 @@ void zbus_process(void);
   #define UCSZ01       UCSZ1
   #define USART0_UDRE_vect USART_UDRE_vect
   #define USART0_RX_vect USART_RXC_vect
+  #define USART0_TX_vect USART_TXC_vect
 #endif
 
 #ifdef _ATMEGA8
@@ -105,6 +101,13 @@ void zbus_process(void);
   #define ZBUS_BLINK_DDR DDRD
   #define ZBUS_TX_PIN _BV(PD6)
   #define ZBUS_RX_PIN _BV(PD7)
+#endif
+
+#ifdef _ATMEGA644
+  #define ZBUS_BLINK_PORT PORTD
+  #define ZBUS_BLINK_DDR DDRD
+  #define ZBUS_TX_PIN _BV(PD4)
+  #define ZBUS_RX_PIN _BV(PD5)
 #endif
 
 #endif /* _ZBUS_H */

@@ -32,13 +32,9 @@
 #include "zbus.h"
 #include "../crypto/encrypt-llh.h"
 
-
 static volatile uint8_t send_escape_data = 0;
 static volatile uint8_t recv_escape_data = 0;
 static volatile uint8_t bus_blocked = 0;
-
-static volatile zbus_send_byte_callback_t callback = NULL;
-static volatile void *callback_ctx = NULL;
 
 #ifdef ENC28J60_SUPPORT
 static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER];
@@ -47,21 +43,7 @@ static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER];
 static volatile struct zbus_ctx recv_ctx;
 static volatile struct zbus_ctx send_ctx;
 
-static uint8_t
-zbus_send_data_cb(void **ctx) 
-{
-  if ( send_ctx.len == 0 ) 
-    zbus_tx_finish();
-  else {
-    char data = send_ctx.data[send_ctx.offset];
-    send_ctx.offset++;
-    if (send_ctx.offset >= send_ctx.len)
-      send_ctx.len = 0;
-    return data;
-  }
-
-
-}
+static uint8_t zbus_tx_start(void);
 
 uint8_t 
 zbus_send_data(uint8_t *data, uint16_t len)
@@ -83,7 +65,7 @@ zbus_send_data(uint8_t *data, uint16_t len)
 #ifdef SKIPJACK_SUPPORT
     zbus_encrypt(send_ctx.data, &send_ctx.len);
 #endif
-    zbus_tx_start(zbus_send_data_cb, 0);
+    zbus_tx_start();
     return 1;
   }
   return 0;
@@ -96,7 +78,7 @@ zbus_rxfinish(void)
 #ifdef SKIPJACK_SUPPORT
     zbus_decrypt(recv_ctx.data, &recv_ctx.len);
 #endif
-    return &recv_ctx;
+    return (struct zbus_ctx *) (&recv_ctx);
   }
   return NULL;
 }
@@ -104,19 +86,20 @@ zbus_rxfinish(void)
 void
 zbus_core_init(void)
 {
+    /* The ATmega644 datasheet suggests to clear the global
+       interrupt flags on initialization ... */
+    uint8_t sreg = SREG; cli();
+
     /* set baud rate */
     _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
     _UBRRL_UART0 = LO8(ZBUS_UART_UBRR);
 
-    /* set mode */
-#ifdef URSEL
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01) | _BV(URSEL);
-#else
+    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
-#endif
 
-    /* enable transmitter and receiver */
-    _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+    /* enable transmitter and receiver as well as their interrupts */
+    _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_TXCIE_UART0) \
+	| _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
 
     /* Enable RX/TX Swtich as Output */
     RXTX_DDR |= _BV(RXTX_PIN);
@@ -124,7 +107,7 @@ zbus_core_init(void)
     RXTX_PORT &= ~_BV(RXTX_PIN);
 
 #ifdef ZBUS_BLINK_PORT
-  ZBUS_BLINK_DDR |= ZBUS_RX_PIN | ZBUS_TX_PIN;
+    ZBUS_BLINK_DDR |= ZBUS_RX_PIN | ZBUS_TX_PIN;
 #endif
     
     /* clear the buffers */
@@ -135,6 +118,12 @@ zbus_core_init(void)
 #else
     recv_ctx.data = (uint8_t *)uip_buf;
 #endif
+
+    /* reset tx interrupt flag */
+    _UCSRA_UART0 |= _BV(_TXC_UART0);
+
+    /* Go! */
+    SREG = sreg;
 }
 
 void
@@ -145,27 +134,15 @@ zbus_core_periodic(void)
 }
 
 
-uint8_t
-zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx) 
+static uint8_t
+zbus_tx_start(void) 
 {
-  /* Return if there is an sending process */
-  if (callback) return 0;
-
   /* Enable transmitter */
   RXTX_PORT |= _BV(RXTX_PIN);
 
-  /* Install send byte callback */
-  callback = cb;
-  callback_ctx = ctx;
-
-  _delay_ms(1);
-  
   /* Transmit Start sequence */
   send_escape_data = ZBUS_START;
   _UDR_UART0 = '\\';
-
-  /* Enable buffer empty interrupt */
-  _UCSRB_UART0 |= _BV(UDRIE0); 
 
 #ifdef ZBUS_BLINK_PORT
   ZBUS_BLINK_PORT |= ZBUS_TX_PIN;
@@ -174,46 +151,47 @@ zbus_tx_start(zbus_send_byte_callback_t cb, void *ctx)
   return 1;
 }
 
-void  
-zbus_tx_finish(void) 
-{
-  callback = NULL;
-#ifdef ZBUS_BLINK_PORT
-  ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
-#endif
-}
 
-SIGNAL(USART0_UDRE_vect)
+SIGNAL(USART0_TX_vect)
 {
-  _delay_ms(1);
+  /* If there's a carry byte, send it! */
   if (send_escape_data) {
     _UDR_UART0 = send_escape_data;
     send_escape_data = 0;
-    if (callback == NULL) {
-      /* Wait for completion */
-      while (!(_UCSRA_UART0 & _BV(_UDRE_UART0)));
-      /* Disable this interrupt */
-      _UCSRB_UART0 &= ~_BV(UDRIE0); 
-      _delay_ms(1);
-      /* Disable transmitter */
-      RXTX_PORT &= ~_BV(RXTX_PIN);
+  }
+
+  /* Otherwise send data from send context, if any is left. */
+  else if (send_ctx.len && send_ctx.offset < send_ctx.len) {
+    if (send_ctx.data[send_ctx.offset] == '\\') {
+      /* We need to quote the character. */
+      send_escape_data = send_ctx.data[send_ctx.offset];
+      _UDR_UART0 = '\\';
     }
-  } else {
-    if (callback) {
-      send_escape_data = callback((void *)callback_ctx);
-      if (callback) {
-        if (send_escape_data == '\\') 
-          _UDR_UART0 = '\\';
-        else {
-          _UDR_UART0 = send_escape_data;
-          send_escape_data = 0;
-        }
-      } else {
-        /* Send Packet end */
-        _UDR_UART0 = '\\';
-        send_escape_data = ZBUS_STOP;
-      }
+    else {
+      /* No quoting needed, just send it. */
+      _UDR_UART0 = send_ctx.data[send_ctx.offset];
     }
+
+    send_ctx.offset ++;
+  }
+
+  /* If send_ctx contains data, but every byte has been sent over the
+     wires, send a stop condition. */
+  else if (send_ctx.len) {
+    send_ctx.len = 0;		/* mark buffer as empty. */
+
+    /* Generate the stop condition. */
+    send_escape_data = ZBUS_STOP;
+    _UDR_UART0 = '\\';
+  }
+
+  /* Nothing to do, disable transmitter and TX LED. */
+  else {
+    RXTX_PORT &= ~_BV (RXTX_PIN);
+
+#ifdef ZBUS_BLINK_PORT
+    ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
+#endif
   }
 }
 
@@ -222,6 +200,7 @@ SIGNAL(USART0_RX_vect)
   /* Ignore errors */
   if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
     uint8_t v = _UDR_UART0;
+    (void) v;
     return; 
   }
   uint8_t data = _UDR_UART0;
