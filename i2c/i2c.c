@@ -64,6 +64,7 @@ i2c_port_init(void)
   TWBR = 92;
 #else
   TWBR = 52; //max speed for twi bei 8mhz, ca 100khz by 12Mhz Crystal
+  PORTC |= _BV(PC4) | _BV(PC5); //enable pullup vor i2c
 #endif
   TWCR |= _BV(TWEN);
 }
