@@ -92,8 +92,13 @@ int main(void)
     watchcat_init();
 #   endif
 
+#   ifdef BOOTLOADER_SUPPORT
+    /* disable interrupts */
+    cli();
+#   else
     /* enable interrupts */
     sei();
+#   endif
 
 #   ifdef USE_WATCHDOG
     debug_printf("enabling watchdog\n");

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD:i2c/i2c.c
  * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
+=======
+ * Copyright (c) 2007,2008 by Jochen Roessner <jochen@lugrot.de>
+>>>>>>> master:i2c/i2c.c
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -64,7 +68,7 @@ i2c_port_init(void)
   TWBR = 92;
 #else
   TWBR = 52; //max speed for twi bei 8mhz, ca 100khz by 12Mhz Crystal
-  PORTC |= _BV(PC4) | _BV(PC5);
+  PORTC |= _BV(PC4) | _BV(PC5); //enable pullup vor i2c
 #endif
   TWCR |= _BV(TWEN);
 }

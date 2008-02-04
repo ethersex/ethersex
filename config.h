@@ -82,6 +82,27 @@
 #define _SPI2X0 SPI2X
 #define _TIFR_TIMER1 TIFR
 #define _EIMSK GICR
+#define _UDR_UART0 UDR
+#define _UCSRA_UART0 UCSRA
+#define _UCSRB_UART0 UCSRB
+#define _UCSRC_UART0 UCSRC
+#define _UBRRL_UART0 UBRRL
+#define _UBRRH_UART0 UBRRH
+#define _TXEN_UART0  TXEN
+#define _TXCIE_UART0 TXCIE
+#define _RXEN_UART0  RXEN
+#define _RXCIE_UART0 RXCIE
+#define _UDRE_UART0  UDRE
+#define _RXC_UART0   RXC
+#define _TXC_UART0   TXC
+#define UDRIE0       UDRIE
+#define DOR0         DOR
+#define FE0          FE
+#define UCSZ00       UCSZ0
+#define UCSZ01       UCSZ1
+#define USART0_UDRE_vect USART_UDRE_vect
+#define USART0_RX_vect USART_RXC_vect
+#define USART0_TX_vect USART_TXC_vect
 
 /* }}} */
 #elif defined(__AVR_ATmega644__)
@@ -93,6 +114,7 @@
 #define _TXEN_UART0 TXEN0
 #define _RXEN_UART0 RXEN0
 #define _RXCIE_UART0 RXCIE0
+#define _TXCIE_UART0 TXCIE0
 #define _UBRRH_UART0 UBRR0H
 #define _UBRRL_UART0 UBRR0L
 #define _UCSRA_UART0 UCSR0A
@@ -177,7 +199,7 @@
 /* bootloader */
 #undef BOOTLOADER_SECTION
 #ifdef _ATMEGA8
-#define BOOTLOADER_SECTION 0x0E00; /* atmega8 with 256 words bootloader */
+#define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
 #else
 #define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
 #endif
