@@ -51,7 +51,7 @@
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
 #include "ipv6.h"
-#include "sensor_rfm12/sensor_rfm12.h"
+#include "sensormodul/sensormodul.h"
 
 #include "net/handler.h"
 

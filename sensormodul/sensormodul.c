@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -23,12 +24,12 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#include "../net/sensor_rfm12_state.h"
+#include "../net/sensormodul_state.h"
 #include "../uip/uip.h"
 #include "../config.h"
-#include "sensor_rfm12.h"
+#include "sensormodul.h"
 
-#ifdef SENSOR_RFM12_SUPPORT
+#ifdef SENSORMODUL_SUPPORT
 
 #include "lcd.h"
 #include "kty81.h"
@@ -39,16 +40,16 @@ static uint8_t start = 0;
 static uint8_t startok = 0;
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
-#define STATS (uip_udp_conn->appstate.sensor_rfm12)
+#define STATS (uip_udp_conn->appstate.sensormodul)
 
 void 
-sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
+sensormodul_core_init(uip_udp_conn_t *sensormodul_conn)
 {
   PORTD |= _BV(PD3); // Taster Pullup einschalten
   DDRB |= _BV(PB0) | _BV(PB1); //LED Alarm ausgang
   /* Init des ADC mit Taktteiler von 64 */
   ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
-  sensor_i = SENSOR_RFM12_ADCMAX - 1;
+  sensor_i = SENSORMODUL_ADCMAX - 1;
   
   /* Aktivierung des Pin 0 (ADC0) fr die Messung 
   */
@@ -62,7 +63,7 @@ sensor_rfm12_core_init(uip_udp_conn_t *sensor_rfm12_conn)
 }
 
 void 
-sensor_rfm12_core_periodic(void)
+sensormodul_core_periodic(void)
 {
   /* Start der Konvertierung */
   ADCSRA |= _BV(ADSC);
@@ -156,7 +157,7 @@ sensor_rfm12_core_periodic(void)
     lcd_print(STATS.sensors.sensor[sensor_i].valuetext+1);
   }
   
-  if(++sensor_i >= SENSOR_RFM12_ADCMAX) sensor_i = 0;
+  if(++sensor_i >= SENSORMODUL_ADCMAX) sensor_i = 0;
   ADMUX = sensor_i;
   
   
@@ -176,7 +177,7 @@ sensor_rfm12_core_periodic(void)
 }
 
 void 
-sensor_rfm12_setlcdtext(char *text, uint8_t len)
+sensormodul_setlcdtext(char *text, uint8_t len)
 {
   uint8_t i;
   start=1;
@@ -185,16 +186,6 @@ sensor_rfm12_setlcdtext(char *text, uint8_t len)
   {
     lcd_data(text[i]);
   }
-    //struct sensor_rfm12_request_t *REQ = uip_appdata;
-		/*
-		* ueberschreiben der connection info. 
-		* port und adresse auf den remotehost begrenzen
-		*/
-    /*
-			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
-			uip_udp_conn->rport = BUF->srcport;
-    */
-
 
 }
 

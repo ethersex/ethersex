@@ -1,9 +1,11 @@
 /*
  * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,26 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _SENSOR_RFM12_STATE_H
-#define _SENSOR_RFM12_STATE_H
+#ifndef _SENSORMODUL_NET_H
+#define _SENSORMODUL_NET_H
+/* constants */
 
-#define SENSOR_RFM12_ADCMAX 4
+#define SENSORMODUL_PORT 11587
 
-struct sensor_rfm12_data_t {
-  uint16_t value;
-  char valuetext[6];
-};
-
-struct sensors_rfm12_datas_t {
-  struct sensor_rfm12_data_t sensor[SENSOR_RFM12_ADCMAX];
-};
-
-
-struct sensor_rfm12_connection_state_t {
-  union {
-    uint8_t buffer[0];
-    struct sensors_rfm12_datas_t sensors;
-  };
-};
+/* prototypes */
+void sensormodul_net_init(void);
+void sensormodul_net_main(void);
 
 #endif

@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,14 +19,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _SENSOR_RFM12_NET_H
-#define _SENSOR_RFM12_NET_H
-/* constants */
+#ifndef _SENSORMODUL_H
+#define _SENSORMODUL_H
 
-#define SENSOR_RFM12_PORT 11587
+#include <stdint.h>
+#include "../uip/uip.h"
+
+#define SENSORMODUL_LCDTEXTLEN 9
 
 /* prototypes */
-void sensor_rfm12_net_init(void);
-void sensor_rfm12_net_main(void);
+void sensormodul_core_init (uip_udp_conn_t *sensormodul_conn);
+void sensormodul_core_periodic (void);
+void sensormodul_setlcdtext (char *text, uint8_t len);
 
 #endif

@@ -1,7 +1,7 @@
-TARGET = libsensor_rfm12.a
+TARGET = libsensormodul.a
 TOPDIR = ..
 SRC = \
-	sensor_rfm12.c \
+	sensormodul.c \
 	kty81.c \
 	lcd.c \
 

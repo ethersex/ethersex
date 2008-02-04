@@ -17,7 +17,7 @@ SRC = \
 	udp_echo_net.c \
 	i2c_slave_net.c \
 	zbus_linkbeat_net.c \
-	sensor_rfm12_net.c \
+	sensormodul_net.c \
 
 ##############################################################################
 # generic fluff
