@@ -252,43 +252,51 @@ SIGNAL(USART0_RX_vect)
   if (send_ctx.len != 0) return;
 #endif
 
-  if (data == '\\') 
-    recv_escape_data = 1;
-  else {
-    if (recv_escape_data){
-      if (data == ZBUS_START) {
-        recv_ctx.offset = 0;
-        bus_blocked = 3;
+  if (recv_escape_data) {
+    if (data == ZBUS_START) {
+      recv_ctx.offset = 0;
+      bus_blocked = 3;
 #ifdef ZBUS_BLINK_PORT
-        ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
+      ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
 #endif
-      }
-      else if (data == ZBUS_STOP) {
-        /* Only if there was a start condition before */
-        if (bus_blocked) {
-	  zbus_rxstop ();
-
-#ifdef ZBUS_BLINK_PORT
-          ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
-#endif
-          recv_ctx.len = recv_ctx.offset;
-          bus_blocked = 0;
-        }
-      }
-      else if (data == '\\') {
-        recv_escape_data = 0;
-        goto append_data;
-      }
-      recv_escape_data = 0;
-    } else {
-append_data:
-      /* Not enough space in buffer */
-      if (recv_ctx.offset >= (ZBUS_RECV_BUFFER)) return;
-      /* If bus is not blocked we aren't on an message */
-      if (!bus_blocked) return;
-
-      recv_ctx.data[recv_ctx.offset] = data;
-      recv_ctx.offset++;
     }
+
+    else if (data == ZBUS_STOP) {
+
+      /* Only if there was a start condition before */
+      if (bus_blocked) {
+	zbus_rxstop ();
+
+#ifdef ZBUS_BLINK_PORT
+	ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
+#endif
+	recv_ctx.len = recv_ctx.offset;
+	bus_blocked = 0;
+      }
+    }
+
+    else if (data == '\\') {
+      recv_escape_data = 0;
+      goto append_data;
+    }
+
+    recv_escape_data = 0;
+  } 
+
+  else if (data == '\\') 
+    recv_escape_data = 1;
+
+  else {
+  append_data:
+    /* Not enough space in buffer */
+    if (recv_ctx.offset >= (ZBUS_RECV_BUFFER))
+      return;
+
+    /* If bus is not blocked we aren't on an message */
+    if (!bus_blocked)
+      return;
+      
+    recv_ctx.data[recv_ctx.offset] = data;
+      recv_ctx.offset++;
   }
 }
