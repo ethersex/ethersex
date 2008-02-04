@@ -30,7 +30,6 @@
 void
 zbus_process(void)
 {
-  uip_len = 0;
   struct zbus_ctx *recv = zbus_rxfinish();
   if (! (recv && recv->len))
     return;
@@ -40,6 +39,9 @@ zbus_process(void)
 
   /* uip_input expects the number of bytes including the LLH. */
   uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
+
+  recv->len = 0;		/* receive buffer may be overriden
+				   from now on. */
 
   /* Push data into inner uIP stack. */
   uip_stack_set_active (STACK_ZBUS);
@@ -51,15 +53,17 @@ zbus_process(void)
 
      memcpy(uip_buf, recv->data, recv->len); */
   uip_len = recv->len;
+  
+  recv->len = 0;		/* receive buffer may be overriden
+				   from now on. */
     
   uip_input();
 #endif
 
-  /* reset the receive buffer */
-  recv->len = 0;
-
-  if (!uip_len)
+  if (!uip_len) {
+    zbus_rxstart ();
     return;
+  }
 
   /* send buffer out */
   fill_llh_and_transmit ();

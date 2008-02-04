@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
@@ -43,7 +43,7 @@ static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER];
 static volatile struct zbus_ctx recv_ctx;
 static volatile struct zbus_ctx send_ctx;
 
-static uint8_t zbus_tx_start(void);
+static uint8_t zbus_txstart(void);
 
 uint8_t 
 zbus_send_data(uint8_t *data, uint16_t len)
@@ -65,11 +65,39 @@ zbus_send_data(uint8_t *data, uint16_t len)
 #ifdef SKIPJACK_SUPPORT
     zbus_encrypt(send_ctx.data, &send_ctx.len);
 #endif
-    zbus_tx_start();
+    zbus_txstart();
     return 1;
   }
   return 0;
 }
+
+
+void
+zbus_rxstart (void)
+{
+  uint8_t sreg = SREG; cli();
+
+  /* disable transmitter, enable receiver (and rx interrupt) */
+  _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_RXEN_UART0);
+
+  /* Default is reciever enabled*/
+  RXTX_PORT &= ~_BV(RXTX_PIN);
+
+  SREG = sreg;
+}
+
+
+static void
+zbus_rxstop (void)
+{
+  uint8_t sreg = SREG; cli();
+
+  /* completely disable usart */
+  _UCSRB_UART0 = 0;
+
+  SREG = sreg;
+}
+
 
 struct zbus_ctx *
 zbus_rxfinish(void) 
@@ -103,14 +131,8 @@ zbus_core_init(void)
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
 #endif
 
-    /* enable transmitter and receiver as well as their interrupts */
-    _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_TXCIE_UART0) \
-	| _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
-
     /* Enable RX/TX Swtich as Output */
     RXTX_DDR |= _BV(RXTX_PIN);
-    /* Default is reciever enabled*/
-    RXTX_PORT &= ~_BV(RXTX_PIN);
 
 #ifdef ZBUS_BLINK_PORT
     ZBUS_BLINK_DDR |= ZBUS_RX_PIN | ZBUS_TX_PIN;
@@ -125,8 +147,7 @@ zbus_core_init(void)
     recv_ctx.data = (uint8_t *)uip_buf;
 #endif
 
-    /* reset tx interrupt flag */
-    _UCSRA_UART0 |= _BV(_TXC_UART0);
+    zbus_rxstart ();
 
     /* Go! */
     SREG = sreg;
@@ -141,10 +162,21 @@ zbus_core_periodic(void)
 
 
 static uint8_t
-zbus_tx_start(void) 
+zbus_txstart(void) 
 {
+  uint8_t sreg = SREG; cli();
+
+  /* enable transmitter and receiver as well as their interrupts */
+  _UCSRB_UART0 = _BV(_TXCIE_UART0) | _BV(_TXEN_UART0);
+
   /* Enable transmitter */
   RXTX_PORT |= _BV(RXTX_PIN);
+
+  /* reset tx interrupt flag */
+  _UCSRA_UART0 |= _BV(_TXC_UART0);
+
+  /* Go! */
+  SREG = sreg;
 
   /* Transmit Start sequence */
   send_escape_data = ZBUS_START;
@@ -193,11 +225,11 @@ SIGNAL(USART0_TX_vect)
 
   /* Nothing to do, disable transmitter and TX LED. */
   else {
-    RXTX_PORT &= ~_BV (RXTX_PIN);
-
 #ifdef ZBUS_BLINK_PORT
     ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
 #endif
+
+    zbus_rxstart ();
   }
 }
 
@@ -234,6 +266,8 @@ SIGNAL(USART0_RX_vect)
       else if (data == ZBUS_STOP) {
         /* Only if there was a start condition before */
         if (bus_blocked) {
+	  zbus_rxstop ();
+
 #ifdef ZBUS_BLINK_PORT
           ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
 #endif
