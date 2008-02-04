@@ -980,11 +980,11 @@ uip_process(u8_t flag)
   if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
     /* We're on mainstack and got a packet not directly addressed
-       to this uIP stack.  Send it using rfm12. */
+       to this uIP stack.  Send it using zbus. */
     zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
 
 #elif defined(ZBUS_OUTER)
-    /* We're on the rfm12 stack and got a packet not addressed to us.
+    /* We're on the zbus stack and got a packet not addressed to us.
        Pass it on to the ethernet. */
     uip_stack_set_active (STACK_MAIN);
     fill_llh_and_transmit ();

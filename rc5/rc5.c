@@ -208,8 +208,8 @@ void rc5_init(void)
 {
 
     /* configure send pin as output, set low */
-    RC5_SEND_DDR |= _BV(RC5_SEND_PINNUM);
-    RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
+    DDR_CONFIG_OUT(RC5_SEND);
+    PIN_CLEAR(RC5_SEND);
 
     /* enable timer0, set prescaler and enable overflow interrupt */
     TCCR0A = 0;
@@ -261,23 +261,23 @@ void rc5_send(uint8_t addr, uint8_t cmd)
     }
 
     /* turn off sender */
-    RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
+    PIN_CLEAR(RC5_SEND);
 
 }
 
 void rc5_send_one(void)
 {
-    RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
+    PIN_CLEAR(RC5_SEND);
     _delay_loop_2(RC5_PULSE);
-    RC5_SEND_PORT |= _BV(RC5_SEND_PINNUM);
+    PIN_SET(RC5_SEND);
     _delay_loop_2(RC5_PULSE);
 }
 
 void rc5_send_zero(void)
 {
-    RC5_SEND_PORT |= _BV(RC5_SEND_PINNUM);
+    PIN_SET(RC5_SEND);
     _delay_loop_2(RC5_PULSE);
-    RC5_SEND_PORT &= ~_BV(RC5_SEND_PINNUM);
+    PIN_CLEAR(RC5_SEND);
     _delay_loop_2(RC5_PULSE);
 }
 

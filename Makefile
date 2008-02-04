@@ -15,11 +15,11 @@ SRC = \
 
 #SUBDIRS += bootp
 #SUBDIRS += clock
-SUBDIRS += crypto
+#SUBDIRS += crypto
 #SUBDIRS += dcf77
 #SUBDIRS += dns
 #SUBDIRS += dyndns
-#SUBDIRS += ecmd
+SUBDIRS += ecmd
 #SUBDIRS += fs20
 #SUBDIRS += i2c
 SUBDIRS += lcd
@@ -29,7 +29,7 @@ SUBDIRS += net
 #SUBDIRS += onewire
 #SUBDIRS += ps2
 #SUBDIRS += rc5
-SUBDIRS += rfm12
+#SUBDIRS += rfm12
 #SUBDIRS += stella
 #SUBDIRS += syslog
 #SUBDIRS += tetrirape
@@ -37,8 +37,10 @@ SUBDIRS += rfm12
 SUBDIRS += uip
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
-SUBDIRS += sensor_rfm12
-SUBDIRS += i2c_slave
+#SUBDIRS += i2c_slave
+#SUBDIRS += hc595
+#SUBDIRS += hc165
+#SUBDIRS += sensor_rfm12
 
 ##############################################################################
 all: compile-ethersex
@@ -100,5 +102,9 @@ clean:
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
+
+pinning.c: pinning.m4
+	m4 $< > $@
+	
 
 include depend.mk

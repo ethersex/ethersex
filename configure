@@ -75,8 +75,9 @@ my %ethersex_modules = (
 		 },
   'ipv6'      => { 
                    helptext  => "IPv6 support instead of IPv4",
-                   conflicts => [ "bootp" ],
+                   conflicts => [ "bootp", "broadcast" ],
                    preconfigure => [ "enc28j60" ],
+		   requires => [ "icmp" ],
                    distdflt  => 1,
                    enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
@@ -84,6 +85,7 @@ my %ethersex_modules = (
   'broadcast' => { 
                    helptext  => "broadcast support",
                    requires  => [ "udp" ],
+		   conflicts => [ "ipv6" ],
                    distdflt  => 0,
                  },
   'icmp'      => { 
@@ -99,7 +101,13 @@ my %ethersex_modules = (
                    distdflt  => 1,
                  },
   'rfm12_linkbeat_net' => {
-                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only",
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only)",
+                   requires  => [ "rfm12" ],
+                   distdflt  => 0,
+                 },
+  'zbus_linkbeat_net' => {
+                   helptext  => "send linkbeat packets on rfm12 link regularly (testing only)",
+		   requires  => [ "zbus" ],
                    distdflt  => 0,
                  },
   'udp_echo_net' => {
@@ -210,12 +218,15 @@ my %ethersex_modules = (
   'i2c'        => {
                    helptext  => "i2c to udp gateway",
                    distdflt  => 0,
+                   conflicts => [ "i2c_slave" ],
                    requires => ["udp"],
                  },
   'i2c_slave'  => {
                    helptext  => "i2c slave to udp gateway",
                    distdflt  => 0,
+                   conflicts => [ "i2c" ],
                    requires => ["udp"],
+                   enable_hook  => \&i2c_slave_enable_hook,
                  },
   'clock'        => {
                    helptext  => "system clock",
@@ -255,9 +266,18 @@ my %ethersex_modules = (
   'zbus'        => {
                    helptext  => "tunneling ip over zbus",
                    distdflt  => 0,
+                   enable_hook => \&zbus_enable_hook,
                  },
   'ps2'        => {
                    helptext  => "ps2 keyboard",
+                   distdflt  => 0,
+                 },
+  'hc595'        => {
+                   helptext  => "use an hc595 as output expansion",
+                   distdflt  => 0,
+                 },
+  'hc165'        => {
+                   helptext  => "use an hc165 as input expansion",
                    distdflt  => 0,
                  },
   'sensor_rfm12' => {
@@ -265,6 +285,7 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => [ "udp", "rfm12" ],
                  },
+
 );
 my %ethersex_config = (
   'etherrape_ip' => {
@@ -279,11 +300,20 @@ my %ethersex_config = (
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
                  },
+  'zbus_ip' => {
+                   helptext  => "zbus stack ip address",
+                 },
+  'zbus_key'   =>{
+                   helptext  => "hex-encoded zbus encryption key",
+                 },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
                  },
   'rfm12_key'   =>{
                    helptext  => "hex-encoded rfm12 encryption key",
+                 },
+  'i2c_slave_addr'   =>{
+                   helptext  => "hex-encoded i2c slave address",
                  },
   'openvpn_ip4'   => {
                    helptext  => "ip address of the openvpn gateway",
@@ -330,14 +360,15 @@ my %ethersex_config = (
 my $opt_restore_defaults = 0;
 my $opt_only_modules = 0;
 foreach(@ARGV) {
-  if(m/--restore-defaults/) { $opt_restore_defaults = 1; }
-  if(m/--only-modules/) { $opt_only_modules = 1; }
-  if(m/--help/ or m/-h/) { 
+  if(m/^--restore-defaults$/) { $opt_restore_defaults = 1; }
+  if(m/^--only-modules$/) { $opt_only_modules = 1; }
+  if(m/^--help$/ or m/^-h$/) { 
     print STDERR "ethersex configuration utility\n";
     print STDERR "  --restore-defaults  - enable only default modules\n";
     print STDERR "  --only-modules      - configure only the modules\n";
     print STDERR "  --disable-x         - disable feature 'x'\n";
     print STDERR "  --enable-x          - enable feature 'x'\n";
+    print STDERR "  --D<option>=<value> - set option to value\n";
     exit 0;
   }
 }
@@ -396,6 +427,16 @@ foreach(@ARGV) {
     }
     else {
       print "FAILED to disable $1.\n";
+    }
+  }
+  if(m/^-D([^=]*)=(.*$)/) { 
+    if (defined($ethersex_config{$1})) {
+        $ethersex_config{$1}->{'user_value'} = $2;
+        $opt_nogui = 1;
+        print "setting $1 to $2.\n";
+    } else {
+      print STDERR "Invalid define option\n";
+      exit -1;
     }
   }
 }
@@ -571,9 +612,14 @@ sub check_ip {
 
 sub ask_ip {
   my $confopt = shift;
+  my $new_value;
 
   configure_module "ipv6";
- 
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+    goto save_value;
+  }
+
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
   for($default) { s/0x//g; s/\s//g; s/^uip_ip6?addr\(ip,//; s/\)$//; }
@@ -581,10 +627,11 @@ sub ask_ip {
   $default = join($separator, split(m/,/, $default));
   unless (check_ip($default)) { $default = "" }
 
-  my $new_value = 
+  $new_value = 
     prompt('s', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, 
            $default, \&check_ip);
 
+save_value:
   if($ethersex_modules{'ipv6'}->{'new_status'} && $new_value =~ m/::/) {
     $new_value = ipv6_expand($new_value);
   }
@@ -606,19 +653,26 @@ sub check_mac {
 
 sub ask_mac {
   my $confopt = shift;
+  my $new_value;
 
   if($opt_restore_defaults) {
     $ethersex_config{$confopt}->{'value'} = '"\xAC\xDE\x48\xFD\x0F\xD0"';
     return;
   }
 
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+    goto save_value;
+  }
+
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
 
   for($default) { s/"//g; s/\\x/:/g; s/^:// };
-  my $new_value =
+  $new_value =
     prompt('s', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
            $default, \&check_mac);
+save_value:
   for($new_value) {s/:/\\x/g }
   
   $ethersex_config{$confopt}->{'value'} = '"\\x' . $new_value . '"';
@@ -626,14 +680,19 @@ sub ask_mac {
 
 sub ask_anything {
   my $confopt = shift;
- 
-  my $d = $ethersex_config{$confopt}->{'value'};
-  unless(defined($d)) { $d = ""; }
-  for($d) { s/^"//; s/"$//; }
+  my $new_value;
 
-  my $v =
-    prompt('x', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, $d); 
-  $ethersex_config{$confopt}->{'value'} = "\"$v\"";
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+  } else {
+    my $d = $ethersex_config{$confopt}->{'value'};
+    unless(defined($d)) { $d = ""; }
+    for($d) { s/^"//; s/"$//; }
+
+    $new_value =
+      prompt('x', $confopt . "?", $ethersex_config{$confopt}->{'helptext'}, $d); 
+  }
+  $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
 }
 
 # check key validity, return 0 if invalid.
@@ -664,6 +723,22 @@ sub ask_cryptokey {
 
   $new_value =~ s/(..)/\\x$1/g;
   $ethersex_config{$confopt}->{'value'} = "\"$new_value\"";
+}
+
+sub ask_hex {
+  my $confopt = shift;
+  my $hexlen = shift;
+  $hexlen = $hexlen * 2;
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+
+  $default =~ s/0x//;
+  my $new_value =
+    prompt('e', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
+           $default, "[A-F0-9]{$hexlen}");
+
+  $new_value =~ s/^/0x/;
+  $ethersex_config{$confopt}->{'value'} = "$new_value";
 }
 
 sub enc28j60_enable_hook {
@@ -711,11 +786,23 @@ sub ipv6_enable_hook {
        || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
 }
 
+sub zbus_enable_hook {
+  ask_ip("zbus_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+
+  return unless($ethersex_modules{'skipjack'}->{'new_status'});
+  ask_cryptokey("zbus_key", 10);
+}
+
 sub rfm12_enable_hook {
   ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("rfm12_key", 10);
+}
+
+sub i2c_slave_enable_hook {
+  ask_hex("i2c_slave_addr", 1) if($ethersex_modules{'i2c_slave'}->{'new_status'});
+
 }
 
 sub ipv6_disable_hook {

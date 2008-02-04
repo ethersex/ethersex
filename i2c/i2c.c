@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD:i2c/i2c.c
  * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
+=======
+ * Copyright (c) 2007,2008 by Jochen Roessner <jochen@lugrot.de>
+>>>>>>> master:i2c/i2c.c
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -64,7 +68,7 @@ i2c_port_init(void)
   TWBR = 92;
 #else
   TWBR = 52; //max speed for twi bei 8mhz, ca 100khz by 12Mhz Crystal
-  PORTC |= _BV(PC4) | _BV(PC5);
+  PORTC |= _BV(PC4) | _BV(PC5); //enable pullup vor i2c
 #endif
   TWCR |= _BV(TWEN);
 }
@@ -89,12 +93,6 @@ i2c_core_periodic(void)
     STATS.timeout--;
   if(STATS.timeout == 1){
     i2c_core_init(uip_udp_conn);
-/*    uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
-    uip_udp_conn->rport = 0;
-    STATS.timeout = 0;
-    STATS.tx->seqnum = 0;
-    STATS.tx->connstate = I2C_INIT;
-    i2c_port_init();*/
     /* FIXME:   PORTC &= ~_BV(PC2); */
   }
   /* error detection on i2c bus */
@@ -109,15 +107,23 @@ void i2c_core_newdata(void)
 		/*
 		* ueberschreiben der connection info. 
 		* port und adresse auf den remotehost begrenzen
+		* und antwort paket senden mit der maximalen pufferlaenge (i2c open)
 		*/
-		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0){
+		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0 && REQ->type == I2C_OPEN){
+			STATS.timeout = 10;
 			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
 			uip_udp_conn->rport = BUF->srcport;
-			STATS.tx->seqnum = 255;
-			STATS.timeout = 10;
+
+			STATS.tx->connstate = I2C_OPEN;
+			STATS.tx->i2cstate = MAXDATAPAKETLEN;
+			STATS.tx->datalen = 0;
+
+			uip_send(&i2ctx, I2C_DATAOFFSET);
+			uip_process(UIP_UDP_SEND_CONN);
+			fill_llh_and_transmit();
+			uip_slen = 0;
 		}
-		
-		if(REQ->seqnum != STATS.tx->seqnum){
+		else if(REQ->seqnum != STATS.tx->seqnum){
 			STATS.tx->seqnum = REQ->seqnum;
 			STATS.timeout = 10;
 /* FIXME:			PORTC |= _BV(PC2); */
@@ -225,41 +231,38 @@ void i2c_core_newdata(void)
 					STATS.tx->datalen++;
 				}
 			}
-			if(STATS.tx->connstate == I2C_ERROR){
-				i2c_core_init(uip_udp_conn);
-				STATS.timeout = 0;
-			}
-			
+					/*
+			* zuruecksetzten der connection info. 
+			* port und adresse auf alle freigeben
+			* und antwort paket senden mit der info closed (i2c close)
+			*/
 			if(REQ->type == I2C_INIT){
-				//uip_ipaddr_t ip;
-				//uip_ipaddr_copy(&ip, all_ones_addr);
-				/*STATS.timeout = 0;
-				STATS.tx->seqnum = 0;
-				STATS.tx->connstate = I2C_INIT;
-				uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
-				uip_udp_conn->rport = 0;*/
 				/* FIXME: PORTC &= ~_BV(PC2); */
 				TWCR |= _BV(TWINT) | _BV(TWSTO);
-				i2c_core_init(uip_udp_conn);
+				STATS.timeout = 0;
+				
 				STATS.tx->i2cstate = TWSR;
-				
-				
-				uip_udp_conn_t return_conn;
-				uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
-				return_conn.rport = BUF->srcport;
-				return_conn.lport = HTONS(I2C_PORT);
+				STATS.tx->datalen = 0;
+				STATS.tx->connstate = I2C_INIT;
+
 				uip_send(&i2ctx, I2C_DATAOFFSET);
-				uip_udp_conn = &return_conn;
-				/* Send immediately */
 				uip_process(UIP_UDP_SEND_CONN);
 				fill_llh_and_transmit();
-				
-				
+				uip_slen = 0;
+				i2c_core_init(uip_udp_conn);
+
 			}
-			else{
+			else if(STATS.tx->connstate == I2C_ERROR){
+				uip_send(&i2ctx, I2C_DATAOFFSET);
+				uip_process(UIP_UDP_SEND_CONN);
+				fill_llh_and_transmit();
+				uip_slen = 0;
+				i2c_core_init(uip_udp_conn);
+			}else{
 				uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
 			}
 		}
+		/* retransmit des letzten paketes */
 		else if(REQ->seqnum == STATS.tx->seqnum){
 			STATS.timeout = 10;
 			uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);

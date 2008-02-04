@@ -27,6 +27,7 @@
 /* i2c packet header */
 enum i2c_request_type {
 	I2C_INIT,
+	I2C_OPEN,
 	I2C_READ,
 	I2C_WRITE,
 	I2C_READON,

@@ -82,17 +82,27 @@
 #define _SPI2X0 SPI2X
 #define _TIFR_TIMER1 TIFR
 #define _EIMSK GICR
-
-/* on ATmega8 we connect rfm12 directly to SPI. */
-#define SPI_CS_RFM12_DDR DDRB
-#define SPI_CS_RFM12_PORT PORTB
-#define SPI_CS_RFM12 PB2
-
-/* SPI-pinout differs from atmega32/644 one. */
-#define SPI_MOSI PB3
-#define SPI_MISO PB4
-#define SPI_SCK PB5
-
+#define _UDR_UART0 UDR
+#define _UCSRA_UART0 UCSRA
+#define _UCSRB_UART0 UCSRB
+#define _UCSRC_UART0 UCSRC
+#define _UBRRL_UART0 UBRRL
+#define _UBRRH_UART0 UBRRH
+#define _TXEN_UART0  TXEN
+#define _TXCIE_UART0 TXCIE
+#define _RXEN_UART0  RXEN
+#define _RXCIE_UART0 RXCIE
+#define _UDRE_UART0  UDRE
+#define _RXC_UART0   RXC
+#define _TXC_UART0   TXC
+#define UDRIE0       UDRIE
+#define DOR0         DOR
+#define FE0          FE
+#define UCSZ00       UCSZ0
+#define UCSZ01       UCSZ1
+#define USART0_UDRE_vect USART_UDRE_vect
+#define USART0_RX_vect USART_RXC_vect
+#define USART0_TX_vect USART_TXC_vect
 
 /* }}} */
 #elif defined(__AVR_ATmega644__)
@@ -104,6 +114,7 @@
 #define _TXEN_UART0 TXEN0
 #define _RXEN_UART0 RXEN0
 #define _RXCIE_UART0 RXCIE0
+#define _TXCIE_UART0 TXCIE0
 #define _UBRRH_UART0 UBRR0H
 #define _UBRRL_UART0 UBRR0L
 #define _UCSRA_UART0 UCSR0A
@@ -188,55 +199,15 @@
 /* bootloader */
 #undef BOOTLOADER_SECTION
 #ifdef _ATMEGA8
-#define BOOTLOADER_SECTION 0x0E00; /* atmega8 with 256 words bootloader */
+#define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
 #else
 #define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
 #endif
 
-/* spi defines */
-#ifndef SPI_DDR
-#define SPI_DDR DDRB
-#endif
+/* Include pinning.c as output of pinning.m4 
+ * LOOK pinning.m4 for pin definitions */
+#include "pinning.c"
 
-#ifndef SPI_PORT
-#define SPI_PORT PORTB
-#endif
-
-#ifndef SPI_MOSI
-#define SPI_MOSI PB5
-#endif
-
-#ifndef SPI_MISO
-#define SPI_MISO PB6
-#endif
-
-#ifndef SPI_SCK
-#define SPI_SCK PB7
-#endif
-
-/* port the enc28j60 is attached to
- * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
-#ifndef SPI_CS_NET
-#define SPI_CS_NET PB4
-#endif
-
-/* port the dataflash CS is attached to */
-#ifndef SPI_CS_DF
-#define SPI_CS_DF PB1
-#endif
-
-/* port the rfm12 module CS is attached to */
-#ifndef SPI_CS_RFM12_DDR
-#define SPI_CS_RFM12_DDR DDRC
-#endif
-
-#ifndef SPI_CS_RFM12_PORT
-#define SPI_CS_RFM12_PORT PORTC
-#endif
-
-#ifndef SPI_CS_RFM12
-#define SPI_CS_RFM12 PC3
-#endif
 
 /* rfm12 module interrupt line */
 #ifndef RFM12_INT_PIN 
@@ -247,55 +218,23 @@
 #define RFM12_INT_SIGNAL SIG_INTERRUPT0
 #endif
 
-/* ps/2 pins and interrupts */
-#define PS2_PIN PINA
-#define PS2_PORT PORTA
-#define PS2_DDR DDRA
-
-#define PS2_DATA_PIN PA7
-#define PS2_CLOCK_PIN PA6
-
+/* ps/2 interrupts */
 #define PS2_PCMSK PCMSK0
 #define PS2_PCIE PCIE0
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
 
+
+
 /* Comment this out to get an us layout */
 #define PS2_GERMAN_LAYOUT
 
+/* Number of the hc 595 registers */
+#define HC595_REGISTERS 5
 
-/* enc28j60 int line */
-#ifndef INT_PIN_NAME
-#define INT_PIN_NAME PB3
-#endif
+#define HC165_INVERSE_OUTPUT 1
+/* Number of the hc165 registers */
+#define HC165_REGISTERS 1
 
-#ifndef INT_PORT
-#define INT_PORT PORTB
-#endif
-
-#ifndef INT_PIN
-#define INT_PIN PINB
-#endif
-
-#ifndef INT_DDR
-#define INT_DDR DDRB
-#endif
-
-/* enc28j60 wol line */
-#ifndef WOL_PIN_NAME
-#define WOL_PIN_NAME PB2
-#endif
-
-#ifndef WOL_PORT
-#define WOL_PORT PORTB
-#endif
-
-#ifndef WOL_PIN
-#define WOL_PIN PINB
-#endif
-
-#ifndef WOL_DDR
-#define WOL_DDR DDRB
-#endif
 
 /* global version defines */
 #define VERSION_STRING "0.2"
@@ -324,32 +263,15 @@
 #define UIP_UDP_APPCALL network_handle_udp
 
 /* onewire support */
-#define ONEWIRE_PINNUM PD6
-#define ONEWIRE_PIN PIND
-#define ONEWIRE_DDR DDRD
-#define ONEWIRE_PORT PORTD
 #define ONEWIRE_PARASITE
 
 /* rc5 support */
-#define RC5_SEND_PINNUM PD4
-#define RC5_SEND_PORT PORTD
-#define RC5_SEND_DDR DDRD
 #define RC5_QUEUE_LENGTH 10
 
 /* fs20 support */
 // #define FS20_SUPPORT
-
 #define FS20_SUPPORT_SEND
-#define FS20_SEND_PINNUM PB2
-#define FS20_SEND_DDR DDRB
-#define FS20_SEND_PORT PORTB
-
 #define FS20_SUPPORT_RECEIVE
-/* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
-#define FS20_RECV_PINNUM PB3
-#define FS20_RECV_DDR DDRB
-#define FS20_RECV_PORT PORTB
-
 #define FS20_SUPPORT_RECEIVE_WS300
 
 /* hd44780 support */
@@ -391,10 +313,10 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
-// #define ECMD_SUPPORT
+#define ECMD_SUPPORT
 // #define ECMD_SENDER_SUPPORT
 // #define WATCHCAT_SUPPORT
-// #define PORTIO_SUPPORT
+#define PORTIO_SUPPORT
 // #define NAMED_PIN_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
@@ -403,35 +325,38 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
-// #define TCP_SUPPORT
-// #define ICMP_SUPPORT
+#define TCP_SUPPORT
+#define ICMP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
-#define RFM12_SUPPORT
+// #define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
-#define I2C_SLAVE_SUPPORT
+// #define I2C_SLAVE_SUPPORT
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define DCF77_SUPPORT
 // #define NTP_SUPPORT
 // #define NTPD_SUPPORT
-// #define ENC28J60_SUPPORT
+#define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
-#define SENSOR_RFM12_SUPPORT
+// #define SENSOR_RFM12_SUPPORT
 // #define STELLA_SUPPORT
-#define TEENSY_SUPPORT
+// #define TEENSY_SUPPORT
+// #define HC595_SUPPORT
+// #define HC165_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define ADC_SUPPORT
 // #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
+// #define ZBUS_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
-#define CRYPTO_SUPPORT
+// #define CRYPTO_SUPPORT
 // #define CAST5_SUPPORT
-#define SKIPJACK_SUPPORT
+// #define SKIPJACK_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */
@@ -443,8 +368,8 @@
 #define CONF_TFTP_IMAGE "testsex.bin"
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
-#define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\x0B\xEE\x52"
-#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe2b,0xee52)
+#define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
+#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe1b,0xee52)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 
@@ -455,14 +380,19 @@
 #define CONF_OPENVPN_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 #define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-#define CONF_RFM12_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0xaede,0x48ff,0xfe1b,0xee52)
+#define CONF_RFM12_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0xaede,0x48ff,0xfe0b,0xee52)
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
+
+#define CONF_I2C_SLAVE_ADDR 0x23
+
+#define CONF_ZBUS_IP uip_ip6addr(ip,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x23)
+#define CONF_ZBUS_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)
 
 #define CONF_DYNDNS_USERNAME "jochen"
 #define CONF_DYNDNS_PASSWORD "bier42"
-#define CONF_DYNDNS_HOSTNAME "ethsex1.dyn.metafnord.de"
+#define CONF_DYNDNS_HOSTNAME "ethsex1"
 
 #endif /* _CONFIG_H */

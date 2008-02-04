@@ -30,25 +30,13 @@
 
 #ifdef FS20_SUPPORT
 
-#ifdef FS20_SUPPORT_SEND
-    #if !defined(FS20_SEND_PINNUM) || !defined(FS20_SEND_DDR) || !defined(FS20_SEND_PORT)
-    #error "FS20_SEND_PINNUM, FS20_SEND_DDR or FS20_SEND_PORT not defined!"
-    #endif
-#endif
-
-#ifdef FS20_SUPPORT_RECEIVE
-    #if !defined(FS20_RECV_PINNUM) || !defined(FS20_RECV_DDR) || !defined(FS20_RECV_PORT)
-    #error "FS20_RECV_PINNUM, FS20_RECV_DDR or FS20_RECV_PORT not defined!"
-    #endif
-#endif
-
 #if !defined(F_CPU)
 #error "F_CPU undefined!"
 #endif
 
 #define FS20_DELAY_ZERO (4 * (F_CPU / 10000) / 4) /* 400uS, for delay_loop_2 */
 #define FS20_DELAY_ONE  (6 * (F_CPU / 10000) / 4) /* 600uS, for delay_loop_2 */
-#define FS20_DELAY_CMD  ( F_CPU / 10000 / 4) /* 10ms, for delay_loop_2 */
+#define FS20_DELAY_CMD  ( F_CPU / 100 / 4) /* 10ms, for delay_loop_2 */
 
 #define FS20_BETWEEN(x, a, b) ((x >= a) && (x <= b))
 #define FS20_SYMM(x, y, r) ( (x-y) <= r && (y-x) <= r )

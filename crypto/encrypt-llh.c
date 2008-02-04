@@ -1,7 +1,7 @@
 /* vim:fdm=marker et ai
  * {{{
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -26,25 +26,23 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../spi.h"
-#include "rfm12.h"
-#include "../crypto/skipjack.h"
+#include "../rfm12/rfm12.h"
+#include "skipjack.h"
 
-#ifdef SKIPJACK_SUPPORT
+#if defined(SKIPJACK_SUPPORT) \
+    && (defined(RFM12_SUPPORT) || defined(ZBUS_SUPPORT))
 
-static uint8_t rfm12_key[10] = CONF_RFM12_KEY;
+#ifdef RFM12_SUPPORT
+uint8_t *rfm12_key = CONF_RFM12_KEY;
+#endif 
 
+#ifdef ZBUS_SUPPORT
+uint8_t *zbus_key = CONF_ZBUS_KEY;
+#endif 
 
 void
-rfm12_encrypt (uint8_t *data, uint8_t *len)
+llh_encrypt (uint8_t *key, uint8_t *data, uint16_t *len)
 {
-  uint8_t pad_char = 8 - (*len % 8);
-
-  if (pad_char + *len + 8 > RFM12_DataLength)
-    {
-      *len = 0; 		/* destroy packet */
-      return;
-    }
-
   /* Make room for IV. */
   memmove (data + 8, data, *len);
   *len += 8;
@@ -54,6 +52,7 @@ rfm12_encrypt (uint8_t *data, uint8_t *len)
     data[i] = rand() & 0xFF;
 
   /* Do padding. */
+  uint8_t pad_char = 8 - (*len % 8);
   do
     {
       data[*len] = pad_char;
@@ -70,19 +69,19 @@ rfm12_encrypt (uint8_t *data, uint8_t *len)
 	data[(i << 3) + j] ^= data[(i << 3) + j - 8];
 
       /* Encrypt data. */
-      skipjack_enc (data + (i << 3), rfm12_key);
+      skipjack_enc (data + (i << 3), key);
     }
 }
 
 void
-rfm12_decrypt (uint8_t *data, uint8_t *len)
+llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len)
 {
   uint8_t lastblock = *len >> 3;
   for (uint8_t i = 1; i < lastblock; i ++)
     {
       uint8_t buf[8];
       memmove (buf, data + (i << 3), 8);
-      skipjack_dec (buf, rfm12_key);
+      skipjack_dec (buf, key);
 
       for (uint8_t j = 0; j < 8; j ++)
 	data[(i << 3) + j - 8] ^= buf[j];
@@ -103,4 +102,4 @@ rfm12_decrypt (uint8_t *data, uint8_t *len)
 }
 
 
-#endif /* SKIPJACK_SUPPORT */
+#endif /* SKIPJACK_SUPPORT and (ZBUS_SUPPORT || RFM12_SUPPORT) */

@@ -1,5 +1,6 @@
-/*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+/*                     -*- mode: C; c-file-style: "stroustrup"; -*-
+ *
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,23 +19,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_SLAVE_H
-#define _I2C_SLAVE_H
-
-#include <stdint.h>
-#include "../uip/uip.h"
-
-/* constants */
-#define I2C_SLAVE_PORT 0x2321
-#ifndef CONF_I2C_SLAVE_ADDR
-#  define TWIADDR 0x04
-#else
-#  define TWIADDR CONF_I2C_SLAVE_ADDR
-#endif
+#ifndef ZBUS_LINKBEAT_NET_H
+#define ZBUS_LINKBEAT_NET_H
 
 /* prototypes */
-void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
-void i2c_slave_core_periodic (void);
-void i2c_slave_core_newdata (void);
+void zbus_linkbeat_net_init(void);
+void zbus_linkbeat_net_main(void);
 
-#endif
+#endif /* ZBUS_LINKBEAT_NET_H */

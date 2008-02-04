@@ -67,6 +67,10 @@ struct uip_stack uip_stacks[STACK_LEN] = {
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_FUNCS (rfm12_stack),
 #endif
+
+#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+  STACK_FUNCS (zbus_stack),
+#endif
 };
 
 struct uip_stack *uip_stack = &uip_stacks[STACK_MAIN];

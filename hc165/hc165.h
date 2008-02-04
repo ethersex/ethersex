@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,13 +19,15 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- */
+ }}} */
 
-#ifndef _I2C_NET_H
-#define _I2C_NET_H
+#ifndef _HC165_H
+#define _HC165_H
 
-/* prototypes */
-void i2c_net_init(void);
-void i2c_net_main(void);
+#include "../config.h"
+
+
+void hc165_init(void);
+uint8_t hc165_read_pin(uint8_t port);
 
 #endif

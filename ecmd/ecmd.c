@@ -288,7 +288,7 @@ static int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     if (parse_ip (cmd, &hostaddr))
 	return -1;
 
-    return eeprom_save_config(NULL, &hostaddr, NULL, NULL, NULL);
+    return eeprom_save_config(NULL, &hostaddr, NULL, NULL);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -305,7 +305,7 @@ static int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
     if (parse_ip (cmd, &netmask))
 	return -1;
 
-    return eeprom_save_config(NULL, NULL, &netmask, NULL, NULL);
+    return eeprom_save_config(NULL, NULL, &netmask, NULL);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -323,7 +323,7 @@ static int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 	return -1;
 
     uip_setdraddr (&gwaddr);
-    return eeprom_save_config (NULL, NULL, NULL, &gwaddr, NULL);
+    return eeprom_save_config (NULL, NULL, NULL, &gwaddr);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -341,7 +341,7 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 	return -1;
 
     resolv_conf (&dnsaddr);
-    return eeprom_save_config (NULL, NULL, NULL, NULL, &dnsaddr);
+    return eeprom_save_config_ext (&dnsaddr);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -361,7 +361,7 @@ static int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
     ret = parse_mac(cmd, (void *)&mac);
 
     if (ret >= 0)
-        return eeprom_save_config(&mac, NULL, NULL, NULL, NULL);
+        return eeprom_save_config(&mac, NULL, NULL, NULL);
     else
         return ret;
 
@@ -378,7 +378,7 @@ static int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 
 #ifdef FS20_SUPPORT 
 #ifdef FS20_SUPPORT_SEND
-static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
 #ifdef DEBUG_ECMD_FS20
@@ -406,7 +406,7 @@ static int16_t parse_cmd_send_fs20(char *cmd, char *output, uint16_t len)
 #endif
 
 #ifdef FS20_SUPPORT_RECEIVE
-static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
     char *s = output;
@@ -451,7 +451,7 @@ static int16_t parse_cmd_recv_fs20(char *cmd, char *output, uint16_t len)
 } /* }}} */
 
 #ifdef FS20_SUPPORT_RECEIVE_WS300
-static int16_t parse_cmd_recv_fs20_ws300(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
     return snprintf_P(output, len,
@@ -504,7 +504,7 @@ adc_out:
 #endif
 
 #ifdef ONEWIRE_SUPPORT
-static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     int16_t ret;
 
@@ -588,7 +588,7 @@ static int16_t parse_onewire_list(char *cmd, char *output, uint16_t len)
     return -1;
 } /* }}} */
 
-static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     int16_t ret;
 
@@ -665,7 +665,7 @@ static int16_t parse_onewire_get(char *cmd, char *output, uint16_t len)
     return ret;
 } /* }}} */
 
-static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     int16_t ret;
 
@@ -708,7 +708,7 @@ static int16_t parse_onewire_convert(char *cmd, char *output, uint16_t len)
 #endif
 
 #ifdef RC5_SUPPORT
-static int16_t parse_ir_send(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     int16_t ret;
 
@@ -727,7 +727,7 @@ static int16_t parse_ir_send(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 
-static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     char *s = output;
     uint8_t l = 0;
@@ -766,7 +766,7 @@ static int16_t parse_ir_receive(char *cmd, char *output, uint16_t len)
 #endif /* RC5_SUPPORT */
 
 #ifdef DNS_SUPPORT
-static int16_t parse_nslookup (char *cmd, char *output, uint16_t len)
+static int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   while (*cmd == 32) cmd ++;
   uip_ipaddr_t *addr = resolv_lookup (cmd);

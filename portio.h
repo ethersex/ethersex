@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 #ifdef _ATMEGA8
-#define IO_PORTS  3
+#define IO_HARD_PORTS 3
 #define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY { &PINB, &PINC, &PIND}
@@ -67,12 +67,12 @@
 #endif 
 
 #ifdef RFM12_SUPPORT
-    #define RFM12_PORTC_MASK (_BV(SPI_CS_RFM12))
+    #define RFM12_PORTC_MASK (PIN_BV(SPI_CS_RFM12))
 #else
     #define RFM12_PORTC_MASK 0
 #endif
 
-#define IO_PORTS 4
+#define IO_HARD_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
@@ -88,6 +88,23 @@
 #else
 #error "unknown CPU!"
 #endif
+
+/* Yeah we like preprocessor macros */
+#if defined(HC595_SUPPORT) && (!defined(HC165_SUPPORT))
+  #define IO_PORTS (IO_HARD_PORTS + HC595_REGISTERS)
+#elif (!defined(HC595_SUPPORT)) && defined(HC165_SUPPORT)
+  #define IO_PORTS (IO_HARD_PORTS + HC165_REGISTERS)
+#elif defined(HC595_SUPPORT) && defined(HC165_SUPPORT)
+  #if HC595_REGISTERS > HC165_REGISTERS
+    #define IO_PORTS (IO_HARD_PORTS + HC595_REGISTERS)
+  #else
+    #define IO_PORTS (IO_HARD_PORTS + HC165_REGISTERS)
+  #endif
+#else
+  #define IO_PORTS IO_HARD_PORTS
+#endif
+
+
 
 typedef struct  {
   uint8_t mask;

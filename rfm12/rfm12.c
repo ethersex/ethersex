@@ -29,6 +29,7 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
+#include "../crypto/encrypt-llh.h"
 
 struct RFM12_stati
 {
@@ -106,7 +107,7 @@ rfm12_trans(unsigned short wert)
 {	
   unsigned short werti = 0;
 	
-  SPI_CS_RFM12_PORT &= ~_BV(SPI_CS_RFM12);
+  PIN_CLEAR(SPI_CS_RFM12);
 	
   /* spi clock down */
   _SPCR0 |= _BV(SPR0);
@@ -117,7 +118,7 @@ rfm12_trans(unsigned short wert)
   /* spi clock high */
   _SPCR0 &= ~_BV(SPR0);
 
-  SPI_CS_RFM12_PORT |= _BV(SPI_CS_RFM12);
+  PIN_SET(SPI_CS_RFM12);
   return werti;
 }
 

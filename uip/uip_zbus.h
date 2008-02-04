@@ -1,9 +1,12 @@
-/*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+/* vim:fdm=marker et ai
+ * {{{
+ *
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,25 +19,18 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- */
+ }}} */
 
-#ifndef _I2C_SLAVE_H
-#define _I2C_SLAVE_H
+#ifndef UIP_ZBUS_H
+#define UIP_ZBUS_H
 
-#include <stdint.h>
-#include "../uip/uip.h"
+#include "../config.h"
+#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
 
-/* constants */
-#define I2C_SLAVE_PORT 0x2321
-#ifndef CONF_I2C_SLAVE_ADDR
-#  define TWIADDR 0x04
-#else
-#  define TWIADDR CONF_I2C_SLAVE_ADDR
-#endif
+#include "uip-conf.h"
 
-/* prototypes */
-void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
-void i2c_slave_core_periodic (void);
-void i2c_slave_core_newdata (void);
+void zbus_stack_init (void);
 
-#endif
+
+#endif /* ZBUS_SUPPORT and ENC28J60_SUPPORT */
+#endif /* not UIP_ZBUS_H */

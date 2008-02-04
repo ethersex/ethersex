@@ -2,7 +2,7 @@
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -38,10 +38,11 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "uip/uip_zbus.h"
 
 #ifndef ENC28J60_POLL
-    #define interrupt_occured() (!(INT_PIN & _BV(INT_PIN_NAME)))
-    #define wol_interrupt_occured() (!(WOL_PIN & _BV(WOL_PIN_NAME)))
+    #define interrupt_occured() (! PIN_HIGH(INT_PIN))
+    #define wol_interrupt_occured() (! PIN_HIGH(WOL_PIN))
 #else
     #define interrupt_occured() 0
     #define wol_interrupt_occured() 0
@@ -60,6 +61,11 @@ void network_init(void)
     rfm12_stack_init();
 #endif
 
+#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+    uip_stack_set_active(STACK_ZBUS);
+    zbus_stack_init();
+#endif
+
 #ifdef OPENVPN_SUPPORT
     uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();
@@ -75,7 +81,7 @@ void network_init(void)
 
     uip_stack_set_active(STACK_MAIN);
 
-    uip_ipaddr_t ipaddr;
+    uip_ipaddr_t ipaddr, ip;
 
     /* use uip buffer as generic space here, since when this function is called,
      * no network packets will be processed */
@@ -104,8 +110,6 @@ void network_init(void)
     struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
 
     if (checksum != cfg_base->crc) {
-
-        uip_ipaddr_t ip;
 
         debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n",
             checksum, cfg_base->crc);
@@ -136,12 +140,6 @@ void network_init(void)
         memcpy(&cfg_base->gateway, &ip, sizeof(uip_ipaddr_t));
 #       endif
 #       endif /* not UIP_CONF_IPV6 and not BOOTP */
-
-#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
-        CONF_DNS_SERVER;
-        memcpy(&cfg_base->dns_server, &ip, sizeof(uip_ipaddr_t));
-        resolv_conf(&ip);
-#       endif
 
 #       ifndef BOOTLOADER_SUPPORT        
         /* calculate new checksum */
@@ -176,11 +174,6 @@ void network_init(void)
         uip_sethostaddr(&cfg_base->netmask);
         uip_setdraddr(&cfg_base->gateway);
         */
-
-#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
-        memcpy(&ipaddr, &cfg_base->dns_server, IPADDR_LEN);
-        resolv_conf(&ipaddr);
-#       endif
     }
 
 #   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
@@ -207,31 +200,35 @@ void network_init(void)
     if (checksum != cfg_ext->crc) {
         debug_printf("net: ext crc mismatch: 0x%x != 0x%x, loading default settings\n",
                 checksum, cfg_ext->crc);
+#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
+        CONF_DNS_SERVER;
+        memcpy(&cfg_ext->dns_server, &ip, sizeof(uip_ipaddr_t));
+        resolv_conf(&ip);
+#       endif
 
-        /* set defaults */
-        memset(&cfg.sntp_server, 0, sizeof(uip_ipaddr_t));
-        cfg.options.sntp = 0;
+#       ifndef BOOTLOADER_SUPPORT        
+        /* calculate new checksum */
+        checksum = crc_checksum(buf, sizeof(struct eeprom_config_ext_t) - 1);
+        cfg_ext->crc = checksum;
+
+        /* save config */
+        eeprom_write_block(buf, EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
+#       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
-
-        /* load settings */
-        memcpy(&cfg.sntp_server, &cfg_ext->sntp_server, sizeof(uip_ipaddr_t));
-        memcpy(&cfg.options, &cfg_ext->options, sizeof(global_options_t));
-
-#       if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
-        if (cfg.options.sntp)
-            debug_printf("cfg: sntp server is %d.%d.%d.%d\n",
-                    LO8(cfg.sntp_server[0]), HI8(cfg.sntp_server[0]),
-                    LO8(cfg.sntp_server[1]), HI8(cfg.sntp_server[1]));
+      /* Here load the config to the eeprom */
+#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
+        memcpy(&ipaddr, &cfg_ext->dns_server, IPADDR_LEN);
+        resolv_conf(&ipaddr);
 #       endif
+
 
     }
 #   endif /* !BOOTLOADER_SUPPORT */
 
 #   else /* not ENC28J60_SUPPORT */
-    /* Don't allow for eeprom-based configuration of rfm12 IP address,
+    /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
-    uip_ipaddr_t ip;
     CONF_ETHERRAPE_IP;
     uip_sethostaddr(ip);
 

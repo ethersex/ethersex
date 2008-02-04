@@ -48,6 +48,8 @@
 #include "clock/clock.h"
 #include "dcf77/dcf77.h"
 #include "ps2/ps2.h"
+#include "hc165/hc165.h"
+#include "hc595/hc595.h"
 #include "ipv6.h"
 #include "sensor_rfm12/sensor_rfm12.h"
 
@@ -90,8 +92,13 @@ int main(void)
     watchcat_init();
 #   endif
 
+#   ifdef BOOTLOADER_SUPPORT
+    /* disable interrupts */
+    cli();
+#   else
     /* enable interrupts */
     sei();
+#   endif
 
 #   ifdef USE_WATCHDOG
     debug_printf("enabling watchdog\n");
@@ -151,6 +158,14 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+#ifdef HC595_SUPPORT
+    hc595_init();
+#endif
+
+#ifdef HC165_SUPPORT
+    hc165_init();
 #endif
 
 #ifdef ZBUS_SUPPORT
@@ -224,7 +239,7 @@ int main(void)
 	zbus_process();
 	wdt_kick();
 #endif
-     
+
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();

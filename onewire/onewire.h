@@ -119,39 +119,39 @@
     /* {{{ */                                    \
     do {                                         \
         /* enable pullup */                      \
-        ONEWIRE_PORT |= _BV(ONEWIRE_PINNUM);     \
+        PIN_SET(ONEWIRE);     \
         /* configure as input */                 \
-        ONEWIRE_DDR &= ~_BV(ONEWIRE_PINNUM);     \
+        DDR_CONFIG_IN(ONEWIRE);     \
     } while (0)
     /* }}} */
 
 #define OW_CONFIG_OUTPUT()                       \
     /* {{{ */                                    \
         /* configure as output */                \
-        ONEWIRE_DDR |= _BV(ONEWIRE_PINNUM);      \
+        DDR_CONFIG_OUT(ONEWIRE);     \
     /* }}} */
 
 #define OW_LOW()                                 \
     /* {{{ */                                    \
         /* configure drive low */                \
-        ONEWIRE_PORT &= ~_BV(ONEWIRE_PINNUM);    \
+        PIN_CLEAR(ONEWIRE);    \
     /* }}} */
 
 #define OW_HIGH()                                \
     /* {{{ */                                    \
         /* configure drive high */               \
-        ONEWIRE_PORT |= _BV(ONEWIRE_PINNUM);     \
+        PIN_SET(ONEWIRE);     \
     /* }}} */
 
 #define OW_PULLUP()                              \
     /* {{{ */                                    \
         /* pull up resistor */                   \
-        ONEWIRE_PORT |= _BV(ONEWIRE_PINNUM);     \
+        PIN_SET(ONEWIRE);     \
     /* }}} */
 
 #define OW_GET_INPUT()                           \
     /* {{{ */                                    \
-        ((ONEWIRE_PIN & _BV(ONEWIRE_PINNUM)) > 0)
+        ( PIN_HIGH(ONEWIRE) > 0)
     /* }}} */
 
 /* }}} */

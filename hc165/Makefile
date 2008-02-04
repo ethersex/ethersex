@@ -1,14 +1,7 @@
-TARGET = libuip.a
+TARGET = libhc165.a
 TOPDIR = ..
 SRC = \
-	psock.c \
-	uip_arp.c \
-	uip.c \
-	uip_multi.c \
-	uip_neighbor.c \
-	uip_openvpn.c \
-	uip_rfm12.c \
-	uip_zbus.c
+	hc165.c \
 
 ##############################################################################
 # generic fluff
