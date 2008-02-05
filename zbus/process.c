@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
@@ -30,31 +30,40 @@
 void
 zbus_process(void)
 {
-  uip_len = 0;
   struct zbus_ctx *recv = zbus_rxfinish();
-  if (recv && recv->len) {
+  if (! (recv && recv->len))
+    return;
+
 #ifdef ENC28J60_SUPPORT
-    memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
+  memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
 
-    /* uip_input expects the number of bytes including the LLH. */
-    uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
+  /* uip_input expects the number of bytes including the LLH. */
+  uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
 
-    /* Push data into inner uIP stack. */
-    uip_stack_set_active (STACK_ZBUS);
-    zbus_stack_process (UIP_DATA);
+  recv->len = 0;		/* receive buffer may be overriden
+				   from now on. */
+
+  /* Push data into inner uIP stack. */
+  uip_stack_set_active (STACK_ZBUS);
+  zbus_stack_process (UIP_DATA);
 
 #else
-    memcpy(uip_buf, recv->data, recv->len);
-    uip_len = recv->len;
-    
-    uip_input();
-#endif
-    /* reset the recieve buffer */
-    recv->len = 0;
-  }
+  /* We don't need to copy from recv->data, since ZBus already shares
+     the input buffer.
 
-  if (!uip_len)
+     memcpy(uip_buf, recv->data, recv->len); */
+  uip_len = recv->len;
+  
+  recv->len = 0;		/* receive buffer may be overriden
+				   from now on. */
+    
+  uip_input();
+#endif
+
+  if (!uip_len) {
+    zbus_rxstart ();
     return;
+  }
 
   /* send buffer out */
   fill_llh_and_transmit ();
