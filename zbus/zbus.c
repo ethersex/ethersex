@@ -161,7 +161,8 @@ void
 zbus_core_periodic(void)
 {
   if(bus_blocked)
-    bus_blocked--;
+    if(--bus_blocked == 0 && send_ctx.len > 0)
+      zbus_txstart();
 }
 
 
@@ -234,7 +235,7 @@ SIGNAL(USART0_TX_vect)
 #ifdef ZBUS_BLINK_PORT
     ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
 #endif
-
+    
     zbus_rxstart ();
   }
 }
@@ -282,6 +283,8 @@ SIGNAL(USART0_RX_vect)
 
       /* force bus free even if we didn't catch the start condition. */
       bus_blocked = 0;
+      if(send_ctx.len > 0)
+        zbus_txstart();
     }
 
     else if (data == '\\')
