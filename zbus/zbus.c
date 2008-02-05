@@ -253,6 +253,8 @@ SIGNAL(USART0_RX_vect)
 #endif
 
   if (recv_escape_data) {
+    recv_escape_data = 0;
+
     if (data == ZBUS_START) {
       recv_ctx.offset = 0;
       bus_blocked = 3;
@@ -262,7 +264,6 @@ SIGNAL(USART0_RX_vect)
     }
 
     else if (data == ZBUS_STOP) {
-
       /* Only if there was a start condition before */
       if (bus_blocked) {
 	zbus_rxstop ();
@@ -271,16 +272,14 @@ SIGNAL(USART0_RX_vect)
 	ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
 #endif
 	recv_ctx.len = recv_ctx.offset;
-	bus_blocked = 0;
       }
+
+      /* force bus free even if we didn't catch the start condition. */
+      bus_blocked = 0;
     }
 
-    else if (data == '\\') {
-      recv_escape_data = 0;
+    else if (data == '\\')
       goto append_data;
-    }
-
-    recv_escape_data = 0;
   } 
 
   else if (data == '\\') 
