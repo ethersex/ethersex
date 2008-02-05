@@ -75,6 +75,10 @@ zbus_send_data(uint8_t *data, uint16_t len)
 void
 zbus_rxstart (void)
 {
+  if(send_ctx.len > 0){
+    zbus_txstart();
+    return;
+  }
   uint8_t sreg = SREG; cli();
 
   /* disable transmitter, enable receiver (and rx interrupt) */
@@ -164,6 +168,8 @@ zbus_core_periodic(void)
 static uint8_t
 zbus_txstart(void) 
 {
+  if(bus_blocked)
+    return 0;
   uint8_t sreg = SREG; cli();
 
   /* enable transmitter and receiver as well as their interrupts */
