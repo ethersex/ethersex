@@ -280,6 +280,11 @@ my %ethersex_modules = (
                    helptext  => "use an hc165 as input expansion",
                    distdflt  => 0,
                  },
+  'yport'        => {
+                   helptext  => "an serial to ip converter",
+                   distdflt  => 0,
+                   conflicts => [ "zbus" ],
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip' => {

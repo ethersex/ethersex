@@ -36,6 +36,7 @@
 #include "i2c_state.h"
 #include "i2c_slave_state.h"
 #include "dyndns_state.h"
+#include "yport_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -54,6 +55,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef DYNDNS_SUPPORT
     struct dyndns_connection_state_t dyndns;
+#   endif
+
+#   ifdef YPORT_SUPPORT
+    struct yport_connection_state_t yport;
 #   endif
 
 } uip_tcp_appstate_t;
