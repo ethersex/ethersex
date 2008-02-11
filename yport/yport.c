@@ -93,11 +93,11 @@ void yport_baudrate(uint16_t baudrate) {
     break;
 #endif
   default:
-    ubrr = F_CPU / (16 * 100 * baudrate) - 1;
+    ubrr = (F_CPU/1600) / baudrate - 1;
   } 
-    /* set baud rate */
-    _UBRRH_UART0 = HI8(ubrr);
-    _UBRRL_UART0 = LO8(ubrr);
+  /* set baud rate */
+  _UBRRH_UART0 = HI8(ubrr);
+  _UBRRL_UART0 = LO8(ubrr);
 }
 
 void

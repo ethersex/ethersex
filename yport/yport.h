@@ -46,4 +46,4 @@ void yport_baudrate(uint16_t baudrate);
 extern struct yport_buffer yport_send_buffer;
 extern struct yport_buffer yport_recv_buffer;
 
-#endif /* _ZBUS_H */
+#endif /* _YPORT_H */
