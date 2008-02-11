@@ -59,6 +59,9 @@ struct eeprom_config_ext_t {
 			     || defined(BOOTP_TO_EEPROM_SUPPORT))
     uint8_t dns_server[IPADDR_LEN];
 #endif
+#if defined(YPORT_SUPPORT)
+    uint16_t yport_baudrate;
+#endif
 
     uint8_t crc;
 };
@@ -73,6 +76,6 @@ struct eeprom_config_ext_t {
 
 uint8_t crc_checksum(void *data, uint8_t length);
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway);
-int8_t eeprom_save_config_ext(void *dns_server);
+int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg);
 
 #endif

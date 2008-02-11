@@ -160,6 +160,7 @@ int main(void)
     rc5_init();
 #endif
 
+/* Had to be bone after network_init! */
 #ifdef YPORT_SUPPORT
     yport_init();
 #endif

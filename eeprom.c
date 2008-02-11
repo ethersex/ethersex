@@ -78,7 +78,7 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
     return 0;
 
 } /* }}} */
-int8_t eeprom_save_config_ext(void *dns_server)
+int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
 /* {{{ */ {
 
     /* save new ip addresses */
@@ -90,9 +90,15 @@ int8_t eeprom_save_config_ext(void *dns_server)
 
 #if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
 			     || defined(BOOTP_TO_EEPROM_SUPPORT))
-    if (dns_server != NULL)
-        memcpy(&cfg_ext.dns_server, dns_server, IPADDR_LEN);
+    if (new_cfg->dns_server != NULL)
+        memcpy(&cfg_ext.dns_server, new_cfg->dns_server, IPADDR_LEN);
 #endif
+
+#if defined(YPORT_SUPPORT)
+    if (new_cfg->yport_baudrate != 0)
+      cfg_ext.yport_baudrate = new_cfg->yport_baudrate;
+#endif
+
 
     /* calculate new checksum */
     uint8_t checksum = crc_checksum(&cfg_ext, sizeof(struct eeprom_config_ext_t) - 1);

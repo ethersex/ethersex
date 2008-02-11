@@ -24,7 +24,10 @@
 #ifndef _YPORT_H
 #define _YPORT_H
 
+/* UART_UBBR is used if teensy is enabled */
 #define YPORT_UART_UBRR 10
+/* is used if !TEENSY; this ist the baudrate/100 */
+#define YPORT_BAUDRATE 1152
 #define YPORT_BUFFER_LEN 255
 
 struct yport_buffer {
@@ -35,6 +38,10 @@ struct yport_buffer {
 
 void yport_init(void);
 void yport_rxstart(uint8_t *data, uint8_t len);
+/* The baudrate had to be baudrate/100 */
+#ifndef TEENSY_SUPPORT
+void yport_baudrate(uint16_t baudrate);
+#endif
 
 extern struct yport_buffer yport_send_buffer;
 extern struct yport_buffer yport_recv_buffer;
