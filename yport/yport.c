@@ -34,6 +34,7 @@
 #ifdef YPORT_SUPPORT
 
 struct yport_buffer yport_send_buffer;
+struct yport_buffer yport_recv_buffer;
 
 void
 yport_init(void) 
@@ -55,8 +56,8 @@ yport_init(void)
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
 #endif
 
-    /* Enable the TX interrupt */
-    _UCSRB_UART0 |= _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+    /* Enable the RX interrupt and receiver and transmitter */
+    _UCSRB_UART0 |= _BV(_TXEN_UART0) | _BV(_RXEN_UART0) | _BV(_RXCIE_UART0);
 
     /* Go! */
     SREG = sreg;
@@ -88,5 +89,18 @@ SIGNAL(USART0_TX_vect)
     /* Disable this interrupt */
     _UCSRB_UART0 &= ~(_BV(_TXCIE_UART0));
   }
+}
+
+SIGNAL(USART0_RX_vect)
+{
+  /* Ignore errors */
+  if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
+    uint8_t v = _UDR_UART0;
+    (void) v;
+    return; 
+  }
+  uint8_t data = _UDR_UART0;
+  if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
+    yport_recv_buffer.data[yport_recv_buffer.len++] = data;
 }
 #endif

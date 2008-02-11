@@ -37,5 +37,6 @@ void yport_init(void);
 void yport_rxstart(uint8_t *data, uint8_t len);
 
 extern struct yport_buffer yport_send_buffer;
+extern struct yport_buffer yport_recv_buffer;
 
 #endif /* _ZBUS_H */

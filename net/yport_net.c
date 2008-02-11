@@ -21,6 +21,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <string.h>
 #include "yport_net.h"
 #include "../uip/uip.h"
 #include "../debug.h"
@@ -49,6 +52,18 @@ void yport_net_main(void)
     /* If the peer is not our connection, close it */
     if (yport_conn != uip_conn) 
       uip_close();
+    else {
+      /* Some data we have sent was acked, jipphie */
+      /* disable interrupts */
+      uint8_t sreg = SREG; cli();
+      yport_recv_buffer.len -= yport_recv_buffer.sent;
+      /* We should use memmove, because the data may overlap */
+      memmove(yport_recv_buffer.data, 
+              yport_recv_buffer.data + yport_recv_buffer.sent,
+              yport_recv_buffer.len);
+      /* enable interrupts again */
+      SREG = sreg;
+    }
   } else if (uip_closed() || uip_aborted() || uip_timedout()) {
     /* if the closed connection was our connection, clean yport_conn */
     if (yport_conn == uip_conn)
@@ -65,6 +80,21 @@ void yport_net_main(void)
       uip_restart();
       yport_conn->appstate.yport.stopped = 0;
     }
+  } 
+  if ((uip_poll() 
+       || uip_acked()
+       || uip_rexmit())
+      && yport_conn == uip_conn 
+      && yport_recv_buffer.len > 0) {
+    /* We have recieved data, lets propagade it */
+    /* disable interrupts */
+    uint8_t sreg = SREG; cli();
+    /* Send the data */
+    uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
+    /* so many data was send */
+    yport_recv_buffer.sent = yport_recv_buffer.len;
+    /* enable interrupts again */
+    SREG = sreg;
   }
 }
 #endif
