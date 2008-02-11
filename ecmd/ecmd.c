@@ -42,6 +42,8 @@
 #include "../rfm12/rfm12.h"
 #include "../dns/resolv.h"
 #include "../clock/clock.h"
+#include "../yport/yport.h"
+#include "../eeprom.h"
 #include "ecmd.h"
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
@@ -341,7 +343,9 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 	return -1;
 
     resolv_conf (&dnsaddr);
-    return eeprom_save_config_ext (&dnsaddr);
+    struct eeprom_save_config_ext new_cfg = { 0 };
+    new_cfg.dns_server = &dnsaddr;
+    return eeprom_save_config_ext (&new_cfg);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -1264,3 +1268,24 @@ static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif
 
+#if defined(YPORT_SUPPORT) && !defined(TEENSY_SUPPORT)
+static int16_t parse_cmd_yport_baud(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    while (*cmd == ' ') cmd ++;
+    if (! *cmd ) { /* No argument */
+      return snprintf_P(output, len, PSTR("baudrate: %d00"),
+                 eeprom_read_word(&(((struct eeprom_config_ext_t *)
+                                     EEPROM_CONFIG_EXT)->yport_baudrate)));
+    } else {
+      /* Delete the last two digits */
+      cmd[strlen(cmd) - 2] = 0;
+      struct eeprom_config_ext_t new_cfg = { 0 };
+      if (sscanf_P(cmd, PSTR("%d"), &new_cfg.yport_baudrate) == 1) {
+        yport_baudrate(new_cfg.yport_baudrate);
+        eeprom_save_config_ext(&new_cfg);
+        return snprintf_P(output, len, PSTR("baudrate: %d00"), new_cfg.yport_baudrate);
+      } else 
+        return -1;
+    }
+} /* }}} */
+#endif

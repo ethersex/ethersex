@@ -35,6 +35,7 @@ SUBDIRS += rfm12
 #SUBDIRS += tetrirape
 #SUBDIRS += tftp
 SUBDIRS += uip
+#SUBDIRS += yport
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
 SUBDIRS += i2c_slave

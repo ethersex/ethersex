@@ -282,10 +282,14 @@ my %ethersex_modules = (
                  },
   'sensormodul' => {
                    helptext  => "sensor modul mit KTY81, Feuchte Auswertung und LCD Anzeige",
-                   distdflt  => 0,
                    requires => [ "udp" ],
+                   distdflt  => 0,
                  },
-
+  'yport'        => {
+                   helptext  => "an serial to ip converter",
+                   conflicts => [ "zbus" ],
+                   distdflt  => 0,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip' => {
