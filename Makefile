@@ -15,7 +15,7 @@ SRC = \
 
 #SUBDIRS += bootp
 #SUBDIRS += clock
-#SUBDIRS += crypto
+SUBDIRS += crypto
 #SUBDIRS += dcf77
 #SUBDIRS += dns
 #SUBDIRS += dyndns
@@ -38,7 +38,7 @@ SUBDIRS += uip
 #SUBDIRS += yport
 #SUBDIRS += watchcat
 #SUBDIRS += zbus
-SUBDIRS += i2c_slave
+#SUBDIRS += i2c_slave
 #SUBDIRS += hc595
 #SUBDIRS += hc165
 SUBDIRS += sensormodul

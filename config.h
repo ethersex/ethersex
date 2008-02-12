@@ -334,7 +334,7 @@
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
-#define I2C_SLAVE_SUPPORT
+// #define I2C_SLAVE_SUPPORT
 // #define CLOCK_SUPPORT
 // #define CLOCK_CRYSTAL_SUPPORT
 // #define DCF77_SUPPORT
@@ -355,9 +355,9 @@
 // #define ZBUS_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
-// #define CRYPTO_SUPPORT
+#define CRYPTO_SUPPORT
 // #define CAST5_SUPPORT
-// #define SKIPJACK_SUPPORT
+#define SKIPJACK_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */
@@ -370,7 +370,7 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe2b,0xee52)
+#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe8b,0xee52)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 
