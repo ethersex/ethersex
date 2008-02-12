@@ -518,6 +518,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   conn->rto = UIP_RTO;
   conn->sa = 0;
   conn->sv = 16;   /* Initial value of the RTT variance. */
+  conn->wnd = 0; /* unset the personal window size for this connection */
   conn->lport = htons(lastport);
   conn->rport = rport;
   uip_ipaddr_copy(&conn->ripaddr, ripaddr);
@@ -1484,6 +1485,7 @@ uip_process(u8_t flag)
   uip_connr->sa = 0;
   uip_connr->sv = 4;
   uip_connr->nrtx = 0;
+  uip_connr->wnd = 0; /* unset the personal window size for this connection */
   uip_connr->lport = BUF->destport;
   uip_connr->rport = BUF->srcport;
   uip_ipaddr_copy(uip_connr->ripaddr, BUF->srcipaddr);
@@ -1893,9 +1895,9 @@ uip_process(u8_t flag)
       /* If there is no data to send, just send out a pure ACK if
 	 there is newdata. */
       if(uip_flags & UIP_NEWDATA) {
-	uip_len = UIP_TCPIP_HLEN;
-	BUF->flags = TCP_ACK;
-	goto tcp_send_noopts;
+        uip_len = UIP_TCPIP_HLEN;
+        BUF->flags = TCP_ACK;
+        goto tcp_send_noopts;
       }
     }
     goto drop;
@@ -2008,8 +2010,13 @@ uip_process(u8_t flag)
        window so that the remote host will stop sending data. */
     BUF->wnd[0] = BUF->wnd[1] = 0;
   } else {
-    BUF->wnd[0] = ((UIP_RECEIVE_WINDOW) >> 8);
-    BUF->wnd[1] = ((UIP_RECEIVE_WINDOW) & 0xff);
+    if (uip_connr->wnd) {
+      BUF->wnd[0] = (uip_connr->wnd) >> 8;
+      BUF->wnd[1] = (uip_connr->wnd) & 0xff;
+    } else {
+      BUF->wnd[0] = ((UIP_RECEIVE_WINDOW) >> 8);
+      BUF->wnd[1] = ((UIP_RECEIVE_WINDOW) & 0xff);
+    }
   }
 
  tcp_send_noconn:
