@@ -37,7 +37,7 @@ struct yport_buffer {
 };
 
 void yport_init(void);
-void yport_rxstart(uint8_t *data, uint8_t len);
+uint8_t yport_rxstart(uint8_t *data, uint8_t len);
 /* The baudrate had to be baudrate/100 */
 #ifndef TEENSY_SUPPORT
 void yport_baudrate(uint16_t baudrate);
