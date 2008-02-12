@@ -30,8 +30,22 @@ struct sensormodul_data_t {
 
 struct sensormodul_datas_t {
   struct sensormodul_data_t sensor[SENSORMODUL_ADCMAX];
+  uint8_t maxfeuchte_div[5];
+  uint8_t lcd_blocked    :1;
+  uint8_t fill           :3;
+  uint8_t ledstate_akt   :4;
 };
 
+struct sensormodul_request_t {
+  union{
+    uint8_t raw[0];
+    uint8_t type;
+  };
+  union{
+    uint8_t data[0];
+    uint8_t digit[3];
+  };
+};
 
 struct sensormodul_connection_state_t {
   union {

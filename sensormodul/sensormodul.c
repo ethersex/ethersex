@@ -23,6 +23,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 
 #include "../net/sensormodul_state.h"
 #include "../uip/uip.h"
@@ -36,8 +37,18 @@
 
 //static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
-static uint8_t start = 0;
-static uint8_t startok = 0;
+//static uint8_t start = 0;
+//static uint8_t startok = 0;
+
+enum ledstate{
+  CONDITION_GREEN,
+  CONDITION_OFF,
+  CONDITION_YELLOW,
+  CONDITION_RED
+};
+
+//enum ledstate STATS.sensors.ledstate_akt=CONDITION_OFF;
+uint8_t EEMEM maxfeuchte_div_eep[5];
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 #define STATS (uip_udp_conn->appstate.sensormodul)
@@ -49,119 +60,142 @@ sensormodul_core_init(uip_udp_conn_t *sensormodul_conn)
   DDRB |= _BV(PB0) | _BV(PB1); //LED Alarm ausgang
   /* Init des ADC mit Taktteiler von 64 */
   ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
-  sensor_i = SENSORMODUL_ADCMAX - 1;
   
   /* Aktivierung des Pin 0 (ADC0) fr die Messung 
   */
+
+  sensor_i = SENSORMODUL_ADCMAX - 1;
   ADMUX = sensor_i;
   lcd_init();
-  char *text = "Japaadappadu :-)";
-  lcd_print(text);
-  lcd_goto_ddram(LCD_SECOND_LINE);
-  lcd_print("Zerties.org v6 ");
+  //lcd_print("Japaadappadu :-)");
+  //lcd_goto_ddram(LCD_SECOND_LINE);
+  for(sensor_i=0;sensor_i<sizeof(sensormodul_conn->appstate.sensormodul.sensors.maxfeuchte_div);sensor_i++){
+   if(eeprom_read_byte(&maxfeuchte_div_eep[sensor_i]) != 0xFF)
+     sensormodul_conn->appstate.sensormodul.sensors.maxfeuchte_div[sensor_i] = eeprom_read_byte(&maxfeuchte_div_eep[sensor_i]);
+  }
+  sensormodul_conn->appstate.sensormodul.sensors.ledstate_akt=CONDITION_OFF;
+}
 
+void
+sensormodul_core_newdata(void)
+{
+  struct sensormodul_request_t *REQ = uip_appdata;
+
+  if ( uip_datalen() == sizeof(struct sensormodul_request_t) && REQ->type > '0' && REQ->type < '6' ){
+    STATS.sensors.maxfeuchte_div[(REQ->type & 0x07) - 1] = ((REQ->digit[2] & 0x0F) + (REQ->digit[1] & 0x0F) * 10 + (REQ->digit[0] & 0x0F) * 100) & 0xFF;
+    eeprom_write_byte(&maxfeuchte_div_eep[(REQ->type & 0x07) - 1], STATS.sensors.maxfeuchte_div[(REQ->type & 0x07) - 1]);
+  }
+  if ( uip_datalen() == 2 && REQ->type == '!'){
+    PORTB = PORTB & 0xFC | (REQ->digit[0] & 0x03);
+  }
+  if (uip_datalen() <= LCD_PYSICAL_LINELEN * 2 + 1 && REQ->type == ':'){
+    lcd_clear();
+    lcd_home();
+    REQ->data[uip_datalen()] = 0;
+    if (uip_datalen() > LCD_PYSICAL_LINELEN + 1){
+      lcd_goto_ddram(LCD_SECOND_LINE);
+      lcd_print(REQ->data+LCD_PYSICAL_LINELEN);
+    }
+    lcd_goto_ddram(0);
+    lcd_print(REQ->data);
+    STATS.sensors.lcd_blocked = 1;
+  }
 }
 
 void 
 sensormodul_core_periodic(void)
 {
-  /* Start der Konvertierung */
-  ADCSRA |= _BV(ADSC);
-  if((PIND & _BV(PD3)) == 0){
-    start++;
-  }
-  
-  /*  if ((rxlen = rfm12_rxdata(&rxaddr, rfdata)) > 0){
-    if(rxlen == 10 && rfdata[0] > 0xF0){
-      lcd_goto_ddram(LCD_SECOND_LINE+8);
-      lcd_data(rfdata[2]);
-      lcd_data(rfdata[3]);
-      lcd_data(rfdata[4]);
-      lcd_data(rfdata[5]);
-      lcd_data(rfdata[6]);
-      lcd_data(rfdata[7]);
-      lcd_data(rfdata[8]);
-      lcd_data(rfdata[9]);
-    }
-    if((rxlen == 2 || rxlen == 10) && rfdata[1] == 0x14){
-      i2cbuf[0x1E] = rfm12_sendto(rxaddr,(unsigned char *) rfdata, (unsigned char *) &sensorwert, sizeof(sensorwert));
-      
-    }
-    
-  }
-  if (kommando > 0){
-      //lcd_clear();
-    
-    if (kommando == 8){
-      lcd_goto_ddram(LCD_SECOND_LINE+8);
-      lcd_data(i2cbuf[0x01]);
-      lcd_data(i2cbuf[0x02]);
-      lcd_data(i2cbuf[0x03]);
-      lcd_data(i2cbuf[0x04]);
-      lcd_data(i2cbuf[0x05]);
-      lcd_data(i2cbuf[0x06]);
-      lcd_data(i2cbuf[0x07]);
-      lcd_data(i2cbuf[0x08]);
-      i2cbuf[0x1E] = 1;
-    }else
-    {
-      i2cbuf[0x1E] = 0xFF;
-      i2cbuf[0x1E] = rfm12_sendto(i2cbuf[1],(unsigned char *) rfdata, (unsigned char *)i2cbuf+2, i2cbuf[0]-1);
-    }
-    kommando = 0;
-  }
-  */
-  while (ADCSRA & _BV(ADSC));
-  STATS.sensors.sensor[sensor_i].value = ADC; //sensorwert[sensor_i] = ADC;
-  if(sensor_i < 2  && start != 0){
-    //char textbuf[6];
-    temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
-    lcd_goto_ddram(2 + (sensor_i * 8));
-    lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
-  }
-  if(sensor_i == 3  && start != 0){
-    //char textbuf[6];
-    uint16_t promille = STATS.sensors.sensor[sensor_i].value - (STATS.sensors.sensor[sensor_i].value >> 6) - (STATS.sensors.sensor[sensor_i].value >> 7) - (STATS.sensors.sensor[sensor_i].value >> 8);
-    temp2text(STATS.sensors.sensor[sensor_i].valuetext, promille);
-    /* warn leds */
-    int16_t Trel_raum = temperatur(STATS.sensors.sensor[0].value);
-    int16_t Trel_wand = temperatur(STATS.sensors.sensor[1].value);
-    Trel_raum = (Trel_raum >> 3) + (Trel_raum >> 5) + (Trel_raum >> 4) + Trel_raum;
-    Trel_wand = (Trel_wand >> 3) + (Trel_wand >> 5) + (Trel_wand >> 4) + Trel_wand;
-    //Tx1=T/8+T/64+T/16+T
-    //Tx2=T/8+T/64+T/16+T
-    //feuchte(promille)=1000*Tx1/Tx2
-    int16_t maxfeuchte = (100*Trel_wand)/(Trel_raum/10)-50;
-    if(promille > maxfeuchte){ //feuchte zu hoch
-      PORTB |= _BV(PB0);
-      PORTB &= ~_BV(PB1);
-    }
-    else if(promille > (maxfeuchte - 50)){ // feuchte hoch
-      PORTB |= _BV(PB0);
-      PORTB |= _BV(PB1);
-    }
-    else if(promille < (maxfeuchte - 100)){ // feuchte ok
-      PORTB &= ~_BV(PB0);
-      PORTB &= ~_BV(PB1);
-    }else if(promille < 500) //feuchte ist sehr niedrig
-      PORTB |= _BV(PB1);
-    //else if(promille > 510) //feuchte ist ok
-    //  PORTB &= ~_BV(PB1);
-    
+  //if(start < 100)
+  //  start++;
+  //else{
 
-    
-    lcd_goto_ddram(LCD_SECOND_LINE + 4);
-    temp2text(STATS.sensors.sensor[2].valuetext, maxfeuchte);
-    lcd_print(STATS.sensors.sensor[2].valuetext);
-    lcd_goto_ddram(LCD_SECOND_LINE);
-    lcd_print(STATS.sensors.sensor[sensor_i].valuetext+1);
+  if((PIND & _BV(PD3)) == 0){
+    STATS.sensors.lcd_blocked = 0;
+    lcd_clear();
+    lcd_home();
+    uint8_t i;
+    for(i=0;i<sizeof(STATS.sensors.maxfeuchte_div);i++){
+      temp2text(STATS.sensors.sensor[2].valuetext, STATS.sensors.maxfeuchte_div[i]);
+      lcd_print(STATS.sensors.sensor[2].valuetext);
+      if(i == 2)
+        lcd_goto_ddram(LCD_SECOND_LINE);
+    }
   }
+  else{
+    /* Start der Konvertierung */
+    ADCSRA |= _BV(ADSC);
+    while (ADCSRA & _BV(ADSC));
+
+    STATS.sensors.sensor[sensor_i].value = ADC; //sensorwert[sensor_i] = ADC;
+
+    if(sensor_i == 0) {//  && start != 0){
+      temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
+      if(!STATS.sensors.lcd_blocked){
+        lcd_goto_ddram(0);
+        lcd_print("Ra");
+        lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
+      }
+    }
+    if(sensor_i == 1) {//  && start != 0){
+      temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
+      if(!STATS.sensors.lcd_blocked){
+        lcd_goto_ddram(7);
+        lcd_print(" Eck");
+        lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
+      }
+    }
+    if(sensor_i == 3) {//  && start != 0){
+      //char textbuf[6];
+      uint16_t promille = STATS.sensors.sensor[sensor_i].value - (STATS.sensors.sensor[sensor_i].value >> 6) - (STATS.sensors.sensor[sensor_i].value >> 7) - (STATS.sensors.sensor[sensor_i].value >> 8);
+      temp2text(STATS.sensors.sensor[sensor_i].valuetext, promille);
+      /* warn leds */
+      int16_t Trel_raum = temperatur(STATS.sensors.sensor[0].value);
+      int16_t Trel_wand = temperatur(STATS.sensors.sensor[1].value);
+      Trel_raum = (Trel_raum >> 3) + (Trel_raum >> 5) + (Trel_raum >> 4) + Trel_raum;
+      Trel_wand = (Trel_wand >> 3) + (Trel_wand >> 5) + (Trel_wand >> 4) + Trel_wand;
+      //Tx1=T/8+T/64+T/16+T
+      //Tx2=T/8+T/64+T/16+T
+      //feuchte(promille)=1000*Tx1/Tx2
   
-  if(++sensor_i >= SENSORMODUL_ADCMAX) sensor_i = 0;
-  ADMUX = sensor_i;
+      int16_t maxfeuchte = (100*Trel_wand)/(Trel_raum/10)-50;
+      if(promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[0])){ //feuchte zu hoch
+        PORTB |= _BV(PB0);
+        PORTB &= ~_BV(PB1);
+        STATS.sensors.ledstate_akt = CONDITION_RED;
+        STATS.sensors.lcd_blocked = 0;
+      }
+      else if((promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[1]) && STATS.sensors.ledstate_akt == CONDITION_OFF) || (promille > (maxfeuchte - (STATS.sensors.maxfeuchte_div[1] + STATS.sensors.maxfeuchte_div[4])) &&  STATS.sensors.ledstate_akt == CONDITION_RED)) { // feuchte hoch
+        PORTB |= _BV(PB0);
+        PORTB |= _BV(PB1);
+        STATS.sensors.ledstate_akt = CONDITION_YELLOW;
+        STATS.sensors.lcd_blocked = 0;
+      }
+      else if((promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[2]) && STATS.sensors.ledstate_akt == CONDITION_GREEN) || (promille < (maxfeuchte - (STATS.sensors.maxfeuchte_div[1] + STATS.sensors.maxfeuchte_div[4])) &&  STATS.sensors.ledstate_akt == CONDITION_YELLOW)) { // feuchte ok
+        PORTB &= ~_BV(PB0);
+        PORTB &= ~_BV(PB1);
+        STATS.sensors.ledstate_akt = CONDITION_OFF;
+      }else if(promille < (maxfeuchte - STATS.sensors.maxfeuchte_div[3])){ //feuchte ist sehr niedrig
+        PORTB &= ~_BV(PB0);
+        PORTB |= _BV(PB1);
+        STATS.sensors.ledstate_akt = CONDITION_GREEN;
+      }
+      temp2text(STATS.sensors.sensor[2].valuetext, maxfeuchte);
   
+      if(!STATS.sensors.lcd_blocked){
+        lcd_goto_ddram(LCD_SECOND_LINE + 7);
+        lcd_print(" Max");
+        lcd_print(STATS.sensors.sensor[2].valuetext);
+        lcd_goto_ddram(LCD_SECOND_LINE);
+        lcd_print("F% ");
+        lcd_print(STATS.sensors.sensor[sensor_i].valuetext+1);
+      }
+    }
   
-  if (start != startok){
+    if(++sensor_i >= SENSORMODUL_ADCMAX) sensor_i = 0;
+    ADMUX = sensor_i;
+    
+  }
+/*  if (start != startok){
     lcd_clear();
     lcd_home();
       //text[5] = i2cbuf[2];
@@ -170,17 +204,24 @@ sensormodul_core_periodic(void)
     lcd_print("T");
     lcd_goto_ddram(8);
     lcd_print("W");
-
-    startok = start;
-  }
-  
+    char textbuf[6] = { 0 };
+    lcd_goto_ddram(LCD_SECOND_LINE);
+    uint8_t i;
+    for(i=0;i<4;i++) {
+      temp2text(textbuf, STATS.sensors.maxfeuchte_div[i]);
+      lcd_print(textbuf+1);
+    }*/
+    //startok = start;
+  //}
+  //}
 }
 
+#if 0
 void 
 sensormodul_setlcdtext(char *text, uint8_t len)
 {
   uint8_t i;
-  start=1;
+  //start=1;
   lcd_goto_ddram(LCD_SECOND_LINE+7);
   for(i = 0; i<len; i++)
   {
@@ -188,5 +229,6 @@ sensormodul_setlcdtext(char *text, uint8_t len)
   }
 
 }
+#endif
 
 #endif

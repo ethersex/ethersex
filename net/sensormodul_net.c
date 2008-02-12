@@ -24,6 +24,7 @@
 #include "../config.h"
 #include "../sensormodul/sensormodul.h"
 #include "sensormodul_net.h"
+#include "sensormodul_state.h"
 
 #ifdef SENSORMODUL_SUPPORT
 
@@ -58,9 +59,10 @@ sensormodul_net_main(void)
   if (uip_newdata())
   {
     uip_udp_conn_t return_conn;
-    if ( uip_datalen() <= SENSORMODUL_LCDTEXTLEN )
-      sensormodul_setlcdtext(uip_appdata, uip_len);
-    
+    if ( uip_datalen() > 1 )
+      sensormodul_core_newdata();
+      //sizeof(struct sensormodul_request_t) && REQ->type > '0' && REQ->type < '6' ){
+      //sensormodul_setlcdtext(uip_appdata, uip_len);
     uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
     return_conn.rport = BUF->srcport;
     return_conn.lport = HTONS(SENSORMODUL_PORT);

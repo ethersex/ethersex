@@ -25,11 +25,12 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
-#define SENSORMODUL_LCDTEXTLEN 9
+//#define SENSORMODUL_LCDTEXTLEN 9
 
 /* prototypes */
 void sensormodul_core_init (uip_udp_conn_t *sensormodul_conn);
 void sensormodul_core_periodic (void);
-void sensormodul_setlcdtext (char *text, uint8_t len);
+void sensormodul_core_newdata (void);
+//void sensormodul_setlcdtext (char *text, uint8_t len);
 
 #endif
