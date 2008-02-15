@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -38,7 +38,11 @@ struct uip_stack {
   uip_udp_conn_t **uip_udp_conn;
 
   uip_ipaddr_t *uip_hostaddr;
+#ifdef IPV6_SUPPORT
+  u8_t *uip_prefix_len;
+#else
   uip_ipaddr_t *uip_netmask;
+#endif
   uip_ipaddr_t *uip_draddr;
 
   u16_t *uip_slen;
@@ -61,6 +65,7 @@ struct uip_stack {
   extern u8_t stackname ## _flags;					\
   extern uip_ipaddr_t stackname ## _hostaddr;				\
   extern uip_ipaddr_t stackname ## _netmask;				\
+  extern u8_t stackname ## _prefix_len;				        \
   extern uip_ipaddr_t stackname ## _draddr;
 
 extern struct uip_stack uip_stacks[STACK_LEN];
@@ -81,6 +86,7 @@ extern struct uip_stack *uip_stack;
 #  define uip_udp_conn     STACK_NAME(udp_conn)
 #  define uip_hostaddr     STACK_NAME(hostaddr)
 #  define uip_netmask      STACK_NAME(netmask)
+#  define uip_prefix_len   STACK_NAME(prefix_len)
 #  define uip_draddr       STACK_NAME(draddr)
 #  define uip_slen         STACK_NAME(slen)
 #  define uip_stat         STACK_NAME(stat)
@@ -97,6 +103,7 @@ extern struct uip_stack *uip_stack;
 #  define uip_udp_conn     (* (uip_stack->uip_udp_conn))
 #  define uip_hostaddr     (* (uip_stack->uip_hostaddr))
 #  define uip_netmask      (* (uip_stack->uip_netmask))
+#  define uip_prefix_len   (* (uip_stack->uip_prefix_len))
 #  define uip_draddr       (* (uip_stack->uip_draddr))
 #  define uip_slen         (* (uip_stack->uip_slen))
 #  define uip_stat         (* (uip_stack->uip_stat))
