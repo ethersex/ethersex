@@ -401,11 +401,15 @@
 #define CONF_OPENVPN_HMAC_KEY "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 #define CONF_RFM12_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0xaede,0x48ff,0xfe0b,0xee52)
+#define CONF_RFM12_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
+#define CONF_RFM12_IP6_PREFIX_LEN 64
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_I2C_SLAVE_ADDR 0x23
 
 #define CONF_ZBUS_IP uip_ip6addr(ip,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x23)
+#define CONF_ZBUS_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
+#define CONF_ZBUS_IP6_PREFIX_LEN 64
 #define CONF_ZBUS_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)

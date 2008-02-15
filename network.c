@@ -98,6 +98,7 @@ void network_init(void)
 #   ifdef ENC28J60_SUPPORT
 
 #   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
+    uip_setprefixlen(64);
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
 #   if UIP_CONF_IPV6_LLADDR
     uip_ipaddr_copy(uip_lladdr, uip_hostaddr);

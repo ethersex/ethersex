@@ -123,7 +123,13 @@ const uip_ipaddr_t uip_netmask =
   {HTONS((UIP_NETMASK0 << 8) | UIP_NETMASK1),
    HTONS((UIP_NETMASK2 << 8) | UIP_NETMASK3)};
 #else
-uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
+uip_ipaddr_t uip_hostaddr, uip_draddr;
+
+#if UIP_CONF_IPV6
+u8_t uip_prefix_len;
+#else
+uip_ipaddr_t uip_netmask;
+#endif
 
 #if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
 /* The link local IPv6 address */

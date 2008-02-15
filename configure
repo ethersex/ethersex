@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+# Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by 
@@ -321,11 +321,23 @@ my %ethersex_config = (
   'zbus_ip' => {
                    helptext  => "zbus stack ip address",
                  },
+  'zbus_ip4_netmask' => {
+                   helptext  => "zbus stack netmask (IPv4 only)",
+                 },
+  'zbus_ip6_prefix_len' => {
+                   helptext  => "zbus stack prefix length (IPv6 only)",
+                 },
   'zbus_key'   =>{
                    helptext  => "hex-encoded zbus encryption key",
                  },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
+                 },
+  'rfm12_ip4_netmask' => {
+                   helptext  => "rfm12 stack netmask (IPv4 only)",
+                 },
+  'rfm12_ip6_prefix_len' => {
+                   helptext  => "rfm12 stack prefix length (IPv6 only)",
                  },
   'rfm12_key'   =>{
                    helptext  => "hex-encoded rfm12 encryption key",
@@ -759,6 +771,27 @@ sub ask_hex {
   $ethersex_config{$confopt}->{'value'} = "$new_value";
 }
 
+sub ask_number {
+  my $confopt = shift;
+  my $min = shift;
+  my $max = shift;
+
+  my $default = $ethersex_config{$confopt}->{'value'};
+  unless(defined($default)) { $default = "" }
+
+  $default =~ s/0x//;
+  my $new_value =
+    prompt('r', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
+           $default, $min, $max);
+
+  $ethersex_config{$confopt}->{'value'} = "$new_value";
+}
+
+sub ask_prefix_len {
+  my $confopt = shift;
+  ask_number $confopt, 48, 128;
+}
+
 sub enc28j60_enable_hook {
   ask_mac "etherrape_mac";
 }
@@ -805,14 +838,32 @@ sub ipv6_enable_hook {
 }
 
 sub zbus_enable_hook {
-  ask_ip("zbus_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+  if($ethersex_modules{'enc28j60'}->{'new_status'}) {
+    ask_ip("zbus_ip");
+
+    if($ethersex_modules{'ipv6'}->{'new_status'}) {
+      ask_prefix_len("zbus_ip6_prefix_len");
+    }
+    else {
+      ask_ip("zbus_ip4_netmask");
+    }
+  }
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("zbus_key", 10);
 }
 
 sub rfm12_enable_hook {
-  ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+  if($ethersex_modules{'enc28j60'}->{'new_status'}) {
+    ask_ip("rfm12_ip");
+    
+    if($ethersex_modules{'ipv6'}->{'new_status'}) {
+      ask_prefix_len("rfm12_ip6_prefix_len");
+    }
+    else {
+      ask_ip("rfm12_ip4_netmask");
+    }
+  }
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("rfm12_key", 10);
