@@ -280,12 +280,16 @@ my %ethersex_modules = (
                    helptext  => "use an hc165 as input expansion",
                    distdflt  => 0,
                  },
-  'sensor_rfm12' => {
-                   helptext  => "sensor modul mit rfm12",
+  'sensormodul' => {
+                   helptext  => "sensor modul mit KTY81, Feuchte Auswertung und LCD Anzeige",
+                   requires => [ "udp" ],
                    distdflt  => 0,
-                   requires => [ "udp", "rfm12" ],
                  },
-
+  'yport'        => {
+                   helptext  => "an serial to ip converter",
+                   conflicts => [ "zbus" ],
+                   distdflt  => 0,
+                 },
 );
 my %ethersex_config = (
   'etherrape_ip' => {

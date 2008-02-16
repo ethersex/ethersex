@@ -67,6 +67,8 @@ void zbus_core_periodic(void);
 typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
 
 uint8_t zbus_send_data(uint8_t *data, uint16_t len);
+
+void zbus_rxstart (void);
 struct zbus_ctx *zbus_rxfinish(void);
 
 #if !defined(ENC28J60_SUPPORT)

@@ -50,8 +50,9 @@
 #include "ps2/ps2.h"
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
+#include "yport/yport.h"
 #include "ipv6.h"
-#include "sensor_rfm12/sensor_rfm12.h"
+#include "sensormodul/sensormodul.h"
 
 #include "net/handler.h"
 
@@ -158,6 +159,11 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+/* Had to be bone after network_init! */
+#ifdef YPORT_SUPPORT
+    yport_init();
 #endif
 
 #ifdef HC595_SUPPORT

@@ -1,4 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
@@ -43,7 +43,7 @@ static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER];
 static volatile struct zbus_ctx recv_ctx;
 static volatile struct zbus_ctx send_ctx;
 
-static uint8_t zbus_tx_start(void);
+static uint8_t zbus_txstart(void);
 
 uint8_t 
 zbus_send_data(uint8_t *data, uint16_t len)
@@ -65,11 +65,43 @@ zbus_send_data(uint8_t *data, uint16_t len)
 #ifdef SKIPJACK_SUPPORT
     zbus_encrypt(send_ctx.data, &send_ctx.len);
 #endif
-    zbus_tx_start();
+    zbus_txstart();
     return 1;
   }
   return 0;
 }
+
+
+void
+zbus_rxstart (void)
+{
+  if(send_ctx.len > 0){
+    zbus_txstart();
+    return;
+  }
+  uint8_t sreg = SREG; cli();
+
+  /* disable transmitter, enable receiver (and rx interrupt) */
+  _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_RXEN_UART0);
+
+  /* Default is reciever enabled*/
+  RXTX_PORT &= ~_BV(RXTX_PIN);
+
+  SREG = sreg;
+}
+
+
+static void
+zbus_rxstop (void)
+{
+  uint8_t sreg = SREG; cli();
+
+  /* completely disable usart */
+  _UCSRB_UART0 = 0;
+
+  SREG = sreg;
+}
+
 
 struct zbus_ctx *
 zbus_rxfinish(void) 
@@ -103,14 +135,8 @@ zbus_core_init(void)
     _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
 #endif
 
-    /* enable transmitter and receiver as well as their interrupts */
-    _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_TXCIE_UART0) \
-	| _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
-
     /* Enable RX/TX Swtich as Output */
     RXTX_DDR |= _BV(RXTX_PIN);
-    /* Default is reciever enabled*/
-    RXTX_PORT &= ~_BV(RXTX_PIN);
 
 #ifdef ZBUS_BLINK_PORT
     ZBUS_BLINK_DDR |= ZBUS_RX_PIN | ZBUS_TX_PIN;
@@ -125,8 +151,7 @@ zbus_core_init(void)
     recv_ctx.data = (uint8_t *)uip_buf;
 #endif
 
-    /* reset tx interrupt flag */
-    _UCSRA_UART0 |= _BV(_TXC_UART0);
+    zbus_rxstart ();
 
     /* Go! */
     SREG = sreg;
@@ -136,15 +161,29 @@ void
 zbus_core_periodic(void)
 {
   if(bus_blocked)
-    bus_blocked--;
+    if(--bus_blocked == 0 && send_ctx.len > 0)
+      zbus_txstart();
 }
 
 
 static uint8_t
-zbus_tx_start(void) 
+zbus_txstart(void) 
 {
+  if(bus_blocked)
+    return 0;
+  uint8_t sreg = SREG; cli();
+
+  /* enable transmitter and receiver as well as their interrupts */
+  _UCSRB_UART0 = _BV(_TXCIE_UART0) | _BV(_TXEN_UART0);
+
   /* Enable transmitter */
   RXTX_PORT |= _BV(RXTX_PIN);
+
+  /* reset tx interrupt flag */
+  _UCSRA_UART0 |= _BV(_TXC_UART0);
+
+  /* Go! */
+  SREG = sreg;
 
   /* Transmit Start sequence */
   send_escape_data = ZBUS_START;
@@ -193,11 +232,11 @@ SIGNAL(USART0_TX_vect)
 
   /* Nothing to do, disable transmitter and TX LED. */
   else {
-    RXTX_PORT &= ~_BV (RXTX_PIN);
-
 #ifdef ZBUS_BLINK_PORT
     ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
 #endif
+    
+    zbus_rxstart ();
   }
 }
 
@@ -220,41 +259,52 @@ SIGNAL(USART0_RX_vect)
   if (send_ctx.len != 0) return;
 #endif
 
-  if (data == '\\') 
-    recv_escape_data = 1;
-  else {
-    if (recv_escape_data){
-      if (data == ZBUS_START) {
-        recv_ctx.offset = 0;
-        bus_blocked = 3;
-#ifdef ZBUS_BLINK_PORT
-        ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
-#endif
-      }
-      else if (data == ZBUS_STOP) {
-        /* Only if there was a start condition before */
-        if (bus_blocked) {
-#ifdef ZBUS_BLINK_PORT
-          ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
-#endif
-          recv_ctx.len = recv_ctx.offset;
-          bus_blocked = 0;
-        }
-      }
-      else if (data == '\\') {
-        recv_escape_data = 0;
-        goto append_data;
-      }
-      recv_escape_data = 0;
-    } else {
-append_data:
-      /* Not enough space in buffer */
-      if (recv_ctx.offset >= (ZBUS_RECV_BUFFER)) return;
-      /* If bus is not blocked we aren't on an message */
-      if (!bus_blocked) return;
+  if (recv_escape_data) {
+    recv_escape_data = 0;
 
-      recv_ctx.data[recv_ctx.offset] = data;
-      recv_ctx.offset++;
+    if (data == ZBUS_START) {
+      recv_ctx.offset = 0;
+      bus_blocked = 3;
+#ifdef ZBUS_BLINK_PORT
+      ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
+#endif
     }
+
+    else if (data == ZBUS_STOP) {
+      /* Only if there was a start condition before */
+      if (bus_blocked) {
+	zbus_rxstop ();
+
+#ifdef ZBUS_BLINK_PORT
+	ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
+#endif
+	recv_ctx.len = recv_ctx.offset;
+      }
+
+      /* force bus free even if we didn't catch the start condition. */
+      bus_blocked = 0;
+      if(send_ctx.len > 0)
+        zbus_txstart();
+    }
+
+    else if (data == '\\')
+      goto append_data;
+  } 
+
+  else if (data == '\\') 
+    recv_escape_data = 1;
+
+  else {
+  append_data:
+    /* Not enough space in buffer */
+    if (recv_ctx.offset >= (ZBUS_RECV_BUFFER))
+      return;
+
+    /* If bus is not blocked we aren't on an message */
+    if (!bus_blocked)
+      return;
+      
+    recv_ctx.data[recv_ctx.offset] = data;
+      recv_ctx.offset++;
   }
 }

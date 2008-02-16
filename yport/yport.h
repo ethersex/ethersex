@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,16 +19,31 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- */
+ }}} */
 
-#ifndef _SENSOR_RFM12_NET_H
-#define _SENSOR_RFM12_NET_H
-/* constants */
+#ifndef _YPORT_H
+#define _YPORT_H
 
-#define SENSOR_RFM12_PORT 11587
+/* UART_UBBR is used if teensy is enabled */
+#define YPORT_UART_UBRR 10
+/* is used if !TEENSY; this ist the baudrate/100 */
+#define YPORT_BAUDRATE 1152
+#define YPORT_BUFFER_LEN 255
 
-/* prototypes */
-void sensor_rfm12_net_init(void);
-void sensor_rfm12_net_main(void);
+struct yport_buffer {
+  uint8_t len;
+  uint8_t sent;
+  uint8_t data[YPORT_BUFFER_LEN];
+};
 
+void yport_init(void);
+void yport_rxstart(uint8_t *data, uint8_t len);
+/* The baudrate had to be baudrate/100 */
+#ifndef TEENSY_SUPPORT
+void yport_baudrate(uint16_t baudrate);
 #endif
+
+extern struct yport_buffer yport_send_buffer;
+extern struct yport_buffer yport_recv_buffer;
+
+#endif /* _ZBUS_H */

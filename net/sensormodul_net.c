@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,50 +22,52 @@
 
 #include "../uip/uip.h"
 #include "../config.h"
-#include "../sensor_rfm12/sensor_rfm12.h"
-#include "sensor_rfm12_net.h"
+#include "../sensormodul/sensormodul.h"
+#include "sensormodul_net.h"
+#include "sensormodul_state.h"
 
-#ifdef SENSOR_RFM12_SUPPORT
+#ifdef SENSORMODUL_SUPPORT
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
-#define STATS (uip_udp_conn->appstate.sensor_rfm12)
+#define STATS (uip_udp_conn->appstate.sensormodul)
 
-uip_udp_conn_t *sensor_rfm12_conn;
+uip_udp_conn_t *sensormodul_conn;
 
 void 
-sensor_rfm12_net_init(void)
+sensormodul_net_init(void)
 {
 	uip_ipaddr_t ip;
   uip_ipaddr_copy(&ip, all_ones_addr);
 	
-  sensor_rfm12_conn = uip_udp_new(&ip, 0, sensor_rfm12_net_main);
+  sensormodul_conn = uip_udp_new(&ip, 0, sensormodul_net_main);
 	
-  if(! sensor_rfm12_conn) 
+  if(! sensormodul_conn) 
 		return;					/* keine udp connection, tschuess !? */
 	
-  uip_udp_bind(sensor_rfm12_conn, HTONS(SENSOR_RFM12_PORT));
+  uip_udp_bind(sensormodul_conn, HTONS(SENSORMODUL_PORT));
 
 	// Inititialisierung
-  sensor_rfm12_core_init(sensor_rfm12_conn);
+  sensormodul_core_init(sensormodul_conn);
 	
 }
 
 void
-sensor_rfm12_net_main(void)
+sensormodul_net_main(void)
 {
   if (uip_poll()) 
-    sensor_rfm12_core_periodic();
+    sensormodul_core_periodic();
   if (uip_newdata())
   {
     uip_udp_conn_t return_conn;
-    if ( uip_datalen() <= SENSOR_RFM12_LCDTEXTLEN )
-      sensor_rfm12_setlcdtext(uip_appdata, uip_len);
-    
+    if ( uip_datalen() > 1 )
+      sensormodul_core_newdata();
+      //sizeof(struct sensormodul_request_t) && REQ->type > '0' && REQ->type < '6' ){
+      //sensormodul_setlcdtext(uip_appdata, uip_len);
     uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
     return_conn.rport = BUF->srcport;
-    return_conn.lport = HTONS(SENSOR_RFM12_PORT);
+    return_conn.lport = HTONS(SENSORMODUL_PORT);
 
-    uip_send (&STATS, sizeof(struct sensors_rfm12_datas_t));
+    uip_send (&STATS, sizeof(struct sensormodul_datas_t));
     
     uip_udp_conn = &return_conn;
     /* Send immediately */

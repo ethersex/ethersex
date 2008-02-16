@@ -93,6 +93,7 @@ Initialisation and usage:
 
 #define LCD_FIRST_LINE 0x00
 #define LCD_SECOND_LINE 0x40
+#define LCD_PYSICAL_LINELEN 0x10
 
 #define LCD_RS_DATA 1
 #define LCD_RS_COMMAND 0

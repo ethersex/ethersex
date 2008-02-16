@@ -18,17 +18,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _SENSOR_RFM12_H
-#define _SENSOR_RFM12_H
+#ifndef _SENSORMODUL_STATE_H
+#define _SENSORMODUL_STATE_H
 
-#include <stdint.h>
-#include "../uip/uip.h"
+#define SENSORMODUL_ADCMAX 4
 
-#define SENSOR_RFM12_LCDTEXTLEN 9
+struct sensormodul_data_t {
+  uint16_t value;
+  char valuetext[6];
+};
 
-/* prototypes */
-void sensor_rfm12_core_init (uip_udp_conn_t *sensor_rfm12_conn);
-void sensor_rfm12_core_periodic (void);
-void sensor_rfm12_setlcdtext (char *text, uint8_t len);
+struct sensormodul_datas_t {
+  struct sensormodul_data_t sensor[SENSORMODUL_ADCMAX];
+  uint8_t maxfeuchte_div[5];
+  uint8_t lcd_blocked    :1;
+  uint8_t fill           :3;
+  uint8_t ledstate_akt   :4;
+};
+
+struct sensormodul_request_t {
+  union{
+    uint8_t raw[0];
+    uint8_t type;
+  };
+  union{
+    uint8_t data[0];
+    uint8_t digit[3];
+  };
+};
+
+struct sensormodul_connection_state_t {
+  union {
+    uint8_t buffer[0];
+    struct sensormodul_datas_t sensors;
+  };
+};
 
 #endif

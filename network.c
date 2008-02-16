@@ -32,6 +32,7 @@
 #include "bit-macros.h"
 #include "net/handler.h"
 #include "dns/resolv.h"
+#include "yport/yport.h"
 
 #include "debug.h"
 
@@ -204,6 +205,10 @@ void network_init(void)
         CONF_DNS_SERVER;
         memcpy(&cfg_ext->dns_server, &ip, sizeof(uip_ipaddr_t));
         resolv_conf(&ip);
+#       endif
+
+#       if defined(YPORT_SUPPORT)
+        cfg_ext->yport_baudrate = YPORT_BAUDRATE;
 #       endif
 
 #       ifndef BOOTLOADER_SUPPORT        

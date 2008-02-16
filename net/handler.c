@@ -40,8 +40,9 @@
 #include "ntp_net.h"
 #include "ntpd_net.h"
 #include "udp_echo_net.h"
+#include "yport_net.h"
 #include "../dyndns/dyndns.h"
-#include "sensor_rfm12_net.h"
+#include "sensormodul_net.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
@@ -62,6 +63,10 @@ void network_init_apps(void)
 
 #   ifdef DNS_SUPPORT
     dns_net_init();
+#   endif
+
+#   ifdef YPORT_SUPPORT
+    yport_net_init();
 #   endif
 
 #   ifdef SYSLOG_SUPPORT
@@ -124,8 +129,8 @@ void network_init_apps(void)
     ntpd_net_init();
 #   endif
 
-#   ifdef SENSOR_RFM12_SUPPORT
-    sensor_rfm12_net_init();
+#   ifdef SENSORMODUL_SUPPORT
+    sensormodul_net_init();
 #   endif
 
 #   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \

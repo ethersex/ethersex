@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,26 +18,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _SENSOR_RFM12_STATE_H
-#define _SENSOR_RFM12_STATE_H
+#ifndef YPORT_STATE_H
+#define YPORT_STATE_H
 
-#define SENSOR_RFM12_ADCMAX 4
+#include "yport_net.h"
 
-struct sensor_rfm12_data_t {
-  uint16_t value;
-  char valuetext[6];
+/* state */
+struct yport_connection_state_t {
+  /* the window size is set to 0 */
+  uint8_t stopped;
 };
 
-struct sensors_rfm12_datas_t {
-  struct sensor_rfm12_data_t sensor[SENSOR_RFM12_ADCMAX];
-};
-
-
-struct sensor_rfm12_connection_state_t {
-  union {
-    uint8_t buffer[0];
-    struct sensors_rfm12_datas_t sensors;
-  };
-};
-
-#endif
+#endif /* TFTP_STATE_H */

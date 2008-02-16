@@ -313,10 +313,10 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
-#define ECMD_SUPPORT
+// #define ECMD_SUPPORT
 // #define ECMD_SENDER_SUPPORT
 // #define WATCHCAT_SUPPORT
-#define PORTIO_SUPPORT
+// #define PORTIO_SUPPORT
 // #define NAMED_PIN_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
@@ -325,12 +325,12 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
-#define TCP_SUPPORT
+// #define TCP_SUPPORT
 #define ICMP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
-// #define RFM12_SUPPORT
+#define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
@@ -340,23 +340,24 @@
 // #define DCF77_SUPPORT
 // #define NTP_SUPPORT
 // #define NTPD_SUPPORT
-#define ENC28J60_SUPPORT
+// #define ENC28J60_SUPPORT
 // #define ZBUS_SUPPORT
-// #define SENSOR_RFM12_SUPPORT
+#define SENSORMODUL_SUPPORT
 // #define STELLA_SUPPORT
-// #define TEENSY_SUPPORT
+#define TEENSY_SUPPORT
 // #define HC595_SUPPORT
 // #define HC165_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define ADC_SUPPORT
 // #define PS2_SUPPORT
+// #define YPORT_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 // #define ZBUS_LINKBEAT_NET_SUPPORT
 
 /* crypto stuff */
-// #define CRYPTO_SUPPORT
+#define CRYPTO_SUPPORT
 // #define CAST5_SUPPORT
-// #define SKIPJACK_SUPPORT
+#define SKIPJACK_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */
@@ -369,7 +370,7 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe1b,0xee52)
+#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe8b,0xee52)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 

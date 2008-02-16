@@ -155,6 +155,10 @@ ecmd_endif()
 
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(d, "d ")
+
+  ecmd_ifdef(YPORT_SUPPORT)
+    ecmd_feature(yport_baud, "yport baud")
+  ecmd_endif()
 ecmd_endif()
 
 divert(3)dnl

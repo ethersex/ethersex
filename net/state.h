@@ -36,7 +36,8 @@
 #include "i2c_state.h"
 #include "i2c_slave_state.h"
 #include "dyndns_state.h"
-#include "sensor_rfm12_state.h"
+#include "yport_state.h"
+#include "sensormodul_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -55,6 +56,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef DYNDNS_SUPPORT
     struct dyndns_connection_state_t dyndns;
+#   endif
+
+#   ifdef YPORT_SUPPORT
+    struct yport_connection_state_t yport;
 #   endif
 
 } uip_tcp_appstate_t;
@@ -83,8 +88,8 @@ typedef union uip_udp_connection_state {
     struct openvpn_connection_state_t openvpn;
 #   endif
 
-#   ifdef SENSOR_RFM12_SUPPORT
-    struct sensor_rfm12_connection_state_t sensor_rfm12;
+#   ifdef SENSORMODUL_SUPPORT
+    struct sensormodul_connection_state_t sensormodul;
 #   endif
 
 } uip_udp_appstate_t;
