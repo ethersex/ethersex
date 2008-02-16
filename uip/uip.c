@@ -768,6 +768,33 @@ uip_add_rcv_nxt(u16_t n)
 }
 #endif
 /*---------------------------------------------------------------------------*/
+#if STACK_PRIMARY && UIP_MULTI_STACK
+/* Return 1 if a/prefix and b/prefix are on the same network. */
+u8_t
+uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
+{
+  u16_t *a = (u16_t *) _a;
+  u16_t *b = (u16_t *) _b;
+
+  while(prefix >= 16) {
+    if(*a != *b) 
+      return 0;
+
+    a ++;
+    b ++;
+    prefix -= 16;
+  }
+
+  if(prefix)
+    do
+      if(((*a) & (1 << (16 - prefix))) != ((*b) & (1 << (16 - prefix))))
+        return 0;
+    while(--prefix);
+
+  return 1;
+}
+#endif /* STACK_PRIMARY */
+/*---------------------------------------------------------------------------*/
 void
 uip_process(u8_t flag)
 {
@@ -967,37 +994,53 @@ uip_process(u8_t flag)
   }
 
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
-    /* We're on mainstack and got a packet not directly addressed
-       to this uIP stack.  Send it using rfm12. */
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                             rfm12_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                        rfm12_stack_netmask))
+#endif
+  {
+    /* We're on mainstack and got a packet addressed
+       to the rfm12 network.  Pass it on. */
     rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
-
+  }
 #elif defined(RFM12_OUTER)
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
     /* We're on the rfm12 stack and got a packet not addressed to us.
        Pass it on to the ethernet. */
     uip_stack_set_active (STACK_MAIN);
     fill_llh_and_transmit ();
     goto drop;
-#endif
   }
+#endif /* RFM12_OUTER */
 #endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
-    /* We're on mainstack and got a packet not directly addressed
-       to this uIP stack.  Send it using zbus. */
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
+                             zbus_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
+                         zbus_stack_netmask))
+#endif
+  {
+    /* We're on mainstack and got a packet addressed
+       to the zbus network.  Send it using zbus. */
     zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
-
+  }
 #elif defined(ZBUS_OUTER)
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
     /* We're on the zbus stack and got a packet not addressed to us.
        Pass it on to the ethernet. */
     uip_stack_set_active (STACK_MAIN);
     fill_llh_and_transmit ();
     goto drop;
-#endif
   }
+#endif /* ZBUS_OUTER */
 #endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */
 
 #if !UIP_CONF_IPV6
