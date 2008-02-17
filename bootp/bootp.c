@@ -144,8 +144,11 @@ bootp_handle_reply(void)
     uip_udp_remove(uip_udp_conn);
 
 #ifdef BOOTP_TO_EEPROM_SUPPORT
-    eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2], ips[3]);
+    eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2]);
+#ifdef DNS_SUPPORT
+    eeprom_save_config_ext(ips[3]);
 #endif
+#endif /* BOOTP_TO_EEPROM_SUPPORT */
 
 #ifdef DYNDNS_SUPPORT
     dyndns_update();
