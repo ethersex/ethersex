@@ -37,7 +37,12 @@ uint8_t current_pos = 0;
 
 
 /* macros for defining the data pins as input or output */
-#define CTRLMASK (_BV(HD44780_RS) | _BV(HD44780_RW) | _BV(HD44780_EN))
+#ifdef HD44780_RW
+  #define CTRLMASK (_BV(HD44780_RS) | _BV(HD44780_RW) | _BV(HD44780_EN))
+#else
+  #define CTRLMASK (_BV(HD44780_RS) | _BV(HD44780_EN))
+#endif
+
 #define DATAMASK (_BV(HD44780_D4) | _BV(HD44780_D5) | _BV(HD44780_D6) | _BV(HD44780_D7))
 
 #define CONCAT(a,b)     a##b
@@ -125,7 +130,9 @@ uint8_t noinline clock_rw(uint8_t read)
 void output_nibble(uint8_t rs, uint8_t nibble)
 {
     /* switch to write operation and set rs */
+#ifdef HD44780_RW
     CTRL_PORT &= ~_BV(HD44780_RW);
+#endif
     if (rs)
         CTRL_PORT |= _BV(HD44780_RS);
     else

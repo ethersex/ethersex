@@ -279,16 +279,17 @@
 // #define HD44780_SUPPORT
 
 /* controller type */
-// #define HD44780_ORIGINAL /* original hd44780 */
-#define HD44780_KS0067B  /* compatibility mode for ks0067b */
+#define HD44780_ORIGINAL /* original hd44780 */
+// #define HD44780_KS0067B  /* compatibility mode for ks0067b */
 
 /* readback support, check busy flag instead of just waiting for a timeout */
-#define HD44780_READBACK
+// #define HD44780_READBACK
 
 /* if defined, use portc instead of port a */
 // #define HD44780_USE_PORTC
 
 /* select port for lcd below */
+#ifdef _ATMEGA644
 #ifdef HD44780_USE_PORTC
     #define HD44780_CTRL_PORT C
     #define HD44780_DATA_PORT C
@@ -312,6 +313,21 @@
     #define HD44780_D7 PA6
     #define HD44780_DATA_SHIFT 3
 #endif
+#elif defined _ATMEGA8
+    #define HD44780_CTRL_PORT D
+    #define HD44780_DATA_PORT D
+    #define HD44780_RS PD0
+    #define HD44780_EN PD1
+    #define HD44780_D4 PD4
+    #define HD44780_D5 PD5
+    #define HD44780_D6 PD6
+    #define HD44780_D7 PD7
+    #define HD44780_DATA_SHIFT 4
+#endif
+
+
+
+
 
 // #define ECMD_SUPPORT
 // #define ECMD_SENDER_SUPPORT
@@ -370,7 +386,7 @@
 #define CONF_TFTP_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
-#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe8b,0xee52)
+#define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe9b,0xee52)
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 

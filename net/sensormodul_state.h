@@ -31,8 +31,10 @@ struct sensormodul_data_t {
 struct sensormodul_datas_t {
   struct sensormodul_data_t sensor[SENSORMODUL_ADCMAX];
   uint8_t maxfeuchte_div[5];
+  uint8_t countdown;
   uint8_t lcd_blocked    :1;
-  uint8_t fill           :3;
+  uint8_t led_blink      :1;
+  uint8_t fill           :2;
   uint8_t ledstate_akt   :4;
 };
 
