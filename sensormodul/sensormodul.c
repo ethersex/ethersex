@@ -38,7 +38,7 @@
 
 //static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
-//static uint8_t start = 0;
+//static uint8_t countdown = 0;
 //static uint8_t startok = 0;
 
 enum ledstate{
@@ -91,10 +91,14 @@ sensormodul_core_newdata(void)
   if ( uip_datalen() == 2 && REQ->type == '!'){
     PORTB = PORTB & 0xFC | (REQ->digit[0] & 0x03);
   }
+  if ( uip_datalen() == sizeof(struct sensormodul_request_t) && REQ->type == 'c'){
+    STATS.sensors.countdown = ((REQ->digit[2] & 0x0F) + (REQ->digit[1] & 0x0F) * 10 + (REQ->digit[0] & 0x0F) * 100) & 0xFF;
+  }
   if (uip_datalen() <= LCD_PYSICAL_LINELEN * 2 + 1 && REQ->type == ':'){
     lcd_clear();
     lcd_home();
-    REQ->data[uip_datalen()] = 0;
+    STATS.sensors.led_blink = 1;
+    REQ->data[uip_datalen()-1] = 0;
     if (uip_datalen() > LCD_PYSICAL_LINELEN + 1){
 #ifdef HD44780_SUPPORT
       hd44780_goto(1, 0);
@@ -121,7 +125,9 @@ sensormodul_core_periodic(void)
   //else{
 
   if((PIND & _BV(PD3)) == 0){
-    STATS.sensors.lcd_blocked = 0;
+    STATS.sensors.lcd_blocked = 1;
+    STATS.sensors.led_blink = 0;
+    STATS.sensors.countdown = 5;
     lcd_clear();
     lcd_home();
     uint8_t i;
@@ -159,9 +165,9 @@ sensormodul_core_periodic(void)
       temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
       if(!STATS.sensors.lcd_blocked){
 #ifdef HD44780_SUPPORT
-      hd44780_goto(0, 7);
+        hd44780_goto(0, 7);
 #else
-      lcd_goto_ddram(7);
+        lcd_goto_ddram(7);
 #endif
         lcd_print(" Eck");
         lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
@@ -181,13 +187,13 @@ sensormodul_core_periodic(void)
       //feuchte(promille)=1000*Tx1/Tx2
   
       int16_t maxfeuchte = (100*Trel_wand)/(Trel_raum/10)-50;
-      if(promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[0])){ //feuchte zu hoch
+      if(promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[0]) && STATS.sensors.ledstate_akt == CONDITION_YELLOW){ //feuchte zu hoch
         PORTB |= _BV(PB0);
         PORTB &= ~_BV(PB1);
         STATS.sensors.ledstate_akt = CONDITION_RED;
         STATS.sensors.lcd_blocked = 0;
       }
-      else if((promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[1]) && STATS.sensors.ledstate_akt == CONDITION_OFF) || (promille > (maxfeuchte - (STATS.sensors.maxfeuchte_div[1] + STATS.sensors.maxfeuchte_div[4])) &&  STATS.sensors.ledstate_akt == CONDITION_RED)) { // feuchte hoch
+      else if((promille > (maxfeuchte - STATS.sensors.maxfeuchte_div[1]) && STATS.sensors.ledstate_akt == CONDITION_OFF) || (promille < (maxfeuchte - (STATS.sensors.maxfeuchte_div[1] + STATS.sensors.maxfeuchte_div[4])) &&  STATS.sensors.ledstate_akt == CONDITION_RED)) { // feuchte hoch
         PORTB |= _BV(PB0);
         PORTB |= _BV(PB1);
         STATS.sensors.ledstate_akt = CONDITION_YELLOW;
@@ -197,7 +203,7 @@ sensormodul_core_periodic(void)
         PORTB &= ~_BV(PB0);
         PORTB &= ~_BV(PB1);
         STATS.sensors.ledstate_akt = CONDITION_OFF;
-      }else if(promille < (maxfeuchte - STATS.sensors.maxfeuchte_div[3])){ //feuchte ist sehr niedrig
+      }else if(promille < (maxfeuchte - STATS.sensors.maxfeuchte_div[3]) && STATS.sensors.ledstate_akt == CONDITION_OFF){ //feuchte ist sehr niedrig
         PORTB &= ~_BV(PB0);
         PORTB |= _BV(PB1);
         STATS.sensors.ledstate_akt = CONDITION_GREEN;
@@ -219,6 +225,19 @@ sensormodul_core_periodic(void)
 #endif
         lcd_print("F% ");
         lcd_print(STATS.sensors.sensor[sensor_i].valuetext+1);
+      }
+      else if (STATS.sensors.led_blink){
+        if((PORTB & _BV(PB0)) != 0)
+          PORTB &= ~_BV(PB0) & ~_BV(PB1);
+        else
+          PORTB |= _BV(PB0);
+      }
+      if(STATS.sensors.countdown > 0){
+        STATS.sensors.countdown--;
+      }
+      if (STATS.sensors.countdown == 1){
+        STATS.sensors.lcd_blocked = 0;
+        PORTB &= ~_BV(PB0) & ~_BV(PB1);
       }
     }
   
