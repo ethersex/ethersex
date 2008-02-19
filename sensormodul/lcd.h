@@ -54,7 +54,23 @@ Initialisation and usage:
 #ifndef F_CPU
 #define F_CPU 800000UL
 #endif
+
 #include <util/delay.h>
+
+
+#define LCD_PYSICAL_LINELEN 0x10
+
+/* clear the display */
+void lcd_clear(void);
+
+/* go to ddram address 0 and disable display shift */
+void lcd_home(void);
+
+/* send string to the display */
+void lcd_print(char *string);
+
+
+#ifndef HD44780_SUPPORT
 
 #ifndef LCD_DATA_PORT
 #define LCD_DATA_PORT D
@@ -91,14 +107,15 @@ Initialisation and usage:
 #define _DDR_CHAR(character) DDR ## character
 #define DDR_CHAR(character) _DDR_CHAR(character)
 
+
 #define LCD_FIRST_LINE 0x00
 #define LCD_SECOND_LINE 0x40
-#define LCD_PYSICAL_LINELEN 0x10
 
 #define LCD_RS_DATA 1
 #define LCD_RS_COMMAND 0
 
 #define LCD_TWO_LINES
+
 
 /* send byte to lcd */
 void lcd_send(uint8_t data, uint8_t direction);
@@ -115,12 +132,6 @@ void lcd_enable(void);
 /* initialize the lcd */
 void lcd_init(void);
 
-/* clear the display */
-void lcd_clear(void);
-
-/* go to ddram address 0 and disable display shift */
-void lcd_home(void);
-
 /* goto special ddram address */
 #define lcd_goto_ddram(address) lcd_command(0x80 | (address))
 
@@ -129,9 +140,6 @@ void lcd_home(void);
 
 /* shift display right */
 #define lcd_shift_right() lcd_command(0x1C)
-
-/* send string to the display */
-void lcd_print(char *string);
 
 /* send string to the lcd, read from progmem */
 void lcd_print_p(const char *progmem_s);
@@ -147,4 +155,5 @@ void lcd_define_char(uint8_t n_char, uint8_t *data);
 /* define the character n_char from flash */
 void lcd_define_char_p(uint8_t n_char, const uint8_t *data);
 
+#endif /* HD44780_SUPPORT */
 #endif

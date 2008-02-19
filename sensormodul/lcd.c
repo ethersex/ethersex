@@ -21,6 +21,33 @@
 //#include <avr/pgmspace.h>
 
 #include "lcd.h"
+#include "../lcd/hd44780.h"
+
+#ifdef HD44780_SUPPORT
+
+void 
+lcd_clear(void)
+{
+   hd44780_clear();
+}
+ 
+void 
+lcd_home(void)
+{
+   hd44780_home();
+}
+
+void
+lcd_print(char *string)
+{
+  char *p = string;
+  while (*p) {
+    hd44780_put(*p, NULL);
+    p++;
+  }
+}
+
+#else /* mein eigener lcd support */
 
 void 
 lcd_send(uint8_t data, uint8_t direction)
@@ -104,7 +131,7 @@ void lcd_init(void)
    lcd_clear();
    lcd_home();
 }
- 
+
 void 
 lcd_clear(void)
 {
@@ -175,3 +202,4 @@ lcd_define_char_p(uint8_t n_char, const uint8_t *data)
 }
 #endif
 
+#endif /* mein eigener lcd support */

@@ -33,6 +33,7 @@
 #ifdef SENSORMODUL_SUPPORT
 
 #include "lcd.h"
+#include "../lcd/hd44780.h"
 #include "kty81.h"
 
 //static uint16_t sensorwert[4];
@@ -66,7 +67,9 @@ sensormodul_core_init(uip_udp_conn_t *sensormodul_conn)
 
   sensor_i = SENSORMODUL_ADCMAX - 1;
   ADMUX = sensor_i;
+#ifndef HD44780_SUPPORT
   lcd_init();
+#endif
   //lcd_print("Japaadappadu :-)");
   //lcd_goto_ddram(LCD_SECOND_LINE);
   for(sensor_i=0;sensor_i<sizeof(sensormodul_conn->appstate.sensormodul.sensors.maxfeuchte_div);sensor_i++){
@@ -93,10 +96,18 @@ sensormodul_core_newdata(void)
     lcd_home();
     REQ->data[uip_datalen()] = 0;
     if (uip_datalen() > LCD_PYSICAL_LINELEN + 1){
+#ifdef HD44780_SUPPORT
+      hd44780_goto(1, 0);
+#else
       lcd_goto_ddram(LCD_SECOND_LINE);
+#endif
       lcd_print(REQ->data+LCD_PYSICAL_LINELEN);
     }
+#ifdef HD44780_SUPPORT
+    hd44780_goto(0, 0);
+#else
     lcd_goto_ddram(0);
+#endif
     lcd_print(REQ->data);
     STATS.sensors.lcd_blocked = 1;
   }
@@ -118,7 +129,11 @@ sensormodul_core_periodic(void)
       temp2text(STATS.sensors.sensor[2].valuetext, STATS.sensors.maxfeuchte_div[i]);
       lcd_print(STATS.sensors.sensor[2].valuetext);
       if(i == 2)
+#ifdef HD44780_SUPPORT
+        hd44780_goto(1, 0);
+#else
         lcd_goto_ddram(LCD_SECOND_LINE);
+#endif
     }
   }
   else{
@@ -131,7 +146,11 @@ sensormodul_core_periodic(void)
     if(sensor_i == 0) {//  && start != 0){
       temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
       if(!STATS.sensors.lcd_blocked){
+#ifdef HD44780_SUPPORT
+        hd44780_goto(0, 0);
+#else
         lcd_goto_ddram(0);
+#endif
         lcd_print("Ra");
         lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
       }
@@ -139,7 +158,11 @@ sensormodul_core_periodic(void)
     if(sensor_i == 1) {//  && start != 0){
       temp2text(STATS.sensors.sensor[sensor_i].valuetext, temperatur(STATS.sensors.sensor[sensor_i].value));
       if(!STATS.sensors.lcd_blocked){
-        lcd_goto_ddram(7);
+#ifdef HD44780_SUPPORT
+      hd44780_goto(0, 7);
+#else
+      lcd_goto_ddram(7);
+#endif
         lcd_print(" Eck");
         lcd_print(STATS.sensors.sensor[sensor_i].valuetext);
       }
@@ -182,10 +205,18 @@ sensormodul_core_periodic(void)
       temp2text(STATS.sensors.sensor[2].valuetext, maxfeuchte);
   
       if(!STATS.sensors.lcd_blocked){
+#ifdef HD44780_SUPPORT
+        hd44780_goto(1, 7);
+#else
         lcd_goto_ddram(LCD_SECOND_LINE + 7);
+#endif
         lcd_print(" Max");
         lcd_print(STATS.sensors.sensor[2].valuetext);
+#ifdef HD44780_SUPPORT
+        hd44780_goto(1, 0);
+#else
         lcd_goto_ddram(LCD_SECOND_LINE);
+#endif
         lcd_print("F% ");
         lcd_print(STATS.sensors.sensor[sensor_i].valuetext+1);
       }
