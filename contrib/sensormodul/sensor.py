@@ -13,7 +13,9 @@ CONDITION_RED = 1
 CONDITION_YELLOW = 3
 CONDITION_OFF = 0
 CONDITION_GREEN = 2
-LED = ( "OFF","RED","GREEN","YELLOW" )
+CONDITION_ERROR = 4
+akt_ledcondition = CONDITION_ERROR
+LED = ( "OFF","RED","GREEN","YELLOW","error" )
 
 
 parser = optparse.OptionParser()
@@ -34,12 +36,19 @@ parser.add_option("-l", "--log",
 parser.add_option("-s", "--sleep", dest="sleep", default=10,
                   help="Sleep Time for the Log")
 parser.add_option("-t", "--text", dest="text", help="Send Text to the LCD")
-parser.add_option("-L", "--led", dest="led", help="Set LED on Modul")
-parser.add_option("-R", "--red", dest="max_red", help="Set Max for red LED")
-parser.add_option("-Y", "--yellow", dest="max_yellow", help="Set Max for yellow LED")
+
+parser.add_option("-L", "--led", dest="led", help="Set LED on modul")
+parser.add_option("-R", "--red", dest="max_red", help="Set max for red LED")
+parser.add_option("-Y", "--yellow", dest="max_yellow", help="Set max for yellow LED")
 parser.add_option("-O", "--off", dest="max_off", help="Set Max for LED off")
-parser.add_option("-G", "--green", dest="max_green", help="Set Max for green LED")
+parser.add_option("-G", "--green", dest="max_green", help="Set max for green LED")
 parser.add_option("-D", "--diff", dest="hysteresis", help="Set Hysteresis difference")
+
+parser.add_option("-B", "--blink", dest="blink", help="Set LED blink mode")
+parser.add_option("-C", "--countdown", dest="countdown", help="Set timeout for LCD blocking")
+parser.add_option("-Q", "--question",action="store_true", dest="question", default=False, help="Wait for button pushed")
+
+
 (options, args) = parser.parse_args()
 
 
@@ -63,33 +72,43 @@ if s is None:
 #052302f114
 s.settimeout(5)
 
+getcountdown = 0
 log=1
 while log:
 
 	while 1:
-		if (not options.log and options.text and str(options.text) != ""):
-			print "Sende Text:%s" % str(options.text)
-			s.send(":"+str(options.text))
-		elif(not options.log and options.led):
-			#print options.led
-			print "Set LED to %s" % LED[int(options.led)]
-			s.send("!"+str(options.led))
-		elif(options.max_red):
+		if (not options.log):
+			if (options.text and str(options.text) != ""):
+				print "Sende Text:%s" % str(options.text)
+				s.send(":"+str(options.text))
+			elif(options.led):
+				print "Set LED to %s" % LED[int(options.led)]
+				s.send("!"+str(options.led))
+			elif(options.blink):
+				print "Set blink option to %s" % LED[int(options.blink)]
+				s.send("?"+str(options.blink))
+			elif(options.countdown):
+				print "Set timeout for lcd blocking to %03i" % int(options.countdown)
+				getcountdown = int(options.countdown)
+				s.send("c%03i" % int(options.countdown))
+			elif(options.max_red):
 				print "Set max for red to %03i" % int(options.max_red)
 				s.send("1%03i" % int(options.max_red))
-				todel = options.max_red
-		elif(options.max_yellow):
+			elif(options.max_yellow):
 				print "Set max for yellow to %03i" % int(options.max_yellow)
 				s.send("2%03i" % int(options.max_yellow))
-		elif(options.max_off):
+			elif(options.max_off):
 				print "Set max for off to %03i" % int(options.max_off)
 				s.send("3%03i" % int(options.max_off))
-		elif(options.max_green):
+			elif(options.max_green):
 				print "Set max for green to %03i" % int(options.max_green)
 				s.send("4%03i" % int(options.max_green))
-		elif(options.hysteresis):
+			elif(options.hysteresis):
 				print "Set hysteresis to %03i" % int(options.hysteresis)
 				s.send("5%03i" % int(options.hysteresis))
+			elif ((not options.question) or getcountdown):
+				getcountdown-=1
+				s.send(" ")
 		else:
 			s.send(" ")
 
@@ -101,8 +120,16 @@ while log:
 			#print "Network read timeout"
 		
 		if(len(data) > 4):
-			if(not options.log and (options.max_red or options.max_yellow or options.max_off or options.max_green or options.hysteresis)):
-				if (options.max_red):
+			if(not options.log and (options.max_red or options.max_yellow or options.max_off or options.max_green or options.hysteresis or options.led or options.blink or options.countdown or options.text)):
+				if (options.text):
+					options.text = None
+				elif (options.led):
+					options.led = None
+				elif (options.blink):
+					options.blink = None
+				elif (options.countdown):
+					options.countdown = None
+				elif (options.max_red):
 					options.max_red = None
 				elif (options.max_yellow):
 					options.max_yellow = None
@@ -132,10 +159,13 @@ while log:
 	grenzwert["off"] = ord(data[34])
 	grenzwert["green"] = ord(data[35])
 	grenzwert["hysteresis"] = ord(data[36])
-	statusbyte = ord(data[37])
+	countdown = ord(data[37])
+	statusbyte = ord(data[38])
+	buttoncounter = ord(data[39])
 	
 	if (options.verbose):
 		print "red:%i yellow:%i off:%i green:%i hysteresis:%i status(hex):%02X" % (grenzwert["red"], grenzwert["yellow"], grenzwert["off"], grenzwert["green"], grenzwert["hysteresis"], statusbyte)
+		print "countdown: %i, getcountdown %i, buttoncounter %i" % (countdown, getcountdown, buttoncounter)
 	
 	aT = -167.123
 	bT = 0.275501
@@ -194,6 +224,15 @@ while log:
 
 	if (options.log):
 		time.sleep(float(options.sleep))
+	elif (options.question):
+		if (buttoncounter != 0):
+			print "Button gedrueckt"
+			log=0
+		elif ((getcountdown > 0 and countdown == 0) or getcountdown == 1):
+			print "Timeout"
+			sys.exit(1)
+		else:
+			time.sleep(5);
 	else:
 		log = 0
 

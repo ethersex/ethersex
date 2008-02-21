@@ -26,6 +26,8 @@
 #include <avr/eeprom.h>
 
 #include "../net/sensormodul_state.h"
+#include "../net/sensormodul_net.h"
+
 #include "../uip/uip.h"
 #include "../config.h"
 #include "sensormodul.h"
@@ -91,13 +93,18 @@ sensormodul_core_newdata(void)
   if ( uip_datalen() == 2 && REQ->type == '!'){
     PORTB = PORTB & 0xFC | (REQ->digit[0] & 0x03);
   }
+  if ( uip_datalen() == 2 && REQ->type == '?'){
+    STATS.sensors.led_blink = REQ->digit[0] & 0x03;
+  }
   if ( uip_datalen() == sizeof(struct sensormodul_request_t) && REQ->type == 'c'){
     STATS.sensors.countdown = ((REQ->digit[2] & 0x0F) + (REQ->digit[1] & 0x0F) * 10 + (REQ->digit[0] & 0x0F) * 100) & 0xFF;
   }
   if (uip_datalen() <= LCD_PYSICAL_LINELEN * 2 + 1 && REQ->type == ':'){
+    uip_ipaddr_copy(STATS.ripaddr, BUF->srcipaddr);
+    STATS.rport = BUF->srcport;
+    STATS.sensors.tastersend = 0;
     lcd_clear();
     lcd_home();
-    STATS.sensors.led_blink = 1;
     REQ->data[uip_datalen()-1] = 0;
     if (uip_datalen() > LCD_PYSICAL_LINELEN + 1){
 #ifdef HD44780_SUPPORT
@@ -125,6 +132,7 @@ sensormodul_core_periodic(void)
   //else{
 
   if((PIND & _BV(PD3)) == 0){
+    STATS.sensors.tastersend++;
     STATS.sensors.lcd_blocked = 1;
     STATS.sensors.led_blink = 0;
     STATS.sensors.countdown = 5;
@@ -141,6 +149,17 @@ sensormodul_core_periodic(void)
         lcd_goto_ddram(LCD_SECOND_LINE);
 #endif
     }
+    uip_udp_conn_t return_conn;
+    uip_ipaddr_copy(return_conn.ripaddr, STATS.ripaddr);
+    return_conn.rport = STATS.rport;
+    return_conn.lport = HTONS(SENSORMODUL_PORT);
+
+    uip_send (&STATS, sizeof(struct sensormodul_datas_t));
+    uip_udp_conn = &return_conn;
+    /* Send immediately */
+    uip_process(UIP_UDP_SEND_CONN);
+    fill_llh_and_transmit();
+    uip_slen = 0;
   }
   else{
     /* Start der Konvertierung */
@@ -230,7 +249,7 @@ sensormodul_core_periodic(void)
         if((PORTB & _BV(PB0)) != 0)
           PORTB &= ~_BV(PB0) & ~_BV(PB1);
         else
-          PORTB |= _BV(PB0);
+          PORTB |= STATS.sensors.led_blink;
       }
       if(STATS.sensors.countdown > 0){
         STATS.sensors.countdown--;

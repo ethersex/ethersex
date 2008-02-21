@@ -20,7 +20,7 @@
 
 #ifndef _SENSORMODUL_STATE_H
 #define _SENSORMODUL_STATE_H
-
+#include "../uip/uip-conf.h"
 #define SENSORMODUL_ADCMAX 4
 
 struct sensormodul_data_t {
@@ -33,9 +33,10 @@ struct sensormodul_datas_t {
   uint8_t maxfeuchte_div[5];
   uint8_t countdown;
   uint8_t lcd_blocked    :1;
-  uint8_t led_blink      :1;
-  uint8_t fill           :2;
+  uint8_t led_blink      :2;
+  uint8_t fill           :1;
   uint8_t ledstate_akt   :4;
+  uint8_t tastersend;
 };
 
 struct sensormodul_request_t {
@@ -54,6 +55,8 @@ struct sensormodul_connection_state_t {
     uint8_t buffer[0];
     struct sensormodul_datas_t sensors;
   };
+  uip_ipaddr_t ripaddr;
+  u16_t rport;
 };
 
 #endif
