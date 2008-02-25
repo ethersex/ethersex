@@ -13,9 +13,9 @@ CONDITION_RED = 1
 CONDITION_YELLOW = 3
 CONDITION_OFF = 0
 CONDITION_GREEN = 2
-CONDITION_ERROR = 4
-akt_ledcondition = CONDITION_ERROR
-LED = ( "OFF","RED","GREEN","YELLOW","error" )
+CONDITION_NOTSET = 4
+akt_ledcondition = CONDITION_NOTSET
+LED = ( "OFF","RED","GREEN","YELLOW","NOTSET" )
 
 
 parser = optparse.OptionParser()
@@ -30,6 +30,9 @@ parser.add_option("-1", "--oneline",
 parser.add_option("-r", "--raw",
                   action="store_true", dest="raw", default=False,
                   help="Output Sensor raw direct data")
+parser.add_option("-d", "--date",
+                  action="store_true", dest="date", default=False,
+                  help="Output current Date/Time")
 parser.add_option("-l", "--log",
                   action="store_true", dest="log", default=False,
                   help="Run forever")
@@ -139,6 +142,7 @@ while log:
 					options.max_green = None
 				elif (options.hysteresis):
 					options.hysteresis = None
+				data = ""
 				continue
 			else:
 				break
@@ -149,10 +153,16 @@ while log:
 			#print data[i+i2], i+i2
 			rawdata = rawdata + data[i+i2]
 	
+	lt = time.localtime()
+	
 	if (options.verbose):
 		print 'Received', len(data), binascii.hexlify(data)
 		print data
-	
+		print lt
+	if ((not options.oneline) and options.date):
+		print time.strftime("Tag.Monat.Jahr Stunde:Minute:Sekunde: %d.%m.%Y %H:%M:%S", lt)
+		#dprint time.strftime("Datum und Zeit: %c", lt)
+
 	grenzwert = {}
 	grenzwert["red"] = ord(data[32])
 	grenzwert["yellow"] = ord(data[33])
@@ -218,9 +228,17 @@ while log:
 
 	else:
 		if (options.raw):
-			print "Temp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %% LED:%s %s Gr:%i,%i,%i,%i h:%i s:%02X" % ( temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte, LED[akt_ledcondition] ,rawdata, grenzwert["red"], grenzwert["yellow"], grenzwert["off"], grenzwert["green"], grenzwert["hysteresis"], statusbyte)
+			if (options.date):
+				timestr = time.strftime("%d.%m.%Y %H:%M:%S ", lt)
+			else:
+				timestr = ""
+			print "%sTemp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %% LED:%s %s Gr:%i,%i,%i,%i h:%i s:%02X" % ( timestr,temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte, LED[akt_ledcondition] ,rawdata, grenzwert["red"], grenzwert["yellow"], grenzwert["off"], grenzwert["green"], grenzwert["hysteresis"], statusbyte)
 		else:
-			print "Temp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %% LED:%s" % ( temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte,LED[akt_ledcondition])
+			if (options.date):
+				timestr = time.strftime("%H:%M:%S ", lt)
+			else:
+				timestr = ""
+			print "%sTemp.Raum %2.1f °C Temp.Wand %2.1f °C Taupunkt %2.1f °C Feuchte %2.1f %% Max.Feuchte %2.1f %% LED:%s" % ( timestr, temperaturcalc[0],temperaturcalc[1], Taupunkt,feuchte,Maxfeuchte,LED[akt_ledcondition])
 
 	if (options.log):
 		time.sleep(float(options.sleep))
