@@ -43,8 +43,10 @@ void yport_net_init(void)
 void yport_net_main(void)
 {
   if(uip_connected()) {
-    if (yport_conn == NULL) 
+    if (yport_conn == NULL) {
       yport_conn = uip_conn;
+      uip_conn->wnd = YPORT_BUFFER_LEN - 1;
+    }
     else 
       /* if we have already an connection, send an error */
       uip_send("ERROR: Connection blocked\n", 27);
@@ -69,18 +71,17 @@ void yport_net_main(void)
     if (yport_conn == uip_conn)
       yport_conn = NULL;
   } else if (uip_newdata()) {
-    yport_rxstart(uip_appdata, uip_len);
-    /* set the window size of the peer to 0, so that we can send relaxed */
-    uip_stop();
-    yport_conn->appstate.yport.stopped = 1;
-  } else if (uip_poll()) {
-    if (yport_conn == uip_conn 
-        && yport_send_buffer.sent == yport_send_buffer.len 
-        && yport_conn->appstate.yport.stopped ) {
-      uip_restart();
-      yport_conn->appstate.yport.stopped = 0;
+    if (uip_len <= YPORT_BUFFER_LEN && yport_rxstart(uip_appdata, uip_len) != 0) {
+      /* Prevent the other side from sending more data */
+      uip_stop();
     }
   } 
+  if (uip_poll() 
+      && uip_conn == yport_conn 
+      && uip_stopped(yport_conn)
+      && yport_send_buffer.sent == yport_send_buffer.len)
+    uip_restart();
+  /* Send data */
   if ((uip_poll() 
        || uip_acked()
        || uip_rexmit())

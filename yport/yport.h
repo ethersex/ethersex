@@ -37,7 +37,7 @@ struct yport_buffer {
 };
 
 void yport_init(void);
-void yport_rxstart(uint8_t *data, uint8_t len);
+uint8_t yport_rxstart(uint8_t *data, uint8_t len);
 /* The baudrate had to be baudrate/100 */
 #ifndef TEENSY_SUPPORT
 void yport_baudrate(uint16_t baudrate);
@@ -46,4 +46,4 @@ void yport_baudrate(uint16_t baudrate);
 extern struct yport_buffer yport_send_buffer;
 extern struct yport_buffer yport_recv_buffer;
 
-#endif /* _ZBUS_H */
+#endif /* _YPORT_H */

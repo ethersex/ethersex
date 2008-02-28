@@ -1198,6 +1198,7 @@ struct __uip_conn {
   u8_t snd_nxt[4];    /**< The sequence number that was last sent by
                          us. */
   u16_t len;          /**< Length of the data that was previously sent. */
+  u16_t wnd;          /**< window size for this connection */
   u16_t mss;          /**< Current maximum segment size for the
 			 connection. */
   u16_t initialmss;   /**< Initial maximum segment size for the
