@@ -42,6 +42,7 @@ struct RFM12_stati
 
 struct RFM12_stati RFM12_status;
 volatile uint8_t RFM12_Index = 0;
+volatile unsigned short RFM12_i_status = 0;
 
 #ifndef RFM12_SHARE_UIP_BUF
 volatile uint8_t RFM12_Data[RFM12_DataLength + 10];
@@ -96,7 +97,7 @@ SIGNAL(RFM12_INT_SIGNAL)
     }
   else
     {
-      rfm12_trans(0x0000);	/* dummy read */
+      RFM12_i_status = rfm12_trans(0x0000);/* dummy read (get Statusregister) */
       /* FIXME what happend */
     }
 }
