@@ -121,27 +121,8 @@ zbus_rxfinish(void)
 void
 zbus_core_init(void)
 {
-    /* The ATmega644 datasheet suggests to clear the global
-       interrupt flags on initialization ... */
-    uint8_t sreg = SREG; cli();
-
-#ifndef TEENSY_SUPPORT
-    usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
-                                       EEPROM_CONFIG_EXT)->usart_baudrate)));
-#else
-    /* set baud rate */
-    _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
-    _UBRRL_UART0 = LO8(ZBUS_UART_UBRR);
-#endif
-
-#ifdef URSEL
-    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart
-       and Set URSEL so we write UCSRC and not UBRRH */
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01) | _BV(URSEL);
-#else
-    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
-#endif
+    /* Initialize the usart module */
+    usart_init();
 
     /* Enable RX/TX Swtich as Output */
     RXTX_DDR |= _BV(RXTX_PIN);
@@ -160,9 +141,6 @@ zbus_core_init(void)
 #endif
 
     zbus_rxstart ();
-
-    /* Go! */
-    SREG = sreg;
 }
 
 void

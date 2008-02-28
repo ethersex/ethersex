@@ -166,16 +166,20 @@ int main(void)
     yport_init();
 #endif
 
+#ifdef MODBUS_SUPPORT
+    modbus_init();
+#endif
+
+#ifdef ZBUS_SUPPORT
+    zbus_core_init();
+#endif
+
 #ifdef HC595_SUPPORT
     hc595_init();
 #endif
 
 #ifdef HC165_SUPPORT
     hc165_init();
-#endif
-
-#ifdef ZBUS_SUPPORT
-    zbus_core_init();
 #endif
 
 #ifdef RFM12_SUPPORT

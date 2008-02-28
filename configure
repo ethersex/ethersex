@@ -263,12 +263,6 @@ my %ethersex_modules = (
                    distdflt  => 1,
 		   enable_hook => \&enc28j60_enable_hook,
                  },
-  'zbus'        => {
-                   helptext  => "tunneling ip over zbus",
-                   distdflt  => 0,
-                   enable_hook => \&zbus_enable_hook,
-                   requires => [ "usart" ],
-                 },
   'ps2'        => {
                    helptext  => "ps2 keyboard",
                    distdflt  => 0,
@@ -285,15 +279,30 @@ my %ethersex_modules = (
                    helptext  => "sensor modul mit KTY81, Feuchte Auswertung und LCD Anzeige",
                    requires => [ "udp" ],
                    distdflt  => 0,
-                 },
-  'yport'        => {
-                   helptext  => "an serial to ip converter",
-                   conflicts => [ "zbus" ],
-                   requires  => [ "usart" ],
-                 },
+                  },
+# All modules with usart use
   'usart'        => {
                    helptext  => "generic usart support",
                    distdflt  => 0,
+                 },
+  'yport'        => {
+                   helptext  => "an serial to ip converter",
+                   distdflt  => 0,
+                   conflicts => [ "zbus", "modbus" ],
+                   requires  => [ "usart" ],
+                 },
+  'modbus'        => {
+                   helptext  => "an modbus-tcp bridge",
+                   distdflt  => 0,
+                   conflicts => [ "zbus", "yport" ],
+                   requires  => [ "usart" ],
+                 },
+  'zbus'        => {
+                   helptext  => "tunneling ip over zbus",
+                   distdflt  => 0,
+                   enable_hook => \&zbus_enable_hook,
+                   conflicts => [ "modbus", "yport" ],
+                   requires => [ "usart" ],
                  },
 );
 my %ethersex_config = (

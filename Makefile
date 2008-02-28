@@ -16,11 +16,11 @@ SRC = \
 
 #SUBDIRS += bootp
 #SUBDIRS += clock
-SUBDIRS += crypto
+#SUBDIRS += crypto
 #SUBDIRS += dcf77
 #SUBDIRS += dns
 #SUBDIRS += dyndns
-#SUBDIRS += ecmd
+SUBDIRS += ecmd
 #SUBDIRS += fs20
 #SUBDIRS += i2c
 SUBDIRS += lcd
@@ -30,19 +30,21 @@ SUBDIRS += net
 #SUBDIRS += onewire
 #SUBDIRS += ps2
 #SUBDIRS += rc5
-SUBDIRS += rfm12
+#SUBDIRS += rfm12
 #SUBDIRS += stella
 #SUBDIRS += syslog
 #SUBDIRS += tetrirape
 #SUBDIRS += tftp
 SUBDIRS += uip
-#SUBDIRS += yport
 #SUBDIRS += watchcat
-#SUBDIRS += zbus
 #SUBDIRS += i2c_slave
 #SUBDIRS += hc595
 #SUBDIRS += hc165
-SUBDIRS += sensormodul
+#SUBDIRS += sensormodul
+#SUBDIRS += modbus
+#SUBDIRS += zbus
+#SUBDIRS += yport
+
 
 ##############################################################################
 all: compile-ethersex

@@ -23,22 +23,100 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
+#include <util/crc16.h>
 #include <string.h>
 #include "../eeprom.h"
 #include "../net/yport_net.h"
 #include "../bit-macros.h"
 #include "../usart.h"
 #include "../config.h"
-#include "yport.h"
+#include "modbus.h"
 
-#ifdef YPORT_SUPPORT
+#include "../pinning.c"
 
-struct yport_buffer yport_send_buffer;
-struct yport_buffer yport_recv_buffer;
+#ifdef MODBUS_SUPPORT
+
+volatile struct modbus_buffer modbus_send_buffer;
+
+uint16_t 
+modbus_crc_calc(uint8_t *data, uint8_t len) 
+{
+  uint16_t crc = 0xffff;
+  uint8_t i = 0;
+  while(i < len)
+    crc = _crc16_update(crc, data[i++]);
+  return crc;
+}
+
+void
+modbus_init(void)
+{
+    /* Initialize the usart module */
+    usart_init();
 
 
+    /* Enable RX/TX Swtich as Output */
+    DDR_CONFIG_OUT(MODBUS_TX);
+    PIN_CLEAR(MODBUS_TX);
+
+    modbus_send_buffer.len = 0;
+    modbus_send_buffer.sent = 0;
+    modbus_send_buffer.crc_len = 0;
+    
+    /* set baud rate */
+    _UBRRH_UART0 = HI8(MODBUS_UART_UBRR);
+    _UBRRL_UART0 = LO8(MODBUS_UART_UBRR);
+}
+
+uint8_t 
+modbus_rxstart(uint8_t *data, uint8_t len) {
+  if (modbus_send_buffer.crc_len != 0) return 0; /* There is an packet on the way */
+
+  /* enable the transmitter */
+  PIN_SET(MODBUS_TX);
+
+  modbus_send_buffer.crc = modbus_crc_calc(data, len);
+  modbus_send_buffer.crc_len = 2;
+
+  modbus_send_buffer.data = data;
+  modbus_send_buffer.len = len;
+
+  /* Enable the tx interrupt and send the first character */
+  modbus_send_buffer.sent = 1;
+  _UCSRB_UART0 |= _BV(_TXCIE_UART0);
+  _UDR_UART0 = data[0];
+
+  return 1;
+}
+
+SIGNAL(USART0_TX_vect)
+{
+  if (modbus_send_buffer.sent < modbus_send_buffer.len) {
+    _UDR_UART0 = modbus_send_buffer.data[modbus_send_buffer.sent++];
+  } else if (modbus_send_buffer.crc_len != 0) {
+    /* Send the crc checksum */
+    _UDR_UART0 = modbus_send_buffer.crc >> (( 1 - (--modbus_send_buffer.crc_len)) * 8);
+  } else {
+    /* Disable this interrupt */
+    _UCSRB_UART0 &= ~(_BV(_TXCIE_UART0));
+    /* Disable the transmitter */
+    PIN_CLEAR(MODBUS_TX);
+  }
+}
+
+SIGNAL(USART0_RX_vect)
+{
+  /* Ignore errors */
+  if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
+    uint8_t v = _UDR_UART0;
+    (void) v;
+    return; 
+  }
+  uint8_t data = _UDR_UART0;
+}
+
+
+#if 0
 uint8_t
 yport_rxstart(uint8_t *data, uint8_t len) 
 {
@@ -65,26 +143,7 @@ start_sending:
 }
 
 
-SIGNAL(USART0_TX_vect)
-{
-  if (yport_send_buffer.sent < yport_send_buffer.len) {
-    _UDR_UART0 = yport_send_buffer.data[yport_send_buffer.sent++];
-  } else {
-    /* Disable this interrupt */
-    _UCSRB_UART0 &= ~(_BV(_TXCIE_UART0));
-  }
-}
 
-SIGNAL(USART0_RX_vect)
-{
-  /* Ignore errors */
-  if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
-    uint8_t v = _UDR_UART0;
-    (void) v;
-    return; 
-  }
-  uint8_t data = _UDR_UART0;
-  if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
-    yport_recv_buffer.data[yport_recv_buffer.len++] = data;
-}
+#endif
+
 #endif

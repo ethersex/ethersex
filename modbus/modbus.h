@@ -21,27 +21,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _YPORT_H
-#define _YPORT_H
-
-#include "../usart.h"
+#ifndef _MODBUS_H
+#define _MODBUS_H
 
 /* UART_UBBR is used if teensy is enabled */
-#define YPORT_UART_UBRR 10
+#define MODBUS_UART_UBRR 129 
 /* is used if teensy is disabled; this ist the baudrate/100 */
-#define YPORT_BAUDRATE 1152
-#define YPORT_BUFFER_LEN 255
+#define MODBUS_BAUDRATE 96
 
-struct yport_buffer {
-  uint8_t len;
+struct modbus_buffer {
+  uint8_t *data;
   uint8_t sent;
-  uint8_t data[YPORT_BUFFER_LEN];
+  uint8_t len;
+
+  uint16_t crc;
+  uint8_t crc_len;
 };
 
-#define yport_init() usart_init()
-uint8_t yport_rxstart(uint8_t *data, uint8_t len);
+void modbus_init(void);
+uint8_t modbus_rxstart(uint8_t *data, uint8_t len);
 
-extern struct yport_buffer yport_send_buffer;
-extern struct yport_buffer yport_recv_buffer;
-
-#endif /* _YPORT_H */
+#endif /* _MODBUS_H */

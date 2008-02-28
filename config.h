@@ -329,10 +329,10 @@
 
 
 
-// #define ECMD_SUPPORT
+#define ECMD_SUPPORT
 // #define ECMD_SENDER_SUPPORT
 // #define WATCHCAT_SUPPORT
-// #define PORTIO_SUPPORT
+#define PORTIO_SUPPORT
 // #define NAMED_PIN_SUPPORT
 // #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
@@ -341,12 +341,12 @@
 #define IPV6_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
-// #define TCP_SUPPORT
+#define TCP_SUPPORT
 #define ICMP_SUPPORT
 #define UDP_SUPPORT
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
-#define RFM12_SUPPORT
+// #define RFM12_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
@@ -357,24 +357,26 @@
 // #define NTP_SUPPORT
 // #define NTPD_SUPPORT
 #define ENC28J60_SUPPORT
-// #define USART_SUPPORT
-// #define ZBUS_SUPPORT
-#define SENSORMODUL_SUPPORT
+// #define SENSORMODUL_SUPPORT
 // #define STELLA_SUPPORT
-#define TEENSY_SUPPORT
+// #define TEENSY_SUPPORT
 // #define HC595_SUPPORT
 // #define HC165_SUPPORT
 // #define UDP_ECHO_NET_SUPPORT
 // #define ADC_SUPPORT
 // #define PS2_SUPPORT
-// #define YPORT_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 // #define ZBUS_LINKBEAT_NET_SUPPORT
 
+// #define USART_SUPPORT
+// #define ZBUS_SUPPORT
+// #define YPORT_SUPPORT
+// #define MODBUS_SUPPORT
+
 /* crypto stuff */
-#define CRYPTO_SUPPORT
+// #define CRYPTO_SUPPORT
 // #define CAST5_SUPPORT
-#define SKIPJACK_SUPPORT
+// #define SKIPJACK_SUPPORT
 // #define MD5_SUPPORT
 
 /* bootloader config */

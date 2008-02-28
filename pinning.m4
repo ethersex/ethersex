@@ -79,6 +79,9 @@ dnl
   /* port the dataflash CS is attached to */
   pin(SPI_CS_DF, PB1)
 
+/* modbus tx  */
+pin(MODBUS_TX, PC2)
+
 /* ps/2 pins */
 pin(PS2_DATA, PA7)
 pin(PS2_CLOCK, PA6)
