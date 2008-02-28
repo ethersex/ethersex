@@ -45,8 +45,8 @@ yport_init(void)
     uint8_t sreg = SREG; cli();
 
 #ifndef TEENSY_SUPPORT
-    yport_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
-                                       EEPROM_CONFIG_EXT)->yport_baudrate)));
+    usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
+                                       EEPROM_CONFIG_EXT)->usart_baudrate)));
 #else
     /* set baud rate */
     _UBRRH_UART0 = HI8(YPORT_UART_UBRR);
@@ -69,36 +69,6 @@ yport_init(void)
     SREG = sreg;
 }
 
-void yport_baudrate(uint16_t baudrate) {
-  uint16_t ubrr;
-
-  switch(baudrate) {
-/* We use here precalucated values, because the floating point aritmetic would
- * be too expensive */
-#if F_CPU == 20000000UL
-  case 24:
-    ubrr = 520;
-    break;
-  case 144:
-    ubrr = 86;
-    break;
-  case 384:
-    ubrr = 32;
-    break;
-  case 576:
-    ubrr = 21;
-    break;
-  case 1152:
-    ubrr = 10;
-    break;
-#endif
-  default:
-    ubrr = (F_CPU/1600) / baudrate - 1;
-  } 
-  /* set baud rate */
-  _UBRRH_UART0 = HI8(ubrr);
-  _UBRRL_UART0 = LO8(ubrr);
-}
 
 uint8_t
 yport_rxstart(uint8_t *data, uint8_t len) 

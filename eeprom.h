@@ -59,8 +59,8 @@ struct eeprom_config_ext_t {
 			     || defined(BOOTP_TO_EEPROM_SUPPORT))
     uint8_t dns_server[IPADDR_LEN];
 #endif
-#if defined(YPORT_SUPPORT)
-    uint16_t yport_baudrate;
+#if defined(USART_SUPPORT)
+    uint16_t usart_baudrate;
 #endif
 
     uint8_t crc;

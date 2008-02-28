@@ -96,9 +96,9 @@ int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
         memcpy(&cfg_ext.dns_server, new_cfg->dns_server, IPADDR_LEN);
 #endif
 
-#if defined(YPORT_SUPPORT)
-    if (new_cfg->yport_baudrate != 0)
-      cfg_ext.yport_baudrate = new_cfg->yport_baudrate;
+#if defined(USART_SUPPORT)
+    if (new_cfg->usart_baudrate != 0)
+      cfg_ext.usart_baudrate = new_cfg->usart_baudrate;
 #endif
 
 

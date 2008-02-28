@@ -267,6 +267,7 @@ my %ethersex_modules = (
                    helptext  => "tunneling ip over zbus",
                    distdflt  => 0,
                    enable_hook => \&zbus_enable_hook,
+                   requires => [ "usart" ],
                  },
   'ps2'        => {
                    helptext  => "ps2 keyboard",
@@ -288,6 +289,10 @@ my %ethersex_modules = (
   'yport'        => {
                    helptext  => "an serial to ip converter",
                    conflicts => [ "zbus" ],
+                   requires  => [ "usart" ],
+                 },
+  'usart'        => {
+                   helptext  => "generic usart support",
                    distdflt  => 0,
                  },
 );

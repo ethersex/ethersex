@@ -356,7 +356,8 @@
 // #define DCF77_SUPPORT
 // #define NTP_SUPPORT
 // #define NTPD_SUPPORT
-// #define ENC28J60_SUPPORT
+#define ENC28J60_SUPPORT
+// #define USART_SUPPORT
 // #define ZBUS_SUPPORT
 #define SENSORMODUL_SUPPORT
 // #define STELLA_SUPPORT

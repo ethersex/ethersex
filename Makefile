@@ -9,6 +9,7 @@ SRC = \
 	ipv6.c \
 	network.c \
 	portio.c \
+	usart.c \
 	spi.c \
 	timer.c
 

@@ -3,6 +3,7 @@
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -33,6 +34,7 @@
 #include "net/handler.h"
 #include "dns/resolv.h"
 #include "yport/yport.h"
+#include "zbus/zbus.h"
 
 #include "debug.h"
 
@@ -208,7 +210,9 @@ void network_init(void)
 #       endif
 
 #       if defined(YPORT_SUPPORT)
-        cfg_ext->yport_baudrate = YPORT_BAUDRATE;
+        cfg_ext->usart_baudrate = YPORT_BAUDRATE;
+#       elif defined(ZBUS_SUPPORT)
+        cfg_ext->usart_baudrate = ZBUS_BAUDRATE;
 #       endif
 
 #       ifndef BOOTLOADER_SUPPORT        

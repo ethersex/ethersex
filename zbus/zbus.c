@@ -25,12 +25,15 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 #include <util/delay.h>
 #include "../bit-macros.h"
+#include "../usart.h"
+#include "../eeprom.h"
 #include "../config.h"
 #include "../syslog/syslog.h"
-#include "zbus.h"
 #include "../crypto/encrypt-llh.h"
+#include "zbus.h"
 
 static volatile uint8_t send_escape_data = 0;
 static volatile uint8_t recv_escape_data = 0;
@@ -122,9 +125,14 @@ zbus_core_init(void)
        interrupt flags on initialization ... */
     uint8_t sreg = SREG; cli();
 
+#ifndef TEENSY_SUPPORT
+    usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
+                                       EEPROM_CONFIG_EXT)->usart_baudrate)));
+#else
     /* set baud rate */
     _UBRRH_UART0 = HI8(ZBUS_UART_UBRR);
     _UBRRL_UART0 = LO8(ZBUS_UART_UBRR);
+#endif
 
 #ifdef URSEL
     /* set mode: 8 bits, 1 stop, no parity, asynchronous usart

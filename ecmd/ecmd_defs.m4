@@ -156,8 +156,8 @@ ecmd_endif()
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(d, "d ")
 
-  ecmd_ifdef(YPORT_SUPPORT)
-    ecmd_feature(yport_baud, "yport baud")
+  ecmd_ifdef(USART_SUPPORT)
+    ecmd_feature(usart_baud, "usart baud")
   ecmd_endif()
 ecmd_endif()
 

@@ -1295,22 +1295,22 @@ static int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif
 
-#if defined(YPORT_SUPPORT) && !defined(TEENSY_SUPPORT)
-static int16_t parse_cmd_yport_baud(char *cmd, char *output, uint16_t len)
+#if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
+static int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     while (*cmd == ' ') cmd ++;
     if (! *cmd ) { /* No argument */
       return snprintf_P(output, len, PSTR("baudrate: %d00"),
                  eeprom_read_word(&(((struct eeprom_config_ext_t *)
-                                     EEPROM_CONFIG_EXT)->yport_baudrate)));
+                                     EEPROM_CONFIG_EXT)->usart_baudrate)));
     } else {
       /* Delete the last two digits */
       cmd[strlen(cmd) - 2] = 0;
       struct eeprom_config_ext_t new_cfg = { 0 };
-      if (sscanf_P(cmd, PSTR("%d"), &new_cfg.yport_baudrate) == 1) {
-        yport_baudrate(new_cfg.yport_baudrate);
+      if (sscanf_P(cmd, PSTR("%d"), &new_cfg.usart_baudrate) == 1) {
+        usart_baudrate(new_cfg.usart_baudrate);
         eeprom_save_config_ext(&new_cfg);
-        return snprintf_P(output, len, PSTR("baudrate: %d00"), new_cfg.yport_baudrate);
+        return snprintf_P(output, len, PSTR("baudrate: %d00"), new_cfg.usart_baudrate);
       } else 
         return -1;
     }

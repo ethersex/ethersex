@@ -44,6 +44,9 @@
 #endif
 
 /* use 19200 baud at 20mhz (see datasheet for other values) */
+/* is used if teensy is disabled; this ist the baudrate/100 */
+#define ZBUS_BAUDRATE 192
+/* This values are only used when teensy support is enabled */
 #ifdef _ATMEGA8
   #define ZBUS_UART_UBRR 25
 #else
