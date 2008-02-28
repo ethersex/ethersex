@@ -83,8 +83,9 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 } /* }}} */
 int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
 /* {{{ */ {
+#if defined(DNS_SUPPORT)
     (void) dns_server;
-
+#endif
     /* save new ip addresses */
     struct eeprom_config_ext_t cfg_ext;
 
