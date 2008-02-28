@@ -205,11 +205,12 @@ void timer_process(void)
 		fill_llh_and_transmit();
 #           endif /* NTP_SUPPORT */
         }
-          if (counter == 300 ) {
-            rfm12_t_status = rfm12_trans(0x0000); /*get the status Register from the RFM12*/
-            /* FIXME do anything when rfm12 kommunication hangs */
-          }
-
+#       ifdef RFM12_SUPPORT
+        if (counter == 300 ) {
+          rfm12_t_status = rfm12_trans(0x0000); /*get the status Register from the RFM12*/
+          /* FIXME do anything when rfm12 kommunication hangs */
+        }
+#       endif
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
 #           ifdef ENC28J60_SUPPORT
