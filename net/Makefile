@@ -19,6 +19,7 @@ SRC = \
 	zbus_linkbeat_net.c \
 	yport_net.c \
 	sensormodul_net.c \
+	modbus_net.c \
 
 ##############################################################################
 # generic fluff

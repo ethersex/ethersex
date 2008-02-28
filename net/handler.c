@@ -43,6 +43,7 @@
 #include "yport_net.h"
 #include "../dyndns/dyndns.h"
 #include "sensormodul_net.h"
+#include "modbus_net.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
@@ -131,6 +132,10 @@ void network_init_apps(void)
 
 #   ifdef SENSORMODUL_SUPPORT
     sensormodul_net_init();
+#   endif
+
+#   ifdef MODBUS_SUPPORT
+    modbus_net_init();
 #   endif
 
 #   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \

@@ -30,6 +30,7 @@
 #include "../bit-macros.h"
 #include "../usart.h"
 #include "../config.h"
+#include "../net/modbus_net.h"
 #include "modbus.h"
 
 #include "../pinning.c"
@@ -101,6 +102,10 @@ SIGNAL(USART0_TX_vect)
     _UCSRB_UART0 &= ~(_BV(_TXCIE_UART0));
     /* Disable the transmitter */
     PIN_CLEAR(MODBUS_TX);
+    /* free the modbus_conn */
+    modbus_conn->appstate.modbus.must_send = 0;
+    modbus_conn->appstate.modbus.waiting_for_answer = 1;
+    modbus_conn = NULL;
   }
 }
 
