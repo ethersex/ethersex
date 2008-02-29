@@ -571,6 +571,12 @@ sub enable {
 
 sub disable {
   my $module = shift;
+  my $conflicting = shift;
+
+  if(defined($conflicting)) {
+    printf "disabling %s (conflicting with %s).\n", $module, $conflicting;
+  } 
+
   $ethersex_modules{$module}->{'new_status'} = 0;
   push @disable_modules, $module;
 
@@ -852,14 +858,24 @@ sub ipv6_enable_hook {
 }
 
 sub zbus_enable_hook {
-  ask_ip("zbus_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+  if($ethersex_modules{'enc28j60'}->{'new_status'}) {
+    ask_ip("zbus_ip");
+  }
+  else {  # no enc28j60, i.e. no bridge ...
+    disable "rfm12", "zbus";
+  }
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("zbus_key", 10);
 }
 
 sub rfm12_enable_hook {
-  ask_ip("rfm12_ip") if($ethersex_modules{'enc28j60'}->{'new_status'});
+  if($ethersex_modules{'enc28j60'}->{'new_status'}) {
+    ask_ip("rfm12_ip");
+  }
+  else {  # no enc28j60, i.e. no bridge ...
+    disable "zbus", "rfm12";
+  }
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("rfm12_key", 10);
