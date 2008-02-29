@@ -21,7 +21,7 @@
 
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
- * Copyright (c) 2007, Stefan Siegl <stesie@brokenpipe.de>.
+ * Copyright (c) 2007,2008 Stefan Siegl <stesie@brokenpipe.de>.
  * Copyright (c) 2007, Christian Dietrich <stettberger@dokucode.de>.
  *
  * All rights reserved.
@@ -774,21 +774,28 @@ uip_add_rcv_nxt(u16_t n)
 u8_t
 uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
 {
-  u16_t *a = (u16_t *) _a;
-  u16_t *b = (u16_t *) _b;
+  /* The ip-address is already converted to network byte order, this is
+     the memory contains something like
 
-  while(prefix >= 16) {
+       rfm12_stack_hostaddr [0098B]: 200106f81209002300000000fe2bee52
+
+     i.e. we can just compare unsigned chars from left to right. */
+
+  u8_t *a = (u8_t *) _a;
+  u8_t *b = (u8_t *) _b;
+
+  while(prefix >= 8) {
     if(*a != *b) 
       return 0;
 
     a ++;
     b ++;
-    prefix -= 16;
+    prefix -= 8;
   }
 
   if(prefix)
     do
-      if(((*a) & (1 << (16 - prefix))) != ((*b) & (1 << (16 - prefix))))
+      if(((*a) & (1 << (8 - prefix))) != ((*b) & (1 << (8 - prefix))))
         return 0;
     while(--prefix);
 
