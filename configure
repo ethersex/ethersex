@@ -189,7 +189,7 @@ my %ethersex_modules = (
                    distdflt  => 0,
 		   conflicts => [ "rc5" ],
 		   enable_hook => \&rfm12_enable_hook,
-		   preconfigure => [ "skipjack" ],
+		   preconfigure => [ "skipjack", "enc28j60" ],
                  },
   'dns'       => {
                    helptext  => "dns name resolver",
@@ -303,6 +303,7 @@ my %ethersex_modules = (
                    enable_hook => \&zbus_enable_hook,
                    conflicts => [ "modbus", "yport" ],
                    requires => [ "usart" ],
+		   preconfigure => [ "skipjack", "enc28j60" ],
                  },
 );
 my %ethersex_config = (
@@ -341,6 +342,9 @@ my %ethersex_config = (
                  },
   'rfm12_key'   =>{
                    helptext  => "hex-encoded rfm12 encryption key",
+                 },
+  'rfm12_beacon_id' => {
+                   helptext  => "the unique ID byte assigned to the rfm12 beacon",
                  },
   'i2c_slave_addr'   =>{
                    helptext  => "hex-encoded i2c slave address",
@@ -872,9 +876,12 @@ sub rfm12_enable_hook {
     else {
       ask_ip("rfm12_ip4_netmask");
     }
+
+    ask_number "rfm12_beacon_id", 0, 255
   }
   else {  # no enc28j60, i.e. no bridge ...
     disable "zbus", "rfm12";
+    $ethersex_config{'rfm12_beacon_id'}->{'value'} = 0;  # force beacon-id undef
   }
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
