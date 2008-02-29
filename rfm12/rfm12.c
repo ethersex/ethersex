@@ -35,7 +35,7 @@
  * i.e. the ID that's regularly broadcast.  On client side it's the ID of
  * the beacon seen last, i.e. the one that's responsible for transmitting
  * the next packet. */
-uint8_t rfm12_beacon_code;
+uint8_t rfm12_beacon_code = CONF_RFM12_BEACON_ID;
 
 struct RFM12_stati
 {
