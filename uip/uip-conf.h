@@ -128,9 +128,14 @@ typedef unsigned short uip_stats_t;
 
 
 #ifdef ENC28J60_SUPPORT
-#define __LLH_LEN  14
-#else /* RFM12_SUPPORT */
-#define __LLH_LEN  0
+/* On stand-alone ethersex and on rfm12/zbus-bridge always use 14 byte LLH. */
+#  define __LLH_LEN  14
+#elif defined(RFM12_SUPPORT)	  /* cf. zbus */
+#  define __LLH_LEN  1
+#  define RFM12_BRIDGE_OFFSET 0	  /* no offset on rfm12-only side */
+
+#elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
+#  define __LLH_LEN  0
 #endif
 
 
@@ -193,7 +198,7 @@ enum {
 #else
 #  ifdef STACK_NAME
 #    undef STACK_NAME
-#    define STACK_NAME(a) uip_ ## a /* keep common function names, since no
+#    define STACK_NAME(a) uip_ ## a /* keep common function names, since no \
 	  			       multi-stack support.*/
 #  endif
 

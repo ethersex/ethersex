@@ -1,7 +1,7 @@
 /* vim:fdm=marker et ai
  * {{{
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007, 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -151,16 +151,16 @@ extern struct uip_stack *uip_stack;
 
 
 
-/* We don't have a LLH on RFM12 however we might need to pass
+/* We have a one byte LLH on RFM12 however we might need to pass
    the packet to ethernet, therefore 14 is simpler. */
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
 #  ifdef OPENVPN_SUPPORT
-#    define RFM12_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
+#    define RFM12_BRIDGE_OFFSET  (OPENVPN_TOTAL_LLH_LEN - 1)
 #  else
-#    define RFM12_BRIDGE_OFFSET  14
+#    define RFM12_BRIDGE_OFFSET  (14                    - 1)
 #  endif
 #ifdef RFM12_OUTER
-#  define UIP_CONF_LLH_LEN       RFM12_BRIDGE_OFFSET
+#  define UIP_CONF_LLH_LEN       (RFM12_BRIDGE_OFFSET   + 1)
 #endif
 #endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 

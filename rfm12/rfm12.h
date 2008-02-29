@@ -142,9 +142,8 @@ uint8_t rfm12_Index(void);
 // stop all Rx and Tx operations
 void rfm12_allstop(void);
 
-#if !defined(ENC28J60_SUPPORT)
 void rfm12_process (void);
-#define rfm12_transmit_packet() rfm12_txstart(uip_buf, uip_len)
-#endif /* not ENC28J60_SUPPORT */
+
+extern uint8_t rfm12_beacon_code;
 
 #endif //__RFM12_H

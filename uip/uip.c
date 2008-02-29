@@ -1004,8 +1004,12 @@ uip_process(u8_t flag)
 #endif
   {
     /* We're on mainstack and got a packet addressed
-       to the rfm12 network.  Pass it on. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
+       to the rfm12 network.  Pass it on. 
+
+       We need to send a beacon ID byte, however we don't initialize it,
+       since the packet is sent towards the rfm12 network. */
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN - 1], uip_len + 1);
+    goto drop;
   }
 #elif defined(RFM12_OUTER)
   if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
