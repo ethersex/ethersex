@@ -96,6 +96,7 @@
 #include "../zbus/zbus.h"
 #include "../debug.h"
 #include "../syslog/syslog.h"
+#include "../rfm12/rfm12.h"
 
 #if UIP_CONF_IPV6
 #include "uip_neighbor.h"
@@ -1012,9 +1013,11 @@ uip_process(u8_t flag)
     goto drop;
   }
 #elif defined(RFM12_OUTER)
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
+     && uip_buf[RFM12_BRIDGE_OFFSET] == rfm12_beacon_code) {
     /* We're on the rfm12 stack and got a packet not addressed to us.
-       Pass it on to the ethernet. */
+       Pass it on to the ethernet, if the beacon-id sent as the llh byte
+       matches our station's beacon id. */
     uip_stack_set_active (STACK_MAIN);
     fill_llh_and_transmit ();
     goto drop;
