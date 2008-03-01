@@ -305,6 +305,40 @@ my %ethersex_modules = (
                    requires => [ "usart" ],
                  },
 );
+my %categories = (
+  'applications' => {
+                   helptext  => "applications",
+		   modules   => [ "stella", "tetrirape", "ecmd", "ecmd_sender", "i2c", "i2c_slave", "watchcat", "tftpomatic", "dyndns", "ntpd" ],
+                 },
+  'protocols' => {
+		   helptext  => "network protocols",
+		   modules   => [ "tcp", "udp", "icmp", "ipv6", "openvpn" ],
+                 },
+  'app-protocols' => {
+                   helptext  => "application protocols",
+                   modules   => [ "ntp", "dns", "bootp", "tftp", "syslog" ],
+                 },
+  'interfaces'   => {
+		   helptext  => "network interfaces",
+		   modules   => [ "enc28j60", "zbus", "rfm12" ],
+                 },
+  'io'		 => {
+		   helptext  => "i/o support",
+		   modules   => [ "portio", "hc595", "hc165", "ps2", "adc", "onewire", "named_pin", "yport" ],
+		 },
+  'crypto'       => {
+                   helptext  => "cryptographic functionality",
+                   modules   => [ "skipjack", "cast5", "md5", "crypto" ],
+                 },
+  'options'      => {
+                   helptext  => "configuration options",
+                   modules   => [ "teensy", "bootp_to_eeprom", "broadcast", "bootloader" ],
+                 },
+  'debug'        => {
+                   helptext  => "debugging stuff",
+                   modules   => [ "udp_echo_net", "zbus_linkbeat_net", "rfm12_linkbeat_net" ],
+                 },
+);
 my %ethersex_config = (
   'etherrape_ip' => {
                    helptext  => "default ip address (inner part, if OpenVPN)",
@@ -374,6 +408,19 @@ my %ethersex_config = (
                 },
 );
 
+
+#
+# check for modules with unassigned categories
+#
+foreach my $cat (keys %categories) {
+  foreach (@{$categories{$cat}->{modules}}) {
+    $ethersex_modules{$_}->{"category"} = $_;
+  }
+}
+foreach(keys %ethersex_modules) {
+  warn "module '$_' has no assigned category" 
+    unless defined $ethersex_modules{$_}->{"category"};
+}
 
 my $opt_restore_defaults = 0;
 my $opt_only_modules = 0;
