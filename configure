@@ -525,10 +525,28 @@ foreach(@ARGV) {
   }
 }
 
+# return a list of enabled modules
+sub enable_modules() {
+  my @list;
+  foreach my $m (keys %ethersex_modules) {
+    next unless defined $ethersex_modules{$m}->{'new_status'};
+    push @list, $m if $ethersex_modules{$m}->{'new_status'};
+  }
+  return @list;
+}
+
+# return a list of enabled modules
+sub disable_modules() {
+  my @list;
+  foreach my $m (keys %ethersex_modules) {
+    next unless defined $ethersex_modules{$m}->{'new_status'};
+    push @list, $m unless $ethersex_modules{$m}->{'new_status'};
+  }
+  return @list;
+}
+
 # check whether module may be enabled
 # return: 1 if conflicting (message will be emitted)
-my @enable_modules;
-my @disable_modules;
 sub try_enable {
   my $module = shift;
   my $trymodule = shift;
@@ -536,7 +554,7 @@ sub try_enable {
   unless(defined($trymodule)) { $trymodule = $module }
 
   foreach my $module_conflicts (@{$ethersex_modules{$module}->{'conflicts'}}) {
-    foreach (@enable_modules) {
+    foreach (enable_modules()) {
       if($_ eq $module_conflicts) {
         disable($trymodule, $_);
 
@@ -585,7 +603,6 @@ sub enable {
   }
 
   $ethersex_modules{$module}->{'new_status'} = 1;
-  push @enable_modules, $module;
 
   # call hook, if available
   if(defined($ethersex_modules{$module}->{'enable_hook'})) {
@@ -605,7 +622,6 @@ sub disable {
   } 
 
   $ethersex_modules{$module}->{'new_status'} = 0;
-  push @disable_modules, $module;
 
   # disable modules, that have been enabled before and that require this one ...
   foreach my $testmod (keys %ethersex_modules) {
@@ -1105,13 +1121,13 @@ if ($opt_tk_gui) {
 if ($opt_nogui) {
   $opt_nogui = 0;   # reset, so callbacks may ask questions ...
 
-  foreach (@enable_modules) {
+  foreach (enable_modules()) {
     if(defined($ethersex_modules{$_}->{'enable_hook'})) {
       $ethersex_modules{$_}->{'enable_hook'}();
     }
   }
 
-  foreach (@disable_modules) {
+  foreach (disable_modules()) {
     if(defined($ethersex_modules{$_}->{'disable_hook'})) {
       $ethersex_modules{$_}->{'disable_hook'}();
     }
