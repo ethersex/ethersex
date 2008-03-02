@@ -309,15 +309,28 @@ my %ethersex_modules = (
 my %categories = (
   'applications' => {
                    helptext  => "applications",
-		   modules   => [ "stella", "tetrirape", "ecmd", "ecmd_sender", "i2c", "i2c_slave", "watchcat", "tftpomatic", "dyndns", "ntpd" ],
+		   modules   => [ 
+		                  "clock", "clock_crystal",
+		                  "dcf77",
+		                  "dyndns", 
+		                  "ecmd", "ecmd_sender", 
+		                  "fs20", 
+		                  "hd44780", 
+		                  "i2c", "i2c_slave", 
+		                  "ntp", "ntpd",
+		                  "rc5", 
+		                  "stella", 
+		                  "tetrirape", 
+		                  "watchcat", 
+		                ],
+                 },
+  'bootloading' => {
+                   helptext  => "bootloading",
+                   modules   => [ "bootp", "tftp", "tftpomatic", "bootloader", "bootp_to_eeprom" ],
                  },
   'protocols' => {
 		   helptext  => "network protocols",
-		   modules   => [ "tcp", "udp", "icmp", "ipv6", "openvpn" ],
-                 },
-  'app-protocols' => {
-                   helptext  => "application protocols",
-                   modules   => [ "ntp", "dns", "bootp", "tftp", "syslog" ],
+		   modules   => [ "dns", "syslog", "tcp", "udp", "icmp", "ipv6" ],
                  },
   'interfaces'   => {
 		   helptext  => "network interfaces",
@@ -329,11 +342,11 @@ my %categories = (
 		 },
   'crypto'       => {
                    helptext  => "cryptographic functionality",
-                   modules   => [ "skipjack", "cast5", "md5", "crypto" ],
+                   modules   => [ "skipjack", "cast5", "md5", "crypto", 'openvpn' ],
                  },
   'options'      => {
                    helptext  => "configuration options",
-                   modules   => [ "teensy", "bootp_to_eeprom", "broadcast", "bootloader" ],
+                   modules   => [ "teensy", "broadcast" ],
                  },
   'debug'        => {
                    helptext  => "debugging stuff",
