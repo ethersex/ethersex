@@ -42,7 +42,7 @@ fill_llh_and_transmit(void)
 
     /* uip_len is set to the number of data bytes to be sent including
        the UDP/IP header, i.e. not including any byte for LLH. */
-    rfm12_txstart (uip_buf + RFM12_BRIDGE_OFFSET, uip_len);
+    rfm12_txstart (uip_buf + RFM12_BRIDGE_OFFSET, uip_len + 1);
     return 0;
 #ifdef ENC28J60_SUPPORT
   }
