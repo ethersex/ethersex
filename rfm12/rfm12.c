@@ -47,11 +47,11 @@ struct RFM12_stati
 };
 
 struct RFM12_stati RFM12_status;
-volatile uint8_t RFM12_Index = 0;
-volatile unsigned short RFM12_i_status = 0;
+uint8_t RFM12_Index = 0;
+unsigned short RFM12_i_status = 0;
 
 #ifndef RFM12_SHARE_UIP_BUF
-volatile uint8_t RFM12_Data[RFM12_DataLength + 10];
+uint8_t RFM12_Data[RFM12_DataLength + 10];
 #endif
 
 
