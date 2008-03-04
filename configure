@@ -609,7 +609,7 @@ sub enable {
   my $module = shift;
   my $requiring = shift;
 
-  return if($ethersex_modules{$module}->{'new_status'});
+  #if($ethersex_modules{$module}->{'new_status'});
 
   if(defined($requiring)) {
     if(defined($ethersex_modules{$module}->{'new_status'})
