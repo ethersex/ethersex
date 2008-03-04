@@ -1020,14 +1020,30 @@ uip_process(u8_t flag)
     goto drop;
   }
 #elif defined(RFM12_OUTER)
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
-     && uip_buf[RFM12_BRIDGE_OFFSET] == rfm12_beacon_code) {
-    /* We're on the rfm12 stack and got a packet not addressed to us.
-       Pass it on to the ethernet, if the beacon-id sent as the llh byte
-       matches our station's beacon id. */
-    uip_stack_set_active (STACK_MAIN);
-    fill_llh_and_transmit ();
-    goto drop;
+  if(uip_buf[RFM12_BRIDGE_OFFSET] == rfm12_beacon_code) {
+#ifdef ZBUS_SUPPORT
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
+                             zbus_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
+                         zbus_stack_netmask))
+#endif
+    {
+      /* We're on the rfm12 stack and got a packet for zbus,
+         pass it on. */
+      zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
+    }
+    else
+#endif /* ZBUS_SUPPORT */
+    if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
+      /* We're on the rfm12 stack and got a packet not addressed to us.
+	 Pass it on to the ethernet, if the beacon-id sent as the llh byte
+	 matches our station's beacon id. */
+      uip_stack_set_active (STACK_MAIN);
+      fill_llh_and_transmit ();
+      goto drop;
+    }
   }
 #endif /* RFM12_OUTER */
 #endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
@@ -1047,6 +1063,25 @@ uip_process(u8_t flag)
     zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
   }
 #elif defined(ZBUS_OUTER)
+#ifdef RFM12_SUPPORT
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                             rfm12_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                        rfm12_stack_netmask))
+#endif
+  {
+    /* We're on zbus stack and got a packet addressed
+       to the rfm12 network.  Pass it on. 
+
+       We need to send a beacon ID byte, however we don't initialize it,
+       since the packet is sent towards the rfm12 network. */
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN - 1], uip_len + 1);
+    goto drop;
+  }
+  else
+#endif /* RFM12_SUPPORT */
   if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
     /* We're on the zbus stack and got a packet not addressed to us.
        Pass it on to the ethernet. */
