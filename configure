@@ -904,6 +904,8 @@ sub ask_hex {
 }
 
 sub ask_number {
+  return if($opt_nogui); # defer processing ...
+
   my $confopt = shift;
   my $min = shift;
   my $max = shift;
