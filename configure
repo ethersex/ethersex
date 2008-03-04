@@ -258,6 +258,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["clock", "udp"],
   },
+  'mdns_sd'        => {
+                   helptext  => "mdns service announcement",
+                   distdflt  => 0,
+                   requires => ["udp"],
+  },
   'enc28j60'  => {
                    helptext  => "enc28j60 ethernet controller",
                    distdflt  => 1,
@@ -316,6 +321,7 @@ my %categories = (
 		                  "ecmd", "ecmd_sender", 
 		                  "hd44780", 
 		                  "ntp", "ntpd",
+		                  "mdns_sd",
 		                  "stella", 
 		                  "tetrirape", 
 		                  "watchcat", 
@@ -1061,7 +1067,7 @@ if ($opt_only_modules != 1) {
 }
 
 if ($opt_tk_gui) {
-  use Tk;
+    use Tk;
 
   sub tk_do_category($) {
     my ($category) = @_;

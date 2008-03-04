@@ -27,6 +27,7 @@ SUBDIRS += lcd
 #SUBDIRS += named_pin
 SUBDIRS += net
 #SUBDIRS += ntp
+#SUBDIRS += mdns_sd
 #SUBDIRS += onewire
 #SUBDIRS += ps2
 #SUBDIRS += rc5

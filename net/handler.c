@@ -41,6 +41,7 @@
 #include "ntpd_net.h"
 #include "udp_echo_net.h"
 #include "yport_net.h"
+#include "mdns_sd_net.h"
 #include "../dyndns/dyndns.h"
 #include "sensormodul_net.h"
 #include "modbus_net.h"
@@ -64,6 +65,10 @@ void network_init_apps(void)
 
 #   ifdef DNS_SUPPORT
     dns_net_init();
+#   endif
+
+#   ifdef MDNS_SD_SUPPORT
+    mdns_sd_net_init();
 #   endif
 
 #   ifdef YPORT_SUPPORT
