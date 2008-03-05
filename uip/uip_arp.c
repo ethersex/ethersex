@@ -363,6 +363,10 @@ uint8_t
 uip_arp_out(void)
 {
   struct arp_entry *tabptr;
+#ifdef MDNS_SD_SUPPORT
+// FIXME: IPv6
+  uip_ipaddr_t mdns_address = {0x00e0, 0xfb00};
+#endif
   
   /* Find the destination IP address in the ARP table and construct
      the Ethernet header. If the destination IP addres isn't on the
@@ -374,6 +378,11 @@ uip_arp_out(void)
   /* First check if destination is a local broadcast. */
   if(uip_ipaddr_cmp(IPBUF->destipaddr, broadcast_ipaddr)) {
     memcpy(IPBUF->ethhdr.dest.addr, broadcast_ethaddr.addr, 6);
+#ifdef MDNS_SD_SUPPORT
+  /* If the ip is the mdns mulicast ip, we answer to the mac who asked */
+  } else if (uip_ipaddr_cmp(IPBUF->destipaddr, mdns_address)) {
+    memcpy(IPBUF->ethhdr.dest.addr, &((struct uip_eth_hdr *) uip_buf)->dest, 6); 
+#endif
   } else {
     /* Check if the destination address is on the local network. */
     if(!uip_ipaddr_maskcmp(IPBUF->destipaddr, uip_hostaddr, uip_netmask)) {

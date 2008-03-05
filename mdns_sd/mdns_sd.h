@@ -23,6 +23,55 @@
 
 #ifndef _MDNS_SD_H
 #define _MDNS_SD_H
+/** \internal The DNS message header. */
+struct dns_hdr {
+  uint16_t id;
+  uint8_t flags1, flags2;
+#define DNS_FLAG1_RESPONSE        0x80
+#define DNS_FLAG1_OPCODE_STATUS   0x10
+#define DNS_FLAG1_OPCODE_INVERSE  0x08
+#define DNS_FLAG1_OPCODE_STANDARD 0x00
+#define DNS_FLAG1_AUTHORATIVE     0x04
+#define DNS_FLAG1_TRUNC           0x02
+#define DNS_FLAG1_RD              0x01
+#define DNS_FLAG2_RA              0x80
+#define DNS_FLAG2_NON_AUTH_OK     0x10
+#define DNS_FLAG2_ERR_MASK        0x0f
+#define DNS_FLAG2_ERR_NONE        0x00
+#define DNS_FLAG2_ERR_NAME        0x03
+  uint16_t numquestions;
+  uint16_t numanswers;
+  uint16_t numauthrr;
+  uint16_t numextrarr;
+};
+
+/** \internal The DNS answer message structure. */
+struct dns_answer {
+  uint8_t *label;
+  struct dns_answer_info {
+    uint16_t type;
+    uint16_t class;
+    uint16_t ttl[2];
+    uint16_t len;
+    char data[];
+  } *info;
+};
+
+struct dns_question {
+  uint8_t *label;
+  struct dns_question_info {
+    uint16_t type;
+    uint16_t class;
+  } *info;
+};
+
+struct dns_body {
+  struct dns_hdr *hdr;
+  uint8_t questions;
+  uint8_t answers;
+  struct dns_question *quests;
+  struct dns_answer *ans;
+};
 
 void mdns_new_data(void);
 #endif

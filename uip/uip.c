@@ -147,6 +147,12 @@ const uip_ipaddr_t all_zeroes_addr =
   {0x0000,0x0000};
 #endif /* UIP_CONF_IPV6 */
 
+#ifdef MDNS_SD_SUPPORT
+// FIXME: IPv6
+const uip_ipaddr_t mdns_address =
+  {0x00e0, 0xfb00};
+#endif
+
 
 #if UIP_FIXEDETHADDR
 const struct uip_eth_addr uip_ethaddr = {{UIP_ETHADDR0,
@@ -960,6 +966,11 @@ uip_process(u8_t flag)
     goto drop;
   }
 
+#ifdef MDNS_SD_SUPPORT
+  if(uip_ipaddr_cmp(BUF->destipaddr, mdns_address))
+    goto ip_check_end;
+#endif
+
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
@@ -1068,6 +1079,8 @@ uip_process(u8_t flag)
     }
 #endif /* UIP_CONF_IPV6 */
   }
+
+ip_check_end:
 
 #if !UIP_CONF_IPV6
   if(uip_ipchksum() != 0xffff) { /* Compute and check the IP header
