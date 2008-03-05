@@ -34,6 +34,20 @@
 #ifdef MDNS_SD_SUPPORT
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
+#define HOSTNAME "ethersex"
+
+const char PROGMEM ftp_service[] = "_ftp._tcp.local";
+const char PROGMEM ftp_name[] = "google";
+const char PROGMEM ftp_text[] = "Geronimo";
+const char PROGMEM workstation_service[] = "_workstation._tcp.local";
+const char PROGMEM workstation_name[] = HOSTNAME;
+const char PROGMEM workstation_text[] = "";
+
+static struct mdns_service services[] = {
+  { .service = ftp_service, .name = ftp_name, .text = ftp_text, .port = 21, .state = 0},
+  { .service = workstation_service, .name = workstation_name, .text = workstation_text, .port = 0, .state = 0},
+  { .service = NULL, .name = NULL, .text = NULL, .port = 0, .state = 0},
+};
 
 /* Skips an DNS Label, even if an pointer is at the end */
 static uint8_t *
@@ -91,22 +105,34 @@ append_label(uint8_t *ptr, uint8_t *label)
  * (e.g.  ethersex._workstation._tcp.local ) except direct is set to true
  */
 
+enum {
+  APPEND_WITH_LABEL,
+  APPEND_DIRECT,
+  APPEND_SRV,
+  APPEND_IP,
+};
+
 static uint8_t *
-append_service(uint8_t *base, uint8_t *start, uint8_t *label, 
-               uint16_t class, uint16_t type, uint16_t ttl, 
-               uint8_t *name, uint8_t direct) 
+append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
+               uint8_t *label2,uint16_t class, uint16_t type, uint16_t ttl, 
+               uint8_t *name, uint16_t port, uint8_t method) 
 {
   struct dns_answer_info *answer;
-  uint8_t *tmp = append_label(start, label);
+  uint8_t *tmp;
+  if (label2) {
+     tmp = append_label(start, label1);
+     tmp = append_label(tmp - 1, label2);
+  } else 
+    tmp = append_label(start, label1);
 
   answer = (struct dns_answer_info *)tmp;
   answer->class = ntohs(class);
   answer->type = ntohs(type);
   answer->ttl[0] = 0;
   answer->ttl[1] = ntohs(ttl);
-  if (direct) {
+  if (method == APPEND_DIRECT) {
     start = append_label(answer->data, name);
-  } else {
+  } else if ( method == APPEND_WITH_LABEL) {
     tmp = answer->data;
     *tmp++ = strlen_P(name);
     memcpy_P(tmp, name, strlen_P(name));
@@ -114,6 +140,15 @@ append_service(uint8_t *base, uint8_t *start, uint8_t *label,
     uint16_t *ptr = (uint16_t *)tmp;
     *ptr = ntohs(0xC000 | (start - base));
     start = (uint8_t *) (ptr + 1);
+  } else if (method == APPEND_SRV) {
+    uint16_t *ptr = (uint16_t *)answer->data;
+    *ptr++ = 0; /* Priority */
+    *ptr++ = 0; /* Weight */
+    *ptr++ = ntohs(port); /* Port */
+    start = append_label((uint8_t *)ptr, name);
+  } else if (method == APPEND_IP) {
+    memcpy(answer->data, (uint8_t *)name, sizeof(uip_ipaddr_t));
+    start = answer->data + sizeof(uip_ipaddr_t);
   }
   answer->len = ntohs((uint8_t *)start - (uint8_t *)answer->data);
 
@@ -141,17 +176,19 @@ compare_label(uint8_t *base, uint8_t *label, uint8_t *data)
         return 0;
       label += n;
       data += n + 1;
+      /* If we first reach the end of data, we say: yes thats our guy */
+      if (!tmp) return 1;
     }
   } while(*label != 0);
   return 1;
 }
 
 /* Search for an question in the dns body with label(PROGMEM) and type,
- * which is not answerd with len and data(PROGMEM).
+ * which is not answered with data(PROGMEM) ( when only_question is not set )
  */
 static uint8_t
 has_answer(struct dns_body *body, uint8_t *label, uint16_t type, 
-           uint8_t *data, uint8_t len)
+           uint8_t *data, uint8_t only_question)
 {
   /* Search if the label is asked */
   uint8_t i;
@@ -159,6 +196,7 @@ has_answer(struct dns_body *body, uint8_t *label, uint16_t type,
     if (body->quests[i].info->type == ntohs(type) 
         && (compare_label((uint8_t *)body->hdr, body->quests[i].label, label) != 0)) 
     {
+      if (only_question) return 0;
       /* Yeah we have found an question, let's look now if the client has an
        * answer sent with the question, so that we musn't answer again */
       for (i = 0; i < body->answers; i++) {
@@ -202,31 +240,81 @@ mdns_new_data(void)
     nameptr =  ((void *)body.ans[i].info) + 10 + ntohs(body.ans[i].info->len);
   }
 
-  uint8_t services = 0;
-  if (!has_answer(&body, PSTR("_services._dns-sd._udp.local"), 0xC, PSTR("_workstation._tcp.local"), 0))
-    services = 1;
-  else if (!has_answer(&body, PSTR("_workstation._tcp.local"), 0xC, PSTR("ethersex []._workstation._tcp.local"), 0))
-    services = 2;
-  if (!services) return;
-
-
-
+  for (i = 0; services[i].service; i++) {
+    /* Search for questions, which are not answered */
+    /* Service announcements */
+    if (!has_answer(&body, PSTR("_services._dns-sd._udp.local"), 0xC, services[i].service, 0)) 
+      services[i].state |= MDNS_STATE_SERVICE;
+    /* PTR Requests */
+    if (!has_answer(&body, services[i].service, 0x0C, services[i].name, 0))
+      services[i].state |= MDNS_STATE_NAME;
+    /* SRV Requests, to search for an answer, we always sent something back*/
+    if (!has_answer(&body, services[i].name, 0x21, NULL, 1))
+      services[i].state |= MDNS_STATE_SRV;
+    /* SRV Requests, to search for an answer, we always sent something back*/
+    if (!has_answer(&body, services[i].name, 0x10, services[i].text, 0))
+      services[i].state |= MDNS_STATE_TEXT;
+  }
 
   /* write an answer */
   body.hdr->flags1 |= DNS_FLAG1_RESPONSE | DNS_FLAG1_AUTHORATIVE;
   body.hdr->numquestions = 0;
   body.hdr->numauthrr = 0;
   body.hdr->numextrarr = 0;
-  body.answers = 1;
+  body.answers = 0;
   body.questions = 0;
-  body.hdr->numanswers = ntohs(body.answers);
 
   nameptr = (uint8_t *) body.hdr + sizeof(struct dns_hdr);
+  
+  uint8_t *need_ip = 0;
+  /* assemble the packet */
+  for (i = 0; services[i].service; i++) {
+    /* Service Requests */
+    if (services[i].state & MDNS_STATE_SERVICE) {
+      nameptr = append_service((uint8_t *)body.hdr, nameptr, 
+                               PSTR("_services._dns-sd._udp.local"), NULL, 1, 
+                               0xC, 600, services[i].service, 0, APPEND_DIRECT); 
+      body.answers++;
+    }
+    /* PTR Requests */
+    if (services[i].state & MDNS_STATE_NAME) {
+      nameptr = append_service((uint8_t *)body.hdr, nameptr, services[i].service, NULL,
+                               1, 0xC, 600, services[i].name, 0, APPEND_WITH_LABEL); 
+      body.answers++;
+    }
+    /* SRV Requests */
+    if (services[i].state & MDNS_STATE_SRV) {
+      nameptr = append_service((uint8_t *)body.hdr, nameptr, services[i].name, 
+                               services[i].service, 0x8001, 0x21, 600, PSTR(HOSTNAME ".local"), 
+                               services[i].port, APPEND_SRV); 
+      need_ip = 1;
+      body.answers++;
+    }
+    /* SRV Requests */
+    if (services[i].state & MDNS_STATE_TEXT) {
+      nameptr = append_service((uint8_t *)body.hdr, nameptr, services[i].name, 
+                               services[i].service, 0x8001, 0x10, 600, services[i].text, 
+                               services[i].port, APPEND_DIRECT); 
+      need_ip = 1;
+      body.answers++;
+    }
+    
+    services[i].state = 0;
 
-  if (services == 1) 
-    nameptr = append_service((uint8_t *)body.hdr, nameptr, PSTR("_services._dns-sd._udp.local"), 1, 0xC, 4500, PSTR("_workstation._tcp.local"), 1); 
-  else 
-    nameptr = append_service((uint8_t *)body.hdr, nameptr, PSTR("_workstation._tcp.local"), 1, 0xC, 4500, PSTR("ethersex []"), 0); 
+    if ((nameptr - (uint8_t *) body.hdr) > 512) break;
+  }
+
+  if (need_ip) {
+    /* here we append our own ip address */
+    nameptr = append_service((uint8_t *)body.hdr, nameptr, PSTR(HOSTNAME ".local"), NULL, 0x8001, 
+                             0x01, 600, (uint8_t *)uip_hostaddr, 0, APPEND_IP); 
+    body.answers++;
+  }
+
+  /* We have nothing to say, so return */
+  if (body.answers == 0) return;
+
+  body.hdr->numanswers = ntohs(body.answers);
 
   uip_udp_send((uint8_t *)nameptr - (uint8_t *)body.hdr);
 

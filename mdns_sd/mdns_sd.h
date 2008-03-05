@@ -21,6 +21,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/pgmspace.h>
+
 #ifndef _MDNS_SD_H
 #define _MDNS_SD_H
 /** \internal The DNS message header. */
@@ -71,6 +73,21 @@ struct dns_body {
   uint8_t answers;
   struct dns_question *quests;
   struct dns_answer *ans;
+};
+
+struct mdns_service {
+  PGM_P service;
+  PGM_P name;
+  PGM_P text;
+  uint16_t port;
+  uint8_t state;
+};
+
+enum mdns_request_state {
+  MDNS_STATE_SERVICE = 1,
+  MDNS_STATE_NAME = 2,
+  MDNS_STATE_SRV = 4,
+  MDNS_STATE_TEXT = 8,
 };
 
 void mdns_new_data(void);
