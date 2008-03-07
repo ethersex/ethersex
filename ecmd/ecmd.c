@@ -358,8 +358,8 @@ static int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 	return -1;
 
     resolv_conf (&dnsaddr);
-    struct eeprom_save_config_ext new_cfg = { 0 };
-    new_cfg.dns_server = &dnsaddr;
+    struct eeprom_config_ext_t new_cfg = { 0 };
+    memcpy (new_cfg.dns_server, &dnsaddr, sizeof(uip_ipaddr_t));
     return eeprom_save_config_ext (&new_cfg);
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */

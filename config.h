@@ -347,6 +347,7 @@
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
 // #define RFM12_SUPPORT
+// #define RFM12_CLOUD_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
@@ -368,6 +369,7 @@
 // #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 // #define ZBUS_LINKBEAT_NET_SUPPORT
+// #define UDP_DNS_MCAST_SUPPORT
 
 // #define USART_SUPPORT
 // #define ZBUS_SUPPORT
@@ -406,6 +408,7 @@
 #define CONF_RFM12_IP6_PREFIX_LEN 64
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 #define CONF_RFM12_BEACON_ID 0x23
+#define CONF_RfM12_CLOUD_DNS "rfmnet.dyn.metafnord.de"
 
 #define CONF_I2C_SLAVE_ADDR 0x23
 
