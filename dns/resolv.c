@@ -164,12 +164,16 @@ parse_name(unsigned char *query)
 
   do {
     n = *query++;
-    
-    while(n > 0) {
-      /*      printf("%c", *query);*/
-      ++query;
-      --n;
-    };
+    if ( n & 0xC0 ) 
+      /* This is a pointer */
+      break;
+    else
+      /* This is a label */
+      while(n > 0) {
+        /*      printf("%c", *query);*/
+        ++query;
+        --n;
+      };
     /*    printf(".");*/
   } while(*query != 0);
   /*  printf("\n");*/
@@ -241,7 +245,7 @@ resolv_periodic(void)
 	memcpy(query, endquery, 5);
       }
       uip_udp_send((unsigned char)(query + 5 - (char *)uip_appdata));
-      break;
+      BREak;
     }
   }
 }
