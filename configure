@@ -291,6 +291,7 @@ my %ethersex_modules = (
   'usart'        => {
                    helptext  => "generic usart support",
                    distdflt  => 0,
+                   virtual   => 1,
                  },
   'yport'        => {
                    helptext  => "an serial to ip converter",
