@@ -127,6 +127,7 @@ struct namemap {
   char name[32];
   uip_ipaddr_t ipaddr;
   resolv_found_callback_t callback;
+  void *userdata;
 };
 
 #ifndef UIP_CONF_RESOLV_ENTRIES
@@ -206,7 +207,8 @@ resolv_periodic(void)
 	  if(++namemapptr->retries == MAX_RETRIES) {
 	    namemapptr->state = STATE_ERROR;
             if (namemapptr->callback)
-              namemapptr->callback(namemapptr->name, NULL, 0);
+              namemapptr->callback(namemapptr->name, NULL, 0,
+				   namemapptr->userdata);
 	    continue;
 	  }
 	  namemapptr->tmr = namemapptr->retries;
@@ -293,7 +295,7 @@ resolv_newdata(void)
     if(namemapptr->err != 0 || hdr->numanswers == 0) {
       namemapptr->state = STATE_ERROR;
       if (namemapptr->callback)
-        namemapptr->callback(namemapptr->name, NULL, 0);
+        namemapptr->callback(namemapptr->name, NULL, 0, namemapptr->userdata);
       return;
     }
 
@@ -356,7 +358,9 @@ resolv_newdata(void)
         else
 #endif
 	if (namemapptr->callback) {
-          namemapptr->callback(namemapptr->name, (uip_ipaddr_t *)namemapptr->ipaddr, 1);
+          namemapptr->callback(namemapptr->name,
+			       (uip_ipaddr_t *)namemapptr->ipaddr, 1,
+			       namemapptr->userdata);
 	  return;
 	}
       } 
@@ -367,7 +371,8 @@ resolv_newdata(void)
 
 #ifdef UDP_DNS_MCAST_SUPPORT
     if (namemapptr->resolve_all)
-      namemapptr->callback (namemapptr->name, ips, ip_ptr - ips);
+      namemapptr->callback (namemapptr->name, ips, ip_ptr - ips,
+			    namemapptr->userdata);
 #endif
   }
 
@@ -383,10 +388,10 @@ resolv_newdata(void)
 #ifdef UDP_DNS_MCAST_SUPPORT
 void
 _resolv_query(const char *name, resolv_found_callback_t callback,
-	      uint8_t resolve_all)
+	      uint8_t resolve_all, void *userdata)
 #else
 void
-resolv_query(const char *name, resolv_found_callback_t callback)
+resolv_query(const char *name, resolv_found_callback_t callback, void *userdata)
 #endif
 {
   static u8_t i;
@@ -420,20 +425,21 @@ resolv_query(const char *name, resolv_found_callback_t callback)
 #endif
   nameptr->seqno = seqno;
   nameptr->callback = callback;
+  nameptr->userdata = userdata;
   ++seqno;
 }
 
 #ifdef UDP_DNS_MCAST_SUPPORT
 void
-resolv_query(const char *name, resolv_found_callback_t callback)
+resolv_query(const char *name, resolv_found_callback_t callback, void *userdata)
 {
-  return _resolv_query(name, callback, 0);
+  return _resolv_query(name, callback, 0, userdata);
 }
 
 void
-resolv_query_all(const char *name, resolv_found_callback_t callback)
+resolv_query_all(const char *name, resolv_found_callback_t callback, void *userdata)
 {
-  return _resolv_query(name, callback, 1);
+  return _resolv_query(name, callback, 1, userdata);
 }
 #endif /* UDP_DNS_MCAST_SUPPORT */
 

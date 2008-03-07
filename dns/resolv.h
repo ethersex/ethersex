@@ -57,7 +57,8 @@
  * ipaddr A pointer to a 4-byte array containing the IP address of the
  * hostname, or NULL if the hostname could not be found.
  */
-typedef void (*resolv_found_callback_t)(char *name, uip_ipaddr_t *ip, uint8_t num);
+typedef void (*resolv_found_callback_t)(char *name, uip_ipaddr_t *ip,
+					uint8_t num, void *userdata);
 
 /* Functions. */
 void resolv_periodic(void);
@@ -67,8 +68,8 @@ void resolv_conf(uip_ipaddr_t *dnsserver);
 uip_ipaddr_t *resolv_getserver(void);
 void resolv_init(void);
 uip_ipaddr_t *resolv_lookup(const char *name);
-void resolv_query(const char *name, resolv_found_callback_t callback);
-void resolv_query_all(const char *name, resolv_found_callback_t callback);
+void resolv_query(const char *name, resolv_found_callback_t callback, void *userdata);
+void resolv_query_all(const char *name, resolv_found_callback_t callback, void *userdata);
 
 #endif /* __RESOLV_H__ */
 

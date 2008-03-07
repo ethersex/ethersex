@@ -51,7 +51,7 @@ ntp_init()
 #ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup(NTP_SERVER))) 
-    resolv_query(NTP_SERVER, ntp_dns_query_cb);
+    resolv_query(NTP_SERVER, ntp_dns_query_cb, NULL);
 
   else
     ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);

@@ -800,7 +800,7 @@ static int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
     return print_ipaddr (addr, output, len);
   }
   else {
-    resolv_query (cmd, NULL);
+    resolv_query (cmd, NULL, NULL);
     return snprintf_P (output, len, PSTR ("nslookup triggered, try again for result."));
   }
 } /* }}} */
