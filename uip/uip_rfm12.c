@@ -1,7 +1,7 @@
 /* vim:fdm=marker et ai
  * {{{
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -39,6 +39,14 @@ rfm12_stack_init (void)
 
   CONF_RFM12_IP;
   uip_sethostaddr(ip);
+
+#ifdef IPV6_SUPPORT
+  uip_setprefixlen(CONF_RFM12_IP6_PREFIX_LEN);
+#else
+  CONF_RFM12_IP4_NETMASK;
+  uip_setnetmask(ip);
+#endif
+
 }
 
 #endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */

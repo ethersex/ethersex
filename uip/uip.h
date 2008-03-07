@@ -170,6 +170,8 @@ struct uip_listen_port {
  */
 #define uip_setnetmask(addr) uip_ipaddr_copy(uip_netmask, (addr))
 
+#define uip_setprefixlen(len)  (uip_prefix_len = (len))
+
 
 /**
  * Get the default router's IP address.
@@ -180,6 +182,8 @@ struct uip_listen_port {
  * \hideinitializer
  */
 #define uip_getdraddr(addr) uip_ipaddr_copy((addr), uip_draddr)
+
+#define uip_getprefixlen()  (uip_prefix_len)
 
 /**
  * Get the netmask.
@@ -1580,6 +1584,7 @@ extern const uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
 #else /* UIP_FIXEDADDR */
 #if !UIP_MULTI_STACK
 extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
+extern u8_t uip_prefix_len;
 #endif
 
 #if UIP_CONF_IPV6
@@ -1613,7 +1618,6 @@ STACK_PROTOTYPES(zbus_stack)
 extern uint8_t fill_llh_and_transmit(void);
 #elif defined(RFM12_SUPPORT)
 #  include "../rfm12/rfm12.h"
-#  define fill_llh_and_transmit() (rfm12_transmit_packet(), 0)
 #elif defined(ZBUS_SUPPORT)
 #  include "../zbus/zbus.h"
 #  define fill_llh_and_transmit() (zbus_transmit_packet(), 0)

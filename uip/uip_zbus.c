@@ -39,6 +39,13 @@ zbus_stack_init (void)
 
   CONF_ZBUS_IP;
   uip_sethostaddr(ip);
+
+#ifdef IPV6_SUPPORT
+  uip_setprefixlen(CONF_ZBUS_IP6_PREFIX_LEN);
+#else
+  CONF_ZBUS_IP4_NETMASK;
+  uip_setnetmask(ip);
+#endif
 }
 
 #endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */

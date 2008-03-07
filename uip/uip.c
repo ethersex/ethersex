@@ -21,7 +21,7 @@
 
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
- * Copyright (c) 2007, Stefan Siegl <stesie@brokenpipe.de>.
+ * Copyright (c) 2007,2008 Stefan Siegl <stesie@brokenpipe.de>.
  * Copyright (c) 2007, Christian Dietrich <stettberger@dokucode.de>.
  *
  * All rights reserved.
@@ -96,6 +96,7 @@
 #include "../zbus/zbus.h"
 #include "../debug.h"
 #include "../syslog/syslog.h"
+#include "../rfm12/rfm12.h"
 
 #if UIP_CONF_IPV6
 #include "uip_neighbor.h"
@@ -123,7 +124,13 @@ const uip_ipaddr_t uip_netmask =
   {HTONS((UIP_NETMASK0 << 8) | UIP_NETMASK1),
    HTONS((UIP_NETMASK2 << 8) | UIP_NETMASK3)};
 #else
-uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
+uip_ipaddr_t uip_hostaddr, uip_draddr;
+
+#if UIP_CONF_IPV6
+u8_t uip_prefix_len;
+#else
+uip_ipaddr_t uip_netmask;
+#endif
 
 #if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
 /* The link local IPv6 address */
@@ -772,6 +779,40 @@ uip_add_rcv_nxt(u16_t n)
 }
 #endif
 /*---------------------------------------------------------------------------*/
+#if STACK_PRIMARY && UIP_MULTI_STACK
+/* Return 1 if a/prefix and b/prefix are on the same network. */
+u8_t
+uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
+{
+  /* The ip-address is already converted to network byte order, this is
+     the memory contains something like
+
+       rfm12_stack_hostaddr [0098B]: 200106f81209002300000000fe2bee52
+
+     i.e. we can just compare unsigned chars from left to right. */
+
+  u8_t *a = (u8_t *) _a;
+  u8_t *b = (u8_t *) _b;
+
+  while(prefix >= 8) {
+    if(*a != *b) 
+      return 0;
+
+    a ++;
+    b ++;
+    prefix -= 8;
+  }
+
+  if(prefix)
+    do
+      if(((*a) & (1 << (8 - prefix))) != ((*b) & (1 << (8 - prefix))))
+        return 0;
+    while(--prefix);
+
+  return 1;
+}
+#endif /* STACK_PRIMARY */
+/*---------------------------------------------------------------------------*/
 void
 uip_process(u8_t flag)
 {
@@ -976,37 +1017,94 @@ uip_process(u8_t flag)
 #endif
 
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
-    /* We're on mainstack and got a packet not directly addressed
-       to this uIP stack.  Send it using rfm12. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
-
-#elif defined(RFM12_OUTER)
-    /* We're on the rfm12 stack and got a packet not addressed to us.
-       Pass it on to the ethernet. */
-    uip_stack_set_active (STACK_MAIN);
-    fill_llh_and_transmit ();
-    goto drop;
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                             rfm12_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                        rfm12_stack_netmask))
 #endif
+  {
+    /* We're on mainstack and got a packet addressed
+       to the rfm12 network.  Pass it on. 
+
+       We need to send a beacon ID byte, however we don't initialize it,
+       since the packet is sent towards the rfm12 network. */
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN - 1], uip_len + 1);
+    goto drop;
   }
+#elif defined(RFM12_OUTER)
+  if(uip_buf[RFM12_BRIDGE_OFFSET] == rfm12_beacon_code) {
+#ifdef ZBUS_SUPPORT
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
+                             zbus_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
+                         zbus_stack_netmask))
+#endif
+    {
+      /* We're on the rfm12 stack and got a packet for zbus,
+         pass it on. */
+      zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
+    }
+    else
+#endif /* ZBUS_SUPPORT */
+    if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
+      /* We're on the rfm12 stack and got a packet not addressed to us.
+	 Pass it on to the ethernet, if the beacon-id sent as the llh byte
+	 matches our station's beacon id. */
+      uip_stack_set_active (STACK_MAIN);
+      fill_llh_and_transmit ();
+      goto drop;
+    }
+  }
+#endif /* RFM12_OUTER */
 #endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
 #if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
-  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
 #if STACK_PRIMARY
-    /* We're on mainstack and got a packet not directly addressed
-       to this uIP stack.  Send it using zbus. */
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
+                             zbus_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
+                         zbus_stack_netmask))
+#endif
+  {
+    /* We're on mainstack and got a packet addressed
+       to the zbus network.  Send it using zbus. */
     zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
-
+  }
 #elif defined(ZBUS_OUTER)
+#ifdef RFM12_SUPPORT
+#if UIP_CONF_IPV6
+  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                             rfm12_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr, 
+                        rfm12_stack_netmask))
+#endif
+  {
+    /* We're on zbus stack and got a packet addressed
+       to the rfm12 network.  Pass it on. 
+
+       We need to send a beacon ID byte, however we don't initialize it,
+       since the packet is sent towards the rfm12 network. */
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN - 1], uip_len + 1);
+    goto drop;
+  }
+  else
+#endif /* RFM12_SUPPORT */
+  if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
     /* We're on the zbus stack and got a packet not addressed to us.
        Pass it on to the ethernet. */
     uip_stack_set_active (STACK_MAIN);
     fill_llh_and_transmit ();
     goto drop;
-#endif
   }
+#endif /* ZBUS_OUTER */
 #endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */
 
 #if !UIP_CONF_IPV6

@@ -1,7 +1,7 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker et ai
  * {{{
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -40,6 +40,27 @@
 
 #if UIP_MULTI_STACK
 
+#ifdef IPV6_SUPPORT
+
+#define STACK_FUNCS(stackname)			\
+  {						\
+    stackname ## _process,			\
+    stackname ## _send,				\
+    stackname ## _upper_layer_chksum,           \
+    &stackname ## _flags,			\
+    &stackname ## _appdata,			\
+    &stackname ## _sappdata,			\
+    &stackname ## _conn,			\
+    &stackname ## _udp_conn,			\
+    &stackname ## _hostaddr,			\
+    &stackname ## _prefix_len,                  \
+    &stackname ## _draddr,			\
+    &stackname ## _slen,			\
+    &stackname ## _stat,			\
+  }
+
+#else /* !IPV6_SUPPORT */
+
 #define STACK_FUNCS(stackname)			\
   {						\
     stackname ## _process,			\
@@ -56,6 +77,8 @@
     &stackname ## _slen,			\
     &stackname ## _stat,			\
   }
+
+#endif
 
 struct uip_stack uip_stacks[STACK_LEN] = {
   STACK_FUNCS (mainstack),

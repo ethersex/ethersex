@@ -1,6 +1,6 @@
 /**********************************************************
  * Copyright(C) 2007 Jochen Roessner <jochen@lugrot.de>
- * Copyright(C) 2007 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright(C) 2007, 2008 Stefan Siegl <stesie@brokenpipe.de>
  *
  * @author      Benedikt K.
  * @author      Juergen Eckert
@@ -30,6 +30,12 @@
 #include "../spi.h"
 #include "rfm12.h"
 #include "../crypto/encrypt-llh.h"
+
+/* On the bridge-side this is the ID assigned to the beacon (read: bridge),
+ * i.e. the ID that's regularly broadcast.  On client side it's the ID of
+ * the beacon seen last, i.e. the one that's responsible for transmitting
+ * the next packet. */
+uint8_t rfm12_beacon_code = CONF_RFM12_BEACON_ID;
 
 struct RFM12_stati
 {
