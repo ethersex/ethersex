@@ -29,6 +29,8 @@
 
 #include "../rfm12/rfm12.h"
 
+#if defined(ENC28J60_SUPPORT) || defined(RFM12_SUPPORT)
+
 uint8_t 
 fill_llh_and_transmit(void)
 {
@@ -79,4 +81,6 @@ fill_llh_and_transmit(void)
   return rv;
 #endif /* ENC28J60_SUPPORT */
 }
+
+#endif /* ENC28J60_SUPPORT || RFM12_SUPPORT */
 
