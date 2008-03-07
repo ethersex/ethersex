@@ -35,16 +35,16 @@
 #include "../crypto/encrypt-llh.h"
 #include "zbus.h"
 
-static volatile uint8_t send_escape_data = 0;
-static volatile uint8_t recv_escape_data = 0;
-static volatile uint8_t bus_blocked = 0;
+static uint8_t send_escape_data = 0;
+static uint8_t recv_escape_data = 0;
+static uint8_t bus_blocked = 0;
 
 #ifdef ENC28J60_SUPPORT
-static volatile uint8_t recv_buffer[ZBUS_RECV_BUFFER];
+static uint8_t recv_buffer[ZBUS_RECV_BUFFER];
 #endif
 
-static volatile struct zbus_ctx recv_ctx;
-static volatile struct zbus_ctx send_ctx;
+static struct zbus_ctx recv_ctx;
+static struct zbus_ctx send_ctx;
 
 static uint8_t zbus_txstart(void);
 
