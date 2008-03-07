@@ -248,9 +248,13 @@ void ecmd_net_main(void)
 
       uip_udp_conn = &echo_conn;
       /* Add \0 to the data and remove \n from the data */
-      ((char *)uip_appdata)[uip_datalen()] = 0;
-      if ( ((char * )uip_appdata)[uip_datalen() - 1] == '\n')
-        ((char *)uip_appdata)[uip_datalen() - 1] = 0;
+      char *p = (char *)uip_appdata;
+      do {
+        if (*p == '\r' || *p == '\n') {
+          *p = 0;
+          break;
+        } 
+      } while ( ++p < ((uint8_t *)uip_appdata + uip_datalen()));
       /* Parse the Data */
       uip_slen = ecmd_parse_command(uip_appdata, uip_appdata, 
                                     UIP_BUFSIZE - UIP_IPUDPH_LEN) + 1;
