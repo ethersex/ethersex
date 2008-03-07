@@ -135,6 +135,27 @@ static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_
 #endif
 } /* }}} */
 
+static char* parse_hex(char *text, uint8_t *value)
+/* {{{ */ {
+  if (! *text ) return 0;
+  uint8_t nibble;
+  /* skip first space */
+  while (*text == ' ')
+    text ++;
+  if (! *text ) return 0;
+  *value = 0;
+  while ((*text >= '0' && *text <= '9') || ((*text & 0xE0) >= 'A' && (*text & 0xE0) <= 'F'))
+  {
+    *value <<= 4;
+    nibble = *text - '0';
+    if (nibble > '9')
+      nibble -= 7;
+    *value |= nibble;
+    text++;
+  }
+  return text;
+  
+} /* }}} */
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -942,6 +963,78 @@ static int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
 } /* }}} */
 
 #endif
+
+#ifdef PORTIO_SIMPLE_SUPPORT
+static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  (void) output;
+  (void) len;
+  
+#ifdef DEBUG_ECMD_PORTIO
+  debug_printf("called parse_cmd_io_set with rest: \"%s\"\n", cmd);
+#endif
+  
+  volatile uint8_t *ioptr = 0;
+  uint8_t getorset;
+  uint8_t iotypeoffset = 0;
+  uint8_t value = 0;
+  uint8_t mask = 0xFF;
+  
+  while (*cmd == ' ')
+    cmd ++;
+  switch (*cmd)
+  {
+    case 'g': getorset = 0;
+    case 's': getorset = 1;
+    default: return -1;
+  }
+  while (*cmd == ' ')
+    cmd ++;
+  cmd ++;
+  switch (*cmd & 0xE0)
+  {
+    case 'I' : iotypeoffset = 0; break;
+    case 'D' : iotypeoffset = 1; break;
+    case 'O' : iotypeoffset = 2; break;
+    default: return -1;
+  }
+  cmd ++;
+  while (*cmd == ' ' || (*cmd & 0xE0) >= 'N')
+    cmd ++;
+  cmd = parse_hex(cmd, &value);
+  if (cmd == 0)
+    return -1;
+  switch (value)
+  {
+#ifdef PINA
+    case 0: ioptr = &PINA; break;
+    case 1: ioptr = &PINB; break;
+    case 2: ioptr = &PINC; break;
+    case 3: ioptr = &PIND; break;
+#else
+    case 0: ioptr = &PINB; break;
+    case 1: ioptr = &PINC; break;
+    case 2: ioptr = &PIND; break;
+#endif
+    default: return -1;
+  }
+  ioptr += iotypeoffset;
+  
+  if(getorset)
+    return print_port(output, len, value, *ioptr);
+    
+  cmd = parse_hex(cmd, &value);
+  if (cmd == 0)
+    return -1;
+  parse_hex(cmd, &mask);
+  
+  *ioptr = (*ioptr & ~mask) | (value & mask);
+  return 0;
+  
+} /* }}} */
+
+#endif /* PORTIO_SIMPLE_SUPPORT */
+
 
 #ifdef NAMED_PIN_SUPPORT
 static int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)

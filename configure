@@ -36,6 +36,12 @@ my %ethersex_modules = (
   'portio'    => {
                    helptext  => "port io abstraction layer",
                    distdflt  => 1,
+                   conflicts => [ "portio_simple" ],
+                 },
+  'portio_simple'    => {
+                   helptext  => "port io abstraction layer simplified version",
+                   distdflt  => 1,
+                   conflicts => [ "portio" ],
                  },
   'named_pin'  => {
                    helptext => "pins with names and logic states",
@@ -366,7 +372,7 @@ my %categories = (
                  },
   'io'		 => {
 		   helptext  => "i/o support",
-		   modules   => [ "portio", "hc595", "hc165", "ps2", "adc", "onewire", "named_pin" ],
+		   modules   => [ "portio", "portio_simple", "hc595", "hc165", "ps2", "adc", "onewire", "named_pin" ],
 		 },
   'crypto'       => {
                    helptext  => "cryptographic functionality",

@@ -97,6 +97,10 @@ ecmd_ifdef(PORTIO_SUPPORT)
   ecmd_feature(io_get_pin, "io get pin")
 ecmd_endif()
 
+ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
+  ecmd_feature(io, "io")
+ecmd_endif()
+
 ecmd_ifdef(NAMED_PIN_SUPPORT)
   ecmd_feature(pin_get, "pin get")
   ecmd_feature(pin_set, "pin set")
