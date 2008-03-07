@@ -132,6 +132,10 @@ uip_ipaddr_t uip_lladdr;
 
 #endif /* UIP_FIXEDADDR */
 
+#ifdef MDNS_SD_SUPPORT
+extern const uip_ipaddr_t mdns_address;
+#endif
+
 
 #if STACK_PRIMARY
 const uip_ipaddr_t all_ones_addr =
