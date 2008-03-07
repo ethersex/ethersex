@@ -36,18 +36,7 @@
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 #define HOSTNAME "ethersex"
 
-const char PROGMEM ftp_service[] = "_ftp._tcp.local";
-const char PROGMEM ftp_name[] = "google";
-const char PROGMEM ftp_text[] = "Geronimo";
-const char PROGMEM workstation_service[] = "_workstation._tcp.local";
-const char PROGMEM workstation_name[] = HOSTNAME;
-const char PROGMEM workstation_text[] = "";
-
-static struct mdns_service services[] = {
-  { .service = ftp_service, .name = ftp_name, .text = ftp_text, .port = 21, .state = 0},
-  { .service = workstation_service, .name = workstation_name, .text = workstation_text, .port = 0, .state = 0},
-  { .service = NULL, .name = NULL, .text = NULL, .port = 0, .state = 0},
-};
+#include "mdns_services.c"
 
 /* Skips an DNS Label, even if an pointer is at the end */
 static uint8_t *
@@ -73,7 +62,7 @@ parse_name(uint8_t *query)
  * label is stored in PROGMEM 
  */
 uint8_t *
-append_label(uint8_t *ptr, uint8_t *label)
+append_label(uint8_t *ptr, const char *label)
 {
   uint8_t *nlabel;
   do {
@@ -81,7 +70,7 @@ append_label(uint8_t *ptr, uint8_t *label)
     nlabel = (uint8_t *)strchr_P(label, '.');
 
     if (nlabel == NULL) len = strlen_P(label);
-    else  len = nlabel - label;
+    else  len = nlabel - (uint8_t *)label;
     
     *ptr = len;
     memcpy_P(++ptr, label, len);
@@ -96,8 +85,8 @@ append_label(uint8_t *ptr, uint8_t *label)
  * field 
  */
 static uint16_t *
-append_answer_header(uint8_t *base, uint8_t *start, uint8_t *label1,
-                     uint8_t *label2, uint16_t class, uint16_t type, uint16_t ttl)
+append_answer_header(uint8_t *base, uint8_t *start, const char *label1,
+                     const char *label2, uint16_t class, uint16_t type, uint16_t ttl)
 {
   struct dns_answer_info *answer;
   uint8_t *tmp;
@@ -164,7 +153,7 @@ append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
 #endif
  
 uint8_t
-compare_label(uint8_t *base, uint8_t *label, uint8_t *data) 
+compare_label(uint8_t *base, uint8_t *label, const char *data) 
 {
   uint8_t n;
   do {
@@ -178,7 +167,7 @@ compare_label(uint8_t *base, uint8_t *label, uint8_t *data)
       uint8_t *tmp = (uint8_t *)strchr_P(data, '.');
 
       if (!tmp) pgm_len = strlen_P(data);
-      else pgm_len = tmp - data;
+      else pgm_len = tmp - (uint8_t *)data;
 
       if( (pgm_len != n) || (strncmp_P((char *)label, (char *)data, n) != 0))
         return 0;
@@ -195,8 +184,8 @@ compare_label(uint8_t *base, uint8_t *label, uint8_t *data)
  * which is not answered with data(PROGMEM) ( when only_question is not set )
  */
 static uint8_t
-has_answer(struct dns_body *body, uint8_t *label, uint16_t type, 
-           uint8_t *data, uint8_t only_question)
+has_answer(struct dns_body *body, const char *label, uint16_t type, 
+           const char *data, uint8_t only_question)
 {
   /* Search if the label is asked */
   uint8_t i;
@@ -274,7 +263,7 @@ mdns_new_data(void)
 
   nameptr = (uint8_t *) body.hdr + sizeof(struct dns_hdr);
   
-  uint8_t *need_ip = 0;
+  uint8_t need_ip = 0;
   /* assemble the packet */
   for (i = 0; services[i].service; i++) {
     uint16_t *len_ptr = NULL;
@@ -294,7 +283,7 @@ mdns_new_data(void)
                                services[i].service, NULL, 1, 
                                0xC, 600);
       nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].name);
-      uint16_t *ptr = nameptr - 1;
+      uint16_t *ptr = (uint16_t *)(nameptr - 1);
       /* Append an pointer to services[i].service */
       *ptr = ntohs(0xC000 | (answer_base - (uint8_t *)body.hdr));
       nameptr = (uint8_t *) (ptr + 1);
