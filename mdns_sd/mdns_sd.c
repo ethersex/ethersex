@@ -92,33 +92,16 @@ append_label(uint8_t *ptr, uint8_t *label)
   return ptr;
 }
 
-/* Appends an service as answer record to an dns packet:
- * base: start of the dns packet
- * start: start of the answer record
- * label: service type (e.g. _workstation._tcp.local). Stored in PGMSPACE
- * class: class of the answer record
- * type: type of the answer record
- * ttl: time to live
- * name: service name (e.g. ethersex). Stored in PROGMEM
- *
- * The Datafield of the answer will be label+name 
- * (e.g.  ethersex._workstation._tcp.local ) except direct is set to true
+/* Append the header for an answer record, and returns the pointer to the len
+ * field 
  */
-
-enum {
-  APPEND_WITH_LABEL,
-  APPEND_DIRECT,
-  APPEND_SRV,
-  APPEND_IP,
-};
-
-static uint8_t *
-append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
-               uint8_t *label2,uint16_t class, uint16_t type, uint16_t ttl, 
-               uint8_t *name, uint16_t port, uint8_t method) 
+static uint16_t *
+append_answer_header(uint8_t *base, uint8_t *start, uint8_t *label1,
+                     uint8_t *label2, uint16_t class, uint16_t type, uint16_t ttl)
 {
   struct dns_answer_info *answer;
   uint8_t *tmp;
+  /* When we have two labels append both */
   if (label2) {
      tmp = append_label(start, label1);
      tmp = append_label(tmp - 1, label2);
@@ -130,6 +113,30 @@ append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
   answer->type = ntohs(type);
   answer->ttl[0] = 0;
   answer->ttl[1] = ntohs(ttl);
+  return &answer->len;
+}
+
+#if 0
+static uint8_t *
+append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
+               uint8_t *label2,uint16_t class, uint16_t type, uint16_t ttl, 
+               uint8_t *name, uint16_t port, uint8_t method) 
+{
+  struct dns_answer_info *answer;
+  uint8_t *tmp;
+  /* When we have two labels append both */
+  if (label2) {
+     tmp = append_label(start, label1);
+     tmp = append_label(tmp - 1, label2);
+  } else 
+    tmp = append_label(start, label1);
+
+  answer = (struct dns_answer_info *)tmp;
+  answer->class = ntohs(class);
+  answer->type = ntohs(type);
+  answer->ttl[0] = 0;
+  answer->ttl[1] = ntohs(ttl);
+
   if (method == APPEND_DIRECT) {
     start = append_label(answer->data, name);
   } else if ( method == APPEND_WITH_LABEL) {
@@ -138,7 +145,7 @@ append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
     memcpy_P(tmp, name, strlen_P(name));
     tmp += strlen_P(name);
     uint16_t *ptr = (uint16_t *)tmp;
-    *ptr = ntohs(0xC000 | (start - base));
+   *ptr = ntohs(0xC000 | (start - base));
     start = (uint8_t *) (ptr + 1);
   } else if (method == APPEND_SRV) {
     uint16_t *ptr = (uint16_t *)answer->data;
@@ -154,6 +161,7 @@ append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
 
   return start;
 }
+#endif
  
 uint8_t
 compare_label(uint8_t *base, uint8_t *label, uint8_t *data) 
@@ -271,31 +279,51 @@ mdns_new_data(void)
   for (i = 0; services[i].service; i++) {
     /* Service Requests */
     if (services[i].state & MDNS_STATE_SERVICE) {
-      nameptr = append_service((uint8_t *)body.hdr, nameptr, 
+      uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
                                PSTR("_services._dns-sd._udp.local"), NULL, 1, 
-                               0xC, 600, services[i].service, 0, APPEND_DIRECT); 
+                               0xC, 600);
+      nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].service);
+      
+      *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
       body.answers++;
     }
     /* PTR Requests */
     if (services[i].state & MDNS_STATE_NAME) {
-      nameptr = append_service((uint8_t *)body.hdr, nameptr, services[i].service, NULL,
-                               1, 0xC, 600, services[i].name, 0, APPEND_WITH_LABEL); 
+      uint8_t *answer_base = nameptr;
+      uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
+                               services[i].service, NULL, 1, 
+                               0xC, 600);
+      nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].name);
+      uint16_t *ptr = nameptr - 1;
+      /* Append an pointer to services[i].service */
+      *ptr = ntohs(0xC000 | (answer_base - (uint8_t *)body.hdr));
+      *len_ptr = ntohs((uint8_t *)(ptr + 1) - (uint8_t *)(len_ptr + 1));
+      nameptr = (uint8_t *) (ptr + 1);
       body.answers++;
     }
     /* SRV Requests */
     if (services[i].state & MDNS_STATE_SRV) {
-      nameptr = append_service((uint8_t *)body.hdr, nameptr, services[i].name, 
-                               services[i].service, 0x8001, 0x21, 600, PSTR(HOSTNAME ".local"), 
-                               services[i].port, APPEND_SRV); 
+      uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
+                               services[i].name, services[i].service, 0x8001, 
+                               0x21, 600);
+      uint16_t *ptr = (uint16_t *)(len_ptr + 1);
+      *ptr++ = 0; /* Priority */
+      *ptr++ = 0; /* Weight */
+      *ptr++ = ntohs(services[i].port); /* Port */
+      nameptr = append_label((uint8_t *)ptr, PSTR(HOSTNAME ".local"));
+      /* An ip record will be appended */
+      *len_ptr = ntohs(nameptr - (uint8_t *)ptr);
       need_ip = 1;
       body.answers++;
     }
     /* SRV Requests */
     if (services[i].state & MDNS_STATE_TEXT) {
-      nameptr = append_service((uint8_t *)body.hdr, nameptr, services[i].name, 
-                               services[i].service, 0x8001, 0x10, 600, services[i].text, 
-                               services[i].port, APPEND_DIRECT); 
-      need_ip = 1;
+      uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
+                               services[i].name, services[i].service, 0x8001, 
+                               0x10, 600);
+      nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].text);
+      
+      *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
       body.answers++;
     }
     
@@ -305,10 +333,15 @@ mdns_new_data(void)
   }
 
   if (need_ip) {
-    /* here we append our own ip address */
-    nameptr = append_service((uint8_t *)body.hdr, nameptr, PSTR(HOSTNAME ".local"), NULL, 0x8001, 
-                             0x01, 600, (uint8_t *)uip_hostaddr, 0, APPEND_IP); 
-    body.answers++;
+      uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
+                               PSTR(HOSTNAME ".local"), services[i].service, 0x8001, 
+                               0x01, 600);
+      nameptr = ((uint8_t *)len_ptr) + 2 + sizeof(uip_ipaddr_t);
+      *len_ptr = ntohs(sizeof(uip_ipaddr_t));
+      /* here we append our own ip address */
+      memcpy((uint8_t *) (len_ptr + 1), uip_hostaddr, sizeof(uip_ipaddr_t));
+      
+      body.answers++;
   }
 
   /* We have nothing to say, so return */
