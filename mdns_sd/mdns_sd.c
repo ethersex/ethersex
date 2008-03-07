@@ -277,13 +277,13 @@ mdns_new_data(void)
   uint8_t *need_ip = 0;
   /* assemble the packet */
   for (i = 0; services[i].service; i++) {
+    uint16_t *len_ptr = NULL;
     /* Service Requests */
     if (services[i].state & MDNS_STATE_SERVICE) {
-      uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
+      len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
                                PSTR("_services._dns-sd._udp.local"), NULL, 1, 
                                0xC, 600);
       nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].service);
-      
       *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
       body.answers++;
     }
@@ -297,8 +297,8 @@ mdns_new_data(void)
       uint16_t *ptr = nameptr - 1;
       /* Append an pointer to services[i].service */
       *ptr = ntohs(0xC000 | (answer_base - (uint8_t *)body.hdr));
-      *len_ptr = ntohs((uint8_t *)(ptr + 1) - (uint8_t *)(len_ptr + 1));
       nameptr = (uint8_t *) (ptr + 1);
+      *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
       body.answers++;
     }
     /* SRV Requests */
@@ -312,19 +312,19 @@ mdns_new_data(void)
       *ptr++ = ntohs(services[i].port); /* Port */
       nameptr = append_label((uint8_t *)ptr, PSTR(HOSTNAME ".local"));
       /* An ip record will be appended */
-      *len_ptr = ntohs(nameptr - (uint8_t *)ptr);
       need_ip = 1;
+      *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
       body.answers++;
     }
-    /* SRV Requests */
+    /* TXT Requests */
     if (services[i].state & MDNS_STATE_TEXT) {
       uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
                                services[i].name, services[i].service, 0x8001, 
                                0x10, 600);
       nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].text);
-      
       *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
       body.answers++;
+      
     }
     
     services[i].state = 0;
