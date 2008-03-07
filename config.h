@@ -421,4 +421,6 @@
 #define CONF_DYNDNS_PASSWORD "bier42"
 #define CONF_DYNDNS_HOSTNAME "ethsex1"
 
+#define CONF_HOSTNAME "ethersex"
+
 #endif /* _CONFIG_H */

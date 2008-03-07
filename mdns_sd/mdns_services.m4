@@ -58,7 +58,7 @@ define(`mdns_endif', `divert(1)#endif
 divert(2)#endif
 divert(-1)')
 
-mdns_feature(workstation, "_workstation._tcp.local", HOSTNAME, NULL, 9)
+mdns_feature(workstation, "_workstation._tcp.local", CONF_HOSTNAME, NULL, 9)
 
 divert(2)dnl
   { .service = NULL, .name = NULL, .text = NULL, .port = 0, .state = 0},

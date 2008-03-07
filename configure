@@ -262,6 +262,7 @@ my %ethersex_modules = (
                    helptext  => "mdns service announcement",
                    distdflt  => 0,
                    requires => ["udp"],
+		   enable_hook => \&mdns_enable_hook,
   },
   'enc28j60'  => {
                    helptext  => "enc28j60 ethernet controller",
@@ -368,6 +369,9 @@ my %categories = (
                  },
 );
 my %ethersex_config = (
+  'hostname' => {
+                   helptext  => "hostname of the device",
+                 },
   'etherrape_ip' => {
                    helptext  => "default ip address (inner part, if OpenVPN)",
                  },
@@ -934,6 +938,10 @@ sub ask_prefix_len {
 
 sub enc28j60_enable_hook {
   ask_mac "etherrape_mac";
+}
+
+sub mdns_enable_hook {
+  ask_anything "hostname";
 }
 
 sub enc28j60_disable_hook {
