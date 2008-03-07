@@ -191,12 +191,23 @@ my %ethersex_modules = (
 		   enable_hook => \&rfm12_enable_hook,
 		   preconfigure => [ "skipjack", "enc28j60" ],
                  },
+  'rfm12_cloud' => {
+                   helptext  => "rfm12 network clouds",
+                   distdflt  => 0,
+                   requires => [ "rfm12", "udp_dns_mcast" ],
+                   enable_hook => \&rfm12_cloud_enable_hook,
+                 },
   'dns'       => {
                    helptext  => "dns name resolver",
                    distdflt  => 0,
                    requires => ["udp"],
                    preconfigure => [ "bootp" ],
                    enable_hook  => \&dns_enable_hook,
+                 },
+  'udp_dns_mcast'   => {
+                   helptext  => "dns-based udp multicaster",
+                   distdflt  => 0,
+                   requires  => [ "dns" ],
                  },
   'adc'       => {
                    helptext  => "get adc values",
@@ -346,11 +357,12 @@ my %categories = (
                  },
   'protocols' => {
 		   helptext  => "network protocols",
-		   modules   => [ "dns", "syslog", "tcp", "udp", "icmp", "ipv6" ],
+		   modules   => [ "dns", "syslog", "tcp", "udp", "udp_dns_mcast",
+				  "icmp", "ipv6" ],
                  },
   'interfaces'   => {
 		   helptext  => "network interfaces",
-		   modules   => [ "enc28j60", "zbus", "rfm12" ],
+		   modules   => [ "enc28j60", "zbus", "rfm12", "rfm12_cloud" ],
                  },
   'io'		 => {
 		   helptext  => "i/o support",
@@ -411,6 +423,9 @@ my %ethersex_config = (
                  },
   'rfm12_beacon_id' => {
                    helptext  => "the unique ID byte assigned to the rfm12 beacon",
+                 },
+  'rfm12_cloud_dns' => {
+		   helptext  => "dns (host)name of the rfm12 cloud",
                  },
   'i2c_slave_addr'   =>{
                    helptext  => "hex-encoded i2c slave address",
@@ -1036,6 +1051,10 @@ sub rfm12_enable_hook {
 
   return unless($ethersex_modules{'skipjack'}->{'new_status'});
   ask_cryptokey("rfm12_key", 10);
+}
+
+sub rfm12_cloud_enable_hook {
+  ask_anything "rfm12_cloud_dns";
 }
 
 sub i2c_slave_enable_hook {

@@ -344,10 +344,10 @@
 #define TCP_SUPPORT
 #define ICMP_SUPPORT
 #define UDP_SUPPORT
-// #define DNS_SUPPORT
+#define DNS_SUPPORT
 // #define RC5_SUPPORT
-// #define RFM12_SUPPORT
-// #define RFM12_CLOUD_SUPPORT
+#define RFM12_SUPPORT
+#define RFM12_CLOUD_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
@@ -369,7 +369,7 @@
 // #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 // #define ZBUS_LINKBEAT_NET_SUPPORT
-// #define UDP_DNS_MCAST_SUPPORT
+#define UDP_DNS_MCAST_SUPPORT
 
 // #define USART_SUPPORT
 // #define ZBUS_SUPPORT
@@ -407,7 +407,7 @@
 #define CONF_RFM12_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_RFM12_IP6_PREFIX_LEN 64
 #define CONF_RFM12_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
-#define CONF_RFM12_BEACON_ID 0x23
+#define CONF_RFM12_BEACON_ID 23
 #define CONF_RfM12_CLOUD_DNS "rfmnet.dyn.metafnord.de"
 
 #define CONF_I2C_SLAVE_ADDR 0x23
@@ -417,7 +417,7 @@
 #define CONF_ZBUS_IP6_PREFIX_LEN 64
 #define CONF_ZBUS_KEY "\x23\x23\x42\x42\x55\x55\x23\x23\x42\x42"
 
-#define CONF_DNS_SERVER uip_ipaddr(ip,10,0,0,1)
+#define CONF_DNS_SERVER uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x0,0x0,0x0,0x0,0x2)
 #define CONF_SYSLOG_SERVER uip_ipaddr(ip,10,0,0,1)
 
 #define CONF_DYNDNS_USERNAME "jochen"

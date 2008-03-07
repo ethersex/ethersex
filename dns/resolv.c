@@ -29,7 +29,7 @@
 /*
  * Copyright (c) 2002-2003, Adam Dunkels.
  * Copyright (c) 2007, Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2007, Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 Stefan Siegl <stesie@brokenpipe.de>
  *
  * All rights reserved.
  *
@@ -116,7 +116,10 @@ struct namemap {
 #define STATE_ASKING 2
 #define STATE_DONE   3
 #define STATE_ERROR  4
-  u8_t state;
+  unsigned state       :4;
+#ifdef UDP_DNS_MCAST_SUPPORT
+  unsigned resolve_all :1;
+#endif
   u8_t tmr;
   u8_t retries;
   u8_t seqno;
@@ -203,7 +206,7 @@ resolv_periodic(void)
 	  if(++namemapptr->retries == MAX_RETRIES) {
 	    namemapptr->state = STATE_ERROR;
             if (namemapptr->callback)
-              namemapptr->callback(namemapptr->name, NULL);
+              namemapptr->callback(namemapptr->name, NULL, 0);
 	    continue;
 	  }
 	  namemapptr->tmr = namemapptr->retries;
@@ -245,7 +248,7 @@ resolv_periodic(void)
 	memcpy(query, endquery, 5);
       }
       uip_udp_send((unsigned char)(query + 5 - (char *)uip_appdata));
-      BREak;
+      break;
     }
   }
 }
@@ -290,7 +293,7 @@ resolv_newdata(void)
     if(namemapptr->err != 0 || hdr->numanswers == 0) {
       namemapptr->state = STATE_ERROR;
       if (namemapptr->callback)
-        namemapptr->callback(namemapptr->name, NULL);
+        namemapptr->callback(namemapptr->name, NULL, 0);
       return;
     }
 
@@ -298,6 +301,11 @@ resolv_newdata(void)
        and the extrarr are simply discarded. */
     nquestions = htons(hdr->numquestions);
     nanswers = htons(hdr->numanswers);
+
+#ifdef UDP_DNS_MCAST_SUPPORT
+    uip_ipaddr_t *ips = __builtin_alloca(hdr->numanswers * sizeof(uip_ipaddr_t));
+    uip_ipaddr_t *ip_ptr = ips;
+#endif
 
     /* Skip the name in the question. XXX: This should really be
        checked agains the name in the question, to be sure that they
@@ -341,15 +349,26 @@ resolv_newdata(void)
 	namemapptr->ipaddr[0] = ans->ipaddr[0];
 	namemapptr->ipaddr[1] = ans->ipaddr[1];
 #endif /* !UIP_CONF_IPV6 */
-	
-        if (namemapptr->callback)
-          namemapptr->callback(namemapptr->name, (uip_ipaddr_t *)namemapptr->ipaddr);
-	return;
-      } else {
-	nameptr = nameptr + 10 + htons(ans->len);
-      }
+
+#ifdef UDP_DNS_MCAST_SUPPORT
+	if (namemapptr->resolve_all)
+	  memcpy(ip_ptr ++, namemapptr->ipaddr, sizeof (uip_ipaddr_t));
+        else
+#endif
+	if (namemapptr->callback) {
+          namemapptr->callback(namemapptr->name, (uip_ipaddr_t *)namemapptr->ipaddr, 1);
+	  return;
+	}
+      } 
+
+      nameptr = nameptr + 10 + htons(ans->len);
       --nanswers;
     }
+
+#ifdef UDP_DNS_MCAST_SUPPORT
+    if (namemapptr->resolve_all)
+      namemapptr->callback (namemapptr->name, ips, ip_ptr - ips);
+#endif
   }
 
 }
@@ -361,8 +380,14 @@ resolv_newdata(void)
  * \param name The hostname that is to be queried.
  */
 /*---------------------------------------------------------------------------*/
+#ifdef UDP_DNS_MCAST_SUPPORT
+void
+_resolv_query(const char *name, resolv_found_callback_t callback,
+	      uint8_t resolve_all)
+#else
 void
 resolv_query(const char *name, resolv_found_callback_t callback)
+#endif
 {
   static u8_t i;
   static u8_t lseq, lseqi;
@@ -390,10 +415,30 @@ resolv_query(const char *name, resolv_found_callback_t callback)
 
   strcpy(nameptr->name, name);
   nameptr->state = STATE_NEW;
+#ifdef UDP_DNS_MCAST_SUPPORT
+  nameptr->resolve_all = resolve_all;
+#endif
   nameptr->seqno = seqno;
   nameptr->callback = callback;
   ++seqno;
 }
+
+#ifdef UDP_DNS_MCAST_SUPPORT
+void
+resolv_query(const char *name, resolv_found_callback_t callback)
+{
+  return _resolv_query(name, callback, 0);
+}
+
+void
+resolv_query_all(const char *name, resolv_found_callback_t callback)
+{
+  return _resolv_query(name, callback, 1);
+}
+#endif /* UDP_DNS_MCAST_SUPPORT */
+
+
+
 /*---------------------------------------------------------------------------*/
 /**
  * Look up a hostname in the array of known hostnames.
