@@ -65,18 +65,20 @@ uint8_t *
 append_label(uint8_t *ptr, const char *label)
 {
   uint8_t *nlabel;
-  do {
-    uint8_t len;
-    nlabel = (uint8_t *)strchr_P(label, '.');
+  if (label) {
+    do {
+      uint8_t len;
+      nlabel = (uint8_t *)strchr_P(label, '.');
 
-    if (nlabel == NULL) len = strlen_P(label);
-    else  len = nlabel - (uint8_t *)label;
-    
-    *ptr = len;
-    memcpy_P(++ptr, label, len);
-    ptr += len;
-    label += len + 1;
-  } while (nlabel);
+      if (nlabel == NULL) len = strlen_P(label);
+      else  len = nlabel - (uint8_t *)label;
+      
+      *ptr = len;
+      memcpy_P(++ptr, label, len);
+      ptr += len;
+      label += len + 1;
+    } while (nlabel);
+  }
   *ptr++ = 0;
   return ptr;
 }
