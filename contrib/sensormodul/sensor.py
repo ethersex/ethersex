@@ -120,6 +120,7 @@ while log:
 		except:
 			data = ""
 			sys.stdout.write(".")
+			sys.stdout.flush()
 			#print "Network read timeout"
 		
 		if(len(data) > 4):
