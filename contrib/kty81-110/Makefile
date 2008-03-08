@@ -1,4 +1,4 @@
-BINS = kty-merge
+BINS = kty-merge nc_udp
 all: $(BINS)
 
 clean:
