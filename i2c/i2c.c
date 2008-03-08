@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD:i2c/i2c.c
- * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
-=======
  * Copyright (c) 2007,2008 by Jochen Roessner <jochen@lugrot.de>
->>>>>>> master:i2c/i2c.c
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
