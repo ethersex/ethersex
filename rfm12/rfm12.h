@@ -34,7 +34,7 @@
 //##############################################################################
 /* config */
 
-/* RFM12 Buffer length (max length 244) */
+/* RFM12 Buffer length (max length 254) */
 #define RFM12_DataLength	196
 
 #ifdef _ATMEGA8
