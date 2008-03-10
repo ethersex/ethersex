@@ -41,17 +41,8 @@
 #include "../lcd/hd44780.h"
 #include "kty81.h"
 
-struct RFM12_stati
-{
-  uint8_t Rx:1;
-  uint8_t Ack:1;
-  uint8_t Tx:1;
-  uint8_t Txok:1;
-  uint8_t New:1;
-};
-
 extern unsigned short rfm12_t_status;
-extern struct RFM12_stati RFM12_status;
+extern uint8_t RFM12_akt_status;
 //static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
 //static uint8_t countdown = 0;
@@ -260,7 +251,7 @@ sensormodul_core_periodic(void)
 	lcdbuf[1] = NIBBLE_TO_HEX((rfm12_t_status >> 8) & 0x0F);
 	lcdbuf[2] = NIBBLE_TO_HEX((rfm12_t_status >> 4) & 0x0F);
 	lcdbuf[3] = NIBBLE_TO_HEX(rfm12_t_status & 0x0F);
-	lcdbuf[4] = NIBBLE_TO_HEX(RFM12_status.Rx | (RFM12_status.Ack << 1) | (RFM12_status.Tx << 2) | (RFM12_status.Txok << 3));
+	lcdbuf[4] = NIBBLE_TO_HEX(RFM12_akt_status & 0x0F);
 	lcdbuf[5] = 0;
 	lcd_print(lcdbuf);
 #else
