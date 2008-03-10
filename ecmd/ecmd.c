@@ -94,7 +94,7 @@ static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value
                 PSTR("port %d: 0x%02x"),
                 port, value);
 #else
-        strncpy_P(output, PSTR("port P: 0xXX"), len);
+        memcpy_P(output, PSTR("port P: 0x"), strlen("port P: 0x"));
         /* Convert to number :) */
         output[5] = port + 48;
         output[10] = NIBBLE_TO_HEX((value >> 4) & 0x0F);
@@ -216,10 +216,11 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
         ret = func(cmd, output, len);
 
     if (ret == -1 && output != NULL) {
-        strncpy_P(output, PSTR("parse error"), len);
+        memcpy_P(output, PSTR("parse error"), 12);
         ret = 12;
     } else if (ret == 0) {
-        strncpy_P(output, PSTR("OK"), len);
+        output[0] = 'O';
+        output[1] = 'K';
         ret = 2;
     }
 
@@ -974,10 +975,10 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   debug_printf("called parse_cmd_io_set with rest: \"%s\"\n", cmd);
 #endif
   
-  volatile uint8_t *ioptr = 0;
+  volatile uint8_t *ioptr;
   uint8_t getorset;
-  uint8_t iotypeoffset = 0;
-  uint8_t value = 0;
+  uint8_t iotypeoffset;
+  uint8_t value;
   uint8_t mask = 0xFF;
   
   while (*cmd == ' ')
