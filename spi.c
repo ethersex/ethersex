@@ -54,7 +54,7 @@ void spi_init(void)
 
 } /* }}} */
 
-void noinline spi_wait_busy(void)
+static void spi_wait_busy(void)
 /* {{{ */ {
 
 #   ifdef SPI_TIMEOUT
