@@ -41,17 +41,27 @@ enum RFM12_STATUS{
   RFM12_OFF,
   RFM12_RX,
   RFM12_NEW,
-  RFM12_TX
+  RFM12_TX,
+  RFM12_TX_PREAMPLE_1,
+  RFM12_TX_PREAMPLE_2,
+  RFM12_TX_PREFIX_1,
+  RFM12_TX_PREFIX_2,
+  RFM12_TX_SIZE,
+  RFM12_TX_DATA,
+  RFM12_TX_DATAEND,
+  RFM12_TX_SUFFIX_1,
+  RFM12_TX_SUFFIX_2,
+  RFM12_TX_END
 };
 
 uint8_t RFM12_akt_status = RFM12_OFF;
 
-struct RFM12_stati RFM12_status;*/
 uint8_t RFM12_Index = 0;
+uint8_t RFM12_Txlen = 0;
 unsigned short RFM12_i_status = 0;
 
 #ifndef RFM12_SHARE_UIP_BUF
-uint8_t RFM12_Data[RFM12_DataLength + 10];
+uint8_t RFM12_Data[RFM12_DataLength];
 #endif
 
 
@@ -83,23 +93,32 @@ SIGNAL(RFM12_INT_SIGNAL)
 	}
     }
 
-  else if(RFM12_akt_status == RFM12_TX)
+  else if(RFM12_akt_status >= RFM12_TX)
     {
-      rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
-
-      if(RFM12_Index > RFM12_Data[5] + 8)
-	{
+      if(RFM12_akt_status != RFM12_TX_DATA){
+        if(RFM12_akt_status < RFM12_TX_PREFIX_1 || RFM12_akt_status > RFM12_TX_DATA)
+          rfm12_trans(0xB8AA);
+        else if(RFM12_akt_status == RFM12_TX_PREFIX_1)
+          rfm12_trans(0xB82D);
+        else if(RFM12_akt_status == RFM12_TX_PREFIX_2)
+          rfm12_trans(0xB8D4);
+        else if(RFM12_akt_status == RFM12_TX_SIZE)
+          rfm12_trans(0xB800 | RFM12_Txlen);
+        RFM12_akt_status++;
+        if(RFM12_akt_status == RFM12_TX_END){
           RFM12_akt_status = RFM12_OFF;
-
 #ifdef RFM12_BLINK_PORT
-	  RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
+          RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
 #endif
-
-	  rfm12_trans(0x8208);	/* TX off */
-	  rfm12_rxstart();
-	}
-      else
-        RFM12_Index++;
+          rfm12_trans(0x8208);	/* TX off */
+          rfm12_rxstart();
+        }
+      }
+      else if(RFM12_akt_status == RFM12_TX_DATA){
+        rfm12_trans(0xB800 | RFM12_Data[RFM12_Index++]);
+        if(RFM12_Index >= RFM12_Txlen)
+          RFM12_akt_status = RFM12_TX_DATAEND;
+      }
     }
   else
     {
@@ -292,29 +311,21 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
 #endif
 
+#ifndef RFM12_SHARE_UIP_BUF
   i = size; while (i --)
-              RFM12_Data[i + 6] = data[i];
-
+              RFM12_Data[i] = data[i];
+#endif
   i = RFM12_Index = 0;
 
 #ifdef SKIPJACK_SUPPORT
-  rfm12_encrypt (RFM12_Data+6, &size);
+  rfm12_encrypt (RFM12_Data, &size);
 
   if (!size){
     RFM12_akt_status = RFM12_OFF;
     return 4;
   }
 #endif
-
-  RFM12_Data[i++] = 0xAA;
-  RFM12_Data[i++] = 0xAA;
-  RFM12_Data[i++] = 0xAA;
-  RFM12_Data[i++] = 0x2D;
-  RFM12_Data[i++] = 0xD4;
-  RFM12_Data[i++] = size;
-  i += size;
-  RFM12_Data[i++] = 0xAA;
-  RFM12_Data[i++] = 0xAA;
+  RFM12_Txlen = size;
 
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
