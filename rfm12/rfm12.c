@@ -37,16 +37,16 @@
  * the next packet. */
 uint8_t rfm12_beacon_code = CONF_RFM12_BEACON_ID;
 
-struct RFM12_stati
-{
-  uint8_t Rx:1;
-  uint8_t Ack:1;
-  uint8_t Tx:1;
-  uint8_t Txok:1;
-  uint8_t New:1;
+enum RFM12_STATUS{
+  RFM12_OFF,
+  RFM12_RX,
+  RFM12_NEW,
+  RFM12_TX
 };
 
-struct RFM12_stati RFM12_status;
+uint8_t RFM12_akt_status = RFM12_OFF;
+
+struct RFM12_stati RFM12_status;*/
 uint8_t RFM12_Index = 0;
 unsigned short RFM12_i_status = 0;
 
@@ -57,7 +57,7 @@ uint8_t RFM12_Data[RFM12_DataLength + 10];
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
-  if(RFM12_status.Rx)
+  if(RFM12_akt_status == RFM12_RX)
     {
       if(RFM12_Index < RFM12_DataLength)
 	{
@@ -69,6 +69,7 @@ SIGNAL(RFM12_INT_SIGNAL)
       else
 	{
 	  rfm12_trans(0x8208);
+          RFM12_akt_status = RFM12_OFF;
 	  rfm12_rxstart();
 #ifdef RFM12_BLINK_PORT
 	  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
@@ -78,18 +79,17 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(RFM12_Index >= RFM12_Data[0] + 1)
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_status.Rx = 0;
-	  RFM12_status.New = 1;
+	  RFM12_akt_status = RFM12_NEW;	
 	}
     }
 
-  else if(RFM12_status.Tx)
+  else if(RFM12_akt_status == RFM12_TX)
     {
       rfm12_trans(0xB800 | RFM12_Data[RFM12_Index]);
 
       if(RFM12_Index > RFM12_Data[5] + 8)
 	{
-	  RFM12_status.Tx = 0;
+          RFM12_akt_status = RFM12_OFF;
 
 #ifdef RFM12_BLINK_PORT
 	  RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
@@ -106,7 +106,7 @@ SIGNAL(RFM12_INT_SIGNAL)
       RFM12_i_status = rfm12_trans(0x0000);/* dummy read (get Statusregister) */
 #ifdef SYSLOG_SUPPORT
       char text[40];
-      snprintf(text, 40, "rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, ((uint8_t *)&RFM12_status)[0]);
+      snprintf(text, 40, "rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
       syslog_send(text);
 #endif
       /* FIXME what happend */
@@ -152,10 +152,7 @@ rfm12_init(void)
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
   rfm12_trans(0x0000);
   
-  RFM12_status.Rx = 0;
-  RFM12_status.Tx = 0;
-  RFM12_status.New = 0;
-
+  RFM12_akt_status = RFM12_OFF;
 #ifdef RFM12_BLINK_PORT
   RFM12_BLINK_DDR |= RFM12_RX_PIN | RFM12_TX_PIN;
 #endif
@@ -228,11 +225,8 @@ rfm12_setpower(uint8_t power, uint8_t mod)
 uint8_t
 rfm12_rxstart(void)
 {
-  if(RFM12_status.New)
-    return(1);			/* buffer not yet empty */
-
-  if(RFM12_status.Tx)
-    return(2);			/* tx in action */
+  if(RFM12_akt_status != RFM12_OFF)
+    return(1);			/* rfm12 is not free for RX or now in RX */
 
   rfm12_prologue ();
 
@@ -243,8 +237,8 @@ rfm12_rxstart(void)
   rfm12_epilogue ();
 
   RFM12_Index = 0;
-  RFM12_status.Rx = 1;
-	
+  RFM12_akt_status = RFM12_RX;
+
   return(0);
 }
 
@@ -252,12 +246,8 @@ rfm12_rxstart(void)
 uint8_t 
 rfm12_rxfinish(uint8_t *data)
 {
-  if(RFM12_status.Rx)
-    return(255);		/* not finished yet */
-  if(!RFM12_status.New)
-    return(254);		/* old buffer */
-
-  RFM12_status.New = 0;
+  if(RFM12_akt_status != RFM12_NEW)
+    return (255);		/* no new Packet */
 
 #ifdef RFM12_BLINK_PORT
   RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
@@ -274,7 +264,9 @@ rfm12_rxfinish(uint8_t *data)
 
 #ifdef SKIPJACK_SUPPORT
   rfm12_decrypt (data, &len);
-
+#endif
+  RFM12_akt_status = RFM12_OFF;
+#ifdef SKIPJACK_SUPPORT
   if (!len)
     rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
 #endif
@@ -288,17 +280,13 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 {
   uint8_t i, l;
 
-  if(RFM12_status.Tx)
-    return(2);			/* tx in action */
-
-  if(RFM12_status.Rx && RFM12_Index > 0)
-    return(3);                  /* rx already in action */
-
+  if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0))
+    return(3);                  /* rx or tx in action oder new packet in buffer*/
+  
   if(size > RFM12_DataLength)
     return(4);			/* str to big to transmit */
 
-  RFM12_status.Rx = 0;
-  RFM12_status.Tx = 1;
+  RFM12_akt_status = RFM12_TX;
 
 #ifdef RFM12_BLINK_PORT
   RFM12_BLINK_PORT |= RFM12_TX_PIN;
@@ -312,8 +300,10 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 #ifdef SKIPJACK_SUPPORT
   rfm12_encrypt (RFM12_Data+6, &size);
 
-  if (!size)
+  if (!size){
+    RFM12_akt_status = RFM12_OFF;
     return 4;
+  }
 #endif
 
   RFM12_Data[i++] = 0xAA;
