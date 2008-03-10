@@ -95,7 +95,12 @@ SIGNAL(RFM12_INT_SIGNAL)
 
   else if(RFM12_akt_status >= RFM12_TX)
     {
-      if(RFM12_akt_status != RFM12_TX_DATA){
+      if(RFM12_akt_status == RFM12_TX_DATA){
+        rfm12_trans(0xB800 | RFM12_Data[RFM12_Index++]);
+        if(RFM12_Index >= RFM12_Txlen)
+          RFM12_akt_status = RFM12_TX_DATAEND;
+      }
+      else{
         if(RFM12_akt_status < RFM12_TX_PREFIX_1 || RFM12_akt_status > RFM12_TX_DATA)
           rfm12_trans(0xB8AA);
         else if(RFM12_akt_status == RFM12_TX_PREFIX_1)
@@ -113,11 +118,6 @@ SIGNAL(RFM12_INT_SIGNAL)
           rfm12_trans(0x8208);	/* TX off */
           rfm12_rxstart();
         }
-      }
-      else if(RFM12_akt_status == RFM12_TX_DATA){
-        rfm12_trans(0xB800 | RFM12_Data[RFM12_Index++]);
-        if(RFM12_Index >= RFM12_Txlen)
-          RFM12_akt_status = RFM12_TX_DATAEND;
       }
     }
   else
