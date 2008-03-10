@@ -99,10 +99,6 @@ void timer_process(void)
 #       endif
 #       endif /* FS20_SUPPORT */
 
-#       ifdef ZBUS_SUPPORT
-        if (counter % 10 == 0)
-          zbus_core_periodic();
-#       endif /* ZBUS_SUPPORT */
         
 #       ifdef PS2_SUPPORT
         ps2_periodic();
@@ -114,6 +110,11 @@ void timer_process(void)
 #       else
         if (counter % 10 == 0) {
 #       endif
+
+#       ifdef ZBUS_SUPPORT
+          zbus_core_periodic();
+#       endif /* ZBUS_SUPPORT */
+
 #           if UIP_TCP == 1
             for (i = 0; i < UIP_CONNS; i++) {
 		uip_stack_set_active(uip_conns[i].stack);
