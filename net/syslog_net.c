@@ -52,6 +52,9 @@ syslog_net_init(void)
   uint8_t i;
   for (i = 0; i < SYSLOG_CALLBACKS; i++)
     syslog_callbacks[i].callback = NULL;
+
+  syslog_send("booting ethersex\n");
+
 }
 
 void
@@ -59,6 +62,8 @@ syslog_net_main(void)
 {
   if (uip_poll()) {
     uint8_t i;
+    if(! uip_neighbor_lookup (uip_ipaddr_cmp(uip_udp_conn->ripaddr, uip_hostaddr) ? uip_draddr : uip_udp_conn->ripaddr))
+      { uip_slen = 1; return; }
     for (i = 0; i < SYSLOG_CALLBACKS; i++)
       if (syslog_callbacks[i].callback != NULL) {
         syslog_callbacks[i].callback(syslog_callbacks[i].data);
