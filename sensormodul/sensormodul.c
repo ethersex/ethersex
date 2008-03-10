@@ -33,11 +33,25 @@
 #include "sensormodul.h"
 
 #ifdef SENSORMODUL_SUPPORT
-
+#define SENSORMODUL_DEBUG
+#ifdef SENSORMODUL_DEBUG
+#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A'))
+#endif
 #include "lcd.h"
 #include "../lcd/hd44780.h"
 #include "kty81.h"
 
+struct RFM12_stati
+{
+  uint8_t Rx:1;
+  uint8_t Ack:1;
+  uint8_t Tx:1;
+  uint8_t Txok:1;
+  uint8_t New:1;
+};
+
+extern unsigned short rfm12_t_status;
+extern struct RFM12_stati RFM12_status;
 //static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
 //static uint8_t countdown = 0;
@@ -99,6 +113,7 @@ sensormodul_core_newdata(void)
   if ( uip_datalen() == sizeof(struct sensormodul_request_t) && REQ->type == 'c'){
     STATS.sensors.countdown = ((REQ->digit[2] & 0x0F) + (REQ->digit[1] & 0x0F) * 10 + (REQ->digit[0] & 0x0F) * 100) & 0xFF;
   }
+#ifndef SENSORMODUL_DEBUG
   if (uip_datalen() <= LCD_PYSICAL_LINELEN * 2 + 1 && REQ->type == ':'){
     uip_ipaddr_copy(STATS.ripaddr, BUF->srcipaddr);
     STATS.rport = BUF->srcport;
@@ -122,6 +137,7 @@ sensormodul_core_newdata(void)
     lcd_print(REQ->data);
     STATS.sensors.lcd_blocked = 1;
   }
+#endif /*SENSORMODUL_DEBUG*/
 }
 
 void 
@@ -136,6 +152,7 @@ sensormodul_core_periodic(void)
     STATS.sensors.lcd_blocked = 1;
     STATS.sensors.led_blink = 0;
     STATS.sensors.countdown = 5;
+#ifndef SENSORMODUL_DEBUG
     lcd_clear();
     lcd_home();
     uint8_t i;
@@ -149,6 +166,7 @@ sensormodul_core_periodic(void)
         lcd_goto_ddram(LCD_SECOND_LINE);
 #endif
     }
+#endif /* SENSORMODUL_DEBUG */
     uip_udp_conn_t return_conn;
     uip_ipaddr_copy(return_conn.ripaddr, STATS.ripaddr);
     return_conn.rport = STATS.rport;
@@ -235,8 +253,20 @@ sensormodul_core_periodic(void)
 #else
         lcd_goto_ddram(LCD_SECOND_LINE + 7);
 #endif
+
+#ifdef SENSORMODUL_DEBUG
+	char lcdbuf[6];
+	lcdbuf[0] = NIBBLE_TO_HEX((rfm12_t_status >> 12) & 0x0F);
+	lcdbuf[1] = NIBBLE_TO_HEX((rfm12_t_status >> 8) & 0x0F);
+	lcdbuf[2] = NIBBLE_TO_HEX((rfm12_t_status >> 4) & 0x0F);
+	lcdbuf[3] = NIBBLE_TO_HEX(rfm12_t_status & 0x0F);
+	lcdbuf[4] = NIBBLE_TO_HEX(RFM12_status.Rx | (RFM12_status.Ack << 1) | (RFM12_status.Tx << 2) | (RFM12_status.Txok << 3));
+	lcdbuf[5] = 0;
+	lcd_print(lcdbuf);
+#else
         lcd_print(" Max");
         lcd_print(STATS.sensors.sensor[2].valuetext);
+#endif /* SENSORMODUL_DEBUG */
 #ifdef HD44780_SUPPORT
         hd44780_goto(1, 0);
 #else
