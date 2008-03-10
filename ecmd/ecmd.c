@@ -196,7 +196,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 #endif
 
         /* else compare texts */
-        if (strncasecmp_P(cmd, text, strlen_P(text)) == 0) {
+        if (memcmp_P(cmd, text, strlen_P(text)) == 0) {
 #ifdef DEBUG_ECMD
             debug_printf("found match\n");
 #endif
