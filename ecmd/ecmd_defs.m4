@@ -98,7 +98,7 @@ ecmd_ifdef(PORTIO_SUPPORT)
 ecmd_endif()
 
 ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
-  ecmd_feature(io, "io")
+  ecmd_feature(io, "io ")
 ecmd_endif()
 
 ecmd_ifdef(NAMED_PIN_SUPPORT)

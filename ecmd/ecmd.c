@@ -984,10 +984,11 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     cmd ++;
   switch (*cmd)
   {
-    case 'g': getorset = 0;
-    case 's': getorset = 1;
+    case 'g': getorset = 0; break;
+    case 's': getorset = 1; break;
     default: return -1;
   }
+
   while (*cmd == ' ')
     cmd ++;
   cmd ++;
