@@ -74,16 +74,16 @@ uint8_t
 syslog_sendf(const char *message, ...)
 {
   va_list va;
-  va_start(va, message);
 
   // only insert a new callback if the old is finished  
   if (send_buffer[0] == 0) {
+    va_start(va, message);
     vsnprintf(send_buffer, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
+    va_end(va);
     send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
     return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
   } else
     return 0;
-  va_end(va);
 }
 
 uint8_t 
