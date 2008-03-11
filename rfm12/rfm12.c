@@ -302,8 +302,10 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0))
     return(3);                  /* rx or tx in action oder new packet in buffer*/
   
-  if(size > RFM12_DataLength)
+  if(size > RFM12_DataLength){
+    rfm12_rxstart ();		/* destroy the packet and restart rx */
     return(4);			/* str to big to transmit */
+  }
 
   RFM12_akt_status = RFM12_TX;
 
@@ -322,6 +324,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 
   if (!size){
     RFM12_akt_status = RFM12_OFF;
+    rfm12_rxstart ();		/* destroy the packet and restart rx */
     return 4;
   }
 #endif
