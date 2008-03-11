@@ -148,7 +148,7 @@ static char* parse_hex(char *text, uint8_t *value)
   {
     *value <<= 4;
     nibble = *text - '0';
-    if (nibble > '9')
+    if (nibble > 9)
       nibble -= 7;
     *value |= nibble;
     text++;
