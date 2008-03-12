@@ -22,36 +22,23 @@
 #define _I2C_STATE_H
 
 /* constants */
-#define MAXDATAPAKETLEN 36
+#define MAXDATAPAKETLEN (uint8_t)(UIP_CONF_BUFFER_SIZE - 2)
 
-struct i2c_tx {
-	union {
-		uint8_t raw[0];
-		uint8_t seqnum;
-	};
-	uint8_t connstate;
-	uint8_t i2cstate;
-	uint8_t datalen;
-	uint8_t buf[MAXDATAPAKETLEN];
-};
-
-struct i2c_request_t {
+struct i2c_t {
 	union{
 		uint8_t raw[0];
 		uint8_t seqnum;
 	};
-	uint8_t type;
-	uint8_t i2c_addr;
-	uint8_t datalen;
+	uint8_t i2c_addr_rw;
 	union{
+		uint8_t datalen;
 		uint8_t data[0];
 	};
 };
 
 struct i2c_connection_state_t {
-	uint8_t txstate;
 	uint8_t timeout;
-	struct i2c_tx *tx;
+	uint8_t last_seqnum;
 };
 
 #endif
