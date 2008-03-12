@@ -39,20 +39,20 @@
 static void 
 i2c_wait_int()
 {
-	while( (TWCR & _BV(TWINT)) == 0);
+  while( (TWCR & _BV(TWINT)) == 0);
 }
 
 static uint8_t
-i2c_send ( uint8_t sendbyte )
+    i2c_send ( uint8_t sendbyte )
 {
-	TWDR = sendbyte;
-	TWCR |= _BV(TWINT);
-	i2c_wait_int();
-	return (TWSR & 0xF8);
+  TWDR = sendbyte;
+  TWCR |= _BV(TWINT);
+  i2c_wait_int();
+  return (TWSR & 0xF8);
 }
 
 static void
-i2c_send_buffer_immediate(void)
+    i2c_send_buffer_immediate(void)
 {
   uip_send(&i2ctx, I2C_DATAOFFSET);
   uip_process(UIP_UDP_SEND_CONN);
@@ -61,11 +61,11 @@ i2c_send_buffer_immediate(void)
 }
 
 static void
-i2c_port_init(void)
+    i2c_port_init(void)
 {
   TWCR = 0;
   /* max speed 400khz (problematisch)  ~(_BV(TWPS0) | _BV(TWPS1)) BR = 16
-     speed 100khz (normal) _BV(TWPS0) BR = 92 */
+  speed 100khz (normal) _BV(TWPS0) BR = 92 */
   //TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));
 #if F_CPU > 10000000
   TWSR |= _BV(TWPS0);
@@ -78,7 +78,7 @@ i2c_port_init(void)
 }
 
 void 
-i2c_core_init(uip_udp_conn_t *i2c_conn)
+    i2c_core_init(uip_udp_conn_t *i2c_conn)
 {
   i2c_port_init();
   uip_ipaddr_copy(i2c_conn->ripaddr, all_ones_addr);
@@ -88,7 +88,7 @@ i2c_core_init(uip_udp_conn_t *i2c_conn)
 }
 
 void
-i2c_core_periodic(void)
+    i2c_core_periodic(void)
 {
   if(STATS.timeout > 1)
     STATS.timeout--;
@@ -104,166 +104,166 @@ i2c_core_periodic(void)
 void i2c_core_newdata(void)
 {
 	
-		struct i2c_request_t *REQ = uip_appdata;
+  struct i2c_request_t *REQ = uip_appdata;
 		/*
-		* ueberschreiben der connection info. 
-		* port und adresse auf den remotehost begrenzen
-		* und antwort paket senden mit der maximalen pufferlaenge (i2c open)
-		*/
-		if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0 && REQ->type == I2C_OPEN){
-			STATS.timeout = 10;
-			uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
-			uip_udp_conn->rport = BUF->srcport;
+  * ueberschreiben der connection info. 
+  * port und adresse auf den remotehost begrenzen
+  * und antwort paket senden mit der maximalen pufferlaenge (i2c open)
+                */
+  if(STATS.tx->connstate == I2C_INIT && STATS.tx->seqnum == 0 && REQ->type == I2C_OPEN){
+    STATS.timeout = 10;
+    uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
+    uip_udp_conn->rport = BUF->srcport;
 
-			STATS.tx->connstate = I2C_OPEN;
-			STATS.tx->i2cstate = MAXDATAPAKETLEN;
-			STATS.tx->datalen = 0;
+    STATS.tx->connstate = I2C_OPEN;
+    STATS.tx->i2cstate = MAXDATAPAKETLEN;
+    STATS.tx->datalen = 0;
 
-                        i2c_send_buffer_immediate();
-		}
-		else if(REQ->seqnum != STATS.tx->seqnum){
-			STATS.tx->seqnum = REQ->seqnum;
-			STATS.timeout = 10;
-/* FIXME:			PORTC |= _BV(PC2); */
-			/* read init des i2c bus */
-			if (REQ->type == I2C_READ || (REQ->type == I2C_READON && STATS.tx->connstate != I2C_READON)){
-				STATS.tx->connstate = REQ->type;
-				TWCR |= _BV(TWINT) | _BV(TWSTA);
-				i2c_wait_int();
-                                uint8_t TWSRtmp = (TWSR & 0xF8);
-				STATS.tx->i2cstate = TWSRtmp;
-				if(TWSRtmp == 0x08 || TWSRtmp == 0x10)
-				{
+    i2c_send_buffer_immediate();
+  }
+  else if(REQ->seqnum != STATS.tx->seqnum){
+    STATS.tx->seqnum = REQ->seqnum;
+    STATS.timeout = 10;
+    /* FIXME:			PORTC |= _BV(PC2); */
+    /* read init des i2c bus */
+    if (REQ->type == I2C_READ || (REQ->type == I2C_READON && STATS.tx->connstate != I2C_READON)){
+      STATS.tx->connstate = REQ->type;
+      TWCR |= _BV(TWINT) | _BV(TWSTA);
+      i2c_wait_int();
+      uint8_t TWSRtmp = (TWSR & 0xF8);
+      STATS.tx->i2cstate = TWSRtmp;
+      if(TWSRtmp == 0x08 || TWSRtmp == 0x10)
+      {
 					//uint8_t TWSRtmp = 0;
-					TWSRtmp = i2c_send ( REQ->i2c_addr<<1 | 0x01 );
-					TWCR &= ~_BV(TWSTA);
-					STATS.tx->i2cstate = TWSRtmp;
-					if(TWSRtmp != 0x40)
-					{
+        TWSRtmp = i2c_send ( REQ->i2c_addr<<1 | 0x01 );
+        TWCR &= ~_BV(TWSTA);
+        STATS.tx->i2cstate = TWSRtmp;
+        if(TWSRtmp != 0x40)
+        {
                                           // XXX: Ueberfluessig
                                           //STATS.tx->i2cstate = TWSRtmp;
-						TWCR = _BV(TWEN) | _BV(TWSTO);
-						STATS.tx->connstate = I2C_ERROR;
-					}
-				}
-				else
-				{
+          TWCR = _BV(TWEN) | _BV(TWSTO);
+          STATS.tx->connstate = I2C_ERROR;
+        }
+      }
+      else
+      {
                                           // XXX: Ueberfluessig
 					//STATS.tx->i2cstate = (TWSR & 0xF8);
-					TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
-					STATS.tx->connstate = I2C_ERROR;
-				}
+        TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
+        STATS.tx->connstate = I2C_ERROR;
+      }
 				
-				if(REQ->datalen > 0)
-					TWCR |= _BV(TWEA);
-			}
+      if(REQ->datalen > 0)
+        TWCR |= _BV(TWEA);
+    }
 			
-			if ((REQ->type == I2C_READ || REQ->type == I2C_READON ) && STATS.tx->connstate != I2C_ERROR){
-				STATS.tx->datalen = 0;
-				while (STATS.tx->datalen < REQ->datalen){ // && STATS.tx->datalen <= I2C_TXBUFMAX){
-					{
-						TWCR |= _BV(TWINT);
+    if ((REQ->type == I2C_READ || REQ->type == I2C_READON ) && STATS.tx->connstate != I2C_ERROR){
+      STATS.tx->datalen = 0;
+      while (STATS.tx->datalen < REQ->datalen){ // && STATS.tx->datalen <= I2C_TXBUFMAX){
+        {
+          TWCR |= _BV(TWINT);
 						
-						i2c_wait_int();
+          i2c_wait_int();
 						
-						uint8_t TWSRtmp = (TWSR & 0xF8);
-						if(STATS.tx->datalen <= REQ->datalen && TWSRtmp == 0x50){
-							STATS.tx->buf[STATS.tx->datalen++] = TWDR;
-							if(STATS.tx->datalen == REQ->datalen && (REQ->type == I2C_READ || REQ->datalen < MAXDATAPAKETLEN))
-							{
-								TWCR = (TWCR | _BV(TWINT)) & ~_BV(TWEA);
-							}
-						}
-						else{
-							STATS.tx->buf[STATS.tx->datalen++] = TWSRtmp;
-						}
-					}
-				}
-			}
+          uint8_t TWSRtmp = (TWSR & 0xF8);
+          if(STATS.tx->datalen <= REQ->datalen && TWSRtmp == 0x50){
+            STATS.tx->buf[STATS.tx->datalen++] = TWDR;
+            if(STATS.tx->datalen == REQ->datalen && (REQ->type == I2C_READ || REQ->datalen < MAXDATAPAKETLEN))
+            {
+              TWCR = (TWCR | _BV(TWINT)) & ~_BV(TWEA);
+            }
+          }
+          else{
+            STATS.tx->buf[STATS.tx->datalen++] = TWSRtmp;
+          }
+        }
+      }
+    }
 			
 			
-			/* write init des i2c bus */
-			if (uip_datalen() >= I2C_DATAOFFSET && ( REQ->type == I2C_WRITE || (REQ->type == I2C_WRITEON && STATS.tx->connstate != I2C_WRITEON))){
-				STATS.tx->connstate = REQ->type;
-					/* sende startcondition */
-				TWCR |= _BV(TWINT) | _BV(TWSTA);
-				i2c_wait_int();
-                                uint8_t TWSRtmp = (TWSR & 0xF8);
-				STATS.tx->i2cstate = TWSRtmp;
-				if(TWSRtmp == 0x08 || TWSRtmp == 0x10)
-				{
-						/* loesche startcondition und sende adresse */
-					TWCR &= ~(_BV(TWSTA) | _BV(TWINT));
-					i2c_wait_int();
-					TWSRtmp = i2c_send ( REQ->i2c_addr<<1 & 0xFE );
-					STATS.tx->i2cstate = TWSRtmp;
-					if(TWSRtmp != 0x18 && TWSRtmp != 0x20)
-					{
-						/* adresse nicht erreichbar */
+    /* write init des i2c bus */
+    if (uip_datalen() >= I2C_DATAOFFSET && ( REQ->type == I2C_WRITE || (REQ->type == I2C_WRITEON && STATS.tx->connstate != I2C_WRITEON))){
+      STATS.tx->connstate = REQ->type;
+      /* sende startcondition */
+      TWCR |= _BV(TWINT) | _BV(TWSTA);
+      i2c_wait_int();
+      uint8_t TWSRtmp = (TWSR & 0xF8);
+      STATS.tx->i2cstate = TWSRtmp;
+      if(TWSRtmp == 0x08 || TWSRtmp == 0x10)
+      {
+        /* loesche startcondition und sende adresse */
+        TWCR &= ~(_BV(TWSTA) | _BV(TWINT));
+        i2c_wait_int();
+        TWSRtmp = i2c_send ( REQ->i2c_addr<<1 & 0xFE );
+        STATS.tx->i2cstate = TWSRtmp;
+        if(TWSRtmp != 0x18 && TWSRtmp != 0x20)
+        {
+          /* adresse nicht erreichbar */
                                           // XXX: ueberfluessig
 					  // STATS.tx->i2cstate = TWSRtmp;
-						TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
-						STATS.tx->connstate = I2C_ERROR;
-					}
-				}
-				else
-				{
-						/* startcondition fehlgeschlagen */
+          TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
+          STATS.tx->connstate = I2C_ERROR;
+        }
+      }
+      else
+      {
+        /* startcondition fehlgeschlagen */
                                         // XXX: ueberfluessig
 					// STATS.tx->i2cstate = (TWSR & 0xF8);
-					TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
-					STATS.tx->connstate = I2C_ERROR;
-				}
-			}
-			/* sende daten an den slave */
-			if (uip_datalen() > I2C_DATAOFFSET && ( REQ->type == I2C_WRITE || REQ->type == I2C_WRITEON ) && STATS.tx->connstate != I2C_ERROR){
-				uint8_t TWSRtmp;
-				STATS.tx->datalen = 0;
-				/* sende bis paketdaten ende oder bis datalen erreicht ist */
-				while ((STATS.tx->datalen + I2C_DATAOFFSET) < uip_datalen() && STATS.tx->datalen < REQ->datalen){
-					TWSRtmp = i2c_send ( REQ->data[STATS.tx->datalen] );
-					STATS.tx->buf[STATS.tx->datalen] = REQ->data[STATS.tx->datalen];
-						/* fehler protokollieren */
-					if(TWSRtmp != 0x28){
-						STATS.tx->buf[STATS.tx->datalen] = (TWSR & 0xF8);
-						if(STATS.tx->datalen >= MAXDATAPAKETLEN){
-							break;
-						}
-						TWCR |= _BV(TWINT) | _BV(TWSTO);
-					}
-					STATS.tx->datalen++;
-				}
-			}
+        TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
+        STATS.tx->connstate = I2C_ERROR;
+      }
+    }
+    /* sende daten an den slave */
+    if (uip_datalen() > I2C_DATAOFFSET && ( REQ->type == I2C_WRITE || REQ->type == I2C_WRITEON ) && STATS.tx->connstate != I2C_ERROR){
+      uint8_t TWSRtmp;
+      STATS.tx->datalen = 0;
+      /* sende bis paketdaten ende oder bis datalen erreicht ist */
+      while ((STATS.tx->datalen + I2C_DATAOFFSET) < uip_datalen() && STATS.tx->datalen < REQ->datalen){
+        TWSRtmp = i2c_send ( REQ->data[STATS.tx->datalen] );
+        STATS.tx->buf[STATS.tx->datalen] = REQ->data[STATS.tx->datalen];
+        /* fehler protokollieren */
+        if(TWSRtmp != 0x28){
+          STATS.tx->buf[STATS.tx->datalen] = (TWSR & 0xF8);
+          if(STATS.tx->datalen >= MAXDATAPAKETLEN){
+            break;
+          }
+          TWCR |= _BV(TWINT) | _BV(TWSTO);
+        }
+        STATS.tx->datalen++;
+      }
+    }
 					/*
-			* zuruecksetzten der connection info. 
-			* port und adresse auf alle freigeben
-			* und antwort paket senden mit der info closed (i2c close)
-			*/
-			if(REQ->type == I2C_INIT){
-				/* FIXME: PORTC &= ~_BV(PC2); */
-				TWCR |= _BV(TWINT) | _BV(TWSTO);
-				STATS.timeout = 0;
+    * zuruecksetzten der connection info. 
+    * port und adresse auf alle freigeben
+    * und antwort paket senden mit der info closed (i2c close)
+                                        */
+    if(REQ->type == I2C_INIT){
+      /* FIXME: PORTC &= ~_BV(PC2); */
+      TWCR |= _BV(TWINT) | _BV(TWSTO);
+      STATS.timeout = 0;
 				
-				STATS.tx->i2cstate = TWSR;
-				STATS.tx->datalen = 0;
-				STATS.tx->connstate = I2C_INIT;
+      STATS.tx->i2cstate = TWSR;
+      STATS.tx->datalen = 0;
+      STATS.tx->connstate = I2C_INIT;
 
-                                i2c_send_buffer_immediate();
-				i2c_core_init(uip_udp_conn);
+      i2c_send_buffer_immediate();
+      i2c_core_init(uip_udp_conn);
 
-			}
-			else if(STATS.tx->connstate == I2C_ERROR){
-                                i2c_send_buffer_immediate();
-				i2c_core_init(uip_udp_conn);
-			}else{
-				uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
-			}
-		}
-		/* retransmit des letzten paketes */
-		else if(REQ->seqnum == STATS.tx->seqnum){
-			STATS.timeout = 10;
-			uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
-		}
+    }
+    else if(STATS.tx->connstate == I2C_ERROR){
+      i2c_send_buffer_immediate();
+      i2c_core_init(uip_udp_conn);
+    }else{
+      uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
+    }
+  }
+  /* retransmit des letzten paketes */
+  else if(REQ->seqnum == STATS.tx->seqnum){
+    STATS.timeout = 10;
+    uip_send(&i2ctx, STATS.tx->datalen+I2C_DATAOFFSET);
+  }
 }
 
 #endif
