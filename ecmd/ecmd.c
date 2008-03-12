@@ -139,7 +139,7 @@ static char* parse_hex(char *text, uint8_t *value)
 /* {{{ */ {
   if (! *text ) return 0;
   uint8_t nibble;
-  /* skip first space */
+  /* skip spaces */
   while (*text == ' ')
     text ++;
   if (! *text ) return 0;
@@ -981,19 +981,25 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   uint8_t value;
   uint8_t mask = 0xFF;
   
+  /* skip spaces */
   while (*cmd == ' ')
     cmd ++;
+  /* test of 'g'et or 's'et */
   switch (*cmd)
   {
     case 'g': getorset = 1; break;
     case 's': getorset = 0; break;
     default: return -1;
   }
+  /* skip non spaces */
   while (*cmd != ' ')
     cmd ++;
+  /* skip spaces */
   while (*cmd == ' ')
     cmd ++;
+  /* skip first char of ddr,port,pin*/
   cmd ++;
+  /* test of p'i'n, d'd'r or p'o'rt case insensitiv */
   switch (*cmd & 0xDF)
   {
     case 'I' : iotypeoffset = 0; break;
@@ -1002,11 +1008,14 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     default: return -1;
   }
   cmd ++;
+  /* skip the rest of registertyp and spaces*/
   while (*cmd == ' ' || (*cmd & 0xDF) >= 'N')
     cmd ++;
+  /* get the port number */
   cmd = parse_hex(cmd, &value);
   if (cmd == 0)
     return -1;
+  /* translate it to the portaddress */
   switch (value)
   {
 #ifdef PINA
@@ -1022,19 +1031,17 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     default: return -1;
   }
   ioptr += iotypeoffset;
-  
   if(getorset)
+    /* wenn get request return the port value */
     return print_port(output, len, value, *ioptr);
-    
-  //return 0;
+  /* get register write value */
   cmd = parse_hex(cmd, &value);
   if (cmd == 0)
     return -1;
+  /* if a mask value present get it */
   parse_hex(cmd, &mask);
-  
   *ioptr = (*ioptr & ~mask) | (value & mask);
   return 0;
-  
 } /* }}} */
 
 #endif /* PORTIO_SIMPLE_SUPPORT */
