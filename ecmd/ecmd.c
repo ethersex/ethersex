@@ -144,7 +144,7 @@ static char* parse_hex(char *text, uint8_t *value)
     text ++;
   if (! *text ) return 0;
   *value = 0;
-  while ((*text >= '0' && *text <= '9') || ((*text & 0xE0) >= 'A' && (*text & 0xE0) <= 'F'))
+  while ((*text >= '0' && *text <= '9') || ((*text & 0xDF) >= 'A' && (*text & 0xDF) <= 'F'))
   {
     *value <<= 4;
     nibble = *text - '0';
@@ -985,15 +985,16 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     cmd ++;
   switch (*cmd)
   {
-    case 'g': getorset = 0; break;
-    case 's': getorset = 1; break;
+    case 'g': getorset = 1; break;
+    case 's': getorset = 0; break;
     default: return -1;
   }
-
+  while (*cmd != ' ')
+    cmd ++;
   while (*cmd == ' ')
     cmd ++;
   cmd ++;
-  switch (*cmd & 0xE0)
+  switch (*cmd & 0xDF)
   {
     case 'I' : iotypeoffset = 0; break;
     case 'D' : iotypeoffset = 1; break;
@@ -1001,7 +1002,7 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     default: return -1;
   }
   cmd ++;
-  while (*cmd == ' ' || (*cmd & 0xE0) >= 'N')
+  while (*cmd == ' ' || (*cmd & 0xDF) >= 'N')
     cmd ++;
   cmd = parse_hex(cmd, &value);
   if (cmd == 0)
@@ -1025,6 +1026,7 @@ static int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   if(getorset)
     return print_port(output, len, value, *ioptr);
     
+  //return 0;
   cmd = parse_hex(cmd, &value);
   if (cmd == 0)
     return -1;
