@@ -218,7 +218,7 @@ void i2c_core_newdata(void)
   }
   if(!resetconnection){
     STATS.last_seqnum = REQ->seqnum;
-    STATS.timeout = 100;
+    STATS.timeout = 25;
   }
   uip_process(UIP_UDP_SEND_CONN);
   fill_llh_and_transmit();
