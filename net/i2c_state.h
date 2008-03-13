@@ -29,10 +29,15 @@ struct i2c_t {
 		uint8_t raw[0];
 		uint8_t seqnum;
 	};
-	uint8_t i2c_addr_rw;
+	union{
+		uint8_t i2c_addr_rw;
+		uint8_t maxdatalen;
+		uint8_t write_datalen_ack;
+		uint8_t readdata[0];
+	};
 	union{
 		uint8_t datalen;
-		uint8_t data[0];
+		uint8_t writedata[0];
 	};
 };
 
