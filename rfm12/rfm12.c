@@ -54,7 +54,21 @@ enum RFM12_STATUS{
   RFM12_TX_END
 };
 
+enum RFM12_RET{
+  NOT_SET,
+  RX_START,
+  TX_START_1,
+  TX_START_2,
+  TX_START_3,
+  INT_1,
+  INT_2,
+  INT_3
+};
+
+
+
 uint8_t RFM12_akt_status = RFM12_OFF;
+uint8_t RFM12_ret_platz = 0;
 
 uint8_t RFM12_Index = 0;
 uint8_t RFM12_Txlen = 0;
@@ -80,6 +94,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	{
 	  rfm12_trans(0x8208);
           RFM12_akt_status = RFM12_OFF;
+	  RFM12_ret_platz = INT_1;
 	  rfm12_rxstart();
 #ifdef RFM12_BLINK_PORT
 	  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
@@ -89,7 +104,8 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(RFM12_Index >= RFM12_Data[0] + 1)
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_akt_status = RFM12_NEW;	
+	  RFM12_ret_platz = INT_2;
+	  RFM12_akt_status = RFM12_NEW;
 	}
     }
 
@@ -116,6 +132,7 @@ SIGNAL(RFM12_INT_SIGNAL)
           RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
 #endif
           rfm12_trans(0x8208);	/* TX off */
+	  RFM12_ret_platz = INT_3;
           rfm12_rxstart();
         }
       }
@@ -244,8 +261,10 @@ rfm12_setpower(uint8_t power, uint8_t mod)
 uint8_t
 rfm12_rxstart(void)
 {
-  if(RFM12_akt_status != RFM12_OFF)
+  if(RFM12_akt_status != RFM12_OFF){
+    RFM12_ret_platz = RX_START;
     return(1);			/* rfm12 is not free for RX or now in RX */
+  }
 
   rfm12_prologue ();
 
@@ -299,11 +318,14 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 {
   uint8_t i, l;
 
-  if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0))
+  if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)){
+    RFM12_ret_platz = TX_START_1;
     return(3);                  /* rx or tx in action oder new packet in buffer*/
-  
+  }
+
   if(size > RFM12_DataLength){
     rfm12_rxstart ();		/* destroy the packet and restart rx */
+    RFM12_ret_platz = TX_START_2;
     return(4);			/* str to big to transmit */
   }
 
@@ -325,6 +347,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   if (!size){
     RFM12_akt_status = RFM12_OFF;
     rfm12_rxstart ();		/* destroy the packet and restart rx */
+    RFM12_ret_platz = TX_START_3;
     return 4;
   }
 #endif
