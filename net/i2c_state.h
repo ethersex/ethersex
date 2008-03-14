@@ -22,7 +22,7 @@
 #define _I2C_STATE_H
 
 /* constants */
-#define MAXDATAPAKETLEN (uint8_t)(UIP_CONF_BUFFER_SIZE - 2)
+#define MAXDATAPAKETLEN (uint8_t)(UIP_APPDATA_SIZE - 2)
 
 struct i2c_t {
 	union{
