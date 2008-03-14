@@ -29,6 +29,14 @@
 
 #ifdef I2C_SUPPORT
 
+/* constants */
+#ifdef SKIPJACK_SUPPORT
+#define MAXDATAPAKETLEN (uint8_t)(UIP_APPDATA_SIZE - 11)
+#else
+#define MAXDATAPAKETLEN (uint8_t)(UIP_APPDATA_SIZE - 3)
+#endif
+
+
 #define STATS (uip_udp_conn->appstate.i2c)
 
 /*
