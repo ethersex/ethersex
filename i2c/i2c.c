@@ -38,7 +38,6 @@
 
 enum datalen {
   GETMAXDATA = 1,
-  SENDERROR,
   READFROMI2C
 };
 
@@ -193,6 +192,10 @@ void i2c_core_newdata(void)
             resetconnection = 1;
             break;
           }
+        }
+        if(REQ->seqnum == 0){
+          TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+          resetconnection = 1;
         }
         uip_slen = tmp_datalen + 1;
       }
