@@ -43,6 +43,7 @@
 
 extern unsigned short rfm12_t_status;
 extern uint8_t RFM12_akt_status;
+extern uint8_t RFM12_ret_platz;
 //static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
 //static uint8_t countdown = 0;
@@ -246,13 +247,14 @@ sensormodul_core_periodic(void)
 #endif
 
 #ifdef SENSORMODUL_DEBUG
-	char lcdbuf[6];
+	char lcdbuf[7];
 	lcdbuf[0] = NIBBLE_TO_HEX((rfm12_t_status >> 12) & 0x0F);
 	lcdbuf[1] = NIBBLE_TO_HEX((rfm12_t_status >> 8) & 0x0F);
 	lcdbuf[2] = NIBBLE_TO_HEX((rfm12_t_status >> 4) & 0x0F);
 	lcdbuf[3] = NIBBLE_TO_HEX(rfm12_t_status & 0x0F);
 	lcdbuf[4] = NIBBLE_TO_HEX(RFM12_akt_status & 0x0F);
-	lcdbuf[5] = 0;
+	lcdbuf[5] = NIBBLE_TO_HEX(RFM12_ret_platz & 0x0F);
+	lcdbuf[6] = 0;
 	lcd_print(lcdbuf);
 #else
         lcd_print(" Max");
