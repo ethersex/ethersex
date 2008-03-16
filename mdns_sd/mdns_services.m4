@@ -59,6 +59,33 @@ divert(2)#endif
 divert(-1)')
 
 mdns_feature(workstation, "_workstation._tcp.local", CONF_HOSTNAME, NULL, 9)
+mdns_ifdef(TETRIRAPE_SUPPORT)
+  mdns_feature(tetrirape, "_tetrirape._tcp.local", "hardware tetrinet server", NULL, 31457)
+mdns_endif()
+
+mdns_ifdef(RFM12_SUPPORT)
+  mdns_feature(rfm12, "_rfm12._bridge.local", "bridge to rfm12 network", NULL, 0)
+mdns_endif()
+
+mdns_ifdef(ZBUS_SUPPORT)
+  mdns_feature(zbus, "_zbus._bridge.local", "bridge to zbus network", NULL, 0)
+mdns_endif()
+
+mdns_ifdef(I2C_SUPPORT)
+  mdns_feature(zbus, "_i2c._bridge.local", "bridge to i2c devices", NULL, 0)
+mdns_endif()
+
+mdns_ifdef(NTPD_SUPPORT)
+  mdns_feature(ntpd, "_ntp._udp.local", "hardware ntpd server", NULL, 123)
+mdns_endif()
+
+mdns_ifdef(YPORT_SUPPORT)
+  mdns_feature(yport, "_serial._tcp.local", "serial to tcp bridge", NULL, 7970)
+mdns_endif()
+
+mdns_ifdef(ECMD_SUPPORT)
+  mdns_feature(ecmd, "_telnet._tcp.local", CONF_HOSTNAME " ecmd interface", NULL, 2701)
+mdns_endif()
 
 divert(2)dnl
   { .service = NULL, .name = NULL, .text = NULL, .port = 0, .state = 0},
