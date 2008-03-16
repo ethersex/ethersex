@@ -34,7 +34,6 @@
 #ifdef MDNS_SD_SUPPORT
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
-#define HOSTNAME "ethersex"
 
 #include "mdns_services.c"
 
@@ -107,53 +106,6 @@ append_answer_header(uint8_t *base, uint8_t *start, const char *label1,
   return &answer->len;
 }
 
-#if 0
-static uint8_t *
-append_service(uint8_t *base, uint8_t *start, uint8_t *label1,
-               uint8_t *label2,uint16_t class, uint16_t type, uint16_t ttl, 
-               uint8_t *name, uint16_t port, uint8_t method) 
-{
-  struct dns_answer_info *answer;
-  uint8_t *tmp;
-  /* When we have two labels append both */
-  if (label2) {
-     tmp = append_label(start, label1);
-     tmp = append_label(tmp - 1, label2);
-  } else 
-    tmp = append_label(start, label1);
-
-  answer = (struct dns_answer_info *)tmp;
-  answer->class = ntohs(class);
-  answer->type = ntohs(type);
-  answer->ttl[0] = 0;
-  answer->ttl[1] = ntohs(ttl);
-
-  if (method == APPEND_DIRECT) {
-    start = append_label(answer->data, name);
-  } else if ( method == APPEND_WITH_LABEL) {
-    tmp = answer->data;
-    *tmp++ = strlen_P(name);
-    memcpy_P(tmp, name, strlen_P(name));
-    tmp += strlen_P(name);
-    uint16_t *ptr = (uint16_t *)tmp;
-   *ptr = ntohs(0xC000 | (start - base));
-    start = (uint8_t *) (ptr + 1);
-  } else if (method == APPEND_SRV) {
-    uint16_t *ptr = (uint16_t *)answer->data;
-    *ptr++ = 0; /* Priority */
-    *ptr++ = 0; /* Weight */
-    *ptr++ = ntohs(port); /* Port */
-    start = append_label((uint8_t *)ptr, name);
-  } else if (method == APPEND_IP) {
-    memcpy(answer->data, (uint8_t *)name, sizeof(uip_ipaddr_t));
-    start = answer->data + sizeof(uip_ipaddr_t);
-  }
-  answer->len = ntohs((uint8_t *)start - (uint8_t *)answer->data);
-
-  return start;
-}
-#endif
- 
 uint8_t
 compare_label(uint8_t *base, uint8_t *label, const char *data) 
 {
@@ -301,7 +253,7 @@ mdns_new_data(void)
       *ptr++ = 0; /* Priority */
       *ptr++ = 0; /* Weight */
       *ptr++ = ntohs(services[i].port); /* Port */
-      nameptr = append_label((uint8_t *)ptr, PSTR(HOSTNAME ".local"));
+      nameptr = append_label((uint8_t *)ptr, PSTR(CONF_HOSTNAME ".local"));
       /* An ip record will be appended */
       need_ip = 1;
       *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
@@ -325,8 +277,12 @@ mdns_new_data(void)
 
   if (need_ip) {
       uint16_t *len_ptr = append_answer_header((uint8_t *)body.hdr, nameptr, 
-                               PSTR(HOSTNAME ".local"), services[i].service, 0x8001, 
+                               PSTR(CONF_HOSTNAME ".local"), services[i].service, 0x8001, 
+#ifdef IPV6_SUPPORT
+                               0x1c, 600);
+#else
                                0x01, 600);
+#endif
       nameptr = ((uint8_t *)len_ptr) + 2 + sizeof(uip_ipaddr_t);
       *len_ptr = ntohs(sizeof(uip_ipaddr_t));
       /* here we append our own ip address */

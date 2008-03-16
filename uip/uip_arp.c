@@ -364,7 +364,6 @@ uip_arp_out(void)
 {
   struct arp_entry *tabptr;
 #ifdef MDNS_SD_SUPPORT
-// FIXME: IPv6
   uip_ipaddr_t mdns_address = {0x00e0, 0xfb00};
 #endif
   

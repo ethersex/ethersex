@@ -246,6 +246,11 @@ int
 uip_neighbor_out(void) 
 {
   uip_ipaddr_t ipaddr;
+  struct uip_neighbor_addr *remote_mac;
+#ifdef MDNS_SD_SUPPORT
+  const uip_ipaddr_t mdns_address =
+  {0x02ff,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0xfb00};
+#endif /* MDNS_SD_SUPPORT */
 
   /* Check if the destination address is on the local network. 
    * FIXME, for the moment we assume a 64-bit "netmask" */
@@ -261,7 +266,17 @@ uip_neighbor_out(void)
     /* Remote address is on the local network, send directly. */
     uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
 
-  struct uip_neighbor_addr *remote_mac = uip_neighbor_lookup(ipaddr);
+#ifdef MDNS_SD_SUPPORT
+  if (uip_ipaddr_cmp(IPBUF->destipaddr, mdns_address))  {
+    /* The MDNS remote address will always be on the same network, so we don't
+     * have to use the router */
+    uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
+    /* We send the answer to the mac of the asking machine */
+    memcpy(ETHBUF->dest.addr, ETHBUF->src.addr, 6); 
+    goto after_neighbour_resolv;
+  } else 
+#endif /* MDNS_SD_SUPPORT */
+    remote_mac = uip_neighbor_lookup(ipaddr);
 
   if(! remote_mac) {
     /* We don't know the remote MAC so far, therefore send neighbor
@@ -272,6 +287,8 @@ uip_neighbor_out(void)
 
   /* Initialize ethernet header. */
   memcpy(ETHBUF->dest.addr, remote_mac->addr.addr, 6);
+
+after_neighbour_resolv:
   memcpy(ETHBUF->src.addr, uip_ethaddr.addr, 6);
   ETHBUF->type = HTONS(UIP_ETHTYPE_IP6);
 

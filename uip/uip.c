@@ -159,10 +159,13 @@ const uip_ipaddr_t all_zeroes_addr =
 #endif /* UIP_CONF_IPV6 */
 
 #ifdef MDNS_SD_SUPPORT
-// FIXME: IPv6
 const uip_ipaddr_t mdns_address =
+#ifdef IPV6_SUPPORT
+  {0x02ff,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0xfb00};
+#else
   {0x00e0, 0xfb00};
-#endif
+#endif /* IPV6_SUPPORT */
+#endif /* MDNS_SD_SUPPORT */
 
 
 #if UIP_FIXEDETHADDR
