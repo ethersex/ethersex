@@ -209,20 +209,25 @@ void i2c_core_newdata(void)
       }
       else
       {
-        uint8_t tmp_datapos = 0;
-
-        while (tmp_datapos < uip_datalen() - 2){
-          TWSRtmp = i2c_send ( REQ->writedata[tmp_datapos++] );
-          /* fehler protokollieren */
-          if(TWSRtmp != 0x28){
-            break;
+        if(STATS.last_seqnum == 0 || REQ->seqnum != STATS.last_seqnum)
+        {
+          uint8_t tmp_datapos = 0;
+  
+          while (tmp_datapos < uip_datalen() - 2){
+            TWSRtmp = i2c_send ( REQ->writedata[tmp_datapos++] );
+            /* fehler protokollieren */
+            if(TWSRtmp != 0x28){
+              break;
+            }
           }
+          if(REQ->seqnum == 0){
+            TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+            resetconnection = 1;
+          }
+          REQ->write_datalen_ack = tmp_datapos;
         }
-        if(REQ->seqnum == 0){
-          TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
-          resetconnection = 1;
-        }
-        REQ->write_datalen_ack = tmp_datapos;
+        else
+          REQ->write_datalen_ack = uip_datalen() - 2;
         uip_slen = 2;
       }
     }
