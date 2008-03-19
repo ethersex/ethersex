@@ -65,7 +65,7 @@ dnl
   pin(RFM12_RX_PIN, PB7)
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PD2)
-  pin(ZBUS_TX_PIN, PD6)
+  pin(ZBUS_RX_PIN, PD6)
   pin(ZBUS_TX_PIN, PD7)
 
 #else 
@@ -81,7 +81,7 @@ dnl
   pin(RFM12_RX_PIN, PD5)
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PC2)
-  pin(ZBUS_TX_PIN, PD4)
+  pin(ZBUS_RX_PIN, PD4)
   pin(ZBUS_TX_PIN, PD5)
 
 #endif
