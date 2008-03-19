@@ -88,7 +88,7 @@ zbus_rxstart (void)
   _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_RXEN_UART0);
 
   /* Default is reciever enabled*/
-  RXTX_PORT &= ~_BV(RXTX_PIN);
+  PIN_CLEAR(ZBUS_RXTX_PIN);
 
   SREG = sreg;
 }
@@ -125,12 +125,15 @@ zbus_core_init(void)
     usart_init();
 
     /* Enable RX/TX Swtich as Output */
-    RXTX_DDR |= _BV(RXTX_PIN);
+    DDR_CONFIG_OUT(ZBUS_RXTX_PIN);
 
-#ifdef ZBUS_BLINK_PORT
-    ZBUS_BLINK_DDR |= ZBUS_RX_PIN | ZBUS_TX_PIN;
+#ifdef ZBUS_RX_PIN
+    DDR_CONFIG_OUT(ZBUS_RX_PIN);
 #endif
-    
+#ifdef ZBUS_TX_PIN
+    DDR_CONFIG_OUT(ZBUS_TX_PIN);
+#endif
+
     /* clear the buffers */
     send_ctx.len = 0;
     recv_ctx.len = 0;
@@ -163,7 +166,7 @@ zbus_txstart(void)
   _UCSRB_UART0 = _BV(_TXCIE_UART0) | _BV(_TXEN_UART0);
 
   /* Enable transmitter */
-  RXTX_PORT |= _BV(RXTX_PIN);
+  PIN_SET(ZBUS_RXTX_PIN);
 
   /* reset tx interrupt flag */
   _UCSRA_UART0 |= _BV(_TXC_UART0);
@@ -175,8 +178,8 @@ zbus_txstart(void)
   send_escape_data = ZBUS_START;
   _UDR_UART0 = '\\';
 
-#ifdef ZBUS_BLINK_PORT
-  ZBUS_BLINK_PORT |= ZBUS_TX_PIN;
+#ifdef ZBUS_TX_PIN
+  PIN_SET(ZBUS_TX_PIN);
 #endif
 
   return 1;
@@ -218,8 +221,8 @@ SIGNAL(USART0_TX_vect)
 
   /* Nothing to do, disable transmitter and TX LED. */
   else {
-#ifdef ZBUS_BLINK_PORT
-    ZBUS_BLINK_PORT &= ~ZBUS_TX_PIN;
+#ifdef ZBUS_TX_PIN
+    PIN_CLEAR(ZBUS_TX_PIN);
 #endif
     
     zbus_rxstart ();
@@ -251,8 +254,8 @@ SIGNAL(USART0_RX_vect)
     if (data == ZBUS_START) {
       recv_ctx.offset = 0;
       bus_blocked = 3;
-#ifdef ZBUS_BLINK_PORT
-      ZBUS_BLINK_PORT |= ZBUS_RX_PIN;
+#ifdef ZBUS_RX_PIN
+      PIN_SET(ZBUS_RX_PIN);
 #endif
     }
 
@@ -261,8 +264,8 @@ SIGNAL(USART0_RX_vect)
       if (bus_blocked) {
 	zbus_rxstop ();
 
-#ifdef ZBUS_BLINK_PORT
-	ZBUS_BLINK_PORT &= ~ZBUS_RX_PIN;
+#ifdef ZBUS_RX_PIN
+        PIN_CLEAR(ZBUS_RX_PIN);
 #endif
 	recv_ctx.len = recv_ctx.offset;
       }

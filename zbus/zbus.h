@@ -33,16 +33,6 @@
   #define ZBUS_RECV_BUFFER UIP_CONF_BUFFER_SIZE
 #endif
 
-#ifdef _ATMEGA8
-  #define RXTX_PORT PORTD
-  #define RXTX_DDR  DDRD
-  #define RXTX_PIN  PD2
-#else
-  #define RXTX_PORT PORTC
-  #define RXTX_DDR  DDRC
-  #define RXTX_PIN  PC2
-#endif
-
 /* use 19200 baud at 20mhz (see datasheet for other values) */
 /* is used if teensy is disabled; this ist the baudrate/100 */
 #define ZBUS_BAUDRATE 192
@@ -79,19 +69,5 @@ struct zbus_ctx *zbus_rxfinish(void);
 #endif
 
 void zbus_process(void);
-
-#ifdef _ATMEGA8
-  #define ZBUS_BLINK_PORT PORTD
-  #define ZBUS_BLINK_DDR DDRD
-  #define ZBUS_TX_PIN _BV(PD6)
-  #define ZBUS_RX_PIN _BV(PD7)
-#endif
-
-#ifdef _ATMEGA644
-  #define ZBUS_BLINK_PORT PORTD
-  #define ZBUS_BLINK_DDR DDRD
-  #define ZBUS_TX_PIN _BV(PD4)
-  #define ZBUS_RX_PIN _BV(PD5)
-#endif
 
 #endif /* _ZBUS_H */
