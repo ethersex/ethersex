@@ -36,7 +36,7 @@ check_env() {
   fi
 
   [ -e Makefile -a -e uip/uip-conf.h -a -e config.h ] || {
-    echo "$0 must be ran within a etherrape repository."
+    echo "$0 must be run within a etherrape repository."
     exit 1
   }
 }
@@ -53,6 +53,7 @@ if [ x"$1" = x"save" -o x"$1" = x"--save" ]; then
 
   cp config.h $tmpdir
   cp Makefile $tmpdir
+  cp pinning.m4 $tmpdir
   cp uip/uip-conf.h $tmpdir/uip
 
   for i in `ls`; do
