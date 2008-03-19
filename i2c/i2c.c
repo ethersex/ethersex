@@ -26,8 +26,6 @@
 #include "../uip/uip.h"
 #include "../config.h"
 #include "i2c.h"
-#include "../crypto/skipjack.h"
-
 #ifdef I2C_SUPPORT
 
 /* constants */

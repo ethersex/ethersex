@@ -5,6 +5,7 @@
 
 #include <inttypes.h>
 #include "../config.h"
+#include "../crypto/skipjack.h"
 
 /**
  * 8 bit datatype
