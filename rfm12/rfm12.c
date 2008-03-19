@@ -86,8 +86,8 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(RFM12_Index < RFM12_DataLength)
 	{
 	  RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
-#ifdef RFM12_BLINK_PORT
-	  RFM12_BLINK_PORT |= RFM12_RX_PIN;
+#ifdef RFM12_RX_PIN
+	  PIN_SET(RFM12_RX_PIN);
 #endif
 	}
       else
@@ -96,8 +96,8 @@ SIGNAL(RFM12_INT_SIGNAL)
           RFM12_akt_status = RFM12_OFF;
 	  RFM12_ret_platz = INT_1;
 	  rfm12_rxstart();
-#ifdef RFM12_BLINK_PORT
-	  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
+#ifdef RFM12_RX_PIN
+	  PIN_CLEAR(RFM12_RX_PIN);
 #endif
 	}
 
@@ -128,8 +128,8 @@ SIGNAL(RFM12_INT_SIGNAL)
         RFM12_akt_status++;
         if(RFM12_akt_status == RFM12_TX_END){
           RFM12_akt_status = RFM12_OFF;
-#ifdef RFM12_BLINK_PORT
-          RFM12_BLINK_PORT &= ~RFM12_TX_PIN;
+#ifdef RFM12_TX_PIN
+          PIN_CLEAR(RFM12_TX_PIN);
 #endif
           rfm12_trans(0x8208);	/* TX off */
 	  RFM12_ret_platz = INT_3;
@@ -189,8 +189,11 @@ rfm12_init(void)
   rfm12_trans(0x0000);
   
   RFM12_akt_status = RFM12_OFF;
-#ifdef RFM12_BLINK_PORT
-  RFM12_BLINK_DDR |= RFM12_RX_PIN | RFM12_TX_PIN;
+#ifdef RFM12_TX_PIN
+  DDR_CONFIG_OUT(RFM12_TX_PIN);
+#endif
+#ifdef RFM12_RX_PIN
+  DDR_CONFIG_OUT(RFM12_RX_PIN);
 #endif
 
   _EIMSK |= _BV(RFM12_INT_PIN);
@@ -287,8 +290,8 @@ rfm12_rxfinish(uint8_t *data)
   if(RFM12_akt_status != RFM12_NEW)
     return (255);		/* no new Packet */
 
-#ifdef RFM12_BLINK_PORT
-  RFM12_BLINK_PORT &= ~RFM12_RX_PIN;
+#ifdef RFM12_RX_PIN
+  PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
   uint8_t i;
@@ -331,8 +334,8 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 
   RFM12_akt_status = RFM12_TX;
 
-#ifdef RFM12_BLINK_PORT
-  RFM12_BLINK_PORT |= RFM12_TX_PIN;
+#ifdef RFM12_TX_PIN
+  PIN_SET(RFM12_TX_PIN);
 #endif
 
 #ifndef RFM12_SHARE_UIP_BUF

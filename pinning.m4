@@ -60,6 +60,10 @@ dnl
 
   /* port the rfm12 module CS is attached to */
   pin(SPI_CS_RFM12, PB2)
+  /* port the LEDS for rfm12 txrx attached to */
+  pin(RFM12_TX_PIN, PB6)
+  pin(RFM12_RX_PIN, PB7)
+
 #else 
   /* spi defines */
   pin(SPI_MOSI, PB5)
@@ -68,6 +72,9 @@ dnl
 
   /* port the rfm12 module CS is attached to */
   pin(SPI_CS_RFM12, PC3)
+  /* port the LEDS for rfm12 txrx attached to */
+  pin(RFM12_TX_PIN, PD4)
+  pin(RFM12_RX_PIN, PD5)
 
 #endif
 
@@ -111,3 +118,4 @@ pin(RC5_SEND, PD4)
 pin(FS20_SEND, PB2)
 /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
 pin(FS20_RECV, PB3)
+
