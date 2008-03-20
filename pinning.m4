@@ -2,6 +2,8 @@ dnl
 dnl pinning.m4
 dnl
 dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 as
@@ -23,9 +25,22 @@ dnl
    Please do not modify it, edit the m4 script instead. */
 
 divert(-1)dnl
+
+define(`port_mask_A', 0)
+define(`port_mask_B', 0)
+define(`port_mask_C', 0)
+define(`port_mask_D', 0)
+
 changecom(`//')
-define(`pin', `#define translit(`$1',`a-z', `A-Z')_PORT translit(substr(`$2', 1, 1), `a-z', `A-Z')
-#define translit(`$1',`a-z', `A-Z')_PIN substr(`$2', 2, 1)
+define(`PM', `port_mask_'$1)dnl
+define(`pin', `dnl
+define(`pinname', translit(substr(`$2', 1, 1), `a-z', `A-Z'))dnl
+define(`pinnum', substr(`$2', 2, 1))dnl
+dnl
+#define translit(`$1',`a-z', `A-Z')_PORT pinname
+#define translit(`$1',`a-z', `A-Z')_PIN pinnum
+dnl
+define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
 ')
 divert(1)
 `#define _PORT_CHAR(character) PORT ## character
@@ -52,39 +67,52 @@ divert(1)
 
 divert(0)dnl
 dnl
-#ifdef _ATMEGA8
-  /* spi defines */
-  pin(SPI_MOSI, PB3)
-  pin(SPI_MISO, PB4)
-  pin(SPI_SCK, PB5)
+ifelse(MCU, `atmega8', `dnl
 
-  /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PB2)
-  /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, PB6)
-  pin(RFM12_RX_PIN, PB7)
-  /* port config for zbus */
-  pin(ZBUS_RXTX_PIN, PD2)
-  pin(ZBUS_RX_PIN, PD6)
-  pin(ZBUS_TX_PIN, PD7)
+  ifdef(`conf_RFM12', `dnl
+    /* spi defines */
+    pin(SPI_MOSI, PB3)
+    pin(SPI_MISO, PB4)
+    pin(SPI_SCK, PB5)
 
-#else 
+    /* port the rfm12 module CS is attached to */
+    pin(SPI_CS_RFM12, PB2)
+
+    /* port the LEDS for rfm12 txrx attached to */
+    pin(RFM12_TX_PIN, PB6)
+    pin(RFM12_RX_PIN, PB7)
+  ')
+
+  ifdef(`conf_ZBUS', `dnl
+    /* port config for zbus */
+    pin(ZBUS_RXTX_PIN, PD2)
+    pin(ZBUS_RX_PIN, PD6)
+    pin(ZBUS_TX_PIN, PD7)
+  ')
+')
+
+ifelse(MCU, `atmega644', `dnl
   /* spi defines */
   pin(SPI_MOSI, PB5)
   pin(SPI_MISO, PB6)
   pin(SPI_SCK, PB7)
 
-  /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PC3)
-  /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, PD4)
-  pin(RFM12_RX_PIN, PD5)
-  /* port config for zbus */
-  pin(ZBUS_RXTX_PIN, PC2)
-  pin(ZBUS_RX_PIN, PD4)
-  pin(ZBUS_TX_PIN, PD5)
+  ifdef(`conf_RFM12', `dnl
+    /* port the rfm12 module CS is attached to */
+    pin(SPI_CS_RFM12, PC3)
 
-#endif
+    /* port the LEDS for rfm12 txrx attached to */
+    pin(RFM12_TX_PIN, PD4)
+    pin(RFM12_RX_PIN, PD5)
+  ')
+
+  ifdef(`conf_ZBUS', `dnl
+    /* port config for zbus */
+    pin(ZBUS_RXTX_PIN, PC2)
+    pin(ZBUS_RX_PIN, PD4)
+    pin(ZBUS_TX_PIN, PD5)
+  ')
+')
 
   /* port the enc28j60 is attached to
    * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
@@ -94,36 +122,55 @@ dnl
   /* port the dataflash CS is attached to */
   pin(SPI_CS_DF, PB1)
 
-/* modbus tx  */
-pin(MODBUS_TX, PC2)
+ifdef(`conf_modbus', `dnl
+  /* modbus tx  */
+  pin(MODBUS_TX, PC2)
+')dnl
 
-/* ps/2 pins */
-pin(PS2_DATA, PA7)
-pin(PS2_CLOCK, PA6)
+ifdef(`conf_ps2', `dnl
+  /* ps/2 pins */
+  pin(PS2_DATA, PA7)
+  pin(PS2_CLOCK, PA6)
+')dnl
 
-/* pins for the hc595 shift register */
-pin(HC595_DATA, PB6)
-pin(HC595_CLOCK, PB2)
-pin(HC595_STORE, PB7)
+ifdef(`conf_hc595', `dnl
+  /* pins for the hc595 shift register */
+  pin(HC595_DATA, PB6)
+  pin(HC595_CLOCK, PB2)
+  pin(HC595_STORE, PB7)
+')dnl
 
-/* pins for the hc165 shift register */
-pin(HC165_DATA, PB0)
-pin(HC165_CLOCK, PB2)
-pin(HC165_LOAD, PB1)
+ifdef(`conf_hc165', `dnl
+  /* pins for the hc165 shift register */
+  pin(HC165_DATA, PB0)
+  pin(HC165_CLOCK, PB2)
+  pin(HC165_LOAD, PB1)
+')dnl
 
 /* enc28j60 int line */
 pin(INT_PIN, PB3)
 /* enc28j60 wol line */
 pin(WOL_PIN, PB2)
 
-/* onewire support */
-pin(ONEWIRE, PD6)
+ifdef(`conf_onewire', `dnl
+  /* onewire support */
+  pin(ONEWIRE, PD6)
+')dnl
 
-/* rc5 support */
-pin(RC5_SEND, PD4)
+ifdef(`conf_rc5', `dnl
+  /* rc5 support */
+  pin(RC5_SEND, PD4)
+')dnl
 
-/* fs20 support */
-pin(FS20_SEND, PB2)
-/* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
-pin(FS20_RECV, PB3)
+ifdef(`conf_fs20',  `dnl
+  /* fs20 support */
+  pin(FS20_SEND, PB2)
+  /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
+  pin(FS20_RECV, PB3)
+')dnl
+
+#define PORTIO_MASK_A eval(255 - port_mask_A)
+#define PORTIO_MASK_B eval(255 - port_mask_B)
+#define PORTIO_MASK_C eval(255 - port_mask_C)
+#define PORTIO_MASK_D eval(255 - port_mask_D)
 
