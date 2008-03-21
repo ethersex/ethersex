@@ -54,7 +54,7 @@ typedef union uip_tcp_connection_state {
     struct ecmd_sender_connection_state_t ecmd_sender;
 #   endif
 
-#   ifdef DYNDNS_SUPPORT
+#   if defined(DYNDNS_SUPPORT) && defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
     struct dyndns_connection_state_t dyndns;
 #   endif
 

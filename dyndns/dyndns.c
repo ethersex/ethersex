@@ -25,6 +25,7 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../dns/resolv.h"
+#include "../syslog/syslog.h"
 #include "../debug.h"
 #include "dyndns.h"
 
@@ -32,22 +33,36 @@
 #ifdef DYNDNS_SUPPORT
 static void dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr);
 static void dyndns_net_main(void);
+#ifndef TCP_SUPPORT
+static uip_udp_conn_t *dyndns_conn = NULL;
+static uint8_t poll_counter = 5;
+#endif
 
 void
 dyndns_update(void)
 {
-  uint8_t i;
+ uint8_t i;
+#if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
   /* Request to close all other dyndns connections */
   for (i = 0; i < UIP_CONNS; i ++) 
     if (uip_conns[i].callback == dyndns_net_main)
       uip_conns[i].appstate.dyndns.state = DYNDNS_CANCEL;
+#else
+  /* No TCP_SUPPORT */
+  if (dyndns_conn)
+    uip_udp_remove(dyndns_conn);
+#endif
 
 #ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup("dyn.metafnord.de"))) 
     resolv_query("dyn.metafnord.de", dyndns_query_cb, NULL);
   else
+#   if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
     uip_connect(ipaddr, HTONS(80), dyndns_net_main);
+#   else
+    dyndns_conn = uip_udp_connect(ipaddr, HTONS(17569), dyndns_net_main);
+#   endif
 #else
   uip_ipaddr_t ipaddr;
   // dyn.metafnord.de
@@ -56,9 +71,14 @@ dyndns_update(void)
 #else
   uip_ipaddr(&ipaddr, 78, 47, 210, 243);
 #endif
+
+#if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
   uip_conn_t *conn = uip_connect (&ipaddr, HTONS (80), dyndns_net_main);
   if (conn)
     conn->appstate.dyndns.state = DYNDNS_HOSTNAME;
+#else
+    dyndns_conn = uip_udp_new(&ipaddr, HTONS(17569), dyndns_net_main);
+#endif /* TCP and not TEENSY */
 
 #endif
 }
@@ -66,14 +86,47 @@ dyndns_update(void)
 static void
 dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
+#if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
   uip_conn_t *conn = uip_connect (ipaddr, HTONS (80), dyndns_net_main);
   if (conn)
     conn->appstate.dyndns.state = DYNDNS_HOSTNAME;
+#else
+    dyndns_conn = uip_udp_new(ipaddr, HTONS(17569), dyndns_net_main);
+#endif /* TCP and not TEENSY */
 }
+/* Helper functions */
+#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
+#if !defined(TCP_SUPPORT) || defined(TEENSY_SUPPORT)
+#  ifdef IPV6_SUPPORT
+static char *
+uint16toa(char *p, uint16_t i) {
+  uint8_t x = 16;
+  do {
+    x -= 4;
+    *p++ = NIBBLE_TO_HEX((i >> x) & 0x0F);
+  } while (x);
+  return p;
+}
+#  else
+static char *
+uint8toa(char *p, uint8_t i) {
+  uint8_t tmp;
+  tmp = i / 100;
+  if (tmp) *p++ = tmp + '0';
+  i -= tmp * 100;
+  tmp = i / 10;
+  if (tmp) *p++ = tmp + '0';
+  i -= tmp * 10;
+  *p++ = i + '0';
+  return p;
+}
+#  endif
+#endif
 
 static void
 dyndns_net_main(void) 
 { 
+#if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
   /* Close connection on ready an when cancel was requested */
   if (uip_conn->appstate.dyndns.state >= DYNDNS_READY) {
     uip_abort ();
@@ -163,7 +216,49 @@ dyndns_net_main(void)
 
     uip_send(to_be_sent, length);
   }
+#else /* TCP and not TEENSY_SUPPORT */
+  if (uip_newdata() && dyndns_conn) {
+    uip_udp_remove(dyndns_conn);
+  } else if (uip_poll() && ((poll_counter++ % 5) == 0)) {
+    /* Don't try to update the dyndns entry forever */
+    if (poll_counter > 55)
+      uip_udp_remove(dyndns_conn);
 
+    /* Send a dyndns packet */
+    uint8_t len;
+    char *p = uip_appdata;
+    /* Form: 'username:password@hostname ip' */
+    len = strlen_P(PSTR(CONF_DYNDNS_USERNAME ":"
+                        CONF_DYNDNS_PASSWORD "@"
+                        CONF_DYNDNS_HOSTNAME " "));
+    memcpy_P(p, PSTR(CONF_DYNDNS_USERNAME ":"
+                     CONF_DYNDNS_PASSWORD "@"
+                     CONF_DYNDNS_HOSTNAME " "),
+             len);
+    p += len;
+    len = 0;
+    uint16_t *in16 = uip_hostaddr;
+#ifdef IPV6_SUPPORT
+    while (len++ < 8) {
+      p = uint16toa(p, HTONS(*in16));
+      *p++ = ':';
+      in16++;
+    }
+#else 
+    while (len++ < 2) {
+        uint8_t i = *in16, tmp;
+        p = uint8toa(p, *in16);
+        *p++ = '.';
+        p = uint8toa(p, (*in16) >> 8);
+        *p++ = '.';
+        in16++;
+    }
+#endif 
+    p[-1] = '\n';
+    uip_udp_send(p - (char *)uip_appdata);
+
+  }
+#endif /* TCP and not TEENSY_SUPPORT */
 }
 
 #endif

@@ -346,10 +346,10 @@
 #define TCP_SUPPORT
 #define ICMP_SUPPORT
 #define UDP_SUPPORT
-#define DNS_SUPPORT
+// #define DNS_SUPPORT
 // #define RC5_SUPPORT
-#define RFM12_SUPPORT
-#define RFM12_CLOUD_SUPPORT
+// #define RFM12_SUPPORT
+// #define RFM12_CLOUD_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
 // #define I2C_SUPPORT
@@ -371,7 +371,7 @@
 // #define PS2_SUPPORT
 // #define RFM12_LINKBEAT_NET_SUPPORT
 // #define ZBUS_LINKBEAT_NET_SUPPORT
-#define UDP_DNS_MCAST_SUPPORT
+// #define UDP_DNS_MCAST_SUPPORT
 
 // #define USART_SUPPORT
 // #define ZBUS_SUPPORT

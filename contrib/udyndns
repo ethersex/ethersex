@@ -1,0 +1,42 @@
+#!/usr/bin/python
+# Server program for the dyndns service over udp
+# this script translates the udp packets to an url, 
+# which is sent to the dyn.metafnord.de service
+
+from socket import *
+import urllib
+
+# Set the socket parameters
+host = ""
+port = 17569
+buf = 1024
+addr = (host, port)
+
+# Create socket and bind to address
+UDPSock = socket(AF_INET6,SOCK_DGRAM)
+UDPSock.bind(addr)
+UDPSock.setsockopt(SOL_SOCKET,
+	           SO_REUSEADDR, 1)
+
+def handle_request(addr, data):
+	username = data[0:data.index(":")]
+	password = data[data.index(":") + 1:data.index("@")]
+	hostname = data[data.index("@") + 1:data.index(" ")]
+	ipaddr = data[data.index(" ") + 1:-1]
+	url = "http://dyn.metafnord.de/edit.cgi?name=%s&ip=%s&username=%s&password=%s"%(hostname, ipaddr, username,password)
+	url = urllib.urlopen(url)
+	url.close()
+	UDPSock.sendto("done", addr)
+	print "Updated"
+
+# Receive messages
+while 1:
+	data,addr = UDPSock.recvfrom(buf)
+	if data:
+		try:
+			handle_request(addr, data)
+		except: pass
+	
+
+# Close socket
+UDPSock.close()

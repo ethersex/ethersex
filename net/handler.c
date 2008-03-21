@@ -144,7 +144,7 @@ void network_init_apps(void)
 #   endif
 
 #   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \
-      && !defined(IPV6_SUPPORT)
+      && ((!defined(IPV6_SUPPORT)) || defined(IPV6_STATIC_SUPPORT))
     dyndns_update();
 #   endif
 } /* }}} */

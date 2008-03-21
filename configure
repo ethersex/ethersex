@@ -228,7 +228,6 @@ my %ethersex_modules = (
   'dyndns'        => {
                    helptext  => "updating an dns name on dyn.metafnord.de",
                    distdflt  => 0,
-                   requires => ["tcp"],
                    enable_hook  => \&dyndns_enable_hook,
                  },
   'syslog'        => {
