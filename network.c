@@ -97,14 +97,6 @@ void network_init(void)
 
 #   ifdef ENC28J60_SUPPORT
 
-#   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
-    uip_setprefixlen(64);
-    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
-#   if UIP_CONF_IPV6_LLADDR
-    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
-#   endif
-#   endif
-
     /* use global network packet buffer for configuration */
     eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
 
@@ -235,6 +227,16 @@ void network_init(void)
 
     }
 #   endif /* !BOOTLOADER_SUPPORT */
+
+/* Do the autoconfiguration after the MAC is set */
+#   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
+    uip_setprefixlen(64);
+    uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
+#   if UIP_CONF_IPV6_LLADDR
+    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
+#   endif
+#   endif
+
 
 #   else /* not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
