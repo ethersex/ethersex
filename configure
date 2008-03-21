@@ -88,6 +88,11 @@ my %ethersex_modules = (
                    enable_hook  => \&ipv6_enable_hook,
                    disable_hook  => \&ipv6_disable_hook,
                  },
+  'ipv6_static'      => { 
+                   helptext  => "static IPv6 address",
+                   preconfigure => [ "ipv6" ],
+                   distdflt  => 0,
+                 },
   'broadcast' => { 
                    helptext  => "broadcast support",
                    requires  => [ "udp" ],
@@ -364,7 +369,7 @@ my %categories = (
   'protocols' => {
 		   helptext  => "network protocols",
 		   modules   => [ "dns", "syslog", "tcp", "udp", "udp_dns_mcast",
-				  "icmp", "ipv6" ],
+				  "icmp", "ipv6", "ipv6_static" ],
                  },
   'interfaces'   => {
 		   helptext  => "network interfaces",
@@ -393,6 +398,9 @@ my %ethersex_config = (
                  },
   'etherrape_ip' => {
                    helptext  => "default ip address (inner part, if OpenVPN)",
+                 },
+  'etherrape_ip6_prefix_len' => {
+                   helptext  => "ipv6 prefix len (IPv6 only)",
                  },
   'etherrape_ip4_netmask'   => {
                    helptext  => "default netmask (IPv4 only)",
@@ -1012,10 +1020,15 @@ sub bootp_enable_hook {
 sub ipv6_enable_hook {
   # ask user for openvpn support (we won't need a gateway on inner stack otherwise)
   configure_module "openvpn";
+  configure_module "ipv6_static";
 
   ask_ip("etherrape_ip")
     if($ethersex_modules{'openvpn'}->{'new_status'} == 1
-       || $ethersex_modules{'enc28j60'}->{'new_status'} == 0);
+       || $ethersex_modules{'enc28j60'}->{'new_status'} == 0
+       || $ethersex_modules{'ipv6_static'}->{'new_status'} == 1);
+
+  ask_prefix_len("etherrape_ip6_prefix_len")
+    if($ethersex_modules{'ipv6_static'}->{'new_status'} == 1);
 }
 
 sub zbus_enable_hook {

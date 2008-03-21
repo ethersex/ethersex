@@ -1310,9 +1310,11 @@ ip_check_end:
       
     }
     goto drop;
+#ifndef IPV6_STATIC_SUPPORT
   } else if(ICMPBUF->type == ICMP6_ROUTER_ADVERTISEMENT) {
     uip_router_parse_advertisement();
     goto drop; /* we must not reply. */
+#endif
 
   } else if(ICMPBUF->type == ICMP6_NEIGHBOR_ADVERTISEMENT) {
     if(ICMPBUF->options[0] == ICMP6_OPTION_TARGET_LINK_ADDRESS) {

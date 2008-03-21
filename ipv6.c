@@ -58,6 +58,7 @@ extern uint8_t bootload_delay;
 
 #if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
 
+
 static void 
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 {
@@ -111,6 +112,7 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 }
 
 
+#ifndef IPV6_STATIC_SUPPORT
 void 
 uip_router_send_solicitation(void)
 {
@@ -161,6 +163,7 @@ uip_router_send_solicitation(void)
   /* Calculate checksum */
   ICMPBUF->icmpchksum = ~uip_icmp6chksum();
 }
+#endif /* not IPV6_STATIC_SUPPORT */
 
 
 void
@@ -202,7 +205,7 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
 # endif /* TFTPOMATIC_SUPPORT */
 }
 
-
+#ifndef IPV6_STATIC_SUPPORT
 /* Parse an ICMPv6 router advertisement. */
 void
 uip_router_parse_advertisement(void)
@@ -240,6 +243,7 @@ uip_router_parse_advertisement(void)
  error_out:
   return;
 }
+#endif /* not IPV6_STATIC_SUPPORT */
 
 
 int

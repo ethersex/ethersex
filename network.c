@@ -42,6 +42,7 @@
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
 #include "uip/uip_zbus.h"
+#include "tftp/tftp.h"
 
 #ifndef ENC28J60_POLL
     #define interrupt_occured() (! PIN_HIGH(INT_PIN))
@@ -49,6 +50,10 @@
 #else
     #define interrupt_occured() 0
     #define wol_interrupt_occured() 0
+#endif
+
+#ifdef BOOTLOADER_SUPPORT
+extern uint8_t bootload_delay;
 #endif
 
 /* prototypes */
@@ -236,6 +241,23 @@ void network_init(void)
     uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
 #   endif
 #   endif
+
+#ifdef IPV6_STATIC_SUPPORT
+    /* If we have an static ip6 address, set it and fire tftp if this is
+     * requested */
+    uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
+    CONF_ETHERRAPE_IP;
+    uip_sethostaddr(ip);
+
+# ifdef TFTPOMATIC_SUPPORT
+    const unsigned char *filename = CONF_TFTP_IMAGE;
+    CONF_TFTP_IP;
+
+    tftp_fire_tftpomatic(&ip, filename);
+    bootload_delay = CONF_BOOTLOAD_DELAY;
+# endif /* TFTPOMATIC_SUPPORT */
+
+#endif /* IPV6_STATIC_SUPPORT */
 
 
 #   else /* not ENC28J60_SUPPORT */

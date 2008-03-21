@@ -340,6 +340,7 @@
 // #define BOOTP_TO_EEPROM_SUPPORT
 // #define BOOTLOADER_SUPPORT
 #define IPV6_SUPPORT
+// #define IPV6_STATIC_SUPPORT
 // #define BROADCAST_SUPPORT
 // #define ONEWIRE_SUPPORT
 #define TCP_SUPPORT
@@ -394,6 +395,7 @@
 
 #define CONF_ETHERRAPE_MAC "\xAC\xDE\x48\xFD\x0F\xD0"
 #define CONF_ETHERRAPE_IP uip_ip6addr(ip,0x2001,0x6f8,0x1209,0x23,0x0,0x0,0xfe9b,0xee52)
+#define CONF_ETHERRAPE_IP6_PREFIX_LEN 64
 #define CONF_ETHERRAPE_IP4_NETMASK uip_ipaddr(ip,255,255,255,0)
 #define CONF_ETHERRAPE_IP4_GATEWAY uip_ipaddr(ip,0,0,0,0)
 

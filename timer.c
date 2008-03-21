@@ -147,10 +147,12 @@ void timer_process(void)
 #           ifdef OPENVPN_SUPPORT		
 	    uip_stack_set_active(STACK_OPENVPN);
 #           endif
+#       ifndef IPV6_STATIC_SUPPORT
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
                 uip_router_send_solicitation();
                 transmit_packet();
             }
+#       endif
         }
 #       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
