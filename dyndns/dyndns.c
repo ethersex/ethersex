@@ -33,7 +33,7 @@
 #ifdef DYNDNS_SUPPORT
 static void dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr);
 static void dyndns_net_main(void);
-#ifndef TCP_SUPPORT
+#if !(defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT))
 static uip_udp_conn_t *dyndns_conn = NULL;
 static uint8_t poll_counter = 5;
 #endif
@@ -95,15 +95,19 @@ dyndns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 #endif /* TCP and not TEENSY */
 }
 /* Helper functions */
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
+#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'a')) 
 #if !defined(TCP_SUPPORT) || defined(TEENSY_SUPPORT)
 #  ifdef IPV6_SUPPORT
 static char *
 uint16toa(char *p, uint16_t i) {
   uint8_t x = 16;
+  uint8_t tmp;
+  char *begin = p;
   do {
     x -= 4;
-    *p++ = NIBBLE_TO_HEX((i >> x) & 0x0F);
+    tmp = (i >> x) & 0x0F;
+    if (tmp || p != begin || x == 0)
+      *p++ = NIBBLE_TO_HEX(tmp);
   } while (x);
   return p;
 }

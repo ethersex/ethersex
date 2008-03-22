@@ -1,7 +1,5 @@
 #!/usr/bin/python
-# Server program for the dyndns service over udp
-# this script translates the udp packets to an url, 
-# which is sent to the dyn.metafnord.de service
+# Server program
 
 from socket import *
 import urllib
