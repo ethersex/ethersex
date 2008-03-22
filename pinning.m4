@@ -39,6 +39,7 @@ define(`pinnum', substr(`$2', 2, 1))dnl
 dnl
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
+#define HAVE_'translit(`$1',`a-z', `A-Z')` 1
 dnl
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
 ')
