@@ -91,6 +91,7 @@ my %ethersex_modules = (
   'ipv6_static'      => { 
                    helptext  => "static IPv6 address",
                    preconfigure => [ "ipv6" ],
+                   requires => [ "ipv6" ],
                    distdflt  => 0,
                  },
   'broadcast' => { 
