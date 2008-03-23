@@ -340,6 +340,11 @@ my %ethersex_modules = (
                    requires => [ "usart" ],
 		   preconfigure => [ "skipjack", "enc28j60" ],
                  },
+  'zbus_raw' => {
+                   heptext   => "zbus udp tunnel",
+		   distdflt  => 0,
+		   requires  => [ "zbus", "enc28j60" ],
+                 },
 );
 my %categories = (
   'applications' => {
@@ -374,7 +379,8 @@ my %categories = (
   'protocols' => {
 		   helptext  => "network protocols",
 		   modules   => [ "dns", "syslog", "tcp", "udp", "udp_dns_mcast",
-				  "icmp", "ipv6", "ipv6_static" ],
+				  "icmp", "ipv6", "ipv6_static", "zbus_raw", 
+				  "rfm12_raw"],
                  },
   'interfaces'   => {
 		   helptext  => "network interfaces",

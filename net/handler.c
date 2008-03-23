@@ -46,6 +46,7 @@
 #include "sensormodul_net.h"
 #include "modbus_net.h"
 #include "rfm12_raw_net.h"
+#include "zbus_raw_net.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
@@ -90,6 +91,10 @@ void network_init_apps(void)
 
 #   ifdef RFM12_RAW_SUPPORT
     rfm12_raw_net_init();
+#   endif
+
+#   ifdef ZBUS_RAW_SUPPORT
+    zbus_raw_net_init();
 #   endif
 
 #   ifdef STELLA_SUPPORT

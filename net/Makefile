@@ -22,6 +22,7 @@ SRC = \
 	yport_net.c \
 	sensormodul_net.c \
 	modbus_net.c \
+	zbus_raw_net.c \
 
 ##############################################################################
 # generic fluff

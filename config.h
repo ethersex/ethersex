@@ -376,6 +376,7 @@
 
 // #define USART_SUPPORT
 // #define ZBUS_SUPPORT
+// #define ZBUS_RAW_SUPPORT
 // #define YPORT_SUPPORT
 // #define MODBUS_SUPPORT
 

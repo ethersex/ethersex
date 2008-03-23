@@ -25,6 +25,7 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "zbus.h"
+#include "../net/zbus_raw_net.h"
 
 
 void
@@ -39,6 +40,26 @@ zbus_process(void)
 
   /* uip_input expects the number of bytes including the LLH. */
   uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
+
+#ifdef ZBUS_RAW_SUPPORT
+  if (zbus_raw_conn->rport) {
+    /* zbus raw capturing active, forward in udp/ip encapsulated form,
+       thusly don't push to the stack. */
+    uip_udp_conn = zbus_raw_conn;
+    uip_stack_set_active (STACK_MAIN);
+    memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
+	     uip_buf + ZBUS_BRIDGE_OFFSET, recv->len);
+    uip_slen = recv->len;
+    uip_process(UIP_UDP_SEND_CONN);
+    fill_llh_and_transmit();
+
+    recv->len = 0;		/* receive buffer may be overriden
+                                   from now on. */
+    
+    zbus_rxstart ();
+    return;
+  }
+#endif
 
   recv->len = 0;		/* receive buffer may be overriden
 				   from now on. */
