@@ -1041,7 +1041,7 @@ uip_process(u8_t flag)
   if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
                              zbus_stack_prefix_len))
 #else /* !UIP_CONF_IPV6 */
-  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
+  if(uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
                          zbus_stack_netmask))
 #endif
     {
@@ -1069,7 +1069,7 @@ uip_process(u8_t flag)
   if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
                              zbus_stack_prefix_len))
 #else /* !UIP_CONF_IPV6 */
-  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
+  if(uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
                          zbus_stack_netmask))
 #endif
   {
