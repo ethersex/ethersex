@@ -23,8 +23,6 @@
 #include <avr/io.h>
 #include "spi.h"
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT)
-
 void spi_init(void)
 /* {{{ */ {
 
@@ -82,5 +80,3 @@ uint8_t noinline spi_send(uint8_t data)
     return _SPDR0;
 
 } /* }}} */
-
-#endif
