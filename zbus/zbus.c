@@ -127,10 +127,10 @@ zbus_core_init(void)
     /* Enable RX/TX Swtich as Output */
     DDR_CONFIG_OUT(ZBUS_RXTX_PIN);
 
-#ifdef ZBUS_RX_PIN
+#ifdef HAVE_ZBUS_RX_PIN
     DDR_CONFIG_OUT(ZBUS_RX_PIN);
 #endif
-#ifdef ZBUS_TX_PIN
+#ifdef HAVE_ZBUS_TX_PIN
     DDR_CONFIG_OUT(ZBUS_TX_PIN);
 #endif
 
@@ -178,7 +178,7 @@ zbus_txstart(void)
   send_escape_data = ZBUS_START;
   _UDR_UART0 = '\\';
 
-#ifdef ZBUS_TX_PIN
+#ifdef HAVE_ZBUS_TX_PIN
   PIN_SET(ZBUS_TX_PIN);
 #endif
 
@@ -221,7 +221,7 @@ SIGNAL(USART0_TX_vect)
 
   /* Nothing to do, disable transmitter and TX LED. */
   else {
-#ifdef ZBUS_TX_PIN
+#ifdef HAVE_ZBUS_TX_PIN
     PIN_CLEAR(ZBUS_TX_PIN);
 #endif
     
@@ -254,7 +254,7 @@ SIGNAL(USART0_RX_vect)
     if (data == ZBUS_START) {
       recv_ctx.offset = 0;
       bus_blocked = 3;
-#ifdef ZBUS_RX_PIN
+#ifdef HAVE_ZBUS_RX_PIN
       PIN_SET(ZBUS_RX_PIN);
 #endif
     }
@@ -264,7 +264,7 @@ SIGNAL(USART0_RX_vect)
       if (bus_blocked) {
 	zbus_rxstop ();
 
-#ifdef ZBUS_RX_PIN
+#ifdef HAVE_ZBUS_RX_PIN
         PIN_CLEAR(ZBUS_RX_PIN);
 #endif
 	recv_ctx.len = recv_ctx.offset;
