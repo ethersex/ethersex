@@ -11,6 +11,7 @@ SRC = \
 	ntpd_net.c \
 	ntp_net.c \
 	rfm12_linkbeat_net.c \
+	rfm12_raw_net.c \
 	stella_net.c \
 	syslog_net.c \
 	tetrirape_net.c \

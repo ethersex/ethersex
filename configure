@@ -203,6 +203,11 @@ my %ethersex_modules = (
 		   enable_hook => \&rfm12_enable_hook,
 		   preconfigure => [ "skipjack", "enc28j60" ],
                  },
+  'rfm12_raw' => {
+                   heptext   => "rfm12 udp tunnel",
+		   distdflt  => 0,
+		   requires  => [ "rfm12", "enc28j60" ],
+                 },
   'rfm12_cloud' => {
                    helptext  => "rfm12 network clouds",
                    distdflt  => 0,

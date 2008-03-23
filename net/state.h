@@ -38,6 +38,7 @@
 #include "dyndns_state.h"
 #include "modbus_state.h"
 #include "sensormodul_state.h"
+#include "rfm12_raw_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -90,6 +91,10 @@ typedef union uip_udp_connection_state {
 
 #   ifdef SENSORMODUL_SUPPORT
     struct sensormodul_connection_state_t sensormodul;
+#   endif
+
+#   ifdef RFM12_RAW_SUPPORT
+    struct rfm12_raw_connection_state_t rfm12_raw;
 #   endif
 
 } uip_udp_appstate_t;

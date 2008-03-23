@@ -24,6 +24,7 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../spi.h"
+#include "../net/rfm12_raw_net.h"
 #include "rfm12.h"
 
 void
@@ -34,6 +35,20 @@ rfm12_process (void)
 
   if (recv_len == 0 || recv_len >= 254)
     return;			/* receive error or no data */
+
+  if (rfm12_raw_conn->rport) {
+    /* rfm12 raw capturing active, forward in udp/ip encapsulated form,
+       thusly don't push to the stack. */
+    uip_stack_set_active (STACK_MAIN);
+    memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
+	     uip_buf + RFM12_BRIDGE_OFFSET, recv_len);
+    uip_slen = recv_len;
+    uip_process(UIP_UDP_SEND_CONN);
+    fill_llh_and_transmit();
+    
+    rfm12_rxstart ();
+    return;
+  }
 
   /* uip_input expects the number of bytes including the LLH. */
   uip_len = recv_len + RFM12_BRIDGE_OFFSET;

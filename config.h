@@ -349,6 +349,7 @@
 // #define DNS_SUPPORT
 // #define RC5_SUPPORT
 // #define RFM12_SUPPORT
+// #define RFM12_RAW_SUPPORT
 // #define RFM12_CLOUD_SUPPORT
 // #define DYNDNS_SUPPORT
 // #define SYSLOG_SUPPORT
