@@ -129,7 +129,9 @@ int main(void)
     /* send boot message */
     debug_printf("booting etherrape firmware " VERSION_STRING "...\n");
 
+#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT)
     spi_init();
+#endif
     network_init();
     timer_init();
 #ifdef CLOCK_SUPPORT
