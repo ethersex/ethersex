@@ -36,6 +36,13 @@ divert(2)
 static struct mdns_service services[] = {
 divert(-1)dnl
 
+mdns_feature:
+arg1: used for the identifiers (e.g. PGM variable names )
+arg2: service name
+arg3: SRV record
+arg4: optional TXT record ( can be NULL )
+arg5: port of the service
+
 define(`mdns_feature', `dnl
 divert(1)const char PROGMEM mdns_$1_service[] = $2;
 const char PROGMEM mdns_$1_name[] = $3;

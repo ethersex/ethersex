@@ -46,7 +46,7 @@ parse_name(uint8_t *query)
   do {
     n = *query++;
     if ( n & 0xC0 ) 
-      /* This is a pointer */
+      /* This is a pointer, and a pointer can only be at the end of a name */
       break;
     else
       /* This is a label */
@@ -61,12 +61,13 @@ parse_name(uint8_t *query)
  * label is stored in PROGMEM 
  */
 uint8_t *
-append_label(uint8_t *ptr, const char *label)
+append_label(uint8_t *ptr, PGM_P label)
 {
   uint8_t *nlabel;
   if (label) {
     do {
       uint8_t len;
+      /* Copy until next '.' */
       nlabel = (uint8_t *)strchr_P(label, '.');
 
       if (nlabel == NULL) len = strlen_P(label);
@@ -84,10 +85,18 @@ append_label(uint8_t *ptr, const char *label)
 
 /* Append the header for an answer record, and returns the pointer to the len
  * field 
+ * base: pointer to the start of the dns answer packet. this pointer ist used 
+ *       in name pointer labels ( 0xC0 )
+ * start: the pointer where the new answer should start
+ * label1: first part of the label.
+ * label2: is only attached to label1 if != NULL
+ * class:  dns class of the answer record
+ * type: type of the answer record
+ * ttl: the 16 lower bits of the ttl field, the upper ones are written to zero
  */
 static uint16_t *
-append_answer_header(uint8_t *base, uint8_t *start, const char *label1,
-                     const char *label2, uint16_t class, uint16_t type, uint16_t ttl)
+append_answer_header(uint8_t *base, uint8_t *start, PGM_P label1,
+                     PGM_P label2, uint16_t class, uint16_t type, uint16_t ttl)
 {
   struct dns_answer_info *answer;
   uint8_t *tmp;
@@ -106,8 +115,13 @@ append_answer_header(uint8_t *base, uint8_t *start, const char *label1,
   return &answer->len;
 }
 
+/* compares a label in a packet with a label in program space
+ * base: start of the dns packet
+ * label: start of the label in the dns packet
+ * data: pointer to the label, which should be compared to label
+ */
 uint8_t
-compare_label(uint8_t *base, uint8_t *label, const char *data) 
+compare_label(uint8_t *base, uint8_t *label, PGM_P data) 
 {
   uint8_t n;
   do {
@@ -123,6 +137,7 @@ compare_label(uint8_t *base, uint8_t *label, const char *data)
       if (!tmp) pgm_len = strlen_P(data);
       else pgm_len = tmp - (uint8_t *)data;
 
+      /* The actual label doesn't match so return false */
       if( (pgm_len != n) || (strncmp_P((char *)label, (char *)data, n) != 0))
         return 0;
       label += n;
@@ -134,12 +149,14 @@ compare_label(uint8_t *base, uint8_t *label, const char *data)
   return 1;
 }
 
-/* Search for an question in the dns body with label(PROGMEM) and type,
- * which is not answered with data(PROGMEM) ( when only_question is not set )
+/* Search for an question in the dns body with label(PROGMEM) and type.
+ * case 1: not asked: yes, the packet has the answer ;)
+ * case 2: asked but not answered: no, it was asked, but not answered
+ * case 3: aked, and answered: yes, it was asked and also answered 
  */
 static uint8_t
-has_answer(struct dns_body *body, const char *label, uint16_t type, 
-           const char *data, uint8_t only_question)
+has_answer(struct dns_body *body, PGM_P label, uint16_t type, 
+           PGM_P data, uint8_t only_question)
 {
   /* Search if the label is asked */
   uint8_t i;
@@ -168,6 +185,7 @@ mdns_new_data(void)
   struct dns_body body;
   body.hdr = (void *)uip_appdata;
 
+  /* We only look for questions */
   if (body.hdr->flags1 & DNS_FLAG1_RESPONSE) return;
 
   /* Parse the packet */
@@ -238,7 +256,7 @@ mdns_new_data(void)
                                0xC, 600);
       nameptr = append_label((uint8_t *)(len_ptr + 1), services[i].name);
       uint16_t *ptr = (uint16_t *)(nameptr - 1);
-      /* Append an pointer to services[i].service */
+      /* Append an pointer pointing to services[i].service */
       *ptr = ntohs(0xC000 | (answer_base - (uint8_t *)body.hdr));
       nameptr = (uint8_t *) (ptr + 1);
       *len_ptr = ntohs(nameptr - (uint8_t *)(len_ptr + 1));
