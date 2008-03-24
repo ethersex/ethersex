@@ -406,6 +406,7 @@ my %categories = (
 my %ethersex_config = (
   'hostname' => {
                    helptext  => "hostname of the device",
+                   definefilter => \&check_and_expand_string,
                  },
   'etherrape_ip' => {
                    helptext  => "default ip address (inner part, if OpenVPN)",
@@ -445,6 +446,7 @@ my %ethersex_config = (
                  },
   'zbus_key'   =>{
                    helptext  => "hex-encoded zbus encryption key",
+                   definefilter => \&check_and_expand_cryptokey,
                  },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
@@ -460,12 +462,15 @@ my %ethersex_config = (
                  },
   'rfm12_key'   =>{
                    helptext  => "hex-encoded rfm12 encryption key",
+                   definefilter => \&check_and_expand_cryptokey,
                  },
   'rfm12_beacon_id' => {
                    helptext  => "the unique ID byte assigned to the rfm12 beacon",
+                   definefilter => \&check_and_expand_numeric,
                  },
   'rfm12_cloud_dns' => {
 		   helptext  => "dns (host)name of the rfm12 cloud",
+                   definefilter => \&check_and_expand_string,
                  },
   'i2c_slave_addr'   =>{
                    helptext  => "hex-encoded i2c slave address",
@@ -484,9 +489,15 @@ my %ethersex_config = (
                  },
   'openvpn_key'   =>{
                    helptext  => "hex-encoded openvpn encryption key",
+                   definefilter => sub { $a = shift;
+                     return check_and_expand_cryptokey ($a, 16);
+                   },
                  },
   'openvpn_hmac_key'   =>{
                    helptext  => "hex-encoded openvpn hmac auth key",
+                   definefilter => sub { $a = shift;
+                     return check_and_expand_cryptokey ($a, 16);
+                   },
                  },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
@@ -494,9 +505,11 @@ my %ethersex_config = (
                  },
   'tftp_image' =>{
                    helptext  => "name of tftp image to download",
+                   definefilter => \&check_and_expand_string,
                  },
   'tftp_key'   =>{
                    helptext  => "hex-encoded skipjack key for tftp",
+                   definefilter => \&check_and_expand_cryptokey,
                  },
   'dns_server' =>{
                    helptext  => "ip address of the default dns server",
@@ -504,12 +517,15 @@ my %ethersex_config = (
                  },
   'dyndns_hostname' => {
                    helptext  => "hostname to be updated via dyndns",
+                   definefilter => \&check_and_expand_string,
                 },
   'dyndns_username' => {
                    helptext  => "hostname to be updated via dyndns",
+                   definefilter => \&check_and_expand_string,
                 },
   'dyndns_password' => {
                    helptext  => "hostname to be updated via dyndns",
+                   definefilter => \&check_and_expand_string,
                 },
   'syslog_server' => {
                    helptext  => "ip address of the syslog server",
@@ -1063,6 +1079,23 @@ sub check_and_expand_mac {
 sub check_and_expand_nummeric {
   my $checkval = shift;
   unless ($checkval =~ m/^[0-9 ]+$/i) { return undef; }
+}
+
+sub check_and_expand_string {
+  my $checkval = shift;
+  return '"' . $checkval . '"';
+}
+
+sub check_and_expand_cryptokey {
+  my $checkval = shift;
+  my $keylen = shift;
+  if (!$keylen) { $keylen = 10 };
+
+  if (! check_cryptokey ($a, $keylen)) { return undef };
+
+  $checkval =~ s/(..)/\\x$1/g;
+
+  return  "\"$checkval\"";
 }
 
 #
