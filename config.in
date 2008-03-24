@@ -324,6 +324,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   comment "work in progress bits (enable with care)"
 
   dep_bool "DNS-based UDP multicaster" UDP_DNS_MCAST_SUPPORT $DNS_SUPPORT
+  bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
 
   endmenu
 fi

@@ -22,15 +22,20 @@
 
 #include <avr/io.h>
 #include "df.h"
-#include "spi.h"
-
-#ifdef DEBUG
-#include "uart.h"
-#endif
+#include "../bit-macros.h"
+#include "../spi.h"
 
 /* module local macros */
-#define cs_low() SPI_PORT &= ~_BV(SPI_CS_DF)
-#define cs_high() SPI_PORT |= _BV(SPI_CS_DF)
+#ifdef RFM12_SUPPORT
+/* RFM12 uses interrupts which do SPI interaction, therefore
+   we have to disable interrupts if support is enabled */
+#  define cs_low()  uint8_t sreg = SREG; PIN_CLEAR(SPI_CS_DF); 
+#  define cs_high() PIN_SET(SPI_CS_DF); SREG = sreg;
+#else
+#  define cs_low()  PIN_CLEAR(SPI_CS_DF)
+#  define cs_high() PIN_SET(SPI_CS_DF)
+#endif
+
 
 void df_init(df_chip_t chip)
 /* {{{ */ {
