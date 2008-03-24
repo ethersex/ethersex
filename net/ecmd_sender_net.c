@@ -32,6 +32,8 @@
 #ifdef ECMD_SENDER_SUPPORT
 
 /* module local prototypes */
+#ifdef TCP_SUPPORT
+
 uip_conn_t *
 ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
 {
@@ -42,7 +44,6 @@ ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
   }
   return conn;
 }
-
 void ecmd_sender_net_main(void)
 {
   char buffer[100];
@@ -73,6 +74,25 @@ void ecmd_sender_net_main(void)
     uip_send(buffer, len);
   }
 }
+#else /* UDP_SUPPORT */
+void
+ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data) 
+{
+  uint8_t len = strlen_P(pgm_data);
+  memcpy_P(uip_appdata, pgm_data, len);
+  uip_slen = len;
 
+  /* build a new connection on the stack */
+  uip_udp_conn_t conn;
+  uip_ipaddr_copy(conn.ripaddr, ipaddr);
+  conn.rport = HTONS(2701);
+  /* FIXME: ignore lport because we don't wait for the answer */
 
+  uip_udp_conn = &conn;
+
+  uip_process(UIP_UDP_SEND_CONN);
+  fill_llh_and_transmit();
+
+}
+#endif /* TCP_SUPPORT */
 #endif /* ECMD_SENDER_SUPPORT */

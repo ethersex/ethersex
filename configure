@@ -50,7 +50,6 @@ my %ethersex_modules = (
                  },
   'ecmd_sender'  => {
                    helptext => "send an ecmd to another host",
-                   requires => ["tcp"],
                    distdflt => 0,
                  },
   'watchcat'  => {
