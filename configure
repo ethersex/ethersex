@@ -402,45 +402,65 @@ my %categories = (
                    modules   => [ "udp_echo_net", "zbus_linkbeat_net", "rfm12_linkbeat_net" ],
                  },
 );
+
+# the define filter is used in the -D ARGV handling:
+# it checks the specified value and expand it to a config.h compatible mode
+# e.g. 192.168.1.1 -> uip_ipaddr(ip,192,168,1,1)
+
 my %ethersex_config = (
   'hostname' => {
                    helptext  => "hostname of the device",
                  },
   'etherrape_ip' => {
                    helptext  => "default ip address (inner part, if OpenVPN)",
+                   definefilter => \&check_and_expand_ip,
                  },
   'etherrape_ip6_prefix_len' => {
                    helptext  => "ipv6 prefix len (IPv6 only)",
+                   definefilter => \&check_and_expand_numeric,
                  },
   'etherrape_ip4_netmask'   => {
                    helptext  => "default netmask (IPv4 only)",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'etherrape_ip4_gateway'   => {
                    helptext  => "default gateway (IPv4 only)",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'etherrape_mac'   => {
                    helptext  => "mac address of the etherrape",
+                   definefilter => \&check_and_expand_mac,
+                 },
+  'bootload_delay' => {
+                   helptext  => "time until the bootloader starts the app",
+                   definefilter => \&check_and_expand_numeric,
                  },
   'zbus_ip' => {
                    helptext  => "zbus stack ip address",
+                   definefilter => \&check_and_expand_ip,
                  },
   'zbus_ip4_netmask' => {
                    helptext  => "zbus stack netmask (IPv4 only)",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'zbus_ip6_prefix_len' => {
                    helptext  => "zbus stack prefix length (IPv6 only)",
+                   definefilter => \&check_and_expand_numeric,
                  },
   'zbus_key'   =>{
                    helptext  => "hex-encoded zbus encryption key",
                  },
   'rfm12_ip' => {
                    helptext  => "rfm12 stack ip address",
+                   definefilter => \&check_and_expand_ip,
                  },
   'rfm12_ip4_netmask' => {
                    helptext  => "rfm12 stack netmask (IPv4 only)",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'rfm12_ip6_prefix_len' => {
                    helptext  => "rfm12 stack prefix length (IPv6 only)",
+                   definefilter => \&check_and_expand_numeric,
                  },
   'rfm12_key'   =>{
                    helptext  => "hex-encoded rfm12 encryption key",
@@ -456,12 +476,15 @@ my %ethersex_config = (
                  },
   'openvpn_ip4'   => {
                    helptext  => "ip address of the openvpn gateway",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'openvpn_ip4_netmask'   => {
                    helptext  => "netmask for openvpn gateway",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'openvpn_ip4_gateway'   => {
                    helptext  => "default gateway for openvpn gateway",
+                   definefilter => \&check_and_expand_ipv4,
                  },
   'openvpn_key'   =>{
                    helptext  => "hex-encoded openvpn encryption key",
@@ -471,6 +494,7 @@ my %ethersex_config = (
                  },
   'tftp_ip'   => {
                    helptext  => "ip address of tftp server",
+                   definefilter => \&check_and_expand_ip,
                  },
   'tftp_image' =>{
                    helptext  => "name of tftp image to download",
@@ -480,6 +504,7 @@ my %ethersex_config = (
                  },
   'dns_server' =>{
                    helptext  => "ip address of the default dns server",
+                   definefilter => \&check_and_expand_ip,
                  },
   'dyndns_hostname' => {
                    helptext  => "hostname to be updated via dyndns",
@@ -492,6 +517,7 @@ my %ethersex_config = (
                 },
   'syslog_server' => {
                    helptext  => "ip address of the syslog server",
+                   definefilter => \&check_and_expand_ip,
                 },
 );
 
@@ -586,13 +612,25 @@ foreach(@ARGV) {
       print "FAILED to disable $1.\n";
     }
   }
+}
+
+# the defines options must be configured after the enable/disable options
+foreach(@ARGV) {
   if(m/^-D([^=]*)=(.*$)/) { 
     if (defined($ethersex_config{$1})) {
+        my $uservalue = $2;
+        if (defined($ethersex_config{$1}->{'definefilter'})) {
+          $uservalue = $ethersex_config{$1}->{'definefilter'}($uservalue);
+        }
+        if (!defined($uservalue) || $uservalue eq "") {
+          print STDERR "Invalid define option: $1\n";
+          exit -1;
+        }
         $ethersex_config{$1}->{'user_value'} = $2;
         $opt_nogui = 1;
         print "setting $1 to $2.\n";
     } else {
-      print STDERR "Invalid define option\n";
+      print STDERR "Unkown define option: $1\n";
       exit -1;
     }
   }
@@ -975,6 +1013,65 @@ sub ask_prefix_len {
   my $confopt = shift;
   ask_number $confopt, 48, 128;
 }
+#
+# check and expand subs for the -D option
+#
+
+sub check_and_expand_ip {
+  my $checkval = shift;
+
+  my $ipv6;
+
+  if (defined $ethersex_modules{'ipv6'}->{'new_status'}) {
+    $ipv6 = $ethersex_modules{'ipv6'}->{'new_status'};
+  } else {
+    $ipv6 = $ethersex_modules{'ipv6'}->{'enabled'};
+  }
+
+  if($ipv6) {
+    return check_and_expand_ipv6($checkval);
+  }
+
+  return check_and_expand_ipv4($checkval)
+}
+
+sub check_and_expand_ipv4 {
+  my $checkval = shift;
+  # validate ipv4 addr
+  my @parts = split m/\./, $checkval;
+  if(scalar(@parts) != 4) { return undef; }
+  foreach(@parts) {
+    if($_ < 0 || $_ > 255) { return undef; }
+  }
+
+  return "uip_ipaddr(ip," . join(".", @parts) . ")"; 
+}
+
+sub check_and_expand_ipv6 {
+  my $checkval = shift;
+  if($checkval =~ m/:::/) { return 1; }
+  $checkval = ipv6_expand($checkval);
+  if (! ($checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){7}$/i)) { return undef; }
+
+  my @parts = split(m/[\.:]/, $checkval);
+  return "uip_ip6addr(ip," . join(",", @parts) . ")"; 
+}
+
+sub check_and_expand_mac {
+  my $checkval = shift;
+  if (! $checkval =~ m/^[0-9a-f]+(?::[0-9a-f]+){5}$/i) { return undef;}
+  for($checkval) {s/:/\\x/g }
+  return '"\\x' . $checkval . '"'; 
+}
+
+sub check_and_expand_nummeric {
+  my $checkval = shift;
+  unless ($checkval =~ m/^[0-9 ]+$/i) { return undef; }
+}
+
+#
+# Enable/disable hooks
+#
 
 sub enc28j60_enable_hook {
   ask_mac "etherrape_mac";
