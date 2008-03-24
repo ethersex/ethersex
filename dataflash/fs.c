@@ -67,6 +67,8 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 
 #endif /* }}} */
 
+fs_t fs;
+
 /* constants */
 #define FS_INITIAL_VERSION 0x01
 #define FS_STRUCTURE_OFFSET 0
