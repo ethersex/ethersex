@@ -123,25 +123,25 @@ ifelse(MCU, `atmega644', `dnl
   /* port the dataflash CS is attached to */
   pin(SPI_CS_DF, PB1)
 
-ifdef(`conf_modbus', `dnl
+ifdef(`conf_MODBUS', `dnl
   /* modbus tx  */
   pin(MODBUS_TX, PC2)
 ')dnl
 
-ifdef(`conf_ps2', `dnl
+ifdef(`conf_PS2', `dnl
   /* ps/2 pins */
   pin(PS2_DATA, PA7)
   pin(PS2_CLOCK, PA6)
 ')dnl
 
-ifdef(`conf_hc595', `dnl
+ifdef(`conf_HC595', `dnl
   /* pins for the hc595 shift register */
   pin(HC595_DATA, PB6)
   pin(HC595_CLOCK, PB2)
   pin(HC595_STORE, PB7)
 ')dnl
 
-ifdef(`conf_hc165', `dnl
+ifdef(`conf_HC165', `dnl
   /* pins for the hc165 shift register */
   pin(HC165_DATA, PB0)
   pin(HC165_CLOCK, PB2)
@@ -153,17 +153,17 @@ pin(INT_PIN, PB3)
 /* enc28j60 wol line */
 pin(WOL_PIN, PB2)
 
-ifdef(`conf_onewire', `dnl
+ifdef(`conf_ONEWIRE', `dnl
   /* onewire support */
   pin(ONEWIRE, PD6)
 ')dnl
 
-ifdef(`conf_rc5', `dnl
+ifdef(`conf_RC5', `dnl
   /* rc5 support */
   pin(RC5_SEND, PD4)
 ')dnl
 
-ifdef(`conf_fs20',  `dnl
+ifdef(`conf_FS20',  `dnl
   /* fs20 support */
   pin(FS20_SEND, PB2)
   /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
