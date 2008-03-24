@@ -30,6 +30,8 @@ edit_action() {
     "Command"        4  1 "$commando" 4 17  20 255 2> $_temp
   if [ -n "`cat $_temp`" ]; then
     sed 's/$/ /' < $_temp  | tr -d "\n" | sed 's/ $/\n/' > $1
+  elif [ -n "$2" ]; then
+    :> $1
   fi
   rm  -f $_temp
 }
@@ -68,7 +70,7 @@ while [ -n "`cat $menu`" ]; do
   case "`cat $menu`" in
     ADD)
       tmp=`mktemp`
-      edit_action $tmp
+      edit_action $tmp no_default_return
       if [ -n "`cat $tmp`" ]; then
         cat $tmp >> config
       fi
