@@ -32,7 +32,7 @@ include defaults.mk
 
 .PHONY: compile-subdirs
 compile-subdirs:
-	for dir in $(SUBDIRS); do make -C $$dir lib$$dir.a; done
+	for dir in $(SUBDIRS); do make -C $$dir lib$$dir.a || exit 5; done
 
 .PHONY: compile-$(TARGET)
 compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
