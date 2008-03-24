@@ -128,7 +128,8 @@ int main(void)
     /* send boot message */
     debug_printf("booting ethersex firmware " VERSION_STRING "...\n");
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
+  || defined(DATAFLASH_SUPPORT)
     spi_init();
 #endif
     network_init();

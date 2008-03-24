@@ -23,7 +23,8 @@
 #include <avr/io.h>
 #include "spi.h"
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
+  || defined(DATAFLASH_SUPPORT)
 
 void spi_init(void)
 /* {{{ */ {
@@ -49,6 +50,11 @@ void spi_init(void)
     DDR_CONFIG_OUT(SPI_CS_RFM12);
     /* Enable the pullup */
     PIN_SET(SPI_CS_RFM12);
+#endif
+
+#ifdef DATAFLASH_SUPPORT
+    DDR_CONFIG_OUT(SPI_CS_DF);
+    PIN_SET(SPI_CS_DF);
 #endif
 
     /* enable spi, set master and clock modes (f/2) */
@@ -84,4 +90,4 @@ uint8_t noinline spi_send(uint8_t data)
 
 } /* }}} */
 
-#endif
+#endif /* DATAFLASH_SUPPORT || ENC28J60_SUPPORT || RFM12_SUPPORT */
