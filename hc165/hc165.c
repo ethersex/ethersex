@@ -47,7 +47,7 @@ uint8_t
 hc165_read_pin(uint8_t port) 
 {
   uint8_t result;
-  /* Skip the Hardware ports */
+  /* Skip the Hardware ports, because the portio pin 4 is the hc165 pin 0 */
   port -= IO_HARD_PORTS;
 
   /* Load Parallel */

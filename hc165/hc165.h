@@ -26,7 +26,6 @@
 
 #include "../config.h"
 
-
 void hc165_init(void);
 uint8_t hc165_read_pin(uint8_t port);
 

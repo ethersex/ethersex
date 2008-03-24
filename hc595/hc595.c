@@ -52,9 +52,7 @@ hc595_init(void)
   DDR_CONFIG_OUT(HC595_STORE);
   PIN_SET(HC595_STORE);
 
-  // FIXME
-  PORTD &= ~_BV(PD3);
-  DDRD |= _BV(PD3);
+  /* FIXME: maybe must set the output enable pin */
 
   hc595_update();
 } 
@@ -85,10 +83,12 @@ hc595_update(void)
       if (hc595_cache[i] & _BV(--x))
         PIN_SET(HC595_DATA);
       
+      /* Pulse the hc595 shift clock */
       PIN_SET(HC595_CLOCK);
       PIN_CLEAR(HC595_CLOCK);
     }
   }
+  /* Pulse the hc595 store clock to load the shifted bits */
   PIN_SET(HC595_STORE);
   PIN_CLEAR(HC595_STORE);
 }
