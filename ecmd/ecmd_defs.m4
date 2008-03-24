@@ -43,7 +43,7 @@ const struct ecmd_command_t PROGMEM ecmd_cmds[] = {
 divert(-1)dnl
 
 define(`ecmd_feature', `dnl
-divert(1)static int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len);
+divert(1)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len);
 divert(2)const char PROGMEM ecmd_$1_text[] = $2;
 divert(3)	{ ecmd_$1_text, parse_cmd_$1 },
 divert(-1)')

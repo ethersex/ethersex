@@ -1,7 +1,17 @@
 TARGET = libecmd.a
 TOPDIR = ..
 SRC = \
-	ecmd.c
+      	adc.c		\
+      	clock.c		\
+      	dns.c		\
+	ecmd.c 		\
+	fs20.c		\
+	hd44780.c	\
+	network.c	\
+	onewire.c	\
+	portio.c	\
+	rc5.c		\
+	usart.c
 
 ##############################################################################
 # generic fluff
