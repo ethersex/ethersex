@@ -134,4 +134,7 @@ void rfm12_process (void);
 
 extern uint8_t rfm12_beacon_code;
 
+/* return the current rfm12 status word */
+uint16_t rfm12_get_status (void);
+
 #endif //__RFM12_H

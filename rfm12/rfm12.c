@@ -363,3 +363,17 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   return(0);
 }
 
+
+uint16_t
+rfm12_get_status (void)
+{
+  uint16_t r;
+
+  rfm12_prologue ();
+  r = rfm12_trans(0x0000);	/* read status word */
+  rfm12_epilogue ();
+
+  return r;
+}
+
+
