@@ -43,6 +43,7 @@ rfm12_process (void)
     memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
 	     uip_buf + RFM12_BRIDGE_OFFSET, recv_len);
     uip_slen = recv_len;
+    uip_udp_conn = rfm12_raw_conn;
     uip_process(UIP_UDP_SEND_CONN);
     fill_llh_and_transmit();
     
