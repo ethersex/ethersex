@@ -29,6 +29,7 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
+#include "../net/rfm12_raw_net.h"
 #include "../crypto/encrypt-llh.h"
 
 /* On the bridge-side this is the ID assigned to the beacon (read: bridge),
@@ -303,15 +304,18 @@ rfm12_rxfinish(uint8_t *data)
   for(i = 0; i < len; i++)
     data[i] = RFM12_Data[i + 1];
 
-#ifdef SKIPJACK_SUPPORT
-  rfm12_decrypt (data, &len);
-#endif
   RFM12_akt_status = RFM12_OFF;
-#ifdef SKIPJACK_SUPPORT
-  if (!len)
-    rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+
+#ifdef RFM12_RAW_SUPPORT
+  if (!rfm12_raw_conn->rport)
 #endif
-  
+  {
+#ifdef SKIPJACK_SUPPORT
+    rfm12_decrypt (data, &len);
+    if (!len)
+      rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+#endif
+  }
   return(len);			/* receive size */
 }
 
@@ -344,16 +348,21 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 #endif
   i = RFM12_Index = 0;
 
-#ifdef SKIPJACK_SUPPORT
-  rfm12_encrypt (RFM12_Data, &size);
-
-  if (!size){
-    RFM12_akt_status = RFM12_OFF;
-    rfm12_rxstart ();		/* destroy the packet and restart rx */
-    RFM12_ret_platz = TX_START_3;
-    return 4;
-  }
+#ifdef RFM12_RAW_SUPPORT
+  if (!rfm12_raw_conn->rport)
 #endif
+  {
+#ifdef SKIPJACK_SUPPORT
+    rfm12_encrypt (RFM12_Data, &size);
+
+    if (!size){
+      RFM12_akt_status = RFM12_OFF;
+      rfm12_rxstart ();		/* destroy the packet and restart rx */
+      RFM12_ret_platz = TX_START_3;
+      return 4;
+    }
+#endif
+  }
   RFM12_Txlen = size;
 
   rfm12_prologue ();
