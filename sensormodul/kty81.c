@@ -22,12 +22,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <avr/pgmspace.h>
+#include "../config.h"
 
 #include "kty81.h"
 
+/* default offset */
+#ifndef TEENSY_SUPPORT
 #define TEMPWERTSTART 452
+#else
+/* offset bei 20 anfangswerten weniger (452 + 20 * 4)*/
+#define TEMPWERTSTART 532 
+#endif
+
 #define TEMPWERTINTERVAL 4
-int16_t PROGMEM temperaturwert[133] = { -304  ,
+int16_t PROGMEM temperaturwert[] = {
+#ifndef TEENSY_SUPPORT
+  -304  ,
   -292  ,
   -280  ,
   -268  ,
@@ -47,6 +57,7 @@ int16_t PROGMEM temperaturwert[133] = { -304  ,
   -100  ,
   -88 ,
   -76 ,
+#endif
   -64 ,
   -52 ,
   -40 ,
@@ -92,6 +103,7 @@ int16_t PROGMEM temperaturwert[133] = { -304  ,
   429 ,
   441 ,
   452 ,
+#ifndef TEENSY_SUPPORT
   464 ,
   476 ,
   487 ,
@@ -160,6 +172,7 @@ int16_t PROGMEM temperaturwert[133] = { -304  ,
   1274  ,
   1289  ,
   1304
+#endif
 };
 
 

@@ -30,10 +30,11 @@
 
 #include "../uip/uip.h"
 #include "../config.h"
+#include "../global.h"
 #include "sensormodul.h"
 
 #ifdef SENSORMODUL_SUPPORT
-#define SENSORMODUL_DEBUG
+//#define SENSORMODUL_DEBUG
 #ifdef SENSORMODUL_DEBUG
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A'))
 #endif
@@ -96,17 +97,20 @@ sensormodul_core_newdata(void)
     STATS.sensors.maxfeuchte_div[(REQ->type & 0x07) - 1] = ((REQ->digit[2] & 0x0F) + (REQ->digit[1] & 0x0F) * 10 + (REQ->digit[0] & 0x0F) * 100) & 0xFF;
     eeprom_write_byte(&maxfeuchte_div_eep[(REQ->type & 0x07) - 1], STATS.sensors.maxfeuchte_div[(REQ->type & 0x07) - 1]);
   }
-  if ( uip_datalen() == 2 && REQ->type == '!'){
+  else if ( uip_datalen() == 2 && REQ->type == '!'){
     PORTB = PORTB & 0xFC | (REQ->digit[0] & 0x03);
   }
-  if ( uip_datalen() == 2 && REQ->type == '?'){
+  else if ( uip_datalen() == 4 && REQ->type == 'B' && REQ->digit[0] == 'o' && REQ->digit[1] == 'o' && REQ->digit[2] == 't'){
+    cfg.request_bootloader = 1;
+  }
+  else if ( uip_datalen() == 2 && REQ->type == '?'){
     STATS.sensors.led_blink = REQ->digit[0] & 0x03;
   }
-  if ( uip_datalen() == sizeof(struct sensormodul_request_t) && REQ->type == 'c'){
+  else if ( uip_datalen() == sizeof(struct sensormodul_request_t) && REQ->type == 'c'){
     STATS.sensors.countdown = ((REQ->digit[2] & 0x0F) + (REQ->digit[1] & 0x0F) * 10 + (REQ->digit[0] & 0x0F) * 100) & 0xFF;
   }
 #ifndef SENSORMODUL_DEBUG
-  if (uip_datalen() <= LCD_PYSICAL_LINELEN * 2 + 1 && REQ->type == ':'){
+  else if (uip_datalen() <= LCD_PYSICAL_LINELEN * 2 + 1 && REQ->type == ':'){
     uip_ipaddr_copy(STATS.ripaddr, BUF->srcipaddr);
     STATS.rport = BUF->srcport;
     STATS.sensors.tastersend = 0;
