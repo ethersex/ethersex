@@ -85,9 +85,10 @@ ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_endif()
   ecmd_endif()
 
-  ecmd_feature(bootloader, "bootloader")
   ecmd_feature(reset, "reset")
 ecmd_endif()
+
+ecmd_feature(bootloader, "bootloader")
 
 ecmd_ifdef(PORTIO_SUPPORT)
   ecmd_feature(io_set_ddr, "io set ddr")
