@@ -102,7 +102,7 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 
 ##############################################################################
 clean:
-	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda]
+	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c
 	for subdir in `find -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \

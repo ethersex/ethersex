@@ -149,9 +149,9 @@ ifdef(`conf_HC165', `dnl
 ')dnl
 
 /* enc28j60 int line */
-pin(INT_PIN, PB3)
+dnl pin(INT_PIN, PB3)
 /* enc28j60 wol line */
-pin(WOL_PIN, PB2)
+dnl pin(WOL_PIN, PB2)
 
 ifdef(`conf_ONEWIRE', `dnl
   /* onewire support */
