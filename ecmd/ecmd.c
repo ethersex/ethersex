@@ -124,7 +124,6 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     return ret;
 } /* }}} */
 
-#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) cmd;
@@ -136,6 +135,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
     return 0;
 } /* }}} */
 
+#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) cmd;
