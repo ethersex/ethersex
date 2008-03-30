@@ -32,11 +32,12 @@
 #include "ecmd.h"
 
 #ifdef RFM12_SUPPORT
+#ifndef TEENSY_SUPPORT
 
 int16_t parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
 {
     return snprintf_P (output, len, PSTR ("rfm12 status: %04x"),
                        rfm12_get_status ());
 }
-
+#endif /* not TEENSY_SUPPORT */
 #endif /* RFM12_SUPPORT */

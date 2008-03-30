@@ -157,8 +157,10 @@ ecmd_ifdef(ADC_SUPPORT)
   ecmd_feature(adc_get, "adc get")
 ecmd_endif()
 
-ecmd_ifdef(RFM12_SUPPORT)
-  ecmd_feature(rfm12_status, "rfm12 status")
+ecmd_ifndef(TEENSY_SUPPORT)
+  ecmd_ifdef(RFM12_SUPPORT)
+    ecmd_feature(rfm12_status, "rfm12 status")
+  ecmd_endif()
 ecmd_endif()
 
 ecmd_ifndef(TEENSY_SUPPORT)
