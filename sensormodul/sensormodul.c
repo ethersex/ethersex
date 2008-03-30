@@ -33,8 +33,9 @@
 #include "../global.h"
 #include "sensormodul.h"
 
+#define SENSORMODUL_DEBUG
+
 #ifdef SENSORMODUL_SUPPORT
-//#define SENSORMODUL_DEBUG
 #ifdef SENSORMODUL_DEBUG
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A'))
 #endif
@@ -45,6 +46,7 @@
 extern unsigned short rfm12_t_status;
 extern uint8_t RFM12_akt_status;
 extern uint8_t RFM12_ret_platz;
+extern uint8_t RFM12_lastlen;
 //static uint16_t sensorwert[4];
 static uint8_t sensor_i = 0;
 //static uint8_t countdown = 0;
@@ -256,8 +258,10 @@ sensormodul_core_periodic(void)
 	lcdbuf[1] = NIBBLE_TO_HEX((rfm12_t_status >> 8) & 0x0F);
 	lcdbuf[2] = NIBBLE_TO_HEX((rfm12_t_status >> 4) & 0x0F);
 	lcdbuf[3] = NIBBLE_TO_HEX(rfm12_t_status & 0x0F);
-	lcdbuf[4] = NIBBLE_TO_HEX(RFM12_akt_status & 0x0F);
-	lcdbuf[5] = NIBBLE_TO_HEX(RFM12_ret_platz & 0x0F);
+	lcdbuf[4] = NIBBLE_TO_HEX((RFM12_lastlen >> 4) & 0x0F);
+	lcdbuf[5] = NIBBLE_TO_HEX(RFM12_lastlen & 0x0F);
+	//lcdbuf[4] = NIBBLE_TO_HEX(RFM12_akt_status & 0x0F);
+	//lcdbuf[5] = NIBBLE_TO_HEX(RFM12_ret_platz & 0x0F);
 	lcdbuf[6] = 0;
 	lcd_print(lcdbuf);
 #else
