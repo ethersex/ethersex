@@ -33,15 +33,16 @@ void spi_init(void)
     DDR_CONFIG_OUT(SPI_SCK);
     DDR_CONFIG_IN(SPI_MISO);
 
-    DDRB |= _BV(PB0) | _BV(PB1);
+#ifdef DATAFLASH_SUPPORT
+    DDR_CONFIG_OUT(SPI_CS_DF);
+    PIN_SET(SPI_CS_DF);
+#endif
 
 #ifdef ENC28J60_SUPPORT
     /* set all CS high (output) */
     DDR_CONFIG_OUT(SPI_CS_NET);
     PIN_SET(SPI_CS_NET);
 #endif
-
-    PORTB |= _BV(PB0) | _BV(PB1);
 
 #ifdef RFM12_SUPPORT
     /* initialize spi link to rfm12 module */
