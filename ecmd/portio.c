@@ -254,6 +254,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   uint8_t iotypeoffset;
   uint8_t value;
   uint8_t mask = 0xFF;
+  uint8_t sysmask = 0;
   
   /* skip spaces */
   while (*cmd == ' ')
@@ -293,14 +294,14 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   switch (value)
   {
 #ifdef PINA
-    case 0: ioptr = &PINA; break;
-    case 1: ioptr = &PINB; break;
-    case 2: ioptr = &PINC; break;
-    case 3: ioptr = &PIND; break;
+    case 0: ioptr = &PINA; sysmask = PORTIO_MASK_A; break;
+    case 1: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
+    case 2: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
+    case 3: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
 #else
-    case 0: ioptr = &PINB; break;
-    case 1: ioptr = &PINC; break;
-    case 2: ioptr = &PIND; break;
+    case 0: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
+    case 1: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
+    case 2: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
 #endif
     default: return -1;
   }
@@ -314,7 +315,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     return -1;
   /* if a mask value present get it */
   parse_hex(cmd, &mask);
-  *ioptr = (*ioptr & ~mask) | (value & mask);
+  *ioptr = (*ioptr & ~(mask & sysmask)) | (value & mask & sysmask);
   return 0;
 } /* }}} */
 #endif /* PORTIO_SIMPLE_SUPPORT */
