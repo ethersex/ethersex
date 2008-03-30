@@ -115,13 +115,17 @@ ifelse(MCU, `atmega644', `dnl
   ')
 ')
 
+ifdef(`conf_ENC28J60', `dnl
   /* port the enc28j60 is attached to
    * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
 
   pin(SPI_CS_NET, PB4)
+')dnl
 
+ifdef(`conf_DATAFLASH', `dnl
   /* port the dataflash CS is attached to */
   pin(SPI_CS_DF, PB1)
+')dnl
 
 ifdef(`conf_MODBUS', `dnl
   /* modbus tx  */
@@ -148,9 +152,9 @@ ifdef(`conf_HC165', `dnl
   pin(HC165_LOAD, PB1)
 ')dnl
 
-/* enc28j60 int line */
+dnl /* enc28j60 int line */
 dnl pin(INT_PIN, PB3)
-/* enc28j60 wol line */
+dnl /* enc28j60 wol line */
 dnl pin(WOL_PIN, PB2)
 
 ifdef(`conf_ONEWIRE', `dnl
