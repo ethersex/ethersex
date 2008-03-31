@@ -50,6 +50,7 @@ parser.add_option("-D", "--diff", dest="hysteresis", help="Set Hysteresis differ
 parser.add_option("-B", "--blink", dest="blink", help="Set LED blink mode")
 parser.add_option("-C", "--countdown", dest="countdown", help="Set timeout for LCD blocking")
 parser.add_option("-Q", "--question",action="store_true", dest="question", default=False, help="Wait for button pushed")
+parser.add_option("-b", "--boot",action="store_true", dest="boot", default=False, help="Start Bootloader")
 
 
 (options, args) = parser.parse_args()
@@ -81,7 +82,11 @@ while log:
 
 	while 1:
 		if (not options.log):
-			if (options.text and str(options.text) != ""):
+			if (options.boot):
+				print "Sende Bootstart"
+				s.send("Boot")
+				sys.exit(0)
+			elif (options.text and str(options.text) != ""):
 				print "Sende Text:%s" % str(options.text)
 				s.send(":"+str(options.text))
 			elif(options.led):
