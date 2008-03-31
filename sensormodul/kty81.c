@@ -92,7 +92,7 @@ int16_t PROGMEM temperaturwert[] = {
   301 ,
   313 ,
   324 ,
-  336 ,
+/*  336 ,
   348 ,
   359 ,
   371 ,
@@ -102,7 +102,7 @@ int16_t PROGMEM temperaturwert[] = {
   417 ,
   429 ,
   441 ,
-  452 ,
+  452 ,*/
 #ifndef TEENSY_SUPPORT
   464 ,
   476 ,

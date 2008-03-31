@@ -70,6 +70,7 @@ enum RFM12_RET{
 
 uint8_t RFM12_akt_status = RFM12_OFF;
 uint8_t RFM12_lastlen = 0;
+uint8_t RFM12_lastlen_sj = 0;
 uint8_t RFM12_ret_platz = 0;
 
 uint8_t RFM12_Index = 0;
@@ -312,8 +313,9 @@ rfm12_rxfinish(uint8_t *data)
 #endif
   {
 #ifdef SKIPJACK_SUPPORT
-    rfm12_decrypt (data, &len);
     RFM12_lastlen = len;
+    rfm12_decrypt (data, &len);
+    RFM12_lastlen_sj = len;
     if (!len)
       rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
 #endif
