@@ -44,11 +44,13 @@
 #include "uip/uip_zbus.h"
 #include "tftp/tftp.h"
 
+/*FIXME: interrupts not supported */
+#define ENC28J60_POLL 
 #ifndef ENC28J60_POLL
     #define interrupt_occured() (! PIN_HIGH(INT_PIN))
     #define wol_interrupt_occured() (! PIN_HIGH(WOL_PIN))
 #else
-    #define interrupt_occured() 0
+    #define interrupt_occured() 1
     #define wol_interrupt_occured() 0
 #endif
 

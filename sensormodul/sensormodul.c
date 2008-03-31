@@ -33,7 +33,7 @@
 #include "../global.h"
 #include "sensormodul.h"
 
-#define SENSORMODUL_DEBUG
+//#define SENSORMODUL_DEBUG
 
 #ifdef SENSORMODUL_SUPPORT
 #ifdef SENSORMODUL_DEBUG
@@ -254,18 +254,18 @@ sensormodul_core_periodic(void)
 #endif
 
 #ifdef SENSORMODUL_DEBUG
-	char lcdbuf[9];
+	char lcdbuf[7];
 	lcdbuf[0] = NIBBLE_TO_HEX((rfm12_t_status >> 12) & 0x0F);
 	lcdbuf[1] = NIBBLE_TO_HEX((rfm12_t_status >> 8) & 0x0F);
-	lcdbuf[2] = NIBBLE_TO_HEX((rfm12_t_status >> 4) & 0x0F);
-	lcdbuf[3] = NIBBLE_TO_HEX(rfm12_t_status & 0x0F);
-	lcdbuf[4] = NIBBLE_TO_HEX((RFM12_lastlen >> 4) & 0x0F);
-	lcdbuf[5] = NIBBLE_TO_HEX(RFM12_lastlen & 0x0F);
-	lcdbuf[6] = NIBBLE_TO_HEX((RFM12_lastlen_sj >> 4) & 0x0F);
-	lcdbuf[7] = NIBBLE_TO_HEX(RFM12_lastlen_sj & 0x0F);
+	//lcdbuf[2] = NIBBLE_TO_HEX((rfm12_t_status >> 4) & 0x0F);
+	//lcdbuf[3] = NIBBLE_TO_HEX(rfm12_t_status & 0x0F);
+	lcdbuf[2] = NIBBLE_TO_HEX((RFM12_lastlen >> 4) & 0x0F);
+	lcdbuf[3] = NIBBLE_TO_HEX(RFM12_lastlen & 0x0F);
+	lcdbuf[4] = NIBBLE_TO_HEX((RFM12_lastlen_sj >> 4) & 0x0F);
+	lcdbuf[5] = NIBBLE_TO_HEX(RFM12_lastlen_sj & 0x0F);
 	//lcdbuf[4] = NIBBLE_TO_HEX(RFM12_akt_status & 0x0F);
 	//lcdbuf[5] = NIBBLE_TO_HEX(RFM12_ret_platz & 0x0F);
-	lcdbuf[8] = 0;
+	lcdbuf[6] = 0;
 	lcd_print(lcdbuf);
 #else
         lcd_print(" Max");
