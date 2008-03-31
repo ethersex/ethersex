@@ -78,7 +78,7 @@ llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len)
 {
   /* discard packet if it's not at least one (padded) data block
      or not a multiple of the block size (8 bytes). */
-  if (*len < 16 || *len & 8)
+  if (*len < 16 || *len & 7)
     {
       *len = 0;
       return;
