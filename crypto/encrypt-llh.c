@@ -76,6 +76,14 @@ llh_encrypt (uint8_t *key, uint8_t *data, uint16_t *len)
 void
 llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len)
 {
+  /* discard packet if it's not at least one (padded) data block
+     or not a multiple of the block size (8 bytes). */
+  if (*len < 16 || *len & 8)
+    {
+      *len = 0;
+      return;
+    }
+
   uint8_t lastblock = *len >> 3;
   for (uint8_t i = 1; i < lastblock; i ++)
     {
@@ -90,6 +98,14 @@ llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len)
   *len -= 8;
 
   uint8_t padchar = data[*len - 1];
+
+  if (padchar < 1 || padchar > 8)
+    {
+      /* invalid pad char */
+      *len = 0;
+      return;
+    }
+
   for (uint8_t i = *len - padchar; i < *len; i ++)
     if (data[i] != padchar) 
       {
