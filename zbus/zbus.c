@@ -161,6 +161,7 @@ zbus_txstart(void)
   if(bus_blocked)
     return 0;
   uint8_t sreg = SREG; cli();
+  bus_blocked = 3;
 
   /* enable transmitter and receiver as well as their interrupts */
   _UCSRB_UART0 = _BV(_TXCIE_UART0) | _BV(_TXEN_UART0);
@@ -181,6 +182,7 @@ zbus_txstart(void)
 #ifdef HAVE_ZBUS_TX_PIN
   PIN_SET(ZBUS_TX_PIN);
 #endif
+
 
   return 1;
 }
@@ -207,6 +209,7 @@ SIGNAL(USART0_TX_vect)
     }
 
     send_ctx.offset ++;
+    bus_blocked = 3;
   }
 
   /* If send_ctx contains data, but every byte has been sent over the
@@ -221,10 +224,10 @@ SIGNAL(USART0_TX_vect)
 
   /* Nothing to do, disable transmitter and TX LED. */
   else {
+    bus_blocked = 0;
 #ifdef HAVE_ZBUS_TX_PIN
     PIN_CLEAR(ZBUS_TX_PIN);
 #endif
-    
     zbus_rxstart ();
   }
 }
