@@ -207,11 +207,19 @@ my %ethersex_modules = (
 		   distdflt  => 0,
 		   requires  => [ "rfm12", "enc28j60" ],
                  },
+  'rfm12_beacon' => {
+                   helptext  => "enable rfm12 beacon-feature",
+		   distdflt  => 0,
+		   requires  => [ "rfm12" ],
+		   conflicts => [ "rfm12_cloud" ],
+		   enable_hook => \&rfm12_beacon_enable_hook,
+		 },
   'rfm12_cloud' => {
-                   helptext  => "rfm12 network clouds",
+                   helptext  => "rfm12 network clouds (EXPERIMENTAL)",
                    distdflt  => 0,
                    requires => [ "rfm12", "udp_dns_mcast" ],
                    enable_hook => \&rfm12_cloud_enable_hook,
+		   conflicts => [ "rfm12_beacon" ],
                  },
   'dns'       => {
                    helptext  => "dns name resolver",
@@ -1167,8 +1175,6 @@ sub rfm12_enable_hook {
     else {
       ask_ip("rfm12_ip4_netmask");
     }
-
-    ask_number "rfm12_beacon_id", 0, 255
   }
   else {  # no enc28j60, i.e. no bridge ...
     disable "zbus", "rfm12";
@@ -1179,13 +1185,22 @@ sub rfm12_enable_hook {
   ask_cryptokey("rfm12_key", 10);
 }
 
+sub rfm12_beacon_enable_hook {
+  if($ethersex_modules{'enc28j60'}->{'new_status'}) {
+    ask_number "rfm12_beacon_id", 0, 255
+  }
+  else {
+    # force beacon-id undef
+    $ethersex_config{'rfm12_beacon_id'}->{'value'} = 0;
+  }
+}
+
 sub rfm12_cloud_enable_hook {
   ask_anything "rfm12_cloud_dns";
 }
 
 sub i2c_slave_enable_hook {
   ask_hex("i2c_slave_addr", 1) if($ethersex_modules{'i2c_slave'}->{'new_status'});
-
 }
 
 sub ipv6_disable_hook {

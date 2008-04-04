@@ -32,11 +32,13 @@
 #include "../net/rfm12_raw_net.h"
 #include "../crypto/encrypt-llh.h"
 
+#ifdef RFM12_BEACON_SUPPORT
 /* On the bridge-side this is the ID assigned to the beacon (read: bridge),
  * i.e. the ID that's regularly broadcast.  On client side it's the ID of
  * the beacon seen last, i.e. the one that's responsible for transmitting
  * the next packet. */
 uint8_t rfm12_beacon_code = CONF_RFM12_BEACON_ID;
+#endif
 
 enum RFM12_STATUS{
   RFM12_OFF,

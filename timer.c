@@ -188,13 +188,13 @@ void timer_process(void)
 #           endif
 
 #           ifdef ENC28J60_SUPPORT
-#	    ifdef RFM12_SUPPORT
+#	    ifdef RFM12_BEACON_SUPPORT
             /* send beacon id packet. */
 	    uip_buf[0] = 0x23;
 	    uip_buf[1] = rfm12_beacon_code;
 	    uip_buf[2] = 0x42;
             rfm12_txstart (uip_buf, 3);
-#           endif /* RFM12_SUPPORT */
+#           endif /* RFM12_BEACON_SUPPORT */
 
 #           ifndef BOOTLOADER_SUPPORT
 #           if UIP_CONF_IPV6
