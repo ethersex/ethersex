@@ -36,6 +36,7 @@ rfm12_process (void)
   if (recv_len == 0 || recv_len >= 254)
     return;			/* receive error or no data */
 
+#ifdef RFM12_RAW_SUPPORT
   if (rfm12_raw_conn->rport) {
     /* rfm12 raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
@@ -50,6 +51,7 @@ rfm12_process (void)
     rfm12_rxstart ();
     return;
   }
+#endif /* RFM12_RAW_SUPPORT */
 
   /* uip_input expects the number of bytes including the LLH. */
   uip_len = recv_len + RFM12_BRIDGE_OFFSET;
