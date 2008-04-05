@@ -161,6 +161,7 @@ ecmd_endif()
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_ifdef(RFM12_SUPPORT)
     ecmd_feature(rfm12_status, "rfm12 status")
+    ecmd_feature(rfm12_setbaud, "rfm12 setbaud")
   ecmd_endif()
 ecmd_endif()
 

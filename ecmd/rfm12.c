@@ -34,10 +34,28 @@
 #ifdef RFM12_SUPPORT
 #ifndef TEENSY_SUPPORT
 
-int16_t parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
+int16_t 
+parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
 {
     return snprintf_P (output, len, PSTR ("rfm12 status: %04x"),
                        rfm12_get_status ());
 }
+
+int16_t
+parse_cmd_rfm12_setbaud(char *cmd, char *output, uint16_t len)
+{
+    (void) output;
+    (void) len;
+
+    uint16_t baud;
+    uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &baud);
+
+    if (ret != 1)
+        return -1;
+
+    rfm12_setbaud (baud);
+    return 0;
+}
+
 #endif /* not TEENSY_SUPPORT */
 #endif /* RFM12_SUPPORT */
