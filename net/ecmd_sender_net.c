@@ -21,6 +21,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include "../config.h"
 #include "ecmd_sender_net.h"
 #include "../bit-macros.h"
 #include "../uip/uip.h"
@@ -28,7 +29,6 @@
 
 #include <string.h>
 
-#include "../config.h"
 #ifdef ECMD_SENDER_SUPPORT
 
 /* module local prototypes */
@@ -75,24 +75,48 @@ void ecmd_sender_net_main(void)
   }
 }
 #else /* UDP_SUPPORT */
+
+static uip_udp_conn_t *ecmd_conn = NULL;
+PGM_P send_data = NULL;
+uint8_t resend_counter = 0;
+
 void
-ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data) 
+ecmd_sender_main(void) {
+  if (uip_newdata()) {
+    send_data = NULL;
+  }
+  if (send_data) {
+    resend_counter --;
+    if (!resend_counter) {
+      send_data = NULL;
+      return;
+    }
+    uint8_t len = strlen_P(send_data);
+    memcpy_P(uip_appdata, send_data, len);
+    uip_slen = len;
+
+    /* build a new connection on the stack */
+    ecmd_conn->rport = HTONS(2701);
+    ecmd_conn->lport = HTONS(12345);
+    /* FIXME: ignore lport because we don't wait for the answer */
+
+    uip_udp_conn = ecmd_conn;
+
+    uip_process(UIP_UDP_SEND_CONN);
+    fill_llh_and_transmit();
+  }
+}
+
+void
+ecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data) 
 {
-  uint8_t len = strlen_P(pgm_data);
-  memcpy_P(uip_appdata, pgm_data, len);
-  uip_slen = len;
-
-  /* build a new connection on the stack */
-  uip_udp_conn_t conn;
-  uip_ipaddr_copy(conn.ripaddr, ipaddr);
-  conn.rport = HTONS(2701);
-  /* FIXME: ignore lport because we don't wait for the answer */
-
-  uip_udp_conn = &conn;
-
-  uip_process(UIP_UDP_SEND_CONN);
-  fill_llh_and_transmit();
-
+  if (!ecmd_conn) {
+    ecmd_conn = uip_udp_new(ipaddr, 0, ecmd_sender_main);
+    if (!ecmd_conn) return;
+  }
+  uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
+  send_data = pgm_data;
+  resend_counter = 7;
 }
 #endif /* TCP_SUPPORT */
 #endif /* ECMD_SENDER_SUPPORT */
