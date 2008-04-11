@@ -26,7 +26,7 @@
 #include "config.h"
 #include <stdint.h>
 
-#ifdef _ATMEGA8
+#if defined(_ATMEGA8) || defined(_ATMEGA88)
 #define IO_HARD_PORTS 3
 #define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}

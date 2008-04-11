@@ -108,8 +108,9 @@ clean:
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
 
-pinning.c: pinning.m4 config.h
-	m4 -DMCU=$(MCU) `grep -e "^#define .*_SUPPORT$$" config.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT//"` $< > $@
+PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
+pinning.c: $(PINNING_FILES) config.h
+	m4 `grep -e "^#define .*_SUPPORT$$" config.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT//"` $(PINNING_FILES) > $@
 	
 
 include depend.mk
