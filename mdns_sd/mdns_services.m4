@@ -66,9 +66,6 @@ divert(2)#endif
 divert(-1)')
 
 mdns_feature(workstation, "_workstation._tcp.local", CONF_HOSTNAME, NULL, 9)
-mdns_ifdef(TETRIRAPE_SUPPORT)
-  mdns_feature(tetrirape, "_tetrirape._tcp.local", "hardware tetrinet server", NULL, 31457)
-mdns_endif()
 
 mdns_ifdef(RFM12_SUPPORT)
   mdns_feature(rfm12, "_rfm12._bridge.local", "bridge to rfm12 network", NULL, 0)

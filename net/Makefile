@@ -14,7 +14,6 @@ SRC = \
 	rfm12_raw_net.c \
 	stella_net.c \
 	syslog_net.c \
-	tetrirape_net.c \
 	tftp_net.c \
 	udp_echo_net.c \
 	i2c_slave_net.c \

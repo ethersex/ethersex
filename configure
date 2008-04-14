@@ -22,14 +22,9 @@ use strict;
 use Term::Prompt;
 
 my %ethersex_modules = (
-  'tetrirape' => {
-                   helptext  => "a tetrinet server",
-                   conflicts => [ "ecmd", "bootloader" ],
-                   distdflt  => 0,
-                 },
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
-                   conflicts => [ "tetrirape", "bootloader" ],
+                   conflicts => [ "bootloader" ],
                    distdflt  => 1,
 		   enable_hook => \&ecmd_enable_hook,
                  },
@@ -360,7 +355,6 @@ my %categories = (
 		                  "ntp", "ntpd",
 		                  "mdns_sd",
 		                  "stella", 
-		                  "tetrirape", 
 		                  "watchcat", 
 		                ],
                  },

@@ -29,7 +29,6 @@
 #include "../config.h"
 
 #include "ecmd_state.h"
-#include "tetrirape_state.h"
 #include "bootp_state.h"
 #include "tftp_state.h"
 #include "ecmd_sender_state.h"
@@ -45,10 +44,6 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef ECMD_SUPPORT
     struct ecmd_connection_state_t ecmd;
-#   endif
-
-#   ifdef TETRIRAPE_SUPPORT
-    struct tetrirape_connection_state_t tetrirape;
 #   endif
 
 #   ifdef ECMD_SENDER_SUPPORT
