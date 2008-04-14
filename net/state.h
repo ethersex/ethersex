@@ -37,7 +37,6 @@
 #include "i2c_slave_state.h"
 #include "dyndns_state.h"
 #include "modbus_state.h"
-#include "sensormodul_state.h"
 #include "rfm12_raw_state.h"
 #include "zbus_raw_state.h"
 
@@ -88,10 +87,6 @@ typedef union uip_udp_connection_state {
 
 #   ifdef OPENVPN_SUPPORT
     struct openvpn_connection_state_t openvpn;
-#   endif
-
-#   ifdef SENSORMODUL_SUPPORT
-    struct sensormodul_connection_state_t sensormodul;
 #   endif
 
 #   ifdef RFM12_RAW_SUPPORT

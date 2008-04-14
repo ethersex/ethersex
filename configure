@@ -316,11 +316,6 @@ my %ethersex_modules = (
                    helptext  => "use an hc165 as input expansion",
                    distdflt  => 0,
                  },
-  'sensormodul' => {
-                   helptext  => "sensor modul mit KTY81, Feuchte Auswertung und LCD Anzeige",
-                   requires => [ "udp" ],
-                   distdflt  => 0,
-                  },
 # All modules with usart use
   'usart'        => {
                    helptext  => "generic usart support",

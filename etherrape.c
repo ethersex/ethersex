@@ -52,7 +52,6 @@
 #include "hc595/hc595.h"
 #include "yport/yport.h"
 #include "ipv6.h"
-#include "sensormodul/sensormodul.h"
 
 #include "net/handler.h"
 

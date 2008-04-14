@@ -43,7 +43,6 @@
 #include "yport_net.h"
 #include "mdns_sd_net.h"
 #include "../dyndns/dyndns.h"
-#include "sensormodul_net.h"
 #include "modbus_net.h"
 #include "rfm12_raw_net.h"
 #include "zbus_raw_net.h"
@@ -143,10 +142,6 @@ void network_init_apps(void)
 
 #   ifdef NTPD_SUPPORT
     ntpd_net_init();
-#   endif
-
-#   ifdef SENSORMODUL_SUPPORT
-    sensormodul_net_init();
 #   endif
 
 #   ifdef MODBUS_SUPPORT

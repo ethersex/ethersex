@@ -20,7 +20,6 @@ SRC = \
 	i2c_slave_net.c \
 	zbus_linkbeat_net.c \
 	yport_net.c \
-	sensormodul_net.c \
 	modbus_net.c \
 	zbus_raw_net.c \
 
