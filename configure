@@ -362,7 +362,6 @@ my %categories = (
 		                  "stella", 
 		                  "tetrirape", 
 		                  "watchcat", 
-		                  "sensormodul",
 		                ],
                  },
   'connectors'  => {

@@ -379,7 +379,6 @@
 // #define NTPD_SUPPORT
 // #define MDNS_SD_SUPPORT
 #define ENC28J60_SUPPORT
-// #define SENSORMODUL_SUPPORT
 // #define STELLA_SUPPORT
 // #define TEENSY_SUPPORT
 // #define HC595_SUPPORT
