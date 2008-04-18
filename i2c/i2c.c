@@ -29,7 +29,8 @@
 #ifdef I2C_SUPPORT
 
 /* constants */
-#define MAXDATAPAKETLEN (uint8_t)(UIP_APPDATA_SIZE - 3)
+#define MAXDATAPAKETLEN ((UIP_BUFSIZE) - (UIP_IPUDPH_LEN) - 3)
+#define MAXRFM12DATALEN 0x78
 
 #define STATS (uip_udp_conn->appstate.i2c)
 
@@ -134,7 +135,9 @@ void i2c_core_newdata(void)
 
   if(uip_datalen() == GETMAXDATA && REQ->seqnum == 0)
   {
-    REQ->maxdatalen = MAXDATAPAKETLEN;
+    uint16_t mdpl = MAXDATAPAKETLEN;
+    if(mdpl > MAXRFM12DATALEN) mdpl = MAXRFM12DATALEN;
+    REQ->maxdatalen = mdpl;
     uip_slen = 2;
     resetconnection = 1;
   }
@@ -173,8 +176,10 @@ void i2c_core_newdata(void)
       {
         uint8_t tmp_datalen = REQ->datalen;
         uint8_t tmp_datapos = 0;
-        if (tmp_datalen > MAXDATAPAKETLEN)
-          tmp_datalen = MAXDATAPAKETLEN;
+        uint16_t mdpl = MAXDATAPAKETLEN;
+        if(mdpl > MAXRFM12DATALEN) mdpl = MAXRFM12DATALEN;
+        if (tmp_datalen > mdpl)
+          tmp_datalen = mdpl;
         
         while (tmp_datapos < tmp_datalen)
         {
