@@ -631,6 +631,7 @@ foreach(@ARGV) {
   if(m/^-D([^=]*)=(.*$)/) { 
     if (defined($ethersex_config{$1})) {
         my $uservalue = $2;
+        $opt_nogui = 1;
         if (defined($ethersex_config{$1}->{'definefilter'})) {
           $uservalue = $ethersex_config{$1}->{'definefilter'}($uservalue);
         }
@@ -639,12 +640,17 @@ foreach(@ARGV) {
           exit -1;
         }
         $ethersex_config{$1}->{'user_value'} = $2;
-        $opt_nogui = 1;
         print "setting $1 to $2.\n";
     } else {
       print STDERR "Unkown define option: $1\n";
       exit -1;
     }
+  }
+}
+
+if ($opt_nogui) {
+  foreach (keys(%ethersex_modules)) {
+    $ethersex_modules{$_}->{'new_status'} = $ethersex_modules{$_}->{'enabled'};
   }
 }
 
@@ -1009,15 +1015,21 @@ sub ask_number {
   my $confopt = shift;
   my $min = shift;
   my $max = shift;
+  my $new_value;
 
   my $default = $ethersex_config{$confopt}->{'value'};
   unless(defined($default)) { $default = "" }
 
+  if (defined($ethersex_config{$confopt}->{'user_value'})) {
+    $new_value = $ethersex_config{$confopt}->{'user_value'};
+    goto save_value;
+  }
+
   $default =~ s/0x//;
-  my $new_value =
+   $new_value =
     prompt('r', $confopt, $ethersex_config{$confopt}->{'helptext'}, 
            $default, $min, $max);
-
+save_value:
   $ethersex_config{$confopt}->{'value'} = "$new_value";
 }
 
@@ -1076,9 +1088,10 @@ sub check_and_expand_mac {
   return '"\\x' . $checkval . '"'; 
 }
 
-sub check_and_expand_nummeric {
+sub check_and_expand_numeric {
   my $checkval = shift;
-  unless ($checkval =~ m/^[0-9 ]+$/i) { return undef; }
+  return undef if (!($checkval =~ m/^[0-9 ]+$/i));
+  return $checkval;
 }
 
 sub check_and_expand_string {
