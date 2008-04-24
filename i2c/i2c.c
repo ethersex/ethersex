@@ -26,23 +26,21 @@
 #include "../uip/uip.h"
 #include "../config.h"
 #include "i2c.h"
-#include "../zbus/zbus.h"
-#include "../rfm12/rfm12.h"
 
 #ifdef I2C_SUPPORT
 
 /* constants */
-#if defined(RFM12_SUPPORT) || defined(ZBUS_SUPPORT)
-#if RFM12_DataLength > ZBUS_RECV_BUFFER
-#define MAXDATAPAKETLEN (RFM12_DataLength - 76)
+#ifdef ENC28J60_SUPPORT
+  #define MAXDATAPAKETLEN ((UIP_BUFSIZE) - (UIP_IPUDPH_LEN) - 3)
+#elseif defined(RFM12_SUPPORT)
+  #define MAXDATAPAKETLEN (196 - 76)
+#elseif defined(ZBUS_SUPPORT)
+  #define MAXDATAPAKETLEN (128 - 76)
 #else
-#define MAXDATAPAKETLEN (ZBUS_RECV_BUFFER - 76)
-#endif
-#else
-#define MAXDATAPAKETLEN ((UIP_BUFSIZE) - (UIP_IPUDPH_LEN) - 3)
+  #define MAXDATAPAKETLEN (40)
 #endif
 
-#define STATS (uip_udp_conn->appstate.i2c)
+#define STATSI2C (uip_udp_conn->appstate.i2c)
 
 /*
  * direkter zugriff zum packet buffer
@@ -114,13 +112,13 @@ void
 void
     i2c_core_periodic(void)
 {
-  if(STATS.timeout == 1){
+  if(STATSI2C.timeout == 1){
     TWCR = 0;
     reset_connection(uip_udp_conn);
     /* FIXME:   PORTC &= ~_BV(PC2); */
   }
-  if(STATS.timeout > 0)
-    STATS.timeout--;
+  if(STATSI2C.timeout > 0)
+    STATSI2C.timeout--;
     
   /* error detection on i2c bus */
   if((TWSR & 0xF8) == 0x00)
@@ -138,7 +136,7 @@ void i2c_core_newdata(void)
   * und antwort paket senden mit der maximalen pufferlaenge (i2c open)
                 */
   uint8_t resetconnection = 0;
-  if(STATS.last_seqnum == 0){
+  if(STATSI2C.last_seqnum == 0){
     uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
     uip_udp_conn->rport = BUF->srcport;
   }
@@ -152,7 +150,7 @@ void i2c_core_newdata(void)
   }
   else if(uip_datalen() >= READFROMI2C) //  && 
   {
-    if(STATS.last_seqnum == 0)
+    if(STATSI2C.last_seqnum == 0)
     {
       /* sende startcondition und adresse wenn kein paket vorher da war (last_seqnum = 0) */
       TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);
@@ -216,7 +214,7 @@ void i2c_core_newdata(void)
       }
       else
       {
-        if(STATS.last_seqnum == 0 || REQ->seqnum != STATS.last_seqnum)
+        if(STATSI2C.last_seqnum == 0 || REQ->seqnum != STATSI2C.last_seqnum)
         {
           uint8_t tmp_datapos = 0;
   
@@ -240,8 +238,8 @@ void i2c_core_newdata(void)
     }
   }
   if(!resetconnection){
-    STATS.last_seqnum = REQ->seqnum;
-    STATS.timeout = 25;
+    STATSI2C.last_seqnum = REQ->seqnum;
+    STATSI2C.timeout = 25;
   }
   uip_process(UIP_UDP_SEND_CONN);
   fill_llh_and_transmit();
