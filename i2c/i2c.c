@@ -26,11 +26,21 @@
 #include "../uip/uip.h"
 #include "../config.h"
 #include "i2c.h"
+#include "../zbus/zbus.h"
+#include "../rfm12/rfm12.h"
+
 #ifdef I2C_SUPPORT
 
 /* constants */
+#if defined(RFM12_SUPPORT) || defined(ZBUS_SUPPORT)
+#if RFM12_DataLength > ZBUS_RECV_BUFFER
+#define MAXDATAPAKETLEN (RFM12_DataLength - 76)
+#else
+#define MAXDATAPAKETLEN (ZBUS_RECV_BUFFER - 76)
+#endif
+#else
 #define MAXDATAPAKETLEN ((UIP_BUFSIZE) - (UIP_IPUDPH_LEN) - 3)
-#define MAXRFM12DATALEN 0x78
+#endif
 
 #define STATS (uip_udp_conn->appstate.i2c)
 
@@ -136,7 +146,6 @@ void i2c_core_newdata(void)
   if(uip_datalen() == GETMAXDATA && REQ->seqnum == 0)
   {
     uint16_t mdpl = MAXDATAPAKETLEN;
-    if(mdpl > MAXRFM12DATALEN) mdpl = MAXRFM12DATALEN;
     REQ->maxdatalen = mdpl;
     uip_slen = 2;
     resetconnection = 1;
@@ -177,7 +186,6 @@ void i2c_core_newdata(void)
         uint8_t tmp_datalen = REQ->datalen;
         uint8_t tmp_datapos = 0;
         uint16_t mdpl = MAXDATAPAKETLEN;
-        if(mdpl > MAXRFM12DATALEN) mdpl = MAXRFM12DATALEN;
         if (tmp_datalen > mdpl)
           tmp_datalen = mdpl;
         
