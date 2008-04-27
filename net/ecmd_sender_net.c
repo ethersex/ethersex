@@ -97,8 +97,6 @@ ecmd_sender_main(void) {
 
     /* build a new connection on the stack */
     ecmd_conn->rport = HTONS(2701);
-    ecmd_conn->lport = HTONS(12345);
-    /* FIXME: ignore lport because we don't wait for the answer */
 
     uip_udp_conn = ecmd_conn;
 
