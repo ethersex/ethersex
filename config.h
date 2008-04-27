@@ -351,7 +351,6 @@
 #define PORTIO_SUPPORT
 // #define PORTIO_SIMPLE_SUPPORT
 // #define NAMED_PIN_SUPPORT
-// #define TETRIRAPE_SUPPORT
 // #define BOOTP_SUPPORT
 // #define BOOTP_TO_EEPROM_SUPPORT
 // #define BOOTLOADER_SUPPORT
@@ -377,6 +376,7 @@
 // #define DCF77_SUPPORT
 // #define NTP_SUPPORT
 // #define NTPD_SUPPORT
+// #define CRON_SUPPORT
 // #define MDNS_SD_SUPPORT
 #define ENC28J60_SUPPORT
 // #define STELLA_SUPPORT

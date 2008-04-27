@@ -33,6 +33,7 @@
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
+#include "cron/cron.h"
 #include "ipv6.h"
 #include "stella/stella.h"
 #include "ps2/ps2.h"
@@ -157,6 +158,11 @@ void timer_process(void)
 #       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
         if (counter % 50 == 0) {
+
+#           ifdef CRON_SUPPORT
+            cron_periodic();
+#           endif
+
 #           ifdef FS20_SUPPORT
             fs20_global.ws300.last_update++;
 #           endif

@@ -16,6 +16,7 @@ SRC = \
 
 #SUBDIRS += bootp
 #SUBDIRS += clock
+#SUBDIRS += cron
 #SUBDIRS += crypto
 #SUBDIRS += dcf77
 #SUBDIRS += dns

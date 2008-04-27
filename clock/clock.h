@@ -22,6 +22,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#ifndef _CLOCK_H
+#define _CLOCK_H
+
 #include "../config.h"
 
 struct clock_datetime_t {
@@ -64,3 +67,5 @@ void clock_datetime(struct clock_datetime_t *d, uint32_t timestamp);
 
 /** test if given year is a leap year */
 #define is_leap_year(y)     (((y % 4) == 0) && ( (y % 100 != 0) || (y % 400 == 0) ))
+
+#endif

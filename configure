@@ -287,6 +287,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["clock", "udp"],
   },
+  'cron'        => {
+                   helptext  => "cron daemon",
+                   distdflt  => 0,
+                   requires => ["clock"],
+  },
   'mdns_sd'        => {
                    helptext  => "mdns service announcement",
                    distdflt  => 0,
@@ -348,6 +353,7 @@ my %categories = (
                    helptext  => "applications",
 		   modules   => [ 
 		                  "clock", "clock_crystal",
+                                  "cron",
 		                  "dcf77",
 		                  "dyndns", 
 		                  "ecmd", "ecmd_sender", 
@@ -648,7 +654,7 @@ foreach(@ARGV) {
   }
 }
 
-if ($opt_nogui) {
+if ($opt_nogui && ! $opt_restore_defaults) {
   foreach (keys(%ethersex_modules)) {
     if (!defined $ethersex_modules{$_}->{'new_status'}) {
       $ethersex_modules{$_}->{'new_status'} = $ethersex_modules{$_}->{'enabled'};
