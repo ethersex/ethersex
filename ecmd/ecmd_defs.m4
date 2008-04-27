@@ -152,6 +152,7 @@ ecmd_endif()
 
 ecmd_ifdef(CLOCK_SUPPORT)
   ecmd_feature(time, "time")
+  ecmd_feature(date, "date")
 ecmd_endif()
 
 ecmd_ifdef(ADC_SUPPORT)

@@ -37,7 +37,19 @@
 #ifdef CLOCK_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
+  return snprintf_P(output, len, PSTR("%lu"), clock_get_time()); 
 } /* }}} */
+
+int16_t parse_cmd_date(char *cmd, char *output, uint16_t len) 
+{
+  char *weekdays = "Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
+  struct clock_datetime_t date;
+  clock_current_datetime(&date);
+
+  return snprintf_P(output, len, PSTR("%.2d:%.2d:%.2d %.2d.%.2d.%.2d %s"),
+                    date.hour, date.min, date.sec, date.day, date.month, date.year,
+                    weekdays + date.dow * 4);
+
+}
 #endif 
 
