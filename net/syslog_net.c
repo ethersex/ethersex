@@ -62,8 +62,10 @@ syslog_net_main(void)
 {
   if (uip_poll()) {
     uint8_t i;
+#ifdef IPV6_SUPPORT
     if(! uip_neighbor_lookup (uip_ipaddr_cmp(uip_udp_conn->ripaddr, uip_hostaddr) ? uip_draddr : uip_udp_conn->ripaddr))
       { uip_slen = 1; return; }
+#endif
     for (i = 0; i < SYSLOG_CALLBACKS; i++)
       if (syslog_callbacks[i].callback != NULL) {
         syslog_callbacks[i].callback(syslog_callbacks[i].data);
