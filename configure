@@ -650,7 +650,9 @@ foreach(@ARGV) {
 
 if ($opt_nogui) {
   foreach (keys(%ethersex_modules)) {
-    $ethersex_modules{$_}->{'new_status'} = $ethersex_modules{$_}->{'enabled'};
+    if (!defined $ethersex_modules{$_}->{'new_status'}) {
+      $ethersex_modules{$_}->{'new_status'} = $ethersex_modules{$_}->{'enabled'};
+    }
   }
 }
 
