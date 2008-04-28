@@ -1,4 +1,4 @@
-TARGET = libecmd.a
+TARGET = libecmd_parser.a
 TOPDIR = ..
 SRC = \
       	adc.c		\
