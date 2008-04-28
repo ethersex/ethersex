@@ -346,6 +346,8 @@
 
 
 #define ECMD_SUPPORT
+// #define UECMD_SUPPORT
+#define ECMD_PARSER_SUPPORT
 // #define ECMD_SENDER_SUPPORT
 // #define WATCHCAT_SUPPORT
 #define PORTIO_SUPPORT

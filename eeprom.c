@@ -43,7 +43,7 @@ uint8_t crc_checksum(void *data, uint8_t length)
 #endif /* ENC28J60_SUPPORT */
 
 
-#if defined(ECMD_SUPPORT)  && ( ! defined(TEENSY_SUPPORT)) \
+#if defined(ECMD_PARSER_SUPPORT)  && ( ! defined(TEENSY_SUPPORT)) \
   || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT))
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
