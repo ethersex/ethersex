@@ -66,7 +66,11 @@ zbus_send_data(uint8_t *data, uint16_t len)
     send_ctx.len = len;
     send_ctx.offset = 0;
 #ifdef SKIPJACK_SUPPORT
+#ifdef ZBUS_RAW_SUPPORT
+    if (!zbus_raw_conn->rport)
+#endif
     zbus_encrypt(send_ctx.data, &send_ctx.len);
+    if (send_ctx.len)
 #endif
     zbus_txstart();
     return 1;
@@ -111,6 +115,9 @@ zbus_rxfinish(void)
 {
   if (recv_ctx.len != 0) {
 #ifdef SKIPJACK_SUPPORT
+#ifdef ZBUS_RAW_SUPPORT
+    if (!zbus_raw_conn->rport)
+#endif
     zbus_decrypt(recv_ctx.data, &recv_ctx.len);
 #endif
     return (struct zbus_ctx *) (&recv_ctx);
