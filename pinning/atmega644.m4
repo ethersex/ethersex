@@ -36,6 +36,6 @@ ifdef(`conf_RFM12', `dnl
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PC2)
-  pin(ZBUS_TX_PIN, PD4)
-  pin(ZBUS_RX_PIN, PD5)
+  pin(ZBUS_RX_PIN, PD4)
+  pin(ZBUS_TX_PIN, PD5)
 ')
