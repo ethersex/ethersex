@@ -30,11 +30,11 @@
 #ifdef I2C_SUPPORT
 
 /* constants */
-#ifdef ENC28J60_SUPPORT
+#if defined(ENC28J60_SUPPORT)
   #define MAXDATAPAKETLEN ((UIP_BUFSIZE) - (UIP_IPUDPH_LEN) - 3)
-#elseif defined(RFM12_SUPPORT)
+#elif defined(RFM12_SUPPORT)
   #define MAXDATAPAKETLEN (196 - 76)
-#elseif defined(ZBUS_SUPPORT)
+#elif defined(ZBUS_SUPPORT)
   #define MAXDATAPAKETLEN (128 - 76)
 #else
   #define MAXDATAPAKETLEN (40)
