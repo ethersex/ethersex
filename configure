@@ -25,8 +25,19 @@ my %ethersex_modules = (
   'ecmd'      => { 
                    helptext  => "telnet-based etherrape control interface",
                    conflicts => [ "bootloader" ],
+                   requires => [ "tcp", "ecmd_parser" ],
                    distdflt  => 1,
 		   enable_hook => \&ecmd_enable_hook,
+                 },
+  'uecmd'      => { 
+                   helptext  => "udp based etherrape control interface",
+                   requires => [ "udp", "ecmd_parser" ],
+                   provides => [ "ecmd" ],
+                   distdflt  => 0,
+                 },
+  'ecmd_parser'      => { 
+                   helptext  => "parser for etherrape control interface",
+                   distdflt  => 1,
                  },
   'portio'    => {
                    helptext  => "port io abstraction layer",
@@ -287,6 +298,11 @@ my %ethersex_modules = (
                    distdflt  => 0,
                    requires => ["clock", "udp"],
   },
+  'cron'        => {
+                   helptext  => "cron daemon",
+                   distdflt  => 0,
+                   requires => ["clock"],
+  },
   'mdns_sd'        => {
                    helptext  => "mdns service announcement",
                    distdflt  => 0,
@@ -348,9 +364,11 @@ my %categories = (
                    helptext  => "applications",
 		   modules   => [ 
 		                  "clock", "clock_crystal",
+                                  "cron",
 		                  "dcf77",
 		                  "dyndns", 
-		                  "ecmd", "ecmd_sender", 
+		                  "ecmd", "ecmd_sender", "uecmd", 
+                                  "ecmd_parser",
 		                  "hd44780", 
 		                  "ntp", "ntpd",
 		                  "mdns_sd",
@@ -648,9 +666,11 @@ foreach(@ARGV) {
   }
 }
 
-if ($opt_nogui) {
+if ($opt_nogui && ! $opt_restore_defaults) {
   foreach (keys(%ethersex_modules)) {
-    $ethersex_modules{$_}->{'new_status'} = $ethersex_modules{$_}->{'enabled'};
+    if (!defined $ethersex_modules{$_}->{'new_status'}) {
+      $ethersex_modules{$_}->{'new_status'} = $ethersex_modules{$_}->{'enabled'};
+    }
   }
 }
 
@@ -674,6 +694,27 @@ sub disable_modules() {
   return @list;
 }
 
+# find modules, that provides this a feature, or are have exactly this name
+sub find_providing {
+  my $searched_module = shift;
+  my @providing;
+
+  if (defined ($ethersex_modules{$searched_module})) {
+    push (@providing, $searched_module);
+  }
+    
+  foreach my $module (keys %ethersex_modules) {
+    next if (!defined ($ethersex_modules{$module}->{'provides'}));
+    foreach (@{$ethersex_modules{$module}->{'provides'}}) {
+      if ($_ eq $searched_module) {
+        push (@providing, $module);
+      }
+    }
+  }
+  return @providing unless (scalar(@providing) == 0);
+  return undef
+}
+
 # check whether module may be enabled
 # return: 1 if conflicting (message will be emitted)
 sub try_enable {
@@ -692,19 +733,22 @@ sub try_enable {
     }
   }
 
-  foreach (@{$ethersex_modules{$module}->{'requires'}},
+  foreach my $requirement (@{$ethersex_modules{$module}->{'requires'}},
            @{$ethersex_modules{$module}->{'maybe_require'}}) {
-    if(defined($ethersex_modules{$_}->{'new_status'})
-       && !$ethersex_modules{$_}->{'new_status'}) {
-      # module is already disabled ....
-      printf "disabling %s (would require %s).\n", $trymodule, $_
-        unless($opt_nogui);
-      disable($trymodule);
+    my @provides = find_providing($requirement);
+    foreach (@provides) {
+      if(defined($ethersex_modules{$_}->{'new_status'})
+         &&  !$ethersex_modules{$_}->{'new_status'}) {
+        # module is already disabled ....
+        printf "disabling %s (would require %s).\n", $trymodule, $_
+          unless($opt_nogui);
+        disable($trymodule);
 
-      return 1;
-    }
-    if(try_enable($_, $trymodule)) {
-      return 1;
+        return 1;
+      }
+      if(try_enable($_, $trymodule)) {
+        return 1;
+      }
     }
   }
 
@@ -727,9 +771,19 @@ sub enable {
     $requiring = $module;
   }
 
-  foreach (@{$ethersex_modules{$module}->{'requires'}}) {
-    enable($_, $requiring);
+  foreach my $requirement (@{$ethersex_modules{$module}->{'requires'}}) {
+    # test if another already enabled module provides this
+    my @provides = find_providing($requirement);
+    foreach (@provides) {
+      if(defined($ethersex_modules{$_}->{'new_status'})
+         ? $ethersex_modules{$_}->{'new_status'}
+         : $ethersex_modules{$_}->{'enabled'}) { goto end_of_testing; }
+     }
+
+    enable($requirement, $requiring);
   }
+
+end_of_testing:
 
   $ethersex_modules{$module}->{'new_status'} = 1;
 
@@ -758,11 +812,22 @@ sub disable {
     next unless $ethersex_modules{$testmod}->{"new_status"};
 
     foreach my $reqmod (@{$ethersex_modules{$testmod}->{'requires'}}) {
+      # test for modules that provides also this module
+      my @provides = find_providing($reqmod);
+      foreach (@provides) {
+        next if ($_ eq $module);
+        if(defined($ethersex_modules{$_}->{'new_status'})
+          ? $ethersex_modules{$_}->{'new_status'}
+          : $ethersex_modules{$_}->{'enabled'}) { goto end_of_testing; }
+      }
+
       if($reqmod eq $module) { 
         &disable ($testmod, $module); 
       }
     }
   }
+
+end_of_testing:
 
   # call hook, if available
   if(defined($ethersex_modules{$module}->{'disable_hook'})) {

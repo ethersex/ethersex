@@ -16,11 +16,12 @@ SRC = \
 
 #SUBDIRS += bootp
 #SUBDIRS += clock
+#SUBDIRS += cron
 #SUBDIRS += crypto
 #SUBDIRS += dcf77
 #SUBDIRS += dns
 #SUBDIRS += dyndns
-SUBDIRS += ecmd
+SUBDIRS += ecmd_parser
 #SUBDIRS += fs20
 #SUBDIRS += i2c
 SUBDIRS += lcd

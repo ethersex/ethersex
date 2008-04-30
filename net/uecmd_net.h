@@ -1,9 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -22,22 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include <string.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include <avr/interrupt.h>
+#ifndef UECMD_NET_H
+#define UECMD_NET_H
 
-#include "../config.h"
-#include "../debug.h"
-#include "../uip/uip.h"
-#include "../clock/clock.h"
-#include "ecmd.h"
+#define UECMD_NET_PORT 2701
 
+void uecmd_net_init(void);
+void uecmd_net_main(void);
 
-#ifdef CLOCK_SUPPORT
-int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
-  return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
-} /* }}} */
-#endif 
-
+#endif

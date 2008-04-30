@@ -29,6 +29,7 @@
 #include "../crypto/cast5.h"
 
 #include "ecmd_net.h"
+#include "uecmd_net.h"
 #include "bootp_net.h"
 #include "tftp_net.h"
 #include "ecmd_sender_net.h"
@@ -53,6 +54,10 @@ void network_init_apps(void)
 /* {{{ */ {
 #   ifdef ECMD_SUPPORT
     ecmd_net_init();
+#   endif
+
+#   ifdef UECMD_SUPPORT
+    uecmd_net_init();
 #   endif
 
 #   ifdef TFTP_SUPPORT

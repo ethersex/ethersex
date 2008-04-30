@@ -2,6 +2,8 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (C) 2007, 2008 Christian Dietrich <stettberger@dokucode.de>
+ *
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -24,12 +26,14 @@
 #include "../bit-macros.h"
 #include "../uip/uip.h"
 #include "../debug.h"
-#include "../ecmd/ecmd.h"
+#include "../ecmd_parser/ecmd.h"
 
 #include <string.h>
 
 #include "../config.h"
+
 #ifdef ECMD_SUPPORT
+
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 /* module local prototypes */
@@ -37,24 +41,10 @@ void newdata(void);
 
 void ecmd_net_init()
 {
-#ifndef TEENSY_SUPPORT
   /* Without teensy support we use tcp */
     uip_listen(HTONS(ECMD_NET_PORT), ecmd_net_main);
-#else
-  /* If teensy support is enabled we use udp */
-    uip_ipaddr_t ip;
-    uip_ipaddr_copy (&ip, all_ones_addr);
-
-    uip_udp_conn_t *udp_echo_conn = uip_udp_new (&ip, 0, ecmd_net_main);
-
-    if (!udp_echo_conn) 
-      return; /* dammit. */
-
-    uip_udp_bind (udp_echo_conn, HTONS (ECMD_NET_PORT));
-#endif
 }
 
-#ifndef TEENSY_SUPPORT
 void newdata(void)
 {
     struct ecmd_connection_state_t *state = &uip_conn->appstate.ecmd;
@@ -148,11 +138,9 @@ void newdata(void)
         }
     }
 }
-#endif /* no TEENSY_SUPPORT */
 
 void ecmd_net_main(void)
 {
-#ifndef TEENSY_SUPPORT
     struct ecmd_connection_state_t *state = &uip_conn->appstate.ecmd;
 
     if (!uip_poll()) {
@@ -160,20 +148,6 @@ void ecmd_net_main(void)
         debug_printf("ecmd_net_main()\n");
 #endif
     }
-
-    /*
-    if(uip_aborted()) {
-        aborted();
-    }
-
-    if(uip_timedout()) {
-        timedout();
-    }
-
-    if(uip_closed()) {
-        closed();
-    }
-    */
 
     if(uip_connected()) {
 #ifdef DEBUG_ECMD_NET
@@ -239,33 +213,6 @@ void ecmd_net_main(void)
         } else if (state->close_requested)
           uip_close();
     }
-#else /* TEENSY _SUPPORT */
-    if(uip_newdata()) {
-      uip_udp_conn_t echo_conn;
-      uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
-      echo_conn.rport = BUF->srcport;
-      echo_conn.lport = HTONS(ECMD_NET_PORT);
-
-      uip_udp_conn = &echo_conn;
-      /* Add \0 to the data and remove \n from the data */
-      char *p = (char *)uip_appdata;
-      do {
-        if (*p == '\r' || *p == '\n') {
-          *p = 0;
-          break;
-        } 
-      } while ( ++p < ((uint8_t *)uip_appdata + uip_datalen()));
-      /* Parse the Data */
-      uip_slen = ecmd_parse_command(uip_appdata, uip_appdata, 
-                                    UIP_BUFSIZE - UIP_IPUDPH_LEN) + 1;
-      
-      ((char *)uip_appdata)[uip_slen - 1] = '\n';
-      uip_process(UIP_UDP_SEND_CONN); 
-      fill_llh_and_transmit();
-
-      uip_slen = 0;
-    }
-#endif
 }
 
 

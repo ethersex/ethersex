@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include "config.h"
 #include "debug.h"
-#include "ecmd/ecmd.h"
+#include "ecmd_parser/ecmd.h"
 #include "onewire/onewire.h"
 
 #define noinline __attribute__((noinline))
