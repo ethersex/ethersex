@@ -35,175 +35,6 @@
 #error "please define F_CPU!"
 #endif
 
-/* cpu specific configuration registers */
-#if defined(__AVR_ATmega32__)
-/* {{{ */
-#define _ATMEGA32
-
-#define _TIMSK_TIMER1 TIMSK1
-#define _UDRIE_UART0 UDRIE
-#define _TXEN_UART0 TXEN
-#define _RXEN_UART0 RXEN
-#define _RXCIE_UART0 RXCIE
-#define _UBRRH_UART0 UBRRH
-#define _UBRRL_UART0 UBRRL
-#define _UCSRA_UART0 UCSRA
-#define _UCSRB_UART0 UCSRB
-#define _UCSRC_UART0 UCSRC
-#define _UCSZ0_UART0 UCSZ00
-#define _UCSZ1_UART0 UCSZ01
-#define _SIG_UART_RECV_UART0 SIG_USART_RECV
-#define _SIG_UART_DATA_UART0 SIG_USART_DATA
-#define _UDR_UART0 UDR
-#define _UDRE_UART0 UDRE
-#define _RXC_UART0 RXC
-#define _IVREG MCUCR
-#define _SPCR0 SPCR
-#define _SPE0 SPE
-#define _MCUSR MCUCSR
-#define _MSTR0 MSTR
-#define _SPSR0 SPSR
-#define _SPIF0 SPIF
-#define _SPDR0 SPDR
-#define _SPI2X0 SPI2X
-#define _TIFR_TIMER1 TIFR
-
-/* }}} */
-#elif defined(__AVR_ATmega8__)
-/* {{{ */
-#define _ATMEGA8
-
-#define _SPCR0 SPCR
-#define _SPE0 SPE
-#define _MSTR0 MSTR
-#define _SPSR0 SPSR
-#define _SPIF0 SPIF
-#define _SPDR0 SPDR
-#define _SPI2X0 SPI2X
-#define _TIFR_TIMER1 TIFR
-#define _EIMSK GICR
-#define _UDR_UART0 UDR
-#define _UCSRA_UART0 UCSRA
-#define _UCSRB_UART0 UCSRB
-#define _UCSRC_UART0 UCSRC
-#define _UBRRL_UART0 UBRRL
-#define _UBRRH_UART0 UBRRH
-#define _TXEN_UART0  TXEN
-#define _TXCIE_UART0 TXCIE
-#define _RXEN_UART0  RXEN
-#define _RXCIE_UART0 RXCIE
-#define _UDRE_UART0  UDRE
-#define _RXC_UART0   RXC
-#define _TXC_UART0   TXC
-#define UDRIE0       UDRIE
-#define DOR0         DOR
-#define FE0          FE
-#define UCSZ00       UCSZ0
-#define UCSZ01       UCSZ1
-#define USART0_UDRE_vect USART_UDRE_vect
-#define USART0_RX_vect USART_RXC_vect
-#define USART0_TX_vect USART_TXC_vect
-
-/* }}} */
-#elif defined(__AVR_ATmega88__)
-/* {{{ */
-#define _ATMEGA88
-
-#define _SPCR0 SPCR
-#define _SPE0 SPE
-#define _MSTR0 MSTR
-#define _SPSR0 SPSR
-#define _SPIF0 SPIF
-#define _SPDR0 SPDR
-#define _SPI2X0 SPI2X
-#define _TIFR_TIMER1 TIFR1
-#define _EIMSK EIMSK
-#define _IVREG MCUCR
-
-/* }}} */
-#elif defined(__AVR_ATmega644__)
-/* {{{ */
-#define _ATMEGA644
-
-#define _TIMSK_TIMER1 TIMSK1
-#define _UDRIE_UART0 UDRIE0
-#define _TXEN_UART0 TXEN0
-#define _RXEN_UART0 RXEN0
-#define _RXCIE_UART0 RXCIE0
-#define _TXCIE_UART0 TXCIE0
-#define _UBRRH_UART0 UBRR0H
-#define _UBRRL_UART0 UBRR0L
-#define _UCSRA_UART0 UCSR0A
-#define _UCSRB_UART0 UCSR0B
-#define _UCSRC_UART0 UCSR0C
-#define _UCSZ0_UART0 UCSZ00
-#define _UCSZ1_UART0 UCSZ01
-#define _SIG_UART_RECV_UART0 SIG_USART_RECV
-#define _SIG_UART_DATA_UART0 SIG_USART_DATA
-#define _UDR_UART0 UDR0
-#define _UDRE_UART0 UDRE0
-#define _RXC_UART0 RXC0
-#define _TXC_UART0 TXC0
-#define _IVREG MCUCR
-#define _EIMSK EIMSK
-
-#define _TCCR2_PRESCALE TCCR2B
-#define _OUTPUT_COMPARE_IE2 OCIE2B
-#define _OUTPUT_COMPARE_REG2 OCR2B
-#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
-#define _TIMSK_TIMER2 TIMSK2
-
-/* workaround for avr-libc devs not being able to decide how these registers
- * should be named... */
-#ifdef SPCR0
-    #define _SPCR0 SPCR0
-#else
-    #define _SPCR0 SPCR
-#endif
-
-#ifdef SPE0
-    #define _SPE0 SPE0
-#else
-    #define _SPE0 SPE
-#endif
-
-#ifdef MSTR0
-    #define _MSTR0 MSTR0
-#else
-    #define _MSTR0 MSTR
-#endif
-
-#ifdef SPSR0
-    #define _SPSR0 SPSR0
-#else
-    #define _SPSR0 SPSR
-#endif
-
-#ifdef SPIF0
-    #define _SPIF0 SPIF0
-#else
-    #define _SPIF0 SPIF
-#endif
-
-#ifdef SPDR0
-    #define _SPDR0 SPDR0
-#else
-    #define _SPDR0 SPDR
-#endif
-
-#ifdef SPI2X0
-    #define _SPI2X0 SPI2X0
-#else
-    #define _SPI2X0 SPI2X
-#endif
-
-#define _TIFR_TIMER1 TIFR1
-
-/* }}} */
-#else
-#error "this cpu isn't supported yet!"
-#endif
-
 /* use watchdog only when not debugging */
 #ifndef DEBUG
 #   define USE_WATCHDOG
@@ -212,16 +43,23 @@
 /* network controller hardware bug defines */
 #define ENC28J60_REV4_WORKAROUND
 
-/* bootloader */
-#undef BOOTLOADER_SECTION
-#ifdef _ATMEGA8
-#define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
-#else
-#define BOOTLOADER_SECTION 0xe000 /* atmega644 with 4096 words bootloader */
-#endif
 
-/* Include pinning.c as output of pinning.m4 
- * LOOK pinning.m4 for pin definitions */
+/* hd44780 support */
+// #define HD44780_SUPPORT
+
+/* controller type */
+#define HD44780_ORIGINAL /* original hd44780 */
+// #define HD44780_KS0067B  /* compatibility mode for ks0067b */
+
+/* readback support, check busy flag instead of just waiting for a timeout */
+// #define HD44780_READBACK
+
+/* if defined, use portc instead of port a */
+// #define HD44780_USE_PORTC
+
+
+/* Include pinning.c as output of m4 scripts in pinning sub-directory.
+   Have a look there for MCU specific configuration options. */
 #include "pinning.c"
 
 
@@ -263,17 +101,6 @@
 /* configure duplex mode */
 #define NET_FULL_DUPLEX 0
 
-/* configure global data buffer */
-#ifdef _ATMEGA8
-  /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
-#  define NET_MAX_FRAME_LENGTH 192
-/* on the ATmega8 we only have 6 adc channels in the pdip version */
-#  define ADC_CHANNELS 6
-#else
-#  define NET_MAX_FRAME_LENGTH 640
-#  define ADC_CHANNELS 8
-#endif
-
 /* configure main callback function for uip */
 #define UIP_APPCALL network_handle_tcp
 #define UIP_UDP_APPCALL network_handle_udp
@@ -289,59 +116,6 @@
 #define FS20_SUPPORT_SEND
 #define FS20_SUPPORT_RECEIVE
 #define FS20_SUPPORT_RECEIVE_WS300
-
-/* hd44780 support */
-
-// #define HD44780_SUPPORT
-
-/* controller type */
-#define HD44780_ORIGINAL /* original hd44780 */
-// #define HD44780_KS0067B  /* compatibility mode for ks0067b */
-
-/* readback support, check busy flag instead of just waiting for a timeout */
-// #define HD44780_READBACK
-
-/* if defined, use portc instead of port a */
-// #define HD44780_USE_PORTC
-
-/* select port for lcd below */
-#ifdef _ATMEGA644
-#ifdef HD44780_USE_PORTC
-    #define HD44780_CTRL_PORT C
-    #define HD44780_DATA_PORT C
-    #define HD44780_RS PC0
-    #define HD44780_RW PC1
-    #define HD44780_EN PC2
-    #define HD44780_D4 PC3
-    #define HD44780_D5 PC4
-    #define HD44780_D6 PC5
-    #define HD44780_D7 PC6
-    #define HD44780_DATA_SHIFT 3
-#else
-    #define HD44780_CTRL_PORT A
-    #define HD44780_DATA_PORT A
-    #define HD44780_RS PA0
-    #define HD44780_RW PA1
-    #define HD44780_EN PA2
-    #define HD44780_D4 PA3
-    #define HD44780_D5 PA4
-    #define HD44780_D6 PA5
-    #define HD44780_D7 PA6
-    #define HD44780_DATA_SHIFT 3
-#endif
-#elif defined _ATMEGA8
-    #define HD44780_CTRL_PORT D
-    #define HD44780_DATA_PORT D
-    #define HD44780_RS PD0
-    #define HD44780_EN PD1
-    #define HD44780_D4 PD4
-    #define HD44780_D5 PD5
-    #define HD44780_D6 PD6
-    #define HD44780_D7 PD7
-    #define HD44780_DATA_SHIFT 4
-#endif
-
-
 
 
 

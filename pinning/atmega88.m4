@@ -44,3 +44,22 @@ ifdef(`conf_ZBUS', `dnl
   pin(ZBUS_RX_PIN, PD6)
   pin(ZBUS_TX_PIN, PD7)
 ')
+
+
+#define _ATMEGA88
+
+/* ATmega88 specific adjustments */
+#define _SPCR0 SPCR
+#define _SPE0 SPE
+#define _MSTR0 MSTR
+#define _SPSR0 SPSR
+#define _SPIF0 SPIF
+#define _SPDR0 SPDR
+#define _SPI2X0 SPI2X
+#define _TIFR_TIMER1 TIFR1
+#define _EIMSK EIMSK
+#define _IVREG MCUCR
+
+
+/* there isn't that much RAM on ATmega88, reduce uip_buf size. */
+#define NET_MAX_FRAME_LENGTH 192
