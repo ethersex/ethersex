@@ -33,6 +33,7 @@
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "../crypto/encrypt-llh.h"
+#include "../net/zbus_raw_net.h"
 #include "zbus.h"
 
 static uint8_t send_escape_data = 0;
