@@ -130,7 +130,7 @@ ifneq ($(MAKECMDGOALS),mrproper)
 
 .subdirs: .config
 	$(RM) -f $@
-	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip net ; do \
+	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
 	  test -d $$subdir && echo "SUBDIRS += $$subdir" >> $@; \
 	done
 include $(TOPDIR)/.subdirs
