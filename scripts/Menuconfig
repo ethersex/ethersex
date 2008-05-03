@@ -1199,7 +1199,7 @@ save_configuration () {
 	function hex () {
 		set_x_info "$2" "$3"
 		echo "$2=$x" 			 >>$CONFIG
-		echo "#define $2 0x${x##*[x,X]}" >>$CONFIG_H
+		echo "#define $2 \"$(echo "$x" | sed -e 's/\(..\)/\\x\1/g')\"" >>$CONFIG_H
 	}
 
 	function string () {
