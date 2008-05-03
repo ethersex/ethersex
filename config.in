@@ -176,7 +176,16 @@ else
   dep_bool "MDNS service announcement (Avahi)" CONFIG_MDNS_SD $CONFIG_UDP
   bool "Stella Light" CONFIG_STELLA
   bool "UDP Echo" CONFIG_UDP_ECHO_NET
-  bool "Update DNS records at dyn.metafnord.de" CONFIG_DYNDNS
+
+  mainmenu_option next_comment
+  comment "DynDNS support"
+    bool "Update DNS records at dyn.metafnord.de" CONFIG_DYNDNS
+    if [ "$CONFIG_DYNDNS" = "y" ]; then
+      string "Hostname" CONF_DYNDNS_HOSTNAME "camera1"
+      string "Username" CONF_DYNDNS_USERNAME "user"
+      string "Password" CONF_DYNDNS_PASSWORD "secret"
+    fi
+  endmenu
   dep_bool "Watch IO changes (and react)" CONFIG_WATCHCAT $CONFIG_ECMD_SENDER $CONFIG_PORTIO
   endmenu
 
@@ -186,7 +195,24 @@ else
   comment "Interfaces"
 
   if [ "$CONFIG_ENC28J60" = "y" ]; then
-    bool "RFM12 FSK transmitter" CONFIG_RFM12
+    mainmenu_option next_comment
+    comment "RFM12 FSK transmitter"
+    bool "RFM12 support" CONFIG_RFM12
+
+    if [ "$CONFIG_RFM12" = "y" ]; then
+      if [ "$CONFIG_SKIPJACK" = "y" ]; then
+        hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
+      fi
+
+      if [ "$CONFIG_IPV6" = "y" ]; then
+	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
+      else
+	ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
+	ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
+      fi
+    fi
+    endmenu
 
     choice 'USART support'					\
 	    "None			CONFIG_USART_NONE	\
@@ -194,6 +220,24 @@ else
 	     YPort           		CONFIG_YPORT     	\
 	     Modbus            		CONFIG_MODBUS"     	\
 	     "None"
+
+    if [ "$CONFIG_ZBUS" = "y" ]; then
+      mainmenu_option next_comment
+      comment "ZBUS stack configuration"
+
+      if [ "$CONFIG_SKIPJACK" = "y" ]; then
+        hex "Skipjack Key" CONF_ZBUS_KEY "23234242555523234242"
+      fi
+
+      if [ "$CONFIG_IPV6" = "y" ]; then
+	ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+	int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64
+      else
+	ipv4 "IP address" CONF_ZBUS_IP "192.168.5.1"
+	ipv4 "Netmask" CONF_ZBUS_IP4_NETMASK "255.255.255.0"
+      fi
+      endmenu
+    fi
   fi
 
   if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$CONFIG_UDP" = "y" ]; then
