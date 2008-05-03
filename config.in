@@ -181,7 +181,7 @@ else
   bool "Character-LCD module driver" HD44780_SUPPORT
   dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
   bool "Stella Light" STELLA_SUPPORT
-  bool "UDP Echo" UDP_SUPPORT_ECHO_NET
+  bool "UDP Echo" UDP_ECHO_NET_SUPPORT
 
   mainmenu_option next_comment
   comment "DynDNS support"
