@@ -74,6 +74,23 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 menuconfig:
 	$(MAKE) -C scripts/lxdialog all
 	$(CONFIG_SHELL) scripts/Menuconfig config.in
+	test -e .config
+	@$(MAKE) what-now-msg
+
+what-now-msg: .subdirs
+	@echo ""
+	@echo "Next, you can: "
+	@echo " * 'make' to compile Ethersex"
+	@for subdir in $(SUBDIRS); do \
+	  test -e "$$subdir/configure" -a -e "$$subdir/cfgpp" \
+	    && echo " * 'make $$subdir/menuconfig' to" \
+	            "further configure $$subdir"; done || true
+	@echo ""
+.PHONY: what-now-msg
+
+%/menuconfig:
+	$(SH) "$(@D)/configure"
+	@$(MAKE) what-now-msg
 
 ##############################################################################
 clean:
