@@ -103,7 +103,13 @@ endmenu
 mainmenu_option next_comment
 comment "Network configuration"
 dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
-dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
+if [ "$ENC28J60_SUPPORT" = "y" ]; then
+  dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
+elif [ "$IPV6_SUPPORT" = "y" ]; then
+  define_bool "IPV6_STATIC_SUPPORT" 'y'
+else
+  define_bool "IPV6_STATIC_SUPPORT" 'n'
+fi
 
 if [ "$ENC28J60_SUPPORT" = "y" ]; then
   mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
@@ -120,7 +126,9 @@ if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
   comment "Static IPv4 configuration"
   ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
   ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
-  ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+  fi
 fi
 
 endmenu
