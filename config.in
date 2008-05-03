@@ -233,8 +233,8 @@ else
     endmenu
 
     choice 'USART support'					\
-	    "None			USART_SUPPORT_NONE	\
-	     ZBUS			ZBUS_SUPPORT             \
+	    "None			CONFIG_USART_NO   	\
+	     ZBUS			ZBUS_SUPPORT            \
 	     YPort           		YPORT_SUPPORT     	\
 	     Modbus            		MODBUS_SUPPORT"     	\
 	     "None"
