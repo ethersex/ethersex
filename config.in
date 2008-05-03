@@ -274,7 +274,17 @@ else
 	   Simple				PORTIO_SIMPLE_SUPPORT"	\
 	  Normal
   dep_bool "HC595 output expansion" HC595_SUPPORT $CONFIG_EXPERIMENTAL
-  dep_bool "HC165 input expansion" HC165_SUPPORT $CONFIG_EXPERIMENTAL
+  if [ "$HC595_SUPPORT" = "y" ]; then
+    int "Number of HC595 registers" HC595_REGISTERS 5
+  fi
+  mainmenu_option next_comment
+  comment "HC165 input expansion"
+  dep_bool "HC165 support" HC165_SUPPORT $CONFIG_EXPERIMENTAL
+  if [ "$HC165_SUPPORT" = "y" ]; then
+    bool "Inverse output" HC165_INVERSE_OUTPUT
+    int "Number of HC165 registers" HC165_REGISTERS 1
+  fi
+  endmenu
   dep_bool "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
   dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT

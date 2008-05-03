@@ -73,14 +73,6 @@
 #define PS2_PCIE PCIE0
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
 
-/* Number of the hc 595 registers */
-#define HC595_REGISTERS 5
-
-#define HC165_INVERSE_OUTPUT 1
-/* Number of the hc165 registers */
-#define HC165_REGISTERS 1
-
-
 /* global version defines */
 #define VERSION_STRING "0.2"
 
