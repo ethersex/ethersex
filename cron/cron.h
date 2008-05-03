@@ -66,6 +66,6 @@ struct cron_event_t {
 void cron_periodic(void);
 
 /** check if this event matches the current time */
-int8_t cron_check_event(struct cron_event_t *event, struct clock_datetime_t *d);
+uint8_t cron_check_event(struct cron_event_t *event, struct clock_datetime_t *d);
 
 #endif
