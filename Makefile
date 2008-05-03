@@ -94,4 +94,12 @@ pinning.c: $(PINNING_FILES) autoconf.h
 	done
 include $(TOPDIR)/.subdirs
 
+show-config: autoconf.h
+	@echo
+	@echo "These modules are currently enabled: "
+	@echo "======================================"
+	@grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define / * /" -e "s/_SUPPORT.*//"
+
+.PHONY: show-config
+
 include depend.mk
