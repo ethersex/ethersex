@@ -1,0 +1,185 @@
+
+mainmenu_name "Ethersex Configuration"
+
+bool 'Prompt for development and/or incomplete code/drivers' CONFIG_EXPERIMENTAL
+
+choice 'Target Profile'						\
+	"Standard			CONFIG_NORMAL		\
+	 Bootloader      		CONFIG_BOOTLOADER	\
+	 RFM12-Teensy      		CONFIG_TEENSY_RFM12	\
+	 ZBUS-Teensy      		CONFIG_TEENSY_ZBUS"	\
+	 "Standard"
+
+if [ "$CONFIG_NORMAL" = "y" ]; then
+  define_bool CONFIG_TEENSY "n"
+  define_bool CONFIG_ENC28J60 "y"
+fi
+
+if [ "$CONFIG_BOOTLOADER" = "y" ]; then
+  define_bool CONFIG_TEENSY "y"
+  define_bool CONFIG_ENC28J60 "y"
+fi
+
+if [ "$CONFIG_TEENSY_RFM12" = "y" ]; then
+  define_bool CONFIG_TEENSY "y"
+  define_bool CONFIG_RFM12 "y"
+  define_bool CONFIG_ENC28J60 "n"
+fi
+
+if [ "$CONFIG_TEENSY_ZBUS" = "y" ]; then
+  define_bool CONFIG_TEENSY "y"
+  define_bool CONFIG_ZBUS "y"
+  define_bool CONFIG_ENC28J60 "n"
+fi
+
+bool 'Teensy build' CONFIG_TEENSY
+
+###############################################################################
+
+mainmenu_option next_comment
+comment "Cryptographic functionality"
+
+bool "Crypto support" CONFIG_CRYPTO
+dep_bool "CAST5 cipher" CONFIG_CAST5 $CONFIG_CRYPTO
+dep_bool "MD5 hash" CONFIG_MD5 $CONFIG_CRYPTO
+dep_bool "Skipjack cipher" CONFIG_SKIPJACK $CONFIG_CRYPTO
+endmenu
+
+###############################################################################
+mainmenu_option next_comment
+comment "Network protocols"
+
+bool 'TCP support' CONFIG_TCP
+bool 'UDP support' CONFIG_UDP
+dep_bool 'UDP broadcast support' CONFIG_BROADCAST $CONFIG_UDP
+bool 'ICMP support' CONFIG_ICMP
+
+comment "Application protocols"
+if [ "$CONFIG_IPV6" != "y" -a "$CONFIG_TFTPOMATIC" != "y" ]; then
+  dep_bool 'BOOTP support' CONFIG_BOOTP $CONFIG_UDP $CONFIG_BROADCAST $ENC28J60_SUPPORT
+  dep_bool 'Write BOOTP data to EEPROM' CONFIG_BOOTP_TO_EEPROM $CONFIG_BOOTLOADER $CONFIG_BOOTP
+fi
+dep_bool 'DNS support' CONFIG_DNS $CONFIG_UDP
+dep_bool 'SYSLOG support' CONFIG_SYSLOG $CONFIG_EXPERIMENTAL $CONFIG_UDP
+dep_bool 'TFTP support' CONFIG_TFTP $CONFIG_UDP $CONFIG_BOOTLOADER $ENC28J60_SUPPORT
+if [ "$CONFIG_BOOTP" != "y" ]; then
+  dep_bool 'TFTP-o-matic' CONFIG_TFTPOMATIC $CONFIG_TFTP
+fi
+
+comment "Tunneling protocols"
+dep_bool 'OpenVPN' CONFIG_OPENVPN $CONFIG_UDP
+dep_bool 'RFM12 raw' CONFIG_RFM12_RAW $CONFIG_EXPERIMENTAL $CONFIG_RFM12 $CONFIG_ENC28J60
+dep_bool 'ZBUS raw' CONFIG_ZBUS_RAW $CONFIG_EXPERIMENTAL $CONFIG_ZBUS $CONFIG_ENC28J60
+endmenu
+
+###############################################################################
+
+mainmenu_option next_comment
+comment "Network configuration"
+dep_bool 'IPv6 support' CONFIG_IPV6 $CONFIG_ICMP
+dep_bool 'Static configuration' CONFIG_IPV6_STATIC $CONFIG_IPV6
+string "Hostname" CONF_HOSTNAME "ethersex"
+endmenu
+
+###############################################################################
+
+if [ "$CONFIG_BOOTLOADER" = "y" ]; then
+  mainmenu_option next_comment
+  comment "Bootloader configuration"
+
+  endmenu
+else
+
+  mainmenu_option next_comment
+  comment "Applications"
+
+  mainmenu_option next_comment
+  comment "System clock"
+  bool "System clock support" CONFIG_CLOCK
+  dep_bool "Use 32 kHz crystal to tick the clock" CONFIG_CLOCK_CRYSTAL $CONFIG_CLOCK
+  dep_bool "Synchronize using DCF77 signal" CONFIG_DCF77 $CONFIG_CLOCK_CRYSTAL
+  dep_bool "Synchronize using NTP protocol" CONFIG_NTP $CONFIG_CLOCK $CONFIG_UDP
+  dep_bool "Cron daemon" CONFIG_CRON $CONFIG_CLOCK
+  dep_bool "NTP daemon" CONFIG_NTPD $CONFIG_CLOCK $CONFIG_UDP
+  endmenu
+
+  mainmenu_option next_comment
+  comment "Etherrape Control Interface (ECMD)"
+  bool "ECMD support" CONFIG_ECMD_PARSER
+  dep_bool "TCP/Telnet interface" CONFIG_ECMD $CONFIG_ECMD_PARSER $CONFIG_TCP
+  dep_bool "UDP interface" CONFIG_UECMD $CONFIG_ECMD_PARSER $CONFIG_EXPERIMENTAL $CONFIG_UDP
+  bool "Send ECMD messages" CONFIG_ECMD_SENDER
+  endmenu 
+
+  bool "Character-LCD module driver" CONFIG_HD44780
+  dep_bool "MDNS service announcement (Avahi)" CONFIG_MDNS_SD $CONFIG_UDP
+  bool "Stella Light" CONFIG_STELLA
+  bool "UDP Echo" CONFIG_UDP_ECHO_NET
+  bool "Update DNS records at dyn.metafnord.de" CONFIG_DYNDNS
+  dep_bool "Watch IO changes (and react)" CONFIG_WATCHCAT $CONFIG_ECMD_SENDER $CONFIG_PORTIO
+  endmenu
+
+  ###############################################################################
+
+  mainmenu_option next_comment
+  comment "Interfaces"
+
+  if [ "$CONFIG_ENC28J60" = "y" ]; then
+    bool "RFM12 FSK transmitter" CONFIG_RFM12
+
+    choice 'USART support'					\
+	    "None			CONFIG_USART_NONE	\
+	     ZBUS			CONFIG_ZBUS             \
+	     YPort           		CONFIG_YPORT     	\
+	     Modbus            		CONFIG_MODBUS"     	\
+	     "None"
+  fi
+
+  if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$CONFIG_UDP" = "y" ]; then
+    choice 'I2C support' \
+	    "None			CONFIG_I2C_NONE		\
+	     I2C-Master			CONFIG_I2C		\
+	     I2C-Slave			CONFIG_I2C_SLAVE"	\
+	     "None"
+  fi
+
+  dep_bool "FS20 RF-control" CONFIG_FS20 $CONFIG_EXPERIMENTAL
+  dep_bool "Send RC5 IR-codes" CONFIG_RC5 $CONFIG_EXPERIMENTAL
+
+  endmenu
+
+  ###############################################################################
+
+  mainmenu_option next_comment
+  comment "I/O support"
+
+  choice "I/O abstraction model (Port I/O)" \
+	  "None					CONFIG_IO_NONE		\
+	   Normal				CONFIG_PORTIO		\
+	   Simple				CONFIG_PORTIO_SIMPLE"	\
+	  Normal
+  dep_bool "HC595 output expansion" CONFIG_HC595 $CONFIG_EXPERIMENTAL
+  dep_bool "HC165 input expansion" CONFIG_HC165 $CONFIG_EXPERIMENTAL
+  dep_bool "PS/2 keyboard" CONFIG_PS2 $CONFIG_EXPERIMENTAL
+  dep_bool "ADC input" CONFIG_ADC $CONFIG_ECMD_PARSER
+  bool "Onewire support" CONFIG_ONEWIRE
+  bool "Named and logic state I/O" CONFIG_NAMED_PIN
+  endmenu
+fi
+
+###############################################################################
+
+if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+  mainmenu_option next_comment
+  comment "work in progress bits (enable with care)"
+
+  dep_bool "DNS-based UDP multicaster" CONFIG_UDP_DNS_MCAST $CONFIG_DNS
+
+  endmenu
+fi
+
+if [ "$CONFIG_ZBUS" = "y"		\
+	-o "$CONFIG_YPORT" = "y"	\
+	-o "$CONFIG_MODBUS" = "y" ]; then
+  define_bool CONFIG_USART "y"
+fi
