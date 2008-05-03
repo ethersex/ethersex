@@ -1,5 +1,5 @@
 TARGET := ethersex
-TOPDIR := .
+TOPDIR = .
 
 SRC = \
 	debug.c \
@@ -14,6 +14,7 @@ SRC = \
 	timer.c
 
 
+export TOPDIR
 ##############################################################################
 all: compile-$(TARGET)
 	@echo "==============================="
@@ -77,7 +78,7 @@ menuconfig:
 	test -e .config
 	@$(MAKE) what-now-msg
 
-what-now-msg: .subdirs
+what-now-msg:
 	@echo ""
 	@echo "Next, you can: "
 	@echo " * 'make' to compile Ethersex"
@@ -94,12 +95,23 @@ what-now-msg: .subdirs
 
 ##############################################################################
 clean:
-	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c .subdirs *~
+	$(MAKE) -f rules.mk no_deps=t clean-common
+	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex pinning.c .subdirs
 	for subdir in `find -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
 
+mrproper:
+	$(MAKE) clean
+	$(RM) -f autoconf.h .config config.mk .menuconfig.log .config.old
+
+.PHONY: clean mrproper
+
+
+##############################################################################
+# MCU specific pinning code generation
+#
 PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
 	m4 `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
@@ -110,6 +122,7 @@ pinning.c: $(PINNING_FILES) autoconf.h
 #
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),mrproper)
 
 .subdirs: .config
 	$(RM) -f $@
@@ -118,8 +131,9 @@ ifneq ($(MAKECMDGOALS),clean)
 	done
 include $(TOPDIR)/.subdirs
 
-endif # MAKECMDGOALS=clean
-endif # no_deps=t
+endif # MAKECMDGOALS!=mrproper
+endif # MAKECMDGOALS!=clean
+endif # no_deps!=t
 
 
 ##############################################################################
