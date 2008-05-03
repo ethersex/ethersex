@@ -285,13 +285,13 @@ else
 	   Normal				PORTIO_SUPPORT		\
 	   Simple				PORTIO_SIMPLE_SUPPORT"	\
 	  Normal
-  dep_bool "HC595 output expansion" HC595_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "HC595 output expansion" HC595_SUPPORT $CONFIG_EXPERIMENTAL $PORTIO_SUPPORT
   if [ "$HC595_SUPPORT" = "y" ]; then
     int "Number of HC595 registers" HC595_REGISTERS 5
   fi
   mainmenu_option next_comment
   comment "HC165 input expansion"
-  dep_bool "HC165 support" HC165_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "HC165 support" HC165_SUPPORT $CONFIG_EXPERIMENTAL $PORTIO_SUPPORT
   if [ "$HC165_SUPPORT" = "y" ]; then
     bool "Inverse output" HC165_INVERSE_OUTPUT
     int "Number of HC165 registers" HC165_REGISTERS 1
