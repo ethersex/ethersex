@@ -119,6 +119,21 @@ if [ "$CONFIG_BOOTLOADER" = "y" ]; then
   mainmenu_option next_comment
   comment "Bootloader configuration"
 
+  if [ "$CONFIG_TFTPOMATIC" = "y" ]; then
+    comment "TFTP-o-matic configuration"
+    if [ "$CONFIG_IPV6" = "y" ]; then
+      ipv6 "TFTP IP address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+    else
+      ipv4 "TFTP IP address" CONF_TFTP_IP "192.168.23.73"
+    fi
+    string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
+  fi
+
+  if [ "$CONFIG_SKIPJACK" = "y" ]; then
+    comment "Crypto configuration"
+    hex "TFTP Skipjack key" CONF_TFTP_KEY "23234242555523234242"
+  fi
+
   endmenu
 else
 
