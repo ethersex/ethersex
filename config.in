@@ -1,6 +1,9 @@
 
 mainmenu_name "Ethersex Configuration"
 
+mainmenu_option next_comment
+comment "General Setup"
+
 bool 'Prompt for development and/or incomplete code/drivers' CONFIG_EXPERIMENTAL
 
 choice 'Target Profile'						\
@@ -8,28 +11,29 @@ choice 'Target Profile'						\
 	 Bootloader      		BOOTLOADER_SUPPORT	\
 	 RFM12-Teensy      		CONFIG_TEENSY_RFM12	\
 	 ZBUS-Teensy      		CONFIG_TEENSY_ZBUS"	\
-	 "Standard"
+	 'Standard'
+endmenu
 
 if [ "$CONFIG_NORMAL" = "y" ]; then
-  define_bool TEENSY_SUPPORT "n"
-  define_bool ENC28J60_SUPPORT "y"
+  define_bool TEENSY_SUPPORT n
+  define_bool ENC28J60_SUPPORT y
 fi
 
 if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
-  define_bool TEENSY_SUPPORT "y"
-  define_bool ENC28J60_SUPPORT "y"
+  define_bool TEENSY_SUPPORT y
+  define_bool ENC28J60_SUPPORT y
 fi
 
 if [ "$CONFIG_TEENSY_RFM12" = "y" ]; then
-  define_bool TEENSY_SUPPORT "y"
-  define_bool RFM12_SUPPORT "y"
-  define_bool ENC28J60_SUPPORT "n"
+  define_bool TEENSY_SUPPORT y
+  define_bool RFM12_SUPPORT y
+  define_bool ENC28J60_SUPPORT n
 fi
 
 if [ "$CONFIG_TEENSY_ZBUS" = "y" ]; then
-  define_bool TEENSY_SUPPORT "y"
-  define_bool ZBUS_SUPPORT "y"
-  define_bool ENC28J60_SUPPORT "n"
+  define_bool TEENSY_SUPPORT y
+  define_bool ZBUS_SUPPORT y
+  define_bool ENC28J60_SUPPORT n
 fi
 
 ###############################################################################
@@ -105,10 +109,12 @@ comment "Network configuration"
 dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
 if [ "$ENC28J60_SUPPORT" = "y" ]; then
   dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
-elif [ "$IPV6_SUPPORT" = "y" ]; then
-  define_bool "IPV6_STATIC_SUPPORT" 'y'
 else
-  define_bool "IPV6_STATIC_SUPPORT" 'n'
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    define_bool "IPV6_STATIC_SUPPORT" y
+  else
+    define_bool "IPV6_STATIC_SUPPORT" n
+  fi
 fi
 
 if [ "$ENC28J60_SUPPORT" = "y" ]; then
@@ -237,7 +243,7 @@ else
 	     ZBUS			ZBUS_SUPPORT            \
 	     YPort           		YPORT_SUPPORT     	\
 	     Modbus            		MODBUS_SUPPORT"     	\
-	     "None"
+	     'None'
 
     if [ "$ZBUS_SUPPORT" = "y" ]; then
       mainmenu_option next_comment
@@ -263,7 +269,7 @@ else
 	    "None			CONFIG_NO_I2C		\
 	     I2C-Master			I2C_SUPPORT		\
 	     I2C-Slave			I2C_SLAVE_SUPPORT"	\
-	     "None"
+	     'None'
   fi
 
   if [ "$I2C_SLAVE_SUPPORT" = "y" ]; then
@@ -319,5 +325,5 @@ fi
 if [ "$ZBUS_SUPPORT" = "y"		\
 	-o "$YPORT_SUPPORT" = "y"	\
 	-o "$MODBUS_SUPPORT" = "y" ]; then
-  define_bool USART_SUPPORT "y"
+  define_bool USART_SUPPORT y
 fi
