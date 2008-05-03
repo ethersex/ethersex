@@ -5,7 +5,7 @@ SRC = \
 	debug.c \
 	eeprom.c \
 	enc28j60.c \
-	etherrape.c \
+	ethersex.c \
 	ipv6.c \
 	network.c \
 	portio.c \
