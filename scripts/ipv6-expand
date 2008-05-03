@@ -1,0 +1,14 @@
+#! /usr/bin/perl -w
+use strict;
+my $ip = shift @ARGV;
+my @colons = $ip =~ m/:/g;
+if(scalar(@colons) > 7) { exit 1; }
+unless($ip =~ m/::/) { print "$ip\n"; exit 0; }
+
+my $replacement = ":0" x (8 - scalar(@colons)) . ":";
+$ip =~ s/::/$replacement/;
+if($ip =~ m/^:/) { $ip = "0$ip"; }
+if($ip =~ m/:$/) { $ip .= "0"; }
+
+print "$ip\n";
+exit 0;

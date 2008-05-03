@@ -1,14 +1,8 @@
 #! /bin/sh
 #
-# This script is used to configure the linux kernel.
+# This script is used to configure Ethersex.
 #
-# It was inspired by a desire to not have to hit <enter> 9 million times
-# or startup the X server just to change a single kernel parameter.  
-#
-# This script attempts to parse the configuration files, which are
-# scattered throughout the kernel source tree, and creates a temporary
-# set of mini scripts which are in turn used to create nested menus and
-# radiolists.
+# It was once derived from the Linux kernel's Menuconfig script.
 #
 # It uses a very modified/mutilated version of the "dialog" utility
 # written by Savio Lam (lam836@cs.cuhk.hk). Savio is not responsible
@@ -16,69 +10,6 @@
 # Please do not contact him with questions. The official version of 
 # dialog is available at sunsite.unc.edu or a sunsite mirror.
 #
-# Portions of this script were borrowed from the original Configure
-# script.
-#
-# William Roadcap was the original author of Menuconfig.
-# Michael Elizabeth Chastain (mec@shout.net) is the current maintainer.
-#
-# 070497 Bernhard Kaindl (bkaindl@netway.at) - get default values for
-# new bool, tristate and dep_tristate parameters from the defconfig file.
-# new configuration parameters are marked with '(NEW)' as in make config.
-#
-# 180697 Bernhard Kaindl (bkaindl@netway.at) - added the needed support
-# for string options. They are handled like the int and hex options.
-#
-# 081297 Pavel Machek (pavel@atrey.karlin.mff.cuni.cz) - better error 
-# handling
-#
-# 131197 Michael Chastain (mec@shout.net) - output all lines for a
-# choice list, not just the selected one.  This makes the output
-# the same as Configure output, which is important for smart config
-# dependencies.
-#
-# 101297 Michael Chastain (mec@shout.net) - remove sound driver cruft.
-#
-# 221297 Michael Chastain (mec@shout.net) - make define_bool actually
-# define its arguments so that later tests on them work right.
-#
-# 160198 Michael Chastain (mec@shout.net) - fix bug with 'c' command
-# (complement existing value) when used on virgin uninitialized variables.
-#
-# 090398 Axel Boldt (boldt@math.ucsb.edu) - allow for empty lines in help
-# texts.
-#
-# 12 Dec 1998, Michael Elizabeth Chastain (mec@shout.net)
-# Remove a /tmp security hole in get_def (also makes it faster).
-# Give uninitialized variables canonical values rather than null value.
-# Change a lot of places to call set_x_info uniformly.
-# Take out message about preparing version (old sound driver cruft).
-#
-# 13 Dec 1998, Riley H Williams <Riley@Williams.Name>
-# When an error occurs, actually display the error message as well as
-# our comments thereon.
-#
-# 31 Dec 1998, Michael Elizabeth Chastain (mec@shout.net)
-# Fix mod_bool to honor $CONFIG_MODULES.
-# Fix dep_tristate to call define_bool when dependency is "n".
-#
-# 02 January 1999, Michael Elizabeth Chastain (mec@shout.net)
-# Blow away lxdialog.scrltmp on entry to activate_menu.  This protects
-# against people who use commands like ' ' to select menus.
-#
-# 24 January 1999, Michael Elizabeth Chastain, <mec@shout.net>
-# - Improve the exit message (Jeff Ronne).
-#
-# 06 July 1999, Andrzej M. Krzysztofowicz, <ankry@mif.pg.gda.pl>
-# - Support for multiple conditions in dep_tristate().
-# - Implemented new functions: define_tristate(), define_int(), define_hex(),
-#   define_string(), dep_bool().
-#
-# 12 November 2001, Keith Owens <kaos@ocs.com.au>
-# Escape double quotes on eval so the quotes are still there on the second
-# evaluation, required to handle strings with special characters.
-# 
-
 
 #
 # Change this to TRUE if you prefer all kernel options listed
@@ -314,6 +245,28 @@ function string () {
 	echo -ne "'$2' '     $1: \"$x\"$info' " >>MCmenu
 
 	echo -e "function $2 () { l_string '$1' '$2' '$3' '$x' ;}" >>MCradiolists
+}
+
+#
+# Add a menu item which will call our local ipv4 function.
+# 
+function ipv4 () {
+	set_x_info "$2" "$3"
+
+	echo -ne "'$2' '     $1: \"$x\"$info' " >>MCmenu
+
+	echo -e "function $2 () { l_ipv4 '$1' '$2' '$3' '$x' ;}" >>MCradiolists
+}
+
+#
+# Add a menu item which will call our local ipv6 function.
+# 
+function ipv6 () {
+	set_x_info "$2" "$3"
+
+	echo -ne "'$2' '     $1: \"$x\"$info' " >>MCmenu
+
+	echo -e "function $2 () { l_ipv6 '$1' '$2' '$3' '$x' ;}" >>MCradiolists
 }
 
 #
@@ -620,6 +573,72 @@ function l_string () {
 			# string here...
 			#
 			eval $2=\"$answer\"
+
+			break
+		fi
+
+		help "$2" "$1"
+	done
+}
+
+
+#
+# Create a dialog for entering an IPv4 address
+#
+function l_ipv4 () {
+	while true
+	do
+		if $DIALOG --title "$1" \
+			--backtitle "$backtitle" \
+			--inputbox "$inputbox_instructions_ipv4" \
+			10 75 "$4" 2>MCdialog.out
+		then
+			answer="`cat MCdialog.out`"
+			answer="${answer:-$3}"
+
+			if expr "$answer" : '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' >/dev/null
+			then
+				eval $2=\"$answer\"
+			else
+				eval $2=\"$3\"
+				echo -en "\007"
+				$DIALOG --backtitle "$backtitle" \
+					--infobox "You have made an invalid entry." 3 43
+				sleep 2
+			fi
+
+			break
+		fi
+
+		help "$2" "$1"
+	done
+}
+
+
+#
+# Create a dialog for entering an IPv6 address
+#
+function l_ipv6 () {
+	while true
+	do
+		if $DIALOG --title "$1" \
+			--backtitle "$backtitle" \
+			--inputbox "$inputbox_instructions_ipv6" \
+			10 75 "$4" 2>MCdialog.out
+		then
+			answer="`scripts/ipv6-expand "$(cat MCdialog.out)"`"
+			answer="${answer:-$3}"
+
+			if scripts/ipv6-check "$answer"
+			then
+				eval $2=\"$answer\"
+			else
+				eval $2=\"$3\"
+				echo -en "\007"
+				$DIALOG --backtitle "$backtitle" \
+					--infobox "You have made an invalid entry." 3 43
+				sleep 2
+			fi
 
 			break
 		fi
@@ -1144,6 +1163,20 @@ save_configuration () {
 		set_x_info "$2" "$3"
 		echo "$2=\"$x\"" 			 >>$CONFIG
 		echo "#define $2 \"$x\""	>>$CONFIG_H
+	}
+
+	function ipv4 () {
+		set_x_info "$2" "$3"
+		echo "$2=\"$x\"" 		>>$CONFIG
+		echo "#define $2 uip_ipaddr(ip,"    \
+		  $(echo "$x" | sed -e 's;\.;,;g') ")" >> $CONFIG_H
+	}
+
+	function ipv6 () {
+		set_x_info "$2" "$3"
+		echo "$2=\"$x\"" 		>>$CONFIG
+		echo "#define $2 uip_ip6addr(ip," \
+		  "0x"$(echo "$x" | sed -e 's;:;,0x;g') ")" >> $CONFIG_H
 	}
 
 	function define_hex () {
