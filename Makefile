@@ -94,7 +94,7 @@ what-now-msg: .subdirs
 
 ##############################################################################
 clean:
-	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c .subdirs
+	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c .subdirs *~
 	for subdir in `find -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
