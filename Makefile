@@ -87,6 +87,12 @@ PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/foo
 pinning.c: $(PINNING_FILES) autoconf.h
 	m4 `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
 
+
+##############################################################################
+# generate SUBDIRS variable
+#
+ifneq ($(no_deps),t)
+
 .subdirs: .config
 	$(RM) -f $@
 	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip net ; do \
@@ -94,6 +100,12 @@ pinning.c: $(PINNING_FILES) autoconf.h
 	done
 include $(TOPDIR)/.subdirs
 
+endif # no_deps=t
+
+
+##############################################################################
+# configure ethersex
+#
 show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
@@ -101,5 +113,8 @@ show-config: autoconf.h
 	@grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define / * /" -e "s/_SUPPORT.*//"
 
 .PHONY: show-config
+
+.config: 
+	$(MAKE) no_deps=t menuconfig
 
 include depend.mk
