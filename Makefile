@@ -77,7 +77,7 @@ menuconfig:
 
 ##############################################################################
 clean:
-	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c
+	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c .subdirs
 	for subdir in `find -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
@@ -88,7 +88,7 @@ pinning.c: $(PINNING_FILES) autoconf.h
 	m4 `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
 
 .subdirs: .config
-	rm -f $@
+	$(RM) -f $@
 	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip net ; do \
 	  test -d $$subdir && echo "SUBDIRS += $$subdir" >> $@; \
 	done
