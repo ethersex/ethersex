@@ -1128,7 +1128,7 @@ function load_config_file () {
 #
 save_configuration () {
         echo
-	echo -n "Saving your kernel configuration."
+	echo -n "Saving your Ethersex configuration."
 
 	#
 	# Now, let's redefine the configuration functions for final
@@ -1435,9 +1435,8 @@ menu_instructions="\
 Arrow keys navigate the menu.  \
 <Enter> selects submenus --->.  \
 Highlighted letters are hotkeys.  \
-Pressing <Y> includes, <N> excludes, <M> modularizes features.  \
-Press <Esc><Esc> to exit, <?> for Help.  \
-Legend: [*] built-in  [ ] excluded  <M> module  < > module capable"
+Pressing <Y> includes, <N> excludes.  <Esc><Esc> to exit, <?> for Help.  \
+Legend: [*] enabled   [ ] disabled"
 
 radiolist_instructions="\
 Use the arrow keys to navigate this window or \
@@ -1451,7 +1450,7 @@ Fractions will not be accepted.  \
 Use the <TAB> key to move from the input field to the buttons below it."
 
 inputbox_instructions_hex="\
-Please enter a hexadecimal value. \
+Please enter a hexadecimal string. \
 Use the <TAB> key to move from the input field to the buttons below it."
 
 inputbox_instructions_string="\
@@ -1532,18 +1531,12 @@ then
 	save_configuration
 	echo
 	echo
-	echo "*** End of Linux kernel configuration."
-	echo "*** Check the top-level Makefile for additional configuration."
-	if [ ! -f .hdepend -o "$CONFIG_MODVERSIONS" = "y" ] ; then
-	    echo "*** Next, you must run 'make dep'."
-	else
-	    echo "*** Next, you may run 'make bzImage', 'make bzdisk', or 'make install'."
-	fi
+	echo "*** End of Ethersex configuration."
 	echo
 else
 	echo
     	echo 
-	echo Your kernel configuration changes were NOT saved.
+	echo Your Ethersex configuration changes were NOT saved.
 	echo
 fi
 
