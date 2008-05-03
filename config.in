@@ -220,7 +220,7 @@ else
 
   mainmenu_option next_comment
   comment "RFM12 FSK transmitter"
-  if [ "$CONFIG_ENC28J60" = "y" ]; then
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
     bool "RFM12 support" RFM12_SUPPORT
   fi
 
@@ -241,7 +241,7 @@ else
   fi
   endmenu
 
-  if [ "$CONFIG_ENC28J60" = "y" ]; then
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
     choice 'USART support'					\
 	    "None			CONFIG_USART_NO   	\
 	     ZBUS			ZBUS_SUPPORT            \
