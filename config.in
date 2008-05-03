@@ -78,6 +78,10 @@ mainmenu_option next_comment
 comment "Network configuration"
 dep_bool 'IPv6 support' CONFIG_IPV6 $CONFIG_ICMP
 dep_bool 'Static configuration' CONFIG_IPV6_STATIC $CONFIG_IPV6
+
+if [ "$CONFIG_ENC28J60" = "y" ]; then
+  mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
+fi
 string "Hostname" CONF_HOSTNAME "ethersex"
 
 if [ "$CONFIG_IPV6_STATIC" = "y" ]; then

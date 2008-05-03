@@ -248,6 +248,17 @@ function string () {
 }
 
 #
+# Add a menu item which will call our local mac function.
+# 
+function mac () {
+	set_x_info "$2" "$3"
+
+	echo -ne "'$2' '     $1: \"$x\"$info' " >>MCmenu
+
+	echo -e "function $2 () { l_mac '$1' '$2' '$3' '$x' ;}" >>MCradiolists
+}
+
+#
 # Add a menu item which will call our local ipv4 function.
 # 
 function ipv4 () {
@@ -573,6 +584,38 @@ function l_string () {
 			# string here...
 			#
 			eval $2=\"$answer\"
+
+			break
+		fi
+
+		help "$2" "$1"
+	done
+}
+
+#
+# Create a dialog for entering a MAC address
+#
+function l_mac () {
+	while true
+	do
+		if $DIALOG --title "$1" \
+			--backtitle "$backtitle" \
+			--inputbox "$inputbox_instructions_ipv4" \
+			10 75 "$4" 2>MCdialog.out
+		then
+			answer="`cat MCdialog.out`"
+			answer="${answer:-$3}"
+
+			if expr "$answer" : '[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]$' >/dev/null
+			then
+				eval $2=\"$answer\"
+			else
+				eval $2=\"$3\"
+				echo -en "\007"
+				$DIALOG --backtitle "$backtitle" \
+					--infobox "You have made an invalid entry." 3 43
+				sleep 2
+			fi
 
 			break
 		fi
@@ -1163,6 +1206,13 @@ save_configuration () {
 		set_x_info "$2" "$3"
 		echo "$2=\"$x\"" 			 >>$CONFIG
 		echo "#define $2 \"$x\""	>>$CONFIG_H
+	}
+
+	function mac () {
+		set_x_info "$2" "$3"
+		echo "$2=\"$x\"" 		>>$CONFIG
+		echo "#define $2 " \
+		  "\"\\x$(echo "$x" | sed -e 's;:;\\x;g')\"" >> $CONFIG_H
 	}
 
 	function ipv4 () {
