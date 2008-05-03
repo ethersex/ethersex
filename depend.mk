@@ -5,7 +5,7 @@
 # dependencies.  That then avoids rebuilding dependencies.
 
 ifneq ($(no_deps),t)
-ifneq ($(@F),clean)
+ifneq ($(MAKECMDGOALS),clean)
 
 # For each .o file we need a .d file.
 -include $(subst .o,.d,$(filter %.o,$(OBJECTS))) /dev/null

@@ -92,6 +92,7 @@ pinning.c: $(PINNING_FILES) autoconf.h
 # generate SUBDIRS variable
 #
 ifneq ($(no_deps),t)
+ifneq ($(MAKECMDGOALS),clean)
 
 .subdirs: .config
 	$(RM) -f $@
@@ -100,6 +101,7 @@ ifneq ($(no_deps),t)
 	done
 include $(TOPDIR)/.subdirs
 
+endif # MAKECMDGOALS=clean
 endif # no_deps=t
 
 
