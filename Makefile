@@ -1,5 +1,5 @@
-TARGET=ethersex
-TOPDIR=.
+TARGET := ethersex
+TOPDIR := .
 
 SRC = \
 	debug.c \
@@ -12,40 +12,6 @@ SRC = \
 	usart.c \
 	spi.c \
 	timer.c
-
-
-#SUBDIRS += bootp
-#SUBDIRS += clock
-#SUBDIRS += cron
-#SUBDIRS += crypto
-#SUBDIRS += dcf77
-#SUBDIRS += dns
-#SUBDIRS += dyndns
-SUBDIRS += ecmd_parser
-#SUBDIRS += fs20
-#SUBDIRS += i2c
-SUBDIRS += lcd
-#SUBDIRS += named_pin
-SUBDIRS += net
-#SUBDIRS += ntp
-#SUBDIRS += mdns_sd
-#SUBDIRS += onewire
-#SUBDIRS += ps2
-#SUBDIRS += rc5
-#SUBDIRS += rfm12
-#SUBDIRS += stella
-#SUBDIRS += syslog
-#SUBDIRS += tetrirape
-#SUBDIRS += tftp
-SUBDIRS += uip
-#SUBDIRS += watchcat
-#SUBDIRS += i2c_slave
-#SUBDIRS += hc595
-#SUBDIRS += hc165
-#SUBDIRS += sensormodul
-#SUBDIRS += modbus
-#SUBDIRS += zbus
-#SUBDIRS += yport
 
 
 ##############################################################################
@@ -120,5 +86,12 @@ clean:
 PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
 	m4 `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
+
+.subdirs: .config
+	rm -f $@
+	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip net ; do \
+	  test -d $$subdir && echo "SUBDIRS += $$subdir" >> $@; \
+	done
+include $(TOPDIR)/.subdirs
 
 include depend.mk
