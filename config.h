@@ -87,11 +87,6 @@
 /* global version defines */
 #define VERSION_STRING "0.2"
 
-/* uart defines */
-#ifndef UART_BAUDRATE
-#define UART_BAUDRATE 115200
-#endif
-
 /* configure duplex mode */
 #define NET_FULL_DUPLEX 0
 
