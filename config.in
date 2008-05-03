@@ -60,7 +60,21 @@ if [ "$CONFIG_IPV6" != "y" -a "$CONFIG_TFTPOMATIC" != "y" ]; then
   dep_bool 'Write BOOTP data to EEPROM' CONFIG_BOOTP_TO_EEPROM $CONFIG_BOOTLOADER $CONFIG_BOOTP
 fi
 dep_bool 'DNS support' CONFIG_DNS $CONFIG_UDP
+if [ "$CONFIG_DNS" = "y" ]; then
+  if [ "$CONFIG_IPV6" = "y" ]; then
+    ipv6 "DNS-Server IP address" CONF_DNS_SERVER "2001:6f8:1209:0:0:0:0:2"
+  else
+    ipv4 "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254"
+  fi
+fi
 dep_bool 'SYSLOG support' CONFIG_SYSLOG $CONFIG_EXPERIMENTAL $CONFIG_UDP
+if [ "$CONFIG_SYSLOG" = "y" ]; then
+  if [ "$CONFIG_IPV6" = "y" ]; then
+    ipv6 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+  else
+    ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
+  fi
+fi
 dep_bool 'TFTP support' CONFIG_TFTP $CONFIG_UDP $CONFIG_BOOTLOADER $ENC28J60_SUPPORT
 if [ "$CONFIG_BOOTP" != "y" ]; then
   dep_bool 'TFTP-o-matic' CONFIG_TFTPOMATIC $CONFIG_TFTP
