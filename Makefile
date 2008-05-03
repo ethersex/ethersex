@@ -100,6 +100,14 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(SIZE) $<
 
 
+##############################################################################
+CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+          else if [ -x /bin/bash ]; then echo /bin/bash; \
+          else echo sh; fi ; fi)
+
+menuconfig:
+	$(MAKE) -C scripts/lxdialog all
+	$(CONFIG_SHELL) scripts/Menuconfig config.in
 
 ##############################################################################
 clean:
@@ -112,6 +120,5 @@ clean:
 PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
 pinning.c: $(PINNING_FILES) config.h
 	m4 `grep -e "^#define .*_SUPPORT$$" config.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT//"` $(PINNING_FILES) > $@
-	
 
 include depend.mk

@@ -14,6 +14,9 @@ AVRDUDE_BAUDRATE = 115200
 SIZE = avr-size
 STRIP = avr-strip
 
+HOSTCC := gcc
+export HOSTCC
+
 # flags for the compiler
 CFLAGS += -g -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -std=gnu99
 
