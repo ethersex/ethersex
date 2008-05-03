@@ -178,7 +178,19 @@ else
   bool "Send ECMD messages" ECMD_SENDER_SUPPORT
   endmenu 
 
-  bool "Character-LCD module driver" HD44780_SUPPORT
+  mainmenu_option next_comment
+  comment "Character-LCD module support"
+  bool "HD44780 module driver" HD44780_SUPPORT
+  if [ "$HD44780_SUPPORT" = "y" ]; then
+    choice 'Controller type'					\
+	    "Original			HD44780_ORIGINAL	\
+	     ks0067b			HD44780_KS0067B"	\
+	    Original
+    bool "Readback support" HD44780_READBACK
+    bool "Use Port C (instead of Port A)" HD44780_USE_PORTC
+  fi
+  endmenu
+
   dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
   bool "Stella Light" STELLA_SUPPORT
   bool "UDP Echo" UDP_ECHO_NET_SUPPORT

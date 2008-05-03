@@ -43,17 +43,6 @@
 /* network controller hardware bug defines */
 #define ENC28J60_REV4_WORKAROUND
 
-/* controller type */
-#define HD44780_ORIGINAL /* original hd44780 */
-// #define HD44780_KS0067B  /* compatibility mode for ks0067b */
-
-/* readback support, check busy flag instead of just waiting for a timeout */
-// #define HD44780_READBACK
-
-/* if defined, use portc instead of port a */
-// #define HD44780_USE_PORTC
-
-
 /* Include pinning.c as output of m4 scripts in pinning sub-directory.
    Have a look there for MCU specific configuration options. */
 #include "pinning.c"
