@@ -190,6 +190,10 @@ else
 	     "None"
   fi
 
+  if [ "$CONFIG_I2C_SLAVE" = "y" ]; then
+    int "I2C slave address" CONF_I2C_SLAVE_ADDR 42
+  fi
+
   dep_bool "FS20 RF-control" CONFIG_FS20 $CONFIG_EXPERIMENTAL
   dep_bool "Send RC5 IR-codes" CONFIG_RC5 $CONFIG_EXPERIMENTAL
 
