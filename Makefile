@@ -15,7 +15,7 @@ SRC = \
 
 
 ##############################################################################
-all: compile-ethersex
+all: compile-$(TARGET)
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
