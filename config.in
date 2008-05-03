@@ -79,6 +79,20 @@ comment "Network configuration"
 dep_bool 'IPv6 support' CONFIG_IPV6 $CONFIG_ICMP
 dep_bool 'Static configuration' CONFIG_IPV6_STATIC $CONFIG_IPV6
 string "Hostname" CONF_HOSTNAME "ethersex"
+
+if [ "$CONFIG_IPV6_STATIC" = "y" ]; then
+  comment "Static IPv6 configuration"
+  ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+  int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
+fi
+
+if [ "$CONFIG_IPV6" != "y" -a "$CONFIG_BOOTP" != "y" ]; then
+  comment "Static IPv4 configuration"
+  ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
+  ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
+  ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+fi
+
 endmenu
 
 ###############################################################################
