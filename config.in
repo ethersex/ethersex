@@ -68,6 +68,20 @@ fi
 
 comment "Tunneling protocols"
 dep_bool 'OpenVPN' CONFIG_OPENVPN $CONFIG_UDP
+if [ "$CONFIG_OPENVPN" = "y" ]; then
+  mainmenu_option next_comment
+  comment "OpenVPN configuration"
+  hex "OpenVPN key" CONFIG_OPENVPN_KEY "00000000000000000000000000000000"
+  hex "OpenVPN HMAC key" CONFIG_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
+
+  if [ "$CONFIG_IPV6" != "y" ]; then
+    comment "OpenVPN IP configuration"
+    ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
+    ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
+    ipv4 "OpenVPN default gateway" CONF_OPENVPN_IP4_GATEWAY "192.168.23.1"
+  fi
+  endmenu
+fi
 dep_bool 'RFM12 raw' CONFIG_RFM12_RAW $CONFIG_EXPERIMENTAL $CONFIG_RFM12 $CONFIG_ENC28J60
 dep_bool 'ZBUS raw' CONFIG_ZBUS_RAW $CONFIG_EXPERIMENTAL $CONFIG_ZBUS $CONFIG_ENC28J60
 endmenu
