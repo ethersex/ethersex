@@ -115,6 +115,12 @@ show-config: autoconf.h
 .PHONY: show-config
 
 .config: 
+ifneq ($(MAKECMDGOALS),menuconfig)  
+	# make sure menuconfig isn't called twice, on `make menuconfig'
 	$(MAKE) no_deps=t menuconfig
+	# test the target file, test fails if it doesn't exist
+	# and will keep make from looping menuconfig.
+	test -e $@
+endif
 
 include depend.mk
