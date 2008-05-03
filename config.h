@@ -73,9 +73,6 @@
 #define PS2_PCIE PCIE0
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
 
-/* Comment this out to get an us layout */
-#define PS2_GERMAN_LAYOUT
-
 /* Number of the hc 595 registers */
 #define HC595_REGISTERS 5
 

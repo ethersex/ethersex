@@ -276,6 +276,7 @@ else
   dep_bool "HC595 output expansion" HC595_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "HC165 input expansion" HC165_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
   dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
   bool "Onewire support" ONEWIRE_SUPPORT
   bool "Named and logic state I/O" NAMED_PIN_SUPPORT
