@@ -26,6 +26,7 @@
 
 #include "../config.h"
 #include "../dataflash/df.h"
+#include "../dataflash/fs.h"
 
 #ifdef DATAFLASH_SUPPORT
 
@@ -39,4 +40,60 @@ parse_cmd_df_status (char *cmd, char *output, uint16_t len)
 }
 
 
+int16_t
+parse_cmd_fs_format (char *cmd, char *output, uint16_t len)
+{
+  (void) cmd;
+  (void) output;
+  (void) len;
+
+  fs_format (&fs);
+  fs_init (&fs, NULL);
+
+  return 0;
+}
+
+
+int16_t
+parse_cmd_fs_list (char *cmd, char *output, uint16_t len)
+{
+  char name[FS_FILENAME + 1];
+
+  if (cmd[0] != 0x05) 
+    {
+      /* first function entry */
+      cmd[0] = 0x05;		/* set magic byte ... */
+      cmd[1] = 0x00;
+
+      return -10 - snprintf_P (output, len, PSTR ("listing /:"));
+    }
+  else
+    {
+      if (fs_list (&fs, NULL, name, cmd[1] ++) != FS_OK)
+	return 0;		/* no repare, out. */
+      
+      name[FS_FILENAME] = 0;
+
+      fs_inode_t inode = fs_get_inode (&fs, name);
+
+      return -10 - snprintf_P (output, len, PSTR ("%s, inode 0x%04x"), name, inode);
+    }
+}
+
+
+int16_t
+parse_cmd_fs_mkfile (char *cmd, char *output, uint16_t len)
+{
+  /* ignore leading spaces */
+  while (*cmd == ' ')
+    cmd ++;
+
+  fs_status_t ret = fs_create (&fs, cmd);
+  
+  if (ret != FS_OK)
+    return snprintf_P (output, len, PSTR ("fs_create: returned 0x%02x"), ret);
+
+  fs_inode_t i = fs_get_inode (&fs, cmd);
+  return snprintf_P (output, len, PSTR ("fs_create: inode 0x%04x"), cmd, i);
+}
 #endif /* DATAFLASH_SUPPORT */

@@ -161,6 +161,10 @@ ecmd_endif()
 
 ecmd_ifdef(DATAFLASH_SUPPORT)
   ecmd_feature(df_status, "df status")
+
+  ecmd_feature(fs_format, "fs format")
+  ecmd_feature(fs_list, "fs list")
+  ecmd_feature(fs_mkfile, "fs mkfile ")
 ecmd_endif()
 
 ecmd_ifndef(TEENSY_SUPPORT)
