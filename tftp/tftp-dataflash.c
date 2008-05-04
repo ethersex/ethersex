@@ -28,6 +28,13 @@
 #include "../net/tftp_net.h"
 #include "tftp.h"
 
+#ifdef SYSLOG_SUPPORT
+#  include "../syslog/syslog.h"
+#  define DEBUG(a...) syslog_sendf(a)
+#else
+#  define DEBUG(a...) do { } while (0)
+#endif
+
 #ifdef DATAFLASH_SUPPORT
 
 /*
@@ -156,14 +163,17 @@ tftp_handle_packet(void)
 	if (HTONS (pk->u.ack.block) > state->transfered + 1)
 	    goto error_out;	/* too late */
 
-	fs_size_t ret;
+	fs_status_t ret;
 	fs_size_t offset = 512 * (HTONS(pk->u.ack.block) - 1);
 
 	ret = fs_write (&fs, state->fs_inode, pk->u.data.data,
 			offset, uip_datalen () - 4);
 
-	if (ret < (uip_datalen () - 4))
+	if (ret != FS_OK) {
+	    DEBUG ("fs_write o=%04lx, l=%04x, r=%d\n", offset,
+		   uip_datalen () - 4, ret);
 	    goto error_out;
+	}
 
 	if (uip_datalen () < 512 + 4)
 	    state->finished = 1;
