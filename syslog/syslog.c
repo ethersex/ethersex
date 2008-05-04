@@ -32,7 +32,7 @@
 
 #ifdef SYSLOG_SUPPORT
 
-static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1] = "";
+static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1];
 
 static void syslog_send_cb_P(void *data) 
 {
