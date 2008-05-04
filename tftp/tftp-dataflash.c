@@ -191,6 +191,16 @@ tftp_handle_packet(void)
 	uip_udp_send(5);
 
     close_connection:
+	if (uip_slen) {
+	    /* there's still data that has to be sent,
+	       push it immediately. */
+	    uip_process(UIP_UDP_SEND_CONN);
+	    fill_llh_and_transmit();
+
+	    uip_slen = 0;	/* don't send twice. */
+	}
+
+	/* Reset connection. */
 	uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
 	uip_udp_conn->rport = 0;
 
