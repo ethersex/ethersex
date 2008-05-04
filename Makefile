@@ -28,6 +28,25 @@ all: compile-$(TARGET)
 # generic fluff
 include defaults.mk
 #include $(TOPDIR)/rules.mk
+
+##############################################################################
+# generate SUBDIRS variable
+#
+ifneq ($(no_deps),t)
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),mrproper)
+
+.subdirs: .config
+	$(RM) -f $@
+	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
+	  test -d $$subdir && echo "SUBDIRS += $$subdir" >> $@; \
+	done
+include $(TOPDIR)/.subdirs
+
+endif # MAKECMDGOALS!=mrproper
+endif # MAKECMDGOALS!=clean
+endif # no_deps!=t
+
 ##############################################################################
 
 .PHONY: compile-subdirs
@@ -119,25 +138,6 @@ mrproper:
 PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
 	m4 `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
-
-
-##############################################################################
-# generate SUBDIRS variable
-#
-ifneq ($(no_deps),t)
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),mrproper)
-
-.subdirs: .config
-	$(RM) -f $@
-	for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
-	  test -d $$subdir && echo "SUBDIRS += $$subdir" >> $@; \
-	done
-include $(TOPDIR)/.subdirs
-
-endif # MAKECMDGOALS!=mrproper
-endif # MAKECMDGOALS!=clean
-endif # no_deps!=t
 
 
 ##############################################################################

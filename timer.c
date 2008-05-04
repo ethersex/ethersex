@@ -38,6 +38,7 @@
 #include "stella/stella.h"
 #include "ps2/ps2.h"
 #include "rfm12/rfm12.h"
+#include "syslog/syslog.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -179,10 +180,8 @@ void timer_process(void)
 #       ifdef RFM12_SUPPORT
         if (counter == 300 ) {
           rfm12_t_status = rfm12_trans(0x0000); /*get the status Register from the RFM12*/
-#ifdef    SYSLOG_SUPPORT
-          char text[40];
-          snprintf(text, 40, "timer rfm12_trans: %04X %02X\n", rfm12_t_status, RFM12_akt_status);
-          syslog_send(text);
+#         ifdef SYSLOG_SUPPORT
+          syslog_sendf("timer rfm12_trans: %04X %02X\n", rfm12_t_status, RFM12_akt_status);
 #         endif
           /* FIXME do anything when rfm12 kommunication hangs */
         }

@@ -1,0 +1,32 @@
+#! /usr/bin/perl -w
+use strict;
+use IO::Socket::INET6;
+
+my @suppress_list = (
+  "^timer rfm12_trans",
+);
+
+my $sock = IO::Socket::INET6->new (LocalPort => 514,
+                                   LocalAddr => "::",
+                                   Proto => 'udp');
+die "cannot create socket"
+    unless $sock;
+
+my %seen;
+recv_loop: while (1) {
+  my $bytes;
+  $sock->recv ($bytes, 512);
+
+  foreach my $regex (@suppress_list) {
+    if ($bytes =~ m/$regex/) {
+      unless (defined ($seen{$regex})) {
+	$seen{$regex} = 1;
+	#chomp $bytes;
+	warn "!! I've been told to ignore messages matching $regex\n";
+      }
+      next recv_loop; 
+    }
+  }
+
+  print "$bytes";
+}
