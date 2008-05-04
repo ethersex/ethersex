@@ -33,6 +33,6 @@
 void modbus_net_init(void);
 void modbus_net_main(void);
 
-volatile extern uip_conn_t *modbus_conn;
+extern volatile uip_conn_t *modbus_conn;
 
 #endif
