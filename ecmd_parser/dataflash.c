@@ -65,7 +65,8 @@ parse_cmd_fs_list (char *cmd, char *output, uint16_t len)
       cmd[0] = 0x05;		/* set magic byte ... */
       cmd[1] = 0x00;
 
-      return -10 - snprintf_P (output, len, PSTR ("listing /:"));
+      return -10 - snprintf_P (output, len, PSTR ("name  :inode :size\n"
+						  "----------------------"));
     }
   else
     {
@@ -75,8 +76,10 @@ parse_cmd_fs_list (char *cmd, char *output, uint16_t len)
       name[FS_FILENAME] = 0;
 
       fs_inode_t inode = fs_get_inode (&fs, name);
+      fs_size_t size = fs_size (&fs, inode);
 
-      return -10 - snprintf_P (output, len, PSTR ("%s, inode 0x%04x"), name, inode);
+      return -10 - snprintf_P (output, len, PSTR ("%-6s:0x%04x:0x%04x"),
+			       name, inode, size);
     }
 }
 
@@ -96,4 +99,19 @@ parse_cmd_fs_mkfile (char *cmd, char *output, uint16_t len)
   fs_inode_t i = fs_get_inode (&fs, cmd);
   return snprintf_P (output, len, PSTR ("fs_create: inode 0x%04x"), cmd, i);
 }
+
+
+int16_t
+parse_cmd_fs_remove (char *cmd, char *output, uint16_t len)
+{
+  /* ignore leading spaces */
+  while (*cmd == ' ')
+    cmd ++;
+
+  fs_status_t ret = fs_remove (&fs, cmd);
+
+  return (ret == FS_OK) ? 0 : -1;
+}
+
+
 #endif /* DATAFLASH_SUPPORT */
