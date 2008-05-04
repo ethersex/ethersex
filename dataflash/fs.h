@@ -30,6 +30,18 @@
 #define DF_PAGES 4096
 #define DF_PAGESIZE 528
 
+#define FS_INITIAL_VERSION 0x01
+#define FS_STRUCTURE_OFFSET 0
+#define FS_DATA_OFFSET 15
+#define FS_CRC_OFFSET (DF_PAGESIZE-1)
+#define FS_CRC_LENGTH (DF_PAGESIZE-FS_STRUCTURE_OFFSET-1)
+#define FS_ROOTNODE_INODETABLE_SIZE 16
+#define FS_ROOTNODE_INODETABLE_OFFSET (sizeof(fs_page_t)+sizeof(fs_version_t)) /* change this offset, if fs_root_t changed size! */
+#define FS_ROOTNODE_NODETABLE_OFFSET (FS_ROOTNODE_INODETABLE_OFFSET + FS_ROOTNODE_INODETABLE_SIZE * sizeof(fs_inodetable_node_t))
+#define FS_INODES_PER_TABLE 256 /* 512 databytes containing 2 bytes fs_inodetable_node_t structs */
+#define FS_NODES_IN_ROOT ((DF_PAGESIZE-sizeof(fs_root_t)-1)/sizeof(fs_node_t))
+#define FS_DATASIZE 512
+
 #define FS_FILENAME 6
 
 #define noinline __attribute__((noinline))
