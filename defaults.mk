@@ -18,7 +18,8 @@ HOSTCC := gcc
 export HOSTCC
 
 # flags for the compiler
-CFLAGS += -g -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -std=gnu99
+CPPFLAGS += -mmcu=$(MCU) -DF_CPU=$(F_CPU) 
+CFLAGS += -g -Os -std=gnu99
 
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
