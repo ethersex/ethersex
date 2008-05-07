@@ -46,14 +46,14 @@ int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
   uint8_t ret = 0;
   if (cmd[0] && cmd[1]) {
     if ( (cmd[1] - '0') < ADC_CHANNELS) {
-      ADMUX = cmd[1] - '0';
+      ADMUX = (ADMUX & 0xF0) | cmd[1] - '0';
       channel = ADC_CHANNELS;
       goto adc_out; 
     } else 
       return -1;
   }
   for (channel = 0; channel < ADC_CHANNELS; channel ++) {
-    ADMUX = channel;
+    ADMUX = (ADMUX & 0xF0) | channel;
 adc_out:
     /* Start adc conversion */
     ADCSRA |= _BV(ADSC);
