@@ -140,6 +140,9 @@ int main(void)
 #ifdef ADC_SUPPORT
     /* ADC Prescaler to 64 */
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
+    /* ADC set Voltage Reference to extern*/
+    /* FIXMI: the config to the right place */ 
+    ADMUX = 0; //_BV(REFS0) | _BV(REFS1);
 #endif
 
 #ifdef PS2_SUPPORT
