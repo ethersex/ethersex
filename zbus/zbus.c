@@ -35,7 +35,6 @@
 #include "../crypto/encrypt-llh.h"
 #include "../net/zbus_raw_net.h"
 #include "zbus.h"
-#include "blink.c"
 
 static uint8_t send_escape_data = 0;
 static uint8_t recv_escape_data = 0;
