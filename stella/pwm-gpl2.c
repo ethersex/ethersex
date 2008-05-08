@@ -1,6 +1,7 @@
 /*
  Copyright(C) 2006 Christian Dietrich <stettberger@dokucode.de>
  Copyright(C) 2006 Jochen Roessner <jochen@lugrot.de>
+ Copyright(C) 2008 Jochen Roessner <jochen@lugrot.de>
  Copyright(C) 2007 Stefan Siegl <stesie@brokenpipe.de>
 
  This program is free software; you can redistribute it and/or modify
@@ -25,8 +26,8 @@
 #include "../config.h"
 #include "stella.h"
 
-volatile uint8_t timetable[PINS][2];
-volatile uint8_t i_timetable[PINS][2];
+volatile uint8_t timetable[STELLA_PINS][2];
+volatile uint8_t i_timetable[STELLA_PINS][2];
 volatile uint8_t length;
 volatile uint8_t i_length;
 volatile uint8_t now = 0;
@@ -45,7 +46,27 @@ stella_pwm_init(void)
   /* Int. bei Overflow und CompareMatch einschalten */
   _TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2); 
 
-  STELLA_DDR = 7 << STELLA_OFFSET;
+  DDR_CONFIG_OUT(STELLA_PIN_0);
+#if STELLA_PINS > 1
+  DDR_CONFIG_OUT(STELLA_PIN_1);
+#endif
+#if STELLA_PINS > 2
+  DDR_CONFIG_OUT(STELLA_PIN_2);
+#endif
+#if STELLA_PINS > 3
+  DDR_CONFIG_OUT(STELLA_PIN_3);
+#endif
+#if STELLA_PINS > 4
+  DDR_CONFIG_OUT(STELLA_PIN_4);
+#endif
+#if STELLA_PINS > 5
+  DDR_CONFIG_OUT(STELLA_PIN_5);
+#endif
+#if STELLA_PINS > 6
+  DDR_CONFIG_OUT(STELLA_PIN_6);
+#endif
+  
+  //STELLA_DDR = 7 << STELLA_OFFSET;
 }
 
 SIGNAL(_SIG_OUTPUT_COMPARE2)
@@ -58,7 +79,7 @@ SIGNAL(_SIG_OUTPUT_COMPARE2)
   _OUTPUT_COMPARE_REG2 = i_timetable[now][0];
 }
 
-SIGNAL(SIG_OVERFLOW2)
+SIGNAL(_SIG_OVERFLOW2)
 {
   if(update_table == 1)
     {
@@ -75,7 +96,7 @@ SIGNAL(SIG_OVERFLOW2)
       update_table = 0;
     }
 
-  PORTD |= i_overflow_mask;
+  STELLA_PORT |= i_overflow_mask;
 }
 
 
@@ -85,11 +106,13 @@ stella_sort(uint8_t color[])
   uint8_t i;
   uint8_t y;
   uint8_t x = 0;
-  uint8_t temp[PINS][2] = {{0, 0}, {0, 0}, {0, 0}};
+  uint8_t temp[STELLA_PINS][2];
 
   /* Schauen ob schon vorhanden */
-  for (i = 0; i < PINS; i ++)
+  for (i = 0; i < STELLA_PINS; i ++)
     {
+      temp[i][0] = 0;
+      temp[i][1] = 0;
       uint8_t vorhanden = 0;
       for (y = 0; y < x; y ++)
 	{
@@ -123,7 +146,7 @@ stella_sort(uint8_t color[])
     }
 
   /* Eintragen */
-  for (i = 0; i < PINS; i ++)
+  for (i = 0; i < STELLA_PINS; i ++)
     {
       for(y = 0; y < x; y ++)
 	{
@@ -146,7 +169,7 @@ stella_sort(uint8_t color[])
   length = x;
 
   /* Overflow_mask neu bilden */
-  overflow_mask = 7 << STELLA_OFFSET;
+  overflow_mask = 255 << STELLA_OFFSET;
 
   if (timetable[0][0] == 0)
     overflow_mask &= ~timetable[0][1];
