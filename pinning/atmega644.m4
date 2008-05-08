@@ -79,7 +79,7 @@ ifdef(`conf_STELLA', `dnl
 #define _OUTPUT_COMPARE_IE2 OCIE2B
 #define _OUTPUT_COMPARE_REG2 OCR2B
 #define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
-#define _SIG_OVERFLOW2 SIG_OVERFLOW2B
+#define _SIG_OVERFLOW2 SIG_OVERFLOW2
 #define _TIMSK_TIMER2 TIMSK2
 
 /* workaround for avr-libc devs not being able to decide how these registers
