@@ -169,7 +169,7 @@ stella_sort(uint8_t color[])
   length = x;
 
   /* Overflow_mask neu bilden */
-  overflow_mask = 255 << STELLA_OFFSET;
+  overflow_mask = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 
   if (timetable[0][0] == 0)
     overflow_mask &= ~timetable[0][1];
