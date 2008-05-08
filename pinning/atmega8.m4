@@ -79,6 +79,13 @@ ifdef(`conf_ZBUS', `dnl
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
 
+#define _TCCR2_PRESCALE TCCR2
+#define _OUTPUT_COMPARE_IE2 OCIE2
+#define _OUTPUT_COMPARE_REG2 OCR2
+#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2
+#define _SIG_OVERFLOW2 SIG_OVERFLOW2
+#define _TIMSK_TIMER2 TIMSK
+
 #define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
 
 
