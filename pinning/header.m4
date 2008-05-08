@@ -31,6 +31,12 @@ define(`port_mask_B', 0)
 define(`port_mask_C', 0)
 define(`port_mask_D', 0)
 
+dnl forloop-implementation from gnu m4 example scripts ...
+# forloop(var, from, to, stmt) - simple version
+define(`forloop', `pushdef(`$1', `$2')_forloop($@)popdef(`$1')')
+define(`_forloop',
+       `$4`'ifelse($1, `$3', `', `define(`$1', incr($1))$0($@)')')
+
 changecom(`//')
 define(`PM', `port_mask_'$1)dnl
 define(`pin', `dnl
@@ -43,6 +49,26 @@ dnl
 dnl
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
 ')
+
+define(`STELLA_PORT_RANGE', `dnl
+define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
+define(`start', substr(`$1', 2, 1))dnl
+define(`stop', substr(`$2', 2, 1))dnl
+  /* stella port range configuration: */
+  forloop(`itr', start, stop, `dnl
+#undef STELLA_PIN_PORT
+#undef STELLA_PIN_PIN
+#undef HAVE_STELLA_PIN  /* quite a hack, but should do the job *g*    \
+                           this is just to keep the preprocessor from \
+			   complaining and get the port masks right. */
+pin(STELLA_PIN, format(`P%s%d', pinname, itr))
+  ' )dnl
+#define STELLA_PINS eval(stop-start+1)
+#define STELLA_OFFSET start
+#define STELLA_PORT format(PORT%s, pinname)
+#define STELLA_DDR format(DDR%s, pinname)
+')
+
 divert(1)
 `#define _PORT_CHAR(character) PORT ## character
 #define PORT_CHAR(character) _PORT_CHAR(character)

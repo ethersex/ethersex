@@ -46,14 +46,7 @@ ifdef(`conf_ZBUS', `dnl
 ')
 
 ifdef(`conf_STELLA', `dnl
-  /* Stella (pwm) port config */
-  pin(STELLA_PIN_0, PB0)
-  pin(STELLA_PIN_1, PB1)
-  pin(STELLA_PIN_2, PB2)
-  pin(STELLA_PIN_3, PB3)
-#define STELLA_PINS 4
-#define STELLA_PORT PORTB
-#define STELLA_OFFSET (STELLA_PIN_0_PIN)
+  STELLA_PORT_RANGE(PB0,PB3)
 ')
 
 #define _ATMEGA8

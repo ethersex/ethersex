@@ -46,27 +46,7 @@ stella_pwm_init(void)
   /* Int. bei Overflow und CompareMatch einschalten */
   _TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2); 
 
-  DDR_CONFIG_OUT(STELLA_PIN_0);
-#if STELLA_PINS > 1
-  DDR_CONFIG_OUT(STELLA_PIN_1);
-#endif
-#if STELLA_PINS > 2
-  DDR_CONFIG_OUT(STELLA_PIN_2);
-#endif
-#if STELLA_PINS > 3
-  DDR_CONFIG_OUT(STELLA_PIN_3);
-#endif
-#if STELLA_PINS > 4
-  DDR_CONFIG_OUT(STELLA_PIN_4);
-#endif
-#if STELLA_PINS > 5
-  DDR_CONFIG_OUT(STELLA_PIN_5);
-#endif
-#if STELLA_PINS > 6
-  DDR_CONFIG_OUT(STELLA_PIN_6);
-#endif
-  
-  //STELLA_DDR = 7 << STELLA_OFFSET;
+  STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 }
 
 SIGNAL(_SIG_OUTPUT_COMPARE2)
