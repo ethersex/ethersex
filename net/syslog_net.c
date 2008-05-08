@@ -62,7 +62,10 @@ syslog_net_main(void)
 {
   if (uip_poll()) {
     uint8_t i;
-#ifdef IPV6_SUPPORT
+#if defined(IPV6_SUPPORT) && defined(ENC28J60_SUPPORT)
+    /* Make sure we've always got the necessary neighbour table entries
+       in the cache.  Otherwise a syslog-datagram might be killed by
+       a neighbour solicit. */
     if(! uip_neighbor_lookup (uip_ipaddr_cmp(uip_udp_conn->ripaddr, uip_hostaddr) ? uip_draddr : uip_udp_conn->ripaddr))
       { uip_slen = 1; return; }
 #endif
