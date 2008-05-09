@@ -27,15 +27,25 @@
 
 uint8_t stella_color[STELLA_PINS];
 uint8_t stella_fade[STELLA_PINS];
+uint8_t stella_fade_step = 1;
 
 static void
 stella_fade_normal (int i)
 {
   if (stella_color[i] > stella_fade[i])
-    stella_color[i] --;
-
+  {
+    if(stella_color[i] > (stella_fade[i] + stella_fade_step))
+      stella_color[i] -= stella_fade_step;
+    else
+      stella_color[i] --;
+  }
   else /* stella_color[i] < stella_fade[i] */
-    stella_color[i] ++;
+  {
+    if((stella_color[i] + stella_fade_step) < stella_fade[i])
+      stella_color[i] += stella_fade_step;
+    else
+      stella_color[i] ++;
+  }
 }
 
 

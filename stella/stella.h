@@ -39,6 +39,7 @@ enum stella_commands
   STELLA_FLASH_COLOR_6,
   STELLA_FLASH_COLOR_7,
   STELLA_SELECT_FADE_FUNC,
+  STELLA_FADE_STEP
 };
 
 enum
@@ -52,6 +53,7 @@ extern uint8_t stella_color[];
 extern uint8_t stella_fade[];
 
 extern uint8_t stella_fade_func;
+extern uint8_t stella_fade_step;
 
 void stella_pwm_init(void);
 void stella_sort(uint8_t color[]);

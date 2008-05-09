@@ -52,6 +52,10 @@ stella_process (unsigned char *buf, uint8_t len)
     {
       stella_fade_func = buf[1];
     }
+    else if(*buf == STELLA_FADE_STEP)
+    {
+      stella_fade_step = buf[1];
+    }
   if (re_sort)
     stella_sort (stella_color);
 }
