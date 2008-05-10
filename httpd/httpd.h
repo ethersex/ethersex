@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,32 +18,23 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- */
+ }}} */
 
-#ifndef TFTP_STATE_H
-#define TFTP_STATE_H
+#ifndef _HTTPD_H
+#define _HTTPD_H
 
-#include "tftp_net.h"
-#include "../dataflash/fs.h"
+#include <stdint.h>
+#include "../uip/uip.h"
 
-/* state */
-struct tftp_connection_state_t {
-#ifdef DATAFLASH_SUPPORT
-    fs_inode_t     fs_inode;
-    unsigned       df_access   :1;
+/* constants */
+#define HTTPD_PORT 80
+#define HTTPD_ALTERNATE_PORT 8000
+#define HTTPD_TIMEOUT 100 /* in 200ms-steps */
+
+#define HTTPD_INDEX "idx.h"
+
+/* prototypes */
+void httpd_init(void);
+void httpd_main(void);
+
 #endif
-    unsigned       download    :1;
-    unsigned       finished    :1;
-
-#ifdef BOOTLOADER_SUPPORT
-    unsigned       bootp_image :1;
-    unsigned       fire_req    :1;		/* this connection is for just
-						 * starting a tftp request */
-
-    unsigned char  filename[TFTP_FILENAME_MAXLEN];
-#endif
-
-    uint16_t       transfered;			/* also retry countdown */
-};
-
-#endif /* TFTP_STATE_H */

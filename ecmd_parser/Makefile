@@ -3,6 +3,7 @@ TOPDIR = ..
 SRC = \
       	adc.c		\
       	clock.c		\
+      	dataflash.c	\
       	dns.c		\
 	ecmd.c 		\
 	fs20.c		\

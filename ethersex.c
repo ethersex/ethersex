@@ -52,6 +52,8 @@
 #include "hc595/hc595.h"
 #include "yport/yport.h"
 #include "ipv6.h"
+#include "dataflash/fs.h"
+#include "syslog/syslog.h"
 
 #include "net/handler.h"
 
@@ -128,9 +130,17 @@ int main(void)
     /* send boot message */
     debug_printf("booting ethersex firmware " VERSION_STRING "...\n");
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT)
+#   if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
+      || defined(DATAFLASH_SUPPORT)
     spi_init();
-#endif
+#   endif
+
+#   ifdef DATAFLASH_SUPPORT
+    debug_printf("initializing filesystem...\n");
+    fs_init(&fs, NULL);
+    debug_printf("fs: root page is 0x%04x", fs.root);
+#   endif
+
     network_init();
     timer_init();
 #ifdef CLOCK_SUPPORT
@@ -262,6 +272,10 @@ int main(void)
         /* check if debug input has arrived */
         debug_process();
         wdt_kick();
+
+#ifdef SYSLOG_SUPPORT
+        syslog_flush();
+#endif
 
         /* check if fs20 data has arrived */
 #ifdef FS20_SUPPORT

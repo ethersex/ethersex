@@ -77,10 +77,7 @@ if [ "$SYSLOG_SUPPORT" = "y" ]; then
     ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
   fi
 fi
-dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT $BOOTLOADER_SUPPORT $ENC28J60_SUPPORT
-if [ "$BOOTP_SUPPORT" != "y" ]; then
-  dep_bool 'TFTP-o-matic' TFTPOMATIC_SUPPORT $TFTP_SUPPORT
-fi
+dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
 
 comment "Tunneling protocols"
 dep_bool 'OpenVPN' OPENVPN_SUPPORT $UDP_SUPPORT
@@ -145,6 +142,9 @@ if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
   mainmenu_option next_comment
   comment "Bootloader configuration"
 
+  if [ "$BOOTP_SUPPORT" != "y" ]; then
+    dep_bool 'TFTP-o-matic' TFTPOMATIC_SUPPORT $TFTP_SUPPORT
+  fi
   if [ "$TFTPOMATIC_SUPPORT" = "y" ]; then
     comment "TFTP-o-matic configuration"
     if [ "$IPV6_SUPPORT" = "y" ]; then
@@ -324,6 +324,9 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   comment "work in progress bits (enable with care)"
 
   dep_bool "DNS-based UDP multicaster" UDP_DNS_MCAST_SUPPORT $DNS_SUPPORT
+  bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
+  bool "uIP Proto-Sockets" PSOCK_SUPPORT
+  dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT
 
   endmenu
 fi

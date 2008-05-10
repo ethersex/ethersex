@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,8 +29,7 @@
 
 #ifdef SYSLOG_SUPPORT
 
-
-static struct SyslogCallbackCtx syslog_callbacks[SYSLOG_CALLBACKS];
+uip_udp_conn_t *syslog_conn;
 
 
 void
@@ -39,7 +39,7 @@ syslog_net_init(void)
 
   CONF_SYSLOG_SERVER;
 
-  uip_udp_conn_t *syslog_conn = uip_udp_new(&ip, SYSLOG_PORT, syslog_net_main);
+  syslog_conn = uip_udp_new(&ip, SYSLOG_PORT, syslog_net_main);
 
   if(! syslog_conn) {
     debug_printf("syslog: couldn't create connection\n");
@@ -48,48 +48,14 @@ syslog_net_init(void)
 
   uip_udp_bind(syslog_conn, HTONS(SYSLOG_PORT));
 
-  /* Set all syslog callbacks to zero */
-  uint8_t i;
-  for (i = 0; i < SYSLOG_CALLBACKS; i++)
-    syslog_callbacks[i].callback = NULL;
-
   syslog_send("booting ethersex\n");
-
 }
 
 void
 syslog_net_main(void) 
 {
-  if (uip_poll()) {
-    uint8_t i;
-#if defined(IPV6_SUPPORT) && defined(ENC28J60_SUPPORT)
-    /* Make sure we've always got the necessary neighbour table entries
-       in the cache.  Otherwise a syslog-datagram might be killed by
-       a neighbour solicit. */
-    if(! uip_neighbor_lookup (uip_ipaddr_cmp(uip_udp_conn->ripaddr, uip_hostaddr) ? uip_draddr : uip_udp_conn->ripaddr))
-      { uip_slen = 1; return; }
-#endif
-    for (i = 0; i < SYSLOG_CALLBACKS; i++)
-      if (syslog_callbacks[i].callback != NULL) {
-        syslog_callbacks[i].callback(syslog_callbacks[i].data);
-        syslog_callbacks[i].callback = NULL;
-        break;
-      }
-    
-  }
-}
-
-uint8_t
-syslog_insert_callback(syslog_callback_t callback, void *data)
-{
-  uint8_t i;
-  for (i = 0; i < SYSLOG_CALLBACKS; i++)
-    if (syslog_callbacks[i].callback == NULL) {
-      syslog_callbacks[i].callback = callback;
-      syslog_callbacks[i].data = data;
-      return 1;
-    }
-  return 0; /* No empty callback found */
+  if (uip_poll ())
+    syslog_check_cache ();
 }
 
 #endif

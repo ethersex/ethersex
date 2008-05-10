@@ -1,8 +1,8 @@
-TARGET = libtftp.a
+TARGET = libdataflash.a
 TOPDIR = ..
 SRC = \
-	tftp-bootload.c \
-	tftp-dataflash.c
+	df.c	\
+	fs.c
 
 ##############################################################################
 # generic fluff

@@ -1,8 +1,7 @@
-TARGET = libtftp.a
+TARGET = libhttpd.a
 TOPDIR = ..
 SRC = \
-	tftp-bootload.c \
-	tftp-dataflash.c
+	httpd.c	\
 
 ##############################################################################
 # generic fluff

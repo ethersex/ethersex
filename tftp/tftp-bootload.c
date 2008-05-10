@@ -30,6 +30,8 @@
 #include "../eeprom.h"
 #include "tftp.h"
 
+#ifdef BOOTLOADER_SUPPORT
+
 /* Define if you want to support firmware upload only. */
 #undef  TFTP_UPLOAD_ONLY
 
@@ -295,4 +297,4 @@ tftp_handle_packet(void)
 }
 
 
-
+#endif /* BOOTLOADER_SUPPORT */
