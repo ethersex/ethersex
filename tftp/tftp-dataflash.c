@@ -28,7 +28,7 @@
 #include "../net/tftp_net.h"
 #include "tftp.h"
 
-#ifdef SYSLOG_SUPPORT
+#if 0 				/* Enable debuging with SYSLOG. */
 #  include "../syslog/syslog.h"
 #  define DEBUG(a...) syslog_sendf(a)
 #else
@@ -69,7 +69,7 @@ tftp_handle_packet(void)
 	state->transfered = 0;
 	state->finished = 0;
 
-	state->df_access = strcmp_P (pk->u.raw, PSTR ("df+")) == 0;
+	state->df_access = memcmp_P (pk->u.raw, PSTR ("df+"), 3) == 0;
 
 	if (state->df_access == 0) {
 	    state->fs_inode = fs_get_inode (&fs, pk->u.raw);
@@ -121,6 +121,7 @@ tftp_handle_packet(void)
 	    fs_size_t offset = state->transfered * 512;
 
 	    ret = fs_read (&fs, state->fs_inode, pk->u.data.data, offset, 512);
+	    DEBUG ("fs_read: o=%04lx, l=%04lx\n", offset, ret);
 	    
 	    if (ret < 0)
 		goto error_out;
