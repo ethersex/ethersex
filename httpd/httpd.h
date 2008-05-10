@@ -24,8 +24,7 @@
 #define _HTTPD_H
 
 #include <stdint.h>
-#include "common.h"
-#include "uip/uip.h"
+#include "../uip/uip.h"
 
 /* constants */
 #define HTTPD_PORT 80

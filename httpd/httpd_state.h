@@ -23,7 +23,7 @@
 #ifndef _HTTPD_STATE_H
 #define _HTTPD_STATE_H
 
-#include "fs.h"
+#include "../dataflash/fs.h"
 
 typedef enum {
     HTTPD_STATE_CLOSED = 0,

@@ -20,12 +20,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/pgmspace.h>
+
 #include <stdio.h>
 #include <string.h>
-#include "pt/pt.h"
-#include "uip/psock.h"
+
+#include "../pt/pt.h"
+#include "../uip/psock.h"
 #include "httpd.h"
-#include "fs.h"
+#include "../dataflash/fs.h"
 
 #ifdef DEBUG_HTTPD
 #include "uart.h"
@@ -72,8 +75,8 @@ unsigned short send_file_f(void *data);
 void httpd_init(void)
 /* {{{ */ {
 
-    uip_listen(HTONS(HTTPD_PORT));
-    uip_listen(HTONS(HTTPD_ALTERNATE_PORT));
+    uip_listen(HTONS(HTTPD_PORT), httpd_main);
+    uip_listen(HTONS(HTTPD_ALTERNATE_PORT), httpd_main);
 
 } /* }}} */
 
