@@ -26,13 +26,13 @@
 #include "../config.h"
 #include "stella.h"
 
-volatile uint8_t timetable[STELLA_PINS][2];
-volatile uint8_t i_timetable[STELLA_PINS][2];
-volatile uint8_t length;
-volatile uint8_t i_length;
-volatile uint8_t now = 0;
-volatile uint8_t overflow_mask = 0;
-volatile uint8_t i_overflow_mask = 0;
+uint8_t timetable[STELLA_PINS][2];
+uint8_t i_timetable[STELLA_PINS][2];
+uint8_t length;
+uint8_t i_length;
+uint8_t now = 0;
+uint8_t overflow_mask = 0;
+uint8_t i_overflow_mask = 0;
 volatile uint8_t update_table = 0;
 
 void
@@ -51,34 +51,32 @@ stella_pwm_init(void)
 
 SIGNAL(_SIG_OUTPUT_COMPARE2)
 {
-  STELLA_PORT &= ~i_timetable[now][1];
-
-  now ++;
-  now = now % i_length;
-
-  _OUTPUT_COMPARE_REG2 = i_timetable[now][0];
+  if(i_length) {
+    STELLA_PORT &= ~i_timetable[now][1];
+    if (++now < i_length)
+      _OUTPUT_COMPARE_REG2 = i_timetable[now][0];
+  }  
 }
 
 SIGNAL(_SIG_OVERFLOW2)
 {
-  if(update_table == 1)
-    {
-      uint8_t i;
-      for (i = 0; i < length; i ++)
-	{
-	  i_timetable[i][0] = timetable[i][0];
-	  i_timetable[i][1] = timetable[i][1];
-	}
-
-      i_length = length;
-      i_overflow_mask = overflow_mask;
-      now = 0;
-      update_table = 0;
+  if(update_table == 1){
+    uint8_t i;
+    for (i=0; i < length; i++) {
+      i_timetable[i][0] = timetable[i][0];
+      i_timetable[i][1] = timetable[i][1];
     }
+    i_length = length;
+    i_overflow_mask = overflow_mask;
+    update_table = 0;
+  }
+  _OUTPUT_COMPARE_REG2 = i_timetable[0][0];
+  if (! _OUTPUT_COMPARE_REG2)
+    _OUTPUT_COMPARE_REG2 = i_timetable[1][0];
+  now = 0;
 
   STELLA_PORT |= i_overflow_mask;
 }
-
 
 void
 stella_sort(uint8_t color[])
