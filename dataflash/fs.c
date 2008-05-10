@@ -60,6 +60,11 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 
 #include <util/crc16.h>
 
+#if 0 /* Enable this for debug messages via syslog support. */
+#  include "../syslog/syslog.h"
+#  define printf(a...) syslog_sendf(a)
+#endif
+
 #define printf(...)
 #define assert(x)
 #define PACKED
@@ -302,7 +307,7 @@ fs_size_t fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_si
 
     fs_page_t page;
 
-    while (offset > FS_DATASIZE) {
+    while (offset >= FS_DATASIZE) {
 
         printf("\toffset > datasize\n");
 
@@ -388,7 +393,8 @@ fs_size_t fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_si
 fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length)
 /* {{{ */ {
 
-    printf("fs_write, inode %d, offset %d, length %d\n", inode, offset, length);
+    printf("fs_write, inode %d, offset %ld, length %ld\n",
+	   inode, offset, length);
 
     df_page_t pagenum, old_pagenum;
     fs_page_t page;
@@ -397,7 +403,7 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
     if ( (pagenum = fs_page(fs, inode)) != 0xffff) {
 
         /* while the current position is below the requested offset, seek */
-        while (offset >= FS_DATASIZE) {
+        while (offset > FS_DATASIZE) {
 
             printf("\toffset > FS_DATASIZE, searching for next page\n");
 
@@ -417,12 +423,11 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
         }
 
         old_pagenum = pagenum;
+        uint8_t eof = 0;
 
         do {
-
-            uint8_t eof = 0;
-
-            printf("\tlength > 0 (%d), old page is %d\n", length, old_pagenum);
+            printf("\tlength > 0 (%ld), old page is %d\n",
+		   length, old_pagenum);
 
             /* allocate new page */
             if ( (pagenum = fs_new_page(fs)) == 0xffff)
@@ -438,9 +443,7 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
             if (length+offset > FS_DATASIZE) {
 
-#ifdef DEBUG_FS
-                uart_puts_P("\t\tlength+offset > FS_DATASIZE\r\n");
-#endif
+                printf("\t\tlength+offset > FS_DATASIZE\n");
 
                 /* load old page into buffer */
                 df_buf_load(fs->chip, DF_BUF1, old_pagenum);
@@ -451,9 +454,7 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
                 /* remember if original file ended in this page */
                 if (page.eof) {
-#ifdef DEBUG_FS
-                    uart_puts_P("\t\toriginal file ended here\r\n");
-#endif
+                    printf("\t\toriginal file ended here\r\n");
                     eof = 1;
                 }
 
@@ -483,32 +484,21 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
                 uart_eol();
 #endif
 
-                /* write data */
-                df_buf_write(fs->chip, DF_BUF1, buf, FS_DATA_OFFSET+offset, FS_DATASIZE-offset);
-                df_buf_save(fs->chip, DF_BUF1, pagenum);
-                df_wait(fs->chip);
+		if (FS_DATASIZE - offset) {
+		    /* write data */
+		    df_buf_write(fs->chip, DF_BUF1, buf, FS_DATA_OFFSET+offset,
+				 FS_DATASIZE-offset);
+		    length -= (FS_DATASIZE-offset);
+		}
 
-                length -= (FS_DATASIZE-offset);
+		df_buf_save(fs->chip, DF_BUF1, pagenum);
+		df_wait(fs->chip);
 
             } else {
 
-#ifdef DEBUG_FS
-                uart_puts_P("\t\tlength+offset <= FS_DATASIZE, length 0x");
-                uart_puthexbyte(HI8((uint16_t)(length >> 16)));
-                uart_puthexbyte(LO8((uint16_t)(length >> 16)));
-                uart_puthexbyte(HI8((uint16_t)length));
-                uart_puthexbyte(LO8((uint16_t)length));
-                uart_puts_P(", offset 0x");
-                uart_puthexbyte(HI8((uint16_t)(offset >> 16)));
-                uart_puthexbyte(LO8((uint16_t)(offset >> 16)));
-                uart_puthexbyte(HI8((uint16_t)offset));
-                uart_puthexbyte(LO8((uint16_t)offset));
-                uart_puts_P(", eof ");
-                uart_puthexbyte(eof);
-                uart_puts_P(", old page 0x");
-                uart_puthexbyte(HI8(old_pagenum));
-                uart_puthexbyte(LO8(old_pagenum));
-#endif
+                printf("\t\tlength+offset <= FS_DATASIZE, length 0x%04lx, "
+		       "offset 0x%04lx, eof %d, old page 0x%04x\n",
+		       length, offset, eof, old_pagenum);
 
                 /* load old page into buffer */
                 df_buf_load(fs->chip, DF_BUF1, old_pagenum);
@@ -517,7 +507,8 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
                 /* load structure */
                 df_buf_read(fs->chip, DF_BUF1, &page, FS_STRUCTURE_OFFSET, sizeof(fs_page_t));
                 page.unused = 0;
-                page.eof = 1;
+		if (eof)
+		    page.eof = 1;
                 page.root = 0;
 
 #ifdef DEBUG_FS
