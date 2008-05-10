@@ -36,4 +36,8 @@ uint8_t syslog_send_ptr(void *message);
 
 void syslog_flush (void);
 
+/* Check the ARP/Neighbor cache for the necessary entries;
+   return 0 if it's safe to send syslog data. */
+uint8_t syslog_check_cache(void);
+
 #endif

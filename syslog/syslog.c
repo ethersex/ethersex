@@ -29,9 +29,9 @@
 #include "../uip/uip.h"
 #include "../config.h"
 #include "../debug.h"
+#include "../uip/uip_neighbor.h"
 #include "syslog.h"
 
-#ifdef SYSLOG_SUPPORT
 
 static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1];
 extern uip_udp_conn_t *syslog_conn;
@@ -106,13 +106,10 @@ syslog_send_ptr(void *message)
 void
 syslog_flush (void)
 {
-#ifdef IPV6_SUPPORT
-  if(! uip_neighbor_lookup (uip_ipaddr_cmp (uip_udp_conn->ripaddr, 
-                                            uip_hostaddr) 
-		            ? uip_draddr : uip_udp_conn->ripaddr))
-    return; /* our packet would be killed, wait for the poll routine
-               to get the needed entry into the neighbour table. */
-#endif
+  if (syslog_check_cache ())
+    return;			/* ARP cache not ready, don't send request
+				   here (would flood, wait for poll event). */
+
   uip_slen = 0;
   uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
 
@@ -146,4 +143,38 @@ syslog_insert_callback(syslog_callback_t callback, void *data)
     }
   return 0; /* No empty callback found */
 }
+
+
+uint8_t
+syslog_check_cache(void)
+{
+#ifdef IPV6_SUPPORT
+  uip_ipaddr_t ipaddr;
+
+  if(memcmp(syslog_conn->ripaddr, uip_hostaddr, 8)
+#    if UIP_CONF_IPV6_LLADDR
+     && memcmp(syslog_conn->ripaddr, uip_lladdr, 8)
+#    endif
+    )
+    /* Remote address is not on the local network, use router */
+    uip_ipaddr_copy(&ipaddr, uip_draddr);
+  else
+    /* Remote address is on the local network, send directly. */
+    uip_ipaddr_copy(&ipaddr, syslog_conn->ripaddr);
+
+  if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
+    return 1;	     /* Cowardly refusing to send IPv6 packet to :: */
+    
+  if(! uip_neighbor_lookup (ipaddr))
+    {
+      uip_send ("dummy.", 6);
+      return 1;
+    }
+
 #endif
+
+  /* FIXME This could ought to be ported back to IPv4. */
+
+  return 0;
+}
+

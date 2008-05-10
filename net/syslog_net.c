@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -53,14 +54,8 @@ syslog_net_init(void)
 void
 syslog_net_main(void) 
 {
-#ifdef IPV6_SUPPORT
-  if (uip_poll()) {
-    if(! uip_neighbor_lookup (uip_ipaddr_cmp (uip_udp_conn->ripaddr, 
-                                              uip_hostaddr) 
-			      ? uip_draddr : uip_udp_conn->ripaddr))
-      uip_send ("dummy.", 6);
-  }
-#endif
+  if (uip_poll ())
+    syslog_check_cache ();
 }
 
 #endif
