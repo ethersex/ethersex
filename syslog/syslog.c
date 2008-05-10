@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,6 +34,8 @@
 #ifdef SYSLOG_SUPPORT
 
 static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1];
+extern uip_udp_conn_t *syslog_conn;
+static struct SyslogCallbackCtx syslog_callbacks[SYSLOG_CALLBACKS];
 
 static void syslog_send_cb_P(void *data) 
 {
@@ -61,29 +64,36 @@ syslog_send_P(PGM_P message)
 uint8_t 
 syslog_send(const char *message)
 {
-  // only insert a new callback if the old is finished  
-  if (send_buffer[0] == 0) {
-    strncpy(send_buffer, message, MAX_DYNAMIC_SYSLOG_BUFFER);
-    send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
-    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
-  } else
+  uint16_t offset = strlen (send_buffer);
+
+  if (strlen (message) + offset + 1 > MAX_DYNAMIC_SYSLOG_BUFFER)
     return 0;
+
+  strcat (send_buffer + offset, message);
+
+  if (! offset)
+    /* If there used to be a few bytes in the buffer already, we don't have
+       to insert the callback, since it should have been added already. */
+    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
+  return 1;
 }
 
 uint8_t 
 syslog_sendf(const char *message, ...)
 {
   va_list va;
+  uint16_t offset = strlen (send_buffer);
 
-  // only insert a new callback if the old is finished  
-  if (send_buffer[0] == 0) {
-    va_start(va, message);
-    vsnprintf(send_buffer, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
-    va_end(va);
-    send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+  va_start(va, message);
+  vsnprintf(send_buffer + offset, MAX_DYNAMIC_SYSLOG_BUFFER - offset, 
+            message, va);
+  va_end(va);
+
+  send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+
+  if (!offset)
     return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
-  } else
-    return 0;
+  return 1;
 }
 
 uint8_t 
@@ -92,4 +102,48 @@ syslog_send_ptr(void *message)
   return syslog_insert_callback(syslog_send_cb, message);
 }
 
+
+void
+syslog_flush (void)
+{
+#ifdef IPV6_SUPPORT
+  if(! uip_neighbor_lookup (uip_ipaddr_cmp (uip_udp_conn->ripaddr, 
+                                            uip_hostaddr) 
+		            ? uip_draddr : uip_udp_conn->ripaddr))
+    return; /* our packet would be killed, wait for the poll routine
+               to get the needed entry into the neighbour table. */
+#endif
+  uip_slen = 0;
+  uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
+
+  for (uint8_t i = 0; i < SYSLOG_CALLBACKS; i++)
+    if (syslog_callbacks[i].callback != NULL) {
+      syslog_callbacks[i].callback(syslog_callbacks[i].data);
+      syslog_callbacks[i].callback = NULL;
+      break;
+    }
+
+  if (! uip_slen)
+    return;
+
+  uip_udp_conn = syslog_conn;
+  uip_process (UIP_UDP_SEND_CONN);
+  fill_llh_and_transmit ();
+
+  uip_slen = 0;
+}
+
+
+uint8_t
+syslog_insert_callback(syslog_callback_t callback, void *data)
+{
+  uint8_t i;
+  for (i = 0; i < SYSLOG_CALLBACKS; i++)
+    if (syslog_callbacks[i].callback == NULL) {
+      syslog_callbacks[i].callback = callback;
+      syslog_callbacks[i].data = data;
+      return 1;
+    }
+  return 0; /* No empty callback found */
+}
 #endif

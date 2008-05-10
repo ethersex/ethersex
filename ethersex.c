@@ -53,6 +53,7 @@
 #include "yport/yport.h"
 #include "ipv6.h"
 #include "dataflash/fs.h"
+#include "syslog/syslog.h"
 
 #include "net/handler.h"
 
@@ -268,6 +269,10 @@ int main(void)
         /* check if debug input has arrived */
         debug_process();
         wdt_kick();
+
+#ifdef SYSLOG_SUPPORT
+        syslog_flush();
+#endif
 
         /* check if fs20 data has arrived */
 #ifdef FS20_SUPPORT

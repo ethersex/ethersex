@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,7 +24,7 @@
 
 #include <avr/pgmspace.h>
 
-#define MAX_DYNAMIC_SYSLOG_BUFFER 40
+#define MAX_DYNAMIC_SYSLOG_BUFFER 500
 
 #ifndef _SYSLOG_H
 #define _SYSLOG_H
@@ -32,5 +33,7 @@ uint8_t syslog_send_P(PGM_P message);
 uint8_t syslog_send(const char *message);
 uint8_t syslog_sendf(const char *message, ...);
 uint8_t syslog_send_ptr(void *message);
+
+void syslog_flush (void);
 
 #endif
