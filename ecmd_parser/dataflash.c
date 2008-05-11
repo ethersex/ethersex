@@ -97,7 +97,7 @@ parse_cmd_fs_mkfile (char *cmd, char *output, uint16_t len)
     return snprintf_P (output, len, PSTR ("fs_create: returned 0x%02x"), ret);
 
   fs_inode_t i = fs_get_inode (&fs, cmd);
-  return snprintf_P (output, len, PSTR ("fs_create: inode 0x%04x"), cmd, i);
+  return snprintf_P (output, len, PSTR ("fs_create: inode 0x%04x"), i);
 }
 
 
