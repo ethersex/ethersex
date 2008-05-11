@@ -59,14 +59,9 @@ compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
 
-# FIXME how can we omit specifying every file to be linked twice?
-# This is currently necessary because of interdependencies between
-# the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
-	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
-	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
-
+	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir))
 
 ##############################################################################
 

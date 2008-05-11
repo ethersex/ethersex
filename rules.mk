@@ -3,7 +3,8 @@ OBJECTS += $(patsubst %.c,%.o,${SRC})
 
 %.a: $(OBJECTS)
 	$(RM) $@
-	$(AR) qcv $@ $^
+	$(CC) $(LDFLAGS) -o $@ -nostdlib -Wl,--no-whole-archive \
+		-Wl,--relocatable $^	
 #	$(STRIP) --strip-unneeded $@
 
 %.s: %.c
