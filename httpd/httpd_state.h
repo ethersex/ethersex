@@ -24,6 +24,7 @@
 #define _HTTPD_STATE_H
 
 #include "../dataflash/fs.h"
+#include "../config.h"
 
 typedef enum {
     HTTPD_STATE_CLOSED = 0,
@@ -38,6 +39,11 @@ struct httpd_connection_state_t {
     struct psock in, out;
     fs_inode_t inode;
     fs_size_t offset;
+
+#ifdef ECMD_PARSER_SUPPORT
+    char *tmp_buffer;
+    uint8_t parse_again;
+#endif
 };
 
 
