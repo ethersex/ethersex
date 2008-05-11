@@ -34,9 +34,9 @@
     #define debug_init() DEBUG_INIT_UART()
     #define debug_process() DEBUG_PROCESS_UART()
 #else
-    #define debug_printf(...)
-    #define debug_init(...)
-    #define debug_process(...)
+    #define debug_printf(...) do { } while(0)
+    #define debug_init(...) do { } while(0)
+    #define debug_process(...) do { } while(0)
 #endif /* DEBUG */
 
 /* use 115200 baud at 20mhz (see datasheet for other values) */

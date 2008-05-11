@@ -26,6 +26,7 @@
 #include "../config.h"
 #include "../debug.h"
 #include "syslog_net.h"
+#include "../syslog/syslog.h"
 
 #ifdef SYSLOG_SUPPORT
 

@@ -30,7 +30,6 @@
 
 /* prototypes */
 void spi_init(void);
-static void spi_wait_busy(void);
 uint8_t noinline spi_send(uint8_t data);
 
 #endif

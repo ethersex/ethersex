@@ -27,6 +27,7 @@
 #include "uip_arp.h"
 #include "uip_neighbor.h"
 
+#include "../network.h"
 #include "../rfm12/rfm12.h"
 
 #if defined(ENC28J60_SUPPORT) || defined(RFM12_SUPPORT)

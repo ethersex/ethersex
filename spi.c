@@ -26,6 +26,8 @@
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
   || defined(DATAFLASH_SUPPORT)
 
+static void spi_wait_busy(void);
+
 void spi_init(void)
 /* {{{ */ {
 

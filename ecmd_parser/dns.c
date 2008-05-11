@@ -38,6 +38,12 @@
 
 #ifdef DNS_SUPPORT
 
+#ifndef TEENSY_SUPPORT
+extern int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len);
+extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
+#endif
+
+
 int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     return print_ipaddr (resolv_getserver (), output, len);

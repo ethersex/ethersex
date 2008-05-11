@@ -49,8 +49,6 @@ void
 ntpd_net_main(void)
 {
   if (uip_newdata()) {
-    uint32_t ntp_timestamp;
-
     struct ntp_packet *pkt = uip_appdata;
 
     /* We are an server and there is no error warning */

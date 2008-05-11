@@ -1187,7 +1187,9 @@ uip_process(u8_t flag)
 #endif /* UIP_CONF_IPV6 */
   }
 
+#ifdef MDNS_SD_SUPPORT
 ip_check_end:
+#endif
 
 #if !UIP_CONF_IPV6
   if(uip_ipchksum() != 0xffff) { /* Compute and check the IP header

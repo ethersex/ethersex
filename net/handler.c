@@ -46,6 +46,7 @@
 #include "modbus_net.h"
 #include "rfm12_raw_net.h"
 #include "zbus_raw_net.h"
+#include "stella_net.h"
 #include "../httpd/httpd.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
