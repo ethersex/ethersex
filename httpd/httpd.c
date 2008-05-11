@@ -23,12 +23,14 @@
 #include <avr/pgmspace.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../pt/pt.h"
 #include "../uip/psock.h"
 #include "httpd.h"
 #include "../dataflash/fs.h"
+#include "../ecmd_parser/ecmd.h"
 
 #ifdef DEBUG_HTTPD
 #include "uart.h"
@@ -43,6 +45,16 @@ char PROGMEM httpd_header_200[] =
 "Connection: close\n"
 "Content-Type: text/html; charset=iso-8859-1\n";
 /* }}} */
+
+#ifdef ECMD_PARSER_SUPPORT
+char PROGMEM httpd_header_200_plain[] =
+/* {{{ */
+/* Please note: this is the _whole_ header, no content-length must follow */
+"HTTP/1.1 200 OK\n"
+"Connection: close\n"
+"Content-Type: text/plain; charset=iso-8859-1\n\n";
+/* }}} */
+#endif
 
 char PROGMEM httpd_header_400[] =
 /* {{{ */
@@ -67,6 +79,7 @@ char PROGMEM httpd_body_404[] =
 char PROGMEM httpd_header_length[] = "Content-Length: ";
 
 /* local prototypes */
+unsigned short send_str_with_nl(void *data);
 unsigned short send_str_P(void *data);
 unsigned short send_length_P(void *data);
 unsigned short send_length_f(void *data);
@@ -102,6 +115,64 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
 
     if (state->buffer[0] == ' ')
         strncpy_P(state->name, PSTR(HTTPD_INDEX), sizeof(state->name));
+#ifdef ECMD_PARSER_SUPPORT
+    else if (strncmp_P(state->buffer, PSTR(ECMD_INDEX "?"), 
+                  strlen_P(PSTR(ECMD_INDEX "?"))) == 0) {
+      /* ecmd interface */
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200_plain);
+
+        char *ptr = state->buffer + strlen_P(PSTR(ECMD_INDEX "?"));
+        /* This buffer is used to save the command buffer, because we have to
+         * call ecmd_parse_command more than once, e.g. with `fs list' 
+         */
+        state->tmp_buffer =
+          malloc(strlen(state->buffer) - strlen_P(PSTR(ECMD_INDEX "?")));
+
+        if (! state->tmp_buffer) 
+          PSOCK_CLOSE_EXIT(&state->in);
+        char *insert = state->tmp_buffer;
+
+        while (*ptr) {
+          if (*ptr == '+')
+            *insert = ' ';
+          else if (*ptr == '%') {
+            uint8_t data, tmp = ptr[3];
+            ptr[3] = 0;
+            *insert = strtol(ptr + 1, NULL, 16);
+            ptr[3] = tmp;
+            ptr += 2;
+          } else {
+            *insert = *ptr;
+          }
+          insert++;
+          ptr++;
+        }
+        insert[-1] = 0;
+
+        /* the ecmd parser call, this call maybe repeated */
+        int16_t len;
+        do {
+          len = ecmd_parse_command(state->tmp_buffer, state->buffer, 
+                                   sizeof(state->buffer)-1);
+          uint16_t real_len;
+          if (len <= -10) {
+            real_len = -len - 10;
+            state->parse_again = 1;
+          } else {
+            real_len = len;
+            state->parse_again = 0;
+          }
+          state->buffer[real_len] = 0;
+
+          PSOCK_GENERATOR_SEND(&state->in, send_str_with_nl, state->buffer);
+        } while (state->parse_again);
+
+        /* free the temporary command buffer */
+        free(state->tmp_buffer);
+
+        PSOCK_CLOSE_EXIT(&state->in);
+    }
+#endif
     else {
         strncpy(state->name, state->buffer, sizeof(state->name));
         if (PSOCK_DATALEN(&state->in) < sizeof(state->name))
@@ -170,6 +241,15 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
     PSOCK_END(&state->in);
 
 } /* }}} */
+
+unsigned short send_str_with_nl(void *data)
+/* {{{ */ {
+
+    sprintf_P(uip_appdata, PSTR("%s\n"), data);
+    return strlen(uip_appdata);
+
+} /* }}} */
+
 
 unsigned short send_str_P(void *data)
 /* {{{ */ {

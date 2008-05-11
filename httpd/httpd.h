@@ -32,6 +32,7 @@
 #define HTTPD_TIMEOUT 100 /* in 200ms-steps */
 
 #define HTTPD_INDEX "idx.h"
+#define ECMD_INDEX "ecmd"
 
 /* prototypes */
 void httpd_init(void);
