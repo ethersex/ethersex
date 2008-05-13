@@ -39,6 +39,7 @@
 #include "ps2/ps2.h"
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"
+#include "modbus/modbus.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -104,6 +105,10 @@ void timer_process(void)
         
 #       ifdef PS2_SUPPORT
         ps2_periodic();
+#       endif
+
+#       ifdef MODBUS_SUPPORT
+        modbus_periodic();
 #       endif
 
         /* check tcp connections every 200ms */

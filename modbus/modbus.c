@@ -38,6 +38,7 @@
 #ifdef MODBUS_SUPPORT
 
 volatile struct modbus_buffer modbus_send_buffer;
+uint8_t modbus_recv_timer = 0;
 
 uint16_t 
 modbus_crc_calc(uint8_t *data, uint8_t len) 
@@ -67,6 +68,20 @@ modbus_init(void)
     /* set baud rate */
     _UBRRH_UART0 = HI8(MODBUS_UART_UBRR);
     _UBRRL_UART0 = LO8(MODBUS_UART_UBRR);
+}
+
+void
+modbus_periodic(void)
+{
+  if (modbus_recv_timer == 0) return;
+  modbus_recv_timer--;
+
+  if (!modbus_conn) return;
+  if (!modbus_conn->appstate.modbus.waiting_for_answer) return;
+  if (modbus_recv_timer != 0) return;
+  modbus_conn->appstate.modbus.waiting_for_answer = 0;
+  modbus_conn->appstate.modbus.new_data = 1;
+  modbus_conn = NULL;
 }
 
 uint8_t 
@@ -105,7 +120,8 @@ SIGNAL(USART0_TX_vect)
     /* free the modbus_conn */
     modbus_conn->appstate.modbus.must_send = 0;
     modbus_conn->appstate.modbus.waiting_for_answer = 1;
-    modbus_conn = NULL;
+    modbus_conn->appstate.modbus.len = 0;
+    modbus_recv_timer = 4;
   }
 }
 
@@ -118,6 +134,13 @@ SIGNAL(USART0_RX_vect)
     return; 
   }
   uint8_t data = _UDR_UART0;
+
+  if (!modbus_conn) return;
+  if (!modbus_conn->appstate.modbus.waiting_for_answer) return;
+
+  modbus_conn->appstate.modbus.data[modbus_conn->appstate.modbus.len++] = data;
+
+  modbus_recv_timer = 2;
 }
 
 

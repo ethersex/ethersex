@@ -28,7 +28,7 @@
 #define MODBUS_NET_H
 
 #define MODBUS_PORT 502
-#define MODBUS_BUFFER_LEN 200
+#define MODBUS_BUFFER_LEN 100
 
 void modbus_net_init(void);
 void modbus_net_main(void);

@@ -34,6 +34,7 @@
 #ifdef MODBUS_SUPPORT
 #define STATE(a) ((a)->appstate.modbus)
 
+
 volatile uip_conn_t *modbus_conn = NULL;
 
 void modbus_net_init(void)
@@ -50,17 +51,21 @@ void modbus_net_main(void)
     /* New connection */
     memset(&uip_conn->appstate, 0, sizeof(uip_conn->appstate));
   } else if (uip_acked()) {
+    uip_conn->appstate.modbus.new_data = 0;
+  } else if (uip_rexmit()) {
+    if (uip_conn->appstate.modbus.new_data) 
+      goto send_new_data;
   } else if (uip_closed() || uip_aborted() || uip_timedout()) {
 
   } else if (uip_newdata()) {
     /* Have we space for a new packet? */
-    if (STATE(uip_conn).must_send) {
+    if (STATE(uip_conn).must_send || STATE(uip_conn).new_data) {
       /* we don't have enough space, sent error */
       answer[8] = 0x06;
       goto error_response;
     }
-    memcpy(STATE(uip_conn).data, answer + 6, answer[4] + 1);
-    STATE(uip_conn).len = answer[4] + 1;
+    memcpy(STATE(uip_conn).data, answer + 6, answer[5]);
+    STATE(uip_conn).len = answer[5];
     STATE(uip_conn).transaction_id = (answer[0] | (answer[1] << 8));
     STATE(uip_conn).must_send = 1;
   } 
@@ -70,23 +75,54 @@ void modbus_net_main(void)
     /* Search for a connetion with data, that had to be send */
     for (i = 0; i < UIP_CONNS; i ++) 
       if (uip_conns[i].callback == modbus_net_main
-          && uip_conns[i].tcpstateflags != UIP_CLOSED
-          && uip_conns[i].appstate.modbus.must_send) {
-        modbus_conn = &uip_conns[i];
-        /* Start the transmission */
-        modbus_rxstart((uint8_t *)STATE(modbus_conn).data, STATE(modbus_conn).len);
-        break;
+          && uip_conns[i].tcpstateflags != UIP_CLOSED) {
+          if (uip_conns[i].appstate.modbus.must_send) {
+            modbus_conn = &uip_conns[i];
+            /* Start the transmission */
+            modbus_rxstart((uint8_t *)STATE(modbus_conn).data, STATE(modbus_conn).len);
+            break;
+          } else if (uip_conns[i].appstate.modbus.new_data) {
+send_new_data:
+            uip_conn = &uip_conns[i];
+            if (STATE(uip_conn).len == 0) {
+              if (STATE(uip_conn).data[0] >= 0xf0) {
+                uip_conn->appstate.modbus.new_data = 0;
+                continue;
+              }
+              // Send an error message
+             answer[8] = 0x0B;
+             goto error_response;
+            }
+            uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, STATE(uip_conn).len - 2);
+            uint16_t crc_recv = 
+                    ((STATE(uip_conn).data[STATE(uip_conn).len - 1])  << 8) 
+                    | (STATE(uip_conn).data[STATE(uip_conn).len - 2]);
+            if (crc != crc_recv) {
+              // Send an error message
+             answer[8] = 0x0B;
+             goto error_response;
+            }
+            memcpy(answer + 6, STATE(uip_conn).data,
+                   STATE(uip_conn).len - 2);
+            memset(answer, 0, 6);
+
+            answer[0] = STATE(uip_conn).transaction_id;
+            answer[1] = STATE(uip_conn).transaction_id >> 8;
+            answer[5] = STATE(uip_conn).len - 2;
+
+            uip_udp_send(STATE(uip_conn).len -2 +6);
+          }
+
       }
 
   return;
 
 error_response:
   /* The length of the answer */
-  answer[4] = 2;
-  answer[5] = 0;
+  answer[5] = 3;
+  answer[4] = 0;
   /* Function code manipulation */
   answer[7] |= 0x80;
-
-
+  uip_send(answer, 9);
 }
 #endif
