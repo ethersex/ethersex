@@ -45,7 +45,7 @@ void modbus_net_init(void)
 void modbus_net_main(void)
 {
   uint8_t *answer = uip_appdata;
-  uint8_t i;
+  uint8_t i = 0;
 
   if(uip_connected()) {
     /* New connection */
@@ -61,7 +61,11 @@ void modbus_net_main(void)
     /* Have we space for a new packet? */
     if (STATE(uip_conn).must_send || STATE(uip_conn).new_data) {
       /* we don't have enough space, sent error */
-      answer[8] = 0x06;
+      answer[8] = 0x06; // Server busy
+      goto error_response;
+    }
+    if (answer[5] > MODBUS_BUFFER_LEN) {
+      answer[8] = 0x04; // Server failure
       goto error_response;
     }
     memcpy(STATE(uip_conn).data, answer + 6, answer[5]);
@@ -82,15 +86,15 @@ void modbus_net_main(void)
             modbus_rxstart((uint8_t *)STATE(modbus_conn).data, STATE(modbus_conn).len);
             break;
           } else if (uip_conns[i].appstate.modbus.new_data) {
-send_new_data:
             uip_conn = &uip_conns[i];
+send_new_data:
             if (STATE(uip_conn).len == 0) {
               if (STATE(uip_conn).data[0] >= 0xf0) {
                 uip_conn->appstate.modbus.new_data = 0;
                 continue;
               }
               // Send an error message
-             answer[8] = 0x0B;
+             answer[8] = 0x0B; // gateway problem
              goto error_response;
             }
             uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, STATE(uip_conn).len - 2);
@@ -99,7 +103,7 @@ send_new_data:
                     | (STATE(uip_conn).data[STATE(uip_conn).len - 2]);
             if (crc != crc_recv) {
               // Send an error message
-             answer[8] = 0x0B;
+             answer[8] = 0x0B; // gateway problem
              goto error_response;
             }
             memcpy(answer + 6, STATE(uip_conn).data,

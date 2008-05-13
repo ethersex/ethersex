@@ -136,42 +136,14 @@ SIGNAL(USART0_RX_vect)
   uint8_t data = _UDR_UART0;
 
   if (!modbus_conn) return;
+  // Are we waiting for an answer?
   if (!modbus_conn->appstate.modbus.waiting_for_answer) return;
+  // Is the buffer big enough
+  if (modbus_conn->appstate.modbus.len >= MODBUS_BUFFER_LEN) return;
 
   modbus_conn->appstate.modbus.data[modbus_conn->appstate.modbus.len++] = data;
 
   modbus_recv_timer = 2;
 }
-
-
-#if 0
-uint8_t
-yport_rxstart(uint8_t *data, uint8_t len) 
-{
-  uint8_t diff = yport_send_buffer.len - yport_send_buffer.sent;
-  if (diff == 0) {
-    /* Copy the data to the send buffer */
-    memcpy(yport_send_buffer.data, data, len);
-    yport_send_buffer.len = len;
-    goto start_sending;
-  /* The actual packet can be pushed into the buffer */
-  } else if (((uint16_t) (diff + len)) < YPORT_BUFFER_LEN) {
-    memmove(yport_send_buffer.data, yport_send_buffer.data + yport_send_buffer.sent, diff);
-    memcpy(yport_send_buffer.data + diff, data, len);
-    yport_send_buffer.len = diff + len;
-    goto start_sending;
-  }
-  return 0;
-start_sending:
-    yport_send_buffer.sent = 1;
-    /* Enable the tx interrupt and send the first character */
-    _UCSRB_UART0 |= _BV(_TXCIE_UART0);
-    _UDR_UART0 = yport_send_buffer.data[0];
-    return 1;
-}
-
-
-
-#endif
 
 #endif
