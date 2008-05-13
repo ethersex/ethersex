@@ -40,7 +40,7 @@ stella_pwm_init(void)
 {
   /* Normal PWM Mode */
   /* 256 Prescaler */
-  _TCCR2_PRESCALE |= _BV(CS21);
+  _TCCR2_PRESCALE |= _BV(CS20);
   _TCCR2_PRESCALE |= _BV(CS22);
 
   /* Int. bei Overflow und CompareMatch einschalten */
@@ -55,26 +55,29 @@ SIGNAL(_SIG_OUTPUT_COMPARE2)
     STELLA_PORT &= ~i_timetable[now][1];
     if (++now < i_length)
       _OUTPUT_COMPARE_REG2 = i_timetable[now][0];
-  }  
+  }
 }
 
 SIGNAL(_SIG_OVERFLOW2)
 {
-  if(update_table == 1){
-    uint8_t i;
-    for (i=0; i < length; i++) {
-      i_timetable[i][0] = timetable[i][0];
-      i_timetable[i][1] = timetable[i][1];
+  if(update_table == 1)
+    {
+      uint8_t i;
+      for (i = 0; i < length; i ++)
+	{
+	  i_timetable[i][0] = timetable[i][0];
+	  i_timetable[i][1] = timetable[i][1];
+	}
+
+      i_length = length;
+      i_overflow_mask = overflow_mask;
+      //now = 0;
+      update_table = 0;
     }
-    i_length = length;
-    i_overflow_mask = overflow_mask;
-    update_table = 0;
-  }
   _OUTPUT_COMPARE_REG2 = i_timetable[0][0];
-  if (! _OUTPUT_COMPARE_REG2)
+  if(! _OUTPUT_COMPARE_REG2)
     _OUTPUT_COMPARE_REG2 = i_timetable[1][0];
   now = 0;
-
   STELLA_PORT |= i_overflow_mask;
 }
 
@@ -85,13 +88,17 @@ stella_sort(uint8_t color[])
   uint8_t y;
   uint8_t x = 0;
   uint8_t temp[STELLA_PINS][2];
-
+  overflow_mask = 0;
   /* Schauen ob schon vorhanden */
   for (i = 0; i < STELLA_PINS; i ++)
     {
       temp[i][0] = 0;
       temp[i][1] = 0;
       uint8_t vorhanden = 0;
+      /* Overflow_mask neu bilden */
+      if (color[i] != 0){
+        overflow_mask |= 1 << (i + STELLA_OFFSET);
+
       for (y = 0; y < x; y ++)
 	{
 	  if (color[i] == temp[y][0])
@@ -103,6 +110,7 @@ stella_sort(uint8_t color[])
 	  temp[x][0] = color[i];
 	  x ++;
 	}
+      }
     }
 
   /* Sotieren */
@@ -146,11 +154,10 @@ stella_sort(uint8_t color[])
 
   length = x;
 
-  /* Overflow_mask neu bilden */
-  overflow_mask = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
-
   if (timetable[0][0] == 0)
     overflow_mask &= ~timetable[0][1];
+  if (timetable[i_length - 1][0] == 0xff)
+    i_length--;
 
   update_table = 1;
 }
