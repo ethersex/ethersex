@@ -38,3 +38,13 @@ $(TOPDIR)/config.mk:
 	@echo "#MCU = $(MCU)" >> $@
 	@echo "created default config.mk, tune your settings there!"
 -include $(TOPDIR)/config.mk
+
+
+##############################################################################
+# configure load address for bootloader, if enabled
+#
+include $(TOPDIR)/.config
+ifeq ($(BOOTLOADER_SUPPORT),y)  
+LDFLAGS += -Wl,--section-start=.text=0xE000
+CFLAGS  += -mcall-prologues
+endif
