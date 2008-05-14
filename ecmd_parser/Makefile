@@ -8,6 +8,7 @@ SRC = \
 	ecmd.c 		\
 	fs20.c		\
 	hd44780.c	\
+	modbus.c	\
 	network.c	\
 	onewire.c	\
 	portio.c	\

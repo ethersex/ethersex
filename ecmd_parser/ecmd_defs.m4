@@ -181,6 +181,10 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_ifdef(USART_SUPPORT)
     ecmd_feature(usart_baud, "usart baud")
   ecmd_endif()
+
+  ecmd_ifdef(MODBUS_SUPPORT)
+    ecmd_feature(modbus_recv, "mb recv ")
+  ecmd_endif()
 ecmd_endif()
 
 divert(3)dnl
