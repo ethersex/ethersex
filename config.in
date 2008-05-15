@@ -230,11 +230,12 @@ else
     fi
 
     bool "Beacon mode" RFM12_BEACON_SUPPORT
-    if [ "$RFM12_BEACON_SUPPORT" = "y" ]; then
-      int "Beacon ID" CONF_RFM12_BEACON_ID 23
-    fi
 
     if [ "$ENC28J60_SUPPORT" = "y" ]; then
+      if [ "$RFM12_BEACON_SUPPORT" = "y" ]; then
+        int "Beacon ID" CONF_RFM12_BEACON_ID 23
+      fi
+
       if [ "$IPV6_SUPPORT" = "y" ]; then
 	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
 	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
