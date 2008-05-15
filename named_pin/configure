@@ -8,7 +8,7 @@ $AWK --version 2>/dev/null | grep -q GNU || {
 }
 
 main_menu() {
-  dialog --menu "Named Pins" 0 50 0 \
+  dialog --cancel-label Exit --menu "Named Pins" 0 50 0  \
     ADD  'Add an Pin' \
     LIST 'List Pins' \
     EDIT 'Edit an Pin' \
