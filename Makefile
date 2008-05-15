@@ -36,7 +36,7 @@ ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),mrproper)
 
-.subdirs: .config
+.subdirs: autoconf.h
 	$(RM) -f $@
 	(for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
 	  test -d $$subdir && echo "SUBDIRS += $$subdir" ; \
