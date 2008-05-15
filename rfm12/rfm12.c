@@ -31,6 +31,7 @@
 #include "rfm12.h"
 #include "../net/rfm12_raw_net.h"
 #include "../crypto/encrypt-llh.h"
+#include "../syslog/syslog.h"
 
 #ifdef RFM12_BEACON_SUPPORT
 /* On the bridge-side this is the ID assigned to the beacon (read: bridge),
@@ -329,7 +330,7 @@ rfm12_rxfinish(uint8_t *data)
 uint8_t 
 rfm12_txstart(uint8_t *data, uint8_t size)
 {
-  uint8_t i, l;
+  uint8_t i;
 
   if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)){
     RFM12_ret_platz = TX_START_1;
