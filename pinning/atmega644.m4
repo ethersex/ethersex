@@ -25,12 +25,24 @@ pin(SPI_MISO, PB6)
 pin(SPI_SCK, PB7)
 
 ifdef(`conf_RFM12', `dnl
+dnl
+dnl Ancient zerties.org RFM12 pinout:
+dnl   chip select: PC3
+dnl   tx-led: 	   PD4
+dnl   rx-led:	   PD5
+dnl   interrupt:   INT0
+dnl
+dnl Configuration suggest for Etherrape hardware
+dnl (all pins available at SPI connector)
+dnl 
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PC3)
+  pin(SPI_CS_RFM12, PB0)
 
   /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, PD4)
-  pin(RFM12_RX_PIN, PD5)
+  pin(RFM12_TX_PIN, PB3)
+  pin(RFM12_RX_PIN, PB1)
+
+  RFM12_USE_INT(2)
 ')
 
 ifdef(`conf_ZBUS', `dnl

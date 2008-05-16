@@ -36,6 +36,8 @@ ifdef(`conf_RFM12', `dnl
   /* port the LEDS for rfm12 txrx attached to */
   pin(RFM12_TX_PIN, PD6)
   pin(RFM12_RX_PIN, PD7)
+
+  RFM12_USE_INT(0)
 ')
 
 ifdef(`conf_ZBUS', `dnl

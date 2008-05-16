@@ -51,6 +51,12 @@ dnl
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
 ')
 
+define(`RFM12_USE_INT', `dnl
+/* rfm12 module interrupt line */
+#define RFM12_INT_PIN INT$1
+#define RFM12_INT_SIGNAL SIG_INTERRUPT$1
+')
+
 define(`STELLA_PORT_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl

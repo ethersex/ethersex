@@ -47,16 +47,6 @@
    Have a look there for MCU specific configuration options. */
 #include "pinning.c"
 
-
-/* rfm12 module interrupt line */
-#ifndef RFM12_INT_PIN 
-#define RFM12_INT_PIN INT0
-#endif
-
-#ifndef RFM12_INT_SIGNAL
-#define RFM12_INT_SIGNAL SIG_INTERRUPT0
-#endif
-
 /* ps/2 interrupts */
 #define PS2_PCMSK PCMSK0
 #define PS2_PCIE PCIE0
