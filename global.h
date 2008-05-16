@@ -38,6 +38,7 @@ typedef struct {
 
     uint8_t request_bootloader :1;
     uint8_t request_reset      :1;
+    uint8_t request_wdreset    :1;
 } global_config_t;
 
 extern global_config_t cfg;

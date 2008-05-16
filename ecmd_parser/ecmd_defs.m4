@@ -86,6 +86,7 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_endif()
 
   ecmd_feature(reset, "reset")
+  ecmd_feature(wdreset, "wdreset")
 ecmd_endif()
 
 ecmd_feature(bootloader, "bootloader")

@@ -307,6 +307,14 @@ int main(void)
             jump_to_bootloader();
         }
 
+#ifndef TEENSY_SUPPORT
+	if(cfg.request_wdreset) {
+	    cli();
+	    wdt_enable(WDTO_15MS);
+	    for(;;);
+	}
+#endif
+
         if(cfg.request_reset) {
             cli();
 
