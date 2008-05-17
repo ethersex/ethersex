@@ -40,7 +40,7 @@ uint8_t named_pin_by_pin(uint8_t port, uint8_t pin);
 
 #ifdef NAMED_PIN_SUPPORT
 #ifndef NAMED_PIN_PGM
-const extern struct PinConfiguration portio_pincfg[];
+extern const struct PinConfiguration portio_pincfg[];
 #endif
 #endif
 
