@@ -1,0 +1,70 @@
+#! /usr/bin/perl -w
+use strict;
+use Data::Hexdumper;
+
+my %symbols;
+
+### preinitialize symbol table, suitable for ATmega644
+%symbols = (
+  0x00	=> { len => 0x20, name => "registers" },
+  0x20	=> { len => 0x03, name => "I/O Port A (pin/ddr/port)" },
+  0x23	=> { len => 0x03, name => "I/O Port B (pin/ddr/port)" },
+  0x26	=> { len => 0x03, name => "I/O Port C (pin/ddr/port)" },
+  0x29	=> { len => 0x03, name => "I/O Port D (pin/ddr/port)" },
+  0x3f	=> { len => 0x04, name => "EEPROM Registers (control/data/addr-low/addr-high)" },
+  0x50  => { len => 0x01, name => "ACSR" },
+  0x58  => { len => 0x05, name => "<reserved>" },
+  0x78  => { len => 0x02, name => "ADC Data Register (low/high)" },
+  0x84  => { len => 0x02, name => "Counter Register 1 (low/high)" },
+  0x86  => { len => 0x02, name => "Input Capture Register (low/high)" },
+  0x88  => { len => 0x02, name => "Output Compare Register 1A (low/high)" },
+  0x8a  => { len => 0x02, name => "Output Compare Register 1B (low/high)" },
+);  
+
+
+
+
+open GCC, "avr-nm -S ethersex |" or die;
+while (<GCC>) {
+  # 00800265 0000002c B vport
+  if (m/^008([0-9a-f]+) ([0-9a-f]+) [bBdD] ([a-zA-Z0-9_\.]+)$/) {
+    $symbols{hex($1)} = { len => hex($2), name => $3 };
+  }
+}
+close GCC or die;
+
+printf "read %d symbols using avr-nm.\n", scalar(keys(%symbols));
+
+my $bytes = "";
+while (<>) {
+  # 0000: a1000202020231001300e803c9180000
+  if (m/^([0-9a-f]+): ([0-9a-f]{32})$/) {
+    my $offset = hex($1);
+    for my $i (0..15) { substr($bytes, $offset + $i, 1) = chr(hex(substr($2, $i * 2, 2))); }
+  }
+}
+
+printf "memory dump is %d bytes long.\n", length($bytes);
+
+my $dumped = 0;
+foreach (sort { $a <=> $b } keys %symbols) {
+  if ($dumped < $_) {
+    printf "[%04x] <unknown>\n", $dumped;
+    print hexdump(data => $bytes, start_position => $dumped, 
+                  end_position => $_ - 1);
+  }
+
+  printf "[%04x] %-30s(%d bytes)\n", $_, $symbols{$_}{name}, $symbols{$_}{len};
+
+  $dumped = $_ + $symbols{$_}{len};
+  print hexdump(data => $bytes, start_position => $_, 
+                end_position => $dumped - 1);
+  
+}
+
+$_ = length($bytes) + 1;
+if ($dumped < $_) {
+  printf "[%04x] <unknown>\n", $dumped;
+  print hexdump(data => $bytes, start_position => $dumped, 
+		end_position => $_ - 1);
+}

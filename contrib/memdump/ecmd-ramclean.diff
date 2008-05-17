@@ -1,0 +1,36 @@
+diff --git a/ecmd_parser/ecmd.c b/ecmd_parser/ecmd.c
+index 1abfe17..b24c42a 100644
+--- a/ecmd_parser/ecmd.c
++++ b/ecmd_parser/ecmd.c
+@@ -162,6 +162,19 @@ int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
+     return 0;
+ } /* }}} */
+ 
++int16_t parse_cmd_ramclean(char *cmd, char *output, uint16_t len)
++/* {{{ */ {
++    unsigned char *ptr = NULL;
++
++    for (uint16_t i = 0x100; i <= RAMEND; i ++)
++        ptr[i] = 0x23;
++
++    void (* reset)(void) = NULL;
++    reset();
++
++    return 0;
++} /* }}} */
++
+ int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
+ /* {{{ */ {
+     (void) len;
+diff --git a/ecmd_parser/ecmd_defs.m4 b/ecmd_parser/ecmd_defs.m4
+index 602d46d..9ba5b47 100644
+--- a/ecmd_parser/ecmd_defs.m4
++++ b/ecmd_parser/ecmd_defs.m4
+@@ -87,6 +87,7 @@ ecmd_ifndef(TEENSY_SUPPORT)
+ 
+   ecmd_feature(reset, "reset")
+   ecmd_feature(wdreset, "wdreset")
++  ecmd_feature(ramclean, "ramclean")
+ ecmd_endif()
+ 
+ ecmd_feature(bootloader, "bootloader")
