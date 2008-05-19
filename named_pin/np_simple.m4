@@ -99,3 +99,13 @@ np_simple_implement_in(np_simple_in_$2, $1, `INVERT')
 ecmd_feature(np_simple_toggle_$2, "pin toggle $2")
 np_simple_implement_toggle(np_simple_toggle_$2, $1, `INVERT')
 ')
+
+define(`np_simple_normal_in', `
+ecmd_feature(np_simple_in_$2, "pin get $2")
+np_simple_implement_in(np_simple_in_$2, $1, `')
+')
+
+define(`np_simple_inverted_in', `
+ecmd_feature(np_simple_in_$2, "pin get $2")
+np_simple_implement_in(np_simple_in_$2, $1, `INVERT')
+')
