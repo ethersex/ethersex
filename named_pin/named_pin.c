@@ -34,10 +34,10 @@
 #include "../uip/uip.h"
 #include "../portio.h"
 
+#ifdef PORTIO_SUPPORT
+
 #include "named_pin.h"
 #include "user_config.h"
-
-#ifdef NAMED_PIN_SUPPORT
 
 void
 named_pin_init(void)
@@ -100,5 +100,5 @@ named_pin_by_pin(uint8_t port, uint8_t pin)
 }
 /* }}} */
 
-#endif
+#endif /* PORTIO_SUPPORT */
 
