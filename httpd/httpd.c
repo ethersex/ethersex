@@ -47,11 +47,13 @@ char PROGMEM httpd_header_200[] =
 /* }}} */
 
 #ifdef ECMD_PARSER_SUPPORT
-char PROGMEM httpd_header_200_plain[] =
+char PROGMEM httpd_header_200_ecmd[] =
 /* {{{ */
 /* Please note: this is the _whole_ header, no content-length must follow */
 "HTTP/1.1 200 OK\n"
 "Connection: close\n"
+"Cache-Control: no-cache\n"
+"Cache-Control: must-revalidate\n"
 "Content-Type: text/plain; charset=iso-8859-1\n\n";
 /* }}} */
 #endif
@@ -119,7 +121,7 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
     else if (strncmp_P(state->buffer, PSTR(ECMD_INDEX "?"), 
                   strlen_P(PSTR(ECMD_INDEX "?"))) == 0) {
       /* ecmd interface */
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200_plain);
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200_ecmd);
 
         char *ptr = state->buffer + strlen_P(PSTR(ECMD_INDEX "?"));
         /* This buffer is used to save the command buffer, because we have to

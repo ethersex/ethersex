@@ -324,7 +324,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
 #endif /* PORTIO_SIMPLE_SUPPORT */
 
 
-#ifdef NAMED_PIN_SUPPORT
+#if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint16_t port, pin;
@@ -447,5 +447,5 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
     return -1;
 }
 /* }}} */
-#endif /* NAMED_PIN_SUPPORT */
+#endif /* NAMED_PIN_SUPPORT && PORTIO_SUPPORT */
 
