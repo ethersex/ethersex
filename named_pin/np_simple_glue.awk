@@ -7,7 +7,7 @@ BEGIN {
   print "dnl"
 }
 {
-  if ($3 == 0) {
+  if ($3 == 1) {
     if ($2 == 1) {
       # The pin is a normal (i.e. non-inverted) input pin.
       print "np_simple_normal_in("$1","$4")"
