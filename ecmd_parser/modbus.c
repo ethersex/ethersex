@@ -70,7 +70,7 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
   }
 
   if (STATE(&mb_conn).len == 0)
-    return snprintf_P(output, len, PSTR("modbus_error: no answer"));
+    return snprintf_P(output, len, PSTR("modbus error: no answer"));
 
   uint16_t crc = modbus_crc_calc(STATE(&mb_conn).data, STATE(&mb_conn).len - 2);
   uint16_t crc_recv = 
