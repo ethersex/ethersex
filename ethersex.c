@@ -219,6 +219,8 @@ int main(void)
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
+#elif defined(NAMED_PIN_SUPPORT)
+    np_simple_init();
 #endif 
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));

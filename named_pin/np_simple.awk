@@ -9,7 +9,7 @@ BEGIN {
   print "#include <avr/io.h>"
   print 
   print "void"
-  print "named_pin_init(void)"
+  print "np_simple_init(void)"
   print "{"
 }
 
