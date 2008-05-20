@@ -300,9 +300,9 @@ else
 
   choice "I/O abstraction model (Port I/O)" \
 	  "None					CONFIG_IO_NONE		\
-	   Normal				PORTIO_SUPPORT		\
-	   Simple				PORTIO_SIMPLE_SUPPORT"	\
-	  Normal
+	   Simple				PORTIO_SIMPLE_SUPPORT	\
+	   Full-featured			PORTIO_SUPPORT"		\
+	  Simple
   dep_bool "HC595 output expansion" HC595_SUPPORT $CONFIG_EXPERIMENTAL $PORTIO_SUPPORT
   if [ "$HC595_SUPPORT" = "y" ]; then
     int "Number of HC595 registers" HC595_REGISTERS 5
