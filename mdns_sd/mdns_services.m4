@@ -76,7 +76,7 @@ mdns_ifdef(ZBUS_SUPPORT)
 mdns_endif()
 
 mdns_ifdef(I2C_SUPPORT)
-  mdns_feature(zbus, "_i2c._bridge.local", "bridge to i2c devices", NULL, 0)
+  mdns_feature(i2c, "_i2c._bridge.local", "bridge to i2c devices", NULL, 0)
 mdns_endif()
 
 mdns_ifdef(NTPD_SUPPORT)
