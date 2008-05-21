@@ -56,6 +56,8 @@ static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value
 #endif
 } /* }}} */
 
+
+#ifdef PORTIO_SUPPORT
 static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
 /* {{{ */ {
 #ifndef TEENSY_SUPPORT
@@ -89,7 +91,6 @@ static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_
 } /* }}} */
 
 
-#ifdef PORTIO_SUPPORT
 int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) output;
