@@ -133,3 +133,6 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
+ecmd_ifdef(HTTPD_AUTH_SUPPORT)
+  ecmd_feature(http_passwd, "http passwd")
+ecmd_endif()

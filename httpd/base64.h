@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2008 Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,31 +20,4 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _HTTPD_STATE_H
-#define _HTTPD_STATE_H
-
-#include "../dataflash/fs.h"
-#include "../config.h"
-
-typedef enum {
-    HTTPD_STATE_CLOSED = 0,
-    HTTPD_STATE_IDLE,
-} http_state_t;
-
-struct httpd_connection_state_t {
-    http_state_t state;
-    uint8_t timeout;
-    char buffer[40];
-    char name[10];
-    struct psock in, out;
-    fs_inode_t inode;
-    fs_size_t offset;
-
-    char *tmp_buffer;
-#ifdef ECMD_PARSER_SUPPORT
-    uint8_t parse_again;
-#endif
-};
-
-
-#endif
+void base64_str_decode(char *str); 

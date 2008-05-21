@@ -21,6 +21,7 @@
  }}} */
 
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,8 +30,11 @@
 #include "../pt/pt.h"
 #include "../uip/psock.h"
 #include "httpd.h"
+#include "base64.h"
 #include "../dataflash/fs.h"
+#include "../eeprom.h"
 #include "../ecmd_parser/ecmd.h"
+#include "../config.h"
 
 #ifdef DEBUG_HTTPD
 #include "uart.h"
@@ -56,7 +60,7 @@ char PROGMEM httpd_header_200_ecmd[] =
 "Cache-Control: must-revalidate\n"
 "Content-Type: text/plain; charset=iso-8859-1\n\n";
 /* }}} */
-#endif
+#endif /* ECMD_PARSER_SUPPORT */
 
 char PROGMEM httpd_header_400[] =
 /* {{{ */
@@ -64,7 +68,23 @@ char PROGMEM httpd_header_400[] =
 "Connection: close\n"
 "Content-Type: text/plain; charset=iso-8859-1\n";
 
+#ifdef HTTPD_AUTH_SUPPORT
+char PROGMEM httpd_header_401[] =
+/* {{{ */
+"HTTP/1.1 401 UNAUTHORIZED\n"
+"Connection: close\n"
+"WWW-Authenticate: Basic realm=\"Secure Area\"\n"
+"Content-Type: text/plain; charset=iso-8859-1\n";
+/*}}}*/
+
+char PROGMEM httpd_body_401[] =
+/*{{{*/
+"Authentification required\n";
+/*}}}*/
+#endif /* HTTPD_AUTH_SUPPORT */
+
 char PROGMEM httpd_body_400[] =
+/*{{{*/
 "Bad Request\n";
 /* }}} */
 
@@ -115,30 +135,70 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
     PSOCK_READTO(&state->in, '/');
     PSOCK_READTO(&state->in, ' ');
 
-    if (state->buffer[0] == ' ')
+    /* This buffer is used to hold the requested url */
+    state->buffer[PSOCK_DATALEN(&state->in) - 1] = 0;
+    state->tmp_buffer = malloc(strlen(state->buffer) + 1);
+    if (! state->tmp_buffer) 
+        PSOCK_CLOSE_EXIT(&state->in);
+    strcpy(state->tmp_buffer, state->buffer);
+
+#ifdef HTTPD_AUTH_SUPPORT
+
+    /* Consume the get line */
+    PSOCK_READTO(&state->in, '\n');
+
+    do {
+      PSOCK_READTO(&state->in, '\n');
+      state->buffer[PSOCK_DATALEN(&state->in) - 1] = 0;
+      if (strncmp_P(state->buffer, PSTR("Authorization"), 13) == 0) {
+        char *p = strstr(state->buffer, "Basic ");
+        if (!p) goto auth_failed;
+        (&state->in)->readptr[-1] = 0;
+        p = (char *)(&state->in)->readptr;
+        while (*p != ' ') p--;
+
+        base64_str_decode(p+1);
+        if (strncmp_P(p + 1, PSTR(CONF_HTTPD_USERNAME ":"), 
+                      strlen(CONF_HTTPD_USERNAME ":")) != 0)
+            goto auth_failed;
+        char passwd[sizeof(((struct eeprom_config_ext_t *)0)->httpd_auth_password)];
+        eeprom_read_block(passwd, &(((struct eeprom_config_ext_t *)
+                          EEPROM_CONFIG_EXT)->httpd_auth_password),
+                          sizeof(passwd));
+        if (strncmp(passwd, p + 1 + strlen(CONF_HTTPD_USERNAME ":"), 
+                    sizeof(passwd)) != 0)
+                goto auth_failed;
+        goto auth_success;
+
+      }
+    } while (PSOCK_DATALEN(&state->in) > 2);
+
+auth_failed:    
+    /* Authentification is required */
+    PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_401);
+    PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+    PSOCK_GENERATOR_SEND(&state->in, send_length_P, httpd_body_401);
+    PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_401);
+    PSOCK_CLOSE_EXIT(&state->in);
+auth_success:
+#endif /* HTTPD_AUTH_SUPPORT */
+
+    if (state->tmp_buffer[0] == ' ')
         strncpy_P(state->name, PSTR(HTTPD_INDEX), sizeof(state->name));
 #ifdef ECMD_PARSER_SUPPORT
-    else if (strncmp_P(state->buffer, PSTR(ECMD_INDEX "?"), 
+    else if (strncmp_P(state->tmp_buffer, PSTR(ECMD_INDEX "?"), 
                   strlen_P(PSTR(ECMD_INDEX "?"))) == 0) {
       /* ecmd interface */
         PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200_ecmd);
 
-        char *ptr = state->buffer + strlen_P(PSTR(ECMD_INDEX "?"));
-        /* This buffer is used to save the command buffer, because we have to
-         * call ecmd_parse_command more than once, e.g. with `fs list' 
-         */
-        state->tmp_buffer =
-          malloc(strlen(state->buffer) - strlen_P(PSTR(ECMD_INDEX "?")));
-
-        if (! state->tmp_buffer) 
-          PSOCK_CLOSE_EXIT(&state->in);
+        char *ptr = state->tmp_buffer + strlen_P(PSTR(ECMD_INDEX "?"));
         char *insert = state->tmp_buffer;
 
         while (*ptr) {
           if (*ptr == '+')
             *insert = ' ';
           else if (*ptr == '%') {
-            uint8_t data, tmp = ptr[3];
+            uint8_t tmp = ptr[3];
             ptr[3] = 0;
             *insert = strtol(ptr + 1, NULL, 16);
             ptr[3] = tmp;
@@ -149,7 +209,7 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
           insert++;
           ptr++;
         }
-        insert[-1] = 0;
+        insert[0] = 0;
 
         /* the ecmd parser call, this call maybe repeated */
         int16_t len;
@@ -176,12 +236,11 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
     }
 #endif
     else {
-        strncpy(state->name, state->buffer, sizeof(state->name));
-        if (PSOCK_DATALEN(&state->in) < sizeof(state->name))
-            state->name[PSOCK_DATALEN(&state->in)-1] = '\0';
-        else
+        strncpy(state->name, state->tmp_buffer, sizeof(state->name));
+        if (strlen(state->tmp_buffer) >= sizeof(state->name))
             state->name[sizeof(state->name)-1] = '\0';
     }
+    free(state->tmp_buffer);
 
 #ifdef DEBUG_HTTPD
     uart_puts_P("fs: httpd: request for file \"");

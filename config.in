@@ -333,6 +333,11 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
   bool "uIP Proto-Sockets" PSOCK_SUPPORT
   dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT
+  dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
+  if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
+    string "Username" CONF_HTTPD_USERNAME "admin"
+    string "Default Password" CONF_HTTPD_PASSWORD "admin"
+  fi
 
   endmenu
 fi

@@ -100,6 +100,13 @@ int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
     if (new_cfg->usart_baudrate != 0)
       cfg_ext.usart_baudrate = new_cfg->usart_baudrate;
 #endif
+#if defined(HTTPD_AUTH_SUPPORT)
+    if (new_cfg->httpd_auth_password[0] != 0) {
+      memcpy(cfg_ext.httpd_auth_password, new_cfg->httpd_auth_password, 
+             sizeof(new_cfg->httpd_auth_password) - 1);
+      cfg_ext.httpd_auth_password[sizeof(new_cfg->httpd_auth_password) - 1] = 0;
+    }
+#endif
 
 
     /* calculate new checksum */

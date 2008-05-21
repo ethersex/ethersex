@@ -215,6 +215,12 @@ void network_init(void)
         cfg_ext->usart_baudrate = ZBUS_BAUDRATE;
 #       endif
 
+#       if defined(HTTPD_AUTH_SUPPORT)
+        strncpy_P(cfg_ext->httpd_auth_password, PSTR(CONF_HTTPD_PASSWORD), 
+                        sizeof(cfg_ext->httpd_auth_password) - 1);
+        cfg_ext->httpd_auth_password[sizeof(cfg_ext->httpd_auth_password) - 1] = 0;
+#       endif
+
 #       ifndef BOOTLOADER_SUPPORT        
         /* calculate new checksum */
         checksum = crc_checksum(buf, sizeof(struct eeprom_config_ext_t) - 1);

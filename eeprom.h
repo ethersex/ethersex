@@ -62,6 +62,9 @@ struct eeprom_config_ext_t {
 #if defined(USART_SUPPORT)
     uint16_t usart_baudrate;
 #endif
+#if defined(HTTPD_AUTH_SUPPORT)
+    char httpd_auth_password[9];
+#endif
 
     uint8_t crc;
 };
