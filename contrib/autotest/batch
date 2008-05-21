@@ -1,0 +1,12 @@
+#! /bin/sh
+
+[ -e config.in ] || {
+  echo "$0: This script has to be run from the Ethersex root directory."
+  exit 1
+}
+
+git pull --quiet origin  >/dev/null  || exit 2
+
+for A in defconfig contrib/autotest/profiles/*; do
+  ./contrib/autotest/mailwrap "$A"
+done

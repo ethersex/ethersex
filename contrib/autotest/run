@@ -1,0 +1,50 @@
+#! /bin/sh
+unset LANG
+
+[ -e config.in ] || {
+  echo "$0: This script has to be run from the Ethersex root directory."
+  exit 1
+}
+
+[ "x$1" = "x" ] && {
+  echo "$0: You have to run me with a config file as argument."
+  exit 1
+}
+
+[ "x$1" = "x.config" ] || {
+  # we need to copy the file first
+  [ -e "$1" ] || {
+    echo "$0: Cannot access file: $1"
+    exit 1
+  }
+
+  cp -f "$1" .config
+}
+
+# re-generate autoconf.h
+rm -f autoconf.h
+echo -ne "\t\n\n" | make no_deps=t menuconfig
+[ -e autoconf.h ] || {
+  echo "$0: failed to generate autoconf.h file."
+  exit 1
+}
+
+make no_deps=t clean 2> /dev/null
+
+# generate .subdirs file
+rm -f .subdirs
+make no_deps=t .subdirs
+[ -e .subdirs ] || {
+  echo "$0: failed to generate .subdirs file."
+  exit 1
+}
+
+make
+[ -e ethersex.bin ] || {
+  echo "$0: failed to generate ethersex.bin file."
+  exit 1
+}
+
+echo ""
+echo " Looks good!"
+echo ""
