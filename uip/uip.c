@@ -1099,7 +1099,8 @@ uip_process(u8_t flag)
 
        We need to send a beacon ID byte, however we don't initialize it,
        since the packet is sent towards the rfm12 network. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN - 1], uip_len + 1);
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN - RFM12_BEACON_LEN], 
+                  uip_len + RFM12_BEACON_LEN);
     goto drop;
   }
   else
