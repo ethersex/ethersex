@@ -27,8 +27,10 @@
 #include "uip_arp.h"
 #include "uip_neighbor.h"
 
+#include "../ipv6.h"
 #include "../network.h"
 #include "../rfm12/rfm12.h"
+#include "../zbus/zbus.h"
 
 #if defined(ENC28J60_SUPPORT) || defined(RFM12_SUPPORT)
 
