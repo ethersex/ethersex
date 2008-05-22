@@ -59,6 +59,12 @@ divert(2)#ifndef $1
 divert(3)#ifndef $1
 divert(-1)')
 
+define(`ecmd_else', `dnl
+divert(1)#else
+divert(2)#else
+divert(3)#else
+divert(-1)')
+
 define(`ecmd_endif', `divert(1)#endif
 divert(2)#endif
 divert(3)#endif

@@ -2,7 +2,7 @@
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -165,7 +165,8 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif /* ENC28J60_SUPPORT */
 
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+#if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))		\
+  || defined(IPV6_STATIC_SUPPORT) || defined(OPENVPN_SUPPORT)
 int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     uip_ipaddr_t hostaddr;
@@ -179,7 +180,7 @@ int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 
     return eeprom_save_config(NULL, &hostaddr, NULL, NULL);
 } /* }}} */
-#endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+#endif /* IPv4-static || IPv6-static || OpenVPN */
 
 #if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
 int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)

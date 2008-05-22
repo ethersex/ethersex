@@ -25,7 +25,17 @@ ecmd_ifndef(TEENSY_SUPPORT)
       ecmd_feature(ip, "ip ")
       ecmd_feature(netmask, "netmask ")
       ecmd_feature(gw, "gw ")
+    ecmd_else()
+      ecmd_ifdef(OPENVPN_SUPPORT)
+        dnl OpenVPN-capable Ethersex with IPv4 enabled, configuring OpenVPN
+	dnl outer-IP using BOOTP
+        ecmd_feature(ip, "ip ")
+      ecmd_endif()
     ecmd_endif()
+  ecmd_endif()
+
+  ecmd_ifdef(IPV6_SUPPORT)
+    ecmd_feature(ip, "ip ")
   ecmd_endif()
 
   ecmd_feature(reset, "reset")
