@@ -1,5 +1,4 @@
 #! /bin/sh
-FROMADDR="stesie@spielplatz.metafnord.de"
 TOADDR="ethersex-devel@list.zerties.org"
 CFLAGS="-Wall -W -Wno-unused-parameter -Wno-uninitialized -Wno-pointer-sign  -Wno-missing-field-initializers"
 
@@ -43,7 +42,6 @@ fi
 #gzip --best $stdout
 
 (cat <<EOF
-From: $FROMADDR
 To: $TOADDR
 Subject: [Ethersex Autotest] $SUBJ: $1
 X-Generator: $0
