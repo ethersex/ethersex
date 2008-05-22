@@ -245,9 +245,11 @@ u16_t lastport;              /* Keeps track of the last port used for
 #endif /* UIP_ACTIVE_OPEN */
 
 /* Temporary variables. */
-static u8_t uip_acc32[4];
-static u8_t c, opt;
+static u8_t c;
+#if UIP_TCP
+static u8_t opt;
 static u16_t tmp16;
+#endif
 
 /* Structures and definitions. */
 #define TCP_FIN 0x01
@@ -302,7 +304,10 @@ void uip_log(char *msg);
 #define UIP_LOG(m)
 #endif /* UIP_LOGGING == 1 */
 
-#if ! UIP_ARCH_ADD32
+#if ! UIP_ARCH_ADD32 && UIP_TCP
+/* Temporary variable */
+static u8_t uip_acc32[4];
+
 static void noinline
 uip_add32(u8_t *op32, u16_t op16)
 {
@@ -329,7 +334,7 @@ uip_add32(u8_t *op32, u16_t op16)
     }
   }
 }
-#endif /* UIP_ARCH_ADD32 */
+#endif /* ! UIP_ARCH_ADD32 && UIP_TCP*/
 
 #if ! UIP_ARCH_CHKSUM
 /*---------------------------------------------------------------------------*/
@@ -561,7 +566,9 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   register uip_udp_conn_t *conn;
   
   /* Find an unused local port. */
+#ifndef TEENSY_SUPPORT
  again:
+#endif
   ++lastport;
 
   if(lastport >= 32000) {
@@ -818,8 +825,6 @@ uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
 void
 uip_process(u8_t flag)
 {
-  register uip_conn_t *uip_connr = uip_conn;
-
 #if UIP_UDP
   if(flag == UIP_UDP_SEND_CONN) {
     goto udp_send;
@@ -829,6 +834,8 @@ uip_process(u8_t flag)
   uip_sappdata = uip_appdata = &uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN];
 
 #if UIP_TCP
+  register uip_conn_t *uip_connr = uip_conn;
+
   /* Check if we were invoked because of a poll request for a
      particular connection. */
   if(flag == UIP_POLL_REQUEST) {
