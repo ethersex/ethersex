@@ -92,18 +92,22 @@ void network_init(void)
 
     uip_stack_set_active(STACK_MAIN);
 
-    uip_ipaddr_t ipaddr, ip;
-
-    /* use uip buffer as generic space here, since when this function is called,
-     * no network packets will be processed */
-    void *buf = uip_buf;
-
+#if !defined(BOOTLOADER_SUPPORT)
+    uip_ipaddr_t ip;
+#endif
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("net: loading base network settings\n");
 #   endif
 
 #   ifdef ENC28J60_SUPPORT
+    /* use uip buffer as generic space here, since when this function is called,
+     * no network packets will be processed */
+    void *buf = uip_buf;
+
+#if !defined(BOOTLOADER_SUPPORT)
+    uip_ipaddr_t ipaddr;
+#endif
 
     /* use global network packet buffer for configuration */
     eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
@@ -122,7 +126,7 @@ void network_init(void)
         memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
-#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
+#       if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT)) \
   || defined(OPENVPN_SUPPORT)
         CONF_ETHERRAPE_IP;
         uip_sethostaddr(ip);
