@@ -69,6 +69,7 @@ LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
 $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
 	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
+	  $(foreach subdir,$(SUBDIRS),-l$(subdir)) \
 	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
 
 
