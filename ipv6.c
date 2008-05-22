@@ -292,7 +292,9 @@ uip_neighbor_out(void)
   /* Initialize ethernet header. */
   memcpy(ETHBUF->dest.addr, remote_mac->addr.addr, 6);
 
+#ifdef MDNS_SD_SUPPORT
 after_neighbour_resolv:
+#endif
   memcpy(ETHBUF->src.addr, uip_ethaddr.addr, 6);
   ETHBUF->type = HTONS(UIP_ETHTYPE_IP6);
 
