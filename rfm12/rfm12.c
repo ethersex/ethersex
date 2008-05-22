@@ -147,9 +147,7 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       RFM12_i_status = rfm12_trans(0x0000);/* dummy read (get Statusregister) */
 #ifdef SYSLOG_SUPPORT
-      char text[40];
-      snprintf(text, 40, "rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
-      syslog_send(text);
+      syslog_sendf ("rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
 #endif
       /* FIXME what happend */
     }
