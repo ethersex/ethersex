@@ -20,7 +20,7 @@ all: compile-$(TARGET)
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
-	@$(SIZE) -A $(TARGET).hex | grep "\.sec1" | tr -s " " | cut -d" " -f2
+	@stat -c %s ethersex.bin
 	@echo "==============================="
 
 
