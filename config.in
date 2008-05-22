@@ -87,7 +87,7 @@ if [ "$OPENVPN_SUPPORT" = "y" ]; then
   hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
   hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
 
-  if [ "$IPV6_SUPPORT" != "y" ]; then
+  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
     comment "OpenVPN IP configuration"
     ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
     ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
@@ -104,7 +104,7 @@ endmenu
 mainmenu_option next_comment
 comment "Network configuration"
 dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
-if [ "$ENC28J60_SUPPORT" = "y" ]; then
+if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
   dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
 else
   if [ "$IPV6_SUPPORT" = "y" ]; then
@@ -128,8 +128,8 @@ fi
 if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
   comment "Static IPv4 configuration"
   ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
-  ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
-  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+    ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
     ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
   fi
 fi

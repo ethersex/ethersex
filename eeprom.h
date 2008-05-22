@@ -41,7 +41,7 @@ struct eeprom_config_base_t {
     /* IPv4 address to use, for IPv6 we use MAC-based autoconfiguration */
 #if (!UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT)			\
 			|| defined(BOOTP_TO_EEPROM_SUPPORT)))	\
-  || defined(OPENVPN_SUPPORT) || (UIP_CONF_IPV6 && !defined(ENC28J60_SUPPORT))
+  || defined(OPENVPN_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
     uint8_t ip[IPADDR_LEN];
 #endif
 

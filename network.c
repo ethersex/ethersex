@@ -127,15 +127,19 @@ void network_init(void)
         memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
 
 #       if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT)) \
-  || defined(OPENVPN_SUPPORT)
+          || defined(IPV6_STATIC_SUPPORT) || defined(OPENVPN_SUPPORT)
         CONF_ETHERRAPE_IP;
         uip_sethostaddr(ip);
+#       ifdef IPV6_STATIC_SUPPORT
+	uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
+#       endif
 #       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
 #       endif
-#       endif
+#       endif  /* IPv4-static || IPv6-static */
 
-#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT))
+#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT) \
+          && !defined(OPENVPN_SUPPORT)
         CONF_ETHERRAPE_IP4_NETMASK;
         uip_setnetmask(ip);
 #       ifndef BOOTLOADER_SUPPORT        
@@ -147,7 +151,7 @@ void network_init(void)
 #       ifndef BOOTLOADER_SUPPORT        
         memcpy(&cfg_base->gateway, &ip, sizeof(uip_ipaddr_t));
 #       endif
-#       endif /* not UIP_CONF_IPV6 and not BOOTP */
+#       endif /* IPv4-static && not OpenVPN */
 
 #       ifndef BOOTLOADER_SUPPORT        
         /* calculate new checksum */
@@ -155,7 +159,8 @@ void network_init(void)
         cfg_base->crc = checksum;
 
         /* save config */
-        eeprom_write_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+        eeprom_write_block(EEPROM_CONFIG_BASE, buf,
+			   sizeof(struct eeprom_config_base_t));
 #       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
@@ -163,33 +168,23 @@ void network_init(void)
         /* load settings from eeprom */
         memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
 
-#       if (!UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)) \
-  || defined(OPENVPN_SUPPORT)
+#       if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT)) \
+          || defined(IPV6_STATIC_SUPPORT) || defined(OPENVPN_SUPPORT)
         memcpy(&ipaddr, &cfg_base->ip, sizeof(uip_ipaddr_t));
         uip_sethostaddr(ipaddr);
+#       ifdef IPV6_STATIC_SUPPORT
+	uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
 #       endif
+#       endif  /* IPv4-static || IPv6-static */
 
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT) \
+          && !defined(OPENVPN_SUPPORT)
         memcpy(&ipaddr, &cfg_base->netmask, 4);
         uip_setnetmask(ipaddr);
         memcpy(&ipaddr, &cfg_base->gateway, 4);
         uip_setdraddr(ipaddr);
-#       endif /* not UIP_CONF_IPV6 and not BOOTP */
-        
-        /* optimized version: FIXME: does this work?
-        memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
-        uip_sethostaddr(&cfg_base->ip);
-        uip_sethostaddr(&cfg_base->netmask);
-        uip_setdraddr(&cfg_base->gateway);
-        */
+#       endif /* IPv4-static && not OpenVPN */
     }
-
-#   if defined(DEBUG_NET_CONFIG) && !UIP_CONF_IPV6
-    debug_printf("ip: %d.%d.%d.%d/%d.%d.%d.%d, gw: %d.%d.%d.%d\n",
-        LO8(uip_hostaddr[0]), HI8(uip_hostaddr[0]), LO8(uip_hostaddr[1]), HI8(uip_hostaddr[1]),
-        LO8(uip_netmask[0]), HI8(uip_netmask[0]), LO8(uip_netmask[1]), HI8(uip_netmask[1]),
-        LO8(uip_draddr[0]), HI8(uip_draddr[0]), LO8(uip_draddr[1]), HI8(uip_draddr[1]));
-#   endif
 
 #   ifndef BOOTLOADER_SUPPORT
     /* load extended network settings */
@@ -232,7 +227,8 @@ void network_init(void)
         cfg_ext->crc = checksum;
 
         /* save config */
-        eeprom_write_block(buf, EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
+        eeprom_write_block(EEPROM_CONFIG_EXT, buf,
+			   sizeof(struct eeprom_config_ext_t));
 #       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
@@ -242,12 +238,11 @@ void network_init(void)
         resolv_conf(&ipaddr);
 #       endif
 
-
     }
 #   endif /* !BOOTLOADER_SUPPORT */
 
-/* Do the autoconfiguration after the MAC is set */
-#   if UIP_CONF_IPV6 && (UIP_CONF_IPV6_LLADDR || !defined(OPENVPN_SUPPORT))
+    /* Do the autoconfiguration after the MAC is set */
+#   if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
     uip_setprefixlen(64);
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
 #   if UIP_CONF_IPV6_LLADDR
@@ -255,22 +250,13 @@ void network_init(void)
 #   endif
 #   endif
 
-#ifdef IPV6_STATIC_SUPPORT
-    /* If we have an static ip6 address, set it and fire tftp if this is
-     * requested */
-    uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
-    CONF_ETHERRAPE_IP;
-    uip_sethostaddr(ip);
-
-# ifdef TFTPOMATIC_SUPPORT
+#   if defined(IPV6_STATIC_SUPPORT) && defined(TFTPOMATIC_SUPPORT)
     const unsigned char *filename = CONF_TFTP_IMAGE;
     CONF_TFTP_IP;
 
     tftp_fire_tftpomatic(&ip, filename);
     bootload_delay = CONF_BOOTLOAD_DELAY;
-# endif /* TFTPOMATIC_SUPPORT */
-
-#endif /* IPV6_STATIC_SUPPORT */
+#   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */
 
 
 #   else /* not ENC28J60_SUPPORT */
