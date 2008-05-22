@@ -62,7 +62,8 @@ int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 	return -1;
 
     resolv_conf (&dnsaddr);
-    struct eeprom_config_ext_t new_cfg = { 0 };
+    struct eeprom_config_ext_t new_cfg;
+    memset(&new_cfg, 0, sizeof(new_cfg));
     memcpy (new_cfg.dns_server, &dnsaddr, sizeof(uip_ipaddr_t));
     return eeprom_save_config_ext (&new_cfg);
 } /* }}} */
