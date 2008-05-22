@@ -329,7 +329,6 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   mainmenu_option next_comment
   comment "work in progress bits (enable with care)"
 
-  dep_bool "DNS-based UDP multicaster" UDP_DNS_MCAST_SUPPORT $DNS_SUPPORT
   bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
   bool "uIP Proto-Sockets" PSOCK_SUPPORT
   dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT
