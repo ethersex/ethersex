@@ -34,7 +34,7 @@ ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_endif()
   ecmd_endif()
 
-  ecmd_ifdef(IPV6_SUPPORT)
+  ecmd_ifdef(IPV6_STATIC_SUPPORT)
     ecmd_feature(ip, "ip ")
   ecmd_endif()
 
