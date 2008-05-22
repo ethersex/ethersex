@@ -36,7 +36,7 @@ if [ -d watchcat ]; then
 fi
 
 # Test if ipv6 is enabled
-grep -q "^#define IPV6_SUPPORT"  ../config.h; ipv6=$?
+grep -q "^#define IPV6_SUPPORT"  ../autoconf.h; ipv6=$?
 
 tmp=`mktemp`
 tmp2=`mktemp`
