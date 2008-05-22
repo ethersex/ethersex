@@ -40,6 +40,7 @@
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"
 #include "modbus/modbus.h"
+#include "zbus/zbus.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
