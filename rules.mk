@@ -7,7 +7,7 @@ OBJECTS += $(patsubst %.c,%.o,${SRC})
 #	$(STRIP) --strip-unneeded $@
 
 clean-common:
-	$(RM) $(TARGET) *.[oda] *.d.new *~
+	$(RM) $(TARGET) *.[odasE] *.d.new *~
 
 clean: clean-common
 
