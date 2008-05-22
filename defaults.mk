@@ -49,3 +49,11 @@ ifeq ($(BOOTLOADER_SUPPORT),y)
 LDFLAGS += -Wl,--section-start=.text=0xE000
 CFLAGS  += -mcall-prologues
 endif
+
+
+%.s: %.c
+	$(CC) -o $@ -O0 $(CPPFLAGS) -S $<
+
+%.E: %.c
+	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
+
