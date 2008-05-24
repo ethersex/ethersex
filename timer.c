@@ -30,6 +30,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "control6/control6.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
@@ -110,6 +111,10 @@ void timer_process(void)
 
 #       ifdef MODBUS_SUPPORT
         modbus_periodic();
+#       endif
+
+#       ifdef CONTROL6_SUPPORT
+        control6_run();
 #       endif
 
         /* check tcp connections every 200ms */

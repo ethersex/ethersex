@@ -41,6 +41,7 @@
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
+#include "control6/control6.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
@@ -173,6 +174,10 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+#ifdef CONTROL6_SUPPORT
+    control6_init();
 #endif
 
 /* Had to be bone after network_init! */
