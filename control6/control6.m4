@@ -98,7 +98,11 @@ define(`TIMER_START', `TIMER_NEW($1)  timers[timer_$1] = clock_get_time();')
 define(`TIMER', `ifdef(`timer_used', `', `dnl
 define(`old_divert', divnum)dnl
 divert(globals_divert)uint32_t act_time;
-divert(normal_start_divert)act_time = clock_get_time();dnl
+#ifndef CLOCK_SUPPORT
+#error Please define clock support
+#endif
+
+divert(normal_start_divert)act_time = clock_get_time();
 define(`timer_used')dnl
 divert(old_divert)')dnl
 (act_time - timers[timer_$1])')
@@ -143,6 +147,27 @@ struct pin_state {
 
 struct pin_state pin_states[] ={
 divert(-1)
+
+################################
+# CLOCK
+################################
+define(`CLOCK_USED', `ifdef(`clock_used', `', `dnl
+define(`old_divert', divnum)
+define(`clock_used')
+divert(globals_divert)struct clock_datetime_t datetime;
+#ifndef CLOCK_SUPPORT
+#error Please define clock support
+#endif
+
+divert(normal_start_divert)  clock_datetime(&datetime, clock_get_time());
+divert(old_divert)')')
+
+define(`CLOCK_MIN', `CLOCK_USED()datetime.min')
+define(`CLOCK_HOUR', `CLOCK_USED()datetime.hour')
+define(`CLOCK_DAY', `CLOCK_USED()datetime.day')
+define(`CLOCK_MONTH', `CLOCK_USED()datetime.month')
+define(`CLOCK_DOW', `CLOCK_USED()datetime.dow')
+define(`CLOCK_YEAR', `CLOCK_USED()datetime.yead')
 
 ###############################
 # Global flags
