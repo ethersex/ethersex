@@ -60,7 +60,7 @@ SIGNAL(_SIG_OUTPUT_COMPARE2)
 
 SIGNAL(_SIG_OVERFLOW2)
 {
-  STELLA_PORT |= i_overflow_mask;
+  STELLA_PORT = i_overflow_mask;
   if(update_table == 1)
     {
       uint8_t i;
