@@ -40,7 +40,7 @@ stella_pwm_init(void)
 {
   /* Normal PWM Mode */
   /* 256 Prescaler */
-  _TCCR2_PRESCALE |= _BV(CS20);
+  _TCCR2_PRESCALE |= _BV(CS21);
   _TCCR2_PRESCALE |= _BV(CS22);
 
   /* Int. bei Overflow und CompareMatch einschalten */
@@ -60,6 +60,7 @@ SIGNAL(_SIG_OUTPUT_COMPARE2)
 
 SIGNAL(_SIG_OVERFLOW2)
 {
+  STELLA_PORT |= i_overflow_mask;
   if(update_table == 1)
     {
       uint8_t i;
@@ -78,7 +79,6 @@ SIGNAL(_SIG_OVERFLOW2)
   if(! _OUTPUT_COMPARE_REG2)
     _OUTPUT_COMPARE_REG2 = i_timetable[1][0];
   now = 0;
-  STELLA_PORT |= i_overflow_mask;
 }
 
 void
