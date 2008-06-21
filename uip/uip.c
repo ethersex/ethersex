@@ -1063,10 +1063,16 @@ uip_process(u8_t flag)
          pass it on. */
       zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
     }
-    else
+  else
 #endif /* ZBUS_SUPPORT */
-    if(!uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr,
-    	                   rfm12_stack_netmask)) {
+#if UIP_CONF_IPV6
+  if(!uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr,
+			      rfm12_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+  if(!uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr,
+			 rfm12_stack_netmask))
+#endif /* !UIP_CONF_IPV6 */
+    {
       /* We're on the rfm12 stack and got a packet not addressed to us.
 	 Pass it on to the ethernet, if the beacon-id sent as the llh byte
 	 matches our station's beacon id. */
@@ -1113,8 +1119,14 @@ uip_process(u8_t flag)
   }
   else
 #endif /* RFM12_SUPPORT */
+#if UIP_CONF_IPV6
+  if(!uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
+			      zbus_stack_prefix_len))
+#else /* !UIP_CONF_IPV6 */
   if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
-  	                 zbus_stack_netmask)) {
+  	                 zbus_stack_netmask))
+#endif /* !UIP_CONF_IPV6 */
+    {
     /* We're on the zbus stack and got a packet not addressed to us.
        Pass it on to the ethernet. */
     uip_stack_set_active (STACK_MAIN);
