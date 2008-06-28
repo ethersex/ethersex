@@ -240,16 +240,16 @@ rfm12_setfreq(unsigned short freq)
 void
 rfm12_setbaud(unsigned short baud)
 {
-  if (baud < 663)
+  if (baud < 7)
     return;
 
   rfm12_prologue ();
 
   /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
-  if (baud < 5400)
-    rfm12_trans(0xC680 | ((43104 / baud) - 1));
+  if (baud < 54)
+    rfm12_trans(0xC680 | ((43104 / baud / 100) - 1));
   else
-    rfm12_trans(0xC600 | ((344828UL / baud) - 1));
+    rfm12_trans(0xC600 | ((344828UL / baud / 100) - 1));
 
   rfm12_epilogue ();
 }

@@ -214,7 +214,7 @@ int main(void)
 #else
     rfm12_setfreq(RFM12FREQ(433.92));
     rfm12_setbandwidth(5, 1, 4);
-    rfm12_setbaud(34482);
+    rfm12_setbaud(345);// is 34500 baud
     rfm12_setpower(0, 2);
 #endif
 
