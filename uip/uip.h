@@ -1618,6 +1618,7 @@ STACK_PROTOTYPES(zbus_stack)
 extern uint8_t fill_llh_and_transmit(void);
 #elif defined(RFM12_SUPPORT)
 #  include "../rfm12/rfm12.h"
+extern uint8_t fill_llh_and_transmit(void);
 #elif defined(ZBUS_SUPPORT)
 #  include "../zbus/zbus.h"
 #  define fill_llh_and_transmit() (zbus_transmit_packet(), 0)

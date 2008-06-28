@@ -104,7 +104,7 @@ int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
                      &data[0], &data[1], &data[2], &data[3],
                      &data[4], &data[5], &data[6], &data[7]);
 
-  if ( ret == 9 && data) {
+  if (ret == 9) {
     hd44780_define_char(n_char, data);
     return 0;
   } else

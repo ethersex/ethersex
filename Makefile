@@ -1,11 +1,11 @@
-TARGET=ethersex
-TOPDIR=.
+TARGET := ethersex
+TOPDIR = .
 
 SRC = \
 	debug.c \
 	eeprom.c \
 	enc28j60.c \
-	etherrape.c \
+	ethersex.c \
 	ipv6.c \
 	network.c \
 	portio.c \
@@ -14,46 +14,13 @@ SRC = \
 	timer.c
 
 
-#SUBDIRS += bootp
-#SUBDIRS += clock
-#SUBDIRS += cron
-#SUBDIRS += crypto
-#SUBDIRS += dcf77
-#SUBDIRS += dns
-#SUBDIRS += dyndns
-SUBDIRS += ecmd_parser
-#SUBDIRS += fs20
-#SUBDIRS += i2c
-SUBDIRS += lcd
-#SUBDIRS += named_pin
-SUBDIRS += net
-#SUBDIRS += ntp
-#SUBDIRS += mdns_sd
-#SUBDIRS += onewire
-#SUBDIRS += ps2
-#SUBDIRS += rc5
-#SUBDIRS += rfm12
-#SUBDIRS += stella
-#SUBDIRS += syslog
-#SUBDIRS += tetrirape
-#SUBDIRS += tftp
-SUBDIRS += uip
-#SUBDIRS += watchcat
-#SUBDIRS += i2c_slave
-#SUBDIRS += hc595
-#SUBDIRS += hc165
-#SUBDIRS += sensormodul
-#SUBDIRS += modbus
-#SUBDIRS += zbus
-#SUBDIRS += yport
-
-
+export TOPDIR
 ##############################################################################
-all: compile-ethersex
+all: compile-$(TARGET)
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
-	@$(SIZE) -A $(TARGET).hex | grep "\.sec1" | tr -s " " | cut -d" " -f2
+	@stat -c %s ethersex.bin
 	@echo "==============================="
 
 
@@ -61,11 +28,34 @@ all: compile-ethersex
 # generic fluff
 include defaults.mk
 #include $(TOPDIR)/rules.mk
+
+##############################################################################
+# generate SUBDIRS variable
+#
+
+.subdirs: autoconf.h
+	$(RM) -f $@
+	(for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h \
+	      | sed -e "s/^#define //" -e "s/_SUPPORT.*//" \
+	      | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
+	  test -d $$subdir && echo "SUBDIRS += $$subdir" ; \
+	done) | sort -u > $@
+
+ifneq ($(no_deps),t)
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),mrproper)
+
+include $(TOPDIR)/.subdirs
+
+endif # MAKECMDGOALS!=mrproper
+endif # MAKECMDGOALS!=clean
+endif # no_deps!=t
+
 ##############################################################################
 
 .PHONY: compile-subdirs
 compile-subdirs:
-	for dir in $(SUBDIRS); do make -C $$dir lib$$dir.a; done
+	for dir in $(SUBDIRS); do make -C $$dir lib$$dir.a || exit 5; done
 
 .PHONY: compile-$(TARGET)
 compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
@@ -79,6 +69,7 @@ LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
 $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
 	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
+	  $(foreach subdir,$(SUBDIRS),-l$(subdir)) \
 	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
 
 
@@ -100,18 +91,80 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(SIZE) $<
 
 
+##############################################################################
+CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+          else if [ -x /bin/bash ]; then echo /bin/bash; \
+          else echo sh; fi ; fi)
+
+menuconfig:
+	$(MAKE) -C scripts/lxdialog all
+	$(CONFIG_SHELL) scripts/Menuconfig config.in
+	test -e .config
+	@$(MAKE) what-now-msg
+
+xconfig:
+	$(MAKE) -C scripts kconfig.tk
+	wish -f scripts/kconfig.tk
+
+what-now-msg:
+	@echo ""
+	@echo "Next, you can: "
+	@echo " * 'make' to compile Ethersex"
+	@for subdir in $(SUBDIRS); do \
+	  test -e "$$subdir/configure" -a -e "$$subdir/cfgpp" \
+	    && echo " * 'make $$subdir/menuconfig' to" \
+	            "further configure $$subdir"; done || true
+	@echo ""
+.PHONY: what-now-msg
+
+%/menuconfig:
+	$(SH) "$(@D)/configure"
+	@$(MAKE) what-now-msg
 
 ##############################################################################
 clean:
-	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex *.[oda] pinning.c
+	$(MAKE) -f rules.mk no_deps=t clean-common
+	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex pinning.c .subdirs
 	for subdir in `find -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
 
+mrproper:
+	$(MAKE) clean
+	$(RM) -f autoconf.h .config config.mk .menuconfig.log .config.old
+
+.PHONY: clean mrproper
+
+
+##############################################################################
+# MCU specific pinning code generation
+#
 PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
-pinning.c: $(PINNING_FILES) config.h
-	m4 `grep -e "^#define .*_SUPPORT$$" config.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT//"` $(PINNING_FILES) > $@
-	
+pinning.c: $(PINNING_FILES) autoconf.h
+	m4 `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
+
+
+##############################################################################
+# configure ethersex
+#
+show-config: autoconf.h
+	@echo
+	@echo "These modules are currently enabled: "
+	@echo "======================================"
+	@grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define / * /" -e "s/_SUPPORT.*//"
+
+.PHONY: show-config
+
+.config: 
+ifneq ($(MAKECMDGOALS),menuconfig)  
+ifneq ($(MAKECMDGOALS),xconfig)  
+	# make sure menuconfig isn't called twice, on `make menuconfig'
+	$(MAKE) no_deps=t menuconfig
+	# test the target file, test fails if it doesn't exist
+	# and will keep make from looping menuconfig.
+	test -e $@
+endif
+endif
 
 include depend.mk

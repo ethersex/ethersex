@@ -1,0 +1,28 @@
+#! /bin/sh
+MCU=atmega644
+HOST=sex.metafnord.de
+
+[ $# = 1 ] && { HOST=$1; }
+[ $# = 2 ] && { HOST=$1; MCU=$2; }
+
+# figure out ramend
+RAMEND=$(avr-gcc -mmcu=$MCU -E -dD /usr/avr/include/avr/io.h |
+  grep -e '^#define RAMEND' | 
+  awk '{ print $3 }' | 
+  cut -c3- | 
+  tr '[A-F]' '[a-f]')
+
+echo "# RAMEND is at $RAMEND"
+
+digits="0 1 2 3 4 5 6 7 8 9 a b c d e f"
+for A in $digits; do
+  for B in $digits; do
+    for C in $digits; do
+      echo -n "$A$B$C"0": "
+      echo "!d $A$B$C"0 | nc6 $HOST 2701 || exit 1
+      if [ "x$A$B$C"f = "x$RAMEND" ]; then
+        exit 1
+      fi
+    done
+  done
+done

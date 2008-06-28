@@ -59,8 +59,8 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
         memcpy(b, cmd, 2);
         cmd += 2;
         b[2] = '\0';
-        uint16_t val;
-        int16_t ret = sscanf_P(b, PSTR("%x"), &val);
+        uint16_t val = 0;
+        sscanf_P(b, PSTR("%x"), &val);
         *ptr++ = LO8(val);
     }
 

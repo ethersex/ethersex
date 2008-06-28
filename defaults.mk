@@ -14,8 +14,13 @@ AVRDUDE_BAUDRATE = 115200
 SIZE = avr-size
 STRIP = avr-strip
 
+HOSTCC := gcc
+export HOSTCC
+
 # flags for the compiler
-CFLAGS += -g -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -std=gnu99
+CPPFLAGS += -mmcu=$(MCU) -DF_CPU=$(F_CPU) 
+CFLAGS ?= -Wall -W -Wno-unused-parameter
+CFLAGS += -g -Os -std=gnu99
 
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
@@ -32,7 +37,23 @@ $(TOPDIR)/config.mk:
 	@echo "# Put your own config here!" > $@
 	@echo "#F_CPU = $(F_CPU)" >> $@
 	@echo "#MCU = $(MCU)" >> $@
-	@echo "#LDFLAGS += -Wl,--section-start=.text=0xE000	# BOOTLOADER_SUPPORT" >> $@
-	@echo "#CFLAGS  += -mcall-prologues                     # BOOTLOADER_SUPPORT" >> $@
 	@echo "created default config.mk, tune your settings there!"
 -include $(TOPDIR)/config.mk
+
+
+##############################################################################
+# configure load address for bootloader, if enabled
+#
+include $(TOPDIR)/.config
+ifeq ($(BOOTLOADER_SUPPORT),y)  
+LDFLAGS += -Wl,--section-start=.text=0xE000
+CFLAGS  += -mcall-prologues
+endif
+
+
+%.s: %.c
+	$(CC) -o $@ -O0 $(CPPFLAGS) -S $<
+
+%.E: %.c
+	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
+

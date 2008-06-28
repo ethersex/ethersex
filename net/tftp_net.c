@@ -37,18 +37,20 @@ tftp_net_init(void)
     uip_udp_conn_t *tftp_conn = uip_udp_new(&ip, 0, tftp_net_main);
 
     if(! tftp_conn) 
-	return;					/* dammit. */
+	return;			/* dammit. */
 
     uip_udp_bind(tftp_conn, HTONS(TFTP_PORT));
 
+#ifdef TFTPOMATIC_SUPPORT
     tftp_conn->appstate.tftp.fire_req = 0;
 
-#if defined(TFTPOMATIC_SUPPORT) && !defined(IPV6_SUPPORT)
+#ifndef IPV6_SUPPORT		/* IPv6 is handled in ipv6.c (after ra) */
     const unsigned char *filename = CONF_TFTP_IMAGE;
     CONF_TFTP_IP;
 
     tftp_fire_tftpomatic(&ip, filename);
-#endif /* TFTPOMATIC_SUPPORT and !IPV6_SUPPORT */
+#endif /* !IPV6_SUPPORT */
+#endif /* TFTPOMATIC_SUPPORT */
 }
 
 
@@ -56,6 +58,7 @@ void
 tftp_net_main(void)
 {
     if(uip_newdata()) {
+#ifdef BOOTLOADER_SUPPORT
 	if(uip_udp_conn->lport == HTONS(TFTP_ALT_PORT)) {
 	    /* got reply packet for tftp download request,
 	     * seek request connection and shut it down */
@@ -72,11 +75,13 @@ tftp_net_main(void)
 		break;
 	    }
 	}
+#endif /* BOOTLOADER_SUPPORT */
 
 	tftp_handle_packet();
 	return;
     }
 
+#if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
     if(! uip_udp_conn->appstate.tftp.fire_req)
 	return;
 
@@ -85,7 +90,6 @@ tftp_net_main(void)
 	return;
     }
 
-#if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
     /*
      * fire download request packet ...
      */

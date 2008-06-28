@@ -22,6 +22,7 @@
  }}} */
 
 #include <stdint.h>
+#include "../config.h"
 #include "stella.h"
 
 
@@ -31,61 +32,26 @@ stella_process (unsigned char *buf, uint8_t len)
   int re_sort = 0;
 
   for (; len >= 2; buf += 2, len -= 2)
-    switch (*buf)
-      {
-      case STELLA_SET_RED:
-	stella_fade[STELLA_RED] = buf[1];
-	stella_color[STELLA_RED] = buf[1];
-	re_sort = 1;
-	break;
-
-      case STELLA_SET_GREEN:
-	stella_fade[STELLA_GREEN] = buf[1];
-	stella_color[STELLA_GREEN] = buf[1];
-	re_sort = 1;
-	break;
-
-      case STELLA_SET_BLUE:
-	stella_fade[STELLA_BLUE] = buf[1];
-	stella_color[STELLA_BLUE] = buf[1];
-	re_sort = 1;
-	break;
-
-      case STELLA_FADE_RED:
-	stella_fade[STELLA_RED] = buf[1];
-	break;
-
-      case STELLA_FADE_GREEN:
-	stella_fade[STELLA_GREEN] = buf[1];
-	break;
-
-      case STELLA_FADE_BLUE:
-	stella_fade[STELLA_BLUE] = buf[1];
-	break;
-
-      case STELLA_FLASH_RED:
-	stella_fade[STELLA_RED] = 0;
-	stella_color[STELLA_RED] = buf[1];
-	re_sort = 1;
-	break;
-
-      case STELLA_FLASH_GREEN:
-	stella_fade[STELLA_GREEN] = 0;
-	stella_color[STELLA_GREEN] = buf[1];
-	re_sort = 1;
-	break;
-
-      case STELLA_FLASH_BLUE:
-	stella_fade[STELLA_BLUE] = 0;
-	stella_color[STELLA_BLUE] = buf[1];
-	re_sort = 1;
-	break;
-
-      case STELLA_SELECT_FADE_FUNC:
-	stella_fade_func = buf[1];
-	break;
-      }
-
+    if(*buf >= STELLA_SET_COLOR_0 && *buf < (STELLA_SET_COLOR_0 + STELLA_PINS))
+    {
+      stella_fade[*buf] = buf[1];
+      stella_color[*buf] = buf[1];
+      re_sort = 1;
+    }
+    else if(*buf >= STELLA_FADE_COLOR_0 && *buf < (STELLA_FADE_COLOR_0 + STELLA_PINS))
+    {
+      stella_fade[*buf & 0x07] = buf[1];
+    }
+    else if(*buf >= STELLA_FLASH_COLOR_0 && *buf < (STELLA_FLASH_COLOR_0 + STELLA_PINS))
+    {
+      stella_fade[*buf & 0x07] = 0;
+      stella_color[*buf & 0x07] = buf[1];
+      re_sort = 1;
+    }
+    else if(*buf == STELLA_SELECT_FADE_FUNC)
+    {
+      stella_fade_func = buf[1];
+    }
   if (re_sort)
     stella_sort (stella_color);
 }

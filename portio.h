@@ -31,59 +31,26 @@
 #define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY { &PINB, &PINC, &PIND}
-/* FIXME portio not really supported. */
-#define IO_MASK_ARRAY { 0, 0, 0 }                                          \
+#define IO_MASK_ARRAY {                                              \
+                        255 - PORTIO_MASK_B , /* port b from pinning.m4 */ \
+                        255 - PORTIO_MASK_C , /* port c from pinning.m4 */ \
+                        255 - PORTIO_MASK_D   /* port d from pinning.m4 */ \
+                       }
 
 /* ATMega644 | ATMega32 */
 #elif defined(_ATMEGA644) || defined(_ATMEGA32)
 
-#if defined(HD44780_SUPPORT) && !defined(HD44780_USE_PORTC)
-    #define PORTA_MASK (_BV(HD44780_RS) | \
-                        _BV(HD44780_RW) | \
-                        _BV(HD44780_EN) | \
-                        _BV(HD44780_D4) | \
-                        _BV(HD44780_D5) | \
-                        _BV(HD44780_D6) | \
-                        _BV(HD44780_D7))
-    #define PORTC_MASK 0
-#elif defined(HD44780_SUPPORT) && defined(HD44780_USE_PORTC)
-    #define PORTA_MASK 0
-    #define PORTC_MASK (_BV(HD44780_RS) | \
-                        _BV(HD44780_RW) | \
-                        _BV(HD44780_EN) | \
-                        _BV(HD44780_D4) | \
-                        _BV(HD44780_D5) | \
-                        _BV(HD44780_D6) | \
-                        _BV(HD44780_D7))
-#else
-    #define PORTA_MASK 0
-    #define PORTC_MASK 0
-#endif
-
-#ifdef STELLA_SUPPORT
-#define STELLA_MASK (_BV(PD5) | _BV(PD6) | _BV(PD7))
-#else
-#define STELLA_MASK 0
-#endif 
-
-#ifdef RFM12_SUPPORT
-    #define RFM12_PORTC_MASK (PIN_BV(SPI_CS_RFM12))
-#else
-    #define RFM12_PORTC_MASK 0
-#endif
 
 #define IO_HARD_PORTS 4
 #define IO_DDR_ARRAY {&DDRA, &DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTA, &PORTB, &PORTC, &PORTD}
 #define IO_PIN_ARRAY {&PINA, &PINB, &PINC, &PIND}
-#define IO_MASK_ARRAY {                                             \
-                        0 | PORTA_MASK,              /* port a */   \
-                        0xff,                        /* port b */   \
-                        _BV(PC0) | _BV(PC1) | PORTC_MASK            \
-                         | RFM12_PORTC_MASK,         /* port c */   \
-                        _BV(PD0) | _BV(PD1) | _BV(PD2) | _BV(PD3)   \
-			  | STELLA_MASK				    \
-                      }
+#define IO_MASK_ARRAY {                                              \
+                        255 - PORTIO_MASK_A , /* port a from pinning.m4 */ \
+                        255 - PORTIO_MASK_B , /* port b from pinning.m4 */ \
+                        255 - PORTIO_MASK_C , /* port c from pinning.m4 */ \
+                        255 - PORTIO_MASK_D   /* port d from pinning.m4 */ \
+                       }
 
 #else
 #error "unknown CPU!"

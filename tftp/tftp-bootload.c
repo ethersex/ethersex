@@ -30,6 +30,8 @@
 #include "../eeprom.h"
 #include "tftp.h"
 
+#ifdef BOOTLOADER_SUPPORT
+
 /* Define if you want to support firmware upload only. */
 #undef  TFTP_UPLOAD_ONLY
 
@@ -43,7 +45,7 @@ extern uint8_t bootload_delay;
 /*
  * raw access to the packet buffer ...
  */
-#define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
+#define BUF ((struct uip_udpip_hdr *)&((char *)uip_appdata)[-UIP_IPUDPH_LEN])
 
 
 static void
@@ -295,4 +297,4 @@ tftp_handle_packet(void)
 }
 
 
-
+#endif /* BOOTLOADER_SUPPORT */

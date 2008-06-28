@@ -1,6 +1,7 @@
 /*
  Copyright(C) 2006 Christian Dietrich <stettberger@dokucode.de>
  Copyright(C) 2006 Jochen Roessner <jochen@lugrot.de>
+ Copyright(C) 2008 Jochen Roessner <jochen@lugrot.de>
  Copyright(C) 2007 Stefan Siegl <stesie@brokenpipe.de>
 
  This program is free software; you can redistribute it and/or modify
@@ -25,13 +26,13 @@
 #include "../config.h"
 #include "stella.h"
 
-volatile uint8_t timetable[PINS][2];
-volatile uint8_t i_timetable[PINS][2];
-volatile uint8_t length;
-volatile uint8_t i_length;
-volatile uint8_t now = 0;
-volatile uint8_t overflow_mask = 0;
-volatile uint8_t i_overflow_mask = 0;
+uint8_t timetable[STELLA_PINS][2];
+uint8_t i_timetable[STELLA_PINS][2];
+uint8_t length;
+uint8_t i_length;
+uint8_t now = 0;
+uint8_t overflow_mask = 0;
+uint8_t i_overflow_mask = 0;
 volatile uint8_t update_table = 0;
 
 void
@@ -45,39 +46,37 @@ stella_pwm_init(void)
   /* Int. bei Overflow und CompareMatch einschalten */
   _TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2); 
 
-  STELLA_DDR = 7 << STELLA_OFFSET;
+  STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 }
 
 SIGNAL(_SIG_OUTPUT_COMPARE2)
 {
-  STELLA_PORT &= ~i_timetable[now][1];
-
-  now ++;
-  now = now % i_length;
-
-  _OUTPUT_COMPARE_REG2 = i_timetable[now][0];
+  if(i_length) {
+    STELLA_PORT &= ~i_timetable[now][1];
+    if (++now < i_length)
+      _OUTPUT_COMPARE_REG2 = i_timetable[now][0];
+  }  
 }
 
-SIGNAL(SIG_OVERFLOW2)
+SIGNAL(_SIG_OVERFLOW2)
 {
-  if(update_table == 1)
-    {
-      uint8_t i;
-      for (i = 0; i < length; i ++)
-	{
-	  i_timetable[i][0] = timetable[i][0];
-	  i_timetable[i][1] = timetable[i][1];
-	}
-
-      i_length = length;
-      i_overflow_mask = overflow_mask;
-      now = 0;
-      update_table = 0;
+  if(update_table == 1){
+    uint8_t i;
+    for (i=0; i < length; i++) {
+      i_timetable[i][0] = timetable[i][0];
+      i_timetable[i][1] = timetable[i][1];
     }
+    i_length = length;
+    i_overflow_mask = overflow_mask;
+    update_table = 0;
+  }
+  _OUTPUT_COMPARE_REG2 = i_timetable[0][0];
+  if (! _OUTPUT_COMPARE_REG2)
+    _OUTPUT_COMPARE_REG2 = i_timetable[1][0];
+  now = 0;
 
-  PORTD |= i_overflow_mask;
+  STELLA_PORT |= i_overflow_mask;
 }
-
 
 void
 stella_sort(uint8_t color[])
@@ -85,11 +84,13 @@ stella_sort(uint8_t color[])
   uint8_t i;
   uint8_t y;
   uint8_t x = 0;
-  uint8_t temp[PINS][2] = {{0, 0}, {0, 0}, {0, 0}};
+  uint8_t temp[STELLA_PINS][2];
 
   /* Schauen ob schon vorhanden */
-  for (i = 0; i < PINS; i ++)
+  for (i = 0; i < STELLA_PINS; i ++)
     {
+      temp[i][0] = 0;
+      temp[i][1] = 0;
       uint8_t vorhanden = 0;
       for (y = 0; y < x; y ++)
 	{
@@ -123,7 +124,7 @@ stella_sort(uint8_t color[])
     }
 
   /* Eintragen */
-  for (i = 0; i < PINS; i ++)
+  for (i = 0; i < STELLA_PINS; i ++)
     {
       for(y = 0; y < x; y ++)
 	{
@@ -146,7 +147,7 @@ stella_sort(uint8_t color[])
   length = x;
 
   /* Overflow_mask neu bilden */
-  overflow_mask = 7 << STELLA_OFFSET;
+  overflow_mask = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 
   if (timetable[0][0] == 0)
     overflow_mask &= ~timetable[0][1];

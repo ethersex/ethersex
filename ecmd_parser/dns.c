@@ -38,6 +38,12 @@
 
 #ifdef DNS_SUPPORT
 
+#ifndef TEENSY_SUPPORT
+extern int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len);
+extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
+#endif
+
+
 int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     return print_ipaddr (resolv_getserver (), output, len);
@@ -56,7 +62,8 @@ int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
 	return -1;
 
     resolv_conf (&dnsaddr);
-    struct eeprom_config_ext_t new_cfg = { 0 };
+    struct eeprom_config_ext_t new_cfg;
+    memset(&new_cfg, 0, sizeof(new_cfg));
     memcpy (new_cfg.dns_server, &dnsaddr, sizeof(uip_ipaddr_t));
     return eeprom_save_config_ext (&new_cfg);
 } /* }}} */
@@ -71,7 +78,7 @@ int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
     return print_ipaddr (addr, output, len);
   }
   else {
-    resolv_query (cmd, NULL, NULL);
+    resolv_query (cmd, NULL);
     return snprintf_P (output, len, PSTR ("nslookup triggered, try again for result."));
   }
 } /* }}} */

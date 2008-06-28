@@ -49,8 +49,6 @@ void
 ntpd_net_main(void)
 {
   if (uip_newdata()) {
-    uint32_t ntp_timestamp;
-
     struct ntp_packet *pkt = uip_appdata;
 
     /* We are an server and there is no error warning */
@@ -62,7 +60,7 @@ ntpd_net_main(void)
 
     /* Set our time to the packet */
     pkt->rec.seconds = HTONL(clock_get_time() + 2208988800);
-    pkt->rec.fraction = HTONL((TCNT2 << 7));
+    pkt->rec.fraction = HTONL(((uint32_t)TCNT2) << 7);
 
     /* copy the recieve time also to the transmit time */
     pkt->xmt.seconds = pkt->rec.seconds;

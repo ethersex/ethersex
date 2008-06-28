@@ -39,27 +39,6 @@
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
-static char* parse_hex(char *text, uint8_t *value)
-/* {{{ */ {
-  if (! *text ) return 0;
-  uint8_t nibble;
-  /* skip spaces */
-  while (*text == ' ')
-    text ++;
-  if (! *text ) return 0;
-  *value = 0;
-  while ((*text >= '0' && *text <= '9') || ((*text & 0xDF) >= 'A' && (*text & 0xDF) <= 'F'))
-  {
-    *value <<= 4;
-    nibble = *text - '0';
-    if (nibble > 9)
-      nibble -= 7;
-    *value |= nibble;
-    text++;
-  }
-  return text;
-  
-} /* }}} */
 
 static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value) 
 /* {{{ */ {
@@ -77,6 +56,8 @@ static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value
 #endif
 } /* }}} */
 
+
+#ifdef PORTIO_SUPPORT
 static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
 /* {{{ */ {
 #ifndef TEENSY_SUPPORT
@@ -110,7 +91,6 @@ static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_
 } /* }}} */
 
 
-#ifdef PORTIO_SUPPORT
 int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) output;
@@ -240,6 +220,30 @@ int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
 #endif /* PORTIO_SUPPORT */
 
 #ifdef PORTIO_SIMPLE_SUPPORT
+
+static char* parse_hex(char *text, uint8_t *value)
+/* {{{ */ {
+  if (! *text ) return 0;
+  uint8_t nibble;
+  /* skip spaces */
+  while (*text == ' ')
+    text ++;
+  if (! *text ) return 0;
+  *value = 0;
+  while ((*text >= '0' && *text <= '9') || ((*text & 0xDF) >= 'A' && (*text & 0xDF) <= 'F'))
+  {
+    *value <<= 4;
+    nibble = *text - '0';
+    if (nibble > 9)
+      nibble -= 7;
+    *value |= nibble;
+    text++;
+  }
+  return text;
+  
+} /* }}} */
+
+
 int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   (void) output;
@@ -321,7 +325,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
 #endif /* PORTIO_SIMPLE_SUPPORT */
 
 
-#ifdef NAMED_PIN_SUPPORT
+#if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint16_t port, pin;
@@ -444,5 +448,5 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
     return -1;
 }
 /* }}} */
-#endif /* NAMED_PIN_SUPPORT */
+#endif /* NAMED_PIN_SUPPORT && PORTIO_SUPPORT */
 

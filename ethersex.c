@@ -41,6 +41,7 @@
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
+#include "control6/control6.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
@@ -52,7 +53,9 @@
 #include "hc595/hc595.h"
 #include "yport/yport.h"
 #include "ipv6.h"
-
+#include "dataflash/fs.h"
+#include "syslog/syslog.h"
+#include "stella/stella.h"
 #include "net/handler.h"
 
 #include "bit-macros.h"
@@ -126,11 +129,19 @@ int main(void)
 #   endif
 
     /* send boot message */
-    debug_printf("booting etherrape firmware " VERSION_STRING "...\n");
+    debug_printf("booting ethersex firmware " VERSION_STRING "...\n");
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT)
+#   if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
+      || defined(DATAFLASH_SUPPORT)
     spi_init();
-#endif
+#   endif
+
+#   ifdef DATAFLASH_SUPPORT
+    debug_printf("initializing filesystem...\n");
+    fs_init(&fs, NULL);
+    debug_printf("fs: root page is 0x%04x", fs.root);
+#   endif
+
     network_init();
     timer_init();
 #ifdef CLOCK_SUPPORT
@@ -140,6 +151,9 @@ int main(void)
 #ifdef ADC_SUPPORT
     /* ADC Prescaler to 64 */
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
+    /* ADC set Voltage Reference to extern*/
+    /* FIXMI: the config to the right place */ 
+    ADMUX = 0; //_BV(REFS0) | _BV(REFS1);
 #endif
 
 #ifdef PS2_SUPPORT
@@ -160,6 +174,10 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+#ifdef CONTROL6_SUPPORT
+    control6_init();
 #endif
 
 /* Had to be bone after network_init! */
@@ -206,6 +224,8 @@ int main(void)
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
+#elif defined(NAMED_PIN_SUPPORT)
+    np_simple_init();
 #endif 
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
@@ -260,6 +280,11 @@ int main(void)
         debug_process();
         wdt_kick();
 
+#ifdef SYSLOG_SUPPORT
+	uip_stack_set_active(STACK_MAIN);
+        syslog_flush();
+#endif
+
         /* check if fs20 data has arrived */
 #ifdef FS20_SUPPORT
 #ifdef FS20_SUPPORT_RECEIVE
@@ -289,6 +314,14 @@ int main(void)
             cli();
             jump_to_bootloader();
         }
+
+#ifndef TEENSY_SUPPORT
+	if(cfg.request_wdreset) {
+	    cli();
+	    wdt_enable(WDTO_15MS);
+	    for(;;);
+	}
+#endif
 
         if(cfg.request_reset) {
             cli();

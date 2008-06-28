@@ -31,6 +31,7 @@
 #include "rfm12.h"
 #include "../net/rfm12_raw_net.h"
 #include "../crypto/encrypt-llh.h"
+#include "../syslog/syslog.h"
 
 #ifdef RFM12_BEACON_SUPPORT
 /* On the bridge-side this is the ID assigned to the beacon (read: bridge),
@@ -146,9 +147,7 @@ SIGNAL(RFM12_INT_SIGNAL)
     {
       RFM12_i_status = rfm12_trans(0x0000);/* dummy read (get Statusregister) */
 #ifdef SYSLOG_SUPPORT
-      char text[40];
-      snprintf(text, 40, "rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
-      syslog_send(text);
+      syslog_sendf ("rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
 #endif
       /* FIXME what happend */
     }
@@ -329,7 +328,7 @@ rfm12_rxfinish(uint8_t *data)
 uint8_t 
 rfm12_txstart(uint8_t *data, uint8_t size)
 {
-  uint8_t i, l;
+  uint8_t i;
 
   if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)){
     RFM12_ret_platz = TX_START_1;

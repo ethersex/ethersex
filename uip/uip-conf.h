@@ -210,8 +210,8 @@ enum {
 	  			       multi-stack support.*/
 #  endif
 
-#  define uip_stack_get_active()   (0)
-#  define uip_stack_set_active(i)  (0)
+#  define uip_stack_get_active()   do { } while(0)
+#  define uip_stack_set_active(i)  do { } while(0)
 
 #endif
 

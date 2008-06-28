@@ -36,13 +36,19 @@ ifdef(`conf_RFM12', `dnl
   /* port the LEDS for rfm12 txrx attached to */
   pin(RFM12_TX_PIN, PD6)
   pin(RFM12_RX_PIN, PD7)
+
+  RFM12_USE_INT(0)
 ')
 
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PD2)
-  pin(ZBUS_RX_PIN, PD6)
-  pin(ZBUS_TX_PIN, PD7)
+  pin(ZBUS_TX_PIN, PD6)
+  pin(ZBUS_RX_PIN, PD7)
+')
+
+ifdef(`conf_STELLA', `dnl
+  STELLA_PORT_RANGE(PB0,PB3)
 ')
 
 #define _ATMEGA8
@@ -78,6 +84,13 @@ ifdef(`conf_ZBUS', `dnl
 #define USART0_UDRE_vect USART_UDRE_vect
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
+
+#define _TCCR2_PRESCALE TCCR2
+#define _OUTPUT_COMPARE_IE2 OCIE2
+#define _OUTPUT_COMPARE_REG2 OCR2
+#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2
+#define _SIG_OVERFLOW2 SIG_OVERFLOW2
+#define _TIMSK_TIMER2 TIMSK
 
 #define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
 

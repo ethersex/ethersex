@@ -21,8 +21,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _ZBUS_H
-#define _ZBUS_H
+#ifndef _PS2_H
+#define _PS2_H
 #include <stdint.h>
 
 #define KEY_F1 0x05

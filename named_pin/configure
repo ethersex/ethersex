@@ -1,6 +1,14 @@
 #!/bin/sh
+AWK=awk
+[ -x /usr/bin/gawk ] && AWK=/usr/bin/gawk
+
+$AWK --version 2>/dev/null | grep -q GNU || {
+  echo "$0: $AWK is not a GNU Awk."
+  exit 1
+}
+
 main_menu() {
-  dialog --menu "Named Pins" 0 50 0 \
+  dialog --cancel-label Exit --menu "Named Pins" 0 50 0  \
     ADD  'Add an Pin' \
     LIST 'List Pins' \
     EDIT 'Edit an Pin' \
@@ -8,7 +16,7 @@ main_menu() {
 }
 
 select_menu() {
-  awk '{ a = a " \"" gensub("\"", "\\\\\"", $0) "\" \"\""}
+  $AWK '{ a = a " \"" gensub("\"", "\\\\\"", $0) "\" \"\""}
       END { system("dialog --menu \"Select Pin\" 0 50 0" a) }
       ' < config 2> $1
 }
@@ -17,10 +25,10 @@ edit_action() {
   if [ -z "`cat $1`" ]; then
     echo "PA0 1 1 PIN0" > $1
   fi
-  pin=`awk '{print $1}' < $1`
-  input=`awk '{print $2}' < $1`
-  active_high=`awk '{print $3}' < $1`
-  name=`awk '{print $4}' < $1`
+  pin=`$AWK '{print $1}' < $1`
+  input=`$AWK '{print $2}' < $1`
+  active_high=`$AWK '{print $3}' < $1`
+  name=`$AWK '{print $4}' < $1`
   
   _temp=`mktemp`
 

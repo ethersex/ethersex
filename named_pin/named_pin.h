@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +27,10 @@
 
 #include "../config.h"
 
+#ifdef NAMED_PIN_SUPPORT
+void named_pin_init(void);
+
+#ifdef PORTIO_SUPPORT
 struct PinConfiguration {
   uint8_t port, pin;
   uint8_t input;
@@ -33,15 +38,12 @@ struct PinConfiguration {
   const char *name;
 };
 
-
-void named_pin_init(void);
 uint8_t named_pin_by_name(const char *name);
 uint8_t named_pin_by_pin(uint8_t port, uint8_t pin);
 
-#ifdef NAMED_PIN_SUPPORT
-#ifndef NAMED_PIN_PGM
-const extern struct PinConfiguration portio_pincfg[];
-#endif
-#endif
+extern const struct PinConfiguration portio_pincfg[];
+#endif /* PORTIO_SUPPORT */
+
+#endif /* NAMED_PIN_SUPPORT */
 
 #endif

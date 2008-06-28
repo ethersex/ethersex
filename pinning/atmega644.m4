@@ -25,19 +25,35 @@ pin(SPI_MISO, PB6)
 pin(SPI_SCK, PB7)
 
 ifdef(`conf_RFM12', `dnl
+dnl
+dnl Ancient zerties.org RFM12 pinout:
+dnl   chip select: PC3
+dnl   tx-led: 	   PD4
+dnl   rx-led:	   PD5
+dnl   interrupt:   INT0
+dnl
+dnl Configuration suggest for Etherrape hardware
+dnl (all pins available at SPI connector)
+dnl 
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PC3)
+  pin(SPI_CS_RFM12, PB0)
 
   /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, PD4)
-  pin(RFM12_RX_PIN, PD5)
+  pin(RFM12_TX_PIN, PB3)
+  pin(RFM12_RX_PIN, PB1)
+
+  RFM12_USE_INT(2)
 ')
 
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PC2)
-  pin(ZBUS_RX_PIN, PD4)
-  pin(ZBUS_TX_PIN, PD5)
+  pin(ZBUS_TX_PIN, PD4)
+  pin(ZBUS_RX_PIN, PD5)
+')
+
+ifdef(`conf_STELLA', `dnl
+  STELLA_PORT_RANGE(PD5,PD7)
 ')
 
 #define _ATMEGA644
@@ -69,6 +85,7 @@ ifdef(`conf_ZBUS', `dnl
 #define _OUTPUT_COMPARE_IE2 OCIE2B
 #define _OUTPUT_COMPARE_REG2 OCR2B
 #define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
+#define _SIG_OVERFLOW2 SIG_OVERFLOW2
 #define _TIMSK_TIMER2 TIMSK2
 
 /* workaround for avr-libc devs not being able to decide how these registers

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -22,17 +22,26 @@
 #define TFTP_STATE_H
 
 #include "tftp_net.h"
+#include "../dataflash/fs.h"
 
 /* state */
 struct tftp_connection_state_t {
+#ifdef DATAFLASH_SUPPORT
+    fs_inode_t     fs_inode;
+    unsigned       df_access   :1;
+#endif
     unsigned       download    :1;
     unsigned       finished    :1;
+
+#ifdef BOOTLOADER_SUPPORT
     unsigned       bootp_image :1;
     unsigned       fire_req    :1;		/* this connection is for just
 						 * starting a tftp request */
 
-    uint16_t       transfered;			/* also retry countdown */
     unsigned char  filename[TFTP_FILENAME_MAXLEN];
+#endif
+
+    uint16_t       transfered;			/* also retry countdown */
 };
 
 #endif /* TFTP_STATE_H */

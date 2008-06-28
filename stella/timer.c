@@ -22,10 +22,11 @@
  }}} */
 
 #include <stdint.h>
+#include "../config.h"
 #include "stella.h"
 
-uint8_t stella_color[] = { 0, 0, 0};
-uint8_t stella_fade[] = { 0, 0, 0};
+uint8_t stella_color[STELLA_PINS];
+uint8_t stella_fade[STELLA_PINS];
 
 static void
 stella_fade_normal (int i)
@@ -65,7 +66,7 @@ stella_timer (void)
 {
   int re_sort = 0;
 
-  for (int i = 0; i < PINS; i ++)
+  for (int i = 0; i < STELLA_PINS; i ++)
     {
       if (stella_color[i] == stella_fade[i])
 	continue;

@@ -155,6 +155,13 @@ int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     return 0;
 } /* }}} */
 
+int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+    cfg.request_wdreset = 1;
+    uip_close();
+    return 0;
+} /* }}} */
+
 int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) len;

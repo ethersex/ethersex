@@ -39,6 +39,8 @@ struct modbus_buffer {
 };
 
 void modbus_init(void);
+void modbus_periodic(void);
 uint8_t modbus_rxstart(uint8_t *data, uint8_t len);
+uint16_t modbus_crc_calc(uint8_t *data, uint8_t len);
 
 #endif /* _MODBUS_H */

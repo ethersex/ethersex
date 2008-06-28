@@ -38,6 +38,7 @@
 #include "modbus_state.h"
 #include "rfm12_raw_state.h"
 #include "zbus_raw_state.h"
+#include "../httpd/httpd_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -50,12 +51,17 @@ typedef union uip_tcp_connection_state {
     struct ecmd_sender_connection_state_t ecmd_sender;
 #   endif
 
-#   if defined(DYNDNS_SUPPORT) && defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
+#   if defined(DYNDNS_SUPPORT) && defined(TCP_SUPPORT) \
+       && !defined(TEENSY_SUPPORT)
     struct dyndns_connection_state_t dyndns;
 #   endif
 
 #   ifdef MODBUS_SUPPORT
     struct modbus_connection_state_t modbus;
+#   endif
+
+#   ifdef HTTPD_SUPPORT
+    struct httpd_connection_state_t httpd;
 #   endif
 
 } uip_tcp_appstate_t;

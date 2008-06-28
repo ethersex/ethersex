@@ -1,0 +1,350 @@
+
+mainmenu_name "Ethersex Configuration"
+
+mainmenu_option next_comment
+comment "General Setup"
+
+bool 'Prompt for development and/or incomplete code/drivers' CONFIG_EXPERIMENTAL
+
+choice 'Target Profile'						\
+	"Standard			CONFIG_NORMAL		\
+	 Bootloader      		BOOTLOADER_SUPPORT	\
+	 RFM12-Teensy      		CONFIG_TEENSY_RFM12	\
+	 ZBUS-Teensy      		CONFIG_TEENSY_ZBUS"	\
+	 'Standard'
+endmenu
+
+if [ "$CONFIG_NORMAL" = "y" ]; then
+  define_bool TEENSY_SUPPORT n
+  define_bool ENC28J60_SUPPORT y
+fi
+
+if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
+  define_bool TEENSY_SUPPORT y
+  define_bool ENC28J60_SUPPORT y
+fi
+
+if [ "$CONFIG_TEENSY_RFM12" = "y" ]; then
+  define_bool TEENSY_SUPPORT y
+  define_bool RFM12_SUPPORT y
+  define_bool ENC28J60_SUPPORT n
+fi
+
+if [ "$CONFIG_TEENSY_ZBUS" = "y" ]; then
+  define_bool TEENSY_SUPPORT y
+  define_bool ZBUS_SUPPORT y
+  define_bool ENC28J60_SUPPORT n
+fi
+
+###############################################################################
+
+mainmenu_option next_comment
+comment "Cryptographic functionality"
+
+bool "Crypto support" CRYPTO_SUPPORT
+dep_bool "CAST5 cipher" CAST5_SUPPORT $CRYPTO_SUPPORT
+dep_bool "MD5 hash" MD5_SUPPORT $CRYPTO_SUPPORT
+dep_bool "Skipjack cipher" SKIPJACK_SUPPORT $CRYPTO_SUPPORT
+endmenu
+
+###############################################################################
+mainmenu_option next_comment
+comment "Network protocols"
+
+bool 'TCP support' TCP_SUPPORT
+bool 'UDP support' UDP_SUPPORT
+dep_bool 'UDP broadcast support' BROADCAST_SUPPORT $UDP_SUPPORT
+bool 'ICMP support' ICMP_SUPPORT
+
+comment "Application protocols"
+if [ "$IPV6_SUPPORT" != "y" -a "$TFTPOMATIC_SUPPORT" != "y" ]; then
+  dep_bool 'BOOTP support' BOOTP_SUPPORT $UDP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT
+  dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
+fi
+dep_bool 'DNS support' DNS_SUPPORT $UDP_SUPPORT
+if [ "$DNS_SUPPORT" = "y" ]; then
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    ipv6 "DNS-Server IP address" CONF_DNS_SERVER "2001:6f8:1209:0:0:0:0:2"
+  else
+    ipv4 "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254"
+  fi
+fi
+dep_bool 'SYSLOG support' SYSLOG_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
+if [ "$SYSLOG_SUPPORT" = "y" ]; then
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    ipv6 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+  else
+    ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
+  fi
+fi
+dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+
+comment "Tunneling protocols"
+dep_bool 'OpenVPN' OPENVPN_SUPPORT $UDP_SUPPORT
+if [ "$OPENVPN_SUPPORT" = "y" ]; then
+  mainmenu_option next_comment
+  comment "OpenVPN configuration"
+  hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
+  hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
+
+  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+    comment "OpenVPN IP configuration"
+    ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
+    ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
+    ipv4 "OpenVPN default gateway" CONF_OPENVPN_IP4_GATEWAY "192.168.23.1"
+  fi
+  endmenu
+fi
+dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $CONFIG_EXPERIMENTAL $RFM12_SUPPORT $ENC28J60_SUPPORT
+dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $CONFIG_EXPERIMENTAL $ZBUS_SUPPORT $ENC28J60_SUPPORT
+endmenu
+
+###############################################################################
+
+mainmenu_option next_comment
+comment "Network configuration"
+dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
+if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+  dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
+else
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    define_bool "IPV6_STATIC_SUPPORT" y
+  else
+    define_bool "IPV6_STATIC_SUPPORT" n
+  fi
+fi
+
+if [ "$ENC28J60_SUPPORT" = "y" ]; then
+  mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
+fi
+string "Hostname" CONF_HOSTNAME "ethersex"
+
+if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+  comment "Static IPv6 configuration"
+  ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+  int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
+fi
+
+if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+  comment "Static IPv4 configuration"
+  ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
+  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+    ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
+    ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+  fi
+fi
+
+endmenu
+
+###############################################################################
+
+if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
+  mainmenu_option next_comment
+  comment "Bootloader configuration"
+
+  if [ "$BOOTP_SUPPORT" != "y" ]; then
+    dep_bool 'TFTP-o-matic' TFTPOMATIC_SUPPORT $TFTP_SUPPORT
+  fi
+  if [ "$TFTPOMATIC_SUPPORT" = "y" ]; then
+    comment "TFTP-o-matic configuration"
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "TFTP IP address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+    else
+      ipv4 "TFTP IP address" CONF_TFTP_IP "192.168.23.73"
+    fi
+    string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
+  fi
+
+  if [ "$SKIPJACK_SUPPORT" = "y" ]; then
+    comment "Crypto configuration"
+    hex "TFTP Skipjack key" CONF_TFTP_KEY "23234242555523234242"
+  fi
+
+  endmenu
+else
+
+  mainmenu_option next_comment
+  comment "Applications"
+
+  mainmenu_option next_comment
+  comment "System clock"
+  bool "System clock support" CLOCK_SUPPORT
+  dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
+  dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
+  dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+  dep_bool "Cron daemon" CRON_SUPPORT $CLOCK_SUPPORT
+  dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+  endmenu
+
+  mainmenu_option next_comment
+  comment "Etherrape Control Interface (ECMD)"
+  bool "ECMD support" ECMD_PARSER_SUPPORT
+  dep_bool "TCP/Telnet interface" ECMD_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
+  dep_bool "UDP interface" UECMD_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
+  bool "Send ECMD messages" ECMD_SENDER_SUPPORT
+  endmenu 
+
+  mainmenu_option next_comment
+  comment "Character-LCD module support"
+  bool "HD44780 module driver" HD44780_SUPPORT
+  if [ "$HD44780_SUPPORT" = "y" ]; then
+    choice 'Controller type'					\
+	    "Original			HD44780_ORIGINAL	\
+	     ks0067b			HD44780_KS0067B"	\
+	    Original
+    bool "Readback support" HD44780_READBACK
+    bool "Use Port C (instead of Port A)" HD44780_USE_PORTC
+  fi
+  endmenu
+
+  dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
+  bool "Stella Light" STELLA_SUPPORT
+  bool "UDP Echo" UDP_ECHO_NET_SUPPORT
+
+  mainmenu_option next_comment
+  comment "DynDNS support"
+    bool "Update DNS records at dyn.metafnord.de" DYNDNS_SUPPORT
+    if [ "$DYNDNS_SUPPORT" = "y" ]; then
+      string "Hostname" CONF_DYNDNS_HOSTNAME "camera1"
+      string "Username" CONF_DYNDNS_USERNAME "user"
+      string "Password" CONF_DYNDNS_PASSWORD "secret"
+    fi
+  endmenu
+  dep_bool "Watch IO changes (and react)" WATCHCAT_SUPPORT $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+  endmenu
+
+  ###############################################################################
+
+  mainmenu_option next_comment
+  comment "Interfaces"
+
+  mainmenu_option next_comment
+  comment "RFM12 FSK transmitter"
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    bool "RFM12 support" RFM12_SUPPORT
+  fi
+
+  if [ "$RFM12_SUPPORT" = "y" ]; then
+    if [ "$SKIPJACK_SUPPORT" = "y" ]; then
+      hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
+    fi
+
+    bool "Beacon mode" RFM12_BEACON_SUPPORT
+
+    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+      if [ "$RFM12_BEACON_SUPPORT" = "y" ]; then
+        int "Beacon ID" CONF_RFM12_BEACON_ID 23
+      fi
+
+      if [ "$IPV6_SUPPORT" = "y" ]; then
+	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
+      else
+	ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
+	ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
+      fi
+    fi
+  fi
+  endmenu
+
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    choice 'USART support'					\
+	    "None			CONFIG_USART_NO   	\
+	     ZBUS			ZBUS_SUPPORT            \
+	     YPort           		YPORT_SUPPORT     	\
+	     Modbus            		MODBUS_SUPPORT"     	\
+	     'None'
+  fi
+
+  if [ "$ZBUS_SUPPORT" = "y" ]; then
+    mainmenu_option next_comment
+    comment "ZBUS stack configuration"
+
+    if [ "$SKIPJACK_SUPPORT" = "y" ]; then
+      hex "Skipjack Key" CONF_ZBUS_KEY "23234242555523234242"
+    fi
+
+    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+      if [ "$IPV6_SUPPORT" = "y" ]; then
+	ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+	int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64
+      else
+	ipv4 "IP address" CONF_ZBUS_IP "192.168.5.1"
+	ipv4 "Netmask" CONF_ZBUS_IP4_NETMASK "255.255.255.0"
+      fi
+    fi
+    endmenu
+  fi
+
+  if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$UDP_SUPPORT" = "y" ]; then
+    choice 'I2C support' \
+	    "None			CONFIG_NO_I2C		\
+	     I2C-Master			I2C_SUPPORT		\
+	     I2C-Slave			I2C_SLAVE_SUPPORT"	\
+	     'None'
+  fi
+
+  if [ "$I2C_SLAVE_SUPPORT" = "y" ]; then
+    int "I2C slave address" CONF_I2C_SLAVE_ADDR 42
+  fi
+
+  dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
+
+  endmenu
+
+  ###############################################################################
+
+  mainmenu_option next_comment
+  comment "I/O support"
+
+  choice "I/O abstraction model (Port I/O)" \
+	  "None					CONFIG_IO_NONE		\
+	   Simple				PORTIO_SIMPLE_SUPPORT	\
+	   Full-featured			PORTIO_SUPPORT"		\
+	  Simple
+  dep_bool "HC595 output expansion" HC595_SUPPORT $CONFIG_EXPERIMENTAL $PORTIO_SUPPORT
+  if [ "$HC595_SUPPORT" = "y" ]; then
+    int "Number of HC595 registers" HC595_REGISTERS 5
+  fi
+  mainmenu_option next_comment
+  comment "HC165 input expansion"
+  dep_bool "HC165 support" HC165_SUPPORT $CONFIG_EXPERIMENTAL $PORTIO_SUPPORT
+  if [ "$HC165_SUPPORT" = "y" ]; then
+    bool "Inverse output" HC165_INVERSE_OUTPUT
+    int "Number of HC165 registers" HC165_REGISTERS 1
+  fi
+  endmenu
+  dep_bool "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
+  dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
+  bool "Onewire support" ONEWIRE_SUPPORT
+  bool "Named and logic state I/O" NAMED_PIN_SUPPORT
+  endmenu
+fi
+
+###############################################################################
+
+if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+  mainmenu_option next_comment
+  comment "work in progress bits (enable with care)"
+
+  bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
+  bool "uIP Proto-Sockets" PSOCK_SUPPORT
+  dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT
+  dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
+  if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
+    string "Username" CONF_HTTPD_USERNAME "admin"
+    string "Default Password" CONF_HTTPD_PASSWORD "admin"
+  fi
+
+  bool "control6 scripts" CONTROL6_SUPPORT
+
+  endmenu
+fi
+
+if [ "$ZBUS_SUPPORT" = "y"		\
+	-o "$YPORT_SUPPORT" = "y"	\
+	-o "$MODBUS_SUPPORT" = "y" ]; then
+  define_bool USART_SUPPORT y
+fi

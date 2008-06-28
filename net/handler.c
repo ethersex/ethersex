@@ -46,6 +46,8 @@
 #include "modbus_net.h"
 #include "rfm12_raw_net.h"
 #include "zbus_raw_net.h"
+#include "stella_net.h"
+#include "../httpd/httpd.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
@@ -54,6 +56,10 @@ void network_init_apps(void)
 /* {{{ */ {
 #   ifdef ECMD_SUPPORT
     ecmd_net_init();
+#   endif
+
+#   ifdef HTTPD_SUPPORT
+    httpd_init();
 #   endif
 
 #   ifdef UECMD_SUPPORT
