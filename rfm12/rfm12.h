@@ -132,10 +132,6 @@ void rfm12_allstop(void);
 
 void rfm12_process (void);
 
-#ifdef RFM12_BEACON_SUPPORT
-extern uint8_t rfm12_beacon_code;
-#endif
-
 /* return the current rfm12 status word */
 uint16_t rfm12_get_status (void);
 

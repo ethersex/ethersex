@@ -1040,15 +1040,10 @@ uip_process(u8_t flag)
 
        We need to send a beacon ID byte, however we don't initialize it,
        since the packet is sent towards the rfm12 network. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN - RFM12_BEACON_LEN], 
-                  uip_len + RFM12_BEACON_LEN);
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
     goto drop;
   }
 #elif defined(RFM12_OUTER)
-#ifdef RFM12_BEACON_SUPPORT
-  /* Beacon support has been enabled, check that the beacon ID matches. */
-  if(uip_buf[RFM12_BRIDGE_OFFSET] == rfm12_beacon_code) 
-#endif
   {
 #ifdef ZBUS_SUPPORT
 #if UIP_CONF_IPV6
@@ -1113,8 +1108,7 @@ uip_process(u8_t flag)
 
        We need to send a beacon ID byte, however we don't initialize it,
        since the packet is sent towards the rfm12 network. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN - RFM12_BEACON_LEN], 
-                  uip_len + RFM12_BEACON_LEN);
+    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
     goto drop;
   }
   else

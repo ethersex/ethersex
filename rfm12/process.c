@@ -66,15 +66,6 @@ rfm12_process (void)
   if (uip_len == 0 || uip_len >= 254)
     return;			/* receive error or no data */
 
-#ifdef RFM12_BEACON_SUPPORT
-  if (uip_buf[0] == 0x23 && uip_buf[2] == 0x42) {
-    /* we've received a beacon, store its id. */
-    rfm12_beacon_code = uip_buf[1];
-    rfm12_rxstart ();
-    return;
-  }
-#endif /* RFM12_BEACON_SUPPORT */
-
   uip_input ();
 #endif /* not ENC28J60_SUPPORT */
 

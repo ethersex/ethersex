@@ -155,12 +155,12 @@ extern struct uip_stack *uip_stack;
    the packet to ethernet, therefore 14 is simpler. */
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
 #  ifdef OPENVPN_SUPPORT
-#    define RFM12_BRIDGE_OFFSET  (OPENVPN_TOTAL_LLH_LEN - RFM12_BEACON_LEN)
+#    define RFM12_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
 #  else
-#    define RFM12_BRIDGE_OFFSET  (14                    - RFM12_BEACON_LEN)
+#    define RFM12_BRIDGE_OFFSET  14
 #  endif
 #  ifdef RFM12_OUTER
-#    define UIP_CONF_LLH_LEN     (RFM12_BRIDGE_OFFSET   + RFM12_BEACON_LEN)
+#    define UIP_CONF_LLH_LEN     RFM12_BRIDGE_OFFSET
 #  endif
 #endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
 
