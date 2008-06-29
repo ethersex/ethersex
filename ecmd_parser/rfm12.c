@@ -70,9 +70,42 @@ parse_cmd_rfm12_setbandwidth(char *cmd, char *output, uint16_t len)
   if (ret != 1)
     return -1;
   
-  rfm12_setbandwidth(bandwidth, 1, 4);
+  rfm12_setbandwidth(bandwidth, rfm12_gain, rfm12_drssi);
   return 0;
 }
+
+int16_t
+parse_cmd_rfm12_setgain(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint16_t gain;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &gain);
+  
+  if (ret != 1)
+    return -1;
+  
+  rfm12_setbandwidth(rfm12_bandwidth, gain, rfm12_drssi);
+  return 0;
+}
+
+int16_t
+parse_cmd_rfm12_setdrssi(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint16_t drssi;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &drssi);
+  
+  if (ret != 1)
+    return -1;
+  
+  rfm12_setbandwidth(rfm12_bandwidth, rfm12_gain, drssi);
+  return 0;
+}
+
 
 int16_t
 parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)

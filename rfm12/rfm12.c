@@ -84,6 +84,10 @@ unsigned short RFM12_i_status = 0;
 uint8_t RFM12_Data[RFM12_DataLength];
 #endif
 
+uint8_t rfm12_bandwidth = 5;
+uint8_t rfm12_gain = 1;
+uint8_t rfm12_drssi = 4;
+
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
@@ -216,6 +220,10 @@ rfm12_init(void)
 void
 rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 {
+  rfm12_bandwidth = bandwidth;
+  rfm12_gain = gain;
+  rfm12_drssi = drssi;
+
   rfm12_prologue ();
   rfm12_trans (0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
   rfm12_epilogue ();

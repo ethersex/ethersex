@@ -130,6 +130,8 @@ ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_feature(rfm12_setbaud, "rfm12 setbaud")
     ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth")
     ecmd_feature(rfm12_setmod, "rfm12 setmod")
+    ecmd_feature(rfm12_setgain, "rfm12 setgain")
+    ecmd_feature(rfm12_setdrssi, "rfm12 setdrssi")
   ecmd_endif()
 ecmd_endif()
 
