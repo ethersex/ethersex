@@ -1,4 +1,6 @@
 divert(-1)
+# M4 Macro rename
+define(`m4_macro_rename', `define(`$2', defn(`$1'))undefine(`$1')')
 # Counters
 define(`action_thread_count', 0)
 define(`timer_count', 0)
@@ -181,5 +183,7 @@ divert(control_end_divert)
   global_started = 1;dnl
 divert(old_divert)')global_started == 0')
 
+ifelse(LANGUAGE, `GERMAN', `include(`german.m4')')
 
 divert(0)dnl
+
