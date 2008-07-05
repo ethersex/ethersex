@@ -78,7 +78,6 @@ uint8_t RFM12_ret_platz = 0;
 
 uint8_t RFM12_Index = 0;
 uint8_t RFM12_Txlen = 0;
-unsigned short RFM12_i_status = 0;
 
 #ifndef RFM12_SHARE_UIP_BUF
 uint8_t RFM12_Data[RFM12_DataLength];
@@ -149,11 +148,7 @@ SIGNAL(RFM12_INT_SIGNAL)
     }
   else
     {
-      RFM12_i_status = rfm12_trans(0x0000);/* dummy read (get Statusregister) */
-#ifdef SYSLOG_SUPPORT
-      syslog_sendf ("rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
-#endif
-      /* FIXME what happend */
+      rfm12_trans(0x0000);	/* clear interrupt flags in RFM12 */
     }
 }
 
