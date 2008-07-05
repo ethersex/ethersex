@@ -4,14 +4,15 @@ CONTROL_START
   PIN_PULLUP(TASTER)
   PIN_OUTPUT(LED)
 
-  ACTION(new)
+  ACTION(nice_action)
       TIMER_START(new)
       PIN_SET(LED);
-      TIMER_WAIT(new, 20)
+      TIMER_WAIT(new, 5)
       PIN_CLEAR(LED);
-  ACTION_END(new)
+  ACTION_END(nice_action)
 
-  ON CLOCK_MIN == 5 DO ACTION_START(new) END
+  ON CLOCK_MIN == 1 DO ACTION_RESTART(nice_action) END
+  ON PIN_FALLING(TASTER) DO ACTION_RESTART(nice_action) END
 
 CONTROL_END
 

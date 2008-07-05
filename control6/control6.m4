@@ -154,17 +154,19 @@ divert(-1)
 # CLOCK
 ################################
 define(`CLOCK_USED', `ifdef(`clock_used', `', `dnl
-define(`old_divert', divnum)
-define(`clock_used')
+define(`old_divert', divnum)dnl
+define(`clock_used')dnl
 divert(globals_divert)struct clock_datetime_t datetime;
+uint8_t last_minute;
 #ifndef CLOCK_SUPPORT
 #error Please define clock support
 #endif
 
 divert(normal_start_divert)  clock_datetime(&datetime, clock_get_time());
+divert(control_end_divert)  last_minute = datetime.min;
 divert(old_divert)')')
 
-define(`CLOCK_MIN', `CLOCK_USED()datetime.min')
+define(`CLOCK_MIN', `CLOCK_USED()(datetime.min != last_minute) && datetime.min')
 define(`CLOCK_HOUR', `CLOCK_USED()datetime.hour')
 define(`CLOCK_DAY', `CLOCK_USED()datetime.day')
 define(`CLOCK_MONTH', `CLOCK_USED()datetime.month')

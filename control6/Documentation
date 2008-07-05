@@ -37,10 +37,7 @@ Here you see how to write such an event handler, this starts the action
 if it isn't started already. So this piece of code starts the action only the
 first time after startup ( if the action isn't stopped somewhere with
 ACTION_STOP). There ist also the possibility to use ACTION_RESTART, which
-starts the action always new, when ACTION_RESTART is called. But remeber, that
-for example the piece of code showed above, is executed more than 60 times
-within the minute, where the minute field is equal to 5.
-
+starts the action always new, when ACTION_RESTART is called. 
 
 !! An example of 6control
 
