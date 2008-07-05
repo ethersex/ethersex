@@ -80,10 +80,11 @@ uint8_t RFM12_Txlen = 0;
 uint8_t RFM12_Data[RFM12_DataLength];
 #endif
 
+#ifndef TEENSY_SUPPORT
 uint8_t rfm12_bandwidth = 5;
 uint8_t rfm12_gain = 1;
 uint8_t rfm12_drssi = 4;
-
+#endif
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
