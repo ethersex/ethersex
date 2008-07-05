@@ -58,7 +58,7 @@ named_pin_init(void)
       vport[port].write_ddr(port, vport[port].read_ddr(port) | _BV(pin));
 
     /* If input and active low set pullup */
-    if ((pgm_read_byte(&portio_pincfg[i].active_high) == 0) && input )
+    if (input && (pgm_read_byte(&portio_pincfg[i].active_high) == 0))
       vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
     i++;
   }
