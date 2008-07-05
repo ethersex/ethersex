@@ -67,9 +67,11 @@ void timer_process(void)
 
     static uint16_t counter = 0;
 
-    /* check timer 1 (timeout after 50ms) */
+    /* check timer 1 (timeout after 20ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
-
+	if (uip_buf_lock ())
+	    return;		/* hmpf, try again shortly
+				   (let's hope we don't miss too many ticks */
         counter++;
 
 #       ifdef DEBUG_TIMER
@@ -222,6 +224,8 @@ void timer_process(void)
 
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
+
+	uip_buf_unlock ();
     }
 
 } /* }}} */

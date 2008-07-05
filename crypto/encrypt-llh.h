@@ -51,10 +51,10 @@ rfm12_encrypt (uint8_t *data, uint8_t *len)
 }
 
 static inline void
-rfm12_decrypt (uint8_t *data, uint8_t *len)
+rfm12_decrypt (uint8_t *len)
 {
   uint16_t i = *len;
-  llh_decrypt(rfm12_key, data, &i);
+  llh_decrypt(rfm12_key, RFM12_Data + RFM12_LLH_LEN, &i);
   *len = i;
 }
 

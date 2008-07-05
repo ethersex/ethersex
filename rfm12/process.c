@@ -30,12 +30,11 @@
 void
 rfm12_process (void)
 {
+  uip_len = rfm12_rxfinish ();
+  if (! uip_len)
+    return;
+
 #ifdef ENC28J60_SUPPORT
-  int recv_len = rfm12_rxfinish (uip_buf + RFM12_BRIDGE_OFFSET);
-
-  if (recv_len == 0 || recv_len >= 254)
-    return;			/* receive error or no data */
-
 #ifdef RFM12_RAW_SUPPORT
   if (rfm12_raw_conn->rport) {
     /* rfm12 raw capturing active, forward in udp/ip encapsulated form,
@@ -47,30 +46,24 @@ rfm12_process (void)
     uip_udp_conn = rfm12_raw_conn;
     uip_process(UIP_UDP_SEND_CONN);
     fill_llh_and_transmit();
-    
+
+    uip_buf_unlock ();
     rfm12_rxstart ();
     return;
   }
 #endif /* RFM12_RAW_SUPPORT */
 
   /* uip_input expects the number of bytes including the LLH. */
-  uip_len = recv_len + RFM12_BRIDGE_OFFSET;
+  uip_len = uip_len + RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN;
+#endif /* not ENC28J60_SUPPORT */
 
   /* Push data into inner uIP stack. */
   uip_stack_set_active (STACK_RFM12);
-  rfm12_stack_process (UIP_DATA);
-
-#else /* not ENC28J60_SUPPORT */
-  uip_len = rfm12_rxfinish (uip_buf);
-  
-  if (uip_len == 0 || uip_len >= 254)
-    return;			/* receive error or no data */
-
   uip_input ();
-#endif /* not ENC28J60_SUPPORT */
 
   if (uip_len == 0)
     {
+      uip_buf_unlock ();
       rfm12_rxstart ();
       return;			/* The stack didn't generate any data
 				   that has to be sent back. */

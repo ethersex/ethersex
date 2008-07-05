@@ -279,6 +279,8 @@ void network_init(void)
 #ifdef ENC28J60_SUPPORT
 void network_process(void)
 /* {{{ */ {
+    if (uip_buf_lock ())
+	return;			/* already locked */
 
     /* also check packet counter, see errata #6 */
 #   ifdef ENC28J60_REV4_WORKAROUND
@@ -292,7 +294,7 @@ void network_process(void)
                 || pktcnt == 0
 #   endif
            )
-        return;
+        goto out;
 
 #   if defined(ENC28J60_REV4_WORKAROUND) && defined(DEBUG_REV4_WORKAROUND)
     if (pktcnt > 5)
@@ -386,6 +388,8 @@ void network_process(void)
     /* set global interrupt flag */
     bit_field_set(REG_EIE, _BV(INTIE));
 
+out:
+    uip_buf_unlock ();
 } /* }}} */
 #endif /* ENC28J60_SUPPORT */
 
@@ -393,7 +397,6 @@ void network_process(void)
 #ifdef ENC28J60_SUPPORT
 void process_packet(void)
 /* {{{ */ {
-
     /* if there is a packet to process */
     if (read_control_register(REG_EPKTCNT) == 0)
         return;
@@ -421,7 +424,8 @@ void process_packet(void)
             || rpv.received_packet_size < 14
             || rpv.received_packet_size > UIP_BUFSIZE) {
 #       ifdef DEBUG
-        debug_printf("net: packet too large or too small for an ethernet header: %d\n", rpv.received_packet_size);
+        debug_printf("net: packet too large or too small for an "
+		     "ethernet header: %d\n", rpv.received_packet_size);
 #       endif
         return;
     }

@@ -31,18 +31,24 @@
 #include <util/delay.h>
 #include "../config.h"
 
-//##############################################################################
-/* config */
+#ifdef RFM12_SUPPORT
 
-/* RFM12 Buffer length (max length 254) */
-#define RFM12_DataLength	196
+#define rfm12_int_enable()			\
+  _EIMSK |= _BV(RFM12_INT_PIN);
+#define rfm12_int_disable()			\
+  _EIMSK &= ~_BV(RFM12_INT_PIN);
 
-#ifndef ENC28J60_SUPPORT
-#  define RFM12_SHARE_UIP_BUF
-#  undef RFM12_DataLength
-#  define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE)
-#  define RFM12_Data uip_buf
-#endif /* no ENC28J60_SUPPORT */
+#else /* not RFM12_SUPPORT */
+
+#define rfm12_int_enable()  do { } while(0)
+#define rfm12_int_disable() do { } while(0)
+#endif
+
+
+#define RFM12_BufferLength  (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)
+#define RFM12_DataLength    (RFM12_BufferLength - RFM12_LLH_LEN)
+#define RFM12_Buffer        (uip_buf + RFM12_BRIDGE_OFFSET)
+#define RFM12_Data          (RFM12_Buffer + RFM12_LLH_LEN)
 
 //##############################################################################
 
@@ -118,10 +124,10 @@ void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
 uint8_t rfm12_rxstart(void);
 
 // readout the package, if one arrived
-uint8_t rfm12_rxfinish(uint8_t *data);
+uint8_t rfm12_rxfinish(void);
 
 // start transmitting a package of size size
-uint8_t rfm12_txstart(uint8_t *data, uint8_t size);
+uint8_t rfm12_txstart(uint8_t size);
 
 // check whether the package is already transmitted
 uint8_t rfm12_txfinished(void);
@@ -138,6 +144,5 @@ uint16_t rfm12_get_status (void);
 extern uint8_t rfm12_bandwidth;
 extern uint8_t rfm12_gain;
 extern uint8_t rfm12_drssi;
-
 
 #endif //__RFM12_H

@@ -145,6 +145,8 @@ extern const uip_ipaddr_t mdns_address;
 
 
 #if STACK_PRIMARY
+uint8_t _uip_buf_lock;
+
 const uip_ipaddr_t all_ones_addr =
 #if UIP_CONF_IPV6
   {0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff};
@@ -1036,11 +1038,8 @@ uip_process(u8_t flag)
 #endif
   {
     /* We're on mainstack and got a packet addressed
-       to the rfm12 network.  Pass it on. 
-
-       We need to send a beacon ID byte, however we don't initialize it,
-       since the packet is sent towards the rfm12 network. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
+       to the rfm12 network.  Pass it on. */
+    rfm12_txstart(uip_len);
     goto drop;
   }
 #elif defined(RFM12_OUTER)
@@ -1068,9 +1067,8 @@ uip_process(u8_t flag)
 			 rfm12_stack_netmask))
 #endif /* !UIP_CONF_IPV6 */
     {
-      /* We're on the rfm12 stack and got a packet not addressed to us.
-	 Pass it on to the ethernet, if the beacon-id sent as the llh byte
-	 matches our station's beacon id. */
+      /* We're on the rfm12 stack and got a packet addressed to
+	 the RFM12 network. */
       uip_stack_set_active (STACK_MAIN);
       fill_llh_and_transmit ();
       goto drop;
@@ -1104,11 +1102,8 @@ uip_process(u8_t flag)
 #endif
   {
     /* We're on zbus stack and got a packet addressed
-       to the rfm12 network.  Pass it on. 
-
-       We need to send a beacon ID byte, however we don't initialize it,
-       since the packet is sent towards the rfm12 network. */
-    rfm12_txstart(&uip_buf[UIP_LLH_LEN], uip_len);
+       to the rfm12 network.  Pass it on. */
+    rfm12_txstart(uip_len);
     goto drop;
   }
   else

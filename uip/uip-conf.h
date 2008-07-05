@@ -126,14 +126,16 @@ typedef unsigned short uip_stats_t;
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
+#define RFM12_LLH_LEN            1
+
 
 #ifdef ENC28J60_SUPPORT
 /* On stand-alone ethersex and on rfm12/zbus-bridge always use 14 byte LLH. */
 #  define __LLH_LEN  14
 
 #elif defined(RFM12_SUPPORT)	  /* cf. zbus */
-#  define __LLH_LEN  0
-#  define RFM12_BRIDGE_OFFSET 0
+#  define __LLH_LEN              RFM12_LLH_LEN
+#  define RFM12_BRIDGE_OFFSET    0
 
 #elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
 #  define __LLH_LEN  0

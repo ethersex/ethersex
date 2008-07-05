@@ -1625,6 +1625,35 @@ extern uint8_t fill_llh_and_transmit(void);
 #endif
 
 
+extern uint8_t _uip_buf_lock;
+
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include "../rfm12/rfm12.h"
+
+static inline uint8_t uip_buf_lock (void)
+{
+  uint8_t result = 0;
+#ifndef TEENSY_SUPPORT
+  uint8_t sreg = SREG; cli();
+  if (_uip_buf_lock)
+    result = 1;
+  else {
+    _uip_buf_lock = 1;
+    rfm12_int_disable();
+  }
+  SREG = sreg;			/* reenable global interrupts */
+#endif
+  return result;
+}
+
+#define uip_buf_unlock()			\
+  do {						\
+    _uip_buf_lock = 0;				\
+    rfm12_int_enable();				\
+  } while(0)
+
+
 #endif /* __UIP_H__ */
 
 

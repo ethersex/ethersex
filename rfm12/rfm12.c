@@ -50,27 +50,11 @@ enum RFM12_STATUS{
   RFM12_TX_END
 };
 
-enum RFM12_RET{
-  NOT_SET,
-  RX_START,
-  TX_START_1,
-  TX_START_2,
-  TX_START_3,
-  INT_1,
-  INT_2,
-  INT_3
-};
-
-
 
 uint8_t RFM12_akt_status = RFM12_OFF;
 
-uint8_t RFM12_Index = 0;
+volatile uint8_t RFM12_Index = 0;
 uint8_t RFM12_Txlen = 0;
-
-#ifndef RFM12_SHARE_UIP_BUF
-uint8_t RFM12_Data[RFM12_DataLength];
-#endif
 
 #ifndef TEENSY_SUPPORT
 uint8_t rfm12_bandwidth = 5;
@@ -82,9 +66,10 @@ SIGNAL(RFM12_INT_SIGNAL)
 {
   if(RFM12_akt_status == RFM12_RX)
     {
-      if(RFM12_Index < RFM12_DataLength)
+      if(RFM12_Index ? RFM12_Index < RFM12_BufferLength : !_uip_buf_lock)
 	{
-	  RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
+	  _uip_buf_lock = 1;
+	  RFM12_Buffer[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
 #endif
@@ -97,9 +82,10 @@ SIGNAL(RFM12_INT_SIGNAL)
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_CLEAR(RFM12_RX_PIN);
 #endif
+	  return;
 	}
 
-      if(RFM12_Index >= RFM12_Data[0] + 1)
+      if(RFM12_Index > RFM12_Buffer[0])
 	{
 	  rfm12_trans(0x8208);
 	  RFM12_akt_status = RFM12_NEW;
@@ -129,6 +115,7 @@ SIGNAL(RFM12_INT_SIGNAL)
           PIN_CLEAR(RFM12_TX_PIN);
 #endif
           rfm12_trans(0x8208);	/* TX off */
+	  uip_buf_unlock();
           rfm12_rxstart();
         }
       }
@@ -186,9 +173,8 @@ rfm12_init(void)
   DDR_CONFIG_OUT(RFM12_RX_PIN);
 #endif
 
-  _EIMSK |= _BV(RFM12_INT_PIN);
+  rfm12_int_enable ();
 }
-
 
 /* Prologue/epilogue macros, disabling/enabling interrupts. 
    Be careful, these are not well suited to be used as if-blocks. */
@@ -278,23 +264,16 @@ rfm12_rxstart(void)
 
 
 uint8_t 
-rfm12_rxfinish(uint8_t *data)
+rfm12_rxfinish(void)
 {
   if(RFM12_akt_status != RFM12_NEW)
-    return (255);		/* no new Packet */
+    return (0);			/* no new Packet */
 
 #ifdef HAVE_RFM12_RX_PIN
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
-  uint8_t i;
-  uint8_t len = RFM12_Data[0];
-
-  /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
-     first byte!  Therefore it is essential to copy the data
-     in forward direction below (and not use RFM12_Data afterwards). */
-  for(i = 0; i < len; i++)
-    data[i] = RFM12_Data[i + 1];
+  uint8_t len = RFM12_Buffer[0];
 
   RFM12_akt_status = RFM12_OFF;
 
@@ -303,9 +282,11 @@ rfm12_rxfinish(uint8_t *data)
 #endif
   {
 #ifdef SKIPJACK_SUPPORT
-    rfm12_decrypt (data, &len);
-    if (!len)
+    rfm12_decrypt (&len);
+    if (!len) {
+      uip_buf_unlock ();
       rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+    }
 #endif
   }
   return(len);			/* receive size */
@@ -313,15 +294,15 @@ rfm12_rxfinish(uint8_t *data)
 
 
 uint8_t 
-rfm12_txstart(uint8_t *data, uint8_t size)
+rfm12_txstart(uint8_t size)
 {
-  uint8_t i;
-
-  if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)){
+  if(RFM12_akt_status > RFM12_RX
+     || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)) {
     return(3);                  /* rx or tx in action oder new packet in buffer*/
   }
 
-  if(size > RFM12_DataLength){
+  if(size > RFM12_DataLength) {
+    uip_buf_unlock ();
     rfm12_rxstart ();		/* destroy the packet and restart rx */
     return(4);			/* str to big to transmit */
   }
@@ -332,11 +313,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
   PIN_SET(RFM12_TX_PIN);
 #endif
 
-#ifndef RFM12_SHARE_UIP_BUF
-  i = size; while (i --)
-              RFM12_Data[i] = data[i];
-#endif
-  i = RFM12_Index = 0;
+  RFM12_Index = 0;
 
 #ifdef RFM12_RAW_SUPPORT
   if (!rfm12_raw_conn->rport)
@@ -347,6 +324,7 @@ rfm12_txstart(uint8_t *data, uint8_t size)
 
     if (!size){
       RFM12_akt_status = RFM12_OFF;
+      uip_buf_unlock ();
       rfm12_rxstart ();		/* destroy the packet and restart rx */
       return 4;
     }
@@ -373,5 +351,3 @@ rfm12_get_status (void)
 
   return r;
 }
-
-
