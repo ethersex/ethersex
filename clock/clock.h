@@ -56,6 +56,9 @@ uint32_t clock_get_time(void);
 /* when was the clock synced the last time (unix timestamp) */
 uint32_t clock_last_sync(void);
 
+/* when was the device booted (unix timestamp) */
+uint32_t clock_get_startup(void);
+
 /* the actual time */
 void clock_set_time(uint32_t new_sync_timestamp);
 

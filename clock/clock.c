@@ -38,6 +38,10 @@ static uint32_t sync_timestamp = 0;
 static uint16_t ntp_timer = 1;
 #endif
 
+#ifdef WHM_SUPPORT
+uint32_t startup_timestamp = 0;
+#endif
+
 static uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 void
@@ -59,7 +63,9 @@ clock_init(void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
 SIGNAL(SIG_OVERFLOW2)
 {
+#if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
   if(sync_timestamp <= timestamp)
+#endif
     timestamp ++;
 }
 #endif
@@ -79,7 +85,10 @@ clock_tick(void)
 #endif
   /* Only clock here, when no crystal is connected */
 #ifndef CLOCK_CRYSTAL_SUPPORT
+# /* Don't wait for a sync, if no sync source is enabled */
+#if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
   if(sync_timestamp <= timestamp)
+#endif
     timestamp ++;
 #endif
 }
@@ -93,6 +102,10 @@ clock_set_time(uint32_t new_sync_timestamp)
   /* Allow the clock to jump forward, but never ever to go backward. */
   if (sync_timestamp > timestamp)
     timestamp = sync_timestamp;
+#ifdef WHM_SUPPORT
+  if (startup_timestamp == 0)
+    startup_timestamp = sync_timestamp;
+#endif
 
 #ifdef NTP_SUPPORT
   ntp_timer = 4096;
@@ -110,6 +123,14 @@ clock_last_sync(void)
 {
   return sync_timestamp;
 }
+
+#ifdef WHM_SUPPORT
+uint32_t
+clock_get_startup(void)
+{
+  return startup_timestamp;
+}
+#endif
 
 void 
 clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)

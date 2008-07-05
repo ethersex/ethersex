@@ -111,6 +111,10 @@ ecmd_ifdef(CLOCK_SUPPORT)
   ecmd_feature(date, "date")
 ecmd_endif()
 
+ecmd_ifdef(WHM_SUPPORT)
+  ecmd_feature(whm, "whm")
+ecmd_endif()
+
 ecmd_ifdef(ADC_SUPPORT)
   ecmd_feature(adc_get, "adc get")
 ecmd_endif()
