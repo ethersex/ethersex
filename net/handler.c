@@ -47,6 +47,7 @@
 #include "rfm12_raw_net.h"
 #include "zbus_raw_net.h"
 #include "stella_net.h"
+#include "snmp_net.h"
 #include "../httpd/httpd.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -152,6 +153,10 @@ void network_init_apps(void)
 
 #   ifdef MODBUS_SUPPORT
     modbus_net_init();
+#   endif
+
+#   ifdef SNMP_SUPPORT
+    snmp_net_init();
 #   endif
 
 #   if defined(DYNDNS_SUPPORT) && !defined(BOOTP_SUPPORT) \

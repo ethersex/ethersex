@@ -340,6 +340,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   fi
 
   bool "control6 scripts" CONTROL6_SUPPORT
+  bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT
 
   endmenu
 fi
