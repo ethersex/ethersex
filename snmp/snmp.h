@@ -25,6 +25,28 @@
 
 #ifndef _SNMP_H
 #define _SNMP_H
+struct snmp_varbinding {
+  uint8_t len;
+  uint8_t *data;
+  uint8_t type;
+};
+
+struct snmp_packet {
+  uint8_t version;
+  uint8_t *community;
+  uint8_t *pdu_type;
+  uint32_t request_id;
+  uint8_t var_count;
+  struct snmp_varbinding *binds;
+};
+
+typedef uint8_t (*snmp_reaction_callback_t)(uint8_t *ptr);
+struct snmp_reaction {
+  uint8_t *obj_name;
+  snmp_reaction_callback_t cb;
+  uint8_t append_zero;
+};
+  
 
 void snmp_new_data(void);
 #endif
