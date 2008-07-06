@@ -26,7 +26,6 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
-#include "../syslog/syslog.h"
 #include "../debug.h"
 #include "../net/snmp_net.h"
 #include "snmp.h"
@@ -37,25 +36,31 @@
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 uint8_t 
-uptime_reaction(char *ptr)
+uptime_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
 {
-  ptr[0] = 5;
-  ptr[1] = 0;
-  return 2;
+  ptr[0] = 2;
+  ptr[1] = 1;
+  ptr[2] = bind->len;
+  return 3;
 }
 
 uint8_t 
-hostname_reaction(char *ptr)
+string_pgm_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
 {
+  (void) bind;
   ptr[0] = 4;
-  ptr[1] = strlen_P(PSTR(CONF_HOSTNAME));
-  memcpy_P(ptr + 2, PSTR(CONF_HOSTNAME), ptr[1]);
+  ptr[1] = strlen_P((char *) userdata);
+  memcpy_P(ptr + 2, userdata, ptr[1]);
   return ptr[1] + 2;
 }
 
+const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x03";
+const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
+const char hostname_value[] PROGMEM = CONF_HOSTNAME;
+
 static struct snmp_reaction snmp_reactions[] = {
-  {"\x2b\x06\x01\x02\x01\x03", uptime_reaction, 1},
-  {"\x2b\x06\x01\x02\x01\x01\x05", hostname_reaction, 1},
+  {uptime_reaction_obj_name, uptime_reaction, NULL},
+  {hostname_reaction_obj_name, string_pgm_reaction, hostname_value},
   {NULL, NULL, 0}
 };
 
@@ -109,10 +114,20 @@ snmp_new_data(void)
                    strlen((char *)snmp_reactions[z].obj_name)
                           + snmp_reactions[z].append_zero,
                           snmp_reactions[z].obj_name[0]); */
-      if (memcmp(pkt.binds[y].data, snmp_reactions[z].obj_name,
-                 strlen((char *)snmp_reactions[z].obj_name) 
-                 + snmp_reactions[z].append_zero) == 0) {
+      uint8_t store_len = strlen_P((char *)snmp_reactions[z].obj_name);
+      if (memcmp_P(pkt.binds[y].data, snmp_reactions[z].obj_name, store_len) == 0) {
         pkt.binds[y].type = z;
+        if (store_len < pkt.binds[y].len) {
+          uint8_t *data_ptr = pkt.binds[y].data;
+          pkt.binds[y].len = pkt.binds[y].len - store_len;
+          pkt.binds[y].data = __builtin_alloca(pkt.binds[y].len);
+          memcpy(pkt.binds[y].data, data_ptr + store_len,
+                 pkt.binds[y].len);
+        } else {
+          pkt.binds[y].data = NULL;
+          pkt.binds[y].len = 0;
+        }
+        
         break;
       }
     }
@@ -128,7 +143,6 @@ snmp_new_data(void)
   uint8_t *bind_start = varbind_start + 2;
   for (ptr = 0; ptr < pkt.var_count; ptr++) {
     uint8_t type = pkt.binds[ptr].type;
-    syslog_sendf("%d ", ptr);
     if (type == 0xff) {
       /* This datatype is not defined */
       pkt.pdu_type[1 + 2 + 4 + 3] = 2; /* NoSuchName */;
@@ -137,12 +151,22 @@ snmp_new_data(void)
       break;
     }
     bind_start[0] = 0x30;
-    bind_start[1] = 2 + strlen((char *)snmp_reactions[type].obj_name) 
-                      + snmp_reactions[type].append_zero;
+    bind_start[1] = 2 + strlen_P((char *)snmp_reactions[type].obj_name);
+    /* Object identifier */
     bind_start[2] = 0x06; /* Object identifier start */
     bind_start[3] = bind_start[1] - 2;
-    memcpy(bind_start + 4, snmp_reactions[type].obj_name, bind_start[3]);
-    bind_start[1] += snmp_reactions[type].cb(bind_start + 4 + bind_start[3]);
+    memcpy_P(bind_start + 4, snmp_reactions[type].obj_name, bind_start[3]);
+
+    /* Variable part  of the object identifier*/
+    memcpy(bind_start + 4 + bind_start[3], pkt.binds[ptr].data, 
+           pkt.binds[ptr].len);
+    bind_start[3] += pkt.binds[ptr].len;
+    bind_start[1] += pkt.binds[ptr].len;
+
+    /* Append the value */
+    bind_start[1] += snmp_reactions[type].cb(bind_start + 4 + bind_start[3],
+                                             &pkt.binds[ptr],
+                                             snmp_reactions[type].userdata);
 
     varbind_start[1] += bind_start[1] + 2;
 

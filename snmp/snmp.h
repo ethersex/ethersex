@@ -40,11 +40,13 @@ struct snmp_packet {
   struct snmp_varbinding *binds;
 };
 
-typedef uint8_t (*snmp_reaction_callback_t)(uint8_t *ptr);
+typedef uint8_t (*snmp_reaction_callback_t)(uint8_t *ptr, 
+                                            struct snmp_varbinding *bind,
+                                            void *userdata);
 struct snmp_reaction {
-  uint8_t *obj_name;
+  const char *obj_name;
   snmp_reaction_callback_t cb;
-  uint8_t append_zero;
+  void *userdata;
 };
   
 
