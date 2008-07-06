@@ -226,6 +226,9 @@ else
   fi
 
   if [ "$RFM12_SUPPORT" = "y" ]; then
+    if [ "$TEENSY_SUPPORT" != "y" ]; then
+      int "RFM12 Baudrate" CONF_RFM12_BAUD 34500
+    fi
     if [ "$SKIPJACK_SUPPORT" = "y" ]; then
       hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
     fi
