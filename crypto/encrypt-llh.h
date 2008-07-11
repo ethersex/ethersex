@@ -39,7 +39,7 @@ rfm12_encrypt (uint8_t *data, rfm12_index_t *len)
 {
   uint8_t pad_char = 8 - (*len % 8);
 
-  if (pad_char + *len + 8 > RFM12_DataLength)
+  if (pad_char + *len + 8 > RFM12_DATA_LEN)
     {
       *len = 0; 		/* destroy packet */
       return;
@@ -54,7 +54,7 @@ static inline void
 rfm12_decrypt (rfm12_index_t *len)
 {
   uint16_t i = *len;
-  llh_decrypt(rfm12_key, RFM12_Data + RFM12_LLH_LEN, &i);
+  llh_decrypt(rfm12_key, rfm12_data + RFM12_LLH_LEN, &i);
   *len = i;
 }
 

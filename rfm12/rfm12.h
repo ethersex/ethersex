@@ -69,14 +69,14 @@ rfm12_status_t rfm12_status;
 #endif
 
 
-#define RFM12_BufferLength  (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)
-#define RFM12_DataLength    (RFM12_BufferLength - RFM12_LLH_LEN)
-#define RFM12_Buffer        (uip_buf + RFM12_BRIDGE_OFFSET)
-#define RFM12_Data          (RFM12_Buffer + RFM12_LLH_LEN)
+#define RFM12_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)
+#define RFM12_DATA_LEN      (RFM12_BUFFER_LEN - RFM12_LLH_LEN)
+#define rfm12_buf           (uip_buf + RFM12_BRIDGE_OFFSET)
+#define rfm12_data          (rfm12_buf + RFM12_LLH_LEN)
 
 
 #ifdef TEENSY_SUPPORT
-#  if RFM12_BufferLength > 254
+#  if RFM12_BUFFER_LEN > 254
 #    error "modify code or shrink (shared) uIP buffer."
 #  endif
 typedef uint8_t rfm12_index_t;

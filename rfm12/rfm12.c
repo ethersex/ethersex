@@ -49,10 +49,10 @@ SIGNAL(RFM12_INT_SIGNAL)
 {
   if(rfm12_status == RFM12_RX)
     {
-      if(rfm12_index ? rfm12_index < RFM12_BufferLength : !_uip_buf_lock)
+      if(rfm12_index ? rfm12_index < RFM12_BUFFER_LEN : !_uip_buf_lock)
 	{
 	  _uip_buf_lock = 1;
-	  RFM12_Buffer[rfm12_index ++] = rfm12_trans(0xB000) & 0x00FF;
+	  rfm12_buf[rfm12_index ++] = rfm12_trans(0xB000) & 0x00FF;
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
 #endif
@@ -71,7 +71,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  return;
 	}
 
-      if(rfm12_index > RFM12_Buffer[0])
+      if(rfm12_index > rfm12_buf[0])
 	{
 	  rfm12_trans(0x8208);
 	  rfm12_status = RFM12_NEW;
@@ -81,7 +81,7 @@ SIGNAL(RFM12_INT_SIGNAL)
   else if(rfm12_status >= RFM12_TX)
     {
       if(rfm12_status == RFM12_TX_DATA){
-        rfm12_trans(0xB800 | RFM12_Data[rfm12_index ++]);
+        rfm12_trans(0xB800 | rfm12_data[rfm12_index ++]);
         if(rfm12_index >= rfm12_txlen)
           rfm12_status = RFM12_TX_DATAEND;
       }
@@ -259,7 +259,7 @@ rfm12_rxfinish(void)
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
-  rfm12_index_t len = RFM12_Buffer[0];
+  rfm12_index_t len = rfm12_buf[0];
 
   rfm12_status = RFM12_OFF;
 
@@ -288,7 +288,7 @@ rfm12_txstart(rfm12_index_t size)
 				   new packet left in buffer */
   }
 
-  if(size > RFM12_DataLength) {
+  if(size > RFM12_DATA_LEN) {
     rfm12_rxstart ();		/* destroy the packet and restart rx */
     uip_buf_unlock ();
     return;
@@ -307,7 +307,7 @@ rfm12_txstart(rfm12_index_t size)
 #endif
   {
 #ifdef SKIPJACK_SUPPORT
-    rfm12_encrypt (RFM12_Data, &size);
+    rfm12_encrypt (rfm12_data, &size);
 
     if (!size){
       rfm12_status = RFM12_OFF;
