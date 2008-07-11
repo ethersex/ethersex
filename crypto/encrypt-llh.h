@@ -35,7 +35,7 @@ void llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 extern uint8_t *rfm12_key;
 
 static inline void
-rfm12_encrypt (uint8_t *data, uint8_t *len)
+rfm12_encrypt (uint8_t *data, rfm12_index_t *len)
 {
   uint8_t pad_char = 8 - (*len % 8);
 
@@ -51,7 +51,7 @@ rfm12_encrypt (uint8_t *data, uint8_t *len)
 }
 
 static inline void
-rfm12_decrypt (uint8_t *len)
+rfm12_decrypt (rfm12_index_t *len)
 {
   uint16_t i = *len;
   llh_decrypt(rfm12_key, RFM12_Data + RFM12_LLH_LEN, &i);

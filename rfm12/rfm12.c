@@ -36,8 +36,8 @@
 
 rfm12_status_t rfm12_status;
 
-static volatile uint8_t rfm12_index;
-static uint8_t rfm12_txlen;
+static volatile rfm12_index_t rfm12_index;
+static volatile rfm12_index_t rfm12_txlen;
 
 #ifndef TEENSY_SUPPORT
 uint8_t rfm12_bandwidth = 5;
@@ -249,7 +249,7 @@ rfm12_rxstart(void)
 }
 
 
-uint8_t 
+rfm12_index_t
 rfm12_rxfinish(void)
 {
   if(rfm12_status != RFM12_NEW)
@@ -259,7 +259,7 @@ rfm12_rxfinish(void)
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
-  uint8_t len = RFM12_Buffer[0];
+  rfm12_index_t len = RFM12_Buffer[0];
 
   rfm12_status = RFM12_OFF;
 
@@ -279,18 +279,19 @@ rfm12_rxfinish(void)
 }
 
 
-uint8_t 
-rfm12_txstart(uint8_t size)
+void
+rfm12_txstart(rfm12_index_t size)
 {
   if(rfm12_status > RFM12_RX
      || (rfm12_status == RFM12_RX && rfm12_index > 0)) {
-    return(3);                  /* rx or tx in action oder new packet in buffer*/
+    return;			/* rx or tx in action or
+				   new packet left in buffer */
   }
 
   if(size > RFM12_DataLength) {
     rfm12_rxstart ();		/* destroy the packet and restart rx */
     uip_buf_unlock ();
-    return(4);			/* str to big to transmit */
+    return;
   }
 
   rfm12_status = RFM12_TX;
@@ -312,7 +313,7 @@ rfm12_txstart(uint8_t size)
       rfm12_status = RFM12_OFF;
       uip_buf_unlock ();
       rfm12_rxstart ();		/* destroy the packet and restart rx */
-      return 4;
+      return;
     }
 #endif
   }
@@ -329,7 +330,7 @@ rfm12_txstart(uint8_t size)
      the RFM12 interrupt disabled as well.*/
   rfm12_int_enable ();
 
-  return(0);
+  return;
 }
 
 

@@ -74,6 +74,16 @@ rfm12_status_t rfm12_status;
 #define RFM12_Buffer        (uip_buf + RFM12_BRIDGE_OFFSET)
 #define RFM12_Data          (RFM12_Buffer + RFM12_LLH_LEN)
 
+
+#ifdef TEENSY_SUPPORT
+#  if RFM12_BufferLength > 254
+#    error "modify code or shrink (shared) uIP buffer."
+#  endif
+typedef uint8_t rfm12_index_t;
+#else   /* TEENSY_SUPPORT */
+typedef uint16_t rfm12_index_t;
+#endif	/* not TEENSY_SUPPORT */
+
 //##############################################################################
 
 #define RxBW400		1
@@ -148,17 +158,10 @@ void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
 uint8_t rfm12_rxstart(void);
 
 // readout the package, if one arrived
-uint8_t rfm12_rxfinish(void);
+rfm12_index_t rfm12_rxfinish(void);
 
 // start transmitting a package of size size
-uint8_t rfm12_txstart(uint8_t size);
-
-// check whether the package is already transmitted
-uint8_t rfm12_txfinished(void);
-uint8_t rfm12_Index(void);
-
-// stop all Rx and Tx operations
-void rfm12_allstop(void);
+void rfm12_txstart(rfm12_index_t size);
 
 void rfm12_process (void);
 
