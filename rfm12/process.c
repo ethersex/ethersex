@@ -40,9 +40,8 @@ rfm12_process (void)
     /* rfm12 raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
     uip_stack_set_active (STACK_MAIN);
-    memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
-	     uip_buf + RFM12_BRIDGE_OFFSET, recv_len);
-    uip_slen = recv_len;
+    memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN, RFM12_Data, uip_len);
+    uip_slen = uip_len;
     uip_udp_conn = rfm12_raw_conn;
     uip_process(UIP_UDP_SEND_CONN);
     fill_llh_and_transmit();
