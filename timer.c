@@ -181,14 +181,14 @@ void timer_process(void)
             fs20_global.ws300.last_update++;
 #           endif
 
-#           ifdef NTP_SUPPORT
 #           ifdef OPENVPN_SUPPORT
 	    uip_stack_set_active(STACK_OPENVPN);
 #           endif
+#           if defined(CLOCK_SUPPORT) && ! defined(CLOCK_CRYSTAL_SUPPORT)
             clock_tick();
-	    if (uip_len)
-		fill_llh_and_transmit();
-#           endif /* NTP_SUPPORT */
+#           endif
+            if (uip_len)
+              fill_llh_and_transmit();
         }
 
         /* expire arp entries every 10 seconds */

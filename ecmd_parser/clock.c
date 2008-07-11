@@ -54,8 +54,8 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
 #ifdef WHM_SUPPORT
 int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  uint32_t working_hours = clock_get_time() - clock_get_startup(); 
-  return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 3600, working_hours / 60); 
+  uint32_t working_hours = (clock_get_time() - clock_get_startup()) / 60; 
+  return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60); 
 } /* }}} */
 #endif /* WHM_SUPPORT */
 #endif 
