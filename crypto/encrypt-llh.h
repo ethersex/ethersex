@@ -29,6 +29,7 @@
 void llh_encrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 void llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 
+#ifdef RFM12_SUPPORT
 /*
  * rfm12 encryption wrapper
  */
@@ -57,6 +58,7 @@ rfm12_decrypt (rfm12_index_t *len)
   llh_decrypt(rfm12_key, rfm12_data + RFM12_LLH_LEN, &i);
   *len = i;
 }
+#endif
 
 
 /*
