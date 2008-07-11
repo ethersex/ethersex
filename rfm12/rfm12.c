@@ -36,8 +36,8 @@
 
 rfm12_status_t rfm12_status;
 
-volatile uint8_t RFM12_Index = 0;
-uint8_t RFM12_Txlen = 0;
+static volatile uint8_t rfm12_index;
+static uint8_t rfm12_txlen;
 
 #ifndef TEENSY_SUPPORT
 uint8_t rfm12_bandwidth = 5;
@@ -49,17 +49,17 @@ SIGNAL(RFM12_INT_SIGNAL)
 {
   if(rfm12_status == RFM12_RX)
     {
-      if(RFM12_Index ? RFM12_Index < RFM12_BufferLength : !_uip_buf_lock)
+      if(rfm12_index ? rfm12_index < RFM12_BufferLength : !_uip_buf_lock)
 	{
 	  _uip_buf_lock = 1;
-	  RFM12_Buffer[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
+	  RFM12_Buffer[rfm12_index ++] = rfm12_trans(0xB000) & 0x00FF;
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
 #endif
 	}
       else
 	{
-	  if (RFM12_Index)
+	  if (rfm12_index)
 	    uip_buf_unlock ();	/* we already locked, therefore unlock */
 
 	  rfm12_trans(0x8208);
@@ -71,7 +71,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  return;
 	}
 
-      if(RFM12_Index > RFM12_Buffer[0])
+      if(rfm12_index > RFM12_Buffer[0])
 	{
 	  rfm12_trans(0x8208);
 	  rfm12_status = RFM12_NEW;
@@ -81,8 +81,8 @@ SIGNAL(RFM12_INT_SIGNAL)
   else if(rfm12_status >= RFM12_TX)
     {
       if(rfm12_status == RFM12_TX_DATA){
-        rfm12_trans(0xB800 | RFM12_Data[RFM12_Index++]);
-        if(RFM12_Index >= RFM12_Txlen)
+        rfm12_trans(0xB800 | RFM12_Data[rfm12_index ++]);
+        if(rfm12_index >= rfm12_txlen)
           rfm12_status = RFM12_TX_DATAEND;
       }
       else{
@@ -93,7 +93,7 @@ SIGNAL(RFM12_INT_SIGNAL)
         else if(rfm12_status == RFM12_TX_PREFIX_2)
           rfm12_trans(0xB8D4);
         else if(rfm12_status == RFM12_TX_SIZE)
-          rfm12_trans(0xB800 | RFM12_Txlen);
+          rfm12_trans(0xB800 | rfm12_txlen);
         rfm12_status ++;
         if(rfm12_status == RFM12_TX_END){
           rfm12_status = RFM12_OFF;
@@ -242,7 +242,7 @@ rfm12_rxstart(void)
 
   rfm12_epilogue ();
 
-  RFM12_Index = 0;
+  rfm12_index = 0;
   rfm12_status = RFM12_RX;
 
   return(0);
@@ -283,7 +283,7 @@ uint8_t
 rfm12_txstart(uint8_t size)
 {
   if(rfm12_status > RFM12_RX
-     || (rfm12_status == RFM12_RX && RFM12_Index > 0)) {
+     || (rfm12_status == RFM12_RX && rfm12_index > 0)) {
     return(3);                  /* rx or tx in action oder new packet in buffer*/
   }
 
@@ -299,7 +299,7 @@ rfm12_txstart(uint8_t size)
   PIN_SET(RFM12_TX_PIN);
 #endif
 
-  RFM12_Index = 0;
+  rfm12_index = 0;
 
 #ifdef RFM12_RAW_SUPPORT
   if (!rfm12_raw_conn->rport)
@@ -316,7 +316,7 @@ rfm12_txstart(uint8_t size)
     }
 #endif
   }
-  RFM12_Txlen = size;
+  rfm12_txlen = size;
 
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
