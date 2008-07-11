@@ -27,6 +27,7 @@
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
 #include "../debug.h"
+#include "../clock/clock.h"
 #include "../net/snmp_net.h"
 #include "snmp.h"
 
@@ -35,14 +36,47 @@
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
+#ifdef WHM_SUPPORT
 uint8_t 
 uptime_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
 {
-  ptr[0] = 2;
-  ptr[1] = 1;
-  ptr[2] = bind->len;
-  return 3;
+  uint32_t seconds = clock_get_time() - clock_get_startup();
+  /* This long long (uint64_t) hack is necessary, because it seems to be, that
+   * seconds = seconds * 100 doesn't work at all 
+   */
+  seconds = seconds * 100LL;
+  uint32_t *time_ptr = (void *) ptr + 2;
+
+  ptr[0] = 0x43;
+  ptr[1] = 4;
+  *time_ptr = HTONL((uint32_t)seconds);
+
+  return 6;
 }
+#endif
+
+#ifdef ADC_SUPPORT
+uint8_t 
+adc_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+{
+  ptr[0] = 2;
+  ptr[1] = 2;
+  if ( bind->len > 0 && bind->data[0] < ADC_CHANNELS) {
+    ADMUX = (ADMUX & 0xF0) | bind->data[0];
+    /* Start adc conversion */
+    ADCSRA |= _BV(ADSC);
+    /* Wait for completion of adc */
+    while (ADCSRA & _BV(ADSC)) {}
+    uint16_t adc = ADC;
+    ptr[2] = adc >> 8;
+    ptr[3] = adc & 0xff;
+  } else { 
+    ptr[2] = ptr[3] = 0;
+  }
+
+  return 4;
+}
+#endif
 
 uint8_t 
 string_pgm_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
@@ -54,13 +88,19 @@ string_pgm_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
   return ptr[1] + 2;
 }
 
-const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x03";
+const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
 const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
+const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\01";
 const char hostname_value[] PROGMEM = CONF_HOSTNAME;
 
 static struct snmp_reaction snmp_reactions[] = {
+#ifdef WHM_SUPPORT
   {uptime_reaction_obj_name, uptime_reaction, NULL},
-  {hostname_reaction_obj_name, string_pgm_reaction, hostname_value},
+#endif
+#ifdef ADC_SUPPORT
+  {adc_reaction_obj_name, adc_reaction, NULL},
+#endif
+  {hostname_reaction_obj_name, string_pgm_reaction, (void *)hostname_value},
   {NULL, NULL, 0}
 };
 

@@ -51,4 +51,7 @@ struct snmp_reaction {
   
 
 void snmp_new_data(void);
+
+#define ucdExperimental "\x2b\x06\x01\x04\x01\x8f\x65\x0d"
+#define ethersexExperimental ucdExperimental "\x17"
 #endif
