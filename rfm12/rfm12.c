@@ -33,25 +33,8 @@
 #include "../crypto/encrypt-llh.h"
 #include "../syslog/syslog.h"
 
-enum RFM12_STATUS{
-  RFM12_OFF,
-  RFM12_RX,
-  RFM12_NEW,
-  RFM12_TX,
-  RFM12_TX_PREAMPLE_1,
-  RFM12_TX_PREAMPLE_2,
-  RFM12_TX_PREFIX_1,
-  RFM12_TX_PREFIX_2,
-  RFM12_TX_SIZE,
-  RFM12_TX_DATA,
-  RFM12_TX_DATAEND,
-  RFM12_TX_SUFFIX_1,
-  RFM12_TX_SUFFIX_2,
-  RFM12_TX_END
-};
 
-
-uint8_t RFM12_akt_status = RFM12_OFF;
+rfm12_status_t rfm12_status;
 
 volatile uint8_t RFM12_Index = 0;
 uint8_t RFM12_Txlen = 0;
@@ -64,7 +47,7 @@ uint8_t rfm12_drssi = 4;
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
-  if(RFM12_akt_status == RFM12_RX)
+  if(rfm12_status == RFM12_RX)
     {
       if(RFM12_Index ? RFM12_Index < RFM12_BufferLength : !_uip_buf_lock)
 	{
@@ -76,8 +59,11 @@ SIGNAL(RFM12_INT_SIGNAL)
 	}
       else
 	{
+	  if (RFM12_Index)
+	    uip_buf_unlock ();	/* we already locked, therefore unlock */
+
 	  rfm12_trans(0x8208);
-          RFM12_akt_status = RFM12_OFF;
+          rfm12_status = RFM12_OFF;
 	  rfm12_rxstart();
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_CLEAR(RFM12_RX_PIN);
@@ -88,29 +74,29 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(RFM12_Index > RFM12_Buffer[0])
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_akt_status = RFM12_NEW;
+	  rfm12_status = RFM12_NEW;
 	}
     }
 
-  else if(RFM12_akt_status >= RFM12_TX)
+  else if(rfm12_status >= RFM12_TX)
     {
-      if(RFM12_akt_status == RFM12_TX_DATA){
+      if(rfm12_status == RFM12_TX_DATA){
         rfm12_trans(0xB800 | RFM12_Data[RFM12_Index++]);
         if(RFM12_Index >= RFM12_Txlen)
-          RFM12_akt_status = RFM12_TX_DATAEND;
+          rfm12_status = RFM12_TX_DATAEND;
       }
       else{
-        if(RFM12_akt_status < RFM12_TX_PREFIX_1 || RFM12_akt_status > RFM12_TX_DATA)
+        if(rfm12_status < RFM12_TX_PREFIX_1 || rfm12_status > RFM12_TX_DATA)
           rfm12_trans(0xB8AA);
-        else if(RFM12_akt_status == RFM12_TX_PREFIX_1)
+        else if(rfm12_status == RFM12_TX_PREFIX_1)
           rfm12_trans(0xB82D);
-        else if(RFM12_akt_status == RFM12_TX_PREFIX_2)
+        else if(rfm12_status == RFM12_TX_PREFIX_2)
           rfm12_trans(0xB8D4);
-        else if(RFM12_akt_status == RFM12_TX_SIZE)
+        else if(rfm12_status == RFM12_TX_SIZE)
           rfm12_trans(0xB800 | RFM12_Txlen);
-        RFM12_akt_status++;
-        if(RFM12_akt_status == RFM12_TX_END){
-          RFM12_akt_status = RFM12_OFF;
+        rfm12_status ++;
+        if(rfm12_status == RFM12_TX_END){
+          rfm12_status = RFM12_OFF;
 #ifdef HAVE_RFM12_TX_PIN
           PIN_CLEAR(RFM12_TX_PIN);
 #endif
@@ -165,7 +151,7 @@ rfm12_init(void)
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
   rfm12_trans(0x0000);
   
-  RFM12_akt_status = RFM12_OFF;
+  rfm12_status = RFM12_OFF;
 #ifdef HAVE_RFM12_TX_PIN
   DDR_CONFIG_OUT(RFM12_TX_PIN);
 #endif
@@ -244,7 +230,7 @@ rfm12_setpower(uint8_t power, uint8_t mod)
 uint8_t
 rfm12_rxstart(void)
 {
-  if(RFM12_akt_status != RFM12_OFF){
+  if(rfm12_status != RFM12_OFF){
     return(1);			/* rfm12 is not free for RX or now in RX */
   }
 
@@ -257,7 +243,7 @@ rfm12_rxstart(void)
   rfm12_epilogue ();
 
   RFM12_Index = 0;
-  RFM12_akt_status = RFM12_RX;
+  rfm12_status = RFM12_RX;
 
   return(0);
 }
@@ -266,7 +252,7 @@ rfm12_rxstart(void)
 uint8_t 
 rfm12_rxfinish(void)
 {
-  if(RFM12_akt_status != RFM12_NEW)
+  if(rfm12_status != RFM12_NEW)
     return (0);			/* no new Packet */
 
 #ifdef HAVE_RFM12_RX_PIN
@@ -275,7 +261,7 @@ rfm12_rxfinish(void)
 
   uint8_t len = RFM12_Buffer[0];
 
-  RFM12_akt_status = RFM12_OFF;
+  rfm12_status = RFM12_OFF;
 
 #ifdef RFM12_RAW_SUPPORT
   if (!rfm12_raw_conn->rport)
@@ -296,18 +282,18 @@ rfm12_rxfinish(void)
 uint8_t 
 rfm12_txstart(uint8_t size)
 {
-  if(RFM12_akt_status > RFM12_RX
-     || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)) {
+  if(rfm12_status > RFM12_RX
+     || (rfm12_status == RFM12_RX && RFM12_Index > 0)) {
     return(3);                  /* rx or tx in action oder new packet in buffer*/
   }
 
   if(size > RFM12_DataLength) {
-    uip_buf_unlock ();
     rfm12_rxstart ();		/* destroy the packet and restart rx */
+    uip_buf_unlock ();
     return(4);			/* str to big to transmit */
   }
 
-  RFM12_akt_status = RFM12_TX;
+  rfm12_status = RFM12_TX;
 
 #ifdef HAVE_RFM12_TX_PIN
   PIN_SET(RFM12_TX_PIN);
@@ -323,7 +309,7 @@ rfm12_txstart(uint8_t size)
     rfm12_encrypt (RFM12_Data, &size);
 
     if (!size){
-      RFM12_akt_status = RFM12_OFF;
+      rfm12_status = RFM12_OFF;
       uip_buf_unlock ();
       rfm12_rxstart ();		/* destroy the packet and restart rx */
       return 4;
@@ -335,6 +321,13 @@ rfm12_txstart(uint8_t size)
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
   rfm12_epilogue ();
+
+  /* Force interrupts active no matter what.
+
+     If we're forwarding a packet from say Ethernet, uip_buf_unlock won't
+     unlock since there's an active RFM12 transfer, but it'd leave
+     the RFM12 interrupt disabled as well.*/
+  rfm12_int_enable ();
 
   return(0);
 }

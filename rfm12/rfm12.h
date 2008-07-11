@@ -33,6 +33,30 @@
 
 #ifdef RFM12_SUPPORT
 
+typedef enum {
+  RFM12_OFF,
+  RFM12_RX,
+  RFM12_NEW,
+  RFM12_TX,
+  RFM12_TX_PREAMPLE_1,
+  RFM12_TX_PREAMPLE_2,
+  RFM12_TX_PREFIX_1,
+  RFM12_TX_PREFIX_2,
+  RFM12_TX_SIZE,
+  RFM12_TX_DATA,
+  RFM12_TX_DATAEND,
+  RFM12_TX_SUFFIX_1,
+  RFM12_TX_SUFFIX_2,
+  RFM12_TX_END
+} rfm12_status_t;
+
+/* Current RFM12 transceiver status. */
+rfm12_status_t rfm12_status;
+
+#define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
+
+
+
 #define rfm12_int_enable()			\
   _EIMSK |= _BV(RFM12_INT_PIN);
 #define rfm12_int_disable()			\
