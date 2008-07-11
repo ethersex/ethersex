@@ -31,6 +31,12 @@ echo -ne "\t\n\n" | make no_deps=t menuconfig
 
 make no_deps=t clean 2> /dev/null
 
+if grep -qe "TEENSY_SUPPORT=y" .config; then
+  echo "MCU = atmega8" > config.mk
+else
+  echo "MCU = atmega644" > config.mk
+fi
+
 # generate .subdirs file
 rm -f .subdirs
 make no_deps=t .subdirs
