@@ -111,29 +111,6 @@ void network_init_apps(void)
     udp_echo_net_init();
 #   endif
 
-#   if (defined(ZBUS_SUPPORT) || defined(RFM12_SUPPORT)) \
-       && defined(ENC28J60_SUPPORT)
-#   ifdef RFM12_SUPPORT
-    uip_stack_set_active(STACK_RFM12);
-
-#   ifdef RFM12_LINKBEAT_NET_SUPPORT
-    rfm12_linkbeat_net_init();
-#   endif
-#   endif /* RFM12_SUPPORT */
-
-#   ifdef ZBUS_SUPPORT
-    uip_stack_set_active(STACK_ZBUS);
-
-#   ifdef ZBUS_LINKBEAT_NET_SUPPORT
-    zbus_linkbeat_net_init();
-#   endif
-#   endif /* ZBUS_SUPPORT */
-
-#   ifndef OPENVPN_SUPPORT
-    uip_stack_set_active(STACK_MAIN);
-#   endif
-#   endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
-
 #   ifdef OPENVPN_SUPPORT
     /* possibly bind these to the outer part of OpenVPN stack system */
     uip_stack_set_active(STACK_OPENVPN);
