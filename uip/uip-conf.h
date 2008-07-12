@@ -126,7 +126,7 @@ typedef unsigned short uip_stats_t;
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
-#define RFM12_LLH_LEN            1
+#define RFM12_LLH_LEN            2
 
 
 #ifdef ENC28J60_SUPPORT

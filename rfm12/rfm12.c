@@ -47,12 +47,22 @@ uint8_t rfm12_drssi = 4;
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
-  if(rfm12_status == RFM12_RX)
+  uint8_t byte;
+
+  switch (rfm12_status) 
     {
-      if(rfm12_index ? rfm12_index < RFM12_BUFFER_LEN : !_uip_buf_lock)
+    case RFM12_RX:
+      byte = rfm12_trans(0xB000) & 0x00FF;
+
+      if(rfm12_index ? (rfm12_index < RFM12_BUFFER_LEN)
+	 : (!_uip_buf_lock
+#ifdef TEENSY_SUPPORT
+	    && byte == 0	/* ignore packet if higher len byte set */
+#endif
+	    ))
 	{
 	  _uip_buf_lock = 1;
-	  rfm12_buf[rfm12_index ++] = rfm12_trans(0xB000) & 0x00FF;
+	  rfm12_buf[rfm12_index ++] = byte;
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
 #endif
@@ -71,43 +81,72 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  return;
 	}
 
-      if(rfm12_index > rfm12_buf[0])
+      if(rfm12_index > 2
+	 && rfm12_index > (rfm12_buf[1]
+#ifndef TEENSY_SUPPORT
+			   + (rfm12_buf[0] << 8)
+#endif
+			   ))
 	{
 	  rfm12_trans(0x8208);
 	  rfm12_status = RFM12_NEW;
 	}
-    }
+      break;
 
-  else if(rfm12_status >= RFM12_TX)
-    {
-      if(rfm12_status == RFM12_TX_DATA){
-        rfm12_trans(0xB800 | rfm12_data[rfm12_index ++]);
-        if(rfm12_index >= rfm12_txlen)
-          rfm12_status = RFM12_TX_DATAEND;
-      }
-      else{
-        if(rfm12_status < RFM12_TX_PREFIX_1 || rfm12_status > RFM12_TX_DATA)
-          rfm12_trans(0xB8AA);
-        else if(rfm12_status == RFM12_TX_PREFIX_1)
-          rfm12_trans(0xB82D);
-        else if(rfm12_status == RFM12_TX_PREFIX_2)
-          rfm12_trans(0xB8D4);
-        else if(rfm12_status == RFM12_TX_SIZE)
-          rfm12_trans(0xB800 | rfm12_txlen);
-        rfm12_status ++;
-        if(rfm12_status == RFM12_TX_END){
-          rfm12_status = RFM12_OFF;
-#ifdef HAVE_RFM12_TX_PIN
-          PIN_CLEAR(RFM12_TX_PIN);
+    case RFM12_TX:
+    case RFM12_TX_PREAMBLE_1:
+    case RFM12_TX_PREAMBLE_2:
+    case RFM12_TX_DATAEND:
+    case RFM12_TX_SUFFIX_1:
+    case RFM12_TX_SUFFIX_2:
+      rfm12_trans (0xB8AA);
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_PREFIX_1:
+      rfm12_trans(0xB82D);
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_PREFIX_2:
+      rfm12_trans(0xB8D4);
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_SIZE_HI:
+#ifdef TEENSY_SUPPORT
+      rfm12_trans(0xB800);
+#else
+      rfm12_trans(0xB800 | ((rfm12_txlen & 0xFF00) >> 8));
 #endif
-          rfm12_trans(0x8208);	/* TX off */
-	  uip_buf_unlock();
-          rfm12_rxstart();
-        }
-      }
-    }
-  else
-    {
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_SIZE_LO:
+      rfm12_trans(0xB800 | (rfm12_txlen & 0xFF));
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_DATA:
+      rfm12_trans(0xB800 | rfm12_data[rfm12_index ++]);
+
+      if(rfm12_index >= rfm12_txlen)
+	rfm12_status = RFM12_TX_DATAEND;
+
+      break;
+
+    case RFM12_TX_END:
+      rfm12_status = RFM12_OFF;
+#ifdef HAVE_RFM12_TX_PIN
+      PIN_CLEAR(RFM12_TX_PIN);
+#endif
+      rfm12_trans(0x8208);	/* TX off */
+      uip_buf_unlock();
+      rfm12_rxstart();
+      //break;
+
+    case RFM12_OFF:
+    case RFM12_NEW:
       rfm12_trans(0x0000);	/* clear interrupt flags in RFM12 */
     }
 }
@@ -259,8 +298,11 @@ rfm12_rxfinish(void)
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
-  rfm12_index_t len = rfm12_buf[0];
-
+  rfm12_index_t len = rfm12_buf[1];
+#ifndef TEENSY_SUPPORT
+  len += rfm12_buf[0] << 8;
+#endif
+  
   rfm12_status = RFM12_OFF;
 
 #ifdef RFM12_RAW_SUPPORT
@@ -286,12 +328,6 @@ rfm12_txstart(rfm12_index_t size)
      || (rfm12_status == RFM12_RX && rfm12_index > 0)) {
     return;			/* rx or tx in action or
 				   new packet left in buffer */
-  }
-
-  if(size > RFM12_DATA_LEN) {
-    rfm12_rxstart ();		/* destroy the packet and restart rx */
-    uip_buf_unlock ();
-    return;
   }
 
   rfm12_status = RFM12_TX;
