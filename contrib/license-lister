@@ -1,0 +1,27 @@
+#! /bin/sh
+tmp=$(mktemp)
+
+for f in $(find . -type f -name "*.[ch]"); do
+  head -n 50 "$f" | tr -d '\n' | sed -e 's/[^A-Za-z0-9 ]//g' |
+    sed -e 's/  / /g' > "$tmp"
+
+  license="unknown"
+
+  if grep -qe 'GNU General Public License' "$tmp"; then
+    if grep -qe 'version 2' "$tmp"; then
+      if grep -qe 'any later version' "$tmp"; then
+	license="GPLv2+"
+      else
+      	license="GPLv2 (only)"
+      fi
+    elif grep -qe 'version 3 of' "$tmp"; then
+      license="GPLv3"
+    fi
+  elif grep -qe 'Redistribution and use in source and binary forms with or without modification are permitted provided' "$tmp"; then
+    license="BSD"
+  fi
+
+  echo "$f: $license"
+done
+
+rm -f "$tmp"
