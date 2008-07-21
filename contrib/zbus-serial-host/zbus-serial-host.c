@@ -16,6 +16,7 @@
 */
 
 #define _XOPEN_SOURCE  520
+#define _BSD_SOURCE
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -28,7 +29,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <termio.h>
+#include <termios.h>
+#include <termios.h>
 #include <getopt.h>
 #include <errno.h>
 #include <unistd.h>
@@ -134,7 +136,7 @@ open_tty(char *dev, int baudrate)
   memcpy(&attr, &global.restore_serial, sizeof(struct termios));
 
   /* set baudrate, 8n1, as-raw-as-possible ... */
-  attr.c_cflag = CS8 | CREAD | CLOCAL;
+  attr.c_cflag = CS8 | CREAD | CLOCAL ; //| CRTSCTS;
   attr.c_lflag = 0;
 
   attr.c_iflag = IGNBRK | IMAXBEL;
@@ -152,6 +154,7 @@ open_tty(char *dev, int baudrate)
   ioctl(global.tty_fd, TIOCMSET, &mcs);
 
   tcsetattr(global.tty_fd, TCSANOW, &attr);
+
 }
 
 void 
@@ -205,9 +208,9 @@ set_rts(int fd, int high)
   int mcs = 0;
   ioctl(fd, TIOCMGET, &mcs);
   if (high)
-    mcs &= ~(TIOCM_DTR);
+    mcs &= ~(TIOCM_RTS);
   else
-    mcs |= TIOCM_DTR;
+    mcs |= TIOCM_RTS;
   ioctl(fd, TIOCMSET, &mcs);
 }
 
@@ -286,7 +289,7 @@ main(int argc, char *argv[])
 
   int fm = max(global.tun_fd, global.tty_fd) + 1;
 
-   while(1){
+  while(1){
      FD_ZERO(&fds);
      FD_SET(global.tun_fd, &fds);
      FD_SET(global.tty_fd, &fds);
@@ -400,10 +403,8 @@ main(int argc, char *argv[])
        //putchar('\n');
        write(global.tty_fd, "\\1", 2);
 
-       fsync(global.tty_fd);
-
-
        set_rts(global.tty_fd, 0);
+
 
      }
   }
