@@ -25,19 +25,42 @@ void
 usage() 
 {
   fprintf(stderr, "merges adc values got by 'adc get' and valculates the temperature from it (kty81-110)\n");
-  fprintf(stderr, "./kty-merge [0-7]* [0-7]*\n");
+  fprintf(stderr, "./kty-merge [-c <kty-calibration-file>] [0-7]* [0-7]*\n");
 }
 
+int
+get_calibration_value(int sensor_index, char *calibration_file)
+{
+  if (!calibration_file) return 2200;
+  FILE *file = fopen(calibration_file, "r");
+  if (!file) {
+    fprintf(stderr, "Can't open calibration file\n");
+    exit(EXIT_FAILURE);
+  }
+  char buf[4096];
+  while (!feof(file)) {
+    int sensor, value;
+    fgets(buf, 4095, file);
+    if (sscanf(buf, "%d: %d", &sensor, &value) == 2) {
+      if (sensor == sensor_index) return value;
+    }
+  }
+
+  fclose(file);
+  return 2200;
+}
+
+
 float
-adc_to_temperature(uint16_t adc) {
+adc_to_temperature(int sensor, char *calibration_file, uint16_t adc) {
+  int R2K2 = get_calibration_value(sensor, calibration_file);
   float aT = -167.123;
   float bT = 0.275501;
   float cT = -0.000102316;
   float dT  = 1.92025e-08;
 
   float volt = (2.5/1023) * adc;
-  float R = 2200/(5 - volt)*volt;
-  R = 2180 * adc / (2048.0 - adc);
+  float R =  R2K2 * adc / (2048.0 - adc);
   return aT + R*( bT + R*( cT + R*dT));
 
 }
@@ -50,6 +73,7 @@ int main(int argc, char *argv[]) {
 
   int i;
   int16_t adc[8];
+  char *calibration_file = NULL;
 
   if (scanf("%x %x %x %x %x %x %x", 
             &adc[0], &adc[1],&adc[2],
@@ -58,18 +82,31 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "The Input value might be corrupted");
     exit(EXIT_FAILURE);
   }
-  for (i = 1; i < argc; i++) {
-    long unsigned int average = 0;
+
+  /* Calibration file */
+  i = 1;
+  if (strcmp(argv[1], "-c") == 0) {
+    calibration_file = argv[2];
+    i += 2;
+  }
+  for (; i < argc; i++) {
+    double average = 0;
     int values = 0;
     char *p = argv[i];
     while (*p) 
       if (adc[*p - '0'] != 1023) {
-        average += adc[*p++ - '0'];
+        average += adc_to_temperature(*p - '0', calibration_file, adc[*p - '0']);
+        p++;
         values++;
       } else 
         p++;
+    if (average == 0) {
+      fprintf(stderr, "No sensor values found\n");
+      exit(EXIT_FAILURE);
+    }
+
     average /= values;
-    printf("%.2f\n", adc_to_temperature(average));
+    printf("%.2f\n", average);
 
   }
 
