@@ -8,9 +8,10 @@ Hardware
 ========
 RS485 is normaly used to transport zbus-ip packets, so you have to modifiy your serial
 interface a little bit. When you have an RS232 interface you will have to use an MAX232 (or similar)
-and a rs485 interface chip. ( See the schematics ). If you find a usart interface on your machine, 
-you can probably attach the interface chip directly to it.
+and a rs485 interface chip. An open source rs232 to rs485 interface, which is
+compatible with zbus-serial-host can be found here:
 
+http://git.brokenpipe.de/cgi-bin/gitweb.cgi?r=hardware;p=rs485-converter;a=summary
 
 Have fun
 -- stettberger@dokcude.de

@@ -7,7 +7,7 @@ RM=rm -f --
 
 -include Makefile.local
 
-OBJECTS+=$(patsubst %.c,%.o,$(shell echo *.c))
+OBJECTS+= zbus-serial-host.o
 HEADERS+=$(shell echo *.h)
 TARGET=zbus-serial-host
 
@@ -46,5 +46,4 @@ clean:
 
 $(TARGET): $(OBJECTS) $(TARGET).o
 	$(LD) -o $@ $^ $(LDFLAGS)
-
 
