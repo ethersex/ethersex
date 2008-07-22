@@ -19,7 +19,7 @@ export HOSTCC
 
 # flags for the compiler
 CPPFLAGS += -mmcu=$(MCU) -DF_CPU=$(F_CPU) 
-CFLAGS ?= -Wall -W -Wno-unused-parameter
+CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
 CFLAGS += -g -Os -std=gnu99
 
 # flags for the linker
