@@ -76,7 +76,7 @@ rfm12_status_t rfm12_status;
 #define rfm12_data          (rfm12_buf + RFM12_LLH_LEN)
 
 
-#if defined(TEENSY_SUPPORT) && ! defined(BOOTLOADER_SUPPORT)
+#ifdef TEENSY_SUPPORT
 #  if RFM12_BUFFER_LEN > 254
 #    error "modify code or shrink (shared) uIP buffer."
 #  endif
