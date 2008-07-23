@@ -63,12 +63,6 @@ rfm12_status_t rfm12_status;
 #define rfm12_int_disable()			\
   _EIMSK &= ~_BV(RFM12_INT_PIN);
 
-#else /* not RFM12_SUPPORT */
-
-#define rfm12_int_enable()  do { } while(0)
-#define rfm12_int_disable() do { } while(0)
-#endif
-
 
 #define RFM12_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)
 #define RFM12_DATA_LEN      (RFM12_BUFFER_LEN - RFM12_LLH_LEN)
@@ -172,5 +166,14 @@ uint16_t rfm12_get_status (void);
 extern uint8_t rfm12_bandwidth;
 extern uint8_t rfm12_gain;
 extern uint8_t rfm12_drssi;
+
+
+
+#else /* not RFM12_SUPPORT */
+
+#define rfm12_int_enable()  do { } while(0)
+#define rfm12_int_disable() do { } while(0)
+#endif
+
 
 #endif //__RFM12_H
