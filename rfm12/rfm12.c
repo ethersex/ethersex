@@ -82,7 +82,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	}
 
       if(rfm12_index > 2
-	 && rfm12_index > (rfm12_buf[1]
+	 && rfm12_index > (rfm12_buf[1] + 1
 #ifndef TEENSY_SUPPORT
 			   + (rfm12_buf[0] << 8)
 #endif
