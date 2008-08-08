@@ -21,6 +21,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/crc16.h>
@@ -28,7 +29,6 @@
 #include "../eeprom.h"
 #include "../net/yport_net.h"
 #include "../bit-macros.h"
-#include "../usart.h"
 #include "../config.h"
 #include "../net/modbus_net.h"
 #include "modbus.h"
@@ -36,6 +36,13 @@
 #include "../pinning.c"
 
 #ifdef MODBUS_SUPPORT
+
+#define USE_USART 0 
+#include "../usart.h"
+
+
+/* We generate our own usart init module, for our usart port */
+generate_usart_init(MODBUS_UART_UBRR)
 
 volatile struct modbus_buffer modbus_send_buffer;
 uint8_t modbus_recv_timer = 0;
@@ -56,7 +63,6 @@ modbus_init(void)
     /* Initialize the usart module */
     usart_init();
 
-
     /* Enable RX/TX Swtich as Output */
     DDR_CONFIG_OUT(MODBUS_TX);
     PIN_CLEAR(MODBUS_TX);
@@ -65,9 +71,6 @@ modbus_init(void)
     modbus_send_buffer.sent = 0;
     modbus_send_buffer.crc_len = 0;
     
-    /* set baud rate */
-    _UBRRH_UART0 = HI8(MODBUS_UART_UBRR);
-    _UBRRL_UART0 = LO8(MODBUS_UART_UBRR);
 }
 
 void
@@ -99,22 +102,22 @@ modbus_rxstart(uint8_t *data, uint8_t len) {
 
   /* Enable the tx interrupt and send the first character */
   modbus_send_buffer.sent = 1;
-  _UCSRB_UART0 |= _BV(_TXCIE_UART0);
-  _UDR_UART0 = data[0];
+  usart(UCSR,B) |= _BV(usart(TXCIE));
+  usart(UDR) = data[0];
 
   return 1;
 }
 
-SIGNAL(USART0_TX_vect)
+SIGNAL(usart(USART,_TX_vect))
 {
   if (modbus_send_buffer.sent < modbus_send_buffer.len) {
-    _UDR_UART0 = modbus_send_buffer.data[modbus_send_buffer.sent++];
+    usart(UDR) = modbus_send_buffer.data[modbus_send_buffer.sent++];
   } else if (modbus_send_buffer.crc_len != 0) {
     /* Send the crc checksum */
-    _UDR_UART0 = modbus_send_buffer.crc >> (( 1 - (--modbus_send_buffer.crc_len)) * 8);
+    usart(UDR) = modbus_send_buffer.crc >> (( 1 - (--modbus_send_buffer.crc_len)) * 8);
   } else {
     /* Disable this interrupt */
-    _UCSRB_UART0 &= ~(_BV(_TXCIE_UART0));
+    usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
     /* Disable the transmitter */
     PIN_CLEAR(MODBUS_TX);
     /* free the modbus_conn */
@@ -125,15 +128,15 @@ SIGNAL(USART0_TX_vect)
   }
 }
 
-SIGNAL(USART0_RX_vect)
+SIGNAL(usart(USART,_RX_vect))
 {
   /* Ignore errors */
-  if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
-    uint8_t v = _UDR_UART0;
+  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
+    uint8_t v = usart(UDR);
     (void) v;
     return; 
   }
-  uint8_t data = _UDR_UART0;
+  uint8_t data = usart(UDR);
 
   if (!modbus_conn) return;
   // Are we waiting for an answer?
