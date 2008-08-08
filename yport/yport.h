@@ -38,7 +38,7 @@ struct yport_buffer {
   uint8_t data[YPORT_BUFFER_LEN];
 };
 
-#define yport_init() usart_init()
+void yport_init(void);
 uint8_t yport_rxstart(uint8_t *data, uint8_t len);
 
 extern struct yport_buffer yport_send_buffer;
