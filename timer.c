@@ -30,6 +30,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "control6/control6.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
@@ -40,6 +41,7 @@
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"
 #include "modbus/modbus.h"
+#include "zbus/zbus.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -65,9 +67,11 @@ void timer_process(void)
 
     static uint16_t counter = 0;
 
-    /* check timer 1 (timeout after 50ms) */
+    /* check timer 1 (timeout after 20ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
-
+	if (uip_buf_lock ())
+	    return;		/* hmpf, try again shortly
+				   (let's hope we don't miss too many ticks */
         counter++;
 
 #       ifdef DEBUG_TIMER
@@ -109,6 +113,10 @@ void timer_process(void)
 
 #       ifdef MODBUS_SUPPORT
         modbus_periodic();
+#       endif
+
+#       ifdef CONTROL6_SUPPORT
+        control6_run();
 #       endif
 
         /* check tcp connections every 200ms */
@@ -173,24 +181,16 @@ void timer_process(void)
             fs20_global.ws300.last_update++;
 #           endif
 
-#           ifdef NTP_SUPPORT
 #           ifdef OPENVPN_SUPPORT
 	    uip_stack_set_active(STACK_OPENVPN);
 #           endif
+#           if defined(CLOCK_SUPPORT) && ! defined(CLOCK_CRYSTAL_SUPPORT)
             clock_tick();
-	    if (uip_len)
-		fill_llh_and_transmit();
-#           endif /* NTP_SUPPORT */
+#           endif
+            if (uip_len)
+              fill_llh_and_transmit();
         }
-#       ifdef RFM12_SUPPORT
-        if (counter == 300 ) {
-          rfm12_t_status = rfm12_trans(0x0000); /*get the status Register from the RFM12*/
-#         ifdef SYSLOG_SUPPORT
-          syslog_sendf("timer rfm12_trans: %04X %02X\n", rfm12_t_status, RFM12_akt_status);
-#         endif
-          /* FIXME do anything when rfm12 kommunication hangs */
-        }
-#       endif
+
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
 #           ifdef DEBUG_TIMER
@@ -198,14 +198,6 @@ void timer_process(void)
 #           endif
 
 #           ifdef ENC28J60_SUPPORT
-#	    ifdef RFM12_BEACON_SUPPORT
-            /* send beacon id packet. */
-	    uip_buf[0] = 0x23;
-	    uip_buf[1] = rfm12_beacon_code;
-	    uip_buf[2] = 0x42;
-            rfm12_txstart (uip_buf, 3);
-#           endif /* RFM12_BEACON_SUPPORT */
-
 #           ifndef BOOTLOADER_SUPPORT
 #           if UIP_CONF_IPV6
             uip_neighbor_periodic();
@@ -232,6 +224,8 @@ void timer_process(void)
 
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
+
+	uip_buf_unlock ();
     }
 
 } /* }}} */

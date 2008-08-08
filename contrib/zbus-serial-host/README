@@ -1,0 +1,17 @@
+ZBus-Serial-Host uses an serial tty (e.g. /dev/ttyS0) for communicating with
+zbus-ip devices. It uses a tun device to emulate an network interface. This 
+interface can be treated as any other network interface (e.g. routing, iptables, 
+blah, fasel). So you can easily connect your zbus devices with your pc, or any other 
+machine with an serial interface (e.g. a linksys with openwrt ).
+
+Hardware
+========
+RS485 is normaly used to transport zbus-ip packets, so you have to modifiy your serial
+interface a little bit. When you have an RS232 interface you will have to use an MAX232 (or similar)
+and a rs485 interface chip. An open source rs232 to rs485 interface, which is
+compatible with zbus-serial-host can be found here:
+
+http://git.brokenpipe.de/cgi-bin/gitweb.cgi?r=hardware;p=rs485-converter;a=summary
+
+Have fun
+-- stettberger@dokcude.de

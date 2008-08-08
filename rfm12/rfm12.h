@@ -31,18 +31,53 @@
 #include <util/delay.h>
 #include "../config.h"
 
-//##############################################################################
-/* config */
+#ifdef RFM12_SUPPORT
 
-/* RFM12 Buffer length (max length 254) */
-#define RFM12_DataLength	196
+typedef enum {
+  RFM12_OFF,
+  RFM12_RX,
+  RFM12_NEW,
+  RFM12_TX,
+  RFM12_TX_PREAMBLE_1,
+  RFM12_TX_PREAMBLE_2,
+  RFM12_TX_PREFIX_1,
+  RFM12_TX_PREFIX_2,
+  RFM12_TX_SIZE_HI,
+  RFM12_TX_SIZE_LO,
+  RFM12_TX_DATA,
+  RFM12_TX_DATAEND,
+  RFM12_TX_SUFFIX_1,
+  RFM12_TX_SUFFIX_2,
+  RFM12_TX_END
+} rfm12_status_t;
 
-#ifndef ENC28J60_SUPPORT
-#  define RFM12_SHARE_UIP_BUF
-#  undef RFM12_DataLength
-#  define RFM12_DataLength (uint8_t)(UIP_CONF_BUFFER_SIZE)
-#  define RFM12_Data uip_buf
-#endif /* no ENC28J60_SUPPORT */
+/* Current RFM12 transceiver status. */
+rfm12_status_t rfm12_status;
+
+#define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
+
+
+
+#define rfm12_int_enable()			\
+  _EIMSK |= _BV(RFM12_INT_PIN);
+#define rfm12_int_disable()			\
+  _EIMSK &= ~_BV(RFM12_INT_PIN);
+
+
+#define RFM12_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)
+#define RFM12_DATA_LEN      (RFM12_BUFFER_LEN - RFM12_LLH_LEN)
+#define rfm12_buf           (uip_buf + RFM12_BRIDGE_OFFSET)
+#define rfm12_data          (rfm12_buf + RFM12_LLH_LEN)
+
+
+#ifdef TEENSY_SUPPORT
+#  if RFM12_BUFFER_LEN > 254
+#    error "modify code or shrink (shared) uIP buffer."
+#  endif
+typedef uint8_t rfm12_index_t;
+#else   /* TEENSY_SUPPORT */
+typedef uint16_t rfm12_index_t;
+#endif	/* not TEENSY_SUPPORT */
 
 //##############################################################################
 
@@ -118,25 +153,27 @@ void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
 uint8_t rfm12_rxstart(void);
 
 // readout the package, if one arrived
-uint8_t rfm12_rxfinish(uint8_t *data);
+rfm12_index_t rfm12_rxfinish(void);
 
 // start transmitting a package of size size
-uint8_t rfm12_txstart(uint8_t *data, uint8_t size);
-
-// check whether the package is already transmitted
-uint8_t rfm12_txfinished(void);
-uint8_t rfm12_Index(void);
-
-// stop all Rx and Tx operations
-void rfm12_allstop(void);
+void rfm12_txstart(rfm12_index_t size);
 
 void rfm12_process (void);
 
-#ifdef RFM12_BEACON_SUPPORT
-extern uint8_t rfm12_beacon_code;
-#endif
-
 /* return the current rfm12 status word */
 uint16_t rfm12_get_status (void);
+
+extern uint8_t rfm12_bandwidth;
+extern uint8_t rfm12_gain;
+extern uint8_t rfm12_drssi;
+
+
+
+#else /* not RFM12_SUPPORT */
+
+#define rfm12_int_enable()  do { } while(0)
+#define rfm12_int_disable() do { } while(0)
+#endif
+
 
 #endif //__RFM12_H

@@ -31,7 +31,7 @@
 #define HTTPD_ALTERNATE_PORT 8000
 #define HTTPD_TIMEOUT 100 /* in 200ms-steps */
 
-#define HTTPD_INDEX "idx.h"
+#define HTTPD_INDEX "idx.ht"
 #define ECMD_INDEX "ecmd"
 
 /* prototypes */

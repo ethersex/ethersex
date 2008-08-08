@@ -33,125 +33,121 @@
 #include "../crypto/encrypt-llh.h"
 #include "../syslog/syslog.h"
 
-#ifdef RFM12_BEACON_SUPPORT
-/* On the bridge-side this is the ID assigned to the beacon (read: bridge),
- * i.e. the ID that's regularly broadcast.  On client side it's the ID of
- * the beacon seen last, i.e. the one that's responsible for transmitting
- * the next packet. */
-uint8_t rfm12_beacon_code = CONF_RFM12_BEACON_ID;
+
+rfm12_status_t rfm12_status;
+
+static volatile rfm12_index_t rfm12_index;
+static volatile rfm12_index_t rfm12_txlen;
+
+#ifndef TEENSY_SUPPORT
+uint8_t rfm12_bandwidth = 5;
+uint8_t rfm12_gain = 1;
+uint8_t rfm12_drssi = 4;
 #endif
-
-enum RFM12_STATUS{
-  RFM12_OFF,
-  RFM12_RX,
-  RFM12_NEW,
-  RFM12_TX,
-  RFM12_TX_PREAMPLE_1,
-  RFM12_TX_PREAMPLE_2,
-  RFM12_TX_PREFIX_1,
-  RFM12_TX_PREFIX_2,
-  RFM12_TX_SIZE,
-  RFM12_TX_DATA,
-  RFM12_TX_DATAEND,
-  RFM12_TX_SUFFIX_1,
-  RFM12_TX_SUFFIX_2,
-  RFM12_TX_END
-};
-
-enum RFM12_RET{
-  NOT_SET,
-  RX_START,
-  TX_START_1,
-  TX_START_2,
-  TX_START_3,
-  INT_1,
-  INT_2,
-  INT_3
-};
-
-
-
-uint8_t RFM12_akt_status = RFM12_OFF;
-uint8_t RFM12_lastlen = 0;
-uint8_t RFM12_lastlen_sj = 0;
-uint8_t RFM12_ret_platz = 0;
-
-uint8_t RFM12_Index = 0;
-uint8_t RFM12_Txlen = 0;
-unsigned short RFM12_i_status = 0;
-
-#ifndef RFM12_SHARE_UIP_BUF
-uint8_t RFM12_Data[RFM12_DataLength];
-#endif
-
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
-  if(RFM12_akt_status == RFM12_RX)
+  uint8_t byte;
+
+  switch (rfm12_status) 
     {
-      if(RFM12_Index < RFM12_DataLength)
+    case RFM12_RX:
+      byte = rfm12_trans(0xB000) & 0x00FF;
+
+      if(rfm12_index ? (rfm12_index < RFM12_BUFFER_LEN)
+	 : (!_uip_buf_lock
+#ifdef TEENSY_SUPPORT
+	    && byte == 0	/* ignore packet if higher len byte set */
+#endif
+	    ))
 	{
-	  RFM12_Data[RFM12_Index++] = rfm12_trans(0xB000) & 0x00FF;
+	  _uip_buf_lock = 1;
+	  rfm12_buf[rfm12_index ++] = byte;
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
 #endif
 	}
       else
 	{
+	  if (rfm12_index)
+	    uip_buf_unlock ();	/* we already locked, therefore unlock */
+
 	  rfm12_trans(0x8208);
-          RFM12_akt_status = RFM12_OFF;
-	  RFM12_ret_platz = INT_1;
+          rfm12_status = RFM12_OFF;
 	  rfm12_rxstart();
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_CLEAR(RFM12_RX_PIN);
 #endif
+	  return;
 	}
 
-      if(RFM12_Index >= RFM12_Data[0] + 1)
+      if(rfm12_index > 2
+	 && rfm12_index > (rfm12_buf[1] + 1
+#ifndef TEENSY_SUPPORT
+			   + (rfm12_buf[0] << 8)
+#endif
+			   ))
 	{
 	  rfm12_trans(0x8208);
-	  RFM12_ret_platz = INT_2;
-	  RFM12_akt_status = RFM12_NEW;
+	  rfm12_status = RFM12_NEW;
 	}
-    }
+      break;
 
-  else if(RFM12_akt_status >= RFM12_TX)
-    {
-      if(RFM12_akt_status == RFM12_TX_DATA){
-        rfm12_trans(0xB800 | RFM12_Data[RFM12_Index++]);
-        if(RFM12_Index >= RFM12_Txlen)
-          RFM12_akt_status = RFM12_TX_DATAEND;
-      }
-      else{
-        if(RFM12_akt_status < RFM12_TX_PREFIX_1 || RFM12_akt_status > RFM12_TX_DATA)
-          rfm12_trans(0xB8AA);
-        else if(RFM12_akt_status == RFM12_TX_PREFIX_1)
-          rfm12_trans(0xB82D);
-        else if(RFM12_akt_status == RFM12_TX_PREFIX_2)
-          rfm12_trans(0xB8D4);
-        else if(RFM12_akt_status == RFM12_TX_SIZE)
-          rfm12_trans(0xB800 | RFM12_Txlen);
-        RFM12_akt_status++;
-        if(RFM12_akt_status == RFM12_TX_END){
-          RFM12_akt_status = RFM12_OFF;
+    case RFM12_TX:
+    case RFM12_TX_PREAMBLE_1:
+    case RFM12_TX_PREAMBLE_2:
+    case RFM12_TX_DATAEND:
+    case RFM12_TX_SUFFIX_1:
+    case RFM12_TX_SUFFIX_2:
+      rfm12_trans (0xB8AA);
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_PREFIX_1:
+      rfm12_trans(0xB82D);
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_PREFIX_2:
+      rfm12_trans(0xB8D4);
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_SIZE_HI:
+#ifdef TEENSY_SUPPORT
+      rfm12_trans(0xB800);
+#else
+      rfm12_trans(0xB800 | ((rfm12_txlen & 0xFF00) >> 8));
+#endif
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_SIZE_LO:
+      rfm12_trans(0xB800 | (rfm12_txlen & 0xFF));
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_DATA:
+      rfm12_trans(0xB800 | rfm12_data[rfm12_index ++]);
+
+      if(rfm12_index >= rfm12_txlen)
+	rfm12_status = RFM12_TX_DATAEND;
+
+      break;
+
+    case RFM12_TX_END:
+      rfm12_status = RFM12_OFF;
 #ifdef HAVE_RFM12_TX_PIN
-          PIN_CLEAR(RFM12_TX_PIN);
+      PIN_CLEAR(RFM12_TX_PIN);
 #endif
-          rfm12_trans(0x8208);	/* TX off */
-	  RFM12_ret_platz = INT_3;
-          rfm12_rxstart();
-        }
-      }
-    }
-  else
-    {
-      RFM12_i_status = rfm12_trans(0x0000);/* dummy read (get Statusregister) */
-#ifdef SYSLOG_SUPPORT
-      char text[40];
-      snprintf(text, 40, "rfm12 interrupt RFM12_i_status: %04X %02X\n", RFM12_i_status, RFM12_akt_status);
-      syslog_send(text);
-#endif
-      /* FIXME what happend */
+      rfm12_trans(0x8208);	/* TX off */
+      uip_buf_unlock();
+      rfm12_rxstart();
+      //break;
+
+    case RFM12_OFF:
+    case RFM12_NEW:
+      rfm12_trans(0x0000);	/* clear interrupt flags in RFM12 */
     }
 }
 
@@ -194,7 +190,7 @@ rfm12_init(void)
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
   rfm12_trans(0x0000);
   
-  RFM12_akt_status = RFM12_OFF;
+  rfm12_status = RFM12_OFF;
 #ifdef HAVE_RFM12_TX_PIN
   DDR_CONFIG_OUT(RFM12_TX_PIN);
 #endif
@@ -202,9 +198,8 @@ rfm12_init(void)
   DDR_CONFIG_OUT(RFM12_RX_PIN);
 #endif
 
-  _EIMSK |= _BV(RFM12_INT_PIN);
+  rfm12_int_enable ();
 }
-
 
 /* Prologue/epilogue macros, disabling/enabling interrupts. 
    Be careful, these are not well suited to be used as if-blocks. */
@@ -218,6 +213,10 @@ rfm12_init(void)
 void
 rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 {
+  rfm12_bandwidth = bandwidth;
+  rfm12_gain = gain;
+  rfm12_drssi = drssi;
+
   rfm12_prologue ();
   rfm12_trans (0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
   rfm12_epilogue ();
@@ -242,16 +241,16 @@ rfm12_setfreq(unsigned short freq)
 void
 rfm12_setbaud(unsigned short baud)
 {
-  if (baud < 663)
+  if (baud < 7)
     return;
 
   rfm12_prologue ();
 
   /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
-  if (baud < 5400)
-    rfm12_trans(0xC680 | ((43104 / baud) - 1));
+  if (baud < 54)
+    rfm12_trans(0xC680 | ((43104 / baud / 100) - 1));
   else
-    rfm12_trans(0xC600 | ((344828UL / baud) - 1));
+    rfm12_trans(0xC600 | ((344828UL / baud / 100) - 1));
 
   rfm12_epilogue ();
 }
@@ -270,8 +269,7 @@ rfm12_setpower(uint8_t power, uint8_t mod)
 uint8_t
 rfm12_rxstart(void)
 {
-  if(RFM12_akt_status != RFM12_OFF){
-    RFM12_ret_platz = RX_START;
+  if(rfm12_status != RFM12_OFF){
     return(1);			/* rfm12 is not free for RX or now in RX */
   }
 
@@ -283,100 +281,92 @@ rfm12_rxstart(void)
 
   rfm12_epilogue ();
 
-  RFM12_Index = 0;
-  RFM12_akt_status = RFM12_RX;
+  rfm12_index = 0;
+  rfm12_status = RFM12_RX;
 
   return(0);
 }
 
 
-uint8_t 
-rfm12_rxfinish(uint8_t *data)
+rfm12_index_t
+rfm12_rxfinish(void)
 {
-  if(RFM12_akt_status != RFM12_NEW)
-    return (255);		/* no new Packet */
+  if(rfm12_status != RFM12_NEW)
+    return (0);			/* no new Packet */
 
 #ifdef HAVE_RFM12_RX_PIN
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
-  uint8_t i;
-  uint8_t len = RFM12_Data[0];
-
-  /* if RFM12_SHARE_UIP_BUF is set, the following will destroy the
-     first byte!  Therefore it is essential to copy the data
-     in forward direction below (and not use RFM12_Data afterwards). */
-  for(i = 0; i < len; i++)
-    data[i] = RFM12_Data[i + 1];
-
-  RFM12_akt_status = RFM12_OFF;
+  rfm12_index_t len = rfm12_buf[1];
+#ifndef TEENSY_SUPPORT
+  len += rfm12_buf[0] << 8;
+#endif
+  
+  rfm12_status = RFM12_OFF;
 
 #ifdef RFM12_RAW_SUPPORT
   if (!rfm12_raw_conn->rport)
 #endif
   {
 #ifdef SKIPJACK_SUPPORT
-    RFM12_lastlen = len;
-    rfm12_decrypt (data, &len);
-    RFM12_lastlen_sj = len;
-    if (!len)
+    rfm12_decrypt (&len);
+    if (!len) {
+      uip_buf_unlock ();
       rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+    }
 #endif
   }
   return(len);			/* receive size */
 }
 
 
-uint8_t 
-rfm12_txstart(uint8_t *data, uint8_t size)
+void
+rfm12_txstart(rfm12_index_t size)
 {
-  uint8_t i;
-
-  if(RFM12_akt_status > RFM12_RX || (RFM12_akt_status == RFM12_RX && RFM12_Index > 0)){
-    RFM12_ret_platz = TX_START_1;
-    return(3);                  /* rx or tx in action oder new packet in buffer*/
+  if(rfm12_status > RFM12_RX
+     || (rfm12_status == RFM12_RX && rfm12_index > 0)) {
+    return;			/* rx or tx in action or
+				   new packet left in buffer */
   }
 
-  if(size > RFM12_DataLength){
-    rfm12_rxstart ();		/* destroy the packet and restart rx */
-    RFM12_ret_platz = TX_START_2;
-    return(4);			/* str to big to transmit */
-  }
-
-  RFM12_akt_status = RFM12_TX;
+  rfm12_status = RFM12_TX;
 
 #ifdef HAVE_RFM12_TX_PIN
   PIN_SET(RFM12_TX_PIN);
 #endif
 
-#ifndef RFM12_SHARE_UIP_BUF
-  i = size; while (i --)
-              RFM12_Data[i] = data[i];
-#endif
-  i = RFM12_Index = 0;
+  rfm12_index = 0;
 
 #ifdef RFM12_RAW_SUPPORT
   if (!rfm12_raw_conn->rport)
 #endif
   {
 #ifdef SKIPJACK_SUPPORT
-    rfm12_encrypt (RFM12_Data, &size);
+    rfm12_encrypt (rfm12_data, &size);
 
     if (!size){
-      RFM12_akt_status = RFM12_OFF;
+      rfm12_status = RFM12_OFF;
+      uip_buf_unlock ();
       rfm12_rxstart ();		/* destroy the packet and restart rx */
-      RFM12_ret_platz = TX_START_3;
-      return 4;
+      return;
     }
 #endif
   }
-  RFM12_Txlen = size;
+  rfm12_txlen = size;
 
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
   rfm12_epilogue ();
 
-  return(0);
+  /* Force interrupts active no matter what.
+
+     If we're forwarding a packet from say Ethernet, uip_buf_unlock won't
+     unlock since there's an active RFM12 transfer, but it'd leave
+     the RFM12 interrupt disabled as well.*/
+  rfm12_int_enable ();
+
+  return;
 }
 
 
@@ -391,5 +381,3 @@ rfm12_get_status (void)
 
   return r;
 }
-
-

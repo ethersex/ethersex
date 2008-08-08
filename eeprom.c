@@ -60,10 +60,15 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 
     if (mac != NULL)
         memcpy(&cfg_base.mac, mac, 6);
+#if (!UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT)			\
+			|| defined(BOOTP_TO_EEPROM_SUPPORT)))	\
+  || defined(OPENVPN_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
+    if (ip != NULL)
+        memcpy(&cfg_base.ip, ip, IPADDR_LEN);
+#endif
+
 #if !UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT) \
                        || defined(BOOTP_TO_EEPROM_SUPPORT))
-    if (ip != NULL)
-        memcpy(&cfg_base.ip, ip, 4);
     if (netmask != NULL)
         memcpy(&cfg_base.netmask, netmask, 4);
     if (gateway != NULL)
@@ -75,12 +80,14 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
     cfg_base.crc = checksum;
 
     /* save config */
-    eeprom_write_block(&cfg_base, EEPROM_CONFIG_BASE,
+    eeprom_write_block(EEPROM_CONFIG_BASE, &cfg_base,
             sizeof(struct eeprom_config_base_t));
 
     return 0;
 
 } /* }}} */
+
+
 int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
 /* {{{ */ {
     /* save new ip addresses */
@@ -100,6 +107,13 @@ int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
     if (new_cfg->usart_baudrate != 0)
       cfg_ext.usart_baudrate = new_cfg->usart_baudrate;
 #endif
+#if defined(HTTPD_AUTH_SUPPORT)
+    if (new_cfg->httpd_auth_password[0] != 0) {
+      memcpy(cfg_ext.httpd_auth_password, new_cfg->httpd_auth_password, 
+             sizeof(new_cfg->httpd_auth_password) - 1);
+      cfg_ext.httpd_auth_password[sizeof(new_cfg->httpd_auth_password) - 1] = 0;
+    }
+#endif
 
 
     /* calculate new checksum */
@@ -107,7 +121,7 @@ int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
     cfg_ext.crc = checksum;
 
     /* save config */
-    eeprom_write_block(&cfg_ext, EEPROM_CONFIG_EXT,
+    eeprom_write_block(EEPROM_CONFIG_EXT, &cfg_ext,
             sizeof(struct eeprom_config_ext_t));
 
     return 0;

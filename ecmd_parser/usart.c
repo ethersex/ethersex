@@ -46,7 +46,8 @@ int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
     } else {
       /* Delete the last two digits */
       cmd[strlen(cmd) - 2] = 0;
-      struct eeprom_config_ext_t new_cfg = { 0 };
+      struct eeprom_config_ext_t new_cfg;
+      memset(&new_cfg, 0, sizeof(new_cfg));
       if (sscanf_P(cmd, PSTR("%d"), &new_cfg.usart_baudrate) == 1) {
         usart_baudrate(new_cfg.usart_baudrate);
         eeprom_save_config_ext(&new_cfg);

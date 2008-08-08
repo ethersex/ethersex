@@ -62,7 +62,7 @@ void uecmd_net_main() {
         *p = 0;
         break;
       } 
-    } while ( ++p < ((uint8_t *)uip_appdata + uip_datalen()));
+    } while ( ++p < ((char *)uip_appdata + uip_datalen()));
     /* Parse the Data */
     uip_slen = ecmd_parse_command(uip_appdata, uip_appdata, 
                                   UIP_BUFSIZE - UIP_IPUDPH_LEN) + 1;

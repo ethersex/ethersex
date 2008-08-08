@@ -1,0 +1,91 @@
+!!! 6Control/Control6
+We had to rename 6control into control6, because the C Compiler doesn't like
+numbers as the first character of a functionname.
+
+!! What is Control6/6Control?
+
+6Control is a way to program (proto-)threaded actions on the ethersex in an
+relative simple "language", which may remember some people in basic. The
+6Control scripts are a big m4 construct, which translates the 6control source
+into normal C code, which is compiled into the firmware image. So 6control has
+no support for reloading modules in the running system.
+
+With 6control you can react on external events, like io changes, the system
+clock is at a certain value or a timer has expired. The reaction to such an
+event is an ACTION. Every action is a seperate proto thread. So if you start
+a proto thread it doesn't lock the whole system. You can also start several
+proto threads at once, which seems to run at the same time.
+
+!! How do i write an 6control script
+
+Every 6control scipt must be started with `CONTROL_START' and ended with
+`CONTROL_END'. Within this body you can define various actions, which are
+started with ACTION($action_name) and ended with ACTION_END($action_name),
+here the $action_name must be replaced with an unique action identifier.
+
+Inside the action "tags" you add the code for the specific action. Outside of
+all actions you can write down, how the 6control script should react on
+events. For example this piece of code, which is placed outside of all
+actions ( for this example you must enable clock support in your ethersex
+firmware )
+
+ON CLOCK_MIN == 5 DO ACTION_START(nice_action) END
+
+Here you see how to write such an event handler, this starts the action
+`nice_action', if the minute field of the time is exactly 5 (e.g. 05:05 or
+23:05). But be aware of the ACTION_START command. This starts the action only
+if it isn't started already. So this piece of code starts the action only the
+first time after startup ( if the action isn't stopped somewhere with
+ACTION_STOP). There ist also the possibility to use ACTION_RESTART, which
+starts the action always new, when ACTION_RESTART is called. 
+
+!! An example of 6control
+
+An simple example, which may show you some features of 6control:
+
+CONTROL_START
+  
+  PIN_INPUT(KEY)
+  PIN_PULLUP(KEY)
+  PIN_OUTPUT(LED)
+
+  ACTION(nice_action)
+      TIMER_START(new)
+      PIN_SET(LED);
+      TIMER_WAIT(new, 20)
+      PIN_CLEAR(LED);
+  ACTION_END(nice_action)
+
+  ON CLOCK_MIN == 5 DO ACTION_RESTART(nice_action) END
+  ON PIN_FALLING(KEY) DO ACTION_RESTART(nice_action) END
+
+CONTROL_END
+
+* The typical CONTROL_START, CONTROL_END enclose the 6control scripts
+* the pin commands:
+** the names PIN_INPUT and the other PIN_* refers to are the same, which are
+   defined in pinning/*.m4. You also may to add your pins there.
+** PIN_INPUT defines the KEY pin as an input pin (DDRx is set correctly)
+** PIN_PULLUP enabled the pullup for the KEY pin (PORTx is set correctly)
+** PIN_OUTPUT defines the LED pin as an output pin (DDRx is set correctly)
+** PIN_FALLING(KEY) is an event, which is always triggered if there is an
+falling edge on the pin KEY. Corresponding to PIN_FALLING, PIN_RISING does
+also exists.
+
+* ACTION, ACTION_END define a new action `nice_action' within this action
+  there is a timer started ( the first call of TIMER_START creates this timer
+  also, the creation of a timer can also be done with TIMER_NEW). After the
+  timer is started the LED key is enabled. 
+* The TIMER_WAIT waits, until the created timer has reaced 20 seconds. After
+  that the LED is cleared again. Be aware of the ; at the end of PIN_SET,
+  PIN_CLEAR. This is because this lines are not interpreted with m4, but are
+  plain C code (CPP macros)
+* The two ON commands start the action nice_action either when the clock
+  minute field is 5 ( be aware of the RESTART ) or the KEY pin has an falling
+  edge.
+
+
+!! Goodies
+
+There is also an german version of 6control, you only have to edit the
+control6/Makefile. For documentation see the `control6/german.m4' :)

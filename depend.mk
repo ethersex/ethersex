@@ -19,7 +19,7 @@ endif
 
 define make-deps
 set -e; $(CC) $(CFLAGS) $(CPPFLAGS) -M -MG $<  | \
-sed > $@.new -e 's;$(*F)\.o:;$@ $*.o:;' \
+sed > $@.new -e 's;$(*F)\.o:;$@ $*.o $*.E $*.s:;' \
 	     -e 's% [^ ]*/gcc-lib/[^ ]*\.h%%g'
 if test -s $@.new; then mv -f $@.new $@; else rm -f $@.new; fi
 endef

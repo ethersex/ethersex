@@ -29,17 +29,18 @@
 void llh_encrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 void llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 
+#ifdef RFM12_SUPPORT
 /*
  * rfm12 encryption wrapper
  */
 extern uint8_t *rfm12_key;
 
 static inline void
-rfm12_encrypt (uint8_t *data, uint8_t *len)
+rfm12_encrypt (uint8_t *data, rfm12_index_t *len)
 {
   uint8_t pad_char = 8 - (*len % 8);
 
-  if (pad_char + *len + 8 > RFM12_DataLength)
+  if (pad_char + *len + 8 > RFM12_DATA_LEN)
     {
       *len = 0; 		/* destroy packet */
       return;
@@ -51,12 +52,13 @@ rfm12_encrypt (uint8_t *data, uint8_t *len)
 }
 
 static inline void
-rfm12_decrypt (uint8_t *data, uint8_t *len)
+rfm12_decrypt (rfm12_index_t *len)
 {
   uint16_t i = *len;
-  llh_decrypt(rfm12_key, data, &i);
+  llh_decrypt(rfm12_key, rfm12_data + RFM12_LLH_LEN, &i);
   *len = i;
 }
+#endif
 
 
 /*

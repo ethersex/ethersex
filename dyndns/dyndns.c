@@ -56,7 +56,7 @@ dyndns_update(void)
 #ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup("dyn.metafnord.de"))) 
-    resolv_query("dyn.metafnord.de", dyndns_query_cb, NULL);
+    resolv_query("dyn.metafnord.de", dyndns_query_cb);
   else
 #   if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
     uip_connect(ipaddr, HTONS(80), dyndns_net_main);

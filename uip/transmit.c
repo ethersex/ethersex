@@ -27,8 +27,10 @@
 #include "uip_arp.h"
 #include "uip_neighbor.h"
 
+#include "../ipv6.h"
 #include "../network.h"
 #include "../rfm12/rfm12.h"
+#include "../zbus/zbus.h"
 
 #if defined(ENC28J60_SUPPORT) || defined(RFM12_SUPPORT)
 
@@ -40,15 +42,9 @@ fill_llh_and_transmit(void)
   if (uip_stack_get_active() == STACK_RFM12) {
 #endif /* ENC28J60_SUPPORT */
 
-#ifdef RFM12_BEACON_SUPPORT
-    /* fill rfm12 llh, i.e. fill beacon */
-    uip_buf[RFM12_BRIDGE_OFFSET] = rfm12_beacon_code;
-#endif
-
     /* uip_len is set to the number of data bytes to be sent including
        the UDP/IP header, i.e. not including any byte for LLH. */
-    rfm12_txstart (uip_buf + RFM12_BRIDGE_OFFSET, 
-                   uip_len + RFM12_BEACON_LEN);
+    rfm12_txstart (uip_len);
     return 0;
 #ifdef ENC28J60_SUPPORT
   }

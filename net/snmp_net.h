@@ -1,10 +1,10 @@
-/*                     -*- mode: C; c-file-style: "stroustrup"; -*-
+/*
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
- * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,11 +19,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef ZBUS_LINKBEAT_NET_H
-#define ZBUS_LINKBEAT_NET_H
+#ifndef _SNMP_NET_H
+#define _SNMP_NET_H
+/* constants */
+#define SNMP_PORT 161
 
 /* prototypes */
-void zbus_linkbeat_net_init(void);
-void zbus_linkbeat_net_main(void);
+void snmp_net_init(void);
+void snmp_net_main(void);
 
-#endif /* ZBUS_LINKBEAT_NET_H */
+#endif

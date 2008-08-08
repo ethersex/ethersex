@@ -41,6 +41,7 @@
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
+#include "control6/control6.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
@@ -175,6 +176,10 @@ int main(void)
     rc5_init();
 #endif
 
+#ifdef CONTROL6_SUPPORT
+    control6_init();
+#endif
+
 /* Had to be bone after network_init! */
 #ifdef YPORT_SUPPORT
     yport_init();
@@ -209,7 +214,7 @@ int main(void)
 #else
     rfm12_setfreq(RFM12FREQ(433.92));
     rfm12_setbandwidth(5, 1, 4);
-    rfm12_setbaud(34482);
+    rfm12_setbaud(CONF_RFM12_BAUD / 100);// is 34500 baud
     rfm12_setpower(0, 2);
 #endif
 
@@ -219,6 +224,8 @@ int main(void)
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
+#elif defined(NAMED_PIN_SUPPORT)
+    np_simple_init();
 #endif 
 
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
@@ -274,6 +281,7 @@ int main(void)
         wdt_kick();
 
 #ifdef SYSLOG_SUPPORT
+	uip_stack_set_active(STACK_MAIN);
         syslog_flush();
 #endif
 

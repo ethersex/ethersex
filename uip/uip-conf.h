@@ -126,12 +126,7 @@ typedef unsigned short uip_stats_t;
 #define UIP_ARCH_ADD32           0
 #define UIP_ARCH_CHKSUM          0
 
-
-#ifdef RFM12_BEACON_SUPPORT
-#  define RFM12_BEACON_LEN  1
-#else
-#  define RFM12_BEACON_LEN  0
-#endif
+#define RFM12_LLH_LEN            2
 
 
 #ifdef ENC28J60_SUPPORT
@@ -139,8 +134,8 @@ typedef unsigned short uip_stats_t;
 #  define __LLH_LEN  14
 
 #elif defined(RFM12_SUPPORT)	  /* cf. zbus */
-#  define __LLH_LEN  RFM12_BEACON_LEN
-#  define RFM12_BRIDGE_OFFSET 0
+#  define __LLH_LEN              RFM12_LLH_LEN
+#  define RFM12_BRIDGE_OFFSET    0
 
 #elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
 #  define __LLH_LEN  0

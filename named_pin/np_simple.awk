@@ -9,7 +9,7 @@ BEGIN {
   print "#include <avr/io.h>"
   print 
   print "void"
-  print "named_pin_init(void)"
+  print "np_simple_init(void)"
   print "{"
 }
 
@@ -18,7 +18,7 @@ BEGIN {
     # The pin is an input pin.
     print "  DDR" substr($1, 2, 1) " &= ~_BV("$1");"
 
-    if ($3 == 0) {
+    if ($3 == 1) {
       # Inverted input pin, enable pull-up resistor.
       print "  PORT" substr($1, 2, 1) " |= _BV("$1"); "
     }

@@ -48,6 +48,7 @@ parse_cmd_rfm12_setbaud(char *cmd, char *output, uint16_t len)
     (void) len;
 
     uint16_t baud;
+    cmd[strlen(cmd) - 2] = 0;
     uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &baud);
 
     if (ret != 1)
@@ -55,6 +56,71 @@ parse_cmd_rfm12_setbaud(char *cmd, char *output, uint16_t len)
 
     rfm12_setbaud (baud);
     return 0;
+}
+
+int16_t
+parse_cmd_rfm12_setbandwidth(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint16_t bandwidth;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &bandwidth);
+  
+  if (ret != 1)
+    return -1;
+  
+  rfm12_setbandwidth(bandwidth, rfm12_gain, rfm12_drssi);
+  return 0;
+}
+
+int16_t
+parse_cmd_rfm12_setgain(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint16_t gain;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &gain);
+  
+  if (ret != 1)
+    return -1;
+  
+  rfm12_setbandwidth(rfm12_bandwidth, gain, rfm12_drssi);
+  return 0;
+}
+
+int16_t
+parse_cmd_rfm12_setdrssi(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint16_t drssi;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &drssi);
+  
+  if (ret != 1)
+    return -1;
+  
+  rfm12_setbandwidth(rfm12_bandwidth, rfm12_gain, drssi);
+  return 0;
+}
+
+
+int16_t
+parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint16_t mod;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &mod);
+  
+  if (ret != 1)
+    return -1;
+  
+  rfm12_setpower(0, mod);
+  return 0;
 }
 
 #endif /* not TEENSY_SUPPORT */

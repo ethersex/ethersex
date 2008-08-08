@@ -20,7 +20,7 @@ all: compile-$(TARGET)
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo -n "size is: "
-	@$(SIZE) -A $(TARGET).hex | grep "\.sec1" | tr -s " " | cut -d" " -f2
+	@stat -c %s ethersex.bin
 	@echo "==============================="
 
 
@@ -32,15 +32,19 @@ include defaults.mk
 ##############################################################################
 # generate SUBDIRS variable
 #
+
+.subdirs: autoconf.h
+	$(RM) -f $@
+	(for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h \
+	      | sed -e "s/^#define //" -e "s/_SUPPORT.*//" \
+	      | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
+	  test -d $$subdir && echo "SUBDIRS += $$subdir" ; \
+	done) | sort -u > $@
+
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),mrproper)
 
-.subdirs: autoconf.h
-	$(RM) -f $@
-	(for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define //" -e "s/_SUPPORT.*//" | tr "[A-Z]\\n" "[a-z] " ` uip lcd net ; do \
-	  test -d $$subdir && echo "SUBDIRS += $$subdir" ; \
-	done) | sort -u > $@
 include $(TOPDIR)/.subdirs
 
 endif # MAKECMDGOALS!=mrproper
@@ -65,6 +69,7 @@ LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
 $(TARGET): $(OBJECTS) $(LINKLIBS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
 	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
+	  $(foreach subdir,$(SUBDIRS),-l$(subdir)) \
 	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
 
 

@@ -87,7 +87,7 @@ if [ "$OPENVPN_SUPPORT" = "y" ]; then
   hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
   hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
 
-  if [ "$IPV6_SUPPORT" != "y" ]; then
+  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
     comment "OpenVPN IP configuration"
     ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
     ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
@@ -104,7 +104,7 @@ endmenu
 mainmenu_option next_comment
 comment "Network configuration"
 dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
-if [ "$ENC28J60_SUPPORT" = "y" ]; then
+if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
   dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
 else
   if [ "$IPV6_SUPPORT" = "y" ]; then
@@ -128,8 +128,8 @@ fi
 if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
   comment "Static IPv4 configuration"
   ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
-  ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
-  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+    ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
     ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
   fi
 fi
@@ -174,6 +174,7 @@ else
   dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
   dep_bool "Cron daemon" CRON_SUPPORT $CLOCK_SUPPORT
   dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+  dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
   endmenu
 
   mainmenu_option next_comment
@@ -225,17 +226,14 @@ else
   fi
 
   if [ "$RFM12_SUPPORT" = "y" ]; then
+    if [ "$TEENSY_SUPPORT" != "y" ]; then
+      int "RFM12 Baudrate" CONF_RFM12_BAUD 34500
+    fi
     if [ "$SKIPJACK_SUPPORT" = "y" ]; then
       hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
     fi
 
-    bool "Beacon mode" RFM12_BEACON_SUPPORT
-
     if [ "$ENC28J60_SUPPORT" = "y" ]; then
-      if [ "$RFM12_BEACON_SUPPORT" = "y" ]; then
-        int "Beacon ID" CONF_RFM12_BEACON_ID 23
-      fi
-
       if [ "$IPV6_SUPPORT" = "y" ]; then
 	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
 	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
@@ -329,10 +327,17 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   mainmenu_option next_comment
   comment "work in progress bits (enable with care)"
 
-  dep_bool "DNS-based UDP multicaster" UDP_DNS_MCAST_SUPPORT $DNS_SUPPORT
   bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
   bool "uIP Proto-Sockets" PSOCK_SUPPORT
   dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT
+  dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
+  if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
+    string "Username" CONF_HTTPD_USERNAME "admin"
+    string "Default Password" CONF_HTTPD_PASSWORD "admin"
+  fi
+
+  bool "control6 scripts" CONTROL6_SUPPORT
+  bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT
 
   endmenu
 fi

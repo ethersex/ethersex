@@ -45,7 +45,7 @@
 /*
  * direkter zugriff zum packet buffer
  */
-#define BUF ((struct uip_udpip_hdr *)&uip_appdata[-UIP_IPUDPH_LEN])
+#define BUF ((struct uip_udpip_hdr *)&((char *)uip_appdata)[-UIP_IPUDPH_LEN])
 
 enum datalen {
   GETMAXDATA = 1,

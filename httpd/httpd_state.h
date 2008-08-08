@@ -40,8 +40,8 @@ struct httpd_connection_state_t {
     fs_inode_t inode;
     fs_size_t offset;
 
-#ifdef ECMD_PARSER_SUPPORT
     char *tmp_buffer;
+#ifdef ECMD_PARSER_SUPPORT
     uint8_t parse_again;
 #endif
 };
