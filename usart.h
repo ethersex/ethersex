@@ -27,12 +27,50 @@
 #ifndef _USART_H
 #define _USART_H
 
-/* init the usart module */
-void usart_init(void);
 
 /* The baudrate had to be baudrate/100 */
 #ifndef TEENSY_SUPPORT
-void usart_baudrate(uint16_t baudrate);
+uint16_t usart_baudrate(uint16_t baudrate);
 #endif
+
+#ifndef USE_USART
+#define USE_USART
+#endif
+
+#define _usart_cat_(a,b) a ## b
+#define _usart_cat(a,b) _usart_cat_(a,b)
+
+#ifndef UDR0
+#undef USE_USART
+#define USE_USART
+#endif
+
+#define usart(a, ...) _usart_cat(a, _usart_cat(USE_USART, __VA_ARGS__))
+
+/* We love the preprocessor */
+#if defined(URSEL) || defined(URSEL0)
+#define _BV_URSEL _BV(usart(URSEL))
+#else
+#define _BV_URSEL 0
+#endif
+
+/* init the usart module */
+#define generate_usart_init(BAUDRATE) \
+static void \
+usart_init(void) \
+{\
+    /* The ATmega644 datasheet suggests to clear the global\
+       interrupt flags on initialization ... */\
+    uint8_t sreg = SREG; cli(); \
+    usart(UBRR,H) = HI8(BAUDRATE); \
+    usart(UBRR,L) = LO8(BAUDRATE); ;\
+    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */ \
+    /*   and set URSEL, if present, */ \
+    usart(UCSR,C) = _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
+    /* Enable the RX interrupt and receiver and transmitter */ \
+    usart(UCSR,B) |= _BV(usart(TXEN)) | _BV(usart(RXEN)) | _BV(usart(RXCIE));\
+    /* Go! */ \
+    SREG = sreg;\
+}
 
 #endif
