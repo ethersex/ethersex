@@ -6,6 +6,28 @@ comment "General Setup"
 
 bool 'Prompt for development and/or incomplete code/drivers' CONFIG_EXPERIMENTAL
 
+choice 'Target MCU'                                \
+   "ATmega8                MCU_MEGA8       \
+    ATmega88               MCU_MEGA88      \
+    ATmega644              MCU_MEGA644"    \
+   'ATmega644'
+endchoice
+
+if [ "$MCU_MEGA8" = y ]; then
+  define_symbol MCU atmega8
+fi
+
+if [ "$MCU_MEGA88" = y ]; then
+  define_symbol MCU atmega88
+fi
+
+if [ "$MCU_MEGA644" = y ]; then
+  define_symbol MCU atmega644
+fi
+
+int "MCU frequency" FREQ 8000000
+
+
 choice 'Target Profile'						\
 	"Standard			CONFIG_NORMAL		\
 	 Bootloader      		BOOTLOADER_SUPPORT	\
@@ -245,13 +267,77 @@ else
   fi
   endmenu
 
-  if [ "$ENC28J60_SUPPORT" = "y" ]; then
-    choice 'USART support'					\
-	    "None			CONFIG_USART_NO   	\
-	     ZBUS			ZBUS_SUPPORT            \
-	     YPort           		YPORT_SUPPORT     	\
-	     Modbus            		MODBUS_SUPPORT"     	\
+  if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$UDP_SUPPORT" = "y" ]; then
+    choice 'I2C support' \
+	    "None			CONFIG_NO_I2C		\
+	     I2C-Master			I2C_SUPPORT		\
+	     I2C-Slave			I2C_SLAVE_SUPPORT"	\
 	     'None'
+  fi
+
+  if [ "$I2C_SLAVE_SUPPORT" = "y" ]; then
+    int "I2C slave address" CONF_I2C_SLAVE_ADDR 42
+  fi
+
+  dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
+
+
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    USARTS=$(( $(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -C -E -dD - | sed -n 's/.* UDR\([0-9]\+\).*/\1/p' | sort -n -r | sed -n 1p) + 1 ))
+    USARTS_USED=0
+
+    usart_choice() {
+      i=0
+      while [ $i -lt $USARTS ]; do
+        echo "$i  $1_USART_$i"
+        i=$(( $i + 1))
+      done
+    }
+    usart_process_choice() {
+      i=0
+      while [ $i -lt $USARTS ]; do
+      	this_usart=$(eval "echo \$${1}_USART_${i}")
+        if [ "$this_usart" = y ]; then
+	  define_symbol "$1_USE_USART" $i
+	  break
+	fi
+        i=$(( $i + 1))
+      done
+    }
+
+    if [ "$MODBUS_SUPPORT" = y ]; then
+      USARTS_USED=$(($USARTS_USED + 1))
+    fi
+    if [ "$YPORT_SUPPORT" = y ]; then
+      USARTS_USED=$(($USARTS_USED + 1))
+    fi
+    if [ "$ZBUS_SUPPORT" = y ]; then
+      USARTS_USED=$(($USARTS_USED + 1))
+    fi
+    comment "Usart Configuration ($USARTS_USED/$USARTS)"
+    if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+      bool "Modbus Support" MODBUS_SUPPORT 
+      if [ "$MODBUS_SUPPORT" = y ]; then
+        choice 'Modbus usart select' "$(usart_choice MODBUS)"
+	usart_process_choice MODBUS
+      fi
+    fi
+    if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+      bool "YPort Support" YPORT_SUPPORT 
+      if [ "$YPORT_SUPPORT" = y ]; then
+        choice 'YPort usart select' "$(usart_choice YPORT)"
+	usart_process_choice YPORT
+      fi
+    fi
+    if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+      bool "ZBus Support" ZBUS_SUPPORT 
+      if [ "$ZBUS_SUPPORT" = y ]; then
+        choice 'ZBus usart select' "$(usart_choice ZBUS)"
+	usart_process_choice ZBUS
+      fi
+    fi
+
   fi
 
   if [ "$ZBUS_SUPPORT" = "y" ]; then
@@ -273,21 +359,6 @@ else
     fi
     endmenu
   fi
-
-  if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$UDP_SUPPORT" = "y" ]; then
-    choice 'I2C support' \
-	    "None			CONFIG_NO_I2C		\
-	     I2C-Master			I2C_SUPPORT		\
-	     I2C-Slave			I2C_SLAVE_SUPPORT"	\
-	     'None'
-  fi
-
-  if [ "$I2C_SLAVE_SUPPORT" = "y" ]; then
-    int "I2C slave address" CONF_I2C_SLAVE_ADDR 42
-  fi
-
-  dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
-  dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
   endmenu
 
