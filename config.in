@@ -315,6 +315,10 @@ else
     if [ "$ZBUS_SUPPORT" = y ]; then
       USARTS_USED=$(($USARTS_USED + 1))
     fi
+    if [ "$MCUF_SUPPORT" = y ]; then
+      USARTS_USED=$(($USARTS_USED + 1))
+    fi
+
     comment "Usart Configuration ($USARTS_USED/$USARTS)"
     if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
       bool "Modbus Support" MODBUS_SUPPORT 
@@ -337,6 +341,15 @@ else
 	usart_process_choice ZBUS
       fi
     fi
+    if [ "$MCUF_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+      bool "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT
+      if [ "$MCUF_SUPPORT" = y ]; then
+        choice 'MCUF usart select' "$(usart_choice MCUF)"
+	usart_process_choice MCUF
+      fi
+    fi
+
+
 
   fi
 
@@ -409,7 +422,6 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
 
   bool "control6 scripts" CONTROL6_SUPPORT
   bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT
-
   endmenu
 fi
 
