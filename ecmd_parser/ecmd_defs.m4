@@ -50,6 +50,7 @@ ecmd_ifdef(PORTIO_SUPPORT)
   ecmd_feature(io_set_port, "io set port")
   ecmd_feature(io_get_port, "io get port")
   ecmd_feature(io_get_pin, "io get pin")
+  ecmd_feature(io_get_mask, "io get mask")
 ecmd_endif()
 
 ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
