@@ -35,7 +35,7 @@
 #include "../net/zbus_raw_net.h"
 #include "zbus.h"
 
-#define USE_USART 0 
+#define USE_USART ZBUS_USE_USART 
 #include "../usart.h"
 
 /* We generate our own usart init module, for our usart port */

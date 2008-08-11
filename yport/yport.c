@@ -34,7 +34,7 @@
 
 #ifdef YPORT_SUPPORT
 
-#define USE_USART 0 
+#define USE_USART YPORT_USE_USART 
 #include "../usart.h"
 
 /* We generate our own usart init module, for our usart port */

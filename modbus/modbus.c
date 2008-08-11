@@ -37,7 +37,7 @@
 
 #ifdef MODBUS_SUPPORT
 
-#define USE_USART 0 
+#define USE_USART MODBUS_USE_USART
 #include "../usart.h"
 
 
