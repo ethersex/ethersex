@@ -6,6 +6,11 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
+MCU_MEGA8=y
+# MCU_MEGA88 is not set
+# MCU_MEGA644 is not set
+MCU=atmega8
+FREQ=8000000
 # CONFIG_NORMAL is not set
 # BOOTLOADER_SUPPORT is not set
 # CONFIG_TEENSY_RFM12 is not set
@@ -45,7 +50,6 @@ ICMP_SUPPORT=y
 # IPV6_STATIC_SUPPORT is not set
 CONF_HOSTNAME="ethersex"
 CONF_ETHERRAPE_IP="192.168.23.244"
-CONF_ETHERRAPE_IP4_NETMASK="255.255.255.0"
 
 #
 # Applications
@@ -60,6 +64,7 @@ CONF_ETHERRAPE_IP4_NETMASK="255.255.255.0"
 # NTP_SUPPORT is not set
 # CRON_SUPPORT is not set
 # NTPD_SUPPORT is not set
+# WHM_SUPPORT is not set
 
 #
 # Etherrape Control Interface (ECMD)
@@ -90,16 +95,16 @@ UECMD_SUPPORT=y
 #
 # RFM12 FSK transmitter
 #
-
-#
-# ZBUS stack configuration
-#
-CONF_ZBUS_KEY=23234242555523234242
 CONFIG_NO_I2C=y
 # I2C_SUPPORT is not set
 # I2C_SLAVE_SUPPORT is not set
 # FS20_SUPPORT is not set
 # RC5_SUPPORT is not set
+
+#
+# ZBUS stack configuration
+#
+CONF_ZBUS_KEY=23234242555523234242
 
 #
 # I/O support
@@ -122,9 +127,10 @@ PORTIO_SIMPLE_SUPPORT=y
 #
 # work in progress bits (enable with care)
 #
-# UDP_DNS_MCAST_SUPPORT is not set
 # DATAFLASH_SUPPORT is not set
 # PSOCK_SUPPORT is not set
 # HTTPD_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
+# CONTROL6_SUPPORT is not set
+# SNMP_SUPPORT is not set
 USART_SUPPORT=y

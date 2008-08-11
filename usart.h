@@ -40,9 +40,17 @@ uint16_t usart_baudrate(uint16_t baudrate);
 #define _usart_cat_(a,b) a ## b
 #define _usart_cat(a,b) _usart_cat_(a,b)
 
-#ifndef UDR0
+#if !defined(UDR0) || !defined(USE_USART)
 #undef USE_USART
 #define USE_USART
+
+#ifndef USART_TX_vect
+#define USART_TX_vect USART0_TX_vect
+#endif
+
+#ifndef USART_RX_vect
+#define USART_RX_vect USART0_RX_vect
+#endif
 #endif
 
 #define usart(a, ...) _usart_cat(a, _usart_cat(USE_USART, __VA_ARGS__))

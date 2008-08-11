@@ -35,6 +35,9 @@
 #include "../net/zbus_raw_net.h"
 #include "zbus.h"
 
+#ifndef ZBUS_USE_USART
+#define ZBUS_USE_USART 0 
+#endif
 #define USE_USART ZBUS_USE_USART 
 #include "../usart.h"
 
