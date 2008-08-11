@@ -25,7 +25,7 @@
 #define _MCUF_H
 
 /* 19k2 baud @ 20 Mhz */
-#define MCUF_UART_UBRR 129 
+#define MCUF_UART_UBRR 10 
 
 void mcuf_init(void);
 void mcuf_newdata(void);
