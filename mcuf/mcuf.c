@@ -114,15 +114,11 @@ mcuf_newdata(void)
 #endif
       channels = 1;
     }
-    uint16_t maxval = htons(pkt->maxval);
-    
-    if ( maxval != 255 && !( maxval == 1 && channels == 1  ) ) {
-#ifdef SYSLOG_SUPPORT
-      syslog_sendf("Warning: skiped MCUF-Frame cause of wrong maxval: %d", maxval);
-#endif
-      return;
-    }
-    
+    uint16_t maxvalue = htons(pkt->maxval);
+
+    if (maxvalue > 255) maxvalue = 255;
+    uint8_t multiplier = 255 / maxvalue; 
+
     /* init output-buffer */
     memset(buffer.data, 0, 12+144);
 
@@ -139,7 +135,8 @@ mcuf_newdata(void)
             uint8_t red   = pkt->data[(x + (y * width)) * channels + 0];
             uint8_t green = pkt->data[(x + (y * width)) * channels + 1];
             uint8_t blue  = pkt->data[(x + (y * width)) * channels + 2];
-            buffer.data[12 + (x + (y * 18))] = (red + green + blue) / 3;
+            buffer.data[12 + (x + (y * 18))] = (red + green + blue) / 3
+                                                * multiplier;
           }
         }
       }
@@ -151,7 +148,8 @@ mcuf_newdata(void)
       for (y = 0; y < 8; y++) {
         for (x = 0; x < 18; x++) {
           if (height > y && width > x) {
-            buffer.data[12 + (x + (y * 18))] = pkt->data[(x + (y * width)) * channels + 0 ];
+            buffer.data[12 + (x + (y * 18))] = 
+              pkt->data[(x + (y * width)) * channels + 0 ] * multiplier;
           }
         }
       }
