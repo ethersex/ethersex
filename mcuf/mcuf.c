@@ -58,7 +58,15 @@ struct mcuf_packet {
   uint8_t data[];
 };
 
-void mcuf_senddata(uint16_t height, uint16_t width, uint16_t channels, uint16_t maxval);
+struct eblp_packet {
+  uint16_t magic[2];
+  uint32_t framenumber;
+  uint16_t height;
+  uint16_t width;
+  uint8_t data[];
+};
+
+void mcuf_serial_senddata();
 void tx_start(uint8_t len);
 
 
@@ -84,32 +92,82 @@ mcuf_newdata(void)
   /* If we send a packet, drop the new packet */
   if (buffer.sent < buffer.len) return;
 
-  /* MCUF Magic bytes */
+  /* MCUF Magic bytes - see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame */
   if ( strncmp(uip_appdata, "\x23\x54\x26\x66", 4) == 0) {
+    /* input */
     struct mcuf_packet *pkt = (struct mcuf_packet *)uip_appdata;
-    memcpy(buffer.data, pkt->data, 144);
-    memset(buffer.data, 0, 156);
-    buffer.data[13] = 255;
-    buffer.data[28] = 255;
-    mcuf_senddata(ntohs(pkt->height), ntohs(pkt->width), 1, 255); 
+    
+    if ( pkt->maxval != 256 ) {
+      syslog_sendf("Warning: skiped MCUF-Frame cause of wrong maxval: %d", pkt->maxval);
+      return;
+    }
+    
+    /* init output-buffer */
+    memset(buffer.data, 0, 12+144);
+
+    /* write frame-data to output-buffer */
+    uint8_t x, y;
+    if (pkt->channels == 3) {
+      /* Handle RGB-Frames */
+      for (y = 0; y < 8; y++) {
+        for (x = 0; x < 18; x++) {
+          if (pkt->height > y && pkt->width > x) {
+            uint8_t red   = pkt->data[(x + (y * pkt->width)) * pkt->channels + 0];
+            uint8_t green = pkt->data[(x + (y * pkt->width)) * pkt->channels + 1];
+            uint8_t blue  = pkt->data[(x + (y * pkt->width)) * pkt->channels + 2];
+            buffer.data[12 + (x + (y * 18))] = (red + green + blue) / 3;
+          }
+        }
+      }
+    } else {
+      /* for non-RGB-Frames use only channel 1 and ignore all others */
+      for (y = 0; y < 8; y++) {
+        for (x = 0; x < 18; x++) {
+          if (pkt->height > y && pkt->width > x) {
+            buffer.data[12 + (x + (y * 18))] = pkt->data[(x + (y * pkt->width)) * pkt->channels + 0 ];
+          }
+        }
+      }
+    }
+    /* init writing of output-buffer to uart */
+    mcuf_serial_senddata(); 
+  } else
+  /* EBLP Magic bytes - see https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol */
+  if ( strncmp(uip_appdata, "\xfe\xed\xbe\xef", 4) == 0) {
+    /* input */
+    struct eblp_packet *pkt = (struct eblp_packet *)uip_appdata;
+    uint16_t height = htons(pkt->height);
+    uint16_t width = htons(pkt->width);
+    /* init output-buffer */
+    memset(buffer.data, 0, 12+144);
+
+    /* write frame-data to output-buffer */
+    uint8_t x, y;
+    for (y = 0; y < 8; y++) {
+      for (x = 0; x < 18; x++) {
+        if (height > y && width > x) {
+          buffer.data[12 + (x + (y * 18))] = pkt->data[x + (y * width)];
+        }
+      }
+    }
+
+    /* init writing of output-buffer to uart */
+    mcuf_serial_senddata(); 
   }
 }
 
 void
-mcuf_senddata(uint16_t height, uint16_t width, uint16_t channels, uint16_t maxval)
+mcuf_serial_senddata()
 {
-  syslog_sendf("%x %x %x", height, width, channels);
+  /* write mcuf-header for the shifter-device (4 byte magic, height, width, channels, maxval)
+     see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame
+     and https://wiki.blinkenarea.org/index.php/Shifter */
   memcpy_P(buffer.data, PSTR("\x23\x54\x26\x66\x00\x08\x00\x12\x00\x01\x00\xff"), 12);
-#if 0
-  ((uint16_t *) &buffer.data[4])[0] = ntohs(height);
-  ((uint16_t *) &buffer.data[4])[1] = ntohs(width);
-  ((uint16_t *) &buffer.data[4])[2] = ntohs(channels);
-  ((uint16_t *) &buffer.data[4])[3] = ntohs(maxval);
-#endif
-  
 
-  /* send 144 bytes od data */
-  tx_start(156);
+  /* send 144 bytes of data - the data has already been writen to the outputbuffer by mcuf_newdata */
+
+  /* start to send the buffer to uart */
+  tx_start(12+144);
 }
 
 void
