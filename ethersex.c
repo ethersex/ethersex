@@ -54,6 +54,7 @@
 #include "yport/yport.h"
 #include "ipv6.h"
 #include "dataflash/fs.h"
+#include "modbus/modbus.h"
 #include "syslog/syslog.h"
 #include "stella/stella.h"
 #include "net/handler.h"
