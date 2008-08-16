@@ -311,12 +311,14 @@ rfm12_rxfinish(void)
   {
 #ifdef SKIPJACK_SUPPORT
     rfm12_decrypt (&len);
-    if (!len) {
-      uip_buf_unlock ();
-      rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
-    }
 #endif
   }
+  
+  if (!len) {
+    uip_buf_unlock ();
+    rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+  }
+  
   return(len);			/* receive size */
 }
 
