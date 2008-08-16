@@ -1625,7 +1625,7 @@ extern uint8_t fill_llh_and_transmit(void);
 #endif
 
 
-extern uint8_t _uip_buf_lock;
+extern volatile uint8_t _uip_buf_lock;
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
