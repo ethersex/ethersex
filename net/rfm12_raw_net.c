@@ -56,6 +56,8 @@ rfm12_raw_net_main(void)
       uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
       uip_udp_conn->rport = BUF->srcport;
 
+      memmove (rfm12_data, uip_appdata, uip_len);
+
       rfm12_txstart(uip_len);
       return;
     }
