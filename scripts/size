@@ -1,0 +1,13 @@
+#!/bin/bash
+j=0
+for i in ".text" ".data" ".bss"
+do
+	val[$j]=$(avr-size -A $1 | grep $i | sed -e "s/^$i *//g" | cut -d " " -f1)
+	let j=$j+1
+done
+echo ""
+echo "Program: $(echo ${val[0]}+${val[1]}|bc) bytes"
+echo "(.text + .data)"
+echo ""
+echo "Data:  $(echo ${val[2]}+${val[1]}|bc) bytes"
+echo "(.data + .bss)"
