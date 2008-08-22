@@ -78,7 +78,7 @@ ifdef(`conf_STELLA', `dnl
 #define _RXC_UART0 RXC
 #define _TXC_UART0 TXC
 #define _IVREG MCUCR
-#define _EIMSK EIMSK
+#define _EIMSK GICR
 
 #define _TCCR2_PRESCALE TCCR2
 #define _OUTPUT_COMPARE_IE2 OCIE2
