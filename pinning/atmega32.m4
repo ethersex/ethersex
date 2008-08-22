@@ -77,6 +77,9 @@ ifdef(`conf_STELLA', `dnl
 #define _UDRE_UART0 UDRE
 #define _RXC_UART0 RXC
 #define _TXC_UART0 TXC
+#define USART0_UDRE_vect USART_UDRE_vect
+#define USART0_RX_vect USART_RXC_vect
+#define USART0_TX_vect USART_TXC_vect
 #define _IVREG MCUCR
 #define _EIMSK GICR
 
