@@ -9,6 +9,7 @@ bool 'Prompt for development and/or incomplete code/drivers' CONFIG_EXPERIMENTAL
 choice 'Target MCU'                                \
    "ATmega8                MCU_MEGA8       \
     ATmega88               MCU_MEGA88      \
+    ATmega32		   MCU_MEGA32	   \
     ATmega644              MCU_MEGA644"    \
    'ATmega644'
 endchoice
@@ -19,6 +20,10 @@ fi
 
 if [ "$MCU_MEGA88" = y ]; then
   define_symbol MCU atmega88
+fi
+
+if [ "$MCU_MEGA32" = y ]; then
+  define_symbol MCU atmega32
 fi
 
 if [ "$MCU_MEGA644" = y ]; then
