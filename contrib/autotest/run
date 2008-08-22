@@ -1,6 +1,11 @@
 #! /bin/sh
 unset LANG
 
+if [ "x$CFLAGS" = "x" ]; then
+  CFLAGS="-Wall -W -Wno-unused-parameter -Wno-uninitialized -Wno-pointer-sign  -Wno-missing-field-initializers"
+  export CFLAGS
+fi
+
 [ -e config.in ] || {
   echo "$0: This script has to be run from the Ethersex root directory."
   exit 1
