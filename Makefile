@@ -19,8 +19,7 @@ export TOPDIR
 all: compile-$(TARGET)
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
-	@echo -n "size is: "
-	@stat -c %s ethersex.bin
+	@avr-size -C $(TARGET) | grep bytes
 	@echo "==============================="
 
 
