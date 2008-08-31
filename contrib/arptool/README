@@ -1,0 +1,19 @@
+
+arpding and sexvertise are tools you might want to use to direct traffic
+for RFM12/ZBus devices to your Ethersex bridges.
+
+Think of a large network with multiple Ethersex devices acting as
+Ethernet<->ZBus bridges and a large number of ZBus devices that may be
+connected to one or the other ZBus line.
+
+The idea is to resolve the IP-address of the ZBus device to the broadcast
+MAC address so both bridging Ethersex'es will eventually receive the packet
+and forward it in turn.
+
+Mind that this approach doesn't scale very well ^^
+
+``arpding'' is the tool of choice for IPv4/ARP
+``sexvetise'' is the advertising tool thought for IPv6 networks
+
+Be careful when using ``sexvertise'', it might cause forwarding loops
+(maybe consider using a site-local multicast address instead of broadcasting)

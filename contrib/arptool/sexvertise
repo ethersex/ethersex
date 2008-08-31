@@ -1,0 +1,96 @@
+#! /usr/bin/perl -w
+use strict;
+use warnings;
+
+my $netdev = "eth0";
+my $target_prefix = "2001:6f8:1209:f0:aa:";
+
+use Net::Frame::Dump::Online;
+use Net::Frame::Simple;
+use Net::Frame::Layer::ICMPv6::Option;
+use Net::Frame::Layer::ICMPv6::NeighborSolicitation;
+use Net::Frame::Layer::ICMPv6::NeighborAdvertisement;
+use Net::Frame::Layer::ICMPv6 qw(:consts);
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Write::Layer2;
+use Data::HexDump;
+
+my $oWrite = Net::Write::Layer2->new(dev => $netdev);
+$oWrite->open;
+
+my $oDump = Net::Frame::Dump::Online->new(dev    => $netdev, 
+                                          onRecv => \&callback);
+$oDump->filter("icmp6");
+$oDump->start;
+
+END { 
+  $oDump && $oDump->isRunning && $oDump->stop;
+  $oWrite && $oWrite->close;
+}
+
+sub callback {
+  my ($h, $data) = @_;
+  my $f = Net::Frame::Simple->newFromDump($h);
+  my $icmpv6 = $f->ref->{"ICMPv6"};
+
+  return unless ($icmpv6);
+  return unless (ref($icmpv6->icmpType) eq "Net::Frame::Layer::ICMPv6::NeighborSolicitation");
+  
+  my $target = $icmpv6->icmpType->targetAddress;
+  return unless ($target =~ m/^$target_prefix/x);
+
+  my $na = Net::Frame::Layer::ICMPv6::NeighborAdvertisement->new(
+    flags => NF_ICMPv6_FLAG_ROUTER | NF_ICMPv6_FLAG_SOLICITED | NF_ICMPv6_FLAG_OVERRIDE,
+    reserved => 0,
+    targetAddress => $target,
+  );
+  $na->pack;
+
+  my $option = Net::Frame::Layer::ICMPv6::Option->new(
+     type   => 2,
+     length => 1,
+     value  => "\xFF\xFF\xFF\xFF\xFF\xFF",
+  );
+  $option->pack;
+
+  my $icmp = Net::Frame::Layer::ICMPv6->new(
+     type     => NF_ICMPv6_TYPE_NEIGHBORADVERTISEMENT,
+     code     => NF_ICMPv6_CODE_ZERO,
+     checksum => 0,
+     options  => [ $option ],
+  );
+  $icmp->type(NF_ICMPv6_TYPE_NEIGHBORADVERTISEMENT);
+  $icmp->icmpType($na);
+
+  my $ip = Net::Frame::Layer::IPv6->new(
+     version       => 6,
+     trafficClass  => 0,
+     flowLabel     => 0,
+     nextHeader    => NF_IPv6_PROTOCOL_ICMPv6,
+     hopLimit      => 0xff,
+     src           => $target,
+     dst           => $f->ref->{"IPv6"}->src,
+     payloadLength => 32,
+  );
+  #print HexDump ($icmp_raw);
+
+  $icmp->computeLengths;
+  $icmp->computeChecksums({
+          src           => $ip->src,
+          dst           => $ip->dst,
+          nextHeader    => $ip->nextHeader,
+          payloadLength => $ip->payloadLength,
+       });
+
+  $icmp->pack;
+
+  $ip->payload($icmp->raw);
+  $ip->pack;
+
+  my $sender_mac = "\xac\xde\x48\x12\x34\x65";
+  my $out_mac = substr($h->{raw}, 6, 6) . $sender_mac . substr($h->{raw}, 12, 2);
+  $oWrite->send($out_mac . $ip->raw . $icmp->raw);
+
+  print "target: ", $target, "\n";
+}
+
