@@ -39,6 +39,11 @@
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
 #ifdef ADC_SUPPORT
+
+#ifndef ADC_REF
+#define ADC_REF 0
+#endif
+
 int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint16_t adc;
@@ -46,14 +51,14 @@ int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
   uint8_t ret = 0;
   if (cmd[0] && cmd[1]) {
     if ( (cmd[1] - '0') < ADC_CHANNELS) {
-      ADMUX = (ADMUX & 0xF0) | (cmd[1] - '0');
+      ADMUX = (ADMUX & 0xF0) | (cmd[1] - '0') | ADC_REF;
       channel = ADC_CHANNELS;
       goto adc_out; 
     } else 
       return -1;
   }
   for (channel = 0; channel < ADC_CHANNELS; channel ++) {
-    ADMUX = (ADMUX & 0xF0) | channel;
+    ADMUX = (ADMUX & 0xF0) | channel | ADC_REF;
 adc_out:
     /* Start adc conversion */
     ADCSRA |= _BV(ADSC);
