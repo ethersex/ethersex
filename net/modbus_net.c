@@ -89,10 +89,10 @@ void modbus_net_main(void)
             uip_conn = &uip_conns[i];
 send_new_data:
             if (STATE(uip_conn).len == 0) {
-              if (STATE(uip_conn).data[0] >= 0xf0) {
-                uip_conn->appstate.modbus.new_data = 0;
-                continue;
-              }
+//              if (STATE(uip_conn).data[0] >= 0xf0) {
+  //              uip_conn->appstate.modbus.new_data = 0;
+    //            continue;
+     //         }
               // Send an error message
              answer[8] = 0x0B; // gateway problem
              goto error_response;

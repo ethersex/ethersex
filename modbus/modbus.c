@@ -32,6 +32,7 @@
 #include "../config.h"
 #include "../net/modbus_net.h"
 #include "modbus.h"
+#include "modbus_client.h"
 
 #include "../pinning.c"
 
@@ -89,6 +90,12 @@ modbus_periodic(void)
 
 uint8_t 
 modbus_rxstart(uint8_t *data, uint8_t len) {
+#ifdef MODBUS_CLIENT_SUPPORT
+  if (data[0] == MODBUS_ADDRESS || data[0] == MODBUS_BROADCAST) {
+    modbus_client_process(data, len);
+    return 1;
+  }
+#endif
   if (modbus_send_buffer.crc_len != 0) return 0; /* There is an packet on the way */
 
   /* enable the transmitter */

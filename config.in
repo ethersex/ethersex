@@ -327,11 +327,21 @@ else
     comment "Usart Configuration ($USARTS_USED/$USARTS)"
     if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
       bool "Modbus Support" MODBUS_SUPPORT 
-      if [ "$MODBUS_SUPPORT" = y ]; then
-        choice 'Modbus usart select' "$(usart_choice MODBUS)"
-	usart_process_choice MODBUS
-      fi
+        if [ "$MODBUS_SUPPORT" = y ]; then
+          choice '  Modbus usart select' "$(usart_choice MODBUS)"
+          usart_process_choice MODBUS
+        fi
+	if [ "$MODBUS_SUPPORT" = y ]; then
+	  bool "  Modbus Client Stack" MODBUS_CLIENT_SUPPORT  n
+	fi
+	if [ "$MODBUS_CLIENT_SUPPORT" = y ]; then
+	  int "  Modbus Client Address" MODBUS_ADDRESS 240
+	fi
+	if [ "$MODBUS_CLIENT_SUPPORT" = y ]; then
+	  int "  Modbus Client Broadcast" MODBUS_BROADCAST 255
+	fi
     fi
+
     if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
       bool "YPort Support" YPORT_SUPPORT 
       if [ "$YPORT_SUPPORT" = y ]; then

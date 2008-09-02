@@ -1,0 +1,136 @@
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ }}} */
+
+
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/crc16.h>
+#include <string.h>
+#include "../eeprom.h"
+#include "../net/yport_net.h"
+#include "../bit-macros.h"
+#include "../config.h"
+#include "../net/modbus_net.h"
+#include "modbus.h"
+#include "modbus_client.h"
+
+#include "modbus_client_cb.c"
+
+
+#ifdef MODBUS_CLIENT_SUPPORT
+
+#define STATE modbus_conn->appstate.modbus
+
+void 
+modbus_client_process(uint8_t *data, uint8_t length)
+{
+  if (!modbus_conn) return;
+  union ModbusRTU *rtu = (void *)data;
+  /* read holding/input registers */
+  if (data[1] == 0x03 || data[1] == 0x04) {
+    /* is holding requested ? */
+    uint8_t holding = (data[1] == 0x03) ? 1 : 0;
+    uint8_t ptr = ntohs(rtu->read.ptr);
+    uint8_t len = ntohs(rtu->read.len);
+    /* The requested addresses are not in our addres space */
+    if ((ptr + len) > (holding ? MODBUS_HOLD_REGISTERS : MODBUS_INPUT_REGISTERS)){
+      STATE.data[2] = 2;
+      goto send_error;
+    }
+    STATE.data[0] = MODBUS_ADDRESS;
+    STATE.data[1] = rtu->read.cmd;
+    STATE.data[2] = len * 2;
+    uint8_t i = 0;
+    while ( i < len) {
+      /* Read the registers */
+      uint16_t tmp;
+      if (holding)
+        tmp = modbus_read_holding(ptr + i);
+      else 
+        tmp = modbus_read_input(ptr + i);
+      STATE.data[3 + i * 2] =  tmp >> 8;
+      STATE.data[4 + i * 2] =  tmp ;
+      i++;
+    }
+    STATE.len = STATE.data[2] + 3;
+    goto send_message;
+    /* write single register */
+  } else if (data[1] == 0x06) { 
+    if (ntohs(rtu->write.ptr) >= MODBUS_HOLD_REGISTERS) {
+      STATE.data[2] = 2;
+      goto send_error;
+    }
+    modbus_write_holding(ntohs(rtu->write.ptr), ntohs(rtu->write.value));
+    /* Echo the message */
+    memcpy((uint8_t *)STATE.data, data, length);
+    STATE.len = length;
+    goto send_message;
+  /* Write multiple registers */
+  } else if (data[1] == 0x10) { 
+    uint8_t ptr = ntohs(rtu->xwrite.ptr);
+    uint8_t len = ntohs(rtu->xwrite.len);
+    if (ptr + len >= MODBUS_HOLD_REGISTERS) {
+      STATE.data[2] = 2;
+      goto send_error;
+    }
+    uint8_t i;
+    for (i = 0; i < len; i++)
+      modbus_write_holding(ptr + i, ntohs(rtu->xwrite.data[i]));
+      
+
+    /* Write an answer */
+    STATE.data[0] = MODBUS_ADDRESS;
+    STATE.data[1] = 0x10;
+    STATE.data[2] = 0;
+    STATE.data[3] = ptr;
+    STATE.data[4] = 0;
+    STATE.data[5] = len;
+    STATE.len = 6;
+    goto send_message;
+  } else {
+    STATE.data[2] = 1;
+send_error:
+    STATE.data[0] = MODBUS_ADDRESS;
+    STATE.data[1] = data[1] | 0x80;
+    STATE.len = 3;
+    goto send_message;
+  }
+send_message:
+  
+  if (data[0] == MODBUS_BROADCAST) {
+    STATE.len = 0;
+    return;
+  }
+
+  uint16_t crc = modbus_crc_calc((uint8_t *)STATE.data, STATE.len);
+
+  STATE.data[STATE.len++] = crc & 0xff;
+  STATE.data[STATE.len++] = (crc >> 8) & 0xff;
+  STATE.new_data = 1;
+  STATE.must_send = 0;
+
+  modbus_conn = NULL;
+}
+
+
+#endif
