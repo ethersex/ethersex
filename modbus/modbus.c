@@ -31,6 +31,7 @@
 #include "../bit-macros.h"
 #include "../config.h"
 #include "../net/modbus_net.h"
+#include "../net/modbus_state.h"
 #include "modbus.h"
 #include "modbus_client.h"
 
@@ -40,6 +41,10 @@
 
 #define USE_USART MODBUS_USE_USART
 #include "../usart.h"
+
+#ifdef MODBUS_CLIENT_SUPPORT
+struct modbus_connection_state_t modbus_client_state;
+#endif
 
 
 /* We generate our own usart init module, for our usart port */
@@ -71,6 +76,10 @@ modbus_init(void)
     modbus_send_buffer.len = 0;
     modbus_send_buffer.sent = 0;
     modbus_send_buffer.crc_len = 0;
+
+#ifdef MODBUS_CLIENT_SUPPORT
+    modbus_client_state.len = 0;
+#endif
     
 }
 
@@ -80,8 +89,41 @@ modbus_periodic(void)
   if (modbus_recv_timer == 0) return;
   modbus_recv_timer--;
 
-  if (!modbus_conn) return;
-  if (!modbus_conn->appstate.modbus.waiting_for_answer) return;
+  if (!modbus_conn) {
+#ifdef MODBUS_CLIENT_SUPPORT
+    if (modbus_recv_timer == 0) {
+      /* check the crc */
+      uint16_t crc = modbus_crc_calc(modbus_client_state.data, modbus_client_state.len - 2);
+      uint16_t crc_recv = 
+        ((modbus_client_state.data[modbus_client_state.len - 1])  << 8) 
+        | modbus_client_state.data[modbus_client_state.len - 2];
+      if (crc != crc_recv) {
+        modbus_client_state.len = 0;
+        return;
+      }
+      /* See if we are the receiver */
+      if (!(modbus_client_state.data[0] == MODBUS_ADDRESS 
+          || modbus_client_state.data[0] == MODBUS_BROADCAST))
+        return;
+      modbus_client_state.len -= 2;
+      /* A message for our own modbus stack */
+      modbus_client_process(modbus_client_state.data, modbus_client_state.len,
+                            &modbus_client_state);
+      if (modbus_client_state.len) {
+        PIN_SET(MODBUS_TX);
+        modbus_send_buffer.data = modbus_client_state.data;
+        modbus_send_buffer.len = modbus_client_state.len;
+
+        /* Enable the tx interrupt and send the first character */
+        modbus_send_buffer.sent = 1;
+        usart(UCSR,B) |= _BV(usart(TXCIE));
+        usart(UDR) = modbus_client_state.data[0];
+      }
+      modbus_client_state.len = 0;
+    }
+#endif
+    return;
+  }
   if (modbus_recv_timer != 0) return;
   modbus_conn->appstate.modbus.waiting_for_answer = 0;
   modbus_conn->appstate.modbus.new_data = 1;
@@ -92,8 +134,9 @@ uint8_t
 modbus_rxstart(uint8_t *data, uint8_t len) {
 #ifdef MODBUS_CLIENT_SUPPORT
   if (data[0] == MODBUS_ADDRESS || data[0] == MODBUS_BROADCAST) {
-    modbus_client_process(data, len);
-    return 1;
+    modbus_client_process(data, len, (void *)&modbus_conn->appstate.modbus);
+    if (data[0] == MODBUS_ADDRESS) 
+      return 1;
   }
 #endif
   if (modbus_send_buffer.crc_len != 0) return 0; /* There is an packet on the way */
@@ -128,10 +171,12 @@ SIGNAL(usart(USART,_TX_vect))
     /* Disable the transmitter */
     PIN_CLEAR(MODBUS_TX);
     /* free the modbus_conn */
-    modbus_conn->appstate.modbus.must_send = 0;
-    modbus_conn->appstate.modbus.waiting_for_answer = 1;
-    modbus_conn->appstate.modbus.len = 0;
-    modbus_recv_timer = 4;
+    if (modbus_conn) {
+      modbus_conn->appstate.modbus.must_send = 0;
+      modbus_conn->appstate.modbus.waiting_for_answer = 1;
+      modbus_conn->appstate.modbus.len = 0;
+      modbus_recv_timer = 4;
+    }
   }
 }
 
@@ -145,10 +190,16 @@ SIGNAL(usart(USART,_RX_vect))
   }
   uint8_t data = usart(UDR);
 
-  if (!modbus_conn) return;
-  // Are we waiting for an answer?
-  if (!modbus_conn->appstate.modbus.waiting_for_answer) return;
-  // Is the buffer big enough
+  
+  if (!modbus_conn) {
+#ifdef MODBUS_CLIENT_SUPPORT
+    /* This byte is not answer to a modbus/TCP || ecmd modbus request */
+    modbus_client_state.data[modbus_client_state.len++] = data;
+    modbus_recv_timer = 2;
+#endif
+    return;
+  }
+  /* Is the buffer big enough */
   if (modbus_conn->appstate.modbus.len >= MODBUS_BUFFER_LEN) return;
 
   modbus_conn->appstate.modbus.data[modbus_conn->appstate.modbus.len++] = data;
