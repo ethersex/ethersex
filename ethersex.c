@@ -43,6 +43,7 @@
 #include "watchcat/watchcat.h"
 #include "control6/control6.h"
 #include "onewire/onewire.h"
+#include "ecmd_serial/ecmd_serial_i2c.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
 #include "zbus/zbus.h"
@@ -188,6 +189,10 @@ int main(void)
 
 #ifdef MODBUS_SUPPORT
     modbus_init();
+#endif
+
+#ifdef ECMD_SERIAL_I2C_SUPPORT
+    ecmd_serial_i2c_init();
 #endif
 
 #ifdef ZBUS_SUPPORT

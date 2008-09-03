@@ -30,6 +30,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "ecmd_serial/ecmd_serial_i2c.h"
 #include "control6/control6.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
@@ -118,6 +119,10 @@ void timer_process(void)
 #       ifdef CONTROL6_SUPPORT
         control6_run();
 #       endif
+
+#ifdef ECMD_SERIAL_I2C_SUPPORT
+        ecmd_serial_i2c_periodic();
+#endif
 
         /* check tcp connections every 200ms */
 #       ifdef TEENSY_SUPPORT
