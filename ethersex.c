@@ -144,8 +144,12 @@ int main(void)
     debug_printf("fs: root page is 0x%04x", fs.root);
 #   endif
 
+#   ifdef UIP_SUPPORT
     network_init();
+#   endif
+
     timer_init();
+
 #ifdef CLOCK_SUPPORT
     clock_init();
 #endif

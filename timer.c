@@ -192,8 +192,10 @@ void timer_process(void)
 #           if defined(CLOCK_SUPPORT) && ! defined(CLOCK_CRYSTAL_SUPPORT)
             clock_tick();
 #           endif
+#           ifdef UIP_SUPPORT
             if (uip_len)
               fill_llh_and_transmit();
+#           endif
         }
 
         /* expire arp entries every 10 seconds */
@@ -230,7 +232,9 @@ void timer_process(void)
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
 
+#ifdef  UIP_SUPPORT
 	uip_buf_unlock ();
+#endif
     }
 
 } /* }}} */

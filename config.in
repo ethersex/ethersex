@@ -37,131 +37,149 @@ choice 'Target Profile'						\
 	"Standard			CONFIG_NORMAL		\
 	 Bootloader      		BOOTLOADER_SUPPORT	\
 	 RFM12-Teensy      		CONFIG_TEENSY_RFM12	\
-	 ZBUS-Teensy      		CONFIG_TEENSY_ZBUS"	\
+	 ZBUS-Teensy      		CONFIG_TEENSY_ZBUS	\
+	 NoNetwork-Teensy      		CONFIG_TEENSY_NONETWORK"	\
 	 'Standard'
 endmenu
 
 if [ "$CONFIG_NORMAL" = "y" ]; then
   define_bool TEENSY_SUPPORT n
   define_bool ENC28J60_SUPPORT y
+  define_bool UIP_SUPPORT y
 fi
 
 if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
   define_bool TEENSY_SUPPORT y
   define_bool ENC28J60_SUPPORT y
+  define_bool UIP_SUPPORT y
 fi
 
 if [ "$CONFIG_TEENSY_RFM12" = "y" ]; then
   define_bool TEENSY_SUPPORT y
   define_bool RFM12_SUPPORT y
   define_bool ENC28J60_SUPPORT n
+  define_bool UIP_SUPPORT y
 fi
 
 if [ "$CONFIG_TEENSY_ZBUS" = "y" ]; then
   define_bool TEENSY_SUPPORT y
   define_bool ZBUS_SUPPORT y
   define_bool ENC28J60_SUPPORT n
+  define_bool UIP_SUPPORT y
+fi
+
+if [ "$CONFIG_TEENSY_NONETWORK" = "y" ]; then
+  define_bool TEENSY_SUPPORT y
+  define_bool ZBUS_SUPPORT n
+  define_bool RFM12_SUPPORT n
+  define_bool ENC28J60_SUPPORT n
+  define_bool UIP_SUPPORT n
+  define_bool UDP_SUPPORT n
+  define_bool TCP_SUPPORT n
+  define_bool ICMP_SUPPORT n
 fi
 
 ###############################################################################
 
-mainmenu_option next_comment
-comment "Cryptographic functionality"
-
-bool "Crypto support" CRYPTO_SUPPORT
-dep_bool "CAST5 cipher" CAST5_SUPPORT $CRYPTO_SUPPORT
-dep_bool "MD5 hash" MD5_SUPPORT $CRYPTO_SUPPORT
-dep_bool "Skipjack cipher" SKIPJACK_SUPPORT $CRYPTO_SUPPORT
-endmenu
-
-###############################################################################
-mainmenu_option next_comment
-comment "Network protocols"
-
-bool 'TCP support' TCP_SUPPORT
-bool 'UDP support' UDP_SUPPORT
-dep_bool 'UDP broadcast support' BROADCAST_SUPPORT $UDP_SUPPORT
-bool 'ICMP support' ICMP_SUPPORT
-
-comment "Application protocols"
-if [ "$IPV6_SUPPORT" != "y" -a "$TFTPOMATIC_SUPPORT" != "y" ]; then
-  dep_bool 'BOOTP support' BOOTP_SUPPORT $UDP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT
-  dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
-fi
-dep_bool 'DNS support' DNS_SUPPORT $UDP_SUPPORT
-if [ "$DNS_SUPPORT" = "y" ]; then
-  if [ "$IPV6_SUPPORT" = "y" ]; then
-    ipv6 "DNS-Server IP address" CONF_DNS_SERVER "2001:6f8:1209:0:0:0:0:2"
-  else
-    ipv4 "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254"
-  fi
-fi
-dep_bool 'SYSLOG support' SYSLOG_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
-if [ "$SYSLOG_SUPPORT" = "y" ]; then
-  if [ "$IPV6_SUPPORT" = "y" ]; then
-    ipv6 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
-  else
-    ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
-  fi
-fi
-dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
-
-comment "Tunneling protocols"
-dep_bool 'OpenVPN' OPENVPN_SUPPORT $UDP_SUPPORT
-if [ "$OPENVPN_SUPPORT" = "y" ]; then
+if [ "$UIP_SUPPORT" = y ]; then
   mainmenu_option next_comment
-  comment "OpenVPN configuration"
-  hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
-  hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
-
-  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
-    comment "OpenVPN IP configuration"
-    ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
-    ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
-    ipv4 "OpenVPN default gateway" CONF_OPENVPN_IP4_GATEWAY "192.168.23.1"
+  comment "Cryptographic functionality"
+  
+  bool "Crypto support" CRYPTO_SUPPORT
+  dep_bool "CAST5 cipher" CAST5_SUPPORT $CRYPTO_SUPPORT
+  dep_bool "MD5 hash" MD5_SUPPORT $CRYPTO_SUPPORT
+  dep_bool "Skipjack cipher" SKIPJACK_SUPPORT $CRYPTO_SUPPORT
+  endmenu
+  
+  ###############################################################################
+  mainmenu_option next_comment
+  comment "Network protocols"
+  
+  bool 'TCP support' TCP_SUPPORT
+  bool 'UDP support' UDP_SUPPORT
+  dep_bool 'UDP broadcast support' BROADCAST_SUPPORT $UDP_SUPPORT
+  bool 'ICMP support' ICMP_SUPPORT
+  
+  comment "Application protocols"
+  if [ "$IPV6_SUPPORT" != "y" -a "$TFTPOMATIC_SUPPORT" != "y" ]; then
+    dep_bool 'BOOTP support' BOOTP_SUPPORT $UDP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT
+    dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
   fi
+  dep_bool 'DNS support' DNS_SUPPORT $UDP_SUPPORT
+  if [ "$DNS_SUPPORT" = "y" ]; then
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "DNS-Server IP address" CONF_DNS_SERVER "2001:6f8:1209:0:0:0:0:2"
+    else
+      ipv4 "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254"
+    fi
+  fi
+  dep_bool 'SYSLOG support' SYSLOG_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
+  if [ "$SYSLOG_SUPPORT" = "y" ]; then
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+    else
+      ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
+    fi
+  fi
+  dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+  
+  comment "Tunneling protocols"
+  dep_bool 'OpenVPN' OPENVPN_SUPPORT $UDP_SUPPORT
+  if [ "$OPENVPN_SUPPORT" = "y" ]; then
+    mainmenu_option next_comment
+    comment "OpenVPN configuration"
+    hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
+    hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
+  
+    if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+      comment "OpenVPN IP configuration"
+      ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
+      ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
+      ipv4 "OpenVPN default gateway" CONF_OPENVPN_IP4_GATEWAY "192.168.23.1"
+    fi
+    endmenu
+  fi
+  dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $CONFIG_EXPERIMENTAL $RFM12_SUPPORT $ENC28J60_SUPPORT
+  dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $CONFIG_EXPERIMENTAL $ZBUS_SUPPORT $ENC28J60_SUPPORT
+  endmenu
+  
+  ###############################################################################
+  
+  mainmenu_option next_comment
+  comment "Network configuration"
+  dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
+  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+    dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
+  else
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      define_bool "IPV6_STATIC_SUPPORT" y
+    else
+      define_bool "IPV6_STATIC_SUPPORT" n
+    fi
+  fi
+  
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
+  fi
+  string "Hostname" CONF_HOSTNAME "ethersex"
+  
+  if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+    comment "Static IPv6 configuration"
+    ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+    int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
+  fi
+  
+  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+    comment "Static IPv4 configuration"
+    ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
+    if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+      ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
+      ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+    fi
+  fi
+  
   endmenu
 fi
-dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $CONFIG_EXPERIMENTAL $RFM12_SUPPORT $ENC28J60_SUPPORT
-dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $CONFIG_EXPERIMENTAL $ZBUS_SUPPORT $ENC28J60_SUPPORT
-endmenu
-
-###############################################################################
-
-mainmenu_option next_comment
-comment "Network configuration"
-dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
-if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
-  dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
-else
-  if [ "$IPV6_SUPPORT" = "y" ]; then
-    define_bool "IPV6_STATIC_SUPPORT" y
-  else
-    define_bool "IPV6_STATIC_SUPPORT" n
-  fi
-fi
-
-if [ "$ENC28J60_SUPPORT" = "y" ]; then
-  mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
-fi
-string "Hostname" CONF_HOSTNAME "ethersex"
-
-if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
-  comment "Static IPv6 configuration"
-  ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
-  int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
-fi
-
-if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
-  comment "Static IPv4 configuration"
-  ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
-  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
-    ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
-    ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
-  fi
-fi
-
-endmenu
 
 ###############################################################################
 
@@ -216,9 +234,11 @@ else
   fi
 
 
-  comment "Ecmd related stuff"
+  if [ "$UIP_SUPPORT" = "y" ]; then
+    comment "Ecmd related stuff"
 
-  bool "Send ECMD messages" ECMD_SENDER_SUPPORT
+    bool "Send ECMD messages" ECMD_SENDER_SUPPORT
+  fi
   endmenu 
 
   mainmenu_option next_comment
@@ -233,21 +253,23 @@ else
     bool "Use Port C (instead of Port A)" HD44780_USE_PORTC
   fi
   endmenu
-
-  dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
-  bool "Stella Light" STELLA_SUPPORT
-  bool "UDP Echo" UDP_ECHO_NET_SUPPORT
-
-  mainmenu_option next_comment
-  comment "DynDNS support"
-    bool "Update DNS records at dyn.metafnord.de" DYNDNS_SUPPORT
-    if [ "$DYNDNS_SUPPORT" = "y" ]; then
-      string "Hostname" CONF_DYNDNS_HOSTNAME "camera1"
-      string "Username" CONF_DYNDNS_USERNAME "user"
-      string "Password" CONF_DYNDNS_PASSWORD "secret"
-    fi
-  endmenu
-  dep_bool "Watch IO changes (and react)" WATCHCAT_SUPPORT $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+  if [ "$UIP_SUPPORT" = "y" ]; then
+  
+    dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
+    bool "Stella Light" STELLA_SUPPORT
+    bool "UDP Echo" UDP_ECHO_NET_SUPPORT
+  
+    mainmenu_option next_comment
+    comment "DynDNS support"
+      bool "Update DNS records at dyn.metafnord.de" DYNDNS_SUPPORT
+      if [ "$DYNDNS_SUPPORT" = "y" ]; then
+        string "Hostname" CONF_DYNDNS_HOSTNAME "camera1"
+        string "Username" CONF_DYNDNS_USERNAME "user"
+        string "Password" CONF_DYNDNS_PASSWORD "secret"
+      fi
+    endmenu
+    dep_bool "Watch IO changes (and react)" WATCHCAT_SUPPORT $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+  fi
   endmenu
 
   ###############################################################################
@@ -255,31 +277,33 @@ else
   mainmenu_option next_comment
   comment "Interfaces"
 
-  mainmenu_option next_comment
-  comment "RFM12 FSK transmitter"
-  if [ "$ENC28J60_SUPPORT" = "y" ]; then
-    bool "RFM12 support" RFM12_SUPPORT
-  fi
-
-  if [ "$RFM12_SUPPORT" = "y" ]; then
-    if [ "$TEENSY_SUPPORT" != "y" ]; then
-      int "RFM12 Baudrate" CONF_RFM12_BAUD 34500
-    fi
-    if [ "$SKIPJACK_SUPPORT" = "y" ]; then
-      hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
-    fi
-
+  if [ "$UIP_SUPPORT" = "y" ]; then
+    mainmenu_option next_comment
+    comment "RFM12 FSK transmitter"
     if [ "$ENC28J60_SUPPORT" = "y" ]; then
-      if [ "$IPV6_SUPPORT" = "y" ]; then
-	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
-	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
-      else
-	ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
-	ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
+      bool "RFM12 support" RFM12_SUPPORT
+    fi
+  
+    if [ "$RFM12_SUPPORT" = "y" ]; then
+      if [ "$TEENSY_SUPPORT" != "y" ]; then
+        int "RFM12 Baudrate" CONF_RFM12_BAUD 34500
+      fi
+      if [ "$SKIPJACK_SUPPORT" = "y" ]; then
+        hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
+      fi
+  
+      if [ "$ENC28J60_SUPPORT" = "y" ]; then
+        if [ "$IPV6_SUPPORT" = "y" ]; then
+  	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+  	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
+        else
+  	ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
+  	ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
+        fi
       fi
     fi
+    endmenu
   fi
-  endmenu
 
   if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$UDP_SUPPORT" = "y" ]; then
     choice 'I2C support' \
@@ -439,8 +463,8 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   comment "work in progress bits (enable with care)"
 
   bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
-  bool "uIP Proto-Sockets" PSOCK_SUPPORT
-  dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT
+  dep bool "uIP Proto-Sockets" PSOCK_SUPPORT $UIP_SUPPORT
+  dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT $TCP_SUPPORT
   dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
   if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
     string "Username" CONF_HTTPD_USERNAME "admin"
@@ -448,7 +472,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   fi
 
   bool "control6 scripts" CONTROL6_SUPPORT
-  bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT
+  dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
   endmenu
 fi
 
