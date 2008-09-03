@@ -463,7 +463,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   comment "work in progress bits (enable with care)"
 
   bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
-  dep bool "uIP Proto-Sockets" PSOCK_SUPPORT $UIP_SUPPORT
+  dep_bool "uIP Proto-Sockets" PSOCK_SUPPORT $UIP_SUPPORT
   dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT $TCP_SUPPORT
   dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
   if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
