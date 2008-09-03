@@ -79,6 +79,13 @@ if [ "$CONFIG_TEENSY_NONETWORK" = "y" ]; then
   define_bool ICMP_SUPPORT n
 fi
 
+# this is only glue, so that the net directory is compiled also
+
+if [ "$UIP_SUPPORT" = "y" ]; then
+  define_bool NET_SUPPORT y
+fi
+
+
 ###############################################################################
 
 if [ "$UIP_SUPPORT" = y ]; then
@@ -251,8 +258,10 @@ else
 	    Original
     bool "Readback support" HD44780_READBACK
     bool "Use Port C (instead of Port A)" HD44780_USE_PORTC
+    define_bool LCD_SUPPORT y
   fi
   endmenu
+
   if [ "$UIP_SUPPORT" = "y" ]; then
   
     dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
