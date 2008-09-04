@@ -109,9 +109,10 @@ modbus_periodic(void)
         return;
       modbus_client_state.len -= 2;
       /* A message for our own modbus stack */
-      modbus_client_process(modbus_client_state.data, modbus_client_state.len,
-                            &modbus_client_state);
-      if (modbus_client_state.len) {
+      int16_t recv_len;
+      modbus_client_process(modbus_client_state.data, modbus_client_state.len, 
+                            &recv_len);
+      if (recv_len) {
         PIN_SET(MODBUS_TX);
         modbus_data.data = modbus_client_state.data;
         modbus_data.len = modbus_client_state.len;
@@ -137,7 +138,7 @@ uint8_t
 modbus_rxstart(uint8_t *data, uint8_t len, int16_t *recv_len) {
 #ifdef MODBUS_CLIENT_SUPPORT
   if (data[0] == MODBUS_ADDRESS || data[0] == MODBUS_BROADCAST) {
-    modbus_client_process(data, len, (void *)&modbus_conn->appstate.modbus);
+    modbus_client_process(data, len, recv_len);
     if (data[0] == MODBUS_ADDRESS) 
       return 1;
   }

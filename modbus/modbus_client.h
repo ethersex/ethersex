@@ -25,7 +25,7 @@
 #define _MODBUS_CLIENT_H
 
 
-void modbus_client_process(uint8_t *data, uint8_t length, struct modbus_connection_state_t *state);
+void modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len);
 
 union ModbusRTU {
     uint8_t raw[MODBUS_BUFFER_LEN];

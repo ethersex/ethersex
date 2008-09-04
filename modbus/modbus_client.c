@@ -40,8 +40,7 @@
 #ifdef MODBUS_CLIENT_SUPPORT
 
 void 
-modbus_client_process(uint8_t *data, uint8_t length, 
-                      struct modbus_connection_state_t *state) 
+modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len) 
 {
   union ModbusRTU *rtu = (void *)data;
   /* read holding/input registers */
@@ -50,14 +49,15 @@ modbus_client_process(uint8_t *data, uint8_t length,
     uint8_t holding = (data[1] == 0x03) ? 1 : 0;
     uint8_t ptr = ntohs(rtu->read.ptr);
     uint8_t len = ntohs(rtu->read.len);
+    uint8_t *answer = __builtin_alloca(3 + len * 2);
     /* The requested addresses are not in our addres space */
     if ((ptr + len) > (holding ? MODBUS_HOLD_REGISTERS : MODBUS_INPUT_REGISTERS)){
-      state->data[2] = 2;
+      data[2] = 2;
       goto send_error;
     }
-    state->data[0] = MODBUS_ADDRESS;
-    state->data[1] = rtu->read.cmd;
-    state->data[2] = len * 2;
+    answer[0] = MODBUS_ADDRESS;
+    answer[1] = rtu->read.cmd;
+    answer[2] = len * 2;
     uint8_t i = 0;
     while ( i < len) {
       /* Read the registers */
@@ -66,29 +66,29 @@ modbus_client_process(uint8_t *data, uint8_t length,
         tmp = modbus_read_holding(ptr + i);
       else 
         tmp = modbus_read_input(ptr + i);
-      state->data[3 + i * 2] =  tmp >> 8;
-      state->data[4 + i * 2] =  tmp ;
+      answer[3 + i * 2] =  tmp >> 8;
+      answer[4 + i * 2] =  tmp ;
       i++;
     }
-    state->len = state->data[2] + 3;
+    *recv_len = answer[2] + 3;
+    memcpy(data, answer, *recv_len);
     goto send_message;
     /* write single register */
   } else if (data[1] == 0x06) { 
     if (ntohs(rtu->write.ptr) >= MODBUS_HOLD_REGISTERS) {
-      state->data[2] = 2;
+      data[2] = 2;
       goto send_error;
     }
     modbus_write_holding(ntohs(rtu->write.ptr), ntohs(rtu->write.value));
     /* Echo the message */
-    memcpy((uint8_t *)state->data, data, length);
-    state->len = length;
+    *recv_len = length;
     goto send_message;
   /* Write multiple registers */
   } else if (data[1] == 0x10) { 
     uint8_t ptr = ntohs(rtu->xwrite.ptr);
     uint8_t len = ntohs(rtu->xwrite.len);
     if (ptr + len >= MODBUS_HOLD_REGISTERS) {
-      state->data[2] = 2;
+      data[2] = 2;
       goto send_error;
     }
     uint8_t i;
@@ -97,37 +97,35 @@ modbus_client_process(uint8_t *data, uint8_t length,
       
 
     /* Write an answer */
-    state->data[0] = MODBUS_ADDRESS;
-    state->data[1] = 0x10;
-    state->data[2] = 0;
-    state->data[3] = ptr;
-    state->data[4] = 0;
-    state->data[5] = len;
-    state->len = 6;
+    data[0] = MODBUS_ADDRESS;
+    data[1] = 0x10;
+    data[2] = 0;
+    data[3] = ptr;
+    data[4] = 0;
+    data[5] = len;
+    *recv_len = 6;
     goto send_message;
   } else {
-    state->data[2] = 1;
+    data[2] = 1;
 send_error:
-    state->data[0] = MODBUS_ADDRESS;
-    state->data[1] = data[1] | 0x80;
-    state->len = 3;
+    data[0] = MODBUS_ADDRESS;
+    data[1] |= 0x80;
+    *recv_len = 3;
     goto send_message;
   }
 send_message:
   
   if (data[0] == MODBUS_BROADCAST) {
-    state->len = 0;
+    *recv_len = -1;
     return;
   }
 
-  uint16_t crc = modbus_crc_calc((uint8_t *)state->data, state->len);
+  uint16_t crc = modbus_crc_calc((uint8_t *)data, *recv_len);
 
-  state->data[state->len++] = crc & 0xff;
-  state->data[state->len++] = (crc >> 8) & 0xff;
-  state->new_data = 1;
-  state->must_send = 0;
-
-  modbus_conn = NULL;
+  data[*recv_len] = crc & 0xff;
+  (*recv_len) ++;
+  data[*recv_len] = (crc >> 8) & 0xff;
+  (*recv_len) ++;
 }
 
 
