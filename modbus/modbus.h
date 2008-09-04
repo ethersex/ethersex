@@ -33,14 +33,13 @@ struct modbus_buffer {
   uint8_t *data;
   uint8_t sent;
   uint8_t len;
-
   uint16_t crc;
   uint8_t crc_len;
 };
 
 void modbus_init(void);
 void modbus_periodic(void);
-uint8_t modbus_rxstart(uint8_t *data, uint8_t len);
+uint8_t modbus_rxstart(uint8_t *data, uint8_t len, int16_t *recv_len);
 uint16_t modbus_crc_calc(uint8_t *data, uint8_t len);
 
 #endif /* _MODBUS_H */

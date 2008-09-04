@@ -30,59 +30,57 @@
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../modbus/modbus.h"
-#include "../net/modbus_net.h"
 #include "ecmd.h"
 
 #define STATE(a) ((a)->appstate.modbus)
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'a')) 
 
-#if defined(MODBUS_SUPPORT) && !defined(TEENSY_SUPPORT)
+extern int16_t *modbus_recv_len_ptr;
+
+#if defined(MODBUS_SUPPORT)
 int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint8_t cmd_len = strlen(cmd);
   uint8_t i;
 
   if ((cmd_len % 2) != 0) return -1;
-  if (modbus_conn) 
+  if (modbus_recv_len_ptr) 
     return snprintf_P(output, len, PSTR("modbus error: bus busy"));
 
 
   char hex[] = {0, 0, 0};
-  char *message = __builtin_alloca(cmd_len / 2);
-
-  if (!message) return snprintf_P(output, len, PSTR("modbus error: no memory"));
+  uint8_t buffer[MODBUS_BUFFER_LEN];
 
   for (i = 0; cmd_len != i; i += 2) {
     hex[0] = cmd[i];
     hex[1] = cmd[i+1];
-    message[i / 2] = strtol(hex, NULL, 16);
+    buffer[i / 2] = strtol(hex, NULL, 16);
   }
   
-  uip_conn_t mb_conn;
+  int16_t recv_len = 0;
 
-  modbus_conn = &mb_conn;
+  modbus_rxstart((uint8_t *)buffer, cmd_len / 2,&recv_len);
 
-  modbus_rxstart((uint8_t *)message, cmd_len / 2);
-
-  while((volatile uint8_t *)modbus_conn) {
+  while((volatile uint8_t)recv_len == 0) {
         _delay_ms(10);
         modbus_periodic();
   }
 
-  if (STATE(&mb_conn).len == 0)
+
+  if (recv_len == -1)
     return snprintf_P(output, len, PSTR("modbus error: no answer"));
 
-  uint16_t crc = modbus_crc_calc(STATE(&mb_conn).data, STATE(&mb_conn).len - 2);
+  uint16_t crc = modbus_crc_calc(buffer, recv_len - 2);
   uint16_t crc_recv = 
-          ((STATE(&mb_conn).data[STATE(&mb_conn).len - 1])  << 8) 
-          | (STATE(&mb_conn).data[STATE(&mb_conn).len - 2]);
+          ((buffer[recv_len - 1])  << 8) 
+          | (buffer[recv_len - 2]);
   if (crc != crc_recv) 
     return snprintf_P(output, len, PSTR("modbus error: crc error"));
 
-  for (i = 0; i < STATE(&mb_conn).len - 2; i++) {
+  for (i = 0; i < recv_len - 2; i++) {
     if ((len - i*2) < 2) break;
-    output[i * 2] = NIBBLE_TO_HEX(STATE(&mb_conn).data[i] >> 4);
-    output[i * 2 + 1] = NIBBLE_TO_HEX(STATE(&mb_conn).data[i] & 0x0f);
+    output[i * 2] = NIBBLE_TO_HEX(buffer[i] >> 4);
+    output[i * 2 + 1] = NIBBLE_TO_HEX(buffer[i] & 0x0f);
   }
 
   return i * 2;

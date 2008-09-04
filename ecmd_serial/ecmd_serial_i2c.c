@@ -33,7 +33,7 @@
 #ifdef ECMD_SERIAL_I2C_SUPPORT
 
 static char buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
-static uint8_t len, sent;
+static uint8_t len, sent, parse;
 
 static void
 init_twi(void){
@@ -59,8 +59,8 @@ init_twi(void){
 void ecmd_serial_i2c_init(void) {
   len = 0;
   sent = 0;
+  parse = 0;
   init_twi();
-  DDRA = 0xC0;
 }
 
 void 
@@ -69,20 +69,22 @@ ecmd_serial_i2c_periodic(void)
   /* error detection on i2c bus */
   if((TWSR & 0xF8) == 0x00)
     init_twi();
+  if (parse) {
+    len = ecmd_parse_command(buffer, buffer, sizeof(buffer));
+    parse = 0;
+  }
 }
 
 /* twi interrupt */
-SIGNAL (SIG_2WIRE_SERIAL)
+ISR (TWI_vect)
 {
-  PORTA ^= 0x80;
-
   switch (TWSR & 0xF8){
   case 0x80: /* databyte was received */
     if (len < (sizeof(buffer) - 1)) 
         buffer[len++] = TWDR;
     if (buffer[len-1] == 0) {
       /* EOF message */
-      len = ecmd_parse_command(buffer, buffer, sizeof(buffer));
+      parse = 1;
     }
     break;
   case 0x60: /* Start condition + write was received */
