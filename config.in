@@ -236,7 +236,7 @@ else
   dep_bool "UDP interface" UECMD_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
   dep_bool "I2C interface" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL 
   
-  if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" ]; then
+  if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" -o "$ECMD_SERIAL_USART_SUPPORT" = "y" ]; then
     define_bool "ECMD_SERIAL_SUPPORT" y
   fi
 
@@ -330,7 +330,6 @@ else
   dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
 
-  if [ "$ENC28J60_SUPPORT" = "y" ]; then
     USARTS=$(( $(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -C -E -dD - | sed -n 's/.* UDR\([0-9]\+\).*/\1/p' | sort -n -r | sed -n 1p) + 1 ))
     USARTS_USED=0
 
@@ -365,10 +364,13 @@ else
     if [ "$MCUF_SUPPORT" = y ]; then
       USARTS_USED=$(($USARTS_USED + 1))
     fi
+    if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
+      USARTS_USED=$(($USARTS_USED + 1))
+    fi
 
     comment "Usart Configuration ($USARTS_USED/$USARTS)"
     if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-      bool "Modbus Support" MODBUS_SUPPORT 
+      dep_bool "Modbus Support" MODBUS_SUPPORT $TCP_SUPPORT
         if [ "$MODBUS_SUPPORT" = y ]; then
           choice '  Modbus usart select' "$(usart_choice MODBUS)"
           usart_process_choice MODBUS
@@ -385,30 +387,35 @@ else
     fi
 
     if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-      bool "YPort Support" YPORT_SUPPORT 
+      dep_bool "YPort Support" YPORT_SUPPORT $TCP_SUPPORT
       if [ "$YPORT_SUPPORT" = y ]; then
-        choice 'YPort usart select' "$(usart_choice YPORT)"
+        choice '  YPort usart select' "$(usart_choice YPORT)"
 	usart_process_choice YPORT
       fi
     fi
     if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-      bool "ZBus Support" ZBUS_SUPPORT 
+      dep_bool "ZBus Support" ZBUS_SUPPORT $ENC28J60_SUPPORT
       if [ "$ZBUS_SUPPORT" = y ]; then
-        choice 'ZBus usart select' "$(usart_choice ZBUS)"
+        choice '  ZBus usart select' "$(usart_choice ZBUS)"
 	usart_process_choice ZBUS
       fi
     fi
     if [ "$MCUF_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-      bool "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT
+      dep_bool "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPORT
       if [ "$MCUF_SUPPORT" = y ]; then
-        choice 'MCUF usart select' "$(usart_choice MCUF)"
+        choice '  MCUF usart select' "$(usart_choice MCUF)"
 	usart_process_choice MCUF
       fi
     fi
 
-
-
-  fi
+    if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+      dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
+      if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
+        choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
+	usart_process_choice ECMD_SERIAL_USART
+      fi
+      dep_bool "  Usart ecmd RS485 mode" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
+    fi
 
   if [ "$ZBUS_SUPPORT" = "y" ]; then
     mainmenu_option next_comment

@@ -47,6 +47,10 @@ ifdef(`conf_ZBUS', `dnl
   pin(ZBUS_RX_PIN, PD7)
 ')
 
+ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
+  pin(ECMD_SERIAL_USART_TX, PD2)
+')
+
 
 #define _ATMEGA88
 

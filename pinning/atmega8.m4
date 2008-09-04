@@ -52,6 +52,10 @@ ifdef(`conf_STELLA', `dnl
   STELLA_PORT_RANGE(PB0,PB3)
 ')
 
+ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
+  pin(ECMD_SERIAL_USART_TX, PCD)
+')
+
 #define _ATMEGA8
 
 /* ATmega8 specific adjustments */
