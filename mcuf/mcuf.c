@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Guido Pannenbecker <info@sd-gp.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -43,10 +44,16 @@
 #define USE_USART MCUF_USE_USART
 #include "../usart.h"
 
+// 444,16,16 for 16x16borg
+// 170,18,8 for blinkenledspro
+#define MCUF_MAX_PCKT_SIZE 444
+#define MCUF_OUTPUT_SCREEN_WIDTH 18
+#define MCUF_OUTPUT_SCREEN_HEIGHT 8
+
 struct {
   uint8_t len;
   uint8_t sent;
-  uint8_t data[170];
+  uint8_t data[MCUF_MAX_PCKT_SIZE];
 } buffer;
 
 struct mcuf_packet {
@@ -117,41 +124,44 @@ mcuf_newdata(void)
     uint16_t maxvalue = htons(pkt->maxval);
 
     if (maxvalue > 255) maxvalue = 255;
-    uint8_t multiplier = 255 / maxvalue; 
+    uint8_t multiplier = 255 / maxvalue;
+
+    if ( channels * height * width > MCUF_MAX_PCKT_SIZE - 12 ) {
+#ifdef SYSLOG_SUPPORT
+      syslog_sendf("Warning: skipped MCUF-Frame because of chan, height "
+		   "or width to big (max pckt size: 444 inkl 12 byte header):"
+		   " %d * %d * %d", channels, height, width);
+#endif
+      return;
+    }
 
     /* init output-buffer */
-    memset(buffer.data, 0, 12+144);
+    memset(buffer.data, 0, 12+(height*width*channels));
 
     /* write frame-data to output-buffer */
     uint8_t x, y;
     if (channels == 3) {
       /* Handle RGB-Frames */
-#ifdef SYSLOG_SUPPORT
-      //syslog_send_P(PSTR("Notice: Using avg of 3-channels-mcuf-frame"));
-#endif
-      for (y = 0; y < 8; y++) {
-        for (x = 0; x < 18; x++) {
-          if (height > y && width > x) {
+      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+	for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+	  if (height > y && width > x) {
             uint8_t red   = pkt->data[(x + (y * width)) * channels + 0];
             uint8_t green = pkt->data[(x + (y * width)) * channels + 1];
             uint8_t blue  = pkt->data[(x + (y * width)) * channels + 2];
-            buffer.data[12 + (x + (y * 18))] = (red + green + blue) / 3
-                                                * multiplier;
-          }
-        }
+	    buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
+	      (red + green + blue) / 3 * multiplier;
+	  }
+	}
       }
     } else {
       /* for non-RGB-Frames use only channel 1 and ignore all others */
-#ifdef SYSLOG_SUPPORT
-      //syslog_sendf("Notice: Using Channel 1 of MCUF-Frame (channels in Frame: %d)", channels);
-#endif
-      for (y = 0; y < 8; y++) {
-        for (x = 0; x < 18; x++) {
-          if (height > y && width > x) {
-            buffer.data[12 + (x + (y * 18))] = 
-              pkt->data[(x + (y * width)) * channels + 0 ] * multiplier;
-          }
-        }
+      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+	for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+	  if (height > y && width > x) {
+	    buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
+	      pkt->data[(x + (y * width)) * channels + 0 ] * multiplier;
+	  }
+	}
       }
     }
     /* init writing of output-buffer to uart */
@@ -159,7 +169,8 @@ mcuf_newdata(void)
   } else
 
 
-  /* EBLP Magic bytes - see https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol */
+  /* EBLP Magic bytes - see
+     https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol */
   if ( strncmp(uip_appdata, "\xfe\xed\xbe\xef", 4) == 0) {
     /* input */
     struct eblp_packet *pkt = (struct eblp_packet *)uip_appdata;
@@ -167,8 +178,12 @@ mcuf_newdata(void)
     uint16_t width = htons(pkt->width);
 
 #ifdef MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
-    /* scan packet to determine maxvalue (workaround for some stupid programms that dont send eblp according to https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol but use 1 as maxvaule instead of 255) */
-    uint16_t maxvalue = 1; //assume we do have a packet from such a stupid programm
+    /* scan packet to determine maxvalue (workaround for some stupid programms
+       that don't send eblp according to
+       https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol
+       but use 1 as maxvaule instead of 255) */
+    uint16_t maxvalue = 1;	/* assume we do have a packet
+				   from such a stupid programm */
     uint8_t x, y;
     for (y = 0; y < height; y++) {
       for (x = 0; x < width; x++) {
@@ -190,26 +205,26 @@ mcuf_newdata(void)
     uint8_t x, y;
 #endif
     /* init output-buffer */
-    memset(buffer.data, 0, 12+144);
+    memset(buffer.data, 0, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
 
     /* write frame-data to output-buffer */
     if (maxvalue == 1) {
       /* b/w */
-      for (y = 0; y < 8; y++) {
-        for (x = 0; x < 18; x++) {
+      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
           if ((height > y) && (width > x)) {
             if (pkt->data[x + (y * width)] > 0) {
-              buffer.data[12 + (x + (y * 18))] = 255;
+              buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = 255;
             }
           }
         }
       }
     } else {
       /* grayscaled */
-      for (y = 0; y < 8; y++) {
-        for (x = 0; x < 18; x++) {
+      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
           if ((height > y) && (width > x)) {
-            buffer.data[12 + (x + (y * 18))] = pkt->data[x + (y * width)];
+            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = pkt->data[x + (y * width)];
           }
         }
       }
@@ -228,15 +243,15 @@ mcuf_newdata(void)
     uint16_t width = htons(pkt->width);
 
     /* init output-buffer */
-    memset(buffer.data, 0, 12+144);
+    memset(buffer.data, 0, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
 
     /* write frame-data to output-buffer */
     uint8_t x, y;
-    for (y = 0; y < 8; y++) {
-      for (x = 0; x < 18; x++) {
+    for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+      for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
         if ((height > y) && (width > x)) {
           if (pkt->data[x + (y * width)] > 0) {
-            buffer.data[12 + (x + (y * 18))] = 255;
+            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = 255;
           }
         }
       }
@@ -255,10 +270,10 @@ mcuf_serial_senddata()
      and https://wiki.blinkenarea.org/index.php/Shifter */
   memcpy_P(buffer.data, PSTR("\x23\x54\x26\x66\x00\x08\x00\x12\x00\x01\x00\xff"), 12);
 
-  /* send 144 bytes of data - the data has already been writen to the outputbuffer by mcuf_newdata */
+  /* send (MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH) bytes of data - the data has already been writen to the outputbuffer by mcuf_newdata */
 
   /* start to send the buffer to uart */
-  tx_start(12+144);
+  tx_start(12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
 }
 
 void
