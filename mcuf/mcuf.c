@@ -47,8 +47,11 @@
 // 444,16,16 for 16x16borg
 // 170,18,8 for blinkenledspro
 #define MCUF_MAX_PCKT_SIZE 444
-#define MCUF_OUTPUT_SCREEN_WIDTH 18
-#define MCUF_OUTPUT_SCREEN_HEIGHT 8
+/* MCUF_OUTPUT_SCREEN_... are now defined during Ethersex configuration
+   and thus are defined in autoconf.h file.
+
+   #define MCUF_OUTPUT_SCREEN_WIDTH 18
+   #define MCUF_OUTPUT_SCREEN_HEIGHT 8 */
 
 struct {
   uint8_t len;
