@@ -1639,7 +1639,7 @@ static inline uint8_t uip_buf_lock (void)
   if (_uip_buf_lock)
     result = 1;
   else {
-    _uip_buf_lock = 1;
+    _uip_buf_lock = 255;
     rfm12_int_disable();
   }
   SREG = sreg;			/* reenable global interrupts */
