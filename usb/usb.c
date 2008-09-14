@@ -24,9 +24,11 @@
 #include <util/delay.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include "../bit-macros.h"
 #include "../uip/uip.h"
-#include "usbdrv/usbdrv.c"
+#include "usbdrv/usbdrv.h"
+#include "requests.h"
 
 
 #ifdef USB_SUPPORT
@@ -44,18 +46,51 @@
                                     USB_PULLUP_DDR &= ~(1<<USB_CFG_PULLUP_BIT); \
                                     USB_PULLUP_OUT &= ~(1<<USB_CFG_PULLUP_BIT); \
                                    } while(0);
-
 #endif
 
+uint8_t setup_packet;
 
-usbMsgLen_t usbFunctionSetup(uchar data[8])
+
+usbMsgLen_t 
+usbFunctionSetup(uchar data[8])
 {
+  usbRequest_t    *rq = (void *)data;
+  setup_packet = rq->bRequest;
+
+#ifdef ECMD_USB_SUPPORT
+  if (rq->bRequest == USB_REQUEST_ECMD) 
+    return (usbMsgLen_t) ecmd_usb_setup(data);
+#endif
+
   return 0;   /* default for not implemented requests: return no data back to host */
 }
 
+/* The host sends data to the device */
+uchar
+usbFunctionWrite(uchar *data, uchar len) 
+{
+#ifdef ECMD_USB_SUPPORT
+  if (setup_packet == USB_REQUEST_ECMD)
+    return (uchar) ecmd_usb_write((uint8_t *)data, (uint8_t) len);
+#endif
+
+  return 1; /* This was the last chunk, also default fallback */
+}
+
+/* The host receives data from the device */
+uchar
+usbFunctionRead(uchar *data, uchar len)
+{
+#ifdef ECMD_USB_SUPPORT
+  if (setup_packet == USB_REQUEST_ECMD)
+    return (uchar) ecmd_usb_read((uint8_t *)data, (uint8_t) len);
+#endif
+  return 0; /* 0 bytes are read, this is the default fallback */
+}
+
+
 
 /* Wrapper functions to integrate the usb driver in ethersex */
-
 void
 usb_periodic(void)
 {
@@ -74,6 +109,7 @@ usb_init(void)
   USB_PORT_CONFIG(USB_DMINUS);
 #undef USB_DDR_CONFIG
 #undef USB_PORT_CONFIG
+  DDRC = 0x03;
   
   uint8_t i;
   /* Reenummerate the device */
