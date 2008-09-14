@@ -51,7 +51,8 @@ ecmd_usb_setup(uint8_t  data[8])
     recv_count = 0;
   } else { /* Read */
     uint8_t len = ecmd_parse_command(recv_buffer, send_buffer, ECMD_USB_BUFFER_LEN);
-    recv_buffer[ECMD_USB_BUFFER_LEN] = 0;
+    if (len > 0) 
+      recv_buffer[len] = 0;
     send_count = 0;
   }
   return USB_NO_MSG;
