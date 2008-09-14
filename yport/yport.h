@@ -24,7 +24,6 @@
 #ifndef _YPORT_H
 #define _YPORT_H
 
-#include "../usart.h"
 
 /* UART_UBBR is used if teensy is enabled */
 #define YPORT_UART_UBRR 10
