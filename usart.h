@@ -53,6 +53,15 @@ uint16_t usart_baudrate(uint16_t baudrate);
 #endif
 #endif
 
+
+// Sugar for the avr-libc
+#ifndef USART0_TX0_vect
+#define USART0_TX_vect USART0_TXC_vect
+#define USART1_TX_vect USART1_TXC_vect
+#define USART0_RX_vect USART0_RXC_vect
+#define USART1_RX_vect USART1_RXC_vect
+#endif
+
 #define usart(a, ...) _usart_cat(a, _usart_cat(USE_USART, __VA_ARGS__))
 
 /* We love the preprocessor */
