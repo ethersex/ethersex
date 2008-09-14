@@ -80,3 +80,11 @@ ifdef(`conf_FS20',  `dnl
   /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
   pin(FS20_RECV, PB3)
 ')dnl
+
+ifdef(`conf_USB', `dnl
+  dnl This must also be D+ of the USB signal
+  USB_USE_INT(0) 
+  dnl This pin must have the 1k5 Pullup and must be on the same port as the Interupt pin
+  pin(USB_DMINUS, PD4)
+  pin(USB_DPLUS, PD2)
+')dnl

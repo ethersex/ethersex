@@ -50,6 +50,7 @@
 #include "clock/clock.h"
 #include "dcf77/dcf77.h"
 #include "ps2/ps2.h"
+#include "usb/usb.h"
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
 #include "yport/yport.h"
@@ -67,13 +68,6 @@ global_config_t cfg;
 
 /* prototypes */
 void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
-
-/* macros */
-#ifdef USE_WATCHDOG
-#   define wdt_kick() wdt_reset()
-#else
-#   define wdt_kick()
-#endif
 
 int main(void)
 /* {{{ */ {
@@ -168,6 +162,10 @@ int main(void)
 
 #ifdef DCF77_SUPPORT
     dcf77_init();
+#endif
+
+#ifdef USB_SUPPORT
+    usb_init();
 #endif
 
 #ifdef FS20_SUPPORT

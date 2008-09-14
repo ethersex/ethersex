@@ -500,6 +500,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   fi
 
   bool "control6 scripts" CONTROL6_SUPPORT
+  bool "USB Softwarestack support (obdev)" USB_SUPPORT
   dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
   endmenu
 fi

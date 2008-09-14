@@ -58,6 +58,12 @@ define(`RFM12_USE_INT', `dnl
 #define RFM12_INT_SIGNAL SIG_INTERRUPT$1
 ')
 
+define(`USB_USE_INT', `dnl
+/* usb  interrupt line */
+#define USB_INT_PIN INT$1
+#define USB_INT_SIGNAL SIG_INTERRUPT$1
+')
+
 define(`STELLA_PORT_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl

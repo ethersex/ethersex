@@ -76,6 +76,14 @@
 /* bootloader config */
 #define CONF_BOOTLOAD_DELAY 250           /* five seconds */
 
+/* macros */
+#ifdef USE_WATCHDOG
+#   define wdt_kick() wdt_reset()
+#else
+#   define wdt_kick()
+#endif
+
+
 #include "autoconf.h"
 
 #endif /* _CONFIG_H */

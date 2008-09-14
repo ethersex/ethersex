@@ -36,6 +36,7 @@
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
 #include "cron/cron.h"
+#include "usb/usb.h"
 #include "ipv6.h"
 #include "stella/stella.h"
 #include "ps2/ps2.h"
@@ -126,6 +127,10 @@ void timer_process(void)
 
 #       ifdef MODBUS_SUPPORT
         modbus_periodic();
+#       endif
+
+#       ifdef USB_SUPPORT
+        usb_periodic();
 #       endif
 
 #       ifdef CONTROL6_SUPPORT
