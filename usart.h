@@ -43,23 +43,31 @@ uint16_t usart_baudrate(uint16_t baudrate);
 #if !defined(UDR0) || !defined(USE_USART)
 #undef USE_USART
 #define USE_USART
+#endif
 
 #ifndef USART_TX_vect
-#define USART_TX_vect USART0_TX_vect
+#  if defined(USART0_TX_vect)
+#    define USART_TX_vect USART0_TX_vect
+#    define USART_RX_vect USART0_RX_vect
+#  elif defined(USART0_TXC_vect)
+#    define USART_TX_vect USART0_TXC_vect
+#    define USART_RX_vect USART0_RXC_vect
+#  elif defined(USART_TXC_vect)
+#    define USART_TX_vect USART_TXC_vect
+#    define USART_RX_vect USART_RXC_vect
+#  else
+#    error "I hate avr-libc"
+#  endif
 #endif
 
-#ifndef USART_RX_vect
-#define USART_RX_vect USART0_RX_vect
-#endif
-#endif
 
 
 // Sugar for the avr-libc
-#ifndef USART0_TX0_vect
-#define USART0_TX_vect USART0_TXC_vect
-#define USART1_TX_vect USART1_TXC_vect
-#define USART0_RX_vect USART0_RXC_vect
-#define USART1_RX_vect USART1_RXC_vect
+#if !defined(USART0_TX0_vect) && defined(USART0_TXC_vect)
+#  define USART0_TX_vect USART0_TXC_vect
+#  define USART1_TX_vect USART1_TXC_vect
+#  define USART0_RX_vect USART0_RXC_vect
+#  define USART1_RX_vect USART1_RXC_vect
 #endif
 
 #define usart(a, ...) _usart_cat(a, _usart_cat(USE_USART, __VA_ARGS__))
