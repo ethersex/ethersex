@@ -22,21 +22,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _USB_REQUEST_H
-#define _USB_REQUEST_H
+#ifndef _USB_NET_H
+#define _USB_NET_H
 
-enum {
-  /* For USB Ecmd */
-  USB_REQUEST_ECMD = 0,
+/* Whether there is a packet stored in uip_buf that has to be sent
+   to the host. */
+extern uint8_t usb_packet_ready;
 
-  /* USB networking */
-  USB_REQUEST_NET_SEND = 10,
-  USB_REQUEST_NET_RECV = 11,
-};
-
-
-uint8_t ecmd_usb_setup(uint8_t  data[8]);
-uint8_t ecmd_usb_write(uint8_t *data, uint8_t len);
-uint8_t ecmd_usb_read(uint8_t *data, uint8_t len);
-
+#ifdef USB_NET_SUPPORT
+#  define usb_net_tx_active() (usb_packet_ready != 0)
+#else
+#  define usb_net_tx_active() (0)
 #endif
+
+uint8_t usb_net_setup(uint8_t  data[8]);
+uint8_t usb_net_write(uint8_t *data, uint8_t len);
+uint8_t usb_net_read(uint8_t *data, uint8_t len);
+
+/* Request the packet, stored in uip_buf, to be sent to USB host.
+   uip_buf must be locked and will be unlocked automatically. */
+void usb_net_txstart(void);
+
+void usb_net_periodic(void);
+
+#endif /* _USB_NET_H */

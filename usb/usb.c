@@ -29,7 +29,7 @@
 #include "../uip/uip.h"
 #include "usbdrv/usbdrv.h"
 #include "requests.h"
-
+#include "usb_net.h"
 
 #ifdef USB_SUPPORT
 
@@ -62,7 +62,8 @@ usbFunctionSetup(uchar data[8])
     return (usbMsgLen_t) ecmd_usb_setup(data);
 #endif
 #ifdef USB_NET_SUPPORT
-  if (rq->bRequest == USB_REQUEST_NET_SEND) 
+  if (rq->bRequest == USB_REQUEST_NET_SEND
+      || rq->bRequest == USB_REQUEST_NET_RECV)
     return (usbMsgLen_t) usb_net_setup(data);
 #endif
 
@@ -77,6 +78,7 @@ usbFunctionWrite(uchar *data, uchar len)
   if (setup_packet == USB_REQUEST_ECMD)
     return (uchar) ecmd_usb_write((uint8_t *)data, (uint8_t) len);
 #endif
+
 #ifdef USB_NET_SUPPORT
   if (setup_packet == USB_REQUEST_NET_SEND)
     return (uchar) usb_net_write((uint8_t *)data, (uint8_t) len);
@@ -91,7 +93,12 @@ usbFunctionRead(uchar *data, uchar len)
 {
 #ifdef ECMD_USB_SUPPORT
   if (setup_packet == USB_REQUEST_ECMD)
-    return (uchar) ecmd_usb_read((uint8_t *)data, (uint8_t) len);
+    return ecmd_usb_read (data, len);
+#endif
+
+#ifdef USB_NET_SUPPORT
+  if (setup_packet == USB_REQUEST_NET_RECV)
+    return usb_net_read (data, len);
 #endif
 
   return 0; /* 0 bytes are read, this is the default fallback */

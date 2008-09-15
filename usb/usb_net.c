@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (C) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,23 +33,31 @@
 #include "../ecmd_parser/ecmd.h"
 #include "requests.h"
 #include "../config.h"
+#include "usb_net.h"
 
 #ifdef USB_NET_SUPPORT
 
-static uint16_t recv_count;
-static uint16_t recv_len;
+static uint16_t usb_rq_index;
+static uint16_t usb_rq_len;
+
+uint8_t usb_packet_ready;
 
 uint8_t 
 usb_net_setup(uint8_t  data[8]) 
 {
   usbRequest_t *rq = (void *)data;
+
   if (rq->bRequest == USB_REQUEST_NET_SEND) {
-    recv_len = rq->wValue.word;
-    recv_count = 0;
-    if (uip_buf_lock()) { /* Locking des buffers ist fehlgeschlagen */
+    if (uip_buf_lock())	  /* Unable to aquire lock, ignore packet. */
       return 0;
-    }
+
+    usb_rq_len = rq->wValue.word;
   }
+  else 
+    usb_rq_len = 0;
+
+  usb_rq_index = 0;
+
   return USB_NO_MSG;
 }
 
@@ -58,16 +67,16 @@ usb_net_write(uint8_t *data, uint8_t len)
 {
   // FIXME
 #if 0
-  if ((recv_count + len) >) {
-    len = ECMD_USB_BUFFER_LEN + 1 - recv_count;
+  if ((usb_rq_index + len) >) {
+    len = ECMD_USB_BUFFER_LEN + 1 - usb_rq_index;
     data[ECMD_USB_BUFFER_LEN] = 0;
   }
 #endif
 
-  memcpy(((uint8_t *) uip_buf ) + recv_count, data, len);
-  recv_count += len;
+  memcpy(((uint8_t *) uip_buf ) + usb_rq_index, data, len);
+  usb_rq_index += len;
 
-  if (recv_count >= recv_len) {
+  if (usb_rq_index >= usb_rq_len) {
     return 1;
   }
   return 0;
@@ -77,18 +86,46 @@ usb_net_write(uint8_t *data, uint8_t len)
 uint8_t
 usb_net_read(uint8_t *data, uint8_t len)
 {
+  if (usb_packet_ready && usb_rq_index < uip_len) {
+    if (usb_rq_index + len > uip_len)
+      len = uip_len - usb_rq_index;
+
+    memcpy (data, uip_buf + usb_rq_index, len);
+    usb_rq_index += len;
+
+    if (usb_rq_index == uip_len) {
+      usb_packet_ready = 0;
+      uip_buf_unlock ();
+    }
+
+    return len;
+  }
+
   return 0;
+}
+
+void
+usb_net_txstart (void)
+{
+  usb_packet_ready = 1;
 }
 
 void
 usb_net_periodic(void)
 {
-  if (recv_len && (recv_count >= recv_len)) {
+  if (usb_rq_len && (usb_rq_index >= usb_rq_len)) {
     /* A packet arrived, put it into uip */
-    uip_len = recv_len;
-    recv_len = 0;
+    uip_len = usb_rq_len;
+    usb_rq_len = 0;
     uip_input();
-    uip_buf_unlock();
+
+    if (uip_len == 0)
+      uip_buf_unlock ();	/* The stack didn't generate any data
+				   that has to be sent back. */
+
+    else
+      fill_llh_and_transmit ();	/* Application has generated output,
+				   send it out. */
   }
 }
 

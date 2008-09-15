@@ -1624,9 +1624,7 @@ extern uint8_t fill_llh_and_transmit(void);
 #  include "../zbus/zbus.h"
 #  define fill_llh_and_transmit() (zbus_transmit_packet(), 0)
 #elif defined(USB_NET_SUPPORT)
-//#  include "../zbus/zbus.h"
-//FIXME
-#  define fill_llh_and_transmit() (0)
+#  define fill_llh_and_transmit() (usb_net_txstart(), 0)
 #endif
 
 
@@ -1635,6 +1633,7 @@ extern volatile uint8_t _uip_buf_lock;
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "../rfm12/rfm12.h"
+#include "../usb/usb_net.h"
 
 static inline uint8_t uip_buf_lock (void)
 {
@@ -1658,7 +1657,8 @@ static inline uint8_t uip_buf_lock (void)
 
 #define uip_buf_unlock()			\
   do {						\
-    if(rfm12_tx_active ()) break;		\
+    if(rfm12_tx_active ()			\
+       || usb_net_tx_active ()) break;		\
     _uip_buf_lock = 0;				\
     rfm12_int_enable();				\
   } while(0)

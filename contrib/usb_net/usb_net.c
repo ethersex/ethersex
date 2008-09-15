@@ -1,4 +1,5 @@
  /* Copyright(C) 2008 Christian Dietrich <stettberger@dokucode.de>
+    Copyright(C) 2008 Stefan Siegl <stesie@brokenpipe.de>
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -40,8 +41,9 @@
 #include <linux/if.h>
 #include <linux/if_tun.h>
 
-
 #define USB_REQUEST_NET_SEND 10
+#define USB_REQUEST_NET_RECV 11
+
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
 struct global_t {
@@ -194,7 +196,7 @@ usage(void)
 }
 
 int
-usb_send(usb_dev_handle * handle, const char *data, int len)
+usb_send(usb_dev_handle *handle, const char *data, int len)
 {
   int ret = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | 
                             USB_ENDPOINT_OUT, USB_REQUEST_NET_SEND, len, 0, (char*) data, len, 500);
@@ -202,6 +204,17 @@ usb_send(usb_dev_handle * handle, const char *data, int len)
     return 0;
   return ret; /* > 0 = ok */
 }
+
+
+int
+usb_recv(usb_dev_handle *handle, char *buf, int len)
+{
+  int ret = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE |  USB_ENDPOINT_IN, 
+                            USB_REQUEST_NET_RECV, 0, 0, (char*)buf, len, 500);
+
+  return ret;
+}
+
 
 
 
@@ -219,8 +232,7 @@ main(int argc, char *argv[])
   atexit(cleanup);
 
   fd_set fds;
-  char netbuf[1600];
-  char recvbuf[1600], c;
+  char netbuf[1600], c;
   int recvlen = 0;
 
   const struct option longopts[] = {
@@ -261,15 +273,15 @@ main(int argc, char *argv[])
   int fm = global.tun_fd + 1;
   struct timeval tv;
 
-  tv.tv_sec = 0;
-  tv.tv_usec = 0;
-
-
   while(1){
      FD_ZERO(&fds);
      FD_SET(global.tun_fd, &fds);
 
+     tv.tv_sec = 0;
+     tv.tv_usec = 50000;
+
      select(fm, &fds, NULL, NULL, &tv);
+
      // Outgoing packets
      if( FD_ISSET(global.tun_fd, &fds) ) {
        int l = read(global.tun_fd, netbuf, sizeof(netbuf));
@@ -277,9 +289,12 @@ main(int argc, char *argv[])
        printf ("sent: %d:%d\n", l, r);
 
      }
-     char data[8];
-     int a = usb_interrupt_read(global.usb_handle, 1, data, 3, 100);
-     printf("intr: %d %d\n", a, data[0]);
+
+     int l = usb_recv (global.usb_handle, netbuf, sizeof (netbuf));
+     if (l) {
+       printf ("recv: %d\n", l);
+       write (global.tun_fd, netbuf, l);
+     }
 
   }
   return 0;
