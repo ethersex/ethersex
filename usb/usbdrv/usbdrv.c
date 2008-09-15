@@ -536,6 +536,8 @@ uchar       len;
     usbMsgLen -= wantLen;
     usbTxBuf[0] ^= USBPID_DATA0 ^ USBPID_DATA1; /* DATA toggling */
     len = usbDeviceRead(usbTxBuf + 1, wantLen);
+    if(usbMsgLen == 0)
+	usbFunctionReadFinished();
     if(len <= 8){           /* valid data packet */
         usbCrc16Append(&usbTxBuf[1], len);
         len += 4;           /* length including sync byte */
