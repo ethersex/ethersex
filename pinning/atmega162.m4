@@ -151,5 +151,5 @@ ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
 #endif
 
 
-#define NET_MAX_FRAME_LENGTH 1500
+#define NET_MAX_FRAME_LENGTH 600
 #define ADC_CHANNELS 8
