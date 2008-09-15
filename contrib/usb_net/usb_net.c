@@ -291,7 +291,7 @@ main(int argc, char *argv[])
      }
 
      int l = usb_recv (global.usb_handle, netbuf, sizeof (netbuf));
-     if (l) {
+     if (l > 0) {
        printf ("recv: %d\n", l);
        write (global.tun_fd, netbuf, l);
      }
