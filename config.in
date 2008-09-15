@@ -43,7 +43,8 @@ choice 'Target Profile'						\
 	 Bootloader      		BOOTLOADER_SUPPORT	\
 	 RFM12-Teensy      		CONFIG_TEENSY_RFM12	\
 	 ZBUS-Teensy      		CONFIG_TEENSY_ZBUS	\
-	 NoNetwork-Teensy      		CONFIG_TEENSY_NONETWORK"	\
+	 NoNetwork-Teensy      		CONFIG_TEENSY_NONETWORK	\
+	 UsbNetwork      		CONFIG_USB_NET"	\
 	 'Standard'
 endmenu
 
@@ -82,6 +83,15 @@ if [ "$CONFIG_TEENSY_NONETWORK" = "y" ]; then
   define_bool UDP_SUPPORT n
   define_bool TCP_SUPPORT n
   define_bool ICMP_SUPPORT n
+fi
+
+if [ "$CONFIG_USB_NET" = "y" ]; then
+  define_bool USB_SUPPORT y
+  define_bool USB_NET_SUPPORT y
+  define_bool TEENSY_SUPPORT y
+  define_bool ZBUS_SUPPORT n
+  define_bool ENC28J60_SUPPORT n
+  define_bool UIP_SUPPORT y
 fi
 
 # this is only glue, so that the net directory is compiled also
@@ -502,7 +512,8 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
 
   bool "control6 scripts" CONTROL6_SUPPORT
   bool "USB Softwarestack support (obdev)" USB_SUPPORT
-  dep_bool "USB interface" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
+  dep_bool "  ECMD USB interface" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
+  dep_bool "  Networking over USB" USB_NET_SUPPORT $USB_SUPPORT
 
   dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
   endmenu

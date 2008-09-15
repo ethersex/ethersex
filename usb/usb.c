@@ -61,6 +61,10 @@ usbFunctionSetup(uchar data[8])
   if (rq->bRequest == USB_REQUEST_ECMD) 
     return (usbMsgLen_t) ecmd_usb_setup(data);
 #endif
+#ifdef USB_NET_SUPPORT
+  if (rq->bRequest == USB_REQUEST_NET_SEND) 
+    return (usbMsgLen_t) usb_net_setup(data);
+#endif
 
   return 0;   /* default for not implemented requests: return no data back to host */
 }
@@ -72,6 +76,10 @@ usbFunctionWrite(uchar *data, uchar len)
 #ifdef ECMD_USB_SUPPORT
   if (setup_packet == USB_REQUEST_ECMD)
     return (uchar) ecmd_usb_write((uint8_t *)data, (uint8_t) len);
+#endif
+#ifdef USB_NET_SUPPORT
+  if (setup_packet == USB_REQUEST_NET_SEND)
+    return (uchar) usb_net_write((uint8_t *)data, (uint8_t) len);
 #endif
 
   return 1; /* This was the last chunk, also default fallback */
@@ -85,6 +93,7 @@ usbFunctionRead(uchar *data, uchar len)
   if (setup_packet == USB_REQUEST_ECMD)
     return (uchar) ecmd_usb_read((uint8_t *)data, (uint8_t) len);
 #endif
+
   return 0; /* 0 bytes are read, this is the default fallback */
 }
 
@@ -95,9 +104,10 @@ void
 usb_periodic(void)
 {
   usbPoll();
-  //if(usbInterruptIsReady()){
-    /* called after every poll of the interrupt endpoint */
-  //}
+
+#ifdef USB_NET_SUPPORT
+  usb_net_periodic();
+#endif
 }
 
 void 

@@ -7,7 +7,8 @@ ASFLAGS += -Iusbdrv -I.
 SRC = \
 	usb.c \
 	usbdrv/usbdrv.c \
-	ecmd_usb.c
+	ecmd_usb.c \
+	usb_net.c
 
 ASRC = \
 	usbdrv/usbdrvasm.S

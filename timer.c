@@ -129,10 +129,6 @@ void timer_process(void)
         modbus_periodic();
 #       endif
 
-#       ifdef USB_SUPPORT
-        usb_periodic();
-#       endif
-
 #       ifdef CONTROL6_SUPPORT
         control6_run();
 #       endif

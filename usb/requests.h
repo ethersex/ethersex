@@ -27,12 +27,18 @@
 enum {
   /* For USB Ecmd */
   USB_REQUEST_ECMD = 0,
-
+  /* USB networking */
+  USB_REQUEST_NET_SEND = 10,
 };
 
 
 uint8_t ecmd_usb_setup(uint8_t  data[8]);
 uint8_t ecmd_usb_write(uint8_t *data, uint8_t len);
 uint8_t ecmd_usb_read(uint8_t *data, uint8_t len);
+
+uint8_t usb_net_setup(uint8_t  data[8]);
+uint8_t usb_net_write(uint8_t *data, uint8_t len);
+uint8_t usb_net_read(uint8_t *data, uint8_t len);
+void usb_net_periodic(void);
 
 #endif

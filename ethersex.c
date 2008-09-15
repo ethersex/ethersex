@@ -283,6 +283,11 @@ int main(void)
 	wdt_kick();
 #endif
 
+#       ifdef USB_SUPPORT
+        usb_periodic();
+	wdt_kick();
+#       endif
+
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();

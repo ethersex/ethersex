@@ -1610,6 +1610,7 @@ extern struct uip_eth_addr {
 STACK_PROTOTYPES(mainstack)
 STACK_PROTOTYPES(openvpn)
 STACK_PROTOTYPES(rfm12_stack)
+STACK_PROTOTYPES(usb_stack)
 STACK_PROTOTYPES(zbus_stack)
 #endif
 
@@ -1622,6 +1623,10 @@ extern uint8_t fill_llh_and_transmit(void);
 #elif defined(ZBUS_SUPPORT)
 #  include "../zbus/zbus.h"
 #  define fill_llh_and_transmit() (zbus_transmit_packet(), 0)
+#elif defined(USB_NET_SUPPORT)
+//#  include "../zbus/zbus.h"
+//FIXME
+#  define fill_llh_and_transmit() (0)
 #endif
 
 
