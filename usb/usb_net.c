@@ -51,14 +51,24 @@ usb_net_setup(uint8_t  data[8])
     if (uip_buf_lock())	  /* Unable to aquire lock, ignore packet. */
       return 0;
 
+    usb_rq_index = 0;
     usb_rq_len = rq->wValue.word;
   }
-  else 
-    usb_rq_len = 0;
-
-  usb_rq_index = 0;
+  else if (usb_packet_ready) {
+    usbMsgPtr = uip_buf;
+    return uip_len;
+  }
+  else
+    return 0;
 
   return USB_NO_MSG;
+}
+
+void
+usb_net_read_finished (void)
+{
+  uip_buf_unlock ();
+  usb_packet_ready = 0;
 }
 
 /* Host sends data to the device */
@@ -79,28 +89,6 @@ usb_net_write(uint8_t *data, uint8_t len)
   if (usb_rq_index >= usb_rq_len) {
     return 1;
   }
-  return 0;
-}
-
-/* Host requests data from the device */
-uint8_t
-usb_net_read(uint8_t *data, uint8_t len)
-{
-  if (usb_packet_ready && usb_rq_index < uip_len) {
-    if (usb_rq_index + len > uip_len)
-      len = uip_len - usb_rq_index;
-
-    memcpy (data, uip_buf + usb_rq_index, len);
-    usb_rq_index += len;
-
-    if (usb_rq_index == uip_len) {
-      usb_packet_ready = 0;
-      uip_buf_unlock ();
-    }
-
-    return len;
-  }
-
   return 0;
 }
 

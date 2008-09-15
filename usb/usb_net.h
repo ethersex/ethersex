@@ -38,6 +38,7 @@ extern uint8_t usb_packet_ready;
 uint8_t usb_net_setup(uint8_t  data[8]);
 uint8_t usb_net_write(uint8_t *data, uint8_t len);
 uint8_t usb_net_read(uint8_t *data, uint8_t len);
+void usb_net_read_finished(void);
 
 /* Request the packet, stored in uip_buf, to be sent to USB host.
    uip_buf must be locked and will be unlocked automatically. */

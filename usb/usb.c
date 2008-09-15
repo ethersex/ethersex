@@ -96,14 +96,18 @@ usbFunctionRead(uchar *data, uchar len)
     return ecmd_usb_read (data, len);
 #endif
 
-#ifdef USB_NET_SUPPORT
-  if (setup_packet == USB_REQUEST_NET_RECV)
-    return usb_net_read (data, len);
-#endif
-
   return 0; /* 0 bytes are read, this is the default fallback */
 }
 
+
+void
+usbFunctionReadFinished(void)
+{
+#ifdef USB_NET_SUPPORT
+  if (setup_packet == USB_REQUEST_NET_RECV)
+    usb_net_read_finished ();
+#endif
+}
 
 
 /* Wrapper functions to integrate the usb driver in ethersex */
