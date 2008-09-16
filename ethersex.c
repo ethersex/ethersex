@@ -43,17 +43,20 @@
 #include "watchcat/watchcat.h"
 #include "control6/control6.h"
 #include "onewire/onewire.h"
+#include "ecmd_serial/ecmd_serial_i2c.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
 #include "zbus/zbus.h"
 #include "clock/clock.h"
 #include "dcf77/dcf77.h"
 #include "ps2/ps2.h"
+#include "usb/usb.h"
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
 #include "yport/yport.h"
 #include "ipv6.h"
 #include "dataflash/fs.h"
+#include "modbus/modbus.h"
 #include "syslog/syslog.h"
 #include "stella/stella.h"
 #include "net/handler.h"
@@ -65,13 +68,6 @@ global_config_t cfg;
 
 /* prototypes */
 void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
-
-/* macros */
-#ifdef USE_WATCHDOG
-#   define wdt_kick() wdt_reset()
-#else
-#   define wdt_kick()
-#endif
 
 int main(void)
 /* {{{ */ {
@@ -142,8 +138,12 @@ int main(void)
     debug_printf("fs: root page is 0x%04x", fs.root);
 #   endif
 
+#   ifdef UIP_SUPPORT
     network_init();
+#   endif
+
     timer_init();
+
 #ifdef CLOCK_SUPPORT
     clock_init();
 #endif
@@ -162,6 +162,10 @@ int main(void)
 
 #ifdef DCF77_SUPPORT
     dcf77_init();
+#endif
+
+#ifdef USB_SUPPORT
+    usb_init();
 #endif
 
 #ifdef FS20_SUPPORT
@@ -187,6 +191,14 @@ int main(void)
 
 #ifdef MODBUS_SUPPORT
     modbus_init();
+#endif
+
+#ifdef ECMD_SERIAL_I2C_SUPPORT
+    ecmd_serial_i2c_init();
+#endif
+
+#ifdef ECMD_SERIAL_USART_SUPPORT
+    ecmd_serial_usart_init();
 #endif
 
 #ifdef ZBUS_SUPPORT
@@ -270,6 +282,11 @@ int main(void)
 	zbus_process();
 	wdt_kick();
 #endif
+
+#       ifdef USB_SUPPORT
+        usb_periodic();
+	wdt_kick();
+#       endif
 
         /* check if any timer expired,
          * poll all uip connections */

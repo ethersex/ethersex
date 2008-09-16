@@ -20,6 +20,7 @@ SRC = \
 	i2c_slave_net.c \
 	yport_net.c \
 	modbus_net.c \
+	mcuf_net.c \
 	zbus_raw_net.c \
 
 ##############################################################################

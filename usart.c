@@ -33,53 +33,10 @@
 
 #ifdef USART_SUPPORT
 
-
-void
-usart_init(void) 
-{
-    /* The ATmega644 datasheet suggests to clear the global
-       interrupt flags on initialization ... */
-    uint8_t sreg = SREG; cli();
-
-#ifndef TEENSY_SUPPORT
-    usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
-                                       EEPROM_CONFIG_EXT)->usart_baudrate)));
-#else
-
-/* the used ubrr value */
-#if defined(YPORT_SUPPORT)
-# define UART_UBBR YPORT_UART_UBRR
-#elif defined(ZBUS_SUPPORT)
-# define UART_UBRR ZBUS_UART_UBRR
-#elif defined(MODBUS_SUPPORT)
-# define UART_UBRR MODBUS_UART_UBRR
-#endif
-
-    /* set baud rate */
-    _UBRRH_UART0 = HI8(UART_UBRR);
-    _UBRRL_UART0 = LO8(UART_UBRR);
-#endif
-
-#ifdef URSEL
-    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart
-       and Set URSEL so we write UCSRC and not UBRRH */
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01) | _BV(URSEL);
-#else
-    /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
-#endif
-
-    /* Enable the RX interrupt and receiver and transmitter */
-    _UCSRB_UART0 |= _BV(_TXEN_UART0) | _BV(_RXEN_UART0) | _BV(_RXCIE_UART0);
-
-    /* Go! */
-    SREG = sreg;
-}
-
 #ifndef TEENSY_SUPPORT
 /* Sets the ubrr register according to baudrate 
  * The baudrate had to be baudrate/100 */
-void 
+uint16_t
 usart_baudrate(uint16_t baudrate) {
   uint16_t ubrr;
 
@@ -106,9 +63,7 @@ usart_baudrate(uint16_t baudrate) {
   default:
     ubrr = (F_CPU/1600) / baudrate - 1;
   } 
-  /* set baud rate */
-  _UBRRH_UART0 = HI8(ubrr);
-  _UBRRL_UART0 = LO8(ubrr);
+  return ubrr;
 }
 
 #endif

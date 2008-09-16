@@ -30,11 +30,13 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "ecmd_serial/ecmd_serial_i2c.h"
 #include "control6/control6.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
 #include "cron/cron.h"
+#include "usb/usb.h"
 #include "ipv6.h"
 #include "stella/stella.h"
 #include "ps2/ps2.h"
@@ -69,9 +71,21 @@ void timer_process(void)
 
     /* check timer 1 (timeout after 20ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
-	if (uip_buf_lock ())
-	    return;		/* hmpf, try again shortly
+	if (uip_buf_lock ()) {
+#ifdef RFM12_SUPPORT
+	    _uip_buf_lock --;
+	    if (uip_buf_lock ()) {
+	      return;		/* hmpf, try again shortly
 				   (let's hope we don't miss too many ticks */
+	    }
+	    else {
+		rfm12_status = RFM12_OFF;
+		rfm12_rxstart();
+	    }
+#else
+	    return;
+#endif
+	}
         counter++;
 
 #       ifdef DEBUG_TIMER
@@ -118,6 +132,10 @@ void timer_process(void)
 #       ifdef CONTROL6_SUPPORT
         control6_run();
 #       endif
+
+#ifdef ECMD_SERIAL_I2C_SUPPORT
+        ecmd_serial_i2c_periodic();
+#endif
 
         /* check tcp connections every 200ms */
 #       ifdef TEENSY_SUPPORT
@@ -187,8 +205,10 @@ void timer_process(void)
 #           if defined(CLOCK_SUPPORT) && ! defined(CLOCK_CRYSTAL_SUPPORT)
             clock_tick();
 #           endif
+#           ifdef UIP_SUPPORT
             if (uip_len)
               fill_llh_and_transmit();
+#           endif
         }
 
         /* expire arp entries every 10 seconds */
@@ -225,7 +245,9 @@ void timer_process(void)
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
 
+#ifdef  UIP_SUPPORT
 	uip_buf_unlock ();
+#endif
     }
 
 } /* }}} */

@@ -1610,6 +1610,7 @@ extern struct uip_eth_addr {
 STACK_PROTOTYPES(mainstack)
 STACK_PROTOTYPES(openvpn)
 STACK_PROTOTYPES(rfm12_stack)
+STACK_PROTOTYPES(usb_stack)
 STACK_PROTOTYPES(zbus_stack)
 #endif
 
@@ -1622,14 +1623,17 @@ extern uint8_t fill_llh_and_transmit(void);
 #elif defined(ZBUS_SUPPORT)
 #  include "../zbus/zbus.h"
 #  define fill_llh_and_transmit() (zbus_transmit_packet(), 0)
+#elif defined(USB_NET_SUPPORT)
+#  define fill_llh_and_transmit() (usb_net_txstart(), 0)
 #endif
 
 
-extern uint8_t _uip_buf_lock;
+extern volatile uint8_t _uip_buf_lock;
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "../rfm12/rfm12.h"
+#include "../usb/usb_net.h"
 
 static inline uint8_t uip_buf_lock (void)
 {
@@ -1639,7 +1643,7 @@ static inline uint8_t uip_buf_lock (void)
   if (_uip_buf_lock)
     result = 1;
   else {
-    _uip_buf_lock = 1;
+    _uip_buf_lock = 255;
     rfm12_int_disable();
   }
   SREG = sreg;			/* reenable global interrupts */
@@ -1653,7 +1657,8 @@ static inline uint8_t uip_buf_lock (void)
 
 #define uip_buf_unlock()			\
   do {						\
-    if(rfm12_tx_active ()) break;		\
+    if(rfm12_tx_active ()			\
+       || usb_net_tx_active ()) break;		\
     _uip_buf_lock = 0;				\
     rfm12_int_enable();				\
   } while(0)

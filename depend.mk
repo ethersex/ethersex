@@ -26,4 +26,5 @@ endef
 
 # Here is how to make .d files from .c files
 %.d: %.c $(TOPDIR)/pinning.c; $(make-deps)
-#	$(CC) $(CFLAGS) $(CPPFLAGS) -M -MG $< > $@
+
+%.d: %.S ; $(make-deps)

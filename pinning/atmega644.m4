@@ -6,8 +6,9 @@ dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
 dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
-dnl   it under the terms of the GNU General Public License version 2 as
-dnl   published by the Free Software Foundation.
+dnl   it under the terms of the GNU General Public License as published by 
+dnl   the Free Software Foundation; either version 2 of the License, or
+dnl   (at your option) any later version.
 dnl  
 dnl   This program is distributed in the hope that it will be useful,
 dnl   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -55,6 +56,11 @@ ifdef(`conf_ZBUS', `dnl
 ifdef(`conf_STELLA', `dnl
   STELLA_PORT_RANGE(PD5,PD7)
 ')
+
+ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
+  pin(ECMD_SERIAL_USART_TX, PC2)
+')
+
 
 #define _ATMEGA644
 
@@ -163,5 +169,5 @@ ifdef(`conf_STELLA', `dnl
 #endif
 
 
-#define NET_MAX_FRAME_LENGTH 640
+#define NET_MAX_FRAME_LENGTH 1500
 #define ADC_CHANNELS 8

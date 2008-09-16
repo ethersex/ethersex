@@ -91,6 +91,10 @@ struct uip_stack uip_stacks[STACK_LEN] = {
   STACK_FUNCS (rfm12_stack),
 #endif
 
+#if defined(USB_NET_SUPPORT) && defined(ENC28J60_SUPPORT)
+  STACK_FUNCS (usb_stack),
+#endif
+
 #if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_FUNCS (zbus_stack),
 #endif

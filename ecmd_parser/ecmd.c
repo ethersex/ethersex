@@ -131,7 +131,9 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
     (void) len;
 
     cfg.request_bootloader = 1;
+#   ifdef UIP_SUPPORT
     uip_close();
+#   endif
     return 0;
 } /* }}} */
 

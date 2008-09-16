@@ -18,6 +18,8 @@ print HANDLE <<EOF
 #define rfm12_trans(a)   printf("rfm12_trans(0x%04x);\\n", a)
 
 typedef unsigned char uint8_t;
+
+uint8_t rfm12_bandwidth, rfm12_gain, rfm12_drssi;
 EOF
  ;
 

@@ -48,6 +48,7 @@
 #include "zbus_raw_net.h"
 #include "stella_net.h"
 #include "snmp_net.h"
+#include "mcuf_net.h"
 #include "../httpd/httpd.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -69,6 +70,10 @@ void network_init_apps(void)
 
 #   ifdef TFTP_SUPPORT
     tftp_net_init();
+#   endif
+
+#   ifdef MCUF_SUPPORT
+    mcuf_net_init();
 #   endif
 
 #   ifdef DNS_SUPPORT

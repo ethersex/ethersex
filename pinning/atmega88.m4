@@ -6,8 +6,10 @@ dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
 dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
-dnl   it under the terms of the GNU General Public License version 2 as
-dnl   published by the Free Software Foundation.
+dnl   it under the terms of the GNU General Public License as published by 
+dnl   the Free Software Foundation; either version 2 of the License, or
+dnl   (at your option) any later version.
+dnl  
 dnl  
 dnl   This program is distributed in the hope that it will be useful,
 dnl   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,6 +45,10 @@ ifdef(`conf_ZBUS', `dnl
   pin(ZBUS_RXTX_PIN, PD2)
   pin(ZBUS_TX_PIN, PD6)
   pin(ZBUS_RX_PIN, PD7)
+')
+
+ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
+  pin(ECMD_SERIAL_USART_TX, PD2)
 ')
 
 

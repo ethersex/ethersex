@@ -50,6 +50,7 @@ ecmd_ifdef(PORTIO_SUPPORT)
   ecmd_feature(io_set_port, "io set port")
   ecmd_feature(io_get_port, "io get port")
   ecmd_feature(io_get_pin, "io get pin")
+  ecmd_feature(io_get_mask, "io get mask")
 ecmd_endif()
 
 ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
@@ -146,9 +147,10 @@ ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_feature(usart_baud, "usart baud")
   ecmd_endif()
 
-  ecmd_ifdef(MODBUS_SUPPORT)
-    ecmd_feature(modbus_recv, "mb recv ")
-  ecmd_endif()
+ecmd_endif()
+
+ecmd_ifdef(MODBUS_SUPPORT)
+  ecmd_feature(modbus_recv, "mb recv ")
 ecmd_endif()
 
 ecmd_ifdef(HTTPD_AUTH_SUPPORT)

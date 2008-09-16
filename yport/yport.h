@@ -24,7 +24,6 @@
 #ifndef _YPORT_H
 #define _YPORT_H
 
-#include "../usart.h"
 
 /* UART_UBBR is used if teensy is enabled */
 #define YPORT_UART_UBRR 10
@@ -38,7 +37,7 @@ struct yport_buffer {
   uint8_t data[YPORT_BUFFER_LEN];
 };
 
-#define yport_init() usart_init()
+void yport_init(void);
 uint8_t yport_rxstart(uint8_t *data, uint8_t len);
 
 extern struct yport_buffer yport_send_buffer;

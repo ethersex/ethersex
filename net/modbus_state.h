@@ -25,12 +25,17 @@
 
 /* state */
 struct modbus_connection_state_t {
-    unsigned       must_send           :1;
-    unsigned       waiting_for_answer  :1;
-    unsigned       new_data            :1;
+    uint8_t        state;
     uint16_t       transaction_id;
     uint8_t        len;
     uint8_t        data[MODBUS_BUFFER_LEN];
+};
+
+enum {
+  MODBUS_IDLE = 0,
+  MODBUS_MUST_SEND,
+  MODBUS_WAIT_ANSWER,
+  MODBUS_MUST_ANSWER,
 };
 
 #endif

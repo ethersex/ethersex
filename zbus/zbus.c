@@ -28,13 +28,21 @@
 #include <avr/eeprom.h>
 #include <util/delay.h>
 #include "../bit-macros.h"
-#include "../usart.h"
 #include "../eeprom.h"
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "../crypto/encrypt-llh.h"
 #include "../net/zbus_raw_net.h"
 #include "zbus.h"
+
+#ifndef ZBUS_USE_USART
+#define ZBUS_USE_USART 0 
+#endif
+#define USE_USART ZBUS_USE_USART 
+#include "../usart.h"
+
+/* We generate our own usart init module, for our usart port */
+generate_usart_init(ZBUS_UART_UBRR)
 
 static uint8_t send_escape_data = 0;
 static uint8_t recv_escape_data = 0;
@@ -90,7 +98,7 @@ zbus_rxstart (void)
   uint8_t sreg = SREG; cli();
 
   /* disable transmitter, enable receiver (and rx interrupt) */
-  _UCSRB_UART0 = _BV(_RXCIE_UART0) | _BV(_RXEN_UART0);
+  usart(UCSR,B) = _BV(usart(RXCIE)) | _BV(usart(RXEN));
 
   /* Default is reciever enabled*/
   PIN_CLEAR(ZBUS_RXTX_PIN);
@@ -105,7 +113,7 @@ zbus_rxstop (void)
   uint8_t sreg = SREG; cli();
 
   /* completely disable usart */
-  _UCSRB_UART0 = 0;
+  usart(UCSR,B) = 0;
 
   SREG = sreg;
 }
@@ -153,6 +161,13 @@ zbus_core_init(void)
     recv_ctx.data = (uint8_t *)uip_buf;
 #endif
 
+#ifndef TEENSY_SUPPORT
+    uint16_t ubrr = usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
+                                     EEPROM_CONFIG_EXT)->usart_baudrate)));
+    usart(UBRR,H) = HI8(ubrr);
+    usart(UBRR,L) = LO8(ubrr);
+#endif
+
     zbus_rxstart ();
 }
 
@@ -174,35 +189,34 @@ zbus_txstart(void)
   bus_blocked = 3;
 
   /* enable transmitter and receiver as well as their interrupts */
-  _UCSRB_UART0 = _BV(_TXCIE_UART0) | _BV(_TXEN_UART0);
+  usart(UCSR,B) = _BV(usart(TXCIE)) | _BV(usart(TXEN));
 
   /* Enable transmitter */
   PIN_SET(ZBUS_RXTX_PIN);
 
   /* reset tx interrupt flag */
-  _UCSRA_UART0 |= _BV(_TXC_UART0);
+  usart(UCSR,A) |= _BV(usart(TXC));
 
   /* Go! */
   SREG = sreg;
 
   /* Transmit Start sequence */
   send_escape_data = ZBUS_START;
-  _UDR_UART0 = '\\';
+  usart(UDR) = '\\';
 
 #ifdef HAVE_ZBUS_TX_PIN
   PIN_SET(ZBUS_TX_PIN);
 #endif
 
-
   return 1;
 }
 
 
-SIGNAL(USART0_TX_vect)
+SIGNAL(usart(USART,_TX_vect))
 {
   /* If there's a carry byte, send it! */
   if (send_escape_data) {
-    _UDR_UART0 = send_escape_data;
+    usart(UDR) = send_escape_data;
     send_escape_data = 0;
   }
 
@@ -211,11 +225,11 @@ SIGNAL(USART0_TX_vect)
     if (send_ctx.data[send_ctx.offset] == '\\') {
       /* We need to quote the character. */
       send_escape_data = send_ctx.data[send_ctx.offset];
-      _UDR_UART0 = '\\';
+      usart(UDR) = '\\';
     }
     else {
       /* No quoting needed, just send it. */
-      _UDR_UART0 = send_ctx.data[send_ctx.offset];
+      usart(UDR) = send_ctx.data[send_ctx.offset];
     }
 
     send_ctx.offset ++;
@@ -229,7 +243,7 @@ SIGNAL(USART0_TX_vect)
 
     /* Generate the stop condition. */
     send_escape_data = ZBUS_STOP;
-    _UDR_UART0 = '\\';
+    usart(UDR) = '\\';
   }
 
   /* Nothing to do, disable transmitter and TX LED. */
@@ -242,15 +256,15 @@ SIGNAL(USART0_TX_vect)
   }
 }
 
-SIGNAL(USART0_RX_vect)
+SIGNAL(usart(USART,_RX_vect))
 {
   /* Ignore errors */
-  if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
-    uint8_t v = _UDR_UART0;
+  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
+    uint8_t v = usart(UDR);
     (void) v;
     return; 
   }
-  uint8_t data = _UDR_UART0;
+  uint8_t data = usart(UDR);
 
   /* Old data is not read by application, ignore message */
   if (recv_ctx.len != 0) return;

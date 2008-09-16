@@ -145,7 +145,7 @@ extern const uip_ipaddr_t mdns_address;
 
 
 #if STACK_PRIMARY
-uint8_t _uip_buf_lock;
+volatile uint8_t _uip_buf_lock;
 
 const uip_ipaddr_t all_ones_addr =
 #if UIP_CONF_IPV6

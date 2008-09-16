@@ -18,7 +18,7 @@ HOSTCC := gcc
 export HOSTCC
 
 # flags for the compiler
-CPPFLAGS += -mmcu=$(MCU) -DF_CPU=$(F_CPU) 
+CPPFLAGS += -mmcu=$(MCU)  
 CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
 CFLAGS += -g -Os -std=gnu99
 
@@ -44,7 +44,18 @@ $(TOPDIR)/config.mk:
 ##############################################################################
 # configure load address for bootloader, if enabled
 #
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),mrproper)
+ifneq ($(MAKECMDGOALS),menuconfig)  
+
 include $(TOPDIR)/.config
+
+CPPFLAGS += -DF_CPU=$(FREQ)UL -mmcu=$(MCU)
+
+endif # MAKECMDGOALS!=menuconfig
+endif # MAKECMDGOALS!=mrproper
+endif # MAKECMDGOALS!=clean
+
 ifeq ($(BOOTLOADER_SUPPORT),y)  
 LDFLAGS += -Wl,--section-start=.text=0xE000
 CFLAGS  += -mcall-prologues

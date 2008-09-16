@@ -6,8 +6,9 @@ dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
 dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
-dnl   it under the terms of the GNU General Public License version 2 as
-dnl   published by the Free Software Foundation.
+dnl   it under the terms of the GNU General Public License as published by 
+dnl   the Free Software Foundation; either version 2 of the License, or
+dnl   (at your option) any later version.
 dnl  
 dnl   This program is distributed in the hope that it will be useful,
 dnl   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -78,4 +79,12 @@ ifdef(`conf_FS20',  `dnl
   pin(FS20_SEND, PB2)
   /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
   pin(FS20_RECV, PB3)
+')dnl
+
+ifdef(`conf_USB', `dnl
+  dnl This must also be D+ of the USB signal
+  USB_USE_INT(0) 
+  dnl This pin must have the 1k5 Pullup and must be on the same port as the Interupt pin
+  pin(USB_DMINUS, PD4)
+  pin(USB_DPLUS, PD2)
 ')dnl

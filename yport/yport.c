@@ -29,15 +29,32 @@
 #include "../eeprom.h"
 #include "../net/yport_net.h"
 #include "../bit-macros.h"
-#include "../usart.h"
 #include "../config.h"
 #include "yport.h"
 
 #ifdef YPORT_SUPPORT
 
+#define USE_USART YPORT_USE_USART 
+#include "../usart.h"
+
+/* We generate our own usart init module, for our usart port */
+generate_usart_init(YPORT_UART_UBRR)
+
 struct yport_buffer yport_send_buffer;
 struct yport_buffer yport_recv_buffer;
 
+void
+yport_init(void) 
+{
+  usart_init();
+
+#ifndef TEENSY_SUPPORT
+    uint16_t ubrr = usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
+                                     EEPROM_CONFIG_EXT)->usart_baudrate)));
+    usart(UBRR,H) = HI8(ubrr);
+    usart(UBRR,L) = LO8(ubrr);
+#endif
+}
 
 uint8_t
 yport_rxstart(uint8_t *data, uint8_t len) 
@@ -59,31 +76,31 @@ yport_rxstart(uint8_t *data, uint8_t len)
 start_sending:
     yport_send_buffer.sent = 1;
     /* Enable the tx interrupt and send the first character */
-    _UCSRB_UART0 |= _BV(_TXCIE_UART0);
-    _UDR_UART0 = yport_send_buffer.data[0];
+    usart(UCSR,B) |= _BV(usart(TXCIE));
+    usart(UDR) = yport_send_buffer.data[0];
     return 1;
 }
 
 
-SIGNAL(USART0_TX_vect)
+SIGNAL(usart(USART,_TX_vect))
 {
   if (yport_send_buffer.sent < yport_send_buffer.len) {
-    _UDR_UART0 = yport_send_buffer.data[yport_send_buffer.sent++];
+    usart(UDR) = yport_send_buffer.data[yport_send_buffer.sent++];
   } else {
     /* Disable this interrupt */
-    _UCSRB_UART0 &= ~(_BV(_TXCIE_UART0));
+    usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
   }
 }
 
-SIGNAL(USART0_RX_vect)
+SIGNAL(usart(USART,_RX_vect))
 {
   /* Ignore errors */
-  if ((_UCSRA_UART0 & _BV(DOR0)) || (_UCSRA_UART0 & _BV(FE0))) {
+  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
     uint8_t v = _UDR_UART0;
     (void) v;
     return; 
   }
-  uint8_t data = _UDR_UART0;
+  uint8_t data = usart(UDR);
   if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
     yport_recv_buffer.data[yport_recv_buffer.len++] = data;
 }

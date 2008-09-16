@@ -139,6 +139,9 @@ typedef unsigned short uip_stats_t;
 
 #elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
 #  define __LLH_LEN  0
+
+#elif defined(USB_NET_SUPPORT)	  /* cf. rfm12 */
+#  define __LLH_LEN  0
 #endif
 
 
@@ -185,6 +188,9 @@ enum {
 #endif
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_RFM12,
+#endif
+#if defined(USB_NET_SUPPORT) && defined(ENC28J60_SUPPORT)
+  STACK_USB,
 #endif
 #if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_ZBUS,

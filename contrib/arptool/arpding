@@ -1,0 +1,52 @@
+#! /usr/bin/perl -w
+use strict;
+use warnings;
+
+my $netdev = "eth0";
+my $ipaddr = "c0a805";
+
+use NetPacket::ARP;
+use Net::Frame::Dump::Online;
+use Net::Write::Layer2;
+
+my $oWrite = Net::Write::Layer2->new(dev => $netdev);
+$oWrite->open;
+
+my $oDump = Net::Frame::Dump::Online->new(dev    => $netdev, 
+                                          onRecv => \&callback);
+$oDump->filter("arp");
+$oDump->start;
+
+END { 
+  $oDump && $oDump->isRunning && $oDump->stop;
+  $oWrite && $oWrite->close;
+}
+
+sub callback {
+  my ($h, $data) = @_;
+
+  my $raw_pkt = substr ($h->{raw}, 14);
+
+  my $arp = NetPacket::ARP->decode ($raw_pkt);
+
+  return unless ($arp->{opcode} == NetPacket::ARP::ARP_OPCODE_REQUEST);
+  return unless (substr ($arp->{tpa}, 0, 6) eq $ipaddr);
+
+  my $dest = $arp->{tpa};
+  print "ARP-Request for TPA $dest received.\n";
+
+  $arp->{opcode} = NetPacket::ARP::ARP_OPCODE_REPLY;
+  $arp->{tha} = $arp->{sha};
+  $arp->{tpa} = $arp->{spa};
+  $arp->{sha} = "ffffffffffff";
+  $arp->{spa} = $dest;
+
+  my $out_pkt = $arp->encode();
+
+  my $sender_mac = "\xac\xde\x48\x12\x34\x56";
+  my $out_mac = substr($h->{raw}, 6, 6) . $sender_mac . substr($h->{raw}, 12, 2);
+  $oWrite->send($out_mac . $out_pkt);
+
+  print $h, "\n";
+}
+

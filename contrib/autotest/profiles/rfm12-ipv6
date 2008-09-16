@@ -6,6 +6,11 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
+MCU_MEGA8=y
+# MCU_MEGA88 is not set
+# MCU_MEGA644 is not set
+MCU=atmega8
+FREQ=8000000
 # CONFIG_NORMAL is not set
 # BOOTLOADER_SUPPORT is not set
 CONFIG_TEENSY_RFM12=y
@@ -58,6 +63,7 @@ CONF_ETHERRAPE_IP6_PREFIX_LEN=64
 # NTP_SUPPORT is not set
 # CRON_SUPPORT is not set
 # NTPD_SUPPORT is not set
+# WHM_SUPPORT is not set
 
 #
 # Etherrape Control Interface (ECMD)
@@ -89,7 +95,6 @@ UECMD_SUPPORT=y
 # RFM12 FSK transmitter
 #
 CONF_RFM12_KEY=23234242555523234242
-# RFM12_BEACON_SUPPORT is not set
 CONFIG_NO_I2C=y
 # I2C_SUPPORT is not set
 # I2C_SLAVE_SUPPORT is not set
@@ -117,8 +122,9 @@ PORTIO_SIMPLE_SUPPORT=y
 #
 # work in progress bits (enable with care)
 #
-# UDP_DNS_MCAST_SUPPORT is not set
 # DATAFLASH_SUPPORT is not set
 # PSOCK_SUPPORT is not set
 # HTTPD_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
+# CONTROL6_SUPPORT is not set
+# SNMP_SUPPORT is not set

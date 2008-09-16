@@ -1241,6 +1241,12 @@ save_configuration () {
 		echo "#define $1 ($2)"		>>$CONFIG_H
 	}
 
+	function define_symbol () {
+		eval $1=\"$2\"
+		echo "$1=$2" 			>>$CONFIG
+		echo "#define $1 $2"		>>$CONFIG_H
+	}
+
 	function define_string () {
 		eval $1=\"$2\"
 		echo "$1=\"$2\""		>>$CONFIG

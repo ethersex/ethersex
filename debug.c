@@ -26,6 +26,9 @@
 #include "ecmd_parser/ecmd.h"
 #include "onewire/onewire.h"
 
+#define USE_USART 0
+#include "usart.h"
+
 #define noinline __attribute__((noinline))
 
 /* prototypes */
@@ -34,18 +37,16 @@ int debug_uart_put(char d, FILE *stream);
 
 #ifdef DEBUG
 
+/* We generate our own usart init module, for our usart port */
+generate_usart_init(DEBUG_UART_UBRR)
+
 void DEBUG_INIT_UART()
 /* {{{ */ {
 
-    /* set baud rate */
-    _UBRRH_UART0 = HI8(DEBUG_UART_UBRR);
-    _UBRRL_UART0 = LO8(DEBUG_UART_UBRR);
+    usart_init();
 
-    /* set mode */
-    _UCSRC_UART0 = _BV(UCSZ00) | _BV(UCSZ01);
-
-    /* enable transmitter and receiver */
-    _UCSRB_UART0 = _BV(_TXEN_UART0) | _BV(_RXEN_UART0);
+    /* Disable the receiver */
+    usart(UCSR,B) &= ~_BV(usart(RXCIE));
 
     /* open stdout/stderr */
     fdevopen(debug_uart_put, NULL);
@@ -58,8 +59,8 @@ int noinline debug_uart_put(char d, FILE *stream)
     if (d == '\n')
         debug_uart_put('\r', stream);
 
-    while (!(_UCSRA_UART0 & _BV(_UDRE_UART0)));
-    _UDR_UART0 = d;
+    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+    usart(UDR) = d;
 
     return 0;
 
@@ -73,8 +74,8 @@ void DEBUG_PROCESS_UART(void)
     static char buf[LEN+1];
     static char *ptr = buf;
 
-    if (_UCSRA_UART0 & _BV(_RXC_UART0)) {
-        char data = _UDR_UART0;
+    if (usart(UCSR,A) & _BV(usart(RXC))) {
+        char data = usart(UDR);
 
         if (data == '\n' || data == '\r') {
             char *output = malloc(OUTPUTLEN);

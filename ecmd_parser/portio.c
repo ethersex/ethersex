@@ -120,6 +120,29 @@ int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 
+int16_t parse_cmd_io_get_mask(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+
+#ifdef DEBUG_ECMD_PORTIO
+    debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
+#endif
+
+    uint8_t port;
+#ifndef TEENSY_SUPPORT
+    int ret = sscanf_P(cmd,
+            PSTR("%x"),
+            &port);
+    if (ret == 1 && port < IO_PORTS && vport[port].read_ddr) 
+#else
+    port = *(cmd + 1) - '0';
+    if (port < IO_PORTS)
+#endif
+      return print_port(output, len, port, vport[port].mask);
+    else
+      return -1;
+
+} /* }}} */
+
 int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -278,12 +301,15 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     cmd ++;
   /* skip first char of ddr,port,pin*/
   cmd ++;
-  /* test of p'i'n, d'd'r or p'o'rt case insensitiv */
+  /* test of p'i'n, d'd'r p'o'rt or m'a'sk case insensitiv */
   switch (*cmd & 0xDF)
   {
     case 'I' : iotypeoffset = 0; break;
     case 'D' : iotypeoffset = 1; break;
     case 'O' : iotypeoffset = 2; break;
+#ifndef TEENSY_SUPPORT
+    case 'A' : iotypeoffset = 3; cmd += 3; break;
+#endif
     default: return -1;
   }
   cmd ++;
@@ -310,6 +336,10 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     default: return -1;
   }
   ioptr += iotypeoffset;
+#ifndef TEENSY_SUPPORT
+  if (iotypeoffset == 3) 
+    return print_port(output, len, value, ~sysmask);
+#endif
   if(getorset)
     /* wenn get request return the port value */
     return print_port(output, len, value, *ioptr);

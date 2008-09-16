@@ -62,6 +62,8 @@ extern uint8_t bootload_delay;
 /* prototypes */
 void process_packet(void);
 
+#ifdef UIP_SUPPORT
+
 void network_init(void)
 /* {{{ */ {
     uip_stack_set_active(STACK_MAIN);
@@ -580,4 +582,6 @@ void transmit_packet(void)
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
 } /* }}} */
+#endif
+
 #endif
