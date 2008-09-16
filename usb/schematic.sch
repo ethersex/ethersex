@@ -1,6 +1,95 @@
 v 20080127 1
 C 40000 40000 0 0 0 title-B.sym
-C 43100 45100 1 0 0 CON_USB_B-1.sym
+C 43100 45100 1 0 0 EMBEDDEDCON_USB_B-1.sym
+[
+P 44600 45900 44300 45900 1 0 0
+{
+T 44400 45950 5 8 1 1 0 0 1
+pinnumber=3
+T 44400 45850 5 8 0 1 0 2 1
+pinseq=3
+T 44250 45900 9 8 1 1 0 6 1
+pinlabel=D+
+T 44250 45900 5 8 0 1 0 8 1
+pintype=io
+}
+P 44600 46200 44300 46200 1 0 0
+{
+T 44400 46250 5 8 1 1 0 0 1
+pinnumber=2
+T 44400 46150 5 8 0 1 0 2 1
+pinseq=2
+T 44250 46200 9 8 1 1 0 6 1
+pinlabel=D-
+T 44250 46200 5 8 0 1 0 8 1
+pintype=io
+}
+P 44600 46500 44300 46500 1 0 0
+{
+T 44400 46550 5 8 1 1 0 0 1
+pinnumber=1
+T 44400 46450 5 8 0 1 0 2 1
+pinseq=1
+T 44250 46500 9 8 1 1 0 6 1
+pinlabel=VCC
+T 44250 46500 5 8 0 1 0 8 1
+pintype=pwr
+}
+P 44600 45600 44300 45600 1 0 0
+{
+T 44400 45650 5 8 1 1 0 0 1
+pinnumber=4
+T 44400 45550 5 8 0 1 0 2 1
+pinseq=4
+T 44250 45600 9 8 1 1 0 6 1
+pinlabel=GND
+T 44250 45600 5 8 0 1 0 8 1
+pintype=pwr
+}
+P 43500 45100 43500 45400 1 0 0
+{
+T 43550 45200 5 8 1 1 0 0 1
+pinnumber=5
+T 43550 45200 5 8 0 1 0 2 1
+pinseq=5
+T 43700 45450 9 8 1 1 0 3 1
+pinlabel=CASE
+T 43500 45600 5 8 0 1 0 3 1
+pintype=pas
+}
+B 43100 45400 1200 1300 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 43100 46800 8 10 0 1 0 0 1
+refdes=CONN?
+T 43500 46100 9 10 1 0 0 4 1
+USB_B
+T 43100 48500 5 10 0 0 0 0 1
+device=CON_USB_B
+T 43100 48300 5 10 0 0 0 0 1
+footprint=CON_USB_TYPEB__Keystone_924
+T 43100 47100 5 10 0 0 0 0 1
+author=Stefan Salewski
+T 43100 47300 5 10 0 0 0 0 1
+documentation=http://en.wikipedia.org/wiki/Usb
+T 43100 47500 5 10 0 0 0 0 1
+description=USB Connector Type B
+T 43100 47700 5 10 0 0 0 0 1
+numslots=0
+T 43100 47900 5 10 0 0 0 0 1
+dist-license=GPL
+T 43100 48100 5 10 0 0 0 0 1
+use-license=unlimited
+P 43900 45100 43900 45400 1 0 0
+{
+T 43950 45200 5 8 1 1 0 0 1
+pinnumber=6
+T 43950 45200 5 8 0 1 0 2 1
+pinseq=6
+T 43900 45450 9 8 0 1 0 3 1
+pinlabel=CASE
+T 43900 45600 5 8 0 1 0 3 1
+pintype=pas
+}
+]
 {
 T 43100 46800 5 10 1 1 0 0 1
 refdes=CONN?
@@ -9,7 +98,23 @@ device=CON_USB_B
 T 43100 48300 5 10 0 0 0 0 1
 footprint=CON_USB_TYPEB__Keystone_924
 }
-C 43700 43800 1 0 0 gnd.sym
+C 43700 43800 1 0 0 EMBEDDEDgnd.sym
+[
+P 43900 44000 43900 44200 1 0 1
+{
+T 43958 44061 5 4 0 1 0 0 1
+pinnumber=1
+T 43958 44061 5 4 0 0 0 0 1
+pinseq=1
+T 43900 44000 5 10 0 0 0 0 1
+pintype=pas
+}
+L 43800 44000 44000 44000 3 10 0 0 -1 -1
+T 44000 43850 8 10 0 0 0 0 1
+net=GND:1
+T 43900 43900 8 10 0 1 0 5 1
+value=GND
+]
 {
 T 43900 43900 5 10 1 1 0 5 1
 value=GND
