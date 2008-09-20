@@ -565,9 +565,7 @@ uip_conn_t *uip_connect(uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t c
  *
  * \hideinitializer
  */
-#if !UIP_MULTI_STACK
 void uip_send(const void *data, int len);
-#endif
 
 /**
  * The length of any incoming data that is currently avaliable (if avaliable)
@@ -1128,10 +1126,8 @@ u16_t htons(u16_t val);
  * called. If the application wishes to send data, the application may
  * use this space to write the data into before calling uip_send().
  */
-#if !UIP_MULTI_STACK
 extern void *uip_appdata;
 extern void *uip_sappdata;
-#endif
 
 #if UIP_URGDATA > 0
 /* u8_t *uip_urgdata:
@@ -1167,9 +1163,7 @@ extern void *uip_urgdata;
  *
  */
 extern u16_t uip_len;
-#if !UIP_MULTI_STACK
 extern u16_t uip_slen;
-#endif
 
 /** @} */
 
@@ -1231,9 +1225,7 @@ struct __uip_conn {
  * The uip_conn pointer can be used to access the current TCP
  * connection.
  */
-#if !UIP_MULTI_STACK
 extern uip_conn_t *uip_conn;
-#endif
 /* The array containing all uIP connections. */
 extern uip_conn_t uip_conns[UIP_CONNS];
 #endif /* UIP_TCP */
@@ -1261,9 +1253,7 @@ struct __uip_udp_conn {
 /**
  * The current UDP connection.
  */
-#if !UIP_MULTI_STACK
 extern uip_udp_conn_t *uip_udp_conn;
-#endif
 extern uip_udp_conn_t uip_udp_conns[UIP_UDP_CONNS];
 #endif /* UIP_UDP */
 
@@ -1346,9 +1336,7 @@ extern struct uip_stats uip_stat;
  * that are defined in this file. Please read below for more
  * infomation.
  */
-#if !UIP_MULTI_STACK
 extern u8_t uip_flags;
-#endif
 
 /* The following flags may be set in the global variable uip_flags
    before calling the application callback. The UIP_ACKDATA,
@@ -1390,9 +1378,7 @@ extern u8_t uip_flags;
  *
  * The actual uIP function which does all the work.
  */
-#if !UIP_MULTI_STACK
 void uip_process(u8_t flag);
-#endif
 
 /* The following flags are passed as an argument to the uip_process()
    function. They are used to distinguish between the two cases where
@@ -1603,8 +1589,7 @@ extern struct uip_eth_addr {
 
 
 #if UIP_MULTI_STACK
-STACK_PROTOTYPES(mainstack)
-STACK_PROTOTYPES(openvpn)
+STACK_PROTOTYPES(enc_stack)
 STACK_PROTOTYPES(rfm12_stack)
 STACK_PROTOTYPES(usb_stack)
 STACK_PROTOTYPES(zbus_stack)

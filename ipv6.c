@@ -253,11 +253,7 @@ uip_neighbor_out(void)
 
   /* Check if the destination address is on the local network. 
    * FIXME, for the moment we assume a 64-bit "netmask" */
-  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8)
-#    if UIP_CONF_IPV6_LLADDR
-     && memcmp(IPBUF->destipaddr, uip_lladdr, 8)
-#    endif
-    )
+  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8))
     /* Remote address is not on the local network, use router */
     uip_ipaddr_copy(ipaddr, uip_draddr);
 

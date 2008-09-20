@@ -48,7 +48,7 @@
     dest = stack;
 #endif
 
-#define enc_test(func)              func(mainstack, STACK_ENC)
+#define enc_test(func)              func(enc_stack, STACK_ENC)
 
 #ifdef RFM12_SUPPORT
 #define rfm12_test(func)            func(rfm12_stack, STACK_RFM12)
@@ -76,11 +76,7 @@ router_input(uint8_t origin)
   chain (input_test)		/* Check if packet is addressed to one stack's
 				   configured host address. */
 #if UIP_CONF_IPV6 
-  else if (BUF->destipaddr[0] == HTONS(0xff02)
-#if UIP_CONF_IPV6_LLADDR    
-	   || uip_ipaddr_cmp(BUF->destipaddr, uip_lladdr)
-#endif
-	   )
+  else if (BUF->destipaddr[0] == HTONS(0xff02))
     {
       /* Packet is addressed to either the link-local address of the ethernet
 	 stack or to one of the multicast addresses. */ 

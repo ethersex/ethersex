@@ -37,6 +37,10 @@
 
 #ifdef USB_NET_SUPPORT
 
+#ifdef UIP_MULTI_STACK
+STACK_DEFINITIONS(usb_stack);
+#endif
+
 static uint16_t usb_rq_index;
 static uint16_t usb_rq_len;
 

@@ -82,13 +82,6 @@
  * the packet back to the peer.
 */
 
-/* Set default stackname, if not otherwise set (e.g. by inclusion from
-   uip_openvpn.c). */
-#ifndef STACK_NAME
-#define STACK_PRIMARY 1
-#define STACK_NAME(a) mainstack_ ## a
-#endif
-
 #include "uip.h"
 #include "uipopt.h"
 #include "../ipv6.h"
@@ -110,6 +103,7 @@
 /* Variable definitions. */
 
 
+#if !UIP_MULTI_STACK
 uip_ipaddr_t uip_hostaddr, uip_draddr;
 
 #if UIP_CONF_IPV6
@@ -117,10 +111,6 @@ u8_t uip_prefix_len;
 #else
 uip_ipaddr_t uip_netmask;
 #endif
-
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-/* The link local IPv6 address */
-uip_ipaddr_t uip_lladdr;
 #endif
 
 #ifdef MDNS_SD_SUPPORT
@@ -128,7 +118,6 @@ extern const uip_ipaddr_t mdns_address;
 #endif
 
 
-#if STACK_PRIMARY
 volatile uint8_t _uip_buf_lock;
 
 const uip_ipaddr_t all_ones_addr =
@@ -155,7 +144,6 @@ const uip_ipaddr_t mdns_address =
 
 
 struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
-#endif /* STACK_PRIMARY */
 
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
@@ -187,20 +175,18 @@ u8_t uip_flags;              /* The uip_flags variable is used for
 uip_conn_t *uip_conn;	     /* uip_conn always points to the current
 				connection. */
 
-#if UIP_TCP && STACK_PRIMARY
+#if UIP_TCP
 uip_conn_t uip_conns[UIP_CONNS];
                              /* The uip_conns array holds all TCP
 				connections. */
 struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
-#endif /* UIP_TCP and STACK_PRIMARY */
+#endif /* UIP_TCP */
 
 #if UIP_UDP
 uip_udp_conn_t *uip_udp_conn;
-#if STACK_PRIMARY
 uip_udp_conn_t uip_udp_conns[UIP_UDP_CONNS];
-#endif
 #endif /* UIP_UDP */
 
 #if !UIP_CONF_IPV6
@@ -267,7 +253,9 @@ static u16_t tmp16;
 
 
 #if UIP_STATISTICS == 1
+#if !UIP_MULTI_STACK
 struct uip_stats uip_stat;
+#endif
 #define UIP_STAT(s) s
 #else
 #define UIP_STAT(s)
@@ -420,7 +408,6 @@ uip_udpchksum(void)
 #endif /* UIP_UDP_CHECKSUMS */
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
-#if STACK_PRIMARY
 void
 uip_init(void)
 {
@@ -450,9 +437,8 @@ uip_init(void)
   
 
 }
-#endif
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP && STACK_PRIMARY
+#if UIP_TCP
 #if UIP_ACTIVE_OPEN
 #ifndef BOOTLOADER_SUPPORT
 uip_conn_t *
@@ -528,9 +514,9 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 }
 #endif /* BOOTLOADER_SUPPORT */
 #endif /* UIP_ACTIVE_OPEN */
-#endif /* UIP_TCP and STACK_PRIMARY */
+#endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
-#if UIP_UDP && STACK_PRIMARY
+#if UIP_UDP
 #if UIP_ACTIVE_OPEN
 uip_udp_conn_t *
 uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
@@ -585,9 +571,9 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   return conn;
 }
 #endif /* UIP_ACTIVE_OPEN */
-#endif /* UIP_UDP && STACK_PRIMARY */
+#endif /* UIP_UDP */
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP && STACK_PRIMARY
+#if UIP_TCP
 #ifndef TEENSY_SUPPORT
 void
 uip_unlisten(u16_t port)
@@ -612,7 +598,7 @@ uip_listen(u16_t port, uip_conn_callback_t callback)
     }
   }
 }
-#endif /* UIP_TCP && STACK_PRIMARY */
+#endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
 /* XXX: IP fragment reassembly: not well-tested. */
 
@@ -760,7 +746,7 @@ uip_add_rcv_nxt(u16_t n)
 /*---------------------------------------------------------------------------*/
 u8_t uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix);
 
-#if STACK_PRIMARY && UIP_MULTI_STACK
+#if UIP_MULTI_STACK
 /* Return 1 if a/prefix and b/prefix are on the same network. */
 u8_t
 uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
@@ -792,7 +778,7 @@ uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
 
   return 1;
 }
-#endif /* STACK_PRIMARY */
+#endif /* UIP_MULTI_STACK */
 /*---------------------------------------------------------------------------*/
 void
 uip_process(u8_t flag)
@@ -1042,9 +1028,6 @@ uip_process(u8_t flag)
        multicast packets that are sent to the ff02::/16 addresses. 
        Furthermore listen for packets to our link local adress. */
     if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
-#if UIP_CONF_IPV6_LLADDR    
-       && !uip_ipaddr_cmp(BUF->destipaddr, uip_lladdr)
-#endif
 #ifdef ENC28J60_SUPPORT
        && BUF->destipaddr[0] != HTONS(0xff02)
 #endif
@@ -1142,11 +1125,7 @@ ip_check_end:
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
-    if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)
-#if UIP_CONF_IPV6_LLADDR       
-       || uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_lladdr)
-#endif 
-      ) {
+    if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)) {
 
       if(ICMPBUF->options[0] == ICMP6_OPTION_SOURCE_LINK_ADDRESS) {
 	/* Save the sender's address in our neighbor list. */
@@ -1290,12 +1269,7 @@ ip_check_end:
   BUF->srcport  = uip_udp_conn->lport;
   BUF->destport = uip_udp_conn->rport;
 
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-  if(((u16_t *)(uip_udp_conn->ripaddr))[0] == HTONS(0xFE80))
-    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
-  else
-#endif /* UIP_CONF_IPV6 */
-    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   uip_ipaddr_copy(BUF->destipaddr, uip_udp_conn->ripaddr);
    
   uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
@@ -1404,12 +1378,7 @@ ip_check_end:
   
   /* Swap IP addresses. */
   uip_ipaddr_copy(BUF->destipaddr, BUF->srcipaddr);
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-  if(((u16_t *)(BUF->srcipaddr))[0] == HTONS(0xFE80))
-    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
-  else
-#endif /* UIP_CONF_IPV6 */
-    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   
   /* And send out the RST packet! */
   goto tcp_send_noconn;
@@ -1976,12 +1945,7 @@ ip_check_end:
   BUF->srcport  = uip_connr->lport;
   BUF->destport = uip_connr->rport;
 
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-  if(((u16_t *)(uip_connr->ripaddr))[0] == HTONS(0xFE80))
-    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
-  else
-#endif /* UIP_CONF_IPV6 */
-    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   uip_ipaddr_copy(BUF->destipaddr, uip_connr->ripaddr);
 
   if(uip_connr->tcpstateflags & UIP_STOPPED) {

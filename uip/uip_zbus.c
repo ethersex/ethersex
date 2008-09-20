@@ -21,16 +21,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-/* We're now compiling the outer side of the uIP stack */
-#define ZBUS_OUTER
-#define STACK_NAME(a) zbus_stack_ ## a
-
+#include "uip.h"
 #include "uip_zbus.h"
 
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(ZBUS_SUPPORT) && UIP_MULTI_STACK
 
-/* We're set to compile multi stack now ... */
-#include "uip.c"
+STACK_DEFINITIONS(zbus_stack);
 
 void 
 zbus_stack_init (void)
@@ -48,4 +44,4 @@ zbus_stack_init (void)
 #endif
 }
 
-#endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */
+#endif /* ZBUS_SUPPORT && UIP_MULTI_STACK */
