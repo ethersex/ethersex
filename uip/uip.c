@@ -154,16 +154,7 @@ const uip_ipaddr_t mdns_address =
 #endif /* MDNS_SD_SUPPORT */
 
 
-#if UIP_FIXEDETHADDR
-const struct uip_eth_addr uip_ethaddr = {{UIP_ETHADDR0,
-					  UIP_ETHADDR1,
-					  UIP_ETHADDR2,
-					  UIP_ETHADDR3,
-					  UIP_ETHADDR4,
-					  UIP_ETHADDR5}};
-#else
 struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
-#endif
 #endif /* STACK_PRIMARY */
 
 

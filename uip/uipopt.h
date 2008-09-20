@@ -71,35 +71,6 @@
 #include "../crypto/skipjack.h"
 
 /*------------------------------------------------------------------------------*/
-
-/**
- * \name Static configuration options
- * @{
- *
- * These configuration options can be used for setting the IP address
- * settings statically, but only if UIP_FIXEDADDR is set to 1. The
- * configuration options for a specific node includes IP address,
- * netmask and default router as well as the Ethernet address. The
- * netmask, default router and Ethernet address are appliciable only
- * if uIP should be run over Ethernet.
- *
- * All of these should be changed to suit your project.
-*/
-
-
-/**
- * Specifies if the uIP ARP module should be compiled with a fixed
- * Ethernet MAC address or not.
- *
- * If this configuration option is 0, the macro uip_setethaddr() can
- * be used to specify the Ethernet address at run-time.
- *
- * \hideinitializer
- */
-#define UIP_FIXEDETHADDR 0
-
-/** @} */
-/*------------------------------------------------------------------------------*/
 /**
  * \name IP configuration options
  * @{
