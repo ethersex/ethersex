@@ -72,6 +72,9 @@
 void
 router_input(uint8_t origin)
 {
+  /* uip_len is set to the number of received bytes, including the LLH.
+     For RFM12, ZBus, etc.  it's the full 14-byte Ethernet LLH even also. */
+
   /* Input */
   chain (input_test)		/* Check if packet is addressed to one stack's
 				   configured host address. */
@@ -114,6 +117,12 @@ router_input(uint8_t origin)
       else
 	BUF->ipchksum += HTONS(1 << 8);
 #endif
+
+      /* For fill_llh_and_transmit uip_len must be set to the number of
+	 bytes to send, excluding the LLH (since it'll generate the needed
+	 one itself).  However uip_len is currently set to the number of
+	 received bytes, i.e. including the LLH. */
+      uip_len -= UIP_LLH_LEN;
 
       /* TODO check MTU and send suitable ICMP message if needed. */
       uip_stack_set_active (dest);
