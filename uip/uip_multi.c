@@ -100,6 +100,6 @@ struct uip_stack uip_stacks[STACK_LEN] = {
 #endif
 };
 
-struct uip_stack *uip_stack = &uip_stacks[STACK_MAIN];
+struct uip_stack *uip_stack = &uip_stacks[0];
 
 #endif /* UIP_MULTI_STACK */

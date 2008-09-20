@@ -48,7 +48,7 @@
     dest = stack;
 #endif
 
-#define enc_test(func)              func(mainstack, STACK_MAIN)
+#define enc_test(func)              func(mainstack, STACK_ENC)
 
 #ifdef OPENVPN_SUPPORT
 #define openvpn_test(func)          func(openvpn, STACK_OPENVPN)
@@ -91,7 +91,7 @@ router_input(uint8_t origin)
     {
       /* Packet is addressed to either the link-local address of the ethernet
 	 stack or to one of the multicast addresses. */ 
-      uip_stack_set_active (STACK_MAIN);
+      uip_stack_set_active (STACK_ENC);
       uip_input ();
     }
 #endif	/* UIP_CONF_IPV6 */
@@ -105,7 +105,7 @@ router_input(uint8_t origin)
       else 
 	{
 	  /* Unknown network, use default route, i.e. ethernet */
-	  dest = STACK_MAIN;	/* XXX or OpenVPN? */
+	  dest = STACK_ENC;	/* XXX or OpenVPN? */
 	}
 
       if (origin == dest)

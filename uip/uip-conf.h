@@ -174,7 +174,7 @@ typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 */
 
 enum {
-  STACK_MAIN,
+  STACK_ENC,
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_RFM12,
 #endif

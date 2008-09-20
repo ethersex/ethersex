@@ -456,7 +456,7 @@ uip_init(void)
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
 #if UIP_MULTI_STACK
-    uip_conns[c].stack = STACK_MAIN;
+    uip_conns[c].stack = STACK_ENC;
 #endif
   }
 #endif /* UIP_TCP */
@@ -468,7 +468,7 @@ uip_init(void)
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
     uip_udp_conns[c].lport = 0;
 #if UIP_MULTI_STACK
-    uip_udp_conns[c].stack = STACK_MAIN;
+    uip_udp_conns[c].stack = STACK_ENC;
 #endif
   }
 #endif /* UIP_UDP */

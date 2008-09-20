@@ -41,7 +41,7 @@ rfm12_process (void)
        thusly don't push to the stack. */
     /* FIXME This way we cannot accept rfm12_raw requests from anything
        but ethernet.  This shalt be improved somewhen. */
-    uip_stack_set_active (STACK_MAIN);
+    uip_stack_set_active (STACK_ENC);
     memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN, rfm12_data, uip_len);
     uip_slen = uip_len;
     uip_udp_conn = rfm12_raw_conn;

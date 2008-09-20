@@ -46,7 +46,7 @@ zbus_process(void)
     /* zbus raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
     uip_udp_conn = zbus_raw_conn;
-    uip_stack_set_active (STACK_MAIN);
+    uip_stack_set_active (STACK_ENC);
     memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
 	     uip_buf + ZBUS_BRIDGE_OFFSET, recv->len);
     uip_slen = recv->len;

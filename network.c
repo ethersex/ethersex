@@ -67,7 +67,7 @@ void process_packet(void);
 
 void network_init(void)
 /* {{{ */ {
-    uip_stack_set_active(STACK_MAIN);
+    uip_stack_set_active(STACK_ENC);
     uip_init();
 
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
@@ -92,7 +92,7 @@ void network_init(void)
 #endif
 #endif /* ENC28J60_SUPPORT */
 
-    uip_stack_set_active(STACK_MAIN);
+    uip_stack_set_active(STACK_ENC);
 
 #if !defined(BOOTLOADER_SUPPORT)
     uip_ipaddr_t ip;
@@ -473,7 +473,7 @@ void process_packet(void)
             uip_arp_ipin();
 #       endif /* !UIP_CONF_IPV6 */
 
-            router_input(STACK_MAIN);
+            router_input(STACK_ENC);
 
             /* if there is a packet to send, send it now */
             if (uip_len > 0) {
