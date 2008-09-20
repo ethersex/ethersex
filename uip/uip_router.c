@@ -48,7 +48,11 @@
     dest = stack;
 #endif
 
+#ifdef ENC28J60_SUPPORT
 #define enc_test(func)              func(enc_stack, STACK_ENC)
+#else
+#define enc_test(func)              if(0);
+#endif
 
 #ifdef RFM12_SUPPORT
 #define rfm12_test(func)            func(rfm12_stack, STACK_RFM12)
@@ -103,7 +107,7 @@ router_input(uint8_t origin)
       else 
 	{
 	  /* Unknown network, use default route, i.e. ethernet */
-	  dest = STACK_ENC;	/* XXX or OpenVPN? */
+	  dest = 0;		/* XXX or OpenVPN? */
 	}
 
       if (origin == dest)

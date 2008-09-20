@@ -135,7 +135,6 @@ typedef unsigned short uip_stats_t;
 
 #elif defined(RFM12_SUPPORT)	  /* cf. zbus */
 #  define __LLH_LEN              RFM12_LLH_LEN
-#  define RFM12_BRIDGE_OFFSET    0
 
 #elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
 #  define __LLH_LEN  0
@@ -195,12 +194,11 @@ enum {
 #if UIP_MULTI_STACK
 #  include "uip_multi.h"
 
-#else
-#  ifdef STACK_NAME
-#    undef STACK_NAME
-#    define STACK_NAME(a) uip_ ## a /* keep common function names, since no \
-	  			       multi-stack support.*/
-#  endif
+#else /* not UIP_MULTI_STACK */
+
+#define RFM12_BRIDGE_OFFSET  0
+#define ZBUS_BRIDGE_OFFSET   0
+#define USB_BRIDGE_OFFSET    0
 
 #  define uip_stack_get_active()   do { } while(0)
 #  define uip_stack_set_active(i)  do { } while(0)

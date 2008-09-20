@@ -67,7 +67,7 @@ void process_packet(void);
 
 void network_init(void)
 /* {{{ */ {
-    uip_stack_set_active(STACK_ENC);
+    uip_stack_set_active(0);
     uip_init();
 
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
@@ -92,7 +92,7 @@ void network_init(void)
 #endif
 #endif /* ENC28J60_SUPPORT */
 
-    uip_stack_set_active(STACK_ENC);
+    uip_stack_set_active(0);
 
 #if !defined(BOOTLOADER_SUPPORT)
     uip_ipaddr_t ip;
@@ -258,13 +258,13 @@ void network_init(void)
 #   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */
 
 
-#   else /* not ENC28J60_SUPPORT */
+#   elif !defined(ROUTER_SUPPORT) /* and not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
     CONF_ETHERRAPE_IP;
     uip_sethostaddr(ip);
 
-#   endif /* not ENC28J60_SUPPORT */
+#   endif /* not ENC28J60_SUPPORT and not ROUTER_SUPPORT */
 
     network_init_apps();
 

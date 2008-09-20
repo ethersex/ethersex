@@ -303,7 +303,7 @@ else
   if [ "$UIP_SUPPORT" = "y" ]; then
     mainmenu_option next_comment
     comment "RFM12 FSK transmitter"
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    if [ "$ROUTER_SUPPORT" = "y" ]; then
       bool "RFM12 support" RFM12_SUPPORT
     fi
   
@@ -315,7 +315,7 @@ else
         hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
       fi
   
-      if [ "$ENC28J60_SUPPORT" = "y" ]; then
+      if [ "$ROUTER_SUPPORT" = "y" ]; then
         if [ "$IPV6_SUPPORT" = "y" ]; then
   	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
   	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
@@ -407,7 +407,7 @@ else
 	usart_process_choice YPORT
       fi
     fi
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    if [ "$ROUTER_SUPPORT" = "y" ]; then
       if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
         bool "ZBus Support" ZBUS_SUPPORT 
         if [ "$ZBUS_SUPPORT" = y ]; then
@@ -446,7 +446,7 @@ else
       hex "Skipjack Key" CONF_ZBUS_KEY "23234242555523234242"
     fi
 
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    if [ "$ROUTER_SUPPORT" = "y" ]; then
       if [ "$IPV6_SUPPORT" = "y" ]; then
 	ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
 	int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64
@@ -512,6 +512,15 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   bool "USB Softwarestack support (obdev)" USB_SUPPORT
   dep_bool "  ECMD USB interface" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
   dep_bool "  Networking over USB" USB_NET_SUPPORT $USB_SUPPORT
+  if [ "$ROUTER_SUPPORT" = "y" -a "$USB_NET_SUPPORT" = "y" ]; then
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "IP address" CONF_USB_NET_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+      int "IP prefix length" CONF_USB_NET_IP6_PREFIX_LEN 64
+    else
+      ipv4 "IP address" CONF_USB_NET_IP "192.168.5.1"
+      ipv4 "Netmask" CONF_USB_NET_IP4_NETMASK "255.255.255.0"
+    fi
+  fi
 
   dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
   endmenu
