@@ -42,6 +42,7 @@
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
 #include "uip/uip_rfm12.h"
+#include "uip/uip_router.h"
 #include "uip/uip_zbus.h"
 #include "tftp/tftp.h"
 
