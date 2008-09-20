@@ -1024,23 +1024,6 @@ uip_process(u8_t flag)
   }
 #endif /* UIP_CONF_IPV6 */
 
-#if defined(ICMP_SUPPORT) && !defined(TEENSY_SUPPORT)
-  if(uip_ipaddr_cmp(uip_hostaddr, all_zeroes_addr)) {
-    /* If we are configured to use ping IP address configuration and
-       hasn't been assigned an IP address yet, we accept all ICMP
-       packets. */
-#if UIP_PINGADDRCONF && !UIP_CONF_IPV6
-    if(BUF->proto == UIP_PROTO_ICMP) {
-      UIP_LOG("ip: possible ping config packet received.");
-      goto icmp_input;
-    } else {
-      UIP_LOG("ip: packet dropped since no address assigned.");
-      goto drop;
-    }
-#endif /* UIP_PINGADDRCONF */
-  } 
-  else
-#endif /* ICMP_SUPPORT && !TEENSY_SUPPORT */
   {
     /* If IP broadcast support is configured, we check for a broadcast
        UDP packet, which may be destined to us. */
@@ -1120,9 +1103,6 @@ ip_check_end:
     goto drop;
   }
 
-#if UIP_PINGADDRCONF
- icmp_input:
-#endif /* UIP_PINGADDRCONF */
   UIP_STAT(++uip_stat.icmp.recv);
 
   /* ICMP echo (i.e., ping) processing. This is simple, we only change
@@ -1134,16 +1114,6 @@ ip_check_end:
     UIP_LOG("icmp: not icmp echo.");
     goto drop;
   }
-
-  /* If we are configured to use ping IP address assignment, we use
-     the destination IP address of this ping packet and assign it to
-     ourself. */
-#if UIP_PINGADDRCONF
-  if((uip_hostaddr[0] | uip_hostaddr[1]) == 0) {
-    uip_hostaddr[0] = BUF->destipaddr[0];
-    uip_hostaddr[1] = BUF->destipaddr[1];
-  }
-#endif /* UIP_PINGADDRCONF */
 
   ICMPBUF->type = ICMP_ECHO_REPLY;
 

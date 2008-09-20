@@ -86,24 +86,6 @@
  * All of these should be changed to suit your project.
 */
 
-/**
- * Ping IP address asignment.
- *
- * uIP uses a "ping" packets for setting its own IP address if this
- * option is set. If so, uIP will start with an empty IP address and
- * the destination IP address of the first incoming "ping" (ICMP echo)
- * packet will be used for setting the hosts IP address.
- *
- * \note This works only if UIP_FIXEDADDR is 0.
- *
- * \hideinitializer
- */
-#ifdef UIP_CONF_PINGADDRCONF
-#define UIP_PINGADDRCONF UIP_CONF_PINGADDRCONF
-#else /* UIP_CONF_PINGADDRCONF */
-#define UIP_PINGADDRCONF 0
-#endif /* UIP_CONF_PINGADDRCONF */
-
 
 /**
  * Specifies if the uIP ARP module should be compiled with a fixed
