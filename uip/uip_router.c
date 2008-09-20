@@ -78,11 +78,10 @@ router_input(uint8_t origin)
   /* Input */
   chain (input_test)		/* Check if packet is addressed to one stack's
 				   configured host address. */
-#if UIP_CONF_IPV6 
+#if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
   else if (BUF->destipaddr[0] == HTONS(0xff02))
     {
-      /* Packet is addressed to either the link-local address of the ethernet
-	 stack or to one of the multicast addresses. */ 
+      /* Packet is addressed to one of the multicast addresses. */
       uip_stack_set_active (STACK_ENC);
       uip_input ();
     }
