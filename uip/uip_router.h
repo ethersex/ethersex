@@ -29,7 +29,16 @@
 #if defined(ROUTER_SUPPORT) && UIP_MULTI_STACK
 void router_input(uint8_t stack);
 
+/* Route a packet via STACK.  Returns 1 if the packet has been replaced
+   by an arp request.  0 otherwise. */
+uint8_t router_output_to (uint8_t stack);
 
+/* Find a stack suitable to transmit the packet in uip_buf. */
+uint8_t router_find_destination (void);
+
+/* Find a suitable stack to transmit the packet in uip_buf and finally
+   send it. */
+#define router_output() router_output_to(router_find_destination())
 
 #else
 
@@ -40,6 +49,21 @@ void router_input(uint8_t stack);
     uip_stack_set_active(stack);		\
     uip_input();				\
   } while(0)
+
+
+#if defined(RFM12_SUPPORT)
+#  include "../rfm12/rfm12.h"
+#  define router_output () (rfm12_txstart (uip_len), 0)
+
+#elif defined(ZBUS_SUPPORT)
+#  include "../zbus/zbus.h"
+#  define router_output () (zbus_transmit_packet(), 0)
+
+#elif defined(USB_NET_SUPPORT)
+#  include "../usb/usb_net.h"
+#  define router_output () (usb_net_txstart(), 0)
+
+#endif
 
 #endif	/* ROUTER_SUPPORT && UIP_MULTI_STACK */
 

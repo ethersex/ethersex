@@ -57,7 +57,7 @@ udp_echo_net_main(void)
 
     uip_slen = uip_len;
     uip_process(UIP_UDP_SEND_CONN); 
-    fill_llh_and_transmit();
+    router_output();
 
     uip_slen = 0;
 }

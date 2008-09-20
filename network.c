@@ -472,18 +472,9 @@ void process_packet(void)
 
             router_input(STACK_ENC);
 
-            /* if there is a packet to send, send it now */
-            if (uip_len > 0) {
-
-                /* check if an arp request has to be send */
-#               if UIP_CONF_IPV6
-            	uip_neighbor_out();
-#               else
-                uip_arp_out();
-#		endif
-
-                transmit_packet();
-            }
+	    /* if there is a packet to send, send it now */
+	    if (uip_len > 0)
+		router_output();
 
             break;
 #       ifdef DEBUG_UNKNOWN_PACKETS

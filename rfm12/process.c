@@ -47,7 +47,7 @@ rfm12_process (void)
     uip_slen = uip_len;
     uip_udp_conn = rfm12_raw_conn;
     uip_process(UIP_UDP_SEND_CONN);
-    fill_llh_and_transmit();
+    router_output ();
 
     uip_buf_unlock ();
     rfm12_rxstart ();
@@ -70,6 +70,6 @@ rfm12_process (void)
     }
 
   /* Application has generated output, send it out. */
-  fill_llh_and_transmit ();
+  router_output ();
 }
 

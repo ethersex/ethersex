@@ -207,7 +207,7 @@ tftp_handle_packet(void)
 	    /* there's still data that has to be sent,
 	       push it immediately. */
 	    uip_process(UIP_UDP_SEND_CONN);
-	    fill_llh_and_transmit();
+	    router_output();
 
 	    uip_slen = 0;	/* don't send twice. */
 	}

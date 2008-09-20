@@ -69,7 +69,7 @@ void uecmd_net_main() {
 
     ((char *)uip_appdata)[uip_slen - 1] = '\n';
     uip_process(UIP_UDP_SEND_CONN); 
-    fill_llh_and_transmit();
+    router_output();
 
     uip_slen = 0;
   }

@@ -52,7 +52,7 @@ zbus_process(void)
 	     uip_buf + ZBUS_BRIDGE_OFFSET, recv->len);
     uip_slen = recv->len;
     uip_process(UIP_UDP_SEND_CONN);
-    fill_llh_and_transmit();
+    router_output ();
 
     recv->len = 0;		/* receive buffer may be overriden
                                    from now on. */
@@ -82,7 +82,7 @@ zbus_process(void)
   }
 
   /* send buffer out */
-  fill_llh_and_transmit ();
+  router_output ();
 
   uip_len = 0;
 }

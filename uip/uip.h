@@ -1596,19 +1596,6 @@ STACK_PROTOTYPES(zbus_stack)
 #endif
 
 
-#ifdef ENC28J60_SUPPORT
-extern uint8_t fill_llh_and_transmit(void);
-#elif defined(RFM12_SUPPORT)
-#  include "../rfm12/rfm12.h"
-extern uint8_t fill_llh_and_transmit(void);
-#elif defined(ZBUS_SUPPORT)
-#  include "../zbus/zbus.h"
-#  define fill_llh_and_transmit() (zbus_transmit_packet(), 0)
-#elif defined(USB_NET_SUPPORT)
-#  define fill_llh_and_transmit() (usb_net_txstart(), 0)
-#endif
-
-
 extern volatile uint8_t _uip_buf_lock;
 
 #include <avr/io.h>

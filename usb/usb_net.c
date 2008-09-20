@@ -29,6 +29,7 @@
 #include <avr/pgmspace.h>
 #include "../bit-macros.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "usbdrv/usbdrv.h"
 #include "../ecmd_parser/ecmd.h"
 #include "requests.h"
@@ -108,7 +109,7 @@ usb_net_periodic(void)
 				   that has to be sent back. */
 
     else
-      fill_llh_and_transmit ();	/* Application has generated output,
+      router_output ();         /* Application has generated output,
 				   send it out. */
   }
 }

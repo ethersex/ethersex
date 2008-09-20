@@ -30,6 +30,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "uip/uip_router.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "control6/control6.h"
 #include "fs20/fs20.h"
@@ -143,7 +144,7 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0)
-		    fill_llh_and_transmit();
+		    router_output();
             }
 #           endif /* UIP_TCP == 1 */
 
@@ -155,7 +156,7 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0)
-		    fill_llh_and_transmit();
+		    router_output();
             }
 #           endif
         }
@@ -189,7 +190,7 @@ void timer_process(void)
 #           endif
 #           ifdef UIP_SUPPORT
             if (uip_len)
-              fill_llh_and_transmit();
+              router_output();
 #           endif
         }
 

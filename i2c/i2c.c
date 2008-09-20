@@ -242,7 +242,7 @@ void i2c_core_newdata(void)
     STATSI2C.timeout = 25;
   }
   uip_process(UIP_UDP_SEND_CONN);
-  fill_llh_and_transmit();
+  router_output();
   uip_slen = 0;
   if(resetconnection)
     reset_connection(uip_udp_conn);

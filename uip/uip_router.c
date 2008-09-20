@@ -24,7 +24,16 @@
 #include "uip_router.h"
 
 #ifdef ROUTER_SUPPORT
+
 #include "uip.h"
+#include "uip_arp.h"
+#include "uip_neighbor.h"
+
+#include "../ipv6.h"
+#include "../network.h"
+#include "../rfm12/rfm12.h"
+#include "../zbus/zbus.h"
+#include "../usb/usb_net.h"
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
@@ -101,14 +110,7 @@ router_input(uint8_t origin)
 #ifdef IP_FORWARDING_SUPPORT
       /* Packet not addressed to us, check destination address to where
 	 the packet has to be routed. */
-      uint8_t dest;
-
-      chain (forward_test)
-      else 
-	{
-	  /* Unknown network, use default route, i.e. ethernet */
-	  dest = 0;		/* XXX or OpenVPN? */
-	}
+      uint8_t dest = router_find_destination ();
 
       if (origin == dest)
 	goto drop;
@@ -128,15 +130,14 @@ router_input(uint8_t origin)
 	BUF->ipchksum += HTONS(1 << 8);
 #endif
 
-      /* For fill_llh_and_transmit uip_len must be set to the number of
+      /* For router_output_to uip_len must be set to the number of
 	 bytes to send, excluding the LLH (since it'll generate the needed
 	 one itself).  However uip_len is currently set to the number of
 	 received bytes, i.e. including the LLH. */
       uip_len -= UIP_LLH_LEN;
 
       /* TODO check MTU and send suitable ICMP message if needed. */
-      uip_stack_set_active (dest);
-      fill_llh_and_transmit ();
+      router_output_to (dest);
 
 #endif /* IP_FORWARDING_SUPPORT */
 
@@ -151,6 +152,70 @@ router_input(uint8_t origin)
 }
 
 
+
+uint8_t
+router_find_destination (void)
+{
+  uint8_t dest;
+
+  chain (forward_test)
+  else
+    {
+      /* Unknown network, use default route, i.e. ethernet */
+      dest = 0;			/* XXX or OpenVPN? */
+    }
+
+  return dest;
+}
+
+
+uint8_t
+router_output_to (uint8_t dest)
+{
+  uint8_t retval = 0;
+  uip_stack_set_active (dest);
+
+  switch (dest)
+    {
+
+#ifdef ENC28J60_SUPPORT
+    case STACK_ENC:
+
+#if UIP_CONF_IPV6
+      retval = uip_neighbor_out();
+#else
+      retval = uip_arp_out();
+#endif
+
+      transmit_packet();
+      break;
+#endif	/* ENC28J60_SUPPORT */
+
+
+#ifdef RFM12_SUPPORT
+    case STACK_RFM12:
+      rfm12_txstart (uip_len);
+      break;
+#endif	/* RFM12_SUPPORT */
+
+
+#ifdef ZBUS_SUPPORT
+    case STACK_ZBUS:
+      zbus_send_data (uip_buf + ZBUS_BRIDGE_OFFSET, uip_len);
+      break;
+#endif	/* ZBUS_SUPPORT */
+
+
+#ifdef USB_NET_SUPPORT
+    case STACK_USB:
+      usb_net_txstart ();
+      break;
+#endif	/* USB_NET_SUPPORT */
+
+    }
+
+  return retval;
+}
 
 
 #endif	/* ROUTER_SUPPORT */

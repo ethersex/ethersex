@@ -125,7 +125,7 @@ syslog_flush (void)
 
   uip_udp_conn = syslog_conn;
   uip_process (UIP_UDP_SEND_CONN);
-  fill_llh_and_transmit ();
+  router_output ();
 
   uip_slen = 0;
 }

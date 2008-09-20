@@ -101,7 +101,7 @@ ecmd_sender_main(void) {
     uip_udp_conn = ecmd_conn;
 
     uip_process(UIP_UDP_SEND_CONN);
-    fill_llh_and_transmit();
+    router_output();
   }
 }
 
