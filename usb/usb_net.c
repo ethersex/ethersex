@@ -59,7 +59,7 @@ usb_net_setup(uint8_t  data[8])
     usb_rq_len = rq->wValue.word;
   }
   else if (usb_packet_ready) {
-    usbMsgPtr = uip_buf;
+    usbMsgPtr = uip_buf + USB_BRIDGE_OFFSET;
     return uip_len;
   }
   else
@@ -79,15 +79,7 @@ usb_net_read_finished (void)
 uint8_t
 usb_net_write(uint8_t *data, uint8_t len)
 {
-  // FIXME
-#if 0
-  if ((usb_rq_index + len) >) {
-    len = ECMD_USB_BUFFER_LEN + 1 - usb_rq_index;
-    data[ECMD_USB_BUFFER_LEN] = 0;
-  }
-#endif
-
-  memcpy(((uint8_t *) uip_buf ) + usb_rq_index, data, len);
+  memcpy(uip_buf + USB_BRIDGE_OFFSET + usb_rq_index, data, len);
   usb_rq_index += len;
 
   if (usb_rq_index >= usb_rq_len) {
