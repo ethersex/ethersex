@@ -50,12 +50,6 @@
 
 #define enc_test(func)              func(mainstack, STACK_ENC)
 
-#ifdef OPENVPN_SUPPORT
-#define openvpn_test(func)          func(openvpn, STACK_OPENVPN)
-#else
-#define openvpn_test(func)          if(0);
-#endif
-
 #ifdef RFM12_SUPPORT
 #define rfm12_test(func)            func(rfm12_stack, STACK_RFM12)
 #else
@@ -71,7 +65,6 @@
 
 #define chain(func)				\
   enc_test (func)				\
-  else openvpn_test (func)			\
   else rfm12_test (func)			\
   else zbus_test (func)
 
@@ -80,7 +73,7 @@ void
 router_input(uint8_t origin)
 {
   /* Input */
-  chain (input_test)		/* Check if packet is address to one stack's
+  chain (input_test)		/* Check if packet is addressed to one stack's
 				   configured host address. */
 #if UIP_CONF_IPV6 
   else if (BUF->destipaddr[0] == HTONS(0xff02)
