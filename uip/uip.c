@@ -978,7 +978,6 @@ ip_check_end:
   UIP_STAT(++uip_stat.icmp.recv);
 
 #ifdef ENC28J60_SUPPORT
-#ifndef OPENVPN_INNER
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
@@ -1021,7 +1020,6 @@ ip_check_end:
 		       (struct uip_neighbor_addr *) &(ICMPBUF->options[2]));
     }
   } else 
-#endif /* not OPENVPN_INNER */
 #endif /* ENC28J60_SUPPORT */
 
   if(ICMPBUF->type == ICMP6_ECHO) {
@@ -1212,7 +1210,6 @@ ip_check_end:
   c = BUF->seqno[1];
   BUF->seqno[1] = BUF->ackno[1];
   BUF->ackno[1] = c;
-  
   c = BUF->seqno[0];
   BUF->seqno[0] = BUF->ackno[0];
   BUF->ackno[0] = c;
