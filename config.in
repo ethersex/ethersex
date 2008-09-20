@@ -52,6 +52,8 @@ if [ "$CONFIG_NORMAL" = "y" ]; then
   define_bool TEENSY_SUPPORT n
   define_bool ENC28J60_SUPPORT y
   define_bool UIP_SUPPORT y
+  define_bool ROUTER_SUPPORT y
+  define_bool UIP_MULTI_STACK y
 fi
 
 if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
@@ -225,10 +227,6 @@ if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
   if [ "$SKIPJACK_SUPPORT" = "y" ]; then
     comment "Crypto configuration"
     hex "TFTP Skipjack key" CONF_TFTP_KEY "23234242555523234242"
-  fi
-
-  if [ "$CONFIG_NORMAL" = "y" ]; then
-    bool "IP Router" ROUTER_SUPPORT
   fi
 
   endmenu

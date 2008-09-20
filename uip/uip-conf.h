@@ -145,17 +145,9 @@ typedef unsigned short uip_stats_t;
 #endif
 
 
-#if defined(OPENVPN_SUPPORT) \
-  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))\
-  || (defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT))
-
-#  define UIP_MULTI_STACK        1
-#else
-#  define UIP_MULTI_STACK        0
+#ifndef UIP_MULTI_STACK
 #  define UIP_CONF_LLH_LEN       __LLH_LEN
-
 extern u16_t upper_layer_chksum(u8_t);
-
 #endif /* not UIP_MULTI_STACK */
 
 
