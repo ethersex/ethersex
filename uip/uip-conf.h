@@ -174,14 +174,16 @@ typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 */
 
 enum {
+#if defined(ENC28J60_SUPPORT)
   STACK_ENC,
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#endif
+#if defined(RFM12_SUPPORT)
   STACK_RFM12,
 #endif
-#if defined(USB_NET_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(USB_NET_SUPPORT)
   STACK_USB,
 #endif
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(ZBUS_SUPPORT)
   STACK_ZBUS,
 #endif
 
