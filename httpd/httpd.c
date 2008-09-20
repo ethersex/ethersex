@@ -2,6 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -235,6 +236,8 @@ auth_success:
         PSOCK_CLOSE_EXIT(&state->in);
     }
 #endif
+
+#ifdef DATAFLASH_SUPPORT
     else {
         strncpy(state->name, state->tmp_buffer, sizeof(state->name));
         if (strlen(state->tmp_buffer) >= sizeof(state->name))
@@ -290,13 +293,22 @@ auth_success:
         }
     }
 
-#if 0
-    PSOCK_SEND_STR(&state->in, "Hello. What is your name?\n");
-    PSOCK_READTO(&state->in, '\n');
-    strncpy(state->name, state->buffer, sizeof(state->name));
-    PSOCK_SEND_STR(&state->in, "Hello ");
-    PSOCK_SEND_STR(&state->in, state->name);
+#else /* not DATAFLASH_SUPPORT */
+    /* There's no dataflash support compiled in and the request hasn't
+       been handled before.  Therefore just send a 404 reply. */
+
+    free(state->tmp_buffer);
+
+    /* send headers */
+    PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_404);
+    PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+    PSOCK_GENERATOR_SEND(&state->in, send_length_P, httpd_body_404);
+
+    /* send body text */
+    PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_404);
+
 #endif
+
     PSOCK_CLOSE(&state->in);
 
     PSOCK_END(&state->in);
@@ -328,6 +340,8 @@ unsigned short send_length_P(void *data)
 
 } /* }}} */
 
+
+#ifdef DATAFLASH_SUPPORT
 unsigned short send_length_f(void *data)
 /* {{{ */ {
 
@@ -337,12 +351,17 @@ unsigned short send_length_f(void *data)
     return strlen(uip_appdata);
 
 } /* }}} */
+#endif /* DATAFLASH_SUPPORT */
 
+
+#ifdef DATAFLASH_SUPPORT
 unsigned short send_file_f(void *data)
 /* {{{ */ {
 
-    struct httpd_connection_state_t *state = (struct httpd_connection_state_t *)data;
-    fs_size_t len = fs_read(&fs, state->inode, uip_appdata, state->offset, uip_mss());
+    struct httpd_connection_state_t *state =
+      (struct httpd_connection_state_t *)data;
+    fs_size_t len = fs_read(&fs, state->inode, uip_appdata, state->offset,
+			    uip_mss());
 
 #ifdef DEBUG_HTTPD
     uart_puts_P("httpd: mss is 0x");
@@ -363,6 +382,8 @@ unsigned short send_file_f(void *data)
     return len;
 
 } /* }}} */
+#endif /* DATAFLASH_SUPPORT */
+
 
 void httpd_main(void)
 /* {{{ */ {
