@@ -107,9 +107,9 @@ usb_net_periodic(void)
 {
   if (usb_rq_len && (usb_rq_index >= usb_rq_len)) {
     /* A packet arrived, put it into uip */
-    uip_len = usb_rq_len;
+    uip_len = usb_rq_len + UIP_LLH_LEN;
     usb_rq_len = 0;
-    uip_input();
+    router_input (STACK_USB);
 
     if (uip_len == 0)
       uip_buf_unlock ();	/* The stack didn't generate any data
