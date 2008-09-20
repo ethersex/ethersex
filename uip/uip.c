@@ -599,139 +599,8 @@ uip_listen(u16_t port, uip_conn_callback_t callback)
   }
 }
 #endif /* UIP_TCP */
-/*---------------------------------------------------------------------------*/
-/* XXX: IP fragment reassembly: not well-tested. */
 
-#if UIP_REASSEMBLY && !UIP_CONF_IPV6
-#define UIP_REASS_BUFSIZE (UIP_BUFSIZE - UIP_LLH_LEN)
-static u8_t uip_reassbuf[UIP_REASS_BUFSIZE];
-static u8_t uip_reassbitmap[UIP_REASS_BUFSIZE / (8 * 8)];
-static const u8_t bitmap_bits[8] = {0xff, 0x7f, 0x3f, 0x1f,
-				    0x0f, 0x07, 0x03, 0x01};
-static u16_t uip_reasslen;
-static u8_t uip_reassflags;
-#define UIP_REASS_FLAG_LASTFRAG 0x01
-static u8_t uip_reasstmr;
 
-#define IP_MF   0x20
-
-static u8_t
-uip_reass(void)
-{
-  u16_t offset, len;
-  u16_t i;
-
-  /* If ip_reasstmr is zero, no packet is present in the buffer, so we
-     write the IP header of the fragment into the reassembly
-     buffer. The timer is updated with the maximum age. */
-  if(uip_reasstmr == 0) {
-    memcpy(uip_reassbuf, &BUF->vhl, UIP_IPH_LEN);
-    uip_reasstmr = UIP_REASS_MAXAGE;
-    uip_reassflags = 0;
-    /* Clear the bitmap. */
-    memset(uip_reassbitmap, 0, sizeof(uip_reassbitmap));
-  }
-
-  /* Check if the incoming fragment matches the one currently present
-     in the reasembly buffer. If so, we proceed with copying the
-     fragment into the buffer. */
-  if(BUF->srcipaddr[0] == FBUF->srcipaddr[0] &&
-     BUF->srcipaddr[1] == FBUF->srcipaddr[1] &&
-     BUF->destipaddr[0] == FBUF->destipaddr[0] &&
-     BUF->destipaddr[1] == FBUF->destipaddr[1] &&
-     BUF->ipid[0] == FBUF->ipid[0] &&
-     BUF->ipid[1] == FBUF->ipid[1]) {
-
-    len = (BUF->len[0] << 8) + BUF->len[1] - (BUF->vhl & 0x0f) * 4;
-    offset = (((BUF->ipoffset[0] & 0x3f) << 8) + BUF->ipoffset[1]) * 8;
-
-    /* If the offset or the offset + fragment length overflows the
-       reassembly buffer, we discard the entire packet. */
-    if(offset > UIP_REASS_BUFSIZE ||
-       offset + len > UIP_REASS_BUFSIZE) {
-      uip_reasstmr = 0;
-      goto nullreturn;
-    }
-
-    /* Copy the fragment into the reassembly buffer, at the right
-       offset. */
-    memcpy(&uip_reassbuf[UIP_IPH_LEN + offset],
-	   (char *)BUF + (int)((BUF->vhl & 0x0f) * 4),
-	   len);
-      
-    /* Update the bitmap. */
-    if(offset / (8 * 8) == (offset + len) / (8 * 8)) {
-      /* If the two endpoints are in the same byte, we only update
-	 that byte. */
-	     
-      uip_reassbitmap[offset / (8 * 8)] |=
-	     bitmap_bits[(offset / 8 ) & 7] &
-	     ~bitmap_bits[((offset + len) / 8 ) & 7];
-    } else {
-      /* If the two endpoints are in different bytes, we update the
-	 bytes in the endpoints and fill the stuff inbetween with
-	 0xff. */
-      uip_reassbitmap[offset / (8 * 8)] |=
-	bitmap_bits[(offset / 8 ) & 7];
-      for(i = 1 + offset / (8 * 8); i < (offset + len) / (8 * 8); ++i) {
-	uip_reassbitmap[i] = 0xff;
-      }
-      uip_reassbitmap[(offset + len) / (8 * 8)] |=
-	~bitmap_bits[((offset + len) / 8 ) & 7];
-    }
-    
-    /* If this fragment has the More Fragments flag set to zero, we
-       know that this is the last fragment, so we can calculate the
-       size of the entire packet. We also set the
-       IP_REASS_FLAG_LASTFRAG flag to indicate that we have received
-       the final fragment. */
-
-    if((BUF->ipoffset[0] & IP_MF) == 0) {
-      uip_reassflags |= UIP_REASS_FLAG_LASTFRAG;
-      uip_reasslen = offset + len;
-    }
-    
-    /* Finally, we check if we have a full packet in the buffer. We do
-       this by checking if we have the last fragment and if all bits
-       in the bitmap are set. */
-    if(uip_reassflags & UIP_REASS_FLAG_LASTFRAG) {
-      /* Check all bytes up to and including all but the last byte in
-	 the bitmap. */
-      for(i = 0; i < uip_reasslen / (8 * 8) - 1; ++i) {
-	if(uip_reassbitmap[i] != 0xff) {
-	  goto nullreturn;
-	}
-      }
-      /* Check the last byte in the bitmap. It should contain just the
-	 right amount of bits. */
-      if(uip_reassbitmap[uip_reasslen / (8 * 8)] !=
-	 (u8_t)~bitmap_bits[uip_reasslen / 8 & 7]) {
-	goto nullreturn;
-      }
-
-      /* If we have come this far, we have a full packet in the
-	 buffer, so we allocate a pbuf and copy the packet into it. We
-	 also reset the timer. */
-      uip_reasstmr = 0;
-      memcpy(BUF, FBUF, uip_reasslen);
-
-      /* Pretend to be a "normal" (i.e., not fragmented) IP packet
-	 from now on. */
-      BUF->ipoffset[0] = BUF->ipoffset[1] = 0;
-      BUF->len[0] = uip_reasslen >> 8;
-      BUF->len[1] = uip_reasslen & 0xff;
-      BUF->ipchksum = 0;
-      BUF->ipchksum = ~(uip_ipchksum());
-
-      return uip_reasslen;
-    }
-  }
-
- nullreturn:
-  return 0;
-}
-#endif /* UIP_REASSEMBLY */
-/*---------------------------------------------------------------------------*/
 #if UIP_TCP
 static void
 uip_add_rcv_nxt(u16_t n)
@@ -808,11 +677,6 @@ uip_process(u8_t flag)
 
     /* Check if we were invoked because of the perodic timer fireing. */
   if(flag == UIP_TIMER) {
-#if UIP_REASSEMBLY
-    if(uip_reasstmr != 0) {
-      --uip_reasstmr;
-    }
-#endif /* UIP_REASSEMBLY */
     /* Increase the initial sequence number. */
     if(++iss[3] == 0) {
       if(++iss[2] == 0) {
@@ -987,17 +851,10 @@ uip_process(u8_t flag)
   /* Check the fragment flag. */
   if((BUF->ipoffset[0] & 0x3f) != 0 ||
      BUF->ipoffset[1] != 0) {
-#if UIP_REASSEMBLY
-    uip_len = uip_reass();
-    if(uip_len == 0) {
-      goto drop;
-    }
-#else /* UIP_REASSEMBLY */
     UIP_STAT(++uip_stat.ip.drop);
     UIP_STAT(++uip_stat.ip.fragerr);
     UIP_LOG("ip: fragment dropped.");
     goto drop;
-#endif /* UIP_REASSEMBLY */
   }
 #endif /* UIP_CONF_IPV6 */
 

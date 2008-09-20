@@ -83,28 +83,6 @@
  */
 #define UIP_TTL         64
 
-/**
- * Turn on support for IP packet reassembly.
- *
- * uIP supports reassembly of fragmented IP packets. This features
- * requires an additonal amount of RAM to hold the reassembly buffer
- * and the reassembly code size is approximately 700 bytes.  The
- * reassembly buffer is of the same size as the uip_buf buffer
- * (configured by UIP_BUFSIZE).
- *
- * \note IP packet reassembly is not heavily tested.
- *
- * \hideinitializer
- */
-#define UIP_REASSEMBLY 0
-
-/**
- * The maximum time an IP fragment should wait in the reassembly
- * buffer before it is dropped.
- *
- */
-#define UIP_REASS_MAXAGE 40
-
 /** @} */
 
 /*------------------------------------------------------------------------------*/
