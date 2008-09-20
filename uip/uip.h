@@ -1579,9 +1579,6 @@ struct uip_udpip_hdr {
 #define UIP_TCPIP_HLEN UIP_IPTCPH_LEN
 
 
-#if UIP_FIXEDADDR
-extern const uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
-#else /* UIP_FIXEDADDR */
 #if !UIP_MULTI_STACK
 extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
 extern u8_t uip_prefix_len;
@@ -1591,7 +1588,6 @@ extern u8_t uip_prefix_len;
 /* The link local IPv6 address */
 extern uip_ipaddr_t uip_lladdr;
 #endif /* UIP_CONF_IPV6 */
-#endif /* UIP_FIXEDADDR */
 
 extern const uip_ipaddr_t all_ones_addr;
 extern const uip_ipaddr_t all_zeroes_addr;

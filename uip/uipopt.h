@@ -87,17 +87,6 @@
 */
 
 /**
- * Determines if uIP should use a fixed IP address or not.
- *
- * If uIP should use a fixed IP address, the settings are set in the
- * uipopt.h file. If not, the macros uip_sethostaddr(),
- * uip_setdraddr() and uip_setnetmask() should be used instead.
- *
- * \hideinitializer
- */
-#define UIP_FIXEDADDR    0
-
-/**
  * Ping IP address asignment.
  *
  * uIP uses a "ping" packets for setting its own IP address if this
