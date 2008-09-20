@@ -183,9 +183,6 @@ typedef uip_ip4addr_t uip_ipaddr_t;
 
 enum {
   STACK_MAIN,
-#ifdef OPENVPN_SUPPORT
-  STACK_OPENVPN,
-#endif
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
   STACK_RFM12,
 #endif

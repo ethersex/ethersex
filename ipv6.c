@@ -45,12 +45,7 @@
 extern struct uip_eth_addr uip_ethaddr;
 
 /* Calculate ICMP6 Checksum, exported from uip/uip.c */
-#ifdef OPENVPN_SUPPORT
-extern u16_t openvpn_upper_layer_chksum(u8_t);
-#define uip_icmp6chksum() (openvpn_upper_layer_chksum(UIP_PROTO_ICMP6))
-#else /* !OPENVPN_SUPPORT */
 #define uip_icmp6chksum() (upper_layer_chksum(UIP_PROTO_ICMP6))
-#endif
 
 #ifdef BOOTLOADER_SUPPORT
 extern uint8_t bootload_delay;

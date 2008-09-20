@@ -177,15 +177,12 @@ void timer_process(void)
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
                second after boot */
-#           ifdef OPENVPN_SUPPORT		
-	    uip_stack_set_active(STACK_OPENVPN);
-#           endif
-#       ifndef IPV6_STATIC_SUPPORT
+#           ifndef IPV6_STATIC_SUPPORT
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
                 uip_router_send_solicitation();
                 transmit_packet();
             }
-#       endif
+#           endif
         }
 #       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
@@ -199,9 +196,6 @@ void timer_process(void)
             fs20_global.ws300.last_update++;
 #           endif
 
-#           ifdef OPENVPN_SUPPORT
-	    uip_stack_set_active(STACK_OPENVPN);
-#           endif
 #           if defined(CLOCK_SUPPORT) && ! defined(CLOCK_CRYSTAL_SUPPORT)
             clock_tick();
 #           endif

@@ -80,7 +80,6 @@ void network_init(void)
 #endif
 
 #ifdef OPENVPN_SUPPORT
-    uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();
 #endif
 
@@ -439,11 +438,7 @@ void process_packet(void)
 
     uip_len = rpv.received_packet_size;
 
-#   ifdef OPENVPN_SUPPORT
-    uip_stack_set_active(STACK_OPENVPN);
-#   else
     uip_stack_set_active(STACK_MAIN);
-#   endif
 
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;

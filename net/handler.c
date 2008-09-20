@@ -116,11 +116,6 @@ void network_init_apps(void)
     udp_echo_net_init();
 #   endif
 
-#   ifdef OPENVPN_SUPPORT
-    /* possibly bind these to the outer part of OpenVPN stack system */
-    uip_stack_set_active(STACK_OPENVPN);
-#   endif
-
 #   ifdef BOOTP_SUPPORT
     bootp_net_init();
 #   endif

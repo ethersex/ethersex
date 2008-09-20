@@ -64,11 +64,6 @@ fill_llh_and_transmit(void)
    * ENC28J60 outbound processing ....
    */
 #ifdef ENC28J60_SUPPORT
-#ifdef OPENVPN_SUPPORT
-  if (uip_stack_get_active() == STACK_MAIN)
-    openvpn_process_out();
-  /* uip_stack_set_active(STACK_OPENVPN); */
-#endif
 
 #if UIP_CONF_IPV6
   uint8_t rv = uip_neighbor_out();
