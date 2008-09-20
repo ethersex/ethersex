@@ -201,6 +201,8 @@ if [ "$UIP_SUPPORT" = y ]; then
       ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
     fi
   fi
+
+  dep_bool 'IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
   
   endmenu
 fi

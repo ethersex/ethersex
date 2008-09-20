@@ -88,6 +88,7 @@ router_input(uint8_t origin)
 #endif	/* UIP_CONF_IPV6 */
   else
     {
+#ifdef IP_FORWARDING_SUPPORT
       /* Packet not addressed to us, check destination address to where
 	 the packet has to be routed. */
       uint8_t dest;
@@ -126,6 +127,9 @@ router_input(uint8_t origin)
       /* TODO check MTU and send suitable ICMP message if needed. */
       uip_stack_set_active (dest);
       fill_llh_and_transmit ();
+
+#endif /* IP_FORWARDING_SUPPORT */
+
       goto drop;
     }
 
