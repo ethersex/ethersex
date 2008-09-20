@@ -62,10 +62,16 @@
 #define zbus_test(func)             if(0);
 #endif
 
+#ifdef USB_NET_SUPPORT
+#define usb_net_test(func)          func(usb_stack, STACK_USB)
+#else
+#define usb_net_test(func)          if(0);
+#endif
 
 #define chain(func)				\
   enc_test (func)				\
   else rfm12_test (func)			\
+  else usb_net_test (func)			\
   else zbus_test (func)
 
 
