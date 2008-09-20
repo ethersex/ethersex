@@ -9,6 +9,7 @@ SRC = \
 	uip_neighbor.c \
 	uip_openvpn.c \
 	uip_rfm12.c \
+	uip_router.c \
 	uip_zbus.c
 
 ##############################################################################

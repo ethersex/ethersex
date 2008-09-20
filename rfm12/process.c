@@ -39,6 +39,8 @@ rfm12_process (void)
   if (rfm12_raw_conn->rport) {
     /* rfm12 raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
+    /* FIXME This way we cannot accept rfm12_raw requests from anything
+       but ethernet.  This shalt be improved somewhen. */
     uip_stack_set_active (STACK_MAIN);
     memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN, rfm12_data, uip_len);
     uip_slen = uip_len;
@@ -56,9 +58,7 @@ rfm12_process (void)
   uip_len = uip_len + RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN;
 #endif /* not ENC28J60_SUPPORT */
 
-  /* Push data into inner uIP stack. */
-  uip_stack_set_active (STACK_RFM12);
-  uip_input ();
+  router_input (STACK_RFM12);
 
   if (uip_len == 0)
     {

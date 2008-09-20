@@ -438,8 +438,6 @@ void process_packet(void)
 
     uip_len = rpv.received_packet_size;
 
-    uip_stack_set_active(STACK_MAIN);
-
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
     switch (HTONS(packet->type)) {
@@ -474,7 +472,7 @@ void process_packet(void)
             uip_arp_ipin();
 #       endif /* !UIP_CONF_IPV6 */
 
-            uip_input();
+            router_input(STACK_MAIN);
 
             /* if there is a packet to send, send it now */
             if (uip_len > 0) {

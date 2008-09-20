@@ -227,6 +227,10 @@ if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
     hex "TFTP Skipjack key" CONF_TFTP_KEY "23234242555523234242"
   fi
 
+  if [ "$CONFIG_NORMAL" = "y" ]; then
+    bool "IP Router" ROUTER_SUPPORT
+  fi
+
   endmenu
 else
 

@@ -61,25 +61,19 @@ zbus_process(void)
   }
 #endif
 
-  recv->len = 0;		/* receive buffer may be overriden
-				   from now on. */
-
-  /* Push data into inner uIP stack. */
-  uip_stack_set_active (STACK_ZBUS);
-  zbus_stack_process (UIP_DATA);
-
-#else
+#else  /* not ENC28J60_SUPPORT */
   /* We don't need to copy from recv->data, since ZBus already shares
      the input buffer.
 
      memcpy(uip_buf, recv->data, recv->len); */
   uip_len = recv->len;
   
+#endif
+
   recv->len = 0;		/* receive buffer may be overriden
 				   from now on. */
-    
-  uip_input();
-#endif
+
+  router_input (STACK_ZBUS);
 
   if (!uip_len) {
     zbus_rxstart ();
