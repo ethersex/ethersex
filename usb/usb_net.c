@@ -121,4 +121,22 @@ usb_net_periodic(void)
   }
 }
 
+void
+usb_net_init (void)
+{
+  uip_ipaddr_t ip;
+
+  uip_stack_set_active (STACK_USB);
+
+  CONF_USB_NET_IP;
+  uip_sethostaddr (ip);
+
+#ifdef IPV6_SUPPORT
+  uip_setprefixlen (CONF_USB_NET_IP6_PREFIX_LEN);
+#else
+  CONF_USB_NET_IP4_NETMASK;
+  uip_setnetmask (ip);
+#endif
+}
+
 #endif
