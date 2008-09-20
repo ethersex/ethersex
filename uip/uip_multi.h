@@ -145,37 +145,26 @@ extern struct uip_stack *uip_stack;
 
 #  if STACK_PRIMARY && !defined(OPENVPN_OUTER)
 #    define OPENVPN_INNER
-#    define UIP_CONF_LLH_LEN     OPENVPN_TOTAL_LLH_LEN
 #  endif
 #endif /* not OPENVPN_SUPPORT */
 
+#ifdef OPENVPN_SUPPORT
+#  define BASE_LLH_LEN  (OPENVPN_TOTAL_LLH_LEN)
+#else
+#  define BASE_LLH_LEN  14
+#endif
 
+#ifdef OPENVPN_OUTER
+#  define UIP_CONF_LLH_LEN  14
+#else
+#  define UIP_CONF_LLH_LEN  BASE_LLH_LEN
+#endif
 
 /* We have a one byte LLH on RFM12 however we might need to pass
    the packet to ethernet, therefore 14 is simpler. */
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
-#  ifdef OPENVPN_SUPPORT
-#    define RFM12_BRIDGE_OFFSET  (OPENVPN_TOTAL_LLH_LEN - RFM12_LLH_LEN)
-#  else
-#    define RFM12_BRIDGE_OFFSET  (14 - RFM12_LLH_LEN)
-#  endif
-#  ifdef RFM12_OUTER
-#    define UIP_CONF_LLH_LEN     (RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN)
-#  endif
-#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
-
-/* We don't have a LLH on ZBus however we might need to pass
-   the packet to ethernet, therefore 14 is simpler. */
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
-#  ifdef OPENVPN_SUPPORT
-#    define ZBUS_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
-#  else
-#    define ZBUS_BRIDGE_OFFSET  14
-#  endif
-#ifdef ZBUS_OUTER
-#  define UIP_CONF_LLH_LEN       ZBUS_BRIDGE_OFFSET
-#endif
-#endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */
+#define RFM12_BRIDGE_OFFSET  (BASE_LLH_LEN - RFM12_LLH_LEN)
+#define ZBUS_BRIDGE_OFFSET   (BASE_LLH_LEN)
+#define USB_BRIDGE_OFFSET    (BASE_LLH_LEN)
 
 
 #endif /* not UIP_MULTI_H */
