@@ -53,6 +53,9 @@ if [ "$CONFIG_NORMAL" = "y" ]; then
   define_bool UIP_SUPPORT y
   define_bool ROUTER_SUPPORT y
   define_bool UIP_MULTI_STACK y
+else
+  define_bool ROUTER_SUPPORT n
+  define_bool UIP_MULTI_STACK n
 fi
 
 if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
@@ -171,9 +174,19 @@ if [ "$UIP_SUPPORT" = y ]; then
   mainmenu_option next_comment
   comment "Network configuration"
   dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
-  dep_bool 'Static IP configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT $ENC28J60_SUPPORT
-  dep_bool 'Ethernet (ENC28J60) support' ENC28J60_SUPPORT $ROUTER_SUPPORT
-  
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
+  else
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      define_bool "IPV6_STATIC_SUPPORT" y
+    else
+      define_bool "IPV6_STATIC_SUPPORT" n
+    fi
+  fi
+  if [ "$ROUTER_SUPPORT" = "y" ]; then
+    bool 'Ethernet (ENC28J60) support' ENC28J60_SUPPORT
+  fi
+
   if [ "$ENC28J60_SUPPORT" = "y" ]; then
     mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
   fi
