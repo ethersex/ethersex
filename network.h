@@ -27,6 +27,8 @@
 #include "config.h"
 
 #include "uip/uip.h"
+#include "uip/uip_arp.h"
+#include "ipv6.h"
 
 /* prototypes */
 
@@ -38,5 +40,19 @@ void network_process(void);
 
 /* send a packet placed in the global buffer */
 void transmit_packet(void);
+
+static inline uint8_t enc28j60_txstart(void)
+{
+  uint8_t retval;
+
+#if UIP_CONF_IPV6
+  retval = uip_neighbor_out();
+#else
+  retval = uip_arp_out();
+#endif
+
+  transmit_packet();
+  return retval;
+}
 
 #endif

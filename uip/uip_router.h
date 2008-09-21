@@ -51,17 +51,21 @@ uint8_t router_find_destination (void);
   } while(0)
 
 
-#if defined(RFM12_SUPPORT)
+#if defined(ENC28J60_SUPPORT)
+#  include "../network.h"
+#  define router_output() enc28j60_txstart()
+
+#elif defined(RFM12_SUPPORT)
 #  include "../rfm12/rfm12.h"
-#  define router_output () (rfm12_txstart (uip_len), 0)
+#  define router_output() (rfm12_txstart (uip_len), 0)
 
 #elif defined(ZBUS_SUPPORT)
 #  include "../zbus/zbus.h"
-#  define router_output () (zbus_transmit_packet(), 0)
+#  define router_output() (zbus_transmit_packet(), 0)
 
 #elif defined(USB_NET_SUPPORT)
 #  include "../usb/usb_net.h"
-#  define router_output () (usb_net_txstart(), 0)
+#  define router_output() (usb_net_txstart(), 0)
 
 #endif
 

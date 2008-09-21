@@ -180,14 +180,7 @@ router_output_to (uint8_t dest)
 
 #ifdef ENC28J60_SUPPORT
     case STACK_ENC:
-
-#if UIP_CONF_IPV6
-      retval = uip_neighbor_out();
-#else
-      retval = uip_arp_out();
-#endif
-
-      transmit_packet();
+      enc28j60_txstart ();
       break;
 #endif	/* ENC28J60_SUPPORT */
 
