@@ -146,7 +146,6 @@ typedef unsigned short uip_stats_t;
 
 #ifndef UIP_MULTI_STACK
 #  define UIP_CONF_LLH_LEN       __LLH_LEN
-extern u16_t upper_layer_chksum(u8_t);
 #endif /* not UIP_MULTI_STACK */
 
 
@@ -204,5 +203,8 @@ enum {
 #  define uip_stack_set_active(i)  do { } while(0)
 
 #endif
+
+extern u16_t upper_layer_chksum(u8_t);
+u8_t uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix);
 
 #endif /* __UIP_CONF_H__ */
