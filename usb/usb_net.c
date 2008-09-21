@@ -61,7 +61,7 @@ usb_net_setup(uint8_t  data[8])
   }
   else if (usb_packet_ready) {
     usbMsgPtr = uip_buf + USB_BRIDGE_OFFSET;
-    return uip_len;
+    return usb_rq_len;
   }
   else
     return 0;
@@ -93,6 +93,9 @@ void
 usb_net_txstart (void)
 {
   usb_packet_ready = 1;
+
+  usb_rq_index = 0;
+  usb_rq_len = uip_len;
 }
 
 void
