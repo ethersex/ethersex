@@ -23,6 +23,7 @@
 
 #include "../bit-macros.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../clock/clock.h"
 #include "../ntp/ntp.h"
 #include "../config.h"

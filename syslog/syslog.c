@@ -30,6 +30,7 @@
 #include "../config.h"
 #include "../debug.h"
 #include "../uip/uip_neighbor.h"
+#include "../uip/uip_router.h"
 #include "syslog.h"
 
 

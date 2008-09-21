@@ -24,6 +24,7 @@
 #include <util/delay.h>
 #include "../net/i2c_state.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../config.h"
 #include "i2c.h"
 

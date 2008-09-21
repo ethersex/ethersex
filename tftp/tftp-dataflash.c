@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../dataflash/df.h"
 #include "../net/tftp_net.h"
 #include "tftp.h"
