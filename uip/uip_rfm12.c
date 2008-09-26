@@ -21,16 +21,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-/* We're now compiling the outer side of the uIP stack */
-#define RFM12_OUTER
-#define STACK_NAME(a) rfm12_stack_ ## a
-
+#include "uip.h"
 #include "uip_rfm12.h"
 
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT) && UIP_MULTI_STACK
 
-/* We're set to compile multi stack now ... */
-#include "uip.c"
+STACK_DEFINITIONS(rfm12_stack);
 
 void 
 rfm12_stack_init (void)
@@ -49,4 +45,4 @@ rfm12_stack_init (void)
 
 }
 
-#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
+#endif /* RFM12_SUPPORT && UIP_MULTI_STACK */

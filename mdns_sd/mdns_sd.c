@@ -26,6 +26,7 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
+#include "../uip/uip_router.h"
 #include "../debug.h"
 #include "../net/mdns_sd_net.h"
 #include "mdns_sd.h"
@@ -326,7 +327,7 @@ mdns_new_data(void)
 
   /* Send immediately */
   uip_process(UIP_UDP_SEND_CONN); 
-  fill_llh_and_transmit();
+  router_output();
 
   uip_slen = 0;
 }

@@ -93,7 +93,7 @@ void i2c_slave_core_newdata(void)
 	uip_udp_conn = &return_conn;
 	/* Send immediately */
 	uip_process(UIP_UDP_SEND_CONN);
-	fill_llh_and_transmit();
+	router_output();
 	uip_slen = 0;
 	SLAVE.kommando = 0;
 }

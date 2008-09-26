@@ -29,6 +29,7 @@
 #include <avr/pgmspace.h>
 #include "../bit-macros.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "usbdrv/usbdrv.h"
 #include "../ecmd_parser/ecmd.h"
 #include "requests.h"
@@ -36,6 +37,10 @@
 #include "usb_net.h"
 
 #ifdef USB_NET_SUPPORT
+
+#ifdef UIP_MULTI_STACK
+STACK_DEFINITIONS(usb_stack);
+#endif
 
 static uint16_t usb_rq_index;
 static uint16_t usb_rq_len;
@@ -55,8 +60,8 @@ usb_net_setup(uint8_t  data[8])
     usb_rq_len = rq->wValue.word;
   }
   else if (usb_packet_ready) {
-    usbMsgPtr = uip_buf;
-    return uip_len;
+    usbMsgPtr = uip_buf + USB_BRIDGE_OFFSET;
+    return usb_rq_len;
   }
   else
     return 0;
@@ -75,15 +80,7 @@ usb_net_read_finished (void)
 uint8_t
 usb_net_write(uint8_t *data, uint8_t len)
 {
-  // FIXME
-#if 0
-  if ((usb_rq_index + len) >) {
-    len = ECMD_USB_BUFFER_LEN + 1 - usb_rq_index;
-    data[ECMD_USB_BUFFER_LEN] = 0;
-  }
-#endif
-
-  memcpy(((uint8_t *) uip_buf ) + usb_rq_index, data, len);
+  memcpy(uip_buf + USB_BRIDGE_OFFSET + usb_rq_index, data, len);
   usb_rq_index += len;
 
   if (usb_rq_index >= usb_rq_len) {
@@ -96,6 +93,9 @@ void
 usb_net_txstart (void)
 {
   usb_packet_ready = 1;
+
+  usb_rq_index = 0;
+  usb_rq_len = uip_len;
 }
 
 void
@@ -103,18 +103,36 @@ usb_net_periodic(void)
 {
   if (usb_rq_len && (usb_rq_index >= usb_rq_len)) {
     /* A packet arrived, put it into uip */
-    uip_len = usb_rq_len;
+    uip_len = usb_rq_len + UIP_LLH_LEN;
     usb_rq_len = 0;
-    uip_input();
+    router_input (STACK_USB);
 
     if (uip_len == 0)
       uip_buf_unlock ();	/* The stack didn't generate any data
 				   that has to be sent back. */
 
     else
-      fill_llh_and_transmit ();	/* Application has generated output,
+      router_output ();         /* Application has generated output,
 				   send it out. */
   }
+}
+
+void
+usb_net_init (void)
+{
+  uip_ipaddr_t ip;
+
+  uip_stack_set_active (STACK_USB);
+
+  CONF_USB_NET_IP;
+  uip_sethostaddr (ip);
+
+#ifdef IPV6_SUPPORT
+  uip_setprefixlen (CONF_USB_NET_IP6_PREFIX_LEN);
+#else
+  CONF_USB_NET_IP4_NETMASK;
+  uip_setnetmask (ip);
+#endif
 }
 
 #endif

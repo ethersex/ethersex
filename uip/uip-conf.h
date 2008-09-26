@@ -135,7 +135,6 @@ typedef unsigned short uip_stats_t;
 
 #elif defined(RFM12_SUPPORT)	  /* cf. zbus */
 #  define __LLH_LEN              RFM12_LLH_LEN
-#  define RFM12_BRIDGE_OFFSET    0
 
 #elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
 #  define __LLH_LEN  0
@@ -145,17 +144,8 @@ typedef unsigned short uip_stats_t;
 #endif
 
 
-#if defined(OPENVPN_SUPPORT) \
-  || (defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT))\
-  || (defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT))
-
-#  define UIP_MULTI_STACK        1
-#else
-#  define UIP_MULTI_STACK        0
+#ifndef UIP_MULTI_STACK
 #  define UIP_CONF_LLH_LEN       __LLH_LEN
-
-extern u16_t upper_layer_chksum(u8_t);
-
 #endif /* not UIP_MULTI_STACK */
 
 
@@ -182,17 +172,16 @@ typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 */
 
 enum {
-  STACK_MAIN,
-#ifdef OPENVPN_SUPPORT
-  STACK_OPENVPN,
+#if defined(ENC28J60_SUPPORT)
+  STACK_ENC,
 #endif
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT)
   STACK_RFM12,
 #endif
-#if defined(USB_NET_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(USB_NET_SUPPORT)
   STACK_USB,
 #endif
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(ZBUS_SUPPORT)
   STACK_ZBUS,
 #endif
 
@@ -204,16 +193,18 @@ enum {
 #if UIP_MULTI_STACK
 #  include "uip_multi.h"
 
-#else
-#  ifdef STACK_NAME
-#    undef STACK_NAME
-#    define STACK_NAME(a) uip_ ## a /* keep common function names, since no \
-	  			       multi-stack support.*/
-#  endif
+#else /* not UIP_MULTI_STACK */
+
+#define RFM12_BRIDGE_OFFSET  0
+#define ZBUS_BRIDGE_OFFSET   0
+#define USB_BRIDGE_OFFSET    0
 
 #  define uip_stack_get_active()   do { } while(0)
 #  define uip_stack_set_active(i)  do { } while(0)
 
 #endif
+
+extern u16_t upper_layer_chksum(u8_t);
+u8_t uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix);
 
 #endif /* __UIP_CONF_H__ */

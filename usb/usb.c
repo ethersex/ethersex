@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -124,6 +125,8 @@ usb_periodic(void)
 void 
 usb_init(void) 
 {
+  usb_net_init();
+
 #define USB_DDR_CONFIG(pin)  DDR_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))
 #define USB_PORT_CONFIG(pin)  PORT_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))
   USB_DDR_CONFIG(USB_DMINUS);

@@ -83,8 +83,8 @@ ifdef(`conf_FS20',  `dnl
 
 ifdef(`conf_USB', `dnl
   dnl This must also be D+ of the USB signal
-  USB_USE_INT(0) 
+  USB_USE_INT(1) 
   dnl This pin must have the 1k5 Pullup and must be on the same port as the Interupt pin
-  pin(USB_DMINUS, PD4)
-  pin(USB_DPLUS, PD2)
+  pin(USB_DMINUS, PD5)
+  pin(USB_DPLUS, PD3)
 ')dnl

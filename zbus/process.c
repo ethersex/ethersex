@@ -24,6 +24,7 @@
 
 #include "../config.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "zbus.h"
 #include "../net/zbus_raw_net.h"
 
@@ -46,12 +47,12 @@ zbus_process(void)
     /* zbus raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
     uip_udp_conn = zbus_raw_conn;
-    uip_stack_set_active (STACK_MAIN);
+    uip_stack_set_active (STACK_ENC);
     memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
 	     uip_buf + ZBUS_BRIDGE_OFFSET, recv->len);
     uip_slen = recv->len;
     uip_process(UIP_UDP_SEND_CONN);
-    fill_llh_and_transmit();
+    router_output ();
 
     recv->len = 0;		/* receive buffer may be overriden
                                    from now on. */
@@ -61,25 +62,19 @@ zbus_process(void)
   }
 #endif
 
-  recv->len = 0;		/* receive buffer may be overriden
-				   from now on. */
-
-  /* Push data into inner uIP stack. */
-  uip_stack_set_active (STACK_ZBUS);
-  zbus_stack_process (UIP_DATA);
-
-#else
+#else  /* not ENC28J60_SUPPORT */
   /* We don't need to copy from recv->data, since ZBus already shares
      the input buffer.
 
      memcpy(uip_buf, recv->data, recv->len); */
   uip_len = recv->len;
   
+#endif
+
   recv->len = 0;		/* receive buffer may be overriden
 				   from now on. */
-    
-  uip_input();
-#endif
+
+  router_input (STACK_ZBUS);
 
   if (!uip_len) {
     zbus_rxstart ();
@@ -87,7 +82,7 @@ zbus_process(void)
   }
 
   /* send buffer out */
-  fill_llh_and_transmit ();
+  router_output ();
 
   uip_len = 0;
 }

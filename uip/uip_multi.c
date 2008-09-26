@@ -44,18 +44,9 @@
 
 #define STACK_FUNCS(stackname)			\
   {						\
-    stackname ## _process,			\
-    stackname ## _send,				\
-    stackname ## _upper_layer_chksum,           \
-    &stackname ## _flags,			\
-    &stackname ## _appdata,			\
-    &stackname ## _sappdata,			\
-    &stackname ## _conn,			\
-    &stackname ## _udp_conn,			\
     &stackname ## _hostaddr,			\
     &stackname ## _prefix_len,                  \
     &stackname ## _draddr,			\
-    &stackname ## _slen,			\
     &stackname ## _stat,			\
   }
 
@@ -63,43 +54,36 @@
 
 #define STACK_FUNCS(stackname)			\
   {						\
-    stackname ## _process,			\
-    stackname ## _send,				\
-    stackname ## _upper_layer_chksum,           \
-    &stackname ## _flags,			\
-    &stackname ## _appdata,			\
-    &stackname ## _sappdata,			\
-    &stackname ## _conn,			\
-    &stackname ## _udp_conn,			\
     &stackname ## _hostaddr,			\
     &stackname ## _netmask,			\
     &stackname ## _draddr,			\
-    &stackname ## _slen,			\
     &stackname ## _stat,			\
   }
 
 #endif
 
 struct uip_stack uip_stacks[STACK_LEN] = {
-  STACK_FUNCS (mainstack),
-
-#ifdef OPENVPN_SUPPORT
-  STACK_FUNCS (openvpn),
+#ifdef ENC28J60_SUPPORT
+  STACK_FUNCS (enc_stack),
 #endif
 
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT)
   STACK_FUNCS (rfm12_stack),
 #endif
 
-#if defined(USB_NET_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(USB_NET_SUPPORT)
   STACK_FUNCS (usb_stack),
 #endif
 
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(ZBUS_SUPPORT)
   STACK_FUNCS (zbus_stack),
 #endif
 };
 
-struct uip_stack *uip_stack = &uip_stacks[STACK_MAIN];
+struct uip_stack *uip_stack = &uip_stacks[0];
+
+#ifdef ENC28J60_SUPPORT
+STACK_DEFINITIONS(enc_stack);
+#endif
 
 #endif /* UIP_MULTI_STACK */

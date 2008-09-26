@@ -30,6 +30,7 @@
 #include "../config.h"
 #include "../debug.h"
 #include "../uip/uip_neighbor.h"
+#include "../uip/uip_router.h"
 #include "syslog.h"
 
 
@@ -125,7 +126,7 @@ syslog_flush (void)
 
   uip_udp_conn = syslog_conn;
   uip_process (UIP_UDP_SEND_CONN);
-  fill_llh_and_transmit ();
+  router_output ();
 
   uip_slen = 0;
 }
@@ -151,11 +152,7 @@ syslog_check_cache(void)
 #ifdef IPV6_SUPPORT
   uip_ipaddr_t ipaddr;
 
-  if(memcmp(syslog_conn->ripaddr, uip_hostaddr, 8)
-#    if UIP_CONF_IPV6_LLADDR
-     && memcmp(syslog_conn->ripaddr, uip_lladdr, 8)
-#    endif
-    )
+  if(memcmp(syslog_conn->ripaddr, uip_hostaddr, 8))
     /* Remote address is not on the local network, use router */
     uip_ipaddr_copy(&ipaddr, uip_draddr);
   else

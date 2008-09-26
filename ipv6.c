@@ -45,12 +45,7 @@
 extern struct uip_eth_addr uip_ethaddr;
 
 /* Calculate ICMP6 Checksum, exported from uip/uip.c */
-#ifdef OPENVPN_SUPPORT
-extern u16_t openvpn_upper_layer_chksum(u8_t);
-#define uip_icmp6chksum() (openvpn_upper_layer_chksum(UIP_PROTO_ICMP6))
-#else /* !OPENVPN_SUPPORT */
 #define uip_icmp6chksum() (upper_layer_chksum(UIP_PROTO_ICMP6))
-#endif
 
 #ifdef BOOTLOADER_SUPPORT
 extern uint8_t bootload_delay;
@@ -258,11 +253,7 @@ uip_neighbor_out(void)
 
   /* Check if the destination address is on the local network. 
    * FIXME, for the moment we assume a 64-bit "netmask" */
-  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8)
-#    if UIP_CONF_IPV6_LLADDR
-     && memcmp(IPBUF->destipaddr, uip_lladdr, 8)
-#    endif
-    )
+  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8))
     /* Remote address is not on the local network, use router */
     uip_ipaddr_copy(ipaddr, uip_draddr);
 

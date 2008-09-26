@@ -23,6 +23,7 @@
 
 #include "../config.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../spi.h"
 #include "../net/rfm12_raw_net.h"
 #include "rfm12.h"
@@ -39,12 +40,14 @@ rfm12_process (void)
   if (rfm12_raw_conn->rport) {
     /* rfm12 raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
-    uip_stack_set_active (STACK_MAIN);
+    /* FIXME This way we cannot accept rfm12_raw requests from anything
+       but ethernet.  This shalt be improved somewhen. */
+    uip_stack_set_active (STACK_ENC);
     memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN, rfm12_data, uip_len);
     uip_slen = uip_len;
     uip_udp_conn = rfm12_raw_conn;
     uip_process(UIP_UDP_SEND_CONN);
-    fill_llh_and_transmit();
+    router_output ();
 
     uip_buf_unlock ();
     rfm12_rxstart ();
@@ -56,9 +59,7 @@ rfm12_process (void)
   uip_len = uip_len + RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN;
 #endif /* not ENC28J60_SUPPORT */
 
-  /* Push data into inner uIP stack. */
-  uip_stack_set_active (STACK_RFM12);
-  uip_input ();
+  router_input (STACK_RFM12);
 
   if (uip_len == 0)
     {
@@ -69,6 +70,6 @@ rfm12_process (void)
     }
 
   /* Application has generated output, send it out. */
-  fill_llh_and_transmit ();
+  router_output ();
 }
 

@@ -169,5 +169,5 @@ dnl don't know if it is the right value
 #endif
 
 
-#define NET_MAX_FRAME_LENGTH 1500
+#define NET_MAX_FRAME_LENGTH 500
 #define ADC_CHANNELS 8

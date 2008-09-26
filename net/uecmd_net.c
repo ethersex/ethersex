@@ -24,6 +24,7 @@
 #include "uecmd_net.h"
 #include "../bit-macros.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../debug.h"
 #include "../ecmd_parser/ecmd.h"
 
@@ -69,7 +70,7 @@ void uecmd_net_main() {
 
     ((char *)uip_appdata)[uip_slen - 1] = '\n';
     uip_process(UIP_UDP_SEND_CONN); 
-    fill_llh_and_transmit();
+    router_output();
 
     uip_slen = 0;
   }

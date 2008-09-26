@@ -62,6 +62,8 @@ define(`USB_USE_INT', `dnl
 /* usb  interrupt line */
 #define USB_INT_PIN INT$1
 #define USB_INT_SIGNAL SIG_INTERRUPT$1
+#define USB_INTR_CFG_HACK(no) ((1 << ISC ## no ## 0) | (1 << ISC ## no ## 0))
+#define USB_INTR_CFG_SET USB_INTR_CFG_HACK($1)
 ')
 
 define(`STELLA_PORT_RANGE', `dnl

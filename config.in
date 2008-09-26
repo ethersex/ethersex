@@ -50,8 +50,12 @@ endmenu
 
 if [ "$CONFIG_NORMAL" = "y" ]; then
   define_bool TEENSY_SUPPORT n
-  define_bool ENC28J60_SUPPORT y
   define_bool UIP_SUPPORT y
+  define_bool ROUTER_SUPPORT y
+  define_bool UIP_MULTI_STACK y
+else
+  define_bool ROUTER_SUPPORT n
+  define_bool UIP_MULTI_STACK n
 fi
 
 if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
@@ -170,7 +174,7 @@ if [ "$UIP_SUPPORT" = y ]; then
   mainmenu_option next_comment
   comment "Network configuration"
   dep_bool 'IPv6 support' IPV6_SUPPORT $ICMP_SUPPORT
-  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+  if [ "$ENC28J60_SUPPORT" = "y" ]; then
     dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
   else
     if [ "$IPV6_SUPPORT" = "y" ]; then
@@ -179,26 +183,33 @@ if [ "$UIP_SUPPORT" = y ]; then
       define_bool "IPV6_STATIC_SUPPORT" n
     fi
   fi
-  
+  if [ "$ROUTER_SUPPORT" = "y" ]; then
+    bool 'Ethernet (ENC28J60) support' ENC28J60_SUPPORT
+  fi
+
   if [ "$ENC28J60_SUPPORT" = "y" ]; then
     mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
   fi
   string "Hostname" CONF_HOSTNAME "ethersex"
-  
-  if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
-    comment "Static IPv6 configuration"
-    ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
-    int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
-  fi
-  
-  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
-    comment "Static IPv4 configuration"
-    ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
-    if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
-      ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
-      ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+ 
+  if [ "$ENC28J60_SUPPORT" = "y" -o "$ROUTER_SUPPORT" != "y" ]; then 
+    if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+      comment "Static IPv6 configuration"
+      ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+      int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
+    fi
+    
+    if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+      comment "Static IPv4 configuration"
+      ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
+      if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+	ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
+	ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
+      fi
     fi
   fi
+
+  dep_bool 'IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
   
   endmenu
 fi
@@ -305,7 +316,7 @@ else
   if [ "$UIP_SUPPORT" = "y" ]; then
     mainmenu_option next_comment
     comment "RFM12 FSK transmitter"
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    if [ "$ROUTER_SUPPORT" = "y" ]; then
       bool "RFM12 support" RFM12_SUPPORT
     fi
   
@@ -317,7 +328,7 @@ else
         hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
       fi
   
-      if [ "$ENC28J60_SUPPORT" = "y" ]; then
+      if [ "$ROUTER_SUPPORT" = "y" ]; then
         if [ "$IPV6_SUPPORT" = "y" ]; then
   	ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
   	int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
@@ -409,7 +420,7 @@ else
 	usart_process_choice YPORT
       fi
     fi
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    if [ "$ROUTER_SUPPORT" = "y" ]; then
       if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
         bool "ZBus Support" ZBUS_SUPPORT 
         if [ "$ZBUS_SUPPORT" = y ]; then
@@ -448,7 +459,7 @@ else
       hex "Skipjack Key" CONF_ZBUS_KEY "23234242555523234242"
     fi
 
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
+    if [ "$ROUTER_SUPPORT" = "y" ]; then
       if [ "$IPV6_SUPPORT" = "y" ]; then
 	ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
 	int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64
@@ -503,7 +514,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
 
   bool "I2C Atmel dataflash" DATAFLASH_SUPPORT
   dep_bool "uIP Proto-Sockets" PSOCK_SUPPORT $UIP_SUPPORT
-  dep_bool "HTTP Server" HTTPD_SUPPORT $DATAFLASH_SUPPORT $PSOCK_SUPPORT $TCP_SUPPORT
+  dep_bool "HTTP Server" HTTPD_SUPPORT $PSOCK_SUPPORT $TCP_SUPPORT
   dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
   if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
     string "Username" CONF_HTTPD_USERNAME "admin"
@@ -514,6 +525,15 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
   bool "USB Softwarestack support (obdev)" USB_SUPPORT
   dep_bool "  ECMD USB interface" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
   dep_bool "  Networking over USB" USB_NET_SUPPORT $USB_SUPPORT
+  if [ "$ROUTER_SUPPORT" = "y" -a "$USB_NET_SUPPORT" = "y" ]; then
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "IP address" CONF_USB_NET_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+      int "IP prefix length" CONF_USB_NET_IP6_PREFIX_LEN 64
+    else
+      ipv4 "IP address" CONF_USB_NET_IP "192.168.5.1"
+      ipv4 "Netmask" CONF_USB_NET_IP4_NETMASK "255.255.255.0"
+    fi
+  fi
 
   dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
   endmenu

@@ -42,6 +42,7 @@
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
 #include "uip/uip_rfm12.h"
+#include "uip/uip_router.h"
 #include "uip/uip_zbus.h"
 #include "tftp/tftp.h"
 
@@ -66,7 +67,7 @@ void process_packet(void);
 
 void network_init(void)
 /* {{{ */ {
-    uip_stack_set_active(STACK_MAIN);
+    uip_stack_set_active(0);
     uip_init();
 
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
@@ -80,7 +81,6 @@ void network_init(void)
 #endif
 
 #ifdef OPENVPN_SUPPORT
-    uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();
 #endif
 
@@ -92,7 +92,7 @@ void network_init(void)
 #endif
 #endif /* ENC28J60_SUPPORT */
 
-    uip_stack_set_active(STACK_MAIN);
+    uip_stack_set_active(0);
 
 #if !defined(BOOTLOADER_SUPPORT)
     uip_ipaddr_t ip;
@@ -247,9 +247,6 @@ void network_init(void)
 #   if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
     uip_setprefixlen(64);
     uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
-#   if UIP_CONF_IPV6_LLADDR
-    uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
-#   endif
 #   endif
 
 #   if defined(IPV6_STATIC_SUPPORT) && defined(TFTPOMATIC_SUPPORT)
@@ -261,13 +258,13 @@ void network_init(void)
 #   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */
 
 
-#   else /* not ENC28J60_SUPPORT */
+#   elif !defined(ROUTER_SUPPORT) /* and not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
     CONF_ETHERRAPE_IP;
     uip_sethostaddr(ip);
 
-#   endif /* not ENC28J60_SUPPORT */
+#   endif /* not ENC28J60_SUPPORT and not ROUTER_SUPPORT */
 
     network_init_apps();
 
@@ -439,12 +436,6 @@ void process_packet(void)
 
     uip_len = rpv.received_packet_size;
 
-#   ifdef OPENVPN_SUPPORT
-    uip_stack_set_active(STACK_OPENVPN);
-#   else
-    uip_stack_set_active(STACK_MAIN);
-#   endif
-
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
     switch (HTONS(packet->type)) {
@@ -479,20 +470,11 @@ void process_packet(void)
             uip_arp_ipin();
 #       endif /* !UIP_CONF_IPV6 */
 
-            uip_input();
+            router_input(STACK_ENC);
 
-            /* if there is a packet to send, send it now */
-            if (uip_len > 0) {
-
-                /* check if an arp request has to be send */
-#               if UIP_CONF_IPV6
-            	uip_neighbor_out();
-#               else
-                uip_arp_out();
-#		endif
-
-                transmit_packet();
-            }
+	    /* if there is a packet to send, send it now */
+	    if (uip_len > 0)
+		router_output();
 
             break;
 #       ifdef DEBUG_UNKNOWN_PACKETS

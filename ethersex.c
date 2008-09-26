@@ -298,7 +298,7 @@ int main(void)
         wdt_kick();
 
 #ifdef SYSLOG_SUPPORT
-	uip_stack_set_active(STACK_MAIN);
+	uip_stack_set_active(STACK_ENC);
         syslog_flush();
 #endif
 

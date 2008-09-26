@@ -82,13 +82,6 @@
  * the packet back to the peer.
 */
 
-/* Set default stackname, if not otherwise set (e.g. by inclusion from
-   uip_openvpn.c). */
-#ifndef STACK_NAME
-#define STACK_PRIMARY 1
-#define STACK_NAME(a) mainstack_ ## a
-#endif
-
 #include "uip.h"
 #include "uipopt.h"
 #include "../ipv6.h"
@@ -110,20 +103,7 @@
 /* Variable definitions. */
 
 
-/* The IP address of this host. If it is defined to be fixed (by
-   setting UIP_FIXEDADDR to 1 in uipopt.h), the address is set
-   here. Otherwise, the address */
-#if UIP_FIXEDADDR > 0
-const uip_ipaddr_t uip_hostaddr =
-  {HTONS((UIP_IPADDR0 << 8) | UIP_IPADDR1),
-   HTONS((UIP_IPADDR2 << 8) | UIP_IPADDR3)};
-const uip_ipaddr_t uip_draddr =
-  {HTONS((UIP_DRIPADDR0 << 8) | UIP_DRIPADDR1),
-   HTONS((UIP_DRIPADDR2 << 8) | UIP_DRIPADDR3)};
-const uip_ipaddr_t uip_netmask =
-  {HTONS((UIP_NETMASK0 << 8) | UIP_NETMASK1),
-   HTONS((UIP_NETMASK2 << 8) | UIP_NETMASK3)};
-#else
+#if !UIP_MULTI_STACK
 uip_ipaddr_t uip_hostaddr, uip_draddr;
 
 #if UIP_CONF_IPV6
@@ -131,20 +111,13 @@ u8_t uip_prefix_len;
 #else
 uip_ipaddr_t uip_netmask;
 #endif
-
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-/* The link local IPv6 address */
-uip_ipaddr_t uip_lladdr;
 #endif
-
-#endif /* UIP_FIXEDADDR */
 
 #ifdef MDNS_SD_SUPPORT
 extern const uip_ipaddr_t mdns_address;
 #endif
 
 
-#if STACK_PRIMARY
 volatile uint8_t _uip_buf_lock;
 
 const uip_ipaddr_t all_ones_addr =
@@ -170,17 +143,7 @@ const uip_ipaddr_t mdns_address =
 #endif /* MDNS_SD_SUPPORT */
 
 
-#if UIP_FIXEDETHADDR
-const struct uip_eth_addr uip_ethaddr = {{UIP_ETHADDR0,
-					  UIP_ETHADDR1,
-					  UIP_ETHADDR2,
-					  UIP_ETHADDR3,
-					  UIP_ETHADDR4,
-					  UIP_ETHADDR5}};
-#else
 struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
-#endif
-#endif /* STACK_PRIMARY */
 
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
@@ -212,20 +175,18 @@ u8_t uip_flags;              /* The uip_flags variable is used for
 uip_conn_t *uip_conn;	     /* uip_conn always points to the current
 				connection. */
 
-#if UIP_TCP && STACK_PRIMARY
+#if UIP_TCP
 uip_conn_t uip_conns[UIP_CONNS];
                              /* The uip_conns array holds all TCP
 				connections. */
 struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
-#endif /* UIP_TCP and STACK_PRIMARY */
+#endif /* UIP_TCP */
 
 #if UIP_UDP
 uip_udp_conn_t *uip_udp_conn;
-#if STACK_PRIMARY
 uip_udp_conn_t uip_udp_conns[UIP_UDP_CONNS];
-#endif
 #endif /* UIP_UDP */
 
 #if !UIP_CONF_IPV6
@@ -292,7 +253,9 @@ static u16_t tmp16;
 
 
 #if UIP_STATISTICS == 1
+#if !UIP_MULTI_STACK
 struct uip_stats uip_stat;
+#endif
 #define UIP_STAT(s) s
 #else
 #define UIP_STAT(s)
@@ -445,7 +408,6 @@ uip_udpchksum(void)
 #endif /* UIP_UDP_CHECKSUMS */
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
-#if STACK_PRIMARY
 void
 uip_init(void)
 {
@@ -456,7 +418,7 @@ uip_init(void)
   for(c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
 #if UIP_MULTI_STACK
-    uip_conns[c].stack = STACK_MAIN;
+    uip_conns[c].stack = 0;
 #endif
   }
 #endif /* UIP_TCP */
@@ -468,21 +430,15 @@ uip_init(void)
   for(c = 0; c < UIP_UDP_CONNS; ++c) {
     uip_udp_conns[c].lport = 0;
 #if UIP_MULTI_STACK
-    uip_udp_conns[c].stack = STACK_MAIN;
+    uip_udp_conns[c].stack = 0;
 #endif
   }
 #endif /* UIP_UDP */
   
 
-  /* IPv4 initialization. */
-#if UIP_FIXEDADDR == 0
-  /*  uip_hostaddr[0] = uip_hostaddr[1] = 0;*/
-#endif /* UIP_FIXEDADDR */
-
 }
-#endif
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP && STACK_PRIMARY
+#if UIP_TCP
 #if UIP_ACTIVE_OPEN
 #ifndef BOOTLOADER_SUPPORT
 uip_conn_t *
@@ -558,9 +514,9 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 }
 #endif /* BOOTLOADER_SUPPORT */
 #endif /* UIP_ACTIVE_OPEN */
-#endif /* UIP_TCP and STACK_PRIMARY */
+#endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
-#if UIP_UDP && STACK_PRIMARY
+#if UIP_UDP
 #if UIP_ACTIVE_OPEN
 uip_udp_conn_t *
 uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
@@ -615,9 +571,9 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   return conn;
 }
 #endif /* UIP_ACTIVE_OPEN */
-#endif /* UIP_UDP && STACK_PRIMARY */
+#endif /* UIP_UDP */
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP && STACK_PRIMARY
+#if UIP_TCP
 #ifndef TEENSY_SUPPORT
 void
 uip_unlisten(u16_t port)
@@ -642,140 +598,9 @@ uip_listen(u16_t port, uip_conn_callback_t callback)
     }
   }
 }
-#endif /* UIP_TCP && STACK_PRIMARY */
-/*---------------------------------------------------------------------------*/
-/* XXX: IP fragment reassembly: not well-tested. */
+#endif /* UIP_TCP */
 
-#if UIP_REASSEMBLY && !UIP_CONF_IPV6
-#define UIP_REASS_BUFSIZE (UIP_BUFSIZE - UIP_LLH_LEN)
-static u8_t uip_reassbuf[UIP_REASS_BUFSIZE];
-static u8_t uip_reassbitmap[UIP_REASS_BUFSIZE / (8 * 8)];
-static const u8_t bitmap_bits[8] = {0xff, 0x7f, 0x3f, 0x1f,
-				    0x0f, 0x07, 0x03, 0x01};
-static u16_t uip_reasslen;
-static u8_t uip_reassflags;
-#define UIP_REASS_FLAG_LASTFRAG 0x01
-static u8_t uip_reasstmr;
 
-#define IP_MF   0x20
-
-static u8_t
-uip_reass(void)
-{
-  u16_t offset, len;
-  u16_t i;
-
-  /* If ip_reasstmr is zero, no packet is present in the buffer, so we
-     write the IP header of the fragment into the reassembly
-     buffer. The timer is updated with the maximum age. */
-  if(uip_reasstmr == 0) {
-    memcpy(uip_reassbuf, &BUF->vhl, UIP_IPH_LEN);
-    uip_reasstmr = UIP_REASS_MAXAGE;
-    uip_reassflags = 0;
-    /* Clear the bitmap. */
-    memset(uip_reassbitmap, 0, sizeof(uip_reassbitmap));
-  }
-
-  /* Check if the incoming fragment matches the one currently present
-     in the reasembly buffer. If so, we proceed with copying the
-     fragment into the buffer. */
-  if(BUF->srcipaddr[0] == FBUF->srcipaddr[0] &&
-     BUF->srcipaddr[1] == FBUF->srcipaddr[1] &&
-     BUF->destipaddr[0] == FBUF->destipaddr[0] &&
-     BUF->destipaddr[1] == FBUF->destipaddr[1] &&
-     BUF->ipid[0] == FBUF->ipid[0] &&
-     BUF->ipid[1] == FBUF->ipid[1]) {
-
-    len = (BUF->len[0] << 8) + BUF->len[1] - (BUF->vhl & 0x0f) * 4;
-    offset = (((BUF->ipoffset[0] & 0x3f) << 8) + BUF->ipoffset[1]) * 8;
-
-    /* If the offset or the offset + fragment length overflows the
-       reassembly buffer, we discard the entire packet. */
-    if(offset > UIP_REASS_BUFSIZE ||
-       offset + len > UIP_REASS_BUFSIZE) {
-      uip_reasstmr = 0;
-      goto nullreturn;
-    }
-
-    /* Copy the fragment into the reassembly buffer, at the right
-       offset. */
-    memcpy(&uip_reassbuf[UIP_IPH_LEN + offset],
-	   (char *)BUF + (int)((BUF->vhl & 0x0f) * 4),
-	   len);
-      
-    /* Update the bitmap. */
-    if(offset / (8 * 8) == (offset + len) / (8 * 8)) {
-      /* If the two endpoints are in the same byte, we only update
-	 that byte. */
-	     
-      uip_reassbitmap[offset / (8 * 8)] |=
-	     bitmap_bits[(offset / 8 ) & 7] &
-	     ~bitmap_bits[((offset + len) / 8 ) & 7];
-    } else {
-      /* If the two endpoints are in different bytes, we update the
-	 bytes in the endpoints and fill the stuff inbetween with
-	 0xff. */
-      uip_reassbitmap[offset / (8 * 8)] |=
-	bitmap_bits[(offset / 8 ) & 7];
-      for(i = 1 + offset / (8 * 8); i < (offset + len) / (8 * 8); ++i) {
-	uip_reassbitmap[i] = 0xff;
-      }
-      uip_reassbitmap[(offset + len) / (8 * 8)] |=
-	~bitmap_bits[((offset + len) / 8 ) & 7];
-    }
-    
-    /* If this fragment has the More Fragments flag set to zero, we
-       know that this is the last fragment, so we can calculate the
-       size of the entire packet. We also set the
-       IP_REASS_FLAG_LASTFRAG flag to indicate that we have received
-       the final fragment. */
-
-    if((BUF->ipoffset[0] & IP_MF) == 0) {
-      uip_reassflags |= UIP_REASS_FLAG_LASTFRAG;
-      uip_reasslen = offset + len;
-    }
-    
-    /* Finally, we check if we have a full packet in the buffer. We do
-       this by checking if we have the last fragment and if all bits
-       in the bitmap are set. */
-    if(uip_reassflags & UIP_REASS_FLAG_LASTFRAG) {
-      /* Check all bytes up to and including all but the last byte in
-	 the bitmap. */
-      for(i = 0; i < uip_reasslen / (8 * 8) - 1; ++i) {
-	if(uip_reassbitmap[i] != 0xff) {
-	  goto nullreturn;
-	}
-      }
-      /* Check the last byte in the bitmap. It should contain just the
-	 right amount of bits. */
-      if(uip_reassbitmap[uip_reasslen / (8 * 8)] !=
-	 (u8_t)~bitmap_bits[uip_reasslen / 8 & 7]) {
-	goto nullreturn;
-      }
-
-      /* If we have come this far, we have a full packet in the
-	 buffer, so we allocate a pbuf and copy the packet into it. We
-	 also reset the timer. */
-      uip_reasstmr = 0;
-      memcpy(BUF, FBUF, uip_reasslen);
-
-      /* Pretend to be a "normal" (i.e., not fragmented) IP packet
-	 from now on. */
-      BUF->ipoffset[0] = BUF->ipoffset[1] = 0;
-      BUF->len[0] = uip_reasslen >> 8;
-      BUF->len[1] = uip_reasslen & 0xff;
-      BUF->ipchksum = 0;
-      BUF->ipchksum = ~(uip_ipchksum());
-
-      return uip_reasslen;
-    }
-  }
-
- nullreturn:
-  return 0;
-}
-#endif /* UIP_REASSEMBLY */
-/*---------------------------------------------------------------------------*/
 #if UIP_TCP
 static void
 uip_add_rcv_nxt(u16_t n)
@@ -790,7 +615,7 @@ uip_add_rcv_nxt(u16_t n)
 /*---------------------------------------------------------------------------*/
 u8_t uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix);
 
-#if STACK_PRIMARY && UIP_MULTI_STACK
+#if UIP_MULTI_STACK
 /* Return 1 if a/prefix and b/prefix are on the same network. */
 u8_t
 uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
@@ -822,7 +647,7 @@ uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix)
 
   return 1;
 }
-#endif /* STACK_PRIMARY */
+#endif /* UIP_MULTI_STACK */
 /*---------------------------------------------------------------------------*/
 void
 uip_process(u8_t flag)
@@ -852,11 +677,6 @@ uip_process(u8_t flag)
 
     /* Check if we were invoked because of the perodic timer fireing. */
   if(flag == UIP_TIMER) {
-#if UIP_REASSEMBLY
-    if(uip_reasstmr != 0) {
-      --uip_reasstmr;
-    }
-#endif /* UIP_REASSEMBLY */
     /* Increase the initial sequence number. */
     if(++iss[3] == 0) {
       if(++iss[2] == 0) {
@@ -1027,139 +847,17 @@ uip_process(u8_t flag)
     goto ip_check_end;
 #endif
 
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
-#if STACK_PRIMARY
-#if UIP_CONF_IPV6
-  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr, 
-                             rfm12_stack_prefix_len))
-#else /* !UIP_CONF_IPV6 */
-  if(uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr, 
-                        rfm12_stack_netmask))
-#endif
-  {
-    /* We're on mainstack and got a packet addressed
-       to the rfm12 network.  Pass it on. */
-    rfm12_txstart(uip_len);
-    goto drop;
-  }
-#elif defined(RFM12_OUTER)
-  {
-#ifdef ZBUS_SUPPORT
-#if UIP_CONF_IPV6
-  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
-                             zbus_stack_prefix_len))
-#else /* !UIP_CONF_IPV6 */
-  if(uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
-                         zbus_stack_netmask))
-#endif
-    {
-      /* We're on the rfm12 stack and got a packet for zbus,
-         pass it on. */
-      zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
-    }
-  else
-#endif /* ZBUS_SUPPORT */
-#if UIP_CONF_IPV6
-  if(!uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr,
-			      rfm12_stack_prefix_len))
-#else /* !UIP_CONF_IPV6 */
-  if(!uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr,
-			 rfm12_stack_netmask))
-#endif /* !UIP_CONF_IPV6 */
-    {
-      /* We're on the rfm12 stack and got a packet addressed to
-	 the RFM12 network. */
-      uip_stack_set_active (STACK_MAIN);
-      fill_llh_and_transmit ();
-      goto drop;
-    }
-  }
-#endif /* RFM12_OUTER */
-#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
-
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
-#if STACK_PRIMARY
-#if UIP_CONF_IPV6
-  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
-                             zbus_stack_prefix_len))
-#else /* !UIP_CONF_IPV6 */
-  if(uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
-                         zbus_stack_netmask))
-#endif
-  {
-    /* We're on mainstack and got a packet addressed
-       to the zbus network.  Send it using zbus. */
-    zbus_send_data(&uip_buf[UIP_LLH_LEN], uip_len);
-  }
-#elif defined(ZBUS_OUTER)
-#ifdef RFM12_SUPPORT
-#if UIP_CONF_IPV6
-  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, rfm12_stack_hostaddr, 
-                             rfm12_stack_prefix_len))
-#else /* !UIP_CONF_IPV6 */
-  if(uip_ipaddr_maskcmp(BUF->destipaddr, rfm12_stack_hostaddr, 
-                        rfm12_stack_netmask))
-#endif
-  {
-    /* We're on zbus stack and got a packet addressed
-       to the rfm12 network.  Pass it on. */
-    rfm12_txstart(uip_len);
-    goto drop;
-  }
-  else
-#endif /* RFM12_SUPPORT */
-#if UIP_CONF_IPV6
-  if(!uip_ipaddr_prefixlencmp(BUF->destipaddr, zbus_stack_hostaddr,
-			      zbus_stack_prefix_len))
-#else /* !UIP_CONF_IPV6 */
-  if(!uip_ipaddr_maskcmp(BUF->destipaddr, zbus_stack_hostaddr,
-  	                 zbus_stack_netmask))
-#endif /* !UIP_CONF_IPV6 */
-    {
-    /* We're on the zbus stack and got a packet not addressed to us.
-       Pass it on to the ethernet. */
-    uip_stack_set_active (STACK_MAIN);
-    fill_llh_and_transmit ();
-    goto drop;
-  }
-#endif /* ZBUS_OUTER */
-#endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */
-
 #if !UIP_CONF_IPV6
   /* Check the fragment flag. */
   if((BUF->ipoffset[0] & 0x3f) != 0 ||
      BUF->ipoffset[1] != 0) {
-#if UIP_REASSEMBLY
-    uip_len = uip_reass();
-    if(uip_len == 0) {
-      goto drop;
-    }
-#else /* UIP_REASSEMBLY */
     UIP_STAT(++uip_stat.ip.drop);
     UIP_STAT(++uip_stat.ip.fragerr);
     UIP_LOG("ip: fragment dropped.");
     goto drop;
-#endif /* UIP_REASSEMBLY */
   }
 #endif /* UIP_CONF_IPV6 */
 
-#if defined(ICMP_SUPPORT) && !defined(TEENSY_SUPPORT)
-  if(uip_ipaddr_cmp(uip_hostaddr, all_zeroes_addr)) {
-    /* If we are configured to use ping IP address configuration and
-       hasn't been assigned an IP address yet, we accept all ICMP
-       packets. */
-#if UIP_PINGADDRCONF && !UIP_CONF_IPV6
-    if(BUF->proto == UIP_PROTO_ICMP) {
-      UIP_LOG("ip: possible ping config packet received.");
-      goto icmp_input;
-    } else {
-      UIP_LOG("ip: packet dropped since no address assigned.");
-      goto drop;
-    }
-#endif /* UIP_PINGADDRCONF */
-  } 
-  else
-#endif /* ICMP_SUPPORT && !TEENSY_SUPPORT */
   {
     /* If IP broadcast support is configured, we check for a broadcast
        UDP packet, which may be destined to us. */
@@ -1187,9 +885,6 @@ uip_process(u8_t flag)
        multicast packets that are sent to the ff02::/16 addresses. 
        Furthermore listen for packets to our link local adress. */
     if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
-#if UIP_CONF_IPV6_LLADDR    
-       && !uip_ipaddr_cmp(BUF->destipaddr, uip_lladdr)
-#endif
 #ifdef ENC28J60_SUPPORT
        && BUF->destipaddr[0] != HTONS(0xff02)
 #endif
@@ -1239,9 +934,6 @@ ip_check_end:
     goto drop;
   }
 
-#if UIP_PINGADDRCONF
- icmp_input:
-#endif /* UIP_PINGADDRCONF */
   UIP_STAT(++uip_stat.icmp.recv);
 
   /* ICMP echo (i.e., ping) processing. This is simple, we only change
@@ -1253,16 +945,6 @@ ip_check_end:
     UIP_LOG("icmp: not icmp echo.");
     goto drop;
   }
-
-  /* If we are configured to use ping IP address assignment, we use
-     the destination IP address of this ping packet and assign it to
-     ourself. */
-#if UIP_PINGADDRCONF
-  if((uip_hostaddr[0] | uip_hostaddr[1]) == 0) {
-    uip_hostaddr[0] = BUF->destipaddr[0];
-    uip_hostaddr[1] = BUF->destipaddr[1];
-  }
-#endif /* UIP_PINGADDRCONF */
 
   ICMPBUF->type = ICMP_ECHO_REPLY;
 
@@ -1296,15 +978,10 @@ ip_check_end:
   UIP_STAT(++uip_stat.icmp.recv);
 
 #ifdef ENC28J60_SUPPORT
-#ifndef OPENVPN_INNER
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
-    if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)
-#if UIP_CONF_IPV6_LLADDR       
-       || uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_lladdr)
-#endif 
-      ) {
+    if(uip_ipaddr_cmp(ICMPBUF->icmp6data, uip_hostaddr)) {
 
       if(ICMPBUF->options[0] == ICMP6_OPTION_SOURCE_LINK_ADDRESS) {
 	/* Save the sender's address in our neighbor list. */
@@ -1343,7 +1020,6 @@ ip_check_end:
 		       (struct uip_neighbor_addr *) &(ICMPBUF->options[2]));
     }
   } else 
-#endif /* not OPENVPN_INNER */
 #endif /* ENC28J60_SUPPORT */
 
   if(ICMPBUF->type == ICMP6_ECHO) {
@@ -1448,12 +1124,7 @@ ip_check_end:
   BUF->srcport  = uip_udp_conn->lport;
   BUF->destport = uip_udp_conn->rport;
 
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-  if(((u16_t *)(uip_udp_conn->ripaddr))[0] == HTONS(0xFE80))
-    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
-  else
-#endif /* UIP_CONF_IPV6 */
-    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   uip_ipaddr_copy(BUF->destipaddr, uip_udp_conn->ripaddr);
    
   uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
@@ -1539,7 +1210,6 @@ ip_check_end:
   c = BUF->seqno[1];
   BUF->seqno[1] = BUF->ackno[1];
   BUF->ackno[1] = c;
-  
   c = BUF->seqno[0];
   BUF->seqno[0] = BUF->ackno[0];
   BUF->ackno[0] = c;
@@ -1562,12 +1232,7 @@ ip_check_end:
   
   /* Swap IP addresses. */
   uip_ipaddr_copy(BUF->destipaddr, BUF->srcipaddr);
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-  if(((u16_t *)(BUF->srcipaddr))[0] == HTONS(0xFE80))
-    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
-  else
-#endif /* UIP_CONF_IPV6 */
-    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   
   /* And send out the RST packet! */
   goto tcp_send_noconn;
@@ -2134,12 +1799,7 @@ ip_check_end:
   BUF->srcport  = uip_connr->lport;
   BUF->destport = uip_connr->rport;
 
-#if UIP_CONF_IPV6 && UIP_CONF_IPV6_LLADDR
-  if(((u16_t *)(uip_connr->ripaddr))[0] == HTONS(0xFE80))
-    uip_ipaddr_copy(BUF->srcipaddr, uip_lladdr);
-  else
-#endif /* UIP_CONF_IPV6 */
-    uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
+  uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
   uip_ipaddr_copy(BUF->destipaddr, uip_connr->ripaddr);
 
   if(uip_connr->tcpstateflags & UIP_STOPPED) {

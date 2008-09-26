@@ -49,9 +49,6 @@ SIGNAL(RFM12_INT_SIGNAL)
 {
   uint8_t byte;
 
-  if ((rfm12_trans(0x0000) & 0x8000) == 0)
-    return;
-
   switch (rfm12_status) 
     {
     case RFM12_RX:
@@ -64,7 +61,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 #endif
 	    ))
 	{
-	  _uip_buf_lock = 255;
+	  _uip_buf_lock = 1;
 	  rfm12_buf[rfm12_index ++] = byte;
 #ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
@@ -152,8 +149,6 @@ SIGNAL(RFM12_INT_SIGNAL)
     case RFM12_NEW:
       rfm12_trans(0x0000);	/* clear interrupt flags in RFM12 */
     }
-    if(rfm12_status >= RFM12_TX)
-      _uip_buf_lock = 255;
 }
 
 

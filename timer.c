@@ -30,6 +30,7 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
+#include "uip/uip_router.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "control6/control6.h"
 #include "fs20/fs20.h"
@@ -71,21 +72,9 @@ void timer_process(void)
 
     /* check timer 1 (timeout after 20ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
-	if (uip_buf_lock ()) {
-#ifdef RFM12_SUPPORT
-	    _uip_buf_lock --;
-	    if (uip_buf_lock ()) {
-	      return;		/* hmpf, try again shortly
+	if (uip_buf_lock ())
+	    return;		/* hmpf, try again shortly
 				   (let's hope we don't miss too many ticks */
-	    }
-	    else {
-		rfm12_status = RFM12_OFF;
-		rfm12_rxstart();
-	    }
-#else
-	    return;
-#endif
-	}
         counter++;
 
 #       ifdef DEBUG_TIMER
@@ -155,7 +144,7 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0)
-		    fill_llh_and_transmit();
+		    router_output();
             }
 #           endif /* UIP_TCP == 1 */
 
@@ -167,7 +156,7 @@ void timer_process(void)
 
                 /* if this generated a packet, send it now */
                 if (uip_len > 0)
-		    fill_llh_and_transmit();
+		    router_output();
             }
 #           endif
         }
@@ -177,15 +166,12 @@ void timer_process(void)
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
                second after boot */
-#           ifdef OPENVPN_SUPPORT		
-	    uip_stack_set_active(STACK_OPENVPN);
-#           endif
-#       ifndef IPV6_STATIC_SUPPORT
+#           ifndef IPV6_STATIC_SUPPORT
             if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
                 uip_router_send_solicitation();
                 transmit_packet();
             }
-#       endif
+#           endif
         }
 #       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
@@ -199,15 +185,12 @@ void timer_process(void)
             fs20_global.ws300.last_update++;
 #           endif
 
-#           ifdef OPENVPN_SUPPORT
-	    uip_stack_set_active(STACK_OPENVPN);
-#           endif
 #           if defined(CLOCK_SUPPORT) && ! defined(CLOCK_CRYSTAL_SUPPORT)
             clock_tick();
 #           endif
 #           ifdef UIP_SUPPORT
             if (uip_len)
-              fill_llh_and_transmit();
+              router_output();
 #           endif
         }
 

@@ -25,18 +25,6 @@
 #define UIP_MULTI_H
 
 struct uip_stack {
-  /* mapped functions */
-  void (* uip_process) (u8_t flag);
-  void (* uip_send)    (const void *data, int len);
-  u16_t (* upper_layer_chksum) (u8_t proto);
-
-  u8_t *uip_flags;
-  void **uip_appdata;
-  void **uip_sappdata;
-
-  uip_conn_t **uip_conn;
-  uip_udp_conn_t **uip_udp_conn;
-
   uip_ipaddr_t *uip_hostaddr;
 #ifdef IPV6_SUPPORT
   u8_t *uip_prefix_len;
@@ -45,28 +33,18 @@ struct uip_stack {
 #endif
   uip_ipaddr_t *uip_draddr;
 
-  u16_t *uip_slen;
-
   struct uip_stats *uip_stat;  
 };
 
-#define STACK_PROTOTYPES(stackname)					\
-  uip_conn_t * stackname ## _connect					\
-    (uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callback_t callback);	\
-  void stackname ## _send(const void *data, int len);			\
-  void stackname ## _process(u8_t flag);				\
-  u16_t stackname ## _upper_layer_chksum(u8_t proto);                   \
-  extern void * stackname ## _appdata;					\
-  extern void * stackname ## _sappdata;					\
-  extern u16_t stackname ## _slen;					\
-  extern uip_conn_t * stackname ## _conn;				\
-  extern uip_udp_conn_t * stackname ## _udp_conn;			\
-  extern struct uip_stats stackname ## _stat;				\
-  extern u8_t stackname ## _flags;					\
-  extern uip_ipaddr_t stackname ## _hostaddr;				\
-  extern uip_ipaddr_t stackname ## _netmask;				\
-  extern u8_t stackname ## _prefix_len;				        \
-  extern uip_ipaddr_t stackname ## _draddr;
+#define STACK_HACKARY(foo,stackname)					\
+  foo struct uip_stats stackname ## _stat;				\
+  foo uip_ipaddr_t stackname ## _hostaddr;				\
+  foo uip_ipaddr_t stackname ## _netmask;				\
+  foo u8_t stackname ## _prefix_len;				        \
+  foo uip_ipaddr_t stackname ## _draddr;
+
+#define STACK_PROTOTYPES(stackname)  STACK_HACKARY(extern,stackname)
+#define STACK_DEFINITIONS(stackname) STACK_HACKARY(,stackname)
 
 extern struct uip_stack uip_stacks[STACK_LEN];
 extern struct uip_stack *uip_stack;
@@ -74,41 +52,12 @@ extern struct uip_stack *uip_stack;
 #define uip_stack_get_active()   (uip_stack - uip_stacks)
 #define uip_stack_set_active(i)  (uip_stack = &uip_stacks[(i)])
 
-#ifdef STACK_NAME
-  /* We're now compiling a uIP stack. */
-#  define uip_process      STACK_NAME(process)
-#  define uip_send         STACK_NAME(send)
-#  define upper_layer_chksum  STACK_NAME(upper_layer_chksum)
-#  define uip_flags        STACK_NAME(flags)
-#  define uip_appdata      STACK_NAME(appdata)
-#  define uip_sappdata     STACK_NAME(sappdata)
-#  define uip_conn         STACK_NAME(conn)
-#  define uip_udp_conn     STACK_NAME(udp_conn)
-#  define uip_hostaddr     STACK_NAME(hostaddr)
-#  define uip_netmask      STACK_NAME(netmask)
-#  define uip_prefix_len   STACK_NAME(prefix_len)
-#  define uip_draddr       STACK_NAME(draddr)
-#  define uip_slen         STACK_NAME(slen)
-#  define uip_stat         STACK_NAME(stat)
-
-#else
-  /* We're compiling application code (i.e. outside of uIP stack) */
-#  define uip_process      (uip_stack->uip_process)
-#  define uip_send         (uip_stack->uip_send)
-#  define upper_layer_chksum (uip_stack->upper_layer_chksum)
-#  define uip_flags        (* (uip_stack->uip_flags))
-#  define uip_appdata      (* (uip_stack->uip_appdata))
-#  define uip_sappdata     (* (uip_stack->uip_sappdata))
-#  define uip_conn         (* (uip_stack->uip_conn))
-#  define uip_udp_conn     (* (uip_stack->uip_udp_conn))
-#  define uip_hostaddr     (* (uip_stack->uip_hostaddr))
-#  define uip_netmask      (* (uip_stack->uip_netmask))
-#  define uip_prefix_len   (* (uip_stack->uip_prefix_len))
-#  define uip_draddr       (* (uip_stack->uip_draddr))
-#  define uip_slen         (* (uip_stack->uip_slen))
-#  define uip_stat         (* (uip_stack->uip_stat))
-#endif
-
+/* We're compiling application code (i.e. outside of uIP stack) */
+#define uip_hostaddr     (* (uip_stack->uip_hostaddr))
+#define uip_netmask      (* (uip_stack->uip_netmask))
+#define uip_prefix_len   (* (uip_stack->uip_prefix_len))
+#define uip_draddr       (* (uip_stack->uip_draddr))
+#define uip_stat         (* (uip_stack->uip_stat))
 
 
 #ifdef OPENVPN_SUPPORT
@@ -145,37 +94,26 @@ extern struct uip_stack *uip_stack;
 
 #  if STACK_PRIMARY && !defined(OPENVPN_OUTER)
 #    define OPENVPN_INNER
-#    define UIP_CONF_LLH_LEN     OPENVPN_TOTAL_LLH_LEN
 #  endif
 #endif /* not OPENVPN_SUPPORT */
 
+#ifdef OPENVPN_SUPPORT
+#  define BASE_LLH_LEN  (OPENVPN_TOTAL_LLH_LEN)
+#else
+#  define BASE_LLH_LEN  14
+#endif
 
+#ifdef OPENVPN_OUTER
+#  define UIP_CONF_LLH_LEN  14
+#else
+#  define UIP_CONF_LLH_LEN  BASE_LLH_LEN
+#endif
 
 /* We have a one byte LLH on RFM12 however we might need to pass
    the packet to ethernet, therefore 14 is simpler. */
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
-#  ifdef OPENVPN_SUPPORT
-#    define RFM12_BRIDGE_OFFSET  (OPENVPN_TOTAL_LLH_LEN - RFM12_LLH_LEN)
-#  else
-#    define RFM12_BRIDGE_OFFSET  (14 - RFM12_LLH_LEN)
-#  endif
-#  ifdef RFM12_OUTER
-#    define UIP_CONF_LLH_LEN     (RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN)
-#  endif
-#endif /* RFM12_SUPPORT && ENC28J60_SUPPORT */
-
-/* We don't have a LLH on ZBus however we might need to pass
-   the packet to ethernet, therefore 14 is simpler. */
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
-#  ifdef OPENVPN_SUPPORT
-#    define ZBUS_BRIDGE_OFFSET  OPENVPN_TOTAL_LLH_LEN
-#  else
-#    define ZBUS_BRIDGE_OFFSET  14
-#  endif
-#ifdef ZBUS_OUTER
-#  define UIP_CONF_LLH_LEN       ZBUS_BRIDGE_OFFSET
-#endif
-#endif /* ZBUS_SUPPORT && ENC28J60_SUPPORT */
+#define RFM12_BRIDGE_OFFSET  (BASE_LLH_LEN - RFM12_LLH_LEN)
+#define ZBUS_BRIDGE_OFFSET   (BASE_LLH_LEN)
+#define USB_BRIDGE_OFFSET    (BASE_LLH_LEN)
 
 
 #endif /* not UIP_MULTI_H */
