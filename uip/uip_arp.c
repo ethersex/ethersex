@@ -26,6 +26,8 @@
 
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
+ * Copyright (c) 2008, Stefan Siegl <stesie@brokenpipe.de>
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +68,8 @@
 #include "uip_arp.h"
 
 #include <string.h>
+
+#define flip(t,a,b)  do { t __j = a; a = b; b = __j; } while(0)
 
 #ifdef ENC28J60_SUPPORT
 #if !UIP_CONF_IPV6
@@ -297,7 +301,26 @@ uip_arp_arpin(void)
   case HTONS(ARP_REQUEST):
     /* ARP request. If it asked for our address, we send out a
        reply. */
-    if(uip_ipaddr_cmp(BUF->dipaddr, uip_hostaddr)) {
+    if(uip_ipaddr_cmp(BUF->dipaddr, uip_hostaddr)
+#ifdef RFM12_ARP_PROXY
+       /* If RFM12 ARP-proxy is enabled, check that one's IP address
+	  as well and possibly answer it. */
+       || uip_ipaddr_maskcmp(BUF->dipaddr, rfm12_stack_hostaddr,
+			     rfm12_stack_netmask)
+#endif
+#ifdef ZBUS_ARP_PROXY
+       /* If ZBUS ARP-proxy is enabled, check that one's IP address
+	  as well and possibly answer it. */
+       || uip_ipaddr_maskcmp(BUF->dipaddr, zbus_stack_hostaddr,
+			     zbus_stack_netmask)
+#endif
+#ifdef USB_ARP_PROXY
+       /* If USB ARP-proxy is enabled, check that one's IP address
+	  as well and possibly answer it. */
+       || uip_ipaddr_maskcmp(BUF->dipaddr, usb_stack_hostaddr,
+			     usb_stack_netmask)
+#endif
+       ) {
       /* First, we register the one who made the request in our ARP
 	 table, since it is likely that we will do more communication
 	 with this host in the future. */
@@ -310,11 +333,15 @@ uip_arp_arpin(void)
       memcpy(BUF->shwaddr.addr, uip_ethaddr.addr, 6);
       memcpy(BUF->ethhdr.src.addr, uip_ethaddr.addr, 6);
       memcpy(BUF->ethhdr.dest.addr, BUF->dhwaddr.addr, 6);
-      
-      BUF->dipaddr[0] = BUF->sipaddr[0];
-      BUF->dipaddr[1] = BUF->sipaddr[1];
-      BUF->sipaddr[0] = uip_hostaddr[0];
-      BUF->sipaddr[1] = uip_hostaddr[1];
+
+      for (uint8_t i = 0; i < 4; i ++)
+	flip (uint8_t, ((uint8_t *) BUF->dipaddr)[i],
+	      ((uint8_t *) BUF->sipaddr)[i]);
+
+      /* BUF->dipaddr[0] = BUF->sipaddr[0];
+	 BUF->dipaddr[1] = BUF->sipaddr[1];
+	 BUF->sipaddr[0] = uip_hostaddr[0];
+	 BUF->sipaddr[1] = uip_hostaddr[1]; */
 
       BUF->ethhdr.type = HTONS(UIP_ETHTYPE_ARP);
       uip_len = sizeof(struct arp_hdr);

@@ -337,6 +337,8 @@ else
   	ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
         fi
       fi
+
+      dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT
     fi
     endmenu
   fi
@@ -467,6 +469,8 @@ else
 	ipv4 "IP address" CONF_ZBUS_IP "192.168.5.1"
 	ipv4 "Netmask" CONF_ZBUS_IP4_NETMASK "255.255.255.0"
       fi
+
+      dep_bool "ZBUS ARP-Proxy" ZBUS_ARP_PROXY $ENC28J60_SUPPORT
     fi
     endmenu
   fi
@@ -533,6 +537,8 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
       ipv4 "IP address" CONF_USB_NET_IP "192.168.5.1"
       ipv4 "Netmask" CONF_USB_NET_IP4_NETMASK "255.255.255.0"
     fi
+
+    dep_bool "USBnet ARP-Proxy" USB_ARP_PROXY $ENC28J60_SUPPORT
   fi
 
   dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
