@@ -82,10 +82,10 @@
 #endif
 
 #define chain(func)				\
-  enc_test (func)				\
-  else rfm12_test (func)			\
+  rfm12_test (func)				\
   else usb_net_test (func)			\
-  else zbus_test (func)
+  else zbus_test (func)				\
+  else enc_test (func)
 
 
 void
