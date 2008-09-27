@@ -40,6 +40,8 @@ void test(void)
 #endif
 }
 
+
+
 /* Cron configuration:
  * Fields: Min Hour Day Month Dow
  * Values: 
@@ -47,25 +49,29 @@ void test(void)
  * * >0    for exactly this value in this field
  * * < -1  step value, e.g. -2: every second minute
  */
+#define USE_UTC 1
+#define USE_LOCAL 0
 
 struct cron_event_t events[] PROGMEM = 
-{ { { {-1, -2, -1, -1, -1} }, test}, /* when hour % 2 == 0 */
-  { { {51, -1, -1, -1, -1} }, test}, /* when minute is 51 */
-  { { {-2, -1, -1, -1, -1} }, test}, /* when minute % 2 == 0 */
-  { { {-1, -1, -1, -1, -1} }, NULL},
+{ { { {-1, -2, -1, -1, -1} }, test, USE_UTC}, /* when hour % 2 == 0 */
+  { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
+  { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
+  /* This is only the end of table marker */
+  { { {-1, -1, -1, -1, -1} }, NULL, 0},
 };
 
 void 
 cron_periodic(void)
 /* {{{ */ {
     /* convert time to something useful */
-    struct clock_datetime_t d;
+    struct clock_datetime_t d, ld;
     uint32_t timestamp = clock_get_time();
 
     /* Only check the tasks every minute */
     if ((timestamp - last_check) < 60) return;
 
     clock_datetime(&d, timestamp);
+    clock_localtime(&ld, timestamp);
 
     struct cron_event_t event;
 
@@ -76,7 +82,11 @@ cron_periodic(void)
         /* end of task list reached */
         if (event.handler == NULL) break;
 
-        uint8_t r = cron_check_event(&event, &d);
+        uint8_t r;
+        if (event.use_utc)
+          r = cron_check_event(&event, &d);
+        else
+          r = cron_check_event(&event, &ld);
 
         /* if it matches, execute the handler function */
         if (r > 0) {

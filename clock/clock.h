@@ -64,6 +64,7 @@ void clock_set_time(uint32_t new_sync_timestamp);
 
 /** convert time in timestamp to a datetime struct */
 void clock_datetime(struct clock_datetime_t *d, uint32_t timestamp);
+void clock_localtime(struct clock_datetime_t *d, uint32_t timestamp);
 
 /** convert current time to a datetime struct */
 #define clock_current_datetime(d) clock_datetime(d, clock_get_time())
