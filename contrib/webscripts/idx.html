@@ -1,0 +1,57 @@
+<html><head>
+<title>Ethersex - Analog Control</title>
+  <script src="scr.js" type="text/javascript"></script>
+  <link href="sty.c"  media="screen" rel="Stylesheet" type="text/css" />
+  <script type="text/javascript">
+	  function meter_set_value(idx, value) {
+		  var meter = returnObjById("channel" + idx);
+			meter.style.paddingRight = (parseInt(meter.parentNode.style.width) / 100 * value) + "px";
+		  var val = returnObjById("value" + idx);
+			val.innerHTML = value.toFixed(2) + " %";
+		}
+
+function generate_meter(idx) {
+				document.write("<tr class=iotable><td>Analog Channel " + idx + " (PA" + idx + ")</td>");
+				document.write("<td style='width: 500px;'>");
+				document.write("<span class=channel id=channel" + idx + ">");
+				document.write("</span></td><td id=value" + idx +"></td></tr>");
+}
+
+function adc_get_callback(request) {
+				var values = request.responseText.split(" ");
+				for (var i = 0; i < 8; i++) {
+				  meter_set_value(i, parseInt(values[i], 16)/1023.0 * 100);
+				}
+}
+
+window.onload = function () { 
+      setInterval('ArrAjax.aufruf("/ecmd?adc get", adc_get_callback)', 1000);
+		}
+		
+    
+
+</script>
+
+<style type="text/css">
+	<!--
+	.channel {
+		background-color: green;
+
+	}
+	.meter {
+		width: 500px;
+	}
+	.iotable {
+					text-align: left;
+	}
+	-->
+</style>
+</head><body>
+<h1>Ethersex Analog Control</h1>
+
+<table >
+<script type="text/javascript"> for (var x = 0; x< 8; x++) { generate_meter(x); } </script>
+</table>
+
+<div id="logconsole"></div>
+</body>

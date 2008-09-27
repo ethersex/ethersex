@@ -1,0 +1,30 @@
+<html><head>
+<title>Ethersex - Main</title>
+  <script src="scr.js" type="text/javascript"></script>
+  <link href="sty.c"  media="screen" rel="Stylesheet" type="text/css" />
+  <script type="text/javascript"><!--
+function cmd_enter() {
+  var cmd = returnObjById("cmdline");
+  logger("notice", cmd.value, true);
+  var url = '/ecmd?' + cmd.value;
+  ArrAjax.aufruf(url, cmd_enter_cb);
+  cmd.value = ""
+}
+function cmd_enter_cb(request, data) {
+  logger("0", request.responseText,true);
+}
+    
+
+    //--!>
+</script>
+</head><body>
+<h1>Ecmd Interface</h1>
+<div id="logconsole"></div>
+<br/><div>
+<input id="cmdline" size=80
+  onblur="javascript:this.focus()" 
+  onchange="javascript:cmd_enter()"> 
+  <input type=button value=Senden onclick="javascript:cmd_enter()"> 
+</div>
+
+</body>
