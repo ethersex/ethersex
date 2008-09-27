@@ -67,6 +67,7 @@ void clock_datetime(struct clock_datetime_t *d, uint32_t timestamp);
 
 /** convert current time to a datetime struct */
 #define clock_current_datetime(d) clock_datetime(d, clock_get_time())
+#define clock_current_localtime(d) clock_localtime(d, clock_get_time())
 
 /** test if given year is a leap year */
 #define is_leap_year(y)     (((y % 4) == 0) && ( (y % 100 != 0) || (y % 400 == 0) ))
