@@ -185,7 +185,7 @@ void timer_process(void)
             fs20_global.ws300.last_update++;
 #           endif
 
-#           ifdef CLOCK_SUPORT
+#           ifdef CLOCK_SUPPORT
             clock_tick();
 #           endif
 #           ifdef UIP_SUPPORT
