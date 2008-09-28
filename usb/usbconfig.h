@@ -12,6 +12,10 @@
 #ifndef __usbconfig_h_included__
 #define __usbconfig_h_included__
 
+#ifndef AUTOCONF_INCLUDED
+#include "../autoconf.h"
+#endif
+
 /*
 General Description:
 This file is an example configuration (with inline documentation) for the USB
