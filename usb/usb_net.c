@@ -120,6 +120,7 @@ usb_net_periodic(void)
 void
 usb_net_init (void)
 {
+#ifdef UIP_MULTI_STACK
   uip_ipaddr_t ip;
 
   uip_stack_set_active (STACK_USB);
@@ -133,6 +134,7 @@ usb_net_init (void)
   CONF_USB_NET_IP4_NETMASK;
   uip_setnetmask (ip);
 #endif
+#endif /* UIP_MULTI_STACK */
 }
 
 #endif
