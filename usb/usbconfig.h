@@ -101,7 +101,9 @@ section at the end of this file).
  * interval. The value is in milliseconds and must not be less than 10 ms for
  * low speed devices.
  */
-/* #define USB_CFG_IS_SELF_POWERED         0 */
+#ifndef USB_CFG_IS_SELF_POWERED
+#define USB_CFG_IS_SELF_POWERED         0
+#endif
 /* Define this to 1 if the device has its own power supply. Set it to 0 if the
  * device is powered from the USB bus.
  */
