@@ -246,13 +246,19 @@ else
 
   mainmenu_option next_comment
   comment "System clock"
-  bool "System clock support" CLOCK_SUPPORT
-  dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
-  dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
-  dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
-  dep_bool "Cron daemon" CRON_SUPPORT $CLOCK_SUPPORT
-  dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
-  dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
+    bool "System clock support" CLOCK_SUPPORT
+    dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
+    dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
+    dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+    dep_bool "Cron daemon" CRON_SUPPORT $CLOCK_SUPPORT
+    dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+    dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
+    if [ "$CLOCK_SUPPORT" = "y" ]; then
+      choice 'Time Zone'					\
+          "UTC			TIMEZONE_UTC	\
+	   CET/CEST		TIMEZONE_CEST"	\
+	   UTC
+    fi 
   endmenu
 
   mainmenu_option next_comment

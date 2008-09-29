@@ -205,3 +205,47 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
     d->day = (uint8_t)days+1;
 
 }
+
+#ifdef TIMEZONE_CEST
+/* This function checks if the last day in month is:
+ * -1: in the future
+ *  0: today is the last sunday in month
+ *  1: in the past
+ * This will ONLY work with month.day == 31
+ */
+static int8_t last_sunday_in_month(uint8_t day, uint8_t dow) 
+{
+  uint8_t last_sunday = day;
+  if (last_sunday > dow) 
+    last_sunday -= dow + 1;
+
+  if ((31 - last_sunday) >= 7) {
+    if ((dow % 7) == 0) return 0;
+    return 1;
+  }
+  return -1;
+}
+#endif
+
+void 
+clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
+{
+#ifdef TIMEZONE_CEST
+  clock_datetime(d, timestamp);
+  /* We must determine, if we have CET or CEST */
+  int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
+  /* march until october can be summer time */
+  if (d->month < 3 || d->month > 10) {
+    timestamp += 3600;
+  } else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
+    timestamp += 3600;
+  } else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 1))) {
+    timestamp += 3600;
+  } else {
+    timestamp += 7200;
+  }
+  clock_datetime(d, timestamp);
+#else 
+  clock_datetime(d, timestamp);
+#endif
+}

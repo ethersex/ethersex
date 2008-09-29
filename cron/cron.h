@@ -48,6 +48,7 @@ struct cron_event_t {
         };
     };
     void (*handler)(void);
+    uint8_t use_utc;
 };
 
 /* }}} */

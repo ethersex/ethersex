@@ -1,0 +1,11 @@
+#!/bin/sh
+
+HOST=dsex1
+
+echo '!fs format' | nc $HOST 2701
+
+atftp -p -l idx.html -r idx.ht $HOST
+atftp -p -l io.html -r io.ht $HOST
+atftp -p -l cmd.html -r cmd.ht $HOST
+atftp -p -l scr.js $HOST
+atftp -p -l sty.c $HOST
