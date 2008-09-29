@@ -83,8 +83,8 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
     cfg_base.crc = checksum;
 
     /* save config */
-    eeprom_write_block(EEPROM_CONFIG_BASE, &cfg_base,
-            sizeof(struct eeprom_config_base_t));
+    __eewr_block(EEPROM_CONFIG_BASE, &cfg_base,
+            sizeof(struct eeprom_config_base_t), eeprom_write_byte);
 
     return 0;
 
@@ -124,8 +124,8 @@ int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
     cfg_ext.crc = checksum;
 
     /* save config */
-    eeprom_write_block(EEPROM_CONFIG_EXT, &cfg_ext,
-            sizeof(struct eeprom_config_ext_t));
+    __eewr_block(EEPROM_CONFIG_EXT, &cfg_ext,
+            sizeof(struct eeprom_config_ext_t), eeprom_write_byte);
 
     return 0;
 

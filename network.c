@@ -161,8 +161,8 @@ void network_init(void)
         cfg_base->crc = checksum;
 
         /* save config */
-        eeprom_write_block(EEPROM_CONFIG_BASE, buf,
-			   sizeof(struct eeprom_config_base_t));
+        __eewr_block(EEPROM_CONFIG_BASE, buf,
+			   sizeof(struct eeprom_config_base_t), eeprom_write_byte);
 #       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
@@ -229,8 +229,8 @@ void network_init(void)
         cfg_ext->crc = checksum;
 
         /* save config */
-        eeprom_write_block(EEPROM_CONFIG_EXT, buf,
-			   sizeof(struct eeprom_config_ext_t));
+        __eewr_block(EEPROM_CONFIG_EXT, buf,
+			   sizeof(struct eeprom_config_ext_t), eeprom_write_byte);
 #       endif /* !BOOTLOADER_SUPPORT */
 
     } else {
