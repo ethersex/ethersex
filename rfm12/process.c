@@ -35,7 +35,7 @@ rfm12_process (void)
   if (! uip_len)
     return;
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ROUTER_SUPPORT
 #ifdef RFM12_RAW_SUPPORT
   if (rfm12_raw_conn->rport) {
     /* rfm12 raw capturing active, forward in udp/ip encapsulated form,

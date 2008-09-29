@@ -36,7 +36,7 @@ zbus_process(void)
   if (! (recv && recv->len))
     return;
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ROUTER_SUPPORT
   memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
 
   /* uip_input expects the number of bytes including the LLH. */

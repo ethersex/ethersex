@@ -61,7 +61,7 @@ uint8_t
 zbus_send_data(uint8_t *data, uint16_t len)
 {
   if (send_ctx.len == 0) {
-#if defined(SKIPJACK_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(SKIPJACK_SUPPORT) && defined(ROUTER_SUPPORT)
     if (recv_ctx.len != 0 || len > ZBUS_RECV_BUFFER) 
       return 0;			/* we mustn't use recv buffer yet,
 				   nor may we overflow it. */
