@@ -57,7 +57,7 @@ rfm12_process (void)
 
   /* uip_input expects the number of bytes including the LLH. */
   uip_len = uip_len + RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN;
-#endif /* not ENC28J60_SUPPORT */
+#endif /* not ROUTER_SUPPORT */
 
   router_input (STACK_RFM12);
 

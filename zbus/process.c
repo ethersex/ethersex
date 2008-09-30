@@ -62,7 +62,7 @@ zbus_process(void)
   }
 #endif
 
-#else  /* not ENC28J60_SUPPORT */
+#else  /* not ROUTER_SUPPORT */
   /* We don't need to copy from recv->data, since ZBus already shares
      the input buffer.
 
