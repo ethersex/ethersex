@@ -25,12 +25,12 @@
 #define UIP_ZBUS_H
 
 #include "../config.h"
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(ZBUS_SUPPORT) && defined(ROUTER_SUPPORT)
 
 #include "uip-conf.h"
 
 void zbus_stack_init (void);
 
 
-#endif /* ZBUS_SUPPORT and ENC28J60_SUPPORT */
+#endif /* ZBUS_SUPPORT and ROUTER_SUPPORT */
 #endif /* not UIP_ZBUS_H */
