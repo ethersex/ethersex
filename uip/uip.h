@@ -1565,8 +1565,9 @@ struct uip_udpip_hdr {
 #define UIP_TCPIP_HLEN UIP_IPTCPH_LEN
 
 
+extern uip_ipaddr_t uip_draddr;
 #if !UIP_MULTI_STACK
-extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
+extern uip_ipaddr_t uip_hostaddr, uip_netmask;
 extern u8_t uip_prefix_len;
 #endif
 

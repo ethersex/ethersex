@@ -103,8 +103,9 @@
 /* Variable definitions. */
 
 
+uip_ipaddr_t uip_draddr;
 #if !UIP_MULTI_STACK
-uip_ipaddr_t uip_hostaddr, uip_draddr;
+uip_ipaddr_t uip_hostaddr;
 
 #if UIP_CONF_IPV6
 u8_t uip_prefix_len;

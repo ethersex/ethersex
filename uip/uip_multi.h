@@ -31,7 +31,6 @@ struct uip_stack {
 #else
   uip_ipaddr_t *uip_netmask;
 #endif
-  uip_ipaddr_t *uip_draddr;
 
   struct uip_stats *uip_stat;  
 };
@@ -40,8 +39,7 @@ struct uip_stack {
   foo struct uip_stats stackname ## _stat;				\
   foo uip_ipaddr_t stackname ## _hostaddr;				\
   foo uip_ipaddr_t stackname ## _netmask;				\
-  foo u8_t stackname ## _prefix_len;				        \
-  foo uip_ipaddr_t stackname ## _draddr;
+  foo u8_t stackname ## _prefix_len;				        
 
 #define STACK_PROTOTYPES(stackname)  STACK_HACKARY(extern,stackname)
 #define STACK_DEFINITIONS(stackname) STACK_HACKARY(,stackname)
@@ -56,7 +54,6 @@ extern struct uip_stack *uip_stack;
 #define uip_hostaddr     (* (uip_stack->uip_hostaddr))
 #define uip_netmask      (* (uip_stack->uip_netmask))
 #define uip_prefix_len   (* (uip_stack->uip_prefix_len))
-#define uip_draddr       (* (uip_stack->uip_draddr))
 #define uip_stat         (* (uip_stack->uip_stat))
 
 

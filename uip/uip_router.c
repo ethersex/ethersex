@@ -47,12 +47,12 @@
 
 #if UIP_CONF_IPV6
 #define forward_test(prefix,stack)					\
-  if(uip_ipaddr_prefixlencmp(BUF->destipaddr, prefix ## _hostaddr,	\
+  if(uip_ipaddr_prefixlencmp(forwardip, prefix ## _hostaddr,	\
                              prefix ## _prefix_len))			\
     dest = stack;
 #else /* !UIP_CONF_IPV6 */
 #define forward_test(prefix,stack)				\
-  if(uip_ipaddr_maskcmp(BUF->destipaddr, prefix ## _hostaddr,	\
+  if(uip_ipaddr_maskcmp(forwardip, prefix ## _hostaddr,	\
 			prefix ## _netmask))			\
     dest = stack;
 #endif
@@ -156,14 +156,23 @@ router_input(uint8_t origin)
 uint8_t
 router_find_destination (void)
 {
-  uint8_t dest;
+  uint8_t dest = 0;
+  /* This variable is used in chain(forward_test) */
+  uip_ipaddr_t *forwardip = &BUF->destipaddr;
 
-  chain (forward_test)
-  else
+  while (1) {
+    chain (forward_test)
+    else
     {
-      /* Unknown network, use default route, i.e. ethernet */
-      dest = 0;			/* XXX or OpenVPN? */
+      if (dest == 0xff) return 0; /* Reroute with default router failed */
+
+      /* Can't find destination for this forwardip,
+       * we try the default gateway */
+      forwardip = &uip_draddr;
+      dest = 0xff; /* Here prevent our self from running into an endless loop */
     }
+    if (dest != 0xff) break;
+  }
 
   return dest;
 }

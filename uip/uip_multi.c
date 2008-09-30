@@ -46,7 +46,6 @@
   {						\
     &stackname ## _hostaddr,			\
     &stackname ## _prefix_len,                  \
-    &stackname ## _draddr,			\
     &stackname ## _stat,			\
   }
 
@@ -56,7 +55,6 @@
   {						\
     &stackname ## _hostaddr,			\
     &stackname ## _netmask,			\
-    &stackname ## _draddr,			\
     &stackname ## _stat,			\
   }
 
