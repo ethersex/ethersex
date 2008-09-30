@@ -47,12 +47,12 @@
 
 #if UIP_CONF_IPV6
 #define forward_test(prefix,stack)					\
-  if(uip_ipaddr_prefixlencmp(forwardip, prefix ## _hostaddr,	\
+  if(uip_ipaddr_prefixlencmp(*forwardip, prefix ## _hostaddr,	\
                              prefix ## _prefix_len))			\
     dest = stack;
 #else /* !UIP_CONF_IPV6 */
 #define forward_test(prefix,stack)				\
-  if(uip_ipaddr_maskcmp(forwardip, prefix ## _hostaddr,	\
+  if(uip_ipaddr_maskcmp(*forwardip, prefix ## _hostaddr,	\
 			prefix ## _netmask))			\
     dest = stack;
 #endif
