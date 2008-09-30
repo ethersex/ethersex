@@ -48,7 +48,7 @@ static uint8_t send_escape_data = 0;
 static uint8_t recv_escape_data = 0;
 static uint8_t bus_blocked = 0;
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ROUTER_SUPPORT
 static uint8_t recv_buffer[ZBUS_RECV_BUFFER];
 #endif
 
@@ -155,7 +155,7 @@ zbus_core_init(void)
     /* clear the buffers */
     send_ctx.len = 0;
     recv_ctx.len = 0;
-#ifdef ENC28J60_SUPPORT
+#ifdef ROUTER_SUPPORT
     recv_ctx.data = (uint8_t *)recv_buffer;
 #else
     recv_ctx.data = (uint8_t *)uip_buf;
@@ -269,7 +269,7 @@ SIGNAL(usart(USART,_RX_vect))
   /* Old data is not read by application, ignore message */
   if (recv_ctx.len != 0) return;
 
-#if defined(SKIPJACK_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(SKIPJACK_SUPPORT) && defined(ROUTER_SUPPORT)
   /* Don't accept incoming message if we're sending and sharing
      send and receive buffer. */
   if (send_ctx.len != 0) return;

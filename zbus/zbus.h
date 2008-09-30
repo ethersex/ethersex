@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ROUTER_SUPPORT
   #define ZBUS_RECV_BUFFER 128
 #else
   #define ZBUS_RECV_BUFFER UIP_CONF_BUFFER_SIZE
