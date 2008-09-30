@@ -64,10 +64,6 @@ uint8_t zbus_send_data(uint8_t *data, uint16_t len);
 void zbus_rxstart (void);
 struct zbus_ctx *zbus_rxfinish(void);
 
-#if !defined(ENC28J60_SUPPORT)
-#define zbus_transmit_packet() zbus_send_data(uip_buf, uip_len)
-#endif
-
 void zbus_process(void);
 
 #endif /* _ZBUS_H */

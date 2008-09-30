@@ -61,7 +61,7 @@ uint8_t router_find_destination (void);
 
 #elif defined(ZBUS_SUPPORT)
 #  include "../zbus/zbus.h"
-#  define router_output() (zbus_transmit_packet(), 0)
+#  define router_output() (zbus_send_data (uip_buf, uip_len));
 
 #elif defined(USB_NET_SUPPORT)
 #  include "../usb/usb_net.h"
