@@ -850,6 +850,8 @@ function parse_config_files () {
 	echo 'default=$1' >>MCmenu0
 	echo "menu_name 'Main Menu'" >>MCmenu0
 
+	echo "g_dflt_config" 	>>MCmenu0
+
 	if [ "_$single_menu_mode" = "_TRUE" ]
 	then
 		parser2
@@ -978,6 +980,39 @@ EOM
 			;;
 		esac
 	done
+}
+
+g_dflt_config () {
+	echo -n "get_dflt_config 'Load a Default Configuration  --->' "\
+		>>MCmenu
+}
+
+get_dflt_config () {
+	while true
+	do
+		if $DIALOG --title "Load Default Configuration" \
+			--backtitle "$backtitle" \
+			--radiolist "\
+Select the default profile you wish to load." \
+			15 70 7 \
+			defconfig	"Standard Ethersex"		0 \
+			bootloader	"Ethernet Bootloader"		0 \
+			rfm12-teensy	"RFM12 Standalone"		0 \
+			zbus-teensy	"ZBUS Standalone"		0 \
+			usb-teensy	"USB (Network) Standalone"	0 \
+			no-network	"No Networking (USB only)"	0 \
+			 2>MCdialog.out
+		then
+			choice=`cat MCdialog.out`
+			break
+		fi
+
+		help "$firstchoice" "$title"
+	done
+
+	load_config_file "scripts/profiles/$choice"
+
+	rm -f help.out MCdialog.out
 }
 
 #
@@ -1478,7 +1513,7 @@ if [ "$1" != "" ] ; then
 	CONFIG_IN=$1
 fi
 
-DEFAULTS=defconfig
+DEFAULTS=scripts/profiles/defconfig
 if [ -f .config ]; then
   DEFAULTS=.config
 fi
