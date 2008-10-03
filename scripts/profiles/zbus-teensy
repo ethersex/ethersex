@@ -5,24 +5,24 @@
 #
 # General Setup
 #
-# CONFIG_EXPERIMENTAL is not set
-# atmega8 is not set
+CONFIG_EXPERIMENTAL=y
+MCU=atmega8
+atmega8=y
 # atmega88 is not set
 # atmega162 is not set
 # atmega32 is not set
-MCU=atmega644
-atmega644=y
-FREQ=20000000
+# atmega644 is not set
+FREQ=8000000
 # BOOTLOADER_SUPPORT is not set
-# TEENSY_SUPPORT is not set
+TEENSY_SUPPORT=y
 UIP_SUPPORT=y
 # IPV6_SUPPORT is not set
 IPV4_SUPPORT=y
 # ROUTER_SUPPORT is not set
 # IP_FORWARDING_SUPPORT is not set
-ENC28J60_SUPPORT=y
+# ENC28J60_SUPPORT is not set
 # RFM12_SUPPORT is not set
-# ZBUS_SUPPORT is not set
+ZBUS_SUPPORT=y
 # USB_NET_SUPPORT is not set
 NET_SUPPORT=y
 
@@ -37,7 +37,7 @@ NET_SUPPORT=y
 #
 # Network protocols
 #
-TCP_SUPPORT=y
+# TCP_SUPPORT is not set
 UDP_SUPPORT=y
 BROADCAST_SUPPORT=y
 ICMP_SUPPORT=y
@@ -69,8 +69,8 @@ ICMP_SUPPORT=y
 # Etherrape Control Interface (ECMD)
 #
 ECMD_PARSER_SUPPORT=y
-ECMD_SUPPORT=y
-# UECMD_SUPPORT is not set
+# ECMD_SUPPORT is not set
+UECMD_SUPPORT=y
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
 # ECMD_SERIAL_SUPPORT is not set
@@ -98,14 +98,11 @@ ECMD_SUPPORT=y
 #
 
 #
-# ENC28J60 configuration
+# Network configuration
 #
 # IPV6_STATIC_SUPPORT is not set
-CONF_ETHERRAPE_MAC="ac:de:48:fd:0f:d0"
 CONF_HOSTNAME="ethersex"
 CONF_ETHERRAPE_IP="192.168.23.244"
-CONF_ETHERRAPE_IP4_NETMASK="255.255.255.0"
-CONF_ETHERRAPE_IP4_GATEWAY="192.168.23.23"
 
 #
 # USB Support (EXPERIMENTAL)
@@ -117,6 +114,9 @@ CONF_ETHERRAPE_IP4_GATEWAY="192.168.23.23"
 # RFM12 FSK transmitter
 #
 # RFM12_ARP_PROXY is not set
+CONFIG_NO_I2C=y
+# I2C_SUPPORT is not set
+# I2C_SLAVE_SUPPORT is not set
 # FS20_SUPPORT is not set
 # RC5_SUPPORT is not set
 # MODBUS_SUPPORT is not set
@@ -125,10 +125,10 @@ CONF_ETHERRAPE_IP4_GATEWAY="192.168.23.23"
 #
 # ZBUS configuration
 #
+ZBUS_USART_0=y
+ZBUS_USE_USART=0
 # ZBUS_ARP_PROXY is not set
 # MCUF_SUPPORT is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
-# ECMD_SERIAL_USART_RS485_SUPPORT is not set
 
 #
 # I/O support
@@ -157,3 +157,4 @@ PORTIO_SIMPLE_SUPPORT=y
 # HTTPD_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
 # CONTROL6_SUPPORT is not set
+USART_SUPPORT=y

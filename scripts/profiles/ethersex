@@ -5,7 +5,7 @@
 #
 # General Setup
 #
-# CONFIG_EXPERIMENTAL is not set
+CONFIG_EXPERIMENTAL=y
 # atmega8 is not set
 # atmega88 is not set
 # atmega162 is not set
@@ -16,10 +16,11 @@ FREQ=20000000
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 UIP_SUPPORT=y
-# IPV6_SUPPORT is not set
-IPV4_SUPPORT=y
-# ROUTER_SUPPORT is not set
-# IP_FORWARDING_SUPPORT is not set
+IPV6_SUPPORT=y
+# IPV4_SUPPORT is not set
+ROUTER_SUPPORT=y
+IP_FORWARDING_SUPPORT=y
+UIP_MULTI_STACK=y
 ENC28J60_SUPPORT=y
 # RFM12_SUPPORT is not set
 # ZBUS_SUPPORT is not set
@@ -49,6 +50,61 @@ ICMP_SUPPORT=y
 # OPENVPN_SUPPORT is not set
 # RFM12_RAW_SUPPORT is not set
 # ZBUS_RAW_SUPPORT is not set
+
+#
+# Interfaces
+#
+
+#
+# ENC28J60 configuration
+#
+# IPV6_STATIC_SUPPORT is not set
+CONF_ETHERRAPE_MAC="ac:de:48:fd:0f:d0"
+CONF_HOSTNAME="ethersex"
+
+#
+# USB Support (EXPERIMENTAL)
+#
+# USB_SUPPORT is not set
+
+#
+# RFM12 FSK transmitter
+#
+# RFM12_ARP_PROXY is not set
+CONFIG_NO_I2C=y
+# I2C_SUPPORT is not set
+# I2C_SLAVE_SUPPORT is not set
+# FS20_SUPPORT is not set
+# RC5_SUPPORT is not set
+# MODBUS_SUPPORT is not set
+# YPORT_SUPPORT is not set
+
+#
+# ZBUS configuration
+#
+# ZBUS_ARP_PROXY is not set
+# MCUF_SUPPORT is not set
+# ECMD_SERIAL_USART_SUPPORT is not set
+# ECMD_SERIAL_USART_RS485_SUPPORT is not set
+
+#
+# I/O support
+#
+# CONFIG_IO_NONE is not set
+PORTIO_SIMPLE_SUPPORT=y
+# PORTIO_SUPPORT is not set
+# HC595_SUPPORT is not set
+
+#
+# HC165 input expansion
+#
+# HC165_SUPPORT is not set
+# HC165_INVERSE_OUTPUT is not set
+# PS2_SUPPORT is not set
+# PS2_GERMAN_LAYOUT is not set
+# ADC_SUPPORT is not set
+# ONEWIRE_SUPPORT is not set
+# NAMED_PIN_SUPPORT is not set
 
 #
 # Applications
@@ -92,62 +148,6 @@ ECMD_SUPPORT=y
 # DYNDNS_SUPPORT is not set
 # WATCHCAT_SUPPORT is not set
 # SNMP_SUPPORT is not set
-
-#
-# Interfaces
-#
-
-#
-# ENC28J60 configuration
-#
-# IPV6_STATIC_SUPPORT is not set
-CONF_ETHERRAPE_MAC="ac:de:48:fd:0f:d0"
-CONF_HOSTNAME="ethersex"
-CONF_ETHERRAPE_IP="192.168.23.244"
-CONF_ETHERRAPE_IP4_NETMASK="255.255.255.0"
-CONF_ETHERRAPE_IP4_GATEWAY="192.168.23.23"
-
-#
-# USB Support (EXPERIMENTAL)
-#
-# USB_SUPPORT is not set
-# ECMD_USB_SUPPORT is not set
-
-#
-# RFM12 FSK transmitter
-#
-# RFM12_ARP_PROXY is not set
-# FS20_SUPPORT is not set
-# RC5_SUPPORT is not set
-# MODBUS_SUPPORT is not set
-# YPORT_SUPPORT is not set
-
-#
-# ZBUS configuration
-#
-# ZBUS_ARP_PROXY is not set
-# MCUF_SUPPORT is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
-# ECMD_SERIAL_USART_RS485_SUPPORT is not set
-
-#
-# I/O support
-#
-# CONFIG_IO_NONE is not set
-PORTIO_SIMPLE_SUPPORT=y
-# PORTIO_SUPPORT is not set
-# HC595_SUPPORT is not set
-
-#
-# HC165 input expansion
-#
-# HC165_SUPPORT is not set
-# HC165_INVERSE_OUTPUT is not set
-# PS2_SUPPORT is not set
-# PS2_GERMAN_LAYOUT is not set
-# ADC_SUPPORT is not set
-# ONEWIRE_SUPPORT is not set
-# NAMED_PIN_SUPPORT is not set
 
 #
 # work in progress bits (enable with care)

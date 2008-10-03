@@ -5,26 +5,27 @@
 #
 # General Setup
 #
-# CONFIG_EXPERIMENTAL is not set
-# atmega8 is not set
+CONFIG_EXPERIMENTAL=y
+MCU=atmega8
+atmega8=y
 # atmega88 is not set
 # atmega162 is not set
 # atmega32 is not set
-MCU=atmega644
-atmega644=y
-FREQ=20000000
+# atmega644 is not set
+FREQ=16000000
 # BOOTLOADER_SUPPORT is not set
-# TEENSY_SUPPORT is not set
-UIP_SUPPORT=y
+TEENSY_SUPPORT=y
+# UIP_SUPPORT is not set
 # IPV6_SUPPORT is not set
-IPV4_SUPPORT=y
+# IPV4_SUPPORT is not set
 # ROUTER_SUPPORT is not set
 # IP_FORWARDING_SUPPORT is not set
-ENC28J60_SUPPORT=y
+# UIP_MULTI_STACK is not set
+# ENC28J60_SUPPORT is not set
 # RFM12_SUPPORT is not set
 # ZBUS_SUPPORT is not set
 # USB_NET_SUPPORT is not set
-NET_SUPPORT=y
+# NET_SUPPORT is not set
 
 #
 # Cryptographic functionality
@@ -37,10 +38,10 @@ NET_SUPPORT=y
 #
 # Network protocols
 #
-TCP_SUPPORT=y
-UDP_SUPPORT=y
-BROADCAST_SUPPORT=y
-ICMP_SUPPORT=y
+# TCP_SUPPORT is not set
+# UDP_SUPPORT is not set
+# BROADCAST_SUPPORT is not set
+# ICMP_SUPPORT is not set
 # BOOTP_SUPPORT is not set
 # BOOTP_TO_EEPROM_SUPPORT is not set
 # DNS_SUPPORT is not set
@@ -51,67 +52,21 @@ ICMP_SUPPORT=y
 # ZBUS_RAW_SUPPORT is not set
 
 #
-# Applications
-#
-
-#
-# System clock
-#
-# CLOCK_SUPPORT is not set
-# CLOCK_CRYSTAL_SUPPORT is not set
-# DCF77_SUPPORT is not set
-# NTP_SUPPORT is not set
-# CRON_SUPPORT is not set
-# NTPD_SUPPORT is not set
-# WHM_SUPPORT is not set
-
-#
-# Etherrape Control Interface (ECMD)
-#
-ECMD_PARSER_SUPPORT=y
-ECMD_SUPPORT=y
-# UECMD_SUPPORT is not set
-# ECMD_SERIAL_I2C_SUPPORT is not set
-# ECMD_USB_SUPPORT is not set
-# ECMD_SERIAL_SUPPORT is not set
-# ECMD_SENDER_SUPPORT is not set
-
-#
-# Character-LCD module support
-#
-# HD44780_SUPPORT is not set
-# HD44780_READBACK is not set
-# HD44780_USE_PORTC is not set
-# MDNS_SD_SUPPORT is not set
-# STELLA_SUPPORT is not set
-# UDP_ECHO_NET_SUPPORT is not set
-
-#
-# DynDNS support
-#
-# DYNDNS_SUPPORT is not set
-# WATCHCAT_SUPPORT is not set
-# SNMP_SUPPORT is not set
-
-#
 # Interfaces
 #
 
 #
-# ENC28J60 configuration
+# Network configuration
 #
 # IPV6_STATIC_SUPPORT is not set
-CONF_ETHERRAPE_MAC="ac:de:48:fd:0f:d0"
 CONF_HOSTNAME="ethersex"
-CONF_ETHERRAPE_IP="192.168.23.244"
-CONF_ETHERRAPE_IP4_NETMASK="255.255.255.0"
-CONF_ETHERRAPE_IP4_GATEWAY="192.168.23.23"
 
 #
 # USB Support (EXPERIMENTAL)
 #
-# USB_SUPPORT is not set
-# ECMD_USB_SUPPORT is not set
+USB_SUPPORT=y
+# USB_CFG_IS_SELF_POWERED is not set
+USB_CFG_MAX_BUS_POWER=20
 
 #
 # RFM12 FSK transmitter
@@ -148,6 +103,49 @@ PORTIO_SIMPLE_SUPPORT=y
 # ADC_SUPPORT is not set
 # ONEWIRE_SUPPORT is not set
 # NAMED_PIN_SUPPORT is not set
+
+#
+# Applications
+#
+
+#
+# System clock
+#
+# CLOCK_SUPPORT is not set
+# CLOCK_CRYSTAL_SUPPORT is not set
+# DCF77_SUPPORT is not set
+# NTP_SUPPORT is not set
+# CRON_SUPPORT is not set
+# NTPD_SUPPORT is not set
+# WHM_SUPPORT is not set
+
+#
+# Etherrape Control Interface (ECMD)
+#
+ECMD_PARSER_SUPPORT=y
+# ECMD_SUPPORT is not set
+# UECMD_SUPPORT is not set
+# ECMD_SERIAL_I2C_SUPPORT is not set
+ECMD_USB_SUPPORT=y
+# ECMD_SERIAL_SUPPORT is not set
+# ECMD_SENDER_SUPPORT is not set
+
+#
+# Character-LCD module support
+#
+# HD44780_SUPPORT is not set
+# HD44780_READBACK is not set
+# HD44780_USE_PORTC is not set
+# MDNS_SD_SUPPORT is not set
+# STELLA_SUPPORT is not set
+# UDP_ECHO_NET_SUPPORT is not set
+
+#
+# DynDNS support
+#
+# DYNDNS_SUPPORT is not set
+# WATCHCAT_SUPPORT is not set
+# SNMP_SUPPORT is not set
 
 #
 # work in progress bits (enable with care)
