@@ -316,7 +316,7 @@ function choice () {
 
 	echo -e "
 	function $firstchoice () \
-		{ l_choice '$title' \"$choices\" \"$current\" ;}" >>MCradiolists
+		{ l_choice '$title' \"$choices\" \"$current\" \"$define_symbol\" ;}" >>MCradiolists
 }
 
 } # END load_functions()
@@ -702,6 +702,7 @@ function l_choice () {
 	title="$1"
 	choices="$2"
 	current="$3"
+	define_symbol="$4"
         chosen=
 
 	#
@@ -749,6 +750,9 @@ function l_choice () {
 		if [ "$2" = "$choice" ]
 		then
 			eval $2=\"y\"
+			if [ \! -z "$define_symbol" ]; then
+				eval $define_symbol="$2"
+			fi
 		else
 			eval $2=\"n\"
 		fi
