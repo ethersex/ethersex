@@ -7,6 +7,6 @@
 
 git pull --quiet origin  >/dev/null  || exit 2
 
-for A in defconfig contrib/autotest/profiles/*; do
+for A in contrib/autotest/profiles/* scripts/profiles/*; do
   ./contrib/autotest/mailwrap "$A"
 done
