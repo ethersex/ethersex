@@ -7,10 +7,12 @@
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),mrproper)
+ifneq ($(MAKECMDGOALS),menuconfig)  
 
 # For each .o file we need a .d file.
 -include $(subst .o,.d,$(filter %.o,$(OBJECTS))) /dev/null
 
+endif
 endif
 endif
 endif

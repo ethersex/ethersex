@@ -100,7 +100,7 @@ menuconfig:
 	$(MAKE) -C scripts/lxdialog all
 	$(CONFIG_SHELL) scripts/Menuconfig config.in
 	test -e .config
-	@$(MAKE) what-now-msg
+	@$(MAKE) no_deps=t what-now-msg
 
 what-now-msg:
 	@echo ""
