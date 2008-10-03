@@ -1,4 +1,5 @@
 
+source scripts/usart-config.sh
 mainmenu_name "Ethersex Configuration"
 
 mainmenu_option next_comment
@@ -6,12 +7,14 @@ comment "General Setup"
 
 bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
+get_usart_count
 choice 'Target MCU'			\
    "ATmega8                atmega8	\
     ATmega88               atmega88	\
     ATmega162              atmega162	\
     ATmega32		   atmega32	\
-    ATmega644              atmega644"	\
+    ATmega644              atmega644	\
+    ATmega644p             atmega644p"	\
    'ATmega644' MCU 
 
 int "MCU frequency" FREQ 20000000
@@ -43,7 +46,7 @@ else
   dep_bool 'Ethernet (ENC28J60) support' ENC28J60_SUPPORT $UIP_SUPPORT
   dep_bool "RFM12 (FSK transmitter) support" RFM12_SUPPORT $UIP_SUPPORT
 
-  source scripts/usart-config.sh
+  usart_count_used
   if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     dep_bool "ZBus Support" ZBUS_SUPPORT $UIP_SUPPORT
   fi
@@ -116,8 +119,7 @@ source i2c/config.in
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
-source scripts/usart-config.sh
-
+usart_count_used
 comment "Usart Configuration ($USARTS_USED/$USARTS)"
 source modbus/config.in
 source yport/config.in
