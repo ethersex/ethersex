@@ -290,6 +290,7 @@ function choice () {
 	title=$1
 	choices=$2
 	default=$3
+	define_symbol=$4
 	current=
 
 	#
@@ -1326,6 +1327,7 @@ save_configuration () {
 		#
 		choices="$2"
 		default="$3"
+		define_symbol="$4"
 		current=
 		chosen=
 
@@ -1353,6 +1355,11 @@ save_configuration () {
 		do
 			case "$1" in
 			"$current"*)	if [ -z "$chosen" ]; then
+						if [ \! -z "$define_symbol" ]; then
+							echo "$define_symbol=$2" 		>>$CONFIG
+							echo "#define $define_symbol $2"	>>$CONFIG_H
+						fi
+
 						define_bool "$2" "y"
 						chosen=1
 					else
