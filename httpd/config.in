@@ -1,0 +1,7 @@
+dep_bool "uIP Proto-Sockets" PSOCK_SUPPORT $UIP_SUPPORT
+dep_bool "HTTP Server" HTTPD_SUPPORT $PSOCK_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "HTTP Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
+if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
+  string "Username" CONF_HTTPD_USERNAME "admin"
+  string "Default Password" CONF_HTTPD_PASSWORD "admin"
+fi

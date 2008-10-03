@@ -1,0 +1,12 @@
+  if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$UDP_SUPPORT" = "y" ]; then
+    choice 'I2C support' \
+	    "None			CONFIG_NO_I2C		\
+	     I2C-Master			I2C_SUPPORT		\
+	     I2C-Slave			I2C_SLAVE_SUPPORT"	\
+	     'None'
+  fi
+
+  if [ "$I2C_SLAVE_SUPPORT" = "y" ]; then
+    int "I2C slave address" CONF_I2C_SLAVE_ADDR 42
+  fi
+

@@ -1,0 +1,16 @@
+dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
+dep_bool "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
+dep_bool "UDP Echo" UDP_ECHO_NET_SUPPORT $UDP_SUPPORT
+
+mainmenu_option next_comment
+comment "DynDNS support"
+  dep_bool "Update DNS records at dyn.metafnord.de" DYNDNS_SUPPORT $UIP_SUPPORT
+  if [ "$DYNDNS_SUPPORT" = "y" ]; then
+    string "Hostname" CONF_DYNDNS_HOSTNAME "camera1"
+    string "Username" CONF_DYNDNS_USERNAME "user"
+    string "Password" CONF_DYNDNS_PASSWORD "secret"
+  fi
+endmenu
+
+dep_bool "Watch IO changes (and react)" WATCHCAT_SUPPORT $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT $CONFIG_EXPERIMENTAL

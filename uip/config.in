@@ -1,0 +1,56 @@
+
+###############################################################################
+mainmenu_option next_comment
+comment "Network protocols"
+
+dep_bool 'TCP support' TCP_SUPPORT $UIP_SUPPORT
+dep_bool 'UDP support' UDP_SUPPORT $UIP_SUPPORT
+dep_bool 'UDP broadcast support' BROADCAST_SUPPORT $UDP_SUPPORT
+dep_bool 'ICMP support' ICMP_SUPPORT $UIP_SUPPORT
+
+
+
+comment "Application protocols"
+dep_bool 'BOOTP support' BOOTP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
+dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
+
+dep_bool 'DNS support' DNS_SUPPORT $UDP_SUPPORT
+if [ "$DNS_SUPPORT" = "y" ]; then
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    ipv6 "DNS-Server IP address" CONF_DNS_SERVER "2001:6f8:1209:0:0:0:0:2"
+  else
+    ipv4 "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254"
+  fi
+fi
+
+dep_bool 'SYSLOG support' SYSLOG_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
+if [ "$SYSLOG_SUPPORT" = "y" ]; then
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    ipv6 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+  else
+    ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
+  fi
+fi
+dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+
+comment "Tunneling protocols"
+dep_bool 'OpenVPN' OPENVPN_SUPPORT $UDP_SUPPORT
+if [ "$OPENVPN_SUPPORT" = "y" ]; then
+  mainmenu_option next_comment
+  comment "OpenVPN configuration"
+  hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
+  hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
+
+  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+    comment "OpenVPN IP configuration"
+    ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
+    ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
+    ipv4 "OpenVPN default gateway" CONF_OPENVPN_IP4_GATEWAY "192.168.23.1"
+  fi
+  endmenu
+fi
+
+dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $CONFIG_EXPERIMENTAL $RFM12_SUPPORT $ROUTER_SUPPORT
+dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $CONFIG_EXPERIMENTAL $ZBUS_SUPPORT $ROUTER_SUPPORT
+endmenu
+

@@ -1,0 +1,24 @@
+mainmenu_option next_comment
+comment "RFM12 FSK transmitter"
+
+if [ "$RFM12_SUPPORT" = "y" ]; then
+  if [ "$TEENSY_SUPPORT" != "y" ]; then
+    int "RFM12 Baudrate" CONF_RFM12_BAUD 34500
+  fi
+  if [ "$SKIPJACK_SUPPORT" = "y" ]; then
+    hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
+  fi
+
+  if [ "$ROUTER_SUPPORT" = "y" ]; then
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+      int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
+    else
+      ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
+      ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
+    fi
+  fi
+fi
+
+dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_SUPPORT
+endmenu

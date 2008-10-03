@@ -1,0 +1,16 @@
+mainmenu_option next_comment
+comment "Etherrape Control Interface (ECMD)"
+  bool "ECMD support" ECMD_PARSER_SUPPORT
+  dep_bool "TCP/Telnet interface" ECMD_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
+  dep_bool "UDP interface" UECMD_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $UDP_SUPPORT
+  dep_bool "I2C interface" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL 
+  dep_bool "USB interface" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
+
+  if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" -o "$ECMD_SERIAL_USART_SUPPORT" = "y" ]; then
+    define_bool "ECMD_SERIAL_SUPPORT" y
+  else
+    define_bool "ECMD_SERIAL_SUPPORT" n
+  fi
+
+  dep_bool "Send ECMD messages" ECMD_SENDER_SUPPORT $CONFIG_UIP
+endmenu 

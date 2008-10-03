@@ -1,0 +1,9 @@
+mainmenu_option next_comment
+comment "Cryptographic functionality"
+
+bool "Crypto support" CRYPTO_SUPPORT
+dep_bool "CAST5 cipher" CAST5_SUPPORT $CRYPTO_SUPPORT
+dep_bool "MD5 hash" MD5_SUPPORT $CRYPTO_SUPPORT
+dep_bool "Skipjack cipher" SKIPJACK_SUPPORT $CRYPTO_SUPPORT
+endmenu
+

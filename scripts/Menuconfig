@@ -996,12 +996,14 @@ get_dflt_config () {
 			--radiolist "\
 Select the default profile you wish to load." \
 			15 70 7 \
-			defconfig	"Standard Ethersex"		0 \
-			bootloader	"Ethernet Bootloader"		0 \
-			rfm12-teensy	"RFM12 Standalone"		0 \
-			zbus-teensy	"ZBUS Standalone"		0 \
-			usb-teensy	"USB (Network) Standalone"	0 \
-			no-network	"No Networking (USB only)"	0 \
+			defconfig	  "Etherrape"			0 \
+			ethersex	  "Standard Ethersex"		0 \
+			bootloader	  "Ethernet Bootloader"		0 \
+			rfm12-teensy	  "RFM12 Standalone"		0 \
+			zbus-teensy	  "ZBUS Standalone"		0 \
+			usb-teensy	  "USB (Network) Standalone"	0 \
+			usb-rfm12-dongle  "USB RFM12 Dongle"		0 \
+			no-network	  "No Networking (USB only)"	0 \
 			 2>MCdialog.out
 		then
 			choice=`cat MCdialog.out`
