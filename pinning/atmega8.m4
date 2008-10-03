@@ -59,6 +59,7 @@ ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
 #define _ATMEGA8
 
 /* ATmega8 specific adjustments */
+#define _IVREG GICR
 #define _SPCR0 SPCR
 #define _SPE0 SPE
 #define _MSTR0 MSTR
