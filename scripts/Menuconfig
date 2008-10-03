@@ -995,10 +995,11 @@ g_dflt_config () {
 get_dflt_config () {
 	while true
 	do
-		if $DIALOG --title "Load Default Configuration" \
+		$DIALOG --title "Load Default Configuration" \
 			--backtitle "$backtitle" \
 			--radiolist "\
-Select the default profile you wish to load." \
+Select the default profile you wish to load. \
+<Esc><Esc> to abort." \
 			15 70 7 \
 			defconfig	  "Etherrape"			0 \
 			ethersex	  "Standard Ethersex"		0 \
@@ -1009,15 +1010,19 @@ Select the default profile you wish to load." \
 			usb-rfm12-dongle  "USB RFM12 Dongle"		0 \
 			no-network	  "No Networking (USB only)"	0 \
 			 2>MCdialog.out
-		then
+
+		exit_status=$?
+
+		if [ $exit_status -eq 0 ]; then
 			choice=`cat MCdialog.out`
+			load_config_file "scripts/profiles/$choice"
 			break
+		elif [ $exit_status -eq 255 ]; then
+			break # ESC-ESC ...
+		elif [ $exit_status -eq 1 ]; then
+			help "$firstchoice" "$title"
 		fi
-
-		help "$firstchoice" "$title"
 	done
-
-	load_config_file "scripts/profiles/$choice"
 
 	rm -f help.out MCdialog.out
 }
