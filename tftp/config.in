@@ -1,0 +1,34 @@
+
+dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+
+if [ "$BOOTLOADER_SUPPORT" = "y" -a "$TFTP_SUPPORT" = "y" ]; then
+  mainmenu_option next_comment
+  comment "Bootloader configuration"
+
+  if [ "$BOOTP_SUPPORT" != "y" ]; then
+    dep_bool 'TFTP-o-matic' TFTPOMATIC_SUPPORT $TFTP_SUPPORT
+  else
+    # cannot use TFTP-o-matic with BOOTP
+    define_bool TFTPOMATIC_SUPPORT n
+  fi
+  if [ "$TFTPOMATIC_SUPPORT" = "y" ]; then
+    comment "TFTP-o-matic configuration"
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      ipv6 "TFTP IP address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+    else
+      ipv4 "TFTP IP address" CONF_TFTP_IP "192.168.23.73"
+    fi
+    string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
+  fi
+
+  if [ "$SKIPJACK_SUPPORT" = "y" ]; then
+    comment "Crypto configuration"
+    hex "TFTP Skipjack key" CONF_TFTP_KEY "23234242555523234242"
+  fi
+
+  endmenu
+
+else
+  # no bootloader ...
+  define_bool TFTPOMATIC_SUPPORT n
+fi
