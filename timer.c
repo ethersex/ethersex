@@ -85,11 +85,13 @@ void timer_process(void)
         watchcat_periodic();
 #       endif
 
+#ifdef UIP_SUPPORT
 #       if UIP_CONNS <= 255
         uint8_t i;
 #       else
         uint16_t i;
 #       endif
+#endif
 
         /* process fs20 stuff */
 #       ifdef FS20_SUPPORT

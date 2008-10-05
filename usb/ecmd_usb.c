@@ -70,7 +70,6 @@ ecmd_usb_write(uint8_t *data, uint8_t len)
   memcpy(recv_buffer + recv_count, data, len);
   recv_count += len;
 
-  uint8_t i;
   if (recv_buffer[recv_count - 1] == 0)
     return 1;
   return 0;

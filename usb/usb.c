@@ -125,7 +125,9 @@ usb_periodic(void)
 void 
 usb_init(void) 
 {
+#ifdef USB_NET_SUPPORT
   usb_net_init();
+#endif
 
 #define USB_DDR_CONFIG(pin)  DDR_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))
 #define USB_PORT_CONFIG(pin)  PORT_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))
