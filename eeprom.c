@@ -48,6 +48,14 @@ uint8_t crc_checksum(void *data, uint8_t length)
 
 #if defined(ECMD_PARSER_SUPPORT)  && ( ! defined(TEENSY_SUPPORT)) \
   || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT))
+void 
+eeprom_write_block_hack(void *dst, const void *src, size_t n)
+{
+  while (n--) {
+    eeprom_write_byte(&((uint8_t *)dst)[n], ((uint8_t *)src)[n]);
+  }
+}
+
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
 /* {{{ */ {
     (void) ip;
@@ -83,8 +91,8 @@ int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway)
     cfg_base.crc = checksum;
 
     /* save config */
-    __eewr_block(EEPROM_CONFIG_BASE, &cfg_base,
-            sizeof(struct eeprom_config_base_t), eeprom_write_byte);
+    eeprom_write_block_hack(EEPROM_CONFIG_BASE, &cfg_base,
+            sizeof(struct eeprom_config_base_t));
 
     return 0;
 
@@ -124,8 +132,8 @@ int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg)
     cfg_ext.crc = checksum;
 
     /* save config */
-    __eewr_block(EEPROM_CONFIG_EXT, &cfg_ext,
-            sizeof(struct eeprom_config_ext_t), eeprom_write_byte);
+    eeprom_write_block_hack(EEPROM_CONFIG_EXT, &cfg_ext,
+            sizeof(struct eeprom_config_ext_t));
 
     return 0;
 

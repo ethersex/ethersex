@@ -78,6 +78,7 @@ struct eeprom_config_ext_t {
     offsetof(struct eeprom_config_base_t, ip[0]))
 
 uint8_t crc_checksum(void *data, uint8_t length);
+void eeprom_write_block_hack(void *dst, const void *src, size_t n);
 int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway);
 int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg);
 
