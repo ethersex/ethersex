@@ -147,5 +147,5 @@ dnl Else
     return;
   }')')
 
-define(`DEFAULT_POLICY', `if(1 __target($1)')
+define(`POLICY', `if(1 __target($1)')
 divert(0)dnl

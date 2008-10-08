@@ -7,10 +7,11 @@ CHAIR(INPUT) {
 #else
   LEG(-p, icmp6, --icmp-type, ECHO, -j, mangle)
 #endif
-  DEFAULT_POLICY(ACCEPT)
+
+  POLICY(ACCEPT)
 }
 
 CHAIR(mangle) {
-  DEFAULT_POLICY(ACCEPT)
+  POLICY(ACCEPT)
 }
 
