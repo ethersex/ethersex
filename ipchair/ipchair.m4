@@ -77,8 +77,6 @@ divert(1)
 #define ICMP6_OPTION_SOURCE_LINK_ADDRESS 1
 #define ICMP6_OPTION_TARGET_LINK_ADDRESS 2
 
-extern uint8_t uip_drop_packet;
-
 divert(3)#endif
 divert(-1)
 
@@ -152,11 +150,10 @@ define(`ipchair_icmp_type', `__paste2(`BUF_', indir(`__proto'))->type == __paste
 ######
 define(`__target', `) ifelse(
 `$1', `DROP', ` {
-    uip_drop_packet = 1;
+    uip_len = 0;
     return ifelse(__type, `builtin',, 0);
   }',
 `$1', `ACCEPT', ` {
-    uip_drop_packet = 0;
     return ifelse(__type, `builtin',, 0);
   }',
 `$1', `RETURN', ` {
