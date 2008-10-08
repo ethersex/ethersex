@@ -3,6 +3,7 @@
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (C) 2007, 2008 Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (C) 2008 Stefan Siegl <stesie@brokenpipe.de>
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,7 +59,7 @@ void newdata(void)
         else
             cplen = diff;
 
-        memcpy(state->inbuf, uip_appdata, cplen);
+        memcpy(state->inbuf + state->in_len, uip_appdata, cplen);
         state->in_len += cplen;
 
 #ifdef DEBUG_ECMD_NET
