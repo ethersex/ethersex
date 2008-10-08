@@ -2,6 +2,7 @@ dnl
 dnl ipchair.m4
 dnl
 dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
 dnl
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License as published by 
@@ -26,6 +27,12 @@ dnl
 #ifdef IPCHAIR_HEADER
 #ifndef __IPCHAIR_HDR
 #define __IPCHAIR_HDR
+
+#include "../uip/uip.h"
+
+typedef void builtin_return_t;
+typedef uint8_t user_return_t;
+
 divert(1)
 #endif /* __IPCHAIR_HDR */
 #else
@@ -33,8 +40,6 @@ divert(1)
 #define IPCHAIR_HEADER
 #include "ipchair.c"
 #undef IPCHAIR_HEADER
-
-#include "../uip/uip.h"
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define BUF_TCP ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
@@ -83,12 +88,25 @@ define(`forloop',
 			`$4`'ifelse($1, `$3', ,
 				`define(`$1', incr($1))_forloop(`$1', `$2', `$3', `$4')')')dnl
 
+define(`_chair_type', `ifelse(
+dnl List all default targets to return builtin here ...
+`$1', `INPUT', `builtin',
+`$1', `FORWARD', `builtin',
+`$1', `PREROUTING', `builtin',
+`$1', `POSTROUTING', `builtin',
+dnl else ...
+`user')')
+
 define(`CHAIR', `divert(0)#define IPCHAIR_HAVE_$1
-void ipchair_$1_chair(void);
+_chair_type($1)_return_t ipchair_$1_chair(void);
 
 divert(2)
-void
-ipchair_$1_chair(void)')
+_chair_type($1)_return_t
+ipchair_$1_chair(void)
+{dnl
+define(`__type', _chair_type($1))dnl
+')
+
 define(`LEG', `if (_ipchair_arg_loop($@)')
 define(`_ipchair_arg_loop', `dnl
 dnl Destination IP Address
@@ -125,7 +143,7 @@ define(`__paste2', `$1$2')
 define(`ipchair_dst', `uip_ipaddr_cmp_instant(BUF->destipaddr, ipchair_addr($1))') 
 define(`ipchair_src', `uip_ipaddr_cmp_instant(BUF->srcipaddr, ipchair_addr($1))') 
 define(`ipchair_proto',  `define(`__proto', translit(`$1', `a-z', `A-Z'))BUF->proto == __paste2(`UIP_PROTO_', translit(`$1', `a-z', `A-Z'))') 
-define(`ipchair_dport', `__paste2(`BUF_', indir(`__proto'))->dstport == HTONS($1)') 
+define(`ipchair_dport', `__paste2(`BUF_', indir(`__proto'))->destport == HTONS($1)') 
 define(`ipchair_sport', `__paste2(`BUF_', indir(`__proto'))->srcport == HTONS($1)') 
 define(`ipchair_tcp_flags', `(((BUF_TCP->flags) & (0 patsubst(`:'translit(`$1', `a-z', `A-Z'), `:', ` | TCP_'))) == (0 patsubst(`:'translit(`$2', `a-z', `A-Z'), `:', ` | TCP_')))')
 define(`ipchair_icmp_type', `__paste2(`BUF_', indir(`__proto'))->type == __paste2(__paste2(indir(`__proto'),_),translit(`$1', `a-z', `A-Z'))') 
@@ -135,17 +153,26 @@ define(`ipchair_icmp_type', `__paste2(`BUF_', indir(`__proto'))->type == __paste
 define(`__target', `) ifelse(
 `$1', `DROP', ` {
     uip_drop_packet = 1;
-    return;
+    return ifelse(__type, `builtin',, 0);
   }',
 `$1', `ACCEPT', ` {
     uip_drop_packet = 0;
-    return;
+    return ifelse(__type, `builtin',, 0);
+  }',
+`$1', `RETURN', ` {
+    ifelse(__type, `builtin', `goto policy', `return 1');
   }',
 dnl Else
-`{ 
-    ipchair_$1_chair(shift($@));
-    return;
+`divert(1)#ifndef IPCHAIR_NEED_$1
+#define IPCHAIR_NEED_$1 1
+#endif
+divert(2){ 
+    if(ipchair_$1_chair(shift($@)) == 0)
+      return ifelse(__type, `builtin',, 0);
   }')')
 
-define(`POLICY', `if(1 __target($1)')
+define(`POLICY', `
+  ifelse(__type, `builtin', `policy:')
+  if(1 __target($1)
+}')
 divert(0)dnl
