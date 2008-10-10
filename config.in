@@ -189,6 +189,7 @@ comment "work in progress bits (enable with care)"
   source dataflash/config.in
   source httpd/config.in
   source control6/config.in
+  source ipchair/config.in
 
 endmenu
 
