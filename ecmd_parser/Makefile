@@ -47,6 +47,10 @@ ecmd_defs.c: ecmd_magic.m4 ecmd_defs.m4 $(named_pin_simple_files)
 np_simple_glue.m4: ../named_pin/config ../named_pin/np_simple_glue.awk
 	gawk -f ../named_pin/np_simple_glue.awk < $< > $@
 
+wiki.txt: wiki.m4 ecmd_defs.m4
+	m4 $^ | perl -ne 'unless(m/^\s*$$/){s/^\s+//;s/\s+$$//;print "$$_\n"}' > $@.tmp
+	mv -f $@.tmp $@
+
 # extend normal clean rule
 clean: clean-common
-	$(RM) -f ecmd_defs.c np_simple_glue.m4
+	$(RM) -f ecmd_defs.c np_simple_glue.m4 wiki.txt
