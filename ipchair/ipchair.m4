@@ -128,7 +128,7 @@ ifelse(`$1', `! --syn', `!(ipchair_tcp_flags(`SYN:RST:ACK:FIN', `SYN')) && $0(sh
 dnl ICMP Type
 ifelse(`$1', `--icmp-type', `ipchair_icmp_type($2) && $0(shift(shift($@)))')dnl
 dnl Target
-ifelse(`$1', `-j', `1 __target(shift($@))undefine(`__proto')')dnl
+ifelse(`$1', `-j', `1) __target(shift($@))undefine(`__proto')')dnl
 ')
 
 # Yippieyah voodoo
@@ -148,7 +148,7 @@ define(`ipchair_icmp_type', `__paste2(`BUF_', indir(`__proto'))->type == __paste
 ######
 # Targets
 ######
-define(`__target', `) ifelse(
+define(`__target', `ifelse(
 `$1', `DROP', ` {
     uip_len = 0;
     return ifelse(__type, `builtin',, 0);
@@ -170,6 +170,11 @@ divert(2){
 
 define(`POLICY', `
   ifelse(__type, `builtin', `policy:')
-  if(1 __target($1)
+  if(1) __target($1)
+  ifelse(__type, `user', `/* call failed, continue in parent */ return 1;')
 }')
+
+define(`SET_STACK', `uip_stack_set_active(STACK_$1); ')
+
+
 divert(0)dnl
