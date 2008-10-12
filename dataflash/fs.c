@@ -27,7 +27,7 @@
 #include "fs.h"
 
 #ifdef DEBUG_FS
-#include "uart.h"
+#include "../debug.h"
 #endif
 
 /* debug */
@@ -65,7 +65,12 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 #  define printf(a...) syslog_sendf(a)
 #endif
 
-#define printf(...)
+#ifdef DEBUG_FS
+# define printf  debug_printf
+#else
+# define printf(...)
+#endif
+
 #define assert(x)
 #define PACKED
 #define errx(...)
@@ -145,11 +150,7 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
     fs_status_t ret = fs_scan(fs);
 
     if (ret != FS_OK) {
-#ifdef DEBUG_FS
-        uart_puts_P("fs: error scannning dataflash: ");
-        uart_putdecbyte(ret);
-        uart_eol();
-#endif
+        printf("fs: error scannning dataflash: %s\r\n", ret);
         return ret;
     }
 
@@ -167,9 +168,7 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
     if (node == NULL)
         return FS_MEM;
 
-#ifdef DEBUG_FS
-    uart_puts_P("fs: nodes in root:\r\n");
-#endif
+    printf("fs: nodes in root:\r\n");
     for (uint8_t i = 0; i < FS_NODES_IN_ROOT; i++) {
 
         df_flash_read(fs->chip, fs->root, node, FS_ROOTNODE_NODETABLE_OFFSET + i * sizeof(fs_node_t), sizeof(fs_node_t));
@@ -186,20 +185,8 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
                 fs_mark_used(fs, page);
 
 #ifdef DEBUG_FS
-            uart_puts_P(" * ");
-            uart_puts(name);
-            uart_puts_P(": (index ");
-            uart_putdecbyte(i);
-            uart_puts_P(", file ");
-            uart_putdecbyte(node->file);
-            uart_puts_P(", inode ");
-            uart_puthexbyte(HI8(node->inode));
-            uart_puthexbyte(LO8(node->inode));
-            uart_puts_P(", page ");
-            uart_puthexbyte(HI8(page));
-            uart_puthexbyte(LO8(page));
-            uart_puts_P(")\r\n");
-            //printf("* %s: (index %i, file %d, inode %d, page %d)\n", name, i, node->file, node->inode, page);
+	    printf(" * %s: (index %d, file %d, inode 0x%04x, page 0x%04x)\r\n",
+	    	   name, i, node->file, node->inode, page);
 #endif
         }
 
@@ -209,13 +196,10 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
     free(node);
 
 #ifdef DEBUG_FS_MARK
-    uart_puts_P("fs: used pages:\r\n");
+    printf("fs: used pages:\r\n");
     for (uint16_t i = 0; i < DF_PAGES; i++) {
         if (fs_used(fs, i)) {
-            uart_puts_P(" * ");
-            uart_puthexbyte(HI8(i));
-            uart_puthexbyte(LO8(i));
-            uart_eol();
+	    printf(" * %04x\r\n", i);
         }
     }
 #endif
@@ -477,12 +461,7 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
                 /* save structure */
                 df_buf_write(fs->chip, DF_BUF1, &page, FS_STRUCTURE_OFFSET, sizeof(fs_page_t));
 
-#ifdef DEBUG_FS
-                uart_puts_P("fs: writing1 into page 0x");
-                uart_puthexbyte(HI8(pagenum));
-                uart_puthexbyte(LO8(pagenum));
-                uart_eol();
-#endif
+                printf("fs: writing1 into page 0x%04x\r\n", pagenum);
 
 		if (FS_DATASIZE - offset) {
 		    /* write data */
@@ -511,21 +490,12 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 		    page.eof = 1;
                 page.root = 0;
 
-#ifdef DEBUG_FS
-                uart_puts_P(", page.size: 0x");
-                uart_puthexbyte(HI8(page.size));
-                uart_puthexbyte(LO8(page.size));
-                uart_eol();
-#endif
+		printf(", page.size: 0x%04x\r\n", page.size);
 
                 if (eof || length+offset > page.size) {
                     page.size = length+offset;
-#ifdef DEBUG_FS
-                    uart_puts_P("\t\tpage size must be updated to 0x");
-                    uart_puthexbyte(HI8(page.size));
-                    uart_puthexbyte(LO8(page.size));
-                    uart_eol();
-#endif
+                    printf("\t\tpage size must be updated to 0x%04x\r\n",
+		           page.size);
                 }
 
                 printf("\t\tnew page length is %d\n", page.size);
@@ -533,12 +503,7 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
                 /* save structure */
                 df_buf_write(fs->chip, DF_BUF1, &page, FS_STRUCTURE_OFFSET, sizeof(fs_page_t));
 
-#ifdef DEBUG_FS
-                uart_puts_P("fs: writing2 into page 0x");
-                uart_puthexbyte(HI8(pagenum));
-                uart_puthexbyte(LO8(pagenum));
-                uart_eol();
-#endif
+                printf("fs: writing2 into page 0x%04x\r\n", pagenum);
 
                 /* write data */
                 df_buf_write(fs->chip, DF_BUF1, buf, FS_DATA_OFFSET+offset, length);
@@ -845,9 +810,7 @@ fs_size_t fs_size(fs_t *fs, fs_inode_t inode)
 
         /* if this inode is empty, this file is either corrupt or empty */
         if (pagenum == 0xffff) {
-#           ifdef DEBUG_FS
-            uart_puts_P("fs: invalid next inode, return size 0\r\n");
-#           endif
+            printf("fs: invalid next inode, return size 0\r\n");
             size = 0;
             break;
         }
@@ -858,21 +821,11 @@ fs_size_t fs_size(fs_t *fs, fs_inode_t inode)
         /* append size */
         size += page->size;
 
-#       ifdef DEBUG_FS
-        uart_puts_P("fs: size in inode 0x");
-        uart_puthexbyte(HI8(inode));
-        uart_puthexbyte(LO8(inode));
-        uart_puts_P(" is 0x");
-        uart_puthexbyte(HI8(page->size));
-        uart_puthexbyte(LO8(page->size));
-        uart_eol();
-#       endif
+        printf("fs: size in inode 0x%04x is 0x%04x\r\n", inode, page->size);
 
         /* if this is the last page, we are done */
         if (page->eof) {
-#           ifdef DEBUG_FS
-            uart_puts_P("fs: last inode in this file, returning\r\n");
-#           endif
+            printf("fs: last inode in this file, returning\r\n");
             break;
         }
 
@@ -890,9 +843,7 @@ fs_size_t fs_size(fs_t *fs, fs_inode_t inode)
 fs_status_t fs_scan(fs_t *fs)
 /* {{{ */ {
 
-#ifdef DEBUG_FS
-    uart_puts_P("fs: scanning for root node\r\n");
-#endif
+    printf("fs: scanning for root node\r\n");
 
     /* init fs structure */
     fs->version = 0;
@@ -907,12 +858,7 @@ fs_status_t fs_scan(fs_t *fs)
         df_flash_read(fs->chip, p, page, FS_STRUCTURE_OFFSET, sizeof(fs_root_t));
 
         if (page->page.unused == 0 && page->page.root == 1) {
-#ifdef DEBUG_FS
-            uart_puts_P("fs: found root node in page 0x");
-            uart_puthexbyte(HI8(p));
-            uart_puthexbyte(LO8(p));
-            uart_eol();
-#endif
+            printf("fs: found root node in page 0x%04x\r\n", p);
 
             /* compute crc */
             uint8_t crc = 0;
@@ -924,25 +870,18 @@ fs_status_t fs_scan(fs_t *fs)
             df_flash_read(fs->chip, p, &crc2, FS_CRC_OFFSET, 1);
 
             if (crc == crc2) {
-#ifdef DEBUG_FS
-                uart_puts_P("fs: valid crc\r\n");
-#endif
+                printf("fs: valid crc\r\n");
 
                 if (page->version > fs->version) {
-#ifdef DEBUG_FS
-                    uart_puts_P("fs: found newer version!\r\n");
-#endif
+                    printf("fs: found newer version!\r\n");
                     fs->version = page->version;
                     fs->root = p;
                 }
             }
 #ifdef DEBUG_FS
             else {
-                uart_puts_P("fs: crc do not match: 0x");
-                uart_puthexbyte(crc);
-                uart_puts_P(" != 0x");
-                uart_puthexbyte(crc2);
-                uart_eol();
+                printf("fs: crc do not match: 0x%02x != 0x%02x\r\n",
+		       crc, crc2);
             }
 #endif
         }
@@ -952,20 +891,11 @@ fs_status_t fs_scan(fs_t *fs)
     free(page);
 
     if (fs->version >= FS_INITIAL_VERSION) {
-#ifdef DEBUG_FS
-        uart_puts_P("fs: root node has been found, page 0x");
-        uart_puthexbyte(HI8(fs->root));
-        uart_puthexbyte(LO8(fs->root));
-        uart_puts_P(", version 0x");
-        uart_puthexbyte(HI8(fs->version));
-        uart_puthexbyte(LO8(fs->version));
-        uart_eol();
-#endif
+        printf("fs: root node has been found, page 0x%04x, version 0x%04x\r\n",
+	       fs->root, fs->version);
         return FS_OK;
     } else {
-#ifdef DEBUG_FS
-        uart_puts_P("fs: no root node found, creating one in page 0\r\n");
-#endif
+        printf("fs: no root node found, creating one in page 0\r\n");
         return fs_format(fs);
     }
 
@@ -1047,11 +977,7 @@ fs_status_t fs_format(fs_t *fs)
     uint8_t crc = 0;
     crc = fs_crc(fs, crc, DF_BUF1, FS_STRUCTURE_OFFSET, FS_CRC_LENGTH);
 
-#ifdef DEBUG_FS
-    uart_puts_P("fs: crc of new root page is 0x");
-    uart_puthexbyte(crc);
-    uart_eol();
-#endif
+    printf("fs: crc of new root page is 0x%02x\r\n", crc);
 
     /* write crc */
     df_buf_write(fs->chip, DF_BUF1, &crc, FS_CRC_OFFSET, 1);
@@ -1123,14 +1049,7 @@ df_page_t fs_inodetable(fs_t *fs, uint8_t tableid)
 /* {{{ */ {
 
 #ifdef DEBUG_FS_INODETABLE
-    uart_puts_P("inodetable(");
-    uart_puthexbyte(tableid);
-    uart_puts_P("): root 0x");
-
-    uart_puthexbyte(HI8(fs->root));
-    uart_puthexbyte(LO8(fs->root));
-
-    uart_puts_P(", page 0x");
+    printf("inodetable(%02x): root %0x%04x, page 0x", tableid, fs->root);
 #endif
 
     df_page_t page;
@@ -1140,8 +1059,7 @@ df_page_t fs_inodetable(fs_t *fs, uint8_t tableid)
             sizeof(fs_inodetable_node_t));
 
 #ifdef DEBUG_FS_INODETABLE
-    uart_puthexbyte(HI8(page));
-    uart_puthexbyte(LO8(page));
+    printf("%04x", page);
 #endif
 
     return page;
@@ -1175,14 +1093,11 @@ void fs_mark(fs_t *fs, df_page_t page, uint8_t is_free)
     uint8_t b;
 
 #ifdef DEBUG_FS_MARK
-    uart_puts_P("fs: marking page ");
-    uart_puthexbyte(HI8(page));
-    uart_puthexbyte(LO8(page));
-    uart_puts_P(" as ");
+    printf("fs: marking page 0x%04x as ", page);
     if (is_free)
-        uart_puts_P("free\r\n");
+        printf("free\r\n");
     else
-        uart_puts_P("used\r\n");
+        printf("used\r\n");
 #endif
 
     /* load byte first */
@@ -1190,12 +1105,7 @@ void fs_mark(fs_t *fs, df_page_t page, uint8_t is_free)
 
     //printf("read byte at offset %d: 0x%x\n", page/8, b);
 #ifdef DEBUG_FS_MARK
-    uart_puts_P("fs: read byte at offset ");
-    uart_puthexbyte(HI8(page/8));
-    uart_puthexbyte(LO8(page/8));
-    uart_puts_P(": 0x");
-    uart_puthexbyte(b);
-    uart_eol();
+    printf("fs: read byte at offset 0x%04x: 0x%02x\r\n", page/8, b);
 #endif
 
     /* set bit and write byte */
@@ -1336,7 +1246,7 @@ fs_status_t fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page)
 } /* }}} */
 
 
-#ifdef DEBUG_FS
+#if 0
 void fs_inspect_node(fs_t *fs, uint16_t p) {
 
     uart_puts_P("root page is 0x");
