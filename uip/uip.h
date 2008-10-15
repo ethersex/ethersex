@@ -945,6 +945,43 @@ uip_udp_conn_t *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callbac
 #endif /* !UIP_CONF_IPV6 */
 
 /**
+ * Compare an ip address with n bytes/words
+ *
+ * Compare an ip address with n bytes/words
+ *
+ * Example:
+ \code
+
+ uip_ipaddr(&ipaddr1, 192,16,1,2);
+ if(uip_ipaddr_cmp_instant(&ipaddr2, 192,168,1,2)) {
+    printf("They are the same");
+ }
+ \endcode
+ *
+ * \param addr1 The first IP address.
+ * \param byte1 first byte of address
+ * \param byte2 second byte of address
+ * \param byte3 third byte of address
+ * \param byte4 fourth byte of address
+ *
+ * \hideinitializer
+ */
+#if !UIP_CONF_IPV6
+#define uip_ipaddr_cmp_instant(addr1, byte1, byte2, byte3, byte4) (((u16_t *)addr1)[0] == HTONS(((byte1) << 8) | (byte2)) \
+                                                                   && ((u16_t *)addr1)[1] == HTONS(((byte3) << 8) | (byte4)))
+#else /* !UIP_CONF_IPV6 */
+#define uip_ipaddr_cmp_instant(addr1, byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8) (\
+                     ((u16_t *)(addr1))[0] == HTONS((byte1)) && \
+                     ((u16_t *)(addr1))[1] == HTONS((byte2)) && \
+                     ((u16_t *)(addr1))[2] == HTONS((byte3)) && \
+                     ((u16_t *)(addr1))[3] == HTONS((byte4)) && \
+                     ((u16_t *)(addr1))[4] == HTONS((byte5)) && \
+                     ((u16_t *)(addr1))[5] == HTONS((byte6)) && \
+                     ((u16_t *)(addr1))[6] == HTONS((byte7)) && \
+                     ((u16_t *)(addr1))[7] == HTONS((byte8))) 
+#endif /* !UIP_CONF_IPV6 */
+
+/**
  * Compare two IP addresses with netmasks
  *
  * Compares two IP addresses with netmasks. The masks are used to mask
