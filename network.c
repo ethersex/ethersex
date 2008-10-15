@@ -94,7 +94,7 @@ void network_init(void)
 
     uip_stack_set_active(0);
 
-#if !defined(BOOTLOADER_SUPPORT)
+#if !defined(BOOTLOADER_SUPPORT) || (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))
     uip_ipaddr_t ip;
 #endif
     /* load base network settings */
@@ -107,7 +107,7 @@ void network_init(void)
      * no network packets will be processed */
     void *buf = uip_buf;
 
-#if !defined(BOOTLOADER_SUPPORT)
+#if !defined(BOOTLOADER_SUPPORT) || (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))
     uip_ipaddr_t ipaddr;
 #endif
 
