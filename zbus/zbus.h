@@ -37,10 +37,12 @@
 /* is used if teensy is disabled; this ist the baudrate/100 */
 #define ZBUS_BAUDRATE 192
 /* This values are only used when teensy support is enabled */
-#ifdef _ATMEGA8
-  #define ZBUS_UART_UBRR 25
-#else
+#if F_CPU == 20000000
   #define ZBUS_UART_UBRR 64
+#elif F_CPU == 16000000
+  #define ZBUS_UART_UBRR 50
+#elif F_CPU == 8000000
+  #define ZBUS_UART_UBRR 25
 #endif
 
 enum ZBusEscapes {
