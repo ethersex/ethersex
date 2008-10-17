@@ -35,11 +35,6 @@
 #error "please define F_CPU!"
 #endif
 
-/* use watchdog only when not debugging */
-#ifndef DEBUG
-#   define USE_WATCHDOG
-#endif
-
 /* network controller hardware bug defines */
 #define ENC28J60_REV4_WORKAROUND
 
@@ -85,5 +80,11 @@
 
 
 #include "autoconf.h"
+
+/* use watchdog only when not debugging */
+#ifndef DEBUG
+#   define USE_WATCHDOG
+#endif
+
 
 #endif /* _CONFIG_H */
