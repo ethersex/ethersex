@@ -181,7 +181,6 @@ syslog_check_cache(void)
 
 #endif
 
-  uip_send ("dummy.", 6);
   return 1;
 }
 

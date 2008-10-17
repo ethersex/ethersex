@@ -55,8 +55,13 @@ syslog_net_init(void)
 void
 syslog_net_main(void) 
 {
-  if (uip_poll ())
-    syslog_check_cache ();
+  if (! uip_poll ())
+    return;
+
+#ifdef ENC28J60_SUPPORT
+  if (syslog_check_cache ())
+    uip_slen = 1;		/* Trigger xmit to do force ARP lookup. */
+#endif
 }
 
 #endif
