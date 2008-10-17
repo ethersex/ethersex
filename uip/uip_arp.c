@@ -389,7 +389,6 @@ uip_arp_arpin(void)
 uint8_t
 uip_arp_out(void)
 {
-  struct arp_entry *tabptr;
 #ifdef MDNS_SD_SUPPORT
   uip_ipaddr_t mdns_address = {0x00e0, 0xfb00};
 #endif
@@ -420,15 +419,10 @@ uip_arp_out(void)
       /* Else, we use the destination IP address. */
       uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
     }
-      
-    for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
-      tabptr = &arp_table[i];
-      if(uip_ipaddr_cmp(ipaddr, tabptr->ipaddr)) {
-	break;
-      }
-    }
 
-    if(i == UIP_ARPTAB_SIZE) {
+    struct arp_entry *tabptr = uip_arp_lookup (ipaddr);
+
+    if(!tabptr) {
       /* The destination address was not in our ARP table, so we
 	 overwrite the IP packet with an ARP request. */
 
@@ -467,6 +461,20 @@ uip_arp_out(void)
 
 /** @} */
 /** @} */
+
+struct arp_entry *
+uip_arp_lookup (uip_ipaddr_t ipaddr)
+{
+  uint8_t i;
+
+  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+    struct arp_entry *tabptr = &arp_table[i];
+    if(uip_ipaddr_cmp(ipaddr, tabptr->ipaddr))
+      return tabptr;
+  }
+
+  return NULL;
+}
 
 #endif /* !UIP_CONF_IPV6 */
 #endif /* ENC28J60_SUPPORT */

@@ -29,6 +29,7 @@
 #include "../uip/uip.h"
 #include "../config.h"
 #include "../debug.h"
+#include "../uip/uip_arp.h"
 #include "../uip/uip_neighbor.h"
 #include "../uip/uip_router.h"
 #include "syslog.h"
@@ -149,8 +150,9 @@ syslog_insert_callback(syslog_callback_t callback, void *data)
 uint8_t
 syslog_check_cache(void)
 {
-#ifdef IPV6_SUPPORT
   uip_ipaddr_t ipaddr;
+
+#ifdef IPV6_SUPPORT
 
   if(memcmp(syslog_conn->ripaddr, uip_hostaddr, 8))
     /* Remote address is not on the local network, use router */
@@ -161,17 +163,25 @@ syslog_check_cache(void)
 
   if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
     return 1;	     /* Cowardly refusing to send IPv6 packet to :: */
-    
-  if(! uip_neighbor_lookup (ipaddr))
-    {
-      uip_send ("dummy.", 6);
-      return 1;
-    }
+
+  if(uip_neighbor_lookup (ipaddr))
+    return 0;
+
+#else  /* IPV4_SUPPORT */
+
+  if(!uip_ipaddr_maskcmp(syslog_conn->ripaddr, uip_hostaddr, uip_netmask))
+    /* Remote address is not on the local network, use router */
+    uip_ipaddr_copy(&ipaddr, uip_draddr);
+  else
+    /* Remote address is on the local network, send directly. */
+    uip_ipaddr_copy(&ipaddr, syslog_conn->ripaddr);
+
+  if(uip_arp_lookup (ipaddr))
+    return 0;
 
 #endif
 
-  /* FIXME This could ought to be ported back to IPv4. */
-
-  return 0;
+  uip_send ("dummy.", 6);
+  return 1;
 }
 

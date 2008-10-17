@@ -137,6 +137,10 @@ void uip_arp_timer(void);
                               uip_ethaddr.addr[4] = eaddr.addr[4];\
                               uip_ethaddr.addr[5] = eaddr.addr[5];} while(0)
 
+
+struct arp_entry *uip_arp_lookup (uip_ipaddr_t ipaddr);
+
+
 /** @} */
 /** @} */
 
