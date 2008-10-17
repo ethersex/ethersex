@@ -3,7 +3,7 @@
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -130,7 +130,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
     (void) output;
     (void) len;
 
-    cfg.request_bootloader = 1;
+    status.request_bootloader = 1;
 #   ifdef UIP_SUPPORT
     uip_close();
 #   endif
@@ -152,14 +152,14 @@ int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     (void) output;
     (void) len;
 
-    cfg.request_reset = 1;
+    status.request_reset = 1;
     uip_close();
     return 0;
 } /* }}} */
 
 int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-    cfg.request_wdreset = 1;
+    status.request_wdreset = 1;
     uip_close();
     return 0;
 } /* }}} */

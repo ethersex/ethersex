@@ -3,7 +3,7 @@
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -133,12 +133,15 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
     int8_t ret;
 
     /* allocate space for mac */
-    struct uip_eth_addr mac;
+    struct uip_eth_addr new_mac;
 
-    ret = parse_mac(cmd, (void *)&mac);
+    ret = parse_mac(cmd, (void *)&new_mac);
 
-    if (ret >= 0)
-        return eeprom_save_config(&mac, NULL, NULL, NULL);
+    if (ret >= 0) {
+        eeprom_save(mac, &new_mac, 6);
+        eeprom_update_chksum();
+        return 0;
+    }
     else
         return ret;
 
@@ -153,13 +156,15 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 #endif
 
     struct uip_eth_addr buf;
-    uint8_t *mac = (uint8_t *)&buf;
+    uint8_t *saved_mac = (uint8_t *)&buf;
 
-    eeprom_read_block(&buf, EEPROM_MAC_OFFSET, sizeof(struct uip_eth_addr));
+    eeprom_restore(mac, saved_mac, 6);
 
     int output_len = snprintf_P(output, len,
             PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
-            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            saved_mac[0], saved_mac[1],
+            saved_mac[2], saved_mac[3],
+            saved_mac[4], saved_mac[5]);
 
     return output_len;
 } /* }}} */
@@ -178,23 +183,29 @@ int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     if (parse_ip (cmd, &hostaddr))
 	return -1;
 
-    return eeprom_save_config(NULL, &hostaddr, NULL, NULL);
+    eeprom_save(ip, &hostaddr, IPADDR_LEN);
+    eeprom_update_chksum();
+    
+    return 0;
 } /* }}} */
 #endif /* IPv4-static || IPv6-static || OpenVPN */
 
 #if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
 int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-    uip_ipaddr_t netmask;
+    uip_ipaddr_t new_netmask;
 
     while (*cmd == ' ')
 	cmd++;
 
     /* try to parse ip */
-    if (parse_ip (cmd, &netmask))
+    if (parse_ip (cmd, &new_netmask))
 	return -1;
 
-    return eeprom_save_config(NULL, NULL, &netmask, NULL);
+    eeprom_save(netmask, &new_netmask, IPADDR_LEN);
+    eeprom_update_chksum();
+    
+    return 0;
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
@@ -210,8 +221,10 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     if (parse_ip (cmd, &gwaddr))
 	return -1;
 
-    uip_setdraddr (&gwaddr);
-    return eeprom_save_config (NULL, NULL, NULL, &gwaddr);
+    eeprom_save(gateway, &gwaddr, IPADDR_LEN);
+    eeprom_update_chksum();
+
+    return 0;
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 

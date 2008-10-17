@@ -44,6 +44,7 @@
 #include "control6/control6.h"
 #include "onewire/onewire.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
+#include "ecmd_serial/ecmd_serial_usart.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
 #include "zbus/zbus.h"
@@ -64,7 +65,7 @@
 #include "bit-macros.h"
 
 /* global configuration */
-global_config_t cfg;
+global_status_t status;
 
 /* prototypes */
 void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
@@ -258,8 +259,8 @@ int main(void)
             );
 #   endif
 
-    cfg.request_reset = 0;
-    cfg.request_bootloader = 0;
+    status.request_reset = 0;
+    status.request_bootloader = 0;
 
     /* main loop */
     while(1) {
@@ -321,7 +322,7 @@ int main(void)
 #       endif
 
 #ifndef BOOTLOAD_SUPPORT
-        if(cfg.request_bootloader) {
+        if(status.request_bootloader) {
         #ifdef CLOCK_CRYSTAL_SUPPORT
             TIMSK2 &= ~_BV(TOIE2);
         #endif
@@ -333,14 +334,14 @@ int main(void)
         }
 
 #ifndef TEENSY_SUPPORT
-	if(cfg.request_wdreset) {
+	if(status.request_wdreset) {
 	    cli();
 	    wdt_enable(WDTO_15MS);
 	    for(;;);
 	}
 #endif
 
-        if(cfg.request_reset) {
+        if(status.request_reset) {
             cli();
 
             void (* reset)(void) = NULL;

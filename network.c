@@ -45,6 +45,7 @@
 #include "uip/uip_router.h"
 #include "uip/uip_zbus.h"
 #include "tftp/tftp.h"
+#include "enc28j60.h"
 
 /*FIXME: interrupts not supported */
 #define ENC28J60_POLL 
@@ -65,6 +66,11 @@ void process_packet(void);
 
 #ifdef UIP_SUPPORT
 
+
+
+
+
+
 void network_init(void)
 /* {{{ */ {
     uip_stack_set_active(0);
@@ -84,18 +90,7 @@ void network_init(void)
     openvpn_init();
 #endif
 
-#ifdef ENC28J60_SUPPORT
-#if UIP_CONF_IPV6
-    uip_neighbor_init();
-#else
-    uip_arp_init();
-#endif
-#endif /* ENC28J60_SUPPORT */
-
     uip_stack_set_active(0);
-
-    uip_ipaddr_t ip;
-    (void) ip;			/* Keep GCC quiet. */
 
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
@@ -105,142 +100,23 @@ void network_init(void)
 #   ifdef ENC28J60_SUPPORT
     /* use uip buffer as generic space here, since when this function is called,
      * no network packets will be processed */
-    void *buf = uip_buf;
 
-    uip_ipaddr_t ipaddr;
-    (void) ipaddr;		/* Keep GCC quiet. */
-
+#ifdef EEPROM_SUPPORT
     /* use global network packet buffer for configuration */
-    eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
+    uint8_t checksum = eeprom_get_chksum();
+    uint8_t saved_checksum;
+    eeprom_restore_char(crc, &saved_checksum);
+    
 
-    /* checksum */
-    uint8_t checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
+    if (checksum != saved_checksum)
+      eeprom_init();
+#ifdef ENC28J60_SUPPORT
+    network_config_load();
+#endif
 
-    struct eeprom_config_base_t *cfg_base = (struct eeprom_config_base_t *)buf;
 
-    if (checksum != cfg_base->crc) {
+#endif
 
-        debug_printf("net: crc mismatch: 0x%x != 0x%x, loading default settings\n",
-            checksum, cfg_base->crc);
-
-        /* load default settings and save to buffer */
-        memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
-        memcpy(&cfg_base->mac, uip_ethaddr.addr, 6);
-
-#       if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT)) \
-          || defined(IPV6_STATIC_SUPPORT) || defined(OPENVPN_SUPPORT)
-        CONF_ETHERRAPE_IP;
-        uip_sethostaddr(ip);
-#       ifdef IPV6_STATIC_SUPPORT
-	uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
-#       endif
-#       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->ip, &ip, sizeof(uip_ipaddr_t));
-#       endif
-#       endif  /* IPv4-static || IPv6-static */
-
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT) \
-          && !defined(OPENVPN_SUPPORT)
-        CONF_ETHERRAPE_IP4_NETMASK;
-        uip_setnetmask(ip);
-#       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->netmask, &ip, sizeof(uip_ipaddr_t));
-#       endif
-
-        CONF_ETHERRAPE_IP4_GATEWAY;
-        uip_setdraddr(ip);
-#       ifndef BOOTLOADER_SUPPORT        
-        memcpy(&cfg_base->gateway, &ip, sizeof(uip_ipaddr_t));
-#       endif
-#       endif /* IPv4-static && not OpenVPN */
-
-#       ifndef BOOTLOADER_SUPPORT        
-        /* calculate new checksum */
-        checksum = crc_checksum(buf, sizeof(struct eeprom_config_base_t) - 1);
-        cfg_base->crc = checksum;
-
-        /* save config */
-        eeprom_write_block_hack(EEPROM_CONFIG_BASE, buf,
-			   sizeof(struct eeprom_config_base_t));
-#       endif /* !BOOTLOADER_SUPPORT */
-
-    } else {
-
-        /* load settings from eeprom */
-        memcpy(uip_ethaddr.addr, &cfg_base->mac, 6);
-
-#       if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT)) \
-          || defined(IPV6_STATIC_SUPPORT) || defined(OPENVPN_SUPPORT)
-        memcpy(&ipaddr, &cfg_base->ip, sizeof(uip_ipaddr_t));
-        uip_sethostaddr(ipaddr);
-#       ifdef IPV6_STATIC_SUPPORT
-	uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
-#       endif
-#       endif  /* IPv4-static || IPv6-static */
-
-#       if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT) \
-          && !defined(OPENVPN_SUPPORT)
-        memcpy(&ipaddr, &cfg_base->netmask, 4);
-        uip_setnetmask(ipaddr);
-        memcpy(&ipaddr, &cfg_base->gateway, 4);
-        uip_setdraddr(ipaddr);
-#       endif /* IPv4-static && not OpenVPN */
-    }
-
-#   ifndef BOOTLOADER_SUPPORT
-    /* load extended network settings */
-#   ifdef DEBUG_NET_CONFIG
-    debug_printf("net: loading extended network settings\n");
-#   endif
-
-    /* use global network packet buffer for configuration */
-    eeprom_read_block(buf, EEPROM_CONFIG_EXT, sizeof(struct eeprom_config_ext_t));
-
-    /* checksum */
-    checksum = crc_checksum(buf, sizeof(struct eeprom_config_ext_t) - 1);
-
-    struct eeprom_config_ext_t *cfg_ext = (struct eeprom_config_ext_t *)buf;
-
-    if (checksum != cfg_ext->crc) {
-        debug_printf("net: ext crc mismatch: 0x%x != 0x%x, loading default settings\n",
-                checksum, cfg_ext->crc);
-#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
-        CONF_DNS_SERVER;
-        memcpy(&cfg_ext->dns_server, &ip, sizeof(uip_ipaddr_t));
-        resolv_conf(&ip);
-#       endif
-
-#       if defined(YPORT_SUPPORT)
-        cfg_ext->usart_baudrate = YPORT_BAUDRATE / 100;
-#       elif defined(ZBUS_SUPPORT)
-        cfg_ext->usart_baudrate = ZBUS_BAUDRATE / 100;
-#       endif
-
-#       if defined(HTTPD_AUTH_SUPPORT)
-        strncpy_P(cfg_ext->httpd_auth_password, PSTR(CONF_HTTPD_PASSWORD), 
-                        sizeof(cfg_ext->httpd_auth_password) - 1);
-        cfg_ext->httpd_auth_password[sizeof(cfg_ext->httpd_auth_password) - 1] = 0;
-#       endif
-
-#       ifndef BOOTLOADER_SUPPORT        
-        /* calculate new checksum */
-        checksum = crc_checksum(buf, sizeof(struct eeprom_config_ext_t) - 1);
-        cfg_ext->crc = checksum;
-
-        /* save config */
-        eeprom_write_block_hack(EEPROM_CONFIG_EXT, buf,
-			   sizeof(struct eeprom_config_ext_t));
-#       endif /* !BOOTLOADER_SUPPORT */
-
-    } else {
-      /* Here load the config to the eeprom */
-#       if defined(DNS_SUPPORT) && !defined(BOOTP_SUPPORT)
-        memcpy(&ipaddr, &cfg_ext->dns_server, IPADDR_LEN);
-        resolv_conf(&ipaddr);
-#       endif
-
-    }
-#   endif /* !BOOTLOADER_SUPPORT */
 
     /* Do the autoconfiguration after the MAC is set */
 #   if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
@@ -269,6 +145,11 @@ void network_init(void)
 
 #   ifdef ENC28J60_SUPPORT
     init_enc28j60();
+#   if UIP_CONF_IPV6
+    uip_neighbor_init();
+#   else
+    uip_arp_init();
+#   endif
 #   endif
 
 } /* }}} */

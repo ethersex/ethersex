@@ -2,6 +2,8 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright(c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright(c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -29,57 +31,83 @@
 #include "config.h"
 #include "global.h"
 
-/* for an eeprom memory map see doc/eeprom */
-
 #define IPADDR_LEN sizeof(uip_ipaddr_t)
 
-/* structures */
 
-struct eeprom_config_base_t {
+
+struct eeprom_config_t {
     uint8_t mac[6];
 
-    /* IPv4 address to use, for IPv6 we use MAC-based autoconfiguration */
-#if (!UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT)			\
-			|| defined(BOOTP_TO_EEPROM_SUPPORT)))	\
-  || defined(OPENVPN_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
+#if !defined(BOOTP_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
     uint8_t ip[IPADDR_LEN];
-#endif
+#endif 
 
-#if !UIP_CONF_IPV6 && (!defined(BOOTP_SUPPORT) \
-                       || defined(BOOTP_TO_EEPROM_SUPPORT))
+#ifdef IPV4_SUPPORT
     uint8_t netmask[IPADDR_LEN];
     uint8_t gateway[IPADDR_LEN];
-#endif /* not UIP_CONF_IPV6 and (not BOOTP or BOOTP_TO_EEPROM) */
+#endif
 
-    uint8_t crc;
-};
-
-struct eeprom_config_ext_t {
-#if defined(DNS_SUPPORT) && (!defined(BOOTP_SUPPORT) \
-			     || defined(BOOTP_TO_EEPROM_SUPPORT))
+#ifdef DNS_SUPPORT
     uint8_t dns_server[IPADDR_LEN];
 #endif
-#if defined(USART_SUPPORT)
-    uint16_t usart_baudrate;
-#endif
-#if defined(HTTPD_AUTH_SUPPORT)
-    char httpd_auth_password[9];
+
+    uint16_t usart_baudrate;	/* FIXME */
+
+#ifdef HTTPD_SUPPORT
+    char httpd_auth_password[8];
+    char httpd_auth_null_byte;
 #endif
 
     uint8_t crc;
 };
 
-#define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
-#define EEPROM_CONFIG_EXT   (uint8_t *) sizeof(struct eeprom_config_base_t)
 
-#define EEPROM_MAC_OFFSET   ((EEPROM_CONFIG_BASE) + \
-    offsetof(struct eeprom_config_base_t, mac[0]))
-#define EEPROM_IPS_OFFSET   ((EEPROM_CONFIG_BASE) + \
-    offsetof(struct eeprom_config_base_t, ip[0]))
+#define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
+
 
 uint8_t crc_checksum(void *data, uint8_t length);
 void eeprom_write_block_hack(void *dst, const void *src, size_t n);
-int8_t eeprom_save_config(void *mac, void *ip, void *netmask, void *gateway);
-int8_t eeprom_save_config_ext(struct eeprom_config_ext_t *new_cfg);
+
+/* Reset the EEPROM to sane defaults. */
+void eeprom_reset (void);
+
+/* Initialize EEPROM cruft. */
+void eeprom_init (void);
+
+/* Calculate crc value, from config saved in eeprom */
+uint8_t eeprom_get_chksum(void);
+
+#define eeprom_save(dst, data, len) \
+  eeprom_write_block_hack(EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), data,len)
+
+#define eeprom_save_ip(dst,src) \
+    do { uip_ipaddr_t ip; src; eeprom_save (dst, &ip, IPADDR_LEN); } while(0)
+
+#define eeprom_save_P(dst,data_pgm,len) \
+    do { char data[len]; memcpy_P(data, data_pgm, len); eeprom_save(dst, data, len);} while(0) 
+
+#define eeprom_save_char(dst,data) \
+    do { uint8_t _t = data; eeprom_save(dst, &_t, 1); } while(0)
+
+#define eeprom_save_int(dst, data) \
+    do { uint16_t _t = data; eeprom_save(dst, &_t, 2); } while(0)
+
+/* Reads len byte from eeprom at dst into mem */
+#define eeprom_restore(dst, mem, len) \
+  eeprom_read_block(mem, EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), len)
+
+#define eeprom_restore_ip(dst,mem) \
+    eeprom_restore(dst, mem, IPADDR_LEN)
+
+#define eeprom_restore_char(dst,mem) \
+    eeprom_restore(dst, mem, 1) 
+
+#define eeprom_restore_int(dst, mem) \
+    eeprom_restore(dst, mem, 2) 
+
+/* Update the eeprom crc */
+#define eeprom_update_chksum() eeprom_save_char (crc, eeprom_get_chksum ())
+
+
 
 #endif

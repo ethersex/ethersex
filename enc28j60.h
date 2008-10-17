@@ -4,6 +4,7 @@
  *          enc28j60 api
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -321,6 +322,7 @@ void noinline reset_controller(void);
 void noinline reset_rx(void);
 void init_enc28j60(void);
 void noinline switch_bank(uint8_t bank);
+void network_config_load(void);
 
 #ifdef DEBUG_ENC28J60
 void dump_debug_registers(void);

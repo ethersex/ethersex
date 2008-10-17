@@ -28,19 +28,14 @@
 #include "portio.h"
 #include "uip/uip.h"
 
-/* global configuration struct */
-typedef union {
-    uint8_t link:1;
-} global_status_t;
-
 typedef struct {
-    global_status_t status;
+    uint8_t link :1;
 
     uint8_t request_bootloader :1;
     uint8_t request_reset      :1;
     uint8_t request_wdreset    :1;
-} global_config_t;
+} global_status_t;
 
-extern global_config_t cfg;
+extern global_status_t status;
 
 #endif /* _GLOBAL_H */

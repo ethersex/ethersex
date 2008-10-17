@@ -85,4 +85,23 @@
 #   define wdt_kick()
 #endif
 
+
+/* Figure out whether we need access to EEPROM:
+
+   - ECMD without TEENSY (IP address configuration etc.)
+   - BOOTP with to-EEPROM-feature */
+#if defined(ECMD_PARSER_SUPPORT) && (!defined(TEENSY_SUPPORT))	\
+  || defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)
+#  define EEPROM_SUPPORT 1
+#endif
+
+
+/* Figure out whether we need CRC_SUPPORT: */
+#if defined(EEPROM_SUPPORT)			\
+  || defined(ONEWIRE_SUPPORT)			\
+  || defined(TFTP_SUPPORT)
+#  define CRC_SUPPORT 1
+#endif
+
+
 #endif /* _CONFIG_H */

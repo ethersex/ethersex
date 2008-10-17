@@ -4,7 +4,8 @@
  *          enc28j60 api
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -35,6 +36,7 @@
 #include "uip/uip_arp.h"
 #include "spi.h"
 #include "bit-macros.h"
+#include "eeprom.h"
 
 #ifdef ENC28J60_SUPPORT
 
@@ -426,4 +428,63 @@ void dump_debug_registers(void)
 } /* }}} */
 #endif
 
+
+
+
+void
+network_config_load (void)
+{
+    /* load settings from eeprom */
+#ifdef EEPROM_SUPPORT
+  eeprom_restore(mac, uip_ethaddr.addr, 6);
+#else 
+  memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
+#endif
+
+#if defined(BOOTP_SUPPORT)				\
+    || (IPV6_SUPPORT && !defined(IPV6_STATIC_SUPPORT))
+    return;
+
+#else
+
+    uip_ipaddr_t ip;
+    (void) ip;		/* Keep GCC quiet. */
+
+    /* Configure the IP address. */
+#ifdef EEPROM_SUPPORT
+    /* Please Note: ip and &ip are NOT the same (cpp hell) */
+    eeprom_restore_ip(ip, &ip);
+#else
+    CONF_ETHERRAPE_IP;
+#endif
+    uip_sethostaddr(ip);
+
+
+    /* Configure prefix length (IPv6). */
+#ifdef IPV6_SUPPORT
+    uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
+#endif
+
+
+#ifdef IPV4_SUPPORT
+    /* Configure the netmask (IPv4). */
+#ifdef EEPROM_SUPPORT
+    /* Please Note: ip and &ip are NOT the same (cpp hell) */
+    eeprom_restore_ip(netmask, &ip);
+#else
+    CONF_ETHERRAPE_IP;
+#endif
+    uip_setnetmask(ip);
+
+    /* Configure the default gateway (IPv4 only). */
+#ifdef EEPROM_SUPPORT
+    /* Please Note: ip and &ip are NOT the same (cpp hell) */
+    eeprom_restore_ip(gateway, &ip);
+#else
+    CONF_ETHERRAPE_IP;
+#endif
+    uip_setdraddr(ip);
+#endif  /* IPV4_SUPPORT */
+#endif	/* No autoconfiguration. */
+}
 #endif /* ENC28J60_SUPPORT */
