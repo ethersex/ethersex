@@ -33,17 +33,8 @@
   #define ZBUS_RECV_BUFFER UIP_CONF_BUFFER_SIZE
 #endif
 
-/* use 19200 baud at 20mhz (see datasheet for other values) */
-/* is used if teensy is disabled; this ist the baudrate/100 */
-#define ZBUS_BAUDRATE 192
-/* This values are only used when teensy support is enabled */
-#if F_CPU == 20000000
-  #define ZBUS_UART_UBRR 64
-#elif F_CPU == 16000000
-  #define ZBUS_UART_UBRR 50
-#elif F_CPU == 8000000
-  #define ZBUS_UART_UBRR 25
-#endif
+/* use 19200 as default value for the baudrate */
+#define ZBUS_BAUDRATE 19200
 
 enum ZBusEscapes {
   ZBUS_START = '0',

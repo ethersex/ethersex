@@ -211,9 +211,9 @@ void network_init(void)
 #       endif
 
 #       if defined(YPORT_SUPPORT)
-        cfg_ext->usart_baudrate = YPORT_BAUDRATE;
+        cfg_ext->usart_baudrate = YPORT_BAUDRATE / 100;
 #       elif defined(ZBUS_SUPPORT)
-        cfg_ext->usart_baudrate = ZBUS_BAUDRATE;
+        cfg_ext->usart_baudrate = ZBUS_BAUDRATE / 100;
 #       endif
 
 #       if defined(HTTPD_AUTH_SUPPORT)

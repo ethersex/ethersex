@@ -42,6 +42,7 @@
 #ifdef MCUF_SUPPORT
 
 #define USE_USART MCUF_USE_USART
+#define BAUD MCUF_BAUDRATE
 #include "../usart.h"
 
 // 444,16,16 for 16x16borg
@@ -89,7 +90,7 @@ void tx_start(uint8_t len);
 
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init(MCUF_UART_UBRR)
+generate_usart_init()
 
 
 void

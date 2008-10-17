@@ -28,6 +28,7 @@
 #include "../ecmd_parser/ecmd.h"
 
 #define USE_USART ECMD_SERIAL_USART_USE_USART
+#define BAUD ECMD_SERIAL_BAUDRATE
 #include "../usart.h"
 
 
@@ -35,7 +36,7 @@
 #ifdef ECMD_SERIAL_USART_SUPPORT
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init(ECMD_SERIAL_USART_UBRR)
+generate_usart_init()
 
 static char recv_buffer[ECMD_SERIAL_USART_BUFFER_LEN];
 static char write_buffer[ECMD_SERIAL_USART_BUFFER_LEN + 2];

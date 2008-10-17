@@ -27,6 +27,7 @@
 #include "onewire/onewire.h"
 
 #define USE_USART 0
+#define BAUD DEBUG_BAUDRATE
 #include "usart.h"
 
 #define noinline __attribute__((noinline))
@@ -38,7 +39,7 @@ int debug_uart_put(char d, FILE *stream);
 #ifdef DEBUG
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init(DEBUG_UART_UBRR)
+generate_usart_init()
 
 void DEBUG_INIT_UART()
 /* {{{ */ {

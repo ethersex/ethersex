@@ -79,21 +79,39 @@ uint16_t usart_baudrate(uint16_t baudrate);
 #define _BV_URSEL 0
 #endif
 
+/* If the Baudrate isn't set by the module which is using usart.h */
+#ifndef BAUD
+#define BAUD 19200
+#endif
+
+/* We use setbaud.h from the avr-libc */
+#include <util/setbaud.h>
+
+/* This is used in generate_usart_init() */
+#if USE_2X
+#define USART_2X() usart(UCSR,A) |= (1 << usart(U2X))
+#else
+#define USART_2X() usart(UCSR,A) &= ~(1 << usart(U2X))
+#endif
+
+
 /* init the usart module */
-#define generate_usart_init(BAUDRATE) \
+#define generate_usart_init() \
 static void \
 usart_init(void) \
 {\
     /* The ATmega644 datasheet suggests to clear the global\
        interrupt flags on initialization ... */\
     uint8_t sreg = SREG; cli(); \
-    usart(UBRR,H) = HI8(BAUDRATE); \
-    usart(UBRR,L) = LO8(BAUDRATE); ;\
+    usart(UBRR,H) = HI8(UBRRH_VALUE); \
+    usart(UBRR,L) = LO8(UBRRL_VALUE); ;\
     /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */ \
     /*   and set URSEL, if present, */ \
     usart(UCSR,C) = _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
     /* Enable the RX interrupt and receiver and transmitter */ \
     usart(UCSR,B) |= _BV(usart(TXEN)) | _BV(usart(RXEN)) | _BV(usart(RXCIE));\
+    /* Set or not set the 2x mode */ \
+    USART_2X(); \
     /* Go! */ \
     SREG = sreg;\
 }

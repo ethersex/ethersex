@@ -35,10 +35,11 @@
 #ifdef YPORT_SUPPORT
 
 #define USE_USART YPORT_USE_USART 
+#define BAUD YPORT_BAUDRATE
 #include "../usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init(YPORT_UART_UBRR)
+generate_usart_init()
 
 struct yport_buffer yport_send_buffer;
 struct yport_buffer yport_recv_buffer;

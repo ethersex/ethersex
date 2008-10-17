@@ -24,8 +24,8 @@
 #ifndef _MCUF_H
 #define _MCUF_H
 
-/* 19k2 baud @ 20 Mhz */
-#define MCUF_UART_UBRR 10 
+/* The default baudrate of the shifter is 115200 baud (ubrr == 10 @ 20 Mhz) */
+#define MCUF_BAUDRATE 115200 
 
 void mcuf_init(void);
 void mcuf_newdata(void);

@@ -39,8 +39,8 @@
     #define debug_process(...) do { } while(0)
 #endif /* DEBUG */
 
-/* use 115200 baud at 20mhz (see datasheet for other values) */
-#define DEBUG_UART_UBRR 10
+/* use 115200 baud */
+#define DEBUG_BAUDRATE 115200
 
 /* prototypes */
 void DEBUG_INIT_UART(void);

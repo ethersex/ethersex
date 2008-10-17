@@ -24,10 +24,8 @@
 #ifndef _MODBUS_H
 #define _MODBUS_H
 
-/* UART_UBBR is used if teensy is enabled */
-#define MODBUS_UART_UBRR 129 
-/* is used if teensy is disabled; this ist the baudrate/100 */
-#define MODBUS_BAUDRATE 96
+/* Default baudrate */
+#define MODBUS_BAUDRATE 9600
 
 struct modbus_buffer {
   uint8_t *data;

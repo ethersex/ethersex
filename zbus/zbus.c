@@ -39,10 +39,11 @@
 #define ZBUS_USE_USART 0 
 #endif
 #define USE_USART ZBUS_USE_USART 
+#define BAUD ZBUS_BAUDRATE
 #include "../usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init(ZBUS_UART_UBRR)
+generate_usart_init()
 
 static uint8_t send_escape_data = 0;
 static uint8_t recv_escape_data = 0;

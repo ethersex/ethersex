@@ -25,10 +25,8 @@
 #define _YPORT_H
 
 
-/* UART_UBBR is used if teensy is enabled */
-#define YPORT_UART_UBRR 10
-/* is used if teensy is disabled; this ist the baudrate/100 */
-#define YPORT_BAUDRATE 1152
+/* The default usart baudrate is 115200 */
+#define YPORT_BAUDRATE 115200
 #define YPORT_BUFFER_LEN 255
 
 struct yport_buffer {

@@ -40,6 +40,7 @@
 #ifdef MODBUS_SUPPORT
 
 #define USE_USART MODBUS_USE_USART
+#define BAUD MODBUS_BAUDRATE
 #include "../usart.h"
 
 #ifdef MODBUS_CLIENT_SUPPORT
@@ -48,7 +49,7 @@ struct modbus_connection_state_t modbus_client_state;
 
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init(MODBUS_UART_UBRR)
+generate_usart_init()
 
 volatile struct modbus_buffer modbus_data;
 
