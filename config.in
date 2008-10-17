@@ -24,7 +24,8 @@ bool "Teensy build"		TEENSY_SUPPORT
 
 mainmenu_option next_comment
 comment "Debugging Options"
-  bool 'Enable Serial-Line Debugging' DEBUG
+  bool 'Enable (Serial-Line) Debugging' DEBUG
+  dep_bool '  Reroute to SYSLOG' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
   dep_bool '  ECMD' DEBUG_ECMD $DEBUG
   dep_bool '  ECMD FS20' DEBUG_ECMD_FS20 $DEBUG
   dep_bool '  ECMD IP' DEBUG_ECMD_IP $DEBUG

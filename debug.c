@@ -1,7 +1,8 @@
-/* vim:fdm=marker ts=4 et ai
+/* vim:fdm=marker ts=4 ai
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright(c) by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -38,12 +39,14 @@ int debug_uart_put(char d, FILE *stream);
 
 #ifdef DEBUG
 
+#ifndef DEBUG_USE_SYSLOG
+
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
-void DEBUG_INIT_UART()
-/* {{{ */ {
-
+void
+debug_init_uart (void)
+{
     usart_init();
 
     /* Disable the receiver */
@@ -51,12 +54,12 @@ void DEBUG_INIT_UART()
 
     /* open stdout/stderr */
     fdevopen(debug_uart_put, NULL);
+}
 
-} /* }}} */
 
-int noinline debug_uart_put(char d, FILE *stream)
-/* {{{ */ {
-
+int noinline
+debug_uart_put (char d, FILE *stream)
+{
     if (d == '\n')
         debug_uart_put('\r', stream);
 
@@ -64,11 +67,11 @@ int noinline debug_uart_put(char d, FILE *stream)
     usart(UDR) = d;
 
     return 0;
+}
 
-} /* }}} */
-
-void DEBUG_PROCESS_UART(void)
-/* {{{ */ {
+void
+debug_process_uart (void)
+{
 #define LEN 60
 #define OUTPUTLEN 40
 
@@ -108,14 +111,14 @@ void DEBUG_PROCESS_UART(void)
                 debug_printf("not enough space for storing '%c'\n", data);
         }
     }
+}
 
-} /* }}} */
+#endif	/* not DEBUG_USE_SYSLOG */
+
 
 void uip_log(char *message)
-/* {{{ */ {
-
+{
     debug_printf("uip: %s\n", message);
+}
 
-} /* }}} */
-
-#endif
+#endif	/* DEBUG */

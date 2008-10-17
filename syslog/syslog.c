@@ -184,3 +184,24 @@ syslog_check_cache(void)
   return 1;
 }
 
+
+
+#ifdef DEBUG_USE_SYSLOG
+
+int
+syslog_debug_put (char d, FILE *stream)
+{
+  unsigned char buf[2] = { d, 0 };
+  syslog_send (buf);
+
+  return 0;
+}
+
+void
+syslog_debug_init (void)
+{
+  fdevopen(syslog_debug_put, NULL);
+}
+
+
+#endif
