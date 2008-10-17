@@ -94,9 +94,9 @@ void network_init(void)
 
     uip_stack_set_active(0);
 
-#if !defined(BOOTLOADER_SUPPORT) || (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))
     uip_ipaddr_t ip;
-#endif
+    (void) ip;			/* Keep GCC quiet. */
+
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("net: loading base network settings\n");
@@ -107,9 +107,8 @@ void network_init(void)
      * no network packets will be processed */
     void *buf = uip_buf;
 
-#if !defined(BOOTLOADER_SUPPORT) || (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))
     uip_ipaddr_t ipaddr;
-#endif
+    (void) ipaddr;		/* Keep GCC quiet. */
 
     /* use global network packet buffer for configuration */
     eeprom_read_block(buf, EEPROM_CONFIG_BASE, sizeof(struct eeprom_config_base_t));
