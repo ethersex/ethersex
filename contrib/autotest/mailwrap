@@ -1,6 +1,5 @@
 #! /bin/sh
 TOADDR="ethersex-devel@list.zerties.org"
-CFLAGS="-Wall -W -Wno-unused-parameter -Wno-uninitialized -Wno-pointer-sign  -Wno-missing-field-initializers -Wno-sign-compare"
 
 # make sure TERM is defined so that dialog will work.
 [ "x$TERM" = "x" ] && TERM="linux"
