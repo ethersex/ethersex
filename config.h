@@ -71,14 +71,6 @@
 /* bootloader config */
 #define CONF_BOOTLOAD_DELAY 250           /* five seconds */
 
-/* macros */
-#ifdef USE_WATCHDOG
-#   define wdt_kick() wdt_reset()
-#else
-#   define wdt_kick()
-#endif
-
-
 #include "autoconf.h"
 
 /* use watchdog only when not debugging */
@@ -86,5 +78,11 @@
 #   define USE_WATCHDOG
 #endif
 
+/* macros */
+#ifdef USE_WATCHDOG
+#   define wdt_kick() wdt_reset()
+#else
+#   define wdt_kick()
+#endif
 
 #endif /* _CONFIG_H */
