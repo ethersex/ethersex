@@ -27,6 +27,8 @@
 #include <string.h>
 #include <util/crc16.h>
 #include <avr/pgmspace.h>
+
+#include "config.h"
 #include "eeprom.h"
 
 
@@ -102,7 +104,7 @@ eeprom_init (void)
     eeprom_save_int (usart_baudrate, ZBUS_BAUDRATE);
 #endif
 
-#ifdef HTTPD_SUPPORT
+#ifdef HTTPD_AUTH_SUPPORT
     /* Copy the httpd's password. */
     eeprom_save_P (httpd_auth_password, PSTR(CONF_HTTPD_PASSWORD), 8);
     eeprom_save_char (httpd_auth_null_byte + 8, 0);

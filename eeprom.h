@@ -53,7 +53,7 @@ struct eeprom_config_t {
 
     uint16_t usart_baudrate;	/* FIXME */
 
-#ifdef HTTPD_SUPPORT
+#ifdef HTTPD_AUTH_SUPPORT
     char httpd_auth_password[8];
     char httpd_auth_null_byte;
 #endif
