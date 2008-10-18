@@ -679,8 +679,9 @@ fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length)
 	df_flash_read (fs->chip, pagenum, &page, FS_STRUCTURE_OFFSET,
 		       sizeof (fs_page_t));
 
-	if ((found_eof = page.eof))
+	if ((found_eof = page.eof)) {
 	    printf ("\tThe file ended here.\n");
+	}
 
 	page.size = length;
 	page.eof = 1;
