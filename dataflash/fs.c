@@ -1339,61 +1339,45 @@ fs_status_t fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page)
 } /* }}} */
 
 
-#if 0
-void fs_inspect_node(fs_t *fs, uint16_t p) {
-
-    uart_puts_P("root page is 0x");
-    uart_puthexbyte(HI8(fs->root));
-    uart_puthexbyte(LO8(fs->root));
-    uart_eol();
+#if DEBUG_FS
+void
+fs_inspect_node(fs_t *fs, uint16_t p)
+{
+    printf ("root page is 0x%04x\n", fs->root);
 
     fs_root_t *root = malloc(sizeof(fs_root_t));
 
     df_flash_read(fs->chip, p, root, 0, sizeof(fs_root_t));
 
-    uart_puts_P("page properties:");
+    printf ("page properties:\n");
     if (root->page.unused)
-        uart_puts_P(" unused");
+	printf ("\t* unused\n");
     if (root->page.root)
-        uart_puts_P(" root");
+        printf ("\t* root\n");
     if (root->page.eof)
-        uart_puts_P(" eof");
-    uart_puts_P(", next_inode: 0x");
-    uart_puthexbyte(HI8(root->page.next_inode));
-    uart_puthexbyte(LO8(root->page.next_inode));
-    uart_puts_P(", size: 0x");
-    uart_puthexbyte(HI8(root->page.size));
-    uart_puthexbyte(LO8(root->page.size));
-    uart_eol();
+        printf ("\t* eof\n");
+
+    printf ("\tnext_inode: 0x%04x, size: 0x%04x\n", root->page.next_inode,
+	    root->page.size);
 
     if (root->page.root) {
-        uart_puts_P("this is a root node, version 0x");
-        uart_puthexbyte(root->version);
-        uart_puts_P(", inodetable:\r\n");
+	printf ("\tThis is a root node (version 0x%02x), inodetable:\n",
+		root->version);
+
         for (uint8_t i = 0; i < FS_ROOTNODE_INODETABLE_SIZE; i++) {
 
-            uart_puts_P(" * ");
-            uart_puthexbyte(i);
-            uart_puts_P(" -> ");
-            uart_puthexbyte(HI8(root->inodetable[i]));
-            uart_puthexbyte(LO8(root->inodetable[i]));
-            uart_puts_P(", func: ");
-
             uint16_t page = fs_inodetable(fs, i);
-
-            uart_puthexbyte(HI8(page));
-            uart_puthexbyte(LO8(page));
-
-            uart_eol();
+	    printf ("\t\t* 0x%02x -> 0x%04x, func: 0x%04x\n", i,
+		    root->inodetable[i], page);
         }
 
-        uart_puts_P("root entries:\r\n");
+        printf ("\troot entries:\n");
         for (uint8_t i = 0; i < FS_NODES_IN_ROOT; i++) {
 
             fs_node_t *node = malloc(sizeof(fs_node_t));
 
             if (node == NULL) {
-                uart_puts_P("NULL!\r\n");
+                printf ("\t\tNULL!\n");
                 break;
             }
 
@@ -1405,21 +1389,13 @@ void fs_inspect_node(fs_t *fs, uint16_t p) {
                 strncpy(name, node->name, FS_FILENAME);
                 name[FS_FILENAME] = '\0';
 
-                uart_puts_P(" * 0x");
-                uart_puthexbyte(i);
-                uart_puts_P(": ");
-                uart_puts(node->name);
-                uart_eol();
+		printf ("\t\t* 0x%02x: %s\n", i, name);
             }
         }
-
-        free(root);
-
-
-    } else {
-        free(root);
     }
+
+    free(root);
 }
-#endif
+#endif	/* DEBUG_FS */
 
 

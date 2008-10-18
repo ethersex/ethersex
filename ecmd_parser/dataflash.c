@@ -137,4 +137,21 @@ parse_cmd_fs_truncate (char *cmd, char *output, uint16_t len)
   return (ret == FS_OK) ? 0 : -1;
 }
 
+
+#ifdef DEBUG_FS
+int16_t
+parse_cmd_fs_inspect_node (char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  /* Ignore leading spaces. */
+  while (* cmd == ' ') cmd ++;
+
+  fs_inspect_node (&fs, strtoul (cmd, NULL, 0));
+  return 0;
+}
+#endif	/* DEBUG_FS */
+
+
 #endif /* DATAFLASH_SUPPORT */

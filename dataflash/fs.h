@@ -102,6 +102,7 @@ uint8_t noinline fs_crc(fs_t *fs, uint8_t crc, df_buf_t buf, df_size_t offset, d
 fs_status_t noinline fs_increment(fs_t *fs); /* update version and crc of root node in BUF1, write BUF1 to a free page and update global pointer */
 fs_status_t noinline fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page); /* update inodetable and root node */
 
+void fs_inspect_node(fs_t *fs, uint16_t p);
 
 extern fs_t fs;
 
