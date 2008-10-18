@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "../config.h"
 #include "../dataflash/df.h"
@@ -115,5 +116,25 @@ parse_cmd_fs_remove (char *cmd, char *output, uint16_t len)
   return (ret == FS_OK) ? 0 : -1;
 }
 
+
+int16_t
+parse_cmd_fs_truncate (char *cmd, char *output, uint16_t len)
+{
+  /* Ignore leading spaces. */
+  while (* cmd == ' ') cmd ++;
+
+  char *ptr = strchr (cmd, ' ');
+  if (ptr == NULL) return -1;	/* invalid args. */
+
+  *(ptr ++) = 0;		/* Zero terminate filename. */
+
+  fs_inode_t i = fs_get_inode (&fs, cmd);
+
+  if (i == 0xffff)
+    return snprintf_P (output, len, PSTR ("no such file."));
+
+  fs_status_t ret = fs_truncate (&fs, i, strtoul (ptr, NULL, 10));
+  return (ret == FS_OK) ? 0 : -1;
+}
 
 #endif /* DATAFLASH_SUPPORT */

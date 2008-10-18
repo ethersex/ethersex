@@ -126,6 +126,7 @@ ecmd_ifdef(DATAFLASH_SUPPORT)
   ecmd_feature(fs_list, "fs list",, List the directory.)
   ecmd_feature(fs_mkfile, "fs mkfile ", NAME, Create a new file NAME.)
   ecmd_feature(fs_remove, "fs remove ", NAME, Delete the file NAME.)
+  ecmd_feature(fs_truncate, "fs truncate ", NAME LEN, Truncate the file NAME to LEN bytes.)
 ecmd_endif()
 
 ecmd_ifndef(TEENSY_SUPPORT)
