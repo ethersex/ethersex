@@ -28,14 +28,8 @@
 #include "../uip/uip_router.h"
 #include "../dataflash/df.h"
 #include "../net/tftp_net.h"
+#include "../debug.h"
 #include "tftp.h"
-
-#if 0 				/* Enable debuging with SYSLOG. */
-#  include "../syslog/syslog.h"
-#  define DEBUG(a...) syslog_sendf(a)
-#else
-#  define DEBUG(a...) do { } while (0)
-#endif
 
 #ifdef DATAFLASH_SUPPORT
 
@@ -123,7 +117,7 @@ tftp_handle_packet(void)
 	    fs_size_t offset = state->transfered * 512;
 
 	    ret = fs_read (&fs, state->fs_inode, pk->u.data.data, offset, 512);
-	    DEBUG ("fs_read: o=%04lx, l=%04lx\n", offset, ret);
+	    debug_printf ("fs_read: o=%04lx, l=%04lx\n", offset, ret);
 	    
 	    if (ret < 0)
 		goto error_out;
@@ -173,7 +167,7 @@ tftp_handle_packet(void)
 			offset, uip_datalen () - 4);
 
 	if (ret != FS_OK) {
-	    DEBUG ("fs_write o=%04lx, l=%04x, r=%d\n", offset,
+	    debug_printf ("fs_write o=%04lx, l=%04x, r=%d\n", offset,
 		   uip_datalen () - 4, ret);
 	    goto error_out;
 	}
