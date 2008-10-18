@@ -817,8 +817,10 @@ fs_status_t fs_remove(fs_t *fs, char *name)
     fs_inode_t inode = 0xffff;
     fs_node_t *node = malloc(sizeof(fs_node_t));
 
-    if (node == NULL)
+    if (node == NULL) {
+	printf ("fs_remove: not enough memory!");
         return FS_MEM;
+    }
 
     while(1) {
 
