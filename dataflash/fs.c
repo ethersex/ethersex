@@ -1092,7 +1092,7 @@ fs_status_t fs_format(fs_t *fs)
     uint8_t crc = 0;
     crc = fs_crc(fs, crc, DF_BUF1, FS_STRUCTURE_OFFSET, FS_CRC_LENGTH);
 
-    printf("fs: crc of new root page is 0x%02x\r\n", crc);
+    printf("fs: crc of new root page is 0x%02x\n", crc);
 
     /* write crc */
     df_buf_write(fs->chip, DF_BUF1, &crc, FS_CRC_OFFSET, 1);

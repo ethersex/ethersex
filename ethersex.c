@@ -136,7 +136,7 @@ int main(void)
 #   ifdef DATAFLASH_SUPPORT
     debug_printf("initializing filesystem...\n");
     fs_init(&fs, NULL);
-    debug_printf("fs: root page is 0x%04x", fs.root);
+    debug_printf("fs: root page is 0x%04x\n", fs.root);
 #   endif
 
 #   ifdef UIP_SUPPORT
