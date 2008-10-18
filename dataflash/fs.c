@@ -1391,6 +1391,8 @@ fs_inspect_node(fs_t *fs, uint16_t p)
 
 		printf ("\t\t* 0x%02x: %s\n", i, name);
             }
+
+	    free (node);
         }
     }
 
