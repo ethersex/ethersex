@@ -138,8 +138,10 @@ tftp_handle_packet(void)
 	state->finished = 0;
 
 	/* try to create the file, shouldn't hurt if it already exists */
-	state->fs_inode = fs_create (&fs, pk->u.raw);
+	fs_status_t create_result = fs_create (&fs, pk->u.raw);
 	state->fs_inode = fs_get_inode (&fs, pk->u.raw);
+	if (create_result == FS_DUPLICATE)
+	    fs_truncate (&fs, state->fs_inode, 0);
 
 	if (state->fs_inode == 0xffff)
 	    goto error_out;
