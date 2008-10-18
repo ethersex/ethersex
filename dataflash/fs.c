@@ -2,6 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -1048,10 +1049,6 @@ fs_inode_t fs_new_inode(fs_t *fs)
 df_page_t fs_inodetable(fs_t *fs, uint8_t tableid)
 /* {{{ */ {
 
-#ifdef DEBUG_FS_INODETABLE
-    printf("inodetable(%02x): root %0x%04x, page 0x", tableid, fs->root);
-#endif
-
     df_page_t page;
 
     df_flash_read(fs->chip, fs->root, &page,
@@ -1059,7 +1056,7 @@ df_page_t fs_inodetable(fs_t *fs, uint8_t tableid)
             sizeof(fs_inodetable_node_t));
 
 #ifdef DEBUG_FS_INODETABLE
-    printf("%04x", page);
+    printf("inodetable(%02x): root 0x%04x, page 0x%04x\n", tableid, fs->root, page);
 #endif
 
     return page;
@@ -1093,17 +1090,13 @@ void fs_mark(fs_t *fs, df_page_t page, uint8_t is_free)
     uint8_t b;
 
 #ifdef DEBUG_FS_MARK
-    printf("fs: marking page 0x%04x as ", page);
-    if (is_free)
-        printf("free\r\n");
-    else
-        printf("used\r\n");
+    printf("fs: marking page 0x%04x as %s\n", page, 
+           is_free ? "free" : "used");
 #endif
 
     /* load byte first */
     df_buf_read(fs->chip, DF_BUF2, &b, page/8, 1);
 
-    //printf("read byte at offset %d: 0x%x\n", page/8, b);
 #ifdef DEBUG_FS_MARK
     printf("fs: read byte at offset 0x%04x: 0x%02x\r\n", page/8, b);
 #endif
