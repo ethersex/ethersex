@@ -151,6 +151,21 @@ parse_cmd_fs_inspect_node (char *cmd, char *output, uint16_t len)
   fs_inspect_node (&fs, strtoul (cmd, NULL, 0));
   return 0;
 }
+
+
+int16_t
+parse_cmd_fs_inspect_inode (char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  /* Ignore leading spaces. */
+  while (* cmd == ' ') cmd ++;
+
+  fs_inspect_inode (&fs, strtoul (cmd, NULL, 0));
+  return 0;
+}
+
 #endif	/* DEBUG_FS */
 
 

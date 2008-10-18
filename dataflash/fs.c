@@ -1347,9 +1347,9 @@ fs_inspect_node(fs_t *fs, uint16_t p)
 
     fs_root_t *root = malloc(sizeof(fs_root_t));
 
-    df_flash_read(fs->chip, p, root, 0, sizeof(fs_root_t));
+    df_flash_read(fs->chip, p, root, FS_STRUCTURE_OFFSET, sizeof(fs_root_t));
 
-    printf ("page properties:\n");
+    printf ("Properties of page 0x%04x:\n", p);
     if (root->page.unused)
 	printf ("\t* unused\n");
     if (root->page.root)
@@ -1396,6 +1396,22 @@ fs_inspect_node(fs_t *fs, uint16_t p)
 
     free(root);
 }
+
+
+void
+fs_inspect_inode(fs_t *fs, fs_inode_t p)
+{
+    printf ("Inspection of inode 0x%04x:\n", p);
+
+    df_page_t pagenum = fs_page (fs, p);
+    printf ("\t* pagenum = %04x\n", pagenum);
+
+    if (pagenum == 0xffff)
+	return;
+
+    fs_inspect_node (fs, pagenum);
+}
+
 #endif	/* DEBUG_FS */
 
 

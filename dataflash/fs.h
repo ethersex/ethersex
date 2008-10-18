@@ -103,6 +103,7 @@ fs_status_t noinline fs_increment(fs_t *fs); /* update version and crc of root n
 fs_status_t noinline fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page); /* update inodetable and root node */
 
 void fs_inspect_node(fs_t *fs, uint16_t p);
+void fs_inspect_inode(fs_t *fs, uint16_t p);
 
 extern fs_t fs;
 

@@ -129,6 +129,7 @@ ecmd_ifdef(DATAFLASH_SUPPORT)
   ecmd_feature(fs_truncate, "fs truncate ", NAME LEN, Truncate the file NAME to LEN bytes.)
   ecmd_ifdef(DEBUG_FS)
     ecmd_feature(fs_inspect_node, "fs inspect node ", NODE, Inspect NODE and dump to serial.)
+    ecmd_feature(fs_inspect_inode, "fs inspect inode ", INODE, Inspect INODE (and associated page).)
   ecmd_endif()
 ecmd_endif()
 
