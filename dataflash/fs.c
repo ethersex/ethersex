@@ -182,13 +182,24 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
 #endif
 
             df_page_t page = fs_page(fs, node->inode);
-            if (page != 0xffff)
-                fs_mark_used(fs, page);
 
-#ifdef DEBUG_FS
 	    printf(" * %s: (index %d, file %d, inode 0x%04x, page 0x%04x)\r\n",
 	    	   name, i, node->file, node->inode, page);
-#endif
+
+            while (page != 0xffff) {
+                fs_mark_used(fs, page);
+
+		fs_page_t pagedata;
+		df_flash_read (fs->chip, page, &pagedata, FS_STRUCTURE_OFFSET,
+			       sizeof (fs_page_t));
+
+		if (pagedata.eof)
+		    break;
+
+		page = fs_page (fs, pagedata.next_inode);
+		printf ("\t... continues in page 0x%04x (inode 0x%04x)\n",
+			page, pagedata.next_inode);
+	    }
         }
 
     }
