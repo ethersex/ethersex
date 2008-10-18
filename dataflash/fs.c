@@ -599,6 +599,106 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
 } /* }}} */
 
+
+
+fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length)
+{
+    printf("fs_truncate, inode %d, length %ld\n", inode, length);
+
+    df_page_t pagenum;
+    fs_page_t page;
+
+    pagenum = fs_page (fs, inode);
+    if (pagenum == 0xffff)
+	return FS_OK;		/* File hasn't contained data before. */
+
+    /* Seek forward until we've reached the page that contains the offset
+       we ought to truncate the file at. */
+    while (length > FS_DATASIZE) {
+	printf ("\tlength > FS_DATASIZE, trying next page.\n");
+
+	/* find next page */
+	df_flash_read (fs->chip, pagenum, &page, FS_STRUCTURE_OFFSET,
+		       sizeof(fs_page_t));
+
+	if (page.eof) {
+	    printf (" *** BAD SEEK ***  (truncate length beyond file length)\n");
+	    return FS_BADSEEK;
+	}
+
+	inode = page.next_inode;
+	pagenum = fs_page (fs, inode);
+
+	printf ("\tnext inode is %d, next page is %d\n", inode, pagenum);
+
+	if (pagenum == 0xffff) {
+	    printf ("\t\tEEEK! Bad page, out here.\n");
+	    return -1;
+	}
+
+	length -= FS_DATASIZE;
+    }
+
+    printf ("remaining length is %ld\n", length);
+
+    /* Load the page (structural) data. */
+    df_flash_read (fs->chip, pagenum, &page, FS_STRUCTURE_OFFSET,
+		   sizeof (fs_page_t));
+    printf ("now we are at page %d (filled with %d bytes), truncate it at %d.\n",
+	    pagenum, page.size, length);
+
+    if (length > page.size) {
+	printf ("length > page.size -> *** BADSEEK ***\n");
+	return FS_BADSEEK;
+    }
+
+    if (length == page.size) {
+	printf ("length == page.size -> nothing to do.\n");
+	return FS_OK;
+    }
+
+    df_page_t new_pagenum;
+    uint8_t found_eof;
+    do {
+	if ((new_pagenum = fs_new_page (fs)) == 0xffff)
+	    return FS_BADPAGE;
+
+	printf ("\tnew allocated page is %d\n", new_pagenum);
+
+	/* update inode */
+	fs_status_t ret = fs_update_inodetable (fs, inode, new_pagenum);
+
+	if (ret != FS_OK)
+	    return ret;
+
+	/* Load the old page into buffer. */
+	df_buf_load (fs->chip, DF_BUF1, pagenum);
+	df_wait (fs->chip);
+
+	/* Load the structure. */
+	df_flash_read (fs->chip, pagenum, &page, FS_STRUCTURE_OFFSET,
+		       sizeof (fs_page_t));
+
+	if ((found_eof = page.eof))
+	    printf ("\tThe file ended here.\n");
+
+	page.size = length;
+	page.eof = 1;
+
+	length = 0;
+
+	/* Save the updated structure data to buffer and save the page. */
+	df_buf_write (fs->chip, DF_BUF1, &page, FS_STRUCTURE_OFFSET,
+		      sizeof (fs_page_t));
+	df_buf_save (fs->chip, DF_BUF1, new_pagenum);
+	df_wait (fs->chip);
+
+    } while (0); /* (found_eof == 0); FIXME */
+
+
+    return FS_OK;
+}
+
 fs_status_t fs_create(fs_t *fs, char *name)
 /* {{{ */ {
 

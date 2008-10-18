@@ -2,6 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright(c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -80,6 +81,7 @@ fs_status_t noinline fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index);
 fs_inode_t noinline fs_get_inode(fs_t *fs, char *file);
 fs_size_t noinline fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length);
 fs_status_t noinline fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length);
+fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length);
 fs_status_t noinline fs_create(fs_t *fs, char *name);
 fs_status_t noinline fs_remove(fs_t *fs, char *name);
 fs_size_t noinline fs_size(fs_t *fs, fs_inode_t inode);
