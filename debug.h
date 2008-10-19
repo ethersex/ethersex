@@ -57,7 +57,7 @@
 #endif
 
 /* prototypes */
-void DEBUG_INIT_UART(void);
-void DEBUG_PROCESS_UART(void);
+void debug_init_uart(void);
+void debug_process_uart(void);
 
 #endif /* _DEBUG_H */
