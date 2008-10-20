@@ -5,7 +5,9 @@
   exit 1
 }
 
-git pull --quiet origin  >/dev/null  || exit 2
+if [ x"$1" != x"-n" ]; then 
+  git pull --quiet origin  >/dev/null  || exit 2
+fi
 
 for A in contrib/autotest/profiles/* scripts/profiles/*; do
   echo "Trying to compile Ethersex firmware using profile '$A' ..."
