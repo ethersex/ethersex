@@ -5,6 +5,8 @@ comment "ZBUS configuration"
     choice '  ZBus usart select' "$(usart_choice ZBUS)"
     usart_process_choice ZBUS
 
+    int "ZBus Baudrate" CONF_ZBUS_BAUDRATE "19200"
+
     if [ "$SKIPJACK_SUPPORT" = "y" ]; then
       hex "Skipjack Key" CONF_ZBUS_KEY "23234242555523234242"
     fi
