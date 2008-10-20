@@ -162,10 +162,8 @@ static PT_THREAD(httpd_handle(struct httpd_connection_state_t *state))
         if (strncmp_P(p + 1, PSTR(CONF_HTTPD_USERNAME ":"), 
                       strlen(CONF_HTTPD_USERNAME ":")) != 0)
             goto auth_failed;
-        char passwd[sizeof(((struct eeprom_config_ext_t *)0)->httpd_auth_password)];
-        eeprom_read_block(passwd, &(((struct eeprom_config_ext_t *)
-                          EEPROM_CONFIG_EXT)->httpd_auth_password),
-                          sizeof(passwd));
+        char passwd[sizeof(((struct eeprom_config_t *)0)->httpd_auth_password) + 1];
+        eeprom_restore(httpd_auth_password, passwd, sizeof(passwd));
         if (strncmp(passwd, p + 1 + strlen(CONF_HTTPD_USERNAME ":"), 
                     sizeof(passwd)) != 0)
                 goto auth_failed;
@@ -427,7 +425,7 @@ void httpd_main(void)
         state->timeout = 0;
 
         /* initialize protosockets for in and out */
-        PSOCK_INIT(&state->in, state->buffer, sizeof(state->buffer));
+        PSOCK_INIT(&state->in, (unsigned char *)state->buffer, sizeof(state->buffer));
     }
 
     if (uip_newdata()) {
