@@ -468,6 +468,10 @@ void
 resolv_init(void)
 {
   static u8_t i;
+
+  uip_ipaddr_t dnsserver;
+  eeprom_restore(dns_server, &dnserver, IPADDR_LEN);
+  resolv_conf(&dnsserver);
   
   for(i = 0; i < RESOLV_ENTRIES; ++i) {
     names[i].state = STATE_DONE;
