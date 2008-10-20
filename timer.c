@@ -84,9 +84,22 @@ void timer_process(void)
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
 
-	if (uip_buf_lock ())
-	    return;		/* hmpf, try again shortly
-				   (let's hope we don't miss too many ticks */
+        if (uip_buf_lock ()) {
+#ifdef RFM12_SUPPORT
+           _uip_buf_lock --;
+           if (uip_buf_lock ()) {
+             return;           /* hmpf, try again shortly
+                                   (let's hope we don't miss too many ticks */
+           }
+           else {
+               rfm12_status = RFM12_OFF;
+               rfm12_rxstart();
+           }
+#else
+           return;
+#endif
+        }
+
         counter++;
 
 #       ifdef DEBUG_TIMER
