@@ -32,6 +32,7 @@
 #include "clock.h"
 
 static uint32_t timestamp = 1;
+static uint8_t ticks;
 static uint32_t sync_timestamp = 0;
 
 #ifdef NTP_SUPPORT
@@ -72,7 +73,7 @@ SIGNAL(SIG_OVERFLOW2)
 
 
 void
-clock_tick(void) 
+clock_periodic(void) 
 {
 #ifdef NTP_SUPPORT
   if(ntp_timer) {
@@ -83,14 +84,22 @@ clock_tick(void)
   if(timestamp <= 50 && (timestamp % 5 == 0))
     ntp_send_packet();
 #endif
+}
+
+void
+clock_tick(void) 
+{
+  if(++ticks > 50){
   /* Only clock here, when no crystal is connected */
 #ifndef CLOCK_CRYSTAL_SUPPORT
 # /* Don't wait for a sync, if no sync source is enabled */
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-  if(sync_timestamp <= timestamp)
+    if(sync_timestamp <= timestamp)
 #endif
-    timestamp ++;
+      timestamp ++;
 #endif
+    ticks = 0;
+  }
 }
 
 void

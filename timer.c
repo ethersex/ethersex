@@ -72,6 +72,18 @@ void timer_process(void)
 
     /* check timer 1 (timeout after 20ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
+
+#       ifdef PS2_SUPPORT
+        ps2_periodic();
+#       endif
+
+#       ifdef CLOCK_SUPPORT
+        clock_tick();
+#       endif
+
+        /* clear flag */
+        _TIFR_TIMER1 = _BV(OCF1A);
+
 	if (uip_buf_lock ())
 	    return;		/* hmpf, try again shortly
 				   (let's hope we don't miss too many ticks */
@@ -111,10 +123,6 @@ void timer_process(void)
 #       endif
 #       endif /* FS20_SUPPORT */
 
-        
-#       ifdef PS2_SUPPORT
-        ps2_periodic();
-#       endif
 
 #       ifdef MODBUS_SUPPORT
         modbus_periodic();
@@ -188,7 +196,7 @@ void timer_process(void)
 #           endif
 
 #           ifdef CLOCK_SUPPORT
-            clock_tick();
+            clock_periodic();
 #           endif
 #           ifdef UIP_SUPPORT
             if (uip_len)
@@ -226,9 +234,6 @@ void timer_process(void)
                 jump_to_application();
             }
 #       endif
-
-        /* clear flag */
-        _TIFR_TIMER1 = _BV(OCF1A);
 
 #ifdef  UIP_SUPPORT
 	uip_buf_unlock ();
