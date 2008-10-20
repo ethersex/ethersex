@@ -26,6 +26,7 @@
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
+#include "../uip/uip_router.h"
 #include "../debug.h"
 #include "../clock/clock.h"
 #include "../net/snmp_net.h"

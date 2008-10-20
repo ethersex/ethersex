@@ -22,6 +22,7 @@
 
 #include "udp_echo_net.h"
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../config.h"
 
 #ifdef UDP_ECHO_NET_SUPPORT
