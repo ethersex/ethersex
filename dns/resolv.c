@@ -67,6 +67,8 @@
 #include "../uip/uip.h"
 #include "../net/dns_net.h"
 #include "../debug.h"
+#include "../eeprom.h"
+#include "../config.h"
 
 #include <string.h>
 
@@ -142,6 +144,8 @@ struct namemap {
 #define DNS_RECORD_ADDR_TYPE DNS_RECORD_TYPE_A
 #define DNS_RECORD_ADDR_LEN  4
 #endif
+
+#ifdef DNS_SUPPORT
 
 static struct namemap names[RESOLV_ENTRIES];
 
@@ -470,7 +474,7 @@ resolv_init(void)
   static u8_t i;
 
   uip_ipaddr_t dnsserver;
-  eeprom_restore(dns_server, &dnserver, IPADDR_LEN);
+  eeprom_restore(dns_server, &dnsserver, IPADDR_LEN);
   resolv_conf(&dnsserver);
   
   for(i = 0; i < RESOLV_ENTRIES; ++i) {
@@ -481,6 +485,8 @@ resolv_init(void)
 
 
 /*---------------------------------------------------------------------------*/
+
+#endif /* DNS_SUPPORT */
 
 /** @} */
 /** @} */
