@@ -228,11 +228,11 @@ static int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
   if (last_sunday > dow) 
     last_sunday -= dow + 1;
 
-  if ((31 - last_sunday) >= 7) {
+  if ((31 - last_sunday) <= 7) {
     if ((dow % 7) == 0) return 0;
-    return -1;
+    return 1;
   }
-  return 1;
+  return -1;
 }
 #endif
 
