@@ -23,6 +23,7 @@
  }}} */
 
 #include <string.h>
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
@@ -34,6 +35,15 @@
 #include "../usart.h"
 #include "ecmd.h"
 
+#ifndef ZBUS_USE_USART
+#define ZBUS_USE_USART 0 
+#endif
+#define USE_USART ZBUS_USE_USART 
+#define BAUD CONF_ZBUS_BAUDRATE
+#include "../usart.h"
+
+/* We generate our own usart init module, for our usart port */
+generate_usart_init()
 
 #if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
 int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
@@ -48,7 +58,9 @@ int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
       cmd[strlen(cmd) - 2] = 0;
       uint16_t s_usart_baudrate;
       if (sscanf_P(cmd, PSTR("%d"), &s_usart_baudrate) == 1) {
-        usart_baudrate(s_usart_baudrate);
+        uint16_t ubrr = usart_baudrate(s_usart_baudrate);
+        usart(UBRR,H) = HI8(ubrr);
+        usart(UBRR,L) = LO8(ubrr);
         eeprom_save_int(usart_baudrate, s_usart_baudrate);
         return snprintf_P(output, len, PSTR("baudrate: %d00"), s_usart_baudrate);
       } else 
