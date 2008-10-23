@@ -101,7 +101,7 @@ eeprom_init (void)
 #ifdef YPORT_SUPPORT		/* FIXME 2nd usart? */
     eeprom_save_int (usart_baudrate, YPORT_BAUDRATE);
 #elif defined(ZBUS_SUPPORT)
-    eeprom_save_int (usart_baudrate, CONF_ZBUS_BAUDRATE);
+    eeprom_save_int (usart_baudrate, CONF_ZBUS_BAUDRATE/100);
 #endif
 
 #ifdef HTTPD_AUTH_SUPPORT
