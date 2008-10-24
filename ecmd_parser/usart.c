@@ -2,7 +2,7 @@
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,20 +32,16 @@
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../eeprom.h"
-#include "../usart.h"
 #include "ecmd.h"
 
-#ifndef ZBUS_USE_USART
-#define ZBUS_USE_USART 0 
-#endif
+#if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
+
+/* FIXME This shouldn't unconditionally use the ZBus configuration. */
 #define USE_USART ZBUS_USE_USART 
 #define BAUD CONF_ZBUS_BAUDRATE
+
 #include "../usart.h"
 
-/* We generate our own usart init module, for our usart port */
-generate_usart_init()
-
-#if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
 int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     while (*cmd == ' ') cmd ++;
