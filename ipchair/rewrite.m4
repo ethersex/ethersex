@@ -25,7 +25,7 @@ define(`REWRITE_SRCADDR', `uip_ipaddr_copy(BUF->srcipaddr, $1);');
 define(`REWRITE_DESTADDR', `uip_ipaddr_copy(BUF->destipaddr, $1);');
 
 define(`REWRITE_CHKSUM_IP', `dnl
-#ifdef IPV6_SUPPORT
+#ifndef IPV6_SUPPORT
   BUF->ipchksum = 0;
   BUF->ipchksum = ~(uip_ipchksum());
 #endif

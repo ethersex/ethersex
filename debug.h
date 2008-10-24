@@ -2,6 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -47,11 +48,16 @@
     #define debug_process(...) do { } while(0)
 #endif /* not DEBUG */
 
-/* use 115200 baud */
-#define DEBUG_BAUDRATE 115200
+/* Use 115200 baud on 20 MHz Ethersex,
+   38400 baud on slower devices like ATmega8. */
+#if F_CPU < 20000000
+# define DEBUG_BAUDRATE 38400
+#else
+# define DEBUG_BAUDRATE 115200
+#endif
 
 /* prototypes */
-void DEBUG_INIT_UART(void);
-void DEBUG_PROCESS_UART(void);
+void debug_init_uart(void);
+void debug_process_uart(void);
 
 #endif /* _DEBUG_H */

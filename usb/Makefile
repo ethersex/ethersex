@@ -24,5 +24,7 @@ schematic.pdf: schematic.sch
 	$(RM) -rf schematic.ps
 
 clean: clean-common
-	$(RM) -rf schematic.pdf gschem.log
+	$(RM) -rf schematic.pdf gschem.log usbdrv/usbdrv.d usbdrv/usbdrvasm.d
+
+
 

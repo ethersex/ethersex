@@ -48,6 +48,7 @@ struct clock_datetime_t {
 #define EPOCH_DOW 4
 
 void clock_init(void);
+void clock_periodic(void);
 void clock_tick(void);
 
 /* the actual time as unix time stamp */

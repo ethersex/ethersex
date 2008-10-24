@@ -23,6 +23,7 @@
  }}} */
 
 #include <string.h>
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
@@ -34,24 +35,34 @@
 #include "../usart.h"
 #include "ecmd.h"
 
+#ifndef ZBUS_USE_USART
+#define ZBUS_USE_USART 0 
+#endif
+#define USE_USART ZBUS_USE_USART 
+#define BAUD CONF_ZBUS_BAUDRATE
+#include "../usart.h"
+
+/* We generate our own usart init module, for our usart port */
+generate_usart_init()
 
 #if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
 int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     while (*cmd == ' ') cmd ++;
     if (! *cmd ) { /* No argument */
-      return snprintf_P(output, len, PSTR("baudrate: %d00"),
-                 eeprom_read_word(&(((struct eeprom_config_ext_t *)
-                                     EEPROM_CONFIG_EXT)->usart_baudrate)));
+      uint16_t s_usart_baudrate;
+      eeprom_restore_int(usart_baudrate, &s_usart_baudrate);
+      return snprintf_P(output, len, PSTR("baudrate: %d00"), s_usart_baudrate);
     } else {
       /* Delete the last two digits */
       cmd[strlen(cmd) - 2] = 0;
-      struct eeprom_config_ext_t new_cfg;
-      memset(&new_cfg, 0, sizeof(new_cfg));
-      if (sscanf_P(cmd, PSTR("%d"), &new_cfg.usart_baudrate) == 1) {
-        usart_baudrate(new_cfg.usart_baudrate);
-        eeprom_save_config_ext(&new_cfg);
-        return snprintf_P(output, len, PSTR("baudrate: %d00"), new_cfg.usart_baudrate);
+      uint16_t s_usart_baudrate;
+      if (sscanf_P(cmd, PSTR("%d"), &s_usart_baudrate) == 1) {
+        uint16_t ubrr = usart_baudrate(s_usart_baudrate);
+        usart(UBRR,H) = HI8(ubrr);
+        usart(UBRR,L) = LO8(ubrr);
+        eeprom_save_int(usart_baudrate, s_usart_baudrate);
+        return snprintf_P(output, len, PSTR("baudrate: %d00"), s_usart_baudrate);
       } else 
         return -1;
     }

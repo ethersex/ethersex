@@ -136,6 +136,9 @@ void network_init(void)
 #   elif !defined(ROUTER_SUPPORT) /* and not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
+    uip_ipaddr_t ip;
+    (void) ip;			/* Keep GCC quiet. */
+
     CONF_ETHERRAPE_IP;
     uip_sethostaddr(ip);
 

@@ -163,8 +163,9 @@ zbus_core_init(void)
 #endif
 
 #ifndef TEENSY_SUPPORT
-    uint16_t ubrr = usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
-                                     EEPROM_CONFIG_EXT)->usart_baudrate)));
+    uint16_t s_usart_baudrate;
+    eeprom_restore_int(usart_baudrate, &s_usart_baudrate);
+    uint16_t ubrr = usart_baudrate(s_usart_baudrate);
     usart(UBRR,H) = HI8(ubrr);
     usart(UBRR,L) = LO8(ubrr);
 #endif

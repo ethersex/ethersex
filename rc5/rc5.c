@@ -305,8 +305,8 @@ void rc5_process(void)
 #endif
 
             /* shift queue backwards */
-            memmove(&rc5_global.queue[1],
-                    &rc5_global.queue[0],
+            memmove((char *) &rc5_global.queue[1],
+                    (char *) &rc5_global.queue[0],
                     (RC5_QUEUE_LENGTH-1) * sizeof(struct rc5_t));
 
             /* copy datagram to queue and increment length */

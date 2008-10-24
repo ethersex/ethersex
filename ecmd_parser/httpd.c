@@ -38,21 +38,24 @@
 #if defined(HTTPD_AUTH_SUPPORT)
 int16_t parse_cmd_http_passwd(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-    struct eeprom_config_ext_t new_cfg;
-    memset(&new_cfg, 0, sizeof(new_cfg));
+    char new_pass[sizeof(((struct eeprom_config_t * )0x0000)->httpd_auth_password) + 1];
+
     while (*cmd == ' ') cmd ++;
     if (! *cmd ) { /* No argument */
 display_password:
       snprintf_P(output, len, PSTR("password: "));
-      eeprom_read_block(output + 10, &(((struct eeprom_config_ext_t *)
-                      EEPROM_CONFIG_EXT)->httpd_auth_password),
-                      sizeof(new_cfg.httpd_auth_password));
+      eeprom_restore(httpd_auth_password, output + 10, sizeof(new_pass));
       return strlen(output);
     } else {
-      strncpy(new_cfg.httpd_auth_password, cmd, 
-              sizeof(new_cfg.httpd_auth_password) - 1);
-      new_cfg.httpd_auth_password[sizeof(new_cfg.httpd_auth_password) - 1] = 0;
-      eeprom_save_config_ext(&new_cfg);
+      strncpy(new_pass, cmd, sizeof(new_pass) - 1); 
+      /* The last byte MUST be a null byte. It will be
+       * char httpd_auth_null_byte in the eeprom struct 
+       */
+      new_pass[sizeof(new_pass) - 1] = 0;
+
+      eeprom_save(httpd_auth_password, new_pass, sizeof(new_pass));
+      eeprom_update_chksum();
+
       goto display_password;
     }
 } /* }}} */

@@ -101,13 +101,13 @@ eeprom_init (void)
 #ifdef YPORT_SUPPORT		/* FIXME 2nd usart? */
     eeprom_save_int (usart_baudrate, YPORT_BAUDRATE);
 #elif defined(ZBUS_SUPPORT)
-    eeprom_save_int (usart_baudrate, ZBUS_BAUDRATE);
+    eeprom_save_int (usart_baudrate, CONF_ZBUS_BAUDRATE/100);
 #endif
 
 #ifdef HTTPD_AUTH_SUPPORT
     /* Copy the httpd's password. */
     eeprom_save_P (httpd_auth_password, PSTR(CONF_HTTPD_PASSWORD), 8);
-    eeprom_save_char (httpd_auth_null_byte + 8, 0);
+    eeprom_save_char (httpd_auth_null_byte, 0);
 #endif
 
     eeprom_update_chksum();
