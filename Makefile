@@ -121,7 +121,7 @@ what-now-msg:
 clean:
 	$(MAKE) -f rules.mk no_deps=t clean-common
 	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex pinning.c .subdirs
-	for subdir in `find -type d`; do \
+	for subdir in `find . -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
 	  && make no_deps=t -C $$subdir clean; done
