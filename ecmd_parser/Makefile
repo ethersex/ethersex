@@ -29,7 +29,9 @@ include $(TOPDIR)/rules.mk
 # We directly include the menuconfig config file, it seems to be suitable
 # for inclusion.  It's just defining quite a few variables, the rest
 # is commented out using hash signs ...
+ifneq ($(no_deps),t)
 include $(TOPDIR)/.config
+endif
 
 # If (full-featured) portio is disabled, but named_pin enabled, we
 # need to do the named_pin simple awk/m4 hackery ...
