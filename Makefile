@@ -44,9 +44,11 @@ include defaults.mk
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),mrproper)
+ifneq ($(MAKECMDGOALS),menuconfig)
 
 include $(TOPDIR)/.subdirs
 
+endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
@@ -153,13 +155,14 @@ show-config: autoconf.h
 
 .PHONY: show-config
 
-.config: 
-ifneq ($(MAKECMDGOALS),menuconfig)  
+autoconf.h .config: 
+	@echo make\'s goal: $(MAKECMDGOALS)
+ifneq ($(MAKECMDGOALS),menuconfig)
 	# make sure menuconfig isn't called twice, on `make menuconfig'
-	$(MAKE) no_deps=t menuconfig
+	test -s autoconf.h -a -s .config || $(MAKE) no_deps=t menuconfig
 	# test the target file, test fails if it doesn't exist
 	# and will keep make from looping menuconfig.
-	test -e $@
+	test -s autoconf.h -a -s .config
 endif
 
 include depend.mk
