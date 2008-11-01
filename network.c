@@ -117,6 +117,8 @@ void network_init(void)
 
 #endif
 
+    uip_ipaddr_t ip;
+    (void) ip;			/* Keep GCC quiet. */
 
     /* Do the autoconfiguration after the MAC is set */
 #   if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
@@ -136,9 +138,6 @@ void network_init(void)
 #   elif !defined(ROUTER_SUPPORT) /* and not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
-    uip_ipaddr_t ip;
-    (void) ip;			/* Keep GCC quiet. */
-
     CONF_ETHERRAPE_IP;
     uip_sethostaddr(ip);
 
