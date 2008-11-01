@@ -1,0 +1,56 @@
+#! /bin/sh
+
+[ x"$1" = x ] && show_usage=y
+[ x"$2" = x ] && show_usage=y
+[ x"$1" = "x--help" ] && show_usage=y
+[ x"$1" = "x-h" ] && show_usage=y
+
+[ x$show_usage = xy ] && {
+  echo "Usage: set-conf-string CONF_VARIABLE VALUE"
+  echo ""
+  echo "set-conf-string overrides configuration settings in the .config file"
+  echo "and afterwards fiddles the dependencies to compile only the minimum"
+  echo "number of files."
+  exit 0
+}
+
+[ -e .config ] || {
+  echo "$0: .config: File is missing, but required."
+  exit 1
+}
+
+grep -e "^$1=\"" .config -q || {
+  echo "$0: $1: No such configuration variable."
+  exit 1
+}
+
+CONFIG_NEW=`mktemp`
+sed -e "s&^$1=\".*\"\$&$1=\"$2\"&" .config > $CONFIG_NEW
+
+diff -u .config $CONFIG_NEW -q > /dev/null && {
+  echo "$0: No changes needed, exiting."
+  rm -f $CONFIG_NEW
+  exit 0
+}
+
+mv -f $CONFIG_NEW .config || exit 2
+
+rm -f autoconf.h
+echo -ne "\t\n\n" | make no_deps=t menuconfig
+[ -e autoconf.h ] || {
+  echo "$0: failed to generate autoconf.h file."
+  exit 1
+}
+
+# fake timestamp ...
+touch -t 197001010100 autoconf.h
+
+for f in `find . -type f -name '*.c'`; do
+  grep -e "$1" "$f" -q && {
+    o_target="${f%.c}.o"
+    echo $1 occures in $f, deleting $o_target.
+    rm -f $o_target
+  }
+done
+
+rm -f ethersex ethersex.hex ethersex.bin
