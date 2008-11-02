@@ -71,8 +71,12 @@ void process_packet(void);
 
 
 
-void network_init(void)
-/* {{{ */ {
+void 
+network_init(void)
+{
+    uip_ipaddr_t ip;
+    (void) ip;			/* Keep GCC quiet. */
+
     uip_stack_set_active(0);
     uip_init();
 
@@ -117,9 +121,6 @@ void network_init(void)
 
 #endif
 
-    uip_ipaddr_t ip;
-    (void) ip;			/* Keep GCC quiet. */
-
     /* Do the autoconfiguration after the MAC is set */
 #   if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
     uip_setprefixlen(64);
@@ -154,7 +155,7 @@ void network_init(void)
 #   endif
 #   endif
 
-} /* }}} */
+}
 
 
 #ifdef ENC28J60_SUPPORT
