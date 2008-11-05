@@ -80,7 +80,8 @@ usb_net_read_finished (void)
 uint8_t
 usb_net_write(uint8_t *data, uint8_t len)
 {
-  memcpy(uip_buf + USB_BRIDGE_OFFSET + usb_rq_index, data, len);
+  if (usb_rq_index + USB_BRIDGE_OFFSET + len < UIP_CONF_BUFFER_SIZE)
+    memcpy(uip_buf + USB_BRIDGE_OFFSET + usb_rq_index, data, len);
   usb_rq_index += len;
 
   if (usb_rq_index >= usb_rq_len) {
