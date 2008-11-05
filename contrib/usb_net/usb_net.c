@@ -200,8 +200,7 @@ usb_send(usb_dev_handle *handle, const char *data, int len)
 {
   int ret = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | 
                             USB_ENDPOINT_OUT, USB_REQUEST_NET_SEND, len, 0, (char*) data, len, 500);
-  if ( ret != len )
-    return 0;
+
   return ret; /* > 0 = ok */
 }
 
@@ -264,7 +263,7 @@ main(int argc, char *argv[])
   }
 
   open_tun("usb%d", global.address);
-  global.usb_handle = usb_find(global.usbid);
+  global.usb_handle = NULL;
 
   /* Execute the up command */
   if (global.up)
@@ -281,12 +280,21 @@ main(int argc, char *argv[])
      tv.tv_usec = 50000;
 
      select(fm, &fds, NULL, NULL, &tv);
+     if(global.usb_handle == NULL)
+       global.usb_handle = usb_find(global.usbid);
+     if(global.usb_handle == NULL)
+       continue;
 
      // Outgoing packets
      if( FD_ISSET(global.tun_fd, &fds) ) {
        int l = read(global.tun_fd, netbuf, sizeof(netbuf));
        int r = usb_send(global.usb_handle, netbuf, l);
        printf ("sent: %d:%d\n", l, r);
+       if (r < 0){
+         usb_close(global.usb_handle);
+         global.usb_handle = NULL;
+         continue;
+       }
 
      }
 
@@ -295,7 +303,6 @@ main(int argc, char *argv[])
        printf ("recv: %d\n", l);
        write (global.tun_fd, netbuf, l);
      }
-
   }
   return 0;
 }
