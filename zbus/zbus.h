@@ -27,11 +27,17 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
-#ifdef ROUTER_SUPPORT
-  #define ZBUS_RECV_BUFFER 128
-#else
-  #define ZBUS_RECV_BUFFER UIP_CONF_BUFFER_SIZE
-#endif
+#define ZBUS_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - ZBUS_BRIDGE_OFFSET)
+#define zbus_buf           (uip_buf + ZBUS_BRIDGE_OFFSET)
+
+#ifdef TEENSY_SUPPORT
+#  if ZBUS_BUFFER_LEN > 254
+#    error "modify code or shrink (shared) uIP buffer."
+#  endif
+typedef uint8_t zbus_index_t;
+#else   /* TEENSY_SUPPORT */
+typedef uint16_t zbus_index_t;
+#endif	/* not TEENSY_SUPPORT */
 
 /* use 19200 as default value for the baudrate */
 #define ZBUS_BAUDRATE 19200
@@ -50,12 +56,10 @@ struct zbus_ctx {
 void zbus_core_init(void);
 void zbus_core_periodic(void);
 
-typedef uint8_t (*zbus_send_byte_callback_t)(void **ctx);
-
-uint8_t zbus_send_data(uint8_t *data, uint16_t len);
+void zbus_txstart(zbus_index_t len);
 
 void zbus_rxstart (void);
-struct zbus_ctx *zbus_rxfinish(void);
+zbus_index_t zbus_rxfinish(void);
 
 void zbus_process(void);
 

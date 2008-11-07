@@ -49,53 +49,81 @@ static uint8_t send_escape_data = 0;
 static uint8_t recv_escape_data = 0;
 static uint8_t bus_blocked = 0;
 
-#ifdef ROUTER_SUPPORT
-static uint8_t recv_buffer[ZBUS_RECV_BUFFER];
-#endif
+static volatile zbus_index_t zbus_index;
+static volatile zbus_index_t zbus_txlen;
+static volatile zbus_index_t zbus_rxlen;
 
-static struct zbus_ctx recv_ctx;
-static struct zbus_ctx send_ctx;
+static void __zbus_txstart(void);
 
-static uint8_t zbus_txstart(void);
-
-uint8_t 
-zbus_send_data(uint8_t *data, uint16_t len)
+void
+zbus_txstart(zbus_index_t size)
 {
-  if (send_ctx.len == 0) {
-#if defined(SKIPJACK_SUPPORT) && defined(ROUTER_SUPPORT)
-    if (recv_ctx.len != 0 || len > ZBUS_RECV_BUFFER) 
-      return 0;			/* we mustn't use recv buffer yet,
-				   nor may we overflow it. */
+  // FIXME
+  if(zbus_txlen != 0 || zbus_rxlen != 0 || bus_blocked)
+    return;			/* rx or tx in action or
+				   new packet left in buffer
+                                   or somebody is talking on the line */
+  zbus_index = 0;
 
-    /* we need to duplicate since we mustn't encrypt uip_buf! */
-    send_ctx.data = recv_buffer;
-    memmove (recv_buffer, data, len);
-#else
-    send_ctx.data = data;
-#endif
-    send_ctx.len = len;
-    send_ctx.offset = 0;
-#ifdef SKIPJACK_SUPPORT
 #ifdef ZBUS_RAW_SUPPORT
-    if (!zbus_raw_conn->rport)
+  if (!zbus_raw_conn->rport)
 #endif
-    zbus_encrypt(send_ctx.data, &send_ctx.len);
-    if (send_ctx.len)
+  {
+#ifdef SKIPJACK_SUPPORT
+    zbus_encrypt (zbus_buf, &size);
+
+    if (!size){
+      uip_buf_unlock ();
+      // FIXME
+      zbus_rxstart ();		/* destroy the packet and restart rx */
+      return;
+    }
 #endif
-    zbus_txstart();
-    return 1;
   }
-  return 0;
+  zbus_txlen = size;
+
+  if(bus_blocked)
+    return;
+  __zbus_txstart();
+}
+
+static void __zbus_txstart(void) {
+
+  uint8_t sreg = SREG; cli();
+  bus_blocked = 3;
+
+  /* enable transmitter and receiver as well as their interrupts */
+  usart(UCSR,B) = _BV(usart(TXCIE)) | _BV(usart(TXEN));
+
+  /* Enable transmitter */
+  PIN_SET(ZBUS_RXTX_PIN);
+
+  /* reset tx interrupt flag */
+  usart(UCSR,A) |= _BV(usart(TXC));
+
+  /* Go! */
+  SREG = sreg;
+
+  /* Transmit Start sequence */
+  send_escape_data = ZBUS_START;
+  usart(UDR) = '\\';
+
+#ifdef HAVE_ZBUS_TX_PIN
+  PIN_SET(ZBUS_TX_PIN);
+#endif
+
+  return;
 }
 
 
 void
 zbus_rxstart (void)
 {
-  if(send_ctx.len > 0){
-    zbus_txstart();
+  if(zbus_txlen > 0){
     return;
   }
+  zbus_rxlen = 0;
+
   uint8_t sreg = SREG; cli();
 
   /* disable transmitter, enable receiver (and rx interrupt) */
@@ -120,21 +148,24 @@ zbus_rxstop (void)
 }
 
 
-struct zbus_ctx *
+zbus_index_t
 zbus_rxfinish(void) 
 {
-  if (recv_ctx.len != 0) {
+  if (zbus_rxlen != 0) {
 #ifdef SKIPJACK_SUPPORT
 #ifdef ZBUS_RAW_SUPPORT
     if (!zbus_raw_conn->rport)
 #endif
-    zbus_decrypt(recv_ctx.data, &recv_ctx.len);
-    if(!recv_ctx.len)
+    zbus_decrypt(zbus_buf, &zbus_rxlen);
+    if(!zbus_rxlen) {
       zbus_rxstart ();
+      uip_buf_unlock();
+    }
+
 #endif
-    return (struct zbus_ctx *) (&recv_ctx);
+    return zbus_rxlen;
   }
-  return NULL;
+  return 0;
 }
 
 void
@@ -154,13 +185,9 @@ zbus_core_init(void)
 #endif
 
     /* clear the buffers */
-    send_ctx.len = 0;
-    recv_ctx.len = 0;
-#ifdef ROUTER_SUPPORT
-    recv_ctx.data = (uint8_t *)recv_buffer;
-#else
-    recv_ctx.data = (uint8_t *)uip_buf;
-#endif
+    zbus_txlen = 0;
+    zbus_rxlen = 0;
+    zbus_index = 0;
 
 #ifndef TEENSY_SUPPORT
     uint16_t s_usart_baudrate;
@@ -177,41 +204,11 @@ void
 zbus_core_periodic(void)
 {
   if(bus_blocked)
-    if(--bus_blocked == 0 && send_ctx.len > 0)
-      zbus_txstart();
+    if(--bus_blocked == 0 && zbus_txlen > 0)
+      __zbus_txstart();
 }
 
 
-static uint8_t
-zbus_txstart(void) 
-{
-  if(bus_blocked)
-    return 0;
-  uint8_t sreg = SREG; cli();
-  bus_blocked = 3;
-
-  /* enable transmitter and receiver as well as their interrupts */
-  usart(UCSR,B) = _BV(usart(TXCIE)) | _BV(usart(TXEN));
-
-  /* Enable transmitter */
-  PIN_SET(ZBUS_RXTX_PIN);
-
-  /* reset tx interrupt flag */
-  usart(UCSR,A) |= _BV(usart(TXC));
-
-  /* Go! */
-  SREG = sreg;
-
-  /* Transmit Start sequence */
-  send_escape_data = ZBUS_START;
-  usart(UDR) = '\\';
-
-#ifdef HAVE_ZBUS_TX_PIN
-  PIN_SET(ZBUS_TX_PIN);
-#endif
-
-  return 1;
-}
 
 
 SIGNAL(usart(USART,_TX_vect))
@@ -223,25 +220,26 @@ SIGNAL(usart(USART,_TX_vect))
   }
 
   /* Otherwise send data from send context, if any is left. */
-  else if (send_ctx.len && send_ctx.offset < send_ctx.len) {
-    if (send_ctx.data[send_ctx.offset] == '\\') {
+  else if (zbus_txlen && zbus_index < zbus_txlen) {
+    if (zbus_buf[zbus_index] == '\\') {
       /* We need to quote the character. */
-      send_escape_data = send_ctx.data[send_ctx.offset];
+      send_escape_data = zbus_buf[zbus_index];
       usart(UDR) = '\\';
     }
     else {
       /* No quoting needed, just send it. */
-      usart(UDR) = send_ctx.data[send_ctx.offset];
+      usart(UDR) = zbus_buf[zbus_index];
     }
 
-    send_ctx.offset ++;
+    zbus_index ++;
     bus_blocked = 3;
   }
 
   /* If send_ctx contains data, but every byte has been sent over the
      wires, send a stop condition. */
-  else if (send_ctx.len) {
-    send_ctx.len = 0;		/* mark buffer as empty. */
+  else if (zbus_txlen) {
+    zbus_txlen = 0;		/* mark buffer as empty. */
+    uip_buf_unlock();
 
     /* Generate the stop condition. */
     send_escape_data = ZBUS_STOP;
@@ -269,19 +267,20 @@ SIGNAL(usart(USART,_RX_vect))
   uint8_t data = usart(UDR);
 
   /* Old data is not read by application, ignore message */
-  if (recv_ctx.len != 0) return;
+  if (zbus_rxlen != 0) return;
 
-#if defined(SKIPJACK_SUPPORT) && defined(ROUTER_SUPPORT)
   /* Don't accept incoming message if we're sending and sharing
      send and receive buffer. */
-  if (send_ctx.len != 0) return;
-#endif
+  if (zbus_txlen != 0) return;
 
   if (recv_escape_data) {
     recv_escape_data = 0;
 
     if (data == ZBUS_START) {
-      recv_ctx.offset = 0;
+      if (!uip_buf_lock())
+        return; /* lock of buffer failed, ignore packet */
+      
+      zbus_index = 0;
       bus_blocked = 3;
 #ifdef HAVE_ZBUS_RX_PIN
       PIN_SET(ZBUS_RX_PIN);
@@ -296,13 +295,13 @@ SIGNAL(usart(USART,_RX_vect))
 #ifdef HAVE_ZBUS_RX_PIN
         PIN_CLEAR(ZBUS_RX_PIN);
 #endif
-	recv_ctx.len = recv_ctx.offset;
+	zbus_rxlen = zbus_index;
       }
 
       /* force bus free even if we didn't catch the start condition. */
       bus_blocked = 0;
-      if(send_ctx.len > 0)
-        zbus_txstart();
+      if(zbus_txlen > 0)
+        __zbus_txstart();
     }
 
     else if (data == '\\')
@@ -315,14 +314,14 @@ SIGNAL(usart(USART,_RX_vect))
   else {
   append_data:
     /* Not enough space in buffer */
-    if (recv_ctx.offset >= (ZBUS_RECV_BUFFER))
+    if (zbus_index >= ZBUS_BUFFER_LEN)
       return;
 
     /* If bus is not blocked we aren't on an message */
     if (!bus_blocked)
       return;
       
-    recv_ctx.data[recv_ctx.offset] = data;
-      recv_ctx.offset++;
+    zbus_buf[zbus_index] = data;
+    zbus_index++;
   }
 }

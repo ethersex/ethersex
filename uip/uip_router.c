@@ -203,7 +203,7 @@ router_output_to (uint8_t dest)
 
 #ifdef ZBUS_SUPPORT
     case STACK_ZBUS:
-      zbus_send_data (uip_buf + ZBUS_BRIDGE_OFFSET, uip_len);
+      zbus_txstart (uip_len);
       break;
 #endif	/* ZBUS_SUPPORT */
 

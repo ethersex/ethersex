@@ -32,52 +32,36 @@
 void
 zbus_process(void)
 {
-  struct zbus_ctx *recv = zbus_rxfinish();
-  if (! (recv && recv->len))
+  zbus_index_t recv_len = zbus_rxfinish();
+  if (! recv_len)
     return;
 
 #ifdef ROUTER_SUPPORT
-  memcpy(uip_buf + ZBUS_BRIDGE_OFFSET, recv->data, recv->len);
-
-  /* uip_input expects the number of bytes including the LLH. */
-  uip_len = recv->len + ZBUS_BRIDGE_OFFSET;
-
 #ifdef ZBUS_RAW_SUPPORT
   if (zbus_raw_conn->rport) {
     /* zbus raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
     uip_udp_conn = zbus_raw_conn;
-    uip_stack_set_active (STACK_ENC);
-    memmove (uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN,
-	     uip_buf + ZBUS_BRIDGE_OFFSET, recv->len);
-    uip_slen = recv->len;
+    uip_slen = recv_len;
     uip_process(UIP_UDP_SEND_CONN);
     router_output ();
 
-    recv->len = 0;		/* receive buffer may be overriden
-                                   from now on. */
-    
     zbus_rxstart ();
     return;
   }
 #endif
 
 #else  /* not ROUTER_SUPPORT */
-  /* We don't need to copy from recv->data, since ZBus already shares
-     the input buffer.
-
-     memcpy(uip_buf, recv->data, recv->len); */
-  uip_len = recv->len;
+  uip_len = recv_len;
   
 #endif
 
-  recv->len = 0;		/* receive buffer may be overriden
-				   from now on. */
+  zbus_rxstart ();
 
   router_input (STACK_ZBUS);
 
   if (!uip_len) {
-    zbus_rxstart ();
+    uip_buf_unlock ();
     return;
   }
 
