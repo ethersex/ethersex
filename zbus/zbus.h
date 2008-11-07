@@ -47,12 +47,6 @@ enum ZBusEscapes {
   ZBUS_STOP = '1',
 };
 
-struct zbus_ctx {
-  uint16_t len;
-  uint16_t offset;
-  uint8_t *data;
-};
-
 void zbus_core_init(void);
 void zbus_core_periodic(void);
 
