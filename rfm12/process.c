@@ -59,12 +59,13 @@ rfm12_process (void)
   uip_len = uip_len + RFM12_BRIDGE_OFFSET + RFM12_LLH_LEN;
 #endif /* not ROUTER_SUPPORT */
 
+  rfm12_rxstart ();
+
   router_input (STACK_RFM12);
 
   if (uip_len == 0)
     {
       uip_buf_unlock ();
-      rfm12_rxstart ();
       return;			/* The stack didn't generate any data
 				   that has to be sent back. */
     }
