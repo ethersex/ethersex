@@ -41,6 +41,9 @@ struct httpd_connection_state_t {
     fs_size_t offset;
 
     char *tmp_buffer;
+#ifdef HTTPD_INLINE_FILES_SUPPORT
+    uint16_t len;
+#endif
 #ifdef ECMD_PARSER_SUPPORT
     uint8_t parse_again;
 #endif

@@ -106,7 +106,9 @@ unsigned short send_str_with_nl(void *data);
 unsigned short send_str_P(void *data);
 unsigned short send_length_P(void *data);
 unsigned short send_length_f(void *data);
+unsigned short send_length_if(void *data);
 unsigned short send_file_f(void *data);
+unsigned short send_file_if(void *data);
 
 void httpd_init(void)
 /* {{{ */ {
@@ -182,7 +184,7 @@ auth_failed:
 auth_success:
 #endif /* HTTPD_AUTH_SUPPORT */
 
-    if (state->tmp_buffer[0] == ' ')
+    if (state->tmp_buffer[0] == 0)
         strncpy_P(state->name, PSTR(HTTPD_INDEX), sizeof(state->name));
 #ifdef ECMD_PARSER_SUPPORT
     else if (strncmp_P(state->tmp_buffer, PSTR(ECMD_INDEX "?"), 
@@ -235,13 +237,12 @@ auth_success:
     }
 #endif
 
-#ifdef DATAFLASH_SUPPORT
+#if defined(DATAFLASH_SUPPORT) || defined(HTTPD_INLINE_FILES_SUPPORT)
     else {
         strncpy(state->name, state->tmp_buffer, sizeof(state->name));
         if (strlen(state->tmp_buffer) >= sizeof(state->name))
             state->name[sizeof(state->name)-1] = '\0';
     }
-    free(state->tmp_buffer);
 
 #ifdef DEBUG_HTTPD
     uart_puts_P("fs: httpd: request for file \"");
@@ -249,7 +250,43 @@ auth_success:
     uart_puts_P("\"\r\n");
     uart_puts_P("fs: searching file inode: 0x");
 #endif
+#endif	/* not DATAFLASH_SUPPORT and not HTTPD_INLINE_FILES_SUPPORT */
 
+    free(state->tmp_buffer);
+
+#ifdef HTTPD_INLINE_FILES_SUPPORT
+    uint16_t offset = FLASHEND - SPM_PAGESIZE + 1;
+    for (; offset; offset -= SPM_PAGESIZE) {
+      if (pgm_read_byte (offset) != HTTPD_INLINE_MAGIC)
+	continue;
+
+      union httpd_inline_node_t node;
+      uint8_t i;
+
+      for (i = 0; i < sizeof (node); i ++)
+	node.raw[i] = pgm_read_byte (offset + i + 1);
+
+      if (node.s.crc != crc_checksum (node.raw, sizeof (node) - 1))
+	continue;
+
+      if (strncmp (node.s.fn, state->name, HTTPD_INLINE_FNLEN))
+	continue;
+
+      state->offset = offset + sizeof (union httpd_inline_node_t) + 1;
+      state->len = node.s.len;
+
+      /* send headers */
+      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
+      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+      PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
+
+      /* send body text */
+      PSOCK_GENERATOR_SEND(&state->in, send_file_if, state);
+      PSOCK_CLOSE_EXIT(&state->in);
+    }
+#endif	/* HTTPD_INLINE_FILES_SUPPORT */
+
+#ifdef DATAFLASH_SUPPORT
     /* search inode */
     state->inode = fs_get_inode(&fs, state->name);
 
@@ -291,11 +328,9 @@ auth_success:
         }
     }
 
-#else /* not DATAFLASH_SUPPORT */
+#else  /* not DATAFLASH_SUPPORT */
     /* There's no dataflash support compiled in and the request hasn't
        been handled before.  Therefore just send a 404 reply. */
-
-    free(state->tmp_buffer);
 
     /* send headers */
     PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_404);
@@ -352,6 +387,19 @@ unsigned short send_length_f(void *data)
 #endif /* DATAFLASH_SUPPORT */
 
 
+#ifdef HTTPD_INLINE_FILES_SUPPORT
+unsigned short
+send_length_if (void *data)
+{
+    struct httpd_connection_state_t *state =
+	(struct httpd_connection_state_t *) data;
+
+    sprintf_P (uip_appdata, PSTR ("%d\n\n"), state->len);
+    return strlen (uip_appdata);
+}
+#endif	/* HTTPD_INLINE_FILES_SUPPORT */
+
+
 #ifdef DATAFLASH_SUPPORT
 unsigned short send_file_f(void *data)
 /* {{{ */ {
@@ -381,6 +429,30 @@ unsigned short send_file_f(void *data)
 
 } /* }}} */
 #endif /* DATAFLASH_SUPPORT */
+
+
+#ifdef HTTPD_INLINE_FILES_SUPPORT
+unsigned short
+send_file_if (void *data)
+{
+    struct httpd_connection_state_t *state =
+	(struct httpd_connection_state_t *) data;
+
+    uint16_t len = state->len;
+    if (uip_mss () < len)
+	len = uip_mss ();
+
+    uint16_t i;
+    for (i = 0; i < len; i ++)
+	((unsigned char *)uip_appdata)[i] =
+	    pgm_read_byte_near (state->offset + i);
+
+    state->offset += len;
+    state->len -= len;
+
+    return len;
+}
+#endif	/* HTTPD_INLINE_FILES_SUPPORT */
 
 
 void httpd_main(void)
