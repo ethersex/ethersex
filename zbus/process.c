@@ -35,6 +35,7 @@ zbus_process(void)
   zbus_index_t recv_len = zbus_rxfinish();
   if (! recv_len)
     return;
+  uip_len = recv_len;
 
 #ifdef ROUTER_SUPPORT
 #ifdef ZBUS_RAW_SUPPORT
@@ -42,6 +43,7 @@ zbus_process(void)
     /* zbus raw capturing active, forward in udp/ip encapsulated form,
        thusly don't push to the stack. */
     uip_udp_conn = zbus_raw_conn;
+    memmove(uip_appdata, zbus_buf, recv_len);
     uip_slen = recv_len;
     uip_process(UIP_UDP_SEND_CONN);
     router_output ();
@@ -50,10 +52,9 @@ zbus_process(void)
     return;
   }
 #endif
+  /* uip_input expects the number of bytes including the LLH. */
+  uip_len = uip_len + ZBUS_BRIDGE_OFFSET;
 
-#else  /* not ROUTER_SUPPORT */
-  uip_len = recv_len;
-  
 #endif
 
   zbus_rxstart ();

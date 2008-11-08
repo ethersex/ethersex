@@ -252,6 +252,7 @@ SIGNAL(usart(USART,_TX_vect))
 #ifdef HAVE_ZBUS_TX_PIN
     PIN_CLEAR(ZBUS_TX_PIN);
 #endif
+    zbus_txlen = 0;
     zbus_rxstart ();
   }
 }
@@ -266,6 +267,7 @@ SIGNAL(usart(USART,_RX_vect))
   }
   uint8_t data = usart(UDR);
 
+
   /* Old data is not read by application, ignore message */
   if (zbus_rxlen != 0) return;
 
@@ -277,12 +279,13 @@ SIGNAL(usart(USART,_RX_vect))
     recv_escape_data = 0;
 
     if (data == ZBUS_START) {
-      if (!uip_buf_lock())
+      if (uip_buf_lock())
         return; /* lock of buffer failed, ignore packet */
       
       zbus_index = 0;
       bus_blocked = 3;
-#ifdef HAVE_ZBUS_RX_PIN
+
+	#ifdef HAVE_ZBUS_RX_PIN
       PIN_SET(ZBUS_RX_PIN);
 #endif
     }

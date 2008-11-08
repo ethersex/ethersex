@@ -57,7 +57,8 @@ zbus_raw_net_main(void)
       uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
       uip_udp_conn->rport = BUF->srcport;
       
-      zbus_send_data(uip_appdata, uip_len);
+      memmove(zbus_buf, uip_appdata, uip_len);
+      zbus_txstart(uip_len);
       return;
     }
 
