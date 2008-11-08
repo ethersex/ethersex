@@ -281,7 +281,8 @@ auth_success:
       PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
 
       /* send body text */
-      PSOCK_GENERATOR_SEND(&state->in, send_file_if, state);
+      while (state->len)
+        PSOCK_GENERATOR_SEND(&state->in, send_file_if, state);
       PSOCK_CLOSE_EXIT(&state->in);
     }
 #endif	/* HTTPD_INLINE_FILES_SUPPORT */
