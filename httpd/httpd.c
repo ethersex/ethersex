@@ -68,6 +68,11 @@ char PROGMEM httpd_header_400[] =
 "HTTP/1.1 400 Bad Request\n"
 "Connection: close\n"
 "Content-Type: text/plain; charset=iso-8859-1\n";
+/* }}} */
+
+char PROGMEM httpd_header_gzip[] =
+/* {{{ */
+"Content-Encoding: gzip\n";
 
 #ifdef HTTPD_AUTH_SUPPORT
 char PROGMEM httpd_header_401[] =
@@ -277,6 +282,7 @@ auth_success:
 
       /* send headers */
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
+      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
       PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
 

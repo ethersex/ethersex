@@ -92,10 +92,25 @@ main (int argc, char **argv)
   image_len = fread (buf_image, 1, BUFLEN, f);
   fclose (f);
 
-  if ((f = fopen (argv[3], "rb")) == NULL) {
-    fprintf (stderr, "httpd-concat: Unable to read %s.\n", argv[3]);
+
+  char *filename_gz = malloc(strlen(argv[3]) + 3 + 1);
+  if (!filename_gz) {
+    fprintf (stderr, "httpd-concat: malloc failed.\n", argv[1]);
     return 1;
   }
+  strcpy(filename_gz, argv[3]);
+  strcat(filename_gz, ".gz");
+
+  fprintf(stderr,"%s\n", filename_gz);
+  
+  if ((f = fopen (filename_gz, "rb")) == NULL) {
+    if ((f = fopen (argv[3], "rb")) == NULL) {
+      fprintf (stderr, "httpd-concat: Unable to read %s.\n", argv[3]);
+      return 1;
+    }
+  }
+
+  free(filename_gz);
 
   file_len = fread (buf_file, 1, BUFLEN, f);
   fclose (f);
