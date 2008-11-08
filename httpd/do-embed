@@ -1,0 +1,28 @@
+#! /bin/sh
+
+(cat <<EOF
+#include <avr/pgmspace.h>
+SPM_PAGESIZE
+EOF
+) > dummy.c || exit 1
+
+make dummy.E || exit 1
+PAGESZ=$(tail -n 1 dummy.E)
+
+rm -f dummy.[cE]
+
+echo "The pagesize of current architecture is $PAGESZ."
+
+while true; do
+  fn="$1"; shift
+  test "x$fn" = "x" && {
+    SZ=$(stat -c %s ethersex.bin)
+    echo "Final size of ethersex.bin is $SZ."
+    exit 0
+  }
+
+  echo Embedding $fn ...
+  httpd/httpd-concat ethersex.bin $PAGESZ "$fn" > ethersex.embed.bin || exit 1
+  mv -f ethersex.embed.bin ethersex.bin
+done
+

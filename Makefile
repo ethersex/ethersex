@@ -47,6 +47,7 @@ ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)
 
 include $(TOPDIR)/.subdirs
+include $(TOPDIR)/.config
 
 endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
@@ -80,8 +81,19 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 %.hex: %
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
-%.bin: %
+ifeq ($(HTTPD_INLINE_FILES_SUPPORT),y)
+INLINE_FILES := $(wildcard httpd/embed/*)
+else
+INLINE_FILES :=
+endif
+
+%.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
+ifeq ($(HTTPD_INLINE_FILES_SUPPORT),y)
+	$(MAKE) -C httpd httpd-concat
+	httpd/do-embed $(INLINE_FILES)
+	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
+endif
 
 %.eep.hex: %
 	$(OBJCOPY) --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex -j .eeprom $< $@
