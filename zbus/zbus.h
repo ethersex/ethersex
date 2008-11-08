@@ -27,6 +27,8 @@
 #include <stdint.h>
 #include "../uip/uip.h"
 
+#ifdef ZBUS_SUPPORT
+
 #define ZBUS_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - ZBUS_BRIDGE_OFFSET)
 #define zbus_buf           (uip_buf + ZBUS_BRIDGE_OFFSET)
 
@@ -56,5 +58,7 @@ void zbus_rxstart (void);
 zbus_index_t zbus_rxfinish(void);
 
 void zbus_process(void);
+
+#endif /* ZBUS_SUPPORT */
 
 #endif /* _ZBUS_H */
