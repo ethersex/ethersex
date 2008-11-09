@@ -20,7 +20,7 @@ endif
 # Here is how to build those dependency files
 
 define make-deps
-set -e; $(CC) $(CFLAGS) $(CPPFLAGS) -M -MG $<  | \
+set -e; $(CC) $(CFLAGS) $(CPPFLAGS) -M -MM $<  | \
 sed > $@.new -e 's;$(*F)\.o:;$@ $*.o $*.E $*.s:;' \
 	     -e 's% [^ ]*/gcc-lib/[^ ]*\.h%%g'
 if test -s $@.new; then mv -f $@.new $@; else rm -f $@.new; fi
