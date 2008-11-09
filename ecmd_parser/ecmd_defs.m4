@@ -30,6 +30,7 @@ ecmd_ifndef(TEENSY_SUPPORT)
 
   ecmd_ifdef(IPV6_STATIC_SUPPORT)
     ecmd_feature(ip, "ip ")
+    ecmd_feature(gw, "gw ")
   ecmd_endif()
 
 block(Resetting the controller)

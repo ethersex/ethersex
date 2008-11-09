@@ -209,7 +209,7 @@ int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+#if (!UIP_CONF_IPV6 || IPV6_STATIC_SUPPORT) && !defined(BOOTP_SUPPORT)
 int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     uip_ipaddr_t gwaddr;

@@ -149,6 +149,10 @@ comment "Interfaces"
 
 source usb/config.in
 source rfm12/config.in
+      if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+	ipv6 "Default Router" CONF_ETHERRAPE_IP6_ROUTER "2001:6f8:1209:f0::1"
+	comment ""
+      fi
 source i2c/config.in
 
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL

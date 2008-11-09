@@ -472,19 +472,23 @@ network_config_load (void)
     /* Please Note: ip and &ip are NOT the same (cpp hell) */
     eeprom_restore_ip(netmask, &ip);
 #else
-    CONF_ETHERRAPE_IP;
+    CONF_ETHERRAPE_IP4_NETMASK;
 #endif
     uip_setnetmask(ip);
+#endif  /* IPV4_SUPPORT */
 
-    /* Configure the default gateway (IPv4 only). */
+    /* Configure the default gateway  */
 #ifdef EEPROM_SUPPORT
     /* Please Note: ip and &ip are NOT the same (cpp hell) */
     eeprom_restore_ip(gateway, &ip);
 #else
-    CONF_ETHERRAPE_IP;
+#  if defined(IPV6_SUPPORT)
+    CONF_ETHERRAPE_IP6_ROUTER;
+#  else
+    CONF_ETHERRAPE_IP4_GATEWAY;
+#  endif
 #endif
     uip_setdraddr(ip);
-#endif  /* IPV4_SUPPORT */
 #endif	/* No autoconfiguration. */
 }
 #endif /* ENC28J60_SUPPORT */

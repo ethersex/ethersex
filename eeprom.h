@@ -44,8 +44,9 @@ struct eeprom_config_t {
 
 #ifdef IPV4_SUPPORT
     uint8_t netmask[IPADDR_LEN];
-    uint8_t gateway[IPADDR_LEN];
 #endif
+
+    uint8_t gateway[IPADDR_LEN];
 
 #ifdef DNS_SUPPORT
     uint8_t dns_server[IPADDR_LEN];
