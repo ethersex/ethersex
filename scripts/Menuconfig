@@ -248,6 +248,16 @@ function string () {
 }
 
 #
+# Add a menu item which will call our local editor function.
+# 
+function editor () {
+
+	echo -ne "'$2' '     Edit "$1"$info' " >>MCmenu
+
+	echo -e "function $2 () { l_editor '$1';}" >>MCradiolists
+}
+
+#
 # Add a menu item which will call our local mac function.
 # 
 function mac () {
@@ -591,6 +601,18 @@ function l_string () {
 
 		help "$2" "$1"
 	done
+}
+
+#
+# Use an editor to edit a certain file
+# 
+
+function l_editor() {
+  if [ -n "$EDITOR" ]; then
+    $EDITOR $1
+  elif [ -n "`which nano`" ]; then
+    nano $1
+  fi
 }
 
 #
