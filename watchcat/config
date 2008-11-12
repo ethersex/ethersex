@@ -1,2 +1,2 @@
-PB1 1 www.kame.net io set ddr0 0x00
-PA1 1 192.168.100.2 io set ddr0 0x00
+RULE(PA1, RISING, 192.168.100.2, io set port0 0x01 0x01)
+RULE(PA1, FALLING, 192.168.100.2, io set port0 0x00 0x01)

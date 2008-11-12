@@ -13,4 +13,8 @@ comment "DynDNS support"
 endmenu
 
 dep_bool "Watch IO changes (and react)" WATCHCAT_SUPPORT $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+if [ "$WATCHCAT_SUPPORT" = "y" ]; then
+  editor "watchcat/config" WATCHCAT_CONFIG
+fi
+  
 dep_bool "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT $CONFIG_EXPERIMENTAL

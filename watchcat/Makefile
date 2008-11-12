@@ -11,8 +11,8 @@ include $(TOPDIR)/rules.mk
 ##############################################################################
 
 watchcat.c: user_config.h
-user_config.h: config
-	$(@D)/cfgpp > $@
+user_config.h: config watchcat.m4
+	m4 watchcat.m4 config > user_config.h
 
 # extend normal clean rule
 clean: clean-common
