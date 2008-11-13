@@ -204,6 +204,7 @@ dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 if [ "$ADC_SUPPORT" = "y" ]; then
   int "ADC Reference Mask" ADC_REF 0
 fi
+source kty/config.in
 bool "Onewire support" ONEWIRE_SUPPORT
 bool "Named and logic state I/O" NAMED_PIN_SUPPORT
 endmenu

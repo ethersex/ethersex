@@ -121,6 +121,10 @@ ecmd_ifdef(ADC_SUPPORT)
   ecmd_feature(adc_get, "adc get")
 ecmd_endif()
 
+ecmd_ifdef(KTY_SUPPORT)
+  ecmd_feature(kty_get, "kty get")
+ecmd_endif()
+
 ecmd_ifdef(DATAFLASH_SUPPORT)
   block(Dataflash)
   ecmd_feature(df_status, "df status",, Display internal status.)
