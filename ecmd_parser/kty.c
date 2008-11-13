@@ -52,14 +52,15 @@ int16_t parse_cmd_kty_get(char *cmd, char *output, uint16_t len)
   uint8_t ret = 0;
   if (cmd[0] && cmd[1]) {
     if ( (cmd[1] - '0') < ADC_CHANNELS) {
+      adc = get_kty(cmd[1] - '0');
       channel = ADC_CHANNELS;
       goto adc_out; 
     } else 
       return -1;
   }
   for (channel = 0; channel < ADC_CHANNELS; channel ++) {
-adc_out:
     adc = get_kty(channel);
+adc_out:
     temp = temperatur(adc);
     temp2text(output, temp);
     ret += 6;
