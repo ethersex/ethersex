@@ -28,10 +28,6 @@
 
 #ifdef KTY_SUPPORT
 
-#ifndef KTY_DEVICE
-#define KTY_DEVICE KTY81-110
-#endif
-
 /* schaltet auf den Sensorchannel und AREF auf 0 
  * liest den adc Wert ein und gibt ihn zurueck
  */
@@ -58,7 +54,7 @@ temperatur(uint16_t sensorwert){
   R *= volt;
   R /=  5000L - volt;
   int32_t temper;
-#if KTY_DEVICE ==110
+#ifdef KTY_DEVICE_110
   if (R > 1110){
     temper = -94379;
     temper += 131 * R;
