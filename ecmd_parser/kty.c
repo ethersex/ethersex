@@ -63,6 +63,7 @@ int16_t parse_cmd_kty_get(char *cmd, char *output, uint16_t len)
 adc_out:
     temp = temperatur(adc);
     temp2text(output, temp);
+    output[5] = ' ';
     ret += 6;
     output += 6;
   }
