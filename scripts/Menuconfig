@@ -1256,6 +1256,11 @@ save_configuration () {
 		define_bool "$var" "$x"
 	}
 
+	function dep_bool_menu () {
+		ques="$1"; shift
+		dep_bool "" $*
+	}
+
 	function dep_mbool () {
 		set_x_info "$2" "n"
 		var="$2"
