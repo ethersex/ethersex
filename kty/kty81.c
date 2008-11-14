@@ -42,6 +42,25 @@ get_kty(uint8_t sensorchannel){
   return ADC;
 }
 
+int8_t
+kty_calibrate(uint16_t sensorwert){
+
+  int32_t volt = sensorwert;
+  int8_t calibration;
+  volt *= 2500;
+  volt /= 1023;
+  int32_t R = 1000L;
+  R *= volt;
+  R /=  5000L - volt;
+  if(R < 2320 && R > 2080){
+    calibration = 2200L - R;
+    eeprom_save_char (kty_calibration, calibration);
+    eeprom_update_chksum();
+    return 1;
+  }
+  return 0;
+}
+
 /* Berechnet die temperatur in Grad * 10
  * vom adc wert
  */

@@ -69,4 +69,39 @@ adc_out:
   }
   return ret;
 } /* }}} */
+
+int16_t parse_cmd_kty_cal(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  uint16_t adc;
+  uint8_t channel;
+  uint8_t ret = 0;
+  if (cmd[0] && cmd[1]) {
+    if ( (cmd[1] - '0') < ADC_CHANNELS && cmd[1] >= '0' ) {
+      adc = get_kty(cmd[1] - '0');
+    } else 
+      return -1;
+  } else
+    return -1;
+  if (kty_calibrate(adc)) {
+    output[0] = 'O';
+    output[1] = 'K';
+    ret = 2;
+  } else {
+    output[0] = 'O';
+    output[1] = 'u';
+    output[2] = 't';
+    output[3] = ' ';
+    output[4] = 'o';
+    output[5] = 'f';
+    output[6] = ' ';
+    output[7] = 'r';
+    output[8] = 'a';
+    output[9] = 'n';
+    output[10] = 'g';
+    output[11] = 'e';
+    ret = 12;
+  }
+  return ret;
+} /* }}} */
+
 #endif

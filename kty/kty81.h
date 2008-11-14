@@ -24,6 +24,9 @@
 uint16_t
 get_kty(uint8_t sensorchannel);
 
+int8_t
+kty_calibrate(uint16_t sensorwert);
+
 int16_t
 temperatur(uint16_t sensorwert);
 
