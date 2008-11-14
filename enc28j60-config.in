@@ -1,0 +1,26 @@
+mac "Etherrape MAC address" CONF_ENC_MAC "ac:de:48:fd:0f:d0"
+
+if [ "$ENC28J60_SUPPORT" = "y" ]; then
+  dep_bool ' Static IPv6 configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
+else
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    define_bool "IPV6_STATIC_SUPPORT" y
+  else
+    define_bool "IPV6_STATIC_SUPPORT" n
+  fi
+fi
+
+if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+  comment "Static IPv6 configuration"
+  ipv6 "Etherrape IP address" CONF_ENC_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+  int "IP prefix length" CONF_ENC_IP6_PREFIX_LEN 64
+fi
+
+if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+  comment "Static IPv4 configuration"
+  ipv4 "Etherrape IP address" CONF_ENC_IP "192.168.23.244"
+  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
+    ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
+    ipv4 "Default gateway" CONF_ENC_IP4_GATEWAY "192.168.23.1"
+  fi
+fi

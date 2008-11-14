@@ -3,23 +3,21 @@ comment "USB Support (EXPERIMENTAL)"
 
 dep_bool "USB Softwarestack support (obdev)" USB_SUPPORT $CONFIG_EXPERIMENTAL
 
-if [ "$ROUTER_SUPPORT" = "y" -a "$USB_NET_SUPPORT" = "y" ]; then
-  comment "USBnet configuration"
-  if [ "$IPV6_SUPPORT" = "y" ]; then
-    ipv6 "IP address" CONF_USB_NET_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
-    int "IP prefix length" CONF_USB_NET_IP6_PREFIX_LEN 64
-  else
-    ipv4 "IP address" CONF_USB_NET_IP "192.168.5.1"
-    ipv4 "Netmask" CONF_USB_NET_IP4_NETMASK "255.255.255.0"
-  fi
-
-  dep_bool "USBnet ARP-Proxy" USB_ARP_PROXY $ENC28J60_SUPPORT
-fi
-
 if [ "$USB_SUPPORT" = "y" ]; then
   comment "USB configuration"
   bool "device is self powered" USB_CFG_IS_SELF_POWERED
   int "USB bus power consumption" USB_CFG_MAX_BUS_POWER 20
 fi
+
+comment "USBnet configuration"
+if [ "$IPV6_SUPPORT" = "y" ]; then
+  ipv6 "IP address" CONF_USB_NET_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+  int "IP prefix length" CONF_USB_NET_IP6_PREFIX_LEN 64
+else
+  ipv4 "IP address" CONF_USB_NET_IP "192.168.5.1"
+  ipv4 "Netmask" CONF_USB_NET_IP4_NETMASK "255.255.255.0"
+fi
+
+dep_bool "USBnet ARP-Proxy" USB_ARP_PROXY $ENC28J60_SUPPORT
 
 endmenu
