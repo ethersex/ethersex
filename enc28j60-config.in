@@ -1,3 +1,5 @@
+dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $UIP_SUPPORT
+
 mac "Etherrape MAC address" CONF_ENC_MAC "ac:de:48:fd:0f:d0"
 
 if [ "$ENC28J60_SUPPORT" = "y" ]; then
@@ -24,3 +26,5 @@ if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
     ipv4 "Default gateway" CONF_ENC_IP4_GATEWAY "192.168.23.1"
   fi
 fi
+
+endmenu

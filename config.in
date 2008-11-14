@@ -55,6 +55,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
 endmenu
 
 source crypto/config.in
+source usb/config.in
 bool "Networking support"	UIP_SUPPORT
 
 string "Hostname" CONF_HOSTNAME "ethersex"
@@ -66,21 +67,15 @@ else
 fi
 
 comment "Network interfaces"
-dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $UIP_SUPPORT
-  source enc28j60-config.in
-endmenu
-
-dep_bool_menu "RFM12 (FSK transmitter) support" RFM12_SUPPORT $UIP_SUPPORT
-  source rfm12/config.in
-endmenu
+source enc28j60-config.in
+source rfm12/config.in
 
 usart_count_used
 if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  dep_bool_menu "ZBus Support" ZBUS_SUPPORT $UIP_SUPPORT
-    source zbus/config.in
-  endmenu
+  source zbus/config.in
 fi
-dep_bool "USBnet" USB_NET_SUPPORT $USB_SUPPORT $UIP_SUPPORT
+
+source usb/usb-net-config.in
 
 source scripts/ip-router-conf.sh
 dep_bool 'Enable IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT

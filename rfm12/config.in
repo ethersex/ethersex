@@ -1,5 +1,7 @@
+dep_bool_menu "RFM12 (FSK transmitter) support" RFM12_SUPPORT $UIP_SUPPORT
+
 if [ "$TEENSY_SUPPORT" != "y" ]; then
-  int "RFM12 Baudrate" CONF_RFM12_BAUD 34500
+  int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
 fi
 if [ "$SKIPJACK_SUPPORT" = "y" ]; then
   hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
@@ -14,3 +16,5 @@ else
 fi
 
 dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_SUPPORT
+
+endmenu
