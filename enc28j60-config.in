@@ -23,7 +23,6 @@ if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
   ipv4 "Etherrape IP address" CONF_ENC_IP "192.168.23.244"
   if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
     ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
-    ipv4 "Default gateway" CONF_ENC_IP4_GATEWAY "192.168.23.1"
   fi
 fi
 

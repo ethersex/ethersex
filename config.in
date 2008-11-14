@@ -78,7 +78,14 @@ fi
 source usb/usb-net-config.in
 
 source scripts/ip-router-conf.sh
+
+comment "IP configuration"
 dep_bool 'Enable IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
+if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+  ipv6 "Default Router" CONF_ETHERRAPE_GATEWAY "2001:6f8:1209:f0::1"
+elif [ "$IPV4_SUPPORT" = "y" ]; then
+  ipv4 "Default gateway" CONF_ETHERRAPE_GATEWAY "192.168.23.1"
+fi
 
 define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
 
@@ -88,38 +95,6 @@ endmenu
 define_bool NET_SUPPORT $UIP_SUPPORT
 
 source uip/config.in
-
-###############################################################################
-
-mainmenu_option next_comment
-comment "Interfaces"
-
-source usb/config.in
-      if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
-	ipv6 "Default Router" CONF_ETHERRAPE_IP6_ROUTER "2001:6f8:1209:f0::1"
-	comment ""
-      fi
-source i2c/config.in
-
-dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
-dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
-
-usart_count_used
-comment "Usart Configuration ($USARTS_USED/$USARTS)"
-source modbus/config.in
-source yport/config.in
-source mcuf/config.in
-
-if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
-  if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
-    choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
-    usart_process_choice ECMD_SERIAL_USART
-  fi
-  dep_bool "  Usart ecmd RS485 mode" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
-fi
-
-endmenu
 
 ###############################################################################
 
@@ -152,6 +127,27 @@ fi
 source kty/config.in
 bool "Onewire support" ONEWIRE_SUPPORT
 bool "Named and logic state I/O" NAMED_PIN_SUPPORT
+
+source i2c/config.in
+
+dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
+
+usart_count_used
+comment "Usart Configuration ($USARTS_USED/$USARTS)"
+source modbus/config.in
+source yport/config.in
+source mcuf/config.in
+
+if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+  dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
+  if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
+    choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
+    usart_process_choice ECMD_SERIAL_USART
+  fi
+  dep_bool "  Usart ecmd RS485 mode" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
+fi
+
 endmenu
 
 ###############################################################################
