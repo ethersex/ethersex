@@ -118,11 +118,13 @@ ecmd_ifdef(WHM_SUPPORT)
 ecmd_endif()
 
 ecmd_ifdef(ADC_SUPPORT)
-  ecmd_feature(adc_get, "adc get")
+  block(ADC)
+  ecmd_feature(adc_get, "adc get", [CHANNEL], Get the ADC Value in HEX of CHANNEL or if noch channel set of all channels.)
 ecmd_endif()
 
 ecmd_ifdef(KTY_SUPPORT)
-  ecmd_feature(kty_get, "kty get")
+  block(KTY)
+  ecmd_feature(kty_get, "kty get", [CHANNEL], Get the Temperature in xxx.x °C of CHANNEL or if noch channel set of all channels.)
 ecmd_endif()
 
 ecmd_ifdef(DATAFLASH_SUPPORT)
