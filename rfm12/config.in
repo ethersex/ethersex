@@ -1,4 +1,5 @@
 dep_bool_menu "RFM12 (FSK transmitter) support" RFM12_SUPPORT $UIP_SUPPORT
+if [ "$RFM12_SUPPORT" = "y" ]; then
 
 if [ "$TEENSY_SUPPORT" != "y" ]; then
   int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
@@ -17,4 +18,5 @@ fi
 
 dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_SUPPORT
 
+fi
 endmenu
