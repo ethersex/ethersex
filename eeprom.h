@@ -59,6 +59,10 @@ struct eeprom_config_t {
     char httpd_auth_null_byte;
 #endif
 
+#ifdef KTY_SUPPORT
+    int8_t kty_calibration;
+#endif
+
     uint8_t crc;
 };
 

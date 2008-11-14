@@ -110,6 +110,10 @@ eeprom_init (void)
     eeprom_save_char (httpd_auth_null_byte, 0);
 #endif
 
+#ifdef KTY_SUPPORT
+    eeprom_save_char (kty_calibration, 0);
+#endif
+
     eeprom_update_chksum();
 }
 

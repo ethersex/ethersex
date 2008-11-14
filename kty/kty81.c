@@ -23,6 +23,7 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 #include "../config.h"
+#include "../eeprom.h"
 
 #include "kty81.h"
 
@@ -48,9 +49,12 @@ int16_t
 temperatur(uint16_t sensorwert){
 
   int32_t volt = sensorwert;
+  int8_t calibration;
+  eeprom_restore_char (kty_calibration, &calibration);
   volt *= 2500;
   volt /= 1023;
   int32_t R = 2200L;
+  R += calibration;
   R *= volt;
   R /=  5000L - volt;
   int32_t temper;
