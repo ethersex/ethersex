@@ -83,7 +83,7 @@ comment "IP configuration"
 dep_bool 'Enable IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
 if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
   ipv6 "Default Router" CONF_ETHERRAPE_GATEWAY "2001:6f8:1209:f0::1"
-elif [ "$IPV4_SUPPORT" = "y" ]; then
+elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then
   ipv4 "Default gateway" CONF_ETHERRAPE_GATEWAY "192.168.23.1"
 fi
 
