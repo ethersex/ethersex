@@ -12,27 +12,77 @@ CONFIG_EXPERIMENTAL=y
 # atmega32 is not set
 MCU=atmega644
 atmega644=y
+# atmega644p is not set
 FREQ=20000000
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
-UIP_SUPPORT=y
-# IPV6_SUPPORT is not set
-IPV4_SUPPORT=y
-# ROUTER_SUPPORT is not set
-# IP_FORWARDING_SUPPORT is not set
-ENC28J60_SUPPORT=y
-# RFM12_SUPPORT is not set
-# ZBUS_SUPPORT is not set
-# USB_NET_SUPPORT is not set
-NET_SUPPORT=y
-
-#
-# Cryptographic functionality
-#
+# DEBUG is not set
+# DEBUG_USE_SYSLOG is not set
+# DEBUG_ECMD is not set
+# DEBUG_ECMD_FS20 is not set
+# DEBUG_ECMD_IP is not set
+# DEBUG_ECMD_MAC is not set
+# DEBUG_ECMD_NET is not set
+# DEBUG_ECMD_OW_LIST is not set
+# DEBUG_ECMD_OW_ROM is not set
+# DEBUG_ECMD_PORTIO is not set
+# DEBUG_ECMD_RC5 is not set
+# DEBUG_ENC28J60 is not set
+# DEBUG_INTERRUPT is not set
+# DEBUG_NET is not set
+# DEBUG_NET_CONFIG is not set
+# DEBUG_UNKNOWN_PACKETS is not set
+# DEBUG_REV4_WORKAROUND is not set
+# DEBUG_FS is not set
+# DEBUG_FS_INODETABLE is not set
+# DEBUG_FS_MARK is not set
+# DEBUG_FS20_REC is not set
+# DEBUG_FS20_REC_QUEUE is not set
+# DEBUG_FS20_REC_VERBOSE is not set
+# DEBUG_FS20_WS300 is not set
+# DEBUG_FS20_WS300_VERBOSE is not set
+# DEBUG_HD44780 is not set
+# DEBUG_HTTPD is not set
+# DEBUG_RC5 is not set
+# DEBUG_TIMER is not set
+# DEBUG_DISCARD_SOME is not set
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
-# MD5_SUPPORT is not set
 # SKIPJACK_SUPPORT is not set
+# MD5_SUPPORT is not set
+# USB_SUPPORT is not set
+# USB_CFG_IS_SELF_POWERED is not set
+USB_CFG_MAX_BUS_POWER=20
+UIP_SUPPORT=y
+CONF_HOSTNAME="ethersex"
+# IPV6_SUPPORT is not set
+IPV4_SUPPORT=y
+ENC28J60_SUPPORT=y
+CONF_ENC_MAC="ac:de:48:fd:0f:d0"
+# IPV6_STATIC_SUPPORT is not set
+CONF_ENC_IP="192.168.23.244"
+CONF_ENC_IP4_NETMASK="255.255.255.0"
+# RFM12_SUPPORT is not set
+CONF_RFM12_BAUD=19200
+CONF_RFM12_IP="192.168.5.1"
+CONF_RFM12_IP4_NETMASK="255.255.255.0"
+# RFM12_ARP_PROXY is not set
+# ZBUS_SUPPORT is not set
+ZBUS_USART_0=y
+ZBUS_USE_USART=0
+CONF_ZBUS_BAUDRATE=19200
+CONF_ZBUS_IP="192.168.23.244"
+CONF_ZBUS_IP4_NETMASK="255.255.255.0"
+# ZBUS_ARP_PROXY is not set
+# USB_NET_SUPPORT is not set
+CONF_USB_NET_IP="192.168.5.1"
+CONF_USB_NET_IP4_NETMASK="255.255.255.0"
+# USB_ARP_PROXY is not set
+# ROUTER_SUPPORT is not set
+# IP_FORWARDING_SUPPORT is not set
+CONF_ETHERRAPE_GATEWAY="192.168.23.1"
+# UIP_MULTI_STACK is not set
+NET_SUPPORT=y
 
 #
 # Network protocols
@@ -43,51 +93,13 @@ BROADCAST_SUPPORT=y
 ICMP_SUPPORT=y
 # BOOTP_SUPPORT is not set
 # BOOTP_TO_EEPROM_SUPPORT is not set
+# TFTP_SUPPORT is not set
+# TFTPOMATIC_SUPPORT is not set
 # DNS_SUPPORT is not set
 # SYSLOG_SUPPORT is not set
-# TFTP_SUPPORT is not set
 # OPENVPN_SUPPORT is not set
 # RFM12_RAW_SUPPORT is not set
 # ZBUS_RAW_SUPPORT is not set
-
-#
-# Interfaces
-#
-
-#
-# ENC28J60 configuration
-#
-# IPV6_STATIC_SUPPORT is not set
-CONF_ETHERRAPE_MAC="ac:de:48:fd:0f:d0"
-CONF_HOSTNAME="ethersex"
-CONF_ETHERRAPE_IP="192.168.23.244"
-CONF_ETHERRAPE_IP4_NETMASK="255.255.255.0"
-CONF_ETHERRAPE_IP4_GATEWAY="192.168.23.23"
-
-#
-# USB Support (EXPERIMENTAL)
-#
-# USB_SUPPORT is not set
-
-#
-# RFM12 FSK transmitter
-#
-# RFM12_ARP_PROXY is not set
-CONFIG_NO_I2C=y
-# I2C_SUPPORT is not set
-# I2C_SLAVE_SUPPORT is not set
-# FS20_SUPPORT is not set
-# RC5_SUPPORT is not set
-# MODBUS_SUPPORT is not set
-# YPORT_SUPPORT is not set
-
-#
-# ZBUS configuration
-#
-# ZBUS_ARP_PROXY is not set
-# MCUF_SUPPORT is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
-# ECMD_SERIAL_USART_RS485_SUPPORT is not set
 
 #
 # I/O support
@@ -105,8 +117,19 @@ PORTIO_SUPPORT=y
 # PS2_SUPPORT is not set
 # PS2_GERMAN_LAYOUT is not set
 # ADC_SUPPORT is not set
+# KTY_SUPPORT is not set
 # ONEWIRE_SUPPORT is not set
 # NAMED_PIN_SUPPORT is not set
+CONFIG_NO_I2C=y
+# I2C_SUPPORT is not set
+# I2C_SLAVE_SUPPORT is not set
+# FS20_SUPPORT is not set
+# RC5_SUPPORT is not set
+# MODBUS_SUPPORT is not set
+# YPORT_SUPPORT is not set
+# MCUF_SUPPORT is not set
+# ECMD_SERIAL_USART_SUPPORT is not set
+# ECMD_SERIAL_USART_RS485_SUPPORT is not set
 
 #
 # Applications
@@ -159,5 +182,8 @@ ECMD_SUPPORT=y
 DATAFLASH_SUPPORT=y
 PSOCK_SUPPORT=y
 HTTPD_SUPPORT=y
+HTTPD_INLINE_FILES_SUPPORT=y
 # HTTPD_AUTH_SUPPORT is not set
 # CONTROL6_SUPPORT is not set
+# IPCHAIR_SUPPORT is not set
+# IPCHAIR_MASQ is not set
