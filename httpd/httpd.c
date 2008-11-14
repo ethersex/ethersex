@@ -38,7 +38,10 @@
 #include "../config.h"
 
 #ifdef DEBUG_HTTPD
-#include "uart.h"
+# include "../debug.h"
+# define printf        debug_printf
+#else
+# define printf(...)   ((void)0)
 #endif
 
 /* quickfix: include fs from etherrape.c */
@@ -249,12 +252,7 @@ auth_success:
             state->name[sizeof(state->name)-1] = '\0';
     }
 
-#ifdef DEBUG_HTTPD
-    uart_puts_P("fs: httpd: request for file \"");
-    uart_puts(state->name);
-    uart_puts_P("\"\r\n");
-    uart_puts_P("fs: searching file inode: 0x");
-#endif
+    printf ("fs: httpd: request for file \"%s\"\n", state->name);
 #endif	/* not DATAFLASH_SUPPORT and not HTTPD_INLINE_FILES_SUPPORT */
 
     free(state->tmp_buffer);
@@ -297,16 +295,10 @@ auth_success:
     /* search inode */
     state->inode = fs_get_inode(&fs, state->name);
 
-#ifdef DEBUG_HTTPD
-    uart_puthexbyte(HI8(state->inode));
-    uart_puthexbyte(LO8(state->inode));
-    uart_eol();
-#endif
+    printf ("fs: searching file inode: 0x%04x\n", state->inode);
 
     if (state->inode == 0xffff) {
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: file not found, sending 404\r\n");
-#endif
+        printf ("httpd: file not found, sending 404\n");
 
         /* send headers */
         PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_404);
@@ -317,9 +309,7 @@ auth_success:
         PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_404);
         PSOCK_CLOSE_EXIT(&state->in);
     } else {
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: file found\r\n");
-#endif
+        printf ("httpd: file found\n");
 
         /* reset offset */
         state->offset = 0;
@@ -416,15 +406,7 @@ unsigned short send_file_f(void *data)
     fs_size_t len = fs_read(&fs, state->inode, uip_appdata, state->offset,
 			    uip_mss());
 
-#ifdef DEBUG_HTTPD
-    uart_puts_P("httpd: mss is 0x");
-    uart_puthexbyte(HI8(uip_mss()));
-    uart_puthexbyte(LO8(uip_mss()));
-    uart_puts_P(", len is 0x");
-    uart_puthexbyte(HI8(uip_mss()));
-    uart_puthexbyte(LO8(uip_mss()));
-    uart_eol();
-#endif
+    printf ("httpd: mss is 0x%04x, len is 0x%04x\n", uip_mss (), len);
 
     /* if this was all, reset state->inode */
     if (len < uip_mss())
@@ -468,37 +450,28 @@ void httpd_main(void)
     struct httpd_connection_state_t *state = &uip_conn->appstate.httpd;
 
     if (uip_aborted())
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: connection aborted\r\n");
-#endif
+        printf ("httpd: connection aborted\n");
 
     if (uip_timedout())
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: connection aborted\r\n");
-#endif
+        printf ("httpd: connection aborted\n");
 
     if (uip_closed()) {
         state->state = HTTPD_STATE_CLOSED;
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: connection closed\r\n");
-#endif
+        printf ("httpd: connection closed\n");
     }
 
     if (uip_poll()) {
         state->timeout++;
 
         if (state->timeout == HTTPD_TIMEOUT) {
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: timeout\r\n");
-#endif
+            printf ("httpd: timeout\n");
             uip_close();
         }
     }
 
     if (uip_connected()) {
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: new connection\r\n");
-#endif
+        printf ("httpd: new connection\n");
+
         /* initialize struct */
         state->state = HTTPD_STATE_IDLE;
         state->timeout = 0;
@@ -508,9 +481,7 @@ void httpd_main(void)
     }
 
     if (uip_newdata()) {
-#ifdef DEBUG_HTTPD
-        uart_puts_P("httpd: new data\r\n");
-#endif
+        printf ("httpd: new data\n");
         //http_handle_input();
     }
 
@@ -522,9 +493,7 @@ void httpd_main(void)
 
         if (!uip_poll()) {
             state->timeout = 0;
-#ifdef DEBUG_HTTPD
-            uart_puts_P("httpd: action\r\n");
-#endif
+            printf ("httpd: action\n");
         }
         httpd_handle(state);
     }

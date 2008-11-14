@@ -342,13 +342,13 @@ void process_packet(void)
         /* process ip packet */
         case UIP_ETHTYPE_IP6:
 #           ifdef DEBUG_NET
-            uart_puts_P("net: ip6 packet received\r\n");
+            debug_printf ("net: ip6 packet received\n");
 #           endif
 #       else /* !UIP_CONF_IPV6 */
         /* process ip packet */
         case UIP_ETHTYPE_IP:
 #           ifdef DEBUG_NET
-            debug_printf("net: ip packet received\n");
+            debug_printf ("net: ip packet received\n");
 #           endif
             uip_arp_ipin();
 #       endif /* !UIP_CONF_IPV6 */
