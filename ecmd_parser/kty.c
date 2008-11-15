@@ -83,23 +83,11 @@ int16_t parse_cmd_kty_cal(char *cmd, char *output, uint16_t len)
   } else
     return -1;
   if (kty_calibrate(adc)) {
-    output[0] = 'O';
-    output[1] = 'K';
+    strcpy_P (output, "OK");
     ret = 2;
   } else {
-    output[0] = 'O';
-    output[1] = 'u';
-    output[2] = 't';
-    output[3] = ' ';
-    output[4] = 'o';
-    output[5] = 'f';
-    output[6] = ' ';
-    output[7] = 'r';
-    output[8] = 'a';
-    output[9] = 'n';
-    output[10] = 'g';
-    output[11] = 'e';
-    ret = 12;
+    strcpy_P (output, "Out of range");
+    ret = 13;
   }
   return ret;
 } /* }}} */
