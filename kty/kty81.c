@@ -50,8 +50,8 @@ kty_calibrate(uint16_t sensorwert){
   volt *= 2500;
   volt /= 1023;
   int32_t R = 1000L;
-  R *= volt;
-  R /=  5000L - volt;
+  R *= 5000L - volt;
+  R /= volt;
   if(R < 2320 && R > 2080){
     calibration = 2200L - R;
     eeprom_save_char (kty_calibration, calibration);
