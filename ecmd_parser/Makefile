@@ -2,6 +2,7 @@ TARGET = libecmd_parser.a
 TOPDIR = ..
 SRC = \
       	adc.c		\
+	kty.c		\
       	clock.c		\
       	dataflash.c	\
       	dns.c		\

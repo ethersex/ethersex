@@ -66,6 +66,11 @@ function comment () {
 	echo -ne "': $comment_ctr' '--- $1' " >>MCmenu
 }
 
+function impossible () {
+	comment_ctr=$[ comment_ctr + 1 ]
+	echo -ne "': $comment_ctr' '[-] $1' " >>MCmenu
+}
+
 #
 # Define a boolean to a specific value.
 #
@@ -189,8 +194,15 @@ function dep_bool () {
 	if [ "$dep" = y ]; then
 	    bool "$ques" "$var"
 	else 
+	    impossible "$ques"
 	    define_bool "$var" n
 	fi
+}
+
+function dep_bool_menu () {
+	ques="$1"; shift
+	echo "haveMCmenu$1=y" >> MCradiolists
+	dep_bool "$ques  --->" $*
 }
 
 function dep_mbool () {
@@ -432,7 +444,14 @@ function l_bool () {
 		*)	eval $1=n ;;
 		esac
 	else
-		echo -ne "\007"
+		get_cmd='echo $haveMCmenu'"$1"
+		value="`eval $get_cmd`"
+
+		if [ -n "$value" ]; then
+			eval activate_menu MCmenu$1
+		else
+			echo -ne "\007"
+		fi
 	fi
 }
 
@@ -806,6 +825,20 @@ function parser(ifile,menu) {
 	while ((getline <ifile) > 0) {
 		if ($1 == "mainmenu_option") {
 			comment_is_option = "1"
+		}
+		else if ($1 == "dep_bool_menu") {
+			print >>menu
+
+			split ($0,ll,"\\\"");
+			split (ll[3],mm," ");
+
+			newmenu = sprintf("MCmenu%s", mm[1]);
+			printf( "function MCmenu%s () {\n"\
+				"default=$1\n"\
+				"menu_name \"%s\"\n",\
+				mm[1], ll[2]) > newmenu
+
+			parser(ifile, newmenu)
 		}
 		else if ($1 == "comment" && comment_is_option == "1") {
 			comment_is_option= "0"
@@ -1245,6 +1278,11 @@ save_configuration () {
 		define_bool "$var" "$x"
 	}
 
+	function dep_bool_menu () {
+		ques="$1"; shift
+		dep_bool "" $*
+	}
+
 	function dep_mbool () {
 		set_x_info "$2" "n"
 		var="$2"
@@ -1517,7 +1555,7 @@ Arrow keys navigate the menu.  \
 <Enter> selects submenus --->.  \
 Highlighted letters are hotkeys.  \
 Pressing <Y> includes, <N> excludes.  <Esc><Esc> to exit, <?> for Help.  \
-Legend: [*] enabled   [ ] disabled"
+Legend: [*] enabled   [ ] disabled   [-] not available"
 
 radiolist_instructions="\
 Use the arrow keys to navigate this window or \

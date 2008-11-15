@@ -86,6 +86,27 @@
 #endif
 
 
+/* Map the IP address configuration to use in network.c
+   (and that is assigned to the primary stack). */
+
+#ifdef ENC28J60_SUPPORT
+#  define CONF_ETHERRAPE_MAC		CONF_ENC_MAC
+#  define CONF_ETHERRAPE_IP		CONF_ENC_IP
+#  define CONF_ETHERRAPE_IP4_NETMASK	CONF_ENC_IP4_NETMASK
+
+#elif defined (RFM12_SUPPORT)
+#  define CONF_ETHERRAPE_IP		CONF_RFM12_IP
+#  define CONF_ETHERRAPE_IP4_NETMASK	CONF_RFM12_IP4_NETMASK
+
+#elif defined (ZBUS_SUPPORT)
+#  define CONF_ETHERRAPE_IP		CONF_ZBUS_IP
+#  define CONF_ETHERRAPE_IP4_NETMASK	CONF_ZBUS_IP4_NETMASK
+
+#elif defined (USB_NET_SUPPORT)
+#  define CONF_ETHERRAPE_IP		CONF_USB_NET_IP
+#  define CONF_ETHERRAPE_IP4_NETMASK	CONF_USB_NET_IP4_NETMASK
+#endif
+
 /* Figure out whether we need access to EEPROM:
 
    - ECMD without TEENSY (IP address configuration etc.)

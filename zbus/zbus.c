@@ -156,7 +156,7 @@ zbus_rxfinish(void)
 #ifdef ZBUS_RAW_SUPPORT
     if (!zbus_raw_conn->rport)
 #endif
-    zbus_decrypt(zbus_buf, &zbus_rxlen);
+    zbus_decrypt(zbus_buf, (zbus_index_t *) &zbus_rxlen);
     if(!zbus_rxlen) {
       zbus_rxstart ();
       uip_buf_unlock();

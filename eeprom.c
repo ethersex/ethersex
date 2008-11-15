@@ -87,15 +87,11 @@ eeprom_init (void)
 
 #if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
     eeprom_save_ip (ip, CONF_ETHERRAPE_IP);
-#endif
-
-#if defined(IPV6_STATIC_SUPPORT)
-    eeprom_save_ip (gateway, CONF_ETHERRAPE_IP6_ROUTER);
-#endif
+    eeprom_save_ip (gateway, CONF_ETHERRAPE_GATEWAY);
 
 #ifdef IPV4_SUPPORT
     eeprom_save_ip (netmask, CONF_ETHERRAPE_IP4_NETMASK);
-    eeprom_save_ip (gateway, CONF_ETHERRAPE_IP4_GATEWAY);
+#endif
 #endif
 
 #ifdef DNS_SUPPORT
@@ -112,6 +108,10 @@ eeprom_init (void)
     /* Copy the httpd's password. */
     eeprom_save_P (httpd_auth_password, PSTR(CONF_HTTPD_PASSWORD), 8);
     eeprom_save_char (httpd_auth_null_byte, 0);
+#endif
+
+#ifdef KTY_SUPPORT
+    eeprom_save_char (kty_calibration, 0);
 #endif
 
     eeprom_update_chksum();

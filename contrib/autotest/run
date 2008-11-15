@@ -50,11 +50,22 @@ make no_deps=t .subdirs
   exit 1
 }
 
-make
-[ -e ethersex.bin ] || {
-  echo "$0: failed to generate ethersex.bin file."
+# We don't call 'make all' here to skip httpd-embedding part ...
+make compile-subdirs ethersex
+[ -e ethersex ] || {
+  echo "$0: failed to generate ethersex file."
   exit 1
 }
+
+# Now (possibly) do the httpd-embedding, which writes status
+# information to stderr, which isn't quite what we need for the autotester.
+# Let's just see whether it works.
+make ethersex.bin > /dev/null 2> /dev/null
+[ -e ethersex.bin ] || {
+  echo "$0: failed to generate ethersex.bin file, i.e. httpd-embed failed."
+  exit 1
+}
+
 
 echo ""
 echo " Looks good!"

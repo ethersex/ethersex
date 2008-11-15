@@ -1,0 +1,15 @@
+dep_bool_menu "USBnet" USB_NET_SUPPORT $USB_SUPPORT $UIP_SUPPORT
+if [ "$USB_NET_SUPPORT" = "y" ]; then
+
+if [ "$IPV6_SUPPORT" = "y" ]; then
+  ipv6 "IP address" CONF_USB_NET_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+  int "IP prefix length" CONF_USB_NET_IP6_PREFIX_LEN 64
+else
+  ipv4 "IP address" CONF_USB_NET_IP "192.168.5.1"
+  ipv4 "Netmask" CONF_USB_NET_IP4_NETMASK "255.255.255.0"
+fi
+
+dep_bool "USBnet ARP-Proxy" USB_ARP_PROXY $ENC28J60_SUPPORT
+
+fi
+endmenu

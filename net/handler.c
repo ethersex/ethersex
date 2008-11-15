@@ -50,6 +50,7 @@
 #include "snmp_net.h"
 #include "mcuf_net.h"
 #include "../httpd/httpd.h"
+#include "../debug.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME
@@ -165,10 +166,7 @@ void network_handle_tcp(void)
 /* {{{ */ {
 
 #ifdef DEBUG_NET
-    uart_puts_P("net_tcp: local port is 0x");
-    uart_puthexbyte(HI8(uip_conn->lport));
-    uart_puthexbyte(LO8(uip_conn->lport));
-    uart_eol();
+    debug_printf ("net_tcp: local port is 0x%04x\n", uip_conn->lport);
 #endif
 
     /* 

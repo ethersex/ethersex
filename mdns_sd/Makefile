@@ -8,7 +8,7 @@ SRC = \
 include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
-mdns_sd.c: mdns_services.m4
+mdns_sd.c: mdns_services.c
 mdns_services.c: mdns_services.m4
 	m4 $< > $@
 

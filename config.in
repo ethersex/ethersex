@@ -22,42 +22,43 @@ int "MCU frequency" FREQ 20000000
 bool "Build a bootloader"	BOOTLOADER_SUPPORT
 bool "Teensy build"		TEENSY_SUPPORT
 
-mainmenu_option next_comment
-comment "Debugging Options"
-  bool 'Enable (Serial-Line) Debugging' DEBUG
-  dep_bool '  Reroute to SYSLOG' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
-  dep_bool '  ECMD' DEBUG_ECMD $DEBUG
-  dep_bool '  ECMD FS20' DEBUG_ECMD_FS20 $DEBUG
-  dep_bool '  ECMD IP' DEBUG_ECMD_IP $DEBUG
-  dep_bool '  ECMD MAC' DEBUG_ECMD_MAC $DEBUG
-  dep_bool '  ECMD NET' DEBUG_ECMD_NET $DEBUG
-  dep_bool '  ECMD OW LIST' DEBUG_ECMD_OW_LIST $DEBUG
-  dep_bool '  ECMD OW ROM' DEBUG_ECMD_OW_ROM $DEBUG
-  dep_bool '  ECMD PORTIO' DEBUG_ECMD_PORTIO $DEBUG
-  dep_bool '  ECMD RC5' DEBUG_ECMD_RC5 $DEBUG
-  dep_bool '  ENC28J60' DEBUG_ENC28J60 $DEBUG
-  dep_bool '    Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60
-  dep_bool '    Networking' DEBUG_NET $DEBUG_ENC28J60
-  dep_bool '      Config' DEBUG_NET_CONFIG $DEBUG_NET
-  dep_bool '      Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
-  dep_bool '    Rev. 4 Workaround' DEBUG_REV4_WORKAROUND $DEBUG_ENC28J60
-  dep_bool '  File System' DEBUG_FS $DEBUG
-  dep_bool '    Inode Table' DEBUG_FS_INODETABLE $DEBUG_FS
-  dep_bool '    Mark' DEBUG_FS_MARK $DEBUG_FS
-  dep_bool '  FS20 Receive' DEBUG_FS20_REC $DEBUG
-  dep_bool '  FS20 Receive Queue' DEBUG_FS20_REC_QUEUE $DEBUG_FS20_REC
-  dep_bool '  FS20 Receive Verbose' DEBUG_FS20_REC_VERBOSE $DEBUG_FS20_REC
-  dep_bool '  FS20 WS300' DEBUG_FS20_WS300 $DEBUG
-  dep_bool '  FS20 WS300 Verbose' DEBUG_FS20_WS300_VERBOSE $DEBUG_FS20_WS300
-  dep_bool '  HD44780' DEBUG_HD44780 $DEBUG
-  dep_bool '  HTTPD' DEBUG_HTTPD $DEBUG
-  dep_bool '  RC5' DEBUG_RC5 $DEBUG
-  dep_bool '  Timer' DEBUG_TIMER $DEBUG
+dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
+  dep_bool 'Reroute to SYSLOG' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
+  dep_bool 'ECMD' DEBUG_ECMD $DEBUG
+  dep_bool 'ECMD FS20' DEBUG_ECMD_FS20 $DEBUG
+  dep_bool 'ECMD IP' DEBUG_ECMD_IP $DEBUG
+  dep_bool 'ECMD MAC' DEBUG_ECMD_MAC $DEBUG
+  dep_bool 'ECMD NET' DEBUG_ECMD_NET $DEBUG
+  dep_bool 'ECMD OW LIST' DEBUG_ECMD_OW_LIST $DEBUG
+  dep_bool 'ECMD OW ROM' DEBUG_ECMD_OW_ROM $DEBUG
+  dep_bool 'ECMD PORTIO' DEBUG_ECMD_PORTIO $DEBUG
+  dep_bool 'ECMD RC5' DEBUG_ECMD_RC5 $DEBUG
+  dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG
+  dep_bool '  Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60
+  dep_bool '  Networking' DEBUG_NET $DEBUG_ENC28J60
+  dep_bool '    Config' DEBUG_NET_CONFIG $DEBUG_NET
+  dep_bool '    Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
+  dep_bool '  Rev. 4 Workaround' DEBUG_REV4_WORKAROUND $DEBUG_ENC28J60
+  dep_bool 'File System' DEBUG_FS $DEBUG
+  dep_bool '  Inode Table' DEBUG_FS_INODETABLE $DEBUG_FS
+  dep_bool '  Mark' DEBUG_FS_MARK $DEBUG_FS
+  dep_bool 'FS20 Receive' DEBUG_FS20_REC $DEBUG
+  dep_bool 'FS20 Receive Queue' DEBUG_FS20_REC_QUEUE $DEBUG_FS20_REC
+  dep_bool 'FS20 Receive Verbose' DEBUG_FS20_REC_VERBOSE $DEBUG_FS20_REC
+  dep_bool 'FS20 WS300' DEBUG_FS20_WS300 $DEBUG
+  dep_bool 'FS20 WS300 Verbose' DEBUG_FS20_WS300_VERBOSE $DEBUG_FS20_WS300
+  dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
+  dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
+  dep_bool 'RC5' DEBUG_RC5 $DEBUG
+  dep_bool 'Timer' DEBUG_TIMER $DEBUG
   bool 'Discard some of the received packets' DEBUG_DISCARD_SOME
 endmenu
 
+source crypto/config.in
+source usb/config.in
 bool "Networking support"	UIP_SUPPORT
 
+string "Hostname" CONF_HOSTNAME "ethersex"
 dep_bool 'IPv6 support'		IPV6_SUPPORT $UIP_SUPPORT
 if [ "$IPV6_SUPPORT" = "y" ]; then
   define_bool IPV4_SUPPORT n
@@ -65,116 +66,35 @@ else
   define_bool IPV4_SUPPORT $UIP_SUPPORT
 fi
 
-dep_bool "Use IP Router"	ROUTER_SUPPORT $UIP_SUPPORT
-dep_bool 'IP forwarding'	IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
+comment "Network interfaces"
+source enc28j60-config.in
+source rfm12/config.in
 
-if [ "$UIP_SUPPORT" = "y" -a "$ROUTER_SUPPORT" = "n" ]; then
-  choice 'Network interface'			\
-     "ENC28J60		ENC28J60_SUPPORT	\
-      RFM12		RFM12_SUPPORT		\
-      ZBUS		ZBUS_SUPPORT		\
-      USB-Network	USB_NET_SUPPORT"	\
-	'ENC28J60'
-else
-  define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
-  comment "Network interfaces"
-  dep_bool 'Ethernet (ENC28J60) support' ENC28J60_SUPPORT $UIP_SUPPORT
-  dep_bool "RFM12 (FSK transmitter) support" RFM12_SUPPORT $UIP_SUPPORT
-
-  usart_count_used
-  if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-    dep_bool "ZBus Support" ZBUS_SUPPORT $UIP_SUPPORT
-  fi
-  dep_bool "USBnet" USB_NET_SUPPORT $USB_SUPPORT $UIP_SUPPORT
-
+usart_count_used
+if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+  source zbus/config.in
 fi
+
+source usb/usb-net-config.in
+
+source scripts/ip-router-conf.sh
+
+comment "IP configuration"
+dep_bool 'Enable IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
+if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
+  ipv6 "Default Router" CONF_ETHERRAPE_GATEWAY "2001:6f8:1209:f0::1"
+elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+  ipv4 "Default gateway" CONF_ETHERRAPE_GATEWAY "192.168.23.1"
+fi
+
+define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
 
 endmenu
 
 # this is only glue, so that the net directory is compiled also
 define_bool NET_SUPPORT $UIP_SUPPORT
 
-source crypto/config.in
 source uip/config.in
-
-###############################################################################
-
-mainmenu_option next_comment
-comment "Interfaces"
-
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
-      menu_comment="ENC28J60 configuration"
-    else
-      menu_comment="Network configuration"
-    fi
-
-    mainmenu_option next_comment
-    comment "$menu_comment"
-
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
-      dep_bool 'Static configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
-    else
-      if [ "$IPV6_SUPPORT" = "y" ]; then
-	define_bool "IPV6_STATIC_SUPPORT" y
-      else
-	define_bool "IPV6_STATIC_SUPPORT" n
-      fi
-    fi
-
-    if [ "$ENC28J60_SUPPORT" = "y" ]; then
-      mac "Etherrape MAC address" CONF_ETHERRAPE_MAC "ac:de:48:fd:0f:d0"
-    fi
-    string "Hostname" CONF_HOSTNAME "ethersex"
-
-    if [ "$UIP_SUPPORT" = "y" ]; then
-      if [ "$ENC28J60_SUPPORT" = "y" -o "$ROUTER_SUPPORT" != "y" ]; then 
-	if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
-	  comment "Static IPv6 configuration"
-	  ipv6 "Etherrape IP address" CONF_ETHERRAPE_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
-	  int "IP prefix length" CONF_ETHERRAPE_IP6_PREFIX_LEN 64
-	fi
-	
-	if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
-	  comment "Static IPv4 configuration"
-	  ipv4 "Etherrape IP address" CONF_ETHERRAPE_IP "192.168.23.244"
-	  if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
-	    ipv4 "Netmask" CONF_ETHERRAPE_IP4_NETMASK "255.255.255.0"
-	    ipv4 "Default gateway" CONF_ETHERRAPE_IP4_GATEWAY "192.168.23.1"
-	  fi
-	fi
-      fi
-    fi
-
-    endmenu
-
-source usb/config.in
-source rfm12/config.in
-      if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
-	ipv6 "Default Router" CONF_ETHERRAPE_IP6_ROUTER "2001:6f8:1209:f0::1"
-	comment ""
-      fi
-source i2c/config.in
-
-dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
-dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
-
-usart_count_used
-comment "Usart Configuration ($USARTS_USED/$USARTS)"
-source modbus/config.in
-source yport/config.in
-source zbus/config.in
-source mcuf/config.in
-
-if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
-  if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
-    choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
-    usart_process_choice ECMD_SERIAL_USART
-  fi
-  dep_bool "  Usart ecmd RS485 mode" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
-fi
-
-endmenu
 
 ###############################################################################
 
@@ -204,8 +124,30 @@ dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 if [ "$ADC_SUPPORT" = "y" ]; then
   int "ADC Reference Mask" ADC_REF 0
 fi
+source kty/config.in
 bool "Onewire support" ONEWIRE_SUPPORT
 bool "Named and logic state I/O" NAMED_PIN_SUPPORT
+
+source i2c/config.in
+
+dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
+
+usart_count_used
+comment "Usart Configuration ($USARTS_USED/$USARTS)"
+source modbus/config.in
+source yport/config.in
+source mcuf/config.in
+
+if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+  dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
+  if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
+    choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
+    usart_process_choice ECMD_SERIAL_USART
+  fi
+  dep_bool "  Usart ecmd RS485 mode" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
+fi
+
 endmenu
 
 ###############################################################################

@@ -482,11 +482,7 @@ network_config_load (void)
     /* Please Note: ip and &ip are NOT the same (cpp hell) */
     eeprom_restore_ip(gateway, &ip);
 #else
-#  if defined(IPV6_SUPPORT)
-    CONF_ETHERRAPE_IP6_ROUTER;
-#  else
-    CONF_ETHERRAPE_IP4_GATEWAY;
-#  endif
+    CONF_ETHERRAPE_GATEWAY;
 #endif
     uip_setdraddr(ip);
 #endif	/* No autoconfiguration. */
