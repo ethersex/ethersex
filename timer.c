@@ -84,6 +84,7 @@ void timer_process(void)
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
 
+#ifdef UIP_SUPPORT
         if (uip_buf_lock ()) {
 #ifdef RFM12_SUPPORT
            _uip_buf_lock --;
@@ -99,6 +100,7 @@ void timer_process(void)
            return;
 #endif
         }
+#endif
 
         counter++;
 

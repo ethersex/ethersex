@@ -1633,6 +1633,7 @@ STACK_PROTOTYPES(usb_stack)
 STACK_PROTOTYPES(zbus_stack)
 #endif
 
+#ifdef UIP_SUPPORT
 
 extern volatile uint8_t _uip_buf_lock;
 
@@ -1669,6 +1670,7 @@ static inline uint8_t uip_buf_lock (void)
     rfm12_int_enable();				\
   } while(0)
 
+#endif  /* UIP_SUPPORT */
 
 #endif /* __UIP_H__ */
 

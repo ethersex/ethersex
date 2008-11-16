@@ -36,7 +36,9 @@
 
 
 struct eeprom_config_t {
+#ifdef ENC28J60_SUPPORT
     uint8_t mac[6];
+#endif
 
 #if !defined(BOOTP_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
     uint8_t ip[IPADDR_LEN];
