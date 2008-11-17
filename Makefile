@@ -81,11 +81,30 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 %.hex: %
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
+##############################################################################
+# 
+# HTTP Inline Files
+#
+##############################################################################
+
 ifeq ($(HTTPD_INLINE_FILES_SUPPORT),y)
-INLINE_FILES := $(wildcard httpd/embed/*)
+INLINE_FILES := $(shell ls httpd/embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//')
 else
 INLINE_FILES :=
 endif
+
+httpd/embed/%: httpd/embed/%.cpp
+	if ! avr-cpp -DF_CPU=$(FREQ) $< 2> /dev/null > $@.tmp; \
+		then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
+	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; fi
+	$(RM) -f $@.tmp
+
+
+httpd/embed/%: httpd/embed/%.m4
+	if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
+		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"`\
+	      	$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)"; fi
+
 
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
@@ -94,6 +113,8 @@ ifeq ($(HTTPD_INLINE_FILES_SUPPORT),y)
 	httpd/do-embed $(INLINE_FILES)
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif
+
+##############################################################################
 
 %.eep.hex: %
 	$(OBJCOPY) --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex -j .eeprom $< $@

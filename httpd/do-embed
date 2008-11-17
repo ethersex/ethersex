@@ -41,6 +41,10 @@ while true; do
     echo "Final size of ethersex.bin is $SZ."
     exit 0
   }
+  >/dev/null
+  if [ ! -e "$fn" ]; then 
+    continue
+  fi
   unzipped=$(echo "$fn" | sed 's/\.gz$//')
   gzip -c  -9 "$fn" > "$fn.gz"
 

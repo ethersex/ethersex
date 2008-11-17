@@ -14,4 +14,5 @@ httpd-concat: httpd-concat.c httpd.h
 
 # extend normal clean rule
 clean: clean-common
-	$(RM) -f httpd-concat
+	$(RM) -f httpd-concat  embed/*.tmp
+
