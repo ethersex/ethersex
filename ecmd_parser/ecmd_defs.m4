@@ -127,7 +127,7 @@ ecmd_endif()
 ecmd_ifdef(KTY_SUPPORT)
   block(KTY)
   ecmd_feature(kty_get, "kty get", [CHANNEL], Get the temperature in xxx.x °C of CHANNEL or if noch channel set of all channels.)
-  ecmd_feature(kty_cal, "kty cal", CHANNEL, Calibrate the temperature to 1k Resistor.)
+  ecmd_feature(kty_calibration, "ktycalibration", CHANNEL, Calibrate the temperature to 1k Resistor.)
 ecmd_endif()
 
 ecmd_ifdef(DATAFLASH_SUPPORT)
