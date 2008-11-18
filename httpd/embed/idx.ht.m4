@@ -18,5 +18,6 @@
   <p>For details on what ethersex is, <a href="http://www.ethersex.de/">ethersex.de</a>.</p>
   <hr>
   <p>To do some control tasks, see <a href="io.ht">here</a>.</p>
+ifdef(`conf_ADC', `<p>To see the adc channels see <a href="adc.ht">here</a>.</p>')
  </body>
 </html>
