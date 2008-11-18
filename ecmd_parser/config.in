@@ -12,5 +12,5 @@ comment "Etherrape Control Interface (ECMD)"
     define_bool "ECMD_SERIAL_SUPPORT" n
   fi
 
-  dep_bool "Send ECMD messages" ECMD_SENDER_SUPPORT $CONFIG_UIP
+  dep_bool "Send ECMD messages" ECMD_SENDER_SUPPORT $TCP_SUPPORT
 endmenu 
