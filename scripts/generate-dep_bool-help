@@ -1,0 +1,48 @@
+#! /bin/sh
+cat `find -name "*config*.in"` | grep -e bool | \
+  sed -e 's/\$//g' -e 's/dep_bool_[^ ]*/dep_bool/' -e "s/\(['\"]\) */\1/" > DBlist
+rm -f DBvars
+
+function define_bool() { true; }
+
+function bool() {
+  echo "$2='$1'" >> DBvars
+}
+
+function dep_bool() {
+  echo "$2='$1'" >> DBvars
+}
+
+. ./DBlist
+. ./DBvars
+
+rm -f DBvars
+
+# what a hack, sorry ...
+y="<< nothing >>"
+ROUTER_SUPPORT="Router support (enable several network interfaces!)"
+IPV4_SUPPORT="IPv4 support"
+PORTIO_SUPPORT="Full-featured I/O abstraction model (Port I/O)"
+
+function bool() { true; } 
+
+function dep_bool() {
+  grep -e "^$2" doc/Configure.help -q && return
+  echo "$1"; shift
+  echo "$1"; shift
+
+  echo "  Depends on: "
+  while test -n "$1"; do
+    get_cmd='echo $'"$1"
+    value="`eval $get_cmd`"
+
+    echo "   * $value ($1)"
+    shift
+  done
+
+  echo ""
+  echo "  There's unfortunately no help available for this item."
+  echo ""
+}
+
+. ./DBlist
