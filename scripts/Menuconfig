@@ -280,6 +280,15 @@ function mac () {
 	echo -e "function $2 () { l_mac '$1' '$2' '$3' '$x' ;}" >>MCradiolists
 }
 
+function ip () {
+	MSG="$1"; shift
+	if [ "x$IPV6_SUPPORT" = "xy" ]; then
+		ipv6 "$MSG" $*
+	else
+		ipv4 "$MSG" $*
+	fi
+}
+
 #
 # Add a menu item which will call our local ipv4 function.
 # 
