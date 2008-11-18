@@ -1,27 +1,8 @@
 #!/bin/sh
 
-test_path() {
-  IFS=":"
-  
-  for check_path in $PATH; do  
-     if [ -e "$check_path/$1" ]; then
-       good="1"
-     fi  
-  done
-  IFS=""
-
-  if [ -z "$good" ]; then
-    echo "Error: $1 not found in your path, can't continue"
-    exit -1
-  fi
-}
-
-test_path host
-
 if [ -d named_pin ]; then
   cd named_pin
 fi
-
 
 tmp=`mktemp`
 tmp2=`mktemp`
