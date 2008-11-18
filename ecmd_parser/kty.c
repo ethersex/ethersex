@@ -70,17 +70,12 @@ adc_out:
   return ret;
 } /* }}} */
 
-int16_t parse_cmd_kty_cal(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_kty_cal_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   int8_t cal;
-  if (cmd[0] && cmd[1]) {
-    if ( cmd[1] == 'g') {
-      eeprom_restore_char (kty_calibration, &cal);
-      itoa(cal, output, 10);
-      return strlen(output);
-    } 
-  }
-  return -1;
+  eeprom_restore_char (kty_calibration, &cal);
+  itoa(cal, output, 10);
+  return strlen(output);
 } /* }}} */
 
 
