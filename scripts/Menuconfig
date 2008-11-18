@@ -1012,7 +1012,7 @@ EOM
 			default="${selection%%\ *}"
 
 			case "$selection" in
-			*"-->"*|*"alt_config"*)
+			*"alt_config"*)
 				show_readme ;;
 			*)
 				eval help $selection ;;
