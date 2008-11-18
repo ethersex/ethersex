@@ -30,12 +30,8 @@
 
 uint8_t mail_send_counter;
 
-  //Port des EMAIL-SERVERS
+/* Port des EMAIL-SERVERS */
 #define MAIL_PORT 25
-
-  //Mit oder ohne Debug-Ausgabe
-#define MAIL_DEBUG usart_write	//mit Debugausgabe
-  //#define MAIL_DEBUG(...)                   //ohne Debugausgabe
 
 unsigned char mail_send (void);
 void mail_client_init (void);

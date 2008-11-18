@@ -35,6 +35,13 @@
 
 #include "sendmail.h"
 
+#ifdef DEBUG_SENDMAIL
+#  include "../debug.h"
+#  define MAIL_DEBUG debug_printf
+#else
+#  define MAIL_DEBUG(...)  ((void) 0)
+#endif
+
 const char PROGMEM SMTP_HELO[] = "HELO Ethersex\r\n";
 const char PROGMEM SMTP_AUTH[] = "AUTH LOGIN\r\n";
 const char PROGMEM SMTP_RSET[] = "RSET\r\n";
