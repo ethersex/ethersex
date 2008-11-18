@@ -28,12 +28,15 @@
 #ifndef _SENDMAIL_H
 #define _SENDMAIL_H
 
-uint8_t mail_send_counter;
-
 /* Port des EMAIL-SERVERS */
 #define MAIL_PORT 25
 
 void mail_send (void);
-void mail_data (unsigned char);
+
+struct sendmail_connection_state_t {
+    uint8_t       state;
+    uint16_t	  code;
+};
+
 
 #endif //_SENDMAIL_H

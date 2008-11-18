@@ -61,6 +61,7 @@
 #include "syslog/syslog.h"
 #include "stella/stella.h"
 #include "net/handler.h"
+#include "net/sendmail.h"
 
 #include "bit-macros.h"
 
@@ -261,6 +262,10 @@ int main(void)
 
     status.request_reset = 0;
     status.request_bootloader = 0;
+
+#ifdef SENDMAIL_SUPPORT
+    mail_send ();
+#endif
 
     /* main loop */
     while(1) {

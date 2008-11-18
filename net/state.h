@@ -39,6 +39,7 @@
 #include "rfm12_raw_state.h"
 #include "zbus_raw_state.h"
 #include "../httpd/httpd_state.h"
+#include "sendmail.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -62,6 +63,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef HTTPD_SUPPORT
     struct httpd_connection_state_t httpd;
+#   endif
+
+#   ifdef SENDMAIL_SUPPORT
+    struct sendmail_connection_state_t sendmail;
 #   endif
 
 } uip_tcp_appstate_t;
