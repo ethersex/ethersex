@@ -33,8 +33,7 @@ uint8_t mail_send_counter;
 /* Port des EMAIL-SERVERS */
 #define MAIL_PORT 25
 
-unsigned char mail_send (void);
-void mail_client_init (void);
+void mail_send (void);
 void mail_data (unsigned char);
 
 #endif //_SENDMAIL_H
