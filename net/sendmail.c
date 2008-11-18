@@ -5,6 +5,9 @@
  known Problems: none
  Version:        20.04.2008
  Description:    Send MAIL Client
+
+ Modifications to fit Ethersex firmware:
+ Copyright (C) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  
  Dieses Programm ist freie Software. Sie können es unter den Bedingungen der 
  GNU General Public License, wie von der Free Software Foundation veröffentlicht, 
@@ -22,23 +25,29 @@
  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA. 
 ------------------------------------------------------------------------------*/
 
+#include "../config.h"
+
+#ifdef SENDMAIL_SUPPORT
+
+#include <avr/pgmspace.h>
+#include <avr/io.h>
+#include <string.h>
+
 #include "sendmail.h"
 
-#if USE_MAIL
-
-PROGMEM char SMTP_HELO[] = "HELO ETH_M32_EX\r\n";
-PROGMEM char SMTP_AUTH[] = "AUTH LOGIN\r\n";
-PROGMEM char SMTP_RSET[] = "RSET\r\n";
-PROGMEM char SMTP_MAIL[] = "MAIL FROM:<" __SMTP_MAIL_FROM__ ">\r\n";
-PROGMEM char SMTP_RCPT[] = "RCPT TO:<" __SMTP_MAIL_TO__ ">\r\n";	// hier user eintragen, an den die mail gehen soll
-PROGMEM char SMTP_DATA[] = "DATA\r\n";
-PROGMEM char SMTP_TEXT[] =
-  "From: \"ETH_M32_EX\" <" __SMTP_MAIL_FROM__ ">\r\n"
-  "Subject: Test_EMail!"
+const char PROGMEM SMTP_HELO[] = "HELO Ethersex\r\n";
+const char PROGMEM SMTP_AUTH[] = "AUTH LOGIN\r\n";
+const char PROGMEM SMTP_RSET[] = "RSET\r\n";
+const char PROGMEM SMTP_MAIL[] = "MAIL FROM:<" CONF_SENDMAIL_FROM ">\r\n";
+const char PROGMEM SMTP_RCPT[] = "RCPT TO:<" CONF_SENDMAIL_TO ">\r\n";
+const char PROGMEM SMTP_DATA[] = "DATA\r\n";
+const char PROGMEM SMTP_TEXT[] =
+  "From: \"Ethersex\" <" CONF_SENDMAIL_FROM ">\r\n"
+  "Subject: Test-Mail!"
   "\r\n\r\n"
-  "Hallo\r\nGruss Uli.";
-PROGMEM char SMTP_END[] = "\r\n.\r\n";
-PROGMEM char SMTP_QUIT[] = "QUIT\r\n";
+  "Hallo, Ethersex aktiv!";
+const char PROGMEM SMTP_END[] = "\r\n.\r\n";
+const char PROGMEM SMTP_QUIT[] = "QUIT\r\n";
 
 unsigned char mail_enable = 0;
 unsigned int my_mail_cp = 0;
@@ -298,4 +307,6 @@ mail_send (void)
     }
   return 1;
 }
-#endif //USE_MAIL
+
+#endif  /* SENDMAIL_SUPPORT */
+

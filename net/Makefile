@@ -12,6 +12,7 @@ SRC = \
 	ntpd_net.c \
 	ntp_net.c \
 	rfm12_raw_net.c \
+	sendmail.c \
 	snmp_net.c \
 	stella_net.c \
 	syslog_net.c \
