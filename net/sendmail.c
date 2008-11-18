@@ -72,7 +72,18 @@ const char PROGMEM SMTP_QUIT[] = "QUIT\r\n";
 void
 sendmail_net_main (void)
 {
-  if (uip_closed () || uip_aborted () || uip_timedout ())
+  if (uip_aborted () || uip_timedout ())
+    {
+      if (STATE->retries)
+        {
+	  /* trigger another one and copy retries count. */
+	  uip_conn_t *conn = mail_send ();
+	  conn->appstate.sendmail.retries = STATE->retries - 1;
+	}
+      return;
+    }
+
+  if (uip_closed ())
     return;
 
   MAIL_DEBUG ("sendmail_net_main called.\n");
@@ -205,7 +216,7 @@ sendmail_net_main (void)
 
 //----------------------------------------------------------------------------
 //Versenden einer E-MAIL starten
-void
+uip_conn_t *
 mail_send (void)
 {
   //öffnet eine Verbindung zu einem EMAIL-Server
@@ -215,9 +226,13 @@ mail_send (void)
   CONF_SENDMAIL_IP;
 
   uip_conn_t *conn = uip_connect (&ip, HTONS (MAIL_PORT), sendmail_net_main);
-  if (! conn) return;
+  if (! conn) return NULL;
 
   conn->appstate.sendmail.state = 0;
+  conn->appstate.sendmail.code = 0;
+  conn->appstate.sendmail.retries = 2;
+
+  return conn;
 }
 
 #endif  /* SENDMAIL_SUPPORT */

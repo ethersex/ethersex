@@ -31,12 +31,13 @@
 /* Port des EMAIL-SERVERS */
 #define MAIL_PORT 25
 
-void mail_send (void);
-
 struct sendmail_connection_state_t {
+    uint8_t       retries;
     uint8_t       state;
     uint16_t	  code;
 };
 
+#include "../uip/uip.h"
+uip_conn_t *mail_send (void);
 
 #endif //_SENDMAIL_H
