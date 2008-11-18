@@ -68,7 +68,7 @@ function comment () {
 
 function impossible () {
 	comment_ctr=$[ comment_ctr + 1 ]
-	echo -ne "': $comment_ctr' '[-] $1' " >>MCmenu
+	echo -ne "'$2 $comment_ctr' '[-] $1' " >>MCmenu
 }
 
 #
@@ -194,7 +194,7 @@ function dep_bool () {
 	if [ "$dep" = y ]; then
 	    bool "$ques" "$var"
 	else 
-	    impossible "$ques"
+	    impossible "$ques" "$var"
 	    define_bool "$var" n
 	fi
 }
