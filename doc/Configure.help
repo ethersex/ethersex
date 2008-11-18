@@ -15,3 +15,738 @@ TEENSY_SUPPORT
   You want to say Y here for ATmega8 or similar controllers and
   probably also want to disable TCP support.
 
+Enable (Serial-Line) Debugging
+DEBUG
+  Enable serial-line debugging capability of Ethersex firmware.
+  
+  If you enable this you either want to add some debug_printf
+  instructions here and there in the firmware source code or enable
+  some of the pre-defined debugging-categories, see submenu.
+
+Reroute to SYSLOG
+DEBUG_USE_SYSLOG
+  Depends on: 
+   * SYSLOG support (SYSLOG_SUPPORT)
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD
+DEBUG_ECMD
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD FS20
+DEBUG_ECMD_FS20
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD IP
+DEBUG_ECMD_IP
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD MAC
+DEBUG_ECMD_MAC
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD NET
+DEBUG_ECMD_NET
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD OW LIST
+DEBUG_ECMD_OW_LIST
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD OW ROM
+DEBUG_ECMD_OW_ROM
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD PORTIO
+DEBUG_ECMD_PORTIO
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ECMD RC5
+DEBUG_ECMD_RC5
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+ENC28J60
+DEBUG_ENC28J60
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+Interrupt
+DEBUG_INTERRUPT
+  Depends on: 
+   * ENC28J60 (DEBUG_ENC28J60)
+
+  There's unfortunately no help available for this item.
+
+Networking
+DEBUG_NET
+  Depends on: 
+   * ENC28J60 (DEBUG_ENC28J60)
+
+  There's unfortunately no help available for this item.
+
+Config
+DEBUG_NET_CONFIG
+  Depends on: 
+   * Networking (DEBUG_NET)
+
+  There's unfortunately no help available for this item.
+
+Unknown packets
+DEBUG_UNKNOWN_PACKETS
+  Depends on: 
+   * Networking (DEBUG_NET)
+
+  There's unfortunately no help available for this item.
+
+Rev. 4 Workaround
+DEBUG_REV4_WORKAROUND
+  Depends on: 
+   * ENC28J60 (DEBUG_ENC28J60)
+
+  There's unfortunately no help available for this item.
+
+File System
+DEBUG_FS
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+Inode Table
+DEBUG_FS_INODETABLE
+  Depends on: 
+   * File System (DEBUG_FS)
+
+  There's unfortunately no help available for this item.
+
+Mark
+DEBUG_FS_MARK
+  Depends on: 
+   * File System (DEBUG_FS)
+
+  There's unfortunately no help available for this item.
+
+FS20 Receive
+DEBUG_FS20_REC
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+FS20 Receive Queue
+DEBUG_FS20_REC_QUEUE
+  Depends on: 
+   * FS20 Receive (DEBUG_FS20_REC)
+
+  There's unfortunately no help available for this item.
+
+FS20 Receive Verbose
+DEBUG_FS20_REC_VERBOSE
+  Depends on: 
+   * FS20 Receive (DEBUG_FS20_REC)
+
+  There's unfortunately no help available for this item.
+
+FS20 WS300
+DEBUG_FS20_WS300
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+FS20 WS300 Verbose
+DEBUG_FS20_WS300_VERBOSE
+  Depends on: 
+   * FS20 WS300 (DEBUG_FS20_WS300)
+
+  There's unfortunately no help available for this item.
+
+HD44780
+DEBUG_HD44780
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+HTTPD
+DEBUG_HTTPD
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+RC5
+DEBUG_RC5
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+Sendmail
+DEBUG_SENDMAIL
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+Timer
+DEBUG_TIMER
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+IPv6 support
+IPV6_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Enable IP forwarding
+IP_FORWARDING_SUPPORT
+  Depends on: 
+   * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+HC595 output expansion
+HC595_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+HC165 support
+HC165_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Inverse output
+HC165_INVERSE_OUTPUT
+  Depends on: 
+   * HC165 support (HC165_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+PS/2 keyboard
+PS2_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+PS/2: Use German layout
+PS2_GERMAN_LAYOUT
+  Depends on: 
+   * PS/2 keyboard (PS2_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+ADC input
+ADC_SUPPORT
+  Depends on: 
+   * ECMD support (ECMD_PARSER_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+FS20 RF-control
+FS20_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+Send RC5 IR-codes
+RC5_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+Usart ecmd interface (RS232)
+ECMD_SERIAL_USART_SUPPORT
+  Depends on: 
+   * ECMD support (ECMD_PARSER_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Usart ecmd RS485 mode
+ECMD_SERIAL_USART_RS485_SUPPORT
+  Depends on: 
+   * Usart ecmd interface (RS232) (ECMD_SERIAL_USART_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Blinkenlights - MicroControllerUnitFrame
+MCUF_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Readback support
+HD44780_READBACK
+  Depends on: 
+   * HD44780 module driver (HD44780_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Use Port C (instead of Port A)
+HD44780_USE_PORTC
+  Depends on: 
+   * HD44780 module driver (HD44780_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+YPort Support
+YPORT_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Cryptographic functionality
+CRYPTO_SUPPORT
+  Enable cryptographic functionality in Ethersex.  You have to
+  choose the ciphers and/or hashes to include from the submenu.
+
+  If you'd like to use OpenVPN consider enabling Cast5 and MD5.  To
+  encrypt RFM12 traffic enable Skipjack.
+
+CAST5
+CAST5_SUPPORT
+  Depends on: 
+   * Cryptographic functionality (CRYPTO_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Skipjack
+SKIPJACK_SUPPORT
+  Depends on: 
+   * Cryptographic functionality (CRYPTO_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+MD5
+MD5_SUPPORT
+  Depends on: 
+   * Cryptographic functionality (CRYPTO_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+RFM12 (FSK transmitter) support
+RFM12_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+RFM12 ARP-Proxy
+RFM12_ARP_PROXY
+  Depends on: 
+   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
+   * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+IPchair (firewalling)
+IPCHAIR_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+IPchair: Masquerading
+IPCHAIR_MASQ
+  Depends on: 
+   * IPchair (firewalling) (IPCHAIR_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+control6 scripts
+CONTROL6_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+TCP support
+TCP_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+UDP support
+UDP_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+UDP broadcast support
+BROADCAST_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+ICMP support
+ICMP_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+BOOTP support
+BOOTP_SUPPORT
+  Depends on: 
+   * UDP broadcast support (BROADCAST_SUPPORT)
+   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
+   * IPv4 support (IPV4_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Write BOOTP data to EEPROM
+BOOTP_TO_EEPROM_SUPPORT
+  Depends on: 
+   * Build a bootloader (BOOTLOADER_SUPPORT)
+   * BOOTP support (BOOTP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+DNS support
+DNS_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+SYSLOG support
+SYSLOG_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+OpenVPN
+OPENVPN_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+RFM12 raw
+RFM12_RAW_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
+   * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+ZBUS raw
+ZBUS_RAW_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * ZBus Support (ZBUS_SUPPORT)
+   * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+USB (Softwarestack) Support (EXPERIMENTAL)
+USB_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+USBnet
+USB_NET_SUPPORT
+  Depends on: 
+   * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+USBnet ARP-Proxy
+USB_ARP_PROXY
+  Depends on: 
+   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Use 32 kHz crystal to tick the clock
+CLOCK_CRYSTAL_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Synchronize using DCF77 signal
+DCF77_SUPPORT
+  Depends on: 
+   * Use 32 kHz crystal to tick the clock (CLOCK_CRYSTAL_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Synchronize using NTP protocol
+NTP_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Cron daemon
+CRON_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+NTP daemon
+NTPD_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Working hour meter
+WHM_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+TFTP support
+TFTP_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+TFTP-o-matic
+TFTPOMATIC_SUPPORT
+  Depends on: 
+   * TFTP support (TFTP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+MDNS service announcement (Avahi)
+MDNS_SD_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Stella Light
+STELLA_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+UDP Echo
+UDP_ECHO_NET_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Update DNS records at dyn.metafnord.de
+DYNDNS_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Watch IO changes (and react)
+WATCHCAT_SUPPORT
+  Depends on: 
+   * Send ECMD messages (ECMD_SENDER_SUPPORT)
+   * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Simple Network Managment Protocol support (snmp)
+SNMP_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+Sendmail support (smtp)
+SENDMAIL_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+SMTP Auth Support
+SENDMAIL_AUTH_SUPPORT
+  Depends on: 
+   * Sendmail support (smtp) (SENDMAIL_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+uIP Proto-Sockets
+PSOCK_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+HTTP Server
+HTTPD_SUPPORT
+  Depends on: 
+   * uIP Proto-Sockets (PSOCK_SUPPORT)
+   * TCP support (TCP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+Supply Inline Files
+HTTPD_INLINE_FILES_SUPPORT
+  Depends on: 
+   * HTTP Server (HTTPD_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Basic Authentication
+HTTPD_AUTH_SUPPORT
+  Depends on: 
+   * HTTP Server (HTTPD_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Modbus Support
+MODBUS_SUPPORT
+  Depends on: 
+
+  There's unfortunately no help available for this item.
+
+KTY Calculation Support
+KTY_SUPPORT
+  Depends on: 
+   * ADC input (ADC_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Ethernet (ENC28J60) support
+ENC28J60_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Static IPv6 configuration
+IPV6_STATIC_SUPPORT
+  Depends on: 
+   * IPv6 support (IPV6_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+I2C Atmel dataflash
+DATAFLASH_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+ZBus Support
+ZBUS_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+ZBUS ARP-Proxy
+ZBUS_ARP_PROXY
+  Depends on: 
+   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
+   * ZBus Support (ZBUS_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+TCP/Telnet interface
+ECMD_SUPPORT
+  Depends on: 
+   * ECMD support (ECMD_PARSER_SUPPORT)
+   * TCP support (TCP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+UDP interface
+UECMD_SUPPORT
+  Depends on: 
+   * ECMD support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * UDP support (UDP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+I2C interface
+ECMD_SERIAL_I2C_SUPPORT
+  Depends on: 
+   * ECMD support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  There's unfortunately no help available for this item.
+
+USB interface
+ECMD_USB_SUPPORT
+  Depends on: 
+   * ECMD support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Send ECMD messages
+ECMD_SENDER_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
