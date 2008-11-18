@@ -72,6 +72,11 @@ const char PROGMEM SMTP_QUIT[] = "QUIT\r\n";
 void
 sendmail_net_main (void)
 {
+  if (uip_closed () || uip_aborted () || uip_timedout ())
+    return;
+
+  MAIL_DEBUG ("sendmail_net_main called.\n");
+
   if (uip_acked ()) {
     STATE->state ++;
     MAIL_DEBUG ("received ack, setting state to %d.\n", STATE->state);
