@@ -1,0 +1,17 @@
+# Hello World
+
+Prompt for experimental code
+CONFIG_EXPERIMENTAL
+  Allow to enable experimental features.  Beware that work in
+  progress code might be less stable and might not work or compile
+  even.
+
+Teensy build
+TEENSY_SUPPORT
+  Reduce size of built firmware here and there.  For example reduce
+  the number of understood ecmd commands, try to avoid divisons
+  (which are quite expensive on AVR hardware).
+
+  You want to say Y here for ATmega8 or similar controllers and
+  probably also want to disable TCP support.
+

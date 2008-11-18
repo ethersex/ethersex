@@ -364,7 +364,7 @@ function choice () {
 # Configure script.
 #
 function extract_help () {
-  if [ -f Documentation/Configure.help ]
+  if [ -f doc/Configure.help ]
   then
      #first escape regexp special characters in the argument:
      var=$(echo "$1"|sed 's/[][\/.^$*]/\\&/g')
@@ -378,7 +378,7 @@ ${var}:\\
                         s/^  //
 			/<file:\\([^>]*\\)>/s//\\1/g
                         p
-                    }" Documentation/Configure.help)
+                    }" doc/Configure.help)
 
      if [ -z "$text" ]
      then
