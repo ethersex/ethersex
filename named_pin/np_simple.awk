@@ -14,11 +14,11 @@ BEGIN {
 }
 
 {
-  if ($2 == 1) {
+  if ($2 == 1 || $2 == "INPUT") {
     # The pin is an input pin.
     print "  DDR" substr($1, 2, 1) " &= ~_BV("$1");"
 
-    if ($3 == 1) {
+    if ($3 == 1 || $3 == "HIGH") {
       # Inverted input pin, enable pull-up resistor.
       print "  PORT" substr($1, 2, 1) " |= _BV("$1"); "
     }

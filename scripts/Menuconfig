@@ -68,7 +68,7 @@ function comment () {
 
 function impossible () {
 	comment_ctr=$[ comment_ctr + 1 ]
-	echo -ne "'$2 $comment_ctr' '[-] $1' " >>MCmenu
+	echo -ne "'impossible_ret_cb $2 $comment_ctr' '[-] $1' " >>MCmenu
 }
 
 #
@@ -203,6 +203,14 @@ function dep_bool_menu () {
 	ques="$1"; shift
 	echo "haveMCmenu$1=y" >> MCradiolists
 	dep_bool "$ques  --->" $*
+}
+
+function dep_bool_editor () {
+	ques="$1"; shift
+	flag="$1"; shift
+	file="$1"; shift
+	echo "fn_$flag='$file'" >> MCradiolists
+	dep_bool "$ques  --->" $flag $*
 }
 
 function dep_mbool () {
@@ -397,6 +405,7 @@ ${var}:\\
 # Activate a help dialog.
 #
 function help () {
+	if [ "x$1" = "x:" ]; then shift; fi
 	if extract_help $1 >help.out
 	then
 		$DIALOG	--backtitle "$backtitle" --title "$2"\
@@ -436,6 +445,18 @@ function submenu () {
 	echo -ne "'activate_menu $2' '$1  --->' " >>MCmenu
 }
 
+function impossible_ret_cb () {
+	get_cmd='echo $fn_'"$1"
+	file="`eval $get_cmd`"
+
+	if [ -e "$file" ]; then
+		echo "calling editor for $file"
+		l_editor $file
+	else
+		echo -ne "\007"
+	fi
+}
+
 #
 # Handle a boolean (Yes/No) option.
 #
@@ -455,9 +476,13 @@ function l_bool () {
 	else
 		get_cmd='echo $haveMCmenu'"$1"
 		value="`eval $get_cmd`"
+		get_cmd='echo $fn_'"$1"
+		file="`eval $get_cmd`"
 
 		if [ -n "$value" ]; then
 			eval activate_menu MCmenu$1
+		elif [ -e "$file" ]; then
+			l_editor $file
 		else
 			echo -ne "\007"
 		fi
@@ -636,6 +661,7 @@ function l_string () {
 # 
 
 function l_editor() {
+  echo "launching editor for $1 ..."
   if [ -n "$EDITOR" ]; then
     $EDITOR $1
   elif [ -n "`which nano`" ]; then
@@ -1290,6 +1316,13 @@ save_configuration () {
 	function dep_bool_menu () {
 		ques="$1"; shift
 		dep_bool "" $*
+	}
+
+	function dep_bool_editor () {
+		ques="$1"; shift
+		flag="$1"; shift
+		file="$1"; shift
+		dep_bool "" $flag $*
 	}
 
 	function dep_mbool () {

@@ -7,8 +7,8 @@ BEGIN {
   print "dnl"
 }
 {
-  if ($3 == 1) {
-    if ($2 == 1) {
+  if ($3 == 1 || $3 == "HIGH") {
+    if ($2 == 1 || $2 == "INPUT") {
       # The pin is a normal (i.e. non-inverted) input pin.
       print "np_simple_normal_in("$1","$4")"
     } 
@@ -18,7 +18,7 @@ BEGIN {
     }
   }
   else {
-    if ($2 == 1) {
+    if ($2 == 1 || $2 == "INPUT") {
       # The pin is an inverted input pin.
       print "np_simple_inverted_in("$1","$4")"
     } 

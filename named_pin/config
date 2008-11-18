@@ -1,1 +1,17 @@
-PA0 0 1 led
+#
+#   Named Pin Configuration File
+#
+# You can assign names to your microcontroller's pins here.
+# Keep in mind that this names must consist of alphanumeric 
+# characters only!
+#
+# Every line starting with a hash sign (#) is a comment.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PD6	OUTPUT	 HIGH		Absenkung
+PD5	OUTPUT	 LOW		Warmwasser
+PD7	OUTPUT	 HIGH		Wasserpumpe
+PD3	OUTPUT	 HIGH		Heizpumpe
+PD4	OUTPUT	 LOW		Heizung

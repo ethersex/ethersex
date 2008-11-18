@@ -127,7 +127,7 @@ if [ "$ADC_SUPPORT" = "y" ]; then
 fi
 source kty/config.in
 bool "Onewire support" ONEWIRE_SUPPORT
-bool "Named and logic state I/O" NAMED_PIN_SUPPORT
+dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "named_pin/config"
 
 source i2c/config.in
 

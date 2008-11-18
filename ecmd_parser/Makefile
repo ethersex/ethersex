@@ -48,7 +48,7 @@ ecmd_defs.c: ecmd_magic.m4 ecmd_defs.m4 $(named_pin_simple_files)
 	mv -f $@.tmp $@
 
 np_simple_glue.m4: ../named_pin/config ../named_pin/np_simple_glue.awk
-	gawk -f ../named_pin/np_simple_glue.awk < $< > $@
+	grep -v -e "^#" < $< | gawk -f ../named_pin/np_simple_glue.awk > $@
 
 wiki.txt: wiki.m4 ecmd_defs.m4
 	m4 $^ | perl -ne 'unless(m/^\s*$$/){s/^\s+//;s/\s+$$//;print "$$_\n"}' > $@.tmp
