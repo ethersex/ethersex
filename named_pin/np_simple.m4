@@ -32,7 +32,7 @@ static char
 np_simple_check (char *cmd)
 {
   /* Check for either `pin set ... 1' or `pin set ... on',
-     for reasons of simplicity we simple check for the `1' or the
+     for reasons of simplicity we simply check for the `1' or the
      `n' of on. */
   if (cmd[0] == '1' || cmd[1] == 'n')
     return 1;
