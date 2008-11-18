@@ -46,3 +46,4 @@ function dep_bool() {
 }
 
 . ./DBlist
+rm -f DBlist
