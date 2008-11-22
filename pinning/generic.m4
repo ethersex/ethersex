@@ -34,6 +34,11 @@ ifdef(`conf_DATAFLASH', `dnl
   pin(SPI_CS_DF, PB1)
 ')dnl
 
+ifdef(`conf_SD_READER', `dnl
+  /* port the sd-reader CS is attached to */
+  pin(SPI_CS_SD_READER, PB2)
+')dnl
+
 ifdef(`conf_MODBUS', `dnl
   /* modbus tx  */
   pin(MODBUS_TX, PC2)

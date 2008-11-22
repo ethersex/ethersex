@@ -169,6 +169,7 @@ mainmenu_option next_comment
 comment "work in progress bits (enable with care)"
 
   source dataflash/config.in
+  source sd_reader/config.in
   source httpd/config.in
   source control6/config.in
   source ipchair/config.in

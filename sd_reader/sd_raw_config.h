@@ -12,6 +12,7 @@
 #define SD_RAW_CONFIG_H
 
 #include <stdint.h>
+#include "../config.h"
 
 /**
  * \addtogroup sd_raw
@@ -66,40 +67,13 @@
  * @}
  */
 
-/* defines for customisation of sd/mmc port access */
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__)
-    #define configure_pin_mosi() DDRB |= (1 << DDB3)
-    #define configure_pin_sck() DDRB |= (1 << DDB5)
-    #define configure_pin_ss() DDRB |= (1 << DDB2)
-    #define configure_pin_miso() DDRB &= ~(1 << DDB4)
+#define configure_pin_mosi() DDR_CONFIG_OUT(SPI_MOSI)
+#define configure_pin_sck()  DDR_CONFIG_OUT(SPI_SCK)
+#define configure_pin_ss()   DDR_CONFIG_OUT(SPI_CS_SD_READER)
+#define configure_pin_miso() DDR_CONFIG_IN(SPI_MISO)
 
-    #define select_card() PORTB &= ~(1 << PB2)
-    #define unselect_card() PORTB |= (1 << PB2)
-#elif defined(__AVR_ATmega16__) || \
-      defined(__AVR_ATmega32__)
-    #define configure_pin_mosi() DDRB |= (1 << DDB5)
-    #define configure_pin_sck() DDRB |= (1 << DDB7)
-    #define configure_pin_ss() DDRB |= (1 << DDB4)
-    #define configure_pin_miso() DDRB &= ~(1 << DDB6)
-
-    #define select_card() PORTB &= ~(1 << PB4)
-    #define unselect_card() PORTB |= (1 << PB4)
-#elif defined(__AVR_ATmega64__) || \
-      defined(__AVR_ATmega128__) || \
-      defined(__AVR_ATmega169__)
-    #define configure_pin_mosi() DDRB |= (1 << DDB2)
-    #define configure_pin_sck() DDRB |= (1 << DDB1)
-    #define configure_pin_ss() DDRB |= (1 << DDB0)
-    #define configure_pin_miso() DDRB &= ~(1 << DDB3)
-
-    #define select_card() PORTB &= ~(1 << PB0)
-    #define unselect_card() PORTB |= (1 << PB0)
-#else
-    #error "no sd/mmc pin mapping available!"
-#endif
+#define select_card()        PIN_CLEAR(SPI_CS_SD_READER)
+#define unselect_card()      PIN_SET(SPI_CS_SD_READER)
 
 #define configure_pin_available() DDRC &= ~(1 << DDC4)
 #define configure_pin_locked() DDRC &= ~(1 << DDC5)
