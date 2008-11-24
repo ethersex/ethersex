@@ -31,7 +31,7 @@
 #ifdef RFM12_SUPPORT
 /* RFM12 uses interrupts which do SPI interaction, therefore
    we have to disable interrupts if support is enabled */
-#  define cs_low()  uint8_t sreg = SREG; cli(); PIN_CLEAR(SPI_CS_NET); 
+#  define cs_low()  uint8_t sreg = SREG; cli(); PIN_CLEAR(SPI_CS_DF); 
 #  define cs_high() PIN_SET(SPI_CS_DF); SREG = sreg;
 #else
 #  define cs_low()  PIN_CLEAR(SPI_CS_DF)
