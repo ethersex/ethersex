@@ -114,12 +114,13 @@ network_init(void)
 
     if (checksum != saved_checksum)
       eeprom_init();
+#endif
+
 #ifdef ENC28J60_SUPPORT
     network_config_load();
 #endif
 
 
-#endif
 
     /* Do the autoconfiguration after the MAC is set */
 #   if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
