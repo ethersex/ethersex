@@ -109,6 +109,10 @@ bootp_handle_reply(void)
     memcpy(&ips[0], pk->bp_yiaddr, 4);
     uip_sethostaddr(&ips[0]);
 
+    debug_printf ("BOOTP: configured new ip address %d.%d.%d.%d\n",
+                  ((unsigned char *) ips)[0], ((unsigned char *) ips)[1], 
+                  ((unsigned char *) ips)[2], ((unsigned char *) ips)[3]);
+
     unsigned char *ptr = pk->bp_vend + 4;
     while(*ptr != 0xFF) {
 	switch(* ptr) {
