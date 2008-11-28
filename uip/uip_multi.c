@@ -76,6 +76,10 @@ struct uip_stack uip_stacks[STACK_LEN] = {
 #if defined(ZBUS_SUPPORT)
   STACK_FUNCS (zbus_stack),
 #endif
+
+#if defined(OPENVPN_SUPPORT)
+  STACK_FUNCS (openvpn_stack),
+#endif
 };
 
 struct uip_stack *uip_stack = &uip_stacks[0];

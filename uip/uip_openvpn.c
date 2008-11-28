@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007, 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -22,19 +22,21 @@
  }}} */
 
 #include "../config.h"
+
 #ifdef OPENVPN_SUPPORT
 
-/* We're now compiling the outer side of the uIP stack */
-#define OPENVPN_OUTER
-#define STACK_NAME(a) openvpn_ ## a
+#include "../bit-macros.h"
 
 #include "uip_openvpn.h"
+#include "uip_router.h"
+#include "uip.h"
 
-/* We're set to compile multi stack now ... */
-#include "uip.c"
+STACK_DEFINITIONS(openvpn_stack);
 
 /* for raw access to the packet buffer */
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
+
+static uip_udp_conn_t *openvpn_conn;
 
 #ifdef CAST5_SUPPORT
 #include "../crypto/cast5.h"
@@ -85,7 +87,7 @@ openvpn_decrypt_and_verify (void)
   return 0;
 }
 
-/* The length in openvpn_slen is already including the extra
+/* The length in uip_slen is already including the extra
    encryption/hmac header. */
 void
 openvpn_encrypt (void)
@@ -94,10 +96,10 @@ openvpn_encrypt (void)
     &uip_buf[OPENVPN_LLH_LEN + OPENVPN_HMAC_LLH_LEN];
 
   /* Do padding. */
-  unsigned char pad_char = 8 - (openvpn_slen % 8);
+  unsigned char pad_char = 8 - (uip_slen % 8);
   do
-    ((unsigned char *) uip_sappdata)[openvpn_slen ++] = pad_char;
-  while (openvpn_slen % 8);
+    ((unsigned char *) uip_sappdata)[uip_slen ++] = pad_char;
+  while (uip_slen % 8);
 
   /* Generate IV. */
   unsigned char *ptr;
@@ -114,7 +116,7 @@ openvpn_encrypt (void)
 
   /* Encrypt data. */
   for (ptr = encrypt_start + 8;
-       ptr < ((unsigned char *) openvpn_sappdata) + openvpn_slen;
+       ptr < ((unsigned char *) uip_sappdata) + uip_slen;
        ptr += 8)
     {
       /* apply cbc-carry forward */
@@ -180,7 +182,7 @@ openvpn_hmac_verify (void)
 #define openvpn_hmac_create()					       \
   openvpn_hmac_calc (uip_buf + OPENVPN_LLH_LEN,			       \
 		     uip_buf + OPENVPN_LLH_LEN + OPENVPN_HMAC_LLH_LEN, \
-		     openvpn_slen - OPENVPN_HMAC_LLH_LEN)
+		     uip_slen - OPENVPN_HMAC_LLH_LEN)
 
 #else /* !MD5_SUPPORT */
 #define openvpn_hmac_verify() 0
@@ -206,27 +208,41 @@ openvpn_handle_udp (void)
   if (openvpn_decrypt_and_verify ())
     return;
 
+  memmove (uip_buf + BASE_LLH_LEN,
+	   uip_buf + OPENVPN_TOTAL_LLH_LEN,
+	   uip_len - OPENVPN_HMAC_CRYPT_LEN);
+
   /* ``uip_len'' is the number of payload bytes (including
      hmac/encryption bits), however uip_process expects the number of
-     bytes including the LLH. */
-  uip_len += OPENVPN_LLH_LEN;
+     bytes including a LLH of 14 bytes. */
+  uip_len = uip_len + BASE_LLH_LEN - OPENVPN_HMAC_CRYPT_LEN;
 
-  /* Push data into inner uIP stack. */
-  uip_stack_set_active (STACK_MAIN);
-  mainstack_process (UIP_DATA);
-  uip_stack_set_active (STACK_OPENVPN);
+  /* Push data back into the router. */
+  router_input (STACK_OPENVPN);
 
   if (! uip_len)
     return;			/* Inner stack hasn't created a
 				   packet. */
 
+  uip_stack_set_active (STACK_ENC);
+
+  uip_udp_conn = openvpn_conn;	/* Change back to OpenVPN connection. */
+
+  /* uip_len is set to the number of data bytes including TCP/UDP/IP header. */
+  memmove (uip_buf + OPENVPN_TOTAL_LLH_LEN,
+	   uip_buf + BASE_LLH_LEN,
+	   uip_len);
+
   /* Make sure openvpn_process sends the data. */
-  openvpn_slen = uip_len + OPENVPN_HMAC_LLH_LEN + OPENVPN_CRYPT_LLH_LEN;
+  uip_sappdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
+  uip_slen = uip_len + OPENVPN_HMAC_CRYPT_LEN;
+
   openvpn_encrypt ();
   openvpn_hmac_create ();
 }
 
 
+#if 0
 /* Prepare data from inner uIP stack to be sent out to the remote host,
    this is fill the IP and UDP headers of the outer stack part.  */
 void
@@ -252,6 +268,7 @@ openvpn_process_out (void)
   openvpn_hmac_create ();
   openvpn_process (UIP_UDP_SEND_CONN);
 }
+#endif
 
 
 void 
@@ -264,29 +281,20 @@ openvpn_init (void)
 #endif
 
   /* Initialize OpenVPN stack IP config, if necessary. */
-# if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-  CONF_OPENVPN_IP4;
+  CONF_OPENVPN_IP;
   uip_sethostaddr(ip);
 
+# if UIP_CONF_IPV6
+  uip_setprefixlen(CONF_OPENVPN_IP6_PREFIX_LEN);
+#else
   CONF_OPENVPN_IP4_NETMASK;
   uip_setnetmask(ip);
-
-  CONF_OPENVPN_IP4_GATEWAY;
-  uip_setdraddr(ip);
-# endif /* not UIP_CONF_IPV6 and not BOOTP */
-
-# if UIP_CONF_IPV6
-  uip_setprefixlen(64);
-  uip_ip6autoconfig(0xFE80, 0x0000, 0x0000, 0x0000);
-# if UIP_CONF_IPV6_LLADDR
-  uip_ipaddr_copy(uip_lladdr, uip_hostaddr);
-# endif
 # endif
 
   /* Create OpenVPN UDP listener. */
   uip_ipaddr_copy(&ip, all_ones_addr);
 
-  uip_udp_conn_t *openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
+  openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
 
   if(! openvpn_conn) 
     return;					/* dammit. */
@@ -298,4 +306,4 @@ openvpn_init (void)
   openvpn_conn->appstate.openvpn.seen_timestamp = 0;
 }
 
-#endif
+#endif	/* OPENVPN_SUPPORT */

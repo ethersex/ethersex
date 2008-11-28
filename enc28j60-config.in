@@ -14,9 +14,7 @@ if [ "$ENC28J60_SUPPORT" = "y" ]; then
   if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
     comment "Static IPv4 configuration"
     ipv4 "Etherrape IP address" CONF_ENC_IP "192.168.23.244"
-    if [ "$ENC28J60_SUPPORT" = "y" -a "$OPENVPN_SUPPORT" != "y" ]; then
-      ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
-    fi
+    ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
   fi
 else
   if [ "$IPV6_SUPPORT" = "y" ]; then

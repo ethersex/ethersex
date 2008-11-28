@@ -173,7 +173,7 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 #endif /* ENC28J60_SUPPORT */
 
 #if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))		\
-  || defined(IPV6_STATIC_SUPPORT) || defined(OPENVPN_SUPPORT)
+  || defined(IPV6_STATIC_SUPPORT)
 int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     uip_ipaddr_t hostaddr;

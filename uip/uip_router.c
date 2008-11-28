@@ -35,8 +35,14 @@
 #include "../zbus/zbus.h"
 #include "../usb/usb_net.h"
 
-#define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
+#ifdef DEBUG_ROUTER
+# include "../debug.h"
+# define printf  debug_printf
+#else
+# define printf(a...)
+#endif
 
+#define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 #define input_test(addr,stack)				\
   if(uip_ipaddr_cmp(BUF->destipaddr, addr ##_hostaddr))	\
@@ -81,10 +87,17 @@
 #define usb_net_test(func)          if(0);
 #endif
 
+#ifdef OPENVPN_SUPPORT
+#define openvpn_test(func)          func(openvpn_stack, STACK_OPENVPN)
+#else
+#define openvpn_test(func)          if(0);
+#endif
+
 #define chain(func)				\
   rfm12_test (func)				\
   else usb_net_test (func)			\
   else zbus_test (func)				\
+  else openvpn_test (func)			\
   else enc_test (func)
 
 
@@ -118,6 +131,7 @@ router_input(uint8_t origin)
       if (-- BUF->ttl == 0)
 	{
 	  /* TODO send ICMP message */
+	  printf ("ttl exceeded, should send ICMP message.\n");
 	  goto drop;
 	}
 
@@ -189,6 +203,7 @@ router_output_to (uint8_t dest)
 
 #ifdef ENC28J60_SUPPORT
     case STACK_ENC:
+      printf ("router_output_to: ENC28J60.\n");
       enc28j60_txstart ();
       break;
 #endif	/* ENC28J60_SUPPORT */
@@ -196,6 +211,7 @@ router_output_to (uint8_t dest)
 
 #ifdef RFM12_SUPPORT
     case STACK_RFM12:
+      printf ("router_output_to: RFM12.\n");
       rfm12_txstart (uip_len);
       break;
 #endif	/* RFM12_SUPPORT */
@@ -203,6 +219,7 @@ router_output_to (uint8_t dest)
 
 #ifdef ZBUS_SUPPORT
     case STACK_ZBUS:
+      printf ("router_output_to: ZBUS.\n");
       zbus_txstart (uip_len);
       break;
 #endif	/* ZBUS_SUPPORT */
@@ -210,9 +227,18 @@ router_output_to (uint8_t dest)
 
 #ifdef USB_NET_SUPPORT
     case STACK_USB:
+      printf ("router_output_to: USB.\n");
       usb_net_txstart ();
       break;
 #endif	/* USB_NET_SUPPORT */
+
+
+#ifdef OPENVPN_SUPPORT
+    case STACK_OPENVPN:
+      printf ("router_output_to: OpenVPN.\n");
+      /* FIXME */
+      break;
+#endif  /* OPENVPN_SUPPORT */
 
     }
 

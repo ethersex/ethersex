@@ -86,25 +86,14 @@ extern struct uip_stack *uip_stack;
 #    define OPENVPN_CRYPT_LLH_LEN  0
 #  endif
 
-#  define OPENVPN_TOTAL_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_CRYPT_LLH_LEN \
-				  + OPENVPN_HMAC_LLH_LEN)
+#  define OPENVPN_HMAC_CRYPT_LEN  (OPENVPN_HMAC_LLH_LEN - OPENVPN_CRYPT_LLH_LEN)
+#  define OPENVPN_TOTAL_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_CRYPT_LLH_LEN)
 
-#  if STACK_PRIMARY && !defined(OPENVPN_OUTER)
-#    define OPENVPN_INNER
-#  endif
+
 #endif /* not OPENVPN_SUPPORT */
 
-#ifdef OPENVPN_SUPPORT
-#  define BASE_LLH_LEN  (OPENVPN_TOTAL_LLH_LEN)
-#else
-#  define BASE_LLH_LEN  14
-#endif
-
-#ifdef OPENVPN_OUTER
-#  define UIP_CONF_LLH_LEN  14
-#else
-#  define UIP_CONF_LLH_LEN  BASE_LLH_LEN
-#endif
+#define BASE_LLH_LEN  14
+#define UIP_CONF_LLH_LEN  14
 
 /* We have a one byte LLH on RFM12 however we might need to pass
    the packet to ethernet, therefore 14 is simpler. */

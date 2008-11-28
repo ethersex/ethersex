@@ -34,21 +34,18 @@ if [ "$SYSLOG_SUPPORT" = "y" ]; then
 fi
 
 comment "Tunneling protocols"
-dep_bool 'OpenVPN' OPENVPN_SUPPORT $UDP_SUPPORT
-if [ "$OPENVPN_SUPPORT" = "y" ]; then
-  mainmenu_option next_comment
-  comment "OpenVPN configuration"
+dep_bool_menu "OpenVPN" OPENVPN_SUPPORT $UDP_SUPPORT
   hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
   hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
 
-  if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
-    comment "OpenVPN IP configuration"
-    ipv4 "OpenVPN IP address" CONF_OPENVPN_IP4 "192.168.23.244"
+  comment "OpenVPN IP configuration"
+  ip "OpenVPN IP address" CONF_OPENVPN_IP "192.168.23.244"
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    int "IP prefix length" CONF_OPENVPN_IP6_PREFIX_LEN 64
+  else
     ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
-    ipv4 "OpenVPN default gateway" CONF_OPENVPN_IP4_GATEWAY "192.168.23.1"
   fi
-  endmenu
-fi
+endmenu
 
 dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $CONFIG_EXPERIMENTAL $RFM12_SUPPORT $ROUTER_SUPPORT
 dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $CONFIG_EXPERIMENTAL $ZBUS_SUPPORT $ROUTER_SUPPORT

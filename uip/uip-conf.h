@@ -184,6 +184,9 @@ enum {
 #if defined(ZBUS_SUPPORT)
   STACK_ZBUS,
 #endif
+#if defined(OPENVPN_SUPPORT)
+  STACK_OPENVPN,
+#endif
 
   /* STACK_LEN must be the last! */
   STACK_LEN

@@ -91,6 +91,7 @@ network_init(void)
 #endif
 
 #ifdef OPENVPN_SUPPORT
+    uip_stack_set_active(STACK_OPENVPN);
     openvpn_init();
 #endif
 
