@@ -30,6 +30,7 @@
 #include "dyndns/dyndns.h"
 #include "ipv6.h"
 #include "config.h"
+#include "debug.h"
 
 #undef UIP_LLH_LEN
 #define UIP_LLH_LEN 14		/* force ethernet LLH, we'll never
@@ -205,37 +206,61 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
 void
 uip_router_parse_advertisement(void)
 {
+  struct uip_icmp_radv_prefix *prefix;
+  struct uip_icmp_radv_source *source;
+
+  if (RADVBUF->first_type == 1) {
+    source = (struct uip_icmp_radv_source *) &RADVBUF->first_type;
+    prefix = (struct uip_icmp_radv_prefix *) &(&RADVBUF->first_type)[8];
+  } else if (RADVBUF->first_type == 3) {
+    prefix = (struct uip_icmp_radv_prefix *) &RADVBUF->first_type;
+    source = (struct uip_icmp_radv_source *) &(&RADVBUF->first_type)[32];
+  } else 
+    goto error_out;
 
   /* check that first option is `prefix information'. */
-  if(RADVBUF->prefix.type != 3)
+  if(prefix->type != 3)
     goto error_out;
-  if(RADVBUF->prefix.length != 4)
+  if(prefix->length != 4)
     goto error_out;
-  if(RADVBUF->prefix.prefix_length != 64)
+  if(prefix->prefix_length != 64)
     goto error_out;
 
   /* check that second option is `source link layer address'. */
-  if(RADVBUF->source.type != 1)
+  if(source->type != 1)
     goto error_out;
-  if(RADVBUF->source.length != 1)
+  if(source->length != 1)
     goto error_out;
 
   /* packet looks sane, update configuration */
   uip_ip6autoconfig
-    ((RADVBUF->prefix.prefix[0] << 8) | RADVBUF->prefix.prefix[1],
-     (RADVBUF->prefix.prefix[2] << 8) | RADVBUF->prefix.prefix[3],
-     (RADVBUF->prefix.prefix[4] << 8) | RADVBUF->prefix.prefix[5],
-     (RADVBUF->prefix.prefix[6] << 8) | RADVBUF->prefix.prefix[7]);
+    ((prefix->prefix[0] << 8) | prefix->prefix[1],
+     (prefix->prefix[2] << 8) | prefix->prefix[3],
+     (prefix->prefix[4] << 8) | prefix->prefix[5],
+     (prefix->prefix[6] << 8) | prefix->prefix[7]);
 
   /* cache neighbor entry of the advertising router. */
   uip_neighbor_add(ICMPBUF->srcipaddr,
-		   (struct uip_neighbor_addr *) RADVBUF->source.mac);
+		   (struct uip_neighbor_addr *) source->mac);
 
-  /* use the router's ip address as new default gateway. */
-  uip_ipaddr_copy(uip_draddr, RADVBUF->prefix.prefix);
+  /* test the prefix for being a netaddress ( last 8 byte are 0 )
+   * if it is a prefix use the srcipaddr
+   */
+
+  uint8_t i, isnt_prefix = 0;
+  for (i = 4; i < 8; i++)
+    if (prefix->prefix[i] != 0)
+      isnt_prefix = 1;
+
+  if (isnt_prefix) 
+    /* use the router's ip address as new default gateway. */
+    uip_ipaddr_copy(uip_draddr, prefix->prefix);
+  else
+    uip_ipaddr_copy(uip_draddr, ICMPBUF->srcipaddr);
+
   return;
 
- error_out:
+error_out:
   return;
 }
 #endif /* not IPV6_STATIC_SUPPORT */

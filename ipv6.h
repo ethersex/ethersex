@@ -62,7 +62,11 @@ struct uip_icmp_radv_hdr {
   u16_t reachable[2];
   u16_t retrans[2];
 
-  struct {
+  /* used as a pointer to the body */
+  u8_t first_type;
+};
+
+struct uip_icmp_radv_prefix {
     u8_t type;
     u8_t length;
     u8_t prefix_length;
@@ -71,13 +75,12 @@ struct uip_icmp_radv_hdr {
     u16_t preferred_lifetime[2];
     u8_t reserved[4];
     u8_t prefix[16];
-  } prefix;
+};
 
-  struct {
+struct uip_icmp_radv_source {
     u8_t type;
     u8_t length;
     u8_t mac[6];
-  } source;
 };
 
 
