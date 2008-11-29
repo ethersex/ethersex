@@ -48,11 +48,17 @@
 extern fs_t fs;
 
 char PROGMEM httpd_header_200[] =
-/* {{{ */
 "HTTP/1.1 200 OK\n"
-"Connection: close\n"
+"Connection: close\n";
+
+char PROGMEM httpd_header_ct_css[] =
+"Content-Type: text/css; charset=iso-8859-1\n";
+
+char PROGMEM httpd_header_ct_html[] =
 "Content-Type: text/html; charset=iso-8859-1\n";
-/* }}} */
+
+char PROGMEM httpd_header_ct_xhtml[] =
+"Content-Type: application/xhtml+xml; charset=iso-8859-1\n";
 
 #ifdef ECMD_PARSER_SUPPORT
 char PROGMEM httpd_header_200_ecmd[] =
@@ -280,6 +286,12 @@ auth_success:
 
       /* send headers */
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
+      if (state->name[0] == 'X')
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
+      else if (state->name[0] == 'S')
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
+      else
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
       PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
@@ -316,6 +328,12 @@ auth_success:
 
         /* send headers */
         PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
+	if (state->name[0] == 'X')
+	  PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
+	else if (state->name[0] == 'S')
+	  PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
+	else
+	  PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
         PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
         PSOCK_GENERATOR_SEND(&state->in, send_length_f, &state->inode);
 

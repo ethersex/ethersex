@@ -1,7 +1,7 @@
 <html><head>
 <title>Ethersex - IO Control</title>
   <script src="scr.js" type="text/javascript"></script>
-  <link href="sty.c"  media="screen" rel="Stylesheet" type="text/css" />
+  <link href="Sty.c"  media="screen" rel="Stylesheet" type="text/css" />
   <script type="text/javascript"><!--
 function write_port(request, data) {
         var value = ecmd_parse_io(request.responseText);
