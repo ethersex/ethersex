@@ -166,13 +166,10 @@ router_input(uint8_t origin)
 }
 
 
-
 uint8_t
-router_find_destination (void)
+router_ip2dest (uip_ipaddr_t *forwardip)
 {
   uint8_t dest = 0;
-  /* This variable is used in chain(forward_test) */
-  uip_ipaddr_t *forwardip = &BUF->destipaddr;
 
   while (1) {
     chain (forward_test)
@@ -236,7 +233,7 @@ router_output_to (uint8_t dest)
 #ifdef OPENVPN_SUPPORT
     case STACK_OPENVPN:
       printf ("router_output_to: OpenVPN.\n");
-      /* FIXME */
+      openvpn_txstart ();
       break;
 #endif  /* OPENVPN_SUPPORT */
 

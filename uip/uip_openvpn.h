@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -32,6 +32,7 @@
 void openvpn_handle_udp(void);
 void openvpn_init (void);
 void openvpn_process_out (void);
+void openvpn_txstart (void);
 
 /* The port number to use for OpenVPN. */
 #define OPENVPN_PORT 1194

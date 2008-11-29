@@ -34,7 +34,13 @@ void router_input(uint8_t stack);
 uint8_t router_output_to (uint8_t stack);
 
 /* Find a stack suitable to transmit the packet in uip_buf. */
-uint8_t router_find_destination (void);
+#define router_find_destination() \
+  router_ip2dest(&((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])->destipaddr)
+
+/* Find the stack that corresponds to the provided IP address. */
+uint8_t router_ip2dest (uip_ipaddr_t *forwardip);
+
+
 
 /* Find a suitable stack to transmit the packet in uip_buf and finally
    send it. */

@@ -238,10 +238,25 @@ openvpn_handle_udp (void)
   if (! uip_len)
     return;			/* Inner stack hasn't created a
 				   packet. */
+  openvpn_process_out ();
+}
 
-  uip_stack_set_active (STACK_ENC);
 
+/* Prepare data from inner uIP stack to be sent out to the remote host,
+   this is fill the IP and UDP headers of the outer stack part.  */
+void
+openvpn_process_out (void)
+{
   uip_udp_conn = openvpn_conn;	/* Change back to OpenVPN connection. */
+
+  uint8_t stackno = router_ip2dest (&uip_udp_conn->ripaddr);
+  if (stackno == STACK_OPENVPN)
+    {
+      uip_len = 0;
+      return;
+    }
+
+  uip_stack_set_active (stackno);
 
   /* uip_len is set to the number of data bytes including TCP/UDP/IP header. */
   memmove (uip_buf + OPENVPN_TOTAL_LLH_LEN,
@@ -259,11 +274,8 @@ openvpn_handle_udp (void)
 }
 
 
-#if 0
-/* Prepare data from inner uIP stack to be sent out to the remote host,
-   this is fill the IP and UDP headers of the outer stack part.  */
 void
-openvpn_process_out (void)
+openvpn_txstart (void)
 {
   /* uip_len is shared between both stacks.  uip_process (from the
      inner stack) has set it to the amount of data to be tunnelled
@@ -271,21 +283,14 @@ openvpn_process_out (void)
   if (! uip_len)
     return;			/* no data to be sent out. */
 
-  uip_stack_set_active (STACK_OPENVPN);
-  openvpn_slen = uip_len + OPENVPN_HMAC_LLH_LEN + OPENVPN_CRYPT_LLH_LEN;
+  openvpn_process_out ();
 
-  for (int i = 0; i < UIP_UDP_CONNS; i++)
-    if (uip_udp_conn[i].callback == openvpn_handle_udp)
-      {
-	openvpn_udp_conn = &uip_udp_conn[i];
-	break;
-      }
+  if (! uip_len)
+    return;
 
-  openvpn_encrypt ();
-  openvpn_hmac_create ();
-  openvpn_process (UIP_UDP_SEND_CONN);
+  uip_process (UIP_UDP_SEND_CONN);
+  router_output ();
 }
-#endif
 
 
 void 
