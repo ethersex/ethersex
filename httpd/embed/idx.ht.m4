@@ -19,5 +19,6 @@
   <hr>
   <p>To do some control tasks, see <a href="io.ht">here</a>.</p>
 ifdef(`conf_ADC', `<p>To see the adc channels see <a href="adc.ht">here</a>.</p>')
+ifdef(`conf_ONEWIRE', `<p>The onewire temperature values are accessible <a href="ow.ht">here</a>.</p>')
  </body>
 </html>
