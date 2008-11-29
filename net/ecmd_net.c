@@ -187,8 +187,11 @@ void ecmd_net_main(void)
             if (l <= -10) {
                 state->parse_again = 1;
                 l = -l - 10;
-            } else
+            } else {
                 state->parse_again = 0;
+                /* We have to clear the input buffer */
+                state->in_len = 0;
+            }
 
             if (l > 0) {
                 state->outbuf[l++] = '\n';

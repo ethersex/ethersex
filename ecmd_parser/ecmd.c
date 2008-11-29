@@ -58,7 +58,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
 #ifdef DEBUG_ECMD
-    debug_printf("called ecmd_parse_command\n");
+    debug_printf("called ecmd_parse_command %s\n", cmd);
 #endif
 
     if (strlen(cmd) <= 2) {
@@ -87,9 +87,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
             break;
 
 #ifdef DEBUG_ECMD
-        debug_printf("text is: \"");
-        printf_P(text);
-        debug_printf("\"\n");
+        debug_printf("text is: \"%S\"\n", text);
 #endif
 
         /* else compare texts */
