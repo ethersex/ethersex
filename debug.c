@@ -34,7 +34,6 @@
 #define noinline __attribute__((noinline))
 
 /* prototypes */
-void uip_log(char *message);
 int debug_uart_put(char d, FILE *stream);
 
 #ifdef DEBUG
@@ -115,10 +114,5 @@ debug_process_uart (void)
 
 #endif	/* not DEBUG_USE_SYSLOG */
 
-
-void uip_log(char *message)
-{
-    debug_printf("uip: %s\n", message);
-}
 
 #endif	/* DEBUG */

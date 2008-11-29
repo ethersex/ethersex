@@ -46,10 +46,11 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'FS20 WS300 Verbose' DEBUG_FS20_WS300_VERBOSE $DEBUG_FS20_WS300
   dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
   dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
-  dep_bool 'Networking' DEBUG_NET $DEBUG_ENC28J60
+  dep_bool 'Networking' DEBUG_NET $DEBUG
   dep_bool '  Config' DEBUG_NET_CONFIG $DEBUG_NET
-  dep_bool '  OpenVPN' DEBUG_OPENVPN $DEBUG_NET
-  dep_bool '  Router' DEBUG_ROUTER $DEBUG_NET
+  dep_bool '  OpenVPN' DEBUG_OPENVPN $DEBUG
+  dep_bool '  Router' DEBUG_ROUTER $DEBUG
+  dep_bool '  uIP' DEBUG_UIP $DEBUG
   dep_bool '  Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
   dep_bool 'RC5' DEBUG_RC5 $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG

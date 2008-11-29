@@ -1,5 +1,3 @@
-#define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
-
 /**
  * \defgroup uip The uIP TCP/IP stack
  * @{
@@ -262,13 +260,14 @@ struct uip_stats uip_stat;
 #define UIP_STAT(s)
 #endif /* UIP_STATISTICS == 1 */
 
-#if UIP_LOGGING == 1
-#include <stdio.h>
-void uip_log(char *msg);
-#define UIP_LOG(m) uip_log((char *)m)
+#ifdef DEBUG_UIP
+# include "../debug.h"
+# define DEBUG_PRINTF(a...) debug_printf(a)
 #else
-#define UIP_LOG(m)
-#endif /* UIP_LOGGING == 1 */
+# define DEBUG_PRINTF(a...)
+#endif
+
+#define UIP_LOG(m) DEBUG_PRINTF("uip: " m "\n")
 
 #if ! UIP_ARCH_ADD32 && UIP_TCP
 /* Temporary variable */
@@ -1091,7 +1090,8 @@ ip_check_end:
       goto udp_found;
     }
   }
-  UIP_LOG("udp: no matching connection found");
+  DEBUG_PRINTF("udp: no matching connection found, sport %d, dport %d\n",
+               UDPBUF->srcport, UDPBUF->destport);
   goto drop;
   
  udp_found:
@@ -1136,6 +1136,7 @@ ip_check_end:
   if(UDPBUF->udpchksum == 0) {
     UDPBUF->udpchksum = 0xffff;
   }
+  DEBUG_PRINTF("uIP: built UDP IP checksum 0x%04x\n", UDPBUF->udpchksum);
 #endif /* UIP_UDP_CHECKSUMS */
   
   goto ip_send_nolen;
@@ -1853,7 +1854,7 @@ ip_check_end:
   /* Calculate IP checksum. */
   BUF->ipchksum = 0;
   BUF->ipchksum = ~(uip_ipchksum());
-  DEBUG_PRINTF("uip ip_send_nolen: chkecum 0x%04x\n", uip_ipchksum());
+  DEBUG_PRINTF("uip ip_send_nolen: ipchksum 0x%04x\n", BUF->ipchksum);
 #endif /* UIP_CONF_IPV6 */
    
   UIP_STAT(++uip_stat.tcp.sent);
