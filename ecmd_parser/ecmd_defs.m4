@@ -41,6 +41,10 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(wdreset, "wdreset",,Go into endless loop to trigger a watchdog timeout.)
 ecmd_endif()
 
+ecmd_ifdef(IPSTATS_SUPPORT)
+  ecmd_feature(ipstats, "ipstats")
+ecmd_endif()
+
 ecmd_feature(bootloader, "bootloader",,Call the bootloader.)
 
 ecmd_ifdef(PORTIO_SUPPORT)

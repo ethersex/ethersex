@@ -264,4 +264,90 @@ int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len)
 
 #endif /* not TEENSY_SUPPORT */
 
+#ifdef IPSTATS_SUPPORT
+int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
+/* {{{ */ {
+  /* We use the second and the third byte as counter */
+  if (cmd[0] != 23) {
+    cmd[0] = 23;
+    cmd[1] = 0;
+    cmd[2] = 0;
+  }
+  uint8_t tmp;
+#ifdef MULTISTACK_SUPPORT
+  uip_stack_set_active(cmd[1]);
+#endif 
+
+  enum {
+    INTERFACE,
+    ADDRESS,
+    GATEWAY,
+    IP,
+#ifdef UDP_SUPPORT
+    UDP,
+#endif
+#ifdef TCP_SUPPORT
+    TCP,
+#endif
+#ifdef ICMP_SUPPORT
+    ICMP,
+#endif
+    LAST
+  };
+
+  switch (cmd[2]) {
+  case INTERFACE:
+    len = snprintf_P(output, len, PSTR("iface %d:"), cmd[1]);
+    break;
+  case ADDRESS:
+    output[0] = ' ';
+    output[1] = ' ';
+    tmp = len;
+    len = 2 + print_ipaddr (&uip_hostaddr, output + 2, len - 2);
+    output[len++] = '/';
+#ifdef IPV6_SUPPORT
+    len += snprintf_P(output + len, tmp - len, PSTR("%d"), uip_prefix_len);
+#else
+    len += print_ipaddr(&uip_netmask, output + len, tmp - len);
+#endif
+    break;
+  case GATEWAY:
+    snprintf_P(output, len, PSTR("  gw: "));
+    len = 6 + print_ipaddr (&uip_draddr, output + 6, len - 6);
+    break;
+  case IP:
+    len = snprintf_P(output, len, PSTR("  ip:   recv %5d sent %5d drop %5d"), 
+                     uip_stat.ip.recv, uip_stat.ip.sent, uip_stat.ip.drop);
+    break;
+#ifdef ICMP_SUPPORT
+  case ICMP:
+    len = snprintf_P(output, len, PSTR("  icmp: recv %5d sent %5d drop %5d"), 
+                     uip_stat.icmp.recv, uip_stat.icmp.sent, uip_stat.icmp.drop);
+    break;
+#endif
+#ifdef UDP_SUPPORT
+  case UDP:
+    len = snprintf_P(output, len, PSTR("  udp:  recv %5d sent %5d drop %5d"), 
+                     uip_stat.udp.recv, uip_stat.udp.sent, uip_stat.udp.drop);
+    break;
+#endif
+#ifdef TCP_SUPPORT
+  case TCP:
+    len = snprintf_P(output, len, PSTR("  tcp:  recv %5d sent %5d drop %5d"), 
+                     uip_stat.tcp.recv, uip_stat.tcp.sent, uip_stat.tcp.drop);
+    break;
+#endif
+  }
+  cmd[2]++;
+  if (cmd[2] == LAST) {
+    cmd[1] ++;
+    if (cmd[1] == STACK_LEN)
+      return len;
+  }
+
+  return - 10 - len;
+
+} /* }}} */
+#endif /* IPSTATS_SUPPORT */
+
 #endif  /* not UIP_SUPPORT */

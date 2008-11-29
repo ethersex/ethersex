@@ -32,7 +32,9 @@ struct uip_stack {
   uip_ipaddr_t *uip_netmask;
 #endif
 
+#ifdef IPSTATS_SUPPORT
   struct uip_stats *uip_stat;  
+#endif
 };
 
 #define STACK_HACKARY(foo,stackname)					\
