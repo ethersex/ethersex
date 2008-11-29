@@ -249,7 +249,7 @@ openvpn_process_out (void)
 {
   uip_udp_conn = openvpn_conn;	/* Change back to OpenVPN connection. */
 
-  uint8_t stackno = router_ip2dest (&uip_udp_conn->ripaddr);
+  uint8_t stackno = router_find_stack (&uip_udp_conn->ripaddr);
   if (stackno == STACK_OPENVPN)
     {
       uip_len = 0;
