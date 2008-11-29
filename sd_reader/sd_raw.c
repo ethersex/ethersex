@@ -12,6 +12,14 @@
 #include <avr/io.h>
 #include "sd_raw.h"
 
+#include "../config.h"
+#ifdef DEBUG_SD_READER
+# include "../debug.h"
+# define SDDEBUG(a...)  debug_printf("sd_reader: " a)
+#else
+# define SDDEBUG(a...)
+#endif
+
 /**
  * \addtogroup sd_raw MMC/SD/SDHC card raw access
  *
@@ -197,8 +205,10 @@ uint8_t sd_raw_init()
     /* initialization procedure */
     sd_raw_card_type = 0;
     
-    if(!sd_raw_available())
+    if(!sd_raw_available()) {
+	SDDEBUG ("sd-card not available, stop.\n");
         return 0;
+    }
 
     /* card needs 74 cycles minimum to start up */
     for(uint8_t i = 0; i < 10; ++i)
@@ -221,6 +231,7 @@ uint8_t sd_raw_init()
         if(i == 0x1ff)
         {
             unselect_card();
+            SDDEBUG ("card reset failed, response=0x%04x.\n", response);
             return 0;
         }
     }
@@ -250,10 +261,12 @@ uint8_t sd_raw_init()
         {
             /* card conforms to SD 1 card specification */
             sd_raw_card_type |= (1 << SD_RAW_SPEC_1);
+            SDDEBUG ("found SD 1 card\n");
         }
         else
         {
             /* MMC card */
+            SDDEBUG ("found MMC card\n");
         }
     }
 
@@ -281,6 +294,7 @@ uint8_t sd_raw_init()
         if(i == 0x7fff)
         {
             unselect_card();
+            SDDEBUG ("timeout waiting for card to become ready.\n");
             return 0;
         }
     }
@@ -307,6 +321,7 @@ uint8_t sd_raw_init()
     if(sd_raw_send_command(CMD_SET_BLOCKLEN, 512))
     {
         unselect_card();
+        SDDEBUG ("failed to set block size to 512 bytes.\n");
         return 0;
     }
 
