@@ -170,6 +170,7 @@ block(Miscelleanous)
 
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(d, "d ", ADDR, Dump the memory at ADDR (16 bytes).)
+  ecmd_feature(help, "help",, List which commands are available.)
 
   ecmd_ifdef(USART_SUPPORT)
     ecmd_feature(usart_baud, "usart baud", BAUD, Set the USART baudrate to BAUD.)

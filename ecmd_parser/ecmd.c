@@ -2,7 +2,7 @@
  * {{{
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -196,4 +196,22 @@ int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 
     return 32;
 } /* }}} */
+
+int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
+{
+    (void) len;
+
+    if (cmd[0] != 23) {
+	cmd[0] = 23;
+	cmd[1] = 0;
+    }
+
+    char *text = (char *)pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1] ++].name);
+    len = strlen_P (text);
+    memcpy_P (output, text, len);
+
+    text = (char *) pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1]].name);
+    return text ? (-10 - len) : len;
+}
+
 #endif /* TEENSY_SUPPORT */
