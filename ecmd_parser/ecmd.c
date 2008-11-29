@@ -45,6 +45,9 @@
 #include "../yport/yport.h"
 #include "ecmd.h"
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 /* struct for storing commands */
 struct ecmd_command_t {
     PGM_P name;
@@ -134,6 +137,21 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 #   endif
     return 0;
 } /* }}} */
+
+#ifdef FREE_SUPPORT
+
+int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
+{
+  extern char *__brkval;
+  debug_printf("free: %d %d %d\n", RAMEND, RAMEND - SP, SP - (uint16_t) __brkval);
+  return snprintf_P(output, len, 
+                    PSTR("%d free; %d malloc; buffer " xstr(NET_MAX_FRAME_LENGTH)),
+                    SP - (uint16_t) __brkval,
+                    (uint16_t) (__brkval - __malloc_heap_start));
+ 
+}
+
+#endif /* FREE_SUPPORT */
 
 #ifndef TEENSY_SUPPORT
 int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)

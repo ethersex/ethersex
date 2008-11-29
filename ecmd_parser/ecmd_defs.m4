@@ -45,6 +45,10 @@ ecmd_ifdef(IPSTATS_SUPPORT)
   ecmd_feature(ipstats, "ipstats")
 ecmd_endif()
 
+ecmd_ifdef(FREE_SUPPORT)
+  ecmd_feature(free, "free")
+ecmd_endif()
+
 ecmd_feature(bootloader, "bootloader",,Call the bootloader.)
 
 ecmd_ifdef(PORTIO_SUPPORT)
