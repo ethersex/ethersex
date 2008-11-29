@@ -478,6 +478,8 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
  *
  */
 
+#ifdef ONEWIRE_DS2502_SUPPORT
+
 int8_t ow_eeprom(struct ow_rom_code_t *rom)
 /* {{{ */ {
 
@@ -538,5 +540,7 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
     return 0;
 
 } /* }}} */
+
+#endif /* ONEWIRE_DS2502_SUPPORT */
 
 #endif

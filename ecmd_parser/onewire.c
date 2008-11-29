@@ -193,6 +193,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         ret = snprintf_P(output, len,
                 PSTR("temperature: %d.%d\n"),
                 HI8(temp), LO8(temp) > 0 ? 5 : 0);
+#ifdef ONEWIRE_DS2502_SUPPORT
     } else if (ow_eeprom(&rom)) {
         debug_printf("reading mac\n");
 
@@ -219,7 +220,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         ret = snprintf_P(output, len,
                 PSTR("mac: %02x:%02x:%02x:%02x:%02x:%02x"),
                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
+#endif /* ONEWIRE_DS2502_SUPPORT */
     } else {
         debug_printf("unknown sensor type\n");
         ret = snprintf_P(output, len, PSTR("unknown sensor type"));
