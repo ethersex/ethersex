@@ -1,4 +1,4 @@
-dep_bool_menu "ZBus Support" ZBUS_SUPPORT $UIP_SUPPORT
+dep_bool_menu "ZBus Support" ZBUS_SUPPORT
 if [ "$ZBUS_SUPPORT" = "y" ]; then
 
 choice '  ZBus usart select' "$(usart_choice ZBUS)"

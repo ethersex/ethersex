@@ -1,4 +1,4 @@
-dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $UIP_SUPPORT
+dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT
 
 if [ "$ENC28J60_SUPPORT" = "y" ]; then
   mac "Etherrape MAC address" CONF_ENC_MAC "ac:de:48:fd:0f:d0"

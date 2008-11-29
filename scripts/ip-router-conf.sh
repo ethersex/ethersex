@@ -6,3 +6,13 @@ if [ $num -gt 1 ]; then
 else
   define_bool ROUTER_SUPPORT n
 fi
+
+if [ $num -gt 0 ]; then
+  define_bool UIP_SUPPORT y
+else
+  define_bool UIP_SUPPORT n
+fi
+
+# this is only glue, so that the net directory is compiled also
+define_bool NET_SUPPORT $UIP_SUPPORT
+

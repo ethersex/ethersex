@@ -1,4 +1,4 @@
-dep_bool_menu "RFM12 (FSK transmitter) support" RFM12_SUPPORT $UIP_SUPPORT
+dep_bool_menu "RFM12 (FSK transmitter) support" RFM12_SUPPORT
 if [ "$RFM12_SUPPORT" = "y" ]; then
 
 if [ "$TEENSY_SUPPORT" != "y" ]; then

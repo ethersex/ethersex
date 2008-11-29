@@ -53,6 +53,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool '  uIP' DEBUG_UIP $DEBUG
   dep_bool '  Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
   dep_bool 'RC5' DEBUG_RC5 $DEBUG
+  dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG
   dep_bool 'Timer' DEBUG_TIMER $DEBUG
   bool 'Discard some of the received packets' DEBUG_DISCARD_SOME
@@ -60,15 +61,8 @@ endmenu
 
 source crypto/config.in
 source usb/config.in
-bool "Networking support"	UIP_SUPPORT
 
 string "Hostname" CONF_HOSTNAME "ethersex"
-dep_bool 'IPv6 support'		IPV6_SUPPORT $UIP_SUPPORT
-if [ "$IPV6_SUPPORT" = "y" ]; then
-  define_bool IPV4_SUPPORT n
-else
-  define_bool IPV4_SUPPORT $UIP_SUPPORT
-fi
 
 comment "Network interfaces"
 source enc28j60-config.in
@@ -84,6 +78,13 @@ source usb/usb-net-config.in
 source scripts/ip-router-conf.sh
 
 comment "IP configuration"
+dep_bool 'IPv6 support'		IPV6_SUPPORT $UIP_SUPPORT
+if [ "$IPV6_SUPPORT" = "y" ]; then
+  define_bool IPV4_SUPPORT n
+else
+  define_bool IPV4_SUPPORT $UIP_SUPPORT
+fi
+
 dep_bool 'Enable IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
 if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
   ipv6 "Default Router" CONF_ETHERRAPE_GATEWAY "2001:6f8:1209:f0::1"
@@ -96,9 +97,6 @@ dep_bool 'Ip Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_SUPPORT
 dep_bool 'Memory usage information (free)' FREE_SUPPORT $ECMD_SUPPORT
 
 endmenu
-
-# this is only glue, so that the net directory is compiled also
-define_bool NET_SUPPORT $UIP_SUPPORT
 
 source uip/config.in
 
