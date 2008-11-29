@@ -35,6 +35,12 @@
 #include "../zbus/zbus.h"
 #include "../usb/usb_net.h"
 
+#ifdef IPCHAIR_SUPPORT
+#define IPCHAIR_HEADER
+#include "../ipchair/ipchair.c"
+#undef IPCHAIR_HEADER
+#endif
+
 #ifdef DEBUG_ROUTER
 # include "../debug.h"
 # define printf  debug_printf
@@ -104,6 +110,10 @@
 void
 router_input(uint8_t origin)
 {
+#ifdef IPCHAIR_HAVE_PREROUTING
+  ipchair_PREROUTING_chair();
+  if(!uip_len) return;
+#endif
   /* uip_len is set to the number of received bytes, including the LLH.
      For RFM12, ZBus, etc.  it's the full 14-byte Ethernet LLH even also. */
 
@@ -135,6 +145,11 @@ router_input(uint8_t origin)
 	  goto drop;
 	}
 
+#ifdef IPCHAIR_HAVE_FORWARD
+      ipchair_FORWARD_chair();
+      if(!uip_len) return;
+#endif
+
 #if !UIP_CONF_IPV6
       /* For IPv4 we must adjust the chksum */
       if(BUF->ipchksum >= HTONS(0xffff - (1 << 8)))
@@ -163,6 +178,16 @@ router_input(uint8_t origin)
  drop:
   uip_len = 0;
   return;
+}
+
+void 
+router_output(void) {
+#ifdef IPCHAIR_HAVE_OUTPUT
+  ipchair_OUTPUT_chair();
+  if(!uip_len) return;
+#endif
+
+  router_output_to(router_find_destination());
 }
 
 
@@ -194,6 +219,11 @@ router_output_to (uint8_t dest)
 {
   uint8_t retval = 0;
   uip_stack_set_active (dest);
+
+#ifdef IPCHAIR_HAVE_POSTROUTING
+  ipchair_POSTROUTING_chair();
+  if(!uip_len) return retval;
+#endif
 
   switch (dest)
     {
