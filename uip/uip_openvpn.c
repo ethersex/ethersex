@@ -31,6 +31,13 @@
 #include "uip_router.h"
 #include "uip.h"
 
+#ifdef DEBUG_OPENVPN
+# include "../debug.h"
+# define printf(a...)  debug_printf("OpenVPN: " a)
+#else
+# define printf(a...)
+#endif
+
 STACK_DEFINITIONS(openvpn_stack);
 
 /* for raw access to the packet buffer */
@@ -139,7 +146,7 @@ openvpn_encrypt (void)
 void
 openvpn_hmac_calc (unsigned char *dest, unsigned char *src, uint16_t len)
 {
-  const unsigned char *hmac_key = CONF_OPENVPN_HMAC_KEY;
+  const unsigned char *hmac_key = (const unsigned char *)CONF_OPENVPN_HMAC_KEY;
   unsigned char buf[64];
   
   /* perform inner part of hmac */
@@ -203,10 +210,16 @@ openvpn_handle_udp (void)
   uip_udp_conn->rport = BUF->srcport;
 
   if (openvpn_hmac_verify ())
-    return;
+    {
+      printf ("HMAC verification failed.\n");
+      return;
+    }
 
   if (openvpn_decrypt_and_verify ())
-    return;
+    {
+      printf ("decrypt/verify failed.\n");
+      return;
+    }
 
   memmove (uip_buf + BASE_LLH_LEN,
 	   uip_buf + OPENVPN_TOTAL_LLH_LEN,
@@ -216,6 +229,8 @@ openvpn_handle_udp (void)
      hmac/encryption bits), however uip_process expects the number of
      bytes including a LLH of 14 bytes. */
   uip_len = uip_len + BASE_LLH_LEN - OPENVPN_HMAC_CRYPT_LEN;
+
+  printf ("received a correct packet of %d bytes.\n", uip_len - BASE_LLH_LEN);
 
   /* Push data back into the router. */
   router_input (STACK_OPENVPN);
@@ -236,6 +251,8 @@ openvpn_handle_udp (void)
   /* Make sure openvpn_process sends the data. */
   uip_sappdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
   uip_slen = uip_len + OPENVPN_HMAC_CRYPT_LEN;
+
+  printf ("ready to send %d bytes.\n", uip_slen);
 
   openvpn_encrypt ();
   openvpn_hmac_create ();
