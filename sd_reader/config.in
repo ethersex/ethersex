@@ -1,0 +1,1 @@
+dep_bool "MMC/SD card reader" SD_READER_SUPPORT $CONFIG_EXPERIMENTAL
