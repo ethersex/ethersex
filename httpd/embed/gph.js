@@ -11,19 +11,35 @@ function Graph(id,num,min,max) {
     return this;
 }
 
+function addLine (obj, x1, y1, x2, y2) {
+    var ne = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ne.setAttribute ("x1", x1);
+    ne.setAttribute ("x2", x2);
+    ne.setAttribute ("y1", y1);
+    ne.setAttribute ("y2", y2);
+
+    obj.appendChild (ne);
+    return ne;
+}
+
+function addText (obj, x, y, text) {
+    var ne = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    ne.setAttribute ("x", x);
+    ne.setAttribute ("y", y);
+
+    var t = document.createTextNode(text);
+    ne.appendChild (t);
+    obj.appendChild (ne);
+    return ne;
+}
+
 function graphAppend(g,val) {
-    val = vboxh - (val * vboxh / (g.max - g.min));
+    val = vboxh - ((val - g.min) * vboxh / (g.max - g.min));
     var old_elements = g.obj.getElementsByTagName("line").length;
 
     if (g.last_y != -1) {
-	var ne = document.createElementNS("http://www.w3.org/2000/svg", "line");
 	var w = (old_elements + 1) * g.xmult;
-	ne.setAttribute ("x1", old_elements * g.xmult);
-	ne.setAttribute ("x2", w);
-	ne.setAttribute ("y1", g.last_y);
-	ne.setAttribute ("y2", val);
-
-	g.obj.appendChild (ne);
+	addLine (g.obj, old_elements * g.xmult, g.last_y, w, val);
 
 	if (w >= vboxw) {
 	    g.obj.setAttribute("transform", "translate(-"
@@ -32,4 +48,28 @@ function graphAppend(g,val) {
     }
 
     g.last_y = val;
+}
+
+function graphCreateAxis(id,tid,min,max) {
+  var obj = returnObjById(id);
+  var tobj = returnObjById(tid);
+
+  var x;
+  for (x = 0; x <= vboxw; x += vboxw / 4) {
+    addLine (obj, x, 0, x, vboxh);
+  }
+
+  var scale = 10;
+  for (; (max - min) / scale > 10; scale *= 2);
+
+  var i = min;
+  if (i % scale) { i += scale - (min % scale); }
+  for (; i <= max; i += scale) {
+    var y = vboxh - ((i - min) * vboxh / (max - min));
+    addLine (obj, 0, y, vboxw, y);
+    addText (tobj, 0, y, i);
+  }
+
+  addLine (obj, 0, 0, vboxw, 0);
+  addLine (obj, 0, vboxh, vboxw, vboxh);
 }

@@ -19,11 +19,13 @@ ifdef(`conf_ONEWIRE', `', `m4exit(1)')dnl
     </p>
 
     <?import namespace="svg" urn="http://www.w3.org/2000/svg" implementation="#AdobeSVG"?>
-    <svg:svg width="320px" height="240px" viewBox="0 0 400 300"
+    <svg:svg width="400px" height="300px" viewBox="0 0 400 300"
 	     zoomAndPan="disable">
-      <svg:g stroke="red" style="stroke-width:2px;" transform="translate(0,0)" id="grph0"></svg:g>
-      <svg:g stroke="blue" style="stroke-width:2px;" transform="translate(0,0)" id="grph1"></svg:g>
-      <svg:g stroke="green" style="stroke-width:2px;" transform="translate(0,0)" id="grph2"></svg:g>
+      <svg:g stroke="red"   style="stroke-width:2px;" id="grph0"></svg:g>
+      <svg:g stroke="blue"  style="stroke-width:2px;" id="grph1"></svg:g>
+      <svg:g stroke="green" style="stroke-width:2px;" id="grph2"></svg:g>
+      <svg:g stroke="#999"  style="stroke-dasharray: 2, 5; " id="axis"></svg:g>
+      <svg:g stroke="#999" font-size="12" id="text"></svg:g>
     </svg:svg>
 
     <table id='ow_table' border="1" cellspacing="0">
@@ -33,9 +35,11 @@ ifdef(`conf_ONEWIRE', `', `m4exit(1)')dnl
 
     <script type="text/javascript"><![CDATA[
 var g = new Array();
-g[0] = new Graph("grph0", 40, 0, 40);
-g[1] = new Graph("grph1", 40, 0, 40);
-g[2] = new Graph("grph2", 40, 0, 40);
+var min = -10, max = 50;
+g[0] = new Graph("grph0", 40, min, max);
+g[1] = new Graph("grph1", 40, min, max);
+g[2] = new Graph("grph2", 40, min, max);
+graphCreateAxis("axis", "text", min, max);
 
 var sensors;
 
