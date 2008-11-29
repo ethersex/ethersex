@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include <stdint.h>
+#include <avr/interrupt.h>
 
 #ifndef _USART_H
 #define _USART_H

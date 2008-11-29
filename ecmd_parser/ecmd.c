@@ -169,14 +169,18 @@ int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     (void) len;
 
     status.request_reset = 1;
+#ifdef UIP_SUPPORT
     uip_close();
+#endif
     return 0;
 } /* }}} */
 
 int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     status.request_wdreset = 1;
+#ifdef UIP_SUPPORT
     uip_close();
+#endif
     return 0;
 } /* }}} */
 

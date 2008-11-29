@@ -242,6 +242,7 @@ int main(void)
     np_simple_init();
 #endif 
 
+#ifdef ENC28J60_SUPPORT
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
     debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
             uip_ethaddr.addr[0],
@@ -251,6 +252,7 @@ int main(void)
             uip_ethaddr.addr[4],
             uip_ethaddr.addr[5]
             );
+#endif
 
 #   if defined(HD44780_SUPPORT) && defined(DEBUG)
     fprintf_P(lcd, PSTR("mac: %02x%02x%02x%02x%02x%02x\n"),
