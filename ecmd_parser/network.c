@@ -340,6 +340,7 @@ int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
   }
   cmd[2]++;
   if (cmd[2] == LAST) {
+    cmd[2] = 0;
     cmd[1] ++;
     if (cmd[1] == STACK_LEN)
       return len;
