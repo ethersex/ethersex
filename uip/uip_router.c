@@ -50,61 +50,36 @@
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
-#define input_test(addr,stack)				\
-  if(uip_ipaddr_cmp(BUF->destipaddr, addr ##_hostaddr))	\
-    {							\
-      uip_stack_set_active (stack);			\
-      uip_input ();					\
-    }
-
-#if UIP_CONF_IPV6
-#define forward_test(prefix,stack)					\
-  if(uip_ipaddr_prefixlencmp(*forwardip, prefix ## _hostaddr,	\
-                             prefix ## _prefix_len))			\
-    dest = stack;
+uint8_t 
+router_find_stack(uip_ipaddr_t *forwardip)
+{
+  uint8_t i;
+routing_input:
+  for (i = 0; i < STACK_LEN; i++) {
+    if((! forwardip) && uip_ipaddr_cmp(BUF->destipaddr, uip_stacks[i].uip_hostaddr))
+      return i;
+#ifdef IPV6_SUPPORT
+    if(forwardip && uip_ipaddr_prefixlencmp(forwardip, uip_stacks[i].uip_hostaddr,
+                                          uip_stacks[i].uip_prefix_len))
+      return i;
 #else /* !UIP_CONF_IPV6 */
-#define forward_test(prefix,stack)				\
-  if(uip_ipaddr_maskcmp(*forwardip, prefix ## _hostaddr,	\
-			prefix ## _netmask))			\
-    dest = stack;
+    if(forwardip && uip_ipaddr_maskcmp(forwardip, uip_stacks[i].uip_hostaddr,
+                                     uip_stacks[i].uip_netmask))
+       return i;
 #endif
+  }
+  /* we didn't find an interface for the forwadip, so try it again with the
+   * default router
+   */
+  if (forwadip && forwardip != uip_draddr){
+    forwardip = uip_draddr;
+    goto routing_input;
+  }
 
-#ifdef ENC28J60_SUPPORT
-#define enc_test(func)              func(enc_stack, STACK_ENC)
-#else
-#define enc_test(func)              if(0);
-#endif
-
-#ifdef RFM12_SUPPORT
-#define rfm12_test(func)            func(rfm12_stack, STACK_RFM12)
-#else
-#define rfm12_test(func)            if(0);
-#endif
-
-#ifdef ZBUS_SUPPORT
-#define zbus_test(func)             func(zbus_stack, STACK_ZBUS)
-#else
-#define zbus_test(func)             if(0);
-#endif
-
-#ifdef USB_NET_SUPPORT
-#define usb_net_test(func)          func(usb_stack, STACK_USB)
-#else
-#define usb_net_test(func)          if(0);
-#endif
-
-#ifdef OPENVPN_SUPPORT
-#define openvpn_test(func)          func(openvpn_stack, STACK_OPENVPN)
-#else
-#define openvpn_test(func)          if(0);
-#endif
-
-#define chain(func)				\
-  rfm12_test (func)				\
-  else usb_net_test (func)			\
-  else zbus_test (func)				\
-  else openvpn_test (func)			\
-  else enc_test (func)
+  /* Drop the packet */
+  uip_len = 0;
+  return 0;
+}
 
 
 void
@@ -117,9 +92,17 @@ router_input(uint8_t origin)
   /* uip_len is set to the number of received bytes, including the LLH.
      For RFM12, ZBus, etc.  it's the full 14-byte Ethernet LLH even also. */
 
-  /* Input */
-  chain (input_test)		/* Check if packet is addressed to one stack's
-				   configured host address. */
+  /* Check if packet is addressed to one stack's
+     configured host address. */
+  uint8_t dest = router_find_stack(NULL);
+  if (dest < 255) {
+      uip_stack_set_active(dest);
+#ifdef IPCHAIR_HAVE_INPUT
+      ipchair_PREROUTING_chair();
+      if(!uip_len) return;
+#endif
+      uip_input ();
+  }
 #if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
   else if (BUF->destipaddr[0] == HTONS(0xff02))
     {
@@ -133,7 +116,8 @@ router_input(uint8_t origin)
 #ifdef IP_FORWARDING_SUPPORT
       /* Packet not addressed to us, check destination address to where
 	 the packet has to be routed. */
-      uint8_t dest = router_find_destination ();
+      uint8_t dest = router_find_stack(BUF->destipaddr);
+      if (!uip_len) return; /* Packet was dropped by the router */
 
       if (origin == dest)
 	goto drop;
@@ -184,45 +168,24 @@ void
 router_output(void) {
 #ifdef IPCHAIR_HAVE_OUTPUT
   ipchair_OUTPUT_chair();
-  if(!uip_len) return;
 #endif
 
-  router_output_to(router_find_destination());
+  uint8_t dest = router_find_stack(BUF->destipaddr);
+  if(!uip_len) return;
+
+  router_output_to(dest);
 }
-
-
-uint8_t
-router_ip2dest (uip_ipaddr_t *forwardip)
-{
-  uint8_t dest = 0;
-
-  while (1) {
-    chain (forward_test)
-    else
-    {
-      if (dest == 0xff) return 0; /* Reroute with default router failed */
-
-      /* Can't find destination for this forwardip,
-       * we try the default gateway */
-      forwardip = &uip_draddr;
-      dest = 0xff; /* Here prevent our self from running into an endless loop */
-    }
-    if (dest != 0xff) break;
-  }
-
-  return dest;
-}
-
 
 uint8_t
 router_output_to (uint8_t dest)
 {
   uint8_t retval = 0;
+
   uip_stack_set_active (dest);
 
 #ifdef IPCHAIR_HAVE_POSTROUTING
   ipchair_POSTROUTING_chair();
-  if(!uip_len) return retval;
+  if(!uip_len) return 0;
 #endif
 
   switch (dest)

@@ -33,21 +33,11 @@ void router_input(uint8_t stack);
    by an arp request.  0 otherwise. */
 uint8_t router_output_to (uint8_t stack);
 
-/* Find a stack suitable to transmit the packet in uip_buf. */
-#define router_find_destination() \
-  router_ip2dest(&((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])->destipaddr)
-
-/* Find the stack that corresponds to the provided IP address. */
-uint8_t router_ip2dest (uip_ipaddr_t *forwardip);
-
-
-
 /* Find a suitable stack to transmit the packet in uip_buf and finally
    send it.
    This function is only used by applications, not by the stack inputs 
    */
 void router_output(void);
-
 
 #else
 
