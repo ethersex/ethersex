@@ -7,6 +7,7 @@ function Graph(id,num,min,max) {
     this.min = min;
     this.max = max;
     this.last_y = -1;
+    this.elements = 0;
 
     return this;
 }
@@ -35,15 +36,15 @@ function addText (obj, x, y, text) {
 
 function graphAppend(g,val) {
     val = vboxh - ((val - g.min) * vboxh / (g.max - g.min));
-    var old_elements = g.obj.getElementsByTagName("line").length;
 
     if (g.last_y != -1) {
-	var w = (old_elements + 1) * g.xmult;
-	addLine (g.obj, old_elements * g.xmult, g.last_y, w, val);
+	var w = (g.elements + 1) * g.xmult;
+	addLine (g.obj, g.elements * g.xmult, g.last_y, w, val);
+	g.elements ++;
 
-	if (w >= vboxw) {
-	    g.obj.setAttribute("transform", "translate(-"
-			       + (w - vboxw) + ",0)");
+	if (w > vboxw) {
+	    g.obj.removeChild (g.obj.getElementsByTagName("line")[0]);
+	    g.obj.setAttribute("transform", "translate(-" + (w - vboxw) + ",0)");
 	}
     }
 
