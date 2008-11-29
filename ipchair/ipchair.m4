@@ -127,6 +127,9 @@ ifelse(`$1', `--syn', `ipchair_tcp_flags(`SYN:RST:ACK:FIN', `SYN') && $0(shift($
 ifelse(`$1', `! --syn', `!(ipchair_tcp_flags(`SYN:RST:ACK:FIN', `SYN')) && $0(shift($@))')dnl
 dnl ICMP Type
 ifelse(`$1', `--icmp-type', `ipchair_icmp_type($2) && $0(shift(shift($@)))')dnl
+dnl Stack
+ifelse(`$1', `--stack', `ipchair_stack($2) && $0(shift(shift($@)))')dnl
+ifelse(`$1', `! --stack', `!(ipchair_stack($2)) && $0(shift(shift($@)))')dnl
 dnl Target
 ifelse(`$1', `-j', `1) __target(shift($@))undefine(`__proto')')dnl
 ')
@@ -142,6 +145,7 @@ define(`ipchair_dst', `uip_ipaddr_cmp_instant(BUF->destipaddr, ipchair_addr($1))
 define(`ipchair_src', `uip_ipaddr_cmp_instant(BUF->srcipaddr, ipchair_addr($1))') 
 define(`ipchair_proto',  `define(`__proto', translit(`$1', `a-z', `A-Z'))BUF->proto == __paste2(`UIP_PROTO_', translit(`$1', `a-z', `A-Z'))') 
 define(`ipchair_dport', `__paste2(`BUF_', indir(`__proto'))->destport == HTONS($1)') 
+define(`ipchair_stack', `uip_stack_get_active() == $1') 
 define(`ipchair_sport', `__paste2(`BUF_', indir(`__proto'))->srcport == HTONS($1)') 
 define(`ipchair_tcp_flags', `(((BUF_TCP->flags) & (0 patsubst(`:'translit(`$1', `a-z', `A-Z'), `:', ` | TCP_'))) == (0 patsubst(`:'translit(`$2', `a-z', `A-Z'), `:', ` | TCP_')))')
 define(`ipchair_icmp_type', `__paste2(`BUF_', indir(`__proto'))->type == __paste2(__paste2(indir(`__proto'),_),translit(`$1', `a-z', `A-Z'))') 
