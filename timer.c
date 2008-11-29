@@ -45,6 +45,7 @@
 #include "syslog/syslog.h"
 #include "modbus/modbus.h"
 #include "zbus/zbus.h"
+#include "sd_reader/sd_raw.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -201,6 +202,9 @@ void timer_process(void)
 #       endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
 
         if (counter % 50 == 0) {
+#           ifdef SD_READER_SUPPORT
+            sd_reader_init();
+#           endif
 
 #           ifdef CRON_SUPPORT
             cron_periodic();

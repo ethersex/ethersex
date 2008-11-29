@@ -202,29 +202,22 @@
  * - sd-reader_config.h
  */
 
-static uint8_t read_line(char* buffer, uint8_t buffer_length);
-static uint32_t strtolong(const char* str);
 static uint8_t find_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name, struct fat_dir_entry_struct* dir_entry);
 static struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name); 
 static uint8_t print_disk_info(const struct fat_fs_struct* fs);
 
-int main()
+struct fat_fs_struct* fat_fs;
+
+uint8_t
+sd_reader_init (void)
 {
-    /* we will just use ordinary idle mode */
-    set_sleep_mode(SLEEP_MODE_IDLE);
+	if (fat_fs) return 0;
 
-    /* setup uart */
-    uart_init();
-
-    while(1)
-    {
         /* setup sd card slot */
         if(!sd_raw_init())
         {
-#if DEBUG
-            uart_puts_p(PSTR("MMC/SD initialization failed\n"));
-#endif
-            continue;
+            SDDEBUG("MMC/SD initialization failed\n");
+            return 1;
         }
 
         /* open first partition */
@@ -248,23 +241,23 @@ int main()
                                       );
             if(!partition)
             {
-#if DEBUG
-                uart_puts_p(PSTR("opening partition failed\n"));
-#endif
-                continue;
+                SDDEBUG("opening partition failed\n");
+                return 1;
             }
         }
 
         /* open file system */
-        struct fat_fs_struct* fs = fat_open(partition);
-        if(!fs)
+        fat_fs = fat_open(partition);
+        if(!fat_fs)
         {
-#if DEBUG
-            uart_puts_p(PSTR("opening filesystem failed\n"));
-#endif
-            continue;
+            SDDEBUG("opening filesystem failed\n");
+	    partition_close(partition);
+            return 1;
         }
 
+        SDDEBUG("filesystem successfully mounted!\n");
+
+#if 0
         /* open root directory */
         struct fat_dir_entry_struct directory;
         fat_get_dir_entry_of_path(fs, "/", &directory);
@@ -277,10 +270,12 @@ int main()
 #endif
             continue;
         }
-        
-        /* print some card information as a boot message */
-        print_disk_info(fs);
+#endif
 
+        /* print some card information as a boot message */
+        print_disk_info(fat_fs);
+
+#if 0
         /* provide a simple shell */
         char buffer[24];
         while(1)
@@ -503,60 +498,11 @@ int main()
 
         /* close partition */
         partition_close(partition);
-    }
-    
+#endif
+
     return 0;
 }
 
-uint8_t read_line(char* buffer, uint8_t buffer_length)
-{
-    memset(buffer, 0, buffer_length);
-
-    uint8_t read_length = 0;
-    while(read_length < buffer_length - 1)
-    {
-        uint8_t c = uart_getc();
-
-        if(c == 0x08 || c == 0x7f)
-        {
-            if(read_length < 1)
-                continue;
-
-            --read_length;
-            buffer[read_length] = '\0';
-
-            uart_putc(0x08);
-            uart_putc(' ');
-            uart_putc(0x08);
-
-            continue;
-        }
-
-        uart_putc(c);
-
-        if(c == '\n')
-        {
-            buffer[read_length] = '\0';
-            break;
-        }
-        else
-        {
-            buffer[read_length] = c;
-            ++read_length;
-        }
-    }
-
-    return read_length;
-}
-
-uint32_t strtolong(const char* str)
-{
-    uint32_t l = 0;
-    while(*str >= '0' && *str <= '9')
-        l = l * 10 + (*str++ - '0');
-
-    return l;
-}
 
 uint8_t find_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name, struct fat_dir_entry_struct* dir_entry)
 {
@@ -590,20 +536,20 @@ uint8_t print_disk_info(const struct fat_fs_struct* fs)
     if(!sd_raw_get_info(&disk_info))
         return 0;
 
-    uart_puts_p(PSTR("manuf:  0x")); uart_putc_hex(disk_info.manufacturer); uart_putc('\n');
-    uart_puts_p(PSTR("oem:    ")); uart_puts((char*) disk_info.oem); uart_putc('\n');
-    uart_puts_p(PSTR("prod:   ")); uart_puts((char*) disk_info.product); uart_putc('\n');
-    uart_puts_p(PSTR("rev:    ")); uart_putc_hex(disk_info.revision); uart_putc('\n');
-    uart_puts_p(PSTR("serial: 0x")); uart_putdw_hex(disk_info.serial); uart_putc('\n');
-    uart_puts_p(PSTR("date:   ")); uart_putw_dec(disk_info.manufacturing_month); uart_putc('/');
-                                   uart_putw_dec(disk_info.manufacturing_year); uart_putc('\n');
-    uart_puts_p(PSTR("size:   ")); uart_putdw_dec(disk_info.capacity / 1024 / 1024); uart_puts_p(PSTR("MB\n"));
-    uart_puts_p(PSTR("copy:   ")); uart_putw_dec(disk_info.flag_copy); uart_putc('\n');
-    uart_puts_p(PSTR("wr.pr.: ")); uart_putw_dec(disk_info.flag_write_protect_temp); uart_putc('/');
-                                   uart_putw_dec(disk_info.flag_write_protect); uart_putc('\n');
-    uart_puts_p(PSTR("format: ")); uart_putw_dec(disk_info.format); uart_putc('\n');
-    uart_puts_p(PSTR("free:   ")); uart_putdw_dec(fat_get_fs_free(fs)); uart_putc('/');
-                                   uart_putdw_dec(fat_get_fs_size(fs)); uart_putc('\n');
+    SDDEBUG("manuf:  0x%02x\n", disk_info.manufacturer);
+    SDDEBUG("oem:    %s\n", (char*) disk_info.oem);
+    SDDEBUG("prod:   %s\n", (char*) disk_info.product);
+    SDDEBUG("rev:    0x%02x\n", disk_info.revision);
+    SDDEBUG("serial: 0x%08x\n", disk_info.serial);
+    SDDEBUG("date:   %d/%04d\n", disk_info.manufacturing_month,
+                                 disk_info.manufacturing_year);
+    SDDEBUG("size:   %ld MB\n", disk_info.capacity / 1024 / 1024);
+    SDDEBUG("copy:   %d\n", disk_info.flag_copy);
+    SDDEBUG("wr.pr.: %d/%d\n", disk_info.flag_write_protect_temp,
+                               disk_info.flag_write_protect);
+    SDDEBUG("format: %d\n", disk_info.format);
+    SDDEBUG("free:   %ld/%ld\n", fat_get_fs_free(fs),
+                                 fat_get_fs_size(fs));
 
     return 1;
 }

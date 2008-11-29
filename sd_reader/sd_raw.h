@@ -14,6 +14,14 @@
 #include <stdint.h>
 #include "sd_raw_config.h"
 
+#include "../config.h"
+#ifdef DEBUG_SD_READER
+# include "../debug.h"
+# define SDDEBUG(a...)  debug_printf("sd_reader: " a)
+#else
+# define SDDEBUG(a...)
+#endif
+
 /**
  * \addtogroup sd_raw
  *
@@ -130,6 +138,8 @@ uint8_t sd_raw_write_interval(offset_t offset, uint8_t* buffer, uintptr_t length
 uint8_t sd_raw_sync();
 
 uint8_t sd_raw_get_info(struct sd_raw_info* info);
+
+uint8_t sd_reader_init (void);
 
 /**
  * @}

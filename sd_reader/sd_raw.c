@@ -12,14 +12,6 @@
 #include <avr/io.h>
 #include "sd_raw.h"
 
-#include "../config.h"
-#ifdef DEBUG_SD_READER
-# include "../debug.h"
-# define SDDEBUG(a...)  debug_printf("sd_reader: " a)
-#else
-# define SDDEBUG(a...)
-#endif
-
 /**
  * \addtogroup sd_raw MMC/SD/SDHC card raw access
  *
