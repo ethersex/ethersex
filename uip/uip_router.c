@@ -56,23 +56,24 @@ router_find_stack(uip_ipaddr_t *forwardip)
   uint8_t i;
 routing_input:
   for (i = 0; i < STACK_LEN; i++) {
-    if((! forwardip) && uip_ipaddr_cmp(BUF->destipaddr, uip_stacks[i].uip_hostaddr))
+    uip_stack_set_active(i);
+    if((! forwardip) && uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr))
       return i;
 #ifdef IPV6_SUPPORT
-    if(forwardip && uip_ipaddr_prefixlencmp(forwardip, uip_stacks[i].uip_hostaddr,
-                                          uip_stacks[i].uip_prefix_len))
+    if(forwardip && uip_ipaddr_prefixlencmp(forwardip, uip_hostaddr,
+                                            uip_prefix_len))
       return i;
 #else /* !UIP_CONF_IPV6 */
-    if(forwardip && uip_ipaddr_maskcmp(forwardip, uip_stacks[i].uip_hostaddr,
-                                     uip_stacks[i].uip_netmask))
+    if(forwardip && uip_ipaddr_maskcmp(forwardip, uip_hostaddr,
+                                       uip_netmask))
        return i;
 #endif
   }
   /* we didn't find an interface for the forwadip, so try it again with the
    * default router
    */
-  if (forwadip && forwardip != uip_draddr){
-    forwardip = uip_draddr;
+  if (forwardip && forwardip != &uip_draddr){
+    forwardip = &uip_draddr;
     goto routing_input;
   }
 
@@ -98,7 +99,7 @@ router_input(uint8_t origin)
   if (dest < 255) {
       uip_stack_set_active(dest);
 #ifdef IPCHAIR_HAVE_INPUT
-      ipchair_PREROUTING_chair();
+      ipchair_INPUT_chair();
       if(!uip_len) return;
 #endif
       uip_input ();
@@ -170,7 +171,7 @@ router_output(void) {
   ipchair_OUTPUT_chair();
 #endif
 
-  uint8_t dest = router_find_stack(BUF->destipaddr);
+  uint8_t dest = router_find_stack(&BUF->destipaddr);
   if(!uip_len) return;
 
   router_output_to(dest);
