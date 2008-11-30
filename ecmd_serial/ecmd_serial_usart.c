@@ -40,17 +40,53 @@ generate_usart_init()
 
 static char recv_buffer[ECMD_SERIAL_USART_BUFFER_LEN];
 static char write_buffer[ECMD_SERIAL_USART_BUFFER_LEN + 2];
-static uint8_t recv_len, write_len, sent;
+static uint8_t recv_len, sent;
+static int16_t write_len;
+static volatile uint8_t must_parse;
 
-void ecmd_serial_usart_init(void) {
+void
+ecmd_serial_usart_init(void) {
   recv_len = 0;
+  must_parse = 0;
+  write_len = 0;
   /* Initialize the usart module */
   usart_init();
-  DDRA = 0xC0;
 #ifdef ECMD_SERIAL_USART_RS485_SUPPORT
   DDR_CONFIG_OUT(ECMD_SERIAL_USART_TX);
   PIN_CLEAR(ECMD_SERIAL_USART_TX);
 #endif
+}
+
+void
+ecmd_serial_usart_periodic(void) 
+{
+  if (must_parse && !write_len) {
+    /* we have a request */
+    if (recv_len <= 1) return;
+    write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
+    must_parse = 0;
+    if (write_len < -10) {
+      write_len = -( 10 + write_len);
+      must_parse = 1;
+    } else if (write_len < 0)
+      return;
+    else {
+      recv_len = 0;
+    }
+
+    write_buffer[write_len++] = '\r';
+    write_buffer[write_len++] = '\n';
+    
+#ifdef ECMD_SERIAL_USART_RS485_SUPPORT
+    PIN_SET(ECMD_SERIAL_USART_TX);
+#endif
+
+    /* Enable the tx interrupt and send the first character */
+    sent = 1;
+    usart(UDR) = write_buffer[0];
+    usart(UCSR,B) |= _BV(usart(TXCIE));
+
+  }
 }
 
 SIGNAL(usart(USART,_RX_vect))
@@ -62,39 +98,33 @@ SIGNAL(usart(USART,_RX_vect))
     return; 
   }
   uint8_t data = usart(UDR);
-  if (data == '\r') return; /* We ignore '\r' */
+  if (must_parse) return;
 
-  recv_buffer[recv_len++] = data;
 
-  if (data == '\n' || recv_len == sizeof(recv_buffer)) {
-    PORTA ^= 0x80;
-    /* we have a request */
-    recv_buffer[recv_len - 1] = 0;
-    if (recv_len == 1) return;
-    write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
-    write_buffer[write_len++] = '\r';
-    write_buffer[write_len++] = '\n';
-    
-#ifdef ECMD_SERIAL_USART_RS485_SUPPORT
-    PIN_SET(ECMD_SERIAL_USART_TX);
-#endif
-
-    /* Enable the tx interrupt and send the first character */
-    sent = 1;
-    usart(UCSR,B) |= _BV(usart(TXCIE));
-    usart(UDR) = write_buffer[0];
-
-    recv_len = 0;
+  if (data == '\n' || data == '\r' || recv_len == sizeof(recv_buffer)) {
+    recv_buffer[recv_len] = 0;
+    must_parse = 1;
+    usart(UDR) = '\r';
+    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+    usart(UDR) = '\n';
+    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+    return ;
   }
+
+  usart(UDR) = data;
+  recv_buffer[recv_len++] = data;
 }
 
 SIGNAL(usart(USART,_TX_vect))
 {
   if (sent < write_len) {
+    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
     usart(UDR) = write_buffer[sent++];
   } else {
     /* Disable this interrupt */
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
+
+    write_len = 0;
 
 #ifdef ECMD_SERIAL_USART_RS485_SUPPORT
     PIN_CLEAR(ECMD_SERIAL_USART_TX);

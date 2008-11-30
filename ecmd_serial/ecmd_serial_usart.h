@@ -26,4 +26,5 @@
 #define ECMD_SERIAL_BAUDRATE 19200
 
 void ecmd_serial_usart_init(void);
+void ecmd_serial_usart_periodic(void);
 #endif
