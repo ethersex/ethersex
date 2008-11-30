@@ -62,6 +62,7 @@
 #include "stella/stella.h"
 #include "net/handler.h"
 #include "net/sendmail.h"
+#include "sd_reader/sd_raw.h"
 
 #include "bit-macros.h"
 
@@ -132,6 +133,10 @@ int main(void)
 #   if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
       || defined(DATAFLASH_SUPPORT)
     spi_init();
+#   endif
+
+#   ifdef SD_READER_SUPPORT
+    sd_reader_init();
 #   endif
 
 #   ifdef DATAFLASH_SUPPORT
@@ -294,6 +299,11 @@ int main(void)
 #       ifdef USB_SUPPORT
         usb_periodic();
 	wdt_kick();
+#       endif
+
+#       ifdef SD_READER_SUPPORT
+        sd_reader_init();
+        wdt_kick();
 #       endif
 
         /* check if any timer expired,
