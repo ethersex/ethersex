@@ -154,6 +154,11 @@ ecmd_ifdef(DATAFLASH_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
+ecmd_ifdef(SD_READER_SUPPORT)
+  block(SD/MMC Card Reader)
+  ecmd_feature(sd_dir, "sd dir",, List contents of current SD directory.)
+ecmd_endif
+
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_ifdef(RFM12_SUPPORT)
     block(RFM12)
@@ -185,3 +190,4 @@ ecmd_endif()
 ecmd_ifdef(HTTPD_AUTH_SUPPORT)
   ecmd_feature(http_passwd, "http passwd")
 ecmd_endif()
+
