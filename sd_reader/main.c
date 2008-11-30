@@ -203,7 +203,6 @@
  */
 
 static uint8_t find_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name, struct fat_dir_entry_struct* dir_entry);
-static struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name); 
 static uint8_t print_disk_info(const struct fat_fs_struct* fs);
 
 struct fat_fs_struct* fat_fs;
@@ -503,11 +502,11 @@ sd_reader_init (void)
 
 uint8_t find_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name, struct fat_dir_entry_struct* dir_entry)
 {
+    fat_reset_dir(dd);
     while(fat_read_dir(dd, dir_entry))
     {
         if(strcmp(dir_entry->long_name, name) == 0)
         {
-            fat_reset_dir(dd);
             return 1;
         }
     }
