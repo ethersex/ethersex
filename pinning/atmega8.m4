@@ -49,7 +49,7 @@ ifdef(`conf_ZBUS', `dnl
 ')
 
 ifdef(`conf_STELLA', `dnl
-  STELLA_PORT_RANGE(PB0,PB3)
+  STELLA_PORT_RANGE(PB0,PB2)
 ')
 
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
