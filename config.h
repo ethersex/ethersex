@@ -37,6 +37,7 @@
 
 /* network controller hardware bug defines */
 #define ENC28J60_REV4_WORKAROUND
+#define ENC28J60_REV5_WORKAROUND
 
 /* Include pinning.c as output of m4 scripts in pinning sub-directory.
    Have a look there for MCU specific configuration options. */

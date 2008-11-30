@@ -237,7 +237,11 @@ void reset_controller(void)
     spi_send(CMD_RESET);
 
     /* wait until the controller is ready */
+#ifdef ENC28J60_REV5_WORKAROUND
+    _delay_ms (2);
+#else
     while (!(read_control_register(REG_ESTAT) & _BV(CLKRDY)));
+#endif
 
     /* release device */
     cs_high();
