@@ -141,8 +141,6 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info);
 
 uint8_t sd_reader_init (void);
 
-extern struct fat_dir_struct* sd_cwd;
-
 /**
  * @}
  */

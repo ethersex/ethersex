@@ -158,14 +158,6 @@ struct fat_fs_struct
     struct fat_header_struct header;
 };
 
-struct fat_file_struct
-{
-    struct fat_fs_struct* fs;
-    struct fat_dir_entry_struct dir_entry;
-    offset_t pos;
-    cluster_t pos_cluster;
-};
-
 struct fat_dir_struct
 {
     struct fat_fs_struct* fs;
