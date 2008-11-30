@@ -96,8 +96,10 @@ debug_process_uart (void)
 
             do {
                 l = ecmd_parse_command(buf, output, LEN);
-                if (l > 0 || l < -10)
+                if (l > 0 || l < -10) {
+		    output[(l < 0) ? (-l - 10) : l] = 0;
                     printf_P(PSTR("%s\n"), output);
+                }
             } while (l <= -10);
             free(output);
             ptr = buf;
