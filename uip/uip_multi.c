@@ -40,13 +40,19 @@
 
 #if UIP_MULTI_STACK
 
+#ifdef IPSTATS_SUPPORT
+#define IPSTATS_VOODOO(a) &a ## _stat,
+#else
+#define IPSTATS_VOODOO(a)
+#endif
+
 #ifdef IPV6_SUPPORT
 
 #define STACK_FUNCS(stackname)			\
   {						\
     &stackname ## _hostaddr,			\
     &stackname ## _prefix_len,                  \
-    &stackname ## _stat,			\
+    IPSTATS_VOODOO(stackname)			\
   }
 
 #else /* !IPV6_SUPPORT */
@@ -55,7 +61,7 @@
   {						\
     &stackname ## _hostaddr,			\
     &stackname ## _netmask,			\
-    &stackname ## _stat,			\
+    IPSTATS_VOODOO(stackname)			\
   }
 
 #endif
