@@ -518,7 +518,10 @@ struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_di
 {
     struct fat_dir_entry_struct file_entry;
     if(!find_file_in_dir(fs, dd, name, &file_entry))
+      {
+	SDDEBUG("open_file_in_dir: cannot find '%s'\n", name);
         return 0;
+      }
 
     return fat_open_file(fs, &file_entry);
 }

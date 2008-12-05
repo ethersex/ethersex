@@ -886,7 +886,10 @@ struct fat_file_struct* fat_open_file(struct fat_fs_struct* fs, const struct fat
 #if USE_DYNAMIC_MEMORY
     struct fat_file_struct* fd = malloc(sizeof(*fd));
     if(!fd)
+      {
+	SDDEBUG ("fat_open_file: unable to allocate fat_file_struct.\n");
         return 0;
+      }
 #else
     struct fat_file_struct* fd = fat_file_handles;
     uint8_t i;
@@ -898,7 +901,10 @@ struct fat_file_struct* fat_open_file(struct fat_fs_struct* fs, const struct fat
         ++fd;
     }
     if(i >= FAT_FILE_COUNT)
+      {
+	SDDEBUG ("fat_open_file: no slot in fat_file_handles available.\n");
         return 0;
+      }
 #endif
     
     memcpy(&fd->dir_entry, dir_entry, sizeof(*dir_entry));
