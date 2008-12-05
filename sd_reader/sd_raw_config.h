@@ -96,5 +96,13 @@
 #define SD_RAW_WRITE_BUFFERING 0
 #endif
 
+
+#ifdef DEBUG_SD_READER
+# include "../debug.h"
+# define SDDEBUG(a...)  debug_printf("sd_reader: " a)
+#else
+# define SDDEBUG(a...)
+#endif
+
 #endif
 

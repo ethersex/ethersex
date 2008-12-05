@@ -14,14 +14,6 @@
 #include <stdint.h>
 #include "sd_raw_config.h"
 
-#include "../config.h"
-#ifdef DEBUG_SD_READER
-# include "../debug.h"
-# define SDDEBUG(a...)  debug_printf("sd_reader: " a)
-#else
-# define SDDEBUG(a...)
-#endif
-
 /**
  * \addtogroup sd_raw
  *
