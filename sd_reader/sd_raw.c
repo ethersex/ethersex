@@ -214,13 +214,13 @@ uint8_t sd_raw_init()
 
     /* reset card */
     uint8_t response;
-    for(uint16_t i = 0; ; ++i)
+    for(uint8_t i = 0; ; ++i)
     {
         response = sd_raw_send_command(CMD_GO_IDLE_STATE, 0);
         if(response == (1 << R1_IDLE_STATE))
             break;
 
-        if(i == 0x1ff)
+        if(i == 0xff)
         {
             unselect_card();
             SDDEBUG ("card reset failed, response=0x%04x.\n", response);
@@ -263,7 +263,7 @@ uint8_t sd_raw_init()
     }
 
     /* wait for card to get ready */
-    for(uint16_t i = 0; ; ++i)
+    for(uint8_t i = 0; ; ++i)
     {
         if(sd_raw_card_type & ((1 << SD_RAW_SPEC_1) | (1 << SD_RAW_SPEC_2)))
         {
@@ -283,7 +283,7 @@ uint8_t sd_raw_init()
         if((response & (1 << R1_IDLE_STATE)) == 0)
             break;
 
-        if(i == 0x7fff)
+        if(i == 0xff)
         {
             unselect_card();
             SDDEBUG ("timeout waiting for card to become ready.\n");

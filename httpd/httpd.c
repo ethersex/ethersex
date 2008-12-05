@@ -36,6 +36,7 @@
 #include "../eeprom.h"
 #include "../ecmd_parser/ecmd.h"
 #include "../config.h"
+#include "../sd_reader/fat.h"
 
 #ifdef DEBUG_HTTPD
 # include "../debug.h"
@@ -121,6 +122,7 @@ unsigned short send_str_P(void *data);
 unsigned short send_length_P(void *data);
 unsigned short send_length_f(void *data);
 unsigned short send_length_if(void *data);
+unsigned short send_sd_f(void *data);
 unsigned short send_file_f(void *data);
 unsigned short send_file_if(void *data);
 
@@ -251,7 +253,8 @@ auth_success:
     }
 #endif
 
-#if defined(DATAFLASH_SUPPORT) || defined(HTTPD_INLINE_FILES_SUPPORT)
+#if defined(DATAFLASH_SUPPORT) || defined(HTTPD_INLINE_FILES_SUPPORT) \
+  || defined(SD_READER_SUPPORT)
     else {
         strncpy(state->name, state->tmp_buffer, sizeof(state->name));
         if (strlen(state->tmp_buffer) >= sizeof(state->name))
@@ -259,7 +262,7 @@ auth_success:
     }
 
     printf ("fs: httpd: request for file \"%s\"\n", state->name);
-#endif	/* not DATAFLASH_SUPPORT and not HTTPD_INLINE_FILES_SUPPORT */
+#endif	/* neither DATAFLASH nor HTTPD_INLINE_FILES nor SD_READER support */
 
     free(state->tmp_buffer);
 
@@ -302,6 +305,40 @@ auth_success:
       PSOCK_CLOSE_EXIT(&state->in);
     }
 #endif	/* HTTPD_INLINE_FILES_SUPPORT */
+
+#ifdef SD_READER_SUPPORT
+    /* search node */
+    printf ("httpd: searching sd-card for %s\n", state->name);
+    state->fd = open_file_in_dir(fat_fs, sd_cwd, state->name);
+    if (state->fd) {
+      state->len = state->fd->dir_entry.file_size;
+      printf ("httpd: got it, that's nice, let's go serve it (%ld bytes)!\n", 
+	      state->len);
+
+      /* send headers */
+      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
+      if (state->name[0] == 'X')
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
+      else if (state->name[0] == 'S')
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
+      else
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
+
+      /* send content-length header */
+      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+      PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
+
+      /* generate content */
+      while(state->len)
+	PSOCK_GENERATOR_SEND(&state->in, send_sd_f, state);
+
+      printf("httpd: sd-data generation completed.\n");
+      fat_close_file (state->fd);
+
+      PSOCK_CLOSE_EXIT(&state->in);
+    }
+    
+#endif
 
 #ifdef DATAFLASH_SUPPORT
     /* search inode */
@@ -402,7 +439,7 @@ unsigned short send_length_f(void *data)
 #endif /* DATAFLASH_SUPPORT */
 
 
-#ifdef HTTPD_INLINE_FILES_SUPPORT
+#if defined(HTTPD_INLINE_FILES_SUPPORT) || defined(SD_READER_SUPPORT)
 unsigned short
 send_length_if (void *data)
 {
@@ -412,8 +449,28 @@ send_length_if (void *data)
     sprintf_P (uip_appdata, PSTR ("%d\n\n"), state->len);
     return strlen (uip_appdata);
 }
-#endif	/* HTTPD_INLINE_FILES_SUPPORT */
+#endif	/* HTTPD_INLINE_FILES_SUPPORT || SD_READER_SUPPORT */
 
+
+#ifdef SD_READER_SUPPORT
+unsigned short send_sd_f(void *data)
+{
+    struct httpd_connection_state_t *state =
+      (struct httpd_connection_state_t *)data;
+
+    intptr_t len = fat_read_file(state->fd, uip_appdata, uip_mss());
+    printf ("send_sd_f: read a chunk of %d bytes.\n", len);
+
+    if (len <= 0) {
+      state->len = 0;
+      len = 0;
+    }
+
+    state->len -= len;
+
+    return len;
+}
+#endif /* SD_READER_SUPPORT */
 
 #ifdef DATAFLASH_SUPPORT
 unsigned short send_file_f(void *data)

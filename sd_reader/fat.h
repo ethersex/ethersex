@@ -84,6 +84,14 @@ struct fat_dir_entry_struct
     offset_t entry_offset;
 };
 
+struct fat_file_struct
+{
+    struct fat_fs_struct* fs;
+    struct fat_dir_entry_struct dir_entry;
+    offset_t pos;
+    cluster_t pos_cluster;
+};
+
 struct fat_fs_struct* fat_open(struct partition_struct* partition);
 void fat_close(struct fat_fs_struct* fs);
 
@@ -111,6 +119,11 @@ uint8_t fat_get_dir_entry_of_path(struct fat_fs_struct* fs, const char* path, st
 
 offset_t fat_get_fs_size(const struct fat_fs_struct* fs);
 offset_t fat_get_fs_free(const struct fat_fs_struct* fs);
+
+extern struct fat_fs_struct* fat_fs;
+extern struct fat_dir_struct* sd_cwd;
+
+struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name); 
 
 /**
  * @}

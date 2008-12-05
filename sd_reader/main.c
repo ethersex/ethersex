@@ -203,15 +203,15 @@
  */
 
 static uint8_t find_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name, struct fat_dir_entry_struct* dir_entry);
-static struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name); 
 static uint8_t print_disk_info(const struct fat_fs_struct* fs);
 
 struct fat_fs_struct* fat_fs;
+struct fat_dir_struct* sd_cwd;
 
 uint8_t
 sd_reader_init (void)
 {
-	if (fat_fs) return 0;
+	if (sd_cwd) return 0;
 
         /* setup sd card slot */
         if(!sd_raw_init())
@@ -257,20 +257,16 @@ sd_reader_init (void)
 
         SDDEBUG("filesystem successfully mounted!\n");
 
-#if 0
         /* open root directory */
         struct fat_dir_entry_struct directory;
-        fat_get_dir_entry_of_path(fs, "/", &directory);
+        fat_get_dir_entry_of_path(fat_fs, "/", &directory);
 
-        struct fat_dir_struct* dd = fat_open_dir(fs, &directory);
-        if(!dd)
+        sd_cwd = fat_open_dir(fat_fs, &directory);
+        if(!sd_cwd)
         {
-#if DEBUG
-            uart_puts_p(PSTR("opening root directory failed\n"));
-#endif
-            continue;
+            SDDEBUG("opening root directory failed\n");
+            return 1;
         }
-#endif
 
         /* print some card information as a boot message */
         print_disk_info(fat_fs);
@@ -506,11 +502,11 @@ sd_reader_init (void)
 
 uint8_t find_file_in_dir(struct fat_fs_struct* fs, struct fat_dir_struct* dd, const char* name, struct fat_dir_entry_struct* dir_entry)
 {
+    fat_reset_dir(dd);
     while(fat_read_dir(dd, dir_entry))
     {
         if(strcmp(dir_entry->long_name, name) == 0)
         {
-            fat_reset_dir(dd);
             return 1;
         }
     }

@@ -25,6 +25,7 @@
 
 #include "../dataflash/fs.h"
 #include "../config.h"
+#include "../sd_reader/fat.h"
 
 typedef enum {
     HTTPD_STATE_CLOSED = 0,
@@ -35,17 +36,22 @@ struct httpd_connection_state_t {
     http_state_t state;
     uint8_t timeout;
     char buffer[40];
-    char name[10];
+    char name[16];
     struct psock in, out;
     fs_inode_t inode;
     fs_size_t offset;
 
     char *tmp_buffer;
-#ifdef HTTPD_INLINE_FILES_SUPPORT
+#if defined(SD_READER_SUPPORT)
+    uint32_t len;
+#elif defined(HTTPD_INLINE_FILES_SUPPORT)
     uint16_t len;
 #endif
 #ifdef ECMD_PARSER_SUPPORT
     uint8_t parse_again;
+#endif
+#ifdef SD_READER_SUPPORT
+    struct fat_file_struct* fd;
 #endif
 };
 
