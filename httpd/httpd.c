@@ -446,7 +446,11 @@ send_length_if (void *data)
     struct httpd_connection_state_t *state =
 	(struct httpd_connection_state_t *) data;
 
+#ifdef SD_READER_SUPPORT
+    sprintf_P (uip_appdata, PSTR ("%ld\n\n"), state->len);
+#else
     sprintf_P (uip_appdata, PSTR ("%d\n\n"), state->len);
+#endif
     return strlen (uip_appdata);
 }
 #endif	/* HTTPD_INLINE_FILES_SUPPORT || SD_READER_SUPPORT */
@@ -459,7 +463,6 @@ unsigned short send_sd_f(void *data)
       (struct httpd_connection_state_t *)data;
 
     intptr_t len = fat_read_file(state->fd, uip_appdata, uip_mss());
-    printf ("send_sd_f: read a chunk of %d bytes.\n", len);
 
     if (len <= 0) {
       state->len = 0;
