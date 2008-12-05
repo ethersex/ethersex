@@ -333,8 +333,6 @@ auth_success:
 	PSOCK_GENERATOR_SEND(&state->in, send_sd_f, state);
 
       printf("httpd: sd-data generation completed.\n");
-      fat_close_file (state->fd);
-
       PSOCK_CLOSE_EXIT(&state->in);
     }
     
@@ -522,18 +520,32 @@ send_file_if (void *data)
 #endif	/* HTTPD_INLINE_FILES_SUPPORT */
 
 
-void httpd_main(void)
-/* {{{ */ {
+static inline void
+httpd_cleanup (struct httpd_connection_state_t *state)
+{
+#ifdef SD_READER_SUPPORT
+    if (state->fd) {
+	printf("httpd: cleaning left-over sd-handle at %p.\n", state->fd);
+
+	fat_close_file (state->fd);
+	state->fd = NULL;
+    }
+#endif	/* SD_READER_SUPPORT */
+}
+
+void
+httpd_main(void)
+{
 
     struct httpd_connection_state_t *state = &uip_conn->appstate.httpd;
 
-    if (uip_aborted())
+    if (uip_aborted() || uip_timedout()) {
+	httpd_cleanup (state);
         printf ("httpd: connection aborted\n");
-
-    if (uip_timedout())
-        printf ("httpd: connection aborted\n");
+    }
 
     if (uip_closed()) {
+	httpd_cleanup (state);
         state->state = HTTPD_STATE_CLOSED;
         printf ("httpd: connection closed\n");
     }
@@ -543,6 +555,7 @@ void httpd_main(void)
 
         if (state->timeout == HTTPD_TIMEOUT) {
             printf ("httpd: timeout\n");
+	    httpd_cleanup (state);
             uip_close();
         }
     }
@@ -576,4 +589,4 @@ void httpd_main(void)
         httpd_handle(state);
     }
 
-} /* }}} */
+}
