@@ -36,9 +36,7 @@
 #include "../usb/usb_net.h"
 
 #ifdef IPCHAIR_SUPPORT
-#define IPCHAIR_HEADER
-#include "../ipchair/ipchair.c"
-#undef IPCHAIR_HEADER
+#include "../ipchair/ipchair.h"
 #endif
 
 #ifdef DEBUG_ROUTER
@@ -60,11 +58,11 @@ routing_input:
     if((! forwardip) && uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr))
       return i;
 #ifdef IPV6_SUPPORT
-    if(forwardip && uip_ipaddr_prefixlencmp(forwardip, uip_hostaddr,
+    if(forwardip && uip_ipaddr_prefixlencmp(*forwardip, uip_hostaddr,
                                             uip_prefix_len))
       return i;
 #else /* !UIP_CONF_IPV6 */
-    if(forwardip && uip_ipaddr_maskcmp(forwardip, uip_hostaddr,
+    if(forwardip && uip_ipaddr_maskcmp(*forwardip, uip_hostaddr,
                                        uip_netmask))
        return i;
 #endif
@@ -117,7 +115,7 @@ router_input(uint8_t origin)
 #ifdef IP_FORWARDING_SUPPORT
       /* Packet not addressed to us, check destination address to where
 	 the packet has to be routed. */
-      uint8_t dest = router_find_stack(BUF->destipaddr);
+      uint8_t dest = router_find_stack(&BUF->destipaddr);
       if (!uip_len) return; /* Packet was dropped by the router */
 
       if (origin == dest)

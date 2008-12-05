@@ -25,7 +25,9 @@ dnl This packet allows to masquerade packets received via USB to be
 dnl automatically masqueraded, so you're able to use your Ethersex as
 dnl an USB network interface.
 
+divert(2)dnl
 static uip_ipaddr_t ipchair_masq_peer_addr;
+divert(0)dnl
 
 CHAIR(MASQUERADE)
   if (uip_stack_get_active() != STACK_USB)

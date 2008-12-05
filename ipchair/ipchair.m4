@@ -36,10 +36,7 @@ typedef uint8_t user_return_t;
 divert(1)
 #endif /* __IPCHAIR_HDR */
 #else
-/* recursive inclusion of this file, to get also the header */
-#define IPCHAIR_HEADER
-#include "ipchair.c"
-#undef IPCHAIR_HEADER
+#include "ipchair.h"
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define BUF_TCP ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
