@@ -76,8 +76,7 @@ routing_input:
   }
 
   /* Drop the packet */
-  uip_len = 0;
-  return 0;
+  return 255;
 }
 
 
@@ -116,7 +115,11 @@ router_input(uint8_t origin)
       /* Packet not addressed to us, check destination address to where
 	 the packet has to be routed. */
       uint8_t dest = router_find_stack(&BUF->destipaddr);
-      if (!uip_len) return; /* Packet was dropped by the router */
+      if (dest == 255)
+        {
+	  uip_len = 0;
+          return; /* Packet was dropped by the router */
+        }
 
       if (origin == dest)
 	goto drop;
@@ -170,7 +173,11 @@ router_output(void) {
 #endif
 
   uint8_t dest = router_find_stack(&BUF->destipaddr);
-  if(!uip_len) return;
+  if (dest == 255) 
+    {
+      uip_len = 0;
+      return;
+    }
 
   router_output_to(dest);
 }
