@@ -33,7 +33,7 @@
 #ifdef ECMD_SERIAL_I2C_SUPPORT
 
 static char buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
-static uint8_t len, sent, parse;
+static int16_t len, sent, parse;
 
 static void
 init_twi(void){
@@ -69,9 +69,15 @@ ecmd_serial_i2c_periodic(void)
   /* error detection on i2c bus */
   if((TWSR & 0xF8) == 0x00)
     init_twi();
-  if (parse) {
+  if (parse && !len ) {
     len = ecmd_parse_command(buffer, buffer, sizeof(buffer));
+    sent = 0;
     parse = 0;
+    if (len < -10) {
+      len = - ( 10 + len );
+      parse = 1;
+    } else if (len < 0) 
+      len = 0;
   }
 }
 
@@ -96,8 +102,10 @@ ISR (TWI_vect)
   case 0xB8: /* the answer is sent */
     if (sent < len)
       TWDR = buffer[sent++];
-    else 
-      TWDR = 0;
+    else {
+      TWDR = parse ? '\n': 0;
+      len = 0;
+    }
   break;
   }
   TWCR |= (1<<TWINT); //TWI wieder aktivieren
