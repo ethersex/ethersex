@@ -32,6 +32,13 @@
 #include "config.h"
 #include "debug.h"
 
+#ifdef DEBUG_NET_IP6
+# include "debug.h"
+# define IP6DEBUG(a...)  debug_printf("ip6: " a)
+#else
+# define IP6DEBUG(a...)
+#endif
+
 #undef UIP_LLH_LEN
 #define UIP_LLH_LEN 14		/* force ethernet LLH, we'll never
 				   ever send solicitations over
@@ -112,6 +119,8 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 void 
 uip_router_send_solicitation(void)
 {
+  IP6DEBUG ("emitting router solicitation.\n");
+
   uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
   uip_len = UIP_LLH_LEN + UIP_IPH_LEN + 16;
   memset(uip_buf, 0, uip_len);
@@ -209,6 +218,8 @@ uip_router_parse_advertisement(void)
   struct uip_icmp_radv_prefix *prefix;
   struct uip_icmp_radv_source *source;
 
+  IP6DEBUG ("parsing RA, first_type is %d.\n", RADVBUF->first_type);
+
   if (RADVBUF->first_type == 1) {
     source = (struct uip_icmp_radv_source *) &RADVBUF->first_type;
     prefix = (struct uip_icmp_radv_prefix *) &(&RADVBUF->first_type)[8];
@@ -261,6 +272,7 @@ uip_router_parse_advertisement(void)
   return;
 
 error_out:
+  IP6DEBUG ("unabled to parse RA.\n");
   return;
 }
 #endif /* not IPV6_STATIC_SUPPORT */
