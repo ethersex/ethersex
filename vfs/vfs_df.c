@@ -19,4 +19,58 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdlib.h>
+
 #include "vfs.h"
+
+struct vfs_file_handle_t *
+vfs_df_open (const char *filename)
+{
+  fs_inode_t i = fs_get_inode (&fs, filename);
+
+  if (i == 0xffff)
+    return NULL;		/* No such file. */
+
+  struct vfs_file_handle_t *fh = malloc (sizeof (struct vfs_file_handle_t));
+  if (fh == NULL)
+    return NULL;
+
+  fh->fh_type = VFS_DF;
+  fh->u.df = i;
+
+  return fh;
+}
+
+
+void
+vfs_df_close (struct vfs_file_handle_t *fh)
+{
+
+}
+
+
+vfs_size_t
+vfs_df_read (struct vfs_file_handle_t *fh, void *buf,
+	     vfs_size_t offset, vfs_size_t length)
+{
+
+}
+
+vfs_size_t
+vfs_df_write (struct vfs_file_handle_t *fh, void *buf,
+	      vfs_size_t offset, vfs_size_t length)
+{
+
+}
+
+uint8_t
+vfs_df_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
+{
+
+}
+
+uint8_t
+vfs_df_create (const char *name)
+{
+
+}
