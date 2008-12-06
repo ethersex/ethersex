@@ -22,6 +22,7 @@
 #ifndef VFS_DF_H
 #define VFS_DF_H
 
+#include <stdlib.h>
 #include "../dataflash/fs.h"
 
 typedef fs_inode_t vfs_file_handle_df_t;
@@ -40,7 +41,7 @@ uint8_t vfs_df_create (const char *name);
 #define VFS_DF_FUNCS {				\
     "df",					\
     vfs_df_open,				\
-    vfs_df_close,				\
+    NULL, /* vfs_df_close */			\
     vfs_df_read,				\
     vfs_df_write,				\
     vfs_df_truncate,				\

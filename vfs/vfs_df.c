@@ -42,13 +42,6 @@ vfs_df_open (const char *filename)
 }
 
 
-void
-vfs_df_close (struct vfs_file_handle_t *fh)
-{
-
-}
-
-
 vfs_size_t
 vfs_df_read (struct vfs_file_handle_t *fh, void *buf,
 	     vfs_size_t offset, vfs_size_t length)
