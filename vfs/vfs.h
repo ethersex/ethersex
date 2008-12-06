@@ -22,6 +22,7 @@
 #ifndef VFS_H
 #define VFS_H
 
+#include "../config.h"
 
 enum vfs_type_t {
 #ifdef VFS_DF_SUPPORT
@@ -106,7 +107,7 @@ struct vfs_func_t vfs_funcs[] = {
    VFS module. */
 struct vfs_file_handle_t *vfs_open (const char *filename);
 
-uint8_t vfs_df_create (const char *name);
+uint8_t vfs_create (const char *name);
 
 
 /* Generation of forwarder functions. */
@@ -115,9 +116,9 @@ uint8_t vfs_df_create (const char *name);
    ? vfs_funcs[handle->fh_type].call(handle, ##args)  \
    : def)
 
-#define vfs_df_close(handle)       VFS_REDIR(close, 0, handle)
-#define vfs_df_read(handle...)     VFS_REDIR(read, 0, handle)
-#define vfs_df_write(handle...)    VFS_REDIR(write, 0, handle)
-#define vfs_df_truncate(handle...) VFS_REDIR(truncate, 1, handle)
+#define vfs_close(handle)       VFS_REDIR(close, 0, handle)
+#define vfs_read(handle...)     VFS_REDIR(read, 0, handle)
+#define vfs_write(handle...)    VFS_REDIR(write, 0, handle)
+#define vfs_truncate(handle...) VFS_REDIR(truncate, 1, handle)
 
 #endif	/* VFS_H */
