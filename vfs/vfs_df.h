@@ -38,6 +38,7 @@ uint8_t vfs_df_create (const char *name);
 
 
 #define VFS_DF_FUNCS {				\
+    "df",					\
     vfs_df_open,				\
     vfs_df_close,				\
     vfs_df_read,				\

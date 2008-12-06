@@ -62,6 +62,9 @@ struct vfs_file_handle_t {
 };
 
 struct vfs_func_t {
+  /* VFS module name, i.e. the "mount point" */
+  const char *mod_name;
+
   /* Try to open the file FILENAME, return a handle or NULL on error. */
   struct vfs_file_handle_t * (*open) (const char *filename);
 
