@@ -46,24 +46,25 @@ vfs_size_t
 vfs_df_read (struct vfs_file_handle_t *fh, void *buf,
 	     vfs_size_t offset, vfs_size_t length)
 {
-
+  return fs_read (&fs, fh->u.df, buf, offset, length);
 }
 
 vfs_size_t
 vfs_df_write (struct vfs_file_handle_t *fh, void *buf,
 	      vfs_size_t offset, vfs_size_t length)
 {
-
+  fs_status_t i = fs_write (&fs, fh->u.df, buf, offset, length);
+  return i == FS_OK ? length : 0;
 }
 
 uint8_t
 vfs_df_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
 {
-
+  return fs_truncate (&fs, fh->u.df, length);
 }
 
 uint8_t
 vfs_df_create (const char *name)
 {
-
+  return fs_create (&fs, name);
 }
