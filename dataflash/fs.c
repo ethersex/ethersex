@@ -255,7 +255,7 @@ fs_status_t fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index)
 
 } /* }}} */
 
-fs_inode_t fs_get_inode(fs_t *fs, char *file)
+fs_inode_t fs_get_inode(fs_t *fs, const char *file)
 /* {{{ */ {
 
     fs_inode_t inode = 0xffff;
