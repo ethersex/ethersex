@@ -711,7 +711,7 @@ fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length)
     return FS_OK;
 }
 
-fs_status_t fs_create(fs_t *fs, char *name)
+fs_status_t fs_create(fs_t *fs, const char *name)
 /* {{{ */ {
 
     /* search for a place for this filename in the table */
