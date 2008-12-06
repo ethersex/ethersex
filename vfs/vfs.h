@@ -1,0 +1,120 @@
+/*
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+#ifndef VFS_H
+#define VFS_H
+
+
+enum vfs_type_t {
+#ifdef VFS_DF_SUPPORT
+  VFS_DF,
+#endif
+#ifdef VFS_DF_RAW_SUPPORT
+  VFS_DF_RAW,
+#endif
+#ifdef VFS_SD_SUPPORT
+  VFS_SD,
+#endif
+#ifdef VFS_PROC_SUPPORT
+  VFS_PROC,
+#endif
+
+  VFS_LAST
+};
+
+/* Forward declarations. */
+struct vfs_file_handle_t;
+
+
+/* VFS-related types. */
+#include <stdint.h>
+typedef uint32_t vfs_size_t;
+
+
+#include "vfs_df.h"
+
+struct vfs_file_handle_t {
+  /* The vfs_type_t of the VFS module that is responsible for this
+     file handle. */
+  uint8_t fh_type;
+
+  union {
+    vfs_file_handle_df_t df;
+  } u;
+};
+
+struct vfs_func_t {
+  /* Try to open the file FILENAME, return a handle or NULL on error. */
+  struct vfs_file_handle_t * (*open) (const char *filename);
+
+  /* Close the referenced file. */
+  void (*close) (struct vfs_file_handle_t *);
+
+  /* Read LENGTH bytes from OFFSET on to the memory referenced by BUF.
+     Returns the number of bytes actually read. */
+  vfs_size_t (*read) (struct vfs_file_handle_t *, void *buf,
+		      vfs_size_t offset, vfs_size_t length);
+
+  /* Write LENGTH bytes stored at BUF.  Seek to OFFSET before. */
+  vfs_size_t (*write) (struct vfs_file_handle_t *, void *buf,
+		       vfs_size_t offset, vfs_size_t length);
+
+  /* Truncate the file to LENGTH bytes.  Return 0 on success. */
+  uint8_t (*truncate) (struct vfs_file_handle_t *, vfs_size_t length);
+
+  /* Try to create a new file called NAME. */
+  uint8_t (*create) (const char *name);
+};
+
+struct vfs_func_t vfs_funcs[] = {
+#ifdef VFS_DF_SUPPORT
+  VFS_DF_FUNCS,
+#endif
+#ifdef VFS_DF_RAW_SUPPORT
+  VFS_DF_RAW_FUNCS,
+#endif
+#ifdef VFS_SD_SUPPORT
+  VFS_SD_FUNCS,
+#endif
+#ifdef VFS_PROC_SUPPORT
+  VFS_PROC_FUNCS,
+#endif
+};
+
+/* Generic variant of open that automagically finds the suitable
+   VFS module. */
+struct vfs_file_handle_t *vfs_open (const char *filename);
+
+uint8_t vfs_df_create (const char *name);
+
+
+/* Generation of forwarder functions. */
+#define VFS_REDIR(call,def,handle,args...)	      \
+  ((vfs_funcs[handle->fh_type].call)		      \
+   ? vfs_funcs[handle->fh_type].call(handle, ##args)  \
+   : def)
+
+#define vfs_df_close(handle)       VFS_REDIR(close, 0, handle)
+#define vfs_df_read(handle...)     VFS_REDIR(read, 0, handle)
+#define vfs_df_write(handle...)    VFS_REDIR(write, 0, handle)
+#define vfs_df_truncate(handle...) VFS_REDIR(truncate, 1, handle)
+
+#endif	/* VFS_H */
