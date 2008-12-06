@@ -1,0 +1,5 @@
+dep_bool "VFS (Virtual File System) support" VFS_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "  Dataflash: Filesystem Access" VFS_DF_SUPPORT $VFS_SUPPORT
+dep_bool "  Dataflash: Raw Block Access" VFS_DF_RAW_SUPPORT $VFS_SUPPORT
+dep_bool "  SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT
+dep_bool "  Proc FS" VFS_PROC_SUPPORT $VFS_SUPPORT
