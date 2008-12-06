@@ -68,6 +68,7 @@ ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
 #define _SPDR0 SPDR
 #define _SPI2X0 SPI2X
 #define _TIFR_TIMER1 TIFR
+#define _TIMSK_TIMER1 TIMSK
 #define _EIMSK GICR
 #define _UDR_UART0 UDR
 #define _UCSRA_UART0 UCSRA
