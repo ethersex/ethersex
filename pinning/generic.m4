@@ -22,23 +22,6 @@ dnl
 divert(0)dnl
 dnl
 
-ifdef(`conf_ENC28J60', `dnl
-  /* port the enc28j60 is attached to
-   * ATTENTION: EITHER USE SS OR MAKE SURE, SS IS PULLED HIGH OR AN OUTPUT! */
-
-  pin(SPI_CS_NET, PB4)
-')dnl
-
-ifdef(`conf_DATAFLASH', `dnl
-  /* port the dataflash CS is attached to */
-  pin(SPI_CS_DF, PB1)
-')dnl
-
-ifdef(`conf_SD_READER', `dnl
-  /* port the sd-reader CS is attached to */
-  pin(SPI_CS_SD_READER, PB2)
-')dnl
-
 ifdef(`conf_MODBUS', `dnl
   /* modbus tx  */
   pin(MODBUS_TX, PC2)
@@ -63,11 +46,6 @@ ifdef(`conf_HC165', `dnl
   pin(HC165_CLOCK, PB2)
   pin(HC165_LOAD, PB1)
 ')dnl
-
-dnl /* enc28j60 int line */
-dnl pin(INT_PIN, PB3)
-dnl /* enc28j60 wol line */
-dnl pin(WOL_PIN, PB2)
 
 ifdef(`conf_ONEWIRE', `dnl
   /* onewire support */

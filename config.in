@@ -19,6 +19,13 @@ choice 'Target MCU'			\
 
 int "MCU frequency" FREQ 20000000
 
+choice 'Hardware/Periphery Class'	\
+   "Net-IO		netio		\
+    Etherrape		etherrape	\
+    Radig:Webmodul	radig_web	\
+    Other		other"		\
+   'etherrape' HARDWARE
+
 bool "Build a bootloader"	BOOTLOADER_SUPPORT
 bool "Teensy build"		TEENSY_SUPPORT
 

@@ -44,6 +44,7 @@ define(`PM', `port_mask_'$1)dnl
 define(`pin', `dnl
 define(`pinname', translit(substr(`$2', 1, 1), `a-z', `A-Z'))dnl
 define(`pinnum', substr(`$2', 2, 1))dnl
+define($1,$2)
 dnl
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
