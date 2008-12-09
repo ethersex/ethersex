@@ -24,7 +24,7 @@ choice 'Hardware/Periphery Class'	\
     Etherrape		etherrape	\
     Radig:Webmodul	radig_web	\
     Other		other"		\
-   'etherrape' HARDWARE
+   'Etherrape' HARDWARE
 
 bool "Build a bootloader"	BOOTLOADER_SUPPORT
 bool "Teensy build"		TEENSY_SUPPORT
