@@ -20,9 +20,6 @@ dnl   along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl 
 
-ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
-ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
-
 ifdef(`need_spi', `dnl
   /* spi defines */
   pin(SPI_MOSI, PB3)

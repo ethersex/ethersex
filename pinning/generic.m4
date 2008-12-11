@@ -71,3 +71,8 @@ ifdef(`conf_USB', `dnl
   pin(USB_DMINUS, PD5)
   pin(USB_DPLUS, PD3)
 ')dnl
+
+ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
+ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
+ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
+ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
