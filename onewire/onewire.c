@@ -357,7 +357,8 @@ int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
 
     /* check for known family code */
     if (rom->family == OW_FAMILY_DS1820 ||
-            rom->family == OW_FAMILY_DS1822)
+            rom->family == OW_FAMILY_DS1822||
+            rom->family == OW_FAMILY_DS18B20 )
         return 1;
 
     return 0;
@@ -464,8 +465,8 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
 /* {{{ */ {
 
     if (rom->family == OW_FAMILY_DS1820)
-        return sp->temperature << 7;
-    else if (rom->family == OW_FAMILY_DS1822)
+        return ((sp->temperature & 0xfffe) << 7) - 0x40 + (((sp->count_per_c - sp->count_remain) << 8) / sp->count_per_c);
+    else if (rom->family == OW_FAMILY_DS1822 || rom->family == OW_FAMILY_DS18B20)
         return sp->temperature << 4;
     else
         return 0xffff;
