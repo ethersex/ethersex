@@ -135,7 +135,6 @@ usb_init(void)
   USB_PORT_CONFIG(USB_DMINUS);
 #undef USB_DDR_CONFIG
 #undef USB_PORT_CONFIG
-  DDRC = 0x03;
   
   uint8_t i;
   /* Reenummerate the device */
