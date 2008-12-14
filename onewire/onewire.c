@@ -257,6 +257,7 @@ void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t
 
 /* }}} */ }
 
+#ifdef ONEWIRE_DETECT_SUPPORT
 /* high-level functions */
 int8_t noinline ow_search_rom(uint8_t first)
 /* {{{ */ {
@@ -345,6 +346,7 @@ int8_t noinline ow_search_rom(uint8_t first)
     return 1;
 
 } /* }}} */
+#endif /* ONEWIRE_DETECT_SUPPORT */
 
 /*
  *
