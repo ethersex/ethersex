@@ -59,7 +59,7 @@
 #define _TIFR_TIMER1 TIFR
 
 
-#define BOOTLOADER_SECTION 0x1800 /* atmega644 with 4096 words bootloader */
+#define BOOTLOADER_SECTION 0x1c00 /* atmega162 with 1024 words bootloader */
 
 
 #ifdef HD44780_USE_PORTC
