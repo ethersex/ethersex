@@ -19,25 +19,11 @@ dnl   along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl 
 
+divert(eof_divert)
+
 #define PORTIO_MASK_A eval(255 - port_mask_A)
 #define PORTIO_MASK_B eval(255 - port_mask_B)
 #define PORTIO_MASK_C eval(255 - port_mask_C)
 #define PORTIO_MASK_D eval(255 - port_mask_D)
 
-dnl
-dnl  We have to make sure, that we configure SPI_CS_HARDWARE as output
-dnl  if none of the other SPI_CS-lines uses it...
-dnl
-
-/* chip-select-voodoo:    SPI_CS_HARDWARE
-   SPI_CS_DF SPI_CS_NET SPI_CS_RFM12 SPI_CS_SD_READER */
-
-ifelse(SPI_CS_HARDWARE,SPI_CS_DF,`define(SPI_CS_HARDWARE_USED,1)',`/* DF differs */')
-ifelse(SPI_CS_HARDWARE,SPI_CS_NET,`define(SPI_CS_HARDWARE_USED,1)',`/* NET differs */')
-ifelse(SPI_CS_HARDWARE,SPI_CS_RFM12,`define(SPI_CS_HARDWARE_USED,1)',`/* RFM12 differs */')
-ifelse(SPI_CS_HARDWARE,SPI_CS_SD_READER,`define(SPI_CS_HARDWARE_USED,1)',`/* SD-Reader differs */')
-
-ifelse(SPI_CS_HARDWARE_USED,1, ` 
-  /* hardware chip select is used by some configured CS, nothing to do ... */
-  #define SPI_NO_EXTRA_HARDWARE_CS_CONFIG 1
-')
+#endif /* _PINNING_HEADER */

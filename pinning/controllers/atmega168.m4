@@ -31,7 +31,7 @@ ifdef(`need_spi', `dnl
 
 ifdef(`conf_RFM12', `dnl
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PB2)
+  pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
 
   /* port the LEDS for rfm12 txrx attached to */
   pin(RFM12_TX_PIN, PD6)

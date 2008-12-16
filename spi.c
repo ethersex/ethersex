@@ -35,10 +35,8 @@ void spi_init(void)
     DDR_CONFIG_OUT(SPI_MOSI);
     DDR_CONFIG_OUT(SPI_SCK);
     DDR_CONFIG_IN(SPI_MISO);
-
-#ifndef SPI_NO_EXTRA_HARDWARE_CS_CONFIG
+    /* Always define SS as output, when SPI is needed */
     DDR_CONFIG_OUT(SPI_CS_HARDWARE);
-#endif
 
 #ifdef DATAFLASH_SUPPORT
     DDR_CONFIG_OUT(SPI_CS_DF);

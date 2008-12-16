@@ -1,5 +1,5 @@
 /* port the enc28j60 is attached to */
-pin(SPI_CS_NET, PB4)
+pin(SPI_CS_NET, SPI_CS_HARDWARE)
 
 /* port the dataflash CS is attached to */
 pin(SPI_CS_DF, PB1)

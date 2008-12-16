@@ -28,6 +28,10 @@ dnl
 #undef BOOTLOADER_SECTION
 divert(-1)dnl
 
+define(`define_divert', 1)
+define(`alias_divert', 2)
+define(`eof_divert', 3)
+
 define(`port_mask_A', 0)
 define(`port_mask_B', 0)
 define(`port_mask_C', 0)
@@ -42,15 +46,21 @@ define(`_forloop',
 changecom(`//')
 define(`PM', `port_mask_'$1)dnl
 define(`pin', `dnl
-define(`pinname', translit(substr(`$2', 1, 1), `a-z', `A-Z'))dnl
-define(`pinnum', substr(`$2', 2, 1))dnl
-define($1,$2)
-dnl
+ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `divert(alias_divert)', `divert(define_divert)')dnl
+define(`pinname', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PORT', `translit(substr(`$2', 1, 1), `a-z', `A-Z')')')dnl
+define(`pinnum', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PIN', `substr(`$2', 2, 1)')')dnl
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
-#define HAVE_'translit(`$1',`a-z', `A-Z')` 1
-dnl
+#define HAVE_'translit(`$1',`a-z', `A-Z')` ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `HAVE_$2', `1')
+
+ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
+#ifdef $2_USED
+#  error Pinning Error: '__file__:__line__:` $1 has a double define on $2
+#endif
+#define $2_USED 1
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
+')dnl
+  
 ')
 
 define(`RFM12_USE_INT', `dnl
@@ -87,7 +97,11 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 ')
 
 divert(1)
-`#define _PORT_CHAR(character) PORT ## character
+`
+#ifndef _PINNING_HEADER
+#define _PINNING_HEADER
+
+#define _PORT_CHAR(character) PORT ## character
 #define PORT_CHAR(character) _PORT_CHAR(character)
 
 #define _PIN_CHAR(character) PIN ## character
