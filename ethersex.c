@@ -38,6 +38,7 @@
 #include "spi.h"
 #include "network.h"
 #include "timer.h"
+#include "portio.h"
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
@@ -78,6 +79,20 @@ int main(void)
     _IVREG = _BV(IVCE);	            /* prepare ivec change */
     _IVREG = _BV(IVSEL);            /* change ivec to bootloader */
 #   endif
+
+    /* Default DDR Config */
+#if IO_HARD_PORTS == 4 && DDR_MASK_A != 0
+    DDRA = DDR_MASK_A;
+#endif
+#if DDR_MASK_B != 0
+    DDRB = DDR_MASK_B;
+#endif
+#if DDR_MASK_C != 0
+    DDRC = DDR_MASK_C;
+#endif
+#if DDR_MASK_D != 0
+    DDRC = DDR_MASK_D;
+#endif
 
     debug_init();
     debug_printf("debugging enabled\n");

@@ -23,10 +23,10 @@ dnl
 
 ifdef(`need_spi', `dnl
   /* spi defines */
-  pin(SPI_MOSI, PB3)
+  pin(SPI_MOSI, PB3, OUTPUT)
   pin(SPI_MISO, PB4)
-  pin(SPI_SCK, PB5)
-  pin(SPI_CS_HARDWARE, PB2)
+  pin(SPI_SCK, PB5, OUTPUT)
+  pin(SPI_CS_HARDWARE, PB2, OUTPUT)
 ')dnl
 
 ifdef(`conf_RFM12', `dnl

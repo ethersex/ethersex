@@ -37,6 +37,11 @@ define(`port_mask_B', 0)
 define(`port_mask_C', 0)
 define(`port_mask_D', 0)
 
+define(`ddr_mask_A', 0)
+define(`ddr_mask_B', 0)
+define(`ddr_mask_C', 0)
+define(`ddr_mask_D', 0)
+
 dnl forloop-implementation from gnu m4 example scripts ...
 # forloop(var, from, to, stmt) - simple version
 define(`forloop', `pushdef(`$1', `$2')_forloop($@)popdef(`$1')')
@@ -45,6 +50,9 @@ define(`_forloop',
 
 changecom(`//')
 define(`PM', `port_mask_'$1)dnl
+define(`DM', `ddr_mask_'$1)dnl
+define(`PUM', `ddr_mask_'$1)dnl
+
 define(`pin', `dnl
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `divert(alias_divert)', `divert(define_divert)')dnl
 define(`pinname', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PORT', `translit(substr(`$2', 1, 1), `a-z', `A-Z')')')dnl
@@ -52,6 +60,7 @@ define(`pinnum', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PIN', `substr(`$
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
 #define HAVE_'translit(`$1',`a-z', `A-Z')` ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `HAVE_$2', `1')
+ifelse(`$3', `OUTPUT', `define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << pinnum)))')dnl
 
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
 #ifdef $2_USED

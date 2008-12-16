@@ -20,10 +20,10 @@ dnl
 
 ifdef(`need_spi', `dnl
 /* spi defines */
-pin(SPI_MOSI, PB5)
+pin(SPI_MOSI, PB5, OUTPUT)
 pin(SPI_MISO, PB6)
-pin(SPI_SCK, PB7)
-pin(SPI_CS_HARDWARE, PB4)
+pin(SPI_SCK, PB7, OUTPUT)
+pin(SPI_CS_HARDWARE, PB4, OUTPUT)
 ')dnl
 
 ifdef(`conf_RFM12', `dnl
@@ -38,7 +38,7 @@ dnl Configuration suggest for Etherrape hardware
 dnl (all pins available at SPI connector)
 dnl 
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PB0)
+  pin(SPI_CS_RFM12, PB0, OUTPUT)
 
   /* port the LEDS for rfm12 txrx attached to */
   pin(RFM12_TX_PIN, PB3)
