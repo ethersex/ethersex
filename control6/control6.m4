@@ -1,5 +1,6 @@
 dnl
 dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 or later
@@ -46,13 +47,22 @@ divert(0)dnl
 #include "../clock/clock.h"
 #include "../pt/pt.h"
 #include "../config.h"
+#include "../kty/kty81.h"
 
 divert(-1)dnl
 
 ################################
+# Global Variables
+################################
+
+define(`GLOBAL', `define(`old_divert', divnum)dnl
+divert(globals_divert)ifelse(`$#', 2, `$2', `uint8') $1;
+divert(old_divert)')
+
+################################
 # Actions
 ################################
-define(`ACTION', `divert(0)dnl
+define(`THREAD', `divert(0)dnl
  {0, {0} },define(`action_thread_$1_idx', action_thread_count)dnl
 define(`action_thread_count', incr(action_thread_count))dnl
 divert(action_divert)dnl
@@ -61,19 +71,19 @@ static
 PT_THREAD(action_thread_$1(struct pt *pt)) {
   PT_BEGIN(pt);
 divert(normal_end_divert)
-  if (action_threads[action_thread_$1_idx].started) { ACTION_DO($1) }dnl
+  if (action_threads[action_thread_$1_idx].started) { THREAD_DO($1) }dnl
 divert(action_divert)')
 
-define(`ACTION_END', `divert(action_divert)dnl
+define(`THREAD_END', `divert(action_divert)dnl
 PT_WAIT_WHILE(pt, 1);
   PT_END(pt);
 }
 
 divert(normal_divert)dnl')
-define(`ACTION_DO', `action_thread_$1(&action_threads[action_thread_$1_idx].pt);')
-define(`ACTION_START',  `action_threads[action_thread_$1_idx].started = 1;')
-define(`ACTION_STOP',  `action_threads[action_thread_$1_idx].started = 0;')
-define(`ACTION_RESTART',  `do { action_threads[action_thread_$1_idx].started = 1; 
+define(`THREAD_DO', `action_thread_$1(&action_threads[action_thread_$1_idx].pt);')
+define(`THREAD_START',  `action_threads[action_thread_$1_idx].started = 1;')
+define(`THREAD_STOP',  `action_threads[action_thread_$1_idx].started = 0;')
+define(`THREAD_RESTART',  `do { action_threads[action_thread_$1_idx].started = 1; 
   PT_INIT(&action_threads[action_thread_$1_idx].pt); } while(0);')
 divert(action_table_divert)dnl
 struct action {
@@ -81,7 +91,7 @@ struct action {
   struct pt pt;
 };
 
-define(`ACTION_STARTED', `action_threads[action_thread_$1_idx].started')
+define(`THREAD_STARTED', `action_threads[action_thread_$1_idx].started')
 
 divert(-1)
 ################################
@@ -129,13 +139,14 @@ divert(old_divert)')dnl
 (act_time - timers[timer_$1])')
 
 define(`TIMER_WAIT', `PT_WAIT_UNTIL(pt, TIMER($1) >= $2);')
+define(`WAIT', `TIMER_START(timer_on__LINE__); TIMER_WAIT(timer_on__LINE__, $1);')
 
 ################################
 # Conditionals
 ################################
 define(`ON', `if (')
-define(`DO', `ifelse(`$#', 0, `) {', `ACTION($1)divert(normal_divert)) { ACTION_START($1) }divert(action_divert)')')
-define(`END', `ifelse(`$#', 0, `}', `ACTION_END($1)}')')
+define(`DO', `ifelse(`$#', 0, `) {', `THREAD($1)divert(normal_divert)) { THREAD_START($1) }divert(action_divert)')')
+define(`END', `ifelse(`$#', 0, `}', `THREAD_END($1)}')')
 define(`BETWEEN', `$1 > $2 && $1 < $3')
 define(`NOT', `ifelse(`$#', 0, `!', `! ( $1 )')')
 
@@ -191,6 +202,46 @@ define(`CLOCK_DAY', `CLOCK_USED()datetime.day')
 define(`CLOCK_MONTH', `CLOCK_USED()datetime.month')
 define(`CLOCK_DOW', `CLOCK_USED()datetime.dow')
 define(`CLOCK_YEAR', `CLOCK_USED()datetime.yead')
+
+################################
+# ADC
+################################
+define(`ADC_USED', `ifdef(`adc_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`adc_used')dnl
+divert(globals_divert)
+#ifndef ADC_SUPPORT
+#error Please define clock support
+#endif
+static uint16_t
+control6_get_adc(uint8_t sensorchannel){
+  ADMUX = (ADMUX & 0xF0) | sensorchannel;
+  /* Start der adc konvertierung */
+  ADCSRA |= _BV(ADSC);
+  /* Warten bis sie fertig ist */
+  while (ADCSRA & _BV(ADSC)) {}
+  return ADC;
+}
+
+divert(old_divert)')')
+
+define(`ADC_GET', `ADC_USED()control6_get_adc($1)')
+
+################################
+# KTY81
+################################
+define(`KTY_USED', `ifdef(`kty_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`kty_used')dnl
+divert(globals_divert)
+#ifndef KTY_SUPPORT
+#error Please define clock support
+#endif
+
+divert(old_divert)')')
+
+define(`KTY_GET', `KTY_USED()temperatur(get_kty($1))')
+
 
 ###############################
 # Global flags
