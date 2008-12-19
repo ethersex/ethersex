@@ -136,11 +136,20 @@ if [ "$ADC_SUPPORT" = "y" ]; then
     define_symbol ADC_REF ADC_AREF
   else 
     choice 'ADC Reference'		\
-     "ARef                ADC_AREF	\
-      AVcc                ADC_AVCC	\
-      Internal_1.1V       ADC_1_1	\
-      Internal_2.56V	ADC_2_56"	\
-     'ARef' ADC_REF 
+     "ARef               CONFIG_ADC_AREF	\
+      AVcc               CONFIG_ADC_AVCC	\
+      Internal_1.1V      CONFIG_ADC_1_1	        \
+      Internal_2.56V	 CONFIG_ADC_2_56"	\
+     'ARef'  
+     if [ "$CONFIG_ADC_AREF" = "y" ]; then
+       define_symbol ADC_REF ADC_AREF
+     elif [ "$CONFIG_ADC_AVCC" = "y" ]; then
+       define_symbol ADC_REF ADC_AVCC
+     elif [ "$CONFIG_ADC_1_1" = "y" ]; then
+       define_symbol ADC_REF ADC_1_1
+     else 
+       define_symbol ADC_REF ADC_2_56
+     fi
   fi
 fi
 source kty/config.in
