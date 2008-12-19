@@ -108,6 +108,12 @@
 #  define CONF_ETHERRAPE_IP4_NETMASK	CONF_USB_NET_IP4_NETMASK
 #endif
 
+/* ADC Reference Flags */
+#define ADC_AREF	0
+#define ADC_AVCC	0x40
+#define ADC_1_1	    0x80
+#define ADC_2_56    0xC0
+
 /* Figure out whether we need access to EEPROM:
 
    - ECMD without TEENSY (IP address configuration etc.)
