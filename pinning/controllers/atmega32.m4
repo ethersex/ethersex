@@ -26,41 +26,5 @@ pin(SPI_SCK, PB7, OUTPUT)
 pin(SPI_CS_HARDWARE, PB4, OUTPUT)
 ')dnl
 
-ifdef(`conf_RFM12', `dnl
-dnl
-dnl Ancient zerties.org RFM12 pinout:
-dnl   chip select: PC3
-dnl   tx-led: 	   PD4
-dnl   rx-led:	   PD5
-dnl   interrupt:   INT0
-dnl
-dnl Configuration suggest for Etherrape hardware
-dnl (all pins available at SPI connector)
-dnl 
-  /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PB0, OUTPUT)
-
-  /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, PB3)
-  pin(RFM12_RX_PIN, PB1)
-
-  RFM12_USE_INT(2)
-')
-
-ifdef(`conf_ZBUS', `dnl
-  /* port config for zbus */
-  pin(ZBUS_RXTX_PIN, PC2)
-  pin(ZBUS_TX_PIN, PD4)
-  pin(ZBUS_RX_PIN, PD5)
-')
-
-ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
-  pin(ECMD_SERIAL_USART_TX, PC2)
-')
-
-ifdef(`conf_STELLA', `dnl
-  STELLA_PORT_RANGE(PD5,PD7)
-')
-
 #define NET_MAX_FRAME_LENGTH 500
 #define ADC_CHANNELS 8

@@ -21,7 +21,7 @@ choice 'Target MCU'			\
 int "MCU frequency" FREQ 20000000
 
 choice 'Hardware/Periphery Class'	\
-    "$(scripts/pinning_hardware_list.sh)"
+    "$(scripts/pinning_hardware_list.sh)" \
    'Etherrape' HARDWARE
 
 bool "Build a bootloader"	BOOTLOADER_SUPPORT

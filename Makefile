@@ -185,6 +185,8 @@ pinning.c: $(PINNING_FILES) autoconf.h
 #
 show-config: autoconf.h
 	@echo
+	@echo MCU: $(MCU) Hardware: $(HARDWARE)
+	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
 	@grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define / * /" -e "s/_SUPPORT.*//"
