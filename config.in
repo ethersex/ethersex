@@ -132,12 +132,16 @@ dep_bool "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
 dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 if [ "$ADC_SUPPORT" = "y" ]; then
-  choice 'ADC Reference'		\
-   "ARef                ADC_AREF	\
-    AVcc                ADC_AVCC	\
-    Internal_1.1V       ADC_1_1	\
-    Internal_2.56V	ADC_2_56"	\
-   'ARef' ADC_REF 
+  if [ "$KTY_SUPPORT" = "y" ]; then
+    define_symbol ADC_REF ADC_AREF
+  else 
+    choice 'ADC Reference'		\
+     "ARef                ADC_AREF	\
+      AVcc                ADC_AVCC	\
+      Internal_1.1V       ADC_1_1	\
+      Internal_2.56V	ADC_2_56"	\
+     'ARef' ADC_REF 
+  fi
 fi
 source kty/config.in
 bool "Onewire support" ONEWIRE_SUPPORT
