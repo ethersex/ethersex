@@ -105,6 +105,11 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 #define STELLA_DDR format(DDR%s, pinname)
 ')
 
+ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
+ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
+ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
+ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
+
 divert(1)
 `
 #ifndef _PINNING_HEADER

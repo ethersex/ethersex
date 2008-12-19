@@ -171,7 +171,7 @@ mrproper:
 ##############################################################################
 # MCU specific pinning code generation
 #
-PINNING_FILES=pinning/internals/header.m4 pinning/generic.m4 \
+PINNING_FILES=pinning/internals/header.m4 \
 	$(wildcard pinning/*/$(MCU).m4) \
 	$(wildcard pinning/internals/hackery_$(MCU).m4) \
 	$(wildcard pinning/hardware/$(HARDWARE).m4) pinning/internals/footer.m4
