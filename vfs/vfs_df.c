@@ -23,6 +23,8 @@
 
 #include "vfs.h"
 
+#ifdef VFS_DF_SUPPORT
+
 struct vfs_file_handle_t *
 vfs_df_open (const char *filename)
 {
@@ -41,6 +43,11 @@ vfs_df_open (const char *filename)
   return fh;
 }
 
+void
+vfs_df_close (struct vfs_file_handle_t *fh)
+{
+  free (fh);
+}
 
 vfs_size_t
 vfs_df_read (struct vfs_file_handle_t *fh, void *buf,
@@ -68,3 +75,5 @@ vfs_df_create (const char *name)
 {
   return fs_create (&fs, name);
 }
+
+#endif /* VFS_DF_SUPPORT */
