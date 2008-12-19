@@ -63,6 +63,7 @@
 
 /* families */
 #define OW_FAMILY_DS1820 0x10
+#define OW_FAMILY_DS18B20 0x28
 #define OW_FAMILY_DS1822 0x22
 #define OW_FAMILY_DS2502E48 0x89
 #define OW_FAMILY_DS2502 0x09

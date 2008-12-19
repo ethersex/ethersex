@@ -67,6 +67,7 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
     return 1;
 } /* }}} */
 
+#ifdef ONEWIRE_DETECT_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     int16_t ret;
@@ -150,6 +151,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 
     return -1;
 } /* }}} */
+#endif /* ONEWIRE_DETECT_SUPPORT */
 
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -191,8 +193,9 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 
         ret = snprintf_P(output, len,
-                PSTR("temperature: %d.%d\n"),
-                HI8(temp), LO8(temp) > 0 ? 5 : 0);
+                PSTR("Temperatur: %3d.%1d\n"),
+                HI8(temp),  HI8(((temp & 0x00ff) * 10) + 0x80));
+
 #ifdef ONEWIRE_DS2502_SUPPORT
     } else if (ow_eeprom(&rom)) {
         debug_printf("reading mac\n");

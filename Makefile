@@ -171,7 +171,10 @@ mrproper:
 ##############################################################################
 # MCU specific pinning code generation
 #
-PINNING_FILES=pinning/header.m4 pinning/generic.m4 pinning/$(MCU).m4 pinning/footer.m4
+PINNING_FILES=pinning/internals/header.m4 \
+	$(wildcard pinning/*/$(MCU).m4) \
+	$(wildcard pinning/internals/hackery_$(MCU).m4) \
+	$(wildcard pinning/hardware/$(HARDWARE).m4) pinning/internals/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
 	m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
 	  sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
@@ -181,6 +184,8 @@ pinning.c: $(PINNING_FILES) autoconf.h
 # configure ethersex
 #
 show-config: autoconf.h
+	@echo
+	@echo MCU: $(MCU) Hardware: $(HARDWARE)
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"

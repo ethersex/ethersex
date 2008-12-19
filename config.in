@@ -12,12 +12,17 @@ choice 'Target MCU'			\
    "ATmega8                atmega8	\
     ATmega88               atmega88	\
     ATmega162              atmega162	\
+    ATmega168              atmega168	\
     ATmega32		   atmega32	\
     ATmega644              atmega644	\
     ATmega644p             atmega644p"	\
    'ATmega644' MCU 
 
 int "MCU frequency" FREQ 20000000
+
+choice 'Hardware/Periphery Class'	\
+    "$(scripts/pinning_hardware_list.sh)" \
+   'Etherrape' HARDWARE
 
 bool "Build a bootloader"	BOOTLOADER_SUPPORT
 bool "Teensy build"		TEENSY_SUPPORT
@@ -131,7 +136,9 @@ if [ "$ADC_SUPPORT" = "y" ]; then
 fi
 source kty/config.in
 bool "Onewire support" ONEWIRE_SUPPORT
+dep_bool "  Onewire device detection support" ONEWIRE_DETECT_SUPPORT $ONEWIRE_SUPPORT
 dep_bool "  Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
+
 dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "named_pin/config"
 
 source i2c/config.in

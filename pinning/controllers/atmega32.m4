@@ -1,7 +1,7 @@
 dnl
-dnl footer.m4
+dnl atmega32.m4
 dnl
-dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
+dnl   Copyright (c) 2008 by Georg von Zengen <oni@chaosplatz.com>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License as published by 
@@ -18,8 +18,13 @@ dnl   along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl 
 
-#define PORTIO_MASK_A eval(255 - port_mask_A)
-#define PORTIO_MASK_B eval(255 - port_mask_B)
-#define PORTIO_MASK_C eval(255 - port_mask_C)
-#define PORTIO_MASK_D eval(255 - port_mask_D)
+ifdef(`need_spi', `dnl
+/* spi defines */
+pin(SPI_MOSI, PB5, OUTPUT)
+pin(SPI_MISO, PB6)
+pin(SPI_SCK, PB7, OUTPUT)
+pin(SPI_CS_HARDWARE, PB4, OUTPUT)
+')dnl
 
+#define NET_MAX_FRAME_LENGTH 500
+#define ADC_CHANNELS 8

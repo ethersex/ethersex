@@ -28,10 +28,19 @@ dnl
 #undef BOOTLOADER_SECTION
 divert(-1)dnl
 
+define(`define_divert', 1)
+define(`alias_divert', 2)
+define(`eof_divert', 3)
+
 define(`port_mask_A', 0)
 define(`port_mask_B', 0)
 define(`port_mask_C', 0)
 define(`port_mask_D', 0)
+
+define(`ddr_mask_A', 0)
+define(`ddr_mask_B', 0)
+define(`ddr_mask_C', 0)
+define(`ddr_mask_D', 0)
 
 dnl forloop-implementation from gnu m4 example scripts ...
 # forloop(var, from, to, stmt) - simple version
@@ -41,15 +50,26 @@ define(`_forloop',
 
 changecom(`//')
 define(`PM', `port_mask_'$1)dnl
+define(`DM', `ddr_mask_'$1)dnl
+define(`PUM', `ddr_mask_'$1)dnl
+
 define(`pin', `dnl
-define(`pinname', translit(substr(`$2', 1, 1), `a-z', `A-Z'))dnl
-define(`pinnum', substr(`$2', 2, 1))dnl
-dnl
+ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `divert(alias_divert)', `divert(define_divert)')dnl
+define(`pinname', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PORT', `translit(substr(`$2', 1, 1), `a-z', `A-Z')')')dnl
+define(`pinnum', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PIN', `substr(`$2', 2, 1)')')dnl
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
-#define HAVE_'translit(`$1',`a-z', `A-Z')` 1
-dnl
+#define HAVE_'translit(`$1',`a-z', `A-Z')` ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `HAVE_$2', `1')
+ifelse(`$3', `OUTPUT', `define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << pinnum)))')dnl
+
+ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
+#ifdef $2_USED
+#  error Pinning Error: '__file__:__line__:` $1 has a double define on $2
+#endif
+#define $2_USED 1
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
+')dnl
+  
 ')
 
 define(`RFM12_USE_INT', `dnl
@@ -85,8 +105,17 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 #define STELLA_DDR format(DDR%s, pinname)
 ')
 
+ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
+ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
+ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
+ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
+
 divert(1)
-`#define _PORT_CHAR(character) PORT ## character
+`
+#ifndef _PINNING_HEADER
+#define _PINNING_HEADER
+
+#define _PORT_CHAR(character) PORT ## character
 #define PORT_CHAR(character) _PORT_CHAR(character)
 
 #define _PIN_CHAR(character) PIN ## character

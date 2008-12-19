@@ -6,23 +6,22 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
-MCU=atmega8
-atmega8=y
+# atmega8 is not set
 # atmega88 is not set
 # atmega162 is not set
-# atmega168 is not set
 # atmega32 is not set
-# atmega644 is not set
+MCU=atmega644
+atmega644=y
 # atmega644p is not set
-FREQ=8000000
-# etherrape is not set
+FREQ=14745600
 # netio is not set
-HARDWARE=other
-other=y
-# radig_web is not set
+# etherrape is not set
+HARDWARE=radig_web
+radig_web=y
+# other is not set
 # BOOTLOADER_SUPPORT is not set
-TEENSY_SUPPORT=y
-# DEBUG is not set
+# TEENSY_SUPPORT is not set
+DEBUG=y
 # DEBUG_USE_SYSLOG is not set
 # DEBUG_ECMD is not set
 # DEBUG_ECMD_FS20 is not set
@@ -66,12 +65,12 @@ TEENSY_SUPPORT=y
 # USB_CFG_IS_SELF_POWERED is not set
 USB_CFG_MAX_BUS_POWER=20
 CONF_HOSTNAME="ethersex"
-# ENC28J60_SUPPORT is not set
+ENC28J60_SUPPORT=y
+CONF_ENC_MAC="ac:de:48:f3:ef:3e"
 # IPV6_STATIC_SUPPORT is not set
-RFM12_SUPPORT=y
-CONF_RFM12_IP="192.168.23.244"
-CONF_RFM12_IP4_NETMASK="255.255.255.0"
-# RFM12_ARP_PROXY is not set
+CONF_ENC_IP="192.168.23.133"
+CONF_ENC_IP4_NETMASK="255.255.0.0"
+# RFM12_SUPPORT is not set
 # ZBUS_SUPPORT is not set
 # USB_NET_SUPPORT is not set
 # ROUTER_SUPPORT is not set
@@ -80,7 +79,7 @@ NET_SUPPORT=y
 # IPV6_SUPPORT is not set
 IPV4_SUPPORT=y
 # IP_FORWARDING_SUPPORT is not set
-CONF_ETHERRAPE_GATEWAY="192.168.23.1"
+CONF_ETHERRAPE_GATEWAY="192.168.23.23"
 # UIP_MULTI_STACK is not set
 # IPSTATS_SUPPORT is not set
 # FREE_SUPPORT is not set
@@ -88,7 +87,7 @@ CONF_ETHERRAPE_GATEWAY="192.168.23.1"
 #
 # Network protocols
 #
-# TCP_SUPPORT is not set
+TCP_SUPPORT=y
 UDP_SUPPORT=y
 BROADCAST_SUPPORT=y
 ICMP_SUPPORT=y
@@ -124,7 +123,6 @@ PORTIO_SIMPLE_SUPPORT=y
 # ADC_SUPPORT is not set
 # KTY_SUPPORT is not set
 # ONEWIRE_SUPPORT is not set
-# ONEWIRE_DETECT_SUPPORT is not set
 # ONEWIRE_DS2502_SUPPORT is not set
 # NAMED_PIN_SUPPORT is not set
 CONFIG_NO_I2C=y
@@ -157,8 +155,8 @@ CONFIG_NO_I2C=y
 # Etherrape Control Interface (ECMD)
 #
 ECMD_PARSER_SUPPORT=y
-# ECMD_SUPPORT is not set
-UECMD_SUPPORT=y
+ECMD_SUPPORT=y
+# UECMD_SUPPORT is not set
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
 # ECMD_SERIAL_SUPPORT is not set
@@ -187,9 +185,9 @@ UECMD_SUPPORT=y
 #
 # DATAFLASH_SUPPORT is not set
 # SD_READER_SUPPORT is not set
-# PSOCK_SUPPORT is not set
-# HTTPD_SUPPORT is not set
-# HTTPD_INLINE_FILES_SUPPORT is not set
+PSOCK_SUPPORT=y
+HTTPD_SUPPORT=y
+HTTPD_INLINE_FILES_SUPPORT=y
 # HTTPD_AUTH_SUPPORT is not set
 # CONTROL6_SUPPORT is not set
 # IPCHAIR_SUPPORT is not set

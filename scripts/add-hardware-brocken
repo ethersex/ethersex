@@ -1,0 +1,208 @@
+#! /bin/sh
+
+usage() {
+  echo "Usage:"
+  echo "  add-hardware-brockend NAME"
+  echo ""
+  echo "Generate new hardware template for NAME below pinning/hardware/"
+  echo "and start a sensible editor afterwards."
+  exit $1
+}
+
+if test "x$1" = "x-h"; then usage 0; fi
+if test "x$1" = "x--help"; then usage 0; fi
+
+hw=$1; shift;
+
+while test "x`pwd`" != "x/"; do
+  [ -e pinning ] && break
+  cd ..
+done
+
+[ -e .config ] || {
+  echo "No .config file found, launching menuconfig..."
+  sleep 2s
+  make menuconfig
+}
+
+[ -e .config ] || {
+  echo "Still no .config file, STOP."
+  exit 1
+}
+
+if test -z "$hw"; then usage 1; fi
+. ./.config
+
+[ -e "pinning/hardware/$hw.m4" ] && {
+  echo "pinning/hardware/$hw.m4: File already exists."
+  exit 0
+}
+
+(
+
+cat <<FNORD
+dnl
+dnl $hw.m4
+dnl
+dnl Pin Configuration for '$hw'.  Edit it to fit your needs.
+dnl
+FNORD
+
+template() { if test "x$1" = "xy"; then echo ""; sed -e 's/^\s*//'; fi; }
+
+template $MODBUS_SUPPORT << FNORD
+  /* modbus tx  */
+  pin(MODBUS_TX, PC2)
+FNORD
+
+template $PS2_SUPPORT << FNORD
+  /* ps/2 pins */
+  pin(PS2_DATA, PA7)
+  pin(PS2_CLOCK, PA6)
+FNORD
+
+template $HC595_SUPPORT << FNORD
+  /* pins for the hc595 shift register */
+  pin(HC595_DATA, PB6)
+  pin(HC595_CLOCK, PB2)
+  pin(HC595_STORE, PB7)
+FNORD
+
+template $HC165_SUPPORT << FNORD
+  /* pins for the hc165 shift register */
+  pin(HC165_DATA, PB0)
+  pin(HC165_CLOCK, PB2)
+  pin(HC165_LOAD, PB1)
+FNORD
+
+template $ONEWIRE_SUPPORT << FNORD
+  /* onewire support */
+  pin(ONEWIRE, PC0)
+FNORD
+
+template $RC5_SUPPORT << FNORD
+  /* rc5 support */
+  pin(RC5_SEND, PD4)
+FNORD
+
+template $FS20_SUPPORT << FNORD
+  /* fs20 support */
+  pin(FS20_SEND, PB2)
+  /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
+  pin(FS20_RECV, PB3)
+FNORD
+
+template $USB_SUPPORT << FNORD
+  dnl This must also be D+ of the USB signal
+  USB_USE_INT(1) 
+  dnl This pin must have the 1k5 Pullup and must be on the same port as the Interupt pin
+  pin(USB_DMINUS, PD5)
+  pin(USB_DPLUS, PD3)
+FNORD
+
+template $STELLA_SUPPORT << FNORD
+  STELLA_PORT_RANGE(PD5,PD7)
+FNORD
+
+[ "x$ZBUS_SUPPORT" = "xy" -o "x$RFM12_SUPPORT" = "xy" ] && template y << FNORD
+  pin(GENERIC_TX_PIN, PD6)
+  pin(GENERIC_RX_PIN, PD7)
+FNORD
+
+template $ENC28J60_SUPPORT << FNORD
+  /* port the enc28j60 is attached to */
+  pin(SPI_CS_NET, SPI_CS_HARDWARE)
+FNORD
+
+template $DATAFLASH_SUPPORT << FNORD
+  /* port the dataflash CS is attached to */
+  pin(SPI_CS_DF, PB1, OUTPUT)
+FNORD
+
+template $SD_READER_SUPPORT << FNORD
+  /* port the sd-reader CS is attached to */
+  pin(SPI_CS_SD_READER, PB2, OUTPUT)
+FNORD
+
+### HARDWARE SPECIFIC TEMPLATES #############################################
+
+
+HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
+
+if [ $HWCLASS = 8 ]; then  # ATmega8, 88, 168 and others ...
+  template $ECMD_SERIAL_USART_RS485_SUPPORT << FNORD
+    pin(ECMD_SERIAL_USART_TX, PD2)
+FNORD
+
+  template $ZBUS_SUPPORT << FNORD
+    /* port config for zbus */
+    pin(ZBUS_RXTX_PIN, PD2)
+    pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
+    pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
+FNORD
+
+  template $RFM12_SUPPORT << FNORD
+    /* port the rfm12 module CS is attached to */
+    pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
+
+    /* port the LEDS for rfm12 txrx attached to */
+    pin(RFM12_TX_PIN, GENERIC_TX_PIN)
+    pin(RFM12_RX_PIN, GENERIC_TX_PIN)
+
+    RFM12_USE_INT(0)
+FNORD
+
+
+##############################################################################
+#                                                                            #
+# ATmega162, 32, 644 etc.                                                    #
+#                                                                            #
+##############################################################################
+else  
+  template $ECMD_SERIAL_USART_RS485_SUPPORT << FNORD
+    pin(ECMD_SERIAL_USART_TX, PC2)
+FNORD
+
+  template $ZBUS_SUPPORT << FNORD
+    /* port config for zbus */
+    pin(ZBUS_RXTX_PIN, PC2)
+    pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
+    pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
+FNORD
+
+  template $RFM12_SUPPORT << FNORD
+    /* port the rfm12 module CS is attached to */
+    pin(SPI_CS_RFM12, PB0, OUTPUT)
+
+    /* port the LEDS for rfm12 txrx attached to */
+    pin(RFM12_TX_PIN, GENERIC_TX_PIN)
+    pin(RFM12_RX_PIN, GENERIC_TX_PIN)
+
+    RFM12_USE_INT(2)
+FNORD
+
+fi
+
+) > "pinning/hardware/$hw.m4"
+
+grep -v -e "^HARDWARE=" -e "^$HARDWARE=y" .config > .config.new
+echo -e "HARDWARE=$hw\n$hw=y" >> .config.new
+mv -f .config.new .config
+
+function l_editor() {
+  echo "launching editor for $1 ..."
+  if [ -n "$EDITOR" ]; then
+    $EDITOR $1
+  elif [ -n "`which nano`" ]; then
+    nano $1
+  fi
+}
+
+l_editor "pinning/hardware/$hw.m4"
+
+if [ -x .git ]; then
+  echo ""
+  echo "You seem to be using Git to manage your Ethersex sources."
+  echo "Consider doing 'git add pinning/hardware/$hw.m4'."
+  echo ""
+fi

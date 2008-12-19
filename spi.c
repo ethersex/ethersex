@@ -30,32 +30,21 @@ static void spi_wait_busy(void);
 
 void spi_init(void)
 /* {{{ */ {
+  /* Input and Output configuration is done in the beginning of main(), so it
+   * doesn't have to be done here
+   */
 
-    /* configure MOSI, SCK, lines as outputs */
-    DDR_CONFIG_OUT(SPI_MOSI);
-    DDR_CONFIG_OUT(SPI_SCK);
-    DDR_CONFIG_IN(SPI_MISO);
-
-#ifdef DATAFLASH_SUPPORT
-    DDR_CONFIG_OUT(SPI_CS_DF);
-    PIN_SET(SPI_CS_DF);
-#endif
+  /* Set the clockselects as high */
 
 #ifdef ENC28J60_SUPPORT
-    /* set all CS high (output) */
-    DDR_CONFIG_OUT(SPI_CS_NET);
     PIN_SET(SPI_CS_NET);
 #endif
 
 #ifdef RFM12_SUPPORT
-    /* initialize spi link to rfm12 module */
-    DDR_CONFIG_OUT(SPI_CS_RFM12);
-    /* Enable the pullup */
     PIN_SET(SPI_CS_RFM12);
 #endif
 
 #ifdef DATAFLASH_SUPPORT
-    DDR_CONFIG_OUT(SPI_CS_DF);
     PIN_SET(SPI_CS_DF);
 #endif
 

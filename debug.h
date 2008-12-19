@@ -48,9 +48,12 @@
     #define debug_process(...) do { } while(0)
 #endif /* not DEBUG */
 
-/* Use 115200 baud on 20 MHz Ethersex,
-   38400 baud on slower devices like ATmega8. */
-#if F_CPU < 20000000
+/* Use 115200 baud on fast Ethersexs,
+   38400 baud on slower devices like ATmega8,
+   9600 baud for AVRs clocked lower than 2 MHz. */
+#if F_CPU < 2000000
+# define DEBUG_BAUDRATE 9600
+#elif (F_CPU <= 8000000) || defined(_ATMEGA8) || defined(_ATMEGA88)
 # define DEBUG_BAUDRATE 38400
 #else
 # define DEBUG_BAUDRATE 115200

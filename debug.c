@@ -71,6 +71,7 @@ debug_uart_put (char d, FILE *stream)
 void
 debug_process_uart (void)
 {
+#ifdef ECMD_PARSER_SUPPORT
 #define LEN 60
 #define OUTPUTLEN 40
 
@@ -112,6 +113,7 @@ debug_process_uart (void)
                 debug_printf("not enough space for storing '%c'\n", data);
         }
     }
+#endif  /* ECMD_PARSER_SUPPORT */
 }
 
 #endif	/* not DEBUG_USE_SYSLOG */
