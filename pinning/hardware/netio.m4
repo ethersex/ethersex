@@ -6,3 +6,7 @@ ifdef(`conf_SD_READER', `dnl
   pin(SPI_CS_SD_READER, PB2, OUTPUT)
 ')dnl
 
+ifdef(`conf_ONEWIRE', `dnl
+  /* onewire support */
+  pin(ONEWIRE, PD6)
+')dnl
