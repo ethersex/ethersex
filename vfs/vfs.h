@@ -106,6 +106,9 @@ struct vfs_func_t vfs_funcs[] = {
 #ifdef VFS_PROC_SUPPORT
   VFS_PROC_FUNCS,
 #endif
+
+  /* VFS_LAST must be last in row, since it marks the end of the list. */
+  VFS_LAST
 };
 
 /* Generic variant of open that automagically finds the suitable

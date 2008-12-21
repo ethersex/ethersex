@@ -20,3 +20,18 @@
  */
 
 #include "vfs.h"
+
+struct vfs_file_handle_t *
+vfs_open (const char *filename)
+{
+  struct vfs_file_handle_t *fh = NULL;
+
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
+    fh = vfs_funcs[i].open (filename);
+}
+
+uint8_t
+vfs_create (const char *name)
+{
+  return 0;			/* FIXME */
+}
