@@ -28,6 +28,8 @@ vfs_open (const char *filename)
 
   for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
     fh = vfs_funcs[i].open (filename);
+
+  return fh;
 }
 
 uint8_t
