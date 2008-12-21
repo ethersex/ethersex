@@ -374,14 +374,14 @@ unsigned short send_sd_f(void *data)
 static inline void
 httpd_cleanup (struct httpd_connection_state_t *state)
 {
-#ifdef SD_READER_SUPPORT
+#ifdef VFS_SUPPORT
     if (state->fd) {
-	printf("httpd: cleaning left-over sd-handle at %p.\n", state->fd);
+	printf("httpd: cleaning left-over vfs-handle at %p.\n", state->fd);
 
 	vfs_close (state->fd);
 	state->fd = NULL;
     }
-#endif	/* SD_READER_SUPPORT */
+#endif	/* VFS_SUPPORT */
 }
 
 void
