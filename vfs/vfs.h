@@ -88,6 +88,9 @@ struct vfs_func_t {
 
   /* Try to create a new file called NAME. */
   uint8_t (*create) (const char *name);
+
+  /* Return the size of the file. */
+  fs_size_t (*size) (struct vfs_file_handle_t *);
 };
 
 struct vfs_func_t vfs_funcs[] = {
@@ -122,5 +125,6 @@ uint8_t vfs_create (const char *name);
 #define vfs_read(handle...)     VFS_REDIR(read, 0, handle)
 #define vfs_write(handle...)    VFS_REDIR(write, 0, handle)
 #define vfs_truncate(handle...) VFS_REDIR(truncate, 1, handle)
+#define vfs_size(handle...)     VFS_REDIR(size, -1, handle)
 
 #endif	/* VFS_H */

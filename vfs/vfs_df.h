@@ -36,6 +36,7 @@ vfs_size_t vfs_df_write (struct vfs_file_handle_t *, void *buf,
 			 vfs_size_t offset, vfs_size_t length);
 uint8_t vfs_df_truncate (struct vfs_file_handle_t *, vfs_size_t length);
 uint8_t vfs_df_create (const char *name);
+fs_size_t vfs_df_size (struct vfs_file_handle_t *);
 
 
 #define VFS_DF_FUNCS {				\
@@ -46,6 +47,7 @@ uint8_t vfs_df_create (const char *name);
     vfs_df_write,				\
     vfs_df_truncate,				\
     vfs_df_create,				\
+    vfs_df_size,				\
   }
 
 #endif	/* VFS_DF_H */

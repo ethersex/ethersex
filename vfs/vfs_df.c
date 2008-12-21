@@ -76,4 +76,10 @@ vfs_df_create (const char *name)
   return fs_create (&fs, name);
 }
 
+fs_size_t
+vfs_df_size (struct vfs_file_handle_t *fh)
+{
+  return fs_size (&fs, fh->u.def);
+}
+
 #endif /* VFS_DF_SUPPORT */
