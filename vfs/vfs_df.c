@@ -38,7 +38,8 @@ vfs_df_open (const char *filename)
     return NULL;
 
   fh->fh_type = VFS_DF;
-  fh->u.df = i;
+  fh->u.df.inode = i;
+  fh->u.df.offset = 0;
 
   return fh;
 }
@@ -50,24 +51,36 @@ vfs_df_close (struct vfs_file_handle_t *fh)
 }
 
 vfs_size_t
-vfs_df_read (struct vfs_file_handle_t *fh, void *buf,
-	     vfs_size_t offset, vfs_size_t length)
+vfs_df_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  return fs_read (&fs, fh->u.df, buf, offset, length);
+  vfs_size_t ret = fs_read (&fs, fh->u.df.inode, buf, fh->u.df.offset, length);
+
+  /* Read was successful, update offset. */
+  if (ret > 0) fh->u.df.offset += ret;
+
+  return ret;
 }
 
 vfs_size_t
-vfs_df_write (struct vfs_file_handle_t *fh, void *buf,
-	      vfs_size_t offset, vfs_size_t length)
+vfs_df_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  fs_status_t i = fs_write (&fs, fh->u.df, buf, offset, length);
-  return i == FS_OK ? length : 0;
+  fs_status_t i = fs_write (&fs, fh->u.df.inode, buf, fh->u.df.offset, length);
+
+  if (i == FS_OK)
+    {
+      fh->u.df.offset += length;
+      return length;
+    }
+  else
+    {
+      return 0;			/* Fail. */
+    }
 }
 
 uint8_t
 vfs_df_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
 {
-  return fs_truncate (&fs, fh->u.df, length);
+  return fs_truncate (&fs, fh->u.df.inode, length);
 }
 
 uint8_t
@@ -79,7 +92,7 @@ vfs_df_create (const char *name)
 fs_size_t
 vfs_df_size (struct vfs_file_handle_t *fh)
 {
-  return fs_size (&fs, fh->u.def);
+  return fs_size (&fs, fh->u.df.inode);
 }
 
 #endif /* VFS_DF_SUPPORT */

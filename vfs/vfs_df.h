@@ -25,15 +25,19 @@
 #include <stdlib.h>
 #include "../dataflash/fs.h"
 
-typedef fs_inode_t vfs_file_handle_df_t;
+typedef struct {
+  fs_inode_t inode;
+  fs_size_t offset;
+
+} vfs_file_handle_df_t;
 
 /* vfs_df_ Prototypes. */
 struct vfs_file_handle_t *vfs_df_open (const char *filename);
 void vfs_df_close (struct vfs_file_handle_t *);
 vfs_size_t vfs_df_read  (struct vfs_file_handle_t *, void *buf,
-			 vfs_size_t offset, vfs_size_t length);
+			 vfs_size_t length);
 vfs_size_t vfs_df_write (struct vfs_file_handle_t *, void *buf,
-			 vfs_size_t offset, vfs_size_t length);
+			 vfs_size_t length);
 uint8_t vfs_df_truncate (struct vfs_file_handle_t *, vfs_size_t length);
 uint8_t vfs_df_create (const char *name);
 fs_size_t vfs_df_size (struct vfs_file_handle_t *);

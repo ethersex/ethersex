@@ -74,14 +74,14 @@ struct vfs_func_t {
   /* Close the referenced file. */
   void (*close) (struct vfs_file_handle_t *);
 
-  /* Read LENGTH bytes from OFFSET on to the memory referenced by BUF.
+  /* Read LENGTH bytes to the memory referenced by BUF.
      Returns the number of bytes actually read. */
   vfs_size_t (*read) (struct vfs_file_handle_t *, void *buf,
-		      vfs_size_t offset, vfs_size_t length);
+		      vfs_size_t length);
 
-  /* Write LENGTH bytes stored at BUF.  Seek to OFFSET before. */
+  /* Write LENGTH bytes stored at BUF.  */
   vfs_size_t (*write) (struct vfs_file_handle_t *, void *buf,
-		       vfs_size_t offset, vfs_size_t length);
+		       vfs_size_t length);
 
   /* Truncate the file to LENGTH bytes.  Return 0 on success. */
   uint8_t (*truncate) (struct vfs_file_handle_t *, vfs_size_t length);
@@ -106,10 +106,10 @@ struct vfs_func_t vfs_funcs[] = {
 #ifdef VFS_PROC_SUPPORT
   VFS_PROC_FUNCS,
 #endif
-
-  /* VFS_LAST must be last in row, since it marks the end of the list. */
-  VFS_LAST
 };
+
+#define VFS_LAST (sizeof(vfs_funcs) / sizeof(struct vfs_func_t))
+
 
 /* Generic variant of open that automagically finds the suitable
    VFS module. */

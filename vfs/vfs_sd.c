@@ -48,18 +48,13 @@ vfs_sd_close (struct vfs_file_handle_t *fh)
 }
 
 vfs_size_t
-vfs_sd_read (struct vfs_file_handle_t *fh, void *buf,
-	     vfs_size_t offset, vfs_size_t length)
+vfs_sd_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  if (! fat_seek_file (fh, offset, FAT_SEEK_SET))
-    return -1;
-
   return fat_read_file (fh, buf, length);
 }
 
 vfs_size_t
-vfs_sd_write (struct vfs_file_handle_t *fh, void *buf,
-	      vfs_size_t offset, vfs_size_t length)
+vfs_sd_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
   /* fs_status_t i = fs_write (&fs, fh->u.sd, buf, offset, length);
      return i == FS_OK ? length : 0; */
