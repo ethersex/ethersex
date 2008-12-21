@@ -36,7 +36,7 @@ vfs_sd_open (const char *filename)
     return NULL;
 
   fh->fh_type = VFS_SD;
-  fh->u.df = i;
+  fh->u.sd = i;
 
   return fh;
 }
@@ -50,7 +50,7 @@ vfs_sd_close (struct vfs_file_handle_t *fh)
 vfs_size_t
 vfs_sd_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  return fat_read_file (fh, buf, length);
+  return fat_read_file (fh->u.sd, buf, length);
 }
 
 vfs_size_t
