@@ -93,22 +93,7 @@ struct vfs_func_t {
   fs_size_t (*size) (struct vfs_file_handle_t *);
 };
 
-struct vfs_func_t vfs_funcs[] = {
-#ifdef VFS_DF_SUPPORT
-  VFS_DF_FUNCS,
-#endif
-#ifdef VFS_DF_RAW_SUPPORT
-  VFS_DF_RAW_FUNCS,
-#endif
-#ifdef VFS_SD_SUPPORT
-  VFS_SD_FUNCS,
-#endif
-#ifdef VFS_PROC_SUPPORT
-  VFS_PROC_FUNCS,
-#endif
-};
-
-#define VFS_LAST (sizeof(vfs_funcs) / sizeof(struct vfs_func_t))
+extern struct vfs_func_t vfs_funcs[];
 
 
 /* Generic variant of open that automagically finds the suitable

@@ -21,12 +21,29 @@
 
 #include "vfs.h"
 
+struct vfs_func_t vfs_funcs[] = {
+#ifdef VFS_DF_SUPPORT
+  VFS_DF_FUNCS,
+#endif
+#ifdef VFS_DF_RAW_SUPPORT
+  VFS_DF_RAW_FUNCS,
+#endif
+#ifdef VFS_SD_SUPPORT
+  VFS_SD_FUNCS,
+#endif
+#ifdef VFS_PROC_SUPPORT
+  VFS_PROC_FUNCS,
+#endif
+
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+};
+
 struct vfs_file_handle_t *
 vfs_open (const char *filename)
 {
   struct vfs_file_handle_t *fh = NULL;
 
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
+  for (uint8_t i = 0; fh == NULL && vfs_funcs[i].mod_name; i ++)
     fh = vfs_funcs[i].open (filename);
 
   return fh;
