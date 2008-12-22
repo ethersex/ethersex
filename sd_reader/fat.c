@@ -1740,7 +1740,11 @@ offset_t fat_find_offset_for_dir_entry(const struct fat_fs_struct* fs, const str
 uint8_t fat_write_dir_entry(const struct fat_fs_struct* fs, struct fat_dir_entry_struct* dir_entry)
 {
     if(!fs || !dir_entry)
+    {
+        SDDEBUG ("fat_write_dir_entry: illegal params fs=%p, dir_entry=%p\n",
+		 fs, dir_entry);
         return 0;
+    }
     
 #if FAT_DATETIME_SUPPORT
     {
@@ -1920,7 +1924,10 @@ uint8_t fat_write_dir_entry(const struct fat_fs_struct* fs, struct fat_dir_entry
 uint8_t fat_create_file(struct fat_dir_struct* parent, const char* file, struct fat_dir_entry_struct* dir_entry)
 {
     if(!parent || !file || !file[0] || !dir_entry)
+    {
+	SDDEBUG ("fat_create_file: invalid parameters.\n");
         return 0;
+    }
 
     /* check if the file already exists */
     while(1)
@@ -1931,6 +1938,7 @@ uint8_t fat_create_file(struct fat_dir_struct* parent, const char* file, struct 
         if(strcmp(file, dir_entry->long_name) == 0)
         {
             fat_reset_dir(parent);
+	    SDDEBUG ("fat_create_file: file exists.\n");
             return 0;
         }
     }
@@ -1943,12 +1951,19 @@ uint8_t fat_create_file(struct fat_dir_struct* parent, const char* file, struct 
 
     /* find place where to store directory entry */
     if(!(dir_entry->entry_offset = fat_find_offset_for_dir_entry(fs, parent, dir_entry)))
+    {
+	SDDEBUG ("fat_create_file: fat_find_offset_for_dir_entry failed.\n");
         return 0;
+    }
     
     /* write directory entry to disk */
     if(!fat_write_dir_entry(fs, dir_entry))
+    {
+	SDDEBUG ("fat_create_file: fat_write_dir_entry failed.\n");
         return 0;
+    }
     
+    SDDEBUG ("fat_create_file: file %s successfully created.\n", file);
     return 1;
 }
 #endif

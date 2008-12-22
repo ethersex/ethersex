@@ -32,11 +32,10 @@
 #include "../uip/psock.h"
 #include "httpd.h"
 #include "base64.h"
-#include "../dataflash/fs.h"
 #include "../eeprom.h"
 #include "../ecmd_parser/ecmd.h"
 #include "../config.h"
-#include "../sd_reader/fat.h"
+#include "../vfs/vfs.h"
 
 #ifdef DEBUG_HTTPD
 # include "../debug.h"
@@ -253,8 +252,7 @@ auth_success:
     }
 #endif
 
-#if defined(DATAFLASH_SUPPORT) || defined(HTTPD_INLINE_FILES_SUPPORT) \
-  || defined(SD_READER_SUPPORT)
+#ifdef VFS_SUPPORT
     else {
         strncpy(state->name, state->tmp_buffer, sizeof(state->name));
         if (strlen(state->tmp_buffer) >= sizeof(state->name))
@@ -262,56 +260,15 @@ auth_success:
     }
 
     printf ("fs: httpd: request for file \"%s\"\n", state->name);
-#endif	/* neither DATAFLASH nor HTTPD_INLINE_FILES nor SD_READER support */
+#endif	/* VFS_SUPPORT */
 
     free(state->tmp_buffer);
 
-#ifdef HTTPD_INLINE_FILES_SUPPORT
-    uint16_t offset = FLASHEND - SPM_PAGESIZE + 1;
-    for (; offset; offset -= SPM_PAGESIZE) {
-      if (pgm_read_byte (offset) != HTTPD_INLINE_MAGIC)
-	continue;
-
-      union httpd_inline_node_t node;
-      uint8_t i;
-
-      for (i = 0; i < sizeof (node); i ++)
-	node.raw[i] = pgm_read_byte (offset + i + 1);
-
-      if (node.s.crc != crc_checksum (node.raw, sizeof (node) - 1))
-	continue;
-
-      if (strncmp (node.s.fn, state->name, HTTPD_INLINE_FNLEN))
-	continue;
-
-      state->offset = offset + sizeof (union httpd_inline_node_t) + 1;
-      state->len = node.s.len;
-
-      /* send headers */
-      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
-      if (state->name[0] == 'X')
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
-      else if (state->name[0] == 'S')
-	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
-      else
-	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
-      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
-      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
-      PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
-
-      /* send body text */
-      while (state->len)
-        PSOCK_GENERATOR_SEND(&state->in, send_file_if, state);
-      PSOCK_CLOSE_EXIT(&state->in);
-    }
-#endif	/* HTTPD_INLINE_FILES_SUPPORT */
-
-#ifdef SD_READER_SUPPORT
-    /* search node */
-    printf ("httpd: searching sd-card for %s\n", state->name);
-    state->fd = open_file_in_dir(fat_fs, sd_cwd, state->name);
+#ifdef VFS_SUPPORT
+    state->fd = vfs_open (state->name);
     if (state->fd) {
-      state->len = state->fd->dir_entry.file_size;
+      state->len = vfs_size (state->fd);
+
       printf ("httpd: got it, that's nice, let's go serve it (%ld bytes)!\n", 
 	      state->len);
 
@@ -323,6 +280,13 @@ auth_success:
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
       else
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
+
+      /* Check whether the file is gzip compressed. */
+      unsigned char buf[2];
+      vfs_read (state->fd, buf, 2);
+      vfs_rewind (state->fd);
+      if (buf[0] == 0x1f && buf[1] == 0x8b)
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
 
       /* send content-length header */
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
@@ -338,49 +302,7 @@ auth_success:
     
 #endif
 
-#ifdef DATAFLASH_SUPPORT
-    /* search inode */
-    state->inode = fs_get_inode(&fs, state->name);
-
-    printf ("fs: searching file inode: 0x%04x\n", state->inode);
-
-    if (state->inode == 0xffff) {
-        printf ("httpd: file not found, sending 404\n");
-
-        /* send headers */
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_404);
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
-        PSOCK_GENERATOR_SEND(&state->in, send_length_P, httpd_body_404);
-
-        /* send body text */
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_404);
-        PSOCK_CLOSE_EXIT(&state->in);
-    } else {
-        printf ("httpd: file found\n");
-
-        /* reset offset */
-        state->offset = 0;
-
-        /* send headers */
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
-	if (state->name[0] == 'X')
-	  PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
-	else if (state->name[0] == 'S')
-	  PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
-	else
-	  PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
-        PSOCK_GENERATOR_SEND(&state->in, send_length_f, &state->inode);
-
-        /* send file */
-        while(state->inode != 0xffff) {
-            PSOCK_GENERATOR_SEND(&state->in, send_file_f, state);
-        }
-    }
-
-#else  /* not DATAFLASH_SUPPORT */
-    /* There's no dataflash support compiled in and the request hasn't
-       been handled before.  Therefore just send a 404 reply. */
+    /* Unable to handle the request.  Therefore just send a 404 reply. */
 
     /* send headers */
     PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_404);
@@ -389,8 +311,6 @@ auth_success:
 
     /* send body text */
     PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_body_404);
-
-#endif
 
     PSOCK_CLOSE(&state->in);
 
@@ -424,43 +344,26 @@ unsigned short send_length_P(void *data)
 } /* }}} */
 
 
-#ifdef DATAFLASH_SUPPORT
-unsigned short send_length_f(void *data)
-/* {{{ */ {
-
-    fs_inode_t i = *((fs_inode_t *)data);
-
-    sprintf_P(uip_appdata, PSTR("%d\n\n"), fs_size(&fs, i));
-    return strlen(uip_appdata);
-
-} /* }}} */
-#endif /* DATAFLASH_SUPPORT */
-
-
-#if defined(HTTPD_INLINE_FILES_SUPPORT) || defined(SD_READER_SUPPORT)
+#ifdef VFS_SUPPORT
 unsigned short
 send_length_if (void *data)
 {
     struct httpd_connection_state_t *state =
 	(struct httpd_connection_state_t *) data;
 
-#ifdef SD_READER_SUPPORT
     sprintf_P (uip_appdata, PSTR ("%ld\n\n"), state->len);
-#else
-    sprintf_P (uip_appdata, PSTR ("%d\n\n"), state->len);
-#endif
     return strlen (uip_appdata);
 }
-#endif	/* HTTPD_INLINE_FILES_SUPPORT || SD_READER_SUPPORT */
+#endif	/* VFS_SUPPORT */
 
 
-#ifdef SD_READER_SUPPORT
+#ifdef VFS_SUPPORT
 unsigned short send_sd_f(void *data)
 {
     struct httpd_connection_state_t *state =
       (struct httpd_connection_state_t *)data;
 
-    intptr_t len = fat_read_file(state->fd, uip_appdata, uip_mss());
+    vfs_size_t len = vfs_read (state->fd, uip_appdata, uip_mss ());
 
     if (len <= 0) {
       state->len = 0;
@@ -471,66 +374,21 @@ unsigned short send_sd_f(void *data)
 
     return len;
 }
-#endif /* SD_READER_SUPPORT */
+#endif /* VFS_SUPPORT */
 
-#ifdef DATAFLASH_SUPPORT
-unsigned short send_file_f(void *data)
-/* {{{ */ {
-
-    struct httpd_connection_state_t *state =
-      (struct httpd_connection_state_t *)data;
-    fs_size_t len = fs_read(&fs, state->inode, uip_appdata, state->offset,
-			    uip_mss());
-
-    printf ("httpd: mss is 0x%04x, len is 0x%04x\n", uip_mss (), len);
-
-    /* if this was all, reset state->inode */
-    if (len < uip_mss())
-        state->inode = 0xffff;
-    else
-        state->offset += len;
-
-    return len;
-
-} /* }}} */
-#endif /* DATAFLASH_SUPPORT */
-
-
-#ifdef HTTPD_INLINE_FILES_SUPPORT
-unsigned short
-send_file_if (void *data)
-{
-    struct httpd_connection_state_t *state =
-	(struct httpd_connection_state_t *) data;
-
-    uint16_t len = state->len;
-    if (uip_mss () < len)
-	len = uip_mss ();
-
-    uint16_t i;
-    for (i = 0; i < len; i ++)
-	((unsigned char *)uip_appdata)[i] =
-	    pgm_read_byte_near (state->offset + i);
-
-    state->offset += len;
-    state->len -= len;
-
-    return len;
-}
-#endif	/* HTTPD_INLINE_FILES_SUPPORT */
 
 
 static inline void
 httpd_cleanup (struct httpd_connection_state_t *state)
 {
-#ifdef SD_READER_SUPPORT
+#ifdef VFS_SUPPORT
     if (state->fd) {
-	printf("httpd: cleaning left-over sd-handle at %p.\n", state->fd);
+	printf("httpd: cleaning left-over vfs-handle at %p.\n", state->fd);
 
-	fat_close_file (state->fd);
+	vfs_close (state->fd);
 	state->fd = NULL;
     }
-#endif	/* SD_READER_SUPPORT */
+#endif	/* VFS_SUPPORT */
 }
 
 void

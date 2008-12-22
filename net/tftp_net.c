@@ -82,7 +82,8 @@ tftp_net_main(void)
 	return;
     }
 
-#if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
+#if defined(BOOTLOADER_SUPPORT)  \
+  && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
     if(! uip_udp_conn->appstate.tftp.fire_req)
 	return;
 
