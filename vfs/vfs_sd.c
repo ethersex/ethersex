@@ -46,6 +46,7 @@ vfs_sd_open (const char *filename)
 void
 vfs_sd_close (struct vfs_file_handle_t *fh)
 {
+  fat_close_file (fh->u.sd);
   free (fh);
 }
 
