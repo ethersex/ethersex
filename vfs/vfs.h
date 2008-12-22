@@ -131,4 +131,7 @@ uint8_t vfs_create (const char *name);
 
 #define vfs_rewind(handle)      vfs_fseek(handle, 0, SEEK_SET)
 
+/* Synonym to be more like posix :) */
+#define vfs_creat(n...)		vfs_create(n)
+
 #endif	/* VFS_H */
