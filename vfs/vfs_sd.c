@@ -65,6 +65,17 @@ vfs_sd_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 }
 
 uint8_t
+vfs_sd_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
+	      uint8_t whence)
+{
+  if (fat_seek_file (fh->u.sd, &offset, whence) == 0)
+    return -1;			/* Fail. */
+  else
+    return 0;
+}
+
+
+uint8_t
 vfs_sd_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
 {
   /* return fs_truncate (&fs, fh->u.sd, length); */

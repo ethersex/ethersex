@@ -88,6 +88,11 @@ struct vfs_func_t {
   vfs_size_t (*write) (struct vfs_file_handle_t *, void *buf,
 		       vfs_size_t length);
 
+  /* Reposition the stream to OFFSET, considering WHENCE,
+     where whence is either SEEK_SET, SEEK_CUR or SEEK_END */
+  uint8_t (*fseek) (struct vfs_file_handle_t *, vfs_size_t offset,
+		    uint8_t whence);
+
   /* Truncate the file to LENGTH bytes.  Return 0 on success. */
   uint8_t (*truncate) (struct vfs_file_handle_t *, vfs_size_t length);
 
@@ -95,11 +100,14 @@ struct vfs_func_t {
   uint8_t (*create) (const char *name);
 
   /* Return the size of the file. */
-  fs_size_t (*size) (struct vfs_file_handle_t *);
+  vfs_size_t (*size) (struct vfs_file_handle_t *);
 };
 
 extern struct vfs_func_t vfs_funcs[];
 
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
 
 /* Generic variant of open that automagically finds the suitable
    VFS module. */
@@ -117,7 +125,10 @@ uint8_t vfs_create (const char *name);
 #define vfs_close(handle)       VFS_REDIR(close, 0, handle)
 #define vfs_read(handle...)     VFS_REDIR(read, 0, handle)
 #define vfs_write(handle...)    VFS_REDIR(write, 0, handle)
+#define vfs_fseek(handle...)    VFS_REDIR(fseek, -1, handle)
 #define vfs_truncate(handle...) VFS_REDIR(truncate, 1, handle)
 #define vfs_size(handle...)     VFS_REDIR(size, -1, handle)
+
+#define vfs_rewind(handle)      vfs_fseek(handle, 0, SEEK_SET)
 
 #endif	/* VFS_H */

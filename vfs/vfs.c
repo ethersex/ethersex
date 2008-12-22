@@ -38,7 +38,7 @@ struct vfs_func_t vfs_funcs[] = {
   VFS_INLINE_FUNCS,
 #endif
 
-  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 struct vfs_file_handle_t *

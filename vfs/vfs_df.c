@@ -78,6 +78,40 @@ vfs_df_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 }
 
 uint8_t
+vfs_df_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
+	      uint8_t whence)
+{
+  fs_size_t len = fs_size (&fs, fh->u.df.inode);
+  fs_size_t new_pos;
+
+  switch (whence)
+    {
+    case SEEK_SET:
+      new_pos = offset;
+      break;
+
+    case SEEK_CUR:
+      new_pos = fh->u.df.offset + offset;
+      break;
+
+    case SEEK_END:
+      new_pos = len + offset;
+      break;
+
+    default:
+      return -1;		/* Invalid argument. */
+    }
+
+  if (new_pos > len)
+    return -1;			/* Beyond end of file.
+				   FIXME: we could increase file size. */
+
+  fh->u.df.offset = 0;
+  return 0;
+
+}
+
+uint8_t
 vfs_df_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
 {
   return fs_truncate (&fs, fh->u.df.inode, length);

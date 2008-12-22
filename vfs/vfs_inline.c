@@ -83,6 +83,37 @@ vfs_inline_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
   return len;
 }
 
+uint8_t
+vfs_inline_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
+		  uint8_t whence)
+{
+  uint16_t new_pos;
+
+  switch (whence)
+    {
+    case SEEK_SET:
+      new_pos = offset;
+      break;
+
+    case SEEK_CUR:
+      new_pos = fh->u.il.pos + offset;
+      break;
+
+    case SEEK_END:
+      new_pos = fh->u.il.len + offset;
+      break;
+
+    default:
+      return -1;		/* Invalid argument. */
+    }
+
+  if (new_pos > fh->u.il.len)
+    return -1;			/* Beyond end of file. */
+
+  fh->u.il.pos = 0;
+  return 0;
+}
+
 vfs_size_t
 vfs_inline_size (struct vfs_file_handle_t *fh)
 {

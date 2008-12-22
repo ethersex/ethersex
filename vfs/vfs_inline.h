@@ -49,6 +49,8 @@ void vfs_inline_close (struct vfs_file_handle_t *);
 vfs_size_t vfs_inline_read  (struct vfs_file_handle_t *, void *buf,
 			 vfs_size_t length);
 vfs_size_t vfs_inline_size (struct vfs_file_handle_t *);
+uint8_t vfs_inline_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
+			  uint8_t whence);
 
 
 #define VFS_INLINE_FUNCS {		\
@@ -56,9 +58,10 @@ vfs_size_t vfs_inline_size (struct vfs_file_handle_t *);
     vfs_inline_open,			\
     vfs_inline_close,			\
     vfs_inline_read,			\
-    NULL,				\
-    NULL,				\
-    NULL,				\
+    NULL, /* write */			\
+    vfs_inline_fseek,			\
+    NULL, /* truncate */		\
+    NULL, /* create */			\
     vfs_inline_size,			\
   }
 
