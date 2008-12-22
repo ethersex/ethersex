@@ -59,5 +59,5 @@ vfs_create (const char *name)
     if (vfs_funcs[i].create)
       fh = vfs_funcs[i].create (name);
 
-  return 0;			/* FIXME */
+  return fh;
 }
