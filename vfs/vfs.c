@@ -34,6 +34,9 @@ struct vfs_func_t vfs_funcs[] = {
 #ifdef VFS_PROC_SUPPORT
   VFS_PROC_FUNCS,
 #endif
+#ifdef VFS_INLINE_SUPPORT
+  VFS_INLINE_FUNCS,
+#endif
 
   { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };

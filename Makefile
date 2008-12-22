@@ -83,24 +83,24 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 
 ##############################################################################
 # 
-# HTTP Inline Files
+# VFS Inline Files
 #
 ##############################################################################
 
-ifeq ($(HTTPD_INLINE_FILES_SUPPORT),y)
-INLINE_FILES := $(shell ls httpd/embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//')
+ifeq ($(VFS_INLINE_SUPPORT),y)
+INLINE_FILES := $(shell ls vfs/embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//')
 else
 INLINE_FILES :=
 endif
 
-httpd/embed/%: httpd/embed/%.cpp
+vfs/embed/%: vfs/embed/%.cpp
 	if ! avr-cpp -DF_CPU=$(FREQ) $< 2> /dev/null > $@.tmp; \
 		then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
 	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; fi
 	$(RM) -f $@.tmp
 
 
-httpd/embed/%: httpd/embed/%.m4
+vfs/embed/%: vfs/embed/%.m4
 	if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
 		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"`\
 	      	$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)"; fi
@@ -108,9 +108,9 @@ httpd/embed/%: httpd/embed/%.m4
 
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
-ifeq ($(HTTPD_INLINE_FILES_SUPPORT),y)
-	$(MAKE) -C httpd httpd-concat
-	httpd/do-embed $(INLINE_FILES)
+ifeq ($(VFS_INLINE_SUPPORT),y)
+	$(MAKE) -C vfs vfs-concat
+	vfs/do-embed $(INLINE_FILES)
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif
 

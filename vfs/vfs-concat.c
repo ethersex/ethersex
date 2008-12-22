@@ -19,11 +19,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdint.h>
+typedef uint32_t vfs_size_t;
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "httpd.h"
+#include "vfs_inline.h"
 
 #define BUFLEN 65535
 
@@ -31,7 +34,7 @@ static void
 usage (int exitval)
 {
   fprintf (exitval ? stderr : stdout,
-	   "Usage: httpd-concat IMAGE BLOCKSZ FILE\n"
+	   "Usage: vfs-concat IMAGE BLOCKSZ FILE\n"
 	   "Concatenate FILE to existing ethersex IMAGE.\n\n");
   exit (exitval);
 }
@@ -72,7 +75,7 @@ main (int argc, char **argv)
   uint8_t buf_image[BUFLEN], buf_file[BUFLEN];
   int image_len, file_len, pagesz;
   FILE *f;
-  union httpd_inline_node_t node = { 0 };
+  union vfs_inline_node_t node = { 0 };
   char *ptr;
 
   if (argc == 2 && strcmp (argv[1], "--help") == 0) usage (0);
@@ -80,12 +83,12 @@ main (int argc, char **argv)
 
   pagesz = atoi (argv[2]);
   if (pagesz == 0 || pagesz % 2 || pagesz < 64 || pagesz > 256) {
-    fprintf (stderr, "httpd-concat: Invalid page size: %d.\n", pagesz);
+    fprintf (stderr, "vfs-concat: Invalid page size: %d.\n", pagesz);
     return 1;
   }
 
   if ((f = fopen (argv[1], "rb")) == NULL) {
-    fprintf (stderr, "httpd-concat: Unable to read %s.\n", argv[1]);
+    fprintf (stderr, "vfs-concat: Unable to read %s.\n", argv[1]);
     return 1;
   }
 
@@ -95,17 +98,17 @@ main (int argc, char **argv)
 
   char *filename_gz = malloc(strlen(argv[3]) + 3 + 1);
   if (!filename_gz) {
-    fprintf (stderr, "httpd-concat: malloc failed.\n", argv[1]);
+    fprintf (stderr, "vfs-concat: malloc failed.\n");
     return 1;
   }
   strcpy(filename_gz, argv[3]);
   strcat(filename_gz, ".gz");
 
   fprintf(stderr,"%s\n", filename_gz);
-  
+
   if ((f = fopen (filename_gz, "rb")) == NULL) {
     if ((f = fopen (argv[3], "rb")) == NULL) {
-      fprintf (stderr, "httpd-concat: Unable to read %s.\n", argv[3]);
+      fprintf (stderr, "vfs-concat: Unable to read %s.\n", argv[3]);
       return 1;
     }
   }
@@ -115,7 +118,7 @@ main (int argc, char **argv)
   file_len = fread (buf_file, 1, BUFLEN, f);
   fclose (f);
 
-  fprintf (stderr, "httpd-concat: Lengths: image=%d, file=%d\n",
+  fprintf (stderr, "vfs-concat: Lengths: image=%d, file=%d\n",
 	   image_len, file_len);
 
   fwrite (buf_image, 1, image_len, stdout);
@@ -128,15 +131,15 @@ main (int argc, char **argv)
   while ((ptr = strchr (argv[3], '/')))
     argv[3] = ptr + 1;
 
-  if (strlen (argv[3]) > HTTPD_INLINE_FNLEN) {
-    fprintf (stderr, "httpd-concat: Filename %s is too long.\n", argv[3]);
+  if (strlen (argv[3]) > VFS_INLINE_FNLEN) {
+    fprintf (stderr, "vfs-concat: Filename %s is too long.\n", argv[3]);
     return 1;
   }
 
 
-  putchar (HTTPD_INLINE_MAGIC);
+  putchar (VFS_INLINE_MAGIC);
 
-  strncpy (node.s.fn, argv[3], HTTPD_INLINE_FNLEN);
+  strncpy (node.s.fn, argv[3], VFS_INLINE_FNLEN);
   node.s.len = file_len;
   node.s.crc = crc_calc (node.raw, sizeof (node) - 1);
 

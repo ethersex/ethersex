@@ -37,6 +37,9 @@ enum vfs_type_t {
 #ifdef VFS_PROC_SUPPORT
   VFS_PROC,
 #endif
+#ifdef VFS_INLINE_SUPPORT
+  VFS_INLINE,
+#endif
 
   VFS_LAST
 };
@@ -52,6 +55,7 @@ typedef uint32_t vfs_size_t;
 
 #include "vfs_df.h"
 #include "vfs_sd.h"
+#include "vfs_inline.h"
 
 struct vfs_file_handle_t {
   /* The vfs_type_t of the VFS module that is responsible for this
@@ -61,6 +65,7 @@ struct vfs_file_handle_t {
   union {
     vfs_file_handle_df_t df;
     vfs_file_handle_sd_t sd;
+    vfs_file_handle_inline_t il;
   } u;
 };
 
