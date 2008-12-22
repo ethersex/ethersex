@@ -95,7 +95,7 @@ vfs_sd_create (const char *name)
 }
 
 
-fs_size_t
+vfs_size_t
 vfs_sd_size (struct vfs_file_handle_t *fh)
 {
   return fh->u.sd->dir_entry.file_size;
