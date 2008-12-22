@@ -117,11 +117,20 @@ vfs_df_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
   return fs_truncate (&fs, fh->u.df.inode, length);
 }
 
-uint8_t
+
+struct vfs_file_handle_t *
 vfs_df_create (const char *name)
 {
-  return fs_create (&fs, name);
+  fs_create (&fs, name);
+
+  struct vfs_file_handle_t *fh = vfs_df_open (name);
+
+  if (fh && vfs_df_size (fh) != 0)
+    vfs_df_truncate (fh, 0);
+
+  return fh;
 }
+
 
 fs_size_t
 vfs_df_size (struct vfs_file_handle_t *fh)

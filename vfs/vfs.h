@@ -73,7 +73,8 @@ struct vfs_func_t {
   /* VFS module name, i.e. the "mount point" */
   const char *mod_name;
 
-  /* Try to open the file FILENAME, return a handle or NULL on error. */
+  /* Try to open the already existing file named FILENAME, return a
+     handle or NULL on error. */
   struct vfs_file_handle_t * (*open) (const char *filename);
 
   /* Close the referenced file. */
@@ -96,8 +97,9 @@ struct vfs_func_t {
   /* Truncate the file to LENGTH bytes.  Return 0 on success. */
   uint8_t (*truncate) (struct vfs_file_handle_t *, vfs_size_t length);
 
-  /* Try to create a new file called NAME. */
-  uint8_t (*create) (const char *name);
+  /* Try to create a new file called NAME and return a file handle.
+     If the file exists already it's automatically truncated to zero size. */
+  struct vfs_file_handle_t * (*create) (const char *name);
 
   /* Return the size of the file. */
   vfs_size_t (*size) (struct vfs_file_handle_t *);
@@ -113,7 +115,9 @@ extern struct vfs_func_t vfs_funcs[];
    VFS module. */
 struct vfs_file_handle_t *vfs_open (const char *filename);
 
-uint8_t vfs_create (const char *name);
+/* Generic variante of create, that automatically finds a suitable
+   store for the new file. */
+struct vfs_file_handle_t *vfs_create (const char *name);
 
 
 /* Generation of forwarder functions. */

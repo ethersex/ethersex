@@ -59,9 +59,7 @@ vfs_sd_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 vfs_size_t
 vfs_sd_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  /* fs_status_t i = fs_write (&fs, fh->u.sd, buf, offset, length);
-     return i == FS_OK ? length : 0; */
-  return 0;			/* TODO */
+  return fat_write_file (fh->u.sd, buf, length);
 }
 
 uint8_t
@@ -78,16 +76,24 @@ vfs_sd_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
 uint8_t
 vfs_sd_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
 {
-  /* return fs_truncate (&fs, fh->u.sd, length); */
-  return 0;			/* TODO */
+  return fat_resize_file (fh->u.sd, length) == 0;
 }
 
-uint8_t
+
+struct vfs_file_handle_t *
 vfs_sd_create (const char *name)
 {
-  /* return fs_create (&fs, name); */
-  return 0;
+  struct fat_dir_entry_struct file_entry;
+  fat_create_file (sd_cwd, name, &file_entry);
+
+  struct vfs_file_handle_t *fh = vfs_sd_open (name);
+
+  if (fh && vfs_sd_size (fh) != 0)
+    vfs_sd_truncate (fh, 0);
+
+  return fh;
 }
+
 
 fs_size_t
 vfs_sd_size (struct vfs_file_handle_t *fh)

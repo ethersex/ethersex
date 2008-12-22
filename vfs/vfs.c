@@ -37,8 +37,6 @@ struct vfs_func_t vfs_funcs[] = {
 #ifdef VFS_INLINE_SUPPORT
   VFS_INLINE_FUNCS,
 #endif
-
-  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 struct vfs_file_handle_t *
@@ -46,14 +44,20 @@ vfs_open (const char *filename)
 {
   struct vfs_file_handle_t *fh = NULL;
 
-  for (uint8_t i = 0; fh == NULL && vfs_funcs[i].mod_name; i ++)
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
     fh = vfs_funcs[i].open (filename);
 
   return fh;
 }
 
-uint8_t
+struct vfs_file_handle_t *
 vfs_create (const char *name)
 {
+  struct vfs_file_handle_t *fh = NULL;
+
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
+    if (vfs_funcs[i].create)
+      fh = vfs_funcs[i].create (name);
+
   return 0;			/* FIXME */
 }

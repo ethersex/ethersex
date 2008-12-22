@@ -38,7 +38,7 @@ vfs_size_t vfs_sd_write (struct vfs_file_handle_t *, void *buf,
 uint8_t vfs_sd_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
 		      uint8_t whence);
 uint8_t vfs_sd_truncate (struct vfs_file_handle_t *, vfs_size_t length);
-uint8_t vfs_sd_create (const char *name);
+struct vfs_file_handle_t *vfs_sd_create (const char *name);
 fs_size_t vfs_sd_size (struct vfs_file_handle_t *);
 
 
