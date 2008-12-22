@@ -158,7 +158,7 @@ bootp_handle_reply(void)
     dyndns_update();
 #endif
 
-#ifdef TFTP_SUPPORT
+#if defined(TFTP_SUPPORT) && defined(BOOTLOADER_SUPPORT)
     if(pk->bp_file[0] == 0)
 	return;					/* no boot filename provided */
 

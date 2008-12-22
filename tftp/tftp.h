@@ -55,7 +55,8 @@ struct tftp_hdr {
 void tftp_handle_packet(void);
 
 
-#if defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT)
+#if defined(BOOTLOADER_SUPPORT)  \
+  && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
 inline static void
 tftp_fire_tftpomatic(uip_ipaddr_t *ip, const unsigned char *filename) {
   uip_udp_conn_t *tftp_req_conn = 
