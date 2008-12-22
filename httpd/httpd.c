@@ -281,6 +281,13 @@ auth_success:
       else
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
 
+      /* Check whether the file is gzip compressed. */
+      unsigned char buf[2];
+      vfs_read (state->fd, buf, 2);
+      vfs_rewind (state->fd);
+      if (buf[0] == 0x1f && buf[1] == 0x8b)
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
+
       /* send content-length header */
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
       PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
