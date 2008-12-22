@@ -23,13 +23,12 @@
 #define TFTP_STATE_H
 
 #include "tftp_net.h"
-#include "../dataflash/fs.h"
+#include "../vfs/vfs.h"
 
 /* state */
 struct tftp_connection_state_t {
-#ifdef DATAFLASH_SUPPORT
-    fs_inode_t     fs_inode;
-    unsigned       df_access   :1;
+#ifdef VFS_SUPPORT
+    struct vfs_file_handle_t *fh;
 #endif
     unsigned       download    :1;
     unsigned       finished    :1;
