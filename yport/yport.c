@@ -49,7 +49,7 @@ yport_init(void)
 {
   usart_init();
 
-#ifndef TEENSY_SUPPORT
+#if 0 //ndef TEENSY_SUPPORT
     uint16_t ubrr = usart_baudrate(eeprom_read_word(&(((struct eeprom_config_ext_t *)
                                      EEPROM_CONFIG_EXT)->usart_baudrate)));
     usart(UBRR,H) = HI8(ubrr);
