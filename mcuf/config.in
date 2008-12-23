@@ -1,11 +1,5 @@
 dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPORT
 
-  if [ "$MCUF_SUPPORT" = y ]; then
-    comment "MCUF screen configuration"
-    int "MCUF screen width" MCUF_OUTPUT_SCREEN_WIDTH 18
-    int "MCUF screen height" MCUF_OUTPUT_SCREEN_HEIGHT 8
-  fi
-
   usart_count_used
   if [ "$MCUF_SERIAL_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     dep_bool "MCUF usart" MCUF_SERIAL_SUPPORT $MCUF_SUPPORT
@@ -17,6 +11,16 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
     dep_bool "BLP SUPPORT" BLP_SUPPORT
   else
     define_bool BLP_SUPPORT n
+  fi
+
+  if [ "$MCUF_SUPPORT" = y -a "$BLP_SUPPORT" != "y" ]; then
+    comment "MCUF screen configuration"
+    int "MCUF screen width" MCUF_OUTPUT_SCREEN_WIDTH 18
+    int "MCUF screen height" MCUF_OUTPUT_SCREEN_HEIGHT 8
+  else
+    comment "MCUF screen is 18x8 pixels"
+    define_int MCUF_OUTPUT_SCREEN_WIDTH 18
+    define_int MCUF_OUTPUT_SCREEN_HEIGHT 8
   fi
 
 endmenu

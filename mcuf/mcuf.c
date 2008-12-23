@@ -53,14 +53,6 @@
    #define MCUF_OUTPUT_SCREEN_WIDTH 18
    #define MCUF_OUTPUT_SCREEN_HEIGHT 8 */
 
-/* TODO inform user while menuconfiguring blp_support */
-#ifdef BLP_SUPPORT
-#undef MCUF_OUTPUT_SCREEN_WIDTH
-#undef MCUF_OUTPUT_SCREEN_HEIGHT
-#define MCUF_OUTPUT_SCREEN_WIDTH 18
-#define MCUF_OUTPUT_SCREEN_HEIGHT 8
-#endif
-
 //TODO set MCUF_MAX_PCKT_SIZE correct
 // 444,16,16 for 16x16borg
 // 170/184,18,8 for blinkenledspro
