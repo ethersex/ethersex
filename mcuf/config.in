@@ -1,16 +1,22 @@
-## TODO make uart usable when mcuf_usart is not delected
-dep_bool "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPORT
+dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPORT
 
-if [ "$MCUF_SUPPORT" = y ]; then
-  mainmenu_option next_comment
-  comment "MCUF screen configuration"
+  if [ "$MCUF_SUPPORT" = y ]; then
+    comment "MCUF screen configuration"
     int "MCUF screen width" MCUF_OUTPUT_SCREEN_WIDTH 18
     int "MCUF screen height" MCUF_OUTPUT_SCREEN_HEIGHT 8
-  endmenu
-  dep_bool "  MCUF usart" MCUF_SERIAL_SUPPORT
-  if [ "$MCU" = atmega8 ]; then
-    dep_bool "  BLP SUPPORT" BLP_SUPPORT
   fi
 
-fi
+  usart_count_used
+  if [ "$MCUF_SERIAL_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+    dep_bool "MCUF usart" MCUF_SERIAL_SUPPORT $MCUF_SUPPORT
+  else
+    define_bool MCUF_SERIAL_SUPPORT n
+  fi
 
+  if [ "$MCU" = atmega8 ]; then
+    dep_bool "BLP SUPPORT" BLP_SUPPORT
+  else
+    define_bool BLP_SUPPORT n
+  fi
+
+endmenu

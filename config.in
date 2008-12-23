@@ -164,8 +164,8 @@ source i2c/config.in
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
-
 source mcuf/config.in
+
 usart_count_used
 comment "Usart Configuration ($USARTS_USED/$USARTS)"
 source mcuf/config_usart.in
