@@ -63,11 +63,13 @@ vfs_inline_open (const char *filename)
   return NULL;			/* File not found. */
 }
 
+#ifndef VFS_TEENSY
 void
 vfs_inline_close (struct vfs_file_handle_t *fh)
 {
   free (fh);
 }
+#endif	/* VFS_TEENSY */
 
 vfs_size_t
 vfs_inline_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
@@ -83,6 +85,7 @@ vfs_inline_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
   return len;
 }
 
+#ifndef VFS_TEENSY
 uint8_t
 vfs_inline_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
 		  uint8_t whence)
@@ -110,7 +113,7 @@ vfs_inline_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
   if (new_pos > fh->u.il.len)
     return -1;			/* Beyond end of file. */
 
-  fh->u.il.pos = 0;
+  fh->u.il.pos = new_pos;
   return 0;
 }
 
@@ -119,5 +122,6 @@ vfs_inline_size (struct vfs_file_handle_t *fh)
 {
   return fh->u.il.len;
 }
+#endif	/* VFS_TEENSY */
 
 #endif	/* VFS_INLINE_SUPPORT */

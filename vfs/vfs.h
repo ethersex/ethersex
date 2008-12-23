@@ -50,8 +50,13 @@ struct vfs_file_handle_t;
 
 /* VFS-related types. */
 #include <stdint.h>
-typedef uint32_t vfs_size_t;
 
+#ifdef VFS_TEENSY
+/* Only VFS_INLINE is enabled, 16-bit should be enough xD */
+typedef uint16_t vfs_size_t;
+#else
+typedef uint32_t vfs_size_t;
+#endif
 
 #include "vfs_df.h"
 #include "vfs_sd.h"
@@ -137,5 +142,10 @@ struct vfs_file_handle_t *vfs_create (const char *name);
 
 /* Synonym to be more like posix :) */
 #define vfs_creat(n...)		vfs_create(n)
+
+
+#ifdef VFS_TEENSY
+#include "vfs_teensy.h"
+#endif
 
 #endif	/* VFS_H */

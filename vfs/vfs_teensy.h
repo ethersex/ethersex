@@ -19,48 +19,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "vfs.h"
-#ifndef VFS_TEENSY
+#ifndef VFS_TEENSY_H
+#define VFS_TEENSY_H
 
-struct vfs_func_t vfs_funcs[] = {
-#ifdef VFS_DF_SUPPORT
-  VFS_DF_FUNCS,
-#endif
-#ifdef VFS_DF_RAW_SUPPORT
-  VFS_DF_RAW_FUNCS,
-#endif
-#ifdef VFS_SD_SUPPORT
-  VFS_SD_FUNCS,
-#endif
-#ifdef VFS_PROC_SUPPORT
-  VFS_PROC_FUNCS,
-#endif
-#ifdef VFS_INLINE_SUPPORT
-  VFS_INLINE_FUNCS,
-#endif
-};
+/* VFS_TEENSY mode cruft ...
+ *
+ * VFS_TEENSY is a teensy mode of VFS, that directly connects the VFS inline
+ * cruft to VFS, i.e. tries to omit the whole layer in between. */
 
-struct vfs_file_handle_t *
-vfs_open (const char *filename)
-{
-  struct vfs_file_handle_t *fh = NULL;
+#undef vfs_close
+#undef vfs_read
+#undef vfs_write
+#undef vfs_fseek
+#undef vfs_truncate
+#undef vfs_size
+#undef vfs_rewind
 
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
-    fh = vfs_funcs[i].open (filename);
+#define vfs_open	vfs_inline_open
+#define vfs_read	vfs_inline_read
+#define vfs_close(i)	free(i)
+#define vfs_size(fh)	((fh)->u.il.len)
+#define vfs_rewind(fh)  ((fh)->u.il.pos = 0)
 
-  return fh;
-}
-
-struct vfs_file_handle_t *
-vfs_create (const char *name)
-{
-  struct vfs_file_handle_t *fh = NULL;
-
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
-    if (vfs_funcs[i].create)
-      fh = vfs_funcs[i].create (name);
-
-  return fh;
-}
-
-#endif	/* not VFS_TEENSY */
+#endif  /* VFS_TEENSY_H */

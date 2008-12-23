@@ -282,10 +282,12 @@ auth_success:
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
 
       /* Check whether the file is gzip compressed. */
+#ifndef VFS_TEENSY
       unsigned char buf[2];
       vfs_read (state->fd, buf, 2);
       vfs_rewind (state->fd);
       if (buf[0] == 0x1f && buf[1] == 0x8b)
+#endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
 
       /* send content-length header */
