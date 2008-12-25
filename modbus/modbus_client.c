@@ -44,9 +44,9 @@ modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len)
 {
   union ModbusRTU *rtu = (void *)data;
   /* read holding/input registers */
-  if (data[1] == 0x03 || data[1] == 0x04) {
+  if (data[1] == MODBUS_CMD_READ_HOLDING || data[1] == MODBUS_CMD_READ_INPUTS) {
     /* is holding requested ? */
-    uint8_t holding = (data[1] == 0x03) ? 1 : 0;
+    uint8_t holding = (data[1] == MODBUS_CMD_READ_HOLDING) ? 1 : 0;
     uint8_t ptr = ntohs(rtu->read.ptr);
     uint8_t len = ntohs(rtu->read.len);
     uint8_t *answer = __builtin_alloca(3 + len * 2);
@@ -74,7 +74,7 @@ modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len)
     memcpy(data, answer, *recv_len);
     goto send_message;
     /* write single register */
-  } else if (data[1] == 0x06) { 
+  } else if (data[1] == MODBUS_CMD_WRITE_HOLDING) { 
     if (ntohs(rtu->write.ptr) >= MODBUS_HOLD_REGISTERS) {
       data[2] = 2;
       goto send_error;
@@ -84,7 +84,7 @@ modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len)
     *recv_len = length;
     goto send_message;
   /* Write multiple registers */
-  } else if (data[1] == 0x10) { 
+  } else if (data[1] == MODBUS_CMD_WRITE_MULTIPLE_HOLDING) { 
     uint8_t ptr = ntohs(rtu->xwrite.ptr);
     uint8_t len = ntohs(rtu->xwrite.len);
     if (ptr + len >= MODBUS_HOLD_REGISTERS) {
@@ -98,7 +98,7 @@ modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len)
 
     /* Write an answer */
     data[0] = MODBUS_ADDRESS;
-    data[1] = 0x10;
+    data[1] = MODBUS_CMD_WRITE_HOLDING;
     data[2] = 0;
     data[3] = ptr;
     data[4] = 0;
