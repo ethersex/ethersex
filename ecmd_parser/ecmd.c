@@ -114,8 +114,8 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
         ret = func(cmd, output, len);
 
     if (ret == -1 && output != NULL) {
-        memcpy_P(output, PSTR("parse error"), 12);
-        ret = 12;
+        memcpy_P(output, PSTR("parse error"), 11);
+        ret = 11;
     } else if (ret == 0) {
         output[0] = 'O';
         output[1] = 'K';
