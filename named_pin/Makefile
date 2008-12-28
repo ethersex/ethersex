@@ -24,13 +24,13 @@ include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
 ##############################################################################
-named_pin.c: user_config.h
-user_config.h: config
+named_pin.c: user_config.c
+user_config.c: config
 	$(@D)/cfgpp > $@
 
 # extend normal clean rule
 clean: clean-common
-	$(RM) -f user_config.h np_simple.c
+	$(RM) -f user_config.h user_config.c np_simple.c
 
 np_simple.c: config np_simple.awk
 	grep -v -e "^#" < $< | mawk -f np_simple.awk > $@.tmp
