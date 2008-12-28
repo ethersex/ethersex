@@ -1094,6 +1094,7 @@ Select the default profile you wish to load. \
 			defconfig	  "Etherrape"			0 \
 			ethersex	  "Standard Ethersex"		0 \
 			bootloader	  "Ethernet Bootloader"		0 \
+			netio		  "Pollin AVR Net-IO"		0 \
 			radig		  "Radig AVR Webmodul"		0 \
 			rfm12-teensy	  "RFM12 Standalone"		0 \
 			zbus-teensy	  "ZBUS Standalone"		0 \
