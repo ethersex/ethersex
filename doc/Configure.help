@@ -157,12 +157,19 @@ DEBUG_FS_MARK
 
   There's unfortunately no help available for this item.
 
+FS20 RF-control
+FS20_SUPPORT
+
+  Add support for ELV FS20 protocol.
+  For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
+
 FS20 Receive
 DEBUG_FS20_REC
   Depends on: 
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
+  For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
 
 FS20 Receive Queue
 DEBUG_FS20_REC_QUEUE
@@ -170,6 +177,7 @@ DEBUG_FS20_REC_QUEUE
    * FS20 Receive (DEBUG_FS20_REC)
 
   There's unfortunately no help available for this item.
+  For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
 
 FS20 Receive Verbose
 DEBUG_FS20_REC_VERBOSE
@@ -177,6 +185,7 @@ DEBUG_FS20_REC_VERBOSE
    * FS20 Receive (DEBUG_FS20_REC)
 
   There's unfortunately no help available for this item.
+  For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
 
 FS20 WS300
 DEBUG_FS20_WS300
@@ -184,6 +193,7 @@ DEBUG_FS20_WS300
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
+  For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
 
 FS20 WS300 Verbose
 DEBUG_FS20_WS300_VERBOSE
@@ -191,6 +201,7 @@ DEBUG_FS20_WS300_VERBOSE
    * FS20 WS300 (DEBUG_FS20_WS300)
 
   There's unfortunately no help available for this item.
+  For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
 
 HD44780
 DEBUG_HD44780
@@ -239,7 +250,8 @@ IP_FORWARDING_SUPPORT
   Depends on: 
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Forward IP packets between several interfaces, e.g. from USB to RFM12,
+  Ethernet to RFM12, etc.
 
 HC595 output expansion
 HC595_SUPPORT
@@ -269,7 +281,8 @@ PS2_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Support for PS/2 keyboards, currently keystrokes are only logged to
+  SYSLOG.  That is, you need to modify the firmware for further use.
 
 PS/2: Use German layout
 PS2_GERMAN_LAYOUT
@@ -283,7 +296,9 @@ ADC_SUPPORT
   Depends on: 
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable ADC abstraction layer.  This especially enables a further
+  ECMD 'adc get' which triggers a ADC conversion for each channel
+  and returns the gained values.
 
 FS20 RF-control
 FS20_SUPPORT
@@ -297,14 +312,14 @@ RC5_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Add support to send and receive RC5 IR-remote codes.
 
 Usart ecmd interface (RS232)
 ECMD_SERIAL_USART_SUPPORT
   Depends on: 
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add support for ECMDs received on serial RS232 link.
 
 Usart ecmd RS485 mode
 ECMD_SERIAL_USART_RS485_SUPPORT
@@ -339,7 +354,13 @@ YPORT_SUPPORT
   Depends on: 
    * TCP support (TCP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable TCP-to-RS232 gateway, i.e. an X-Port.
+  It's bound to TCP port 7970.
+
+  A really cool possibility to use YPort is socat. With socat you can set up
+  a PTY device on your Linux, which you can use as a normal serial interface.
+
+  socat PTY,link=/dev/YPort TCP:192.168.1.5:7970 
 
 Cryptographic functionality
 CRYPTO_SUPPORT
@@ -354,28 +375,37 @@ CAST5_SUPPORT
   Depends on: 
    * Cryptographic functionality (CRYPTO_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable CAST-5 cipher needed for OpenVPN.
 
 Skipjack
 SKIPJACK_SUPPORT
   Depends on: 
    * Cryptographic functionality (CRYPTO_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable Skipjack-cipher to encrypted streamed data of
+    * ZBus
+    * RFM12
+    * TFTP Bootloader
 
 MD5
 MD5_SUPPORT
   Depends on: 
    * Cryptographic functionality (CRYPTO_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable MD5-hash for OpenVPN packet authentication.
 
 RFM12 (FSK transmitter) support
 RFM12_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  RFM12 are cheap 433 MHz FSK-transmitters (i.e. wireless)
+
+  RFM12 are available from pollin at
+  http://www.pollin.de/shop/detail.php?pg=NQ==&a=MDU5OTgxOTk=
+
+  For a step-by-step howto, see
+  http://ethersex.de/tiki-index.php?page=Ethersex%3AStepByStep%3ARFM12
 
 RFM12 ARP-Proxy
 RFM12_ARP_PROXY
@@ -390,21 +420,28 @@ IPCHAIR_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Basic firewalling functionallity, similar to IPtables.
+
+  Configuration in ipchair/userscript.m4
 
 IPchair: Masquerading
 IPCHAIR_MASQ
   Depends on: 
    * IPchair (firewalling) (IPCHAIR_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Simple, quite untested, masquerading code.  You might consider using
+  it for USB-to-anywhere dongles ...
+
+  Use with care.
 
 control6 scripts
 CONTROL6_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Alpha-state scripting language, very C-Control alike ...
+
+  Not very well documented currently :-)
 
 TCP support
 TCP_SUPPORT
@@ -441,7 +478,11 @@ BOOTP_SUPPORT
    * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
    * IPv4 support (IPV4_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  IPv4 address autoconfiguration, a la DHCP.
+
+  Most DHCP servers support BOOTP as DHCP's predecessor.
+  Mind that in dnsmasq you have to enable 'bootp-dynamic' in the
+  configuration file.
 
 Write BOOTP data to EEPROM
 BOOTP_TO_EEPROM_SUPPORT
@@ -464,14 +505,42 @@ SYSLOG_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable syslog CLIENT support, i.e. allow to log messages to specified
+  syslog server.
 
 OpenVPN
 OPENVPN_SUPPORT
   Depends on: 
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable OpenVPN server.
+
+  It currenly supports only symmetric ciphers (e.g. Cast5).
+
+  For details on configuration see 
+  http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
+
+OpenVPN key
+CONF_OPENVPN_KEY
+
+  The encryption key for OpenVPN communication.
+
+  Paste the first line of hex-digits from the OpenVPN key file,
+  generated on the host PC.
+
+  For details on configuration see 
+  http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
+
+OpenVPN HMAC key
+CONF_OPENVPN_HMAC_KEY
+
+  The authentication key for OpenVPN communication.
+
+  Paste the fifth line of hex-digits from the OpenVPN key file,
+  generated on the host PC.
+
+  For details on configuration see 
+  http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
 
 RFM12 raw
 RFM12_RAW_SUPPORT
@@ -480,7 +549,10 @@ RFM12_RAW_SUPPORT
    * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Forward raw data (sent to UDP port 16962, i.e. 0x4242) to RFM12.
+
+  Every packet received on RFM12 is passed back to the sender of the UDP 
+  packet, for about half a second after reception of the initial UDP packet.
 
 ZBUS raw
 ZBUS_RAW_SUPPORT
@@ -489,7 +561,10 @@ ZBUS_RAW_SUPPORT
    * ZBus Support (ZBUS_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Forward raw data (sent to UDP port 16963, i.e. 0x4243) to ZBUS.
+
+  Every packet received on ZBus is passed back to the sender of the UDP 
+  packet, for about half a second after reception of the initial UDP packet.
 
 USB (Softwarestack) Support (EXPERIMENTAL)
 USB_SUPPORT
@@ -504,7 +579,10 @@ USB_NET_SUPPORT
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  IP-Networking over USB.  It doesn't use kernel-driven CDC-subset
+  because of too high controller load.
+
+  You need to use the userspace-space client available from contrib/usb_net
 
 USBnet ARP-Proxy
 USB_ARP_PROXY
@@ -513,19 +591,28 @@ USB_ARP_PROXY
 
   There's unfortunately no help available for this item.
 
+System clock support
+CLOCK_SUPPORT
+  Enable system clock.
+  
+  A detailed step-by-step guide is available at
+  http://ethersex.de/tiki-index.php?page=Ethersex%3AStepByStep%3AAmPulsDerZeit
+
 Use 32 kHz crystal to tick the clock
 CLOCK_CRYSTAL_SUPPORT
   Depends on: 
    * System clock support (CLOCK_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Tick the system clock through a connected clock-crystal, not the internal
+  oscillator.
 
 Synchronize using DCF77 signal
 DCF77_SUPPORT
   Depends on: 
    * Use 32 kHz crystal to tick the clock (CLOCK_CRYSTAL_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Use the DCF77-signal as a clock source to synchronize to.
+  Consider this as alpha-code for the moment :-)
 
 Synchronize using NTP protocol
 NTP_SUPPORT
@@ -533,14 +620,15 @@ NTP_SUPPORT
    * System clock support (CLOCK_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Synchronize the system clock via NTP.
 
 Cron daemon
 CRON_SUPPORT
   Depends on: 
    * System clock support (CLOCK_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable cron-alike service.  The crontab has to be hard-coded at the moment.
+  See cron/cron.c.
 
 NTP daemon
 NTPD_SUPPORT
@@ -548,21 +636,27 @@ NTPD_SUPPORT
    * System clock support (CLOCK_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable NTP server.
 
 Working hour meter
 WHM_SUPPORT
   Depends on: 
    * System clock support (CLOCK_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Calculate system uptime, adds further ECMD 'whm'.
 
 TFTP support
 TFTP_SUPPORT
   Depends on: 
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable built-in TFTP server.
+
+  If configured with BOOTLOADER-support uploaded data is stored to
+  flash memory.
+
+  For Ethersex-based application firmware data can be uploaded/downloaded
+  to/from the virtual file system (i.e. dataflash, SD-cards, etc.)
 
 TFTP-o-matic
 TFTPOMATIC_SUPPORT
@@ -576,14 +670,18 @@ MDNS_SD_SUPPORT
   Depends on: 
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Multi-cast DNS (well-known as "Avahi") support.
+
+  If you enable this option, the firmware will announce availibilty of
+  the configured services in the local network using Avahi.
 
 Stella Light
 STELLA_SUPPORT
   Depends on: 
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  UDP-controlled cruft to controll several LEDs with PWM ...
+  Currently quite alpha, i.e. flickering :-/
 
 UDP Echo
 UDP_ECHO_NET_SUPPORT
@@ -597,7 +695,7 @@ DYNDNS_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Simple UDP echo, i.e. simply sends back what it received on UDP port 7.
 
 Watch IO changes (and react)
 WATCHCAT_SUPPORT
@@ -605,7 +703,11 @@ WATCHCAT_SUPPORT
    * Send ECMD messages (ECMD_SENDER_SUPPORT)
    * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Watch I/O lines for activity, i.e. rising or falling edge.
+  As a result of such a change a ECMD can be emitted to another host.
+
+  For example you can configure a ECMD to be sent to another host if
+  there is a falling edge on PA1.
 
 Simple Network Managment Protocol support (snmp)
 SNMP_SUPPORT
@@ -613,7 +715,7 @@ SNMP_SUPPORT
    * UDP support (UDP_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Make ADC, Hostname and Uptime available through SNMP.
 
 Sendmail support (smtp)
 SENDMAIL_SUPPORT
@@ -621,21 +723,22 @@ SENDMAIL_SUPPORT
    * TCP support (TCP_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Sample code to send emails on custom events (currently start-up only).
 
 SMTP Auth Support
 SENDMAIL_AUTH_SUPPORT
   Depends on: 
    * Sendmail support (smtp) (SENDMAIL_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Support for SMTP authentication.
 
 uIP Proto-Sockets
 PSOCK_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add support for Proto-Sockets.  Say yes here, if you want to enable the
+  HTTP server.
 
 HTTP Server
 HTTPD_SUPPORT
@@ -644,34 +747,33 @@ HTTPD_SUPPORT
    * TCP support (TCP_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
-
-Supply Inline Files
-HTTPD_INLINE_FILES_SUPPORT
-  Depends on: 
-   * HTTP Server (HTTPD_SUPPORT)
-
-  There's unfortunately no help available for this item.
+  Enable HTTP server.
 
 Basic Authentication
 HTTPD_AUTH_SUPPORT
   Depends on: 
    * HTTP Server (HTTPD_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable 'basic'-Authentication for HTTP server.
 
 Modbus Support
 MODBUS_SUPPORT
   Depends on: 
 
-  There's unfortunately no help available for this item.
+  Modbus is a standardized bus, see http://modbus.org/ for details.
+
+  Enable this if you'd like to enable a TCP(port 502)-to-Modbus(RS485) gateway.
 
 KTY Calculation Support
 KTY_SUPPORT
   Depends on: 
    * ADC input (ADC_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add support for KTY temperature sensors, connected to ADC pins.
+  This results in a further ecmd 'kty get 0', 'kty get 1', etc.
+
+  For hardware layout and further howto, look at
+  http://ethersex.de/tiki-index.php?page=KtyTemperatur
 
 Ethernet (ENC28J60) support
 ENC28J60_SUPPORT
@@ -692,14 +794,22 @@ DATAFLASH_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Add code to support the dataflash found on Etherrape original hardware.
 
 ZBus Support
 ZBUS_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  IP link over RS485
+
+  Typical/default baudrate 19200.  Distances of several hundred metres possible
+  without problems.  ZBUS/RS485 needs two wires for communication.
+
+  32 stations possible on one bus.
+
+  The ZBUS protocol is our own development, its no official standard.
+  For details on ZBus see http://dokucode.de/tiki-index.php?page=ZBusInterface
 
 ZBUS ARP-Proxy
 ZBUS_ARP_PROXY
@@ -748,5 +858,144 @@ ECMD_SENDER_SUPPORT
   Depends on: 
    * TCP support (TCP_SUPPORT)
 
+  Add code to send ECMDs to other hosts (e.g. Etherrape/-sex compatible
+  hardware, PCs, etc.).
+
+  This is especially useful with the option 'Watch IO changes'.
+
+Onewire support
+ONEWIRE_SUPPORT
+  Add support for Dallas 1-wire.
+
+Onewire device detection support
+ONEWIRE_DETECT_SUPPORT
+  Add support for automatic 1-wire device detection, i.e. scan
+  bus for attached devices.
+
+Onewire DS2502 (eeprom) support
+ONEWIRE_DS2502_SUPPORT
+  Support DS2502 1-wire EEPROMs.
+
+Named and logic state I/O
+NAMED_PIN_SUPPORT
+  Enable Named-Pin support, i.e. hardware-pin abstraction.
+
+  This way you can assign a human-readable name to a physical pin.  This
+  can be used together with ecmd, e.g.
+    
+    pin get NAME                -- to read NAME
+    pin set NAME STATUS         -- to set the pin NAME to STATUS (on/off)
+    pin toggle NAME             -- to toggle the pin NAME
+
+MCUF usart
+MCUF_SERIAL_SUPPORT
+  Depends on: 
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+
   There's unfortunately no help available for this item.
+
+BLP SUPPORT
+BLP_SUPPORT
+  Depends on: 
+
+  There's unfortunately no help available for this item.
+
+VFS (Virtual File System) support
+VFS_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Enable the virtual file system abstraction layer.
+
+  The VFS combines several physical data sources (e.g. SD reader and dataflash)
+  to one abstract source exposed to the HTTP server, TFTP, etc.
+
+  To make it short: say 'yes' if you want to serve files via HTTP.
+
+Dataflash: Filesystem Access
+VFS_DF_SUPPORT
+  Depends on: 
+   * VFS (Virtual File System) support (VFS_SUPPORT)
+   * SPI Atmel dataflash (DATAFLASH_SUPPORT)
+
+  Link the dataflash to VFS.
+
+VFS File Inlining
+VFS_INLINE_SUPPORT
+  Depends on: 
+   * VFS (Virtual File System) support (VFS_SUPPORT)
+
+  Make files attached to the end of the firmware available to the VFS.
+
+  The make system automatically attaches all files stored below vfs/embed/
+  to the firmware.
+
+SD/MMC-Card Access
+VFS_SD_SUPPORT
+  Depends on: 
+   * VFS (Virtual File System) support (VFS_SUPPORT)
+   * MMC/SD card reader (SD_READER_SUPPORT)
+
+  Link the SD reader to VFS.
+
+IP Statistics
+IPSTATS_SUPPORT
+  Depends on: 
+   *  (UIP_SUPPORT)
+   * TCP/Telnet interface (ECMD_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+Memory usage information (free)
+FREE_SUPPORT
+  Depends on: 
+   * TCP/Telnet interface (ECMD_SUPPORT)
+
+  There's unfortunately no help available for this item.
+
+IPv6
+DEBUG_NET_IP6
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+OpenVPN
+DEBUG_OPENVPN
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+Router
+DEBUG_ROUTER
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+uIP
+DEBUG_UIP
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+SD-Reader
+DEBUG_SD_READER
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  There's unfortunately no help available for this item.
+
+MMC/SD card reader
+SD_READER_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Add support to access SD memory cards (read and write) with
+  FAT or FAT32 file system.
+
+  The files can be accessed via the 'Virtual File System',
+  and as a result through HTTP (read only) or TFTP (read/write).
 
