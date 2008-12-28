@@ -99,8 +99,6 @@ elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then
 fi
 
 define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
-dep_bool 'Ip Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_SUPPORT
-dep_bool 'Memory usage information (free)' FREE_SUPPORT $ECMD_SUPPORT
 
 endmenu
 
