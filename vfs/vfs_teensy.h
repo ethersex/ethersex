@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -19,29 +19,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef TFTP_STATE_H
-#define TFTP_STATE_H
+#ifndef VFS_TEENSY_H
+#define VFS_TEENSY_H
 
-#include "tftp_net.h"
-#include "../vfs/vfs.h"
+/* VFS_TEENSY mode cruft ...
+ *
+ * VFS_TEENSY is a teensy mode of VFS, that directly connects the VFS inline
+ * cruft to VFS, i.e. tries to omit the whole layer in between. */
 
-/* state */
-struct tftp_connection_state_t {
-#ifdef VFS_SUPPORT
-    struct vfs_file_handle_t *fh;
-#endif
-    unsigned       download    :1;
-    unsigned       finished    :1;
+#undef vfs_close
+#undef vfs_read
+#undef vfs_write
+#undef vfs_fseek
+#undef vfs_truncate
+#undef vfs_size
+#undef vfs_rewind
 
-#ifdef BOOTLOADER_SUPPORT
-    unsigned       bootp_image :1;
-    unsigned       fire_req    :1;		/* this connection is for just
-						 * starting a tftp request */
+#define vfs_open	vfs_inline_open
+#define vfs_read	vfs_inline_read
+#define vfs_close(i)	free(i)
+#define vfs_size(fh)	((fh)->u.il.len)
+#define vfs_rewind(fh)  ((fh)->u.il.pos = 0)
 
-    unsigned char  filename[TFTP_FILENAME_MAXLEN];
-#endif
-
-    uint16_t       transfered;			/* also retry countdown */
-};
-
-#endif /* TFTP_STATE_H */
+#endif  /* VFS_TEENSY_H */

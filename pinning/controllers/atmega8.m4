@@ -29,6 +29,33 @@ ifdef(`need_spi', `dnl
 ')dnl
 
 
+ifdef(`conf_BLP', `dnl
+/* Pinbelegung am Atmega8:
+ * 
+ * clock:  PB0
+ * strobe: PD5
+ * data 1/2: PB1
+ * data 3/4: PB2
+ * data 5/6: PD4
+ * data 5/8: PD3
+ * data 9/10: PB3
+ * data 11/12: PB4
+ * data 13/14: PB5
+ * data 15/16: PC2
+ * data 17/18: PC3 */
+ pin(BLP_CLK, PB0, OUTPUT)
+ pin(BLP_STR, PD5, OUTPUT)
+ pin(BLP_DA_A, PB1, OUTPUT)
+ pin(BLP_DA_B, PB2, OUTPUT)
+ pin(BLP_DA_C, PD4, OUTPUT)
+ pin(BLP_DA_D, PD3, OUTPUT)
+ pin(BLP_DA_E, PB3, OUTPUT)
+ pin(BLP_DA_F, PB4, OUTPUT)
+ pin(BLP_DA_G, PB5, OUTPUT)
+ pin(BLP_DA_H, PC2, OUTPUT)
+ pin(BLP_DA_I, PC3, OUTPUT)
+')
+
 /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
 #define NET_MAX_FRAME_LENGTH 192
 

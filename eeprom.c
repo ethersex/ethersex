@@ -30,6 +30,7 @@
 
 #include "config.h"
 #include "eeprom.h"
+#include "yport/yport.h"
 
 
 #ifdef CRC_SUPPORT

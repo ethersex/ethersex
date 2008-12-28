@@ -226,7 +226,7 @@ main(int argc, char *argv[])
   global.usb_handle = NULL;
   global.usbid = (char *)"16c005dc";
   global.address = (char *)"192.168.8.1/24";
-  global.mtu = 174;
+  global.mtu = 192;
   global.up = NULL;
   atexit(cleanup);
 

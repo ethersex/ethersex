@@ -26,12 +26,12 @@
 
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
-#include "../dataflash/df.h"
+#include "../vfs/vfs.h"
 #include "../net/tftp_net.h"
 #include "../debug.h"
 #include "tftp.h"
 
-#ifdef DATAFLASH_SUPPORT
+#ifdef VFS_SUPPORT
 
 /*
  * raw access to the packet buffer ...
@@ -65,19 +65,8 @@ tftp_handle_packet(void)
 	state->transfered = 0;
 	state->finished = 0;
 
-	state->df_access = memcmp_P (pk->u.raw, PSTR ("df+"), 3) == 0;
-
-	if (state->df_access == 0) {
-	    state->fs_inode = fs_get_inode (&fs, pk->u.raw);
-
-	    if (state->fs_inode == 0xffff)
-		goto error_out;
-	}
-	else {
-	    state->fs_inode = strtol (pk->u.raw + 3, NULL, 16);
-	    if (state->fs_inode >= DF_PAGES)
-		goto error_out;
-	}
+	state->fh = vfs_open (pk->u.raw);
+	if (state->fh == NULL) goto error_out;
 
 	goto send_data;
 
@@ -99,36 +88,18 @@ tftp_handle_packet(void)
 	pk->type = HTONS(3);	/* data packet */
 	pk->u.data.block = HTONS(state->transfered + 1);
 
-	if (state->df_access) {
-	    if (state->transfered == 0) {
-		df_flash_read (fs.chip, state->fs_inode, pk->u.data.data,
-			       0, 512);
-		uip_udp_send(4 + 512);
-	    }
-	    else {
-		df_flash_read (fs.chip, state->fs_inode, pk->u.data.data,
-			       512, DF_PAGESIZE - 512);
-		uip_udp_send(4 + DF_PAGESIZE - 512);
-		state->finished = 1;
-	    }
-	}
-	else {			/* send file */
-	    fs_size_t ret;
-	    fs_size_t offset = state->transfered * 512;
+	fs_size_t ret = vfs_read (state->fh, pk->u.data.data, 512);
 
-	    ret = fs_read (&fs, state->fs_inode, pk->u.data.data, offset, 512);
-	    debug_printf ("fs_read: o=%04lx, l=%04lx\n", offset, ret);
-	    
-	    if (ret < 0)
-		goto error_out;
-	    if (ret < 512)
-		state->finished = 1;
-	    uip_udp_send (4 + ret);
-	}
+	if (ret < 0)
+	    goto error_out;
 
+	if (ret < 512)
+	    state->finished = 1;
+
+	uip_udp_send (4 + ret);
 	state->transfered ++;
 	break;
-	
+
     /*
      * streaming data from the client (firmware upload) ...
      */
@@ -138,13 +109,10 @@ tftp_handle_packet(void)
 	state->finished = 0;
 
 	/* try to create the file, shouldn't hurt if it already exists */
-	fs_status_t create_result = fs_create (&fs, pk->u.raw);
-	state->fs_inode = fs_get_inode (&fs, pk->u.raw);
-	if (create_result == FS_DUPLICATE)
-	    fs_truncate (&fs, state->fs_inode, 0);
+	state->fh = vfs_create (pk->u.raw);
+	/* fs_truncate (&fs, state->fs_inode, 0); */
 
-	if (state->fs_inode == 0xffff)
-	    goto error_out;
+	if (state->fh == NULL) goto error_out;
 
 	pk->u.ack.block = HTONS(0);
 	goto send_ack;
@@ -162,26 +130,17 @@ tftp_handle_packet(void)
 	if (HTONS (pk->u.ack.block) > state->transfered + 1)
 	    goto error_out;	/* too late */
 
-	fs_status_t ret;
-	fs_size_t offset = 512 * (HTONS(pk->u.ack.block) - 1);
-
-	ret = fs_write (&fs, state->fs_inode, pk->u.data.data,
-			offset, uip_datalen () - 4);
-
-	if (ret != FS_OK) {
-	    debug_printf ("fs_write o=%04lx, l=%04x, r=%d\n", offset,
-		   uip_datalen () - 4, ret);
+	if (vfs_write (state->fh, pk->u.data.data, uip_datalen () - 4) <= 0)
 	    goto error_out;
-	}
 
 	if (uip_datalen () < 512 + 4)
 	    state->finished = 1;
 
 	state->transfered = HTONS (pk->u.ack.block);
-	
+
     send_ack:
 	pk->type = HTONS (4);
-	uip_udp_send (4);              /* send ack */
+	uip_udp_send (4);	/* send ack */
 
 	if (state->finished)
 	    goto close_connection;
@@ -213,9 +172,14 @@ tftp_handle_packet(void)
 	uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
 	uip_udp_conn->rport = 0;
 
+	if (state->fh) {
+	    vfs_close (state->fh);
+	    state->fh = NULL;
+	}
+
 	break;
     }
 }
 
 
-#endif /* DATAFLASH_SUPPORT */
+#endif /* VFS_SUPPORT */

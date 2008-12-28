@@ -17,8 +17,8 @@ atmega8=y
 FREQ=16000000
 # etherrape is not set
 # netio is not set
-HARDWARE=other
-other=y
+HARDWARE=generic_usb_teensy
+generic_usb_teensy=y
 # radig_web is not set
 # BOOTLOADER_SUPPORT is not set
 TEENSY_SUPPORT=y

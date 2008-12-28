@@ -15,6 +15,8 @@ atmega8=y
 FREQ=16000000
 # BOOTLOADER_SUPPORT is not set
 TEENSY_SUPPORT=y
+HARDWARE=generic_usb_teensy
+generic_usb_teensy=y
 # UIP_SUPPORT is not set
 # IPV6_SUPPORT is not set
 # IPV4_SUPPORT is not set

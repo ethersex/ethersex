@@ -255,7 +255,7 @@ fs_status_t fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index)
 
 } /* }}} */
 
-fs_inode_t fs_get_inode(fs_t *fs, char *file)
+fs_inode_t fs_get_inode(fs_t *fs, const char *file)
 /* {{{ */ {
 
     fs_inode_t inode = 0xffff;
@@ -711,7 +711,7 @@ fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length)
     return FS_OK;
 }
 
-fs_status_t fs_create(fs_t *fs, char *name)
+fs_status_t fs_create(fs_t *fs, const char *name)
 /* {{{ */ {
 
     /* search for a place for this filename in the table */

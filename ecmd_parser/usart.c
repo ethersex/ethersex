@@ -34,7 +34,8 @@
 #include "../eeprom.h"
 #include "ecmd.h"
 
-#if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
+#if 0
+//#if defined(USART_SUPPORT) && !defined(TEENSY_SUPPORT)
 
 /* FIXME This shouldn't unconditionally use the ZBus configuration. */
 #define USE_USART ZBUS_USE_USART 

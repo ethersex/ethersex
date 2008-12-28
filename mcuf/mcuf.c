@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Guido Pannenbecker <info@sd-gp.de>
+ * Copyright (c) 2008 by Dirk Pannenbecker <dp@sd-gp.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,27 +33,31 @@
 #include "../eeprom.h"
 #include "../bit-macros.h"
 #include "../config.h"
+#include "../debug.h"
 #include "../net/mcuf_net.h"
 #include "../syslog/syslog.h"
 #include "mcuf.h"
 #include "../uip/uip.h"
 
-#include "../pinning.c"
-
 #ifdef MCUF_SUPPORT
 
+#ifdef MCUF_SERIAL_SUPPORT
 #define USE_USART MCUF_USE_USART
 #define BAUD MCUF_BAUDRATE
 #include "../usart.h"
+#endif
 
-// 444,16,16 for 16x16borg
-// 170,18,8 for blinkenledspro
-#define MCUF_MAX_PCKT_SIZE 444
 /* MCUF_OUTPUT_SCREEN_... are now defined during Ethersex configuration
    and thus are defined in autoconf.h file.
 
    #define MCUF_OUTPUT_SCREEN_WIDTH 18
    #define MCUF_OUTPUT_SCREEN_HEIGHT 8 */
+
+//TODO set MCUF_MAX_PCKT_SIZE correct
+// 444,16,16 for 16x16borg
+// 170/184,18,8 for blinkenledspro
+#define MCUF_MAX_PCKT_SIZE MCUF_OUTPUT_SCREEN_WIDTH*MCUF_OUTPUT_SCREEN_HEIGHT + 40
+
 
 struct {
   uint8_t len;
@@ -85,32 +90,77 @@ struct blp_packet {
   uint8_t data[];
 };
 
+/*
+ #####   #####
+#     # #     #
+      #       #
+ #####   #####
+#             #
+#       #     #
+#######  #####
+*/
+uint8_t default_movie[] = {0x23,0x54,0x26,0x66,0x00,0x08,0x00,0x12,0x00,0x01,0x00,0xff,
+                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                           0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,
+                           0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,
+                           0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
+                           0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,
+                           0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+                           0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,
+                           0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0
+};
+
+uint8_t blp_toc = 250;
+
+void mcuf_senddata();
+#ifdef MCUF_SERIAL_SUPPORT
 void mcuf_serial_senddata();
 void tx_start(uint8_t len);
+#endif
+#ifdef BLP_SUPPORT
+void blp_output();
+void blp_clock();
+void blp_strobe();
+void blp_setspalte(uint8_t spalte, uint8_t status);
+#endif
 
-
+#ifdef MCUF_SERIAL_SUPPORT
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
+#endif
 
-
-void
-mcuf_init(void)
-{
-    /* Initialize the usart module */
-    usart_init();
-    /* Disable the receiver */
-    usart(UCSR,B) &= ~_BV(usart(RXCIE));
-
-    buffer.len = 0;
-    buffer.sent = 0;
+void mcuf_init(void) {
+#ifdef MCUF_SERIAL_SUPPORT
+  /* Initialize the usart module */
+  usart_init();
+  /* Disable the receiver */
+  usart(UCSR,B) &= ~_BV(usart(RXCIE));
+  debug_printf("mcuf serial...\n");
+#endif
+#ifdef BLP_SUPPORT
+  DDR_CONFIG_OUT(BLP_CLK);
+  DDR_CONFIG_OUT(BLP_STR);
+  DDR_CONFIG_OUT(BLP_DA_A);
+  DDR_CONFIG_OUT(BLP_DA_B);
+  DDR_CONFIG_OUT(BLP_DA_C);
+  DDR_CONFIG_OUT(BLP_DA_D);
+  DDR_CONFIG_OUT(BLP_DA_E);
+  DDR_CONFIG_OUT(BLP_DA_F);
+  DDR_CONFIG_OUT(BLP_DA_G);
+  DDR_CONFIG_OUT(BLP_DA_H);
+  DDR_CONFIG_OUT(BLP_DA_I);
+#endif
+  buffer.len = 0;
+  buffer.sent = 0;
+  memcpy(buffer.data, default_movie, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
+  mcuf_senddata();
 }
 
-void
-mcuf_newdata(void) 
-{
+void mcuf_newdata(void) {
   /* If we send a packet, drop the new packet */
   if (buffer.sent < buffer.len) return;
 
+  blp_toc=250;
 
   /* MCUF Magic bytes - see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame */
   if ( strncmp(uip_appdata, "\x23\x54\x26\x66", 4) == 0) {
@@ -133,8 +183,8 @@ mcuf_newdata(void)
     if ( channels * height * width > MCUF_MAX_PCKT_SIZE - 12 ) {
 #ifdef SYSLOG_SUPPORT
       syslog_sendf("Warning: skipped MCUF-Frame because of chan, height "
-		   "or width to big (max pckt size: 444 inkl 12 byte header):"
-		   " %d * %d * %d", channels, height, width);
+                   "or width to big (max pckt size: 444 inkl 12 byte header):"
+                   " %d * %d * %d", channels, height, width);
 #endif
       return;
     }
@@ -147,29 +197,29 @@ mcuf_newdata(void)
     if (channels == 3) {
       /* Handle RGB-Frames */
       for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-	for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
-	  if (height > y && width > x) {
+        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+          if (height > y && width > x) {
             uint8_t red   = pkt->data[(x + (y * width)) * channels + 0];
             uint8_t green = pkt->data[(x + (y * width)) * channels + 1];
-            uint8_t blue  = pkt->data[(x + (y * width)) * channels + 2];
-	    buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
-	      (red + green + blue) / 3 * multiplier;
-	  }
-	}
+            uint8_t blue  = pkt->data[(x + (y * width)) * channels + 2];	
+            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
+                (red + green + blue) / 3 * multiplier;
+          }
+        }
       }
     } else {
       /* for non-RGB-Frames use only channel 1 and ignore all others */
       for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-	for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
-	  if (height > y && width > x) {
-	    buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
-	      pkt->data[(x + (y * width)) * channels + 0 ] * multiplier;
-	  }
-	}
+        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+          if (height > y && width > x) {
+            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
+                pkt->data[(x + (y * width)) * channels + 0 ] * multiplier;
+          }
+        }
       }
     }
     /* init writing of output-buffer to uart */
-    mcuf_serial_senddata(); 
+    mcuf_senddata(); 
   } else
 
 
@@ -187,7 +237,7 @@ mcuf_newdata(void)
        https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol
        but use 1 as maxvaule instead of 255) */
     uint16_t maxvalue = 1;	/* assume we do have a packet
-				   from such a stupid programm */
+                                   from such a stupid programm */
     uint8_t x, y;
     for (y = 0; y < height; y++) {
       for (x = 0; x < width; x++) {
@@ -235,7 +285,7 @@ mcuf_newdata(void)
     }
 
     /* init writing of output-buffer to uart */
-    mcuf_serial_senddata(); 
+    mcuf_senddata(); 
   } else
 
 
@@ -260,15 +310,25 @@ mcuf_newdata(void)
         }
       }
     }
-
     /* init writing of output-buffer to uart */
-    mcuf_serial_senddata(); 
+    mcuf_senddata();
   }
 }
 
-void
-mcuf_serial_senddata()
-{
+void mcuf_senddata() {
+#ifdef BLP_SUPPORT
+  buffer.len = 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH);
+#ifndef MCUF_SERIAL_SUPPORT
+  buffer.sent=buffer.len;
+#endif
+#endif
+#ifdef MCUF_SERIAL_SUPPORT
+  mcuf_serial_senddata();
+#endif
+}
+
+#ifdef MCUF_SERIAL_SUPPORT
+void mcuf_serial_senddata() {
   /* write mcuf-header for the shifter-device (4 byte magic, height, width, channels, maxval)
      see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame
      and https://wiki.blinkenarea.org/index.php/Shifter */
@@ -280,18 +340,15 @@ mcuf_serial_senddata()
   tx_start(12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
 }
 
-void
-tx_start(uint8_t len)
-{
-    buffer.len = len;
-    buffer.sent = 1;
-    /* Enable the tx interrupt and send the first character */
-    usart(UCSR,B) |= _BV(usart(TXCIE));
-    usart(UDR) = buffer.data[0];
+void tx_start(uint8_t len) {
+  buffer.len = len;
+  buffer.sent = 1;
+  /* Enable the tx interrupt and send the first character */
+  usart(UCSR,B) |= _BV(usart(TXCIE));
+  usart(UDR) = buffer.data[0];
 }
 
-SIGNAL(usart(USART,_TX_vect))
-{
+SIGNAL(usart(USART,_TX_vect)) {
   if (buffer.sent < buffer.len) {
     usart(UDR) = buffer.data[buffer.sent++];
   } else {
@@ -299,4 +356,143 @@ SIGNAL(usart(USART,_TX_vect))
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
   }
 }
-#endif
+#endif /* MCUF_SERIAL_SUPPORT */
+
+void mcuf_periodic(void) {
+  static uint8_t blp_tic=0;
+  blp_tic++;
+  if (buffer.sent <= buffer.len) {
+    blp_tic=0;
+  }
+  if (blp_tic > blp_toc) {
+    blp_toc=10;
+    // scroll to the left
+    for (uint8_t i = 12; i < (12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH)); i+=MCUF_OUTPUT_SCREEN_WIDTH) {
+      buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]-buffer.data[i];
+      buffer.data[i]=buffer.data[i]+buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH];
+      buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=-buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]+buffer.data[i];
+      for (uint8_t j = i; j < (i+MCUF_OUTPUT_SCREEN_WIDTH); j++) {
+        buffer.data[j+1]=buffer.data[j+1]-buffer.data[j];
+        buffer.data[j]=buffer.data[j]+buffer.data[j+1];
+        buffer.data[j+1]=-buffer.data[j+1]+buffer.data[j];
+      }
+    }
+    mcuf_senddata();
+  }
+#       ifdef BLP_SUPPORT
+  blp_output();
+#       endif
+  if (buffer.sent == buffer.len)
+    buffer.sent=buffer.len+1;
+}
+
+#ifdef BLP_SUPPORT
+void blp_output(void) {
+  uint8_t idx=0,col,halfframe,gscale=1;
+  int8_t row;
+  //TODO enable grayscale
+  //for (idx=0;gscale<4;gscale++) {
+  for (halfframe=1;halfframe<2;halfframe--) {
+    for (row=7;row>=0;row--) {
+      for (col=0;col<9;col++,idx++) {
+        //blp_setspalte(col, (  buffer.data[12 + (row*18) + (col * 2 + halfframe)] > (gscale*64) ? 1:0  ));
+        blp_setspalte(col, (  buffer.data[12 + (row*18) + (col * 2 + halfframe)] ));
+        if (((idx+1)%9) == 0)
+          blp_clock();
+      }
+    }
+  }
+  blp_strobe();
+  //}
+}
+
+void blp_clock(void) {
+  PIN_SET(BLP_CLK);
+  PIN_CLEAR(BLP_CLK);
+}
+
+void blp_strobe(void) {
+  PIN_SET(BLP_STR);
+  PIN_CLEAR(BLP_STR);
+}
+
+void blp_setspalte(uint8_t spalte, uint8_t status){
+  switch (spalte){
+    case 0 :
+      if(status > 0){
+        PIN_SET(BLP_DA_A);
+      } else {
+        PIN_CLEAR(BLP_DA_A);
+      }
+      break;
+
+    case 1 :
+      if(status > 0){
+        PIN_SET(BLP_DA_B);
+      } else {
+        PIN_CLEAR(BLP_DA_B);
+      }
+      break;
+
+    case 2 :
+      if(status > 0){
+        PIN_SET(BLP_DA_C);
+      } else {
+        PIN_CLEAR(BLP_DA_C);
+      }
+      break;
+
+    case 3 :
+      if(status > 0){
+        PIN_SET(BLP_DA_D);
+      } else {
+        PIN_CLEAR(BLP_DA_D);
+      }
+      break;
+
+    case 4 :
+      if(status > 0){
+        PIN_SET(BLP_DA_E);
+      } else {
+        PIN_CLEAR(BLP_DA_E);
+      }
+      break;
+
+    case 5 :
+      if(status > 0){
+        PIN_SET(BLP_DA_F);
+      } else {
+        PIN_CLEAR(BLP_DA_F);
+      }
+      break;
+
+    case 6 :
+      if(status > 0){
+        PIN_SET(BLP_DA_G);
+      } else {
+        PIN_CLEAR(BLP_DA_G);
+      }
+      break;
+
+    case 7 :
+      if(status > 0){
+        PIN_SET(BLP_DA_H);
+      } else {
+        PIN_CLEAR(BLP_DA_H);
+      }
+      break;
+
+    case 8 :
+      if(status > 0){
+        PIN_SET(BLP_DA_I);
+      } else {
+        PIN_CLEAR(BLP_DA_I);
+      }
+      break;
+
+    default :
+      break;
+  }
+}
+#endif /* BLP_SUPPORT */
+#endif /* MCUF_SUPPORT */

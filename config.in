@@ -164,11 +164,13 @@ source i2c/config.in
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
+source mcuf/config.in
+
 usart_count_used
 comment "Usart Configuration ($USARTS_USED/$USARTS)"
+source mcuf/config_usart.in
 source modbus/config.in
 source yport/config.in
-source mcuf/config.in
 
 if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
@@ -200,6 +202,7 @@ comment "work in progress bits (enable with care)"
 
   source dataflash/config.in
   source sd_reader/config.in
+  source vfs/config.in
   source httpd/config.in
   source control6/config.in
   source ipchair/config.in

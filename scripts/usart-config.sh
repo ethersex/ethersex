@@ -35,7 +35,7 @@ usart_count_used() {
   if [ "$ZBUS_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
-  if [ "$MCUF_SUPPORT" = y ]; then
+  if [ "$MCUF_SERIAL_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
   if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then

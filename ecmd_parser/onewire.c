@@ -193,7 +193,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 
         ret = snprintf_P(output, len,
-                PSTR("Temperatur: %3d.%1d\n"),
+                PSTR("Temperatur: %3d.%1d"),
                 HI8(temp),  HI8(((temp & 0x00ff) * 10) + 0x80));
 
 #ifdef ONEWIRE_DS2502_SUPPORT

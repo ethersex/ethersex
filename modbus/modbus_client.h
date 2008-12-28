@@ -24,6 +24,13 @@
 #ifndef _MODBUS_CLIENT_H
 #define _MODBUS_CLIENT_H
 
+enum {
+  MODBUS_CMD_READ_HOLDING = 0x03,
+  MODBUS_CMD_READ_INPUTS = 0x04,
+  MODBUS_CMD_WRITE_HOLDING = 0x06,
+  MODBUS_CMD_WRITE_MULTIPLE_HOLDING = 0x10,
+};
+
 
 void modbus_client_process(uint8_t *data, uint8_t length, int16_t *recv_len);
 

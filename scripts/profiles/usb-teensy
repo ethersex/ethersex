@@ -25,6 +25,8 @@ IPV4_SUPPORT=y
 # ZBUS_SUPPORT is not set
 USB_NET_SUPPORT=y
 NET_SUPPORT=y
+HARDWARE=generic_usb_teensy
+generic_usb_teensy=y
 
 #
 # Cryptographic functionality

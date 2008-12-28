@@ -80,43 +80,43 @@ void modbus_net_main(void)
     for (i = 0; i < UIP_CONNS; i ++) 
       if (uip_conns[i].callback == modbus_net_main
           && uip_conns[i].tcpstateflags != UIP_CLOSED) {
-          if (uip_conns[i].appstate.modbus.state == MODBUS_MUST_SEND) {
-            /* Start the transmission */
-            modbus_rxstart((uint8_t *)STATE(&uip_conns[i]).data, 
-                           STATE(&uip_conns[i]).len, 
-                           &recv_len);
-            STATE(&uip_conns[i]).state = MODBUS_WAIT_ANSWER;
-            recv_len = 0;
-            break;
-          } else if (STATE(&uip_conns[i]).state == MODBUS_WAIT_ANSWER 
-                     && recv_len != 0) {
-            uip_conn = &uip_conns[i];
-            STATE(uip_conn).state = MODBUS_MUST_ANSWER;
+        if (uip_conns[i].appstate.modbus.state == MODBUS_MUST_SEND) {
+          /* Start the transmission */
+          recv_len = 0;
+          modbus_rxstart((uint8_t *)STATE(&uip_conns[i]).data, 
+                         STATE(&uip_conns[i]).len, 
+                         &recv_len);
+          STATE(&uip_conns[i]).state = MODBUS_WAIT_ANSWER;
+          break;
+        } else if (STATE(&uip_conns[i]).state == MODBUS_WAIT_ANSWER 
+                   && recv_len != 0) {
+          uip_conn = &uip_conns[i];
+          STATE(uip_conn).state = MODBUS_MUST_ANSWER;
 send_new_data:
-            if (recv_len == -1) {
-              // Send an error message
-             answer[8] = 0x0B; // gateway problem
-             goto error_response;
-            }
-            uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, recv_len - 2);
-            uint16_t crc_recv = 
-                    ((STATE(uip_conn).data[recv_len - 1])  << 8) 
-                    | (STATE(uip_conn).data[recv_len - 2]);
-            if (crc != crc_recv) {
-              // Send an error message
-             answer[8] = 0x0B; // gateway problem
-             goto error_response;
-            }
-            memcpy(answer + 6, STATE(uip_conn).data,
-                   recv_len - 2);
-            memset(answer, 0, 6);
-
-            answer[0] = STATE(uip_conn).transaction_id;
-            answer[1] = STATE(uip_conn).transaction_id >> 8;
-            answer[5] = recv_len - 2;
-
-            uip_udp_send(recv_len -2 + 6);
+          if (recv_len == -1) {
+            // Send an error message
+            answer[8] = 0x0B; // gateway problem
+            goto error_response;
           }
+          uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, recv_len - 2);
+          uint16_t crc_recv = 
+            ((STATE(uip_conn).data[recv_len - 1])  << 8) 
+            | (STATE(uip_conn).data[recv_len - 2]);
+          if (crc != crc_recv) {
+            // Send an error message
+            answer[8] = 0x0B; // gateway problem
+            goto error_response;
+          }
+          memcpy(answer + 6, STATE(uip_conn).data,
+                 recv_len - 2);
+          memset(answer, 0, 6);
+
+          answer[0] = STATE(uip_conn).transaction_id;
+          answer[1] = STATE(uip_conn).transaction_id >> 8;
+          answer[5] = recv_len - 2;
+
+          uip_udp_send(recv_len -2 + 6);
+        }
 
       }
 

@@ -37,19 +37,6 @@
 #define HTTPD_INDEX "idx.ht"
 #define ECMD_INDEX "ecmd"
 
-#define HTTPD_INLINE_MAGIC 0x23
-#define HTTPD_INLINE_FNLEN 6
-
-union httpd_inline_node_t {
-  struct __attribute__((__packed__)) {
-    unsigned char fn[HTTPD_INLINE_FNLEN];
-    uint16_t len;
-    uint8_t crc;
-  } s ;
-
-  unsigned char raw[0];
-} ;
-
 /* prototypes */
 void httpd_init(void);
 void httpd_main(void);

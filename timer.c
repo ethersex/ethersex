@@ -43,6 +43,7 @@
 #include "ps2/ps2.h"
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"
+#include "mcuf/mcuf.h"
 #include "modbus/modbus.h"
 #include "zbus/zbus.h"
 
@@ -72,6 +73,10 @@ void timer_process(void)
 
     /* check timer 1 (timeout after 20ms) */
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
+
+#       ifdef MCUF_SUPPORT
+	mcuf_periodic();
+#       endif
 
 #       ifdef PS2_SUPPORT
         ps2_periodic();
@@ -111,7 +116,7 @@ void timer_process(void)
 #       ifdef  WATCHCAT_SUPPORT
         watchcat_periodic();
 #       endif
-
+	
 #ifdef UIP_SUPPORT
 #       if UIP_CONNS <= 255
         uint8_t i;
@@ -157,6 +162,7 @@ void timer_process(void)
 #       else
         if (counter % 10 == 0) {
 #       endif
+
 
 #       ifdef ZBUS_SUPPORT
           zbus_core_periodic();
