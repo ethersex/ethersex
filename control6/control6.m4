@@ -48,6 +48,9 @@ divert(0)dnl
 #include "../pt/pt.h"
 #include "../config.h"
 #include "../kty/kty81.h"
+#ifdef NAMED_PIN_SUPPORT
+#include "../named_pin/user_config.h"
+#endif
 
 divert(-1)dnl
 
