@@ -78,7 +78,7 @@ vfs_df_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 }
 
 uint8_t
-vfs_df_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
+vfs_df_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
 	      uint8_t whence)
 {
   fs_size_t len = fs_size (&fs, fh->u.df.inode);
@@ -106,7 +106,7 @@ vfs_df_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
     return -1;			/* Beyond end of file.
 				   FIXME: we could increase file size. */
 
-  fh->u.df.offset = 0;
+  fh->u.df.offset = new_pos;
   return 0;
 
 }
