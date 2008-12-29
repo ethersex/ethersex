@@ -195,7 +195,7 @@ uint8_t last_minute;
 #error Please define clock support
 #endif
 
-divert(normal_start_divert)  clock_datetime(&datetime, clock_get_time());
+divert(normal_start_divert)  clock_localtime(&datetime, clock_get_time());
 divert(control_end_divert)  last_minute = datetime.min;
 divert(old_divert)')')
 
