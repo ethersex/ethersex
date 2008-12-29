@@ -27,16 +27,16 @@
 #include "ecmd_parser/ecmd.h"
 #include "onewire/onewire.h"
 
-#define USE_USART 0
-#define BAUD DEBUG_BAUDRATE
-#include "usart.h"
-
 #define noinline __attribute__((noinline))
 
 /* prototypes */
 int debug_uart_put(char d, FILE *stream);
 
 #ifdef DEBUG
+
+#define USE_USART 0
+#define BAUD DEBUG_BAUDRATE
+#include "usart.h"
 
 #ifndef DEBUG_USE_SYSLOG
 
