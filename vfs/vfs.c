@@ -23,6 +23,12 @@
 #ifndef VFS_TEENSY
 
 struct vfs_func_t vfs_funcs[] = {
+#ifdef VFS_EEPROM_SUPPORT
+  VFS_EEPROM_FUNCS,
+#endif
+#ifdef VFS_EEPROM_RAW_SUPPORT
+  VFS_EEPROM_RAW_FUNCS,
+#endif
 #ifdef VFS_DF_SUPPORT
   VFS_DF_FUNCS,
 #endif

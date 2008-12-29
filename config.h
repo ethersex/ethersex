@@ -132,9 +132,11 @@
 #endif
 
 #if defined(VFS_SUPPORT) && defined(VFS_INLINE_SUPPORT) \
-  && !defined(VFS_SD_SUPPORT) && !defined(VFS_DF_SUPPORT)
+  && !defined(VFS_SD_SUPPORT) && !defined(VFS_DF_SUPPORT) \
+  && !defined(VFS_EEPROM_RAW_SUPPORT)
 #  define VFS_TEENSY 1
 #endif
+
 
 
 #endif /* _CONFIG_H */

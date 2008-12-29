@@ -25,6 +25,12 @@
 #include "../config.h"
 
 enum vfs_type_t {
+#ifdef VFS_EEPROM_SUPPORT
+  VFS_EEPROM,
+#endif
+#ifdef VFS_EEPROM_RAW_SUPPORT
+  VFS_EEPROM_RAW,
+#endif
 #ifdef VFS_DF_SUPPORT
   VFS_DF,
 #endif
@@ -61,6 +67,7 @@ typedef uint32_t vfs_size_t;
 #include "vfs_df.h"
 #include "vfs_sd.h"
 #include "vfs_inline.h"
+#include "vfs_eeprom_raw.h"
 
 struct vfs_file_handle_t {
   /* The vfs_type_t of the VFS module that is responsible for this
@@ -71,6 +78,7 @@ struct vfs_file_handle_t {
     vfs_file_handle_df_t df;
     vfs_file_handle_sd_t sd;
     vfs_file_handle_inline_t il;
+    vfs_file_handle_eeprom_raw_t ee_raw;
   } u;
 };
 

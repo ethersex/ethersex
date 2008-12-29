@@ -3,4 +3,5 @@ dep_bool "  Dataflash: Filesystem Access" VFS_DF_SUPPORT $VFS_SUPPORT $DATAFLASH
 #dep_bool "  Dataflash: Raw Block Access" VFS_DF_RAW_SUPPORT $VFS_SUPPORT $DATAFLASH_SUPPORT
 dep_bool "  VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT
 dep_bool "  SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT $SD_READER_SUPPORT
+dep_bool "  EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_EEPROM_SUPPORT
 #dep_bool "  Proc FS" VFS_PROC_SUPPORT $VFS_SUPPORT
