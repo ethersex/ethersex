@@ -466,7 +466,7 @@ network_config_load (void)
 
     /* Configure prefix length (IPv6). */
 #ifdef IPV6_SUPPORT
-    uip_setprefixlen(CONF_ETHERRAPE_IP6_PREFIX_LEN);
+    uip_setprefixlen(CONF_ENC_IP6_PREFIX_LEN);
 #endif
 
 
