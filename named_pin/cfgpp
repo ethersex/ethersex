@@ -23,7 +23,7 @@ grep -v -e ^# < config | while read line; do
   input=`echo $line | awk '{print $2}'`
   active_high=`echo $line | awk '{print $3}'`
   name=`echo $line | awk '{print $4}'`
-  echo "#define ${name}_PORT $port" >> $tmp3
+  echo "#define ${name}_PORT `echo $line | awk '{print $1}' | cut -c 2 | tr 'abcd' 'ABCD'`" >> $tmp3
   echo "#define ${name}_PIN $pin" >> $tmp3
   textid=$RANDOM
   while grep -q $textid $tmp2; do
