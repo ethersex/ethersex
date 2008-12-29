@@ -37,8 +37,8 @@
     </svg:svg>
 
     <table id='ow_table' border="1" cellspacing="0">
-    <tr><td>Daten</td><td>Laenge</td></tr>
-    <tr><td id='daten'>No data</td><td id='laenge'>No data</td></tr>
+    <tr><td>Daten</td></tr>
+    <tr><td id='daten'>No data</td></tr>
     </table>
     <div id="logconsole"></div>
 
