@@ -78,7 +78,7 @@ divert(normal_end_divert)
 divert(action_divert)')
 
 define(`THREAD_END', `divert(action_divert)dnl
-PT_WAIT_WHILE(pt, 1);
+dnl PT_WAIT_WHILE(pt, 1);
   PT_END(pt);
 }
 
@@ -86,6 +86,8 @@ divert(normal_divert)dnl')
 define(`THREAD_DO', `action_thread_$1(&action_threads[action_thread_$1_idx].pt);')
 define(`THREAD_START',  `action_threads[action_thread_$1_idx].started = 1;')
 define(`THREAD_STOP',  `action_threads[action_thread_$1_idx].started = 0;')
+define(`THREAD_WAIT',  `action_threads[action_thread_$1_idx].started = 0;
+PT_WAIT_WHILE(pt, action_threads[action_thread_$1_idx].started == 1);')
 define(`THREAD_RESTART',  `do { action_threads[action_thread_$1_idx].started = 1; 
   PT_INIT(&action_threads[action_thread_$1_idx].pt); } while(0);')
 divert(action_table_divert)dnl
@@ -142,7 +144,7 @@ divert(old_divert)')dnl
 (act_time - timers[timer_$1])')
 
 define(`TIMER_WAIT', `PT_WAIT_UNTIL(pt, TIMER($1) >= $2);')
-define(`WAIT', `TIMER_START(timer_on__LINE__); TIMER_WAIT(timer_on__LINE__, $1);')
+define(`WAIT', `TIMER_START(`timer_on_'__line__); TIMER_WAIT(`timer_on_'__line__, ($1));')
 
 ################################
 # Conditionals
