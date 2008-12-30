@@ -32,7 +32,6 @@
 #ifdef ECMD_SENDER_SUPPORT
 
 /* module local prototypes */
-#ifdef TCP_SUPPORT
 
 uip_conn_t *
 ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
@@ -74,14 +73,16 @@ void ecmd_sender_net_main(void)
     uip_send(buffer, len);
   }
 }
-#else /* UDP_SUPPORT */
+#endif /* ECMD_SENDER_SUPPORT */
+
+#ifdef UECMD_SENDER_SUPPORT
 
 static uip_udp_conn_t *ecmd_conn = NULL;
 PGM_P send_data = NULL;
 uint8_t resend_counter = 0;
 
 void
-ecmd_sender_main(void) {
+uecmd_sender_net_main(void) {
   if (uip_newdata()) {
     send_data = NULL;
   }
@@ -106,15 +107,16 @@ ecmd_sender_main(void) {
 }
 
 void
-ecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data) 
+uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data) 
 {
   if (!ecmd_conn) {
-    ecmd_conn = uip_udp_new(ipaddr, 0, ecmd_sender_main);
+    ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
     if (!ecmd_conn) return;
   }
   uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
   send_data = pgm_data;
   resend_counter = 7;
 }
-#endif /* TCP_SUPPORT */
-#endif /* ECMD_SENDER_SUPPORT */
+
+#endif /* UECMD_SENDER_SUPPORT */
+
