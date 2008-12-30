@@ -211,7 +211,7 @@ define(`old_divert', divnum)dnl
 define(`adc_used')dnl
 divert(globals_divert)
 #ifndef ADC_SUPPORT
-#error Please define clock support
+#error Please define adc support
 #endif
 static uint16_t
 control6_get_adc(uint8_t sensorchannel){
@@ -235,7 +235,7 @@ define(`old_divert', divnum)dnl
 define(`kty_used')dnl
 divert(globals_divert)
 #ifndef KTY_SUPPORT
-#error Please define clock support
+#error Please define kty support
 #endif
 
 divert(old_divert)')')
