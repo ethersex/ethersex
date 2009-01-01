@@ -91,7 +91,7 @@ int main(void)
     DDRC = DDR_MASK_C;
 #endif
 #if DDR_MASK_D != 0
-    DDRC = DDR_MASK_D;
+    DDRD = DDR_MASK_D;
 #endif
 
     debug_init();
