@@ -92,10 +92,10 @@ int16_t parse_cmd_kty_calibration(char *cmd, char *output, uint16_t len)
   } else
     return -1;
   if (kty_calibrate(adc)) {
-    strcpy_P (output, "OK");
+    strcpy_P (output, PSTR("OK"));
     ret = 2;
   } else {
-    strcpy_P (output, "Out of range");
+    strcpy_P (output, PSTR("Out of range"));
     ret = 13;
   }
   return ret;
