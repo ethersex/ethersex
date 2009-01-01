@@ -125,12 +125,7 @@ const uip_ipaddr_t all_ones_addr =
 #else /* UIP_CONF_IPV6 */
   {0xffff,0xffff};
 #endif /* UIP_CONF_IPV6 */
-const uip_ipaddr_t all_zeroes_addr =
-#if UIP_CONF_IPV6
-  {0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};
-#else /* UIP_CONF_IPV6 */
-  {0x0000,0x0000};
-#endif /* UIP_CONF_IPV6 */
+const uip_ipaddr_t all_zeroes_addr;
 
 #ifdef MDNS_SD_SUPPORT
 const uip_ipaddr_t mdns_address =
@@ -142,7 +137,7 @@ const uip_ipaddr_t mdns_address =
 #endif /* MDNS_SD_SUPPORT */
 
 
-struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
+struct uip_eth_addr uip_ethaddr;
 
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
