@@ -14,6 +14,12 @@ ifdef(`conf_SD_READER', `dnl
   pin(SPI_CS_SD_READER, PB2, OUTPUT)
 ')dnl
 
+ifdef(`conf_FS20', `dnl
+  /* fs20 support */
+  pin(FS20_SEND, PB2)
+  /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
+  pin(FS20_RECV, PB3)
+')dnl
 
 dnl ifdef(`conf_RFM12', `define(`GENERIC_LED_PINS', `1')')dnl
 dnl ifdef(`conf_ZBUS', `define(`GENERIC_LED_PINS', `1')')dnl
