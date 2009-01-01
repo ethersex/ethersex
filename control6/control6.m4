@@ -51,6 +51,9 @@ divert(0)dnl
 #ifdef NAMED_PIN_SUPPORT
 #include "../named_pin/user_config.h"
 #endif
+#include "../net/ecmd_sender_net.h"
+#include "../bit-macros.h"
+#include "../uip/uip.h"
 
 divert(-1)dnl
 
@@ -247,6 +250,48 @@ divert(old_divert)')')
 
 define(`KTY_GET', `KTY_USED()temperatur(get_kty($1))')
 
+################################
+# ECMD SENDER
+################################
+define(`ECMD_SENDER_USED', `ifdef(`ecmd_sender_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`ecmd_sender_used')dnl
+divert(globals_divert)
+#ifndef ECMD_SENDER_SUPPORT
+#error Please define emcd sender tcp support
+#endif
+
+divert(old_divert)')')
+
+define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `.', `,'))', 
+	`ip6addr_expand(regexp(`$1', `\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)',`0x\1,0x\2,0x\3,0x\4,0x\5,0x\6,0x\7,0x\8')) ') ')
+
+define(`ip4addr_expand', `HTONS(($1 << 8) | $2), HTONS(($3 << 8) | $4)')
+define(`ip6addr_expand', `uip_ip6addr_t ip; uip_ip6addr(&ip, HTONS($1),  HTONS($2),  HTONS($3),  HTONS($4),  
+ 	 HTONS($5),  HTONS($6),  HTONS($7), HTONS($8))')
+
+define(`ESEND', `{IPADDR($1);ecmd_sender_send_command(&ip, PSTR($2)); }')
+
+################################
+# UECMD SENDER
+################################
+define(`UECMD_SENDER_USED', `ifdef(`uecmd_sender_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`uecmd_sender_used')dnl
+divert(globals_divert)
+#ifndef UECMD_SENDER_SUPPORT
+#error Please define emcd sender udp support
+#endif
+
+divert(old_divert)')')
+
+define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `.', `,'))', 
+	`ip6addr_expand(regexp(`$1', `\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)',`0x\1,0x\2,0x\3,0x\4,0x\5,0x\6,0x\7,0x\8')) ') ')
+
+define(`ip4addr_expand', `HTONS(($1 << 8) | $2), HTONS(($3 << 8) | $4)')
+define(`ip6addr_expand', `uip_ip6addr_t ip; uip_ip6addr(&ip, $1, $2, $3, $4, $5, $6, $7, $8)')
+
+define(`UESEND', `{IPADDR($1);uecmd_sender_send_command(&ip, PSTR($2)); }')
 
 ###############################
 # Global flags
