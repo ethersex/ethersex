@@ -31,12 +31,13 @@
 
 #ifdef UECMD_SENDER_SUPPORT
 
-static uip_udp_conn_t *ecmd_conn = NULL;
-PGM_P send_data = NULL;
-uint8_t resend_counter = 0;
+static uip_udp_conn_t *ecmd_conn;
+PGM_P send_data;
+uint8_t resend_counter;
 
 void
-uecmd_sender_net_main(void) {
+uecmd_sender_net_main(void) 
+{
   if (uip_newdata()) {
     send_data = NULL;
   }
