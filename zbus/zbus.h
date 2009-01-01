@@ -42,7 +42,12 @@ typedef uint16_t zbus_index_t;
 #endif	/* not TEENSY_SUPPORT */
 
 /* use 19200 as default value for the baudrate */
-#define ZBUS_BAUDRATE 19200
+#ifndef CONF_ZBUS_BAUDRATE
+#  define ZBUS_BAUDRATE 19200
+#  warning ZBus: No baudrate set per default using 19200
+#else
+#  define ZBUS_BAUDRATE CONF_ZBUS_BAUDRATE
+#endif
 
 enum ZBusEscapes {
   ZBUS_START = '0',

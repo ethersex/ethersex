@@ -189,6 +189,7 @@ zbus_core_init(void)
     zbus_rxlen = 0;
     zbus_index = 0;
 
+/*
 #ifndef TEENSY_SUPPORT
     uint16_t s_usart_baudrate;
     eeprom_restore_int(usart_baudrate, &s_usart_baudrate);
@@ -196,6 +197,7 @@ zbus_core_init(void)
     usart(UBRR,H) = HI8(ubrr);
     usart(UBRR,L) = LO8(ubrr);
 #endif
+*/
 
     zbus_rxstart ();
 }
