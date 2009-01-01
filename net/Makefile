@@ -6,6 +6,7 @@ SRC = \
 	ecmd_net.c \
 	uecmd_net.c \
 	ecmd_sender_net.c \
+	uecmd_sender_net.c \
 	handler.c \
 	i2c_net.c \
 	mdns_sd_net.c \

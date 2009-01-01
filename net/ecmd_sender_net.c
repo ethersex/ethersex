@@ -43,6 +43,7 @@ ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
   }
   return conn;
 }
+
 void ecmd_sender_net_main(void)
 {
   char buffer[100];
@@ -74,49 +75,4 @@ void ecmd_sender_net_main(void)
   }
 }
 #endif /* ECMD_SENDER_SUPPORT */
-
-#ifdef UECMD_SENDER_SUPPORT
-
-static uip_udp_conn_t *ecmd_conn = NULL;
-PGM_P send_data = NULL;
-uint8_t resend_counter = 0;
-
-void
-uecmd_sender_net_main(void) {
-  if (uip_newdata()) {
-    send_data = NULL;
-  }
-  if (send_data) {
-    resend_counter --;
-    if (!resend_counter) {
-      send_data = NULL;
-      return;
-    }
-    uint8_t len = strlen_P(send_data);
-    memcpy_P(uip_appdata, send_data, len);
-    uip_slen = len;
-
-    /* build a new connection on the stack */
-    ecmd_conn->rport = HTONS(2701);
-
-    uip_udp_conn = ecmd_conn;
-
-    uip_process(UIP_UDP_SEND_CONN);
-    router_output();
-  }
-}
-
-void
-uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data) 
-{
-  if (!ecmd_conn) {
-    ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
-    if (!ecmd_conn) return;
-  }
-  uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
-  send_data = pgm_data;
-  resend_counter = 7;
-}
-
-#endif /* UECMD_SENDER_SUPPORT */
 
