@@ -26,6 +26,7 @@
 #include "../bit-macros.h"
 #include "../uip/uip.h"
 #include "../debug.h"
+#include "../uip/uip_router.h"
 
 #include <string.h>
 
