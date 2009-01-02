@@ -1,1 +1,0 @@
-dep_bool "SPI Atmel dataflash" DATAFLASH_SUPPORT $CONFIG_EXPERIMENTAL

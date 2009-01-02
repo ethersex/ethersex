@@ -1,7 +1,14 @@
-dep_bool "VFS (Virtual File System) support" VFS_SUPPORT $CONFIG_EXPERIMENTAL
-dep_bool "  Dataflash: Filesystem Access" VFS_DF_SUPPORT $VFS_SUPPORT $DATAFLASH_SUPPORT
-#dep_bool "  Dataflash: Raw Block Access" VFS_DF_RAW_SUPPORT $VFS_SUPPORT $DATAFLASH_SUPPORT
-dep_bool "  VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT
-dep_bool "  SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT $SD_READER_SUPPORT
-dep_bool "  EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_EEPROM_SUPPORT
+dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
+
+dep_bool "Atmel SPI Dataflash" VFS_DF_SUPPORT $VFS_SUPPORT
+dep_bool "VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT
+dep_bool "SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT
+dep_bool "EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_EEPROM_SUPPORT
 #dep_bool "  Proc FS" VFS_PROC_SUPPORT $VFS_SUPPORT
+
+define_bool DATAFLASH_SUPPORT $VFS_DF_SUPPORT
+define_bool SD_READER_SUPPORT $VFS_SD_SUPPORT
+
+#source dataflash/config.in
+
+endmenu

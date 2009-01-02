@@ -66,6 +66,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
 endmenu
 
 source crypto/config.in
+source vfs/config.in
 source usb/config.in
 
 string "Hostname" CONF_HOSTNAME "ethersex"
@@ -188,6 +189,7 @@ comment "Applications"
 
 source clock/config.in
 source ecmd_parser/config.in
+source httpd/config.in
 source lcd/config.in
 source net/config.in
 
@@ -198,11 +200,7 @@ endmenu
 mainmenu_option next_comment
 comment "work in progress bits (enable with care)"
 
-  source dataflash/config.in
-  source sd_reader/config.in
   source i2c_eeprom/config.in
-  source vfs/config.in
-  source httpd/config.in
   source control6/config.in
   source ipchair/config.in
 
