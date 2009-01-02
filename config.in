@@ -203,6 +203,7 @@ comment "work in progress bits (enable with care)"
   source i2c_eeprom/config.in
   source control6/config.in
   source ipchair/config.in
+  source camera/config.in
 
 endmenu
 
