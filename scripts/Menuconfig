@@ -390,13 +390,13 @@ ${var}:\\
 
      if [ -z "$text" ]
      then
-          echo "There is no help available for this kernel option."
+          echo "There is no help available for this Ethersex firmware option."
 	  return 1
      else
 	  echo "$text"
      fi
   else
-	 echo "There is no help available for this kernel option."
+	  echo "There is no help available for this Ethersex firmware option."
          return 1
   fi
 }
@@ -995,7 +995,7 @@ function activate_menu () {
 			clear
 			cat <<EOM
 
-Menuconfig has encountered a possible error in one of the kernel's
+Menuconfig has encountered a possible error in one of the Ethersex
 configuration files and is unable to continue.  Here is the error
 report:
 
@@ -1003,10 +1003,10 @@ EOM
 			sed 's/^/ Q> /' MCerror
 			cat <<EOM
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+Please report this to the maintainer <stesie@brokenpipe.de>.  You may also
+send a problem report to <ethersex-devel@list.zerties.org>.
 
-Please indicate the kernel version you are trying to configure and
+Please indicate the Ethersex version you are trying to configure and
 which menu you were trying to enter when this error occurred.
 
 EOM
@@ -1066,8 +1066,8 @@ the /usr/src/linux/scripts/lxdialog directory and issuing the
 "make clean all" command.
 
 If you have verified that your ncurses install is correct, you may email
-the maintainer <mec@shout.net> or post a message to
-<linux-kernel@vger.kernel.org> for additional assistance. 
+the maintainer <stesie@brokenpipe.de> or post a message to
+<ethersex-devel@list.zerties.org> for additional assistance. 
 
 EOM
 			cleanup
@@ -1164,11 +1164,11 @@ last retrieved.  Leave blank to abort."\
 		else
 			cat <<EOM >help.out
 
-For various reasons, one may wish to keep several different kernel
-configurations available on a single machine.  
+For various reasons, one may wish to keep several different Ethersex
+configurations available on a single machine.
 
 If you have saved a previous configuration in a file other than the
-kernel's default, entering the name of the file here will allow you
+Ethersex default, entering the name of the file here will allow you
 to modify that configuration.
 
 If you are uncertain, then you have probably never used alternate 
@@ -1228,7 +1228,7 @@ as an alternate.  Leave blank to abort."\
 		else
 			cat <<EOM >help.out
 
-For various reasons, one may wish to keep different kernel
+For various reasons, one may wish to keep different Ethersex
 configurations available on a single machine.  
 
 Entering a file name here will allow you to later retrieve, modify
@@ -1689,7 +1689,7 @@ cleanup1
 # Confirm and Save
 #
 if $DIALOG --backtitle "$backtitle" \
-	   --yesno "Do you wish to save your new kernel configuration?" 5 60
+	--yesno "Do you wish to save your new Ethersex configuration?" 5 60
 then
 	save_configuration
 	echo
