@@ -144,7 +144,7 @@ struct vfs_file_handle_t *vfs_create (const char *name);
 #define vfs_write(handle...)    VFS_REDIR(write, 0, handle)
 #define vfs_fseek(handle...)    VFS_REDIR(fseek, -1, handle)
 #define vfs_truncate(handle...) VFS_REDIR(truncate, 1, handle)
-#define vfs_size(handle...)     VFS_REDIR(size, -1, handle)
+#define vfs_size(handle...)     VFS_REDIR(size, 0, handle)
 
 #define vfs_rewind(handle)      vfs_fseek(handle, 0, SEEK_SET)
 
