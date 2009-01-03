@@ -193,3 +193,8 @@ ecmd_ifdef(HTTPD_AUTH_SUPPORT)
   ecmd_feature(http_passwd, "http passwd")
 ecmd_endif()
 
+ecmd_ifdef(DC3840_SUPPORT)
+  ecmd_feature(dc3840_capture, "dc3840 capture")
+  ecmd_feature(dc3840_send, "dc3840 send ")
+  ecmd_feature(dc3840_sync, "dc3840 sync")
+ecmd_endif

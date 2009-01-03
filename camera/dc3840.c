@@ -24,6 +24,7 @@
 #ifdef DC3840_SUPPORT
 
 #include <util/delay.h>
+#include <string.h>
 #include "dc3840.h"
 
 /* USART cruft. */
@@ -71,7 +72,8 @@ dc3840_send_uart (uint8_t byte)
 static uint8_t
 dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 {
-  uint8_t retries = 3;
+  uint8_t retries = 8;
+  syslog_sendf ("-> %02x %02x %02x %02x %02x\n", a, b, c, d, e);
 
   do
     {
@@ -89,7 +91,10 @@ dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
       dc3840_send_uart (d);
       dc3840_send_uart (e);
 
-      uint8_t timeout = 40;	/* 1 ms (per retry, max.) */
+      if (a == DC3840_CMD_ACK || a == DC3840_CMD_NAK)
+	return 0;		/* ACK */
+
+      uint8_t timeout = 100;	/* 2.5 ms (per retry, max.) */
       do
 	{
 	  _delay_us (25);
@@ -100,14 +105,23 @@ dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 	  /* Check whether we received an ACK for the right command. */
 	  if (dc3840_reply_buf[3] == DC3840_CMD_ACK
 	      && dc3840_reply_buf[4] == a)
-	    return 0;		/* Success! */
-	  else
-	    break;		/* Maybe resend. */
+	    {
+	      DC3840_DEBUG ("ACK!\n");
+	      return 0;		/* Success! */
+	    }
+
+	  if (dc3840_reply_buf[3] == DC3840_CMD_NAK)
+	    {
+	      unsigned char err = dc3840_reply_buf[6];
+	      DC3840_DEBUG ("NAK[%02x]!\n", err);
+	    }
+	  break;		/* Maybe resend. */
 	}
       while (-- timeout);
     }
   while (-- retries);
 
+  DC3840_DEBUG ("Timeout :(\n");
   return 1;			/* Fail. */
 }
 
@@ -121,11 +135,12 @@ dc3840_init (void)
   do
     {
       /* Send SYNC sequence.  dc3840_send_command internally repeats
-	 three times, i.e. we send 23*3=69 sync requests  max. */
+	 three times, i.e. we send 23*5=115 sync requests  max. */
       if (dc3840_send_command (DC3840_CMD_SYNC, 0, 0, 0, 0))
 	continue;
 
       /* Wait some more for next eight bytes to arrive. */
+      wdt_kick ();
       _delay_ms (1);
       if (dc3840_reply_ptr >= 16) break;
     }
@@ -145,6 +160,65 @@ dc3840_init (void)
   dc3840_send_command (DC3840_CMD_ACK, DC3840_CMD_SYNC, 0, 0, 0);
   DC3840_DEBUG ("Successfully sync'ed to camera!\n");
 }
+
+
+#define dc3840_do(a,b...)						\
+  if (dc3840_send_command (a,b))					\
+    { DC3840_DEBUG ("dc3840 cmd failed: " # a "\n"); return; }
+
+void
+dc3840_capture (void)
+{
+  /* Reset configuration. */
+  dc3840_do (DC3840_CMD_RESET, DC3840_RESET_STATES, 0, 0, 0);
+
+  /* Configure camera */
+  dc3840_do (DC3840_CMD_INITIAL, 1, DC3840_PREVIEW_JPEG, 9, 5);
+
+  /* Acquire snapshot (stored to camera memory). */
+  dc3840_do (DC3840_CMD_SNAPSHOT, 0, 0, 0, 0);
+}
+
+
+#ifdef ECMD_PARSER_SUPPORT
+int16_t
+parse_cmd_dc3840_sync (char *cmd, char *output, uint16_t len)
+{
+  dc3840_init ();
+  return 0;
+}
+
+int16_t
+parse_cmd_dc3840_capture (char *cmd, char *output, uint16_t len)
+{
+  dc3840_capture ();
+  return 0;
+}
+
+int16_t
+parse_cmd_dc3840_send (char *cmd, char *output, uint16_t len)
+{
+  char *ptr;
+
+  /* ignore leading spaces */
+  while (*cmd == ' ')
+    cmd ++;
+
+#define tokenize(a)				\
+  if (!(ptr = strchr (cmd, ' '))) return -1;	\
+  *(ptr ++) = 0;				\
+  uint8_t a = atoi (cmd);			\
+  cmd = ptr;			/* forward command to start of next token */
+
+  tokenize (a);
+  tokenize (b);
+  tokenize (c);
+  tokenize (d);
+  uint8_t e = atoi (cmd);
+
+  return dc3840_send_command (a, b, c, d, e) ? -1 : 0;
+}
+#endif	/* ECMD_PARSER_SUPPORT */
 
 
 SIGNAL(usart(USART,_RX_vect))

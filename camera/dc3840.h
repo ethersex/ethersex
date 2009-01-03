@@ -37,12 +37,40 @@
 #define DC3840_CMD_COMPRESS	16
 #define DC3840_CMD_LIGHT	18
 #define DC3840_CMD_COLOR	23
-#define DC3840_CMD_DIG_ZOOM	24
+/* #define DC3840_CMD_DIG_ZOOM	24 */
+
+/* Initialize (0x01) */
+#define DC3840_PREVIEW_GRAY4	1
+#define DC3840_PREVIEW_GRAY16	2
+#define DC3840_PREVIEW_GRAY256	3
+#define DC3840_PREVIEW_COLOR8	4
+#define DC3840_PREVIEW_COLOR12	5
+#define DC3840_PREVIEW_COLOR16	6
+#define DC3840_PREVIEW_JPEG	7
+
+/* RESET (0x08) */
+#define DC3840_RESET_COMPLETE	0
+#define DC3840_RESET_STATES	1
+
+/* Compression (0x10) */
+#define DC3840_COMPRESS_LOW	0
+#define DC3840_COMPRESS_HIGH	2
+
+/* Light (0x12) */
+#define DC3840_LIGHT_DAY	0
+#define DC3840_LIGHT_NIGHT	1
+
+/* Color (0x17) */
+#define DC3840_COLOR_RGB	0
+#define DC3840_COLOR_BW		1
+
 
 
 /* Initialize DC3840 communication. */
 void dc3840_init (void);
 
+/* Capture one image. */
+void dc3840_capture (void);
 
 /* (SYSLOG) debugging support */
 #if 1
