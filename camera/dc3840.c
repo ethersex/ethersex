@@ -34,12 +34,30 @@
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
-static uint8_t dc3840_syncing;
-static volatile uint16_t dc3840_sync_rx_len;
+/* Buffer the RX-vector stores the command reply to. */
+static volatile uint8_t dc3840_reply_buf[8];
 
+/* How many bytes have been received since last command. */
+static volatile uint16_t dc3840_reply_ptr;
+
+/* Where to store next captured byte. */
+static volatile uint8_t *dc3840_capture_ptr;
+
+/* From which byte on to start capturing.  Counted down in RX vector,
+   capturing starts if it gets zero. */
+static volatile uint16_t dc3840_capture_start;
+
+/* How many bytes to capture.  Counted down in RX vector as well. */
+static volatile uint16_t dc3840_capture_len;
+
+/* Send one single byte to camera UART. */
 static void dc3840_send_uart (uint8_t byte) __attribute__ ((noinline));
-static void dc3840_send_command (uint8_t, uint8_t, uint8_t, uint8_t, uint8_t)
-     __attribute__ ((noinline));
+
+/* Send a command to the camera and wait for ACK (return 0).
+   This function automatically repeats the command up to three times.
+   Returns 1 on timeout or NAK. */
+static uint8_t dc3840_send_command (uint8_t, uint8_t, uint8_t, uint8_t,
+				    uint8_t)	__attribute__ ((noinline));
 
 
 static void
@@ -50,20 +68,47 @@ dc3840_send_uart (uint8_t byte)
 }
 
 
-static void
+static uint8_t
 dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 {
-  /* Send command sequence first */
-  dc3840_send_uart (0xFF);
-  dc3840_send_uart (0xFF);
-  dc3840_send_uart (0xFF);
+  uint8_t retries = 3;
 
-  /* Send payload. */
-  dc3840_send_uart (a);
-  dc3840_send_uart (b);
-  dc3840_send_uart (c);
-  dc3840_send_uart (d);
-  dc3840_send_uart (e);
+  do
+    {
+      dc3840_reply_ptr = 0;	/* Reset. */
+
+      /* Send command sequence first */
+      dc3840_send_uart (0xFF);
+      dc3840_send_uart (0xFF);
+      dc3840_send_uart (0xFF);
+
+      /* Send payload. */
+      dc3840_send_uart (a);
+      dc3840_send_uart (b);
+      dc3840_send_uart (c);
+      dc3840_send_uart (d);
+      dc3840_send_uart (e);
+
+      uint8_t timeout = 40;	/* 1 ms (per retry, max.) */
+      do
+	{
+	  _delay_us (25);
+
+	  if (dc3840_reply_ptr < 8)
+	    continue;		/* Reply not yet complete. */
+
+	  /* Check whether we received an ACK for the right command. */
+	  if (dc3840_reply_buf[3] == DC3840_CMD_ACK
+	      && dc3840_reply_buf[4] == a)
+	    return 0;		/* Success! */
+	  else
+	    break;		/* Maybe resend. */
+	}
+      while (-- timeout);
+    }
+  while (-- retries);
+
+  return 1;			/* Fail. */
 }
 
 #include <avr/wdt.h>
@@ -72,30 +117,25 @@ dc3840_init (void)
 {
   usart_init ();
 
-  uint8_t sync_retries = 100;
-  dc3840_syncing = 1;
+  uint8_t sync_retries = 23;
   do
     {
-      /* Send SYNC sequence. */
-      dc3840_sync_rx_len = 0;
-      dc3840_send_command (DC3840_CMD_SYNC, 0, 0, 0, 0);
+      /* Send SYNC sequence.  dc3840_send_command internally repeats
+	 three times, i.e. we send 23*3=69 sync requests  max. */
+      if (dc3840_send_command (DC3840_CMD_SYNC, 0, 0, 0, 0))
+	continue;
 
+      /* Wait some more for next eight bytes to arrive. */
       _delay_ms (1);
-      wdt_kick ();
-      if (dc3840_sync_rx_len >= 16) break;
+      if (dc3840_reply_ptr >= 16) break;
     }
   while (-- sync_retries);
 
-  if (dc3840_sync_rx_len < 16)
+  if (! sync_retries)
     {
-      DC3840_DEBUG ("Failed to sync to camera (rx_len = %d).\n",
-		    dc3840_sync_rx_len);
+      DC3840_DEBUG ("Failed to sync to camera.\n");
       return;
     }
-
-  if (dc3840_sync_rx_len > 16)
-    DC3840_DEBUG ("Received %d bytes from camera on SYNC.\n",
-		  dc3840_sync_rx_len);
 
   /* We have received 16 bytes,
      -> ACK for our SYNC
@@ -112,11 +152,20 @@ dc3840_init (void)
 SIGNAL(usart(USART,_RX_vect))
 {
   uint8_t temp = usart (UDR);
-  (void) temp;
 
-  if (dc3840_syncing)
-    dc3840_sync_rx_len ++;
+  if (dc3840_reply_ptr < 8)
+    dc3840_reply_buf[dc3840_reply_ptr] = temp;
 
+  else if (dc3840_capture_start)
+    dc3840_capture_start --;
+
+  else if (dc3840_capture_len)
+    {
+      *(dc3840_capture_ptr ++) = temp;
+      dc3840_capture_len --;
+    }
+
+  dc3840_reply_ptr ++;
 }
 
 #endif	/* DC3840_SUPPORT */
