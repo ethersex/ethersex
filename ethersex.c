@@ -64,6 +64,7 @@
 #include "net/handler.h"
 #include "net/sendmail.h"
 #include "sd_reader/sd_raw.h"
+#include "camera/dc3840.h"
 
 #include "bit-macros.h"
 
@@ -254,6 +255,10 @@ int main(void)
 
     rfm12_rxstart();
 #endif
+
+#ifdef DC3840_SUPPORT
+    dc3840_init ();
+#endif	/* DC3840_SUPPORT */
 
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT

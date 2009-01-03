@@ -6,14 +6,20 @@ dep_bool_menu "Camera support" CAMERA_SUPPORT
 	 320x240	CONFIG_DC3840_RES320	\
 	 640x480	CONFIG_DC3840_RES640"	\
       '160x120'
-  endmenu
 
-  if [ "$CONFIG_DC3840_RES160" = "y" ]; then
-    define_int DC3840_RESOLUTION 0x1913
-  elif [ "$CONFIG_DC3840_RES320" = "y" ]; then
-    define_int DC3840_RESOLUTION 0x0905
-  elif [ "$CONFIG_DC3840_RES640" = "y" ]; then
-    define_int DC3840_RESOLUTION 0x0907
-  fi
+    if [ "$CONFIG_DC3840_RES160" = "y" ]; then
+      define_int DC3840_RESOLUTION 0x1913
+    elif [ "$CONFIG_DC3840_RES320" = "y" ]; then
+      define_int DC3840_RESOLUTION 0x0905
+    elif [ "$CONFIG_DC3840_RES640" = "y" ]; then
+      define_int DC3840_RESOLUTION 0x0907
+    fi
+
+    usart_count_used
+    comment "Usart Configuration ($USARTS_USED/$USARTS)"
+    choice 'DC3840 USART' "$(usart_choice DC3840)"
+    usart_process_choice DC3840
+
+  endmenu
 
 endmenu

@@ -41,6 +41,9 @@ usart_count_used() {
   if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$DC3840_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
 }
 
 get_usart_count
