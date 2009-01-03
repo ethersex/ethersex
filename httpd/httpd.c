@@ -2,7 +2,7 @@
  * {{{
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -52,13 +52,13 @@ char PROGMEM httpd_header_200[] =
 "Connection: close\n";
 
 char PROGMEM httpd_header_ct_css[] =
-"Content-Type: text/css; charset=iso-8859-1\n";
+"Content-Type: text/css; charset=iso-8859-1\n\n";
 
 char PROGMEM httpd_header_ct_html[] =
-"Content-Type: text/html; charset=iso-8859-1\n";
+"Content-Type: text/html; charset=iso-8859-1\n\n";
 
 char PROGMEM httpd_header_ct_xhtml[] =
-"Content-Type: application/xhtml+xml; charset=iso-8859-1\n";
+"Content-Type: application/xhtml+xml; charset=iso-8859-1\n\n";
 
 #ifdef ECMD_PARSER_SUPPORT
 char PROGMEM httpd_header_200_ecmd[] =
@@ -274,12 +274,12 @@ auth_success:
 
       /* send headers */
       PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_200);
-      if (state->name[0] == 'X')
-        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
-      else if (state->name[0] == 'S')
-	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
-      else
-	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
+
+      if (state->len > 0) {
+	/* send content-length header */
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
+	PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
+      }
 
       /* Check whether the file is gzip compressed. */
 #ifndef VFS_TEENSY
@@ -290,9 +290,12 @@ auth_success:
 #endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
 
-      /* send content-length header */
-      PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
-      PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
+      if (state->name[0] == 'X')
+        PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
+      else if (state->name[0] == 'S')
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_css);
+      else
+	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_html);
 
       /* generate content */
       while(state->len)
@@ -353,7 +356,11 @@ send_length_if (void *data)
     struct httpd_connection_state_t *state =
 	(struct httpd_connection_state_t *) data;
 
-    sprintf_P (uip_appdata, PSTR ("%ld\n\n"), state->len);
+#ifdef VFS_TEENSY
+    sprintf_P (uip_appdata, PSTR ("%d\n"), state->len);
+#else
+    sprintf_P (uip_appdata, PSTR ("%ld\n"), state->len);
+#endif
     return strlen (uip_appdata);
 }
 #endif	/* VFS_SUPPORT */
