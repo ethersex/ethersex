@@ -35,7 +35,7 @@
 generate_usart_init()
 
 /* Buffer the RX-vector stores the command reply to. */
-static volatile uint8_t dc3840_reply_buf[8];
+static volatile uint8_t dc3840_reply_buf[16];
 
 /* How many bytes have been received since last command. */
 static volatile uint16_t dc3840_reply_ptr;
@@ -144,8 +144,6 @@ dc3840_init (void)
      We need to ACK the SYNC first. */
   dc3840_send_command (DC3840_CMD_ACK, DC3840_CMD_SYNC, 0, 0, 0);
   DC3840_DEBUG ("Successfully sync'ed to camera!\n");
-
-
 }
 
 
@@ -153,7 +151,7 @@ SIGNAL(usart(USART,_RX_vect))
 {
   uint8_t temp = usart (UDR);
 
-  if (dc3840_reply_ptr < 8)
+  if (dc3840_reply_ptr < 16)
     dc3840_reply_buf[dc3840_reply_ptr] = temp;
 
   else if (dc3840_capture_start)
