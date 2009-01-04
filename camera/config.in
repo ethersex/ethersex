@@ -19,6 +19,7 @@ dep_bool_menu "Camera support" CAMERA_SUPPORT
     fi
 
     bool "Use high compression" DC3840_HIGH_COMPRESSION
+    bool "Black/White mode" DC3840_BLACK_WHITE
 
     usart_count_used
     comment "Usart Configuration ($USARTS_USED/$USARTS)"
