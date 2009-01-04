@@ -35,8 +35,8 @@ vfs_dc3840_open (const char *filename)
     return NULL;		/* We have only one file to serve :) */
 
   /* Ask camera for a snapshot. */
-  if (dc3840_capture ())
-    return NULL;		/* Failed to aquire image. */
+  //if (dc3840_capture ())
+  //  return NULL;		/* Failed to aquire image. */
 
   /* The camera has taken a picture, create a handle. */
   struct vfs_file_handle_t *fh = malloc (sizeof (struct vfs_file_handle_t));
