@@ -164,9 +164,9 @@ dc3840_init (void)
 
 #define dc3840_do(a,b...)						\
   if (dc3840_send_command (a,b))					\
-    { DC3840_DEBUG ("dc3840 cmd failed: " # a "\n"); return; }
+    { DC3840_DEBUG ("dc3840 cmd failed: " # a "\n"); return 1; }
 
-void
+uint8_t
 dc3840_capture (void)
 {
   /* Reset configuration. */
@@ -177,6 +177,8 @@ dc3840_capture (void)
 
   /* Acquire snapshot (stored to camera memory). */
   dc3840_do (DC3840_CMD_SNAPSHOT, 0, 0, 0, 0);
+
+  return 0;			/* Success. */
 }
 
 

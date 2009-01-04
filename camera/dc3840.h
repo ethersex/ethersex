@@ -69,8 +69,8 @@
 /* Initialize DC3840 communication. */
 void dc3840_init (void);
 
-/* Capture one image. */
-void dc3840_capture (void);
+/* Capture one image.  Return 0 on success. */
+uint8_t dc3840_capture (void);
 
 /* (SYSLOG) debugging support */
 #if 1
