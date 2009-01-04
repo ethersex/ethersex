@@ -202,3 +202,7 @@ ecmd_endif
 ecmd_ifdef(I2C_DETECT_SUPPORT)
   ecmd_feature(i2c_detect, "i2c detect")
 ecmd_endif
+
+ecmd_ifdef(I2C_LM75_SUPPORT)
+  ecmd_feature(i2c_lm75, "lm75")
+ecmd_endif

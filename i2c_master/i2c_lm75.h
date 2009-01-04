@@ -28,7 +28,7 @@
 
 #define I2C_SLA_LM75 0x48
 
-uint16_t i2c_lm75_read_temp(uint8_t address);
+int16_t i2c_lm75_read_temp(uint8_t address);
 
 #endif
 

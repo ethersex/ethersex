@@ -33,7 +33,7 @@
 
 #ifdef I2C_LM75_SUPPORT
 
-uint16_t
+int16_t
 i2c_lm75_read_temp(uint8_t address){
   uint8_t temp[2];
   uint16_t ret;
@@ -41,15 +41,15 @@ i2c_lm75_read_temp(uint8_t address){
 #ifdef DEBUG_I2C
   debug_printf("I2C: lm75 read\n");
 #endif
-  i2c_master_select(address, TW_READ);
+  if (!i2c_master_select(address, TW_READ)) { ret = 0xffff; goto end; }
 
-  if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) { ret = 0; goto end; }
+  if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) { ret = 0xffff; goto end; }
   temp[0] = TWDR;
 #ifdef DEBUG_I2C
   debug_printf("I2C: lm75 read value1: %d\n", temp[0]);
 #endif
 
-  if (i2c_master_transmit() != TW_MR_DATA_NACK) { ret = 0; goto end; }
+  if (i2c_master_transmit() != TW_MR_DATA_NACK) { ret = 0xffff; goto end; }
   temp[1] = (TWDR & 0x80);
 #ifdef DEBUG_I2C
   debug_printf("I2C: lm75 read value2: %d\n",temp[1]);

@@ -52,3 +52,19 @@ parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
 }
 
 #endif  /* I2C_DETECT_SUPPORT */
+
+#ifdef I2C_LM75_SUPPORT
+
+int16_t
+parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
+{
+  while(*cmd == ' ') cmd++;
+  if (*cmd < '0' || *cmd > '7') return -1;
+  int16_t temp = i2c_lm75_read_temp(0x48 + (cmd[0] - '0'));
+  if (temp == 0xffff)
+    return snprintf_P(output, len, PSTR("no sensor detected"));
+
+  return snprintf_P(output, len, PSTR("temperature: %d.%d"), temp / 10, temp % 10);
+}
+
+#endif  /* I2C_LM75_SUPPORT */
