@@ -28,8 +28,6 @@
 #define i2c_master_disable() TWCR = 0
 #define i2c_master_enable() TWCR=(1<<TWEN)|(1<<TWINT)
 
-#define I2C_MASTER_BAUDRATE (CONF_I2C_BAUD * 1000)
-		
 	
 void i2c_master_init(void);
 uint8_t i2c_master_detect(uint8_t range_start, uint8_t range_end);

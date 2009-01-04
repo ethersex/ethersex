@@ -35,7 +35,7 @@
 #include "ecmd_sender_net.h"
 #include "dns_net.h"
 #include "syslog_net.h"
-#include "i2c_net.h"
+#include "i2c_udp_net.h"
 #include "i2c_slave_net.h"
 #include "ntp_net.h"
 #include "ntpd_net.h"
@@ -93,8 +93,8 @@ void network_init_apps(void)
     syslog_net_init();
 #   endif
 
-#   ifdef I2C_SUPPORT
-    i2c_net_init();
+#   ifdef I2C_UDP_SUPPORT
+    i2c_udp_net_init();
 #   endif
 
 #   ifdef I2C_SLAVE_SUPPORT

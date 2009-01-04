@@ -83,7 +83,7 @@ typedef union uip_udp_connection_state {
     struct tftp_connection_state_t tftp;
 #   endif
 
-#   ifdef I2C_SUPPORT
+#   ifdef I2C_UDP_SUPPORT
     struct i2c_connection_state_t i2c;
 #   endif
 
