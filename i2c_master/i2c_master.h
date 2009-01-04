@@ -2,7 +2,6 @@
  * {{{
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Klaus Gleiﬂner  <mail@KlausGleissner.de>
  *
  *
  * This program is free software; you can redistribute it and/or

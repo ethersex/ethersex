@@ -198,3 +198,7 @@ ecmd_ifdef(DC3840_SUPPORT)
   ecmd_feature(dc3840_send, "dc3840 send ")
   ecmd_feature(dc3840_sync, "dc3840 sync")
 ecmd_endif
+
+ecmd_ifdef(I2C_DETECT_SUPPORT)
+  ecmd_feature(i2c_detect, "i2c detect")
+ecmd_endif
