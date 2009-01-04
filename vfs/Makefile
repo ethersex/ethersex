@@ -1,9 +1,10 @@
 TARGET = libvfs.a
 TOPDIR = ..
 SRC = \
-	vfs.c  		\
-	vfs_df.c	\
-	vfs_inline.c	\
+	vfs.c  			\
+	vfs_dc3840.c		\
+	vfs_df.c		\
+	vfs_inline.c		\
 	vfs_eeprom_raw.c	\
 	vfs_sd.c
 

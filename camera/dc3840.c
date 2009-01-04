@@ -32,6 +32,9 @@
 #define BAUD 921600
 #include "../usart.h"
 
+/* Length of current image, declared extern in dc3840.h */
+uint16_t dc3840_data_length;
+
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
@@ -176,6 +179,7 @@ dc3840_capture (void)
   dc3840_do (DC3840_CMD_INITIAL, 1, DC3840_PREVIEW_JPEG, 9, 5);
 
   /* Acquire snapshot (stored to camera memory). */
+  dc3840_data_length = 0;
   dc3840_do (DC3840_CMD_SNAPSHOT, 0, 0, 0, 0);
 
   return 0;			/* Success. */
@@ -241,5 +245,67 @@ SIGNAL(usart(USART,_RX_vect))
 
   dc3840_reply_ptr ++;
 }
+
+
+/* Store LEN bytes of image data to DATA, starting with OFFSET */
+uint8_t
+dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
+{
+  dc3840_capture_ptr = data;
+  dc3840_capture_start = offset;
+  dc3840_capture_len = len;
+
+  wdt_kick ();
+  for (uint8_t i = 0; i < 50; i ++)
+    _delay_ms(10);
+
+  if (dc3840_send_command (DC3840_CMD_GET_PICTURE,
+			   DC3840_PICT_TYPE_SNAPSHOT, 0, 0, 0))
+    return 1;			/* Failed to fetch image data. */
+
+  _delay_ms (5);
+  if (dc3840_reply_ptr < 16)
+    {
+      DC3840_DEBUG ("dc3840_reply_ptr is %d, only :(\n",
+		    dc3840_reply_ptr);
+      return 1;
+    }
+
+  /* In dc3840_reply_buf we now have:
+     -> ACK for our GET_PICTURE		[00..07]
+     -> DATA header			[08..0F] */
+  if (dc3840_reply_buf[8 + 3] != DC3840_CMD_DATA)
+    {
+      DC3840_DEBUG ("expected DATA reply, found 0x%02x\n",
+		    dc3840_reply_buf[8 + 3]);
+      return 1;
+    }
+
+  if (dc3840_reply_buf[8 + 4] != DC3840_DATA_TYPE_JPEG)
+    {
+      DC3840_DEBUG ("expect JPEG data, found 0x%02x\n",
+		    dc3840_reply_buf[8 + 4]);
+      return 1;
+    }
+
+  if (dc3840_data_length == 0) {
+    dc3840_data_length = (dc3840_reply_buf[8 + 6] << 8)
+      | dc3840_reply_buf[8 + 5];
+    DC3840_DEBUG ("Image size: %d bytes\n", dc3840_data_length);
+  }
+
+  /* Wait for data to be captured. */
+  uint8_t timeout = 200;
+  while (dc3840_capture_len && --timeout) _delay_ms (5);
+
+  if (!timeout)
+    {
+      DC3840_DEBUG ("Timeout capturing :(\n");
+      return 1;
+    }
+
+  return 0;
+}
+
 
 #endif	/* DC3840_SUPPORT */

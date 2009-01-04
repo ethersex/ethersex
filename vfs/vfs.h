@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,9 @@ enum vfs_type_t {
 #ifdef VFS_INLINE_SUPPORT
   VFS_INLINE,
 #endif
+#ifdef VFS_DC3840_SUPPORT
+  VFS_DC3840,
+#endif
 
   VFS_LAST
 };
@@ -68,6 +71,7 @@ typedef uint32_t vfs_size_t;
 #include "vfs_sd.h"
 #include "vfs_inline.h"
 #include "vfs_eeprom_raw.h"
+#include "vfs_dc3840.h"
 
 struct vfs_file_handle_t {
   /* The vfs_type_t of the VFS module that is responsible for this
@@ -79,6 +83,7 @@ struct vfs_file_handle_t {
     vfs_file_handle_sd_t sd;
     vfs_file_handle_inline_t il;
     vfs_file_handle_eeprom_raw_t ee_raw;
+    vfs_file_handle_dc3840_t dc3840;
   } u;
 };
 
@@ -138,6 +143,9 @@ struct vfs_file_handle_t *vfs_create (const char *name);
   ((vfs_funcs[handle->fh_type].call)		      \
    ? vfs_funcs[handle->fh_type].call(handle, ##args)  \
    : def)
+
+#define VFS_HAVE_FUNC(handle,call)		\
+  (vfs_funcs[(handle)->fh_type].call != NULL)
 
 #define vfs_close(handle)       VFS_REDIR(close, 0, handle)
 #define vfs_read(handle...)     VFS_REDIR(read, 0, handle)

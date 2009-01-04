@@ -48,9 +48,26 @@
 #define DC3840_PREVIEW_COLOR16	6
 #define DC3840_PREVIEW_JPEG	7
 
+/* Get Picture (0x04) */
+#define DC3840_PICT_TYPE_SNAPSHOT	1
+#define DC3840_PICT_TYPE_PREVIEW	2
+#define DC3840_PICT_TYPE_SERIAL_FLASH	3
+#define DC3840_PICT_TYPE_PARALLEL_FLASH	4
+#define DC3840_PICT_TYPE_JPEG_PREVIEW	5
+#define DC3840_PICT_TYPE_DISPLAY	6
+
 /* RESET (0x08) */
 #define DC3840_RESET_COMPLETE	0
 #define DC3840_RESET_STATES	1
+
+/* Data (0x10) */
+#define DC3840_DATA_TYPE_REGISTER	0
+#define DC3840_DATA_TYPE_JPEG		1
+#define DC3840_DATA_TYPE_PREVIEW	2
+#define DC3840_DATA_TYPE_SERIAL_FLASH	3
+#define DC3840_DATA_TYPE_PARALLEL_FLASH	4
+#define DC3840_DATA_TYPE_JPEG_PREVIEW	5
+#define DC3840_DATA_TYPE_DISPLAY	6
 
 /* Compression (0x10) */
 #define DC3840_COMPRESS_LOW	0
@@ -71,6 +88,12 @@ void dc3840_init (void);
 
 /* Capture one image.  Return 0 on success. */
 uint8_t dc3840_capture (void);
+
+/* The size (in bytes) of the current image.  If known, 0 otherwise. */
+extern uint16_t dc3840_data_length;
+
+/* Store LEN bytes of image data to DATA, starting with OFFSET */
+uint8_t dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len);
 
 /* (SYSLOG) debugging support */
 #if 1

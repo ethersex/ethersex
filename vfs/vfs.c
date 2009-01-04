@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,9 @@ struct vfs_func_t vfs_funcs[] = {
 #endif
 #ifdef VFS_INLINE_SUPPORT
   VFS_INLINE_FUNCS,
+#endif
+#ifdef VFS_DC3840_SUPPORT
+  VFS_DC3840_FUNCS,
 #endif
 };
 

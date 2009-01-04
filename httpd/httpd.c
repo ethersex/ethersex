@@ -280,16 +280,23 @@ auth_success:
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_length);
 	PSOCK_GENERATOR_SEND(&state->in, send_length_if, state);
       }
+      else
+	state->len = UINT16_MAX;
 
       /* Check whether the file is gzip compressed. */
 #ifndef VFS_TEENSY
       unsigned char buf[2];
-      vfs_read (state->fd, buf, 2);
-      vfs_rewind (state->fd);
+      if (VFS_HAVE_FUNC (state->fd, fseek)) {
+	vfs_read (state->fd, buf, 2);
+	vfs_rewind (state->fd);
+      } else
+	goto no_gzip;
+
       if (buf[0] == 0x1f && buf[1] == 0x8b)
 #endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_gzip);
 
+    no_gzip:
       if (state->name[0] == 'X')
         PSOCK_GENERATOR_SEND(&state->in, send_str_P, httpd_header_ct_xhtml);
       else if (state->name[0] == 'S')
@@ -380,6 +387,9 @@ unsigned short send_sd_f(void *data)
     }
 
     state->len -= len;
+
+    if (len < uip_mss ())
+      state->len = 0;		/* Stop transfer. */
 
     return len;
 }
