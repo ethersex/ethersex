@@ -2,8 +2,7 @@
  * {{{
  *
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
- * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Klaus Gleißner  <mail@KlausGleissner.de>
+ * Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +28,6 @@
 
 #define I2C_SLA_LM75 0x48
 
-void i2c_testaddress(uint8_t i2c_sla_address);
 uint16_t i2c_lm75_read_temp(uint8_t address);
 
 #endif

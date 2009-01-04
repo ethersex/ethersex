@@ -24,7 +24,7 @@
 #define VFS_EEPROM_H
 
 #include <stdlib.h>
-#include "../i2c_eeprom/sfs.h"
+#include "../i2c_master/sfs.h"
 
 typedef struct {
   sfs_inode_t inode; /* Points to the Block*/

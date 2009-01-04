@@ -26,7 +26,7 @@
 
 #include "vfs.h"
 #include "vfs_eeprom_raw.h"
-#include "../i2c_eeprom/i2c_24CXX.h"
+#include "../i2c_master/i2c_24CXX.h"
 #include "../syslog/syslog.h"
 #include "../config.h"
 

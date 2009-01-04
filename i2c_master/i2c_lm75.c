@@ -2,8 +2,7 @@
  * {{{
  *
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
- * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Klaus Gleißner  <mail@KlausGleissner.de>
+ * Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -34,28 +33,6 @@
 
 #ifdef I2C_LM75_SUPPORT
 
-static uint8_t i2c_lm75_address;
-
-void i2c_testaddress(uint8_t i2c_sla_address){
-  uint8_t i;
-  uint8_t i2c_address;
-
-#ifdef DEBUG_I2C
-  debug_printf("I2C: test for base address %X\n",i2c_sla_address);
-#endif
-  for (i = i2c_sla_address; i < i2c_sla_address + 8; i++) {
-    if (i2c_master_select(i, TW_WRITE)) {
-      i2c_address = i;
-#ifdef DEBUG_I2C
-      debug_printf("I2C: detected at: %X\n", i2c_address);
-#endif
-      i2c_master_stop();
-      break;
-    }
-    i2c_master_stop();
-  }
-}
-
 uint16_t
 i2c_lm75_read_temp(uint8_t address){
   uint8_t temp[2];
@@ -69,13 +46,13 @@ i2c_lm75_read_temp(uint8_t address){
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) { ret = 0; goto end; }
   temp[0] = TWDR;
 #ifdef DEBUG_I2C
-  debug_printf("I2C: lm75 read value1: %d\n",temp1);
+  debug_printf("I2C: lm75 read value1: %d\n", temp[0]);
 #endif
 
   if (i2c_master_transmit() != TW_MR_DATA_NACK) { ret = 0; goto end; }
   temp[1] = (TWDR & 0x80);
 #ifdef DEBUG_I2C
-  debug_printf("I2C: lm75 read value2: %d\n",temp2);
+  debug_printf("I2C: lm75 read value2: %d\n",temp[1]);
 #endif
 	
   ret = ( (temp[0] << 8) | temp[1] ) / 128*5;

@@ -50,6 +50,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'FS20 WS300' DEBUG_FS20_WS300 $DEBUG
   dep_bool 'FS20 WS300 Verbose' DEBUG_FS20_WS300_VERBOSE $DEBUG_FS20_WS300
   dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
+  dep_bool 'I2C' DEBUG_I2C $DEBUG
   dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
   dep_bool 'Networking' DEBUG_NET $DEBUG
   dep_bool '  Config' DEBUG_NET_CONFIG $DEBUG_NET
@@ -200,7 +201,7 @@ endmenu
 mainmenu_option next_comment
 comment "work in progress bits (enable with care)"
 
-  source i2c_eeprom/config.in
+  source i2c_master/config.in
   source control6/config.in
   source ipchair/config.in
   source camera/config.in

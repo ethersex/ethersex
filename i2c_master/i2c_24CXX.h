@@ -1,9 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Klaus Gleiﬂner  <mail@KlausGleissner.de>
- *
+ * Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,24 +21,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _I2C_EEPROM_I2C_MASTER_H
-#define _I2C_EEPROM_I2C_MASTER_H
+#ifndef _I2C_EEPROM_I2C_24CXX_H
+#define _I2C_EEPROM_I2C_24CXX_H
 
-#define i2c_master_disable() TWCR = 0
-#define i2c_master_enable() TWCR=(1<<TWEN)|(1<<TWINT)
+#define I2C_SLA_24CXX 80
 
-#define I2C_MASTER_BAUDRATE 400000L
-		
-	
-void i2c_master_init(void);
-uint8_t i2c_master_do(uint8_t mode);
-void i2c_master_stop(void);
-#define i2c_master_start() i2c_master_do(_BV(TWINT) | _BV(TWEN) | _BV(TWSTA))
+void i2c_24CXX_init(void);
+uint8_t i2c_24CXX_set_addr(uint16_t addr);
 
-uint8_t  i2c_master_select(uint8_t address, uint8_t mode);
-#define i2c_master_transmit() i2c_master_do(_BV(TWEN) | _BV(TWINT)) 
-#define i2c_master_transmit_with_ack() i2c_master_do(_BV(TWEN) | _BV(TWINT) | _BV(TWEA) ) 
+uint8_t i2c_24CXX_write_byte(uint16_t addr, uint8_t data);
+uint8_t i2c_24CXX_write_block(uint16_t addr, uint8_t *ptr, uint8_t len);
 
+#define i2c_24CXX_read_byte(addr, data) i2c_24CXX_read_block(addr, data, 1)
+uint8_t i2c_24CXX_read_block(uint16_t addr, uint8_t *ptr, uint8_t len);
+
+uint8_t i2c_24CXX_compare_block(uint16_t addr, uint8_t *ptr, uint8_t len);
 
 #endif
 

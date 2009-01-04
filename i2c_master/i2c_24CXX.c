@@ -1,9 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Klaus Gleiﬂner  <mail@KlausGleissner.de>
- *
+ * Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,8 +30,6 @@
 #include "i2c_master.h"
 #include "i2c_24CXX.h"
 
-#define I2C_24CXX_SUPPORT
-#define I2C_24CXX_DEBUG
 #ifdef I2C_24CXX_SUPPORT
 
 static uint8_t i2c_24cxx_address;
@@ -41,20 +37,7 @@ static uint8_t i2c_24cxx_address;
 void 
 i2c_24CXX_init(void)
 {
-  uint8_t i;
-  for (i = I2C_SLA_24CXX; i < I2C_SLA_24CXX + 8; i++) {
-    if (i2c_master_select(i, TW_WRITE)) {
-      i2c_24cxx_address = i;
-#ifdef I2C_24CXX_DEBUG
-      debug_printf("i2c_24cxx detected at: %d\n", i2c_24cxx_address);
-#endif
-      i2c_master_stop();
-      break;
-    }
-    i2c_master_stop();
-  }
-
-
+  i2c_24cxx_address = i2c_master_detect(I2C_SLA_24CXX, I2C_SLA_24CXX + 8);
 }
 
 uint8_t 
@@ -154,13 +137,6 @@ i2c_24CXX_compare_block(uint16_t addr, uint8_t *ptr, uint8_t len)
 end:
   i2c_master_stop();
   return ret;
-}
-
-
-
-void i2c_test(void) {
-  i2c_master_init();
-  i2c_24CXX_init();
 }
 
 #endif /* I2C_24CXX_SUPPORT */

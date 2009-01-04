@@ -65,6 +65,9 @@
 #include "net/sendmail.h"
 #include "sd_reader/sd_raw.h"
 #include "camera/dc3840.h"
+#include "i2c_master/i2c_master.h"
+#include "i2c_master/i2c_24CXX.h"
+#include "i2c_master/i2c_lm75.h"
 
 #include "bit-macros.h"
 
@@ -186,6 +189,18 @@ int main(void)
 #ifdef DCF77_SUPPORT
     dcf77_init();
 #endif
+
+/* The I2C Master Stuff */
+
+#ifdef I2C_MASTER_SUPPORT
+    i2c_master_init();
+#endif
+
+#ifdef I2C_24CXX_SUPPORT
+    i2c_24CXX_init();
+#endif
+
+/* End of the I2C Master Stuff */
 
 #ifdef USB_SUPPORT
     usb_init();
