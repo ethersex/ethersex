@@ -225,7 +225,14 @@ dc3840_capture (void)
   dc3840_do (DC3840_CMD_RESET, DC3840_RESET_STATES, 0, 0, 0);
 
   /* Configure camera */
-  dc3840_do (DC3840_CMD_INITIAL, 1, DC3840_PREVIEW_JPEG, 9, 5);
+  dc3840_do (DC3840_CMD_INITIAL, 1, DC3840_PREVIEW_JPEG, 9,
+	     DC3840_RESOLUTION);
+
+#ifdef DC3840_HIGH_COMPRESSION
+  dc3840_do (DC3840_CMD_COMPRESS, DC3840_COMPRESS_HIGH, 0, 0, 0);
+#else
+  dc3840_do (DC3840_CMD_COMPRESS, DC3840_COMPRESS_LOW, 0, 0, 0);
+#endif
 
   /* Acquire snapshot (stored to camera memory). */
   dc3840_data_length = 0;

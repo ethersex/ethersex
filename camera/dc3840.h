@@ -70,7 +70,7 @@
 #define DC3840_DATA_TYPE_DISPLAY	6
 
 /* Compression (0x10) */
-#define DC3840_COMPRESS_LOW	0
+#define DC3840_COMPRESS_LOW	1
 #define DC3840_COMPRESS_HIGH	2
 
 /* Light (0x12) */
