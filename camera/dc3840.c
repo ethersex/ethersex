@@ -236,6 +236,8 @@ dc3840_capture (void)
 
 #ifdef DC3840_BLACK_WHITE
   dc3840_do (DC3840_CMD_COLOR, DC3840_COLOR_BW, 0, 0, 0);
+#else
+  dc3840_do (DC3840_CMD_COLOR, DC3840_COLOR_RGB, 0, 0, 0);
 #endif
 
   /* Acquire snapshot (stored to camera memory). */
