@@ -28,7 +28,7 @@
 #define i2c_master_disable() TWCR = 0
 #define i2c_master_enable() TWCR=(1<<TWEN)|(1<<TWINT)
 
-#define I2C_MASTER_BAUDRATE 400000L
+#define I2C_MASTER_BAUDRATE (CONF_I2C_BAUD * 1000)
 		
 	
 void i2c_master_init(void);
