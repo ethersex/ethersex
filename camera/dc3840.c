@@ -64,6 +64,9 @@ static uint8_t dc3840_send_command (uint8_t, uint8_t, uint8_t, uint8_t,
 				    uint8_t)	__attribute__ ((noinline));
 
 
+#define DC3840_UDP_DEBUG 1
+
+
 static void
 dc3840_send_uart (uint8_t byte)
 {
@@ -76,7 +79,7 @@ static uint8_t
 dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 {
   uint8_t retries = 8;
-  syslog_sendf ("-> %02x %02x %02x %02x %02x\n", a, b, c, d, e);
+  DC3840_DEBUG ("-> %02x %02x %02x %02x %02x\n", a, b, c, d, e);
 
   do
     {
@@ -115,7 +118,7 @@ dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 
 	  if (dc3840_reply_buf[3] == DC3840_CMD_NAK)
 	    {
-	      unsigned char err = dc3840_reply_buf[6];
+	      unsigned char err = dc3840_reply_buf[6]; (void) err;
 	      DC3840_DEBUG ("NAK[%02x]!\n", err);
 	    }
 	  break;		/* Maybe resend. */
@@ -127,6 +130,40 @@ dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
   DC3840_DEBUG ("Timeout :(\n");
   return 1;			/* Fail. */
 }
+
+
+#ifdef DC3840_UDP_DEBUG
+
+#define DC3840_PORT 7676
+#include "../uip/uip.h"
+#include "../uip/uip_router.h"
+
+static void
+dc3840_net_main (void)
+{
+    if (!uip_newdata ())
+	return;
+
+    uip_udp_conn_t dc3840_conn;
+
+    #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
+    uip_ipaddr_copy(dc3840_conn.ripaddr, BUF->srcipaddr);
+    dc3840_conn.rport = BUF->srcport;
+    dc3840_conn.lport = HTONS(DC3840_PORT);
+
+    uip_udp_conn = &dc3840_conn;
+
+    uint16_t offset = atoi (uip_appdata);
+    dc3840_get_data (uip_appdata, offset, 512);
+    uip_slen = 512;
+    uip_process (UIP_UDP_SEND_CONN);
+    router_output ();
+
+    uip_slen = 0;		/* No reply. */
+}
+
+#endif	/* DC3840_UDP_DEBUG */
+
 
 #include <avr/wdt.h>
 void
@@ -162,6 +199,18 @@ dc3840_init (void)
      We need to ACK the SYNC first. */
   dc3840_send_command (DC3840_CMD_ACK, DC3840_CMD_SYNC, 0, 0, 0);
   DC3840_DEBUG ("Successfully sync'ed to camera!\n");
+
+#ifdef DC3840_UDP_DEBUG
+  uip_ipaddr_t ip;
+  uip_ipaddr_copy (&ip, all_ones_addr);
+
+  uip_udp_conn_t *udp_dc3840_conn = uip_udp_new (&ip, 0, dc3840_net_main);
+
+  if (!udp_dc3840_conn)
+    return; /* dammit. */
+
+  uip_udp_bind (udp_dc3840_conn, HTONS (DC3840_PORT));
+#endif
 }
 
 
@@ -255,9 +304,10 @@ dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
   dc3840_capture_start = offset;
   dc3840_capture_len = len;
 
-  wdt_kick ();
-  for (uint8_t i = 0; i < 50; i ++)
+  /*  for (uint8_t i = 0; i < 200; i ++) {
+    wdt_kick ();
     _delay_ms(10);
+    } */
 
   if (dc3840_send_command (DC3840_CMD_GET_PICTURE,
 			   DC3840_PICT_TYPE_SNAPSHOT, 0, 0, 0))
@@ -288,19 +338,20 @@ dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
       return 1;
     }
 
-  if (dc3840_data_length == 0) {
-    dc3840_data_length = (dc3840_reply_buf[8 + 6] << 8)
-      | dc3840_reply_buf[8 + 5];
-    DC3840_DEBUG ("Image size: %d bytes\n", dc3840_data_length);
-  }
+  dc3840_data_length = (dc3840_reply_buf[8 + 6] << 8)
+    | dc3840_reply_buf[8 + 5];
+  DC3840_DEBUG ("Image size: %u bytes\n", dc3840_data_length);
 
   /* Wait for data to be captured. */
   uint8_t timeout = 200;
-  while (dc3840_capture_len && --timeout) _delay_ms (5);
+  //while (dc3840_capture_len && --timeout) _delay_ms (5);
+  while (dc3840_reply_ptr - 16 < dc3840_data_length
+	 && --timeout)
+    _delay_ms(5);
 
   if (!timeout)
     {
-      DC3840_DEBUG ("Timeout capturing :(\n");
+      DC3840_DEBUG ("Timeout capturing :(, ptr=%u\n", dc3840_reply_ptr);
       return 1;
     }
 

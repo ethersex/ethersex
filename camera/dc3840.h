@@ -96,7 +96,7 @@ extern uint16_t dc3840_data_length;
 uint8_t dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len);
 
 /* (SYSLOG) debugging support */
-#if 1
+#if 1 && defined(SYSLOG_SUPPORT)
 #include "../syslog/syslog.h"
 /* FIXME We ought to put the format string in program space. */
 # define DC3840_DEBUG(a...) syslog_sendf(a)
