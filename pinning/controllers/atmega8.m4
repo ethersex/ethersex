@@ -56,6 +56,12 @@ ifdef(`conf_BLP', `dnl
  pin(BLP_DA_I, PC3, OUTPUT)
 ')
 
+ifdef(`conf_I2C_MASTER', `
+  /* I2C pins */
+  pin(SDA, PC4)
+  pin(SCL, PC5)
+')dnl
+
 /* there isn't that much RAM on ATmega8, reduce uip_buf size. */
 #define NET_MAX_FRAME_LENGTH 192
 
