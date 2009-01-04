@@ -70,6 +70,9 @@ void i2c_master_stop(void)
 /* failure, if return == 0 */
 uint8_t i2c_master_select(uint8_t address, uint8_t mode)
 {
+  #ifdef DEBUG_I2C
+    debug_printf("i2c master select adr+mode %X\n",(address << 1) | mode);
+  #endif
     /* Start Condition */
     if (i2c_master_do ((1<<TWINT)|(1<<TWSTA)|(1<<TWEN)) != TW_START) return 0; 
     /* address chip */
