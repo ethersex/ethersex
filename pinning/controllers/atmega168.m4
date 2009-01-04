@@ -29,5 +29,12 @@ ifdef(`need_spi', `dnl
   pin(SPI_CS_HARDWARE, PB2, OUTPUT)
 ')dnl
 
+ifdef(`conf_I2C_MASTER', `
+  /* I2C pins */
+  pin(SDA, PC4)
+  pin(SCL, PC5)
+')dnl
+
+
 /* there isn't that much RAM on ATmega168, reduce uip_buf size. */
 #define NET_MAX_FRAME_LENGTH 192

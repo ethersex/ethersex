@@ -26,5 +26,11 @@ pin(SPI_SCK, PB7, OUTPUT)
 pin(SPI_CS_HARDWARE, PB4, OUTPUT)
 ')dnl
 
+ifdef(`conf_I2C_MASTER', `
+  /* I2C pins */
+  pin(SDA, PC1)
+  pin(SCL, PC0)
+')dnl
+
 #define NET_MAX_FRAME_LENGTH 500
 #define ADC_CHANNELS 8
