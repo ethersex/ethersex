@@ -1641,6 +1641,7 @@ extern volatile uint8_t _uip_buf_lock;
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "../rfm12/rfm12.h"
+#include "../zbus/zbus.h"
 #include "../usb/usb_net.h"
 
 static inline uint8_t uip_buf_lock (void)
