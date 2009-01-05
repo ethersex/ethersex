@@ -50,7 +50,7 @@ static uint8_t recv_escape_data = 0;
 static uint8_t bus_blocked = 0;
 
 static volatile zbus_index_t zbus_index;
-static volatile zbus_index_t zbus_txlen;
+volatile zbus_index_t zbus_txlen;
 static volatile zbus_index_t zbus_rxlen;
 
 static void __zbus_txstart(void);
@@ -198,7 +198,6 @@ zbus_core_init(void)
     usart(UBRR,L) = LO8(ubrr);
 #endif
 */
-
     zbus_rxstart ();
 }
 
@@ -283,25 +282,21 @@ SIGNAL(usart(USART,_RX_vect))
     if (data == ZBUS_START) {
       if (uip_buf_lock())
         return; /* lock of buffer failed, ignore packet */
-      
+
       zbus_index = 0;
       bus_blocked = 3;
 
-	#ifdef HAVE_ZBUS_RX_PIN
-      PIN_SET(ZBUS_RX_PIN);
-#endif
     }
 
     else if (data == ZBUS_STOP) {
       /* Only if there was a start condition before */
       if (bus_blocked) {
 	zbus_rxstop ();
-
-#ifdef HAVE_ZBUS_RX_PIN
-        PIN_CLEAR(ZBUS_RX_PIN);
-#endif
 	zbus_rxlen = zbus_index;
       }
+#ifdef HAVE_ZBUS_RX_PIN
+      PIN_CLEAR(ZBUS_RX_PIN);
+#endif
 
       /* force bus free even if we didn't catch the start condition. */
       bus_blocked = 0;
@@ -313,9 +308,13 @@ SIGNAL(usart(USART,_RX_vect))
       goto append_data;
   } 
 
-  else if (data == '\\') 
-    recv_escape_data = 1;
+  else if (data == '\\') {
 
+    recv_escape_data = 1;
+#ifdef HAVE_ZBUS_RX_PIN
+    PIN_SET(ZBUS_RX_PIN);
+#endif
+  }
   else {
   append_data:
     /* Not enough space in buffer */
@@ -325,7 +324,8 @@ SIGNAL(usart(USART,_RX_vect))
     /* If bus is not blocked we aren't on an message */
     if (!bus_blocked)
       return;
-      
+
+    bus_blocked = 3;
     zbus_buf[zbus_index] = data;
     zbus_index++;
   }

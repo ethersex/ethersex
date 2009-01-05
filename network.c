@@ -163,9 +163,6 @@ network_init(void)
 #ifdef ENC28J60_SUPPORT
 void network_process(void)
 /* {{{ */ {
-    if (uip_buf_lock ())
-	return;			/* already locked */
-
     /* also check packet counter, see errata #6 */
 #   ifdef ENC28J60_REV4_WORKAROUND
     uint8_t pktcnt = read_control_register(REG_EPKTCNT);
@@ -244,8 +241,10 @@ void network_process(void)
 
     /* packet receive flag */
     if (EIR & _BV(PKTIF)) {
+      if (uip_buf_lock ())
+	return;			/* already locked */
 
-        process_packet();
+      process_packet();
     }
 
     /* receive error */

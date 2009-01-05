@@ -1663,10 +1663,15 @@ static inline uint8_t uip_buf_lock (void)
 #define rfm12_tx_active() (0)
 #endif
 
+#ifndef ZBUS_SUPPORT
+#define zbus_tx_active() (0)
+#endif
+
 #define uip_buf_unlock()			\
   do {						\
     if(rfm12_tx_active ()			\
-       || usb_net_tx_active ()) break;		\
+       || usb_net_tx_active ()			\
+       || zbus_tx_active()) break;		\
     _uip_buf_lock = 0;				\
     rfm12_int_enable();				\
   } while(0)

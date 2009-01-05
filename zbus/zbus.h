@@ -49,6 +49,9 @@ typedef uint16_t zbus_index_t;
 #  define ZBUS_BAUDRATE CONF_ZBUS_BAUDRATE
 #endif
 
+extern volatile zbus_index_t zbus_txlen;
+#define zbus_tx_active()  (zbus_txlen > 0)
+
 enum ZBusEscapes {
   ZBUS_START = '0',
   ZBUS_STOP = '1',
