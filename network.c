@@ -175,7 +175,7 @@ void network_process(void)
                 || pktcnt == 0
 #   endif
            )
-        goto out;
+        return;
 
 #   if defined(ENC28J60_REV4_WORKAROUND) && defined(DEBUG_REV4_WORKAROUND)
     if (pktcnt > 5)
@@ -245,6 +245,7 @@ void network_process(void)
 	return;			/* already locked */
 
       process_packet();
+      uip_buf_unlock ();
     }
 
     /* receive error */
@@ -270,9 +271,6 @@ void network_process(void)
 
     /* set global interrupt flag */
     bit_field_set(REG_EIE, _BV(INTIE));
-
-out:
-    uip_buf_unlock ();
 } /* }}} */
 #endif /* ENC28J60_SUPPORT */
 
