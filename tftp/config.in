@@ -1,5 +1,9 @@
 
-dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
+  dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+else
+  dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT $VFS_SUPPORT
+fi
 
 if [ "$BOOTLOADER_SUPPORT" = "y" -a "$TFTP_SUPPORT" = "y" ]; then
   mainmenu_option next_comment
