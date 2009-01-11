@@ -179,6 +179,7 @@ divert(old_divert)')')
 
 define(`PIN_RISING', `PIN_NEW($1)(!pin_states[pin_$1_idx].old_state && PIN_HIGH($1))')
 define(`PIN_FALLING', `PIN_NEW($1)(pin_states[pin_$1_idx].old_state && !PIN_HIGH($1))')
+define(`PIN_LOW', `!PIN_HIGH($1)')
 
 divert(pin_table_divert)
 struct pin_state {
