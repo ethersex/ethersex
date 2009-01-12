@@ -38,6 +38,7 @@ void
 i2c_24CXX_init(void)
 {
   i2c_24cxx_address = i2c_master_detect(I2C_SLA_24CXX, I2C_SLA_24CXX + 8);
+  sfs_init();
 }
 
 uint8_t 
@@ -98,6 +99,17 @@ i2c_24CXX_write_block(uint16_t addr, uint8_t *ptr, uint8_t len)
   }
 
 end:
+  TWCR=((1<<TWEN)|(1<<TWINT)|(1<<TWSTO));     // Stopbedingung senden
+  while (!(TWCR & (1<<TWSTO)));               // warten bis TWI fertig
+
+  /* Here we start to do the polling of the write cycle */
+  uint16_t polls = 500;
+  while (polls--) {
+    if (i2c_master_select(i2c_24cxx_address, TW_WRITE)) {
+      break;
+    }
+  }
+
   i2c_master_stop();
   return ret;
 }
