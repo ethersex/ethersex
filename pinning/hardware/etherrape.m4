@@ -53,8 +53,8 @@ dnl   pin(RFM12_RX_PIN, GENERIC_RX_PIN)
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PD2)
-dnl  pin(ZBUS_TX_PIN, GENERIC_TX_LED)
-dnl  pin(ZBUS_RX_PIN, GENERIC_RX_LED)
+dnl  pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
+dnl  pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
 ')
 
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
