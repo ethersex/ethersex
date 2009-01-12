@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-typedef uint16_t sfs_inode_t;
-typedef uint16_t sfs_offset_t;
-typedef uint16_t sfs_ssize_t;
+#ifndef VFS_EEPROM_H
+#define VFS_EEPROM_H
+
+#include "vfs.h"
+
 
 #define SFS_PAGE_SIZE 128
 #define SFS_PAGE_COUNT 512
@@ -30,21 +32,18 @@ typedef uint16_t sfs_ssize_t;
 #define SFS_MAGIC_FILE 0x23
 #define SFS_MAGIC_DATA 0x42
 
+typedef uint16_t vfs_eeprom_inode_t;
+
 #if SFS_PAGE_SIZE > 256
-typedef uint16_t sfs_size_t;
+typedef uint16_t vfs_eeprom_len_t;
 #else
-typedef uint8_t sfs_size_t;
+typedef uint8_t vfs_eeprom_len_t;
 #endif
 
 #define SFS_VERSION 0
 
-struct sfs_file_handle * sfs_create(char * filename);
-struct sfs_file_handle * sfs_open(char * filename);
-void sfs_close(struct sfs_file_handle *file);
-uint8_t sfs_write(struct sfs_file_handle *file, unsigned char *buf, sfs_ssize_t len);
-sfs_ssize_t sfs_filesize(struct sfs_file_handle *handle);
 
-struct sfs_page_superblock {
+struct vfs_eeprom_page_superblock {
   uint8_t magic; /* The magic byte for a file is 0x23 */
   uint16_t next_page; /* not used within the superblock */
   uint16_t next_file; /* A Pointer to the next file page ( in pages ) */
@@ -52,7 +51,7 @@ struct sfs_page_superblock {
   uint8_t version; /* Version of the Filesystem */
 };
 
-struct sfs_page_file {
+struct vfs_eeprom_page_file {
   uint8_t magic; /* The magic byte for a file is 0x23 */
   uint16_t next_page; /* A Pointer to the next data page ( in pages ) */
   uint16_t next_file; /* A Pointer to the next file page ( in pages ) */
@@ -60,14 +59,38 @@ struct sfs_page_file {
   char filename_0byte;
 };
 
-struct sfs_page_data {
+struct vfs_eeprom_page_data {
   uint8_t magic; /* The magic byte for a file is 0x42 */
   uint16_t next_page; /* A Pointer to the next data page ( in pages ) */
   uint8_t page_len; /* count of the used bytes in this page */
   char data[SFS_PAGE_SIZE - 4];
 };
 
-struct sfs_file_handle {
+typedef struct {
   uint16_t file_page; /* the inode, were the file starts */ 
   uint16_t offset; /* the offset from the first  */
-};
+} vfs_file_handle_eeprom_t;
+
+
+struct vfs_file_handle_t * vfs_eeprom_open(const char * filename);
+void vfs_eeprom_close(struct vfs_file_handle_t *handle);
+vfs_size_t vfs_eeprom_write(struct vfs_file_handle_t *handle, void *buf, vfs_size_t len);
+vfs_size_t vfs_eeprom_read(struct vfs_file_handle_t *handle, void *buffer, vfs_size_t size);
+vfs_size_t vfs_eeprom_filesize(struct vfs_file_handle_t *handle);
+uint8_t vfs_eeprom_fseek (struct vfs_file_handle_t *handle, vfs_size_t offset, uint8_t whence);
+struct vfs_file_handle_t * vfs_eeprom_create(const char * filename);
+
+
+#define VFS_EEPROM_FUNCS {				\
+    "ee",	        		\
+    vfs_eeprom_open,			\
+    vfs_eeprom_close,			\
+    vfs_eeprom_read,			\
+    vfs_eeprom_write,	                \
+    vfs_eeprom_fseek,                   \
+    NULL,      /* truncate */           \
+    vfs_eeprom_create,                  \
+    vfs_eeprom_filesize                \
+  }
+
+#endif	/* VFS_EEPROM_H */

@@ -82,6 +82,7 @@ struct vfs_file_handle_t {
     vfs_file_handle_df_t df;
     vfs_file_handle_sd_t sd;
     vfs_file_handle_inline_t il;
+    vfs_file_handle_eeprom_t ee;
     vfs_file_handle_eeprom_raw_t ee_raw;
     vfs_file_handle_dc3840_t dc3840;
   } u;

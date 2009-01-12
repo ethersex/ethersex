@@ -41,10 +41,11 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG
   dep_bool '  Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60
   dep_bool '  Rev. 4 Workaround' DEBUG_REV4_WORKAROUND $DEBUG_ENC28J60
-  dep_bool 'File System' DEBUG_FS $DEBUG
+  dep_bool 'Dataflash File System' DEBUG_FS $DEBUG
   dep_bool '  Inode Table' DEBUG_FS_INODETABLE $DEBUG_FS
   dep_bool '  Mark' DEBUG_FS_MARK $DEBUG_FS
   dep_bool 'FS20 Receive' DEBUG_FS20_REC $DEBUG
+  dep_bool 'VFS EEPROM' VFS_EEPROM_DEBUG_SUPPORT $DEBUG
   dep_bool 'FS20 Receive Queue' DEBUG_FS20_REC_QUEUE $DEBUG_FS20_REC
   dep_bool 'FS20 Receive Verbose' DEBUG_FS20_REC_VERBOSE $DEBUG_FS20_REC
   dep_bool 'FS20 WS300' DEBUG_FS20_WS300 $DEBUG

@@ -38,7 +38,6 @@ void
 i2c_24CXX_init(void)
 {
   i2c_24cxx_address = i2c_master_detect(I2C_SLA_24CXX, I2C_SLA_24CXX + 8);
-  sfs_init();
 }
 
 uint8_t 
