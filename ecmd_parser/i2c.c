@@ -30,6 +30,7 @@
 #include "../i2c_master/i2c_master.h"
 #include "../i2c_master/i2c_lm75.h"
 #include "../i2c_master/i2c_24CXX.h"
+#include "../i2c_master/i2c_pca9531.h"
 #include "ecmd.h"
 
 #ifdef I2C_DETECT_SUPPORT
@@ -68,3 +69,22 @@ parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
 }
 
 #endif  /* I2C_LM75_SUPPORT */
+
+#ifdef I2C_PCA9531_SUPPORT
+int16_t
+parse_cmd_i2c_pca9531(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint8_t period;
+  uint8_t duty;
+  sscanf_P(cmd, PSTR("%u %x %x"), &adr, &period, &duty);
+  
+#ifdef DEBUG_I2C
+  debug_printf("I2C PCA9531 IC %u: pwm period %X; pwm duty: %X\n",adr, period, duty);
+#endif
+  i2c_pca9531_set(0xC0>>1 + adr, period,duty,0x00,0x40,0xEF,0x55);
+
+  return snprintf_P(output, len, PSTR("pwm set"));
+}
+
+#endif  /* I2C_PCA9531_SUPPORT */

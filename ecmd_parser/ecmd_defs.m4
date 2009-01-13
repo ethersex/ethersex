@@ -209,3 +209,6 @@ ecmd_endif
 ecmd_ifdef(I2C_LM75_SUPPORT)
   ecmd_feature(i2c_lm75, "lm75")
 ecmd_endif
+ecmd_ifdef(I2C_PCA9531_SUPPORT)
+  ecmd_feature(i2c_pca9531, "pca9531")
+ecmd_endif
