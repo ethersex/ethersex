@@ -396,6 +396,10 @@ int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
     if (!wait)
         return 0;
 
+    _delay_ms(500); /* The specification say, that we have to wait at 
+                       least 500ms in parasite mode to wait for the 
+                       end of the conversion */
+
     while(!ow_read());
 
     return 1;
