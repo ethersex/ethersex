@@ -39,10 +39,6 @@
 #define ENC28J60_REV4_WORKAROUND
 #define ENC28J60_REV5_WORKAROUND
 
-/* Include pinning.c as output of m4 scripts in pinning sub-directory.
-   Have a look there for MCU specific configuration options. */
-#include "pinning.c"
-
 /* ps/2 interrupts */
 #define PS2_PCMSK PCMSK0
 #define PS2_PCIE PCIE0
@@ -73,6 +69,10 @@
 #define CONF_BOOTLOAD_DELAY 250           /* five seconds */
 
 #include "autoconf.h"
+
+/* Include pinning.c as output of m4 scripts in pinning sub-directory.
+   Have a look there for MCU specific configuration options. */
+#include "pinning.c"
 
 /* use watchdog only when not debugging */
 #ifndef DEBUG
