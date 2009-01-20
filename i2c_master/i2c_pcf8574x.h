@@ -1,7 +1,7 @@
 /* vim:fdm=marker ts=4 et ai
  * {{{
  *
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,14 +21,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _I2C_PC9531_H
-#define _I2C_PC9531_H
+#ifndef _I2C_PCF8574X_H
+#define _I2C_PCF8574X_H
 
-#define I2C_SLA_PCA9531 0x60
+#define I2C_SLA_PCF8574 0x20
+#define I2C_SLA_PCF8574A 0x38
 
-uint8_t i2c_pca9531_set(uint8_t address, uint8_t prescaler0, uint8_t pwm0duty, 
-                        uint8_t prescaler1, uint8_t pwm1duty, uint8_t led0to3, 
-                        uint8_t led4to7);
+int8_t i2c_pcf8574x_read(uint8_t address);
+int16_t i2c_pcf8574x_set(uint8_t address, uint8_t value);
+
 #endif
 
 

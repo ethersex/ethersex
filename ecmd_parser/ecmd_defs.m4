@@ -212,3 +212,7 @@ ecmd_endif
 ecmd_ifdef(I2C_PCA9531_SUPPORT)
   ecmd_feature(i2c_pca9531, "pca9531")
 ecmd_endif
+ecmd_ifdef(I2C_PCF8574X_SUPPORT)
+  ecmd_feature(i2c_pcf8574x_read, "pcf8574x read")
+  ecmd_feature(i2c_pcf8574x_set, "pcf8574x set")
+ecmd_endif
