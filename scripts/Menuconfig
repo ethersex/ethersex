@@ -1096,6 +1096,7 @@ Select the default profile you wish to load. \
 			bootloader	  "Ethernet Bootloader"		0 \
 			netio		  "Pollin AVR Net-IO"		0 \
 			radig		  "Radig AVR Webmodul"		0 \
+			ths		  "ths AVR atmega64+ (smd)"		0 \
 			rfm12-teensy	  "RFM12 Standalone"		0 \
 			zbus-teensy	  "ZBUS Standalone"		0 \
 			usb-teensy	  "USB (Network) Standalone"	0 \

@@ -1,8 +1,10 @@
 dnl
-dnl footer.m4
+dnl atmega64.m4
 dnl
-dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
+dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
 dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
+dnl   Copyright (c) 2009 by Thorsten Schroeder <ths@dev.io>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License as published by 
@@ -17,22 +19,14 @@ dnl
 dnl   You should have received a copy of the GNU General Public License
 dnl   along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-dnl 
 
-divert(eof_divert)
 
-#define PORTIO_MASK_A eval(255 - port_mask_A)
-#define PORTIO_MASK_B eval(255 - port_mask_B)
-#define PORTIO_MASK_C eval(255 - port_mask_C)
-#define PORTIO_MASK_D eval(255 - port_mask_D)
-#define PORTIO_MASK_E eval(255 - port_mask_E)
-#define PORTIO_MASK_F eval(255 - port_mask_F)
+ifdef(`need_spi', `dnl
+/* spi defines */
+pin(SPI_MOSI, PB2, OUTPUT)
+pin(SPI_MISO, PB3)
+pin(SPI_SCK, PB1, OUTPUT)
+')dnl
 
-#define DDR_MASK_A ddr_mask_A
-#define DDR_MASK_B ddr_mask_B
-#define DDR_MASK_C ddr_mask_C
-#define DDR_MASK_D ddr_mask_D
-#define DDR_MASK_E ddr_mask_E
-#define DDR_MASK_F ddr_mask_F
-
-#endif /* _PINNING_HEADER */
+#define NET_MAX_FRAME_LENGTH 1500
+#define ADC_CHANNELS 8

@@ -11,18 +11,18 @@ CONFIG_EXPERIMENTAL=y
 # atmega162 is not set
 # atmega168 is not set
 # atmega32 is not set
-MCU=atmega644
-atmega644=y
+MCU=atmega64
+atmega64=y
+# atmega644 is not set
 # atmega644p is not set
-# atmega64 is not set
-FREQ=20000000
-HARDWARE=etherrape
-etherrape=y
+FREQ=16000000
+# etherrape is not set
 # generic_usb_teensy is not set
 # netio is not set
 # other is not set
 # radig_web is not set
-# ths is not set
+HARDWARE=ths
+ths=y
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # DEBUG is not set
@@ -67,12 +67,12 @@ etherrape=y
 # SKIPJACK_SUPPORT is not set
 # MD5_SUPPORT is not set
 VFS_SUPPORT=y
-VFS_DF_SUPPORT=y
+# VFS_DF_SUPPORT is not set
 VFS_INLINE_SUPPORT=y
 # VFS_SD_SUPPORT is not set
 # VFS_EEPROM_RAW_SUPPORT is not set
 # VFS_DC3840_SUPPORT is not set
-DATAFLASH_SUPPORT=y
+# DATAFLASH_SUPPORT is not set
 # SD_READER_SUPPORT is not set
 # USB_SUPPORT is not set
 # USB_CFG_IS_SELF_POWERED is not set
@@ -81,8 +81,8 @@ CONF_HOSTNAME="ethersex"
 ENC28J60_SUPPORT=y
 CONF_ENC_MAC="ac:de:48:fd:0f:d0"
 # IPV6_STATIC_SUPPORT is not set
-CONF_ENC_IP="192.168.23.244"
-CONF_ENC_IP4_NETMASK="255.255.255.0"
+CONF_ENC_IP="10.1.1.11"
+CONF_ENC_IP4_NETMASK="255.255.255.192"
 # RFM12_SUPPORT is not set
 # ZBUS_SUPPORT is not set
 # USB_NET_SUPPORT is not set
@@ -92,7 +92,7 @@ NET_SUPPORT=y
 # IPV6_SUPPORT is not set
 IPV4_SUPPORT=y
 # IP_FORWARDING_SUPPORT is not set
-CONF_ETHERRAPE_GATEWAY="192.168.23.1"
+CONF_ETHERRAPE_GATEWAY="10.1.1.1"
 # UIP_MULTI_STACK is not set
 
 #
@@ -149,7 +149,10 @@ MCUF_OUTPUT_SCREEN_WIDTH=18
 MCUF_OUTPUT_SCREEN_HEIGHT=8
 # MODBUS_SUPPORT is not set
 # YPORT_SUPPORT is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
+ECMD_SERIAL_USART_SUPPORT=y
+ECMD_SERIAL_USART_USART_0=y
+# ECMD_SERIAL_USART_USART_1 is not set
+ECMD_SERIAL_USART_USE_USART=0
 # ECMD_SERIAL_USART_RS485_SUPPORT is not set
 
 #
@@ -177,7 +180,7 @@ ECMD_SUPPORT=y
 # UECMD_SUPPORT is not set
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
-# ECMD_SERIAL_SUPPORT is not set
+ECMD_SERIAL_SUPPORT=y
 # ECMD_SENDER_SUPPORT is not set
 # UECMD_SENDER_SUPPORT is not set
 # IPSTATS_SUPPORT is not set
@@ -211,6 +214,8 @@ PSOCK_SUPPORT=y
 # I2C_DETECT_SUPPORT is not set
 # I2C_24CXX_SUPPORT is not set
 # I2C_LM75_SUPPORT is not set
+# I2C_PCA9531_SUPPORT is not set
+# I2C_PCF8574X_SUPPORT is not set
 # CONTROL6_SUPPORT is not set
 # IPCHAIR_SUPPORT is not set
 # IPCHAIR_MASQ is not set
@@ -223,4 +228,5 @@ PSOCK_SUPPORT=y
 # DC3840_HIGH_COMPRESSION is not set
 # DC3840_BLACK_WHITE is not set
 DC3840_USART_0=y
+# DC3840_USART_1 is not set
 DC3840_USE_USART=0

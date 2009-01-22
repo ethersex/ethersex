@@ -14,6 +14,7 @@ choice 'Target MCU'			\
     ATmega162              atmega162	\
     ATmega168              atmega168	\
     ATmega32		   atmega32	\
+    ATmega64              atmega64	\
     ATmega644              atmega644	\
     ATmega644p             atmega644p"	\
    'ATmega644' MCU 

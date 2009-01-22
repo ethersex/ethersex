@@ -97,6 +97,15 @@ int main(void)
 #if DDR_MASK_D != 0
     DDRD = DDR_MASK_D;
 #endif
+#if IO_HARD_PORTS == 6
+#if DDR_MASK_E != 0
+    DDRE = DDR_MASK_E;
+#endif
+#if DDR_MASK_F != 0
+    DDRF = DDR_MASK_F;
+#endif
+#endif
+
 
     debug_init();
     debug_printf("debugging enabled\n");
