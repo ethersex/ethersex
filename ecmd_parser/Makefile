@@ -16,6 +16,7 @@ SRC = \
 	portio.c	\
 	rc5.c		\
 	rfm12.c		\
+	rf12_powerswitch.c \
 	sd.c		\
 	i2c.c		\
 	usart.c

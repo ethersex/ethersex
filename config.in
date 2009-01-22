@@ -193,6 +193,7 @@ source ecmd_parser/config.in
 source httpd/config.in
 source lcd/config.in
 source net/config.in
+source rfm12/rf12-powerswitch-config.in
 
 endmenu
 

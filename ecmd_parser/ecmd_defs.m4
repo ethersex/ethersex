@@ -175,6 +175,13 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
+ecmd_ifndef(TEENSY_SUPPORT)
+  ecmd_ifdef(RF12_POWERSWITCH_SUPPORT)
+    ecmd_feature(rf12_powerswitch_send, "rf12 powerswitch send", , Send COMMANDNO CNT times)
+    ecmd_feature(rf12_powerswitch_code_send, "rf12 powerswitch code send", , Send ADRESS COMMANDNO CNT times)
+  ecmd_endif()
+ecmd_endif()
+
 block(Miscelleanous)
 
 ecmd_ifndef(TEENSY_SUPPORT)
