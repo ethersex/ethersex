@@ -193,7 +193,6 @@ source ecmd_parser/config.in
 source httpd/config.in
 source lcd/config.in
 source net/config.in
-source rfm12/rf12-powerswitch-config.in
 
 endmenu
 
@@ -206,6 +205,7 @@ comment "work in progress bits (enable with care)"
   source control6/config.in
   source ipchair/config.in
   source camera/config.in
+  source rfm12/rf12-powerswitch-config.in
 
 endmenu
 
