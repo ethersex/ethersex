@@ -51,6 +51,14 @@ typedef enum {
   RFM12_TX_END
 } rfm12_status_t;
 
+/* Prologue/epilogue macros, disabling/enabling interrupts. 
+   Be careful, these are not well suited to be used as if-blocks. */
+#define rfm12_prologue()			\
+  uint8_t sreg = SREG; cli();
+#define rfm12_epilogue()			\
+  SREG = sreg;
+
+
 /* Current RFM12 transceiver status. */
 rfm12_status_t rfm12_status;
 

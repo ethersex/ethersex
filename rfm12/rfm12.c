@@ -205,13 +205,6 @@ rfm12_init(void)
   rfm12_int_enable ();
 }
 
-/* Prologue/epilogue macros, disabling/enabling interrupts. 
-   Be careful, these are not well suited to be used as if-blocks. */
-#define rfm12_prologue()			\
-  uint8_t sreg = SREG; cli();
-#define rfm12_epilogue()			\
-  SREG = sreg;
-
 
 #ifndef TEENSY_SUPPORT
 void
