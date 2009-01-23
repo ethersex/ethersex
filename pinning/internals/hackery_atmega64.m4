@@ -87,3 +87,35 @@
     #define HD44780_DATA_SHIFT 3
 #endif
 
+
+/* USART Register C (generic) */
+#undef    UMSEL
+#undef    UPM1
+#undef    UPM0
+#undef    USBS 
+#undef    UCSZ1
+#undef    UCSZ0
+#undef    UCPOL
+
+
+/* USART Status Register A (generic) */
+#undef    RXC
+#undef    TXC
+#undef    UDRE
+#undef    FE
+#undef    DOR
+#undef    UPE
+#undef    U2X
+#undef    MPCM
+
+/* USART Control Register B (generic) */
+#undef    RXCIE
+#undef    TXCIE
+#undef    UDRIE
+#undef    RXEN
+#undef    TXEN
+#undef    UCSZ
+#undef    UCSZ2
+#undef    RXB8
+#undef    TXB8
+
