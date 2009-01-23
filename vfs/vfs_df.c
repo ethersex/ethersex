@@ -132,7 +132,7 @@ vfs_df_create (const char *name)
 }
 
 
-fs_size_t
+vfs_size_t
 vfs_df_size (struct vfs_file_handle_t *fh)
 {
   return fs_size (&fs, fh->u.df.inode);

@@ -394,13 +394,13 @@ uip_tcpchksum(void)
 }
 #endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
-#if UIP_UDP_CHECKSUMS
+#if UIP_UDP_CHECKSUMS && UIP_UDP
 static u16_t
 uip_udpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_UDP);
 }
-#endif /* UIP_UDP_CHECKSUMS */
+#endif /* UIP_UDP_CHECKSUMS && UIP_UDP*/
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
 void
