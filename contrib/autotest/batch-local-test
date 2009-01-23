@@ -7,11 +7,39 @@
 
 if [ x"$1" != x"-n" ]; then 
   git pull --quiet origin  >/dev/null  || exit 2
+else
+  shift
 fi
 
-for A in contrib/autotest/profiles/* scripts/profiles/*; do
-  echo "Trying to compile Ethersex firmware using profile '$A' ..."
-  ./contrib/autotest/run "$A" > /dev/null
-  [ -e "ethersex.bin" ] && ls -l ethersex.bin
-  echo ""
-done
+if [ x"$1" != x"" ]; then
+  while [ -n "$1" ]; do
+
+    if [ -e "contrib/autotest/profiles/$1" ]; then
+      profile="contrib/autotest/profiles/$1"
+    fi
+    if [ -e "scripts/profiles/$1" ]; then
+      profile="scripts/profiles/$1"
+    fi
+    if [ -z "$profile" ]; then
+      echo "Profile $1 not found"
+      shift;
+      continue;
+    fi
+
+    echo "Trying to compile Ethersex firmware using profile '$profile' ..."
+    ./contrib/autotest/run "$profile" >/dev/null
+    [ -e "ethersex.bin" ] && ls -l ethersex.bin
+    echo ""
+
+    shift;
+
+  done
+
+else
+  for A in contrib/autotest/profiles/* scripts/profiles/*; do
+    echo "Trying to compile Ethersex firmware using profile '$A' ..."
+    ./contrib/autotest/run "$A" > /dev/null
+    [ -e "ethersex.bin" ] && ls -l ethersex.bin
+    echo ""
+  done
+fi
