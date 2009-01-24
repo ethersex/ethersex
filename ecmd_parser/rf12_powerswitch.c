@@ -2,6 +2,7 @@
  * {{{
  *
  * Copyright(C) 2009 Dirk Pannenbecker <dp@sd-gp.de>
+ * Copyright(C) 2009 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -30,8 +31,7 @@
 #include "../rfm12/rf12_powerswitch.h"
 #include "ecmd.h"
 
-#ifdef RF12_POWERSWITCH_SUPPORT
-#ifndef TEENSY_SUPPORT
+#ifdef RF12_POWERSWITCH_SENDER_SUPPORT
 
 int16_t
 parse_cmd_rf12_powerswitch_send(char *cmd, char *output, uint16_t len)
@@ -52,7 +52,6 @@ parse_cmd_rf12_powerswitch_send(char *cmd, char *output, uint16_t len)
   return 0;
 }
 
-#endif /* not TEENSY_SUPPORT */
 int16_t
 parse_cmd_rf12_powerswitch_code_send(char *cmd, char *output, uint16_t len)
 {
@@ -69,6 +68,9 @@ parse_cmd_rf12_powerswitch_code_send(char *cmd, char *output, uint16_t len)
   return 0;
 }
 
+#endif  /* RF12_POWERSWITCH_SENDER_SUPPORT */
+
+#ifdef RF12_POWERSWITCH_RECIVER_SUPPORT
 int16_t
 parse_cmd_rf12_powerswitch_recive(char *cmd, char *output, uint16_t len)
 {
@@ -78,4 +80,4 @@ parse_cmd_rf12_powerswitch_recive(char *cmd, char *output, uint16_t len)
   rf12_powerswitch_reciver_init();
   return 0;
 }
-#endif /* RF12_POWERSWITCH_SUPPORT */
+#endif  /* RF12_POWERSWITCH_RECIVER_SUPPORT */
