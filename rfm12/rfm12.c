@@ -195,13 +195,6 @@ rfm12_init(void)
   rfm12_trans(0x0000);
   
   rfm12_status = RFM12_OFF;
-#ifdef HAVE_RFM12_TX_PIN
-  DDR_CONFIG_OUT(RFM12_TX_PIN);
-#endif
-#ifdef HAVE_RFM12_RX_PIN
-  DDR_CONFIG_OUT(RFM12_RX_PIN);
-#endif
-
   rfm12_int_enable ();
 }
 
