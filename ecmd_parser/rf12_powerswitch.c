@@ -52,6 +52,7 @@ parse_cmd_rf12_powerswitch_send(char *cmd, char *output, uint16_t len)
   return 0;
 }
 
+#endif /* not TEENSY_SUPPORT */
 int16_t
 parse_cmd_rf12_powerswitch_code_send(char *cmd, char *output, uint16_t len)
 {
@@ -67,5 +68,14 @@ parse_cmd_rf12_powerswitch_code_send(char *cmd, char *output, uint16_t len)
   rf12_powerswitch_code_send(command, (uint8_t) cnt);
   return 0;
 }
-#endif /* not TEENSY_SUPPORT */
+
+int16_t
+parse_cmd_rf12_powerswitch_recive(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  rf12_powerswitch_reciver_init();
+  return 0;
+}
 #endif /* RF12_POWERSWITCH_SUPPORT */

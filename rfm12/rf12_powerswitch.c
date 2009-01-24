@@ -49,7 +49,9 @@ const uint8_t dosencode_34_up[]    = {12,6,12,6,12,6,6,12,12,6,6,12,12,6,12,6};
 const uint8_t dosencode_34_down[]  = {12,6,12,6,12,6,12,6,12,6,6,12,12,6,6,12};
 const uint8_t *dosencodes[]        = { dosencode_1_on, dosencode_1_off, dosencode_2_on, dosencode_2_off, dosencode_3_on, dosencode_3_off, dosencode_4_on, dosencode_4_off, dosencode_all_on, dosencode_all_off, dosencode_3_up, dosencode_3_down, dosencode_4_up, dosencode_4_down,dosencode_34_up, dosencode_34_down };
 
-enum dosencommands {
+enum
+dosencommands
+{
   DOSE_1_ON     = 0,
   DOSE_1_OFF,
   DOSE_2_ON,
@@ -70,16 +72,21 @@ enum dosencommands {
 };
 
 #ifdef RF12_POWERSWITCH_SENDER_SUPPORT
-void rf12_powerswitch_code_send(uint16_t *command, uint8_t cnt) {
+void
+rf12_powerswitch_code_send(uint16_t *command, uint8_t cnt)
+{
   rfm12_prologue ();
   rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
-  for(uint8_t ii=cnt;ii>0;ii--) {              // Sequenz 4x send
+  for(uint8_t ii=cnt;ii>0;ii--)              // Sequenz 4x send
+  {
     uint8_t iii=0;
     uint8_t iv=0;
-    for(iv=0;iv<25;iv++) {
+    for(iv=0;iv<25;iv++)
+    {
       rf12_powerswitch_trigger(iii^=1,dosencode[iv]);
     }
-    for(iv=0;iv<16;iv++) {
+    for(iv=0;iv<16;iv++)
+    {
       rf12_powerswitch_trigger(iii^=1,(uint8_t)command[iv]);
     }
     rf12_powerswitch_trigger(0,24);
@@ -88,16 +95,21 @@ void rf12_powerswitch_code_send(uint16_t *command, uint8_t cnt) {
   rfm12_epilogue ();
 }
 
-void rf12_powerswitch_send(uint8_t dosencom, uint8_t cnt) {
+void
+rf12_powerswitch_send(uint8_t dosencom, uint8_t cnt)
+{
   rfm12_prologue ();
   rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
-  for(uint8_t ii=cnt;ii>0;ii--) {              // Sequenz 4x send
+  for(uint8_t ii=cnt;ii>0;ii--)               // Sequenz 4x send
+  {
     uint8_t iii=0;
     uint8_t iv=0;
-    for(iv=0;iv<25;iv++) {
+    for(iv=0;iv<25;iv++)
+    {
       rf12_powerswitch_trigger(iii^=1,dosencode[iv]);
     }
-    for(iv=0;iv<16;iv++) {
+    for(iv=0;iv<16;iv++)
+    {
       rf12_powerswitch_trigger(iii^=1,dosencodes[dosencom][iv]);
     }
     rf12_powerswitch_trigger(0,24);
@@ -106,8 +118,11 @@ void rf12_powerswitch_send(uint8_t dosencom, uint8_t cnt) {
   rfm12_epilogue ();
 }
 
-void rf12_powerswitch_trigger(uint8_t level, uint16_t us) {
-  if (level) {
+void
+rf12_powerswitch_trigger(uint8_t level, uint8_t us)
+{
+  if (level)
+  {
     rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3)); // 2. PwrMngt TX on
 #ifdef HAVE_RFM12_TX_PIN
     PIN_SET(RFM12_TX_PIN);
@@ -115,7 +130,8 @@ void rf12_powerswitch_trigger(uint8_t level, uint16_t us) {
     for(;us>0;us--)
       _delay_us(100);
   }
-  else {
+  else
+  {
     rfm12_trans(0x8208);                      // 2. PwrMngt TX off
 #ifdef HAVE_RFM12_TX_PIN
     PIN_CLEAR(RFM12_TX_PIN);
@@ -125,4 +141,15 @@ void rf12_powerswitch_trigger(uint8_t level, uint16_t us) {
   }
 }
 #endif // RF12_POWERSWITCH_SENDER_SUPPORT
+
+#ifdef RF12_POWERSWITCH_RECIVER_SUPPORT
+void
+rf12_powerswitch_reciver_init()
+{
+  rfm12_prologue ();
+  rfm12_trans(0x82C0);                        // 2. PwrMngt TX off, enable whole receiver chain
+  rfm12_trans(0xC238);                        // 6. Data Filter Command
+  rfm12_epilogue ();
+}
+#endif // RF12_POWERSWITCH_RECIVER_SUPPORT
 #endif // RF12_POWERSWITCH_SUPPORT
