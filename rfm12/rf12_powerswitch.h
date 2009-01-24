@@ -27,6 +27,6 @@
 void rf12_powerswitch_code_send(uint16_t *, uint8_t);
 void rf12_powerswitch_send(uint8_t , uint8_t);
 void rf12_powerswitch_trigger(uint8_t , uint8_t);
-void rf12_powerswitch_reciver_init(void);
+void rf12_powerswitch_receiver_init(void);
 
 #endif //__RF12_POWERSWITCH_H

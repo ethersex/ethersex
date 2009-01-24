@@ -142,14 +142,14 @@ rf12_powerswitch_trigger(uint8_t level, uint8_t us)
 }
 #endif // RF12_POWERSWITCH_SENDER_SUPPORT
 
-#ifdef RF12_POWERSWITCH_RECIVER_SUPPORT
+#ifdef RF12_POWERSWITCH_RECEIVER_SUPPORT
 void
-rf12_powerswitch_reciver_init()
+rf12_powerswitch_receiver_init()
 {
   rfm12_prologue ();
   rfm12_trans(0x82C0);                        // 2. PwrMngt TX off, enable whole receiver chain
   rfm12_trans(0xC238);                        // 6. Data Filter Command
   rfm12_epilogue ();
 }
-#endif // RF12_POWERSWITCH_RECIVER_SUPPORT
+#endif // RF12_POWERSWITCH_RECEIVER_SUPPORT
 #endif // RF12_POWERSWITCH_SUPPORT
