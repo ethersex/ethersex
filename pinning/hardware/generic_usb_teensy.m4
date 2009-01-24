@@ -12,8 +12,8 @@ ifdef(`conf_USB', `
   pin(USB_DPLUS, PD3)
 ')
 
-pin(GENERIC_TX_PIN, PD6)
-pin(GENERIC_RX_PIN, PD7)
+pin(GENERIC_TX_PIN, PD6, OUTPUT)
+pin(GENERIC_RX_PIN, PD7, OUTPUT)
 
 ifdef(`conf_RFM12', `
   /* port the rfm12 module CS is attached to */

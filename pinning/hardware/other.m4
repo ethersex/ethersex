@@ -6,8 +6,8 @@ ifdef(`need_spi', `dnl
 ifdef(`conf_RFM12', `define(`GENERIC_LED_PINS', `1')')dnl
 ifdef(`conf_ZBUS', `define(`GENERIC_LED_PINS', `1')')dnl
 ifdef(`GENERIC_LED_PINS', `
-  pin(GENERIC_TX_PIN, PD6)
-  pin(GENERIC_RX_PIN, PD7)
+  pin(GENERIC_TX_PIN, PD6, OUTPUT)
+  pin(GENERIC_RX_PIN, PD7, OUTPUT)
 ')dnl
 
 ifdef(`conf_RFM12', `dnl

@@ -24,8 +24,8 @@ ifdef(`conf_FS20', `dnl
 dnl ifdef(`conf_RFM12', `define(`GENERIC_LED_PINS', `1')')dnl
 dnl ifdef(`conf_ZBUS', `define(`GENERIC_LED_PINS', `1')')dnl
 dnl ifdef(`GENERIC_LED_PINS', `
-dnl   pin(GENERIC_TX_PIN, PB3)
-dnl   pin(GENERIC_RX_PIN, PB1)
+dnl   pin(GENERIC_TX_PIN, PB3, OUTPUT)
+dnl   pin(GENERIC_RX_PIN, PB1, OUTPUT)
 dnl ')dnl
 	
 
