@@ -11,6 +11,7 @@ get_usart_count
 choice 'Target MCU'			\
    "ATmega8                atmega8	\
     ATmega88               atmega88	\
+    ATmega128               atmega128	\
     ATmega162              atmega162	\
     ATmega168              atmega168	\
     ATmega32		   atmega32	\

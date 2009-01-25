@@ -8,6 +8,7 @@
 CONFIG_EXPERIMENTAL=y
 # atmega8 is not set
 # atmega88 is not set
+# atmega128 is not set
 # atmega162 is not set
 # atmega168 is not set
 # atmega32 is not set
