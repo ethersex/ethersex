@@ -10,6 +10,6 @@ ifdef(`conf_RFM12', `dnl
   RFM12_USE_INT(1)
 
   /* port the LEDS for rfm12 txrx attached to */
-dnl  pin(RFM12_TX_PIN, PA0)
-dnl  dnl  pin(RFM12_RX_PIN, PA2)
+  pin(RFM12_TX_PIN, PA0, OUTPUT)
+  pin(RFM12_RX_PIN, PA2, OUTPUT)
 ')
