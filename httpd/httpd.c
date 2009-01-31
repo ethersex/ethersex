@@ -129,6 +129,7 @@ httpd_main(void)
 	/* initialize struct */
 	STATE->handler = NULL;
 	STATE->header_acked = 0;
+	STATE->eof = 0;
     }
 
     if (uip_newdata()) {
