@@ -32,12 +32,9 @@ typedef enum {
 } http_state_t;
 
 struct httpd_connection_state_t {
-    http_state_t state;
-    uint8_t timeout;
-    char buffer[40];
-    char name[16];
+    /* The associated connection handler function */
+    void (* handler);
 
-    char *tmp_buffer;
 #ifdef VFS_SUPPORT
     struct vfs_file_handle_t *fd;
     vfs_size_t len;
