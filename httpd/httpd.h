@@ -1,7 +1,6 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/* 
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (C) 2009 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -67,8 +66,15 @@ extern char httpd_header_end[];
 
 #define PASTE_RESET()   (((unsigned char *)uip_appdata)[0] = 0)
 #define PASTE_P(a)      strcat_P(uip_appdata, a)
-#define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
-				  PSTR ("%lu\n"), a)
+
+#ifdef VFS_TEENSY
+#  define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+				    PSTR ("%u\n"), a)
+#else
+#  define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+				    PSTR ("%lu\n"), a)
+#endif
+
 #define PASTE_LEN_P(a)  PASTE_LEN(strlen_P(a))
 
 /* FIXME maybe check uip_mss and emit warning on debugging console. */

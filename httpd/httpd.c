@@ -56,7 +56,7 @@ httpd_cleanup (void)
 {
 #ifdef VFS_SUPPORT
     if (STATE->fd) {
-	printf("httpd: cleaning left-over vfs-handle at %p.\n", state->fd);
+	printf("httpd: cleaning left-over vfs-handle at %p.\n", STATE->fd);
 
 	vfs_close (STATE->fd);
 	STATE->fd = NULL;
@@ -100,7 +100,11 @@ httpd_handle_input (void)
 #ifdef VFS_SUPPORT
     STATE->fd = vfs_open (filename);
     if (STATE->fd) {
+#ifdef VFS_TEENSY
+      printf ("httpd: VFS got it, serving %d bytes!\n", vfs_size (STATE->fd));
+#else
       printf ("httpd: VFS got it, serving %ld bytes!\n", vfs_size (STATE->fd));
+#endif
       STATE->handler = httpd_handle_vfs;
       return;
     }
