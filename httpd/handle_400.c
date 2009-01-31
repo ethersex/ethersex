@@ -1,7 +1,5 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+/*
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,31 +16,26 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
-
-#ifndef _HTTPD_STATE_H
-#define _HTTPD_STATE_H
+ */
 
 #include "../config.h"
-#include "../vfs/vfs.h"
+#include "httpd.h"
 
-typedef enum {
-    HTTPD_STATE_CLOSED = 0,
-    HTTPD_STATE_IDLE,
-} http_state_t;
+void
+httpd_handle_400 (void)
+{
+    if (uip_acked ()) {
+	uip_close ();
+	return;
+    }
 
-struct httpd_connection_state_t {
-    /* The associated connection handler function */
-    void (* handler)();
+    if (uip_poll ())
+	return;
 
-#ifdef VFS_SUPPORT
-    struct vfs_file_handle_t *fd;
-    vfs_size_t len;
-#endif
-#ifdef ECMD_PARSER_SUPPORT
-    uint8_t parse_again;
-#endif
-};
-
-
-#endif
+    PASTE_RESET ();
+    PASTE_P (httpd_header_400);
+    PASTE_P (httpd_header_length);
+    PASTE_LEN_P (httpd_body_400);
+    PASTE_P (httpd_body_400);
+    PASTE_SEND ();
+}

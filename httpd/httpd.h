@@ -40,19 +40,37 @@
 void httpd_init(void);
 void httpd_main(void);
 
+void httpd_handle_400 (void);
+void httpd_handle_404 (void);
+
+
 /* headers */
-extern char PROGMEM httpd_header_200[];
-extern char PROGMEM httpd_header_ct_css[];
-extern char PROGMEM httpd_header_ct_html[];
-extern char PROGMEM httpd_header_ct_xhtml[];
-extern char PROGMEM httpd_header_200_ecmd[];
-extern char PROGMEM httpd_header_400[];
-extern char PROGMEM httpd_header_gzip[];
-extern char PROGMEM httpd_header_401[];
-extern char PROGMEM httpd_body_401[];
-extern char PROGMEM httpd_body_400[];
-extern char PROGMEM httpd_header_404[];
-extern char PROGMEM httpd_body_404[];
-extern char PROGMEM httpd_header_length[];
+extern char httpd_header_200[];
+extern char httpd_header_ct_css[];
+extern char httpd_header_ct_html[];
+extern char httpd_header_ct_xhtml[];
+extern char httpd_header_200_ecmd[];
+extern char httpd_header_400[];
+extern char httpd_header_gzip[];
+extern char httpd_header_401[];
+extern char httpd_body_401[];
+extern char httpd_body_400[];
+extern char httpd_header_404[];
+extern char httpd_body_404[];
+extern char httpd_header_length[];
+
+#include <stdio.h>
+#include <avr/pgmspace.h>
+
+#define PASTE_RESET()   (((unsigned char *)uip_appdata)[0] = 0)
+#define PASTE_P(a)      strcat_P(uip_appdata, a)
+#define PASTE_LEN_P(a)  sprintf_P(uip_appdata + strlen(uip_appdata),	\
+				  PSTR ("%u\n\n"), strlen_P(a))
+
+/* FIXME maybe check uip_mss and emit warning on debugging console. */
+#define PASTE_SEND()    uip_send(uip_appdata, strlen(uip_appdata))
+
+
+#define STATE (&uip_conn->appstate.httpd)
 
 #endif

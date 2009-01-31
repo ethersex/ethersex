@@ -26,11 +26,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../config.h"
 #include "httpd.h"
 #include "base64.h"
 #include "../eeprom.h"
 #include "../ecmd_parser/ecmd.h"
-#include "../config.h"
 #include "../vfs/vfs.h"
 
 
@@ -52,7 +52,7 @@ httpd_init(void)
 
 
 static inline void
-httpd_cleanup (struct httpd_connection_state_t *state)
+httpd_cleanup (void)
 {
 #ifdef VFS_SUPPORT
     if (state->fd) {
@@ -65,20 +65,46 @@ httpd_cleanup (struct httpd_connection_state_t *state)
 }
 
 
+static void
+httpd_handle_input (void)
+{
+    if (uip_len < 6) {
+	printf ("httpd: received request to short (%d bytes).", uip_len);
+	STATE->handler = httpd_handle_400;
+	return;
+    }
+
+    if (strncasecmp_P (uip_appdata, PSTR ("GET /"), 5)) {
+	printf ("httpd: received request is not GET.");
+	STATE->handler = httpd_handle_400;
+	return;
+    }
+
+    char *filename = uip_appdata + 5; /* beyond slash */
+    char *ptr = strchr (filename, ' ');
+
+    if (ptr == NULL) {
+	printf ("httpd: space after filename not found.");
+	STATE->handler = httpd_handle_400;
+	return;
+    }
+
+    *ptr = 0;			/* Terminate filename. */
+
+    /* FIXME no functionality yet, just send 404. */
+    STATE->handler = httpd_handle_404;
+}
 
 void
 httpd_main(void)
 {
-    struct httpd_connection_state_t *state = &uip_conn->appstate.httpd;
-
     if (uip_aborted() || uip_timedout()) {
-	httpd_cleanup (state);
+	httpd_cleanup ();
 	printf ("httpd: connection aborted\n");
     }
 
     if (uip_closed()) {
-	httpd_cleanup (state);
-	state->state = HTTPD_STATE_CLOSED;
+	httpd_cleanup ();
 	printf ("httpd: connection closed\n");
     }
 
@@ -86,7 +112,7 @@ httpd_main(void)
 	printf ("httpd: new connection\n");
 
 	/* initialize struct */
-	state->handler = NULL;
+	STATE->handler = NULL;
     }
 
     if (uip_newdata()) {
@@ -101,8 +127,8 @@ httpd_main(void)
        uip_poll()) {
 
 	/* Call associated handler, if set already. */
-	if (state->handler)
-	    state->handler ();
+	if (STATE->handler)
+	    STATE->handler ();
     }
 
 }
