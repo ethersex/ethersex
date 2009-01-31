@@ -91,6 +91,9 @@ httpd_handle_input (void)
 
     *ptr = 0;			/* Terminate filename. */
 
+    if (*filename == 0)		/* No filename, override -> index */
+	strcpy_P(filename, PSTR(HTTPD_INDEX));
+
     /* Keep content-type identifing char. */
     STATE->content_type = *filename;
 
