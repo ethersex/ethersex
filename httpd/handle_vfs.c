@@ -38,12 +38,12 @@ httpd_handle_vfs_send_header (void)
     /* Check whether the file is gzip compressed. */
 #ifndef VFS_TEENSY
     unsigned char buf[2];
-    if (VFS_HAVE_FUNC (state->fd, fseek)) {
+    if (VFS_HAVE_FUNC (STATE->fd, fseek)) {
 	/* Rewind stream first, might be a rexmit */
-	vfs_rewind (state->fd);
+	vfs_rewind (STATE->fd);
 
-	vfs_read (state->fd, buf, 2);
-	vfs_rewind (state->fd);
+	vfs_read (STATE->fd, buf, 2);
+	vfs_rewind (STATE->fd);
     } else
 	goto no_gzip;
 
@@ -51,6 +51,7 @@ httpd_handle_vfs_send_header (void)
 #endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	PASTE_P (httpd_header_gzip);
 
+no_gzip:
     if (STATE->content_type == 'X')
 	PASTE_P (httpd_header_ct_xhtml);
     else if (STATE->content_type == 'S')
