@@ -68,7 +68,7 @@ extern char httpd_header_end[];
 #define PASTE_RESET()   (((unsigned char *)uip_appdata)[0] = 0)
 #define PASTE_P(a)      strcat_P(uip_appdata, a)
 #define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
-				  PSTR ("%u\n"), a)
+				  PSTR ("%lu\n"), a)
 #define PASTE_LEN_P(a)  PASTE_LEN(strlen_P(a))
 
 /* FIXME maybe check uip_mss and emit warning on debugging console. */
