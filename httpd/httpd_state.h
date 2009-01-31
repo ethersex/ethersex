@@ -32,13 +32,22 @@ typedef enum {
 } http_state_t;
 
 struct httpd_connection_state_t {
+    unsigned header_acked		: 1;
+    unsigned eof			: 1;
+
     /* The associated connection handler function */
     void (* handler)();
 
 #ifdef VFS_SUPPORT
+    /* The VFS file handle. */
     struct vfs_file_handle_t *fd;
-    vfs_size_t len;
-#endif
+
+    /* Content-type identifier char. */
+    unsigned char content_type;
+
+    vfs_size_t acked, sent;
+#endif	/* VFS_SUPPORT */
+
 #ifdef ECMD_PARSER_SUPPORT
     uint8_t parse_again;
 #endif

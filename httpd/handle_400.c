@@ -29,13 +29,11 @@ httpd_handle_400 (void)
 	return;
     }
 
-    if (uip_poll ())
-	return;
-
     PASTE_RESET ();
     PASTE_P (httpd_header_400);
     PASTE_P (httpd_header_length);
     PASTE_LEN_P (httpd_body_400);
+    PASTE_P (httpd_header_end);
     PASTE_P (httpd_body_400);
     PASTE_SEND ();
 }

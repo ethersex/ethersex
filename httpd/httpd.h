@@ -37,11 +37,13 @@
 #define ECMD_INDEX "ecmd"
 
 /* prototypes */
-void httpd_init(void);
-void httpd_main(void);
+void httpd_init (void);
+void httpd_main (void);
+void httpd_cleanup (void);
 
 void httpd_handle_400 (void);
 void httpd_handle_404 (void);
+void httpd_handle_vfs (void);
 
 
 /* headers */
@@ -58,14 +60,16 @@ extern char httpd_body_400[];
 extern char httpd_header_404[];
 extern char httpd_body_404[];
 extern char httpd_header_length[];
+extern char httpd_header_end[];
 
 #include <stdio.h>
 #include <avr/pgmspace.h>
 
 #define PASTE_RESET()   (((unsigned char *)uip_appdata)[0] = 0)
 #define PASTE_P(a)      strcat_P(uip_appdata, a)
-#define PASTE_LEN_P(a)  sprintf_P(uip_appdata + strlen(uip_appdata),	\
-				  PSTR ("%u\n\n"), strlen_P(a))
+#define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+				  PSTR ("%u\n"), a)
+#define PASTE_LEN_P(a)  PASTE_LEN(strlen_P(a))
 
 /* FIXME maybe check uip_mss and emit warning on debugging console. */
 #define PASTE_SEND()    uip_send(uip_appdata, strlen(uip_appdata))

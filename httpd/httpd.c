@@ -51,15 +51,15 @@ httpd_init(void)
 
 
 
-static inline void
+void
 httpd_cleanup (void)
 {
 #ifdef VFS_SUPPORT
-    if (state->fd) {
+    if (STATE->fd) {
 	printf("httpd: cleaning left-over vfs-handle at %p.\n", state->fd);
 
-	vfs_close (state->fd);
-	state->fd = NULL;
+	vfs_close (STATE->fd);
+	STATE->fd = NULL;
     }
 #endif	/* VFS_SUPPORT */
 }
@@ -91,9 +91,24 @@ httpd_handle_input (void)
 
     *ptr = 0;			/* Terminate filename. */
 
-    /* FIXME no functionality yet, just send 404. */
+    /* Keep content-type identifing char. */
+    STATE->content_type = *filename;
+
+#ifdef VFS_SUPPORT
+    STATE->fd = vfs_open (filename);
+    if (STATE->fd) {
+      printf ("httpd: VFS got it, serving %ld bytes!\n", vfs_size (STATE->fd));
+      STATE->handler = httpd_handle_vfs;
+      return;
+    }
+#endif	/* VFS_SUPPORT */
+
+
+    /* Fallback, send 404. */
     STATE->handler = httpd_handle_404;
 }
+
+
 
 void
 httpd_main(void)
@@ -113,6 +128,7 @@ httpd_main(void)
 
 	/* initialize struct */
 	STATE->handler = NULL;
+	STATE->header_acked = 0;
     }
 
     if (uip_newdata()) {
@@ -123,8 +139,7 @@ httpd_main(void)
     if(uip_rexmit() ||
        uip_newdata() ||
        uip_acked() ||
-       uip_connected() ||
-       uip_poll()) {
+       uip_connected()) {
 
 	/* Call associated handler, if set already. */
 	if (STATE->handler)

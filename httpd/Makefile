@@ -3,6 +3,7 @@ TOPDIR = ..
 SRC = \
 	handle_400.c	\
 	handle_404.c	\
+	handle_vfs.c	\
 	headers.c	\
 	httpd.c		\
 	base64_mit.c	\

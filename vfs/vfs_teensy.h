@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #define vfs_open	vfs_inline_open
 #define vfs_read	vfs_inline_read
 #define vfs_close(i)	free(i)
+#define vfs_fseek(fh,p,w)   (((w) == SEEK_SET) ? ((fh)->u.il.pos = (p)) : -1)
 #define vfs_size(fh)	((fh)->u.il.len)
 #define vfs_rewind(fh)  ((fh)->u.il.pos = 0)
 

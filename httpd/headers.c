@@ -90,3 +90,5 @@ char PROGMEM httpd_body_404[] =
 
 char PROGMEM httpd_header_length[] = "Content-Length: ";
 
+
+char PROGMEM httpd_header_end[] = "\n";
