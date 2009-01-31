@@ -1,0 +1,92 @@
+/*
+ * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+#include "../config.h"
+#include "httpd.h"
+
+
+char PROGMEM httpd_header_200[] =
+"HTTP/1.1 200 OK\n"
+"Connection: close\n";
+
+
+char PROGMEM httpd_header_ct_css[] =
+"Content-Type: text/css; charset=iso-8859-1\n\n";
+
+
+char PROGMEM httpd_header_ct_html[] =
+"Content-Type: text/html; charset=iso-8859-1\n\n";
+
+
+char PROGMEM httpd_header_ct_xhtml[] =
+"Content-Type: application/xhtml+xml; charset=iso-8859-1\n\n";
+
+
+#ifdef ECMD_PARSER_SUPPORT
+char PROGMEM httpd_header_200_ecmd[] =
+/* Please note: this is the _whole_ header, no content-length must follow */
+"HTTP/1.1 200 OK\n"
+"Connection: close\n"
+"Cache-Control: no-cache\n"
+"Cache-Control: must-revalidate\n"
+"Content-Type: text/plain; charset=iso-8859-1\n\n";
+#endif	/* ECMD_PARSER_SUPPORT */
+
+
+char PROGMEM httpd_header_400[] =
+"HTTP/1.1 400 Bad Request\n"
+"Connection: close\n"
+"Content-Type: text/plain; charset=iso-8859-1\n";
+
+
+char PROGMEM httpd_header_gzip[] =
+"Content-Encoding: gzip\n";
+
+
+#ifdef HTTPD_AUTH_SUPPORT
+char PROGMEM httpd_header_401[] =
+"HTTP/1.1 401 UNAUTHORIZED\n"
+"Connection: close\n"
+"WWW-Authenticate: Basic realm=\"Secure Area\"\n"
+"Content-Type: text/plain; charset=iso-8859-1\n";
+
+
+char PROGMEM httpd_body_401[] =
+"Authentification required\n";
+#endif	/* HTTPD_AUTH_SUPPORT */
+
+
+char PROGMEM httpd_body_400[] =
+"Bad Request\n";
+
+
+char PROGMEM httpd_header_404[] =
+"HTTP/1.1 404 File Not Found\n"
+"Connection: close\n"
+"Content-Type: text/plain; charset=iso-8859-1\n";
+
+
+char PROGMEM httpd_body_404[] =
+"File Not Found\n";
+
+
+char PROGMEM httpd_header_length[] = "Content-Length: ";
+

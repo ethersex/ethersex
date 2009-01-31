@@ -40,4 +40,19 @@
 void httpd_init(void);
 void httpd_main(void);
 
+/* headers */
+extern char PROGMEM httpd_header_200[];
+extern char PROGMEM httpd_header_ct_css[];
+extern char PROGMEM httpd_header_ct_html[];
+extern char PROGMEM httpd_header_ct_xhtml[];
+extern char PROGMEM httpd_header_200_ecmd[];
+extern char PROGMEM httpd_header_400[];
+extern char PROGMEM httpd_header_gzip[];
+extern char PROGMEM httpd_header_401[];
+extern char PROGMEM httpd_body_401[];
+extern char PROGMEM httpd_body_400[];
+extern char PROGMEM httpd_header_404[];
+extern char PROGMEM httpd_body_404[];
+extern char PROGMEM httpd_header_length[];
+
 #endif

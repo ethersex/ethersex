@@ -1,7 +1,8 @@
 TARGET = libhttpd.a
 TOPDIR = ..
 SRC = \
-	httpd.c	\
+	headers.c	\
+	httpd.c		\
 	base64_mit.c	\
 
 ##############################################################################

@@ -33,80 +33,13 @@
 #include "../config.h"
 #include "../vfs/vfs.h"
 
+
 #ifdef DEBUG_HTTPD
 # include "../debug.h"
 # define printf        debug_printf
 #else
 # define printf(...)   ((void)0)
 #endif
-
-char PROGMEM httpd_header_200[] =
-"HTTP/1.1 200 OK\n"
-"Connection: close\n";
-
-char PROGMEM httpd_header_ct_css[] =
-"Content-Type: text/css; charset=iso-8859-1\n\n";
-
-char PROGMEM httpd_header_ct_html[] =
-"Content-Type: text/html; charset=iso-8859-1\n\n";
-
-char PROGMEM httpd_header_ct_xhtml[] =
-"Content-Type: application/xhtml+xml; charset=iso-8859-1\n\n";
-
-#ifdef ECMD_PARSER_SUPPORT
-char PROGMEM httpd_header_200_ecmd[] =
-/* {{{ */
-/* Please note: this is the _whole_ header, no content-length must follow */
-"HTTP/1.1 200 OK\n"
-"Connection: close\n"
-"Cache-Control: no-cache\n"
-"Cache-Control: must-revalidate\n"
-"Content-Type: text/plain; charset=iso-8859-1\n\n";
-/* }}} */
-#endif /* ECMD_PARSER_SUPPORT */
-
-char PROGMEM httpd_header_400[] =
-/* {{{ */
-"HTTP/1.1 400 Bad Request\n"
-"Connection: close\n"
-"Content-Type: text/plain; charset=iso-8859-1\n";
-/* }}} */
-
-char PROGMEM httpd_header_gzip[] =
-/* {{{ */
-"Content-Encoding: gzip\n";
-
-#ifdef HTTPD_AUTH_SUPPORT
-char PROGMEM httpd_header_401[] =
-/* {{{ */
-"HTTP/1.1 401 UNAUTHORIZED\n"
-"Connection: close\n"
-"WWW-Authenticate: Basic realm=\"Secure Area\"\n"
-"Content-Type: text/plain; charset=iso-8859-1\n";
-/*}}}*/
-
-char PROGMEM httpd_body_401[] =
-/*{{{*/
-"Authentification required\n";
-/*}}}*/
-#endif /* HTTPD_AUTH_SUPPORT */
-
-char PROGMEM httpd_body_400[] =
-/*{{{*/
-"Bad Request\n";
-/* }}} */
-
-char PROGMEM httpd_header_404[] =
-/* {{{ */
-"HTTP/1.1 404 File Not Found\n"
-"Connection: close\n"
-"Content-Type: text/plain; charset=iso-8859-1\n";
-
-char PROGMEM httpd_body_404[] =
-"File Not Found\n";
-/* }}} */
-
-char PROGMEM httpd_header_length[] = "Content-Length: ";
 
 
 void
