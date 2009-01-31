@@ -27,7 +27,6 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-#include "uip/psock.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"

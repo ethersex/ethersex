@@ -36,7 +36,6 @@ struct httpd_connection_state_t {
     uint8_t timeout;
     char buffer[40];
     char name[16];
-    struct psock in, out;
 
     char *tmp_buffer;
 #ifdef VFS_SUPPORT

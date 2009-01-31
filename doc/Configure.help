@@ -732,20 +732,10 @@ SENDMAIL_AUTH_SUPPORT
 
   Support for SMTP authentication.
 
-uIP Proto-Sockets
-PSOCK_SUPPORT
-  Depends on: 
-   * Networking support (UIP_SUPPORT)
-
-  Add support for Proto-Sockets.  Say yes here, if you want to enable the
-  HTTP server.
-
 HTTP Server
 HTTPD_SUPPORT
   Depends on: 
-   * uIP Proto-Sockets (PSOCK_SUPPORT)
    * TCP support (TCP_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Enable HTTP server.
 

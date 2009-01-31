@@ -24,10 +24,6 @@
 #ifndef ECMD_SENDER_STATE_H
 #define ECMD_SENDER_STATE_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
-
-
 struct ecmd_sender_connection_state_t {
     uint16_t offset;
     const char *to_be_sent;
