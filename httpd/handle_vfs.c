@@ -96,7 +96,7 @@ httpd_handle_vfs (void)
     if (!STATE->header_acked)
 	httpd_handle_vfs_send_header ();
 
-    else if (STATE->eof)
+    else if (STATE->eof && !uip_rexmit())
 	uip_close ();
 
     else
