@@ -41,10 +41,7 @@ char PROGMEM httpd_header_ct_xhtml[] =
 
 
 #ifdef ECMD_PARSER_SUPPORT
-char PROGMEM httpd_header_200_ecmd[] =
-/* Please note: this is the _whole_ header, no content-length must follow */
-"HTTP/1.1 200 OK\n"
-"Connection: close\n"
+char PROGMEM httpd_header_ecmd[] =
 "Cache-Control: no-cache\n"
 "Cache-Control: must-revalidate\n"
 "Content-Type: text/plain; charset=iso-8859-1\n\n";

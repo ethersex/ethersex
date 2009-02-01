@@ -28,7 +28,7 @@ httpd_handle_vfs_send_header (void)
     PASTE_RESET ();
     PASTE_P (httpd_header_200);
 
-    vfs_size_t len = vfs_size (STATE->fd);
+    vfs_size_t len = vfs_size (STATE->u.vfs.fd);
     if (len > 0) {
 	/* send content-length header */
 	PASTE_P (httpd_header_length);
@@ -38,12 +38,12 @@ httpd_handle_vfs_send_header (void)
     /* Check whether the file is gzip compressed. */
 #ifndef VFS_TEENSY
     unsigned char buf[2];
-    if (VFS_HAVE_FUNC (STATE->fd, fseek)) {
+    if (VFS_HAVE_FUNC (STATE->u.vfs.fd, fseek)) {
 	/* Rewind stream first, might be a rexmit */
-	vfs_rewind (STATE->fd);
+	vfs_rewind (STATE->u.vfs.fd);
 
-	vfs_read (STATE->fd, buf, 2);
-	vfs_rewind (STATE->fd);
+	vfs_read (STATE->u.vfs.fd, buf, 2);
+	vfs_rewind (STATE->u.vfs.fd);
     } else
 	goto no_gzip;
 
@@ -52,9 +52,9 @@ httpd_handle_vfs_send_header (void)
 	PASTE_P (httpd_header_gzip);
 
 no_gzip:
-    if (STATE->content_type == 'X')
+    if (STATE->u.vfs.content_type == 'X')
 	PASTE_P (httpd_header_ct_xhtml);
-    else if (STATE->content_type == 'S')
+    else if (STATE->u.vfs.content_type == 'S')
 	PASTE_P (httpd_header_ct_css);
     else
 	PASTE_P (httpd_header_ct_html);
@@ -66,8 +66,8 @@ no_gzip:
 void
 httpd_handle_vfs_send_body (void)
 {
-    vfs_fseek (STATE->fd, STATE->acked, SEEK_SET);
-    vfs_size_t len = vfs_read (STATE->fd, uip_appdata, uip_mss ());
+    vfs_fseek (STATE->u.vfs.fd, STATE->u.vfs.acked, SEEK_SET);
+    vfs_size_t len = vfs_read (STATE->u.vfs.fd, uip_appdata, uip_mss ());
 
     if (len <= 0) {
 	uip_abort ();
@@ -78,7 +78,7 @@ httpd_handle_vfs_send_body (void)
     if (len < uip_mss ())	/* Short read -> EOF */
 	STATE->eof = 1;
 
-    STATE->sent = STATE->acked + len;
+    STATE->u.vfs.sent = STATE->u.vfs.acked + len;
     uip_send (uip_appdata, len);
 }
 
@@ -87,10 +87,10 @@ httpd_handle_vfs (void)
 {
     if (uip_acked ()) {
 	if (STATE->header_acked)
-	    STATE->acked = STATE->sent;
+	    STATE->u.vfs.acked = STATE->u.vfs.sent;
 	else {
 	    STATE->header_acked = 1;
-	    STATE->acked = 0;
+	    STATE->u.vfs.acked = 0;
 	}
     }
 

@@ -55,11 +55,12 @@ void
 httpd_cleanup (void)
 {
 #ifdef VFS_SUPPORT
-    if (STATE->fd) {
-	printf("httpd: cleaning left-over vfs-handle at %p.\n", STATE->fd);
+    if (STATE->handler == httpd_handle_vfs && STATE->u.vfs.fd) {
+	printf("httpd: cleaning left-over vfs-handle at %p.\n",
+	       STATE->u.vfs.fd);
 
-	vfs_close (STATE->fd);
-	STATE->fd = NULL;
+	vfs_close (STATE->u.vfs.fd);
+	STATE->u.vfs.fd = NULL;
     }
 #endif	/* VFS_SUPPORT */
 }
@@ -94,16 +95,24 @@ httpd_handle_input (void)
     if (*filename == 0)		/* No filename, override -> index */
 	strcpy_P(filename, PSTR(HTTPD_INDEX));
 
-    /* Keep content-type identifing char. */
-    STATE->content_type = *filename;
+    uint8_t offset = strlen_P(PSTR(ECMD_INDEX "?"));
+    if (strncmp_P (filename, PSTR(ECMD_INDEX "?"), offset) == 0) {
+	httpd_handle_ecmd_setup (filename + offset);
+	return;
+    }
 
 #ifdef VFS_SUPPORT
-    STATE->fd = vfs_open (filename);
-    if (STATE->fd) {
+    /* Keep content-type identifing char. */
+    STATE->u.vfs.content_type = *filename;
+
+    STATE->u.vfs.fd = vfs_open (filename);
+    if (STATE->u.vfs.fd) {
 #ifdef VFS_TEENSY
-      printf ("httpd: VFS got it, serving %d bytes!\n", vfs_size (STATE->fd));
+      printf ("httpd: VFS got it, serving %d bytes!\n",
+	      vfs_size (STATE->u.vfs.fd));
 #else
-      printf ("httpd: VFS got it, serving %ld bytes!\n", vfs_size (STATE->fd));
+      printf ("httpd: VFS got it, serving %ld bytes!\n",
+	      vfs_size (STATE->u.vfs.fd));
 #endif
       STATE->handler = httpd_handle_vfs;
       return;

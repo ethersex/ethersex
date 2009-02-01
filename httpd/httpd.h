@@ -44,13 +44,16 @@ void httpd_handle_400 (void);
 void httpd_handle_404 (void);
 void httpd_handle_vfs (void);
 
+void httpd_handle_ecmd_setup (char *encoded_cmd);
+void httpd_handle_ecmd (void);
+
 
 /* headers */
 extern char httpd_header_200[];
 extern char httpd_header_ct_css[];
 extern char httpd_header_ct_html[];
 extern char httpd_header_ct_xhtml[];
-extern char httpd_header_200_ecmd[];
+extern char httpd_header_ecmd[];
 extern char httpd_header_400[];
 extern char httpd_header_gzip[];
 extern char httpd_header_401[];

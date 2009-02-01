@@ -24,6 +24,7 @@
 #define _ECMD_H
 
 #include "../config.h"
+#include <inttypes.h>
 
 /* returns >= 0 for output, -1 for parse error,
  * < -10 for "generated output, but needs to be caled again,
