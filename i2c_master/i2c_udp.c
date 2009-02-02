@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007,2008 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -22,13 +23,15 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <util/twi.h>
 #include "../net/i2c_state.h"
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
 #include "../config.h"
-#include "i2c.h"
+#include "i2c_master.h"
+#include "i2c_udp.h"
 
-#ifdef I2C_SUPPORT
+#ifdef I2C_UDP_SUPPORT
 
 /* constants */
 #if defined(ENC28J60_SUPPORT)
@@ -53,32 +56,8 @@ enum datalen {
   READFROMI2C
 };
 
-static void 
-i2c_wait_int()
-{
-  while( (TWCR & _BV(TWINT)) == 0);
-}
-
-static uint8_t
-    i2c_send ( uint8_t sendbyte )
-{
-  TWDR = sendbyte;
-  TWCR |= _BV(TWINT);
-  i2c_wait_int();
-  return (TWSR & 0xF8);
-}
-
-// static void
-//     i2c_send_buffer_immediate(void)
-// {
-//   //uip_send(&i2ctx, I2C_DATAOFFSET);
-//   uip_process(UIP_UDP_SEND_CONN);
-//   fill_llh_and_transmit();
-//   uip_slen = 0;
-// }
-
 static void
-    reset_connection(uip_udp_conn_t *i2c_conn)
+reset_connection(uip_udp_conn_t *i2c_conn)
 {
   uip_ipaddr_copy(i2c_conn->ripaddr, all_ones_addr);
   i2c_conn->rport = 0;
@@ -86,35 +65,17 @@ static void
   i2c_conn->appstate.i2c.last_seqnum = 0;
 }
 
-static void
-    i2c_port_init(void)
-{
-  TWCR = 0;
-  /* max speed 400khz (problematisch)  ~(_BV(TWPS0) | _BV(TWPS1)) BR = 16
-  speed 100khz (normal) _BV(TWPS0) BR = 92 */
-  //TWSR &= ~(_BV(TWPS0) | _BV(TWPS1));
-#if F_CPU > 10000000
-  TWSR |= _BV(TWPS0);
-  TWBR = 92;
-#else
-  TWBR = 52; //max speed for twi bei 8mhz, ca 100khz by 12Mhz Crystal
-  PORTC |= _BV(PC4) | _BV(PC5); //enable pullup vor i2c
-#endif
-  //TWCR |= _BV(TWEN);
-}
-
 void 
-    i2c_core_init(uip_udp_conn_t *i2c_conn)
+i2c_udp_init(uip_udp_conn_t *i2c_conn)
 {
-  i2c_port_init();
   reset_connection(i2c_conn);
 }
 
 void
-    i2c_core_periodic(void)
+i2c_udp_periodic(void)
 {
   if(STATSI2C.timeout == 1){
-    TWCR = 0;
+    i2c_master_disable();
     reset_connection(uip_udp_conn);
     /* FIXME:   PORTC &= ~_BV(PC2); */
   }
@@ -123,11 +84,10 @@ void
     
   /* error detection on i2c bus */
   if((TWSR & 0xF8) == 0x00)
-    TWCR = 0;
-    //i2c_port_init();
+    i2c_master_disable();
 }
 
-void i2c_core_newdata(void)
+void i2c_udp_newdata(void)
 {
 	
   struct i2c_t *REQ = uip_appdata;
@@ -137,6 +97,8 @@ void i2c_core_newdata(void)
   * und antwort paket senden mit der maximalen pufferlaenge (i2c open)
                 */
   uint8_t resetconnection = 0;
+  uint8_t error = 0;
+
   if(STATSI2C.last_seqnum == 0){
     uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
     uip_udp_conn->rport = BUF->srcport;
@@ -154,33 +116,13 @@ void i2c_core_newdata(void)
     if(STATSI2C.last_seqnum == 0)
     {
       /* sende startcondition und adresse wenn kein paket vorher da war (last_seqnum = 0) */
-      TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);
-      i2c_wait_int();
-      uint8_t TWSRtmp = (TWSR & 0xF8);
-      if(TWSRtmp == 0x08 || TWSRtmp == 0x10)
-      {
-        TWCR = _BV(TWEN);
-        TWSRtmp = i2c_send ( REQ->i2c_addr_rw );
-        //TWCR = _BV(TWINT) | _BV(TWEN);
-        //i2c_wait_int();
-        //            revc code          send code ack      send code nack
-        if(TWSRtmp != 0x40 && TWSRtmp != 0x18 && TWSRtmp != 0x20)
-        {
-          TWCR = 0;
-          uip_slen = 1;
-          resetconnection = 1;
-        }
-      }
-      else
-      {
-        TWCR = 0;
-        uip_slen = 1;
-        resetconnection = 1;
-      }
+      uint8_t mode = REQ->i2c_addr_rw & 0x01;
+      uint8_t addr = (REQ->i2c_addr_rw & 0xfe) >> 1;
+      if (! i2c_master_select(addr, mode)) 
+        error = 1;
     }
     if(!resetconnection){
-      uint8_t TWSRtmp;
-      if((REQ->i2c_addr_rw & 0x01) == 1)
+      if((REQ->i2c_addr_rw & 0x01) == TW_READ)
       {
         uint8_t tmp_datalen = REQ->datalen;
         uint8_t tmp_datapos = 0;
@@ -190,44 +132,39 @@ void i2c_core_newdata(void)
         
         while (tmp_datapos < tmp_datalen)
         {
-          if(tmp_datapos == (tmp_datalen - 1) && REQ->seqnum == 0)
-            TWCR = _BV(TWINT) | _BV(TWEN);
-          else
-          {
-            TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWEA);
+          if (tmp_datapos == (tmp_datalen - 1) && REQ->seqnum == 0) {
+            /* letztest Byte, wir erwarten ein NACK */
+            if (i2c_master_transmit() != TW_MR_DATA_NACK)  {
+              error = 1;
+              break;
+            }
+          } else {
+            if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) {
+              error = 1;
+              break;
+            }
           }
-          i2c_wait_int();
-          TWSRtmp = (TWSR & 0xF0);
-          if(TWSRtmp == 0x50 ){
-            REQ->readdata[tmp_datapos++] = TWDR;
-          }
-          else{
-            uip_slen = 1;
-            resetconnection = 1;
-            break;
-          }
+          REQ->readdata[tmp_datapos++] = TWDR;
         }
-        if(REQ->seqnum == 0){
-          TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+        if(REQ->seqnum == 0) {
+          i2c_master_stop();
           resetconnection = 1;
         }
         uip_slen = tmp_datalen + 1;
-      }
-      else
-      {
+      } else { /* TW_WRITE */
         if(STATSI2C.last_seqnum == 0 || REQ->seqnum != STATSI2C.last_seqnum)
         {
           uint8_t tmp_datapos = 0;
   
-          while (tmp_datapos < uip_datalen() - 2){
-            TWSRtmp = i2c_send ( REQ->writedata[tmp_datapos++] );
+          while (tmp_datapos < uip_datalen() - 2) {
+            TWDR = REQ->writedata[tmp_datapos++];
             /* fehler protokollieren */
-            if(TWSRtmp != 0x28){
+            if (i2c_master_transmit() != TW_MT_DATA_ACK) {
               break;
             }
           }
           if(REQ->seqnum == 0){
-            TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+            i2c_master_stop();
             resetconnection = 1;
           }
           REQ->write_datalen_ack = tmp_datapos;
@@ -238,6 +175,11 @@ void i2c_core_newdata(void)
       }
     }
   }
+  if (error) {
+    i2c_master_disable();
+    uip_slen = 1;
+    resetconnection = 1;
+  }
   if(!resetconnection){
     STATSI2C.last_seqnum = REQ->seqnum;
     STATSI2C.timeout = 25;
@@ -245,8 +187,9 @@ void i2c_core_newdata(void)
   uip_process(UIP_UDP_SEND_CONN);
   router_output();
   uip_slen = 0;
-  if(resetconnection)
+  if(resetconnection) 
     reset_connection(uip_udp_conn);
+
 }
 
-#endif
+#endif /* I2C_UDP_SUPPORT */

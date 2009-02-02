@@ -19,11 +19,38 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_NET_H
-#define _I2C_NET_H
+#include "../uip/uip.h"
+#include "../config.h"
+#include "../i2c_master/i2c_udp.h"
+#include "i2c_udp_net.h"
 
-/* prototypes */
-void i2c_net_init(void);
-void i2c_net_main(void);
+#ifdef I2C_UDP_SUPPORT
+
+void 
+i2c_udp_net_init(void)
+{
+	uip_ipaddr_t ip;
+	uip_ipaddr_copy(&ip, all_ones_addr);
+	
+	uip_udp_conn_t *i2c_conn = uip_udp_new(&ip, 0, i2c_udp_net_main);
+	
+	if(! i2c_conn) 
+		return;					/* keine udp connection !? */
+	
+	uip_udp_bind(i2c_conn, HTONS(I2C_PORT));
+
+	// Init the I2C Code
+        i2c_udp_init(i2c_conn);
+	
+}
+
+void
+i2c_udp_net_main(void)
+{
+  if (uip_poll()) 
+    i2c_udp_periodic();
+  if (uip_newdata())
+    i2c_udp_newdata();
+}
 
 #endif

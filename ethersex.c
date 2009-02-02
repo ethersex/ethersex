@@ -68,6 +68,7 @@
 #include "i2c_master/i2c_master.h"
 #include "i2c_master/i2c_24CXX.h"
 #include "i2c_master/i2c_lm75.h"
+#include "vfs/vfs.h"
 
 #include "bit-macros.h"
 
@@ -207,6 +208,10 @@ int main(void)
 
 #ifdef I2C_24CXX_SUPPORT
     i2c_24CXX_init();
+#endif
+
+#ifdef VFS_EEPROM_SUPPORT
+    vfs_eeprom_init();
 #endif
 
 /* End of the I2C Master Stuff */

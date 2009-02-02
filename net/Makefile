@@ -8,7 +8,7 @@ SRC = \
 	ecmd_sender_net.c \
 	uecmd_sender_net.c \
 	handler.c \
-	i2c_net.c \
+	i2c_udp_net.c \
 	mdns_sd_net.c \
 	ntpd_net.c \
 	ntp_net.c \

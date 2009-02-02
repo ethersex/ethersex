@@ -20,19 +20,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef VFS_EEPROM_H
-#define VFS_EEPROM_H
+#ifndef VFS_EEPROM_RAW_H
+#define VFS_EEPROM_RAW_H
 
 #include <stdlib.h>
-#include "../i2c_master/sfs.h"
+#include "vfs_eeprom.h"
 
 typedef struct {
-  sfs_inode_t inode; /* Points to the Block*/
+  vfs_eeprom_inode_t inode; /* Points to the Block*/
   uint8_t end;
 
 } vfs_file_handle_eeprom_raw_t;
 
-/* vfs_df_ Prototypes. */
+/* vfs_eeprom_raw_ Prototypes. */
 struct vfs_file_handle_t *vfs_eeprom_raw_open (const char *filename);
 void vfs_eeprom_raw_close (struct vfs_file_handle_t *);
 vfs_size_t vfs_eeprom_raw_read  (struct vfs_file_handle_t *, void *buf,

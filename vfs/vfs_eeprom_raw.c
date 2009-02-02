@@ -58,18 +58,18 @@ vfs_size_t
 vfs_eeprom_raw_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
   if (fh->u.ee_raw.end) return 0;
-  if (length > SFS_BLOCK_SIZE) 
-    length = SFS_BLOCK_SIZE;
-  length = i2c_24CXX_read_block(fh->u.ee_raw.inode * SFS_BLOCK_SIZE, buf, length);
+  if (length > SFS_PAGE_SIZE) 
+    length = SFS_PAGE_SIZE;
+  length = i2c_24CXX_read_block(fh->u.ee_raw.inode * SFS_PAGE_SIZE, buf, length);
   return length;
 }
 
 vfs_size_t
 vfs_eeprom_raw_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  if (length > SFS_BLOCK_SIZE) 
-    length = SFS_BLOCK_SIZE;
-  length = i2c_24CXX_write_block(fh->u.ee_raw.inode * SFS_BLOCK_SIZE, buf, length);
+  if (length > SFS_PAGE_SIZE) 
+    length = SFS_PAGE_SIZE;
+  length = i2c_24CXX_write_block(fh->u.ee_raw.inode * SFS_PAGE_SIZE, buf, length);
   return length;
 }
 

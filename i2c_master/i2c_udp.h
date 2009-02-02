@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 by Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -40,8 +41,8 @@ enum i2c_request_type {
 #define I2C_DATAOFFSET 4
 
 /* prototypes */
-void i2c_core_init (uip_udp_conn_t *i2c_conn);
-void i2c_core_periodic (void);
-void i2c_core_newdata (void);
+void i2c_udp_init (uip_udp_conn_t *i2c_conn);
+void i2c_udp_periodic (void);
+void i2c_udp_newdata (void);
 
 #endif

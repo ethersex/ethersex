@@ -13,11 +13,10 @@ void
 i2c_master_init(void)
 {
     TWSR = 0;       // Vorteiler  Bitrate = 0
-    TWBR = (F_CPU / I2C_MASTER_BAUDRATE - 16) / 2;  // Frequenz setzen
+    TWBR = ((F_CPU / 1000) / CONF_I2C_BAUD - 16) / 2;  // Frequenz setzen
     /* Enable the i2c pullups */
     PIN_SET(SDA);
     PIN_SET(SCL);
-    i2c_master_enable();
 }
 
 uint8_t
@@ -59,22 +58,28 @@ i2c_master_stop(void)
 {
     TWCR=((1<<TWEN)|(1<<TWINT)|(1<<TWSTO));     // Stopbedingung senden
     while (!(TWCR & (1<<TWSTO)));               // warten bis TWI fertig
+    i2c_master_disable(); 
 }
 
 /* failure, if return == 0 */
 uint8_t
 i2c_master_select(uint8_t address, uint8_t mode)
 {
+  i2c_master_enable();
   #ifdef DEBUG_I2C
     debug_printf("i2c master select adr+mode 0x%X\n", (address << 1) | mode);
   #endif
-    /* Start Condition */
-    if (i2c_master_do ((1<<TWINT)|(1<<TWSTA)|(1<<TWEN)) != TW_START) return 0; 
+
+    /* Start Condition, test on start or repeated start */
+    uint8_t tmp = i2c_master_start();
+    if (tmp != TW_START && tmp != TW_REP_START) return 0; 
     /* address chip */
     TWDR = (address << 1) | mode;
-    if (i2c_master_do ((1<<TWINT)|(1<<TWEN)) != TW_MT_SLA_ACK) 
-      return 0; 
-    return 1; 
+    tmp = i2c_master_do ((1<<TWINT)|(1<<TWEN));
+    if ((mode == TW_WRITE && tmp == TW_MT_SLA_ACK) 
+       || (mode == TW_READ &&  tmp == TW_MR_SLA_ACK))
+      return 1; 
+    return 0; 
 }
 
 #endif /* I2C_MASTER_SUPPORT */

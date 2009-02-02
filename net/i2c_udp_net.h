@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007,2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,38 +19,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../uip/uip.h"
-#include "../config.h"
-#include "../i2c/i2c.h"
-#include "i2c_net.h"
+#ifndef _I2C_UDP_NET_H
+#define _I2C_UDP_NET_H
 
-#ifdef I2C_SUPPORT
-
-void 
-i2c_net_init(void)
-{
-	uip_ipaddr_t ip;
-	uip_ipaddr_copy(&ip, all_ones_addr);
-	
-	uip_udp_conn_t *i2c_conn = uip_udp_new(&ip, 0, i2c_net_main);
-	
-	if(! i2c_conn) 
-		return;					/* keine udp connection !? */
-	
-	uip_udp_bind(i2c_conn, HTONS(I2C_PORT));
-
-	// Init the I2C Code
-        i2c_core_init(i2c_conn);
-	
-}
-
-void
-i2c_net_main(void)
-{
-  if (uip_poll()) 
-    i2c_core_periodic();
-  if (uip_newdata())
-    i2c_core_newdata();
-}
+/* prototypes */
+void i2c_udp_net_init(void);
+void i2c_udp_net_main(void);
 
 #endif
