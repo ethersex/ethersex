@@ -162,8 +162,6 @@ dep_bool "  Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUP
 
 dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "named_pin/config"
 
-source i2c/config.in
-
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
