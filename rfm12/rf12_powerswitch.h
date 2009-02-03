@@ -25,7 +25,7 @@
 #define __RF12_POWERSWITCH_H
 
 void rf12_powerswitch_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
-void rf12_powerswitch_22772_send(uint8_t *, uint8_t, uint8_t);
+void rf12_powerswitch_2272_send(uint8_t *, uint8_t, uint8_t);
 void rf12_powerswitch_receiver_init(void);
 void rf12_powerswitch_receiver_deinit(void);
 
