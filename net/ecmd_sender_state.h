@@ -26,11 +26,13 @@
 
 #include "../uip/psock.h"
 #include "../pt/pt.h"
+#include "ecmd_sender_net.h"
 
 
 struct ecmd_sender_connection_state_t {
     uint16_t offset;
     const char *to_be_sent;
+    client_return_text_callback_t callback;
 };
 
 #endif
