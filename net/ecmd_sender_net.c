@@ -34,11 +34,12 @@
 /* module local prototypes */
 
 uip_conn_t *
-ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
+ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data, client_return_text_callback_t callback)
 {
   uip_conn_t *conn = uip_connect(ipaddr, HTONS(2701), ecmd_sender_net_main);
   if (conn) {
     conn->appstate.ecmd_sender.to_be_sent = pgm_data;
+    conn->appstate.ecmd_sender.callback = callback;
     conn->appstate.ecmd_sender.offset = 0;
   }
   return conn;
@@ -50,17 +51,27 @@ void ecmd_sender_net_main(void)
   uint8_t len;
   struct ecmd_sender_connection_state_t *state = &uip_conn->appstate.ecmd_sender;
 
+  if(uip_newdata() && uip_len > 0 ) { //&& !uip_connected()) {
+    if (state->callback != NULL) {
+      state->callback(uip_appdata, uip_len);
+      state->callback = NULL;
+    }
+    uip_close();    
+  }
+  
 
   if(uip_acked()) {
     if (strlen_P(state->to_be_sent + state->offset) > sizeof(buffer))
       state->offset += sizeof(buffer);
-    else
+    else {
       /* buffer transmitted, close connection */
-      uip_close();
+      //state->callback = NULL;
+      //uip_close();
+    }
   }
 
   if(uip_rexmit() ||
-     uip_newdata() ||
+//     uip_newdata() ||
      uip_acked() ||
      uip_connected() ||
      uip_poll()) {
