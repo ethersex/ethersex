@@ -709,9 +709,9 @@ uip_process(u8_t flag)
          uip_connr->tcpstateflags = UIP_CLOSED;
 
          /* We call UIP_APPCALL() with uip_flags set to
-            UIP_CLOSE to inform the application that the
+            UIP_TIMEDOUT to inform the application that the
             connection has been closed due inactivity. */
-         uip_flags = UIP_CLOSE;
+         uip_flags = UIP_TIMEDOUT;
          UIP_APPCALL();
 
          /* We also send a reset packet to the remote host. */
