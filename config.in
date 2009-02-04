@@ -97,6 +97,12 @@ else
 fi
 
 dep_bool 'Enable IP forwarding' IP_FORWARDING_SUPPORT $ROUTER_SUPPORT
+
+dep_bool 'Enable TCP inactivity timeout' UIP_TIMEOUT_SUPPORT $UIP_SUPPORT
+if [ "$UIP_TIMEOUT_SUPPORT" = "y" ]; then
+  int "  TCP inactivity timeout (in minutes)" UIP_TIMEOUT_COUNT 10
+fi
+
 if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
   ipv6 "Default Router" CONF_ETHERRAPE_GATEWAY "2001:6f8:1209:f0::1"
 elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then

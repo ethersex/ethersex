@@ -1245,6 +1245,10 @@ struct __uip_conn {
   u8_t nrtx;          /**< The number of retransmissions for the last
 			 segment sent. */
 
+#ifdef UIP_TIMEOUT_SUPPORT
+  u16_t timeout;       /** < The connection timeout timer */
+#endif
+
   /** The application state. */
   uip_tcp_appstate_t appstate;
 
@@ -1255,6 +1259,12 @@ struct __uip_conn {
   u8_t stack;
 #endif
 };
+
+/** 
+ * Timeouts for a TCP Connection 
+ */
+
+#define UIP_TCP_TIMEOUT  (UIP_TIMEOUT_COUNT * 60 * 5) /* n minutes */
 
 /**
  * Pointer to the current TCP connection.

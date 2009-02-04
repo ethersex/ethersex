@@ -496,6 +496,11 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   conn->wnd = 0; /* unset the personal window size for this connection */
   conn->lport = htons(lastport);
   conn->rport = rport;
+
+#ifdef UIP_TIMEOUT_SUPPORT
+  conn->timeout = UIP_TCP_TIMEOUT;
+#endif 
+
   uip_ipaddr_copy(&conn->ripaddr, ripaddr);
 
   /* Add callback to connection */
@@ -696,6 +701,24 @@ uip_process(u8_t flag)
 	uip_connr->tcpstateflags = UIP_CLOSED;
       }
     } else if(uip_connr->tcpstateflags != UIP_CLOSED) {
+      /* Decrease the connection inactive timer */
+#ifdef UIP_TIMEOUT_SUPPORT
+       uip_connr->timeout--;
+       if (uip_connr->timeout == 0) {
+         UIP_LOG("tcp connection timeout");
+         uip_connr->tcpstateflags = UIP_CLOSED;
+
+         /* We call UIP_APPCALL() with uip_flags set to
+            UIP_CLOSE to inform the application that the
+            connection has been closed due inactivity. */
+         uip_flags = UIP_CLOSE;
+         UIP_APPCALL();
+
+         /* We also send a reset packet to the remote host. */
+         BUF->flags = TCP_RST | TCP_ACK;
+         goto tcp_send_nodata;
+       }
+#endif 
       /* If the connection has outstanding data, we increase the
 	 connection's timer and see if it has reached the RTO value
 	 in which case we retransmit. */
@@ -1296,6 +1319,10 @@ ip_check_end:
   uip_connr->snd_nxt[3] = iss[3];
   uip_connr->len = 1;
 
+#ifdef UIP_TIMEOUT_SUPPORT
+  uip_connr->timeout = UIP_TCP_TIMEOUT;
+#endif
+
   /* rcv_nxt should be the seqno from the incoming packet + 1. */
   uip_connr->rcv_nxt[3] = BUF->seqno[3];
   uip_connr->rcv_nxt[2] = BUF->seqno[2];
@@ -1625,9 +1652,21 @@ ip_check_end:
        send, uip_len must be set to 0. */
     if(uip_flags & (UIP_NEWDATA | UIP_ACKDATA)) {
       uip_slen = 0;
+#ifdef UIP_TIMEOUT_SUPPORT
+      if (uip_len != 0) {
+        uip_connr->timeout = UIP_TCP_TIMEOUT; /* Reset the connection timeout, 
+                                                 cause we received data */
+      }
+#endif 
       UIP_APPCALL();
 
     appsend:
+#ifdef UIP_TIMEOUT_SUPPORT
+      if (uip_slen != 0) {
+        uip_connr->timeout = UIP_TCP_TIMEOUT; /* Reset the connection timeout,
+                                                 cause we want to send data */
+      }
+#endif 
       
       if(uip_flags & UIP_ABORT) {
 	uip_slen = 0;
