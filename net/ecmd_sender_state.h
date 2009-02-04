@@ -27,11 +27,12 @@
 #include "../uip/psock.h"
 #include "../pt/pt.h"
 #include "ecmd_sender_net.h"
-
+#include <avr/io.h>
+#include <avr/pgmspace.h>
 
 struct ecmd_sender_connection_state_t {
-    uint16_t offset;
-    const char *to_be_sent;
+    uint16_t sent;
+    PGM_P to_be_sent;
     client_return_text_callback_t callback;
 };
 
