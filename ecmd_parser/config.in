@@ -3,6 +3,9 @@ comment "Etherrape Control Interface (ECMD)"
   bool "ECMD support" ECMD_PARSER_SUPPORT
   dep_bool "TCP/Telnet interface" ECMD_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
   dep_bool "UDP interface" UECMD_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
+if [ "$ECMD_SUPPORT" = "y" -o "$UECMD_SUPPORT" = "y" ]; then
+  int "  Set ECMD Port" ECMD_NET_PORT 2701
+fi
   dep_bool "I2C interface" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL 
   dep_bool "USB interface" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
 

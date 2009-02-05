@@ -23,8 +23,6 @@
 #ifndef ECMD_NET_H
 #define ECMD_NET_H
 
-#define ECMD_NET_PORT 2701
-
 void ecmd_net_init(void);
 void ecmd_net_main(void);
 

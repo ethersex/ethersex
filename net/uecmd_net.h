@@ -23,7 +23,7 @@
 #ifndef UECMD_NET_H
 #define UECMD_NET_H
 
-#define UECMD_NET_PORT 2701
+#define UECMD_NET_PORT ECMD_NET_PORT
 
 void uecmd_net_init(void);
 void uecmd_net_main(void);
