@@ -46,7 +46,6 @@
 #include "mcuf/mcuf.h"
 #include "modbus/modbus.h"
 #include "zbus/zbus.h"
-#include "net/ecmd_sender_net.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -56,10 +55,6 @@ uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
 unsigned short rfm12_t_status = 0;
 extern uint8_t RFM12_akt_status;
 #endif
-
-void tcb(char *text, uint8_t len){
-  syslog_sendf("timer callback %d: %s", len, text);
-}
 
 void timer_init(void)
 /* {{{ */ {
@@ -231,16 +226,6 @@ void timer_process(void)
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
-
-uip_ipaddr_t ipaddr;
-//2001:06f8:1209:00f0:aede:48ff:fe3b:ee52
-uip_ip6addr(&ipaddr, 0x2001, 0x6f8, 0x1209, 0xf0, 0xaede, 0x48ff, 0xfe3b, 0xee52);
-ecmd_sender_send_command(&ipaddr, PSTR("io get port 0"), &tcb);
-
-// 2001:6f8:1209:23:0:2:ffab:ee52
-//uip_ip6addr(&ipaddr, 0x2001, 0x6f8, 0x1209, 0x23, 0x0, 0x2, 0xffab, 0xee52);
-//uecmd_sender_send_command(&ipaddr, PSTR("io get port 0"), &tcb); 
-
 #           ifdef DEBUG_TIMER
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif
