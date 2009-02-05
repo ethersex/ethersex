@@ -108,7 +108,8 @@ divert(-1)
 define(`CONTROL_START', `divert(action_table_divert)struct action action_threads[] = {
 divert(timer_divert)uint32_t timers[] = {
 divert(init_divert)void control6_init(void) {
-divert(normal_start_divert)void control6_run(void) {')
+divert(normal_start_divert)void control6_run(void) { dnl
+divert(normal_divert)')
 define(`CONTROL_END', `divert(control_end_divert)
 }
 divert(timer_divert)
