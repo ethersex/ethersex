@@ -406,6 +406,7 @@ ${var}:\\
 #
 function help () {
 	if [ "x$1" = "x:" ]; then shift; fi
+	if [ "x$1" = "ximpossible_ret_cb" ]; then shift; fi
 	if extract_help $1 >help.out
 	then
 		$DIALOG	--backtitle "$backtitle" --title "$2"\
