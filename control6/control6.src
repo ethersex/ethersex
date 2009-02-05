@@ -1,18 +1,63 @@
+enum sensor { Kessel,Vorlauf,Wasser,WasserRuecklauf,WasserZulauf,AussenNord,Ruecklauf,Ofen };
+
 CONTROL_START
-  
-  PIN_INPUT(TASTER)
-  PIN_PULLUP(TASTER)
-  PIN_OUTPUT(LED)
 
-  ACTION(nice_action)
-      TIMER_START(new)
-      PIN_SET(LED);
-      TIMER_WAIT(new, 5)
-      PIN_CLEAR(LED);
-  ACTION_END(nice_action)
+dnl // dnl ist der kommentar fuer m4. Zum aktivieren der beispiele einfach das dnl entfernen.
 
-  ON CLOCK_MIN == 1 DO ACTION_RESTART(nice_action) END
-  ON PIN_FALLING(TASTER) DO ACTION_RESTART(nice_action) END
+dnl  // dieses Beispiel zeigt anhand meiner Heizungssteuerung wie man zeitverzoegert die Wasserheizung
+dnl  // schaltet. Das geschieht bei einer Temperatur groesser als 55,0 Grad und nur zwischen 6 und 11 Uhr 
+dnl  THREAD(warmwasser_high)
+dnl      WAIT(60 * 15);
+dnl      PIN_SET(Warmwasser);
+dnl      THREAD_WAIT(warmwasser_high);
+dnl  THREAD_END(warmwasser_high)
+dnl  ON CLOCK_MIN && ( CLOCK_HOUR > 11 || CLOCK_HOUR < 6 ) && KTY_GET(Wasser) > 550 DO THREAD_START(warmwasser_high) END
+
+dnl  // das Beispiel zeigt wie man sofort (einmal in der Minute) auf auf die Wassertemperatur reagiert und schaltet
+dnl  // der Pinname "Warmwasser" stammt aus der Konfig vom named_pin
+dnl  ON CLOCK_MIN && CLOCK_HOUR > 6 && CLOCK_HOUR < 19 && KTY_GET(Wasser) < 400 DO 
+dnl    PIN_CLEAR(Warmwasser);
+dnl  END
+
+dnl  // ein Thread der in einer Endlosschleife mit 5 Sekunden Verzoegerung laeuft 
+dnl  // definiert eine globale Variable
+dnl  GLOBAL(lastzulauf, uint16_t);
+dnl  THREAD(zulauf)
+dnl    ON ADC_GET(WasserZulauf) < (lastzulauf - 1) DO
+dnl      //sendet ein ecmd an ein anderes ethersex
+dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 0 1 0\n");
+dnl      WAIT(120);
+dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 0 0 0\n");
+dnl      lastzulauf = ADC_GET(WasserZulauf);
+dnl    END
+dnl    ON ADC_GET(4) > lastzulauf DO
+dnl	lastzulauf = ADC_GET(WasserZulauf);
+dnl    END
+dnl    WAIT(5)
+dnl  THREAD_END(zulauf)
+
+dnl  ON STARTUP DO
+dnl      THREAD_START(zulauf);
+dnl  END
+
+dnl  // schaltet morgens um 6 Uhr die Heizung ein wenn es draussen weniger als 3 Grad hat
+dnl  ON CLOCK_MIN == 0 && CLOCK_HOUR == 6 && KTY_GET(AussenNord) < 30 DO
+dnl    PIN_CLEAR(Heizung);
+dnl  END
+
+dnl  // reagiert sofort auf eine fallende Flanke am Eingangspin
+dnl  ON PIN_FALLING(Heizzirkulationspumpe) DO
+dnl    UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 1 0\n");
+dnl  END
+dnl  ON PIN_RISING(Heizzirkulationspumpe) DO
+dnl    UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 0 0\n");
+dnl  END
+dnl  // alle 10 Minuten wird geprueft ob der Pin low ist und ggf ein ecmd gesendet
+dnl  ON CLOCK_MIN % 10 == 0 DO
+dnl    ON PIN_LOW(Heizzirkulationspumpe) DO
+dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 1 0\n");
+dnl    END
+dnl  END
 
 CONTROL_END
 
