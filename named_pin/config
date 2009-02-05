@@ -10,7 +10,7 @@
 #
 # PIN | IN/OUT | When active? | Name
 #-----+--------+--------------+----------------
-PD6	OUTPUT	 HIGH		Absenkung
+PD6	INPUT	 HIGH		Heizzirkulationspumpe
 PD5	OUTPUT	 LOW		Warmwasser
 PD7	OUTPUT	 HIGH		Wasserpumpe
 PD3	OUTPUT	 HIGH		Heizpumpe
