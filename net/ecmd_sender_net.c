@@ -34,44 +34,47 @@
 /* module local prototypes */
 
 uip_conn_t *
-ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data)
+ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data, client_return_text_callback_t callback)
 {
   uip_conn_t *conn = uip_connect(ipaddr, HTONS(2701), ecmd_sender_net_main);
   if (conn) {
     conn->appstate.ecmd_sender.to_be_sent = pgm_data;
-    conn->appstate.ecmd_sender.offset = 0;
+    conn->appstate.ecmd_sender.callback = callback;
+    conn->appstate.ecmd_sender.sent = 0;
   }
   return conn;
 }
 
 void ecmd_sender_net_main(void)
 {
-  char buffer[100];
-  uint8_t len;
   struct ecmd_sender_connection_state_t *state = &uip_conn->appstate.ecmd_sender;
 
-
-  if(uip_acked()) {
-    if (strlen_P(state->to_be_sent + state->offset) > sizeof(buffer))
-      state->offset += sizeof(buffer);
-    else
-      /* buffer transmitted, close connection */
-      uip_close();
+  if(uip_newdata() && uip_len > 0 ) { //&& !uip_connected()) {
+    if (state->callback != NULL) {
+      state->callback(uip_appdata, uip_len);
+      state->callback = NULL; /* we must set this to NULL, because 
+                                 otherwise it would be called on close */
+    }
+    uip_close();    
   }
 
+  if (uip_closed() && state->callback != NULL) {
+      state->callback(NULL, 0);
+      state->callback = NULL;
+  }
+
+  if(uip_acked()) 
+    state->sent = 1;
+
   if(uip_rexmit() ||
-     uip_newdata() ||
      uip_acked() ||
      uip_connected() ||
      uip_poll()) {
     /* Send one buffer of data */
-    strncpy_P(buffer, state->to_be_sent + state->offset, 
-              sizeof(buffer));
-    if (buffer[sizeof(buffer) - 1] == 0)
-      len = strlen(buffer);
-    else
-      len = sizeof(buffer);
-    uip_send(buffer, len);
+    if (state->sent) return;
+    ((char *) uip_appdata)[sizeof(uip_appdata) - 1] = 0;
+    strncpy_P((char *)uip_appdata, state->to_be_sent, uip_mss() - 1);
+    uip_udp_send(strlen((char *) uip_appdata));
   }
 }
 #endif /* ECMD_SENDER_SUPPORT */

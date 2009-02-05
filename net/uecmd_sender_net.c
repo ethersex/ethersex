@@ -35,11 +35,16 @@
 static uip_udp_conn_t *ecmd_conn;
 PGM_P send_data;
 uint8_t resend_counter;
+client_return_text_callback_t ucallback = NULL;
 
 void
 uecmd_sender_net_main(void) 
 {
   if (uip_newdata()) {
+    if(ucallback) {
+      ucallback(uip_appdata, uip_len);
+      ucallback = NULL;
+    }
     send_data = NULL;
   }
   if (send_data) {
@@ -63,7 +68,7 @@ uecmd_sender_net_main(void)
 }
 
 void
-uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data) 
+uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data, client_return_text_callback_t callback) 
 {
   if (!ecmd_conn) {
     ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
@@ -71,6 +76,7 @@ uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data)
   }
   uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
   send_data = pgm_data;
+  ucallback = callback;
   resend_counter = 7;
 }
 
