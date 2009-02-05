@@ -109,7 +109,7 @@ watchcat_edge(uint8_t pin)
 
         /* send command */
         const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
-        ecmd_sender_send_command(&ipaddr, text);
+        ecmd_sender_send_command(&ipaddr, text, NULL);
 
       } else  {
         i++;
