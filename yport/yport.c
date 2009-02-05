@@ -97,7 +97,7 @@ SIGNAL(usart(USART,_RX_vect))
 {
   /* Ignore errors */
   if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
-    uint8_t v = _UDR_UART0;
+    uint8_t v = usart(UDR);
     (void) v;
     return; 
   }
