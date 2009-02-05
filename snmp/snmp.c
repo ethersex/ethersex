@@ -93,6 +93,12 @@ const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
 const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
 const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\01";
 const char hostname_value[] PROGMEM = CONF_HOSTNAME;
+const char desc_value[] PROGMEM = SNMP_VALUE_DESCRIPTION; 
+const char desc_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x01";
+const char contact_value[] PROGMEM = SNMP_VALUE_CONTACT; 
+const char contact_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x04";
+const char location_value[] PROGMEM = SNMP_VALUE_LOCATION; 
+const char location_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x06";
 
 static struct snmp_reaction snmp_reactions[] = {
 #ifdef WHM_SUPPORT
@@ -102,6 +108,9 @@ static struct snmp_reaction snmp_reactions[] = {
   {adc_reaction_obj_name, adc_reaction, NULL},
 #endif
   {hostname_reaction_obj_name, string_pgm_reaction, (void *)hostname_value},
+  {desc_obj_name, string_pgm_reaction, (void *)desc_value},
+  {contact_obj_name, string_pgm_reaction, (void *)contact_value},
+  {location_obj_name, string_pgm_reaction, (void *)location_value},
   {NULL, NULL, 0}
 };
 
