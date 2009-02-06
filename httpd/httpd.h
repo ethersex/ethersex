@@ -70,6 +70,7 @@ extern char httpd_header_end[];
 #define PASTE_RESET()   (((unsigned char *)uip_appdata)[0] = 0)
 #define PASTE_P(a)      strcat_P(uip_appdata, a)
 
+#include "../config.h"
 #ifdef VFS_TEENSY
 #  define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
 				    PSTR ("%u\n"), a)
@@ -78,7 +79,8 @@ extern char httpd_header_end[];
 				    PSTR ("%lu\n"), a)
 #endif
 
-#define PASTE_LEN_P(a)  PASTE_LEN(strlen_P(a))
+#define PASTE_LEN_P(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+				    PSTR ("%u\n"), strlen_P(a))
 
 /* FIXME maybe check uip_mss and emit warning on debugging console. */
 #define PASTE_SEND()    uip_send(uip_appdata, strlen(uip_appdata))
