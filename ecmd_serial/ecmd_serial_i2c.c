@@ -27,13 +27,14 @@
 #include "ecmd_serial_i2c.h"
 #include "../ecmd_parser/ecmd.h"
 
-
+/* TODO: add menuconfig option */
 #define ECMD_SERIAL_I2C_ADDR 8
 
 #ifdef ECMD_SERIAL_I2C_SUPPORT
 
-static char buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
-static int16_t len, sent, parse;
+static char recv_buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
+static char write_buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
+static int16_t recv_len, write_len, sent, parse;
 
 static void
 init_twi(void){
@@ -53,11 +54,12 @@ init_twi(void){
   TWCR = (1<<TWIE) | (1<<TWEN) | (1<<TWEA); 
   
   /* TWI Status Register init */
-  TWSR &= 0xFC; 
+  TWSR &= 0xFC;
 }
 
 void ecmd_serial_i2c_init(void) {
-  len = 0;
+  recv_len = 0;
+  write_len = 0;
   sent = 0;
   parse = 0;
   init_twi();
@@ -69,15 +71,21 @@ ecmd_serial_i2c_periodic(void)
   /* error detection on i2c bus */
   if((TWSR & 0xF8) == 0x00)
     init_twi();
-  if (parse && !len ) {
-    len = ecmd_parse_command(buffer, buffer, sizeof(buffer));
-    sent = 0;
+  if (parse && !write_len ) {
+
+     if(recv_len <= 1) return;
+
+    write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
     parse = 0;
-    if (len < -10) {
-      len = - ( 10 + len );
+    if (write_len < -10) {
+      write_len = - ( 10 + write_len );
       parse = 1;
-    } else if (len < 0) 
-      len = 0;
+    } else if (write_len < 0) 
+       return;
+    else
+       recv_len = 0;
+
+    sent=1;
   }
 }
 
@@ -86,25 +94,25 @@ ISR (TWI_vect)
 {
   switch (TWSR & 0xF8){
   case 0x80: /* databyte was received */
-    if (len < (sizeof(buffer) - 1)) 
-        buffer[len++] = TWDR;
-    if (buffer[len-1] == 0) {
+    if (recv_len < (sizeof(recv_buffer) - 1)) 
+        recv_buffer[recv_len++] = TWDR;
+    if (recv_buffer[recv_len-1] == 0) {
       /* EOF message */
       parse = 1;
     }
     break;
   case 0x60: /* Start condition + write was received */
     /* Der Avr wurde mit seiner Adresse angesprochen  */
-    len = 0;
+    recv_len = 0;
   break;
   case 0xA8: /* Start condition + read was received */
     sent = 0; /* fall through */
   case 0xB8: /* the answer is sent */
-    if (sent < len)
-      TWDR = buffer[sent++];
+    if (sent < write_len)
+      TWDR = write_buffer[sent++];
     else {
       TWDR = parse ? '\n': 0;
-      len = 0;
+      write_len = 0;
     }
   break;
   }
