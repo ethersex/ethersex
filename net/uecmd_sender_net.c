@@ -74,7 +74,12 @@ uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data, client_return_te
 {
   if (!ecmd_conn) {
     ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
-    if (!ecmd_conn) return;
+    if (!ecmd_conn) {
+      if(ucallback) {
+	ucallback(NULL, 0);
+      }
+      return;
+    }
   }
   uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
   send_data = pgm_data;
