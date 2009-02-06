@@ -43,13 +43,15 @@ uecmd_sender_net_main(void)
   if (uip_newdata()) {
     if(ucallback) {
       ucallback(uip_appdata, uip_len);
-      ucallback = NULL;
     }
     send_data = NULL;
   }
   if (send_data) {
     resend_counter --;
     if (!resend_counter) {
+      if(ucallback) {
+	ucallback(NULL, 0);
+      }
       send_data = NULL;
       return;
     }
