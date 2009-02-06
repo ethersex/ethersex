@@ -77,7 +77,6 @@ network_init(void)
     uip_ipaddr_t ip;
     (void) ip;			/* Keep GCC quiet. */
 
-    uip_stack_set_active(0);
     uip_init();
 
 #if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
@@ -95,14 +94,14 @@ network_init(void)
     openvpn_init();
 #endif
 
-    uip_stack_set_active(0);
-
     /* load base network settings */
 #   ifdef DEBUG_NET_CONFIG
     debug_printf("net: loading base network settings\n");
 #   endif
 
 #   ifdef ENC28J60_SUPPORT
+    uip_stack_set_active(STACK_ENC);
+
     /* use uip buffer as generic space here, since when this function is called,
      * no network packets will be processed */
 
