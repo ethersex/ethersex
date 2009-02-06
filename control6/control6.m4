@@ -293,8 +293,20 @@ define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `
 define(`ip4addr_expand', `HTONS(($1 << 8) | $2), HTONS(($3 << 8) | $4)')
 define(`ip6addr_expand', `uip_ip6addr_t ip; uip_ip6addr(&ip, $1, $2, $3, $4, $5, $6, $7, $8)')
 
-define(`UESEND', `{IPADDR($1);uecmd_sender_send_command(&ip, PSTR($2), NULL); }')
+define(`UESEND', `UECMD_SENDER_USED(){IPADDR($1);uecmd_sender_send_command(&ip, PSTR($2), NULL); }')
+define(`UESENDGET', define(uegl,__line__)`UECMD_SENDER_USED(){IPADDR($1);
+uecmd_callback_blocking'uegl` = 1; 
+uecmd_sender_send_command(&ip, PSTR($2), uecmd_callback'uegl`); 
+`PT_WAIT_WHILE(pt, uecmd_callback_blocking'uegl` == 1);' }
+define(`old_divert', divnum)dnl
+divert(globals_divert)dnl
+uint8_t uecmd_callback_blocking'uegl`;
 
+void uecmd_callback'uegl`(char *text, uint8_t len) {
+  uecmd_callback_blocking'uegl` = 0;
+}
+
+divert(old_divert)')')
 ###############################
 # Global flags
 ###############################
