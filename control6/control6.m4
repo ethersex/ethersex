@@ -80,6 +80,10 @@ divert(normal_end_divert)
   if (action_threads[action_thread_$1_idx].started) { THREAD_DO($1) }dnl
 divert(action_divert)')
 
+define(`INTHREAD', `ifdef(`action_thread_ident', `$1', `$2')')
+define(`DIE', `errprint(`ERROR: $1
+')m4exit(255)')
+
 define(`THREAD_END', `divert(action_divert)dnl
 undefine(`action_thread_ident')dnl
 dnl PT_WAIT_WHILE(pt, 1);
@@ -295,7 +299,7 @@ define(`ip4addr_expand', `HTONS(($1 << 8) | $2), HTONS(($3 << 8) | $4)')
 define(`ip6addr_expand', `uip_ip6addr_t ip; uip_ip6addr(&ip, $1, $2, $3, $4, $5, $6, $7, $8)')
 
 define(`UESEND', `UECMD_SENDER_USED(){IPADDR($1);uecmd_sender_send_command(&ip, PSTR($2), NULL); }')
-define(`UESENDGET', `UECMD_SENDER_USED(){IPADDR($1);
+define(`UESENDGET', `INTHREAD(`', `DIE(`Can use UESENDGET only in a THREAD')')UECMD_SENDER_USED(){IPADDR($1);
 uecmd_callback_blocking'action_thread_ident` = 1; 
 uecmd_sender_send_command(&ip, PSTR($2), uecmd_callback'action_thread_ident`); 
 `PT_WAIT_WHILE(pt, uecmd_callback_blocking'action_thread_ident` == 1);' }
