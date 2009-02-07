@@ -30,6 +30,7 @@
 # define printf(...)   ((void)0)
 #endif
 
+#ifdef ECMD_PARSER_SUPPORT
 
 void
 httpd_handle_ecmd_setup (char *encoded_cmd)
@@ -114,3 +115,5 @@ httpd_handle_ecmd (void)
 
     uip_send (STATE->u.ecmd.output, strlen (STATE->u.ecmd.output));
 }
+
+#endif  /* ECMD_PARSER_SUPPORT */

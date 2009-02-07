@@ -152,11 +152,13 @@ httpd_handle_input (void)
     if (*filename == 0)		/* No filename, override -> index */
 	strcpy_P(filename, PSTR(HTTPD_INDEX));
 
+#ifdef ECMD_PARSER_SUPPORT
     uint8_t offset = strlen_P(PSTR(ECMD_INDEX "?"));
     if (strncmp_P (filename, PSTR(ECMD_INDEX "?"), offset) == 0) {
 	httpd_handle_ecmd_setup (filename + offset);
 	return;
     }
+#endif  /* ECMD_PARSER_SUPPORT */
 
 #ifdef VFS_SUPPORT
     /* Keep content-type identifing char. */
