@@ -20,8 +20,8 @@ dnl
 
 /*
    ATmega644p is very similar to ATmega644, therefore we just include
-   that one's pinning configuration file.  The main difference is the
+   that one's hackery internals first.  The main difference is the
    second USART.
  */
 
-include(controllers/atmega644.m4)
+include(internals/hackery_atmega644.m4)
