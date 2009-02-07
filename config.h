@@ -127,6 +127,7 @@
 /* Figure out whether we need CRC_SUPPORT: */
 #if defined(EEPROM_SUPPORT)			\
   || defined(ONEWIRE_SUPPORT)			\
+  || defined(VFS_INLINE_SUPPORT)		\
   || defined(TFTP_SUPPORT)
 #  define CRC_SUPPORT 1
 #endif
