@@ -33,13 +33,9 @@ $(TARGET):
 ##############################################################################
 # include user's config.mk file
 
-$(TOPDIR)/config.mk: 
-	@echo "# Put your own config here!" > $@
-	@echo "#F_CPU = $(F_CPU)" >> $@
-	@echo "#MCU = $(MCU)" >> $@
-	@echo "created default config.mk, tune your settings there!"
+# By now we don't generate an empty example config.mk any longer,
+# since must stuff can be controlled via menuconfig finally ...
 -include $(TOPDIR)/config.mk
-
 
 ##############################################################################
 # configure load address for bootloader, if enabled
