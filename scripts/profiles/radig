@@ -8,17 +8,22 @@
 CONFIG_EXPERIMENTAL=y
 # atmega8 is not set
 # atmega88 is not set
+# atmega128 is not set
 # atmega162 is not set
+# atmega168 is not set
 # atmega32 is not set
+# atmega64 is not set
 MCU=atmega644
 atmega644=y
 # atmega644p is not set
 FREQ=14745600
-# netio is not set
 # etherrape is not set
+# generic_usb_teensy is not set
+# netio is not set
+# other is not set
 HARDWARE=radig_web
 radig_web=y
-# other is not set
+# ths is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 DEBUG=y
@@ -39,11 +44,13 @@ DEBUG=y
 # DEBUG_FS_INODETABLE is not set
 # DEBUG_FS_MARK is not set
 # DEBUG_FS20_REC is not set
+# VFS_EEPROM_DEBUG_SUPPORT is not set
 # DEBUG_FS20_REC_QUEUE is not set
 # DEBUG_FS20_REC_VERBOSE is not set
 # DEBUG_FS20_WS300 is not set
 # DEBUG_FS20_WS300_VERBOSE is not set
 # DEBUG_HD44780 is not set
+# DEBUG_I2C is not set
 # DEBUG_HTTPD is not set
 # DEBUG_NET is not set
 # DEBUG_NET_CONFIG is not set
@@ -61,6 +68,15 @@ DEBUG=y
 # CAST5_SUPPORT is not set
 # SKIPJACK_SUPPORT is not set
 # MD5_SUPPORT is not set
+VFS_SUPPORT=y
+# VFS_DF_SUPPORT is not set
+VFS_INLINE_SUPPORT=y
+# VFS_SD_SUPPORT is not set
+# VFS_EEPROM_SUPPORT is not set
+# VFS_EEPROM_RAW_SUPPORT is not set
+# VFS_DC3840_SUPPORT is not set
+# DATAFLASH_SUPPORT is not set
+# SD_READER_SUPPORT is not set
 # USB_SUPPORT is not set
 # USB_CFG_IS_SELF_POWERED is not set
 USB_CFG_MAX_BUS_POWER=20
@@ -79,10 +95,9 @@ NET_SUPPORT=y
 # IPV6_SUPPORT is not set
 IPV4_SUPPORT=y
 # IP_FORWARDING_SUPPORT is not set
+# UIP_TIMEOUT_SUPPORT is not set
 CONF_ETHERRAPE_GATEWAY="192.168.23.23"
 # UIP_MULTI_STACK is not set
-# IPSTATS_SUPPORT is not set
-# FREE_SUPPORT is not set
 
 #
 # Network protocols
@@ -123,16 +138,18 @@ PORTIO_SIMPLE_SUPPORT=y
 # ADC_SUPPORT is not set
 # KTY_SUPPORT is not set
 # ONEWIRE_SUPPORT is not set
+# ONEWIRE_DETECT_SUPPORT is not set
 # ONEWIRE_DS2502_SUPPORT is not set
 # NAMED_PIN_SUPPORT is not set
-CONFIG_NO_I2C=y
-# I2C_SUPPORT is not set
-# I2C_SLAVE_SUPPORT is not set
 # FS20_SUPPORT is not set
 # RC5_SUPPORT is not set
+# MCUF_SUPPORT is not set
+# MCUF_SERIAL_SUPPORT is not set
+# BLP_SUPPORT is not set
+MCUF_OUTPUT_SCREEN_WIDTH=18
+MCUF_OUTPUT_SCREEN_HEIGHT=8
 # MODBUS_SUPPORT is not set
 # YPORT_SUPPORT is not set
-# MCUF_SUPPORT is not set
 # ECMD_SERIAL_USART_SUPPORT is not set
 # ECMD_SERIAL_USART_RS485_SUPPORT is not set
 
@@ -157,10 +174,16 @@ CONFIG_NO_I2C=y
 ECMD_PARSER_SUPPORT=y
 ECMD_SUPPORT=y
 # UECMD_SUPPORT is not set
+ECMD_NET_PORT=2701
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
 # ECMD_SERIAL_SUPPORT is not set
 # ECMD_SENDER_SUPPORT is not set
+# UECMD_SENDER_SUPPORT is not set
+# IPSTATS_SUPPORT is not set
+# FREE_SUPPORT is not set
+HTTPD_SUPPORT=y
+# HTTPD_AUTH_SUPPORT is not set
 
 #
 # Character-LCD module support
@@ -183,11 +206,30 @@ ECMD_SUPPORT=y
 #
 # work in progress bits (enable with care)
 #
-# DATAFLASH_SUPPORT is not set
-# SD_READER_SUPPORT is not set
-HTTPD_SUPPORT=y
-HTTPD_INLINE_FILES_SUPPORT=y
-# HTTPD_AUTH_SUPPORT is not set
+# I2C_MASTER_SUPPORT is not set
+# I2C_DETECT_SUPPORT is not set
+# I2C_24CXX_SUPPORT is not set
+# I2C_LM75_SUPPORT is not set
+# I2C_PCA9531_SUPPORT is not set
+# I2C_PCF8574X_SUPPORT is not set
+# I2C_UDP_SUPPORT is not set
 # CONTROL6_SUPPORT is not set
 # IPCHAIR_SUPPORT is not set
 # IPCHAIR_MASQ is not set
+# CAMERA_SUPPORT is not set
+# DC3840_SUPPORT is not set
+# CONFIG_DC3840_RES80 is not set
+# CONFIG_DC3840_RES160 is not set
+# CONFIG_DC3840_RES320 is not set
+# CONFIG_DC3840_RES640 is not set
+# DC3840_HIGH_COMPRESSION is not set
+# DC3840_BLACK_WHITE is not set
+DC3840_USART_0=y
+DC3840_USE_USART=0
+
+#
+# RF12 powerswitch support
+#
+# RF12_POWERSWITCH_SENDER_SUPPORT is not set
+# RF12_POWERSWITCH_RECEIVER_SUPPORT is not set
+# RF12_POWERSWITCH_SUPPORT is not set
