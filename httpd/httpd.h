@@ -41,6 +41,7 @@ void httpd_main (void);
 void httpd_cleanup (void);
 
 void httpd_handle_400 (void);
+void httpd_handle_401 (void);
 void httpd_handle_404 (void);
 void httpd_handle_vfs (void);
 

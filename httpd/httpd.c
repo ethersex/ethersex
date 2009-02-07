@@ -70,13 +70,13 @@ static void
 httpd_handle_input (void)
 {
     if (uip_len < 6) {
-	printf ("httpd: received request to short (%d bytes).", uip_len);
+	printf ("httpd: received request to short (%d bytes).\n", uip_len);
 	STATE->handler = httpd_handle_400;
 	return;
     }
 
     if (strncasecmp_P (uip_appdata, PSTR ("GET /"), 5)) {
-	printf ("httpd: received request is not GET.");
+	printf ("httpd: received request is not GET.\n");
 	STATE->handler = httpd_handle_400;
 	return;
     }
@@ -85,13 +85,70 @@ httpd_handle_input (void)
     char *ptr = strchr (filename, ' ');
 
     if (ptr == NULL) {
-	printf ("httpd: space after filename not found.");
+	printf ("httpd: space after filename not found.\n");
 	STATE->handler = httpd_handle_400;
 	return;
     }
 
     *ptr = 0;			/* Terminate filename. */
 
+    /*
+     * Successfully parsed the GET request,
+     * possibly check authentication.
+     */
+
+
+#ifdef HTTPD_AUTH_SUPPORT
+    ptr ++;			/* Increment pointer to the end of
+				   the GET */
+    ptr = strstr_P(ptr, PSTR("Authorization: "));
+
+    if (ptr == NULL) {
+	printf ("Authorization-header not found.\n");
+	goto auth_failed;
+    }
+    ptr += 15;			/* Skip `Authorization: ' header. */
+
+    if (strncmp_P(ptr, PSTR("Basic "), 6)) {
+	printf ("auth: method is not basic.\n");
+	goto auth_failed;
+    }
+    ptr += 6;			/* Skip `Basic ' string. */
+
+    char *nl = strchr (ptr, '\n');
+    if (nl == NULL) {
+	printf ("auth: newline not found.\n");
+	goto auth_failed;
+    }
+
+    *nl = 0;			/* Zero-terminate BASE64-string. */
+
+    base64_str_decode (ptr);
+    printf ("auth: decoded auth string: '%s'.\n", ptr);
+
+    if (strncmp_P (ptr, PSTR(CONF_HTTPD_USERNAME ":"),
+		   strlen (CONF_HTTPD_USERNAME ":")) != 0) {
+	printf ("auth: username mismatch!\n");
+	goto auth_failed;
+    }
+
+    char pwd[sizeof(((struct eeprom_config_t *) 0)->httpd_auth_password) + 1];
+    eeprom_restore(httpd_auth_password, pwd, sizeof(pwd));
+
+    if (strncmp(pwd, ptr + strlen(CONF_HTTPD_USERNAME ":"), strlen(pwd))) {
+	printf ("auth: wrong passphrase, %s != %s.\n",
+		pwd, ptr + strlen(CONF_HTTPD_USERNAME ":"));
+      auth_failed:
+	STATE->handler = httpd_handle_401;
+	return;
+    }
+
+#endif	/* HTTPD_AUTH_SUPPORT */
+
+    /*
+     * Authentication is okay, now fulfill request for file
+     * refered to in filename.
+     */
     if (*filename == 0)		/* No filename, override -> index */
 	strcpy_P(filename, PSTR(HTTPD_INDEX));
 
