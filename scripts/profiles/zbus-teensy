@@ -153,7 +153,6 @@ PORTIO_SIMPLE_SUPPORT=y
 # work in progress bits (enable with care)
 #
 # DATAFLASH_SUPPORT is not set
-# PSOCK_SUPPORT is not set
 # HTTPD_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
 # CONTROL6_SUPPORT is not set

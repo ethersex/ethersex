@@ -24,10 +24,7 @@
 #ifndef ECMD_SENDER_STATE_H
 #define ECMD_SENDER_STATE_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
 #include "ecmd_sender_net.h"
-#include <avr/io.h>
 #include <avr/pgmspace.h>
 
 struct ecmd_sender_connection_state_t {

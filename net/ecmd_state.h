@@ -23,9 +23,6 @@
 #ifndef ECMD_STATE_H
 #define ECMD_STATE_H
 
-#include "../uip/psock.h"
-#include "../pt/pt.h"
-
 #define ECMD_INPUTBUF_LENGTH  50
 #define ECMD_OUTPUTBUF_LENGTH 50
 

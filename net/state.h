@@ -23,9 +23,7 @@
 #ifndef CONNECTION_STATE_H
 #define CONNECTION_STATE_H
 
-#include "../uip/psock.h"
 #include "../uip/uip_openvpn.h"
-#include "../pt/pt.h"
 #include "../config.h"
 
 #include "ecmd_state.h"

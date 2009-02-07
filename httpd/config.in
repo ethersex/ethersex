@@ -1,4 +1,3 @@
-#dep_bool "uIP Proto-Sockets" PSOCK_SUPPORT $UIP_SUPPORT
 
 dep_bool "HTTP Server" HTTPD_SUPPORT $TCP_SUPPORT
 dep_bool "  Basic Authentication" HTTPD_AUTH_SUPPORT $HTTPD_SUPPORT
@@ -7,4 +6,3 @@ if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
   string "Default Password" CONF_HTTPD_PASSWORD "admin"
 fi
 
-define_bool PSOCK_SUPPORT $HTTPD_SUPPORT

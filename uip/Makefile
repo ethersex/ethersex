@@ -1,7 +1,6 @@
 TARGET = libuip.a
 TOPDIR = ..
 SRC = \
-	psock.c \
 	uip_arp.c \
 	uip.c \
 	uip_multi.c \

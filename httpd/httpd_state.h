@@ -25,6 +25,7 @@
 
 #include "../config.h"
 #include "../vfs/vfs.h"
+#include "../net/ecmd_state.h"
 
 typedef enum {
     HTTPD_STATE_CLOSED = 0,
@@ -32,20 +33,32 @@ typedef enum {
 } http_state_t;
 
 struct httpd_connection_state_t {
-    http_state_t state;
-    uint8_t timeout;
-    char buffer[40];
-    char name[16];
-    struct psock in, out;
+    unsigned header_acked		: 1;
+    unsigned eof			: 1;
 
-    char *tmp_buffer;
+    /* The associated connection handler function */
+    void (* handler)();
+
+    union {
 #ifdef VFS_SUPPORT
-    struct vfs_file_handle_t *fd;
-    vfs_size_t len;
-#endif
+	struct {
+	    /* The VFS file handle. */
+	    struct vfs_file_handle_t *fd;
+
+	    /* Content-type identifier char. */
+	    unsigned char content_type;
+
+	    vfs_size_t acked, sent;
+	} vfs;
+#endif	/* VFS_SUPPORT */
+
 #ifdef ECMD_PARSER_SUPPORT
-    uint8_t parse_again;
-#endif
+	struct {
+	    char input[ECMD_INPUTBUF_LENGTH];
+	    char output[ECMD_OUTPUTBUF_LENGTH];
+	} ecmd;
+#endif	/* ECMD_PARSER_SUPPORT */
+    } u;
 };
 
 

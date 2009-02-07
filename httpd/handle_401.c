@@ -1,7 +1,5 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+/*
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,17 +16,28 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
-
-#ifndef _ECMD_H
-#define _ECMD_H
+ */
 
 #include "../config.h"
-#include <inttypes.h>
+#include "httpd.h"
 
-/* returns >= 0 for output, -1 for parse error,
- * < -10 for "generated output, but needs to be caled again,
- *        output bytes: (-ret-10) */
-int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
+#ifdef HTTPD_AUTH_SUPPORT
 
-#endif
+void
+httpd_handle_401 (void)
+{
+    if (uip_acked ()) {
+	uip_close ();
+	return;
+    }
+
+    PASTE_RESET ();
+    PASTE_P (httpd_header_401);
+    PASTE_P (httpd_header_length);
+    PASTE_LEN_P (httpd_body_401);
+    PASTE_P (httpd_header_end);
+    PASTE_P (httpd_body_401);
+    PASTE_SEND ();
+}
+
+#endif	/* HTTPD_AUTH_SUPPORT */

@@ -188,7 +188,6 @@ ECMD_SERIAL_SUPPORT=y
 # FREE_SUPPORT is not set
 HTTPD_SUPPORT=y
 # HTTPD_AUTH_SUPPORT is not set
-PSOCK_SUPPORT=y
 
 #
 # Character-LCD module support
