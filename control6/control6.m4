@@ -1,6 +1,7 @@
 dnl
 dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
 dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
+dnl   Copyright (c) 2009 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 or later
