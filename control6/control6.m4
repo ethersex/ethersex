@@ -1,7 +1,7 @@
 dnl
 dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
-dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
-dnl   Copyright (c) 2009 by Jochen Roessner <jochen@lugrot.de>
+dnl   Copyright (c) 2008,2009 by Jochen Roessner <jochen@lugrot.de>
+dnl   Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 or later
@@ -69,7 +69,7 @@ divert(old_divert)')
 ################################
 # Actions
 ################################
-define(`THREAD', define(action_thread_ident, __line__)`divert(0)dnl
+define(`THREAD', `define(action_thread_ident, '__line__`)divert(0)dnl
  {0, {0} },define(`action_thread_$1_idx', action_thread_count)dnl
 define(`action_thread_count', incr(action_thread_count))dnl
 divert(action_divert)dnl
@@ -304,9 +304,9 @@ define(`ip6addr_expand', `uip_ip6addr_t ip; uip_ip6addr(&ip, $1, $2, $3, $4, $5,
 define(`UESEND', `UECMD_SENDER_USED(){IPADDR($1);uecmd_sender_send_command(&ip, PSTR($2), NULL); }')
 
 define(`UESENDGET', `INTHREAD(`', `DIE(`Can use UESENDGET only in a THREAD')')UECMD_SENDER_USED(){IPADDR($1);
-uecmd_callback_blocking'action_thread_ident` = 1; 
+`uecmd_callback_blocking'action_thread_ident` = 1; 
 uecmd_sender_send_command(&ip, PSTR($2), uecmd_callback'action_thread_ident`); 
-`PT_WAIT_WHILE(pt, uecmd_callback_blocking'action_thread_ident` == 1);' }
+PT_WAIT_WHILE(pt, uecmd_callback_blocking'action_thread_ident` == 1);' }
 ifdef(`uecmd_callback_defined'action_thread_ident, `', `
 define(`uecmd_callback_defined'action_thread_ident, 1)
 define(`old_divert', divnum)dnl
@@ -328,8 +328,8 @@ void uecmd_callback'action_thread_ident`(char *text, uint8_t len) {
 
 divert(old_divert)')')
 
-define(`UESENDGET_BUFFER', `INTHREAD(`', `DIE(`Can use USENDGET_BUFFER only in a THREAD')')uecmd_callback_buffer'action_thread_ident)
-define(`UESENDGET_BUFFER_LEN', `INTHREAD(`', `DIE(`Can use USENDGET_BUFFER_LEN only in a THREAD')')uecmd_callback_buffer_len'action_thread_ident)
+define(`UESENDGET_BUFFER', `INTHREAD(`', `DIE(`Can use USENDGET_BUFFER only in a THREAD')')`uecmd_callback_buffer'action_thread_ident')
+define(`UESENDGET_BUFFER_LEN', `INTHREAD(`', `DIE(`Can use USENDGET_BUFFER_LEN only in a THREAD')')`uecmd_callback_buffer_len'action_thread_ident')
 
 ###############################
 # Global flags
