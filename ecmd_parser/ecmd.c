@@ -148,7 +148,8 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
   return snprintf_P(output, len, 
                     PSTR("%d free; %d malloc; buffer " xstr(NET_MAX_FRAME_LENGTH)),
                     SP - (uint16_t) __brkval,
-                    (uint16_t) (__brkval - __malloc_heap_start));
+                    /* __brkval is 0 when malloc was not called yet */
+                    (uint16_t) (__brkval ? (__brkval - __malloc_heap_start) : 0));
  
 }
 
