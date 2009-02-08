@@ -207,7 +207,7 @@ httpd_main(void)
 	STATE->eof = 0;
     }
 
-    if (uip_newdata()) {
+    if (uip_newdata() && !STATE->handler) {
 	printf ("httpd: new data\n");
 	httpd_handle_input ();
     }
