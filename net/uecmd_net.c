@@ -50,25 +50,42 @@ void uecmd_net_init() {
 
 void uecmd_net_main() {
   if(uip_newdata()) {
+    /* Add \0 to the data and remove \n from the data */
+    char *p = (char *)uip_appdata;
+    do {
+      if (*p == '\r' || *p == '\n') {
+        break;
+      } 
+    } while ( ++p <= ((char *)uip_appdata + uip_datalen()));
+
+    /* Parse the Data */
+    *p = 0;
+    char cmd[p - (char *)uip_appdata];
+
+    strncpy(cmd, uip_appdata, p - (char *)uip_appdata);
+
+    uip_slen = 0;
+    while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
+      int16_t len = ecmd_parse_command(cmd, ((char *)uip_appdata) + uip_slen, 
+                        (UIP_BUFSIZE - UIP_IPUDPH_LEN) - uip_slen);
+      uint8_t real_len = len;
+      if (len < 0) {
+        real_len = (uint8_t)  -len - 10;
+      } 
+      uip_slen += real_len + 1;
+      ((char *)uip_appdata)[uip_slen - 1] = '\n';
+      if (real_len == len || len == 0) 
+        break;
+    }
+
+    /* Sent data out */
+
     uip_udp_conn_t echo_conn;
     uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
     echo_conn.rport = BUF->srcport;
     echo_conn.lport = HTONS(UECMD_NET_PORT);
 
     uip_udp_conn = &echo_conn;
-    /* Add \0 to the data and remove \n from the data */
-    char *p = (char *)uip_appdata;
-    do {
-      if (*p == '\r' || *p == '\n') {
-        *p = 0;
-        break;
-      } 
-    } while ( ++p < ((char *)uip_appdata + uip_datalen()));
-    /* Parse the Data */
-    uip_slen = ecmd_parse_command(uip_appdata, uip_appdata, 
-                                  UIP_BUFSIZE - UIP_IPUDPH_LEN) + 1;
-
-    ((char *)uip_appdata)[uip_slen - 1] = '\n';
     uip_process(UIP_UDP_SEND_CONN); 
     router_output();
 
