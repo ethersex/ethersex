@@ -62,7 +62,7 @@ void uecmd_net_main() {
     *p = 0;
     char cmd[p - (char *)uip_appdata];
 
-    strncpy(cmd, uip_appdata, p - (char *)uip_appdata);
+    strncpy(cmd, uip_appdata, p - (char *)uip_appdata + 1);
 
     uip_slen = 0;
     while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
