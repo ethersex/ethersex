@@ -21,12 +21,12 @@
 
 */
 
-#ifndef __RF12_POWERSWITCH_H
-#define __RF12_POWERSWITCH_H
+#ifndef __RFM12_ASK_H
+#define __RFM12_ASK_H
 
-void rf12_powerswitch_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
-void rf12_powerswitch_2272_send(uint8_t *, uint8_t, uint8_t);
-void rf12_powerswitch_receiver_init(void);
-void rf12_powerswitch_receiver_deinit(void);
+void rfm12_ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
+void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
+void rfm12_ask_external_filter_init(void);
+void rfm12_ask_external_filter_deinit(void);
 
-#endif //__RF12_POWERSWITCH_H
+#endif //__RFM12_ASK_H

@@ -29,13 +29,13 @@
 
 #include "../config.h"
 #include "../debug.h"
-#include "../rfm12/rf12_powerswitch.h"
+#include "../rfm12/rfm12_ask.h"
 #include "ecmd.h"
 
-#ifdef RF12_POWERSWITCH_SENDER_SUPPORT
+#ifdef RFM12_ASK_SENDER_SUPPORT
 
 int16_t
-parse_cmd_rf12_powerswitch_tevion_send(char *cmd, char *output, uint16_t len)
+parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
@@ -51,12 +51,12 @@ parse_cmd_rf12_powerswitch_tevion_send(char *cmd, char *output, uint16_t len)
   uint8_t housecode[3]={housecode_16_1,housecode_16_2,housecode_16_3};
   uint8_t command[2]={command_16_1,command_16_2};
 
-  rf12_powerswitch_tevion_send(housecode, command, delay, cnt);
+  rfm12_ask_tevion_send(housecode, command, delay, cnt);
   return 0;
 }
 
 int16_t
-    parse_cmd_rf12_powerswitch_2272_send(char *cmd, char *output, uint16_t len)
+    parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
@@ -70,25 +70,25 @@ int16_t
 
   uint8_t command[3]={command_16_0,command_16_1,command_16_2};
 
-  rf12_powerswitch_2272_send(command, delay, cnt);
+  rfm12_ask_2272_send(command, delay, cnt);
   return 0;
 }
 
-#endif  /* RF12_POWERSWITCH_SENDER_SUPPORT */
+#endif  /* RFM12_ASK_SENDER_SUPPORT */
 
-#ifdef RF12_POWERSWITCH_RECEIVER_SUPPORT
+#ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 int16_t
-    parse_cmd_rf12_powerswitch_receive(char *cmd, char *output, uint16_t len)
+    parse_cmd_rfm12_ask_external_filter(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
   uint16_t flag;
   uint8_t ret = sscanf_P (cmd, PSTR ("%u"),&flag);
   if (ret != 1)
-    rf12_powerswitch_receiver_deinit();
+    rfm12_ask_external_filter_deinit();
   else
-    rf12_powerswitch_receiver_init();
+    rfm12_ask_external_filter_init();
 
   return 0;
 }
-#endif  /* RF12_POWERSWITCH_RECEIVER_SUPPORT */
+#endif  /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */

@@ -212,7 +212,7 @@ comment "work in progress bits (enable with care)"
   source control6/config.in
   source ipchair/config.in
   source camera/config.in
-  source rfm12/rf12-powerswitch-config.in
+  source rfm12/rfm12_ask-config.in
 
 endmenu
 

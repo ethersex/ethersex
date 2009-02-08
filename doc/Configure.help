@@ -415,6 +415,36 @@ RFM12_ARP_PROXY
 
   There's unfortunately no help available for this item.
 
+RFM12 ASK (Amplitude Shift Keying) Support
+RFM12_ASK_SUPPORT
+  Depends on:
+   * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
+
+  This ASK is very helpful for playing around with radio controlled
+  power switches or similar devices.
+  Due to the fact that the FM transmitting RFM12 chip is just turned
+  on of off, the modulation is ASK.
+
+RFM12 ASK SENDER (Amplitude Shift Keying) Sending Support
+RFM12_ASK_SENDER_SUPPORT
+  Depends on:
+   * RFM12 ASK (Amplitude Shift Keying) Support
+
+  Enables to send commands to at least these power switching devices.
+  e.g.
+    - Kentai
+    - Pollin
+    - Tevion
+    - ELRO
+
+RFM12 ASK external filter enables external filter Support
+RFM12_ASK_EXTERNAL_FILTER_SUPPORT
+  Depends on:
+   * RFM12 ASK (Amplitude Shift Keying) Support
+
+  External filter enables to listen to the received audio signal
+  at PIN4 of the RFM12 device.
+
 IPchair (firewalling)
 IPCHAIR_SUPPORT
   Depends on: 
@@ -716,6 +746,8 @@ SNMP_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Make ADC, Hostname and Uptime available through SNMP.
+  
+  Set default values for DESCRIPTION, LOCATION and CONTACT.
 
 Sendmail support (smtp)
 SENDMAIL_SUPPORT

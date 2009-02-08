@@ -40,7 +40,7 @@
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
 #include "../rfm12/rfm12.h"
-#include "../rfm12/rf12_powerswitch.h"
+#include "../rfm12/rfm12_ask.h"
 #include "../dns/resolv.h"
 #include "../clock/clock.h"
 #include "../yport/yport.h"

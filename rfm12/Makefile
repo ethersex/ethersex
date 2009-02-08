@@ -3,7 +3,7 @@ TOPDIR = ..
 SRC = \
 	process.c \
 	rfm12.c \
-	rf12_powerswitch.c \
+	rfm12_ask.c \
 
 ##############################################################################
 # generic fluff

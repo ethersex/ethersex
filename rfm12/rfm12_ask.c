@@ -27,16 +27,16 @@
 
 #include "../config.h"
 
-#ifdef RF12_POWERSWITCH_SUPPORT
+#ifdef RFM12_ASK_SUPPORT
 
 #include "rfm12.h"
-#include "rf12_powerswitch.h"
+#include "rfm12_ask.h"
 
-void rf12_powerswitch_trigger(uint8_t , uint16_t);
+void rfm12_ask_trigger(uint8_t , uint16_t);
 
-#ifdef RF12_POWERSWITCH_SENDER_SUPPORT
+#ifdef RFM12_ASK_SENDER_SUPPORT
 void
-rf12_powerswitch_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
+rfm12_ask_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
 {
   for (uint8_t i=0;i<cnt;i++)
   {
@@ -45,7 +45,7 @@ rf12_powerswitch_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_
 }
 
 void
-rf12_powerswitch_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
+rfm12_ask_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
 {
   for (uint8_t i=0;i<cnt;i++)
   {
@@ -60,61 +60,61 @@ rf12_powerswitch_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint
 }
 
 void
-rf12_powerswitch_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uint8_t cnt)
+rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uint8_t cnt)
 {
   uint8_t code[41];
 
   for(uint8_t i=0;i<3;i++)
   {
-    rf12_powerswitch_encode_byte(code, i*8, housecode[i], 8);
+    rfm12_ask_encode_byte(code, i*8, housecode[i], 8);
   }
   code[24]=((housecode[2] & (1<<0))>0 ?6:12);
   for(uint8_t i=0;i<2;i++)
   {
-    rf12_powerswitch_encode_byte(code, (i*8)+25, command[i], 8);
+    rfm12_ask_encode_byte(code, (i*8)+25, command[i], 8);
   }
   rfm12_prologue ();
   rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
   for(uint8_t ii=cnt;ii>0;ii--)               // Sequenz cnt send
   {
-    uint8_t rf12_trigger_level=0;
+    uint8_t rfm12_trigger_level=0;
     for(uint8_t i=0;i<41;i++)
     {
-      rf12_powerswitch_trigger(rf12_trigger_level^=1,code[i]*delay);
+      rfm12_ask_trigger(rfm12_trigger_level^=1,code[i]*delay);
     }
-    rf12_powerswitch_trigger(0,24*delay);
+    rfm12_ask_trigger(0,24*delay);
   }
   rfm12_trans(0x8208);                        // 2. PwrMngt TX off
   rfm12_epilogue ();
 }
 
 void
-rf12_powerswitch_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
+rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
 {
   uint8_t code[49];
 
   for(uint8_t i=0;i<3;i++)
   {
-    rf12_powerswitch_encode_tribit(code, i*16, command[i], 8);
+    rfm12_ask_encode_tribit(code, i*16, command[i], 8);
   }
   code[48]=7; //sync
   rfm12_prologue ();
   rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
   for(uint8_t ii=cnt;ii>0;ii--)               // Sequenz cnt send
   {
-    uint8_t rf12_trigger_level=0;
+    uint8_t rfm12_trigger_level=0;
     for(uint8_t i=0;i<49;i++)
     {
-      rf12_powerswitch_trigger(rf12_trigger_level^=1,code[i]*delay);
+      rfm12_ask_trigger(rfm12_trigger_level^=1,code[i]*delay);
     }
-    rf12_powerswitch_trigger(0,24*delay);
+    rfm12_ask_trigger(0,24*delay);
   }
   rfm12_trans(0x8208);                        // 2. PwrMngt TX off
   rfm12_epilogue ();
 }
 
 void
-rf12_powerswitch_trigger(uint8_t level, uint16_t us)
+rfm12_ask_trigger(uint8_t level, uint16_t us)
 {
   if (level)
   {
@@ -135,11 +135,11 @@ rf12_powerswitch_trigger(uint8_t level, uint16_t us)
       _delay_us(1);
   }
 }
-#endif // RF12_POWERSWITCH_SENDER_SUPPORT
+#endif // RFM12_ASK_SENDER_SUPPORT
 
-#ifdef RF12_POWERSWITCH_RECEIVER_SUPPORT
+#ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 void
-rf12_powerswitch_receiver_init()
+rfm12_ask_external_filter_init()
 {
   rfm12_prologue ();
   rfm12_trans(0x82C0);                        // 2. PwrMngt TX off, enable whole receiver chain
@@ -148,9 +148,9 @@ rf12_powerswitch_receiver_init()
 }
 
 void
-rf12_powerswitch_receiver_deinit()
+rfm12_ask_external_filter_deinit()
 {
   rfm12_init();
 }
-#endif // RF12_POWERSWITCH_RECEIVER_SUPPORT
-#endif // RF12_POWERSWITCH_SUPPORT
+#endif // RFM12_ASK_EXTERNAL_FILTER_SUPPORT
+#endif // RFM12_ASK_SUPPORT
