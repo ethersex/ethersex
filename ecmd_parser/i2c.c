@@ -76,16 +76,21 @@ int16_t
 parse_cmd_i2c_pca9531(char *cmd, char *output, uint16_t len)
 {
   uint8_t adr;
-  uint8_t period;
-  uint8_t duty;
-  sscanf_P(cmd, PSTR("%u %x %x"), &adr, &period, &duty);
+  uint8_t period1;
+  uint8_t duty1;
+  uint8_t period2;
+  uint8_t duty2;
+  uint8_t firstnibble;
+  uint8_t lastnibble;
+  sscanf_P(cmd, PSTR("%u %x %x %x %x %x"), &adr, &period1, &duty1, &period2, &duty2, &firstnibble, &lastnibble);
   
 #ifdef DEBUG_I2C
-  debug_printf("I2C PCA9531 IC %u: pwm period %X; pwm duty: %X\n",adr, period, duty);
+  debug_printf("I2C PCA9531 IC %u: pwm1 period %X, duty %X; pwm2 period %X, duty%X; %X %X\n",adr, period1, duty1, period2, duty2, firstnibble, lastnibble);
 #endif
-  i2c_pca9531_set(I2C_SLA_PCA9531 + adr, period, duty, 0x00, 0x40, 0xEF, 0x55);
+//  i2c_pca9531_set(I2C_SLA_PCA9531 + adr, period, duty, 0x00, 0x40, 0xEF, 0x55);
+  i2c_pca9531_set(I2C_SLA_PCA9531 + adr, period1, duty1, period2, duty2, firstnibble, lastnibble);
 
-  return snprintf_P(output, len, PSTR("pwm set"));
+  return snprintf_P(output, len, PSTR("pwm ok"));
 }
 
 #endif  /* I2C_PCA9531_SUPPORT */

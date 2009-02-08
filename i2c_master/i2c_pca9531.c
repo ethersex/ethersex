@@ -27,8 +27,17 @@
 #include "i2c_pca9531.h"
 
 #ifdef I2C_PCA9531_SUPPORT
+/*
+LED4to7	7	6	6	4
+LED0to3	3	2	1	0
+bits	7,6	5,4	3,2	1,0
 
-
+bits
+00 = Output is set Hi-Z (LED off - default)
+01 = Output is set low (LED on)
+10 = Output blinks at PWM0 rate
+11 = Output blinks at PWM1 rate
+*/
 uint8_t
 i2c_pca9531_set(uint8_t address, 
 	uint8_t prescaler0, uint8_t pwm0duty,
