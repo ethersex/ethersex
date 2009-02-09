@@ -33,7 +33,7 @@
 #ifdef UECMD_SENDER_SUPPORT
 
 static uip_udp_conn_t *ecmd_conn;
-PGM_P send_data;
+PGM_P send_data = NULL;
 uint8_t resend_counter;
 client_return_text_callback_t ucallback = NULL;
 
@@ -72,6 +72,13 @@ uecmd_sender_net_main(void)
 void
 uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data, client_return_text_callback_t callback) 
 {
+  if (send_data) {
+    if(callback) {
+      callback(NULL, 0);
+    }
+    return;
+  }  
+
   if (!ecmd_conn) {
     ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
     if (!ecmd_conn) {
