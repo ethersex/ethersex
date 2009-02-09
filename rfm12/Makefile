@@ -11,7 +11,7 @@ include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
 schematic.pdf: schematic.sch
-	sch2ps schematic.sch
+	../contrib/gschem/sch2ps schematic.sch
 	ps2pdf schematic.ps
 	$(RM) -rf schematic.ps
 
