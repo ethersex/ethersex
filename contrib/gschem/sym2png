@@ -1,0 +1,39 @@
+#!/bin/sh
+# ======================================================================
+# sch2ps - Convert gschem schematic to Postscript
+#
+# Copyright (C) 2006 Dick Streefland
+#
+# This is free software, licensed under the terms of the GNU General
+# Public License as published by the Free Software Foundation.
+# ======================================================================
+
+tmp=/tmp/tmp$$.scm
+trap "rm -f $tmp gschem.log" 0 1 2 3 15
+
+cat <<EOF > $tmp
+; Script to generate a Postscript file.
+; Usage: gschem -q -s <script> -o <file>.ps <file>.sch
+(output-orientation "portrait")
+(output-type "limits")
+(output-text "ps")
+(gschem-use-rc-values)
+(gschem-print "/dev/null")
+(gschem-exit)
+EOF
+
+for	i
+do
+	case	"$i" in
+	*.sym)
+		ps="${i%.sym}.ps"
+		png="${i%.sym}.png"
+		gschem -q -s $tmp -o "$ps" "$i"
+                ps2png $ps $png
+                rm -f $ps
+		;;
+	*)
+		echo "Error: $i is not a symbol file (*.sym)"
+		exit 1
+	esac
+done
