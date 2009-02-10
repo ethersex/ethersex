@@ -317,6 +317,9 @@ void process_packet(void)
 
     uip_len = rpv.received_packet_size;
 
+    /* Set the enc stack active */
+    uip_stack_set_active(STACK_ENC);
+
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
     switch (HTONS(packet->type)) {
