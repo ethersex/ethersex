@@ -1,4 +1,4 @@
-#include "../../config.h"
+#include "../../autoconf.h"
 #ifndef KTY_SUPPORT
 #error Don't inline this file without KTY_SUPPORT
 #endif

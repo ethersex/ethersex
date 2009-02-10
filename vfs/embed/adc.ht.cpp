@@ -1,4 +1,4 @@
-#include "../../config.h"
+#include "../../autoconf.h"
 #ifndef ADC_SUPPORT
 #error Don't inline this file without ADC_SUPPORT
 #endif
