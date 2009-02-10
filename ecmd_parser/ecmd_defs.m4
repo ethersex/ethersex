@@ -65,6 +65,11 @@ ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
   ecmd_feature(io, "io ")
 ecmd_endif()
 
+ecmd_ifdef(CONTROL6_SUPPORT)
+  ecmd_feature(c6_get, "c6 get ")
+  ecmd_feature(c6_set, "c6 set ")
+ecmd_endif()
+
 ecmd_ifdef(NAMED_PIN_SUPPORT)
   ecmd_ifdef(PORTIO_SUPPORT)
     block(Named Pin)
