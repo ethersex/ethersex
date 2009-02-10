@@ -24,6 +24,7 @@ divert(-1)
 define(`m4_macro_rename', `define(`$2', defn(`$1'))undefine(`$1')')
 # Counters
 define(`action_thread_count', 0)
+define(`ecmd_global_count', 0)
 define(`timer_count', 0)
 define(`pin_count', 0)
 
@@ -33,13 +34,13 @@ define(`timer_divert', 1)
 define(`globals_divert', 2)
 define(`pin_table_divert', 3)
 define(`action_divert', 4)
+define(`ecmd_variable_divert', 5)
 define(`init_divert', 9)
 define(`normal_start_divert', 10)
 define(`normal_divert', 11)
 define(`normal_end_divert', 12)
 define(`update_pin_divert', 13)
 define(`control_end_divert', 14)
-define(`ecmd_variable_divert',15)
 
 ################################
 # Headers
@@ -74,15 +75,7 @@ define(`ECMD_USED', `ifdef(`ecmd_used', `', `dnl
 define(`old_divert', divnum)dnl
 define(`ecmd_used')dnl
 divert(globals_divert)dnl
-
-struct c6_option_t { 
-PGM_P *name;
-uint8_t value;
-};
-struct c6_option_t c6_ecmd_vars[] = {
-
- /* hier alle variablen definieren */ 
-}; 
+#define C6_ECMD_USED 1
 
 uint8_t control6_set(const char *varname, uint8_t *value) {
 
@@ -94,10 +87,20 @@ uint8_t control6_get(const char *varname, uint8_t *value) {
 #ifndef ECMD_SUPPORT
 #error Please define ECMD
 #endif
+')dnl
+divert(old_divert)')
 
-define(`ECMD_GLOBAL', `define(`old_divert', divnum)dnl
+
+dnl
+dnl  ECMD_GLOBAL(variable-name, initializer)
+dnl
+define(`ECMD_GLOBAL', `ECMD_USED()define(`old_divert', divnum)dnl
 divert(globals_divert)dnl
-
+const char PROGMEM $1_text[] = "$1";
+divert(ecmd_variable_divert)dnl
+{ $1_text, $2 },
+`#define $1 (c6_ecmd_vars[' ecmd_global_count `].value)'
+define(`ecmd_global_count', incr(ecmd_global_count))dnl
 divert(old_divert)')
 
 ################################
@@ -147,11 +150,23 @@ divert(-1)
 ################################
 define(`CONTROL_START', `divert(action_table_divert)struct action action_threads[] = {
 divert(timer_divert)uint32_t timers[] = {
+divert(ecmd_variable_divert)dnl
+#ifdef C6_ECMD_USED
+struct c6_option_t {
+  PGM_P name;
+  uint8_t value;
+};
+
+struct c6_option_t c6_ecmd_vars[] = {
+  /* hier alle variablen definieren */
 divert(init_divert)void control6_init(void) {
 divert(normal_start_divert)void control6_run(void) { dnl
 divert(normal_divert)')
 define(`CONTROL_END', `divert(control_end_divert)
 }
+divert(ecmd_variable_divert)dnl
+};
+#endif  /* C6_ECMD_USED */
 divert(timer_divert)
 };
 
