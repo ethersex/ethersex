@@ -79,12 +79,12 @@ network_init(void)
 
     uip_init();
 
-#if defined(RFM12_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(RFM12_SUPPORT) && defined(UIP_MULTI_STACK)
     uip_stack_set_active(STACK_RFM12);
     rfm12_stack_init();
 #endif
 
-#if defined(ZBUS_SUPPORT) && defined(ENC28J60_SUPPORT)
+#if defined(ZBUS_SUPPORT) && defined(UIP_MULTI_STACK)
     uip_stack_set_active(STACK_ZBUS);
     zbus_stack_init();
 #endif
