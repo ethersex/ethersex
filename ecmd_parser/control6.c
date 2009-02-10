@@ -31,35 +31,34 @@
 #include "../uip/uip_arp.h"
 #include "../eeprom.h"
 #include "../bit-macros.h"
+#include "../control6/control6.h"
 #include "ecmd.h"
 
 
 #ifdef CONTROL6_SUPPORT
 int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  char *varname;
   uint8_t varvalue;
 
-  uint8_t ret = sscanf_P(cmd, PSTR("%s %u"), &varname, &varvalue);
-  if (ret == 2) {
-    
-    return snprintf_P(output, len, "%s %u");
-  } else
+  if (control6_get(cmd, &varvalue))
+    return snprintf_P(output, len, "%s %u", cmd, varvalue);
+  else
     return -1;
 }
 /* }}} */
 
 int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-  char *varname;
+  char *buf;
   uint8_t varvalue;
-  
-  uint8_t ret = sscanf_P(cmd, PSTR("%s %u"), &varname, &varvalue);
-  
-  if ( ret == 2 ) {
-  
-  }
 
+  buf = strrchr (cmd, ' ');
+  if (buf) {
+    *(buf ++) = 0;
+    varvalue = strtol(buf, NULL, 10);
+    if (control6_set(cmd, &varvalue))
+      return snprintf_P(output, len, "%s %u", cmd, varvalue);
+  }
     return -1;
 }
 /* }}} */

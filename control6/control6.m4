@@ -39,6 +39,7 @@ define(`normal_divert', 11)
 define(`normal_end_divert', 12)
 define(`update_pin_divert', 13)
 define(`control_end_divert', 14)
+define(`ecmd_variable_divert',15)
 
 ################################
 # Headers
@@ -64,6 +65,39 @@ divert(-1)dnl
 
 define(`GLOBAL', `define(`old_divert', divnum)dnl
 divert(globals_divert)ifelse(`$#', 2, `$2', `uint8') $1;
+divert(old_divert)')
+
+################################
+# ecmd Global Variables
+################################
+define(`ECMD_USED', `ifdef(`ecmd_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`ecmd_used')dnl
+divert(globals_divert)dnl
+
+struct c6_option_t { 
+PGM_P *name;
+uint8_t value;
+};
+struct c6_option_t c6_ecmd_vars[] = {
+
+ /* hier alle variablen definieren */ 
+}; 
+
+uint8_t control6_set(const char *varname, uint8_t *value) {
+
+}
+uint8_t control6_get(const char *varname, uint8_t *value) {
+
+}
+
+#ifndef ECMD_SUPPORT
+#error Please define ECMD
+#endif
+
+define(`ECMD_GLOBAL', `define(`old_divert', divnum)dnl
+divert(globals_divert)dnl
+
 divert(old_divert)')
 
 ################################
