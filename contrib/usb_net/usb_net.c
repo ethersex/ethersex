@@ -277,7 +277,7 @@ main(int argc, char *argv[])
      FD_SET(global.tun_fd, &fds);
 
      tv.tv_sec = 0;
-     tv.tv_usec = 50000;
+     tv.tv_usec = 100000;
 
      select(fm, &fds, NULL, NULL, &tv);
      if(global.usb_handle == NULL)
