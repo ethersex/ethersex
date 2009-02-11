@@ -24,6 +24,7 @@
 #define _CONFIG_H
 
 #include <avr/version.h>
+#include <avr/io.h>
 
 /* check for avr-libc version */
 #if __AVR_LIBC_VERSION__ < 10404UL

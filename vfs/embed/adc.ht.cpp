@@ -1,4 +1,5 @@
 #include "../../autoconf.h"
+#include "../../pinning.c"
 #ifndef ADC_SUPPORT
 #error Don't inline this file without ADC_SUPPORT
 #endif
@@ -7,7 +8,7 @@
 <title>Ethersex - ADC Status</title>
   <script src="scr.js" type="text/javascript"></script>
   <link href="Sty.c"  media="screen" rel="Stylesheet" type="text/css" />
-  <script type="text/javascript"><!--
+  <script type="text/javascript">
 function ecmd_adc_req() {
   var url = '/ecmd?adc get';
   var request = new Object();
@@ -44,7 +45,6 @@ window.onload = function() {
   ecmd_adc_req();
   setInterval('ecmd_adc_req()', 5000);
 }
-    //--!>
 </script>
 </head><body>
 <h1>Ethersex ADC Status</h1>

@@ -116,8 +116,6 @@ ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
 
 divert(1)
 `
-#include <avr/io.h>
-
 #ifndef _PINNING_HEADER
 #define _PINNING_HEADER
 
