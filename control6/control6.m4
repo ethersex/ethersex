@@ -160,7 +160,6 @@ divert(ecmd_variable_divert)dnl
 };
 `uint8_t control6_set(const char *varname, uint8_t value) {
   uint8_t i;
-  syslog_sendf("set:%s-%u\n", varname, value);
   for(i = 0;i < ' ecmd_global_count `;i ++) {
     if (strcmp_P(varname, c6_ecmd_vars[i].name) == 0) {
       c6_ecmd_vars[i].value = value;
