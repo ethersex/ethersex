@@ -81,7 +81,7 @@ dnl // eine globale Variable fuer ecmd verwendet man so
 dnl ECMD_GLOBAL(Wassersoll, 20);
 dnl ECMD_GLOBAL(Raumsoll, 20);
 dnl ON Wassersoll > 30 DO
-dnl   Wassersoll = 30
+dnl   Wassersoll = 30;
 dnl END
 dnl // die ecmd syntax ist "c6 get Wassersoll" oder "c6 set Wassersoll 255"
 dnl // die werte koennen von 0 bis 255 gehen.
