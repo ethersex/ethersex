@@ -76,7 +76,7 @@ define(`old_divert', divnum)dnl
 define(`ecmd_used')dnl
 divert(globals_divert)dnl
 #define C6_ECMD_USED 1
-#ifndef ECMD_SUPPORT
+#ifndef ECMD_PARSER_SUPPORT
 #error Please define ECMD
 #endif
 ')dnl
