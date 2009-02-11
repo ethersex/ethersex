@@ -40,8 +40,8 @@ int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint8_t varvalue;
 
-  if (control6_get(cmd, &varvalue))
-    return snprintf_P(output, len, "%s %u", cmd, varvalue);
+  if (control6_get(cmd, &varvalue)) 
+    return snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue);
   else
     return -1;
 }
@@ -51,13 +51,12 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   char *buf;
   uint8_t varvalue;
-
   buf = strrchr (cmd, ' ');
   if (buf) {
     *(buf ++) = 0;
     varvalue = strtol(buf, NULL, 10);
-    if (control6_set(cmd, &varvalue))
-      return snprintf_P(output, len, "%s %u", cmd, varvalue);
+    if (control6_set(cmd, varvalue)) 
+      return snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue);
   }
     return -1;
 }
