@@ -65,6 +65,11 @@ ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
   ecmd_feature(io, "io ")
 ecmd_endif()
 
+ecmd_ifdef(CONTROL6_SUPPORT)
+  ecmd_feature(c6_get, "c6 get ", VARNAME, Display the current value of the ECMD_GLOBAL Variable)
+  ecmd_feature(c6_set, "c6 set ", VARNAME VALUE, Set an new value on the ECMD_GLOBAL Variable)
+ecmd_endif()
+
 ecmd_ifdef(NAMED_PIN_SUPPORT)
   ecmd_ifdef(PORTIO_SUPPORT)
     block(Named Pin)

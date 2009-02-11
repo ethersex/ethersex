@@ -26,5 +26,7 @@
 
 void control6_init(void);
 void control6_run(void);
+uint8_t control6_set(const char *varname, uint8_t value);
+uint8_t control6_get(const char *varname, uint8_t *value);
 
 #endif /* CONTROL6 */
