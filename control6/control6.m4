@@ -93,8 +93,6 @@ divert(ecmd_variable_divert)dnl
 { $1_text, $2 },
 `#define $1 (c6_ecmd_vars[' ecmd_global_count `].value)'
 define(`ecmd_global_count', incr(ecmd_global_count))dnl
-`#undef C6_ECMD_VARS_SIZE
-#define C6_ECMD_VARS_SIZE 'ecmd_global_count`'
 divert(old_divert)')
 
 ################################
@@ -160,10 +158,10 @@ define(`CONTROL_END', `divert(control_end_divert)
 }
 divert(ecmd_variable_divert)dnl
 };
-uint8_t control6_set(const char *varname, uint8_t value) {
+`uint8_t control6_set(const char *varname, uint8_t value) {
   uint8_t i;
   syslog_sendf("set:%s-%u\n", varname, value);
-  for(i = 0;i < C6_ECMD_VARS_SIZE;i ++) {
+  for(i = 0;i < ' ecmd_global_count `;i ++) {
     if (strcmp_P(varname, c6_ecmd_vars[i].name) == 0) {
       c6_ecmd_vars[i].value = value;
       return 1;
@@ -173,7 +171,7 @@ uint8_t control6_set(const char *varname, uint8_t value) {
 }
 uint8_t control6_get(const char *varname, uint8_t *value) {
   uint8_t i;
-  for(i = 0;i < C6_ECMD_VARS_SIZE;i ++) {
+  for(i = 0;i < ' ecmd_global_count `;i ++) {
     if (strcmp_P(varname, c6_ecmd_vars[i].name) == 0) {
       *value = c6_ecmd_vars[i].value;
       return 1;
@@ -182,7 +180,7 @@ uint8_t control6_get(const char *varname, uint8_t *value) {
   return 0;
 }
 
-#endif  /* C6_ECMD_USED */
+#endif  /* C6_ECMD_USED */'
 divert(timer_divert)
 };
 
