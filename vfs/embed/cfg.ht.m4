@@ -1,3 +1,4 @@
+changequote({{,}})dnl
 <html><head>
 <title>Ethersex - Setup</title>
   <script src="scr.js" type="text/javascript"></script>
@@ -8,11 +9,11 @@
 	  getCmd('show+version', writeVal, returnObjById('version'));
 	  getCmd('show+mac', writeVal, returnObjById('mac'));
 	  getCmd('show+ip', writeVal, returnObjById('ip'));
+ifdef({{conf_IPV6}}, {{}}, {{dnl
 	  getCmd('show+netmask', writeVal, returnObjById('netmask'));
+}})dnl
 	  getCmd('show+gw', writeVal, returnObjById('gateway'));
-changequote({{,}})dnl
-dnl
-ifdef({{conf_DNS}}, {{dnl         
+ifdef({{conf_DNS}}, {{dnl 
           getCmd('show+dns', writeVal, returnObjById('dns'));
 }})dnl
     }
@@ -70,15 +71,17 @@ ifdef({{conf_DNS}}, {{dnl
 	</tr>
 	<tr>
         <td>IP</td>
-        <td><input type="text" id="ip" onChange='getCmd("ip " + this.value, changeState, this);'> </td>
+        <td><input ifdef({{conf_IPV6}}, {{size="40"}}) type="text" id="ip" onChange='getCmd("ip " + this.value, changeState, this);' ifdef({{conf_IPV6}}, {{disabled}})> </td>
 	</tr>
+ifdef({{conf_IPV6}}, {{}}, {{dnl
 	<tr>
         <td>Netmask</td>
         <td><input type="text" id="netmask" onChange='getCmd("netmask " + this.value, changeState, this);'></td>
-    </tr>
+	</tr>
+}})dnl
 	<tr>
 	<td>Gateway</td>
-	<td><input type="text" id="gateway" onChange='getCmd("gw " + this.value, changeState, this);'></td>
+	<td><input ifdef({{conf_IPV6}}, {{size="40"}}) type="text" id="gateway" onChange='getCmd("gw " + this.value, changeState, this);' ifdef({{conf_IPV6}}, {{disabled}})></td>
 	</tr>
 ifdef({{conf_DNS}},{{dnl
         <tr>
