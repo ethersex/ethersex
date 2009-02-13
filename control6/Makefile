@@ -16,6 +16,7 @@ control6.h: control6-header.m4 control6.src
 	$(MAKE) -C ../named_pin user_config.c
 	m4 $(M4FLAGS) $^ > $@
 
+control6.c: control6.h
 control6.c: control6.m4 control6.src
 	$(MAKE) -C ../named_pin user_config.c
 	m4 $(M4FLAGS) $^ > $@
