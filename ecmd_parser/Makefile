@@ -46,9 +46,6 @@ named_pin_simple_files=../named_pin/np_simple.m4 np_simple_glue.m4
 endif
 endif
 
-ecmd.c:
-	$(MAKE) -C ../control6 control6.h
-
 ecmd.c: ecmd_defs.c
 ecmd_defs.c: ecmd_magic.m4 ecmd_defs.m4 $(named_pin_simple_files)
 	m4 $^ > $@.tmp

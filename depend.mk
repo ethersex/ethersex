@@ -27,6 +27,6 @@ if test -s $@.new; then mv -f $@.new $@; else rm -f $@.new; fi
 endef
 
 # Here is how to make .d files from .c files
-%.d: %.c $(TOPDIR)/pinning.c; $(make-deps)
+%.d: %.c $(TOPDIR)/control6/control6.h $(TOPDIR)/pinning.c; $(make-deps)
 
 %.d: %.S ; $(make-deps)
