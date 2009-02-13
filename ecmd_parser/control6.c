@@ -35,7 +35,7 @@
 #include "ecmd.h"
 
 
-#ifdef CONTROL6_SUPPORT
+#if defined(CONTROL6_SUPPORT) && defined(C6_ECMD_USED)
 int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
   uint8_t varvalue;
@@ -63,5 +63,5 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
 /* }}} */
 
 /* }}} */
-#endif /* CONTROL6_SUPPORT */
+#endif /* CONTROL6_SUPPORT && C6_ECMD_USED*/
 

@@ -44,6 +44,7 @@
 #include "../dns/resolv.h"
 #include "../clock/clock.h"
 #include "../yport/yport.h"
+#include "../control6/control6.h"
 #include "ecmd.h"
 
 #define xstr(s) str(s)
