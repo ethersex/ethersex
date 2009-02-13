@@ -1,5 +1,5 @@
 dnl
-dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+dnl   Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
 dnl   Copyright (c) 2008,2009 by Jochen Roessner <jochen@lugrot.de>
 dnl   Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
 dnl  
@@ -57,8 +57,10 @@ divert(0)dnl
 #include "../net/ecmd_sender_net.h"
 #include "../bit-macros.h"
 #include "../uip/uip.h"
+#include "control6.h"
 
 divert(-1)dnl
+define(`C6_HEADER', `')
 
 ################################
 # Global Variables

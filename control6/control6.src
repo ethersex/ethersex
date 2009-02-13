@@ -18,6 +18,8 @@ dnl
 
 enum sensor { Kessel,Vorlauf,Wasser,WasserRuecklauf,WasserZulauf,AussenNord,Ruecklauf,Ofen };
 
+C6_HEADER(`/* This will be in control6.h */')
+
 CONTROL_START
 
 dnl // dnl ist der kommentar fuer m4. Zum aktivieren der beispiele einfach das dnl entfernen.
@@ -85,6 +87,7 @@ dnl   Wassersoll = 30;
 dnl END
 dnl // die ecmd syntax ist "c6 get Wassersoll" oder "c6 set Wassersoll 255"
 dnl // die werte koennen von 0 bis 255 gehen.
+
 
 CONTROL_END
 
