@@ -30,3 +30,7 @@ pin(SPI_SCK, PB1, OUTPUT)
 
 #define NET_MAX_FRAME_LENGTH 1500
 #define ADC_CHANNELS 8
+
+/* MCU doesn't support toggling pins by writing to PINx register */
+#define PINx_TOGGLE_WORKAROUND
+
