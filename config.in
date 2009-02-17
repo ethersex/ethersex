@@ -73,6 +73,8 @@ source crypto/config.in
 source vfs/config.in
 source usb/config.in
 
+source control6/config.in
+
 string "Hostname" CONF_HOSTNAME "ethersex"
 
 comment "Network interfaces"
@@ -110,6 +112,7 @@ elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then
 fi
 
 define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
+source ipchair/config.in
 
 endmenu
 
@@ -167,6 +170,8 @@ dep_bool "  Onewire device detection support" ONEWIRE_DETECT_SUPPORT $ONEWIRE_SU
 dep_bool "  Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
 
 dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "named_pin/config"
+source i2c_master/config.in
+source camera/config.in
 
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
@@ -200,19 +205,7 @@ source ecmd_parser/config.in
 source httpd/config.in
 source lcd/config.in
 source net/config.in
-
-endmenu
-
-###############################################################################
-
-mainmenu_option next_comment
-comment "work in progress bits (enable with care)"
-
-  source i2c_master/config.in
-  source control6/config.in
-  source ipchair/config.in
-  source camera/config.in
-  source rfm12/rfm12_ask-config.in
+source rfm12/rfm12_ask-config.in
 
 endmenu
 

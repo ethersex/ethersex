@@ -1,4 +1,4 @@
-dep_bool_menu "Camera support" CAMERA_SUPPORT
+dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
 
   dep_bool_menu "DC3840 Serial camera" DC3840_SUPPORT $CAMERA_SUPPORT
     choice "DC3840 resolution"		\

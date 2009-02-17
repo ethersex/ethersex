@@ -1,4 +1,4 @@
-dep_bool "I2C Master Support" I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "I2C Master Support (EXPERIMENTAL)" I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
 if [ "$I2C_MASTER_SUPPORT" = "y" ]; then
   int "I2C Master Baudrate in kHZ" CONF_I2C_BAUD 400
 fi
