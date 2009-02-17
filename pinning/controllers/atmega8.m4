@@ -67,3 +67,7 @@ ifdef(`conf_I2C_MASTER', `
 
 /* on the ATmega8 we only have 6 adc channels in the pdip version */
 #define ADC_CHANNELS 6
+
+/* MCU doesn't support toggling pins by writing to PINx register */
+#define PINx_TOGGLE_WORKAROUND
+

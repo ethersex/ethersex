@@ -1,5 +1,5 @@
 dnl
-dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+dnl   Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 as
@@ -24,6 +24,7 @@ divert(5)
 
 #define NP_PORT(a) (PORT ## a)
 #define NP_PIN(a) (PIN ## a)
+#define NP_DDR(a) (DDR ## a)
 
 const char PROGMEM np_str_on[] = "on";
 const char PROGMEM np_str_off[] = "off";
@@ -71,11 +72,33 @@ divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 define(`np_simple_implement_toggle', `dnl
 divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
-  /* config: $2 $3, read old status */
+  /* config: $2 $3 */
+
+#ifdef PINx_TOGGLE_WORKAROUND
+  /* We cannot toggle the pin by writing to the PINx register, therefore
+     we have to do a read, xor, write with interrupts disabled to make
+     sure noone interferes ...
+     Furthermore we have to check whether the pin really is configured
+     as output, to not accidentally toggle the internal pull-up resistor. */
+
+  if ((NP_DDR(substr($2, 1, 1)) & _BV($2)) == 0)
+    return -1;   		/* Configured as input, stop. */
+
+  /* Disable interrupts to omit interference */
+  uint8_t sreg = SREG; cli();
+
+  uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
+  NP_PORT(substr($2, 1, 1)) = i ^ _BV($2);
+
+  SREG = sreg;			/* Possibly re-enable interrupts. */
+#else  /* PINx_TOGGLE_WORKAROUND */
+  /* First we read the current pin-state and afterwards toggle
+     the pin by writing to the PINx register. */
   uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
 
   /* now toggle the port */
   NP_PIN(substr($2, 1, 1)) |= _BV($2);
+#endif  /* not PINx_TOGGLE_WORKAROUND */
 
   /* say just the opposite of the old situation ... */
   return snprintf_P(output, len, $3(i) ? np_str_off : np_str_on);
