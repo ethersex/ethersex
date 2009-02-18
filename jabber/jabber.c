@@ -42,6 +42,19 @@ static const char PROGMEM jabber_get_auth_text[] =
     "<iq id='ga' type='get'><query xmlns='jabber:iq:auth'>"
     "<username>" CONF_JABBER_USERNAME "</username></query></iq>";
 
+static const char PROGMEM jabber_set_auth_text[] =
+    "<iq id='sa' type='set'><query xmlns='jabber:iq:auth'>"
+    "<resource>ethersex</resource>"
+    "<username>" CONF_JABBER_USERNAME "</username>"
+    "<password>" CONF_JABBER_PASSWORD "</password></query></iq>";
+
+static const char PROGMEM jabber_set_presence_text[] =
+    /* Set the presence */
+    "<presence><priority>1</priority></presence>"
+    /* Request the roster */
+    "<iq type='get' id='rosty'><query xmlns='jabber:iq:roster'/></iq>"
+    ;
+
 #define JABBER_SEND(str) do {			  \
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
 	uip_send (uip_sappdata, sizeof (str) - 1);      \
@@ -61,6 +74,18 @@ jabber_send_data (uint8_t send_state)
 
     case JABBER_GET_AUTH:
 	JABBER_SEND (jabber_get_auth_text);
+	break;
+
+    case JABBER_SET_AUTH:
+	JABBER_SEND (jabber_set_auth_text);
+	break;
+
+    case JABBER_SET_PRESENCE:
+	JABBER_SEND (jabber_set_presence_text);
+	break;
+
+    case JABBER_CONNECTED:
+	JABDEBUG ("idle, don't know what to send right now ...\n");
 	break;
 
     default:
@@ -91,6 +116,20 @@ jabber_parse (void)
 	    JABDEBUG ("<password/> not found in reply.  stop.");
 	    return 1;
 	}
+	break;
+
+    case JABBER_SET_AUTH:
+	if (strstr_P (uip_appdata, PSTR ("result")) == NULL) {
+	    JABDEBUG ("authentication failed.  stop.");
+	    return 1;
+	}
+
+	JABDEBUG ("jippie, we successfully authenticated to the server!\n");
+	break;
+
+    case JABBER_SET_PRESENCE:
+    case JABBER_CONNECTED:
+	JABDEBUG ("got something, but no idea how to parse it :(\n");
 	break;
 
     default:
