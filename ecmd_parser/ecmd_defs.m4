@@ -232,3 +232,7 @@ ecmd_ifdef(I2C_PCF8574X_SUPPORT)
   ecmd_feature(i2c_pcf8574x_read, "pcf8574x read", ADDR CHIP, Get bits)
   ecmd_feature(i2c_pcf8574x_set, "pcf8574x set", ADDR CHIP HEXVALUE, Set bits)
 ecmd_endif
+
+ecmd_ifdef(EEPROM_SUPPORT)
+  ecmd_feature(eeprom_reinit, "eeprom reinit",, Force reinitialization of the EEPROM config area)
+ecmd_endif

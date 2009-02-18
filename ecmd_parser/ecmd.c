@@ -222,3 +222,17 @@ int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
 }
 
 #endif /* TEENSY_SUPPORT */
+
+#ifdef EEPROM_SUPPORT
+int16_t parse_cmd_eeprom_reinit(char *cmd, char *output, uint16_t len)
+{
+    (void) cmd;
+    (void) output;
+    (void) len;
+
+    eeprom_init ();
+    return 0;
+}
+#endif  /* EEPROM_SUPPORT */
+
+
