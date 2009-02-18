@@ -5,7 +5,7 @@ ifdef(`conf_RFM12_ASK', `', `m4exit(1)')dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_set_rf1(type, code, delay, repeat) {
-   var url = 'http://fifi/ecmd?rfm12+' + type + '+' + code + '+' + delay + '+' + repeat;
+   var url = '/ecmd?rfm12+' + type + '+' + code + '+' + delay + '+' + repeat;
    ArrAjax.aufruf(url);
 }
 function ecmd_set_rf2(type, code, cmd, delay, repeat) {
