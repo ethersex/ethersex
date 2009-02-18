@@ -38,6 +38,7 @@ dep_bool_menu "Jabber client (EXPERIMENTAL)" JABBER_SUPPORT $TCP_SUPPORT $EXPERI
   string "Server Hostname" CONF_JABBER_HOSTNAME "jabber.zerties.org"
   string "Username" CONF_JABBER_USERNAME "esex"
   string "Password" CONF_JABBER_PASSWORD "password"
+  string "Target Buddy Name" CONF_JABBER_BUDDY "stesie@jabber.zerties.org"
 endmenu
 
 comment "Tunneling protocols"
