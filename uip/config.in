@@ -33,6 +33,13 @@ if [ "$SYSLOG_SUPPORT" = "y" ]; then
   fi
 fi
 
+dep_bool_menu "Jabber client (EXPERIMENTAL)" JABBER_SUPPORT $TCP_SUPPORT $EXPERIMENTAL_SUPPORT
+  ip "Server IP" CONF_JABBER_IP "78.47.210.246"
+  string "Server Hostname" CONF_JABBER_HOSTNAME "jabber.zerties.org"
+  string "Username" CONF_JABBER_USERNAME "esex"
+  string "Password" CONF_JABBER_PASSWORD "password"
+endmenu
+
 comment "Tunneling protocols"
 dep_bool_menu "OpenVPN" OPENVPN_SUPPORT $UDP_SUPPORT
   hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
