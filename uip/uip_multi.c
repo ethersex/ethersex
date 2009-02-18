@@ -66,17 +66,12 @@
 
 #endif
 
-struct uip_stack uip_stacks[STACK_LEN] = {
-#ifdef ENC28J60_SUPPORT
-  STACK_FUNCS (enc_stack),
-#endif
 
+struct uip_stack uip_stacks[STACK_LEN] = {
+/* BE CAREFUL, the order of the stack definitions here
+   always has to match the enum in uip-conf.h! */
 #if defined(RFM12_SUPPORT)
   STACK_FUNCS (rfm12_stack),
-#endif
-
-#if defined(USB_NET_SUPPORT)
-  STACK_FUNCS (usb_stack),
 #endif
 
 #if defined(ZBUS_SUPPORT)
@@ -85,6 +80,14 @@ struct uip_stack uip_stacks[STACK_LEN] = {
 
 #if defined(OPENVPN_SUPPORT)
   STACK_FUNCS (openvpn_stack),
+#endif
+
+#if defined(USB_NET_SUPPORT)
+  STACK_FUNCS (usb_stack),
+#endif
+
+#ifdef ENC28J60_SUPPORT
+  STACK_FUNCS (enc_stack),
 #endif
 };
 

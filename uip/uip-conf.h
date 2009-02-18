@@ -172,6 +172,9 @@ typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 */
 
 enum {
+/* BE CAREFUL, the order of the stacks in this enum
+   always has to match the uip_stacks definition in
+   uip_multi.c! */
 #if defined(RFM12_SUPPORT)
   STACK_RFM12,
 #endif
