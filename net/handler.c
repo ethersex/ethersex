@@ -50,6 +50,7 @@
 #include "snmp_net.h"
 #include "mcuf_net.h"
 #include "../httpd/httpd.h"
+#include "../jabber/jabber.h"
 #include "../debug.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -59,6 +60,10 @@ void network_init_apps(void)
 /* {{{ */ {
 #   ifdef ECMD_SUPPORT
     ecmd_net_init();
+#   endif
+
+#   ifdef JABBER_SUPPORT
+    jabber_init();
 #   endif
 
 #   ifdef HTTPD_SUPPORT
