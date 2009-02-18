@@ -51,8 +51,6 @@ static const char PROGMEM jabber_set_auth_text[] =
 static const char PROGMEM jabber_set_presence_text[] =
     /* Set the presence */
     "<presence><priority>1</priority></presence>"
-    /* Request the roster */
-    "<iq type='get' id='rosty'><query xmlns='jabber:iq:roster'/></iq>"
     /* Say something funny */
     "<message to='" CONF_JABBER_BUDDY "' type='message'><body>"
     "Hallo! Hallo Sie! Ich bin's Dein Ethersex!"
