@@ -1,6 +1,4 @@
-mainmenu_option next_comment
-comment "System clock"
-  bool "System clock support" CLOCK_SUPPORT
+dep_bool_menu "System clock support" CLOCK_SUPPORT
   dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
   dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
   dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT

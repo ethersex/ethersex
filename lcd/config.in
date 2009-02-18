@@ -1,6 +1,4 @@
-mainmenu_option next_comment
-comment "Character-LCD module support"
-  bool "HD44780 module driver" HD44780_SUPPORT
+dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT
   if [ "$HD44780_SUPPORT" = "y" ]; then
     choice 'Controller type'					\
 	    "Original			HD44780_ORIGINAL	\

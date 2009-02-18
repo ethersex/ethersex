@@ -1,6 +1,4 @@
-mainmenu_option next_comment
-comment "Etherrape Control Interface (ECMD)"
-  bool "ECMD support" ECMD_PARSER_SUPPORT
+dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
   dep_bool "TCP/Telnet interface" ECMD_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
   dep_bool "UDP interface" UECMD_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
 if [ "$ECMD_SUPPORT" = "y" -o "$UECMD_SUPPORT" = "y" ]; then
