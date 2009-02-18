@@ -30,6 +30,68 @@
 #include "jabber.h"
 #include "../ecmd_parser/ecmd.h"
 
+
+static const char PROGMEM jabber_stream_text[] =
+    "<?xml version='1.0'?>"
+    "<stream:stream version='1.0' "
+    "xmlns:stream='http://etherx.jabber.org/streams' "
+    "xmlns='jabber:client' to='" CONF_JABBER_HOSTNAME "' "
+    "from='" CONF_HOSTNAME "' xml:lang='en' >";
+
+
+#define JABBER_SEND(str) do {			  \
+	memcpy_P (uip_sappdata, str, sizeof (str));     \
+	uip_send (uip_sappdata, sizeof (str) - 1);      \
+    } while(0)
+
+
+
+static void
+jabber_send_data (uint8_t send_state)
+{
+    JABDEBUG ("send_data: %d\n", send_state);
+
+    switch (send_state) {
+    case JABBER_OPEN_STREAM:
+	JABBER_SEND (jabber_stream_text);
+	break;
+
+    default:
+	JABDEBUG ("eeek, what?\n");
+	uip_abort ();
+	break;
+    }
+
+    STATE->sent = send_state;
+}
+
+
+static uint8_t
+jabber_parse (void)
+{
+    JABDEBUG ("jabber_parse stage=%d\n", STATE->stage);
+
+    switch (STATE->stage) {
+    case JABBER_OPEN_STREAM:
+	if (strstr_P (uip_appdata, PSTR ("<stream:stream")) == NULL) {
+	    JABDEBUG ("<stream:stream not found in reply.  stop.");
+	    return 1;
+	}
+	break;
+
+    default:
+	JABDEBUG ("eeek, no comprendo!\n");
+	return 1;
+    }
+
+    /* Jippie, let's enter next stage if we haven't reached connected. */
+    if (STATE->stage != JABBER_CONNECTED)
+	STATE->stage ++;
+    return 0;
+}
+
+
+
 static void
 jabber_main(void)
 {
@@ -43,19 +105,31 @@ jabber_main(void)
 
     if (uip_connected()) {
 	JABDEBUG ("new connection\n");
+	STATE->stage = JABBER_OPEN_STREAM;
+	STATE->sent = JABBER_INIT;
     }
 
-    if (uip_newdata()) {
-	JABDEBUG ("received data\n");
+    if (uip_newdata() && uip_len) {
+	/* Zero-terminate */
+	((char *) uip_appdata)[uip_len] = 0;
+	JABDEBUG ("received data: %s\n", uip_appdata);
+
+	if (jabber_parse ()) {
+	    uip_close ();		/* Parse error */
+	    return;
+	}
+
     }
 
-    if(uip_rexmit() ||
-       uip_newdata() ||
-       uip_acked() ||
-       uip_connected()) {
+    if (uip_rexmit())
+	jabber_send_data (STATE->sent);
 
-	JABDEBUG ("send data\n");
-    }
+    else if (STATE->stage > STATE->sent
+	     && (uip_newdata()
+		 || uip_acked()
+		 || uip_connected()))
+	jabber_send_data (STATE->stage);
+
 }
 
 

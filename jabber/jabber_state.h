@@ -2,7 +2,7 @@
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -19,18 +19,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_JABBER_H
-#define HAVE_JABBER_H
+#ifndef HAVE_JABBER_STATE_H
+#define HAVE_JABBER_STATE_H
 
-void jabber_init(void);
+enum {
+    JABBER_INIT,
 
-#ifdef DEBUG_JABBER
-# include "../debug.h"
-# define JABDEBUG(a...)  debug_printf("jabber: " a)
-#else
-# define JABDEBUG(a...)
-#endif
+    JABBER_OPEN_STREAM,
+    /* send: <stream:stream ... */
+    /* expect: <stream:stream ... */
 
-#define STATE (&uip_conn->appstate.jabber)
+    JABBER_GET_AUTH,
+    /* send: GET <query ...auth */
+    /* expect: <password/> */
 
-#endif  /* HAVE_JABBER_H */
+    JABBER_SET_AUTH,
+    /* send: SET <query ...auth */
+    /* expect: result */
+
+    JABBER_SET_PRESENCE,
+    /* send: presence and request roster */
+    /* expect: nothing special */
+
+    JABBER_CONNECTED,
+    /* we're set */
+};
+
+#include <inttypes.h>
+
+struct jabber_connection_state_t {
+    uint8_t stage;
+    uint8_t sent;
+};
+
+#endif  /* HAVE_JABBER_STATE_H */
