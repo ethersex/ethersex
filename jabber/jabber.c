@@ -38,6 +38,9 @@ static const char PROGMEM jabber_stream_text[] =
     "xmlns='jabber:client' to='" CONF_JABBER_HOSTNAME "' "
     "from='" CONF_HOSTNAME "' xml:lang='en' >";
 
+static const char PROGMEM jabber_get_auth_text[] =
+    "<iq id='ga' type='get'><query xmlns='jabber:iq:auth'>"
+    "<username>" CONF_JABBER_USERNAME "</username></query></iq>";
 
 #define JABBER_SEND(str) do {			  \
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
@@ -54,6 +57,10 @@ jabber_send_data (uint8_t send_state)
     switch (send_state) {
     case JABBER_OPEN_STREAM:
 	JABBER_SEND (jabber_stream_text);
+	break;
+
+    case JABBER_GET_AUTH:
+	JABBER_SEND (jabber_get_auth_text);
 	break;
 
     default:
@@ -75,6 +82,13 @@ jabber_parse (void)
     case JABBER_OPEN_STREAM:
 	if (strstr_P (uip_appdata, PSTR ("<stream:stream")) == NULL) {
 	    JABDEBUG ("<stream:stream not found in reply.  stop.");
+	    return 1;
+	}
+	break;
+
+    case JABBER_GET_AUTH:
+	if (strstr_P (uip_appdata, PSTR ("<password/>")) == NULL) {
+	    JABDEBUG ("<password/> not found in reply.  stop.");
 	    return 1;
 	}
 	break;
