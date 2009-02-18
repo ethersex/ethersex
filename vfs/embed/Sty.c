@@ -1,8 +1,14 @@
 
 body {
-  background-color:    #444;
-  color: #ddd;
+  background-color: #333;
+  color: #eee;
   font-family: sans-serif; 
+}
+a:hover{
+  color: #fff;
+}
+a:visited, a:active{
+  color: #ddd;
 }
 
 #logconsole {
