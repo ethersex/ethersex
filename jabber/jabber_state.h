@@ -46,10 +46,16 @@ enum {
 };
 
 #include <inttypes.h>
+#include "../net/ecmd_state.h"
+
+#define TARGET_BUDDY_MAXLEN 40
 
 struct jabber_connection_state_t {
     uint8_t stage;
     uint8_t sent;
+
+    char target[TARGET_BUDDY_MAXLEN];
+    char outbuf[ECMD_OUTPUTBUF_LENGTH];
 };
 
 #endif  /* HAVE_JABBER_STATE_H */

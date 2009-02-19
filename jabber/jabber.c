@@ -51,10 +51,6 @@ static const char PROGMEM jabber_set_auth_text[] =
 static const char PROGMEM jabber_set_presence_text[] =
     /* Set the presence */
     "<presence><priority>1</priority></presence>"
-    /* Say something funny */
-    "<message to='" CONF_JABBER_BUDDY "' type='message'><body>"
-    "Hallo! Hallo Sie! Ich bin's Dein Ethersex!"
-    "</body><subject></subject></message>"
     ;
 
 #define JABBER_SEND(str) do {			  \
@@ -62,6 +58,31 @@ static const char PROGMEM jabber_set_presence_text[] =
 	uip_send (uip_sappdata, sizeof (str) - 1);      \
     } while(0)
 
+
+#ifdef ECMD_JABBER_SUPPORT
+static void
+jabber_parse_ecmd (const char *from, char *message)
+{
+    if (strlen (from) > TARGET_BUDDY_MAXLEN) {
+	JABDEBUG ("parse_ecmd: from addr too long!\n");
+	return;
+    }
+
+    strcpy (STATE->target, from);
+
+    int16_t len = ecmd_parse_command(message, STATE->outbuf,
+				     ECMD_OUTPUTBUF_LENGTH - 1);
+    if (len <= -10) {
+	JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
+	len = -len - 10;
+    }
+
+    if (len < 0)
+	strcpy_P (STATE->outbuf, PSTR ("parse error"));
+    else
+	STATE->outbuf[len] = 0;
+}
+#endif	/* ECMD_JABBER_SUPPORT */
 
 
 static void
@@ -87,7 +108,14 @@ jabber_send_data (uint8_t send_state)
 	break;
 
     case JABBER_CONNECTED:
-	JABDEBUG ("idle, don't know what to send right now ...\n");
+	if (*STATE->outbuf)
+	    uip_slen = sprintf_P (uip_sappdata, PSTR(
+				      "<message to='%s' type='message'>"
+				      "<body>%s</body><subject></subject>"
+				      "</message>"),
+		       STATE->target, STATE->outbuf);
+	else
+	    JABDEBUG ("idle, don't know what to send right now ...\n");
 	break;
 
     default:
@@ -131,6 +159,37 @@ jabber_parse (void)
 
     case JABBER_SET_PRESENCE:
     case JABBER_CONNECTED:
+#ifdef ECMD_JABBER_SUPPORT
+	if (strncmp_P (uip_appdata, PSTR ("<mess"), 5) == 0) {
+	    const char *from = strstr_P (uip_appdata, PSTR ("from="));
+	    const char *body = strstr_P (uip_appdata, PSTR ("<body>"));
+
+	    if (!from || !body) {
+		JABDEBUG ("received invalid message.\n");
+		break;		/* Ignore, not really fatal. */
+	    }
+
+	    from += 6;		/* skip from=' */
+	    body += 6;		/* skip body tag. */
+
+	    char *ptr = strstr_P (uip_appdata, PSTR ("</bod"));
+	    if (! ptr) {
+		JABDEBUG ("received incomplete message, buffer overrun?\n");
+		break;
+	    }
+	    *ptr = 0;		/* terminate body text. */
+
+	    ptr = strchr (from, '/');
+	    if (! ptr) {
+		JABDEBUG ("resource slash not found in from addr!\n");
+		break;
+	    }
+	    *ptr = 0;		/* chop off resource name */
+
+	    jabber_parse_ecmd (from, body);
+	} else
+#endif	/* ECMD_JABBER_SUPPORT */
+
 	JABDEBUG ("got something, but no idea how to parse it :(\n");
 	break;
 
@@ -162,7 +221,11 @@ jabber_main(void)
 	JABDEBUG ("new connection\n");
 	STATE->stage = JABBER_OPEN_STREAM;
 	STATE->sent = JABBER_INIT;
+	*STATE->outbuf = 0;	/* Clear possibly outstanding messages. */
     }
+
+    if (uip_acked() && STATE->stage == JABBER_CONNECTED)
+	*STATE->outbuf = 0;
 
     if (uip_newdata() && uip_len) {
 	/* Zero-terminate */
@@ -173,13 +236,12 @@ jabber_main(void)
 	    uip_close ();		/* Parse error */
 	    return;
 	}
-
     }
 
     if (uip_rexmit())
 	jabber_send_data (STATE->sent);
 
-    else if (STATE->stage > STATE->sent
+    else if ((STATE->stage > STATE->sent || STATE->stage == JABBER_CONNECTED)
 	     && (uip_newdata()
 		 || uip_acked()
 		 || uip_connected()))
