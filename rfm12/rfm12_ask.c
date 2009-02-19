@@ -24,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include <avr/wdt.h>
 
 #include "../config.h"
 
@@ -77,6 +78,7 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uin
   rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
   for(uint8_t ii=cnt;ii>0;ii--)               // Sequenz cnt send
   {
+    wdt_kick();
     uint8_t rfm12_trigger_level=0;
     for(uint8_t i=0;i<41;i++)
     {
@@ -102,6 +104,7 @@ rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
   rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
   for(uint8_t ii=cnt;ii>0;ii--)               // Sequenz cnt send
   {
+    wdt_kick();
     uint8_t rfm12_trigger_level=0;
     for(uint8_t i=0;i<49;i++)
     {
