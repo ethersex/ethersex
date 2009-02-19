@@ -221,6 +221,23 @@ divert(old_divert)')dnl
 define(`TIMER_WAIT', `PT_WAIT_UNTIL(pt, TIMER($1) >= $2);')
 define(`WAIT', `TIMER_START(`timer_on_'action_thread_ident); TIMER_WAIT(`timer_on_'action_thread_ident, ($1));')
 
+#########################################
+# send Syslog messages
+#########################################
+define(`SYSLOG_USED', `ifdef(`syslog_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`kty_used')dnl
+divert(globals_divert)
+#include "../syslog/syslog.h"
+
+#ifndef SYSLOG_SUPPORT
+#error Please define syslog support
+#endif
+
+divert(old_divert)')')
+
+define(`SYSLOG', `SYSLOG_USED()ifelse(`$#', 1, `syslog_send_P(PSTR($1))', `syslog_sendf($*)')')
+
 ################################
 # Conditionals
 ################################
