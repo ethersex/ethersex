@@ -53,6 +53,11 @@ static const char PROGMEM jabber_set_presence_text[] =
     "<presence><priority>1</priority></presence>"
     ;
 
+static const char PROGMEM jabber_startup_text[] =
+    /* This message must NOT be longer than STATE->outbuf,
+       be careful ;) */
+    "Your Ethersex is now UP :)";
+
 #define JABBER_SEND(str) do {			  \
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
 	uip_send (uip_sappdata, sizeof (str) - 1);      \
@@ -221,7 +226,9 @@ jabber_main(void)
 	JABDEBUG ("new connection\n");
 	STATE->stage = JABBER_OPEN_STREAM;
 	STATE->sent = JABBER_INIT;
-	*STATE->outbuf = 0;	/* Clear possibly outstanding messages. */
+
+	strcpy_P (STATE->target, PSTR(CONF_JABBER_BUDDY));
+	strcpy_P (STATE->outbuf, jabber_startup_text);
     }
 
     if (uip_acked() && STATE->stage == JABBER_CONNECTED)
