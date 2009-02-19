@@ -33,8 +33,7 @@
 
 static const char PROGMEM jabber_stream_text[] =
     "<?xml version='1.0'?>"
-    "<stream:stream version='1.0' "
-    "xmlns:stream='http://etherx.jabber.org/streams' "
+    "<stream:stream xmlns:stream='http://etherx.jabber.org/streams' "
     "xmlns='jabber:client' to='" CONF_JABBER_HOSTNAME "' "
     "from='" CONF_HOSTNAME "' xml:lang='en' >";
 
