@@ -260,7 +260,24 @@ jabber_main(void)
 		 || uip_acked()
 		 || uip_connected()))
 	jabber_send_data (STATE->stage);
+    else if (STATE->stage == JABBER_CONNECTED && uip_poll() && *STATE->outbuf)
+        jabber_send_data(STATE->stage);
 
+}
+
+uint8_t
+jabber_send_message(char *message)
+{
+  if (!jabber_conn) return 0;
+  if (*jabber_conn->appstate.jabber.outbuf) return 0;
+  
+  memcpy(jabber_conn->appstate.jabber.outbuf, message, 
+         sizeof(jabber_conn->appstate.jabber.outbuf));
+
+  jabber_conn->appstate.jabber.outbuf
+    [sizeof(jabber_conn->appstate.jabber.outbuf) -1] = 0;
+  
+  return 1;
 }
 
 void 

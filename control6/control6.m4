@@ -226,7 +226,7 @@ define(`WAIT', `TIMER_START(`timer_on_'action_thread_ident); TIMER_WAIT(`timer_o
 #########################################
 define(`SYSLOG_USED', `ifdef(`syslog_used', `', `dnl
 define(`old_divert', divnum)dnl
-define(`kty_used')dnl
+define(`syslog_used')dnl
 divert(globals_divert)
 #include "../syslog/syslog.h"
 
@@ -237,6 +237,27 @@ divert(globals_divert)
 divert(old_divert)')')
 
 define(`SYSLOG', `SYSLOG_USED()ifelse(`$#', 1, `syslog_send_P(PSTR($1))', `syslog_sendf($*)')')
+
+#########################################
+# send Jabber messages
+#########################################
+define(`JABBER_USED', `ifdef(`jabber_used', `', `dnl
+define(`old_divert', divnum)dnl
+define(`jabber_used')dnl
+divert(globals_divert)
+#include "../jabber/jabber.h"
+
+#ifndef JABBER_SUPPORT
+#error Please define jabber support
+#endif
+
+divert(old_divert)')')
+
+define(`JABBER', `JABBER_USED()ifelse(`$#', 1, `jabber_send_message($1)', `
+    define(`__jabber_msg', `$1')dnl
+    snprintf_P((char *)uip_buf, sizeof(uip_buf), PSTR($1), shift($@));
+    jabber_send_message((char *)uip_buf);
+')')')
 
 ################################
 # Conditionals
