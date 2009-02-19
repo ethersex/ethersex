@@ -226,6 +226,10 @@ void timer_process(void)
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
+#           ifdef JABBER_SUPPORT
+            jabber_periodic();
+#           endif
+
 #           ifdef DEBUG_TIMER
             debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
 #           endif

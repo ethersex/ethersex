@@ -62,6 +62,11 @@ static const char PROGMEM jabber_startup_text[] =
 	uip_send (uip_sappdata, sizeof (str) - 1);      \
     } while(0)
 
+#define STATE (&uip_conn->appstate.jabber)
+
+
+static uip_conn_t *jabber_conn;
+
 
 #ifdef ECMD_JABBER_SUPPORT
 static void
@@ -112,14 +117,15 @@ jabber_send_data (uint8_t send_state)
 	break;
 
     case JABBER_CONNECTED:
-	if (*STATE->outbuf)
+	if (*STATE->outbuf) {
 	    uip_slen = sprintf_P (uip_sappdata, PSTR(
 				      "<message to='%s' type='message'>"
 				      "<body>%s</body><subject></subject>"
 				      "</message>"),
 		       STATE->target, STATE->outbuf);
-	else
+        } else {
 	    JABDEBUG ("idle, don't know what to send right now ...\n");
+        }
 	break;
 
     default:
@@ -166,7 +172,7 @@ jabber_parse (void)
 #ifdef ECMD_JABBER_SUPPORT
 	if (strncmp_P (uip_appdata, PSTR ("<mess"), 5) == 0) {
 	    const char *from = strstr_P (uip_appdata, PSTR ("from="));
-	    const char *body = strstr_P (uip_appdata, PSTR ("<body>"));
+	    char *body = strstr_P (uip_appdata, PSTR ("<body>"));
 
 	    if (!from || !body) {
 		JABDEBUG ("received invalid message.\n");
@@ -215,10 +221,12 @@ jabber_main(void)
 {
     if (uip_aborted() || uip_timedout()) {
 	JABDEBUG ("connection aborted\n");
+        jabber_conn = NULL;
     }
 
     if (uip_closed()) {
 	JABDEBUG ("connection closed\n");
+        jabber_conn = NULL;
     }
 
     if (uip_connected()) {
@@ -255,6 +263,14 @@ jabber_main(void)
 
 }
 
+void 
+jabber_periodic(void)
+{
+  if (!jabber_conn) {
+    jabber_init();
+  }
+}
+
 
 void
 jabber_init(void)
@@ -263,9 +279,9 @@ jabber_init(void)
 
     uip_ipaddr_t ip;
     CONF_JABBER_IP;
-    uip_conn_t *conn = uip_connect(&ip, HTONS(5222), jabber_main);
+    jabber_conn = uip_connect(&ip, HTONS(5222), jabber_main);
 
-    if (! conn) {
+    if (! jabber_conn) {
 	JABDEBUG ("no uip_conn available.\n");
 	return;
     }

@@ -23,6 +23,7 @@
 #define HAVE_JABBER_H
 
 void jabber_init(void);
+void jabber_periodic(void);
 
 #ifdef DEBUG_JABBER
 # include "../debug.h"
@@ -30,7 +31,5 @@ void jabber_init(void);
 #else
 # define JABDEBUG(a...)
 #endif
-
-#define STATE (&uip_conn->appstate.jabber)
 
 #endif  /* HAVE_JABBER_H */
