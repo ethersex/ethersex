@@ -1,8 +1,14 @@
 #!/bin/bash
 
-wavefile=aus1.wav
+wavefile=out.wav
 soxdfile=sox.dat
 gnupfile=gnu.dat
+
+lowerboundlevel=-0.3
+upperboundlevel=0.3
+
+deltalongtime=0.005
+deltashorttime=0.0009
 
 sox $wavefile $soxdfile
 
@@ -12,7 +18,8 @@ plotheader="# gnuplot file\n
 set title 'SoX'\n
 set grid xtics ytics\n
 set key off\n
-set style data lines\n"
+set style data points\n
+plot '$gnupfile'\n"
 
 # echo -e $plotheader | gnuplot
 
@@ -37,19 +44,19 @@ fi
 
 x=0
 y=0
-z=0
+z=0upperboundlevel
 j=0
 k=0
 countrange=0
-let element_count_timearray=element_count_timearray-10
+let element_count_timearray=element_count_timearray-2
 for i in `seq 0 $element_count_timearray`
 do
-  rangelag=$(echo "${amplitude[$i]}<0.3&&${amplitude[$i]}>-0.7"|bc)
-  if [ $rangelag -ne 0 ]
+  rangelag="$(echo "((${amplitude[$i]})<=($upperboundlevel))&&((${amplitude[$i]})>=($lowerboundlevel))" | bc -l 2>/dev/null)"
+  if [ $rangelag -ne 0 ] 2>/dev/null
   then
     let countrange=$countrange+1
   else
-    if [ $countrange == 0 ]
+    if [ $countrange -eq 0 ]
     then
       let j=i
     fi
@@ -57,58 +64,74 @@ do
     then
       z=$( echo "${timearray[$i]}-${timearray[$j]}"|bc )
       y=$( echo "${timearray[$j]}-${timearray[$k]}-$z"|bc )
-      flag=$(echo "$y<0.005"|bc)
+      flag=$(echo "$y<$deltashorttime"|bc)
       if [ $flag -ne 0 ]
       then
-	code[x]=0
-	echo -n ${code[x]}
-	plotheader=$(echo -e "$plotheader\nset label '${code[x]}' at ${timearray[$k]},-0.6\n")
+	code[$x]=0
+	echo -n ${code[$x]}
+	let dx=j-countrange/2
+	plotheader=$(echo -e "$plotheader\nset label '${code[$x]}' at ${timearray[$dx]},0.95\n")
 	let x=x+1
       else
-	flag=$(echo "$y<0.013"|bc)
+	flag=$(echo "$y<$deltalongtime"|bc)
 	if [ $flag -ne 0 ]
 	then
-	  code[x]=1
-	  echo -n ${code[x]}
-	  plotheader=$(echo -e "$plotheader\nset label '${code[x]}' at ${timearray[$k]},0.6\n")
-	  let x=x+1
+# 	  code[$x]=1
+# 	  echo -n ${code[$x]}
+	  plotheader=$(echo -e "$plotheader\nset label '1' at ${timearray[$j]},0.9\n")
+# 	  let x=x+1
 	fi
       fi
-#       echo  ${timearray[$i]} $y $z
+      echo -e "\n${timearray[$i]} $y $z $countrange"
       let k=j
-      code[x]=1
-      echo -n ${code[x]}
-      plotheader=$(echo -e "$plotheader\nset label '${code[x]}' at ${timearray[$i]},0.6\n")
+      code[$x]=1
+      echo -n ${code[$x]}
+      let dx=j+countrange/2
+      plotheader=$(echo -e "$plotheader\nset label '${code[$x]}' at ${timearray[$dx]},0.95\n")
       let x=x+1
     elif [ $countrange -gt 30 ]
     then
       z=$( echo "${timearray[$i]}-${timearray[$j]}"|bc )
       y=$( echo "${timearray[$j]}-${timearray[$k]}-$z"|bc )
-      flag=$(echo "$y<0.005"|bc)
+      flag=$(echo "$y<$deltashorttime"|bc)
       if [ $flag -ne 0 ]
       then
-	code[x]=0
-	echo -n ${code[x]}
-	plotheader=$(echo -e "$plotheader\nset label '${code[x]}' at ${timearray[$k]},-0.6\n")
+	code[$x]=0
+	echo -n ${code[$x]}
+	plotheader=$(echo -e "$plotheader\nset label '0' at ${timearray[$j]},0.8\n")
 	let x=x+1
       else
-	flag=$(echo "$y<0.013"|bc)
+	flag=$(echo "$y<$deltalongtime"|bc)
 	if [ $flag -ne 0 ]
 	then
-	  code[x]=1
-	  echo -n ${code[x]}
-	  plotheader=$(echo -e "$plotheader\nset label '${code[x]}' at ${timearray[$k]},0.6\n")
+	  code[$x]=1
+	  echo -n ${code[$x]}
+	  let dx=j-countrange
+	  plotheader=$(echo -e "$plotheader\nset label '${code[$x]}' at ${timearray[$dx]},0.95\n")
 	  let x=x+1
 	fi
       fi
-#       echo ${timearray[$i]} $y $z
+      echo -e "\n${timearray[$i]} $y $z $countrange"
       let k=j
-      code[x]=0
-      echo -n ${code[x]}
-      plotheader=$(echo -e "$plotheader\nset label '${code[x]}' at ${timearray[$i]},-0.6\n")
+      code[$x]=0
+      echo -n ${code[$x]}
+      let dx=j+countrange/2
+      plotheader=$(echo -e "$plotheader\nset label '${code[$x]}' at ${timearray[$j]},0.95\n")
       let x=x+1
     fi
     countrange=0
+    if [ $x -eq 1 ]
+    then
+      if [ $i -gt 500 ]
+      then
+	let startcnt=i-500
+      else
+	let startcnt=i
+      fi
+      starttime=${timearray[$startcnt]}
+    fi
+    let endcnt=k
+    endtime=${timearray[$endcnt]}
   fi
   
 done
@@ -159,6 +182,10 @@ echo "bin $BIN = dec $DEC1"
 
 
 echo -e "$plotheader\n
-plot '$gnupfile'\n
+replot\n
 pause -1 'Hit return to continue'" > gnuplot.in #| gnuplot
 echo -e "call:\n gnuplot gnuplot.in"
+echo $starttime $startcnt
+let endcnt=endcnt-startcnt+500
+echo $endtime $endcnt
+# tail -n +$startcnt $soxdfile | head -n $endcnt > $gnupfile
