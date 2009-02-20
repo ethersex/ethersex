@@ -45,6 +45,7 @@
 #include "../clock/clock.h"
 #include "../yport/yport.h"
 #include "../control6/control6.h"
+#include "../syslog/syslog.h"
 #include "ecmd.h"
 
 #define xstr(s) str(s)

@@ -128,6 +128,12 @@ ecmd_ifdef(DNS_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
+ecmd_ifdef(SYSLOG_SUPPORT)
+  block(SYSLOG)
+  ecmd_feature(syslog, "syslog ", STRING, Send string to syslog server.)
+  ecmd_feature(show_syslog, "show syslog",, Display the IP address of the configured SYSLOG server.)
+ecmd_endif()
+
 ecmd_ifdef(CLOCK_SUPPORT)
   block(Clock)
   ecmd_feature(time, "time",, Display the current time.)
