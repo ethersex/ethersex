@@ -202,12 +202,14 @@ uint8_t sd_raw_init()
         return 0;
     }
 
+#if 0
     /* card needs 74 cycles minimum to start up */
     for(uint8_t i = 0; i < 10; ++i)
     {
         /* wait 8 clock cycles */
         sd_raw_rec_byte();
     }
+#endif
 
     /* address card */
     select_card();
@@ -220,7 +222,7 @@ uint8_t sd_raw_init()
         if(response == (1 << R1_IDLE_STATE))
             break;
 
-        if(i == 0xff)
+        if(i == 5)
         {
             unselect_card();
             SDDEBUG ("card reset failed, response=0x%04x.\n", response);
