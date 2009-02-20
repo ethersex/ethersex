@@ -4,6 +4,7 @@ SRC = \
 	process.c \
 	pwm-gpl2.c \
 	timer.c \
+	stella_net.c
 
 ##############################################################################
 # generic fluff

@@ -2,6 +2,7 @@ TARGET = libyport.a
 TOPDIR = ..
 SRC = \
 	yport.c \
+	yport_net.c
 
 ##############################################################################
 # generic fluff

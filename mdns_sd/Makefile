@@ -2,6 +2,7 @@ TARGET = libmdns_sd.a
 TOPDIR = ..
 SRC = \
 	mdns_sd.c \
+	mdns_sd_net.c
 
 ##############################################################################
 # generic fluff

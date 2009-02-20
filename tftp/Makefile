@@ -2,6 +2,7 @@ TARGET = libtftp.a
 TOPDIR = ..
 SRC = \
 	tftp-bootload.c \
+	tftp_net.c \
 	tftp-vfs.c
 
 ##############################################################################

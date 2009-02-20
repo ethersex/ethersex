@@ -3,6 +3,7 @@ TOPDIR = ..
 SRC = \
 	modbus.c \
 	modbus_client.c \
+	modbus_net.c
 
 ##############################################################################
 # generic fluff
