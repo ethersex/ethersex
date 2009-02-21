@@ -652,6 +652,23 @@ NTP_SUPPORT
 
   Synchronize the system clock via NTP.
 
+NTP Full Qualified NTP-Server Name
+NTP_SERVER
+ Enter the right fqdn of your NTP-Server right here. The Servername 
+ depends on IPv4/IPv6.
+
+NTP Server IP Address
+NTP_SERVER_IPADDR
+ This IP depends on your IPv4 or IPv6 selection and provides
+ to set the correct NTP-Server IP Address for your network.
+ Usefull during disabled DNS operations.
+
+
+NTP Server Port Number
+NTP_PORT
+ The Port Number for your NTP-Server
+  Default is 123
+
 Cron daemon
 CRON_SUPPORT
   Depends on: 
