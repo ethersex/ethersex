@@ -27,6 +27,7 @@
 #include "../clock/clock.h"
 #include "ntp.h"
 #include "ntp_net.h"
+#include "../debug.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
 
@@ -38,6 +39,10 @@ ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
     uip_udp_remove(ntp_conn);
   }
   ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
+#ifdef DEBUG_NTP
+    debug_printf("NTP: query connected\n");
+#endif
+
 }
 #endif
 
@@ -57,9 +62,9 @@ ntp_init()
     ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
 
 #else /* ! DNS_SUPPORT */
-  uip_ipaddr_t ipaddr;
-  NTP_IPADDR(&ipaddr);
-  ntp_conn = uip_udp_new(&ipaddr, HTONS(NTP_PORT), ntp_net_main);
+  uip_ipaddr_t ip;
+  NTP_SERVER_IPADDR;
+  ntp_conn = uip_udp_new(&ip, HTONS(NTP_PORT), ntp_net_main);
 #endif
 }
 
@@ -83,6 +88,9 @@ ntp_send_packet(void)
   /* push the packet out ... */
   uip_udp_conn = ntp_conn;
   uip_process(UIP_UDP_SEND_CONN);
+#ifdef DEBUG_NTP
+    debug_printf("NTP: send packet\n");
+#endif
 }
 
 void
@@ -94,6 +102,9 @@ ntp_newdata(void)
   /* We must save an unix timestamp */
   ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
 
+#ifdef DEBUG_NTP
+    debug_printf("NTP: Set new time: %i\n",ntp_timestamp);
+#endif
   clock_set_time(ntp_timestamp);
 
 }
