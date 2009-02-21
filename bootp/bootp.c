@@ -30,13 +30,13 @@
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
 #include "../eeprom.h"
-#include "../net/bootp_net.h"
 #include "../tftp/tftp.h"
 #include "../dns/resolv.h"
 #include "../dyndns/dyndns.h"
 
 #include "bootp.h"
 #include "bootphdr.h"
+#include "bootp_net.h"
 #include "../debug.h"
 
 static unsigned char mincookie[] = {99, 130, 83, 99, 255} ;

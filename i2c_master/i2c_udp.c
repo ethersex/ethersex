@@ -24,12 +24,12 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <util/twi.h>
-#include "../net/i2c_state.h"
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
 #include "../config.h"
 #include "i2c_master.h"
 #include "i2c_udp.h"
+#include "i2c_state.h"
 
 #ifdef I2C_UDP_SUPPORT
 

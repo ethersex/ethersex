@@ -23,10 +23,10 @@
 
 #include "../bit-macros.h"
 #include "../uip/uip.h"
-#include "../net/ntp_net.h"
 #include "../dns/resolv.h"
 #include "../clock/clock.h"
 #include "ntp.h"
+#include "ntp_net.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
 

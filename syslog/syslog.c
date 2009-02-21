@@ -25,7 +25,6 @@
 #include <avr/pgmspace.h>
 #include <stdarg.h>
 
-#include "../net/syslog_net.h"
 #include "../uip/uip.h"
 #include "../config.h"
 #include "../debug.h"
@@ -33,6 +32,7 @@
 #include "../uip/uip_neighbor.h"
 #include "../uip/uip_router.h"
 #include "syslog.h"
+#include "syslog_net.h"
 
 
 static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1];

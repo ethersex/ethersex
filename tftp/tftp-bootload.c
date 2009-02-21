@@ -26,10 +26,10 @@
 #include <stdlib.h>
 
 #include "../uip/uip.h"
-#include "../net/tftp_net.h"
 #include "../crypto/skipjack.h"
 #include "../eeprom.h"
 #include "tftp.h"
+#include "tftp_net.h"
 
 #ifdef BOOTLOADER_SUPPORT
 

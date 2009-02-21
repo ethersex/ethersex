@@ -26,9 +26,9 @@
 #include <avr/pgmspace.h>
 #include "../bit-macros.h"
 #include "../uip/uip.h"
-#include "../net/ntp_net.h"
 #include "../dns/resolv.h"
 #include "../ntp/ntp.h"
+#include "../ntp/ntp_net.h"
 #include "clock.h"
 
 static uint32_t timestamp = 1;

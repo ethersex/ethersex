@@ -27,11 +27,11 @@
 #include <util/crc16.h>
 #include <string.h>
 #include "../eeprom.h"
-#include "../net/yport_net.h"
 #include "../bit-macros.h"
 #include "../config.h"
-#include "../net/modbus_net.h"
-#include "../net/modbus_state.h"
+
+#include "modbus_net.h"
+#include "modbus_state.h"
 #include "modbus.h"
 #include "modbus_client.h"
 

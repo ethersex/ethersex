@@ -29,7 +29,7 @@
 #include "../uip/uip_router.h"
 #include "../debug.h"
 #include "../clock/clock.h"
-#include "../net/snmp_net.h"
+#include "snmp_net.h"
 #include "snmp.h"
 
 

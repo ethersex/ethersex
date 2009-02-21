@@ -26,7 +26,7 @@
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
 #include "zbus.h"
-#include "../net/zbus_raw_net.h"
+#include "zbus_raw_net.h"
 
 
 void

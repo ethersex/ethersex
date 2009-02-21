@@ -27,10 +27,10 @@
 #include <util/delay.h>
 #include <string.h>
 #include "../eeprom.h"
-#include "../net/yport_net.h"
 #include "../bit-macros.h"
 #include "../config.h"
 #include "yport.h"
+#include "yport_net.h"
 
 #ifdef YPORT_SUPPORT
 

@@ -34,9 +34,9 @@
 #include "../bit-macros.h"
 #include "../config.h"
 #include "../debug.h"
-#include "../net/mcuf_net.h"
 #include "../syslog/syslog.h"
 #include "mcuf.h"
+#include "mcuf_net.h"
 #include "../uip/uip.h"
 
 #ifdef MCUF_SUPPORT

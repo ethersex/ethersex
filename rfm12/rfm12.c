@@ -29,7 +29,7 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "rfm12.h"
-#include "../net/rfm12_raw_net.h"
+#include "rfm12_raw_net.h"
 #include "../crypto/encrypt-llh.h"
 #include "../syslog/syslog.h"
 

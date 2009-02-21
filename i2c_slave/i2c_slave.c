@@ -22,11 +22,11 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "../net/i2c_slave_state.h"
 #include "../uip/uip.h"
 #include "../config.h"
 #include "../global.h"
 #include "i2c_slave.h"
+#include "i2c_slave_state.h"
 
 static uip_udp_conn_t *i2c_slave_conn;
 

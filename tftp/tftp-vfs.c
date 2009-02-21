@@ -27,9 +27,9 @@
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
 #include "../vfs/vfs.h"
-#include "../net/tftp_net.h"
 #include "../debug.h"
 #include "tftp.h"
+#include "tftp_net.h"
 
 #ifdef VFS_SUPPORT
 

@@ -32,7 +32,7 @@
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "../crypto/encrypt-llh.h"
-#include "../net/zbus_raw_net.h"
+#include "zbus_raw_net.h"
 #include "zbus.h"
 
 #ifndef ZBUS_USE_USART
