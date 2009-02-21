@@ -10,6 +10,7 @@ SRC = \
 	fs20.c		\
 	hd44780.c	\
 	httpd.c	\
+	mcuf.c		\
 	modbus.c	\
 	network.c	\
 	onewire.c	\

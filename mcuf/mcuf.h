@@ -31,5 +31,21 @@
 void mcuf_init(void);
 void mcuf_newdata(void);
 void mcuf_periodic(void);
+void mcuf_show_clock(void);
+void mcuf_show_string(char *);
 
+extern uint8_t gdata[MCUF_OUTPUT_SCREEN_HEIGHT][MCUF_OUTPUT_SCREEN_WIDTH];
+
+struct mcuf_scrolltext_struct {
+  uint8_t tomove;
+  uint8_t posshift;
+  uint8_t end;
+  uint8_t posx;
+  uint8_t posy;
+  uint8_t color;
+  uint8_t bcolor;
+  uint8_t waittime;
+};
+
+extern struct mcuf_scrolltext_struct mcuf_scrolltext_buffer;
 #endif /* _MODBUS_H */

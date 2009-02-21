@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Guido Pannenbecker <info@sd-gp.de>
- * Copyright (c) 2008 by Dirk Pannenbecker <dp@sd-gp.de>
+ * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,8 +35,10 @@
 #include "../config.h"
 #include "../debug.h"
 #include "../syslog/syslog.h"
+#include "../clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"
+#include "mcuf_text.h"
 #include "../uip/uip.h"
 
 #ifdef MCUF_SUPPORT
@@ -90,25 +92,9 @@ struct blp_packet {
   uint8_t data[];
 };
 
-/*
- #####   #####
-#     # #     #
-      #       #
- #####   #####
-#             #
-#       #     #
-#######  #####
-*/
-uint8_t default_movie[] = {0x23,0x54,0x26,0x66,0x00,0x08,0x00,0x12,0x00,0x01,0x00,0xff,
-                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                           0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,
-                           0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,
-                           0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,
-                           0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,
-                           0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-                           0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,
-                           0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0
-};
+struct mcuf_scrolltext_struct mcuf_scrolltext_buffer;
+
+uint8_t gdata[MCUF_OUTPUT_SCREEN_HEIGHT][MCUF_OUTPUT_SCREEN_WIDTH];
 
 uint8_t blp_toc = 250;
 
@@ -117,6 +103,14 @@ void mcuf_senddata();
 void mcuf_serial_senddata();
 void tx_start(uint8_t len);
 #endif
+
+void updateframe();
+
+void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
+               uint8_t outercolor, uint8_t innercolor);
+
+void mcuf_scrolltext();
+
 #ifdef BLP_SUPPORT
 void blp_output();
 void blp_clock();
@@ -137,23 +131,10 @@ void mcuf_init(void) {
   usart(UCSR,B) &= ~_BV(usart(RXCIE));
   debug_printf("mcuf serial...\n");
 #endif
-#ifdef BLP_SUPPORT
-  DDR_CONFIG_OUT(BLP_CLK);
-  DDR_CONFIG_OUT(BLP_STR);
-  DDR_CONFIG_OUT(BLP_DA_A);
-  DDR_CONFIG_OUT(BLP_DA_B);
-  DDR_CONFIG_OUT(BLP_DA_C);
-  DDR_CONFIG_OUT(BLP_DA_D);
-  DDR_CONFIG_OUT(BLP_DA_E);
-  DDR_CONFIG_OUT(BLP_DA_F);
-  DDR_CONFIG_OUT(BLP_DA_G);
-  DDR_CONFIG_OUT(BLP_DA_H);
-  DDR_CONFIG_OUT(BLP_DA_I);
-#endif
-  buffer.len = 0;
+  buffer.len = 1;
   buffer.sent = 0;
-  memcpy(buffer.data, default_movie, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
-  mcuf_senddata();
+  snprintf_P(textbuff, 36, PSTR("Hi  I'm your ethersex           ;-)"));
+  scrolltext(0,0xff,0,3);
 }
 
 void mcuf_newdata(void) {
@@ -364,6 +345,11 @@ void mcuf_periodic(void) {
   if (buffer.sent <= buffer.len) {
     blp_tic=0;
   }
+
+  if ( mcuf_scrolltext_buffer.end != 0) {
+    mcuf_scrolltext();
+  }
+
   if (blp_tic > blp_toc) {
     blp_toc=10;
     // scroll to the left
@@ -384,6 +370,99 @@ void mcuf_periodic(void) {
 #       endif
   if (buffer.sent == buffer.len)
     buffer.sent=buffer.len+1;
+}
+
+void mcuf_show_clock() {
+  /* reset mcuf counter */
+  blp_toc=250;
+  char *weekdays = "Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
+  struct clock_datetime_t date;
+  clock_current_localtime(&date);
+
+  snprintf_P(textbuff, 36, PSTR("%s. %.2d.%.2d.20%.2d   %.2d:%.2d:%.2d \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t."),
+             weekdays + date.dow * 4, date.day, date.month, date.year, date.hour, date.min, date.sec);
+
+#ifdef SYSLOG_SUPPORT
+      syslog_sendf("mcuf: textbuffer %s\n", textbuff);
+#endif
+
+  scrolltext(0,0xff,0,10);
+  updateframe();
+}
+
+void updateframe() {
+
+  /* init output-buffer */
+  memset(buffer.data, 0, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
+
+  /* write frame-data to output-buffer */
+  uint8_t x, y;
+  for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+    for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+      if ((MCUF_OUTPUT_SCREEN_HEIGHT > y) && (MCUF_OUTPUT_SCREEN_WIDTH > x)) {
+        if (gdata[y][x] > 0) {
+          buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = 255;
+        }
+      }
+    }
+  }
+
+  /* init writing of output-buffer to uart */
+  mcuf_senddata();
+}
+
+void mcuf_show_string(char * x) {
+  blp_toc=250;
+  memcpy(textbuff,x,36);
+  scrolltext(0,0xff,0,1);
+  updateframe();
+}
+
+void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
+               uint8_t outercolor, uint8_t innercolor) {
+  uint8_t nunx,nuny;
+  const uint8_t endx = startx+lengthx-1;
+  const uint8_t endy = starty+lengthy-1;
+  uint8_t color;
+  if ((lengthx != 0) && (lengthy != 0)) {
+    for (nunx = startx; nunx <= endx; nunx++) {
+      for (nuny = starty; nuny <= endy; nuny++) {
+        if ((nunx == startx) || (nunx == endx) || (nuny == starty) ||
+          (nuny == endy)) {
+          color = outercolor;
+        } else {
+          color = innercolor;
+        }
+        gdata[nuny][nunx] = color;
+      }
+    }
+  }
+}
+
+void mcuf_scrolltext() {
+  static uint8_t blp_tic=0;
+  blp_tic++;
+  /* return while someone does some mcuf output */
+  if (blp_tic == mcuf_scrolltext_buffer.waittime) {
+    uint8_t i=0;
+    if (mcuf_scrolltext_buffer.tomove != 0) {
+      mcuf_scrolltext_buffer.tomove --;
+      mcuf_scrolltext_buffer.posshift++;
+      draw_box(0, mcuf_scrolltext_buffer.posy, MCUF_OUTPUT_SCREEN_WIDTH, 8, mcuf_scrolltext_buffer.bcolor, mcuf_scrolltext_buffer.bcolor);
+      mcuf_scrolltext_buffer.posx = MCUF_OUTPUT_SCREEN_WIDTH-1;
+      i = 0;
+      while (i < mcuf_scrolltext_buffer.end) {
+        mcuf_scrolltext_buffer.posx += draw_char(textbuff[i], mcuf_scrolltext_buffer.posx+i-mcuf_scrolltext_buffer.posshift, mcuf_scrolltext_buffer.posy, mcuf_scrolltext_buffer.color, 0, 1);
+        i++;
+      }
+      updateframe();
+      blp_tic=0;
+      //wdt_kick();
+      //_delay_ms(mcuf_scrolltext_buffer.waittime);
+    } else
+      mcuf_scrolltext_buffer.end = 0;
+      blp_tic=0;
+  }
 }
 
 #ifdef BLP_SUPPORT

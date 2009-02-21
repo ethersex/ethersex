@@ -242,3 +242,8 @@ ecmd_endif
 ecmd_ifdef(EEPROM_SUPPORT)
   ecmd_feature(eeprom_reinit, "eeprom reinit",, Force reinitialization of the EEPROM config area)
 ecmd_endif
+
+ecmd_ifdef(MCUF_SUPPORT)
+  ecmd_feature(mcuf_show_clock, "mcuf showclock")
+  ecmd_feature(mcuf_show_string, "mcuf showstring")
+ecmd_endif
