@@ -52,14 +52,8 @@ int16_t parse_cmd_show_syslog(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_syslog (char *cmd, char *output, uint16_t len)
 /* {{{ */ {
-
-  if (cmd) {
-     syslog_send(cmd);
-    return 1;
-  }
-  else {
-     return;
-  }
+    syslog_send(cmd);
+    return 0;
 } /* }}} */
 
 #endif /* SYSLOG_SUPPORT */
