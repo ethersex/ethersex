@@ -89,27 +89,32 @@ string_pgm_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
   return ptr[1] + 2;
 }
 
-const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
-const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
-const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\01";
-const char hostname_value[] PROGMEM = CONF_HOSTNAME;
 const char desc_value[] PROGMEM = SNMP_VALUE_DESCRIPTION; 
 const char desc_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x01";
+
+const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
+
 const char contact_value[] PROGMEM = SNMP_VALUE_CONTACT; 
 const char contact_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x04";
+
+const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
+const char hostname_value[] PROGMEM = CONF_HOSTNAME;
+
 const char location_value[] PROGMEM = SNMP_VALUE_LOCATION; 
 const char location_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x06";
 
+const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\01";
+
 static struct snmp_reaction snmp_reactions[] = {
-#ifdef WHM_SUPPORT
-  {uptime_reaction_obj_name, uptime_reaction, NULL},
-#endif
 #ifdef ADC_SUPPORT
   {adc_reaction_obj_name, adc_reaction, NULL},
 #endif
-  {hostname_reaction_obj_name, string_pgm_reaction, (void *)hostname_value},
   {desc_obj_name, string_pgm_reaction, (void *)desc_value},
+#ifdef WHM_SUPPORT
+  {uptime_reaction_obj_name, uptime_reaction, NULL},
+#endif
   {contact_obj_name, string_pgm_reaction, (void *)contact_value},
+  {hostname_reaction_obj_name, string_pgm_reaction, (void *)hostname_value},
   {location_obj_name, string_pgm_reaction, (void *)location_value},
   {NULL, NULL, 0}
 };
@@ -167,10 +172,15 @@ snmp_new_data(void)
                    strlen((char *)snmp_reactions[z].obj_name)
                           + snmp_reactions[z].append_zero,
                           snmp_reactions[z].obj_name[0]); */
+
       uint8_t store_len = strlen_P((char *)snmp_reactions[z].obj_name);
-      if (memcmp_P(pkt.binds[y].data, snmp_reactions[z].obj_name, store_len) == 0) {
+      uint8_t request_len = pkt.binds[y].len;
+      uint8_t cmp_len = store_len > request_len ? request_len : store_len;
+
+      debug_printf("d: len %d, rlen %d\n", store_len, request_len);
+      if (memcmp_P(pkt.binds[y].data, snmp_reactions[z].obj_name, cmp_len) == 0) {
         pkt.binds[y].type = z;
-        if (pdu_type == 0xa1) {
+        if (pdu_type == 0xa1 && request_len == store_len) {
           if (snmp_reactions[z+1].obj_name) {
             pkt.binds[y].type += 1;
           } else {
