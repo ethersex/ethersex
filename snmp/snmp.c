@@ -118,6 +118,7 @@ void
 snmp_new_data(void)
 {
   struct snmp_packet pkt;
+  uint8_t pdu_type;
   uint8_t tmp, *request = (uint8_t *)uip_appdata;
   uint16_t ptr = 0;
   /* Parse the packet */
@@ -129,6 +130,8 @@ snmp_new_data(void)
   pkt.community = &request[ptr + 1];
   pkt.pdu_type = &request[ptr + 1 + tmp]; /* We must save the pdu type, becaus 
                                           it is overwritten in the next step */
+  pdu_type = pkt.pdu_type[0];
+
   pkt.community[tmp] = 0;
   ptr +=  1 + tmp + 4;
   memcpy(&pkt.request_id, &request[ptr], 4);
@@ -167,6 +170,13 @@ snmp_new_data(void)
       uint8_t store_len = strlen_P((char *)snmp_reactions[z].obj_name);
       if (memcmp_P(pkt.binds[y].data, snmp_reactions[z].obj_name, store_len) == 0) {
         pkt.binds[y].type = z;
+        if (pdu_type == 0xa1) {
+          if (snmp_reactions[z+1].obj_name) {
+            pkt.binds[y].type += 1;
+          } else {
+            pkt.binds[y].type = 0xff;
+          }
+        }
         if (store_len < pkt.binds[y].len) {
           uint8_t *data_ptr = pkt.binds[y].data;
           pkt.binds[y].len = pkt.binds[y].len - store_len;
