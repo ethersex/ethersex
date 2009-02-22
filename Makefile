@@ -88,22 +88,28 @@ $(TARGET): $(OBJECTS) $(LINKLIBS)
 ##############################################################################
 
 ifeq ($(VFS_INLINE_SUPPORT),y)
-INLINE_FILES := $(shell ls vfs/embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//')
+INLINE_FILES := $(shell ls vfs/embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
 else
 INLINE_FILES :=
 endif
 
 vfs/embed/%: vfs/embed/%.cpp
-	if ! avr-cpp -DF_CPU=$(FREQ) $< 2> /dev/null > $@.tmp; \
+	@if ! avr-cpp -DF_CPU=$(FREQ) $< 2> /dev/null > $@.tmp; \
 		then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
-	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; fi
-	$(RM) -f $@.tmp
+	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
+	  echo "--> Include $@ ($<)"; fi
+	@$(RM) -f $@.tmp
 
 
 vfs/embed/%: vfs/embed/%.m4
-	if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
+	@if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
 		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"`\
-	      	$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)"; fi
+		$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)";\
+		else echo "--> Include $@ ($<)";	fi
+
+vfs/embed/%: vfs/embed/%.sh
+	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
+		else echo "--> Include $@ ($<)";	fi
 
 
 %.bin: % $(INLINE_FILES)
