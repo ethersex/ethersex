@@ -2,6 +2,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 
 dep_bool "Atmel SPI Dataflash" VFS_DF_SUPPORT $VFS_SUPPORT
 dep_bool "VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT
+dep_bool "  Inline the .config" VFS_CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
 dep_bool "SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT
 dep_bool "EEPROM (24cxx) Filesystem" VFS_EEPROM_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT
 dep_bool "EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT
