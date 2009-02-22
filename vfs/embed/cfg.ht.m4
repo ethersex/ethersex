@@ -94,6 +94,10 @@ ifdef({{conf_DNS}},{{dnl
 	<td><input type="button" value="RESTART" onClick='updateValues();'></td>
 	</tr>
 </table></center>
+
+ifdef({{conf_VFS_CONFIG_INLINE}}, {{
+<a href="/conf">Get current .config</a><br><br>
+}})
 <a href="idx.ht"> Back </a>
 </div>
 <div id="waitdiv" style="visibility:hidden">
