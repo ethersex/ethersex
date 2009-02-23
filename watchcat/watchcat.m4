@@ -5,14 +5,25 @@ divert(-1)
 define(`msg_divert', `0')
 define(`rule_divert', `1')
 define(`rule_end_divert', `2')
+define(`rule_cpp', `3')
+define(`rule_end_cpp', `4')
 
 define(`text_counter', 0)
 define(`text_variable', `format(`watchcat_text%d', text_counter)')
 define(`text_counter_next', `define(`text_counter', incr(text_counter))')
 
 define(`RULE', `divert(msg_divert)static const char text_variable()[] PROGMEM = "$4";
-divert(rule_divert)    { .port = EXTRACT_PORT($1), .pin = EXTRACT_PIN($1),  .rising = $2, .address = { IPADDR($3) }, .message = text_variable },text_counter_next()')dnl
-define(`EXTRACT_PORT', `translit(substr($1, 1, 1), `A-J', `0-9')')dnl
+INIT_PORT(EXTRACT_PORT($1))divert(rule_divert)    { .port = EXTRACT_PORT($1), .pin = EXTRACT_PIN($1),  .rising = $2, .address = { IPADDR($3) }, .message = text_variable },text_counter_next()')dnl
+define(`WC_RANGE', `A-J')
+
+ifelse(MCU, `atmega8',`define(`WC_RANGE', `B-JA')')
+ifelse(MCU, `atmega88', `define(`WC_RANGE', `B-JA')')
+ifelse(MCU, `atmega168', `define(`WC_RANGE', `B-JA')') 
+
+define(`EXTRACT_PORT', `translit(substr($1, 1, 1), WC_RANGE, `0-9')')
+define(`INIT_PORT', `ifdef(`init_port_$1', `', `define(`init_port_$1')dnl
+divert(rule_cpp)  vpin[$1].func = watchcat_edge;  \
+divert(rule_divert)')')dnl
 define(`EXTRACT_PIN', `substr($1, 2, 1)')dnl
 define(`RISING', `1')dnl
 define(`FALLING', `0')dnl
@@ -23,7 +34,9 @@ define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `
 define(`ip4addr_expand', `HTONS(($1 << 8) | $2), HTONS(($3 << 8) | $4)')
 define(`ip6addr_expand', `HTONS($1),  HTONS($2),  HTONS($3),  HTONS($4),  
  	 HTONS($5),  HTONS($6),  HTONS($7), HTONS($8)')
-
+divert(rule_cpp)
+#define watchcat_port_init() do {\
+divert(rule_end_cpp)} while(0)
 divert(rule_divert)
 static struct EcmdSenderReaction ecmd_react[] PROGMEM = {
 divert(rule_end_divert)    { .port = 255, .pin = 255, .rising = 255}

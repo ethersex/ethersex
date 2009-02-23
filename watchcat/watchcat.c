@@ -60,7 +60,7 @@ watchcat_init(void)
     vpin[i].last_input = 0;
     vpin[i].func = NULL;
   }
-  vpin[0].func = watchcat_edge;
+  watchcat_port_init();
 }
 
 void
