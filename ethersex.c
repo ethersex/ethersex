@@ -231,10 +231,6 @@ int main(void)
     rc5_init();
 #endif
 
-#ifdef CONTROL6_SUPPORT
-    control6_init();
-#endif
-
 /* Had to be bone after network_init! */
 #ifdef YPORT_SUPPORT
     yport_init();
@@ -294,6 +290,10 @@ int main(void)
 #elif defined(NAMED_PIN_SUPPORT)
     np_simple_init();
 #endif 
+
+#ifdef CONTROL6_SUPPORT
+    control6_init();
+#endif
 
 #ifdef ENC28J60_SUPPORT
     debug_printf("enc28j60 revision 0x%x\n", read_control_register(REG_EREVID));
