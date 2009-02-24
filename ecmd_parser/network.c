@@ -54,6 +54,7 @@ int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len)
 #endif  
 } /* }}} */
 
+#ifndef DISABLE_IPCONF_SUPPORT
 /* parse an ip address at cmd, write result to ptr */
 int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 /* {{{ */ {
@@ -84,8 +85,10 @@ int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 
     return 0;
 } /* }}} */
+#endif /* IPCONF_SUPPORT */
 
 #ifdef ENC28J60_SUPPORT
+#ifndef DISABLE_IPCONF_SUPPORT
 /* parse an ethernet address at cmd, write result to ptr */
 static int8_t parse_mac(char *cmd, uint8_t *ptr)
 /* {{{ */ {
@@ -148,6 +151,7 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
         return ret;
 
 } /* }}} */
+#endif /* IPCONF_SUPPORT */
 
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -172,6 +176,7 @@ int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 } /* }}} */
 #endif /* ENC28J60_SUPPORT */
 
+#ifndef DISABLE_IPCONF_SUPPORT
 #if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))		\
   || defined(IPV6_STATIC_SUPPORT)
 int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
@@ -229,6 +234,7 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     return 0;
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+#endif /* IPCONF_SUPPORT */
 
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {

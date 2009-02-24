@@ -977,6 +977,14 @@ VFS_SD_SUPPORT
 
   Link the SD reader to VFS.
 
+Disable IP-Configuration
+DISABLE_IPCONF_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+   * ECMD support (ECMD_PARSER_SUPPORT)
+
+  Disable the ecmd's to set ip, gw, netmask and mac
+
 IP Statistics
 IPSTATS_SUPPORT
   Depends on: 
