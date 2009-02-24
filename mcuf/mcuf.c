@@ -383,7 +383,7 @@ void mcuf_show_clock() {
              weekdays + date.dow * 4, date.day, date.month, date.year, date.hour, date.min, date.sec);
 
 #ifdef SYSLOG_SUPPORT
-      syslog_sendf("mcuf: textbuffer %s\n", textbuff);
+      syslog_sendf("mcuf: clock-textbuffer %s\n", textbuff);
 #endif
 
   scrolltext(0,0xff,0,10);
@@ -414,6 +414,9 @@ void updateframe() {
 void mcuf_show_string(char * x) {
   blp_toc=250;
   memcpy(textbuff,x,36);
+#ifdef SYSLOG_SUPPORT
+  syslog_sendf("mcuf: textbuffer %s\n", textbuff);
+#endif
   scrolltext(0,0xff,0,1);
   updateframe();
 }
