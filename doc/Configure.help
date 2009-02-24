@@ -1054,3 +1054,10 @@ SD_READER_SUPPORT
   The files can be accessed via the 'Virtual File System',
   and as a result through HTTP (read only) or TFTP (read/write).
 
+Jabber client (EXPERIMENTAL)
+JABBER_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Enable Jabber client.
