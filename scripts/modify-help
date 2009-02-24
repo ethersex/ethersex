@@ -1,0 +1,89 @@
+#! /bin/sh
+HELPFILE=doc/Configure.help
+
+function l_editor() {
+  echo "launching editor for $1 ..."
+  if [ -n "$EDITOR" ]; then
+    $EDITOR +$2 $1
+  elif [ -n "`which nano`" ]; then
+    nano +$2 $1
+  fi
+}
+
+menuconfig_warn() {
+  echo "This is a helper script for menuconfig!"
+  echo "You probably don't want to use it directly."
+  exit 1
+}
+
+if [ "x$1" = "x" ]; then menuconfig_warn; fi
+if [ \! -e help.out ]; then menuconfig_warn; fi
+
+ITEM=$1; shift
+
+response=`grep -n -e "^$ITEM" $HELPFILE`
+
+if [ $? = 0 ]; then
+  l_editor $HELPFILE `echo $response | line | sed -e 's/:.*//'`
+  exit 0
+fi
+
+echo generate new item $ITEM ...
+cat `find -name "*config*.in"` | grep -e bool | \
+  sed -e 's/\$//g' -e 's/dep_bool_[^ ]*/dep_bool/' -e "s/\(['\"]\) */\1/" > DBlist
+rm -f DBvars
+
+function define_bool() { true; }
+
+function bool() {
+  echo "$2='$1'" >> DBvars
+}
+
+function dep_bool() {
+  echo "$2='$1'" >> DBvars
+}
+
+. ./DBlist
+. ./DBvars
+
+rm -f DBvars
+
+# what a hack, sorry ...
+y="<< nothing >>"
+ROUTER_SUPPORT="Router support (enable several network interfaces!)"
+IPV4_SUPPORT="IPv4 support"
+PORTIO_SUPPORT="Full-featured I/O abstraction model (Port I/O)"
+
+function bool() {
+  test "x$2" = "x$ITEM" || return
+  echo "$1"; shift
+  echo "$1"; shift
+
+  echo ""
+  echo "  Please add your new help-text here."
+  echo ""
+} 
+
+function dep_bool() {
+  test "x$2" = "x$ITEM" || return
+  echo "$1"; shift
+  echo "$1"; shift
+
+  echo "  Depends on: "
+  while test -n "$1"; do
+    get_cmd='echo $'"$1"
+    value="`eval $get_cmd`"
+
+    echo "   * $value ($1)"
+    shift
+  done
+
+  echo ""
+  echo "  Please add your new help-text here."
+  echo ""
+}
+
+. ./DBlist >> $HELPFILE
+rm -f DBlist
+
+l_editor $HELPFILE `wc -l $HELPFILE`

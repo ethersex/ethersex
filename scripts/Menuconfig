@@ -409,11 +409,16 @@ function help () {
 	if [ "x$1" = "ximpossible_ret_cb" ]; then shift; fi
 	if extract_help $1 >help.out
 	then
-		$DIALOG	--backtitle "$backtitle" --title "$2"\
+		dialog	--backtitle "$backtitle" --title "$2"\
+			--help-button --help-label "Modify Help Text" \
 			--textbox help.out $ROWS $COLS
 	else
-		$DIALOG	--backtitle "$backtitle" \
+		dialog	--backtitle "$backtitle" \
+			--help-button --help-label "Modify Help Text" \
 			--textbox help.out $ROWS $COLS
+	fi
+	if [ $? = 2 ]; then
+		scripts/modify-help $1
 	fi
 	rm -f help.out
 }
