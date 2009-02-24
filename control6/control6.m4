@@ -377,7 +377,7 @@ divert(old_divert)')')
 define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `.', `,'))', 
 	`ip6addr_expand(regexp(`$1', `\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)',`0x\1,0x\2,0x\3,0x\4,0x\5,0x\6,0x\7,0x\8')) ') ')
 
-define(`ip4addr_expand', `uip_ipaddr_t ip; uip_ipaddr(&ip, HTONS(($1 << 8) | $2), HTONS(($3 << 8) | $4))')
+define(`ip4addr_expand', `uip_ipaddr_t ip; uip_ipaddr(&ip, $1, $2, $3, $4)')
 define(`ip6addr_expand', `uip_ipaddr_t ip; uip_ip6addr(&ip, HTONS($1),  HTONS($2),  HTONS($3),  HTONS($4),  
  	 HTONS($5),  HTONS($6),  HTONS($7), HTONS($8))')
 
