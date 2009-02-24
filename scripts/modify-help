@@ -33,18 +33,52 @@ cat `find -name "*config*.in"` | grep -e bool | \
   sed -e 's/\$//g' -e 's/dep_bool_[^ ]*/dep_bool/' -e "s/\(['\"]\) */\1/" > DBlist
 rm -f DBvars
 
-function define_bool() { true; }
 
+# generic function for all the text entries ...
 function bool() {
   echo "$2='$1'" >> DBvars
-}
+
+  test "x$2" = "x$ITEM" || return
+( echo "$1"; shift
+  echo "$1"; shift
+
+  echo ""
+  echo "  Please add your new help-text here."
+  echo "" ) >> $HELPFILE
+} 
+
+function int() { bool "$1" "$2"; }
+function hex() { bool "$1" "$2"; }
+function string() { bool "$1" "$2"; }
+function ipv4() { bool "$1" "$2"; }
+function ipv6() { bool "$1" "$2"; }
+function ip() { bool "$1" "$2"; }
+function choice() { bool "$1" "$3"; }
 
 function dep_bool() {
   echo "$2='$1'" >> DBvars
 }
 
-. ./DBlist
-. ./DBvars
+function dep_bool_menu() { dep_bool "$1" "$2"; }
+function dep_bool_editor() { dep_bool "$1" "$2"; }
+
+# ignore most of the other, mostly mentioned to not cause
+# obscure stderr output ...
+function define_bool() { true; }
+function define_int() { true; }
+function endmenu() { true; }
+function comment() { true; }
+function mainmenu_option() { true; }
+function mainmenu_name() { true; }
+
+#. ./DBlist
+. ./config.in 2> /dev/null
+. ./DBvars 2> /dev/null
+
+# Debug stuff, dump the list found mappings to stdout ...
+#echo =====
+#sort DBvars
+#echo =====
 
 rm -f DBvars
 
@@ -54,15 +88,7 @@ ROUTER_SUPPORT="Router support (enable several network interfaces!)"
 IPV4_SUPPORT="IPv4 support"
 PORTIO_SUPPORT="Full-featured I/O abstraction model (Port I/O)"
 
-function bool() {
-  test "x$2" = "x$ITEM" || return
-  echo "$1"; shift
-  echo "$1"; shift
-
-  echo ""
-  echo "  Please add your new help-text here."
-  echo ""
-} 
+function bool() { true; }
 
 function dep_bool() {
   test "x$2" = "x$ITEM" || return
