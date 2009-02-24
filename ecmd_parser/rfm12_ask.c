@@ -34,6 +34,7 @@
 
 #ifdef RFM12_ASK_SENDER_SUPPORT
 
+#ifdef RFM12_ASK_TEVION_SUPPORT
 int16_t
 parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
 {
@@ -54,7 +55,9 @@ parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
   rfm12_ask_tevion_send(housecode, command, delay, cnt);
   return 0;
 }
+#endif // RFM12_ASK_TEVION_SUPPORT
 
+#ifdef RFM12_ASK_2272_SUPPORT
 int16_t
     parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
 {
@@ -73,7 +76,7 @@ int16_t
   rfm12_ask_2272_send(command, delay, cnt);
   return 0;
 }
-
+#endif // RFM12_ASK_2272_SUPPORT
 #endif  /* RFM12_ASK_SENDER_SUPPORT */
 
 #ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT

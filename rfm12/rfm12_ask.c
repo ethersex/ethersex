@@ -60,6 +60,7 @@ rfm12_ask_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt
   }
 }
 
+#ifdef RFM12_ASK_TEVION_SUPPORT
 void
 rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uint8_t cnt)
 {
@@ -89,7 +90,9 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uin
   rfm12_trans(0x8208);                        // 2. PwrMngt TX off
   rfm12_epilogue ();
 }
+#endif /* RFM12_ASK_TEVION_SUPPORT */
 
+#ifdef RFM12_ASK_2272_SUPPORT
 void
 rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
 {
@@ -115,6 +118,7 @@ rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
   rfm12_trans(0x8208);                        // 2. PwrMngt TX off
   rfm12_epilogue ();
 }
+#endif /* RFM12_ASK_2272_SUPPORT */
 
 void
 rfm12_ask_trigger(uint8_t level, uint16_t us)
