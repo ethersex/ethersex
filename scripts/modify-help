@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 HELPFILE=doc/Configure.help
 
 function l_editor() {
