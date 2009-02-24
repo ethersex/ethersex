@@ -980,15 +980,15 @@ VFS_SD_SUPPORT
 IP Statistics
 IPSTATS_SUPPORT
   Depends on: 
-   *  (UIP_SUPPORT)
-   * TCP/Telnet interface (ECMD_SUPPORT)
+   * Networking support (UIP_SUPPORT)
+   * ECMD support (ECMD_PARSER_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 Memory usage information (free)
 FREE_SUPPORT
   Depends on: 
-   * TCP/Telnet interface (ECMD_SUPPORT)
+   * ECMD support (ECMD_PARSER_SUPPORT)
 
   There's unfortunately no help available for this item.
 

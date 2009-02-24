@@ -20,6 +20,6 @@ fi
   dep_bool "Send ECMD messages over UDP" UECMD_SENDER_SUPPORT $UDP_SUPPORT
 
   comment "Optional ECMD commands"
-  dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_SUPPORT
-  dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_SUPPORT
+  dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
+  dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
 endmenu 
