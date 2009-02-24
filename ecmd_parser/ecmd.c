@@ -206,6 +206,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     return ret;
 } /* }}} */
 
+#ifndef DISABLE_REBOOT_SUPPORT
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) cmd;
@@ -218,6 +219,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 #   endif
     return 0;
 } /* }}} */
+#endif
 
 #ifdef FREE_SUPPORT
 
@@ -244,6 +246,7 @@ int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
             PSTR("version %s"), VERSION_STRING);
 } /* }}} */
 
+#ifndef DISABLE_REBOOT_SUPPORT
 int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
     (void) cmd;
@@ -265,6 +268,7 @@ int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
 #endif
     return 0;
 } /* }}} */
+#endif /* DISABLE_REBOOT_SUPPORT */
 
 int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 /* {{{ */ {

@@ -41,10 +41,12 @@ ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_endif()
   ecmd_endif()
 
-  block(Resetting the controller)
+  ecmd_ifndef(DISABLE_REBOOT_SUPPORT)
+    block(Resetting the controller)
 
-  ecmd_feature(reset, "reset",,Reset the Ethersex.)
-  ecmd_feature(wdreset, "wdreset",,Go into endless loop to trigger a watchdog timeout.)
+    ecmd_feature(reset, "reset",,Reset the Ethersex.)
+    ecmd_feature(wdreset, "wdreset",,Go into endless loop to trigger a watchdog timeout.)
+  ecmd_endif()
 ecmd_endif()
 
 ecmd_ifdef(IPSTATS_SUPPORT)
@@ -55,7 +57,9 @@ ecmd_ifdef(FREE_SUPPORT)
   ecmd_feature(free, "free")
 ecmd_endif()
 
-ecmd_feature(bootloader, "bootloader",,Call the bootloader.)
+ecmd_ifndef(DISABLE_REBOOT_SUPPORT)
+  ecmd_feature(bootloader, "bootloader",,Call the bootloader.)
+ecmd_endif()
 
 ecmd_ifdef(PORTIO_SUPPORT)
   block(Port I/O)

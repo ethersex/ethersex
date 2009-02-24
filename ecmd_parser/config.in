@@ -21,6 +21,7 @@ fi
 
   comment "Optional ECMD commands"
   dep_bool '  Disable IP Config' DISABLE_IPCONF_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
+  dep_bool '  Disable Reboot-Commands' DISABLE_REBOOT_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
   dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
   dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
 endmenu 

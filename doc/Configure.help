@@ -985,6 +985,14 @@ DISABLE_IPCONF_SUPPORT
 
   Disable the ecmd's to set ip, gw, netmask and mac
 
+Disable remote reboot
+DISABLE_REBOOT_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+   * ECMD support (ECMD_PARSER_SUPPORT)
+
+  Disable the commands to reboot the e'sex remote (reset, wdreset and bootloader)
+
 IP Statistics
 IPSTATS_SUPPORT
   Depends on: 
