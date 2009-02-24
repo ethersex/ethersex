@@ -85,7 +85,7 @@ int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 
     return 0;
 } /* }}} */
-#endif /* IPCONF_SUPPORT */
+#endif /* DISABLE_IPCONF_SUPPORT */
 
 #ifdef ENC28J60_SUPPORT
 #ifndef DISABLE_IPCONF_SUPPORT
@@ -151,7 +151,7 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
         return ret;
 
 } /* }}} */
-#endif /* IPCONF_SUPPORT */
+#endif /* DISABLE_IPCONF_SUPPORT */
 
 int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
@@ -234,7 +234,7 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     return 0;
 } /* }}} */
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
-#endif /* IPCONF_SUPPORT */
+#endif /* DISABLE_IPCONF_SUPPORT */
 
 int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
