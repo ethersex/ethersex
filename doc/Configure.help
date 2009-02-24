@@ -469,9 +469,13 @@ CONTROL6_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Alpha-state scripting language, very C-Control alike ...
+  6Control is a BASIC-like scripting language which you can use
+  to freely program your Ethersex.  It supports threading etc.
+  and it's probably far easier to do simple control task with it
+  than implementing these in C code.
 
-  Not very well documented currently :-)
+  See control6/control6.src to get an impression of the language,
+  e.g. example code.  There are more examples in the Ethersex wiki.
 
 TCP support
 TCP_SUPPORT
@@ -527,7 +531,9 @@ DNS_SUPPORT
   Depends on: 
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Link a simple DNS resolver into the firmware.  It can be used
+  either in own program code or by other applications.  For example
+  the NTP client is capable of doing so.
 
 SYSLOG support
 SYSLOG_SUPPORT
@@ -536,7 +542,8 @@ SYSLOG_SUPPORT
    * UDP support (UDP_SUPPORT)
 
   Enable syslog CLIENT support, i.e. allow to log messages to specified
-  syslog server.
+  syslog server.  These messages can be sent straight from the
+  C source code using syslog_send... calls or from 6Control scripts.
 
 OpenVPN
 OPENVPN_SUPPORT
@@ -1061,3 +1068,36 @@ JABBER_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Enable Jabber client.
+
+Server IP
+CONF_JABBER_IP
+
+  The IP of the jabber server you would like your Ethersex to 
+  connect to.
+
+Server Hostname
+CONF_JABBER_HOSTNAME
+
+  The Hostname of the Jabber server you would like to connect
+  to.  This has to be the fully qualified domain name of the
+  server specified by the IP above (otherwise the server probably
+  will reject your connections).
+
+Username
+CONF_JABBER_USERNAME
+
+  The username which shall be used to authenticate to the 
+  Jabber server.
+
+Password
+CONF_JABBER_PASSWORD
+
+  The password associated with the specified username.
+
+Target Buddy Name
+CONF_JABBER_BUDDY
+
+  The Jabber-ID of the one to whom the start-up message as
+  well as messages emitted by 6Control scripts shall be
+  sent to.
+
