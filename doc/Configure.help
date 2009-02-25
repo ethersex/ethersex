@@ -1101,3 +1101,14 @@ CONF_JABBER_BUDDY
   well as messages emitted by 6Control scripts shall be
   sent to.
 
+Alias Command Names
+ALIASCMD_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Define aliases for your ecmds. Aliases are expanded if $ ist the first 
+  character of your emcd. Example:
+
+  `$i' -> `show ip'
+
