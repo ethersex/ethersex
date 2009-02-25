@@ -33,7 +33,7 @@
 #include "../crypto/encrypt-llh.h"
 #include "../syslog/syslog.h"
 
-
+#ifdef RFM12_IP_SUPPORT
 rfm12_status_t rfm12_status;
 
 static volatile rfm12_index_t rfm12_index;
@@ -155,6 +155,7 @@ SIGNAL(RFM12_INT_SIGNAL)
       _uip_buf_lock = 8;
 }
 
+#endif  /* RFM12_IP_SUPPORT */
 
 unsigned short
 rfm12_trans(unsigned short wert)
@@ -193,12 +194,15 @@ rfm12_init(void)
   rfm12_trans(0xC800);		/* disable low duty cycle */
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
   rfm12_trans(0x0000);
-  
+
+#ifdef RFM12_IP_SUPPORT
   rfm12_status = RFM12_OFF;
   rfm12_int_enable ();
+#endif
 }
 
 
+#ifdef RFM12_IP_SUPPORT
 #ifndef TEENSY_SUPPORT
 void
 rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
@@ -253,7 +257,7 @@ rfm12_setpower(uint8_t power, uint8_t mod)
   rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
   rfm12_epilogue ();
 }
-#endif
+#endif  /* not TEENSY_SUPPORT */
 
 
 uint8_t
@@ -360,6 +364,8 @@ rfm12_txstart(rfm12_index_t size)
 
   return;
 }
+
+#endif  /* RFM12_IP_SUPPORT */
 
 
 uint16_t

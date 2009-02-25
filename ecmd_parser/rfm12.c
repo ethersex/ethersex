@@ -31,8 +31,8 @@
 #include "../rfm12/rfm12.h"
 #include "ecmd.h"
 
-#ifdef RFM12_SUPPORT
 #ifndef TEENSY_SUPPORT
+#ifdef RFM12_SUPPORT
 
 int16_t 
 parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
@@ -41,6 +41,9 @@ parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
                        rfm12_get_status ());
 }
 
+#endif /* RFM12_SUPPORT */
+
+#ifdef RFM12_IP_SUPPORT
 int16_t
 parse_cmd_rfm12_setbaud(char *cmd, char *output, uint16_t len)
 {
@@ -123,5 +126,5 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
   return 0;
 }
 
+#endif /* RFM12_IP_SUPPORT */
 #endif /* not TEENSY_SUPPORT */
-#endif /* RFM12_SUPPORT */

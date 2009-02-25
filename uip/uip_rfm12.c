@@ -24,7 +24,7 @@
 #include "uip.h"
 #include "uip_rfm12.h"
 
-#if defined(RFM12_SUPPORT) && UIP_MULTI_STACK
+#if defined(RFM12_IP_SUPPORT) && UIP_MULTI_STACK
 
 STACK_DEFINITIONS(rfm12_stack);
 
@@ -45,4 +45,4 @@ rfm12_stack_init (void)
 
 }
 
-#endif /* RFM12_SUPPORT && UIP_MULTI_STACK */
+#endif /* RFM12_IP_SUPPORT && UIP_MULTI_STACK */

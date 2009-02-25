@@ -45,7 +45,7 @@ uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
 
 /* module local macros */
-#ifdef RFM12_SUPPORT
+#ifdef RFM12_IP_SUPPORT
 /* RFM12 uses interrupts which do SPI interaction, therefore
    we have to disable interrupts if support is enabled */
 #  define cs_low()  uint8_t sreg = SREG; cli(); PIN_CLEAR(SPI_CS_NET); 

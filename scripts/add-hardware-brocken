@@ -104,7 +104,7 @@ template $STELLA_SUPPORT << FNORD
   STELLA_PORT_RANGE(PD5,PD7)
 FNORD
 
-[ "x$ZBUS_SUPPORT" = "xy" -o "x$RFM12_SUPPORT" = "xy" ] && template y << FNORD
+[ "x$ZBUS_SUPPORT" = "xy" -o "x$RFM12_IP_SUPPORT" = "xy" ] && template y << FNORD
   pin(GENERIC_TX_PIN, PD6, OUTPUT)
   pin(GENERIC_RX_PIN, PD7, OUTPUT)
 FNORD

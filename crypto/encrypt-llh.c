@@ -30,9 +30,9 @@
 #include "skipjack.h"
 
 #if defined(SKIPJACK_SUPPORT) \
-    && (defined(RFM12_SUPPORT) || defined(ZBUS_SUPPORT))
+    && (defined(RFM12_IP_SUPPORT) || defined(ZBUS_SUPPORT))
 
-#ifdef RFM12_SUPPORT
+#ifdef RFM12_IP_SUPPORT
 uint8_t *rfm12_key = CONF_RFM12_KEY;
 #endif 
 
@@ -118,4 +118,4 @@ llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len)
 }
 
 
-#endif /* SKIPJACK_SUPPORT and (ZBUS_SUPPORT || RFM12_SUPPORT) */
+#endif /* SKIPJACK_SUPPORT and (ZBUS_SUPPORT || RFM12_IP_SUPPORT) */

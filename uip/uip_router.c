@@ -205,12 +205,12 @@ router_output_to (uint8_t dest)
 #endif	/* ENC28J60_SUPPORT */
 
 
-#ifdef RFM12_SUPPORT
+#ifdef RFM12_IP_SUPPORT
     case STACK_RFM12:
       printf ("router_output_to: RFM12.\n");
       rfm12_txstart (uip_len);
       break;
-#endif	/* RFM12_SUPPORT */
+#endif	/* RFM12_IP_SUPPORT */
 
 
 #ifdef ZBUS_SUPPORT

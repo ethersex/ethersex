@@ -51,11 +51,6 @@
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
-#ifdef RFM12_SUPPORT
-unsigned short rfm12_t_status = 0;
-extern uint8_t RFM12_akt_status;
-#endif
-
 void timer_init(void)
 /* {{{ */ {
 

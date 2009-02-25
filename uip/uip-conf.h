@@ -133,7 +133,7 @@ typedef unsigned short uip_stats_t;
 /* On stand-alone ethersex and on rfm12/zbus-bridge always use 14 byte LLH. */
 #  define __LLH_LEN  14
 
-#elif defined(RFM12_SUPPORT)	  /* cf. zbus */
+#elif defined(RFM12_IP_SUPPORT)	  /* cf. zbus */
 #  define __LLH_LEN              RFM12_LLH_LEN
 
 #elif defined(ZBUS_SUPPORT)	  /* cf. rfm12 */
@@ -175,7 +175,7 @@ enum {
 /* BE CAREFUL, the order of the stacks in this enum
    always has to match the uip_stacks definition in
    uip_multi.c! */
-#if defined(RFM12_SUPPORT)
+#if defined(RFM12_IP_SUPPORT)
   STACK_RFM12,
 #endif
 #if defined(ZBUS_SUPPORT)

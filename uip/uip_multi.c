@@ -70,7 +70,7 @@
 struct uip_stack uip_stacks[STACK_LEN] = {
 /* BE CAREFUL, the order of the stack definitions here
    always has to match the enum in uip-conf.h! */
-#if defined(RFM12_SUPPORT)
+#if defined(RFM12_IP_SUPPORT)
   STACK_FUNCS (rfm12_stack),
 #endif
 

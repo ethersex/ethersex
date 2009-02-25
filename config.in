@@ -216,3 +216,10 @@ if [ "$ZBUS_SUPPORT" = "y"		\
 	-o "$MODBUS_SUPPORT" = "y" ]; then
   define_bool USART_SUPPORT y
 fi
+
+if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" ]; then
+  define_bool RFM12_SUPPORT y
+else
+  define_bool RFM12_SUPPORT n
+fi
+

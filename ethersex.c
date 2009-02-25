@@ -266,6 +266,7 @@ int main(void)
 #ifdef RFM12_SUPPORT
     rfm12_init();
 
+#ifdef RFM12_IP_SUPPORT
 #ifdef TEENSY_SUPPORT
     cli ();
     rfm12_trans (0xa620);	/* rfm12_setfreq(RFM12FREQ(433.92)); */
@@ -281,7 +282,8 @@ int main(void)
 #endif
 
     rfm12_rxstart();
-#endif
+#endif  /* RFM12_IP_SUPPORT */
+#endif  /* RFM12_SUPPORT */
 
 #ifdef DC3840_SUPPORT
     dc3840_init ();
@@ -337,7 +339,7 @@ int main(void)
         wdt_kick();
 #endif
 
-#ifdef RFM12_SUPPORT
+#ifdef RFM12_IP_SUPPORT
 	rfm12_process();
 	wdt_kick();
 #endif

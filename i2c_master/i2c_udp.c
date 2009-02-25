@@ -36,7 +36,7 @@
 /* constants */
 #if defined(ENC28J60_SUPPORT)
   #define MAXDATAPAKETLEN ((UIP_BUFSIZE) - (UIP_IPUDPH_LEN) - 3)
-#elif defined(RFM12_SUPPORT)
+#elif defined(RFM12_IP_SUPPORT)
   #define MAXDATAPAKETLEN (196 - 76)
 #elif defined(ZBUS_SUPPORT)
   #define MAXDATAPAKETLEN (128 - 76)

@@ -67,7 +67,7 @@ divert(-1)')
 
 mdns_feature(workstation, "_workstation._tcp.local", CONF_HOSTNAME, NULL, 9)
 
-mdns_ifdef(RFM12_SUPPORT)
+mdns_ifdef(RFM12_IP_SUPPORT)
   mdns_feature(rfm12, "_rfm12._bridge.local", "bridge to rfm12 network", NULL, 0)
 mdns_endif()
 

@@ -1,5 +1,5 @@
-dep_bool_menu "RFM12 (FSK transmitter) support" RFM12_SUPPORT
-if [ "$RFM12_SUPPORT" = "y" ]; then
+dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT
+if [ "$RFM12_IP_SUPPORT" = "y" ]; then
 
 if [ "$TEENSY_SUPPORT" != "y" ]; then
   int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
@@ -16,7 +16,7 @@ else
   ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
 fi
 
-dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_SUPPORT
+dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
 
 fi
 endmenu

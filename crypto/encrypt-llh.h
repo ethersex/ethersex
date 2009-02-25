@@ -29,7 +29,7 @@
 void llh_encrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 void llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 
-#ifdef RFM12_SUPPORT
+#ifdef RFM12_IP_SUPPORT
 /*
  * rfm12 encryption wrapper
  */

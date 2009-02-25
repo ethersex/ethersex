@@ -418,7 +418,7 @@ MD5_SUPPORT
   Enable MD5-hash for OpenVPN packet authentication.
 
 RFM12 (FSK transmitter) support
-RFM12_SUPPORT
+RFM12_IP_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
@@ -434,14 +434,14 @@ RFM12 ARP-Proxy
 RFM12_ARP_PROXY
   Depends on: 
    * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
-   * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
+   * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 RFM12 ASK (Amplitude Shift Keying) Support
 RFM12_ASK_SUPPORT
   Depends on:
-   * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
+   * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
 
   This ASK is very helpful for playing around with radio controlled
   power switches or similar devices.
@@ -606,7 +606,7 @@ RFM12 raw
 RFM12_RAW_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-   * RFM12 (FSK transmitter) support (RFM12_SUPPORT)
+   * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
   Forward raw data (sent to UDP port 16962, i.e. 0x4242) to RFM12.

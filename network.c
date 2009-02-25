@@ -79,7 +79,7 @@ network_init(void)
 
     uip_init();
 
-#if defined(RFM12_SUPPORT) && defined(UIP_MULTI_STACK)
+#if defined(RFM12_IP_SUPPORT) && defined(UIP_MULTI_STACK)
     uip_stack_set_active(STACK_RFM12);
     rfm12_stack_init();
 #endif

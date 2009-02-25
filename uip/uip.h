@@ -1670,7 +1670,7 @@ static inline uint8_t uip_buf_lock (void)
   return result;
 }
 
-#ifndef RFM12_SUPPORT
+#ifndef RFM12_IP_SUPPORT
 #define rfm12_tx_active() (0)
 #endif
 

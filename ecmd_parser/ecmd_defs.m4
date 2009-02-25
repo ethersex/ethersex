@@ -187,9 +187,11 @@ ecmd_ifdef(SD_READER_SUPPORT)
 ecmd_endif
 
 ecmd_ifndef(TEENSY_SUPPORT)
+  block(RFM12)
   ecmd_ifdef(RFM12_SUPPORT)
-    block(RFM12)
     ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
+  ecmd_endif()
+  ecmd_ifdef(RFM12_IP_SUPPORT)
     ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)
     ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth", BW, Set RX bandwidth to BW.)
     ecmd_feature(rfm12_setmod, "rfm12 setmod", MOD, Set modulation to MOD.)

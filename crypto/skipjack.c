@@ -15,7 +15,7 @@
 #define INLINE
 #endif
 
-#if defined(RFM12_SUPPORT) || defined(ZBUS_SUPPORT)
+#if defined(RFM12_IP_SUPPORT) || defined(ZBUS_SUPPORT)
 #  ifndef CONF_WITH_DECRYPT
 #    define CONF_WITH_DECRYPT 1
 #  endif

@@ -31,7 +31,24 @@
 #include <util/delay.h>
 #include "../config.h"
 
-#ifdef RFM12_SUPPORT
+
+/* Prologue/epilogue macros, disabling/enabling interrupts. 
+   Be careful, these are not well suited to be used as if-blocks. */
+#define rfm12_prologue()			\
+  uint8_t sreg = SREG; cli();
+#define rfm12_epilogue()			\
+  SREG = sreg;
+
+
+// initialize module
+void rfm12_init(void);
+
+// transfer 1 word to/from module
+unsigned short rfm12_trans(unsigned short wert);
+
+
+
+#ifdef RFM12_IP_SUPPORT
 
 typedef enum {
   RFM12_OFF,
@@ -50,13 +67,6 @@ typedef enum {
   RFM12_TX_SUFFIX_2,
   RFM12_TX_END
 } rfm12_status_t;
-
-/* Prologue/epilogue macros, disabling/enabling interrupts. 
-   Be careful, these are not well suited to be used as if-blocks. */
-#define rfm12_prologue()			\
-  uint8_t sreg = SREG; cli();
-#define rfm12_epilogue()			\
-  SREG = sreg;
 
 
 /* Current RFM12 transceiver status. */
@@ -139,12 +149,6 @@ typedef uint16_t rfm12_index_t;
 #define RFM12_TXDELAY 0x10
 
 
-// initialize module
-void rfm12_init(void);
-
-// transfer 1 word to/from module
-unsigned short rfm12_trans(unsigned short wert);
-
 // set center frequency
 void rfm12_setfreq(unsigned short freq);
 
@@ -177,7 +181,7 @@ extern uint8_t rfm12_drssi;
 
 
 
-#else /* not RFM12_SUPPORT */
+#else /* not RFM12_IP_SUPPORT */
 
 #define rfm12_int_enable()  do { } while(0)
 #define rfm12_int_disable() do { } while(0)

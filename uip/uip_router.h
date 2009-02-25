@@ -56,7 +56,7 @@ void router_output(void);
 #  include "../network.h"
 #  define router_output() enc28j60_txstart()
 
-#elif defined(RFM12_SUPPORT)
+#elif defined(RFM12_IP_SUPPORT)
 #  include "../rfm12/rfm12.h"
 #  define router_output() (rfm12_txstart (uip_len), 0)
 

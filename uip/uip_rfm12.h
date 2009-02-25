@@ -25,12 +25,12 @@
 #define UIP_RFM12_H
 
 #include "../config.h"
-#if defined(RFM12_SUPPORT) && defined(ROUTER_SUPPORT)
+#if defined(RFM12_IP_SUPPORT) && defined(ROUTER_SUPPORT)
 
 #include "uip-conf.h"
 
 void rfm12_stack_init (void);
 
 
-#endif /* RFM12_SUPPORT and ROUTER_SUPPORT */
+#endif /* RFM12_IP_SUPPORT and ROUTER_SUPPORT */
 #endif /* not UIP_RFM12_H */
