@@ -2,6 +2,7 @@ TARGET = librfm12.a
 TOPDIR = ..
 SRC = \
 	process.c \
+	ask_sense.c \
 	rfm12.c \
 	rfm12_ask.c \
 	rfm12_raw_net.c
