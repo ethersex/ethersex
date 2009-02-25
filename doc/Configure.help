@@ -333,7 +333,30 @@ MCUF_SUPPORT
   Depends on: 
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enables UDP-Blinkenlights-Streams reciever on Port 2323
+
+  Supported proctocols:
+    BLP
+    EBLP
+    MCUF
+  
+  For Details see https://wiki.blinkenarea.org/index.php/Protocols
+  
+  To use the incomming data, you have to enable either
+    MCUF usart
+  or
+    BLP SUPPORT
+
+  Use "MCUF usart" to send Data over USART 0 or 1 for example to a
+  Shifter (see https://wiki.blinkenarea.org/index.php/Shifter). If
+  you want to use "MCUF usart", you also have to select the USART
+  in the field "MCUF usart select".
+  
+  Use "BLP SUPPORT" if you have a BlinkenLedsPro or compatible
+  Hardware directly connected to your microcontroller.
+  See https://wiki.blinkenarea.org/index.php/BlinkenLEDs for
+  Details. You have to use an Atmega8 to enable "BLP SUPPORT" or
+  add you have to add the propper pinning in pinning/controllers/.
 
 Readback support
 HD44780_READBACK
@@ -938,13 +961,34 @@ MCUF_SERIAL_SUPPORT
   Depends on: 
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Converts and sends incomming UDP-Blinkenlights-Streams to the
+  selected USART 0 or 1 for example to a Shifter
+  (see https://wiki.blinkenarea.org/index.php/Shifter). You have
+  to select the USART in the field "MCUF usart select".
 
 BLP SUPPORT
 BLP_SUPPORT
   Depends on: 
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Use "BLP SUPPORT" if you have a BlinkenLedsPro or compatible
+  Hardware directly connected to your microcontroller.
+  See https://wiki.blinkenarea.org/index.php/BlinkenLEDs for
+  Details.
+  
+  Pinbelegung am Atmega8:
+  
+  clock:  PB0
+  strobe: PD5
+  data 1/2: PB1
+  data 3/4: PB2
+  data 5/6: PD4
+  data 5/8: PD3
+  data 9/10: PB3
+  data 11/12: PB4
+  data 13/14: PB5
+  data 15/16: PC2
+  data 17/18: PC3
 
 VFS (Virtual File System) support
 VFS_SUPPORT
@@ -1112,3 +1156,16 @@ ALIASCMD_SUPPORT
 
   `$i' -> `show ip'
 
+MCUF screen width
+MCUF_OUTPUT_SCREEN_WIDTH
+  Depends on:
+   * MCUF usart
+
+  MCUF screen width * MCUF screen height must be smaller than 256.
+
+MCUF screen height
+MCUF_OUTPUT_SCREEN_HEIGHT
+  Depends on:
+   * MCUF usart
+
+  MCUF screen width * MCUF screen height must be smaller than 256.
