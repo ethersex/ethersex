@@ -21,13 +21,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef _NAMED_H
-#define _NAMED_H
+#ifndef _ALIASCMD_H
+#define _ALIASCMD__H
 
 typedef struct {
-  char *name;
-  char *cmd;
+  PGM_P name;
+  PGM_P cmd;
 } aliascmd_t;
+
+char *aliascmd_decode(char *cmd);
 
 #endif
 
