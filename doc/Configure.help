@@ -1169,3 +1169,14 @@ MCUF_OUTPUT_SCREEN_HEIGHT
    * MCUF usart
 
   MCUF screen width * MCUF screen height must be smaller than 256.
+
+Inline the .config
+VFS_CONFIG_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+ Includes the .config file during compile into flash.
+ Very usefull for debugging or review of compile settings.
+ 
+ Access via http://ethersexip/conf
+
