@@ -47,6 +47,35 @@ void rfm12_init(void);
 unsigned short rfm12_trans(unsigned short wert);
 
 
+#define RxBW400		1
+#define RxBW340		2
+#define RxBW270		3
+#define RxBW200		4
+#define RxBW134		5
+#define RxBW67		6
+
+#define TxBW15		0
+#define TxBW30		1
+#define TxBW45		2
+#define TxBW60		3
+#define TxBW75		4
+#define TxBW90		5
+#define TxBW105		6
+#define TxBW120		7
+
+
+#define RFM12TxBDW(kfrq)	((uint8_t)(kfrq/15)-1)
+
+/* macro for calculating frequency value out of frequency in MHz */
+#define RFM12FREQ(freq)	((freq-430.0)/0.0025)	
+
+// set receiver settings
+void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
+
+// set center frequency
+void rfm12_setfreq(unsigned short freq);
+
+
 
 #ifdef RFM12_IP_SUPPORT
 
@@ -75,7 +104,6 @@ rfm12_status_t rfm12_status;
 #define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
 
 
-
 #define rfm12_int_enable()			\
   _EIMSK |= _BV(RFM12_INT_PIN);
 #define rfm12_int_disable()			\
@@ -98,22 +126,6 @@ typedef uint16_t rfm12_index_t;
 #endif	/* not TEENSY_SUPPORT */
 
 //##############################################################################
-
-#define RxBW400		1
-#define RxBW340		2
-#define RxBW270		3
-#define RxBW200		4
-#define RxBW134		5
-#define RxBW67		6
-
-#define TxBW15		0
-#define TxBW30		1
-#define TxBW45		2
-#define TxBW60		3
-#define TxBW75		4
-#define TxBW90		5
-#define TxBW105		6
-#define TxBW120		7
 
 #define LNA_0		0
 #define LNA_6		1
@@ -140,26 +152,16 @@ typedef uint16_t rfm12_index_t;
 
 //##############################################################################
 
-#define RFM12TxBDW(kfrq)	((uint8_t)(kfrq/15)-1)
-
-/* macro for calculating frequency value out of frequency in MHz */
-#define RFM12FREQ(freq)	((freq-430.0)/0.0025)	
 
 /* how many calls to wait before a retransmit */
 #define RFM12_TXDELAY 0x10
 
-
-// set center frequency
-void rfm12_setfreq(unsigned short freq);
 
 // set baudrate
 void rfm12_setbaud(unsigned short baud);
 
 // set transmission settings
 void rfm12_setpower(uint8_t power, uint8_t mod);
-
-// set receiver settings
-void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
 
 // start receiving a package
 uint8_t rfm12_rxstart(void);

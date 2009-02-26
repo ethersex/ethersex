@@ -266,23 +266,25 @@ int main(void)
 #ifdef RFM12_SUPPORT
     rfm12_init();
 
-#ifdef RFM12_IP_SUPPORT
 #ifdef TEENSY_SUPPORT
     cli ();
     rfm12_trans (0xa620);	/* rfm12_setfreq(RFM12FREQ(433.92)); */
     rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
+#ifdef RFM12_IP_SUPPORT
     rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
     rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
-    sei ();
-#else
-    rfm12_setfreq(RFM12FREQ(433.92));
-    rfm12_setbandwidth(5, 1, 4);
-    rfm12_setbaud(CONF_RFM12_BAUD / 100);
-    rfm12_setpower(0, 2);
-#endif
-
     rfm12_rxstart();
 #endif  /* RFM12_IP_SUPPORT */
+    sei ();
+#else  /* TEENSY_SUPPORT */
+    rfm12_setfreq(RFM12FREQ(433.92));
+    rfm12_setbandwidth(5, 1, 4);
+#ifdef RFM12_IP_SUPPORT
+    rfm12_setbaud(CONF_RFM12_BAUD / 100);
+    rfm12_setpower(0, 2);
+    rfm12_rxstart();
+#endif  /* RFM12_IP_SUPPORT */
+#endif  /* not TEENSY_SUPPORT */
 #endif  /* RFM12_SUPPORT */
 
 #ifdef DC3840_SUPPORT

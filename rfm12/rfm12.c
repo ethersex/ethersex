@@ -202,14 +202,15 @@ rfm12_init(void)
 }
 
 
-#ifdef RFM12_IP_SUPPORT
 #ifndef TEENSY_SUPPORT
 void
 rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 {
+#ifdef RFM12_IP_SUPPORT
   rfm12_bandwidth = bandwidth;
   rfm12_gain = gain;
   rfm12_drssi = drssi;
+#endif  /* RFM12_IP_SUPPORT */
 
   rfm12_prologue ();
   rfm12_trans (0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
@@ -232,6 +233,7 @@ rfm12_setfreq(unsigned short freq)
 }
 
 
+#ifdef RFM12_IP_SUPPORT
 void
 rfm12_setbaud(unsigned short baud)
 {
@@ -257,9 +259,11 @@ rfm12_setpower(uint8_t power, uint8_t mod)
   rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
   rfm12_epilogue ();
 }
+#endif  /* not RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 
 
+#ifdef RFM12_IP_SUPPORT
 uint8_t
 rfm12_rxstart(void)
 {
