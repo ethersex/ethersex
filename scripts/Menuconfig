@@ -410,10 +410,12 @@ function help () {
 	if extract_help $1 >help.out
 	then
 		dialog	--backtitle "$backtitle" --title "$2"\
+			--exit-label "Exit" \
 			--help-button --help-label "Modify Help Text" \
 			--textbox help.out $ROWS $COLS
 	else
 		dialog	--backtitle "$backtitle" \
+			--exit-label "Exit" \
 			--help-button --help-label "Modify Help Text" \
 			--textbox help.out $ROWS $COLS
 	fi
