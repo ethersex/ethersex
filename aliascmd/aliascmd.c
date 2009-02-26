@@ -46,12 +46,12 @@ char
 #ifdef DEBUG_ECMD
     	debug_printf("test cmd %s vs. alias %S\n", cmd+1, alias.name);
 #endif
-		if (strcmp_P(cmd + 1, alias.name) == 0){ // +1 because the first char is the marker for alias names
+		if(strncmp_P(cmd + 1, alias.name, strlen_P(alias.name)) == 0) { //if (strcmp_P(cmd + 1, alias.name) == 0){ // +1 because the first char is the marker for alias names
 			int aliaslen = strlen_P(alias.name);
 			int newlen = strlen_P(alias.cmd);
 
-			memmove(cmd + newlen, cmd + aliaslen, strlen (cmd + aliaslen) +1);
-			memcpy_P(cmd, alias.cmd, newlen + 1);
+			memmove(cmd + newlen, cmd + aliaslen + 1, strlen (cmd + aliaslen + 1) + 1);
+			memcpy_P(cmd, alias.cmd, newlen);
 
 #ifdef DEBUG_ECMD
     debug_printf("alias found at pos %i: %S -> %S\n", i, alias.name, alias.cmd);
