@@ -631,7 +631,7 @@ USB_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Support for USB functions
 
 USBnet
 USB_NET_SUPPORT
@@ -849,7 +849,8 @@ ENC28J60_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+ If your hardware uses the ENC28J60 IC and you want network functions, just
+ answer 'y' and got forther with more configuration.
 
 Static IPv6 configuration
 IPV6_STATIC_SUPPORT
@@ -1179,4 +1180,90 @@ VFS_CONFIG_INLINE_SUPPORT
  Very usefull for debugging or review of compile settings.
  
  Access via http://ethersexip/conf
+
+Type of microcontroller
+MCU
+ Select the right type of microcontroller used in circuit board.
+ e.g. atmega32 or atmega644
+
+ATMEGA32 microcontroller
+atmega32
+ ATmega32 and ATmega32L
+
+
+Clock speed of microcontroller
+FREQ
+ This has to be set to the same value as the crystal used in circuit board.
+ eg. 16000000 or 14745600
+
+Build a bootloader
+BOOTLOADER_SUPPORT
+
+ enable ethersex TFTP bootloader support
+ Depends on TFTP to upload new firmware 
+
+
+device is self powered
+USB_CFG_IS_SELF_POWERED
+
+  USB device has its on power supply, if yes check this box.
+
+USB bus power consumption
+USB_CFG_MAX_BUS_POWER
+
+  Enter the maximal miliampere value the device needs by USB-Bus.
+  e.g. 50 (mA)
+
+Hostname
+CONF_HOSTNAME
+
+  Enter a hostname for your device. This value is used e.g. by SNMP
+
+Network Gateway IP
+CONF_ETHERRAPE_GATEWAY
+
+  Enter the default gateway IP for your network
+
+
+I2C Detection Support
+I2C_DETECT_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  enables automatic i2c bus IC detection, used by ecmd command "i2c detect" 
+  and other.
+
+I2C EEPROM (24cxx) Support
+I2C_24CXX_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  I2C EEPROM Support e.g M24C32, M24C64
+
+
+I2C LM75 temperature sensors
+I2C_LM75_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Digital Temperatur Sensor and Thermal Watchdog IC LM75 Support
+
+I2C PCA9531 8-bit LED dimmer
+I2C_PCA9531_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  PCA9531 - 8-bit I2C LED dimmer Support for I2C-bus
+
+I2C PCF8574X Port extention
+I2C_PCF8574X_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
 
