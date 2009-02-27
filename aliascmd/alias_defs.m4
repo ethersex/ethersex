@@ -7,6 +7,11 @@ alias_ifdef(RFM12_ASK_SENDER_SUPPORT)
   alias("on", `"rfm12 2272 0,5,85 76 10"')
 alias_endif()
 
+alias_ifdef(I2C_PCF8574X_SUPPORT)
+  /* example for further parameter right behind '0 0 ' */
+  alias("led", `"pcf8574x set 0 0 "')
+alias_endif()
+
 alias_ifdef(I2C_LM75_SUPPORT)
   alias("temp", 		"lm75 0")
 alias_endif()
