@@ -49,7 +49,7 @@ stella_pwm_init(void)
   STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 }
 
-SIGNAL(_SIG_OUTPUT_COMPARE2)
+ISR(TIMER2_COMP_vect)
 {
   if(i_length) {
     STELLA_PORT &= ~i_timetable[now][1];
@@ -58,7 +58,7 @@ SIGNAL(_SIG_OUTPUT_COMPARE2)
   }
 }
 
-SIGNAL(_SIG_OVERFLOW2)
+ISR(TIMER2_OVF_vect)
 {
   STELLA_PORT = i_overflow_mask;
   if(update_table == 1)
@@ -143,7 +143,7 @@ stella_sort(uint8_t color[])
 	}
     }
 
-  /* So etz noch die alten Werte ersetzen */
+  /* So jetzt noch die alten Werte ersetzen */
   while (update_table);
 
   for (i = 0; i < x; i ++)
