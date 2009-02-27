@@ -20,6 +20,7 @@ SRC = \
 	rfm12_ask.c	\
 	sd.c		\
 	i2c.c		\
+	pwm.c		\
 	usart.c		\
 	syslog.c		\
 	control6.c

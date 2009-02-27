@@ -242,6 +242,10 @@ ecmd_ifdef(DC3840_SUPPORT)
   ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)
 ecmd_endif
 
+ecmd_ifdef(PWM_SUPPORT)
+  ecmd_feature(pwm, "pwm", , start pwm)
+ecmd_endif
+
 ecmd_ifdef(I2C_DETECT_SUPPORT)
   block(I²C (TWI))
   ecmd_feature(i2c_detect, "i2c detect",,list detected I²C Chips)
