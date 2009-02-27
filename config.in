@@ -54,6 +54,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'FS20 WS300' DEBUG_FS20_WS300 $DEBUG
   dep_bool 'FS20 WS300 Verbose' DEBUG_FS20_WS300_VERBOSE $DEBUG_FS20_WS300
   dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
+  dep_bool 'PWM' DEBUG_PWM $DEBUG
   dep_bool 'I2C' DEBUG_I2C $DEBUG
   dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
   dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
@@ -176,6 +177,7 @@ source camera/config.in
 
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "Send PWM Codes" PWM_SUPPORT $CONFIG_EXPERIMENTAL
 
 source mcuf/config.in
 
