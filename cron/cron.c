@@ -32,6 +32,7 @@
 uint32_t last_check;
 
 void test(void);
+void leds(void);
 
 void test(void)
 {
@@ -40,7 +41,23 @@ void test(void)
 #endif
 }
 
+#ifdef I2C_PCF8574X_SUPPORT
 
+#include "../i2c_master/i2c_pcf8574x.h"
+
+uint8_t ledbits=0x0;
+
+void i2c_leds(void)
+{
+#ifdef SYSLOG_SUPPORT
+    syslog_send_P(PSTR("i2c LED event matched!"));
+#endif
+
+ i2c_pcf8574x_set(I2C_SLA_PCF8574 + 0,ledbits);
+ ledbits++;
+}
+
+#endif //I2C_PCF8574X_SUPPORT
 
 /* Cron configuration:
  * Fields: Min Hour Day Month Dow
@@ -56,6 +73,9 @@ struct cron_event_t events[] PROGMEM =
 { { { {-1, -2, -1, -1, -1} }, test, USE_UTC}, /* when hour % 2 == 0 */
   { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
   { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
+#ifdef I2C_PCF8574X_SUPPORT
+  { { {-1, -1, -1, -1, -1} }, i2c_leds, USE_LOCAL}, /* when minute % 1 == 0 */
+#endif //I2C_PCF8574X_SUPPORT
   /* This is only the end of table marker */
   { { {-1, -1, -1, -1, -1} }, NULL, 0},
 };
