@@ -30,9 +30,6 @@ pwm_wav_init(void);
 void
 pwm_stop(void);
 
-// Length of Sound
-#define pwmmaxsoundbytes 2032
-
 // Sound Data
 PROGMEM extern char pwmsound[];
 
