@@ -119,9 +119,8 @@ jabber_send_data (uint8_t send_state)
     case JABBER_CONNECTED:
 	if (*STATE->outbuf) {
 	    uip_slen = sprintf_P (uip_sappdata, PSTR(
-				      "<message to='%s' type='message'>"
-				      "<body>%s</body><subject></subject>"
-				      "</message>"),
+				      "<message to='%s' type='chat'>"
+				      "<body>%s</body></message>"),
 		       STATE->target, STATE->outbuf);
         } else {
 	    JABDEBUG ("idle, don't know what to send right now ...\n");
