@@ -76,20 +76,28 @@
 
 static uint8_t last_noise_ts;
 static uint8_t last_tx_ts;
-static uint8_t locked_signal;
+
+static volatile struct {
+  unsigned locked_signal	: 1;
+  unsigned overflow		: 1;
+} bits;
 
 /* Calculate delta between new and old, considering that the values
    overflow at 256.*/
-#define DELTA(n,o) (((n) >= (o)) ? ((n) - (o)) : (256 - (o) + (n)))
+//#define DELTA(n,o) (((n) >= (o)) ? ((n) - (o)) : (256 - (o) + (n)))
+#define DELTA(n,o) (bits.overflow == 0 ? ((n) - (o)) \
+		    : (256 - (o) + (n)))
 
 #define TICKS_TO_BIT(n) ((n) > LIMIT_TICKS ? 1 : 0)
 
 
 #ifdef DEBUG_ASK_SENSE
 # include "../debug.h"
-# define ASKDEBUG(a...)  debug_printf("ask_sense: " a)
+# define ASKDEBUG(a...)  debug_printf(a)
+# define ASKDEBUGCHAR(a) debug_putchar(a)
 #else
-#defien ASKDEBUG(a...) do { } while(0)
+# define ASKDEBUG(a...) do { } while(0)
+# define ASKDEBUGCHAR(a) do { } while(0)
 #endif	/* DEBUG_ASK_SENSE */
 
 
@@ -101,15 +109,32 @@ rfm12_ask_sense_start (void)
   /* Initialize Timer0, prescaler 1/256 */
   TCCR0A = 0;
   TCCR0B = _BV(CS02);
+  TIMSK0 |= _BV(TOIE0);
 
   /* Initialize Interrupt */
   _EIMSK |= _BV(RFM12_ASKINT_PIN);
   EICRA = (EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC;
 
   last_noise_ts = TCNT0;
-  locked_signal = 0;
+  bits.locked_signal = 0;
 
   rfm12_ask_external_filter_init ();
+}
+
+
+ISR(TIMER0_OVF_vect)
+{
+  if (bits.overflow && bits.locked_signal)
+    {
+      bits.overflow = 0;
+      bits.locked_signal = 0;
+
+      ASKDEBUGCHAR ('t');
+      ASKDEBUGCHAR (10);
+      return;
+    }
+
+  bits.overflow = 1;
 }
 
 
@@ -118,11 +143,13 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
   uint8_t ts = TCNT0;		/* Get current timestamp. */
   uint8_t delta = DELTA (ts, last_noise_ts);
 
-  if (delta > TIMEOUT_TICKS && locked_signal)
+  if (delta > TIMEOUT_TICKS && bits.locked_signal)
     {
-      ASKDEBUG ("timeout.\n");
-      locked_signal = 0;
-      last_noise_ts = ts;
+      ASKDEBUGCHAR ('T');
+      ASKDEBUGCHAR ('\n');
+
+      bits.locked_signal = 0;
+      bits.overflow = 0;
     }
 
   if (delta < MIN_TICKS || delta > TIMEOUT_TICKS)
@@ -132,21 +159,24 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
       return;
     }
 
+  uint8_t bit;
+
   /* We've detected the end of a TX-active phase... */
-  if (locked_signal)
+  if (bits.locked_signal)
     {
       /* ... and it's not the first bit we're receiving. */
+      uint8_t delta2 = DELTA (last_noise_ts, last_tx_ts);
+      bit = TICKS_TO_BIT (delta2);
+      ASKDEBUGCHAR ('0' + bit);
     }
-  else
-    {
-      /* ... and this is the first bit ... */
-      uint8_t bit = TICKS_TO_BIT (DELTA (ts, last_noise_ts));
-      ASKDEBUG ("found start bit=%d", bit);
 
-      locked_signal = 1;
-      last_noise_ts = ts;
-      last_tx_ts = ts;
-    }
+  bit = TICKS_TO_BIT (delta);
+  ASKDEBUGCHAR ('0' + bit);
+
+  bits.locked_signal = 1;
+  bits.overflow = 0;
+  last_noise_ts = ts;
+  last_tx_ts = ts;
 }
 
 #endif	/* RFM12_ASK_SENSING_SUPPORT */
