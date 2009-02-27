@@ -2,6 +2,7 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT
 
 if [ "$ENC28J60_SUPPORT" = "y" ]; then
   mac "Etherrape MAC address" CONF_ENC_MAC "ac:de:48:fd:0f:d0"
+  script_set "  Randomize MAC address" RANDOM_MAC "scripts/random_mac CONF_ENC_MAC"
 
   dep_bool 'Static IPv6 configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
 

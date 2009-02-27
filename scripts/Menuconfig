@@ -320,6 +320,16 @@ function ipv6 () {
 }
 
 #
+# Add a menu item which will call our local random_mac function.
+#
+
+function script_set () {
+	echo -ne "'$2' '     $1' " >>MCmenu
+
+	echo -e "function $2 () { l_script_set '$1' '$2' '$3' '$x' ;}" >>MCradiolists
+}
+
+#
 # Add a menu item which will call our local One-of-Many choice list.
 #
 function choice () {
@@ -773,6 +783,10 @@ function l_ipv6 () {
 
 		help "$2" "$1"
 	done
+}
+
+function l_script_set() {
+  eval $(eval $3)
 }
 
 

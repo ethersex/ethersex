@@ -1,0 +1,10 @@
+#!/bin/bash
+
+function random_hex() {
+  printf "%02x" $(($RANDOM % 256 ))
+}
+
+MAC="ac:de:48:$(random_hex):$(random_hex):$(random_hex)"
+
+echo "$1=\"$MAC\""
+
