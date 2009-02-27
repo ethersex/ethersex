@@ -95,3 +95,16 @@ int16_t
   return 0;
 }
 #endif  /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
+
+#ifdef RFM12_ASK_SENSING_SUPPORT
+int16_t
+parse_cmd_rfm12_ask_sense (char *cmd, char *output, uint16_t len)
+{
+  (void) cmd;
+  (void) output;
+  (void) len;
+
+  rfm12_ask_sense_start ();
+  return 0;
+}
+#endif  /* RFM12_ASK_SENSING_SUPPORT */

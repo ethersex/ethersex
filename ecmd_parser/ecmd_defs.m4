@@ -211,6 +211,9 @@ ecmd_endif()
 ecmd_ifdef(RFM12_ASK_EXTERNAL_FILTER_SUPPORT)
   ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter", , Toggel receiver)
 ecmd_endif()
+ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
+  ecmd_feature(rfm12_ask_sense, "rfm12 ask sense")
+ecmd_endif()
 
 block(Miscelleanous)
 

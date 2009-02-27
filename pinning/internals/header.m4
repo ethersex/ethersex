@@ -85,6 +85,9 @@ define(`RFM12_USE_INT', `dnl
 define(`RFM12_ASK_SENSE_USE_INT', `dnl
 /* rfm12 module interrupt line */
 #define RFM12_ASKINT_PIN INT$1
+#define _ISC(n,m) _BV(ISC ## n ## m)
+#define RFM12_ASKINT_ISC _ISC($1,0)
+#define RFM12_ASKINT_ISCMASK (_ISC($1,0) | _ISC($1,1))
 #define RFM12_ASKINT_SIGNAL SIG_INTERRUPT$1
 ')
 

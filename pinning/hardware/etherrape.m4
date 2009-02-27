@@ -48,6 +48,7 @@ dnl   pin(RFM12_TX_PIN, GENERIC_TX_PIN)
 dnl   pin(RFM12_RX_PIN, GENERIC_RX_PIN)
 
   RFM12_USE_INT(2)
+  RFM12_ASK_SENSE_USE_INT(2)
 ')
 
 ifdef(`conf_ZBUS', `dnl

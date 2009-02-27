@@ -19,7 +19,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/interrupt.h>
+
 #include "../config.h"
+#include "rfm12_ask.h"
 
 /*
   Theory of operation:
@@ -68,15 +71,82 @@
 #define LIMIT_TICKS US_TO_TICKS(950)
 
 /* Timeout */
-#define LIMIT_TIMEOUT US_TO_TICKS(1600)
+#define TIMEOUT_TICKS US_TO_TICKS(1600)
+
+
+static uint8_t last_noise_ts;
+static uint8_t last_tx_ts;
+static uint8_t locked_signal;
+
+/* Calculate delta between new and old, considering that the values
+   overflow at 256.*/
+#define DELTA(n,o) (((n) >= (o)) ? ((n) - (o)) : (256 - (o) + (n)))
+
+#define TICKS_TO_BIT(n) ((n) > LIMIT_TICKS ? 1 : 0)
+
+
+#ifdef DEBUG_ASK_SENSE
+# include "../debug.h"
+# define ASKDEBUG(a...)  debug_printf("ask_sense: " a)
+#else
+#defien ASKDEBUG(a...) do { } while(0)
+#endif	/* DEBUG_ASK_SENSE */
+
 
 void
 rfm12_ask_sense_start (void)
 {
+  ASKDEBUG ("initializing.\n");
+
   /* Initialize Timer0, prescaler 1/256 */
+  TCCR0A = 0;
+  TCCR0B = _BV(CS02);
 
   /* Initialize Interrupt */
+  _EIMSK |= _BV(RFM12_ASKINT_PIN);
+  EICRA = (EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC;
+
+  last_noise_ts = TCNT0;
+  locked_signal = 0;
+
+  rfm12_ask_external_filter_init ();
 }
 
+
+SIGNAL(RFM12_ASKINT_SIGNAL)
+{
+  uint8_t ts = TCNT0;		/* Get current timestamp. */
+  uint8_t delta = DELTA (ts, last_noise_ts);
+
+  if (delta > TIMEOUT_TICKS && locked_signal)
+    {
+      ASKDEBUG ("timeout.\n");
+      locked_signal = 0;
+      last_noise_ts = ts;
+    }
+
+  if (delta < MIN_TICKS || delta > TIMEOUT_TICKS)
+    {
+      /* Within noise period, update last_noise_ts and we're done. */
+      last_noise_ts = ts;
+      return;
+    }
+
+  /* We've detected the end of a TX-active phase... */
+  if (locked_signal)
+    {
+      /* ... and it's not the first bit we're receiving. */
+    }
+  else
+    {
+      /* ... and this is the first bit ... */
+      uint8_t bit = TICKS_TO_BIT (DELTA (ts, last_noise_ts));
+      ASKDEBUG ("found start bit=%d", bit);
+
+      locked_signal = 1;
+      last_noise_ts = ts;
+      last_tx_ts = ts;
+    }
+}
 
 #endif	/* RFM12_ASK_SENSING_SUPPORT */
