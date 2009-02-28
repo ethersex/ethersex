@@ -46,6 +46,7 @@
 #include "mcuf/mcuf.h"
 #include "modbus/modbus.h"
 #include "zbus/zbus.h"
+#include "mysql/mysql.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -221,12 +222,16 @@ void timer_process(void)
 
         /* expire arp entries every 10 seconds */
         if (counter == 500) {
+#           ifdef DEBUG_TIMER
+            debug_printf("timer: 10 seconds have passed, ...\n");
+#           endif
+
 #           ifdef JABBER_SUPPORT
             jabber_periodic();
 #           endif
 
-#           ifdef DEBUG_TIMER
-            debug_printf("timer: 10 seconds have passed, expiring arp entries\n");
+#	    ifdef MYSQL_SUPPORT
+            mysql_periodic();
 #           endif
 
 #           ifdef ENC28J60_SUPPORT

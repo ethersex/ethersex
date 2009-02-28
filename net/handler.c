@@ -51,6 +51,7 @@
 #include "../mcuf/mcuf_net.h"
 #include "../httpd/httpd.h"
 #include "../jabber/jabber.h"
+#include "../mysql/mysql.h"
 #include "../debug.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
@@ -68,6 +69,10 @@ void network_init_apps(void)
 
 #   ifdef HTTPD_SUPPORT
     httpd_init();
+#   endif
+
+#   ifdef MYSQL_SUPPORT
+    mysql_init();
 #   endif
 
 #   ifdef UECMD_SUPPORT

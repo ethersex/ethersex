@@ -38,6 +38,7 @@
 #include "../zbus/zbus_raw_state.h"
 #include "../httpd/httpd_state.h"
 #include "../jabber/jabber_state.h"
+#include "../mysql/mysql_state.h"
 #include "sendmail.h"
 
 /* uip appstate for tcp */
@@ -66,6 +67,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef JABBER_SUPPORT
     struct jabber_connection_state_t jabber;
+#   endif
+
+#   ifdef MYSQL_SUPPORT
+    struct mysql_connection_state_t mysql;
 #   endif
 
 #   ifdef SENDMAIL_SUPPORT
