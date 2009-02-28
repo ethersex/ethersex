@@ -1,6 +1,10 @@
 #!/bin/bash
 HELPFILE=doc/Configure.help
 
+if [ x"$(tail -n 1 $HELPFILE)" != x"" ]; then
+  echo "" >> $HELPFILE
+fi
+
 function l_editor() {
   echo "launching editor for $1 ..."
   if [ -n "$EDITOR" ]; then
