@@ -85,7 +85,12 @@ int main(void)
 #   endif
 
     /* Clear the MCUSR Register to avoid endless wdreset loops */
+#ifdef MCUSR
     MCUSR = 0;
+#endif
+#ifdef MCUCSR
+    MCUCSR = 0;
+#endif
 
     /* Default DDR Config */
 #if IO_HARD_PORTS == 4 && DDR_MASK_A != 0
