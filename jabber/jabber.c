@@ -211,8 +211,10 @@ jabber_parse (void)
 	    *ptr = 0;		/* terminate body text. */
 
 	    ptr = strchr (from, '/');
+            if (!ptr) ptr = strchr(from, '\'');
+            if (!ptr) ptr = strchr(from, '\"');
 	    if (! ptr) {
-		JABDEBUG ("resource slash not found in from addr!\n");
+		JABDEBUG ("end of from addr not found!\n");
 		break;
 	    }
 	    *ptr = 0;		/* chop off resource name */
