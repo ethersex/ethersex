@@ -82,7 +82,6 @@ static uint8_t last_noise_ts;
 static uint8_t last_tx_ts;
 
 static volatile struct {
-  unsigned locked_signal	: 1;
   unsigned overflow		: 1;
 } bits;
 
@@ -133,6 +132,18 @@ samples_learn (uint8_t new_sample)
 }
 
 
+
+static unsigned char ask_buf[8];
+static uint8_t ask_buf_bits;
+
+#define ASK_BUF_STORE_PTR (ask_buf[(ask_buf_bits < sizeof(ask_buf) * 8 \
+				    ? (ask_buf_bits / 8) : 0)])
+#define ASK_BUF_STORE_BIT _BV(7 - (ask_buf_bits % 8))
+#define ASK_BUF_STORE(b)  (ASK_BUF_STORE_PTR = (ASK_BUF_STORE_PTR	\
+						& ~ASK_BUF_STORE_BIT)	\
+			   | ((b) ? ASK_BUF_STORE_BIT : 0),		\
+			   ask_buf_bits ++)
+
 void
 rfm12_ask_sense_start (void)
 {
@@ -148,22 +159,46 @@ rfm12_ask_sense_start (void)
   EICRA = (EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC;
 
   last_noise_ts = TCNT0;
-  bits.locked_signal = 0;
+  ask_buf_bits = 0;
   samples_num = 0;
 
   rfm12_ask_external_filter_init ();
 }
 
 
+static inline void
+ask_sense_decode_tevion (void)
+{
+  uint8_t code1 = (ask_buf[3] << 1) | (ask_buf[4] >> 7);
+  uint8_t code2 = (ask_buf[4] << 1) | (ask_buf[5] >> 7);
+  ASKDEBUG ("rfm12 tevion %d,%d,%d %d,%d 99 4\n",
+	    ask_buf[0], ask_buf[1], ask_buf[2], code1, code2);
+}
+
+
+static void
+ask_sense_try_decode (void)
+{
+  if (ask_buf_bits == 41)
+    ask_sense_decode_tevion ();
+
+  else
+    ASKDEBUG ("try_decode: unknown code.\n");
+
+  ask_buf_bits = 0;
+}
+
+
 ISR(TIMER0_OVF_vect)
 {
-  if (bits.overflow && bits.locked_signal)
+  if (bits.overflow && ask_buf_bits)
     {
       bits.overflow = 0;
-      bits.locked_signal = 0;
 
       ASKDEBUGCHAR ('t');
       ASKDEBUGCHAR (10);
+
+      ask_sense_try_decode ();	/* Resets ask_buf_bits. */
       return;
     }
 
@@ -176,12 +211,12 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
   uint8_t ts = TCNT0;		/* Get current timestamp. */
   uint8_t delta = DELTA (ts, last_noise_ts);
 
-  if (delta > TIMEOUT_TICKS && bits.locked_signal)
+  if (delta > TIMEOUT_TICKS && ask_buf_bits)
     {
       ASKDEBUGCHAR ('T');
       ASKDEBUGCHAR ('\n');
 
-      bits.locked_signal = 0;
+      ask_sense_try_decode ();	/* Resets ask_buf_bits. */
       bits.overflow = 0;
     }
 
@@ -195,7 +230,7 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
   uint8_t bit;
 
   /* We've detected the end of a TX-active phase... */
-  if (bits.locked_signal)
+  if (ask_buf_bits)
     {
       /* ... and it's not the first bit we're receiving. */
       uint8_t delta2 = DELTA (last_noise_ts, last_tx_ts);
@@ -204,14 +239,15 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
       bit = TICKS_TO_BIT (delta2);
 
       ASKDEBUGCHAR ('0' + bit);
+      ASK_BUF_STORE (bit);
     }
 
   samples_learn (delta);
   bit = TICKS_TO_BIT (delta);
 
   ASKDEBUGCHAR ('0' + bit);
+  ASK_BUF_STORE (bit);		/* increments ask_buf_bits. */
 
-  bits.locked_signal = 1;
   bits.overflow = 0;
   last_noise_ts = ts;
   last_tx_ts = ts;
