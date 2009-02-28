@@ -1267,3 +1267,12 @@ I2C_PCF8574X_SUPPORT
 
   PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
 
+Edit list of allowed ecmd buddies
+JABBER_KNOWN_BUDDIES
+
+  To protect your jabber ecmd interface from the evil empire. 
+  Only buddies, which are listed in jabber/known_buddies.src are allowed 
+  to execute ecmds. If the file is empty everybody can execute commands.
+
+  Format: every line one jabber id
+
