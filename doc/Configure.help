@@ -1276,3 +1276,27 @@ JABBER_KNOWN_BUDDIES
 
   Format: every line one jabber id
 
+PWM Generator
+PWM_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Uses the integrated timer to generate PWM and CTC waveforms.
+
+PWM Wave
+PWM_WAV_SUPPORT
+  Depends on: 
+   * PWM Generator (PWM_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+ Wave output support (8kHz mono output)
+
+PWM Melody
+PWM_MELODY_SUPPORT
+  Depends on: 
+   * PWM Generator (PWM_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  enables support for tunes and duration, which saves much
+  more memory than wave output
+
