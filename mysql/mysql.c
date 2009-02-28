@@ -79,8 +79,10 @@ mysql_send_data (uint8_t send_state)
 
 	/* Long password support (0x01), connect with database set (0x08)*/
 	lr->capabilities[0] = 0x09;
-	/* We speek 4.1 protocol (0x02), we do 4.1 authentication (0x80) */
-	lr->capabilities[1] = 0x82;
+	/* We speek 4.1 protocol (0x02), we are an interactive client (not
+	   really, but otherwise our times out after 10sec) (0x04),
+	   we do 4.1 authentication (0x80) */
+	lr->capabilities[1] = 0x86;
 	/* Max. packet size = 256 byte */
 	lr->max_packet_size[0] = 0xFF;
 	lr->charset = 8;	/* Latin1 charset. */
@@ -178,6 +180,9 @@ mysql_parse (void)
 	    MYDEBUG ("authentication failed.\n");
 	    return 1;
 	}
+
+	/* Clear statement buffer ... */
+	*STATE->u.stmtbuf = 0;
 
 	MYDEBUG ("successfully authenticated!\n");
 	break;
