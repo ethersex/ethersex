@@ -84,6 +84,9 @@ int main(void)
     _IVREG = _BV(IVSEL);            /* change ivec to bootloader */
 #   endif
 
+    /* Clear the MCUSR Register to avoid endless wdreset loops */
+    MCUSR = 0;
+
     /* Default DDR Config */
 #if IO_HARD_PORTS == 4 && DDR_MASK_A != 0
     DDRA = DDR_MASK_A;
