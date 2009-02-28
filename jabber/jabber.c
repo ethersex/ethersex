@@ -269,7 +269,10 @@ jabber_send_message(char *message)
 {
   if (!jabber_conn) return 0;
   if (*jabber_conn->appstate.jabber.outbuf) return 0;
-  
+
+  /* Send message to the default buddy */
+  strcpy_P (STATE->target, PSTR(CONF_JABBER_BUDDY));
+
   memcpy(jabber_conn->appstate.jabber.outbuf, message, 
          sizeof(jabber_conn->appstate.jabber.outbuf));
 
