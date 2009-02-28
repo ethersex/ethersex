@@ -30,6 +30,8 @@
 #include "jabber.h"
 #include "../ecmd_parser/ecmd.h"
 
+#include "known_buddies.c"
+
 
 static const char PROGMEM jabber_stream_text[] =
     "<?xml version='1.0'?>"
@@ -77,19 +79,39 @@ jabber_parse_ecmd (const char *from, char *message)
 	return;
     }
 
-    strcpy (STATE->target, from);
-
-    int16_t len = ecmd_parse_command(message, STATE->outbuf,
-				     ECMD_OUTPUTBUF_LENGTH - 1);
-    if (len <= -10) {
-	JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
-	len = -len - 10;
+    JABDEBUG("message from: %s\n", from);
+    uint8_t i = 0;
+    uint8_t auth = 1;
+    while (1) {
+      char *known_buddy_ptr = (char *)pgm_read_word(&jabber_known_buddies[i]);
+      if (known_buddy_ptr == NULL)
+        break;
+      auth = 0;
+      if (strcmp_P(from, known_buddy_ptr) == 0) {
+        auth = 1;
+        break;
+      }
+      i++;
     }
 
-    if (len < 0)
-	strcpy_P (STATE->outbuf, PSTR ("parse error"));
-    else
-	STATE->outbuf[len] = 0;
+    JABDEBUG("ecmd: authentificated %s: %d\n", from, auth);
+    strcpy (STATE->target, from);
+
+    if (!auth) { /* authentification failed */
+      strcpy_P(STATE->outbuf, PSTR("permission denied"));
+    } else {
+      int16_t len = ecmd_parse_command(message, STATE->outbuf,
+                                       ECMD_OUTPUTBUF_LENGTH - 1);
+      if (len <= -10) {
+          JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
+          len = -len - 10;
+      }
+
+      if (len < 0)
+          strcpy_P (STATE->outbuf, PSTR ("parse error"));
+      else
+          STATE->outbuf[len] = 0;
+    }
 }
 #endif	/* ECMD_JABBER_SUPPORT */
 
