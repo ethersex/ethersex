@@ -14,6 +14,9 @@ fi
   fi
 
   dep_bool "Jabber interface (EXPERIMENTAL)" ECMD_JABBER_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $JABBER_SUPPORT
+  if [ "$ECMD_JABBER_SUPPORT" = "y" ]; then
+    editor "Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES jabber/known_buddies.src
+  fi
 
   dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "aliascmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "Send ECMD messages over TCP" ECMD_SENDER_SUPPORT $TCP_SUPPORT

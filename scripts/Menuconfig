@@ -270,11 +270,23 @@ function string () {
 #
 # Add a menu item which will call our local editor function.
 # 
+function dep_bool_editor () {
+	ques="$1"; shift
+	flag="$1"; shift
+	file="$1"; shift
+	echo "fn_$flag='$file'" >> MCradiolists
+	dep_bool "$ques  --->" $flag $*
+}
 function editor () {
+	ques="$1"; shift
+	flag="$1"; shift
+	file="$1"; shift
 
-	echo -ne "'$2' '     Edit "$1"$info' " >>MCmenu
+	set_x_info "$flag" "$ques"
 
-	echo -e "function $2 () { l_editor '$1';}" >>MCradiolists
+	echo -ne "'$flag' '     ${ques}$info' " >>MCmenu
+
+        echo -e "function $flag () { l_editor '$file';}" >>MCradiolists
 }
 
 #
