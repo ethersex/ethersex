@@ -22,6 +22,8 @@
 #ifndef HAVE_MYSQL_H
 #define HAVE_MYSQL_H
 
+#define MYSQL_SERVER_PROTO_VERSION 10
+
 void mysql_init (void);
 void mysql_periodic (void);
 uint8_t mysql_send_query (char *message);

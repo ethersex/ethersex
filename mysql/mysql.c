@@ -57,7 +57,57 @@ mysql_parse (void)
 {
     MYDEBUG ("mysql_parse stage=%d\n", STATE->stage);
 
+    if (((unsigned char *) uip_appdata)[2] != 0) {
+	MYDEBUG ("incoming packet far too large!\n");
+	return 1;		/* Closes connection. */
+    }
+
+    uint16_t packet_len = ((unsigned char *) uip_appdata)[0]
+	+ (((unsigned char *) uip_appdata)[1] << 8);
+    uint8_t packet_id = ((unsigned char *) uip_appdata)[3];
+
+    MYDEBUG ("... packet's len=%d, id=%d.\n", packet_len, packet_id);
+
+    if (packet_id != STATE->packetid) {
+	MYDEBUG ("packet is out of line, expected %d.\n", STATE->packetid);
+	return 1;
+    }
+
+    unsigned char *ptr = uip_appdata + 4;
+
     switch (STATE->stage) {
+    case MYSQL_WAIT_GREETING:
+	/* Parse/expect a MySQL Server Greeting packet. */
+	if (*ptr != MYSQL_SERVER_PROTO_VERSION) {
+	    MYDEBUG ("expected server protocol version %d, got %d\n",
+		     MYSQL_SERVER_PROTO_VERSION, *ptr);
+	    return 1;
+	}
+
+	ptr ++;			/* now at `server version' */
+	ptr += strlen ((char*) ptr);
+	ptr ++;			/* now at `thread id' */
+	ptr += 4;		/* now at `scramble buf' */
+
+	memcpy (STATE->u.seed, ptr, 8);
+	ptr += 8;
+
+	if (*ptr != 0) {
+	    MYDEBUG ("first part of seed no zero-terminated.\n");
+	    return 1;
+	}
+
+	ptr += 19;		/* now at 2nd scramble buf */
+	memcpy (STATE->u.seed + 8, ptr, 12);
+	ptr += 12;
+
+	if (*ptr != 0) {
+	    MYDEBUG ("second part of seed no zero-terminated.\n");
+	    return 1;
+	}
+
+	MYDEBUG ("found valid server greeting!\n");
+	break;
 
     default:
 	MYDEBUG ("eeek, no comprendo!\n");
@@ -67,6 +117,8 @@ mysql_parse (void)
     /* Jippie, let's enter next stage if we haven't reached connected. */
     if (STATE->stage != MYSQL_CONNECTED)
 	STATE->stage ++;
+
+    STATE->packetid ++;
     return 0;
 }
 
@@ -77,12 +129,12 @@ mysql_main(void)
 {
     if (uip_aborted() || uip_timedout()) {
 	MYDEBUG ("connection aborted\n");
-        mysql_conn = NULL;
+	mysql_conn = NULL;
     }
 
     if (uip_closed()) {
 	MYDEBUG ("connection closed\n");
-        mysql_conn = NULL;
+	mysql_conn = NULL;
     }
 
     if (uip_connected()) {
@@ -90,11 +142,7 @@ mysql_main(void)
 	STATE->stage = MYSQL_WAIT_GREETING;
 	STATE->sent = MYSQL_WAIT_GREETING;
 	STATE->packetid = 0;
-	*STATE->stmtbuf = 0;
     }
-
-    if (uip_acked() && STATE->stage == MYSQL_CONNECTED)
-	*STATE->stmtbuf = 0;
 
     if (uip_newdata() && uip_len) {
 #ifdef DEBUG_MYSQL
@@ -118,8 +166,9 @@ mysql_main(void)
 		 || uip_acked()
 		 || uip_connected()))
 	mysql_send_data (STATE->stage);
-    else if (STATE->stage == MYSQL_CONNECTED && uip_poll() && *STATE->stmtbuf)
-        mysql_send_data(STATE->stage);
+    else if (STATE->stage == MYSQL_CONNECTED
+	     && uip_poll() && *STATE->u.stmtbuf)
+	mysql_send_data(STATE->stage);
 
 }
 
@@ -127,18 +176,16 @@ uint8_t
 mysql_send_message(char *message)
 {
     if (!mysql_conn) return 1;
-    if (*mysql_conn->appstate.mysql.stmtbuf) return 1;
-  
-    memcpy(mysql_conn->appstate.mysql.stmtbuf, message, 
-	   sizeof(mysql_conn->appstate.mysql.stmtbuf));
+    if (mysql_conn->appstate.mysql.stage < MYSQL_CONNECTED) return 1;
+    if (*mysql_conn->appstate.mysql.u.stmtbuf) return 1;
+    if (strlen (message) >= MYSQL_STMTBUF_LEN) return 1;
 
-    mysql_conn->appstate.mysql.stmtbuf
-	[sizeof(mysql_conn->appstate.mysql.stmtbuf) -1] = 0;
-  
+    strcpy(mysql_conn->appstate.mysql.u.stmtbuf, message);
     return 0;
 }
 
-void 
+
+void
 mysql_periodic(void)
 {
     if (!mysql_conn)

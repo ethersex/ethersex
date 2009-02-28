@@ -47,7 +47,10 @@ struct mysql_connection_state_t {
     /* The packet ID we expect next. */
     uint16_t packetid;
 
-    char stmtbuf[MYSQL_STMTBUF_LEN];
+    union {
+	char stmtbuf[MYSQL_STMTBUF_LEN];
+	unsigned char seed[20];
+    } u;
 };
 
 #endif  /* HAVE_MYSQL_STATE_H */
