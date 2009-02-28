@@ -3,6 +3,8 @@
  *
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2008 by Markus Meissna <markus@meissna.de>
+ * Copyright (c) by Ulrich Radig <mail@ulrichradig.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -34,29 +36,29 @@
 #include "pwm.h"
 
 #ifdef PWM_MELODY_SUPPORT
-uint8_t tone=0;
-uint16_t i=0;
-volatile uint16_t scale=523;
+uint8_t pwm_melody_tone=0;
+uint16_t pwm_melody_i=0;
+volatile uint16_t pwm_melody_scale=523;
 
-// Noten-Frequenzen,
-// berechnet für 8Mhz und PWM ohne Prescaler
-#define c 542
-#define cis 574
-#define d 608
-#define dis 644
-#define e 682
-#define f 722
-#define fis 765
-#define g 810
-#define gis 858
-#define a 908
-#define b 962
-#define h 1019
+// Noten-Frequenz,
+// calculated for 8Mhz & PWM without Prescale
+// note, scale, 	real Frequency
+#define c 542		// 262
+#define cis 574		// 277
+#define d 608		// 294
+#define dis 644		// 311
+#define e 682		// 330
+#define f 722		// 349
+#define fis 765		// 370
+#define g 810		// 392
+#define gis 858		// 415
+#define a 908		// 440
+#define h 1019		// 494
 
-#define p 0   // Pause
+#define p 0   // break
 
 
-// einfache Sinuswelle in 256 diskreten Werten
+// simple sinus in 255 values
 const uint8_t sinewave[1][256] PROGMEM=
 {
 {
@@ -79,13 +81,13 @@ const uint8_t sinewave[1][256] PROGMEM=
 }
 };
 
-struct notendauer
+struct notes_duration_t
 {
 uint16_t note;
-uint16_t dauer;
+uint16_t duration;
 };
 
-struct notendauer entchen[] =
+struct notes_duration_t entchen[] =
 {
 {c,1200},{d,1200},{e,1200},{f,1200},{g,1600},
 {g,1600},{a,800},{a,800},{a,800},{a,800},
@@ -93,7 +95,7 @@ struct notendauer entchen[] =
 {g,1600},{f,1200},{f,1200},{f,1200},
 {f,1200},{e,1200},{e,1600},{d,1200},
 {d,1200},{d,1200},{d,1200},{c,1600},
-{p,160} //pause am ende
+{p,160} // break at end
 };
 
 
@@ -102,7 +104,7 @@ struct notendauer entchen[] =
 
 #ifdef PWM_WAV_SUPPORT
 
-//Sound Daten (got by MegaLOG of urlich radig (see radig webmodul))
+//Sound Daten (got by MegaLOG of Ulrich Radig (see Radig webmodul and ))
 PROGMEM char pwmsound[] = {
 0x52,0x49,0x46,0x46,0x42,0x3B,0x00,0x00,0x57,0x41,0x56,0x45,0x66,0x6D,0x74,0x20,
 0x12,0x00,0x00,0x00,0x01,0x00,0x01,0x00,0x40,0x1F,0x00,0x00,0x40,0x1F,0x00,0x00,
@@ -1055,42 +1057,28 @@ PROGMEM char pwmsound[] = {
 0x92,0x94,0x93,0x92,0x93,0x93,0x92,0x94,0x92,0x93,0x00
 };
 
-#endif // PWM_WAV_SUPPORT
-
 
 #define SOUNDFREQ 8000
 
 uint16_t pwmbytecounter = 0;
-uint8_t pwmrepeat = 0;
 
 //Timer2 Interrupt
 ISR (TIMER2_OVF_vect)
 {
-#ifdef PWM_WAV_SUPPORT
 	pwmbytecounter++;
 	uint8_t s = pgm_read_byte(&pwmsound[pwmbytecounter]);
 #ifdef DEBUG_PWM
-    	if ((pwmbytecounter % 500) == 0 ) debug_printf("PWM sound %x at pos %i, repeat %i\n",s, pwmbytecounter, pwmrepeat);
+    	if (pwmbytecounter < 10 || ((pwmbytecounter % 1000) == 0) ) debug_printf("PWM sound %x at pos %i\n",s, pwmbytecounter);
 #endif
 	TCNT2 = 65535 - (MCU/64/SOUNDFREQ);
 	OCR2A = s;
-	if((uint16_t)pwmbytecounter > sizeof(pwmsound))
+	if(pwmbytecounter > sizeof(pwmsound))
 	{
 		pwmbytecounter = 0;
-		pwmrepeat++;
-	}
-	if (pwmrepeat >2) {
-		pwmrepeat = 0;
 		pwm_stop();
-#ifdef DEBUG_PWM
-    	debug_printf("repeat PWM sound %x at pos %i, repeat %i\n",s, pwmbytecounter, pwmrepeat);
-#endif
 	}
-#endif // PWM_WAV_SUPPORT
-
-#ifdef PWM_MELODY_SUPPORT
-#endif // PWM_MELODY_SUPPORT
 }
+#endif // PWM_WAV_SUPPORT
 
 #ifdef PWM_MELODY_SUPPORT
 // Interrupt-Funktion, die den "Zeiger" hochzählt
@@ -1098,8 +1086,8 @@ ISR (TIMER2_OVF_vect)
 // und somit die Sinuswelle schneller (hoher ton) 
 // oder langsamer (tiefer Ton) abgelaufen
 ISR(TIMER2_COMPA_vect){
-	OCR2A=pgm_read_byte(&sinewave[tone][(i>>8)]);
-   	i += scale;
+	OCR2A=pgm_read_byte(&sinewave[pwm_melody_tone][(pwm_melody_i>>8)]);
+   	pwm_melody_i += pwm_melody_scale;
 }
 #endif // PWM_MELODY_SUPPORT
 
@@ -1109,7 +1097,7 @@ void
 pwm_wav_init(void)
 {
 #ifdef DEBUG_PWM
-    	debug_printf("PWM wav init, size %i: \n", sizeof(pwmsound));
+    	debug_printf("PWM wav init, size: %i, %i Hz \n", sizeof(pwmsound), SOUNDFREQ );
 #endif
 	//Set TIMER2 (PWM OC2 Pin = PD7)
 	DDRD |= (1<<7);
@@ -1149,7 +1137,7 @@ pwm_stop()
 void
 pwm_melody_init()
 {
-	uint8_t songsize = sizeof(entchen) / (sizeof(struct notendauer));
+	uint8_t songsize = sizeof(entchen) / (sizeof(struct notes_duration_t));
 #ifdef DEBUG_PWM
     	debug_printf("PWM melody init, songsize %i: \n", songsize);
 #endif
@@ -1181,24 +1169,26 @@ pwm_melody_init()
 	//sei();
 
     //  ------ Play it once, Sam ---------
+
 	// durch das Noten-Array laufen und nacheinander
 	// die Töne in jeweiliger Länge abspielen
 	// da "scale" global definiert ist, kann es einfach
 	// hier geändert werden!
 	for(int y=0; y < songsize; y++){
-		scale = entchen[y].note;
+		pwm_melody_scale = entchen[y].note;
 #ifdef DEBUG_PWM
-    	debug_printf("%i. note %i, dauer %i, i=%i, y=%i\n", y, entchen[y].note, entchen[y].dauer, i, y);
+    	debug_printf("%i. note %i, dauer %i, i=%i, y=%i\n", y, entchen[y].note, entchen[y].duration, pwm_melody_i, y);
 #endif
-		_delay_ms(entchen[y].dauer / 2 );
+		_delay_ms(entchen[y].duration / 4 );
 		// Interrupt kurz ausschalten, gibt kurze Pause
 		// so werden die Töne getrennt
 		cli();
 		_delay_ms(200);
-		i=0;
+		pwm_melody_i=0;
 		sei();
 	}
 }
 #endif // PWM_MELODY_SUPPORT
 
 #endif /*PWM_SUPPORT*/
+
