@@ -36,12 +36,26 @@ int16_t
 parse_cmd_pwm(char *cmd, char *output, uint16_t len)
 {
   while (*cmd==' ') cmd++;
+
+#ifdef PWM_WAV_SUPPORT
   if(*cmd == '1'){
     pwm_wav_init();
     return snprintf_P(output, len, PSTR("PWM wav init"));
   }
+#endif //PWM_WAV_SUPPORT
+
+#ifdef PWM_MELODY_SUPPORT
+  if(*cmd == '2'){
+    pwm_melody_init();
+    return snprintf_P(output, len, PSTR("PWM melody init"));
+  }
+#endif //PWM_MELODY_SUPPORT
+
+
   if(cmd[0] == '0'){
+#ifdef PWM_WAV_SUPPORT
     pwm_stop();
+#endif //PWM_WAV_SUPPORT
     return snprintf_P(output, len, PSTR("PWM stop"));
   }
 

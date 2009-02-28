@@ -24,14 +24,23 @@
 #ifndef _PWM_H
 #define _PWM_H
 
-void 
-pwm_wav_init(void);
-
-void
-pwm_stop(void);
+#ifdef PWM_WAV_SUPPORT
 
 // Sound Data
 PROGMEM extern char pwmsound[];
+
+void 
+pwm_wav_init(void);
+void
+pwm_stop(void);
+#endif //PWM_WAV_SUPPORT
+
+#ifdef PWM_MELODY_SUPPORT
+//PROGMEM extern char entchen[];
+
+void 
+pwm_melody_init(void);
+#endif //PWM_MELODY_SUPPORT
 
 #endif
 

@@ -177,7 +177,10 @@ source camera/config.in
 
 dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
-dep_bool "Send PWM Codes" PWM_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "PWM Wave" PWM_WAV_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "PWM Melody" PWM_MELODY_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
+endmenu
 
 source mcuf/config.in
 
