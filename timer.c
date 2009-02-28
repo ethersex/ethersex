@@ -86,7 +86,7 @@ void timer_process(void)
 
 #ifdef UIP_SUPPORT
         if (uip_buf_lock ()) {
-#ifdef RFM12_SUPPORT
+#ifdef RFM12_IP_SUPPORT
            _uip_buf_lock --;
            if (uip_buf_lock ()) {
              return;           /* hmpf, try again shortly
