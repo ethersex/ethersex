@@ -63,15 +63,19 @@
 #define NS_PER_TICK     (PRESCALER * 1000000UL / F_CPU * 1000)
 #define US_TO_TICKS(n)  ((n) * 1000UL / NS_PER_TICK)
 
-/* Every TX-period shorter that 350us is considered part of a noise phase. */
-#define MIN_TICKS   US_TO_TICKS(350)
+/* Every TX-period shorter that 500us is considered part of a noise phase. */
+#define MIN_TICKS   US_TO_TICKS(500)
 
 /* Every phase shorter than 950us is considered `short', i.e. a ZERO.
    Phases longer are considered long, i.e. a ONE. */
-#define LIMIT_TICKS US_TO_TICKS(950)
+#define DEF_LIMIT_TICKS US_TO_TICKS(950)
+
+#define WAIT_SAMPLES_NUM	16
+#define LIMIT_TICKS (samples_num < WAIT_SAMPLES_NUM	\
+		     ? DEF_LIMIT_TICKS : samples_limit)
 
 /* Timeout */
-#define TIMEOUT_TICKS US_TO_TICKS(1600)
+#define TIMEOUT_TICKS US_TO_TICKS(2000)
 
 
 static uint8_t last_noise_ts;
@@ -84,7 +88,6 @@ static volatile struct {
 
 /* Calculate delta between new and old, considering that the values
    overflow at 256.*/
-//#define DELTA(n,o) (((n) >= (o)) ? ((n) - (o)) : (256 - (o) + (n)))
 #define DELTA(n,o) (bits.overflow == 0 ? ((n) - (o)) \
 		    : (256 - (o) + (n)))
 
@@ -99,6 +102,35 @@ static volatile struct {
 # define ASKDEBUG(a...) do { } while(0)
 # define ASKDEBUGCHAR(a) do { } while(0)
 #endif	/* DEBUG_ASK_SENSE */
+
+
+
+/* Number of samples to gather, i.e. use for calibration. */
+static uint8_t samples_min, samples_max, samples_num, samples_limit;
+
+static inline void
+samples_learn (uint8_t new_sample)
+{
+  if (samples_num > WAIT_SAMPLES_NUM)
+    return;			/* Gathered enough samples. */
+
+  if (samples_num == 0)
+    samples_min = samples_max = new_sample;
+
+  else
+    {
+      if (new_sample < samples_min)
+	samples_min = new_sample;
+      if (new_sample > samples_max)
+	samples_max = new_sample;
+    }
+
+  if (++ samples_num == WAIT_SAMPLES_NUM)
+    {
+      samples_limit = (samples_min + samples_max) / 2;
+      ASKDEBUG ("min=%d, max=%d\n", samples_min, samples_max);
+    }
+}
 
 
 void
@@ -117,6 +149,7 @@ rfm12_ask_sense_start (void)
 
   last_noise_ts = TCNT0;
   bits.locked_signal = 0;
+  samples_num = 0;
 
   rfm12_ask_external_filter_init ();
 }
@@ -166,11 +199,16 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
     {
       /* ... and it's not the first bit we're receiving. */
       uint8_t delta2 = DELTA (last_noise_ts, last_tx_ts);
+
+      samples_learn (delta2);
       bit = TICKS_TO_BIT (delta2);
+
       ASKDEBUGCHAR ('0' + bit);
     }
 
+  samples_learn (delta);
   bit = TICKS_TO_BIT (delta);
+
   ASKDEBUGCHAR ('0' + bit);
 
   bits.locked_signal = 1;
