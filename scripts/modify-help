@@ -17,7 +17,6 @@ menuconfig_warn() {
 }
 
 if [ "x$1" = "x" ]; then menuconfig_warn; fi
-if [ \! -e help.out ]; then menuconfig_warn; fi
 
 ITEM=$1; shift
 
@@ -32,6 +31,9 @@ echo generate new item $ITEM ...
 cat `find -name "*config*.in"` | grep -e bool | \
   sed -e 's/\$//g' -e 's/dep_bool_[^ ]*/dep_bool/' -e "s/\(['\"]\) */\1/" > DBlist
 rm -f DBvars
+
+# source the .config to enable editing of if [] hidden items
+source .config
 
 
 # generic function for all the text entries ...
@@ -48,6 +50,7 @@ function bool() {
 } 
 
 function int() { bool "$1" "$2"; }
+function editor() { bool "$1" "$2"; }
 function hex() { bool "$1" "$2"; }
 function string() { bool "$1" "$2"; }
 function ipv4() { bool "$1" "$2"; }
