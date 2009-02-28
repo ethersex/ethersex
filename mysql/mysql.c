@@ -34,6 +34,35 @@
 
 static uip_conn_t *mysql_conn;
 
+struct mysql_login_request_t {
+    uint8_t packet_len[3];
+    uint8_t packet_id;
+
+    uint8_t capabilities[4];
+    uint8_t max_packet_size[4];
+    uint8_t charset;
+};
+
+extern void sha1 (char *dest, char *message, uint32_t len);
+
+static void
+mysql_password_hash (char *dest)
+{
+    char password[sizeof (CONF_MYSQL_PASSWORD)];
+    strcpy_P (password, PSTR (CONF_MYSQL_PASSWORD));
+
+    char stage1[20];
+    sha1 (stage1, password, (sizeof (CONF_MYSQL_PASSWORD) - 1) * 8);
+
+    char stage2[40];
+    memmove (stage2, STATE->u.seed, 20);
+    sha1 (stage2 + 20, stage1, 20);
+
+    sha1 (dest, stage2, 40);
+    for (uint8_t i = 0; i < 20; i ++)
+	dest[i] ^= stage1[i];
+}
+
 
 static void
 mysql_send_data (uint8_t send_state)
@@ -41,6 +70,39 @@ mysql_send_data (uint8_t send_state)
     MYDEBUG ("send_data: %d\n", send_state);
 
     switch (send_state) {
+    case MYSQL_SEND_LOGIN:
+	/* Clear packet until username field. */
+	memset (uip_sappdata, 0, 36);
+
+	struct mysql_login_request_t *lr = uip_sappdata;
+	lr->packet_id = STATE->packetid;
+
+	/* Long password support (0x01), connect with database set (0x08)*/
+	lr->capabilities[0] = 0x09;
+	/* We speek 4.1 protocol (0x02), we do 4.1 authentication (0x80) */
+	lr->capabilities[1] = 0x82;
+	/* Max. packet size = 256 byte */
+	lr->max_packet_size[0] = 0xFF;
+	lr->charset = 8;	/* Latin1 charset. */
+
+	char *ptr = uip_sappdata + 36;
+	strcpy_P (ptr, PSTR (CONF_MYSQL_USERNAME));
+	ptr += sizeof (CONF_MYSQL_USERNAME);
+
+	*(ptr ++) = 20;
+	mysql_password_hash (ptr);
+	ptr += 20;
+
+	strcpy_P (ptr, PSTR (CONF_MYSQL_SCHEMA));
+	ptr += sizeof (CONF_MYSQL_SCHEMA);
+
+	lr->packet_len[0] = (ptr - (char*)uip_sappdata) - 4;
+	uip_send (uip_sappdata, ptr - (char*) uip_sappdata);
+	break;
+
+    case MYSQL_CONNECTED:
+	MYDEBUG ("we could send an INSERT now ...\n");
+	break;
 
     default:
 	MYDEBUG ("eeek, what?\n");
@@ -49,6 +111,7 @@ mysql_send_data (uint8_t send_state)
     }
 
     STATE->sent = send_state;
+    STATE->packetid ++;
 }
 
 
@@ -109,6 +172,16 @@ mysql_parse (void)
 	MYDEBUG ("found valid server greeting!\n");
 	break;
 
+    case MYSQL_SEND_LOGIN:
+	if (packet_len != 1
+	    || ((unsigned char *) uip_appdata)[4] != 0xFE) {
+	    MYDEBUG ("authentication failed.\n");
+	    return 1;
+	}
+
+	MYDEBUG ("successfully authenticated!\n");
+	break;
+
     default:
 	MYDEBUG ("eeek, no comprendo!\n");
 	return 1;
@@ -158,9 +231,10 @@ mysql_main(void)
 	}
     }
 
-    if (uip_rexmit())
+    if (uip_rexmit()) {
+	STATE->packetid --;
 	mysql_send_data (STATE->sent);
-
+    }
     else if ((STATE->stage > STATE->sent || STATE->stage == MYSQL_CONNECTED)
 	     && (uip_newdata()
 		 || uip_acked()

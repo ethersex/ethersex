@@ -2,4 +2,5 @@ dep_bool_menu "MySQL client (EXPERIMENTAL)" MYSQL_SUPPORT $TCP_SUPPORT $CONFIG_E
   ip "Server IP" CONF_MYSQL_IP "192.168.23.254"
   string "Username" CONF_MYSQL_USERNAME "root"
   string "Password" CONF_MYSQL_PASSWORD "password"
+  string "Schema" CONF_MYSQL_SCHEMA "mavisdb"
 endmenu
