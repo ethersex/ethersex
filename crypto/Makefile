@@ -6,6 +6,9 @@ SRC = \
 	skipjack.c \
 	encrypt-llh.c \
 
+ASRC = \
+	sha1-asm.S
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/defaults.mk
