@@ -20,7 +20,7 @@ all: compile-$(TARGET)
 	@echo "==============================="
 	@echo "$(TARGET) compiled for: $(MCU)"
 	@echo "size is: "
-	@${TOPDIR}/scripts/size $(TARGET)
+	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
 	@echo "==============================="
 
 

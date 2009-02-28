@@ -5,9 +5,21 @@ do
 	val[$j]=$(avr-size -A $1 | grep $i | sed -e "s/^$i *//g" | cut -d " " -f1)
 	let j=$j+1
 done
+
+IMAGESIZE=$(ls -l $1.bin | cut -d" " -f5)
+FLASHSIZE=$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3- | (echo "ibase=16"; tr [a-f] [A-F]) | bc)
+PERCENT=$(echo "$IMAGESIZE.0 / $FLASHSIZE.0 *100.0" | bc  -l )
+
 echo ""
 echo "Program: $(echo ${val[0]}+${val[1]}|bc) bytes"
 echo "(.text + .data)"
 echo ""
 echo "Data:  $(echo ${val[2]}+${val[1]}|bc) bytes"
 echo "(.data + .bss)"
+echo ""
+echo "Imagesize: $IMAGESIZE bytes ($(echo $PERCENT | cut -b-5)%)"
+echo "Available flash: $FLASHSIZE bytes ($2)"
+if [ $IMAGESIZE -gt $FLASHSIZE ];then
+  echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
+fi
+echo ""
