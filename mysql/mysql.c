@@ -56,9 +56,9 @@ mysql_password_hash (char *dest)
 
     char stage2[40];
     memmove (stage2, STATE->u.seed, 20);
-    sha1 (stage2 + 20, stage1, 20);
+    sha1 (stage2 + 20, stage1, 20 * 8);
 
-    sha1 (dest, stage2, 40);
+    sha1 (dest, stage2, 40 * 8);
     for (uint8_t i = 0; i < 20; i ++)
 	dest[i] ^= stage1[i];
 }
@@ -175,8 +175,12 @@ mysql_parse (void)
 	break;
 
     case MYSQL_SEND_LOGIN:
-	if (packet_len != 1
-	    || ((unsigned char *) uip_appdata)[4] != 0xFE) {
+	if (((unsigned char *) uip_appdata)[4] == 0xFE) {
+	    MYDEBUG ("server requires multi stage auth (unsupported).\n");
+	    return 1;
+	}
+
+	if (((unsigned char *) uip_appdata)[4] == 0xFF) {
 	    MYDEBUG ("authentication failed.\n");
 	    return 1;
 	}
