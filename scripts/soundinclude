@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "PROGMEM char pwmsound[] ="
+echo "{"
+xxd -i < "$1"
+echo "};"
