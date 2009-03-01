@@ -1438,3 +1438,4 @@ STELLA_EEPROM_BOOT_FADE
 
   If you do not activate this option, the values from eeprom on device boot are applied instantly.
   If you want your device to fade to those color values you can activate this option.
+
