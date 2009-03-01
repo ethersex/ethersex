@@ -1304,3 +1304,35 @@ Randomize Mac address
 RANDOM_MAC
   
   Press Enter here and a new MAC address is generated
+
+Camera support (EXPERIMENTAL)
+CAMERA_SUPPORT
+  Depends on: 
+
+  Enables generic camera hardware support.
+
+DC3840 Serial camera
+DC3840_SUPPORT
+  Depends on: 
+   * Camera support (EXPERIMENTAL) (CAMERA_SUPPORT)
+
+  Serial Philips DC3840 Support
+
+Use high compression
+DC3840_HIGH_COMPRESSION
+
+  Enables the high compression feature of the cam.
+
+Black/White mode
+DC3840_BLACK_WHITE
+
+  If you want your pictures just to use black and white
+  select this option.
+
+DC3840 Camera
+VFS_DC3840_SUPPORT
+  Depends on: 
+   * DC3840 Serial camera (DC3840_SUPPORT)
+
+ Select this to enable the vfs camera features.
+
