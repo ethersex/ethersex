@@ -270,3 +270,8 @@ ecmd_ifdef(MCUF_SUPPORT)
   ecmd_feature(mcuf_show_clock, "mcuf showclock")
   ecmd_feature(mcuf_show_string, "mcuf showstring")
 ecmd_endif
+
+ecmd_ifdef(MYSQL_SUPPORT)
+  ecmd_feature(mysql_query, "mysql query ")
+ecmd_endif
+

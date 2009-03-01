@@ -12,6 +12,7 @@ SRC = \
 	httpd.c	\
 	mcuf.c		\
 	modbus.c	\
+	mysql.c		\
 	network.c	\
 	onewire.c	\
 	portio.c	\

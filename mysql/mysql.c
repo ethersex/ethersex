@@ -43,6 +43,14 @@ struct mysql_login_request_t {
     uint8_t charset;
 };
 
+struct mysql_request_packet_t {
+    uint8_t packet_len[3];
+    uint8_t packet_id;
+
+    uint8_t command_id;
+    char arg[];
+};
+
 extern void sha1 (char *dest, char *message, uint32_t len);
 
 static void
@@ -70,11 +78,14 @@ mysql_send_data (uint8_t send_state)
     MYDEBUG ("send_data: %d\n", send_state);
 
     switch (send_state) {
+	struct mysql_login_request_t *lr;
+	struct mysql_request_packet_t *rp;
+
     case MYSQL_SEND_LOGIN:
 	/* Clear packet until username field. */
 	memset (uip_sappdata, 0, 36);
 
-	struct mysql_login_request_t *lr = uip_sappdata;
+	lr = uip_sappdata;
 	lr->packet_id = STATE->packetid;
 
 	/* Long password support (0x01), connect with database set (0x08)*/
@@ -103,7 +114,20 @@ mysql_send_data (uint8_t send_state)
 	break;
 
     case MYSQL_CONNECTED:
-	MYDEBUG ("we could send an INSERT now ...\n");
+	if (!*STATE->u.stmtbuf) {
+	    MYDEBUG ("no queries pending.\n");
+	    break;
+	}
+
+	rp = uip_sappdata;
+	rp->packet_len[0] = 1 + strlen (STATE->u.stmtbuf);
+	rp->packet_len[1] = 0;
+	rp->packet_len[2] = 0;
+	rp->packet_id = STATE->packetid = 0;
+	rp->command_id = 3;	/* Query */
+	strcpy (rp->arg, STATE->u.stmtbuf);
+
+	uip_send (uip_sappdata, 4 + rp->packet_len[0]);
 	break;
 
     default:
@@ -180,15 +204,14 @@ mysql_parse (void)
 	    return 1;
 	}
 
+    case MYSQL_CONNECTED:
 	if (((unsigned char *) uip_appdata)[4] == 0xFF) {
-	    MYDEBUG ("authentication failed.\n");
+	    MYDEBUG ("request failed.\n");
 	    return 1;
 	}
 
 	/* Clear statement buffer ... */
 	*STATE->u.stmtbuf = 0;
-
-	MYDEBUG ("successfully authenticated!\n");
 	break;
 
     default:
@@ -258,12 +281,28 @@ mysql_main(void)
 uint8_t
 mysql_send_message(char *message)
 {
-    if (!mysql_conn) return 1;
-    if (mysql_conn->appstate.mysql.stage < MYSQL_CONNECTED) return 1;
-    if (*mysql_conn->appstate.mysql.u.stmtbuf) return 1;
-    if (strlen (message) >= MYSQL_STMTBUF_LEN) return 1;
+    if (!mysql_conn) {
+	MYDEBUG ("no mysql_conn available.\n");
+	return 1;
+    }
+
+    if (mysql_conn->appstate.mysql.stage < MYSQL_CONNECTED) {
+	MYDEBUG ("mysql_conn not in connected state.\n");
+	return 1;
+    }
+
+    if (*mysql_conn->appstate.mysql.u.stmtbuf) {
+	MYDEBUG ("mysql_conn statement buffer busy.\n");
+	return 1;
+    }
+
+    if (strlen (message) >= MYSQL_STMTBUF_LEN) {
+	MYDEBUG ("query too long.\n");
+	return 1;
+    }
 
     strcpy(mysql_conn->appstate.mysql.u.stmtbuf, message);
+    MYDEBUG ("successfully queued query.\n");
     return 0;
 }
 
