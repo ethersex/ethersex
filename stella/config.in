@@ -1,0 +1,3 @@
+dep_bool_menu "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
+  int "Stella UDP Port" STELLA_UDP_PORT 2342
+endmenu
