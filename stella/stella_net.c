@@ -45,6 +45,10 @@ stella_net_init(void)
 
   uip_udp_bind (stella_conn, HTONS(STELLA_UDP_PORT));
   stella_pwm_init ();
+
+#if DEBUG_STELLA
+  debug_printf("Stella initalized\n");
+#endif
 }
 
 void
@@ -52,6 +56,10 @@ stella_net_main(void)
 {
   if (!uip_newdata ())
     return;
+
+#if DEBUG_STELLA
+  debug_printf("Received stella package\n");
+#endif
 
   stella_process (uip_appdata, uip_len);
 }
