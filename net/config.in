@@ -2,7 +2,6 @@
 source ../httpd/config.in
 
 dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT
-dep_bool "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
 dep_bool "UDP Echo" UDP_ECHO_NET_SUPPORT $UDP_SUPPORT
 
 dep_bool_menu "DynDNS support" DYNDNS_SUPPORT $UIP_SUPPORT

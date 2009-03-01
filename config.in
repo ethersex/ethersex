@@ -18,7 +18,7 @@ choice 'Target MCU'			\
     ATmega64              atmega64	\
     ATmega644              atmega644	\
     ATmega644p             atmega644p"	\
-   'ATmega644' MCU 
+   'ATmega644' MCU
 
 int "MCU frequency" FREQ 20000000
 
@@ -149,20 +149,20 @@ dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 if [ "$ADC_SUPPORT" = "y" ]; then
   if [ "$KTY_SUPPORT" = "y" ]; then
     define_symbol ADC_REF ADC_AREF
-  else 
+  else
     choice 'ADC Reference'		\
      "ARef               CONFIG_ADC_AREF	\
       AVcc               CONFIG_ADC_AVCC	\
       Internal_1.1V      CONFIG_ADC_1_1	        \
       Internal_2.56V	 CONFIG_ADC_2_56"	\
-     'ARef'  
+     'ARef'
      if [ "$CONFIG_ADC_AREF" = "y" ]; then
        define_symbol ADC_REF ADC_AREF
      elif [ "$CONFIG_ADC_AVCC" = "y" ]; then
        define_symbol ADC_REF ADC_AVCC
      elif [ "$CONFIG_ADC_1_1" = "y" ]; then
        define_symbol ADC_REF ADC_1_1
-     else 
+     else
        define_symbol ADC_REF ADC_2_56
      fi
   fi
@@ -212,6 +212,7 @@ source ecmd_parser/config.in
 source httpd/config.in
 source lcd/config.in
 source net/config.in
+source stella/config.in
 source rfm12/rfm12_ask-config.in
 source mysql/config.in
 

@@ -10,3 +10,8 @@ ifdef(`conf_ONEWIRE', `dnl
   /* onewire support */
   pin(ONEWIRE, PD6)
 ')dnl
+
+ifdef(`conf_STELLA', `dnl
+  /* stella port */
+  STELLA_PORT_RANGE(PD2,PD7)
+')

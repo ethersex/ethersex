@@ -27,7 +27,7 @@
 #define _STELLA_NET_H
 
 /* constants */
-#define STELLA_UDP_PORT 2342
+//#define STELLA_UDP_PORT 2342
 
 void stella_net_init(void);
 void stella_net_main(void);
