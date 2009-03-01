@@ -16,7 +16,7 @@ function capture() {
 <body>
 <h1>Camera</h1>
 ifdef({{conf_VFS_DC3840}}, {{
-<a href="javascript:capture();">capture DC3440</a> <a href="?">reload</a>
+<a href="javascript:capture();">capture DC3440</a> <a href="?">reload</a><br>
 <img src="/dc3840">
 }})
 <br>
