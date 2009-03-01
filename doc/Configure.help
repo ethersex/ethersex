@@ -1300,3 +1300,7 @@ PWM_MELODY_SUPPORT
   enables support for tunes and duration, which saves much
   more memory than wave output
 
+Randomize Mac address
+RANDOM_MAC
+  
+  Press Enter here and a new MAC address is generated
