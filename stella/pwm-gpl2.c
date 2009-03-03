@@ -44,12 +44,12 @@ stella_pwm_init(void)
   _TCCR2_PRESCALE |= _BV(CS22);
 
   /* Int. bei Overflow und CompareMatch einschalten */
-  _TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2); 
+  _TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2);
 
   STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 }
 
-ISR(TIMER2_COMP_vect)
+ISR(_VECTOR_OUTPUT_COMPARE2)
 {
   if(i_length) {
     STELLA_PORT &= ~i_timetable[now][1];
@@ -58,7 +58,7 @@ ISR(TIMER2_COMP_vect)
   }
 }
 
-ISR(TIMER2_OVF_vect)
+ISR(_VECTOR_OVERFLOW2)
 {
   STELLA_PORT = i_overflow_mask;
   if(update_table == 1)
