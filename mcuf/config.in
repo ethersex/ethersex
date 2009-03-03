@@ -13,6 +13,9 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
     define_bool BLP_SUPPORT n
   fi
 
+  dep_bool "MCUF Scrolltext" MCUF_SCROLLTEXT_SUPPORT $MCUF_SUPPORT
+  dep_bool "MCUF Clock" MCUF_CLOCK_SUPPORT $MCUF_SUPPORT $CLOCK_SUPPORT
+
   if [ "$MCUF_SUPPORT" = y -a "$BLP_SUPPORT" != "y" ]; then
     comment "MCUF screen configuration"
     int "MCUF screen width" MCUF_OUTPUT_SCREEN_WIDTH 18

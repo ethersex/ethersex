@@ -395,10 +395,10 @@ void mcuf_show_clock(uint8_t clockswitch) {
   else
     blp_toc=21;
 
-  if (mcuf_scrolltext_buffer.tomove == 0) {
   struct clock_datetime_t date;
   clock_current_localtime(&date);
 #ifdef MCUF_SCROLLTEXT_SUPPORT
+  if (mcuf_scrolltext_buffer.tomove == 0) {
   if (clockswitch == 3) {
     char *weekdays = "Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
 
@@ -423,7 +423,9 @@ void mcuf_show_clock(uint8_t clockswitch) {
     draw_tinynumber(date.min , 10 , 1, 0xff);
     updateframe();
     }
+#ifdef MCUF_SCROLLTEXT_SUPPORT
   }
+#endif
 }
 #endif
 

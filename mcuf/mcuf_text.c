@@ -32,6 +32,7 @@
 #include "mcuf.h"
 #include "mcuf_text.h"
 
+#ifdef MCUF_SCROLLTEXT_SUPPORT
 char textbuff[37];      //Text Puffer
 
 const char characters[] PROGMEM = {
@@ -223,7 +224,8 @@ void scrolltext (uint8_t posy, uint8_t color, uint8_t bcolor, uint8_t waittime) 
     mcuf_scrolltext_buffer.waittime = waittime;
   }
 }
-
+#endif
+#ifdef MCUF_CLOCK_SUPPORT
 const uint8_t tinynumbers[] PROGMEM = {
 0x1f,0x11,0x1f, //0
 0x00,0x00,0x1f, //1
@@ -267,3 +269,4 @@ void draw_tinynumber(uint16_t value, uint8_t posx, uint8_t posy, uint8_t color){
     ziffern--;
   }
 }
+#endif
