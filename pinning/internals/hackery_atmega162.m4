@@ -5,12 +5,13 @@
 #define _IVREG MCUCR
 #define _EIMSK EIMSK
 
-#define _TCCR2_PRESCALE TCCR2B
-#define _OUTPUT_COMPARE_IE2 OCIE2B
-#define _OUTPUT_COMPARE_REG2 OCR2B
-#define _SIG_OUTPUT_COMPARE2 SIG_OUTPUT_COMPARE2B
-#define _SIG_OVERFLOW2 SIG_OVERFLOW2
-#define _TIMSK_TIMER2 TIMSK2
+/* Timer2 - Stella */
+#define _TCCR2_PRESCALE TCCR2
+#define _OUTPUT_COMPARE_IE2 OCIE2
+#define _OUTPUT_COMPARE_REG2 OCR2
+#define _VECTOR_OUTPUT_COMPARE2 TIMER2_COMP_vect
+#define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
+#define _TIMSK_TIMER2 TIMSK
 
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
