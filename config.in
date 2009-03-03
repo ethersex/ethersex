@@ -28,6 +28,7 @@ choice 'Hardware/Periphery Class'	\
 
 bool "Build a bootloader"	BOOTLOADER_SUPPORT
 bool "Teensy build"		TEENSY_SUPPORT
+bool "Use SPI Timeout"		SPI_TIMEOUT
 
 dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'Reroute to SYSLOG' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG

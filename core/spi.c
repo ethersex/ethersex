@@ -21,6 +21,8 @@
 
 #include <avr/io.h>
 #include "core/spi.h"
+#include "spi.h"
+#include "debug.h"
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
   || defined(DATAFLASH_SUPPORT)
