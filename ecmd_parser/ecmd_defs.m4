@@ -247,8 +247,8 @@ ecmd_ifdef(PWM_SUPPORT)
 ecmd_endif
 
 ecmd_ifdef(I2C_DETECT_SUPPORT)
-  block(I²C (TWI))
-  ecmd_feature(i2c_detect, "i2c detect",,list detected I²C Chips)
+  block(I2C (TWI))
+  ecmd_feature(i2c_detect, "i2c detect",,list detected I2C Chips)
 ecmd_endif
 
 ecmd_ifdef(I2C_LM75_SUPPORT)
@@ -267,8 +267,12 @@ ecmd_ifdef(EEPROM_SUPPORT)
 ecmd_endif
 
 ecmd_ifdef(MCUF_SUPPORT)
-  ecmd_feature(mcuf_show_clock, "mcuf showclock")
-  ecmd_feature(mcuf_show_string, "mcuf showstring")
+  ecmd_ifdef(MCUF_CLOCK_SUPPORT)
+    ecmd_feature(mcuf_show_clock, "mcuf showclock")
+  ecmd_endif
+  ecmd_ifdef(MCUF_SCROLLTEXT_SUPPORT)
+   ecmd_feature(mcuf_show_string, "mcuf showstring")
+  ecmd_endif
 ecmd_endif
 
 ecmd_ifdef(MYSQL_SUPPORT)

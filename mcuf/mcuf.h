@@ -31,7 +31,7 @@
 void mcuf_init(void);
 void mcuf_newdata(void);
 void mcuf_periodic(void);
-void mcuf_show_clock(void);
+void mcuf_show_clock(uint8_t clockswitch);
 void mcuf_show_string(char *);
 
 extern uint8_t gdata[MCUF_OUTPUT_SCREEN_HEIGHT][MCUF_OUTPUT_SCREEN_WIDTH];

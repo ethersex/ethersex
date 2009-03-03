@@ -26,6 +26,7 @@
 #include "../syslog/syslog.h"
 #include "cron.h"
 #include "../config.h"
+#include "../mcuf/mcuf.h"
 
 #ifdef CRON_SUPPORT
 
@@ -59,6 +60,14 @@ void i2c_leds(void)
 
 #endif //I2C_PCF8574X_SUPPORT
 
+#ifdef  MCUF_CLOCK_SUPPORT
+void
+mcuf_clock(void)
+{
+  mcuf_show_clock(1);
+}
+#endif /* MCUF_CLOCK_SUPPORT */
+
 /* Cron configuration:
  * Fields: Min Hour Day Month Dow
  * Values: 
@@ -73,9 +82,15 @@ struct cron_event_t events[] PROGMEM =
 { { { {-1, -2, -1, -1, -1} }, test, USE_UTC}, /* when hour % 2 == 0 */
   { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
   { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
+
 #ifdef I2C_PCF8574X_SUPPORT
   { { {-1, -1, -1, -1, -1} }, i2c_leds, USE_LOCAL}, /* when minute % 1 == 0 */
 #endif //I2C_PCF8574X_SUPPORT
+
+#ifdef MCUF_CLOCK_SUPPORT
+  { { {-1, -1, -1, -1, -1} }, mcuf_clock, USE_LOCAL}, /* every minute  */
+#endif /* MCUF_CLOCK_SUPPORT */
+
   /* This is only the end of table marker */
   { { {-1, -1, -1, -1, -1} }, NULL, 0},
 };

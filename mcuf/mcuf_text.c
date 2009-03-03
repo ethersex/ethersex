@@ -254,7 +254,7 @@ if (ziffer < 10) { //Bereichsüberprüfung
 }
 
 void draw_tinynumber(uint16_t value, uint8_t posx, uint8_t posy, uint8_t color){
-  uint8_t ziffern = 1,zvalue;
+  uint8_t ziffern = 2,zvalue;
 
   if (value >= 10) { ziffern = 2; }
   if (value >= 100) { ziffern = 3; }

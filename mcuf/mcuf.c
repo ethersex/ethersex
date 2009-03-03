@@ -92,11 +92,13 @@ struct blp_packet {
   uint8_t data[];
 };
 
+#ifdef MCUF_SCROLLTEXT_SUPPORT
 struct mcuf_scrolltext_struct mcuf_scrolltext_buffer;
+#endif
 
 uint8_t gdata[MCUF_OUTPUT_SCREEN_HEIGHT][MCUF_OUTPUT_SCREEN_WIDTH];
 
-uint8_t blp_toc = 250;
+uint8_t blp_toc = 242;
 
 void mcuf_senddata();
 #ifdef MCUF_SERIAL_SUPPORT
@@ -109,7 +111,9 @@ void updateframe();
 void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
                uint8_t outercolor, uint8_t innercolor);
 
+#ifdef MCUF_SCROLLTEXT_SUPPORT
 void mcuf_scrolltext();
+#endif
 
 #ifdef BLP_SUPPORT
 void blp_output();
@@ -133,15 +137,17 @@ void mcuf_init(void) {
 #endif
   buffer.len = 1;
   buffer.sent = 0;
+#ifdef MCUF_SCROLLTEXT_SUPPORT
   snprintf_P(textbuff, 36, PSTR("Hi  I'm your ethersex           ;-)"));
   scrolltext(0,0xff,0,3);
+#endif
 }
 
 void mcuf_newdata(void) {
   /* If we send a packet, drop the new packet */
   if (buffer.sent < buffer.len) return;
 
-  blp_toc=250;
+  blp_toc=242;
 
   /* MCUF Magic bytes - see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame */
   if ( strncmp(uip_appdata, "\x23\x54\x26\x66", 4) == 0) {
@@ -345,22 +351,31 @@ void mcuf_periodic(void) {
   if (buffer.sent <= buffer.len) {
     blp_tic=0;
   }
-
+#ifdef MCUF_SCROLLTEXT_SUPPORT
   if ( mcuf_scrolltext_buffer.end != 0) {
     mcuf_scrolltext();
   }
-
+#endif
   if (blp_tic > blp_toc) {
-    blp_toc=10;
-    // scroll to the left
-    for (uint8_t i = 12; i < (12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH)); i+=MCUF_OUTPUT_SCREEN_WIDTH) {
-      buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]-buffer.data[i];
-      buffer.data[i]=buffer.data[i]+buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH];
-      buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=-buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]+buffer.data[i];
-      for (uint8_t j = i; j < (i+MCUF_OUTPUT_SCREEN_WIDTH); j++) {
-        buffer.data[j+1]=buffer.data[j+1]-buffer.data[j];
-        buffer.data[j]=buffer.data[j]+buffer.data[j+1];
-        buffer.data[j+1]=-buffer.data[j+1]+buffer.data[j];
+#ifdef MCUF_CLOCK_SUPPORT
+    if (blp_toc < 30) {
+      gdata[2][8] += 0x80;
+      gdata[4][8] += 0x80;
+      updateframe();
+    } else
+#endif
+    {
+      blp_toc=30;
+      // scroll to the left
+      for (uint8_t i = 12; i < (12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH)); i+=MCUF_OUTPUT_SCREEN_WIDTH) {
+        buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]-buffer.data[i];
+        buffer.data[i]=buffer.data[i]+buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH];
+        buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=-buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]+buffer.data[i];
+        for (uint8_t j = i; j < (i+MCUF_OUTPUT_SCREEN_WIDTH); j++) {
+            buffer.data[j+1]=buffer.data[j+1]-buffer.data[j];
+            buffer.data[j]=buffer.data[j]+buffer.data[j+1];
+            buffer.data[j+1]=-buffer.data[j+1]+buffer.data[j];
+        }
       }
     }
     mcuf_senddata();
@@ -372,23 +387,45 @@ void mcuf_periodic(void) {
     buffer.sent=buffer.len+1;
 }
 
-void mcuf_show_clock() {
+#ifdef MCUF_CLOCK_SUPPORT
+void mcuf_show_clock(uint8_t clockswitch) {
   /* reset mcuf counter */
-  blp_toc=250;
-  char *weekdays = "Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
+  if (clockswitch != 1)
+    blp_toc=242;
+  else
+    blp_toc=21;
+
+  if (mcuf_scrolltext_buffer.tomove == 0) {
   struct clock_datetime_t date;
   clock_current_localtime(&date);
+#ifdef MCUF_SCROLLTEXT_SUPPORT
+  if (clockswitch == 3) {
+    char *weekdays = "Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
 
-  snprintf_P(textbuff, 36, PSTR("%s. %.2d.%.2d.20%.2d   %.2d:%.2d:%.2d \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t."),
+    snprintf_P(textbuff, 36, PSTR("%s. %.2d.%.2d.20%.2d   %.2d:%.2d:%.2d \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t."),
              weekdays + date.dow * 4, date.day, date.month, date.year, date.hour, date.min, date.sec);
 
 #ifdef SYSLOG_SUPPORT
-      syslog_sendf("mcuf: clock-textbuffer %s\n", textbuff);
+    syslog_sendf("mcuf: clock-textbuffer %s\n", textbuff);
 #endif
 
-  scrolltext(0,0xff,0,10);
-  updateframe();
+    scrolltext(0,0xff,0,10);
+    } else
+#endif
+    {
+#ifdef SYSLOG_SUPPORT
+    syslog_sendf("mcuf: clock-out: %.2d:%.2d\n", date.hour, date.min);
+#endif
+    draw_box(0, 0, MCUF_OUTPUT_SCREEN_WIDTH, MCUF_OUTPUT_SCREEN_HEIGHT, 0, 0);
+    draw_tinynumber(date.hour, 0 , 1, 0xff);
+    gdata[2][8] = 0x80;
+    gdata[4][8] = 0x80;
+    draw_tinynumber(date.min , 10 , 1, 0xff);
+    updateframe();
+    }
+  }
 }
+#endif
 
 void updateframe() {
 
@@ -400,9 +437,9 @@ void updateframe() {
   for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
     for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
       if ((MCUF_OUTPUT_SCREEN_HEIGHT > y) && (MCUF_OUTPUT_SCREEN_WIDTH > x)) {
-        if (gdata[y][x] > 0) {
-          buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = 255;
-        }
+//         if (gdata[y][x] > 0) {
+          buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = gdata[y][x];
+//         }
       }
     }
   }
@@ -411,8 +448,9 @@ void updateframe() {
   mcuf_senddata();
 }
 
+#ifdef MCUF_SCROLLTEXT_SUPPORT
 void mcuf_show_string(char * x) {
-  blp_toc=250;
+  blp_toc=242;
   memcpy(textbuff,x,36);
 #ifdef SYSLOG_SUPPORT
   syslog_sendf("mcuf: textbuffer %s\n", textbuff);
@@ -420,6 +458,7 @@ void mcuf_show_string(char * x) {
   scrolltext(0,0xff,0,1);
   updateframe();
 }
+#endif
 
 void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
                uint8_t outercolor, uint8_t innercolor) {
@@ -442,6 +481,7 @@ void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
   }
 }
 
+#ifdef MCUF_SCROLLTEXT_SUPPORT
 void mcuf_scrolltext() {
   static uint8_t blp_tic=0;
   blp_tic++;
@@ -467,6 +507,7 @@ void mcuf_scrolltext() {
       blp_tic=0;
   }
 }
+#endif
 
 #ifdef BLP_SUPPORT
 void blp_output(void) {

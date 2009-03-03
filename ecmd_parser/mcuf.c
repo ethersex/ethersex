@@ -25,15 +25,22 @@
 #include "../debug.h"
 
 #ifdef MCUF_SUPPORT
-
+#ifdef MCUF_CLOCK_SUPPORT
 int16_t parse_cmd_mcuf_show_clock(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  mcuf_show_clock();
+  uint16_t buffer;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u\n"), &buffer);
+  if (ret != 1)
+    buffer = 3;
+
+  mcuf_show_clock(buffer);
   return 0;
 }
+#endif
 
+#ifdef MCUF_SCROLLTEXT_SUPPORT
 int16_t parse_cmd_mcuf_show_string(char *cmd, char *output, uint16_t len)
 {
   (void) output;
@@ -47,4 +54,5 @@ int16_t parse_cmd_mcuf_show_string(char *cmd, char *output, uint16_t len)
   return 0;
 }
 
+#endif
 #endif
