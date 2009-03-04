@@ -29,7 +29,15 @@
 /* constants */
 //#define STELLA_UDP_PORT 2342
 
+struct stella_response_struct {
+	char identifier;
+	uint8_t pwm_channels[7];
+};
+
 void stella_net_init(void);
 void stella_net_main(void);
+void stella_net_unicast_response(void);
+void stella_net_broadcast_response(void);
+void stella_net_ack_response(void);
 
 #endif

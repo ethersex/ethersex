@@ -22,46 +22,123 @@
  }}} */
 
 #include "../uip/uip.h"
+#include "../uip/uip_router.h"
 #include "../config.h"
 #include "../debug.h"
 #include "../stella/stella.h"
 #include "stella_net.h"
 
 #ifdef STELLA_SUPPORT
-
+#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void
 stella_net_init(void)
 {
-  uip_ipaddr_t ip;
-  uip_ipaddr_copy(&ip, all_ones_addr);
+	uip_ipaddr_t ip;
+	uip_ipaddr_copy(&ip, all_ones_addr);
 
-  uip_udp_conn_t *stella_conn = uip_udp_new(&ip, 0, stella_net_main);
+	uip_udp_conn_t *stella_conn = uip_udp_new(&ip, 0, stella_net_main);
 
-  if(! stella_conn) {
-    debug_printf("syslog: couldn't create connection\n");
-    return;
-  }
+	if(! stella_conn) {
+		debug_printf("syslog: couldn't create connection\n");
+		return;
+	}
 
-  uip_udp_bind (stella_conn, HTONS(STELLA_UDP_PORT));
-  stella_pwm_init ();
+	uip_udp_bind (stella_conn, HTONS(STELLA_UDP_PORT));
+	stella_pwm_init ();
 
-#if DEBUG_STELLA
-  debug_printf("Stella initalized\n");
-#endif
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella initalized\n");
+	#endif
 }
 
 void
-stella_net_main(void) 
+stella_net_main(void)
 {
-  if (!uip_newdata ())
-    return;
+	if (!uip_newdata ())
+		return;
 
-#if DEBUG_STELLA
-  debug_printf("Received stella package\n");
-#endif
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella received package\n");
+	#endif
 
-  stella_process (uip_appdata, uip_len);
+	#ifdef STELLA_RESPONSE
+	/* if received package is only 1 byte of size, it has to be one of the
+		respond commands */
+	if (uip_len == 1)
+	{
+		if (((unsigned char*)uip_appdata)[0] == STELLA_UNICAST_RESPONSE)
+		{
+			stella_net_unicast_response();
+		}
+		else if (((unsigned char*)uip_appdata)[0] == STELLA_BROADCAST_RESPONSE)
+		{
+			stella_net_broadcast_response();
+		}
+	}
+	/* ack this package if the STELLA_ACK_RESPONSE command was set */
+	else
+	if (stella_process (uip_appdata, uip_len) & STELLA_FLAG_ACK)
+	{
+		stella_net_ack_response();
+	}
+	#else
+	stella_process (uip_appdata, uip_len);
+	#endif
+
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella processed package\n");
+	#endif
 }
+
+#ifdef STELLA_RESPONSE
+void
+stella_net_unicast_response(void) {
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella unicast response\n");
+	#endif
+	struct stella_response_struct *response_packet = uip_appdata;
+
+	/* identifier */
+	response_packet->identifier = 'S';
+
+	/* copy the pwm channel values */
+	memcpy(response_packet->pwm_channels, stella_color,
+		sizeof(response_packet->pwm_channels));
+
+	uip_udp_send(sizeof(struct stella_response_struct));
+
+	/* Send the packet */
+	uip_udp_conn_t conn;
+	uip_ipaddr_copy(conn.ripaddr, BUF->srcipaddr);
+	conn.rport = BUF->srcport;
+	conn.lport = HTONS(STELLA_UDP_PORT);
+
+	uip_udp_conn = &conn;
+
+	/* Send immediately */
+	uip_process(UIP_UDP_SEND_CONN);
+	router_output();
+
+	uip_slen = 0;
+}
+
+void
+stella_net_broadcast_response(void) {
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella broadcast response\n");
+	#endif
+}
+
+void
+stella_net_ack_response(void) {
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella ack package\n");
+	#endif
+	/* for now just send all channel values back. In future versions
+      only acknowdlege received channel values. */
+	stella_net_unicast_response();
+}
+#endif /* STELLA_RESPONSE */
 
 #endif /* STELLA_SUPPORT */

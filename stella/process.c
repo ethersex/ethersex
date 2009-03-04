@@ -4,7 +4,7 @@
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,18 +25,17 @@
 #include "../config.h"
 #include "stella.h"
 
-
-void
+uint8_t
 stella_process (unsigned char *buf, uint8_t len)
 {
-  int re_sort = 0;
+  uint8_t flags = 0;
 
   for (; len >= 2; buf += 2, len -= 2)
     if(*buf >= STELLA_SET_COLOR_0 && *buf < (STELLA_SET_COLOR_0 + STELLA_PINS))
     {
       stella_fade[*buf] = buf[1];
       stella_color[*buf] = buf[1];
-      re_sort = 1;
+      flags |= STELLA_FLAG_SORT;
     }
     else if(*buf >= STELLA_FADE_COLOR_0 && *buf < (STELLA_FADE_COLOR_0 + STELLA_PINS))
     {
@@ -46,7 +45,7 @@ stella_process (unsigned char *buf, uint8_t len)
     {
       stella_fade[*buf & 0x07] = 0;
       stella_color[*buf & 0x07] = buf[1];
-      re_sort = 1;
+      flags |= STELLA_FLAG_SORT;
     }
     else if(*buf == STELLA_SELECT_FADE_FUNC)
     {
@@ -56,6 +55,13 @@ stella_process (unsigned char *buf, uint8_t len)
     {
       stella_fade_step = buf[1];
     }
-  if (re_sort)
+    else if(*buf == STELLA_ACK_RESPONSE)
+    {
+      flags |= STELLA_FLAG_ACK;
+    }
+
+  if (flags & STELLA_FLAG_SORT)
     stella_sort (stella_color);
+
+  return flags; // return ack flag
 }

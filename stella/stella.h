@@ -1,4 +1,6 @@
 
+#define STELLA_FLAG_SORT 1
+#define STELLA_FLAG_ACK 2
 
 enum stella_colors
 {
@@ -39,7 +41,10 @@ enum stella_commands
   STELLA_FLASH_COLOR_6,
   STELLA_FLASH_COLOR_7,
   STELLA_SELECT_FADE_FUNC,
-  STELLA_FADE_STEP
+  STELLA_FADE_STEP,
+  STELLA_ACK_RESPONSE,
+  STELLA_UNICAST_RESPONSE,
+  STELLA_BROADCAST_RESPONSE
 };
 
 enum
@@ -58,4 +63,4 @@ extern uint8_t stella_fade_step;
 void stella_pwm_init(void);
 void stella_sort(uint8_t color[]);
 void stella_timer(void);
-void stella_process(unsigned char *buf, uint8_t len);
+uint8_t stella_process(unsigned char *buf, uint8_t len);
