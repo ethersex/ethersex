@@ -200,7 +200,7 @@ syslog_getserver(void)
 int
 syslog_debug_put (char d, FILE *stream)
 {
-  unsigned char buf[2] = { d, 0 };
+  char buf[2] = { d, 0 };
   syslog_send (buf);
 
   return 0;
