@@ -103,7 +103,8 @@ vfs/embed/%: vfs/embed/%.cpp
 
 vfs/embed/%: vfs/embed/%.m4
 	@if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
-		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"`\
+		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` \
+		`grep -e "^#define CONF_.*" autoconf.h |  sed -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"` \
 		$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)";\
 		else echo "--> Include $@ ($<)";	fi
 
