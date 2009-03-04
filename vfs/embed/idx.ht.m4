@@ -5,7 +5,7 @@
  </head>
  <body>
   <h1>Welcome to Ethersex!</h1>
-  <p>Congratulations!  Your Ethersex http server seems to be working <img src="gr.gif" alt=":-)"></p>
+  <p>Congratulations!  Your Ethersex http server 'value_HOSTNAME' seems to be working <img src="gr.gif" alt=":-)"></p>
   <p>You should never forget that ...
   <pre align="center">
       _   _                                            _          
