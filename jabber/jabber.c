@@ -57,7 +57,7 @@ static const char PROGMEM jabber_set_presence_text[] =
 static const char PROGMEM jabber_startup_text[] =
     /* This message must NOT be longer than STATE->outbuf,
        be careful ;) */
-    "Your Ethersex is now UP :)";
+    "Your Ethersex '"CONF_HOSTNAME"' is now UP :)";
 
 #define JABBER_SEND(str) do {			  \
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
