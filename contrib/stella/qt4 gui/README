@@ -1,0 +1,10 @@
+There will be eventually binaries for windows and linux x86. For now you have to compile from source.
+
+How to compile?
+---------------
+Prerequires:
+For linux: install qt4 development packages
+For windows: Download qt4 from http://www.qtsoftware.com/downloads/opensource/appdev/windows-cpp
+
+Go to the source directory of stella control.
+Enter qmake. Enter make.
