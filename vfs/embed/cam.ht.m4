@@ -1,6 +1,7 @@
 <html><head>
 changequote({{,}})dnl
 ifdef({{conf_CAMERA}}, {{}}, {{m4exit(1)}})dnl
+ifdef({{conf_VFS_DC3840}}, {{}}, {{m4exit(1)}})dnl
 <title>Ethersex - Camera</title>
 <link rel="StyleSheet"  href="Sty.c" type="text/css" />
 <script src="scr.js" type="text/javascript"></script>
