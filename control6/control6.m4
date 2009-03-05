@@ -320,7 +320,7 @@ define(`CLOCK_HOUR', `CLOCK_USED()datetime.hour')
 define(`CLOCK_DAY', `CLOCK_USED()datetime.day')
 define(`CLOCK_MONTH', `CLOCK_USED()datetime.month')
 define(`CLOCK_DOW', `CLOCK_USED()datetime.dow')
-define(`CLOCK_YEAR', `CLOCK_USED()datetime.yead')
+define(`CLOCK_YEAR', `CLOCK_USED()datetime.year')
 
 ################################
 # ADC
