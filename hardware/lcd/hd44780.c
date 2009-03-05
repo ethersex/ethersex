@@ -327,6 +327,15 @@ int hd44780_put(char d, FILE *stream)
         start = 0x40 - 40 + current_pos;
     else if (current_pos <= 79)
         start = 0x60 - 60 + current_pos;
+#elif defined(HD44780_DISPTECH)
+    if (current_pos <= 19)
+        start = 0x00 - 0 + current_pos;
+    else if (current_pos <= 39)
+        start = 0x40 - 20 + current_pos;
+    else if (current_pos <= 59)
+        start = 0x10 - 40 + current_pos;
+    else if (current_pos <= 79)
+        start = 0x50 - 60 + current_pos;
 #elif defined(HD44780_KS0067B)
     if (current_pos <= 19)
         start = 0x00 - 0 + current_pos;
