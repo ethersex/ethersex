@@ -59,35 +59,37 @@ stella_net_main(void)
 		return;
 
 	#ifdef DEBUG_STELLA
-	debug_printf("Stella received package\n");
+	debug_printf("Stella received packet\n");
 	#endif
 
-	#ifdef STELLA_RESPONSE
 	/* if received package is only 1 byte of size, it has to be one of the
-		respond commands */
+	respond commands */
 	if (uip_len == 1)
 	{
+		#ifdef STELLA_RESPONSE
 		if (((unsigned char*)uip_appdata)[0] == STELLA_UNICAST_RESPONSE)
 		{
 			stella_net_unicast_response();
 		}
-		else if (((unsigned char*)uip_appdata)[0] == STELLA_BROADCAST_RESPONSE)
+		#endif
+		#ifdef STELLA_RESPONSE_BROADCAST
+		if (((unsigned char*)uip_appdata)[0] == STELLA_BROADCAST_RESPONSE)
 		{
 			stella_net_broadcast_response();
 		}
+		#endif
 	}
-	/* ack this package if the STELLA_ACK_RESPONSE command was set */
+	/* ack this packet if the STELLA_ACK_RESPONSE command was set */
 	else
 	if (stella_process (uip_appdata, uip_len) & STELLA_FLAG_ACK)
 	{
+		#ifdef STELLA_RESPONSE_ACK
 		stella_net_ack_response();
+		#endif
 	}
-	#else
-	stella_process (uip_appdata, uip_len);
-	#endif
 
 	#ifdef DEBUG_STELLA
-	debug_printf("Stella processed package\n");
+	debug_printf("Stella processed packet\n");
 	#endif
 }
 
@@ -122,23 +124,75 @@ stella_net_unicast_response(void) {
 
 	uip_slen = 0;
 }
+#endif /* STELLA_RESPONSE */
 
+#ifdef STELLA_RESPONSE_BROADCAST
 void
 stella_net_broadcast_response(void) {
 	#ifdef DEBUG_STELLA
 	debug_printf("Stella broadcast response\n");
 	#endif
-}
 
+	struct stella_response_struct *response_packet = uip_appdata;
+
+	/* identifier */
+	response_packet->identifier = 'S';
+
+	/* copy the pwm channel values */
+	memcpy(response_packet->pwm_channels, stella_color,
+		sizeof(response_packet->pwm_channels));
+
+	/* create another udp connection (we are currently in one!)
+	for broadcasting. Let uip call us, send the packet. */
+
+	// TODO EXPERIMENTAL CODE, NOT TESTED. MAY HARM YOUR PETS ETC
+	// build issues (gcc):
+        // "warning: assignment from incompatible pointer type"
+	struct uip_udp_conn *c;
+	uip_ipaddr_t addr;
+	uip_ipaddr(&addr, 255,255,255,255);
+	c = uip_udp_new(&addr, STELLA_BROADCAST_UDP_PORT, NULL);
+
+	uip_udp_periodic_conn(c);
+
+	uip_udp_send(sizeof(struct stella_response_struct));
+
+	/* Send immediately */
+	uip_process(UIP_UDP_SEND_CONN);
+	router_output();
+
+	uip_slen = 0;
+}
+#endif /* STELLA_BROADCAST_RESPONSE */
+
+#ifdef STELLA_RESPONSE_ACK
 void
 stella_net_ack_response(void) {
 	#ifdef DEBUG_STELLA
-	debug_printf("Stella ack package\n");
+	debug_printf("Stella ack packet\n");
 	#endif
-	/* for now just send all channel values back. In future versions
-      only acknowdlege received channel values. */
-	stella_net_unicast_response();
+	/* ack response: two bytes. First: identifier 'S', Second: packet length */
+
+	/* identifier and length of the received packet */
+	char* response = uip_appdata;
+	response[0] = 'S';
+	response[1] = uip_len;
+	uip_udp_send(2);
+
+	/* Send the packet */
+	uip_udp_conn_t conn;
+	uip_ipaddr_copy(conn.ripaddr, BUF->srcipaddr);
+	conn.rport = BUF->srcport;
+	conn.lport = HTONS(STELLA_UDP_PORT);
+
+	uip_udp_conn = &conn;
+
+	/* Send immediately */
+	uip_process(UIP_UDP_SEND_CONN);
+	router_output();
+
+	uip_slen = 0;
 }
-#endif /* STELLA_RESPONSE */
+#endif /* STELLA_RESPONSE_ACK */
 
 #endif /* STELLA_SUPPORT */
