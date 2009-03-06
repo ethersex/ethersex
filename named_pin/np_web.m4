@@ -43,11 +43,11 @@ divert(output_divert)
 <body onLoad="javascript:np_init()">
 <h1>Named Pins</h1>
 <br>
-<table><tr><td align="top">
+<table><tr><td valign="top">
   <h3>Outputs</h3>
   <table>
 divert(input_divert)
-</table></td><td>
+</table></td><td valign="top">
 <table>
 <h3>Inputs</h3>
 divert(end_divert)
@@ -65,17 +65,21 @@ define({{np_output}}, {{divert(output_divert)dnl
  	href="javascript:pin_set('$3', 'on');">On</a></td>
     <td><a class="small_button" 
 	href="javascript:pin_set('$3', 'off');">Off</a></td>
-</tr>}})
+    <td><span id="$3" class="lamp"></span></td>
+</tr>
+divert(hdr_divert)
+ecmd_send('pin get $3', pin_get, "$3");
+setInterval('ecmd_send("pin get $3", pin_get, "$3");', 5000);}})
 define({{np_input}}, {{divert(input_divert)dnl
 <tr>
-  <td>$3</td><td><span id="$3" class="lamp"></span></td></td>
+    <td>$3</td><td><span id="$3" class="lamp"></span></td>
 </tr>
 divert(hdr_divert)
 ecmd_send('pin get $3', pin_get, "$3");
 setInterval('ecmd_send("pin get $3", pin_get, "$3");', 5000);
 }})
 define({{np_pin}}, {{ifelse({{$2}}, {{OUTPUT}}, 
-		    {{np_output({{$1}}, {{$3}}, {{$4}})}})
-		    np_input({{$1}}, {{$3}}, {{$4}})}}
+		    {{np_output({{$1}}, {{$3}}, {{$4}})}},
+		    {{np_input({{$1}}, {{$3}}, {{$4}})}})}}
 )
 divert(0)dnl
