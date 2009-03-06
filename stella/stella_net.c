@@ -142,21 +142,20 @@ stella_net_broadcast_response(void) {
 	memcpy(response_packet->pwm_channels, stella_color,
 		sizeof(response_packet->pwm_channels));
 
-	/* create another udp connection (we are currently in one!)
-	for broadcasting. Let uip call us, send the packet. */
-
-	// TODO EXPERIMENTAL CODE, NOT TESTED. MAY HARM YOUR PETS ETC
-	// build issues (gcc):
-        // "warning: assignment from incompatible pointer type"
-	struct uip_udp_conn *c;
+	uip_udp_send(sizeof(struct stella_response_struct));
+		
+	/* create broadcast ip v4 address; TODO: ip v6 */
 	uip_ipaddr_t addr;
 	uip_ipaddr(&addr, 255,255,255,255);
-	c = uip_udp_new(&addr, STELLA_BROADCAST_UDP_PORT, NULL);
 
-	uip_udp_periodic_conn(c);
-
-	uip_udp_send(sizeof(struct stella_response_struct));
-
+	/* Send the packet */
+	uip_udp_conn_t conn;
+	uip_ipaddr_copy(conn.ripaddr, addr);
+	conn.rport = BUF->srcport;
+	conn.lport = HTONS(STELLA_UDP_PORT);
+	
+	uip_udp_conn = &conn;
+	
 	/* Send immediately */
 	uip_process(UIP_UDP_SEND_CONN);
 	router_output();
