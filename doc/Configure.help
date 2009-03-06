@@ -1336,3 +1336,37 @@ VFS_DC3840_SUPPORT
 
  Select this to enable the vfs camera features.
 
+Stella polling (unicast response)
+STELLA_RESPONSE
+  Depends on: 
+  
+  Send one command byte (STELLA_UNICAST_RESPONSE) to stella to get all current channel values. The response is 9 bytes long.
+  The first is always the identifier 'S', the other bytes consist of the brightness values from channel 0 to 7.
+
+Stella polling (broadcast response) EXPERIMENTAL
+STELLA_RESPONSE_BROADCAST
+  Depends on: 
+   * UDP broadcast support (BROADCAST_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Send one command byte (STELLA_BROADCAST_RESPONSE) to make stella propagate all current channel values via udp
+  broadcast. The datagram is 9 bytes long. The first is always the identifier 'S', the other bytes consist of the
+  brightness values from channel 0 to 7.
+
+Acknowledge packets
+STELLA_RESPONSE_ACK
+  Depends on: 
+
+  Send two addition command bytes with your data stream (2*STELLA_ACK_RESPONSE) to make stella acknowledge
+  your data. The response is 2 bytes long. The first byte is the identifier 'S'. The second byte is the
+  length of the received data stream.
+  Caution: UDP is an unreliable service. It is not guaranteed that the acknowledge packet find the way back
+  to your client. It is possible that the packet arrive out of order or is a duplicate from prior sessions.
+
+Stella Lights
+DEBUG_STELLA
+  Depends on: 
+   * Enable (Serial-Line) Debugging (DEBUG)
+
+  Inform you about arriving stella packets, processed packets and if stella as a result send a response
+
