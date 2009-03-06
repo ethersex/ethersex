@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="icons.qrc">
     <normaloff>:/icons/iconscopy/preferences-desktop-color.png</normaloff>:/icons/iconscopy/preferences-desktop-color.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -22,7 +22,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout">
@@ -67,7 +67,7 @@
            <enum>Qt::PlainText</enum>
           </property>
           <property name="pixmap">
-           <pixmap>:/icons/iconscopy/preferences-system-network.png</pixmap>
+           <pixmap resource="icons.qrc">:/icons/iconscopy/preferences-system-network.png</pixmap>
           </property>
          </widget>
         </item>
@@ -148,7 +148,7 @@
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="icons.qrc">
                  <normaloff>:/icons/iconscopy/edit-clear.png</normaloff>:/icons/iconscopy/edit-clear.png</iconset>
                </property>
               </widget>
@@ -167,9 +167,15 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="btnConnect">
+              <widget class="QToolButton" name="btnConnect">
+               <property name="toolTip">
+                <string>Connect with fetching data from stella</string>
+               </property>
                <property name="text">
                 <string>Connect</string>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::MenuButtonPopup</enum>
                </property>
               </widget>
              </item>
@@ -237,8 +243,20 @@
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
               <widget class="QSpinBox" name="spinChannelCount">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+               <property name="specialValueText">
+                <string>1 Channel</string>
+               </property>
                <property name="suffix">
-                <string> Channel</string>
+                <string> Channels</string>
                </property>
                <property name="minimum">
                 <number>1</number>
@@ -342,6 +360,8 @@
     </property>
     <addaction name="actionChoose"/>
     <addaction name="actionFetch_values_from_server"/>
+    <addaction name="actionResend_pwm_values_to_stella"/>
+    <addaction name="actionMake_stella_broadcast_changes"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuStella_host"/>
@@ -349,7 +369,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClose">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/iconscopy/dialog-close.png</normaloff>:/icons/iconscopy/dialog-close.png</iconset>
    </property>
    <property name="text">
@@ -358,8 +378,8 @@
   </action>
   <action name="actionFetch_values_from_server">
    <property name="icon">
-    <iconset>
-     <normaloff>:/icons/iconscopy/view-refresh.png</normaloff>:/icons/iconscopy/view-refresh.png</iconset>
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/iconscopy/arrow-left.png</normaloff>:/icons/iconscopy/arrow-left.png</iconset>
    </property>
    <property name="text">
     <string>Refetch pwm values from stella</string>
@@ -367,7 +387,7 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/iconscopy/help-about.png</normaloff>:/icons/iconscopy/help-about.png</iconset>
    </property>
    <property name="text">
@@ -376,7 +396,7 @@
   </action>
   <action name="actionChoose">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/iconscopy/configure.png</normaloff>:/icons/iconscopy/configure.png</iconset>
    </property>
    <property name="text">
@@ -385,7 +405,7 @@
   </action>
   <action name="actionRestore">
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/iconscopy/preferences-desktop-color.png</normaloff>:/icons/iconscopy/preferences-desktop-color.png</iconset>
    </property>
    <property name="text">
@@ -413,8 +433,46 @@
     <string>Channel count</string>
    </property>
   </action>
+  <action name="actionConnect_without_fetching_data">
+   <property name="text">
+    <string>Connect without fetching data</string>
+   </property>
+   <property name="toolTip">
+    <string>Connect without fetching data</string>
+   </property>
+  </action>
+  <action name="actionConnect_with_fetching_data">
+   <property name="text">
+    <string>Connect with fetching data</string>
+   </property>
+   <property name="toolTip">
+    <string>Connect with fetching data</string>
+   </property>
+  </action>
+  <action name="actionMake_stella_broadcast_changes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Broadcast changes</string>
+   </property>
+   <property name="toolTip">
+    <string>Broadcast changes 1s after the last change</string>
+   </property>
+  </action>
+  <action name="actionResend_pwm_values_to_stella">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/iconscopy/arrow-right.png</normaloff>:/icons/iconscopy/arrow-right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Resend pwm values to stella</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

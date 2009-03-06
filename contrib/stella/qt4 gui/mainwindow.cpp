@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QVBoxLayout>
+#include <QStatusBar>
 #include <cstdlib>
 #include <ctime>
 #include "stella.h"
@@ -41,15 +42,33 @@ MainWindow::MainWindow(QWidget *parent)
     QCoreApplication::setApplicationName(QLatin1String("Stella Control"));
     QCoreApplication::setApplicationVersion(QLatin1String("1.0"));
 
-    // init on_timer_send
-    timer_resp_timeout.setInterval(500);
+    // init timers
+    timer_resp_timeout.setInterval(1000); // one second timeout for fetching data
     timer_resp_timeout.setSingleShot(true);
+    timer_broadcast_changes.setSingleShot(true);
+    timer_broadcast_changes.setInterval(1000); // one second after the last change broadcast changes
     timer_send.setInterval(20);
-    connect((&timer_send), SIGNAL(timeout()), SLOT(on_timer_send()));
-    connect((&timer_resp_timeout), SIGNAL(timeout()), SLOT(on_timer_receive_timeout()));
+    connect((&timer_send), SIGNAL(timeout()), SLOT(timer_send_data()));
+    connect((&timer_resp_timeout), SIGNAL(timeout()), SLOT(timer_receive_timeout()));
+    connect((&timer_broadcast_changes), SIGNAL(timeout()), SLOT(timer_broadcast_changes_timeout()));
+
 
     // init ui
     ui->setupUi(this);
+
+    // statusbar
+    permMesg = new QLabel(this);
+    statInMesg = new QLabel(this);
+    statOutMesg = new QLabel(this);
+    ui->statusBar->addPermanentWidget(permMesg);
+    ui->statusBar->addPermanentWidget(statInMesg);
+    ui->statusBar->addPermanentWidget(statOutMesg);
+
+    // connect button
+    QMenu *menu = new QMenu(this);
+    menu->addAction(ui->actionConnect_without_fetching_data);
+    ui->btnConnect->setMenu(menu);
+    ui->btnConnect->setDefaultAction(ui->actionConnect_with_fetching_data);
 
     // center window
     int scrn = QApplication::desktop()->screenNumber(this);
@@ -116,6 +135,7 @@ void MainWindow::modeChoose() {
     timer_resp_timeout.stop();
 
     // read stella hosts
+    counter_in = 0;
     QSettings settings;
     settings.beginGroup(QLatin1String("hosts"));
     QStringList hosts = settings.childGroups();
@@ -135,7 +155,7 @@ void MainWindow::modeChoose() {
     ui->lineIP->setEnabled(true);
     ui->spinPort->setEnabled(true);
     ui->btnClearHistory->setEnabled(true);
-    this->statusBar()->showMessage(tr("Please choose a stella server!"));
+    permMesg->setText(tr("Please choose a stella server!"));
     ui->label_connect_status->setText(QString());
     ui->stackedWidget->setCurrentIndex(0);
 }
@@ -147,13 +167,7 @@ void MainWindow::on_lineIP_editTextChanged(QString )
 }
 
 /// GUI Mode: Fetch channel values from stella
-void MainWindow::modeInitialFetch() {
-    // init receiver socket (we want to receive udp packets from stella)
-    socket.close();
-    if (socket.bind(2341)) {
-        connect(&socket, SIGNAL(readyRead()), SLOT(readPendingDatagrams()));
-    }
-
+bool MainWindow::modeInitialFetch() {
     // ui update
     setWindowTitle(QCoreApplication::applicationName() + tr(" - Connecting"));
     ui->label_connect_status->setText(tr(""));
@@ -162,20 +176,27 @@ void MainWindow::modeInitialFetch() {
     ui->lineIP->setEnabled(false);
     ui->spinPort->setEnabled(false);
     ui->btnClearHistory->setEnabled(false);
-    ui->label_connect_status->setText(tr("Fetching values..."));
-    this->statusBar()->showMessage(tr("Fetching values..."));
     ui->stackedWidget->setCurrentIndex(0);
     makeChannelsAndLayout();
 
-    // try to fetch values or timeout and take defaults
-    timer_resp_timeout.start();
-    askStellaForValues();
+    // init receiver socket (we want to receive udp packets from stella)
+    socket.close();
+    if (socket.bind(2341)) {
+        ui->label_connect_status->setText(tr("Fetching values..."));
+        connect(&socket, SIGNAL(readyRead()), SLOT(readPendingDatagrams()));
+        return true;
+    } else {
+        this->statusBar()->showMessage(tr("Could not connect to udp socket 2341!"));
+        return false;
+    }
+
 }
 
 /// GUI Mode: Change pwm values. Change gui mode with choose-button signal.
 void MainWindow::modeChannels() {
     // reset byte counter
-    counter = 0;
+    counter_out = 0;
+    counter_in = 0;
 
     // read predefined channel sets
     QSettings settings;
@@ -191,7 +212,7 @@ void MainWindow::modeChannels() {
     // ui update
     setWindowTitle(QCoreApplication::applicationName() + tr(" - %1").arg(stella_host.toString()));
     ui->menuStella_host->setEnabled(true);
-    this->statusBar()->showMessage(tr("Use stella server %1:%2").arg(stella_host.toString()).arg(QString::number(stella_port)));
+    permMesg->setText(tr("Use stella server %1:%2").arg(stella_host.toString()).arg(QString::number(stella_port)));
     ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -203,31 +224,37 @@ void MainWindow::readPendingDatagrams() {
         datagram.resize(socket.pendingDatagramSize());
         socket.readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
+        counter_in += datagram.size();
+        statInMesg->setText(tr("Received: %1 Bytes").arg(QString::number(counter_in)));
+
         // valid stella response?
-        if (datagram.size()>0 && datagram[0] == 'S') {
+        if (datagram.size()==9 && datagram[0] == 'S') {
             timer_resp_timeout.stop(); // stop timeout timer
             int ccount = qMin(channels.size(), datagram.size()-1);
             for (int i=0;i<ccount;++i)
                 channels[i]->setValue(datagram[i+1], true);
 
             modeChannels();
-            qDebug() << "Stella response";
+
+        } else
+        // ack packet
+        if (datagram.size()==2 && datagram[0] == 'S') {
+            qDebug() << "Ack packet received";
         } else {
-            qDebug() << "Random data receiving";
+            qDebug() << "Random data receiving. Size:" << datagram.size() << "Data:" << datagram.toHex();
         }
     }
 }
 
-void MainWindow::on_timer_receive_timeout() {
+void MainWindow::timer_receive_timeout() {
     qDebug() << "No stella response";
     modeChannels();
     // update all channels, no matter if they claim to already have the target value.
-    // necessary because stella can't tell us the correct values yet.
     foreach (pwmchannel* ch, channels)
         changes[ch->channel_no] = ch->getValue();
 }
 
-void MainWindow::on_timer_send() {
+void MainWindow::timer_send_data() {
     // update channel values (fade buttons, animations)
     foreach (pwmchannel* ch, channels) ch->update();
 
@@ -243,17 +270,31 @@ void MainWindow::on_timer_send() {
      data.append(i.value());
     }
 
+    sendData(data);
+
+    // we do not want the same change set again: clear
+    changes.clear();
+}
+
+void MainWindow::timer_broadcast_changes_timeout() {
+    sendData(STELLA_BROADCAST_RESPONSE);
+}
+
+void MainWindow::sendData(char value) {
+    QByteArray data;
+    data.append(value);
+    sendData(data);
+}
+
+void MainWindow::sendData(const QByteArray& data) {
     // send bytearray as udp datagramm to stella
     qint64 written = socket.writeDatagram(data, stella_host, stella_port);
     if (written != data.size()) {
         this->statusBar()->showMessage(tr("Failed writting data to socket: ")+socket.errorString());
     } else {
-        counter += written;
-        this->statusBar()->showMessage(tr("Data send: %1 Bytes").arg(QString::number(counter)));
+        counter_out += written;
+        statOutMesg->setText(tr("Send: %1 Bytes").arg(QString::number(counter_out)));
     }
-
-    // we do not want the same change set again: clear
-    changes.clear();
 }
 
 void MainWindow::makeChannelsAndLayout(int channel_count)
@@ -290,20 +331,14 @@ void MainWindow::makeChannelsAndLayout(int channel_count)
     }
 }
 
-void MainWindow::askStellaForValues()
-{
-    QByteArray data;
-    data.append(STELLA_UNICAST_RESPONSE);
-    // send bytearray as udp datagramm to stella
-    qint64 written = socket.writeDatagram(data, stella_host, stella_port);
-    if (written != data.size()) {
-        qDebug() << "Ask: Failed writting data to socket." << socket.errorString();
-    }
-}
-
 void MainWindow::value_changed(unsigned char value, unsigned char channel)
 {
     changes[channel] = value;
+
+    // if the user set the corresponding option, make stella
+    // broadcast all channel values 1 second after the last change
+    if (ui->actionMake_stella_broadcast_changes->isChecked())
+        timer_broadcast_changes.start();
 }
 
 void MainWindow::on_actionClose_triggered()
@@ -321,8 +356,15 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionFetch_values_from_server_triggered()
 {
-    askStellaForValues();
+    sendData(STELLA_UNICAST_RESPONSE);
     this->statusBar()->showMessage(tr("Fetch command send"));
+}
+
+void MainWindow::on_actionResend_pwm_values_to_stella_triggered()
+{
+    foreach (pwmchannel* ch, channels)
+        changes[ch->channel_no] = ch->getValue();
+    this->statusBar()->showMessage(tr("Resend all values"));
 }
 
 void MainWindow::on_actionChoose_triggered()
@@ -330,7 +372,30 @@ void MainWindow::on_actionChoose_triggered()
     modeChoose();
 }
 
-void MainWindow::on_btnConnect_clicked()
+void MainWindow::on_actionConnect_with_fetching_data_triggered()
+{
+    // save host+port to state variables
+    stella_port = ui->spinPort->value();
+    bool success = stella_host.setAddress(ui->lineIP->currentText());
+    settings_path = QLatin1String("hosts/") + stella_host.toString() + QLatin1String("/");
+
+    // if port and host is valid continue
+    if (success) {
+        // add this host+port to the server history
+        QSettings().setValue(settings_path+QLatin1String("port"), stella_port);
+
+        // change mode
+        if (modeInitialFetch()) {
+            // try to fetch values or timeout and take defaults
+            timer_resp_timeout.start();
+            sendData(STELLA_UNICAST_RESPONSE);
+        } else { // udp socket bind failed
+            modeChannels();
+        }
+    }
+}
+
+void MainWindow::on_actionConnect_without_fetching_data_triggered()
 {
     // save host+port to state variables
     stella_port = ui->spinPort->value();
@@ -344,6 +409,11 @@ void MainWindow::on_btnConnect_clicked()
 
         // change mode
         modeInitialFetch();
+        modeChannels();
+        // update all channels, no matter if they claim to already have the target value.
+        foreach (pwmchannel* ch, channels) {
+            ch->setValue(0);
+        }
     }
 }
 
