@@ -11,6 +11,19 @@ a:visited, a:active{
   color: #ddd;
 }
 
+.small_button:hover{
+  background-color: #555;
+}
+.small_button, .lamp{
+  background-color: #444;
+  padding: 3px;
+  color: black;
+  text-decoration: none;
+  margin-top: 4px;
+  text-align: center;
+  display: block;
+}
+
 #logconsole {
   padding: 5px 5px 5px 5px;
   margin-top: 10px;

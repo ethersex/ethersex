@@ -25,6 +25,7 @@ ifdef(`conf_ONEWIRE', `<p>The onewire temperature values are accessible <a href=
 ifdef(`conf_RFM12_ASK', `<p>To control <a href="rf.ht">RFM12 ASK</a>.</p>')
 ifdef(`conf_I2C_MASTER', `<p>Set <a href="i2c.ht">I<sup>2</sup>C-Bus</a> stuff.</p>')
 ifdef(`conf_CAMERA', `<p>See the <a href="cam.ht">camera examples</a>.</p>')
+ifdef(`conf_NAMED_PIN', `<p>Control <a href="np.ht">named outputs</a>.</p>')
   <p>Configure ethersex <a href="cfg.ht">here</a></p>
  </body>
 </html>
