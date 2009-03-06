@@ -13,6 +13,8 @@ BEGIN {
   print "{"
 }
 
+/^[\s#]*$/ {next;}
+
 {
   if ($2 == 1 || $2 == "INPUT") {
     # The pin is an input pin.
