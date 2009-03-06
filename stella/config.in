@@ -5,7 +5,5 @@ dep_bool_menu "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
   if [ "$STELLA_RESPONSE_BROADCAST" = "y" ]; then
     int "Stella Broadcast Response UDP Port" STELLA_BROADCAST_UDP_PORT 2341
   fi
-  comment "Hint: Packet acknowledge is not automatically triggered."
-  comment "Two additional command bytes are necessary (2*STELLA_ACK_RESPONSE)"
   dep_bool "Acknowledge packets" STELLA_RESPONSE_ACK
 endmenu
