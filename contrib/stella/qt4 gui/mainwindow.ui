@@ -14,8 +14,8 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
-    <normaloff>:/icons/iconscopy/preferences-desktop-color.png</normaloff>:/icons/iconscopy/preferences-desktop-color.png</iconset>
+   <iconset resource="app.qrc">
+    <normaloff>:/icons/preferences-desktop-color.png</normaloff>:/icons/preferences-desktop-color.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -67,7 +67,7 @@
            <enum>Qt::PlainText</enum>
           </property>
           <property name="pixmap">
-           <pixmap resource="icons.qrc">:/icons/iconscopy/preferences-system-network.png</pixmap>
+           <pixmap resource="app.qrc">:/icons/preferences-system-network.png</pixmap>
           </property>
          </widget>
         </item>
@@ -148,8 +148,8 @@
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
-                 <normaloff>:/icons/iconscopy/edit-clear.png</normaloff>:/icons/iconscopy/edit-clear.png</iconset>
+                <iconset resource="app.qrc">
+                 <normaloff>:/icons/edit-clear.png</normaloff>:/icons/edit-clear.png</iconset>
                </property>
               </widget>
              </item>
@@ -369,8 +369,8 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClose">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/iconscopy/dialog-close.png</normaloff>:/icons/iconscopy/dialog-close.png</iconset>
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/dialog-close.png</normaloff>:/icons/dialog-close.png</iconset>
    </property>
    <property name="text">
     <string>Close</string>
@@ -378,8 +378,8 @@
   </action>
   <action name="actionFetch_values_from_server">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/iconscopy/arrow-left.png</normaloff>:/icons/iconscopy/arrow-left.png</iconset>
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/arrow-left.png</normaloff>:/icons/arrow-left.png</iconset>
    </property>
    <property name="text">
     <string>Refetch pwm values from stella</string>
@@ -387,8 +387,8 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/iconscopy/help-about.png</normaloff>:/icons/iconscopy/help-about.png</iconset>
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/help-about.png</normaloff>:/icons/help-about.png</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -396,8 +396,8 @@
   </action>
   <action name="actionChoose">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/iconscopy/configure.png</normaloff>:/icons/iconscopy/configure.png</iconset>
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/configure.png</normaloff>:/icons/configure.png</iconset>
    </property>
    <property name="text">
     <string>Choose ...</string>
@@ -405,8 +405,8 @@
   </action>
   <action name="actionRestore">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/iconscopy/preferences-desktop-color.png</normaloff>:/icons/iconscopy/preferences-desktop-color.png</iconset>
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/preferences-desktop-color.png</normaloff>:/icons/preferences-desktop-color.png</iconset>
    </property>
    <property name="text">
     <string>Restore</string>
@@ -462,8 +462,8 @@
   </action>
   <action name="actionResend_pwm_values_to_stella">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/iconscopy/arrow-right.png</normaloff>:/icons/iconscopy/arrow-right.png</iconset>
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/arrow-right.png</normaloff>:/icons/arrow-right.png</iconset>
    </property>
    <property name="text">
     <string>Resend pwm values to stella</string>
@@ -472,7 +472,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="app.qrc"/>
  </resources>
  <connections/>
 </ui>

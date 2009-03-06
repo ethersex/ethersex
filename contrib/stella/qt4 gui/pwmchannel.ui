@@ -86,8 +86,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/iconscopy/roll.png</normaloff>:/icons/iconscopy/roll.png</iconset>
+      <iconset resource="app.qrc">
+       <normaloff>:/icons/roll.png</normaloff>:/icons/roll.png</iconset>
      </property>
     </widget>
    </item>
@@ -100,8 +100,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/iconscopy/dialog-cancel.png</normaloff>:/icons/iconscopy/dialog-cancel.png</iconset>
+      <iconset resource="app.qrc">
+       <normaloff>:/icons/dialog-cancel.png</normaloff>:/icons/dialog-cancel.png</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -123,8 +123,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/iconscopy/arrow-left.png</normaloff>:/icons/iconscopy/arrow-left.png</iconset>
+      <iconset resource="app.qrc">
+       <normaloff>:/icons/arrow-left.png</normaloff>:/icons/arrow-left.png</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -143,8 +143,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/iconscopy/arrow-right.png</normaloff>:/icons/iconscopy/arrow-right.png</iconset>
+      <iconset resource="app.qrc">
+       <normaloff>:/icons/arrow-right.png</normaloff>:/icons/arrow-right.png</iconset>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -157,7 +157,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="app.qrc"/>
  </resources>
  <connections>
   <connection>
