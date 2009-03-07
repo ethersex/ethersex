@@ -116,7 +116,7 @@ stella_sort(uint8_t color[])
 	overflow_mask = 0;
 	
 	uint8_t new_values, p_insert;
-  
+
 	/* Insert color brightness into timetable. Avoid duplicates.
 	   Use dynamic length insertion sort for that purpose. */
 	for (new_values = 0; new_values < STELLA_PINS; new_values++)
@@ -125,28 +125,39 @@ stella_sort(uint8_t color[])
 		if (color[new_values] == 0) continue;
 
 		/* We definitly want this color to be on, at least on the last
-		   point in time (timer overflow), therefore update the overflow_mask */
+		   point in time (timer overflow), therefore update 
+                   the overflow_mask */
 		overflow_mask |= (1 << (new_values + STELLA_OFFSET));
 
-		/* If this is an always on color (brightness==255) don't ever switch it off */
+		/* If this is an always on color (brightness==255) 
+                 * don't ever switch it off */
 		if (color[new_values] == 255) continue;
-		
+
 		/* Find the right position */
 		for (p_insert = 0; p_insert < length; p_insert++)
 		{
-			if (timetable[p_insert][NEXT_COMPARE_INTERRUPT]>color[new_values]) break;
+			if (timetable[p_insert][NEXT_COMPARE_INTERRUPT] 
+                            >= color[new_values]) 
+                          break;
 		}
 
-		/* Do we need to update the length? */
-		if (p_insert == length) length=p_insert+1;
+		/* is this value already in timetable? Just update the port mask */
+		if ((p_insert < length) 
+                    && (timetable[p_insert][NEXT_COMPARE_INTERRUPT] == color[new_values]))
+		{
+			timetable[p_insert][PORT_MASK] |= _BV(new_values + STELLA_OFFSET);
+			continue;
+		}
+		/* Increase length */
+		++length;
 
 		/* Move all successive elements one position */
-		memmove(timetable[p_insert+1], timetable[p_insert], (length-1-p_insert));
-		
+		memmove(timetable[p_insert+1], timetable[p_insert],
+                        2*sizeof(uint8_t)*(length-1-p_insert));
 		/* Insert our new value */
-		timetable[p_insert][NEXT_COMPARE_INTERRUPT]=color[new_values];
-		timetable[p_insert][PORT_MASK] |= (1 << (new_values + STELLA_OFFSET));
-	}
+		timetable[p_insert][NEXT_COMPARE_INTERRUPT] = color[new_values];
+		timetable[p_insert][PORT_MASK] = _BV(new_values + STELLA_OFFSET);
+        }
 
 	/* Allow the interrupt to actually apply the calculated values */
 	update_table = NEW_VALUES;
