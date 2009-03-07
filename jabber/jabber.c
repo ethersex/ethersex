@@ -45,7 +45,7 @@ static const char PROGMEM jabber_get_auth_text[] =
 
 static const char PROGMEM jabber_set_auth_text[] =
     "<iq id='sa' type='set'><query xmlns='jabber:iq:auth'>"
-    "<resource>ethersex</resource>"
+    "<resource>" CONF_JABBER_RESOURCE "</resource>"
     "<username>" CONF_JABBER_USERNAME "</username>"
     "<password>" CONF_JABBER_PASSWORD "</password></query></iq>";
 
