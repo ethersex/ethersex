@@ -1,6 +1,7 @@
 <html><head>
 changequote({{,}})dnl
 ifdef({{conf_I2C_MASTER}}, {{}}, {{m4exit(1)}})dnl
+ifdef({{conf_I2C_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <title>Ethersex - I2C Master</title>
 <link rel="StyleSheet"  href="Sty.c" type="text/css" />
 <script src="scr.js" type="text/javascript"></script>

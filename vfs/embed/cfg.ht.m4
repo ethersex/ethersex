@@ -1,4 +1,5 @@
 changequote({{,}})dnl
+ifdef({{conf_CONFIG_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <html><head>
 <title>Ethersex - Setup</title>
   <script src="scr.js" type="text/javascript"></script>

@@ -1,6 +1,7 @@
 <html><head>
 changequote({{,}})dnl
 ifdef({{conf_RFM12_ASK}}, {{}}, {{m4exit(1)}})dnl
+ifdef({{conf_RFM12_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <title>Ethersex - RFM12 ASK Control</title>
 <link rel="StyleSheet"  href="Sty.c" type="text/css" />
 <script src="scr.js" type="text/javascript"></script>

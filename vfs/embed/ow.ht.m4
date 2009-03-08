@@ -1,4 +1,5 @@
 ifdef(`conf_ONEWIRE', `', `m4exit(1)')
+ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')
 <html><head>
 <title>Ethersex - Onewire Status</title>
   <script src="scr.js" type="text/javascript"></script>

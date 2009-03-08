@@ -1,7 +1,7 @@
 #include "../../autoconf.h"
 #include "../../pinning.c"
-#ifndef KTY_SUPPORT
-#error Don't inline this file without KTY_SUPPORT
+#ifndef KTY_INLINE_SUPPORT
+#error Don't inline this file without KTY_INLINE_SUPPORT
 #endif
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC
