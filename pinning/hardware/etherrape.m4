@@ -66,3 +66,7 @@ ifdef(`conf_RC5', `
   pin(RC5_SEND, PD4)
 ')
 
+ifdef(`conf_SOFT_UART', `
+  pin(SOFT_UART_TX, PD7, OUTPUT)
+')
+

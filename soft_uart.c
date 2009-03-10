@@ -28,7 +28,6 @@
 void 
 soft_uart_putchar(uint8_t c)
 {
-  DDRD |= _BV(7);
   uint8_t bitcount = 10;
   register uint8_t tmp = 0;
 
@@ -37,6 +36,8 @@ soft_uart_putchar(uint8_t c)
 #if BIT_DELAY > 255
 #  error "Bitrate is too low for the software uart"
 #endif
+
+#define SOFT_UART_PORT(port) _PORT_CHAR(port)
 
   asm volatile("com %[txbyte]\n\t"
                "sec\n" /* start bit */
@@ -63,8 +64,8 @@ soft_uart_putchar(uint8_t c)
                         "brne 0b\n\t"
                : /* No output */ 
                : [txbyte] "a" (c), [bitcnt] "a" (bitcount), [tmp] "a" (tmp),
-                 [port] "I" (_SFR_IO_ADDR(PORTD)), [pin] "I" (PD7), 
-                 [delay] "M" (BIT_DELAY)
+                 [port] "I" (_SFR_IO_ADDR(SOFT_UART_PORT(SOFT_UART_TX_PORT))), 
+                 [pin] "I" (SOFT_UART_TX_PIN), [delay] "M" (BIT_DELAY)
                );
   
 
