@@ -31,6 +31,7 @@
 
 /* prototypes */
 int debug_uart_put(char d, FILE *stream);
+void soft_uart_putchar(uint8_t c);
 
 #ifdef DEBUG
 
@@ -46,10 +47,12 @@ generate_usart_init()
 void
 debug_init_uart (void)
 {
+#ifndef SOFT_UART_SUPPORT
     usart_init();
 
     /* Disable the receiver */
     usart(UCSR,B) &= ~_BV(usart(RXCIE));
+#endif
 
     /* open stdout/stderr */
     fdevopen(debug_uart_put, NULL);
@@ -62,16 +65,21 @@ debug_uart_put (char d, FILE *stream)
     if (d == '\n')
         debug_uart_put('\r', stream);
 
+#ifdef SOFT_UART_SUPPORT
+    soft_uart_putchar(d);
+    return 0;
+#else
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));
     usart(UDR) = d;
 
     return 0;
+#endif
 }
 
 void
 debug_process_uart (void)
 {
-#ifdef ECMD_PARSER_SUPPORT
+#if defined(ECMD_PARSER_SUPPORT) && !defined(SOFT_UART_SUPPORT)
 #define LEN 60
 #define OUTPUTLEN 40
 
@@ -113,7 +121,7 @@ debug_process_uart (void)
                 debug_printf("not enough space for storing '%c'\n", data);
         }
     }
-#endif  /* ECMD_PARSER_SUPPORT */
+#endif  /* ECMD_PARSER_SUPPORT && !SOFT_UART_SUPPORT*/
 }
 
 #endif	/* not DEBUG_USE_SYSLOG */

@@ -3,6 +3,7 @@ TOPDIR = .
 
 SRC = \
 	debug.c \
+	soft_uart.c \
 	eeprom.c \
 	enc28j60.c \
 	ethersex.c \
