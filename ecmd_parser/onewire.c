@@ -192,9 +192,21 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
         debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 
+#ifdef TEENSY_SUPPORT
+	strcpy_P (output, PSTR ("Temperatur: "));
+	char *ptr = output + 12;
+
+	itoa (HI8(temp), ptr, 10);
+	ptr += strlen (ptr);
+
+	*(ptr ++) = '.';
+	itoa (HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
+	return strlen (output);
+#else
         ret = snprintf_P(output, len,
                 PSTR("Temperatur: %3d.%1d"),
                 (int8_t) HI8(temp),  HI8(((temp & 0x00ff) * 10) + 0x80));
+#endif
 
 #ifdef ONEWIRE_DS2502_SUPPORT
     } else if (ow_eeprom(&rom)) {
@@ -226,7 +238,12 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 #endif /* ONEWIRE_DS2502_SUPPORT */
     } else {
         debug_printf("unknown sensor type\n");
+#ifdef TEENSY_SUPPORT
+	strcpy_P (output, PSTR("unknown sensor type"));
+	return strlen (output);
+#else
         ret = snprintf_P(output, len, PSTR("unknown sensor type"));
+#endif
     }
 
     return ret;
