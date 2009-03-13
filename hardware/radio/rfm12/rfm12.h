@@ -88,6 +88,11 @@ typedef enum {
   RFM12_TX_PREAMBLE_2,
   RFM12_TX_PREFIX_1,
   RFM12_TX_PREFIX_2,
+#ifdef RFM12_SOURCE_ROUTE_ALL
+  RFM12_TX_SRCRT_SZHI,
+  RFM12_TX_SRCRT_SZLO,
+  RFM12_TX_SRCRT_DEST,
+#endif	/* RFM12_SOURCE_ROUTE_ALL */
   RFM12_TX_SIZE_HI,
   RFM12_TX_SIZE_LO,
   RFM12_TX_DATA,
@@ -117,7 +122,7 @@ rfm12_status_t rfm12_status;
 
 
 #ifdef TEENSY_SUPPORT
-#  if RFM12_BUFFER_LEN > 254
+#  if (RFM12_BUFFER_LEN + (defined(RFM12_SOURCE_ROUTE_ALL) ? 3 : 0))  > 254
 #    error "modify code or shrink (shared) uIP buffer."
 #  endif
 typedef uint8_t rfm12_index_t;

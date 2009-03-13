@@ -13,6 +13,11 @@ else
   ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
 fi
 
+dep_bool "Source Route ALL packets" RFM12_SOURCE_ROUTE_ALL $RFM12_IP_SUPPORT
+if [ "$RFM12_SOURCE_ROUTE_ALL" = "y" ]; then
+  int "  Router ID" CONF_RFM12_SOURCE_ROUTE_ALL_RTRID 17
+fi
+
 dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
 
 fi

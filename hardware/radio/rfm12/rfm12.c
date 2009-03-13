@@ -114,11 +114,33 @@ SIGNAL(RFM12_INT_SIGNAL)
       rfm12_status ++;
       break;
 
+
+#ifdef RFM12_SOURCE_ROUTE_ALL
+    case RFM12_TX_SRCRT_SZHI:
+#ifdef TEENSY_SUPPORT
+      rfm12_trans(0xB880);
+#else
+      rfm12_trans(0xB880 | (((3 + rfm12_txlen) & 0x7F00) >> 8));
+#endif
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_SRCRT_SZLO:
+      rfm12_trans(0xB800 | ((3 + rfm12_txlen) & 0xFF));
+      rfm12_status ++;
+      break;
+
+    case RFM12_TX_SRCRT_DEST:
+      rfm12_trans(0xB800 | CONF_RFM12_SOURCE_ROUTE_ALL_RTRID);
+      rfm12_status ++;
+      break;
+#endif	/* RFM12_SOURCE_ROUTE_ALL */
+
     case RFM12_TX_SIZE_HI:
 #ifdef TEENSY_SUPPORT
       rfm12_trans(0xB800);
 #else
-      rfm12_trans(0xB800 | ((rfm12_txlen & 0xFF00) >> 8));
+      rfm12_trans(0xB800 | ((rfm12_txlen & 0x7F00) >> 8));
 #endif
       rfm12_status ++;
       break;
