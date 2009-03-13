@@ -4,7 +4,8 @@ SRC = \
         ../pinning.c \
 	mcuf.c \
 	mcuf_net.c\
-        mcuf_text.c
+        mcuf_text.c\
+	ledmatrixint.c
 
 ##############################################################################
 # generic fluff

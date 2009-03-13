@@ -2,28 +2,40 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
 
   usart_count_used
   if [ "$MCUF_SERIAL_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-    dep_bool "MCUF usart" MCUF_SERIAL_SUPPORT $MCUF_SUPPORT
+   dep_bool_menu "MCUF usart" MCUF_SERIAL_SUPPORT $MCUF_SUPPORT
+    if [ "$MCUF_SERIAL_SUPPORT" = y ]; then
+      comment "MCUF serial screen configuration"
+      int "MCUF serial screen width" MCUF_SERIAL_SCREEN_WIDTH 18
+      int "MCUF serial screen height" MCUF_SERIAL_SCREEN_HEIGHT 8
+    fi
+   endmenu
   else
     define_bool MCUF_SERIAL_SUPPORT n
   fi
 
-  if [ "$MCU" = atmega8 ]; then
-    dep_bool "BLP SUPPORT" BLP_SUPPORT
-  else
-    define_bool BLP_SUPPORT n
-  fi
+  dep_bool_menu "MCUF output" MCUF_OUTPUT_SUPPORT $MCUF_SUPPORT
+    if [ "$MCUF_OUTPUT_SUPPORT" = y ]; then
+      choice 'Output Device'\
+	"BlinkenLightsPro	BLP_SUPPORT\
+	 LED-Module16x16rg	LEDRG_SUPPORT"\
+	 BlinkenLightsPro
+      if [ "$BLP_SUPPORT" = y ]; then
+        comment "MCUF output screen is 18x8 pixels"
+        define_int MCUF_OUTPUT_SCREEN_WIDTH 18
+        define_int MCUF_OUTPUT_SCREEN_HEIGHT 8
+      elif [ "$LEDRG_SUPPORT" = y ]; then
+        comment "MCUF output screen is 16x16 pixels"
+        define_int MCUF_OUTPUT_SCREEN_WIDTH 16
+        define_int MCUF_OUTPUT_SCREEN_HEIGHT 16
+      fi
+    else
+      define_bool BLP_SUPPORT n
+      define_bool LEDRG_SUPPORT n
+    fi
+  endmenu
 
+  comment "MCUF ecmd commandos"
   dep_bool "MCUF Scrolltext" MCUF_SCROLLTEXT_SUPPORT $MCUF_SUPPORT
   dep_bool "MCUF Clock" MCUF_CLOCK_SUPPORT $MCUF_SUPPORT $CLOCK_SUPPORT
-
-  if [ "$MCUF_SUPPORT" = y -a "$BLP_SUPPORT" != "y" ]; then
-    comment "MCUF screen configuration"
-    int "MCUF screen width" MCUF_OUTPUT_SCREEN_WIDTH 18
-    int "MCUF screen height" MCUF_OUTPUT_SCREEN_HEIGHT 8
-  else
-    comment "MCUF screen is 18x8 pixels"
-    define_int MCUF_OUTPUT_SCREEN_WIDTH 18
-    define_int MCUF_OUTPUT_SCREEN_HEIGHT 8
-  fi
 
 endmenu

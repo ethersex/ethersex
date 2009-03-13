@@ -24,9 +24,56 @@
 #ifndef _MCUF_H
 #define _MCUF_H
 
+#include <stdint.h>
+#include "../config.h"
 /* The default baudrate of the shifter is 115200 baud (ubrr == 10 @ 20 Mhz) */
 #define MCUF_BAUDRATE 115200
 //DEBUG_BAUDRATE
+
+/* MCUF_OUTPUT_SCREEN_... are now defined during Ethersex configuration
+   and thus are defined in autoconf.h file.*/
+#ifdef MCUF_SERIAL_SUPPORT
+#ifndef MCUF_OUTPUT_SUPPORT
+   #define MCUF_MIN_SCREEN_WIDTH  MCUF_SERIAL_SCREEN_WIDTH
+   #define MCUF_MIN_SCREEN_HEIGHT  (0)
+   #define MCUF_MAX_SCREEN_WIDTH  MCUF_SERIAL_SCREEN_WIDTH
+   #define MCUF_MAX_SCREEN_HEIGHT MCUF_SERIAL_SCREEN_HEIGHT
+#else /* not MCUF_OUTPUT_SUPPORT */
+ #if MCUF_SERIAL_SCREEN_WIDTH > MCUF_OUTPUT_SCREEN_WIDTH
+   #define MCUF_MIN_SCREEN_WIDTH  MCUF_OUTPUT_SCREEN_WIDTH
+ #else
+   #define MCUF_MIN_SCREEN_WIDTH  MCUF_SERIAL_SCREEN_WIDTH
+ #endif
+ #if MCUF_SERIAL_SCREEN_HEIGHT > (MCUF_OUTPUT_SCREEN_HEIGHT/2)
+   #define MCUF_MIN_SCREEN_HEIGHT  (MCUF_OUTPUT_SCREEN_HEIGHT/2)
+ #else
+   #define MCUF_MIN_SCREEN_HEIGHT  MCUF_SERIAL_SCREEN_HEIGHT
+ #endif
+ #if MCUF_SERIAL_SCREEN_WIDTH > MCUF_OUTPUT_SCREEN_WIDTH
+   #define MCUF_MAX_SCREEN_WIDTH  MCUF_SERIAL_SCREEN_WIDTH
+ #else
+   #define MCUF_MAX_SCREEN_WIDTH  MCUF_OUTPUT_SCREEN_WIDTH
+ #endif
+ #if MCUF_SERIAL_SCREEN_HEIGHT > MCUF_OUTPUT_SCREEN_HEIGHT
+   #define MCUF_MAX_SCREEN_HEIGHT  MCUF_SERIAL_SCREEN_HEIGHT
+ #else
+   #define MCUF_MAX_SCREEN_HEIGHT  MCUF_OUTPUT_SCREEN_HEIGHT
+ #endif   
+#endif /* not MCUF_OUTPUT_SUPPORT */
+#else /* MCUF_SERIAL_SUPPORT */
+#ifdef BLP_SUPPORT
+   #define MCUF_MIN_SCREEN_WIDTH  MCUF_OUTPUT_SCREEN_WIDTH
+   #define MCUF_MIN_SCREEN_HEIGHT (MCUF_OUTPUT_SCREEN_HEIGHT/2)
+   #define MCUF_MAX_SCREEN_WIDTH  MCUF_OUTPUT_SCREEN_WIDTH
+   #define MCUF_MAX_SCREEN_HEIGHT MCUF_OUTPUT_SCREEN_HEIGHT
+#endif
+#ifdef LEDRG_SUPPORT
+   #define MCUF_MIN_SCREEN_WIDTH  MCUF_OUTPUT_SCREEN_WIDTH
+   #define MCUF_MIN_SCREEN_HEIGHT (MCUF_OUTPUT_SCREEN_HEIGHT/2)
+   #define MCUF_MAX_SCREEN_WIDTH  MCUF_OUTPUT_SCREEN_WIDTH
+   #define MCUF_MAX_SCREEN_HEIGHT MCUF_OUTPUT_SCREEN_HEIGHT
+#endif
+#endif /* MCUF_SERIAL_SUPPORT */
 
 void mcuf_init(void);
 void mcuf_newdata(void);
@@ -34,7 +81,7 @@ void mcuf_periodic(void);
 void mcuf_show_clock(uint8_t clockswitch);
 void mcuf_show_string(char *);
 
-extern uint8_t gdata[MCUF_OUTPUT_SCREEN_HEIGHT][MCUF_OUTPUT_SCREEN_WIDTH];
+extern uint8_t gdata[MCUF_MAX_SCREEN_HEIGHT][MCUF_MAX_SCREEN_WIDTH];
 
 struct mcuf_scrolltext_struct {
   uint8_t tomove;

@@ -33,13 +33,20 @@
 #include "../eeprom.h"
 #include "../bit-macros.h"
 #include "../config.h"
-#include "../debug.h"
 #include "../syslog/syslog.h"
 #include "../clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"
 #include "mcuf_text.h"
+#include "ledmatrixint.h"
 #include "../uip/uip.h"
+
+#ifdef DEBUG_MCUF
+#  include "../debug.h"
+#  define MCUF_DEBUG(str...) debug_printf ("mcuf: " str)
+#else
+#  define MCUF_DEBUG(...)    ((void) 0)
+#endif
 
 #ifdef MCUF_SUPPORT
 
@@ -49,16 +56,14 @@
 #include "../usart.h"
 #endif
 
-/* MCUF_OUTPUT_SCREEN_... are now defined during Ethersex configuration
-   and thus are defined in autoconf.h file.
 
-   #define MCUF_OUTPUT_SCREEN_WIDTH 18
-   #define MCUF_OUTPUT_SCREEN_HEIGHT 8 */
+/* MCUF_OUTPUT_SCREEN_... are now defined during Ethersex configuration
+   and thus are defined in autoconf.h file.*/
 
 //TODO set MCUF_MAX_PCKT_SIZE correct
 // 444,16,16 for 16x16borg
 // 170/184,18,8 for blinkenledspro
-#define MCUF_MAX_PCKT_SIZE MCUF_OUTPUT_SCREEN_WIDTH*MCUF_OUTPUT_SCREEN_HEIGHT + 40
+#define MCUF_MAX_PCKT_SIZE MCUF_MAX_SCREEN_WIDTH*MCUF_MAX_SCREEN_HEIGHT + 40
 
 
 struct {
@@ -96,7 +101,7 @@ struct blp_packet {
 struct mcuf_scrolltext_struct mcuf_scrolltext_buffer;
 #endif
 
-uint8_t gdata[MCUF_OUTPUT_SCREEN_HEIGHT][MCUF_OUTPUT_SCREEN_WIDTH];
+uint8_t gdata[MCUF_MAX_SCREEN_HEIGHT][MCUF_MAX_SCREEN_WIDTH];
 
 uint8_t blp_toc = 242;
 
@@ -133,13 +138,15 @@ void mcuf_init(void) {
   usart_init();
   /* Disable the receiver */
   usart(UCSR,B) &= ~_BV(usart(RXCIE));
-  debug_printf("mcuf serial...\n");
 #endif
+  MCUF_DEBUG("init...\n");
   buffer.len = 1;
   buffer.sent = 0;
+  init_led_display();
+  resync_led_display();
 #ifdef MCUF_SCROLLTEXT_SUPPORT
-  snprintf_P(textbuff, 36, PSTR("Hi  I'm your ethersex           ;-)"));
-  scrolltext(0,0xff,0,3);
+  snprintf_P(textbuff, 36, PSTR("Hi  I'm your ethersex         ;-)  "));
+  scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xF0,0x01,3);
 #endif
 }
 
@@ -147,19 +154,23 @@ void mcuf_newdata(void) {
   /* If we send a packet, drop the new packet */
   if (buffer.sent < buffer.len) return;
 
+  MCUF_DEBUG("newdata\n");
   blp_toc=242;
 
+    uint16_t height = 0;
+    uint16_t width = 0;
   /* MCUF Magic bytes - see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame */
   if ( strncmp(uip_appdata, "\x23\x54\x26\x66", 4) == 0) {
     /* input */
     struct mcuf_packet *pkt = (struct mcuf_packet *)uip_appdata;
-    uint16_t height = htons(pkt->height);
-    uint16_t width = htons(pkt->width);
+    height = htons(pkt->height);
+    width = htons(pkt->width);
     uint16_t channels = htons(pkt->channels);
     if (channels < 1) {
 #ifdef SYSLOG_SUPPORT
       syslog_sendf("Warning: forced channels of MCUF-Frame to 1 (orig value: %d)", channels);
 #endif
+      MCUF_DEBUG("Warning: forced channels of MCUF-Frame to 1 (orig value: %d)", channels);
       channels = 1;
     }
     uint16_t maxvalue = htons(pkt->maxval);
@@ -167,39 +178,54 @@ void mcuf_newdata(void) {
     if (maxvalue > 255) maxvalue = 255;
     uint8_t multiplier = 255 / maxvalue;
 
-    if ( channels * height * width > MCUF_MAX_PCKT_SIZE - 12 ) {
+    if ( height * width > MCUF_MAX_PCKT_SIZE - 12 ) {
 #ifdef SYSLOG_SUPPORT
-      syslog_sendf("Warning: skipped MCUF-Frame because of chan, height "
-                   "or width to big (max pckt size: 444 inkl 12 byte header):"
-                   " %d * %d * %d", channels, height, width);
+      syslog_sendf("Warning: skipped MCUF-Frame because of height or width"
+                   " to big (max pckt size: %d inkl 12 byte header):"
+                   " %d * %d * %d", MCUF_MAX_PCKT_SIZE, channels, height, width);
 #endif
+      MCUF_DEBUG("Warning: skipped MCUF-Frame because of height or width"
+                   " to big (max pckt size: %d inkl 12 byte header):"
+                   " %d * %d * %d", MCUF_MAX_PCKT_SIZE, channels, height, width);
       return;
     }
 
     /* init output-buffer */
-    memset(buffer.data, 0, 12+(height*width*channels));
+    memset(buffer.data, 0, 12+(height*width));
 
     /* write frame-data to output-buffer */
     uint8_t x, y;
     if (channels == 3) {
       /* Handle RGB-Frames */
-      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+      for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
           if (height > y && width > x) {
             uint8_t red   = pkt->data[(x + (y * width)) * channels + 0];
             uint8_t green = pkt->data[(x + (y * width)) * channels + 1];
             uint8_t blue  = pkt->data[(x + (y * width)) * channels + 2];	
-            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
+            buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] =
                 (red + green + blue) / 3 * multiplier;
+          }
+        }
+      }
+    } else if (channels == 2) {
+      /* Handle RG-Frames */
+      for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
+          if (height > y && width > x) {
+            uint8_t red   = pkt->data[(x + (y * width)) * channels + 0];
+            uint8_t green = pkt->data[(x + (y * width)) * channels + 1];	
+            buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] =
+                (red + green) / 2 * multiplier;
           }
         }
       }
     } else {
       /* for non-RGB-Frames use only channel 1 and ignore all others */
-      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+      for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
           if (height > y && width > x) {
-            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] =
+            buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] =
                 pkt->data[(x + (y * width)) * channels + 0 ] * multiplier;
           }
         }
@@ -215,8 +241,8 @@ void mcuf_newdata(void) {
   if ( strncmp(uip_appdata, "\xfe\xed\xbe\xef", 4) == 0) {
     /* input */
     struct eblp_packet *pkt = (struct eblp_packet *)uip_appdata;
-    uint16_t height = htons(pkt->height);
-    uint16_t width = htons(pkt->width);
+    height = htons(pkt->height);
+    width = htons(pkt->width);
 
 #ifdef MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
     /* scan packet to determine maxvalue (workaround for some stupid programms
@@ -246,26 +272,26 @@ void mcuf_newdata(void) {
     uint8_t x, y;
 #endif
     /* init output-buffer */
-    memset(buffer.data, 0, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
+    memset(buffer.data, 0, 12+(MCUF_MAX_SCREEN_HEIGHT * MCUF_MAX_SCREEN_WIDTH));
 
     /* write frame-data to output-buffer */
     if (maxvalue == 1) {
       /* b/w */
-      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+      for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
           if ((height > y) && (width > x)) {
             if (pkt->data[x + (y * width)] > 0) {
-              buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = 255;
+              buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] = 255;
             }
           }
         }
       }
     } else {
       /* grayscaled */
-      for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-        for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+      for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
           if ((height > y) && (width > x)) {
-            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = pkt->data[x + (y * width)];
+            buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] = pkt->data[x + (y * width)];
           }
         }
       }
@@ -280,19 +306,19 @@ void mcuf_newdata(void) {
   if ( strncmp(uip_appdata, "\xde\xad\xbe\xef", 4) == 0) {
     /* input */
     struct blp_packet *pkt = (struct blp_packet *)uip_appdata;
-    uint16_t height = htons(pkt->height);
-    uint16_t width = htons(pkt->width);
+    height = htons(pkt->height);
+    width = htons(pkt->width);
 
     /* init output-buffer */
-    memset(buffer.data, 0, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
+    memset(buffer.data, 0, 12+(MCUF_MAX_SCREEN_HEIGHT * MCUF_MAX_SCREEN_WIDTH));
 
     /* write frame-data to output-buffer */
     uint8_t x, y;
-    for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-      for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+    for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+      for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
         if ((height > y) && (width > x)) {
           if (pkt->data[x + (y * width)] > 0) {
-            buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = 255;
+            buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] = 255;
           }
         }
       }
@@ -300,11 +326,58 @@ void mcuf_newdata(void) {
     /* init writing of output-buffer to uart */
     mcuf_senddata();
   }
+#ifdef LEDRG_SUPPORT
+  /* write frame-data to output-buffer */
+  uint8_t x, y;
+  for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
+    for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
+      if ((height > y) && (width > x)) {
+        uint8_t tmp   = buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))];
+        if ((tmp == 0))
+          gdata[y][x] = 0;
+        else if (tmp == 0xff)
+          gdata[y][x] = 0x03;
+        else if (tmp > 0xEF)
+          gdata[y][x] = 0x33;
+        else if (tmp > 0xDF)
+          gdata[y][x] = 0x21;
+        else if (tmp > 0xCF)
+          gdata[y][x] = 0x12;
+        else if (tmp > 0xBF)
+          gdata[y][x] = 0x11;
+        else if (tmp > 0xAF)
+          gdata[y][x] = 0x31;
+        else if (tmp > 0x9F)
+          gdata[y][x] = 0x13;
+        else if (tmp > 0x8F)
+          gdata[y][x] = 0x22;
+        else if (tmp > 0x7F)
+          gdata[y][x] = 0x32;
+        else if (tmp > 0x6F)
+          gdata[y][x] = 0x23;
+        else if (tmp > 0x5F)
+          gdata[y][x] = 0x30;
+        else if (tmp > 0x4F)
+          gdata[y][x] = 0x20;
+        else if (tmp > 0x3F)
+          gdata[y][x] = 0x10;
+        else if (tmp > 0x2F)
+          gdata[y][x] = 0x03;
+        else if (tmp > 0x1F)
+          gdata[y][x] = 0x33;
+        else if (tmp > 0x0F)
+          gdata[y][x] = 0x02;
+        else if (tmp > 0x00)
+          gdata[y][x] = 0x01;
+        }
+    }
+  }
+#endif /* LEDRG_SUPPORT */
 }
 
 void mcuf_senddata() {
-#ifdef BLP_SUPPORT
-  buffer.len = 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH);
+#if defined(BLP_SUPPORT) || defined(MCUF_OUTPUT_SUPPORT)
+  buffer.len = 12+(MCUF_MAX_SCREEN_HEIGHT * MCUF_MAX_SCREEN_WIDTH);
 #ifndef MCUF_SERIAL_SUPPORT
   buffer.sent=buffer.len;
 #endif
@@ -312,6 +385,7 @@ void mcuf_senddata() {
 #ifdef MCUF_SERIAL_SUPPORT
   mcuf_serial_senddata();
 #endif
+
 }
 
 #ifdef MCUF_SERIAL_SUPPORT
@@ -319,12 +393,13 @@ void mcuf_serial_senddata() {
   /* write mcuf-header for the shifter-device (4 byte magic, height, width, channels, maxval)
      see https://wiki.blinkenarea.org/index.php/MicroControllerUnitFrame
      and https://wiki.blinkenarea.org/index.php/Shifter */
+//TODO: insert correct height and width for receiver-device. MCUF_SERIAL_SCREEN_... might be used.
   memcpy_P(buffer.data, PSTR("\x23\x54\x26\x66\x00\x08\x00\x12\x00\x01\x00\xff"), 12);
 
   /* send (MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH) bytes of data - the data has already been writen to the outputbuffer by mcuf_newdata */
 
   /* start to send the buffer to uart */
-  tx_start(12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
+  tx_start(12+(MCUF_SERIAL_SCREEN_HEIGHT * MCUF_SERIAL_SCREEN_WIDTH));
 }
 
 void tx_start(uint8_t len) {
@@ -359,26 +434,30 @@ void mcuf_periodic(void) {
   if (blp_tic > blp_toc) {
 #ifdef MCUF_CLOCK_SUPPORT
     if (blp_toc < 30) {
-      gdata[2][8] += 0x80;
-      gdata[4][8] += 0x80;
+      gdata[10][8] +=16;
+      gdata[12][8] +=16;
+      gdata[10][7] +=16;
+      gdata[12][7] +=16;
       updateframe();
     } else
 #endif
     {
+#ifdef MCUF_SERIAL_SUPPORT
       blp_toc=30;
       // scroll to the left
-      for (uint8_t i = 12; i < (12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH)); i+=MCUF_OUTPUT_SCREEN_WIDTH) {
-        buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]-buffer.data[i];
-        buffer.data[i]=buffer.data[i]+buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH];
-        buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]=-buffer.data[i+MCUF_OUTPUT_SCREEN_WIDTH]+buffer.data[i];
-        for (uint8_t j = i; j < (i+MCUF_OUTPUT_SCREEN_WIDTH); j++) {
+      for (uint16_t i = 12; i < (12+(MCUF_SERIAL_SCREEN_HEIGHT * MCUF_SERIAL_SCREEN_WIDTH)); i+=MCUF_SERIAL_SCREEN_WIDTH) {
+        buffer.data[i+MCUF_SERIAL_SCREEN_WIDTH]=buffer.data[i+MCUF_SERIAL_SCREEN_WIDTH]-buffer.data[i];
+        buffer.data[i]=buffer.data[i]+buffer.data[i+MCUF_SERIAL_SCREEN_WIDTH];
+        buffer.data[i+MCUF_SERIAL_SCREEN_WIDTH]=-buffer.data[i+MCUF_SERIAL_SCREEN_WIDTH]+buffer.data[i];
+        for (uint16_t j = i; j < (i+MCUF_SERIAL_SCREEN_WIDTH); j++) {
             buffer.data[j+1]=buffer.data[j+1]-buffer.data[j];
             buffer.data[j]=buffer.data[j]+buffer.data[j+1];
             buffer.data[j+1]=-buffer.data[j+1]+buffer.data[j];
         }
       }
+      mcuf_senddata();
+#endif /* MCUF_SERIAL_SUPPORT */
     }
-    mcuf_senddata();
   }
 #       ifdef BLP_SUPPORT
   blp_output();
@@ -409,43 +488,50 @@ void mcuf_show_clock(uint8_t clockswitch) {
     syslog_sendf("mcuf: clock-textbuffer %s\n", textbuff);
 #endif
 
-    scrolltext(0,0xff,0,10);
+    scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xF0,0,10);
     } else
-#endif
+#endif /* MCUF_SCROLLTEXT_SUPPORT */
     {
+    if (buffer.sent <= buffer.len) return;
 #ifdef SYSLOG_SUPPORT
     syslog_sendf("mcuf: clock-out: %.2d:%.2d\n", date.hour, date.min);
 #endif
-    draw_box(0, 0, MCUF_OUTPUT_SCREEN_WIDTH, MCUF_OUTPUT_SCREEN_HEIGHT, 0, 0);
-    draw_tinynumber(date.hour, 0 , 1, 0xff);
-    gdata[2][8] = 0x80;
-    gdata[4][8] = 0x80;
-    draw_tinynumber(date.min , 10 , 1, 0xff);
-    updateframe();
+    draw_box(0, MCUF_MIN_SCREEN_HEIGHT, MCUF_MAX_SCREEN_WIDTH, MCUF_MIN_SCREEN_HEIGHT, 0, 0);
+    draw_tinynumber(date.hour, 0 , 9, 0xff);
+    gdata[10][8] = 0x80;
+    gdata[12][8] = 1;
+    gdata[10][7] = 1;
+    gdata[12][7] = 0x80;
+    draw_tinynumber(date.min , 9 , 9, 0xff); 
+    if (clockswitch != 1)
+      updateframe();
     }
 #ifdef MCUF_SCROLLTEXT_SUPPORT
   }
 #endif
 }
-#endif
+#endif /* MCUF_CLOCK_SUPPORT */
+
 
 void updateframe() {
 
+#ifdef MCUF_SERIAL_SUPPORT
   /* init output-buffer */
-  memset(buffer.data, 0, 12+(MCUF_OUTPUT_SCREEN_HEIGHT * MCUF_OUTPUT_SCREEN_WIDTH));
+  memset(buffer.data, 0, 12+(MCUF_MAX_SCREEN_HEIGHT * MCUF_MAX_SCREEN_WIDTH));
 
   /* write frame-data to output-buffer */
   uint8_t x, y;
-  for (y = 0; y < MCUF_OUTPUT_SCREEN_HEIGHT; y++) {
-    for (x = 0; x < MCUF_OUTPUT_SCREEN_WIDTH; x++) {
-      if ((MCUF_OUTPUT_SCREEN_HEIGHT > y) && (MCUF_OUTPUT_SCREEN_WIDTH > x)) {
+  for (y = MCUF_MIN_SCREEN_HEIGHT; y < MCUF_MAX_SCREEN_HEIGHT; y++) {
+    for (x = 0; x < MCUF_SERIAL_SCREEN_WIDTH; x++) {
+      if ((MCUF_MAX_SCREEN_HEIGHT > y) && (MCUF_MAX_SCREEN_WIDTH > x)) {
 //         if (gdata[y][x] > 0) {
-          buffer.data[12 + (x + (y * MCUF_OUTPUT_SCREEN_WIDTH))] = gdata[y][x];
+          buffer.data[12 + (x + ((y-MCUF_SERIAL_SCREEN_HEIGHT) * MCUF_SERIAL_SCREEN_WIDTH))] = gdata[y][x];
 //         }
       }
     }
   }
 
+#endif /* MCUF_SERIAL_SUPPORT */
   /* init writing of output-buffer to uart */
   mcuf_senddata();
 }
@@ -457,8 +543,8 @@ void mcuf_show_string(char * x) {
 #ifdef SYSLOG_SUPPORT
   syslog_sendf("mcuf: textbuffer %s\n", textbuff);
 #endif
-  scrolltext(0,0xff,0,1);
-  updateframe();
+  scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xff,0,1);
+//   updateframe();
 }
 #endif
 
@@ -493,8 +579,8 @@ void mcuf_scrolltext() {
     if (mcuf_scrolltext_buffer.tomove != 0) {
       mcuf_scrolltext_buffer.tomove --;
       mcuf_scrolltext_buffer.posshift++;
-      draw_box(0, mcuf_scrolltext_buffer.posy, MCUF_OUTPUT_SCREEN_WIDTH, 8, mcuf_scrolltext_buffer.bcolor, mcuf_scrolltext_buffer.bcolor);
-      mcuf_scrolltext_buffer.posx = MCUF_OUTPUT_SCREEN_WIDTH-1;
+      draw_box(0, mcuf_scrolltext_buffer.posy, MCUF_MAX_SCREEN_WIDTH, MCUF_MIN_SCREEN_HEIGHT, mcuf_scrolltext_buffer.bcolor, mcuf_scrolltext_buffer.bcolor);
+      mcuf_scrolltext_buffer.posx = MCUF_MAX_SCREEN_WIDTH-1;
       i = 0;
       while (i < mcuf_scrolltext_buffer.end) {
         mcuf_scrolltext_buffer.posx += draw_char(textbuff[i], mcuf_scrolltext_buffer.posx+i-mcuf_scrolltext_buffer.posshift, mcuf_scrolltext_buffer.posy, mcuf_scrolltext_buffer.color, 0, 1);

@@ -157,6 +157,29 @@ FNORD
     RFM12_USE_INT(0)
 FNORD
 
+  template $BLP_SUPPORT << FNORD
+    /* port config for zbus */
+    pin(BLP_CLK, PB0, OUTPUT)
+    pin(BLP_STR, PD5, OUTPUT)
+    pin(BLP_DA_A, PB1, OUTPUT)
+    pin(BLP_DA_B, PB2, OUTPUT)
+    pin(BLP_DA_C, PD4, OUTPUT)
+    pin(BLP_DA_D, PD3, OUTPUT)
+    pin(BLP_DA_E, PB3, OUTPUT)
+    pin(BLP_DA_F, PB4, OUTPUT)
+    pin(BLP_DA_G, PB5, OUTPUT)
+    pin(BLP_DA_H, PC2, OUTPUT)
+    pin(BLP_DA_I, PC3, OUTPUT)
+FNORD
+
+  template $LEDRG_SUPPORT << FNORD
+  pin(LED_RESET, PB4, OUTPUT)
+  pin(LED_SELECT, PB5, OUTPUT)
+  pin(LED_BRIGHT, PB3, OUTPUT)
+  pin(LED_RED, PB0, OUTPUT)
+  pin(LED_GREEN, PB1, OUTPUT)
+  pin(LED_CLOCK, PB2, OUTPUT)
+FNORD
 
 ##############################################################################
 #                                                                            #
@@ -184,6 +207,30 @@ FNORD
     pin(RFM12_RX_PIN, GENERIC_TX_PIN)
 
     RFM12_USE_INT(2)
+FNORD
+
+  template $BLP_SUPPORT << FNORD
+    /* port config for zbus */
+    pin(BLP_CLK, PB1, OUTPUT)
+    pin(BLP_STR, PB2, OUTPUT)
+    pin(BLP_DA_A, PA0, OUTPUT)
+    pin(BLP_DA_B, PA1, OUTPUT)
+    pin(BLP_DA_C, PA2, OUTPUT)
+    pin(BLP_DA_D, PA3, OUTPUT)
+    pin(BLP_DA_E, PA4, OUTPUT)
+    pin(BLP_DA_F, PA5, OUTPUT)
+    pin(BLP_DA_G, PA6, OUTPUT)
+    pin(BLP_DA_H, PA7, OUTPUT)
+    pin(BLP_DA_I, PB0, OUTPUT)
+FNORD
+
+  template $LEDRG_SUPPORT << FNORD
+  pin(LED_RESET, PA4, OUTPUT)
+  pin(LED_SELECT, PA5, OUTPUT)
+  pin(LED_BRIGHT, PA3, OUTPUT)
+  pin(LED_RED, PA0, OUTPUT)
+  pin(LED_GREEN, PA1, OUTPUT)
+  pin(LED_CLOCK, PA2, OUTPUT)
 FNORD
 
 fi

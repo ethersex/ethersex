@@ -147,9 +147,9 @@ uint8_t draw_char(uint8_t zeichen, uint8_t posx, uint8_t posy, uint8_t color,
 
   charwidth = 0;
   zeichen -= 32;
-  if (zeichen < 94) { //g�ltiges Zeichen
+  if (zeichen < 94) { //gueltiges Zeichen
     memcpy_P(copyedbytes,characters+zeichen*5,5);
-    //Automatisches verk�rzen der Buchstaben
+    //Automatisches verkuerzen der Buchstaben
     if (shrink != 0) {
       byte_eq_count = 0;
       for (nun = 0; nun < 5; nun++) {
@@ -172,7 +172,7 @@ uint8_t draw_char(uint8_t zeichen, uint8_t posx, uint8_t posy, uint8_t color,
         if ((copyedbytes[nunbyte] & (0x01<<nunbit)) != 0) {
           tempx = posx+charwidth;
           tempy = posy+nunbit;
-          if ((tempx < MCUF_OUTPUT_SCREEN_WIDTH) && (tempy < MCUF_OUTPUT_SCREEN_HEIGHT)) {
+          if ((tempx < MCUF_MAX_SCREEN_WIDTH) && (tempy < MCUF_MAX_SCREEN_HEIGHT)) {
             if (transparency == 1) { //transparent
               gdata[tempy][tempx] |= color;
             } else { //nicht transparent
@@ -196,7 +196,7 @@ void draw_string (uint8_t posx, uint8_t posy, uint8_t color,
   const uint8_t end = strlen(textbuff); //erspart Rechenzeit!
   while (i < end) {
     posx += draw_char(textbuff[i], posx+i, posy, color, transparency, shrink);
-     i++;  // Zeiger um 1 erh�hen
+     i++;  // Zeiger um 1 erhoehen
   }
 }
 
@@ -209,15 +209,15 @@ void scrolltext (uint8_t posy, uint8_t color, uint8_t bcolor, uint8_t waittime) 
 
   //Erstes Zeichnen um die maximale Länge zu ermitteln, jedoch nicht sichtbar
   if ((end < 36) && (end != 0)) { //maximale Textlänge = 35 Zeichen
-    while (i < end) { //Ermittelt die Textl�nge in Pixel
-      tomove += draw_char(textbuff[i], MCUF_OUTPUT_SCREEN_WIDTH, 0, 0, 0, 1);
-      i++;  // Zeiger um 1 erh�hen
+    while (i < end) { //Ermittelt die Textlaenge in Pixel
+      tomove += draw_char(textbuff[i], MCUF_MAX_SCREEN_WIDTH, 0, 0, 0, 1);
+      i++;  // Zeiger um 1 erhoehen
     }
     tomove -= 2; //zwei Pixel weniger schieben
     mcuf_scrolltext_buffer.tomove = tomove;
     mcuf_scrolltext_buffer.posshift = posshift;
     mcuf_scrolltext_buffer.end = end;
-    mcuf_scrolltext_buffer.posx = MCUF_OUTPUT_SCREEN_WIDTH-1;
+    mcuf_scrolltext_buffer.posx = MCUF_MAX_SCREEN_WIDTH-1;
     mcuf_scrolltext_buffer.posy = posy;
     mcuf_scrolltext_buffer.color = color;
     mcuf_scrolltext_buffer.bcolor = bcolor;
@@ -240,19 +240,19 @@ const uint8_t tinynumbers[] PROGMEM = {
 };
 
 void draw_tinydigit(uint8_t ziffer, uint8_t posx,uint8_t posy, uint8_t color) {
-uint8_t nun, muster, pixely;
-if (ziffer < 10) { //Bereichsüberprüfung
-  for (nun = 0; nun <3; nun++) {
-    muster = pgm_read_byte(tinynumbers +ziffer*3+nun);
-    for (pixely = 0; pixely < 5; pixely++) {
-      if (muster & 1) {
-        //pixel_set_safe(posx+nun,posy+pixely,color);
-        gdata[posy+pixely][posx+nun] = color;
+  uint8_t nun, muster, pixely;
+  if (ziffer < 10) { //Bereichsüberprüfung
+    for (nun = 0; nun <3; nun++) {
+      muster = pgm_read_byte(tinynumbers +ziffer*3+nun);
+      for (pixely = 0; pixely < 5; pixely++) {
+        if (muster & 1) {
+          //pixel_set_safe(posx+nun,posy+pixely,color);
+          gdata[posy+pixely][posx+nun] = color;
+        }
+        muster = muster >> 1;
       }
-      muster = muster >> 1;
     }
   }
-}
 }
 
 void draw_tinynumber(uint16_t value, uint8_t posx, uint8_t posy, uint8_t color){
