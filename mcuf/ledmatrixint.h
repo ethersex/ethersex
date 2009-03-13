@@ -1,7 +1,8 @@
-//Funktionsprototypen f�r Graphic
+//Funktionsprototypen fuer Graphic
 #ifndef GRAPHICINT_H
  #define GRAPHICINT_H
 
+#include "mcuf.h"
 
 //Pin Belegung des LED Displays
 
@@ -21,7 +22,7 @@
 // #define LED_RED_PORT    PORTA
 // #define LED_RED_DDR     DDRA
 // #define LED_RED_PIN     0
-//Die gr�ne LED Datenleitung
+//Die gruene LED Datenleitung
 // #define LED_GREEN_PORT  PORTA
 // #define LED_GREEN_DDR   DDRA
 // #define LED_GREEN_PIN   1
@@ -30,28 +31,22 @@
 // #define LED_CLOCK_DDR   DDRA
 // #define LED_CLOCK_PIN   2
 
-//Konstanten, �ndern nur mit Vorsicht
+//Konstanten, Aendern nur mit Vorsicht
 
-/*Definieren der LED Feld Gr��e.
+/*Definieren der LED Feld Groesse.
 Achtung: Alle Funktionen wurden nur mit screenx = 16 und screeny = 16 getestet.
-Manche Funktionen sind nicht explizit daf�r ausgelegt, mit gr��eren
-'Aufl�sungen' zu funktionieren. Mit 'Aufl�sungen' die mehr als 254 Pixel
-Kantenl�ge haben, werden die Funktionieren nicht funktionieren.
+Manche Funktionen sind nicht explizit dafuer ausgelegt, mit groesseren
+'Aufloesungen' zu funktionieren. Mit 'Aufloesungen' die mehr als 254 Pixel
+Kantenlaege haben, werden die Funktionieren nicht funktionieren.
 */
-#define screenx 16
-#define screeny 16
+#define screenx MCUF_MIN_SCREEN_WIDTH
+#define screeny MCUF_MAX_SCREEN_HEIGHT
 
 #if (screenx > screeny)
 #define maxscreen screenx
 #else
 #define maxscreen screeny
 #endif
-
-//'Aufl�sungen' unterhalb 16x16 w�rden in der Demo Fehler verursachen
-#if ((screenx < 16) || (screeny < 16))
-#error "Mit screenx oder screeny kleiner als 16 kann die Demo nicht funktionieren!"
-#endif
-
 
 /* Wird use_low_colors auf eins gesetzt, so wird kein Software PWM zum steuern
    der LED Helligkeit verwendet. Die Farbtiefe wird folglich von 4 auf 2 Bit
@@ -64,8 +59,8 @@ Kantenl�ge haben, werden die Funktionieren nicht funktionieren.
 #error "please define F_CPU!"
 #endif
 /*Berechnung der Timer Geschwindigkeit.
-Der Timer2 soll alle 4800mal pro Sekunde ausl�sen. (100Hz*16Zeilen*3Durchl�ufe)
-Der Prescaler des Timers ist 8. Der timer l�uft bis 255 und ruft dann den
+Der Timer2 soll alle 4800mal pro Sekunde ausloesen. (100Hz*16Zeilen*3Durchlaeufe)
+Der Prescaler des Timers ist 8. Der timer laeuft bis 255 und ruft dann den
 Interrupt auf. Daraus folgt:
 4800 = (F_CPU/8)/(255-timerset)
 umgestellt:
@@ -82,7 +77,7 @@ umgestellt:
 #endif
 extern uint8_t volatile gdurchlauf;   //welcher Durchlauf
 extern uint8_t volatile gzeile;       //Welche Zeile gerade behandelt wird
-//Die Daten f�rs Display[y;Zeile][x;Spalte]
+//Die Daten fuers Display[y;Zeile][x;Spalte]
 // extern uint8_t volatile gdata[screeny][screenx];
 
 
