@@ -45,12 +45,14 @@ int16_t parse_cmd_mcuf_show_string(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  char buffer[1];
-  uint8_t ret = sscanf_P (cmd, PSTR ("%s\n"),buffer);
+  char buffer[36];
+
+  uint8_t ret = sscanf_P (cmd, PSTR (" %s \n"),buffer);
   if (ret != 1)
     return -1;
 
-  mcuf_show_string(cmd);
+  snprintf_P(buffer,34,PSTR("%s  "),cmd);
+  mcuf_show_string(buffer);
   return 0;
 }
 
