@@ -1,7 +1,7 @@
 dnl
 dnl ecmd_defs.m4
 dnl
-dnl  You can declare your ecmd commands here.  The code will be expanded 
+dnl  You can declare your ecmd commands here.  The code will be expanded
 dnl  by the make system (which in turn uses GNU m4) to build the
 dnl  ecmd_defs.c file.
 dnl
@@ -55,6 +55,18 @@ ecmd_endif()
 
 ecmd_ifdef(FREE_SUPPORT)
   ecmd_feature(free, "free")
+ecmd_endif()
+
+ecmd_ifdef(STELLA_SUPPORT)
+  block(Stella commands)
+  ecmd_feature(stella_channels, "channels", CHANNELS, Return stella channel size)
+  ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
+  ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
+  ecmd_feature(stella_version, "stella version", STELLAVERSION, Get stella protocol version)
+  ecmd_feature(stella_fadestep_set, "stella fadestep set", FADESTEP, Set stella fade step)
+  ecmd_feature(stella_fadestep_get, "stella fadestep get",, Get stella fade step)
+  ecmd_feature(stella_channel_set, "channel set", CHANNEL VALUE,Set stella channel value)
+  ecmd_feature(stella_channel_get, "channel get", CHANNEL, Get stella channel value)
 ecmd_endif()
 
 ecmd_ifndef(DISABLE_REBOOT_SUPPORT)

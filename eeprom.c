@@ -117,6 +117,11 @@ eeprom_init (void)
     eeprom_save_char (kty_calibration, 0);
 #endif
 
+#ifdef STELLA_EEPROM
+	uint8_t v[10] = {0};
+	eeprom_save (stella_channel_values, v, 10);
+#endif
+
     eeprom_update_chksum();
 }
 

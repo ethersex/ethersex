@@ -1,9 +1,8 @@
 TARGET = libstella.a
 TOPDIR = ..
 SRC = \
-	process.c \
-	pwm-gpl2.c \
-	timer.c \
+	stella.c \
+	stella_pwm.c \
 	stella_net.c
 
 ##############################################################################

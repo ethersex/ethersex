@@ -65,6 +65,12 @@ struct eeprom_config_t {
     int8_t kty_calibration;
 #endif
 
+#ifdef STELLA_EEPROM
+	uint8_t stella_channel_values[8];
+	uint8_t stella_fadefunc;
+	uint8_t stella_fadestep;
+#endif
+
     uint8_t crc;
 };
 

@@ -25,6 +25,7 @@
 
 #include "../config.h"
 #include "stella.h"
+#include "../debug.h"
 
 #define NEXT_COMPARE_INTERRUPT 0
 #define PORT_MASK 1
@@ -48,19 +49,6 @@ uint8_t now = 0;
 /* if set then update i_* variables with their counterparts */
 volatile uint8_t update_table = NOTHING_NEW;
 
-void
-stella_pwm_init(void)
-{
-	/* Normal PWM Mode, 256 Prescaler */
-	_TCCR2_PRESCALE |= _BV(CS21) | _BV(CS22);
-
-	/* Interrupt on overflow and CompareMatch */
-	_TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2);
-
-	/* set stella port pins to output */
-	STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
-}
-
 /* Use port mask to switch off pins if timetable says so and
    set the next trigger point in time for the compare interrupt */
 ISR(_VECTOR_OUTPUT_COMPARE2)
@@ -79,11 +67,12 @@ ISR(_VECTOR_OUTPUT_COMPARE2)
    setting the compare interrupt */
 ISR(_VECTOR_OVERFLOW2)
 {
+
 	/* update interrupt save variables only if the original variables changed */
 	if(update_table == NEW_VALUES)
 	{
 		uint8_t i;
-		for (i = 0; i < length; i ++)
+		for (i = 0; i < length; ++i)
 		{
 			i_timetable[i][PORT_MASK] = timetable[i][PORT_MASK];
 			i_timetable[i][NEXT_COMPARE_INTERRUPT] = timetable[i][NEXT_COMPARE_INTERRUPT];
@@ -97,6 +86,10 @@ ISR(_VECTOR_OVERFLOW2)
 	/* Last update of the stella port for this round. But we already
 	   use new values if available, to avoid flickering on 1->0 transit */
 	STELLA_PORT = i_overflow_mask;
+
+	/* count down the fade_timer counter. If zero, we process
+      stella_process from ethersex main */
+	if (stella_fade_counter) stella_fade_counter--;
 
 	/* Start the next pwm round */
 	now = 0;
@@ -114,50 +107,60 @@ stella_sort(uint8_t color[])
 	update_table = UPDATE_VALUES;
 	length  = 0;
 	overflow_mask = 0;
-	
-	uint8_t new_values, p_insert;
+
+	uint8_t color_index, p_insert;
 
 	/* Insert color brightness into timetable. Avoid duplicates.
-	   Use dynamic length insertion sort for that purpose. */
-	for (new_values = 0; new_values < STELLA_PINS; new_values++)
+	   Use dynamic length insertion sort for sorting. */
+	for (color_index = 0; color_index < STELLA_PINS; ++color_index)
 	{
 		/* Do not take zero brightness values into consideration */
-		if (color[new_values] == 0) continue;
+		if (color[color_index] == 0) continue;
 
 		/* We definitly want this color to be on, at least on the last
-		   point in time (timer overflow), therefore update 
+		   point in time (timer overflow), therefore update
                    the overflow_mask */
-		overflow_mask |= (1 << (new_values + STELLA_OFFSET));
+		overflow_mask |= _BV(color_index + STELLA_OFFSET);
 
-		/* If this is an always on color (brightness==255) 
+		/* If this is an always on color (brightness==255)
                  * don't ever switch it off */
-		if (color[new_values] == 255) continue;
+		if (color[color_index] == 255) continue;
 
 		/* Find the right position */
-		for (p_insert = 0; p_insert < length; p_insert++)
+		p_insert = 0;
+		while ((p_insert < length) &&
+			(timetable[p_insert][NEXT_COMPARE_INTERRUPT] < color[color_index]))
 		{
-			if (timetable[p_insert][NEXT_COMPARE_INTERRUPT] 
-                            >= color[new_values]) 
-                          break;
+			++p_insert;
 		}
 
 		/* is this value already in timetable? Just update the port mask */
-		if ((p_insert < length) 
-                    && (timetable[p_insert][NEXT_COMPARE_INTERRUPT] == color[new_values]))
+		if ((p_insert < length) &&
+			(timetable[p_insert][NEXT_COMPARE_INTERRUPT] == color[color_index]))
 		{
-			timetable[p_insert][PORT_MASK] |= _BV(new_values + STELLA_OFFSET);
+			timetable[p_insert][PORT_MASK] |= _BV(color_index + STELLA_OFFSET);
 			continue;
 		}
+
 		/* Increase length */
 		++length;
 
 		/* Move all successive elements one position */
 		memmove(timetable[p_insert+1], timetable[p_insert],
                         2*sizeof(uint8_t)*(length-1-p_insert));
+
 		/* Insert our new value */
-		timetable[p_insert][NEXT_COMPARE_INTERRUPT] = color[new_values];
-		timetable[p_insert][PORT_MASK] = _BV(new_values + STELLA_OFFSET);
-        }
+		timetable[p_insert][NEXT_COMPARE_INTERRUPT] = color[color_index];
+		timetable[p_insert][PORT_MASK] = _BV(color_index + STELLA_OFFSET);
+	}
+
+	#ifdef DEBUG_STELLA
+	debug_printf("Stella sorting:\n");
+	for (color_index = 0; color_index < length; ++color_index)
+	{
+		debug_printf("%u:%u\n", color_index, timetable[color_index][NEXT_COMPARE_INTERRUPT]);
+	}
+	#endif
 
 	/* Allow the interrupt to actually apply the calculated values */
 	update_table = NEW_VALUES;

@@ -169,12 +169,12 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 {
   extern char *__brkval;
   debug_printf("free: %d %d %d\n", RAMEND, RAMEND - SP, SP - (uint16_t) __brkval);
-  return snprintf_P(output, len, 
+  return snprintf_P(output, len,
                     PSTR("%d free; %d malloc; buffer " xstr(NET_MAX_FRAME_LENGTH)),
                     /* __brkval is 0 when malloc was not called yet */
                     SP - (uint16_t) (__brkval ? __brkval : __malloc_heap_start),
                     (uint16_t) (__brkval ? (__brkval - __malloc_heap_start) : 0));
- 
+
 }
 
 #endif /* FREE_SUPPORT */

@@ -58,8 +58,8 @@
 #include "ipv6.h"
 #include "dataflash/fs.h"
 #include "modbus/modbus.h"
-#include "syslog/syslog.h"
 #include "stella/stella.h"
+#include "syslog/syslog.h"
 #include "net/handler.h"
 #include "net/sendmail.h"
 #include "sd_reader/sd_raw.h"
@@ -195,7 +195,7 @@ int main(void)
     /* ADC Prescaler to 64 */
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
     /* ADC set Voltage Reference to extern*/
-    /* FIXMI: the config to the right place */ 
+    /* FIXMI: the config to the right place */
     ADMUX = ADC_REF; //_BV(REFS0) | _BV(REFS1);
 #endif
 
@@ -237,6 +237,10 @@ int main(void)
 
 #ifdef RC5_SUPPORT
     rc5_init();
+#endif
+
+#ifdef STELLA_SUPPORT
+	stella_init();
 #endif
 
 /* Had to be bone after network_init! */
@@ -301,7 +305,7 @@ int main(void)
     portio_init();
 #elif defined(NAMED_PIN_SUPPORT)
     np_simple_init();
-#endif 
+#endif
 
 #ifdef CONTROL6_SUPPORT
     control6_init();
@@ -366,6 +370,11 @@ int main(void)
         wdt_kick();
 #       endif
 
+#ifdef STELLA_SUPPORT
+stella_process();
+wdt_kick();
+#endif
+
         /* check if any timer expired,
          * poll all uip connections */
         timer_process();
@@ -393,10 +402,6 @@ int main(void)
         wdt_kick();
 #endif
 #endif /* FS20_SUPPORT */
-
-#       ifdef STELLA_SUPPORT
-	stella_timer ();
-#       endif
 
 #ifndef BOOTLOAD_SUPPORT
         if(status.request_bootloader) {

@@ -14,17 +14,20 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="app.qrc">
+   <iconset>
     <normaloff>:/icons/preferences-desktop-color.png</normaloff>:/icons/preferences-desktop-color.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QStackedWidget" name="stackedWidget">
+     <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="page">
+      <widget class="QWidget" name="tabChoose">
+       <attribute name="title">
+        <string>Choose server</string>
+       </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="2">
          <spacer name="verticalSpacer_4">
@@ -67,7 +70,7 @@
            <enum>Qt::PlainText</enum>
           </property>
           <property name="pixmap">
-           <pixmap resource="app.qrc">:/icons/preferences-system-network.png</pixmap>
+           <pixmap>:/icons/preferences-system-network.png</pixmap>
           </property>
          </widget>
         </item>
@@ -148,7 +151,7 @@
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="app.qrc">
+                <iconset>
                  <normaloff>:/icons/edit-clear.png</normaloff>:/icons/edit-clear.png</iconset>
                </property>
               </widget>
@@ -172,7 +175,7 @@
                 <string>Connect with fetching data from stella</string>
                </property>
                <property name="text">
-                <string>Connect</string>
+                <string>Show channels</string>
                </property>
                <property name="popupMode">
                 <enum>QToolButton::MenuButtonPopup</enum>
@@ -180,22 +183,6 @@
               </widget>
              </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_connect_status">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>
@@ -231,106 +218,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_2">
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QGroupBox" name="groupBox_3">
-            <property name="title">
-             <string>Channel count</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="QSpinBox" name="spinChannelCount">
-               <property name="minimumSize">
-                <size>
-                 <width>120</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="frame">
-                <bool>false</bool>
-               </property>
-               <property name="specialValueText">
-                <string>1 Channel</string>
-               </property>
-               <property name="suffix">
-                <string> Channels</string>
-               </property>
-               <property name="minimum">
-                <number>1</number>
-               </property>
-               <property name="maximum">
-                <number>8</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="title">
-             <string>Predefined channel settings</string>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_15">
-             <item>
-              <widget class="QComboBox" name="predefinedlist">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnLoadPredefined">
-               <property name="text">
-                <string>Load</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnSavePredefined">
-               <property name="text">
-                <string>Save</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="pwmchannels">
-          <property name="title">
-           <string>PWM Channels</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -356,12 +243,8 @@
    </widget>
    <widget class="QMenu" name="menuStella_host">
     <property name="title">
-     <string>Stella host</string>
+     <string notr="true">[stella host]</string>
     </property>
-    <addaction name="actionChoose"/>
-    <addaction name="actionFetch_values_from_server"/>
-    <addaction name="actionResend_pwm_values_to_stella"/>
-    <addaction name="actionMake_stella_broadcast_changes"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuStella_host"/>
@@ -369,43 +252,25 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClose">
    <property name="icon">
-    <iconset resource="app.qrc">
+    <iconset>
      <normaloff>:/icons/dialog-close.png</normaloff>:/icons/dialog-close.png</iconset>
    </property>
    <property name="text">
     <string>Close</string>
    </property>
   </action>
-  <action name="actionFetch_values_from_server">
-   <property name="icon">
-    <iconset resource="app.qrc">
-     <normaloff>:/icons/arrow-left.png</normaloff>:/icons/arrow-left.png</iconset>
-   </property>
-   <property name="text">
-    <string>Refetch pwm values from stella</string>
-   </property>
-  </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="app.qrc">
+    <iconset>
      <normaloff>:/icons/help-about.png</normaloff>:/icons/help-about.png</iconset>
    </property>
    <property name="text">
     <string>About</string>
    </property>
   </action>
-  <action name="actionChoose">
-   <property name="icon">
-    <iconset resource="app.qrc">
-     <normaloff>:/icons/configure.png</normaloff>:/icons/configure.png</iconset>
-   </property>
-   <property name="text">
-    <string>Choose ...</string>
-   </property>
-  </action>
   <action name="actionRestore">
    <property name="icon">
-    <iconset resource="app.qrc">
+    <iconset>
      <normaloff>:/icons/preferences-desktop-color.png</normaloff>:/icons/preferences-desktop-color.png</iconset>
    </property>
    <property name="text">
@@ -433,46 +298,18 @@
     <string>Channel count</string>
    </property>
   </action>
-  <action name="actionConnect_without_fetching_data">
+  <action name="actionShowBeatcontrol">
    <property name="text">
-    <string>Connect without fetching data</string>
-   </property>
-   <property name="toolTip">
-    <string>Connect without fetching data</string>
+    <string>Show beat control</string>
    </property>
   </action>
-  <action name="actionConnect_with_fetching_data">
+  <action name="actionShowChannels">
    <property name="text">
-    <string>Connect with fetching data</string>
-   </property>
-   <property name="toolTip">
-    <string>Connect with fetching data</string>
-   </property>
-  </action>
-  <action name="actionMake_stella_broadcast_changes">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Broadcast changes</string>
-   </property>
-   <property name="toolTip">
-    <string>Broadcast changes 1s after the last change</string>
-   </property>
-  </action>
-  <action name="actionResend_pwm_values_to_stella">
-   <property name="icon">
-    <iconset resource="app.qrc">
-     <normaloff>:/icons/arrow-right.png</normaloff>:/icons/arrow-right.png</iconset>
-   </property>
-   <property name="text">
-    <string>Resend pwm values to stella</string>
+    <string>Show Channels</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="app.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

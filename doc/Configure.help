@@ -1343,11 +1343,8 @@ STELLA_RESPONSE
   Send one command byte (STELLA_UNICAST_RESPONSE) to stella to get all current channel values. The response is 9 bytes long.
   The first is always the identifier 'S', the other bytes consist of the brightness values from channel 0 to 7.
 
-Stella polling (broadcast response) EXPERIMENTAL
+Stella polling (broadcast response)
 STELLA_RESPONSE_BROADCAST
-  Depends on: 
-   * UDP broadcast support (BROADCAST_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Send one command byte (STELLA_BROADCAST_RESPONSE) to make stella propagate all current channel values via udp
   broadcast. The datagram is 9 bytes long. The first is always the identifier 'S', the other bytes consist of the
@@ -1369,4 +1366,25 @@ DEBUG_STELLA
    * Enable (Serial-Line) Debugging (DEBUG)
 
   Inform you about arriving stella packets, processed packets and if stella as a result send a response
+
+EEPROM saving and loading channel values. EXPERIMENTAL
+STELLA_EEPROM
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  With additional commands (STELLA_SAVE_TO_EEPROM, STELLA_LOAD_FROM_EEPROM) you can save to eeprom and load
+  channel values from eeprom.
+
+Use eeprom values on device boot
+STELLA_EEPROM_BOOT
+  Depends on: 
+
+  Use channel values from eeprom on the device boot process.
+
+Fade in with default fade function
+STELLA_EEPROM_BOOT_FADE
+  Depends on: 
+
+  If you do not activate this option, the values from eeprom on device boot are applied instantly.
+  If you want your device to fade to those color values you can activate this option.
 

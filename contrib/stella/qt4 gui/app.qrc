@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="" >
+    <qresource prefix="/" >
         <file>icons/arrow-left.png</file>
         <file>icons/arrow-right.png</file>
         <file>icons/chronometer.png</file>
@@ -15,9 +15,11 @@
         <file>icons/network-disconnect.png</file>
         <file>icons/roll.png</file>
         <file>icons/view-refresh.png</file>
-        <file>icons/dialog-cancel.png</file>
         <file>icons/preferences-system-network.png</file>
-        <file>icons/edit-clear.png</file>
         <file>icons/preferences-desktop-color.png</file>
+        <file>icons/dialog-cancel.png</file>
+        <file>icons/help-hint.png</file>
+        <file>icons/edit-delete.png</file>
+        <file>icons/edit-clear.png</file>
     </qresource>
 </RCC>

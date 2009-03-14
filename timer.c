@@ -39,7 +39,6 @@
 #include "cron/cron.h"
 #include "usb/usb.h"
 #include "ipv6.h"
-#include "stella/stella.h"
 #include "ps2/ps2.h"
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"

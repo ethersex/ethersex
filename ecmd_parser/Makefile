@@ -3,9 +3,9 @@ TOPDIR = ..
 SRC = \
       	adc.c		\
 	kty.c		\
-      	clock.c		\
-      	dataflash.c	\
-      	dns.c		\
+	clock.c		\
+	dataflash.c	\
+	dns.c		\
 	ecmd.c 		\
 	fs20.c		\
 	hd44780.c	\
@@ -19,6 +19,7 @@ SRC = \
 	rc5.c		\
 	rfm12.c		\
 	rfm12_ask.c	\
+	stella_ecmd.c \
 	sd.c		\
 	i2c.c		\
 	pwm.c		\

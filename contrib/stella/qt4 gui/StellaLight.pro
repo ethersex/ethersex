@@ -6,12 +6,18 @@ TARGET = StellaLight
 TEMPLATE = app
 SOURCES += main.cpp \
     mainwindow.cpp \
-    pwmchannel.cpp
+    pwmchannel.cpp \
+    stellaserver.cpp \
+    stellaconnection.cpp
 HEADERS += mainwindow.h \
     pwmchannel.h \
-    stella.h
+    stella.h \
+    stellaserver.h \
+    stellaconnection.h
 FORMS += mainwindow.ui \
-    pwmchannel.ui
+    pwmchannel.ui \
+    stellaserver.ui
 RESOURCES += app.qrc
 RC_FILE = app.rc
-OTHER_FILES += COPYING app.rc
+OTHER_FILES += COPYING \
+    app.rc

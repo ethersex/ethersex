@@ -34,8 +34,16 @@ struct stella_response_struct {
 	uint8_t pwm_channels[7];
 };
 
+struct stella_response_detailed_struct {
+	char identifier[2];
+	uint8_t protocol_version;
+	uint8_t channel_count;
+	uint8_t pwm_channels[8];
+};
+
 void stella_net_init(void);
 void stella_net_main(void);
+void stella_net_protocol_version(void);
 void stella_net_unicast_response(void);
 void stella_net_broadcast_response(void);
 void stella_net_ack_response(void);
