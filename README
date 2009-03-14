@@ -7,11 +7,14 @@ This program contains software by other authors:
 
 * the uIP tcp/ip stack, in the directory uip/ (see http://www.sics.se/~adam/uip),
   written by Adam Dunkels <adam@sics.se>
-
-* The protothreads library, in the directory pt/ by Adam Dunkels <adam@sics.se>
-  and Oliver Schmidt <ol.sc@web.de>
+* usb-software stack from obdev in usb/usbdrv/ (see http://www.obdev.at/products/avrusb/index.html)
+* sd card reader in sd_reader from http://www.roland-riegel.de/sd-reader/index.html
 
 All other code should be licensed as GPL, see the file LICENSE in the main
 directory, but in doubt check the file header. Every file should contain a
 header, stating all contributing authors and the specific license for that
 file.
+
+===== Various make targets =====
+
+* make show-config -- Show the activated modules
