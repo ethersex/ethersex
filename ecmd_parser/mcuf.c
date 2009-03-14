@@ -21,10 +21,10 @@
 */
 #include <stdint.h>
 #include "../config.h"
-#include "../mcuf/mcuf.h"
 #include "../debug.h"
 
 #ifdef MCUF_SUPPORT
+#include "../mcuf/mcuf.h"
 #ifdef MCUF_CLOCK_SUPPORT
 int16_t parse_cmd_mcuf_show_clock(char *cmd, char *output, uint16_t len)
 {

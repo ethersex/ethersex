@@ -26,7 +26,6 @@
 #include "../syslog/syslog.h"
 #include "cron.h"
 #include "../config.h"
-#include "../mcuf/mcuf.h"
 
 #ifdef CRON_SUPPORT
 
@@ -61,6 +60,7 @@ void i2c_leds(void)
 #endif //I2C_PCF8574X_SUPPORT
 
 #ifdef  MCUF_CLOCK_SUPPORT
+#include "../mcuf/mcuf.h"
 void
 mcuf_clock(void)
 {

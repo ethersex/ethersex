@@ -42,10 +42,13 @@
 #include "ps2/ps2.h"
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"
-#include "mcuf/mcuf.h"
 #include "modbus/modbus.h"
 #include "zbus/zbus.h"
 #include "mysql/mysql.h"
+
+#ifdef MCUF_SUPPORT
+#include "mcuf/mcuf.h"
+#endif
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
