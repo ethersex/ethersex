@@ -40,24 +40,34 @@ char
 *aliascmd_decode(char *cmd)
 {
 	aliascmd_t alias;
+    uint8_t alias_cmp_len = 0;
+    int8_t alias_cmp_idx = -1;
 	for (uint8_t i = 0; ; i++) {
 		memcpy_P(&alias, &aliascmdlist[i], sizeof(aliascmd_t));
 		if (alias.name == NULL) break;
 #ifdef DEBUG_ECMD
     	debug_printf("test cmd %s vs. alias %S\n", cmd+1, alias.name);
 #endif
-		if(strncmp_P(cmd + 1, alias.name, strlen_P(alias.name)) == 0) { //if (strcmp_P(cmd + 1, alias.name) == 0){ // +1 because the first char is the marker for alias names
-			int aliaslen = strlen_P(alias.name);
-			int newlen = strlen_P(alias.cmd);
+		if(strncmp_P(cmd + 1, alias.name, strlen_P(alias.name)) == 0 
+           && alias_cmp_len < strlen_P(alias.name)) {
+          alias_cmp_len = strlen_P(alias.name);
+          alias_cmp_idx = i;
+        }
+    }
 
-			memmove(cmd + newlen, cmd + aliaslen + 1, strlen (cmd + aliaslen + 1) + 1);
-			memcpy_P(cmd, alias.cmd, newlen);
+    if (alias_cmp_idx != -1) {/* copy alias in cmd buffer */
+		memcpy_P(&alias, &aliascmdlist[alias_cmp_idx], sizeof(aliascmd_t));
+		uint8_t newlen = strlen_P(alias.cmd);
+
+
+		memmove(cmd + newlen, cmd + alias_cmp_len + 1, 
+                strlen(cmd + alias_cmp_len + 1) + 1);
+        memcpy_P(cmd, alias.cmd, newlen);
 
 #ifdef DEBUG_ECMD
-    debug_printf("alias found at pos %i: %S -> %S\n", i, alias.name, alias.cmd);
+       debug_printf("alias found at pos %i: %S -> %S\n", i, alias.name, alias.cmd);
 #endif
-            return cmd;
-		}
+       return cmd;
 	}
 #ifdef DEBUG_ECMD
     debug_printf("no alias found\n");

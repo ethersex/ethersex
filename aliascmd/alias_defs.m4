@@ -1,5 +1,6 @@
 alias_ifdef(UIP_SUPPORT)
   alias("i", "show ip")
+  alias("if", "show mac")
 alias_endif()
 
 alias_ifdef(RFM12_ASK_SENDER_SUPPORT)
