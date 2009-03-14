@@ -19,6 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/pgmspace.h>
+#include "../debug.h"
 #include "vfs.h"
 #ifndef VFS_TEENSY
 
@@ -76,5 +78,47 @@ vfs_create (const char *name)
 
   return fh;
 }
+
+/* flag: 0=read, 1=write, 2=size */
+vfs_size_t
+vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle, void *buf,
+               vfs_size_t length)
+{
+  struct vfs_func_t funcs;
+  memcpy_P(&funcs, &vfs_funcs[handle->fh_type], sizeof(struct vfs_func_t));
+
+  switch (flag) {
+  case 0:
+    return funcs.read(handle, buf, length);
+  case 1:
+    return funcs.write(handle, buf, length);
+  case 2:
+    return funcs.size(handle);
+  default:
+    return 0;
+  }
+}
+
+uint8_t
+vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
+                         vfs_size_t length, uint8_t whence)
+{
+  struct vfs_func_t funcs;
+  memcpy_P(&funcs, &vfs_funcs[handle->fh_type], sizeof(struct vfs_func_t));
+
+  switch (flag) {
+  case 0:
+    /* handle, offset, whence */
+    return funcs.fseek(handle, length, whence);
+  case 1:
+    return funcs.truncate(handle, length);
+  case 2:
+    funcs.close(handle);
+  default:
+    return 0;
+  }
+}
+
+
 
 #endif	/* not VFS_TEENSY */

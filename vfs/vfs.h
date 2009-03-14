@@ -22,6 +22,7 @@
 #ifndef VFS_H
 #define VFS_H
 
+#include <avr/pgmspace.h>
 #include "../config.h"
 
 enum vfs_type_t {
@@ -138,25 +139,30 @@ struct vfs_file_handle_t *vfs_open (const char *filename);
    store for the new file. */
 struct vfs_file_handle_t *vfs_create (const char *name);
 
+uint8_t vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
+                         vfs_size_t length, uint8_t whence);
+
+vfs_size_t vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle, 
+                               void *buf, vfs_size_t length);
+
+#define VFS_FUNC(handle,call)	              \
+  ((pgm_read_word(((void *)&(vfs_funcs[(handle)->fh_type].call))))
 
 /* Generation of forwarder functions. */
-#define VFS_REDIR(call,def,handle,args...)  do {      \
-  struct vfs_func_t funcs;                            \
-  memcpy_P(&funcs, &vfs_funcs[handle->fh_type],       \
-           sizeof(struct vfs_func_t));                \
-  ((funcs.call)       		                      \
-   ? funcs.call(handle, ##args)                       \
-   : def) } while(0)
 
 #define VFS_HAVE_FUNC(handle,call)	              \
-  (pgm_read_word(((void *)&(vfs_funcs[handle->fh_type].call))) != NULL)
+  (pgm_read_word(((void *)&(vfs_funcs[(handle)->fh_type].call))) != NULL)
 
-#define vfs_close(handle)       VFS_REDIR(close, 0, handle)
-#define vfs_read(handle...)     VFS_REDIR(read, 0, handle)
-#define vfs_write(handle...)    VFS_REDIR(write, 0, handle)
-#define vfs_fseek(handle...)    VFS_REDIR(fseek, -1, handle)
-#define vfs_truncate(handle...) VFS_REDIR(truncate, 1, handle)
-#define vfs_size(handle...)     VFS_REDIR(size, 0, handle)
+#define vfs_read(handle, buf, len)  vfs_read_write_size(0, handle, buf, len)
+#define vfs_write(handle, buf, len) vfs_read_write_size(1, handle, buf, len)
+#define vfs_size(handle)            vfs_read_write_size(2, handle, NULL, 0)
+
+#define vfs_fseek(handle, offset, whence) \
+   vfs_fseek_truncate_close(0, handle, offset, whence)
+#define vfs_truncate(handle, length) \
+  vfs_fseek_truncate_close(1, handle, length, 0)
+#define vfs_close(handle) \
+  vfs_fseek_truncate_close(2, handle, 0, 0)
 
 #define vfs_rewind(handle)      vfs_fseek(handle, 0, SEEK_SET)
 
