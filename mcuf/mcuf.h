@@ -75,6 +75,7 @@
 #endif
 #endif /* MCUF_SERIAL_SUPPORT */
 
+#ifdef MCUF_SUPPORT
 void mcuf_init(void);
 void mcuf_newdata(void);
 void mcuf_periodic(void);
@@ -95,4 +96,7 @@ struct mcuf_scrolltext_struct {
 };
 
 extern struct mcuf_scrolltext_struct mcuf_scrolltext_buffer;
-#endif /* _MODBUS_H */
+#endif  /* MCUF_SUPPORT */
+
+
+#endif  /* _MCUF_H */
