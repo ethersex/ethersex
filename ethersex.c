@@ -390,18 +390,16 @@ wdt_kick();
 #endif
 
         /* check if fs20 data has arrived */
-#ifdef FS20_SUPPORT
-#ifdef FS20_SUPPORT_RECEIVE
+#if defined(FS20_SUPPORT) && defined(FS20_SUPPORT_RECEIVE)
         fs20_process();
         wdt_kick();
-#endif
+#endif  /* FS20_SUPPORT && FS20_SUPPORT_RECEIVE */
 
         /* check if rc5 data has arrived */
 #ifdef RC5_SUPPORT
         rc5_process();
         wdt_kick();
 #endif
-#endif /* FS20_SUPPORT */
 
 #ifndef BOOTLOAD_SUPPORT
         if(status.request_bootloader) {
