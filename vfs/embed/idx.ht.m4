@@ -17,15 +17,15 @@
 </pre>
   <p>For details on what ethersex is, <a href="http://www.ethersex.de/">ethersex.de</a>.</p>
   <hr>
-  <p>To do some control tasks, see <a href="io.ht">here</a>.</p>
-ifdef(`conf_ADC', `<p>To see the adc channels see <a href="adc.ht">here</a>.</p>')
-ifdef(`conf_KTY', `<p>To see the KTY temperature see <a href="Xky.ht">here</a>.</p>')
-ifdef(`conf_ONEWIRE', `<p>The onewire temperature values are accessible <a href="ow.ht">here</a>,
+ifdef(`conf_VFS_IO_INLINE', `<p>To do some control tasks, see <a href="io.ht">here</a>.</p>')
+ifdef(`conf_ADC_INLINE', `<p>To see the adc channels see <a href="adc.ht">here</a>.</p>')
+ifdef(`conf_KTY_INLINE', `<p>To see the KTY temperature see <a href="Xky.ht">here</a>.</p>')
+ifdef(`conf_ONEWIRE_INLINE', `<p>The onewire temperature values are accessible <a href="ow.ht">here</a>,
    or with a SVG-capable browser see the <a href="Xow.ht">graphical variant</a>.</p>')
-ifdef(`conf_RFM12_ASK', `<p>To control <a href="rf.ht">RFM12 ASK</a>.</p>')
-ifdef(`conf_I2C_MASTER', `<p>Set <a href="i2c.ht">I<sup>2</sup>C-Bus</a> stuff.</p>')
-ifdef(`conf_CAMERA', `<p>See the <a href="cam.ht">camera examples</a>.</p>')
-ifdef(`conf_NAMED_PIN', `<p>Control <a href="np.ht">named outputs</a>.</p>')
-  <p>Configure ethersex <a href="cfg.ht">here</a></p>
+ifdef(`conf_RFM12_INLINE', `<p>To control <a href="rf.ht">RFM12 ASK</a>.</p>')
+ifdef(`conf_I2C_INLINE', `<p>Set <a href="i2c.ht">I<sup>2</sup>C-Bus</a> stuff.</p>')
+ifdef(`conf_CAMERA_INLINE', `<p>See the <a href="cam.ht">camera examples</a>.</p>')
+ifdef(`conf_NAMED_PIN_INLINE', `<p>Control <a href="np.ht">named outputs</a>.</p>')
+ifdef(`conf_CONFIG_INLINE', `<p>Configure ethersex <a href="cfg.ht">here</a></p>')
  </body>
 </html>

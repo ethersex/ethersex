@@ -1,5 +1,6 @@
 <html><head>
 ifdef(`conf_VFS_IO_INLINE', `', `m4exit(1)')dnl
+undefine(`substr')dnl
 <title>Ethersex - IO Control</title>
   <script src="scr.js" type="text/javascript"></script>
   <link href="Sty.c"  media="screen" rel="Stylesheet" type="text/css" />
