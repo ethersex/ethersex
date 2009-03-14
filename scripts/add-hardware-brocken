@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 usage() {
   echo "Usage:"
@@ -158,7 +158,7 @@ FNORD
 FNORD
 
   template $BLP_SUPPORT << FNORD
-    /* port config for zbus */
+    /* port config for BlinkenlightsPro */
     pin(BLP_CLK, PB0, OUTPUT)
     pin(BLP_STR, PD5, OUTPUT)
     pin(BLP_DA_A, PB1, OUTPUT)
@@ -173,12 +173,13 @@ FNORD
 FNORD
 
   template $LEDRG_SUPPORT << FNORD
-  pin(LED_RESET, PB4, OUTPUT)
-  pin(LED_SELECT, PB5, OUTPUT)
-  pin(LED_BRIGHT, PB3, OUTPUT)
-  pin(LED_RED, PB0, OUTPUT)
-  pin(LED_GREEN, PB1, OUTPUT)
-  pin(LED_CLOCK, PB2, OUTPUT)
+    /* port config for LED-Module16x16rg  */
+    pin(LED_RESET, PB4, OUTPUT)
+    pin(LED_SELECT, PB5, OUTPUT)
+    pin(LED_BRIGHT, PB3, OUTPUT)
+    pin(LED_RED, PB0, OUTPUT)
+    pin(LED_GREEN, PB1, OUTPUT)
+    pin(LED_CLOCK, PB2, OUTPUT)
 FNORD
 
 ##############################################################################
@@ -210,7 +211,7 @@ FNORD
 FNORD
 
   template $BLP_SUPPORT << FNORD
-    /* port config for zbus */
+    /* port config for BlinkenlightsPro */
     pin(BLP_CLK, PB1, OUTPUT)
     pin(BLP_STR, PB2, OUTPUT)
     pin(BLP_DA_A, PA0, OUTPUT)
@@ -225,12 +226,13 @@ FNORD
 FNORD
 
   template $LEDRG_SUPPORT << FNORD
-  pin(LED_RESET, PA4, OUTPUT)
-  pin(LED_SELECT, PA5, OUTPUT)
-  pin(LED_BRIGHT, PA3, OUTPUT)
-  pin(LED_RED, PA0, OUTPUT)
-  pin(LED_GREEN, PA1, OUTPUT)
-  pin(LED_CLOCK, PA2, OUTPUT)
+    /* port config for LED-Module16x16rg  */
+    pin(LED_RESET, PA4, OUTPUT)
+    pin(LED_SELECT, PA5, OUTPUT)
+    pin(LED_BRIGHT, PA3, OUTPUT)
+    pin(LED_RED, PA0, OUTPUT)
+    pin(LED_GREEN, PA1, OUTPUT)
+    pin(LED_CLOCK, PA2, OUTPUT)
 FNORD
 
 fi

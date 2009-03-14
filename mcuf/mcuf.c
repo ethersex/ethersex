@@ -142,8 +142,10 @@ void mcuf_init(void) {
   MCUF_DEBUG("init...\n");
   buffer.len = 1;
   buffer.sent = 0;
+#ifdef LEDRG_SUPPORT
   init_led_display();
   resync_led_display();
+#endif
 #ifdef MCUF_SCROLLTEXT_SUPPORT
   snprintf_P(textbuff, 36, PSTR("Hi  I'm your ethersex         ;-)  "));
   scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xF0,0x01,3);
@@ -434,10 +436,10 @@ void mcuf_periodic(void) {
   if (blp_tic > blp_toc) {
 #ifdef MCUF_CLOCK_SUPPORT
     if (blp_toc < 30) {
-      gdata[10][8] +=16;
-      gdata[12][8] +=16;
-      gdata[10][7] +=16;
-      gdata[12][7] +=16;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-6][8] +=16;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-4][8] +=16;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-6][7] +=16;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-4][7] +=16;
       updateframe();
     } else
 #endif
@@ -496,13 +498,13 @@ void mcuf_show_clock(uint8_t clockswitch) {
 #ifdef SYSLOG_SUPPORT
     syslog_sendf("mcuf: clock-out: %.2d:%.2d\n", date.hour, date.min);
 #endif
-    draw_box(0, MCUF_MIN_SCREEN_HEIGHT, MCUF_MAX_SCREEN_WIDTH, MCUF_MIN_SCREEN_HEIGHT, 0, 0);
-    draw_tinynumber(date.hour, 0 , 9, 0xff);
-    gdata[10][8] = 0x80;
-    gdata[12][8] = 1;
-    gdata[10][7] = 1;
-    gdata[12][7] = 0x80;
-    draw_tinynumber(date.min , 9 , 9, 0xff); 
+    draw_box(0, MCUF_MIN_SCREEN_HEIGHT, MCUF_MAX_SCREEN_WIDTH, MCUF_SPLIT_SCREEN_HEIGHT, 0, 0);
+    draw_tinynumber(date.hour, 0 , MCUF_MAX_SCREEN_HEIGHT-7, 0xff);
+    gdata[MCUF_MAX_SCREEN_HEIGHT-6][8] = 0x80;
+    gdata[MCUF_MAX_SCREEN_HEIGHT-4][8] = 1;
+    gdata[MCUF_MAX_SCREEN_HEIGHT-6][7] = 1;
+    gdata[MCUF_MAX_SCREEN_HEIGHT-4][7] = 0x80;
+    draw_tinynumber(date.min , 9 , MCUF_MAX_SCREEN_HEIGHT-7, 0xff); 
     if (clockswitch != 1)
       updateframe();
     }
@@ -525,7 +527,7 @@ void updateframe() {
     for (x = 0; x < MCUF_SERIAL_SCREEN_WIDTH; x++) {
       if ((MCUF_MAX_SCREEN_HEIGHT > y) && (MCUF_MAX_SCREEN_WIDTH > x)) {
 //         if (gdata[y][x] > 0) {
-          buffer.data[12 + (x + ((y-MCUF_SERIAL_SCREEN_HEIGHT) * MCUF_SERIAL_SCREEN_WIDTH))] = gdata[y][x];
+          buffer.data[12 + (x + ((y-MCUF_MIN_SCREEN_HEIGHT) * MCUF_SERIAL_SCREEN_WIDTH))] = gdata[y][x];
 //         }
       }
     }
@@ -579,7 +581,7 @@ void mcuf_scrolltext() {
     if (mcuf_scrolltext_buffer.tomove != 0) {
       mcuf_scrolltext_buffer.tomove --;
       mcuf_scrolltext_buffer.posshift++;
-      draw_box(0, mcuf_scrolltext_buffer.posy, MCUF_MAX_SCREEN_WIDTH, MCUF_MIN_SCREEN_HEIGHT, mcuf_scrolltext_buffer.bcolor, mcuf_scrolltext_buffer.bcolor);
+      draw_box(0, mcuf_scrolltext_buffer.posy, MCUF_MAX_SCREEN_WIDTH, MCUF_SPLIT_SCREEN_HEIGHT, mcuf_scrolltext_buffer.bcolor, mcuf_scrolltext_buffer.bcolor);
       mcuf_scrolltext_buffer.posx = MCUF_MAX_SCREEN_WIDTH-1;
       i = 0;
       while (i < mcuf_scrolltext_buffer.end) {
