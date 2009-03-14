@@ -36,7 +36,7 @@ static uint8_t ticks;
 static uint32_t sync_timestamp = 0;
 
 #ifdef NTP_SUPPORT
-static uint16_t ntp_timer = 1;
+static uint16_t ntp_timer = 4;
 #endif
 
 #ifdef WHM_SUPPORT
@@ -77,8 +77,11 @@ clock_periodic(void)
 {
 #ifdef NTP_SUPPORT
   if(ntp_timer) {
-    if((-- ntp_timer) == 0)
+    ntp_timer--;
+    if(ntp_timer < 4)
       ntp_send_packet();
+      if (ntp_timer == 0) /* We haven't received anything. Retry in 10 minutes */
+        ntp_timer = 600;
   }
 
   if(timestamp <= 50 && (timestamp % 5 == 0))
@@ -117,8 +120,9 @@ clock_set_time(uint32_t new_sync_timestamp)
 #endif
 
 #ifdef NTP_SUPPORT
-  ntp_timer = 4096;
+    ntp_timer = 4096;
 #endif
+
 }
 
 uint32_t
