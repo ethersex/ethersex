@@ -31,6 +31,7 @@
 #include "protocols/uip/uip.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"
+#include "core/bit-macros.h"
 
 #ifdef RFM12_IP_SUPPORT
 rfm12_status_t rfm12_status;
@@ -43,6 +44,8 @@ uint8_t rfm12_bandwidth = 5;
 uint8_t rfm12_gain = 1;
 uint8_t rfm12_drssi = 4;
 #endif
+
+static void rfm12_txstart_hard (void);
 
 SIGNAL(RFM12_INT_SIGNAL)
 {
@@ -58,7 +61,8 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(rfm12_index ? (rfm12_index < RFM12_BUFFER_LEN)
 	 : (!_uip_buf_lock
 #ifdef TEENSY_SUPPORT
-	    && byte == 0	/* ignore packet if higher len byte set */
+	    /* ignore packet if higher len byte set (except source route) */
+	    && (byte & 0x7f) == 0
 #endif
 	    ))
 	{
@@ -85,12 +89,17 @@ SIGNAL(RFM12_INT_SIGNAL)
       if(rfm12_index > 2
 	 && rfm12_index > (rfm12_buf[1] + 1
 #ifndef TEENSY_SUPPORT
-			   + (rfm12_buf[0] << 8)
+			   + ((rfm12_buf[0] & 0x7f) << 8)
 #endif
 			   ))
 	{
 	  rfm12_trans(0x8208);
 	  rfm12_status = RFM12_NEW;
+
+	  /* We're not ready to receive data yet, but otherwise the RFM12
+	     module freaks out and will keep the interrupt line low. */
+	  rfm12_trans(0x82C8);
+
 	}
       break;
 
@@ -137,16 +146,12 @@ SIGNAL(RFM12_INT_SIGNAL)
 #endif	/* RFM12_SOURCE_ROUTE_ALL */
 
     case RFM12_TX_SIZE_HI:
-#ifdef TEENSY_SUPPORT
-      rfm12_trans(0xB800);
-#else
-      rfm12_trans(0xB800 | ((rfm12_txlen & 0x7F00) >> 8));
-#endif
+      rfm12_trans(0xB800 | rfm12_buf[0]);
       rfm12_status ++;
       break;
 
     case RFM12_TX_SIZE_LO:
-      rfm12_trans(0xB800 | (rfm12_txlen & 0xFF));
+      rfm12_trans(0xB800 | rfm12_buf[1]);
       rfm12_status ++;
       break;
 
@@ -319,14 +324,36 @@ rfm12_rxfinish(void)
 
   rfm12_index_t len = rfm12_buf[1];
 #ifndef TEENSY_SUPPORT
-  len += rfm12_buf[0] << 8;
+  len += (rfm12_buf[0] & 0x7F) << 8;
 #endif
 
-  rfm12_status = RFM12_OFF;
+  if (rfm12_buf[0] & 0x80) {
+    /* We've received a source routed packet. */
+#ifdef RFM12_PCKT_FWD
+    if (rfm12_buf[2] == CONF_RFM12_STATID) {
+      /* Strip source route header. */
+      memmove (rfm12_buf, rfm12_buf + 3, len - 1);
 
+      for (uint8_t j = 0; j < 15; j ++)
+	_delay_ms (10);		/* Wait 150ms for slower receivers to get
+				   ready again. */
+
+      rfm12_txlen = len - 3;    /* Num of bytes excluding LLH. */
+      rfm12_txstart_hard ();
+      return 0;			/* We mustn't parse the packet,
+				   since this might cause a reply. */
+    }
+#else
+    /* We're dumb, let's ignore that packet. */
+    len = 0;
+#endif
+  }
+
+  rfm12_status = RFM12_OFF;
+  
   if (!len) {
     uip_buf_unlock ();
-    rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
+    rfm12_rxstart ();		/* we destroyed the packet ... */
   }
 
   return(len);			/* receive size */
@@ -342,6 +369,21 @@ rfm12_txstart(rfm12_index_t size)
 				   new packet left in buffer */
   }
 
+  rfm12_txlen = size;
+
+#ifdef TEENSY_SUPPORT
+  rfm12_buf[0] = 0;
+#else
+  rfm12_buf[0] = HI8(rfm12_txlen);
+#endif
+  rfm12_buf[1] = LO8(rfm12_txlen);
+
+  rfm12_txstart_hard ();
+}
+
+static void
+rfm12_txstart_hard (void)
+{
   rfm12_status = RFM12_TX;
 
 #ifdef HAVE_RFM12_TX_PIN
@@ -349,7 +391,6 @@ rfm12_txstart(rfm12_index_t size)
 #endif
 
   rfm12_index = 0;
-  rfm12_txlen = size;
 
   rfm12_prologue ();
   rfm12_trans(0x8238);		/* TX on */
@@ -360,6 +401,7 @@ rfm12_txstart(rfm12_index_t size)
      If we're forwarding a packet from say Ethernet, uip_buf_unlock won't
      unlock since there's an active RFM12 transfer, but it'd leave
      the RFM12 interrupt disabled as well.*/
+  _uip_buf_lock = 8;
   rfm12_int_enable ();
 
   return;

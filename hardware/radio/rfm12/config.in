@@ -18,6 +18,11 @@ if [ "$RFM12_SOURCE_ROUTE_ALL" = "y" ]; then
   int "  Router ID" CONF_RFM12_SOURCE_ROUTE_ALL_RTRID 17
 fi
 
+dep_bool "RFM12 Packet Forwarding" RFM12_PCKT_FWD $RFM12_IP_SUPPORT
+if [ "$RFM12_PCKT_FWD" = "y" ]; then
+  int "  Station ID" CONF_RFM12_STATID 17
+fi
+
 dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
 
 fi
