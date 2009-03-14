@@ -140,13 +140,16 @@ struct vfs_file_handle_t *vfs_create (const char *name);
 
 
 /* Generation of forwarder functions. */
-#define VFS_REDIR(call,def,handle,args...)	      \
-  ((vfs_funcs[handle->fh_type].call)		      \
-   ? vfs_funcs[handle->fh_type].call(handle, ##args)  \
-   : def)
+#define VFS_REDIR(call,def,handle,args...)  do {      \
+  struct vfs_func_t funcs;                            \
+  memcpy_P(&funcs, &vfs_funcs[handle->fh_type],       \
+           sizeof(struct vfs_func_t));                \
+  ((funcs.call)       		                      \
+   ? funcs.call(handle, ##args)                       \
+   : def) } while(0)
 
-#define VFS_HAVE_FUNC(handle,call)		\
-  (vfs_funcs[(handle)->fh_type].call != NULL)
+#define VFS_HAVE_FUNC(handle,call)	              \
+  (pgm_read_word(((void *)&(vfs_funcs[handle->fh_type].call))) != NULL)
 
 #define vfs_close(handle)       VFS_REDIR(close, 0, handle)
 #define vfs_read(handle...)     VFS_REDIR(read, 0, handle)

@@ -22,7 +22,7 @@
 #include "vfs.h"
 #ifndef VFS_TEENSY
 
-struct vfs_func_t vfs_funcs[] = {
+struct vfs_func_t vfs_funcs[] PROGMEM = {
 #ifdef VFS_EEPROM_SUPPORT
   VFS_EEPROM_FUNCS,
 #endif
@@ -53,9 +53,12 @@ struct vfs_file_handle_t *
 vfs_open (const char *filename)
 {
   struct vfs_file_handle_t *fh = NULL;
+  struct vfs_func_t funcs;
 
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
-    fh = vfs_funcs[i].open (filename);
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++) {
+    memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
+    fh = funcs.open (filename);
+  }
 
   return fh;
 }
@@ -64,10 +67,12 @@ struct vfs_file_handle_t *
 vfs_create (const char *name)
 {
   struct vfs_file_handle_t *fh = NULL;
+  struct vfs_func_t funcs;
 
   for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
-    if (vfs_funcs[i].create)
-      fh = vfs_funcs[i].create (name);
+    memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
+    if (funcs.create)
+      fh = funcs.create (name);
 
   return fh;
 }
