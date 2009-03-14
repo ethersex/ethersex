@@ -87,18 +87,18 @@ vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle, void *buf,
   struct vfs_func_t funcs;
   memcpy_P(&funcs, &vfs_funcs[handle->fh_type], sizeof(struct vfs_func_t));
 
-  switch (flag) {
-  case 0:
-    return funcs.read(handle, buf, length);
-  case 1:
+  if (flag == 0 && funcs.read)
+      return funcs.read(handle, buf, length);
+
+  if (flag == 1 && funcs.write)
     return funcs.write(handle, buf, length);
-  case 2:
+
+  if (flag == 2 && funcs.size)
     return funcs.size(handle);
-  default:
     return 0;
-  }
 }
 
+/* flag: 0=fseek, 1=truncate, 2=close */
 uint8_t
 vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
                          vfs_size_t length, uint8_t whence)
@@ -106,17 +106,17 @@ vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
   struct vfs_func_t funcs;
   memcpy_P(&funcs, &vfs_funcs[handle->fh_type], sizeof(struct vfs_func_t));
 
-  switch (flag) {
-  case 0:
+  if (flag == 0 && funcs.fseek) 
     /* handle, offset, whence */
     return funcs.fseek(handle, length, whence);
-  case 1:
+
+  if (flag == 1 && funcs.truncate)
     return funcs.truncate(handle, length);
-  case 2:
+
+  if (flag == 2 && funcs.close)
     funcs.close(handle);
-  default:
-    return 0;
-  }
+
+  return 0;
 }
 
 
