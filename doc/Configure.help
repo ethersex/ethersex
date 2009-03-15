@@ -342,21 +342,28 @@ MCUF_SUPPORT
   
   For Details see https://wiki.blinkenarea.org/index.php/Protocols
   
-  To use the incomming data, you have to enable either
+  To use the incomming data, you have to enable
     MCUF usart
-  or
-    BLP SUPPORT
+  and/or
 
+    BlinkenLightsPro
+  or
+    LED-Module16x16rg
+  
+  
   Use "MCUF usart" to send Data over USART 0 or 1 for example to a
   Shifter (see https://wiki.blinkenarea.org/index.php/Shifter). If
   you want to use "MCUF usart", you also have to select the USART
   in the field "MCUF usart select".
   
-  Use "BLP SUPPORT" if you have a BlinkenLedsPro or compatible
+  Use "BlinkenLightsPro" if you have a BlinkenLedsPro or compatible
   Hardware directly connected to your microcontroller.
   See https://wiki.blinkenarea.org/index.php/BlinkenLEDs for
-  Details. You have to use an Atmega8 to enable "BLP SUPPORT" or
-  add you have to add the propper pinning in pinning/controllers/.
+  Details.
+  
+  For "LED-Module16x16rg" and further information on "Blinkenlights
+  - MicroControllerUnitFrame" see
+  http://www.ethersex.de/tiki-index.php?page=Blinkenlights+MCUF
 
 Readback support
 HD44780_READBACK
@@ -967,30 +974,6 @@ MCUF_SERIAL_SUPPORT
   (see https://wiki.blinkenarea.org/index.php/Shifter). You have
   to select the USART in the field "MCUF usart select".
 
-BLP SUPPORT
-BLP_SUPPORT
-  Depends on: 
-   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-
-  Use "BLP SUPPORT" if you have a BlinkenLedsPro or compatible
-  Hardware directly connected to your microcontroller.
-  See https://wiki.blinkenarea.org/index.php/BlinkenLEDs for
-  Details.
-  
-  Pinbelegung am Atmega8:
-  
-  clock:  PB0
-  strobe: PD5
-  data 1/2: PB1
-  data 3/4: PB2
-  data 5/6: PD4
-  data 5/8: PD3
-  data 9/10: PB3
-  data 11/12: PB4
-  data 13/14: PB5
-  data 15/16: PC2
-  data 17/18: PC3
-
 Workaround for MCUF-UDP-Packets with wrong max-value
 MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
   Depends on:
@@ -1000,6 +983,20 @@ MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
   some stupid programms that don't send eblp according to
   https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol
   but use 1 as maxvaule instead of 255)
+
+MCUF serial screen width
+MCUF_SERIAL_SCREEN_WIDTH
+
+  Configures screen-size for outgoing mcuf-packets over uart.
+  
+  Use e.g. 18x8 for BlinkenLightsPro via Shifter, 16x16 for Borg16, ...
+
+MCUF serial screen height
+MCUF_SERIAL_SCREEN_HEIGHT
+  
+  Configures screen-size for outgoing mcuf-packets over uart.
+  
+  Use e.g. 18x8 for BlinkenLightsPro via Shifter, 16x16 for Borg16, ...
 
 VFS (Virtual File System) support
 VFS_SUPPORT
@@ -1167,6 +1164,24 @@ ALIASCMD_SUPPORT
 
   `$i' -> `show ip'
 
+MCUF output
+MCUF_OUTPUT_SUPPORT
+  Depends on:
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+
+  Use "BlinkenLightsPro" if you have a BlinkenLedsPro or compatible
+  Hardware directly connected to your microcontroller.
+  See https://wiki.blinkenarea.org/index.php/BlinkenLEDs for
+  Details.
+
+  Use "LED-Module16x16rg" for Toshiba tlmm501b2 or compatible
+  Hardware.
+
+  Use add-hardwarebrocken.sh to configure pinning.
+
+  See also
+  http://www.ethersex.de/tiki-index.php?page=Blinkenlights+MCUF
+
 MCUF screen width
 MCUF_OUTPUT_SCREEN_WIDTH
   Depends on:
@@ -1180,6 +1195,32 @@ MCUF_OUTPUT_SCREEN_HEIGHT
    * MCUF usart
 
   MCUF screen width * MCUF screen height must be smaller than 256.
+
+MCUF Scrolltext
+MCUF_SCROLLTEXT_SUPPORT
+  Depends on:
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+
+  Enables startup-message and ecmd "mcuf showstring [YOUR STRING]".
+  Max length of [YOUR STRING] is 31 chars.
+
+MCUF Clock
+MCUF_CLOCK_SUPPORT
+  Depends on:
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+   * System clock support (CLOCK_SUPPORT)
+
+  Display current date and time using ecmd "mcuf showclock".
+  
+  "mcuf showclock 0" (default) displays date and time using
+  scrolltext.
+  "mcuf showclock 1" displays only time without scrolling with
+  blinking dots in the middle.
+  "mcuf showclock 2" displays the time without the dots.
+  
+  If "Cron daemon" is also enabled, the time will be displayed
+  as long as no other data for the display is avail (e.g. from
+  mcuf-udp or ecmd "mcuf showstring").
 
 Inline the .config
 VFS_CONFIG_INLINE_SUPPORT
@@ -1397,11 +1438,3 @@ STELLA_EEPROM_BOOT_FADE
 
   If you do not activate this option, the values from eeprom on device boot are applied instantly.
   If you want your device to fade to those color values you can activate this option.
-
-Workaround for MCUF-UDP-Packets with wrong max-value
-MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
-  Depends on: 
-   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-
-  Please add your new help-text here.
-
