@@ -24,7 +24,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#ifndef GCC
+#ifndef GCC 
 #include <avr/io.h>
 #include <string.h>
 #include <stdio.h>
