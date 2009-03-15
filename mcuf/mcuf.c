@@ -148,8 +148,8 @@ void mcuf_init(void) {
   resync_led_display();
 #endif
 #ifdef MCUF_SCROLLTEXT_SUPPORT
-  snprintf_P(textbuff, 36, PSTR("Hi  I'm your ethersex         ;-)  "));
-  scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xF0,0x01,3);
+  snprintf_P(textbuff, 36, PSTR(CONF_MCUF_SCROLLTEXT_STARTUP));
+  scrolltext(MCUF_MIN_SCREEN_HEIGHT,CONF_MCUF_SCROLLTEXT_STARTUP_COLOR,CONF_MCUF_SCROLLTEXT_STARTUP_BG_COLOR,CONF_MCUF_SCROLLTEXT_STARTUP_SPEED);
 #endif
 }
 
@@ -558,7 +558,7 @@ void mcuf_show_string(char * x) {
 #ifdef SYSLOG_SUPPORT
   syslog_sendf("mcuf: textbuffer %s\n", textbuff);
 #endif
-  scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xff,0,1);
+  scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xff,0,4);
 //   updateframe();
 }
 #endif

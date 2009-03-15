@@ -37,7 +37,12 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
   dep_bool "Workaround for MCUF-UDP-Packets with wrong max-value" MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS $MCUF_SUPPORT
 
   comment "MCUF ecmd commandos"
-  dep_bool "MCUF Scrolltext" MCUF_SCROLLTEXT_SUPPORT $MCUF_SUPPORT
+  dep_bool_menu "MCUF Scrolltext" MCUF_SCROLLTEXT_SUPPORT $MCUF_SUPPORT
+    string "Startup Message" CONF_MCUF_SCROLLTEXT_STARTUP "Hi  I am your ethersex        ;-)  "
+    int "Startup Message Color" CONF_MCUF_SCROLLTEXT_STARTUP_COLOR "16"
+    int "Startup Message Background Color" CONF_MCUF_SCROLLTEXT_STARTUP_BG_COLOR "00"
+    int "Startup Message Speed" CONF_MCUF_SCROLLTEXT_STARTUP_SPEED 1 
+  endmenu
   dep_bool "MCUF Clock" MCUF_CLOCK_SUPPORT $MCUF_SUPPORT $CLOCK_SUPPORT
 
   comment "MCUF Module"
