@@ -151,7 +151,7 @@ vfs_size_t vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle,
 /* Generation of forwarder functions. */
 
 #define VFS_HAVE_FUNC(handle,call)	              \
-  (pgm_read_word(((void *)&(vfs_funcs[(handle)->fh_type].call))) != NULL)
+  (pgm_read_word(((void *)&(vfs_funcs[(handle)->fh_type].call))) != 0)
 
 #define vfs_read(handle, buf, len)  vfs_read_write_size(0, handle, buf, len)
 #define vfs_write(handle, buf, len) vfs_read_write_size(1, handle, buf, len)
