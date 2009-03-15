@@ -991,6 +991,16 @@ BLP_SUPPORT
   data 15/16: PC2
   data 17/18: PC3
 
+Workaround for MCUF-UDP-Packets with wrong max-value
+MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
+  Depends on:
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+  
+  Enable this to scan packet to determine maxvalue (workaround for
+  some stupid programms that don't send eblp according to
+  https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol
+  but use 1 as maxvaule instead of 255)
+
 VFS (Virtual File System) support
 VFS_SUPPORT
   Depends on: 
@@ -1387,4 +1397,11 @@ STELLA_EEPROM_BOOT_FADE
 
   If you do not activate this option, the values from eeprom on device boot are applied instantly.
   If you want your device to fade to those color values you can activate this option.
+
+Workaround for MCUF-UDP-Packets with wrong max-value
+MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
+  Depends on: 
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+
+  Please add your new help-text here.
 
