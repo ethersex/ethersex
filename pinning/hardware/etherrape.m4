@@ -17,8 +17,10 @@ ifdef(`conf_SD_READER', `dnl
 ifdef(`conf_FS20', `dnl
   /* fs20 support */
   pin(FS20_SEND, PB2)
+  ifdef(`conf_FS20_RECEIVE', `dnl
   /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
   pin(FS20_RECV, PB3)
+  ')dnl
 ')dnl
 
 dnl ifdef(`conf_RFM12', `define(`GENERIC_LED_PINS', `1')')dnl
@@ -64,9 +66,5 @@ ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
 
 ifdef(`conf_RC5', `
   pin(RC5_SEND, PD4)
-')
-
-ifdef(`conf_SOFT_UART', `
-  pin(SOFT_UART_TX, PD7, OUTPUT)
 ')
 

@@ -122,7 +122,7 @@ void timer_process(void)
 
         /* process fs20 stuff */
 #       ifdef FS20_SUPPORT
-#       ifdef FS20_SUPPORT_RECEIVE
+#       ifdef FS20_RECEIVE_SUPPORT
         fs20_process_timeout();
 #       endif
 
@@ -206,7 +206,7 @@ void timer_process(void)
             cron_periodic();
 #           endif
 
-#           ifdef FS20_SUPPORT
+#           ifdef FS20_RECEIVE_WS300_SUPPORT
             fs20_global.ws300.last_update++;
 #           endif
 

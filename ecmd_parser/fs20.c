@@ -38,7 +38,7 @@
 
 
 #ifdef FS20_SUPPORT 
-#ifdef FS20_SUPPORT_SEND
+#ifdef FS20_SEND_SUPPORT
 int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -64,9 +64,9 @@ int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
     return -1;
 
 } /* }}} */
-#endif /* FS20_SUPPORT_SEND */
+#endif /* FS20_SEND_SUPPORT */
 
-#ifdef FS20_SUPPORT_RECEIVE
+#ifdef FS20_RECEIVE_SUPPORT
 int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -111,7 +111,7 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 
 } /* }}} */
 
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
 int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 /* {{{ */ {
 
@@ -126,7 +126,7 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
             fs20_global.ws300.rain_value);
 
 } /* }}} */
-#endif /* FS20_SUPPORT_RECEIVE_WS300 */
-#endif /* FS20_SUPPORT_RECEIVE */
+#endif /* FS20_RECEIVE_WS300_SUPPORT */
+#endif /* FS20_RECEIVE_SUPPORT */
 #endif /* FS20_SUPPORT */
 

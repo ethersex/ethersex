@@ -104,15 +104,15 @@ ecmd_ifdef(NAMED_PIN_SUPPORT)
 ecmd_endif()
 
 ecmd_ifdef(FS20_SUPPORT)
-  ecmd_ifdef(FS20_SUPPORT_SEND)
+  ecmd_ifdef(FS20_SEND_SUPPORT)
     ecmd_feature(fs20_send, "fs20 send")
   ecmd_endif()
 
-  ecmd_ifdef(FS20_SUPPORT_RECEIVE)
+  ecmd_ifdef(FS20_RECEIVE_SUPPORT)
     ecmd_feature(fs20_receive, "fs20 receive")
   ecmd_endif()
 
-  ecmd_ifdef(FS20_SUPPORT_RECEIVE_WS300)
+  ecmd_ifdef(FS20_RECEIVE_WS300_SUPPORT)
     ecmd_feature(fs20_ws300, "fs20 ws300")
   ecmd_endif()
 ecmd_endif()

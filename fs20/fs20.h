@@ -184,7 +184,7 @@ struct ws300_datagram_t {
 
 struct fs20_global_t {
     uint8_t enable;
-    #ifdef FS20_SUPPORT_RECEIVE
+    #ifdef FS20_RECEIVE_SUPPORT
         struct {
             union {
                 struct fs20_datagram_t datagram;
@@ -197,7 +197,7 @@ struct fs20_global_t {
             uint8_t len;
             uint8_t timeout;
         } fs20;
-        #ifdef FS20_SUPPORT_RECEIVE_WS300
+        #ifdef FS20_RECEIVE_WS300_SUPPORT
             struct {
                 union {
                     struct ws300_datagram_t datagram;
@@ -235,11 +235,11 @@ extern volatile struct fs20_global_t fs20_global;
 /* public prototypes */
 void fs20_init(void);
 
-#ifdef FS20_SUPPORT_SEND
+#ifdef FS20_SEND_SUPPORT
 void fs20_send(uint16_t housecode, uint8_t address, uint8_t command);
 #endif
 
-#ifdef FS20_SUPPORT_RECEIVE
+#ifdef FS20_RECEIVE_SUPPORT
 void fs20_process(void);
 void fs20_process_timeout(void);
 #else

@@ -34,29 +34,29 @@
 #ifdef FS20_SUPPORT
 
 /* module-local prototypes */
-#ifdef FS20_SUPPORT_SEND
+#ifdef FS20_SEND_SUPPORT
 /* prototypes for sending fs20 */
 static void fs20_send_zero(void);
 static void fs20_send_one(void);
 static void fs20_send_sync(void);
 static inline void fs20_send_bit(uint8_t bit);
 static inline void fs20_send_byte(uint8_t byte);
-#endif /* FS20_SUPPORT_SEND */
+#endif /* FS20_SEND_SUPPORT */
 
-#ifdef FS20_SUPPORT_RECEIVE
+#ifdef FS20_RECEIVE_SUPPORT
 /* prototypes for receiving fs20 */
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
 void ws300_parse_datagram(void);
 #endif
 
-#endif /* FS20_SUPPORT_RECEIVE */
+#endif /* FS20_RECEIVE_SUPPORT */
 
 
 /* global variables */
 volatile struct fs20_global_t fs20_global;
 
 
-#ifdef FS20_SUPPORT_SEND
+#ifdef FS20_SEND_SUPPORT
 
 void fs20_send_zero(void)
 /* {{{ */ {
@@ -135,9 +135,9 @@ void fs20_send(uint16_t housecode, uint8_t address, uint8_t command)
 
 } /* }}} */
 
-#endif /* FS20_SUPPORT_SEND */
+#endif /* FS20_SEND_SUPPORT */
 
-#ifdef FS20_SUPPORT_RECEIVE
+#ifdef FS20_RECEIVE_SUPPORT
 
 ISR(ANALOG_COMP_vect)
 /* {{{ */ {
@@ -188,7 +188,7 @@ ISR(ANALOG_COMP_vect)
         }
     }
 
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
     /* if ws300 is not locked, continue */
     if (fs20_global.ws300.rec < FS20_WS300_DATAGRAM_LENGTH) {
 
@@ -252,7 +252,7 @@ ISR(TIMER2_OVF_vect)
         memset((void *)&fs20_global.fs20.datagram, 0, sizeof(struct fs20_datagram_t));
     }
 
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
     if (fs20_global.ws300.rec != FS20_WS300_DATAGRAM_LENGTH) {
         fs20_global.ws300.rec = 0;
         fs20_global.ws300.sync = 0;
@@ -345,7 +345,7 @@ void fs20_process(void)
         fs20_global.fs20.rec = 0;
     }
 
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
     if (fs20_global.ws300.rec == FS20_WS300_DATAGRAM_LENGTH) {
         #ifdef DEBUG_FS20_WS300
         debug_printf("received ws300 datagram\n");
@@ -387,7 +387,7 @@ void fs20_process_timeout(void)
 
 } /* }}} */
 
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
 void ws300_parse_datagram(void)
 /* {{{ */ {
     #ifdef DEBUG_FS20_WS300
@@ -486,7 +486,7 @@ void ws300_parse_datagram(void)
 } /* }}} */
 #endif
 
-#endif /* FS20_SUPPORT_RECEIVE */
+#endif /* FS20_RECEIVE_SUPPORT */
 
 
 void fs20_init(void)
@@ -494,13 +494,13 @@ void fs20_init(void)
     /* default: enabled */
     fs20_global.enable = 1;
 
-#ifdef FS20_SUPPORT_SEND
+#ifdef FS20_SEND_SUPPORT
     /* configure port pin for sending */
     DDR_CONFIG_OUT(FS20_SEND);
     PIN_CLEAR(FS20_SEND);
 #endif
 
-#ifdef FS20_SUPPORT_RECEIVE
+#ifdef FS20_RECEIVE_SUPPORT
     /* reset global data structures */
     memset((void *)&fs20_global.fs20.datagram, 0, sizeof(fs20_global.fs20));
 
@@ -523,7 +523,7 @@ void fs20_init(void)
     TCCR2B = _BV(CS20) | _BV(CS22);
     TIMSK2 = _BV(TOIE2);
 
-#ifdef FS20_SUPPORT_RECEIVE_WS300
+#ifdef FS20_RECEIVE_WS300_SUPPORT
 
     /* reset everything to zero */
     memset((void *)&fs20_global.ws300, 0, sizeof(fs20_global.ws300));

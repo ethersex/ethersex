@@ -390,10 +390,10 @@ wdt_kick();
 #endif
 
         /* check if fs20 data has arrived */
-#if defined(FS20_SUPPORT) && defined(FS20_SUPPORT_RECEIVE)
+#if defined(FS20_SUPPORT) && defined(FS20_RECEIVE_SUPPORT)
         fs20_process();
         wdt_kick();
-#endif  /* FS20_SUPPORT && FS20_SUPPORT_RECEIVE */
+#endif  /* FS20_SUPPORT && FS20_RECEIVE_SUPPORT */
 
         /* check if rc5 data has arrived */
 #ifdef RC5_SUPPORT

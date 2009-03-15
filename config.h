@@ -63,8 +63,8 @@
 
 /* fs20 support */
 #define FS20_SUPPORT_SEND
-#define FS20_SUPPORT_RECEIVE
-#define FS20_SUPPORT_RECEIVE_WS300
+#define FS20_RECEIVE_SUPPORT
+#define FS20_RECEIVE_WS300_SUPPORT
 
 /* bootloader config */
 #define CONF_BOOTLOAD_DELAY 250           /* five seconds */

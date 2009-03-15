@@ -179,7 +179,8 @@ dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "named_pin/config"
 source i2c_master/config.in
 source camera/config.in
 
-dep_bool "FS20 RF-control" FS20_SUPPORT $CONFIG_EXPERIMENTAL
+source fs20/config.in
+
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PWM Wave" PWM_WAV_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
