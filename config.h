@@ -118,9 +118,11 @@
 /* Figure out whether we need access to EEPROM:
 
    - ECMD without TEENSY (IP address configuration etc.)
-   - BOOTP with to-EEPROM-feature */
-#if defined(ECMD_PARSER_SUPPORT) && (!defined(TEENSY_SUPPORT))	\
-  || defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)
+   - BOOTP with to-EEPROM-feature 
+   - STELLA with eeprom load/write support */
+#if (defined(ECMD_PARSER_SUPPORT) && (!defined(TEENSY_SUPPORT)))  \
+  || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)) \
+  || defined(STELLA_EEPROM) 
 #  define EEPROM_SUPPORT 1
 #endif
 

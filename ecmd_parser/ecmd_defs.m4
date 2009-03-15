@@ -59,9 +59,11 @@ ecmd_endif()
 
 ecmd_ifdef(STELLA_SUPPORT)
   block(Stella commands)
+  ecmd_ifdef(STELLA_EEPROM)
+    ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
+    ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
+  ecmd_endif
   ecmd_feature(stella_channels, "channels", CHANNELS, Return stella channel size)
-  ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
-  ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
   ecmd_feature(stella_version, "stella version", STELLAVERSION, Get stella protocol version)
   ecmd_feature(stella_fadestep_set, "stella fadestep set", FADESTEP, Set stella fade step)
   ecmd_feature(stella_fadestep_get, "stella fadestep get",, Get stella fade step)

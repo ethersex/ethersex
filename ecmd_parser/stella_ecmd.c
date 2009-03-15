@@ -39,6 +39,7 @@ int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 	return snprintf_P(output, len, PSTR("%d"), STELLA_PINS);
 }
 
+#ifdef STELLA_EEPROM
 int16_t parse_cmd_stella_eeprom_store (char *cmd, char *output, uint16_t len)
 {
 	eeprom_save(stella_channel_values, stella_color, 8);
@@ -52,6 +53,7 @@ int16_t parse_cmd_stella_eeprom_load (char *cmd, char *output, uint16_t len)
 	stella_sort(stella_color);
 	return snprintf_P(output, len, PSTR("ok"));
 }
+#endif
 
 int16_t parse_cmd_stella_version (char *cmd, char *output, uint16_t len)
 {
