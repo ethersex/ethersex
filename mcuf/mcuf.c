@@ -437,13 +437,20 @@ void mcuf_periodic(void) {
   if (blp_tic > blp_toc) {
 #ifdef MCUF_CLOCK_SUPPORT
     if (blp_toc < 30) {
+#  ifdef LEDRG_SUPPORT /* funky colored blinkin dots between the digits for LEDRG_SUPPORT */
       gdata[MCUF_MAX_SCREEN_HEIGHT-6][8] +=16;
       gdata[MCUF_MAX_SCREEN_HEIGHT-4][8] +=16;
       gdata[MCUF_MAX_SCREEN_HEIGHT-6][7] +=16;
       gdata[MCUF_MAX_SCREEN_HEIGHT-4][7] +=16;
+#  else /* simple blinkin dots between the digits for BLP_SUPPORT and/or MCUF_SERIAL_SUPPORT */
+      gdata[MCUF_MAX_SCREEN_HEIGHT-6][8] ^= 0xff;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-4][8] ^= 0xff;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-6][7] ^= 0xff;
+      gdata[MCUF_MAX_SCREEN_HEIGHT-4][7] ^= 0xff;
+#  endif /* ifdef LEDRG_SUPPORT */
       updateframe();
     } else
-#endif
+#endif /* ifdef MCUF_CLOCK_SUPPORT */
     {
 #ifdef MCUF_SERIAL_SUPPORT
       blp_toc=30;
@@ -501,10 +508,15 @@ void mcuf_show_clock(uint8_t clockswitch) {
 #endif
     draw_box(0, MCUF_MIN_SCREEN_HEIGHT, MCUF_MAX_SCREEN_WIDTH, MCUF_SPLIT_SCREEN_HEIGHT, 0, 0);
     draw_tinynumber(date.hour, 0 , MCUF_MAX_SCREEN_HEIGHT-7, 0xff);
+#ifdef LEDRG_SUPPORT /* funky colored blinkin dots between the digits for LEDRG_SUPPORT */
     gdata[MCUF_MAX_SCREEN_HEIGHT-6][8] = 0x80;
     gdata[MCUF_MAX_SCREEN_HEIGHT-4][8] = 1;
     gdata[MCUF_MAX_SCREEN_HEIGHT-6][7] = 1;
     gdata[MCUF_MAX_SCREEN_HEIGHT-4][7] = 0x80;
+#else /* simple blinkin dots between the digits for BLP_SUPPORT and/or MCUF_SERIAL_SUPPORT  */
+    gdata[MCUF_MAX_SCREEN_HEIGHT-6][7] = 0xff;
+    gdata[MCUF_MAX_SCREEN_HEIGHT-4][7] = 0xff;
+#endif
     draw_tinynumber(date.min , 9 , MCUF_MAX_SCREEN_HEIGHT-7, 0xff); 
     if (clockswitch != 1)
       updateframe();
