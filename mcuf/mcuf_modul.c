@@ -46,6 +46,85 @@
 #include "image/image.h"
 
 #ifdef MCUF_MODUL_SUPPORT
+#include "borg-16/xoni_study.h"
+#include "borg-16/matrix.h"
+
+#ifdef MCUF_MODUL_BORG16_SUPPORT
+
+void setpixel(pixel p, uint8_t color){
+  setPixel(p.x, p.y, color);
+}
+#endif //MCUF_MODUL_BORG16_SUPPORT
+
+#ifdef MCUF_CHESS_SUPPORT
+void clean(){
+  mcuf_clean(0,1);
+}
+#endif
+#ifdef MCUF_SPIRAL_SUPPORT
+void spiral(){
+  mcuf_spiral(5);
+}
+#endif
+
+struct mcuf_modul_t mcuf_display_modules[] PROGMEM = 
+{
+#ifdef MCUF_CHESS_SUPPORT
+{ mcuf_chess },
+#endif
+#ifdef MCUF_SPIRAL_SUPPORT
+{ spiral },
+#endif
+#ifdef MCUF_CLEAN_SUPPORT
+{ clean },
+#endif
+#ifdef MCUF_BORG16_MATIX_SUPPORT
+{ matrix },
+#endif
+#ifdef MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
+{ xoni_study1 },
+#endif
+{ NULL }
+};
+
+uint8_t mcuf_current_modul = 0;
+
+uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
+{
+#ifdef SYSLOG_SUPPORT
+    syslog_send_P(PSTR("mcuf play modul"));
+#endif
+
+
+  switch (play_mode){
+    case MCUF_MODUL_PLAY_MODE_MANUAL: 
+      mcuf_current_modul = modul;
+      break;
+    case MCUF_MODUL_PLAY_MODE_SEQUENCE:
+      mcuf_current_modul++;
+      break;
+    case MCUF_MODUL_PLAY_MODE_RANDOM: 
+      mcuf_current_modul = rand() ;
+      break;
+  }
+ 
+  struct mcuf_modul_t modulfunc;
+  for (uint8_t i = 0; ; i++) {
+
+    memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
+
+    if (modulfunc.handler == NULL) break;
+
+    if (mcuf_current_modul == i ) {
+#ifdef SYSLOG_SUPPORT
+    syslog_send_P(PSTR("mcuf play modul: %i"),i);
+#endif
+    	modulfunc.handler();
+	break;
+    }
+  }
+  return mcuf_current_modul;
+}
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT
 #include "borg-16/xoni_study.h"
@@ -165,6 +244,7 @@ void frandom_bright(){
 #endif //MCUF_MODUL_BORG16_SUPPORT
 
 #ifdef MCUF_CHESS_SUPPORT
+<<<<<<< HEAD:mcuf/mcuf_modul.c
 void clean(){
   mcuf_clean(0,1);
 }
@@ -172,6 +252,15 @@ void clean(){
 #ifdef MCUF_SPIRAL_SUPPORT
 void spiral(){
   mcuf_spiral(5);
+=======
+void mcuf_chess()
+{
+  uint8_t y;
+  uint8_t x;
+  for (y=0; y < MCUF_MAX_SCREEN_WIDTH; y++)
+    for (x=0; x < MCUF_MAX_SCREEN_HEIGHT; x++)
+       setPixel(x, y, x + y);
+>>>>>>> 6e3805b... mcuf modul: borg16 and own modules added + cron:mcuf/mcuf_modul.c
 }
 #endif
 
@@ -187,6 +276,7 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 { spiral },
 #endif
 #ifdef MCUF_CLEAN_SUPPORT
+<<<<<<< HEAD:mcuf/mcuf_modul.c
 { clean },
 #endif
 #ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
@@ -266,16 +356,54 @@ uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
     case MCUF_MODUL_PLAY_MODE_RANDOM: 
       mcuf_current_modul = rand() ;
       break;
+=======
+void mcuf_clean(uint8_t color, uint8_t delay)
+{
+  uint8_t y;
+  uint8_t x;
+  for (y=0; y < MCUF_MAX_SCREEN_WIDTH; y++){
+    for (x=0; x < MCUF_MAX_SCREEN_HEIGHT; x++) {
+       setPixel(x, y, 0);
+      _delay_ms(delay);
+     }
+>>>>>>> 6e3805b... mcuf modul: borg16 and own modules added + cron:mcuf/mcuf_modul.c
   }
  
   struct mcuf_modul_t modulfunc;
   for (i = 0; ; i++) {
 
+<<<<<<< HEAD:mcuf/mcuf_modul.c
     memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
 
     if (modulfunc.handler ==  NULL) {
        mcuf_current_modul = 0;
        break;
+=======
+#ifdef MCUF_SPIRAL_SUPPORT
+void mcuf_spiral(uint8_t delay)
+{
+  uint8_t x = 0;
+  uint8_t y = 0;
+  uint8_t x1 = 0;
+  uint8_t y1 = 0;
+  uint8_t x2 = MCUF_MAX_SCREEN_WIDTH-1;
+  uint8_t y2 = MCUF_MAX_SCREEN_HEIGHT-1;
+
+  while ( (x1 <= x2) && (y1 <= y2)){
+    for (x=x1; x < x2; x++) {
+      setPixel(x, y, 1);
+      _delay_ms(delay);
+    }
+    x1++;
+    for (y=y1; y < y2; y++){
+      setPixel(x, y, 2);
+      _delay_ms(delay);
+    }
+    y1++;
+    for (x=x2; x > x1; x--) {
+      setPixel(x, y, 3);
+      _delay_ms(delay);
+>>>>>>> 6e3805b... mcuf modul: borg16 and own modules added + cron:mcuf/mcuf_modul.c
     }
 
     if (mcuf_current_modul == i ) {
