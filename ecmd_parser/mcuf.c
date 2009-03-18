@@ -61,48 +61,17 @@ int16_t parse_cmd_mcuf_show_string(char *cmd, char *output, uint16_t len)
 #ifdef MCUF_MODUL_SUPPORT
 int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
 {
-  uint8_t modul;
+  uint8_t modul=0;
 
+  MCUF_PLAY_MODE mode = MCUF_MODUL_PLAY_MODE_SEQUENCE;
+#ifdef MCUF_MODUL_DISPLAY_MODE_MANUAL
+  mode = MCUF_MODUL_PLAY_MODE_MANUAL;
   sscanf_P (cmd, PSTR ("%i\n"),&modul);
-  switch (modul)
-  {
-#ifdef MCUF_CHESS_SUPPORT
-    case 0:
-      mcuf_chess();
-    break;
-#endif //MCUF_CHESS_SUPPORT
-#ifdef MCUF_BOX_SUPPORT
-    case 1:
-      draw_box(0, 0, MCUF_MAX_SCREEN_WIDTH, MCUF_SPLIT_SCREEN_HEIGHT, mcuf_scrolltext_buffer.bcolor, mcuf_scrolltext_buffer.bcolor);
-      break;
-#endif //MCUF_BOX_SUPPORT
-#ifdef MCUF_SCROLLTEXT_SUPPORT
-    case 2:
-       mcuf_show_string("ethersex rules");
-     break;
-#endif //MCUF_SCROLLTEXT_SUPPORT
-#ifdef MCUF_CLEAN_SUPPORT
-    case 3:
-      mcuf_clean(5);
-    break;
-    case 4:
-      mcuf_clean(50);
-    break;
-#endif //MCUF_CLEAN_SUPPORT
-#ifdef MCUF_SPIRAL_SUPPORT
-    case 5:
-      mcuf_clean(0);
-      mcuf_spiral(5);
-    break;
-    case 6:
-      mcuf_clean(0);
-      mcuf_spiral(30);
-    break;
-#endif //MCUF_SPIRAL_SUPPORT
-    default:
-      debug_printf("not found\n");
-  }
-
+#endif
+#ifdef MCUF_MODUL_DISPLAY_MODE_RANDOM
+  mode = MCUF_MODUL_PLAY_MODE_RANDOM;
+#endif
+  mcuf_play_modul(mode, modul);
   return 0;
 }
 

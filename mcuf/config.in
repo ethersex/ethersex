@@ -42,10 +42,20 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
 
   comment "MCUF Module"
   dep_bool_menu "MCUF Module" MCUF_MODUL_SUPPORT $MCUF_SUPPORT
+    dep_bool "MCUF Module in Cron" MCUF_MODUL_CRON_SUPPORT $MCUF_SUPPORT
+     choice 'Modul Display Mode' \
+     "sequence        MCUF_MODUL_DISPLAY_MODE_SEQUENCE \
+      random          MCUF_MODUL_DISPLAY_MODE_RANDOM \
+      manual          MCUF_MODUL_DISPLAY_MODE_MANUAL" \
+      'random' MCUF_MODUL_DISPLAY_MODE
     dep_bool "MCUF Chess" MCUF_CHESS_SUPPORT $MCUF_MODUL_SUPPORT
     dep_bool "MCUF Box" MCUF_BOX_SUPPORT $MCUF_MODUL_SUPPORT
     dep_bool "MCUF Clean" MCUF_CLEAN_SUPPORT $MCUF_MODUL_SUPPORT
     dep_bool "MCUF Spiral" MCUF_SPIRAL_SUPPORT $MCUF_MODUL_SUPPORT
+    dep_bool_menu "MCUF Module Borg-16" MCUF_MODUL_BORG16_SUPPORT $MCUF_SUPPORT
+      dep_bool "MCUF Xoni Study1" MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT $MCUF_MODUL_BORG16_SUPPORT
+      dep_bool "MCUF Matrix" MCUF_MODUL_BORG16_MATRIX_SUPPORT $MCUF_MODUL_BORG16_SUPPORT
+    endmenu
   endmenu
 
 
