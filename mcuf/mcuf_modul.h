@@ -79,6 +79,14 @@ pixel next_pixel(pixel pix, direction dir);
 void set_cursor(cursor* cur, pixel p);
 void walk(cursor* cur, unsigned char steps, unsigned int delay);
 
+void clear_screen(uint8_t color);
+unsigned char get_pixel(pixel p);
+unsigned char get_next_pixel(pixel p, direction dir);
+direction direction_r(direction dir);
+pixel next_pixel(pixel pix, direction dir);
+void set_cursor(cursor* cur, pixel p);
+void walk(cursor* cur, unsigned char steps, unsigned int delay);
+
 void setpixel(pixel p, uint8_t color);
 #define WAIT(ms) _delay_ms(ms)
 #define wait(ms) _delay_ms(ms)
