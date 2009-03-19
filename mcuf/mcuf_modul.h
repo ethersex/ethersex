@@ -39,7 +39,17 @@
 #ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
 #define NUM_ROWS MCUF_MAX_SCREEN_WIDTH
 #define NUM_COLS MCUF_MAX_SCREEN_HEIGHT
+#define LINEBYTES (((NUM_COLS-1)/8)+1)
+
 #define STREAMER_NUM 100
+#define FEUER_N 5
+#define FEUER_S 30
+#define FEUER_DIV 44
+#define FEUER_DELAY 50
+#define FEUER_Y (NUM_ROWS + 3)
+
+#define SNAKE_DELAY 100
+
 #endif
 
 typedef struct {
@@ -47,16 +57,32 @@ typedef struct {
         unsigned char y;
 } pixel;
 
+typedef enum {right,left,up,down} direction;
+typedef struct {
+        pixel pos;
+        direction dir;
+        enum{clear=0, set=1} mode;
+} cursor;
+
 typedef enum {
 	MCUF_MODUL_PLAY_MODE_MANUAL,
 	MCUF_MODUL_PLAY_MODE_RANDOM,
 	MCUF_MODUL_PLAY_MODE_SEQUENCE
 } MCUF_PLAY_MODE;
 
+void clear_screen(uint8_t color);
+unsigned char get_pixel(pixel p);
+unsigned char get_next_pixel(pixel p, direction dir);
+direction direction_r(direction dir);
+pixel next_pixel(pixel pix, direction dir);
+void set_cursor(cursor* cur, pixel p);
+void walk(cursor* cur, unsigned char steps, unsigned int delay);
+
 void setpixel(pixel p, uint8_t color);
 #define WAIT(ms) _delay_ms(ms)
 #define wait(ms) _delay_ms(ms)
 #define random8() rand()
+#define clearpixel(p) setpixel(p, 0);
 
 #endif //MCUF_MODUL_BORG16_SUPPORT
 

@@ -90,6 +90,7 @@ void mcuf_show_string(char *);
 void draw_box(uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
                uint8_t outercolor, uint8_t innercolor);
 void setPixel(uint8_t x, uint8_t y, uint8_t color);
+uint8_t getPixel(uint8_t x, uint8_t y);
 
 extern uint8_t gdata[MCUF_MAX_SCREEN_HEIGHT][MCUF_MAX_SCREEN_WIDTH];
 

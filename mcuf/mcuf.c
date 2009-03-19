@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the, PAx, OUTPUT)
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -565,6 +565,10 @@ void mcuf_show_string(char * x) {
 
 void setPixel(uint8_t x, uint8_t y, uint8_t color){
 	gdata[y][x] = color;
+}
+
+uint8_t getPixel(uint8_t x, uint8_t y){
+	return gdata[y][x];
 }
 
 void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,

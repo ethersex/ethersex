@@ -42,24 +42,6 @@ void test(void)
 #endif
 }
 
-#ifdef I2C_PCF8574X_SUPPORT
-
-#include "../i2c_master/i2c_pcf8574x.h"
-
-uint8_t ledbits=0x0;
-
-void i2c_leds(void)
-{
-#ifdef SYSLOG_SUPPORT
-    syslog_send_P(PSTR("i2c LED event matched!"));
-#endif
-
- i2c_pcf8574x_set(I2C_SLA_PCF8574 + 0,ledbits);
- ledbits++;
-}
-
-#endif //I2C_PCF8574X_SUPPORT
-
 #ifdef  MCUF_CLOCK_SUPPORT
 void
 mcuf_clock(void)
@@ -67,6 +49,20 @@ mcuf_clock(void)
   mcuf_show_clock(1);
 }
 #endif /* MCUF_CLOCK_SUPPORT */
+
+#ifdef MCUF_MODUL_CRON_SUPPORT
+#include "../mcuf/mcuf_modul.h"
+void
+mcuf_modul(void)
+{
+#ifdef MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM
+  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE,0);
+#endif
+#ifdef MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE
+  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE,0);
+#endif
+}
+#endif // MCUF_MODUL_CRON_SUPPORT
 
 /* Cron configuration:
  * Fields: Min Hour Day Month Dow
@@ -83,13 +79,13 @@ struct cron_event_t events[] PROGMEM =
   { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
   { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
 
-#ifdef I2C_PCF8574X_SUPPORT
-  { { {-1, -1, -1, -1, -1} }, i2c_leds, USE_LOCAL}, /* when minute % 1 == 0 */
-#endif //I2C_PCF8574X_SUPPORT
-
 #ifdef MCUF_CLOCK_SUPPORT
   { { {-1, -1, -1, -1, -1} }, mcuf_clock, USE_LOCAL}, /* every minute  */
 #endif /* MCUF_CLOCK_SUPPORT */
+
+#ifdef MCUF_MODUL_CRON_SUPPORT
+  { { {-1, -1, -1, -1, -1} }, mcuf_modul, USE_LOCAL}, /* every minute  */
+#endif // MCUF_MODUL_CRON_SUPPORT
 
   /* This is only the end of table marker */
   { { {-1, -1, -1, -1, -1} }, NULL, 0},
