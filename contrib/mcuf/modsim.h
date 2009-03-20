@@ -29,20 +29,14 @@
 #define _MODSIM_H
 
 #define GCC 1
-#define MCUF_MODUL_SUPPORT 1
-#define MCUF_CHESS_SUPPORT 1
-#define MCUF_CLEAN_SUPPORT 1
-#define MCUF_SPIRAL_SUPPORT 1
-#define MCUF_MODUL_BORG16_SUPPORT 1
-#define MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
-
 #define MCUF_MAX_SCREEN_WIDTH 16
 #define MCUF_MAX_SCREEN_HEIGHT 16
 
 #define uint8_t int
-
+#define memcpy_P memcpy
 
 void setPixel(uint8_t x, uint8_t y, uint8_t color);
+uint8_t getPixel(uint8_t x, uint8_t y);
 void _delay_ms(uint8_t delay);
 
 #endif // _MODSIM_H

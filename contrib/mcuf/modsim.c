@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include "../../autoconf.h"
 #include "modsim.h"
 #include "../../mcuf/mcuf_modul.h"
-
 
 char colors[4] = " .oX";
 
@@ -59,6 +59,10 @@ void setPixel(uint8_t x, uint8_t y, uint8_t color)
 	printf("\n");
 }
 
+uint8_t getPixel(uint8_t x, uint8_t y){
+	return mcuf_matrix[x][y];
+}
+
 void _delay_ms(uint8_t delay){
 	usleep(delay*1000);
 }
@@ -80,7 +84,7 @@ main(int argc, char *argv[])
   int m=0;
   initMatrix();
 
-  for (i = 0 ; i < 10 ; i++)
+  for (i = 0 ; i < 20 ; i++)
   {
   	m = mcuf_play_modul(MCUF_MODUL_PLAY_MODE_MANUAL, i);
   }
