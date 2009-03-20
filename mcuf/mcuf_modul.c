@@ -39,6 +39,8 @@
 #include "../uip/uip.h"
 #else
 #include "../contrib/mcuf/modsim.h"
+#define PROGMEM
+#define NULL 0 
 #endif // GCC
 
 #include "mcuf_modul.h"
@@ -46,12 +48,13 @@
 #include "image/image.h"
 
 #ifdef MCUF_MODUL_SUPPORT
+
+#ifdef MCUF_MODUL_BORG16_SUPPORT
 #include "borg-16/xoni_study.h"
 #include "borg-16/matrix.h"
 #include "borg-16/programm.h"
-//#include "borg-16/snake.h"
+#include "borg-16/snake.h"
 
-#ifdef MCUF_MODUL_BORG16_SUPPORT
 
 void setpixel(pixel p, uint8_t color){
   setPixel(p.x, p.y, color);
