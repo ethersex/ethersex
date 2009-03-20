@@ -25,6 +25,7 @@
 #ifndef _MCUF_MODUL_H
 #define _MCUF_MODUL_H
 
+#include "../autoconf.h"
 #ifndef GCC
 #include <stdint.h>
 #include <util/delay.h>
@@ -36,7 +37,6 @@
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT
 
-#ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
 #define NUM_ROWS MCUF_MAX_SCREEN_WIDTH
 #define NUM_COLS MCUF_MAX_SCREEN_HEIGHT
 #define LINEBYTES (((NUM_COLS-1)/8)+1)
@@ -48,9 +48,8 @@
 #define FEUER_DELAY 50
 #define FEUER_Y (NUM_ROWS + 3)
 
+#define PINB 0
 #define SNAKE_DELAY 100
-
-#endif
 
 typedef struct {
         unsigned char x;
@@ -63,12 +62,6 @@ typedef struct {
         direction dir;
         enum{clear=0, set=1} mode;
 } cursor;
-
-typedef enum {
-	MCUF_MODUL_PLAY_MODE_MANUAL,
-	MCUF_MODUL_PLAY_MODE_RANDOM,
-	MCUF_MODUL_PLAY_MODE_SEQUENCE
-} MCUF_PLAY_MODE;
 
 void clear_screen(uint8_t color);
 unsigned char get_pixel(pixel p);
@@ -85,6 +78,12 @@ void setpixel(pixel p, uint8_t color);
 #define clearpixel(p) setpixel(p, 0);
 
 #endif //MCUF_MODUL_BORG16_SUPPORT
+
+typedef enum {
+	MCUF_MODUL_PLAY_MODE_MANUAL,
+	MCUF_MODUL_PLAY_MODE_RANDOM,
+	MCUF_MODUL_PLAY_MODE_SEQUENCE
+} MCUF_PLAY_MODE;
 
 struct mcuf_modul_t {
  void (*handler)(void);
