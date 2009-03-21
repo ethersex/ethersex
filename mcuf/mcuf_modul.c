@@ -52,6 +52,7 @@
 #include "borg-16/matrix.h"
 #include "borg-16/programm.h"
 #include "borg-16/snake.h"
+#include "borg-16/gameoflife.h"
 
 
 void setpixel(pixel p, uint8_t color){
@@ -227,6 +228,9 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 #endif
 #ifdef MCUF_MODUL_BORG16_TETRIS_SUPPORT
 { tetris },
+#endif
+#ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
+{ gameoflife },
 #endif
 { NULL }
 };
