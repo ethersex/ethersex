@@ -55,6 +55,7 @@
 #include "borg-16/programm.h"
 #include "borg-16/snake.h"
 #include "borg-16/gameoflife.h"
+#include "borg-16/invaders2.h"
 
 
 void setpixel(pixel p, uint8_t color){
@@ -233,6 +234,9 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 #endif
 #ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
 { gameoflife },
+#endif
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
+ {borg_invaders },
 #endif
 { NULL }
 };
