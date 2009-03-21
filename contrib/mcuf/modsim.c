@@ -42,7 +42,7 @@ void setPixel(uint8_t x, uint8_t y, uint8_t color)
 {
 	mcuf_matrix[x][y]=color;
 	
-	system("clear");
+//	system("clear");
 	
 	printf("\n");
 	for (x=0;x<MCUF_MAX_SCREEN_HEIGHT;x++)
@@ -84,11 +84,11 @@ main(int argc, char *argv[])
   int m=0;
   initMatrix();
 
-  for (i = 0 ; i < 20 ; i++)
+  for (i = 12 ; i < 20 ; i++)
   {
   	m = mcuf_play_modul(MCUF_MODUL_PLAY_MODE_MANUAL, i);
   }
 
-  printf("EOF");
+  printf("EOF\n");
   return 0;
 }

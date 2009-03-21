@@ -33,6 +33,7 @@
 #define MCUF_MAX_SCREEN_HEIGHT 16
 
 #define uint8_t int
+#define uint16_t int
 #define memcpy_P memcpy
 
 void setPixel(uint8_t x, uint8_t y, uint8_t color);
