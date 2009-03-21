@@ -48,8 +48,16 @@
 #define FEUER_DELAY 50
 #define FEUER_Y (NUM_ROWS + 3)
 
-#define PINB 0
+// #define PINB 0 // something should be done with this pin
 #define SNAKE_DELAY 100
+
+// disabled as long there is no joystick support
+#define JOYISFIRE  0 //(!(PIND & (1<<BITFIRE)))
+#define JOYISLEFT  0 //(!(PINB & (1<<BITLEFT)))
+#define JOYISRIGHT 0 //(!(PINB & (1<<BITRIGHT)))
+#define JOYISDOWN  0 //(!(PINB & (1<<BITDOWN)))
+#define JOYISUP    0 //(!(PINB & (1<<BITUP)))
+
 
 typedef struct {
         unsigned char x;

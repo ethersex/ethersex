@@ -11,6 +11,10 @@ SRC = \
 	borg-16/xoni_study.c\
 	borg-16/snake.c\
 	borg-16/gameoflife.c\
+	borg-16/invader_draw.c\
+	borg-16/invader_init.c\
+	borg-16/invader_proc.c\
+	borg-16/invaders2.c\
 	borg-16/matrix.c
 
 ##############################################################################
