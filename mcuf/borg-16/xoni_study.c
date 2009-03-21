@@ -1,30 +1,3 @@
-// architecture dependent stuff
-/*
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#define WAIT(ms) wait(ms)
-#else
-#define PROGMEM
-#define WAIT(ms) myWait(ms)
-#endif
-
-#include <setjmp.h>
-#include <avr/interrupt.h>
-#include <stdio.h>
-#include "config.h"
-#include "scrolltext.h"
-#include "programm.h"
-#include "matrix.h"
-#include "gameoflife.h"
-#include "borg_hw.h"
-#include "pixel.h"
-#include "borg_can.h"
-#include "joystick.h"
-#include "prng.h"
-#include "persistentCounter.h"
-#include "menu.h"
-#include "mcuf.h"
-*/
 #include "../mcuf_modul.h"
 
 void draw_queue(uint8_t x, uint8_t y, uint8_t on);
