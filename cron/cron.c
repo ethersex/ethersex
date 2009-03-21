@@ -56,7 +56,7 @@ void
 mcuf_modul(void)
 {
 #ifdef MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM
-  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE,0);
+  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_RANDOM,0);
 #endif
 #ifdef MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE
   mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE,0);
