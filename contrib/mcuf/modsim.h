@@ -35,6 +35,8 @@
 #define uint8_t int
 #define uint16_t int
 #define memcpy_P memcpy
+#define PROGMEM
+#define NULL 0 
 
 void setPixel(uint8_t x, uint8_t y, uint8_t color);
 uint8_t getPixel(uint8_t x, uint8_t y);
