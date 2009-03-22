@@ -39,8 +39,6 @@
 #include "../uip/uip.h"
 #else
 #include "../contrib/mcuf/modsim.h"
-#define PROGMEM
-#define NULL 0 
 #endif // GCC
 
 #include "mcuf_modul.h"
@@ -148,17 +146,21 @@ direction direction_r(direction dir){
         return(0);
 }
 
-
-
+#ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
 void fspirale(){ 
   spirale(3);
 }
+#endif
+#ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
 void fschachbrett(){
   schachbrett(50);
 }
+#endif
+#ifdef MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
 void frandom_bright(){
   random_bright(50);
 }
+#endif
 
 #endif //MCUF_MODUL_BORG16_SUPPORT
 
@@ -175,6 +177,9 @@ void spiral(){
 
 struct mcuf_modul_t mcuf_display_modules[] PROGMEM = 
 {
+#ifdef MCUF_IMAGE_SUPPORT
+ { mcuf_image },
+#endif
 #ifdef MCUF_CHESS_SUPPORT
 { mcuf_chess },
 #endif
@@ -236,7 +241,7 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 { gameoflife },
 #endif
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
- {borg_invaders },
+ { borg_invaders },
 #endif
 { NULL }
 };
