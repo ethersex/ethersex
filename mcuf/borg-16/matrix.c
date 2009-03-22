@@ -1,15 +1,5 @@
-/**
- * 
- * 
- * 
- * 
- */
-/*
-#include <stdint.h> 
-#include "prng.h"
-#include "pixel.h"
-#include "util.h"
-*/
+#ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
+
 #include "../mcuf_modul.h"
 
 typedef struct{
@@ -99,6 +89,4 @@ void matrix() {
 }
 
 
-
-
-
+#endif //MCUF_MODUL_BORG16_MATRIX_SUPPORT

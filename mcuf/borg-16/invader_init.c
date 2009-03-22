@@ -1,3 +1,4 @@
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 #include "invaders2.h"
 
 unsigned char peter[8][11] =
@@ -151,3 +152,4 @@ void initInvaders(Invaders * iv, unsigned char lv)
 
 	}
 }
+#endif

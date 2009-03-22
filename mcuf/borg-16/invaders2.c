@@ -1,3 +1,4 @@
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 /*
 #include <stdio.h>
 #include "util.h"
@@ -134,3 +135,5 @@ void borg_invaders()
 	//      waitForFire = 1;                
 
 }
+
+#endif //MCUF_MODUL_BORG16_INVADERS_SUPPORT

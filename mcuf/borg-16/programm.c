@@ -1,16 +1,8 @@
-/*
-//#include "prng.h"
-#include "pixel.h"
-#include "util.h"
-
-#ifdef AVR
-	#include <avr/io.h>
-#endif
-*/
 #include "../mcuf_modul.h"
 
 #define RANDOM8() (random8())
 
+#ifdef MCUF_MODUL_BORG16_TEST1_SUPPORT
 void test1(){
 	unsigned char x,y;
 	for (y=0;y<NUM_ROWS;y++){
@@ -20,7 +12,9 @@ void test1(){
 		}
 	}
 }
+#endif //MCUF_MODUL_BORG16_TEST1_SUPPORT
 
+#ifdef MCUF_MODUL_BORG16_TESTL1_SUPPORT
 void test_level1(){
 	unsigned char x,y;
 	for (y=0;y<NUM_ROWS;y++){
@@ -31,7 +25,8 @@ void test_level1(){
 	}
 	for(;;) wait(100);
 }
-
+#endif //MCUF_MODUL_BORG16_TESTL1_SUPPORT
+#ifdef MCUF_MODUL_BORG16_TESTL2_SUPPORT
 void test_level2(){
 	unsigned char x,y;
 	for (y=0;y<NUM_ROWS;y++){
@@ -42,7 +37,8 @@ void test_level2(){
 	}
 	for(;;) wait(100);
 }
-
+#endif //MCUF_MODUL_BORG16_TESTL2_SUPPORT
+#ifdef MCUF_MODUL_BORG16_TESTL3_SUPPORT
 void test_level3(){
 	unsigned char x,y;
 	for (y=0;y<NUM_ROWS;y++){
@@ -53,6 +49,8 @@ void test_level3(){
 	}
 	for(;;) wait(100);
 }
+#endif //MCUF_MODUL_BORG16_TESTL3_SUPPORT
+#ifdef MCUF_MODUL_BORG16_TESTLX_SUPPORT
 
 void test_levels(){
 	unsigned char x,y,b;
@@ -65,7 +63,8 @@ void test_levels(){
 		}
 	}
 }
-
+#endif //MCUF_MODUL_BORG16_TESTLX_SUPPORT
+#ifdef MCUF_MODUL_BORG16_PALETTE_SUPPORT
 void test_palette(){
 	unsigned char x,y,b;
 	for (y=0;y<NUM_ROWS;y++){
@@ -77,7 +76,8 @@ void test_palette(){
 	}
 	for(;;) wait(100);
 }
-
+#endif //MCUF_MODUL_BORG16_PALETTE_SUPPORT
+#ifdef MCUF_MODUL_BORG16_SUPPORT
 void off()
 {
 	clear_screen(0);
@@ -86,7 +86,9 @@ void off()
 		wait(100);
 
 }
+#endif //MCUF_MODUL_BORG16_SUPPORT
 
+#ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
 void spirale(unsigned int delay){
 	clear_screen(0);
 
@@ -121,7 +123,9 @@ void spirale(unsigned int delay){
 	}
 
 }
+#endif //MCUF_MODUL_BORG16_SPIRAL_SUPPORT
 
+#ifdef MCUF_MODUL_BORG16_JOERN1_SUPPORT
 void joern1(){
 
 unsigned char i, j, x;
@@ -139,7 +143,9 @@ unsigned char i, j, x;
 	}
 
 }
+#endif //MCUF_MODUL_BORG16_JOERN1_SUPPORT
 
+#ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
 void schachbrett(unsigned char times){
 
 	clear_screen(0);
@@ -160,6 +166,8 @@ void schachbrett(unsigned char times){
 
 }
 
+#endif //MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
+#ifdef MCUF_MODUL_BORG16_FADEIN_SUPPORT
 void fadein()
 {
 	unsigned char value, x, y;
@@ -173,9 +181,10 @@ void fadein()
 	}
 
 }
+#endif //MCUF_MODUL_BORG16_FADEIN_SUPPORT
 
+#ifdef MCUF_MODUL_BORG16_FIRE_SUPPORT
 #define FEUER_Y (NUM_ROWS + 3)
-
 
 void feuer()
 {
@@ -211,7 +220,9 @@ void feuer()
 	}
 }
 
+#endif //MCUF_MODUL_BORG16_FIRE_SUPPORT
 
+#ifdef MCUF_MODUL_BORG16_TETRIS_SUPPORT
 void tetris(){
 //	PORTB = 0x0f;
 	clear_screen(0);
@@ -309,7 +320,8 @@ void tetris(){
 	dropin(left);
 }
 
-
+#endif //MCUF_MODUL_BORG16_TETRIS_SUPPORT
+#ifdef MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
 /**
  * void random_bright(void)
  *  by Daniel Otte
@@ -331,3 +343,4 @@ void random_bright(unsigned cycles){
 	}
 }
 
+#endif //MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT

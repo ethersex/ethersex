@@ -1,21 +1,5 @@
-/**
- * Conways Game of life 
- * Author: Daniel Otte
- * License: GPLv3
- * 
- * 
- */
-
-//#include <stdint.h>
-//#include <util/delay.h>
-//#include <avr/sfr_defs.h> /* for debugging */
-//#include "config.h"
-//#include "prng.h"
-//#include "pixel.h"
-//#include "util.h"
-
+#ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
 #include "../mcuf_modul.h"
-
 
 /******************************************************************************/ 
 
@@ -312,3 +296,4 @@ int gameoflife(){
 	return 0;
 }
 
+#endif //MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT

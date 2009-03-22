@@ -1,3 +1,4 @@
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 #include "invaders2.h"
 /*----------------------getter/setter----------------------------*/
 
@@ -113,3 +114,4 @@ void draw(Invaders * iv, Spaceship * sc, Player * pl, Cannon * cn,
 	}
 
 }
+#endif // MCUF_MODUL_BORG16_INVADERS_SUPPORT

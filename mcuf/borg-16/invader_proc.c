@@ -1,7 +1,4 @@
-/*
-#include <stdlib.h>
-#include "prng.h"
-*/
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 #include "invaders2.h"
 
 void procCannon(Cannon * cn, uPixel * shot)
@@ -304,3 +301,4 @@ unsigned char getStatus(Invaders * iv)
 
 	return 0;
 }
+#endif //MCUF_MODUL_BORG16_INVADERS_SUPPORT
