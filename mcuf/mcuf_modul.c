@@ -39,11 +39,11 @@
 #include "../uip/uip.h"
 #else
 #include "../contrib/mcuf/modsim.h"
-#define PROGMEM
-#define NULL 0 
 #endif // GCC
 
 #include "mcuf_modul.h"
+#include "mcuf_modul_examples.h"
+#include "image/image.h"
 
 #ifdef MCUF_MODUL_SUPPORT
 
@@ -146,17 +146,21 @@ direction direction_r(direction dir){
         return(0);
 }
 
-
-
+#ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
 void fspirale(){ 
   spirale(3);
 }
+#endif
+#ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
 void fschachbrett(){
   schachbrett(50);
 }
+#endif
+#ifdef MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
 void frandom_bright(){
   random_bright(50);
 }
+#endif
 
 #endif //MCUF_MODUL_BORG16_SUPPORT
 
@@ -173,6 +177,9 @@ void spiral(){
 
 struct mcuf_modul_t mcuf_display_modules[] PROGMEM = 
 {
+#ifdef MCUF_IMAGE_SUPPORT
+ { mcuf_image },
+#endif
 #ifdef MCUF_CHESS_SUPPORT
 { mcuf_chess },
 #endif
@@ -234,7 +241,7 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 { gameoflife },
 #endif
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
- {borg_invaders },
+ { borg_invaders },
 #endif
 { NULL }
 };
@@ -281,67 +288,6 @@ uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
   }
   return mcuf_current_modul;
 }
-
-#ifdef MCUF_CHESS_SUPPORT
-void mcuf_chess()
-{
-  uint8_t y;
-  uint8_t x;
-  for (y=0; y < MCUF_MAX_SCREEN_WIDTH; y++)
-    for (x=0; x < MCUF_MAX_SCREEN_HEIGHT; x++)
-       setPixel(x, y, x + y);
-}
-#endif //MCUF_CHESS_SUPPORT
-
-#ifdef MCUF_CLEAN_SUPPORT
-void mcuf_clean(uint8_t color, uint8_t delay)
-{
-  uint8_t y;
-  uint8_t x;
-  for (y=0; y < MCUF_MAX_SCREEN_WIDTH; y++){
-    for (x=0; x < MCUF_MAX_SCREEN_HEIGHT; x++) {
-       setPixel(x, y, 0);
-      _delay_ms(delay);
-     }
-  }
-}
-#endif //MCUF_CLEAN_SUPPORT
-
-#ifdef MCUF_SPIRAL_SUPPORT
-void mcuf_spiral(uint8_t delay)
-{
-  uint8_t x = 0;
-  uint8_t y = 0;
-  uint8_t x1 = 0;
-  uint8_t y1 = 0;
-  uint8_t x2 = MCUF_MAX_SCREEN_WIDTH-1;
-  uint8_t y2 = MCUF_MAX_SCREEN_HEIGHT-1;
-
-  while ( (x1 <= x2) && (y1 <= y2)){
-    for (x=x1; x < x2; x++) {
-      setPixel(x, y, 1);
-      _delay_ms(delay);
-    }
-    x1++;
-    for (y=y1; y < y2; y++){
-      setPixel(x, y, 2);
-      _delay_ms(delay);
-    }
-    y1++;
-    for (x=x2; x > x1; x--) {
-      setPixel(x, y, 3);
-      _delay_ms(delay);
-    }
-    x2--;
-    for (y=y2; y > y1; y--){
-      setPixel(x, y, 1);
-      _delay_ms(delay);
-    }
-    y2--;
-  } 
-}
-
-#endif //MCUF_CLEAN_SUPPORT
 
 #endif //MCUF_MODUL_SUPPORT
 

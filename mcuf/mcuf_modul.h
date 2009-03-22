@@ -99,9 +99,5 @@ struct mcuf_modul_t {
 
 uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul);
 
-void mcuf_chess(void);
-void mcuf_clean(uint8_t color, uint8_t delay);
-void mcuf_spiral(uint8_t delay);
-
 #endif  /* _MCUF_MODUL_H */
 

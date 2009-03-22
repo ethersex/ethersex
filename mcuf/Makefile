@@ -6,7 +6,9 @@ SRC = \
 	mcuf_net.c\
         mcuf_text.c\
         mcuf_modul.c\
+        mcuf_modul_examples.c\
 	ledmatrixint.c\
+	image/image.c\
 	borg-16/programm.c\
 	borg-16/xoni_study.c\
 	borg-16/snake.c\
