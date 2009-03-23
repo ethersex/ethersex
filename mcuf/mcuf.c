@@ -563,6 +563,10 @@ void mcuf_show_string(char * x) {
 }
 #endif
 
+void setPixel(uint8_t x, uint8_t y, uint8_t color){
+	gdata[y][x] = color;
+}
+
 void draw_box (uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
                uint8_t outercolor, uint8_t innercolor) {
   uint8_t nunx,nuny;

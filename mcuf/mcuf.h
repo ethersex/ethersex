@@ -87,6 +87,10 @@ void mcuf_periodic(void);
 void mcuf_show_clock(uint8_t clockswitch);
 void mcuf_show_string(char *);
 
+void draw_box(uint8_t startx, uint8_t starty, uint8_t lengthx, uint8_t lengthy,
+               uint8_t outercolor, uint8_t innercolor);
+void setPixel(uint8_t x, uint8_t y, uint8_t color);
+
 extern uint8_t gdata[MCUF_MAX_SCREEN_HEIGHT][MCUF_MAX_SCREEN_WIDTH];
 
 struct mcuf_scrolltext_struct {
