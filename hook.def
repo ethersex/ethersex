@@ -1,0 +1,170 @@
+/* vim:fdm=marker ts=4 et ai
+ * {{{
+ *
+ * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ }}} */
+
+/* Usage:
+ In order to define a hook within a module you have to define several macros an include "hook.def":
+
+#######################################################
+ In the c file (this will build the concrete functions of the implementation:
+,----[c code]-------
+|   #define HOOK_NAME char_input
+|   #define HOOK_ARGS (uint8_t x) 
+| 
+|   #define HOOK_COUNT 3
+|   #define HOOK_ARGS_CALL (x)
+| 
+|   #define HOOK_IMPLEMENT 1
+|   #include "hook.def"
+.---------------
+
+  HOOK_COUNT - numer of hook callbacks which can be stored
+  HOOK_NAME - the functions will be called after this:
+    hook_char_input_register()
+    hook_char_input_unregister()
+    hook_char_input_call()
+  HOOK_ARGS - the Arguments that will be passed to the _call() function 
+	      and the hook callbacks
+  HOOK_ARGS_CALL -  HOOK_ARGS without uint8_t, char, etc.
+  HOOK_IMPLEMENT - really do the implementation
+########################################################
+In the header file of the module you can include the definition file with less
+arguments in order to have the prototypes
+
+,----[c code in the header]
+| #define HOOK_NAME char_input
+| #define HOOK_ARGS (uint8_t x)
+| #include "hook.def"
+| #undef HOOK_NAME
+| #undef HOOK_ARGS
+.---------------
+
+#######################################################
+In order to register a function in the hook you must register it: (example
+after the previous include of hook.def:
+
+
+,----[concrete usage]-----
+| void hook_handler(uint8_t b) {
+|   debug_printf("hook: %d\n", b);
+| }
+| 
+| int main() {
+|   hook_char_input_register(hook_handler);
+|   hook_char_input_call(23);
+| }
+.---------------
+*/
+#if !defined(HOOK_NAME) || !defined(HOOK_ARGS)
+#error Please define HOOK_NAME and HOOK_ARGS
+#endif
+
+
+#define __hook_cat(a,b) a ## b
+#define _hook_cat(a,b) __hook_cat(a,b)
+#define _hook_prototype _hook_cat(_hook_cat(hook_, HOOK_NAME),_t)
+
+typedef void  (* _hook_prototype) HOOK_ARGS;
+
+uint8_t _hook_cat(_hook_cat(hook_, HOOK_NAME), _register) (_hook_prototype callback);
+uint8_t _hook_cat(_hook_cat(hook_, HOOK_NAME), _unregister) (_hook_prototype callback);
+void _hook_cat(_hook_cat(hook_, HOOK_NAME), _call) HOOK_ARGS;
+
+#ifdef HOOK_IMPLEMENT
+
+#ifndef str
+#define str(a) #a
+#endif
+
+#ifndef xstr
+#define xstr(a) str(a)
+#endif
+
+#ifdef DEBUG_HOOK
+# include "debug.h"
+# define HDEBUG(a...)  debug_printf(xstr(HOOK_NAME) ": " a "\n")
+#else
+# define HDEBUG(a...)
+#endif
+
+#if !defined(HOOK_ARGS_CALL) && !defined(HOOK_COUNT)
+#error "Please define HOOK_ARGS_CALL and HOOK_COUNT"
+#endif
+
+#define hook_counter _hook_cat(hook_count_, HOOK_NAME)
+#define hook_callbacks _hook_cat(hook_cb_, HOOK_NAME)
+
+static uint8_t hook_counter;
+static _hook_prototype hook_callbacks[HOOK_COUNT];
+
+uint8_t 
+_hook_cat(_hook_cat(hook_, HOOK_NAME), _register) (_hook_prototype callback)
+{
+  if (hook_counter >= HOOK_COUNT) {
+    HDEBUG("hook is full, register failed");
+    return 0;
+  }
+  _hook_cat(_hook_cat(hook_, HOOK_NAME), _unregister) (callback);
+  uint8_t i;
+  for (i = 0; i < HOOK_COUNT; i++) {
+    if (hook_callbacks[i] == NULL) {
+      hook_callbacks[i] = callback;
+      hook_counter++;
+      HDEBUG("hook successfully registered");
+      return 1;
+    }
+  }
+  HDEBUG("ergs");
+  return 0;
+}
+
+uint8_t 
+_hook_cat(_hook_cat(hook_, HOOK_NAME), _unregister) (_hook_prototype callback)
+{
+  uint8_t i;
+  for (i = 0; i < HOOK_COUNT; i++) {
+    if (hook_callbacks[i] == callback) {
+      hook_callbacks[i] = NULL;
+      hook_counter--;
+      HDEBUG("hook successfully unregistered");
+      return 1;
+    }
+  }
+  HDEBUG("callback was not registered");
+  return 0;
+}
+
+void 
+_hook_cat(_hook_cat(hook_, HOOK_NAME), _call) HOOK_ARGS
+{
+  uint8_t __i;
+  for (__i = 0; __i < HOOK_COUNT; __i++) {
+    if (hook_callbacks[__i] != NULL) {
+      hook_callbacks[__i] HOOK_ARGS_CALL;
+    }
+  }
+  HDEBUG("called");
+}
+
+
+#endif
+
+
