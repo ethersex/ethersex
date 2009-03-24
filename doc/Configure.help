@@ -1438,3 +1438,100 @@ STELLA_EEPROM_BOOT_FADE
 
   If you do not activate this option, the values from eeprom on device boot are applied instantly.
   If you want your device to fade to those color values you can activate this option.
+
+MCUF Module in Cron
+MCUF_MODUL_CRON_SUPPORT
+  Depends on: 
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+   * Cron daemon (CRON_SUPPORT)w
+
+  Set mode for modul call in cron.
+
+  * random   - selects randomly one module and plays until its end
+  * sequence - starts at each cron call one module after the other
+
+MCUF Module Display Mode
+MCUF_MODUL_DISPLAY_MODE_SUPPORT
+  Depends on: 
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+
+  Set default call mode to start any modul for ECMD.
+
+  Possible choice:
+  * manual   - enter the modul number
+  * random   - start a random module
+  * sequence - start the next module
+
+
+
+
+MCUF Module Borg-16
+MCUF_MODUL_BORG16_SUPPORT
+  Depends on: 
+   * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
+
+  Modules made originaly for http://www.das-labor.org/wiki/Borg16 hardware.
+
+MCUF Image
+MCUF_IMAGE_SUPPORT
+  Depends on: 
+   * MCUF Module (MCUF_MODUL_SUPPORT)
+
+  Display an image stored in /mcuf/image/image.h
+
+MCUF Xoni Study1
+MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  A short snake runs up and down every line of the display for several times.
+
+Game Input
+GAME_INPUT_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Placeholder for game input hardware such as
+
+  * digital Joystick (start up placeholder)
+
+  (not yet implemented)
+  * PS/2 Keyboard
+  * ECMD
+  * RFM12
+  * RFM12-ASK
+  * IRDA
+  * Input Pins
+
+MCUF Snake Interactive
+MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+   * Game Input (GAME_INPUT_SUPPORT)
+
+  Interactive edition of snake or tron
+
+MCUF Snake
+MCUF_MODUL_BORG16_SNAKE_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  The Computer plays Snake against itself.
+
+MCUF Tetris
+MCUF_MODUL_BORG16_TETRIS_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+   * Game Input (GAME_INPUT_SUPPORT)
+
+ Interactive Tetris clone.
+
+MCUF Space Invaders
+MCUF_MODUL_BORG16_INVADERS_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+   * Game Input (GAME_INPUT_SUPPORT)
+
+ Interactive Space Invaders Clone
+

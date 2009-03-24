@@ -189,6 +189,10 @@ dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PWM Melody" PWM_MELODY_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
 endmenu
 
+dep_bool_menu "Game Input" GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "Digital Joystick" JOYSTICK_DIGITAL_SUPPORT $GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
+endmenu
+
 source mcuf/config.in
 
 usart_count_used
