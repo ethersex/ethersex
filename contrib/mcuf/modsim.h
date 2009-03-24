@@ -31,6 +31,7 @@
 #define GCC 1
 #define MCUF_MAX_SCREEN_WIDTH 16
 #define MCUF_MAX_SCREEN_HEIGHT 16
+#define PINB 0 // something should be done with this pin
 
 #define uint8_t int
 #define uint16_t int
