@@ -45,4 +45,4 @@ echo "};"
 echo "#endif" >> $tmp3
 cat $tmp3 > user_config.h 
 
-rm -f $tmp $tmp2 $tmp2 
+rm -f $tmp $tmp2 $tmp3 
