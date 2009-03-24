@@ -30,3 +30,8 @@ alias_endif()
 alias_ifdef(SD_READER_SUPPORT)
   alias("ls sd", 			"sd dir")
 alias_endif()
+
+alias_ifdef(MCUF_MODUL_SUPPORT)
+  alias("mplay", 	"mcuf modul")
+  alias("mlist",	"mcuf modul list")
+alias_endif()
