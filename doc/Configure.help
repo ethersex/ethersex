@@ -1535,3 +1535,84 @@ MCUF_MODUL_BORG16_INVADERS_SUPPORT
 
  Interactive Space Invaders Clone
 
+Digital Joystick
+JOYSTICK_DIGITAL_SUPPORT
+  Depends on: 
+   * Game Input (GAME_INPUT_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+ Support for standard (old style) digital Joysticks a la
+ Competition Pro (http://de.wikipedia.org/wiki/Competition_Pro)
+ 
+
+MCUF Chess
+MCUF_CHESS_SUPPORT
+  Depends on: 
+   * MCUF Module (MCUF_MODUL_SUPPORT)
+
+  Example module to display some chess like screen
+
+MCUF Box
+MCUF_BOX_SUPPORT
+  Depends on: 
+   * MCUF Module (MCUF_MODUL_SUPPORT)
+
+  Example to display a box.
+
+MCUF Clean
+MCUF_CLEAN_SUPPORT
+  Depends on: 
+   * MCUF Module (MCUF_MODUL_SUPPORT)
+
+  Example module to clean the screen
+
+MCUF Spiral
+MCUF_SPIRAL_SUPPORT
+  Depends on: 
+   * MCUF Module (MCUF_MODUL_SUPPORT)
+
+  Example of multi color/bright spiral movement screen
+
+MCUF Matrix
+MCUF_MODUL_BORG16_MATRIX_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  The famous matrix screensaver
+
+MCUF Fire
+MCUF_MODUL_BORG16_FIRE_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  A fire like animation.
+
+MCUF Spiral
+MCUF_MODUL_BORG16_SPIRAL_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  Spiral movement animation
+
+MCUF Random Bright
+MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  Some random pixel and brightness animation
+
+MCUF Game of life
+MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  The famous Conway's Game of Life 
+  (http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+
+MCUF Game of life - Glider Test
+MCUF_MODUL_BORG16_GAMEOFLIFE_GLIDER_TEST_SUPPORT
+  Depends on: 
+   * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
+
+  Glider test for Game of life
+
