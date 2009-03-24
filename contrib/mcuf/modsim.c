@@ -40,9 +40,10 @@ char mcuf_matrix[MCUF_MAX_SCREEN_WIDTH][MCUF_MAX_SCREEN_HEIGHT];
 
 void setPixel(uint8_t x, uint8_t y, uint8_t color)
 {
+
 	mcuf_matrix[x][y]=color;
-	
-//	system("clear");
+
+	system("clear");
 	
 	printf("\n");
 	for (x=0;x<MCUF_MAX_SCREEN_HEIGHT;x++)
@@ -57,6 +58,7 @@ void setPixel(uint8_t x, uint8_t y, uint8_t color)
 		printf("  %i\n",y);
 	}
 	printf("\n");
+
 }
 
 uint8_t getPixel(uint8_t x, uint8_t y){
@@ -81,15 +83,17 @@ int
 main(int argc, char *argv[])
 {
   int i=0;
-  int m=0;
+  char title[15];
+
   initMatrix();
 
-  for (i = 0 ; mcuf_list_modul(i) != NULL ; i++)
+  for (i = 0 ; i < 25; i++)
   {
-  	printf("%i. mcuf_list_modul: %s\n", i, mcuf_list_modul(i));
-  //	m = mcuf_play_modul(MCUF_MODUL_PLAY_MODE_MANUAL, i);
+	if (!mcuf_list_modul(title, i))
+	  break;
+  	printf("%i. mcuf_list_modul: %s\n", i, title);
+  	mcuf_play_modul(MCUF_MODUL_PLAY_MODE_MANUAL,i);
   }
-
 
   printf("EOF\n");
   return 0;

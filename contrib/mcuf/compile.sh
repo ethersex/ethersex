@@ -3,6 +3,8 @@ export MACROS="-DGCC"
 
 export MCUFDIR="../../mcuf"
 
+export OPTS="-O0 -Wall -W -ggdb -lefence"
+
 SRC="
 $MCUFDIR/mcuf_modul.c \
 $MCUFDIR/mcuf_modul_examples.c \
@@ -20,7 +22,7 @@ modsim.c"
 
 for FILE in $SRC; do
 #	echo gcc $MACROS $LIBS $FILE
-	gcc -c $MACROS $LIBS $FILE && echo "compile of $FILE OK"
+	gcc -c $MACROS $OPTS $LIBS $FILE || exit $?
 done
 
 gcc *.o -o modsim

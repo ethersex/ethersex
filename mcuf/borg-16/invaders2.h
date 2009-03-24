@@ -12,6 +12,8 @@
 
 #include "../mcuf_modul.h"
 
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
+
 #define USE_ORIGINAL_PIXEL_API
 
 /*CONNECTION TO SIMULATOR*/
@@ -44,7 +46,7 @@ typedef struct
 //#define 
 
 //#ifdef SIMULATOR
-#define setPixel(_X, _Y, _V) setpixel( (pixel){_X, _Y}, _V)
+//#define setPixel(_X, _Y, _V) setpixel( (pixel){_X, _Y}, _V)
 //#else //if defined (AVR)
 //#define setPixel(_X, _Y, _V) reverseSetPixel( (pixel){_X, _Y}, _V)
 //#endif
@@ -180,5 +182,7 @@ void setGuardPixel(unsigned char guards[BORG_WIDTH], unsigned char x,
 void draw(Invaders * iv, Spaceship * sc, Player * pl, Cannon * cn,
 		unsigned char guards[BORG_WIDTH], uPixel ishots[MAX_SHOTS],
 		uPixel * shot);
+
+#endif // MCUF_MODUL_BORG16_INVADERS_SUPPORT
 
 #endif
