@@ -21,6 +21,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
+#include <avr/pgmspace.h>
 #include "../../autoconf.h"
 #include "../mcuf_modul.h"
 #include "image.h"
