@@ -1,4 +1,7 @@
 #include "../mcuf_modul.h"
+#ifndef GCC
+#include "../../debug.h"
+#endif
 #ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
 
 typedef struct{
@@ -13,12 +16,18 @@ typedef uint8_t pixel_matrix_t[NUM_COLS][NUM_ROWS/4];
 
 inline static uint8_t get_bright(pixel_matrix_t *matrix, uint8_t x, uint8_t y){
 	uint8_t ret;
+#ifdef DEBUG_MCUF
+	debug_printf("matrix get bright: %i, %i\n",x, y);
+#endif
 	ret = (*matrix)[x][y/4];
 	return 0x3&(ret>>(2*(y%4)));
 }
 
 inline static void set_bright(pixel_matrix_t *matrix, uint8_t x, uint8_t y, uint8_t value){
 	uint8_t t;
+#ifdef DEBUG_MCUF
+	debug_printf("matrix set bright\n");
+#endif
 	t = (*matrix)[x][y/4];
 	t &= ~(0x3<<(2*(y%4)));
 	t |= value<<(2*(y%4));
@@ -33,7 +42,9 @@ void matrix() {
 	unsigned char index = 0;
 	unsigned char draw;
 	unsigned char streamer_num = 0;
-
+#ifdef DEBUG_MCUF
+	debug_printf("start matrix: %i x %i\n", NUM_COLS,NUM_ROWS/4);
+#endif
 	while(counter--){
 		unsigned char i, j;
 		/* initialise matrix-buffer */
@@ -41,6 +52,9 @@ void matrix() {
 			for(y=0;y<NUM_ROWS/4;y++)
 				matrix_bright[x][y]=0;
 		
+#ifdef DEBUG_MCUF
+	debug_printf("matrix streamer\n");
+#endif
 		for(i=0;i<streamer_num;i++){
 			streamer str = streamers[i];
 			
@@ -68,11 +82,17 @@ void matrix() {
 			}						
 		}
 		
+#ifdef DEBUG_MCUF
+	debug_printf("matrix rows\n");
+#endif
 		for(y=0;y<NUM_ROWS;y++)
 			for(x=0;x<NUM_COLS;x++){
 				setpixel((pixel){x,y}, get_bright(&matrix_bright,x,y));
 			}
 					
+#ifdef DEBUG_MCUF
+	debug_printf("matrix nsc\n");
+#endif
 		unsigned char nsc;
 		for(nsc=0;nsc<6;nsc++){
 			if(streamer_num<STREAMER_NUM){
@@ -82,6 +102,9 @@ void matrix() {
 				streamer_num++;	
 			}
 		}
+#ifdef DEBUG_MCUF
+	debug_printf("matrix wait\n");
+#endif
 		wait(60);	
 		
 	}

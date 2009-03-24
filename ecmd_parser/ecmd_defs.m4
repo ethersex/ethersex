@@ -288,6 +288,7 @@ ecmd_ifdef(MCUF_SUPPORT)
    ecmd_feature(mcuf_show_string, "mcuf showstring")
   ecmd_endif
   ecmd_ifdef(MCUF_MODUL_SUPPORT)
+   ecmd_feature(mcuf_modul_list, "mcuf modul list")
    ecmd_feature(mcuf_modul, "mcuf modul")
   ecmd_endif
 ecmd_endif

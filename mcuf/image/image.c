@@ -25,7 +25,9 @@
 #include "../mcuf_modul.h"
 
 #ifdef MCUF_IMAGE_SUPPORT
+#ifndef GCC
 #include <avr/pgmspace.h>
+#endif // GCC
 #include "image.h"
 
 // 16x16 pixel 1bit image

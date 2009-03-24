@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "../config.h"
-#include "../syslog/syslog.h"
+#include "../debug.h"
 #include "../clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"
@@ -199,10 +199,10 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 { feuer, "fire" },
 #endif
 #ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
-{ fspirale, "b16-spiral" },
+{ fspirale, "spiral" },
 #endif
 #ifdef MCUF_MODUL_BORG16_JOERN1_SUPPORT
-{ joern1, "b16-joern1" },
+{ joern1, "joern1" },
 #endif
 #ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
 { fschachbrett, "chessboard"},
@@ -241,31 +241,37 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 { gameoflife, "game of life" },
 #endif
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
- { borg_invaders, "invaders" },
+{ borg_invaders, "invaders" },
 #endif
 { NULL, NULL }
 };
 
 uint8_t mcuf_current_modul = 0;
 
-char* mcuf_list_modul(uint8_t modul){
+uint8_t mcuf_list_modul(char* title, uint8_t modul){
   uint8_t i;
   struct mcuf_modul_t modulfunc;
-  for (i = 0; i < modul; i++) {
+  for (i = 0; i <=modul; i++) {
     memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
     if (modulfunc.handler ==  NULL) {
-       return NULL;
+      return 0;
+    } 
+    if (i == modul) {
+      memcpy(title,&modulfunc.title, sizeof(modulfunc.title));
+#ifdef DEBUG_MCUF
+    debug_printf("mcuf modul: %i, %s\n",i, modulfunc.title);
+#endif
+      return 1;
     }
   }
-  memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
-  return modulfunc.title;
+  return 0;
 }
 
 uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
 {
   uint8_t i;
-#ifdef SYSLOG_SUPPORT
-    syslog_send_P(PSTR("mcuf play modul"));
+#ifdef DEBUG_MCUF
+    debug_printf("mcuf play modul\n");
 #endif
 
 
@@ -287,13 +293,16 @@ uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
     memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
 
     if (modulfunc.handler ==  NULL) {
+#ifdef DEBUG_MCUF
+    debug_printf("mcuf play modul end\n");
+#endif
        mcuf_current_modul = 0;
        break;
     }
 
     if (mcuf_current_modul == i ) {
-#ifdef SYSLOG_SUPPORT
-    syslog_send_P(PSTR("mcuf play modul: %i"),i);
+#ifdef DEBUG_MCUF
+    debug_printf("mcuf play modul: %i, %s\n",i, modulfunc.title);
 #endif
     	modulfunc.handler();
 	break;

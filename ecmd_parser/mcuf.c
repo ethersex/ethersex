@@ -62,6 +62,7 @@ int16_t parse_cmd_mcuf_show_string(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
 {
   uint8_t modul=0;
+  char title[15];
 
   MCUF_PLAY_MODE mode = MCUF_MODUL_PLAY_MODE_SEQUENCE;
 #ifdef MCUF_MODUL_DISPLAY_MODE_MANUAL
@@ -71,9 +72,22 @@ int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
 #ifdef MCUF_MODUL_DISPLAY_MODE_RANDOM
   mode = MCUF_MODUL_PLAY_MODE_RANDOM;
 #endif
-  mcuf_play_modul(mode, modul);
-  return 0;
+  modul = mcuf_play_modul(mode, modul);
+  mcuf_list_modul(title, modul);
+  return snprintf_P(output, len, PSTR("%i=%s"), modul, title);
 }
+
+int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
+{
+  uint8_t i=0;
+  char title[15];
+  
+  if (!mcuf_list_modul(title, i))
+    return 0;
+    
+  return -10 - snprintf_P(output, len, PSTR("%i=%s"), i, title);
+}
+
 
 #endif //MCUF_MODUL_SUPPORT
 

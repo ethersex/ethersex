@@ -33,6 +33,7 @@
 #define MCUF_MAX_SCREEN_HEIGHT 16
 #define PINB 0 // something should be done with this pin
 
+#define debug_printf printf
 #define uint8_t int
 #define uint16_t int
 #define memcpy_P memcpy
