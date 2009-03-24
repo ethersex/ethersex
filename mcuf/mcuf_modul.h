@@ -48,7 +48,6 @@
 #define FEUER_DELAY 50
 #define FEUER_Y (NUM_ROWS + 3)
 
-// #define PINB 0 // something should be done with this pin
 #define SNAKE_DELAY 100
 
 // disabled as long there is no joystick support
@@ -103,8 +102,10 @@ typedef enum {
 
 struct mcuf_modul_t {
  void (*handler)(void);
+ char *title;
 };
 
+char* mcuf_list_modul(uint8_t modul);
 uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul);
 
 #endif  /* _MCUF_MODUL_H */

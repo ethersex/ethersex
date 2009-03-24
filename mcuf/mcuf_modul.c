@@ -178,75 +178,88 @@ void spiral(){
 struct mcuf_modul_t mcuf_display_modules[] PROGMEM = 
 {
 #ifdef MCUF_IMAGE_SUPPORT
- { mcuf_image },
+{ mcuf_image, "image" },
 #endif
 #ifdef MCUF_CHESS_SUPPORT
-{ mcuf_chess },
+{ mcuf_chess, "chess" },
 #endif
 #ifdef MCUF_SPIRAL_SUPPORT
-{ spiral },
+{ spiral, "spiral" },
 #endif
 #ifdef MCUF_CLEAN_SUPPORT
-{ clean },
+{ clean, "clean" },
 #endif
 #ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
-{ matrix },
+{ matrix, "matrix" },
 #endif
 #ifdef MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
-{ xoni_study1 },
+{ xoni_study1, "xoni" },
 #endif
 #ifdef MCUF_MODUL_BORG16_FIRE_SUPPORT
-{ feuer },
+{ feuer, "fire" },
 #endif
 #ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
-{ fspirale },
+{ fspirale, "b16-spiral" },
 #endif
 #ifdef MCUF_MODUL_BORG16_JOERN1_SUPPORT
-{ joern1 },
+{ joern1, "b16-joern1" },
 #endif
 #ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
-{ fschachbrett },
+{ fschachbrett, "chessboard"},
 #endif
 #ifdef MCUF_MODUL_BORG16_SNAKE_SUPPORT
-{ snake },
+{ snake, "snake" },
 #endif
 #ifdef MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
-{ frandom_bright },
+{ frandom_bright, "random" },
 #endif
 #ifdef MCUF_MODUL_BORG16_TEST1_SUPPORT
-{ test1 },
+{ test1, "test1" },
 #endif
 #ifdef MCUF_MODUL_BORG16_TESTL1_SUPPORT
-{ test_level1 },
+{ test_level1, "level1" },
 #endif
 #ifdef MCUF_MODUL_BORG16_TESTL2_SUPPORT
-{ test_level2 },
+{ test_level2, "level2" },
 #endif
 #ifdef MCUF_MODUL_BORG16_TESTL3_SUPPORT
-{ test_level3 },
+{ test_level3, "level3" },
 #endif
 #ifdef MCUF_MODUL_BORG16_TESTLX_SUPPORT
-{ test_levels },
+{ test_levels, "levels" },
 #endif
 #ifdef MCUF_MODUL_BORG16_PALETTE_SUPPORT
-{ test_palette },
+{ test_palette, "palette" },
 #endif
 #ifdef MCUF_MODUL_BORG16_FADEIN_SUPPORT
-{ fadein },
+{ fadein, "fadin" },
 #endif
 #ifdef MCUF_MODUL_BORG16_TETRIS_SUPPORT
-{ tetris },
+{ tetris, "tetris" },
 #endif
 #ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
-{ gameoflife },
+{ gameoflife, "game of life" },
 #endif
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
- { borg_invaders },
+ { borg_invaders, "invaders" },
 #endif
-{ NULL }
+{ NULL, NULL }
 };
 
 uint8_t mcuf_current_modul = 0;
+
+char* mcuf_list_modul(uint8_t modul){
+  uint8_t i;
+  struct mcuf_modul_t modulfunc;
+  for (i = 0; i < modul; i++) {
+    memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
+    if (modulfunc.handler ==  NULL) {
+       return NULL;
+    }
+  }
+  memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
+  return modulfunc.title;
+}
 
 uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
 {

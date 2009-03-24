@@ -21,12 +21,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  }}} */
 
-#include <avr/pgmspace.h>
 #include "../../autoconf.h"
 #include "../mcuf_modul.h"
-#include "image.h"
 
 #ifdef MCUF_IMAGE_SUPPORT
+#include <avr/pgmspace.h>
+#include "image.h"
 
 // 16x16 pixel 1bit image
 void mcuf_image(){
