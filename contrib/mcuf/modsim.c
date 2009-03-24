@@ -84,7 +84,7 @@ main(int argc, char *argv[])
   int m=0;
   initMatrix();
 
-  for (i = 0 ; i < 25 ; i++)
+  for (i = 0 ; mcuf_list_modul(i) != NULL ; i++)
   {
   	printf("%i. mcuf_list_modul: %s\n", i, mcuf_list_modul(i));
   //	m = mcuf_play_modul(MCUF_MODUL_PLAY_MODE_MANUAL, i);
