@@ -1,6 +1,6 @@
+#include "../mcuf_modul.h"
 #ifdef MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
 
-#include "../mcuf_modul.h"
 
 void draw_queue(uint8_t x, uint8_t y, uint8_t on);
 

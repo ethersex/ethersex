@@ -1,5 +1,5 @@
-#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 #include "invaders2.h"
+#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 
 void procCannon(Cannon * cn, uPixel * shot)
 {

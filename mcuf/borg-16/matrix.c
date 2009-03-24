@@ -1,6 +1,5 @@
-#ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
-
 #include "../mcuf_modul.h"
+#ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
 
 typedef struct{
 	pixel start;

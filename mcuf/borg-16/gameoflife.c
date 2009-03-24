@@ -1,5 +1,5 @@
-#ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
 #include "../mcuf_modul.h"
+#ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
 
 /******************************************************************************/ 
 

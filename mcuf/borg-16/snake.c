@@ -1,6 +1,6 @@
+#include "../mcuf_modul.h"
 #ifdef MCUF_MODUL_BORG16_SNAKE_SUPPORT
 
-#include "../mcuf_modul.h"
 #include "snake.h"
 
 void snake(){

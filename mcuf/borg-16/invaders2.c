@@ -1,9 +1,9 @@
+#include "invaders2.h"
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 /*
 #include <stdio.h>
 #include "util.h"
 */
-#include "invaders2.h"
 
 //#include <stdio.h>
 
