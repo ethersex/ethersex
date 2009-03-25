@@ -89,13 +89,16 @@ uint16_t duration;
 
 struct notes_duration_t entchen[] =
 {
-{c,1200},{d,1200},{e,1200},{f,1200},{g,1600},
-{g,1600},{a,800},{a,800},{a,800},{a,800},
-{g,1600},{a,800},{a,800},{a,800},{a,800},
-{g,1600},{f,1200},{f,1200},{f,1200},
-{f,1200},{e,1200},{e,1600},{d,1200},
-{d,1200},{d,1200},{d,1200},{c,1600},
-{p,160} // break at end
+{c,800},{d,800},{e,800},{f,800},
+{g,1600},{g,1600},
+{a,800},{a,800},{a,800},{a,800},
+{g,2400},{p,815},
+{a,800},{a,800},{a,800},{a,800},
+{g,2400},{p,815},
+{f,800},{f,800},{f,800},{f,800},
+{e,1600},{e,1600},
+{d,800},{d,800},{d,800},{d,800},
+{c,2400},{p,815} // break at end
 };
 
 #endif //PWM_MELODY_SUPPORT
@@ -227,7 +230,7 @@ pwm_melody_init()
 		// Interrupt kurz ausschalten, gibt kurze Pause
 		// so werden die Töne getrennt
 		cli();
-		_delay_ms(200);
+		_delay_ms(5);
 		pwm_melody_i=0;
 		sei();
 	}
