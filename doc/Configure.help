@@ -1341,6 +1341,8 @@ PWM_WAV_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
  Wave output support (8kHz mono output)
+ Just replace pwm/ethersex.wav with your own 8-Bit, PCM, 
+ mono, 8000Hz .wav file.
 
 PWM Melody
 PWM_MELODY_SUPPORT
@@ -1349,7 +1351,9 @@ PWM_MELODY_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   enables support for tunes and duration, which saves much
-  more memory than wave output
+  more memory than wave output.
+
+  Defined in pwm/pwm.c "entchen" with tune and duration.
 
 Randomize Mac address
 RANDOM_MAC
