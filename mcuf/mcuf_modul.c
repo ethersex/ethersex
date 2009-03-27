@@ -47,6 +47,9 @@
 
 #ifdef MCUF_MODUL_SUPPORT
 
+// max number of available modules
+#define MCUF_MAX_MODULES sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)
+
 #ifdef MCUF_MODUL_BORG16_SUPPORT
 #include "borg-16/xoni_study.h"
 #include "borg-16/matrix.h"
@@ -243,7 +246,7 @@ struct mcuf_modul_t mcuf_display_modules[] PROGMEM =
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 { borg_invaders, "invaders" },
 #endif
-{ NULL, NULL }
+{ NULL, "" }
 };
 
 uint8_t mcuf_current_modul = 0;
@@ -283,7 +286,7 @@ uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
       mcuf_current_modul++;
       break;
     case MCUF_MODUL_PLAY_MODE_RANDOM: 
-      mcuf_current_modul = rand() ;
+      mcuf_current_modul = rand() & MCUF_MAX_MODULES ;
       break;
   }
  
