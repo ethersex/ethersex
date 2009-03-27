@@ -20,6 +20,7 @@ SRC = \
 	rfm12.c		\
 	rfm12_ask.c	\
 	stella_ecmd.c \
+	cron.c \
 	sd.c		\
 	i2c.c		\
 	pwm.c		\

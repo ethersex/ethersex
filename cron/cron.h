@@ -1,7 +1,6 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/*
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #ifndef _CRON_H
 #define _CRON_H
@@ -26,47 +25,78 @@
 #include <stdint.h>
 #include "../clock/clock.h"
 
-/* structures */
-/* {{{ */
-
-
-/* meaning of the signed values in cron_event_t (eg for minute):
+/* meaning of the signed values in cron_event_t:
  *   x in 0..59:    absolute value (minute)
- *   x is -1:       * (wildcard)
- *   x in -59..-2:  * /(-x) (step value (-x), 1 < -x < 60)
+ *   x in 0..23:    absolute value (hour)
+ *   x in 0..30:    absolute value (day)
+ *   x in 0..12:    absolute value (month)
+ *   x in 0..6 :    absolute value (dow) // day of the week
+ *   x is    -1:    wildcard
+ *   x in -59..-2:  Example -2 for hour: when hour % 2 == 0 <=> every 2 hours
  */
 
 struct cron_event_t {
-    union{
-        int8_t fields[5];
-        struct {
-            int8_t minute;
-            int8_t hour;
-            int8_t day;
-            int8_t month;
-            int8_t dow;
-        };
-    };
-    void (*handler)(void);
-    uint8_t use_utc;
+	union{
+		int8_t fields[5];
+		struct {
+			int8_t minute;
+			int8_t hour;
+			int8_t day;
+			int8_t month;
+			int8_t dayofweek;
+		};
+	};
+	void (*handler)(void* data);
+	// how many times should this job be executed? -1=unlimited
+	int8_t times;
+	// One-Byte identifier of the application, eg 'S' for a Stella job.
+	// Use 0 if you don't care. This is exspecially important for the
+	// gui control application to be able to list jobs of just one appid.
+	char appid;
+	// next,prev pointer for double linked lists;
+	// last entry's next is NULL, heads prev is NULL
+	struct cron_event_t* next;
+	struct cron_event_t* prev;
+	/* Cron jobs can save a pointer to extra user data for applications.
+	 * We don't save the data length though. Applications are in charge
+	 * to manage that. The memory had to be allocated with malloc on the heap,
+	 * because we will free the memory of the extra data when this cronjob gets
+	 * removed. */
+	void* extradata;
 };
 
-/* }}} */
+extern struct cron_event_t* head;
+extern struct cron_event_t* tail;
+extern uint8_t cron_use_utc;
 
+#define USE_UTC 1
+#define USE_LOCAL 0
+#define INFINIT_RUNNING -1
 
-/* constants and global variables */
-/* {{{ */
+/** add cron job to the linked list */
+void cron_jobadd(
+	void (*handler)(void* data),	// cackback to application
+	char appid,							// application id (use NULL if you don't care)
+	int8_t minute, int8_t hour,	// time
+	int8_t day, int8_t month, int8_t dayofweek, //date
+	int8_t times,						// repeat>0 or INFINIT_RUNNING
+	void* extradata					// malloc allocated extra data (maybe NULL)
+);
 
-/* }}} */
+/** remove the job from the linked list */
+void cron_jobrm(struct cron_event_t* job);
 
+/** count jobs */
+uint8_t cron_jobs();
 
-/* prototypes */
+/** get a pointer to the entry of the cron job's linked list at position jobposition */
+struct cron_event_t* cron_getjob(uint8_t jobposition);
+
+/** init cron. (Set head to NULL for example) */
+void cron_init(void);
 
 /** periodically check, if an event matches the current time. must be called
   * once per minute */
 void cron_periodic(void);
-
-/** check if this event matches the current time */
-uint8_t cron_check_event(struct cron_event_t *event, struct clock_datetime_t *d);
 
 #endif

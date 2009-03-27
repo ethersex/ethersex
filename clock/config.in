@@ -19,6 +19,9 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	int "NTP Port" NTP_PORT 123
   fi
   dep_bool "Cron daemon" CRON_SUPPORT $CLOCK_SUPPORT
+  if [ "$CRON_SUPPORT" = "y" ]; then
+	  dep_bool "Cron test entries" CRON_SUPPORT_TEST $CRON_SUPPORT
+  fi
   dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
   dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
   if [ "$CLOCK_SUPPORT" = "y" ]; then
@@ -26,5 +29,5 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	"UTC			TIMEZONE_UTC	\
 	 CET/CEST		TIMEZONE_CEST"	\
 	 UTC
-  fi 
+  fi
 endmenu

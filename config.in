@@ -75,6 +75,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG
   dep_bool 'Timer' DEBUG_TIMER $DEBUG
+  dep_bool 'Cron' DEBUG_CRON $DEBUG
   dep_bool 'Hooks' DEBUG_HOOK $DEBUG
   bool 'Discard some of the received packets' DEBUG_DISCARD_SOME
 endmenu

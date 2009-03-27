@@ -1,8 +1,7 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/*
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,148 +18,200 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
-#include <avr/pgmspace.h>
 #include <string.h>
-#include "../syslog/syslog.h"
+#include <stdlib.h>
 #include "cron.h"
+#include "test.h"
 #include "../config.h"
-#include "../mcuf/mcuf.h"
+#include "../debug.h"
 
 #ifdef CRON_SUPPORT
 
 uint32_t last_check;
+struct cron_event_t* head;
+struct cron_event_t* tail;
+uint8_t cron_use_utc;
 
-void test(void);
-void leds(void);
-
-void test(void)
-{
-#ifdef SYSLOG_SUPPORT
-    syslog_send_P(PSTR("cron event matched!"));
-#endif
-}
-
-#ifdef  MCUF_CLOCK_SUPPORT
 void
-mcuf_clock(void)
+cron_init(void)
 {
-  mcuf_show_clock(1);
-}
-#endif /* MCUF_CLOCK_SUPPORT */
+	#ifdef DEBUG_CRON
+	debug_printf("cron init!\n");
+	#endif
 
-#ifdef MCUF_MODUL_CRON_SUPPORT
-#include "../mcuf/mcuf_modul.h"
+	// very important: set the linked lists head and tail to zero
+	head = 0;
+	tail = 0;
+	cron_use_utc = USE_LOCAL;
+
+	// do we want to have some test entries?
+	#ifdef CRON_SUPPORT_TEST
+	addcrontest();
+	#endif
+}
+
 void
-mcuf_modul(void)
+cron_jobadd(   void (*handler)(void* data), char appid,
+					int8_t minute, int8_t hour, int8_t day,
+					int8_t month, int8_t dayofweek, int8_t times, void* data)
 {
-#ifdef MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM
-  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_RANDOM,0);
-#endif
-#ifdef MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE
-  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE,0);
-#endif
+	// try to get ram space
+	struct cron_event_t* newone = malloc(sizeof(struct cron_event_t));
+
+	// no more ram available -> abort
+	if (!newone) return;
+
+	// create new entry
+	newone->handler = handler;
+	newone->appid = appid;
+	newone->minute = minute;
+	newone->hour = hour;
+	newone->day = day;
+	newone->month = month;
+	newone->dayofweek = dayofweek;
+	newone->times = times;
+	newone->extradata = data;
+	newone->next = 0; // is always the last entry
+
+	// add to linked list
+	if (!head)
+	{ // special case: empty list
+		newone->prev = 0;
+		head = newone;
+		tail = newone;
+		#ifdef DEBUG_CRON
+		debug_printf("cron add head!\n");
+		#endif
+	} else
+	{
+		newone->prev = tail;
+		tail->next = newone;
+		tail = newone;
+
+		#ifdef DEBUG_CRON
+		debug_printf("cron add!\n");
+		#endif
+	}
 }
-#endif // MCUF_MODUL_CRON_SUPPORT
 
-/* Cron configuration:
- * Fields: Min Hour Day Month Dow
- * Values: 
- * * -1    for every value in this field ( like * in a normal cron )
- * * >0    for exactly this value in this field
- * * < -1  step value, e.g. -2: every second minute
- */
-#define USE_UTC 1
-#define USE_LOCAL 0
+void
+cron_jobrm(struct cron_event_t* job)
+{
+	// null check
+	if (!job) return;
 
-struct cron_event_t events[] PROGMEM = 
-{ { { {-1, -2, -1, -1, -1} }, test, USE_UTC}, /* when hour % 2 == 0 */
-  { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
-  { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
+	// free extradata
+	free (job->extradata);
 
-#ifdef MCUF_CLOCK_SUPPORT
-  { { {-1, -1, -1, -1, -1} }, mcuf_clock, USE_LOCAL}, /* every minute  */
-#endif /* MCUF_CLOCK_SUPPORT */
+	// remove link from element before this
+	if (job == head) head = job->next;
+	if (job->prev)
+		job->prev->next = job->next;
 
-#ifdef MCUF_MODUL_CRON_SUPPORT
-  { { {-1, -1, -1, -1, -1} }, mcuf_modul, USE_LOCAL}, /* every minute  */
-#endif // MCUF_MODUL_CRON_SUPPORT
+	// remove link from element after this
+	if (job == tail) tail = job->prev;
+	if (job->next)
+		job->next->prev = job->prev;
 
-  /* This is only the end of table marker */
-  { { {-1, -1, -1, -1, -1} }, NULL, 0},
-};
+	// free the current element
+	free (job);
 
-void 
+	#ifdef DEBUG_CRON
+	debug_printf("cron removed. Left %u\n", cron_jobs());
+	#endif
+}
+
+uint8_t
+cron_jobs()
+{
+	uint8_t ss = 0;
+	// count remaining elements
+	struct cron_event_t* job = head;
+	while (job)
+	{
+		++ss;
+		job = job->next;
+	}
+	return ss;
+}
+
+
+struct cron_event_t*
+cron_getjob(uint8_t jobposition)
+{
+	// count remaining elements
+	struct cron_event_t* job = head;
+	while (job)
+	{
+		if (!jobposition) break;
+		--jobposition;
+		job = job->next;
+	}
+
+	return job;
+}
+
+void
 cron_periodic(void)
-/* {{{ */ {
-    /* convert time to something useful */
-    struct clock_datetime_t d, ld;
-    uint32_t timestamp = clock_get_time();
+{
+	struct clock_datetime_t d;
+	uint32_t timestamp = clock_get_time();
 
-    /* Only check the tasks every minute */
-    if ((timestamp - last_check) < 60) return;
+	/* Check tasks at most once in a minute and only if at least one exists */
+	if (!head || (timestamp - last_check) < 60) return;
 
-    clock_datetime(&d, timestamp);
-    clock_localtime(&ld, timestamp);
+	/* get time and date from unix timestamp */
+	if (cron_use_utc)
+		clock_datetime(&d, timestamp);
+	else
+		clock_localtime(&d, timestamp);
 
-    struct cron_event_t event;
+	/* check every event for a match */
+	struct cron_event_t* current = head;
+	struct cron_event_t* exec;
+	uint8_t condition;
+	while(current)
+	{
+		/* backup current cronjob and advance current */
+		exec = current;
+		current = current->next;
 
-    /* check every event for a match */
-    for (uint8_t i = 0; ; i++) {
-        memcpy_P(&event, &events[i], sizeof(struct cron_event_t));
+		/* check if cron 'exec' matches current time */
+		for (condition = 0; condition < 5; ++condition)
+		{
+			/* if this field has a wildcard, just go on checking */
+			if (exec->fields[condition] == -1)
+				continue;
 
-        /* end of task list reached */
-        if (event.handler == NULL) break;
+			/* If this field has an absolute value, check this value, if it does
+			 * not match, this event does not match */
+			if (exec->fields[condition] >= 0 && (exec->fields[condition] != d.cron_fields[condition]))
+				break;
 
-        uint8_t r;
-        if (event.use_utc)
-          r = cron_check_event(&event, &d);
-        else
-          r = cron_check_event(&event, &ld);
+			/* If this field has a step value and that is within the steps,
+			 * this event does not match */
+			if (exec->fields[condition] < 0 && (d.cron_fields[condition] % -(exec->fields[condition])) )
+				break;
+		}
 
-        /* if it matches, execute the handler function */
-        if (r > 0) {
-            event.handler();
-        }
+		/* if it matches all conditions , execute the handler function */
+		if (condition==5) {
+			#ifdef DEBUG_CRON
+			debug_printf("cron match appid %c!\n", exec->appid);
+			#endif
+			exec->handler(exec->extradata);
 
-    }
+			/* do we want this job to be executed infinite times?
+			   If not, is it time to kick out this cronjob? */
+			if (exec->times != -1 && !(--exec->times))
+				cron_jobrm(exec);
+		}
+	}
 
-    /* save the actual timestamp */
-    last_check = timestamp - d.sec;
-
-} /* }}} */
-
-uint8_t 
-cron_check_event(struct cron_event_t *event, struct clock_datetime_t *d)
-/* {{{ */ {
-
-    for (uint8_t f = 0; f < 5; f++) {
-
-        /* if this field has a wildcard, just go on checking */
-        if (event->fields[f] == -1)
-            continue;
-
-        /* IF THis field has an absolute value, check this value, if it does
-         * not match, this event does not match */
-        if (event->fields[f] >= 0 && event->fields[f] != d->cron_fields[f])
-            return 0;
-
-        /* if this field has a step value, extract value and check */
-        if (event->fields[f] < 0) {
-            uint8_t step = -(event->fields[f]);
-
-            /* if this is not within the steps, this event does not match */
-            if ((d->cron_fields[f] % step) != 0)
-                return 0;
-
-        }
-
-    }
-
-    /* if all fields match, this event matches */
-    return 1;
-
-} /* }}} */
+	/* save the actual timestamp */
+	last_check = timestamp - d.sec;
+}
 
 #endif

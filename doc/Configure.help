@@ -711,8 +711,16 @@ CRON_SUPPORT
   Depends on: 
    * System clock support (CLOCK_SUPPORT)
 
-  Enable cron-alike service.  The crontab has to be hard-coded at the moment.
-  See cron/cron.c.
+  Enable cron-alike service. Cronjobs can be added programmatically
+  or by other module ecmd commands and removed via the ecmd command cron_rm.
+  A list of all active jobs can be requested via cron_list.
+
+  Syntax for the cron ecmd commands:
+  cron_rm POSITION (where POSITION is in 0..N-1)
+  cron_list
+
+  To add a stella cron job to, for example, fade up all lights at 6pm,
+  compile in stella support and use the stella ecmd command "stella cron"
 
 NTP daemon
 NTPD_SUPPORT
@@ -1443,6 +1451,14 @@ STELLA_EEPROM_BOOT_FADE
   If you do not activate this option, the values from eeprom on device boot are applied instantly.
   If you want your device to fade to those color values you can activate this option.
 
+Cron test entries
+CRON_SUPPORT_TEST
+  Depends on: 
+   * Cron daemon (CRON_SUPPORT)
+
+  Add test cronjobs. They will debug out every minute, every two hours and every 51th minute
+  if you compile-in serial debug out or syslog features.
+
 MCUF Module in Cron
 MCUF_MODUL_CRON_SUPPORT
   Depends on: 
@@ -1453,6 +1469,7 @@ MCUF_MODUL_CRON_SUPPORT
 
   * random   - selects randomly one module and plays until its end
   * sequence - starts at each cron call one module after the other
+
 
 MCUF Module Display Mode
 MCUF_MODUL_DISPLAY_MODE_SUPPORT

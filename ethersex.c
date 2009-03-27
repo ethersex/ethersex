@@ -38,6 +38,7 @@
 #include "network.h"
 #include "timer.h"
 #include "portio.h"
+#include "cron/cron.h"
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
@@ -179,6 +180,10 @@ int main(void)
     debug_printf("initializing filesystem...\n");
     fs_init(&fs, NULL);
     debug_printf("fs: root page is 0x%04x\n", fs.root);
+#   endif
+
+#   ifdef CRON_SUPPORT
+    cron_init();
 #   endif
 
 #   ifdef UIP_SUPPORT
