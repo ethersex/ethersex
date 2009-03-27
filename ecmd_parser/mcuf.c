@@ -79,13 +79,21 @@ int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
 {
-  uint8_t i=0;
   char title[15];
-  
-  if (!mcuf_list_modul(title, i))
-    return 0;
-    
-  return -10 - snprintf_P(output, len, PSTR("%i=%s"), i, title);
+
+  if (cmd[0] != 0x05) {
+    cmd[0] = 0x05;  //magic byte
+    cmd[1] = 0x00;
+ 
+    return -10 - snprintf_P(output, len, PSTR("available modules:\n"));
+
+  } else { 
+    int i = cmd[1]++;
+    if (mcuf_list_modul(title, i) == 0){
+      return 0;
+    }
+    return -10 - snprintf_P(output, len, PSTR("%i. %s"), i, title);
+  }
 }
 
 

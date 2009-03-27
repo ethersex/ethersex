@@ -267,7 +267,7 @@ uint8_t mcuf_list_modul(char* title, uint8_t modul){
       return 1;
     }
   }
-  return 0;
+  return 1;
 }
 
 uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)

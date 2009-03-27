@@ -40,7 +40,7 @@ void mcuf_image(){
 	for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++)
 		for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
 			i = (x < 8) ? 1 : 0;
-			setPixel(x, y, ( data[ (y * 2) + i ] & ( 1 << (x % 8) )) ? 3 : 0);
+			setPixel(MCUF_MAX_SCREEN_WIDTH - 1 - x, y, ( data[ (y * 2) + i ] & ( 1 << (x % 8) )) ? 3 : 0);
 		}
 }
 
