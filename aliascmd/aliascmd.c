@@ -36,6 +36,8 @@
 
 #include "alias_defs.c"
 
+#define ALIASCMD_MAX sizeof(aliascmdlist) / sizeof(aliascmd_t)
+
 char
 *aliascmd_decode(char *cmd)
 {
@@ -74,4 +76,22 @@ char
 #endif
     return NULL;
 }
+
+uint8_t
+aliascmd_list(uint8_t nr, char *name, char *cmd){
+
+  if ( nr > ALIASCMD_MAX) {
+    return 0;
+  }
+
+  aliascmd_t alias;
+  memcpy_P(&alias, &aliascmdlist[nr], sizeof(aliascmd_t));
+  if (alias.name == NULL) return 0;
+   
+  memcpy_P(cmd, alias.cmd, strlen_P(alias.cmd) + 1);
+  memcpy_P(name, alias.name, strlen_P(alias.name) +1 );
+
+  return 1;
+}
+
 #endif /*ALIASCMD_SUPPORT*/
