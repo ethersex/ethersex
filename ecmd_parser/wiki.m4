@@ -1,9 +1,9 @@
 dnl
-dnl   Generate the TikiWiki syntax for the wikipage on ethersex.de ...
+dnl   Generate the MediaWiki syntax for the wikipage on ethersex.de ...
 dnl
 dnl ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 dnl
-dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+dnl   Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 as
@@ -29,17 +29,22 @@ header($1)
 ')
 
 define(`header', `dnl
-!!$1
-|| __Command syntax__ | __Short description__
+== $1 ==
+{| border="1"
+| '''Command syntax'' 
+| ''Short description''`
+|-
 ')
 
 define(`footer', `dnl
-||
+|}
 ')
 
 define(`ecmd_feature', `dnl
 ifelse($4,,,dnl
-~np~translit($2,",) $3~/np~ | $4
+| translit($2,",) $3 
+| $4
+|-
 )')
 
 dnl Some dummy implementations of the ifdef cruft, to suppress those comments.
@@ -49,4 +54,9 @@ define(`ecmd_endif',)
 define(`ecmd_else',)
 
 divert(9)footer
-divert(0)header(Network configuration)
+
+[[Category:Ethersex]]
+divert(0)
+''This page is automatically generated from ecmd_defs.m4 and wiki.m4 which are part of the Ethersex source code repository.  Do not edit this page but send pages for those files!''
+
+header(Network configuration)
