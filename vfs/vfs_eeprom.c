@@ -36,7 +36,7 @@
 #ifdef VFS_EEPROM_DEBUG_SUPPORT
 #define vfs_eeprom_debug(a...)  debug_printf("vfs_eeprom: " a)
 #else
-#define vfs_eeprom_debug(a...)  ()
+#define vfs_eeprom_debug(a...)
 #endif
 
 
