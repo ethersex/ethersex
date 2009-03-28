@@ -136,7 +136,8 @@ endif
 
 ##############################################################################
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
-          else if [ -x /bin/bash ]; then echo /bin/bash; \
+          elif [ -x /bin/bash ]; then echo /bin/bash; \
+          elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
           else echo sh; fi ; fi)
 
 menuconfig:
