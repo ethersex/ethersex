@@ -66,7 +66,7 @@ parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
   if (temp == 0xffff)
     return snprintf_P(output, len, PSTR("no sensor detected"));
 
-  return snprintf_P(output, len, PSTR("temperature: %d.%d"), temp / 10, temp % 10);
+  return snprintf_P(output, len, PSTR("%d.%d"), temp / 10, temp % 10);
 }
 
 #endif  /* I2C_LM75_SUPPORT */
@@ -101,7 +101,6 @@ parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)
 {
   uint8_t adr;
   uint8_t chip;
-  uint8_t value;
   sscanf_P(cmd, PSTR("%u %u"), &adr, &chip);
 
   if (chip == 0) {
@@ -112,8 +111,7 @@ parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_I2C
   debug_printf("I2C PCF8574X IC address 0x%X\n", adr);
 #endif
-  value = i2c_pcf8574x_read(adr);
-  return snprintf_P(output, len, PSTR("port 0x%X has %X"), adr, value);
+  return snprintf_P(output, len, PSTR("%X"), i2c_pcf8574x_read(adr));
 }
 
 int16_t
@@ -134,7 +132,7 @@ parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 #endif
   i2c_pcf8574x_set(adr, value);
 
-  return snprintf_P(output, len, PSTR("port 0x%X set to %X"), adr, value);
+  return snprintf_P(output, len, PSTR("%X"), value);
 }
 
 #endif  /* I2C_PCF8574X_SUPPORT */
