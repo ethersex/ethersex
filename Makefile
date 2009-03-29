@@ -138,7 +138,7 @@ endif
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
-          else echo sh; fi ; fi)
+          else echo sh; fi)
 
 menuconfig:
 	$(MAKE) -C scripts/lxdialog all
