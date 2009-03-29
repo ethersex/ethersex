@@ -1,7 +1,6 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/*
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+*/
 
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
@@ -53,53 +52,24 @@ stella_net_main(void)
 		return;
 
 	stella_newdata (uip_appdata, uip_len);
+
+	#ifdef STELLA_RESPONSE
+	#ifdef STELLA_RESPONSE_ACK
+	// send a response message (header+copy of original msg)
+	memmove(stella_net_buffer+3,stella_net_buffer,uip_len);
+	char* response = uip_appdata;
+	stella_net_buffer[0] = 'S';
+	stella_net_buffer[1] = STELLA_ACK_RESPONSE;
+	stella_net_buffer[2] = uip_len;
+	stella_net_unicast(uip_len+3);
+	#endif
+	#endif
 }
 
 #ifdef STELLA_RESPONSE
-void
-stella_net_unicast_response(void)
+void stella_net_unicast(uint8_t len)
 {
-	struct stella_response_struct *response_packet = uip_appdata;
-
-	/* identifier */
-	response_packet->identifier = 'S';
-
-	/* copy the pwm channel values */
-	memcpy(response_packet->pwm_channels, stella_color,
-		sizeof(response_packet->pwm_channels));
-
-	uip_udp_send(sizeof(struct stella_response_struct));
-
-	/* Send the packet */
-	uip_udp_conn_t conn;
-	uip_ipaddr_copy(conn.ripaddr, BUF->srcipaddr);
-	conn.rport = BUF->srcport;
-	conn.lport = HTONS(STELLA_UDP_PORT);
-
-	uip_udp_conn = &conn;
-
-	/* Send immediately */
-	uip_process(UIP_UDP_SEND_CONN);
-	router_output();
-
-	uip_slen = 0;
-}
-
-void
-stella_net_protocol_version(void)
-{
-	struct stella_response_detailed_struct *response_packet = uip_appdata;
-
-	/* identifier */
-	response_packet->identifier[0] = 'S';
-	response_packet->identifier[1] = 'P';
-	response_packet->protocol_version = STELLA_PROTOCOL_VERSION;
-	response_packet->channel_count = STELLA_PINS;
-
-	/* copy the pwm channel values */
-	memcpy(response_packet->pwm_channels, stella_color, sizeof(response_packet->pwm_channels));
-
-	uip_udp_send(sizeof(struct stella_response_detailed_struct));
+	uip_udp_send(len);
 
 	/* Send the packet */
 	uip_udp_conn_t conn;
@@ -118,19 +88,9 @@ stella_net_protocol_version(void)
 #endif /* STELLA_RESPONSE */
 
 #ifdef STELLA_RESPONSE_BROADCAST
-void
-stella_net_broadcast_response(void)
+void stella_net_broadcast(uint8_t len)
 {
-	struct stella_response_struct *response_packet = uip_appdata;
-
-	/* identifier */
-	response_packet->identifier = 'S';
-
-	/* copy the pwm channel values */
-	memcpy(response_packet->pwm_channels, stella_color,
-		sizeof(response_packet->pwm_channels));
-
-	uip_udp_send(sizeof(struct stella_response_struct));
+	uip_udp_send(len);
 
 	/* create broadcast ip v4 address; TODO: ip v6 */
 	uip_ipaddr_t addr;
@@ -150,35 +110,6 @@ stella_net_broadcast_response(void)
 
 	uip_slen = 0;
 }
-#endif /* STELLA_BROADCAST_RESPONSE */
-
-
-#ifdef STELLA_RESPONSE_ACK
-void
-stella_net_ack_response(void)
-{
-	/* ack response: two bytes. First: identifier 'S', Second: packet length */
-
-	/* identifier and length of the received packet */
-	char* response = uip_appdata;
-	response[0] = 'S';
-	response[1] = uip_len;
-	uip_udp_send(2);
-
-	/* Send the packet */
-	uip_udp_conn_t conn;
-	uip_ipaddr_copy(conn.ripaddr, BUF->srcipaddr);
-	conn.rport = BUF->srcport;
-	conn.lport = HTONS(STELLA_UDP_PORT);
-
-	uip_udp_conn = &conn;
-
-	/* Send immediately */
-	uip_process(UIP_UDP_SEND_CONN);
-	router_output();
-
-	uip_slen = 0;
-}
-#endif /* STELLA_RESPONSE_ACK */
+#endif
 
 #endif /* STELLA_SUPPORT */

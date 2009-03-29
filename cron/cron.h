@@ -46,13 +46,14 @@ struct cron_event_t {
 			int8_t dayofweek;
 		};
 	};
-	void (*handler)(void* data);
 	// how many times should this job be executed? -1=unlimited
 	int8_t times;
 	// One-Byte identifier of the application, eg 'S' for a Stella job.
 	// Use 0 if you don't care. This is exspecially important for the
 	// gui control application to be able to list jobs of just one appid.
 	char appid;
+
+	void (*handler)(void* data);
 	// next,prev pointer for double linked lists;
 	// last entry's next is NULL, heads prev is NULL
 	struct cron_event_t* next;

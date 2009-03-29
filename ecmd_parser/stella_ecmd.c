@@ -63,12 +63,6 @@ int16_t parse_cmd_stella_version (char *cmd, char *output, uint16_t len)
 
 #ifdef CRON_SUPPORT
 
-void cron_stella_callback(void* data)
-{
-	// data is of 2 byte size
-	stella_newdata(data, 2);
-}
-
 int16_t parse_cmd_stella_cron (char *cmd, char *output, uint16_t len)
 {
 	struct ch_value_struct {

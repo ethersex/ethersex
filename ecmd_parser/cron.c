@@ -43,12 +43,13 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	if (ret == 1)
 	{ // the user wants to know details
 		struct cron_event_t* job = cron_getjob(jobposition);
-		return snprintf_P(output, len, PSTR("AppID\tRep\thh:min\td.m\twod\n" "%c\t%i\t%i:%i\t%i.%i\t%i\n"), \
-		job->appid, job->times, job->hour, job->minute, job->day, job->month, job->dayofweek);
-	} else
-	{ // print out the amount of jobs
-		return snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs());
+		if (job)
+			return snprintf_P(output, len, PSTR("AppID\tRep\thh:min\td.m\twod\n" "%c\t%i\t%i:%i\t%i.%i\t%i\n"), \
+			job->appid, job->times, job->hour, job->minute, job->day, job->month, job->dayofweek);
 	}
+
+	// print out the amount of jobs
+	return snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs());
 }
 
 int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)

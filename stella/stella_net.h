@@ -43,9 +43,6 @@ struct stella_response_detailed_struct {
 
 void stella_net_init(void);
 void stella_net_main(void);
-void stella_net_protocol_version(void);
-void stella_net_unicast_response(void);
-void stella_net_broadcast_response(void);
-void stella_net_ack_response(void);
-
+void stella_net_unicast(uint8_t len);
+void stella_net_broadcast(uint8_t len);
 #endif

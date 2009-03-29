@@ -207,6 +207,8 @@ cron_periodic(void)
 			   If not, is it time to kick out this cronjob? */
 			if (exec->times != -1 && !(--exec->times))
 				cron_jobrm(exec);
+
+			exec = 0;
 		}
 	}
 
