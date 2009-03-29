@@ -46,8 +46,8 @@ struct cron_event_t {
 			int8_t dayofweek;
 		};
 	};
-	// how many times should this job be executed? -1=unlimited
-	int8_t times;
+	// how many times should this job be executed? 0=unlimited
+	uint8_t times;
 	// One-Byte identifier of the application, eg 'S' for a Stella job.
 	// Use 0 if you don't care. This is exspecially important for the
 	// gui control application to be able to list jobs of just one appid.
@@ -72,7 +72,7 @@ extern uint8_t cron_use_utc;
 
 #define USE_UTC 1
 #define USE_LOCAL 0
-#define INFINIT_RUNNING -1
+#define INFINIT_RUNNING 0
 
 /** add cron job to the linked list */
 void cron_jobadd(
@@ -80,7 +80,7 @@ void cron_jobadd(
 	char appid,							// application id (use NULL if you don't care)
 	int8_t minute, int8_t hour,	// time
 	int8_t day, int8_t month, int8_t dayofweek, //date
-	int8_t times,						// repeat>0 or INFINIT_RUNNING
+	uint8_t times,						// repeat>0 or INFINIT_RUNNING
 	void* extradata					// malloc allocated extra data (maybe NULL)
 );
 

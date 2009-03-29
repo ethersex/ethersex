@@ -76,13 +76,14 @@ int16_t parse_cmd_stella_cron (char *cmd, char *output, uint16_t len)
 	if (!data) return -1;
 
 	// parse user values
-	int8_t minute, hour, day, month, dayofweek, times;
-	uint8_t ret = sscanf_P(cmd, PSTR("%u %u %i %i %i %i %i %i"), &(data->ch), &(data->value),
+	int8_t minute, hour, day, month, dayofweek;
+	uint8_t times;
+	uint8_t ret = sscanf_P(cmd, PSTR("%u %u %i %i %i %i %i %u"), &(data->ch), &(data->value),
 		&minute, &hour, &day, &month, &dayofweek, &times);
 
 	if (ret>2 && data->ch<=STELLA_FLASH_COLOR_7)
 	{
-		if (ret<8) times = -1;
+		if (ret<8) times = 0;
 		if (ret<7) dayofweek = -1;
 		if (ret<6) month = -1;
 		if (ret<5) day = -1;

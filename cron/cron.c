@@ -55,7 +55,7 @@ cron_init(void)
 void
 cron_jobadd(   void (*handler)(void* data), char appid,
 					int8_t minute, int8_t hour, int8_t day,
-					int8_t month, int8_t dayofweek, int8_t times, void* data)
+					int8_t month, int8_t dayofweek, uint8_t times, void* data)
 {
 	// try to get ram space
 	struct cron_event_t* newone = malloc(sizeof(struct cron_event_t));
@@ -203,9 +203,10 @@ cron_periodic(void)
 			#endif
 			exec->handler(exec->extradata);
 
-			/* do we want this job to be executed infinite times?
-			   If not, is it time to kick out this cronjob? */
-			if (exec->times != -1 && !(--exec->times))
+			/* Execute job endless if times value is equal to zero otherwise
+			 * decrement the value and check if is equal to zero.
+			 * If that is the case, it is time to kick out this cronjob. */
+			if (exec->times > 0 && !(--exec->times))
 				cron_jobrm(exec);
 
 			exec = 0;
