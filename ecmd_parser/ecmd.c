@@ -1,6 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
- *
+/*
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
@@ -21,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -167,14 +165,28 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 {
-  extern char *__brkval;
-  debug_printf("free: %d %d %d\n", RAMEND, RAMEND - SP, SP - (uint16_t) __brkval);
-  return snprintf_P(output, len,
-                    PSTR("%d free; %d malloc; buffer " xstr(NET_MAX_FRAME_LENGTH)),
-                    /* __brkval is 0 when malloc was not called yet */
-                    SP - (uint16_t) (__brkval ? __brkval : __malloc_heap_start),
-                    (uint16_t) (__brkval ? (__brkval - __malloc_heap_start) : 0));
+	/* Docu March 2009: http://www.nongnu.org/avr-libc/user-manual/malloc.html
+	Stack size: RAMEND-SP
+	Heap size: __brkval-__heap_start
+	Space between stack and heap: SP-__brkval
+	Caution: __brkval is 0 when malloc was not called yet (use __heap_start instead)
 
+	Size of network packet frames is stored in NET_MAX_FRAME_LENGTH
+	*/
+
+	extern char *__brkval;
+	extern unsigned char __heap_start;
+	size_t f = (size_t)(__brkval ? __brkval : (size_t)&__heap_start);
+	size_t all = RAMEND;
+
+	/* we want an output like this:
+	free: 16234/32768
+	heap: 10234
+	net: 500
+	*/
+	return snprintf_P(output, len,
+		PSTR("free: %d/%d\nheap: %d\nnet: " xstr(NET_MAX_FRAME_LENGTH)),
+		SP-f, all, f-(size_t)&__heap_start);
 }
 
 #endif /* FREE_SUPPORT */
