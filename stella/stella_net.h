@@ -26,19 +26,40 @@
 #ifndef _STELLA_NET_H
 #define _STELLA_NET_H
 
-/* constants */
-//#define STELLA_UDP_PORT 2342
-
-struct stella_response_struct {
-	char identifier;
-	uint8_t pwm_channels[7];
+/* This header structure is infront of every response
+ * coming via the stella protocol */
+struct stella_response_header
+{
+	char protocol;
+	char cmd;
 };
 
-struct stella_response_detailed_struct {
-	char identifier[2];
+/* Used to inform clients about the channel state.
+ * The protocol version is also propagated here */
+struct stella_response_detailed_struct
+{
+	struct stella_response_header id;
 	uint8_t protocol_version;
 	uint8_t channel_count;
 	uint8_t pwm_channels[8];
+};
+
+/* Represents a complete cron job */
+struct stella_cron_event_struct
+{
+	int8_t fields[5];
+	uint8_t times;
+	char appid;
+	uint8_t extrasize;
+};
+
+/* Used to transfer complete cron jobs from ram to
+ * a client and to receive cron jobs from clients
+ * and to count cronjobs. */
+struct stella_cron_struct
+{
+	struct stella_response_header id;
+	uint8_t count;
 };
 
 void stella_net_init(void);

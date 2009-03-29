@@ -160,8 +160,8 @@ stella_newdata (unsigned char *buf, uint8_t len)
 			struct stella_response_detailed_struct *response_packet = uip_appdata;
 
 			/* identifier */
-			response_packet->identifier[0] = 'S';
-			response_packet->identifier[1] = STELLA_UNICAST_RESPONSE;
+			response_packet->id.protocol = 'S';
+			response_packet->id.cmd = STELLA_UNICAST_RESPONSE;
 			response_packet->protocol_version = STELLA_PROTOCOL_VERSION;
 			response_packet->channel_count = STELLA_PINS;
 
@@ -180,8 +180,8 @@ stella_newdata (unsigned char *buf, uint8_t len)
 			struct stella_response_detailed_struct *response_packet = uip_appdata;
 
 			/* identifier */
-			response_packet->identifier[0] = 'S';
-			response_packet->identifier[1] = STELLA_BROADCAST_RESPONSE;
+			response_packet->id.protocol = 'S';
+			response_packet->id.cmd = STELLA_BROADCAST_RESPONSE;
 			response_packet->protocol_version = STELLA_PROTOCOL_VERSION;
 			response_packet->channel_count = STELLA_PINS;
 
@@ -216,80 +216,72 @@ stella_newdata (unsigned char *buf, uint8_t len)
 			#ifdef DEBUG_STELLA
 			debug_printf("STELLA_COUNT_CRONJOBS\n");
 			#endif
-			/* identifier */
-			((char*)uip_appdata)[0] = 'S';
-			((char*)uip_appdata)[1] = STELLA_COUNT_CRONJOBS;
-			/* data */
-			((char*)uip_appdata)[2] = cron_jobs();
+			/* fill structure */
+			struct stella_cron_struct *buffer = uip_appdata;
+			buffer->id.protocol = 'S';
+			buffer->id.cmd = STELLA_COUNT_CRONJOBS;
+			buffer->count = cron_jobs();
 			/* send */
-			stella_net_unicast(3);
+			stella_net_unicast(sizeof(struct stella_cron_struct));
 		}
 		else if(*buf == STELLA_GET_CRONJOBS)
 		{
 			#ifdef DEBUG_STELLA
-			debug_printf("STELLA_GET_CRONJOB\n");
+			debug_printf("STELLA_GET_CRONJOBS\n");
 			#endif
-			/* identifier */
-			((char*)uip_appdata)[0] = 'S';
-			((char*)uip_appdata)[1] = STELLA_GET_CRONJOBS;
+
+			/* fill structure */
+			struct stella_cron_struct *buffer = uip_appdata;
+			buffer->id.protocol = 'S';
+			buffer->id.cmd = STELLA_GET_CRONJOBS;
 
 			// get cronjob data
 			struct cron_event_t* job = cron_getjob(0);
+
+			// no jobs
 			if (!job)
-			{ // no jobs; send just the header
-				((char*)uip_appdata)[2] = 0;
-				stella_net_unicast(3);
-			} else
 			{
+				buffer->count = 0;
+				stella_net_unicast(sizeof(struct stella_cron_struct));
+			} else
+
+			// iterate over all jobs, take 7 first byte of a job and extradata if available
+			{
+				size_t size = sizeof(struct stella_cron_struct);
 				uint8_t count = 0;
-				uint8_t size = 3;
-				while (job && size<UIP_APPDATA_SIZE && size<248)
+				while (job && size<UIP_APPDATA_SIZE)
 				{
-					/* data: first 7 bytes of the cronjob structure are of interest */
-					memcpy(((char*)uip_appdata)+size, job, 7);
-					size += 7;
-					/* special case "stella": has two extra bytes for channel+value*/
-					if (job->extradata && job->appid=='S')
-					{
-						((char*)uip_appdata)[size] = ((char*)job->extradata)[0];
-						((char*)uip_appdata)[size+1] = ((char*)job->extradata)[1];
-						size += 2;
-					}
 					++count;
+					struct stella_cron_event_struct *jobstruct = (void*)((size_t)uip_appdata+size);
+
+					/* data: first 7 bytes of the cronjob structure are of interest */
+					memcpy(jobstruct, job, sizeof(struct stella_cron_event_struct));
+					size += sizeof(struct stella_cron_event_struct);
+
+					/* determine extra data length */
+					size_t size_extra = 0;
+					if (job->extradata)
+					{
+						// we take the size, that malloc stores right
+						// infront of allocated heap memory
+						size_extra = *((size_t*)(job->extradata - sizeof(size_t)));
+						// copy extradata only if size does not exceed 255 bytes
+						if (size_extra>255) size_extra = 0;
+					}
+					jobstruct->extrasize = (uint8_t)size_extra;
+
+					/* copy extra data if any */
+					if (size_extra)
+					{
+						memcpy(((char*)uip_appdata)+size, job->extradata, size_extra);
+						size += size_extra;
+					}
+
+					/* advance to the next job */
 					job = job->next;
 				}
-				((char*)uip_appdata)[2] = count;
-				/* send */
-				stella_net_unicast(size);
-			}
-		}
-		else if(*buf == STELLA_GET_CRONJOB)
-		{
-			#ifdef DEBUG_STELLA
-			debug_printf("STELLA_GET_CRONJOB\n");
-			#endif
-			/* identifier */
-			((char*)uip_appdata)[0] = 'S';
-			((char*)uip_appdata)[1] = STELLA_GET_CRONJOB;
-			uint8_t size = 2;
-
-			// get cronjob data
-			struct cron_event_t* job = cron_getjob(buf[1]);
-			if (!job)
-			{ // no job for the jobposition in buf[1]; send just the header
-				stella_net_unicast(2);
-			} else
-			{
-				/* data: first 7 bytes of the cronjob structure are of interest */
-				memcpy(((char*)uip_appdata)+size, job, 7);
-				size += 7;
-				/* special case "stella": has two extra bytes for channel+value*/
-				if (job->extradata && job->appid=='S')
-				{
-					((char*)uip_appdata)[size] = ((char*)job->extradata)[0];
-					((char*)uip_appdata)[size+1] = ((char*)job->extradata)[1];
-					size += 2;
-				}
+				// assign count
+				buffer->count = count;
 				/* send */
 				stella_net_unicast(size);
 			}
