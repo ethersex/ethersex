@@ -30,6 +30,8 @@ typedef struct {
 } aliascmd_t;
 
 char *aliascmd_decode(char *cmd);
+uint8_t
+aliascmd_list(uint8_t nr, char *name, char *cmd);
 
 #endif
 

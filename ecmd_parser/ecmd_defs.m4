@@ -297,3 +297,7 @@ ecmd_ifdef(MYSQL_SUPPORT)
   ecmd_feature(mysql_query, "mysql query ")
 ecmd_endif
 
+ecmd_ifdef(ALIASCMD_SUPPORT)
+  ecmd_feature(alias_list, "alias list")
+ecmd_endif
+
