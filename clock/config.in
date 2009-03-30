@@ -22,6 +22,7 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
   if [ "$CRON_SUPPORT" = "y" ]; then
 	  dep_bool "Cron test entries" CRON_SUPPORT_TEST $CRON_SUPPORT
   fi
+  dep_bool "Cron daemon (static jobs)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT
   dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
   dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
   if [ "$CLOCK_SUPPORT" = "y" ]; then

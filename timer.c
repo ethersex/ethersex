@@ -37,6 +37,7 @@
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
 #include "cron/cron.h"
+#include "cron_static/cron_static.h"
 #include "usb/usb.h"
 #include "ipv6.h"
 #include "ps2/ps2.h"
@@ -204,6 +205,10 @@ void timer_process(void)
         if (counter % 50 == 0) {
 #           ifdef CRON_SUPPORT
             cron_periodic();
+#           endif
+
+#           ifdef CRON_STATIC_SUPPORT
+            cron_static_periodic();
 #           endif
 
 #           ifdef FS20_RECEIVE_WS300_SUPPORT
