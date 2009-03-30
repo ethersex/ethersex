@@ -47,7 +47,16 @@ struct stella_response_detailed_struct
 /* Represents a complete cron job */
 struct stella_cron_event_struct
 {
-	int8_t fields[5];
+	union{
+		int8_t fields[5];
+		struct {
+			int8_t minute;
+			int8_t hour;
+			int8_t day;
+			int8_t month;
+			int8_t dayofweek;
+		};
+	};
 	uint8_t times;
 	char appid;
 	uint8_t extrasize;

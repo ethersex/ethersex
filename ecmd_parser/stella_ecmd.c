@@ -127,7 +127,7 @@ int16_t parse_cmd_stella_channel_set (char *cmd, char *output, uint16_t len)
 
 	if (ret == 2 && ch_value.ch<STELLA_FLASH_COLOR_7)
 	{
-		stella_newdata(&ch_value, 2);
+		stella_newdata((char*)&ch_value, 2);
 		//stella_fade[ch]=value;
 		return snprintf_P(output, len, PSTR("ok"));
 	} else {

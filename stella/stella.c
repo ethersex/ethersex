@@ -44,13 +44,19 @@ stella_init (void)
 	/* Normal PWM Mode, 128 Prescaler */
 	//_TCCR2_PRESCALE |= _BV(CS20) | _BV(CS22);
 
+	#ifdef STELLA_GAMMACORRECTION
+	/* Normal PWM Mode, 32 Prescaler (8:CS21) */
+	_TCCR2_PRESCALE = _BV(CS21) | _BV(CS20);
+	#else
 	/* Normal PWM Mode, 64 Prescaler */
-	_TCCR2_PRESCALE = 1<<CS22 | 0<<CS21 | 0<<CS20;
+	_TCCR2_PRESCALE = _BV(CS22);
+	#endif
 
 	/* Interrupt on overflow and CompareMatch */
 	_TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2);
 
-	/* set stella port pins to output */
+	/* set stella port pins to output and save the negated port mask */
+	stella_portmask_neg = (uint8_t)~( ((1 << STELLA_PINS) - 1) << STELLA_OFFSET);
 	STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
 
 	stella_fade_counter = stella_fade_step;
@@ -110,9 +116,7 @@ stella_newdata (unsigned char *buf, uint8_t len)
 
 	while (len > 1)
 	{
-		// bogus warning might be triggered -> ignore
-		// "warning: comparison is always true due to limited range of data type"
-		if(*buf >= STELLA_SET_COLOR_0 && *buf < (STELLA_SET_COLOR_7))
+		if(*buf == STELLA_SET_COLOR_0 || (*buf > STELLA_SET_COLOR_0 && *buf < STELLA_SET_COLOR_7))
 		{
 			#ifdef DEBUG_STELLA
 			debug_printf("STELLA_SET_COLOR\n");
@@ -254,7 +258,7 @@ stella_newdata (unsigned char *buf, uint8_t len)
 					++count;
 					struct stella_cron_event_struct *jobstruct = (void*)((size_t)uip_appdata+size);
 
-					/* data: first 7 bytes of the cronjob structure are of interest */
+					/* data: some bytes of the cronjob structure are of interest */
 					memcpy(jobstruct, job, sizeof(struct stella_cron_event_struct));
 					size += sizeof(struct stella_cron_event_struct);
 
@@ -300,30 +304,39 @@ stella_newdata (unsigned char *buf, uint8_t len)
 		#endif // STELLA_RESPONSE
 		else if(*buf == STELLA_ADD_CRONJOB)
 		{
+			++buf; --len;
 			#ifdef DEBUG_STELLA
 			debug_printf("STELLA_ADD_CRONJOB\n");
 			#endif
-			// we need cmd + 8 parameters
-			// cmd, channel_cmd, value, minute, hour, day, month, dayofweek, times
-			if (len<9) continue;
+			// we need 8+ parameters
+			// minute, hour, day, month, dayofweek, times, appid, extrasize, (extradata)
+			if (len<8) continue;
 
-			// we allocate heap memory to save the target channel and value
+			struct stella_cron_event_struct* job = (void*)buf;
+			buf += sizeof(struct stella_cron_event_struct);
+			len -= sizeof(struct stella_cron_event_struct);
+
+			// we allocate heap memory for extra data
 			// this will be freed if the cron job gets removed
-			struct ch_value_struct {
-				uint8_t ch;
-				uint8_t value;
-			};
-			struct ch_value_struct *data = malloc(sizeof(struct ch_value_struct));
-			// we don't have memory space left on the heap -> abort
-			if (!data) continue;
+			struct ch_value_struct *data = 0;
+			if (job->extrasize)
+			{
+				data = malloc(job->extrasize);
+				// we don't have memory space left on the heap -> abort
+				if (!data)
+				{
+					buf += job->extrasize;
+					len -= job->extrasize;
+					continue;
+				}
+				memcpy(data, buf, job->extrasize);
+				buf += job->extrasize;
+				len -= job->extrasize;
+			}
 
-			data->ch = buf[1]; // channel
-			data->value = buf[2]; // value
-			cron_jobadd(cron_stella_callback, 'S', buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], data);
+			cron_jobadd(cron_stella_callback, job->appid, job->minute, job->hour, job->day, job->month, job->dayofweek, job->times, data);
 
-			// adjust len and buf
-			len -= 9;
-			buf += 9;
+			// do not modify len and buf anymore, just continue
 			continue;
 		}
 		#endif // CRON_SUPPORT

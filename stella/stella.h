@@ -82,6 +82,7 @@ enum
 
 extern uint8_t stella_color[];
 extern uint8_t stella_fade[];
+extern uint8_t stella_portmask_neg;
 
 extern volatile uint8_t stella_fade_counter;
 extern uint8_t stella_fade_step;
@@ -94,4 +95,3 @@ void stella_process(void);
 void stella_newdata(unsigned char *buf, uint8_t len);
 /* stella_pwm.c */
 void stella_sort(uint8_t color[]);
-

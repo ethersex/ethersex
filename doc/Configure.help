@@ -1637,3 +1637,13 @@ MCUF_MODUL_BORG16_GAMEOFLIFE_GLIDER_TEST_SUPPORT
 
   Glider test for Game of life
 
+Gamma correction (EXPERIMENTAL)
+STELLA_GAMMACORRECTION
+  Depends on: 
+
+  Increase colour space mainly in darker brightness levels.
+  Does currently not work correctly. (I tried to avoid logarithmic calculations
+  or precalculated huge tables and only corrected manually the first
+  20 brightness levels)
+  Does not work with too many channels. Interrupts would need too much time.
+
