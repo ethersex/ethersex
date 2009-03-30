@@ -1647,3 +1647,13 @@ STELLA_GAMMACORRECTION
   20 brightness levels)
   Does not work with too many channels. Interrupts would need too much time.
 
+Cron daemon (static jobs)
+CRON_STATIC_SUPPORT
+  Depends on:
+   * System clock support (CLOCK_SUPPORT)
+
+  Enable cron-alike service. The difference to the normal cron daemon is, that you 
+  cannot change the cronjobs after compilation. Jobs are stored in the flash memory. 
+  To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static 
+  at the same time.
+
