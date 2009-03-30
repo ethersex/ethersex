@@ -43,6 +43,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'ECMD OW ROM' DEBUG_ECMD_OW_ROM $DEBUG
   dep_bool 'ECMD PORTIO' DEBUG_ECMD_PORTIO $DEBUG
   dep_bool 'ECMD RC5' DEBUG_ECMD_RC5 $DEBUG
+  dep_bool 'ECMD SCRIPT' DEBUG_ECMD_SCRIPT $DEBUG $ECMD_SCRIPT_SUPPORT
   dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG
   dep_bool '  Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60
   dep_bool '  Rev. 4 Workaround' DEBUG_REV4_WORKAROUND $DEBUG_ENC28J60

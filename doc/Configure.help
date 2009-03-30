@@ -1657,3 +1657,51 @@ CRON_STATIC_SUPPORT
   To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static 
   at the same time.
 
+ECMD Scripting
+ECMD_SCRIPT_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Scripting Support for ECMD.
+
+  Available Commands:
+
+  * wait i        -> wait i milliseconds
+  * set var value -> set variable to value
+  * get var       -> get value of variable
+  * inc var       -> increment variable (numbers only)
+  * dec var       -> decrement variable (numbers only)
+  * if ( ecmd1 == CONST ) then ecmd2
+  * if ( %var == CONST ) then ecmd2
+                  -> compares output of variable or ecmd1, if successfull
+                     then execute ecmd2
+  
+  only usefull while script is running! (not yet working)
+  * call file     -> calls script file from vfs and execute it line by line
+  * exit          -> exit currently running script
+  * goto n        -> jumps to line number of script
+
+  Hints:
+  Currently only fixed variable names are working. eg.
+  set 0 foo  -> sets variable %0 to value foo
+  set 1 23   -> set variable 1 to value 23
+  inc 1      -> increments variable 1
+  get 1      -> outputs value of variable 1
+
+  The if condition is able to get the values of variables. Just enter
+  an % befor the variable. eg. this will set the variable 3 to value 42,
+  The condition will check the value of variable 3 and if equals with "42"
+  it will execute the command (this case it will be "date")
+
+  set 3 42
+  if ( %3 == 42 ) then date
+
+Maximum number of variables
+ECMD_SCRIPT_MAX_VARIABLES
+
+  Just a very short number of variables is supported right now. 
+  Each variable takes up to 10 bytes of memory. So if you need more than
+  the default value change this number
+
+

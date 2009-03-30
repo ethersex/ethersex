@@ -310,3 +310,15 @@ ecmd_ifdef(ALIASCMD_SUPPORT)
   ecmd_feature(alias_list, "alias list")
 ecmd_endif
 
+ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
+  ecmd_feature(goto, "goto ")
+  ecmd_feature(exit, "exit")
+  ecmd_feature(wait, "wait ")
+  ecmd_feature(set, "set ")
+  ecmd_feature(get, "get ")
+  ecmd_feature(inc, "inc ")
+  ecmd_feature(dec, "dec ")
+  ecmd_feature(call, "call ")
+  ecmd_feature(if, "if ")
+ecmd_endif
+

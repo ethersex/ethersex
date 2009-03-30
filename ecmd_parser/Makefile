@@ -27,7 +27,8 @@ SRC = \
 	usart.c		\
 	syslog.c		\
 	control6.c	\
-	aliascmd.c
+	aliascmd.c	\
+	scripting.c
 
 ##############################################################################
 # generic fluff
