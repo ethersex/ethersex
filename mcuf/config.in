@@ -47,7 +47,7 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
 
   comment "MCUF Module"
   dep_bool_menu "MCUF Module" MCUF_MODUL_SUPPORT $MCUF_SUPPORT
-    dep_bool_menu "MCUF Module in Cron" MCUF_MODUL_CRON_SUPPORT $MCUF_SUPPORT $CRON_SUPPORT
+    dep_bool_menu "MCUF Module in Cron" MCUF_MODUL_CRON_SUPPORT $MCUF_SUPPORT $CRON_STATIC_SUPPORT
     choice 'Modul Display Mode Cron' \
      "sequence        MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE \
       random          MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM" \

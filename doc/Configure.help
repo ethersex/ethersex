@@ -1463,7 +1463,7 @@ MCUF Module in Cron
 MCUF_MODUL_CRON_SUPPORT
   Depends on: 
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-   * Cron daemon (CRON_SUPPORT)w
+   * Cron static daemon (CRON_STATIC_SUPPORT)
 
   Set mode for modul call in cron.
 

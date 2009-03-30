@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 #include <string.h>
 #include "../syslog/syslog.h"
-#include "cronstatic.h"
+#include "cron_static.h"
 #include "../config.h"
 #include "../mcuf/mcuf.h"
 
