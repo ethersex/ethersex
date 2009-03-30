@@ -1,7 +1,8 @@
-TARGET = libclock.a
+TARGET = libcron.a
 TOPDIR = ..
 SRC = \
-	cron.c test.c
+	cron.c \
+	test.c
 
 ##############################################################################
 # generic fluff
