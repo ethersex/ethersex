@@ -152,7 +152,7 @@ void mcuf_init(void) {
 #endif
 #endif
   MCUF_DEBUG("init...\n");
-  buffer.len = 1;
+  buffer.len = 0;
   buffer.sent = 0;
 #ifdef LEDRG_SUPPORT
   init_led_display();
