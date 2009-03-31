@@ -167,7 +167,7 @@ void frandom_bright(){
 
 #endif //MCUF_MODUL_BORG16_SUPPORT
 
-#ifdef MCUF_CHESS_SUPPORT
+#ifdef MCUF_CLEAN_SUPPORT
 void clean(){
   mcuf_clean(0,1);
 }
