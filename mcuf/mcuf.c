@@ -231,6 +231,9 @@ void mcuf_newdata(void) {
             uint8_t green = pkt->data[(x + (y * width)) * channels + 1];	
             buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))] =
                 (red + green) / 2 * multiplier;
+#ifdef LEDRG_SUPPORT
+            gdata[y][x] = red+green;
+#endif
           }
         }
       }
