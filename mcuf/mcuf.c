@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the, PAx, OUTPUT)
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -40,6 +40,13 @@
 #include "mcuf_text.h"
 #include "ledmatrixint.h"
 #include "../uip/uip.h"
+
+#ifdef SOFT_UART_SUPPORT
+
+#  include "../debug.h"
+
+extern void soft_uart_putchar(uint8_t c);
+#endif
 
 #ifdef DEBUG_MCUF
 #  include "../debug.h"
@@ -129,16 +136,20 @@ void blp_setspalte(uint8_t spalte, uint8_t status);
 #endif
 
 #ifdef MCUF_SERIAL_SUPPORT
+#ifndef SOFT_UART_SUPPORT
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
+#endif
 #endif
 
 void mcuf_init(void) {
 #ifdef MCUF_SERIAL_SUPPORT
+#ifndef SOFT_UART_SUPPORT
   /* Initialize the usart module */
   usart_init();
   /* Disable the receiver */
   usart(UCSR,B) &= ~_BV(usart(RXCIE));
+#endif
 #endif
   MCUF_DEBUG("init...\n");
   buffer.len = 1;
@@ -408,11 +419,26 @@ void mcuf_serial_senddata() {
 void tx_start(uint8_t len) {
   buffer.len = len;
   buffer.sent = 1;
+#ifndef SOFT_UART_SUPPORT
   /* Enable the tx interrupt and send the first character */
   usart(UCSR,B) |= _BV(usart(TXCIE));
   usart(UDR) = buffer.data[0];
+#endif
+
+#ifdef SOFT_UART_SUPPORT
+  uint8_t x, y;
+  for (y = 0; y < 12; y++) 
+      soft_uart_putchar(buffer.data[y]);
+  for (y = 0; y < MCUF_SERIAL_SCREEN_HEIGHT; y++) {
+    for (x = 0; x < MCUF_SERIAL_SCREEN_WIDTH; x++) {
+      soft_uart_putchar(buffer.data[12 + (x + (y * MCUF_MAX_SCREEN_WIDTH))]);
+      buffer.sent = len;
+    }
+  }
+#endif
 }
 
+#ifndef SOFT_UART_SUPPORT
 SIGNAL(usart(USART,_TX_vect)) {
   if (buffer.sent < buffer.len) {
     usart(UDR) = buffer.data[buffer.sent++];
@@ -421,6 +447,7 @@ SIGNAL(usart(USART,_TX_vect)) {
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
   }
 }
+#endif /* MCUF_SERIA*/
 #endif /* MCUF_SERIAL_SUPPORT */
 
 void mcuf_periodic(void) {
