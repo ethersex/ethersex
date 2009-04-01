@@ -61,8 +61,6 @@
 typedef struct {
         uint8_t x;
         uint8_t y;
-//        unsigned char x;
-//        unsigned char y;
 } pixel;
 
 typedef enum {right,left,up,down} direction;
@@ -101,11 +99,6 @@ typedef enum {
 	MCUF_MODUL_PLAY_MODE_RANDOM,
 	MCUF_MODUL_PLAY_MODE_SEQUENCE
 } MCUF_PLAY_MODE;
-
-struct mcuf_modul_t {
- void (*handler)(void);
- char title[15];
-};
 
 uint8_t mcuf_list_modul(char* title, uint8_t modul);
 uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul);

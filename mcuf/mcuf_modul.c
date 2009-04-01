@@ -25,6 +25,7 @@
  }}} */
 
 #ifndef GCC 
+#include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <string.h>
 #include <stdio.h>
@@ -47,8 +48,9 @@
 
 #ifdef MCUF_MODUL_SUPPORT
 
+
 // max number of available modules
-#define MCUF_MAX_MODULES sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)
+#define MCUF_MAX_MODULES (sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)) - 1
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT
 #include "borg-16/xoni_study.h"
@@ -178,95 +180,25 @@ void spiral(){
 }
 #endif
 
-struct mcuf_modul_t mcuf_display_modules[] PROGMEM = 
-{
-#ifdef MCUF_IMAGE_SUPPORT
-{ mcuf_image, "image" },
-#endif
-#ifdef MCUF_CHESS_SUPPORT
-{ mcuf_chess, "chess" },
-#endif
-#ifdef MCUF_SPIRAL_SUPPORT
-{ spiral, "spiral" },
-#endif
-#ifdef MCUF_CLEAN_SUPPORT
-{ clean, "clean" },
-#endif
-#ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
-{ matrix, "matrix" },
-#endif
-#ifdef MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
-{ xoni_study1, "xoni" },
-#endif
-#ifdef MCUF_MODUL_BORG16_FIRE_SUPPORT
-{ feuer, "fire" },
-#endif
-#ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
-{ fspirale, "spiral" },
-#endif
-#ifdef MCUF_MODUL_BORG16_JOERN1_SUPPORT
-{ joern1, "joern1" },
-#endif
-#ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
-{ fschachbrett, "chessboard"},
-#endif
-#ifdef MCUF_MODUL_BORG16_SNAKE_SUPPORT
-{ snake, "snake" },
-#endif
-#ifdef MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
-{ frandom_bright, "random" },
-#endif
-#ifdef MCUF_MODUL_BORG16_TEST1_SUPPORT
-{ test1, "test1" },
-#endif
-#ifdef MCUF_MODUL_BORG16_TESTL1_SUPPORT
-{ test_level1, "level1" },
-#endif
-#ifdef MCUF_MODUL_BORG16_TESTL2_SUPPORT
-{ test_level2, "level2" },
-#endif
-#ifdef MCUF_MODUL_BORG16_TESTL3_SUPPORT
-{ test_level3, "level3" },
-#endif
-#ifdef MCUF_MODUL_BORG16_TESTLX_SUPPORT
-{ test_levels, "levels" },
-#endif
-#ifdef MCUF_MODUL_BORG16_PALETTE_SUPPORT
-{ test_palette, "palette" },
-#endif
-#ifdef MCUF_MODUL_BORG16_FADEIN_SUPPORT
-{ fadein, "fadin" },
-#endif
-#ifdef MCUF_MODUL_BORG16_TETRIS_SUPPORT
-{ tetris, "tetris" },
-#endif
-#ifdef MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
-{ gameoflife, "game of life" },
-#endif
-#ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
-{ borg_invaders, "invaders" },
-#endif
-{ NULL, "" }
+struct mcuf_modul_t {
+ void (*handler)(void);
+ PGM_P title;
 };
+
+#include "mcuf_modul_defs.c"
 
 uint8_t mcuf_current_modul = 0;
 
-uint8_t mcuf_list_modul(char* title, uint8_t modul){
-  uint8_t i;
-  struct mcuf_modul_t modulfunc;
-  for (i = 0; i <=modul; i++) {
-    memcpy_P(&modulfunc, &mcuf_display_modules[i], sizeof(struct mcuf_modul_t));
-    if (modulfunc.handler ==  NULL) {
+uint8_t mcuf_list_modul(char *title, uint8_t modul){
+  if ( modul >= MCUF_MAX_MODULES ) {
       return 0;
-    } 
-    if (i == modul) {
-      memcpy(title,&modulfunc.title, sizeof(modulfunc.title));
+  } 
+  struct mcuf_modul_t modulfunc;
+  memcpy_P(&modulfunc, &mcuf_display_modules[modul], sizeof(struct mcuf_modul_t));
+  memcpy_P(title,modulfunc.title, strlen_P(modulfunc.title) + 1);
 #ifdef DEBUG_MCUF
     debug_printf("mcuf modul: %i, %s\n",i, modulfunc.title);
 #endif
-      return 1;
-    }
-  }
   return 1;
 }
 
