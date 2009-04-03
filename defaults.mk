@@ -13,9 +13,12 @@ AVRDUDE = avrdude
 AVRDUDE_BAUDRATE = 115200
 SIZE = avr-size
 STRIP = avr-strip
+AWK = gawk
+M4 = m4
 
 HOSTCC := gcc
 export HOSTCC
+export MAKE
 
 # flags for the compiler
 CPPFLAGS += -mmcu=$(MCU)  

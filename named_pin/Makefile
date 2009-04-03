@@ -33,6 +33,6 @@ clean: clean-common
 	$(RM) -f user_config.h user_config.c np_simple.c
 
 np_simple.c: config np_simple.awk
-	grep -v -e "^#" < $< | mawk -f np_simple.awk > $@.tmp
+	grep -v -e "^#" < $< | ${AWK} -f np_simple.awk > $@.tmp
 	mv -f $@.tmp $@
 

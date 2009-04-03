@@ -24,13 +24,13 @@ clean-common:
 clean: clean-common
 
 all:
-	make -C $(TOPDIR) all
+	$(MAKE) -C $(TOPDIR) all
 
 
 $(TOPDIR)/pinning.c:
-	make -C $(TOPDIR) pinning.c
+	$(MAKE) -C $(TOPDIR) pinning.c
 
 $(TOPDIR)/control6/control6.h:
-	make -C $(TOPDIR)/control6 control6.h
+	$(MAKE) -C $(TOPDIR)/control6 control6.h
 
 include $(TOPDIR)/depend.mk

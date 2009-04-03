@@ -59,7 +59,7 @@ endif # no_deps!=t
 
 .PHONY: compile-subdirs
 compile-subdirs:
-	for dir in $(SUBDIRS); do make -C $$dir lib$$dir.a || exit 5; done
+	for dir in $(SUBDIRS); do $(MAKE) -C $$dir lib$$dir.a || exit 5; done
 
 .PHONY: compile-$(TARGET)
 compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
@@ -149,10 +149,10 @@ menuconfig:
 what-now-msg:
 	@echo ""
 	@echo "Next, you can: "
-	@echo " * 'make' to compile Ethersex"
+	@echo " * '$(MAKE)' to compile Ethersex"
 	@for subdir in $(SUBDIRS); do \
 	  test -e "$$subdir/configure" -a -e "$$subdir/cfgpp" \
-	    && echo " * 'make $$subdir/menuconfig' to" \
+	    && echo " * '$(MAKE) $$subdir/menuconfig' to" \
 	            "further configure $$subdir"; done || true
 	@echo ""
 .PHONY: what-now-msg
@@ -168,7 +168,7 @@ clean:
 	for subdir in `find . -type d`; do \
 	  test "x$$subdir" != "x." \
 	  && test -e $$subdir/Makefile \
-	  && make no_deps=t -C $$subdir clean; done
+	  && $(MAKE) no_deps=t -C $$subdir clean; done
 
 mrproper:
 	$(MAKE) clean
@@ -203,7 +203,7 @@ show-config: autoconf.h
 .PHONY: show-config
 
 autoconf.h .config: 
-	@echo make\'s goal: $(MAKECMDGOALS)
+	@echo $(MAKE)\'s goal: $(MAKECMDGOALS)
 ifneq ($(MAKECMDGOALS),menuconfig)
 	# make sure menuconfig isn't called twice, on `make menuconfig'
 	test -s autoconf.h -a -s .config || $(MAKE) no_deps=t menuconfig

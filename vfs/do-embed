@@ -27,7 +27,7 @@ SPM_PAGESIZE
 EOF
 ) > dummy.c || exit 1
 
-make dummy.E || exit 1
+$MAKE dummy.E || exit 1
 PAGESZ=$(tail -n 1 dummy.E)
 
 rm -f dummy.[cE]
