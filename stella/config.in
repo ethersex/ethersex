@@ -1,12 +1,12 @@
 dep_bool_menu "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
   int "Stella UDP Port" STELLA_UDP_PORT 2342
   dep_bool "Gamma correction (EXPERIMENTAL)" STELLA_GAMMACORRECTION
-  dep_bool "Stella polling (unicast response)" STELLA_RESPONSE
-  dep_bool "Stella polling (broadcast response)" STELLA_RESPONSE_BROADCAST
-  if [ "$STELLA_RESPONSE_BROADCAST" = "y" ]; then
+  dep_bool "Higher frequency" STELLA_HIGHFREQ
+  dep_bool "Stella polling" STELLA_RESPONSE
+  if [ "$STELLA_RESPONSE" = "y" ]; then
     int "Stella Broadcast Response UDP Port" STELLA_BROADCAST_UDP_PORT 2341
   fi
-  dep_bool "Acknowledge packets" STELLA_RESPONSE_ACK
+  dep_bool "Acknowledge all packets" STELLA_RESPONSE_ACK
   dep_bool "EEPROM saving and loading channel values" STELLA_EEPROM $CONFIG_EXPERIMENTAL
   if [ "$STELLA_EEPROM" = "y" ]; then
     dep_bool "Use eeprom values on device boot" STELLA_EEPROM_BOOT

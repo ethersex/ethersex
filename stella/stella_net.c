@@ -18,14 +18,16 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
-*/
+ */
 
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
 #include "../config.h"
 #include "../debug.h"
+#include "../cron/cron.h"
 #include "stella.h"
 #include "stella_net.h"
+#include "stella_protocol.h"
 
 #ifdef STELLA_SUPPORT
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
@@ -45,28 +47,61 @@ stella_net_init(void)
 	uip_udp_bind (stella_conn, HTONS(STELLA_UDP_PORT));
 }
 
+
 void
 stella_net_main(void)
 {
 	if (!uip_newdata ())
 		return;
 
-	stella_newdata (uip_appdata, uip_len);
+	stella_protocol_parse(uip_appdata, uip_len);
 
-	#ifdef STELLA_RESPONSE
 	#ifdef STELLA_RESPONSE_ACK
-	// send a response message (header+copy of original msg)
-	memmove(stella_net_buffer+3,stella_net_buffer,uip_len);
-	char* response = uip_appdata;
-	stella_net_buffer[0] = 'S';
-	stella_net_buffer[1] = STELLA_ACK_RESPONSE;
-	stella_net_buffer[2] = uip_len;
-	stella_net_unicast(uip_len+3);
-	#endif
+	stella_net_ack();
 	#endif
 }
 
 #ifdef STELLA_RESPONSE
+
+#ifdef STELLA_RESPONSE_ACK
+// send a response message (header+copy of original msg)
+inline void
+stella_net_ack(void)
+{
+	// move original message 3 bytes ahead
+	memmove(uip_appdata+3,uip_appdata,uip_len);
+	char* response = uip_appdata;
+	response[0] = 'S';
+	response[1] = STELLA_ACK_RESPONSE;
+	response[2] = uip_len;
+	stella_net_unicast(uip_len+3);
+}
+#endif
+
+void *
+stella_net_response(const uint8_t msgtype)
+{
+	struct stella_response_header *r = uip_appdata;
+	r->protocol = 'S';
+	r->cmd = msgtype;
+	void *p = r;
+	p += 2;
+	return p;
+}
+
+void
+stella_net_wb_getvalues(const uint8_t msgtype)
+{
+	struct stella_response_detailed_struct *r;
+	r = stella_net_response(msgtype);
+
+	r->protocol_version = STELLA_PROTOCOL_VERSION;
+	r->channel_count = STELLA_PINS;
+
+	/* copy the pwm channel values */
+	memcpy(r->pwm_channels, stella_brightness, sizeof(r->pwm_channels));
+}
+
 void stella_net_unicast(uint8_t len)
 {
 	uip_udp_send(len);
@@ -85,9 +120,7 @@ void stella_net_unicast(uint8_t len)
 
 	uip_slen = 0;
 }
-#endif /* STELLA_RESPONSE */
 
-#ifdef STELLA_RESPONSE_BROADCAST
 void stella_net_broadcast(uint8_t len)
 {
 	uip_udp_send(len);

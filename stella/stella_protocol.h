@@ -18,37 +18,36 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-static void
-stella_fade_normal (int i)
+#ifndef _STELLA_PROTOCOL_H
+#define _STELLA_PROTOCOL_H
+
+/* Represents a complete cron job */
+struct stella_cron_event_struct
 {
-	if (stella_brightness[i] > stella_fade[i])
-		stella_setValueFade(i, stella_brightness[i]-1);
-	else /* stella_color[i] < stella_fade[i] */
-		stella_setValueFade(i, stella_brightness[i]+1);
-}
-
-
-static void
-stella_fade_flashy (int i)
-{
-	/* local copies, access>=3 times */
-	uint8_t current = stella_brightness[i];
-	uint8_t target = stella_fade[i];
-
-	if (current > target) target <<= 1;
-	if (current < target) current = target;
-
-	stella_setValueFade(i, current);
-}
-
-
-struct fadefunc_struct
-{
-	void (* p) (int i);
+	union{
+		int8_t fields[5];
+		struct {
+			int8_t minute;
+			int8_t hour;
+			int8_t day;
+			int8_t month;
+			int8_t dayofweek;
+		};
+	};
+	uint8_t times;
+	char appid;
+	uint8_t extrasize;
 };
 
-static struct fadefunc_struct stella_fade_funcs[FADE_FUNC_LEN] =
+/* Used to transfer complete cron jobs from ram to
+* a client and to receive cron jobs from clients
+* and to count cronjobs. */
+struct stella_cron_struct
 {
-	{ stella_fade_normal },
-	{ stella_fade_flashy },
+	uint8_t count;
 };
+
+void stella_protocol_parse(char* buf, uint8_t len);
+
+
+#endif

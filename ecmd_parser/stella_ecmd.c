@@ -43,15 +43,13 @@ int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 #ifdef STELLA_EEPROM
 int16_t parse_cmd_stella_eeprom_store (char *cmd, char *output, uint16_t len)
 {
-	eeprom_save(stella_channel_values, stella_color, 8);
+	stella_storeToEEROM();
 	return snprintf_P(output, len, PSTR("stored"));
 }
 
 int16_t parse_cmd_stella_eeprom_load (char *cmd, char *output, uint16_t len)
 {
-	eeprom_restore(stella_channel_values, stella_color, 8);
-	memcpy(stella_fade, stella_color, 8);
-	stella_sort(stella_color);
+	stella_loadFromEEROM();
 	return snprintf_P(output, len, PSTR("loaded"));
 }
 #endif
@@ -90,7 +88,7 @@ int16_t parse_cmd_stella_cron (char *cmd, char *output, uint16_t len)
 		if (ret<4) hour = -1;
 
 		// add cron job
-		cron_jobadd(cron_stella_callback, 'S', minute, hour, day, month, dayofweek, times, data);
+		cron_jobadd(stella_cron_callback, 'S', minute, hour, day, month, dayofweek, times, data);
 		return snprintf_P(output, len, PSTR("stella cron"));
 	} else {
 		return -1;
@@ -119,16 +117,13 @@ int16_t parse_cmd_stella_fadestep_get (char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_stella_channel_set (char *cmd, char *output, uint16_t len)
 {
-	struct ch_value_struct {
-		uint8_t ch;
-		uint8_t value;
-	} ch_value;
-	uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), &(ch_value.ch), &(ch_value.value));
+	uint8_t ch=0;
+	uint8_t value=0;
+	uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), ch, value);
 
-	if (ret == 2 && ch_value.ch<STELLA_FLASH_COLOR_7)
+	if (ret == 2 && ch<STELLA_FLASH_COLOR_7)
 	{
-		stella_newdata((char*)&ch_value, 2);
-		//stella_fade[ch]=value;
+		stella_setValueFade(ch, value);
 		return snprintf_P(output, len, PSTR("ok"));
 	} else {
 		return -1;
@@ -142,7 +137,7 @@ int16_t parse_cmd_stella_channel_get (char *cmd, char *output, uint16_t len)
 
 	if (ret == 1 && ch<STELLA_PINS)
 	{
-		return snprintf_P(output, len, PSTR("value: %u"), stella_color[ch]);
+		return snprintf_P(output, len, PSTR("value: %u"), stella_getValue(ch));
 	} else {
 		return -1;
 	}

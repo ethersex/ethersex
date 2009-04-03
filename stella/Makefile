@@ -1,9 +1,10 @@
 TARGET = libstella.a
 TOPDIR = ..
 SRC = \
-	stella.c \
 	stella_pwm.c \
-	stella_net.c
+	stella_net.c \
+	stella_protocol.c \
+	stella.c
 
 ##############################################################################
 # generic fluff

@@ -1,26 +1,28 @@
 /*
-* Copyright (c) 2009 by David Gräff <david.graeff@web.de>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 2 as
-* published by the Free Software Foundation.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*
-* For more information on the GPL, please go to:
-* http://www.gnu.org/copyleft/gpl.html
-*/
+ * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #define STELLA_FLAG_SORT 1
 #define STELLA_FLAG_ACK 2
 #define STELLA_PROTOCOL_VERSION 3
+
+#include "../config.h"
 
 enum stella_colors
 {
@@ -63,8 +65,8 @@ enum stella_commands
   STELLA_SELECT_FADE_FUNC,
   STELLA_FADE_STEP,
   STELLA_ACK_RESPONSE,
-  STELLA_UNICAST_RESPONSE,
-  STELLA_BROADCAST_RESPONSE,
+  STELLA_UNICAST_GETVALUES,
+  STELLA_BROADCAST_GETVALUES,
   STELLA_SAVE_TO_EEPROM,
   STELLA_LOAD_FROM_EEPROM,
   STELLA_COUNT_CRONJOBS,
@@ -80,18 +82,53 @@ enum
 	FADE_FUNC_LEN
 };
 
-extern uint8_t stella_color[];
-extern uint8_t stella_fade[];
-extern uint8_t stella_portmask_neg;
+enum stella_update_sync
+{
+	NOTHING_NEW,
+	NEW_VALUES,
+	UPDATE_VALUES
+};
 
+struct stella_timetable_entry
+{
+	uint8_t portmask;
+	uint8_t value;
+	struct stella_timetable_entry* next;
+	#ifdef STELLA_GAMMACORRECTION
+	uint8_t gamma_wait_cycles;
+	uint8_t gamma_wait_counter;
+	#endif
+};
+
+struct stella_timetable_struct
+{
+	struct stella_timetable_entry channel[STELLA_PINS];
+	struct stella_timetable_entry* head;
+	uint8_t portmask;
+};
+
+extern struct stella_timetable_struct* int_table;
+extern struct stella_timetable_struct* cal_table;
+
+/* to update i_* variables with their counterparts */
+extern volatile enum stella_update_sync stella_sync;
 extern volatile uint8_t stella_fade_counter;
+
+extern uint8_t stella_portmask_neg;
 extern uint8_t stella_fade_step;
-extern uint8_t stella_net_ack;
+extern uint8_t stella_fade_func;
+extern uint8_t stella_brightness[STELLA_PINS];
 
 /* stella.c */
-void cron_stella_callback(void* data);
+void stella_cron_callback(void* data);
 void stella_init(void);
 void stella_process(void);
-void stella_newdata(unsigned char *buf, uint8_t len);
-/* stella_pwm.c */
-void stella_sort(uint8_t color[]);
+void stella_sort(void);
+
+void stella_setValue(const uint8_t channel, const uint8_t value);
+void stella_setValueFade(const uint8_t channel, const uint8_t value);
+uint8_t stella_getValue(const uint8_t channel);
+
+void stella_loadFromEEROM(void);
+void stella_loadFromEEROMFading(void);
+void stella_storeToEEROM(void);
