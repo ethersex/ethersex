@@ -72,7 +72,8 @@ enum stella_commands
   STELLA_COUNT_CRONJOBS,
   STELLA_GET_CRONJOBS,
   STELLA_RM_CRONJOB,
-  STELLA_ADD_CRONJOB
+  STELLA_ADD_CRONJOB,
+  STELLA_MOODLIGHT_MASK
 };
 
 enum
@@ -118,6 +119,8 @@ extern uint8_t stella_portmask_neg;
 extern uint8_t stella_fade_step;
 extern uint8_t stella_fade_func;
 extern uint8_t stella_brightness[STELLA_PINS];
+extern uint8_t stella_moodlight_mask;
+extern uint8_t stella_moodlight_counter;
 
 /* stella.c */
 void stella_cron_callback(void* data);

@@ -84,7 +84,11 @@ stella_protocol_parse(char* buf, uint8_t len)
 			stella_fade_step = buf[1];
 			len -= 2; buf += 2;
 			break;
-		#ifdef STELLA_RESPONSE
+		case STELLA_MOODLIGHT_MASK:
+			stella_moodlight_mask = buf[1];
+			len -= 2; buf += 2;
+			break;
+			#ifdef STELLA_RESPONSE
 		case STELLA_UNICAST_GETVALUES:
 			stella_net_wb_getvalues(STELLA_UNICAST_GETVALUES);
 			stella_net_unicast(STELLA_HEADER+sizeof(struct stella_response_detailed_struct));

@@ -42,7 +42,7 @@ struct eeprom_config_t {
 
 #if !defined(BOOTP_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
     uint8_t ip[IPADDR_LEN];
-#endif 
+#endif
 
 #ifdef IPV4_SUPPORT
     uint8_t netmask[IPADDR_LEN];
@@ -65,7 +65,7 @@ struct eeprom_config_t {
     int8_t kty_calibration;
 #endif
 
-#ifdef STELLA_EEPROM
+#ifdef STELLA_SUPPORT
 	uint8_t stella_channel_values[8];
 	uint8_t stella_fadefunc;
 	uint8_t stella_fadestep;
@@ -97,7 +97,7 @@ uint8_t eeprom_get_chksum(void);
     do { uip_ipaddr_t ip; src; eeprom_save (dst, &ip, IPADDR_LEN); } while(0)
 
 #define eeprom_save_P(dst,data_pgm,len) \
-    do { char data[len]; memcpy_P(data, data_pgm, len); eeprom_save(dst, data, len);} while(0) 
+    do { char data[len]; memcpy_P(data, data_pgm, len); eeprom_save(dst, data, len);} while(0)
 
 #define eeprom_save_char(dst,data) \
     do { uint8_t _t = data; eeprom_save(dst, &_t, 1); } while(0)
@@ -113,10 +113,10 @@ uint8_t eeprom_get_chksum(void);
     eeprom_restore(dst, mem, IPADDR_LEN)
 
 #define eeprom_restore_char(dst,mem) \
-    eeprom_restore(dst, mem, 1) 
+    eeprom_restore(dst, mem, 1)
 
 #define eeprom_restore_int(dst, mem) \
-    eeprom_restore(dst, mem, 2) 
+    eeprom_restore(dst, mem, 2)
 
 /* Update the eeprom crc */
 #define eeprom_update_chksum() eeprom_save_char (crc, eeprom_get_chksum ())

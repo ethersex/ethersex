@@ -1403,8 +1403,8 @@ Stella polling (unicast response)
 STELLA_RESPONSE
   Depends on: 
   
-  Send one command byte (STELLA_UNICAST_RESPONSE) to stella to get all current channel values. The response is 9 bytes long.
-  The first is always the identifier 'S', the other bytes consist of the brightness values from channel 0 to 7.
+  Allows stella to propagate its current channel values via the stella protocol. Explained in more
+  detail at the ethersex wiki.
 
 Stella polling (broadcast response)
 STELLA_RESPONSE_BROADCAST
@@ -1417,11 +1417,11 @@ Acknowledge packets
 STELLA_RESPONSE_ACK
   Depends on: 
 
-  Send two addition command bytes with your data stream (2*STELLA_ACK_RESPONSE) to make stella acknowledge
-  your data. The response is 2 bytes long. The first byte is the identifier 'S'. The second byte is the
-  length of the received data stream.
+  Stella will acknowledge every command you send to it. This is not recommend if you send many commands in
+  a short time, because the response always contains the whole original message and increases ethernet traffix
+  and processor load dramaticly.
   Caution: UDP is an unreliable service. It is not guaranteed that the acknowledge packet find the way back
-  to your client. It is possible that the packet arrive out of order or is a duplicate from prior sessions.
+  to your client. It is also possible that the packet arrive out of order or is a duplicate from prior sessions.
 
 Stella Lights
 DEBUG_STELLA
@@ -1642,10 +1642,7 @@ STELLA_GAMMACORRECTION
   Depends on: 
 
   Increase colour space mainly in darker brightness levels.
-  Does currently not work correctly. (I tried to avoid logarithmic calculations
-  or precalculated huge tables and only corrected manually the first
-  20 brightness levels)
-  Does not work with too many channels. Interrupts would need too much time.
+  Does currently not work correctly.
 
 Cron daemon (static jobs)
 CRON_STATIC_SUPPORT
@@ -1724,4 +1721,24 @@ CRON_STATIC_SUPPORT
   To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static 
   at the same time.
 
+
+Higher frequency
+STELLA_HIGHFREQ
+  Depends on: 
+
+  Use a smaller prescaler for the stella timer. This actual double the pwm frequency but
+  at the same time increase processing load.
+
+Moodlight
+STELLA_MOODLIGHT
+  Depends on: 
+
+  Activate the moodlight fader. Does nothing if you neither set the start task to moodlight
+  nor use the stella protocol with the STELLA_MOODLIGHT_MASK command.
+
+Stella Broadcast Response UDP Port
+STELLA_BROADCAST_UDP_PORT
+
+  If you asked stella to propagate its channel values via broadcasting, this port is used
+  as udp destination port.
 

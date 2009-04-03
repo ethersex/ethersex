@@ -177,7 +177,7 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 	extern char *__brkval;
 	extern unsigned char __heap_start;
 	size_t f = (size_t)(__brkval ? __brkval : (size_t)&__heap_start);
-	size_t all = RAMEND;
+	size_t allram = RAMEND;
 
 	/* we want an output like this:
 	free: 16234/32768
@@ -186,7 +186,7 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 	*/
 	return snprintf_P(output, len,
 		PSTR("free: %d/%d\nheap: %d\nnet: " xstr(NET_MAX_FRAME_LENGTH)),
-		SP-f, all, f-(size_t)&__heap_start);
+		SP-f, allram, f-(size_t)&__heap_start);
 }
 
 #endif /* FREE_SUPPORT */

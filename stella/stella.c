@@ -52,6 +52,8 @@ uint8_t stella_fade_step = 10;
 volatile uint8_t stella_fade_counter = 0;
 volatile enum stella_update_sync stella_sync;
 uint8_t stella_portmask_neg;
+uint8_t stella_moodlight_mask = 0;
+uint8_t stella_moodlight_counter = 0;
 
 #ifdef DEBUG_STELLA
 char *binary (uint8_t v) {
@@ -102,13 +104,14 @@ stella_init (void)
 	*/
 	stella_fade_counter = stella_fade_step;
 
-	/* load initial values from eeprom*/
-	#ifdef STELLA_EEPROM
-	#ifndef STELLA_EEPROM_BOOT_FADE
-	stella_loadFromEEROMFading();
-	#else
-	stella_loadFromEEROM();
+	#if STELLA_START == stella_start_moodlight
+	stella_moodlight_mask = 0xff;
 	#endif
+	#if STELLA_START == stella_start_eeprom
+	stella_loadFromEEROMFading();
+	#endif
+	#if STELLA_START == stella_start_all
+	memset(stella_fade, 1, sizeof(stella_fade));
 	#endif
 }
 
@@ -128,8 +131,20 @@ stella_process (void)
 	/* the main loop is too fast, slow down */
 	if (stella_fade_counter == 0)
 	{
+		uint8_t i;
+		/* mood light functionality */
+		#ifdef STELLA_MOODLIGHT
+		if (stella_moodlight_counter == 120)
+			for (i = 0; i < STELLA_PINS; ++i)
+			{
+				if (stella_moodlight_mask & _BV(i))
+					stella_fade[i] = (uint8_t)rand()%256;
+			}
+		--stella_moodlight_counter;
+		#endif
+
 		/* Fade channels */
-		for (uint8_t i = 0; i < STELLA_PINS; ++i)
+		for (i = 0; i < STELLA_PINS; ++i)
 		{
 			if (stella_brightness[i] == stella_fade[i])
 				continue;
