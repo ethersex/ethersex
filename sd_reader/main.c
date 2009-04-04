@@ -15,7 +15,6 @@
 #include "partition.h"
 #include "sd_raw.h"
 #include "sd_raw_config.h"
-#include "uart.h"
 
 #define DEBUG 1
 
