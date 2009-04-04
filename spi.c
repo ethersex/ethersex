@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
@@ -18,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include "spi.h"
@@ -29,7 +28,7 @@
 static void spi_wait_busy(void);
 
 void spi_init(void)
-/* {{{ */ {
+{
   /* Input and Output configuration is done in the beginning of main(), so it
    * doesn't have to be done here
    */
@@ -52,10 +51,10 @@ void spi_init(void)
     _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);
     _SPSR0 = _BV(_SPI2X0);
 
-} /* }}} */
+}
 
 static void spi_wait_busy(void)
-/* {{{ */ {
+{
 
 #   ifdef SPI_TIMEOUT
     uint8_t timeout = 200;
@@ -69,16 +68,16 @@ static void spi_wait_busy(void)
     while (!(_SPSR0 & _BV(_SPIF0)));
 #   endif
 
-} /* }}} */
+}
 
 uint8_t noinline spi_send(uint8_t data)
-/* {{{ */ {
+{
 
     _SPDR0 = data;
     spi_wait_busy();
 
     return _SPDR0;
 
-} /* }}} */
+}
 
 #endif /* DATAFLASH_SUPPORT || ENC28J60_SUPPORT || RFM12_SUPPORT */

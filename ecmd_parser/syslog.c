@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -21,7 +20,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -46,14 +45,14 @@ extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 
 
 int16_t parse_cmd_show_syslog(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     return print_ipaddr (syslog_getserver (), output, len);
-} /* }}} */
+}
 
 int16_t parse_cmd_syslog (char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     syslog_send(cmd);
     return 0;
-} /* }}} */
+}
 
 #endif /* SYSLOG_SUPPORT */

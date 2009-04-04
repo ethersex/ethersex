@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) by Stefan Siegl <stesie@brokenpipe.de>
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/interrupt.h>
 
@@ -53,17 +52,17 @@ uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
 void timer_init(void)
-/* {{{ */ {
+{
 
     /* init timer1 to expire after ~20ms, with CTC enabled */
     TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
     OCR1A = (F_CPU/1024/50);
 
-} /* }}} */
+}
 
 
 void timer_process(void)
-/* {{{ */ {
+{
 
     static uint16_t counter = 0;
 
@@ -268,4 +267,4 @@ void timer_process(void)
 #endif
     }
 
-} /* }}} */
+}

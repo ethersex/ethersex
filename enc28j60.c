@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  *          enc28j60 api
  *
@@ -22,7 +21,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -57,7 +56,7 @@ int16_t enc28j60_next_packet_pointer;
 
 
 uint8_t read_control_register(uint8_t address)
-/* {{{ */ {
+{
 
     /* change to appropiate bank */
     if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
@@ -84,10 +83,10 @@ uint8_t read_control_register(uint8_t address)
 
     return data;
 
-} /* }}} */
+}
 
 uint8_t read_buffer_memory(void)
-/* {{{ */ {
+{
 
     /* aquire device */
     cs_low();
@@ -103,10 +102,10 @@ uint8_t read_buffer_memory(void)
 
     return data;
 
-} /* }}} */
+}
 
 void write_control_register(uint8_t address, uint8_t data)
-/* {{{ */ {
+{
 
     /* change to appropiate bank */
     if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
@@ -125,10 +124,10 @@ void write_control_register(uint8_t address, uint8_t data)
     /* release device */
     cs_high();
 
-} /* }}} */
+}
 
 void write_buffer_memory(uint8_t data)
-/* {{{ */ {
+{
 
     /* aquire device */
     cs_low();
@@ -142,10 +141,10 @@ void write_buffer_memory(uint8_t data)
     /* release device */
     cs_high();
 
-} /* }}} */
+}
 
 void bit_field_modify(uint8_t address, uint8_t mask, uint8_t opcode)
-/* {{{ */ {
+{
 
     /* change to appropiate bank */
     if ( (address & REGISTER_ADDRESS_MASK) < KEY_REGISTERS &&
@@ -164,40 +163,40 @@ void bit_field_modify(uint8_t address, uint8_t mask, uint8_t opcode)
     /* release device */
     cs_high();
 
-} /* }}} */
+}
 
 void noinline set_read_buffer_pointer(uint16_t address)
-/* {{{ */ {
+{
 
     write_control_register(REG_ERDPTL, LO8(address));
     write_control_register(REG_ERDPTH, HI8(address));
 
-} /* }}} */
+}
 
 uint16_t noinline get_read_buffer_pointer(void)
-/* {{{ */ {
+{
 
     return (read_control_register(REG_ERDPTL) | (read_control_register(REG_ERDPTH) << 8));
 
-} /* }}} */
+}
 
 void noinline set_write_buffer_pointer(uint16_t address)
-/* {{{ */ {
+{
 
     write_control_register(REG_EWRPTL, LO8(address));
     write_control_register(REG_EWRPTH, HI8(address));
 
-} /* }}} */
+}
 
 uint16_t noinline get_write_buffer_pointer(void)
-/* {{{ */ {
+{
 
     return (read_control_register(REG_EWRPTL) | (read_control_register(REG_EWRPTH) << 8));
 
-} /* }}} */
+}
 
 uint16_t read_phy(uint8_t address)
-/* {{{ */ {
+{
 
     write_control_register(REG_MIREGADR, address);
     bit_field_set(REG_MICMD, _BV(MIIRD));
@@ -210,10 +209,10 @@ uint16_t read_phy(uint8_t address)
 
     return (read_control_register(REG_MIRDL) | (read_control_register(REG_MIRDH) << 8));
 
-} /* }}} */
+}
 
 void write_phy(uint8_t address, uint16_t data)
-/* {{{ */ {
+{
 
     /* set address */
     write_control_register(REG_MIREGADR, address);
@@ -225,10 +224,10 @@ void write_phy(uint8_t address, uint16_t data)
     /* start writing and wait */
     while(read_control_register(REG_MISTAT) & _BV(BUSY));
 
-} /* }}} */
+}
 
 void reset_controller(void)
-/* {{{ */ {
+{
 
     /* aquire device */
     cs_low();
@@ -246,10 +245,10 @@ void reset_controller(void)
     /* release device */
     cs_high();
 
-} /* }}} */
+}
 
 void reset_rx(void)
-/* {{{ */ {
+{
 
     /* reset rx logic */
     bit_field_set(REG_ECON1, _BV(ECON1_RXRST));
@@ -259,10 +258,10 @@ void reset_rx(void)
     /* re-enable rx */
     bit_field_set(REG_ECON1, _BV(ECON1_RXEN));
 
-} /* }}} */
+}
 
 void init_enc28j60(void)
-/* {{{ */ {
+{
 
     reset_controller();
 
@@ -357,23 +356,23 @@ void init_enc28j60(void)
     /* set auto-increment bit */
     bit_field_set(REG_ECON2, _BV(AUTOINC));
 
-} /* }}} */
+}
 
 void switch_bank(uint8_t bank)
-/* {{{ */ {
+{
 
     bit_field_clear(REG_ECON1, _BV(ECON1_BSEL0) | _BV(ECON1_BSEL1));
     bit_field_set(REG_ECON1, (bank & BANK_MASK));
 
     enc28j60_current_bank = bank;
 
-} /* }}} */
+}
 
 /* dump out all the interesting registers
  * (mainly copied from avrlib) */
 #ifdef DEBUG_ENC28J60
 void dump_debug_registers(void)
-/* {{{ */ {
+{
 
     debug_printf("RevID: 0x%02x\n", read_control_register(REG_EREVID));
 
@@ -429,7 +428,7 @@ void dump_debug_registers(void)
         read_control_register(REG_EDMASTL),
         read_control_register(REG_EDMANDH),
         read_control_register(REG_EDMANDL));
-} /* }}} */
+}
 #endif
 
 

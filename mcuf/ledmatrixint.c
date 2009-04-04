@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  *

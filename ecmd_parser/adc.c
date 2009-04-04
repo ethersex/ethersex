@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -45,7 +44,7 @@
 #endif
 
 int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint16_t adc;
   uint8_t channel;
   uint8_t ret = 0;
@@ -74,5 +73,5 @@ adc_out:
     output += 4;
   }
   return ret;
-} /* }}} */
+}
 #endif

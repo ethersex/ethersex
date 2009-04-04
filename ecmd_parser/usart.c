@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/io.h>
@@ -44,7 +43,7 @@
 #include "../usart.h"
 
 int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     while (*cmd == ' ') cmd ++;
     if (! *cmd ) { /* No argument */
       uint16_t s_usart_baudrate;
@@ -63,5 +62,5 @@ int16_t parse_cmd_usart_baud(char *cmd, char *output, uint16_t len)
       } else 
         return -1;
     }
-} /* }}} */
+}
 #endif

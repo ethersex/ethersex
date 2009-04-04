@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include "../uip/uip.h"
 #include "../config.h"

@@ -1,6 +1,4 @@
-/* vim:fdm=marker et ai
- * {{{
- *
+/*
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #ifndef UIP_ZBUS_H
 #define UIP_ZBUS_H

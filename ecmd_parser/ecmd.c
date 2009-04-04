@@ -61,7 +61,7 @@ struct ecmd_command_t {
 #include "ecmd_defs.c"
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD
     debug_printf("called ecmd_parse_command %s\n", cmd);
@@ -144,11 +144,11 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     }
 
     return ret;
-} /* }}} */
+}
 
 #ifndef DISABLE_REBOOT_SUPPORT
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     (void) cmd;
     (void) output;
     (void) len;
@@ -158,7 +158,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
     uip_close();
 #   endif
     return 0;
-} /* }}} */
+}
 #endif
 
 #ifdef FREE_SUPPORT
@@ -193,16 +193,16 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 
 #ifndef TEENSY_SUPPORT
 int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     (void) cmd;
 
     return snprintf_P(output, len,
             PSTR("version %s"), VERSION_STRING);
-} /* }}} */
+}
 
 #ifndef DISABLE_REBOOT_SUPPORT
 int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     (void) cmd;
     (void) output;
     (void) len;
@@ -212,20 +212,20 @@ int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
     uip_close();
 #endif
     return 0;
-} /* }}} */
+}
 
 int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     status.request_wdreset = 1;
 #ifdef UIP_SUPPORT
     uip_close();
 #endif
     return 0;
-} /* }}} */
+}
 #endif /* DISABLE_REBOOT_SUPPORT */
 
 int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     (void) len;
 
     while (*cmd == ' ') cmd ++;
@@ -239,7 +239,7 @@ int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
       sprintf_P (output + (i << 1), PSTR("%02x"), * (ptr ++));
 
     return 32;
-} /* }}} */
+}
 
 int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
 {

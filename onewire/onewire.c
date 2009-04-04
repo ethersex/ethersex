@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *         simple onewire library implementation
  *
  *    for additional information please
@@ -22,7 +21,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -46,7 +45,7 @@ void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t
 uint8_t ow_read_byte(void);
 
 void onewire_init(void)
-/* {{{ */ {
+{
 
     /* configure onewire pin as input */
     OW_CONFIG_INPUT();
@@ -57,12 +56,12 @@ void onewire_init(void)
     /* reset lock */
     ow_global.lock = 0;
 
-} /* }}} */
+}
 
 /* low-level functions */
 
 uint8_t noinline reset_onewire(void)
-/* {{{ */ {
+{
 
     /* pull bus low */
     OW_CONFIG_OUTPUT();
@@ -91,10 +90,10 @@ uint8_t noinline reset_onewire(void)
      * attached to this bus */
     return !data1 && data2;
 
-} /* }}} */
+}
 
 void noinline ow_write_0(void)
-/* {{{ */ {
+{
 
     /* a write 0 timeslot is initiated by holding the data line low for
      * approximately 80us */
@@ -103,10 +102,10 @@ void noinline ow_write_0(void)
     _delay_loop_2(OW_WRITE_0_TIMEOUT);
     OW_HIGH();
 
-} /* }}} */
+}
 
 void noinline ow_write_1(void)
-/* {{{ */ {
+{
 
     /* a write 1 timeslot is initiated by holding the data line low for
      * approximately 4us, then restore the idle state and wait at least 80us */
@@ -116,20 +115,20 @@ void noinline ow_write_1(void)
     OW_HIGH();
     _delay_loop_2(OW_WRITE_1_TIMEOUT_2);
 
-} /* }}} */
+}
 
 void noinline ow_write(uint8_t value)
-/* {{{ */ {
+{
 
     if (value > 0)
         ow_write_1();
     else
         ow_write_0();
 
-} /* }}} */
+}
 
 void noinline ow_write_byte(uint8_t value)
-/* {{{ */ {
+{
 
     OW_CONFIG_OUTPUT();
     for (uint8_t i = 0; i < 8; i++) {
@@ -137,11 +136,11 @@ void noinline ow_write_byte(uint8_t value)
         ow_write(value & _BV(i));
     }
 
-} /* }}} */
+}
 
 /* FIXME: (optimization) combine ow_write_1() and ow_read(), as they are very similar */
 uint8_t noinline ow_read(void)
-/* {{{ */ {
+{
 
     /* a read timeslot is sent by holding the data line low for
      * 1us, then wait approximately 14us, then sample data and
@@ -165,10 +164,10 @@ uint8_t noinline ow_read(void)
 
     return data;
 
-} /* }}} */
+}
 
 uint8_t noinline ow_read_byte(void)
-/* {{{ */ {
+{
 
     uint8_t data = 0;
 
@@ -178,12 +177,12 @@ uint8_t noinline ow_read_byte(void)
 
     return data;
 
-} /* }}} */
+}
 
 
 /* mid-level functions */
 int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
-/* {{{ */ {
+{
 
     /* reset the bus */
     if (!reset_onewire())
@@ -205,10 +204,10 @@ int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
 
     return 1;
 
-} /* }}} */
+}
 
 int8_t noinline ow_skip_rom(void)
-/* {{{ */ {
+{
 
     /* reset the bus */
     if (!reset_onewire())
@@ -219,10 +218,10 @@ int8_t noinline ow_skip_rom(void)
 
     return 1;
 
-} /* }}} */
+}
 
 int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
-/* {{{ */ {
+{
 
     /* reset the bus */
     if (!reset_onewire())
@@ -241,11 +240,11 @@ int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
 
     return 1;
 
-} /* }}} */
+}
 
 
 void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
-/* {{{ */ {
+{
 
     uint8_t byte = idx / 8;
     uint8_t bit = idx % 8;
@@ -255,12 +254,12 @@ void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t
     else
         rom->bytewise[byte] |= _BV(bit);
 
-/* }}} */ }
+/* */ }
 
 #ifdef ONEWIRE_DETECT_SUPPORT
 /* high-level functions */
 int8_t noinline ow_search_rom(uint8_t first)
-/* {{{ */ {
+{
 
     /* reset discover state machine */
     if (first) {
@@ -345,7 +344,7 @@ int8_t noinline ow_search_rom(uint8_t first)
     /* new device discovered */
     return 1;
 
-} /* }}} */
+}
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
 /*
@@ -355,7 +354,7 @@ int8_t noinline ow_search_rom(uint8_t first)
  */
 
 int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
-/* {{{ */ {
+{
 
     /* check for known family code */
     if (rom->family == OW_FAMILY_DS1820 ||
@@ -365,10 +364,10 @@ int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
 
     return 0;
 
-} /* }}} */
+}
 
 int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
-/* {{{ */ {
+{
 
     int8_t ret;
 
@@ -404,10 +403,10 @@ int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
 
     return 1;
 
-} /* }}} */
+}
 
 int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad)
-/* {{{ */ {
+{
 
     int8_t ret;
 
@@ -441,10 +440,10 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
 
     return 1;
 
-} /* }}} */
+}
 
 int8_t ow_temp_power(struct ow_rom_code_t *rom)
-/* {{{ */ {
+{
 
     int8_t ret;
 
@@ -465,10 +464,10 @@ int8_t ow_temp_power(struct ow_rom_code_t *rom)
 
     return ow_read();
 
-} /* }}} */
+}
 
 int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp)
-/* {{{ */ {
+{
 
     if (rom->family == OW_FAMILY_DS1820)
         return ((sp->temperature & 0xfffe) << 7) - 0x40 + (((sp->count_per_c - sp->count_remain) << 8) / sp->count_per_c);
@@ -477,7 +476,7 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
     else
         return 0xffff;
 
-} /* }}} */
+}
 
 /*
  *
@@ -488,7 +487,7 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
 #ifdef ONEWIRE_DS2502_SUPPORT
 
 int8_t ow_eeprom(struct ow_rom_code_t *rom)
-/* {{{ */ {
+{
 
     /* check for known family code */
     if (rom->family == OW_FAMILY_DS2502E48)
@@ -496,10 +495,10 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom)
 
     return 0;
 
-} /* }}} */
+}
 
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
-/* {{{ */ {
+{
 
     int8_t ret;
 
@@ -546,7 +545,7 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 
     return 0;
 
-} /* }}} */
+}
 
 #endif /* ONEWIRE_DS2502_SUPPORT */
 

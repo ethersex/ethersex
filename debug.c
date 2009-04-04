@@ -1,6 +1,4 @@
-/* vim:fdm=marker ts=4 ai
- * {{{
- *
+/*
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright(c) by Stefan Siegl <stesie@brokenpipe.de>
  *
@@ -19,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <stdio.h>
 #include "config.h"

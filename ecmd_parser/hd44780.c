@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -39,7 +38,7 @@
 
 #ifdef HD44780_SUPPORT
 int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     uint16_t line;
 
     int ret = sscanf_P(cmd,
@@ -61,19 +60,19 @@ int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
         hd44780_goto(0, 0);
         return 0;
     }
-} /* }}} */
+}
 
 int16_t parse_cmd_lcd_write(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     if (strlen(cmd) > 1) {
         fputs(cmd+1, lcd);
         return 0;
     } else
         return -1;
-} /* }}} */
+}
 
 int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     uint16_t line, pos = 0;
 
     int ret = sscanf_P(cmd,
@@ -93,10 +92,10 @@ int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
     } else
         return -1;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   if (strlen(cmd) < 26) 
     return -1;
   uint8_t n_char, data[8];
@@ -109,10 +108,10 @@ int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
     return 0;
   } else
     return -1;
-} /* }}} */
+}
 
 int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint8_t cursor, blink;
   int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
   if ( ret == 2 ) {
@@ -120,10 +119,10 @@ int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
     return 0;
   } else
     return -1;
-} /* }}} */
+}
 
 int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   if (strlen(cmd) < 1) 
     return -1;
 
@@ -135,5 +134,5 @@ int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
     return -1;
 
   return 0;
-} /* }}} */
+}
 #endif /* HD44780_SUPPORT */

@@ -1,5 +1,4 @@
- /* {{{
- *
+/*
  * Copyright(c) 2009 by Christian Dietrich <stettberger@dokucode.de.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +16,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <stdio.h>
 #include "debug.h"

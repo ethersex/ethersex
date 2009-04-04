@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -45,13 +44,13 @@ extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 
 
 int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     return print_ipaddr (resolv_getserver (), output, len);
-} /* }}} */
+}
 
 #ifndef BOOTP_SUPPORT
 int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     uip_ipaddr_t dnsaddr;
 
     while (*cmd == ' ')
@@ -67,11 +66,11 @@ int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
     eeprom_update_chksum();
 
     return 0;
-} /* }}} */
+}
 #endif /* not BOOTP_SUPPORT */
 
 int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   while (*cmd == 32) cmd ++;
   uip_ipaddr_t *addr = resolv_lookup (cmd);
 
@@ -82,6 +81,6 @@ int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
     resolv_query (cmd, NULL);
     return snprintf_P (output, len, PSTR ("nslookup triggered, try again for result."));
   }
-} /* }}} */
+}
 
 #endif /* DNS_SUPPORT */

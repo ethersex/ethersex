@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2009 by Jochen Roessner <jochen@lugrot.de>
  *
@@ -18,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -37,7 +36,7 @@
 
 #if defined(CONTROL6_SUPPORT) && defined(C6_ECMD_USED)
 int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint8_t varvalue;
 
   if (control6_get(cmd, &varvalue)) 
@@ -45,10 +44,10 @@ int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
   else
     return -1;
 }
-/* }}} */
+/* */
 
 int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   char *buf;
   uint8_t varvalue;
   buf = strrchr (cmd, ' ');
@@ -60,8 +59,8 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
   }
     return -1;
 }
-/* }}} */
+/* */
 
-/* }}} */
+/* */
 #endif /* CONTROL6_SUPPORT && C6_ECMD_USED*/
 

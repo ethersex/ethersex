@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -40,7 +39,7 @@
 #ifdef FS20_SUPPORT 
 #ifdef FS20_SEND_SUPPORT
 int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD_FS20
     debug_printf("called with string %s\n", cmd);
@@ -63,12 +62,12 @@ int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
 
     return -1;
 
-} /* }}} */
+}
 #endif /* FS20_SEND_SUPPORT */
 
 #ifdef FS20_RECEIVE_SUPPORT
 int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
     char *s = output;
     uint8_t l = 0;
@@ -109,11 +108,11 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 
     return outlen;
 
-} /* }}} */
+}
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
     return snprintf_P(output, len,
             PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
@@ -125,7 +124,7 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
             fs20_global.ws300.rain,
             fs20_global.ws300.rain_value);
 
-} /* }}} */
+}
 #endif /* FS20_RECEIVE_WS300_SUPPORT */
 #endif /* FS20_RECEIVE_SUPPORT */
 #endif /* FS20_SUPPORT */

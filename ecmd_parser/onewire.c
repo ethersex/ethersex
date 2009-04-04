@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -39,7 +38,7 @@
 #ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */
 int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD_OW_ROM
     debug_printf("called parse_ow_rom with string '%s'\n", cmd);
@@ -65,11 +64,11 @@ int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
     }
 
     return 1;
-} /* }}} */
+}
 
 #ifdef ONEWIRE_DETECT_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     int16_t ret;
 
     if (ow_global.lock == 0) {
@@ -150,11 +149,11 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
     }
 
     return -1;
-} /* }}} */
+}
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     int16_t ret;
 
     cmd++;
@@ -247,10 +246,10 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     }
 
     return ret;
-} /* }}} */
+}
 
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     int16_t ret;
 
     if (strlen(cmd) > 0)
@@ -288,6 +287,6 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
         /* wrong rom family code */
         return -1;
 
-} /* }}} */
+}
 #endif /* ONEWIRE_SUPPORT */
 

@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -48,7 +47,7 @@
 
 #ifdef RC5_SUPPORT
 int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     int16_t ret;
 
     uint16_t addr, command;
@@ -64,10 +63,10 @@ int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
     rc5_send(LO8(addr), LO8(command));
     return 0;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     char *s = output;
     uint8_t l = 0;
     uint8_t outlen = 0;
@@ -101,6 +100,6 @@ int16_t parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
     rc5_global.len = 0;
 
     return outlen;
-} /* }}} */
+}
 #endif /* RC5_SUPPORT */
 

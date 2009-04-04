@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
@@ -21,7 +20,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>

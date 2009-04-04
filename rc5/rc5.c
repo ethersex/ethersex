@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *         simple rc5 implementation
  *
  *    for additional information please
@@ -22,7 +21,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -63,7 +62,6 @@ volatile struct rc5_global_t rc5_global;
 
 /*
  * Overview:
- * {{{
  * An rc5 word is composed of 14 bits:  SSTAAAAACCCCCC
  *   - two start bits (always 1)
  *   - one toggle bit (changes value a key is released and pressed again)
@@ -194,7 +192,6 @@ volatile struct rc5_global_t rc5_global;
  *                     interrupt to fire at the falling edge again, disable timer
  *                     overflow interrupt, copy output to global public structure.
  *
- * }}}
  */
 
 /* local variables, temporary command buffer */

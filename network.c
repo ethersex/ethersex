@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/eeprom.h>
 #include <string.h>
@@ -161,7 +160,7 @@ network_init(void)
 
 #ifdef ENC28J60_SUPPORT
 void network_process(void)
-/* {{{ */ {
+{
     /* also check packet counter, see errata #6 */
 #   ifdef ENC28J60_REV4_WORKAROUND
     uint8_t pktcnt = read_control_register(REG_EPKTCNT);
@@ -270,13 +269,13 @@ void network_process(void)
 
     /* set global interrupt flag */
     bit_field_set(REG_EIE, _BV(INTIE));
-} /* }}} */
+}
 #endif /* ENC28J60_SUPPORT */
 
 
 #ifdef ENC28J60_SUPPORT
 void process_packet(void)
-/* {{{ */ {
+{
     /* if there is a packet to process */
     if (read_control_register(REG_EPKTCNT) == 0)
         return;
@@ -402,13 +401,13 @@ void process_packet(void)
     /* decrement packet counter */
     bit_field_set(REG_ECON2, _BV(PKTDEC));
 
-} /* }}} */
+}
 #endif
 
 
 #ifdef ENC28J60_SUPPORT
 void transmit_packet(void)
-/* {{{ */ {
+{
 
     /* wait for any transmits to end, with timeout */
     uint8_t timeout = 100;
@@ -447,7 +446,7 @@ void transmit_packet(void)
     /* transmit packet */
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
-} /* }}} */
+}
 #endif
 
 #endif

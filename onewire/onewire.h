@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *         simple onewire library implementation
  *
  *    for additional information please
@@ -22,7 +21,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 
 #ifndef ONEWIRE_H
@@ -48,7 +47,6 @@
 #ifdef ONEWIRE_SUPPORT
 
 /* constants */
-/* {{{ */
 
 #define NULL ((void *)0)
 #define LOW(x) ((uint8_t)(x))
@@ -83,10 +81,9 @@
 #define OW_FUNC_READ_STATUS 0xAA
 #define OW_FUNC_READ_DATA_CRC 0xC3
 
-/* }}} */
+/* */
 
 /* timing constants */
-/* {{{ */
 /* onewire needs a 480us reset timeout, suitable for use with the delay_loop() functions */
 #define OW_RESET_TIMEOUT_1 (F_CPU / 1000000 * 480 / 4)
 /* we wait 90us before sampling data for the low-pulse detection */
@@ -112,53 +109,38 @@
 #define OW_READ_TIMEOUT_1 (F_CPU / 1000000 * 1 / 4)
 #define OW_READ_TIMEOUT_2 (F_CPU / 1000000 * 14 / 4)
 #define OW_READ_TIMEOUT_3 (F_CPU / 1000000 * 65 / 4)
-/* }}} */
+/* */
 
 /* macros */
-/* {{{ */
 #define OW_CONFIG_INPUT()                        \
-    /* {{{ */                                    \
     do {                                         \
         /* enable pullup */                      \
         PIN_SET(ONEWIRE);     \
         /* configure as input */                 \
         DDR_CONFIG_IN(ONEWIRE);     \
     } while (0)
-    /* }}} */
 
 #define OW_CONFIG_OUTPUT()                       \
-    /* {{{ */                                    \
         /* configure as output */                \
         DDR_CONFIG_OUT(ONEWIRE);     \
-    /* }}} */
 
 #define OW_LOW()                                 \
-    /* {{{ */                                    \
         /* configure drive low */                \
         PIN_CLEAR(ONEWIRE);    \
-    /* }}} */
 
 #define OW_HIGH()                                \
-    /* {{{ */                                    \
         /* configure drive high */               \
         PIN_SET(ONEWIRE);     \
-    /* }}} */
 
 #define OW_PULLUP()                              \
-    /* {{{ */                                    \
         /* pull up resistor */                   \
         PIN_SET(ONEWIRE);     \
-    /* }}} */
 
 #define OW_GET_INPUT()                           \
-    /* {{{ */                                    \
         ( PIN_HIGH(ONEWIRE) > 0)
-    /* }}} */
 
-/* }}} */
 
 /* structures */
-/* {{{ */
 struct ow_rom_code_t {
     union {
         uint64_t raw;
@@ -194,10 +176,9 @@ struct ow_temp_scratchpad_t {
     };
 };
 
-/* }}} */
+/* */
 
 /* global variables */
-/* {{{ */
 struct ow_global_t {
     uint8_t lock;
     int8_t last_discrepancy;
@@ -205,8 +186,6 @@ struct ow_global_t {
 };
 
 extern struct ow_global_t ow_global;
-
-/* }}} */
 
 /* prototypes */
 void onewire_init(void);

@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
@@ -18,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #ifndef _CRON_STATIC_H
 #define _CRON_STATIC_H
@@ -27,8 +26,6 @@
 #include "../clock/clock.h"
 
 /* structures */
-/* {{{ */
-
 
 /* meaning of the signed values in cron_event_t (eg for minute):
  *   x in 0..59:    absolute value (minute)
@@ -51,13 +48,8 @@ struct cron_static_event_t {
     uint8_t use_utc;
 };
 
-/* }}} */
-
 
 /* constants and global variables */
-/* {{{ */
-
-/* }}} */
 
 
 /* prototypes */

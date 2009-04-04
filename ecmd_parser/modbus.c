@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
@@ -18,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -39,7 +38,7 @@ extern int16_t *modbus_recv_len_ptr;
 
 #if defined(MODBUS_SUPPORT)
 int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint8_t cmd_len = strlen(cmd);
   uint8_t i;
 
@@ -84,5 +83,5 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
   }
 
   return i * 2;
-} /* }}} */
+}
 #endif

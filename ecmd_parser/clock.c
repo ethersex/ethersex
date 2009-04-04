@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -36,9 +35,9 @@
 
 #ifdef CLOCK_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   return snprintf_P(output, len, PSTR("%lu"), clock_get_time()); 
-} /* }}} */
+}
 
 int16_t parse_cmd_date(char *cmd, char *output, uint16_t len) 
 {
@@ -53,10 +52,10 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
 }
 #ifdef WHM_SUPPORT
 int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint32_t working_hours = (clock_get_time() - clock_get_startup()) / 60; 
   return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60); 
-} /* }}} */
+}
 #endif /* WHM_SUPPORT */
 #endif 
 

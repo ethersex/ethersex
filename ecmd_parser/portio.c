@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -41,7 +40,7 @@
 
 
 static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value) 
-/* {{{ */ {
+{
 #ifndef TEENSY_SUPPORT
         return snprintf_P(output, len,
                 PSTR("port %d: 0x%02x"),
@@ -54,12 +53,12 @@ static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value
         output[11] = NIBBLE_TO_HEX(value & 0x0F);
         return 12;
 #endif
-} /* }}} */
+}
 
 
 #ifdef PORTIO_SUPPORT
 static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
-/* {{{ */ {
+{
 #ifndef TEENSY_SUPPORT
   return sscanf_P(cmd, PSTR("%x %x %x"),
                   port, data, mask);
@@ -88,11 +87,11 @@ static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_
   *mask = strtol(cmd, NULL, 16);
   return 3;
 #endif
-} /* }}} */
+}
 
 
 int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     (void) output;
     (void) len;
 
@@ -118,10 +117,10 @@ int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
     } else
         return -1;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_io_get_mask(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD_PORTIO
     debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
@@ -141,10 +140,10 @@ int16_t parse_cmd_io_get_mask(char *cmd, char *output, uint16_t len)
     else
       return -1;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD_PORTIO
     debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
@@ -164,10 +163,10 @@ int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
     else
       return -1;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
     (void) output;
     (void) len;
 
@@ -191,10 +190,10 @@ int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
     } else
         return -1;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD_PORTIO
     debug_printf("called parse_cmd_io_get_port with rest: \"%s\"\n", cmd);
@@ -215,10 +214,10 @@ int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
     else
         return -1;
 
-} /* }}} */
+}
 
 int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_ECMD_PORTIO
     debug_printf("called parse_cmd_io_get_pin with rest: \"%s\"\n", cmd);
@@ -239,13 +238,13 @@ int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
     else
         return -1;
 
-} /* }}} */
+}
 #endif /* PORTIO_SUPPORT */
 
 #ifdef PORTIO_SIMPLE_SUPPORT
 
 static char* parse_hex(char *text, uint8_t *value)
-/* {{{ */ {
+{
   if (! *text ) return 0;
   uint8_t nibble;
   /* skip spaces */
@@ -264,11 +263,11 @@ static char* parse_hex(char *text, uint8_t *value)
   }
   return text;
   
-} /* }}} */
+}
 
 
 int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   (void) output;
   (void) len;
   
@@ -351,13 +350,13 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   parse_hex(cmd, &mask);
   *ioptr = (*ioptr & ~(mask & sysmask)) | (value & mask & sysmask);
   return 0;
-} /* }}} */
+}
 #endif /* PORTIO_SIMPLE_SUPPORT */
 
 
 #if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint16_t port, pin;
 
   uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), &port, &pin);
@@ -381,10 +380,10 @@ int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
   } else
     return -1;
 }
-/* }}} */
+/* */
 
 int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint16_t port, pin, on;
 
   /* Parse String */
@@ -437,10 +436,10 @@ int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
   } else
     return -1;
 }
-/* }}} */
+/* */
 
 int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint16_t port, pin;
 
   /* Parse String */
@@ -477,6 +476,6 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
   } else
     return -1;
 }
-/* }}} */
+/* */
 #endif /* NAMED_PIN_SUPPORT && PORTIO_SUPPORT */
 

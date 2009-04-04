@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #ifndef _I2C_PCF8574X_H
 #define _I2C_PCF8574X_H

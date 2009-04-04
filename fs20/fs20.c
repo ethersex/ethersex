@@ -1,6 +1,4 @@
-/* vim: fdm=marker ts=4 et ai
- * {{{
- *
+/*
  *          fs20 sender implementation
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
@@ -20,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -59,46 +57,46 @@ volatile struct fs20_global_t fs20_global;
 #ifdef FS20_SEND_SUPPORT
 
 void fs20_send_zero(void)
-/* {{{ */ {
+{
   PIN_SET(FS20_SEND);
   _delay_loop_2(FS20_DELAY_ZERO);
   PIN_CLEAR(FS20_SEND);
   _delay_loop_2(FS20_DELAY_ZERO);
 
-} /* }}} */
+}
 
 void fs20_send_one(void)
-/* {{{ */ {
+{
 
   PIN_SET(FS20_SEND);
   _delay_loop_2(FS20_DELAY_ONE);
   PIN_CLEAR(FS20_SEND);
   _delay_loop_2(FS20_DELAY_ONE);
 
-} /* }}} */
+}
 
 void fs20_send_sync(void)
-/* {{{ */ {
+{
 
     for (uint8_t i = 0; i < 12; i++)
         fs20_send_zero();
 
     fs20_send_one();
 
-} /* }}} */
+}
 
 void fs20_send_bit(uint8_t bit)
-/* {{{ */ {
+{
 
     if (bit > 0)
         fs20_send_one();
     else
         fs20_send_zero();
 
-} /* }}} */
+}
 
 void fs20_send_byte(uint8_t byte)
-/* {{{ */ {
+{
 
     uint8_t i = 7;
 
@@ -108,10 +106,10 @@ void fs20_send_byte(uint8_t byte)
 
     fs20_send_bit(parity_even_bit(byte));
 
-} /* }}} */
+}
 
 void fs20_send(uint16_t housecode, uint8_t address, uint8_t command)
-/* {{{ */ {
+{
 
     for (uint8_t i = 0; i < 3; i++) {
         fs20_send_sync();
@@ -133,14 +131,14 @@ void fs20_send(uint16_t housecode, uint8_t address, uint8_t command)
         _delay_loop_2(FS20_DELAY_CMD);
     }
 
-} /* }}} */
+}
 
 #endif /* FS20_SEND_SUPPORT */
 
 #ifdef FS20_RECEIVE_SUPPORT
 
 ISR(ANALOG_COMP_vect)
-/* {{{ */ {
+{
 #ifdef FS20_RECV_PROFILE
     fs20_global.int_counter++;
 #endif
@@ -237,10 +235,10 @@ ISR(ANALOG_COMP_vect)
         }
     }
 #endif
-} /* }}} */
+}
 
 ISR(TIMER2_OVF_vect)
-/* {{{ */ {
+{
 #ifdef FS20_RECV_PROFILE
     fs20_global.ovf_counter++;
 #endif
@@ -261,10 +259,10 @@ ISR(TIMER2_OVF_vect)
     }
 #endif
 
-} /* }}} */
+}
 
 void fs20_process(void)
-/* {{{ */ {
+{
 
     /* check if something has been received */
     if (fs20_global.fs20.rec == 58) {
@@ -376,20 +374,20 @@ void fs20_process(void)
         fs20_global.ws300.rec = 0;
     }
 #endif
-} /* }}} */
+}
 
 void fs20_process_timeout(void)
-/* {{{ */ {
+{
 
     /* clear fs20 timeout */
     if (fs20_global.fs20.timeout > 0)
         fs20_global.fs20.timeout--;
 
-} /* }}} */
+}
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 void ws300_parse_datagram(void)
-/* {{{ */ {
+{
     #ifdef DEBUG_FS20_WS300
     debug_printf("received something via ws300, testing checksums...\n");
     #endif
@@ -483,14 +481,14 @@ void ws300_parse_datagram(void)
     #endif
 
 
-} /* }}} */
+}
 #endif
 
 #endif /* FS20_RECEIVE_SUPPORT */
 
 
 void fs20_init(void)
-/* {{{ */ {
+{
     /* default: enabled */
     fs20_global.enable = 1;
 
@@ -534,6 +532,6 @@ void fs20_init(void)
     fs20_global.int_counter = 0;
     fs20_global.ovf_counter = 0;
 #endif
-} /* }}} */
+}
 
 #endif

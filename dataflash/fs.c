@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include <stdlib.h>
@@ -33,7 +32,6 @@
 
 /* debug */
 #ifndef __AVR__
-/* {{{ */
 
 #include <assert.h>
 #include <stdio.h>
@@ -42,7 +40,7 @@
 #define _BV(x) (1<<(x))
 
 uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
-/* {{{ */ {
+{
     uint8_t i;
 
     crc = crc ^ data;
@@ -55,7 +53,7 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
     }
 
     return crc;
-} /* }}} */
+}
 
 #else
 
@@ -76,7 +74,7 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 #define PACKED
 #define errx(...)
 
-#endif /* }}} */
+#endif /* */
 
 fs_t fs;
 
@@ -129,7 +127,7 @@ typedef struct {
 
 /* initialize fs structure, call fs_scan_root */
 fs_status_t fs_init(fs_t *fs, df_chip_t chip)
-/* {{{ */ {
+{
 
     fs->chip = chip;
 
@@ -218,12 +216,12 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
 
     return FS_OK;
 
-} /* }}} */
+}
 
 /* list files in directory, write filename to buffer, return FS_OK or FS_EOF if
  * no more, increment index to get next files */
 fs_status_t fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index)
-/* {{{ */ {
+{
 
     /* alloc temporary buffer */
     fs_node_t *node = malloc(sizeof(fs_node_t)+1);
@@ -253,10 +251,10 @@ fs_status_t fs_list(fs_t *fs, char *dir, char *buf, fs_index_t index)
         return FS_OK;
     }
 
-} /* }}} */
+}
 
 fs_inode_t fs_get_inode(fs_t *fs, const char *file)
-/* {{{ */ {
+{
 
     fs_inode_t inode = 0xffff;
     fs_index_t index = 0;
@@ -282,10 +280,10 @@ fs_inode_t fs_get_inode(fs_t *fs, const char *file)
     free(node);
     return inode;
 
-} /* }}} */
+}
 
 fs_size_t fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length)
-/* {{{ */ {
+{
 
     uint8_t *b = (uint8_t *)buf;
 
@@ -384,10 +382,10 @@ fs_size_t fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_si
 
     }
 
-} /* }}} */
+}
 
 fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length)
-/* {{{ */ {
+{
 
     printf("fs_write, inode %d, offset %ld, length %ld\n",
 	   inode, offset, length);
@@ -608,7 +606,7 @@ fs_status_t fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs
 
     return FS_OK;
 
-} /* }}} */
+}
 
 
 
@@ -712,7 +710,7 @@ fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length)
 }
 
 fs_status_t fs_create(fs_t *fs, const char *name)
-/* {{{ */ {
+{
 
     /* search for a place for this filename in the table */
     fs_index_t index = 0, i = 0, max = 0;
@@ -807,10 +805,10 @@ fs_status_t fs_create(fs_t *fs, const char *name)
     /* increment version and update checksum */
     return fs_increment(fs);
 
-} /* }}} */
+}
 
 fs_status_t fs_remove(fs_t *fs, char *name)
-/* {{{ */ {
+{
 
     /* search for this filename in the nodetable */
     fs_index_t index = 0xffff, i = 0, max = 0;
@@ -904,10 +902,10 @@ fs_status_t fs_remove(fs_t *fs, char *name)
     /* remove inode */
     return fs_update_inodetable(fs, inode, 0xffff);
 
-} /* }}} */
+}
 
 fs_size_t fs_size(fs_t *fs, fs_inode_t inode)
-/* {{{ */ {
+{
 
     fs_size_t size = 0;
 
@@ -952,11 +950,11 @@ fs_size_t fs_size(fs_t *fs, fs_inode_t inode)
 
     return size;
 
-} /* }}} */
+}
 
 /* private functions */
 fs_status_t fs_scan(fs_t *fs)
-/* {{{ */ {
+{
 
     printf("fs: scanning for root node\r\n");
 
@@ -1014,10 +1012,10 @@ fs_status_t fs_scan(fs_t *fs)
         return fs_format(fs);
     }
 
-} /* }}} */
+}
 
 fs_status_t fs_format(fs_t *fs)
-/* {{{ */ {
+{
 
     /* set new version */
     if (fs->version > 0)
@@ -1109,10 +1107,10 @@ fs_status_t fs_format(fs_t *fs)
 
     return FS_OK;
 
-} /* }}} */
+}
 
 df_page_t fs_new_page(fs_t *fs)
-/* {{{ */ {
+{
 
     df_page_t page = (fs->last_free + 1) % DF_PAGES;
 
@@ -1132,10 +1130,10 @@ df_page_t fs_new_page(fs_t *fs)
         return page;
     }
 
-} /* }}} */
+}
 
 fs_inode_t fs_new_inode(fs_t *fs)
-/* {{{ */ {
+{
 
     /* sequentially check inodes, until a free one can be found */
     for (uint8_t i = 0; i < FS_ROOTNODE_INODETABLE_SIZE; i++) {
@@ -1158,10 +1156,10 @@ fs_inode_t fs_new_inode(fs_t *fs)
     /* else return 0xffff */
     return 0xffff;
 
-} /* }}} */
+}
 
 df_page_t fs_inodetable(fs_t *fs, uint8_t tableid)
-/* {{{ */ {
+{
 
     df_page_t page;
 
@@ -1175,10 +1173,10 @@ df_page_t fs_inodetable(fs_t *fs, uint8_t tableid)
 
     return page;
 
-} /* }}} */
+}
 
 df_page_t fs_page(fs_t *fs, fs_inode_t inode)
-/* {{{ */ {
+{
 
     /* load address of the page which contains this inode */
     df_page_t page = fs_inodetable(fs, inode / FS_INODES_PER_TABLE);
@@ -1196,10 +1194,10 @@ df_page_t fs_page(fs_t *fs, fs_inode_t inode)
     else
         return node.page;
 
-} /* }}} */
+}
 
 void fs_mark(fs_t *fs, df_page_t page, uint8_t is_free)
-/* {{{ */ {
+{
 
     uint8_t b;
 
@@ -1223,10 +1221,10 @@ void fs_mark(fs_t *fs, df_page_t page, uint8_t is_free)
 
     df_buf_write(fs->chip, DF_BUF2, &b, page/8, 1);
 
-} /* }}} */
+}
 
 uint8_t fs_used(fs_t *fs, df_page_t page)
-/* {{{ */ {
+{
 
     uint8_t b;
 
@@ -1235,10 +1233,10 @@ uint8_t fs_used(fs_t *fs, df_page_t page)
 
     return !(b & _BV(page % 8));
 
-} /* }}} */
+}
 
 uint8_t fs_crc(fs_t *fs, uint8_t crc, df_buf_t buf, df_size_t offset, df_size_t length)
-/* {{{ */ {
+{
 
     while (length-- > 0) {
 
@@ -1250,10 +1248,10 @@ uint8_t fs_crc(fs_t *fs, uint8_t crc, df_buf_t buf, df_size_t offset, df_size_t 
 
     return crc;
 
-} /* }}} */
+}
 
 fs_status_t fs_increment(fs_t *fs)
-/* {{{ */ {
+{
 
     fs_root_t *root = malloc(sizeof(fs_root_t));
 
@@ -1292,10 +1290,10 @@ fs_status_t fs_increment(fs_t *fs)
     free(root);
     return FS_OK;
 
-} /* }}} */
+}
 
 fs_status_t fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page)
-/* {{{ */ {
+{
 
     // printf("updating inodetable %d -> %d\n", inode, page);
 
@@ -1350,7 +1348,7 @@ fs_status_t fs_update_inodetable(fs_t *fs, fs_inode_t inode, df_page_t page)
     /* increment version and update checksum */
     return fs_increment(fs);
 
-} /* }}} */
+}
 
 
 #if DEBUG_FS

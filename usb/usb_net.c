@@ -1,6 +1,4 @@
-/* vim:fdm=marker et ai
- * {{{
- *
+/*
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (C) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
@@ -20,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <util/delay.h>
 #include <avr/wdt.h>

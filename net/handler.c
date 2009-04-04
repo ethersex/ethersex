@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai sts=4 sw=4
- * {{{
+/* sts=4 sw=4
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (C) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <stdlib.h>
 
@@ -58,7 +57,7 @@
 #undef  NETWORK_DEBUG_DISCARD_SOME
 
 void network_init_apps(void)
-/* {{{ */ {
+{
 #   ifdef ECMD_SUPPORT
     ecmd_net_init();
 #   endif
@@ -151,7 +150,7 @@ void network_init_apps(void)
       && ((!defined(IPV6_SUPPORT)) || defined(IPV6_STATIC_SUPPORT))
     dyndns_update();
 #   endif
-} /* }}} */
+}
 
 
 #ifdef NETWORK_DEBUG_DISCARD_SOME
@@ -173,7 +172,7 @@ static void network_debug_discard_some(void)
 
 #ifdef TCP_SUPPORT 
 void network_handle_tcp(void)
-/* {{{ */ {
+{
 
 #ifdef DEBUG_NET
     debug_printf ("net_tcp: local port is 0x%04x\n", uip_conn->lport);
@@ -187,18 +186,18 @@ void network_handle_tcp(void)
 
     network_debug_discard_some();
 
-} /* }}} */
+}
 #endif /* TCP_SUPPORT */
 
 
 #ifdef UDP_SUPPORT
 void network_handle_udp(void)
-/* {{{ */ {
+{
     if (uip_udp_conn->callback)
         uip_udp_conn->callback();
 
     network_debug_discard_some();
 
-} /* }}} */
+}
 #endif /* UDP_SUPPORT */
 

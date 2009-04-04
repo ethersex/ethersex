@@ -96,7 +96,7 @@ struct cron_static_event_t events[] PROGMEM =
 
 void 
 cron_static_periodic(void)
-/* {{{ */ {
+{
     /* convert time to something useful */
     struct clock_datetime_t d, ld;
     uint32_t timestamp = clock_get_time();
@@ -131,12 +131,11 @@ cron_static_periodic(void)
 
     /* save the actual timestamp */
     last_check = timestamp - d.sec;
-
-} /* }}} */
+}
 
 uint8_t 
 cron_check_event(struct cron_static_event_t *event, struct clock_datetime_t *d)
-/* {{{ */ {
+{
 
     for (uint8_t f = 0; f < 5; f++) {
 
@@ -164,6 +163,6 @@ cron_check_event(struct cron_static_event_t *event, struct clock_datetime_t *d)
     /* if all fields match, this event matches */
     return 1;
 
-} /* }}} */
+}
 
 #endif /* CRON_STATIC_SUPPORT */

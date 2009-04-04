@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  *          enc28j60 api
  *
@@ -21,7 +20,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 
 #ifndef _ENC28J60_H
@@ -42,7 +41,6 @@
 #define CMD_RESET  0xFF
 
 /* registers */
-/* {{{ */
 
 /* a register consists of 8 bits:
  * bit:     7 6 5 4 3 2 1 0
@@ -263,7 +261,7 @@
 #define     LACFG2  10
 #define     LACFG3  11
 
-/* }}} */
+/* */
 
 /* constants for sending */
 #define POVERRIDE 0

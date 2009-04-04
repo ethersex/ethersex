@@ -1,6 +1,4 @@
-/* vim:fdm=marker et ai
- * {{{
- *
+/*
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 /* recursive inclusion of this file, to get also the header */
 #define IPCHAIR_HEADER

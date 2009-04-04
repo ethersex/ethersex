@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
@@ -18,7 +17,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -40,14 +39,14 @@
 
 
 void df_init(df_chip_t chip)
-/* {{{ */ {
+{
 
     /* no init needed atm */
 
-} /* }}} */
+}
 
 void df_buf_load(df_chip_t chip, df_buf_t buffer, df_page_t page)
-/* {{{ */ {
+{
 
     // df_wait(chip);
 
@@ -68,10 +67,10 @@ void df_buf_load(df_chip_t chip, df_buf_t buffer, df_page_t page)
 
     cs_high();
 
-} /* }}} */
+}
 
 void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, df_size_t len)
-/* {{{ */ {
+{
 
     // df_wait(chip);
 
@@ -101,10 +100,10 @@ void df_buf_read(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, 
 
     cs_high();
 
-} /* }}} */
+}
 
 void df_buf_write(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset, df_size_t len)
-/* {{{ */ {
+{
 
     // df_wait(chip);
 
@@ -128,10 +127,10 @@ void df_buf_write(df_chip_t chip, df_buf_t buffer, void* data, df_size_t offset,
 
     cs_high();
 
-} /* }}} */
+}
 
 void df_buf_save(df_chip_t chip, df_buf_t buffer, df_page_t page_address)
-/* {{{ */ {
+{
 
     // dataflash_wait_busy();
 
@@ -152,10 +151,10 @@ void df_buf_save(df_chip_t chip, df_buf_t buffer, df_page_t page_address)
 
     cs_high();
 
-} /* }}} */
+}
 
 void df_flash_read(df_chip_t chip, df_page_t page_address, void* data, df_size_t offset, df_size_t len)
-/* {{{ */ {
+{
 
     // dataflash_wait_busy();
 
@@ -182,10 +181,10 @@ void df_flash_read(df_chip_t chip, df_page_t page_address, void* data, df_size_t
 
     cs_high();
 
-} /* }}} */
+}
 
 void df_erase(df_chip_t chip, df_page_t page_address)
-/* {{{ */ {
+{
 
     // dataflash_wait_busy();
 
@@ -203,10 +202,10 @@ void df_erase(df_chip_t chip, df_page_t page_address)
 
     cs_high();
 
-} /* }}} */
+}
 
 df_status_t df_status(df_chip_t chip)
-/* {{{ */ {
+{
 
     cs_low();
 
@@ -218,10 +217,10 @@ df_status_t df_status(df_chip_t chip)
 
     return data;
 
-} /* }}} */
+}
 
 void df_wait(df_chip_t chip)
-/* {{{ */ {
+{
 
     cs_low();
 
@@ -231,5 +230,5 @@ void df_wait(df_chip_t chip)
 
     cs_high();
 
-} /* }}} */
+}
 

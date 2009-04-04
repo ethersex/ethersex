@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
@@ -19,7 +18,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -41,7 +40,7 @@
 
 void
 named_pin_init(void)
-/* {{{ */ {
+{
   /* Parse pin table */
   uint8_t i = 0, port, pin, input;
   while (1) {
@@ -63,11 +62,11 @@ named_pin_init(void)
     i++;
   }
  } 
-/* }}} */
+/* */
 
 uint8_t
 named_pin_by_name(const char *name) 
-/* {{{ */ {
+{
   uint8_t i = 0;
   const char *tmp;
   while (1) {
@@ -80,11 +79,11 @@ named_pin_by_name(const char *name)
   }
   return 255;
 }
-/* }}} */
+/* */
 
 uint8_t
 named_pin_by_pin(uint8_t port, uint8_t pin)
-/* {{{ */ {
+{
   uint8_t i = 0;
   uint8_t t_port, t_pin;
   while (1) {
@@ -98,7 +97,7 @@ named_pin_by_pin(uint8_t port, uint8_t pin)
   }
   return 255;
 }
-/* }}} */
+/* */
 
 #endif /* PORTIO_SUPPORT */
 

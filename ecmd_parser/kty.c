@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
@@ -21,7 +20,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -45,7 +44,7 @@
 
 
 int16_t parse_cmd_kty_get(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint16_t adc;
   int16_t temp;
   uint8_t channel;
@@ -68,19 +67,19 @@ adc_out:
     output += 6;
   }
   return ret;
-} /* }}} */
+}
 
 int16_t parse_cmd_kty_cal_get(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   int8_t cal;
   eeprom_restore_char (kty_calibration, &cal);
   itoa(cal, output, 10);
   return strlen(output);
-} /* }}} */
+}
 
 
 int16_t parse_cmd_kty_calibration(char *cmd, char *output, uint16_t len)
-/* {{{ */ {
+{
   uint16_t adc;
   uint8_t channel;
   uint8_t ret = 0;
@@ -99,6 +98,6 @@ int16_t parse_cmd_kty_calibration(char *cmd, char *output, uint16_t len)
     ret = 13;
   }
   return ret;
-} /* }}} */
+}
 
 #endif

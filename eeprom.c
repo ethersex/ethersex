@@ -1,5 +1,4 @@
-/* vim:fdm=marker ts=4 et ai
- * {{{
+/*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright(c) 2008 Christian Dietrich <stettberger@dokucode.de>
@@ -20,7 +19,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- }}} */
+ */
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -35,7 +34,7 @@
 
 #ifdef CRC_SUPPORT
 uint8_t crc_checksum(void *data, uint8_t length)
-/* {{{ */ {
+{
 
     uint8_t crc = 0;
     uint8_t *p = (uint8_t *)data;
@@ -47,7 +46,7 @@ uint8_t crc_checksum(void *data, uint8_t length)
 
     return crc;
 
-} /* }}} */
+}
 #endif /* CRC_SUPPORT */
 
 
