@@ -40,6 +40,8 @@ for f in $files; do
 	license="GPLv2+"
       elif grep -qe 'GPL v3' "$tmp"; then
 	license="GPLv2 or GPLv3"
+      elif grep -qe 'license GPLv2 or LGPLv21' "$tmp"; then
+	license="GPLv2 or LGPLv21"
       else
       	license="GPLv2 (only)"
       fi
