@@ -21,6 +21,7 @@
 #define STELLA_PROTOCOL_VERSION 3
 
 #include "../config.h"
+#ifdef STELLA_SUPPORT
 
 enum stella_colors
 {
@@ -135,3 +136,5 @@ uint8_t stella_getValue(const uint8_t channel);
 void stella_loadFromEEROM(void);
 void stella_loadFromEEROMFading(void);
 void stella_storeToEEROM(void);
+
+#endif  /* STELLA_SUPPORT */
