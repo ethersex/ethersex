@@ -24,7 +24,6 @@
 
 #include "handler.h"
 #include "../uip/uip.h"
-#include "../crypto/skipjack.h"
 #include "../crypto/cast5.h"
 
 #include "ecmd_net.h"

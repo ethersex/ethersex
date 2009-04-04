@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #include "../uip/uip.h"
-#include "../crypto/skipjack.h"
+/* #include "../crypto/skipjack.h" */
 #include "../eeprom.h"
 #include "tftp.h"
 #include "tftp_net.h"

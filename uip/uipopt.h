@@ -68,7 +68,6 @@
 #endif /* UIP_BIG_ENDIAN */
 
 #include "uip-conf.h"
-#include "../crypto/skipjack.h"
 
 /*------------------------------------------------------------------------------*/
 /**

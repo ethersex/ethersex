@@ -25,7 +25,6 @@
 #include "../uip/uip.h"
 #include "../spi.h"
 #include "../rfm12/rfm12.h"
-#include "skipjack.h"
 
 #if defined(SKIPJACK_SUPPORT) \
     && (defined(RFM12_IP_SUPPORT) || defined(ZBUS_SUPPORT))

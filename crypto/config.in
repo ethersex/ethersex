@@ -2,7 +2,6 @@ dep_bool_menu "Cryptographic functionality" CRYPTO_SUPPORT y
 
 comment "Ciphers"
 dep_bool "CAST5" CAST5_SUPPORT $CRYPTO_SUPPORT
-dep_bool "Skipjack" SKIPJACK_SUPPORT $CRYPTO_SUPPORT
 comment "Hashes"
 dep_bool "MD5" MD5_SUPPORT $CRYPTO_SUPPORT
 dep_bool "SHA1" SHA1_SUPPORT $CRYPTO_SUPPORT
