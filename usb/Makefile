@@ -3,7 +3,7 @@ include $(TOPDIR)/.config
 
 CFLAGS += -Iusb/usbdrv -Iusb
 ASFLAGS += -x assembler-with-cpp
-ASFLAGS += -Iusbdrv -I.
+ASFLAGS += -Iusb/usbdrv -Iusb
 
 $(USB_SUPPORT)_SRC += usb/usb.c usb/usbdrv/usbdrv.c
 $(USB_NET_SUPPORT)_SRC += usb/usb_net.c
@@ -25,5 +25,5 @@ endif
 CLEAN_FILES += usb/schematic.pdf usb/gschem.log \
 	usb/usbdrv/usbdrv.d usb/usbdrv/usbdrvasm.d
 
-
+usb/usbdrv/usbdrvasm.S: pinning.c
 
