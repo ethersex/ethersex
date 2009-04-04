@@ -38,7 +38,7 @@ for f in $files; do
     if grep -qe '[Vv]ersion 2' -e 'GPL v2' "$tmp"; then
       if grep -qe 'any later version' -e 'jeder späteren Version' "$tmp"; then
 	license="GPLv2+"
-      elif grep -qe 'GPL v3' "$tmp"; then
+      elif grep -qe 'GPL v3' -e 'or [Vv]ersion 3' "$tmp"; then
 	license="GPLv2 or GPLv3"
       elif grep -qe 'license GPLv2 or LGPLv21' "$tmp"; then
 	license="GPLv2 or LGPLv21"
