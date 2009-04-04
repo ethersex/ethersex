@@ -4,15 +4,11 @@
  * Creation Date: 2004-12-29
  * Tabsize: 4
  * Copyright: (c) 2005 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
- * This Revision: $Id: usbdrv.c 591 2008-05-03 20:21:19Z cs $
+ * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
+ * This Revision: $Id: usbdrv.c 721 2009-03-16 19:03:19Z cs $
  */
 
-#include "iarcompat.h"
-#ifndef __IAR_SYSTEMS_ICC__
-#   include <avr/io.h>
-#   include <avr/pgmspace.h>
-#endif
+#include "usbportability.h"
 #include "usbdrv.h"
 #include "oddebug.h"
 
@@ -38,11 +34,14 @@ uchar       usbTxBuf[USB_BUFSIZE];/* data to transmit with next IN, free if usbT
 #if USB_COUNT_SOF
 volatile uchar  usbSofCount;    /* incremented by assembler module every SOF */
 #endif
-#if USB_CFG_HAVE_INTRIN_ENDPOINT
+#if USB_CFG_HAVE_INTRIN_ENDPOINT && !USB_CFG_SUPPRESS_INTR_CODE
 usbTxStatus_t  usbTxStatus1;
 #   if USB_CFG_HAVE_INTRIN_ENDPOINT3
 usbTxStatus_t  usbTxStatus3;
 #   endif
+#endif
+#if USB_CFG_CHECK_DATA_TOGGLING
+uchar       usbCurrentDataToken;/* when we check data toggling to ignore duplicate packets */
 #endif
 
 /* USB status registers / not shared with asm code */
@@ -56,7 +55,7 @@ static uchar        usbMsgFlags;    /* flag values see below */
 /*
 optimizing hints:
 - do not post/pre inc/dec integer values in operations
-- assign value of PRG_RDB() to register variables and don't use side effects in arg
+- assign value of USB_READ_FLASH() to register variables and don't use side effects in arg
 - use narrow scope for variables which should be in X/Y/Z register
 - assign char sized expressions to variables to force 8 bit arithmetics
 */
@@ -195,18 +194,9 @@ PROGMEM char usbDescriptorConfiguration[] = {    /* USB configuration descriptor
 
 /* ------------------------------------------------------------------------- */
 
-/* We don't use prog_int or prog_int16_t for compatibility with various libc
- * versions. Here's an other compatibility hack:
- */
-#ifndef PRG_RDB
-#define PRG_RDB(addr)   pgm_read_byte(addr)
-#endif
-
-/* ------------------------------------------------------------------------- */
-
 static inline void  usbResetDataToggling(void)
 {
-#if USB_CFG_HAVE_INTRIN_ENDPOINT
+#if USB_CFG_HAVE_INTRIN_ENDPOINT && !USB_CFG_SUPPRESS_INTR_CODE
     USB_SET_DATATOKEN1(USB_INITIAL_DATATOKEN);  /* reset data toggling for interrupt endpoint */
 #   if USB_CFG_HAVE_INTRIN_ENDPOINT3
     USB_SET_DATATOKEN3(USB_INITIAL_DATATOKEN);  /* reset data toggling for interrupt endpoint */
@@ -226,6 +216,7 @@ static inline void  usbResetStall(void)
 
 /* ------------------------------------------------------------------------- */
 
+#if !USB_CFG_SUPPRESS_INTR_CODE
 #if USB_CFG_HAVE_INTRIN_ENDPOINT
 static void usbGenericSetInterrupt(uchar *data, uchar len, usbTxStatus_t *txStatus)
 {
@@ -263,6 +254,7 @@ USB_PUBLIC void usbSetInterrupt3(uchar *data, uchar len)
     usbGenericSetInterrupt(data, len, &usbTxStatus3);
 }
 #endif
+#endif /* USB_CFG_SUPPRESS_INTR_CODE */
 
 /* ------------------ utilities for code following below ------------------- */
 
@@ -408,7 +400,7 @@ uchar   index = rq->wIndex.bytes[0];
         usbResetStall();
     SWITCH_CASE(USBRQ_GET_INTERFACE)        /* 10 */
         len = 1;
-#if USB_CFG_HAVE_INTRIN_ENDPOINT
+#if USB_CFG_HAVE_INTRIN_ENDPOINT && !USB_CFG_SUPPRESS_INTR_CODE
     SWITCH_CASE(USBRQ_SET_INTERFACE)        /* 11 */
         usbResetDataToggling();
         usbResetStall();
@@ -436,7 +428,7 @@ usbRequest_t    *rq = (void *)data;
  * 0xe1 11100001 (USBPID_OUT: data phase of setup transfer)
  * 0...0x0f for OUT on endpoint X
  */
-    DBG2(0x10 + (usbRxToken & 0xf), data, len); /* SETUP=1d, SETUP-DATA=11, OUTx=1x */
+    DBG2(0x10 + (usbRxToken & 0xf), data, len + 2); /* SETUP=1d, SETUP-DATA=11, OUTx=1x */
     USB_RX_USER_HOOK(data, len)
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT
     if(usbRxToken < 0x10){  /* OUT to endpoint != 0: endpoint number in usbRxToken */
@@ -459,9 +451,13 @@ usbRequest_t    *rq = (void *)data;
         }
 #if USB_CFG_IMPLEMENT_FN_READ || USB_CFG_IMPLEMENT_FN_WRITE
         if(replyLen == USB_NO_MSG){         /* use user-supplied read/write function */
-            /* do some conditioning on replyLen */
+            /* do some conditioning on replyLen, but on IN transfers only */
             if((rq->bmRequestType & USBRQ_DIR_MASK) != USBRQ_DIR_HOST_TO_DEVICE){
-                replyLen = rq->wLength.bytes[0];    /* IN transfers only */
+                if(sizeof(replyLen) < sizeof(rq->wLength.word)){ /* help compiler with optimizing */
+                    replyLen = rq->wLength.bytes[0];
+                }else{
+                    replyLen = rq->wLength.word;
+                }
             }
             usbMsgFlags = USB_FLG_USE_USER_RW;
         }else   /* The 'else' prevents that we limit a replyLen of USB_NO_MSG to the maximum transfer len. */
@@ -505,7 +501,7 @@ static uchar usbDeviceRead(uchar *data, uchar len)
             uchar i = len, *r = usbMsgPtr;
             if(usbMsgFlags & USB_FLG_MSGPTR_IS_ROM){    /* ROM data */
                 do{
-                    uchar c = PRG_RDB(r);    /* assign to char size variable to enforce byte ops */
+                    uchar c = USB_READ_FLASH(r);    /* assign to char size variable to enforce byte ops */
                     *data++ = c;
                     r++;
                 }while(--i);
@@ -536,8 +532,6 @@ uchar       len;
     usbMsgLen -= wantLen;
     usbTxBuf[0] ^= USBPID_DATA0 ^ USBPID_DATA1; /* DATA toggling */
     len = usbDeviceRead(usbTxBuf + 1, wantLen);
-    if(usbMsgLen == 0)
-	usbFunctionReadFinished();
     if(len <= 8){           /* valid data packet */
         usbCrc16Append(&usbTxBuf[1], len);
         len += 4;           /* length including sync byte */
@@ -594,17 +588,17 @@ uchar   i;
             usbBuildTxBlock();
         }
     }
-    for(i = 10; i > 0; i--){
+    for(i = 20; i > 0; i--){
         uchar usbLineStatus = USBIN & USBMASK;
         if(usbLineStatus != 0)  /* SE0 has ended */
-            break;
+            goto isNotReset;
     }
-    if(i == 0){ /* RESET condition, called multiple times during reset */
-        usbNewDeviceAddr = 0;
-        usbDeviceAddr = 0;
-        usbResetStall();
-        DBG1(0xff, 0, 0);
-    }
+    /* RESET condition, called multiple times during reset */
+    usbNewDeviceAddr = 0;
+    usbDeviceAddr = 0;
+    usbResetStall();
+    DBG1(0xff, 0, 0);
+isNotReset:
     usbHandleResetHook(i);
 }
 
@@ -620,7 +614,7 @@ USB_PUBLIC void usbInit(void)
 #endif
     USB_INTR_ENABLE |= (1 << USB_INTR_ENABLE_BIT);
     usbResetDataToggling();
-#if USB_CFG_HAVE_INTRIN_ENDPOINT
+#if USB_CFG_HAVE_INTRIN_ENDPOINT && !USB_CFG_SUPPRESS_INTR_CODE
     usbTxLen1 = USBPID_NAK;
 #if USB_CFG_HAVE_INTRIN_ENDPOINT3
     usbTxLen3 = USBPID_NAK;

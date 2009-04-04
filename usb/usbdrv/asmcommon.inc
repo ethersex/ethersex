@@ -4,7 +4,7 @@
  * Creation Date: 2007-11-05
  * Tabsize: 4
  * Copyright: (c) 2007 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
+ * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
  * Revision: $Id$
  */
 
@@ -103,8 +103,11 @@ sofError:
     reti
 
 handleData:
-    lds     token, usbCurrentTok;[18]
-    tst     token               ;[20]
+#if USB_CFG_CHECK_CRC
+    CRC_CLEANUP_AND_CHECK       ; jumps to ignorePacket if CRC error
+#endif
+    lds     shift, usbCurrentTok;[18]
+    tst     shift               ;[20]
     breq    doReturn            ;[21]
     lds     x2, usbRxLen        ;[22]
     tst     x2                  ;[24]
@@ -113,8 +116,11 @@ handleData:
 ; recognized if usbPoll() was called less frequently than once every 4 ms.
     cpi     cnt, 4              ;[26] zero sized data packets are status phase only -- ignore and ack
     brmi    sendAckAndReti      ;[27] keep rx buffer clean -- we must not NAK next SETUP
+#if USB_CFG_CHECK_DATA_TOGGLING
+    sts     usbCurrentDataToken, token  ; store for checking by C code
+#endif
     sts     usbRxLen, cnt       ;[28] store received data, swap buffers
-    sts     usbRxToken, token   ;[30]
+    sts     usbRxToken, shift   ;[30]
     lds     x2, usbInputBufOffset;[32] swap buffers
     ldi     cnt, USB_BUFSIZE    ;[34]
     sub     cnt, x2             ;[35]
@@ -131,7 +137,11 @@ handleIn:
     ldi     x1, USBPID_NAK      ;[34] prepare value for usbTxLen
 #if USB_CFG_HAVE_INTRIN_ENDPOINT
     andi    x3, 0xf             ;[35] x3 contains endpoint
+#if USB_CFG_SUPPRESS_INTR_CODE
+    brne    sendNakAndReti      ;[36]
+#else
     brne    handleIn1           ;[36]
+#endif
 #endif
     lds     cnt, usbTxLen       ;[37]
     sbrc    cnt, 4              ;[39] all handshake tokens have bit 4 set
@@ -150,7 +160,7 @@ handleIn:
 ; RAM this way and avoid potential problems with endless retries. The rest of
 ; the driver assumes error-free transfers anyway.
 
-#if USB_CFG_HAVE_INTRIN_ENDPOINT    /* placed here due to relative jump range */
+#if !USB_CFG_SUPPRESS_INTR_CODE && USB_CFG_HAVE_INTRIN_ENDPOINT /* placed here due to relative jump range */
 handleIn1:                      ;[38]
 #if USB_CFG_HAVE_INTRIN_ENDPOINT3
 ; 2006-06-10 as suggested by O.Tamura: support second INTR IN / BULK IN endpoint
@@ -164,9 +174,8 @@ handleIn1:                      ;[38]
     ldi     YL, lo8(usbTxBuf1)  ;[46]
     ldi     YH, hi8(usbTxBuf1)  ;[47]
     rjmp    usbSendAndReti      ;[48] 50 + 12 = 62 until SOP
-#endif
 
-#if USB_CFG_HAVE_INTRIN_ENDPOINT && USB_CFG_HAVE_INTRIN_ENDPOINT3
+#if USB_CFG_HAVE_INTRIN_ENDPOINT3
 handleIn3:
     lds     cnt, usbTxLen3      ;[41]
     sbrc    cnt, 4              ;[43]
@@ -175,4 +184,5 @@ handleIn3:
     ldi     YL, lo8(usbTxBuf3)  ;[47]
     ldi     YH, hi8(usbTxBuf3)  ;[48]
     rjmp    usbSendAndReti      ;[49] 51 + 12 = 63 until SOP
+#endif
 #endif

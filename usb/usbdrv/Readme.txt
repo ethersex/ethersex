@@ -33,7 +33,7 @@ The driver consists of the following files:
                            defined to a value greater than 0. Link this module
                            to your code!
   oddebug.h .............. Interface definitions of the debug module.
-  iarcompat.h ............ Compatibility definitions for IAR C-compiler.
+  usbportability.h ....... Header with compiler-dependent stuff.
   usbdrvasm.asm .......... Compatibility stub for IAR-C-compiler. Use this
                            module instead of usbdrvasm.S when you assembler
                            with IAR's tools.
@@ -47,9 +47,10 @@ The driver consists of the following files:
 
 CPU CORE CLOCK FREQUENCY
 ========================
-We supply assembler modules for clock frequencies of 12 MHz, 15 MHz, 16 MHz and
-16.5 MHz. Other clock rates are not supported. The actual clock rate must be
-configured in usbdrv.h unless you use the default 12 MHz.
+We supply assembler modules for clock frequencies of 12 MHz, 12.8 MHz, 15 MHz,
+16 MHz, 16.5 MHz 18 MHz and 20 MHz. Other clock rates are not supported. The
+actual clock rate must be configured in usbdrv.h unless you use the default
+12 MHz.
 
 12 MHz Clock
 This is the traditional clock rate of AVR-USB because it's the lowest clock
@@ -67,18 +68,28 @@ if you need the slightly higher clock rate for performance reasons. Since
 16 MHz is not divisible by the USB low speed bit clock of 1.5 MHz, the code
 is somewhat tricky and has to insert a leap cycle every third byte.
 
-16.5 MHz Clock
-The assembler module for this clock rate differs from the other modules because
-it has been built for an RC oscillator with only 1% precision. The receiver
-code inserts leap cycles to compensate for clock deviations. 1% is also the
-precision which can be achieved by calibrating the internal RC oscillator of
-the AVR. Please note that only AVRs with internal 64 MHz PLL oscillator can be
-used since the 8 MHz RC oscillator cannot be trimmed up to 16.5 MHz. This
-includes the very popular ATTiny25, ATTiny45, ATTiny85 series as well as the
-ATTiny26.
+12.8 MHz and 16.5 MHz Clock
+The assembler modules for these clock rates differ from the other modules
+because they have been built for an RC oscillator with only 1% precision. The
+receiver code inserts leap cycles to compensate for clock deviations. 1% is
+also the precision which can be achieved by calibrating the internal RC
+oscillator of the AVR. Please note that only AVRs with internal 64 MHz PLL
+oscillator can reach 16.5 MHz with the RC oscillator. This includes the very
+popular ATTiny25, ATTiny45, ATTiny85 series as well as the ATTiny26. Almost
+all AVRs can reach 12.8 MHz, although this is outside the specified range.
 
 See the EasyLogger example at http://www.obdev.at/avrusb/easylogger.html for
 code which calibrates the RC oscillator based on the USB frame clock.
+
+18 MHz Clock
+This module is closer to the USB specification because it performs an on the
+fly CRC check for incoming packets. Packets with invalid checksum are
+discarded as required by the spec. If you also implement checks for data
+PID toggling on application level (see option USB_CFG_CHECK_DATA_TOGGLING
+in usbconfig.h for more info), this ensures data integrity. Due to the CRC
+tables and alignment requirements, this code is bigger than modules for other
+clock rates. To activate this module, you must define USB_CFG_CHECK_CRC to 1
+and USB_CFG_CLOCK_KHZ to 18000 in usbconfig.h.
 
 20 MHz Clock
 This module is for people who won't do it with less than the maximum. Since
@@ -115,10 +126,11 @@ usbdrv.c because this module has been deliberately optimized for gcc.
 USING AVR-USB FOR FREE
 ======================
 The AVR firmware driver is published under the GNU General Public License
-Version 2 (GPL2). See the file "License.txt" for details.
+Version 2 (GPL2) and the GNU General Public License Version 3 (GPL3). It is
+your choice whether you apply the terms of version 2 or version 3.
 
-If you decide for the free GPL2, we STRONGLY ENCOURAGE you to do the following
-things IN ADDITION to the obligations from the GPL2:
+If you decide for the free GPL2 or GPL3, we STRONGLY ENCOURAGE you to do the
+following things IN ADDITION to the obligations from the GPL:
 
 (1) Publish your entire project on a web site and drop us a note with the URL.
 Use the form at http://www.obdev.at/avrusb/feedback.html for your submission.
@@ -139,7 +151,7 @@ to your modifications for our commercial license offerings.
 
 COMMERCIAL LICENSES FOR AVR-USB
 ===============================
-If you don't want to publish your source code under the terms of the GPL2,
+If you don't want to publish your source code under the terms of the GPL,
 you can simply pay money for AVR-USB. As an additional benefit you get
 USB PIDs for free, licensed exclusively to you. See the file
 "CommercialLicense.txt" for details.

@@ -231,3 +231,40 @@ Scroll down to the bottom to see the most recent changes.
   - Added 20 MHz module contributed by Jeroen Benschop.
 
 * Release 2008-05-13
+
+  - Fixed bug in libs-host/hiddata.c function usbhidGetReport(): length
+    was not incremented, pointer to length was incremented instead.
+  - Added code to command line tool(s) which claims an interface. This code
+    is disabled by default, but may be necessary on newer Linux kernels.
+  - Added usbconfig.h option "USB_CFG_CHECK_DATA_TOGGLING".
+  - New header "usbportability.h" prepares ports to other development
+    environments.
+  - Long transfers (above 254 bytes) did not work when usbFunctionRead() was
+    used to supply the data. Fixed this bug. [Thanks to Alexander Neumann!]
+  - In hiddata.c (example code for sending/receiving data over HID), use
+    USB_RECIP_DEVICE instead of USB_RECIP_INTERFACE for control transfers so
+    that we need not claim the interface.
+  - in usbPoll() loop 20 times polling for RESET state instead of 10 times.
+    This accounts for the higher clock rates we now support.
+  - Added a module for 12.8 MHz RC oscillator with PLL in receiver loop.
+  - Added hook to SOF code so that oscillator can be tuned to USB frame clock.
+  - Added timeout to waitForJ loop. Helps preventing unexpected hangs.
+  - Added example code for oscillator tuning to libs-device (thanks to
+    Henrik Haftmann for the idea to this routine).
+  - Implemented option USB_CFG_SUPPRESS_INTR_CODE.
+
+* Release 2008-10-22
+
+  - Fixed libs-device/osctune.h: OSCCAL is memory address on ATMega88 and
+    similar, not offset of 0x20 needs to be added.
+  - Allow distribution under GPLv3 for those who have to link against other
+    code distributed under GPLv3.
+
+* Release 2008-11-26
+
+  - Removed libusb-win32 dependency for hid-data example in Makefile.windows.
+    It was never required and confused many people.
+  - Added extern uchar usbRxToken to usbdrv.h.
+  - Integrated a module with CRC checks at 18 MHz by Lukas Schrittwieser.
+
+* Release 2009-03-23

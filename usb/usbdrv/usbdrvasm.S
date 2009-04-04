@@ -4,8 +4,8 @@
  * Creation Date: 2007-06-13
  * Tabsize: 4
  * Copyright: (c) 2007 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
- * Revision: $Id$
+ * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
+ * Revision: $Id: usbdrvasm.S 722 2009-03-16 19:03:57Z cs $
  */
 
 /*
@@ -15,16 +15,9 @@ general code (preprocessor acrobatics and CRC computation) and then includes
 the file appropriate for the given clock rate.
 */
 
-#include "iarcompat.h"
-#ifndef __IAR_SYSTEMS_ASM__
-    /* configs for io.h */
-#   define __SFR_OFFSET 0
-#   define _VECTOR(N)   __vector_ ## N   /* io.h does not define this for asm */
-#   include <avr/io.h> /* for CPU I/O register definitions and vectors */
-#   define macro    .macro  /* GNU Assembler macro definition */
-#   define endm     .endm   /* End of GNU Assembler macro definition */
-#endif  /* __IAR_SYSTEMS_ASM__ */
-#include "usbdrv.h" /* for common defs */
+#define __SFR_OFFSET 0      /* used by avr-libc's register definitions */
+#include "usbportability.h"
+#include "usbdrv.h"         /* for common defs */
 
 /* register names */
 #define x1      r16
@@ -33,24 +26,14 @@ the file appropriate for the given clock rate.
 #define cnt     r19
 #define x3      r20
 #define x4      r21
-#define bitcnt  r22
+#define x5		r22
+#define bitcnt  x5
 #define phase   x4
 #define leap    x4
 
 /* Some assembler dependent definitions and declarations: */
 
 #ifdef __IAR_SYSTEMS_ASM__
-
-#   define nop2     rjmp    $+2 /* jump to next instruction */
-#   define XL       r26
-#   define XH       r27
-#   define YL       r28
-#   define YH       r29
-#   define ZL       r30
-#   define ZH       r31
-#   define lo8(x)   LOW(x)
-#   define hi8(x)   (((x)>>8) & 0xff)   /* not HIGH to allow XLINK to make a proper range check */
-
     extern  usbRxBuf, usbDeviceAddr, usbNewDeviceAddr, usbInputBufOffset
     extern  usbCurrentTok, usbRxLen, usbRxToken, usbTxLen
     extern  usbTxBuf, usbTxStatus1, usbTxStatus3
@@ -72,8 +55,6 @@ the file appropriate for the given clock rate.
     RSEG    CODE
 
 #else /* __IAR_SYSTEMS_ASM__ */
-
-#   define nop2     rjmp    .+0 /* jump to next instruction */
 
 #   ifndef USB_INTR_VECTOR /* default to hardware interrupt INT0 */
 #       define USB_INTR_VECTOR  SIG_INTERRUPT0
@@ -299,16 +280,26 @@ usbMFTimeout:
 #   define USB_CFG_CLOCK_KHZ 12000
 #endif
 
-#if USB_CFG_CLOCK_KHZ == 12000
-#   include "usbdrvasm12.inc"
-#elif USB_CFG_CLOCK_KHZ == 15000
-#   include "usbdrvasm15.inc"
-#elif USB_CFG_CLOCK_KHZ == 16000
-#   include "usbdrvasm16.inc"
-#elif USB_CFG_CLOCK_KHZ == 16500
-#   include "usbdrvasm165.inc"
-#elif USB_CFG_CLOCK_KHZ == 20000
-#   include "usbdrvasm20.inc"
-#else
-#   error "USB_CFG_CLOCK_KHZ is not one of the supported rates!"
-#endif
+#if USB_CFG_CHECK_CRC   /* separate dispatcher for CRC type modules */
+#   if USB_CFG_CLOCK_KHZ == 18000
+#       include "usbdrvasm18-crc.inc"
+#   else
+#       error "USB_CFG_CLOCK_KHZ is not one of the supported crc-rates!"
+#   endif
+#else   /* USB_CFG_CHECK_CRC */
+#   if USB_CFG_CLOCK_KHZ == 12000
+#       include "usbdrvasm12.inc"
+#   elif USB_CFG_CLOCK_KHZ == 12800
+#       include "usbdrvasm128.inc"
+#   elif USB_CFG_CLOCK_KHZ == 15000
+#       include "usbdrvasm15.inc"
+#   elif USB_CFG_CLOCK_KHZ == 16000
+#       include "usbdrvasm16.inc"
+#   elif USB_CFG_CLOCK_KHZ == 16500
+#       include "usbdrvasm165.inc"
+#   elif USB_CFG_CLOCK_KHZ == 20000
+#       include "usbdrvasm20.inc"
+#   else
+#       error "USB_CFG_CLOCK_KHZ is not one of the supported non-crc-rates!"
+#   endif
+#endif /* USB_CFG_CHECK_CRC */

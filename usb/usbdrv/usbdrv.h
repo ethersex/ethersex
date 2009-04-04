@@ -4,14 +4,14 @@
  * Creation Date: 2004-12-29
  * Tabsize: 4
  * Copyright: (c) 2005 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
- * This Revision: $Id: usbdrv.h 607 2008-05-13 15:57:28Z cs $
+ * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
+ * This Revision: $Id: usbdrv.h 738 2009-03-23 11:13:24Z cs $
  */
 
 #ifndef __usbdrv_h_included__
 #define __usbdrv_h_included__
 #include "usbconfig.h"
-#include "iarcompat.h"
+#include "usbportability.h"
 
 /*
 Hardware Prerequisites:
@@ -34,8 +34,8 @@ usbDeviceConnect() and usbDeviceDisconnect() further down in this file.
 
 Please adapt the values in usbconfig.h according to your hardware!
 
-The device MUST be clocked at exactly 12 MHz, 15 MHz or 16 MHz
-or at 16.5 MHz +/- 1%. See usbconfig-prototype.h for details.
+The device MUST be clocked at exactly 12 MHz, 15 MHz, 16 MHz or 20 MHz
+or at 12.8 MHz resp. 16.5 MHz +/- 1%. See usbconfig-prototype.h for details.
 
 
 Limitations:
@@ -122,7 +122,7 @@ USB messages, even if they address another (low-speed) device on the same bus.
 /* --------------------------- Module Interface ---------------------------- */
 /* ------------------------------------------------------------------------- */
 
-#define USBDRV_VERSION  20080513
+#define USBDRV_VERSION  20090323
 /* This define uniquely identifies a driver version. It is a decimal number
  * constructed from the driver's release date in the form YYYYMMDD. If the
  * driver's behavior or interface changes, you can use this constant to
@@ -273,7 +273,8 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len);
  * to 1 in usbconfig.h and return 0xff in usbFunctionSetup()..
  */
 #endif /* USB_CFG_IMPLEMENT_FN_READ */
-USB_PUBLIC void usbFunctionReadFinished(void);
+
+extern uchar usbRxToken;    /* may be used in usbFunctionWriteOut() below */
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT
 USB_PUBLIC void usbFunctionWriteOut(uchar *data, uchar len);
 /* This function is called by the driver when data is received on an interrupt-
@@ -340,6 +341,12 @@ extern volatile uchar   usbSofCount;
  * the macro USB_COUNT_SOF is defined to a value != 0.
  */
 #endif
+#if USB_CFG_CHECK_DATA_TOGGLING
+extern uchar    usbCurrentDataToken;
+/* This variable can be checked in usbFunctionWrite() and usbFunctionWriteOut()
+ * to ignore duplicate packets.
+ */
+#endif
 
 #define USB_STRING_DESCRIPTOR_HEADER(stringLength) ((2*(stringLength)+2) | (3<<8))
 /* This macro builds a descriptor header for a string descriptor given the
@@ -383,7 +390,9 @@ extern volatile schar   usbRxLen;
  */
 #define USB_PROP_IS_DYNAMIC     (1 << 14)
 /* If this property is set for a descriptor, usbFunctionDescriptor() will be
- * used to obtain the particular descriptor.
+ * used to obtain the particular descriptor. Data directly returned via
+ * usbMsgPtr are FLASH data by default, combine (OR) with USB_PROP_IS_RAM to
+ * return RAM data.
  */
 #define USB_PROP_IS_RAM         (1 << 15)
 /* If this property is set for a descriptor, the data is read from RAM
@@ -547,6 +556,10 @@ int usbDescriptorStringSerialNumber[];
 #define USB_CFG_EP3_NUMBER  3
 #endif
 
+#ifndef USB_CFG_HAVE_INTRIN_ENDPOINT3
+#define USB_CFG_HAVE_INTRIN_ENDPOINT3   0
+#endif
+
 #define USB_BUFSIZE     11  /* PID, 8 bytes data, 2 bytes CRC */
 
 /* ----- Try to find registers and bits responsible for ext interrupt 0 ----- */
@@ -559,7 +572,14 @@ int usbDescriptorStringSerialNumber[];
 #   endif
 #endif
 #ifndef USB_INTR_CFG_SET    /* allow user to override our default */
-#   define USB_INTR_CFG_SET ((1 << ISC00) | (1 << ISC01))    /* cfg for rising edge */
+#   if defined(USB_COUNT_SOF) || defined(USB_SOF_HOOK)
+#       define USB_INTR_CFG_SET (1 << ISC01)                    /* cfg for falling edge */
+        /* If any SOF logic is used, the interrupt must be wired to D- where
+         * we better trigger on falling edge
+         */
+#   else
+#       define USB_INTR_CFG_SET ((1 << ISC00) | (1 << ISC01))   /* cfg for rising edge */
+#   endif
 #endif
 #ifndef USB_INTR_CFG_CLR    /* allow user to override our default */
 #   define USB_INTR_CFG_CLR 0    /* no bits to clear */

@@ -4,8 +4,8 @@
  * Creation Date: 2007-06-15
  * Tabsize: 4
  * Copyright: (c) 2007 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
- * Revision: $Id: usbdrvasm16.inc 607 2008-05-13 15:57:28Z cs $
+ * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
+ * Revision: $Id: usbdrvasm16.inc 692 2008-11-07 15:07:40Z cs $
  */
 
 /* Do not link this file! Link usbdrvasm.S instead, which includes the
@@ -41,10 +41,13 @@ USB_INTR_VECTOR:
 ;----------------------------------------------------------------------------
 ;sync byte (D-) pattern LSb to MSb: 01010100 [1 = idle = J, 0 = K]
 ;sync up with J to K edge during sync pattern -- use fastest possible loops
-;first part has no timeout because it waits for IDLE or SE1 (== disconnected)
+;The first part waits at most 1 bit long since we must be in sync pattern.
+;YL is guarenteed to be < 0x80 because I flag is clear. When we jump to
+;waitForJ, ensure that this prerequisite is met.
 waitForJ:
-    sbis    USBIN, USBMINUS     ;[-18] wait for D- == 1
-    rjmp    waitForJ
+    inc     YL
+    sbis    USBIN, USBMINUS
+    brne    waitForJ        ; just make sure we have ANY timeout
 waitForK:
 ;The following code results in a sampling window of < 1/4 bit which meets the spec.
     sbis    USBIN, USBMINUS     ;[-15]
@@ -64,6 +67,9 @@ waitForK:
     inc     YL
     sts     usbSofCount, YL
 #endif  /* USB_COUNT_SOF */
+#ifdef USB_SOF_HOOK
+    USB_SOF_HOOK
+#endif
     rjmp    sofError
 foundK:                         ;[-12]
 ;{3, 5} after falling D- edge, average delay: 4 cycles [we want 5 for center sampling]
@@ -208,13 +214,13 @@ macro POP_STANDARD ; 14 cycles
     pop     x1
     pop     shift
     pop     bitcnt
-endm
+    endm
 macro POP_RETI     ; 7 cycles
     pop     YH
     pop     YL
     out     SREG, YL
     pop     YL
-endm
+    endm
 
 #include "asmcommon.inc"
 
