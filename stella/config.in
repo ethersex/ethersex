@@ -1,6 +1,4 @@
-# Disabled due to license issues (remove 'n' at the end of
-# line as soon as those are resolved)
-dep_bool_menu "Stella Light" STELLA_SUPPORT $UDP_SUPPORT n
+dep_bool_menu "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
   int "Stella UDP Port" STELLA_UDP_PORT 2342
   dep_bool "Gamma correction (EXPERIMENTAL)" STELLA_GAMMACORRECTION $CONFIG_EXPERIMENTAL
   dep_bool "Higher frequency" STELLA_HIGHFREQ
