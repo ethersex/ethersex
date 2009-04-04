@@ -28,11 +28,6 @@ CFLAGS += -g -Os -std=gnu99
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
 
-
-##############################################################################
-# the default target
-$(TARGET):
-
 ##############################################################################
 # include user's config.mk file
 
@@ -66,4 +61,7 @@ endif
 
 %.E: %.c
 	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
+
+%.o: %.S
+	$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
 

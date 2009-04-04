@@ -23,8 +23,6 @@
 
 #include "vfs.h"
 
-#ifdef VFS_DF_SUPPORT
-
 struct vfs_file_handle_t *
 vfs_df_open (const char *filename)
 {
@@ -137,5 +135,3 @@ vfs_df_size (struct vfs_file_handle_t *fh)
 {
   return fs_size (&fs, fh->u.df.inode);
 }
-
-#endif /* VFS_DF_SUPPORT */

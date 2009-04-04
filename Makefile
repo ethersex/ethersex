@@ -14,8 +14,57 @@ SRC = \
 	spi.c \
 	timer.c
 
+##SUBDIRS += aliascmd
+SUBDIRS += bootp
+SUBDIRS += camera
+SUBDIRS += clock
+SUBDIRS += control6
+SUBDIRS += cron
+SUBDIRS += crypto
+SUBDIRS += dataflash
+SUBDIRS += dcf77
+SUBDIRS += dns
+SUBDIRS += dyndns
+SUBDIRS += ecmd_parser
+SUBDIRS += ecmd_serial
+SUBDIRS += fs20
+SUBDIRS += hc165
+SUBDIRS += hc595
+SUBDIRS += httpd
+SUBDIRS += i2c_master
+SUBDIRS += i2c_slave
+SUBDIRS += ipchair
+SUBDIRS += jabber
+SUBDIRS += kty
+SUBDIRS += lcd
+SUBDIRS += mcuf
+SUBDIRS += mdns_sd
+SUBDIRS += modbus
+SUBDIRS += mysql
+SUBDIRS += named_pin
+SUBDIRS += net
+SUBDIRS += ntp
+SUBDIRS += onewire
+SUBDIRS += ps2
+#SUBDIRS += pwm
+SUBDIRS += rc5
+SUBDIRS += rfm12
+#SUBDIRS += sd_reader
+SUBDIRS += snmp
+#SUBDIRS += stella
+SUBDIRS += syslog
+SUBDIRS += tftp
+SUBDIRS += uip
+SUBDIRS += usb
+SUBDIRS += vfs
+SUBDIRS += watchcat
+SUBDIRS += yport
+SUBDIRS += zbus
+
+rootbuild=t
 
 export TOPDIR
+
 ##############################################################################
 all: compile-$(TARGET)
 	@echo "==============================="
@@ -30,24 +79,11 @@ all: compile-$(TARGET)
 include defaults.mk
 #include $(TOPDIR)/rules.mk
 
-##############################################################################
-# generate SUBDIRS variable
-#
-
-.subdirs: autoconf.h
-	$(RM) -f $@
-	(for subdir in `grep -e "^#define .*_SUPPORT" autoconf.h \
-	      | sed -e "s/^#define //" -e "s/_SUPPORT.*//" \
-	      | tr "[A-Z]\\n" "[a-z] " `; do \
-	  test -d $$subdir && echo "SUBDIRS += $$subdir" ; \
-	done) | sort -u > $@
-
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)
 
-include $(TOPDIR)/.subdirs
 include $(TOPDIR)/.config
 
 endif # MAKECMDGOALS!=menuconfig
@@ -55,27 +91,25 @@ endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
 
+include $(foreach subdir,$(SUBDIRS),$(subdir)/Makefile)
+
+debug:
+	@echo SRC: ${SRC}
+	@echo y_SRC: ${y_SRC}
+
 ##############################################################################
 
-.PHONY: compile-subdirs
-compile-subdirs:
-	for dir in $(SUBDIRS); do $(MAKE) -C $$dir lib$$dir.a || exit 5; done
-
 .PHONY: compile-$(TARGET)
-compile-$(TARGET): compile-subdirs $(TARGET).hex $(TARGET).bin
+compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 
-OBJECTS += $(patsubst %.c,%.o,${SRC})
-LINKLIBS = $(foreach subdir,$(SUBDIRS),$(subdir)/lib$(subdir).a)
+OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC})
+OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 # FIXME how can we omit specifying every file to be linked twice?
 # This is currently necessary because of interdependencies between
 # the libraries, which aren't denoted in these however.
-$(TARGET): $(OBJECTS) $(LINKLIBS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) \
-	  $(foreach subdir,$(SUBDIRS),-L$(subdir) -l$(subdir)) \
-	  $(foreach subdir,$(SUBDIRS),-l$(subdir)) \
-	  $(foreach subdir,$(SUBDIRS),-l$(subdir))
-
+$(TARGET): $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
 
 ##############################################################################
 
@@ -117,7 +151,7 @@ vfs/embed/%: vfs/embed/%.sh
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
-	$(MAKE) -C vfs vfs-concat
+	$(MAKE) -C vfs vfs-concat TOPDIR=..
 	vfs/do-embed $(INLINE_FILES)
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif
@@ -163,12 +197,11 @@ what-now-msg:
 
 ##############################################################################
 clean:
-	$(MAKE) -f rules.mk no_deps=t clean-common
-	$(RM) $(TARGET) $(TARGET).bin $(TARGET).hex pinning.c .subdirs
-	for subdir in `find . -type d`; do \
-	  test "x$$subdir" != "x." \
-	  && test -e $$subdir/Makefile \
-	  && $(MAKE) no_deps=t -C $$subdir clean; done
+	$(RM) $(TARGET) $(TARGET).lss $(TARGET).bin $(TARGET).hex pinning.c
+	$(RM) $(OBJECTS) $(CLEAN_FILES) \
+		$(patsubst %.o,%.d,${OBJECTS}) \
+		$(patsubst %.o,%.E,${OBJECTS}) \
+		$(patsubst %.o,%.s,${OBJECTS})
 
 mrproper:
 	$(MAKE) clean

@@ -30,8 +30,6 @@
 /* TODO: add menuconfig option */
 #define ECMD_SERIAL_I2C_ADDR 8
 
-#ifdef ECMD_SERIAL_I2C_SUPPORT
-
 static char recv_buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
 static char write_buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
 static int16_t recv_len, write_len, sent, parse;
@@ -119,8 +117,3 @@ ISR (TWI_vect)
   TWCR |= (1<<TWINT); //TWI wieder aktivieren
 }
 
-
-
-
-
-#endif

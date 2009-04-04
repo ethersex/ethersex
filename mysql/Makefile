@@ -1,10 +1,9 @@
-TARGET = libmysql.a
-TOPDIR = ..
-SRC = \
-	mysql.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(MYSQL_SUPPORT)_SRC += mysql/mysql.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 

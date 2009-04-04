@@ -25,7 +25,6 @@
 #include "../uip/uip_router.h"
 #include "../config.h"
 
-#ifdef UDP_ECHO_NET_SUPPORT
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void
@@ -62,5 +61,3 @@ udp_echo_net_main(void)
 
     uip_slen = 0;
 }
-
-#endif /* UDP_ECHO_NET_SUPPORT */

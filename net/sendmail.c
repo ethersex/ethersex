@@ -27,8 +27,6 @@
 
 #include "../config.h"
 
-#ifdef SENDMAIL_SUPPORT
-
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <string.h>
@@ -234,6 +232,4 @@ mail_send (void)
 
   return conn;
 }
-
-#endif  /* SENDMAIL_SUPPORT */
 

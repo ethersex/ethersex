@@ -26,8 +26,6 @@
 #include "rfm12_raw_net.h"
 #include "rfm12.h"
 
-#ifdef RFM12_IP_SUPPORT
-
 void
 rfm12_process (void)
 {
@@ -73,6 +71,4 @@ rfm12_process (void)
   /* Application has generated output, send it out. */
   router_output ();
 }
-
-#endif  /* RFM12_IP_SUPPORT */
 

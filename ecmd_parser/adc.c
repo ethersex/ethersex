@@ -37,8 +37,6 @@
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
-#ifdef ADC_SUPPORT
-
 #ifndef ADC_REF
 #define ADC_REF 0
 #endif
@@ -74,4 +72,3 @@ adc_out:
   }
   return ret;
 }
-#endif

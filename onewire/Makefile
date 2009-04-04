@@ -1,9 +1,8 @@
-TARGET = libonewire.a
-TOPDIR = ..
-SRC = \
-	onewire.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(ONEWIRE_SUPPORT)_SRC += onewire/onewire.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

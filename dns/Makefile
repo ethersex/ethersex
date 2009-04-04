@@ -1,10 +1,8 @@
-TARGET = libdns.a
-TOPDIR = ..
-SRC = \
-	dns_net.c \
-	resolv.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(DNS_SUPPORT)_SRC += dns/dns_net.c dns/resolv.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

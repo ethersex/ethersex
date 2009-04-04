@@ -1,9 +1,8 @@
-TARGET = libdcf77.a
-TOPDIR = ..
-SRC = \
-	dcf77.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(DCF77_SUPPORT)_SRC += dcf77/dcf77.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

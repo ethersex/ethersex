@@ -1,30 +1,29 @@
-TARGET = libusb.a
-TOPDIR = ..
-CFLAGS += -Iusbdrv -I.
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+CFLAGS += -Iusb/usbdrv -Iusb
 ASFLAGS += -x assembler-with-cpp
 ASFLAGS += -Iusbdrv -I.
 
-SRC = \
-	usb.c \
-	usbdrv/usbdrv.c \
-	ecmd_usb.c \
-	usb_net.c
+$(USB_SUPPORT)_SRC += usb/usb.c usb/usbdrv/usbdrv.c
+$(USB_NET_SUPPORT)_SRC += usb/usb_net.c
+$(ECMD_USB_SUPPORT)_SRC += usb/ecmd_usb.c
 
-ASRC = \
-	usbdrv/usbdrvasm.S
+$(USB_SUPPORT)_ASRC += usb/usbdrv/usbdrvasm.S
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
+ifneq ($(rootbuild),t)
 schematic.pdf: schematic.sch
 	../contrib/gschem/sch2ps schematic.sch
 	ps2pdf schematic.ps
 	$(RM) -rf schematic.ps
+endif
 
-clean: clean-common
-	$(RM) -rf schematic.pdf gschem.log usbdrv/usbdrv.d usbdrv/usbdrvasm.d
+CLEAN_FILES += usb/schematic.pdf usb/gschem.log \
+	usb/usbdrv/usbdrv.d usb/usbdrv/usbdrvasm.d
 
 
 

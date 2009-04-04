@@ -30,8 +30,6 @@
 #include "../syslog/syslog.h"
 #include "../config.h"
 
-#ifdef VFS_EEPROM_RAW_SUPPORT
-
 struct vfs_file_handle_t *
 vfs_eeprom_raw_open (const char *filename)
 {
@@ -73,5 +71,3 @@ vfs_eeprom_raw_write (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length
   return length;
 }
 
-
-#endif	/* VFS_EEPROM_RAW_SUPPORT */

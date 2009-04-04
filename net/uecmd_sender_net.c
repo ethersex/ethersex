@@ -29,8 +29,6 @@
 
 #include <string.h>
 
-#ifdef UECMD_SENDER_SUPPORT
-
 static uip_udp_conn_t *ecmd_conn;
 PGM_P send_data = NULL;
 uint8_t resend_counter;
@@ -92,6 +90,4 @@ uecmd_sender_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data, client_return_te
   ucallback = callback;
   resend_counter = 7;
 }
-
-#endif /* UECMD_SENDER_SUPPORT */
 

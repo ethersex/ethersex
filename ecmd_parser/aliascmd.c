@@ -27,8 +27,6 @@
 #include "../debug.h"
 #include "ecmd.h"
 
-#ifdef ALIASCMD_SUPPORT
-
 #include "../aliascmd/aliascmd.h"
 
 int16_t
@@ -48,5 +46,3 @@ parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
     return -10 - snprintf_P(output, len, PSTR("%s -> %s"), aliasname, aliascmd);
   }
 }
-
-#endif  // ALIASCMD_SUPPORT

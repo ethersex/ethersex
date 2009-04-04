@@ -40,7 +40,6 @@
  */
 
 #include "../config.h"
-#ifdef IPV6_SUPPORT 
 #ifdef ENC28J60_SUPPORT 
 
 #include "uip_neighbor.h"
@@ -164,4 +163,3 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
 /*---------------------------------------------------------------------------*/
 
 #endif /* ENC28J60_SUPPORT */
-#endif /* IPV6_SUPPORT */

@@ -28,8 +28,6 @@
 
 #include "../config.h"
 
-#ifdef RFM12_ASK_SUPPORT
-
 #include "rfm12.h"
 #include "rfm12_ask.h"
 
@@ -160,4 +158,3 @@ rfm12_ask_external_filter_deinit()
   rfm12_init();
 }
 #endif // RFM12_ASK_EXTERNAL_FILTER_SUPPORT
-#endif // RFM12_ASK_SUPPORT

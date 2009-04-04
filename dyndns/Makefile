@@ -1,9 +1,8 @@
-TARGET = libdyndns.a
-TOPDIR = ..
-SRC = \
-	dyndns.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(DYNDNS_SUPPORT)_SRC += dyndns/dyndns.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

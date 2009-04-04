@@ -1,50 +1,41 @@
-TARGET = libecmd_parser.a
-TOPDIR = ..
-SRC = \
-      	adc.c		\
-	kty.c		\
-	clock.c		\
-	dataflash.c	\
-	dns.c		\
-	ecmd.c 		\
-	fs20.c		\
-	hd44780.c	\
-	httpd.c	\
-	mcuf.c		\
-	modbus.c	\
-	mysql.c		\
-	network.c	\
-	onewire.c	\
-	portio.c	\
-	rc5.c		\
-	rfm12.c		\
-	rfm12_ask.c	\
-	stella_ecmd.c \
-	cron.c \
-	sd.c		\
-	i2c.c		\
-	pwm.c		\
-	control6.c	\
-	aliascmd.c	\
-	scripting.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(ADC_SUPPORT)_SRC += ecmd_parser/adc.c
+$(KTY_SUPPORT)_SRC += ecmd_parser/kty.c
+$(CLOCK_SUPPORT)_SRC += ecmd_parser/clock.c
+$(DATAFLASH_SUPPORT)_SRC += ecmd_parser/dataflash.c
+$(DNS_SUPPORT)_SRC += ecmd_parser/dns.c
+$(ECMD_SUPPORT)_SRC += ecmd_parser/ecmd.c
+$(FS20_SUPPORT)_SRC += ecmd_parser/fs20.c
+$(HD44780_SUPPORT)_SRC += ecmd_parser/hd44780.c
+$(HTTPD_SUPPORT)_SRC += ecmd_parser/httpd.c
+$(MCUF_SUPPORT)_SRC += ecmd_parser/mcuf.c
+$(MODBUS_SUPPORT)_SRC += ecmd_parser/modbus.c
+$(MYSQL_SUPPORT)_SRC += ecmd_parser/mysql.c
+$(UIP_SUPPORT)_SRC += ecmd_parser/network.c
+$(ONEWIRE_SUPPORT)_SRC += ecmd_parser/onewire.c
+$(PORTIO_SUPPORT)_SRC += ecmd_parser/portio.c
+$(RC5_SUPPORT)_SRC += ecmd_parser/rc5.c
+$(RFM12_SUPPORT)_SRC += ecmd_parser/rfm12.c	
+$(RFM12_ASK_SUPPORT)_SRC += ecmd_parser/rfm12_ask.c
+$(STELLA_SUPPORT)_SRC += ecmd_parser/stella_ecmd.c
+$(CRON_SUPPORT)_SRC += ecmd_parser/cron.c
+$(SD_SUPPORT)_SRC += ecmd_parser/sd.c
+$(I2C_SUPPORT)_SRC += ecmd_parser/i2c.c
+$(PWM_SUPPORT)_SRC += ecmd_parser/pwm.c
+$(CONTROL6_SUPPORT)_SRC += ecmd_parser/control6.c
+$(ALIASCMD_SUPPORT)_SRC += ecmd_parser/aliascmd.c
+$(ECMD_SCRIPT_SUPPORT)_SRC += ecmd_parser/scripting.c
 
 # syslog.c disabled due to license issues.
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
 ##############################################################################
 # special stuff for this subdirectory
-
-
-# We directly include the menuconfig config file, it seems to be suitable
-# for inclusion.  It's just defining quite a few variables, the rest
-# is commented out using hash signs ...
-ifneq ($(no_deps),t)
-include $(TOPDIR)/.config
-endif
 
 # If (full-featured) portio is disabled, but named_pin enabled, we
 # need to do the named_pin simple awk/m4 hackery ...
@@ -54,12 +45,12 @@ named_pin_simple_files=../named_pin/np_simple.m4 np_simple_glue.m4
 endif
 endif
 
-ecmd.c: ecmd_defs.c
-ecmd_defs.c: ecmd_magic.m4 ecmd_defs.m4 $(named_pin_simple_files)
+ecmd_parser/ecmd.c: ecmd_parser/ecmd_defs.c
+ecmd_parser/ecmd_defs.c: ecmd_parser/ecmd_magic.m4 ecmd_parser/ecmd_defs.m4 $(named_pin_simple_files)
 	m4 $^ > $@.tmp
 	mv -f $@.tmp $@
 
-np_simple_glue.m4: ../named_pin/config ../named_pin/np_simple_glue.awk
+ecmd_parser/np_simple_glue.m4: named_pin/config named_pin/np_simple_glue.awk
 	grep -v -e "^#" < $< | gawk -f ../named_pin/np_simple_glue.awk > $@
 
 wiki.txt: wiki.m4 ecmd_defs.m4
@@ -67,5 +58,4 @@ wiki.txt: wiki.m4 ecmd_defs.m4
 	mv -f $@.tmp $@
 
 # extend normal clean rule
-clean: clean-common
-	$(RM) -f ecmd_defs.c np_simple_glue.m4 wiki.txt
+CLEAN_FILES += ecmd_parser/ecmd_defs.c ecmd_parser/np_simple_glue.m4 ecmd_parser/wiki.txt

@@ -1,10 +1,8 @@
-TARGET = libsyslog.a
-TOPDIR = ..
-SRC = \
-	syslog_net.c \
-	syslog.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(SYSLOG_SUPPORT)_SRC += syslog/syslog_net.c syslog/syslog.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

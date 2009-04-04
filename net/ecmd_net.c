@@ -32,8 +32,6 @@
 
 #include "../config.h"
 
-#ifdef ECMD_SUPPORT
-
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 /* module local prototypes */
@@ -218,5 +216,3 @@ void ecmd_net_main(void)
     }
 }
 
-
-#endif /* ECMD_SUPPORT */

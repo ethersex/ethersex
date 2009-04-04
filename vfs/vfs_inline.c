@@ -26,8 +26,6 @@
 #include "../eeprom.h"
 #include "vfs.h"
 
-#ifdef VFS_INLINE_SUPPORT
-
 struct vfs_file_handle_t *
 vfs_inline_open (const char *filename)
 {
@@ -123,5 +121,3 @@ vfs_inline_size (struct vfs_file_handle_t *fh)
   return fh->u.il.len;
 }
 #endif	/* VFS_TEENSY */
-
-#endif	/* VFS_INLINE_SUPPORT */

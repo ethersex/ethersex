@@ -28,8 +28,6 @@
 #include "../bit-macros.h"
 #include "ecmd.h"
 
-#ifdef CRON_SUPPORT
-
 #include "../cron/cron.h"
 
 int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
@@ -67,4 +65,3 @@ int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 	}
 }
 
-#endif  /* CRON_SUPPORT */

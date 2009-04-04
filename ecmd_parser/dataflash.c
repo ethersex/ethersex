@@ -29,8 +29,6 @@
 #include "../dataflash/df.h"
 #include "../dataflash/fs.h"
 
-#ifdef DATAFLASH_SUPPORT
-
 int16_t 
 parse_cmd_df_status (char *cmd, char *output, uint16_t len)
 {
@@ -168,5 +166,3 @@ parse_cmd_fs_inspect_inode (char *cmd, char *output, uint16_t len)
 
 #endif	/* DEBUG_FS */
 
-
-#endif /* DATAFLASH_SUPPORT */

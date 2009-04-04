@@ -1,21 +1,23 @@
-TARGET = librfm12.a
-TOPDIR = ..
-SRC = \
-	process.c \
-	ask_sense.c \
-	rfm12.c \
-	rfm12_ask.c \
-	rfm12_raw_net.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(RFM12_SUPPORT)_SRC += rfm12/rfm12.c
+
+$(RFM12_IP_SUPPORT)_SRC += rfm12/process.c
+
+$(RFM12_ASK_SUPPORT)_SRC += rfm12/rfm12_ask.c
+$(RFM12_ASK_SENSING_SUPPORT)_SRC += rfm12/ask_sense.c
+
+$(RFM12_RAW_SUPPORT)_SRC += rfm12/rfm12_raw_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
 schematic.pdf: schematic.sch
-	../contrib/gschem/sch2ps schematic.sch
+	$(TOPDIR)/contrib/gschem/sch2ps schematic.sch
 	ps2pdf schematic.ps
 	$(RM) -rf schematic.ps
 
-clean: clean-common
-	$(RM) -rf schematic.pdf gschem.log
+CLEAN_FILES += rfm12/schematic.pdf
+CLEAN_FILES += rfm12/gschem.log

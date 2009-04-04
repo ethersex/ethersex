@@ -1,11 +1,10 @@
-TARGET = libcamera.a
-TOPDIR = ..
-SRC = \
-	dc3840.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(DC3840_SUPPORT)_SRC += camera/dc3840.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
 CFLAGS += -fshort-enums

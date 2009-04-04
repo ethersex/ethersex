@@ -7,25 +7,27 @@
 # should go into ${TOPDIR}/defaults.mk
 #
 
+ifneq ($(rootbuild),t)
+SRC += ${y_SRC}
+ASRC += ${y_ASRC}
+
 OBJECTS += $(patsubst %.c,%.o,${SRC})
 OBJECTS += $(patsubst %.S,%.o,${ASRC})
 
-%.a: $(OBJECTS)
-	$(RM) $@
-	$(AR) qcv $@ $^
-#	$(STRIP) --strip-unneeded $@
-
-%.o: %.S
-	$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
+# This is NOT a root build, i.e. make has been called directly
+# within a subdirectory.  Override the SUBDIR variable and declare a
+# suitable target.
+compile-subdir:
+	$(MAKE) -C $(TOPDIR) $(OBJECTS)
 
 clean-common:
-	$(RM) $(TARGET) *.[odasE] *.d.new *~
+	cd $(TOPDIR) && $(RM) $(OBJECTS) \
+		$(patsubst %.o,%.d,${OBJECTS}) \
+		$(patsubst %.o,%.E,${OBJECTS}) \
+		$(patsubst %.o,%.s,${OBJECTS}) \
+		$(CLEAN_FILES)
 
 clean: clean-common
-
-all:
-	$(MAKE) -C $(TOPDIR) all
-
 
 $(TOPDIR)/pinning.c:
 	$(MAKE) -C $(TOPDIR) pinning.c
@@ -34,3 +36,5 @@ $(TOPDIR)/control6/control6.h:
 	$(MAKE) -C $(TOPDIR)/control6 control6.h
 
 include $(TOPDIR)/depend.mk
+include $(TOPDIR)/defaults.mk
+endif

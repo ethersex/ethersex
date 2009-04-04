@@ -1,9 +1,8 @@
-TARGET = libps2.a
-TOPDIR = ..
-SRC = \
-	ps2.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(PS2_SUPPORT)_SRC += ps2/ps2.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

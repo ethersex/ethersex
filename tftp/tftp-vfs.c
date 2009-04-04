@@ -31,8 +31,6 @@
 #include "tftp.h"
 #include "tftp_net.h"
 
-#ifdef VFS_SUPPORT
-
 /*
  * raw access to the packet buffer ...
  */
@@ -181,5 +179,3 @@ tftp_handle_packet(void)
     }
 }
 
-
-#endif /* VFS_SUPPORT */

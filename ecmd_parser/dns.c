@@ -35,8 +35,6 @@
 #include "../eeprom.h"
 #include "ecmd.h"
 
-#ifdef DNS_SUPPORT
-
 #ifndef TEENSY_SUPPORT
 extern int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len);
 extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
@@ -82,5 +80,3 @@ int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
     return snprintf_P (output, len, PSTR ("nslookup triggered, try again for result."));
   }
 }
-
-#endif /* DNS_SUPPORT */

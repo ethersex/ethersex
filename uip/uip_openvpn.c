@@ -22,8 +22,6 @@
 
 #include "../config.h"
 
-#ifdef OPENVPN_SUPPORT
-
 #include "../bit-macros.h"
 
 #include "uip_openvpn.h"
@@ -326,5 +324,3 @@ openvpn_init (void)
   openvpn_conn->appstate.openvpn.seen_seqno = 0;
   openvpn_conn->appstate.openvpn.seen_timestamp = 0;
 }
-
-#endif	/* OPENVPN_SUPPORT */

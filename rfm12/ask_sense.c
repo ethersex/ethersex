@@ -57,8 +57,6 @@
   of the noise-phase (LAST_NOISE_TX - LAST_TX_TS).
 */
 
-#ifdef RFM12_ASK_SENSING_SUPPORT
-
 #define PRESCALER 256
 #define NS_PER_TICK     (PRESCALER * 1000000UL / F_CPU * 1000)
 #define US_TO_TICKS(n)  ((n) * 1000UL / NS_PER_TICK)
@@ -252,5 +250,3 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
   last_noise_ts = ts;
   last_tx_ts = ts;
 }
-
-#endif	/* RFM12_ASK_SENSING_SUPPORT */

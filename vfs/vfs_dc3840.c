@@ -26,8 +26,6 @@
 #include "vfs.h"
 #include "../camera/dc3840.h"
 
-#ifdef VFS_DC3840_SUPPORT
-
 struct vfs_file_handle_t *
 vfs_dc3840_open (const char *filename)
 {
@@ -69,5 +67,3 @@ vfs_dc3840_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
   fh->u.dc3840.pos += length;
   return length;
 }
-
-#endif	/* VFS_DC3840_SUPPORT */

@@ -30,8 +30,6 @@
 #include "../i2c_master/i2c_24CXX.h"
 #include "vfs.h"
 
-#ifdef VFS_EEPROM_SUPPORT
-
 #ifdef VFS_EEPROM_DEBUG_SUPPORT
 #define vfs_eeprom_debug(a...)  debug_printf("vfs_eeprom: " a)
 #else
@@ -417,7 +415,4 @@ vfs_eeprom_write(struct vfs_file_handle_t *handle, void *data, vfs_size_t len)
 
   return written_len;
 }
-
-#endif /* VFS_EEPROM_SUPPORT */
-
 

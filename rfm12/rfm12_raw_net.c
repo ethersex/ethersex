@@ -25,8 +25,6 @@
 #include "../rfm12/rfm12.h"
 #include "rfm12_raw_net.h"
 
-#ifdef RFM12_RAW_SUPPORT
-
 uip_udp_conn_t *rfm12_raw_conn;
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
@@ -71,5 +69,3 @@ rfm12_raw_net_main(void)
   uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
   uip_udp_conn->rport = 0;
 }
-
-#endif /* RFM12_RAW_SUPPORT */

@@ -28,8 +28,6 @@
 
 #include <string.h>
 
-#ifdef ECMD_SENDER_SUPPORT
-
 /* module local prototypes */
 
 uip_conn_t *
@@ -76,5 +74,3 @@ void ecmd_sender_net_main(void)
     uip_udp_send(strlen((char *) uip_appdata));
   }
 }
-#endif /* ECMD_SENDER_SUPPORT */
-

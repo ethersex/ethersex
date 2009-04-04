@@ -1,14 +1,11 @@
-TARGET = libcrypto.a
-TOPDIR = ..
-SRC = \
-	cast5.c \
-	md5.c \
-	encrypt-llh.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
 
-ASRC = \
-	sha1-asm.S
+$(CAST5_SUPPORT)_SRC += crypto/cast5.c
+$(MD5_SUPPORT)_SRC += crypto/md5.c
+
+$(SHA1_SUPPORT)_ASRC += crypto/sha1-asm.S
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

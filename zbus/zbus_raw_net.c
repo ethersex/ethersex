@@ -26,8 +26,6 @@
 #include "../zbus/zbus.h"
 #include "zbus_raw_net.h"
 
-#ifdef ZBUS_RAW_SUPPORT
-
 uip_udp_conn_t *zbus_raw_conn;
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
@@ -72,4 +70,3 @@ zbus_raw_net_main(void)
   uip_udp_conn->rport = 0;
 }
 
-#endif /* ZBUS_RAW_SUPPORT */

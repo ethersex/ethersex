@@ -36,7 +36,7 @@
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
 #include "cron/cron.h"
-#include "cron_static/cron_static.h"
+#include "cron/cron_static.h"
 #include "usb/usb.h"
 #include "ipv6.h"
 #include "ps2/ps2.h"

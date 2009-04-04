@@ -21,8 +21,6 @@
 #include "../config.h"
 #include "httpd.h"
 
-#ifdef VFS_SUPPORT
-
 static void
 httpd_handle_vfs_send_header (void)
 {
@@ -104,5 +102,3 @@ httpd_handle_vfs (void)
     else
 	httpd_handle_vfs_send_body ();
 }
-
-#endif  /* VFS_SUPPORT */

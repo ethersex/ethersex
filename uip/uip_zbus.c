@@ -22,7 +22,7 @@
 #include "uip.h"
 #include "uip_zbus.h"
 
-#if defined(ZBUS_SUPPORT) && UIP_MULTI_STACK
+#if UIP_MULTI_STACK
 
 STACK_DEFINITIONS(zbus_stack);
 
@@ -42,4 +42,4 @@ zbus_stack_init (void)
 #endif
 }
 
-#endif /* ZBUS_SUPPORT && UIP_MULTI_STACK */
+#endif /* UIP_MULTI_STACK */

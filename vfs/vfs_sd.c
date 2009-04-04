@@ -23,8 +23,6 @@
 
 #include "vfs.h"
 
-#ifdef VFS_SD_SUPPORT
-
 struct vfs_file_handle_t *
 vfs_sd_open (const char *filename)
 {
@@ -100,5 +98,3 @@ vfs_sd_size (struct vfs_file_handle_t *fh)
 {
   return fh->u.sd->dir_entry.file_size;
 }
-
-#endif	/* VFS_SD_SUPPORT */

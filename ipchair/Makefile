@@ -1,26 +1,22 @@
-TARGET = libipchair.a
-TOPDIR = ..
-SRC = \
-	ipchair.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
 
+$(IPCHAIR_SUPPORT)_SRC += ipchair/ipchair.c
 
 ##############################################################################
 # generic fluff
-
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
-M4SRCS := ipchair.m4 rewrite.m4
+IPCM4SRCS := ipchair/ipchair.m4 ipchair/rewrite.m4
 
 ifeq ($(IPCHAIR_MASQ),y)
-M4SRCS += masquerade.m4
+IPCM4SRCS += ipchair/masquerade.m4
 endif
 
-M4SRCS += userscript.m4
+IPCM4SRCS += ipchair/userscript.m4
 
-ipchair.c: $(M4SRCS)
-	m4 $^ > $@
+ipchair.c: $(IPCM4SRCS)
+	$(M4) $^ > $@
 
-clean: clean-common
-	rm -f ipchair.c
+CLEAN_FILES += ipchair/ipchair.c
 

@@ -1,18 +1,16 @@
-TARGET = libmdns_sd.a
-TOPDIR = ..
-SRC = \
-	mdns_sd.c \
-	mdns_sd_net.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(MDNS_SD_SUPPORT)_SRC = mdns_sd/mdns_sd.c \
+	mdns_sd/mdns_sd_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
 
-mdns_sd.c: mdns_services.c
-mdns_services.c: mdns_services.m4
-	m4 $< > $@
+mdns_sd/mdns_sd.c: mdns_sd/mdns_services.c
+mdns_sd/mdns_services.c: mdns_sd/mdns_services.m4
+	$(M4) $< > $@
 
 # extend normal clean rule
-clean: clean-common
-	$(RM) mdns_services.c
+CLEAN_FILES += mdns_sd/mdns_services.c

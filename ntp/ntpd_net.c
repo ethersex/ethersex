@@ -29,8 +29,6 @@
 #include "../config.h"
 #include "ntpd_net.h"
 
-#ifdef NTPD_SUPPORT
-
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void 
@@ -92,5 +90,3 @@ ntpd_net_main(void)
     uip_slen = 0;
   }
 }
-
-#endif

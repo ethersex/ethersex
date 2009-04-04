@@ -1,15 +1,14 @@
-TARGET = libnet.a
-TOPDIR = ..
-SRC = \
-	ecmd_net.c \
-	uecmd_net.c \
-	ecmd_sender_net.c \
-	uecmd_sender_net.c \
-	handler.c \
-	sendmail.c \
-	udp_echo_net.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(ECMD_SUPPORT)_SRC += net/ecmd_net.c
+$(UECMD_SUPPORT)_SRC += net/uecmd_net.c
+$(ECMD_SENDER_SUPPORT)_SRC += net/ecmd_sender_net.c
+$(UECMD_SENDER_SUPPORT)_SRC += net/uecmd_sender_net.c
+$(UIP_SUPPORT)_SRC += net/handler.c
+$(SENDMAIL_SUPPORT)_SRC += net/sendmail.c
+$(UDP_ECHO_NET_SUPPORT)_SRC += net/udp_echo_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

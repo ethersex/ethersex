@@ -1,11 +1,9 @@
-TARGET = libntp.a
-TOPDIR = ..
-SRC = \
-	ntp.c \
-	ntpd_net.c \
-	ntp_net.c
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(NTP_SUPPORT)_SRC += ntp/ntp.c ntp/ntp_net.c
+$(NTPD_SUPPORT)_SRC += ntp/ntpd_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk

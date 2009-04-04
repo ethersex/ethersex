@@ -24,8 +24,6 @@
 #include "../config.h"
 #include "../debug.h"
 
-#ifdef CRON_SUPPORT_TEST
-
 void test(void* data)
 {
 	#ifdef SYSLOG_SUPPORT
@@ -44,4 +42,3 @@ addcrontest()
 	cron_jobadd(test, 'T', -2, -1, -1, -1, -1, INFINIT_RUNNING, NULL); /* when minute % 2 == 0 */
 }
 
-#endif

@@ -33,7 +33,6 @@
 #include "ecmd.h"
 
 
-#ifdef CLOCK_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 {
   return snprintf_P(output, len, PSTR("%lu"), clock_get_time()); 
@@ -50,6 +49,7 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
                     weekdays + date.dow * 4);
 
 }
+
 #ifdef WHM_SUPPORT
 int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
 {
@@ -57,5 +57,3 @@ int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
   return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60); 
 }
 #endif /* WHM_SUPPORT */
-#endif 
-

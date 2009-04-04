@@ -31,8 +31,6 @@
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
-#ifdef UECMD_SUPPORT
-
 void uecmd_net_init() {
   /* If teensy support is enabled we use udp */
   uip_ipaddr_t ip;
@@ -90,4 +88,3 @@ void uecmd_net_main() {
     uip_slen = 0;
   }
 }
-#endif

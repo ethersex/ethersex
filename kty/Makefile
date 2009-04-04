@@ -1,9 +1,8 @@
-TARGET = libkty.a
-TOPDIR = ..
-SRC = \
-	kty81.c \
+TOPDIR ?= ..
+include $(TOPDIR)/.config
+
+$(KTY_SUPPORT)_SRC += kty/kty81.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/defaults.mk
 include $(TOPDIR)/rules.mk
