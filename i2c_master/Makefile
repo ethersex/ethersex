@@ -1,7 +1,7 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
-$(I2C_MASTER_SUPPORT)_SRC = \
+$(I2C_MASTER_SUPPORT)_SRC += \
 	i2c_master/i2c_master.c \
 	i2c_master/i2c_24CXX.c \
 	i2c_master/i2c_pca9531.c \
