@@ -24,10 +24,11 @@ SRC = \
 	sd.c		\
 	i2c.c		\
 	pwm.c		\
-	syslog.c		\
 	control6.c	\
 	aliascmd.c	\
 	scripting.c
+
+# syslog.c disabled due to license issues.
 
 ##############################################################################
 # generic fluff
