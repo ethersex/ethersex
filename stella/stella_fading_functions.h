@@ -22,9 +22,9 @@ static void
 stella_fade_normal (int i)
 {
 	if (stella_brightness[i] > stella_fade[i])
-		stella_setValueFade(i, stella_brightness[i]-1);
+		stella_brightness[i]--;
 	else /* stella_color[i] < stella_fade[i] */
-		stella_setValueFade(i, stella_brightness[i]+1);
+		stella_brightness[i]++;
 }
 
 
@@ -38,7 +38,7 @@ stella_fade_flashy (int i)
 	if (current > target) target <<= 1;
 	if (current < target) current = target;
 
-	stella_setValueFade(i, current);
+	stella_brightness[i] = current;
 }
 
 

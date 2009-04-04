@@ -43,17 +43,31 @@ static const uint8_t stella_gamma[] PROGMEM =
 };
 #endif
 
+
+#include "stella_fading_functions.h"
+#if STELLA_FADE_FUNCTION_INIT == stella_fade_func_0
+#undef STELLA_FADE_FUNCTION_INIT
+#define STELLA_FADE_FUNCTION_INIT 0
+#else
+#undef STELLA_FADE_FUNCTION_INIT
+#define STELLA_FADE_FUNCTION_INIT 1
+#endif
+
 uint8_t stella_brightness[STELLA_PINS];
 uint8_t stella_fade[STELLA_PINS];
-#include "stella_fading_functions.h"
 
-uint8_t stella_fade_func = 0;
-uint8_t stella_fade_step = 10;
+uint8_t stella_fade_func = STELLA_FADE_FUNCTION_INIT;
+uint8_t stella_fade_step = STELLA_FADE_STEP_INIT;
 volatile uint8_t stella_fade_counter = 0;
 volatile enum stella_update_sync stella_sync;
 uint8_t stella_portmask_neg;
+#ifdef STELLA_MOODLIGHT
+uint8_t stella_moodlight_threshold = STELLA_MOODLIGHT_THRESHOLD_INIT;
 uint8_t stella_moodlight_mask = 0;
 uint8_t stella_moodlight_counter = 0;
+#endif
+
+void stella_sort(void);
 
 #ifdef DEBUG_STELLA
 char *binary (uint8_t v) {
@@ -106,6 +120,7 @@ stella_init (void)
 
 	#if STELLA_START == stella_start_moodlight
 	stella_moodlight_mask = 0xff;
+	stella_moodlight_counter = STELLA_MOODLIGHT_THRESHOLD;
 	#endif
 	#if STELLA_START == stella_start_eeprom
 	stella_loadFromEEROMFading();
@@ -113,6 +128,8 @@ stella_init (void)
 	#if STELLA_START == stella_start_all
 	memset(stella_fade, 1, sizeof(stella_fade));
 	#endif
+
+	stella_sort();
 }
 
 #ifdef CRON_SUPPORT
@@ -120,7 +137,7 @@ stella_init (void)
 void stella_cron_callback(void* data)
 {
 	// data is of 2 byte size
-	stella_setValueFade( ((char*)data)[0], ((char*)data)[1]);
+	stella_fade[ ((char*)data)[0] ] = ((char*)data)[1];
 }
 #endif
 
@@ -134,7 +151,7 @@ stella_process (void)
 		uint8_t i;
 		/* mood light functionality */
 		#ifdef STELLA_MOODLIGHT
-		if (stella_moodlight_counter == 120)
+		if (stella_moodlight_mask && stella_moodlight_counter == stella_moodlight_threshold)
 			for (i = 0; i < STELLA_PINS; ++i)
 			{
 				if (stella_moodlight_mask & _BV(i))
@@ -143,14 +160,18 @@ stella_process (void)
 		--stella_moodlight_counter;
 		#endif
 
-		/* Fade channels */
+		/* Check, if we need to resort. Fade channels */
 		for (i = 0; i < STELLA_PINS; ++i)
 		{
 			if (stella_brightness[i] == stella_fade[i])
 				continue;
 
 			stella_fade_funcs[stella_fade_func].p (i);
+
+			stella_fade_counter = 1;
 		}
+
+		if (stella_fade_counter) stella_sync = UPDATE_VALUES;
 
 		/* reset counter */
 		stella_fade_counter = stella_fade_step;
@@ -167,29 +188,6 @@ inline uint8_t
 stella_getValue(const uint8_t channel)
 {
 	return stella_brightness[channel];
-}
-
-/* Set the value for the channel. We set the update flag here
-* and will do for every further change. As long as the flag
-* is set, the pwm interrupt is not allowed to take over the
-* sorted/calculated values. (We are already going to calculate
-* new ones.) */
-void
-stella_setValue(const uint8_t channel, const uint8_t value)
-{
-	stella_brightness[channel] = value;
-	stella_fade[channel] = value;
-	stella_sync = UPDATE_VALUES;
-}
-
-/* Will fade to the value, because stella_fade differs
-* from stella_brightness. Anything else from above applies
-* to this function, too. */
-void
-stella_setValueFade(const uint8_t channel, const uint8_t value)
-{
-	stella_brightness[channel] = value;
-	stella_sync = UPDATE_VALUES;
 }
 
 void
@@ -221,7 +219,7 @@ stella_storeToEEROM()
  * and point in time.
  * Implementation details:
  * Uses a "linked list" to avoid expensive memory copies. Main difference
- * is, that all elements are already in ram and not allocated on demand.
+ * is, that all elements are already in ram and are not allocated on demand.
  * The function directly write to a "just calculated"-structure and if we
  * want new values in the pwm interrupt, we just have to swap pointers from
  * the "interrupt save"-structure to the "just calculated"-structure.
@@ -230,7 +228,7 @@ stella_storeToEEROM()
  * as a start, tagged as "on" via the portmask. Channels with the same
  * brightness levels are merged together (their portmask et least).
  * */
-void
+inline void
 stella_sort()
 {
 	struct stella_timetable_entry* current, *last;
@@ -241,20 +239,7 @@ stella_sort()
 
 	for (i=0;i<STELLA_PINS;++i)
 	{
-		/* Sepcial cases: 0% brightness */
-		if (stella_brightness[i] == 0) continue;
-
-		//cal_table->portmask |= _BV(i+STELLA_OFFSET);
-
-		if (stella_brightness[i] == 255)
-		{
-			cal_table->portmask |= _BV(i+STELLA_OFFSET);
-			continue;
-		}
-
 		/* set current item */
-		//cal_table->channel[i].portmask = (uint8_t)~_BV(i+STELLA_OFFSET);
-		//cal_table->channel[i].value = stella_brightness[i];
 		cal_table->channel[i].portmask = _BV(i+STELLA_OFFSET);
 		cal_table->channel[i].value = 255 - stella_brightness[i];
 		cal_table->channel[i].next = 0;
@@ -265,6 +250,17 @@ stella_sort()
 			cal_table->channel[i].gamma_wait_cycles = 0;
 		cal_table->channel[i].gamma_wait_counter = cal_table->channel[i].gamma_wait_cycles;
 		#endif
+
+		/* Sepcial cases: 0% brightness */
+		if (stella_brightness[i] == 0) continue;
+
+		//cal_table->portmask |= _BV(i+STELLA_OFFSET);
+
+		if (stella_brightness[i] == 255)
+		{
+			cal_table->portmask |= _BV(i+STELLA_OFFSET);
+			continue;
+		}
 
 		/* first item in linked list */
 		if (!cal_table->head)
@@ -323,7 +319,7 @@ stella_sort()
 		debug_printf("%u %s\n", current->value, binary(current->portmask));
 		current = current->next;
 	}
-	debug_printf("%s\n", binary(stella_portmask_neg));
+	debug_printf("%s %u\n", binary(stella_portmask_neg), stella_portmask_neg);
 	#endif
 
 	/* Allow the interrupt to actually apply the calculated values */

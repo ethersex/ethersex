@@ -18,8 +18,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#define STELLA_FLAG_SORT 1
-#define STELLA_FLAG_ACK 2
 #define STELLA_PROTOCOL_VERSION 3
 
 #include "../config.h"
@@ -73,7 +71,8 @@ enum stella_commands
   STELLA_GET_CRONJOBS,
   STELLA_RM_CRONJOB,
   STELLA_ADD_CRONJOB,
-  STELLA_MOODLIGHT_MASK
+  STELLA_MOODLIGHT_MASK,
+  STELLA_MOODLIGHT_THRESHOLD
 };
 
 enum
@@ -118,18 +117,19 @@ extern volatile uint8_t stella_fade_counter;
 extern uint8_t stella_portmask_neg;
 extern uint8_t stella_fade_step;
 extern uint8_t stella_fade_func;
-extern uint8_t stella_brightness[STELLA_PINS];
+
 extern uint8_t stella_moodlight_mask;
+extern uint8_t stella_moodlight_threshold;
 extern uint8_t stella_moodlight_counter;
+
+extern uint8_t stella_brightness[STELLA_PINS];
+extern uint8_t stella_fade[STELLA_PINS];
 
 /* stella.c */
 void stella_cron_callback(void* data);
 void stella_init(void);
 void stella_process(void);
-void stella_sort(void);
 
-void stella_setValue(const uint8_t channel, const uint8_t value);
-void stella_setValueFade(const uint8_t channel, const uint8_t value);
 uint8_t stella_getValue(const uint8_t channel);
 
 void stella_loadFromEEROM(void);

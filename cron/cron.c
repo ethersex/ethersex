@@ -150,7 +150,10 @@ cron_getjob(uint8_t jobposition)
 		job = job->next;
 	}
 
-	return job;
+	if (jobposition)
+		return 0;
+	else
+		return job;
 }
 
 void

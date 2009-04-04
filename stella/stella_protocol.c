@@ -39,7 +39,7 @@ stella_protocol_parse(char* buf, uint8_t len)
 	uint8_t count;
 	struct stella_cron_event_struct *jobstruct;
 
-	while (len > 1) switch (*buf)
+	while (len) switch (*buf)
 	{
 		case STELLA_SET_COLOR_0:
 		case STELLA_SET_COLOR_1:
@@ -49,7 +49,13 @@ stella_protocol_parse(char* buf, uint8_t len)
 		case STELLA_SET_COLOR_5:
 		case STELLA_SET_COLOR_6:
 		case STELLA_SET_COLOR_7:
-			stella_setValue(buf[0], buf[1]);
+			count = (uint8_t)buf[0];
+			if (count < STELLA_PINS)
+			{
+				stella_brightness[ count ] = (uint8_t)buf[1];
+				stella_fade[ count ] = (uint8_t)buf[1];
+				stella_sync = UPDATE_VALUES;
+			}
 			len -= 2; buf += 2;
 			break;
 		case STELLA_FADE_COLOR_0:
@@ -60,7 +66,9 @@ stella_protocol_parse(char* buf, uint8_t len)
 		case STELLA_FADE_COLOR_5:
 		case STELLA_FADE_COLOR_6:
 		case STELLA_FADE_COLOR_7:
-			stella_setValueFade(buf[0] & 0x07, buf[1]);
+			count = (uint8_t)buf[0] & 0x07;
+			if (count < STELLA_PINS)
+				stella_fade[count] = (uint8_t)buf[1];
 			len -= 2; buf += 2;
 			break;
 		case STELLA_FLASH_COLOR_0:
@@ -71,8 +79,13 @@ stella_protocol_parse(char* buf, uint8_t len)
 		case STELLA_FLASH_COLOR_5:
 		case STELLA_FLASH_COLOR_6:
 		case STELLA_FLASH_COLOR_7:
-			stella_setValue(buf[0] & 0x07, buf[1]);
-			stella_setValueFade(buf[0] & 0x07, 0);
+			count = (uint8_t)buf[0] & 0x07;
+			if (count < STELLA_PINS)
+			{
+				stella_brightness[ count ] = (uint8_t)buf[1];
+				stella_fade[ count ] = 0;
+				stella_sync = UPDATE_VALUES;
+			}
 			len -= 2; buf += 2;
 			break;
 		case STELLA_SELECT_FADE_FUNC:
@@ -84,11 +97,17 @@ stella_protocol_parse(char* buf, uint8_t len)
 			stella_fade_step = buf[1];
 			len -= 2; buf += 2;
 			break;
+		#ifdef STELLA_MOODLIGHT
 		case STELLA_MOODLIGHT_MASK:
 			stella_moodlight_mask = buf[1];
 			len -= 2; buf += 2;
 			break;
-			#ifdef STELLA_RESPONSE
+		case STELLA_MOODLIGHT_THRESHOLD:
+			stella_moodlight_threshold = buf[1];
+			len -= 2; buf += 2;
+			break;
+		#endif
+		#ifdef STELLA_RESPONSE
 		case STELLA_UNICAST_GETVALUES:
 			stella_net_wb_getvalues(STELLA_UNICAST_GETVALUES);
 			stella_net_unicast(STELLA_HEADER+sizeof(struct stella_response_detailed_struct));
@@ -177,10 +196,9 @@ stella_protocol_parse(char* buf, uint8_t len)
 		#endif //STELLA_RESPONSE
 		case STELLA_RM_CRONJOB:
 			// get cronjob data
-			job = cron_getjob(buf[1]);
-			if (!job) continue;
-			// remove it
-			cron_jobrm(job);
+			job = cron_getjob((uint8_t)buf[1]);
+			if (job) // remove it
+				cron_jobrm(job);
 			len -= 2; buf += 2;
 			break;
 		case STELLA_ADD_CRONJOB:
