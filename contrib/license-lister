@@ -1,16 +1,45 @@
 #! /bin/sh
+#
+# Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# For more information on the GPL, please go to:
+# http://www.gnu.org/copyleft/gpl.html
+#
 tmp=$(mktemp)
 
-for f in $(find . -type f -name "*.[ch]"); do
+if [ $# -gt 0 ]; then
+  files="$*"
+else
+  files="`find . -type f -name "*.[ch]"`"
+fi
+
+for f in $files; do
   head -n 50 "$f" | tr -d '\n' | sed -e 's/[^A-Za-z0-9 ]//g' |
     sed -e 's/  / /g' > "$tmp"
 
   license="unknown"
 
-  if grep -qe 'GNU General Public License' "$tmp"; then
-    if grep -qe 'version 2' "$tmp"; then
-      if grep -qe 'any later version' "$tmp"; then
+  #cat "$tmp"
+  if grep -qe 'GNU General Public License' -e 'GNU GPL' "$tmp"; then
+    if grep -qe '[Vv]ersion 2' -e 'GPL v2' "$tmp"; then
+      if grep -qe 'any later version' -e 'jeder späteren Version' "$tmp"; then
 	license="GPLv2+"
+      elif grep -qe 'GPL v3' "$tmp"; then
+	license="GPLv2 or GPLv3"
       else
       	license="GPLv2 (only)"
       fi
@@ -19,6 +48,8 @@ for f in $(find . -type f -name "*.[ch]"); do
     fi
   elif grep -qe 'Redistribution and use in source and binary forms with or without modification are permitted provided' "$tmp"; then
     license="BSD"
+  elif grep -qe 'without restriction including without limitation the rights to use copy modify merge' "$tmp"; then
+    license="MIT"
   fi
 
   echo "$f: $license"
