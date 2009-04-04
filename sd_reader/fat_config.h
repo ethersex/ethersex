@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2008 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -13,6 +13,11 @@
 
 #include <stdint.h>
 #include "sd_raw_config.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /**
  * \addtogroup fat
@@ -95,6 +100,10 @@ void get_datetime(uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, u
     typedef uint32_t cluster_t;
 #else
     typedef uint16_t cluster_t;
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

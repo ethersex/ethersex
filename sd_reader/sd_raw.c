@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2008 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -450,14 +450,14 @@ uint8_t sd_raw_send_command(uint8_t command, uint32_t arg)
  */
 uint8_t sd_raw_read(offset_t offset, uint8_t* buffer, uintptr_t length)
 {
-    uint32_t block_address;
+    offset_t block_address;
     uint16_t block_offset;
     uint16_t read_length;
     while(length > 0)
     {
         /* determine byte count to read at once */
-        block_address = offset / 512;
         block_offset = offset & 0x01ff;
+        block_address = offset - block_offset;
         read_length = 512 - block_offset; /* read up to block border */
         if(read_length > length)
             read_length = length;
@@ -477,9 +477,9 @@ uint8_t sd_raw_read(offset_t offset, uint8_t* buffer, uintptr_t length)
 
             /* send single block request */
 #if SD_RAW_SDHC
-            if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, ((sd_raw_card_type & SD_RAW_SPEC_SDHC) ? block_address : block_address * 512)))
+            if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, (sd_raw_card_type & (1 << SD_RAW_SPEC_SDHC) ? block_address / 512 : block_address)))
 #else
-            if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, block_address * 512))
+            if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, block_address))
 #endif
             {
                 unselect_card();
@@ -595,9 +595,9 @@ uint8_t sd_raw_read_interval(offset_t offset, uint8_t* buffer, uintptr_t interva
         
         /* send single block request */
 #if SD_RAW_SDHC
-        if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, ((sd_raw_card_type & SD_RAW_SPEC_SDHC) ? (uint32_t) offset & 0xfffffe00 : offset / 512)))
+        if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, (sd_raw_card_type & (1 << SD_RAW_SPEC_SDHC) ? offset / 512 : offset - block_offset)))
 #else
-        if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, offset & 0xfffffe00))
+        if(sd_raw_send_command(CMD_READ_SINGLE_BLOCK, offset - block_offset))
 #endif
         {
             unselect_card();
@@ -643,7 +643,7 @@ uint8_t sd_raw_read_interval(offset_t offset, uint8_t* buffer, uintptr_t interva
         if(length < interval)
             break;
 
-        offset = (offset & 0xfffffe00) + 512;
+        offset = offset - block_offset + 512;
 
     } while(!finished);
     
@@ -674,7 +674,7 @@ uint8_t sd_raw_read_interval(offset_t offset, uint8_t* buffer, uintptr_t interva
  */
 uint8_t sd_raw_write(offset_t offset, const uint8_t* buffer, uintptr_t length)
 {
-    if(get_pin_locked())
+    if(sd_raw_locked())
         return 0;
 
     offset_t block_address;

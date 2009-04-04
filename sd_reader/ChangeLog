@@ -1,20 +1,30 @@
 
+2009-03-30 sd-reader
+	* Make 8.3 basename and/or extension lowercase when told by Windows NT and later.
+	* Add ATmega328 pin configuration.
+	* Fix MMC/SD/SDHC distinction.
+	* Fix raw block read/write buffering (thanks to Kurt Sterckx).
+	* Fix fat size calculation for FAT16 when configured with FAT32.
+	* Fix compilation for read-only configurations.
+	* Fix card lock detection.
+	* Make it easier to link with a C++ application.
+
 2008-11-21 sd-reader
-	* support for SDHC cards (disabled by default)
-	* support for FAT32 (disabled by default)
+	* Support for SDHC cards (disabled by default).
+	* Support for FAT32 (disabled by default).
 
 2008-06-08 sd-reader
-	* new "init" command to allow reinitialization of memory card
-	* fix searching through multi-cluster directories
-	* fix reading directory entries spanning a cluster border (backport from mega-eth)
-	* do not abort the whole lfn entry when the file name is too long, just drop single characters (backport from mega-eth)
-	* change fat16_get_dir_entry_of_path() to ignore a slash at the end (backport from mega-eth)
-	* make listing a directory's content much faster (backport from mega-eth)
-	* shrink code size by centralizing cluster offset calculation (backport from mega-eth)
-	* some other small fixes and optimizations
+	* New "init" command to allow reinitialization of memory card.
+	* Fix searching through multi-cluster directories.
+	* Fix reading directory entries spanning a cluster border (backport from mega-eth).
+	* Do not abort the whole lfn entry when the file name is too long, just drop single characters (backport from mega-eth).
+	* Change fat16_get_dir_entry_of_path() to ignore a slash at the end (backport from mega-eth).
+	* Make listing a directory's content much faster (backport from mega-eth).
+	* Shrink code size by centralizing cluster offset calculation (backport from mega-eth).
+	* Some other small fixes and optimizations.
 
 2007-12-13 sd-reader
-	* dual-license the major implementation modules under GPL and LGPL
+	* Dual-license the major implementation modules under GPL and LGPL.
 
 2007-06-03 sd-reader
 	* Fix reading beyond cached block (by Benjamin Meier).
@@ -29,9 +39,9 @@
 	* Fix fat16_clear_cluster() which was zeroing only 16 of every 32 bytes.
 
 2007-01-20 sd-reader
-	* fix directory creation
-	  - correctly create "." and ".." directory entries (8.3 <-> lfn versions)
-	  - correctly clear cluster containing the directory entries for new directory
+	* Fix directory creation.
+	  - Correctly create "." and ".." directory entries (8.3 <-> lfn versions).
+	  - Correctly clear cluster containing the directory entries for new directory.
 
 2006-11-01 sd-reader
 	* Implement creation and deletion of directories.

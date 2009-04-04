@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2008 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -13,6 +13,11 @@
 
 #include <stdint.h>
 #include "sd_raw_config.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /**
  * \addtogroup sd_raw
@@ -136,6 +141,10 @@ uint8_t sd_reader_init (void);
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

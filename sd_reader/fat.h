@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2008 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -13,6 +13,11 @@
 
 #include <stdint.h>
 #include "fat_config.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /**
  * \addtogroup fat
@@ -128,6 +133,10 @@ struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_di
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

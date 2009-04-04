@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2008 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,10 +19,10 @@
 #define DEBUG 1
 
 /**
- * \mainpage MMC/SD card example application
+ * \mainpage MMC/SD/SDHC card library
  *
- * This project is a small test application which implements read and write
- * support for MMC, SD and SDHC cards.
+ * This project provides a general purpose library which implements read and write
+ * support for MMC, SD and SDHC memory cards.
  *
  * It includes
  * - low-level \link sd_raw MMC, SD and SDHC read/write routines \endlink
@@ -30,7 +30,19 @@
  * - a simple \link fat FAT16/FAT32 read/write implementation \endlink
  *
  * \section circuit The circuit
- * The curcuit board is a self-made and self-soldered board consisting of a single
+ * The circuit which was mainly used during development consists of an Atmel AVR
+ * microcontroller with some passive components. It is quite simple and provides
+ * an easy test environment. The circuit which can be downloaded on the
+ * <a href="http://www.roland-riegel.de/sd-reader/">project homepage</a> has been
+ * improved with regard to operation stability.
+ *
+ * I used different microcontrollers during development, the ATmega8 with 8kBytes
+ * of flash, and its pin-compatible alternative, the ATmega168 with 16kBytes flash.
+ * The first one is the one I started with, but when I implemented FAT16 write
+ * support, I ran out of flash space and switched to the ATmega168. For FAT32, an
+ * ATmega328 is required.
+ * 
+ * The circuit board is a self-made and self-soldered board consisting of a single
  * copper layer and standard DIL components, except of the MMC/SD card connector.
  *
  * The connector is soldered to the bottom side of the board. It has a simple
@@ -38,24 +50,20 @@
  * itself. As an additional feature the connector has two electrical switches
  * to detect wether a card is inserted and wether this card is write-protected.
  * 
- * I used two microcontrollers during development, the Atmel ATmega8 with 8kBytes
- * of flash, and its pin-compatible alternative, the ATmega168 with 16kBytes flash.
- * The first one is the one I started with, but when I implemented FAT16 write
- * support, I ran out of flash space and switched to the ATmega168. For FAT32, an
- * ATmega328 is required.
- * 
  * \section pictures Pictures
  * \image html pic01.jpg "The circuit board used to implement and test this application."
  * \image html pic02.jpg "The MMC/SD card connector on the soldering side of the circuit board."
  *
  * \section software The software
- * The software is written in pure standard ANSI-C. Sure, it might not be the
- * smallest or the fastest one, but I think it is quite flexible.
+ * The software is written in pure standard ANSI-C. It might not be the smallest or
+ * the fastest one, but I think it is quite flexible. See the project's
+ * <a href="http://www.roland-riegel.de/sd-reader/benchmarks/">benchmark page</a> to get an
+ * idea of the possible data rates.
  *
- * I implemented a simple command prompt which is accessible via the UART at 9600 Baud. With
- * commands similiar to the Unix shell you can browse different directories, read and write
- * files, create new ones and delete them again. Not all commands are available in all
- * software configurations.
+ * I implemented an example application providing a simple command prompt which is accessible
+ * via the UART at 9600 Baud. With commands similiar to the Unix shell you can browse different
+ * directories, read and write files, create new ones and delete them again. Not all commands are
+ * available in all software configurations.
  * - <tt>cat \<file\></tt>\n
  *   Writes a hexdump of \<file\> to the terminal.
  * - <tt>cd \<directory\></tt>\n
@@ -80,7 +88,8 @@
  *
  * \htmlonly
  * <p>
- * The following table shows some typical code sizes in bytes, using the 20061101 release with malloc()/free():
+ * The following table shows some typical code sizes in bytes, using the 20090330 release with a
+ * buffered read-write MMC/SD configuration, FAT16 and static memory allocation:
  * </p>
  *
  * <table border="1" cellpadding="2">
@@ -90,47 +99,37 @@
  *         <th>static RAM usage</th>
  *     </tr>
  *     <tr>
- *         <td>MMC/SD (read-only)</td>
- *         <td align="right">1576</td>
- *         <td align="right">0</td>
- *     </tr>
- *     <tr>
- *         <td>MMC/SD (read-write)</td>
- *         <td align="right">2202</td>
- *         <td align="right">517</td>
+ *         <td>MMC/SD</td>
+ *         <td align="right">2410</td>
+ *         <td align="right">518</td>
  *     </tr>
  *     <tr>
  *         <td>Partition</td>
- *         <td align="right">418</td>
- *         <td align="right">0</td>
+ *         <td align="right">456</td>
+ *         <td align="right">17</td>
  *     </tr>
  *     <tr>
- *         <td>FAT16 (read-only)</td>
- *         <td align="right">3834</td>
- *         <td align="right">0</td>
- *     </tr>
- *     <tr>
- *         <td>FAT16 (read-write)</td>
- *         <td align="right">7932</td>
- *         <td align="right">0</td>
+ *         <td>FAT16</td>
+ *         <td align="right">7928</td>
+ *         <td align="right">188</td>
  *     </tr>
  * </table>
  *
  * <p>
- * The static RAM in the read-write case is used for buffering memory card
- * access. Without this buffer, implementation would have been much more complicated.
+ * The static RAM is mostly used for buffering memory card access, which
+ * improves performance and reduces implementation complexity.
  * </p>
  * 
  * <p>
  * Please note that the numbers above do not include the C library functions
- * used, e.g. malloc()/free() and some string functions. These will raise the
- * numbers somewhat if they are not already used in other program parts.
+ * used, e.g. some string functions. These will raise the numbers somewhat
+ * if they are not already used in other program parts.
  * </p>
  * 
  * <p>
  * When opening a partition, filesystem, file or directory, a little amount
- * of dynamic RAM is used, as listed in the following table. Alternatively,
- * the same amount of static RAM can be used.
+ * of RAM is used, as listed in the following table. Depending on the library
+ * configuration, the memory is either allocated statically or dynamically.
  * </p>
  *
  * <table border="1" cellpadding="2">
@@ -148,27 +147,30 @@
  *     </tr>
  *     <tr>
  *         <td>file</td>
- *         <td align="right">51</td>
+ *         <td align="right">53</td>
  *     </tr>
  *     <tr>
  *         <td>directory</td>
- *         <td align="right">47</td>
+ *         <td align="right">49</td>
  *     </tr>
  * </table>
  * 
  * \endhtmlonly
  *
  * \section adaptation Adapting the software to your needs
- * The only hardware dependent part is the communication
- * layer talking to the memory card. The other parts like partition table and FAT
- * support are completely independent, you could use them even for managing
- * Compact Flash cards or standard ATAPI hard disks.
+ * The only hardware dependent part is the communication layer talking to the
+ * memory card. The other parts like partition table and FAT support are
+ * completely independent, you could use them even for managing Compact Flash
+ * cards or standard ATAPI hard disks.
  *
  * By changing the MCU* variables in the Makefile, you can use other Atmel
  * microcontrollers or different clock speeds. You might also want to change
  * the configuration defines in the files fat_config.h, partition_config.h,
  * sd_raw_config.h and sd-reader_config.h. For example, you could disable
  * write support completely if you only need read support.
+ *
+ * For further information, visit the project's
+ * <a href="http://www.roland-riegel.de/sd-reader/faq/">FAQ page</a>.
  * 
  * \section bugs Bugs or comments?
  * If you have comments or found a bug in the software - there might be some
@@ -180,7 +182,7 @@
  * I adapted his work for my circuit. Although this is a very simple
  * solution, I had no problems using it.
  * 
- * \section copyright Copyright 2006-2008 by Roland Riegel
+ * \section copyright Copyright 2006-2009 by Roland Riegel
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation (http://www.gnu.org/copyleft/gpl.html).
@@ -222,8 +224,13 @@ sd_reader_init (void)
         /* open first partition */
         struct partition_struct* partition = partition_open(sd_raw_read,
                                                             sd_raw_read_interval,
+#if SD_RAW_WRITE_SUPPORT
                                                             sd_raw_write,
                                                             sd_raw_write_interval,
+#else
+                                                            0,
+                                                            0,
+#endif
                                                             0
                                                            );
 
@@ -234,8 +241,13 @@ sd_reader_init (void)
              */
             partition = partition_open(sd_raw_read,
                                        sd_raw_read_interval,
+#if SD_RAW_WRITE_SUPPORT
                                        sd_raw_write,
                                        sd_raw_write_interval,
+#else
+                                       0,
+                                       0,
+#endif
                                        -1
                                       );
             if(!partition)

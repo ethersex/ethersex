@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2006-2008 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -375,7 +375,7 @@ uint8_t fat_read_header(struct fat_fs_struct* fs)
                          partition_offset +
                          /* jump to fat */
                          (offset_t) reserved_sectors * bytes_per_sector;
-    header->fat_size = (data_cluster_count + 2) * sizeof(cluster_t);
+    header->fat_size = (data_cluster_count + 2) * (partition->type == PARTITION_TYPE_FAT16 ? 2 : 4);
 
     header->sector_size = bytes_per_sector;
     header->cluster_size = (uint16_t) bytes_per_sector * sectors_per_cluster;
@@ -1564,6 +1564,14 @@ uint8_t fat_interpret_dir_entry(struct fat_dir_entry_struct* dir_entry, const ui
                 if(raw_entry[i] == ' ')
                     break;
                 long_name[i] = raw_entry[i];
+
+                /* Windows NT and later versions do not store LFN entries
+                 * for 8.3 names which have a lowercase basename, extension
+                 * or both when everything else is uppercase. They use two
+                 * extra bits to signal a lowercase basename or extension.
+                 */
+                if((raw_entry[12] & 0x08) && raw_entry[i] >= 'A' && raw_entry[i] <= 'Z')
+                    long_name[i] += 'a' - 'A';
             }
             if(long_name[0] == 0x05)
                 long_name[0] = (char) FAT_DIRENTRY_DELETED;
@@ -1575,14 +1583,17 @@ uint8_t fat_interpret_dir_entry(struct fat_dir_entry_struct* dir_entry, const ui
                 uint8_t j = 8;
                 for(; j < 11; ++j)
                 {
-                    if(raw_entry[j] != ' ')
-                    {
-                        long_name[i++] = raw_entry[j];
-                    }
-                    else
-                    {
+                    if(raw_entry[j] == ' ')
                         break;
-                    }
+                    long_name[i] = raw_entry[j];
+
+                    /* See above for the lowercase 8.3 name handling of
+                     * Windows NT and later.
+                     */
+                    if((raw_entry[12] & 0x10) && raw_entry[j] >= 'A' && raw_entry[j] <= 'Z')
+                        long_name[i] += 'a' - 'A';
+
+                    ++i;
                 }
             } 
 
