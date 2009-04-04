@@ -15,7 +15,7 @@ endif
 
 IPCM4SRCS += ipchair/userscript.m4
 
-ipchair.c: $(IPCM4SRCS)
+ipchair/ipchair.c: $(IPCM4SRCS)
 	$(M4) $^ > $@
 
 CLEAN_FILES += ipchair/ipchair.c

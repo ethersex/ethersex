@@ -1,7 +1,7 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
-$(MDNS_SD_SUPPORT)_SRC = mdns_sd/mdns_sd.c \
+$(MDNS_SD_SUPPORT)_SRC += mdns_sd/mdns_sd.c \
 	mdns_sd/mdns_sd_net.c
 
 ##############################################################################
