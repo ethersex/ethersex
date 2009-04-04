@@ -36,16 +36,8 @@ echo -ne "\t\n\n" | make no_deps=t menuconfig
 
 make no_deps=t clean 2> /dev/null
 
-# generate .subdirs file
-rm -f .subdirs
-make no_deps=t .subdirs
-[ -e .subdirs ] || {
-  echo "$0: failed to generate .subdirs file."
-  exit 1
-}
-
 # We don't call 'make all' here to skip httpd-embedding part ...
-make compile-subdirs ethersex
+make ethersex.hex
 [ -e ethersex ] || {
   echo "$0: failed to generate ethersex file."
   exit 1
