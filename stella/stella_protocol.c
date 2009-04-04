@@ -179,10 +179,10 @@ stella_protocol_parse(char* buf, uint8_t len)
 					jobstruct->extrasize = (uint8_t)size_extra;
 
 					/* copy extra data if any */
-					if (size_extra)
+					if (jobstruct->extrasize)
 					{
-						memcpy(((char*)uip_appdata)+size, job->extradata, size_extra);
-						size += size_extra;
+						memcpy(&(jobstruct->extrasize)+sizeof(jobstruct->extrasize), job->extradata, jobstruct->extrasize);
+						size += jobstruct->extrasize;
 					}
 
 					/* advance to the next job */
@@ -207,7 +207,11 @@ stella_protocol_parse(char* buf, uint8_t len)
 			++buf; --len;
 			// we need 8+ parameters
 			// minute, hour, day, month, dayofweek, times, appid, extrasize, (extradata)
-			if (len<8) continue;
+			if (len<8)
+			{
+				debug_printf("Stella parse error\n");
+				break; //OMG, because we don't know where the command ends, exit parsing
+			}
 
 			jobstruct = (void*)buf;
 			buf += sizeof(struct stella_cron_event_struct);
