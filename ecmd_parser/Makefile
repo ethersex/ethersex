@@ -24,7 +24,6 @@ SRC = \
 	sd.c		\
 	i2c.c		\
 	pwm.c		\
-	usart.c		\
 	syslog.c		\
 	control6.c	\
 	aliascmd.c	\
