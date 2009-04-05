@@ -25,7 +25,7 @@ grep -e "^$1=\"" .config -q || {
 }
 
 CONFIG_NEW=`mktemp`
-sed -e "s&^$1=\".*\"\$&$1=\"$2\"&" .config > $CONFIG_NEW
+sed -e "s&^$1=\".*\"\$&$1=$2&" .config > $CONFIG_NEW
 
 diff -u .config $CONFIG_NEW -q > /dev/null && {
   echo "$0: No changes needed, exiting."

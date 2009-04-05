@@ -22,17 +22,22 @@ echo "<h1>"; cat $profile/description; echo "</h1>"
 echo "<form action='build.cgi' method='get'>" 
 echo "<input type=hidden name=profile value=\"$profile\"\>"
 echo "<div style='margin-left: 10%'><table border=1 cellspacing=5>"
-grep -e "^CONF_.*=\"" $profile/.config | tr "=" " " | while read option value; do
+grep -e "^CONF_.*=\"" $profile/.config | tr "=" " " \
+  | grep -v -e ^CONF_OPENVPN \
+  | grep -v -e ^CONF_JABBER \
+  | grep -v -e ^CONF_MYSQL \
+  | grep -v -e ^CONF_MCUF \
+  | while read option value; do
 
-  if [ "$option" = "CONF_ETHERRAPE_MAC" ]; then
+  if [ "$option" = "CONF_ENC_MAC" ]; then
     description="The Ethernet MAC address."
   elif [ "$option" = "CONF_HOSTNAME" ]; then
     description="The hostname of the Ethersex."
-  elif [ "$option" = "CONF_ETHERRAPE_IP" ]; then
+  elif [ "$option" = "CONF_ENC_IP" ]; then
     description="The (default) IP address to use."
-  elif [ "$option" = "CONF_ETHERRAPE_IP4_NETMASK" ]; then
+  elif [ "$option" = "CONF_ENC_IP4_NETMASK" ]; then
     description="The network mask belonging to the IP address, e.g. 255.255.255.0."
-  elif [ "$option" = "CONF_ETHERRAPE_IP4_GATEWAY" ]; then
+  elif [ "$option" = "CONF_ETHERRAPE_GATEWAY" ]; then
     description="The IP address of your default router."
   elif [ "$option" = "CONF_TFTP_IP" ]; then
     description="The IP address of your TFTP server."
@@ -43,7 +48,7 @@ grep -e "^CONF_.*=\"" $profile/.config | tr "=" " " | while read option value; d
   fi
 
   echo "<tr><td>${option#CONF_}</td>" | tr "[A-Z]" "[a-z]"
-  echo "<td><input size=30 style='padding: 2px' type='text' name='$option' value=$value/></td>"
+  echo "<td><input size=30 style='padding: 2px' type='text' name='$option' value=$value /></td>"
   echo "<td>$description</td></tr>"
 done 
 
