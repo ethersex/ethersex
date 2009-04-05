@@ -43,53 +43,6 @@ stella_protocol_parse(char* buf, uint8_t len)
 
 	while (len) switch (*buf)
 	{
-		case STELLA_SET_COLOR_0:
-		case STELLA_SET_COLOR_1:
-		case STELLA_SET_COLOR_2:
-		case STELLA_SET_COLOR_3:
-		case STELLA_SET_COLOR_4:
-		case STELLA_SET_COLOR_5:
-		case STELLA_SET_COLOR_6:
-		case STELLA_SET_COLOR_7:
-			count = (uint8_t)buf[0];
-			if (count < STELLA_PINS)
-			{
-				stella_brightness[ count ] = (uint8_t)buf[1];
-				stella_fade[ count ] = (uint8_t)buf[1];
-				stella_sync = UPDATE_VALUES;
-			}
-			len -= 2; buf += 2;
-			break;
-		case STELLA_FADE_COLOR_0:
-		case STELLA_FADE_COLOR_1:
-		case STELLA_FADE_COLOR_2:
-		case STELLA_FADE_COLOR_3:
-		case STELLA_FADE_COLOR_4:
-		case STELLA_FADE_COLOR_5:
-		case STELLA_FADE_COLOR_6:
-		case STELLA_FADE_COLOR_7:
-			count = (uint8_t)buf[0] & 0x07;
-			if (count < STELLA_PINS)
-				stella_fade[count] = (uint8_t)buf[1];
-			len -= 2; buf += 2;
-			break;
-		case STELLA_FLASH_COLOR_0:
-		case STELLA_FLASH_COLOR_1:
-		case STELLA_FLASH_COLOR_2:
-		case STELLA_FLASH_COLOR_3:
-		case STELLA_FLASH_COLOR_4:
-		case STELLA_FLASH_COLOR_5:
-		case STELLA_FLASH_COLOR_6:
-		case STELLA_FLASH_COLOR_7:
-			count = (uint8_t)buf[0] & 0x07;
-			if (count < STELLA_PINS)
-			{
-				stella_brightness[ count ] = (uint8_t)buf[1];
-				stella_fade[ count ] = 0;
-				stella_sync = UPDATE_VALUES;
-			}
-			len -= 2; buf += 2;
-			break;
 		case STELLA_SELECT_FADE_FUNC:
 			if (buf[1] < FADE_FUNC_LEN)
 				stella_fade_func = buf[1];
@@ -209,7 +162,9 @@ stella_protocol_parse(char* buf, uint8_t len)
 			// minute, hour, day, month, dayofweek, times, appid, extrasize, (extradata)
 			if (len<8)
 			{
+				#ifdef DEBUG_STELLA
 				debug_printf("Stella parse error\n");
+				#endif
 				break; //OMG, because we don't know where the command ends, exit parsing
 			}
 
@@ -228,6 +183,9 @@ stella_protocol_parse(char* buf, uint8_t len)
 				{
 					buf += jobstruct->extrasize;
 					len -= jobstruct->extrasize;
+					#ifdef DEBUG_STELLA
+					debug_printf("Stella mem error\n");
+					#endif
 					continue;
 				}
 				memcpy(data, buf, jobstruct->extrasize);
@@ -242,6 +200,9 @@ stella_protocol_parse(char* buf, uint8_t len)
 			break;
 		#endif // CRON_SUPPORT
 		default:
+			// we assume all other commands are channel set commands
+			stella_setValue(*buf, *(buf+1));
+			len -= 2; buf += 2;
 			break;
 	}
 }

@@ -121,9 +121,9 @@ int16_t parse_cmd_stella_channel_set (char *cmd, char *output, uint16_t len)
 	uint8_t value=0;
 	uint8_t ret = sscanf_P(cmd, PSTR("%d %d"), &ch, &value);
 
-	if (ret == 2 && ch<STELLA_PINS)
+	if (ret == 2)
 	{
-		stella_fade[ ch ] = value;
+		stella_setValue(ch, value);
 
 		return snprintf_P(output, len, PSTR("ok"));
 	} else {

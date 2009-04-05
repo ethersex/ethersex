@@ -137,7 +137,13 @@ stella_init (void)
 void stella_cron_callback(void* data)
 {
 	// data is of 2 byte size
-	stella_fade[ ((char*)data)[0] ] = ((char*)data)[1];
+	uint8_t ch = *(uint8_t*)data;
+	uint8_t val = *((uint8_t*)data+1);
+	#ifdef DEBUG_CRON
+	debug_printf("Stella cron %u->%u\n", ch, val);
+	#endif
+
+	stella_setValue(ch, val);
 }
 #endif
 
@@ -149,8 +155,11 @@ stella_process (void)
 	if (stella_fade_counter == 0)
 	{
 		uint8_t i;
-		/* mood light functionality */
+		/* Moodlight functionality */
 		#ifdef STELLA_MOODLIGHT
+		/* Only do something if any of the channels is selected
+		 * to be 'moodlighted' and the moodlight counter reached
+		 * the threshold value. */
 		if (stella_moodlight_mask && stella_moodlight_counter == stella_moodlight_threshold)
 			for (i = 0; i < STELLA_PINS; ++i)
 			{
@@ -160,7 +169,7 @@ stella_process (void)
 		--stella_moodlight_counter;
 		#endif
 
-		/* Check, if we need to resort. Fade channels */
+		/* Fade channels */
 		for (i = 0; i < STELLA_PINS; ++i)
 		{
 			if (stella_brightness[i] == stella_fade[i])
@@ -180,6 +189,57 @@ stella_process (void)
 	/* sort if new values are available */
 	if (stella_sync == UPDATE_VALUES)
 		stella_sort();
+}
+
+void
+stella_setValue(uint8_t channel_cmd, uint8_t value)
+{
+	switch (channel_cmd)
+	{
+		case STELLA_SET_COLOR_0:
+		case STELLA_SET_COLOR_1:
+		case STELLA_SET_COLOR_2:
+		case STELLA_SET_COLOR_3:
+		case STELLA_SET_COLOR_4:
+		case STELLA_SET_COLOR_5:
+		case STELLA_SET_COLOR_6:
+		case STELLA_SET_COLOR_7:
+			if (channel_cmd < STELLA_PINS)
+			{
+				stella_brightness[channel_cmd] = value;
+				stella_fade[channel_cmd] = value;
+				stella_sync = UPDATE_VALUES;
+			}
+			break;
+		case STELLA_FADE_COLOR_0:
+		case STELLA_FADE_COLOR_1:
+		case STELLA_FADE_COLOR_2:
+		case STELLA_FADE_COLOR_3:
+		case STELLA_FADE_COLOR_4:
+		case STELLA_FADE_COLOR_5:
+		case STELLA_FADE_COLOR_6:
+		case STELLA_FADE_COLOR_7:
+			channel_cmd &= 0x07;
+			if (channel_cmd < STELLA_PINS)
+				stella_fade[channel_cmd] = value;
+			break;
+		case STELLA_FLASH_COLOR_0:
+		case STELLA_FLASH_COLOR_1:
+		case STELLA_FLASH_COLOR_2:
+		case STELLA_FLASH_COLOR_3:
+		case STELLA_FLASH_COLOR_4:
+		case STELLA_FLASH_COLOR_5:
+		case STELLA_FLASH_COLOR_6:
+		case STELLA_FLASH_COLOR_7:
+			channel_cmd &= 0x07;
+			if (channel_cmd < STELLA_PINS)
+			{
+				stella_brightness[channel_cmd] = value;
+				stella_fade[channel_cmd] = 0;
+				stella_sync = UPDATE_VALUES;
+			}
+			break;
+	}
 }
 
 /* Get a channel value.
@@ -214,19 +274,23 @@ stella_storeToEEROM()
  * Do not call this directly, but use "stella_sync = UPDATE_VALUES" instead.
  * Purpose:
  * Sort channels' brightness values from high to low (and the
- * interrupt time points from low to high), to be able to switch off
+ * interrupt time points from low to high), to be able to switch on
  * channels one after the other depending on their brightness level
  * and point in time.
  * Implementation details:
- * Uses a "linked list" to avoid expensive memory copies. Main difference
- * is, that all elements are already in ram and are not allocated on demand.
- * The function directly write to a "just calculated"-structure and if we
+ * Use a "linked list" to avoid expensive memory copies. Main difference
+ * to a real linked list is, that all elements are already preallocated
+ * on the stack and are not allocated on demand.
+ * The function directly writes to a "just calculated"-structure and if we
  * want new values in the pwm interrupt, we just have to swap pointers from
- * the "interrupt save"-structure to the "just calculated"-structure.
-
- * We will ignore brightness levels of 0% and all other channels are,
- * as a start, tagged as "on" via the portmask. Channels with the same
- * brightness levels are merged together (their portmask et least).
+ * the "interrupt save"-structure to the "just calculated"-structure. (The
+ * meaning of both structures changes, too, of course.)
+ * Although we provide each channel in the structure with its neccessary
+ * information such as portmask and brightness level, we will actually
+ * ignore brightness levels of 0% and 100% due to not linking them to the linked list.
+ * 100%-level channels are only switched on at the beginning of each
+ * pwm cycle and not touched afterwards. Channels with same brightness
+ * levels are merged together (their portmask at least).
  * */
 inline void
 stella_sort()

@@ -133,6 +133,7 @@ void stella_init(void);
 void stella_process(void);
 
 uint8_t stella_getValue(const uint8_t channel);
+void stella_setValue(uint8_t channel_cmd, uint8_t value);
 
 void stella_loadFromEEROM(void);
 void stella_loadFromEEROMFading(void);
