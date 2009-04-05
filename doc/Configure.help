@@ -767,13 +767,15 @@ MDNS_SD_SUPPORT
   If you enable this option, the firmware will announce availibilty of
   the configured services in the local network using Avahi.
 
-Stella Light
+Stella: Multichannel PWM
 STELLA_SUPPORT
   Depends on: 
-   * UDP support (UDP_SUPPORT)
 
-  UDP-controlled cruft to controll several LEDs with PWM ...
-  Currently quite alpha, i.e. flickering :-/
+  Generates up to eight independant PWM signals e.g. to control
+  LEDs. Can be used as moodlight. Is controlled through the
+  stella UDP protocol, ecmd commands, cron jobs or via "random"
+  generated channel values.
+  Use StellaControl (see wiki) for a handy gui to control stella.
 
 UDP Echo
 UDP_ECHO_NET_SUPPORT
@@ -1418,7 +1420,7 @@ STELLA_RESPONSE_ACK
   Depends on: 
 
   Stella will acknowledge every command you send to it. This is not recommend if you send many commands in
-  a short time, because the response always contains the whole original message and increases ethernet traffix
+  a short time, because the response always contains the whole original message and increases ethernet traffic
   and processor load dramaticly.
   Caution: UDP is an unreliable service. It is not guaranteed that the acknowledge packet find the way back
   to your client. It is also possible that the packet arrive out of order or is a duplicate from prior sessions.

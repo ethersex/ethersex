@@ -72,7 +72,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool '  NTP' DEBUG_NTP $DEBUG
   dep_bool '  Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
   dep_bool 'RC5' DEBUG_RC5 $DEBUG
-  dep_bool 'Stella Lights' DEBUG_STELLA $DEBUG
+  dep_bool 'Stella' DEBUG_STELLA $DEBUG
   dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG
   dep_bool 'Timer' DEBUG_TIMER $DEBUG

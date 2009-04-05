@@ -1,4 +1,4 @@
-dep_bool_menu "Stella Light" STELLA_SUPPORT $UDP_SUPPORT
+dep_bool_menu "Stella: Multichannel pwm" STELLA_SUPPORT $UDP_SUPPORT
   int "Stella UDP Port" STELLA_UDP_PORT 2342
   dep_bool "Gamma correction (EXPERIMENTAL)" STELLA_GAMMACORRECTION $CONFIG_EXPERIMENTAL
   dep_bool "Higher frequency" STELLA_HIGHFREQ
