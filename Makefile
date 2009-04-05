@@ -243,6 +243,10 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 	# test the target file, test fails if it doesn't exist
 	# and will keep make from looping menuconfig.
 	test -s autoconf.h -a -s .config
+	# now let's restart make so the .config is (re)evaluated.
+	$(MAKE) $(MAKECMDGOALS)
+	@echo Ethersex compiled successfully, ignore make error!
+	@false # stop compilation
 endif
 
 include depend.mk
