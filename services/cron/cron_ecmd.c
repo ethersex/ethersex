@@ -26,7 +26,7 @@
 #include "../config.h"
 #include "../debug.h"
 #include "../bit-macros.h"
-#include "ecmd.h"
+#include "ecmd_parser/ecmd.h"
 
 #include "../cron/cron.h"
 

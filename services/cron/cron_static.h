@@ -22,9 +22,6 @@
 #ifndef _CRON_STATIC_H
 #define _CRON_STATIC_H
 
-#include <stdint.h>
-#include "../clock/clock.h"
-
 /* structures */
 
 /* meaning of the signed values in cron_event_t (eg for minute):

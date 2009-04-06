@@ -28,7 +28,7 @@
 #include "debug.h"
 #include "eeprom.h"
 #include "bit-macros.h"
-#include "cron/cron.h"
+#include "services/cron/cron.h"
 #include "ecmd_parser/ecmd.h"
 
 #ifdef STELLA_SUPPORT

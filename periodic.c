@@ -2,6 +2,7 @@
  *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) by David Gräff <david.graeff@web.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -35,8 +36,8 @@
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
 #include "clock/clock.h"
-#include "cron/cron.h"
-#include "cron/cron_static.h"
+#include "services/cron/cron.h"
+#include "services/cron/cron_static.h"
 #include "usb/usb.h"
 #include "ipv6.h"
 #include "ps2/ps2.h"
@@ -111,7 +112,7 @@ void timer_process(void)
 #       ifdef  WATCHCAT_SUPPORT
         watchcat_periodic();
 #       endif
-	
+
 #ifdef UIP_SUPPORT
 #       if UIP_CONNS <= 255
         uint8_t i;
@@ -188,7 +189,7 @@ void timer_process(void)
         }
 
 #       if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
-        if (counter == 5) { 
+        if (counter == 5) {
             /* Send a router solicitation every 10 seconds, as long
                as we only got a link local address.  First time one
                second after boot */

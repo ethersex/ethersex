@@ -24,7 +24,7 @@
 #include "uip/uip_router.h"
 #include "config.h"
 #include "debug.h"
-#include "cron/cron.h"
+#include "services/cron/cron.h"
 #include "stella.h"
 #include "stella_net.h"
 #include "stella_protocol.h"

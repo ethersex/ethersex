@@ -20,7 +20,6 @@ $(PORTIO_SIMPLE_SUPPORT)_SRC += ecmd_parser/portio.c
 $(RC5_SUPPORT)_SRC += ecmd_parser/rc5.c
 $(RFM12_SUPPORT)_SRC += ecmd_parser/rfm12.c
 $(RFM12_ASK_SUPPORT)_SRC += ecmd_parser/rfm12_ask.c
-$(CRON_SUPPORT)_SRC += ecmd_parser/cron.c
 $(SD_SUPPORT)_SRC += ecmd_parser/sd.c
 $(I2C_SUPPORT)_SRC += ecmd_parser/i2c.c
 $(PWM_SUPPORT)_SRC += ecmd_parser/pwm.c

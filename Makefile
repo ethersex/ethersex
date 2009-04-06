@@ -12,14 +12,13 @@ SRC = \
 	portio.c \
 	usart.c \
 	spi.c \
-	timer.c
+	periodic.c
 
 ##SUBDIRS += aliascmd
 SUBDIRS += bootp
 SUBDIRS += camera
 SUBDIRS += clock
 SUBDIRS += control6
-SUBDIRS += cron
 SUBDIRS += crypto
 SUBDIRS += dataflash
 SUBDIRS += dcf77
@@ -51,6 +50,7 @@ SUBDIRS += rc5
 SUBDIRS += rfm12
 #SUBDIRS += sd_reader
 SUBDIRS += snmp
+SUBDIRS += services/cron
 SUBDIRS += services/stella
 SUBDIRS += syslog
 SUBDIRS += tftp

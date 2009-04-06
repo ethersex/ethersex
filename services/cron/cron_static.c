@@ -22,10 +22,12 @@
 
 #include <avr/pgmspace.h>
 #include <string.h>
-#include "../syslog/syslog.h"
+#include <stdint.h>
+#include "syslog/syslog.h"
 #include "cron_static.h"
-#include "../config.h"
-#include "../mcuf/mcuf.h"
+#include "config.h"
+#include "mcuf/mcuf.h"
+#include "clock/clock.h"
 
 #ifdef CRON_STATIC_SUPPORT
 
@@ -69,7 +71,7 @@ mcuf_modul(void)
 
 /* Cron configuration:
  * Fields: Min Hour Day Month Dow
- * Values: 
+ * Values:
  * * -1    for every value in this field ( like * in a normal cron )
  * * >0    for exactly this value in this field
  * * < -1  step value, e.g. -2: every second minute
@@ -77,7 +79,7 @@ mcuf_modul(void)
 #define USE_UTC 1
 #define USE_LOCAL 0
 
-struct cron_static_event_t events[] PROGMEM = 
+struct cron_static_event_t events[] PROGMEM =
 { { { {-1, -2, -1, -1, -1} }, test, USE_UTC}, /* when hour % 2 == 0 */
   { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
   { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
@@ -94,7 +96,7 @@ struct cron_static_event_t events[] PROGMEM =
   { { {-1, -1, -1, -1, -1} }, NULL, 0},
 };
 
-void 
+void
 cron_static_periodic(void)
 {
     /* convert time to something useful */
@@ -133,7 +135,7 @@ cron_static_periodic(void)
     last_check = timestamp - d.sec;
 }
 
-uint8_t 
+uint8_t
 cron_check_event(struct cron_static_event_t *event, struct clock_datetime_t *d)
 {
 

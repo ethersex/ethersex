@@ -23,9 +23,6 @@
 #ifndef _CRON_H
 #define _CRON_H
 
-#include <stdint.h>
-#include "../clock/clock.h"
-
 /* meaning of the signed values in cron_event_t:
  *   x in 0..59:    absolute value (minute)
  *   x in 0..23:    absolute value (hour)
