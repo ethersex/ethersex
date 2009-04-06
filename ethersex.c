@@ -57,7 +57,7 @@
 #include "ipv6.h"
 #include "dataflash/fs.h"
 #include "modbus/modbus.h"
-#include "stella/stella.h"
+#include "services/stella/stella.h"
 #include "syslog/syslog.h"
 #include "net/handler.h"
 #include "net/sendmail.h"

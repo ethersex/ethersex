@@ -21,9 +21,9 @@ export HOSTCC
 export MAKE
 
 # flags for the compiler
-CPPFLAGS += -mmcu=$(MCU)  
+CPPFLAGS += -mmcu=$(MCU)
 CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
-CFLAGS += -g -Os -std=gnu99
+CFLAGS += -g -Os -std=gnu99 -I$(TOPDIR)
 
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)
@@ -40,7 +40,7 @@ LDFLAGS += -mmcu=$(MCU)
 #
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),mrproper)
-ifneq ($(MAKECMDGOALS),menuconfig)  
+ifneq ($(MAKECMDGOALS),menuconfig)
 
 include $(TOPDIR)/.config
 
@@ -50,7 +50,7 @@ endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 
-ifeq ($(BOOTLOADER_SUPPORT),y)  
+ifeq ($(BOOTLOADER_SUPPORT),y)
 LDFLAGS += -Wl,--section-start=.text=0xE000
 CFLAGS  += -mcall-prologues
 endif

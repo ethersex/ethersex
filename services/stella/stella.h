@@ -21,7 +21,7 @@
 
 #define STELLA_PROTOCOL_VERSION 3
 
-#include "../config.h"
+#include "config.h"
 #ifdef STELLA_SUPPORT
 
 enum stella_colors

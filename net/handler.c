@@ -44,7 +44,7 @@
 #include "../modbus/modbus_net.h"
 #include "../rfm12/rfm12_raw_net.h"
 #include "../zbus/zbus_raw_net.h"
-#include "../stella/stella_net.h"
+#include "services/stella/stella_net.h"
 #include "../snmp/snmp_net.h"
 #include "../mcuf/mcuf_net.h"
 #include "../httpd/httpd.h"
@@ -169,7 +169,7 @@ static void network_debug_discard_some(void)
 #endif
 
 
-#ifdef TCP_SUPPORT 
+#ifdef TCP_SUPPORT
 void network_handle_tcp(void)
 {
 
@@ -177,10 +177,10 @@ void network_handle_tcp(void)
     debug_printf ("net_tcp: local port is 0x%04x\n", uip_conn->lport);
 #endif
 
-    /* 
+    /*
      * demultiplex packet
      */
-    if (uip_conn->callback != NULL) 
+    if (uip_conn->callback != NULL)
         uip_conn->callback();
 
     network_debug_discard_some();

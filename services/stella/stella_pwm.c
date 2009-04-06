@@ -28,9 +28,9 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "../config.h"
+#include "config.h"
 #include "stella.h"
-#include "../debug.h"
+#include "debug.h"
 
 struct stella_timetable_struct timetable_1, timetable_2;
 struct stella_timetable_struct* int_table = &timetable_1;

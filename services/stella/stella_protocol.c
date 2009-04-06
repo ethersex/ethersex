@@ -24,13 +24,13 @@
 #include "stella.h"
 #include "stella_net.h"
 #include "stella_protocol.h"
-#include "../config.h"
-#include "../debug.h"
+#include "config.h"
+#include "debug.h"
 /* we can manipulate crons via the stella protocol */
-#include "../cron/cron.h"
+#include "cron/cron.h"
 /* we want to send via uip */
-#include "../uip/uip.h"
-#include "../uip/uip_router.h"
+#include "uip/uip.h"
+#include "uip/uip_router.h"
 
 void
 stella_protocol_parse(char* buf, uint8_t len)

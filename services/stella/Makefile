@@ -1,11 +1,12 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(STELLA_SUPPORT)_SRC += \
-	stella/stella_pwm.c \
-	stella/stella_net.c \
-	stella/stella_protocol.c \
-	stella/stella.c
+	services/stella/stella_pwm.c \
+	services/stella/stella_net.c \
+	services/stella/stella_protocol.c \
+	services/stella/stella.c \
+	services/stella/stella_ecmd.c
 
 ##############################################################################
 # generic fluff

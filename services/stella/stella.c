@@ -22,8 +22,8 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "../eeprom.h"
-#include "../debug.h"
+#include "eeprom.h"
+#include "debug.h"
 #include "stella.h"
 #include "stella_net.h"
 

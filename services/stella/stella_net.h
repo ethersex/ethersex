@@ -20,8 +20,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../uip/uip.h"
-
 #ifndef _STELLA_NET_H
 #define _STELLA_NET_H
 

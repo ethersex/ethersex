@@ -227,7 +227,7 @@ source ecmd_parser/config.in
 source httpd/config.in
 source lcd/config.in
 source net/config.in
-source stella/config.in
+source services/stella/config.in
 source rfm12/rfm12_ask-config.in
 source mysql/config.in
 

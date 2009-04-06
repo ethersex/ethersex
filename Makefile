@@ -51,7 +51,7 @@ SUBDIRS += rc5
 SUBDIRS += rfm12
 #SUBDIRS += sd_reader
 SUBDIRS += snmp
-SUBDIRS += stella
+SUBDIRS += services/stella
 SUBDIRS += syslog
 SUBDIRS += tftp
 SUBDIRS += uip
@@ -117,7 +117,7 @@ $(TARGET): $(OBJECTS)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
 ##############################################################################
-# 
+#
 # VFS Inline Files
 #
 ##############################################################################
@@ -235,7 +235,7 @@ show-config: autoconf.h
 
 .PHONY: show-config
 
-autoconf.h .config: 
+autoconf.h .config:
 	@echo $(MAKE)\'s goal: $(MAKECMDGOALS)
 ifneq ($(MAKECMDGOALS),menuconfig)
 	# make sure menuconfig isn't called twice, on `make menuconfig'

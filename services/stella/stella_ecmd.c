@@ -24,12 +24,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
-#include "../config.h"
-#include "../debug.h"
-#include "../eeprom.h"
-#include "../bit-macros.h"
-#include "../cron/cron.h"
-#include "ecmd.h"
+#include "config.h"
+#include "debug.h"
+#include "eeprom.h"
+#include "bit-macros.h"
+#include "cron/cron.h"
+#include "ecmd_parser/ecmd.h"
 
 #ifdef STELLA_SUPPORT
 
