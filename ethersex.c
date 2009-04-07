@@ -46,7 +46,7 @@
 #include "hardware/ir/rc5/rc5.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "dcf77/dcf77.h"
-#include "ps2/ps2.h"
+#include "hardware/input/ps2/ps2.h"
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
 #include "ipv6.h"

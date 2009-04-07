@@ -26,7 +26,7 @@
 #include <util/delay.h>
 #include "core/bit-macros.h"
 #include "config.h"
-#include "../syslog/syslog.h"
+#include "syslog/syslog.h"
 #include "ps2.h"
 
 #ifdef PS2_SUPPORT
