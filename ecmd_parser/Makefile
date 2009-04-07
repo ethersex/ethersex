@@ -3,21 +3,13 @@ include $(TOPDIR)/.config
 
 $(ADC_SUPPORT)_SRC += ecmd_parser/adc.c
 $(KTY_SUPPORT)_SRC += ecmd_parser/kty.c
-$(DATAFLASH_SUPPORT)_SRC += ecmd_parser/dataflash.c
 $(ECMD_PARSER_SUPPORT)_SRC += ecmd_parser/ecmd.c
-$(HD44780_SUPPORT)_SRC += ecmd_parser/hd44780.c
 $(MCUF_SUPPORT)_SRC += ecmd_parser/mcuf.c
 $(UIP_SUPPORT)_SRC += ecmd_parser/network.c
-$(ONEWIRE_SUPPORT)_SRC += ecmd_parser/onewire.c
 $(PORTIO_SUPPORT)_SRC += ecmd_parser/portio.c
 $(PORTIO_SIMPLE_SUPPORT)_SRC += ecmd_parser/portio.c
-$(RC5_SUPPORT)_SRC += ecmd_parser/rc5.c
-$(RFM12_SUPPORT)_SRC += ecmd_parser/rfm12.c
-$(RFM12_ASK_SUPPORT)_SRC += ecmd_parser/rfm12_ask.c
-$(VFS_SD_SUPPORT)_SRC += ecmd_parser/sd.c
 $(I2C_SUPPORT)_SRC += ecmd_parser/i2c.c
 $(PWM_SUPPORT)_SRC += ecmd_parser/pwm.c
-$(CONTROL6_SUPPORT)_SRC += ecmd_parser/control6.c
 $(ALIASCMD_SUPPORT)_SRC += ecmd_parser/aliascmd.c
 $(ECMD_SCRIPT_SUPPORT)_SRC += ecmd_parser/scripting.c
 

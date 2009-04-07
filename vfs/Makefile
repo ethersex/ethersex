@@ -7,7 +7,6 @@ $(VFS_DF_SUPPORT)_SRC += vfs/vfs_df.c
 $(VFS_EEPROM_RAW_SUPPORT)_SRC += vfs/vfs_eeprom_raw.c
 $(VFS_EEPROM_SUPPORT)_SRC += vfs/vfs_eeprom.c
 $(VFS_INLINE_SUPPORT)_SRC += vfs/vfs_inline.c
-$(VFS_SD_SUPPORT)_SRC += vfs/vfs_sd.c
 
 ##############################################################################
 # generic fluff
