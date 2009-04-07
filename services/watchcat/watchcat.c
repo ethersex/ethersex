@@ -24,14 +24,14 @@
 #include <avr/eeprom.h>
 
 #include "config.h"
-#include "core/debug.h"
-#include "../uip/uip.h"
-#include "../uip/uip_arp.h"
-#include "core/eeprom.h"
-#include "core/bit-macros.h"
-#include "../uip/uip.h"
-#include "core/portio/portio.h"
-#include "../net/ecmd_sender_net.h"
+#include "debug.h"
+#include "uip/uip.h"
+#include "uip/uip_arp.h"
+#include "eeprom.h"
+#include "bit-macros.h"
+#include "uip/uip.h"
+#include "portio.h"
+#include "net/ecmd_sender_net.h"
 #include "watchcat.h"
 
 #ifdef WATCHCAT_SUPPORT
@@ -49,7 +49,7 @@ static struct VirtualPin vpin[IO_PORTS];
 
 void watchcat_edge(uint8_t pin);
 
-void 
+void
 watchcat_init(void)
 {
   uint8_t i;
@@ -68,15 +68,15 @@ watchcat_periodic(void)
   uint8_t i;
   for (i = 0; i < IO_PORTS; i++) {
     /* debounce the buttons */
-    if ( vpin[i].last_input == vport[i].read_pin(i) ) 
+    if ( vpin[i].last_input == vport[i].read_pin(i) )
       vpin[i].state = vport[i].read_pin(i);
-    
+
     vpin[i].last_input = vport[i].read_pin(i);
-    
+
     /* See if something has changed since last call */
     if ( vpin[i].state != vpin[i].old_state ) {
       /* If there is an handler for this port, call it */
-      if ( vpin[i].func )   
+      if ( vpin[i].func )
         vpin[i].func(i);
       else
         vpin[i].old_state = vpin[i].state;
@@ -84,8 +84,8 @@ watchcat_periodic(void)
   }
 }
 
-void 
-watchcat_edge(uint8_t pin) 
+void
+watchcat_edge(uint8_t pin)
 {
   uint8_t i = 0;
   uint8_t tmp;
@@ -96,11 +96,11 @@ watchcat_edge(uint8_t pin)
       break;
     }
     if (tmp == pin) {
-      
+
       tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
 
       uint8_t falling = pgm_read_byte(&ecmd_react[i].rising);
-      if ((falling && RISING_EDGE(pin, tmp)) 
+      if ((falling && RISING_EDGE(pin, tmp))
           || (!falling && FALLING_EDGE(pin, tmp))) {
         uip_ipaddr_t ipaddr;
 

@@ -50,10 +50,10 @@ SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/jabber
 SUBDIRS += services/dns
+SUBDIRS += services/watchcat
 SUBDIRS += uip
 SUBDIRS += syslog
 SUBDIRS += vfs
-SUBDIRS += watchcat
 
 rootbuild=t
 

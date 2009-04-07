@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(WATCHCAT_SUPPORT)_SRC += watchcat/watchcat.c
+$(WATCHCAT_SUPPORT)_SRC += services/watchcat/watchcat.c
 
 ##############################################################################
 # generic fluff
@@ -9,9 +9,9 @@ include $(TOPDIR)/rules.mk
 
 ##############################################################################
 
-watchcat/watchcat.c: watchcat/user_config.h
-watchcat/user_config.h: watchcat/watchcat.m4 watchcat/config
+services/watchcat/watchcat.c: watchcat/user_config.h
+services/watchcat/user_config.h: services/watchcat/watchcat.m4 services/watchcat/config
 	$(M4) -DMCU=$(MCU) $^ > $@
 
 # extend normal clean rule
-CLEAN_FILES += watchcat/user_config.h
+CLEAN_FILES += services/watchcat/user_config.h
