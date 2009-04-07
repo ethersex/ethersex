@@ -7,18 +7,18 @@ do
 done
 
 IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
-FLASHSIZE=$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3- | (echo "ibase=16"; tr [a-f] [A-F];) | bc)
+FLASHSIZE=$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
 FLASHSIZE=$[$FLASHSIZE + 1]
-PERCENT=$(echo "$IMAGESIZE.0 / $FLASHSIZE.0 *100.0" | bc  -l )
+PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 *100.0);" )
 
 echo ""
-echo "Program: $(echo ${val[0]}+${val[1]}|bc) bytes"
+echo "Program: $(perl -e "print ${val[0]}+${val[1]};") bytes"
 echo "(.text + .data)"
 echo ""
-echo "Data:  $(echo ${val[2]}+${val[1]}|bc) bytes"
+echo "Data:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
 echo "(.data + .bss)"
 echo ""
-echo "Imagesize: $IMAGESIZE bytes ($(echo $PERCENT | cut -b-5)%)"
+echo "Imagesize: $IMAGESIZE bytes (${PERCENT}%)"
 echo "Available flash: $FLASHSIZE bytes ($2)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
   echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
