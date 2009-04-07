@@ -37,7 +37,7 @@
 #include "core/periodic.h"
 #include "core/portio/portio.h"
 #include "hardware/radio/fs20/fs20.h"
-#include "lcd/hd44780.h"
+#include "hardware/lcd/hd44780.h"
 #include "watchcat/watchcat.h"
 #include "control6/control6.h"
 #include "onewire/onewire.h"

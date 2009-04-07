@@ -32,7 +32,7 @@
 #include "../uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
-#include "../lcd/hd44780.h"
+#include "hardware/lcd/hd44780.h"
 #include "ecmd.h"
 
 

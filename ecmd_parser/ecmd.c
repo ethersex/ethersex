@@ -35,7 +35,7 @@
 #include "hardware/radio/fs20/fs20.h"
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
-#include "lcd/hd44780.h"
+#include "hardware/lcd/hd44780.h"
 #include "onewire/onewire.h"
 #include "rc5/rc5.h"
 #include "hardware/radio/rfm12/rfm12.h"
