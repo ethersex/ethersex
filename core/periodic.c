@@ -34,7 +34,7 @@
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "control6/control6.h"
 #include "hardware/radio/fs20/fs20.h"
-#include "watchcat/watchcat.h"
+#include "services/watchcat/watchcat.h"
 #include "services/clock/clock.h"
 #include "services/cron/cron.h"
 #include "services/cron/cron_static.h"

@@ -38,7 +38,7 @@
 #include "core/portio/portio.h"
 #include "hardware/radio/fs20/fs20.h"
 #include "hardware/lcd/hd44780.h"
-#include "watchcat/watchcat.h"
+#include "services/watchcat/watchcat.h"
 #include "control6/control6.h"
 #include "hardware/onewire/onewire.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
