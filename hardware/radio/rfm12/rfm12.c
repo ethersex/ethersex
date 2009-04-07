@@ -303,15 +303,6 @@ rfm12_rxfinish(void)
   
   rfm12_status = RFM12_OFF;
 
-#ifdef RFM12_RAW_SUPPORT
-  if (!rfm12_raw_conn->rport)
-#endif
-  {
-#ifdef SKIPJACK_SUPPORT
-    rfm12_decrypt (&len);
-#endif
-  }
-  
   if (!len) {
     uip_buf_unlock ();
     rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
@@ -337,22 +328,6 @@ rfm12_txstart(rfm12_index_t size)
 #endif
 
   rfm12_index = 0;
-
-#ifdef RFM12_RAW_SUPPORT
-  if (!rfm12_raw_conn->rport)
-#endif
-  {
-#ifdef SKIPJACK_SUPPORT
-    rfm12_encrypt (rfm12_data, &size);
-
-    if (!size){
-      rfm12_status = RFM12_OFF;
-      uip_buf_unlock ();
-      rfm12_rxstart ();		/* destroy the packet and restart rx */
-      return;
-    }
-#endif
-  }
   rfm12_txlen = size;
 
   rfm12_prologue ();

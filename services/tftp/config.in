@@ -25,11 +25,6 @@ if [ "$BOOTLOADER_SUPPORT" = "y" -a "$TFTP_SUPPORT" = "y" ]; then
     string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
   fi
 
-  if [ "$SKIPJACK_SUPPORT" = "y" ]; then
-    comment "Crypto configuration"
-    hex "TFTP Skipjack key" CONF_TFTP_KEY "23234242555523234242"
-  fi
-
   endmenu
 
 else

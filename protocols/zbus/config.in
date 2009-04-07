@@ -6,10 +6,6 @@ usart_process_choice ZBUS
 
 int "ZBus Baudrate" CONF_ZBUS_BAUDRATE "19200"
 
-if [ "$SKIPJACK_SUPPORT" = "y" ]; then
-  hex "Skipjack Key" CONF_ZBUS_KEY "23234242555523234242"
-fi
-
 if [ "$IPV6_SUPPORT" = "y" ]; then
   ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
   int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64

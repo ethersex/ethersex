@@ -65,7 +65,6 @@ ths=y
 # DEBUG_DISCARD_SOME is not set
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
-# SKIPJACK_SUPPORT is not set
 # MD5_SUPPORT is not set
 VFS_SUPPORT=y
 # VFS_DF_SUPPORT is not set

@@ -4,9 +4,6 @@ if [ "$RFM12_IP_SUPPORT" = "y" ]; then
 if [ "$TEENSY_SUPPORT" != "y" ]; then
   int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
 fi
-if [ "$SKIPJACK_SUPPORT" = "y" ]; then
-  hex "Skipjack Key" CONF_RFM12_KEY "23234242555523234242"
-fi
 
 if [ "$IPV6_SUPPORT" = "y" ]; then
   ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"

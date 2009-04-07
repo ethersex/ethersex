@@ -63,21 +63,6 @@ zbus_txstart(zbus_index_t size)
                                    or somebody is talking on the line */
   zbus_index = 0;
 
-#ifdef ZBUS_RAW_SUPPORT
-  if (!zbus_raw_conn->rport)
-#endif
-  {
-#ifdef SKIPJACK_SUPPORT
-    zbus_encrypt (zbus_buf, &size);
-
-    if (!size){
-      uip_buf_unlock ();
-      // FIXME
-      zbus_rxstart ();		/* destroy the packet and restart rx */
-      return;
-    }
-#endif
-  }
   zbus_txlen = size;
 
   if(bus_blocked)
@@ -149,21 +134,7 @@ zbus_rxstop (void)
 zbus_index_t
 zbus_rxfinish(void)
 {
-  if (zbus_rxlen != 0) {
-#ifdef SKIPJACK_SUPPORT
-#ifdef ZBUS_RAW_SUPPORT
-    if (!zbus_raw_conn->rport)
-#endif
-    zbus_decrypt(zbus_buf, (zbus_index_t *) &zbus_rxlen);
-    if(!zbus_rxlen) {
-      zbus_rxstart ();
-      uip_buf_unlock();
-    }
-
-#endif
-    return zbus_rxlen;
-  }
-  return 0;
+  return zbus_rxlen;
 }
 
 void
