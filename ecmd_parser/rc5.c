@@ -28,8 +28,8 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "../uip/uip.h"
-#include "../uip/uip_arp.h"
+#include "uip/uip.h"
+#include "uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "hardware/radio/fs20/fs20.h"
@@ -37,11 +37,11 @@
 #include "hardware/lcd/hd44780.h"
 #include "core/portio/named_pin.h"
 #include "hardware/onewire/onewire.h"
-#include "../rc5/rc5.h"
+#include "hardware/ir/rc5/rc5.h"
 #include "hardware/radio/rfm12/rfm12.h"
-#include "../dns/resolv.h"
-#include "../clock/clock.h"
-#include "../yport/yport.h"
+#include "services/dns/resolv.h"
+#include "services/clock/clock.h"
+#include "protocols/yport/yport.h"
 #include "ecmd.h"
 
 

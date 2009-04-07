@@ -43,7 +43,7 @@
 #include "hardware/onewire/onewire.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "ecmd_serial/ecmd_serial_usart.h"
-#include "rc5/rc5.h"
+#include "hardware/ir/rc5/rc5.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "dcf77/dcf77.h"
 #include "ps2/ps2.h"
