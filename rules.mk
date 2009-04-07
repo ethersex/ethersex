@@ -8,8 +8,8 @@
 #
 
 ifneq ($(rootbuild),t)
-${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
 SRC += ${y_SRC}
+SRC += ${y_ECMD_SRC}
 ASRC += ${y_ASRC}
 
 OBJECTS += $(patsubst %.c,%.o,${SRC})
