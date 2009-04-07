@@ -23,7 +23,7 @@
 
 #include "config.h"
 #include "../sd_reader/sd_raw.h"
-#include "../sd_reader/fat.h"
+#include "hardware/storage/sd_reader/fat.h"
 #include "core/debug.h"
 
 #ifdef SD_READER_SUPPORT
