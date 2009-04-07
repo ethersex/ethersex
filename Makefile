@@ -90,13 +90,14 @@ include $(foreach subdir,$(SUBDIRS),$(subdir)/Makefile)
 debug:
 	@echo SRC: ${SRC}
 	@echo y_SRC: ${y_SRC}
+	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 
 ##############################################################################
 
 .PHONY: compile-$(TARGET)
 compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 
-OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC})
+OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} ${y_ECMD_SRC})
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 # FIXME how can we omit specifying every file to be linked twice?

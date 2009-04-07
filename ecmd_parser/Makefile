@@ -5,7 +5,6 @@ $(ADC_SUPPORT)_SRC += ecmd_parser/adc.c
 $(KTY_SUPPORT)_SRC += ecmd_parser/kty.c
 $(DATAFLASH_SUPPORT)_SRC += ecmd_parser/dataflash.c
 $(ECMD_PARSER_SUPPORT)_SRC += ecmd_parser/ecmd.c
-$(FS20_SUPPORT)_SRC += ecmd_parser/fs20.c
 $(HD44780_SUPPORT)_SRC += ecmd_parser/hd44780.c
 $(MCUF_SUPPORT)_SRC += ecmd_parser/mcuf.c
 $(UIP_SUPPORT)_SRC += ecmd_parser/network.c

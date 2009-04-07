@@ -9,6 +9,7 @@
 
 ifneq ($(rootbuild),t)
 SRC += ${y_SRC}
+SRC += ${y_ECMD_SRC}
 ASRC += ${y_ASRC}
 
 OBJECTS += $(patsubst %.c,%.o,${SRC})
