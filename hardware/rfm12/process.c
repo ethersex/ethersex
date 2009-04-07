@@ -19,9 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../config.h"
-#include "../uip/uip.h"
-#include "../uip/uip_router.h"
+#include "config.h"
+#include "uip/uip.h"
+#include "uip/uip_router.h"
 #include "core/spi.h"
 #include "rfm12_raw_net.h"
 #include "rfm12.h"

@@ -22,7 +22,7 @@
 #ifndef _DCF77_H
 #define _DCF77_H
 
-#include "../config.h"
+#include "config.h"
 
 
 struct dcf77_ctx {

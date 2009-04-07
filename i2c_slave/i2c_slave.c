@@ -23,7 +23,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "../uip/uip.h"
-#include "../config.h"
+#include "config.h"
 #include "../global.h"
 #include "i2c_slave.h"
 #include "i2c_slave_state.h"

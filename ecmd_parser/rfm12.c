@@ -23,10 +23,10 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "../uip/uip.h"
-#include "../rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 #include "ecmd.h"
 
 #ifndef TEENSY_SUPPORT

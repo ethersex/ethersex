@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <avr/pgmspace.h>
-#include "../config.h"
+#include "config.h"
 #include "core/eeprom.h"
 
 #include "kty81.h"

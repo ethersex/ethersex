@@ -22,7 +22,7 @@
 #ifndef UIP_RFM12_H
 #define UIP_RFM12_H
 
-#include "../config.h"
+#include "config.h"
 #if defined(RFM12_IP_SUPPORT) && defined(ROUTER_SUPPORT)
 
 #include "uip-conf.h"

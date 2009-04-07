@@ -21,7 +21,7 @@
 
 #include <avr/interrupt.h>
 
-#include "../config.h"
+#include "config.h"
 #include "rfm12_ask.h"
 
 /*

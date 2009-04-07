@@ -20,7 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../config.h"
+#include "config.h"
 
 #include "core/bit-macros.h"
 

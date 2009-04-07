@@ -26,7 +26,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "../ecmd_parser/ecmd.h"
 

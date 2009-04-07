@@ -8,7 +8,7 @@
  * 
  */
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef MD5_SUPPORT
 

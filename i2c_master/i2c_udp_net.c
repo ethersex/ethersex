@@ -20,7 +20,7 @@
  */
 
 #include "../uip/uip.h"
-#include "../config.h"
+#include "config.h"
 #include "../i2c_master/i2c_udp.h"
 #include "i2c_udp_net.h"
 

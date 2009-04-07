@@ -26,7 +26,7 @@
 #include <util/twi.h>
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
-#include "../config.h"
+#include "config.h"
 #include "i2c_master.h"
 #include "i2c_udp.h"
 #include "i2c_state.h"

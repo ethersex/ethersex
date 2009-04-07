@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include <util/delay.h>
-#include "../config.h"
+#include "config.h"
 
 
 /* Prologue/epilogue macros, disabling/enabling interrupts. 

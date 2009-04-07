@@ -12,7 +12,7 @@
 #define SD_RAW_CONFIG_H
 
 #include <stdint.h>
-#include "../config.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C"

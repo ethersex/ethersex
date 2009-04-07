@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"

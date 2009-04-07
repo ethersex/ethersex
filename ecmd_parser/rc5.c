@@ -26,7 +26,7 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
@@ -38,7 +38,7 @@
 #include "core/portio/named_pin.h"
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
-#include "../rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 #include "../dns/resolv.h"
 #include "../clock/clock.h"
 #include "../yport/yport.h"

@@ -22,7 +22,7 @@
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-#include "../config.h"
+#include "config.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
 #include "../uip/uip_router.h"

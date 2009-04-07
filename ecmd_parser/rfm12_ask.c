@@ -27,9 +27,9 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
-#include "../rfm12/rfm12_ask.h"
+#include "hardware/rfm12/rfm12_ask.h"
 #include "ecmd.h"
 
 #ifdef RFM12_ASK_SENDER_SUPPORT

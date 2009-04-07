@@ -22,7 +22,7 @@
 #ifndef _WATCHCAT_H
 #define _WATCHCAT_H
 
-#include "../config.h"
+#include "config.h"
 
 struct VirtualPin {
   uint8_t old_state;

@@ -23,7 +23,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "../config.h"
+#include "config.h"
 #include "../autoconf.h"
 #include <util/delay.h>
 #include <stdlib.h>

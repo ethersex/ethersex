@@ -25,7 +25,7 @@
 #define _HD4480_H
 
 #include <stdio.h>
-#include "../config.h"
+#include "config.h"
 
 #ifdef HD44780_SUPPORT
 /* define data pins, for example:

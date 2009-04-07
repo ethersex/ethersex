@@ -20,7 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../config.h"
+#include "config.h"
 #include "ecmd_sender_net.h"
 #include "core/bit-macros.h"
 #include "../uip/uip.h"

@@ -25,7 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../dataflash/df.h"
 #include "../dataflash/fs.h"
 

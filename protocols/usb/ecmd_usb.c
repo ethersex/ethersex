@@ -29,7 +29,7 @@
 #include "usbdrv/usbdrv.h"
 #include "../ecmd_parser/ecmd.h"
 #include "requests.h"
-#include "../config.h"
+#include "config.h"
 
 #ifdef ECMD_USB_SUPPORT
 

@@ -19,7 +19,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef DC3840_SUPPORT
 

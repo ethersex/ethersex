@@ -23,7 +23,7 @@
 #ifndef UIP_OPENVPN_H
 #define UIP_OPENVPN_H
 
-#include "../config.h"
+#include "config.h"
 #ifdef OPENVPN_SUPPORT
 
 #include "uip-conf.h"

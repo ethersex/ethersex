@@ -21,10 +21,10 @@
 
 #include <stdlib.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../uip/uip.h"
 #include "core/spi.h"
-#include "../rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 
 #if defined(SKIPJACK_SUPPORT) \
     && (defined(RFM12_IP_SUPPORT) || defined(ZBUS_SUPPORT))

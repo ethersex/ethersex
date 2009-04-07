@@ -39,7 +39,7 @@
  *         Adam Dunkels <adam@sics.se>
  */
 
-#include "../config.h"
+#include "config.h"
 #ifdef ENC28J60_SUPPORT 
 
 #include "uip_neighbor.h"

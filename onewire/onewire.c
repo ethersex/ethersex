@@ -27,7 +27,7 @@
 #include <util/delay.h>
 #include <util/crc16.h>
 
-#include "../config.h"
+#include "config.h"
 #include "core/eeprom.h"
 #include "onewire.h"
 

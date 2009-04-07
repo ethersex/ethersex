@@ -23,7 +23,7 @@
 #ifndef _HC595_H
 #define _HC595_H
 
-#include "../config.h"
+#include "config.h"
 
 
 void hc595_init(void);

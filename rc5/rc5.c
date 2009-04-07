@@ -28,7 +28,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "rc5.h"
 

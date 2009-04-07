@@ -4,7 +4,7 @@
 #define __UIP_CONF_H__
 
 #include <inttypes.h>
-#include "../config.h"
+#include "config.h"
 
 /**
  * 8 bit datatype

@@ -22,7 +22,7 @@
  */
 
 #include "../uip/uip.h"
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "syslog_net.h"
 #include "../syslog/syslog.h"

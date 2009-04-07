@@ -20,9 +20,9 @@
  */
 
 #include "../uip/uip.h"
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
-#include "../rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 #include "rfm12_raw_net.h"
 
 uip_udp_conn_t *rfm12_raw_conn;

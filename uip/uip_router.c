@@ -29,7 +29,7 @@
 
 #include "ipv6.h"
 #include "network.h"
-#include "rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 #include "protocols/zbus/zbus.h"
 #include "protocols/usb/usb_net.h"
 

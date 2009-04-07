@@ -23,7 +23,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "../config.h"
+#include "config.h"
 #include "ecmd_serial_i2c.h"
 #include "../ecmd_parser/ecmd.h"
 

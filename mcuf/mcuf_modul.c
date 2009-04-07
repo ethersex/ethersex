@@ -29,7 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "../clock/clock.h"
 #include "mcuf.h"

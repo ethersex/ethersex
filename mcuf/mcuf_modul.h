@@ -28,7 +28,7 @@
 #ifndef GCC
 #include <stdint.h>
 #include <util/delay.h>
-#include "../config.h"
+#include "config.h"
 #include "mcuf.h"
 #else
 #include "../contrib/mcuf/modsim.h"

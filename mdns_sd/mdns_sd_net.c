@@ -23,7 +23,7 @@
 
 #include "core/bit-macros.h"
 #include "../uip/uip.h"
-#include "../config.h"
+#include "config.h"
 
 #include "mdns_sd.h"
 #include "mdns_sd_net.h"

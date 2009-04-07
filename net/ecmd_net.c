@@ -30,7 +30,7 @@
 
 #include <string.h>
 
-#include "../config.h"
+#include "config.h"
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 

@@ -24,7 +24,7 @@
 #include <util/delay.h>
 
 #include "hd44780.h"
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 
 #ifdef HD44780_SUPPORT

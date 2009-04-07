@@ -40,7 +40,7 @@
 #include "services/cron/cron_static.h"
 #include "ipv6.h"
 #include "ps2/ps2.h"
-#include "rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 #include "syslog/syslog.h"
 #include "mcuf/mcuf.h"
 #include "protocols/usb/usb.h"

@@ -25,7 +25,7 @@
 #ifndef _FS20_H
 #define _FS20_H
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef FS20_SUPPORT
 

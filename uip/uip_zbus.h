@@ -22,7 +22,7 @@
 #ifndef UIP_ZBUS_H
 #define UIP_ZBUS_H
 
-#include "../config.h"
+#include "config.h"
 #if defined(ZBUS_SUPPORT) && defined(ROUTER_SUPPORT)
 
 #include "uip-conf.h"

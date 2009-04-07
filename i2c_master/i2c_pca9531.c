@@ -22,7 +22,7 @@
 #include <avr/io.h>
 #include <util/twi.h>
 
-#include "../config.h"
+#include "config.h"
 #include "i2c_master.h"
 #include "i2c_pca9531.h"
 

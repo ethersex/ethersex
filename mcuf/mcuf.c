@@ -31,7 +31,7 @@
 #include <stdint.h>
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
-#include "../config.h"
+#include "config.h"
 #include "../syslog/syslog.h"
 #include "../clock/clock.h"
 #include "mcuf.h"

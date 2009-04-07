@@ -30,7 +30,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "core/bit-macros.h"
-#include "../config.h"
+#include "config.h"
 
 
 #ifdef LEDRG_SUPPORT

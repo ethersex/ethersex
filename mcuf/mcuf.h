@@ -24,7 +24,7 @@
 #define _MCUF_H
 
 #include <stdint.h>
-#include "../config.h"
+#include "config.h"
 /* The default baudrate of the shifter is 115200 baud (ubrr == 10 @ 20 Mhz) */
 #define MCUF_BAUDRATE 115200
 //DEBUG_BAUDRATE

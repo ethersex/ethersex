@@ -25,13 +25,13 @@
 
 #include <stdlib.h>
 
-#include "../config.h"
-#include "../uip/uip.h"
+#include "config.h"
+#include "uip/uip.h"
 #include "core/spi.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"
-#include "../crypto/encrypt-llh.h"
-#include "../syslog/syslog.h"
+#include "crypto/encrypt-llh.h"
+#include "syslog/syslog.h"
 
 #ifdef RFM12_IP_SUPPORT
 rfm12_status_t rfm12_status;

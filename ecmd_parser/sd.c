@@ -21,7 +21,7 @@
 
 #include <avr/pgmspace.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../sd_reader/sd_raw.h"
 #include "../sd_reader/fat.h"
 #include "../debug.h"

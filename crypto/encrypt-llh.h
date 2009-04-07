@@ -22,7 +22,7 @@
 #ifndef ENCRYPT_LLH_H
 #define ENCRYPT_LLH_H
 
-#include "../rfm12/rfm12.h"
+#include "hardware/rfm12/rfm12.h"
 
 void llh_encrypt (uint8_t *key, uint8_t *data, uint16_t *len);
 void llh_decrypt (uint8_t *key, uint8_t *data, uint16_t *len);

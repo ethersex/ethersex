@@ -23,7 +23,7 @@
 #define VFS_H
 
 #include <avr/pgmspace.h>
-#include "../config.h"
+#include "config.h"
 
 enum vfs_type_t {
 #ifdef VFS_EEPROM_SUPPORT

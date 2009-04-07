@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <avr/wdt.h>
 
-#include "../config.h"
+#include "config.h"
 
 #include "rfm12.h"
 #include "rfm12_ask.h"

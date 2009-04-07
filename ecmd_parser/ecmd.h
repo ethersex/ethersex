@@ -22,7 +22,7 @@
 #ifndef _ECMD_H
 #define _ECMD_H
 
-#include "../config.h"
+#include "config.h"
 #include <inttypes.h>
 
 /* returns >= 0 for output, -1 for parse error,

@@ -24,7 +24,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 
-#include "../config.h"
+#include "config.h"
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
@@ -32,7 +32,7 @@
 #include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "core/portio/portio.h"
-#include "../config.h"
+#include "config.h"
 
 #ifdef HC595_SUPPORT
 

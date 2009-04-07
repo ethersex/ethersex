@@ -63,7 +63,7 @@
 /* we want to live on the outer stack, if there are two ... */
 #include "uip_openvpn.h"
 
-#include "../config.h"
+#include "config.h"
 #include "../network.h"
 #include "uip_arp.h"
 
