@@ -1,0 +1,11 @@
+#! /bin/sh
+BASEPATH="${0%/*}/"
+
+if [ $# -ne 2 ]; then
+  echo "Usage: header_fix_all OLDFN NEWPATH/FN"
+  exit 1
+fi
+
+git grep -l -e $1 | while fn="`line`"; do
+  "$BASEPATH/header_fixer" "$1" "$2" < "$fn" > o && mv -f o "$fn"
+done

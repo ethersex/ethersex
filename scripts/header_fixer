@@ -1,0 +1,18 @@
+#! /usr/bin/perl -w
+use strict;
+
+if (scalar (@ARGV) != 2) {
+  print STDERR "Usage: header-fixer OLDFN NEWPATH/FN\n";
+  exit 1;
+}
+
+my $oldfn = shift @ARGV;
+my $newfn = shift @ARGV;
+
+while ($_ = <>) {
+  if (m/^#include "(?:..\/)*$oldfn"\s*$/o) {
+    print "#include \"$newfn\"\n";
+  } else {
+    print $_
+  }
+}
