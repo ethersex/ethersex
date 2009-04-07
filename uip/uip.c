@@ -87,7 +87,7 @@
 #include "protocols/zbus/zbus.h"
 #include "debug.h"
 #include "syslog/syslog.h"
-#include "hardware/rfm12/rfm12.h"
+#include "hardware/radio/rfm12/rfm12.h"
 
 #if UIP_CONF_IPV6
 #include "uip_neighbor.h"

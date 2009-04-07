@@ -24,7 +24,7 @@
 #include "config.h"
 #include "../uip/uip.h"
 #include "core/spi.h"
-#include "hardware/rfm12/rfm12.h"
+#include "hardware/radio/rfm12/rfm12.h"
 
 #if defined(SKIPJACK_SUPPORT) \
     && (defined(RFM12_IP_SUPPORT) || defined(ZBUS_SUPPORT))

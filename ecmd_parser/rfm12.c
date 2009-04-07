@@ -26,7 +26,7 @@
 #include "config.h"
 #include "../debug.h"
 #include "../uip/uip.h"
-#include "hardware/rfm12/rfm12.h"
+#include "hardware/radio/rfm12/rfm12.h"
 #include "ecmd.h"
 
 #ifndef TEENSY_SUPPORT

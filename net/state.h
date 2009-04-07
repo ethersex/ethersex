@@ -29,7 +29,7 @@
 #include "ecmd_sender_state.h"
 #include "i2c_master/i2c_state.h"
 #include "i2c_slave/i2c_slave_state.h"
-#include "hardware/rfm12/rfm12_raw_state.h"
+#include "hardware/radio/rfm12/rfm12_raw_state.h"
 #include "protocols/bootp/bootp_state.h"
 #include "protocols/modbus/modbus_state.h"
 #include "protocols/zbus/zbus_raw_state.h"

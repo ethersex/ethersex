@@ -29,7 +29,7 @@
 
 #include "config.h"
 #include "../debug.h"
-#include "hardware/rfm12/rfm12_ask.h"
+#include "hardware/radio/rfm12/rfm12_ask.h"
 #include "ecmd.h"
 
 #ifdef RFM12_ASK_SENDER_SUPPORT

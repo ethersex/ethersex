@@ -38,7 +38,7 @@
 #include "core/portio/named_pin.h"
 #include "../onewire/onewire.h"
 #include "../rc5/rc5.h"
-#include "hardware/rfm12/rfm12.h"
+#include "hardware/radio/rfm12/rfm12.h"
 #include "../dns/resolv.h"
 #include "../clock/clock.h"
 #include "../yport/yport.h"
