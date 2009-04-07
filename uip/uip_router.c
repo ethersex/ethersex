@@ -2,7 +2,7 @@
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -27,18 +27,18 @@
 #include "uip_arp.h"
 #include "uip_neighbor.h"
 
-#include "../ipv6.h"
-#include "../network.h"
-#include "../rfm12/rfm12.h"
-#include "../zbus/zbus.h"
-#include "../usb/usb_net.h"
+#include "ipv6.h"
+#include "network.h"
+#include "rfm12/rfm12.h"
+#include "protocols/zbus/zbus.h"
+#include "protocols/usb/usb_net.h"
 
 #ifdef IPCHAIR_SUPPORT
-#include "../ipchair/ipchair.h"
+#include "ipchair/ipchair.h"
 #endif
 
 #ifdef DEBUG_ROUTER
-# include "../debug.h"
+# include "debug.h"
 # define printf  debug_printf
 #else
 # define printf(a...)
@@ -46,7 +46,7 @@
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
-uint8_t 
+uint8_t
 router_find_stack(uip_ipaddr_t *forwardip)
 {
   uint8_t i;
@@ -164,14 +164,14 @@ router_input(uint8_t origin)
   return;
 }
 
-void 
+void
 router_output(void) {
 #ifdef IPCHAIR_HAVE_OUTPUT
   ipchair_OUTPUT_chair();
 #endif
 
   uint8_t dest = router_find_stack(&BUF->destipaddr);
-  if (dest == 255) 
+  if (dest == 255)
     {
       uip_len = 0;
       return;

@@ -34,7 +34,7 @@
 #include "debug.h"
 #include "spi.h"
 #include "network.h"
-#include "timer.h"
+#include "periodic.h"
 #include "portio.h"
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
@@ -45,19 +45,19 @@
 #include "ecmd_serial/ecmd_serial_usart.h"
 #include "rc5/rc5.h"
 #include "rfm12/rfm12.h"
-#include "zbus/zbus.h"
-#include "clock/clock.h"
 #include "dcf77/dcf77.h"
 #include "ps2/ps2.h"
-#include "usb/usb.h"
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
-#include "yport/yport.h"
 #include "ipv6.h"
 #include "dataflash/fs.h"
-#include "modbus/modbus.h"
+#include "services/clock/clock.h"
 #include "services/cron/cron.h"
 #include "services/stella/stella.h"
+#include "protocols/modbus/modbus.h"
+#include "protocols/zbus/zbus.h"
+#include "protocols/usb/usb.h"
+#include "protocols/yport/yport.h"
 #include "syslog/syslog.h"
 #include "net/handler.h"
 #include "net/sendmail.h"
@@ -188,7 +188,7 @@ int main(void)
     network_init();
 #   endif
 
-    timer_init();
+    periodic_init();
 
 #ifdef CLOCK_SUPPORT
     clock_init();
@@ -380,7 +380,7 @@ wdt_kick();
 
         /* check if any timer expired,
          * poll all uip connections */
-        timer_process();
+		  periodic_process();
         wdt_kick();
 
         /* check if debug input has arrived */

@@ -23,7 +23,7 @@
 
 #include <avr/interrupt.h>
 
-#include "timer.h"
+#include "periodic.h"
 #include "config.h"
 #include "network.h"
 #include "debug.h"
@@ -35,24 +35,24 @@
 #include "control6/control6.h"
 #include "fs20/fs20.h"
 #include "watchcat/watchcat.h"
-#include "clock/clock.h"
+#include "services/clock/clock.h"
 #include "services/cron/cron.h"
 #include "services/cron/cron_static.h"
-#include "usb/usb.h"
 #include "ipv6.h"
 #include "ps2/ps2.h"
 #include "rfm12/rfm12.h"
 #include "syslog/syslog.h"
 #include "mcuf/mcuf.h"
-#include "modbus/modbus.h"
-#include "zbus/zbus.h"
-#include "mysql/mysql.h"
+#include "protocols/usb/usb.h"
+#include "protocols/modbus/modbus.h"
+#include "protocols/zbus/zbus.h"
+#include "protocols/mysql/mysql.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
-void timer_init(void)
+void periodic_init(void)
 {
 
     /* init timer1 to expire after ~20ms, with CTC enabled */
@@ -62,7 +62,7 @@ void timer_init(void)
 }
 
 
-void timer_process(void)
+void periodic_process(void)
 {
 
     static uint16_t counter = 0;

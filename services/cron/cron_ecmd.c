@@ -23,12 +23,11 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
-#include "../config.h"
-#include "../debug.h"
-#include "../bit-macros.h"
+#include "config.h"
+#include "debug.h"
+#include "bit-macros.h"
 #include "ecmd_parser/ecmd.h"
-
-#include "../cron/cron.h"
+#include "cron.h"
 
 int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 {

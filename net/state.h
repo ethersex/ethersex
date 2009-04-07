@@ -22,22 +22,22 @@
 #ifndef CONNECTION_STATE_H
 #define CONNECTION_STATE_H
 
-#include "../uip/uip_openvpn.h"
-#include "../config.h"
+#include "uip/uip_openvpn.h"
+#include "config.h"
 
 #include "ecmd_state.h"
-#include "../bootp/bootp_state.h"
-#include "../tftp/tftp_state.h"
 #include "ecmd_sender_state.h"
-#include "../i2c_master/i2c_state.h"
-#include "../i2c_slave/i2c_slave_state.h"
-#include "../dyndns/dyndns_state.h"
-#include "../modbus/modbus_state.h"
-#include "../rfm12/rfm12_raw_state.h"
-#include "../zbus/zbus_raw_state.h"
-#include "../httpd/httpd_state.h"
-#include "../jabber/jabber_state.h"
-#include "../mysql/mysql_state.h"
+#include "i2c_master/i2c_state.h"
+#include "i2c_slave/i2c_slave_state.h"
+#include "rfm12/rfm12_raw_state.h"
+#include "protocols/bootp/bootp_state.h"
+#include "protocols/modbus/modbus_state.h"
+#include "protocols/zbus/zbus_raw_state.h"
+#include "protocols/mysql/mysql_state.h"
+#include "services/dyndns/dyndns_state.h"
+#include "services/tftp/tftp_state.h"
+#include "services/httpd/httpd_state.h"
+#include "services/jabber/jabber_state.h"
 #include "sendmail.h"
 
 /* uip appstate for tcp */

@@ -3,16 +3,11 @@ include $(TOPDIR)/.config
 
 $(ADC_SUPPORT)_SRC += ecmd_parser/adc.c
 $(KTY_SUPPORT)_SRC += ecmd_parser/kty.c
-$(CLOCK_SUPPORT)_SRC += ecmd_parser/clock.c
 $(DATAFLASH_SUPPORT)_SRC += ecmd_parser/dataflash.c
-$(DNS_SUPPORT)_SRC += ecmd_parser/dns.c
 $(ECMD_PARSER_SUPPORT)_SRC += ecmd_parser/ecmd.c
 $(FS20_SUPPORT)_SRC += ecmd_parser/fs20.c
 $(HD44780_SUPPORT)_SRC += ecmd_parser/hd44780.c
-$(HTTPD_SUPPORT)_SRC += ecmd_parser/httpd.c
 $(MCUF_SUPPORT)_SRC += ecmd_parser/mcuf.c
-$(MODBUS_SUPPORT)_SRC += ecmd_parser/modbus.c
-$(MYSQL_SUPPORT)_SRC += ecmd_parser/mysql.c
 $(UIP_SUPPORT)_SRC += ecmd_parser/network.c
 $(ONEWIRE_SUPPORT)_SRC += ecmd_parser/onewire.c
 $(PORTIO_SUPPORT)_SRC += ecmd_parser/portio.c

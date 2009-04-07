@@ -83,7 +83,7 @@ endmenu
 
 source crypto/config.in
 source vfs/config.in
-source usb/config.in
+source protocols/usb/config.in
 
 source control6/config.in
 
@@ -95,10 +95,10 @@ source rfm12/config.in
 
 usart_count_used
 if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  source zbus/config.in
+	source protocols/zbus/config.in
 fi
 
-source usb/usb-net-config.in
+source protocols/usb/usb-net-config.in
 
 source scripts/ip-router-conf.sh
 
@@ -203,8 +203,8 @@ source mcuf/config.in
 usart_count_used
 comment "Usart Configuration ($USARTS_USED/$USARTS)"
 source mcuf/config_usart.in
-source modbus/config.in
-source yport/config.in
+source protocols/modbus/config.in
+source protocols/yport/config.in
 
 if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
@@ -222,9 +222,9 @@ endmenu
 mainmenu_option next_comment
 comment "Applications"
 
-source clock/config.in
+source services/clock/config.in
 source ecmd_parser/config.in
-source httpd/config.in
+source services/httpd/config.in
 source lcd/config.in
 source net/config.in
 source services/stella/config.in

@@ -33,7 +33,7 @@
 
 #ifdef STELLA_SUPPORT
 
-#include "../stella/stella.h"
+#include "stella.h"
 
 int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 {

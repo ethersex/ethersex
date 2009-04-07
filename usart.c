@@ -25,15 +25,15 @@
 #include "eeprom.h"
 #include "bit-macros.h"
 #include "config.h"
-#include "zbus/zbus.h"
-#include "modbus/modbus.h"
-#include "yport/yport.h"
+#include "protocols/zbus/zbus.h"
+#include "protocols/modbus/modbus.h"
+#include "protocols/yport/yport.h"
 #include "usart.h"
 
 #ifdef USART_SUPPORT
 
 #ifndef TEENSY_SUPPORT
-/* Sets the ubrr register according to baudrate 
+/* Sets the ubrr register according to baudrate
  * The baudrate had to be baudrate/100 */
 uint16_t
 usart_baudrate(uint16_t baudrate) {
@@ -61,7 +61,7 @@ usart_baudrate(uint16_t baudrate) {
 #endif
   default:
     ubrr = (F_CPU/1600) / baudrate - 1;
-  } 
+  }
   return ubrr;
 }
 

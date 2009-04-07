@@ -29,7 +29,7 @@
 
 #include "config.h"
 #include "eeprom.h"
-#include "yport/yport.h"
+//#include "protocols/yport/yport.h"
 
 
 #ifdef CRC_SUPPORT
@@ -62,7 +62,7 @@ eeprom_write_block_hack(void *dst, const void *src, size_t n)
 
 
 uint8_t
-eeprom_get_chksum(void) 
+eeprom_get_chksum(void)
 {
     uint8_t eeprom_crc = 0;
     uint8_t *p = (uint8_t *)EEPROM_CONFIG_BASE;

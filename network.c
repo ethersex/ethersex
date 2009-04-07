@@ -31,9 +31,8 @@
 #include "ipv6.h"
 #include "bit-macros.h"
 #include "net/handler.h"
-#include "dns/resolv.h"
-#include "yport/yport.h"
-#include "zbus/zbus.h"
+#include "protocols/yport/yport.h"
+#include "protocols/zbus/zbus.h"
 
 #include "debug.h"
 
@@ -43,11 +42,12 @@
 #include "uip/uip_rfm12.h"
 #include "uip/uip_router.h"
 #include "uip/uip_zbus.h"
-#include "tftp/tftp.h"
+#include "services/dns/resolv.h"
+#include "services/tftp/tftp.h"
 #include "enc28j60.h"
 
 /*FIXME: interrupts not supported */
-#define ENC28J60_POLL 
+#define ENC28J60_POLL
 #ifndef ENC28J60_POLL
     #define interrupt_occured() (! PIN_HIGH(INT_PIN))
     #define wol_interrupt_occured() (! PIN_HIGH(WOL_PIN))
@@ -70,7 +70,7 @@ void process_packet(void);
 
 
 
-void 
+void
 network_init(void)
 {
     uip_ipaddr_t ip;
@@ -109,7 +109,7 @@ network_init(void)
     uint8_t checksum = eeprom_get_chksum();
     uint8_t saved_checksum;
     eeprom_restore_char(crc, &saved_checksum);
-    
+
 
     if (checksum != saved_checksum)
       eeprom_init();

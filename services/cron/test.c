@@ -21,7 +21,6 @@
 
 #include "test.h"
 #include "cron.h"
-#include "syslog/syslog.h"
 #include "config.h"
 #include "debug.h"
 

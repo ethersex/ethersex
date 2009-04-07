@@ -23,12 +23,11 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include "cron.h"
 #include "test.h"
 #include "config.h"
 #include "debug.h"
-#include "clock/clock.h"
+#include "services/clock/clock.h"
 
 #ifdef CRON_SUPPORT
 

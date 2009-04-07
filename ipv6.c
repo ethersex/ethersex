@@ -3,7 +3,7 @@
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,8 +25,8 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/uip_neighbor.h"
-#include "tftp/tftp.h"
-#include "dyndns/dyndns.h"
+#include "services/tftp/tftp.h"
+#include "services/dyndns/dyndns.h"
 #include "ipv6.h"
 #include "config.h"
 #include "debug.h"
@@ -61,7 +61,7 @@ extern uint8_t bootload_delay;
 #if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
 
 
-static void 
+static void
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 {
   uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
@@ -85,7 +85,7 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
   ICMPBUF->len[1] = 32;
   ICMPBUF->proto = UIP_PROTO_ICMP6;
   ICMPBUF->ttl = 255;
-    
+
   uip_ipaddr_copy(ICMPBUF->srcipaddr, uip_hostaddr);
   ICMPBUF->destipaddr[0] = HTONS(0xFF02);
   // ICMPBUF->destipaddr[1] = 0;
@@ -95,7 +95,7 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
   ICMPBUF->destipaddr[5] = HTONS(0x0001);
   ICMPBUF->destipaddr[6] = ipaddr[6] | HTONS(0xFF00);
   ICMPBUF->destipaddr[7] = ipaddr[7];
-    
+
   ICMPBUF->type = 135;  /* neighbour solicitation */
   // ICMPBUF->icode = 0;
   // ICMPBUF->icmpchksum = 0;
@@ -115,7 +115,7 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 
 
 #ifndef IPV6_STATIC_SUPPORT
-void 
+void
 uip_router_send_solicitation(void)
 {
   IP6DEBUG ("emitting router solicitation.\n");
@@ -141,7 +141,7 @@ uip_router_send_solicitation(void)
   ICMPBUF->len[1] = 16;
   ICMPBUF->proto = UIP_PROTO_ICMP6;
   ICMPBUF->ttl = 255;
-    
+
   uip_ipaddr_copy(ICMPBUF->srcipaddr, uip_hostaddr);
   ICMPBUF->destipaddr[0] = HTONS(0xFF02);
   // ICMPBUF->destipaddr[1] = 0;
@@ -151,7 +151,7 @@ uip_router_send_solicitation(void)
   // ICMPBUF->destipaddr[5] = 0;
   // ICMPBUF->destipaddr[6] = 0;
   ICMPBUF->destipaddr[7] = HTONS(0x0002);
-    
+
   ICMPBUF->type = 133;  /* router solicitation */
   // ICMPBUF->icode = 0;
   // ICMPBUF->icmpchksum = 0;
@@ -225,7 +225,7 @@ uip_router_parse_advertisement(void)
   } else if (RADVBUF->first_type == 3) {
     prefix = (struct uip_icmp_radv_prefix *) &RADVBUF->first_type;
     source = (struct uip_icmp_radv_source *) &(&RADVBUF->first_type)[32];
-  } else 
+  } else
     goto error_out;
 
   /* check that first option is `prefix information'. */
@@ -262,7 +262,7 @@ uip_router_parse_advertisement(void)
     if (prefix->prefix[i] != 0)
       isnt_prefix = 1;
 
-  if (isnt_prefix) 
+  if (isnt_prefix)
     /* use the router's ip address as new default gateway. */
     uip_ipaddr_copy(uip_draddr, prefix->prefix);
   else
@@ -278,7 +278,7 @@ error_out:
 
 
 int
-uip_neighbor_out(void) 
+uip_neighbor_out(void)
 {
   uip_ipaddr_t ipaddr;
   struct uip_neighbor_addr *remote_mac;
@@ -287,7 +287,7 @@ uip_neighbor_out(void)
   {0x02ff,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0xfb00};
 #endif /* MDNS_SD_SUPPORT */
 
-  /* Check if the destination address is on the local network. 
+  /* Check if the destination address is on the local network.
    * FIXME, for the moment we assume a 64-bit "netmask" */
   if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8))
     /* Remote address is not on the local network, use router */
@@ -303,9 +303,9 @@ uip_neighbor_out(void)
      * have to use the router */
     uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
     /* We send the answer to the mac of the asking machine */
-    memcpy(ETHBUF->dest.addr, ETHBUF->src.addr, 6); 
+    memcpy(ETHBUF->dest.addr, ETHBUF->src.addr, 6);
     goto after_neighbour_resolv;
-  } else 
+  } else
 #endif /* MDNS_SD_SUPPORT */
     remote_mac = uip_neighbor_lookup(ipaddr);
 

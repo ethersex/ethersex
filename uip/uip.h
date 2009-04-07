@@ -56,13 +56,13 @@
 #include <string.h>
 
 #include "uipopt.h"
-#include "../net/state.h"
+#include "net/state.h"
 
 /**
  * Callback when something happens on a connection
  *
  * If something, like recieving, polling or something else happens on an
- * connection this callback can be called 
+ * connection this callback can be called
  */
 typedef void (*uip_conn_callback_t)(void);
 
@@ -76,7 +76,7 @@ typedef void (*uip_conn_callback_t)(void);
 /**
  * Struct of an tcp listenig port
  *
- * port is the port which should be listend 
+ * port is the port which should be listend
  *
  * callback is an place for an application to store an callback, this callback
  * ist automatically copied to a new uip_conn
@@ -116,7 +116,7 @@ struct uip_listen_port {
 
  uip_ipaddr(&addr, 192,168,1,2);
  uip_sethostaddr(&addr);
- 
+
  \endcode
  * \param addr A pointer to an IP address of type uip_ipaddr_t;
  *
@@ -500,7 +500,7 @@ void uip_unlisten(u16_t port);
  * retransmission timer to 0. This will cause a TCP SYN segment to be
  * sent out the next time this connection is periodically processed,
  * which usually is done within 0.5 seconds after the call to
- * uip_connect(). 
+ * uip_connect().
  *
  * \note This function is avaliable only if support for active open
  * has been configured by defining UIP_ACTIVE_OPEN to 1 in uipopt.h.
@@ -779,7 +779,7 @@ void uip_send(const void *data, int len);
  \code
  uip_ipaddr_t addr;
  uip_udp_conn_t *c;
- 
+
  uip_ipaddr(&addr, 192,168,2,1);
  c = uip_udp_new(&addr, HTONS(12345));
  if(c != NULL) {
@@ -840,7 +840,7 @@ uip_udp_conn_t *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callbac
  * These functions can be used for converting between different data
  * formats used by uIP.
  */
- 
+
 /**
  * Construct an IP address from four bytes.
  *
@@ -852,7 +852,7 @@ uip_udp_conn_t *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callbac
  \code
  uip_ipaddr_t ipaddr;
  uip_conn_t *c;
- 
+
  uip_ipaddr(&ipaddr, 192,168,1,2);
  c = uip_connect(&ipaddr, HTONS(80));
  \endcode
@@ -978,7 +978,7 @@ uip_udp_conn_t *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callbac
                      ((u16_t *)(addr1))[4] == HTONS((byte5)) && \
                      ((u16_t *)(addr1))[5] == HTONS((byte6)) && \
                      ((u16_t *)(addr1))[6] == HTONS((byte7)) && \
-                     ((u16_t *)(addr1))[7] == HTONS((byte8))) 
+                     ((u16_t *)(addr1))[7] == HTONS((byte8)))
 #endif /* !UIP_CONF_IPV6 */
 
 /**
@@ -1220,11 +1220,11 @@ extern u16_t uip_urglen, uip_surglen;
 #if UIP_TCP
 struct __uip_conn {
   uip_ipaddr_t ripaddr;   /**< The IP address of the remote host. */
-  
+
   u16_t lport;        /**< The local TCP port, in network byte order. */
   u16_t rport;        /**< The local remote TCP port, in network byte
 			 order. */
-  
+
   u8_t rcv_nxt[4];    /**< The sequence number that we expect to
 			 receive next. */
   u8_t snd_nxt[4];    /**< The sequence number that was last sent by
@@ -1260,8 +1260,8 @@ struct __uip_conn {
 #endif
 };
 
-/** 
- * Timeouts for a TCP Connection 
+/**
+ * Timeouts for a TCP Connection
  */
 
 #define UIP_TCP_TIMEOUT  (UIP_TIMEOUT_COUNT * 60 * 5) /* n minutes */
@@ -1287,7 +1287,7 @@ struct __uip_udp_conn {
   uip_ipaddr_t ripaddr;   /**< The IP address of the remote peer. */
   u16_t lport;        /**< The local port number in network byte order. */
   u16_t rport;        /**< The remote port number in network byte order. */
-  uip_conn_callback_t callback;  /**< Callback can be called when something happens on 
+  uip_conn_callback_t callback;  /**< Callback can be called when something happens on
                                    the "connection" */
 #if UIP_MULTI_STACK
   u8_t stack;
@@ -1433,7 +1433,7 @@ void uip_process(u8_t flag);
    incoming data that should be processed, or because the periodic
    timer has fired. These values are never used directly, but only in
    the macrose defined in this file. */
- 
+
 #define UIP_DATA          1     /* Tells uIP that there is incoming
 				   data in the uip_buf buffer. The
 				   length of the data is stored in the
@@ -1460,7 +1460,7 @@ void uip_process(u8_t flag);
 #define UIP_TIME_WAIT   7
 #define UIP_LAST_ACK    8
 #define UIP_TS_MASK     15
-  
+
 #define UIP_STOPPED      16
 
 /* The TCP and IP headers. */
@@ -1486,7 +1486,7 @@ struct uip_tcpip_hdr {
   u16_t srcipaddr[2],
     destipaddr[2];
 #endif /* UIP_CONF_IPV6 */
-  
+
   /* TCP header. */
   u16_t srcport,
     destport;
@@ -1523,7 +1523,7 @@ struct uip_icmpip_hdr {
   u16_t srcipaddr[2],
     destipaddr[2];
 #endif /* UIP_CONF_IPV6 */
-  
+
   /* ICMP (echo) header. */
   u8_t type, icode;
   u16_t icmpchksum;
@@ -1560,7 +1560,7 @@ struct uip_udpip_hdr {
   u16_t srcipaddr[2],
     destipaddr[2];
 #endif /* UIP_CONF_IPV6 */
-  
+
   /* UDP header. */
   u16_t srcport,
     destport;
@@ -1650,9 +1650,9 @@ extern volatile uint8_t _uip_buf_lock;
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "../rfm12/rfm12.h"
-#include "../zbus/zbus.h"
-#include "../usb/usb_net.h"
+#include "rfm12/rfm12.h"
+#include "protocols/zbus/zbus.h"
+#include "protocols/usb/usb_net.h"
 
 static inline uint8_t uip_buf_lock (void)
 {
