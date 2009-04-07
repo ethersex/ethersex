@@ -25,7 +25,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "ecmd.h"
 
 #ifdef PWM_SUPPORT

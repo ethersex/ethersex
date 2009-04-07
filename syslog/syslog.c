@@ -26,7 +26,7 @@
 
 #include "../uip/uip.h"
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../uip/uip_arp.h"
 #include "../uip/uip_neighbor.h"
 #include "../uip/uip_router.h"

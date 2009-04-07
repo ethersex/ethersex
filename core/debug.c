@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "ecmd_parser/ecmd.h"
 #include "onewire/onewire.h"
 
@@ -30,8 +30,6 @@
 /* prototypes */
 int debug_uart_put(char d, FILE *stream);
 void soft_uart_putchar(uint8_t c);
-
-#ifdef DEBUG
 
 #define USE_USART 0
 #define BAUD DEBUG_BAUDRATE
@@ -124,5 +122,3 @@ debug_process_uart (void)
 
 #endif	/* not DEBUG_USE_SYSLOG */
 
-
-#endif	/* DEBUG */

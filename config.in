@@ -91,7 +91,7 @@ string "Hostname" CONF_HOSTNAME "ethersex"
 
 comment "Network interfaces"
 source enc28j60-config.in
-source hardware/rfm12/config.in
+source hardware/radio/rfm12/config.in
 
 usart_count_used
 if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
@@ -183,7 +183,7 @@ dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "named_pin/config"
 source i2c_master/config.in
 source camera/config.in
 
-source fs20/config.in
+source hardware/radio/fs20/config.in
 
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
@@ -228,7 +228,7 @@ source services/httpd/config.in
 source lcd/config.in
 source net/config.in
 source services/stella/config.in
-source rfm12/rfm12_ask-config.in
+source hardware/radio/rfm12/rfm12_ask-config.in
 source mysql/config.in
 
 endmenu

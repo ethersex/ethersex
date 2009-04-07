@@ -25,7 +25,7 @@
 
 #include "hd44780.h"
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 
 #ifdef HD44780_SUPPORT
 

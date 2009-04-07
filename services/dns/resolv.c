@@ -66,7 +66,7 @@
 #include "resolv.h"
 #include "uip/uip.h"
 #include "dns_net.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "core/eeprom.h"
 #include "config.h"
 

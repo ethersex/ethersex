@@ -22,7 +22,7 @@
 #include <util/twi.h>
         
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "i2c_master.h"
 
 #ifdef I2C_MASTER_SUPPORT

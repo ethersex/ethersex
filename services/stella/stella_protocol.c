@@ -25,7 +25,7 @@
 #include "stella_net.h"
 #include "stella_protocol.h"
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 /* we can manipulate crons via the stella protocol */
 #include "services/cron/cron.h"
 /* we want to send via uip */

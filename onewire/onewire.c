@@ -35,7 +35,7 @@
 
 #define noinline __attribute__((noinline))
 
-#include "../debug.h"
+#include "core/debug.h"
 
 /* global variables */
 struct ow_global_t ow_global;

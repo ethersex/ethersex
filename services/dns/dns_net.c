@@ -22,7 +22,7 @@
 
 #include "dns_net.h"
 #include "uip/uip.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "resolv.h"
 #include "config.h"
 

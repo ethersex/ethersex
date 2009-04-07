@@ -25,7 +25,7 @@
 #include "ecmd_net.h"
 #include "core/bit-macros.h"
 #include "../uip/uip.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../ecmd_parser/ecmd.h"
 
 #include <string.h>

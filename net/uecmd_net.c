@@ -23,7 +23,7 @@
 #include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../ecmd_parser/ecmd.h"
 
 

@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"

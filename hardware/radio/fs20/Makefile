@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../../..
 include $(TOPDIR)/.config
 
-$(FS20_SUPPORT)_SRC += fs20/fs20.c
+$(FS20_SUPPORT)_SRC += hardware/radio/fs20/fs20.c
 
 ##############################################################################
 # generic fluff

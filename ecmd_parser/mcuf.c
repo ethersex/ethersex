@@ -23,7 +23,7 @@
 #include "config.h"
 #include "../mcuf/mcuf.h"
 #include "../mcuf/mcuf_modul.h"
-#include "../debug.h"
+#include "core/debug.h"
 
 #ifdef MCUF_SUPPORT
 #ifdef MCUF_CLOCK_SUPPORT

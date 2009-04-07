@@ -26,7 +26,7 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../i2c_master/i2c_master.h"
 #include "../i2c_master/i2c_lm75.h"
 #include "../i2c_master/i2c_24CXX.h"

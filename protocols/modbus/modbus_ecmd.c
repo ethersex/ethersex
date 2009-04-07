@@ -26,7 +26,7 @@
 #include <util/delay.h>
 
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "uip/uip.h"
 #include "modbus.h"
 #include "emcd_parser/ecmd.h"

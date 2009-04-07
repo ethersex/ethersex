@@ -25,7 +25,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "services/cron/cron.h"

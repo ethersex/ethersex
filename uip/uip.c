@@ -85,7 +85,7 @@
 #include "ipv6.h"
 #include "net/handler.h"
 #include "protocols/zbus/zbus.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "syslog/syslog.h"
 #include "hardware/radio/rfm12/rfm12.h"
 

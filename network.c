@@ -34,7 +34,7 @@
 #include "protocols/yport/yport.h"
 #include "protocols/zbus/zbus.h"
 
-#include "debug.h"
+#include "core/debug.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"

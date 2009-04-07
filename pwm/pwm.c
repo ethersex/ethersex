@@ -27,7 +27,7 @@
 #include <avr/io.h>
 
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../ecmd_parser/ecmd.h"
 
 

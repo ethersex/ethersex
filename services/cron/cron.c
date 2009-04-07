@@ -26,7 +26,7 @@
 #include "cron.h"
 #include "test.h"
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "services/clock/clock.h"
 
 #ifdef CRON_SUPPORT

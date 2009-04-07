@@ -29,7 +29,7 @@
 
 
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "enc28j60.h"
 #include "network.h"
 #include "uip/uip_arp.h"

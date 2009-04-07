@@ -22,7 +22,7 @@
 #include "test.h"
 #include "cron.h"
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 
 void test(void* data)
 {

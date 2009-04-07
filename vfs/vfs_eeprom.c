@@ -25,7 +25,7 @@
 #include <util/twi.h>
         
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../i2c_master/i2c_master.h"
 #include "../i2c_master/i2c_24CXX.h"
 #include "vfs.h"

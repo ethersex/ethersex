@@ -2,7 +2,6 @@ TARGET := ethersex
 TOPDIR = .
 
 SRC = \
-	debug.c \
 	enc28j60.c \
 	ethersex.c \
 	ipv6.c \
@@ -18,7 +17,6 @@ SUBDIRS += dataflash
 SUBDIRS += dcf77
 SUBDIRS += ecmd_parser
 SUBDIRS += ecmd_serial
-SUBDIRS += fs20
 SUBDIRS += hc165
 SUBDIRS += hc595
 SUBDIRS += i2c_master
@@ -33,6 +31,7 @@ SUBDIRS += onewire
 SUBDIRS += ps2
 #SUBDIRS += pwm
 SUBDIRS += rc5
+SUBDIRS += hardware/radio/fs20
 SUBDIRS += hardware/radio/rfm12
 #SUBDIRS += sd_reader
 SUBDIRS += services/dyndns

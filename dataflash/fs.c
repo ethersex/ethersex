@@ -27,7 +27,7 @@
 #include "fs.h"
 
 #ifdef DEBUG_FS
-#include "../debug.h"
+#include "core/debug.h"
 #endif
 
 /* debug */

@@ -25,7 +25,7 @@
 #include <string.h>
 #include "yport_net.h"
 #include "uip/uip.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "yport.h"
 
 #include "config.h"

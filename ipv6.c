@@ -29,7 +29,7 @@
 #include "services/dyndns/dyndns.h"
 #include "ipv6.h"
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 
 #ifdef DEBUG_NET_IP6
 # include "debug.h"

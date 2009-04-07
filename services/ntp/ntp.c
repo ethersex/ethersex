@@ -26,7 +26,7 @@
 #include "services/clock/clock.h"
 #include "ntp.h"
 #include "ntp_net.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "config.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;

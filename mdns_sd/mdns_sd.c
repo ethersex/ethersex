@@ -26,7 +26,7 @@
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
 #include "../uip/uip_router.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "mdns_sd_net.h"
 #include "mdns_sd.h"
 

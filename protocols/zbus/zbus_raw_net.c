@@ -22,7 +22,7 @@
 
 #include "uip/uip.h"
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "zbus.h"
 #include "zbus_raw_net.h"
 

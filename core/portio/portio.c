@@ -25,7 +25,7 @@
 #include "core/portio/named_pin.h"
 #include "hc595/hc595.h"
 #include "hc165/hc165.h"
-#include "debug.h"
+#include "core/debug.h"
 
 static uint8_t portio_read_port(uint8_t port);
 static uint8_t portio_write_port(uint8_t port, uint8_t data);

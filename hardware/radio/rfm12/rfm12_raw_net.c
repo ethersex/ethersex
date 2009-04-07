@@ -21,7 +21,7 @@
 
 #include "../uip/uip.h"
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "rfm12_raw_net.h"
 

@@ -24,7 +24,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "core/bit-macros.h"
 #include "ecmd_parser/ecmd.h"
 #include "cron.h"

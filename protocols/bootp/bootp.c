@@ -37,7 +37,7 @@
 #include "bootp.h"
 #include "bootphdr.h"
 #include "bootp_net.h"
-#include "debug.h"
+#include "core/debug.h"
 
 static unsigned char mincookie[] = {99, 130, 83, 99, 255} ;
 static unsigned char replycookie[] = { 0x63, 0x82, 0x53, 0x63 };

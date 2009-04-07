@@ -23,7 +23,7 @@
 
 #include "../uip/uip.h"
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "syslog_net.h"
 #include "../syslog/syslog.h"
 

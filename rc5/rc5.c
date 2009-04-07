@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "rc5.h"
 
 #define noinline __attribute__((noinline))

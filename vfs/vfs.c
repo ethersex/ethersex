@@ -20,7 +20,7 @@
  */
 
 #include <avr/pgmspace.h>
-#include "../debug.h"
+#include "core/debug.h"
 #include "vfs.h"
 #ifndef VFS_TEENSY
 

@@ -24,7 +24,7 @@
 #include <avr/interrupt.h>
 
 #include "config.h"
-#include "../debug.h"
+#include "core/debug.h"
 #include "../uip/uip.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "ecmd.h"

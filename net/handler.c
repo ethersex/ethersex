@@ -50,7 +50,7 @@
 #include "mdns_sd/mdns_sd_net.h"
 #include "hardware/radio/rfm12/rfm12_raw_net.h"
 #include "mcuf/mcuf_net.h"
-#include "debug.h"
+#include "core/debug.h"
 
 /* Define this, if you want every fifth packet to be discarded. */
 #undef  NETWORK_DEBUG_DISCARD_SOME

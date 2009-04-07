@@ -27,7 +27,7 @@
 #include "../autoconf.h"
 #include <util/delay.h>
 #include <stdlib.h>
-#include "../debug.h"
+#include "core/debug.h"
 #include "ecmd.h"
 
 #ifdef ECMD_SCRIPT_SUPPORT

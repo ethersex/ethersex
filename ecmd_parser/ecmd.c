@@ -27,12 +27,12 @@
 #include <avr/interrupt.h>
 
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
-#include "fs20/fs20.h"
+#include "hardware/radio/fs20/fs20.h"
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
 #include "lcd/hd44780.h"

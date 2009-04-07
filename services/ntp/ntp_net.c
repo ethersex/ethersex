@@ -24,7 +24,7 @@
 #include "ntp_net.h"
 #include "uip/uip.h"
 #include "ntp.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "config.h"
 
 #ifdef NTP_SUPPORT
