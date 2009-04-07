@@ -28,8 +28,8 @@
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
-#include "../eeprom.h"
-#include "../bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "../control6/control6.h"
 #include "ecmd.h"
 

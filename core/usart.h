@@ -23,7 +23,7 @@
 #include "config.h"
 #include <stdint.h>
 #include <avr/interrupt.h>
-#include "bit-macros.h"
+#include "core/bit-macros.h"
 
 #ifndef _USART_H
 #define _USART_H

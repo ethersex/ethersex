@@ -23,8 +23,8 @@
 #include <avr/interrupt.h>
 
 #include "df.h"
-#include "../bit-macros.h"
-#include "../spi.h"
+#include "core/bit-macros.h"
+#include "core/spi.h"
 
 /* module local macros */
 #ifdef RFM12_IP_SUPPORT

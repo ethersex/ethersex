@@ -25,8 +25,8 @@
 #include <avr/interrupt.h>
 #include <util/crc16.h>
 #include <string.h>
-#include "eeprom.h"
-#include "bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "config.h"
 #include "modbus_net.h"
 #include "modbus.h"

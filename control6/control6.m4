@@ -55,7 +55,7 @@ divert(0)dnl
 #include "../named_pin/user_config.h"
 #endif
 #include "../net/ecmd_sender_net.h"
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "control6.h"
 

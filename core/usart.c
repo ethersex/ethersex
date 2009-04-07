@@ -22,15 +22,13 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "eeprom.h"
-#include "bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "config.h"
 #include "protocols/zbus/zbus.h"
 #include "protocols/modbus/modbus.h"
 #include "protocols/yport/yport.h"
 #include "usart.h"
-
-#ifdef USART_SUPPORT
 
 #ifndef TEENSY_SUPPORT
 /* Sets the ubrr register according to baudrate
@@ -65,5 +63,4 @@ usart_baudrate(uint16_t baudrate) {
   return ubrr;
 }
 
-#endif
 #endif

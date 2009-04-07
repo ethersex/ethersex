@@ -21,10 +21,11 @@
 
 #include <avr/io.h>
 
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
-#include "../mdns_sd/mdns_sd.h"
 #include "../config.h"
+
+#include "mdns_sd.h"
 #include "mdns_sd_net.h"
 
 #ifdef MDNS_SD_SUPPORT

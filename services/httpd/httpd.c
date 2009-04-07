@@ -29,7 +29,7 @@
 #include "config.h"
 #include "httpd.h"
 #include "base64.h"
-#include "eeprom.h"
+#include "core/eeprom.h"
 #include "ecmd_parser/ecmd.h"
 #include "vfs/vfs.h"
 

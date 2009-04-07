@@ -30,9 +30,9 @@
 #include "debug.h"
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
-#include "bit-macros.h"
+#include "core/bit-macros.h"
 #include "resolv.h"
-#include "eeprom.h"
+#include "core/eeprom.h"
 #include "ecmd_parser/ecmd.h"
 
 #ifndef TEENSY_SUPPORT

@@ -28,7 +28,7 @@
 #include <util/crc16.h>
 
 #include "../config.h"
-#include "../eeprom.h"
+#include "core/eeprom.h"
 #include "onewire.h"
 
 #ifdef ONEWIRE_SUPPORT

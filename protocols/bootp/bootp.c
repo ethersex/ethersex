@@ -29,7 +29,7 @@
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
-#include "eeprom.h"
+#include "core/eeprom.h"
 #include "services/tftp/tftp.h"
 #include "services/dyndns/dyndns.h"
 #include "services/dns/resolv.h"

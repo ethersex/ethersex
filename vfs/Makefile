@@ -14,7 +14,7 @@ $(VFS_SD_SUPPORT)_SRC += vfs/vfs_sd.c
 include $(TOPDIR)/rules.mk
 
 -include vfs-concat.d
-vfs-concat: vfs-concat.c
+vfs-concat: vfs-concat.c vfs_inline.h
 	$(HOSTCC) -Wall -W -ggdb -O2 -o $@ $^
 
 # extend normal clean rule

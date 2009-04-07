@@ -22,7 +22,7 @@
 
 #include "../config.h"
 #include "ecmd_sender_net.h"
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "../debug.h"
 #include "../uip/uip_router.h"

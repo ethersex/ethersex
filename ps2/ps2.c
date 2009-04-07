@@ -24,7 +24,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "ps2.h"

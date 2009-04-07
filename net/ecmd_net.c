@@ -23,7 +23,7 @@
  */
 
 #include "ecmd_net.h"
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "../debug.h"
 #include "../ecmd_parser/ecmd.h"

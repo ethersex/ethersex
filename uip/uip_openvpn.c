@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 
 #include "uip_openvpn.h"
 #include "uip_router.h"

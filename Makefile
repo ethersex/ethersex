@@ -3,20 +3,16 @@ TOPDIR = .
 
 SRC = \
 	debug.c \
-	soft_uart.c \
-	eeprom.c \
 	enc28j60.c \
 	ethersex.c \
 	ipv6.c \
-	network.c \
-	portio.c \
-	usart.c \
-	spi.c \
-	periodic.c
+	network.c
 
 ##SUBDIRS += aliascmd
 SUBDIRS += camera
 SUBDIRS += control6
+SUBDIRS += core
+SUBDIRS += core/portio
 SUBDIRS += crypto
 SUBDIRS += dataflash
 SUBDIRS += dcf77
@@ -32,7 +28,6 @@ SUBDIRS += kty
 SUBDIRS += lcd
 SUBDIRS += mcuf
 SUBDIRS += mdns_sd
-SUBDIRS += named_pin
 SUBDIRS += net
 SUBDIRS += onewire
 SUBDIRS += ps2
@@ -151,7 +146,7 @@ vfs/embed/%: vfs/embed/%.sh
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
-	$(MAKE) -C vfs vfs-concat TOPDIR=..
+	$(MAKE) -C vfs vfs-concat TOPDIR=.. no_deps=t
 	vfs/do-embed $(INLINE_FILES)
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif

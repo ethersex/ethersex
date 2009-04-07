@@ -28,10 +28,10 @@
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
-#include "../eeprom.h"
-#include "../bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
-#include "../portio.h"
+#include "core/portio/portio.h"
 
 #ifdef PORTIO_SUPPORT
 

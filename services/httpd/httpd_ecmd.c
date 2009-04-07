@@ -29,8 +29,8 @@
 #include "config.h"
 #include "debug.h"
 #include "uip/uip.h"
-#include "eeprom.h"
-#include "usart.h"
+#include "core/eeprom.h"
+#include "core/usart.h"
 #include "ecmd_parser/ecmd.h"
 
 

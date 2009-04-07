@@ -25,8 +25,8 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
-#include "bit-macros.h"
-#include "eeprom.h"
+#include "core/bit-macros.h"
+#include "core/eeprom.h"
 #include "config.h"
 #include "syslog/syslog.h"
 #include "crypto/encrypt-llh.h"

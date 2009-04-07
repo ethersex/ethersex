@@ -20,7 +20,7 @@
 
 #include <string.h>
 #include "uecmd_net.h"
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "../uip/uip_router.h"
 #include "../debug.h"

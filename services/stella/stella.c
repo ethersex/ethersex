@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "eeprom.h"
+#include "core/eeprom.h"
 #include "debug.h"
 #include "stella.h"
 #include "stella_net.h"

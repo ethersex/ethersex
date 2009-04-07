@@ -20,9 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "bit-macros.h"
+#include "core/bit-macros.h"
 #include "uip/uip.h"
-#include "dns/resolv.h"
+#include "services/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "ntp.h"
 #include "ntp_net.h"

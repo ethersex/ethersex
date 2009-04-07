@@ -27,7 +27,7 @@
 
 #include "../config.h"
 #include "../uip/uip.h"
-#include "../spi.h"
+#include "core/spi.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"
 #include "../crypto/encrypt-llh.h"

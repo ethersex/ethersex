@@ -29,8 +29,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "../eeprom.h"
-#include "../bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "../config.h"
 #include "../syslog/syslog.h"
 #include "../clock/clock.h"

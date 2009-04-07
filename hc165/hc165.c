@@ -21,9 +21,9 @@
  */
 
 #include <avr/io.h>
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
-#include "../portio.h"
+#include "core/portio/portio.h"
 #include "../config.h"
 #include "hc165.h"
 

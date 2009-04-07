@@ -32,10 +32,10 @@
 #include "config.h"
 #include "global.h"
 #include "debug.h"
-#include "spi.h"
+#include "core/spi.h"
 #include "network.h"
-#include "periodic.h"
-#include "portio.h"
+#include "core/periodic.h"
+#include "core/portio/portio.h"
 #include "fs20/fs20.h"
 #include "lcd/hd44780.h"
 #include "watchcat/watchcat.h"
@@ -68,7 +68,7 @@
 #include "i2c_master/i2c_lm75.h"
 #include "vfs/vfs.h"
 
-#include "bit-macros.h"
+#include "core/bit-macros.h"
 
 /* global configuration */
 global_status_t status;

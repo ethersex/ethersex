@@ -24,7 +24,7 @@
 #ifndef _NAMED_PIN_H
 #define _NAMED_PIN_H
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef NAMED_PIN_SUPPORT
 void named_pin_init(void);

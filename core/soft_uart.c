@@ -22,8 +22,6 @@
 #include "debug.h"
 #include "config.h"
 
-#ifdef SOFT_UART_SUPPORT
-
 void 
 soft_uart_putchar(uint8_t c)
 {
@@ -69,6 +67,4 @@ soft_uart_putchar(uint8_t c)
   
 
 }
-
-#endif
 

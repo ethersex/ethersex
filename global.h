@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 
-#include "portio.h"
+#include "core/portio/portio.h"
 #include "uip/uip.h"
 
 typedef struct {

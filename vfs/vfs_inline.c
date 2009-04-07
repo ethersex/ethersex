@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 
-#include "../eeprom.h"
+#include "core/eeprom.h"
 #include "vfs.h"
 
 struct vfs_file_handle_t *

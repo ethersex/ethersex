@@ -23,7 +23,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "../config.h"
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "ecmd_serial_usart.h"
 #include "../ecmd_parser/ecmd.h"
 

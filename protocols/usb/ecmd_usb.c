@@ -25,7 +25,7 @@
 #include <string.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "usbdrv/usbdrv.h"
 #include "../ecmd_parser/ecmd.h"
 #include "requests.h"

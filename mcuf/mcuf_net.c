@@ -23,9 +23,9 @@
 #include <avr/eeprom.h>
 #include <string.h>
 
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
-#include "../eeprom.h"
+#include "core/eeprom.h"
 #include "../mcuf/mcuf.h"
 #include "../syslog/syslog.h"
 #include "mcuf_net.h"

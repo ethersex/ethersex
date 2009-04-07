@@ -26,8 +26,8 @@
 #include <stdlib.h>
 #include "config.h"
 #include "debug.h"
-#include "eeprom.h"
-#include "bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "services/cron/cron.h"
 #include "ecmd_parser/ecmd.h"
 

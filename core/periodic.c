@@ -23,7 +23,7 @@
 
 #include <avr/interrupt.h>
 
-#include "periodic.h"
+#include "core/periodic.h"
 #include "config.h"
 #include "network.h"
 #include "debug.h"

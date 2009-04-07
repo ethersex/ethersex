@@ -25,8 +25,8 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include <string.h>
-#include "eeprom.h"
-#include "bit-macros.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "config.h"
 #include "yport.h"
 #include "yport_net.h"

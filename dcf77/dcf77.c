@@ -23,7 +23,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../uip/uip.h"
 #include "../ntp/ntp_net.h"
 #include "../clock/clock.h"

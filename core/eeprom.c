@@ -28,7 +28,7 @@
 #include <avr/pgmspace.h>
 
 #include "config.h"
-#include "eeprom.h"
+#include "core/eeprom.h"
 //#include "protocols/yport/yport.h"
 
 

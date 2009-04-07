@@ -31,8 +31,8 @@
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
-#include "../bit-macros.h"
-#include "../eeprom.h"
+#include "core/bit-macros.h"
+#include "core/eeprom.h"
 #include "../syslog/syslog.h"
 #include "ecmd.h"
 

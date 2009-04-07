@@ -23,7 +23,7 @@
 
 #include "../config.h"
 #include "../uip/uip.h"
-#include "../spi.h"
+#include "core/spi.h"
 #include "../rfm12/rfm12.h"
 
 #if defined(SKIPJACK_SUPPORT) \

@@ -26,7 +26,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include "fs20.h"
-#include "../bit-macros.h"
+#include "core/bit-macros.h"
 #include "../debug.h"
 
 #ifdef FS20_SUPPORT

@@ -20,7 +20,7 @@
  */
 
 #include <avr/io.h>
-#include "spi.h"
+#include "core/spi.h"
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
   || defined(DATAFLASH_SUPPORT)

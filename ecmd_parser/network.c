@@ -30,7 +30,7 @@
 #include "../debug.h"
 #include "../uip/uip.h"
 #include "../uip/uip_arp.h"
-#include "../eeprom.h"
+#include "core/eeprom.h"
 #include "ecmd.h"
 
 #ifdef UIP_SUPPORT
