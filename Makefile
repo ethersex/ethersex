@@ -8,7 +8,6 @@ SRC = \
 	network.c
 
 ##SUBDIRS += aliascmd
-SUBDIRS += camera
 SUBDIRS += control6
 SUBDIRS += core
 SUBDIRS += core/portio
@@ -31,6 +30,7 @@ SUBDIRS += onewire
 SUBDIRS += ps2
 #SUBDIRS += pwm
 SUBDIRS += rc5
+SUBDIRS += hardware/camera
 SUBDIRS += hardware/radio/fs20
 SUBDIRS += hardware/radio/rfm12
 #SUBDIRS += sd_reader

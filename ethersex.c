@@ -62,7 +62,7 @@
 #include "net/handler.h"
 #include "net/sendmail.h"
 #include "sd_reader/sd_raw.h"
-#include "camera/dc3840.h"
+#include "hardware/camera/dc3840.h"
 #include "i2c_master/i2c_master.h"
 #include "i2c_master/i2c_24CXX.h"
 #include "i2c_master/i2c_lm75.h"

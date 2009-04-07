@@ -29,7 +29,7 @@
 
 #define USE_USART ECMD_SERIAL_USART_USE_USART
 #define BAUD ECMD_SERIAL_BAUDRATE
-#include "../usart.h"
+#include "core/usart.h"
 
 
 

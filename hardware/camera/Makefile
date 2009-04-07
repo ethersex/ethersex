@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(DC3840_SUPPORT)_SRC += camera/dc3840.c
+$(DC3840_SUPPORT)_SRC += hardware/camera/dc3840.c
 
 ##############################################################################
 # generic fluff

@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 #include "vfs.h"
-#include "../camera/dc3840.h"
+#include "hardware/camera/dc3840.h"
 
 struct vfs_file_handle_t *
 vfs_dc3840_open (const char *filename)

@@ -59,7 +59,7 @@ extern void soft_uart_putchar(uint8_t c);
 #ifdef MCUF_SERIAL_SUPPORT
 #define USE_USART MCUF_USE_USART
 #define BAUD MCUF_BAUDRATE
-#include "../usart.h"
+#include "core/usart.h"
 #endif
 
 

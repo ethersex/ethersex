@@ -33,7 +33,7 @@ void soft_uart_putchar(uint8_t c);
 
 #define USE_USART 0
 #define BAUD DEBUG_BAUDRATE
-#include "usart.h"
+#include "core/usart.h"
 
 #ifndef DEBUG_USE_SYSLOG
 

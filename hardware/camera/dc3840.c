@@ -30,7 +30,7 @@
 /* USART cruft. */
 #define USE_USART DC3840_USE_USART
 #define BAUD 921600
-#include "../usart.h"
+#include "core/usart.h"
 
 /* Length of current image, declared extern in dc3840.h */
 uint16_t dc3840_data_length;
@@ -64,7 +64,7 @@ static uint8_t dc3840_send_command (uint8_t, uint8_t, uint8_t, uint8_t,
 				    uint8_t)	__attribute__ ((noinline));
 
 
-#define DC3840_UDP_DEBUG 1
+/* #define DC3840_UDP_DEBUG 1 */
 
 
 static void
@@ -135,8 +135,8 @@ dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 #ifdef DC3840_UDP_DEBUG
 
 #define DC3840_PORT 7676
-#include "../uip/uip.h"
-#include "../uip/uip_router.h"
+#include "uip/uip.h"
+#include "uip/uip_router.h"
 
 static void
 dc3840_net_main (void)

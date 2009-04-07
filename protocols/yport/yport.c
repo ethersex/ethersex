@@ -35,7 +35,7 @@
 
 #define USE_USART YPORT_USE_USART
 #define BAUD YPORT_BAUDRATE
-#include "usart.h"
+#include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()

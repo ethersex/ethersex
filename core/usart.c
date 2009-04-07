@@ -28,7 +28,7 @@
 #include "protocols/zbus/zbus.h"
 #include "protocols/modbus/modbus.h"
 #include "protocols/yport/yport.h"
-#include "usart.h"
+#include "core/usart.h"
 
 #ifndef TEENSY_SUPPORT
 /* Sets the ubrr register according to baudrate

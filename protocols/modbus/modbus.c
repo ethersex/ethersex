@@ -40,7 +40,7 @@
 
 #define USE_USART MODBUS_USE_USART
 #define BAUD MODBUS_BAUDRATE
-#include "usart.h"
+#include "core/usart.h"
 
 #ifdef MODBUS_CLIENT_SUPPORT
 struct modbus_connection_state_t modbus_client_state;
