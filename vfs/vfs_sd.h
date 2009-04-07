@@ -23,7 +23,7 @@
 #define VFS_SD_H
 
 #include <stdlib.h>
-#include "../dataflash/fs.h"
+#include "hardware/storage/dataflash/fs.h"
 #include "../sd_reader/fat.h"
 
 typedef struct fat_file_struct* vfs_file_handle_sd_t;

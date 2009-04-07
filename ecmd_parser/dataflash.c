@@ -26,8 +26,8 @@
 #include <stdlib.h>
 
 #include "config.h"
-#include "../dataflash/df.h"
-#include "../dataflash/fs.h"
+#include "hardware/storage/dataflash/df.h"
+#include "hardware/storage/dataflash/fs.h"
 
 int16_t 
 parse_cmd_df_status (char *cmd, char *output, uint16_t len)

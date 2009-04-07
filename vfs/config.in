@@ -27,6 +27,4 @@ dep_bool "DC3840 Camera" VFS_DC3840_SUPPORT $DC3840_SUPPORT
 
 define_bool DATAFLASH_SUPPORT $VFS_DF_SUPPORT
 
-#source dataflash/config.in
-
 endmenu

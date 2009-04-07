@@ -23,7 +23,7 @@
 #define VFS_DF_H
 
 #include <stdlib.h>
-#include "../dataflash/fs.h"
+#include "hardware/storage/dataflash/fs.h"
 
 typedef struct {
   fs_inode_t inode;

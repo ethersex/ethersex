@@ -50,7 +50,7 @@
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
 #include "ipv6.h"
-#include "dataflash/fs.h"
+#include "hardware/storage/dataflash/fs.h"
 #include "services/clock/clock.h"
 #include "services/cron/cron.h"
 #include "services/stella/stella.h"
