@@ -19,34 +19,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
-
 #include "config.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
+#include "hardware/storage/sd_reader/partition.h"
 #include "hardware/storage/sd_reader/fat.h"
-#include "core/debug.h"
 
-#ifdef SD_READER_SUPPORT
+struct partition_struct *sd_active_partition;
 
-int16_t
-parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
+#define sd_try_open_partition(partno)				\
+  partition_open (sd_raw_read, sd_raw_read_interval,		\
+		  sd_raw_write, sd_raw_write_interval, partno)
+
+uint8_t
+sd_try_init (void)
 {
-  if (vfs_sd_rootnode == 0)
-    return snprintf_P (output, len, PSTR ("SD/MMC backend not available."));
+  if (sd_raw_init () != 1)
+    return 1;			/* Low-level init failed. */
 
-  if (cmd[0] != 0x05) {
-    fat_reset_dir(vfs_sd_rootnode);
-    cmd[0] = 0x05;
-  }
+  if ((sd_active_partition = sd_try_open_partition (0)) == NULL
+      && (sd_active_partition = sd_try_open_partition (-1)) == NULL)
+    {
+      SDDEBUG ("Initialized SD-Card, but cannot open partition.\n");
+      return 1;
+    }
 
-  struct fat_dir_entry_struct dir_entry;
-  if (! fat_read_dir(vfs_sd_rootnode, &dir_entry))
-    return 0;
-
-  return -10 - snprintf_P (output, len, PSTR ("%32s%c %ld"),
-			   dir_entry.long_name,
-			   dir_entry.attributes & FAT_ATTRIB_DIR ? '/' : ' ',
-			   dir_entry.file_size);
+  return 0;
 }
-
-#endif  /* SD_READER_SUPPORT */

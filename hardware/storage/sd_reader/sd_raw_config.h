@@ -103,7 +103,7 @@ extern "C"
 
 
 #ifdef DEBUG_SD_READER
-# include "../debug.h"
+# include "core/debug.h"
 # define SDDEBUG(a...)  debug_printf("sd_reader: " a)
 #else
 # define SDDEBUG(a...)

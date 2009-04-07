@@ -54,4 +54,10 @@ vfs_size_t vfs_sd_size (struct vfs_file_handle_t *);
     vfs_sd_size,				\
   }
 
+struct fat_dir_struct *vfs_sd_rootnode;
+
+uint8_t vfs_sd_try_open_rootnode (void);
+struct fat_dir_struct *vfs_sd_chdir (const char *dirname);
+
+
 #endif	/* VFS_SD_H */

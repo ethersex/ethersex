@@ -61,8 +61,8 @@
 #include "syslog/syslog.h"
 #include "net/handler.h"
 #include "net/sendmail.h"
-#include "sd_reader/sd_raw.h"
 #include "hardware/camera/dc3840.h"
+#include "hardware/storage/sd_reader/sd_raw.h"
 #include "i2c_master/i2c_master.h"
 #include "i2c_master/i2c_24CXX.h"
 #include "i2c_master/i2c_lm75.h"
@@ -168,10 +168,6 @@ int main(void)
 #   if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
       || defined(DATAFLASH_SUPPORT)
     spi_init();
-#   endif
-
-#   ifdef SD_READER_SUPPORT
-    sd_reader_init();
 #   endif
 
 #   ifdef DATAFLASH_SUPPORT
@@ -369,8 +365,12 @@ int main(void)
 #       endif
 
 #       ifdef SD_READER_SUPPORT
-        sd_reader_init();
-        wdt_kick();
+	if (sd_active_partition == NULL) {
+	    if (! sd_try_init ())
+		vfs_sd_try_open_rootnode ();
+
+	    wdt_kick();
+	}
 #       endif
 
 #ifdef STELLA_SUPPORT

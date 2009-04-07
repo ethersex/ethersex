@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,24 +21,61 @@
 
 #include <stdlib.h>
 
+#include "hardware/storage/sd_reader/fat.h"
+#include "hardware/storage/sd_reader/sd_raw.h"
 #include "vfs.h"
+
+static struct fat_fs_struct *vfs_sd_fat;
+struct fat_dir_struct *vfs_sd_rootnode;
+
+struct fat_dir_struct *
+vfs_sd_chdir (const char *dirname)
+{
+  struct fat_dir_entry_struct handle;
+  if (fat_get_dir_entry_of_path (vfs_sd_fat, dirname, &handle) == 0)
+    return NULL;
+
+  return fat_open_dir (vfs_sd_fat, &handle);
+}
+
+uint8_t
+vfs_sd_try_open_rootnode (void)
+{
+  if ((vfs_sd_fat = fat_open (sd_active_partition)) == NULL
+      || (vfs_sd_rootnode = vfs_sd_chdir ("/")) == NULL) {
+    SDDEBUG ("SD-Card initialized, but failed to open root node.\n");
+    return 1;
+  }
+
+  SDDEBUG ("SD-Card initialized and root node opened.\n");
+  return 0;			/* Jippie, we're set. */
+}
 
 struct vfs_file_handle_t *
 vfs_sd_open (const char *filename)
 {
-  struct fat_file_struct* i = open_file_in_dir(fat_fs, sd_cwd, filename);
+  /* FIXME Don't just look in the rootnode, allow the user to traverse
+     through directories, etc. */
+  fat_reset_dir (vfs_sd_rootnode);
 
-  if (i == NULL)
-    return NULL;		/* No such file. */
+  struct fat_dir_entry_struct filep;
+  while (fat_read_dir (vfs_sd_rootnode, &filep)) {
+    if (strcmp (filep.long_name, filename))
+      continue;
 
-  struct vfs_file_handle_t *fh = malloc (sizeof (struct vfs_file_handle_t));
-  if (fh == NULL)
-    return NULL;
+    /* Got it :) */
+    struct fat_file_struct *inode = fat_open_file (vfs_sd_fat, &filep);
+    struct vfs_file_handle_t *fh = malloc (sizeof (struct vfs_file_handle_t));
+    if (fh == NULL)
+      return NULL;
 
-  fh->fh_type = VFS_SD;
-  fh->u.sd = i;
+    fh->fh_type = VFS_SD;
+    fh->u.sd = inode;
 
-  return fh;
+    return fh;
+  }
+
+  return NULL;		/* No such file. */
 }
 
 void
@@ -82,7 +119,7 @@ struct vfs_file_handle_t *
 vfs_sd_create (const char *name)
 {
   struct fat_dir_entry_struct file_entry;
-  fat_create_file (sd_cwd, name, &file_entry);
+  fat_create_file (vfs_sd_rootnode, name, &file_entry);
 
   struct vfs_file_handle_t *fh = vfs_sd_open (name);
 

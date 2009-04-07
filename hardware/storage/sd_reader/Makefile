@@ -1,11 +1,12 @@
 TOPDIR ?= ../../..
 include $(TOPDIR)/.config
 
-$(SD_READER_SUPPORT)_SRC +=			\
-	storage/sd_reader/byteordering.c	\
-	storage/sd_reader/fat.c			\
-	storage/sd_reader/partition.c		\
-	storage/sd_reader/sd_raw.c
+$(SD_READER_SUPPORT)_SRC +=				\
+	hardware/storage/sd_reader/byteordering.c	\
+	hardware/storage/sd_reader/fat.c		\
+	hardware/storage/sd_reader/init.c		\
+	hardware/storage/sd_reader/partition.c		\
+	hardware/storage/sd_reader/sd_raw.c
 
 ##############################################################################
 # generic fluff
