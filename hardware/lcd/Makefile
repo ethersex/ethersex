@@ -2,6 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(HD44780_SUPPORT)_SRC += hardware/lcd/hd44780.c
+$(HD44780_SUPPORT)_ECMD_SRC += hardware/lcd/ecmd.c
 
 ##############################################################################
 # generic fluff

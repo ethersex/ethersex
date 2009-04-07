@@ -2,6 +2,7 @@ TOPDIR ?= ..
 include $(TOPDIR)/.config
 
 $(CONTROL6_SUPPORT)_SRC += control6/control6.c
+$(CONTROL6_SUPPORT)_ECMD_SRC += control6/ecmd.c
 
 ##############################################################################
 # generic fluff

@@ -69,7 +69,7 @@ typedef uint32_t vfs_size_t;
 #endif
 
 #include "vfs_df.h"
-#include "vfs_sd.h"
+#include "hardware/storage/sd_reader/vfs_sd.h"
 #include "vfs_inline.h"
 #include "vfs_eeprom_raw.h"
 #include "vfs_dc3840.h"
