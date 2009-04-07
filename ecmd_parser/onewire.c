@@ -32,7 +32,7 @@
 #include "../uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
-#include "../onewire/onewire.h"
+#include "hardware/onewire/onewire.h"
 #include "ecmd.h"
 
 #ifdef ONEWIRE_SUPPORT

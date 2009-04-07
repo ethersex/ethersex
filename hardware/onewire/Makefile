@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(ONEWIRE_SUPPORT)_SRC += onewire/onewire.c
+$(ONEWIRE_SUPPORT)_SRC += hardware/onewire/onewire.c
 
 ##############################################################################
 # generic fluff

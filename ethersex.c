@@ -40,7 +40,7 @@
 #include "hardware/lcd/hd44780.h"
 #include "watchcat/watchcat.h"
 #include "control6/control6.h"
-#include "onewire/onewire.h"
+#include "hardware/onewire/onewire.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "ecmd_serial/ecmd_serial_usart.h"
 #include "rc5/rc5.h"

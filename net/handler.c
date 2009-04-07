@@ -47,7 +47,7 @@
 #include "protocols/mysql/mysql.h"
 #include "protocols/snmp/snmp_net.h"
 #include "udp_echo_net.h"
-#include "mdns_sd/mdns_sd_net.h"
+#include "protocols/mdns_sd/mdns_sd_net.h"
 #include "hardware/radio/rfm12/rfm12_raw_net.h"
 #include "mcuf/mcuf_net.h"
 #include "core/debug.h"
