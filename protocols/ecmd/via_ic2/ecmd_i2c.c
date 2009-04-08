@@ -117,3 +117,7 @@ ISR (TWI_vect)
   TWCR |= (1<<TWINT); //TWI wieder aktivieren
 }
 
+/*
+  -- Ethersex META --
+  init(ecmd_serial_i2c_init)
+*/

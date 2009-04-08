@@ -31,10 +31,6 @@
 #define BAUD ECMD_SERIAL_BAUDRATE
 #include "core/usart.h"
 
-
-
-#ifdef ECMD_SERIAL_USART_SUPPORT
-
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
@@ -131,4 +127,8 @@ SIGNAL(usart(USART,_TX_vect))
 #endif
   }
 }
-#endif
+
+/*
+  -- Ethersex META --
+  init(ecmd_serial_usart_init)
+*/
