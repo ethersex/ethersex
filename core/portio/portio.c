@@ -23,8 +23,8 @@
 #define PORTIO_CONFIG_PGM
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
-#include "hc595/hc595.h"
-#include "hc165/hc165.h"
+#include "hardware/io_expander/hc595.h"
+#include "hardware/io_expander/hc165.h"
 #include "core/debug.h"
 
 static uint8_t portio_read_port(uint8_t port);

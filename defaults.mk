@@ -21,9 +21,9 @@ export HOSTCC
 export MAKE
 
 # flags for the compiler
-CPPFLAGS += -mmcu=$(MCU)
+CPPFLAGS += -mmcu=$(MCU) -I$(TOPDIR)
 CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
-CFLAGS += -g -Os -std=gnu99 -I$(TOPDIR)
+CFLAGS += -g -Os -std=gnu99
 
 # flags for the linker
 LDFLAGS += -mmcu=$(MCU)

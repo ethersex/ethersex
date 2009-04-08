@@ -22,6 +22,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
+
 #include "ecmd_net.h"
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
@@ -29,8 +31,6 @@
 #include "../ecmd_parser/ecmd.h"
 
 #include <string.h>
-
-#include "config.h"
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 

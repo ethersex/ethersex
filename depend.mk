@@ -10,7 +10,7 @@ ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)  
 
 # For each .o file we need a .d file.
--include $(foreach file,$(subst .o,.d,$(filter %.o,$(OBJECTS))),$(TOPDIR)/${file}) /dev/null
+include $(foreach file,$(subst .o,.d,$(filter %.o,$(OBJECTS))),$(TOPDIR)/${file}) /dev/null
 
 endif
 endif
