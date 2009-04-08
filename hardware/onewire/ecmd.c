@@ -33,7 +33,7 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "hardware/onewire/onewire.h"
-#include "ecmd.h"
+#include "ecmd_parser/ecmd.h"
 
 #ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */

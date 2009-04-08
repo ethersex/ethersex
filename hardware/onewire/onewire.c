@@ -31,8 +31,6 @@
 #include "core/eeprom.h"
 #include "onewire.h"
 
-#ifdef ONEWIRE_SUPPORT
-
 #define noinline __attribute__((noinline))
 
 #include "core/debug.h"
@@ -549,4 +547,7 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 
 #endif /* ONEWIRE_DS2502_SUPPORT */
 
-#endif
+/*
+  -- Ethersex META --
+  init(onewire_init)
+*/
