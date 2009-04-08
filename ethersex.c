@@ -157,14 +157,6 @@ int main(void)
 
     ethersex_meta_init();
 
-#ifdef ECMD_SERIAL_I2C_SUPPORT
-    ecmd_serial_i2c_init();
-#endif
-
-#ifdef ECMD_SERIAL_USART_SUPPORT
-    ecmd_serial_usart_init();
-#endif
-
 #ifdef RFM12_SUPPORT
     rfm12_init();
 
@@ -188,10 +180,6 @@ int main(void)
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 #endif  /* RFM12_SUPPORT */
-
-#ifdef DC3840_SUPPORT
-    dc3840_init ();
-#endif	/* DC3840_SUPPORT */
 
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT

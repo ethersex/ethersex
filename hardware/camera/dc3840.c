@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#ifdef DC3840_SUPPORT
-
 #include <util/delay.h>
 #include <string.h>
 #include "dc3840.h"
@@ -372,4 +370,7 @@ dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
 }
 
 
-#endif	/* DC3840_SUPPORT */
+/*
+  -- Ethersex META --
+  init(dc3840_init)
+*/
