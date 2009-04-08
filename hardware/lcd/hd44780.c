@@ -27,8 +27,6 @@
 #include "config.h"
 #include "core/debug.h"
 
-#ifdef HD44780_SUPPORT
-
 /* global variables */
 FILE *lcd;
 uint8_t current_pos = 0;
@@ -249,7 +247,7 @@ hd44780_define_char(uint8_t n_char, uint8_t *data)
   }
 }
 
-void hd44780_init(uint8_t cursor, uint8_t blink)
+void hd44780_init(void)
 {
 
     /* init io pins */
@@ -280,7 +278,7 @@ void hd44780_init(uint8_t cursor, uint8_t blink)
     output_byte(0, CMD_FUNCTIONSET(0, 1, 0));
 
     /* turn on display, cursor and blinking */
-    output_byte(0, CMD_POWER(1, cursor, blink));
+    hd44780_config(0,0);
 
     /* clear display */
     hd44780_clear();
@@ -296,6 +294,11 @@ void hd44780_init(uint8_t cursor, uint8_t blink)
     
     /* set current virtual postion */
     current_pos = 0;
+}
+
+void hd44780_config(uint8_t cursor, uint8_t blink) 
+{
+    output_byte(0, CMD_POWER(1, cursor, blink));
 }
 
 int hd44780_put(char d, FILE *stream)
@@ -351,4 +354,7 @@ int hd44780_put(char d, FILE *stream)
     return 0;
 }
 
-#endif
+/*
+  -- Ethersex META --
+  init(hd44780_init)
+*/

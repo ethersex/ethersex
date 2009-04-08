@@ -43,7 +43,7 @@
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "ecmd_serial/ecmd_serial_usart.h"
 #include "hardware/radio/rfm12/rfm12.h"
-#include "dcf77/dcf77.h"
+#include "hardware/clock/dcf77/dcf77.h"
 #include "hardware/io_expander/hc165.h"
 #include "hardware/io_expander/hc595.h"
 #include "protocols/uip/ipv6.h"
@@ -110,11 +110,6 @@ int main(void)
 
     debug_init();
     debug_printf("debugging enabled\n");
-
-#   ifdef HD44780_SUPPORT
-    debug_printf("initializing lcd...\n");
-    hd44780_init(0, 0);
-#   endif
 
 #   ifdef BOOTLOADER_SUPPORT
     /* disable interrupts */

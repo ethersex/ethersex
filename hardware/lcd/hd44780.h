@@ -47,7 +47,8 @@ extern FILE *lcd;
 #define noinline __attribute__((noinline))
 
 /* prototypes */
-void hd44780_init(uint8_t cursor, uint8_t blink);
+void hd44780_init(void);
+void hd44780_config(uint8_t cursor, uint8_t blink);
 void hd44780_define_char(uint8_t n_char, uint8_t *data);
 void noinline hd44780_clear(void);
 void noinline hd44780_home(void);

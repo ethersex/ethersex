@@ -33,7 +33,7 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "hardware/lcd/hd44780.h"
-#include "ecmd.h"
+#include "ecmd_parser/ecmd.h"
 
 
 #ifdef HD44780_SUPPORT
@@ -115,7 +115,8 @@ int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
   uint8_t cursor, blink;
   int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
   if ( ret == 2 ) {
-    hd44780_init(cursor, blink);
+    hd44780_init();
+    hd44780_config(cursor, blink);
     return 0;
   } else
     return -1;
