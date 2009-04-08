@@ -37,6 +37,7 @@ SUBDIRS += protocols/uip/ipchair
 SUBDIRS += protocols/usb
 SUBDIRS += protocols/yport
 SUBDIRS += protocols/zbus
+SUBDIRS += protocols/dns
 SUBDIRS += services/dyndns
 SUBDIRS += services/clock
 SUBDIRS += services/httpd
@@ -45,7 +46,6 @@ SUBDIRS += services/cron
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/jabber
-SUBDIRS += services/dns
 SUBDIRS += services/watchcat
 SUBDIRS += vfs
 
