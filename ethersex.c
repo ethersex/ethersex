@@ -39,8 +39,6 @@
 #include "hardware/radio/fs20/fs20.h"
 #include "hardware/lcd/hd44780.h"
 #include "hardware/onewire/onewire.h"
-#include "ecmd_serial/ecmd_serial_i2c.h"
-#include "ecmd_serial/ecmd_serial_usart.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "hardware/clock/dcf77/dcf77.h"
 #include "protocols/uip/ipv6.h"
