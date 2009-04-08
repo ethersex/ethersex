@@ -30,7 +30,7 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "enc28j60.h"
+#include "hardware/ethernet/enc28j60.h"
 #include "network.h"
 #include "protocols/uip/uip_arp.h"
 #include "core/spi.h"

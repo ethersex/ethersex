@@ -91,7 +91,7 @@ source control6/config.in
 string "Hostname" CONF_HOSTNAME "ethersex"
 
 comment "Network interfaces"
-source enc28j60-config.in
+source hardware/ethernet/config.in
 source hardware/radio/rfm12/config.in
 
 usart_count_used

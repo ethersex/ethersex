@@ -16,6 +16,7 @@ SUBDIRS += mcuf
 SUBDIRS += net
 #SUBDIRS += hardware/pwm
 SUBDIRS += hardware/camera
+SUBDIRS += hardware/ethernet
 SUBDIRS += hardware/input/ps2
 SUBDIRS += hardware/io_expander
 SUBDIRS += hardware/ir/rc5
@@ -79,7 +80,6 @@ endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
 
 SRC += ethersex.c
-${ENC28J60_SUPPORT}_SRC += enc28j60.c
 ${UIP_SUPPORT}_SRC += network.c
 
 include $(foreach subdir,$(SUBDIRS),$(subdir)/Makefile)

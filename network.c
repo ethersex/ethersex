@@ -44,7 +44,7 @@
 #include "protocols/uip/uip_zbus.h"
 #include "services/dns/resolv.h"
 #include "services/tftp/tftp.h"
-#include "enc28j60.h"
+#include "hardware/ethernet/enc28j60.h"
 
 /*FIXME: interrupts not supported */
 #define ENC28J60_POLL

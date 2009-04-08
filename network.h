@@ -22,7 +22,7 @@
 #ifndef _NETWORK_H
 #define _NETWORK_H
 
-#include "enc28j60.h"
+#include "hardware/ethernet/enc28j60.h"
 #include "config.h"
 
 #include "protocols/uip/uip.h"
