@@ -27,6 +27,7 @@ divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#include <avr/wdt.h>
 #include "config.h"
 void dyndns_update();
 
