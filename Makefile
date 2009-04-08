@@ -1,10 +1,6 @@
 TARGET := ethersex
 TOPDIR = .
 
-SRC = \
-	ethersex.c \
-	ipv6.c
-
 ##SUBDIRS += aliascmd
 SUBDIRS += control6
 SUBDIRS += core
@@ -82,6 +78,7 @@ endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
 
+SRC += ethersex.c
 ${ENC28J60_SUPPORT}_SRC += enc28j60.c
 ${UIP_SUPPORT}_SRC += network.c
 

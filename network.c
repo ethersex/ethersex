@@ -28,7 +28,7 @@
 #include "network.h"
 #include "config.h"
 #include "core/eeprom.h"
-#include "ipv6.h"
+#include "protocols/uip/ipv6.h"
 #include "core/bit-macros.h"
 #include "net/handler.h"
 #include "protocols/yport/yport.h"

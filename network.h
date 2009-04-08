@@ -27,7 +27,7 @@
 
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_arp.h"
-#include "ipv6.h"
+#include "protocols/uip/ipv6.h"
 
 /* prototypes */
 

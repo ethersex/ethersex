@@ -27,7 +27,7 @@
 #include "protocols/uip/uip_neighbor.h"
 #include "services/tftp/tftp.h"
 #include "services/dyndns/dyndns.h"
-#include "ipv6.h"
+#include "protocols/uip/ipv6.h"
 #include "config.h"
 #include "core/debug.h"
 

@@ -46,7 +46,7 @@
 #include "dcf77/dcf77.h"
 #include "hardware/io_expander/hc165.h"
 #include "hardware/io_expander/hc595.h"
-#include "ipv6.h"
+#include "protocols/uip/ipv6.h"
 #include "hardware/storage/dataflash/fs.h"
 #include "protocols/modbus/modbus.h"
 #include "protocols/zbus/zbus.h"

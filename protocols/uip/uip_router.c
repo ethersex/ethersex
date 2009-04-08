@@ -27,7 +27,7 @@
 #include "uip_arp.h"
 #include "uip_neighbor.h"
 
-#include "ipv6.h"
+#include "protocols/uip/ipv6.h"
 #include "network.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "protocols/zbus/zbus.h"

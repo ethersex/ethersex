@@ -38,7 +38,7 @@
 #include "services/clock/clock.h"
 #include "services/cron/cron.h"
 #include "services/cron/cron_static.h"
-#include "ipv6.h"
+#include "protocols/uip/ipv6.h"
 #include "hardware/input/ps2/ps2.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "protocols/syslog/syslog.h"
