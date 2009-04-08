@@ -48,7 +48,7 @@ define(`control_end_divert', 14)
 divert(0)dnl
 #include <avr/io.h>
 #include "../clock/clock.h"
-#include "../pt/pt.h"
+#include "core/pt/pt.h"
 #include "config.h"
 #include "../kty/kty81.h"
 #ifdef NAMED_PIN_SUPPORT
