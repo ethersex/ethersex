@@ -27,7 +27,7 @@
 #include "protocols/uip/uip.h"
 #include "../ntp/ntp_net.h"
 #include "../clock/clock.h"
-#include "../syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "dcf77.h"
 
 volatile struct dcf77_ctx dcf;

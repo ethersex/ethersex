@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(SYSLOG_SUPPORT)_SRC += syslog/syslog_net.c syslog/syslog.c
+$(SYSLOG_SUPPORT)_SRC += protocols/syslog/syslog_net.c protocols/syslog/syslog.c
 
 ##############################################################################
 # generic fluff

@@ -86,7 +86,7 @@
 #include "net/handler.h"
 #include "protocols/zbus/zbus.h"
 #include "core/debug.h"
-#include "syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "hardware/radio/rfm12/rfm12.h"
 
 #if UIP_CONF_IPV6

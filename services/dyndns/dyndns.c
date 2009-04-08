@@ -24,7 +24,7 @@
 #include "config.h"
 #include "protocols/uip/uip.h"
 #include "services/dns/resolv.h"
-#include "syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "core/debug.h"
 #include "dyndns.h"
 

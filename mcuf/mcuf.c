@@ -32,7 +32,7 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "config.h"
-#include "../syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "../clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"

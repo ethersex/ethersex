@@ -51,7 +51,7 @@
 #include "protocols/modbus/modbus.h"
 #include "protocols/zbus/zbus.h"
 #include "protocols/usb/usb.h"
-#include "syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "net/handler.h"
 #include "hardware/camera/dc3840.h"
 #include "hardware/storage/sd_reader/sd_raw.h"

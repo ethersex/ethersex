@@ -35,6 +35,7 @@ SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
 SUBDIRS += protocols/mysql
 SUBDIRS += protocols/snmp
+SUBDIRS += protocols/syslog
 SUBDIRS += protocols/uip
 SUBDIRS += protocols/usb
 SUBDIRS += protocols/yport
@@ -49,7 +50,6 @@ SUBDIRS += services/tftp
 SUBDIRS += services/jabber
 SUBDIRS += services/dns
 SUBDIRS += services/watchcat
-SUBDIRS += syslog
 SUBDIRS += vfs
 
 rootbuild=t

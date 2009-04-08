@@ -41,7 +41,7 @@
 #include "ipv6.h"
 #include "hardware/input/ps2/ps2.h"
 #include "hardware/radio/rfm12/rfm12.h"
-#include "syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "mcuf/mcuf.h"
 #include "protocols/usb/usb.h"
 #include "protocols/modbus/modbus.h"

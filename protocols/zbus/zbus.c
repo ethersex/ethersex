@@ -28,7 +28,7 @@
 #include "core/bit-macros.h"
 #include "core/eeprom.h"
 #include "config.h"
-#include "syslog/syslog.h"
+#include "protocols/syslog/syslog.h"
 #include "crypto/encrypt-llh.h"
 #include "zbus_raw_net.h"
 #include "zbus.h"
