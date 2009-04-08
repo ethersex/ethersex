@@ -1,13 +1,11 @@
 TARGET := ethersex
 TOPDIR = .
 
-##SUBDIRS += aliascmd
 SUBDIRS += control6
 SUBDIRS += core
 SUBDIRS += core/portio
 SUBDIRS += core/crypto
 SUBDIRS += ecmd_parser
-SUBDIRS += ecmd_serial
 SUBDIRS += i2c_master
 SUBDIRS += i2c_slave
 SUBDIRS += kty
@@ -38,6 +36,7 @@ SUBDIRS += protocols/usb
 SUBDIRS += protocols/yport
 SUBDIRS += protocols/zbus
 SUBDIRS += protocols/dns
+SUBDIRS += protocols/ecmd/
 SUBDIRS += services/dyndns
 SUBDIRS += services/clock
 SUBDIRS += services/httpd

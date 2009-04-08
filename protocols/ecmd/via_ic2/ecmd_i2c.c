@@ -24,8 +24,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "config.h"
-#include "ecmd_serial_i2c.h"
-#include "../ecmd_parser/ecmd.h"
+#include "ecmd_i2c.h"
+#include "ecmd_parser/ecmd.h"
 
 /* TODO: add menuconfig option */
 #define ECMD_SERIAL_I2C_ADDR 8
@@ -36,21 +36,21 @@ static int16_t recv_len, write_len, sent, parse;
 
 static void
 init_twi(void){
-  
+
   TWCR = 0; //fuer das Initialisieren bei einem status fehler
 
   /* INIT fuer den TWI i2c
   * hier wird die Addresse des µC festgelegt
   * (in den oberen 7 Bit, das LSB(niederwertigstes Bit)
   * steht dafür ob der µC auf einen general callreagiert
-  */ 
+  */
   TWAR = ECMD_SERIAL_I2C_ADDR << 1;
-  
-  /* TWI Control Register, hier wird der TWI aktiviert, 
+
+  /* TWI Control Register, hier wird der TWI aktiviert,
    * der Interrupt aktiviert und solche Sachen
    */
-  TWCR = (1<<TWIE) | (1<<TWEN) | (1<<TWEA); 
-  
+  TWCR = (1<<TWIE) | (1<<TWEN) | (1<<TWEA);
+
   /* TWI Status Register init */
   TWSR &= 0xFC;
 }
@@ -63,7 +63,7 @@ void ecmd_serial_i2c_init(void) {
   init_twi();
 }
 
-void 
+void
 ecmd_serial_i2c_periodic(void)
 {
   /* error detection on i2c bus */
@@ -78,7 +78,7 @@ ecmd_serial_i2c_periodic(void)
     if (write_len < -10) {
       write_len = - ( 10 + write_len );
       parse = 1;
-    } else if (write_len < 0) 
+    } else if (write_len < 0)
        return;
     else
        recv_len = 0;
@@ -92,7 +92,7 @@ ISR (TWI_vect)
 {
   switch (TWSR & 0xF8){
   case 0x80: /* databyte was received */
-    if (recv_len < (sizeof(recv_buffer) - 1)) 
+    if (recv_len < (sizeof(recv_buffer) - 1))
         recv_buffer[recv_len++] = TWDR;
     if (recv_buffer[recv_len-1] == 0) {
       /* EOF message */

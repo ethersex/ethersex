@@ -24,8 +24,8 @@
 #include <util/delay.h>
 #include "config.h"
 #include "core/bit-macros.h"
-#include "ecmd_serial_usart.h"
-#include "../ecmd_parser/ecmd.h"
+#include "ecmd_usart.h"
+#include "ecmd_parser/ecmd.h"
 
 #define USE_USART ECMD_SERIAL_USART_USE_USART
 #define BAUD ECMD_SERIAL_BAUDRATE
@@ -58,7 +58,7 @@ ecmd_serial_usart_init(void) {
 }
 
 void
-ecmd_serial_usart_periodic(void) 
+ecmd_serial_usart_periodic(void)
 {
   if (must_parse && !write_len) {
     /* we have a request */
@@ -76,7 +76,7 @@ ecmd_serial_usart_periodic(void)
 
     write_buffer[write_len++] = '\r';
     write_buffer[write_len++] = '\n';
-    
+
 #ifdef ECMD_SERIAL_USART_RS485_SUPPORT
     PIN_SET(ECMD_SERIAL_USART_TX);
 #endif
@@ -95,7 +95,7 @@ SIGNAL(usart(USART,_RX_vect))
   if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
     uint8_t v = usart(UDR);
     (void) v;
-    return; 
+    return;
   }
   uint8_t data = usart(UDR);
   if (must_parse) return;
