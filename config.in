@@ -125,7 +125,7 @@ elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then
 fi
 
 define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
-source ipchair/config.in
+source protocols/uip/ipchair/config.in
 
 endmenu
 
