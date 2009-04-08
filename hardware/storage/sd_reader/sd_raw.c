@@ -842,6 +842,7 @@ uint8_t sd_raw_sync()
 }
 #endif
 
+#if 0
 /**
  * \ingroup sd_raw
  * Reads informational data from the card.
@@ -1000,4 +1001,5 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
 
     return 1;
 }
+#endif
 
