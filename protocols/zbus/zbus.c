@@ -290,3 +290,8 @@ SIGNAL(usart(USART,_RX_vect))
     zbus_index++;
   }
 }
+
+/*
+  -- Ethersex META --
+  init(zbus_core_init)
+*/
