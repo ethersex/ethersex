@@ -88,3 +88,8 @@ void uecmd_net_main() {
     uip_slen = 0;
   }
 }
+
+/*
+  -- Ethersex META --
+  net_init(uecmd_net_init)
+*/

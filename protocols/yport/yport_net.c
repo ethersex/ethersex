@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-#ifdef YPORT_SUPPORT
-
 uip_conn_t *yport_conn = NULL;
 
 void yport_net_init(void)
@@ -97,4 +95,8 @@ void yport_net_main(void)
     SREG = sreg;
   }
 }
-#endif
+
+/*
+  -- Ethersex META --
+  net_init(yport_net_init)
+*/

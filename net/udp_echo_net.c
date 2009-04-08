@@ -61,3 +61,8 @@ udp_echo_net_main(void)
 
     uip_slen = 0;
 }
+
+/*
+  -- Ethersex META --
+  net_init(udp_echo_net_init)
+*/

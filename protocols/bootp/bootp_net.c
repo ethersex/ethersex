@@ -30,8 +30,6 @@
 #include "bootp.h"
 #include "config.h"
 
-#ifdef BOOTP_SUPPORT
-
 void
 bootp_net_init(void)
 {
@@ -68,4 +66,7 @@ bootp_net_main(void)
 	uip_udp_conn->appstate.bootp.retry_timer --;
 }
 
-#endif /* BOOTP_SUPPORT */
+/*
+  -- Ethersex META --
+  net_init(bootp_net_init)
+*/

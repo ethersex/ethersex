@@ -69,3 +69,8 @@ rfm12_raw_net_main(void)
   uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
   uip_udp_conn->rport = 0;
 }
+
+/*
+  -- Ethersex META --
+  net_init(rfm12_raw_net_init)
+*/

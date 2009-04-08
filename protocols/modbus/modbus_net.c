@@ -30,7 +30,6 @@
 
 #include "config.h"
 
-#ifdef MODBUS_SUPPORT
 #define STATE(a) ((a)->appstate.modbus)
 
 
@@ -129,4 +128,8 @@ error_response:
   answer[7] |= 0x80;
   uip_send(answer, 9);
 }
-#endif
+
+/*
+  -- Ethersex META --
+  net_init(modbus_net_init)
+*/

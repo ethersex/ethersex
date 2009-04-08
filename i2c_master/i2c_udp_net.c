@@ -24,8 +24,6 @@
 #include "../i2c_master/i2c_udp.h"
 #include "i2c_udp_net.h"
 
-#ifdef I2C_UDP_SUPPORT
-
 void 
 i2c_udp_net_init(void)
 {
@@ -53,4 +51,7 @@ i2c_udp_net_main(void)
     i2c_udp_newdata();
 }
 
-#endif
+/*
+  -- Ethersex META --
+  net_init(i2c_udp_net_init)
+*/

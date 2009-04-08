@@ -26,8 +26,6 @@
 #include "tftp_net.h"
 #include "tftp_state.h"
 
-#ifdef TFTP_SUPPORT
-
 void
 tftp_net_init(void)
 {
@@ -106,4 +104,7 @@ tftp_net_main(void)
 #endif
 }
 
-#endif /* TFTP_SUPPORT */
+/*
+  -- Ethersex META --
+  net_init(tftp_net_init)
+*/

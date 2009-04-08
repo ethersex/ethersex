@@ -29,7 +29,6 @@
 #include "stella_net.h"
 #include "stella_protocol.h"
 
-#ifdef STELLA_SUPPORT
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void
@@ -143,6 +142,9 @@ void stella_net_broadcast(uint8_t len)
 
 	uip_slen = 0;
 }
-#endif
+#endif  /* STELLA_RESPONSE */
 
-#endif /* STELLA_SUPPORT */
+/*
+  -- Ethersex META --
+  net_init(stella_net_init)
+*/

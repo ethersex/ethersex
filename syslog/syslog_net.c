@@ -27,10 +27,7 @@
 #include "syslog_net.h"
 #include "../syslog/syslog.h"
 
-#ifdef SYSLOG_SUPPORT
-
 uip_udp_conn_t *syslog_conn;
-
 
 void
 syslog_net_init(void)
@@ -63,4 +60,7 @@ syslog_net_main(void)
 #endif
 }
 
-#endif
+/*
+  -- Ethersex META --
+  net_init(syslog_net_init)
+*/

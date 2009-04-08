@@ -28,8 +28,6 @@
 #include "mdns_sd.h"
 #include "mdns_sd_net.h"
 
-#ifdef MDNS_SD_SUPPORT
-
 void 
 mdns_sd_net_init(void)
 {
@@ -51,4 +49,7 @@ mdns_sd_net_main(void)
   }
 }
 
-#endif
+/*
+  -- Ethersex META --
+  net_init(mdns_sd_net_init)
+*/

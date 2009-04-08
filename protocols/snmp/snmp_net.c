@@ -27,8 +27,6 @@
 #include "snmp.h"
 #include "snmp_net.h"
 
-#ifdef SNMP_SUPPORT
-
 void
 snmp_net_init(void)
 {
@@ -49,4 +47,7 @@ snmp_net_main(void)
     snmp_new_data();
 }
 
-#endif
+/*
+  -- Ethersex META --
+  net_init(snmp_net_init)
+*/

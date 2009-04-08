@@ -329,3 +329,8 @@ mysql_init(void)
 	return;
     }
 }
+
+/*
+  -- Ethersex META --
+  net_init(mysql_init)
+*/

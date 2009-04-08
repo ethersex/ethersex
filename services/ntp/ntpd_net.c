@@ -90,3 +90,8 @@ ntpd_net_main(void)
     uip_slen = 0;
   }
 }
+
+/*
+  -- Ethersex META --
+  net_init(ntpd_net_init)
+*/

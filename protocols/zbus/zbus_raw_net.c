@@ -70,3 +70,7 @@ zbus_raw_net_main(void)
   uip_udp_conn->rport = 0;
 }
 
+/*
+  -- Ethersex META --
+  net_init(zbus_raw_net_init)
+*/

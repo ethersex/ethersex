@@ -30,8 +30,6 @@
 #include "../syslog/syslog.h"
 #include "mcuf_net.h"
 
-#ifdef MCUF_SUPPORT
-
 void
 mcuf_net_init(void)
 {
@@ -54,5 +52,7 @@ mcuf_net_main(void)
   if (uip_newdata()) mcuf_newdata();
 }
 
-
-#endif
+/*
+  -- Ethersex META --
+  net_init(mcuf_net_init)
+*/

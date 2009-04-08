@@ -329,3 +329,8 @@ jabber_init(void)
 	return;
     }
 }
+
+/*
+  -- Ethersex META --
+  net_init(jabber_init)
+*/

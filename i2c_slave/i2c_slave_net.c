@@ -24,8 +24,6 @@
 #include "../i2c_slave/i2c_slave.h"
 #include "i2c_slave_net.h"
 
-#ifdef I2C_SLAVE_SUPPORT
-
 void 
 i2c_slave_net_init(void)
 {
@@ -53,4 +51,7 @@ i2c_slave_net_main(void)
     i2c_slave_core_newdata();
 }
 
-#endif
+/*
+  -- Ethersex META --
+  net_init(i2c_slave_net_init)
+*/

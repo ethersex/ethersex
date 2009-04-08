@@ -31,8 +31,6 @@
 #include "yport.h"
 #include "yport_net.h"
 
-#ifdef YPORT_SUPPORT
-
 #define USE_USART YPORT_USE_USART
 #define BAUD YPORT_BAUDRATE
 #include "core/usart.h"
@@ -97,4 +95,3 @@ SIGNAL(usart(USART,_RX_vect))
   if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
     yport_recv_buffer.data[yport_recv_buffer.len++] = data;
 }
-#endif

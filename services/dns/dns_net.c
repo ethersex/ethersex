@@ -26,11 +26,12 @@
 #include "resolv.h"
 #include "config.h"
 
-#ifdef DNS_SUPPORT
+#if 0
 void dns_net_init(void)
 {
   resolv_init();
 }
+#endif
 
 void dns_net_main(void)
 {
@@ -41,4 +42,8 @@ void dns_net_main(void)
     resolv_newdata();
   }
 }
-#endif
+
+/*
+  -- Ethersex META --
+  net_init(resolv_init)
+*/

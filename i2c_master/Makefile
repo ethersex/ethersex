@@ -7,6 +7,8 @@ $(I2C_MASTER_SUPPORT)_SRC += \
 	i2c_master/i2c_pca9531.c \
 	i2c_master/i2c_lm75.c \
 	i2c_master/i2c_pcf8574x.c \
+
+$(I2C_UDP_SUPPORT)_SRC += \
 	i2c_master/i2c_udp.c \
 	i2c_master/i2c_udp_net.c
 

@@ -216,3 +216,7 @@ void ecmd_net_main(void)
     }
 }
 
+/*
+  -- Ethersex META --
+  net_init(ecmd_net_init)
+*/
