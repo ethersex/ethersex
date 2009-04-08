@@ -162,10 +162,6 @@ int main(void)
 
     ethersex_meta_init();
 
-#ifdef FS20_SUPPORT
-    fs20_init();
-#endif
-
 #ifdef ONEWIRE_SUPPORT
     onewire_init();
 #endif
@@ -270,12 +266,6 @@ int main(void)
 	uip_stack_set_active(STACK_ENC);
         syslog_flush();
 #endif
-
-        /* check if fs20 data has arrived */
-#if defined(FS20_SUPPORT) && defined(FS20_RECEIVE_SUPPORT)
-        fs20_process();
-        wdt_kick();
-#endif  /* FS20_SUPPORT && FS20_RECEIVE_SUPPORT */
 
 #ifndef BOOTLOAD_SUPPORT
         if(status.request_bootloader) {

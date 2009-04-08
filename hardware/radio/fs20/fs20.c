@@ -29,8 +29,6 @@
 #include "core/bit-macros.h"
 #include "core/debug.h"
 
-#ifdef FS20_SUPPORT
-
 /* module-local prototypes */
 #ifdef FS20_SEND_SUPPORT
 /* prototypes for sending fs20 */
@@ -534,4 +532,8 @@ void fs20_init(void)
 #endif
 }
 
-#endif
+/*
+  -- Ethersex META --
+  init(fs20_init)
+  mainloop(fs20_process)
+*/
