@@ -41,6 +41,7 @@
 #endif	/* not DEBUG_USE_SYSLOG */
 
 #else  /* not DEBUG */
+    #define debug_printf(s, args...) do {} while(0);
     #define debug_putchar(...) do { } while(0)
 #endif /* not DEBUG */
 
