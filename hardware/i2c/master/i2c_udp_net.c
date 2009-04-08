@@ -21,7 +21,7 @@
 
 #include "protocols/uip/uip.h"
 #include "config.h"
-#include "../i2c_master/i2c_udp.h"
+#include "hardware/i2c/master/i2c_udp.h"
 #include "i2c_udp_net.h"
 
 void 

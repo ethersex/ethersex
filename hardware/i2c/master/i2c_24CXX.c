@@ -149,5 +149,5 @@ end:
 
 /*
   -- Ethersex META --
-  init(i2c_master_init)
+  init(i2c_24CXX_init)
 */

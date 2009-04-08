@@ -31,7 +31,7 @@ divert(0)dnl
 #include "config.h"
 void dyndns_update();
 
-divert(init_divert)dnl
+divert(initearly_divert)dnl
 void
 ethersex_meta_init (void)
 {
