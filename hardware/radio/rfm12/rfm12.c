@@ -4,8 +4,8 @@
  *
  * @author      Benedikt K.
  * @author      Juergen Eckert
- * @author    Ulrich Radig (mail@ulrichradig.de) www.ulrichradig.de 
- * @date        04.06.2007  
+ * @author    Ulrich Radig (mail@ulrichradig.de) www.ulrichradig.de
+ * @date        04.06.2007
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@
 #include <stdlib.h>
 
 #include "config.h"
-#include "protocols/uip/uip.h"
 #include "core/spi.h"
+#include "core/crypto/encrypt-llh.h"
+#include "protocols/syslog/syslog.h"
+#include "protocols/uip/uip.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"
-#include "crypto/encrypt-llh.h"
-#include "protocols/syslog/syslog.h"
 
 #ifdef RFM12_IP_SUPPORT
 rfm12_status_t rfm12_status;
@@ -51,7 +51,7 @@ SIGNAL(RFM12_INT_SIGNAL)
   if ((rfm12_trans(0x0000) & 0x8000) == 0)
     return;
 
-  switch (rfm12_status) 
+  switch (rfm12_status)
     {
     case RFM12_RX:
       byte = rfm12_trans(0xB000) & 0x00FF;
@@ -159,11 +159,11 @@ SIGNAL(RFM12_INT_SIGNAL)
 
 unsigned short
 rfm12_trans(unsigned short wert)
-{	
+{
   unsigned short werti = 0;
-	
+
   PIN_CLEAR(SPI_CS_RFM12);
-	
+
   /* spi clock down */
   _SPCR0 |= _BV(SPR0);
 
@@ -220,7 +220,7 @@ rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
 
 void
 rfm12_setfreq(unsigned short freq)
-{	
+{
   if (freq < 96)		/* 430,2400MHz */
     freq = 96;
 
@@ -254,7 +254,7 @@ rfm12_setbaud(unsigned short baud)
 
 void
 rfm12_setpower(uint8_t power, uint8_t mod)
-{	
+{
   rfm12_prologue ();
   rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
   rfm12_epilogue ();
@@ -300,14 +300,14 @@ rfm12_rxfinish(void)
 #ifndef TEENSY_SUPPORT
   len += rfm12_buf[0] << 8;
 #endif
-  
+
   rfm12_status = RFM12_OFF;
 
   if (!len) {
     uip_buf_unlock ();
     rfm12_rxstart ();		/* rfm12_decrypt destroyed the packet. */
   }
-  
+
   return(len);			/* receive size */
 }
 

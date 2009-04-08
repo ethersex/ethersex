@@ -3,7 +3,7 @@
  * Copyright (c) 2007, 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -43,7 +43,7 @@ STACK_DEFINITIONS(openvpn_stack);
 static uip_udp_conn_t *openvpn_conn;
 
 #ifdef CAST5_SUPPORT
-#include "../crypto/cast5.h"
+#include "core/crypto/cast5.h"
 static unsigned char *key = CONF_OPENVPN_KEY;
 static cast5_ctx_t ctx;
 
@@ -57,7 +57,7 @@ openvpn_decrypt_and_verify (void)
   unsigned char *cbc_carry_this =
     uip_appdata + OPENVPN_HMAC_LLH_LEN;	/* initial IV. */
   unsigned char *cbc_carry_next = buf;
-  
+
   for (unsigned char *ptr = uip_appdata + 8 + OPENVPN_HMAC_LLH_LEN;
        ptr < ((unsigned char *) uip_appdata) + uip_len;
        ptr += 8)
@@ -138,21 +138,21 @@ openvpn_encrypt (void)
 
 
 #ifdef MD5_SUPPORT
-#include "../crypto/md5.h"
+#include "core/crypto/md5.h"
 
 void
 openvpn_hmac_calc (unsigned char *dest, unsigned char *src, uint16_t len)
 {
   const unsigned char *hmac_key = (const unsigned char *)CONF_OPENVPN_HMAC_KEY;
   unsigned char buf[64];
-  
+
   /* perform inner part of hmac */
   md5_ctx_t ctx_inner;
   md5_init (&ctx_inner);
-  
+
   for (int i = 0; i < 16; i ++) buf[i] = hmac_key[i] ^ 0x36;
   for (int i = 16; i < 64; i ++) buf[i] = 0x36;
-  
+
   md5_nextBlock (&ctx_inner, buf);
   md5_lastBlock (&ctx_inner, src, len << 3);
 
@@ -194,7 +194,7 @@ openvpn_hmac_verify (void)
 #endif
 
 
-void 
+void
 openvpn_handle_udp (void)
 {
   if (uip_udp_conn->lport != HTONS(OPENVPN_PORT))
@@ -290,7 +290,7 @@ openvpn_txstart (void)
 }
 
 
-void 
+void
 openvpn_init (void)
 {
   uip_ipaddr_t ip;
@@ -315,7 +315,7 @@ openvpn_init (void)
 
   openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
 
-  if(! openvpn_conn) 
+  if(! openvpn_conn)
     return;					/* dammit. */
 
   uip_udp_bind(openvpn_conn, HTONS(OPENVPN_PORT));
