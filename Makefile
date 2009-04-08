@@ -2,7 +2,6 @@ TARGET := ethersex
 TOPDIR = .
 
 SRC = \
-	enc28j60.c \
 	ethersex.c \
 	ipv6.c \
 	network.c
@@ -84,6 +83,8 @@ endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
+
+${ENC28J60_SUPPORT}_SRC += enc28j60.c
 
 include $(foreach subdir,$(SUBDIRS),$(subdir)/Makefile)
 

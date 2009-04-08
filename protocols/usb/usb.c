@@ -31,8 +31,6 @@
 #include "requests.h"
 #include "usb_net.h"
 
-#ifdef USB_SUPPORT
-
 #ifdef USB_CFG_PULLUP_IOPORTNAME
 #undef usbDeviceConnect
 #define usbDeviceConnect()      do { \
@@ -148,4 +146,7 @@ usb_init(void)
   usbInit();
 }
 
-#endif
+/*
+  -- Ethersex META --
+  mainloop(usb_periodic)
+*/

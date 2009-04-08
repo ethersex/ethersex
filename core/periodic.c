@@ -274,5 +274,9 @@ void periodic_process(void)
 	uip_buf_unlock ();
 #endif
     }
-
 }
+
+/*
+  -- Ethersex META --
+  mainloop(periodic_process)
+*/

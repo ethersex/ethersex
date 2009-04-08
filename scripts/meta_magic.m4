@@ -20,10 +20,12 @@ dnl
 define(`prototypes',0)dnl
 define(`init_divert',1)dnl
 define(`net_init_divert',2)dnl
+define(`mainloop_divert',3)dnl
 divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#include "config.h"
 void dyndns_update();
 
 divert(init_divert)dnl
@@ -41,11 +43,24 @@ ethersex_meta_netinit (void)
     dyndns_update();
 #   endif
 
-divert(3)dnl
+divert(mainloop_divert)dnl
 }  /* End of ethersex_meta_netinit. */
+
+void
+ethersex_meta_mainloop (void)
+{
+
+divert(9)dnl
+}
+
 divert(-1)dnl
 
 define(`net_init',`dnl
 divert(prototypes)void $1 (void);
-divert(net_init_divert)$1 ();
-');
+divert(net_init_divert)    $1 ();
+divert(-1)');
+
+define(`mainloop',`dnl
+divert(prototypes)void $1 (void);
+divert(mainloop_divert)    $1 (); wdt_kick ();
+divert(-1)');

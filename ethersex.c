@@ -341,28 +341,7 @@ int main(void)
     while(1) {
 
         wdt_kick();
-
-#ifdef ENC28J60_SUPPORT
-        /* check for network controller interrupts,
-         * call uip on received packets */
-        network_process();
-        wdt_kick();
-#endif
-
-#ifdef RFM12_IP_SUPPORT
-	rfm12_process();
-	wdt_kick();
-#endif
-
-#ifdef ZBUS_SUPPORT
-	zbus_process();
-	wdt_kick();
-#endif
-
-#       ifdef USB_SUPPORT
-        usb_periodic();
-	wdt_kick();
-#       endif
+	ethersex_meta_mainloop();
 
 #       ifdef SD_READER_SUPPORT
 	if (sd_active_partition == NULL) {
@@ -372,16 +351,6 @@ int main(void)
 	    wdt_kick();
 	}
 #       endif
-
-#ifdef STELLA_SUPPORT
-stella_process();
-wdt_kick();
-#endif
-
-        /* check if any timer expired,
-         * poll all uip connections */
-		  periodic_process();
-        wdt_kick();
 
         /* check if debug input has arrived */
         debug_process();
@@ -397,12 +366,6 @@ wdt_kick();
         fs20_process();
         wdt_kick();
 #endif  /* FS20_SUPPORT && FS20_RECEIVE_SUPPORT */
-
-        /* check if rc5 data has arrived */
-#ifdef RC5_SUPPORT
-        rc5_process();
-        wdt_kick();
-#endif
 
 #ifndef BOOTLOAD_SUPPORT
         if(status.request_bootloader) {

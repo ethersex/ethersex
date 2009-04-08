@@ -34,9 +34,6 @@
 
 #define noinline __attribute__((noinline))
 
-#ifdef RC5_SUPPORT
-
-
 /* global variables */
 volatile struct rc5_global_t rc5_global;
 
@@ -427,10 +424,10 @@ ISR(TIMER0_OVF_vect)
 
         /* re-enable int0 */
         rc5_global.temp_disable = 0;
-
     }
-
 }
 
-
-#endif
+/*
+  -- Ethersex META --
+  mainloop(rc5_process)
+*/

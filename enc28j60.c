@@ -37,8 +37,6 @@
 #include "core/bit-macros.h"
 #include "core/eeprom.h"
 
-#ifdef ENC28J60_SUPPORT
-
 /* global variables */
 uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
@@ -490,4 +488,10 @@ network_config_load (void)
     uip_setdraddr(ip);
 #endif	/* No autoconfiguration. */
 }
-#endif /* ENC28J60_SUPPORT */
+
+
+/*
+  -- Ethersex META --
+  net_init(init_enc28j60)
+  mainloop(network_process)
+*/

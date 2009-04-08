@@ -389,3 +389,8 @@ stella_sort()
 	/* Allow the interrupt to actually apply the calculated values */
 	stella_sync = NEW_VALUES;
 }
+
+/*
+  -- Ethersex META --
+  mainloop(stella_process)
+*/

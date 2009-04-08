@@ -69,3 +69,8 @@ zbus_process(void)
 
   uip_len = 0;
 }
+
+/*
+  -- Ethersex META --
+  mainloop(zbus_process)
+*/

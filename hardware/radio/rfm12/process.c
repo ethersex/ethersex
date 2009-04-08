@@ -72,3 +72,7 @@ rfm12_process (void)
   router_output ();
 }
 
+/*
+  -- Ethersex META --
+  mainloop(rfm12_process)
+*/
