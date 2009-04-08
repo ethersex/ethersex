@@ -24,7 +24,7 @@
 #include <util/delay.h>
 #include "protocols/uip/uip.h"
 #include "config.h"
-#include "../global.h"
+#include "core/global.h"
 #include "i2c_slave.h"
 #include "i2c_slave_state.h"
 

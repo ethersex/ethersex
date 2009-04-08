@@ -30,7 +30,7 @@
 #include "protocols/uip/uip_neighbor.h"
 
 #include "config.h"
-#include "global.h"
+#include "core/global.h"
 #include "core/debug.h"
 #include "core/spi.h"
 #include "network.h"

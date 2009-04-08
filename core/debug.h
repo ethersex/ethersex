@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 #include "core/bit-macros.h"
-#include "global.h"
+#include "core/global.h"
 #include "protocols/syslog/syslog.h"
 
 /* define macros, if debug is enabled */

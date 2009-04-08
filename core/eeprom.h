@@ -28,7 +28,7 @@
 #include <stddef.h>
 #include <avr/eeprom.h>
 #include "config.h"
-#include "global.h"
+#include "core/global.h"
 
 #define IPADDR_LEN sizeof(uip_ipaddr_t)
 
