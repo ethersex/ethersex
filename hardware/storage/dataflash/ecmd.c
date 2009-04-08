@@ -48,7 +48,7 @@ parse_cmd_fs_format (char *cmd, char *output, uint16_t len)
 
   if (fs_format (&fs) != FS_OK) 
     return snprintf_P (output, len, PSTR ("fs: error while formating"));
-  if (fs_init (&fs, NULL) != FS_OK) 
+  if (fs_init () != FS_OK) 
     return snprintf_P (output, len, PSTR ("fs: error while initializing"));
 
   return 0;

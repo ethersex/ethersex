@@ -152,12 +152,6 @@ int main(void)
     spi_init();
 #   endif
 
-#   ifdef DATAFLASH_SUPPORT
-    debug_printf("initializing filesystem...\n");
-    fs_init(&fs, NULL);
-    debug_printf("fs: root page is 0x%04x\n", fs.root);
-#   endif
-
 #ifdef ADC_SUPPORT
     /* ADC Prescaler to 64 */
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);

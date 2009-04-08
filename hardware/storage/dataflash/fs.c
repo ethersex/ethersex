@@ -126,14 +126,15 @@ typedef struct {
 /* public functions */
 
 /* initialize fs structure, call fs_scan_root */
-fs_status_t fs_init(fs_t *fs, df_chip_t chip)
+fs_status_t fs_init(void)
 {
 
-    fs->chip = chip;
+    printf("initalizing filesystem...\n");
+    fs.chip = NULL;
 
     /* keep address of last free page, so that we can start searching for the
      * next free page at this address to provide wear-levelling */
-    fs->last_free = 0;
+    fs.last_free = 0;
 
     /* init free pages storage:
      * buffer 2 in dataflash is used as the free pages storage, each byte
@@ -143,10 +144,10 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
     uint8_t b = 0xff;
 
     for (uint16_t i = 0; i < DF_PAGESIZE; i++)
-        df_buf_write(fs->chip, DF_BUF2, &b, i, 1);
+        df_buf_write(fs.chip, DF_BUF2, &b, i, 1);
 
     /* scan for root node, if none could be founde, create one in page 0 */
-    fs_status_t ret = fs_scan(fs);
+    fs_status_t ret = fs_scan(&fs);
 
     if (ret != FS_OK) {
         printf("fs: error scannning dataflash: %s\r\n", ret);
@@ -154,11 +155,11 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
     }
 
     /* mark used pages */
-    fs_mark_used(fs, fs->root);
+    fs_mark_used(&fs, fs.root);
 
     for (uint8_t i = 0; i < 16; i++) {
         // printf("inodetable %i at page %d\n", i, fs_get_inodetable(fs, i));
-        fs_mark_used(fs, fs_inodetable(fs, i));
+        fs_mark_used(&fs, fs_inodetable(&fs, i));
     }
 
     /* allocate temporary buffer */
@@ -170,7 +171,7 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
     printf("fs: nodes in root:\r\n");
     for (uint8_t i = 0; i < FS_NODES_IN_ROOT; i++) {
 
-        df_flash_read(fs->chip, fs->root, node, FS_ROOTNODE_NODETABLE_OFFSET + i * sizeof(fs_node_t), sizeof(fs_node_t));
+        df_flash_read(fs.chip, fs.root, node, FS_ROOTNODE_NODETABLE_OFFSET + i * sizeof(fs_node_t), sizeof(fs_node_t));
 
         if (node->unused == 0) {
 #ifdef DEBUG_FS
@@ -179,22 +180,22 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
             name[FS_FILENAME] = 0;
 #endif
 
-            df_page_t page = fs_page(fs, node->inode);
+            df_page_t page = fs_page(&fs, node->inode);
 
 	    printf(" * %s: (index %d, file %d, inode 0x%04x, page 0x%04x)\r\n",
 	    	   name, i, node->file, node->inode, page);
 
             while (page != 0xffff) {
-                fs_mark_used(fs, page);
+                fs_mark_used(&fs, page);
 
 		fs_page_t pagedata;
-		df_flash_read (fs->chip, page, &pagedata, FS_STRUCTURE_OFFSET,
+		df_flash_read (fs.chip, page, &pagedata, FS_STRUCTURE_OFFSET,
 			       sizeof (fs_page_t));
 
 		if (pagedata.eof)
 		    break;
 
-		page = fs_page (fs, pagedata.next_inode);
+		page = fs_page (&fs, pagedata.next_inode);
 		printf ("\t... continues in page 0x%04x (inode 0x%04x)\n",
 			page, pagedata.next_inode);
 	    }
@@ -208,11 +209,13 @@ fs_status_t fs_init(fs_t *fs, df_chip_t chip)
 #ifdef DEBUG_FS_MARK
     printf("fs: used pages:\r\n");
     for (uint16_t i = 0; i < DF_PAGES; i++) {
-        if (fs_used(fs, i)) {
+        if (fs_used(&fs, i)) {
 	    printf(" * %04x\r\n", i);
         }
     }
 #endif
+
+    printf("fs: root page is 0x%04x\n", fs.root);
 
     return FS_OK;
 
@@ -1428,4 +1431,8 @@ fs_inspect_inode(fs_t *fs, fs_inode_t p)
 
 #endif	/* DEBUG_FS */
 
+/*
+  -- Ethersex META --
+  init(fs_init)
+*/
 
