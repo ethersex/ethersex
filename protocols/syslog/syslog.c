@@ -107,6 +107,10 @@ syslog_send_ptr(void *message)
 void
 syslog_flush (void)
 {
+
+  /* FIXME: use perhaps router to determine target Stack */
+  uip_stack_set_active(STACK_ENC);
+
   if (syslog_check_cache ())
     return;			/* ARP cache not ready, don't send request
 				   here (would flood, wait for poll event). */
@@ -183,23 +187,7 @@ syslog_check_cache(void)
   return 1;
 }
 
-
-#ifdef DEBUG_USE_SYSLOG
-
-int
-syslog_debug_put (char d, FILE *stream)
-{
-  char buf[2] = { d, 0 };
-  syslog_send (buf);
-
-  return 0;
-}
-
-void
-syslog_debug_init (void)
-{
-  fdevopen(syslog_debug_put, NULL);
-}
-
-
-#endif
+/*
+  -- Ethersex META --
+  mainloop(syslog_flush)
+*/

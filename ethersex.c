@@ -101,7 +101,6 @@ int main(void)
 #endif
 #endif
 
-    debug_init();
     debug_printf("debugging enabled\n");
 
 #   ifdef BOOTLOADER_SUPPORT
@@ -214,15 +213,6 @@ int main(void)
 	    wdt_kick();
 	}
 #       endif
-
-        /* check if debug input has arrived */
-        debug_process();
-        wdt_kick();
-
-#ifdef SYSLOG_SUPPORT
-	uip_stack_set_active(STACK_ENC);
-        syslog_flush();
-#endif
 
 #ifndef BOOTLOAD_SUPPORT
         if(status.request_bootloader) {

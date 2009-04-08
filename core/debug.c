@@ -35,7 +35,6 @@ void soft_uart_putchar(uint8_t c);
 #define BAUD DEBUG_BAUDRATE
 #include "core/usart.h"
 
-#ifndef DEBUG_USE_SYSLOG
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
@@ -120,5 +119,10 @@ debug_process_uart (void)
 #endif  /* ECMD_PARSER_SUPPORT && !SOFT_UART_SUPPORT*/
 }
 
-#endif	/* not DEBUG_USE_SYSLOG */
+
+/*
+  -- Ethersex META --
+  init(debug_init_uart)
+  mainloop(debug_process_uart)
+*/
 

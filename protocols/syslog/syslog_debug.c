@@ -21,27 +21,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
-
-#define MAX_DYNAMIC_SYSLOG_BUFFER 500
-
-#ifndef _SYSLOG_H
-#define _SYSLOG_H
-
-uint8_t syslog_send_P(PGM_P message);
-uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf(const char *message, ...);
-uint8_t syslog_send_ptr(void *message);
-
-void syslog_flush (void);
-void syslog_debug_init (void);
-
-/* Check the ARP/Neighbor cache for the necessary entries;
-   return 0 if it's safe to send syslog data. */
-uint8_t syslog_check_cache(void);
-
-#include "protocols/uip/uip.h"
+#include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
-uip_ipaddr_t *syslog_getserver(void);
 
-#endif
+int
+syslog_debug_put (char d, FILE *stream)
+{
+  char buf[2] = { d, 0 };
+  syslog_send (buf);
+
+  return 0;
+}
+
+void
+syslog_debug_init (void)
+{
+  fdevopen(syslog_debug_put, NULL);
+}
+
+/*
+  -- Ethersex META --
+  init(syslog_debug_init)
+*/

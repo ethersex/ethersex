@@ -28,25 +28,19 @@
 #include "core/bit-macros.h"
 #include "core/global.h"
 #include "protocols/syslog/syslog.h"
+#include "protocols/syslog/syslog_debug.h"
 
 /* define macros, if debug is enabled */
 #ifdef DEBUG
     #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
 
 #ifdef DEBUG_USE_SYSLOG
-    #define debug_init() syslog_debug_init()
-    #define debug_process() do { } while(0)
     #define debug_putchar(ch) syslog_debug_put(ch, NULL)
 #else  /* not DEBUG_USE_SYSLOG */
-    #define debug_init() debug_init_uart()
-    #define debug_process() debug_process_uart()
     #define debug_putchar(ch) debug_uart_put (ch, NULL);
 #endif	/* not DEBUG_USE_SYSLOG */
 
 #else  /* not DEBUG */
-    #define debug_printf(...) do { } while(0)
-    #define debug_init(...) do { } while(0)
-    #define debug_process(...) do { } while(0)
     #define debug_putchar(...) do { } while(0)
 #endif /* not DEBUG */
 
