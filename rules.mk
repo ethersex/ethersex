@@ -19,7 +19,7 @@ OBJECTS += $(patsubst %.S,%.o,${ASRC})
 # within a subdirectory.  Override the SUBDIR variable and declare a
 # suitable target.
 compile-subdir:
-	$(MAKE) -C $(TOPDIR) $(OBJECTS)
+	[ "x${OBJECTS}" = "x " ] || $(MAKE) no_deps=t -C $(TOPDIR) $(OBJECTS)
 
 clean-common:
 	cd $(TOPDIR) && $(RM) $(OBJECTS) \
