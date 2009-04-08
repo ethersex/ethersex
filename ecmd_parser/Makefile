@@ -13,8 +13,6 @@ $(PWM_SUPPORT)_SRC += ecmd_parser/pwm.c
 $(ALIASCMD_SUPPORT)_SRC += ecmd_parser/aliascmd.c
 $(ECMD_SCRIPT_SUPPORT)_SRC += ecmd_parser/scripting.c
 
-# syslog.c disabled due to license issues.
-
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/rules.mk

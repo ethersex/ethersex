@@ -183,16 +183,6 @@ syslog_check_cache(void)
   return 1;
 }
 
-uip_ipaddr_t *
-syslog_getserver(void)
-{
-    if(syslog_conn == NULL) {
-        return NULL;
-    }
-    return &syslog_conn->ripaddr;
-}
-
-
 
 #ifdef DEBUG_USE_SYSLOG
 
