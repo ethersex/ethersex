@@ -65,10 +65,6 @@ void network_init_apps(void)
     jabber_init();
 #   endif
 
-#   ifdef HTTPD_SUPPORT
-    httpd_init();
-#   endif
-
 #   ifdef MYSQL_SUPPORT
     mysql_init();
 #   endif
@@ -127,10 +123,6 @@ void network_init_apps(void)
 
 #   ifdef BOOTP_SUPPORT
     bootp_net_init();
-#   endif
-
-#   ifdef NTP_SUPPORT
-    ntp_net_init();
 #   endif
 
 #   ifdef NTPD_SUPPORT

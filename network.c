@@ -67,6 +67,7 @@ void process_packet(void);
 
 
 
+extern void ethersex_meta_netinit (void);
 
 
 
@@ -145,6 +146,7 @@ network_init(void)
 #   endif /* not ENC28J60_SUPPORT and not ROUTER_SUPPORT */
 
     network_init_apps();
+    ethersex_meta_netinit();
 
 #   ifdef ENC28J60_SUPPORT
     init_enc28j60();

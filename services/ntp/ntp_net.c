@@ -27,7 +27,6 @@
 #include "core/debug.h"
 #include "config.h"
 
-#ifdef NTP_SUPPORT
 void ntp_net_init(void)
 {
   ntp_init();
@@ -39,4 +38,8 @@ void ntp_net_main(void)
     ntp_newdata();
 
 }
-#endif
+
+/*
+  -- Ethersex META --
+  net_init(ntp_net_init)
+*/

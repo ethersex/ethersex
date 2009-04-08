@@ -92,6 +92,12 @@ debug:
 	@echo y_SRC: ${y_SRC}
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 
+meta.m4: ${SRC} ${y_SRC}
+	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+
+meta.c: scripts/meta_magic.m4 meta.m4
+	m4 $^ > $@
+
 ##############################################################################
 
 .PHONY: compile-$(TARGET)
@@ -99,7 +105,7 @@ compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 
 ${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
 
-OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC})
+OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 # FIXME how can we omit specifying every file to be linked twice?

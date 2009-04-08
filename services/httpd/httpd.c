@@ -221,5 +221,9 @@ httpd_main(void)
 	if (STATE->handler)
 	    STATE->handler ();
     }
-
 }
+
+/*
+  -- Ethersex META --
+  net_init(httpd_init)
+*/
