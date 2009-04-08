@@ -34,8 +34,6 @@
 #include "core/portio/portio.h"
 #include "config.h"
 
-#ifdef HC595_SUPPORT
-
 static uint8_t hc595_cache[HC595_REGISTERS];
 void hc595_update(void);
 
@@ -91,5 +89,9 @@ hc595_update(void)
   PIN_SET(HC595_STORE);
   PIN_CLEAR(HC595_STORE);
 }
-#endif
+
+/*
+  -- Ethersex META --
+  init(hc595_init)
+*/
 

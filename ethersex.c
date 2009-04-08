@@ -48,8 +48,6 @@
 #include "hardware/io_expander/hc595.h"
 #include "protocols/uip/ipv6.h"
 #include "hardware/storage/dataflash/fs.h"
-#include "protocols/modbus/modbus.h"
-#include "protocols/zbus/zbus.h"
 #include "protocols/usb/usb.h"
 #include "protocols/syslog/syslog.h"
 #include "net/handler.h"
@@ -168,18 +166,6 @@ int main(void)
 
 #ifdef ECMD_SERIAL_USART_SUPPORT
     ecmd_serial_usart_init();
-#endif
-
-#ifdef ZBUS_SUPPORT
-    zbus_core_init();
-#endif
-
-#ifdef HC595_SUPPORT
-    hc595_init();
-#endif
-
-#ifdef HC165_SUPPORT
-    hc165_init();
 #endif
 
 #ifdef RFM12_SUPPORT

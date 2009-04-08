@@ -27,8 +27,6 @@
 #include "config.h"
 #include "hc165.h"
 
-#ifdef HC165_SUPPORT
-
 void
 hc165_init(void)
 {
@@ -71,5 +69,7 @@ hc165_read_pin(uint8_t port)
   return result;
 }
 
-#endif
-
+/*
+  -- Ethersex META --
+  init(hc165_init)
+*/
