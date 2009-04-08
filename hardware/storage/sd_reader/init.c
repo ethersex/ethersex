@@ -20,9 +20,14 @@
  */
 
 #include "config.h"
+
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "hardware/storage/sd_reader/partition.h"
 #include "hardware/storage/sd_reader/fat.h"
+
+#ifndef NULL
+#define NULL ((void *) 0)
+#endif
 
 struct partition_struct *sd_active_partition;
 
