@@ -23,7 +23,7 @@
 
 #include "hardware/storage/sd_reader/fat.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
-#include "vfs.h"
+#include "vfs/vfs.h"
 
 static struct fat_fs_struct *vfs_sd_fat;
 struct fat_dir_struct *vfs_sd_rootnode;
