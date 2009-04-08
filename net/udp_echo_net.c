@@ -21,8 +21,8 @@
  */
 
 #include "udp_echo_net.h"
-#include "../uip/uip.h"
-#include "../uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "config.h"
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))

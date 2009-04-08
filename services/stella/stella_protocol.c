@@ -29,8 +29,8 @@
 /* we can manipulate crons via the stella protocol */
 #include "services/cron/cron.h"
 /* we want to send via uip */
-#include "uip/uip.h"
-#include "uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 
 void
 stella_protocol_parse(char* buf, uint8_t len)

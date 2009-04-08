@@ -22,7 +22,7 @@
  */
 
 #include "ntp_net.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "ntp.h"
 #include "core/debug.h"
 #include "config.h"

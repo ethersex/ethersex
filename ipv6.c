@@ -22,9 +22,9 @@
 
 #include <string.h>
 
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
-#include "uip/uip_neighbor.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_neighbor.h"
 #include "services/tftp/tftp.h"
 #include "services/dyndns/dyndns.h"
 #include "ipv6.h"

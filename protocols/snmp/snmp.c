@@ -23,9 +23,9 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include "config.h"
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
-#include "uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_router.h"
 #include "core/debug.h"
 #include "services/clock/clock.h"
 #include "snmp_net.h"

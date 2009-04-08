@@ -24,12 +24,12 @@
 #include <avr/pgmspace.h>
 #include <stdarg.h>
 
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "config.h"
 #include "core/debug.h"
-#include "../uip/uip_arp.h"
-#include "../uip/uip_neighbor.h"
-#include "../uip/uip_router.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_neighbor.h"
+#include "protocols/uip/uip_router.h"
 #include "syslog.h"
 #include "syslog_net.h"
 

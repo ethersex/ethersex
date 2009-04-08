@@ -21,7 +21,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "config.h"
 #include "core/debug.h"
 #include "syslog_net.h"

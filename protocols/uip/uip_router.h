@@ -51,19 +51,19 @@ void router_output(void);
 
 
 #if defined(ENC28J60_SUPPORT)
-#  include "../network.h"
+#  include "network.h"
 #  define router_output() enc28j60_txstart()
 
 #elif defined(RFM12_IP_SUPPORT)
-#  include "../rfm12/rfm12.h"
+#  include "hardware/radio/rfm12/rfm12.h"
 #  define router_output() (rfm12_txstart (uip_len), 0)
 
 #elif defined(ZBUS_SUPPORT)
-#  include "../zbus/zbus.h"
+#  include "protocols/zbus/zbus.h"
 #  define router_output() (zbus_txstart (uip_len));
 
 #elif defined(USB_NET_SUPPORT)
-#  include "../usb/usb_net.h"
+#  include "protocols/usb/usb_net.h"
 #  define router_output() (usb_net_txstart(), 0)
 
 #endif

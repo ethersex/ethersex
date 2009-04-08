@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 #ifdef AVR
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #endif
 
 /* constants */

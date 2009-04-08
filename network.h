@@ -25,8 +25,8 @@
 #include "enc28j60.h"
 #include "config.h"
 
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
 #include "ipv6.h"
 
 /* prototypes */

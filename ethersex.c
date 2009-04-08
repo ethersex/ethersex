@@ -25,9 +25,9 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
-#include "uip/uip_neighbor.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_neighbor.h"
 
 #include "config.h"
 #include "global.h"

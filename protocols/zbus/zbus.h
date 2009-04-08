@@ -24,7 +24,7 @@
 #define _ZBUS_H
 
 #include <stdint.h>
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 
 #ifdef ZBUS_SUPPORT
 

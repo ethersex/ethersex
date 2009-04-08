@@ -56,7 +56,7 @@ divert(0)dnl
 #endif
 #include "../net/ecmd_sender_net.h"
 #include "core/bit-macros.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "control6.h"
 
 divert(-1)dnl

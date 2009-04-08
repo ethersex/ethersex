@@ -28,7 +28,7 @@ dnl
 #ifndef __IPCHAIR_HDR
 #define __IPCHAIR_HDR
 
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 
 typedef void builtin_return_t;
 typedef uint8_t user_return_t;

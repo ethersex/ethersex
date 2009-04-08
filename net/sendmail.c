@@ -33,7 +33,7 @@
 #include <stdlib.h>
 
 #include "sendmail.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 
 #ifdef DEBUG_SENDMAIL
 #  include "../debug.h"

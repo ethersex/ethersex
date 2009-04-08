@@ -24,8 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "uip/uip.h"
-#include "uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "vfs/vfs.h"
 #include "core/debug.h"
 #include "tftp.h"

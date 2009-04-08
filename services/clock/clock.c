@@ -24,7 +24,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "core/bit-macros.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "services/dns/resolv.h"
 #include "services/ntp/ntp.h"
 #include "services/ntp/ntp_net.h"

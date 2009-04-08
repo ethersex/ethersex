@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include "config.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "mysql.h"
 
 

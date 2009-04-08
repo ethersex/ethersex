@@ -24,8 +24,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <util/twi.h>
-#include "../uip/uip.h"
-#include "../uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "config.h"
 #include "i2c_master.h"
 #include "i2c_udp.h"

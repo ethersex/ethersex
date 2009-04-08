@@ -22,8 +22,8 @@
 #include <avr/io.h>
 
 #include "core/bit-macros.h"
-#include "uip/uip.h"
-#include "uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "services/clock/clock.h"
 #include "ntp.h"
 #include "config.h"

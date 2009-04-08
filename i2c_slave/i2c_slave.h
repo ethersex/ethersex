@@ -22,7 +22,7 @@
 #define _I2C_SLAVE_H
 
 #include <stdint.h>
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 
 /* constants */
 #define I2C_SLAVE_PORT 0x2321

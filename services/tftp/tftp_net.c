@@ -21,7 +21,7 @@
 
 #include <avr/pgmspace.h>
 
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "tftp.h"
 #include "tftp_net.h"
 #include "tftp_state.h"

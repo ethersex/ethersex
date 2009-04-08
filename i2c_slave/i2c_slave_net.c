@@ -19,7 +19,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "config.h"
 #include "../i2c_slave/i2c_slave.h"
 #include "i2c_slave_net.h"

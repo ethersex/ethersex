@@ -20,8 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "uip/uip.h"
-#include "uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "config.h"
 #include "core/debug.h"
 #include "services/cron/cron.h"

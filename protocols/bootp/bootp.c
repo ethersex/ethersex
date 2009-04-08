@@ -20,15 +20,15 @@
  */
 
 /* we want to live on the outer stack, if there are two ... */
-#include "uip/uip_openvpn.h"
+#include "protocols/uip/uip_openvpn.h"
 
 #include <avr/pgmspace.h>
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "services/tftp/tftp.h"
 #include "services/dyndns/dyndns.h"

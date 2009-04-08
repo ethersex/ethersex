@@ -22,7 +22,7 @@
 #ifndef CONNECTION_STATE_H
 #define CONNECTION_STATE_H
 
-#include "uip/uip_openvpn.h"
+#include "protocols/uip/uip_openvpn.h"
 #include "config.h"
 
 #include "ecmd_state.h"

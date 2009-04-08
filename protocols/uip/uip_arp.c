@@ -64,7 +64,7 @@
 #include "uip_openvpn.h"
 
 #include "config.h"
-#include "../network.h"
+#include "network.h"
 #include "uip_arp.h"
 
 #include <string.h>

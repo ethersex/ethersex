@@ -26,8 +26,8 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "core/bit-macros.h"
-#include "uip/uip.h"
-#include "uip/uip_router.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "usbdrv/usbdrv.h"
 #include "ecmd_parser/ecmd.h"
 #include "requests.h"

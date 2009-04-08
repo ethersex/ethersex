@@ -26,7 +26,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "core/bit-macros.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "usbdrv/usbdrv.h"
 #include "requests.h"
 #include "usb_net.h"

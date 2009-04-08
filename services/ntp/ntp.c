@@ -21,7 +21,7 @@
  */
 
 #include "core/bit-macros.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "services/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "ntp.h"

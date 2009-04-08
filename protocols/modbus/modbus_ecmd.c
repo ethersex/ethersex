@@ -27,7 +27,7 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "modbus.h"
 #include "emcd_parser/ecmd.h"
 

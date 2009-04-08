@@ -38,7 +38,7 @@
 #include "mcuf_net.h"
 #include "mcuf_text.h"
 #include "ledmatrixint.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 
 #ifdef SOFT_UART_SUPPORT
 

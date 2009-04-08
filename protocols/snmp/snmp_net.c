@@ -22,7 +22,7 @@
 #include <avr/io.h>
 
 #include "core/bit-macros.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "config.h"
 #include "snmp.h"
 #include "snmp_net.h"

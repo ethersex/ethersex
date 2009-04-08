@@ -36,12 +36,12 @@
 
 #include "core/debug.h"
 
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
-#include "uip/uip_neighbor.h"
-#include "uip/uip_rfm12.h"
-#include "uip/uip_router.h"
-#include "uip/uip_zbus.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_neighbor.h"
+#include "protocols/uip/uip_rfm12.h"
+#include "protocols/uip/uip_router.h"
+#include "protocols/uip/uip_zbus.h"
 #include "services/dns/resolv.h"
 #include "services/tftp/tftp.h"
 #include "enc28j60.h"

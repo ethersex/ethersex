@@ -45,7 +45,7 @@
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
 
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 
 /**
  * Callback function which is called when a hostname is found.

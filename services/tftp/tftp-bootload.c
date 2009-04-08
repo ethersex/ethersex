@@ -25,7 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "tftp.h"
 #include "tftp_net.h"

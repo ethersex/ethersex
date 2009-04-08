@@ -24,7 +24,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include "yport_net.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "core/debug.h"
 #include "yport.h"
 

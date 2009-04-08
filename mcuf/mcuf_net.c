@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "core/bit-macros.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "../mcuf/mcuf.h"
 #include "../syslog/syslog.h"

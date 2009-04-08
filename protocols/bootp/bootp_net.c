@@ -20,8 +20,8 @@
  */
 
 /* we want to live on the outer stack, if there are two ... */
-#include "uip/uip_openvpn.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip_openvpn.h"
+#include "protocols/uip/uip.h"
 
 #include <stdlib.h>
 

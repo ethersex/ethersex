@@ -24,7 +24,7 @@
 #define ECMD_SENDER_NET_H
 #include <stdint.h>
 typedef void (*client_return_text_callback_t)(char* text, uint8_t len);
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include <avr/pgmspace.h>
 
 uip_conn_t *ecmd_sender_send_command (uip_ipaddr_t *ipaddr,

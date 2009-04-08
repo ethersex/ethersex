@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #include "config.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "core/spi.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"

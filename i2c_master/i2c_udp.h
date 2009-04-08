@@ -23,7 +23,7 @@
 #define _I2C_H
 
 #include <stdint.h>
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 
 /* i2c packet header */
 enum i2c_request_type {

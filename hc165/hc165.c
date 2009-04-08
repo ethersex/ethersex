@@ -22,7 +22,7 @@
 
 #include <avr/io.h>
 #include "core/bit-macros.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #include "core/portio/portio.h"
 #include "config.h"
 #include "hc165.h"

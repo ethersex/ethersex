@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include "core/portio/portio.h"
-#include "uip/uip.h"
+#include "protocols/uip/uip.h"
 
 typedef struct {
     uint8_t link :1;
