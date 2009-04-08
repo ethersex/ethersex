@@ -29,7 +29,7 @@
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "modbus.h"
-#include "emcd_parser/ecmd.h"
+#include "ecmd_parser/ecmd.h"
 
 #define STATE(a) ((a)->appstate.modbus)
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'a'))

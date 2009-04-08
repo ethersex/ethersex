@@ -36,8 +36,6 @@
 
 #include "pinning.c"
 
-#ifdef MODBUS_SUPPORT
-
 #define USE_USART MODBUS_USE_USART
 #define BAUD MODBUS_BAUDRATE
 #include "core/usart.h"
@@ -211,4 +209,7 @@ SIGNAL(usart(USART,_RX_vect))
   modbus_recv_timer = 2;
 }
 
-#endif
+/*
+  -- Ethersex META --
+  init(modbus_init)
+*/

@@ -162,14 +162,6 @@ int main(void)
 
     ethersex_meta_init();
 
-#ifdef ONEWIRE_SUPPORT
-    onewire_init();
-#endif
-
-#ifdef MODBUS_SUPPORT
-    modbus_init();
-#endif
-
 #ifdef ECMD_SERIAL_I2C_SUPPORT
     ecmd_serial_i2c_init();
 #endif
