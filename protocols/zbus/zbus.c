@@ -29,9 +29,8 @@
 #include "core/eeprom.h"
 #include "config.h"
 #include "protocols/syslog/syslog.h"
-#include "core/crypto/encrypt-llh.h"
-#include "zbus_raw_net.h"
-#include "zbus.h"
+#include "protocols/zbus/zbus_raw_net.h"
+#include "protocols/zbus/zbus.h"
 
 #ifndef ZBUS_USE_USART
 #define ZBUS_USE_USART 0
