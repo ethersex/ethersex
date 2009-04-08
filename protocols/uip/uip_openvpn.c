@@ -24,12 +24,12 @@
 
 #include "core/bit-macros.h"
 
-#include "uip_openvpn.h"
-#include "uip_router.h"
-#include "uip.h"
+#include "protocols/uip/uip_openvpn.h"
+#include "protocols/uip/uip_router.h"
+#include "protocols/uip/uip.h"
 
 #ifdef DEBUG_OPENVPN
-# include "../debug.h"
+# include "core/debug.h"
 # define printf(a...)  debug_printf("OpenVPN: " a)
 #else
 # define printf(a...)

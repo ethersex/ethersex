@@ -23,9 +23,9 @@
 
 #ifdef ROUTER_SUPPORT
 
-#include "uip.h"
-#include "uip_arp.h"
-#include "uip_neighbor.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_neighbor.h"
 
 #include "protocols/uip/ipv6.h"
 #include "network.h"
@@ -38,7 +38,7 @@
 #endif
 
 #ifdef DEBUG_ROUTER
-# include "debug.h"
+# include "core/debug.h"
 # define printf  debug_printf
 #else
 # define printf(a...)
