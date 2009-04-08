@@ -31,7 +31,7 @@
 #include "protocols/uip/uip_arp.h"
 #include "protocols/uip/uip_neighbor.h"
 #include "protocols/uip/uip_router.h"
-#include "ecmd_serial/ecmd_serial_i2c.h"
+#include "protocols/ecmd/via_i2c/ecmd_i2c.h"
 #include "control6/control6.h"
 #include "hardware/radio/fs20/fs20.h"
 #include "services/watchcat/watchcat.h"

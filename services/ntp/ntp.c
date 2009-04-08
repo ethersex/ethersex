@@ -22,7 +22,7 @@
 
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
-#include "services/dns/resolv.h"
+#include "protocols/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "ntp.h"
 #include "ntp_net.h"

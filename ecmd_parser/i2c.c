@@ -27,11 +27,11 @@
 #include <util/twi.h>
 #include "config.h"
 #include "core/debug.h"
-#include "../i2c_master/i2c_master.h"
-#include "../i2c_master/i2c_lm75.h"
-#include "../i2c_master/i2c_24CXX.h"
-#include "../i2c_master/i2c_pca9531.h"
-#include "../i2c_master/i2c_pcf8574x.h"
+#include "hardware/i2c/master/i2c_master.h"
+#include "hardware/i2c/master/i2c_lm75.h"
+#include "hardware/i2c/master/i2c_24CXX.h"
+#include "hardware/i2c/master/i2c_pca9531.h"
+#include "hardware/i2c/master/i2c_pcf8574x.h"
 #include "ecmd.h"
 
 #ifdef I2C_DETECT_SUPPORT

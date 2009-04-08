@@ -42,7 +42,6 @@
 #include "protocols/uip/uip_rfm12.h"
 #include "protocols/uip/uip_router.h"
 #include "protocols/uip/uip_zbus.h"
-#include "services/dns/resolv.h"
 #include "services/tftp/tftp.h"
 #include "hardware/ethernet/enc28j60.h"
 

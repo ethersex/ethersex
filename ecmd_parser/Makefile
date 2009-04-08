@@ -1,14 +1,12 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
-$(ADC_SUPPORT)_SRC += ecmd_parser/adc.c
-$(KTY_SUPPORT)_SRC += ecmd_parser/kty.c
 $(ECMD_PARSER_SUPPORT)_SRC += ecmd_parser/ecmd.c
 $(MCUF_SUPPORT)_SRC += ecmd_parser/mcuf.c
 $(UIP_SUPPORT)_SRC += ecmd_parser/network.c
 $(PORTIO_SUPPORT)_SRC += ecmd_parser/portio.c
 $(PORTIO_SIMPLE_SUPPORT)_SRC += ecmd_parser/portio.c
-$(I2C_SUPPORT)_SRC += ecmd_parser/i2c.c
+$(I2C_MASTER_SUPPORT)_SRC += ecmd_parser/i2c.c
 $(PWM_SUPPORT)_SRC += ecmd_parser/pwm.c
 $(ALIASCMD_SUPPORT)_SRC += ecmd_parser/aliascmd.c
 $(ECMD_SCRIPT_SUPPORT)_SRC += ecmd_parser/scripting.c

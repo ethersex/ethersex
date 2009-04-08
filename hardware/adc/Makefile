@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(KTY_SUPPORT)_SRC += kty/kty81.c
+$(ADC_SUPPORT)_ECMD_SRC += hardware/adc/adc.c
 
 ##############################################################################
 # generic fluff
