@@ -38,7 +38,6 @@
 #include "core/portio/portio.h"
 #include "hardware/radio/fs20/fs20.h"
 #include "hardware/lcd/hd44780.h"
-#include "control6/control6.h"
 #include "hardware/onewire/onewire.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "ecmd_serial/ecmd_serial_usart.h"
@@ -48,7 +47,6 @@
 #include "protocols/usb/usb.h"
 #include "protocols/syslog/syslog.h"
 #include "net/handler.h"
-#include "hardware/camera/dc3840.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "vfs/vfs.h"
 
@@ -186,10 +184,6 @@ int main(void)
     portio_init();
 #elif defined(NAMED_PIN_SUPPORT)
     np_simple_init();
-#endif
-
-#ifdef CONTROL6_SUPPORT
-    control6_init();
 #endif
 
 #ifdef ENC28J60_SUPPORT

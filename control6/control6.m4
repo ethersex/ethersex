@@ -47,14 +47,14 @@ define(`control_end_divert', 14)
 ################################
 divert(0)dnl
 #include <avr/io.h>
-#include "../clock/clock.h"
+#include "services/clock/clock.h"
 #include "core/pt/pt.h"
 #include "config.h"
-#include "../kty/kty81.h"
+#include "kty/kty81.h"
 #ifdef NAMED_PIN_SUPPORT
-#include "../named_pin/user_config.h"
+#include "named_pin/user_config.h"
 #endif
-#include "../net/ecmd_sender_net.h"
+#include "net/ecmd_sender_net.h"
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "control6.h"
@@ -159,6 +159,10 @@ divert(normal_start_divert)void control6_run(void) { dnl
 divert(normal_divert)')
 define(`CONTROL_END', `divert(control_end_divert)
 }
+/*
+  -- Ethersex META --
+  init(control6_init)
+*/
 divert(ecmd_variable_divert)dnl
 };
 `uint8_t control6_set(const char *varname, uint8_t value) {
@@ -245,7 +249,7 @@ define(`JABBER_USED', `ifdef(`jabber_used', `', `dnl
 define(`old_divert', divnum)dnl
 define(`jabber_used')dnl
 divert(globals_divert)
-#include "../jabber/jabber.h"
+#include "services/jabber/jabber.h"
 
 #ifndef JABBER_SUPPORT
 #error Please define jabber support
@@ -393,7 +397,7 @@ divert(globals_divert)
 #error Please define emcd sender udp support
 #endif
 
-#include "../net/ecmd_state.h"
+#include "net/ecmd_state.h"
 
 divert(old_divert)')')
 

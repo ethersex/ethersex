@@ -30,8 +30,8 @@
 #include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
-#include "../control6/control6.h"
-#include "ecmd.h"
+#include "control6.h"
+#include "ecmd_parser/ecmd.h"
 
 
 #ifdef C6_ECMD_USED
