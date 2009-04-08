@@ -58,6 +58,8 @@ struct fat_dir_struct *vfs_sd_rootnode;
 
 uint8_t vfs_sd_try_open_rootnode (void);
 struct fat_dir_struct *vfs_sd_chdir (const char *dirname);
+uint8_t vfs_sd_ping (void);
+void vfs_sd_umount (void);
 
 
 #endif	/* VFS_SD_H */

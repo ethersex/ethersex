@@ -25,7 +25,7 @@
 #include "debug.h"
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
-  || defined(DATAFLASH_SUPPORT)
+  || defined(DATAFLASH_SUPPORT) || defined(SD_READER_SUPPORT)
 
 static void spi_wait_busy(void);
 
@@ -74,7 +74,6 @@ static void spi_wait_busy(void)
 
 uint8_t noinline spi_send(uint8_t data)
 {
-
     _SPDR0 = data;
     spi_wait_busy();
 
@@ -82,4 +81,5 @@ uint8_t noinline spi_send(uint8_t data)
 
 }
 
-#endif /* DATAFLASH_SUPPORT || ENC28J60_SUPPORT || RFM12_SUPPORT */
+#endif /* DATAFLASH_SUPPORT || ENC28J60_SUPPORT || RFM12_SUPPORT 
+    || SD_READER_SUPPORT */

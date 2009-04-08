@@ -159,8 +159,8 @@ static uint8_t raw_block_written;
 static uint8_t sd_raw_card_type;
 
 /* private helper functions */
-static void sd_raw_send_byte(uint8_t b);
-static uint8_t sd_raw_rec_byte();
+//static void sd_raw_send_byte(uint8_t b);
+//static uint8_t sd_raw_rec_byte();
 static uint8_t sd_raw_send_command(uint8_t command, uint32_t arg);
 
 /**
@@ -225,7 +225,8 @@ uint8_t sd_raw_init()
         if(i == 5)
         {
             unselect_card();
-            SDDEBUG ("card reset failed, response=0x%04x.\n", response);
+            /* disabled, it's just flooding the console ...
+	       SDDEBUG ("card reset failed, response=0x%04x.\n", response); */
             return 0;
         }
     }
@@ -361,6 +362,7 @@ uint8_t sd_raw_locked()
     return get_pin_locked() == 0x00;
 }
 
+#if 0
 /**
  * \ingroup sd_raw
  * Sends a raw byte to the memory card.
@@ -392,6 +394,11 @@ uint8_t sd_raw_rec_byte()
 
     return SPDR;
 }
+#endif
+
+#include "core/spi.h"
+#define sd_raw_send_byte(b) spi_send(b)
+#define sd_raw_rec_byte() spi_send(0xff)
 
 /**
  * \ingroup sd_raw
@@ -487,7 +494,20 @@ uint8_t sd_raw_read(offset_t offset, uint8_t* buffer, uintptr_t length)
             }
 
             /* wait for data block (start byte 0xfe) */
+#ifdef SD_READ_TIMEOUT
+	    uint16_t timeout = 20000;
+
+            while(sd_raw_rec_byte() != 0xfe && timeout > 0)
+		timeout --;
+
+	    if (timeout == 0) {
+		SDDEBUG ("read timeout reached!\n");
+                unselect_card();
+                return 0;
+	    }
+#else
             while(sd_raw_rec_byte() != 0xfe);
+#endif
 
 #if SD_RAW_SAVE_RAM
             /* read byte block */

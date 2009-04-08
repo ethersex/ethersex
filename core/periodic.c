@@ -248,6 +248,13 @@ void periodic_process(void)
 #           endif /* !BOOTLOADER_SUPPORT */
 #           endif /* ENC28J60_SUPPORT */
 
+#           ifdef SD_PING_READ
+	    if (vfs_sd_ping ()) {
+		SDDEBUG ("sd_ping failed, eeek.  card removed?\n");
+		vfs_sd_umount ();
+	    }
+#	    endif
+
             counter = 0;
         }
 

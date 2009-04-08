@@ -23,6 +23,7 @@
 
 #include "hardware/storage/sd_reader/fat.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
+#include "hardware/storage/sd_reader/partition.h"
 #include "vfs/vfs.h"
 
 static struct fat_fs_struct *vfs_sd_fat;
@@ -135,3 +136,43 @@ vfs_sd_size (struct vfs_file_handle_t *fh)
 {
   return fh->u.sd->dir_entry.file_size;
 }
+
+#ifdef SD_PING_READ
+uint8_t
+vfs_sd_ping (void)
+{
+  /* Don't even try to ping if we don't have a rootnode. */
+  if (!vfs_sd_rootnode)
+    return 1;
+
+  uint8_t result = 0;
+  unsigned char buf[5];
+
+  SDDEBUG ("performing sd_ping ...\n");
+  if (sd_raw_read (0, buf, 5) == 0) result = 1;
+  if (sd_raw_read (512, buf, 5) == 0) result = 1;
+
+  SDDEBUG ("ping result: %d\n", result);
+  return result;
+}
+
+void
+vfs_sd_umount (void)
+{
+  if (vfs_sd_rootnode) {
+    fat_close_dir (vfs_sd_rootnode);
+    vfs_sd_rootnode = NULL;
+  }
+
+  if (vfs_sd_fat) {
+    fat_close (vfs_sd_fat);
+    vfs_sd_fat = NULL;
+  }
+
+
+  if (sd_active_partition) {
+    partition_close (sd_active_partition);
+    sd_active_partition = NULL;
+  }
+}
+#endif  /* SD_PING_READ */
