@@ -28,7 +28,7 @@
 #include "config.h"
 #include "core/debug.h"
 
-#include "../ecmd_parser/ecmd.h"
+#include "ecmd_parser/ecmd.h"
 #include "aliascmd.h"
 
 #ifdef ALIASCMD_SUPPORT
@@ -49,7 +49,7 @@ char
 #ifdef DEBUG_ECMD
     	debug_printf("test cmd %s vs. alias %S\n", cmd+1, alias.name);
 #endif
-		if(strncmp_P(cmd + 1, alias.name, strlen_P(alias.name)) == 0 
+		if(strncmp_P(cmd + 1, alias.name, strlen_P(alias.name)) == 0
            && alias_cmp_len < strlen_P(alias.name)) {
           alias_cmp_len = strlen_P(alias.name);
           alias_cmp_idx = i;
@@ -61,7 +61,7 @@ char
 		uint8_t newlen = strlen_P(alias.cmd);
 
 
-		memmove(cmd + newlen, cmd + alias_cmp_len + 1, 
+		memmove(cmd + newlen, cmd + alias_cmp_len + 1,
                 strlen(cmd + alias_cmp_len + 1) + 1);
         memcpy_P(cmd, alias.cmd, newlen);
 
@@ -86,11 +86,29 @@ aliascmd_list(uint8_t nr, char *name, char *cmd){
   aliascmd_t alias;
   memcpy_P(&alias, &aliascmdlist[nr], sizeof(aliascmd_t));
   if (alias.name == NULL) return 0;
-   
+
   memcpy_P(cmd, alias.cmd, strlen_P(alias.cmd) + 1);
   memcpy_P(name, alias.name, strlen_P(alias.name) +1 );
 
   return 1;
+}
+
+int16_t
+parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
+{
+
+	if (cmd[0] != 0x05) {
+		cmd[0] = 0x05;  //magic byte
+		cmd[1] = 0x00;
+		return -10 - snprintf_P(output, len, PSTR("aliases:"));
+	} else {
+		char aliasname[20];
+		char aliascmd[50];
+		int i = cmd[1]++;
+		if (aliascmd_list(i, aliasname, aliascmd) == 0)
+			return 0;
+		return -10 - snprintf_P(output, len, PSTR("%s -> %s"), aliasname, aliascmd);
+	}
 }
 
 #endif /*ALIASCMD_SUPPORT*/

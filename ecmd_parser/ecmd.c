@@ -42,8 +42,8 @@
 #include "hardware/radio/rfm12/rfm12_ask.h"
 #include "control6/control6.h"
 #include "protocols/syslog/syslog.h"
+#include "protocols/ecmd/aliascmd.h"
 #include "ecmd.h"
-#include "aliascmd/aliascmd.h"
 
 #define xstr(s) str(s)
 #define str(s) #s
