@@ -25,13 +25,13 @@
 #include <avr/interrupt.h>
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
-#include "../ntp/ntp_net.h"
-#include "../clock/clock.h"
+#include "services/ntp/ntp_net.h"
+#include "services/clock/clock.h"
 #include "protocols/syslog/syslog.h"
 #include "dcf77.h"
 
 volatile struct dcf77_ctx dcf;
-	
+
 #define bcd2bin(data) (data - ((data/16) * 6))
 
 void
@@ -45,7 +45,7 @@ dcf77_init(void)
 
 /* will work until 2100, but the unix epoch is over until then */
 uint32_t
-utc_to_unix_time(uint16_t year, uint8_t month, uint8_t day, 
+utc_to_unix_time(uint16_t year, uint8_t month, uint8_t day,
                  uint8_t hour, uint8_t minute, uint8_t second)
 {
   uint16_t days, year_days;
@@ -55,14 +55,14 @@ utc_to_unix_time(uint16_t year, uint8_t month, uint8_t day,
   year_days = (month / 2);
   if (month == 8 || month == 10)
     year_days += 1;
-  
+
   days +=  30 * (month - 1) + year_days + day - 1;
   if (month > 2) {
     days -= 2;
     if (year % 4 == 0)
       days += 1;
   }
-  
+
   return days * 86400 + hour * 3600 + minute * 60 + second;
 }
 
@@ -155,8 +155,8 @@ SIGNAL (SIG_COMPARATOR)
 				{
                   // FIXME
 				//	settimenow = 1;
-                  
-                  uint32_t timestamp = utc_to_unix_time(bcd2bin(dcf.time[7]) + 2007, 
+
+                  uint32_t timestamp = utc_to_unix_time(bcd2bin(dcf.time[7]) + 2007,
                                                         bcd2bin(dcf.time[6]),
                                                         bcd2bin(dcf.time[4]),
                                                         bcd2bin(dcf.time[3]),
