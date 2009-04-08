@@ -430,4 +430,5 @@ ISR(TIMER0_OVF_vect)
 /*
   -- Ethersex META --
   mainloop(rc5_process)
+  init(rc5_init)
 */

@@ -30,8 +30,6 @@
 #include "../syslog/syslog.h"
 #include "dcf77.h"
 
-#ifdef DCF77_SUPPORT
-
 volatile struct dcf77_ctx dcf;
 	
 #define bcd2bin(data) (data - ((data/16) * 6))
@@ -189,4 +187,7 @@ SIGNAL (SIG_COMPARATOR)
 	}
 }
 
-#endif
+/*
+  -- Ethersex META --
+  init(dcf77_init)
+*/

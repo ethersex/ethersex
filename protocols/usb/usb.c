@@ -149,4 +149,5 @@ usb_init(void)
 /*
   -- Ethersex META --
   mainloop(usb_periodic)
+  init(usb_init)
 */

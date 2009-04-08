@@ -416,3 +416,7 @@ vfs_eeprom_write(struct vfs_file_handle_t *handle, void *data, vfs_size_t len)
   return written_len;
 }
 
+/*
+  -- Ethersex META --
+  initearly(vfs_eeprom_init)
+*/

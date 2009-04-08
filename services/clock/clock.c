@@ -262,3 +262,8 @@ clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
   clock_datetime(d, timestamp);
 #endif
 }
+
+/*
+  -- Ethersex META --
+  init(clock_init)
+*/

@@ -233,3 +233,7 @@ mail_send (void)
   return conn;
 }
 
+/*
+  -- Ethersex META --
+  startup(mail_send)
+*/

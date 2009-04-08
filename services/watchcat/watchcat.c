@@ -34,8 +34,6 @@
 #include "net/ecmd_sender_net.h"
 #include "watchcat.h"
 
-#ifdef WATCHCAT_SUPPORT
-
 #define RISING_EDGE(port, pin) (!(vpin[(port)].old_state & _BV(pin)) \
                                 && (vpin[(port)].state & _BV(pin)))
 #define FALLING_EDGE(port, pin) (!(vpin[(port)].state & _BV(pin)) \
@@ -124,5 +122,7 @@ watchcat_edge(uint8_t pin)
   }
 }
 
-#endif
-
+/*
+  -- Ethersex META --
+  init(watchcat_init)
+*/

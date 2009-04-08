@@ -29,8 +29,6 @@
 #include "syslog/syslog.h"
 #include "ps2.h"
 
-#ifdef PS2_SUPPORT
-
 #ifdef PS2_GERMAN_LAYOUT
   #define LC(a,b) (b)
 #else
@@ -301,4 +299,7 @@ SIGNAL(PS2_INTERRUPT)
   }
 }
 
-#endif
+/*
+  -- Ethersex META --
+  init(ps2_init)
+*/

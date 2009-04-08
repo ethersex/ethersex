@@ -18,9 +18,11 @@ dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
 define(`prototypes',0)dnl
-define(`init_divert',1)dnl
-define(`net_init_divert',2)dnl
-define(`mainloop_divert',3)dnl
+define(`initearly_divert',1)dnl
+define(`init_divert',2)dnl
+define(`net_init_divert',3)dnl
+define(`startup_divert',4)dnl
+define(`mainloop_divert',5)dnl
 divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
@@ -43,8 +45,15 @@ ethersex_meta_netinit (void)
     dyndns_update();
 #   endif
 
-divert(mainloop_divert)dnl
+divert(startup_divert)dnl
 }  /* End of ethersex_meta_netinit. */
+
+void
+ethersex_meta_startup (void)
+{
+
+divert(mainloop_divert)dnl
+}  /* End of ethersex_meta_startup. */
 
 void
 ethersex_meta_mainloop (void)
@@ -55,9 +64,24 @@ divert(9)dnl
 
 divert(-1)dnl
 
+define(`init',`dnl
+divert(prototypes)void $1 (void);
+divert(init_divert)    $1 ();
+divert(-1)');
+
+define(`initearly',`dnl
+divert(prototypes)void $1 (void);
+divert(initearly_divert)    $1 ();
+divert(-1)');
+
 define(`net_init',`dnl
 divert(prototypes)void $1 (void);
 divert(net_init_divert)    $1 ();
+divert(-1)');
+
+define(`startup',`dnl
+divert(prototypes)void $1 (void);
+divert(startup_divert)    $1 (); wdt_kick ();
 divert(-1)');
 
 define(`mainloop',`dnl

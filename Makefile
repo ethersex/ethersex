@@ -3,8 +3,7 @@ TOPDIR = .
 
 SRC = \
 	ethersex.c \
-	ipv6.c \
-	network.c
+	ipv6.c
 
 ##SUBDIRS += aliascmd
 SUBDIRS += control6
@@ -85,6 +84,7 @@ endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
 
 ${ENC28J60_SUPPORT}_SRC += enc28j60.c
+${UIP_SUPPORT}_SRC += network.c
 
 include $(foreach subdir,$(SUBDIRS),$(subdir)/Makefile)
 

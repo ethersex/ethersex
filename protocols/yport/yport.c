@@ -95,3 +95,12 @@ SIGNAL(usart(USART,_RX_vect))
   if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
     yport_recv_buffer.data[yport_recv_buffer.len++] = data;
 }
+
+/*
+  -- Ethersex META --
+  dnl yport_init call must be done after network_init (according to earlier
+  dnl comments.  Therefore we initialize via net_init and control the
+  dnl order via the Makefile.
+
+  net_init(yport_init)
+*/

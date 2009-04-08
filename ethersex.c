@@ -38,34 +38,23 @@
 #include "core/portio/portio.h"
 #include "hardware/radio/fs20/fs20.h"
 #include "hardware/lcd/hd44780.h"
-#include "services/watchcat/watchcat.h"
 #include "control6/control6.h"
 #include "hardware/onewire/onewire.h"
 #include "ecmd_serial/ecmd_serial_i2c.h"
 #include "ecmd_serial/ecmd_serial_usart.h"
-#include "hardware/ir/rc5/rc5.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "dcf77/dcf77.h"
-#include "hardware/input/ps2/ps2.h"
 #include "hc165/hc165.h"
 #include "hc595/hc595.h"
 #include "ipv6.h"
 #include "hardware/storage/dataflash/fs.h"
-#include "services/clock/clock.h"
-#include "services/cron/cron.h"
-#include "services/stella/stella.h"
 #include "protocols/modbus/modbus.h"
 #include "protocols/zbus/zbus.h"
 #include "protocols/usb/usb.h"
-#include "protocols/yport/yport.h"
 #include "syslog/syslog.h"
 #include "net/handler.h"
-#include "net/sendmail.h"
 #include "hardware/camera/dc3840.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
-#include "i2c_master/i2c_master.h"
-#include "i2c_master/i2c_24CXX.h"
-#include "i2c_master/i2c_lm75.h"
 #include "vfs/vfs.h"
 
 #include "core/bit-macros.h"
@@ -75,6 +64,12 @@ global_status_t status;
 
 /* prototypes */
 void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
+
+
+extern void ethersex_meta_init(void);
+extern void ethersex_meta_startup(void);
+extern void ethersex_meta_mainloop(void);
+
 
 int main(void)
 {
@@ -113,20 +108,12 @@ int main(void)
 #endif
 #endif
 
-
     debug_init();
     debug_printf("debugging enabled\n");
 
 #   ifdef HD44780_SUPPORT
     debug_printf("initializing lcd...\n");
     hd44780_init(0, 0);
-#   ifdef DEBUG
-    fprintf_P(lcd, PSTR("booting...\n"));
-#   endif
-#   endif
-
-#   ifdef WATCHCAT_SUPPORT
-    watchcat_init();
 #   endif
 
 #   ifdef BOOTLOADER_SUPPORT
@@ -176,20 +163,6 @@ int main(void)
     debug_printf("fs: root page is 0x%04x\n", fs.root);
 #   endif
 
-#   ifdef CRON_SUPPORT
-    cron_init();
-#   endif
-
-#   ifdef UIP_SUPPORT
-    network_init();
-#   endif
-
-    periodic_init();
-
-#ifdef CLOCK_SUPPORT
-    clock_init();
-#endif
-
 #ifdef ADC_SUPPORT
     /* ADC Prescaler to 64 */
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
@@ -198,33 +171,7 @@ int main(void)
     ADMUX = ADC_REF; //_BV(REFS0) | _BV(REFS1);
 #endif
 
-#ifdef PS2_SUPPORT
-    ps2_init();
-#endif
-
-#ifdef DCF77_SUPPORT
-    dcf77_init();
-#endif
-
-/* The I2C Master Stuff */
-
-#ifdef I2C_MASTER_SUPPORT
-    i2c_master_init();
-#endif
-
-#ifdef I2C_24CXX_SUPPORT
-    i2c_24CXX_init();
-#endif
-
-#ifdef VFS_EEPROM_SUPPORT
-    vfs_eeprom_init();
-#endif
-
-/* End of the I2C Master Stuff */
-
-#ifdef USB_SUPPORT
-    usb_init();
-#endif
+    ethersex_meta_init();
 
 #ifdef FS20_SUPPORT
     fs20_init();
@@ -232,19 +179,6 @@ int main(void)
 
 #ifdef ONEWIRE_SUPPORT
     onewire_init();
-#endif
-
-#ifdef RC5_SUPPORT
-    rc5_init();
-#endif
-
-#ifdef STELLA_SUPPORT
-	stella_init();
-#endif
-
-/* Had to be bone after network_init! */
-#ifdef YPORT_SUPPORT
-    yport_init();
 #endif
 
 #ifdef MODBUS_SUPPORT
@@ -322,20 +256,7 @@ int main(void)
             );
 #endif
 
-#   if defined(HD44780_SUPPORT) && defined(DEBUG)
-    fprintf_P(lcd, PSTR("mac: %02x%02x%02x%02x%02x%02x\n"),
-            uip_ethaddr.addr[0], uip_ethaddr.addr[1],
-            uip_ethaddr.addr[2], uip_ethaddr.addr[3],
-            uip_ethaddr.addr[4], uip_ethaddr.addr[5]
-            );
-#   endif
-
-    status.request_reset = 0;
-    status.request_bootloader = 0;
-
-#ifdef SENDMAIL_SUPPORT
-    mail_send ();
-#endif
+    ethersex_meta_startup();
 
     /* main loop */
     while(1) {

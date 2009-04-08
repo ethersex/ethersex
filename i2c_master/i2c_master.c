@@ -25,8 +25,6 @@
 #include "core/debug.h"
 #include "i2c_master.h"
 
-#ifdef I2C_MASTER_SUPPORT
-
 void 
 i2c_master_init(void)
 {
@@ -100,6 +98,7 @@ i2c_master_select(uint8_t address, uint8_t mode)
     return 0; 
 }
 
-#endif /* I2C_MASTER_SUPPORT */
-
-
+/*
+  -- Ethersex META --
+  initearly(i2c_master_init)
+*/

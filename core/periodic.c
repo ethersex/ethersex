@@ -279,4 +279,5 @@ void periodic_process(void)
 /*
   -- Ethersex META --
   mainloop(periodic_process)
+  init(periodic_init)
 */

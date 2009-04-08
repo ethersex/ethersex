@@ -29,8 +29,6 @@
 #include "i2c_master.h"
 #include "i2c_24CXX.h"
 
-#ifdef I2C_24CXX_SUPPORT
-
 static uint8_t i2c_24cxx_address;
 
 void 
@@ -149,6 +147,7 @@ end:
   return ret;
 }
 
-#endif /* I2C_24CXX_SUPPORT */
-
-
+/*
+  -- Ethersex META --
+  init(i2c_master_init)
+*/

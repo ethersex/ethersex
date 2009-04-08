@@ -29,8 +29,6 @@
 #include "core/debug.h"
 #include "services/clock/clock.h"
 
-#ifdef CRON_SUPPORT
-
 uint32_t last_check;
 struct cron_event_t* head;
 struct cron_event_t* tail;
@@ -222,4 +220,7 @@ cron_periodic(void)
 	last_check = timestamp - d.sec;
 }
 
-#endif
+/*
+  -- Ethersex META --
+  init(cron_init)
+*/

@@ -63,10 +63,6 @@ extern uint8_t bootload_delay;
 /* prototypes */
 void process_packet(void);
 
-#ifdef UIP_SUPPORT
-
-
-
 extern void ethersex_meta_netinit (void);
 
 
@@ -403,7 +399,7 @@ void process_packet(void)
     bit_field_set(REG_ECON2, _BV(PKTDEC));
 
 }
-#endif
+#endif  /* ENC28J60_SUPPORT */
 
 
 #ifdef ENC28J60_SUPPORT
@@ -448,6 +444,9 @@ void transmit_packet(void)
     bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 
 }
-#endif
+#endif /* ENC28J60_SUPPORT */
 
-#endif
+/*
+  -- Ethersex META --
+  init(network_init)
+*/
