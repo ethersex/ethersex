@@ -5,5 +5,5 @@ $(MYSQL_SUPPORT)_SRC += protocols/mysql/mysql.c protocols/mysql/mysql_ecmd.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 

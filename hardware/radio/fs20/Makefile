@@ -6,4 +6,4 @@ $(FS20_SUPPORT)_SRC += hardware/radio/fs20/fs20.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

@@ -6,4 +6,4 @@ $(ZBUS_RAW_SUPPORT)_SRC += protocols/zbus/zbus_raw_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

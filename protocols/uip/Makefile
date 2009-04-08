@@ -13,4 +13,4 @@ $(ZBUS_SUPPORT)_SRC += protocols/uip/uip_zbus.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

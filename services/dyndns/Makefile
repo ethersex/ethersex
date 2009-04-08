@@ -5,4 +5,4 @@ $(DYNDNS_SUPPORT)_SRC += services/dyndns/dyndns.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

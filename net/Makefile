@@ -10,4 +10,4 @@ $(UDP_ECHO_NET_SUPPORT)_SRC += net/udp_echo_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

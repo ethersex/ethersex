@@ -10,4 +10,4 @@ $(STELLA_SUPPORT)_SRC += \
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

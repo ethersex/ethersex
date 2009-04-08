@@ -7,4 +7,4 @@ $(CRON_STATIC_SUPPORT)_SRC += services/cron/cron_static.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

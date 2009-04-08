@@ -1,5 +1,5 @@
 #
-# rules.mk
+# scripts/rules.mk
 #
 # Make rules common to all sub-directories of the build system.
 # This file must NOT be sourced from the Makefile in ${TOPDIR}.
@@ -36,6 +36,6 @@ $(TOPDIR)/pinning.c:
 $(TOPDIR)/control6/control6.h:
 	$(MAKE) -C $(TOPDIR)/control6 control6.h
 
-include $(TOPDIR)/depend.mk
-include $(TOPDIR)/defaults.mk
+include $(TOPDIR)/scripts/depend.mk
+include $(TOPDIR)/scripts/defaults.mk
 endif

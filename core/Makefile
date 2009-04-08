@@ -9,5 +9,5 @@ SRC += core/eeprom.c core/periodic.c core/spi.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 

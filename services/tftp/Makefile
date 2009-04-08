@@ -8,4 +8,4 @@ $(TFTP_SUPPORT)_SRC += services/tftp/tftp_net.c $(y_TFTP_FILES)
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

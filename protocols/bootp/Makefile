@@ -5,4 +5,4 @@ $(BOOTP_SUPPORT)_SRC += protocols/bootp/bootp_net.c protocols/bootp/bootp.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

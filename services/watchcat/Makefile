@@ -5,7 +5,7 @@ $(WATCHCAT_SUPPORT)_SRC += services/watchcat/watchcat.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
 

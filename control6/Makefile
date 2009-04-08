@@ -6,7 +6,7 @@ $(CONTROL6_SUPPORT)_ECMD_SRC += control6/ecmd.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 CONTROL6_C_SRC = control6/control6.m4 control6/control6.src
 CONTROL6_H_SRC = control6/control6-header.m4 control6/control6.src

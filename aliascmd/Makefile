@@ -5,7 +5,7 @@ SRC = aliascmd.c
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/defaults.mk
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
 # special stuff for this subdirectory

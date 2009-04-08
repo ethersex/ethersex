@@ -64,8 +64,8 @@ all: compile-$(TARGET)
 
 ##############################################################################
 # generic fluff
-include defaults.mk
-#include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/defaults.mk
+#include $(TOPDIR)/scripts/rules.mk
 
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
@@ -249,4 +249,4 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 	@false # stop compilation
 endif
 
-include depend.mk
+include $(TOPDIR)/scripts/depend.mk

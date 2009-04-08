@@ -5,7 +5,7 @@ $(IPCHAIR_SUPPORT)_SRC += protocols/uip/ipchair/ipchair.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 IPCM4SRCS := protocols/uip/ipchair/ipchair.m4 protocols/uip/ipchair/rewrite.m4
 

@@ -6,4 +6,4 @@ $(ONEWIRE_SUPPORT)_ECMD_SRC += hardware/onewire/ecmd.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

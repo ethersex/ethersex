@@ -5,4 +5,4 @@ $(DNS_SUPPORT)_SRC += services/dns/dns_net.c services/dns/resolv.c services/dns/
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

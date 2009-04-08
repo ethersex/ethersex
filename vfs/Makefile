@@ -10,7 +10,7 @@ $(VFS_INLINE_SUPPORT)_SRC += vfs/vfs_inline.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 -include vfs-concat.d
 vfs-concat: vfs-concat.c vfs_inline.h

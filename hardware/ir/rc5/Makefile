@@ -6,4 +6,4 @@ $(RC5_SUPPORT)_ECMD_SRC += hardware/ir/rc5/ecmd.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

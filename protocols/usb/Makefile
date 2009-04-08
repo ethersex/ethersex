@@ -13,7 +13,7 @@ $(USB_SUPPORT)_ASRC += protocols/usb/usbdrv/usbdrvasm.S
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ifneq ($(rootbuild),t)
 schematic.pdf: schematic.sch

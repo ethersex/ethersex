@@ -14,5 +14,5 @@ $(HTTPD_SUPPORT)_SRC += services/httpd/httpd_ecmd.c services/httpd/handle_400.c	
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 

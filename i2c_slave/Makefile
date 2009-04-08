@@ -6,4 +6,4 @@ $(I2C_SLAVE_SUPPORT)_SRC += i2c_slave/i2c_slave.c \
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

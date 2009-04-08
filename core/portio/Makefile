@@ -16,7 +16,7 @@ $(NAMED_PIN_SUPPORT)_SRC += core/portio/named_pin.c \
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
 core/portio/named_pin.c: core/portio/user_config.c

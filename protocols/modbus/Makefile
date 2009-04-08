@@ -8,6 +8,6 @@ $(MODBUS_SUPPORT)_SRC += protocols/modbus/modbus.c \
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 protocols/modbus/modbus_client.c: protocols/modbus/modbus_client_cb.c

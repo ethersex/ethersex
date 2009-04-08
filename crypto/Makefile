@@ -8,4 +8,4 @@ $(SHA1_SUPPORT)_ASRC += crypto/sha1-asm.S
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

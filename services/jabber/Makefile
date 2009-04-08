@@ -5,7 +5,7 @@ $(JABBER_SUPPORT)_SRC += services/jabber/jabber.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 services/jabber/jabber.c: services/jabber/known_buddies.c
 services/jabber/known_buddies.c: services/jabber/known_buddies.src services/jabber/known_buddies.m4

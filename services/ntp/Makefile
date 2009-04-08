@@ -6,4 +6,4 @@ $(NTPD_SUPPORT)_SRC += services/ntp/ntpd_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk

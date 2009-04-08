@@ -13,7 +13,7 @@ $(VFS_SD_SUPPORT)_ECMD_SRC += hardware/storage/sd_reader/ecmd.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
 # special stuff for this subdirectory

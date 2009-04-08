@@ -6,7 +6,7 @@ $(HC595_SUPPORT)_SRC += hardware/io_expander/hc595.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ifneq ($(rootbuild),t)
 hc165.pdf: schematic.sch

@@ -15,7 +15,7 @@ $(RFM12_RAW_SUPPORT)_SRC += hardware/radio/rfm12/rfm12_raw_net.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 schematic.pdf: schematic.sch
 	$(TOPDIR)/contrib/gschem/sch2ps schematic.sch

@@ -6,7 +6,7 @@ $(MDNS_SD_SUPPORT)_SRC += protocols/mdns_sd/mdns_sd.c \
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 protocols/mdns_sd/mdns_sd.c: protocols/mdns_sd/mdns_services.c
 protocols/mdns_sd/mdns_services.c: protocols/mdns_sd/mdns_services.m4

@@ -6,7 +6,7 @@ $(HD44780_SUPPORT)_ECMD_SRC += hardware/lcd/ecmd.c
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ifneq ($(rootbuild),t)
 schematic.pdf: schematic.sch
