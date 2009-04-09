@@ -60,7 +60,8 @@ all: compile-$(TARGET)
 	@echo "size is: "
 	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
 	@echo "==============================="
-
+.PHONY: all
+.SILENT: all
 
 ##############################################################################
 # generic fluff
@@ -97,8 +98,9 @@ meta.c: scripts/meta_magic.m4 meta.m4
 
 ##############################################################################
 
-.PHONY: compile-$(TARGET)
 compile-$(TARGET): $(TARGET).hex $(TARGET).bin
+.PHONY: compile-$(TARGET)
+.SILENT: compile-$(TARGET)
 
 ${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
 
@@ -109,12 +111,14 @@ OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 # This is currently necessary because of interdependencies between
 # the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
+	@$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
+	@echo Link binary $@
 
 ##############################################################################
 
 %.hex: %
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
+.SILENT: %.hex
 
 ##############################################################################
 #
@@ -149,11 +153,11 @@ vfs/embed/%: vfs/embed/%.sh
 
 
 %.bin: % $(INLINE_FILES)
-	$(OBJCOPY) -O binary -R .eeprom $< $@
+	@$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
-	$(MAKE) -C vfs vfs-concat TOPDIR=.. no_deps=t
-	vfs/do-embed $(INLINE_FILES)
-	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
+	@$(MAKE) -C vfs vfs-concat TOPDIR=.. no_deps=t
+	@vfs/do-embed $(INLINE_FILES)
+	@$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif
 
 ##############################################################################
@@ -202,13 +206,15 @@ clean:
 		$(patsubst %.o,%.d,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
 		$(patsubst %.o,%.s,${OBJECTS})
+	echo "Cleaning completed"
 
 mrproper:
 	$(MAKE) clean
 	$(RM) -f autoconf.h .config config.mk .menuconfig.log .config.old
+	echo "All object files and config files are gone now"
 
 .PHONY: clean mrproper
-
+.SILENT: clean mrproper
 
 ##############################################################################
 # MCU specific pinning code generation
@@ -218,7 +224,7 @@ PINNING_FILES=pinning/internals/header.m4 \
 	$(wildcard pinning/internals/hackery_$(MCU).m4) \
 	$(wildcard pinning/hardware/$(HARDWARE).m4) pinning/internals/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
-	m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
+	@m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
 	  sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
 
 

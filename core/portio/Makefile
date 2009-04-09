@@ -21,7 +21,7 @@ include $(TOPDIR)/scripts/rules.mk
 ##############################################################################
 core/portio/named_pin.c: core/portio/user_config.c
 core/portio/user_config.c: core/portio/config
-	$(@D)/cfgpp > $@
+	@core/portio/cfgpp
 
 # extend normal clean rule
 CLEAN_FILES += core/portio/user_config.h core/portio/user_config.c \

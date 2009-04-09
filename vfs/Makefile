@@ -14,7 +14,7 @@ include $(TOPDIR)/scripts/rules.mk
 
 -include vfs-concat.d
 vfs-concat: vfs-concat.c vfs_inline.h
-	$(HOSTCC) -Wall -W -ggdb -O2 -o $@ $<
+	@$(HOSTCC) -Wall -W -ggdb -O2 -o $@ $<
 
 # extend normal clean rule
 CLEAN_FILES += vfs/vfs-concat vfs/embed/*.tmp

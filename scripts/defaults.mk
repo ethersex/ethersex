@@ -64,4 +64,3 @@ endif
 
 %.o: %.S
 	$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
-
