@@ -89,7 +89,7 @@ debug:
 	@echo y_SRC: ${y_SRC}
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 
-meta.m4: ${SRC} ${y_SRC}
+meta.m4: ${SRC} ${y_SRC} .config
 	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
 
 meta.c: scripts/meta_magic.m4 meta.m4
