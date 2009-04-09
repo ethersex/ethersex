@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "core/spi.h"
-#include "core/crypto/encrypt-llh.h"
 #include "protocols/syslog/syslog.h"
 #include "protocols/uip/uip.h"
 #include "rfm12.h"
