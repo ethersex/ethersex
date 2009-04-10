@@ -83,7 +83,6 @@
 #include "uip.h"
 #include "uipopt.h"
 #include "protocols/uip/ipv6.h"
-#include "net/handler.h"
 #include "protocols/zbus/zbus.h"
 #include "core/debug.h"
 #include "protocols/syslog/syslog.h"

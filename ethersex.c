@@ -38,7 +38,6 @@
 #include "core/portio/portio.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "protocols/uip/ipv6.h"
-#include "net/handler.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "vfs/vfs.h"
 
