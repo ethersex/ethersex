@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(UDP_ECHO_NET_SUPPORT)_SRC += net/udp_echo_net.c
+$(UDP_ECHO_NET_SUPPORT)_SRC += services/echo/udp_echo_net.c
 
 ##############################################################################
 # generic fluff
