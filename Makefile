@@ -3,8 +3,9 @@ TOPDIR = .
 
 SUBDIRS += control6
 SUBDIRS += core
-SUBDIRS += core/portio
 SUBDIRS += core/crypto
+SUBDIRS += core/portio
+SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
@@ -53,7 +54,6 @@ SUBDIRS += services/ntp
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/watchcat
-SUBDIRS += vfs
 
 rootbuild=t
 
@@ -133,12 +133,12 @@ $(TARGET): $(OBJECTS)
 ##############################################################################
 
 ifeq ($(VFS_INLINE_SUPPORT),y)
-INLINE_FILES := $(shell ls vfs/embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
+INLINE_FILES := $(shell ls embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
 else
 INLINE_FILES :=
 endif
 
-vfs/embed/%: vfs/embed/%.cpp
+embed/%: embed/%.cpp
 	@if ! avr-cpp -DF_CPU=$(FREQ) $< 2> /dev/null > $@.tmp; \
 		then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
 	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
@@ -146,14 +146,14 @@ vfs/embed/%: vfs/embed/%.cpp
 	@$(RM) -f $@.tmp
 
 
-vfs/embed/%: vfs/embed/%.m4
+embed/%: embed/%.m4
 	@if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
 		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` \
 		`grep -e "^#define CONF_.*" autoconf.h |  sed -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"` \
 		$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)";\
 		else echo "--> Include $@ ($<)";	fi
 
-vfs/embed/%: vfs/embed/%.sh
+embed/%: embed/%.sh
 	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
 		else echo "--> Include $@ ($<)";	fi
 
@@ -161,8 +161,8 @@ vfs/embed/%: vfs/embed/%.sh
 %.bin: % $(INLINE_FILES)
 	@$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
-	@$(MAKE) -C vfs vfs-concat TOPDIR=.. no_deps=t
-	@vfs/do-embed $(INLINE_FILES)
+	@$(MAKE) -C core/vfs vfs-concat TOPDIR=../.. no_deps=t
+	@core/vfs/do-embed $(INLINE_FILES)
 	@$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif
 

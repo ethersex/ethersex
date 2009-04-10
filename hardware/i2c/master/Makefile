@@ -17,6 +17,9 @@ $(I2C_UDP_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_udp.c \
 	hardware/i2c/master/i2c_udp_net.c
 
+$(VFS_EEPROM_RAW_SUPPORT)_SRC += hardware/i2c/master/vfs_eeprom_raw.c
+$(VFS_EEPROM_SUPPORT)_SRC += hardware/i2c/master/vfs_eeprom.c
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk

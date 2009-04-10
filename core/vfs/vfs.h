@@ -68,11 +68,11 @@ typedef uint16_t vfs_size_t;
 typedef uint32_t vfs_size_t;
 #endif
 
-#include "vfs_df.h"
+#include "hardware/storage/dataflash/vfs_df.h"
 #include "hardware/storage/sd_reader/vfs_sd.h"
-#include "vfs_inline.h"
-#include "vfs_eeprom_raw.h"
-#include "vfs_dc3840.h"
+#include "core/vfs/vfs_inline.h"
+#include "hardware/i2c/master/vfs_eeprom_raw.h"
+#include "hardware/camera/vfs_dc3840.h"
 
 struct vfs_file_handle_t {
   /* The vfs_type_t of the VFS module that is responsible for this

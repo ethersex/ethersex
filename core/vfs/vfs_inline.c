@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 #include "core/eeprom.h"
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 
 struct vfs_file_handle_t *
 vfs_inline_open (const char *filename)

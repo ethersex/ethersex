@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 #include "vfs_eeprom_raw.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
 #include "protocols/syslog/syslog.h"

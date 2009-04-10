@@ -28,7 +28,7 @@
 #include "core/debug.h"
 #include "hardware/i2c/master/i2c_master.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 
 #ifdef VFS_EEPROM_DEBUG_SUPPORT
 #define vfs_eeprom_debug(a...)  debug_printf("vfs_eeprom: " a)

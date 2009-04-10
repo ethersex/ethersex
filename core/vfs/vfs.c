@@ -21,7 +21,7 @@
 
 #include <avr/pgmspace.h>
 #include "core/debug.h"
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 #ifndef VFS_TEENSY
 
 struct vfs_func_t vfs_funcs[] PROGMEM = {

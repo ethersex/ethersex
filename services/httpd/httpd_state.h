@@ -23,7 +23,7 @@
 #define _HTTPD_STATE_H
 
 #include "config.h"
-#include "vfs/vfs.h"
+#include "core/vfs/vfs.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 typedef enum {

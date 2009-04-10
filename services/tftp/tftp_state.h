@@ -23,7 +23,7 @@
 #define TFTP_STATE_H
 
 #include "tftp_net.h"
-#include "vfs/vfs.h"
+#include "core/vfs/vfs.h"
 
 /* state */
 struct tftp_connection_state_t {

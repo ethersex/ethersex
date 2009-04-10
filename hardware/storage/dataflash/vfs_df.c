@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 
 struct vfs_file_handle_t *
 vfs_df_open (const char *filename)

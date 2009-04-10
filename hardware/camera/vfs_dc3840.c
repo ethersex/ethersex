@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 #include "hardware/camera/dc3840.h"
 
 struct vfs_file_handle_t *

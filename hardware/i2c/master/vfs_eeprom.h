@@ -22,7 +22,7 @@
 #ifndef VFS_EEPROM_H
 #define VFS_EEPROM_H
 
-#include "vfs.h"
+#include "core/vfs/vfs.h"
 
 
 #define SFS_PAGE_SIZE 128

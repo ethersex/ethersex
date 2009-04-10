@@ -31,7 +31,7 @@
 #include "base64.h"
 #include "core/eeprom.h"
 #include "protocols/ecmd/parser.h"
-#include "vfs/vfs.h"
+#include "core/vfs/vfs.h"
 
 
 #ifdef DEBUG_HTTPD

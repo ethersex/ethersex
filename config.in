@@ -83,7 +83,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
 endmenu
 
 source core/crypto/config.in
-source vfs/config.in
+source core/vfs/config.in
 source protocols/usb/config.in
 
 source control6/config.in

@@ -50,7 +50,7 @@ while true; do
 
 
   echo Embedding $fn ...
-  vfs/vfs-concat ethersex.bin $PAGESZ "$fn" > ethersex.embed.bin || exit 1
+  core/vfs/vfs-concat ethersex.bin $PAGESZ "$fn" > ethersex.embed.bin || exit 1
   mv -f ethersex.embed.bin ethersex.bin
 
   rm -f "$fn".gz
