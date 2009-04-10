@@ -57,7 +57,7 @@ endif
 
 
 %.s: %.c
-	$(CC) -o $@ -O0 $(CPPFLAGS) -S $<
+	$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
 
 %.E: %.c
 	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
