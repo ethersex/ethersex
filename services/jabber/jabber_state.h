@@ -46,7 +46,7 @@ enum {
 };
 
 #include <inttypes.h>
-#include "net/ecmd_state.h"
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 #define TARGET_BUDDY_MAXLEN 40
 

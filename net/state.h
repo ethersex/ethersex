@@ -25,8 +25,8 @@
 #include "protocols/uip/uip_openvpn.h"
 #include "config.h"
 
-#include "ecmd_state.h"
-#include "ecmd_sender_state.h"
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
+#include "protocols/ecmd/sender/ecmd_sender_state.h"
 #include "hardware/i2c/master/i2c_state.h"
 #include "hardware/i2c/slave/i2c_slave_state.h"
 #include "hardware/radio/rfm12/rfm12_raw_state.h"
@@ -38,7 +38,7 @@
 #include "services/tftp/tftp_state.h"
 #include "services/httpd/httpd_state.h"
 #include "services/jabber/jabber_state.h"
-#include "sendmail.h"
+#include "protocols/smtp/sendmail.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {

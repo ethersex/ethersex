@@ -24,7 +24,7 @@
 
 #include "config.h"
 #include "vfs/vfs.h"
-#include "net/ecmd_state.h"
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 typedef enum {
     HTTPD_STATE_CLOSED = 0,

@@ -36,7 +36,6 @@ enum {
 };
 
 #include <inttypes.h>
-#include "net/ecmd_state.h"
 
 #define MYSQL_STMTBUF_LEN	60
 
