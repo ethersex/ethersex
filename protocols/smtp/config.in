@@ -1,0 +1,12 @@
+dep_bool_menu "Sendmail support (smtp)" SENDMAIL_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
+if [ "$SENDMAIL_SUPPORT" = "y" ]; then
+  ip "SMTP IP address" CONF_SENDMAIL_IP "78.47.210.246"
+  string "SMTP From Address" CONF_SENDMAIL_FROM "root@sex.metafnord.de"
+  string "SMTP To Address" CONF_SENDMAIL_TO "stesie@brokenpipe.de"
+  dep_bool "SMTP Auth Support" SENDMAIL_AUTH_SUPPORT $SENDMAIL_SUPPORT
+  if [ "$SENDMAIL_AUTH_SUPPORT" = "y" ]; then
+    string "SMTP Auth Username" CONF_SENDMAIL_USERNAME "tester"
+    string "SMTP Auth Password" CONF_SENDMAIL_PASSWORD "tester"
+  fi
+fi
+endmenu 
