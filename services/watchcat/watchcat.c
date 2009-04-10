@@ -31,7 +31,7 @@
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "core/portio/portio.h"
-#include "net/ecmd_sender_net.h"
+#include "protocols/ecmd/sender/ecmd_sender_net.h"
 #include "watchcat.h"
 
 #define RISING_EDGE(port, pin) (!(vpin[(port)].old_state & _BV(pin)) \
