@@ -24,7 +24,7 @@
 #include <avr/eeprom.h>
 
 #include "config.h"
-#include "debug.h"
+#include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_arp.h"
 #include "eeprom.h"

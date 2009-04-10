@@ -24,7 +24,7 @@
 
 
 #ifdef DEBUG_HTTPD
-# include "../debug.h"
+# include "core/debug.h"
 # define printf        debug_printf
 #else
 # define printf(...)   ((void)0)

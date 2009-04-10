@@ -29,7 +29,7 @@ void mysql_periodic (void);
 uint8_t mysql_send_query (char *message);
 
 #ifdef DEBUG_MYSQL
-# include "debug.h"
+# include "core/debug.h"
 # define MYDEBUG(a...)  debug_printf("mysql: " a)
 #else
 # define MYDEBUG(a...)

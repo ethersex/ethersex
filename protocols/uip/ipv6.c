@@ -32,7 +32,7 @@
 #include "core/debug.h"
 
 #ifdef DEBUG_NET_IP6
-# include "debug.h"
+# include "core/debug.h"
 # define IP6DEBUG(a...)  debug_printf("ip6: " a)
 #else
 # define IP6DEBUG(a...)

@@ -27,7 +27,7 @@ void jabber_periodic(void);
 uint8_t jabber_send_message(char *message);
 
 #ifdef DEBUG_JABBER
-# include "debug.h"
+# include "core/debug.h"
 # define JABDEBUG(a...)  debug_printf("jabber: " a)
 #else
 # define JABDEBUG(a...)

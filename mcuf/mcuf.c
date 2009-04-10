@@ -33,7 +33,7 @@
 #include "core/bit-macros.h"
 #include "config.h"
 #include "protocols/syslog/syslog.h"
-#include "../clock/clock.h"
+#include "services/clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"
 #include "mcuf_text.h"
@@ -42,13 +42,13 @@
 
 #ifdef SOFT_UART_SUPPORT
 
-#  include "../debug.h"
+#  include "core/debug.h"
 
 extern void soft_uart_putchar(uint8_t c);
 #endif
 
 #ifdef DEBUG_MCUF
-#  include "../debug.h"
+#  include "core/debug.h"
 #  define MCUF_DEBUG(str...) debug_printf ("mcuf: " str)
 #else
 #  define MCUF_DEBUG(...)    ((void) 0)

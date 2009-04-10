@@ -256,7 +256,7 @@ struct uip_stats uip_stat;
 #endif /* UIP_STATISTICS == 1 */
 
 #ifdef DEBUG_UIP
-# include "debug.h"
+# include "core/debug.h"
 # define DEBUG_PRINTF(a...) debug_printf(a)
 #else
 # define DEBUG_PRINTF(a...)

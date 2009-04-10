@@ -98,7 +98,7 @@ void _hook_cat(_hook_cat(hook_, HOOK_NAME), _call) HOOK_ARGS;
 #endif
 
 #ifdef DEBUG_HOOK
-# include "debug.h"
+# include "core/debug.h"
 # define HDEBUG(a...)  debug_printf(xstr(HOOK_NAME) ": " a "\n")
 #else
 # define HDEBUG(a...)
