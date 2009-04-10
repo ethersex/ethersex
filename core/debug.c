@@ -23,7 +23,7 @@
 #include "config.h"
 #include "core/debug.h"
 #include "ecmd_parser/ecmd.h"
-#include "hardware/onewire/onewire.h"
+#include "lcd/s1d15g10/s1d15g10.h"
 
 #define noinline __attribute__((noinline))
 
@@ -59,7 +59,9 @@ debug_uart_put (char d, FILE *stream)
 {
     if (d == '\n')
         debug_uart_put('\r', stream);
-
+#ifdef S1D15G10_SUPPORT
+    lcd_putch(d);
+#endif
 #ifdef SOFT_UART_SUPPORT
     soft_uart_putchar(d);
     return 0;

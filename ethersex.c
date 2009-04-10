@@ -36,14 +36,8 @@
 #include "network.h"
 #include "core/periodic.h"
 #include "core/portio/portio.h"
-#include "hardware/radio/fs20/fs20.h"
-#include "hardware/lcd/hd44780.h"
-#include "hardware/onewire/onewire.h"
 #include "hardware/radio/rfm12/rfm12.h"
-#include "hardware/clock/dcf77/dcf77.h"
 #include "protocols/uip/ipv6.h"
-#include "protocols/usb/usb.h"
-#include "protocols/syslog/syslog.h"
 #include "net/handler.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "vfs/vfs.h"
@@ -60,7 +54,6 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 extern void ethersex_meta_init(void);
 extern void ethersex_meta_startup(void);
 extern void ethersex_meta_mainloop(void);
-
 
 int main(void)
 {
