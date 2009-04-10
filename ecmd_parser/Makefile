@@ -22,7 +22,7 @@ include $(TOPDIR)/scripts/rules.mk
 # need to do the named_pin simple awk/m4 hackery ...
 ifneq ($(PORTIO_SUPPORT),y)
 ifeq ($(NAMED_PIN_SUPPORT),y)
-named_pin_simple_files=../named_pin/np_simple.m4 np_simple_glue.m4
+named_pin_simple_files=$(TOPDIR)/core/portio/np_simple.m4 ecmd_parser/np_simple_glue.m4
 endif
 endif
 
@@ -31,8 +31,8 @@ ecmd_parser/ecmd_defs.c: ecmd_parser/ecmd_magic.m4 ecmd_parser/ecmd_defs.m4 $(na
 	@m4 $^ > $@.tmp
 	@mv -f $@.tmp $@
 
-ecmd_parser/np_simple_glue.m4: named_pin/config named_pin/np_simple_glue.awk
-	@grep -v -e "^#" < $< | gawk -f ../named_pin/np_simple_glue.awk > $@
+ecmd_parser/np_simple_glue.m4: $(TOPDIR)/core/portio/config $(TOPDIR)/core/portio/np_simple_glue.awk
+	@grep -v -e "^#" < $< | gawk -f $(TOPDIR)/core/portio/np_simple_glue.awk > $@
 
 wiki.txt: wiki.m4 ecmd_defs.m4
 	@m4 $^ | perl -ne 'unless(m/^\s*$$/){s/^\s+//;s/\s+$$//;print "$$_\n"}' > $@.tmp
