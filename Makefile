@@ -5,7 +5,6 @@ SUBDIRS += control6
 SUBDIRS += core
 SUBDIRS += core/portio
 SUBDIRS += core/crypto
-SUBDIRS += ecmd_parser
 SUBDIRS += mcuf
 SUBDIRS += net
 SUBDIRS += hardware/adc

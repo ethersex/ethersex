@@ -23,14 +23,12 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "config.h"
-#include "autoconf.h"
 #include <util/delay.h>
 #include <stdlib.h>
+
+#include "config.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
-
-#ifdef ECMD_SCRIPT_SUPPORT
 #include "scripting.h"
 
 int16_t
@@ -200,4 +198,3 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   return 1;
 }
 
-#endif  // ECMD_SCRIPT_SUPPORT

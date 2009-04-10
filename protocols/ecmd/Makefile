@@ -3,6 +3,7 @@ include $(TOPDIR)/.config
 
 $(ECMD_PARSER_SUPPORT)_SRC += protocols/ecmd/parser.c
 $(ALIASCMD_SUPPORT)_SRC += protocols/ecmd/aliascmd.c
+$(ECMD_SCRIPT_SUPPORT)_SRC += protocols/ecmd/scripting.c
 
 ##############################################################################
 # generic fluff
