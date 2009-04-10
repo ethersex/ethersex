@@ -31,7 +31,7 @@
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "core/usart.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 
 #if defined(HTTPD_AUTH_SUPPORT)

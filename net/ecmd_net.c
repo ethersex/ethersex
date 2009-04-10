@@ -28,7 +28,7 @@
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #include <string.h>
 

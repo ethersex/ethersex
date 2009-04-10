@@ -29,7 +29,7 @@
 #include "core/bit-macros.h"
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
-#include "ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #include "ecmd_base.c"
 

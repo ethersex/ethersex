@@ -31,7 +31,7 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
-#include "ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #ifndef TEENSY_SUPPORT
 int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 

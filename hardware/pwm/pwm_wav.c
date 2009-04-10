@@ -27,7 +27,7 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 #include "pwm_wav.h"
 #include "ethersex_wav.h"
 

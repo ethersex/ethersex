@@ -27,7 +27,7 @@
 #include <avr/pgmspace.h>
 #include "core/bit-macros.h"
 #include "usbdrv/usbdrv.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 #include "requests.h"
 #include "config.h"
 

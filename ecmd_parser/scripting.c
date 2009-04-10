@@ -28,7 +28,7 @@
 #include <util/delay.h>
 #include <stdlib.h>
 #include "core/debug.h"
-#include "ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #ifdef ECMD_SCRIPT_SUPPORT
 #include "scripting.h"

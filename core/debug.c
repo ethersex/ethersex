@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "config.h"
 #include "core/debug.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 #include "lcd/s1d15g10/s1d15g10.h"
 
 #define noinline __attribute__((noinline))

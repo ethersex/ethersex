@@ -29,7 +29,7 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "usbdrv/usbdrv.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 #include "requests.h"
 #include "config.h"
 #include "usb_net.h"

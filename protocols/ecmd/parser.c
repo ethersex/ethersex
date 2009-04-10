@@ -32,18 +32,9 @@
 #include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
-#include "hardware/radio/fs20/fs20.h"
-#include "core/portio/portio.h"
-#include "core/portio/named_pin.h"
-#include "hardware/lcd/hd44780.h"
-#include "hardware/onewire/onewire.h"
-#include "hardware/ir/rc5/rc5.h"
-#include "hardware/radio/rfm12/rfm12.h"
-#include "hardware/radio/rfm12/rfm12_ask.h"
 #include "control6/control6.h"
-#include "protocols/syslog/syslog.h"
 #include "protocols/ecmd/aliascmd.h"
-#include "ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #define xstr(s) str(s)
 #define str(s) #s

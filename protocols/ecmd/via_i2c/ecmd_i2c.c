@@ -25,7 +25,7 @@
 #include <util/delay.h>
 #include "config.h"
 #include "ecmd_i2c.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 /* TODO: add menuconfig option */
 #define ECMD_SERIAL_I2C_ADDR 8

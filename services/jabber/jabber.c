@@ -28,7 +28,7 @@
 #include "config.h"
 #include "protocols/uip/uip.h"
 #include "jabber.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #include "known_buddies.c"
 

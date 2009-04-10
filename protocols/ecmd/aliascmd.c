@@ -28,7 +28,7 @@
 #include "config.h"
 #include "core/debug.h"
 
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 #include "aliascmd.h"
 
 #ifdef ALIASCMD_SUPPORT

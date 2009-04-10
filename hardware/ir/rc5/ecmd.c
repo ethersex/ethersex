@@ -42,7 +42,7 @@
 #include "protocols/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "protocols/yport/yport.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 
 #ifdef RC5_SUPPORT

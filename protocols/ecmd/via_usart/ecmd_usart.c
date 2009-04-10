@@ -25,7 +25,7 @@
 #include "config.h"
 #include "core/bit-macros.h"
 #include "ecmd_usart.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #define USE_USART ECMD_SERIAL_USART_USE_USART
 #define BAUD ECMD_SERIAL_BAUDRATE

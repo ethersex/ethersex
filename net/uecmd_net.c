@@ -24,7 +24,7 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "core/debug.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 
 #include "config.h"

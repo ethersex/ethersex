@@ -26,7 +26,7 @@
 #include <avr/interrupt.h>
 #include "config.h"
 #include "core/debug.h"
-#include "ecmd_parser/ecmd.h"
+#include "protocols/ecmd/parser.h"
 
 #ifdef PWM_WAV_SUPPORT
 
