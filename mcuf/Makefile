@@ -1,6 +1,9 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
+$(MCUF_SUPPORT)_ECMD_SRC += \
+	mcuf/ecmd.c
+
 $(MCUF_SUPPORT)_SRC += \
 	mcuf/mcuf.c \
 	mcuf/mcuf_net.c\
