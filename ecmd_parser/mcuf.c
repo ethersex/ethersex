@@ -21,8 +21,8 @@
 */
 #include <stdint.h>
 #include "config.h"
-#include "../mcuf/mcuf.h"
-#include "../mcuf/mcuf_modul.h"
+#include "mcuf/mcuf.h"
+#include "mcuf/mcuf_modul.h"
 #include "core/debug.h"
 
 #ifdef MCUF_SUPPORT

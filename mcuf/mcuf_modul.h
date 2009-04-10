@@ -24,14 +24,14 @@
 #ifndef _MCUF_MODUL_H
 #define _MCUF_MODUL_H
 
-#include "../autoconf.h"
+#include "autoconf.h"
 #ifndef GCC
 #include <stdint.h>
 #include <util/delay.h>
 #include "config.h"
 #include "mcuf.h"
 #else
-#include "../contrib/mcuf/modsim.h"
+#include "contrib/mcuf/modsim.h"
 #endif // GCC
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT

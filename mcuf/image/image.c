@@ -20,8 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "../../autoconf.h"
-#include "../mcuf_modul.h"
+#include "autoconf.h"
+#include "mcuf/mcuf_modul.h"
 
 #ifdef MCUF_IMAGE_SUPPORT
 #ifndef GCC
@@ -39,7 +39,8 @@ void mcuf_image(){
 	for (y = 0; y < MCUF_MAX_SCREEN_HEIGHT; y++)
 		for (x = 0; x < MCUF_MAX_SCREEN_WIDTH; x++) {
 			i = (x < 8) ? 1 : 0;
-			setPixel(MCUF_MAX_SCREEN_WIDTH - 1 - x, y, ( data[ (y * 2) + i ] & ( 1 << (x % 8) )) ? 3 : 0);
+			setPixel(MCUF_MAX_SCREEN_WIDTH - 1 - x, y, 
+                                 (data[(y * 2) + i] & (1 << (x % 8) )) ? 3 : 0);
 		}
 }
 

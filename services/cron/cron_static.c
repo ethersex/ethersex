@@ -56,7 +56,7 @@ mcuf_clock(void)
 #endif /* MCUF_CLOCK_SUPPORT */
 
 #ifdef MCUF_MODUL_CRON_SUPPORT
-#include "../mcuf/mcuf_modul.h"
+#include "mcuf/mcuf_modul.h"
 void
 mcuf_modul(void)
 {

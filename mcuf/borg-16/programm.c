@@ -1,4 +1,4 @@
-#include "../mcuf_modul.h"
+#include "mcuf/mcuf_modul.h"
 
 #define RANDOM8() (random8())
 

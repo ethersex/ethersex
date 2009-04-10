@@ -60,7 +60,7 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 #include <util/crc16.h>
 
 #if 0 /* Enable this for debug messages via syslog support. */
-#  include "../syslog/syslog.h"
+#  include "protocols/syslog/syslog.h"
 #  define printf(a...) syslog_sendf(a)
 #endif
 

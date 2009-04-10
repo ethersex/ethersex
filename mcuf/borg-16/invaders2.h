@@ -10,7 +10,7 @@
 #ifndef INVADERS2_H
 #define INVADERS2_H
 
-#include "../mcuf_modul.h"
+#include "mcuf/mcuf_modul.h"
 
 #ifdef MCUF_MODUL_BORG16_INVADERS_SUPPORT
 
