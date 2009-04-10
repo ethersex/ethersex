@@ -56,7 +56,7 @@
 #include <string.h>
 
 #include "uipopt.h"
-#include "net/state.h"
+#include "protocols/uip/state.h"
 
 /**
  * Callback when something happens on a connection
