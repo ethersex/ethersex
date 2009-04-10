@@ -9,7 +9,7 @@ include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
 
-services/watchcat/watchcat.c: watchcat/user_config.h
+services/watchcat/watchcat.c: services/watchcat/user_config.h
 services/watchcat/user_config.h: services/watchcat/watchcat.m4 services/watchcat/config
 	$(M4) -DMCU=$(MCU) $^ > $@
 

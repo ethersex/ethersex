@@ -26,8 +26,8 @@
         
 #include "config.h"
 #include "core/debug.h"
-#include "../i2c_master/i2c_master.h"
-#include "../i2c_master/i2c_24CXX.h"
+#include "hardware/i2c/master/i2c_master.h"
+#include "hardware/i2c/master/i2c_24CXX.h"
 #include "vfs.h"
 
 #ifdef VFS_EEPROM_DEBUG_SUPPORT

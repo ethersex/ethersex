@@ -32,7 +32,7 @@
 #include "core/eeprom.h"
 #include "services/tftp/tftp.h"
 #include "services/dyndns/dyndns.h"
-#include "services/dns/resolv.h"
+#include "protocols/dns/resolv.h"
 
 #include "bootp.h"
 #include "bootphdr.h"

@@ -21,7 +21,7 @@
 
 #include "protocols/uip/uip.h"
 #include "config.h"
-#include "../i2c_slave/i2c_slave.h"
+#include "hardware/i2c/slave/i2c_slave.h"
 #include "i2c_slave_net.h"
 
 void 

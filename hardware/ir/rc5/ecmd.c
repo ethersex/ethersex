@@ -39,10 +39,10 @@
 #include "hardware/onewire/onewire.h"
 #include "hardware/ir/rc5/rc5.h"
 #include "hardware/radio/rfm12/rfm12.h"
-#include "services/dns/resolv.h"
+#include "protocols/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "protocols/yport/yport.h"
-#include "ecmd.h"
+#include "ecmd_parser/ecmd.h"
 
 
 #ifdef RC5_SUPPORT

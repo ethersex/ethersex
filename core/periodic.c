@@ -47,6 +47,7 @@
 #include "protocols/modbus/modbus.h"
 #include "protocols/zbus/zbus.h"
 #include "protocols/mysql/mysql.h"
+#include "services/jabber/jabber.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
