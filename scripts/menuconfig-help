@@ -1,0 +1,60 @@
+#!/bin/bash
+
+depth=0
+tmp=`mktemp`
+tmp2=`mktemp`
+
+function _bool() {
+  eval "$2=y"
+} 
+
+function bool() {
+  _bool "$1" "$2"
+  echo "   Option $2 ($1)"
+}
+
+function int() { echo "   Integer $2 ($1)"; }
+function editor() { echo "   Editor $2 ($1)"; }
+function hex() { echo "   Hex $2 ($1)"; }
+function string() { echo "   String $2 ($1)"; }
+function ipv4() { echo "   Ipv4 $2 ($1)"; }
+function ipv6() { echo "   Ipv6 $2 ($1)"; }
+function ip() { echo "   Ip $2 ($1)"; }
+function choice() { echo "   Choice $1"; }
+function mac() { echo "   Mac $2 ($1)"; }
+
+function dep_bool() { bool "$1" "$2"; }
+
+function dep_bool_menu() { dep_bool "$1" "$2"; menu "$1";}
+function dep_bool_editor() { editor "$1" "$2"; }
+
+# ignore most of the other, mostly mentioned to not cause
+# obscure stderr output ...
+function define_bool() { true; }
+function script_set() { true; }
+function define_int() { true; }
+function define_symbol() { true; }
+function endmenu() { 
+  let depth=$depth-1;
+  if [ $depth -lt 0 ]; then
+    depth=0;
+  fi
+  echo -n 'End '; sed 's/$/ -> /' < $tmp |tr -d "\n" | sed 's/ -> $//g'; echo 
+  head -n $(( $( wc -l $tmp | sed 's/ .*//' ) -1 )) $tmp > $tmp2
+  cp $tmp2 $tmp
+
+
+}
+function comment() { if [ $next_comment -gt 0 ]; then menu "$1"; fi; next_comment=0; }
+function mainmenu_option() { if [ "$1"="next_comment" ]; then next_comment=1; fi;}
+function mainmenu_name() { true; }
+function menu() {
+  sed 's/$/ -> /' < $tmp |tr -d "\n"
+  echo $1
+  echo $1 >> $tmp
+  let depth=$depth+1
+}
+
+source config.in
+
+rm $tmp $tmp2

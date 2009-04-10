@@ -1,0 +1,11 @@
+#!/bin/bash
+
+tmp=`mktemp`
+
+dialog --inputbox "Search Configuration Option" 8 30 2> $tmp
+
+if [ -n "$(cat $tmp)" ]; then
+  scripts/menuconfig-help | less -p "$(cat $tmp)"
+fi
+
+rm -f $tmp 
