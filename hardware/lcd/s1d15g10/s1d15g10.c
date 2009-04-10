@@ -45,7 +45,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-#include "../../config.h"
+#include "config.h"
 #include "s1d15g10.h"
 
 #define S1D15G10_PORT(port) _PORT_CHAR(port)
@@ -107,64 +107,64 @@ void sendByte(uint8_t cmd, uint8_t data) {
   // Send the command flag bit
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 0" : : "a" (cmd));
-  PIN_SET(S1D15G10_DATA);
+  if (cmd & _BV(0))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
 	
   // Send Bit 7 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 7" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(7))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
   
   // Send Bit 6 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 6" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(6))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
   
   // Send bit 5 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 5" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(5))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
 	
   // Send bit 4 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 4" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(4))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
   
   // Send bit 3 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 3" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(3))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
   
   // Send bit 2 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 2" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(2))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
 	
   // Send bit 1 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 1" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(1))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
 		
   // Send bit 0 of data
   PIN_CLEAR(S1D15G10_CLK);
   PIN_CLEAR(S1D15G10_DATA);
-  asm("sbrc %0, 0" : : "a" (data));
-  PIN_SET(S1D15G10_DATA);
+  if (data & _BV(0))
+    PIN_SET(S1D15G10_DATA);
   PIN_SET(S1D15G10_CLK);
 	
   // disable chip_sel
