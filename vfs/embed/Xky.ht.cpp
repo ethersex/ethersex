@@ -1,5 +1,5 @@
-#include "../../autoconf.h"
-#include "../../pinning.c"
+#include "autoconf.h"
+#include "pinning.c"
 #ifndef KTY_INLINE_SUPPORT
 #error Don't inline this file without KTY_INLINE_SUPPORT
 #endif

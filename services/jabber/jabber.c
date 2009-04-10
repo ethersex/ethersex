@@ -220,10 +220,10 @@ jabber_parse (void)
 	    *ptr = 0;		/* chop off resource name */
 
 	    jabber_parse_ecmd (from, body);
-	} else
+	} else{
 #endif	/* ECMD_JABBER_SUPPORT */
-
-	JABDEBUG ("got something, but no idea how to parse it :(\n");
+	    JABDEBUG ("got something, but no idea how to parse it :(\n");
+        }
 	break;
 
     default:

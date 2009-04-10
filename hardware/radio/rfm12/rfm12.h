@@ -174,8 +174,6 @@ void rfm12_txstart(rfm12_index_t size);
 
 void rfm12_process (void);
 
-/* return the current rfm12 status word */
-uint16_t rfm12_get_status (void);
 
 extern uint8_t rfm12_bandwidth;
 extern uint8_t rfm12_gain;
@@ -188,6 +186,9 @@ extern uint8_t rfm12_drssi;
 #define rfm12_int_enable()  do { } while(0)
 #define rfm12_int_disable() do { } while(0)
 #endif
+
+/* return the current rfm12 status word */
+uint16_t rfm12_get_status (void);
 
 
 #endif //__RFM12_H

@@ -34,7 +34,7 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "core/portio/portio.h"
-#include "../kty/kty81.h"
+#include "hardware/adc/kty/kty81.h"
 #include "ecmd_parser/ecmd.h"
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
@@ -81,7 +81,6 @@ int16_t parse_cmd_kty_cal_get(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_kty_calibration(char *cmd, char *output, uint16_t len)
 {
   uint16_t adc;
-  uint8_t channel;
   uint8_t ret = 0;
   if (cmd[0] && cmd[1]) {
     if ( (cmd[1] - '0') < ADC_CHANNELS && cmd[1] >= '0' ) {
