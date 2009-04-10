@@ -3,7 +3,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 dep_bool "Atmel SPI Dataflash" VFS_DF_SUPPORT $VFS_SUPPORT
 
 dep_bool_menu "VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT
-coment "-- You can enable various html pages for various features"
+comment "-- You can enable various html pages for various features"
 dep_bool "Inline configuration page" CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
 dep_bool "Inline the .config" VFS_CONFIG_INLINE_SUPPORT $CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
 dep_bool "Inline RFM12" RFM12_INLINE_SUPPORT $RFM12_ASK_SUPPORT $VFS_INLINE_SUPPORT

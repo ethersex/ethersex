@@ -82,7 +82,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   bool 'Discard some of the received packets' DEBUG_DISCARD_SOME
 endmenu
 
-source crypto/config.in
+source core/crypto/config.in
 source vfs/config.in
 source protocols/usb/config.in
 
@@ -230,7 +230,7 @@ source hardware/lcd/config.in
 source net/config.in
 source services/stella/config.in
 source hardware/radio/rfm12/rfm12_ask-config.in
-source mysql/config.in
+source protocols/mysql/config.in
 
 endmenu
 
@@ -247,4 +247,3 @@ if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" ]; then
 else
   define_bool RFM12_SUPPORT n
 fi
-

@@ -13,7 +13,7 @@ dep_bool 'ICMP support' ICMP_SUPPORT $UIP_SUPPORT
 comment "Application protocols"
 dep_bool 'BOOTP support' BOOTP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
 dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
-source tftp/config.in
+source services/tftp/config.in
 
 dep_bool 'DNS support' DNS_SUPPORT $UDP_SUPPORT
 if [ "$DNS_SUPPORT" = "y" ]; then
