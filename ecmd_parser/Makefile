@@ -2,7 +2,6 @@ TOPDIR ?= ..
 include $(TOPDIR)/.config
 
 $(ECMD_PARSER_SUPPORT)_SRC += ecmd_parser/ecmd.c
-$(UIP_SUPPORT)_SRC += ecmd_parser/network.c
 $(ECMD_SCRIPT_SUPPORT)_SRC += ecmd_parser/scripting.c
 
 ##############################################################################

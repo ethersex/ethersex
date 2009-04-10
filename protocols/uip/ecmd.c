@@ -33,8 +33,6 @@
 #include "core/eeprom.h"
 #include "ecmd.h"
 
-#ifdef UIP_SUPPORT
-
 #ifndef TEENSY_SUPPORT
 int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
 {
@@ -356,4 +354,3 @@ int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
 }
 #endif /* IPSTATS_SUPPORT */
 
-#endif  /* not UIP_SUPPORT */
