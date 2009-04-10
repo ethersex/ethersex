@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
@@ -23,40 +22,17 @@
 
 #include <string.h>
 #include <avr/pgmspace.h>
-#include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
-#include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
 #include "ecmd.h"
 
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
+#include "ecmd_base.c"
 
-
-static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value) 
-{
-#ifndef TEENSY_SUPPORT
-        return snprintf_P(output, len,
-                PSTR("port %d: 0x%02x"),
-                port, value);
-#else
-        memcpy_P(output, PSTR("port P: 0x"), strlen("port P: 0x"));
-        /* Convert to number :) */
-        output[5] = port + 48;
-        output[10] = NIBBLE_TO_HEX((value >> 4) & 0x0F);
-        output[11] = NIBBLE_TO_HEX(value & 0x0F);
-        return 12;
-#endif
-}
-
-
-#ifdef PORTIO_SUPPORT
 static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
 {
 #ifndef TEENSY_SUPPORT
@@ -239,122 +215,10 @@ int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
         return -1;
 
 }
-#endif /* PORTIO_SUPPORT */
-
-#ifdef PORTIO_SIMPLE_SUPPORT
-
-static char* parse_hex(char *text, uint8_t *value)
-{
-  if (! *text ) return 0;
-  uint8_t nibble;
-  /* skip spaces */
-  while (*text == ' ')
-    text ++;
-  if (! *text ) return 0;
-  *value = 0;
-  while ((*text >= '0' && *text <= '9') || ((*text & 0xDF) >= 'A' && (*text & 0xDF) <= 'F'))
-  {
-    *value <<= 4;
-    nibble = *text - '0';
-    if (nibble > 9)
-      nibble -= 7;
-    *value |= nibble;
-    text++;
-  }
-  return text;
-  
-}
 
 
-int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
-{
-  (void) output;
-  (void) len;
-  
-#ifdef DEBUG_ECMD_PORTIO
-  debug_printf("called parse_cmd_io_set with rest: \"%s\"\n", cmd);
-#endif
-  
-  volatile uint8_t *ioptr;
-  uint8_t getorset;
-  uint8_t iotypeoffset;
-  uint8_t value;
-  uint8_t mask = 0xFF;
-  uint8_t sysmask = 0;
-  
-  /* skip spaces */
-  while (*cmd == ' ')
-    cmd ++;
-  /* test of 'g'et or 's'et */
-  switch (*cmd)
-  {
-    case 'g': getorset = 1; break;
-    case 's': getorset = 0; break;
-    default: return -1;
-  }
-  /* skip non spaces */
-  while (*cmd != ' ')
-    cmd ++;
-  /* skip spaces */
-  while (*cmd == ' ')
-    cmd ++;
-  /* skip first char of ddr,port,pin*/
-  cmd ++;
-  /* test of p'i'n, d'd'r p'o'rt or m'a'sk case insensitiv */
-  switch (*cmd & 0xDF)
-  {
-    case 'I' : iotypeoffset = 0; break;
-    case 'D' : iotypeoffset = 1; break;
-    case 'O' : iotypeoffset = 2; break;
-#ifndef TEENSY_SUPPORT
-    case 'A' : iotypeoffset = 3; cmd += 3; break;
-#endif
-    default: return -1;
-  }
-  cmd ++;
-  /* skip the rest of registertyp and spaces*/
-  while (*cmd == ' ' || (*cmd & 0xDF) >= 'N')
-    cmd ++;
-  /* get the port number */
-  cmd = parse_hex(cmd, &value);
-  if (cmd == 0)
-    return -1;
-  /* translate it to the portaddress */
-  switch (value)
-  {
-#ifdef PINA
-    case 0: ioptr = &PINA; sysmask = PORTIO_MASK_A; break;
-    case 1: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
-    case 2: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
-    case 3: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
-#else
-    case 0: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
-    case 1: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
-    case 2: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
-#endif
-    default: return -1;
-  }
-  ioptr += iotypeoffset;
-#ifndef TEENSY_SUPPORT
-  if (iotypeoffset == 3) 
-    return print_port(output, len, value, ~sysmask);
-#endif
-  if(getorset)
-    /* wenn get request return the port value */
-    return print_port(output, len, value, *ioptr);
-  /* get register write value */
-  cmd = parse_hex(cmd, &value);
-  if (cmd == 0)
-    return -1;
-  /* if a mask value present get it */
-  parse_hex(cmd, &mask);
-  *ioptr = (*ioptr & ~(mask & sysmask)) | (value & mask & sysmask);
-  return 0;
-}
-#endif /* PORTIO_SIMPLE_SUPPORT */
 
-
-#if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
+#ifdef NAMED_PIN_SUPPORT
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
 {
   uint16_t port, pin;
@@ -380,7 +244,7 @@ int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
   } else
     return -1;
 }
-/* */
+
 
 int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
 {
@@ -476,6 +340,6 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
   } else
     return -1;
 }
-/* */
-#endif /* NAMED_PIN_SUPPORT && PORTIO_SUPPORT */
+
+#endif /* NAMED_PIN_SUPPORT */
 

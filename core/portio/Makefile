@@ -2,6 +2,9 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(PORTIO_SUPPORT)_SRC += core/portio/portio.c
+$(PORTIO_SUPPORT)_ECMD_SRC += core/portio/ecmd.c
+
+$(PORTIO_SIMPLE_SUPPORT)_ECMD_SRC += core/portio/ecmd_simple.c
 
 # If (full-featured) portio is disabled, but named_pin enabled, we
 # need to do the named_pin simple awk/m4 hackery ...
