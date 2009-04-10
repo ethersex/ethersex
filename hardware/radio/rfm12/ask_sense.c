@@ -92,7 +92,7 @@ static volatile struct {
 
 
 #ifdef DEBUG_ASK_SENSE
-# include "../debug.h"
+# include "core/debug.h"
 # define ASKDEBUG(a...)  debug_printf(a)
 # define ASKDEBUGCHAR(a) debug_putchar(a)
 #else
