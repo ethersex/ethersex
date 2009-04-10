@@ -1,6 +1,9 @@
 TOPDIR ?= ../../..
 include $(TOPDIR)/.config
 
+$(I2C_MASTER_SUPPORT)_ECMD_SRC += \
+	hardware/i2c/master/ecmd.c
+
 $(I2C_MASTER_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_master.c \
 	hardware/i2c/master/i2c_pca9531.c \
