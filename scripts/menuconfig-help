@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export MCU=atmega8
 depth=0
 tmp=`mktemp`
 tmp2=`mktemp`
@@ -10,18 +11,25 @@ function _bool() {
 
 function bool() {
   _bool "$1" "$2"
-  echo "   Option $2 ($1)"
+  echo "$(space)Option $2 ($1)"
+}
+function space() {
+  i=0
+  while [ $i -lt $depth ]; do
+    echo -n '   ';
+    let i=$i+1
+  done
 }
 
-function int() { echo "   Integer $2 ($1)"; }
-function editor() { echo "   Editor $2 ($1)"; }
-function hex() { echo "   Hex $2 ($1)"; }
-function string() { echo "   String $2 ($1)"; }
-function ipv4() { echo "   Ipv4 $2 ($1)"; }
-function ipv6() { echo "   Ipv6 $2 ($1)"; }
-function ip() { echo "   Ip $2 ($1)"; }
-function choice() { echo "   Choice $1"; }
-function mac() { echo "   Mac $2 ($1)"; }
+function int() { echo "$(space)Integer $2 ($1)"; }
+function editor() { echo "$(space)Editor $2 ($1)"; }
+function hex() { echo "$(space)Hex $2 ($1)"; }
+function string() { echo "$(space)String $2 ($1)"; }
+function ipv4() { echo "$(space)Ipv4 $2 ($1)"; }
+function ipv6() { echo "$(space)Ipv6 $2 ($1)"; }
+function ip() { echo "$(space)Ip $2 ($1)"; }
+function choice() { echo "$(space)Choice $1"; }
+function mac() { echo "$(space)Mac $2 ($1)"; }
 
 function dep_bool() { bool "$1" "$2"; }
 
@@ -39,7 +47,6 @@ function endmenu() {
   if [ $depth -lt 0 ]; then
     depth=0;
   fi
-  echo -n 'End '; sed 's/$/ -> /' < $tmp |tr -d "\n" | sed 's/ -> $//g'; echo 
   head -n $(( $( wc -l $tmp | sed 's/ .*//' ) -1 )) $tmp > $tmp2
   cp $tmp2 $tmp
 
@@ -49,6 +56,8 @@ function comment() { if [ $next_comment -gt 0 ]; then menu "$1"; fi; next_commen
 function mainmenu_option() { if [ "$1"="next_comment" ]; then next_comment=1; fi;}
 function mainmenu_name() { true; }
 function menu() {
+  echo
+  space
   sed 's/$/ -> /' < $tmp |tr -d "\n"
   echo $1
   echo $1 >> $tmp
