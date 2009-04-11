@@ -316,3 +316,7 @@ ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
   ecmd_feature(if, "if ")
 ecmd_endif
 
+ecmd_ifdef(BUTTONS_INPUT_SUPPORT)
+  ecmd_feature(push, "push ")
+ecmd_endif
+

@@ -198,6 +198,7 @@ endmenu
 dep_bool_menu "Game Input" GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "Digital Joystick" JOYSTICK_DIGITAL_SUPPORT $GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
 endmenu
+source hardware/input/buttons/config.in
 
 source mcuf/config.in
 

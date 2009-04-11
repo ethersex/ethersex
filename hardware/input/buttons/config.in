@@ -1,0 +1,5 @@
+
+dep_bool_menu "Buttons Input" BUTTONS_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
+  int "Number of buttons" CONF_NUM_BUTTONS
+endmenu
+
