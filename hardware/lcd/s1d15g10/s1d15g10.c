@@ -225,18 +225,6 @@ void pix_blit(uint8_t color){
 
 void init_lcd(void) {
   uint8_t brightness = 23;
-  fillrect(0, 0, 130, 130, 0x00);
-  uint16_t size = cpxSetAndValidateLCDRect(130-42, 0, 42, 42);
-  for (uint16_t i = 0; i < size; i++) {
-    sendByte(lctData, pgm_read_byte(bunnie+i));
-  }
-  putstr_pgm(0, 0,  PSTR("booting...\n"), 0x03, 0x00);
-  putstr_pgm(0, 10,  PSTR("ethersex v." VERSION_STRING "\n"), 0xE0, 0x00);
-  putstr_pgm(0, 20,  PSTR("www.ethersex.de\n"), 0xFC, 0x00);
-# ifdef DEBUG
-  putstr_pgm(0, 30,  PSTR("S1D15G10 LCD\n"), 0x1C, 0x00);
-# endif
-
   // reset the display
   PIN_CLEAR(S1D15G10_RESET);
   _delay_ms(1000);
@@ -304,6 +292,19 @@ void init_lcd(void) {
   _delay_ms(300);
 
   sendByte(lctCmd, DISON);	// Display On
+
+  fillrect(0, 0, 130, 130, 0x00);
+  uint16_t size = cpxSetAndValidateLCDRect(130-42, 0, 42, 42);
+  for (uint16_t i = 0; i < size; i++) {
+    sendByte(lctData, pgm_read_byte(bunnie+i));
+  }
+  putstr_pgm(0, 0,  PSTR("booting...\n"), 0x03, 0x00);
+  putstr_pgm(0, 10,  PSTR("ethersex v." VERSION_STRING "\n"), 0xE0, 0x00);
+  putstr_pgm(0, 20,  PSTR("www.ethersex.de\n"), 0xFC, 0x00);
+# ifdef DEBUG
+  putstr_pgm(0, 30,  PSTR("S1D15G10 LCD\n"), 0x1C, 0x00);
+# endif
+
 }
 
 uint8_t DxForIch(uint8_t ich, uint16_t *pcbit) {
