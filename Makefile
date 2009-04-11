@@ -44,6 +44,7 @@ SUBDIRS += protocols/ecmd/via_i2c
 SUBDIRS += protocols/ecmd/via_tcp
 SUBDIRS += protocols/ecmd/via_udp
 SUBDIRS += protocols/ecmd/via_usart
+SUBDIRS += protocols/irc
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns

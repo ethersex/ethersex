@@ -39,6 +39,7 @@
 #include "services/httpd/httpd_state.h"
 #include "services/jabber/jabber_state.h"
 #include "protocols/smtp/sendmail.h"
+#include "protocols/irc/irc_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -74,6 +75,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef SENDMAIL_SUPPORT
     struct sendmail_connection_state_t sendmail;
+#   endif
+
+#   ifdef IRC_SUPPORT
+    struct irc_connection_state_t irc;
 #   endif
 
 } uip_tcp_appstate_t;
