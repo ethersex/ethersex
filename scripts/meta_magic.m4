@@ -110,7 +110,7 @@ define(`timer_divert_end', `divert(eval(timer_divert_base` + $1 * 2 + 1'))$2')
 define(`_divert_used', `ifelse(eval(`$1 > 'timer_divert_last), `1', `errprint(`timer_meta: Too big timer $1
 ')m4exit(1)')ifdef(`_divert_used_$1', `', `define(`_divert_used_$1', `1')
 timer_divert_start($1, `
-if (counter % $1) {
+if (counter % $1 == 0) {
 ')dnl
 timer_divert_end($1, `}
 ')dnl
