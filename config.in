@@ -180,7 +180,7 @@ bool "Onewire support" ONEWIRE_SUPPORT
 dep_bool "  Onewire device detection support" ONEWIRE_DETECT_SUPPORT $ONEWIRE_SUPPORT
 dep_bool "  Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
 
-dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "core/portio/config"
+dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
 source hardware/i2c/master/config.in
 source hardware/camera/config.in
 

@@ -34,7 +34,7 @@ named_pin_simple_files=$(TOPDIR)/core/portio/np_simple.m4 $(TOPDIR)/protocols/ec
 endif
 endif
 
-protocols/ecmd/np_simple_glue.m4: $(TOPDIR)/core/portio/config $(TOPDIR)/core/portio/np_simple_glue.awk
+protocols/ecmd/np_simple_glue.m4: $(NP_CONFIG) $(TOPDIR)/core/portio/np_simple_glue.awk
 	@grep -v -e "^#" < $< | gawk -f $(TOPDIR)/core/portio/np_simple_glue.awk > $@
 
 CLEAN_FILES += protocols/ecmd/np_simple_glue.m4

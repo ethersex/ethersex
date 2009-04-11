@@ -36,3 +36,6 @@ core/portio/np_simple.c: $(NP_CONFIG) core/portio/np_simple.awk
 	grep -v -e "^#" < $< | ${AWK} -f core/portio/np_simple.awk > $@.tmp
 	mv -f $@.tmp $@
 
+show-np-config-file:
+	@echo $(NP_CONFIG)
+export NP_CONFIG
