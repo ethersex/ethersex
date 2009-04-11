@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by Bernd Stellwag <burned@zerties.org>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@
 
 #include "config.h"
 #include "protocols/uip/uip.h"
+#include "protocols/ecmd/parser.h"
 #include "irc.h"
 
 #define STATE (&uip_conn->appstate.irc)
@@ -43,6 +45,9 @@ static const char PROGMEM irc_send_altnick[] =
 
 static const char PROGMEM irc_send_join[] =
     "JOIN #" CONF_IRC_CHANNEL "\n";
+
+static const char PROGMEM irc_privmsg_str[] =
+    "PRIVMSG #" CONF_IRC_CHANNEL " :";
 
 
 #define IRC_SEND(str) do {				\
@@ -70,7 +75,13 @@ irc_send_data (uint8_t send_state)
 	break;
 
     case IRC_CONNECTED:
-	IRCDEBUG ("successfully joined, nothing to do.");
+	if (*STATE->outbuf) {
+	    uip_slen = sprintf_P (uip_sappdata, PSTR(
+				      "PRIVMSG #" CONF_IRC_CHANNEL " :%s\n"),
+				  STATE->outbuf);
+	}
+	else
+	    IRCDEBUG ("successfully joined, nothing to do.");
 	break;
     }
 
@@ -78,14 +89,43 @@ irc_send_data (uint8_t send_state)
 }
 
 
+static void
+irc_handle_message (char *message)
+{
+    IRCDEBUG ("handle_message: %s\n", message);
+
+#ifdef ECMD_IRC_SUPPORT
+    if (*message == '!') {
+	message ++;		/* Skip exclamation mark. */
+
+	int16_t len = ecmd_parse_command(message, STATE->outbuf,
+					 ECMD_OUTPUTBUF_LENGTH - 1);
+
+	if (len <= -10) {
+	    IRCDEBUG ("irc_ecmd doesn't support multiple reply lines (yet)\n");
+	    len = -len - 10;
+	}
+
+	if (len < 0)
+	    strcpy_P (STATE->outbuf, PSTR ("parse error"));
+	else
+	    STATE->outbuf[len] = 0;
+
+	return;
+    }
+#endif
+}
+
+
 static uint8_t
 irc_parse (void)
 {
+    char *message;
     IRCDEBUG ("ircparse stage=%d\n", STATE->stage);
 
     switch (STATE->stage) {
     case IRC_SEND_USERNICK:
-	if (strstr_P (uip_appdata, PSTR (" 443 "))) {
+	if (strstr_P (uip_appdata, PSTR (" 433 "))) {
 	    IRCDEBUG ("nickname already in use, try alternative one.");
 	    STATE->stage = IRC_SEND_ALTNICK;
 	    return 0;
@@ -118,7 +158,11 @@ irc_parse (void)
 
     case IRC_SEND_JOIN:
     case IRC_CONNECTED:
-	IRCDEBUG ("successfully connected, don't know what to parse for.\n");
+	message = strstr_P (uip_appdata, irc_privmsg_str);
+	if (message) {
+	    message += sizeof (irc_privmsg_str) - 1;
+	    irc_handle_message (message);
+	}
 	return 0;
     }
 
@@ -131,10 +175,12 @@ static void
 irc_main(void)
 {
     if (uip_aborted() || uip_timedout()) {
+	IRCDEBUG ("connection aborted\n");
 	irc_conn = NULL;
     }
 
     if (uip_closed()) {
+	IRCDEBUG ("connection closed\n");
 	irc_conn = NULL;
     }
 
@@ -142,11 +188,16 @@ irc_main(void)
 	IRCDEBUG ("new connection\n");
 	STATE->stage = IRC_SEND_USERNICK;
 	STATE->sent = IRC_SEND_INIT;
+	*STATE->outbuf = 0;
     }
 
     if (STATE->stage == IRC_SEND_JOIN
 	&& uip_acked ())
 	STATE->stage ++;
+
+    else if (STATE->stage == IRC_CONNECTED
+	     && uip_acked ())
+	*STATE->outbuf = 0;
 
     else if (uip_newdata() && uip_len) {
 	((char *) uip_appdata)[uip_len] = 0;
@@ -161,22 +212,36 @@ irc_main(void)
     if (uip_rexmit ())
 	irc_send_data (STATE->sent);
 
-    else if (STATE->stage > STATE->sent
+    else if ((STATE->stage > STATE->sent || STATE->stage == IRC_CONNECTED)
 	     && (uip_newdata()
 		 || uip_acked()
 		 || uip_connected()))
 	irc_send_data (STATE->stage);
+
+    else if (STATE->stage == IRC_CONNECTED && uip_poll() && *STATE->outbuf)
+	irc_send_data (STATE->stage);
 }
+
+
+void
+irc_periodic(void)
+{
+  if (! irc_conn)
+      irc_init();
+}
+
 
 void
 irc_init(void)
 {
+    IRCDEBUG ("initializing irc client\n");
 
     uip_ipaddr_t ip;
     CONF_IRC_IP;
     irc_conn = uip_connect(&ip, HTONS(CONF_IRC_PORT), irc_main);
 
     if (! irc_conn) {
+	IRCDEBUG ("no uip_conn available.\n");
 	return;
     }
 }
@@ -185,4 +250,5 @@ irc_init(void)
   -- Ethersex META --
   header(protocols/irc/irc.h)
   net_init(irc_init)
+  timer(500, irc_periodic())
 */

@@ -18,6 +18,8 @@ fi
     editor "Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES jabber/known_buddies.src
   fi
 
+  dep_bool "IRC interface (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
+
 #  Disabled because of license issues.
 #  dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "aliascmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL

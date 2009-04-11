@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by Bernd Stellwag <burned@zerties.org>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,10 +32,13 @@ enum {
 };
 
 #include <inttypes.h>
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 struct irc_connection_state_t {
     uint8_t stage;
     uint8_t sent;
+
+    char outbuf[ECMD_OUTPUTBUF_LENGTH];
 };
 
 #endif  /* HAVE_IRC_STATE_H */
