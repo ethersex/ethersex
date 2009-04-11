@@ -42,7 +42,7 @@ static const char PROGMEM irc_send_altnick[] =
     "NICK " CONF_IRC_NICKNAME "_\n";
 
 static const char PROGMEM irc_send_join[] =
-    "JOIN #ethersex\n";
+    "JOIN #" CONF_IRC_CHANNEL "\n";
 
 
 #define IRC_SEND(str) do {				\
