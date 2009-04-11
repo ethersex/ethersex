@@ -76,6 +76,9 @@ after the previous include of hook.def:
 #error Please define HOOK_NAME and HOOK_ARGS
 #endif
 
+#ifndef NULL
+#define NULL ((void *) 0L)
+#endif
 
 #define __hook_cat(a,b) a ## b
 #define _hook_cat(a,b) __hook_cat(a,b)
