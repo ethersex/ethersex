@@ -93,5 +93,6 @@ ntpd_net_main(void)
 
 /*
   -- Ethersex META --
+  header(services/ntp/ntpd_net.h)
   net_init(ntpd_net_init)
 */

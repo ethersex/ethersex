@@ -27,7 +27,5 @@
 /* initialize hardware timer */
 void periodic_init(void);
 
-/* check for periodic events */
-void periodic_process(void);
 
 #endif

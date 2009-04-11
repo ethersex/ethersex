@@ -332,5 +332,7 @@ jabber_init(void)
 
 /*
   -- Ethersex META --
+  header(services/jabber/jabber.h)
+  timer(500, jabber_periodic())
   net_init(jabber_init)
 */

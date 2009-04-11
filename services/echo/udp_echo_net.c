@@ -64,5 +64,6 @@ udp_echo_net_main(void)
 
 /*
   -- Ethersex META --
+  header(services/echo/udp_echo_net.h)
   net_init(udp_echo_net_init)
 */

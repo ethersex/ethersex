@@ -51,5 +51,6 @@ mdns_sd_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/mdns_sd/mdns_sd_net.h)
   net_init(mdns_sd_net_init)
 */

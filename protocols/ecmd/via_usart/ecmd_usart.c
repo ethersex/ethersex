@@ -130,5 +130,6 @@ SIGNAL(usart(USART,_TX_vect))
 
 /*
   -- Ethersex META --
+  header(protocols/ecmd/via_usart/ecmd_usart.h)
   init(ecmd_serial_usart_init)
 */

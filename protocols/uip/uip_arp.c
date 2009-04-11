@@ -478,3 +478,9 @@ uip_arp_lookup (uip_ipaddr_t ipaddr)
 
 #endif /* !UIP_CONF_IPV6 */
 #endif /* ENC28J60_SUPPORT */
+
+/*
+  -- Ethersex META --
+  header(protocols/uip/uip_arp.h)
+  timer(500, uip_arp_timer())
+*/

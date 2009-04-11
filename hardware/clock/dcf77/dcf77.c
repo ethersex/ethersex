@@ -189,5 +189,6 @@ SIGNAL (SIG_COMPARATOR)
 
 /*
   -- Ethersex META --
+  header(hardware/clock/dcf77/dcf77.h)
   init(dcf77_init)
 */

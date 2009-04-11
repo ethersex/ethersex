@@ -1433,6 +1433,7 @@ fs_inspect_inode(fs_t *fs, fs_inode_t p)
 
 /*
   -- Ethersex META --
+  header(hardware/storage/dataflash/fs.h)
   init(fs_init)
 */
 

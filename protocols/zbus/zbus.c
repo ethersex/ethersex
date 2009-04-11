@@ -292,5 +292,7 @@ SIGNAL(usart(USART,_RX_vect))
 
 /*
   -- Ethersex META --
+  header(protocols/zbus/zbus.h)
   init(zbus_core_init)
+  timer(10, zbus_core_periodic())
 */

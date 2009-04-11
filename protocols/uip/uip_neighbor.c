@@ -163,3 +163,9 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
 /*---------------------------------------------------------------------------*/
 
 #endif /* ENC28J60_SUPPORT */
+
+/*
+  -- Ethersex META --
+  header(protocols/uip/uip_neighbor.h)
+  timer(500, uip_neighbor_periodic())
+*/

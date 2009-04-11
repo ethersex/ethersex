@@ -68,5 +68,6 @@ bootp_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/bootp/bootp_net.h)
   net_init(bootp_net_init)
 */

@@ -211,5 +211,7 @@ SIGNAL(usart(USART,_RX_vect))
 
 /*
   -- Ethersex META --
+  header(protocols/modbus/modbus.h)
   init(modbus_init)
+  timer(1, modbus_periodic())
 */

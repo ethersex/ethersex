@@ -41,5 +41,6 @@ syslog_debug_init (void)
 
 /*
   -- Ethersex META --
+  header(protocols/syslog/syslog_debug.h)
   init(syslog_debug_init)
 */

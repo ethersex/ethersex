@@ -146,5 +146,6 @@ void stella_net_broadcast(uint8_t len)
 
 /*
   -- Ethersex META --
+  header(services/stella/stella_net.h)
   net_init(stella_net_init)
 */

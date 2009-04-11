@@ -356,5 +356,6 @@ int hd44780_put(char d, FILE *stream)
 
 /*
   -- Ethersex META --
+  header(hardware/lcd/hd44780.h)
   init(hd44780_init)
 */

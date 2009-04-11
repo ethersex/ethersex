@@ -392,6 +392,7 @@ stella_sort()
 
 /*
   -- Ethersex META --
+  header(services/stella/stella.h)
   mainloop(stella_process)
   init(stella_init)
 */

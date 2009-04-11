@@ -225,5 +225,6 @@ httpd_main(void)
 
 /*
   -- Ethersex META --
+  header(services/httpd/httpd.h)
   net_init(httpd_init)
 */

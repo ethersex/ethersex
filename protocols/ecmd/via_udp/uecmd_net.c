@@ -91,5 +91,6 @@ void uecmd_net_main() {
 
 /*
   -- Ethersex META --
+  header(protocols/ecmd/via_udp/uecmd_net.h)
   net_init(uecmd_net_init)
 */

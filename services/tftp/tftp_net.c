@@ -106,5 +106,6 @@ tftp_net_main(void)
 
 /*
   -- Ethersex META --
+  header(services/tftp/tftp_net.h)
   net_init(tftp_net_init)
 */

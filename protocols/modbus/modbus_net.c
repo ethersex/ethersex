@@ -131,5 +131,6 @@ error_response:
 
 /*
   -- Ethersex META --
+  header(protocols/modbus/modbus_net.h)
   net_init(modbus_net_init)
 */

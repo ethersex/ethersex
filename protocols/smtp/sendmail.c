@@ -235,5 +235,6 @@ mail_send (void)
 
 /*
   -- Ethersex META --
+  header(protocols/smtp/sendmail.h)
   startup(mail_send)
 */

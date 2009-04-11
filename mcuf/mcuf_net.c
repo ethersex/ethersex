@@ -54,5 +54,6 @@ mcuf_net_main(void)
 
 /*
   -- Ethersex META --
+  header(mcuf/mcuf_net.h)
   net_init(mcuf_net_init)
 */

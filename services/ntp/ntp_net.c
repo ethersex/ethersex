@@ -41,5 +41,6 @@ void ntp_net_main(void)
 
 /*
   -- Ethersex META --
+  header(services/ntp/ntp_net.h)
   net_init(ntp_net_init)
 */

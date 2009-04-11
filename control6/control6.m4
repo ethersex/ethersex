@@ -161,7 +161,9 @@ define(`CONTROL_END', `divert(control_end_divert)
 }
 /*
   -- Ethersex META --
+  header(control6/control6.h)
   init(control6_init)
+  timer(1, control6_run())
 */
 divert(ecmd_variable_divert)dnl
 };

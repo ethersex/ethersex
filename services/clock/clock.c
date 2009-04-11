@@ -264,5 +264,8 @@ clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
 
 /*
   -- Ethersex META --
+  header(services/clock/clock.h)
   init(clock_init)
+  timer(1, clock_tick())
+  timer(50, clock_periodic())
 */

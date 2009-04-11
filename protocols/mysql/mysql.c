@@ -332,5 +332,7 @@ mysql_init(void)
 
 /*
   -- Ethersex META --
+  header(protocols/mysql/mysql.h)
   net_init(mysql_init)
+  timer(500, mysql_periodic())
 */

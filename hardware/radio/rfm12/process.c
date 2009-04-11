@@ -74,5 +74,6 @@ rfm12_process (void)
 
 /*
   -- Ethersex META --
+  header(hardware/radio/rfm12/rfm12.h)
   mainloop(rfm12_process)
 */

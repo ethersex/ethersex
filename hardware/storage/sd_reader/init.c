@@ -50,3 +50,17 @@ sd_try_init (void)
 
   return 0;
 }
+
+/*
+  -- Ethersex META --
+  header(hardware/storage/sd_reader/sd_raw.h)
+  header(core_debug.h)
+  timer(1, `
+#           ifdef SD_PING_READ
+	    if (vfs_sd_ping ()) {
+		debug_printf("sd_ping failed, eeek.  card removed?\n");
+		vfs_sd_umount ();
+	    }
+#	    endif
+  ')
+*/

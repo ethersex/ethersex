@@ -101,6 +101,8 @@ SIGNAL(usart(USART,_RX_vect))
   dnl yport_init call must be done after network_init (according to earlier
   dnl comments.  Therefore we initialize via net_init and control the
   dnl order via the Makefile.
+  
+  header(protocols/yport/yport.h)
 
   net_init(yport_init)
 */

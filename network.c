@@ -139,5 +139,6 @@ network_init(void)
 
 /*
   -- Ethersex META --
+  header(network.h)
   init(network_init)
 */

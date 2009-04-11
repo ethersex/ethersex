@@ -53,6 +53,7 @@ void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
 extern void ethersex_meta_init(void);
 extern void ethersex_meta_startup(void);
 extern void ethersex_meta_mainloop(void);
+extern void periodic_process(void);
 
 int main(void)
 {

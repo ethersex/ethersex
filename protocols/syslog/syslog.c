@@ -189,5 +189,6 @@ syslog_check_cache(void)
 
 /*
   -- Ethersex META --
+  header(protocols/syslog/syslog.h)
   mainloop(syslog_flush)
 */

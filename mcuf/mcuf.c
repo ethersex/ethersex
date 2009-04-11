@@ -759,3 +759,9 @@ void blp_setspalte(uint8_t spalte, uint8_t status){
 }
 #endif /* BLP_SUPPORT */
 #endif /* MCUF_SUPPORT */
+
+/*
+  -- Ethersex META --
+  header(mcuf/mcuf.h)
+  timer(1, mcuf_periodic())
+*/

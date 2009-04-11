@@ -429,6 +429,7 @@ ISR(TIMER0_OVF_vect)
 
 /*
   -- Ethersex META --
+  header(hardware/ir/rc5/rc5.h)
   mainloop(rc5_process)
   init(rc5_init)
 */

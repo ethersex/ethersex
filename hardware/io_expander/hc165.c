@@ -71,5 +71,6 @@ hc165_read_pin(uint8_t port)
 
 /*
   -- Ethersex META --
+  header(hardware/io_expander/hc165.h)
   init(hc165_init)
 */

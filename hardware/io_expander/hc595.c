@@ -92,6 +92,7 @@ hc595_update(void)
 
 /*
   -- Ethersex META --
+  header(hardware/io_expander/hc595.h)
   init(hc595_init)
 */
 

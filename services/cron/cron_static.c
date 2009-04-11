@@ -29,8 +29,6 @@
 #include "mcuf/mcuf.h"
 #include "clock/clock.h"
 
-#ifdef CRON_STATIC_SUPPORT
-
 uint32_t last_check;
 
 /** check if this event matches the current time */
@@ -167,4 +165,8 @@ cron_check_event(struct cron_static_event_t *event, struct clock_datetime_t *d)
 
 }
 
-#endif /* CRON_STATIC_SUPPORT */
+/*
+  -- Ethersex META --
+  header(services/cron/cron_static.h)
+  timer(50, cron_periodic_static())
+*/

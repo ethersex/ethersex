@@ -492,6 +492,22 @@ network_config_load (void)
 
 /*
   -- Ethersex META --
+  header(hardware/ethernet/enc28j60.h)
   net_init(init_enc28j60)
   mainloop(network_process)
+  timer(1, `
+#       if UIP_CONF_IPV6
+        if (counter == 5) {
+            // Send a router solicitation every 10 seconds, as long
+            // as we only got a link local address.  First time one
+            // second after boot 
+#           ifndef IPV6_STATIC_SUPPORT
+            if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
+                uip_router_send_solicitation();
+                transmit_packet();
+            }
+#           endif
+        }
+#       endif // UIP_CONF_IPV6 
+')
 */

@@ -124,5 +124,7 @@ watchcat_edge(uint8_t pin)
 
 /*
   -- Ethersex META --
+  header(services/watchcat/watchcat.h)
   init(watchcat_init)
+  timer(1, watchcat_periodic())
 */

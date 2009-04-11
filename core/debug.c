@@ -124,6 +124,7 @@ debug_process_uart (void)
 
 /*
   -- Ethersex META --
+  header(core/debug.h)
   init(debug_init_uart)
   mainloop(debug_process_uart)
 */

@@ -119,5 +119,7 @@ ISR (TWI_vect)
 
 /*
   -- Ethersex META --
+  header(protocols/ecmd/via_i2c/ecmd_i2c.h)
   init(ecmd_serial_i2c_init)
+  timer(1, ecmd_serial_i2c_periodic())
 */

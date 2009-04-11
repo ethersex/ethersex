@@ -549,5 +549,6 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 
 /*
   -- Ethersex META --
+  header(hardware/onewire/onewire.h)
   init(onewire_init)
 */

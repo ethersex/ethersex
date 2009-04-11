@@ -53,5 +53,6 @@ i2c_slave_net_main(void)
 
 /*
   -- Ethersex META --
+  header(hardware/i2c/slace/i2c_slave_net.h)
   net_init(i2c_slave_net_init)
 */

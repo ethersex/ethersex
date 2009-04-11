@@ -100,5 +100,6 @@ i2c_master_select(uint8_t address, uint8_t mode)
 
 /*
   -- Ethersex META --
+  header(hardware/i2c/master/i2c_master.h)
   initearly(i2c_master_init)
 */

@@ -372,5 +372,6 @@ dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
 
 /*
   -- Ethersex META --
+  header(hardware/camera/dc3840.h)
   init(dc3840_init)
 */

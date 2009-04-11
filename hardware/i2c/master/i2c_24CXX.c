@@ -149,5 +149,6 @@ end:
 
 /*
   -- Ethersex META --
+  header(hardware/i2c/master/i2c_24CXX.h)
   init(i2c_24CXX_init)
 */

@@ -49,5 +49,6 @@ snmp_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/snmp/snmp_net.h)
   net_init(snmp_net_init)
 */

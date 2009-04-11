@@ -72,5 +72,6 @@ rfm12_raw_net_main(void)
 
 /*
   -- Ethersex META --
+  header(hardware/radio/rfm12/rfm12_raw_net.h)
   net_init(rfm12_raw_net_init)
 */

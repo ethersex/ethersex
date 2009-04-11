@@ -56,6 +56,10 @@ void uip_neighbor_init(void);
 void uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr);
 void uip_neighbor_update(uip_ipaddr_t ipaddr);
 struct uip_neighbor_addr *uip_neighbor_lookup(uip_ipaddr_t ipaddr);
+#ifndef BOOTLOADER_SUPPORT
 void uip_neighbor_periodic(void);
+#else
+#define uip_neighbour_periodic do {} while(0)
+#endif
 
 #endif /* __UIP-NEIGHBOR_H__ */

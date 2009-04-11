@@ -98,5 +98,6 @@ void yport_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/yport/yport_net.h)
   net_init(yport_net_init)
 */

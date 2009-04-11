@@ -76,7 +76,6 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'Stella' DEBUG_STELLA $DEBUG
   dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG
-  dep_bool 'Timer' DEBUG_TIMER $DEBUG
   dep_bool 'Cron' DEBUG_CRON $DEBUG
   dep_bool 'Hooks' DEBUG_HOOK $DEBUG
   bool 'Discard some of the received packets' DEBUG_DISCARD_SOME
@@ -251,4 +250,8 @@ if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" ]; then
   define_bool RFM12_SUPPORT y
 else
   define_bool RFM12_SUPPORT n
+fi
+
+if [ "$UIP_SUPPORT" = "y" -a "$IPV6_SUPPORT" != "y" ]; then
+  define_bool IPV4_SUPPORT y
 fi

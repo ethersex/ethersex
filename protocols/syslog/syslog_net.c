@@ -62,5 +62,6 @@ syslog_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/syslog/syslog_net.h)
   net_init(syslog_net_init)
 */

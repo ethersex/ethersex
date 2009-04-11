@@ -72,5 +72,6 @@ zbus_raw_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/zbus/zbus_raw_net.h)
   net_init(zbus_raw_net_init)
 */

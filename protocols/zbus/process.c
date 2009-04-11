@@ -72,5 +72,6 @@ zbus_process(void)
 
 /*
   -- Ethersex META --
+  header(protocols/zbus/zbus.h)
   mainloop(zbus_process)
 */

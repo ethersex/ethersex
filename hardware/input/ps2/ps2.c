@@ -301,5 +301,7 @@ SIGNAL(PS2_INTERRUPT)
 
 /*
   -- Ethersex META --
+  header(hardware/input/ps2/ps2.h)
   init(ps2_init)
+  timer(1, ps2_periodic())
 */

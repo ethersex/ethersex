@@ -45,5 +45,6 @@ void dns_net_main(void)
 
 /*
   -- Ethersex META --
+  header(protocols/dns/resolv.h)
   net_init(resolv_init)
 */
