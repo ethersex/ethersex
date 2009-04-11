@@ -1733,7 +1733,6 @@ activate_menu MCmenu0
 #
 # All done!
 #
-cleanup1
 
 #
 # Confirm and Save
@@ -1753,6 +1752,7 @@ else
 	echo
 fi
 
+cleanup1
 # Remove log if empty.
 if [ ! -s .menuconfig.log ] ; then
 	rm -f .menuconfig.log
