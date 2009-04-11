@@ -37,7 +37,7 @@ while read line; do
   consts="$consts""const char named_pin_text$textid[] PROGMEM = \"$name\";\n"
   eeprom="$eeprom\t{\t$port,\t$pin,\t$input,\t$active_high,\tnamed_pin_text$textid }, \t/* $name\t*/ \n"
 done << EOF
-`grep -v -e ^# < core/portio/config`
+`grep -v -e ^# < "$1"`
 EOF
 
 # footer for user_config.c

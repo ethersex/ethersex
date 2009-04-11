@@ -22,15 +22,17 @@ $(NAMED_PIN_SUPPORT)_SRC += core/portio/named_pin.c \
 include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
+NP_CONFIG ?= $(TOPDIR)/core/portio/config
+
 core/portio/named_pin.c: core/portio/user_config.c
-core/portio/user_config.c: core/portio/config
-	@core/portio/cfgpp
+core/portio/user_config.c: $(NP_CONFIG)
+	@core/portio/cfgpp $<
 
 # extend normal clean rule
 CLEAN_FILES += core/portio/user_config.h core/portio/user_config.c \
 	core/portio/np_simple.c
 
-core/portio/np_simple.c: core/portio/config core/portio/np_simple.awk
+core/portio/np_simple.c: $(NP_CONFIG) core/portio/np_simple.awk
 	grep -v -e "^#" < $< | ${AWK} -f core/portio/np_simple.awk > $@.tmp
 	mv -f $@.tmp $@
 
