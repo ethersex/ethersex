@@ -37,7 +37,7 @@ static uip_conn_t *irc_conn;
 
 
 static const char PROGMEM irc_send_usernick[] =
-    "USER " CONF_IRC_USERNAME " 42 * :Hallo Welt\n"
+    "USER " CONF_IRC_USERNAME " 42 * :" CONF_IRC_REALNAME "\n"
     "NICK " CONF_IRC_NICKNAME "\n";
 
 static const char PROGMEM irc_send_altnick[] =
