@@ -27,6 +27,7 @@ grep -e "^CONF_.*=\"" $profile/.config | tr "=" " " \
   | grep -v -e ^CONF_JABBER \
   | grep -v -e ^CONF_MYSQL \
   | grep -v -e ^CONF_MCUF \
+  | grep -v -e ^CONF_IRC \
   | while read option value; do
 
   if [ "$option" = "CONF_ENC_MAC" ]; then
