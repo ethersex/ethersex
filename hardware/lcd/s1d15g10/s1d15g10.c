@@ -447,6 +447,6 @@ void lcd_putch(char d) {
 
 /*
   -- Ethersex META --
-  header(hardware/lcds1d15g10.h)
+  header(hardware/lcd/s1d15g10/s1d15g10.h)
   init(init_lcd)
 */
