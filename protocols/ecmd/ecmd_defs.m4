@@ -320,3 +320,7 @@ ecmd_ifdef(BUTTONS_INPUT_SUPPORT)
   ecmd_feature(push, "push ")
 ecmd_endif
 
+ecmd_ifdef(TWITTER_SUPPORT)
+  ecmd_feature(tw, "tw ")
+ecmd_endif
+
