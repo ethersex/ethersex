@@ -149,7 +149,7 @@ uip_arp_init(void)
  *
  */
 /*-----------------------------------------------------------------------------------*/
-#ifndef BOOTLOADER_SUPPORT
+#if !defined(BOOTLOADER_SUPPORT) && !defined(TEENSY_SUPPORT)
 void
 uip_arp_timer(void)
 {
