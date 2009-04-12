@@ -167,5 +167,9 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
 /*
   -- Ethersex META --
   header(protocols/uip/uip_neighbor.h)
-  timer(500, uip_neighbor_periodic())
+  timer(500, `
+#	ifndef BOOTLOADER_SUPPORT
+	  uip_neighbor_periodic()
+#	endif
+')
 */
