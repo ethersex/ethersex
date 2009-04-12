@@ -34,7 +34,7 @@ static char *twitter_tmp_buf;
 
 static const char PROGMEM twitter_header[] =
     "POST " CONF_TWITTER_API "/statuses/update.xml HTTP/1.1\n"
-    "Authorization: Basic ZXRoZXJzZXg6ZXRoZXJzZXgyMw==\n"
+    "Authorization: Basic " CONF_TWITTER_AUTH "\n"
     "Host: " CONF_TWITTER_SERVICE "\n"
     "Content-Type: application/x-www-form-urlencoded\n"
     "Content-Length: ";

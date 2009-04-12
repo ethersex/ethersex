@@ -1,0 +1,9 @@
+#!/usr/bin/perl 
+
+use MIME::Base64;
+
+my $username = shift @ARGV;
+my $password = shift @ARGV;
+
+$encoded = encode_base64($username . ":" . $password);
+print $encoded;

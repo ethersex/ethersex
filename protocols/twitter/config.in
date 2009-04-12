@@ -3,4 +3,5 @@ dep_bool_menu "Twitter/identi.ca client (EXPERIMENTAL)" TWITTER_SUPPORT $TCP_SUP
   string "API Root" CONF_TWITTER_API "/api"
   string "Username" CONF_TWITTER_USERNAME "ethersex"
   string "Password" CONF_TWITTER_PASSWORD ""
+  define_string CONF_TWITTER_AUTH "$(scripts/http_auth_encode "$CONF_TWITTER_USERNAME" "$CONF_TWITTER_PASSWORD")"
 endmenu
