@@ -534,15 +534,18 @@ void fs20_init(void)
 
 /*
   -- Ethersex META --
-  header(hardware/radio/rs20/fs20.h)
+  header(hardware/radio/fs20/fs20.h)
   init(fs20_init)
   mainloop(fs20_process)
   timer(10, `
+#           ifdef FS20_RECV_PROFILE
+	    // output fs20 profiling information
             uint16_t c1 = fs20_global.int_counter;
             uint16_t c2 = fs20_global.ovf_counter;
             fs20_global.int_counter = 0;
             fs20_global.ovf_counter = 0;
             debug_printf("fs20 profile: %u %u\n", c1, c2);
+#           endif  // FS20_RECV_PROFILE
 ')
 
   timer(1, `
@@ -557,5 +560,4 @@ void fs20_init(void)
 #           endif
 ')
 
-  timer
 */
