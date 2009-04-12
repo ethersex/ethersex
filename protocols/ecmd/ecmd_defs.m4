@@ -259,7 +259,7 @@ ecmd_ifdef(DC3840_SUPPORT)
   ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)
 ecmd_endif
 
-ecmd_ifdef(PWM_SUPPORT)
+ecmd_ifdef(PWM_MELODY_SUPPORT)
   ecmd_feature(pwm, "pwm", , start pwm)
 ecmd_endif
 
