@@ -60,5 +60,8 @@
 void debug_init_uart(void);
 void debug_process_uart(void);
 int noinline debug_uart_put (char d, FILE *stream);
+/* Return a string of 0 and 1 expressing the value of the 8bit integer v.
+ * Example: 00001000 */
+char *debug_binary (uint8_t v);
 
 #endif /* _DEBUG_H */

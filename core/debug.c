@@ -27,6 +27,19 @@
 
 #define noinline __attribute__((noinline))
 
+char *debug_binary (uint8_t v) {
+	static char binstr[9] ;
+	uint8_t i ;
+	
+	binstr[8] = '\0' ;
+	for (i=0; i<8; i++) {
+		binstr[7-i] = v & 1 ? '1' : '0' ;
+		v = v / 2 ;
+	}
+	
+	return binstr ;
+}
+
 /* prototypes */
 int debug_uart_put(char d, FILE *stream);
 void soft_uart_putchar(uint8_t c);
