@@ -23,6 +23,7 @@
 #include "core/spi.h"
 #include "spi.h"
 #include "debug.h"
+#include "config.h"
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
   || defined(DATAFLASH_SUPPORT) || defined(SD_READER_SUPPORT)
