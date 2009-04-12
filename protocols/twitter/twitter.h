@@ -22,6 +22,8 @@
 #ifndef HAVE_TWITTER_H
 #define HAVE_TWITTER_H
 
+uint8_t twitter_send(char *);
+
 
 #include "config.h"
 #ifdef DEBUG_TWITTER

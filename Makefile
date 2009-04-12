@@ -46,6 +46,7 @@ SUBDIRS += protocols/ecmd/via_tcp
 SUBDIRS += protocols/ecmd/via_udp
 SUBDIRS += protocols/ecmd/via_usart
 SUBDIRS += protocols/irc
+SUBDIRS += protocols/twitter
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
@@ -213,7 +214,7 @@ clean:
 	$(RM) $(OBJECTS) $(CLEAN_FILES) \
 		$(patsubst %.o,%.d,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
-		$(patsubst %.o,%.s,${OBJECTS})
+		$(patsubst %.o,%.s,${OBJECTS}) network.d
 	echo "Cleaning completed"
 
 mrproper:
