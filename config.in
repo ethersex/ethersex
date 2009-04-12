@@ -62,6 +62,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'MCUF' DEBUG_MCUF $DEBUG
   dep_bool 'I2C' DEBUG_I2C $DEBUG
   dep_bool 'IRC' DEBUG_IRC $DEBUG $IRC_SUPPORT
+  dep_bool 'TWITTER' DEBUG_TWITTER $DEBUG $TWITTER_SUPPORT
   dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
   dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
   dep_bool 'MySQL' DEBUG_MYSQL $DEBUG $MYSQL_SUPPORT
@@ -238,6 +239,7 @@ source services/stella/config.in
 source hardware/radio/rfm12/rfm12_ask-config.in
 source protocols/mysql/config.in
 source protocols/irc/config.in
+source protocols/twitter/config.in
 
 endmenu
 
