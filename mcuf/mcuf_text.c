@@ -27,7 +27,7 @@
 #include <avr/pgmspace.h>
 #include <inttypes.h>
 
-#include "../config.h"
+#include "config.h"
 #include "mcuf.h"
 #include "mcuf_text.h"
 

@@ -35,7 +35,6 @@ generic_usb_teensy=y
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
 # MD5_SUPPORT is not set
-# SKIPJACK_SUPPORT is not set
 
 #
 # Network protocols

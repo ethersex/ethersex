@@ -289,6 +289,16 @@ function editor () {
         echo -e "function $flag () { l_editor '$file';}" >>MCradiolists
 }
 
+function system () {
+	ques="$1"; shift
+	flag="$1"; shift
+	file="$1"; shift
+
+	echo -ne "'$flag' '${ques}$info' " >>MCmenu
+
+        echo -e "function $flag () { l_system '$file';}" >>MCradiolists
+}
+
 #
 # Add a menu item which will call our local mac function.
 # 
@@ -699,6 +709,10 @@ function l_editor() {
   fi
 }
 
+function l_system() {
+  $1
+}
+
 #
 # Create a dialog for entering a MAC address
 #
@@ -991,6 +1005,7 @@ function parse_config_files () {
 	echo "comment ''"	>>MCmenu0
 	echo "g_alt_config" 	>>MCmenu0
 	echo "s_alt_config" 	>>MCmenu0
+	echo "system 'Search configuration Option' SEARCH_OPTION scripts/menuconfig-search" 	>>MCmenu0
 
 	echo "}" >>MCmenu0
 
@@ -1718,7 +1733,6 @@ activate_menu MCmenu0
 #
 # All done!
 #
-cleanup1
 
 #
 # Confirm and Save
@@ -1738,6 +1752,7 @@ else
 	echo
 fi
 
+cleanup1
 # Remove log if empty.
 if [ ! -s .menuconfig.log ] ; then
 	rm -f .menuconfig.log

@@ -1,6 +1,6 @@
-#include "../mcuf_modul.h"
+#include "mcuf/mcuf_modul.h"
 #ifndef GCC
-#include "../../debug.h"
+#include "core/debug.h"
 #endif
 #ifdef MCUF_MODUL_BORG16_MATRIX_SUPPORT
 

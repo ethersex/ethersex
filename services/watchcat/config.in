@@ -1,0 +1,1 @@
+dep_bool_editor "Watch IO changes (and react)" WATCHCAT_SUPPORT "watchcat/config" $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT

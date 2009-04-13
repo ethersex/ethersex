@@ -1,0 +1,3 @@
+This folder should only contain modules that interfere with external hardware or use special abilities of some atmegas like the build-in pwm or usb hardware.
+Typical modules are those that allow access to a lcd, to port expanders, to real time clocks or to onewire devices.
+What NOT belong to this folder are modules that provide protocols or generic functions. You may argue that your module "use" the atmega hardware, but here's a question you should ask yourself before using the hardware folder: Is your module necessary to access hardware that is not supported by the ethersex core? If the answer is yes, you are probably right here.

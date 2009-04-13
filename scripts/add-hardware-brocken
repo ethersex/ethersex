@@ -182,6 +182,14 @@ FNORD
     pin(LED_CLOCK, PB2, OUTPUT)
 FNORD
 
+  template $S1D15G10_SUPPORT << FNORD
+    /* port config for s1d15g10 lcd */
+    pin(S1D15G10_RESET, PB0, OUTPUT)
+    pin(S1D15G10_DATA, PD5, OUTPUT)
+    pin(S1D15G10_CLK, PD6, OUTPUT)
+    pin(S1D15G10_CS, PD7, OUTPUT)
+FNORD
+
 ##############################################################################
 #                                                                            #
 # ATmega162, 32, 644 etc.                                                    #
@@ -233,6 +241,14 @@ FNORD
     pin(LED_RED, PA0, OUTPUT)
     pin(LED_GREEN, PA1, OUTPUT)
     pin(LED_CLOCK, PA2, OUTPUT)
+FNORD
+
+  template $S1D15G10_SUPPORT << FNORD
+    /* port config for s1d15g10 lcd */
+    pin(S1D15G10_RESET, PA4, OUTPUT)
+    pin(S1D15G10_DATA, PA5, OUTPUT)
+    pin(S1D15G10_CLK, PA6, OUTPUT)
+    pin(S1D15G10_CS, PA7, OUTPUT)
 FNORD
 
 fi

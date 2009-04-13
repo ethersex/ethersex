@@ -29,8 +29,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "../bit-macros.h"
-#include "../config.h"
+#include "core/bit-macros.h"
+#include "config.h"
 
 
 #ifdef LEDRG_SUPPORT

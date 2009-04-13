@@ -29,26 +29,26 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "../eeprom.h"
-#include "../bit-macros.h"
-#include "../config.h"
-#include "../syslog/syslog.h"
-#include "../clock/clock.h"
+#include "core/eeprom.h"
+#include "core/bit-macros.h"
+#include "config.h"
+#include "protocols/syslog/syslog.h"
+#include "services/clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"
 #include "mcuf_text.h"
 #include "ledmatrixint.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 
 #ifdef SOFT_UART_SUPPORT
 
-#  include "../debug.h"
+#  include "core/debug.h"
 
 extern void soft_uart_putchar(uint8_t c);
 #endif
 
 #ifdef DEBUG_MCUF
-#  include "../debug.h"
+#  include "core/debug.h"
 #  define MCUF_DEBUG(str...) debug_printf ("mcuf: " str)
 #else
 #  define MCUF_DEBUG(...)    ((void) 0)
@@ -59,7 +59,7 @@ extern void soft_uart_putchar(uint8_t c);
 #ifdef MCUF_SERIAL_SUPPORT
 #define USE_USART MCUF_USE_USART
 #define BAUD MCUF_BAUDRATE
-#include "../usart.h"
+#include "core/usart.h"
 #endif
 
 
@@ -759,3 +759,9 @@ void blp_setspalte(uint8_t spalte, uint8_t status){
 }
 #endif /* BLP_SUPPORT */
 #endif /* MCUF_SUPPORT */
+
+/*
+  -- Ethersex META --
+  header(mcuf/mcuf.h)
+  timer(1, mcuf_periodic())
+*/

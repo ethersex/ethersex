@@ -397,8 +397,7 @@ CRYPTO_SUPPORT
   Enable cryptographic functionality in Ethersex.  You have to
   choose the ciphers and/or hashes to include from the submenu.
 
-  If you'd like to use OpenVPN consider enabling Cast5 and MD5.  To
-  encrypt RFM12 traffic enable Skipjack.
+  If you'd like to use OpenVPN consider enabling Cast5 and MD5.
 
 CAST5
 CAST5_SUPPORT
@@ -406,16 +405,6 @@ CAST5_SUPPORT
    * Cryptographic functionality (CRYPTO_SUPPORT)
 
   Enable CAST-5 cipher needed for OpenVPN.
-
-Skipjack
-SKIPJACK_SUPPORT
-  Depends on: 
-   * Cryptographic functionality (CRYPTO_SUPPORT)
-
-  Enable Skipjack-cipher to encrypted streamed data of
-    * ZBus
-    * RFM12
-    * TFTP Bootloader
 
 MD5
 MD5_SUPPORT

@@ -1,0 +1,20 @@
+#mainmenu_option next_comment
+#comment "LCD Displays"
+
+  dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT
+    if [ "$HD44780_SUPPORT" = "y" ]; then
+      choice 'Controller type'					\
+              "Original			HD44780_ORIGINAL	\
+	       Displaytech164A		HD44780_DISPTECH	\
+               ks0067b			HD44780_KS0067B"	\
+              Original
+      define_bool LCD_SUPPORT y
+    fi
+    dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
+    dep_bool "Use Port C (instead of Port A)" HD44780_USE_PORTC $HD44780_SUPPORT
+  endmenu
+
+
+  dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT
+
+#endmenu

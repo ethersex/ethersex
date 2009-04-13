@@ -1,0 +1,8 @@
+dep_bool_menu "IRC client (EXPERIMENTAL)" IRC_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
+  ip "Server IP" CONF_IRC_IP "192.168.23.254"
+  int "Server Port" CONF_IRC_PORT 6667
+  string "Channel" CONF_IRC_CHANNEL "ethersex"
+  string "Username" CONF_IRC_USERNAME "ethersex"
+  string "Nickname" CONF_IRC_NICKNAME "ethersex"
+  string "Realname" CONF_IRC_REALNAME "Ethersex Wollmilchsau"
+endmenu

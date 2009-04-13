@@ -1,0 +1,26 @@
+#! /bin/bash
+
+[ -e blameall ] || {
+  (find -name '*.[ch]';
+   find -name '*.m4';
+   find -name '*.mk';
+   find -name 'Makefile*';
+   find -name '*config*.in';
+   find -name '*.def';
+
+  # filter out imported code
+  ) | grep -v -e "borg-16" -e "lxdialog" -e "sd_reader/fat" -e "sd_reader/partition" -e "sd_reader/sd_raw" | \
+  while fn="`line`"; do
+    echo scanning $fn ...
+    git blame "$fn" >> blameall
+  done
+}
+
+grep -v -e ^00000000 < blameall | sed -re 's/^[^\(]*\(//' -e 's/\s+20.*//' > committers
+
+sort -u committers | (while autor="`line`"; do
+  lines=`grep "^$autor$" < committers | wc -l`
+  printf "%6d %-23s\n" $lines "$autor"
+done) | sort -nr
+
+rm -f committers blameall

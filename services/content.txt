@@ -1,0 +1,6 @@
+This folder should only contain ethersex services. A service is an application
+running in the background, usually monitoring or regulary adjusting something or
+providing an interface to humans. Typical services are those that provide for
+example a domain name service (dns), an e-mail (pop or imap) fetcher, ecmd, ftp
+and web access. Services are NOT applications that provide hardware abstraction
+or generic functions.

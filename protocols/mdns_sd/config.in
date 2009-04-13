@@ -1,0 +1,1 @@
+dep_bool "MDNS service announcement (Avahi)" MDNS_SD_SUPPORT $UDP_SUPPORT

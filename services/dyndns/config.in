@@ -1,0 +1,8 @@
+dep_bool_menu "DynDNS support" DYNDNS_SUPPORT $UIP_SUPPORT
+  if [ "$DYNDNS_SUPPORT" = "y" ]; then
+    comment "Update DNS record at dyn.metafnord.de"
+    string "Hostname" CONF_DYNDNS_HOSTNAME "camera1"
+    string "Username" CONF_DYNDNS_USERNAME "user"
+    string "Password" CONF_DYNDNS_PASSWORD "secret"
+  fi
+endmenu

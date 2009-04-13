@@ -1,6 +1,9 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
+$(MCUF_SUPPORT)_ECMD_SRC += \
+	mcuf/ecmd.c
+
 $(MCUF_SUPPORT)_SRC += \
 	mcuf/mcuf.c \
 	mcuf/mcuf_net.c\
@@ -21,7 +24,7 @@ $(MCUF_SUPPORT)_SRC += \
 
 ##############################################################################
 # generic fluff
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
 # special stuff for this subdirectory

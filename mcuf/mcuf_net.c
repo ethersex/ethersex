@@ -23,14 +23,12 @@
 #include <avr/eeprom.h>
 #include <string.h>
 
-#include "../bit-macros.h"
-#include "../uip/uip.h"
-#include "../eeprom.h"
-#include "../mcuf/mcuf.h"
-#include "../syslog/syslog.h"
+#include "core/bit-macros.h"
+#include "protocols/uip/uip.h"
+#include "core/eeprom.h"
+#include "mcuf/mcuf.h"
+#include "protocols/syslog/syslog.h"
 #include "mcuf_net.h"
-
-#ifdef MCUF_SUPPORT
 
 void
 mcuf_net_init(void)
@@ -54,5 +52,8 @@ mcuf_net_main(void)
   if (uip_newdata()) mcuf_newdata();
 }
 
-
-#endif
+/*
+  -- Ethersex META --
+  header(mcuf/mcuf_net.h)
+  net_init(mcuf_net_init)
+*/

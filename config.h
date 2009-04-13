@@ -51,8 +51,8 @@
 #define NET_FULL_DUPLEX 0
 
 /* configure main callback function for uip */
-#define UIP_APPCALL network_handle_tcp
-#define UIP_UDP_APPCALL network_handle_udp
+#define UIP_APPCALL if (uip_conn->callback != NULL) uip_conn->callback
+#define UIP_UDP_APPCALL if (uip_udp_conn->callback) uip_udp_conn->callback
 
 /* onewire support */
 #define ONEWIRE_PARASITE

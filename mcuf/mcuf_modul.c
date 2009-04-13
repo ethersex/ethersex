@@ -29,16 +29,16 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "../config.h"
-#include "../debug.h"
-#include "../clock/clock.h"
+#include "config.h"
+#include "core/debug.h"
+#include "services/clock/clock.h"
 #include "mcuf.h"
 #include "mcuf_net.h"
 #include "mcuf_text.h"
 #include "ledmatrixint.h"
-#include "../uip/uip.h"
+#include "protocols/uip/uip.h"
 #else
-#include "../contrib/mcuf/modsim.h"
+#include "contrib/mcuf/modsim.h"
 #endif // GCC
 
 #include "mcuf_modul.h"
@@ -52,12 +52,12 @@
 #define MCUF_MAX_MODULES (sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)) - 1
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT
-#include "borg-16/xoni_study.h"
-#include "borg-16/matrix.h"
-#include "borg-16/programm.h"
-#include "borg-16/snake.h"
-#include "borg-16/gameoflife.h"
-#include "borg-16/invaders2.h"
+#include "mcuf/borg-16/xoni_study.h"
+#include "mcuf/borg-16/matrix.h"
+#include "mcuf/borg-16/programm.h"
+#include "mcuf/borg-16/snake.h"
+#include "mcuf/borg-16/gameoflife.h"
+#include "mcuf/borg-16/invaders2.h"
 
 
 void setpixel(pixel p, uint8_t color){

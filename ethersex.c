@@ -25,56 +25,35 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-#include "uip/uip.h"
-#include "uip/uip_arp.h"
-#include "uip/uip_neighbor.h"
+#include "protocols/uip/uip.h"
+#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/uip_neighbor.h"
 
 #include "config.h"
-#include "global.h"
-#include "debug.h"
-#include "spi.h"
+#include "core/global.h"
+#include "core/debug.h"
+#include "core/spi.h"
 #include "network.h"
-#include "timer.h"
-#include "portio.h"
-#include "cron/cron.h"
-#include "fs20/fs20.h"
-#include "lcd/hd44780.h"
-#include "watchcat/watchcat.h"
-#include "control6/control6.h"
-#include "onewire/onewire.h"
-#include "ecmd_serial/ecmd_serial_i2c.h"
-#include "ecmd_serial/ecmd_serial_usart.h"
-#include "rc5/rc5.h"
-#include "rfm12/rfm12.h"
-#include "zbus/zbus.h"
-#include "clock/clock.h"
-#include "dcf77/dcf77.h"
-#include "ps2/ps2.h"
-#include "usb/usb.h"
-#include "hc165/hc165.h"
-#include "hc595/hc595.h"
-#include "yport/yport.h"
-#include "ipv6.h"
-#include "dataflash/fs.h"
-#include "modbus/modbus.h"
-#include "stella/stella.h"
-#include "syslog/syslog.h"
-#include "net/handler.h"
-#include "net/sendmail.h"
-#include "sd_reader/sd_raw.h"
-#include "camera/dc3840.h"
-#include "i2c_master/i2c_master.h"
-#include "i2c_master/i2c_24CXX.h"
-#include "i2c_master/i2c_lm75.h"
-#include "vfs/vfs.h"
+#include "core/periodic.h"
+#include "core/portio/portio.h"
+#include "hardware/radio/rfm12/rfm12.h"
+#include "protocols/uip/ipv6.h"
+#include "hardware/storage/sd_reader/sd_raw.h"
+#include "core/vfs/vfs.h"
 
-#include "bit-macros.h"
+#include "core/bit-macros.h"
 
 /* global configuration */
 global_status_t status;
 
 /* prototypes */
 void (*jump_to_bootloader)(void) = (void *)BOOTLOADER_SECTION;
+
+
+extern void ethersex_meta_init(void);
+extern void ethersex_meta_startup(void);
+extern void ethersex_meta_mainloop(void);
+extern void periodic_process(void);
 
 int main(void)
 {
@@ -113,21 +92,7 @@ int main(void)
 #endif
 #endif
 
-
-    debug_init();
     debug_printf("debugging enabled\n");
-
-#   ifdef HD44780_SUPPORT
-    debug_printf("initializing lcd...\n");
-    hd44780_init(0, 0);
-#   ifdef DEBUG
-    fprintf_P(lcd, PSTR("booting...\n"));
-#   endif
-#   endif
-
-#   ifdef WATCHCAT_SUPPORT
-    watchcat_init();
-#   endif
 
 #   ifdef BOOTLOADER_SUPPORT
     /* disable interrupts */
@@ -170,30 +135,6 @@ int main(void)
     spi_init();
 #   endif
 
-#   ifdef SD_READER_SUPPORT
-    sd_reader_init();
-#   endif
-
-#   ifdef DATAFLASH_SUPPORT
-    debug_printf("initializing filesystem...\n");
-    fs_init(&fs, NULL);
-    debug_printf("fs: root page is 0x%04x\n", fs.root);
-#   endif
-
-#   ifdef CRON_SUPPORT
-    cron_init();
-#   endif
-
-#   ifdef UIP_SUPPORT
-    network_init();
-#   endif
-
-    timer_init();
-
-#ifdef CLOCK_SUPPORT
-    clock_init();
-#endif
-
 #ifdef ADC_SUPPORT
     /* ADC Prescaler to 64 */
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
@@ -202,78 +143,7 @@ int main(void)
     ADMUX = ADC_REF; //_BV(REFS0) | _BV(REFS1);
 #endif
 
-#ifdef PS2_SUPPORT
-    ps2_init();
-#endif
-
-#ifdef DCF77_SUPPORT
-    dcf77_init();
-#endif
-
-/* The I2C Master Stuff */
-
-#ifdef I2C_MASTER_SUPPORT
-    i2c_master_init();
-#endif
-
-#ifdef I2C_24CXX_SUPPORT
-    i2c_24CXX_init();
-#endif
-
-#ifdef VFS_EEPROM_SUPPORT
-    vfs_eeprom_init();
-#endif
-
-/* End of the I2C Master Stuff */
-
-#ifdef USB_SUPPORT
-    usb_init();
-#endif
-
-#ifdef FS20_SUPPORT
-    fs20_init();
-#endif
-
-#ifdef ONEWIRE_SUPPORT
-    onewire_init();
-#endif
-
-#ifdef RC5_SUPPORT
-    rc5_init();
-#endif
-
-#ifdef STELLA_SUPPORT
-	stella_init();
-#endif
-
-/* Had to be bone after network_init! */
-#ifdef YPORT_SUPPORT
-    yport_init();
-#endif
-
-#ifdef MODBUS_SUPPORT
-    modbus_init();
-#endif
-
-#ifdef ECMD_SERIAL_I2C_SUPPORT
-    ecmd_serial_i2c_init();
-#endif
-
-#ifdef ECMD_SERIAL_USART_SUPPORT
-    ecmd_serial_usart_init();
-#endif
-
-#ifdef ZBUS_SUPPORT
-    zbus_core_init();
-#endif
-
-#ifdef HC595_SUPPORT
-    hc595_init();
-#endif
-
-#ifdef HC165_SUPPORT
-    hc165_init();
-#endif
+    ethersex_meta_init();
 
 #ifdef RFM12_SUPPORT
     rfm12_init();
@@ -299,19 +169,11 @@ int main(void)
 #endif  /* not TEENSY_SUPPORT */
 #endif  /* RFM12_SUPPORT */
 
-#ifdef DC3840_SUPPORT
-    dc3840_init ();
-#endif	/* DC3840_SUPPORT */
-
     /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
     portio_init();
 #elif defined(NAMED_PIN_SUPPORT)
     np_simple_init();
-#endif
-
-#ifdef CONTROL6_SUPPORT
-    control6_init();
 #endif
 
 #ifdef ENC28J60_SUPPORT
@@ -326,83 +188,22 @@ int main(void)
             );
 #endif
 
-#   if defined(HD44780_SUPPORT) && defined(DEBUG)
-    fprintf_P(lcd, PSTR("mac: %02x%02x%02x%02x%02x%02x\n"),
-            uip_ethaddr.addr[0], uip_ethaddr.addr[1],
-            uip_ethaddr.addr[2], uip_ethaddr.addr[3],
-            uip_ethaddr.addr[4], uip_ethaddr.addr[5]
-            );
-#   endif
-
-    status.request_reset = 0;
-    status.request_bootloader = 0;
-
-#ifdef SENDMAIL_SUPPORT
-    mail_send ();
-#endif
+    ethersex_meta_startup();
 
     /* main loop */
     while(1) {
 
         wdt_kick();
-
-#ifdef ENC28J60_SUPPORT
-        /* check for network controller interrupts,
-         * call uip on received packets */
-        network_process();
-        wdt_kick();
-#endif
-
-#ifdef RFM12_IP_SUPPORT
-	rfm12_process();
-	wdt_kick();
-#endif
-
-#ifdef ZBUS_SUPPORT
-	zbus_process();
-	wdt_kick();
-#endif
-
-#       ifdef USB_SUPPORT
-        usb_periodic();
-	wdt_kick();
-#       endif
+	ethersex_meta_mainloop();
 
 #       ifdef SD_READER_SUPPORT
-        sd_reader_init();
-        wdt_kick();
+	if (sd_active_partition == NULL) {
+	    if (! sd_try_init ())
+		vfs_sd_try_open_rootnode ();
+
+	    wdt_kick();
+	}
 #       endif
-
-#ifdef STELLA_SUPPORT
-stella_process();
-wdt_kick();
-#endif
-
-        /* check if any timer expired,
-         * poll all uip connections */
-        timer_process();
-        wdt_kick();
-
-        /* check if debug input has arrived */
-        debug_process();
-        wdt_kick();
-
-#ifdef SYSLOG_SUPPORT
-	uip_stack_set_active(STACK_ENC);
-        syslog_flush();
-#endif
-
-        /* check if fs20 data has arrived */
-#if defined(FS20_SUPPORT) && defined(FS20_RECEIVE_SUPPORT)
-        fs20_process();
-        wdt_kick();
-#endif  /* FS20_SUPPORT && FS20_RECEIVE_SUPPORT */
-
-        /* check if rc5 data has arrived */
-#ifdef RC5_SUPPORT
-        rc5_process();
-        wdt_kick();
-#endif
 
 #ifndef BOOTLOAD_SUPPORT
         if(status.request_bootloader) {
