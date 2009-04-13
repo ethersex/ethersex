@@ -54,7 +54,7 @@ sd_try_init (void)
 /*
   -- Ethersex META --
   header(hardware/storage/sd_reader/sd_raw.h)
-  header(core_debug.h)
+  header(core/debug.h)
   timer(1, `
 #           ifdef SD_PING_READ
 	    if (vfs_sd_ping ()) {
