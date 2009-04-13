@@ -27,7 +27,7 @@
 #include "cron_static.h"
 #include "config.h"
 #include "mcuf/mcuf.h"
-#include "clock/clock.h"
+#include "services/clock/clock.h"
 
 uint32_t last_check;
 
@@ -168,5 +168,5 @@ cron_check_event(struct cron_static_event_t *event, struct clock_datetime_t *d)
 /*
   -- Ethersex META --
   header(services/cron/cron_static.h)
-  timer(50, cron_periodic_static())
+  timer(50, cron_static_periodic())
 */
