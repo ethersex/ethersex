@@ -15,12 +15,12 @@ fi
 
   dep_bool "Jabber interface (EXPERIMENTAL)" ECMD_JABBER_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $JABBER_SUPPORT
   if [ "$ECMD_JABBER_SUPPORT" = "y" ]; then
-    editor "Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES jabber/known_buddies.src
+    editor "Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES services/jabber/known_buddies.src
   fi
 
   dep_bool "IRC interface (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
 
-  dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "aliascmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
     int "Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
   endmenu
