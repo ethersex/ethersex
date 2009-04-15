@@ -1,5 +1,6 @@
 #!/bin/bash
 j=0
+maxper=30
 for i in ".text" ".data" ".bss"
 do
 	val[$j]=$(avr-size -A $1 | grep $i | sed -e "s/^$i *//g" | cut -d " " -f1)
@@ -10,19 +11,27 @@ IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
 FLASHSIZE=$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
 FLASHSIZE=$[$FLASHSIZE + 1]
 PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 *100.0);" )
+PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE *$maxper);" )
 
-echo ""
-echo "Program: $(perl -e "print ${val[0]}+${val[1]};") bytes"
-echo "(.text + .data)"
-echo ""
-echo "Data:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
-echo "(.data + .bss)"
-echo ""
-echo "Imagesize: $IMAGESIZE bytes (${PERCENT}%)"
-echo "Available flash: $FLASHSIZE bytes ($2)"
+echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${PERCENT}%)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
   echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
   echo ""
   exit 1
+else
+	echo -n "  ["
+	COUNTER=0
+	while [  $COUNTER -lt $maxper ]; do
+		if [ $COUNTER -lt $PER ]; then
+			echo -n "="
+		else
+			echo -n "-"
+		fi
+		let COUNTER=COUNTER+1
+	done
+	echo "]"
 fi
+echo ""
+echo -e "Program (.text + .data)\t: $(perl -e "print ${val[0]}+${val[1]};") bytes"
+echo -e "Data (.data + .bss)\t:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
 echo ""

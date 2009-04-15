@@ -64,11 +64,10 @@ export TOPDIR
 
 ##############################################################################
 all: compile-$(TARGET)
-	@echo "==============================="
-	@echo "$(TARGET) compiled for: $(MCU)"
-	@echo "size is: "
+	@echo "=======The ethersex project========"
+	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
 	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
-	@echo "==============================="
+	@echo "==================================="
 .PHONY: all
 .SILENT: all
 
@@ -100,10 +99,11 @@ debug:
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 
 meta.m4: ${SRC} ${y_SRC} .config
-	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+	@echo "Build meta files"
 
 meta.c: scripts/meta_magic.m4 meta.m4
-	m4 $^ > $@
+	@m4 $^ > $@
 
 ##############################################################################
 
@@ -121,7 +121,7 @@ OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 # the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS)
 	@$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
-	@echo Link binary $@
+	@echo "Link binary $@."
 
 ##############################################################################
 

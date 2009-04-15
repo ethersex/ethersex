@@ -20,13 +20,14 @@ endif
 # Here is how to build those dependency files
 
 define make-deps
-@set -e; $(CC) $(CFLAGS) $(CPPFLAGS) -M -MM $<  | \
-sed > $@.new -e 's;$(*F)\.o:;$@ $*.o $*.E $*.s:;' \
-	     -e 's% [^ ]*/gcc-lib/[^ ]*\.h%%g'
-@if test -s $@.new; then mv -f $@.new $@; else rm -f $@.new; fi
+set -e
+$(CC) $(CFLAGS) $(CPPFLAGS) -M -MM $< | sed > $@.new -e 's;$(*F)\.o:;$@ $*.o $*.E $*.s:;' -e 's% [^ ]*/gcc-lib/[^ ]*\.h%%g'
+if test -s $@.new; then mv -f $@.new $@; else rm -f $@.new; fi
 endef
 
 # Here is how to make .d files from .c files
-%.d: %.c $(TOPDIR)/control6/control6.h $(TOPDIR)/pinning.c; $(make-deps)
+%.d: %.c $(TOPDIR)/control6/control6.h $(TOPDIR)/pinning.c
+	@$(make-deps)
 
-%.d: %.S ; $(make-deps)
+%.d: %.S
+	@$(make-deps)

@@ -44,7 +44,7 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 
 include $(TOPDIR)/.config
 
-CPPFLAGS += -DF_CPU=$(FREQ)UL -mmcu=$(MCU)
+CPPFLAGS += -DF_CPU=$(FREQ)UL
 
 endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
@@ -57,10 +57,10 @@ endif
 
 
 %.s: %.c
-	$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
+	@$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
 
 %.E: %.c
-	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
+	@$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
 
 %.o: %.S
-	$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
+	@$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
