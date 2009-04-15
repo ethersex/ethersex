@@ -6,28 +6,45 @@ dnl
 
 ifdef(`conf_USB', `
   dnl This must also be D+ of the USB signal
-  USB_USE_INT(1) 
+  USB_USE_INT(1)
   dnl This pin must have the 1k5 Pullup and must be on the same port as the Interupt pin
   pin(USB_DMINUS, PD5)
   pin(USB_DPLUS, PD3)
 ')
 
-pin(GENERIC_TX_PIN, PD6, OUTPUT)
-pin(GENERIC_RX_PIN, PD7, OUTPUT)
+ifdef(`conf_STATUSLED_POWER', `dnl
+pin(STATUSLED_POWER, PA3, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_BOOTED', `dnl
+pin(STATUSLED_BOOTED, PA3, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_NETLINK', `dnl
+pin(STATUSLED_NETLINK, PA2, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_TX', `dnl
+pin(STATUSLED_TX, PD6, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_RX', `dnl
+pin(STATUSLED_RX, PD7, OUTPUT)
+')dnl
 
 ifdef(`conf_RFM12', `
   /* port the rfm12 module CS is attached to */
   pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
   /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, GENERIC_TX_PIN)
-  pin(RFM12_RX_PIN, GENERIC_TX_PIN)
-  
+  pin(RFM12_TX_PIN, STATUSLED_TX)
+  pin(RFM12_RX_PIN, STATUSLED_RX)
+
   RFM12_USE_INT(0)
 ')
 
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PD2)
-  pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
-  pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
+  pin(ZBUS_TX_PIN, STATUSLED_TX)
+  pin(ZBUS_RX_PIN, STATUSLED_RX)
 ')

@@ -102,11 +102,17 @@ void network_process(void)
         /* read new link state */
         uint8_t link_state = (read_phy(PHY_PHSTAT2) & _BV(LSTAT)) > 0;
 
-        if (link_state) {
-            debug_printf("net: got link!\n");
-        } else
-            debug_printf("net: no link!\n");
-
+			if (link_state) {
+				debug_printf("net: got link!\n");
+				#ifdef STATUSLED_NETLINK
+				PIN_SET(STATUSLED_NETLINK);
+				#endif
+			} else {
+				debug_printf("net: no link!\n");
+				#ifdef STATUSLED_NETLINK
+				PIN_CLEAR(STATUSLED_NETLINK);
+				#endif
+			}
     }
 
     /* packet transmit flag */

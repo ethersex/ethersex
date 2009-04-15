@@ -83,6 +83,14 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   bool 'Discard some of the received packets' DEBUG_DISCARD_SOME
 endmenu
 
+dep_bool_menu "Status LEDs" STATUSLEDS
+	bool "Status LED (Power)"	STATUSLED_POWER_SUPPORT
+	bool "Status LED (Booted)"	STATUSLED_BOOTED_SUPPORT
+	bool "Status LED (Net link)"	STATUSLED_NETLINK_SUPPORT
+	bool "Status LED (Transmitted TX)"	STATUSLED_TX_SUPPORT
+	bool "Status LED (Received RX)"	STATUSLED_RX_SUPPORT
+endmenu
+
 source core/crypto/config.in
 source core/vfs/config.in
 source protocols/usb/config.in
