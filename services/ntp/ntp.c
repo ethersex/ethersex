@@ -22,6 +22,7 @@
 
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
 #include "protocols/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "ntp.h"
@@ -89,8 +90,10 @@ ntp_send_packet(void)
   uip_udp_conn = ntp_conn;
   uip_process(UIP_UDP_SEND_CONN);
 #ifdef DEBUG_NTP
-    debug_printf("NTP: send packet\n");
+  debug_printf("NTP: send packet\n");
 #endif
+  router_output();
+  uip_slen = 0;
 }
 
 void
