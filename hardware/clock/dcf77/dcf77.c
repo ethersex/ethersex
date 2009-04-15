@@ -25,7 +25,6 @@
 #include <avr/interrupt.h>
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
-#include "services/ntp/ntp_net.h"
 #include "services/clock/clock.h"
 #include "protocols/syslog/syslog.h"
 #include "dcf77.h"

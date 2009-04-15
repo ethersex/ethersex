@@ -26,7 +26,6 @@
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "services/ntp/ntp.h"
-#include "services/ntp/ntp_net.h"
 #include "clock.h"
 #include "config.h"
 

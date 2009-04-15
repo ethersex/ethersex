@@ -26,7 +26,6 @@
 #include "protocols/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "ntp.h"
-#include "ntp_net.h"
 #include "core/debug.h"
 #include "config.h"
 
@@ -39,7 +38,7 @@ ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
   if(ntp_conn != NULL) {
     uip_udp_remove(ntp_conn);
   }
-  ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
+  ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_newdata);
 #ifdef DEBUG_NTP
     debug_printf("NTP: query connected\n");
 #endif
@@ -60,12 +59,12 @@ ntp_init()
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
 
   else
-    ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_net_main);
+    ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_newdata);
 
 #else /* ! DNS_SUPPORT */
   uip_ipaddr_t ip;
   NTP_SERVER_IPADDR;
-  ntp_conn = uip_udp_new(&ip, HTONS(NTP_PORT), ntp_net_main);
+  ntp_conn = uip_udp_new(&ip, HTONS(NTP_PORT), ntp_newdata);
 #endif
 }
 
@@ -99,8 +98,9 @@ ntp_send_packet(void)
 void
 ntp_newdata(void)
 {
-  uint32_t ntp_timestamp;
+  if (!uip_newdata ()) return;
 
+  uint32_t ntp_timestamp;
   struct ntp_packet *pkt = uip_appdata;
   /* We must save an unix timestamp */
   ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
@@ -111,3 +111,9 @@ ntp_newdata(void)
   clock_set_time(ntp_timestamp);
 
 }
+
+/*
+  -- Ethersex META --
+  header(services/ntp/ntp.h)
+  net_init(ntp_init)
+*/
