@@ -91,10 +91,13 @@ ecmd_speed_parse(struct ecmd_speed_cmd* buf, uint8_t len)
 		case ECMDS_SET_ETHERSEX_EVENTMASK:
 		break;
 		case ECMDS_SET_STELLA_INSTANT_COLOR:
+			stella_setValue(STELLA_SET_IMMEDIATELY, buf->data[0], buf->data[1]);
 		break;
 		case ECMDS_SET_STELLA_FADE_COLOR:
+			stella_setValue(STELLA_SET_FADE, buf->data[0], buf->data[1]);
 		break;
 		case ECMDS_SET_STELLA_FLASH_COLOR:
+			stella_setValue(STELLA_SET_FLASHY, buf->data[0], buf->data[1]);
 		break;
 		case ECMDS_SET_STELLA_FADE_FUNC:
 		break;

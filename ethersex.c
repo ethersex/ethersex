@@ -57,7 +57,7 @@ extern void periodic_process(void);
 
 int main(void)
 {
-	#ifdef STATUSLED_POWER
+	#ifdef STATUSLED_POWER_SUPPORT
 	PIN_SET(STATUSLED_POWER);
 	#endif
 
@@ -192,7 +192,7 @@ int main(void)
 			);
 	#endif
 
-	#ifdef STATUSLED_BOOTED
+	#ifdef STATUSLED_BOOTED_SUPPORT
 	PIN_SET(STATUSLED_BOOTED);
 	#endif
 

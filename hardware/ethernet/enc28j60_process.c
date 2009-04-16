@@ -104,12 +104,12 @@ void network_process(void)
 
 			if (link_state) {
 				debug_printf("net: got link!\n");
-				#ifdef STATUSLED_NETLINK
+				#ifdef STATUSLED_NETLINK_SUPPORT
 				PIN_SET(STATUSLED_NETLINK);
 				#endif
 			} else {
 				debug_printf("net: no link!\n");
-				#ifdef STATUSLED_NETLINK
+				#ifdef STATUSLED_NETLINK_SUPPORT
 				PIN_CLEAR(STATUSLED_NETLINK);
 				#endif
 			}
