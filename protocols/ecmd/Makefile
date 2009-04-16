@@ -4,6 +4,7 @@ include $(TOPDIR)/.config
 $(ECMD_PARSER_SUPPORT)_SRC += protocols/ecmd/parser.c
 $(ALIASCMD_SUPPORT)_SRC += protocols/ecmd/aliascmd.c
 $(ECMD_SCRIPT_SUPPORT)_SRC += protocols/ecmd/scripting.c
+$(ECMD_SPEED_SUPPORT)_SRC += protocols/ecmd/speed_parser.c
 
 ##############################################################################
 # generic fluff
@@ -49,7 +50,7 @@ protocols/ecmd/ecmd_defs.c: protocols/ecmd/ecmd_magic.m4 protocols/ecmd/ecmd_def
 	@m4 $^ > $@.tmp
 	@mv -f $@.tmp $@
 
-CLEAN_FILES += protocols/ecmd/ecmd_defs.c 
+CLEAN_FILES += protocols/ecmd/ecmd_defs.c
 
 
 

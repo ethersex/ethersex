@@ -173,8 +173,8 @@ TIMEZONE_UTC=y
 # Etherrape Control Interface (ECMD)
 #
 ECMD_PARSER_SUPPORT=y
-ECMD_SUPPORT=y
-# UECMD_SUPPORT is not set
+ECMD_TCP_SUPPORT=y
+# ECMD_UDP_SUPPORT is not set
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
 # ECMD_SERIAL_SUPPORT is not set

@@ -21,8 +21,6 @@
 #ifndef _ECMD_SERIAL_I2C_H
 #define _ECMD_SERIAL_I2C_H
 
-#define ECMD_SERIAL_I2C_BUFFER_LEN 50
-
 void ecmd_serial_i2c_init(void);
 void ecmd_serial_i2c_periodic(void);
 #endif

@@ -68,8 +68,8 @@ ICMP_SUPPORT=y
 # Etherrape Control Interface (ECMD)
 #
 ECMD_PARSER_SUPPORT=y
-# ECMD_SUPPORT is not set
-UECMD_SUPPORT=y
+# ECMD_TCP_SUPPORT is not set
+ECMD_UDP_SUPPORT=y
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
 # ECMD_SERIAL_SUPPORT is not set

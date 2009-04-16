@@ -44,7 +44,7 @@
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
 
-#   ifdef ECMD_SUPPORT
+#   ifdef ECMD_TCP_SUPPORT
     struct ecmd_connection_state_t ecmd;
 #   endif
 

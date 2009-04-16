@@ -40,7 +40,7 @@ void newdata(void);
 void ecmd_net_init()
 {
   /* Without teensy support we use tcp */
-    uip_listen(HTONS(ECMD_NET_PORT), ecmd_net_main);
+    uip_listen(HTONS(ECMD_TCP_PORT), ecmd_net_main);
 }
 
 void newdata(void)
@@ -89,7 +89,7 @@ void newdata(void)
             state->inbuf[l] = '\0';
 
         /* if the first character is ! close the connection after the last
-         * byte is sent 
+         * byte is sent
          */
         uint8_t skip = 0;
         if (state->inbuf[0] == '!') {
@@ -166,7 +166,7 @@ void ecmd_net_main(void)
             debug_printf("transmission done, calling parser again\n");
 #endif
             /* if the first character is ! close the connection after the last
-             * byte is sent 
+             * byte is sent
              */
             uint8_t skip = 0;
             if (state->inbuf[0] == '!') {

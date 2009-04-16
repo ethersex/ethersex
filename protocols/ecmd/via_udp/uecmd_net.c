@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -25,68 +26,83 @@
 #include "protocols/uip/uip_router.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
-
+#include "protocols/ecmd/speed_parser.h"
 
 #include "config.h"
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void uecmd_net_init() {
-  /* If teensy support is enabled we use udp */
-  uip_ipaddr_t ip;
-  uip_ipaddr_copy (&ip, all_ones_addr);
+	uip_ipaddr_t ip;
+	uip_ipaddr_copy(&ip, all_ones_addr);
 
-  uip_udp_conn_t *udp_echo_conn = uip_udp_new (&ip, 0, uecmd_net_main);
+	uip_udp_conn_t *uecmd_conn = uip_udp_new(&ip, 0, uecmd_net_main);
+	if(! uecmd_conn) {
+		debug_printf("ecmd: udp failed\n");
+		return;
+	}
 
-  if (!udp_echo_conn) 
-    return; /* dammit. */
-
-  uip_udp_bind (udp_echo_conn, HTONS (UECMD_NET_PORT));
+	uip_udp_bind (uecmd_conn, HTONS(ECMD_UDP_PORT));
 }
 
 void uecmd_net_main() {
-  if(uip_newdata()) {
-    /* Add \0 to the data and remove \n from the data */
-    char *p = (char *)uip_appdata;
-    do {
-      if (*p == '\r' || *p == '\n') {
-        break;
-      } 
-    } while ( ++p <= ((char *)uip_appdata + uip_datalen()));
+	if (!uip_newdata ())
+		return;
 
-    /* Parse the Data */
-    *p = 0;
-    char cmd[p - (char *)uip_appdata];
+	/* The udp interface for ecmd provides two modes:
+	 * a) normal ecmd parse mode, default
+	 * b) speed mode: one byte command, payload, ...
+	 *    initiate with newline as first character */
 
-    strncpy(cmd, uip_appdata, p - (char *)uip_appdata + 1);
+	char *p = (char *)uip_appdata;
+	if (*p == '\n') // speed mode
+	{
+		ecmd_speed_parse((void*)++p, uip_datalen());
+		#ifdef EBCMD_RESPONSE_ACK
+		ebcmd_net_ack();
+		#endif
+		return;
+	}
 
-    uip_slen = 0;
-    while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
-      int16_t len = ecmd_parse_command(cmd, ((char *)uip_appdata) + uip_slen, 
-                        (UIP_BUFSIZE - UIP_IPUDPH_LEN) - uip_slen);
-      uint8_t real_len = len;
-      if (len < 0) {
-        real_len = (uint8_t)  -len - 10;
-      } 
-      uip_slen += real_len + 1;
-      ((char *)uip_appdata)[uip_slen - 1] = '\n';
-      if (real_len == len || len == 0) 
-        break;
-    }
+	/* Add \0 to the data and remove \n from the data */
+	do {
+		if (*p == '\r' || *p == '\n') {
+			break;
+		}
+	} while ( ++p <= ((char *)uip_appdata + uip_datalen()));
 
-    /* Sent data out */
+	/* Parse the Data */
+	*p = 0;
+	char cmd[p - (char *)uip_appdata];
 
-    uip_udp_conn_t echo_conn;
-    uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
-    echo_conn.rport = BUF->srcport;
-    echo_conn.lport = HTONS(UECMD_NET_PORT);
+	strncpy(cmd, uip_appdata, p - (char *)uip_appdata + 1);
 
-    uip_udp_conn = &echo_conn;
-    uip_process(UIP_UDP_SEND_CONN); 
-    router_output();
+	uip_slen = 0;
+	while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
+		int16_t len = ecmd_parse_command(cmd, ((char *)uip_appdata) + uip_slen,
+											(UIP_BUFSIZE - UIP_IPUDPH_LEN) - uip_slen);
+		uint8_t real_len = len;
+		if (len < 0) {
+			real_len = (uint8_t)  -len - 10;
+		}
+		uip_slen += real_len + 1;
+		((char *)uip_appdata)[uip_slen - 1] = '\n';
+		if (real_len == len || len == 0)
+			break;
+	}
 
-    uip_slen = 0;
-  }
+	/* Sent data out */
+
+	uip_udp_conn_t echo_conn;
+	uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
+	echo_conn.rport = BUF->srcport;
+	echo_conn.lport = HTONS(ECMD_UDP_PORT);
+
+	uip_udp_conn = &echo_conn;
+	uip_process(UIP_UDP_SEND_CONN);
+	router_output();
+
+	uip_slen = 0;
 }
 
 /*

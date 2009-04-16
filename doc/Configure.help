@@ -896,7 +896,7 @@ ZBUS_ARP_PROXY
   There's unfortunately no help available for this item.
 
 TCP/Telnet interface
-ECMD_SUPPORT
+ECMD_TCP_SUPPORT
   Depends on: 
    * ECMD support (ECMD_PARSER_SUPPORT)
    * TCP support (TCP_SUPPORT)
@@ -904,7 +904,7 @@ ECMD_SUPPORT
   There's unfortunately no help available for this item.
 
 UDP interface
-UECMD_SUPPORT
+ECMD_UDP_SUPPORT
   Depends on: 
    * ECMD support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)

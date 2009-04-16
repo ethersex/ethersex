@@ -27,11 +27,8 @@
 #include "ecmd_i2c.h"
 #include "protocols/ecmd/parser.h"
 
-/* TODO: add menuconfig option */
-#define ECMD_SERIAL_I2C_ADDR 8
-
-static char recv_buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
-static char write_buffer[ECMD_SERIAL_I2C_BUFFER_LEN];
+static char recv_buffer[ECMD_I2C_BUFFER_LEN];
+static char write_buffer[ECMD_I2C_BUFFER_LEN];
 static int16_t recv_len, write_len, sent, parse;
 
 static void
@@ -44,7 +41,7 @@ init_twi(void){
   * (in den oberen 7 Bit, das LSB(niederwertigstes Bit)
   * steht dafür ob der µC auf einen general callreagiert
   */
-  TWAR = ECMD_SERIAL_I2C_ADDR << 1;
+  TWAR = ECMD_I2C_ADDR << 1;
 
   /* TWI Control Register, hier wird der TWI aktiviert,
    * der Interrupt aktiviert und solche Sachen

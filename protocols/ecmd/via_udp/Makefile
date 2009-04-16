@@ -1,7 +1,7 @@
 TOPDIR ?= ../../..
 include $(TOPDIR)/.config
 
-$(UECMD_SUPPORT)_SRC += protocols/ecmd/via_udp/uecmd_net.c
+$(ECMD_UDP_SUPPORT)_SRC += protocols/ecmd/via_udp/uecmd_net.c
 
 ##############################################################################
 # generic fluff

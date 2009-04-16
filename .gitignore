@@ -17,5 +17,5 @@ core/portio/user_config.c
 core/portio/user_config.h
 meta.c
 meta.m4
-dummy.c
+
 protocols/ecmd/ecmd_defs.c

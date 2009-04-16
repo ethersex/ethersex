@@ -87,7 +87,7 @@ mdns_ifdef(YPORT_SUPPORT)
   mdns_feature(yport, "_serial._tcp.local", "serial to tcp bridge", NULL, 7970)
 mdns_endif()
 
-mdns_ifdef(ECMD_SUPPORT)
+mdns_ifdef(ECMD_TCP_SUPPORT)
   mdns_feature(ecmd, "_telnet._tcp.local", CONF_HOSTNAME " ecmd interface", NULL, 2701)
 mdns_endif()
 
