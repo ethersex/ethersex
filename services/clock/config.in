@@ -1,34 +1,35 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
-  dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
-  dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
-  dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
-  if [ "$NTP_SUPPORT" = "y" ]; then
-  	if [ "$DNS_SUPPORT" = "y" ]; then
-  		if [ "$IPV6_SUPPORT" = "y" ]; then
+	dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
+	dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
+	dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+	if [ "$NTP_SUPPORT" = "y" ]; then
+	if [ "$DNS_SUPPORT" = "y" ]; then
+		if [ "$IPV6_SUPPORT" = "y" ]; then
 			string "NTP Server" NTP_SERVER "time6.ipv6.uni-muenster.de"
 		else
 			string "NTP Server" NTP_SERVER "pool.ntp.org"
 		fi
 	else
-  		if [ "$IPV6_SUPPORT" = "y" ]; then
+		if [ "$IPV6_SUPPORT" = "y" ]; then
 			ip "NTP IP" NTP_SERVER_IPADDR "2001:638:500:101:2e0:4bff:fe04:bc5f"
 		else
 			ip "NTP IP" NTP_SERVER_IPADDR "213.133.123.125"
 		fi
 	fi
 	int "NTP Port" NTP_PORT 123
-  fi
-  dep_bool "Cron daemon (dynamic jobs)" CRON_SUPPORT $CLOCK_SUPPORT
-  if [ "$CRON_SUPPORT" = "y" ]; then
-	dep_bool "Cron daemon test entries" CRON_SUPPORT_TEST $CRON_SUPPORT
-  fi
-  dep_bool "Cron daemon (static jobs)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT
-  dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
-  dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
-  if [ "$CLOCK_SUPPORT" = "y" ]; then
-    choice 'Time Zone'					\
-	"UTC			TIMEZONE_UTC	\
-	 CET/CEST		TIMEZONE_CEST"	\
-	 UTC
-  fi
+	fi
+	dep_bool "Cron daemon (dynamic jobs)" CRON_SUPPORT $CLOCK_SUPPORT
+	if [ "$CRON_SUPPORT" = "y" ]; then
+		dep_bool "Use UTC instead of LOCALTIME" CRON_DEFAULT_UTC
+		dep_bool "Cron daemon test entries" CRON_SUPPORT_TEST
+	fi
+	dep_bool "Cron daemon (static jobs)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT
+	dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+	dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
+	if [ "$CLOCK_SUPPORT" = "y" ]; then
+		choice 'Time Zone'					\
+		"UTC			TIMEZONE_UTC	\
+		CET/CEST		TIMEZONE_CEST"	\
+		UTC
+	fi
 endmenu
