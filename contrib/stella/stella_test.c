@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 ////////////////////////////////////////////
 // Enter here your server ip and udp port //
-#define STELLA_PORT 2342
+#define STELLA_PORT 2701
 #define STELLA_IP "192.168.1.10"
 ////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../../stella/stella.h"
+#include "../../protocols/ecmd/speed_parser.h"
 
 /* error and die */
 void diep(char *s)
@@ -71,7 +71,13 @@ int main(int argc, char *argv[])
 	srand ( time(NULL) );
 
 	// init buffer
-	char buf[16];
+	struct speed_parser_packet
+	{
+		char initcmd;
+		char cmd;
+		char data[30];
+	} buf;
+	buf.initcmd = '\n';
 	int buflen;
 	buflen = 0;
 
@@ -84,46 +90,51 @@ int main(int argc, char *argv[])
 			printf("STEPVALUE must be between 0 and 255!\n");
 			exit(1);
 		}
-		buflen = 2;
-		buf[0] = STELLA_FADE_STEP;
-		buf[1] = (char)fadestep;
+		buflen = 3;
+		buf.cmd = ECMDS_SET_STELLA_FADE_STEP;
+		buf.data[0] = (char)fadestep;
 	}
 	else if (argc==4 && strcmp(argv[1],"set")==0)
 	{ //fadestep
 		unsigned int channel = atoi (argv[2]);
 		unsigned int value = atoi (argv[3]);
 		check(channel, value);
-		buflen = 2;
-		buf[0] = STELLA_SET_COLOR_0+channel;
-		buf[1] = (char)value;
+		buflen = 4;
+		buf.cmd = ECMDS_SET_STELLA_INSTANT_COLOR;
+		buf.data[0] = (char)channel;
+		buf.data[1] = (char)value;
 	}
 	else if (argc==4 && strcmp(argv[1],"fade")==0)
 	{ //fade
 		unsigned int channel = atoi (argv[2]);
 		unsigned int value = atoi (argv[3]);
 		check(channel, value);
-		buflen = 2;
-		buf[0] = STELLA_FADE_COLOR_0+channel;
-		buf[1] = (char)value;
+		buflen = 4;
+		buf.cmd = ECMDS_SET_STELLA_FADE_COLOR;
+		buf.data[0] = (char)channel;
+		buf.data[1] = (char)value;
 	}
 	else if (argc==4 && strcmp(argv[1],"flash")==0)
 	{ //flash
 		unsigned int channel = atoi (argv[2]);
 		unsigned int value = atoi (argv[3]);
 		check(channel, value);
-		buflen = 2;
-		buf[0] = STELLA_FLASH_COLOR_0+channel;
-		buf[1] = (char)value;
+		buflen = 4;
+		buf.cmd = ECMDS_SET_STELLA_FLASH_COLOR;
+		buf.data[0] = (char)channel;
+		buf.data[1] = (char)value;
 	}
 	else if (argc==1)
 	{ // random data
+		char* buf_ = &(buf.cmd);
 		int i;
 		for (i=0; i<8;++i)
 		{
-			buf[i*2] = (unsigned char)i;
-			buf[i*2+1] = rand() % 255;
+			buf_[i*3] = ECMDS_SET_STELLA_FADE_COLOR;
+			buf_[i*3+1] = (unsigned char)i;
+			buf_[i*3+2] = rand() % 255;
 		}
-		buflen = 16;
+		buflen = 24+2;
 	}
 	else
 	{
@@ -149,7 +160,7 @@ int main(int argc, char *argv[])
 
 	// send
 	printf("Sending %d bytes to the stella server %s and udp port %d!\n", buflen, STELLA_IP, STELLA_PORT);
-	if ( write(fd, buf, buflen) == -1) { close(fd); diep("write"); }
+	if ( write(fd, (void*)&buf, buflen) == -1) { close(fd); diep("write"); }
 	close(fd);
 
 	return 0;
