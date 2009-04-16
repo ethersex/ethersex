@@ -25,33 +25,7 @@
 #include "core/eeprom.h"
 #include "core/debug.h"
 #include "stella.h"
-#include "stella_net.h"
-
-#ifdef STELLA_GAMMACORRECTION
-static const uint8_t stella_gamma[] PROGMEM =
-{
-	9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-	8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-	5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-	4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-};
-#endif
-
-
 #include "stella_fading_functions.h"
-#if STELLA_FADE_FUNCTION_INIT == stella_fade_func_0
-#undef STELLA_FADE_FUNCTION_INIT
-#define STELLA_FADE_FUNCTION_INIT 0
-#else
-#undef STELLA_FADE_FUNCTION_INIT
-#define STELLA_FADE_FUNCTION_INIT 1
-#endif
 
 uint8_t stella_brightness[STELLA_PINS];
 uint8_t stella_fade[STELLA_PINS];
@@ -68,21 +42,6 @@ uint8_t stella_moodlight_counter = 0;
 #endif
 
 void stella_sort(void);
-
-#ifdef DEBUG_STELLA
-char *binary (uint8_t v) {
-	static char binstr[9] ;
-	uint8_t i ;
-
-	binstr[8] = '\0' ;
-	for (i=0; i<8; i++) {
-		binstr[7-i] = v & 1 ? '1' : '0' ;
-		v = v / 2 ;
-	}
-
-	return binstr ;
-}
-#endif
 
 /* Initialize stella */
 void
@@ -119,8 +78,10 @@ stella_init (void)
 	stella_fade_counter = stella_fade_step;
 
 	#if STELLA_START == stella_start_moodlight
+	#ifdef STELLA_MOODLIGHT
 	stella_moodlight_mask = 0xff;
 	stella_moodlight_counter = STELLA_MOODLIGHT_THRESHOLD;
+	#endif
 	#endif
 	#if STELLA_START == stella_start_eeprom
 	stella_loadFromEEROMFading();
@@ -132,20 +93,14 @@ stella_init (void)
 	stella_sort();
 }
 
-#ifdef CRON_SUPPORT
-/* The callback function for the dynamic cron daemon */
-void stella_cron_callback(void* data)
+uint8_t
+stella_output_channels(void* target, uint16_t maxlen)
 {
-	// data is of 2 byte size
-	uint8_t ch = *(uint8_t*)data;
-	uint8_t val = *((uint8_t*)data+1);
-	#ifdef DEBUG_CRON
-	debug_printf("Stella cron %u->%u\n", ch, val);
-	#endif
-
-	stella_setValue(ch, val);
+	struct stella_output_channels_struct *buf = target;
+	buf->channel_count = STELLA_PINS;
+	memcpy(buf->pwm_channels, stella_brightness, 8);
+	return sizeof(struct stella_output_channels_struct);
 }
-#endif
 
 /* Process recurring actions for stella */
 void
@@ -192,58 +147,30 @@ stella_process (void)
 }
 
 void
-stella_setValue(uint8_t channel_cmd, uint8_t value)
+stella_setValue(const enum stella_set_function func, const uint8_t channel, const uint8_t value)
 {
-	switch (channel_cmd)
+	if (channel >= STELLA_PINS) return;
+
+	switch (func)
 	{
-		case STELLA_SET_COLOR_0:
-		case STELLA_SET_COLOR_1:
-		case STELLA_SET_COLOR_2:
-		case STELLA_SET_COLOR_3:
-		case STELLA_SET_COLOR_4:
-		case STELLA_SET_COLOR_5:
-		case STELLA_SET_COLOR_6:
-		case STELLA_SET_COLOR_7:
-			if (channel_cmd < STELLA_PINS)
-			{
-				stella_brightness[channel_cmd] = value;
-				stella_fade[channel_cmd] = value;
-				stella_sync = UPDATE_VALUES;
-			}
+		case STELLA_SET_IMMEDIATELY:
+			stella_brightness[channel] = value;
+			stella_fade[channel] = value;
+			stella_sync = UPDATE_VALUES;
 			break;
-		case STELLA_FADE_COLOR_0:
-		case STELLA_FADE_COLOR_1:
-		case STELLA_FADE_COLOR_2:
-		case STELLA_FADE_COLOR_3:
-		case STELLA_FADE_COLOR_4:
-		case STELLA_FADE_COLOR_5:
-		case STELLA_FADE_COLOR_6:
-		case STELLA_FADE_COLOR_7:
-			channel_cmd &= 0x07;
-			if (channel_cmd < STELLA_PINS)
-				stella_fade[channel_cmd] = value;
+		case STELLA_SET_FADE:
+			stella_fade[channel] = value;
 			break;
-		case STELLA_FLASH_COLOR_0:
-		case STELLA_FLASH_COLOR_1:
-		case STELLA_FLASH_COLOR_2:
-		case STELLA_FLASH_COLOR_3:
-		case STELLA_FLASH_COLOR_4:
-		case STELLA_FLASH_COLOR_5:
-		case STELLA_FLASH_COLOR_6:
-		case STELLA_FLASH_COLOR_7:
-			channel_cmd &= 0x07;
-			if (channel_cmd < STELLA_PINS)
-			{
-				stella_brightness[channel_cmd] = value;
-				stella_fade[channel_cmd] = 0;
-				stella_sync = UPDATE_VALUES;
-			}
+		case STELLA_SET_FLASHY:
+			stella_brightness[channel] = value;
+			stella_fade[channel] = 0;
+			stella_sync = UPDATE_VALUES;
 			break;
 	}
 }
 
 /* Get a channel value.
- * Only call this funtion with a channel<STELLA_PINS ! */
+ * Only call this function with a channel<STELLA_PINS ! */
 inline uint8_t
 stella_getValue(const uint8_t channel)
 {

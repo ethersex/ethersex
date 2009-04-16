@@ -19,62 +19,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#define STELLA_PROTOCOL_VERSION 3
-
 #include "config.h"
 #ifdef STELLA_SUPPORT
 
-enum stella_colors
+enum stella_set_function
 {
-  STELLA_COLOR_0,
-  STELLA_COLOR_1,
-  STELLA_COLOR_2,
-  STELLA_COLOR_3,
-  STELLA_COLOR_4,
-  STELLA_COLOR_5,
-  STELLA_COLOR_6,
-  STELLA_COLOR_7
-};
-
-enum stella_commands
-{
-  STELLA_SET_COLOR_0=0,
-  STELLA_SET_COLOR_1,
-  STELLA_SET_COLOR_2,
-  STELLA_SET_COLOR_3,
-  STELLA_SET_COLOR_4,
-  STELLA_SET_COLOR_5,
-  STELLA_SET_COLOR_6,
-  STELLA_SET_COLOR_7,
-  STELLA_FADE_COLOR_0,
-  STELLA_FADE_COLOR_1,
-  STELLA_FADE_COLOR_2,
-  STELLA_FADE_COLOR_3,
-  STELLA_FADE_COLOR_4,
-  STELLA_FADE_COLOR_5,
-  STELLA_FADE_COLOR_6,
-  STELLA_FADE_COLOR_7,
-  STELLA_FLASH_COLOR_0,
-  STELLA_FLASH_COLOR_1,
-  STELLA_FLASH_COLOR_2,
-  STELLA_FLASH_COLOR_3,
-  STELLA_FLASH_COLOR_4,
-  STELLA_FLASH_COLOR_5,
-  STELLA_FLASH_COLOR_6,
-  STELLA_FLASH_COLOR_7,
-  STELLA_SELECT_FADE_FUNC,
-  STELLA_FADE_STEP,
-  STELLA_ACK_RESPONSE,
-  STELLA_UNICAST_GETVALUES,
-  STELLA_BROADCAST_GETVALUES,
-  STELLA_SAVE_TO_EEPROM,
-  STELLA_LOAD_FROM_EEPROM,
-  STELLA_COUNT_CRONJOBS,
-  STELLA_GET_CRONJOBS,
-  STELLA_RM_CRONJOB,
-  STELLA_ADD_CRONJOB,
-  STELLA_MOODLIGHT_MASK,
-  STELLA_MOODLIGHT_THRESHOLD
+  STELLA_SET_IMMEDIATELY,
+  STELLA_SET_FADE,
+  STELLA_SET_FLASHY
 };
 
 enum
@@ -91,6 +43,12 @@ enum stella_update_sync
 	UPDATE_VALUES
 };
 
+struct stella_output_channels_struct
+{
+	uint8_t channel_count;
+	uint8_t pwm_channels[8];
+};
+
 struct stella_timetable_entry
 {
 	uint8_t portmask;
@@ -101,6 +59,30 @@ struct stella_timetable_entry
 	uint8_t gamma_wait_counter;
 	#endif
 };
+
+#ifdef STELLA_GAMMACORRECTION
+static const uint8_t stella_gamma[] PROGMEM =
+{
+	9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+	5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+#endif
+
+#if STELLA_FADE_FUNCTION_INIT == stella_fade_func_0
+#undef STELLA_FADE_FUNCTION_INIT
+#define STELLA_FADE_FUNCTION_INIT 0
+#else
+#undef STELLA_FADE_FUNCTION_INIT
+#define STELLA_FADE_FUNCTION_INIT 1
+#endif
 
 struct stella_timetable_struct
 {
@@ -128,15 +110,16 @@ extern uint8_t stella_brightness[STELLA_PINS];
 extern uint8_t stella_fade[STELLA_PINS];
 
 /* stella.c */
-void stella_cron_callback(void* data);
 void stella_init(void);
 void stella_process(void);
 
 uint8_t stella_getValue(const uint8_t channel);
-void stella_setValue(uint8_t channel_cmd, uint8_t value);
+void stella_setValue(const enum stella_set_function func, const uint8_t channel, const uint8_t value);
 
 void stella_loadFromEEROM(void);
 void stella_loadFromEEROMFading(void);
 void stella_storeToEEROM(void);
+
+uint8_t stella_output_channels(void* target, uint16_t maxlen);
 
 #endif  /* STELLA_SUPPORT */

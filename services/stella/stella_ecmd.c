@@ -29,7 +29,7 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "services/cron/cron.h"
-#include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/speed_parser.h"
 
 #ifdef STELLA_SUPPORT
 
@@ -40,7 +40,6 @@ int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 	return snprintf_P(output, len, PSTR("%d"), STELLA_PINS);
 }
 
-#ifdef STELLA_EEPROM
 int16_t parse_cmd_stella_eeprom_store (char *cmd, char *output, uint16_t len)
 {
 	stella_storeToEEROM();
@@ -52,18 +51,13 @@ int16_t parse_cmd_stella_eeprom_load (char *cmd, char *output, uint16_t len)
 	stella_loadFromEEROM();
 	return snprintf_P(output, len, PSTR("loaded"));
 }
-#endif
-
-int16_t parse_cmd_stella_version (char *cmd, char *output, uint16_t len)
-{
-	return snprintf_P(output, len, PSTR("%d"), STELLA_PROTOCOL_VERSION);
-}
 
 #ifdef CRON_SUPPORT
-
+#ifdef ECMD_SPEED_SUPPORT
 int16_t parse_cmd_stella_cron (char *cmd, char *output, uint16_t len)
 {
 	struct ch_value_struct {
+		uint8_t cmd;
 		uint8_t ch;
 		uint8_t value;
 	};
@@ -73,27 +67,29 @@ int16_t parse_cmd_stella_cron (char *cmd, char *output, uint16_t len)
 	// we don't have memory space left on the heap -> abort
 	if (!data) return -1;
 
+	data->cmd = ECMDS_SET_STELLA_FADE_COLOR;
 	// parse user values
 	int8_t minute, hour, day, month, dayofweek;
-	uint8_t times;
+	uint8_t repeat;
 	uint8_t ret = sscanf_P(cmd, PSTR("%u %u %i %i %i %i %i %u"), &(data->ch), &(data->value),
-		&minute, &hour, &day, &month, &dayofweek, &times);
+		&minute, &hour, &day, &month, &dayofweek, &repeat);
 
-	if (ret>2 && data->ch<=STELLA_FLASH_COLOR_7)
+	if (ret>2 && data->ch<=STELLA_PINS)
 	{
-		if (ret<8) times = 0;
+		if (ret<8) repeat = 0;
 		if (ret<7) dayofweek = -1;
 		if (ret<6) month = -1;
 		if (ret<5) day = -1;
 		if (ret<4) hour = -1;
 
 		// add cron job
-		cron_jobadd(stella_cron_callback, 'S', minute, hour, day, month, dayofweek, times, data);
+		cron_jobinsert(minute, hour, day, month, dayofweek, repeat, CRON_APPEND, sizeof(struct ch_value_struct), data);
 		return snprintf_P(output, len, PSTR("stella cron"));
 	} else {
 		return -1;
 	}
 }
+#endif
 #endif
 
 int16_t parse_cmd_stella_fadestep_set (char *cmd, char *output, uint16_t len)
@@ -117,13 +113,17 @@ int16_t parse_cmd_stella_fadestep_get (char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_stella_channel_set (char *cmd, char *output, uint16_t len)
 {
+	char f=0;
 	uint8_t ch=0;
 	uint8_t value=0;
-	uint8_t ret = sscanf_P(cmd, PSTR("%d %d"), &ch, &value);
+	uint8_t ret = sscanf_P(cmd, PSTR("%d %d %c"), &ch, &value, &f);
+	if (f=='s') f = 0;
+	else if (f=='f') f = 1;
+	else if (f=='y') f = 2;
 
-	if (ret == 2)
+	if (ret >= 2)
 	{
-		stella_setValue(ch, value);
+		stella_setValue(f, ch, value);
 
 		return snprintf_P(output, len, PSTR("ok"));
 	} else {
@@ -143,5 +143,41 @@ int16_t parse_cmd_stella_channel_get (char *cmd, char *output, uint16_t len)
 		return -1;
 	}
 }
+
+#ifdef STELLA_MOODLIGHT
+int16_t parse_cmd_stella_moodlight_get (char *cmd, char *output, uint16_t len)
+{
+	uint8_t ch;
+	uint8_t ret = sscanf_P(cmd, PSTR("%u"), &ch);
+
+	if (ret == 1 && ch<STELLA_PINS)
+	{
+		if (stella_moodlight_mask & _BV(ch))
+			return snprintf_P(output, len, PSTR("on"));
+		else
+			return snprintf_P(output, len, PSTR("off"));
+	} else {
+		return -1;
+	}
+}
+
+int16_t parse_cmd_stella_moodlight_set (char *cmd, char *output, uint16_t len)
+{
+	uint8_t ch, onoff;
+	uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), &ch, &onoff);
+
+	if (ret == 2)
+	{
+		if (onoff)
+			stella_moodlight_mask |= _BV(ch);
+		else
+			stella_moodlight_mask &= ~_BV(ch);
+		return snprintf_P(output, len, PSTR("ok"));
+	} else {
+		return -1;
+	}
+}
+
+#endif
 
 #endif  /* STELLA_SUPPORT */

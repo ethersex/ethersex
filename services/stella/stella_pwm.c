@@ -37,7 +37,7 @@ struct stella_timetable_struct* int_table = &timetable_1;
 struct stella_timetable_struct* cal_table = &timetable_2;
 struct stella_timetable_entry* current;
 
-/* Use port mask to switch an pins if timetable says so and
+/* Use port mask to switch pins on if timetable says so and
  * set the next trigger point in time for the compare interrupt.
  * */
 ISR(_VECTOR_OUTPUT_COMPARE2)

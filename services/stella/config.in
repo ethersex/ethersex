@@ -1,24 +1,26 @@
-dep_bool_menu "Stella: Multichannel pwm" STELLA_SUPPORT $UDP_SUPPORT
-  int "Stella UDP Port" STELLA_UDP_PORT 2342
-  dep_bool "Gamma correction (EXPERIMENTAL)" STELLA_GAMMACORRECTION $CONFIG_EXPERIMENTAL
-  dep_bool "Higher frequency" STELLA_HIGHFREQ
-  dep_bool "Moodlight" STELLA_MOODLIGHT
-  dep_bool "Polling" STELLA_RESPONSE
-  if [ "$STELLA_RESPONSE" = "y" ]; then
-    int "Broadcast Response UDP Port" STELLA_BROADCAST_UDP_PORT 2341
-    dep_bool "Acknowledge all packets" STELLA_RESPONSE_ACK
-  fi
-  comment  '----- Initial -----'
-  choice 'Channels'			\
-  "0% stella_start_zero	\
-  100% stella_start_all	\
-  EEPROM stella_start_eeprom	\
-  Moodlight stella_start_moodlight"	\
-  '0%' STELLA_START
-  int "Fade step" STELLA_FADE_STEP_INIT 10
-  int "Moodlight threshold" STELLA_MOODLIGHT_THRESHOLD_INIT 120
-  choice 'Fade function'			\
-  "Normal stella_fade_func_0	\
-  Flashy stella_fade_func_1"	\
-  'Normal' STELLA_FADE_FUNCTION_INIT
+dep_bool_menu "Stella: Multichannel pwm" STELLA_SUPPORT
+	//dep_bool "Gamma correction (EXPERIMENTAL)" STELLA_GAMMACORRECTION $CONFIG_EXPERIMENTAL
+	dep_bool "Higher frequency" STELLA_HIGHFREQ
+	dep_bool "Moodlight" STELLA_MOODLIGHT
+	comment  '----- Initial -----'
+	if [ "$STELLA_MOODLIGHT" = "y" ]; then
+		choice 'Channels'			\
+		"0% stella_start_zero	\
+		100% stella_start_all	\
+		EEPROM stella_start_eeprom	\
+		Moodlight stella_start_moodlight"	\
+		'0%' STELLA_START
+		int "Moodlight threshold" STELLA_MOODLIGHT_THRESHOLD_INIT 120
+	else
+		choice 'Channels'			\
+		"0% stella_start_zero	\
+		100% stella_start_all	\
+		EEPROM stella_start_eeprom"	\
+		'0%' STELLA_START
+	fi
+	int "Fade step" STELLA_FADE_STEP_INIT 10
+	choice 'Fade function'			\
+	"Normal stella_fade_func_0	\
+	Flashy stella_fade_func_1"	\
+	'Normal' STELLA_FADE_FUNCTION_INIT
 endmenu
