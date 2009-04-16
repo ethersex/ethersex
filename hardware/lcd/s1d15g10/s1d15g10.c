@@ -171,11 +171,13 @@ void pix_blit(uint8_t color){
 
 void init_lcd(void) {
   uint8_t brightness = 23;
+
   // reset the display
   PIN_CLEAR(S1D15G10_RESET);
-  _delay_ms(1000);
+  wdt_kick();
+  _delay_ms(10);
   PIN_SET(S1D15G10_RESET);
-  _delay_ms(1000);
+  wdt_kick();
 
   sendByte(lctCmd, DISCTL);	// Display Control
   sendByte(lctData, 0x00);	// default
@@ -198,6 +200,8 @@ void init_lcd(void) {
   sendByte(lctCmd, PWRCTR);	// Power Control Set
   sendByte(lctData, 0x0f);
 
+  wdt_kick();
+  _delay_ms(100);
 
   sendByte(lctCmd, DISINV);	// Inverse Display, you have to invert to display colors correctly 
   sendByte(lctCmd, PTLOUT);	// Partial Out (no partial display)
@@ -235,6 +239,7 @@ void init_lcd(void) {
   while (cpx-- > 0) {
     sendByte(lctData, 0xFF);
   }
+  wdt_kick();
   _delay_ms(300);
 
   sendByte(lctCmd, DISON);	// Display On
@@ -247,9 +252,7 @@ void init_lcd(void) {
   putstr_pgm(0, 0,  PSTR("booting...\n"), 0x03, 0x00);
   putstr_pgm(0, 10,  PSTR("ethersex v." VERSION_STRING "\n"), 0xE0, 0x00);
   putstr_pgm(0, 20,  PSTR("www.ethersex.de\n"), 0xFC, 0x00);
-# ifdef DEBUG
   putstr_pgm(0, 30,  PSTR("S1D15G10 LCD\n"), 0x1C, 0x00);
-# endif
 
 }
 
