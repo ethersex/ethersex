@@ -184,10 +184,8 @@ FNORD
 
   template $S1D15G10_SUPPORT << FNORD
     /* port config for s1d15g10 lcd */
-    pin(S1D15G10_RESET, PB0, OUTPUT)
-    pin(S1D15G10_DATA, PD5, OUTPUT)
-    pin(S1D15G10_CLK, PD6, OUTPUT)
     pin(S1D15G10_CS, PD7, OUTPUT)
+    pin(S1D15G10_RESET, PB0, OUTPUT)
 FNORD
 
 ##############################################################################
@@ -245,10 +243,8 @@ FNORD
 
   template $S1D15G10_SUPPORT << FNORD
     /* port config for s1d15g10 lcd */
-    pin(S1D15G10_RESET, PA4, OUTPUT)
-    pin(S1D15G10_DATA, PA5, OUTPUT)
-    pin(S1D15G10_CLK, PA6, OUTPUT)
     pin(S1D15G10_CS, PA7, OUTPUT)
+    pin(S1D15G10_RESET, PA4, OUTPUT)
 FNORD
 
 fi

@@ -45,17 +45,23 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 #include "config.h"
 #include "s1d15g10.h"
+#include "core/spi.h"
 
-#define S1D15G10_PORT(port) _PORT_CHAR(port)
+/* module local macros */
+#ifdef RFM12_IP_SUPPORT
+/* RFM12 uses interrupts which do SPI interaction, therefore
+   we have to disable interrupts if support is enabled */
+#  define cs_low()  uint8_t sreg = SREG; cli(); PIN_CLEAR(S1D15G10_CS); 
+#  define cs_high() PIN_SET(S1D15G10_CS); SREG = sreg;
+#else
+#  define cs_low()  PIN_CLEAR(S1D15G10_CS)
+#  define cs_high() PIN_SET(S1D15G10_CS)
+#endif
 
 #include "5x9.txt"
-
-// #define CS_BIT 0x80
-// #define SCLK_BIT 0x40
-// #define SDATA_BIT 0x20
-// #define RST_BIT 0x00
 
 #define DISON       0xaf
 #define DISOFF      0xae
@@ -98,75 +104,15 @@ static const uint8_t xlMin = 0;
 static const uint8_t ylMin = 2;
 
 void sendByte(uint8_t cmd, uint8_t data) {
-  // clk starts high
-  PIN_SET(S1D15G10_CLK);
-
   // enable chip_sel
   PIN_CLEAR(S1D15G10_CS);
 
-  // Send the command flag bit
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (cmd & _BV(0))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-	
-  // Send Bit 7 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(7))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-  
-  // Send Bit 6 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(6))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-  
-  // Send bit 5 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(5))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-	
-  // Send bit 4 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(4))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-  
-  // Send bit 3 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(3))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-  
-  // Send bit 2 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(2))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-	
-  // Send bit 1 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(1))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
+  // Send the command flag bit and data bit 7->1
+  spi_send ((cmd << 7) | (data >> 1));
 		
   // Send bit 0 of data
-  PIN_CLEAR(S1D15G10_CLK);
-  PIN_CLEAR(S1D15G10_DATA);
-  if (data & _BV(0))
-    PIN_SET(S1D15G10_DATA);
-  PIN_SET(S1D15G10_CLK);
-	
+  spi_send(data << 7);
+
   // disable chip_sel
   PIN_SET(S1D15G10_CS);
 }
