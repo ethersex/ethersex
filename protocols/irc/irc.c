@@ -80,8 +80,9 @@ irc_send_data (uint8_t send_state)
 				      "PRIVMSG #" CONF_IRC_CHANNEL " :%s\n"),
 				  STATE->outbuf);
 	}
-	else
+	else {
 	    IRCDEBUG ("successfully joined, nothing to do.");
+	}
 	break;
     }
 
