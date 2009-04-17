@@ -94,7 +94,7 @@ stella_init (void)
 }
 
 uint8_t
-stella_output_channels(void* target, uint16_t maxlen)
+stella_output_channels(void* target)
 {
 	struct stella_output_channels_struct *buf = target;
 	buf->channel_count = STELLA_PINS;
