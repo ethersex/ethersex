@@ -34,8 +34,8 @@ void test(void* data)
 void
 addcrontest()
 {
-	cron_jobadd(test, 'T', -1, -2, -1, -1, -1, INFINIT_RUNNING, NULL); /* when hour % 2 == 0 */
-	cron_jobadd(test, 'T', 51, -1, -1, -1, -1, INFINIT_RUNNING, NULL); /* when minute is 51 */
-	cron_jobadd(test, 'T', -2, -1, -1, -1, -1, INFINIT_RUNNING, NULL); /* when minute % 2 == 0 */
+	cron_jobinsert_cb(-1, -2, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when hour % 2 == 0 */
+	cron_jobinsert_cb(51, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when minute is 51 */
+	cron_jobinsert_cb(-2, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when minute % 2 == 0 */
 }
 

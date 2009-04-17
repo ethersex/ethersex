@@ -112,7 +112,7 @@ uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata)
 	head = newone;
 	tail = newone;
 	#ifdef DEBUG_CRON
-	debug_printf("cron add head!\n");
+	debug_printf("cron prepend!\n");
 	#endif
 	} else
 	{
@@ -132,17 +132,19 @@ uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata)
 			job->prev = newone;
 			newone->next = job;
 			if (job==head) head = newone;
+			#ifdef DEBUG_CRON
+			debug_printf("cron insert: %i\n", ss);
+			#endif
 		} else // insert as last element
 		{
 			newone->next = 0;
 			newone->prev = tail;
 			tail->next = newone;
 			tail = newone;
+			#ifdef DEBUG_CRON
+			debug_printf("cron append\n", ss);
+			#endif
 		}
-
-		#ifdef DEBUG_CRON
-		debug_printf("cron insert at %i!\n", ss);
-		#endif
 	}
 }
 
@@ -322,7 +324,7 @@ cron_periodic(void)
 		/* if it matches all conditions , execute the handler function */
 		if (condition==5) {
 			#ifdef DEBUG_CRON
-			debug_printf("cron match appid %c!\n", exec->event.appid);
+			debug_printf("cron match cmd %u!\n", *((uint8_t*)exec->event.cmddata));
 			#endif
 
 			#ifdef ECMD_SPEED_SUPPORT
@@ -361,5 +363,6 @@ cron_periodic(void)
 /*
   -- Ethersex META --
   header(services/cron/cron.h)
+  timer(50, cron_periodic())
   init(cron_init)
 */

@@ -120,11 +120,12 @@ ecmd_speed_parse(char* buf, uint8_t len)
 					dataout[c] = vport[c].read_port(c);
 				break;
 			case ECMDS_JUMP_TO_FUNCTION:
+				size = 0;
 				struct jumptohandler_t {
 					void (*handler)(void*);
 					void* data;
 				};
-				struct jumptohandler_t *jumpto = buf+1;
+				struct jumptohandler_t *jumpto = (void*) buf+1;
 				if (jumpto->handler) jumpto->handler(jumpto->data);
 				// after a jump command we leave the parser
 				return;
