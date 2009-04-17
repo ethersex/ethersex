@@ -69,7 +69,7 @@ enum ecmd_speed_commands
 struct ecmd_speed_cmd
 {
 	uint8_t cmdid;
-	char* data;
+	uint8_t data;
 };
 
 void ecmd_speed_parse(struct ecmd_speed_cmd* buf, uint8_t len);

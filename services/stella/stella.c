@@ -307,10 +307,10 @@ stella_sort()
 	while (current)
 	{
 		i++;
-		debug_printf("%u %s\n", current->value, binary(current->portmask));
+		debug_printf("%u %s\n", current->value, debug_binary(current->portmask));
 		current = current->next;
 	}
-	debug_printf("%s %u\n", binary(stella_portmask_neg), stella_portmask_neg);
+	debug_printf("%s %u\n", debug_binary(stella_portmask_neg), stella_portmask_neg);
 	#endif
 
 	/* Allow the interrupt to actually apply the calculated values */

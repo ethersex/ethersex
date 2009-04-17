@@ -73,9 +73,9 @@ int main(int argc, char *argv[])
 	// init buffer
 	struct speed_parser_packet
 	{
-		char initcmd;
-		char cmd;
-		char data[30];
+		uint8_t initcmd;
+		uint8_t cmd;
+		uint8_t data[30];
 	} buf;
 	buf.initcmd = '\n';
 	int buflen;
@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
 		check(channel, value);
 		buflen = 4;
 		buf.cmd = ECMDS_SET_STELLA_INSTANT_COLOR;
-		buf.data[0] = (char)channel;
-		buf.data[1] = (char)value;
+		buf.data[0] = (uint8_t)channel;
+		buf.data[1] = (uint8_t)value;
 	}
 	else if (argc==4 && strcmp(argv[1],"fade")==0)
 	{ //fade
@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
 		check(channel, value);
 		buflen = 4;
 		buf.cmd = ECMDS_SET_STELLA_FADE_COLOR;
-		buf.data[0] = (char)channel;
-		buf.data[1] = (char)value;
+		buf.data[0] = (uint8_t)channel;
+		buf.data[1] = (uint8_t)value;
 	}
 	else if (argc==4 && strcmp(argv[1],"flash")==0)
 	{ //flash
@@ -121,8 +121,8 @@ int main(int argc, char *argv[])
 		check(channel, value);
 		buflen = 4;
 		buf.cmd = ECMDS_SET_STELLA_FLASH_COLOR;
-		buf.data[0] = (char)channel;
-		buf.data[1] = (char)value;
+		buf.data[0] = (uint8_t)channel;
+		buf.data[1] = (uint8_t)value;
 	}
 	else if (argc==1)
 	{ // random data

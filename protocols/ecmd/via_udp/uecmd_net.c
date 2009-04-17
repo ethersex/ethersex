@@ -57,7 +57,7 @@ void uecmd_net_main() {
 	char *p = (char *)uip_appdata;
 	if (*p == '\n') // speed mode
 	{
-		ecmd_speed_parse((void*)++p, uip_datalen());
+		ecmd_speed_parse((void*)++p, uip_datalen()-1);
 		#ifdef EBCMD_RESPONSE_ACK
 		ebcmd_net_ack();
 		#endif

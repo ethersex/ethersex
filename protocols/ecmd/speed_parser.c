@@ -78,47 +78,59 @@ ecmd_speed_parse(struct ecmd_speed_cmd* buf, uint8_t len)
 	}
 
 	// SETTER
-	if (size) while (len) switch (buf->cmdid)
+	if (size) while (len>1)
 	{
-		case ECMDS_SET_ETHERSEX_MAC:
-		break;
-		case ECMDS_SET_ETHERSEX_IP:
-		break;
-		case ECMDS_SET_ETHERSEX_GW_IP:
-		break;
-		case ECMDS_SET_ETHERSEX_NETMASK:
-		break;
-		case ECMDS_SET_ETHERSEX_EVENTMASK:
-		break;
-		case ECMDS_SET_STELLA_INSTANT_COLOR:
-			stella_setValue(STELLA_SET_IMMEDIATELY, buf->data[0], buf->data[1]);
-		break;
-		case ECMDS_SET_STELLA_FADE_COLOR:
-			stella_setValue(STELLA_SET_FADE, buf->data[0], buf->data[1]);
-		break;
-		case ECMDS_SET_STELLA_FLASH_COLOR:
-			stella_setValue(STELLA_SET_FLASHY, buf->data[0], buf->data[1]);
-		break;
-		case ECMDS_SET_STELLA_FADE_FUNC:
-		break;
-		case ECMDS_SET_STELLA_FADE_STEP:
-		break;
-		case ECMDS_SET_STELLA_SAVE_TO_EEPROM:
-		break;
-		case ECMDS_SET_STELLA_LOAD_FROM_EEPROM:
-		break;
-		case ECMDS_SET_STELLA_MOODLIGHT_MASK:
-		break;
-		case ECMDS_SET_STELLA_MOODLIGHT_THRESHOLD:
-		break;
-		case ECMDS_SET_CRON_REMOVE:
-		break;
-		case ECMDS_SET_CRON_ADD:
-		break;
-		case ECMDS_SET_PORTPIN:
-		break;
-		default:
+		size = 1;
+		switch (buf->cmdid)
+		{
+			case ECMDS_SET_ETHERSEX_MAC:
 			break;
+			case ECMDS_SET_ETHERSEX_IP:
+			break;
+			case ECMDS_SET_ETHERSEX_GW_IP:
+			break;
+			case ECMDS_SET_ETHERSEX_NETMASK:
+			break;
+			case ECMDS_SET_ETHERSEX_EVENTMASK:
+			break;
+			case ECMDS_SET_STELLA_INSTANT_COLOR:
+				#ifdef DEBUG_STELLA
+				debug_printf("received %u %u %u - %u\n", buf->cmdid, *((&buf->data)), *((&buf->data)+1), len);
+				#endif
+				stella_setValue(STELLA_SET_IMMEDIATELY, *((&buf->data)), *((&buf->data)+1));
+				size+=2;
+			break;
+			case ECMDS_SET_STELLA_FADE_COLOR:
+				stella_setValue(STELLA_SET_FADE, *((&buf->data)), *((&buf->data)+1));
+				size+=2;
+			break;
+			case ECMDS_SET_STELLA_FLASH_COLOR:
+				stella_setValue(STELLA_SET_FLASHY, *((&buf->data)), *((&buf->data)+1));
+				size+=2;
+			break;
+			case ECMDS_SET_STELLA_FADE_FUNC:
+			break;
+			case ECMDS_SET_STELLA_FADE_STEP:
+			break;
+			case ECMDS_SET_STELLA_SAVE_TO_EEPROM:
+			break;
+			case ECMDS_SET_STELLA_LOAD_FROM_EEPROM:
+			break;
+			case ECMDS_SET_STELLA_MOODLIGHT_MASK:
+			break;
+			case ECMDS_SET_STELLA_MOODLIGHT_THRESHOLD:
+			break;
+			case ECMDS_SET_CRON_REMOVE:
+			break;
+			case ECMDS_SET_CRON_ADD:
+			break;
+			case ECMDS_SET_PORTPIN:
+			break;
+			default:
+				break;
+		}
+		buf += size;
+		len -= size;
 	}
 }
 
