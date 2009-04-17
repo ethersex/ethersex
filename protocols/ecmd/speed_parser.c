@@ -73,12 +73,9 @@ ecmd_speed_parse(char* buf, uint8_t len)
 				break;
 				#endif
 			case ECMDS_GET_PROTOCOL_VERSION:
-				size = 1;
+				size = 2;
 				dataout[0] = ECMD_SPEED_PROTOCOL_VERSION;
-				break;
-			case ECMDS_GET_PROTOCOL_COMBAT_VERSION:
-				size = 1;
-				dataout[0] = ECMD_SPEED_PROTOCOL_COMBAT_VERSION;
+				dataout[1] = ECMD_SPEED_PROTOCOL_COMBAT_VERSION;
 				break;
 			case ECMDS_GET_ETHERSEX_VERSION:
 				size = 2;
@@ -123,7 +120,14 @@ ecmd_speed_parse(char* buf, uint8_t len)
 					dataout[c] = vport[c].read_port(c);
 				break;
 			case ECMDS_JUMP_TO_FUNCTION:
-				break;
+				struct jumptohandler_t {
+					void (*handler)(void*);
+					void* data;
+				};
+				struct jumptohandler_t *jumpto = buf+1;
+				if (jumpto->handler) jumpto->handler(jumpto->data);
+				// after a jump command we leave the parser
+				return;
 		}
 
 		if (size)
