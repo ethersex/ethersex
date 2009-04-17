@@ -11,13 +11,13 @@ $(LCD_MENU_SUPPORT)_SRC += hardware/lcd/menu.c hardware/lcd/menu_defs.c
 include $(TOPDIR)/scripts/rules.mk
 
 ifneq ($(rootbuild),t)
-schematic.pdf: schematic.sch
-	$(TOPDIR)/contrib/gschem/sch2ps schematic.sch
-	ps2pdf schematic.ps
-	$(RM) -rf schematic.ps
+hd44780.pdf: hd44780.sch
+	$(TOPDIR)/contrib/gschem/sch2ps hd44780.sch
+	ps2pdf hd44780.ps
+	$(RM) -f hd44780.ps
 endif
 
-CLEAN_FILES += hardware/lcd/schematic.pdf hardware/lcd/gschem.log
+CLEAN_FILES += hardware/lcd/hd44780.pdf hardware/lcd/gschem.log
 
 
 MENU_DEFS += $(TOPDIR)/hardware/lcd/menu_defs.m4
