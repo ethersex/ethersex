@@ -96,6 +96,7 @@ int main(void)
 		#endif
 	#endif
 
+	debug_init_uart();
 	debug_printf("debugging enabled\n");
 
 	#ifdef BOOTLOADER_SUPPORT
@@ -132,7 +133,7 @@ int main(void)
 	#endif //USE_WATCHDOG
 
 	/* send boot message */
-	debug_printf("booting ethersex firmware " VERSION_STRING "...\n");
+	debug_printf("ethersex firmware " VERSION_STRING "\n");
 
 	#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
       || defined(DATAFLASH_SUPPORT)
