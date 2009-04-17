@@ -21,9 +21,12 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 #include "speed_parser.h"
 #include "config.h"
 #include "core/debug.h"
+#include "core/eeprom.h"
 /* we can manipulate crons via the ecmd speed protocol */
 #include "services/cron/cron.h"
 /* we can manipulate stella via the ecmd speed protocol */
@@ -31,6 +34,9 @@
 /* we want to send via uip */
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
+#include "protocols/uip/uip_arp.h"
+
+#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 void
 ecmd_speed_error()
@@ -41,202 +47,220 @@ ecmd_speed_error()
 }
 
 void
-ecmd_speed_parse(struct ecmd_speed_cmd* buf, uint8_t len)
+ecmd_speed_parse(char* buf, uint8_t len)
 {
-	// GETTER
-	uint8_t size = 0;
-	switch (buf->cmdid)
+	uint16_t size;
+	while (len>0)
 	{
-		case ECMDS_ACTION_RESET:
-		break;
-		case ECMDS_ACTION_BOOTLOADER:
-		break;
-		case ECMDS_GET_PROTOCOL_VERSION:
-		break;
-		case ECMDS_GET_PROTOCOL_COMBAT_VERSION:
-		break;
-		case ECMDS_GET_ETHERSEX_VERSION:
-		break;
-		case ECMDS_GET_ETHERSEX_MAC_IP_GW_MASK:
-		break;
-		case ECMDS_GET_STELLA_COLORS:
-		break;
-		case ECMDS_GET_STELLA_FADE_FUNC_STEP:
-		break;
-		case ECMDS_GET_STELLA_MOODLIGHT_MASK:
-		break;
-		case ECMDS_GET_STELLA_MOODLIGHT_THRESHOLD:
-		break;
-		case ECMDS_GET_CRON_COUNT:
-		break;
-		case ECMDS_GET_CRONS:
-		break;
-		case ECMDS_JUMP_TO_FUNCTION:
-		break;
-		default:
-			size = 1;
-	}
-
-	// SETTER
-	if (size) while (len>1)
-	{
-		size = 1;
-		switch (buf->cmdid)
+		char cmd = *buf;
+		// GETTER and ACTIONS
+		size = 0;
+		char* dataout = uip_appdata+sizeof(ecmd_speed_response);
+		switch (cmd)
 		{
-			case ECMDS_SET_ETHERSEX_MAC:
-			break;
-			case ECMDS_SET_ETHERSEX_IP:
-			break;
-			case ECMDS_SET_ETHERSEX_GW_IP:
-			break;
-			case ECMDS_SET_ETHERSEX_NETMASK:
-			break;
-			case ECMDS_SET_ETHERSEX_EVENTMASK:
-			break;
-			case ECMDS_SET_STELLA_INSTANT_COLOR:
-				#ifdef DEBUG_STELLA
-				debug_printf("received %u %u %u - %u\n", buf->cmdid, *((&buf->data)), *((&buf->data)+1), len);
+			#ifdef ECMD_SPEED_REBOOT
+			case ECMDS_ACTION_RESET:
+				status.request_reset = 1;
+				#ifdef UIP_SUPPORT
+				uip_close();
 				#endif
-				stella_setValue(STELLA_SET_IMMEDIATELY, *((&buf->data)), *((&buf->data)+1));
+				break;
+			case ECMDS_ACTION_BOOTLOADER:
+				status.request_bootloader = 1;
+				#ifdef UIP_SUPPORT
+				uip_close();
+				#endif
+				break;
+				#endif
+			case ECMDS_GET_PROTOCOL_VERSION:
+				size = 1;
+				dataout[0] = ECMD_SPEED_PROTOCOL_VERSION;
+				break;
+			case ECMDS_GET_PROTOCOL_COMBAT_VERSION:
+				size = 1;
+				dataout[0] = ECMD_SPEED_PROTOCOL_COMBAT_VERSION;
+				break;
+			case ECMDS_GET_ETHERSEX_VERSION:
+				size = 2;
+				dataout[0] = VERSION_MAJOR;
+				dataout[1] = VERSION_MINOR;
+				break;
+			case ECMDS_GET_ETHERSEX_MAC_IP_GW_MASK:
+				break;
+				#ifdef STELLA_SUPPORT
+			case ECMDS_GET_STELLA_COLORS:
+				size = stella_output_channels(dataout);
+				break;
+			case ECMDS_GET_STELLA_FADE_FUNC_STEP:
+				size = 2;
+				dataout[0] = stella_fade_func;
+				dataout[1] = stella_fade_step;
+				break;
+				#ifdef STELLA_MOODLIGHT
+			case ECMDS_GET_STELLA_MOODLIGHT_DATA:
+				size = 2;
+				dataout[0] = stella_moodlight_mask;
+				dataout[1] = stella_moodlight_threshold;
+				break;
+				#endif //STELLA_MOODLIGHT
+				#endif //STELLA_SUPPORT
+				#ifdef CRON_SUPPORT
+			case ECMDS_GET_CRON_COUNT:
+				size = 1;
+				dataout[0] = cron_jobs();
+				#ifdef DEBUG_ECMD_SPEED
+				debug_printf("COUNTCRON %u\n", dataout[0]);
+				#endif
+				break;
+			case ECMDS_GET_CRONS:
+				size = cron_output(dataout, UIP_APPDATA_SIZE*0.75);
+				break;
+				#endif //CRON_SUPPORT
+			case ECMDS_GET_PORTPINS:
+				size = IO_PORTS;
+				uint8_t c;
+				for (c=0;c< IO_PORTS;++c)
+					dataout[c] = vport[c].read_port(c);
+				break;
+			case ECMDS_JUMP_TO_FUNCTION:
+				break;
+		}
+
+		if (size)
+		{
+			// response header
+			ecmd_speed_response* dataout_header = uip_appdata;
+			dataout_header->id = 'S';
+			dataout_header->cmd = cmd;
+			dataout_header->size = htons(size);
+			size += sizeof(ecmd_speed_response);
+			// send
+			uip_udp_send(size);
+
+			/* Send the packet */
+			uip_udp_conn_t conn;
+			uip_ipaddr_t addr;
+			#if 1
+			uip_ipaddr_copy(addr, BUF->srcipaddr);
+			#else
+			uip_ipaddr(&addr, 255,255,255,255);
+			#endif
+			uip_ipaddr_copy(conn.ripaddr, addr);
+			conn.rport = BUF->srcport;
+			conn.lport = HTONS(ECMD_UDP_PORT);
+
+			uip_udp_conn = &conn;
+
+			/* Send immediately */
+			uip_process(UIP_UDP_SEND_CONN);
+			router_output();
+
+			uip_slen = 0;
+			return;
+		}
+
+		// SETTER
+		size = 1;
+		switch (cmd)
+		{
+			#ifdef ECMD_SPEED_ENETCMDS
+			case ECMDS_SET_ETHERSEX_MAC:
+				if (len<sizeof(struct uip_eth_addr)+1) return;
+				struct uip_eth_addr new_mac;
+				memcpy(&new_mac, buf+1, sizeof(struct uip_eth_addr));
+				eeprom_save(mac, &new_mac, sizeof(struct uip_eth_addr));
+				eeprom_update_chksum();
+				size+=sizeof(struct uip_eth_addr);
+				break;
+			case ECMDS_SET_ETHERSEX_IP:
+				if (len<sizeof(uip_ipaddr_t)+1) return;
+				uip_ipaddr_t hostaddr;
+				memcpy(&hostaddr, buf+1, sizeof(uip_ipaddr_t));
+				eeprom_save(ip, &hostaddr, IPADDR_LEN);
+				eeprom_update_chksum();
+				size+=sizeof(uip_ipaddr_t);
+				break;
+			case ECMDS_SET_ETHERSEX_GW_IP:
+				if (len<sizeof(uip_ipaddr_t)+1) return;
+				uip_ipaddr_t gwaddr;
+				memcpy(&gwaddr, buf+1, sizeof(uip_ipaddr_t));
+				eeprom_save(gateway, &gwaddr, IPADDR_LEN);
+				eeprom_update_chksum();
+				size+=sizeof(uip_ipaddr_t);
+				break;
+			case ECMDS_SET_ETHERSEX_NETMASK:
+				if (len<sizeof(uip_ipaddr_t)+1) return;
+				uip_ipaddr_t new_netmask;
+				memcpy(&new_netmask, buf+1, sizeof(uip_ipaddr_t));
+				eeprom_save(netmask, &new_netmask, IPADDR_LEN);
+				eeprom_update_chksum();
+				size+=sizeof(uip_ipaddr_t);
+				break;
+			#endif
+			case ECMDS_SET_ETHERSEX_EVENTMASK:
+				break;
+			#ifdef STELLA_SUPPORT
+			case ECMDS_SET_STELLA_INSTANT_COLOR:
+				stella_setValue(STELLA_SET_IMMEDIATELY, buf[1], buf[2]);
 				size+=2;
-			break;
+				break;
 			case ECMDS_SET_STELLA_FADE_COLOR:
-				stella_setValue(STELLA_SET_FADE, *((&buf->data)), *((&buf->data)+1));
+				stella_setValue(STELLA_SET_FADE, buf[1], buf[2]);
 				size+=2;
-			break;
+				break;
 			case ECMDS_SET_STELLA_FLASH_COLOR:
-				stella_setValue(STELLA_SET_FLASHY, *((&buf->data)), *((&buf->data)+1));
+				stella_setValue(STELLA_SET_FLASHY, buf[1], buf[2]);
 				size+=2;
-			break;
+				break;
 			case ECMDS_SET_STELLA_FADE_FUNC:
-			break;
+				if (buf[1] < FADE_FUNC_LEN)
+					stella_fade_func = buf[1];
+				size+=1;
+				break;
 			case ECMDS_SET_STELLA_FADE_STEP:
-			break;
+				stella_fade_step = buf[1];
+				size+=1;
+				break;
 			case ECMDS_SET_STELLA_SAVE_TO_EEPROM:
-			break;
+				stella_storeToEEROM();
+				break;
 			case ECMDS_SET_STELLA_LOAD_FROM_EEPROM:
-			break;
+				stella_loadFromEEROM();
+				break;
+			#ifdef STELLA_MOODLIGHT
 			case ECMDS_SET_STELLA_MOODLIGHT_MASK:
-			break;
+				stella_moodlight_mask = buf[1];
+				size+=1;
+				break;
 			case ECMDS_SET_STELLA_MOODLIGHT_THRESHOLD:
-			break;
+				stella_moodlight_threshold = buf[1];
+				size+=1;
+				break;
+			#endif //STELLA_MOODLIGHT
+			#endif //STELLA_SUPPORT
+			#ifdef CRON_SUPPORT
 			case ECMDS_SET_CRON_REMOVE:
-			break;
+				cron_jobrm(cron_getjob(buf[1]));
+				size+=1;
+				break;
 			case ECMDS_SET_CRON_ADD:
-			break;
-			case ECMDS_SET_PORTPIN:
-			break;
+				if (len<cron_event_size) return;
+				size += cron_input(buf+1);
+				break;
+			#endif
+			case ECMDS_SET_PORTPIN: // port, pin, on/off
+				if (len<3) return;
+				uint8_t port = buf[1];
+				if (buf[3])
+					vport[port].write_port(port, vport[port].read_port(port) | _BV(buf[2]));
+				else
+					vport[port].write_port(port, vport[port].read_port(port) & ~_BV(buf[2]));
+				size+=3;
+				break;
 			default:
 				break;
 		}
-		buf += size;
-		len -= size;
+		buf += (uint8_t)size;
+		len -= (uint8_t)size;
 	}
 }
-
-/*
-struct ecmd_speed_cron_struct *r;
-struct cron_event_t* job;
-size_t size, size_extra;
-uint8_t count;
-struct ecmd_speed_cron_event_struct *jobstruct;
-
-case STELLA_GET_CRONJOBS:
-	size = UIP_APPDATA_SIZE-sizeof(struct ecmd_speed_cron_struct);
-	r = ecmd_speed_net_response(STELLA_GET_CRONJOBS);
-	r->count = cron_write((void*)(r+sizeof(struct ecmd_speed_cron_struct)), size);
-	ecmd_speed_net_unicast(STELLA_HEADER+size);
-	len -= 1; buf += 1;
-	break;
-case STELLA_GETVALUES:
-	stella_getvalues(STELLA_UNICAST_GETVALUES);
-	ecmd_speed_net_unicast(STELLA_HEADER+sizeof(struct ecmd_speed_response_detailed_struct));
-	len -= 1; buf += 1;
-	break;
-	#ifdef STELLA_SUPPORT
-case ECMDS_STELLA_SET_COLOR:
-	// we assume all other commands are channel set commands
-	stella_setValue(0, *buf, *(buf+1));
-	len -= 2; buf += 2;
-	break;
-case STELLA_SELECT_FADE_FUNC:
-	if (buf[1] < FADE_FUNC_LEN)
-		stella_fade_func = buf[1];
-	len -= 2; buf += 2;
-	break;
-case STELLA_FADE_STEP:
-	stella_fade_step = buf[1];
-	len -= 2; buf += 2;
-	break;
-	#ifdef STELLA_MOODLIGHT
-case STELLA_MOODLIGHT_MASK:
-	stella_moodlight_mask = buf[1];
-	len -= 2; buf += 2;
-	break;
-case STELLA_MOODLIGHT_THRESHOLD:
-	stella_moodlight_threshold = buf[1];
-	len -= 2; buf += 2;
-	break;
-	#endif
-case STELLA_SAVE_TO_EEPROM:
-	stella_storeToEEROM();
-	len -= 1; buf += 1;
-	break;
-case STELLA_LOAD_FROM_EEPROM:
-	stella_loadFromEEROM();
-	len -= 1; buf += 1;
-	break;
-	#endif //STELLA_SUPPORT
-	#ifdef CRON_SUPPORT
-case STELLA_COUNT_CRONJOBS:
-	r = ecmd_speed_net_response(STELLA_COUNT_CRONJOBS);
-	r->count = cron_jobs();
-
-	ecmd_speed_net_unicast(STELLA_HEADER+sizeof(struct ecmd_speed_cron_struct));
-	len -= 1; buf += 1;
-	break;
-
-case STELLA_RM_CRONJOB:
-	cron_jobrm(cron_getjob((uint8_t)buf[1]));
-	len -= 2; buf += 2;
-	break;
-case STELLA_ADD_CRONJOB:
-	++buf; --len;
-	// we need 8+ parameters
-	// minute, hour, day, month, dayofweek, times, appid, extrasize, (extradata)
-	if (len<8)
-	{
-		ecmd_speed_protocol_error();
-		break; //OMG, because we don't know where the command ends, exit parsing
-	}
-
-	jobstruct = (void*)buf;
-	buf += sizeof(struct ecmd_speed_cron_event_struct);
-	len -= sizeof(struct ecmd_speed_cron_event_struct);
-
-	// we allocate heap memory for extra data
-	// this will be freed if the cron job gets removed
-	struct ch_value_struct *data = 0;
-	if (jobstruct->extrasize)
-	{
-		data = malloc(jobstruct->extrasize);
-		// we don't have memory space left on the heap -> abort
-		if (!data)
-		{
-			buf += jobstruct->extrasize;
-			len -= jobstruct->extrasize;
-			ecmd_speed_error();
-			continue;
-		}
-		memcpy(data, buf, jobstruct->extrasize);
-		buf += jobstruct->extrasize;
-		len -= jobstruct->extrasize;
-	}
-
-	cron_jobadd(ecmd_speed_cron_callback, jobstruct->appid,
-					 jobstruct->minute, jobstruct->hour,
-					 jobstruct->day, jobstruct->month,
-					 jobstruct->dayofweek, jobstruct->times, data);
-					 break;
-					 #endif // CRON_SUPPORT
-*/

@@ -45,7 +45,11 @@
 #define PS2_INTERRUPT SIG_PIN_CHANGE0
 
 /* global version defines */
-#define VERSION_STRING "0.2"
+#define xstr_(s) str_(s)
+#define str_(s) #s
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 2
+#define VERSION_STRING xstr_(VERSION_MAJOR)"."xstr_(VERSION_MINOR)
 
 /* configure duplex mode */
 #define NET_FULL_DUPLEX 0
@@ -112,11 +116,11 @@
 /* Figure out whether we need access to EEPROM:
 
    - ECMD without TEENSY (IP address configuration etc.)
-   - BOOTP with to-EEPROM-feature 
+   - BOOTP with to-EEPROM-feature
    - STELLA with eeprom load/write support */
 #if (defined(ECMD_PARSER_SUPPORT) && (!defined(TEENSY_SUPPORT)))  \
   || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)) \
-  || defined(STELLA_EEPROM) 
+  || defined(STELLA_EEPROM)
 #  define EEPROM_SUPPORT 1
 #endif
 

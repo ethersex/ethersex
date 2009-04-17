@@ -43,8 +43,7 @@ enum ecmd_speed_commands
 	ECMDS_ACTION_BOOTLOADER,
 	ECMDS_GET_STELLA_COLORS,
 	ECMDS_GET_STELLA_FADE_FUNC_STEP,
-	ECMDS_GET_STELLA_MOODLIGHT_MASK,
-	ECMDS_GET_STELLA_MOODLIGHT_THRESHOLD,
+	ECMDS_GET_STELLA_MOODLIGHT_DATA,
 	ECMDS_SET_STELLA_INSTANT_COLOR,
 	ECMDS_SET_STELLA_FADE_COLOR,
 	ECMDS_SET_STELLA_FLASH_COLOR,
@@ -62,17 +61,27 @@ enum ecmd_speed_commands
 	ECMDS_SET_CRON_REMOVE,
 	ECMDS_SET_CRON_ADD,
 	ECMDS_RESERVED1C,
+	ECMDS_GET_PORTPINS,
 	ECMDS_SET_PORTPIN,
 	ECMDS_JUMP_TO_FUNCTION
 };
 
-struct ecmd_speed_cmd
+struct ecmd_speed_cmd_t
 {
 	uint8_t cmdid;
 	uint8_t data;
 };
+typedef struct ecmd_speed_cmd_t ecmd_speed_cmd;
 
-void ecmd_speed_parse(struct ecmd_speed_cmd* buf, uint8_t len);
+struct ecmd_speed_response_t
+{
+	uint8_t id;
+	uint8_t cmd;
+	uint16_t size;
+};
+typedef struct ecmd_speed_response_t ecmd_speed_response;
+
+void ecmd_speed_parse(char* buf, uint8_t len);
 void ecmd_speed_error();
 
 #endif

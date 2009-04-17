@@ -36,6 +36,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   comment  '----- Debugging Flags -----'
   dep_bool 'ASK Sensing' DEBUG_ASK_SENSE $DEBUG $RFM12_ASK_SENSING_SUPPORT
   dep_bool 'ECMD' DEBUG_ECMD $DEBUG
+  dep_bool 'ECMD Speed' DEBUG_ECMD_SPEED $DEBUG
   dep_bool 'ECMD FS20' DEBUG_ECMD_FS20 $DEBUG
   dep_bool 'ECMD IP' DEBUG_ECMD_IP $DEBUG
   dep_bool 'ECMD MAC' DEBUG_ECMD_MAC $DEBUG

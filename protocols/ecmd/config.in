@@ -1,40 +1,41 @@
 dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
-	comment "ECMD interfaces"
-	dep_bool "TCP/Telnet" ECMD_TCP_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
-	if [ "$ECMD_TCP_SUPPORT" = "y" ]; then
-		int "TCP Port" ECMD_TCP_PORT 2701
-	fi
-	dep_bool "UDP" ECMD_UDP_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
-	if [ "$ECMD_UDP_SUPPORT" = "y" ]; then
-		int "UDP Port" ECMD_UDP_PORT 2701
-	fi
-	dep_bool "UDP Speed extension" ECMD_SPEED_SUPPORT $ECMD_UDP_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
-	if [ "$ECMD_SPEED_SUPPORT" = "y" ]; then
-		int "Broadcast UDP Port" ECMD_SPEED_BROADCAST_UDP_PORT 2702
-		dep_bool "Acknowledge all speed extension packets" ECMD_SPEED_ACK
-	fi
-	dep_bool "I2C" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
-	if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" ]; then
-		int "I2C Address" ECMD_I2C_ADDR 8
-		int "I2C Buffer Len" ECMD_I2C_BUFFER_LEN 50
-	fi
-	dep_bool "USB" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
-
-	dep_bool "Jabber interface (EXPERIMENTAL)" ECMD_JABBER_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $JABBER_SUPPORT
-	if [ "$ECMD_JABBER_SUPPORT" = "y" ]; then
-		editor "Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES services/jabber/known_buddies.src
-	fi
-
-	dep_bool "IRC interface (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
-
 	dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
 	dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
-		int "Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
+	int "  Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
 	endmenu
+	comment "ECMD interfaces"
+	dep_bool "  TCP/Telnet" ECMD_TCP_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
+	if [ "$ECMD_TCP_SUPPORT" = "y" ]; then
+		int " TCP Port" ECMD_TCP_PORT 2701
+	fi
+	dep_bool "  UDP" ECMD_UDP_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
+	if [ "$ECMD_UDP_SUPPORT" = "y" ]; then
+		int " UDP Port" ECMD_UDP_PORT 2701
+	fi
+	dep_bool "  UDP Speed extension" ECMD_SPEED_SUPPORT $ECMD_UDP_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
+	if [ "$ECMD_SPEED_SUPPORT" = "y" ]; then
+		int " Broadcast UDP Port" ECMD_SPEED_BROADCAST_UDP_PORT 2702
+		dep_bool "    Acknowledge all ecmd speed packets" ECMD_SPEED_ACK
+		dep_bool "    Allow changing ip, gw, netmask, mac via ecmd speed" ECMD_SPEED_ENETCMDS
+		dep_bool "    Allow rebooting via ecmd speed" ECMD_SPEED_REBOOT
+	fi
+	dep_bool "  I2C" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
+	if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" ]; then
+		int "    I2C Address" ECMD_I2C_ADDR 8
+		int "    I2C Buffer Len" ECMD_I2C_BUFFER_LEN 50
+	fi
+	dep_bool "  USB" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
+
+	dep_bool "  Jabber (EXPERIMENTAL)" ECMD_JABBER_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $JABBER_SUPPORT
+	if [ "$ECMD_JABBER_SUPPORT" = "y" ]; then
+		editor "    Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES services/jabber/known_buddies.src
+	fi
+
+	dep_bool "  IRC (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
 
 	comment "Generate ECMD commands"
-	dep_bool "Send via TCP" ECMD_SENDER_SUPPORT $TCP_SUPPORT
-	dep_bool "Send via UDP" UECMD_SENDER_SUPPORT $UDP_SUPPORT
+	dep_bool "  Send via TCP" ECMD_SENDER_SUPPORT $TCP_SUPPORT
+	dep_bool "  Send via UDP" UECMD_SENDER_SUPPORT $UDP_SUPPORT
 
 	comment "Optional ECMD commands"
 	dep_bool '  Disable IP Config' DISABLE_IPCONF_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
