@@ -45,11 +45,16 @@ cron_init(void)
 	// very important: set the linked lists head and tail to zero
 	head = 0;
 	tail = 0;
-	cron_use_utc = USE_LOCAL;
 
 	// do we want to have some test entries?
 	#ifdef CRON_SUPPORT_TEST
 	addcrontest();
+	#endif
+
+	#ifdef CRON_DEFAULT_UTC
+	cron_use_utc = USE_UTC;
+	#else
+	cron_use_utc = USE_LOCAL;
 	#endif
 }
 
@@ -62,7 +67,8 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 		char cmd;
 		void (*handler)(void*);
 	};
-	struct newone_t* newone = realloc(extradata, extrasize+1+sizeof(void*));
+
+	struct newone_t* newone = realloc(extradata, extrasize+sizeof(struct newone_t));
 	// realloc failed, abort creation of new cronjob
 	if (!newone)
 	{
@@ -201,26 +207,25 @@ cron_getjob(uint8_t jobposition)
 }
 
 uint16_t
-cron_input(void* src, uint16_t len)
+cron_input(void* src)
 {
-	// too few bytes
-	if (len<8) return 0;
+	uint16_t len = 0;
 
 	// map src buffer to job structure
 	uint8_t position = *((uint8_t*)src);
 	struct cron_event* jobstruct = ((void*)src+sizeof(uint8_t));
 	src += cron_event_size;
-	len -= cron_event_size;
+	len += cron_event_size;
 
 	// we allocate heap memory for extra data
 	// this will be freed on cron job removal
 	struct ch_value_struct *cmddata = 0;
 	if (jobstruct->cmdsize)
 	{
-		len -= jobstruct->cmdsize;
+		len += jobstruct->cmdsize;
 		cmddata = malloc(jobstruct->cmdsize);
 		// we don't have memory space left on the heap -> abort
-		if (!cmddata) return len;
+		if (!cmddata) return 0;
 		memcpy(cmddata, src, jobstruct->cmdsize);
 	}
 
@@ -232,28 +237,30 @@ cron_input(void* src, uint16_t len)
 }
 
 uint16_t
-cron_output(void* target, uint16_t maxlen, uint8_t* written_jobs)
+cron_output(void* target, uint16_t maxlen)
 {
 	// get cronjob data
 	struct cron_event_linkedlist* job = cron_getjob(0);
-	*written_jobs = 0;
+	((uint8_t*)target)[0]= 0;
 
 	// no jobs
 	if (!job) return 0;
 
-	// iterate over all jobs, take 7 first byte of a job and extradata if available
+	// iterate over all jobs
 	uint16_t size = 0;
+	uint16_t temp;
 
 	while (job && size<maxlen-cron_event_size)
 	{
-		++(*written_jobs);
-		struct cron_event* jobstruct = (void*)(target+size);
+		++(((uint8_t*)target)[0]); // increment written_jobs counter
+		struct cron_event* jobstruct = (void*)(target+size+1); //+1 for written_jobs
 
 		/* data: some bytes of the cronjob structure are of interest */
 		memcpy(jobstruct, job, cron_event_size);
 		size += cron_event_size;
 
-		if (((uint8_t)maxlen)<jobstruct->cmdsize ) jobstruct->cmdsize = 0;
+		temp = jobstruct->cmdsize;
+		if (maxlen<temp) jobstruct->cmdsize = 0;
 
 		/* copy extra data if any */
 		if (jobstruct->cmdsize)
