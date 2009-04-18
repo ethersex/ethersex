@@ -19,3 +19,4 @@ meta.c
 meta.m4
 contrib/stella/stella_test
 protocols/ecmd/ecmd_defs.c
+core/vfs/vfs-concat
