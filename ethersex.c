@@ -221,7 +221,7 @@ int main(void)
 	#ifndef BOOTLOAD_SUPPORT
 		if(status.request_bootloader) {
 			#ifdef CLOCK_CRYSTAL_SUPPORT
-			TIMSK2 &= ~_BV(TOIE2);
+			_TIMSK_TIMER2 &= ~_BV(TOIE2);
 			#endif
 			#ifdef DCF77_SUPPORT
 			ACSR &= ~_BV(ACIE);

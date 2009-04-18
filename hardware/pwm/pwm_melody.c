@@ -134,7 +134,7 @@ pwm_melody_init()
 	// Bit:   7	6      5      4     3      2     1      0
 	// Bed: OCIE2 TOIE2 TICIE1 OCIE1A OCIE1B TOIE1 ------ TOIE0
 	// Hier:  0	0      0      1     0      0     0      0
-	TIMSK2 |= (1 << OCIE2A); // 0x10
+	_TIMSK_TIMER2 |= (1 << OCIE2A); // 0x10
 	//enable global interrupts
 	//sei();
 

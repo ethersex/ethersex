@@ -517,7 +517,7 @@ void fs20_init(void)
     TCNT2 = 0;
     TCCR2A = 0;
     TCCR2B = _BV(CS20) | _BV(CS22);
-    TIMSK2 = _BV(TOIE2);
+    _TIMSK_TIMER2 = _BV(TOIE2);
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 

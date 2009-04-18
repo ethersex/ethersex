@@ -50,12 +50,12 @@ clock_init(void)
   ASSR = _BV(AS2);
   TCNT2 = 0;
   /* 120 prescaler to get every second an interrupt */
-  TCCR2B = _BV(CS22) | _BV(CS20);
+  _TCCR2_PRESCALE = _BV(CS22) | _BV(CS20);
   while(ASSR & ( _BV(TCN2UB) | _BV(TCR2BUB))) {}
   /* Clear the interrupt flags */
-  TIFR2 &= ~_BV(TOV2);
+  _TIFR_TIMER2 &= ~_BV(TOV2);
   /* Enable the timer interrupt */
-  TIMSK2 |= _BV(TOIE2);
+  _TIMSK_TIMER2 |= _BV(TOIE2);
 #endif
 }
 

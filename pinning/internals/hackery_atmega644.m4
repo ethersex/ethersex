@@ -12,6 +12,7 @@
 #define _VECTOR_OUTPUT_COMPARE2 TIMER2_COMPB_vect
 #define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
 #define _TIMSK_TIMER2 TIMSK2
+#define _TIFR_TIMER2 TIFR2
 
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
