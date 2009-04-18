@@ -142,7 +142,7 @@ INLINE_FILES :=
 endif
 
 embed/%: embed/%.cpp
-	@if ! avr-cpp -DF_CPU=$(FREQ) $< 2> /dev/null > $@.tmp; \
+	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) $< 2> /dev/null > $@.tmp; \
 		then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
 	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
