@@ -238,46 +238,6 @@ cron_input(void* src)
 	return len;
 }
 
-uint16_t
-cron_output(void* target, uint16_t maxlen)
-{
-	// get cronjob data
-	struct cron_event_linkedlist* job = cron_getjob(0);
-	((uint8_t*)target)[0]= 0;
-
-	// no jobs
-	if (!job) return 0;
-
-	// iterate over all jobs
-	uint16_t size = 0;
-	uint16_t temp;
-
-	while (job && size<maxlen-cron_event_size)
-	{
-		++(((uint8_t*)target)[0]); // increment written_jobs counter
-		struct cron_event* jobstruct = (void*)(target+size+1); //+1 for written_jobs
-
-		/* data: some bytes of the cronjob structure are of interest */
-		memcpy(jobstruct, job, cron_event_size);
-		size += cron_event_size;
-
-		temp = jobstruct->cmdsize;
-		if (maxlen<temp) jobstruct->cmdsize = 0;
-
-		/* copy extra data if any */
-		if (jobstruct->cmdsize)
-		{
-			memcpy(jobstruct->cmddata, job->event.cmddata, jobstruct->cmdsize);
-			size += jobstruct->cmdsize;
-		}
-
-		/* advance to the next job */
-		job = job->next;
-	}
-
-	return size;
-}
-
 void
 cron_periodic(void)
 {

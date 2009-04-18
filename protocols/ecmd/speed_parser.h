@@ -76,11 +76,10 @@ struct ecmd_speed_response_t
 {
 	uint8_t id;
 	uint8_t cmd;
-	uint16_t size;
 };
 typedef struct ecmd_speed_response_t ecmd_speed_response;
 
-void ecmd_speed_parse(char* buf, uint8_t len);
+void ecmd_speed_parse(char* buf, uint16_t len);
 void ecmd_speed_error();
 
 #endif

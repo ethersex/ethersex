@@ -47,15 +47,22 @@ ecmd_speed_error()
 }
 
 void
-ecmd_speed_parse(char* buf, uint8_t len)
+ecmd_speed_parse(char* buf, uint16_t len)
 {
-	uint16_t size;
-	while (len>0)
+	if (!len) return;
+
+	uint8_t size;
+	while (1)
 	{
 		char cmd = *buf;
+
+		#ifdef DEBUG_ECMD_SPEED
+		debug_printf("CMD %u: %u %u\n", cmd, *(buf+1), *(buf+2));
+		#endif
+
 		// GETTER and ACTIONS
 		size = 0;
-		char* dataout = uip_appdata+sizeof(ecmd_speed_response);
+		uint8_t* dataout = uip_appdata+sizeof(ecmd_speed_response);
 		switch (cmd)
 		{
 			#ifdef ECMD_SPEED_REBOOT
@@ -110,7 +117,24 @@ ecmd_speed_parse(char* buf, uint8_t len)
 				#endif
 				break;
 			case ECMDS_GET_CRONS:
-				size = cron_output(dataout, UIP_APPDATA_SIZE*0.75);
+				// get cronjob data
+				size = 1;
+				dataout[0] = 0;
+				struct cron_event_linkedlist* job = cron_getjob(0);
+				// iterate over all jobs
+				while (job && size<250)
+				{
+					//debug_printf("h %u %u\n", size, dataout[0]);
+					dataout[0] = dataout[0] + 1; // increment written_jobs counter
+					struct cron_event* jobstruct = (void*)(dataout+size);
+
+					memcpy(jobstruct, job, cron_event_size);
+					size = size + cron_event_size + jobstruct->cmdsize;
+					memcpy(&(jobstruct->cmddata), job->event.cmddata, jobstruct->cmdsize);
+					//debug_printf("a %u %u\n", size, dataout[0]);
+					/* advance to the next job */
+					job = job->next;
+				}
 				break;
 				#endif //CRON_SUPPORT
 			case ECMDS_GET_PORTPINS:
@@ -137,7 +161,6 @@ ecmd_speed_parse(char* buf, uint8_t len)
 			ecmd_speed_response* dataout_header = uip_appdata;
 			dataout_header->id = 'S';
 			dataout_header->cmd = cmd;
-			dataout_header->size = htons(size);
 			size += sizeof(ecmd_speed_response);
 			// send
 			uip_udp_send(size);
@@ -146,11 +169,12 @@ ecmd_speed_parse(char* buf, uint8_t len)
 			uip_udp_conn_t conn;
 			uip_ipaddr_t addr;
 			#if 1
-			uip_ipaddr_copy(addr, BUF->srcipaddr);
+			uip_ipaddr_copy(&addr, &(BUF->srcipaddr));
 			#else
 			uip_ipaddr(&addr, 255,255,255,255);
 			#endif
-			uip_ipaddr_copy(conn.ripaddr, addr);
+			uip_ipaddr_copy(&conn.ripaddr, &addr);
+
 			conn.rport = BUF->srcport;
 			conn.lport = HTONS(ECMD_UDP_PORT);
 
@@ -203,6 +227,7 @@ ecmd_speed_parse(char* buf, uint8_t len)
 				break;
 			#endif
 			case ECMDS_SET_ETHERSEX_EVENTMASK:
+				size+=1;
 				break;
 			#ifdef STELLA_SUPPORT
 			case ECMDS_SET_STELLA_INSTANT_COLOR:
@@ -263,9 +288,12 @@ ecmd_speed_parse(char* buf, uint8_t len)
 				size+=3;
 				break;
 			default:
-				break;
+				// we get out of sync with the byte stream -> abort
+				return;
 		}
-		buf += (uint8_t)size;
-		len -= (uint8_t)size;
+
+		if (len <= size) return;
+		buf += size;
+		len -= size;
 	}
 }
