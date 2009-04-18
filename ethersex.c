@@ -96,7 +96,10 @@ int main(void)
 		#endif
 	#endif
 
+	//FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
+	#ifdef DEBUG
 	debug_init_uart();
+	#endif
 	debug_printf("debugging enabled\n");
 
 	#ifdef BOOTLOADER_SUPPORT
@@ -135,10 +138,6 @@ int main(void)
 	/* send boot message */
 	debug_printf("ethersex firmware " VERSION_STRING "\n");
 
-	#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
-      || defined(DATAFLASH_SUPPORT)
-    spi_init();
-	#endif
 
 	#ifdef ADC_SUPPORT
 	/* ADC Prescaler to 64 */
@@ -146,6 +145,11 @@ int main(void)
 	/* ADC set Voltage Reference to extern*/
 	/* FIXMI: the config to the right place */
 	ADMUX = ADC_REF; //_BV(REFS0) | _BV(REFS1);
+	#endif
+
+	#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
+	|| defined(DATAFLASH_SUPPORT)
+	spi_init();
 	#endif
 
 	ethersex_meta_init();

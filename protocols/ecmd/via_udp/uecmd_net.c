@@ -55,14 +55,16 @@ void uecmd_net_main() {
 	 *    initiate with newline as first character */
 
 	char *p = (char *)uip_appdata;
+	#ifdef ECMD_SPEED_SUPPORT
 	if (*p == '\n') // speed mode
 	{
-		ecmd_speed_parse((void*)p++, uip_datalen()-1);
+		ecmd_speed_parse((void*)++p, uip_datalen()-1);
 		#ifdef EBCMD_RESPONSE_ACK
 		ebcmd_net_ack();
 		#endif
 		return;
 	}
+	#endif
 
 	/* Add \0 to the data and remove \n from the data */
 	do {
