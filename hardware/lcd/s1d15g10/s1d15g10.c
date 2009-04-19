@@ -103,6 +103,8 @@
 static const uint8_t xlMin = 0;
 static const uint8_t ylMin = 2;
 
+uint8_t lcd_init_flag = 0;
+
 void sendByte(uint8_t cmd, uint8_t data) {
   // enable chip_sel
   PIN_CLEAR(S1D15G10_CS);
@@ -249,6 +251,7 @@ void init_lcd(void) {
   for (uint16_t i = 0; i < size; i++) {
     sendByte(lctData, pgm_read_byte(bunnie+i));
   }
+  lcd_init_flag = 1;
   putstr_pgm(0, 0,  PSTR("booting...\n"), 0x03, 0x00);
   putstr_pgm(0, 10,  PSTR("ethersex v." VERSION_STRING "\n"), 0xE0, 0x00);
   putstr_pgm(0, 20,  PSTR("www.ethersex.de\n"), 0xFC, 0x00);
@@ -370,6 +373,8 @@ uint8_t printDecimal(uint8_t x, uint8_t y, uint32_t val, uint8_t fg, uint8_t bg)
 void lcd_putch(char d) {
   static uint8_t x_t = 0;
   static uint8_t y_t = 42;
+  if (lcd_init_flag == 0)
+    return;
   if (d == '\r') {
     y_t+=10;
   } else if (d == '\n') {
