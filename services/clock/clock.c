@@ -35,7 +35,7 @@ static uint8_t ticks;
 static uint32_t sync_timestamp = 0;
 
 #ifdef NTP_SUPPORT
-static uint16_t ntp_timer = 4;
+static uint16_t ntp_timer = 1;
 #endif
 
 #ifdef WHM_SUPPORT
@@ -79,8 +79,8 @@ clock_periodic(void)
 		ntp_timer--;
 	else
 	{
-	  /* Retry in 10 minutes */
-	  ntp_timer = 600;
+	  /* Retry in ~10 seconds */
+	  ntp_timer = 10;
 	  ntp_send_packet();
 	}
 	#endif
@@ -119,7 +119,7 @@ clock_set_time(uint32_t new_sync_timestamp)
 	#endif
 
 	#ifdef NTP_SUPPORT
-	ntp_timer = 4096;
+	ntp_timer = 1800;
 	#endif
 }
 
@@ -324,5 +324,5 @@ clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
   header(services/clock/clock.h)
   init(clock_init)
   timer(1, clock_tick())
-  timer(50, clock_periodic())
+  timer(128, clock_periodic())
 */
