@@ -129,6 +129,16 @@ template $SORT_UART_SUPPORT << FNORD
   pin(SOFT_UART_TX, PD7, OUTPUT)
 FNORD
 
+template $DCF1_SUPPORT << FNORD
+  /* port config for DCF77 */
+  pin(DCF1_PCINT, PA0, INPUT)
+  dnl  DCF77_USE_PCINT(1)
+FNORD
+
+template $DCF1_USE_PON_SUPPORT << FNORD
+  /* port config for DCF1 PowerOn pin */
+  pin(DCF1_PON, PA1, OUTPUT)
+FNORD
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 
