@@ -74,18 +74,16 @@ SIGNAL(SIG_OVERFLOW2)
 void
 clock_periodic(void)
 {
-#ifdef NTP_SUPPORT
-  if(ntp_timer) {
-    ntp_timer--;
-    if(ntp_timer < 4)
-      ntp_send_packet();
-      if (ntp_timer == 0) /* We haven't received anything. Retry in 10 minutes */
-        ntp_timer = 600;
-  }
-
-  if(timestamp <= 50 && (timestamp % 5 == 0))
-    ntp_send_packet();
-#endif
+	#ifdef NTP_SUPPORT
+	if(ntp_timer)
+		ntp_timer--;
+	else
+	{
+	  /* Retry in 10 minutes */
+	  ntp_timer = 600;
+	  ntp_send_packet();
+	}
+	#endif
 }
 
 void
@@ -107,21 +105,22 @@ clock_tick(void)
 void
 clock_set_time(uint32_t new_sync_timestamp)
 {
-  /* The clock was synced */
-  sync_timestamp = new_sync_timestamp;
+	/* The clock was synced */
+	sync_timestamp = new_sync_timestamp;
 
-  /* Allow the clock to jump forward, but never ever to go backward. */
-  if (sync_timestamp > timestamp)
-    timestamp = sync_timestamp;
-#ifdef WHM_SUPPORT
-  if (startup_timestamp == 0)
-    startup_timestamp = sync_timestamp;
-#endif
+	/* Allow the clock to jump forward, but not to go backward
+	 * except the time difference is greater than 5 minutes */
+	if (sync_timestamp > timestamp || (timestamp-sync_timestamp)>300)
+		timestamp = sync_timestamp;
 
-#ifdef NTP_SUPPORT
-    ntp_timer = 4096;
-#endif
+	#ifdef WHM_SUPPORT
+	if (startup_timestamp == 0)
+		startup_timestamp = sync_timestamp;
+	#endif
 
+	#ifdef NTP_SUPPORT
+	ntp_timer = 4096;
+	#endif
 }
 
 uint32_t
@@ -218,7 +217,7 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
 
 }
 
-uint32_t 
+uint32_t
 clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 {
   uint32_t timestamp;
