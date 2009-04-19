@@ -27,13 +27,13 @@
 
 struct dcf77_ctx {
   /* dcf_time: dummy, flags (S,A2,Z2,Z1,A1,R,x,x), min, stunde, tag, wochentag, monat, jahr */
+  uint8_t timezone;
   uint8_t time[0x8];
   uint32_t timerover;
   uint8_t TCNT2last;
   uint8_t timebyte;
   uint8_t timeparity;
   uint8_t sync;
-  uint8_t valid;
 };
 
 void dcf77_init(void);

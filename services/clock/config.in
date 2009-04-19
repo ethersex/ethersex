@@ -1,6 +1,6 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 	dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
-	dep_bool "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
+	source hardware/clock/dcf77/config.in
 	dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
 	if [ "$NTP_SUPPORT" = "y" ]; then
 	if [ "$DNS_SUPPORT" = "y" ]; then

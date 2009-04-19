@@ -39,7 +39,7 @@ struct clock_datetime_t {
     uint8_t year;
 };
 
-/* current_time is the amount of seconds since 1.1.1970, 00:00:00 UTC */
+/* current_time is the amount of seconds since 1.1.1900, 00:00:00 UTC */
 #define EPOCH_YEAR 1970
 /* 1.1.1970 was a thursday */
 #define EPOCH_DOW 4
@@ -67,6 +67,9 @@ void clock_localtime(struct clock_datetime_t *d, uint32_t timestamp);
 /** convert current time to a datetime struct */
 #define clock_current_datetime(d) clock_datetime(d, clock_get_time())
 #define clock_current_localtime(d) clock_localtime(d, clock_get_time())
+
+/** convert a datetime struct to timestamp  */
+uint32_t clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest);
 
 /** test if given year is a leap year */
 #define is_leap_year(y)     (((y % 4) == 0) && ( (y % 100 != 0) || (y % 400 == 0) ))

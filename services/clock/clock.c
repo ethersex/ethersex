@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -215,6 +216,64 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
     d->month++;
     d->day = (uint8_t)days+1;
 
+}
+
+uint32_t 
+clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
+{
+  uint32_t timestamp;
+  /* seconds */
+  timestamp = d->sec ;
+
+  /* minutes */
+  timestamp += d->min * 60;
+
+  /* hours */
+  timestamp += d->hour * 3600ULL;
+
+  /* days */
+  timestamp += d->day * 86400ULL - 86400ULL;
+
+  /* month */
+  while (1) {
+
+    d->month--;
+
+    if ( d->month < 1 )
+      break;
+
+    uint8_t monthdays = pgm_read_byte(&months[d->month-1]);
+
+    /* feb has one more day in a leap year */
+    if ( d->month == 2 && is_leap_year(d->year))
+      monthdays++;
+
+    timestamp = timestamp + (monthdays * 86400ULL);
+
+  }
+
+  /* year: For every year from EPOCH_YEAR upto now, check for a leap year
+  *
+  * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
+  *
+  * */
+  uint16_t year = EPOCH_YEAR;
+
+  /* year, check if we have enough days left to fill a year */
+  while (year < d->year+2000) {
+    if (is_leap_year(year)) {
+      timestamp += 31622400ULL;
+    } else {
+      timestamp += 31536000ULL;
+    }
+    year++;
+  }
+  if (cest == 0)
+    timestamp -= 3600ULL;
+  else
+    timestamp -= 7200ULL;
+
+  return timestamp;
 }
 
 #ifdef TIMEZONE_CEST
