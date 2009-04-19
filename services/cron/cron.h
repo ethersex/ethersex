@@ -107,7 +107,7 @@ struct cron_event_linkedlist* cron_getjob(uint8_t jobposition);
 
 /** write all cronjobs to the memory position "target" but don't exceed the target's
   * length. Return amount of cronjobs written and the actual length in bytes. */
-uint16_t cron_input(void* src);
+uint8_t cron_input(void* src);
 
 /** init cron. (Set head to NULL for example) */
 void cron_init(void);

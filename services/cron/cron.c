@@ -88,6 +88,8 @@ cron_jobinsert(
 int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
 uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata)
 {
+	if (!cmdsize || !cmddata) return;
+
 	// try to get ram space
 	struct cron_event_linkedlist* newone = malloc(sizeof(struct cron_event_linkedlist));
 
@@ -208,20 +210,20 @@ cron_getjob(uint8_t jobposition)
 		return job;
 }
 
-uint16_t
+uint8_t
 cron_input(void* src)
 {
-	uint16_t len = 0;
+	uint8_t len = 0;
 
 	// map src buffer to job structure
 	uint8_t position = *((uint8_t*)src);
 	struct cron_event* jobstruct = ((void*)src+sizeof(uint8_t));
-	src += cron_event_size;
-	len += cron_event_size;
+	src += cron_event_size + 1;
+	len += cron_event_size + 1;
 
 	// we allocate heap memory for extra data
 	// this will be freed on cron job removal
-	struct ch_value_struct *cmddata = 0;
+	char *cmddata = 0;
 	if (jobstruct->cmdsize)
 	{
 		len += jobstruct->cmdsize;
