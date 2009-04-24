@@ -1,9 +1,10 @@
 /*
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
+ * under the terms of the GNU General Public License (version 3) as
+ * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -58,9 +59,14 @@ ecmd_serial_usart_periodic(void)
 {
   if (must_parse && !write_len) {
     /* we have a request */
-    if (recv_len <= 1) return;
-    write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
     must_parse = 0;
+
+    if (recv_len <= 1) {
+      recv_len = 0;
+      return;
+    }
+
+    write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
     if (write_len < -10) {
       write_len = -( 10 + write_len);
       must_parse = 1;
@@ -132,4 +138,5 @@ SIGNAL(usart(USART,_TX_vect))
   -- Ethersex META --
   header(protocols/ecmd/via_usart/ecmd_usart.h)
   init(ecmd_serial_usart_init)
+  timer(1,ecmd_serial_usart_periodic())
 */
