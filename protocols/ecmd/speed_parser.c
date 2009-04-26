@@ -78,7 +78,7 @@ ecmd_speed_parse(char* buf, uint16_t len)
 				uip_close();
 				#endif
 				break;
-				#endif
+			#endif
 			case ECMDS_GET_PROTOCOL_VERSION:
 				size = 2;
 				dataout[0] = ECMD_SPEED_PROTOCOL_VERSION;
@@ -258,8 +258,12 @@ ecmd_speed_parse(char* buf, uint16_t len)
 				stella_loadFromEEROM();
 				break;
 			#ifdef STELLA_MOODLIGHT
-			case ECMDS_SET_STELLA_MOODLIGHT_MASK:
-				stella_moodlight_mask = buf[1];
+			case ECMDS_SET_STELLA_MOODLIGHT_ENABLE_MASK:
+				stella_moodlight_mask |= buf[1];
+				size+=1;
+				break;
+			case ECMDS_SET_STELLA_MOODLIGHT_DISABLE_MASK:
+				stella_moodlight_mask &= (uint8_t)~buf[1];
 				size+=1;
 				break;
 			case ECMDS_SET_STELLA_MOODLIGHT_THRESHOLD:
