@@ -242,6 +242,10 @@ ecmd_speed_parse(char* buf, uint16_t len)
 				stella_setValue(STELLA_SET_FLASHY, buf[1], buf[2]);
 				size+=2;
 				break;
+			case ECMDS_SET_STELLA_COLOR_RELATIVE:
+				stella_setValue(STELLA_SET_IMMEDIATELY_RELATIVE, buf[1], buf[2]);
+				size+=2;
+				break;
 			case ECMDS_SET_STELLA_FADE_FUNC:
 				if (buf[1] < FADE_FUNC_LEN)
 					stella_fade_func = buf[1];

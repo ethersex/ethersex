@@ -166,6 +166,11 @@ stella_setValue(const enum stella_set_function func, const uint8_t channel, cons
 			stella_fade[channel] = 0;
 			stella_sync = UPDATE_VALUES;
 			break;
+		case STELLA_SET_IMMEDIATELY_RELATIVE:
+			stella_brightness[channel] += (int8_t)value;
+			stella_fade[channel] += (int8_t)value;
+			stella_sync = UPDATE_VALUES;
+			break;
 	}
 }
 
