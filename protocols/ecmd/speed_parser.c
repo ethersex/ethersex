@@ -286,6 +286,18 @@ ecmd_speed_parse(char* buf, uint16_t len)
 				size += cron_input(buf+1);
 				break;
 			#endif
+			#ifdef RFM12_ASK_SENDER_SUPPORT
+			case ECMDS_SET_RFM12ASK_SEND:
+				#ifdef RFM12_ASK_2272_SUPPORT
+				// 3 Bytes Command, 1 Byte Delay, 1 Byte cnt, 2 Byte not used
+				rfm12_ask_2272_send(&(buf[1]), &(buf[4]), &(buf[5]));
+				#endif
+				#ifdef RFM12_ASK_TEVION_SUPPORT
+				rfm12_ask_tevion_send(&(buf[1]), &(buf[4]), &(buf[6]), &(buf[7]));
+				#endif
+				size+=7;
+				break;
+			#endif
 			case ECMDS_SET_PORTPIN: // port, pin, on/off
 				if (len<3) return;
 				uint8_t port = buf[1];
