@@ -18,5 +18,6 @@ core/portio/user_config.h
 meta.c
 meta.m4
 contrib/stella/stella_test
+contrib/rfm12_ask/ecmd_speed/rfm12ask_send
 protocols/ecmd/ecmd_defs.c
 core/vfs/vfs-concat
