@@ -31,6 +31,8 @@
 #include "services/cron/cron.h"
 /* we can manipulate stella via the ecmd speed protocol */
 #include "services/stella/stella.h"
+/* we can manipulate rfm12ask via the ecmd speed protocol */
+#include "hardware/radio/rfm12/rfm12_ask.h"
 /* we want to send via uip */
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
@@ -289,11 +291,12 @@ ecmd_speed_parse(char* buf, uint16_t len)
 			#ifdef RFM12_ASK_SENDER_SUPPORT
 			case ECMDS_SET_RFM12ASK_SEND:
 				#ifdef RFM12_ASK_2272_SUPPORT
-				// 3 Bytes Command, 1 Byte Delay, 1 Byte cnt, 2 Byte not used
-				rfm12_ask_2272_send(&(buf[1]), &(buf[4]), &(buf[5]));
+				// 3 Bytes Command, 1 Byte Delay, 1 Byte repeations, 2 Byte not used
+				rfm12_ask_2272_send((uint8_t*)&(buf[1]), buf[4], buf[5]);
 				#endif
 				#ifdef RFM12_ASK_TEVION_SUPPORT
-				rfm12_ask_tevion_send(&(buf[1]), &(buf[4]), &(buf[6]), &(buf[7]));
+				// 3 Bytes Adress, 2 Bytes Command, 1 Byte Delay, 1 Byte repeations
+				rfm12_ask_tevion_send((uint8_t*)&(buf[1]), (uint8_t*)&(buf[4]), buf[6], buf[7]);
 				#endif
 				size+=7;
 				break;
