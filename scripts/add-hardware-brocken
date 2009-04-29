@@ -104,9 +104,12 @@ template $STELLA_SUPPORT << FNORD
   STELLA_PORT_RANGE(PD5,PD7)
 FNORD
 
-[ "x$ZBUS_SUPPORT" = "xy" -o "x$RFM12_IP_SUPPORT" = "xy" ] && template y << FNORD
-  pin(GENERIC_TX_PIN, PD6, OUTPUT)
-  pin(GENERIC_RX_PIN, PD7, OUTPUT)
+[ "x$STATUSLED_TX_SUPPORT" = "xy" ] && template y << FNORD
+  pin(STATUSLED_TX, PD6, OUTPUT)
+FNORD
+
+[ "x$STATUSLED_RX_SUPPORT" = "xy" ] && template y << FNORD
+  pin(STATUSLED_RX, PD7, OUTPUT)
 FNORD
 
 template $ENC28J60_SUPPORT << FNORD
@@ -152,8 +155,8 @@ FNORD
   template $ZBUS_SUPPORT << FNORD
     /* port config for zbus */
     pin(ZBUS_RXTX_PIN, PD2)
-    pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
-    pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
+    pin(ZBUS_TX_PIN, STATUSLED_TX_PIN)
+    pin(ZBUS_RX_PIN, STATUSLED_RX_PIN)
 FNORD
 
   template $RFM12_SUPPORT << FNORD
@@ -161,8 +164,8 @@ FNORD
     pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
 
     /* port the LEDS for rfm12 txrx attached to */
-    pin(RFM12_TX_PIN, GENERIC_TX_PIN)
-    pin(RFM12_RX_PIN, GENERIC_TX_PIN)
+    pin(RFM12_TX_PIN, STATUSLED_TX_PIN)
+    pin(RFM12_RX_PIN, STATUSLED_TX_PIN)
 
     RFM12_USE_INT(0)
 FNORD
@@ -211,8 +214,8 @@ FNORD
   template $ZBUS_SUPPORT << FNORD
     /* port config for zbus */
     pin(ZBUS_RXTX_PIN, PC2)
-    pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
-    pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
+    pin(ZBUS_TX_PIN, STATUSLED_TX_PIN)
+    pin(ZBUS_RX_PIN, STATUSLED_RX_PIN)
 FNORD
 
   template $RFM12_SUPPORT << FNORD
@@ -220,8 +223,8 @@ FNORD
     pin(SPI_CS_RFM12, PB0, OUTPUT)
 
     /* port the LEDS for rfm12 txrx attached to */
-    pin(RFM12_TX_PIN, GENERIC_TX_PIN)
-    pin(RFM12_RX_PIN, GENERIC_TX_PIN)
+    pin(RFM12_TX_PIN, STATUSLED_TX_PIN)
+    pin(RFM12_RX_PIN, STATUSLED_TX_PIN)
 
     RFM12_USE_INT(2)
 FNORD
