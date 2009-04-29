@@ -50,11 +50,11 @@ divert(0)dnl
 #include "services/clock/clock.h"
 #include "core/pt/pt.h"
 #include "config.h"
-#include "kty/kty81.h"
+#include "hardware/adc/kty/kty81.h"
 #ifdef NAMED_PIN_SUPPORT
-#include "named_pin/user_config.h"
+#include "core/portio/user_config.h"
 #endif
-#include "net/ecmd_sender_net.h"
+#include "protocols/ecmd/sender/ecmd_sender_net.h"
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "control6.h"
