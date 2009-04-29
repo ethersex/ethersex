@@ -169,7 +169,9 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
   header(protocols/uip/uip_neighbor.h)
   timer(500, `
 #	ifndef BOOTLOADER_SUPPORT
+#	ifdef ENC28J60
 	  uip_neighbor_periodic()
+#	endif
 #	endif
 ')
 */
