@@ -6,6 +6,12 @@
 #define USART0_TX_vect USART_TXC_vect
 #define _IVREG MCUCR
 #define _EIMSK GICR
+#define _EICRA MCUCR
+
+/* Timer0 - ASK Sense */
+#define _TCCR0_PRESCALE TCCR0
+#define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
+#define _TIMSK_TIMER0 TIMSK
 
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2

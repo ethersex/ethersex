@@ -4,6 +4,12 @@
 /* ATmega644 specific adjustments */
 #define _IVREG MCUCR
 #define _EIMSK EIMSK
+#define _EICRA EICRA
+
+/* Timer0 - ASK Sense */
+#define _TCCR0_PRESCALE TCCR0B
+#define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
+#define _TIMSK_TIMER0 TIMSK0
 
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2B

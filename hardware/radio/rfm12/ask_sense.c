@@ -148,13 +148,12 @@ rfm12_ask_sense_start (void)
   ASKDEBUG ("initializing.\n");
 
   /* Initialize Timer0, prescaler 1/256 */
-  TCCR0A = 0;
-  TCCR0B = _BV(CS02);
-  TIMSK0 |= _BV(TOIE0);
+  _TCCR0_PRESCALE = _BV(CS02);
+  _TIMSK_TIMER0 |= _BV(TOIE0);
 
   /* Initialize Interrupt */
   _EIMSK |= _BV(RFM12_ASKINT_PIN);
-  EICRA = (EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC;
+  _EICRA = (_EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC;
 
   last_noise_ts = TCNT0;
   ask_buf_bits = 0;
@@ -187,7 +186,7 @@ ask_sense_try_decode (void)
 }
 
 
-ISR(TIMER0_OVF_vect)
+ISR(_VECTOR_OVERFLOW0)
 {
   if (bits.overflow && ask_buf_bits)
     {
