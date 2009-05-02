@@ -28,7 +28,7 @@ else
 fi
 
 for f in $files; do
-  head -n 50 "$f" | tr -d '\n' | sed -e 's/[^A-Za-z0-9 ]//g' |
+  head -n 50 "$f" | tr -d '\n' | sed -e 's/dnl/ /g' -e 's/[^A-Za-z0-9 ]//g' |
     sed -e 's/  / /g' > "$tmp"
 
   license="unknown"
@@ -45,7 +45,7 @@ for f in $files; do
       else
       	license="GPLv2 (only)"
       fi
-    elif grep -qe 'version 3 of' "$tmp"; then
+    elif grep -qe '[Vv]ersion 3' "$tmp"; then
       license="GPLv3"
     fi
   elif grep -qe 'Redistribution and use in source and binary forms with or without modification are permitted provided' "$tmp"; then
