@@ -11,7 +11,7 @@ dnl   Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
 dnl   Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
-dnl   it under the terms of the GNU General Public License version 2 as
+dnl   it under the terms of the GNU General Public License version 3 as
 dnl   published by the Free Software Foundation.
 dnl  
 dnl   This program is distributed in the hope that it will be useful,
