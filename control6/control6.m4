@@ -399,7 +399,7 @@ divert(globals_divert)
 #error Please define emcd sender udp support
 #endif
 
-#include "net/ecmd_state.h"
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 divert(old_divert)')')
 
