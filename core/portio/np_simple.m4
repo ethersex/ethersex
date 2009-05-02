@@ -43,6 +43,13 @@ np_simple_check (char *cmd)
   return -1;
 }
 
+#define REPLY(output,state) do {                               \
+  uint8_t plen = state ? 2 : 3;                                        \
+  memcpy_P (output, state ? np_str_on : np_str_off, plen);     \
+  return plen;                                                 \
+} while(0)
+
+
 divert(-1)
 define(`np_simple_implement_out', `dnl
 divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
@@ -56,7 +63,7 @@ divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
   else
     NP_PORT(substr($2, 1, 1)) &= ~_BV($2);
 
-  return snprintf_P(output, len, i ? np_str_on : np_str_off);
+  REPLY (output, i);
 }
 ')
 
@@ -65,7 +72,7 @@ divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
   uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
-  return snprintf_P(output, len, $3(i) ? np_str_on : np_str_off);
+  REPLY (output, $3(i));
 }
 ')
 
@@ -101,7 +108,7 @@ divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 #endif  /* not PINx_TOGGLE_WORKAROUND */
 
   /* say just the opposite of the old situation ... */
-  return snprintf_P(output, len, $3(i) ? np_str_off : np_str_on);
+  REPLY (output, !$3(i));
 }
 ')
 
