@@ -1,4 +1,5 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
+	bool "provide ECMD date and time" ECMD_TIME_SUPPORT
 	dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
 	source hardware/clock/dcf77/config.in
 	dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT

@@ -32,7 +32,7 @@
 #include "clock.h"
 #include "protocols/ecmd/parser.h"
 
-
+#ifdef ECMD_TIME_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 {
   return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
@@ -49,6 +49,7 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
                     weekdays + date.dow * 4);
 
 }
+#endif /* ECMD_TIME_SUPPORT */
 
 #ifdef WHM_SUPPORT
 int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
