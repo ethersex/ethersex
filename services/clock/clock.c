@@ -42,7 +42,9 @@ static uint16_t ntp_timer = 1;
 uint32_t startup_timestamp = 0;
 #endif
 
+#ifdef CLOCK_DATETIME_SUPPORT
 static uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+#endif
 
 void
 clock_init(void)
@@ -143,6 +145,7 @@ clock_get_startup(void)
 }
 #endif
 
+#ifdef CLOCK_DATETIME_SUPPORT
 void
 clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
 {
@@ -318,7 +321,7 @@ clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
   clock_datetime(d, timestamp);
 #endif
 }
-
+#endif
 /*
   -- Ethersex META --
   header(services/clock/clock.h)

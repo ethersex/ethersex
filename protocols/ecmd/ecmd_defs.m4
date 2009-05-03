@@ -166,7 +166,7 @@ ecmd_endif()
 
 ecmd_ifdef(CLOCK_SUPPORT)
   block(Clock)
-  ecmd_ifdef(ECMD_TIME_SUPPORT)
+  ecmd_ifdef(CLOCK_DATETIME_SUPPORT)
     ecmd_feature(time, "time",, Display the current time.)
     ecmd_feature(date, "date",, Display the current date.)
   ecmd_endif()

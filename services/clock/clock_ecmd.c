@@ -32,7 +32,7 @@
 #include "clock.h"
 #include "protocols/ecmd/parser.h"
 
-#ifdef ECMD_TIME_SUPPORT
+#ifdef CLOCK_DATETIME_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 {
   return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
