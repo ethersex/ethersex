@@ -67,7 +67,7 @@ ifdef({{conf_DNS}}, {{dnl
         <td><input type="text" id="version" disabled> </td>
 	</tr>
 	<tr>
-        <td>Mac</td>
+        <td>MAC</td>
         <td><input type="text" id="mac" onChange='getCmd("mac " + this.value, changeState, this);'> </td>
 	</tr>
 	<tr>
