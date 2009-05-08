@@ -3,6 +3,7 @@
  * Copyright (c) 2006, 2007 Jochen Roessner <jochen@lugrot.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,11 +53,14 @@ dcf77_init(void)
       configure pin as output, set low */
   PIN_SET(DCF1_PON);
 #endif
-#ifdef HAVE_DCF1_PCINT
-  /* configure PCINTn */
-  // TODO use m4 to manage PCINTx
-  PCMSK0 |= _BV(PCINT0); //  tell pin change mask to listen to PCINTn
-  PCICR  |= _BV(PCIE0);  //  enable PCINTn interrupt in the general interrupt mask
+
+#ifdef dcf77_configure_pcint
+  /* configure */
+  dcf77_configure_pcint ();
+#elif defined(HAVE_DCF77_INT)
+  /* Initialize "real" Interrupt */
+  _EIMSK |= _BV(DCF77_INT_PIN);
+  _EICRA = (_EICRA & ~DCF77_INT_ISCMASK) | DCF77_INT_ISC;
 #else
   // Analog Comparator init
   ACSR |= _BV(ACIE);
@@ -71,9 +75,8 @@ dcf77_init(void)
 #endif
 }
 
-#ifdef HAVE_DCF1_PCINT
-// TODO use m4 to manage PCINTx
-SIGNAL (PCINT0_vect)
+#ifdef DCF77_vect
+SIGNAL (DCF77_vect)
 #else
 SIGNAL (SIG_COMPARATOR)
 #endif
@@ -84,8 +87,8 @@ SIGNAL (SIG_COMPARATOR)
 
   if(divtime > 5)
   {
-#ifdef HAVE_DCF1_PCINT
-    if (!PIN_HIGH(DCF1_PCINT))
+#ifdef HAVE_DCF1
+    if (!PIN_HIGH(DCF1))
 #else
     if((ACSR & _BV(ACO)) == 0)
 #endif

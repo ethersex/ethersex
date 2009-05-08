@@ -2,12 +2,12 @@ dnl
 dnl header.m4
 dnl
 dnl   Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
-dnl   Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+dnl   Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
 dnl   Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License as published by 
-dnl   the Free Software Foundation; either version 2 of the License, or
+dnl   the Free Software Foundation; either version 3 of the License, or
 dnl   (at your option) any later version.
 dnl  
 dnl   This program is distributed in the hope that it will be useful,
@@ -26,6 +26,10 @@ dnl
    Please do not modify it, edit the m4 scripts below pinning/ instead. */
 
 #undef BOOTLOADER_SECTION
+#define _ISC(n,m) _BV(ISC ## n ## m)
+#define _paste(n,m) n ## m
+#define _paste3(a,b,c) a ## b ## c
+
 divert(-1)dnl
 
 define(`define_divert', 1)
@@ -83,9 +87,8 @@ define(`RFM12_USE_INT', `dnl
 ')
 
 define(`RFM12_ASK_SENSE_USE_INT', `dnl
-/* rfm12 module interrupt line */
+/* rfm12 ask sense interrupt line */
 #define RFM12_ASKINT_PIN INT$1
-#define _ISC(n,m) _BV(ISC ## n ## m)
 #define RFM12_ASKINT_ISC _ISC($1,0)
 #define RFM12_ASKINT_ISCMASK (_ISC($1,0) | _ISC($1,1))
 #define RFM12_ASKINT_SIGNAL SIG_INTERRUPT$1
@@ -97,6 +100,29 @@ define(`USB_USE_INT', `dnl
 #define USB_INT_SIGNAL SIG_INTERRUPT$1
 #define USB_INTR_CFG_HACK(no) ((1 << ISC ## no ## 0) | (1 << ISC ## no ## 0))
 #define USB_INTR_CFG_SET USB_INTR_CFG_HACK($1)
+')
+
+define(`DCF77_USE_PCINT', `dnl
+/* DCF77 PinChange-Interrupt Line  PCINT$1 -> $2 */
+pin(DCF1, $2, INPUT)
+
+dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
+#define dcf77_configure_pcint() \
+  _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
+  PCICR  |= _BV(_paste(PCIE, eval($1/8)));
+
+#define DCF77_vect _paste3(PCINT, eval($1/8), _vect)
+')
+
+define(`DCF77_USE_INT', `dnl
+/* DCF77 Interrupt Line  INT$1 -> $2 */
+pin(DCF1, $2, INPUT)
+
+/* Configure real interrupt $1, set sense control to trigger on any edge */
+#define DCF77_INT_PIN INT$1
+#define DCF77_INT_ISC _ISC($1,0)
+#define DCF77_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
+#define DCF77_vect SIG_INTERRUPT$1
 ')
 
 define(`STELLA_PORT_RANGE', `dnl

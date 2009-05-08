@@ -133,9 +133,9 @@ template $SORT_UART_SUPPORT << FNORD
 FNORD
 
 template $DCF1_SUPPORT << FNORD
-  /* port config for DCF77 */
-  pin(DCF1_PCINT, PA0, INPUT)
-  dnl  DCF77_USE_PCINT(1)
+  /* port config for DCF77 (these are alternatives, use one of them) */
+  DCF77_USE_PCINT(0, PA0)
+  dnl DCF77_USE_INT(1, PD3)
 FNORD
 
 template $DCF1_USE_PON_SUPPORT << FNORD
