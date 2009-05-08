@@ -41,13 +41,13 @@ extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 #endif
 
 
-int16_t parse_cmd_show_dns(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_show_dns_server(char *cmd, char *output, uint16_t len)
 {
     return print_ipaddr (resolv_getserver (), output, len);
 }
 
 #ifndef BOOTP_SUPPORT
-int16_t parse_cmd_dns(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)
 {
     uip_ipaddr_t dnsaddr;
 
