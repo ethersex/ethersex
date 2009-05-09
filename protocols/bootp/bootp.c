@@ -31,6 +31,7 @@
 #include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "services/tftp/tftp.h"
+#include "services/ntp/ntp.h"
 #include "services/dyndns/dyndns.h"
 #include "protocols/dns/resolv.h"
 
