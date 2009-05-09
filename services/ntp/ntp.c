@@ -31,6 +31,7 @@
 #include "config.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
+static uint8_t ntp_stratum = 0;
 
 #ifdef DNS_SUPPORT
 void
@@ -108,6 +109,18 @@ ntp_send_packet(void)
   uip_slen = 0;
 }
 
+uint8_t
+ntp_getstratum(void)
+{
+  return ntp_stratum;
+}
+
+void
+ntp_setstratum(uint8_t stratum)
+{
+  ntp_stratum = stratum;
+}
+
 void
 ntp_newdata(void)
 {
@@ -122,6 +135,7 @@ ntp_newdata(void)
     debug_printf("NTP: Set new time: %i\n",ntp_timestamp);
 #endif
   clock_set_time(ntp_timestamp);
+  ntp_setstratum(pkt->stratum);
 
 }
 
