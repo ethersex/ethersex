@@ -103,7 +103,7 @@ bootp_handle_reply(void)
      * looks like we have received a valid bootp reply,
      * prepare to override eeprom configuration
      */
-    uip_ipaddr_t ips[4];
+    uip_ipaddr_t ips[5];
     memset(&ips, 0, sizeof(ips));
 
     /* extract our ip addresses, subnet-mask and gateway ... */
@@ -137,7 +137,8 @@ bootp_handle_reply(void)
             /* This will set the ntp connection to the server set by the bootp
              * request
              */
-            ntp_dns_query_cb(NULL, (uip_ipaddr_t *)&ptr[2]);
+	    memcpy(&ips[4], &ptr[2], 4);
+            ntp_conf(&ips[4]);
             break;
 #endif
 	}
@@ -149,9 +150,14 @@ bootp_handle_reply(void)
     uip_udp_remove(uip_udp_conn);
 
 #ifdef BOOTP_TO_EEPROM_SUPPORT
-    eeprom_save_config(uip_ethaddr.addr, ips[0], ips[1], ips[2]);
+    eeprom_save(ip, &ips[0], IPADDR_LEN);
+    eeprom_save(netmask, &ips[1], IPADDR_LEN);
+    eeprom_save(gateway, &ips[2], IPADDR_LEN);
 #ifdef DNS_SUPPORT
-    eeprom_save_config_ext(ips[3]);
+    eeprom_save(dns_server, &ips[3], IPADDR_LEN);
+#endif
+#ifdef NTP_SUPPORT
+    eeprom_save(ntp_server, &ips[4], IPADDR_LEN);
 #endif
 #endif /* BOOTP_TO_EEPROM_SUPPORT */
 

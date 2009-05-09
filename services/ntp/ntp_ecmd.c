@@ -60,13 +60,13 @@ int16_t parse_cmd_ntp_server(char *cmd, char *output, uint16_t len)
 	if (!(ip = resolv_lookup(cmd)))
 	    resolv_query(cmd, ntp_dns_query_cb);
 	else
-	    ntp_dns_query_cb(NULL, ip);
+	    ntp_conf(ip);
 #else
 	return -1;
 #endif
     }
     else
-	ntp_dns_query_cb(NULL, &ntpaddr);
+	ntp_conf(&ntpaddr);
 
     return 0;
 }

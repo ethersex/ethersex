@@ -32,24 +32,25 @@
 
 static uip_udp_conn_t *ntp_conn = NULL;
 
-#if defined(DNS_SUPPORT) || defined(BOOTP_SUPPORT)
+#ifdef DNS_SUPPORT
 void
 ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
-  if (ntp_conn != NULL)
-    uip_udp_remove(ntp_conn);
-  ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_newdata);
-
-  eeprom_save(ntp_server, ipaddr, IPADDR_LEN);
-  eeprom_update_chksum();  
+  ntp_conf(ipaddr);
 
 #ifdef DEBUG_NTP
     debug_printf("NTP: query connected\n");
 #endif
-
 }
 #endif
 
+void
+ntp_conf(uip_ipaddr_t *ntpserver)
+{
+  if (ntp_conn != NULL)
+    uip_udp_remove(ntp_conn);
+  ntp_conn = uip_udp_new(ntpserver, HTONS(NTP_PORT), ntp_newdata);
+}
 
 uip_ipaddr_t *
 ntp_getserver(void)
@@ -65,23 +66,18 @@ ntp_getserver(void)
 void
 ntp_init()
 {
-  if(ntp_conn != NULL)
-    uip_udp_remove(ntp_conn);
-
 #ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup(NTP_SERVER)))
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
   else
-    ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_newdata);
+    ntp_conf(ipaddr);
 
 #else /* ! DNS_SUPPORT */
-  uip_ipaddr_t ip;
+  uip_ipaddr_t ipaddr;
   NTP_SERVER_IPADDR;
-  ntp_conn = uip_udp_new(&ip, HTONS(NTP_PORT), ntp_newdata);
 
-  eeprom_save(ntp_server, &ip, IPADDR_LEN);
-  eeprom_update_chksum();  
+  ntp_conf(&ipaddr);
 #endif
 }
 

@@ -40,6 +40,7 @@ struct ntp_packet {
 };
 
 void ntp_init(void);
+void ntp_conf(uip_ipaddr_t *ntpserver);
 void ntp_newdata(void);
 void ntp_periodic(void);
 void ntp_send_packet(void);
