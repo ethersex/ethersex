@@ -75,7 +75,7 @@ main (int argc, char **argv)
   uint8_t buf_image[BUFLEN], buf_file[BUFLEN];
   int image_len, file_len, pagesz;
   FILE *f;
-  union vfs_inline_node_t node = { 0 };
+  union vfs_inline_node_t node = { .s = { .fn = "", .len = 0 } };
   char *ptr;
 
   if (argc == 2 && strcmp (argv[1], "--help") == 0) usage (0);
