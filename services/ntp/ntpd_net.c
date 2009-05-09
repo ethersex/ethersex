@@ -49,6 +49,7 @@ ntpd_net_main(void)
 {
   if (uip_newdata()) {
     struct ntp_packet *pkt = uip_appdata;
+    uint32_t last_sync = clock_last_sync();
 
     /* We are an server and there is no error warning */
     pkt->li_vn_mode = 0x24;
@@ -66,12 +67,23 @@ ntpd_net_main(void)
     pkt->xmt.fraction = pkt->rec.fraction;
 
     /* set the reference clock */
-    pkt->reftime.seconds = HTONL(clock_last_sync() + 2208988800);
+    pkt->reftime.seconds = HTONL(last_sync + 2208988800);
 
     /* Set what type of clock we are */
-#ifdef NTP_SUPPORT
-    pkt->stratum = 3;
-#endif
+#if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
+    int stratum = ntp_getstratum();
+
+    pkt->stratum = (last_sync > 0) ? stratum + 1 : 0;
+    
+    if (stratum == 1)
+	pkt->refid = 0x68677000;	/* DCF in Network byte order */
+    else {
+        if (sizeof(uip_ipaddr_t) == 4)
+	    uip_ipaddr_copy((uip_ipaddr_t *) &pkt->refid, ntp_getserver());
+	else
+	    pkt->refid = 0x01020304;	/* some virtual identifer */
+    }
+#endif /* NTP_SUPPORT || DCF_SUPPORT */
 
     uip_udp_send(sizeof(struct ntp_packet));
 
