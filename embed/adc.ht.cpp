@@ -52,4 +52,4 @@ window.onload = function() {
 </table>
 <div id="logconsole"></div>
 </body>
-
+</html>

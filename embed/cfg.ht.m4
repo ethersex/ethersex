@@ -106,3 +106,4 @@ ifdef({{conf_VFS_CONFIG_INLINE}}, {{
 </div>
 <div id="logconsole"></div>
 </body>
+</html>
