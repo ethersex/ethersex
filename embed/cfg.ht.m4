@@ -17,6 +17,9 @@ ifdef({{conf_IPV6}}, {{}}, {{dnl
 ifdef({{conf_DNS}}, {{dnl 
           getCmd('show+dns+server', writeVal, returnObjById('dns'));
 }})dnl
+ifdef({{conf_NTP}}, {{dnl
+          getCmd('show+ntp+server', writeVal, returnObjById('ntp'));
+}})dnl
     }
 
     function getCmd(cmd, handler, id)
@@ -88,6 +91,12 @@ ifdef({{conf_DNS}},{{dnl
         <tr>
 	<td>DNS Server</td>
         <td><input type="text" id="dns" onChange='getCmd("dns server " + this.value, changeState, this);'></td>
+        </tr>
+}})dnl
+ifdef({{conf_NTP}},{{dnl
+        <tr>
+	<td>NTP Server</td>
+        <td><input type="text" id="ntp" onChange='getCmd("ntp server " + this.value, changeState, this);'></td>
         </tr>
 }})dnl
 	<tr>

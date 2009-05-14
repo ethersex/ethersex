@@ -44,3 +44,4 @@ void ntp_newdata(void);
 void ntp_periodic(void);
 void ntp_send_packet(void);
 void ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr);
+uip_ipaddr_t *ntp_getserver(void);

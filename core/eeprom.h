@@ -53,6 +53,10 @@ struct eeprom_config_t {
     uint8_t dns_server[IPADDR_LEN];
 #endif
 
+#ifdef NTP_SUPPORT
+    uint8_t ntp_server[IPADDR_LEN];
+#endif
+
 #ifdef HTTPD_AUTH_SUPPORT
     char httpd_auth_password[8];
     char httpd_auth_null_byte;

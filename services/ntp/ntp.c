@@ -27,6 +27,7 @@
 #include "services/clock/clock.h"
 #include "ntp.h"
 #include "core/debug.h"
+#include "core/eeprom.h"
 #include "config.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
@@ -35,10 +36,13 @@ static uip_udp_conn_t *ntp_conn = NULL;
 void
 ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
-  if(ntp_conn != NULL) {
+  if (ntp_conn != NULL)
     uip_udp_remove(ntp_conn);
-  }
   ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_newdata);
+
+  eeprom_save(ntp_server, ipaddr, IPADDR_LEN);
+  eeprom_update_chksum();  
+
 #ifdef DEBUG_NTP
     debug_printf("NTP: query connected\n");
 #endif
@@ -46,6 +50,17 @@ ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 }
 #endif
 
+
+uip_ipaddr_t *
+ntp_getserver(void)
+{
+  uip_ipaddr_t *ntpaddr = NULL;
+  
+  if (ntp_conn != NULL)
+    ntpaddr = (uip_ipaddr_t *) ntp_conn->ripaddr;
+
+  return ntpaddr;
+}
 
 void
 ntp_init()
@@ -57,7 +72,6 @@ ntp_init()
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup(NTP_SERVER)))
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
-
   else
     ntp_conn = uip_udp_new(ipaddr, HTONS(NTP_PORT), ntp_newdata);
 
@@ -65,6 +79,9 @@ ntp_init()
   uip_ipaddr_t ip;
   NTP_SERVER_IPADDR;
   ntp_conn = uip_udp_new(&ip, HTONS(NTP_PORT), ntp_newdata);
+
+  eeprom_save(ntp_server, &ip, IPADDR_LEN);
+  eeprom_update_chksum();  
 #endif
 }
 

@@ -1,7 +1,7 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(NTP_SUPPORT)_SRC += services/ntp/ntp.c
+$(NTP_SUPPORT)_SRC += services/ntp/ntp.c services/ntp/ntp_ecmd.c
 $(NTPD_SUPPORT)_SRC += services/ntp/ntpd_net.c
 
 ##############################################################################
