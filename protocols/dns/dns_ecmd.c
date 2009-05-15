@@ -41,11 +41,6 @@ extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 #endif
 
 
-int16_t parse_cmd_show_dns_server(char *cmd, char *output, uint16_t len)
-{
-    return print_ipaddr (resolv_getserver (), output, len);
-}
-
 int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)
 {
     uip_ipaddr_t dnsaddr;
@@ -53,16 +48,20 @@ int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)
     while (*cmd == ' ')
 	cmd++;
 
-    /* try to parse ip */
-    if (parse_ip (cmd, &dnsaddr))
-	return -1;
+    if (*cmd != '\0') {
+	/* try to parse ip */
+	if (parse_ip(cmd, &dnsaddr))
+	    return -1;
 
-    resolv_conf (&dnsaddr);
+	resolv_conf(&dnsaddr);
 
-    eeprom_save(dns_server, &dnsaddr, IPADDR_LEN);
-    eeprom_update_chksum();
-
-    return 0;
+	eeprom_save(dns_server, &dnsaddr, IPADDR_LEN);
+	eeprom_update_chksum();
+	return 0;
+    }
+    else {
+	return print_ipaddr(resolv_getserver(), output, len);
+    }
 }
 
 int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)

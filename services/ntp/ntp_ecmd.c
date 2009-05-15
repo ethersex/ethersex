@@ -40,11 +40,6 @@ extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
 #endif
 
 
-int16_t parse_cmd_show_ntp_server(char *cmd, char *output, uint16_t len)
-{
-    return print_ipaddr(ntp_getserver(), output, len);
-}
-
 int16_t parse_cmd_ntp_server(char *cmd, char *output, uint16_t len)
 {
     uip_ipaddr_t ntpaddr;
@@ -52,23 +47,28 @@ int16_t parse_cmd_ntp_server(char *cmd, char *output, uint16_t len)
     while (*cmd == ' ')
 	cmd++;
 
-    /* try to parse ip */
-    if (parse_ip(cmd, &ntpaddr) != 0) {
+    if (*cmd != '\0') {
+	/* try to parse ip */
+	if (parse_ip(cmd, &ntpaddr) != 0) {
 #ifdef DNS_SUPPORT
-	uip_ipaddr_t *ip;
+	    uip_ipaddr_t *ip;
 
-	if (!(ip = resolv_lookup(cmd)))
-	    resolv_query(cmd, ntp_dns_query_cb);
-	else
-	    ntp_conf(ip);
+	    if (!(ip = resolv_lookup(cmd)))
+		resolv_query(cmd, ntp_dns_query_cb);
+	    else
+		ntp_conf(ip);
 #else
-	return -1;
+	    return -1;
 #endif
-    }
-    else
-	ntp_conf(&ntpaddr);
+	}
+	else
+	    ntp_conf(&ntpaddr);
 
-    return 0;
+	return 0;
+    }
+    else {
+	return print_ipaddr(ntp_getserver(), output, len);
+    }
 }
 
 int16_t parse_cmd_ntp_query(char *cmd, char *output, uint16_t len)

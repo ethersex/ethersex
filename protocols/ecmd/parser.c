@@ -181,7 +181,7 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 #endif /* FREE_SUPPORT */
 
 #ifndef TEENSY_SUPPORT
-int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_version(char *cmd, char *output, uint16_t len)
 {
     (void) cmd;
 

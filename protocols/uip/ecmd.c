@@ -117,6 +117,7 @@ static int8_t parse_mac(char *cmd, uint8_t *ptr)
 
     return -1;
 }
+#endif /* DISABLE_IPCONF_SUPPORT */
 
 int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 {
@@ -124,53 +125,49 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
     (void) len;
 
 #ifdef DEBUG_ECMD_MAC
-    debug_printf("called with string %s\n", cmd);
+    debug_printf("parse_cmd_mac() called with string %s\n", cmd);
 #endif
 
-    int8_t ret;
+#ifndef DISABLE_IPCONF_SUPPORT
+    while (*cmd == ' ')
+	cmd++;
 
-    /* allocate space for mac */
-    struct uip_eth_addr new_mac;
+    if (*cmd != '\0') {
+	int8_t ret;
 
-    ret = parse_mac(cmd, (void *)&new_mac);
+	/* allocate space for mac */
+	struct uip_eth_addr new_mac;
 
-    if (ret >= 0) {
-        eeprom_save(mac, &new_mac, 6);
-        eeprom_update_chksum();
-        return 0;
+	ret = parse_mac(cmd, (void *)&new_mac);
+
+	if (ret >= 0) {
+	    eeprom_save(mac, &new_mac, 6);
+	    eeprom_update_chksum();
+	    return 0;
+	}
+	else
+	    return ret;
     }
     else
-        return ret;
-
-}
 #endif /* DISABLE_IPCONF_SUPPORT */
+   {
+	struct uip_eth_addr buf;
+	uint8_t *saved_mac = (uint8_t *)&buf;
 
-int16_t parse_cmd_show_mac(char *cmd, char *output, uint16_t len)
-{
-    (void) cmd;
+	eeprom_restore(mac, saved_mac, 6);
 
-#ifdef DEBUG_ECMD_MAC
-    debug_printf("called parse_cmd_show with rest: \"%s\"\n", cmd);
-#endif
+	int output_len = snprintf_P(output, len,
+		PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
+		saved_mac[0], saved_mac[1],
+		saved_mac[2], saved_mac[3],
+		saved_mac[4], saved_mac[5]);
 
-    struct uip_eth_addr buf;
-    uint8_t *saved_mac = (uint8_t *)&buf;
+	return output_len;
+    }
 
-    eeprom_restore(mac, saved_mac, 6);
-
-    int output_len = snprintf_P(output, len,
-            PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
-            saved_mac[0], saved_mac[1],
-            saved_mac[2], saved_mac[3],
-            saved_mac[4], saved_mac[5]);
-
-    return output_len;
 }
 #endif /* ENC28J60_SUPPORT */
 
-#ifndef DISABLE_IPCONF_SUPPORT
-#if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))		\
-  || defined(IPV6_STATIC_SUPPORT)
 int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 {
     uip_ipaddr_t hostaddr;
@@ -178,37 +175,60 @@ int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     while (*cmd == ' ')
 	cmd++;
 
-    /* try to parse ip */
-    if (parse_ip (cmd, &hostaddr))
-	return -1;
+#ifndef DISABLE_IPCONF_SUPPORT
+#if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))		\
+  || defined(IPV6_STATIC_SUPPORT)
+    if (*cmd != '\0') {
+        /* try to parse ip */
+        if (parse_ip(cmd, &hostaddr))
+	    return -1;
 
-    eeprom_save(ip, &hostaddr, IPADDR_LEN);
-    eeprom_update_chksum();
-    
-    return 0;
-}
+        eeprom_save(ip, &hostaddr, IPADDR_LEN);
+        eeprom_update_chksum();
+
+        return 0;
+    }
+    else
 #endif /* IPv4-static || IPv6-static || OpenVPN */
+#endif /* DISABLE_IPCONF_SUPPORT */
+    {
+        uip_gethostaddr(&hostaddr);
 
-#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+        return print_ipaddr(&hostaddr, output, len);
+    }
+}
+
+#ifndef IPV6_SUPPORT
 int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
 {
-    uip_ipaddr_t new_netmask;
+    uip_ipaddr_t netmask;
 
     while (*cmd == ' ')
 	cmd++;
 
-    /* try to parse ip */
-    if (parse_ip (cmd, &new_netmask))
-	return -1;
+#ifndef DISABLE_IPCONF_SUPPORT
+#if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
+    if (*cmd != '\0') {
+        /* try to parse ip */
+        if (parse_ip (cmd, &netmask))
+	    return -1;
 
-    eeprom_save(netmask, &new_netmask, IPADDR_LEN);
-    eeprom_update_chksum();
-    
-    return 0;
-}
+        eeprom_save(netmask, &netmask, IPADDR_LEN);
+        eeprom_update_chksum();
+
+        return 0;
+    }
+    else
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+#endif /* DISABLE_IPCONF_SUPPORT */
+    {
+        uip_getnetmask(&netmask);
 
-#if (!UIP_CONF_IPV6 || IPV6_STATIC_SUPPORT) && !defined(BOOTP_SUPPORT)
+        return print_ipaddr(&netmask, output, len);
+    }
+}
+#endif /* !IPV6_SUPPORT */
+
 int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 {
     uip_ipaddr_t gwaddr;
@@ -216,48 +236,27 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     while (*cmd == ' ')
 	cmd++;
 
-    /* try to parse ip */
-    if (parse_ip (cmd, &gwaddr))
-	return -1;
+#ifndef DISABLE_IPCONF_SUPPORT
+#if (!UIP_CONF_IPV6 || IPV6_STATIC_SUPPORT) && !defined(BOOTP_SUPPORT)
+    if (*cmd != '\0') {
+        /* try to parse ip */
+        if (parse_ip (cmd, &gwaddr))
+	    return -1;
 
-    eeprom_save(gateway, &gwaddr, IPADDR_LEN);
-    eeprom_update_chksum();
+        eeprom_save(gateway, &gwaddr, IPADDR_LEN);
+        eeprom_update_chksum();
 
-    return 0;
-}
+        return 0;
+    }
+    else
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 #endif /* DISABLE_IPCONF_SUPPORT */
+    {
+    uip_ipaddr_t gwaddr;
+        uip_getdraddr(&gwaddr);
 
-int16_t parse_cmd_show_ip(char *cmd, char *output, uint16_t len)
-{
-    (void) cmd;
-
-    uip_ipaddr_t hostaddr;
-    uip_gethostaddr(&hostaddr);
-
-    return print_ipaddr (&hostaddr, output, len);
-}
-
-#ifndef IPV6_SUPPORT
-int16_t parse_cmd_show_netmask(char *cmd, char *output, uint16_t len)
-{
-    (void) cmd;
-
-    uip_ipaddr_t netmask;
-    uip_getnetmask(&netmask);
-
-    return print_ipaddr (&netmask, output, len);
-}
-#endif /* !IPV6_SUPPORT */
-
-int16_t parse_cmd_show_gw(char *cmd, char *output, uint16_t len)
-{
-    (void) cmd;
-
-    uip_ipaddr_t draddr;
-    uip_getdraddr(&draddr);
-
-    return print_ipaddr (&draddr, output, len);
+        return print_ipaddr(&gwaddr, output, len);
+    }
 }
 
 #endif /* not TEENSY_SUPPORT */

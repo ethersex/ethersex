@@ -7,18 +7,18 @@ ifdef({{conf_CONFIG_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function fillFields() {
-	getCmd('show+version', writeVal, returnObjById('version'));
-	getCmd('show+mac', writeVal, returnObjById('mac'));
-	getCmd('show+ip', writeVal, returnObjById('ip'));
+	getCmd('version', writeVal, returnObjById('version'));
+	getCmd('mac', writeVal, returnObjById('mac'));
+	getCmd('ip', writeVal, returnObjById('ip'));
 ifdef({{conf_IPV6}}, {{}}, {{dnl
-	getCmd('show+netmask', writeVal, returnObjById('netmask'));
+	getCmd('netmask', writeVal, returnObjById('netmask'));
 }})dnl
-	getCmd('show+gw', writeVal, returnObjById('gateway'));
+	getCmd('gw', writeVal, returnObjById('gateway'));
 ifdef({{conf_DNS}}, {{dnl
-	getCmd('show+dns+server', writeVal, returnObjById('dns'));
+	getCmd('dns+server', writeVal, returnObjById('dns'));
 }})dnl
 ifdef({{conf_NTP}}, {{dnl
-	getCmd('show+ntp+server', writeVal, returnObjById('ntp'));
+	getCmd('ntp+server', writeVal, returnObjById('ntp'));
 }})dnl
 }
 
