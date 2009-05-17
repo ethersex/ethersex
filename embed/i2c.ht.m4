@@ -4,7 +4,7 @@ ifdef({{conf_I2C_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <html>
 <head>
 <title>Ethersex - I2C Master</title>
-<link rel="StyleSheet" href="Sty.c" type="text/css"/>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_set(cmd, ic, value) {

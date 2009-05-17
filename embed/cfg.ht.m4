@@ -3,8 +3,8 @@ ifdef({{conf_CONFIG_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <html>
 <head>
 <title>Ethersex - Setup</title>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
-<link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
 <script type="text/javascript">
 function fillFields() {
 	getCmd('show+version', writeVal, returnObjById('version'));

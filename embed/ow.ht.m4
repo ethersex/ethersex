@@ -3,8 +3,8 @@ ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')
 <html>
 <head>
 <title>Ethersex - Onewire Status</title>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
-<link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
 <script type="text/javascript">
 function ecmd_1w_list_req() {
 	ArrAjax.aufruf('/ecmd?1w list', ecmd_1w_list_req_handler, 'GET');

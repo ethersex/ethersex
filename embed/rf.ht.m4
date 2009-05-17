@@ -4,7 +4,7 @@ ifdef({{conf_RFM12_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <html>
 <head>
 <title>Ethersex - RFM12 ASK Control</title>
-<link rel="StyleSheet" href="Sty.c" type="text/css"/>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 ifdef({{conf_RFM12_ASK_2272}}, {{

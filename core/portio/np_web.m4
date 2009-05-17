@@ -7,7 +7,7 @@ define(`end_divert', 5)
 divert(hdr_divert)
 <html><head>
 <title>Ethersex - Named Pins</title>
-<link rel="StyleSheet" href="Sty.c" type="text/css"/>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_send(cmd, handler, obj) {

@@ -11,9 +11,9 @@
       xmlns:svg="http://www.w3.org/2000/svg">
   <head>
     <title>Ethersex KTY Temperature Sheet</title>
+    <link rel="stylesheet" href="Sty.c" type="text/css"/>
     <script src="scr.js" type="text/javascript"></script>
     <script src="gph.js" type="text/javascript"></script>
-    <link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
   </head>
   <body>
     <h1>SVG-powered KTY Status</h1>

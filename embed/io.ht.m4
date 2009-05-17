@@ -3,8 +3,8 @@ undefine(`substr')dnl
 <html>
 <head>
 <title>Ethersex - IO Control</title>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
-<link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
 <script type="text/javascript">
 function ecmd_get_io(type, num, handler) {
 	var request = new Object();

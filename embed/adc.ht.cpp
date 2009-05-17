@@ -6,8 +6,8 @@
 <html>
 <head>
 <title>Ethersex - ADC Status</title>
+<link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
-<link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
 <script type="text/javascript">
 function ecmd_adc_req() {
 	ArrAjax.aufruf('/ecmd?adc get', ecmd_adc_req_handler, 'GET');
