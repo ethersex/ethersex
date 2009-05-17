@@ -25,14 +25,15 @@ function ecmd_set_io(type, portnum, num, value) {
 	ArrAjax.ecmd(url);
 }
 
-function ecmd_parse_io(str) {
-	if (ecmd_error(str))
+function ecmd_parse_io(request) {
+	if (ecmd_error(request))
 		 return undefined;
-	return parseInt(str.substr(str.indexOf("0x")+2,2), 16);
+	var text = request.responseText;
+	return parseInt(text.substr(text.indexOf("0x")+2,2), 16);
 }
 
 function write_port(request, data) {
-	var value = ecmd_parse_io(request.responseText);
+	var value = ecmd_parse_io(request);
 	for (var i = 0; i < 8; i++) {
 		var id = data.type + data.num + i;
 		var obj = returnObjById(id);
@@ -42,7 +43,7 @@ function write_port(request, data) {
 }
 
 function mask_port(request, data) {
-	var value = ecmd_parse_io(request.responseText);
+	var value = ecmd_parse_io(request);
 	for (var i = 0; i < 8; i++) {
 		if (value & (1 << i))  {
 			var ddr = returnObjById("ddr" + data.num + i);

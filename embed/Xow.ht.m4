@@ -58,7 +58,7 @@ function ecmd_1w_trigger_converts() {
 }
 
 function ecmd_1w_list_req_handler(request) {
-	if (ecmd_error(request.responseText))
+	if (ecmd_error(request))
 		return;
 	sensors = request.responseText.split("\n");
 	var ow_table = returnObjById('ow_table');

@@ -11,7 +11,7 @@ function ecmd_1w_list_req() {
 }
 
 function ecmd_1w_list_req_handler(request) {
-	if (ecmd_error(request.responseText))
+	if (ecmd_error(request))
 		return;
 	var sensors = request.responseText.split("\n");
 	var ow_table = returnObjById('ow_table');

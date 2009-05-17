@@ -124,8 +124,10 @@ function logger(code, text, bottom) {
 	log_clean(bottom);
 }
 
-function ecmd_error(responseText) {
-        return (responseText.indexOf("parse error") != -1);
+function ecmd_error(response) {
+	if (!response)
+		return true;
+        return (response.responseText.indexOf("parse error") != -1);
 
 }
 

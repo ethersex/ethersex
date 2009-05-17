@@ -14,7 +14,7 @@ function ecmd_adc_req() {
 }
 
 function ecmd_adc_req_handler(request, data) {
-	if (ecmd_error(request.responseText))
+	if (ecmd_error(request))
 		return;
 	var split = request.responseText.split(" ");
 	for (var i = 0; i < split.length; i++) {
