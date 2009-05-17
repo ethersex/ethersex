@@ -74,6 +74,10 @@ ArrAjax.aufruf = function (address, handler, method, data) {
 	return xmlHttp;
 }
 
+ArrAjax.ecmd = function (address, handler, method, data) {
+	return ArrAjax.aufruf('/ecmd?' + address, handler, method, data);
+}
+
 //logging
 function log_get_lines() {
 	return returnObjById('logconsole').getElementsByTagName('div').length;

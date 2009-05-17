@@ -45,14 +45,14 @@ graphCreateAxis("axis", "text", min, max);
 var sensors;
 
 function ecmd_1w_list_req() {
-	ArrAjax.aufruf('/ecmd?1w list', ecmd_1w_list_req_handler, 'GET');
+	ArrAjax.ecmd('1w list', ecmd_1w_list_req_handler, 'GET');
 }
 
 function ecmd_1w_trigger_converts() {
 	for (var i = 0; i < sensors.length; i++) {
 		if (sensors[i] == "OK")
 			 break;
-		ArrAjax.aufruf('/ecmd?1w convert ' + sensors[i], ecmd_1w_convert_req_handler, 'GET', i);
+		ArrAjax.ecmd('1w convert ' + sensors[i], ecmd_1w_convert_req_handler, 'GET', i);
 	}
 	setTimeout("ecmd_1w_trigger_converts();", 5000);
 }
@@ -72,12 +72,12 @@ function ecmd_1w_list_req_handler(request) {
 }
 
 function ecmd_1w_convert_req_handler(request, data) {
-	ArrAjax.aufruf('/ecmd?1w get ' + sensors[data], ecmd_1w_get_req_handler, 'GET', data);
+	ArrAjax.ecmd('1w get ' + sensors[data], ecmd_1w_get_req_handler, 'GET', data);
 }
 
 function ecmd_1w_get_req_handler(request, data) {
-	var row = returnObjById("ow" + sensors[data]);
-	row.innerHTML = request.responseText;
+	var cell = returnObjById("ow" + sensors[data]);
+	cell.innerHTML = request.responseText;
 
 	if (data <= 2) {
 		var str = request.responseText;

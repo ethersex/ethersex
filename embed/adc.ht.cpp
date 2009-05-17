@@ -10,7 +10,7 @@
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_adc_req() {
-	ArrAjax.aufruf('/ecmd?adc get', ecmd_adc_req_handler, 'GET');
+	ArrAjax.ecmd('adc get', ecmd_adc_req_handler, 'GET');
 }
 
 function ecmd_adc_req_handler(request, data) {

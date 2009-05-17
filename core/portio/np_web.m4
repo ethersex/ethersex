@@ -11,10 +11,10 @@ divert(hdr_divert)
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_send(cmd, handler, obj) {
-	var request = new Object();
-	request.cmd = cmd;
-	request.obj = obj;
-	ArrAjax.aufruf('/ecmd?' + cmd, handler, 'GET', request);
+	var data = new Object();
+	data.cmd = cmd;
+	data.obj = obj;
+	ArrAjax.ecmd(cmd, handler, 'GET', data);
 }
 
 function pin_set(pin, state) {

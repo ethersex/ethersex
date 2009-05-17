@@ -7,7 +7,7 @@ ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_1w_list_req() {
-	ArrAjax.aufruf('/ecmd?1w list', ecmd_1w_list_req_handler, 'GET');
+	ArrAjax.ecmd('1w list', ecmd_1w_list_req_handler, 'GET');
 }
 
 function ecmd_1w_list_req_handler(request) {
@@ -20,20 +20,20 @@ function ecmd_1w_list_req_handler(request) {
 		if (sensors[i] == "OK")
 			break;
 		ow_table.innerHTML += "<tr><td>" + sensors[i] + "</td><td id='ow" + sensors[i] +"'>No data</td></tr>";
-		ArrAjax.aufruf('/ecmd?1w convert ' + sensors[i], ecmd_1w_convert_req_handler, 'GET', sensors[i]);
+		ArrAjax.ecmd('1w convert ' + sensors[i], ecmd_1w_convert_req_handler, 'GET', sensors[i]);
 	}
 }
 
 function ecmd_1w_convert_req_handler(request, data) {
-	ArrAjax.aufruf('/ecmd?1w get ' + data, ecmd_1w_get_req_handler, 'GET', data);
+	ArrAjax.ecmd('1w get ' + data, ecmd_1w_get_req_handler, 'GET', data);
 }
 
 function ecmd_1w_get_req_handler(request, data) {
-	setTimeout("ArrAjax.aufruf('/ecmd?1w convert " + data
+	setTimeout("ArrAjax.ecmd('1w convert " + data
 		+ "', ecmd_1w_convert_req_handler, 'GET', '" + data +"')",
 		5000);
-	var row = returnObjById("ow" + data);
-	row.innerHTML = request.responseText;
+	var cell = returnObjById("ow" + data);
+	cell.innerHTML = request.responseText;
 }
 
 window.onload = function() {

@@ -8,7 +8,7 @@ ifdef({{conf_I2C_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_set(cmd, ic, value) {
-	ArrAjax.aufruf('/ecmd?' + cmd + '+' + ic + '+' + value);
+	ArrAjax.ecmd(cmd + '+' + ic + '+' + value);
 }
 </script>
 </head>

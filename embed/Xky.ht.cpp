@@ -63,7 +63,7 @@ function kty_trigger() {
 }
 
 function kty_trigger_get() {
-	ArrAjax.aufruf('/ecmd?kty get', kty_get_handler, 'GET', 0);
+	ArrAjax.ecmd('kty get', kty_get_handler, 'GET', 0);
 	kty_trigger();
 }
 

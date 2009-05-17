@@ -10,7 +10,7 @@ ifdef({{conf_VFS_DC3840}}, {{}}, {{m4exit(1)}})dnl
 <script type="text/javascript">
 ifdef({{conf_VFS_DC3840}}, {{
 function capture() {
-	ArrAjax.aufruf('/ecmd?dc3840+capture');
+	ArrAjax.ecmd('dc3840+capture');
 }
 }})
 </script>

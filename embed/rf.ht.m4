@@ -9,14 +9,14 @@ ifdef({{conf_RFM12_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <script type="text/javascript">
 ifdef({{conf_RFM12_ASK_2272}}, {{
 function ecmd_set_rf1(type, code, delay, repeat) {
-	var url = '/ecmd?rfm12+' + type + '+' + code + '+' + delay + '+' + repeat;
-	ArrAjax.aufruf(url);
+	var url = 'rfm12+' + type + '+' + code + '+' + delay + '+' + repeat;
+	ArrAjax.ecmd(url);
 }
 }})
 ifdef({{conf_RFM12_ASK_TEVION}}, {{
 function ecmd_set_rf2(type, code, cmd, delay, repeat) {
-	var url = '/ecmd?rfm12+' + type + '+' + code + '+' + cmd + '+' + delay + '+' + repeat;
-	ArrAjax.aufruf(url);
+	var url = 'rfm12+' + type + '+' + code + '+' + cmd + '+' + delay + '+' + repeat;
+	ArrAjax.ecmd(url);
 }
 }})
 </script>

@@ -23,13 +23,13 @@ ifdef({{conf_NTP}}, {{dnl
 }
 
 function getCmd(cmd, handler, id) {
-	var request = new Object();
-	request.id = id;
-	ArrAjax.aufruf('/ecmd?' + cmd, handler, 'GET', request);
+	var data = new Object();
+	data.id = id;
+	ArrAjax.ecmd(cmd, handler, 'GET', data);
 }
 	
 function setCmd(cmd, value) {
-	ArrAjax.aufruf('/ecmd?'+ cmd + ' ' + value);
+	ArrAjax.ecmd(cmd + ' ' + value);
 }
 
 function writeVal(request, data) {

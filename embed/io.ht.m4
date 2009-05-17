@@ -7,10 +7,10 @@ undefine(`substr')dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_get_io(type, num, handler) {
-	var request = new Object();
-	request.type = type;
-	request.num = num;
-	ArrAjax.aufruf('/ecmd?io get ' + type + ' ' + num, handler, 'GET', request);
+	var data = new Object();
+	data.type = type;
+	data.num = num;
+	ArrAjax.ecmd('io get ' + type + ' ' + num, handler, 'GET', data);
 }
 
 function byte2hex(data) {
@@ -20,9 +20,9 @@ function byte2hex(data) {
 
 function ecmd_set_io(type, portnum, num, value) {
 	var i = (value) ? 1 : 0;
-	var url = '/ecmd?io set ' + type + ' ' + portnum + " "  +  byte2hex(i << num)
+	var url = 'io set ' + type + ' ' + portnum + " "  +  byte2hex(i << num)
 		+ ' ' +byte2hex(1<<num);
-	ArrAjax.aufruf(url);
+	ArrAjax.ecmd(url);
 }
 
 function ecmd_parse_io(str) {
