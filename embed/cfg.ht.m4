@@ -22,9 +22,7 @@ ifdef({{conf_NTP}}, {{dnl
 }})dnl
 }
 
-function getCmd(cmd, handler, id) {
-	var data = new Object();
-	data.id = id;
+function getCmd(cmd, handler, data) {
 	ArrAjax.ecmd(cmd, handler, 'GET', data);
 }
 	
@@ -33,11 +31,11 @@ function setCmd(cmd, value) {
 }
 
 function writeVal(request, data) {
-	data.id.value = request.responseText;
+	data.value = request.responseText;
 }
 	
 function changeState(request, data) {
-	data.id.style.backgroundColor = (request.responseText == "OK\n") ? "green" : "red";
+	data.style.backgroundColor = (request.responseText == "OK\n") ? "green" : "red";
 }
 
 function updateValues() {
