@@ -91,11 +91,10 @@ function pin_set_back(obj) {
 	obj.checked = obj.checked_;
 }
 
-function port_change(id) {
-	var obj = returnObjById(id);
-	var type = id.replace(/[0-9]/g, "");
-	var portnum = parseInt(id.substr(type.length, 1));
-	var num = parseInt(id.substr(type.length + 1, 1));
+function port_change(obj) {
+	var type = obj.id.replace(/[0-9]/g, "");
+	var portnum = parseInt(obj.id.substr(type.length, 1));
+	var num = parseInt(obj.id.substr(type.length + 1, 1));
 
 	ecmd_set_io(type, portnum, num, obj.checked);
 }
@@ -105,10 +104,10 @@ function port_change(id) {
 <center>
 <table>
 	<tr>
-		<td><script type="text/javascript">generate_port(0, "port_change(this.id)");</script></td>
-		<td><script type="text/javascript">generate_port(1, "port_change(this.id)");</script></td>
-		<td><script type="text/javascript">generate_port(2, "port_change(this.id)");</script></td>
-		<td><script type="text/javascript">generate_port(3, "port_change(this.id)");</script></td>
+		<td><script type="text/javascript">generate_port(0, "port_change(this)");</script></td>
+		<td><script type="text/javascript">generate_port(1, "port_change(this)");</script></td>
+		<td><script type="text/javascript">generate_port(2, "port_change(this)");</script></td>
+		<td><script type="text/javascript">generate_port(3, "port_change(this)");</script></td>
 	</tr>
 </table>
 </center>
