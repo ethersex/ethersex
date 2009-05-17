@@ -29,15 +29,15 @@
 
 #include "pwm_melody.h"
 
-int16_t
-parse_cmd_pwm(char *cmd, char *output, uint16_t len)
-{
-  while (*cmd==' ') cmd++;
+#ifdef PWM_MELODY_SUPPORT
 
-  if(*cmd == '2'){
-    pwm_melody_init();
-    return snprintf_P(output, len, PSTR("PWM melody init"));
-  }
+int16_t
+parse_cmd_pwm_melody_play(char *cmd, char *output, uint16_t len)
+{
+  uint8_t song = 0;
+  sscanf_P(cmd, PSTR("%i"), &song);
+  pwm_melody_init(song);
+  return snprintf_P(output, len, PSTR("PWM melody play"));
 }
 
 #endif  /* PWM_SUPPORT */

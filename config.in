@@ -201,12 +201,7 @@ source hardware/radio/fs20/config.in
 
 dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
 
-# PWM has license issues, currently disabled.  Remove the 'n' at
-# the end of the line after those are resolved.
-dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL
-  dep_bool "PWM Wave" PWM_WAV_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
-  dep_bool "PWM Melody" PWM_MELODY_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL n
-endmenu
+source hardware/pwm/config.in
 
 dep_bool_menu "Game Input" GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "Digital Joystick" JOYSTICK_DIGITAL_SUPPORT $GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL

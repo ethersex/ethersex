@@ -270,7 +270,12 @@ ecmd_ifdef(DC3840_SUPPORT)
 ecmd_endif
 
 ecmd_ifdef(PWM_MELODY_SUPPORT)
-  ecmd_feature(pwm, "pwm", , start pwm)
+  ecmd_feature(pwm_melody_play, "pwm melody", , Play melody)
+ecmd_endif
+
+ecmd_ifdef(PWM_WAV_SUPPORT)
+  ecmd_feature(pwm_wav_play, "pwm wav", , Play wav)
+  ecmd_feature(pwm_wav_stop, "pwm stop", , Stop wav)
 ecmd_endif
 
 ecmd_ifdef(I2C_DETECT_SUPPORT)
