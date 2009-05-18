@@ -75,10 +75,10 @@ ntp_init()
     ntp_conf(ipaddr);
 
 #else /* ! DNS_SUPPORT */
-  uip_ipaddr_t ipaddr;
+  uip_ipaddr_t ip;
   NTP_SERVER_IPADDR;
 
-  ntp_conf(&ipaddr);
+  ntp_conf(&ip);
 #endif
 }
 
