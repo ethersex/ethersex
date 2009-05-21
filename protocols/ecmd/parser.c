@@ -74,7 +74,7 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
   }
 #endif
 
-    if (strlen(cmd) <= 2) {
+    if (strlen(cmd) < 2) {
 #ifdef DEBUG_ECMD
         debug_printf("cmd is too short\n");
 #endif
