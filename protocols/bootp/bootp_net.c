@@ -50,8 +50,10 @@ bootp_net_init(void)
 void
 bootp_net_main(void)
 {
-    if(uip_newdata())
+    if(uip_newdata()) {
 	bootp_handle_reply();
+        return;
+    }
 
     if(! uip_udp_conn->appstate.bootp.retry_timer) {
 	bootp_send_request();
