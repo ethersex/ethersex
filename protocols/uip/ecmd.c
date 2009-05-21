@@ -34,20 +34,18 @@
 #include "protocols/ecmd/parser.h"
 
 #ifndef TEENSY_SUPPORT
-int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len) 
+int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
 {
 #if UIP_CONF_IPV6
-  return snprintf_P (output, len, PSTR ("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
-		     HTONS(((u16_t *)(addr))[0]), HTONS(((u16_t *)(addr))[1]), 
-		     HTONS(((u16_t *)(addr))[2]), HTONS(((u16_t *)(addr))[3]), 
-		     HTONS(((u16_t *)(addr))[4]), HTONS(((u16_t *)(addr))[5]), 
-		     HTONS(((u16_t *)(addr))[6]), HTONS(((u16_t *)(addr))[7]));
+    return snprintf_P(output, len, PSTR("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
+		      HTONS(((u16_t *)(addr))[0]), HTONS(((u16_t *)(addr))[1]),
+		      HTONS(((u16_t *)(addr))[2]), HTONS(((u16_t *)(addr))[3]),
+		      HTONS(((u16_t *)(addr))[4]), HTONS(((u16_t *)(addr))[5]),
+		      HTONS(((u16_t *)(addr))[6]), HTONS(((u16_t *)(addr))[7]));
 #else
-  uint8_t *ip = (uint8_t *) addr;
-  int output_len = snprintf_P (output, len, PSTR ("%u.%u.%u.%u"), 
-			       ip[0], ip[1], ip[2], ip[3]);
-
-  return output_len;
+    uint8_t *ip = (uint8_t *) addr;
+    return snprintf_P(output, len, PSTR("%u.%u.%u.%u"),
+		      ip[0], ip[1], ip[2], ip[3]);
 #endif  
 }
 
@@ -55,32 +53,37 @@ int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len)
 /* parse an ip address at cmd, write result to ptr */
 int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 {
+    if (ptr != NULL) {
+	uint8_t end;
 
 #ifdef DEBUG_ECMD_IP
-    debug_printf("called parse_ip with string '%s'\n", cmd);
+	debug_printf("called parse_ip with string '%s'\n", cmd);
 #endif
 
 #if UIP_CONF_IPV6
-    uint16_t *ip = (uint16_t *) ptr;
-    int8_t ret = sscanf_P(cmd, PSTR("%x:%x:%x:%x:%x:%x:%x:%x"),
-			  ip + 0, ip + 1, ip + 2, ip + 3, 
-			  ip + 4, ip + 5, ip + 6, ip + 7);
-    
-    if (ret != 8)
-	return -1;
+	uint16_t *ip = (uint16_t *) ptr;
+	int8_t ret = sscanf_P(cmd, PSTR("%4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x%c"),
+			      ip, ip+1, ip+2, ip+3, ip+4, ip+5, ip+6, ip+7,
+			      &end);
 
-    for (int i = 0; i < 8; i ++)
-	ip[i] = HTONS (ip[i]);
+	if ((ret != 8) && ((ret != 9) || (end != ' ')))
+	    return -1;
 
+	for (int i = 0; i < 8; i ++)
+	    ip[i] = HTONS(ip[i]);
 #else
-    uint8_t *ip = (uint8_t *) ptr;
-    int8_t ret = sscanf_P(cmd, PSTR("%u.%u.%u.%u"), ip, ip+1, ip+2, ip+3);
+	uint8_t *ip = (uint8_t *) ptr;
+	int8_t ret = sscanf_P(cmd, PSTR("%hhu.%hhu.%hhu.%hhu%c"),
+			      ip, ip+1, ip+2, ip+3, &end);
 
-    if (ret != 4) 
-	return -1;
+	if ((ret != 4) || ((end != ' ') || (end != '\0')))
+	    return -1;
 #endif
 
-    return 0;
+	return 0;
+    }
+
+    return -1;
 }
 #endif /* DISABLE_IPCONF_SUPPORT */
 
@@ -89,38 +92,30 @@ int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 /* parse an ethernet address at cmd, write result to ptr */
 static int8_t parse_mac(char *cmd, uint8_t *ptr)
 {
+    if (ptr != NULL) {
+	uint8_t end;
 
 #ifdef DEBUG_ECMD_MAC
-    debug_printf("called parse_mac with string '%s'\n", cmd);
+	debug_printf("called parse_mac with string '%s'\n", cmd);
 #endif
 
-    int *mac = __builtin_alloca(sizeof(int) * 6);
-
-    /* return -2 if malloc() failed */
-    if (mac == NULL)
-        return -2;
-
-    int ret = sscanf_P(cmd, PSTR("%x:%x:%x:%x:%x:%x"), mac, mac+1, mac+2, mac+3, mac+4, mac+5);
+	int ret = sscanf_P(cmd, PSTR("%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx%c"),
+			   ptr, ptr+1, ptr+2, ptr+3, ptr+4, ptr+5, &end);
 
 #ifdef DEBUG_ECMD_MAC
-    debug_printf("scanf returned %d\n", ret);
+	debug_printf("scanf returned %d\n", ret);
 #endif
 
-    if (ret == 6) {
+	if ((ret == 6) || ((ret == 7) && (end == ' '))) {
 #ifdef DEBUG_ECMD_MAC
-        debug_printf("read mac %x:%x:%x:%x:%x:%x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	    debug_printf("read mac %x:%x:%x:%x:%x:%x\n",
+			 ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5]);
 #endif
+	    return 0;
+	}
+    }
 
-        /* copy mac to destination */
-        if (ptr != NULL)
-            for (uint8_t i = 0; i < 6; i++)
-                ptr[i] = mac[i];
-
-        ret = 0;
-    } else
-        ret = -1;
-
-    return ret;
+    return -1;
 }
 
 int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
