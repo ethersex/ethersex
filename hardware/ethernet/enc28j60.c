@@ -456,9 +456,9 @@ network_config_load (void)
     /* Please Note: ip and &ip are NOT the same (cpp hell) */
     eeprom_restore_ip(ip, &ip);
 #else
-    CONF_ETHERRAPE_IP;
+    set_CONF_ETHERRAPE_IP(&ip);
 #endif
-    uip_sethostaddr(ip);
+    uip_sethostaddr(&ip);
 
 
     /* Configure prefix length (IPv6). */
@@ -473,9 +473,9 @@ network_config_load (void)
     /* Please Note: ip and &ip are NOT the same (cpp hell) */
     eeprom_restore_ip(netmask, &ip);
 #else
-    CONF_ETHERRAPE_IP4_NETMASK;
+    set_CONF_ETHERRAPE_IP4_NETMASK(&ip);
 #endif
-    uip_setnetmask(ip);
+    uip_setnetmask(&ip);
 #endif  /* IPV4_SUPPORT */
 
     /* Configure the default gateway  */
@@ -483,9 +483,9 @@ network_config_load (void)
     /* Please Note: ip and &ip are NOT the same (cpp hell) */
     eeprom_restore_ip(gateway, &ip);
 #else
-    CONF_ETHERRAPE_GATEWAY;
+    set_CONF_ETHERRAPE_GATEWAY(&ip);
 #endif
-    uip_setdraddr(ip);
+    uip_setdraddr(&ip);
 #endif	/* No autoconfiguration. */
 }
 

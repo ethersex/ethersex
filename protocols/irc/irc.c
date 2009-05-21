@@ -238,7 +238,7 @@ irc_init(void)
     IRCDEBUG ("initializing irc client\n");
 
     uip_ipaddr_t ip;
-    CONF_IRC_IP;
+    set_CONF_IRC_IP(&ip);
     irc_conn = uip_connect(&ip, HTONS(CONF_IRC_PORT), irc_main);
 
     if (! irc_conn) {

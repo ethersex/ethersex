@@ -109,7 +109,7 @@ network_init(void)
 
 #   if defined(IPV6_STATIC_SUPPORT) && defined(TFTPOMATIC_SUPPORT)
     const unsigned char *filename = CONF_TFTP_IMAGE;
-    CONF_TFTP_IP;
+    set_CONF_TFTP_IP(&ip);
 
     tftp_fire_tftpomatic(&ip, filename);
     bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -119,8 +119,8 @@ network_init(void)
 #   elif !defined(ROUTER_SUPPORT) /* and not ENC28J60_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
-    CONF_ETHERRAPE_IP;
-    uip_sethostaddr(ip);
+    set_CONF_ETHERRAPE_IP(&ip);
+    uip_sethostaddr(&ip);
 
 #   endif /* not ENC28J60_SUPPORT and not ROUTER_SUPPORT */
 

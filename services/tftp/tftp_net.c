@@ -44,7 +44,7 @@ tftp_net_init(void)
 
 #ifndef IPV6_SUPPORT		/* IPv6 is handled in ipv6.c (after ra) */
     const unsigned char *filename = CONF_TFTP_IMAGE;
-    CONF_TFTP_IP;
+    set_CONF_TFTP_IP(&ip);
 
     tftp_fire_tftpomatic(&ip, filename);
 #endif /* !IPV6_SUPPORT */

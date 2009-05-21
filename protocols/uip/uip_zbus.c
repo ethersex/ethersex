@@ -31,14 +31,14 @@ zbus_stack_init (void)
 {
   uip_ipaddr_t ip;
 
-  CONF_ZBUS_IP;
-  uip_sethostaddr(ip);
+  set_CONF_ZBUS_IP&ip);
+  uip_sethostaddr(&ip);
 
 #ifdef IPV6_SUPPORT
   uip_setprefixlen(CONF_ZBUS_IP6_PREFIX_LEN);
 #else
-  CONF_ZBUS_IP4_NETMASK;
-  uip_setnetmask(ip);
+  set_CONF_ZBUS_IP4_NETMASK(&ip);
+  uip_setnetmask(&ip);
 #endif
 }
 

@@ -88,16 +88,20 @@ eeprom_init (void)
 #endif
 
 #if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
-    eeprom_save_ip (ip, CONF_ETHERRAPE_IP);
-    eeprom_save_ip (gateway, CONF_ETHERRAPE_GATEWAY);
+    set_CONF_ETHERRAPE_IP(&ip);
+    eeprom_save(ip, &ip, IPADDR_LEN);
+    set_CONF_ETHERRAPE_GATEWAY(&ip);
+    eeprom_save(gateway, &ip, IPADDR_LEN);
 
 #ifdef IPV4_SUPPORT
-    eeprom_save_ip (netmask, CONF_ETHERRAPE_IP4_NETMASK);
+    set_CONF_ETHERRAPE_IP4_NETMASK(&ip);
+    eeprom_save(netmask, &ip, IPADDR_LEN);
 #endif
 #endif
 
 #ifdef DNS_SUPPORT
-    eeprom_save_ip (dns_server, CONF_DNS_SERVER);
+    set_CONF_DNS_SERVER(&ip);
+    eeprom_save(dns_server, &ip, IPADDR_LEN);
 #endif
 
 #ifdef HTTPD_AUTH_SUPPORT

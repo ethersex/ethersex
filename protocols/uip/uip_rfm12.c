@@ -31,14 +31,14 @@ rfm12_stack_init (void)
 {
   uip_ipaddr_t ip;
 
-  CONF_RFM12_IP;
-  uip_sethostaddr(ip);
+  set_CONF_RFM12_IP(&ip);
+  uip_sethostaddr(&ip);
 
 #ifdef IPV6_SUPPORT
   uip_setprefixlen(CONF_RFM12_IP6_PREFIX_LEN);
 #else
-  CONF_RFM12_IP4_NETMASK;
-  uip_setnetmask(ip);
+  set_CONF_RFM12_IP4_NETMASK(&ip);
+  uip_setnetmask(&ip);
 #endif
 
 }

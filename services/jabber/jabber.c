@@ -323,7 +323,7 @@ jabber_init(void)
     JABDEBUG ("initializing jabber client\n");
 
     uip_ipaddr_t ip;
-    CONF_JABBER_IP;
+    set_CONF_JABBER_IP(&ip);
     jabber_conn = uip_connect(&ip, HTONS(5222), jabber_main);
 
     if (! jabber_conn) {

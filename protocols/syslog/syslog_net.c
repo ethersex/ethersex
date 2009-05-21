@@ -34,7 +34,7 @@ syslog_net_init(void)
 {
   uip_ipaddr_t ip;
 
-  CONF_SYSLOG_SERVER;
+  set_CONF_SYSLOG_SERVER(&ip);
 
   syslog_conn = uip_udp_new(&ip, SYSLOG_PORT, syslog_net_main);
 

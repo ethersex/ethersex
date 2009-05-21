@@ -196,11 +196,12 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   }
 # endif
 
-  uip_sethostaddr(ipaddr);
+  uip_sethostaddr(&ipaddr);
 
 # ifdef TFTPOMATIC_SUPPORT
-  const unsigned char *filename = CONF_TFTP_IMAGE;
-  uip_ipaddr_t ip; CONF_TFTP_IP;
+  const unsigned char filename[] PROGMEM = CONF_TFTP_IMAGE;
+  uip_ipaddr_t ip;
+  set_CONF_TFTP_IP(&ip);
 
   if (addr0 != 0xFE80) {
     tftp_fire_tftpomatic(&ip, filename);

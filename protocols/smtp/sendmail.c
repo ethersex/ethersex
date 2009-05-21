@@ -221,7 +221,7 @@ mail_send (void)
   MAIL_DEBUG ("Send E-Mail (Sie haben Post ;-)\n\r");
 
   uip_ipaddr_t ip;
-  CONF_SENDMAIL_IP;
+  set_CONF_SENDMAIL_IP(&ip);
 
   uip_conn_t *conn = uip_connect (&ip, HTONS (MAIL_PORT), sendmail_net_main);
   if (! conn) return NULL;

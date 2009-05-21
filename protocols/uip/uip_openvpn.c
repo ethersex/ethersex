@@ -300,14 +300,14 @@ openvpn_init (void)
 #endif
 
   /* Initialize OpenVPN stack IP config, if necessary. */
-  CONF_OPENVPN_IP;
-  uip_sethostaddr(ip);
+  set_CONF_OPENVPN_IP(&ip);
+  uip_sethostaddr(&ip);
 
 # if UIP_CONF_IPV6
   uip_setprefixlen(CONF_OPENVPN_IP6_PREFIX_LEN);
 #else
-  CONF_OPENVPN_IP4_NETMASK;
-  uip_setnetmask(ip);
+  set_CONF_OPENVPN_IP4_NETMASK(&ip);
+  uip_setnetmask(&ip);
 # endif
 
   /* Create OpenVPN UDP listener. */

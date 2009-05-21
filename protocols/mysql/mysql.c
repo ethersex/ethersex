@@ -321,7 +321,7 @@ mysql_init(void)
     MYDEBUG ("initializing mysql client\n");
 
     uip_ipaddr_t ip;
-    CONF_MYSQL_IP;
+    set_CONF_MYSQL_IP(&ip);
     mysql_conn = uip_connect(&ip, HTONS(3306), mysql_main);
 
     if (! mysql_conn) {
