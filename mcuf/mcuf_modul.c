@@ -53,11 +53,7 @@
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT
 #include "mcuf/borg-16/xoni_study.h"
-#include "mcuf/borg-16/matrix.h"
-#include "mcuf/borg-16/programm.h"
 #include "mcuf/borg-16/snake.h"
-#include "mcuf/borg-16/gameoflife.h"
-#include "mcuf/borg-16/invaders2.h"
 
 
 void setpixel(pixel p, uint8_t color){
@@ -149,22 +145,6 @@ direction direction_r(direction dir){
                 }
         return(0);
 }
-
-#ifdef MCUF_MODUL_BORG16_SPIRAL_SUPPORT
-void fspirale(){ 
-  spirale(3);
-}
-#endif
-#ifdef MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT
-void fschachbrett(){
-  schachbrett(50);
-}
-#endif
-#ifdef MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
-void frandom_bright(){
-  random_bright(50);
-}
-#endif
 
 #endif //MCUF_MODUL_BORG16_SUPPORT
 

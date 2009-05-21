@@ -1,3 +1,6 @@
+/*
+ * The adapted melody is in the public domain.
+ */
 const struct notes_duration_t entchen_notes[] PROGMEM =
 { 
     {C,8}, {D,8}, {E,8}, {E,8},

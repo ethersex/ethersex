@@ -52,7 +52,9 @@ for f in $files; do
     license="BSD"
   elif grep -qe 'without restriction including without limitation the rights to use copy modify merge' "$tmp"; then
     license="MIT"
-  fi
+  elif grep -qe 'in the public domain' "$tmp"; then
+    license="gemeinfrei"
+   fi
 
   echo "$f: $license"
 done
