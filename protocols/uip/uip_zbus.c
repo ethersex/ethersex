@@ -19,6 +19,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
 #include "uip.h"
 #include "uip_zbus.h"
 
@@ -31,7 +32,7 @@ zbus_stack_init (void)
 {
   uip_ipaddr_t ip;
 
-  set_CONF_ZBUS_IP&ip);
+  set_CONF_ZBUS_IP(&ip);
   uip_sethostaddr(&ip);
 
 #ifdef IPV6_SUPPORT

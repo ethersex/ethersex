@@ -76,7 +76,7 @@ ntp_init()
 
 #else /* ! DNS_SUPPORT */
   uip_ipaddr_t ip;
-  set_NTP_SERVER_IPADDR(&ip);
+  set_NTP_SERVER_IP(&ip);
 
   ntp_conf(&ip);
 #endif

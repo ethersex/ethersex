@@ -684,7 +684,7 @@ NTP_SERVER
  depends on IPv4/IPv6.
 
 NTP Server IP Address
-NTP_SERVER_IPADDR
+NTP_SERVER_IP
  This IP depends on your IPv4 or IPv6 selection and provides
  to set the correct NTP-Server IP Address for your network.
  Usefull during disabled DNS operations.
