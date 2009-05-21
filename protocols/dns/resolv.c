@@ -244,9 +244,9 @@ resolv_periodic(void)
 	*nptr = n;
       } while(*nameptr != 0);
       {
-	static unsigned char endquery[] =
+	static const unsigned char endquery[] PROGMEM =
 	  {0,0,DNS_RECORD_ADDR_TYPE,0,1};
-	memcpy(query, endquery, 5);
+	memcpy_P(query, endquery, 5);
       }
       uip_udp_send((unsigned char)(query + 5 - (char *)uip_appdata));
       break;
