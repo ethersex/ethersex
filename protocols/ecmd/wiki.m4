@@ -57,6 +57,6 @@ divert(9)footer
 
 [[Category:Ethersex]]
 divert(0)
-''This page is automatically generated from ecmd_defs.m4 and wiki.m4 which are part of the Ethersex source code repository.  Do not edit this page but send pages for those files!''
+''This page is automatically generated from ecmd_defs.m4 and wiki.m4 which are part of the Ethersex source code repository.  Do not edit this page but send patches for those files!''
 
 header(Network configuration)
