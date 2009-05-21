@@ -185,8 +185,7 @@ int16_t parse_cmd_show_version(char *cmd, char *output, uint16_t len)
 {
     (void) cmd;
 
-    return snprintf_P(output, len,
-            PSTR("version %s"), VERSION_STRING);
+    return snprintf_P(output, len, PSTR("%s"), VERSION_STRING);
 }
 
 #ifndef DISABLE_REBOOT_SUPPORT
