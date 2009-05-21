@@ -12,15 +12,8 @@ $(MCUF_SUPPORT)_SRC += \
         mcuf/mcuf_modul_examples.c\
 	mcuf/ledmatrixint.c\
 	mcuf/image/image.c\
-	mcuf/borg-16/programm.c\
 	mcuf/borg-16/xoni_study.c\
-	mcuf/borg-16/snake.c\
-	mcuf/borg-16/gameoflife.c\
-	mcuf/borg-16/invader_draw.c\
-	mcuf/borg-16/invader_init.c\
-	mcuf/borg-16/invader_proc.c\
-	mcuf/borg-16/invaders2.c\
-	mcuf/borg-16/matrix.c
+	mcuf/borg-16/snake.c
 
 ##############################################################################
 # generic fluff
