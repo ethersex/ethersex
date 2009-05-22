@@ -35,13 +35,8 @@ ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')dnl
     <div id="logconsole"></div>
 
     <script type="text/javascript"><![CDATA[
-var g = new Array();
 var min = -10, max = 50;
-g[0] = new Graph("grph0", 40, min, max);
-g[1] = new Graph("grph1", 40, min, max);
-g[2] = new Graph("grph2", 40, min, max);
-graphCreateAxis("axis", "text", min, max);
-
+var g = new Array();
 var sensors;
 
 function ecmd_1w_list_req() {
@@ -87,6 +82,9 @@ function ecmd_1w_get_req_handler(request, data) {
 }
 
 window.onload = function() {
+	graphCreateAxis("axis", "text", min, max);
+	for (var i = 0; i < 3; i++)
+		g[i] = new Graph("grph" + i, 40, min, max);
 	ecmd_1w_list_req();
 }
 ]]></script>
