@@ -44,9 +44,9 @@
     <div id="logconsole"></div>
 
     <script type="text/javascript"><![CDATA[
+var num = 8;
 var min = -10, max = 50;
 var g = new Array();
-var sensors;
 
 function kty_trigger() {
 	setTimeout("kty_trigger_get();", 10000);
@@ -61,16 +61,15 @@ function kty_get_handler(request, data) {
 	var daten = returnObjById("daten");
 	daten.innerHTML = request.responseText;
 
-	for (var i = 0; i < 8; i++) {
+	for (var i = 0; i < num; i++) {
 		var sensor = request.responseText.substr(i*6, 6);
-		var temperatur = parseInt(sensor);
-		graphAppend(g[i], temperatur);
+		graphAppend(g[i], parseInt(sensor));
 	}
 }
 
 window.onload = function() {
 	graphCreateAxis("axis", "text", min, max);
-	for (var i = 0; i < 8; i++)
+	for (var i = 0; i < num; i++)
 		g[i] = new Graph("grph" + i, 40, min, max);
 	kty_trigger();
 }
