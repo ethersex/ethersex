@@ -40,7 +40,7 @@ function ecmd_1w_list_req_handler(request) {
 	for (var i = 0; i < sensors.length; i++) {
 		if (sensors[i] == "OK")
 			 break;
-		ow_table.innerHTML += "<tr><td>" + sensors[i] + "</td><td id='ow" + i +"'>No data</td></tr>";
+		ow_table.insertRow(i+1).innerHTML = "<td>" + sensors[i] + "</td><td id='ow" + i +"'>No data</td>";
 	}
 	ecmd_1w_trigger_converts();
 }

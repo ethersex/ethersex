@@ -34,7 +34,7 @@ function ecmd_adc_req_handler(request, data) {
 window.onload = function() {
 	var adc_table = returnObjById("adc_table");
 	for (var i = 0; i < ADC_CHANNELS; i++) {
-		adc_table.innerHTML += '<tr><td>Kanal ' + i +' </td><td style="width:500px"><div id="adc_graph'+i+'" style="background-color: #00ff00;"></div></td><td id="adc_data'+i+'"></td></tr>';
+		adc_table.insertRow(i).innerHTML = '<td>Kanal ' + i +' </td><td style="width:500px"><div id="adc_graph'+i+'" style="background-color: #00ff00;"></div></td><td id="adc_data'+i+'"></td>';
 	}
 	ecmd_adc_req();
 	setInterval('ecmd_adc_req()', 5000);
