@@ -12,8 +12,10 @@ ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')dnl
     <script src="scr.js" type="text/javascript"></script>
     <script src="gph.js" type="text/javascript"></script>
     <script type="text/javascript"><![CDATA[
+var num = 3;
 var min = -10, max = 50;
-var g = new Array();
+var g = new Array(num);
+var colors = new Array("red", "blue", "green");
 var sensors;
 
 function ecmd_1w_list_req() {
@@ -38,7 +40,7 @@ function ecmd_1w_list_req_handler(request) {
 	for (var i = 0; i < sensors.length; i++) {
 		if (sensors[i] == "OK")
 			 break;
-		ow_table.innerHTML += "<tr><td>" + sensors[i] + "</td><td id='ow" + sensors[i] +"'>No data</td></tr>";
+		ow_table.innerHTML += "<tr><td>" + sensors[i] + "</td><td id='ow" + i +"'>No data</td></tr>";
 	}
 	ecmd_1w_trigger_converts();
 }
@@ -48,10 +50,11 @@ function ecmd_1w_convert_req_handler(request, data) {
 }
 
 function ecmd_1w_get_req_handler(request, data) {
-	var cell = returnObjById("ow" + sensors[data]);
+	var cell = returnObjById("ow" + data);
 	cell.innerHTML = request.responseText;
 
-	if (data <= 2) {
+	if (data < num) {
+		cell.bgcolor = colors[data];
 		var str = request.responseText;
 		var i = parseInt(str.substr(str.indexOf(" ") + 1));
 		graphAppend(g[data], i);
@@ -60,7 +63,7 @@ function ecmd_1w_get_req_handler(request, data) {
 
 window.onload = function() {
 	graphCreateAxis("axis", "text", min, max);
-	for (var i = 0; i < 3; i++)
+	for (var i = 0; i < num; i++)
 		g[i] = new Graph("grph" + i, 40, min, max);
 	ecmd_1w_list_req();
 }
