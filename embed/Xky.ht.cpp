@@ -13,7 +13,7 @@
     <title>Ethersex KTY Temperature Sheet</title>
     <script src="scr.js" type="text/javascript"></script>
     <script src="gph.js" type="text/javascript"></script>
-    <link href="Sty.c" media="screen" rel="Stylesheet" type="text/css" />
+    <link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
   </head>
   <body>
     <h1>SVG-powered KTY Status</h1>
@@ -58,31 +58,29 @@ graphCreateAxis("axis", "text", min, max);
 
 var sensors;
 
-function kty_trigger () {
-  setTimeout("kty_trigger_get ();", 10000);
+function kty_trigger() {
+	setTimeout("kty_trigger_get();", 10000);
 }
 
-function kty_trigger_get () {
-  ArrAjax.aufruf('/ecmd?kty get', kty_get_handler, 'GET', 0);
-  kty_trigger ();
+function kty_trigger_get() {
+	ArrAjax.aufruf('/ecmd?kty get', kty_get_handler, 'GET', 0);
+	kty_trigger();
 }
 
 function kty_get_handler(request, data) {
-  var daten = returnObjById("daten");
-  daten.innerHTML = request.responseText;
-  var laenge = returnObjById("laenge");
+	var daten = returnObjById("daten");
+	daten.innerHTML = request.responseText;
 
-  for (var i = 0; i < 7; i++) {
-    sensor = request.responseText.substr(i*6, 6);
-    var temperatur = parseInt (sensor);
-    graphAppend (g[i], temperatur);
-  }
+	for (var i = 0; i < 7; i++) {
+		var sensor = request.responseText.substr(i*6, 6);
+		var temperatur = parseInt(sensor);
+		graphAppend(g[i], temperatur);
+	}
 }
 
 window.onload = function() {
-  kty_trigger();
+	kty_trigger();
 }
-
 ]]></script>
   </body>
 </html>

@@ -1,43 +1,44 @@
 ifdef(`conf_ONEWIRE', `', `m4exit(1)')
 ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')
-<html><head>
+<html>
+<head>
 <title>Ethersex - Onewire Status</title>
-  <script src="scr.js" type="text/javascript"></script>
-  <link href="Sty.c"  media="screen" rel="Stylesheet" type="text/css" />
-  <script type="text/javascript"><!--
+<script src="scr.js" type="text/javascript"></script>
+<link href="Sty.c" media="screen" rel="Stylesheet" type="text/css"/>
+<script type="text/javascript">
 function ecmd_1w_list_req() {
-  ArrAjax.aufruf('/ecmd?1w list', ecmd_1w_list_req_handler, 'GET');
+	ArrAjax.aufruf('/ecmd?1w list', ecmd_1w_list_req_handler, 'GET');
 }
 
 function ecmd_1w_list_req_handler(request) {
-  if (ecmd_error(request.responseText))
-    return;
-  var sensors = request.responseText.split("\n");
-  var ow_table = returnObjById('ow_table');
+	if (ecmd_error(request.responseText))
+		return;
+	var sensors = request.responseText.split("\n");
+	var ow_table = returnObjById('ow_table');
 
-  for (var i = 0; i < sensors.length; i++) {
-    if (sensors[i] == "OK") break;
-    ArrAjax.aufruf('/ecmd?1w convert ' + sensors[i], ecmd_1w_convert_req_handler, 'GET', sensors[i]);
-    ow_table.innerHTML += "<tr><td>" + sensors[i] + "</td><td id='ow" + sensors[i] +"'>No data</td></tr>";
-  }
+	for (var i = 0; i < sensors.length; i++) {
+		if (sensors[i] == "OK")
+			break;
+		ow_table.innerHTML += "<tr><td>" + sensors[i] + "</td><td id='ow" + sensors[i] +"'>No data</td></tr>";
+		ArrAjax.aufruf('/ecmd?1w convert ' + sensors[i], ecmd_1w_convert_req_handler, 'GET', sensors[i]);
+	}
 }
 
 function ecmd_1w_convert_req_handler(request, data) {
-  ArrAjax.aufruf('/ecmd?1w get ' + data, ecmd_1w_get_req_handler, 'GET', data);
+	ArrAjax.aufruf('/ecmd?1w get ' + data, ecmd_1w_get_req_handler, 'GET', data);
 }
 
 function ecmd_1w_get_req_handler(request, data) {
-  setTimeout("ArrAjax.aufruf('/ecmd?1w convert " + data 
-	     + "', ecmd_1w_convert_req_handler, 'GET', '" + data +"')", 
-	     5000);
-  var row = returnObjById("ow" + data);
-  row.innerHTML = request.responseText;
+	setTimeout("ArrAjax.aufruf('/ecmd?1w convert " + data
+		+ "', ecmd_1w_convert_req_handler, 'GET', '" + data +"')",
+		5000);
+	var row = returnObjById("ow" + data);
+	row.innerHTML = request.responseText;
 }
 
 window.onload = function() {
-  ecmd_1w_list_req();
+	ecmd_1w_list_req();
 }
-    //--!>
 </script>
 </head><body>
 <h1>Ethersex Onewire Status</h1>

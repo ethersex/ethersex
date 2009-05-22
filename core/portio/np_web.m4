@@ -7,32 +7,28 @@ define(`end_divert', 5)
 divert(hdr_divert)
 <html><head>
 <title>Ethersex - Named Pins</title>
-<link rel="StyleSheet"  href="Sty.c" type="text/css" />
+<link rel="StyleSheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_send(cmd, handler, obj) {
-  var url = '/ecmd?' + cmd;
-  var request = new Object();
-  request.cmd = cmd;
-  request.obj = obj;
-  ArrAjax.aufruf(url, handler, 'GET', request);
+	var request = new Object();
+	request.cmd = cmd;
+	request.obj = obj;
+	ArrAjax.aufruf('/ecmd?' + cmd, handler, 'GET', request);
 }
 
 function pin_set(pin, state) {
-  ecmd_send('pin set ' + pin + " " +state);
-  ecmd_send('pin get ' + pin,  pin_get, pin);
+	ecmd_send('pin set ' + pin + ' ' + state);
+	ecmd_send('pin get ' + pin, pin_get, pin);
 }
 
 function pin_get(request, data) {
-  var obj = returnObjById(data.obj);
-  obj.innerHTML = request.responseText;
-
-  if(request.responseText.indexOf("on") != -1) {
-    obj.style.backgroundColor = "green";
-  } else {
-    obj.style.backgroundColor = "#444";
-  }
+	var obj = returnObjById(data.obj);
+	obj.innerHTML = request.responseText;
+	var on = request.responseText.indexOf("on");
+	obj.style.backgroundColor = (on != -1) ? "green" : "#444";
 }
+
 function np_init() {
 divert(hdr_end_divert)
 }
@@ -75,8 +71,8 @@ define({{np_input}}, {{divert(input_divert)dnl
     <td>$3</td><td><span id="$3" class="lamp"></span></td>
 </tr>
 divert(hdr_divert)
-ecmd_send('pin get $3', pin_get, "$3");
-setInterval('ecmd_send("pin get $3", pin_get, "$3");', 5000);
+	ecmd_send('pin get $3', pin_get, "$3");
+	setInterval('ecmd_send("pin get $3", pin_get, "$3");', 5000);
 }})
 define({{np_pin}}, {{ifelse({{$2}}, {{OUTPUT}}, 
 		    {{np_output({{$1}}, {{$3}}, {{$4}})}},

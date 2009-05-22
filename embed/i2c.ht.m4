@@ -1,14 +1,14 @@
-<html><head>
 changequote({{,}})dnl
 ifdef({{conf_I2C_MASTER}}, {{}}, {{m4exit(1)}})dnl
 ifdef({{conf_I2C_INLINE}}, {{}}, {{m4exit(1)}})dnl
+<html>
+<head>
 <title>Ethersex - I2C Master</title>
-<link rel="StyleSheet"  href="Sty.c" type="text/css" />
+<link rel="StyleSheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_set(cmd, ic, value) {
-   var url = '/ecmd?' + cmd + '+' + ic + '+' + value;
-   ArrAjax.aufruf(url);
+	ArrAjax.aufruf('/ecmd?' + cmd + '+' + ic + '+' + value);
 }
 </script>
 </head>
@@ -48,7 +48,6 @@ PCF8574<br>
 <a href="javascript:ecmd_set('pcf8574x',0,'0+ff')">I/O to ON<a/><br>
 <br>
 }})
-
 <br>
 <a href="idx.ht"> Back </a>
 <div id="logconsole"></div>

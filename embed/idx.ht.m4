@@ -1,7 +1,7 @@
 <html>
  <head>
   <title>Ethersex Index Page</title>
-  <link rel="StyleSheet"  href="Sty.c" type="text/css" />
+  <link rel="StyleSheet" href="Sty.c" type="text/css"/>
  </head>
  <body>
   <h1>Welcome to Ethersex!</h1>
