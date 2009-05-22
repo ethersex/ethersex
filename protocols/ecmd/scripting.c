@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/vfs/vfs.h"
 #include "protocols/ecmd/parser.h"
 #include "scripting.h"
 
@@ -41,30 +42,86 @@ parse_cmd_goto(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_exit(char *cmd, char *output, uint16_t len)
 {
-  current_script.file = NULL;
-  current_script.linenumber=0;
+  vfs_close(current_script.handle);
+  current_script.handle = NULL;
+  current_script.linenumber = 0;
+  current_script.filepointer = 0;
   return 0;
+}
+
+// read a line from file "handle", stored in "line", starting at "pos"
+int16_t 
+vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
+    uint8_t i = 0;
+    vfs_fseek(handle, pos, SEEK_SET);
+    vfs_size_t readlen = vfs_read(handle, line, ECMD_INPUTBUF_LENGTH - 1);
+
+    line[ECMD_INPUTBUF_LENGTH - 1] = 0;
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("ECMD script: buffer: %s\n", line);
+#endif // DEBUG_ECMD_SCRIPT
+    for (i = 0; i < readlen ; i++){
+       if (line[i] == '\n')  break;
+    }
+    line[i] = 0;
+    return i; // size until linebreak
+}
+
+// read a line from script
+uint8_t
+readline(char *buf){
+    int8_t len = vfs_fgets(current_script.handle, buf, current_script.filepointer);
+    if (len == -1 || len == ECMD_INPUTBUF_LENGTH) {
+      return 0;
+    }
+    current_script.filepointer += len + 1;
+    current_script.linenumber++;
+    return len;
 }
 
 int16_t
 parse_cmd_call(char *cmd, char *output, uint16_t len)
 {
-  return snprintf_P(output, len, PSTR("not yet fully implemented"));
+  char filename[10];
+  char line[ECMD_INPUTBUF_LENGTH];
+  uint8_t lsize=0;
+  uint8_t maxlines=100;
+  uint8_t run=0;
+  vfs_size_t filesize;
+#ifdef DEBUG_ECMD_SCRIPT
+  maxlines=10;
+#endif // DEBUG_ECMD_SCRIPT
 
-  sscanf_P(cmd, PSTR("%s"), &current_script.file);
+  sscanf_P(cmd, PSTR("%s"), &filename);
+  current_script.handle = vfs_open(filename);
+
+  if (current_script.handle == NULL)
+    return 1;
+  
+  filesize = vfs_size(current_script.handle);
+
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("ECMD script: start %s from %i bytes\n", filename, filesize);
+#endif // DEBUG_ECMD_SCRIPT
   current_script.linenumber=0;
+  current_script.filepointer=0;
 
-  // open file
-  while (current_script.file!=NULL) {
+  // open file as long it is open, we have not reached max lines and 
+  // not the end of the file as we know it
+  while ( (current_script.handle != NULL) && 
+          (run++ < maxlines ) && 
+          (filesize > current_script.filepointer ) ) {
     // read line
-    char ecmd[50];
+    lsize = readline(line);
     // execute line
 #ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("exec (%i): %s\n", current_script.linenumber, ecmd);
+    debug_printf("ECMD script: exec (linenr:%i, pos:%i, bufsize:%i): %s\n", current_script.linenumber, current_script.filepointer, lsize, line);
 #endif // DEBUG_ECMD_SCRIPT
-    ecmd_parse_command(ecmd, output, len);
-    current_script.linenumber++;
+    ecmd_parse_command(line, output, len);
   }
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("ECMD script: end\n");
+#endif // DEBUG_ECMD_SCRIPT
   return 0;
 }
 
@@ -103,7 +160,7 @@ parse_cmd_get(char *cmd, char *output, uint16_t len)
     return snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES);
   }
 
-  uint16_t value = atoi(vars[pos].value);
+//  uint16_t value = atoi(vars[pos].value);
   return snprintf_P(output, len, PSTR("%s"), vars[pos].value);
 }
 
@@ -197,4 +254,19 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
 
   return 1;
 }
+
+// do nothing but provides comments in scripting
+int16_t
+parse_cmd_rem(char *cmd, char *output, uint16_t len)
+{
+    return 0;
+}
+
+// hello echo!
+int16_t
+parse_cmd_echo(char *cmd, char *output, uint16_t len)
+{
+      return snprintf_P(output, len, PSTR("%s"), cmd);
+}
+
 

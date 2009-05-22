@@ -22,8 +22,9 @@
 #ifdef ECMD_SCRIPT_SUPPORT
 
 typedef struct {
-  char *file;
+  struct vfs_file_handle_t *handle;
   uint16_t linenumber;
+  vfs_size_t filepointer;
 } script_t;
 
 script_t current_script;

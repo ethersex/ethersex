@@ -313,6 +313,8 @@ ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
   ecmd_feature(dec, "dec ")
   ecmd_feature(call, "call ")
   ecmd_feature(if, "if ")
+  ecmd_feature(rem, "rem")
+  ecmd_feature(echo, "echo ")
 ecmd_endif
 
 dnl block(Button Input) dnl ==========================
