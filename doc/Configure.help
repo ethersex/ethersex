@@ -1655,6 +1655,8 @@ ECMD_SCRIPT_SUPPORT
 
   Available Commands:
 
+  * rem any text  -> comments in files
+  * echo any text -> print out any text
   * wait i        -> wait i milliseconds
   * set var value -> set variable to value
   * get var       -> get value of variable
@@ -1664,9 +1666,9 @@ ECMD_SCRIPT_SUPPORT
   * if ( %var == CONST ) then ecmd2
                   -> compares output of variable or ecmd1, if successfull
                      then execute ecmd2
-  
-  only usefull while script is running! (not yet working)
   * call file     -> calls script file from vfs and execute it line by line
+
+  only available while script is running
   * exit          -> exit currently running script
   * goto n        -> jumps to line number of script
 
