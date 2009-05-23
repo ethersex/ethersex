@@ -32,23 +32,6 @@
 #include "protocols/ecmd/parser.h"
 #include "scripting.h"
 
-int16_t
-parse_cmd_goto(char *cmd, char *output, uint16_t len)
-{
-  sscanf_P(cmd, PSTR("%i"), &current_script.linenumber - 1);
-  return 0;
-}
-
-int16_t
-parse_cmd_exit(char *cmd, char *output, uint16_t len)
-{
-  vfs_close(current_script.handle);
-  current_script.handle = NULL;
-  current_script.linenumber = 0;
-  current_script.filepointer = 0;
-  return 0;
-}
-
 // read a line from file "handle", stored in "line", starting at "pos"
 int16_t 
 vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
@@ -58,10 +41,10 @@ vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
 
     line[ECMD_INPUTBUF_LENGTH - 1] = 0;
 #ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: buffer: %s\n", line);
+    debug_printf("ECMD script: fgets (%i) : %s\n", readlen, line);
 #endif // DEBUG_ECMD_SCRIPT
     for (i = 0; i < readlen ; i++){
-       if (line[i] == '\n')  break;
+       if (line[i] == 0x0a)  break;
     }
     line[i] = 0;
     return i; // size until linebreak
@@ -71,12 +54,52 @@ vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
 uint8_t
 readline(char *buf){
     int8_t len = vfs_fgets(current_script.handle, buf, current_script.filepointer);
-    if (len == -1 || len == ECMD_INPUTBUF_LENGTH) {
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("ECMD script: readline: %s\n", buf);
+#endif // DEBUG_ECMD_SCRIPT
+    if (len == -1 || len >= ECMD_INPUTBUF_LENGTH) {
       return 0;
     }
     current_script.filepointer += len + 1;
     current_script.linenumber++;
     return len;
+}
+
+int16_t
+parse_cmd_goto(char *cmd, char *output, uint16_t len)
+{ 
+  uint8_t gotoline = 0;
+  char line[ECMD_INPUTBUF_LENGTH];
+
+  if (current_script.handle == NULL) {
+      return snprintf_P(output, len, PSTR("no script"));
+  }
+  sscanf_P(cmd, PSTR("%i"), &gotoline);
+
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("ECMD script: current %i goto line %i\n", current_script.linenumber, gotoline);
+#endif // DEBUG_ECMD_SCRIPT
+
+  if (gotoline < current_script.linenumber) {
+    vfs_fseek(current_script.handle, 0, SEEK_SET);
+  }
+  while ( current_script.linenumber != gotoline ) {
+    readline(line);
+  }
+  return 0;
+}
+
+int16_t
+parse_cmd_exit(char *cmd, char *output, uint16_t len)
+{
+  if (current_script.handle == NULL) {
+      return snprintf_P(output, len, PSTR("no script"));
+  }
+  vfs_close(current_script.handle);
+  current_script.handle = NULL;
+  current_script.linenumber = 0;
+  current_script.filepointer = 0;
+  return 0;
 }
 
 int16_t
@@ -92,7 +115,7 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   maxlines=10;
 #endif // DEBUG_ECMD_SCRIPT
 
-  sscanf_P(cmd, PSTR("%s"), &filename);
+  sscanf_P(cmd, PSTR("%s"), &filename);  // should check for ".es" extention!
   current_script.handle = vfs_open(filename);
 
   if (current_script.handle == NULL)
@@ -111,17 +134,22 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   while ( (current_script.handle != NULL) && 
           (run++ < maxlines ) && 
           (filesize > current_script.filepointer ) ) {
-    // read line
+
     lsize = readline(line);
-    // execute line
 #ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: exec (linenr:%i, pos:%i, bufsize:%i): %s\n", current_script.linenumber, current_script.filepointer, lsize, line);
+      debug_printf("ECMD script: (linenr:%i, pos:%i, bufsize:%i)\n", current_script.linenumber, current_script.filepointer, lsize);
+      debug_printf("ECMD script: exec: %s\n", line);
 #endif // DEBUG_ECMD_SCRIPT
-    ecmd_parse_command(line, output, len);
+    if (lsize != 0) {
+      ecmd_parse_command(line, output, len);
+    }
   }
 #ifdef DEBUG_ECMD_SCRIPT
     debug_printf("ECMD script: end\n");
 #endif // DEBUG_ECMD_SCRIPT
+
+  parse_cmd_exit(cmd, output, len);
+
   return 0;
 }
 
