@@ -1,5 +1,6 @@
 ifdef(`conf_ONEWIRE', `', `m4exit(1)')dnl
 ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')dnl
+undefine(`substr')dnl
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC
     "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
