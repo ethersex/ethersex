@@ -46,7 +46,7 @@ while true; do
     continue
   fi
   unzipped=$(echo "$fn" | sed 's/\.gz$//')
-  gzip -c  -9 "$fn" > "$fn.gz"
+  gzip -c  -9 < "$fn" > "$fn.gz"
 
 
   echo Embedding $fn ...
