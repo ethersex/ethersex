@@ -49,7 +49,7 @@ int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
 #endif  
 }
 
-#ifndef DISABLE_IPCONF_SUPPORT
+#if !defined(DISABLE_IPCONF_SUPPORT) || defined(NTP_SUPPORT) || defined(DNS_SUPPORT)
 /* parse an ip address at cmd, write result to ptr */
 int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 {
@@ -231,8 +231,6 @@ int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 {
-    uip_ipaddr_t gwaddr;
-
     while (*cmd == ' ')
 	cmd++;
 
