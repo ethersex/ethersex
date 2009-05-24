@@ -236,6 +236,8 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 
 #ifndef DISABLE_IPCONF_SUPPORT
 #if (!UIP_CONF_IPV6 || IPV6_STATIC_SUPPORT) && !defined(BOOTP_SUPPORT)
+    uip_ipaddr_t gwaddr;
+
     if (*cmd != '\0') {
         /* try to parse ip */
         if (parse_ip (cmd, &gwaddr))
