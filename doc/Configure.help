@@ -1735,3 +1735,9 @@ STELLA_BROADCAST_UDP_PORT
   If you asked stella to propagate its channel values via broadcasting, this port is used
   as udp destination port.
 
+Use GIT commit hash as Version
+USE_GIT_VERSION
+
+ Produces a short version string which can be used to locate the used source.
+
+
