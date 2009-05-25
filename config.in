@@ -2,6 +2,7 @@
 source scripts/usart-config.sh
 mainmenu_name "Ethersex Configuration"
 
+
 mainmenu_option next_comment
 comment "General Setup"
 
@@ -29,6 +30,10 @@ choice 'Hardware/Periphery Class'	\
 bool "Build a bootloader"	BOOTLOADER_SUPPORT
 bool "Teensy build"		TEENSY_SUPPORT
 bool "Use SPI Timeout"		SPI_TIMEOUT
+bool "Use GIT commit hash as Version" USE_GIT_VERSION
+if [ "$USE_GIT_VERSION" = y ]; then 
+  define_string VERSION_GIT "$(scripts/get-git-version)"
+fi
 
 dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'Reroute to SYSLOG' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG

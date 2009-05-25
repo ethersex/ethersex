@@ -49,7 +49,7 @@
 #define str_(s) #s
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 2
-#define VERSION_STRING xstr_(VERSION_MAJOR)"."xstr_(VERSION_MINOR)
+#define VERSION_STRING xstr_(VERSION_MAJOR)"."xstr_(VERSION_MINOR)VERSION_GIT
 
 /* configure duplex mode */
 #define NET_FULL_DUPLEX 0
