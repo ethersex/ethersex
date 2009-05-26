@@ -33,6 +33,8 @@ bool "Use SPI Timeout"		SPI_TIMEOUT
 bool "Use GIT commit hash as Version" USE_GIT_VERSION
 if [ "$USE_GIT_VERSION" = y ]; then 
   define_string VERSION_GIT "$(scripts/get-git-version)"
+else 
+  define_string VERSION_GIT ""
 fi
 
 dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
