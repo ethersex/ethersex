@@ -40,7 +40,7 @@ static const char PROGMEM netstat_header[] =
     "Content-Length: ";
 
 static const char PROGMEM netstat_body[] =
-    "\n\nstatus=";
+    "\n\nmac=" CONF_ENC_MAC;
 
 
 static void
