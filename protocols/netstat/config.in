@@ -1,0 +1,4 @@
+dep_bool_menu "netStat client (EXPERIMENTAL)" NETSTAT_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+  string "Service" CONF_NETSTAT_SERVICE "ku.rs-west.de"
+  string "Base Path" CONF_NETSTAT_API "/ethersex/stat/"
+endmenu

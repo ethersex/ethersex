@@ -70,6 +70,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'MCUF' DEBUG_MCUF $DEBUG
   dep_bool 'I2C' DEBUG_I2C $DEBUG
   dep_bool 'IRC' DEBUG_IRC $DEBUG $IRC_SUPPORT
+  dep_bool 'NETSTAT' DEBUG_NETSTAT $DEBUG $NETSTAT_SUPPORT
   dep_bool 'TWITTER' DEBUG_TWITTER $DEBUG $TWITTER_SUPPORT
   dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
   dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
@@ -253,6 +254,7 @@ source hardware/radio/rfm12/rfm12_ask-config.in
 source protocols/mysql/config.in
 source protocols/irc/config.in
 source protocols/twitter/config.in
+source protocols/netstat/config.in
 
 endmenu
 
