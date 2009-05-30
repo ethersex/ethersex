@@ -31,47 +31,35 @@
 #include "protocols/dns/resolv.h"
 #include "netstat.h"
 
-static char *netstat_tmp_buf;
-
 static const char PROGMEM netstat_header[] =
     "POST " CONF_NETSTAT_API "update.php HTTP/1.1\n"
     "Host: " CONF_NETSTAT_SERVICE "\n"
     "Content-Type: application/x-www-form-urlencoded\n"
     "Content-Length: ";
 
-static const char PROGMEM netstat_body[] =
+static const char PROGMEM netstat_mac[] =
     "\n\nmac=" CONF_ENC_MAC;
 
 
 static void
-netstat_net_main(void)
+netstat_net_action(void)
 {
     if (uip_aborted() || uip_timedout()) {
 	NETSTATDEBUG ("connection aborted\n");
-        if (netstat_tmp_buf) {
-          free(netstat_tmp_buf);
-          netstat_tmp_buf = NULL;
-        }
         return;
     }
 
     if (uip_closed()) {
 	NETSTATDEBUG ("connection closed\n");
-        if (netstat_tmp_buf) {
-          free(netstat_tmp_buf);
-          netstat_tmp_buf = NULL;
-        }
         return;
     }
-
 
     if (uip_connected() || uip_rexmit()) {
 	NETSTATDEBUG ("new connection or rexmit, sending message\n");
         char *p = uip_appdata;
         p += sprintf_P(p, netstat_header);
-        p += sprintf(p, "%d", strlen(netstat_tmp_buf) + 7);
-        p += sprintf_P(p, netstat_body);
-        p += sprintf(p, netstat_tmp_buf);
+        p += sprintf(p, "%d", 17); // 17 -> "00:00:00:00:00:00"
+        p += sprintf(p, netstat_mac);
         uip_udp_send(p - (char *)uip_appdata);
         NETSTATDEBUG("send %d bytes\n", p - (char *)uip_appdata);
     }
@@ -85,11 +73,7 @@ netstat_net_main(void)
 static void
 netstat_dns_query_cb(char *name, uip_ipaddr_t *ipaddr) {
   NETSTATDEBUG("got dns response, connecting\n");
-  if(!uip_connect(ipaddr, HTONS(80), netstat_net_main)) {
-    if (netstat_tmp_buf) {
-      free(netstat_tmp_buf);
-      netstat_tmp_buf = NULL;
-    }
+  if(!uip_connect(ipaddr, HTONS(80), netstat_net_action)) {
   }
 
 }
@@ -97,27 +81,21 @@ netstat_dns_query_cb(char *name, uip_ipaddr_t *ipaddr) {
 uint8_t
 netstat_send(char *status)
 {
-  /* Transmission taking action */
-  if (netstat_tmp_buf) return 0;
-
-  uint8_t len = strlen(status);
-  if (len > 140) {
-    NETSTATDEBUG("message too long: cropping");
-    len = 140;
+  NETSTATDEBUG ("send\n");
+  uip_ipaddr_t ipaddr;
+#ifdef DNS_SUPPORT
+//  if (!(ipaddr = resolv_lookup(CONF_NETSTAT_SERVICE))) {
+//    resolv_query(CONF_NETSTAT_SERVICE, netstat_dns_query_cb);
+//  } else {
+//    netstat_dns_query_cb(NULL, ipaddr);
+//  }
+#else
+  set_CONF_NETSTAT_SERVICE_IP(&ipaddr);
+  if (! uip_connect(&ipaddr, HTONS(80), netstat_net_action))
+  {
+  NETSTATDEBUG ("failed\n");
   }
-
-  netstat_tmp_buf = malloc(140);
-  if (!netstat_tmp_buf) return 0;
-
-  memcpy(netstat_tmp_buf, status, len);
-  netstat_tmp_buf[len] = 0;
-
-  uip_ipaddr_t *ipaddr;
-  if (!(ipaddr = resolv_lookup(CONF_NETSTAT_SERVICE))) {
-    resolv_query(CONF_NETSTAT_SERVICE, netstat_dns_query_cb);
-  } else {
-    netstat_dns_query_cb(NULL, ipaddr);
-  }
+#endif
   return 1;
 }
 

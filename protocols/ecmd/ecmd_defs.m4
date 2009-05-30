@@ -354,3 +354,7 @@ ecmd_ifdef(NETSTAT_SUPPORT)
   ecmd_feature(netstat, "ns ",,Net Statistic - Public anouncment of running ethersex)
 ecmd_endif
 
+dnl block(IRC Client) dnl ==========================
+ecmd_ifdef(IRC_SUPPORT)
+  ecmd_feature(irc, "irc init",,irc initialization)
+ecmd_endif
