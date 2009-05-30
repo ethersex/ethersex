@@ -71,10 +71,11 @@ vfs_create (const char *name)
   struct vfs_file_handle_t *fh = NULL;
   struct vfs_func_t funcs;
 
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++)
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++) {
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
     if (funcs.create)
       fh = funcs.create (name);
+  }
 
   return fh;
 }
