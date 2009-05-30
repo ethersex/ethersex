@@ -80,12 +80,6 @@ extern "C"
 #define select_card()        PIN_CLEAR(SPI_CS_SD_READER)
 #define unselect_card()      PIN_SET(SPI_CS_SD_READER)
 
-#define configure_pin_available() (void)0 /* DDRC &= ~(1 << DDC4) */
-#define configure_pin_locked() (void)0 /* DDRC &= ~(1 << DDC5) */
-
-#define get_pin_available() 0 /* ((PINC >> PC4) & 0x01) */
-#define get_pin_locked() 0 /* ((PINC >> PC5) & 0x01) */
-
 #if SD_RAW_SDHC
     typedef uint64_t offset_t;
 #else

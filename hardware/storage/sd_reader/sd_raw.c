@@ -171,6 +171,7 @@ static uint8_t sd_raw_send_command(uint8_t command, uint32_t arg);
  */
 uint8_t sd_raw_init()
 {
+#if 0
     /* enable inputs for reading card status */
     configure_pin_available();
     configure_pin_locked();
@@ -178,8 +179,10 @@ uint8_t sd_raw_init()
     /* enable outputs for MOSI, SCK, SS, input for MISO */
     configure_pin_mosi();
     configure_pin_sck();
-    configure_pin_ss();
     configure_pin_miso();
+#endif
+
+    configure_pin_ss();
 
     unselect_card();
 
@@ -197,12 +200,12 @@ uint8_t sd_raw_init()
     /* initialization procedure */
     sd_raw_card_type = 0;
     
+#if 0
     if(!sd_raw_available()) {
 	SDDEBUG ("sd-card not available, stop.\n");
         return 0;
     }
 
-#if 0
     /* card needs 74 cycles minimum to start up */
     for(uint8_t i = 0; i < 10; ++i)
     {
@@ -340,6 +343,7 @@ uint8_t sd_raw_init()
     return 1;
 }
 
+#if 0
 /**
  * \ingroup sd_raw
  * Checks wether a memory card is located in the slot.
@@ -362,7 +366,6 @@ uint8_t sd_raw_locked()
     return get_pin_locked() == 0x00;
 }
 
-#if 0
 /**
  * \ingroup sd_raw
  * Sends a raw byte to the memory card.
@@ -694,8 +697,10 @@ uint8_t sd_raw_read_interval(offset_t offset, uint8_t* buffer, uintptr_t interva
  */
 uint8_t sd_raw_write(offset_t offset, const uint8_t* buffer, uintptr_t length)
 {
+#if 0
     if(sd_raw_locked())
         return 0;
+#endif
 
     offset_t block_address;
     uint16_t block_offset;
