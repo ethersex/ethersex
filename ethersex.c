@@ -97,9 +97,7 @@ int main(void)
 	#endif
 
 	//FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
-	#ifdef DEBUG
-	debug_init_uart();
-	#endif
+	debug_init();
 	debug_printf("debugging enabled\n");
 
 	#ifdef BOOTLOADER_SUPPORT

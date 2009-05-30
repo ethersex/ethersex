@@ -35,12 +35,15 @@
     #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
 
 #ifdef DEBUG_USE_SYSLOG
+    #define debug_init() syslog_debug_init()
     #define debug_putchar(ch) syslog_debug_put(ch, NULL)
 #else  /* not DEBUG_USE_SYSLOG */
+    #define debug_init() debug_init_uart()
     #define debug_putchar(ch) debug_uart_put (ch, NULL);
 #endif	/* not DEBUG_USE_SYSLOG */
 
 #else  /* not DEBUG */
+    #define debug_init(...) do { } while(0)
     #define debug_printf(s, args...) do {} while(0);
     #define debug_putchar(...) do { } while(0)
 #endif /* not DEBUG */
