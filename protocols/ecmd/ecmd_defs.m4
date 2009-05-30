@@ -262,17 +262,17 @@ ecmd_endif()
 
 block(ECMD Scripting) dnl ==========================
 ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
-  ecmd_feature(goto, "goto ",n, Goto specific line in current running script)
+  ecmd_feature(goto, "goto ",N, Goto line N in currently running script)
   ecmd_feature(exit, "exit",, Exit currently running script)
-  ecmd_feature(wait, "wait ",i, Wait time in milliseconds)
-  ecmd_feature(set, "set ",var value, Fill variable with value)
-  ecmd_feature(get, "get ",var, Get value of variable)
-  ecmd_feature(inc, "inc ",var, Increment variable (if it is a number) )
-  ecmd_feature(dec, "dec ",var, Decrement variable (if it is a number) )
-  ecmd_feature(call, "call ",filename, Start script)
+  ecmd_feature(wait, "wait ",I, Wait I milliseconds)
+  ecmd_feature(set, "set ",VAR VALUE, Set variable VAR to VALUE)
+  ecmd_feature(get, "get ",VAR, Get value of variable VAR)
+  ecmd_feature(inc, "inc ",VAR, Increment variable VAR (a number) )
+  ecmd_feature(dec, "dec ",VAR, Decrement variable VAR (a number) )
+  ecmd_feature(call, "call ",FILENAME, Start script named FILENAME)
   ecmd_feature(if, "if ",( CMD/VAR == CONST ) then CMD2, If condition matches execute CMD2)
-  ecmd_feature(rem, "rem",any, Remark for anything)
-  ecmd_feature(echo, "echo ",any, Print out all arguments of echo)
+  ecmd_feature(rem, "rem",<any>, Remark for anything)
+  ecmd_feature(echo, "echo ",<any>, Print out all arguments of echo)
 ecmd_endif
 
 
