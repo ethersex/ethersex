@@ -12,7 +12,7 @@ dnl block(Network configuration) dnl ==========================
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_ifdef(UIP_SUPPORT)
     ecmd_ifdef(ENC28J60_SUPPORT)
-      ecmd_feature(mac, "mac",[XX:XX:XX:XX:XX:XX],Display/Set the MAC address.)
+      ecmd_feature(mac, "mac",[xx:xx:xx:xx:xx:xx],Display/Set the MAC address.)
     ecmd_endif()
 
     ecmd_ifndef(IPV6_SUPPORT)
@@ -26,14 +26,6 @@ ecmd_ifndef(TEENSY_SUPPORT)
       ecmd_feature(gw, "gw")
     ecmd_endif()
   ecmd_endif()
-ecmd_endif()
-
-ecmd_ifdef(IPSTATS_SUPPORT)
-  ecmd_feature(ipstats, "ipstats",, Display IP statistics.)
-ecmd_endif()
-
-ecmd_ifdef(FREE_SUPPORT)
-  ecmd_feature(free, "free",, Display free space.)
 ecmd_endif()
 
 block(Resetting the controller) dnl ==========================
@@ -69,7 +61,7 @@ ecmd_ifdef(STELLA_SUPPORT)
   ecmd_feature(stella_channel_get, "channel get", CHANNEL, Get stella channel value)
 ecmd_endif()
 
-block(Cron commands) dnl ==========================
+block(Cron commands (dynamic variant)) dnl ==========================
 ecmd_ifdef(CRON_SUPPORT)
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
   ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
@@ -89,7 +81,7 @@ ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
   ecmd_feature(io, "io ")
 ecmd_endif()
 
-block(C6) dnl ==========================
+block(Control 6) dnl ==========================
 ecmd_ifdef(CONTROL6_SUPPORT)
   ecmd_ifdef(C6_ECMD_USED)
     ecmd_feature(c6_get, "c6 get ", VARNAME, Display the current value of the ECMD_GLOBAL Variable)
@@ -200,15 +192,15 @@ ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 ecmd_ifdef(RFM12_ASK_EXTERNAL_FILTER_SUPPORT)
-  ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter", , Toggel receiver)
+  ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter",[1], Enable ext. filter pin if argument is present (disable otherwise))
 ecmd_endif()
 ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
-  ecmd_feature(rfm12_ask_sense, "rfm12 ask sense")
+  ecmd_feature(rfm12_ask_sense, "rfm12 ask sense",, Trigger (Tevion) ASK sensing.  Enable ext. filter pin before!)
 ecmd_endif()
 
 block(DC3840 Handycam support) dnl ==========================
 ecmd_ifdef(DC3840_SUPPORT)
-  ecmd_feature(dc3840_capture, "dc3840 capture",, Make a picture)
+  ecmd_feature(dc3840_capture, "dc3840 capture",, Take a picture.  Access 'dc3840' via VFS afterwards.  See [[DC3840 Camera]] for details.)
   ecmd_feature(dc3840_send, "dc3840 send ", A B C D E, Send provided command bytes to the camera.)
   ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)
 ecmd_endif
@@ -242,16 +234,34 @@ ecmd_endif
 block(MCUF) dnl ============================
 ecmd_ifdef(MCUF_SUPPORT)
   ecmd_ifdef(MCUF_CLOCK_SUPPORT)
-    ecmd_feature(mcuf_show_clock, "mcuf showclock")
+    ecmd_feature(mcuf_show_clock, "mcuf showclock",, Show digital clock)
   ecmd_endif
   ecmd_ifdef(MCUF_SCROLLTEXT_SUPPORT)
-   ecmd_feature(mcuf_show_string, "mcuf showstring")
+   ecmd_feature(mcuf_show_string, "mcuf showstring",MESSAGE, Show scrolling MESSAGE on the display)
   ecmd_endif
   ecmd_ifdef(MCUF_MODUL_SUPPORT)
    ecmd_feature(mcuf_modul_list, "mcuf modul list",, List all modules)
-   ecmd_feature(mcuf_modul, "mcuf modul")
+   ecmd_feature(mcuf_modul, "mcuf modul",N, Select module N)
   ecmd_endif
 ecmd_endif
+
+block(FS20) dnl ==========================
+ecmd_ifdef(FS20_SUPPORT)
+  ecmd_ifdef(FS20_SEND_SUPPORT)
+    ecmd_feature(fs20_send, "fs20 send",HOUSECODE ADDR CMD, Send FS20 command. See [[FS20]] for details.)
+  ecmd_endif()
+
+  ecmd_ifdef(FS20_RECEIVE_SUPPORT)
+    ecmd_feature(fs20_receive, "fs20 receive",, Receive FS20 sequence and display it.)
+  ecmd_endif()
+
+  ecmd_ifdef(FS20_RECEIVE_WS300_SUPPORT)
+    ecmd_feature(fs20_ws300, "fs20 ws300",, Receive FS20 sequence from WS300 weather station and decode it.)
+  ecmd_endif()
+ecmd_endif()
+
+
+
 
 block(Miscelleanous) dnl ============================
 
@@ -265,6 +275,15 @@ dnl  ecmd_ifdef(USART_SUPPORT)
 dnl    ecmd_feature(usart_baud, "usart baud", BAUD, Set the USART baudrate to BAUD.)
 dnl  ecmd_endif()
 ecmd_endif()
+
+ecmd_ifdef(IPSTATS_SUPPORT)
+  ecmd_feature(ipstats, "ipstats",, Display IP statistics.)
+ecmd_endif()
+
+ecmd_ifdef(FREE_SUPPORT)
+  ecmd_feature(free, "free",, Display free space.)
+ecmd_endif()
+
 
 dnl block(Uptime) dnl ==========================
 ecmd_ifdef(WHM_SUPPORT)
@@ -294,7 +313,7 @@ ecmd_endif()
 
 dnl block(MySQL Client) dnl ==========================
 ecmd_ifdef(MYSQL_SUPPORT)
-  ecmd_feature(mysql_query, "mysql query ")
+  ecmd_feature(mysql_query, "mysql query ",QUERY, Send specified MySQL query to the configured server)
 ecmd_endif
 
 dnl block(ECMD Aliases) dnl ==========================
@@ -326,19 +345,4 @@ dnl block(Twitter Client) dnl ==========================
 ecmd_ifdef(TWITTER_SUPPORT)
   ecmd_feature(tw, "tw ")
 ecmd_endif
-
-dnl blockFS20() dnl ==========================
-ecmd_ifdef(FS20_SUPPORT)
-  ecmd_ifdef(FS20_SEND_SUPPORT)
-    ecmd_feature(fs20_send, "fs20 send")
-  ecmd_endif()
-
-  ecmd_ifdef(FS20_RECEIVE_SUPPORT)
-    ecmd_feature(fs20_receive, "fs20 receive")
-  ecmd_endif()
-
-  ecmd_ifdef(FS20_RECEIVE_WS300_SUPPORT)
-    ecmd_feature(fs20_ws300, "fs20 ws300")
-  ecmd_endif()
-ecmd_endif()
 
