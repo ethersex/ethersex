@@ -205,7 +205,7 @@ ecmd_ifdef(DC3840_SUPPORT)
   ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)
 ecmd_endif
 
-block(PWM) dnl ==========================
+block(Sound/Melody support) dnl ==========================
 ecmd_ifdef(PWM_MELODY_SUPPORT)
   ecmd_feature(pwm_melody_play, "pwm melody", , Play melody)
 ecmd_endif
@@ -221,14 +221,14 @@ ecmd_ifdef(I2C_DETECT_SUPPORT)
 ecmd_endif
 
 ecmd_ifdef(I2C_LM75_SUPPORT)
-  ecmd_feature(i2c_lm75, "lm75", ADDR, Get temperature)
+  ecmd_feature(i2c_lm75, "lm75",ADDR, Get temperature)
 ecmd_endif
 ecmd_ifdef(I2C_PCA9531_SUPPORT)
-  ecmd_feature(i2c_pca9531, "pca9531", ADDR PERIODPWM1 DUTYPWM1 PERIODPWM2 DUTYPWM2 LED0..3 LED4..7, set PWM1 and PWM2 and LED states)
+  ecmd_feature(i2c_pca9531, "pca9531",ADDR PERIODPWM1 DUTYPWM1 PERIODPWM2 DUTYPWM2 LED0..3 LED4..7, set PWM1 and PWM2 and LED states)
 ecmd_endif
 ecmd_ifdef(I2C_PCF8574X_SUPPORT)
-  ecmd_feature(i2c_pcf8574x_read, "pcf8574x read", ADDR CHIP, Get bits)
-  ecmd_feature(i2c_pcf8574x_set, "pcf8574x set", ADDR CHIP HEXVALUE, Set bits)
+  ecmd_feature(i2c_pcf8574x_read, "pcf8574x read",ADDR CHIP, Get bits)
+  ecmd_feature(i2c_pcf8574x_set, "pcf8574x set",ADDR CHIP HEXVALUE, Set bits)
 ecmd_endif
 
 block(MCUF) dnl ============================
@@ -260,10 +260,28 @@ ecmd_ifdef(FS20_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
+block(ECMD Scripting) dnl ==========================
+ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
+  ecmd_feature(goto, "goto ",n, Goto specific line in current running script)
+  ecmd_feature(exit, "exit",, Exit currently running script)
+  ecmd_feature(wait, "wait ",i, Wait time in milliseconds)
+  ecmd_feature(set, "set ",var value, Fill variable with value)
+  ecmd_feature(get, "get ",var, Get value of variable)
+  ecmd_feature(inc, "inc ",var, Increment variable (if it is a number) )
+  ecmd_feature(dec, "dec ",var, Decrement variable (if it is a number) )
+  ecmd_feature(call, "call ",filename, Start script)
+  ecmd_feature(if, "if ",( CMD/VAR == CONST ) then CMD2, If condition matches execute CMD2)
+  ecmd_feature(rem, "rem",any, Remark for anything)
+  ecmd_feature(echo, "echo ",any, Print out all arguments of echo)
+ecmd_endif
+
 
 
 
 block(Miscelleanous) dnl ============================
+dnl   Put stuff that doesn't fit elsewhere here, i.e. this is a good place
+dnl   for commands that don't fit in any category and would thus require to add
+dnl   a category just for one specific command (which we don't want)
 
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(d, "d ", ADDR, Dump the memory at ADDR (16 bytes).)
@@ -318,22 +336,7 @@ ecmd_endif
 
 dnl block(ECMD Aliases) dnl ==========================
 ecmd_ifdef(ALIASCMD_SUPPORT)
-  ecmd_feature(alias_list, "alias list")
-ecmd_endif
-
-dnl block(ECMD Scripting) dnl ==========================
-ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
-  ecmd_feature(goto, "goto ")
-  ecmd_feature(exit, "exit")
-  ecmd_feature(wait, "wait ")
-  ecmd_feature(set, "set ")
-  ecmd_feature(get, "get ")
-  ecmd_feature(inc, "inc ")
-  ecmd_feature(dec, "dec ")
-  ecmd_feature(call, "call ")
-  ecmd_feature(if, "if ")
-  ecmd_feature(rem, "rem")
-  ecmd_feature(echo, "echo ")
+  ecmd_feature(alias_list, "alias list",, List all available aliases)
 ecmd_endif
 
 dnl block(Button Input) dnl ==========================
