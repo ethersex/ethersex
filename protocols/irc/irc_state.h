@@ -38,6 +38,11 @@ struct irc_connection_state_t {
     uint8_t stage;
     uint8_t sent;
 
+#ifdef ECMD_IRC_SUPPORT
+    uint8_t reparse;
+#endif
+
+    char inbuf[ECMD_INPUTBUF_LENGTH];
     char outbuf[ECMD_OUTPUTBUF_LENGTH];
 };
 

@@ -90,6 +90,26 @@ irc_send_data (uint8_t send_state)
 }
 
 
+#ifdef ECMD_IRC_SUPPORT
+static void
+irc_handle_ecmd (void)
+{
+    int16_t len = ecmd_parse_command(STATE->inbuf, STATE->outbuf,
+				     ECMD_OUTPUTBUF_LENGTH - 1);
+
+    if ((STATE->reparse = len <= -10))
+	len = -len - 10;
+
+    if (len < 0)
+	strcpy_P (STATE->outbuf, PSTR ("parse error"));
+    else
+	STATE->outbuf[len] = 0;
+
+    return;
+}
+#endif	/* ECMD_IRC_SUPPORT */
+
+
 static void
 irc_handle_message (char *message)
 {
@@ -97,22 +117,10 @@ irc_handle_message (char *message)
 
 #ifdef ECMD_IRC_SUPPORT
     if (*message == '!') {
-	message ++;		/* Skip exclamation mark. */
+	strncpy (STATE->inbuf, message + 1, ECMD_INPUTBUF_LENGTH -1);
+	STATE->inbuf[ECMD_INPUTBUF_LENGTH - 1] = 0;
 
-	int16_t len = ecmd_parse_command(message, STATE->outbuf,
-					 ECMD_OUTPUTBUF_LENGTH - 1);
-
-	if (len <= -10) {
-	    IRCDEBUG ("irc_ecmd doesn't support multiple reply lines (yet)\n");
-	    len = -len - 10;
-	}
-
-	if (len < 0)
-	    strcpy_P (STATE->outbuf, PSTR ("parse error"));
-	else
-	    STATE->outbuf[len] = 0;
-
-	return;
+	irc_handle_ecmd ();
     }
 #endif
 }
@@ -189,6 +197,9 @@ irc_main(void)
 	IRCDEBUG ("new connection\n");
 	STATE->stage = IRC_SEND_USERNICK;
 	STATE->sent = IRC_SEND_INIT;
+#ifdef ECMD_IRC_SUPPORT
+	STATE->reparse = 0;
+#endif
 	*STATE->outbuf = 0;
     }
 
@@ -197,8 +208,14 @@ irc_main(void)
 	STATE->stage ++;
 
     else if (STATE->stage == IRC_CONNECTED
-	     && uip_acked ())
+	     && uip_acked ()) {
 	*STATE->outbuf = 0;
+
+#ifdef ECMD_IRC_SUPPORT
+	if (STATE->reparse)
+	    irc_handle_ecmd ();
+#endif
+    }
 
     else if (uip_newdata() && uip_len) {
 	((char *) uip_appdata)[uip_len] = 0;
