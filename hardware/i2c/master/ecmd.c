@@ -32,7 +32,6 @@
 #include "hardware/i2c/master/i2c_24CXX.h"
 #include "hardware/i2c/master/i2c_pca9531.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
-#include "protocols/ecmd/parser.h"
 
 #ifdef I2C_DETECT_SUPPORT
 

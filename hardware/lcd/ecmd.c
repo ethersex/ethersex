@@ -33,7 +33,6 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "hardware/lcd/hd44780.h"
-#include "protocols/ecmd/parser.h"
 
 
 #ifdef HD44780_SUPPORT

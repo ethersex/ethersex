@@ -31,7 +31,6 @@
 #include "protocols/uip/uip.h"
 #include "core/bit-macros.h"
 #include "hardware/radio/fs20/fs20.h"
-#include "protocols/ecmd/parser.h"
 
 #ifdef FS20_SEND_SUPPORT
 int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)

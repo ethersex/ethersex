@@ -26,7 +26,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "core/bit-macros.h"
-#include "protocols/ecmd/parser.h"
 #include "cron.h"
 
 int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)

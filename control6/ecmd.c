@@ -31,7 +31,6 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "control6.h"
-#include "protocols/ecmd/parser.h"
 
 
 #ifdef C6_ECMD_USED

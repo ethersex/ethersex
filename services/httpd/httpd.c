@@ -30,7 +30,6 @@
 #include "httpd.h"
 #include "base64.h"
 #include "core/eeprom.h"
-#include "protocols/ecmd/parser.h"
 #include "core/vfs/vfs.h"
 
 

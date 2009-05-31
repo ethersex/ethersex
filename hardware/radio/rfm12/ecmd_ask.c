@@ -30,7 +30,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "hardware/radio/rfm12/rfm12_ask.h"
-#include "protocols/ecmd/parser.h"
 
 #ifdef RFM12_ASK_SENDER_SUPPORT
 

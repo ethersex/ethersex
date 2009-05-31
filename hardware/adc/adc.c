@@ -33,7 +33,6 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "core/portio/portio.h"
-#include "protocols/ecmd/parser.h"
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 

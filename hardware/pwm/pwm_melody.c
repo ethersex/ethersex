@@ -35,7 +35,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/ecmd/parser.h"
 
 #ifdef PWM_MELODY_SUPPORT
 #include "pwm_melody.h"

@@ -35,7 +35,6 @@
 #include "core/bit-macros.h"
 #include "core/portio/portio.h"
 #include "hardware/adc/kty/kty81.h"
-#include "protocols/ecmd/parser.h"
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 

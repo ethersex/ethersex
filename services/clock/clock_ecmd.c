@@ -30,7 +30,6 @@
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "clock.h"
-#include "protocols/ecmd/parser.h"
 
 #ifdef CLOCK_DATETIME_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)

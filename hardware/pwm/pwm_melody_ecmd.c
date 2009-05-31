@@ -25,7 +25,6 @@
 #include <avr/interrupt.h>
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/ecmd/parser.h"
 
 #include "pwm_melody.h"
 
