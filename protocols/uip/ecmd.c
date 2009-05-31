@@ -264,11 +264,11 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
 #ifdef IPSTATS_SUPPORT
 int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
 {
-  /* We use the second and the third byte as counter */
-  if (cmd[0] != 23) {
-    cmd[0] = 23;
-    cmd[1] = 0;
-    cmd[2] = 0;
+  /* trick: use bytes on cmd as "connection specific static variables" */
+  if (cmd[0] != 23) {	/* indicator flag: real invocation:  0 */
+    cmd[0] = 23;	/*                 continuing call: 23 */
+    cmd[1] = 0;		/* counter for network interface */
+    cmd[2] = 0;		/* counter for output lines for an interface */
   }
   uint8_t tmp;
 #ifdef MULTISTACK_SUPPORT

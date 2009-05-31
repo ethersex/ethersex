@@ -233,9 +233,10 @@ int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
 {
     (void) len;
 
-    if (cmd[0] != 23) {
-	cmd[0] = 23;
-	cmd[1] = 0;
+    /* trick: use bytes on cmd as "connection specific static variables" */
+    if (cmd[0] != 23) {		/* indicator flag: real invocation:  0 */
+	cmd[0] = 23;		/*                 continuing call: 23 */
+	cmd[2] = 0;		/* counter for output lines */
     }
 
     char *text = (char *)pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1] ++].name);
