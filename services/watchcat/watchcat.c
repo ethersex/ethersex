@@ -26,7 +26,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"

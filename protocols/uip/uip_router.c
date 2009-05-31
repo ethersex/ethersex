@@ -24,7 +24,6 @@
 #ifdef ROUTER_SUPPORT
 
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "protocols/uip/uip_neighbor.h"
 
 #include "protocols/uip/ipv6.h"

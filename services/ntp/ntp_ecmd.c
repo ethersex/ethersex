@@ -27,7 +27,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "protocols/dns/resolv.h"
 #include "core/bit-macros.h"
 #include "ntp.h"

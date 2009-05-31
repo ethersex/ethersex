@@ -35,7 +35,6 @@
 #include "core/debug.h"
 
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "protocols/uip/uip_neighbor.h"
 #include "protocols/uip/uip_rfm12.h"
 #include "protocols/uip/uip_zbus.h"

@@ -24,7 +24,6 @@
 #include <avr/pgmspace.h>
 #include "config.h"
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "protocols/uip/uip_router.h"
 #include "core/debug.h"
 #include "mdns_sd_net.h"

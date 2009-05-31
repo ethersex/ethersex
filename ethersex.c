@@ -26,7 +26,6 @@
 #include <stdlib.h>
 
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "protocols/uip/uip_neighbor.h"
 
 #include "config.h"

@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip_arp.h"
 #include "core/eeprom.h"
 #include "services/tftp/tftp.h"
 #include "services/ntp/ntp.h"
