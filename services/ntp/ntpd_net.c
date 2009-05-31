@@ -76,12 +76,12 @@ ntpd_net_main(void)
     pkt->stratum = (last_sync > 0) ? stratum + 1 : 0;
     
     if (stratum == 1)
-	pkt->refid = 0x68677000;	/* DCF in Network byte order */
+	pkt->refid = 0x44434600;	/* DCF in Network byte order */
     else {
         if (sizeof(uip_ipaddr_t) == 4)
 	    uip_ipaddr_copy((uip_ipaddr_t *) &pkt->refid, ntp_getserver());
 	else
-	    pkt->refid = 0x01020304;	/* some virtual identifer */
+	    pkt->refid = 0x3F3F3F00;	/* some virtual identifer */
     }
 #endif /* NTP_SUPPORT || DCF_SUPPORT */
 
