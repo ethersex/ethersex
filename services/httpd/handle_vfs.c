@@ -50,7 +50,9 @@ httpd_handle_vfs_send_header (void)
 #endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	PASTE_P (httpd_header_gzip);
 
+#ifndef VFS_TEENSY
 no_gzip:
+#endif	/* not VFS_TEENSY, inlined files are always gzip'd */
     if (STATE->u.vfs.content_type == 'X')
 	PASTE_P (httpd_header_ct_xhtml);
     else if (STATE->u.vfs.content_type == 'S')
