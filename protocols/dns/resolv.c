@@ -370,7 +370,7 @@ resolv_query(const char *name, resolv_found_callback_t callback)
 {
   static u8_t i;
   static u8_t lseq, lseqi;
-  register struct namemap *nameptr;
+  register struct namemap *nameptr = NULL;
 
   lseq = lseqi = 0;
 
