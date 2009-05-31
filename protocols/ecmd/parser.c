@@ -164,7 +164,7 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 
 	extern char *__brkval;
 	extern unsigned char __heap_start;
-	size_t f = (size_t)(__brkval ? __brkval : (size_t)&__heap_start);
+	size_t f = (size_t)(__brkval ? (size_t)__brkval : (size_t)&__heap_start);
 	size_t allram = RAMEND;
 
 	/* we want an output like this:
