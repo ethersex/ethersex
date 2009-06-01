@@ -30,7 +30,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "core/eeprom.h"
-#include "core/portio/portio.h"
 #include "hardware/adc/kty/kty81.h"
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 

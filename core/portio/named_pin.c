@@ -25,7 +25,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "core/portio/portio.h"
 
 #ifdef PORTIO_SUPPORT
 

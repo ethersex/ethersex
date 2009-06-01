@@ -26,7 +26,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
 
 #include "ecmd_base.c"

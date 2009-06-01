@@ -24,8 +24,6 @@
 
 #include <stdio.h>
 
-#include "core/portio/portio.h"
-
 typedef struct {
     uint8_t link :1;
 

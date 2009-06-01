@@ -28,7 +28,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "hardware/radio/fs20/fs20.h"
-#include "core/portio/portio.h"
 #include "hardware/lcd/hd44780.h"
 #include "core/portio/named_pin.h"
 #include "hardware/onewire/onewire.h"

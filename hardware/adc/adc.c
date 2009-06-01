@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "core/portio/portio.h"
 
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
