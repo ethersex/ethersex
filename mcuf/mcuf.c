@@ -29,7 +29,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "config.h"
 #include "protocols/syslog/syslog.h"

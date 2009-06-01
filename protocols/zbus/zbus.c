@@ -23,10 +23,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <avr/eeprom.h>
 #include <util/delay.h>
 #include "core/bit-macros.h"
-#include "core/eeprom.h"
 #include "config.h"
 #include "protocols/syslog/syslog.h"
 #include "protocols/zbus/zbus_raw_net.h"

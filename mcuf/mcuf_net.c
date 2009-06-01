@@ -20,12 +20,10 @@
  */
 
 #include <avr/io.h>
-#include <avr/eeprom.h>
 #include <string.h>
 
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
-#include "core/eeprom.h"
 #include "mcuf/mcuf.h"
 #include "protocols/syslog/syslog.h"
 #include "mcuf_net.h"

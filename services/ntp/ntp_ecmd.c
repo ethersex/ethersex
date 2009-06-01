@@ -21,7 +21,6 @@
 
 #include <string.h>
 #include <avr/pgmspace.h>
-#include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
 #include "config.h"
@@ -30,7 +29,6 @@
 #include "protocols/dns/resolv.h"
 #include "core/bit-macros.h"
 #include "ntp.h"
-#include "core/eeprom.h"
 
 #ifndef TEENSY_SUPPORT
 extern int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len);
