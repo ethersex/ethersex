@@ -25,7 +25,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
-#include "protocols/uip/uip.h"
 #include "core/portio/portio.h"
 #include "protocols/ecmd/sender/ecmd_sender_net.h"
 #include "watchcat.h"
