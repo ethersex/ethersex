@@ -1,5 +1,5 @@
-ifdef(`conf_ONEWIRE', `', `m4exit(1)')
-ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')
+ifdef(`conf_ONEWIRE', `', `m4exit(1)')dnl
+ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')dnl
 <html>
 <head>
 <title>Ethersex - Onewire Status</title>
