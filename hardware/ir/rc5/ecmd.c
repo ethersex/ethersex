@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
 #include "hardware/radio/fs20/fs20.h"
 #include "core/portio/portio.h"
 #include "hardware/lcd/hd44780.h"

@@ -25,7 +25,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
 #include "control6.h"
 
 

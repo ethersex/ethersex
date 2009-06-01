@@ -25,7 +25,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
 #include "core/portio/portio.h"
 
 static uint8_t hc595_cache[HC595_REGISTERS];

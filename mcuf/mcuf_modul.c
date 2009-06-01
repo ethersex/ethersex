@@ -36,7 +36,6 @@
 #include "mcuf_net.h"
 #include "mcuf_text.h"
 #include "ledmatrixint.h"
-#include "protocols/uip/uip.h"
 #else
 #include "contrib/mcuf/modsim.h"
 #endif // GCC

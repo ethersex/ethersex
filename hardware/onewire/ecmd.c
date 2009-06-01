@@ -28,7 +28,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "hardware/onewire/onewire.h"

@@ -28,6 +28,8 @@
 #include "core/global.h"
 #include "protocols/syslog/syslog_debug.h"
 
+#define noinline __attribute__((noinline))
+
 /* define macros, if debug is enabled */
 #ifdef DEBUG
     #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)

@@ -25,12 +25,14 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
 #include "core/debug.h"
 #include "core/vfs/vfs.h"
 #include "protocols/ecmd/parser.h"
 #include "scripting.h"
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 // read a line from file "handle", stored in "line", starting at "pos"
 int16_t 

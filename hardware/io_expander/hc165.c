@@ -21,7 +21,6 @@
  */
 
 #include <avr/io.h>
-#include "protocols/uip/uip.h"
 #include "core/portio/portio.h"
 #include "config.h"
 #include "hc165.h"

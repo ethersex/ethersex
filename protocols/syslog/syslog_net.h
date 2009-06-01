@@ -20,7 +20,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "protocols/uip/uip.h"
 
 #ifndef _SYSLOG_NET_H
 #define _SYSLOG_NET_H

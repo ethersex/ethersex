@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
 #include "clock.h"
 
 #ifdef CLOCK_DATETIME_SUPPORT

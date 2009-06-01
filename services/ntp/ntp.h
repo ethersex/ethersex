@@ -20,6 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "protocols/uip/uip.h"
+
 struct ntp_date_time {
   uint32_t seconds;
   uint32_t fraction;
