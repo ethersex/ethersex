@@ -34,14 +34,11 @@ uint8_t syslog_sendf(const char *message, ...);
 uint8_t syslog_send_ptr(void *message);
 
 void syslog_flush (void);
-void syslog_debug_init (void);
 
 /* Check the ARP/Neighbor cache for the necessary entries;
    return 0 if it's safe to send syslog data. */
 uint8_t syslog_check_cache(void);
 
-#include "protocols/uip/uip.h"
-#include "protocols/syslog/syslog_debug.h"
 uip_ipaddr_t *syslog_getserver(void);
 
 #endif

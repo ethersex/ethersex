@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 #include "core/global.h"
-#include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
 
 /* define macros, if debug is enabled */

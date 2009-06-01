@@ -27,7 +27,6 @@
 #include "core/vfs/vfs.h"
 #include "vfs_eeprom_raw.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
-#include "protocols/syslog/syslog.h"
 #include "config.h"
 
 struct vfs_file_handle_t *

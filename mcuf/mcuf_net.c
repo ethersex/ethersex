@@ -24,7 +24,6 @@
 
 #include "protocols/uip/uip.h"
 #include "mcuf/mcuf.h"
-#include "protocols/syslog/syslog.h"
 #include "mcuf_net.h"
 
 void

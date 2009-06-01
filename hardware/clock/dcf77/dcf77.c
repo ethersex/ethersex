@@ -29,7 +29,6 @@
 #include "protocols/uip/uip.h"
 #include "services/ntp/ntpd_net.h"
 #include "services/clock/clock.h"
-#include "protocols/syslog/syslog.h"
 #include "config.h"
 #include "dcf77.h"
 
