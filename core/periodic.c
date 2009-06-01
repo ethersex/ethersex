@@ -25,28 +25,8 @@
 
 #include "core/periodic.h"
 #include "config.h"
-#include "network.h"
 #include "core/debug.h"
-#include "protocols/uip/uip.h"
-#include "protocols/uip/uip_neighbor.h"
-#include "protocols/uip/uip_router.h"
-#include "protocols/ecmd/via_i2c/ecmd_i2c.h"
-#include "control6/control6.h"
-#include "hardware/radio/fs20/fs20.h"
-#include "services/watchcat/watchcat.h"
-#include "services/clock/clock.h"
-#include "services/cron/cron.h"
-#include "services/cron/cron_static.h"
-#include "protocols/uip/ipv6.h"
-#include "hardware/input/ps2/ps2.h"
-#include "hardware/radio/rfm12/rfm12.h"
-#include "protocols/syslog/syslog.h"
-#include "mcuf/mcuf.h"
-#include "protocols/usb/usb.h"
-#include "protocols/modbus/modbus.h"
-#include "protocols/zbus/zbus.h"
-#include "protocols/mysql/mysql.h"
-#include "services/jabber/jabber.h"
+
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;

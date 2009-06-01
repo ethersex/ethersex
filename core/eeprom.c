@@ -29,7 +29,6 @@
 
 #include "config.h"
 #include "core/eeprom.h"
-//#include "protocols/yport/yport.h"
 
 
 #ifdef CRC_SUPPORT

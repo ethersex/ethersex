@@ -25,9 +25,6 @@
 #include "core/eeprom.h"
 #include "core/bit-macros.h"
 #include "config.h"
-#include "protocols/zbus/zbus.h"
-#include "protocols/modbus/modbus.h"
-#include "protocols/yport/yport.h"
 #include "core/usart.h"
 
 #ifndef TEENSY_SUPPORT
