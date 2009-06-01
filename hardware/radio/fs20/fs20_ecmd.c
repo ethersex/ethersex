@@ -29,7 +29,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
-#include "core/bit-macros.h"
 #include "hardware/radio/fs20/fs20.h"
 
 #ifdef FS20_SEND_SUPPORT

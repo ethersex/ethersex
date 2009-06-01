@@ -25,7 +25,6 @@
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "usbdrv/usbdrv.h"
 #include "requests.h"

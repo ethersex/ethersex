@@ -31,7 +31,6 @@
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
-#include "core/bit-macros.h"
 #include "core/portio/portio.h"
 #include "hardware/adc/kty/kty81.h"
 

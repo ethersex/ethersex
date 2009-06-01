@@ -27,7 +27,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "core/eeprom.h"
-#include "core/bit-macros.h"
 #include "services/cron/cron.h"
 #include "protocols/ecmd/speed_parser.h"
 

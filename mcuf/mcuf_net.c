@@ -22,7 +22,6 @@
 #include <avr/io.h>
 #include <string.h>
 
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "mcuf/mcuf.h"
 #include "protocols/syslog/syslog.h"

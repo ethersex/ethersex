@@ -26,7 +26,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "services/ntp/ntpd_net.h"
 #include "services/clock/clock.h"

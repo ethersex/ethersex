@@ -24,7 +24,6 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "config.h"
-#include "core/bit-macros.h"
 #include "ecmd_usart.h"
 #include "protocols/ecmd/parser.h"
 

@@ -21,7 +21,6 @@
 
 #include <avr/io.h>
 
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "config.h"
 

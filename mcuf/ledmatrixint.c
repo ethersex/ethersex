@@ -29,7 +29,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "core/bit-macros.h"
 #include "config.h"
 
 

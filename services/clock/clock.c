@@ -24,7 +24,6 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "services/ntp/ntp.h"
 #include "clock.h"

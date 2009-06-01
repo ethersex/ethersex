@@ -29,7 +29,6 @@
 #include "config.h"
 #include "core/eeprom.h"
 #include "protocols/uip/ipv6.h"
-#include "core/bit-macros.h"
 #include "protocols/zbus/zbus.h"
 
 #include "core/debug.h"

@@ -21,7 +21,6 @@
 
 #include <string.h>
 #include "uecmd_net.h"
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "core/debug.h"

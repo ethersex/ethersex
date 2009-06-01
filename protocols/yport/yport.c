@@ -26,7 +26,6 @@
 #include <util/delay.h>
 #include <string.h>
 #include "core/eeprom.h"
-#include "core/bit-macros.h"
 #include "config.h"
 #include "yport.h"
 #include "yport_net.h"

@@ -25,7 +25,6 @@
 #include <string.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "usbdrv/usbdrv.h"

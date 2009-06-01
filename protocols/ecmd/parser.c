@@ -31,7 +31,6 @@
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
-#include "core/bit-macros.h"
 #include "control6/control6.h"
 #include "protocols/ecmd/aliascmd.h"
 #include "protocols/ecmd/parser.h"

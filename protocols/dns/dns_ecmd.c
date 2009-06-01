@@ -29,7 +29,6 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
-#include "core/bit-macros.h"
 #include "resolv.h"
 #include "core/eeprom.h"
 

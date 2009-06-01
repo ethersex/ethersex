@@ -27,7 +27,6 @@
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "protocols/dns/resolv.h"
-#include "core/bit-macros.h"
 #include "ntp.h"
 
 #ifndef TEENSY_SUPPORT
