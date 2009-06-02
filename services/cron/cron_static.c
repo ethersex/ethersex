@@ -28,6 +28,7 @@
 #include "config.h"
 #include "mcuf/mcuf.h"
 #include "services/clock/clock.h"
+#include "protocols/netstat/netstat.h"
 
 uint32_t last_check;
 
@@ -89,6 +90,10 @@ struct cron_static_event_t events[] PROGMEM =
 #ifdef MCUF_MODUL_CRON_SUPPORT
   { { {-1, -1, -1, -1, -1} }, mcuf_modul, USE_LOCAL}, /* every minute  */
 #endif // MCUF_MODUL_CRON_SUPPORT
+
+#ifdef NETSTAT_SUPPORT
+  { { {-5, -1, -1, -1, -1} }, netstat_send, USE_LOCAL}, /* every 5 minutes  */
+#endif // NETSTAT_SUPPORT
 
   /* This is only the end of table marker */
   { { {-1, -1, -1, -1, -1} }, NULL, 0},
