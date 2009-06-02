@@ -93,7 +93,7 @@ netstat_dns_query_cb(char *name, uip_ipaddr_t *ipaddr) {
 }
 
 uint8_t
-netstat_send(char *status)
+netstat_send()
 {
   NETSTATDEBUG ("send\n");
 #ifdef DNS_SUPPORT

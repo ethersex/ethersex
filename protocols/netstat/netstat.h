@@ -23,7 +23,7 @@
 #ifndef HAVE_NETSTAT_H
 #define HAVE_NETSTAT_H
 
-uint8_t netstat_send(char *);
+uint8_t netstat_send();
 
 
 #include "config.h"
