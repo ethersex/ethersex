@@ -31,6 +31,9 @@
 #include "protocols/dns/resolv.h"
 #include "netstat.h"
 
+
+
+
 static const char PROGMEM netstat_header[] =
     "POST " CONF_NETSTAT_API "update.php HTTP/1.1\n"
     "Host: " CONF_NETSTAT_SERVICE "\n"
@@ -38,11 +41,11 @@ static const char PROGMEM netstat_header[] =
     "Content-Length: ";
 
 static const char PROGMEM netstat_mac[] =
-    "\n\nmac=" CONF_ENC_MAC;
+    "\n\nmac=";
 
 
 static void
-netstat_net_action(void)
+netstat_net_main(void)
 {
     if (uip_aborted() || uip_timedout()) {
 	NETSTATDEBUG ("connection aborted\n");
@@ -58,14 +61,25 @@ netstat_net_action(void)
 	NETSTATDEBUG ("new connection or rexmit, sending message\n");
         char *p = uip_appdata;
         p += sprintf_P(p, netstat_header);
-        p += sprintf(p, "%d", 17); // 17 -> "00:00:00:00:00:00"
-        p += sprintf(p, netstat_mac);
+        p += sprintf(p, "%d", 4 + 17); // -> mac=xx:xx:xx:xx:xx:xx
+        p += sprintf_P(p, netstat_mac);
+        p += sprintf(p, "%02x:%02x:%02x:%02x:%02x:%02x",
+                        uip_ethaddr.addr[0],
+                        uip_ethaddr.addr[1],
+                        uip_ethaddr.addr[2],
+                        uip_ethaddr.addr[3],
+                        uip_ethaddr.addr[4],
+                        uip_ethaddr.addr[5]
+                        );
         uip_udp_send(p - (char *)uip_appdata);
         NETSTATDEBUG("send %d bytes\n", p - (char *)uip_appdata);
     }
 
     if (uip_acked()) {
+      NETSTATDEBUG("ACK\n");
       uip_close();
+    } else {
+      NETSTATDEBUG("NACK\n");
     }
 
 }
@@ -73,7 +87,7 @@ netstat_net_action(void)
 static void
 netstat_dns_query_cb(char *name, uip_ipaddr_t *ipaddr) {
   NETSTATDEBUG("got dns response, connecting\n");
-  if(!uip_connect(ipaddr, HTONS(80), netstat_net_action)) {
+  if(!uip_connect(ipaddr, HTONS(80), netstat_net_main)) {
   }
 
 }
@@ -82,16 +96,17 @@ uint8_t
 netstat_send(char *status)
 {
   NETSTATDEBUG ("send\n");
-  uip_ipaddr_t ipaddr;
 #ifdef DNS_SUPPORT
-//  if (!(ipaddr = resolv_lookup(CONF_NETSTAT_SERVICE))) {
-//    resolv_query(CONF_NETSTAT_SERVICE, netstat_dns_query_cb);
-//  } else {
-//    netstat_dns_query_cb(NULL, ipaddr);
-//  }
+  uip_ipaddr_t *ipaddr;
+  if (!(ipaddr = resolv_lookup(CONF_NETSTAT_SERVICE))) {
+    resolv_query(CONF_NETSTAT_SERVICE, netstat_dns_query_cb);
+  } else {
+    netstat_dns_query_cb(NULL, ipaddr);
+  }
 #else
+  uip_ipaddr_t ipaddr;
   set_CONF_NETSTAT_SERVICE_IP(&ipaddr);
-  if (! uip_connect(&ipaddr, HTONS(80), netstat_net_action))
+  if (! uip_connect(&ipaddr, HTONS(80), netstat_net_main))
   {
   NETSTATDEBUG ("failed\n");
   }
