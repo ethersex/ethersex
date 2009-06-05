@@ -24,6 +24,8 @@
 #define ZBUS_RAW_NET_H
 
 /* prototypes */
+#include "protocols/uip/uip.h"
+
 void zbus_raw_net_init(void);
 void zbus_raw_net_main(void);
 

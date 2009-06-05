@@ -29,6 +29,7 @@
 #ifdef PORTIO_SUPPORT
 
 #include "named_pin.h"
+#include "portio.h"
 #include "user_config.c"
 
 void
