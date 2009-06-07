@@ -93,10 +93,7 @@ void eeprom_init (void);
 uint8_t eeprom_get_chksum(void);
 
 #define eeprom_save(dst, data, len) \
-  eeprom_write_block_hack(EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), data,len)
-
-#define eeprom_save_ip(dst,src) \
-    do { uip_ipaddr_t ip; src; eeprom_save (dst, &ip, IPADDR_LEN); } while(0)
+  eeprom_write_block_hack(EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), data, len)
 
 #define eeprom_save_P(dst,data_pgm,len) \
     do { char data[len]; memcpy_P(data, data_pgm, len); eeprom_save(dst, data, len);} while(0)
@@ -121,7 +118,7 @@ uint8_t eeprom_get_chksum(void);
     eeprom_restore(dst, mem, 2)
 
 /* Update the eeprom crc */
-#define eeprom_update_chksum() eeprom_save_char (crc, eeprom_get_chksum ())
+#define eeprom_update_chksum() eeprom_save_char(crc, eeprom_get_chksum())
 
 
 
