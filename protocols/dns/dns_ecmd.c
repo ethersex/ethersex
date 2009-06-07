@@ -29,13 +29,9 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
+#include "protocols/uip/parse.h"
 #include "resolv.h"
 #include "core/eeprom.h"
-
-#ifndef TEENSY_SUPPORT
-extern int16_t print_ipaddr (uip_ipaddr_t *addr, char *output, uint16_t len);
-extern int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
-#endif
 
 
 int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)

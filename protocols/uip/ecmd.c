@@ -29,94 +29,13 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
+#include "protocols/uip/parse.h"
 #include "core/eeprom.h"
 
+
 #ifndef TEENSY_SUPPORT
-int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
-{
-#if UIP_CONF_IPV6
-    return snprintf_P(output, len, PSTR("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
-		      HTONS(((u16_t *)(addr))[0]), HTONS(((u16_t *)(addr))[1]),
-		      HTONS(((u16_t *)(addr))[2]), HTONS(((u16_t *)(addr))[3]),
-		      HTONS(((u16_t *)(addr))[4]), HTONS(((u16_t *)(addr))[5]),
-		      HTONS(((u16_t *)(addr))[6]), HTONS(((u16_t *)(addr))[7]));
-#else
-    uint8_t *ip = (uint8_t *) addr;
-    return snprintf_P(output, len, PSTR("%u.%u.%u.%u"),
-		      ip[0], ip[1], ip[2], ip[3]);
-#endif  
-}
-
-#if !defined(DISABLE_IPCONF_SUPPORT) || defined(NTP_SUPPORT) || defined(DNS_SUPPORT)
-/* parse an ip address at cmd, write result to ptr */
-int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
-{
-    if (ptr != NULL) {
-	uint8_t end;
-
-#ifdef DEBUG_ECMD_IP
-	debug_printf("called parse_ip with string '%s'\n", cmd);
-#endif
-
-#if UIP_CONF_IPV6
-	uint16_t *ip = (uint16_t *) ptr;
-	int8_t ret = sscanf_P(cmd, PSTR("%4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x%c"),
-			      ip, ip+1, ip+2, ip+3, ip+4, ip+5, ip+6, ip+7,
-			      &end);
-
-	if ((ret != 8) && ((ret != 9) || (end != ' ')))
-	    return -1;
-
-	for (int i = 0; i < 8; i ++)
-	    ip[i] = HTONS(ip[i]);
-#else
-	uint8_t *ip = (uint8_t *) ptr;
-	int8_t ret = sscanf_P(cmd, PSTR("%hhu.%hhu.%hhu.%hhu%c"),
-			      ip, ip+1, ip+2, ip+3, &end);
-
-	if ((ret != 4) || ((end != ' ') || (end != '\0')))
-	    return -1;
-#endif
-
-	return 0;
-    }
-
-    return -1;
-}
-#endif /* DISABLE_IPCONF_SUPPORT */
 
 #ifdef ENC28J60_SUPPORT
-#ifndef DISABLE_IPCONF_SUPPORT
-/* parse an ethernet address at cmd, write result to ptr */
-static int8_t parse_mac(char *cmd, uint8_t *ptr)
-{
-    if (ptr != NULL) {
-	uint8_t end;
-
-#ifdef DEBUG_ECMD_MAC
-	debug_printf("called parse_mac with string '%s'\n", cmd);
-#endif
-
-	int ret = sscanf_P(cmd, PSTR("%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx%c"),
-			   ptr, ptr+1, ptr+2, ptr+3, ptr+4, ptr+5, &end);
-
-#ifdef DEBUG_ECMD_MAC
-	debug_printf("scanf returned %d\n", ret);
-#endif
-
-	if ((ret == 6) || ((ret == 7) && (end == ' '))) {
-#ifdef DEBUG_ECMD_MAC
-	    debug_printf("read mac %x:%x:%x:%x:%x:%x\n",
-			 ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5]);
-#endif
-	    return 0;
-	}
-    }
-
-    return -1;
-}
-#endif /* DISABLE_IPCONF_SUPPORT */
-
 int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 {
     (void) output;
@@ -136,7 +55,7 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 	/* allocate space for mac */
 	struct uip_eth_addr new_mac;
 
-	ret = parse_mac(cmd, (void *)&new_mac);
+	ret = parse_mac(cmd, (void *) &new_mac);
 
 	if (ret >= 0) {
 	    eeprom_save(mac, &new_mac, 6);
@@ -148,21 +67,14 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
     }
     else
 #endif /* DISABLE_IPCONF_SUPPORT */
-   {
+    {
 	struct uip_eth_addr buf;
-	uint8_t *saved_mac = (uint8_t *)&buf;
+	uint8_t *saved_mac = (uint8_t *) &buf;
 
 	eeprom_restore(mac, saved_mac, 6);
 
-	int output_len = snprintf_P(output, len,
-		PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
-		saved_mac[0], saved_mac[1],
-		saved_mac[2], saved_mac[3],
-		saved_mac[4], saved_mac[5]);
-
-	return output_len;
+	return print_mac(&buf, output, len);
     }
-
 }
 #endif /* ENC28J60_SUPPORT */
 
