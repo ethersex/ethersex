@@ -23,10 +23,9 @@
 
 #include <string.h>
 #include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include <avr/interrupt.h>
 
 #include "config.h"
+#include "core/bit-macros.h"
 #include "core/debug.h"
 #include "hardware/radio/fs20/fs20.h"
 
