@@ -21,8 +21,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _USB_REQUEST_H
-#define _USB_REQUEST_H
+#ifndef _USB_REQUESTS_H
+#define _USB_REQUESTS_H
 
 enum {
   /* For USB Ecmd */
@@ -38,4 +38,4 @@ uint8_t ecmd_usb_setup(uint8_t  data[8]);
 uint8_t ecmd_usb_write(uint8_t *data, uint8_t len);
 uint8_t ecmd_usb_read(uint8_t *data, uint8_t len);
 
-#endif
+#endif /* _USB_REQUESTS_H */

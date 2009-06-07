@@ -302,6 +302,7 @@ section at the end of this file).
 /* #define USB_INTR_ENABLE         GIMSK */
 #define USB_INTR_ENABLE_BIT     USB_INT_PIN
 /* #define USB_INTR_PENDING        GIFR */
- #define USB_INTR_PENDING_BIT    USB_INT_PIN
+#define USB_INTR_PENDING_BIT    USB_INT_PIN
 #define USB_INTR_VECTOR         USB_INT_SIGNAL
+
 #endif /* __usbconfig_h_included__ */

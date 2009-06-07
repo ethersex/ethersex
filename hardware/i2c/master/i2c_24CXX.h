@@ -36,6 +36,4 @@ uint8_t i2c_24CXX_read_block(uint16_t addr, uint8_t *ptr, uint8_t len);
 
 uint8_t i2c_24CXX_compare_block(uint16_t addr, uint8_t *ptr, uint8_t len);
 
-#endif
-
-
+#endif /* _I2C_EEPROM_I2C_24CXX_H */

@@ -41,4 +41,4 @@ uint8_t syslog_check_cache(void);
 
 uip_ipaddr_t *syslog_getserver(void);
 
-#endif
+#endif /* _SYSLOG_H */

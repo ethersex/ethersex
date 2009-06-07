@@ -28,4 +28,4 @@ void usb_periodic(void);
 void usbPoll(void);
 
 
-#endif
+#endif /* _USB_H */

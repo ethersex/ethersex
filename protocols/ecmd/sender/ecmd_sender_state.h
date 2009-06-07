@@ -32,4 +32,4 @@ struct ecmd_sender_connection_state_t {
     client_return_text_callback_t callback;
 };
 
-#endif
+#endif /* ECMD_SENDER_STATE_H */

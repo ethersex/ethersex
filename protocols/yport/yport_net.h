@@ -28,4 +28,4 @@
 void yport_net_init(void);
 void yport_net_main(void);
 
-#endif
+#endif /* YPORT_NET_H */

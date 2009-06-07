@@ -196,4 +196,4 @@ extern uint8_t rfm12_drssi;
 uint16_t rfm12_get_status (void);
 
 
-#endif //__RFM12_H
+#endif /* _RFM12_H */

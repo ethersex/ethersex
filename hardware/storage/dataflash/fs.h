@@ -106,4 +106,4 @@ void fs_inspect_inode(fs_t *fs, uint16_t p);
 
 extern fs_t fs;
 
-#endif
+#endif /* _FS_H */

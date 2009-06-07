@@ -27,4 +27,4 @@ struct dyndns_connection_state_t {
   uint8_t state;
 };
 
-#endif
+#endif /* DYNDNS_STATE_H */

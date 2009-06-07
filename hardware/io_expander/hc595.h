@@ -30,4 +30,4 @@ void hc595_init(void);
 uint8_t hc595_write_port(uint8_t port, uint8_t data);
 uint8_t hc595_read_port(uint8_t port);
 
-#endif
+#endif /* _HC595_H */

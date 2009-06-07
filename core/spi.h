@@ -31,4 +31,4 @@
 void spi_init(void);
 uint8_t noinline spi_send(uint8_t data);
 
-#endif
+#endif /* _SPI_H */

@@ -248,4 +248,4 @@ void fs20_process_timeout(void);
 
 #endif /* FS20_SUPPORT */
 
-#endif /* FS20_H */
+#endif /* _FS20_H */

@@ -40,4 +40,4 @@ struct sendmail_connection_state_t {
 #include "protocols/uip/uip.h"
 uip_conn_t *mail_send (void);
 
-#endif //_SENDMAIL_H
+#endif /* _SENDMAIL_H */

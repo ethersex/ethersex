@@ -39,6 +39,10 @@ SOFTWARE.
  *
  */
 
+
+#ifndef BOOTP_BOOTPHDR_H
+#define BOOTP_BOOTPHDR_H
+
 #define BP_CHADDR_LEN	 16
 #define BP_SNAME_LEN	 64
 #define BP_FILE_LEN	128
@@ -261,3 +265,5 @@ struct cmu_vend {
 #define VF_SMASK	1	/* Subnet mask field contains valid data */
 
 #endif /* 0 */
+
+#endif /* BOOTP_BOOTPHDR_H */

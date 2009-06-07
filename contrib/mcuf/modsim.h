@@ -43,5 +43,5 @@ void setPixel(uint8_t x, uint8_t y, uint8_t color);
 uint8_t getPixel(uint8_t x, uint8_t y);
 void _delay_ms(uint8_t delay);
 
-#endif // _MODSIM_H
+#endif /* _MODSIM_H */
 

@@ -33,4 +33,4 @@ struct ebcmd_response_header
 void uecmd_net_init(void);
 void uecmd_net_main(void);
 
-#endif
+#endif /* UECMD_NET_H */

@@ -23,4 +23,4 @@ void md5_init(md5_ctx_t *s);
 void md5_nextBlock(md5_ctx_t *state, void* block);
 void md5_lastBlock(md5_ctx_t *state, void* block, uint16_t length);
 
-#endif /*MD5_H_*/
+#endif /* MD5_H_ */

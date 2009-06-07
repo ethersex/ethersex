@@ -77,4 +77,4 @@ void df_erase(df_chip_t, df_page_t);
 df_status_t df_status(df_chip_t);
 void df_wait(df_chip_t);
 
-#endif
+#endif /* _DATAFLASH_H */

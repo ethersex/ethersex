@@ -21,6 +21,7 @@
 
 #ifndef _SNMP_NET_H
 #define _SNMP_NET_H
+
 /* constants */
 #define SNMP_PORT 161
 
@@ -28,4 +29,4 @@
 void snmp_net_init(void);
 void snmp_net_main(void);
 
-#endif
+#endif /* _SNMP_NET_H */

@@ -34,4 +34,4 @@ enum DynDnsStates {
 
 void dyndns_update(void);
 
-#endif
+#endif /* _DYNDNS_H */

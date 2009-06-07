@@ -24,4 +24,4 @@
 
 void addcrontest();
 
-#endif
+#endif /* _CRON_TEST_H */

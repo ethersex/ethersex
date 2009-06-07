@@ -21,6 +21,7 @@
 
 #ifndef _NTPD_NET_H
 #define _NTPD_NET_H
+
 /* constants */
 #define NTPD_PORT 123
 
@@ -28,4 +29,4 @@
 void ntpd_net_init(void);
 void ntpd_net_main(void);
 
-#endif
+#endif /* _NTPD_NET_H */

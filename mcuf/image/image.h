@@ -20,6 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#ifndef MCUF_IMAGE_H
+#define MCUF_IMAGE_H
+
 #ifdef MCUF_IMAGE_SUPPORT
 
 static uint8_t imagedata[] PROGMEM = {
@@ -36,3 +39,5 @@ static uint8_t imagedata[] PROGMEM = {
 void mcuf_image(void);
 
 #endif //MCUF_IMAGE_SUPPORT
+
+#endif /* MCUF_IMAGE_H */

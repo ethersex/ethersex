@@ -29,6 +29,4 @@
 
 int16_t i2c_lm75_read_temp(uint8_t address);
 
-#endif
-
-
+#endif /* _I2C_LM75_H */

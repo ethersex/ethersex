@@ -63,4 +63,4 @@ union ModbusRTU {
 };
 
 
-#endif /* _MODBUS_H */
+#endif /* _MODBUS_CLIENT_H */

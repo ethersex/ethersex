@@ -55,4 +55,4 @@ struct cron_static_event_t {
   * once per minute */
 void cron_static_periodic(void);
 
-#endif
+#endif /* _CRON_STATIC_H */

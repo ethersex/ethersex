@@ -85,4 +85,4 @@ struct key_press {
 void ps2_init(void);
 void ps2_periodic(void);
 
-#endif /* _ZBUS_H */
+#endif /* _PS2_H */

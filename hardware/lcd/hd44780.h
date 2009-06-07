@@ -56,6 +56,6 @@ void noinline hd44780_goto(uint8_t line, uint8_t pos);
 void noinline hd44780_shift(uint8_t right);
 int noinline hd44780_put(char d, FILE *stream);
 
-#endif
+#endif /* HD44780_SUPPORT */
 
-#endif
+#endif /* _HD4480_H */

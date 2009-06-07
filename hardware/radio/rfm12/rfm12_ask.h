@@ -29,4 +29,4 @@ void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_external_filter_init(void);
 void rfm12_ask_external_filter_deinit(void);
 
-#endif //__RFM12_ASK_H
+#endif /* __RFM12_ASK_H */

@@ -62,4 +62,4 @@ void uip_neighbor_periodic(void);
 #define uip_neighbour_periodic do {} while(0)
 #endif
 
-#endif /* __UIP-NEIGHBOR_H__ */
+#endif /* __UIP_NEIGHBOR_H__ */

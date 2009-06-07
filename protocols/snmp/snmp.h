@@ -22,6 +22,7 @@
 
 #ifndef _SNMP_H
 #define _SNMP_H
+
 struct snmp_varbinding {
   uint8_t len;
   uint8_t *data;
@@ -51,4 +52,5 @@ void snmp_new_data(void);
 
 #define ucdExperimental "\x2b\x06\x01\x04\x01\x8f\x65\x0d"
 #define ethersexExperimental ucdExperimental "\x17"
-#endif
+
+#endif /* _SNMP_H */

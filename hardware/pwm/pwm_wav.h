@@ -31,4 +31,4 @@ PROGMEM extern char pwmsound[];
 void pwm_wav_init(void);
 void pwm_stop(void);
 
-#endif
+#endif /* _PWM_WAV_H */

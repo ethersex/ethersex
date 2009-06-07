@@ -324,6 +324,6 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom);
  */
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data);
 
-#endif
+#endif /* ONEWIRE_SUPPORT */
 
-#endif
+#endif /* ONEWIRE_H */

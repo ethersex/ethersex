@@ -45,4 +45,4 @@ extern const struct PinConfiguration portio_pincfg[];
 
 #endif /* NAMED_PIN_SUPPORT */
 
-#endif
+#endif /* _NAMED_PIN_H */

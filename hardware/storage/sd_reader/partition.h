@@ -208,5 +208,4 @@ uint8_t partition_close(struct partition_struct* partition);
 }
 #endif
 
-#endif
-
+#endif /* PARTITION_H */

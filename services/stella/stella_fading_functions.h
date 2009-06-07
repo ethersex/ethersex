@@ -19,6 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#ifndef STELLA_FADING_FUNCTIONS_H
+#define STELLA_FADING_FUNCTIONS_H
+
 static void
 stella_fade_normal (int i)
 {
@@ -53,3 +56,5 @@ static struct fadefunc_struct stella_fade_funcs[FADE_FUNC_LEN] =
 	{ stella_fade_normal },
 	{ stella_fade_flashy },
 };
+
+#endif /* STELLA_FADING_FUNCTIONS_H */

@@ -26,4 +26,4 @@ struct zbus_raw_connection_state_t {
 	uint8_t timeout;
 };
 
-#endif
+#endif /* ZBUS_RAW_STATE_H */

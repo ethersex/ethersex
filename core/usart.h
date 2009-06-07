@@ -117,4 +117,4 @@ usart_init(void) \
     SREG = sreg;\
 }
 
-#endif
+#endif /* _USART_H */

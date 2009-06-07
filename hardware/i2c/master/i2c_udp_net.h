@@ -26,4 +26,4 @@
 void i2c_udp_net_init(void);
 void i2c_udp_net_main(void);
 
-#endif
+#endif /* _I2C_UDP_NET_H */

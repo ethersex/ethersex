@@ -54,4 +54,4 @@ static inline uint8_t enc28j60_txstart(void)
   return retval;
 }
 
-#endif
+#endif /* _NETWORK_H */

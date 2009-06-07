@@ -23,4 +23,5 @@
 
 void ecmd_serial_i2c_init(void);
 void ecmd_serial_i2c_periodic(void);
-#endif
+
+#endif /* _ECMD_SERIAL_I2C_H */

@@ -44,6 +44,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifndef LCD_S1D15G10_H
+#define LCD_S1D15G10_H
+
 #define lctCmd 0
 #define lctData 1
 
@@ -66,3 +69,4 @@ void lcd_putch(char d);
 
 void lcd_set_brightness_parms(uint8_t a, uint8_t b);
 
+#endif /* LCD_S1D15G10_H */

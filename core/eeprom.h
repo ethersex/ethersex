@@ -122,4 +122,4 @@ uint8_t eeprom_get_chksum(void);
 
 
 
-#endif
+#endif /* _EEPROM_H */

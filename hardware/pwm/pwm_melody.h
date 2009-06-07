@@ -245,5 +245,5 @@ void
 pwm_melody_init(uint8_t nr);
 #endif //PWM_MELODY_SUPPORT
 
-#endif // _PWM_MELODY_H
+#endif /* _PWM_MELODY_H */
 

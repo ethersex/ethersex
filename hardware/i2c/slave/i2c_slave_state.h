@@ -52,4 +52,4 @@ struct i2c_slave_connection_state_t {
 	struct i2c_slave_data slavedata;
 };
 
-#endif
+#endif /* _I2C_SLAVE_STATE_H */

@@ -107,5 +107,4 @@ extern "C"
 }
 #endif
 
-#endif
-
+#endif /* SD_RAW_CONFIG_H */

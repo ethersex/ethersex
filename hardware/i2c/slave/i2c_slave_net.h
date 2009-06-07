@@ -21,6 +21,7 @@
 
 #ifndef _I2C_SLAVE_NET_H
 #define _I2C_SLAVE_NET_H
+
 /* constants */
 #define I2C_SLAVE_PORT 0x2321
 
@@ -28,4 +29,4 @@
 void i2c_slave_net_init(void);
 void i2c_slave_net_main(void);
 
-#endif
+#endif /* _I2C_SLAVE_NET_H */

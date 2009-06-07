@@ -19,4 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#ifndef HTTPD_BASE64_H
+#define HTTPD_BASE64_H
+
 void base64_str_decode(char *str); 
+
+#endif /* HTTPD_BASE64_H */

@@ -20,6 +20,10 @@
  */
 
 #include "config.h"
+
+#ifndef STELLA_H
+#define STELLA_H
+
 #ifdef STELLA_SUPPORT
 
 enum stella_set_function
@@ -124,3 +128,5 @@ void stella_storeToEEROM(void);
 uint8_t stella_output_channels(void* target);
 
 #endif  /* STELLA_SUPPORT */
+
+#endif /* STELLA_H */

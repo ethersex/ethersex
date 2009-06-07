@@ -1,3 +1,6 @@
+#ifndef PWM_ENTCHEN_H
+#define PWM_ENTCHEN_H
+
 /*
  * The adapted melody is in the public domain.
  */
@@ -15,3 +18,4 @@ const struct notes_duration_t entchen_notes[] PROGMEM =
     {C,24},{p,8}, {p,  1}, {p,  1}
 };
 
+#endif /* PWM_ENTCHEN_H */

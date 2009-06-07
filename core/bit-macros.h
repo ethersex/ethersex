@@ -36,4 +36,4 @@
 
 #define XOR_LOG(a,b) ((1 && (a)) ^ ((b) && 1))
 
-#endif
+#endif /* _BIT_MACROS_H */

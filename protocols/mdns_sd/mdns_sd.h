@@ -24,6 +24,7 @@
 
 #ifndef _MDNS_SD_H
 #define _MDNS_SD_H
+
 /** \internal The DNS message header. */
 struct dns_hdr {
   uint16_t id;
@@ -90,4 +91,5 @@ enum mdns_request_state {
 };
 
 void mdns_new_data(void);
-#endif
+
+#endif /* _MDNS_SD_H */

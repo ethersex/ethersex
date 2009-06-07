@@ -117,4 +117,4 @@ typedef union uip_udp_connection_state {
 
 } uip_udp_appstate_t;
 
-#endif
+#endif /* CONNECTION_STATE_H */

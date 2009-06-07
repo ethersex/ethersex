@@ -19,8 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _ECMD_H
-#define _ECMD_H
+#ifndef _ECMD_PARSER_H
+#define _ECMD_PARSER_H
 
 #include "config.h"
 #include <inttypes.h>
@@ -30,4 +30,4 @@
  *        output bytes: (-ret-10) */
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
 
-#endif
+#endif /* _ECMD_PARSER_H */

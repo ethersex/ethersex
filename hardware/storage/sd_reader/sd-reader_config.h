@@ -49,5 +49,4 @@ extern "C"
 }
 #endif
 
-#endif
-
+#endif /* SD_READER_CONFIG_H */

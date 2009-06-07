@@ -43,4 +43,4 @@ struct i2c_connection_state_t {
 	uint8_t last_seqnum;
 };
 
-#endif
+#endif /* _I2C_STATE_H */

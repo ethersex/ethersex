@@ -59,4 +59,4 @@ fs_size_t vfs_df_size (struct vfs_file_handle_t *); */
     vfs_eeprom_raw_open, /* create */                   \
   }
 
-#endif	/* VFS_DF_H */
+#endif	/* VFS_EEPROM_RAW_H */

@@ -34,4 +34,4 @@ struct ecmd_connection_state_t {
     uint8_t close_requested;
 };
 
-#endif
+#endif /* ECMD_STATE_H */

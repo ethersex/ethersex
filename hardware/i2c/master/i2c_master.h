@@ -39,6 +39,4 @@ uint8_t  i2c_master_select(uint8_t address, uint8_t mode);
 #define i2c_master_transmit_with_ack() i2c_master_do(_BV(TWEN) | _BV(TWINT) | _BV(TWEA) ) 
 
 
-#endif
-
-
+#endif /* _I2C_EEPROM_I2C_MASTER_H */

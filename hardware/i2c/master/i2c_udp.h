@@ -45,4 +45,4 @@ void i2c_udp_init (uip_udp_conn_t *i2c_conn);
 void i2c_udp_periodic (void);
 void i2c_udp_newdata (void);
 
-#endif
+#endif /* _I2C_H */

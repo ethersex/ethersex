@@ -27,4 +27,5 @@
 
 void ecmd_serial_usart_init(void);
 void ecmd_serial_usart_periodic(void);
-#endif
+
+#endif /* _ECMD_SERIAL_USART_H */

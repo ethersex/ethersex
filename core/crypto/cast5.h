@@ -34,7 +34,4 @@ void cast5_init(cast5_ctx_t* s, uint8_t* key, uint8_t keylength);
 void cast5_enc(cast5_ctx_t *s, void* block);
 void cast5_dec(cast5_ctx_t *s, void* block);
 
-
-
-#endif
-
+#endif /* CAST5_H_ */

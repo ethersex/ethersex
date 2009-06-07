@@ -28,4 +28,4 @@
 void periodic_init(void);
 
 
-#endif
+#endif /* _PERIODIC_H */

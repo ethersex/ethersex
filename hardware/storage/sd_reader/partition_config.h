@@ -40,5 +40,4 @@ extern "C"
 }
 #endif
 
-#endif
-
+#endif /* PARTITION_CONFIG_H */

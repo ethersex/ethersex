@@ -28,6 +28,5 @@
 uint8_t i2c_pca9531_set(uint8_t address, uint8_t prescaler0, uint8_t pwm0duty, 
                         uint8_t prescaler1, uint8_t pwm1duty, uint8_t led0to3, 
                         uint8_t led4to7);
-#endif
 
-
+#endif /* _I2C_PC9531_H */

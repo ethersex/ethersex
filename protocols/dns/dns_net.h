@@ -27,4 +27,4 @@
 void dns_net_init(void);
 void dns_net_main(void);
 
-#endif
+#endif /* DNS_NET_H */

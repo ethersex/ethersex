@@ -48,4 +48,4 @@ void watchcat_init();
 /* Call this e.g. every 20 ms */
 void watchcat_periodic();
 
-#endif
+#endif /* _WATCHCAT_H */

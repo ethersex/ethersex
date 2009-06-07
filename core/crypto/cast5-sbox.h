@@ -579,5 +579,4 @@ uint32_t s8[] PROGMEM = {
 #endif 
 
 
-#endif
-
+#endif /* CAST5_SBOX_H_ */

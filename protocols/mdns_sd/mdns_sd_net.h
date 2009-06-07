@@ -21,6 +21,7 @@
 
 #ifndef _MDNS_SD_NET_H
 #define _MDNS_SD_NET_H
+
 /* constants */
 #define MDNS_PORT 5353
 
@@ -28,4 +29,4 @@
 void mdns_sd_net_init(void);
 void mdns_sd_net_main(void);
 
-#endif
+#endif /* _MDNS_SD_NET_H */

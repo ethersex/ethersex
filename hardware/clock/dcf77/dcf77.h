@@ -38,4 +38,4 @@ struct dcf77_ctx {
 
 void dcf77_init(void);
 
-#endif
+#endif /* _DCF77_H */

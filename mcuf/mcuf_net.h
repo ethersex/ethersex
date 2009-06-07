@@ -28,4 +28,4 @@
 void mcuf_net_init(void);
 void mcuf_net_main(void);
 
-#endif
+#endif /* _MCUF_NET_H */

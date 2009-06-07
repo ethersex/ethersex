@@ -140,5 +140,4 @@ uint32_t htol32(uint32_t h);
 }
 #endif
 
-#endif
-
+#endif /* BYTEORDERING_H */

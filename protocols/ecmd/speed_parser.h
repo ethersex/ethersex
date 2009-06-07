@@ -19,8 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef ECMD_SPEED_PARSE_H_
-#define ECMD_SPEED_PARSE_H_
+#ifndef ECMD_SPEED_PARSER_H
+#define ECMD_SPEED_PARSER_H
 
 #define ECMD_SPEED_PROTOCOL_VERSION 6
 #define ECMD_SPEED_PROTOCOL_COMBAT_VERSION 6
@@ -83,4 +83,4 @@ typedef struct ecmd_speed_response_t ecmd_speed_response;
 void ecmd_speed_parse(char* buf, uint16_t len);
 void ecmd_speed_error();
 
-#endif
+#endif /* ECMD_SPEED_PARSER_H */

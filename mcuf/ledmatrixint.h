@@ -24,8 +24,8 @@
  */
 
 //Funktionsprototypen fuer Graphic
-#ifndef GRAPHICINT_H
- #define GRAPHICINT_H
+#ifndef LEDMATRIXINT_H
+#define LEDMATRIXINT_H
 
 #include "mcuf.h"
 
@@ -110,6 +110,4 @@ void init_led_display(void); //Initialisiert das LED Display
 void resync_led_display(void); //kurz ein Reset bei eventuellen Fehlern
 //SIGNAL(SIG_OVERFLOW2); //Schreibt die Display Daten
 
-#endif
-
-
+#endif /* LEDMATRIXINT_H */

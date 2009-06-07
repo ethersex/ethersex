@@ -22,6 +22,7 @@
 
 #ifndef ECMD_SENDER_NET_H
 #define ECMD_SENDER_NET_H
+
 #include <stdint.h>
 typedef void (*client_return_text_callback_t)(char* text, uint8_t len);
 #include "protocols/uip/uip.h"
@@ -37,4 +38,4 @@ void uecmd_sender_send_command (uip_ipaddr_t *ipaddr,
 				      client_return_text_callback_t callback);
 void uecmd_sender_net_main(void);
 
-#endif
+#endif /* ECMD_SENDER_NET_H */

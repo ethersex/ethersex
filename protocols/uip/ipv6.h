@@ -20,8 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _IPV6_H
-#define _IPV6_H
+#ifndef UIP_IPV6_H
+#define UIP_IPV6_H
 
 /* prototypes */
 
@@ -83,4 +83,4 @@ struct uip_icmp_radv_source {
 };
 
 
-#endif
+#endif /* UIP_IPV6_H */

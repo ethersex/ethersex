@@ -61,4 +61,4 @@ struct httpd_connection_state_t {
 };
 
 
-#endif
+#endif /* _HTTPD_STATE_H */

@@ -23,8 +23,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }}} */
 
-#ifndef _TEXT_H
- #define _TEXT_H
+#ifndef MCUF_TEXT_H
+#define MCUF_TEXT_H
 
 
 extern char textbuff[37];          //Text Puffer
@@ -50,4 +50,4 @@ void draw_tinydigit(uint8_t ziffer, uint8_t posx,uint8_t posy, uint8_t color);
 
 void draw_tinynumber(uint16_t value, uint8_t posx, uint8_t posy, uint8_t color);
 
-#endif
+#endif /* MCUF_TEXT_H */

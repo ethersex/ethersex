@@ -328,4 +328,4 @@ void dump_debug_registers(void);
 #define dump_debug_registers(x)
 #endif
 
-#endif
+#endif /* _ENC28J60_H */

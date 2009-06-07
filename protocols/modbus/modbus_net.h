@@ -29,4 +29,4 @@
 void modbus_net_init(void);
 void modbus_net_main(void);
 
-#endif
+#endif /* MODBUS_NET_H */

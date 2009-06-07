@@ -21,6 +21,9 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 
+#ifndef ADC_KTY81_H
+#define ADC_KTY81_H
+
 uint16_t
 get_kty(uint8_t sensorchannel);
 
@@ -32,3 +35,5 @@ temperatur(uint16_t sensorwert);
 
 void 
 temp2text(char *textbuf, int16_t temperatur);
+
+#endif /* ADC_KTY81_H */

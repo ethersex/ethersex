@@ -38,4 +38,4 @@ enum {
   MODBUS_MUST_ANSWER,
 };
 
-#endif
+#endif /* MODBUS_STATE_H */

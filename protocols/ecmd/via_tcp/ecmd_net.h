@@ -25,4 +25,4 @@
 void ecmd_net_init(void);
 void ecmd_net_main(void);
 
-#endif
+#endif /* ECMD_NET_H */

@@ -29,6 +29,4 @@
 int8_t i2c_pcf8574x_read(uint8_t address);
 int16_t i2c_pcf8574x_set(uint8_t address, uint8_t value);
 
-#endif
-
-
+#endif /* _I2C_PCF8574X_H */

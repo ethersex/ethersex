@@ -19,6 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#ifndef ECMD_SCRIPTING_H
+#define ECMD_SCRIPTING_H
+
 #ifdef ECMD_SCRIPT_SUPPORT
 
 typedef struct {
@@ -35,4 +38,6 @@ typedef struct {
 
 variables_t vars[ECMD_SCRIPT_MAX_VARIABLES];
 
-#endif  // ECMD_SCRIPT_SUPPORT
+#endif  /* ECMD_SCRIPT_SUPPORT */
+
+#endif /* ECMD_SCRIPTING_H */

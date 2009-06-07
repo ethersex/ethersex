@@ -42,4 +42,4 @@ void syslog_net_init(void);
 void syslog_net_main(void);
 uint8_t syslog_insert_callback(syslog_callback_t callback, void *data);
 
-#endif
+#endif /* _SYSLOG_NET_H */

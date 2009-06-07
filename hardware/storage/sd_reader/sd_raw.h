@@ -148,5 +148,4 @@ uint8_t sd_try_init (void);
 }
 #endif
 
-#endif
-
+#endif /* SD_RAW_H */

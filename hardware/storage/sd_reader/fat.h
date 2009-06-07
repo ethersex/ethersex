@@ -138,5 +138,4 @@ struct fat_file_struct* open_file_in_dir(struct fat_fs_struct* fs, struct fat_di
 }
 #endif
 
-#endif
-
+#endif /* FAT_H */

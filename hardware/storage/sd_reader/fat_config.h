@@ -106,5 +106,4 @@ void get_datetime(uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, u
 }
 #endif
 
-#endif
-
+#endif /* FAT_CONFIG_H */

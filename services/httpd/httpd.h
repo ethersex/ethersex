@@ -89,4 +89,4 @@ extern char httpd_header_end[];
 
 #define STATE (&uip_conn->appstate.httpd)
 
-#endif
+#endif /* _HTTPD_H */

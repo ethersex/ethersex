@@ -29,4 +29,5 @@
 int syslog_debug_put (char d, FILE *stream);
 
 void syslog_debug_init (void);
-#endif
+
+#endif /* _SYSLOG_DEBUG_H */

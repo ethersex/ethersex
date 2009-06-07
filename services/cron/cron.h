@@ -116,4 +116,4 @@ void cron_init(void);
   * once per minute */
 void cron_periodic(void);
 
-#endif
+#endif /* _CRON_H */

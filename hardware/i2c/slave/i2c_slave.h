@@ -37,4 +37,4 @@ void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
 void i2c_slave_core_periodic (void);
 void i2c_slave_core_newdata (void);
 
-#endif
+#endif /* _I2C_SLAVE_H */

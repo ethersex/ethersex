@@ -82,5 +82,5 @@ void rc5_init(void);
 void rc5_send(uint8_t addr, uint8_t cmd);
 void rc5_process(void);
 
-#endif
-#endif
+#endif /* RC5_SUPPORT */
+#endif /* RC5_H */
