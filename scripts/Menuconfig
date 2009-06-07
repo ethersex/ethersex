@@ -1421,8 +1421,7 @@ save_configuration () {
 		echo "$2=\"$x\"" 		>>$CONFIG
 		echo "#define set_${2}(ip) uip_ipaddr((ip),"    \
 		  $(echo "$x" | sed -e 's;\.;,;g') ")" >> $CONFIG_H
-		echo "#define $2 uip_ipaddr(ip,"    \
-		  $(echo "$x" | sed -e 's;\.;,;g') ")" >> $CONFIG_H
+		echo "#define $2 \"$x\""               >> $CONFIG_H
 	}
 
 	function ipv6 () {
@@ -1430,8 +1429,7 @@ save_configuration () {
 		echo "$2=\"$x\"" 		>>$CONFIG
 		echo "#define set_${2}(ip) uip_ip6addr((ip),"    \
 		  "0x"$(echo "$x" | sed -e 's;:;,0x;g') ")" >> $CONFIG_H
-		echo "#define $2 uip_ip6addr(ip," \
-		  "0x"$(echo "$x" | sed -e 's;:;,0x;g') ")" >> $CONFIG_H
+		echo "#define $2 \"$x\""                    >> $CONFIG_H
 	}
 
 	function define_hex () {
