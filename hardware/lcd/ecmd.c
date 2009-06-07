@@ -25,6 +25,7 @@
 #include <avr/pgmspace.h>
 
 #include "config.h"
+#include "core/bit-macros.h"
 #include "core/debug.h"
 #include "hardware/lcd/hd44780.h"
 
