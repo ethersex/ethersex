@@ -26,16 +26,9 @@
 #include <avr/interrupt.h>
 
 #include "config.h"
+#include "core/bit-macros.h"
 #include "core/debug.h"
-#include "hardware/radio/fs20/fs20.h"
-#include "hardware/lcd/hd44780.h"
-#include "core/portio/named_pin.h"
-#include "hardware/onewire/onewire.h"
 #include "hardware/ir/rc5/rc5.h"
-#include "hardware/radio/rfm12/rfm12.h"
-#include "protocols/dns/resolv.h"
-#include "services/clock/clock.h"
-#include "protocols/yport/yport.h"
 
 
 #ifdef RC5_SUPPORT
@@ -47,7 +40,9 @@ int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
 
     ret = sscanf_P(cmd, PSTR("%d %d"), &addr, &command);
 
+#ifdef DEBUG_ECMD_RC5
     debug_printf("sending ir: device %d, command %d\n", addr, command);
+#endif
 
     /* check if two values have been given */
     if (ret != 2)
