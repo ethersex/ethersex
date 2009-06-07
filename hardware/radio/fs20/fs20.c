@@ -20,11 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <util/parity.h>
 #include <avr/interrupt.h>
-#include <string.h>
+
 #include "fs20.h"
 #include "core/bit-macros.h"
 #include "core/debug.h"

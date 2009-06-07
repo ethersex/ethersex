@@ -21,9 +21,9 @@
 
 #include <string.h>
 #include <avr/io.h>
-#include <avr/interrupt.h>
 #include <util/delay.h>
 #include <util/twi.h>
+
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "config.h"

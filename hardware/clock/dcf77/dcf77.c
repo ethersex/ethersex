@@ -26,9 +26,10 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+
+#include "config.h"
 #include "services/ntp/ntpd_net.h"
 #include "services/clock/clock.h"
-#include "config.h"
 #include "dcf77.h"
 
 volatile struct dcf77_ctx dcf;

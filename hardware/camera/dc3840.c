@@ -19,10 +19,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "config.h"
-
-#include <util/delay.h>
 #include <string.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+#include "config.h"
 #include "dc3840.h"
 
 /* USART cruft. */

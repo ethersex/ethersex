@@ -21,10 +21,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/interrupt.h>
+#include <avr/io.h>
 
-#include "core/periodic.h"
 #include "config.h"
+#include "core/periodic.h"
 #include "core/debug.h"
 
 

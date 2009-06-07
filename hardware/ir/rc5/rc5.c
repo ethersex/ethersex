@@ -23,10 +23,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include <string.h>
 
 #include "config.h"
 #include "core/debug.h"

@@ -21,10 +21,10 @@
  */
 
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/crc16.h>
 #include <string.h>
+#include <avr/io.h>
+#include <util/crc16.h>
+
 #include "core/eeprom.h"
 #include "config.h"
 #include "modbus_net.h"

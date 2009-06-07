@@ -21,11 +21,9 @@
  */
 
 #include <avr/pgmspace.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
+
 #include "config.h"
 #include "core/debug.h"
-
 #include "pwm_melody.h"
 
 #ifdef PWM_MELODY_SUPPORT

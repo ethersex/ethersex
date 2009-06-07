@@ -19,10 +19,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdlib.h>
 #include <avr/pgmspace.h>
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include <stdlib.h>
+
 #include "config.h"
 #include "core/debug.h"
 #include "cron.h"

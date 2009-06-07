@@ -20,9 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
 #include <string.h>
+#include <avr/io.h>
+
 #include "modbus_net.h"
 #include "protocols/uip/uip.h"
 #include "core/debug.h"

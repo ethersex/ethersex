@@ -23,7 +23,6 @@
  */
 
 #include <avr/io.h>
-#include <avr/interrupt.h>
 #include <util/twi.h>
         
 #include "config.h"

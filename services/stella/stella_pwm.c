@@ -23,10 +23,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/interrupt.h>
-#include <avr/io.h>
-#include <inttypes.h>
 #include <string.h>
+#include <inttypes.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 #include "config.h"
 #include "stella.h"

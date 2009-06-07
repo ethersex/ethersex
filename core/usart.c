@@ -21,7 +21,7 @@
  */
 
 #include <avr/io.h>
-#include <avr/interrupt.h>
+
 #include "config.h"
 #include "core/usart.h"
 

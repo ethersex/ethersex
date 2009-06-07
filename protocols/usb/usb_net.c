@@ -20,11 +20,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <string.h>
 #include <util/delay.h>
 #include <avr/wdt.h>
-#include <string.h>
-#include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "usbdrv/usbdrv.h"

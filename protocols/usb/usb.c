@@ -23,8 +23,8 @@
 
 #include <util/delay.h>
 #include <avr/wdt.h>
-#include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
 #include "config.h"
 #include "usbdrv/usbdrv.h"
 #include "requests.h"

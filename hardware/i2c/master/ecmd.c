@@ -20,11 +20,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
-
 #include <avr/io.h>
-#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include <util/twi.h>
+
 #include "config.h"
 #include "core/debug.h"
 #include "hardware/i2c/master/i2c_master.h"
