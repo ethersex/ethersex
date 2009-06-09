@@ -149,7 +149,6 @@ divert(eval(timer_divert_base`+'timer_divert_last` * 2 + 2'))
    uip_buf_unlock ();
 #endif
 
-    }
 #       ifdef BOOTLOADER_SUPPORT
         if(bootload_delay)
             if(-- bootload_delay == 0) {
@@ -161,6 +160,7 @@ divert(eval(timer_divert_base`+'timer_divert_last` * 2 + 2'))
                 jump_to_application();
             }
 #       endif
+    }
 }
 divert(-1)
 timer(timer_divert_last, `counter = 0')
