@@ -127,7 +127,7 @@ template $SD_READER_SUPPORT << FNORD
   pin(SPI_CS_SD_READER, PB2, OUTPUT)
 FNORD
 
-template $SORT_UART_SUPPORT << FNORD
+template $SOFT_UART_SUPPORT << FNORD
   /* port software uart tx output */
   pin(SOFT_UART_TX, PD7, OUTPUT)
 FNORD
