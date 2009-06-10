@@ -17,24 +17,16 @@ source services/tftp/config.in
 
 dep_bool 'DNS support' DNS_SUPPORT $UDP_SUPPORT
 if [ "$DNS_SUPPORT" = "y" ]; then
-  if [ "$IPV6_SUPPORT" = "y" ]; then
-    ipv6 "DNS-Server IP address" CONF_DNS_SERVER "2001:6f8:1209:0:0:0:0:2"
-  else
-    ipv4 "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254"
-  fi
+  ip "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254" "2001:6f8:1209:F0:0:0:0:1"
 fi
 
 dep_bool 'SYSLOG support' SYSLOG_SUPPORT $UDP_SUPPORT
 if [ "$SYSLOG_SUPPORT" = "y" ]; then
-  if [ "$IPV6_SUPPORT" = "y" ]; then
-    ipv6 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
-  else
-    ipv4 "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73"
-  fi
+  ip "SYSLOG-Server IP address" CONF_SYSLOG_SERVER "192.168.23.73" "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
 fi
 
 dep_bool_menu "Jabber client (EXPERIMENTAL)" JABBER_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
-  ip "Server IP" CONF_JABBER_IP "78.47.210.246"
+  ip "Server IP" CONF_JABBER_IP "78.47.210.246" "2001:6f8:1209:f0:216:3eff:fe03:a7"
   string "Server Hostname" CONF_JABBER_HOSTNAME "jabber.zerties.org"
   string "Username" CONF_JABBER_USERNAME "esex"
   string "Password" CONF_JABBER_PASSWORD "password"
@@ -48,7 +40,7 @@ dep_bool_menu "OpenVPN" OPENVPN_SUPPORT $UDP_SUPPORT
   hex "OpenVPN HMAC key" CONF_OPENVPN_HMAC_KEY "00000000000000000000000000000000"
 
   comment "OpenVPN IP configuration"
-  ip "OpenVPN IP address" CONF_OPENVPN_IP "192.168.23.244"
+  ip "OpenVPN IP address" CONF_OPENVPN_IP "192.168.23.244" "2001:6f8:1209:F0:0:0:0:1"
   if [ "$IPV6_SUPPORT" = "y" ]; then
     int "IP prefix length" CONF_OPENVPN_IP6_PREFIX_LEN 64
   else

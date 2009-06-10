@@ -313,9 +313,9 @@ function mac () {
 function ip () {
 	MSG="$1"; shift
 	if [ "x$IPV6_SUPPORT" = "xy" ]; then
-		ipv6 "$MSG" $*
+		ipv6 "$MSG" $1 $3
 	else
-		ipv4 "$MSG" $*
+		ipv4 "$MSG" $1 $2
 	fi
 }
 
