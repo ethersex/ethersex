@@ -1,5 +1,5 @@
 dep_bool_menu "netStat client (EXPERIMENTAL)" NETSTAT_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
-  ip "Service IP" CONF_NETSTAT_SERVICE_IP 212.202.153.62
-  string "Service Hostname" CONF_NETSTAT_SERVICE "ku.rs-west.de"
-  string "Base Path" CONF_NETSTAT_API "/ethersex/stat/"
+  ip "Service IP" CONF_NETSTAT_SERVICE_IP 188.40.33.175
+  string "Service Hostname" CONF_NETSTAT_SERVICE "ethersex.de"
+  string "Base Path" CONF_NETSTAT_API "/~habo/stat/"
 endmenu
