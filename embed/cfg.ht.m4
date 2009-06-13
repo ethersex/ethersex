@@ -50,7 +50,7 @@ function updateValues() {
 <center><table>
 	<tr>
 	<td>Version</td>
-	<td><input type="text" id="version" disabled> </td>
+	<td><input type="text" id="version" readonly> </td>
 	</tr>
 	<tr>
 	<td>MAC</td>
