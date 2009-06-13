@@ -23,7 +23,6 @@
 #include <avr/pgmspace.h>
 #include <string.h>
 #include <stdint.h>
-#include "protocols/syslog/syslog.h"
 #include "cron_static.h"
 #include "config.h"
 #include "mcuf/mcuf.h"
@@ -36,15 +35,7 @@ uint32_t last_check;
 uint8_t cron_check_event(struct cron_static_event_t *event,
                          struct clock_datetime_t *d);
 
-void test(void);
 void leds(void);
-
-void test(void)
-{
-#ifdef SYSLOG_SUPPORT
-    syslog_send_P(PSTR("cron event matched!"));
-#endif
-}
 
 #ifdef  MCUF_CLOCK_SUPPORT
 void
@@ -79,10 +70,7 @@ mcuf_modul(void)
 #define USE_LOCAL 0
 
 struct cron_static_event_t events[] PROGMEM =
-{ { { {-1, -2, -1, -1, -1} }, test, USE_UTC}, /* when hour % 2 == 0 */
-  { { {51, -1, -1, -1, -1} }, test, USE_LOCAL}, /* when minute is 51 */
-  { { {-2, -1, -1, -1, -1} }, test, USE_UTC}, /* when minute % 2 == 0 */
-
+{
 #ifdef MCUF_CLOCK_SUPPORT
   { { {-1, -1, -1, -1, -1} }, mcuf_clock, USE_LOCAL}, /* every minute  */
 #endif /* MCUF_CLOCK_SUPPORT */
