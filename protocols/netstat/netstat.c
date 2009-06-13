@@ -116,4 +116,6 @@ netstat_send()
 
 /*
   -- Ethersex META --
+  header(protocols/netstat/netstat.h)
+  net_init(netstat_send)
 */
