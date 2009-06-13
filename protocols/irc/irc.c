@@ -49,6 +49,13 @@ static const char PROGMEM irc_send_join[] =
 static const char PROGMEM irc_privmsg_str[] =
     "PRIVMSG #" CONF_IRC_CHANNEL " :";
 
+#ifdef IRC_GREET_SUPPORT
+static const char PROGMEM irc_joinmsg_str[] =
+    " JOIN :#" CONF_IRC_CHANNEL;
+
+static const char PROGMEM irc_send_greet[] =
+    CONF_IRC_GREET_MSG;
+#endif	/* IRC_GREET_SUPPORT */
 
 #define IRC_SEND(str) do {				\
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
@@ -172,6 +179,25 @@ irc_parse (void)
 	    message += sizeof (irc_privmsg_str) - 1;
 	    irc_handle_message (message);
 	}
+
+#ifdef IRC_GREET_SUPPORT
+	/* :stesie!n=stesie@sudkessel.zerties.org JOIN :#ethersex */
+	if (((char *)uip_appdata)[0] == ':'
+	    && strstr_P (uip_appdata, irc_joinmsg_str)) {
+	    IRCDEBUG ("found join");
+	    char *nick = uip_appdata + 1;
+	    char *endptr = strchr (nick, '!');
+
+	    if (endptr) {
+		*endptr = 0;
+		IRCDEBUG ("greeting %s", nick);
+		if (strcmp_P (nick, PSTR (CONF_IRC_NICKNAME)))
+		    snprintf_P (STATE->outbuf, ECMD_OUTPUTBUF_LENGTH,
+				irc_send_greet, nick);
+	    }
+	}
+#endif	/* IRC_GREET_SUPPORT */
+
 	return 0;
     }
 
