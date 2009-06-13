@@ -11,11 +11,7 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 			string "NTP Server" NTP_SERVER "pool.ntp.org"
 		fi
 	else
-		if [ "$IPV6_SUPPORT" = "y" ]; then
-			ip "NTP IP" NTP_SERVER_IP "2001:638:500:101:2e0:4bff:fe04:bc5f"
-		else
-			ip "NTP IP" NTP_SERVER_IP "213.133.123.125"
-		fi
+		ip "NTP IP" NTP_SERVER_IP "213.133.123.125" "2001:638:500:101:2e0:4bff:fe04:bc5f"
 	fi
 	int "NTP Port" NTP_PORT 123
 	fi
