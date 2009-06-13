@@ -34,33 +34,35 @@
 
 #ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */
-int8_t parse_ow_rom(char *cmd, uint8_t *ptr)
+int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
 {
+    uint8_t *addr = rom->bytewise;
+    uint8_t end;
 
 #ifdef DEBUG_ECMD_OW_ROM
     debug_printf("called parse_ow_rom with string '%s'\n", cmd);
 #endif
 
-    /* check if enough bytes have been given */
-    if (strlen(cmd) < 16) {
+    /* read 8 times 2 hex chars into a byte */
+    int ret = sscanf_P(cmd, PSTR("%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%c"),
+                       addr+0, addr+1, addr+2, addr+3,
+                       addr+4, addr+5, addr+6, addr+7,
+                       &end);
+
 #ifdef DEBUG_ECMD_OW_ROM
-        debug_printf("incomplete command\n");
+    debug_printf("scanf returned %d\n", ret);
 #endif
-        return -1;
+
+    if ((ret == 8) || ((ret == 9) && (end == ' '))) {
+#ifdef DEBUG_ECMD_OW_ROM
+        debug_printf("read rom %x:%x:%x:%x:%x:%x:%x:%x\n",
+                     addr[0], addr[1], addr[2], addr[3],
+                     addr[4], addr[5], addr[6], addr[7]);
+#endif
+        return 0;
     }
 
-    char b[3];
-
-    for (uint8_t i = 0; i < 8; i++) {
-        memcpy(b, cmd, 2);
-        cmd += 2;
-        b[2] = '\0';
-        uint16_t val = 0;
-        sscanf_P(b, PSTR("%x"), &val);
-        *ptr++ = LO8(val);
-    }
-
-    return 1;
+    return -1;
 }
 
 #ifdef ONEWIRE_DETECT_SUPPORT
@@ -69,6 +71,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
     int16_t ret;
 
     if (ow_global.lock == 0) {
+	/* make sure only one conversion happens at a time */
         ow_global.lock = 1;
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("called onewire list for the first time\n");
@@ -151,14 +154,14 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
+    struct ow_rom_code_t rom;
     int16_t ret;
 
-    cmd++;
-    debug_printf("called onewire_list with: \"%s\"\n", cmd);
+    while (*cmd == ' ')
+        cmd++;
+    debug_printf("called onewire_get with: \"%s\"\n", cmd);
 
-    struct ow_rom_code_t rom;
-
-    ret = parse_ow_rom(cmd, (void *)&rom);
+    ret = parse_ow_rom(cmd, &rom);
 
     /* check for parse error */
     if (ret < 0)
@@ -249,20 +252,16 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 {
     int16_t ret;
 
-    if (strlen(cmd) > 0)
+    while (*cmd == ' ')
         cmd++;
-
-    debug_printf("called onewire_list with: \"%s\"\n", cmd);
+    debug_printf("called onewire_convert with: \"%s\"\n", cmd);
 
     struct ow_rom_code_t rom, *romptr;
 
-    ret = parse_ow_rom(cmd, (void *)&rom);
+    ret = parse_ow_rom(cmd, &rom);
 
     /* check for romcode */
-    if (ret < 0)
-        romptr = NULL;
-    else
-        romptr = &rom;
+    romptr = (ret < 0) ? NULL : &rom;
 
     debug_printf("converting temperature...\n");
 
