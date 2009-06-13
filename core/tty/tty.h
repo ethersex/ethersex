@@ -19,10 +19,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-/* ncurses-like constants LINES and COLS are defined through menuconfig! */
-
 #ifndef TTY_H
 #define TTY_H
+
+#include "config.h"
+#define LINES	TTY_LINES
+#define COLS	TTY_COLS
+
+#ifdef DEBUG_TTY_LAYER
+# include "core/debug.h"
+# define TTYDEBUG(a...)  debug_printf("tty: " a)
+#else
+# define TTYDEBUG(a...)
+#endif
 
 /* The (one and only) off-screen image. */
 extern uint8_t tty_image[LINES][COLS];
@@ -50,8 +59,9 @@ struct _tty_window_t {
 
 /* The TTY main-window. */
 extern WINDOW tty_mainwin;
-#define curscr (&tty_mainwin);
+#define curscr (&tty_mainwin)
 
+void initscr (void);
 
 /* Printing and cursor movement commands */
 void waddch (WINDOW *, const char);

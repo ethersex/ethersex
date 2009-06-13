@@ -19,18 +19,64 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdio.h>
 #include "core/tty/tty.h"
+#include <hardware/lcd/hd44780.h>
 
 uint8_t tty_image[LINES][COLS];
-extern WINDOW tty_mainwin;
+WINDOW tty_mainwin;
 
 void
 initscr (void)
 {
+  TTYDEBUG ("initializing tty layer ...\n");
   curscr->linewrap = 1;
   curscr->maxx = COLS - 1;
   curscr->maxy = LINES - 1;
+
+  hd44780_clear ();
 }
+
+void
+waddch (WINDOW *win, const char ch)
+{
+  TTYDEBUG ("waddch: win=%p, ch=%c\n", win, ch);
+  putc (ch, lcd);
+}
+
+void
+waddstr (WINDOW *win, const char *ptr)
+{
+  for (; *ptr; ptr ++)
+    waddch (win, *ptr);
+}
+
+void
+wmove (WINDOW *win, uint8_t y, uint8_t x)
+{
+  hd44780_goto (y, x);
+}
+
+void
+wprintw (WINDOW *win, const char *fmt, ...)
+{
+  int redir_helper (char d, FILE *stream)
+  {
+    waddch (NULL, d);
+    return 0;
+  }
+
+  FILE redir = FDEV_SETUP_STREAM(redir_helper, NULL, _FDEV_SETUP_WRITE);
+
+  va_list va;
+  va_start (va, fmt);
+
+  TTYDEBUG ("wprintw: win=%p, %s\n", win, fmt);
+  vfprintf (&redir, fmt, va);
+  va_end (va);
+}
+
+
 
 /*
   -- Ethersex META --

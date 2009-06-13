@@ -5,6 +5,7 @@ SUBDIRS += control6
 SUBDIRS += core
 SUBDIRS += core/crypto
 SUBDIRS += core/portio
+SUBDIRS += core/tty
 SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc

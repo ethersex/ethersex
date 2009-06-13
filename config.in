@@ -88,6 +88,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'Stella' DEBUG_STELLA $DEBUG
   dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG
+  dep_bool 'TTY Layer' DEBUG_TTY_LAYER $DEBUG
   dep_bool 'Cron' DEBUG_CRON $DEBUG
   dep_bool 'DCF77' DEBUG_DCF77 $DEBUG
   dep_bool 'Hooks' DEBUG_HOOK $DEBUG
@@ -174,6 +175,7 @@ endmenu
 dep_bool "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL
 dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
 source hardware/lcd/config.in
+source core/tty/config.in
 dep_bool "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 if [ "$ADC_SUPPORT" = "y" ]; then
   if [ "$KTY_SUPPORT" = "y" ]; then
