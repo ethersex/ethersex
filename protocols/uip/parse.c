@@ -52,29 +52,35 @@ int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
 int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 {
     if (ptr != NULL) {
-	uint8_t end;
-
 #ifdef DEBUG_ECMD_IP
 	debug_printf("called parse_ip with string '%s'\n", cmd);
 #endif
 
 #if UIP_CONF_IPV6
 	uint16_t *ip = (uint16_t *) ptr;
-	int8_t ret = sscanf_P(cmd, PSTR("%4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x%c"),
-			      ip, ip+1, ip+2, ip+3, ip+4, ip+5, ip+6, ip+7,
-			      &end);
+	int8_t ret = sscanf_P(cmd,
+		PSTR("%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx"),
+			      ip, ip+1, ip+2, ip+3, ip+4, ip+5, ip+6, ip+7);
 
-	if ((ret != 8) && ((ret != 9) || (end != ' ')))
+#ifdef DEBUG_ECMD_IP
+	debug_printf("scanf returned %d\n", ret);
+#endif
+
+	if (ret != 8)
 	    return -1;
 
 	for (int i = 0; i < 8; i ++)
 	    ip[i] = HTONS(ip[i]);
 #else
 	uint8_t *ip = (uint8_t *) ptr;
-	int8_t ret = sscanf_P(cmd, PSTR("%hhu.%hhu.%hhu.%hhu%c"),
-			      ip, ip+1, ip+2, ip+3, &end);
+	int8_t ret = sscanf_P(cmd, PSTR("%hhu.%hhu.%hhu.%hhu"),
+			      ip, ip+1, ip+2, ip+3);
 
-	if ((ret != 4) || ((end != ' ') || (end != '\0')))
+#ifdef DEBUG_ECMD_IP
+	debug_printf("scanf returned %d\n", ret);
+#endif
+
+	if (ret != 4)
 	    return -1;
 #endif
 
@@ -102,20 +108,19 @@ int8_t parse_mac(char *cmd, struct uip_eth_addr *mac)
 {
     if (mac != NULL) {
 	uint8_t *addr = mac->addr;
-	uint8_t end;
 
 #ifdef DEBUG_ECMD_MAC
 	debug_printf("called parse_mac with string '%s'\n", cmd);
 #endif
 
-	int ret = sscanf_P(cmd, PSTR("%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx%c"),
-			   addr, addr+1, addr+2, addr+3, addr+4, addr+5, &end);
+	int ret = sscanf_P(cmd, PSTR("%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx"),
+			   addr, addr+1, addr+2, addr+3, addr+4, addr+5);
 
 #ifdef DEBUG_ECMD_MAC
 	debug_printf("scanf returned %d\n", ret);
 #endif
 
-	if ((ret == 6) || ((ret == 7) && (end == ' '))) {
+	if (ret == 6) {
 #ifdef DEBUG_ECMD_MAC
 	    debug_printf("read mac %x:%x:%x:%x:%x:%x\n",
 			 addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
