@@ -84,6 +84,7 @@ netstat_net_main(void)
 
 }
 
+#ifdef DNS_SUPPORT
 static void
 netstat_dns_query_cb(char *name, uip_ipaddr_t *ipaddr) {
   NETSTATDEBUG("got dns response, connecting\n");
@@ -91,6 +92,7 @@ netstat_dns_query_cb(char *name, uip_ipaddr_t *ipaddr) {
   }
 
 }
+#endif  /* DNS_SUPPORT */
 
 uint8_t
 netstat_send()
