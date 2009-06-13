@@ -1,0 +1,36 @@
+				-*- mode: Outline -*-
+
+Core/TTY is a ncurses-like display abstraction layer in Ethersex.
+
+* Key Concepts
+
+** Keep ONE off-screen character image
+   This is, every printed character is first written into RAM and
+   afterwards synchronized to the display.  This allows for scrolling
+   on all kinds of hardware, i.e. even those that don't support from
+   hardware side.
+
+** Windows
+   Windowing concept quitle like in ncurses, this is one off-screen
+   image (associated with the main window) which can be divided into
+   sub-windows, which of course shouldn't be overlapping.
+
+   Sub-windows don't have a screen image of their own but share
+   (portions of) the "root image"
+
+** API/Functionality
+*** printing (of course)
+*** cursor movement
+*** scrolling
+
+* Possible Extras
+** clear to end of line
+** clear screen
+** save/restore cursor position
+   (though not that important with sub-windows)
+
+* Possible output devices
+** LCD Character Display (HD44780)
+** s1d15g10
+** vt100 (serial) terminal
+
