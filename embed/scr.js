@@ -2,12 +2,12 @@ var isIE/*@cc_on = true@*/;
 
 function returnObjById(id) {
 	if (document.getElementById)
-		var returnVar = document.getElementById(id);
-	else if (document.all)
-		var returnVar = document.all[id];
-	else if (document.layers)
-		var returnVar = document.layers[id];
-	return returnVar;
+		return document.getElementById(id);
+	if (document.all)
+		return document.all[id];
+	if (document.layers)
+		return document.layers[id];
+	return null;
 }
 
 var AjaxQueue = new Array();
@@ -38,20 +38,20 @@ ArrAjax.aufruf = function (address, handler, method, data) {
   	if (!xmlHttp) {
 		// Internet Explorer 6 und älter
 		try {
-			xmlHttp  = new ActiveXObject("Msxml2.XMLHTTP");
+			xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
 		} catch(e) {
 			try {
-				xmlHttp  = new ActiveXObject("Microsoft.XMLHTTP");
+				xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
 			} catch(e) {
-				xmlHttp  = null;
+				xmlHttp = null;
 			}
 		}
 	}
 
 	if (!xmlHttp) {
 		alert('No Ajax support possible');
-		throw Exception("No ajax support");
-		return false;
+		throw Exception("No Ajax support");
+		return;
 	}
 	xmlHttp.open(method, address, true);
 	xmlHttp.onreadystatechange = function() {
