@@ -10,7 +10,7 @@
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function ecmd_adc_req() {
-	ArrAjax.ecmd('adc get', ecmd_adc_req_handler, 'GET');
+	ArrAjax.ecmd('adc get', ecmd_adc_req_handler);
 }
 
 function ecmd_adc_req_handler(request, data) {
@@ -26,15 +26,13 @@ function ecmd_adc_req_handler(request, data) {
 		graph.innerHTML = (value != 0) ? "&nbsp;" : "";
 		var data = returnObjById('adc_data' + i);
 		data.innerHTML = (value * 100 / 1023).toFixed(2) + "% (" + value + ")";
-		data.style.borderLeft =  "1px dashed #FF9999";
-		data.style.padding = "3px";
 	}
 }
 
 window.onload = function() {
 	var adc_table = returnObjById("adc_table");
 	for (var i = 0; i < ADC_CHANNELS; i++) {
-		adc_table.insertRow(i).innerHTML = '<td>Kanal ' + i +' </td><td style="width:500px"><div id="adc_graph'+i+'" style="background-color: #00ff00;"></div></td><td id="adc_data'+i+'"></td>';
+		adc_table.insertRow(i).innerHTML = '<td>Kanal ' + i +' </td><td class="adc_graph"><div id="adc_graph'+i+'"></div></td><td class="adc_data" id="adc_data'+i+'"></td>';
 	}
 	ecmd_adc_req();
 	setInterval('ecmd_adc_req()', 5000);

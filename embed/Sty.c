@@ -13,11 +13,11 @@ a:visited, a:active{
 	color: #ddd;
 }
 
-.small_button:hover{
+.small_button:hover {
 	background-color: #555;
 }
 
-.small_button, .lamp{
+.small_button, .lamp {
 	background-color: #444;
 	padding: 3px;
 	color: black;
@@ -52,3 +52,16 @@ a:visited, a:active{
 
 .iotable td { border-bottom: 1px dashed #FF9999 }
 .iotable th { border-bottom: 2px dashed #9999FF; padding: 3px;}
+
+.adc_graph {
+	width: 500px;
+}
+
+.adc_graph div {
+	background-color: #00ff00;
+}
+
+.adc_data, .adc_graph {
+	border-left: 1px dashed #FF9999;
+	padding: 3px;
+}
