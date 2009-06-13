@@ -37,7 +37,7 @@ function ecmd_1w_convert_req_handler(request, data) {
 
 function ecmd_1w_get_req_handler(request, data) {
 	var cell = returnObjById("ow" + data);
-	cell.innerHTML = request.responseText;
+	cell.innerHTML = request.responseText + '&deg;C';
 }
 
 window.onload = function() {

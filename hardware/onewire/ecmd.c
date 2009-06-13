@@ -65,6 +65,7 @@ int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
     return -1;
 }
 
+
 #ifdef ONEWIRE_DETECT_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
@@ -152,6 +153,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 }
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
+
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
     struct ow_rom_code_t rom;
@@ -192,18 +194,14 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 
 #ifdef TEENSY_SUPPORT
-	strcpy_P (output, PSTR ("Temperatur: "));
-	char *ptr = output + 12;
-
-	itoa (HI8(temp), ptr, 10);
-	ptr += strlen (ptr);
+	itoa (HI8(temp), output, 10);
+	char *ptr = output + strlen (output);
 
 	*(ptr ++) = '.';
 	itoa (HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
 	return strlen (output);
 #else
-        ret = snprintf_P(output, len,
-                PSTR("Temperatur: %3d.%1d"),
+        ret = snprintf_P(output, len, PSTR("%3d.%1d"),
                 (int8_t) HI8(temp),  HI8(((temp & 0x00ff) * 10) + 0x80));
 #endif
 
@@ -247,6 +245,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
     return ret;
 }
+
 
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 {

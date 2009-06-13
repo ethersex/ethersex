@@ -48,13 +48,12 @@ function ecmd_1w_convert_req_handler(request, data) {
 
 function ecmd_1w_get_req_handler(request, data) {
 	var cell = returnObjById("ow" + data);
-	cell.innerHTML = request.responseText;
+	cell.innerHTML = request.responseText + '°C';
 
 	if (data < num) {
 		cell.style.color = colors[data];
-		var str = request.responseText;
-		var i = parseInt(str.substr(str.indexOf(" ") + 1));
-		graphAppend(g[data], i);
+		var value = parseInt(request.responseText);
+		graphAppend(g[data], value);
 	}
 }
 
