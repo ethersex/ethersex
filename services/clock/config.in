@@ -18,7 +18,7 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	dep_bool "Cron daemon (dynamic jobs)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
 	dep_bool "Cron: Use UTC instead of LOCALTIME" CRON_DEFAULT_UTC $CRON_SUPPORT
 	dep_bool "Cron: Test entries" CRON_SUPPORT_TEST $CRON_SUPPORT
-	dep_bool "Cron daemon (static jobs)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT
+	dep_bool "Cron daemon (static jobs)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
 	dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
 	dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
 	if [ "$CLOCK_SUPPORT" = "y" ]; then
