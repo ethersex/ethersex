@@ -198,6 +198,15 @@ irc_parse (void)
 	}
 #endif	/* IRC_GREET_SUPPORT */
 
+	if (strncmp_P (uip_appdata, PSTR ("PING :"), 6) == 0) {
+	  /* Send PONG back to server, FIXME this doesn't support rexmits,
+	     let's hope the packet will make it through (or the server
+	     at least PINGs once more) ... */
+	  ((char *)uip_appdata)[1] = 'O'; /* PING -> PONG */
+	  uip_send (uip_appdata, uip_len);
+	  IRCDEBUG ("replying pong ...\n");
+	}
+
 	return 0;
     }
 
