@@ -18,6 +18,8 @@ TEENSY_SUPPORT
 Enable (Serial-Line) Debugging
 DEBUG
   Enable serial-line debugging capability of Ethersex firmware.
+  Moreover this includes an ECMD interface if the ECMD parser is
+  enabled.
   
   If you enable this you either want to add some debug_printf
   instructions here and there in the firmware source code or enable
