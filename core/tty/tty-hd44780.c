@@ -24,3 +24,12 @@
 uint8_t tty_hd44780_y;
 uint8_t tty_hd44780_x;
 
+void
+tty_ll_put (uint8_t y, uint8_t x, uint8_t ch)
+{
+  if (tty_hd44780_y != y || tty_hd44780_x != x)
+    hd44780_goto (y, x);
+  putc (ch, lcd);
+
+  tty_hd44780_x ++;		/* Wrapping handled by tty main layer. */
+}

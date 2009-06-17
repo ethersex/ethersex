@@ -37,4 +37,6 @@ tty_ll_goto (uint8_t y, uint8_t x)
   hd44780_goto (y, x);
 }
 
+void tty_ll_put (uint8_t y, uint8_t x, uint8_t ch);
+
 #endif	/* TTY_HD44780_H */

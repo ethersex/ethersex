@@ -34,7 +34,7 @@
 #endif
 
 /* The (one and only) off-screen image. */
-extern uint8_t tty_image[LINES][COLS];
+extern uint8_t tty_image[LINES * COLS];
 
 /* WINDOW type forward declaration. */
 struct _tty_window_t;
@@ -43,6 +43,9 @@ typedef struct _tty_window_t WINDOW;
 struct _tty_window_t {
   /* Whether to wrap the cursor at the end of the line or not. */
   unsigned linewrap		:1;
+
+  /* Whether scrolling of the window is allowed. */
+  unsigned scrollok		:1;
 
   /* Current cursor position */
   uint8_t y, x;
