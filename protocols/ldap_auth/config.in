@@ -1,0 +1,4 @@
+dep_bool_menu "LDAP Authentification (EXPERIMENTAL)" LDAP_AUTH_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
+  ip "Server IP" CONF_LDAP_AUTH_IP "192.168.98.128"
+  string "User DN Template" CONF_LDAP_AUTH_DN "userid=%s,ou=Stettberger,ou=People,dc=zerties,dc=org"
+endmenu
