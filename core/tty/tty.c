@@ -95,7 +95,7 @@ wclear (WINDOW *win)
 }
 
 void
-tty_scroll (WINDOW *win, uint8_t lines)
+wscroll (WINDOW *win, uint8_t lines)
 {
   if (lines > win->maxy)
     {
@@ -127,7 +127,7 @@ waddch (WINDOW *win, const char ch)
       if (! win->scrollok)
 	return;			/* ... cannot help. */
 
-      tty_scroll (win, win->y - win->maxy);
+      wscroll (win, win->y - win->maxy);
     }
 
   /* Update off-screen map. */

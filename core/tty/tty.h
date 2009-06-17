@@ -89,11 +89,12 @@ void wprintw (WINDOW *, const char *, ...);
 void wclear (WINDOW *);
 void wclrtobot (WINDOW *);
 void wclrtoeol (WINDOW *);
+void wscroll (WINDOW *, uint8_t);
 
 #define clear()			wclear(curscr)
 #define clrtobot()		wclrtobot(curscr)
 #define clrtoeol()		wclrtoeol(curscr)
-
+#define scroll(i)		wscroll(curscr,i)
 
 /* Include Low-Level driver's Header File */
 #ifdef TTY_LL_HD44780
