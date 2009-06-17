@@ -5,4 +5,8 @@ dep_bool_menu "TTY Layer (EXPERIMENTAL)" TTY_SUPPORT $CONFIG_EXPERIMENTAL
 int "screen width" TTY_COLS 16
 int "screen height" TTY_LINES 4
 
+choice 'TTY Low-Level Layer'				\
+    "HD44780			TTY_LL_HD44780		\
+   " HD44780
+
 endmenu

@@ -41,10 +41,6 @@ struct _tty_window_t;
 typedef struct _tty_window_t WINDOW;
 
 struct _tty_window_t {
-  /* Whether this is a sub-window or not.  True for any window but
-     tty_mainwin. */
-  unsigned subwin		:1;
-
   /* Whether to wrap the cursor at the end of the line or not. */
   unsigned linewrap		:1;
 
@@ -54,6 +50,9 @@ struct _tty_window_t {
   /* Window location and size */
   uint8_t maxy, maxx;
   uint8_t begy, begx;
+
+  /* Reference to the parent window, NULL for root window. */
+  WINDOW *parent;
 };
 
 
@@ -92,5 +91,10 @@ void wclrtoeol (WINDOW *);
 #define clrtobot()		wclrtobot(curscr)
 #define clrtoeol()		wclrtoeol(curscr)
 
+
+/* Include Low-Level driver's Header File */
+#ifdef TTY_LL_HD44780
+#include "core/tty/tty-hd44780.h"
+#endif
 
 #endif  /* TTY_H */

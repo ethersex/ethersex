@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 #include "core/tty/tty.h"
-#include <hardware/lcd/hd44780.h>
 
 uint8_t tty_image[LINES][COLS];
 WINDOW tty_mainwin;
@@ -34,7 +33,7 @@ initscr (void)
   curscr->maxx = COLS - 1;
   curscr->maxy = LINES - 1;
 
-  hd44780_clear ();
+  tty_ll_clear ();
 }
 
 void
@@ -54,7 +53,20 @@ waddstr (WINDOW *win, const char *ptr)
 void
 wmove (WINDOW *win, uint8_t y, uint8_t x)
 {
-  hd44780_goto (y, x);
+  if (y > win->maxy || x > win->maxx)
+    return;			/* Out of range. */
+
+  /* Walk up sub-window chain. */
+  while (win->parent)
+    {
+      y += win->begy;
+      x += win->begx;
+
+      win = win->parent;
+    }
+
+  /* Y and X point to hardware cursor position now. */
+  tty_ll_goto (y, x);
 }
 
 void
