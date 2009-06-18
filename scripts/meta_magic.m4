@@ -156,6 +156,10 @@ divert(eval(timer_divert_base`+'timer_divert_last` * 2 + 2'))
 		_IVREG = _BV(IVCE);	        /* prepare ivec change */
 		_IVREG = 0x00;                  /* change ivec */
 
+		#ifdef USE_WATCHDOG
+			wdt_disable();
+		#endif
+		
                 void (*jump_to_application)(void) = NULL;
                 jump_to_application();
             }
