@@ -26,6 +26,7 @@ ifdef(`need_spi', `dnl
 pin(SPI_MOSI, PB2, OUTPUT)
 pin(SPI_MISO, PB3)
 pin(SPI_SCK, PB1, OUTPUT)
+pin(SPI_CS_HARDWARE, PB0, OUTPUT)
 ')dnl
 
 #define NET_MAX_FRAME_LENGTH 1500
