@@ -51,7 +51,12 @@ endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
+ifeq ($(atmega128),y)
+LDFLAGS += -Wl,--section-start=.text=0x1E000
+else
 LDFLAGS += -Wl,--section-start=.text=0xE000
+endif
+
 CFLAGS  += -mcall-prologues
 endif
 
