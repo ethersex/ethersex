@@ -223,7 +223,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   char comparator[3];
   char konst[10];
 //  char cmd[]= "if ( whm != 00:01 ) then exit";
-  uint8_t success = 1; // default false
+  uint8_t success = 0; // default false
 
   sscanf_P(cmd, PSTR("( %s %s %s ) then "), &cmpcmd, &comparator, &konst);
   char *ecmd = strstr_P(cmd, PSTR("then"));
@@ -257,26 +257,65 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
     }
   }
 #ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("Output: %s\n", output);
+    debug_printf("cmp '%s' %s '%s'\n", output, comparator, konst);
 #endif // DEBUG_ECMD_SCRIPT
 
   // check comparator  
-  if ( strcmp(comparator, EQUALS) ){
-    success = strcmp(output, konst);
-  } else if ( strcmp(comparator, NOTEQUALS) )
-    success = !strcmp(output, konst);
-  else {
+  if ( strcmp(comparator, STR_EQUALS) == 0 ){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " STR_EQUALS "\n");
+#endif // DEBUG_ECMD_SCRIPT
+    success = (strcmp(output, konst) == 0);
+  } else if ( strcmp(comparator, STR_NOTEQUALS) == 0 ) {
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " STR_NOTEQUALS "\n");
+#endif // DEBUG_ECMD_SCRIPT
+    success = (strcmp(output, konst) != 0);
+  } else {
     uint16_t outputvalue = atoi(output);
     uint16_t konstvalue = atoi(konst);
-    if ( strcmp(comparator, GREATER) )
-      success = outputvalue > konstvalue;
-    else if ( strcmp(comparator, LOWER) )
-      success = outputvalue < konstvalue;
-    else if ( strcmp(comparator, GREATEREQUALS) )
-      success = outputvalue >= konstvalue;
-    else if ( strcmp(comparator, LOWEREQUALS) )
-      success = outputvalue <= konstvalue;
-    else {
+    debug_printf("cmp atoi: %i %s %i\n", outputvalue, comparator, konstvalue);
+    if ( strcmp(comparator, OK) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " OK "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = outputvalue;
+    } else if ( strcmp(comparator, NOT) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " NOT "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = ( outputvalue != 0 );
+    } else if ( strcmp(comparator, EQUALS) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " EQUALS "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = (outputvalue == konstvalue);
+    } else if ( strcmp(comparator, NOTEQUALS) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " NOTEQUALS "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = (outputvalue != konstvalue);
+    } else if ( strcmp(comparator, GREATER) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " GREATER "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = (outputvalue > konstvalue);
+    } else if ( strcmp(comparator, LOWER) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " LOWER "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = (outputvalue < konstvalue);
+    } else if ( strcmp(comparator, GREATEREQUALS) == 0){
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " GREATEREQUALS "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = (outputvalue >= konstvalue);
+    } else if ( strcmp(comparator, LOWEREQUALS) == 0) {
+#ifdef DEBUG_ECMD_SCRIPT
+    debug_printf("try " LOWEREQUALS "\n");
+#endif // DEBUG_ECMD_SCRIPT
+      success = (outputvalue <= konstvalue);
+    } else {
       debug_printf("unknown comparator: %s\n", comparator);
       return 3;
     }
@@ -284,7 +323,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   // if compare ok, execute command after then
   if (success){
 #ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("seems OK: (%i), do: %s\n", success, ecmd);
+    debug_printf("OK, do: %s\n", ecmd);
 #endif // DEBUG_ECMD_SCRIPT
     if (ecmd_parse_command(ecmd, output, len)){
 #ifdef DEBUG_ECMD_SCRIPT
@@ -294,6 +333,9 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
     }
     return 2;
   }
+#ifdef DEBUG_ECMD_SCRIPT
+      debug_printf("success was: %i\n", success);
+#endif // DEBUG_ECMD_SCRIPT
   return 1;
 }
 

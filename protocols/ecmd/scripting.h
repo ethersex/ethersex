@@ -24,6 +24,10 @@
 
 #ifdef ECMD_SCRIPT_SUPPORT
 
+#define STR_EQUALS "eq"
+#define STR_NOTEQUALS "ne"
+#define OK "OK"
+#define NOT "!"
 #define EQUALS "=="
 #define NOTEQUALS "!="
 #define GREATER ">"
