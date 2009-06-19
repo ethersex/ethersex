@@ -7,6 +7,15 @@ int "screen height" TTY_LINES 4
 
 choice 'TTY Low-Level Layer'				\
     "HD44780			TTY_LL_HD44780		\
-   " HD44780
+     vt100_usart		TTY_LL_VT100_USART	\
+     vt100_telnet		TTY_LL_VT100_TELNET	\
+   " HD44780 TTY_LLL
+
+source scripts/usart-config.sh
+if [ "x$TTY_LL_VT100_USART" = "xy" ]; then
+    choice 'vt100 usart select' "$(usart_choice VT100_USART)"
+    usart_process_choice VT100_USART
+fi
+
 
 endmenu
