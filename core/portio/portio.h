@@ -36,7 +36,8 @@
                        }
 
 /* ATMega644 | ATMega32 */
-#elif defined(_ATMEGA644) || defined(_ATMEGA32) || defined(_ATMEGA162)
+#elif defined(_ATMEGA644) || defined(_ATMEGA32) || defined(_ATMEGA162) \
+  || defined(_ATMEGA16)
 
 
 #define IO_HARD_PORTS 4
