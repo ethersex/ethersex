@@ -24,6 +24,13 @@
 
 #ifdef ECMD_SCRIPT_SUPPORT
 
+#define EQUALS "=="
+#define NOTEQUALS "!="
+#define GREATER ">"
+#define LOWER "<"
+#define GREATEREQUALS ">="
+#define LOWEREQUALS "<="
+
 typedef struct {
   struct vfs_file_handle_t *handle;
   uint16_t linenumber;

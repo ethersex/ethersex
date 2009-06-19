@@ -187,8 +187,6 @@ parse_cmd_get(char *cmd, char *output, uint16_t len)
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
     return snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES);
   }
-
-//  uint16_t value = atoi(vars[pos].value);
   return snprintf_P(output, len, PSTR("%s"), vars[pos].value);
 }
 
@@ -225,7 +223,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   char comparator[3];
   char konst[10];
 //  char cmd[]= "if ( whm != 00:01 ) then exit";
-  uint8_t comp = 0; // for ==
+  uint8_t success = 1; // default false
 
   sscanf_P(cmd, PSTR("( %s %s %s ) then "), &cmpcmd, &comparator, &konst);
   char *ecmd = strstr_P(cmd, PSTR("then"));
@@ -263,13 +261,30 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
 #endif // DEBUG_ECMD_SCRIPT
 
   // check comparator  
-  if (strcmp(comparator, "==") != 0)
-    comp = 1;
-
+  if ( strcmp(comparator, EQUALS) ){
+    success = strcmp(output, konst);
+  } else if ( strcmp(comparator, NOTEQUALS) )
+    success = !strcmp(output, konst);
+  else {
+    uint16_t outputvalue = atoi(output);
+    uint16_t konstvalue = atoi(konst);
+    if ( strcmp(comparator, GREATER) )
+      success = outputvalue > konstvalue;
+    else if ( strcmp(comparator, LOWER) )
+      success = outputvalue < konstvalue;
+    else if ( strcmp(comparator, GREATEREQUALS) )
+      success = outputvalue >= konstvalue;
+    else if ( strcmp(comparator, LOWEREQUALS) )
+      success = outputvalue <= konstvalue;
+    else {
+      debug_printf("unknown comparator: %s\n", comparator);
+      return 3;
+    }
+  }
   // if compare ok, execute command after then
-  if (strcmp(output, konst) == comp){
+  if (success){
 #ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("if successful, do: %s\n", ecmd);
+    debug_printf("seems OK: (%i), do: %s\n", success, ecmd);
 #endif // DEBUG_ECMD_SCRIPT
     if (ecmd_parse_command(ecmd, output, len)){
 #ifdef DEBUG_ECMD_SCRIPT
@@ -279,7 +294,6 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
     }
     return 2;
   }
-
   return 1;
 }
 
