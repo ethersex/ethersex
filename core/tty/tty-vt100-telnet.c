@@ -20,3 +20,26 @@
  */
 
 #include "core/tty/tty.h"
+#include "core/tty/tty-vt100-telnet.h"
+#include "protocols/uip/uip.h"
+
+static void
+tty_vt100_main (void)
+{
+  if (uip_connected ())
+    {
+      /* Need to send complete off-screen image first. */
+    }
+}
+
+void
+tty_vt100_init (void)
+{
+  uip_listen(HTONS(TELNET_TCP_PORT), tty_vt100_main);
+}
+
+/*
+  -- Ethersex META --
+  header(core/tty/tty-vt100-telnet.h)
+  net_init(tty_vt100_init)
+*/
