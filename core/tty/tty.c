@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "core/tty/tty.h"
 
@@ -187,6 +188,26 @@ wprintw (WINDOW *win, const char *fmt, ...)
   va_end (va);
 }
 
+WINDOW *
+subwin (WINDOW *win, uint8_t lines, uint8_t cols, uint8_t begy, uint8_t begx)
+{
+  WINDOW *newwin = malloc (sizeof (WINDOW));
+  if (! newwin) return NULL;
+
+  newwin->subwin = 1;
+  newwin->linewrap = 1;
+  newwin->scrollok = 1;
+
+  newwin->y = 0;
+  newwin->x = 0;
+
+  newwin->maxy = lines;
+  newwin->maxx = cols;
+  newwin->begy = begy;
+  newwin->begx = begx;
+
+  return 0;
+}
 
 
 /*

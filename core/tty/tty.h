@@ -64,6 +64,7 @@ extern WINDOW tty_mainwin;
 #define curscr (&tty_mainwin)
 
 void initscr (void);
+WINDOW *subwin (WINDOW *, uint8_t lines, uint8_t cols, uint8_t by, uint8_t bx);
 
 /* Printing and cursor movement commands */
 void waddch (WINDOW *, const char);
