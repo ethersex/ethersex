@@ -79,7 +79,7 @@ wclrtobot (WINDOW *win)
 void
 wclear (WINDOW *win)
 {
-  if (! win->parent)
+  if (! win->subwin)
     {
       /* Yippie, root window, clear it all up ... */
       memset (tty_image, 32, LINES * COLS);

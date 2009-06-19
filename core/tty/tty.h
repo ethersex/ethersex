@@ -41,6 +41,9 @@ struct _tty_window_t;
 typedef struct _tty_window_t WINDOW;
 
 struct _tty_window_t {
+  /* Whether this window is a sub-window. */
+  unsigned subwin		:1;
+
   /* Whether to wrap the cursor at the end of the line or not. */
   unsigned linewrap		:1;
 
@@ -53,9 +56,6 @@ struct _tty_window_t {
   /* Window location and size */
   uint8_t maxy, maxx;
   uint8_t begy, begx;
-
-  /* Reference to the parent window, NULL for root window. */
-  WINDOW *parent;
 };
 
 
