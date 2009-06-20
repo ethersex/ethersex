@@ -29,19 +29,20 @@ define(`timer_count', 0)
 define(`pin_count', 0)
 
 # different levels of output
-define(`action_table_divert', 0)
-define(`timer_divert', 1)
-define(`globals_divert', 2)
-define(`pin_table_divert', 3)
-define(`ecmd_variable_divert', 4)
-define(`action_divert', 5)
-define(`init_divert', 9)
-define(`normal_start_divert', 10)
-define(`normal_divert', 11)
-define(`normal_end_divert', 12)
-define(`update_pin_divert', 13)
-define(`control_end_divert', 14)
+define(`action_table_divert', 0)divert(action_table_divert)/* C6-DIVERT: action_table_divert */
+define(`timer_divert', 1)divert(timer_divert)/* C6-DIVERT: timer_divert */
+define(`globals_divert', 2)divert(globals_divert)/* C6-DIVERT: globals_divert */
+define(`pin_table_divert', 3)divert(pin_table_divert)/* C6-DIVERT: pin_table_divert */
+define(`ecmd_variable_divert', 4)divert(ecmd_variable_divert)/* C6-DIVERT: ecmd_variable_divert */
+define(`action_divert', 5)divert(action_divert)/* C6-DIVERT: action_divert */
+define(`init_divert', 9)divert(init_divert)/* C6-DIVERT: init_divert */
+define(`normal_start_divert', 10)divert(normal_start_divert)/* C6-DIVERT: normal_start_divert */
+define(`normal_divert', 11)divert(normal_divert)/* C6-DIVERT: normal_divert */
+define(`normal_end_divert', 12)divert(normal_end_divert)/* C6-DIVERT: normal_end_divert */
+define(`update_pin_divert', 13)divert(update_pin_divert)/* C6-DIVERT: update_pin_divert */
+define(`control_end_divert', 14)divert(control_end_divert)/* C6-DIVERT: control_end_divert */
 
+divert(-1)dnl
 ################################
 # Headers
 ################################
