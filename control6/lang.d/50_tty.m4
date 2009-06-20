@@ -33,4 +33,7 @@ divert(globals_divert)
 divert(old_divert)')')
 
 define(`TTY_CLEAR', TTY_USED()clear();)
+define(`TTY_GOTO', TTY_USED()move($1,$2);)
 define(`TTY_WRITE', TTY_USED()addstr_P(PSTR($1));)
+
+define(`TTY_WRITE_TIME', TTY_USED()printw("%02d:%02d:%02d", CLOCK_HOUR(), CLOCK_MIN(), CLOCK_SEC());)
