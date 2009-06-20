@@ -34,8 +34,6 @@
 #define FALLING_EDGE(port, pin) (!(vpin[(port)].state & _BV(pin)) \
                                 && (vpin[(port)].old_state & _BV(pin)))
 
-const char text01[] PROGMEM = "io set port0 0x01 0x01\n";
-
 static struct VirtualPin vpin[IO_PORTS];
 
 #include "user_config.h"
