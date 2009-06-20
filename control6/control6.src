@@ -31,11 +31,11 @@ dnl      WAIT(60 * 15);
 dnl      PIN_SET(Warmwasser);
 dnl      THREAD_WAIT(warmwasser_high);
 dnl  THREAD_END(warmwasser_high)
-dnl  ON CLOCK_MIN && ( CLOCK_HOUR > 11 || CLOCK_HOUR < 6 ) && KTY_GET(Wasser) > 550 DO THREAD_START(warmwasser_high) END
+dnl  ON ONCE CLOCK_MIN && ( CLOCK_HOUR > 11 || CLOCK_HOUR < 6 ) && KTY_GET(Wasser) > 550 DO THREAD_START(warmwasser_high) END
 
 dnl  // das Beispiel zeigt wie man sofort (einmal in der Minute) auf auf die Wassertemperatur reagiert und schaltet
 dnl  // der Pinname "Warmwasser" stammt aus der Konfig vom named_pin
-dnl  ON CLOCK_MIN && CLOCK_HOUR > 6 && CLOCK_HOUR < 19 && KTY_GET(Wasser) < 400 DO 
+dnl  ON ONCE CLOCK_MIN && CLOCK_HOUR > 6 && CLOCK_HOUR < 19 && KTY_GET(Wasser) < 400 DO
 dnl    PIN_CLEAR(Warmwasser);
 dnl  END
 
@@ -61,7 +61,7 @@ dnl      THREAD_START(zulauf);
 dnl  END
 
 dnl  // schaltet morgens um 6 Uhr die Heizung ein wenn es draussen weniger als 3 Grad hat
-dnl  ON CLOCK_MIN == 0 && CLOCK_HOUR == 6 && KTY_GET(AussenNord) < 30 DO
+dnl  ON ONCE CLOCK_MIN == 0 && CLOCK_HOUR == 6 && KTY_GET(AussenNord) < 30 DO
 dnl    PIN_CLEAR(Heizung);
 dnl  END
 
@@ -73,7 +73,7 @@ dnl  ON PIN_RISING(Heizzirkulationspumpe) DO
 dnl    UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 0 0\n");
 dnl  END
 dnl  // alle 10 Minuten wird geprueft ob der Pin low ist und ggf ein ecmd gesendet
-dnl  ON CLOCK_MIN % 10 == 0 DO
+dnl  ON ONCE CLOCK_MIN % 10 == 0 DO
 dnl    ON PIN_LOW(Heizzirkulationspumpe) DO
 dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 1 0\n");
 dnl    END

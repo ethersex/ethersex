@@ -15,10 +15,11 @@ divert(control_end_divert)  last_minute = datetime.min;
 divert(old_divert)'')')
 
 define(`CLOCK_SEC', `CLOCK_USED()datetime.sec')
-define(`CLOCK_MIN', `CLOCK_USED()(datetime.min != last_minute) && datetime.min')
+define(`CLOCK_MIN', `CLOCK_USED()datetime.min')
 define(`CLOCK_HOUR', `CLOCK_USED()datetime.hour')
 define(`CLOCK_DAY', `CLOCK_USED()datetime.day')
 define(`CLOCK_MONTH', `CLOCK_USED()datetime.month')
 define(`CLOCK_DOW', `CLOCK_USED()datetime.dow')
 define(`CLOCK_YEAR', `CLOCK_USED()datetime.year')
 
+define(`ONCE', `CLOCK_USED()(datetime.min != last_minute) && ')
