@@ -126,6 +126,8 @@ wscroll (WINDOW *win, uint8_t lines)
 void
 waddch (WINDOW *win, const char ch)
 {
+  TTYDEBUG ("waddch: ch='%c', y=%d, x=%d\n", ch, win->y, win->x);
+
   if (win->y > win->maxy)
     {
       TTYDEBUG ("waddch: y=%d, x=%d, need to scroll, ok=%d\n",
@@ -203,19 +205,17 @@ wmove (WINDOW *win, uint8_t y, uint8_t x)
 void
 wprintw (WINDOW *win, const char *fmt, ...)
 {
-  int redir_helper (char d, FILE *stream)
-  {
-    waddch (NULL, d);
-    return 0;
-  }
-
-  FILE redir = FDEV_SETUP_STREAM(redir_helper, NULL, _FDEV_SETUP_WRITE);
+  char buf[COLS + 1];
 
   va_list va;
   va_start (va, fmt);
 
-  TTYDEBUG ("wprintw: win=%p, %s\n", win, fmt);
-  vfprintf (&redir, fmt, va);
+  TTYDEBUG ("wprintw: win=%p, %s to y=%d,x=%d ", win, fmt, win->y, win->x);
+  vsnprintf (buf, COLS + 1, fmt, va);
+
+  TTYDEBUG ("--> '%s'\n", buf);
+  waddstr (win, buf);
+
   va_end (va);
 }
 
