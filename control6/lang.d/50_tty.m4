@@ -33,4 +33,4 @@ divert(globals_divert)
 divert(old_divert)')')
 
 define(`TTY_CLEAR', TTY_USED()clear();)
-define(`TTY_WRITE', TTY_USED()addstr($1);)
+define(`TTY_WRITE', TTY_USED()addstr_P(PSTR($1));)

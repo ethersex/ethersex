@@ -180,6 +180,14 @@ waddstr (WINDOW *win, const char *ptr)
 }
 
 void
+waddstr_P (WINDOW *win, PGM_P ptr)
+{
+  uint8_t ch;
+  for (; (ch = pgm_read_byte (ptr)); ptr ++)
+    waddch (win, ch);
+}
+
+void
 wmove (WINDOW *win, uint8_t y, uint8_t x)
 {
   if (y > win->maxy || x > win->maxx)
