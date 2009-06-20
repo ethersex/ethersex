@@ -68,11 +68,16 @@ httpd_cleanup (void)
 static void
 httpd_handle_input (void)
 {
-    char *ptr = (char *) uip_appdata, *start_ptr;
+    char *ptr = (char *) uip_appdata;
+
+#ifdef HTTPD_AUTH_SUPPORT
+    char *start_ptr;
     if (STATE->header_reparse) {
       printf("reparse next part of the header\n");
       goto start_auth;
     }
+#endif	/* HTTPD_AUTH_SUPPORT */
+
     if (uip_len < 6) {
 	printf ("httpd: received request to short (%d bytes).\n", uip_len);
 	STATE->handler = httpd_handle_400;
