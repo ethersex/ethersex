@@ -132,22 +132,37 @@ waddch (WINDOW *win, const char ch)
     }
 
   /* Update off-screen map. */
-  map (win, win->y + win->begy, win->x + win->begx) = ch;
-  tty_ll_put (win->y + win->begy, win->x + win->begx, ch);
-
-  if (win->x == win->maxx)
+  switch (ch)
     {
-      /* Cursor reached end of line. */
-      if (win->linewrap)
-	{
-	  win->y ++;
-	  win->x = 0;
-	}
+    case '\n':			/* Newline */
+      win->y ++;
 
-      tty_ll_goto (win->y + win->begy, win->begx);
+      /* Fall through. */
+    case '\r':			/* Return */
+      win->x = 0;
+      tty_ll_goto (win->y + win->begy, win->x + win->begx);
+      break;
+
+    default:			/* Print everything else. */
+      map (win, win->y + win->begy, win->x + win->begx) = ch;
+      tty_ll_put (win->y + win->begy, win->x + win->begx, ch);
+
+      if (win->x == win->maxx)
+	{
+	  /* Cursor reached end of line. */
+	  if (win->linewrap)
+	    {
+	      win->y ++;
+	      win->x = 0;
+	    }
+
+	  tty_ll_goto (win->y + win->begy, win->begx);
+	}
+      else
+	win->x ++;			/* Now need to tty_ll_goto. */
+      break;
     }
-  else
-    win->x ++;			/* Now need to tty_ll_goto. */
+
 }
 
 void
