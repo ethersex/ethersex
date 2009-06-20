@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -56,7 +57,7 @@ ecmd_serial_usart_init(void) {
 void
 ecmd_serial_usart_periodic(void)
 {
-  if (must_parse && !write_len) {
+  if (must_parse && write_len == 0) {
     /* we have a request */
     must_parse = 0;
 

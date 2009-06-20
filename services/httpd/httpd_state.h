@@ -33,6 +33,7 @@ typedef enum {
 
 struct httpd_connection_state_t {
     unsigned header_acked		: 1;
+    unsigned header_reparse		: 1;
     unsigned eof			: 1;
 
     /* The associated connection handler function */

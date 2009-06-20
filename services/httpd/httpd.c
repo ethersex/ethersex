@@ -68,6 +68,11 @@ httpd_cleanup (void)
 static void
 httpd_handle_input (void)
 {
+    char *ptr = (char *) uip_appdata, *start_ptr;
+    if (STATE->header_reparse) {
+      printf("reparse next part of the header\n");
+      goto start_auth;
+    }
     if (uip_len < 6) {
 	printf ("httpd: received request to short (%d bytes).\n", uip_len);
 	STATE->handler = httpd_handle_400;
@@ -81,7 +86,7 @@ httpd_handle_input (void)
     }
 
     char *filename = uip_appdata + 5; /* beyond slash */
-    char *ptr = strchr (filename, ' ');
+    ptr = strchr (filename, ' ');
 
     if (ptr == NULL) {
 	printf ("httpd: space after filename not found.\n");
@@ -100,11 +105,32 @@ httpd_handle_input (void)
 #ifdef HTTPD_AUTH_SUPPORT
     ptr ++;			/* Increment pointer to the end of
 				   the GET */
+start_auth:
+    start_ptr = ptr;
     ptr = strstr_P(ptr, PSTR("Authorization: "));
 
     if (ptr == NULL) {
-	printf ("Authorization-header not found.\n");
-	goto auth_failed;
+        if (strstr_P(start_ptr, PSTR("\r\n\r\n"))) {
+          printf ("Authorization-header not found.\n");
+          printf("%s\n", start_ptr);
+	  goto auth_failed;
+        } else {
+          ptr = start_ptr;
+          /* Skip all Lines before the last one */
+          while (1) {
+            ptr = strstr_P(start_ptr, PSTR("\r\n"));
+            if (ptr) start_ptr = ptr + 2;
+            else break;
+          }
+          if (!strncmp(start_ptr, PSTR("Authorization: "), strlen(start_ptr))) {
+            printf("Authorization header is split over two packages, damn");
+            printf("%s\n", start_ptr);
+            goto auth_failed;
+          } else {
+            STATE->header_reparse = 1;
+            goto after_auth;
+          }
+        }
     }
     ptr += 15;			/* Skip `Authorization: ' header. */
 
@@ -138,9 +164,16 @@ httpd_handle_input (void)
 	printf ("auth: wrong passphrase, %s != %s.\n",
 		pwd, ptr + strlen(CONF_HTTPD_USERNAME ":"));
       auth_failed:
+        httpd_cleanup();
 	STATE->handler = httpd_handle_401;
+        STATE->header_reparse = 0;
 	return;
     }
+    if (STATE->header_reparse) {
+      STATE->header_reparse = 0;
+      return; /* We musn't open the file once again */
+    }
+after_auth:
 
 #endif	/* HTTPD_AUTH_SUPPORT */
 
@@ -204,9 +237,10 @@ httpd_main(void)
 	STATE->handler = NULL;
 	STATE->header_acked = 0;
 	STATE->eof = 0;
+	STATE->header_reparse = 0;
     }
 
-    if (uip_newdata() && !STATE->handler) {
+    if (uip_newdata() && (!STATE->handler || STATE->header_reparse)) {
 	printf ("httpd: new data\n");
 	httpd_handle_input ();
     }
@@ -217,7 +251,7 @@ httpd_main(void)
        uip_connected()) {
 
 	/* Call associated handler, if set already. */
-	if (STATE->handler)
+	if (STATE->handler && (!STATE->header_reparse))
 	    STATE->handler ();
     }
 }
