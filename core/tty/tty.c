@@ -47,7 +47,9 @@ initscr (void)
 static void
 wspacetoeol (WINDOW *win)
 {
-  for (; win->x <= win->maxx; )
+  uint8_t i = win->maxx - win->x + 1;
+
+  while (i --)
     waddch (win, ' ');
 }
 
@@ -63,6 +65,7 @@ void
 wclrtobot (WINDOW *win)
 {
   uint8_t _y = win->y, _x = win->x;
+  TTYDEBUG ("wclrtobot: from y=%d, x=%d\n", _y, _x);
 
   /* Clear current row. */
   wspacetoeol (win);
@@ -98,6 +101,8 @@ wclear (WINDOW *win)
 void
 wscroll (WINDOW *win, uint8_t lines)
 {
+  TTYDEBUG ("wscroll: lines=%d, maxy=%d\n", lines, win->maxy);
+
   if (lines > win->maxy)
     {
       wclear (win);		/* Cursor home. */
@@ -106,8 +111,9 @@ wscroll (WINDOW *win, uint8_t lines)
 
   for (uint8_t y = 0; y <= win->maxy - lines; y ++)
     {
+      TTYDEBUG ("wscroll: copying y=%d\n", y);
       wmove (win, y, 0);
-      for (; win->x <= win->maxx;)
+      for (uint8_t x = 0; x <= win->maxx; x ++)
 	waddch (win, map (win, y + lines, win->x)); /* Copy content. */
     }
 
@@ -120,10 +126,11 @@ wscroll (WINDOW *win, uint8_t lines)
 void
 waddch (WINDOW *win, const char ch)
 {
-  TTYDEBUG ("waddch: win=%p, ch=%c\n", win, ch);
-
   if (win->y > win->maxy)
     {
+      TTYDEBUG ("waddch: y=%d, x=%d, need to scroll, ok=%d\n",
+		win->y, win->x, win->scrollok);
+
       /* Cursor out of window, ... */
       if (! win->scrollok)
 	return;			/* ... cannot help. */
@@ -178,6 +185,7 @@ wmove (WINDOW *win, uint8_t y, uint8_t x)
   if (y > win->maxy || x > win->maxx)
     return;			/* Out of range. */
 
+  TTYDEBUG ("wmove'ing to y=%d, x=%d\n", y, x);
   win->y = y;
   win->x = x;
 
