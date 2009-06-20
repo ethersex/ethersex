@@ -3,7 +3,7 @@
 ################################
 define(`CLOCK_USED', `ifdef(`clock_used', `', `dnl
 define(`clock_used')dnl
-`define(`old_divert', divnum)dnl
+define(`old_divert', divnum)dnl
 divert(globals_divert)struct clock_datetime_t datetime;
 uint8_t last_minute;
 #ifndef CLOCK_SUPPORT
@@ -12,7 +12,7 @@ uint8_t last_minute;
 
 divert(normal_start_divert)  clock_localtime(&datetime, clock_get_time());
 divert(control_end_divert)  last_minute = datetime.min;
-divert(old_divert)'')')
+divert(old_divert)')')
 
 define(`CLOCK_SEC', `CLOCK_USED()datetime.sec')
 define(`CLOCK_MIN', `CLOCK_USED()datetime.min')
