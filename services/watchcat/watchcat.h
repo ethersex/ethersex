@@ -30,7 +30,7 @@ struct VirtualPin {
   void (*func)(uint8_t);
 };
 
-struct EcmdSenderReaction {
+struct WatchcatReaction {
   /* On which port */
   uint8_t port;
   /* On wich pin */
@@ -41,6 +41,8 @@ struct EcmdSenderReaction {
   uip_ipaddr_t address;
   /* What should we send him? */
   const char *message;
+  /* The associated notifying function, e.g. watchcat_do_ecmdtcp */
+  uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
 };
 
 void watchcat_init();

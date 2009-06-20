@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyrigth (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -35,6 +36,14 @@
                                 && (vpin[(port)].old_state & _BV(pin)))
 
 static struct VirtualPin vpin[IO_PORTS];
+static struct WatchcatReaction ecmd_react[];
+
+static uip_conn_t *
+watchcat_do_httplog (uip_ipaddr_t *ip, PGM_P msg, client_return_text_callback_t callback)
+{
+  /* httplog cruft goes here ... */
+  return NULL;
+}
 
 #include "user_config.h"
 
@@ -93,13 +102,14 @@ watchcat_edge(uint8_t pin)
       uint8_t falling = pgm_read_byte(&ecmd_react[i].rising);
       if ((falling && RISING_EDGE(pin, tmp))
           || (!falling && FALLING_EDGE(pin, tmp))) {
-        uip_ipaddr_t ipaddr;
+	uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
+	func = (void *) pgm_read_word (&ecmd_react[i].func);
 
-        memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
+	uip_ipaddr_t ipaddr;
+	memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
 
-        /* send command */
-        const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
-        ecmd_sender_send_command(&ipaddr, text, NULL);
+	const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
+	if (func) func (&ipaddr, text, NULL);
 
       } else  {
         i++;

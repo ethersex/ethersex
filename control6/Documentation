@@ -84,8 +84,3 @@ also exists.
   minute field is 5 ( be aware of the RESTART ) or the KEY pin has an falling
   edge.
 
-
-!! Goodies
-
-There is also an german version of 6control, you only have to edit the
-control6/Makefile. For documentation see the `control6/german.m4' :)

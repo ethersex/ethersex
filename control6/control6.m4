@@ -444,7 +444,5 @@ divert(control_end_divert)
   global_started = 1;dnl
 divert(old_divert)')global_started == 0')
 
-ifelse(LANGUAGE, `GERMAN', `include(`german.m4')')
-
 divert(0)dnl
 
