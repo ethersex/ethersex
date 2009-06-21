@@ -53,6 +53,9 @@ struct _tty_window_t {
   /* Whether scrolling of the window is allowed. */
   unsigned scrollok		:1;
 
+  /* Whether the cursor can be left whereever or not. */
+  unsigned leaveok		:1;
+
   /* Current cursor position */
   uint8_t y, x;
 

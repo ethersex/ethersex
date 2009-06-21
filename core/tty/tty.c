@@ -87,6 +87,7 @@ initscr (void)
   TTYDEBUG ("initializing tty layer ...\n");
   curscr->linewrap = 1;
   curscr->scrollok = 1;
+  curscr->leaveok = 1;
   curscr->maxx = COLS - 1;
   curscr->maxy = LINES - 1;
 
@@ -201,7 +202,8 @@ waddch (WINDOW *win, const char ch)
       /* Fall through. */
     case '\r':			/* Return */
       win->x = 0;
-      tty_ll_goto (win->y + win->begy, win->x + win->begx);
+      if (!win->leaveok)
+	tty_ll_goto (win->y + win->begy, win->x + win->begx);
       break;
 
     default:			/* Print everything else. */
@@ -222,7 +224,8 @@ waddch (WINDOW *win, const char ch)
 	      win->x = 0;
 	    }
 
-	  tty_ll_goto (win->y + win->begy, win->begx);
+	  if (!win->leaveok)
+	    tty_ll_goto (win->y + win->begy, win->begx);
 	}
       else
 	win->x ++;			/* Now need to tty_ll_goto. */
@@ -256,7 +259,8 @@ wmove (WINDOW *win, uint8_t y, uint8_t x)
   win->y = y;
   win->x = x;
 
-  tty_ll_goto (y + win->begy, x + win->begx);
+  if (!win->leaveok)
+    tty_ll_goto (y + win->begy, x + win->begx);
 }
 
 void
@@ -285,6 +289,7 @@ subwin (WINDOW *win, uint8_t lines, uint8_t cols, uint8_t begy, uint8_t begx)
   newwin->subwin = 1;
   newwin->linewrap = 1;
   newwin->scrollok = 1;
+  newwin->leaveok = 1;
 
   newwin->y = 0;
   newwin->x = 0;
