@@ -117,4 +117,25 @@ usart_init(void) \
     SREG = sreg;\
 }
 
+/* init the usart module ( 8N2 )*/
+#define generate_usart_init_8N2() \
+static void \
+usart_init(void) \
+{\
+    /* The ATmega644 datasheet suggests to clear the global\
+       interrupt flags on initialization ... */\
+    uint8_t sreg = SREG; cli(); \
+    usart(UBRR,H) = HI8(UBRRH_VALUE); \
+    usart(UBRR,L) = LO8(UBRRL_VALUE); ;\
+    /* set mode: 8 bits, 2 stop, no parity, synchronous usart */ \
+    /*   and set URSEL, if present, */ \
+    usart(UCSR,C) =  _BV(usart(USBS)) | (3 << (usart(UCSZ,0))) | _BV_URSEL; /* 8 data bits, 2 stop bits, no parity (8N2) */ \
+    /* Do not enable the RX interrupt and receiver and transmitter */ \
+    usart(UCSR,B) = 0;\
+    /* Set or not set the 2x mode */ \
+    USART_2X(); \
+    /* Go! */ \
+    SREG = sreg;\
+}
+
 #endif /* _USART_H */
