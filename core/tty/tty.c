@@ -157,7 +157,7 @@ waddch (WINDOW *win, const char ch)
     default:			/* Print everything else. */
       TTYDEBUG ("  -> map[%2d,%2d] = '%c'\n", win->y + win->begy,
 		win->x + win->begx, ch);
-      map (win, win->y + win->begy, win->x + win->begx) = ch;
+      map (win, win->y, win->x) = ch;
       tty_ll_put (win->y + win->begy, win->x + win->begx, ch);
 
       if (win->x == win->maxx)

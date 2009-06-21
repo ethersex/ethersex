@@ -23,17 +23,48 @@
 #include "core/tty/tty-vt100-telnet.h"
 #include "protocols/uip/uip.h"
 
+#define STATE (&uip_conn->appstate.tty_vt100)
+
+static inline void
+tty_vt100_send_all (void)
+{
+  char *ptr = memcpy_P (uip_sappdata, PSTR("\033[2J\033[H"), 7) + 7;
+
+  for (uint8_t y = 0; y < LINES; y ++)
+    {
+      memcpy (ptr, &tty_image[COLS * y], COLS);
+      ptr += COLS;
+
+      *(ptr ++) = '\r';
+      *(ptr ++) = '\n';
+    }
+
+  uip_send (uip_sappdata, ptr - ((char *)uip_sappdata));
+}
+
+
 static void
 tty_vt100_main (void)
 {
-  if (uip_connected ())
+  if (uip_connected())
+    STATE->send_all = 1;
+
+  if (uip_acked())
     {
-      /* Need to send complete off-screen image first. */
+      if (STATE->send_all)
+	STATE->send_all = 0;
+    }
+
+  if (uip_rexmit() || uip_newdata() || uip_acked() || uip_connected())
+    {
+      /* Send new data, if any. */
+      if (STATE->send_all)
+	tty_vt100_send_all ();
     }
 }
 
 void
-tty_vt100_init (void)
+tty_vt100_telnet_init (void)
 {
   uip_listen(HTONS(TELNET_TCP_PORT), tty_vt100_main);
 }
@@ -41,5 +72,5 @@ tty_vt100_init (void)
 /*
   -- Ethersex META --
   header(core/tty/tty-vt100-telnet.h)
-  net_init(tty_vt100_init)
+  net_init(tty_vt100_telnet_init)
 */

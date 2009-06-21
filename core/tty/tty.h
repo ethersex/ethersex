@@ -106,8 +106,8 @@ void wscroll (WINDOW *, uint8_t);
 #include "core/tty/tty-hd44780.h"
 #endif
 
-#if defined(TTY_LL_VT100_USART) || defined(TTY_LL_VT100_TELNET)
-#include "core/tty/tty-vt100.h"
-#endif
+/* #if defined(TTY_LL_VT100_USART) || defined(TTY_LL_VT100_TELNET)
+   #include "core/tty/tty-vt100.h"
+   #endif */
 
 #endif  /* TTY_H */
