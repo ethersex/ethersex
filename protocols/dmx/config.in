@@ -1,0 +1,14 @@
+if [ "$DMX_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+  dep_bool_menu "DMX Support" DMX_SUPPORT
+  if [ "$DMX_SUPPORT" = y ]; then
+    int "DMX Max Chan" CONF_DMX_MAX_CHAN "512"
+  fi
+  endmenu
+  if [ "$DMX_SUPPORT" = y ]; then
+    choice '  DMX usart select' "$(usart_choice DMX)"
+    usart_process_choice DMX
+  fi
+else
+  define_bool DMX_SUPPORT n
+fi
+
