@@ -65,7 +65,8 @@ void
 wclrtobot (WINDOW *win)
 {
   uint8_t _y = win->y, _x = win->x;
-  TTYDEBUG ("wclrtobot: from y=%d, x=%d\n", _y, _x);
+  TTYDEBUG ("wclrtobot: from y=%d, x=%d, maxy=%d, maxx=%d\n",
+	    _y, _x, win->maxy, win->maxx);
 
   /* Clear current row. */
   wspacetoeol (win);
@@ -86,6 +87,7 @@ wclear (WINDOW *win)
   if (! win->subwin)
     {
       /* Yippie, root window, clear it all up ... */
+      TTYDEBUG ("clearing root-window.\n");
       memset (tty_image, 32, LINES * COLS);
       tty_ll_clear ();
       win->y = 0;
@@ -153,6 +155,8 @@ waddch (WINDOW *win, const char ch)
       break;
 
     default:			/* Print everything else. */
+      TTYDEBUG ("  -> map[%2d,%2d] = '%c'\n", win->y + win->begy,
+		win->x + win->begx, ch);
       map (win, win->y + win->begy, win->x + win->begx) = ch;
       tty_ll_put (win->y + win->begy, win->x + win->begx, ch);
 
@@ -232,12 +236,12 @@ subwin (WINDOW *win, uint8_t lines, uint8_t cols, uint8_t begy, uint8_t begx)
   newwin->y = 0;
   newwin->x = 0;
 
-  newwin->maxy = lines;
-  newwin->maxx = cols;
+  newwin->maxy = lines - 1;
+  newwin->maxx = cols - 1;
   newwin->begy = begy;
   newwin->begx = begx;
 
-  return 0;
+  return newwin;
 }
 
 
