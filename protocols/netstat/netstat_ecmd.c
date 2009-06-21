@@ -35,7 +35,3 @@ int16_t parse_cmd_netstat(char *cmd, char *output, uint16_t len)
     return 0;
   return snprintf_P(cmd, len, PSTR("sending failed"));
 }
-
-/*
-  -- Ethersex META --
-*/
