@@ -20,7 +20,6 @@
  */
 
 #include "core/tty/tty.h"
-#include "core/tty/tty-vt100-telnet.h"
 #include "protocols/uip/uip.h"
 
 #define STATE (&uip_conn->appstate.tty_vt100)
@@ -28,7 +27,7 @@
 static inline void
 tty_vt100_send_all (void)
 {
-  char *ptr = memcpy_P (uip_sappdata, PSTR("\033[2J\033[H"), 7) + 7;
+  char *ptr = memcpy_P (uip_sappdata, vt100_clr_str, 7) + 7;
 
   for (uint8_t y = 0; y < LINES; y ++)
     {
@@ -40,6 +39,7 @@ tty_vt100_send_all (void)
     }
 
   uip_send (uip_sappdata, ptr - ((char *)uip_sappdata));
+  STATE->sent = vt100_head;	/* after send_all we're up to head. */
 }
 
 
@@ -53,13 +53,37 @@ tty_vt100_main (void)
     {
       if (STATE->send_all)
 	STATE->send_all = 0;
+      STATE->acked = STATE->sent;
     }
 
-  if (uip_rexmit() || uip_newdata() || uip_acked() || uip_connected())
+  if (uip_rexmit() || uip_newdata() || uip_acked() || uip_connected()
+      || uip_poll())
     {
       /* Send new data, if any. */
       if (STATE->send_all)
 	tty_vt100_send_all ();
+
+      else
+	{
+	  /* we're just sending an update, ... */
+	  if (vt100_head > STATE->acked)
+	    {
+	      uint8_t len = vt100_head - STATE->acked;
+	      memcpy (uip_sappdata, STATE->acked, len);
+	      uip_send (uip_sappdata, len);
+	    }
+	  else if (vt100_head < STATE->acked)
+	    {
+	      /* vt100_head wrapped around, let's be careful. */
+	      uint8_t len = vt100_end - STATE->acked;
+	      memcpy (uip_sappdata, STATE->acked, len);
+	      uint8_t len2 = vt100_head - vt100_buf;
+	      memcpy (uip_sappdata + len, vt100_buf, len2);
+	      uip_send (uip_sappdata, len + len2);
+	    }
+
+	  STATE->sent = vt100_head;
+	}
     }
 }
 
