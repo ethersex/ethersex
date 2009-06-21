@@ -222,6 +222,7 @@ usart_count_used
 comment "Usart Configuration ($USARTS_USED/$USARTS)"
 source mcuf/config_usart.in
 source protocols/modbus/config.in
+source protocols/dmx/config.in
 source protocols/yport/config.in
 
 if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then

@@ -55,6 +55,12 @@ template $MODBUS_SUPPORT << FNORD
   pin(MODBUS_TX, PC2)
 FNORD
 
+template $DMX_SUPPORT << FNORD
+  /* port config for dmx */
+  pin(DMX_RS485EN, PC2)
+  pin(DMX_RS485TX, PD1)
+FNORD
+
 template $PS2_SUPPORT << FNORD
   /* ps/2 pins */
   pin(PS2_DATA, PA7)
