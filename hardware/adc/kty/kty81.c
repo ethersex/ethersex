@@ -33,18 +33,20 @@
  * liest den adc Wert ein und gibt ihn zurueck
  */
 uint16_t
-get_kty(uint8_t sensorchannel){
+get_kty(uint8_t sensorchannel)
+{
   ADMUX = (ADMUX & 0xF0) | sensorchannel;
   /* Start der adc konvertierung */
   ADCSRA |= _BV(ADSC);
   /* Warten bis sie fertig ist */
-  while (ADCSRA & _BV(ADSC)) {}
+  while (ADCSRA & _BV(ADSC))
+    ;
   return ADC;
 }
 
 int8_t
-kty_calibrate(uint16_t sensorwert){
-
+kty_calibrate(uint16_t sensorwert)
+{
   int32_t volt = sensorwert;
   int8_t calibration;
   volt *= 2500;
@@ -52,7 +54,7 @@ kty_calibrate(uint16_t sensorwert){
   int32_t R = 1000L;
   R *= 5000L - volt;
   R /= volt;
-  if(R < 2320 && R > 2080){
+  if (R < 2320 && R > 2080){
     calibration = 2200L - R;
     eeprom_save_char (kty_calibration, calibration);
     eeprom_update_chksum();
@@ -61,12 +63,12 @@ kty_calibrate(uint16_t sensorwert){
   return 0;
 }
 
-/* Berechnet die temperatur in Grad * 10
+/* Berechnet die Temperatur in Zehntelgrad
  * vom adc wert
  */
 int16_t
-temperatur(uint16_t sensorwert){
-
+temperatur(uint16_t sensorwert)
+{
   int32_t volt = sensorwert;
   int8_t calibration;
   eeprom_restore_char (kty_calibration, &calibration);
@@ -92,30 +94,38 @@ temperatur(uint16_t sensorwert){
 
 }
 
-/* gibt die Temperatur in formatiert als Klartext
- * im Textbuffer zurueck
- * mindestlaenge des buf ist 7 byte
+/* gibt die Temperatur (in Zehntelgrad) formatiert als Klartext
+ * im Textbuffer zurueck.
+ * Mindestlaenge des buf ist 6 byte
+ * Aequivalent zu:
+ *   sprintf(textbuf, "% 3i.%1i", temperatur/10, abs(temperatur%10));
  */
-void 
-temp2text(char *textbuf, int16_t temperatur){
+void
+temp2text(char *textbuf, int16_t temperatur)
+{
   if (temperatur > -300 && temperatur < 1500){
     char *ptr = textbuf;
 
-    /* snprintf(textbuf, 6, "%4i ", temperatur); */
+    /* fülle mit Padding-bytes auf */
     if (temperatur >= 0 && temperatur < 10)
-      *(ptr ++) = 32;
+      *ptr++ = ' ';
     if (temperatur > -10 && temperatur < 100)
-      *(ptr ++) = 32;
+      *ptr++ = ' ';
     if (temperatur > -100 && temperatur < 1000)
-      *(ptr ++) = 32;
+      *ptr++ = ' ';
 
     itoa (temperatur, ptr, 10);
+
+    /* konvertiere Zehntelgrad nach Grad: baue Dezimalstelle */
     textbuf[4] = textbuf[3];
     textbuf[3] = '.';
+
+    textbuf[5] = '\0';
   }
   else{
-    /* sprintf(textbuf, "Out!!"); */
-    strcpy_P (textbuf, PSTR("Out!!"));
+    /* "Out of range" Indikator */
+    strcpy_P(textbuf, PSTR("!NaN!"));
   }
+  // return 5; <-- maybe better make it explicit
 }
 #endif
