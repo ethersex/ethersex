@@ -1762,6 +1762,7 @@ netStat client (EXPERIMENTAL)
 NETSTAT_SUPPORT
   Depends on: 
    * TCP support (TCP_SUPPORT)
+   * Cron Static support (CRON_STATIC_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Internet Statistik for Ethersex. This function adds your ethersex to the
