@@ -144,7 +144,7 @@ ecmd_endif()
 
 block(KTY) dnl ==========================
 ecmd_ifdef(KTY_SUPPORT)
-  ecmd_feature(kty_get, "kty get", [CHANNEL], Get the temperature in xxx.x °C of CHANNEL or if noch channel set of all channels.)
+  ecmd_feature(kty_get, "kty get", [CHANNEL], Get the temperature in xxx.x °C of CHANNEL or if no channel set of all channels.)
   ecmd_feature(kty_cal_get, "kty cal get",, Return the calibration difference to 2k2 Resistor.)
   ecmd_feature(kty_calibration, "kty autocalibrate", CHANNEL, Calibrate to 1000 Ohm precision Resistor.)
 ecmd_endif()
