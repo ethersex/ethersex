@@ -1664,10 +1664,25 @@ ECMD_SCRIPT_SUPPORT
   * get var       -> get value of variable
   * inc var       -> increment variable (numbers only)
   * dec var       -> decrement variable (numbers only)
-  * if ( ecmd1 == CONST ) then ecmd2
-  * if ( %var == CONST ) then ecmd2
-                  -> compares output of variable or ecmd1, if successfull
+  * if ( ecmd1 COMPARATOR CONST ) then ecmd2
+  * if ( %var COMPARATOR CONST ) then ecmd2
+                  -> compares output of variable or ecmd1, if successful
                      then execute ecmd2
+    Available COMPARATORS are:
+    String comparators:  
+      eq  ->  equals
+      ne  ->  not equals
+    Number comparators:
+      ==  ->  equals
+      !=  ->  not equals
+      >   ->  greater than
+      <   ->  lower than
+      >=  ->  greater or equals than
+      <=  ->  lower or equals than
+      ==  ->  equals
+      OK  ->  value is TRUE (CONST is ignored, but mandatory)
+      !   ->  not (CONST is ignored, but mandatory)
+    
   * call file     -> calls script file from vfs and execute it line by line
 
   only available while script is running
@@ -1742,4 +1757,13 @@ USE_GIT_VERSION
 
  Produces a short version string which can be used to locate the used source.
 
+
+netStat client (EXPERIMENTAL)
+NETSTAT_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Internet Statistik for Ethersex. This function adds your ethersex to the
+  survey. Examples and Links at http://www.ethersex.de/index.php/Netstat
 
