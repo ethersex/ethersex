@@ -127,6 +127,15 @@ irc_handle_message (char *message)
 	strncpy (STATE->inbuf, message + 1, ECMD_INPUTBUF_LENGTH -1);
 	STATE->inbuf[ECMD_INPUTBUF_LENGTH - 1] = 0;
 
+	char *ptr = strchr (STATE->inbuf, '\n');
+	if (ptr) {
+	    if (ptr[-1] == 13)
+		ptr[-1] = 0;	/* strip CRLF */
+	    else
+		ptr[0] = 0;	/* strip LF */
+	}
+
+	IRCDEBUG ("got ecmd '%s', trying to execute.\n", STATE->inbuf);
 	irc_handle_ecmd ();
     }
 #endif
