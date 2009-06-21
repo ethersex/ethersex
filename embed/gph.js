@@ -1,13 +1,26 @@
 var vboxh = 300;
 var vboxw = 400;
+var colors = [ "red", "blue", "green", "lime", "purple", "maroon", "navy", "yellow" ];
 
-function Graph(id, num, min, max) {
-	this.obj = returnObjById(id);
+function initDiagram(graphs, gid, id, tid, min, max) {
+	var g = new Array();
+	graphCreateAxis(id, tid, min, max);
+	for (var i = 0; i < graphs; i++) {
+		g[i] = new Graph(gid.replace(/#/, i), 40, min, max,
+				 (i < colors.length) ? colors[i] : undefined);
+	}
+	return g;
+}
+
+function Graph(id, num, min, max, color) {
+	this.obj = $(id);
 	this.xmult = vboxw / num;
 	this.min = min;
 	this.max = max;
 	this.last_y = -1;
 	this.elements = 0;
+	this.color = (color) ? color : undefined;
+	this.append = function(val) { return graphAppend(this, val); }
 
 	return this;
 }
@@ -48,6 +61,7 @@ function graphAppend(g, val) {
 		}
 	}
 	g.last_y = val;
+	return g;
 }
 
 function graphCreateAxis(id, tid, min, max) {
