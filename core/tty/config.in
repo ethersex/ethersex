@@ -5,17 +5,14 @@ dep_bool_menu "TTY Layer (EXPERIMENTAL)" TTY_SUPPORT $CONFIG_EXPERIMENTAL
 int "screen width" TTY_COLS 16
 int "screen height" TTY_LINES 4
 
-choice 'TTY Low-Level Layer'				\
-    "HD44780			TTY_LL_HD44780		\
-     vt100_usart		TTY_LL_VT100_USART	\
-     vt100_telnet		TTY_LL_VT100_TELNET	\
-   " HD44780 TTY_LLL
+comment "TTY Low-Level Drivers"
+dep_bool "HD44780 Output" TTY_LL_HD44780 $TTY_SUPPORT
+dep_bool "vt100 Telnet Output" TTY_LL_VT100_TELNET $TTY_SUPPORT
 
-source scripts/usart-config.sh
-if [ "x$TTY_LL_VT100_USART" = "xy" ]; then
-    choice 'vt100 usart select' "$(usart_choice VT100_USART)"
-    usart_process_choice VT100_USART
-fi
-
+#source scripts/usart-config.sh
+#if [ "x$TTY_LL_VT100_USART" = "xy" ]; then
+#    choice 'vt100 usart select' "$(usart_choice VT100_USART)"
+#    usart_process_choice VT100_USART
+#fi
 
 endmenu
