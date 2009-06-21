@@ -16,7 +16,7 @@ function ecmd_1w_list_req_handler(request) {
 	if (ecmd_error(request))
 		return;
 	sensors = request.responseText.split("\n");
-	var ow_table = returnObjById('ow_table');
+	var ow_table = $('ow_table');
 
 	for (var i = 0; i < sensors.length; i++) {
 		if (sensors[i] == "OK")
@@ -36,7 +36,7 @@ function ecmd_1w_convert_req_handler(request, data) {
 }
 
 function ecmd_1w_get_req_handler(request, data) {
-	var cell = returnObjById("ow" + data);
+	var cell = $("ow" + data);
 	cell.innerHTML = request.responseText + '&deg;C';
 }
 

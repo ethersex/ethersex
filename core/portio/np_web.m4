@@ -23,7 +23,7 @@ function pin_set(pin, state) {
 }
 
 function pin_get(request, data) {
-	var obj = returnObjById(data.obj);
+	var obj = $(data.obj);
 	obj.innerHTML = request.responseText;
 	var on = request.responseText.indexOf("on");
 	obj.style.backgroundColor = (on != -1) ? "green" : "#444";

@@ -4,9 +4,9 @@
   <link href="sty.c"  media="screen" rel="Stylesheet" type="text/css" />
   <script type="text/javascript">
 	  function meter_set_value(idx, value) {
-		  var meter = returnObjById("channel" + idx);
+		  var meter = $("channel" + idx);
 			meter.style.paddingRight = (parseInt(meter.parentNode.style.width) / 100 * value) + "px";
-		  var val = returnObjById("value" + idx);
+		  var val = $("value" + idx);
 			val.innerHTML = value.toFixed(2) + " %";
 		}
 

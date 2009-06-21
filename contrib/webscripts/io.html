@@ -7,7 +7,7 @@ function write_port(request, data) {
         var value = ecmd_parse_io(request.responseText);
         for (var i = 0; i < 8; i++) {
                 var id = data.type + data.num + i;
-                var obj = returnObjById(id);
+                var obj = $(id);
                 if (value & ( 1 << i)) 
                         obj.checked = true;
                 else
@@ -22,10 +22,10 @@ function mask_port(request, data) {
 	var value = ecmd_parse_io(request.responseText);
 	for (var i = 0; i < 8; i++) {
 		if (value & ( 1 << i))  {
-			var obj = returnObjById("ddr" + data.num + i);
+			var obj = $("ddr" + data.num + i);
 			obj.setAttribute("onchange", "javascript:pin_set_back(this)");
 			obj.setAttribute("readonly", true);
-			var obj = returnObjById("port" + data.num + i);
+			var obj = $("port" + data.num + i);
 			obj.setAttribute("onchange", "javascript:pin_set_back(this)");
 			obj.setAttribute("readonly", true);
 		}
@@ -70,7 +70,7 @@ function pin_set_back(obj) {
 }
 
 function port_change(id) {
-        var obj = returnObjById(id);
+        var obj = $(id);
         var type = id.replace(/[0-9]/g, "");
         var portnum = parseInt(id.substr(type.length, 1));
         var num = parseInt(id.substr(type.length + 1, 1));

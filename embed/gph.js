@@ -51,8 +51,8 @@ function graphAppend(g, val) {
 }
 
 function graphCreateAxis(id, tid, min, max) {
-	var obj = returnObjById(id);
-	var tobj = returnObjById(tid);
+	var obj = $(id);
+	var tobj = $(tid);
 
 	var x;
 	for (x = 0; x <= vboxw; x += vboxw / 4)

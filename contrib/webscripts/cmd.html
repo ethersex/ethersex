@@ -4,7 +4,7 @@
   <link href="sty.c"  media="screen" rel="Stylesheet" type="text/css" />
   <script type="text/javascript"><!--
 function cmd_enter() {
-  var cmd = returnObjById("cmdline");
+  var cmd = $("cmdline");
   logger("notice", cmd.value, true);
   var url = '/ecmd?' + cmd.value;
   ArrAjax.aufruf(url, cmd_enter_cb);

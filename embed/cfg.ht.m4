@@ -7,18 +7,18 @@ ifdef({{conf_CONFIG_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 function fillFields() {
-	getCmd('version', writeVal, returnObjById('version'));
-	getCmd('mac', writeVal, returnObjById('mac'));
-	getCmd('ip', writeVal, returnObjById('ip'));
+	getCmd('version', writeVal, $('version'));
+	getCmd('mac', writeVal, $('mac'));
+	getCmd('ip', writeVal, $('ip'));
 ifdef({{conf_IPV6}}, {{}}, {{dnl
-	getCmd('netmask', writeVal, returnObjById('netmask'));
+	getCmd('netmask', writeVal, $('netmask'));
 }})dnl
-	getCmd('gw', writeVal, returnObjById('gateway'));
+	getCmd('gw', writeVal, $('gateway'));
 ifdef({{conf_DNS}}, {{dnl
-	getCmd('dns+server', writeVal, returnObjById('dns'));
+	getCmd('dns+server', writeVal, $('dns'));
 }})dnl
 ifdef({{conf_NTP}}, {{dnl
-	getCmd('ntp+server', writeVal, returnObjById('ntp'));
+	getCmd('ntp+server', writeVal, $('ntp'));
 }})dnl
 }
 
@@ -39,8 +39,8 @@ function changeState(request, data) {
 }
 
 function updateValues() {
-	returnObjById('valdiv').style.visibility = "hidden";
-	returnObjById('waitdiv').style.visibility = "visible";
+	$('valdiv').style.visibility = "hidden";
+	$('waitdiv').style.visibility = "visible";
 	setCmd('reset', '');
 }
 </script>

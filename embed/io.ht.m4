@@ -36,7 +36,7 @@ function write_port(request, data) {
 	var value = ecmd_parse_io(request);
 	for (var i = 0; i < 8; i++) {
 		var id = data.type + data.num + i;
-		var obj = returnObjById(id);
+		var obj = $(id);
 		obj.checked = (value & (1 << i)) ? true : false;
 		obj.checked_ = obj.checked;
 	}
@@ -46,10 +46,10 @@ function mask_port(request, data) {
 	var value = ecmd_parse_io(request);
 	for (var i = 0; i < 8; i++) {
 		if (value & (1 << i))  {
-			var ddr = returnObjById("ddr" + data.num + i);
+			var ddr = $("ddr" + data.num + i);
 			ddr.setAttribute("onchange", "javascript:pin_set_back(this)");
 			ddr.setAttribute("readonly", true);
-			var obj = returnObjById("port" + data.num + i);
+			var obj = $("port" + data.num + i);
 			obj.setAttribute("onchange", "javascript:pin_set_back(this)");
 			obj.setAttribute("readonly", true);
 		}

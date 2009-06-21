@@ -1,6 +1,6 @@
 var isIE/*@cc_on = true@*/;
 
-function returnObjById(id) {
+function $(id) {
 	if (document.getElementById)
 		return document.getElementById(id);
 	if (document.all)
@@ -8,6 +8,10 @@ function returnObjById(id) {
 	if (document.layers)
 		return document.layers[id];
 	return null;
+}
+
+function returnObjById(id) {
+	return $(id);
 }
 
 var AjaxQueue = new Array();
@@ -80,13 +84,13 @@ ArrAjax.ecmd = function (address, handler, method, data) {
 
 //logging
 function log_get_lines() {
-	return returnObjById('logconsole').getElementsByTagName('div').length;
+	return $('logconsole').getElementsByTagName('div').length;
 }
 
 function log_clean(bottom) {
 	var loglines = 25;
 	if (log_get_lines() > loglines) {
-		var logconsole = returnObjById('logconsole');
+		var logconsole = $('logconsole');
 		var nodes = logconsole.getElementsByTagName('div');
 		while (nodes.length > loglines) {
 			logconsole.removeChild(nodes[(bottom) ? 0 : loglines]);
@@ -95,7 +99,7 @@ function log_clean(bottom) {
 }
 
 function logger(code, text, bottom) {
-	var logconsole = returnObjById('logconsole');
+	var logconsole = $('logconsole');
 	logconsole.style.visibility = "visible";
 
 	var jetzt = new Date();
