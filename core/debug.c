@@ -71,7 +71,11 @@ int noinline
 debug_uart_put (char d, FILE *stream)
 {
     if (d == '\n')
-        debug_uart_put('\r', stream);
+	debug_uart_put('\r', stream);
+
+    if (d == 0x1b)
+	d = '^';		/* replace escape sequences. */
+
 #ifdef S1D15G10_SUPPORT
     lcd_putch(d);
 #endif
