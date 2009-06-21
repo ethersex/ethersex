@@ -24,19 +24,8 @@
 
 #include "hardware/lcd/hd44780.h"
 
-#define tty_ll_clear() hd44780_clear ();
-
-extern uint8_t tty_hd44780_y;
-extern uint8_t tty_hd44780_x;
-
-inline static void
-tty_ll_goto (uint8_t y, uint8_t x)
-{
-  if (y == tty_hd44780_y && x == tty_hd44780_x)
-    return;			/* No change. */
-  hd44780_goto (y, x);
-}
-
-void tty_ll_put (uint8_t y, uint8_t x, uint8_t ch);
+#define tty_hd44780_clear()	hd44780_clear ()
+#define tty_hd44780_goto(y,x)	hd44780_goto (y, x)
+#define tty_hd44780_put(y,x,ch) putc (ch, lcd)
 
 #endif	/* TTY_HD44780_H */

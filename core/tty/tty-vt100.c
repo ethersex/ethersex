@@ -20,3 +20,61 @@
  */
 
 #include "core/tty/tty.h"
+#include "core/tty/tty-vt100.h"
+
+char vt100_buf[COLS * LINES];
+char *vt100_head = vt100_buf;
+char PROGMEM vt100_clr_str[] = "\033[2J\033[H";
+
+static inline void
+vt100_putbuf (char ch)
+{
+  *(vt100_head ++) = ch;
+
+  if (vt100_head == vt100_end)
+    vt100_head = vt100_buf;	/* wrap around. */
+}
+
+static inline void
+vt100_putstr (char *p)
+{
+  TTYDEBUG ("vt100_putstr: %s\n", p);
+  for (; *p; p ++)
+    vt100_putbuf (*p);
+}
+
+static inline void
+vt100_putstr_P (PGM_P p)
+{
+  char ch;
+  TTYDEBUG ("vt100_putstr_P: %S\n", p);
+  for (; (ch = pgm_read_byte (p)); p ++)
+    vt100_putbuf (*p);
+}
+
+
+/*
+  VT100 low-level implementation
+  (these are called from tty.c!)
+ */
+void
+tty_vt100_clear (void)
+{
+  vt100_putstr_P (vt100_clr_str);
+}
+
+void
+tty_vt100_goto (uint8_t y, uint8_t x)
+{
+  char buf[16];
+
+  /* FIXME this CAN be optimized! */
+  sprintf_P (buf, PSTR("\033[%i;%iH"), y + 1, x + 1);
+  vt100_putstr (buf);
+}
+
+void
+tty_vt100_put (uint8_t y, uint8_t x, uint8_t ch)
+{
+  vt100_putbuf (ch);
+}

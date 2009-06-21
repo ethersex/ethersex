@@ -27,9 +27,59 @@
 
 uint8_t tty_image[LINES * COLS];
 WINDOW tty_mainwin;
+uint8_t tty_ll_y, tty_ll_x;
 
 #define map(win,y,x)	(tty_image[((y) + (win)->begy) * COLS +	\
 				   ((x) + (win)->begx)])
+
+
+inline static void
+tty_ll_clear (void)
+{
+#ifdef TTY_LL_HD44780
+  tty_hd44780_clear ();
+#endif
+#ifdef TTY_LL_VT100_TELNET
+  tty_vt100_clear ();
+#endif
+}
+
+inline static void
+tty_ll_goto (uint8_t y, uint8_t x)
+{
+  if (y == tty_ll_y && x == tty_ll_x)
+    return;			/* No change. */
+
+#ifdef TTY_LL_HD44780
+  tty_hd44780_goto (y, x);
+#endif
+#ifdef TTY_LL_VT100_TELNET
+  tty_vt100_goto (y, x);
+#endif
+
+  tty_ll_y = y;
+  tty_ll_x = x;
+}
+
+inline static void
+tty_ll_put (uint8_t y, uint8_t x, uint8_t ch)
+{
+  TTYDEBUG ("tty_ll_put: %c to %i,%i, cursor is at %i,%i \n",
+	    ch, y, x, tty_ll_y, tty_ll_x);
+
+  if (y != tty_ll_y || x != tty_ll_x)
+    tty_ll_goto (y, x);
+
+#ifdef TTY_LL_HD44780
+  tty_hd44780_put (y, x, ch);
+#endif
+#ifdef TTY_LL_VT100_TELNET
+  tty_vt100_put (y, x, ch);
+#endif
+
+  tty_ll_x ++;
+}
+
 
 void
 initscr (void)

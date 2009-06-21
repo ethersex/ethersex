@@ -36,6 +36,9 @@
 /* The (one and only) off-screen image. */
 extern uint8_t tty_image[LINES * COLS];
 
+/* Low-level cursor position. */
+extern uint8_t tty_ll_y, tty_ll_x;
+
 /* WINDOW type forward declaration. */
 struct _tty_window_t;
 typedef struct _tty_window_t WINDOW;
@@ -106,8 +109,9 @@ void wscroll (WINDOW *, uint8_t);
 #include "core/tty/tty-hd44780.h"
 #endif
 
-/* #if defined(TTY_LL_VT100_USART) || defined(TTY_LL_VT100_TELNET)
-   #include "core/tty/tty-vt100.h"
-   #endif */
+#ifdef TTY_LL_VT100_TELNET
+#include "core/tty/tty-vt100.h"
+#include "core/tty/tty-vt100-telnet.h"
+#endif
 
 #endif  /* TTY_H */
