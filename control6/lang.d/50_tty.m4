@@ -23,17 +23,27 @@ divert(0)#include "core/tty/tty.h"
 divert(-1)dnl
 
 define(`TTY_USED', `ifdef(`tty_used', `', `dnl
-define(`old_divert', divnum)dnl
 define(`tty_used')dnl
+define(`old_divert', divnum)dnl
 divert(globals_divert)
 #ifndef TTY_SUPPORT
 #error Please define tty support
 #endif
 
+WINDOW *c6win = curscr;
+
 divert(old_divert)')')
 
-define(`TTY_CLEAR', TTY_USED()clear();)
-define(`TTY_GOTO', TTY_USED()move($1,$2);)
-define(`TTY_WRITE', TTY_USED()addstr_P(PSTR($1));)
+define(`TTY_CLEAR', `TTY_USED()wclear(c6win);')
+define(`TTY_GOTO', `TTY_USED()wmove(c6win,$1,$2);')
+define(`TTY_HOME', `TTY_USED()wmove(c6win,0,0);')
 
-define(`TTY_WRITE_TIME', TTY_USED()printw("%02d:%02d:%02d", CLOCK_HOUR(), CLOCK_MIN(), CLOCK_SEC());)
+define(`TTY_WRITE', `TTY_USED()waddstr_P(c6win,PSTR($1));')
+define(`TTY_WRITE_TIME', `TTY_USED()wprintw(c6win,"%02d:%02d:%02d", CLOCK_HOUR(), CLOCK_MIN(), CLOCK_SEC());')
+
+define(`TTY_CREATE_WINDOW', `TTY_USED()dnl
+define(`old_divert', divnum)dnl
+divert(globals_divert)WINDOW *c6win_$1;
+divert(init_divert)c6win_$1 = subwin(curscr, $2, $3, $4, $5);
+divert(old_divert)TTY_SELECT($1)')
+define(`TTY_SELECT', `TTY_USED()c6win = c6win_$1;')
