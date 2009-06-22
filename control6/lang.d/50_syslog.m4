@@ -7,11 +7,16 @@ define(`syslog_used')dnl
 divert(globals_divert)
 #include "protocols/syslog/syslog.h"
 
+divert(old_divert)')')
+
+define(`REQUIRE_SYSLOG', `SYSLOG_USED()
 #ifndef SYSLOG_SUPPORT
 #error Please define syslog support
 #endif
+')
 
-divert(old_divert)')')
-
-define(`SYSLOG', `SYSLOG_USED()ifelse(`$#', 1, `syslog_send_P(PSTR($1))', `syslog_sendf($*)')')
+define(`SYSLOG', `SYSLOG_USED()#ifdef SYSLOG_SUPPORT
+ifelse(`$#', 1, `syslog_send_P(PSTR($1))', `syslog_sendf($*)');
+#endif  /* SYSLOG_SUPPORT */
+')
 
