@@ -19,16 +19,18 @@ atmega644=y
 FREQ=20000000
 HARDWARE=etherrape
 etherrape=y
-# ethsex3 is not set
+# fnordy is not set
 # generic_usb_teensy is not set
-# heizfb is not set
 # netio is not set
 # other is not set
 # radig_web is not set
+# sexyfnord is not set
 # ths is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
+# USE_GIT_VERSION is not set
+VERSION_GIT=""
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
 # SOFT_UART_SUPPORT is not set
@@ -61,6 +63,7 @@ etherrape=y
 # DEBUG_MCUF is not set
 # DEBUG_I2C is not set
 # DEBUG_IRC is not set
+# DEBUG_NETSTAT is not set
 # DEBUG_TWITTER is not set
 # DEBUG_JABBER is not set
 # DEBUG_HTTPD is not set
@@ -78,6 +81,7 @@ etherrape=y
 # DEBUG_STELLA is not set
 # DEBUG_SD_READER is not set
 # DEBUG_SENDMAIL is not set
+# DEBUG_TTY_LAYER is not set
 # DEBUG_CRON is not set
 # DEBUG_DCF77 is not set
 # DEBUG_HOOK is not set
@@ -197,6 +201,11 @@ HD44780_READBACK=y
 # HD44780_USE_PORTC is not set
 # LCD_MENU_SUPPORT is not set
 # S1D15G10_SUPPORT is not set
+# TTY_SUPPORT is not set
+TTY_COLS=16
+TTY_LINES=4
+# TTY_LL_HD44780 is not set
+# TTY_LL_VT100_TELNET is not set
 ADC_SUPPORT=y
 CONFIG_ADC_AREF=y
 # CONFIG_ADC_AVCC is not set
@@ -266,25 +275,10 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # MCUF_IMAGE_SUPPORT is not set
 # MCUF_MODUL_BORG16_SUPPORT is not set
 # MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT is not set
-# MCUF_MODUL_BORG16_MATRIX_SUPPORT is not set
-# MCUF_MODUL_BORG16_FIRE_SUPPORT is not set
-# MCUF_MODUL_BORG16_SPIRAL_SUPPORT is not set
-# MCUF_MODUL_BORG16_JOERN1_SUPPORT is not set
-# MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT is not set
 # MCUF_MODUL_BORG16_SNAKE_SUPPORT is not set
 # MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT is not set
-# MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT is not set
-# MCUF_MODUL_BORG16_TEST1_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTL1_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTL2_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTL3_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTLX_SUPPORT is not set
-# MCUF_MODUL_BORG16_PALETTE_SUPPORT is not set
-# MCUF_MODUL_BORG16_FADEIN_SUPPORT is not set
-# MCUF_MODUL_BORG16_TETRIS_SUPPORT is not set
-# MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT is not set
-# MCUF_MODUL_BORG16_INVADERS_SUPPORT is not set
 # MODBUS_SUPPORT is not set
+# DMX_SUPPORT is not set
 # YPORT_SUPPORT is not set
 
 #
@@ -368,11 +362,16 @@ CONF_IRC_CHANNEL="ethersex"
 CONF_IRC_USERNAME="ethersex"
 CONF_IRC_NICKNAME="ethersex"
 CONF_IRC_REALNAME="Ethersex Wollmilchsau"
+# IRC_GREET_SUPPORT is not set
 # TWITTER_SUPPORT is not set
 CONF_TWITTER_SERVICE="identi.ca"
 CONF_TWITTER_API="/api"
 CONF_TWITTER_USERNAME="ethersex"
 CONF_TWITTER_PASSWORD=""
 CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
+# NETSTAT_SUPPORT is not set
+CONF_NETSTAT_SERVICE_IP="2001:6f8:1209:f0:216:3eff:fe03:ff"
+CONF_NETSTAT_SERVICE="ethersex.de"
+CONF_NETSTAT_API="/~habo/stat/"
 USART_SUPPORT=y
 RFM12_SUPPORT=y

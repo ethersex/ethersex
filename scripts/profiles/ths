@@ -18,17 +18,25 @@ atmega64=y
 # atmega644p is not set
 FREQ=16000000
 # etherrape is not set
+# fnordy is not set
 # generic_usb_teensy is not set
 # netio is not set
 # other is not set
 # radig_web is not set
+# sexyfnord is not set
 HARDWARE=ths
 ths=y
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
+# SPI_TIMEOUT is not set
+# USE_GIT_VERSION is not set
+VERSION_GIT=""
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
+# SOFT_UART_SUPPORT is not set
+# DEBUG_ASK_SENSE is not set
 # DEBUG_ECMD is not set
+# DEBUG_ECMD_SPEED is not set
 # DEBUG_ECMD_FS20 is not set
 # DEBUG_ECMD_IP is not set
 # DEBUG_ECMD_MAC is not set
@@ -37,6 +45,7 @@ ths=y
 # DEBUG_ECMD_OW_ROM is not set
 # DEBUG_ECMD_PORTIO is not set
 # DEBUG_ECMD_RC5 is not set
+# DEBUG_ECMD_SCRIPT is not set
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
@@ -44,46 +53,81 @@ ths=y
 # DEBUG_FS_INODETABLE is not set
 # DEBUG_FS_MARK is not set
 # DEBUG_FS20_REC is not set
+# VFS_EEPROM_DEBUG_SUPPORT is not set
 # DEBUG_FS20_REC_QUEUE is not set
 # DEBUG_FS20_REC_VERBOSE is not set
 # DEBUG_FS20_WS300 is not set
 # DEBUG_FS20_WS300_VERBOSE is not set
 # DEBUG_HD44780 is not set
+# DEBUG_PWM is not set
+# DEBUG_MCUF is not set
 # DEBUG_I2C is not set
+# DEBUG_IRC is not set
+# DEBUG_NETSTAT is not set
+# DEBUG_TWITTER is not set
+# DEBUG_JABBER is not set
 # DEBUG_HTTPD is not set
+# DEBUG_LCD_MENU is not set
+# DEBUG_MYSQL is not set
 # DEBUG_NET is not set
 # DEBUG_NET_CONFIG is not set
 # DEBUG_NET_IP6 is not set
 # DEBUG_OPENVPN is not set
 # DEBUG_ROUTER is not set
 # DEBUG_UIP is not set
+# DEBUG_NTP is not set
 # DEBUG_UNKNOWN_PACKETS is not set
 # DEBUG_RC5 is not set
+# DEBUG_STELLA is not set
 # DEBUG_SD_READER is not set
 # DEBUG_SENDMAIL is not set
-# DEBUG_TIMER is not set
+# DEBUG_TTY_LAYER is not set
+# DEBUG_CRON is not set
+# DEBUG_DCF77 is not set
+# DEBUG_HOOK is not set
 # DEBUG_DISCARD_SOME is not set
+# STATUSLEDS is not set
+# STATUSLED_POWER_SUPPORT is not set
+# STATUSLED_BOOTED_SUPPORT is not set
+# STATUSLED_NETLINK_SUPPORT is not set
+# STATUSLED_TX_SUPPORT is not set
+# STATUSLED_RX_SUPPORT is not set
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
 # MD5_SUPPORT is not set
+# SHA1_SUPPORT is not set
 VFS_SUPPORT=y
 # VFS_DF_SUPPORT is not set
 VFS_INLINE_SUPPORT=y
+# CONFIG_INLINE_SUPPORT is not set
+# VFS_CONFIG_INLINE_SUPPORT is not set
+# RFM12_INLINE_SUPPORT is not set
+# I2C_INLINE_SUPPORT is not set
+# VFS_IO_INLINE_SUPPORT is not set
+# KTY_INLINE_SUPPORT is not set
+# ADC_INLINE_SUPPORT is not set
+# ONEWIRE_INLINE_SUPPORT is not set
+# CAMERA_INLINE_SUPPORT is not set
+# NAMED_PIN_INLINE_SUPPORT is not set
 # VFS_SD_SUPPORT is not set
+# SD_READER_SUPPORT is not set
+# SD_READ_TIMEOUT is not set
+# SD_PING_READ is not set
+# VFS_EEPROM_SUPPORT is not set
 # VFS_EEPROM_RAW_SUPPORT is not set
 # VFS_DC3840_SUPPORT is not set
 # DATAFLASH_SUPPORT is not set
-# SD_READER_SUPPORT is not set
 # USB_SUPPORT is not set
 # USB_CFG_IS_SELF_POWERED is not set
 USB_CFG_MAX_BUS_POWER=20
+# CONTROL6_SUPPORT is not set
 CONF_HOSTNAME="ethersex"
 ENC28J60_SUPPORT=y
 CONF_ENC_MAC="ac:de:48:fd:0f:d0"
 # IPV6_STATIC_SUPPORT is not set
 CONF_ENC_IP="10.1.1.11"
 CONF_ENC_IP4_NETMASK="255.255.255.192"
-# RFM12_SUPPORT is not set
+# RFM12_IP_SUPPORT is not set
 # ZBUS_SUPPORT is not set
 # USB_NET_SUPPORT is not set
 # ROUTER_SUPPORT is not set
@@ -92,8 +136,11 @@ NET_SUPPORT=y
 # IPV6_SUPPORT is not set
 IPV4_SUPPORT=y
 # IP_FORWARDING_SUPPORT is not set
+# UIP_TIMEOUT_SUPPORT is not set
 CONF_ETHERRAPE_GATEWAY="10.1.1.1"
 # UIP_MULTI_STACK is not set
+# IPCHAIR_SUPPORT is not set
+# IPCHAIR_MASQ is not set
 
 #
 # Network protocols
@@ -108,6 +155,13 @@ ICMP_SUPPORT=y
 # TFTPOMATIC_SUPPORT is not set
 # DNS_SUPPORT is not set
 # SYSLOG_SUPPORT is not set
+# JABBER_SUPPORT is not set
+CONF_JABBER_IP="78.47.210.246"
+CONF_JABBER_HOSTNAME="jabber.zerties.org"
+CONF_JABBER_USERNAME="esex"
+CONF_JABBER_PASSWORD="password"
+CONF_JABBER_RESOURCE="ethersex"
+CONF_JABBER_BUDDY="stesie@jabber.zerties.org"
 # OPENVPN_SUPPORT is not set
 CONF_OPENVPN_KEY=00000000000000000000000000000000
 CONF_OPENVPN_HMAC_KEY=00000000000000000000000000000000
@@ -123,101 +177,33 @@ CONF_OPENVPN_IP4_NETMASK="255.255.255.0"
 # PORTIO_SIMPLE_SUPPORT is not set
 PORTIO_SUPPORT=y
 # HC595_SUPPORT is not set
-
-#
-# HC165 input expansion
-#
 # HC165_SUPPORT is not set
 # HC165_INVERSE_OUTPUT is not set
 # PS2_SUPPORT is not set
 # PS2_GERMAN_LAYOUT is not set
+# HD44780_SUPPORT is not set
+# HD44780_READBACK is not set
+# HD44780_USE_PORTC is not set
+# LCD_MENU_SUPPORT is not set
+# S1D15G10_SUPPORT is not set
+# TTY_SUPPORT is not set
+TTY_COLS=16
+TTY_LINES=4
+# TTY_LL_HD44780 is not set
+# TTY_LL_VT100_TELNET is not set
 # ADC_SUPPORT is not set
 # KTY_SUPPORT is not set
 # ONEWIRE_SUPPORT is not set
 # ONEWIRE_DETECT_SUPPORT is not set
 # ONEWIRE_DS2502_SUPPORT is not set
 # NAMED_PIN_SUPPORT is not set
-CONFIG_NO_I2C=y
-# I2C_SUPPORT is not set
-# I2C_SLAVE_SUPPORT is not set
-# FS20_SUPPORT is not set
-# RC5_SUPPORT is not set
-# MCUF_SUPPORT is not set
-# MCUF_SERIAL_SUPPORT is not set
-# BLP_SUPPORT is not set
-MCUF_OUTPUT_SCREEN_WIDTH=18
-MCUF_OUTPUT_SCREEN_HEIGHT=8
-# MODBUS_SUPPORT is not set
-# YPORT_SUPPORT is not set
-ECMD_SERIAL_USART_SUPPORT=y
-ECMD_SERIAL_USART_USART_0=y
-# ECMD_SERIAL_USART_USART_1 is not set
-ECMD_SERIAL_USART_USE_USART=0
-# ECMD_SERIAL_USART_RS485_SUPPORT is not set
-
-#
-# Applications
-#
-
-#
-# System clock
-#
-CLOCK_SUPPORT=y
-# CLOCK_CRYSTAL_SUPPORT is not set
-# DCF77_SUPPORT is not set
-NTP_SUPPORT=y
-CRON_SUPPORT=y
-# NTPD_SUPPORT is not set
-# WHM_SUPPORT is not set
-TIMEZONE_UTC=y
-# TIMEZONE_CEST is not set
-
-#
-# Etherrape Control Interface (ECMD)
-#
-ECMD_PARSER_SUPPORT=y
-ECMD_TCP_SUPPORT=y
-# ECMD_UDP_SUPPORT is not set
-# ECMD_SERIAL_I2C_SUPPORT is not set
-# ECMD_USB_SUPPORT is not set
-ECMD_SERIAL_SUPPORT=y
-# ECMD_SENDER_SUPPORT is not set
-# UECMD_SENDER_SUPPORT is not set
-# IPSTATS_SUPPORT is not set
-# FREE_SUPPORT is not set
-HTTPD_SUPPORT=y
-# HTTPD_AUTH_SUPPORT is not set
-
-#
-# Character-LCD module support
-#
-# HD44780_SUPPORT is not set
-# HD44780_READBACK is not set
-# HD44780_USE_PORTC is not set
-# MDNS_SD_SUPPORT is not set
-# STELLA_SUPPORT is not set
-# UDP_ECHO_NET_SUPPORT is not set
-
-#
-# DynDNS support
-#
-# DYNDNS_SUPPORT is not set
-# WATCHCAT_SUPPORT is not set
-# SNMP_SUPPORT is not set
-# SENDMAIL_SUPPORT is not set
-
-#
-# work in progress bits (enable with care)
-#
 # I2C_MASTER_SUPPORT is not set
 # I2C_DETECT_SUPPORT is not set
 # I2C_24CXX_SUPPORT is not set
 # I2C_LM75_SUPPORT is not set
 # I2C_PCA9531_SUPPORT is not set
 # I2C_PCF8574X_SUPPORT is not set
-# CONTROL6_SUPPORT is not set
-# IPCHAIR_SUPPORT is not set
-# IPCHAIR_MASQ is not set
+# I2C_UDP_SUPPORT is not set
 # CAMERA_SUPPORT is not set
 # DC3840_SUPPORT is not set
 # CONFIG_DC3840_RES80 is not set
@@ -229,3 +215,136 @@ HTTPD_SUPPORT=y
 DC3840_USART_0=y
 # DC3840_USART_1 is not set
 DC3840_USE_USART=0
+# FS20_SUPPORT is not set
+# FS20_SEND_SUPPORT is not set
+# FS20_RECEIVE_SUPPORT is not set
+# FS20_RECEIVE_WS300_SUPPORT is not set
+# RC5_SUPPORT is not set
+# PWM_SUPPORT is not set
+# PWM_WAV_SUPPORT is not set
+# PWM_MELODY_SUPPORT is not set
+# GAME_INPUT_SUPPORT is not set
+# JOYSTICK_DIGITAL_SUPPORT is not set
+# BUTTONS_INPUT_SUPPORT is not set
+CONF_NUM_BUTTONS=
+# MCUF_SUPPORT is not set
+# MCUF_SERIAL_SUPPORT is not set
+# MCUF_OUTPUT_SUPPORT is not set
+# BLP_SUPPORT is not set
+# LEDRG_SUPPORT is not set
+# MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS is not set
+# MCUF_SCROLLTEXT_SUPPORT is not set
+CONF_MCUF_SCROLLTEXT_STARTUP="Hi I am your ethersex ;-) "
+CONF_MCUF_SCROLLTEXT_STARTUP_COLOR=240
+CONF_MCUF_SCROLLTEXT_STARTUP_BG_COLOR=1
+CONF_MCUF_SCROLLTEXT_STARTUP_SPEED=2
+# MCUF_CLOCK_SUPPORT is not set
+# MCUF_MODUL_SUPPORT is not set
+# MCUF_MODUL_CRON_SUPPORT is not set
+# MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE is not set
+MCUF_MODUL_DISPLAY_MODE_CRON=MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM
+MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM=y
+# MCUF_MODUL_DISPLAY_MODE_SUPPORT is not set
+# MCUF_MODUL_DISPLAY_MODE_SEQUENCE is not set
+MCUF_MODUL_DISPLAY_MODE=MCUF_MODUL_DISPLAY_MODE_RANDOM
+MCUF_MODUL_DISPLAY_MODE_RANDOM=y
+# MCUF_MODUL_DISPLAY_MODE_MANUAL is not set
+# MCUF_CHESS_SUPPORT is not set
+# MCUF_BOX_SUPPORT is not set
+# MCUF_CLEAN_SUPPORT is not set
+# MCUF_SPIRAL_SUPPORT is not set
+# MCUF_IMAGE_SUPPORT is not set
+# MCUF_MODUL_BORG16_SUPPORT is not set
+# MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT is not set
+# MCUF_MODUL_BORG16_SNAKE_SUPPORT is not set
+# MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT is not set
+# MODBUS_SUPPORT is not set
+# DMX_SUPPORT is not set
+# YPORT_SUPPORT is not set
+ECMD_SERIAL_USART_SUPPORT=y
+ECMD_SERIAL_USART_USART_0=y
+# ECMD_SERIAL_USART_USART_1 is not set
+ECMD_SERIAL_USART_USE_USART=0
+# ECMD_SERIAL_USART_RS485_SUPPORT is not set
+
+#
+# Applications
+#
+CLOCK_SUPPORT=y
+# CLOCK_DATETIME_SUPPORT is not set
+# CLOCK_CRYSTAL_SUPPORT is not set
+# DCF77_SUPPORT is not set
+NTP_SUPPORT=y
+NTP_SERVER_IP="213.133.123.125"
+NTP_PORT=123
+# CRON_SUPPORT is not set
+# CRON_DEFAULT_UTC is not set
+# CRON_SUPPORT_TEST is not set
+# CRON_STATIC_SUPPORT is not set
+# NTPD_SUPPORT is not set
+# WHM_SUPPORT is not set
+TIMEZONE_UTC=y
+# TIMEZONE_CEST is not set
+ECMD_PARSER_SUPPORT=y
+# ALIASCMD_SUPPORT is not set
+# ECMD_SCRIPT_SUPPORT is not set
+ECMD_SCRIPT_MAX_VARIABLES=4
+ECMD_TCP_SUPPORT=y
+ECMD_TCP_PORT=2701
+# ECMD_UDP_SUPPORT is not set
+# ECMD_SPEED_SUPPORT is not set
+# ECMD_SERIAL_I2C_SUPPORT is not set
+# ECMD_USB_SUPPORT is not set
+# ECMD_JABBER_SUPPORT is not set
+# ECMD_IRC_SUPPORT is not set
+# ECMD_SENDER_SUPPORT is not set
+# UECMD_SENDER_SUPPORT is not set
+# DISABLE_IPCONF_SUPPORT is not set
+# DISABLE_REBOOT_SUPPORT is not set
+# IPSTATS_SUPPORT is not set
+# FREE_SUPPORT is not set
+HTTPD_SUPPORT=y
+# HTTPD_AUTH_SUPPORT is not set
+# MDNS_SD_SUPPORT is not set
+# UDP_ECHO_NET_SUPPORT is not set
+# DYNDNS_SUPPORT is not set
+# WATCHCAT_SUPPORT is not set
+# SNMP_SUPPORT is not set
+# SENDMAIL_SUPPORT is not set
+# STELLA_SUPPORT is not set
+# STELLA_HIGHFREQ is not set
+# STELLA_MOODLIGHT is not set
+STELLA_START=stella_start_zero
+stella_start_zero=y
+# stella_start_all is not set
+# stella_start_eeprom is not set
+STELLA_FADE_STEP_INIT=10
+STELLA_FADE_FUNCTION_INIT=stella_fade_func_0
+stella_fade_func_0=y
+# stella_fade_func_1 is not set
+# RFM12_ASK_SUPPORT is not set
+# MYSQL_SUPPORT is not set
+CONF_MYSQL_IP="192.168.23.254"
+CONF_MYSQL_USERNAME="root"
+CONF_MYSQL_PASSWORD="password"
+CONF_MYSQL_SCHEMA="mavisdb"
+# IRC_SUPPORT is not set
+CONF_IRC_IP="192.168.23.254"
+CONF_IRC_PORT=6667
+CONF_IRC_CHANNEL="ethersex"
+CONF_IRC_USERNAME="ethersex"
+CONF_IRC_NICKNAME="ethersex"
+CONF_IRC_REALNAME="Ethersex Wollmilchsau"
+# IRC_GREET_SUPPORT is not set
+# TWITTER_SUPPORT is not set
+CONF_TWITTER_SERVICE="identi.ca"
+CONF_TWITTER_API="/api"
+CONF_TWITTER_USERNAME="ethersex"
+CONF_TWITTER_PASSWORD=""
+CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
+# NETSTAT_SUPPORT is not set
+CONF_NETSTAT_SERVICE_IP="188.40.33.175"
+CONF_NETSTAT_SERVICE="ethersex.de"
+CONF_NETSTAT_API="/~habo/stat/"
+# RFM12_SUPPORT is not set
+IPV4_SUPPORT=y

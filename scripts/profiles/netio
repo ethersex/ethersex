@@ -17,22 +17,26 @@ atmega32=y
 # atmega644 is not set
 # atmega644p is not set
 FREQ=16000000
-# bettwaechter is not set
 # etherrape is not set
+# fnordy is not set
 # generic_usb_teensy is not set
 HARDWARE=netio
 netio=y
 # other is not set
 # radig_web is not set
-# stella is not set
+# sexyfnord is not set
 # ths is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
+# SPI_TIMEOUT is not set
+# USE_GIT_VERSION is not set
+VERSION_GIT=""
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
 # SOFT_UART_SUPPORT is not set
 # DEBUG_ASK_SENSE is not set
 # DEBUG_ECMD is not set
+# DEBUG_ECMD_SPEED is not set
 # DEBUG_ECMD_FS20 is not set
 # DEBUG_ECMD_IP is not set
 # DEBUG_ECMD_MAC is not set
@@ -58,8 +62,12 @@ netio=y
 # DEBUG_PWM is not set
 # DEBUG_MCUF is not set
 # DEBUG_I2C is not set
+# DEBUG_IRC is not set
+# DEBUG_NETSTAT is not set
+# DEBUG_TWITTER is not set
 # DEBUG_JABBER is not set
 # DEBUG_HTTPD is not set
+# DEBUG_LCD_MENU is not set
 # DEBUG_MYSQL is not set
 # DEBUG_NET is not set
 # DEBUG_NET_CONFIG is not set
@@ -73,10 +81,17 @@ netio=y
 # DEBUG_STELLA is not set
 # DEBUG_SD_READER is not set
 # DEBUG_SENDMAIL is not set
-# DEBUG_TIMER is not set
+# DEBUG_TTY_LAYER is not set
 # DEBUG_CRON is not set
+# DEBUG_DCF77 is not set
 # DEBUG_HOOK is not set
 # DEBUG_DISCARD_SOME is not set
+# STATUSLEDS is not set
+# STATUSLED_POWER_SUPPORT is not set
+# STATUSLED_BOOTED_SUPPORT is not set
+# STATUSLED_NETLINK_SUPPORT is not set
+# STATUSLED_TX_SUPPORT is not set
+# STATUSLED_RX_SUPPORT is not set
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
 # MD5_SUPPORT is not set
@@ -94,6 +109,10 @@ ADC_INLINE_SUPPORT=y
 ONEWIRE_INLINE_SUPPORT=y
 # CAMERA_INLINE_SUPPORT is not set
 # NAMED_PIN_INLINE_SUPPORT is not set
+# VFS_SD_SUPPORT is not set
+# SD_READER_SUPPORT is not set
+# SD_READ_TIMEOUT is not set
+# SD_PING_READ is not set
 # VFS_EEPROM_SUPPORT is not set
 # VFS_EEPROM_RAW_SUPPORT is not set
 # VFS_DC3840_SUPPORT is not set
@@ -162,6 +181,16 @@ PORTIO_SIMPLE_SUPPORT=y
 # HC165_INVERSE_OUTPUT is not set
 # PS2_SUPPORT is not set
 # PS2_GERMAN_LAYOUT is not set
+# HD44780_SUPPORT is not set
+# HD44780_READBACK is not set
+# HD44780_USE_PORTC is not set
+# LCD_MENU_SUPPORT is not set
+# S1D15G10_SUPPORT is not set
+# TTY_SUPPORT is not set
+TTY_COLS=16
+TTY_LINES=4
+# TTY_LL_HD44780 is not set
+# TTY_LL_VT100_TELNET is not set
 ADC_SUPPORT=y
 CONFIG_ADC_AREF=y
 # CONFIG_ADC_AVCC is not set
@@ -200,6 +229,8 @@ DC3840_USE_USART=0
 # PWM_MELODY_SUPPORT is not set
 # GAME_INPUT_SUPPORT is not set
 # JOYSTICK_DIGITAL_SUPPORT is not set
+# BUTTONS_INPUT_SUPPORT is not set
+CONF_NUM_BUTTONS=
 # MCUF_SUPPORT is not set
 # MCUF_SERIAL_SUPPORT is not set
 # MCUF_OUTPUT_SUPPORT is not set
@@ -229,25 +260,10 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # MCUF_IMAGE_SUPPORT is not set
 # MCUF_MODUL_BORG16_SUPPORT is not set
 # MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT is not set
-# MCUF_MODUL_BORG16_MATRIX_SUPPORT is not set
-# MCUF_MODUL_BORG16_FIRE_SUPPORT is not set
-# MCUF_MODUL_BORG16_SPIRAL_SUPPORT is not set
-# MCUF_MODUL_BORG16_JOERN1_SUPPORT is not set
-# MCUF_MODUL_BORG16_SCHACHBRETT_SUPPORT is not set
 # MCUF_MODUL_BORG16_SNAKE_SUPPORT is not set
 # MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT is not set
-# MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT is not set
-# MCUF_MODUL_BORG16_TEST1_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTL1_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTL2_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTL3_SUPPORT is not set
-# MCUF_MODUL_BORG16_TESTLX_SUPPORT is not set
-# MCUF_MODUL_BORG16_PALETTE_SUPPORT is not set
-# MCUF_MODUL_BORG16_FADEIN_SUPPORT is not set
-# MCUF_MODUL_BORG16_TETRIS_SUPPORT is not set
-# MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT is not set
-# MCUF_MODUL_BORG16_INVADERS_SUPPORT is not set
 # MODBUS_SUPPORT is not set
+# DMX_SUPPORT is not set
 # YPORT_SUPPORT is not set
 # ECMD_SERIAL_USART_SUPPORT is not set
 # ECMD_SERIAL_USART_RS485_SUPPORT is not set
@@ -256,22 +272,28 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # Applications
 #
 # CLOCK_SUPPORT is not set
+# CLOCK_DATETIME_SUPPORT is not set
 # CLOCK_CRYSTAL_SUPPORT is not set
 # DCF77_SUPPORT is not set
 # NTP_SUPPORT is not set
+# CRON_SUPPORT is not set
+# CRON_DEFAULT_UTC is not set
+# CRON_SUPPORT_TEST is not set
 # CRON_STATIC_SUPPORT is not set
 # NTPD_SUPPORT is not set
 # WHM_SUPPORT is not set
 ECMD_PARSER_SUPPORT=y
-ECMD_TCP_SUPPORT=y
-# ECMD_UDP_SUPPORT is not set
-ECMD_NET_PORT=2701
-# ECMD_SERIAL_I2C_SUPPORT is not set
-# ECMD_USB_SUPPORT is not set
-# ECMD_SERIAL_SUPPORT is not set
-# ECMD_JABBER_SUPPORT is not set
+# ALIASCMD_SUPPORT is not set
 # ECMD_SCRIPT_SUPPORT is not set
 ECMD_SCRIPT_MAX_VARIABLES=4
+ECMD_TCP_SUPPORT=y
+ECMD_TCP_PORT=2701
+# ECMD_UDP_SUPPORT is not set
+# ECMD_SPEED_SUPPORT is not set
+# ECMD_SERIAL_I2C_SUPPORT is not set
+# ECMD_USB_SUPPORT is not set
+# ECMD_JABBER_SUPPORT is not set
+# ECMD_IRC_SUPPORT is not set
 # ECMD_SENDER_SUPPORT is not set
 # UECMD_SENDER_SUPPORT is not set
 # DISABLE_IPCONF_SUPPORT is not set
@@ -280,9 +302,6 @@ ECMD_SCRIPT_MAX_VARIABLES=4
 # FREE_SUPPORT is not set
 HTTPD_SUPPORT=y
 # HTTPD_AUTH_SUPPORT is not set
-# HD44780_SUPPORT is not set
-# HD44780_READBACK is not set
-# HD44780_USE_PORTC is not set
 # MDNS_SD_SUPPORT is not set
 # UDP_ECHO_NET_SUPPORT is not set
 # DYNDNS_SUPPORT is not set
@@ -290,18 +309,13 @@ HTTPD_SUPPORT=y
 # SNMP_SUPPORT is not set
 # SENDMAIL_SUPPORT is not set
 # STELLA_SUPPORT is not set
-STELLA_UDP_PORT=2342
-# STELLA_GAMMACORRECTION is not set
 # STELLA_HIGHFREQ is not set
 # STELLA_MOODLIGHT is not set
-# STELLA_RESPONSE is not set
 STELLA_START=stella_start_zero
 stella_start_zero=y
 # stella_start_all is not set
 # stella_start_eeprom is not set
-# stella_start_moodlight is not set
 STELLA_FADE_STEP_INIT=10
-STELLA_MOODLIGHT_THRESHOLD_INIT=120
 STELLA_FADE_FUNCTION_INIT=stella_fade_func_0
 stella_fade_func_0=y
 # stella_fade_func_1 is not set
@@ -311,4 +325,23 @@ CONF_MYSQL_IP="192.168.23.254"
 CONF_MYSQL_USERNAME="root"
 CONF_MYSQL_PASSWORD="password"
 CONF_MYSQL_SCHEMA="mavisdb"
+# IRC_SUPPORT is not set
+CONF_IRC_IP="192.168.23.254"
+CONF_IRC_PORT=6667
+CONF_IRC_CHANNEL="ethersex"
+CONF_IRC_USERNAME="ethersex"
+CONF_IRC_NICKNAME="ethersex"
+CONF_IRC_REALNAME="Ethersex Wollmilchsau"
+# IRC_GREET_SUPPORT is not set
+# TWITTER_SUPPORT is not set
+CONF_TWITTER_SERVICE="identi.ca"
+CONF_TWITTER_API="/api"
+CONF_TWITTER_USERNAME="ethersex"
+CONF_TWITTER_PASSWORD=""
+CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
+# NETSTAT_SUPPORT is not set
+CONF_NETSTAT_SERVICE_IP="188.40.33.175"
+CONF_NETSTAT_SERVICE="ethersex.de"
+CONF_NETSTAT_API="/~habo/stat/"
 # RFM12_SUPPORT is not set
+IPV4_SUPPORT=y
