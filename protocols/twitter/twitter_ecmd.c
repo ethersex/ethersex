@@ -28,11 +28,14 @@
 #include "config.h"
 #include "twitter.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 int16_t parse_cmd_tw (char *cmd, char *output, uint16_t len) 
 {
   if (twitter_send(cmd)) 
-    return 0;
-  return snprintf_P(cmd, len, PSTR("sending failed"));
+    return ECMD_FINAL_OK;
+  return ECMD_FINAL(snprintf_P(cmd, len, PSTR("sending failed")));
 }
 
 /*

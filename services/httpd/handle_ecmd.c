@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 #include "httpd.h"
 
 
@@ -95,18 +96,18 @@ httpd_handle_ecmd (void)
 	    int16_t len = ecmd_parse_command(STATE->u.ecmd.input,
 					     STATE->u.ecmd.output,
 					     ECMD_OUTPUTBUF_LENGTH - 2);
-	    if (len <= -10)
-		len = -len - 10;
-
-	    else if (len < 0) {	/* Error */
-		uip_close ();
+	    if (is_ECMD_AGAIN(len)) {
+		/* convert ECMD_AGAIN back to ECMD_FINAL */
+		len = ECMD_AGAIN(len);
+            }
+	    else if (is_ECMD_ERR(len)) {	/* Error */
+		uip_close();
 		return;
 	    }
-
 	    else
 		STATE->eof = 1;
 
-	    STATE->u.ecmd.output[len ++] = 10;
+	    STATE->u.ecmd.output[len++] = 10;
 	    STATE->u.ecmd.output[len] = 0;
 	}
     }

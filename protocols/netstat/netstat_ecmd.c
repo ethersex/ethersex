@@ -29,9 +29,12 @@
 #include "config.h"
 #include "netstat.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 int16_t parse_cmd_netstat(char *cmd, char *output, uint16_t len) 
 {
   if (netstat_send()) 
-    return 0;
-  return snprintf_P(cmd, len, PSTR("sending failed"));
+    return ECMD_FINAL_OK;
+  return ECMD_FINAL(snprintf_P(cmd, len, PSTR("sending failed")));
 }

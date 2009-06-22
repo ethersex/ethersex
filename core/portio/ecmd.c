@@ -29,37 +29,38 @@
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
 
+#include "protocols/ecmd/ecmd-base.h"
 #include "ecmd_base.c"
+
 
 static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
 {
 #ifndef TEENSY_SUPPORT
-  return sscanf_P(cmd, PSTR("%x %x %x"),
-                  port, data, mask);
+  return ECMD_FINAL(sscanf_P(cmd, PSTR("%x %x %x"), port, data, mask));
 #else
   char *p;
-  if (! *cmd ) return 0;
+  if (! *cmd ) return ECMD_FINAL_OK;
   /* skip first space */
   while (*cmd == ' ')
     cmd ++;
-  if (! *cmd ) return 0;
+  if (! *cmd ) return ECMD_FINAL_OK;
   *port = *cmd - '0';
   /* After the second number */
   p = strchr(cmd, ' ');
-  if (! p) return 1;
+  if (! p) return ECMD_FINAL(1);
   /* skip spaces */
   while (*p == ' ')
     p++;
   cmd = p;
   *data = strtol(cmd, NULL, 16);
   p = strchr(cmd, ' ');
-  if (! p) return 2;
+  if (! p) return ECMD_FINAL(2);
   /* skip spaces */
   while (*p == ' ')
     p++;
   cmd = p;
   *mask = strtol(cmd, NULL, 16);
-  return 3;
+  return ECMD_FINAL(3);
 #endif
 }
 
@@ -87,9 +88,9 @@ int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
         vport[port].write_ddr(port, (vport[port].read_ddr(port) & ~mask)
                               | LO8(data & mask));
 
-        return 0;
+        return ECMD_FINAL_OK;
     } else
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
 }
 
@@ -110,9 +111,9 @@ int16_t parse_cmd_io_get_mask(char *cmd, char *output, uint16_t len)
     port = *(cmd + 1) - '0';
     if (port < IO_PORTS)
 #endif
-      return print_port(output, len, port, vport[port].mask);
+      return ECMD_FINAL(print_port(output, len, port, vport[port].mask));
     else
-      return -1;
+      return ECMD_ERR_PARSE_ERROR;
 
 }
 
@@ -133,9 +134,9 @@ int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
     port = *(cmd + 1) - '0';
     if (port < IO_PORTS && vport[port].read_ddr)
 #endif
-      return print_port(output, len, port, vport[port].read_ddr(port));
+      return ECMD_FINAL(print_port(output, len, port, vport[port].read_ddr(port)));
     else
-      return -1;
+      return ECMD_ERR_PARSE_ERROR;
 
 }
 
@@ -160,9 +161,9 @@ int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
         && vport[port].read_port) {
         vport[port].write_port(port, (vport[port].read_port(port) & ~mask)
                                | LO8(data & mask));
-        return 0;
+        return ECMD_FINAL_OK;
     } else
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
 }
 
@@ -184,9 +185,9 @@ int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
     port = *(cmd + 1) - '0';
     if (port < IO_PORTS && vport[port].read_port)
 #endif
-      return print_port(output, len, port, vport[port].read_port(port));
+      return ECMD_FINAL(print_port(output, len, port, vport[port].read_port(port)));
     else
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
 }
 
@@ -208,9 +209,9 @@ int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
     port = *(cmd + 1) - '0';
     if (port < IO_PORTS && vport[port].read_pin)
 #endif
-      return print_port(output, len, port, vport[port].read_pin(port));
+      return ECMD_FINAL(print_port(output, len, port, vport[port].read_pin(port)));
     else
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
 }
 
@@ -236,11 +237,11 @@ int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
     uint8_t active_high = 1;
     if (pincfg != 255)  
       active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
-    return snprintf_P(output, len, 
+    return ECMD_FINAL(snprintf_P(output, len,
                       XOR_LOG(vport[port].read_pin(port) & _BV(pin), !(active_high))
-                      ? PSTR("on") : PSTR("off"));
+                      ? PSTR("on") : PSTR("off")));
   } else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 
@@ -291,12 +292,12 @@ int16_t parse_cmd_pin_set(char *cmd, char *output, uint16_t len)
       else
         vport[port].write_port(port, vport[port].read_port(port) & ~_BV(pin));
 
-      return snprintf_P(output, len, on ? PSTR("on") : PSTR("off"));
+      return ECMD_FINAL(snprintf_P(output, len, on ? PSTR("on") : PSTR("off")));
     } else 
-      return snprintf_P(output, len, PSTR("error: pin is input"));
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("error: pin is input")));
 
   } else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 /* */
 
@@ -330,13 +331,13 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
       else
         vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
 
-      return snprintf_P(output, len, XOR_LOG(!on, !active_high)
-                        ? PSTR("on") : PSTR("off"));
+      return ECMD_FINAL(snprintf_P(output, len, XOR_LOG(!on, !active_high)
+                        ? PSTR("on") : PSTR("off")));
     } else 
-      return snprintf_P(output, len, PSTR("error: pin is input"));
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("error: pin is input")));
 
   } else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 #endif /* NAMED_PIN_SUPPORT */

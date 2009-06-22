@@ -30,6 +30,8 @@
 #include "core/eeprom.h"
 #include "core/usart.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 #if defined(HTTPD_AUTH_SUPPORT)
 int16_t parse_cmd_http_passwd(char *cmd, char *output, uint16_t len)
@@ -41,7 +43,7 @@ int16_t parse_cmd_http_passwd(char *cmd, char *output, uint16_t len)
 display_password:
       snprintf_P(output, len, PSTR("password: "));
       eeprom_restore(httpd_auth_password, output + 10, sizeof(new_pass));
-      return strlen(output);
+      return ECMD_FINAL(strlen(output));
     } else {
       strncpy(new_pass, cmd, sizeof(new_pass) - 1);
       /* The last byte MUST be a null byte. It will be

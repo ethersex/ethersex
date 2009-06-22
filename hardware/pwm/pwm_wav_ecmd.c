@@ -26,6 +26,8 @@
 #include "config.h"
 #include "core/debug.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 #ifdef PWM_WAV_SUPPORT
 
 #include "pwm_wav.h"
@@ -34,14 +36,14 @@ int16_t
 parse_cmd_pwm_wav_play(char *cmd, char *output, uint16_t len)
 {
     pwm_wav_init();
-    return snprintf_P(output, len, PSTR("PWM wav play"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM wav play")));
 }
 
 int16_t
 parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
 {
     pwm_stop();
-    return snprintf_P(output, len, PSTR("PWM wav stop"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM wav stop")));
 }
 
 #endif  /* PWM_SUPPORT */

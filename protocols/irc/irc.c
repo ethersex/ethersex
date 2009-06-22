@@ -29,6 +29,7 @@
 #include "config.h"
 #include "protocols/uip/uip.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 #include "irc.h"
 
 #define STATE (&uip_conn->appstate.irc)
@@ -104,11 +105,13 @@ irc_handle_ecmd (void)
     int16_t len = ecmd_parse_command(STATE->inbuf, STATE->outbuf,
 				     ECMD_OUTPUTBUF_LENGTH - 1);
 
-    if ((STATE->reparse = len <= -10))
-	len = -len - 10;
+    if ((STATE->reparse = is_ECMD_AGAIN(len)) != 0) {
+	/* convert ECMD_AGAIN back to ECMD_FINAL */
+	len = ECMD_AGAIN(len);
+    }
 
-    if (len < 0)
-	strcpy_P (STATE->outbuf, PSTR ("parse error"));
+    if (is_ECMD_ERR(len))
+	strcpy_P(STATE->outbuf, PSTR("parse error"));
     else
 	STATE->outbuf[len] = 0;
 

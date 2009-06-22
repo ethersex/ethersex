@@ -29,13 +29,16 @@
 #include "hardware/storage/dataflash/df.h"
 #include "hardware/storage/dataflash/fs.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 int16_t 
 parse_cmd_df_status (char *cmd, char *output, uint16_t len)
 {
   (void) cmd;
 
-  return snprintf_P (output, len, PSTR ("df status: 0x%02x"),
-		     df_status (NULL));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("df status: 0x%02x"),
+			       df_status(NULL)));
 }
 
 
@@ -47,11 +50,11 @@ parse_cmd_fs_format (char *cmd, char *output, uint16_t len)
   (void) len;
 
   if (fs_format (&fs) != FS_OK) 
-    return snprintf_P (output, len, PSTR ("fs: error while formating"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("fs: error while formating")));
   if (fs_init () != FS_OK) 
-    return snprintf_P (output, len, PSTR ("fs: error while initializing"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("fs: error while initializing")));
 
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 
@@ -66,21 +69,21 @@ parse_cmd_fs_list (char *cmd, char *output, uint16_t len)
       cmd[0] = 0x05;		/* set magic byte ... */
       cmd[1] = 0x00;
 
-      return -10 - snprintf_P (output, len, PSTR ("name  :inode :size\n"
-						  "----------------------"));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("name  :inode :size\n"
+						     "----------------------")));
     }
   else
     {
       if (fs_list (&fs, NULL, name, cmd[1] ++) != FS_OK)
-	return 0;		/* no repare, out. */
+	return ECMD_FINAL_OK;		/* no repare, out. */
       
       name[FS_FILENAME] = 0;
 
       fs_inode_t inode = fs_get_inode (&fs, name);
       fs_size_t size = fs_size (&fs, inode);
 
-      return -10 - snprintf_P (output, len, PSTR ("%-6s:0x%04x:0x%04x"),
-			       name, inode, size);
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("%-6s:0x%04x:0x%04x"),
+			            name, inode, size));
     }
 }
 
@@ -95,10 +98,10 @@ parse_cmd_fs_mkfile (char *cmd, char *output, uint16_t len)
   fs_status_t ret = fs_create (&fs, cmd);
   
   if (ret != FS_OK)
-    return snprintf_P (output, len, PSTR ("fs_create: returned 0x%02x"), ret);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("fs_create: returned 0x%02x"), ret));
 
   fs_inode_t i = fs_get_inode (&fs, cmd);
-  return snprintf_P (output, len, PSTR ("fs_create: inode 0x%04x"), i);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("fs_create: inode 0x%04x"), i));
 }
 
 
@@ -111,7 +114,7 @@ parse_cmd_fs_remove (char *cmd, char *output, uint16_t len)
 
   fs_status_t ret = fs_remove (&fs, cmd);
 
-  return (ret == FS_OK) ? 0 : -1;
+  return (ret == FS_OK) ? ECMD_FINAL_OK : ECMD_ERR_PARSE_ERROR;
 }
 
 
@@ -122,17 +125,17 @@ parse_cmd_fs_truncate (char *cmd, char *output, uint16_t len)
   while (* cmd == ' ') cmd ++;
 
   char *ptr = strchr (cmd, ' ');
-  if (ptr == NULL) return -1;	/* invalid args. */
+  if (ptr == NULL) return ECMD_ERR_PARSE_ERROR;	/* invalid args. */
 
   *(ptr ++) = 0;		/* Zero terminate filename. */
 
   fs_inode_t i = fs_get_inode (&fs, cmd);
 
   if (i == 0xffff)
-    return snprintf_P (output, len, PSTR ("no such file."));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no such file.")));
 
   fs_status_t ret = fs_truncate (&fs, i, strtoul (ptr, NULL, 10));
-  return (ret == FS_OK) ? 0 : -1;
+  return (ret == FS_OK) ? ECMD_FINAL_OK : ECMD_ERR_PARSE_ERROR;
 }
 
 
@@ -147,7 +150,7 @@ parse_cmd_fs_inspect_node (char *cmd, char *output, uint16_t len)
   while (* cmd == ' ') cmd ++;
 
   fs_inspect_node (&fs, strtoul (cmd, NULL, 0));
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 
@@ -161,7 +164,7 @@ parse_cmd_fs_inspect_inode (char *cmd, char *output, uint16_t len)
   while (* cmd == ' ') cmd ++;
 
   fs_inspect_inode (&fs, strtoul (cmd, NULL, 0));
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 #endif	/* DEBUG_FS */

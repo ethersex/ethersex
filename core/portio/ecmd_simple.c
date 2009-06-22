@@ -27,7 +27,9 @@
 #include "core/debug.h"
 #include "core/portio/named_pin.h"
 
+#include "protocols/ecmd/ecmd-base.h"
 #include "ecmd_base.c"
+
 
 static char* parse_hex(char *text, uint8_t *value)
 {
@@ -48,7 +50,6 @@ static char* parse_hex(char *text, uint8_t *value)
     text++;
   }
   return text;
-  
 }
 
 
@@ -76,7 +77,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   {
     case 'g': getorset = 1; break;
     case 's': getorset = 0; break;
-    default: return -1;
+    default: return ECMD_ERR_PARSE_ERROR;
   }
   /* skip non spaces */
   while (*cmd != ' ')
@@ -95,7 +96,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
 #ifndef TEENSY_SUPPORT
     case 'A' : iotypeoffset = 3; cmd += 3; break;
 #endif
-    default: return -1;
+    default: return ECMD_ERR_PARSE_ERROR;
   }
   cmd ++;
   /* skip the rest of registertyp and spaces*/
@@ -104,7 +105,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   /* get the port number */
   cmd = parse_hex(cmd, &value);
   if (cmd == 0)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   /* translate it to the portaddress */
   switch (value)
   {
@@ -118,22 +119,22 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     case 1: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
     case 2: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
 #endif
-    default: return -1;
+    default: return ECMD_ERR_PARSE_ERROR;
   }
   ioptr += iotypeoffset;
 #ifndef TEENSY_SUPPORT
   if (iotypeoffset == 3) 
-    return print_port(output, len, value, ~sysmask);
+    return ECMD_FINAL(print_port(output, len, value, ~sysmask));
 #endif
   if(getorset)
-    /* wenn get request return the port value */
-    return print_port(output, len, value, *ioptr);
+    /* when get request return the port value */
+    return ECMD_FINAL(print_port(output, len, value, *ioptr));
   /* get register write value */
   cmd = parse_hex(cmd, &value);
   if (cmd == 0)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   /* if a mask value present get it */
   parse_hex(cmd, &mask);
   *ioptr = (*ioptr & ~(mask & sysmask)) | (value & mask & sysmask);
-  return 0;
+  return ECMD_FINAL_OK;
 }

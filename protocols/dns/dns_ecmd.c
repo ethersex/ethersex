@@ -32,6 +32,8 @@
 #include "resolv.h"
 #include "core/eeprom.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)
 {
@@ -43,16 +45,16 @@ int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)
     if (*cmd != '\0') {
 	/* try to parse ip */
 	if (parse_ip(cmd, &dnsaddr))
-	    return -1;
+	    return ECMD_ERR_PARSE_ERROR;
 
 	resolv_conf(&dnsaddr);
 
 	eeprom_save(dns_server, &dnsaddr, IPADDR_LEN);
 	eeprom_update_chksum();
-	return 0;
+	return ECMD_FINAL_OK;
     }
     else {
-	return print_ipaddr(resolv_getserver(), output, len);
+	return ECMD_FINAL(print_ipaddr(resolv_getserver(), output, len));
     }
 }
 
@@ -62,10 +64,10 @@ int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
   uip_ipaddr_t *addr = resolv_lookup (cmd);
 
   if (addr) {
-    return print_ipaddr (addr, output, len);
+    return ECMD_FINAL(print_ipaddr(addr, output, len));
   }
   else {
     resolv_query (cmd, NULL);
-    return snprintf_P (output, len, PSTR ("nslookup triggered, try again for result."));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("nslookup triggered, try again for result.")));
   }
 }

@@ -31,6 +31,9 @@
 #include "core/eeprom.h"
 #include "hardware/adc/kty/kty81.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
 #ifdef KTY_SUPPORT
@@ -48,7 +51,7 @@ int16_t parse_cmd_kty_get(char *cmd, char *output, uint16_t len)
       int16_t temp = temperatur(adc);
 
       temp2text(output, temp);
-      return 5;
+      return ECMD_FINAL(5);
     }
   }
   else {
@@ -63,9 +66,9 @@ int16_t parse_cmd_kty_get(char *cmd, char *output, uint16_t len)
       output += 6;
     }
     *output = '\0';
-    return 6 * ADC_CHANNELS;
+    return ECMD_FINAL(6 * ADC_CHANNELS);
   }
-  return -1;
+  return ECMD_ERR_PARSE_ERROR;
 }
 
 int16_t parse_cmd_kty_cal_get(char *cmd, char *output, uint16_t len)
@@ -73,7 +76,7 @@ int16_t parse_cmd_kty_cal_get(char *cmd, char *output, uint16_t len)
   int8_t cal;
   eeprom_restore_char(kty_calibration, &cal);
   itoa(cal, output, 10);
-  return strlen(output);
+  return ECMD_FINAL(strlen(output));
 }
 
 
@@ -87,15 +90,15 @@ int16_t parse_cmd_kty_calibration(char *cmd, char *output, uint16_t len)
       uint16_t adc = get_kty(*cmd - '0');
 
       if (kty_calibrate(adc)) {
-        return 0;
+        return ECMD_FINAL_OK;
       }
       else {
         strcpy_P (output, PSTR("Out of range"));
-        return 12; /* = strlen("Out of range") */
+        return ECMD_FINAL(12); /* = strlen("Out of range") */
       }
     }
   }
-  return -1;
+  return ECMD_ERR_PARSE_ERROR;
 }
 
 #endif

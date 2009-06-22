@@ -29,6 +29,8 @@
 
 #include "aliascmd.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 #ifdef ALIASCMD_SUPPORT
 
 #include "alias_defs.c"
@@ -98,14 +100,14 @@ parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
 	if (cmd[0] != 0x05) {
 		cmd[0] = 0x05;  //magic byte
 		cmd[1] = 0x00;
-		return -10 - snprintf_P(output, len, PSTR("aliases:"));
+		return ECMD_AGAIN(snprintf_P(output, len, PSTR("aliases:")));
 	} else {
 		char aliasname[20];
 		char aliascmd[50];
 		int i = cmd[1]++;
 		if (aliascmd_list(i, aliasname, aliascmd) == 0)
-			return 0;
-		return -10 - snprintf_P(output, len, PSTR("%s -> %s"), aliasname, aliascmd);
+			return ECMD_FINAL_OK;
+		return ECMD_AGAIN(snprintf_P(output, len, PSTR("%s -> %s"), aliasname, aliascmd));
 	}
 }
 

@@ -29,6 +29,9 @@
 #include "core/debug.h"
 #include "hardware/radio/rfm12/rfm12_ask.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef RFM12_ASK_SENDER_SUPPORT
 
 #ifdef RFM12_ASK_TEVION_SUPPORT
@@ -44,13 +47,13 @@ parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
   uint16_t cnt;
   uint8_t ret = sscanf_P (cmd, PSTR ("%u,%u,%u %u,%u %u %u"),&housecode_16_1, &housecode_16_2, &housecode_16_3, &command_16_1, &command_16_2, &delay, &cnt);
   if (ret != 7)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 
   uint8_t housecode[3]={housecode_16_1,housecode_16_2,housecode_16_3};
   uint8_t command[2]={command_16_1,command_16_2};
 
   rfm12_ask_tevion_send(housecode, command, delay, cnt);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif // RFM12_ASK_TEVION_SUPPORT
 
@@ -66,12 +69,12 @@ int16_t
   uint16_t cnt;
   uint8_t ret = sscanf_P (cmd, PSTR ("%u,%u,%u %u %u"),&command_16_0, &command_16_1, &command_16_2, &delay, &cnt);
   if (ret != 5)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 
   uint8_t command[3]={command_16_0,command_16_1,command_16_2};
 
   rfm12_ask_2272_send(command, delay, cnt);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif // RFM12_ASK_2272_SUPPORT
 #endif  /* RFM12_ASK_SENDER_SUPPORT */
@@ -89,7 +92,7 @@ int16_t
   else
     rfm12_ask_external_filter_init();
 
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif  /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
 
@@ -102,6 +105,6 @@ parse_cmd_rfm12_ask_sense (char *cmd, char *output, uint16_t len)
   (void) len;
 
   rfm12_ask_sense_start ();
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif  /* RFM12_ASK_SENSING_SUPPORT */

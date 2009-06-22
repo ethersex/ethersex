@@ -27,6 +27,9 @@
 #include "core/debug.h"
 #include "cron.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 {
 	/* We can't output the whole cronjob list. Just print out the amount of jobs
@@ -38,15 +41,15 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	if (ret == 1)
 	{ // the user wants to know details
 		struct cron_event_linkedlist* jobll = cron_getjob(jobposition);
-		if (!jobll) return 0;
+		if (!jobll) return ECMD_FINAL_OK;
 		struct cron_event* job = &(jobll->event);
-		if (!job) return 0;
-		return snprintf_P(output, len, PSTR("Rep\thh:min\td.m\twod\n" "%i\t%i:%i\t%i.%i\t%i\n"), \
-			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek);
+		if (!job) return ECMD_FINAL_OK;
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("Rep\thh:min\td.m\twod\n" "%i\t%i:%i\t%i.%i\t%i\n"), \
+			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek));
 	}
 
 	// print out the amount of jobs
-	return snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs());
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs()));
 }
 
 int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
@@ -57,10 +60,10 @@ int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 	if (ret == 1)
 	{
 		cron_jobrm(cron_getjob(jobposition));
-		return snprintf_P(output, len, PSTR("rm cron %u"), jobposition);
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("rm cron %u"), jobposition));
 	} else {
 		while (head) cron_jobrm(head);
-		return snprintf_P(output, len, PSTR("rm all cron"));
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("rm all cron")));
 	}
 }
 

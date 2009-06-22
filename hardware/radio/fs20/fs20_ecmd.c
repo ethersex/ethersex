@@ -29,10 +29,12 @@
 #include "core/debug.h"
 #include "hardware/radio/fs20/fs20.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef FS20_SEND_SUPPORT
 int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
 {
-
 #ifdef DEBUG_ECMD_FS20
     debug_printf("called with string %s\n", cmd);
 #endif
@@ -49,18 +51,18 @@ int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
 #endif
 
         fs20_send(hc, LO8(addr), LO8(c));
-        return 0;
+        return ECMD_FINAL_OK;
     }
 
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 
 }
 #endif /* FS20_SEND_SUPPORT */
 
+
 #ifdef FS20_RECEIVE_SUPPORT
 int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 {
-
     char *s = output;
     uint8_t l = 0;
     uint8_t outlen = 0;
@@ -98,15 +100,14 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
     /* clear queue */
     fs20_global.fs20.len = 0;
 
-    return outlen;
-
+    return ECM_FINAL(outlen);
 }
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 {
 
-    return snprintf_P(output, len,
+    return ECMD_FINAL(snprintf_P(output, len,
             PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
             fs20_global.ws300.temp,
             fs20_global.ws300.temp_frac,
@@ -114,7 +115,7 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
             fs20_global.ws300.wind,
             fs20_global.ws300.wind_frac,
             fs20_global.ws300.rain,
-            fs20_global.ws300.rain_value);
+            fs20_global.ws300.rain_value));
 
 }
 #endif /* FS20_RECEIVE_WS300_SUPPORT */

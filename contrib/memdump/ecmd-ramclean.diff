@@ -16,7 +16,7 @@ index 1abfe17..b24c42a 100644
 +    void (* reset)(void) = NULL;
 +    reset();
 +
-+    return 0;
++    return ECMD_FINAL_OK;
 +} /* }}} */
 +
  int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)

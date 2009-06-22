@@ -25,6 +25,9 @@
 
 #include "buttons.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 int16_t
 parse_cmd_push (char *cmd, char *output, uint16_t len)
 {
@@ -32,8 +35,8 @@ parse_cmd_push (char *cmd, char *output, uint16_t len)
   if (button < CONF_NUM_BUTTONS)
     {
       hook_buttons_input_call (button);
-      return 0;
+      return ECMD_FINAL_OK;
     }
 
-  return -1;
+  return ECMD_ERR_PARSE_ERROR;
 }

@@ -29,6 +29,7 @@
 #include "protocols/uip/uip.h"
 #include "jabber.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 #include "known_buddies.c"
 
@@ -102,13 +103,14 @@ jabber_parse_ecmd (const char *from, char *message)
     } else {
       int16_t len = ecmd_parse_command(message, STATE->outbuf,
                                        ECMD_OUTPUTBUF_LENGTH - 1);
-      if (len <= -10) {
+      if (is_ECMD_AGAIN(len))
           JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
-          len = -len - 10;
+	  /* convert ECMD_AGAIN back to ECMD_FINAL */
+          len = ECMD_AGAIN(len);
       }
 
-      if (len < 0)
-          strcpy_P (STATE->outbuf, PSTR ("parse error"));
+      if (is_ECMD_ERR(len))
+          strcpy_P(STATE->outbuf, PSTR("parse error"));
       else
           STATE->outbuf[len] = 0;
     }

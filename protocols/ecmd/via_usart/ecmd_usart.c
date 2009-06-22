@@ -27,6 +27,7 @@
 #include "config.h"
 #include "ecmd_usart.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 #define USE_USART ECMD_SERIAL_USART_USE_USART
 #define BAUD ECMD_SERIAL_BAUDRATE
@@ -67,10 +68,12 @@ ecmd_serial_usart_periodic(void)
     }
 
     write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
-    if (write_len < -10) {
-      write_len = -( 10 + write_len);
+    if (is_ECMD_AGAIN(write_len)) {
+      /* convert ECMD_AGAIN back to ECMD_FINAL */
+      write_len = ECMD_AGAIN(write_len);
       must_parse = 1;
-    } else if (write_len < 0)
+    }
+    else if (is_ECMD_ERR(write_len))
       return;
     else {
       recv_len = 0;

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "ecmd_i2c.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 static char recv_buffer[ECMD_I2C_BUFFER_LEN];
 static char write_buffer[ECMD_I2C_BUFFER_LEN];
@@ -72,10 +73,12 @@ ecmd_serial_i2c_periodic(void)
 
     write_len = ecmd_parse_command(recv_buffer, write_buffer, sizeof(write_buffer));
     parse = 0;
-    if (write_len < -10) {
-      write_len = - ( 10 + write_len );
+    if (is_ECMD_AGAIN(write_len)) {
+      /* convert ECMD_AGAIN back to ECMD_FINAL */
+      write_len = ECMD_AGAIN(write_len);
       parse = 1;
-    } else if (write_len < 0)
+    }
+    else if (is_ECMD_ERR(write_len))
        return;
     else
        recv_len = 0;

@@ -28,6 +28,9 @@
 #include "core/debug.h"
 #include "modbus.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #define STATE(a) ((a)->appstate.modbus)
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'a'))
 
@@ -39,9 +42,10 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
   uint8_t cmd_len = strlen(cmd);
   uint8_t i;
 
-  if ((cmd_len % 2) != 0) return -1;
+  if ((cmd_len % 2) != 0)
+    return ECMD_ERR_PARSE_ERROR;
   if (modbus_recv_len_ptr)
-    return snprintf_P(output, len, PSTR("modbus error: bus busy"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("modbus error: bus busy")));
 
 
   char hex[] = {0, 0, 0};
@@ -64,14 +68,14 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 
 
   if (recv_len == -1)
-    return snprintf_P(output, len, PSTR("modbus error: no answer"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("modbus error: no answer")));
 
   uint16_t crc = modbus_crc_calc(buffer, recv_len - 2);
   uint16_t crc_recv =
           ((buffer[recv_len - 1])  << 8)
           | (buffer[recv_len - 2]);
   if (crc != crc_recv)
-    return snprintf_P(output, len, PSTR("modbus error: crc error"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("modbus error: crc error")));
 
   for (i = 0; i < recv_len - 2; i++) {
     if ((len - i*2) < 2) break;
@@ -79,6 +83,6 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
     output[i * 2 + 1] = NIBBLE_TO_HEX(buffer[i] & 0x0f);
   }
 
-  return i * 2;
+  return ECMD_FINAL(i * 2);
 }
 #endif

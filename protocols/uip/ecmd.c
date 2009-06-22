@@ -31,6 +31,8 @@
 #include "protocols/uip/parse.h"
 #include "core/eeprom.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 #ifndef TEENSY_SUPPORT
 
@@ -59,10 +61,10 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 	if (ret >= 0) {
 	    eeprom_save(mac, &new_mac, 6);
 	    eeprom_update_chksum();
-	    return 0;
+	    return ECMD_FINAL_OK;
 	}
 	else
-	    return ret;
+	    return ECMD_ERR_PARSE_ERROR;
     }
     else
 #endif /* DISABLE_IPCONF_SUPPORT */
@@ -72,7 +74,7 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 
 	eeprom_restore(mac, saved_mac, 6);
 
-	return print_mac(&buf, output, len);
+	return ECMD_FINAL(print_mac(&buf, output, len));
     }
 }
 #endif /* ENC28J60_SUPPORT */
@@ -90,12 +92,12 @@ int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     if (*cmd != '\0') {
         /* try to parse ip */
         if (parse_ip(cmd, &hostaddr))
-	    return -1;
+	    return ECMD_ERR_PARSE_ERROR;
 
         eeprom_save(ip, &hostaddr, IPADDR_LEN);
         eeprom_update_chksum();
 
-        return 0;
+        return ECMD_FINAL_OK;
     }
     else
 #endif /* IPv4-static || IPv6-static || OpenVPN */
@@ -103,7 +105,7 @@ int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
     {
         uip_gethostaddr(&hostaddr);
 
-        return print_ipaddr(&hostaddr, output, len);
+        return ECMD_FINAL(print_ipaddr(&hostaddr, output, len));
     }
 }
 
@@ -120,12 +122,12 @@ int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
     if (*cmd != '\0') {
         /* try to parse ip */
         if (parse_ip (cmd, &netmask))
-	    return -1;
+	    return ECMD_ERR_PARSE_ERROR;
 
         eeprom_save(netmask, &netmask, IPADDR_LEN);
         eeprom_update_chksum();
 
-        return 0;
+        return ECMD_FINAL_OK;
     }
     else
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
@@ -133,7 +135,7 @@ int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
     {
         uip_getnetmask(&netmask);
 
-        return print_ipaddr(&netmask, output, len);
+        return ECMD_FINAL(print_ipaddr(&netmask, output, len));
     }
 }
 #endif /* !IPV6_SUPPORT */
@@ -150,12 +152,12 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     if (*cmd != '\0') {
         /* try to parse ip */
         if (parse_ip (cmd, &gwaddr))
-	    return -1;
+	    return ECMD_ERR_PARSE_ERROR;
 
         eeprom_save(gateway, &gwaddr, IPADDR_LEN);
         eeprom_update_chksum();
 
-        return 0;
+        return ECMD_FINAL_OK;
     }
     else
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
@@ -164,7 +166,7 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     uip_ipaddr_t gwaddr;
         uip_getdraddr(&gwaddr);
 
-        return print_ipaddr(&gwaddr, output, len);
+        return ECMD_FINAL(print_ipaddr(&gwaddr, output, len));
     }
 }
 
@@ -249,11 +251,10 @@ int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
     cmd[2] = 0;
     cmd[1] ++;
     if (cmd[1] == STACK_LEN)
-      return len;
+      return ECMD_FINAL(len);
   }
 
-  return - 10 - len;
-
+  return ECMD_AGAIN(len);
 }
 #endif /* IPSTATS_SUPPORT */
 

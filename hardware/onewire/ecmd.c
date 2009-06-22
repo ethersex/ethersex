@@ -32,6 +32,9 @@
 #include "core/bit-macros.h"
 #include "hardware/onewire/onewire.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */
 int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
@@ -91,7 +94,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_ECMD_OW_LIST
             debug_printf("no devices on the bus\n");
 #endif
-            return 0;
+            return ECMD_FINAL_OK;
         }
     } else {
 #ifdef DEBUG_ECMD_OW_LIST
@@ -142,14 +145,14 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("returning %d\n", ret);
 #endif
-        return ret;
+        return ECMD_FINAL(ret);
 
     } else if (ret == 0) {
         ow_global.lock = 0;
-        return 0;
+        return ECMD_FINAL_OK;
     }
 
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
@@ -167,7 +170,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
     /* check for parse error */
     if (ret < 0)
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
     if (ow_temp_sensor(&rom)) {
         debug_printf("reading temperature\n");
@@ -184,7 +187,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
         if (ret != 1) {
             debug_printf("scratchpad read failed: %d\n", ret);
-            return -2;
+            return ECMD_ERR_READ_ERROR;
         }
 
         debug_printf("successfully read scratchpad\n");
@@ -199,7 +202,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
 	*(ptr ++) = '.';
 	itoa (HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
-	return strlen (output);
+	return ECMD_FINAL(strlen(output));
 #else
         ret = snprintf_P(output, len, PSTR("%3d.%1d"),
                 (int8_t) HI8(temp),  HI8(((temp & 0x00ff) * 10) + 0x80));
@@ -221,7 +224,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
         if (ret != 0) {
             debug_printf("mac read failed: %d\n", ret);
-            return -2;
+            return ECMD_ERR_READ_ERROR;
         }
 
         debug_printf("successfully read mac\n");
@@ -237,13 +240,13 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         debug_printf("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
 	strcpy_P (output, PSTR("unknown sensor type"));
-	return strlen (output);
+	return ECMD_FINAL(strlen(output));
 #else
         ret = snprintf_P(output, len, PSTR("unknown sensor type"));
 #endif
     }
 
-    return ret;
+    return ECMD_FINAL(ret);
 }
 
 
@@ -274,13 +277,13 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 
     if (ret == 1)
         /* done */
-        return 0;
+        return ECMD_FINAL_OK;
     else if (ret == -1)
         /* no device attached */
-        return -2;
+        return ECMD_ERR_READ_ERROR;
     else
         /* wrong rom family code */
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
 }
 #endif /* ONEWIRE_SUPPORT */

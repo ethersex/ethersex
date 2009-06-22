@@ -29,6 +29,8 @@
 #include "core/debug.h"
 #include "hardware/ir/rc5/rc5.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 #ifdef RC5_SUPPORT
 int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
@@ -45,10 +47,10 @@ int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
 
     /* check if two values have been given */
     if (ret != 2)
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
     rc5_send(LO8(addr), LO8(command));
-    return 0;
+    return ECMD_FINAL_OK;
 
 }
 
@@ -86,7 +88,7 @@ int16_t parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
     /* clear queue */
     rc5_global.len = 0;
 
-    return outlen;
+    return ECMD_FINAL(outlen);
 }
 #endif /* RC5_SUPPORT */
 

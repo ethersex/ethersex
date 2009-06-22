@@ -27,6 +27,9 @@
 #include "config.h"
 #include "core/debug.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
 
 #ifndef ADC_REF
@@ -44,7 +47,7 @@ int16_t parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
       channel = ADC_CHANNELS;
       goto adc_out; 
     } else 
-      return -1;
+      return ECMD_ERR_PARSE_ERROR;
   }
   for (channel = 0; channel < ADC_CHANNELS; channel ++) {
     ADMUX = (ADMUX & 0xF0) | channel | ADC_REF;
@@ -62,5 +65,5 @@ adc_out:
     ret += 4;
     output += 4;
   }
-  return ret;
+  return ECMD_FINAL(ret);
 }

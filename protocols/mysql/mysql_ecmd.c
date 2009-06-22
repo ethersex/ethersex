@@ -27,6 +27,9 @@
 #include "mysql.h"
 #include "emcd_parser/ecmd.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef MYSQL_SUPPORT
 
 int16_t
@@ -35,7 +38,7 @@ parse_cmd_mysql_query (char *cmd, char *output, uint16_t len)
   (void) output;
   (void) len;
 
-  return mysql_send_message (cmd) ? -1 : 0;
+  return mysql_send_message (cmd) ? ECMD_ERR_PARSE_ERROR : ECMD_FINAL_OK;
 }
 
 #endif	/* MYSQL_SUPPORT */

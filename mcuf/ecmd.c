@@ -25,6 +25,9 @@
 #include "mcuf/mcuf_modul.h"
 #include "core/debug.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef MCUF_SUPPORT
 #ifdef MCUF_CLOCK_SUPPORT
 int16_t parse_cmd_mcuf_show_clock(char *cmd, char *output, uint16_t len)
@@ -37,7 +40,7 @@ int16_t parse_cmd_mcuf_show_clock(char *cmd, char *output, uint16_t len)
     buffer = 3;
 
   mcuf_show_clock(buffer);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif
 
@@ -50,11 +53,11 @@ int16_t parse_cmd_mcuf_show_string(char *cmd, char *output, uint16_t len)
 
   uint8_t ret = sscanf_P (cmd, PSTR (" %s \n"),buffer);
   if (ret != 1)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 
   snprintf_P(buffer,34,PSTR("%s  "),cmd);
   mcuf_show_string(buffer);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif
 
@@ -74,7 +77,7 @@ int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
 #endif
   modul = mcuf_play_modul(mode, modul);
   mcuf_list_modul(title, modul);
-  return snprintf_P(output, len, PSTR("%i=%s"), modul, title);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%i=%s"), modul, title));
 }
 
 int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
@@ -85,14 +88,14 @@ int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
     cmd[0] = 0x05;  //magic byte
     cmd[1] = 0x00;
  
-    return -10 - snprintf_P(output, len, PSTR("available modules:\n"));
+    return ECMD_AGAIN(snprintf_P(output, len, PSTR("available modules:\n")));
 
   } else { 
     int i = cmd[1]++;
     if (mcuf_list_modul(title, i) == 0){
-      return 0;
+      return ECMD_FINAL_OK;
     }
-    return -10 - snprintf_P(output, len, PSTR("%i. %s"), i, title);
+    return ECMD_AGAIN(snprintf_P(output, len, PSTR("%i. %s"), i, title));
   }
 }
 

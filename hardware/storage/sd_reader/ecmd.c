@@ -26,13 +26,16 @@
 #include "hardware/storage/sd_reader/fat.h"
 #include "core/debug.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef SD_READER_SUPPORT
 
 int16_t
 parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
 {
   if (vfs_sd_rootnode == 0)
-    return snprintf_P (output, len, PSTR ("SD/MMC backend not available."));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("SD/MMC backend not available.")));
 
   if (cmd[0] != 0x05) {
     fat_reset_dir(vfs_sd_rootnode);
@@ -41,12 +44,12 @@ parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
 
   struct fat_dir_entry_struct dir_entry;
   if (! fat_read_dir(vfs_sd_rootnode, &dir_entry))
-    return 0;
+    return ECMD_FINAL_OK;
 
-  return -10 - snprintf_P (output, len, PSTR ("%32s%c %ld"),
-			   dir_entry.long_name,
-			   dir_entry.attributes & FAT_ATTRIB_DIR ? '/' : ' ',
-			   dir_entry.file_size);
+  return ECMD_AGAIN(snprintf_P(output, len, PSTR("%32s%c %ld"),
+			       dir_entry.long_name,
+			       dir_entry.attributes & FAT_ATTRIB_DIR ? '/' : ' ',
+			       dir_entry.file_size));
 }
 
 #endif  /* SD_READER_SUPPORT */

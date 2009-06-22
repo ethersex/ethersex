@@ -28,10 +28,13 @@
 #include "core/debug.h"
 #include "clock.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef CLOCK_DATETIME_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 {
-  return snprintf_P(output, len, PSTR("%lu"), clock_get_time());
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"), clock_get_time()));
 }
 
 int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
@@ -40,10 +43,9 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
   struct clock_datetime_t date;
   clock_current_localtime(&date);
 
-  return snprintf_P(output, len, PSTR("%.2d:%.2d:%.2d %.2d.%.2d.%.2d %s"),
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%.2d:%.2d:%.2d %.2d.%.2d.%.2d %s"),
                     date.hour, date.min, date.sec, date.day, date.month, date.year,
-                    weekdays + date.dow * 4);
-
+                    weekdays + date.dow * 4));
 }
 #endif /* ECMD_TIME_SUPPORT */
 

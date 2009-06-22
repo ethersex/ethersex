@@ -34,6 +34,9 @@
 #include "protocols/ecmd/aliascmd.h"
 #include "protocols/ecmd/parser.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #define xstr(s) str(s)
 #define str(s) #s
 
@@ -54,21 +57,21 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 #endif
 
 #ifdef ALIASCMD_SUPPORT
-  if (cmd[0] == '$') { // alias command names start with $
+    if (cmd[0] == '$') { // alias command names start with $
 #ifdef DEBUG_ECMD
-    debug_printf("try alias\n");
+        debug_printf("try alias\n");
 #endif
-	if (aliascmd_decode(cmd) ==NULL) {
+	if (aliascmd_decode(cmd) == NULL) {
 	    // command not found in alias list
 #ifdef DEBUG_ECMD
 	    debug_printf("Alias failed\n");
 #endif
 	}else{
 #ifdef DEBUG_ECMD
-    debug_printf("new command: %s\n", cmd);
+            debug_printf("new command: %s\n", cmd);
 #endif
 	}
-  }
+    }
 #endif
 
     if (strlen(cmd) < 2) {
@@ -120,13 +123,16 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     if (func != NULL)
         ret = func(cmd, output, len);
 
-    if (ret == -1 && output != NULL) {
-        memcpy_P(output, PSTR("parse error"), 11);
-        ret = 11;
-    } else if (ret == 0) {
-        output[0] = 'O';
-        output[1] = 'K';
-        ret = 2;
+    if (output != NULL) {
+        if (ret == -1) {
+            memcpy_P(output, PSTR("parse error"), 11);
+            ret = 11;
+        }
+        else if (ret == 0) {
+            output[0] = 'O';
+            output[1] = 'K';
+            ret = 2;
+        }
     }
 
     return ret;
@@ -143,7 +149,7 @@ int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
 #   ifdef UIP_SUPPORT
     uip_close();
 #   endif
-    return 0;
+    return ECMD_FINAL_OK;
 }
 #endif
 
@@ -170,9 +176,9 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 	heap: 10234
 	net: 500
 	*/
-	return snprintf_P(output, len,
+	return ECMD_FINAL(snprintf_P(output, len,
 		PSTR("free: %d/%d\nheap: %d\nnet: " xstr(NET_MAX_FRAME_LENGTH)),
-		SP-f, allram, f-(size_t)&__heap_start);
+		SP-f, allram, f-(size_t)&__heap_start));
 }
 
 #endif /* FREE_SUPPORT */
@@ -182,7 +188,7 @@ int16_t parse_cmd_version(char *cmd, char *output, uint16_t len)
 {
     (void) cmd;
 
-    return snprintf_P(output, len, PSTR("%s"), VERSION_STRING);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), VERSION_STRING));
 }
 
 #ifndef DISABLE_REBOOT_SUPPORT
@@ -196,7 +202,7 @@ int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 #ifdef UIP_SUPPORT
     uip_close();
 #endif
-    return 0;
+    return ECMD_FINAL_OK;
 }
 
 int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
@@ -205,7 +211,7 @@ int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
 #ifdef UIP_SUPPORT
     uip_close();
 #endif
-    return 0;
+    return ECMD_FINAL_OK;
 }
 #endif /* DISABLE_REBOOT_SUPPORT */
 
@@ -217,13 +223,13 @@ int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 
     uint16_t temp;
     if (sscanf_P (cmd, PSTR("%x"), &temp) != 1)
-      return -1;
+      return ECMD_ERR_PARSE_ERROR;
 
     unsigned char *ptr = (void *) temp;
     for (int i = 0; i < 16; i ++)
       sprintf_P (output + (i << 1), PSTR("%02x"), * (ptr ++));
 
-    return 32;
+    return ECMD_FINAL(32);
 }
 
 int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
@@ -241,7 +247,7 @@ int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
     memcpy_P (output, text, len);
 
     text = (char *) pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1]].name);
-    return text ? (-10 - len) : len;
+    return text ? ECMD_AGAIN(len) : ECMD_FINAL(len);
 }
 
 #endif /* TEENSY_SUPPORT */
@@ -254,7 +260,7 @@ int16_t parse_cmd_eeprom_reinit(char *cmd, char *output, uint16_t len)
     (void) len;
 
     eeprom_init ();
-    return 0;
+    return ECMD_FINAL_OK;
 }
 #endif  /* EEPROM_SUPPORT */
 

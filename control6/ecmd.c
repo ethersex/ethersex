@@ -27,16 +27,18 @@
 #include "core/debug.h"
 #include "control6.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 #ifdef C6_ECMD_USED
 int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 {
   uint8_t varvalue;
 
-  if (control6_get(cmd, &varvalue)) 
-    return snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue);
+  if (control6_get(cmd, &varvalue))
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue));
   else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
@@ -47,10 +49,10 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
   if (buf) {
     *(buf ++) = 0;
     varvalue = atoi (buf);
-    if (control6_set(cmd, varvalue)) 
-      return snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue);
+    if (control6_set(cmd, varvalue))
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue));
   }
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 #endif /* C6_ECMD_USED */

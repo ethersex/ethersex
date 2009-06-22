@@ -29,6 +29,8 @@
 #include "core/debug.h"
 #include "hardware/lcd/hd44780.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 #ifdef HD44780_SUPPORT
 int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
@@ -41,18 +43,18 @@ int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
 
     if (ret == 1) {
         if (line > 3)
-            return -1;
+            return ECMD_ERR_PARSE_ERROR;
 
         hd44780_goto(LO8(line), 0);
         for (uint8_t i = 0; i < 20; i++)
             fputc(' ', lcd);
         hd44780_goto(LO8(line), 0);
 
-        return 0;
+        return ECMD_FINAL_OK;
     } else {
         hd44780_clear();
         hd44780_goto(0, 0);
-        return 0;
+        return ECMD_FINAL_OK;
     }
 }
 
@@ -60,9 +62,9 @@ int16_t parse_cmd_lcd_write(char *cmd, char *output, uint16_t len)
 {
     if (strlen(cmd) > 1) {
         fputs(cmd+1, lcd);
-        return 0;
+        return ECMD_FINAL_OK;
     } else
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 }
 
 int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
@@ -82,16 +84,16 @@ int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
         debug_printf("going to line %u, pos %u\n", line, pos);
 
         hd44780_goto(LO8(line), LO8(pos));
-        return 0;
+        return ECMD_FINAL_OK;
     } else
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
 }
 
 int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) < 26) 
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   uint8_t n_char, data[8];
   int ret = sscanf_P(cmd, PSTR("%u %x %x %x %x %x %x %x %x"), &n_char,
                      &data[0], &data[1], &data[2], &data[3],
@@ -99,9 +101,9 @@ int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
 
   if (ret == 9) {
     hd44780_define_char(n_char, data);
-    return 0;
+    return ECMD_FINAL_OK;
   } else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
@@ -111,23 +113,23 @@ int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
   if ( ret == 2 ) {
     hd44780_init();
     hd44780_config(cursor, blink);
-    return 0;
+    return ECMD_FINAL_OK;
   } else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) < 1) 
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 
   if (!strncmp_P(cmd + 1, PSTR("right"), 5))
     hd44780_shift(1);
   else if (!strncmp_P(cmd + 1, PSTR("left"), 4)) 
     hd44780_shift(0);
   else
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
 
-  return 0;
+  return ECMD_FINAL_OK;
 }
 #endif /* HD44780_SUPPORT */

@@ -32,6 +32,9 @@
 #include "hardware/i2c/master/i2c_pca9531.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifdef I2C_DETECT_SUPPORT
 
 int16_t
@@ -46,9 +49,9 @@ parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
   cmd[1] = next_address + 1;
 
   if (next_address > 127) /* End of scaning */
-    return 0;
+    return ECMD_FINAL_OK;
   else
-    return -10 - snprintf_P(output, len, PSTR("detected at: 0x%x (%d)"), next_address, next_address);
+    return ECMD_AGAIN(snprintf_P(output, len, PSTR("detected at: 0x%x (%d)"), next_address, next_address));
 }
 
 #endif  /* I2C_DETECT_SUPPORT */
@@ -59,12 +62,12 @@ int16_t
 parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
 {
   while(*cmd == ' ') cmd++;
-  if (*cmd < '0' || *cmd > '7') return -1;
+  if (*cmd < '0' || *cmd > '7') return ECMD_ERR_PARSE_ERROR;
   int16_t temp = i2c_lm75_read_temp(I2C_SLA_LM75 + (cmd[0] - '0'));
   if (temp == 0xffff)
-    return snprintf_P(output, len, PSTR("no sensor detected"));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 
-  return snprintf_P(output, len, PSTR("%d.%d"), temp / 10, temp % 10);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%d.%d"), temp / 10, temp % 10));
 }
 
 #endif  /* I2C_LM75_SUPPORT */
@@ -88,7 +91,7 @@ parse_cmd_i2c_pca9531(char *cmd, char *output, uint16_t len)
 //  i2c_pca9531_set(I2C_SLA_PCA9531 + adr, period, duty, 0x00, 0x40, 0xEF, 0x55);
   i2c_pca9531_set(I2C_SLA_PCA9531 + adr, period1, duty1, period2, duty2, firstnibble, lastnibble);
 
-  return snprintf_P(output, len, PSTR("pwm ok"));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm ok")));
 }
 
 #endif  /* I2C_PCA9531_SUPPORT */
@@ -109,7 +112,7 @@ parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_I2C
   debug_printf("I2C PCF8574X IC address 0x%X\n", adr);
 #endif
-  return snprintf_P(output, len, PSTR("%X"), i2c_pcf8574x_read(adr));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), i2c_pcf8574x_read(adr)));
 }
 
 int16_t
@@ -130,7 +133,7 @@ parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 #endif
   i2c_pcf8574x_set(adr, value);
 
-  return snprintf_P(output, len, PSTR("%X"), value);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), value));
 }
 
 #endif  /* I2C_PCF8574X_SUPPORT */

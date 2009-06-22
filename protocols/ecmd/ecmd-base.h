@@ -43,13 +43,19 @@
 
 /* error codes; requirement: ECMD_AGAIN_MAGIC < error code < 0 */
 #define ECMD_ERR_PARSE_ERROR	-1	/* parse error */
-#define ECMD_ERR_READ_FAILED	-2	/* reading data failed */
-#define ECMD_ERR_WRITE_FAILED	-3	/* writing data failed */
+#define ECMD_ERR_READ_ERROR	-2	/* reading data failed */
+#define ECMD_ERR_WRITE_ERROR	-3	/* writing data failed */
 
 
-/* macros to check for calling the function again */
+/* macros to check the function results */
 
 /* Does the function want to be called again ? */
 #define is_ECMD_AGAIN(len)	(len <= _ECMD_AGAIN_MAGIC)
+
+/* Did the function finally end successfully ? */
+#define is_ECMD_FINAL(len)	(len >= 0)
+
+/* Did the function fail */
+#define is_ECMD_ERR(len)	(len > _ECMD_AGAIN_MAGIC && len < 0)
 
 #endif /* _ECMD_BASE_H */

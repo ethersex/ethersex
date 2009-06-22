@@ -26,6 +26,8 @@
 #include "config.h"
 #include "dc3840.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 /* USART cruft. */
 #define USE_USART DC3840_USE_USART
 #define BAUD 921600
@@ -252,14 +254,14 @@ int16_t
 parse_cmd_dc3840_sync (char *cmd, char *output, uint16_t len)
 {
   dc3840_init ();
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
 parse_cmd_dc3840_capture (char *cmd, char *output, uint16_t len)
 {
   dc3840_capture ();
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -271,10 +273,10 @@ parse_cmd_dc3840_send (char *cmd, char *output, uint16_t len)
   while (*cmd == ' ')
     cmd ++;
 
-#define tokenize(a)				\
-  if (!(ptr = strchr (cmd, ' '))) return -1;	\
-  *(ptr ++) = 0;				\
-  uint8_t a = atoi (cmd);			\
+#define tokenize(a)						\
+  if (!(ptr = strchr (cmd, ' '))) return ECMD_ERR_PARSE_ERROR;	\
+  *(ptr ++) = 0;						\
+  uint8_t a = atoi (cmd);					\
   cmd = ptr;			/* forward command to start of next token */
 
   tokenize (a);
@@ -283,7 +285,7 @@ parse_cmd_dc3840_send (char *cmd, char *output, uint16_t len)
   tokenize (d);
   uint8_t e = atoi (cmd);
 
-  return dc3840_send_command (a, b, c, d, e) ? -1 : 0;
+  return dc3840_send_command(a, b, c, d, e) ? ECMD_ERR_PARSE_ERROR : ECMD_FINAL_OK;
 }
 #endif	/* ECMD_PARSER_SUPPORT */
 

@@ -26,6 +26,7 @@
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/speed_parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 #include "config.h"
 
@@ -81,10 +82,11 @@ void uecmd_net_main() {
 	uip_slen = 0;
 	while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
 		int16_t len = ecmd_parse_command(cmd, ((char *)uip_appdata) + uip_slen,
-											(UIP_BUFSIZE - UIP_IPUDPH_LEN) - uip_slen);
+						 (UIP_BUFSIZE - UIP_IPUDPH_LEN) - uip_slen);
 		uint8_t real_len = len;
-		if (len < 0) {
-			real_len = (uint8_t)  -len - 10;
+		if (!is_ECMD_FINAL(len)) { /* what about the errors ? */
+			/* convert ECMD_AGAIN back to ECMD_FINAL */
+			real_len = (uint8_t) ECMD_AGAIN(len);
 		}
 		uip_slen += real_len + 1;
 		((char *)uip_appdata)[uip_slen - 1] = '\n';

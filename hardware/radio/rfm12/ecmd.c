@@ -25,14 +25,17 @@
 #include "core/debug.h"
 #include "hardware/radio/rfm12/rfm12.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 #ifndef TEENSY_SUPPORT
 #ifdef RFM12_SUPPORT
 
 int16_t 
 parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
 {
-    return snprintf_P (output, len, PSTR ("rfm12 status: %04x"),
-                       rfm12_get_status ());
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("rfm12 status: %04x"),
+                                 rfm12_get_status()));
 }
 
 #endif /* RFM12_SUPPORT */
@@ -49,10 +52,10 @@ parse_cmd_rfm12_setbaud(char *cmd, char *output, uint16_t len)
     uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &baud);
 
     if (ret != 1)
-        return -1;
+        return ECMD_ERR_PARSE_ERROR;
 
     rfm12_setbaud (baud);
-    return 0;
+    return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -65,10 +68,10 @@ parse_cmd_rfm12_setbandwidth(char *cmd, char *output, uint16_t len)
   uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &bandwidth);
   
   if (ret != 1)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   
   rfm12_setbandwidth(bandwidth, rfm12_gain, rfm12_drssi);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -81,10 +84,10 @@ parse_cmd_rfm12_setgain(char *cmd, char *output, uint16_t len)
   uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &gain);
   
   if (ret != 1)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   
   rfm12_setbandwidth(rfm12_bandwidth, gain, rfm12_drssi);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -97,10 +100,10 @@ parse_cmd_rfm12_setdrssi(char *cmd, char *output, uint16_t len)
   uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &drssi);
   
   if (ret != 1)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   
   rfm12_setbandwidth(rfm12_bandwidth, rfm12_gain, drssi);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 
@@ -114,10 +117,10 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
   uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &mod);
   
   if (ret != 1)
-    return -1;
+    return ECMD_ERR_PARSE_ERROR;
   
   rfm12_setpower(0, mod);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 #endif /* RFM12_IP_SUPPORT */

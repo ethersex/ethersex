@@ -23,6 +23,7 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 #include "hardware/lcd/s1d15g10/s1d15g10.h"
 
 #define noinline __attribute__((noinline))
@@ -119,11 +120,11 @@ debug_process_uart (void)
 
             do {
                 l = ecmd_parse_command(buf, output, LEN);
-                if (l > 0 || l < -10) {
-		    output[(l < 0) ? (-l - 10) : l] = 0;
+                if (is_ECMD_FINAL(l) || is_ECMD_AGAIN(l)) {
+                    output[is_ECMD_AGAIN(l) ? ECMD_AGAIN(l) : l] = 0;
                     printf_P(PSTR("%s\n"), output);
                 }
-            } while (l <= -10);
+            } while (is_ECMD_AGAIN(l));
             free(output);
             ptr = buf;
         } else {

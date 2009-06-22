@@ -29,6 +29,8 @@
 #include "protocols/dns/resolv.h"
 #include "ntp.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 
 int16_t parse_cmd_ntp_server(char *cmd, char *output, uint16_t len)
 {
@@ -48,16 +50,16 @@ int16_t parse_cmd_ntp_server(char *cmd, char *output, uint16_t len)
 	    else
 		ntp_conf(ip);
 #else
-	    return -1;
+	    return ECMD_ERR_PARSE_ERROR;
 #endif
 	}
 	else
 	    ntp_conf(&ntpaddr);
 
-	return 0;
+	return ECMD_FINAL_OK;
     }
     else {
-	return print_ipaddr(ntp_getserver(), output, len);
+	return ECMD_FINAL(print_ipaddr(ntp_getserver(), output, len));
     }
 }
 
@@ -65,6 +67,6 @@ int16_t parse_cmd_ntp_query(char *cmd, char *output, uint16_t len)
 {
     ntp_send_packet();
 
-    return 0;
+    return ECMD_FINAL_OK;
 }
 

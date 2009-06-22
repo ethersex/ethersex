@@ -32,6 +32,9 @@
 #include "scripting.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
+
 // read a line from file "handle", stored in "line", starting at "pos"
 int16_t 
 vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
@@ -72,7 +75,7 @@ parse_cmd_goto(char *cmd, char *output, uint16_t len)
   char line[ECMD_INPUTBUF_LENGTH];
 
   if (current_script.handle == NULL) {
-      return snprintf_P(output, len, PSTR("no script"));
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("no script")));
   }
   sscanf_P(cmd, PSTR("%i"), &gotoline);
 
@@ -86,20 +89,20 @@ parse_cmd_goto(char *cmd, char *output, uint16_t len)
   while ( current_script.linenumber != gotoline ) {
     readline(line);
   }
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
 parse_cmd_exit(char *cmd, char *output, uint16_t len)
 {
   if (current_script.handle == NULL) {
-      return snprintf_P(output, len, PSTR("no script"));
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("no script")));
   }
   vfs_close(current_script.handle);
   current_script.handle = NULL;
   current_script.linenumber = 0;
   current_script.filepointer = 0;
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -119,7 +122,7 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   current_script.handle = vfs_open(filename);
 
   if (current_script.handle == NULL)
-    return 1;
+    return ECMD_FINAL(1);
   
   filesize = vfs_size(current_script.handle);
 
@@ -150,7 +153,7 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
 
   parse_cmd_exit(cmd, output, len);
 
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -162,7 +165,7 @@ parse_cmd_wait(char *cmd, char *output, uint16_t len)
   debug_printf("wait %ims\n", delay);
 #endif // DEBUG_ECMD_SCRIPT
   _delay_ms(delay);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -172,11 +175,11 @@ parse_cmd_set(char *cmd, char *output, uint16_t len)
   char value[10];
   sscanf_P(cmd, PSTR("%i %s"), &pos, &value);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
-    return snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
 
   strcpy(vars[pos].value, value);
-  return snprintf_P(output, len, PSTR("%%%i set to %s"), pos, vars[pos].value);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%%%i set to %s"), pos, vars[pos].value));
 }
 
 int16_t
@@ -185,9 +188,9 @@ parse_cmd_get(char *cmd, char *output, uint16_t len)
   uint8_t pos;
   sscanf_P(cmd, PSTR("%i"), &pos);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
-    return snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
-  return snprintf_P(output, len, PSTR("%s"), vars[pos].value);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), vars[pos].value));
 }
 
 int16_t
@@ -196,11 +199,11 @@ parse_cmd_inc(char *cmd, char *output, uint16_t len)
   uint8_t pos;
   sscanf_P(cmd, PSTR("%i"), &pos);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
-    return snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
   uint16_t value = atoi(vars[pos].value);
   itoa(value + 1, vars[pos].value, 10);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -209,11 +212,11 @@ parse_cmd_dec(char *cmd, char *output, uint16_t len)
   uint8_t pos;
   sscanf_P(cmd, PSTR("%i"), &pos);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
-    return snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
   uint16_t value = atoi(vars[pos].value);
   itoa(value - 1, vars[pos].value, 10);
-  return 0;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -231,7 +234,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_ECMD_SCRIPT
     debug_printf("cmd not found\n");
 #endif // DEBUG_ECMD_SCRIPT
-    return 1;
+    return ECMD_FINAL(1);
   }
   ecmd+=5;
   
@@ -253,7 +256,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_ECMD_SCRIPT
       debug_printf("compare wrong\n");
 #endif // DEBUG_ECMD_SCRIPT
-      return 1;
+      return ECMD_FINAL(1);
     }
   }
 #ifdef DEBUG_ECMD_SCRIPT
@@ -317,7 +320,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
       success = (outputvalue <= konstvalue);
     } else {
       debug_printf("unknown comparator: %s\n", comparator);
-      return 3;
+      return ECMD_FINAL(3);
     }
   }
   // if compare ok, execute command after then
@@ -329,28 +332,28 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_ECMD_SCRIPT
       debug_printf("done: %s\n", output);
 #endif // DEBUG_ECMD_SCRIPT
-      return snprintf_P(output, len, PSTR("%s"), output);
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), output));
     }
-    return 2;
+    return ECMD_FINAL(2);
   }
 #ifdef DEBUG_ECMD_SCRIPT
       debug_printf("success was: %i\n", success);
 #endif // DEBUG_ECMD_SCRIPT
-  return 1;
+  return ECMD_FINAL(1);
 }
 
 // do nothing but provides comments in scripting
 int16_t
 parse_cmd_rem(char *cmd, char *output, uint16_t len)
 {
-    return 0;
+    return ECMD_FINAL_OK;
 }
 
 // hello echo!
 int16_t
 parse_cmd_echo(char *cmd, char *output, uint16_t len)
 {
-      return snprintf_P(output, len, PSTR("%s"), cmd);
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), cmd));
 }
 
 
