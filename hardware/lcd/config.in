@@ -13,7 +13,6 @@
     dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
     dep_bool "Use Port C (instead of Port A)" HD44780_USE_PORTC $HD44780_SUPPORT
 
-    dep_bool "Menu System" LCD_MENU_SUPPORT $HD44780_SUPPORT
   endmenu
 
 
