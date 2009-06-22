@@ -2,6 +2,7 @@
 # Conditionals
 ################################
 define(`ON', `if (')
+define(`UNLESS', `if (! ')
 define(`DO', `ifelse(`$#', 0, `) {', `THREAD($1)divert(normal_divert)) { THREAD_START($1) }divert(action_divert)')')
 define(`END', `ifelse(`$#', 0, `}', `THREAD_END($1)}')')
 define(`BETWEEN', `$1 > $2 && $1 < $3')
