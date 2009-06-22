@@ -21,11 +21,16 @@ define(`DIE', `errprint(`ERROR: $1
 
 define(`THREAD_END', `undefine(`action_thread_ident')divert(action_divert)dnl
 dnl PT_WAIT_WHILE(pt, 1);
-  PT_END(pt);
+  PT_RESTART(pt);
+  PT_END(pt);		/* mmh, not really nice, since not reached.
+			   I hope the compiler is intelligent enough *g*  */
 }
 
 divert(normal_divert)')
-define(`THREAD_DO', `action_thread_$1(&action_threads[action_thread_$1_idx].pt);')
+define(`THREAD_DO', `dnl
+action_threads[action_thread_$1_idx].started =
+  (PT_SCHEDULE (action_thread_$1(&action_threads[action_thread_$1_idx].pt)));')
+
 define(`THREAD_START',  `action_threads[action_thread_$1_idx].started = 1;')
 define(`THREAD_STOP',  `action_threads[action_thread_$1_idx].started = 0;')
 define(`THREAD_WAIT',  `action_threads[action_thread_$1_idx].started = 0;
