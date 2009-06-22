@@ -15,8 +15,7 @@ undefine(`substr')dnl
     <script type="text/javascript"><![CDATA[
 var num = 8;
 var min = -10, max = 50;
-var g = new Array(num);
-var colors = [ "red", "blue", "green", "lime", "purple", "maroon", "navy", "yellow" ];
+var g;
 var sensors;
 
 function ecmd_1w_list_req() {
@@ -51,16 +50,13 @@ function ecmd_1w_get_req_handler(request, data) {
 	cell.innerHTML = request.responseText + '°C';
 
 	if (data < num) {
-		cell.style.color = colors[data];
-		var value = parseInt(request.responseText);
-		graphAppend(g[data], value);
+		cell.style.color = g[data].color;
+		g[data].append(parseInt(request.responseText));
 	}
 }
 
 window.onload = function() {
-	graphCreateAxis("axis", "text", min, max);
-	for (var i = 0; i < num; i++)
-		g[i] = new Graph("grph" + i, 40, min, max);
+	g = initDiagram(num, "grph#", "axis", "text", min, max);
 	ecmd_1w_list_req();
 }
 ]]></script>
