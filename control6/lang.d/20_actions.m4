@@ -38,6 +38,8 @@ struct action {
   struct pt pt;
 };
 
+define(`THREAD_EXIT', `PT_EXIT (pt);')
+
 define(`THREAD_STARTED', `action_threads[action_thread_$1_idx].started')
 
 divert(-1)
