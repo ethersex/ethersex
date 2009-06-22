@@ -31,6 +31,9 @@ uint8_t tty_image[LINES * COLS];
 WINDOW tty_mainwin;
 uint8_t tty_ll_y, tty_ll_x;
 
+/* The input fifo queue.  Fill it with _getch_queue. */
+static char tty_input_queue[8];
+
 #define map(win,y,x)	(tty_image[((y) + (win)->begy) * COLS +	\
 				   ((x) + (win)->begx)])
 
@@ -66,8 +69,8 @@ tty_ll_goto (uint8_t y, uint8_t x)
 inline static void
 tty_ll_put (uint8_t y, uint8_t x, uint8_t ch)
 {
-  TTYDEBUG ("tty_ll_put: %c to %i,%i, cursor is at %i,%i \n",
-	    ch, y, x, tty_ll_y, tty_ll_x);
+  TTYDEBUG_MAP ("tty_ll_put: %c to %i,%i, cursor is at %i,%i \n",
+		ch, y, x, tty_ll_y, tty_ll_x);
 
   if (y != tty_ll_y || x != tty_ll_x)
     tty_ll_goto (y, x);
@@ -166,7 +169,7 @@ wscroll (WINDOW *win, uint8_t lines)
 
   for (uint8_t y = 0; y <= win->maxy - lines; y ++)
     {
-      TTYDEBUG ("wscroll: copying y=%d\n", y);
+      TTYDEBUG_MAP ("wscroll: copying y=%d\n", y);
       wmove (win, y, 0);
       for (uint8_t x = 0; x <= win->maxx; x ++)
 	waddch (win, map (win, y + lines, win->x)); /* Copy content. */
@@ -181,12 +184,13 @@ wscroll (WINDOW *win, uint8_t lines)
 void
 waddch (WINDOW *win, const char ch)
 {
-  TTYDEBUG ("waddch: ch='%c', y=%d, x=%d\n", ch, win->y, win->x);
+  TTYDEBUG_MAP ("waddch: w=%p, ch='%c', y=%d, x=%d\n",
+		win, ch, win->y, win->x);
 
   if (win->y > win->maxy)
     {
-      TTYDEBUG ("waddch: y=%d, x=%d, need to scroll, ok=%d\n",
-		win->y, win->x, win->scrollok);
+      TTYDEBUG_MAP ("waddch: y=%d, x=%d, need to scroll, ok=%d\n",
+		    win->y, win->x, win->scrollok);
 
       /* Cursor out of window, ... */
       if (! win->scrollok)
@@ -209,8 +213,8 @@ waddch (WINDOW *win, const char ch)
       break;
 
     default:			/* Print everything else. */
-      TTYDEBUG ("  -> map[%2d,%2d] = '%c'\n", win->y + win->begy,
-		win->x + win->begx, ch);
+      TTYDEBUG_MAP ("  -> map[%2d,%2d] = '%c'\n", win->y + win->begy,
+		    win->x + win->begx, ch);
       if (map (win, win->y, win->x) != ch)
 	{
 	  map (win, win->y, win->x) = ch;
@@ -301,7 +305,43 @@ subwin (WINDOW *win, uint8_t lines, uint8_t cols, uint8_t begy, uint8_t begx)
   newwin->begy = begy;
   newwin->begx = begx;
 
+  TTYDEBUG ("new subwin (%p): pos %i:%i, size %ix%i\n",
+	    newwin, begy, begx, cols, lines);
   return newwin;
+}
+
+char
+getch (void)
+{
+  char ch = tty_input_queue[0];
+
+  if (ch)
+    {
+      uint8_t len = strlen (tty_input_queue);
+      memmove (tty_input_queue, tty_input_queue + 1, len);
+
+      TTYDEBUG ("getch: de-queueing char '%c' (= %d)\n", ch, ch);
+    }
+
+  return ch;
+}
+
+uint8_t
+_getch_queue (char ch)
+{
+  uint8_t len = strlen (tty_input_queue);
+
+  if (len + 1 < sizeof (tty_input_queue))
+    {
+      TTYDEBUG ("getch: pushing char '%c' (= %d) to queue.\n", ch, ch);
+
+      tty_input_queue[len] = ch;
+      tty_input_queue[len + 1] = 0;
+
+      return 0;
+    }
+
+  return 1;			/* buffer space exceeded */
 }
 
 

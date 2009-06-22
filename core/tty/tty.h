@@ -33,6 +33,13 @@
 # define TTYDEBUG(a...)
 #endif
 
+#ifdef DEBUG_TTY_LAYER_MAP
+# include "core/debug.h"
+# define TTYDEBUG_MAP(a...)  debug_printf("tty: " a)
+#else
+# define TTYDEBUG_MAP(a...)
+#endif
+
 /* The (one and only) off-screen image. */
 extern uint8_t tty_image[LINES * COLS];
 
@@ -95,6 +102,9 @@ void wprintw (WINDOW *, const char *, ...);
 #define mvwaddstr_P(w,str)	do { wmove(w,y,x); waddstr_P(w,str); } while(0)
 #define mvwprintw(w,y,x,str...)	do { wmove(w,y,x); wprintw(w,str); } while(0)
 
+/* Input */
+char getch (void);
+uint8_t _getch_queue (char);
 
 /* Clearing, etc. */
 void wclear (WINDOW *);

@@ -35,15 +35,24 @@ WINDOW *c6win = curscr;
 divert(old_divert)')')
 
 define(`TTY_CLEAR', `TTY_USED()wclear(c6win);')
+define(`TTY_CLRTOEOL', `TTY_USED()wclrtoeol(c6win);')
 define(`TTY_GOTO', `TTY_USED()wmove(c6win,$1,$2);')
 define(`TTY_HOME', `TTY_USED()wmove(c6win,0,0);')
 
 define(`TTY_WRITE', `TTY_USED()waddstr_P(c6win,PSTR($1));')
 define(`TTY_WRITE_TIME', `TTY_USED()wprintw(c6win,"%02d:%02d:%02d", CLOCK_HOUR(), CLOCK_MIN(), CLOCK_SEC());')
 
-define(`TTY_CREATE_WINDOW', `TTY_USED()dnl
+define(`TTY_CREATE_WINDOW_NOSEL', `TTY_USED()dnl
 define(`old_divert', divnum)dnl
 divert(globals_divert)WINDOW *c6win_$1;
 divert(init_divert)c6win_$1 = subwin(curscr, $2, $3, $4, $5);
-divert(old_divert)TTY_SELECT($1)')
+divert(old_divert)')
+
+define(`TTY_CREATE_WINDOW', `dnl
+TTY_CREATE_WINDOW_NOSEL($*)
+TTY_SELECT($1)')
+
+
 define(`TTY_SELECT', `TTY_USED()c6win = c6win_$1;')
+
+define(`TTY_GETCH', `TTY_USED()getch()')

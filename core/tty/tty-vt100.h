@@ -22,6 +22,14 @@
 #ifndef TTY_VT100_H
 #define TTY_VT100_H
 
+#ifdef DEBUG_TTY_LAYER_MAP
+# include "core/debug.h"
+# define VT100DEBUG(a...)  debug_printf("vt100: " a)
+#else
+# define VT100DEBUG(a...)
+#endif
+
+
 #include <avr/pgmspace.h>
 
 extern char vt100_buf[COLS * LINES];

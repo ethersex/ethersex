@@ -40,7 +40,7 @@ vt100_putbuf (char ch)
 static inline void
 vt100_putstr (char *p)
 {
-  TTYDEBUG ("vt100_putstr: %s\n", p);
+  VT100DEBUG ("vt100_putstr: %s\n", p);
   for (; *p; p ++)
     vt100_putbuf (*p);
 }
@@ -49,7 +49,7 @@ static inline void
 vt100_putstr_P (PGM_P p)
 {
   char ch;
-  TTYDEBUG ("vt100_putstr_P: %S\n", p);
+  VT100DEBUG ("vt100_putstr_P: %S\n", p);
   for (; (ch = pgm_read_byte (p)); p ++)
     vt100_putbuf (*p);
 }

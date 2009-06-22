@@ -56,6 +56,13 @@ tty_vt100_main (void)
       STATE->acked = STATE->sent;
     }
 
+  if (uip_newdata ())
+    {
+      uint8_t len = uip_len;
+      for (uint8_t i = 0; i < len; i ++)
+	_getch_queue (((char *) uip_appdata)[i]);
+    }
+
   if (uip_rexmit() || uip_newdata() || uip_acked() || uip_connected()
       || uip_poll())
     {
