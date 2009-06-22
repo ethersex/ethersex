@@ -1,0 +1,38 @@
+#! /bin/sh
+unset LANG
+
+[ -e config.in ] || {
+  echo "$0: This script has to be run from the Ethersex root directory."
+  exit 1
+}
+
+regenerate() {
+  [ -e "$1" ] || {
+    echo "$0: Cannot access file: $1"
+    exit 1
+  }
+
+  cp -f "$1" .config
+
+  # re-generate .config
+  rm -f autoconf.h
+  echo -ne "\t\n\n" | make no_deps=t menuconfig
+  [ -e autoconf.h ] || {
+    echo "$0: failed to generate autoconf.h file."
+    exit 1
+  }
+
+  cp -f .config "$1"
+}
+
+
+if [ "x$1" = "x" ]; then
+  echo "$0: Running in automatic mode, updating all profiles:"
+  for A in contrib/autotest/profiles/* scripts/profiles/*; do
+    echo " - $A"
+    regenerate "$A"
+  done
+else
+  regenerate "$1"
+fi
+
