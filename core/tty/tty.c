@@ -19,6 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/pgmspace.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
