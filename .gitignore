@@ -1,9 +1,14 @@
+.*.swp
+config.mk
+*~
+*.E
 *.o
 *.d
 autoconf.h
 .config*
 .menuconfig.log
 .menuconfig.old
+control6/control6.c
 control6/control6.h
 MCmenu
 MCradiolists
@@ -21,3 +26,7 @@ contrib/stella/stella_test
 contrib/rfm12_ask/ecmd_speed/rfm12ask_send
 protocols/ecmd/ecmd_defs.c
 core/vfs/vfs-concat
+*.orig
+*.old
+*.rej
+*.hex
