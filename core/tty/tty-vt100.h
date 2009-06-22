@@ -22,6 +22,8 @@
 #ifndef TTY_VT100_H
 #define TTY_VT100_H
 
+#include <avr/pgmspace.h>
+
 extern char vt100_buf[COLS * LINES];
 extern char *vt100_head;
 #define vt100_end (&vt100_buf[sizeof(vt100_buf)])

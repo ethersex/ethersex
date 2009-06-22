@@ -19,6 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdio.h>
+
 #include "core/tty/tty.h"
 #include "core/tty/tty-vt100.h"
 
