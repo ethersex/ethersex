@@ -19,7 +19,6 @@ dnl  For more information on the GPL, please go to:
 dnl  http://www.gnu.org/copyleft/gpl.html
 dnl
 
-
 dnl Print the message $1 to the ``parent line'' of the menu.  $1 is a PGM_P
 dnl to the message.
 define(`_MENU_PRINT_PARENT', `dnl
@@ -53,36 +52,63 @@ define(`_MENUITEM', `
 define(`thismenu', `menu'__line__)thismenu:
 	_MENU_PRINT_MAIN($1)
 
+	/* Read byte from TTY input buffer */
 	{ uint8_t ch;
 	PT_WAIT_UNTIL(pt, (ch = TTY_GETCH()));
-	switch (ch) {
-	case 106: 	/* j -> down */
-		break;	/* we just wanna fall through to the next menuitem ... */
 
-	case 107: 	/* k -> up */
+	if (ch == 107)		/* k -> up */
 		goto prevmenu;	/* jump up to the previous item ... */
 
-	case 10: 	/* return -> action */
+	else if (ch == 10) 	/* return -> action */
 		{ $2 }
-		_MENU_EXIT()
 
-	default:	/* invalid response -> ignore */
+	else if (ch != 106)	/* invalid response -> ignore */
 		goto thismenu;	/* jump to current item -> try next char */
-	}}
-define(`prevmenu', thismenu) /* end of prevmenu ($1) */
+
+	/* handled everything except ch == 106 --> fall through */
+	}
+#undef prevmenu
+`#define prevmenu' thismenu
 ')
 
 
 dnl ==========================================================================
 dnl MENUITEM(NAME, ACTIONS)
 dnl ==========================================================================
-define(`MENUITEM', `_MENUITEM(PSTR ($1), $2)')
+define(`MENUITEM', `_MENUITEM(PSTR ($1), $2
+		_MENU_EXIT()
+)')
+
+
+dnl ==========================================================================
+dnl SUBMENU(NAME, ITEMS)
+dnl ==========================================================================
+define(`SUBMENU', `dnl
+define(`submenu', `submenu_name'__line__)dnl
+`define(`old_divert', divnum)dnl
+divert(globals_divert)dnl
+	`const char PROGMEM' submenu[] = $1;
+divert(old_divert)'dnl
+	_MENUITEM(`submenu', `dnl
+		`submenu_activate'__line__:
+		_MENU_PRINT_PARENT(submenu)
+
+		#undef prevmenu
+		`#define prevmenu' `submenu_activate'__line__
+
+		/* Items of sub-menu $1 */
+		$2
+		/* End of sub-menu $1 */
+
+		goto prevmenu;
+		#undef prevmenu
+		`#define prevmenu' `menu'__line__
+')')
 
 
 dnl ==========================================================================
 dnl MENU(WIDTH, Y, X, NAME, ITEMS)
 dnl ==========================================================================
-define(`prevmenu', `rootmenu')
 define(`MENU', `
 define(`old_divert', divnum)dnl
 divert(init_divert)dnl
@@ -94,6 +120,8 @@ divert(old_divert)dnl
 
 	THREAD(menu)
 rootmenu:
+#undef prevmenu
+#define prevmenu rootmenu
 	{
 		_MENU_PRINT_PARENT(`parent_menu_name'__line__)
 
