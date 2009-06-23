@@ -54,11 +54,11 @@ dnl Menuitem helper macro.  Probably you want to derive your menuitem
 dnl implementations from this one.
 define(`_MENUITEM', `
 define(`thismenu', `menu'__line__)thismenu:
-	_MENU_PRINT_MAIN($1)
+	`_MENU_PRINT_MAIN($1)'
 
 	/* Read byte from TTY input buffer */
 	{ uint8_t ch;
-	PT_WAIT_UNTIL(pt, (ch = TTY_GETCH()));
+	PT_WAIT_UNTIL(pt, (`ch = TTY_GETCH()'));
 
 	if (ch == 107)		/* k -> up */
 		goto prevmenu;	/* jump up to the previous item ... */
@@ -80,7 +80,7 @@ dnl ==========================================================================
 dnl MENUITEM(NAME, ACTIONS)
 dnl ==========================================================================
 define(`MENUITEM', `_MENUITEM(PSTR ($1), $2
-		_MENU_EXIT()
+		``_MENU_EXIT()''
 )')
 
 
@@ -167,7 +167,7 @@ divert(old_divert)'dnl
 		menuedit_int_state = $2;
 		`_MENU_PRINT_PARENT(editint_mi)
 		intthing_activate'__line__:
-		_MENU_DO_MAIN(wprintw(c6win, "Value: %3u", menuedit_int_state))')
+		_MENU_DO_MAIN(wprintw(c6win, "Value: %3u", menuedit_int_state))
 
 		/* Read byte from TTY input buffer */
 		{ uint8_t ch;
