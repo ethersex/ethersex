@@ -19,29 +19,37 @@ dnl  For more information on the GPL, please go to:
 dnl  http://www.gnu.org/copyleft/gpl.html
 dnl
 
+
+dnl Print the message $1 to the ``parent line'' of the menu.  $1 is a PGM_P
+dnl to the message.
 define(`_MENU_PRINT_PARENT', `dnl
 	TTY_SELECT(menu)
 	TTY_CLEAR()
 	TTY_USED()waddstr_P(c6win,$1);
 ')
 
+
+dnl Print the message $1 to the ``main line'' of the menu.  $1 is a PGM_P
+dnl to the message.
 define(`_MENU_PRINT_MAIN', `dnl
 	TTY_SELECT(menu)
 	TTY_GOTO(1,0)
-	TTY_WRITE($1)
+	TTY_USED()waddstr_P(c6win,$1);
 	TTY_CLRTOEOL()
 ')
 
+
+dnl Exit the menu.
 define(`_MENU_EXIT', `dnl
 	TTY_SELECT(menu)
 	TTY_CLEAR()
 	THREAD_EXIT()
 ')
 
-dnl ==========================================================================
-dnl MENUITEM(NAME, [...])
-dnl ==========================================================================
-define(`MENUITEM', `
+
+dnl Menuitem helper macro.  Probably you want to derive your menuitem
+dnl implementations from this one.
+define(`_MENUITEM', `
 define(`thismenu', `menu'__line__)thismenu:
 	_MENU_PRINT_MAIN($1)
 
@@ -55,7 +63,7 @@ define(`thismenu', `menu'__line__)thismenu:
 		goto prevmenu;	/* jump up to the previous item ... */
 
 	case 10: 	/* return -> action */
-		$2
+		{ $2 }
 		_MENU_EXIT()
 
 	default:	/* invalid response -> ignore */
@@ -64,12 +72,17 @@ define(`thismenu', `menu'__line__)thismenu:
 define(`prevmenu', thismenu) /* end of prevmenu ($1) */
 ')
 
-define(`prevmenu', `rootmenu')
+
+dnl ==========================================================================
+dnl MENUITEM(NAME, ACTIONS)
+dnl ==========================================================================
+define(`MENUITEM', `_MENUITEM(PSTR ($1), $2)')
 
 
 dnl ==========================================================================
 dnl MENU(WIDTH, Y, X, NAME, ITEMS)
 dnl ==========================================================================
+define(`prevmenu', `rootmenu')
 define(`MENU', `
 define(`old_divert', divnum)dnl
 divert(init_divert)dnl
