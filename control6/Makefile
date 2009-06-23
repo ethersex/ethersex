@@ -10,13 +10,15 @@ $(CONTROL6_SUPPORT)_ECMD_SRC += control6/ecmd.c
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk
 
-CONTROL6_C_SRC = ${m4_lang} control6/control6.src
-CONTROL6_H_SRC = control6/control6-header.m4 control6/control6.src
+C6_SOURCE ?= $(TOPDIR)/control6/control6.src
 
-control6/control6.h: core/portio/user_config.c ${CONTROL6_H_SRC}
+CONTROL6_C_SRC = ${m4_lang} ${C6_SOURCE}
+CONTROL6_H_SRC = $(TOPDIR)/control6/control6-header.m4 $(C6_SOURCE)
+
+$(TOPDIR)/control6/control6.h: $(TOPDIR)/core/portio/user_config.c ${CONTROL6_H_SRC}
 	$(M4) $(M4FLAGS) ${CONTROL6_H_SRC} > $@
 
-control6/control6.c: core/portio/user_config.c ${CONTROL6_C_SRC}
+$(TOPDIR)/control6/control6.c: $(TOPDIR)/core/portio/user_config.c ${CONTROL6_C_SRC}
 	$(M4) $(M4FLAGS) ${CONTROL6_C_SRC} > $@
 
 CLEAN_FILES += control6/control6.c control6/control6.h

@@ -33,8 +33,8 @@ clean: clean-common
 $(TOPDIR)/pinning.c:
 	$(MAKE) -C $(TOPDIR) pinning.c
 
-$(TOPDIR)/control6/control6.h:
-	$(MAKE) -C $(TOPDIR)/control6 control6.h
+#$(TOPDIR)/control6/control6.h:
+#	$(MAKE) -C $(TOPDIR)/control6 control6.h
 
 include $(TOPDIR)/scripts/depend.mk
 include $(TOPDIR)/scripts/defaults.mk
