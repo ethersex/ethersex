@@ -44,6 +44,9 @@ tty_ll_clear (void)
 #ifdef TTY_LL_HD44780
   tty_hd44780_clear ();
 #endif
+#ifdef TTY_LL_S1D15G10
+  tty_s1d15g10_clear ();
+#endif
 #ifdef TTY_LL_VT100_TELNET
   tty_vt100_clear ();
 #endif
@@ -77,6 +80,9 @@ tty_ll_put (uint8_t y, uint8_t x, uint8_t ch)
 
 #ifdef TTY_LL_HD44780
   tty_hd44780_put (y, x, ch);
+#endif
+#ifdef TTY_LL_S1D15G10
+  tty_s1d15g10_put (y, x, ch);
 #endif
 #ifdef TTY_LL_VT100_TELNET
   tty_vt100_put (y, x, ch);
