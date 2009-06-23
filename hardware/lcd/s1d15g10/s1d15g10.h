@@ -43,6 +43,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
+#include <avr/pgmspace.h>
 
 #ifndef LCD_S1D15G10_H
 #define LCD_S1D15G10_H
