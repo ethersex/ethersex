@@ -60,7 +60,17 @@ tty_vt100_main (void)
     {
       uint8_t len = uip_len;
       for (uint8_t i = 0; i < len; i ++)
-	_getch_queue (((char *) uip_appdata)[i]);
+	{
+	  int8_t ch = ((char *) uip_appdata)[i];
+
+	  if (ch == 12)		/* C-l, retransmit everything. */
+	    {
+	      STATE->send_all = 1;
+	      continue;
+	    }
+
+	  _getch_queue (ch);
+	}
     }
 
   if (uip_rexmit() || uip_newdata() || uip_acked() || uip_connected()
