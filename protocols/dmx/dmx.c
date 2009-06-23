@@ -20,6 +20,7 @@
  */
 
 #include <avr/io.h>
+#include <avr/wdt.h>
 #include <util/delay.h>
 #include "config.h"
 
@@ -48,6 +49,21 @@ uint8_t color_r, color_g, color_b = 0;
 volatile uint8_t dmx_prg;
 
 /**
+ * Set channum DMX-channels
+ */
+void
+dmx_set_chan_x(uint8_t startchan, uint8_t channum, uint8_t *chan)
+{
+  uint8_t i;
+  if (dmx_txlen < startchan + channum)
+    dmx_txlen = startchan + channum;
+
+  for (i=0;i<channum;i++)
+    dmx_data[startchan + i] = chan[i];
+
+}
+
+/**
  * Init DMX
  */
 void
@@ -72,20 +88,6 @@ dmx_init(void)
   dmx_set_chan_x(44, 6, (uint8_t []){17, 255, 0, color_r, color_g, color_b});
 }
 
-/**
- * Set channum DMX-channels
- */
-void
-dmx_set_chan_x(uint8_t startchan, uint8_t channum, uint8_t *chan)
-{
-  uint8_t i;
-  if (dmx_txlen < startchan + channum)
-    dmx_txlen = startchan + channum;
-
-  for (i=0;i<channum;i++)
-    dmx_data[startchan + i] = chan[i];
-
-}
 
 /**
  * Fade r/g/b color in rainbowcolor-style

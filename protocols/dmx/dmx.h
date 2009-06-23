@@ -33,5 +33,5 @@ extern unsigned char dmx_data[CONF_DMX_MAX_CHAN];
 extern volatile uint8_t dmx_index;
 extern volatile uint8_t dmx_txlen;
 extern volatile uint8_t dmx_prg;
-#endif DMX_SUPPORT
-#endif _DMX_H
+#endif /* DMX_SUPPORT */
+#endif /* _DMX_H */
