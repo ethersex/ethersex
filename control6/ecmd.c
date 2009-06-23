@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -45,7 +46,7 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
   buf = strrchr (cmd, ' ');
   if (buf) {
     *(buf ++) = 0;
-    varvalue = strtol(buf, NULL, 10);
+    varvalue = atoi (buf);
     if (control6_set(cmd, varvalue)) 
       return snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue);
   }
