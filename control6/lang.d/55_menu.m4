@@ -106,6 +106,47 @@ divert(old_divert)'dnl
 ')')
 
 
+
+define(`_MENUEDIT_BOOL_USED', `')
+dnl ==========================================================================
+dnl MENUEDIT_BOOL(NAME, VARIABLE)
+dnl ==========================================================================
+define(`MENUEDIT_BOOL', `dnl
+define(`editbool_mi', `editbool_name'__line__)dnl
+`define(`old_divert', divnum)dnl
+divert(globals_divert)
+ifdef(`menuedit_bool_used', `', `dnl
+const char PROGMEM menuedit_bool_enabled[] = "Enabled";
+const char PROGMEM menuedit_bool_disabled[] = "Disabled";
+uint8_t menuedit_bool_state;
+define(`menuedit_bool_used')')
+divert(globals_divert)dnl
+	`const char PROGMEM' editbool_mi[] = $1;
+divert(old_divert)'dnl
+	_MENUITEM(`editbool_mi', `dnl
+		menuedit_bool_state = $2;
+		`_MENU_PRINT_PARENT(editbool_mi)
+		boolthing_activate'__line__:
+		_MENU_PRINT_MAIN(menuedit_bool_state ? menuedit_bool_enabled : menuedit_bool_disabled)
+
+		/* Read byte from TTY input buffer */
+		{ uint8_t ch;
+		PT_WAIT_UNTIL(pt, (ch = TTY_GETCH()));
+
+		if (ch == 107 || ch == 106) {	/* j or k -> toggle */
+			menuedit_bool_state = menuedit_bool_state == 0;
+			`goto boolthing_activate'__line__;
+		}
+
+		else if (ch == 10) 	/* return -> action */
+			{ $2 = menuedit_bool_state; _MENU_EXIT() }
+
+		/* invalid response -> ignore */
+		`goto boolthing_activate'__line__;
+		}
+')')
+
+
 dnl ==========================================================================
 dnl MENU(WIDTH, Y, X, NAME, ITEMS)
 dnl ==========================================================================
