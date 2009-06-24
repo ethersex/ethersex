@@ -85,22 +85,27 @@ void waddstr (WINDOW *, const char *);
 void waddstr_P (WINDOW *, const char *);
 void wmove (WINDOW *, uint8_t y, uint8_t x);
 void wprintw (WINDOW *, const char *, ...);
+void wprintw_P (WINDOW *, const char *, ...);
 
 #define addch(ch)		waddch(curscr,ch)
 #define addstr(str)		waddstr(curscr,str)
 #define addstr_P(str)		waddstr_P(curscr,str)
 #define move(y,x)		wmove(curscr,y,x)
 #define printw(str...)		wprintw(curscr,str)
+#define printw_P(str...)	wprintw_P(curscr,str)
 
 #define mvaddch(y,x,ch)		do { move(y,x); addch(ch); } while(0)
 #define mvaddstr(y,x,str)	do { move(y,x); addstr(str); } while(0)
 #define mvaddstr_P(y,x,str)	do { move(y,x); addstr_P(str); } while(0)
 #define mvprintw(y,x,str...)	do { move(y,x); printw(str); } while(0)
+#define mvprintw_P(y,x,str...)	do { move(y,x); printw_P(str); } while(0)
 
 #define mvwaddch(w,ch)		do { wmove(w,y,x); waddch(w,ch); } while(0)
 #define mvwaddstr(w,str)	do { wmove(w,y,x); waddstr(w,str); } while(0)
 #define mvwaddstr_P(w,str)	do { wmove(w,y,x); waddstr_P(w,str); } while(0)
 #define mvwprintw(w,y,x,str...)	do { wmove(w,y,x); wprintw(w,str); } while(0)
+#define mvwprintw_P(w,y,x,str...)	\
+  do { wmove(w,y,x); wprintw_P(w,str); } while(0)
 
 /* Input */
 char getch (void);

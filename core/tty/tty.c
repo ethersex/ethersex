@@ -292,6 +292,25 @@ wprintw (WINDOW *win, const char *fmt, ...)
   va_end (va);
 }
 
+
+void
+wprintw_P (WINDOW *win, const char *fmt, ...)
+{
+  char buf[COLS + 1];
+
+  va_list va;
+  va_start (va, fmt);
+
+  TTYDEBUG ("wprintw: win=%p, %s to y=%d,x=%d ", win, fmt, win->y, win->x);
+  vsnprintf_P (buf, COLS + 1, fmt, va);
+
+  TTYDEBUG ("--> '%s'\n", buf);
+  waddstr (win, buf);
+
+  va_end (va);
+}
+
+
 WINDOW *
 subwin (WINDOW *win, uint8_t lines, uint8_t cols, uint8_t begy, uint8_t begx)
 {
