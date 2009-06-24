@@ -326,5 +326,5 @@ cron_periodic(void)
   -- Ethersex META --
   header(services/cron/cron.h)
   timer(50, cron_periodic())
-  init(cron_init)
+  initearly(cron_init)
 */
