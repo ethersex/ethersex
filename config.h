@@ -80,6 +80,7 @@
 
 /* macros */
 #ifdef USE_WATCHDOG
+#   include <avr/wdt.h>
 #   define wdt_kick() wdt_reset()
 #else
 #   define wdt_kick()
