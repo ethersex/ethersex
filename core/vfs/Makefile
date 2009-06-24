@@ -2,6 +2,8 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(VFS_SUPPORT)_SRC += core/vfs/vfs.c
+$(VFS_SUPPORT)_SRC += core/vfs/vfs-util.c
+
 $(VFS_INLINE_SUPPORT)_SRC += core/vfs/vfs_inline.c
 
 ##############################################################################
