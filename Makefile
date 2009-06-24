@@ -81,12 +81,14 @@ include $(TOPDIR)/scripts/defaults.mk
 
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),fullclean)
 ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)
 
 include $(TOPDIR)/.config
 
 endif # MAKECMDGOALS!=menuconfig
+endif # MAKECMDGOALS!=fullclean
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
@@ -140,27 +142,30 @@ $(TARGET): $(OBJECTS)
 
 ifeq ($(VFS_INLINE_SUPPORT),y)
 INLINE_FILES := $(shell ls embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
+ifeq ($(DEBUG_INLINE_FILES),y)
+.PRECIOUS = $(INLINE_FILES)
+endif
 else
 INLINE_FILES :=
 endif
 
 embed/%: embed/%.cpp
 	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) $< 2> /dev/null > $@.tmp; \
-		then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
+		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
-	@$(RM) -f $@.tmp
+	@$(RM) $@.tmp
 
 
 embed/%: embed/%.m4
 	@if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
 		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` \
 		`grep -e "^#define CONF_.*" autoconf.h |  sed -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"` \
-		$< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)";\
+		$< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)";\
 		else echo "--> Include $@ ($<)";	fi
 
 embed/%: embed/%.sh
-	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) -f $@; echo "--> Don't include $@ ($<)"; \
+	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 		else echo "--> Include $@ ($<)";	fi
 
 
@@ -220,13 +225,17 @@ clean:
 		$(patsubst %.o,%.s,${OBJECTS}) network.d
 	echo "Cleaning completed"
 
-mrproper:
-	$(MAKE) clean
-	$(RM) -f autoconf.h .config config.mk .menuconfig.log .config.old
+fullclean: clean
+	find $(TOPDIR)/ -type f -name '*.[od]' -print0 \
+	| xargs -0 $(RM)
+	echo "Full cleaning completed"
+	
+mrproper: fullclean
+	$(RM) autoconf.h .config config.mk .menuconfig.log .config.old
 	echo "All object files and config files are gone now"
 
-.PHONY: clean mrproper
-.SILENT: clean mrproper
+.PHONY: clean fullclean mrproper
+.SILENT: clean fullclean mrproper
 
 ##############################################################################
 # MCU specific pinning code generation
