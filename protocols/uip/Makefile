@@ -7,8 +7,11 @@ $(UIP_SUPPORT)_SRC += protocols/uip/uip_router.c
 
 $(UIP_SUPPORT)_ECMD_SRC += protocols/uip/ecmd.c protocols/uip/parse.c
 
+ifeq ($(ENC28J60_SUPPORT),y)
 $(IPV4_SUPPORT)_SRC += protocols/uip/uip_arp.c
 $(IPV6_SUPPORT)_SRC += protocols/uip/uip_neighbor.c protocols/uip/ipv6.c
+endif
+
 $(OPENVPN_SUPPORT)_SRC += protocols/uip/uip_openvpn.c
 $(RFM12_IP_SUPPORT)_SRC += protocols/uip/uip_rfm12.c
 $(ZBUS_SUPPORT)_SRC += protocols/uip/uip_zbus.c
