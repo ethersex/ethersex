@@ -24,6 +24,8 @@
 #include "config.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "hardware/storage/sd_reader/fat.h"
+#include "core/vfs/vfs.h"
+#include "hardware/storage/sd_reader/vfs_sd.h"
 #include "core/debug.h"
 
 #include "protocols/ecmd/ecmd-base.h"
