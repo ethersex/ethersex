@@ -354,3 +354,8 @@ ecmd_ifdef(NETSTAT_SUPPORT)
   ecmd_feature(netstat, "ns",,Net Statistic - Public anouncment of running ethersex)
 ecmd_endif
 
+dnl block(DMX) dnl ==========================
+ecmd_ifdef(DMX_SUPPORT)
+  ecmd_feature(dmx_set6chan, "dmx set6chan ")
+  ecmd_feature(dmx_fade, "dmx fade")
+ecmd_endif
