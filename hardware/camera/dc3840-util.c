@@ -51,7 +51,8 @@ dc3840_save_snapshot (void)
     }
 
   /* Now append the filename (minute and seconds) */
-  sprintf_P (filename + 13, PSTR ("/%02d%02d.jpg"));
+  sprintf_P (filename + 13, PSTR ("/%02d%02d.jpg"), datetime.min,
+	     datetime.sec);
 
   /* Get source-filename.  Some hackery to have it in .text section :) */
   char src[7];
