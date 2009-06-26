@@ -21,12 +21,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
-
-#define MAX_DYNAMIC_SYSLOG_BUFFER 500
-
 #ifndef _SYSLOG_H
 #define _SYSLOG_H
+
+#include <avr/pgmspace.h>
+#include "protocols/uip/uip.h"
+
+#define MAX_DYNAMIC_SYSLOG_BUFFER 500
 
 uint8_t syslog_send_P(PGM_P message);
 uint8_t syslog_send(const char *message);

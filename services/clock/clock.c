@@ -25,19 +25,22 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "services/ntp/ntp.h"
+#include "core/debug.h"
 #include "clock.h"
 #include "config.h"
 
-static uint32_t timestamp = 1;
+static uint32_t timestamp;
 static uint8_t ticks;
-static uint32_t sync_timestamp = 0;
+static uint32_t sync_timestamp;
+
+#define NTP_RESYNC_PERIOD 1800
 
 #ifdef NTP_SUPPORT
 static uint16_t ntp_timer = 1;
 #endif
 
 #ifdef WHM_SUPPORT
-uint32_t startup_timestamp = 0;
+uint32_t startup_timestamp;
 #endif
 
 #ifdef CLOCK_DATETIME_SUPPORT
@@ -64,9 +67,12 @@ clock_init(void)
 SIGNAL(SIG_OVERFLOW2)
 {
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-  if(sync_timestamp <= timestamp)
+  if (!sync_timestamp || sync_timestamp == timestamp)
 #endif
     timestamp ++;
+
+  if (sync_timestamp)
+    sync_timestamp ++;
 }
 #endif
 
@@ -94,10 +100,14 @@ clock_tick(void)
 #ifndef CLOCK_CRYSTAL_SUPPORT
 # /* Don't wait for a sync, if no sync source is enabled */
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-    if(sync_timestamp <= timestamp)
+    if(!sync_timestamp || sync_timestamp == timestamp)
 #endif
       timestamp ++;
 #endif
+
+    if (sync_timestamp)
+      sync_timestamp ++;
+
     ticks = 0;
   }
 }
@@ -106,11 +116,34 @@ void
 clock_set_time(uint32_t new_sync_timestamp)
 {
 	/* The clock was synced */
+	if (sync_timestamp) {
+		int16_t delta = new_sync_timestamp - sync_timestamp;
+		NTPADJDEBUG ("sync timestamp delta is %d\n", delta);
+		if (delta < -300 || delta > 300)
+			NTPADJDEBUG ("eeek, delta too large. "
+				     "not adjusting.\n");
+
+		else if (sync_timestamp != timestamp)
+			NTPADJDEBUG ("our clock is not up with ntp clock.\n");
+
+		else if (NTP_RESYNC_PERIOD == -delta)
+			NTPADJDEBUG ("-delta equals resync period, eeek!? "
+				     "clock isn't running at all.\n");
+		else {
+			uint32_t new_value = OCR1A;
+			new_value *= NTP_RESYNC_PERIOD;
+			new_value /= NTP_RESYNC_PERIOD + delta;
+
+			NTPADJDEBUG ("new OCR1A value %d\n", new_value);
+			OCR1A = new_value;
+		}
+	}
+
 	sync_timestamp = new_sync_timestamp;
 
 	/* Allow the clock to jump forward, but not to go backward
 	 * except the time difference is greater than 5 minutes */
-	if (sync_timestamp > timestamp || (timestamp-sync_timestamp)>300)
+	if (sync_timestamp > timestamp || (timestamp - sync_timestamp) > 300)
 		timestamp = sync_timestamp;
 
 	#ifdef WHM_SUPPORT
@@ -119,7 +152,7 @@ clock_set_time(uint32_t new_sync_timestamp)
 	#endif
 
 	#ifdef NTP_SUPPORT
-	ntp_timer = 1800;
+	ntp_timer = NTP_RESYNC_PERIOD;
 	#endif
 }
 

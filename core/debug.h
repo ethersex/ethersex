@@ -67,4 +67,11 @@ int noinline debug_uart_put (char d, FILE *stream);
  * Example: 00001000 */
 char *debug_binary (uint8_t v);
 
+
+#ifdef DEBUG_NTP_ADJUST
+# define NTPADJDEBUG(a...)  debug_printf("ntpadj: " a)
+#else
+# define NTPADJDEBUG(a...)
+#endif
+
 #endif /* _DEBUG_H */

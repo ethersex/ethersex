@@ -131,7 +131,7 @@ ntp_newdata(void)
   ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
 
 #ifdef DEBUG_NTP
-    debug_printf("NTP: Set new time: %i\n",ntp_timestamp);
+    debug_printf("NTP: Set new time: %lu\n",ntp_timestamp);
 #endif
   clock_set_time(ntp_timestamp);
   ntp_setstratum(pkt->stratum);

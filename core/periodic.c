@@ -39,6 +39,7 @@ void periodic_init(void)
     TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
     OCR1A = (F_CPU/1024/50);
 
+    NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
 }
 
 /*
