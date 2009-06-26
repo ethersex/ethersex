@@ -54,15 +54,13 @@ vfs_sd_try_open_rootnode (void)
   return 0;			/* Jippie, we're set. */
 }
 
-struct vfs_file_handle_t *
-vfs_sd_open (const char *filename)
+static inline struct vfs_file_handle_t *
+vfs_sd_open_in (struct fat_dir_struct *parent, const char *filename)
 {
-  /* FIXME Don't just look in the rootnode, allow the user to traverse
-     through directories, etc. */
-  fat_reset_dir (vfs_sd_rootnode);
+  fat_reset_dir (parent);
 
   struct fat_dir_entry_struct filep;
-  while (fat_read_dir (vfs_sd_rootnode, &filep)) {
+  while (fat_read_dir (parent, &filep)) {
     if (strcmp (filep.long_name, filename))
       continue;
 
@@ -117,19 +115,58 @@ vfs_sd_truncate (struct vfs_file_handle_t *fh, vfs_size_t length)
   return fat_resize_file (fh->u.sd, length) == 0;
 }
 
+static struct vfs_file_handle_t *
+vfs_sd_create_open (const char *name, uint8_t create)
+{
+  while (*name == '/')
+    name ++;
+
+  struct fat_dir_struct *parent = vfs_sd_rootnode;
+  char *sep = strrchr (name, '/');
+
+  if (sep)
+    {				/* We got a path component in NAME. */
+      *sep = 0;			/* Temporarily terminate the path component,
+				   this isn't really pretty, since const, but
+				   it's cheaper than copying around :-) */
+      parent = vfs_sd_chdir (name);
+      *sep = '/';		/* Restore filename. */
+
+      if (!parent)
+	return NULL;		/* Parent directory doesn't exist. */
+
+      name = sep + 1;
+    }
+
+  if (create)
+    {
+      struct fat_dir_entry_struct file_entry;
+      fat_create_file (parent, name, &file_entry);
+    }
+
+  struct vfs_file_handle_t *fh = vfs_sd_open_in (parent, name);
+
+  if (create && fh && vfs_sd_size (fh) != 0)
+    vfs_sd_truncate (fh, 0);
+
+  if (parent != vfs_sd_rootnode)
+    fat_close_dir (parent);
+
+  return fh;
+}
+
 
 struct vfs_file_handle_t *
 vfs_sd_create (const char *name)
 {
-  struct fat_dir_entry_struct file_entry;
-  fat_create_file (vfs_sd_rootnode, name, &file_entry);
+  return vfs_sd_create_open (name, 1);
+}
 
-  struct vfs_file_handle_t *fh = vfs_sd_open (name);
 
-  if (fh && vfs_sd_size (fh) != 0)
-    vfs_sd_truncate (fh, 0);
-
-  return fh;
+struct vfs_file_handle_t *
+vfs_sd_open (const char *name)
+{
+  return vfs_sd_create_open (name, 0);
 }
 
 
