@@ -167,6 +167,7 @@ ecmd_endif()
 block(SD/MMC Card Reader) dnl ==========================
 ecmd_ifdef(SD_READER_SUPPORT)
   ecmd_feature(sd_dir, "sd dir",, List contents of current SD directory.)
+  ecmd_feature(sd_mkdir, "sd mkdir",PATH, Create directory hierarchy PATH.)
 ecmd_endif
 
 block(RFM12) dnl ==========================

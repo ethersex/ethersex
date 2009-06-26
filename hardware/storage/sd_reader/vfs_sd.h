@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -40,6 +40,7 @@ uint8_t vfs_sd_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
 uint8_t vfs_sd_truncate (struct vfs_file_handle_t *, vfs_size_t length);
 struct vfs_file_handle_t *vfs_sd_create (const char *name);
 vfs_size_t vfs_sd_size (struct vfs_file_handle_t *);
+uint8_t vfs_sd_mkdir_recursive (const char *path);
 
 
 #define VFS_SD_FUNCS {				\

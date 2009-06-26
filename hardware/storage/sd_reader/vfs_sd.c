@@ -20,11 +20,13 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "hardware/storage/sd_reader/fat.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "hardware/storage/sd_reader/partition.h"
 #include "core/vfs/vfs.h"
+#include "core/debug.h"
 
 static struct fat_fs_struct *vfs_sd_fat;
 struct fat_dir_struct *vfs_sd_rootnode;
@@ -128,6 +130,78 @@ vfs_sd_create (const char *name)
     vfs_sd_truncate (fh, 0);
 
   return fh;
+}
+
+
+uint8_t
+vfs_sd_mkdir_recursive (const char *path)
+{
+  struct fat_dir_entry_struct handle = { 0 };
+  handle.attributes = FAT_ATTRIB_DIR;
+
+ recurse_loop:
+  while (*path == '/')
+    path ++;
+
+  struct fat_dir_struct *dir = fat_open_dir (vfs_sd_fat, &handle);
+  if (dir == NULL)
+    {
+      debug_printf ("VFS-SD: fat_open_dir failed.  eek.\n");
+      return 1;
+    }
+
+  /* Extract directory name (especially it's length) regarding
+     the next level. */
+  char *ptr = strchr (path, '/');
+  uint8_t l;
+
+  if (ptr)
+    l = ptr - path;
+  else
+    l = strlen (path);
+
+  while (fat_read_dir (dir, &handle))
+    {
+      if (strncmp (handle.long_name, path, l))
+	continue;		/* Mismatch. */
+
+      /* Found directory, recurse. */
+      fat_close_dir (dir);	/* Close parent handle. */
+
+      if (!(handle.attributes & FAT_ATTRIB_DIR))
+	{
+	  debug_printf ("VFS-SD: '%s' isn't a directory.\n", path);
+	  return 1;
+	}
+
+      path += l;
+      if (*path == 0)
+	return 0;		/* Target already exists. */
+
+      goto recurse_loop;	/* Recurse down ... */
+    }
+
+  /* Sub-directory not found, too bad. Let's try to create it. */
+  {
+    char buf[l + 1];
+    memcpy (buf, path, l);
+    buf[l] = 0;
+
+    if (!fat_create_dir (dir, buf, &handle))
+      {
+	fat_close_dir (dir);
+	debug_printf ("VFS-SD: Failed to create dir '%s'\n", buf);
+	return 1;
+      }
+
+    fat_close_dir (dir);
+
+    path += l;
+    if (*path == 0)
+      return 0;			/* Ok, that was the last piece. */
+
+    goto recurse_loop;		/* Yippie, one more round ... */
+  }
 }
 
 

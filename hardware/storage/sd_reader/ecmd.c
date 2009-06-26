@@ -31,8 +31,6 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-#ifdef SD_READER_SUPPORT
-
 int16_t
 parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
 {
@@ -54,4 +52,13 @@ parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
 			       dir_entry.file_size));
 }
 
-#endif  /* SD_READER_SUPPORT */
+
+
+int16_t
+parse_cmd_sd_mkdir (char *cmd, char *output, uint16_t len)
+{
+  while (*cmd == ' ')
+    cmd ++;
+
+  return -vfs_sd_mkdir_recursive (cmd);
+}
