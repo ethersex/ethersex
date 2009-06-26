@@ -1,12 +1,12 @@
 /*
- *
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -115,6 +115,7 @@ clock_tick(void)
 void
 clock_set_time(uint32_t new_sync_timestamp)
 {
+#ifdef CLOCK_NTP_ADJUST_SUPPORT
 	/* The clock was synced */
 	if (sync_timestamp) {
 		int16_t delta = new_sync_timestamp - sync_timestamp;
@@ -138,6 +139,7 @@ clock_set_time(uint32_t new_sync_timestamp)
 			OCR1A = new_value;
 		}
 	}
+#endif  /* CLOCK_NTP_ADJUST_SUPPORT */
 
 	sync_timestamp = new_sync_timestamp;
 
