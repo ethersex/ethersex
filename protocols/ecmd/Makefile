@@ -46,7 +46,7 @@ CLEAN_FILES += protocols/ecmd/np_simple_glue.m4
 # ecmd_defs fluff
 
 protocols/ecmd/parser.c: protocols/ecmd/ecmd_defs.c
-protocols/ecmd/ecmd_defs.c: protocols/ecmd/ecmd_magic.m4 protocols/ecmd/ecmd_defs.m4 $(named_pin_simple_files)
+protocols/ecmd/ecmd_defs.c: protocols/ecmd/ecmd_magic.m4 protocols/ecmd/ecmd_defs.m4 $(named_pin_simple_files) $(ECMD_DEFS_EXTRA)
 	@m4 $^ > $@.tmp
 	@mv -f $@.tmp $@
 
