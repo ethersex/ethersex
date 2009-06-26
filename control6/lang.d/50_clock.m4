@@ -9,6 +9,9 @@ uint8_t last_minute;
 #ifndef CLOCK_SUPPORT
 #error Please define clock support
 #endif
+#ifndef CLOCK_DATETIME_SUPPORT
+#error Please define clock date/time support
+#endif
 
 divert(normal_start_divert)  clock_localtime(&datetime, clock_get_time());
 divert(control_end_divert)  last_minute = datetime.min;
