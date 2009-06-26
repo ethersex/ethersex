@@ -22,10 +22,13 @@
 #include <avr/pgmspace.h>
 #include <stdio.h>
 
+#include "core/debug.h"
+#include "core/vfs/vfs.h"
 #include "core/vfs/vfs-util.h"
 #include "hardware/camera/dc3840.h"
 #include "hardware/camera/dc3840-util.h"
 #include "services/clock/clock.h"
+
 
 void
 dc3840_save_snapshot (void)
@@ -33,14 +36,22 @@ dc3840_save_snapshot (void)
   if (dc3840_capture ())
     return;			/* Camera failed to make a picture. */
 
-  /* Generate destination filename, based on current timestamp. */
+  /* Generate destination directory name, based on current date and hour. */
   struct clock_datetime_t datetime;
   clock_localtime(&datetime, clock_get_time());
 
-  char filename[20];
-  snprintf_P (filename, 20, PSTR ("snap-%02d%02d%02d%02d%02d%02d"),
-	      datetime.year, datetime.month, datetime.day,
-	      datetime.hour, datetime.min, datetime.sec);
+  char filename[24];
+  sprintf_P (filename, PSTR ("%04d/%02d/%02d/%02d"), datetime.year,
+	     datetime.month, datetime.day, datetime.hour);
+
+  if (vfs_sd_mkdir_recursive (filename))
+    {
+      debug_printf ("dc3840_save_snapshot: can't create dir %s\n", filename);
+      return;
+    }
+
+  /* Now append the filename (minute and seconds) */
+  sprintf_P (filename + 13, PSTR ("/%02d%02d.jpg"));
 
   /* Get source-filename.  Some hackery to have it in .text section :) */
   char src[7];
