@@ -13,6 +13,7 @@
 #include "fat.h"
 #include "fat_config.h"
 #include "sd-reader_config.h"
+#include "core/debug.h"
 
 #include <string.h>
 
@@ -1342,7 +1343,10 @@ struct fat_dir_struct* fat_open_dir(struct fat_fs_struct* fs, const struct fat_d
         ++dd;
     }
     if(i >= FAT_DIR_COUNT)
+    {
+	debug_printf ("fat_open_dir: not empty fat_dir_struct left!\n");
         return 0;
+    }
 #endif
     
     memcpy(&dd->dir_entry, dir_entry, sizeof(*dir_entry));
