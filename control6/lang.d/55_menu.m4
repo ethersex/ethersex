@@ -124,12 +124,12 @@ const char PROGMEM menuedit_bool_disabled[] = "Disabled";
 uint8_t menuedit_bool_state;
 define(`menuedit_bool_used')')
 divert(globals_divert)dnl
-	`const char PROGMEM' editbool_mi[] = $1;
+	const char PROGMEM 'editbool_mi`[] = $1;
 divert(old_divert)'dnl
-	_MENUITEM(`editbool_mi', `dnl
+	_MENUITEM(editbool_mi, `dnl
 		menuedit_bool_state = $2;
-		`_MENU_PRINT_PARENT(editbool_mi)
-		boolthing_activate'__line__:
+		_MENU_PRINT_PARENT(editbool_mi)
+		`boolthing_activate'__line__:
 		_MENU_PRINT_MAIN(menuedit_bool_state ? menuedit_bool_enabled : menuedit_bool_disabled)
 
 		/* Read byte from TTY input buffer */
@@ -161,12 +161,12 @@ ifdef(`menuedit_int_used', `', `dnl
 uint8_t menuedit_int_state;
 define(`menuedit_int_used')')
 divert(globals_divert)dnl
-	`const char PROGMEM' editint_mi[] = $1;
+	const char PROGMEM 'editint_mi`[] = $1;
 divert(old_divert)'dnl
-	_MENUITEM(`editint_mi', `dnl
+	_MENUITEM(editint_mi, `dnl
 		menuedit_int_state = $2;
-		`_MENU_PRINT_PARENT(editint_mi)
-		intthing_activate'__line__:
+		_MENU_PRINT_PARENT(editint_mi)
+		`intthing_activate'__line__:
 		_MENU_DO_MAIN(wprintw(c6win, "Value: %3u", menuedit_int_state))
 
 		/* Read byte from TTY input buffer */
