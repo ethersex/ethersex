@@ -1,0 +1,110 @@
+#!/usr/bin/python
+import os
+import urllib
+import sys
+import cgitb
+
+cgitb.enable()
+
+cache_dir = '.cache'
+default_host = 'heizung'
+hosts = {'heizung': {	'addr': '192.168.100.13',
+						'port': 2701,
+						'kty get': 40,
+						'help' : 30,
+						'default_cache': 30}}
+
+class EcmdHandler:
+	def __init__(self, host, cache_dir = ".cache"):
+		if not os.path.exists(cache_dir):
+			os.mkdir(cache_dir)
+		elif not os.path.isdir(cache_dir):
+			print("cache dir is a file")
+			sys.exit()
+		self.cache_dir = cache_dir
+
+		if not 'addr' in host:
+			print("host has no address configured")
+			sys.exit()
+		self.host = host
+		if not 'port' in host:
+			self.host['port'] = 2701
+		if not 'timeout' in host:
+			self.host['timeout'] = 0.5
+
+		self.soc = False
+	def get_cache_time(self, query):
+		if query in self.host:
+			return self.host[query] 
+		elif 'default_cache' in self.host:
+			return self.host['default_cache']
+		else:
+			return 0
+	def get_cached(self, query):
+		import time
+		cache = os.path.join(self.cache_dir, "%s:%d"%(self.host['addr'], self.host['port']),query)
+		if not os.path.isfile(cache):
+			return
+		if self.get_cache_time(query) < (time.time() - os.stat(cache).st_mtime):
+			return
+		fd = open(cache)
+		content = fd.read(-1)
+		fd.close()
+		return content
+	def write_cache(self, query, answer):
+		cache = os.path.join(self.cache_dir, "%s:%d"%(self.host['addr'], self.host['port']))
+		if not os.path.exists(cache):
+			os.mkdir(cache)
+		cache = os.path.join(cache, query)
+		fd = open(cache, "w+")
+		fd.write(answer)
+		fd.close()
+	def call(self, query):
+		# Test if the call is cached
+		cache = self.get_cached(query)
+		if cache: return cache
+
+		import socket
+		if not self.soc:
+			self.soc = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+			self.soc.connect((self.host['addr'], self.host['port']))
+		
+		try:
+			self.soc.send("%s\n" % query)
+			self.soc.settimeout(self.host['timeout'])
+			content = ''
+			while True:
+				try: c = self.soc.recv(1024)
+				except: break
+				content += c
+			self.write_cache(query, content)
+			return content
+		except:
+			print("communication error")
+
+# setup environ
+
+print("Content-Type: text/plain")
+print("Cache-Control: no-cache")
+print("")
+
+args = urllib.unquote_plus(os.environ['QUERY_STRING']).split(" ")
+
+if args[0] == '':
+	print("parse error")
+	sys.exit()
+
+host = default_host
+if args[0] in hosts:
+	host = args[0]
+	args = args[1:]
+
+query = " ".join(args)
+ecmd = EcmdHandler(hosts[host])
+print(ecmd.call(query))
+
+
+
+
+
+
