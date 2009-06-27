@@ -12,6 +12,7 @@ hosts = {'heizung': {	'addr': '192.168.100.13',
 						'port': 2701,
 						'kty get': 40,
 						'help' : 30,
+						'whitelist': ['kty get'],
 						'default_cache': 30}}
 
 class EcmdHandler:
@@ -60,6 +61,10 @@ class EcmdHandler:
 		fd.write(answer)
 		fd.close()
 	def call(self, query):
+		if 'whitelist' in self.host:
+			if not query in self.host['whitelist']: return "permission denied"
+		if 'blacklist' in self.host:
+			if query in self.host['whitelist']: return "permission denied"
 		# Test if the call is cached
 		cache = self.get_cached(query)
 		if cache: return cache
