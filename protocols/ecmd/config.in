@@ -2,6 +2,9 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
 	dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
 	int "  Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
+	int "  Length of variable buffer" ECMD_SCRIPT_VARIABLE_LENGTH 10
+	int "  Length of comparator buffer" ECMD_SCRIPT_COMPARATOR_LENGTH 25
+	int "  Maximum lines of script" ECMD_SCRIPT_MAXLINES 128
 	endmenu
 	comment "ECMD interfaces"
 	dep_bool "  TCP/Telnet" ECMD_TCP_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT

@@ -35,6 +35,13 @@
 #define GREATEREQUALS ">="
 #define LOWEREQUALS "<="
 
+#ifdef DEBUG_ECMD_SCRIPT
+# include "core/debug.h"
+# define SCRIPTDEBUG(a...)  debug_printf("ECMD script: " a)
+#else
+# define SCRIPTDEBUG(a...)
+#endif
+
 typedef struct {
   struct vfs_file_handle_t *handle;
   uint16_t linenumber;
@@ -44,7 +51,7 @@ typedef struct {
 script_t current_script;
 
 typedef struct {
-  char value[10];
+  char value[ECMD_SCRIPT_VARIABLE_LENGTH];
 } variables_t;
 
 variables_t vars[ECMD_SCRIPT_MAX_VARIABLES];

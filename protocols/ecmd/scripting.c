@@ -43,9 +43,7 @@ vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
     vfs_size_t readlen = vfs_read(handle, line, ECMD_INPUTBUF_LENGTH - 1);
 
     line[ECMD_INPUTBUF_LENGTH - 1] = 0;
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: fgets (%i) : %s\n", readlen, line);
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("fgets (%i) : %s\n", readlen, line);
     for (i = 0; i < readlen ; i++){
        if (line[i] == 0x0a)  break;
     }
@@ -57,9 +55,7 @@ vfs_fgets(struct vfs_file_handle_t *handle, char *line, vfs_size_t pos){
 uint8_t
 readline(char *buf){
     int8_t len = vfs_fgets(current_script.handle, buf, current_script.filepointer);
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: readline: %s\n", buf);
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("readline: %s\n", buf);
     if (len == -1 || len >= ECMD_INPUTBUF_LENGTH) {
       return 0;
     }
@@ -79,15 +75,20 @@ parse_cmd_goto(char *cmd, char *output, uint16_t len)
   }
   sscanf_P(cmd, PSTR("%i"), &gotoline);
 
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: current %i goto line %i\n", current_script.linenumber, gotoline);
-#endif // DEBUG_ECMD_SCRIPT
+  SCRIPTDEBUG("current %i goto line %i\n", current_script.linenumber, gotoline);
 
   if (gotoline < current_script.linenumber) {
+    SCRIPTDEBUG("seek to 0\n");
     vfs_fseek(current_script.handle, 0, SEEK_SET);
+    current_script.linenumber = 0;
+    current_script.filepointer = 0;
   }
-  while ( current_script.linenumber != gotoline ) {
-    readline(line);
+  while ( (current_script.linenumber != gotoline ) && ( current_script.linenumber < ECMD_SCRIPT_MAXLINES )) {
+    SCRIPTDEBUG("seeking: current %i goto line %i\n", current_script.linenumber, gotoline);
+    if (readline(line)==0) {
+      SCRIPTDEBUG("leaving\n");
+      break;
+    }
   }
   return ECMD_FINAL_OK;
 }
@@ -111,12 +112,8 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   char filename[10];
   char line[ECMD_INPUTBUF_LENGTH];
   uint8_t lsize=0;
-  uint8_t maxlines=100;
   uint8_t run=0;
   vfs_size_t filesize;
-#ifdef DEBUG_ECMD_SCRIPT
-  maxlines=10;
-#endif // DEBUG_ECMD_SCRIPT
 
   sscanf_P(cmd, PSTR("%s"), &filename);  // should check for ".es" extention!
   current_script.handle = vfs_open(filename);
@@ -126,30 +123,24 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   
   filesize = vfs_size(current_script.handle);
 
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: start %s from %i bytes\n", filename, filesize);
-#endif // DEBUG_ECMD_SCRIPT
+  SCRIPTDEBUG("start %s from %i bytes\n", filename, filesize);
   current_script.linenumber=0;
   current_script.filepointer=0;
 
   // open file as long it is open, we have not reached max lines and 
   // not the end of the file as we know it
   while ( (current_script.handle != NULL) && 
-          (run++ < maxlines ) && 
+          (run++ < ECMD_SCRIPT_MAXLINES ) && 
           (filesize > current_script.filepointer ) ) {
 
     lsize = readline(line);
-#ifdef DEBUG_ECMD_SCRIPT
-      debug_printf("ECMD script: (linenr:%i, pos:%i, bufsize:%i)\n", current_script.linenumber, current_script.filepointer, lsize);
-      debug_printf("ECMD script: exec: %s\n", line);
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("(linenr:%i, pos:%i, bufsize:%i)\n", current_script.linenumber, current_script.filepointer, lsize);
+    SCRIPTDEBUG("exec: %s\n", line);
     if (lsize != 0) {
       ecmd_parse_command(line, output, len);
     }
   }
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ECMD script: end\n");
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("end\n");
 
   parse_cmd_exit(cmd, output, len);
 
@@ -161,9 +152,7 @@ parse_cmd_wait(char *cmd, char *output, uint16_t len)
 {
   uint16_t delay;
   sscanf_P(cmd, PSTR("%i"), &delay);
-#ifdef DEBUG_ECMD_SCRIPT
-  debug_printf("wait %ims\n", delay);
-#endif // DEBUG_ECMD_SCRIPT
+  SCRIPTDEBUG("wait %ims\n", delay);
   _delay_ms(delay);
   return ECMD_FINAL_OK;
 }
@@ -172,7 +161,7 @@ int16_t
 parse_cmd_set(char *cmd, char *output, uint16_t len)
 {
   uint8_t pos;
-  char value[10];
+  char value[ECMD_SCRIPT_VARIABLE_LENGTH];
   sscanf_P(cmd, PSTR("%i %s"), &pos, &value);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
     return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
@@ -222,28 +211,24 @@ parse_cmd_dec(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_if(char *cmd, char *output, uint16_t len)
 {
-  char cmpcmd[20];
+  char cmpcmd[ECMD_SCRIPT_COMPARATOR_LENGTH];
   char comparator[3];
-  char konst[10];
+  char konst[ECMD_SCRIPT_COMPARATOR_LENGTH];
 //  char cmd[]= "if ( whm != 00:01 ) then exit";
   uint8_t success = 0; // default false
 
   sscanf_P(cmd, PSTR("( %s %s %s ) then "), &cmpcmd, &comparator, &konst);
   char *ecmd = strstr_P(cmd, PSTR("then"));
   if (ecmd == NULL){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("cmd not found\n");
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("cmd not found\n");
     return ECMD_FINAL(1);
   }
   ecmd+=5;
   
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("ecmd: %s\n", ecmd);
-    debug_printf("cmpcmd: %s\n", cmpcmd);
-    debug_printf("comparator: %s\n", comparator);
-    debug_printf("konst: %s\n", konst);
-#endif // DEBUG_ECMD_SCRIPT
+  SCRIPTDEBUG("ecmd: %s\n", ecmd);
+  SCRIPTDEBUG("cmpcmd: %s\n", cmpcmd);
+  SCRIPTDEBUG("comparator: %s\n", comparator);
+  SCRIPTDEBUG("konst: %s\n", konst);
 
   // if cmpcmd starts with % it is a variable
   if (cmpcmd[0]=='%') {
@@ -253,70 +238,46 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   } else { // if not, it is a command
     // execute cmp! and check output
     if (!ecmd_parse_command(cmpcmd, output, len)) {
-#ifdef DEBUG_ECMD_SCRIPT
-      debug_printf("compare wrong\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("compare wrong\n");
       return ECMD_FINAL(1);
     }
   }
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("cmp '%s' %s '%s'\n", output, comparator, konst);
-#endif // DEBUG_ECMD_SCRIPT
+  SCRIPTDEBUG("cmp '%s' %s '%s'\n", output, comparator, konst);
 
   // check comparator  
   if ( strcmp(comparator, STR_EQUALS) == 0 ){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " STR_EQUALS "\n");
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("try " STR_EQUALS "\n");
     success = (strcmp(output, konst) == 0);
   } else if ( strcmp(comparator, STR_NOTEQUALS) == 0 ) {
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " STR_NOTEQUALS "\n");
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("try " STR_NOTEQUALS "\n");
     success = (strcmp(output, konst) != 0);
   } else {
     uint16_t outputvalue = atoi(output);
     uint16_t konstvalue = atoi(konst);
     debug_printf("cmp atoi: %i %s %i\n", outputvalue, comparator, konstvalue);
     if ( strcmp(comparator, OK) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " OK "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " OK "\n");
       success = outputvalue;
     } else if ( strcmp(comparator, NOT) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " NOT "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " NOT "\n");
       success = ( outputvalue != 0 );
     } else if ( strcmp(comparator, EQUALS) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " EQUALS "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " EQUALS "\n");
       success = (outputvalue == konstvalue);
     } else if ( strcmp(comparator, NOTEQUALS) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " NOTEQUALS "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " NOTEQUALS "\n");
       success = (outputvalue != konstvalue);
     } else if ( strcmp(comparator, GREATER) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " GREATER "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " GREATER "\n");
       success = (outputvalue > konstvalue);
     } else if ( strcmp(comparator, LOWER) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " LOWER "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " LOWER "\n");
       success = (outputvalue < konstvalue);
     } else if ( strcmp(comparator, GREATEREQUALS) == 0){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " GREATEREQUALS "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " GREATEREQUALS "\n");
       success = (outputvalue >= konstvalue);
     } else if ( strcmp(comparator, LOWEREQUALS) == 0) {
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("try " LOWEREQUALS "\n");
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("try " LOWEREQUALS "\n");
       success = (outputvalue <= konstvalue);
     } else {
       debug_printf("unknown comparator: %s\n", comparator);
@@ -325,20 +286,14 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   }
   // if compare ok, execute command after then
   if (success){
-#ifdef DEBUG_ECMD_SCRIPT
-    debug_printf("OK, do: %s\n", ecmd);
-#endif // DEBUG_ECMD_SCRIPT
+    SCRIPTDEBUG("OK, do: %s\n", ecmd);
     if (ecmd_parse_command(ecmd, output, len)){
-#ifdef DEBUG_ECMD_SCRIPT
-      debug_printf("done: %s\n", output);
-#endif // DEBUG_ECMD_SCRIPT
+      SCRIPTDEBUG("done: %s\n", output);
       return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), output));
     }
     return ECMD_FINAL(2);
   }
-#ifdef DEBUG_ECMD_SCRIPT
-      debug_printf("success was: %i\n", success);
-#endif // DEBUG_ECMD_SCRIPT
+  SCRIPTDEBUG("success was: %i\n", success);
   return ECMD_FINAL(1);
 }
 
