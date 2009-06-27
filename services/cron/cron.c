@@ -28,6 +28,8 @@
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/ecmd/speed_parser.h"
+#include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
 #include "services/clock/clock.h"
 
 uint32_t last_check;
@@ -302,6 +304,17 @@ cron_periodic(void)
 			if (exec->event.cmdsize && execcmd->cmd == ECMDS_JUMP_TO_FUNCTION)
 			{
 				if (execcmd->handler) execcmd->handler(execcmd->data);
+			} else if (exec->event.cmdsize && execcmd->cmd == ECMDS_EXECUTE_ECMD){
+				// ECMD PARSER
+				char output[ECMD_INPUTBUF_LENGTH];
+				uint16_t len = 0;
+				#ifdef DEBUG_CRON
+					debug_printf("parse cmd %s!\n", &execcmd->cmd+1);
+				#endif
+				ecmd_parse_command(&execcmd->cmd+1, output, len);
+				#ifdef DEBUG_CRON
+					debug_printf("cmd output %s!\n", output);
+				#endif
 			} else
 			{
 				debug_printf("cron wrong type!\n");

@@ -65,6 +65,7 @@ block(Cron commands (dynamic variant)) dnl ==========================
 ecmd_ifdef(CRON_SUPPORT)
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
   ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
+  ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)
 ecmd_endif()
 
 block(Port I/O) dnl ==========================

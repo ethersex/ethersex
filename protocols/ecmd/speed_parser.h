@@ -63,7 +63,8 @@ enum ecmd_speed_commands
 	ECMDS_RESERVED1C,
 	ECMDS_GET_PORTPINS,
 	ECMDS_SET_PORTPIN,
-	ECMDS_JUMP_TO_FUNCTION
+	ECMDS_JUMP_TO_FUNCTION,
+        ECMDS_EXECUTE_ECMD
 };
 
 struct ecmd_speed_cmd_t
