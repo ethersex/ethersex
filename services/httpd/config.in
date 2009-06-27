@@ -6,3 +6,4 @@ if [ "$HTTPD_AUTH_SUPPORT" = "y" ]; then
   string "Default Password" CONF_HTTPD_PASSWORD "admin"
 fi
 
+dep_bool "  SD-Card Directory Listing (EXPERIMENTAL)" HTTP_SD_DIR_SUPPORT $VFS_SD_SUPPORT $HTTPD_SUPPORT $CONFIG_EXPERIMENTAL

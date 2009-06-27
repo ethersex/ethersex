@@ -62,6 +62,13 @@ httpd_cleanup (void)
 	STATE->u.vfs.fd = NULL;
     }
 #endif	/* VFS_SUPPORT */
+
+#ifdef HTTP_SD_DIR_SUPPORT
+    if (STATE->handler == httpd_handle_sd_dir && STATE->u.dir.handle) {
+	fat_close_dir (STATE->u.dir.handle);
+	STATE->u.dir.handle = NULL;
+    }
+#endif	/* HTTP_SD_DIR_SUPPORT */
 }
 
 
@@ -215,6 +222,15 @@ after_auth:
     }
 #endif	/* VFS_SUPPORT */
 
+
+#ifdef HTTP_SD_DIR_SUPPORT
+    if ((STATE->u.dir.handle = vfs_sd_chdir (filename))) {
+	strncpy (STATE->u.dir.dirname, filename, SD_DIR_MAX_DIRNAME_LEN);
+	STATE->u.dir.dirname[SD_DIR_MAX_DIRNAME_LEN - 1] = 0;
+	STATE->handler = httpd_handle_sd_dir;
+	return;
+    }
+#endif	/* HTTP_SD_DIR_SUPPORT */
 
     /* Fallback, send 404. */
     STATE->handler = httpd_handle_404;

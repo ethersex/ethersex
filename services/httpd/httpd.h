@@ -43,7 +43,9 @@ void httpd_cleanup (void);
 void httpd_handle_400 (void);
 void httpd_handle_401 (void);
 void httpd_handle_404 (void);
+
 void httpd_handle_vfs (void);
+void httpd_handle_sd_dir (void);
 
 void httpd_handle_ecmd_setup (char *encoded_cmd);
 void httpd_handle_ecmd (void);
@@ -70,6 +72,7 @@ extern char httpd_header_end[];
 
 #define PASTE_RESET()   (((unsigned char *)uip_appdata)[0] = 0)
 #define PASTE_P(a)      strcat_P(uip_appdata, a)
+#define PASTE_PF(a...)	sprintf_P(uip_appdata + strlen(uip_appdata), a)
 
 #include "config.h"
 #ifdef VFS_TEENSY

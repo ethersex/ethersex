@@ -31,6 +31,8 @@ typedef enum {
     HTTPD_STATE_IDLE,
 } http_state_t;
 
+#define SD_DIR_MAX_DIRNAME_LEN 75
+
 struct httpd_connection_state_t {
     unsigned header_acked		: 1;
     unsigned header_reparse		: 1;
@@ -52,12 +54,24 @@ struct httpd_connection_state_t {
 	} vfs;
 #endif	/* VFS_SUPPORT */
 
+#ifdef HTTP_SD_DIR_SUPPORT
+	struct {
+	    struct fat_dir_struct *handle;
+
+	    union {
+		struct fat_dir_entry_struct entries;
+		char dirname[SD_DIR_MAX_DIRNAME_LEN];
+	    };
+	} dir;
+#endif	/* HTTP_SD_DIR_SUPPORT */
+
 #ifdef ECMD_PARSER_SUPPORT
 	struct {
 	    char input[ECMD_INPUTBUF_LENGTH];
 	    char output[ECMD_OUTPUTBUF_LENGTH];
 	} ecmd;
 #endif	/* ECMD_PARSER_SUPPORT */
+
     } u;
 };
 
