@@ -1768,3 +1768,19 @@ NETSTAT_SUPPORT
   Internet Statistik for Ethersex. This function adds your ethersex to the
   survey. Examples and Links at http://www.ethersex.de/index.php/Netstat
 
+  Length of variable buffer
+ECMD_SCRIPT_VARIABLE_LENGTH
+
+  Length of buffer space in bytes. Default is 10
+
+  Length of comparator buffer
+ECMD_SCRIPT_COMPARATOR_LENGTH
+
+  Comparator buffer size for output of ECMD and const values. 
+  Default is 25
+
+  Maximum lines of script
+ECMD_SCRIPT_MAXLINES
+
+  Maximum parsed lines of ECMD Scripts.
+
