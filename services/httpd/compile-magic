@@ -1,0 +1,111 @@
+#! /usr/bin/perl -w
+#
+# Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# For more information on the GPL, please go to:
+# http://www.gnu.org/copyleft/gpl.html
+#
+
+my %mimetypes;
+my @lines;
+while (<>) {
+  chop;
+
+  # skip comment and empty lines
+  next if m/^#/;
+  next if m/^$/; 
+
+  my @fields = split m/\t+/;
+  if (scalar (@fields) != 4) {
+    warn "cannot parse magic line '$_'";
+    next;
+  }
+
+  $mimetypes{$fields[3]} = 1;
+  push @lines, \@fields;
+}
+
+print <<EOF
+/* This file has been generated from 'magic' with the compile-magic
+   script.  Don't edit it, better edit these files instead! */
+
+#include <avr/pgmspace.h>
+
+/* The mimetypes we know */
+static char PROGMEM httpd_mimetype_plain[] = "text/plain";
+EOF
+  ;
+
+my $counter = 1;
+foreach (keys %mimetypes) {
+  printf "static char PROGMEM httpd_mimetype_%d[] = \"%s\";\n", $counter, $_;
+  $mimetypes{$_} = $counter ++;
+}
+
+print "\n/* The tests we try to match */\n";
+for (0..scalar(@lines)-1) {
+  printf "static char PROGMEM httpd_magic_%d[] = \"%s\";\n", $_, $lines[$_][2]
+    if ($lines[$_][1] =~ m/^string/);
+}
+
+print <<EOF
+
+const PGM_P
+httpd_mimetype_detect (const uint8_t *data)
+{
+EOF
+  ;
+
+for (0..scalar(@lines)-1) {
+  my ($offset, $type, $test, $mt) = @{$lines[$_]};
+
+  unless ($offset =~ m/^\d+$/) {
+    warn "cannot parse $offset as a number, ignoring line";
+    next;
+  }
+
+  print "  // ", join(" ", @{$lines[$_]}),"\n";
+
+  if ($type eq "string") {
+    printf "  if (strncmp_P ((const char *)data + $offset, httpd_magic_$_, 
+		  sizeof (httpd_magic_$_) - 1) == 0)
+		return httpd_mimetype_" . $mimetypes{$mt} . ";\n\n";
+  }
+  elsif ($type eq "string/c") {
+    printf "  if (strncasecmp_P ((const char *)data + $offset, httpd_magic_$_, 
+		  sizeof (httpd_magic_$_) - 1) == 0)
+		return httpd_mimetype_" . $mimetypes{$mt} . ";\n\n";
+  }
+  elsif ($type eq "beshort") {
+    if (my ($a, $b) = $test =~ m/^0x([0-9a-f]{2})([0-9a-f]{2})$/i) {
+      printf "  if (data[$offset] == 0x$a && data[$offset + 1] == 0x$b)
+		  return httpd_mimetype_" . $mimetypes{$mt} . ";\n\n";
+    }
+    else {
+      warn "cannot parse test value $test of beshort";
+    }
+  }
+  else {
+    warn "magic type $type not supported";
+  }
+}
+
+print <<EOF
+  return httpd_mimetype_plain;
+}
+EOF
+  ;

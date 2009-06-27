@@ -51,6 +51,7 @@ void httpd_handle_sd_dir_redirect (void);
 void httpd_handle_ecmd_setup (char *encoded_cmd);
 void httpd_handle_ecmd (void);
 
+const PGM_P httpd_mimetype_detect (const uint8_t *);
 
 /* headers */
 extern char httpd_header_200[];

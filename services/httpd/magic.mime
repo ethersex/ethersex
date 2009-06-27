@@ -1,0 +1,151 @@
+# Magic data for KMimeMagic (originally for file(1) command)
+#
+# Note on adding additional MIME types:
+#
+# [RFC2045,RFC2046] specifies that Content Types, Content Subtypes, Character
+# Sets, Access Types, and conversion values for MIME mail will be assigned and
+# listed by the IANA.
+# http://www.iana.org/assignments/media-types/
+#
+# Any unregistered file type should be listed with a preceding x-, as in
+# application/x-foo (RFC2045 5.1), or a x., as in application/x.foo (RFC4288
+# 4.3).  Any non x-prefixed type should be registered with IANA and listed at
+# the above address.  Any other behavior is a MIME standards violation!
+#
+# It is preferred that when a registered MIME type exists, that
+# the registered Content-Type and Subtype be used to refer to a file of
+# that type, so don't use application/x-zip when application/zip is
+# registered.
+#
+# If an active RFC suggests that a MIME registration for a new type is in
+# progress, make a note of it pointing to that RFC.
+#
+# The format is 4-5 columns:
+#    Column #1: byte number to begin checking from, ">" indicates continuation
+#    Column #2: type of data to match
+#    Column #3: contents of data to match
+#    Column #4: MIME type of result
+#    Column #5: MIME encoding of result (optional)
+
+
+# xml based formats!
+
+# svg
+38	string		<!DOCTYPE svg	image/svg+xml
+
+# xhtml
+38	string		<!DOCTYPE html	application/xhtml+xml
+
+# xml
+0	string		<?xml			text/xml
+
+
+#------------------------------------------------------------------------------
+# c-lang:  file(1) magic for C programs or various scripts
+#
+
+# XPM icons (Greg Roelofs, newt@uchicago.edu)
+# ideally should go into "images", but entries below would tag XPM as C source
+0	string		/* XPM		image/x-xpmi
+
+# 3DS (3d Studio files) Conflicts with diff output 0x3d '='
+#16	beshort		0x3d3d		image/x-3ds
+
+# this first will upset you if you're a PL/1 shop... (are there any left?)
+# in which case rm it; ascmagic will catch real C programs
+#					C or REXX program text
+#0	string		/*		text/x-c
+#					C++ program text
+#0	string		//		text/x-c++
+
+#------------------------------------------------------------------------------
+# html:  file(1) magic for HTML (HyperText Markup Language) docs
+#
+# from Michael Piefel <piefel@debian.org>
+#
+0	string/c	<!DOCTYPE html	text/html
+0	string/c	<head			text/html
+0	string/c	<title			text/html
+0	string/c	<html			text/html
+0	string		<!--			text/html
+0	string/c	<h1			text/html
+
+#------------------------------------------------------------------------------
+# images:  file(1) magic for image formats (see also "c-lang" for XPM bitmaps)
+#
+# originally from jef@helios.ee.lbl.gov (Jef Poskanzer),
+# additions by janl@ifi.uio.no as well as others. Jan also suggested
+# merging several one- and two-line files into here.
+#
+# XXX - byte order for GIF and TIFF fields?
+# [GRR:  TIFF allows both byte orders; GIF is probably little-endian]
+#
+
+# [GRR:  what the hell is this doing in here?]
+#0	string		xbtoa		btoa'd file
+
+# PBMPLUS
+#					PBM file
+0	string		P1		image/x-portable-bitmap
+#					PGM file
+0	string		P2		image/x-portable-greymap
+#					PPM file
+0	string		P3		image/x-portable-pixmap
+#					PBM "rawbits" file
+0	string		P4		image/x-portable-bitmap
+#					PGM "rawbits" file
+0	string		P5		image/x-portable-greymap
+#					PPM "rawbits" file
+0	string		P6		image/x-portable-pixmap
+
+# NIFF (Navy Interchange File Format, a modification of TIFF)
+# [GRR:  this *must* go before TIFF]
+0	string		IIN1		image/x-niff
+
+# TIFF and friends
+#					TIFF file, big-endian
+0	string		MM		image/tiff
+#					TIFF file, little-endian
+0	string		II		image/tiff
+
+# possible GIF replacements; none yet released!
+# (Greg Roelofs, newt@uchicago.edu)
+#
+# GRR 950115:  this was mine ("Zip GIF"):
+#					ZIF image (GIF+deflate alpha)
+0	string		GIF94z		image/x-unknown
+#
+# GRR 950115:  this is Jeremy Wohl's Free Graphics Format (better):
+#					FGF image (GIF+deflate beta)
+0	string		FGF95a		image/x-unknown
+#
+# GRR 950115:  this is Thomas Boutell's Portable Bitmap Format proposal
+# (best; not yet implemented):
+#					PBF image (deflate compression)
+0	string		PBF		image/x-unknown
+
+# GIF
+0	string		GIF		image/gif
+
+# JPEG images
+0	beshort		0xffd8		image/jpeg
+
+# PC bitmaps (OS/2, Windoze BMP files)  (Greg Roelofs, newt@uchicago.edu)
+0	string		BM		image/x-ms-bmp
+#>14	byte		12		(OS/2 1.x format)
+#>14	byte		64		(OS/2 2.x format)
+#>14	byte		40		(Windows 3.x format)
+#0	string		IC		icon
+#0	string		PI		pointer
+#0	string		CI		color icon
+#0	string		CP		color pointer
+#0	string		BA		bitmap array
+
+
+#PNG Image Format
+0	string		\x89PNG			image/png
+
+# Flash Video
+0	string		FLV			video/x-flv
+
+

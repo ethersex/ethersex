@@ -21,6 +21,12 @@
 #include "config.h"
 #include "httpd.h"
 
+#ifdef MIME_SUPPORT
+#define READ_AHEAD_LEN 64
+#else
+#define READ_AHEAD_LEN 2
+#endif
+
 static void
 httpd_handle_vfs_send_header (void)
 {
@@ -36,12 +42,12 @@ httpd_handle_vfs_send_header (void)
 
     /* Check whether the file is gzip compressed. */
 #ifndef VFS_TEENSY
-    unsigned char buf[2];
+    unsigned char buf[READ_AHEAD_LEN];
     if (VFS_HAVE_FUNC (STATE->u.vfs.fd, fseek)) {
 	/* Rewind stream first, might be a rexmit */
 	vfs_rewind (STATE->u.vfs.fd);
 
-	vfs_read (STATE->u.vfs.fd, buf, 2);
+	vfs_read (STATE->u.vfs.fd, buf, READ_AHEAD_LEN);
 	vfs_rewind (STATE->u.vfs.fd);
     } else
 	goto no_gzip;
@@ -51,6 +57,11 @@ httpd_handle_vfs_send_header (void)
 	PASTE_P (httpd_header_gzip);
 
 #ifndef VFS_TEENSY
+#ifdef MIME_SUPPORT
+    PASTE_PF (PSTR ("Content-Type: %S\n\n"), httpd_mimetype_detect (buf));
+    PASTE_SEND ();
+    return;
+#endif	/* MIME_SUPPORT */
 no_gzip:
 #endif	/* not VFS_TEENSY, inlined files are always gzip'd */
     if (STATE->u.vfs.content_type == 'X')
