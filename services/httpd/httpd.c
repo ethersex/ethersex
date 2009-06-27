@@ -193,8 +193,10 @@ after_auth:
      * Authentication is okay, now fulfill request for file
      * refered to in filename.
      */
+#ifndef HTTP_SD_DIR_SUPPORT
     if (*filename == 0)		/* No filename, override -> index */
 	strcpy_P(filename, PSTR(HTTPD_INDEX));
+#endif
 
 #ifdef ECMD_PARSER_SUPPORT
     uint8_t offset = strlen_P(PSTR(ECMD_INDEX "?"));
@@ -210,22 +212,32 @@ after_auth:
 
     STATE->u.vfs.fd = vfs_open (filename);
     if (STATE->u.vfs.fd) {
-#ifdef VFS_TEENSY
-      printf ("httpd: VFS got it, serving %d bytes!\n",
-	      vfs_size (STATE->u.vfs.fd));
-#else
-      printf ("httpd: VFS got it, serving %ld bytes!\n",
-	      vfs_size (STATE->u.vfs.fd));
-#endif
       STATE->handler = httpd_handle_vfs;
       return;
     }
+
+    /* Now try appending the index.html document name */
+    ptr = filename + strlen (filename);
+    if (ptr[-1] != '/')
+	*(ptr ++) = '/';
+
+    strcpy_P (ptr, PSTR (HTTPD_INDEX));
+    STATE->u.vfs.fd = vfs_open (filename);
+    if (STATE->u.vfs.fd) {
+      STATE->handler = httpd_handle_vfs;
+      return;
+    }
+
+    if (ptr == filename)	/* Make sure not to strip initial slash. */
+	ptr[0] = 0;
+    else
+	ptr[-1] = 0;		/* Strip index filename again,
+				   including the last slash. */
 #endif	/* VFS_SUPPORT */
 
-
 #ifdef HTTP_SD_DIR_SUPPORT
-    if ((STATE->u.dir.handle = vfs_sd_chdir (filename))) {
-	strncpy (STATE->u.dir.dirname, filename, SD_DIR_MAX_DIRNAME_LEN);
+    if ((STATE->u.dir.handle = vfs_sd_chdir (filename - 1))) {
+	strncpy (STATE->u.dir.dirname, filename - 1, SD_DIR_MAX_DIRNAME_LEN);
 	STATE->u.dir.dirname[SD_DIR_MAX_DIRNAME_LEN - 1] = 0;
 	STATE->handler = httpd_handle_sd_dir;
 	return;

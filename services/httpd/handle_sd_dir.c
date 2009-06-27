@@ -25,11 +25,11 @@
 char PROGMEM httpd_sd_dir_header[] =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"
     "<html><body>"
-    "<h1>Index of /%s</h1>"
+    "<h1>Index of %s</h1>"
     "<table><tr><th>Name</th><th>Size</th></tr>\n";
 
 char PROGMEM httpd_sd_dir_parent[] =
-    "<tr><td><a href='/%s'>Parent Directory</a></td><td>-</td></tr>";
+    "<tr><td><a href='%s'>Parent Directory</a></td><td>-</td></tr>";
 
 char PROGMEM httpd_sd_dir_footer[] =
     "</table>"
@@ -57,10 +57,7 @@ httpd_handle_sd_dir_send_header (void)
 	char *ptr = STATE->u.dir.dirname + strlen (STATE->u.dir.dirname) - 1;
 	if (*ptr == '/') *ptr = 0;
 
-	if ((ptr = strrchr (STATE->u.dir.dirname, '/')))
-	    ptr ++;
-	else
-	    ptr = STATE->u.dir.dirname;
+	ptr = strrchr (STATE->u.dir.dirname, '/') + 1;
 
 	*ptr = 0;		/* Chop of last directory's name. */
 	PASTE_PF (httpd_sd_dir_parent, STATE->u.dir.dirname);
