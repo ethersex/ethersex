@@ -64,6 +64,9 @@ vfs_sd_open_in (struct fat_dir_struct *parent, const char *filename)
     if (strcmp (filep.long_name, filename))
       continue;
 
+    if (filep.attributes & FAT_ATTRIB_DIR)
+      return NULL;		/* Is a directory. */
+
     /* Got it :) */
     struct fat_file_struct *inode = fat_open_file (vfs_sd_fat, &filep);
     struct vfs_file_handle_t *fh = malloc (sizeof (struct vfs_file_handle_t));
