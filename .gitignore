@@ -30,3 +30,4 @@ core/vfs/vfs-concat
 *.old
 *.rej
 *.hex
+services/httpd/magic.c
