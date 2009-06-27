@@ -42,6 +42,9 @@ char PROGMEM httpd_sd_dir_entry[] =
 char PROGMEM httpd_sd_dir_entry_dir[] =
     "<tr><td><a href='%s/'>%s</a></td><td>-</td></tr>";
 
+char PROGMEM httpd_header_301_redirect[] =
+    "HTTP/1.1 301 REDIRECT\n"
+    "Location: %s/\n\n";
 
 static void
 httpd_handle_sd_dir_send_header (void)
@@ -115,4 +118,19 @@ httpd_handle_sd_dir (void)
 
 	PASTE_SEND ();
     }
+}
+
+
+void
+httpd_handle_sd_dir_redirect (void)
+{
+    if (uip_acked ())
+	uip_close ();
+
+    if (uip_poll ())
+	return;
+
+    PASTE_RESET ();
+    PASTE_PF (httpd_header_301_redirect, STATE->u.dir.dirname);
+    PASTE_SEND ();
 }

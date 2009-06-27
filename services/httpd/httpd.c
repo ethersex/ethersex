@@ -218,6 +218,7 @@ after_auth:
 
     /* Now try appending the index.html document name */
     ptr = filename + strlen (filename);
+    uint8_t lastchar = ptr[-1];
     if (ptr[-1] != '/')
 	*(ptr ++) = '/';
 
@@ -239,7 +240,12 @@ after_auth:
     if ((STATE->u.dir.handle = vfs_sd_chdir (filename - 1))) {
 	strncpy (STATE->u.dir.dirname, filename - 1, SD_DIR_MAX_DIRNAME_LEN);
 	STATE->u.dir.dirname[SD_DIR_MAX_DIRNAME_LEN - 1] = 0;
-	STATE->handler = httpd_handle_sd_dir;
+	if (lastchar != '/') {
+	    STATE->handler = httpd_handle_sd_dir_redirect;
+	    fat_close_dir (STATE->u.dir.handle);
+	}
+	else
+	    STATE->handler = httpd_handle_sd_dir;
 	return;
     }
 #endif	/* HTTP_SD_DIR_SUPPORT */
