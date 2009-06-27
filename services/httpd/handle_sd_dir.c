@@ -32,8 +32,8 @@ char PROGMEM httpd_sd_dir_parent[] =
     "<tr><td><a href='%s'>Parent Directory</a></td><td>-</td></tr>";
 
 char PROGMEM httpd_sd_dir_footer[] =
-    "</table>"
-    "<address>Your friendly Ethersex HTTP service :-)</address>"
+    "</table><hr>"
+    "<address>Your friendly Ethersex HTTP service with VFS and mod_m4 :-)</address>"
     "</body></html>";
 
 char PROGMEM httpd_sd_dir_entry[] =
