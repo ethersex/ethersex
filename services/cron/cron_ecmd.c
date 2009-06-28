@@ -84,6 +84,6 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 	cron_jobinsert(minute, hour, day, month, dayofweek, INFINIT_RUNNING, 
 		CRON_APPEND, strlen(buffer), buffer); // strlen correct?
 
-        return snprintf_P(output, len, PSTR("cron added"));
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("cron added")));
 }
 
