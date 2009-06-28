@@ -218,7 +218,9 @@ after_auth:
 
     /* Now try appending the index.html document name */
     ptr = filename + strlen (filename);
+#ifdef HTTP_SD_DIR_SUPPORT
     uint8_t lastchar = ptr[-1];
+#endif
     if (ptr[-1] != '/')
 	*(ptr ++) = '/';
 
