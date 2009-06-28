@@ -57,10 +57,12 @@ window.onload = function() {
       </table>
     </td>
     <td>
-      <p><!-- Jippie, we like Microsoft Internet Explorer -->
+<!--[if IE]>
+      <p>
         <object id="AdobeSVG" classid="clsid:78156a80-c6a1-4bbf-8e6a-3cd390eeb4e2"> </object>
       </p>
       <?import namespace="svg" urn="http://www.w3.org/2000/svg" implementation="#AdobeSVG"?>
+<![endif]-->
       <svg:svg width="400px" height="300px" viewBox="0 0 400 300" zoomAndPan="disable">
         <svg:g stroke="red"   style="stroke-width:2px;" id="grph0"></svg:g>
         <svg:g stroke="blue"  style="stroke-width:2px;" id="grph1"></svg:g>
