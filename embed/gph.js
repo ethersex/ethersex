@@ -22,6 +22,9 @@ function Graph(id, num, min, max, color) {
 	this.color = (color) ? color : undefined;
 	this.append = function(val) { return graphAppend(this, val); }
 
+	if (color)
+		this.obj.setAttribute("stroke", color);
+
 	return this;
 }
 

@@ -56,7 +56,7 @@ function ecmd_1w_get_req_handler(request, data) {
 }
 
 window.onload = function() {
-	g = initDiagram(num, "grph#", "axis", "text", min, max);
+	g = initDiagram(num, "g#", "axis", "text", min, max);
 	ecmd_1w_list_req();
 }
 ]]></script>
@@ -77,17 +77,17 @@ window.onload = function() {
       </p>
       <?import namespace="svg" urn="http://www.w3.org/2000/svg" implementation="#AdobeSVG"?>
 <![endif]-->
-      <svg:svg width="400px" height="300px" viewBox="0 0 400 300" zoomAndPan="disable">
-        <svg:g stroke="red"   style="stroke-width:2px;" id="grph0"></svg:g>
-        <svg:g stroke="blue"  style="stroke-width:2px;" id="grph1"></svg:g>
-        <svg:g stroke="green" style="stroke-width:2px;" id="grph2"></svg:g>
-        <svg:g stroke="lime"  style="stroke-width:2px;" id="grph3"></svg:g>
-        <svg:g stroke="purple" style="stroke-width:2px;" id="grph4"></svg:g>
-        <svg:g stroke="maroon" style="stroke-width:2px;" id="grph5"></svg:g>
-        <svg:g stroke="navy"   style="stroke-width:2px;" id="grph6"></svg:g>
-        <svg:g stroke="yellow" style="stroke-width:2px;" id="grph7"></svg:g>
-        <svg:g stroke="#999"  style="stroke-dasharray: 2, 5; " id="axis"></svg:g>
-        <svg:g stroke="#999" font-size="12" id="text"></svg:g>
+      <svg:svg id="chart" width="400px" height="300px" viewBox="0 0 400 300" zoomAndPan="disable">
+        <svg:g class="graph" id="g0"></svg:g>
+        <svg:g class="graph" id="g1"></svg:g>
+        <svg:g class="graph" id="g2"></svg:g>
+        <svg:g class="graph" id="g3"></svg:g>
+        <svg:g class="graph" id="g4"></svg:g>
+        <svg:g class="graph" id="g5"></svg:g>
+        <svg:g class="graph" id="g6"></svg:g>
+        <svg:g class="graph" id="g7"></svg:g>
+        <svg:g id="axis"></svg:g>
+        <svg:g id="text"></svg:g>
       </svg:svg>
     </td></tr>
     </table>

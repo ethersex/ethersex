@@ -65,3 +65,19 @@ a:visited, a:active{
 	border-left: 1px dashed #FF9999;
 	padding: 3px;
 }
+
+svg {
+	stroke: #999;
+}
+
+svg .graph {
+	stroke-width: 2px;
+}
+
+svg #axis {
+	stroke-dasharray: 2,5;
+}
+
+svg #text {
+	font-size: 10pt;
+}
