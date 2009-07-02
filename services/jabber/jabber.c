@@ -103,7 +103,7 @@ jabber_parse_ecmd (const char *from, char *message)
     } else {
       int16_t len = ecmd_parse_command(message, STATE->outbuf,
                                        ECMD_OUTPUTBUF_LENGTH - 1);
-      if (is_ECMD_AGAIN(len))
+      if (is_ECMD_AGAIN(len)) {
           JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
 	  /* convert ECMD_AGAIN back to ECMD_FINAL */
           len = ECMD_AGAIN(len);
