@@ -185,7 +185,11 @@ start_auth:
       STATE->header_reparse = 0;
       return; /* We musn't open the file once again */
     }
+
 after_auth:
+    /* Dummy statement, to keep GCC happy, if HTTP_SD_DIR_SUPPORT is enabled
+       and thus the uint8_t definition the next statement in code. */
+    (void) 0;
 
 #endif	/* HTTPD_AUTH_SUPPORT */
 

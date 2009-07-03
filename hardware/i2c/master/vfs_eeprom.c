@@ -22,6 +22,7 @@
 
 #include <avr/io.h>
 #include <util/twi.h>
+#include <string.h>
         
 #include "config.h"
 #include "core/debug.h"
