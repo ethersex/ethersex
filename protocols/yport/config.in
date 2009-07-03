@@ -1,9 +1,12 @@
 if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  dep_bool "YPort Support" YPORT_SUPPORT $TCP_SUPPORT
-  if [ "$YPORT_SUPPORT" = y ]; then
-    choice '  YPort usart select' "$(usart_choice YPORT)"
-    usart_process_choice YPORT
-  fi
+  dep_bool_menu "YPort Support" YPORT_SUPPORT $TCP_SUPPORT
+    if [ "$YPORT_SUPPORT" = y ]; then
+      choice '  YPort usart select' "$(usart_choice YPORT)"
+      usart_process_choice YPORT
+      int    "  YPort TCP Port" YPORT_PORT 7970
+      int    "YPort Baudrate" YPORT_BAUDRATE 115200
+    fi
+  endmenu
 else
   define_bool YPORT_SUPPORT n
 fi

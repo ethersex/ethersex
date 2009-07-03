@@ -23,8 +23,6 @@
 #ifndef YPORT_NET_H
 #define YPORT_NET_H
 
-#define YPORT_PORT 7970
-
 void yport_net_init(void);
 void yport_net_main(void);
 
