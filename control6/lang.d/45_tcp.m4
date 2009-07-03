@@ -25,6 +25,18 @@ divert(0)dnl
 divert(-1)
 
 dnl ==========================================================================
+dnl TCP_EXPECT(text)
+dnl ==========================================================================
+define(`TCP_EXPECT', `
+  PT_WAIT_UNTIL(pt, uip_len && uip_newdata ());
+  if (strstr_P (uip_appdata, PSTR($1)) == NULL) {
+    uip_close ();
+    PT_EXIT(pt);
+  }
+')
+
+
+dnl ==========================================================================
 dnl TCP_SEND(text)
 dnl ==========================================================================
 define(`TCP_SEND', `
@@ -43,6 +55,9 @@ c6_tcp_handler_$1 (void)
 {
   if (uip_aborted () || uip_timedout () || uip_closed ())
     return;
+
+  if (uip_newdata ())
+    ((char *) uip_appdata)[uip_len] = 0;
 
   PT_THREAD(inline_thread(struct pt *pt)) {
     PT_BEGIN(pt);
