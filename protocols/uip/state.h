@@ -41,6 +41,7 @@
 #include "protocols/smtp/sendmail.h"
 #include "protocols/irc/irc_state.h"
 #include "core/tty/tty-vt100-telnet.h"
+#include "core/pt/pt.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -86,6 +87,12 @@ typedef union uip_tcp_connection_state {
     struct tty_vt100_state_t tty_vt100;
 #   endif
 
+#   ifdef CONTROL6_SUPPORT
+    struct {
+	struct pt pt;
+	lc_t rexmit_lc;
+    } control6_tcp;
+#   endif
 } uip_tcp_appstate_t;
 
 
