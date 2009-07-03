@@ -29,7 +29,7 @@
 #include "hardware/camera/dc3840-util.h"
 #include "services/clock/clock.h"
 
-
+#ifdef VFS_SD_SUPPORT
 void
 dc3840_save_snapshot (void)
 {
@@ -60,3 +60,4 @@ dc3840_save_snapshot (void)
 
   vfs_copy_file (filename, src);
 }
+#endif // VFS_SD_SUPPORT

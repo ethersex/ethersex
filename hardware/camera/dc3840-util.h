@@ -22,7 +22,9 @@
 #ifndef DC3840_UTIL_H
 #define DC3840_UTIL_H
 
+#ifdef VFS_SD_SUPPORT
 void dc3840_save_snapshot (void);
+#endif //VFS_SD_SUPPORT
 
 
 #endif	/* DC3840_UTIL_H */
