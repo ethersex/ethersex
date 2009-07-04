@@ -29,29 +29,29 @@ char PROGMEM httpd_header_200[] =
 
 
 char PROGMEM httpd_header_ct_css[] =
-"Content-Type: text/css; charset=iso-8859-1\n\n";
+"Content-Type: text/css; charset=utf-8\n\n";
 
 
 char PROGMEM httpd_header_ct_html[] =
-"Content-Type: text/html; charset=iso-8859-1\n\n";
+"Content-Type: text/html; charset=utf-8\n\n";
 
 
 char PROGMEM httpd_header_ct_xhtml[] =
-"Content-Type: application/xhtml+xml; charset=iso-8859-1\n\n";
+"Content-Type: application/xhtml+xml; charset=utf-8\n\n";
 
 
 #ifdef ECMD_PARSER_SUPPORT
 char PROGMEM httpd_header_ecmd[] =
 "Cache-Control: no-cache\n"
 "Cache-Control: must-revalidate\n"
-"Content-Type: text/plain; charset=iso-8859-1\n\n";
+"Content-Type: text/plain; charset=utf-8\n\n";
 #endif	/* ECMD_PARSER_SUPPORT */
 
 
 char PROGMEM httpd_header_400[] =
 "HTTP/1.1 400 Bad Request\n"
 "Connection: close\n"
-"Content-Type: text/plain; charset=iso-8859-1\n";
+"Content-Type: text/plain; charset=utf-8\n";
 
 
 char PROGMEM httpd_header_gzip[] =
@@ -63,7 +63,7 @@ char PROGMEM httpd_header_401[] =
 "HTTP/1.1 401 UNAUTHORIZED\n"
 "Connection: close\n"
 "WWW-Authenticate: Basic realm=\"Secure Area\"\n"
-"Content-Type: text/plain; charset=iso-8859-1\n";
+"Content-Type: text/plain; charset=utf-8\n";
 
 
 char PROGMEM httpd_body_401[] =
@@ -78,7 +78,7 @@ char PROGMEM httpd_body_400[] =
 char PROGMEM httpd_header_404[] =
 "HTTP/1.1 404 File Not Found\n"
 "Connection: close\n"
-"Content-Type: text/plain; charset=iso-8859-1\n";
+"Content-Type: text/plain; charset=utf-8\n";
 
 
 char PROGMEM httpd_body_404[] =
