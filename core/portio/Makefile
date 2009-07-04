@@ -3,6 +3,7 @@ include $(TOPDIR)/.config
 
 $(PORTIO_SUPPORT)_SRC += core/portio/portio.c
 $(PORTIO_SUPPORT)_ECMD_SRC += core/portio/ecmd.c
+$(NAMED_PIN_SUPPORT)_ECMD_SRC += core/portio/ecmd_np.c
 
 $(PORTIO_SIMPLE_SUPPORT)_ECMD_SRC += core/portio/ecmd_simple.c
 
