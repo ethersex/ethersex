@@ -11,10 +11,6 @@ dnl
 dnl block(Network configuration) dnl ==========================
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_ifdef(UIP_SUPPORT)
-    ecmd_ifdef(ENC28J60_SUPPORT)
-      ecmd_feature(mac, "mac",[xx:xx:xx:xx:xx:xx],Display/Set the MAC address.)
-    ecmd_endif()
-
     ecmd_ifndef(IPV6_SUPPORT)
       ecmd_feature(ip, "ip",[IP],Display/Set the IP address.)
       ecmd_feature(netmask, "netmask",[IP],Display/Set the network mask.)
@@ -68,45 +64,12 @@ ecmd_ifdef(CRON_SUPPORT)
   ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)
 ecmd_endif()
 
-block(Port I/O) dnl ==========================
-ecmd_ifdef(PORTIO_SUPPORT)
-  ecmd_feature(io_set_ddr, "io set ddr", PORTNUM HEXVALUE [MASK], Set the DDR of port PORTNUM to VALUE (possibly using the provided MASK).)
-  ecmd_feature(io_get_ddr, "io get ddr", PORTNUM, Display the current value of the DDR PORTNUM.)
-  ecmd_feature(io_set_port, "io set port", NUM HEXVALUE [MASK], Set the PORT NUM to VALUE (possibly using the provided MASK).)
-  ecmd_feature(io_get_port, "io get port", NUM, Display the current value of the PORT NUM.)
-  ecmd_feature(io_get_pin, "io get pin", PORTNUM, Display the current value of the PIN-register of the port PORTNUM.)
-  ecmd_feature(io_get_mask, "io get mask", PORTNUM, Display the mask of the port PORTNUM.)
-ecmd_endif()
-
-ecmd_ifdef(PORTIO_SIMPLE_SUPPORT)
-  ecmd_feature(io, "io ")
-ecmd_endif()
-
 block(Control 6) dnl ==========================
 ecmd_ifdef(CONTROL6_SUPPORT)
   ecmd_ifdef(C6_ECMD_USED)
     ecmd_feature(c6_get, "c6 get ", VARNAME, Display the current value of the ECMD_GLOBAL Variable)
     ecmd_feature(c6_set, "c6 set ", VARNAME VALUE, Set an new value on the ECMD_GLOBAL Variable)
   ecmd_endif()
-ecmd_endif()
-
-block(Named Pins) dnl ==========================
-ecmd_ifdef(NAMED_PIN_SUPPORT)
-  ecmd_ifdef(PORTIO_SUPPORT)
-    ecmd_feature(pin_get, "pin get", NAME, Read and display the status of pin NAME.)
-    ecmd_feature(pin_set, "pin set", NAME STATUS, Set the status of pin NAME to STATUS.)
-    ecmd_feature(pin_toggle, "pin toggle", NAME, Toggle the status of pin NAME.)
-  ecmd_endif()
-ecmd_endif()
-
-block(HD44780 LCD Display) dnl ==========================
-ecmd_ifdef(HD44780_SUPPORT)
-  ecmd_feature(lcd_clear, "lcd clear", [LINE], Clear line LINE (0..3) or the whole display (if parameter is omitted))
-  ecmd_feature(lcd_write, "lcd write", TEXT, Write TEXT to the current cursor location)
-  ecmd_feature(lcd_goto, "lcd goto", LINE COL, Move cursor to LINE and column COL (origin is 0/0))
-  ecmd_feature(lcd_char, "lcd char", N D1 D2 D3 D4 D5 D6 D7 D8, Define use-definable char N with data D1..D8 (provide DATA in hex))
-  ecmd_feature(lcd_init, "lcd init", CURSOR BLINK, Reinitialize the display, set whether to show the cursor (CURSOR, 0 or 1) and whether the cursor shall BLINK)
-  ecmd_feature(lcd_shift, "lcd shift", DIR, Shift the display to DIR (either ''left'' or ''right''))
 ecmd_endif()
 
 block(Dallas 1-wire) dnl ==========================
@@ -116,18 +79,6 @@ ecmd_ifdef(ONEWIRE_SUPPORT)
   ecmd_endif()
   ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
   ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
-ecmd_endif()
-
-block(DNS Client) dnl ==========================
-ecmd_ifdef(DNS_SUPPORT)
-  ecmd_feature(nslookup, "nslookup ", HOSTNAME, Do DNS lookup for HOSTNAME (call twice).)
-  ecmd_feature(dns_server, "dns server", [IPADDR], Display/Set the IP address of the DNS server to use to IPADDR.)
-ecmd_endif()
-
-block(NTP Client/Server) dnl ==========================
-ecmd_ifdef(NTP_SUPPORT)
-  ecmd_feature(ntp_query, "ntp query",, Query the NTP server to get an NTP update.)
-  ecmd_feature(ntp_server, "ntp server", [IPADDR], Display/Set the IP address of the NTP server to use to IPADDR.)
 ecmd_endif()
 
 block(Clock) dnl ==========================
@@ -354,12 +305,6 @@ ecmd_endif
 dnl block(NetStat Client) dnl ==========================
 ecmd_ifdef(NETSTAT_SUPPORT)
   ecmd_feature(netstat, "ns",,Net Statistic - Public anouncment of running ethersex)
-ecmd_endif
-
-dnl block(IRC Client) dnl ==========================
-ecmd_ifdef(IRC_SUPPORT)
-  block(IRC support)
-  ecmd_feature(irc, "irc init",,irc initialization)
 ecmd_endif
 
 dnl block(UPNP SUPPORT) dnl ==========================

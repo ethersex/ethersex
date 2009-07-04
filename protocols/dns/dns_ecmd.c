@@ -71,3 +71,9 @@ int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("nslookup triggered, try again for result.")));
   }
 }
+
+/*
+  -- Ethersex META --
+  ecmd_feature(nslookup, "nslookup ", HOSTNAME, Do DNS lookup for HOSTNAME (call twice).)
+  ecmd_feature(dns_server, "dns server", [IPADDR], Display/Set the IP address of the DNS server to use to IPADDR.)
+*/

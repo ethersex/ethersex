@@ -18,11 +18,11 @@ dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
 define(`prototypes',0)dnl
-define(`initearly_divert',1)dnl
-define(`init_divert',2)dnl
-define(`net_init_divert',3)dnl
-define(`startup_divert',4)dnl
-define(`mainloop_divert',5)dnl
+define(`initearly_divert',5)dnl
+define(`init_divert',6)dnl
+define(`net_init_divert',7)dnl
+define(`startup_divert',8)dnl
+define(`mainloop_divert',9)dnl
 define(`timer_divert',10)dnl after timer divert there musn't be any other divert level
 divert(0)dnl
 /* This file has been generated automatically.
@@ -63,7 +63,7 @@ void
 ethersex_meta_mainloop (void)
 {
 
-divert(9)dnl
+divert(timer_divert)dnl
     periodic_process(); wdt_kick();
 }
 

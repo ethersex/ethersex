@@ -138,3 +138,8 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   *ioptr = (*ioptr & ~(mask & sysmask)) | (value & mask & sysmask);
   return ECMD_FINAL_OK;
 }
+
+/*
+  -- Ethersex META --
+  ecmd_feature(io, "io ")
+*/

@@ -1,5 +1,4 @@
 /*
- *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,5 +28,14 @@
  * < -10 for "generated output, but needs to be caled again,
  *        output bytes: (-ret-10) */
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
+
+/* struct for storing commands */
+struct ecmd_command_t {
+    PGM_P name;
+    int16_t (*func)(char*, char*, uint16_t);
+};
+
+/* automatically generated via meta system */
+extern const struct ecmd_command_t PROGMEM ecmd_cmds[];
 
 #endif /* _ECMD_PARSER_H */

@@ -108,7 +108,7 @@ meta.m4: ${SRC} ${y_SRC} .config
 	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
 	@echo "Build meta files"
 
-meta.c: scripts/meta_magic.m4 meta.m4
+meta.c: scripts/meta_magic.m4 protocols/ecmd/ecmd_magic.m4 meta.m4 protocols/ecmd/ecmd_defs.m4
 	@m4 $^ > $@
 
 ##############################################################################
