@@ -81,13 +81,6 @@ ecmd_ifdef(ONEWIRE_SUPPORT)
   ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
 ecmd_endif()
 
-block(KTY) dnl ==========================
-ecmd_ifdef(KTY_SUPPORT)
-  ecmd_feature(kty_get, "kty get", [CHANNEL], Get the temperature in xxx.x °C of CHANNEL or if no channel set of all channels.)
-  ecmd_feature(kty_cal_get, "kty cal get",, Return the calibration difference to 2k2 Resistor.)
-  ecmd_feature(kty_calibration, "kty autocalibrate", CHANNEL, Calibrate to 1000 Ohm precision Resistor.)
-ecmd_endif()
-
 block(DataFlash) dnl ==========================
 ecmd_ifdef(DATAFLASH_SUPPORT)
   ecmd_feature(df_status, "df status",, Display internal status.)
