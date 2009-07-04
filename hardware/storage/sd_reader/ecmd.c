@@ -53,7 +53,6 @@ parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
 }
 
 
-
 int16_t
 parse_cmd_sd_mkdir (char *cmd, char *output, uint16_t len)
 {
@@ -62,3 +61,10 @@ parse_cmd_sd_mkdir (char *cmd, char *output, uint16_t len)
 
   return -vfs_sd_mkdir_recursive (cmd);
 }
+
+
+/*
+  -- Ethersex META --
+  ecmd_feature(sd_dir, "sd dir",, List contents of current SD directory.)
+  ecmd_feature(sd_mkdir, "sd mkdir",PATH, Create directory hierarchy PATH.)
+*/

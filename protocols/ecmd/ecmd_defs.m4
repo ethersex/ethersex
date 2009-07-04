@@ -81,27 +81,6 @@ ecmd_ifdef(ONEWIRE_SUPPORT)
   ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
 ecmd_endif()
 
-block(DataFlash) dnl ==========================
-ecmd_ifdef(DATAFLASH_SUPPORT)
-  ecmd_feature(df_status, "df status",, Display internal status.)
-
-  ecmd_feature(fs_format, "fs format",, Format the filesystem.)
-  ecmd_feature(fs_list, "fs list",, List the directory.)
-  ecmd_feature(fs_mkfile, "fs mkfile ", NAME, Create a new file NAME.)
-  ecmd_feature(fs_remove, "fs remove ", NAME, Delete the file NAME.)
-  ecmd_feature(fs_truncate, "fs truncate ", NAME LEN, Truncate the file NAME to LEN bytes.)
-  ecmd_ifdef(DEBUG_FS)
-    ecmd_feature(fs_inspect_node, "fs inspect node ", NODE, Inspect NODE and dump to serial.)
-    ecmd_feature(fs_inspect_inode, "fs inspect inode ", INODE, Inspect INODE (and associated page).)
-  ecmd_endif()
-ecmd_endif()
-
-block(SD/MMC Card Reader) dnl ==========================
-ecmd_ifdef(SD_READER_SUPPORT)
-  ecmd_feature(sd_dir, "sd dir",, List contents of current SD directory.)
-  ecmd_feature(sd_mkdir, "sd mkdir",PATH, Create directory hierarchy PATH.)
-ecmd_endif
-
 block(RFM12) dnl ==========================
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_ifdef(RFM12_SUPPORT)
