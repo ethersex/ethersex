@@ -39,10 +39,33 @@ define(`TCP_EXPECT', `
 dnl ==========================================================================
 dnl TCP_SEND(text)
 dnl ==========================================================================
-define(`TCP_SEND', `
-  strcpy_P(uip_sappdata, PSTR($1));
-  uip_send (uip_sappdata, strlen (uip_sappdata));
+define(`TCP_SEND', `dnl
+  ifelse(`$#', 1,dnl
+	`strcpy_P(uip_sappdata, PSTR($1));
+	 uip_send (uip_sappdata, strlen (uip_sappdata));',
+
+	dnl multiple args, use printf syntax
+	`{ uint16_t i = snprintf_P (uip_sappdata, uip_mss (), PSTR($1), shift($@));
+	   uip_send (uip_sappdata, i ); }')
   PT_YIELD(pt);
+')
+
+dnl ==========================================================================
+dnl TCP_HANDLER_PERSIST(name)
+dnl ==========================================================================
+define(`TCP_HANDLER_PERSIST', `dnl
+divert(action_divert)dnl
+static void
+c6_tcp_handler_$1 (void)
+{
+  if (uip_aborted () || uip_timedout () || uip_closed ()) {
+    /* connection was reset, reconnect. */
+    uip_connect (&uip_conn->ripaddr, uip_conn->rport, c6_tcp_handler_$1);
+    return;
+  }
+
+  PT_THREAD(inline_thread(struct pt *pt)) {
+    PT_BEGIN(pt);
 ')
 
 dnl ==========================================================================
@@ -56,9 +79,6 @@ c6_tcp_handler_$1 (void)
   if (uip_aborted () || uip_timedout () || uip_closed ())
     return;
 
-  if (uip_newdata ())
-    ((char *) uip_appdata)[uip_len] = 0;
-
   PT_THREAD(inline_thread(struct pt *pt)) {
     PT_BEGIN(pt);
 ')
@@ -70,6 +90,9 @@ define(`TCP_HANDLER_END', `
     uip_close();
     PT_END(pt);
   }
+
+  if (uip_newdata ())
+    ((char *) uip_appdata)[uip_len] = 0;
 
   if (uip_rexmit ())
     /* restore old lc context to automatically do the retransmit */
