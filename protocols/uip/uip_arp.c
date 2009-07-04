@@ -401,7 +401,18 @@ uip_arp_out(void)
      packet with an ARP request for the IP address. */
 
   /* First check if destination is a local broadcast. */
-  if(uip_ipaddr_cmp(IPBUF->destipaddr, broadcast_ipaddr)) {
+  if(((const uint8_t *)IPBUF->destipaddr)[0] >= 224
+     && ((const uint8_t *)IPBUF->destipaddr)[0] <= 239) {
+    /* packet is addressed to multicast ip range, generate
+       the associated mac address for it. */
+    IPBUF->ethhdr.dest.addr[0] = 0x01;
+    IPBUF->ethhdr.dest.addr[1] = 0x00;
+    IPBUF->ethhdr.dest.addr[2] = 0x5e;
+    IPBUF->ethhdr.dest.addr[3] = ((const uint8_t *)IPBUF->destipaddr)[1] & 0x7f;
+    IPBUF->ethhdr.dest.addr[4] = ((const uint8_t *)IPBUF->destipaddr)[2];
+    IPBUF->ethhdr.dest.addr[5] = ((const uint8_t *)IPBUF->destipaddr)[3];
+  }
+  else if(uip_ipaddr_cmp(IPBUF->destipaddr, broadcast_ipaddr)) {
     memcpy(IPBUF->ethhdr.dest.addr, broadcast_ethaddr.addr, 6);
 #ifdef MDNS_SD_SUPPORT
   /* If the ip is the mdns mulicast ip, we answer to the mac who asked */
