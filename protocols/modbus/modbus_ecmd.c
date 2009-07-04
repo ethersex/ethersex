@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +35,6 @@
 
 extern int16_t *modbus_recv_len_ptr;
 
-#if defined(MODBUS_SUPPORT)
 int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 {
   uint8_t cmd_len = strlen(cmd);
@@ -85,4 +83,8 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 
   return ECMD_FINAL(i * 2);
 }
-#endif
+
+/*
+  -- Ethersex META --
+  ecmd_feature(modbus_recv, "mb recv ")
+*/

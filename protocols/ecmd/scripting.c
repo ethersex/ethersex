@@ -311,4 +311,17 @@ parse_cmd_echo(char *cmd, char *output, uint16_t len)
       return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), cmd));
 }
 
-
+/*
+  -- Ethersex META --
+  ecmd_feature(goto, "goto ",N, Goto line N in currently running script)
+  ecmd_feature(exit, "exit",, Exit currently running script)
+  ecmd_feature(wait, "wait ",I, Wait I milliseconds)
+  ecmd_feature(set, "set ",VAR VALUE, Set variable VAR to VALUE)
+  ecmd_feature(get, "get ",VAR, Get value of variable VAR)
+  ecmd_feature(inc, "inc ",VAR, Increment variable VAR (a number) )
+  ecmd_feature(dec, "dec ",VAR, Decrement variable VAR (a number) )
+  ecmd_feature(call, "call ",FILENAME, Start script named FILENAME)
+  ecmd_feature(if, "if ",( CMD/VAR == CONST ) then CMD2, If condition matches execute CMD2)
+  ecmd_feature(rem, "rem",<any>, Remark for anything)
+  ecmd_feature(echo, "echo ",<any>, Print out all arguments of echo)
+*/

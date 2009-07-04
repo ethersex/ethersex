@@ -7,7 +7,8 @@ $(HTTP_SD_DIR_SUPPORT)_HTTPD_FILES += services/httpd/handle_sd_dir.c
 
 $(MIME_SUPPORT)_SRC += services/httpd/magic.c
 
-$(HTTPD_SUPPORT)_SRC += services/httpd/httpd_ecmd.c services/httpd/handle_400.c	\
+$(HTTPD_AUTH_SUPPORT)_ECMD_SRC += services/httpd/httpd_ecmd.c
+$(HTTPD_SUPPORT)_SRC += services/httpd/handle_400.c	\
 	services/httpd/handle_401.c	\
 	services/httpd/handle_404.c	\
 	services/httpd/headers.c		\

@@ -35,3 +35,8 @@ int16_t parse_cmd_upnp(char *cmd, char *output, uint16_t len)
   upnp_send ();
   return ECMD_FINAL_OK;
 }
+
+/*
+  -- Ethersex META --
+  ecmd_feature(upnp, "upnp send",, Send UPnP broadcast packet)
+*/

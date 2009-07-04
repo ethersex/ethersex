@@ -38,3 +38,8 @@ int16_t parse_cmd_netstat(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL_OK;
   return ECMD_FINAL(snprintf_P(cmd, len, PSTR("sending failed")));
 }
+
+/*
+  -- Ethersex META --
+  ecmd_feature(netstat, "ns",,Net Statistic - Public anouncment of running ethersex)
+*/

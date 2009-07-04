@@ -26,14 +26,10 @@
 #include <avr/eeprom.h>
 
 #include "config.h"
-#include "core/debug.h"
 #include "core/eeprom.h"
-#include "core/usart.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
-
-#if defined(HTTPD_AUTH_SUPPORT)
 int16_t parse_cmd_http_passwd(char *cmd, char *output, uint16_t len)
 {
     char new_pass[sizeof(((struct eeprom_config_t * )0x0000)->httpd_auth_password) + 1];
@@ -57,4 +53,8 @@ display_password:
       goto display_password;
     }
 }
-#endif
+
+/*
+  -- Ethersex META --
+  ecmd_feature(http_passwd, "http passwd")
+*/

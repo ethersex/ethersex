@@ -26,8 +26,6 @@
 #include "protocols/dmx/dmx.h"
 
 
-#ifdef DMX_SUPPORT
-
 int16_t
 parse_cmd_dmx_set6chan(char *cmd, char *output, uint16_t len)
 {
@@ -60,4 +58,9 @@ parse_cmd_dmx_fade(char *cmd, char *output, uint16_t len)
   dmx_prg = 1;
   return 0;
 }
-#endif /* DMX_SUPPORT */
+
+/*
+  -- Ethersex META --
+  ecmd_feature(dmx_set6chan, "dmx set6chan ")
+  ecmd_feature(dmx_fade, "dmx fade")
+*/

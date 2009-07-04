@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
@@ -30,8 +29,6 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-
-#ifdef CLOCK_DATETIME_SUPPORT
 int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
 {
   return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"), clock_get_time()));
@@ -47,12 +44,9 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
                     date.hour, date.min, date.sec, date.day, date.month, date.year,
                     weekdays + date.dow * 4));
 }
-#endif /* ECMD_TIME_SUPPORT */
 
-#ifdef WHM_SUPPORT
-int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
-{
-  uint32_t working_hours = (clock_get_time() - clock_get_startup()) / 60;
-  return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60);
-}
-#endif /* WHM_SUPPORT */
+/*
+  -- Ethersex META --
+  ecmd_feature(time, "time",, Display the current time in seconds since January 1st 1970.)
+  ecmd_feature(date, "date",, Display the current date.)
+*/

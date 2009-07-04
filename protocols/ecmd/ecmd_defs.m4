@@ -81,19 +81,6 @@ ecmd_ifdef(ONEWIRE_SUPPORT)
   ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
 ecmd_endif()
 
-block(Clock) dnl ==========================
-ecmd_ifdef(CLOCK_SUPPORT)
-  ecmd_ifdef(CLOCK_DATETIME_SUPPORT)
-    ecmd_feature(time, "time",, Display the current time in seconds since January 1st 1970.)
-    ecmd_feature(date, "date",, Display the current date.)
-  ecmd_endif()
-ecmd_endif()
-
-block(Analog/Digital Conversion (ADC)) dnl ==========================
-ecmd_ifdef(ADC_SUPPORT)
-  ecmd_feature(adc_get, "adc get", [CHANNEL], Get the ADC value in hex of CHANNEL or if no channel set of all channels.)
-ecmd_endif()
-
 block(KTY) dnl ==========================
 ecmd_ifdef(KTY_SUPPORT)
   ecmd_feature(kty_get, "kty get", [CHANNEL], Get the temperature in xxx.x °C of CHANNEL or if no channel set of all channels.)
@@ -213,21 +200,6 @@ ecmd_ifdef(FS20_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
-block(ECMD Scripting) dnl ==========================
-ecmd_ifdef(ECMD_SCRIPT_SUPPORT)
-  ecmd_feature(goto, "goto ",N, Goto line N in currently running script)
-  ecmd_feature(exit, "exit",, Exit currently running script)
-  ecmd_feature(wait, "wait ",I, Wait I milliseconds)
-  ecmd_feature(set, "set ",VAR VALUE, Set variable VAR to VALUE)
-  ecmd_feature(get, "get ",VAR, Get value of variable VAR)
-  ecmd_feature(inc, "inc ",VAR, Increment variable VAR (a number) )
-  ecmd_feature(dec, "dec ",VAR, Decrement variable VAR (a number) )
-  ecmd_feature(call, "call ",FILENAME, Start script named FILENAME)
-  ecmd_feature(if, "if ",( CMD/VAR == CONST ) then CMD2, If condition matches execute CMD2)
-  ecmd_feature(rem, "rem",<any>, Remark for anything)
-  ecmd_feature(echo, "echo ",<any>, Print out all arguments of echo)
-ecmd_endif
-
 
 
 
@@ -247,18 +219,8 @@ dnl    ecmd_feature(usart_baud, "usart baud", BAUD, Set the USART baudrate to BA
 dnl  ecmd_endif()
 ecmd_endif()
 
-ecmd_ifdef(IPSTATS_SUPPORT)
-  ecmd_feature(ipstats, "ipstats",, Display IP statistics.)
-ecmd_endif()
-
 ecmd_ifdef(FREE_SUPPORT)
   ecmd_feature(free, "free",, Display free space.)
-ecmd_endif()
-
-
-dnl block(Uptime) dnl ==========================
-ecmd_ifdef(WHM_SUPPORT)
-  ecmd_feature(whm, "whm",, Display the uptime.)
 ecmd_endif()
 
 dnl block(EEPROM) dnl ==========================
@@ -266,54 +228,8 @@ ecmd_ifdef(EEPROM_SUPPORT)
   ecmd_feature(eeprom_reinit, "eeprom reinit",, Force reinitialization of the EEPROM config area)
 ecmd_endif
 
-dnl block(ModBus) dnl ==========================
-ecmd_ifdef(MODBUS_SUPPORT)
-  ecmd_feature(modbus_recv, "mb recv ")
-ecmd_endif()
-
 dnl block(Infrared) dnl ==========================
 ecmd_ifdef(RC5_SUPPORT)
   ecmd_feature(ir_send, "ir send")
   ecmd_feature(ir_receive, "ir receive")
 ecmd_endif()
-
-dnl block(HTTP Authentication) dnl ==========================
-ecmd_ifdef(HTTPD_AUTH_SUPPORT)
-  ecmd_feature(http_passwd, "http passwd")
-ecmd_endif()
-
-dnl block(MySQL Client) dnl ==========================
-ecmd_ifdef(MYSQL_SUPPORT)
-  ecmd_feature(mysql_query, "mysql query ",QUERY, Send specified MySQL query to the configured server)
-ecmd_endif
-
-dnl block(ECMD Aliases) dnl ==========================
-ecmd_ifdef(ALIASCMD_SUPPORT)
-  ecmd_feature(alias_list, "alias list",, List all available aliases)
-ecmd_endif
-
-dnl block(Button Input) dnl ==========================
-ecmd_ifdef(BUTTONS_INPUT_SUPPORT)
-  ecmd_feature(push, "push ")
-ecmd_endif
-
-dnl block(Twitter Client) dnl ==========================
-ecmd_ifdef(TWITTER_SUPPORT)
-  ecmd_feature(tw, "tw ")
-ecmd_endif
-
-dnl block(NetStat Client) dnl ==========================
-ecmd_ifdef(NETSTAT_SUPPORT)
-  ecmd_feature(netstat, "ns",,Net Statistic - Public anouncment of running ethersex)
-ecmd_endif
-
-dnl block(UPNP SUPPORT) dnl ==========================
-ecmd_ifdef(UPNP_SUPPORT)
-  ecmd_feature(upnp, "upnp send",, Send UPnP broadcast packet)
-ecmd_endif()
-
-dnl block(DMX) dnl ==========================
-ecmd_ifdef(DMX_SUPPORT)
-  ecmd_feature(dmx_set6chan, "dmx set6chan ")
-  ecmd_feature(dmx_fade, "dmx fade")
-ecmd_endif

@@ -20,6 +20,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/pgmspace.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "core/bit-macros.h"
+#include "core/portio/named_pin.h"
+#include "core/portio/portio.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
 {
@@ -147,6 +156,6 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   ecmd_feature(pin_get, "pin get", NAME, Read and display the status of pin NAME.)
+  ecmd_feature(pin_set, "pin set", NAME STATUS, Set the status of pin NAME to STATUS.)
+  ecmd_feature(pin_toggle, "pin toggle", NAME, Toggle the status of pin NAME.)
 */
-    ecmd_feature(pin_set, "pin set", NAME STATUS, Set the status of pin NAME to STATUS.)
-    ecmd_feature(pin_toggle, "pin toggle", NAME, Toggle the status of pin NAME.)

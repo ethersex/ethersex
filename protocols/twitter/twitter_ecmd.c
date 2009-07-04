@@ -40,4 +40,5 @@ int16_t parse_cmd_tw (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  ecmd_feature(tw, "tw ")
 */

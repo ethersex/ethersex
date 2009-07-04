@@ -31,14 +31,12 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-#ifdef ALIASCMD_SUPPORT
-
 #include "alias_defs.c"
 
 #define ALIASCMD_MAX sizeof(aliascmdlist) / sizeof(aliascmd_t)
 
-char
-*aliascmd_decode(char *cmd)
+char *
+aliascmd_decode(char *cmd)
 {
 	aliascmd_t alias;
     uint8_t alias_cmp_len = 0;
@@ -111,4 +109,7 @@ parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
 	}
 }
 
-#endif /*ALIASCMD_SUPPORT*/
+/*
+  -- Ethersex META --
+  ecmd_feature(alias_list, "alias list",, List all available aliases)
+*/

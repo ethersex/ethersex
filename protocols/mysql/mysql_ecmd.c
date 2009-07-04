@@ -20,17 +20,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string.h>
-#include <avr/pgmspace.h>
-
-#include "config.h"
 #include "mysql.h"
 #include "emcd_parser/ecmd.h"
 
 #include "protocols/ecmd/ecmd-base.h"
-
-
-#ifdef MYSQL_SUPPORT
 
 int16_t
 parse_cmd_mysql_query (char *cmd, char *output, uint16_t len)
@@ -41,4 +34,7 @@ parse_cmd_mysql_query (char *cmd, char *output, uint16_t len)
   return mysql_send_message (cmd) ? ECMD_ERR_PARSE_ERROR : ECMD_FINAL_OK;
 }
 
-#endif	/* MYSQL_SUPPORT */
+/*
+  -- Ethersex META --
+  ecmd_feature(mysql_query, "mysql query ",QUERY, Send specified MySQL query to the configured server)
+*/

@@ -40,3 +40,8 @@ parse_cmd_push (char *cmd, char *output, uint16_t len)
 
   return ECMD_ERR_PARSE_ERROR;
 }
+
+/*
+  -- Ethersex META --
+  ecmd_feature(push, "push ")
+*/

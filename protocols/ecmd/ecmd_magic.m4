@@ -33,6 +33,10 @@ divert(0)dnl
 #include <avr/pgmspace.h>
 #include "protocols/ecmd/parser.h"
 
+#ifndef NULL
+#define NULL ((void *) 0)
+#endif
+
 divert(1)dnl
 
 /* Function prototypes follow */

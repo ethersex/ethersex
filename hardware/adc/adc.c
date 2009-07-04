@@ -67,3 +67,8 @@ adc_out:
   }
   return ECMD_FINAL(ret);
 }
+
+/*
+  -- Ethersex META --
+  ecmd_feature(adc_get, "adc get", [CHANNEL], Get the ADC value in hex of CHANNEL or if no channel set of all channels.)
+*/

@@ -1,7 +1,9 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(CLOCK_SUPPORT)_SRC += services/clock/clock.c services/clock/clock_ecmd.c
+$(CLOCK_SUPPORT)_SRC += services/clock/clock.c 
+$(CLOCK_DATETIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd.c
+$(WHM_SUPPORT)_ECMD_SRC += services/clock/whm_ecmd.c
 
 ##############################################################################
 # generic fluff

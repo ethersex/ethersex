@@ -1,5 +1,7 @@
 /*
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -18,25 +20,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _ECMD_PARSER_H
-#define _ECMD_PARSER_H
-
-#include "config.h"
+#include <stdio.h>
 #include <avr/pgmspace.h>
-#include <inttypes.h>
 
-/* returns >= 0 for output, -1 for parse error,
- * < -10 for "generated output, but needs to be caled again,
- *        output bytes: (-ret-10) */
-int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
+#include "clock.h"
+#include "protocols/ecmd/ecmd-base.h"
 
-/* struct for storing commands */
-struct ecmd_command_t {
-    PGM_P name;
-    int16_t (*func)(char*, char*, uint16_t);
-};
+int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
+{
+  uint32_t working_hours = (clock_get_time() - clock_get_startup()) / 60;
+  return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60);
+}
 
-/* automatically generated via meta system */
-extern const struct ecmd_command_t PROGMEM ecmd_cmds[];
-
-#endif /* _ECMD_PARSER_H */
+/*
+  -- Ethersex META --
+  ecmd_feature(whm, "whm",, Display the uptime.)
+*/
