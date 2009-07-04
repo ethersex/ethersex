@@ -3,7 +3,7 @@ config.mk
 *~
 *.E
 *.o
-*.d
+*.dep
 autoconf.h
 .config*
 .menuconfig.log
