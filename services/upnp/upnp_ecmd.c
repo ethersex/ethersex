@@ -28,9 +28,10 @@
 
 #include "config.h"
 #include "upnp.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_upnp(char *cmd, char *output, uint16_t len) 
 {
   upnp_send ();
-  return 0;
+  return ECMD_FINAL_OK;
 }
