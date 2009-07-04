@@ -59,6 +59,7 @@ SUBDIRS += services/jabber
 SUBDIRS += services/ntp
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
+SUBDIRS += services/upnp
 SUBDIRS += services/watchcat
 
 rootbuild=t

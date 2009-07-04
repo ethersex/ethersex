@@ -90,6 +90,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
   dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG
   dep_bool 'TTY Layer' DEBUG_TTY_LAYER $DEBUG
+  dep_bool 'UPnP' DEBUG_UPNP $DEBUG $UPNP_SUPPORT
   dep_bool 'Cron' DEBUG_CRON $DEBUG
   dep_bool 'DCF77' DEBUG_DCF77 $DEBUG
   dep_bool 'Hooks' DEBUG_HOOK $DEBUG
@@ -259,6 +260,7 @@ source protocols/mysql/config.in
 source protocols/irc/config.in
 source protocols/twitter/config.in
 source protocols/netstat/config.in
+source services/upnp/config.in
 
 endmenu
 

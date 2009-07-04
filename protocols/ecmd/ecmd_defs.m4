@@ -356,6 +356,17 @@ ecmd_ifdef(NETSTAT_SUPPORT)
   ecmd_feature(netstat, "ns",,Net Statistic - Public anouncment of running ethersex)
 ecmd_endif
 
+dnl block(IRC Client) dnl ==========================
+ecmd_ifdef(IRC_SUPPORT)
+  block(IRC support)
+  ecmd_feature(irc, "irc init",,irc initialization)
+ecmd_endif
+
+dnl block(UPNP SUPPORT) dnl ==========================
+ecmd_ifdef(UPNP_SUPPORT)
+  ecmd_feature(upnp, "upnp send",, Send UPnP broadcast packet)
+ecmd_endif()
+
 dnl block(DMX) dnl ==========================
 ecmd_ifdef(DMX_SUPPORT)
   ecmd_feature(dmx_set6chan, "dmx set6chan ")

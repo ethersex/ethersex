@@ -8,6 +8,6 @@ dep_bool_menu "IRC client (EXPERIMENTAL)" IRC_SUPPORT $TCP_SUPPORT $CONFIG_EXPER
 
   dep_bool "Greet Joiners" IRC_GREET_SUPPORT $IRC_SUPPORT
   if [ "$IRC_GREET_SUPPORT" = "y" ]; then
-    string "Greeting Message" CONF_IRC_GREET_MSG "Hallo %s, herzlich willkommen hier :)"
+    string "Greeting Message" CONF_IRC_GREET_MSG "Hallo , herzlich willkommen hier"
   fi
 endmenu
