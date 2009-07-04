@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
@@ -33,51 +32,6 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-
-#ifndef TEENSY_SUPPORT
-
-#ifdef ENC28J60_SUPPORT
-int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
-{
-    (void) output;
-    (void) len;
-
-#ifdef DEBUG_ECMD_MAC
-    debug_printf("parse_cmd_mac() called with string %s\n", cmd);
-#endif
-
-#ifndef DISABLE_IPCONF_SUPPORT
-    while (*cmd == ' ')
-	cmd++;
-
-    if (*cmd != '\0') {
-	int8_t ret;
-
-	/* allocate space for mac */
-	struct uip_eth_addr new_mac;
-
-	ret = parse_mac(cmd, (void *) &new_mac);
-
-	if (ret >= 0) {
-	    eeprom_save(mac, &new_mac, 6);
-	    eeprom_update_chksum();
-	    return ECMD_FINAL_OK;
-	}
-	else
-	    return ECMD_ERR_PARSE_ERROR;
-    }
-    else
-#endif /* DISABLE_IPCONF_SUPPORT */
-    {
-	struct uip_eth_addr buf;
-	uint8_t *saved_mac = (uint8_t *) &buf;
-
-	eeprom_restore(mac, saved_mac, 6);
-
-	return ECMD_FINAL(print_mac(&buf, output, len));
-    }
-}
-#endif /* ENC28J60_SUPPORT */
 
 int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
 {
@@ -170,91 +124,4 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     }
 }
 
-#endif /* not TEENSY_SUPPORT */
-
-#ifdef IPSTATS_SUPPORT
-int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
-{
-  /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23) {	/* indicator flag: real invocation:  0 */
-    cmd[0] = 23;	/*                 continuing call: 23 */
-    cmd[1] = 0;		/* counter for network interface */
-    cmd[2] = 0;		/* counter for output lines for an interface */
-  }
-  uint8_t tmp;
-#ifdef MULTISTACK_SUPPORT
-  uip_stack_set_active(cmd[1]);
-#endif 
-
-  enum {
-    INTERFACE,
-    ADDRESS,
-    GATEWAY,
-    IP,
-#ifdef UDP_SUPPORT
-    UDP,
-#endif
-#ifdef TCP_SUPPORT
-    TCP,
-#endif
-#ifdef ICMP_SUPPORT
-    ICMP,
-#endif
-    LAST
-  };
-
-  switch (cmd[2]) {
-  case INTERFACE:
-    len = snprintf_P(output, len, PSTR("iface %d:"), cmd[1]);
-    break;
-  case ADDRESS:
-    output[0] = ' ';
-    output[1] = ' ';
-    tmp = len;
-    len = 2 + print_ipaddr (&uip_hostaddr, output + 2, len - 2);
-    output[len++] = '/';
-#ifdef IPV6_SUPPORT
-    len += snprintf_P(output + len, tmp - len, PSTR("%d"), uip_prefix_len);
-#else
-    len += print_ipaddr(&uip_netmask, output + len, tmp - len);
-#endif
-    break;
-  case GATEWAY:
-    snprintf_P(output, len, PSTR("  gw: "));
-    len = 6 + print_ipaddr (&uip_draddr, output + 6, len - 6);
-    break;
-  case IP:
-    len = snprintf_P(output, len, PSTR("  ip:   recv %5d sent %5d drop %5d"), 
-                     uip_stat.ip.recv, uip_stat.ip.sent, uip_stat.ip.drop);
-    break;
-#ifdef ICMP_SUPPORT
-  case ICMP:
-    len = snprintf_P(output, len, PSTR("  icmp: recv %5d sent %5d drop %5d"), 
-                     uip_stat.icmp.recv, uip_stat.icmp.sent, uip_stat.icmp.drop);
-    break;
-#endif
-#ifdef UDP_SUPPORT
-  case UDP:
-    len = snprintf_P(output, len, PSTR("  udp:  recv %5d sent %5d drop %5d"), 
-                     uip_stat.udp.recv, uip_stat.udp.sent, uip_stat.udp.drop);
-    break;
-#endif
-#ifdef TCP_SUPPORT
-  case TCP:
-    len = snprintf_P(output, len, PSTR("  tcp:  recv %5d sent %5d drop %5d"), 
-                     uip_stat.tcp.recv, uip_stat.tcp.sent, uip_stat.tcp.drop);
-    break;
-#endif
-  }
-  cmd[2]++;
-  if (cmd[2] == LAST) {
-    cmd[2] = 0;
-    cmd[1] ++;
-    if (cmd[1] == STACK_LEN)
-      return ECMD_FINAL(len);
-  }
-
-  return ECMD_AGAIN(len);
-}
-#endif /* IPSTATS_SUPPORT */
 

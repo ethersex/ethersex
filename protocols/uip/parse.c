@@ -29,8 +29,6 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/parse.h"
 
-
-#ifndef TEENSY_SUPPORT
 int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
 {
 #if UIP_CONF_IPV6
@@ -92,47 +90,3 @@ int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
 #endif /* !DISABLE_IPCONF_SUPPORT || NTP_SUPPORT || DNS_SUPPORT */
 
 
-#ifdef ENC28J60_SUPPORT
-int16_t print_mac(struct uip_eth_addr *mac, char *output, uint16_t len)
-{
-    uint8_t *addr = mac->addr;
-
-    return snprintf_P(output, len, PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
-		      addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
-}
-
-
-#ifndef DISABLE_IPCONF_SUPPORT
-/* parse an ethernet address at cmd, write result to ptr */
-int8_t parse_mac(char *cmd, struct uip_eth_addr *mac)
-{
-    if (mac != NULL) {
-	uint8_t *addr = mac->addr;
-
-#ifdef DEBUG_ECMD_MAC
-	debug_printf("called parse_mac with string '%s'\n", cmd);
-#endif
-
-	int ret = sscanf_P(cmd, PSTR("%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx"),
-			   addr, addr+1, addr+2, addr+3, addr+4, addr+5);
-
-#ifdef DEBUG_ECMD_MAC
-	debug_printf("scanf returned %d\n", ret);
-#endif
-
-	if (ret == 6) {
-#ifdef DEBUG_ECMD_MAC
-	    debug_printf("read mac %x:%x:%x:%x:%x:%x\n",
-			 addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
-#endif
-	    return 0;
-	}
-    }
-
-    return -1;
-}
-#endif /* DISABLE_IPCONF_SUPPORT */
-
-#endif /* ENC28J60_SUPPORT */
-
-#endif /* not TEENSY_SUPPORT */
