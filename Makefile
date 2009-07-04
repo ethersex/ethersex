@@ -221,13 +221,13 @@ what-now-msg:
 clean:
 	$(RM) $(TARGET) $(TARGET).lss $(TARGET).bin $(TARGET).hex pinning.c
 	$(RM) $(OBJECTS) $(CLEAN_FILES) \
-		$(patsubst %.o,%.d,${OBJECTS}) \
+		$(patsubst %.o,%.dep,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
-		$(patsubst %.o,%.s,${OBJECTS}) network.d
+		$(patsubst %.o,%.s,${OBJECTS}) network.dep
 	echo "Cleaning completed"
 
 fullclean: clean
-	find $(TOPDIR)/ -type f -name '*.[od]' -print0 \
+	find $(TOPDIR)/ -type f \( -name '*.o' -o -name '*.dep' \) -print0 \
 	| xargs -0 $(RM)
 	echo "Full cleaning completed"
 	
