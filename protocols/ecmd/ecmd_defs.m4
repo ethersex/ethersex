@@ -57,21 +57,6 @@ ecmd_ifdef(STELLA_SUPPORT)
   ecmd_feature(stella_channel_get, "channel get", CHANNEL, Get stella channel value)
 ecmd_endif()
 
-block(Cron commands (dynamic variant)) dnl ==========================
-ecmd_ifdef(CRON_SUPPORT)
-  ecmd_feature(cron_list, "cron_list",, Show all cron entries)
-  ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
-  ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)
-ecmd_endif()
-
-block(Control 6) dnl ==========================
-ecmd_ifdef(CONTROL6_SUPPORT)
-  ecmd_ifdef(C6_ECMD_USED)
-    ecmd_feature(c6_get, "c6 get ", VARNAME, Display the current value of the ECMD_GLOBAL Variable)
-    ecmd_feature(c6_set, "c6 set ", VARNAME VALUE, Set an new value on the ECMD_GLOBAL Variable)
-  ecmd_endif()
-ecmd_endif()
-
 block(Dallas 1-wire) dnl ==========================
 ecmd_ifdef(ONEWIRE_SUPPORT)
   ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)

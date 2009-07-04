@@ -29,8 +29,6 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-
-#ifdef C6_ECMD_USED
 int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 {
   uint8_t varvalue;
@@ -54,6 +52,4 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
   }
     return ECMD_ERR_PARSE_ERROR;
 }
-
-#endif /* C6_ECMD_USED */
 

@@ -4,7 +4,6 @@ include $(TOPDIR)/.config
 m4_lang = $(wildcard $(TOPDIR)/control6/lang.d/*.m4)
 
 $(CONTROL6_SUPPORT)_SRC += control6/control6.c
-$(CONTROL6_SUPPORT)_ECMD_SRC += control6/ecmd.c
 
 ##############################################################################
 # generic fluff

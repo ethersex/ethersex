@@ -9,6 +9,15 @@ divert(globals_divert)dnl
 #ifndef ECMD_PARSER_SUPPORT
 #error Please define ECMD
 #endif
+
+#include "control6/ecmd.c"
+
+/*
+  -- Ethersex META --
+    ecmd_feature(c6_get, "c6 get ", VARNAME, Display the current value of the Control6 ECMD variable)
+    ecmd_feature(c6_set, "c6 set ", VARNAME VALUE, Set an new value on the Control6 ECMD variable)
+*/
+
 ')dnl
 divert(old_divert)')
 
