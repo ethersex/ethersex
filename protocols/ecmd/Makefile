@@ -41,7 +41,6 @@ protocols/ecmd/np_simple_glue.m4: $(NP_CONFIG) $(TOPDIR)/core/portio/np_simple_g
 CLEAN_FILES += protocols/ecmd/np_simple_glue.m4
 
 
-
 ##############################################################################
 # ecmd_defs fluff
 # 

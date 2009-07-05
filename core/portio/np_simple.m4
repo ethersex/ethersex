@@ -17,7 +17,7 @@ dnl
 dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
-divert(5)
+divert(0)
 
 /* This is just to make the inversion more visible. */
 #define INVERT(a) (!(a))
@@ -52,7 +52,7 @@ np_simple_check (char *cmd)
 
 divert(-1)
 define(`np_simple_implement_out', `dnl
-divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
+divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
   char i = np_simple_check (cmd);
@@ -68,7 +68,7 @@ divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 ')
 
 define(`np_simple_implement_in', `dnl
-divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
+divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
   uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
@@ -77,7 +77,7 @@ divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 ')
 
 define(`np_simple_implement_toggle', `dnl
-divert(5)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
+divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
 
