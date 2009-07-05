@@ -26,8 +26,8 @@
 #include <inttypes.h>
 
 /* returns >= 0 for output, -1 for parse error,
- * < -10 for "generated output, but needs to be caled again,
- *        output bytes: (-ret-10) */
+ * < _ECMD_AGAIN_MAGIC  for "generated output, but needs to be called again,
+ *        output bytes: ECMD_AGAIN(ret) */
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len);
 
 /* struct for storing commands */

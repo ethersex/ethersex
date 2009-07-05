@@ -28,6 +28,7 @@
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 #include <string.h>
 
@@ -108,13 +109,13 @@ void newdata(void)
 #endif
 
         /* check if the parse has to be called again */
-        if (l <= -10) {
+        if (is_ECMD_AGAIN(l)) {
 #ifdef DEBUG_ECMD_NET
             debug_printf("parser needs to be called again\n");
 #endif
 
             state->parse_again = 1;
-            l = -l - 10;
+            l = ECMD_AGAIN(l);
         }
 
 #ifdef DEBUG_ECMD_NET
@@ -180,9 +181,9 @@ void ecmd_net_main(void)
                     ECMD_OUTPUTBUF_LENGTH-1);
 
             /* check if the parse has to be called again */
-            if (l <= -10) {
+            if (is_ECMD_AGAIN(l)) {
                 state->parse_again = 1;
-                l = -l - 10;
+                l = ECMD_AGAIN(l);
             } else {
                 state->parse_again = 0;
                 /* We have to clear the input buffer */
