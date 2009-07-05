@@ -793,7 +793,7 @@ void uip_send(const void *data, int len);
  * \return The uip_udp_conn structure for the new connection or NULL
  * if no connection could be allocated.
  */
-uip_udp_conn_t *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback);
+uip_udp_conn_t *uip_udp_new(const uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback);
 
 /**
  * Removed a UDP connection.
