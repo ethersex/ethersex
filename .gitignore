@@ -31,3 +31,8 @@ core/vfs/vfs-concat
 *.rej
 *.hex
 services/httpd/magic.c
+core/portio/np_simple.c
+protocols/mdns_sd/mdns_services.c
+services/watchcat/user_config.h
+protocols/uip/ipchair/ipchair.c
+protocols/ecmd/np_simple_glue.m4
