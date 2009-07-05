@@ -140,7 +140,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 
         /* set return value that the parser has to be called again */
         if (ret > 0)
-            ret = -ret - 10;
+            ret = ECMD_AGAIN(ret);
 
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("returning %d\n", ret);
