@@ -412,7 +412,9 @@ uip_arp_out(void)
     IPBUF->ethhdr.dest.addr[4] = ((const uint8_t *)IPBUF->destipaddr)[2];
     IPBUF->ethhdr.dest.addr[5] = ((const uint8_t *)IPBUF->destipaddr)[3];
   }
-  else if(uip_ipaddr_cmp(IPBUF->destipaddr, broadcast_ipaddr)) {
+  else if((IPBUF->destipaddr[0] == (uip_hostaddr[0] | ~uip_netmask[0])
+           && IPBUF->destipaddr[1] == (uip_hostaddr[1] | ~uip_netmask[1]))
+          || (uip_ipaddr_cmp(IPBUF->destipaddr, broadcast_ipaddr))) {
     memcpy(IPBUF->ethhdr.dest.addr, broadcast_ethaddr.addr, 6);
 #ifdef MDNS_SD_SUPPORT
   /* If the ip is the mdns mulicast ip, we answer to the mac who asked */

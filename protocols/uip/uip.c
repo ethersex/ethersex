@@ -885,6 +885,14 @@ uip_process(u8_t flag)
 	 uip_ipchksum() == 0xffff*/) {
       goto udp_input;
     }
+  
+    /* Check whether the packet is addressed to network's broadcast
+       address, e.g. 192.168.10.255 on a 192.168.10.0/24 network. */
+    if(BUF->proto == UIP_PROTO_UDP
+       && BUF->destipaddr[0] == (uip_hostaddr[0] | ~uip_netmask[0])
+       && BUF->destipaddr[1] == (uip_hostaddr[1] | ~uip_netmask[1]))
+      goto udp_input;
+
 #endif /* UIP_BROADCAST */
 
     /* Check if the packet is destined for our IP address. */
