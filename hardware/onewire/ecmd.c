@@ -80,6 +80,25 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
         debug_printf("called onewire list for the first time\n");
 #endif
 
+#ifdef ONEWIRE_DS2502_SUPPORT
+	/* parse optional parameters */
+        while (*cmd == ' ')
+            cmd++;
+	switch (*cmd) {
+		case 't':
+			ow_global.list_type = OW_LIST_TYPE_TEMP_SENSOR;
+			break;
+		case 'e':
+			ow_global.list_type = OW_LIST_TYPE_EEPROM;
+			break;
+		case '\0':
+			ow_global.list_type = OW_LIST_TYPE_ALL;
+			break;
+		default:
+			return ECMD_ERR_PARSE_ERROR;
+	}
+#endif
+
         /* disable interrupts */
         uint8_t sreg = SREG;
         cli();
@@ -100,8 +119,10 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
         debug_printf("called onewire list again\n");
 #endif
 
+        uint8_t sreg;
+list_next:
         /* disable interrupts */
-        uint8_t sreg = SREG;
+        sreg = SREG;
         cli();
 
         ret = ow_search_rom_next();
@@ -110,43 +131,60 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
     }
 
     if (ret == 1) {
-#ifdef DEBUG_ECMD_OW_LIST
-        debug_printf("discovered a device: "
-                "%02x %02x %02x %02x %02x %02x %02x %02x\n",
-                ow_global.current_rom.bytewise[0],
-                ow_global.current_rom.bytewise[1],
-                ow_global.current_rom.bytewise[2],
-                ow_global.current_rom.bytewise[3],
-                ow_global.current_rom.bytewise[4],
-                ow_global.current_rom.bytewise[5],
-                ow_global.current_rom.bytewise[6],
-                ow_global.current_rom.bytewise[7]);
-#endif
-        ret = snprintf_P(output, len,
-                PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
-                ow_global.current_rom.bytewise[0],
-                ow_global.current_rom.bytewise[1],
-                ow_global.current_rom.bytewise[2],
-                ow_global.current_rom.bytewise[3],
-                ow_global.current_rom.bytewise[4],
-                ow_global.current_rom.bytewise[5],
-                ow_global.current_rom.bytewise[6],
-                ow_global.current_rom.bytewise[7]);
-
-#ifdef DEBUG_ECMD_OW_LIST
-        debug_printf("generated %d bytes\n", ret);
+#ifdef ONEWIRE_DS2502_SUPPORT
+        if ((ow_global.list_type == OW_LIST_TYPE_ALL) ||
+            ((ow_global.list_type == OW_LIST_TYPE_TEMP_SENSOR) &&
+             (ow_temp_sensor(&ow_global.current_rom))) ||
+            ((ow_global.list_type == OW_LIST_TYPE_EEPROM) &&
+             (ow_eeprom(&ow_global.current_rom)))) {
+           /* only print device rom address if it matches the selected list type */
 #endif
 
-        /* set return value that the parser has to be called again */
-        if (ret > 0)
-            ret = ECMD_AGAIN(ret);
+#ifdef DEBUG_ECMD_OW_LIST
+           debug_printf("discovered a device: "
+                    "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                    ow_global.current_rom.bytewise[0],
+                    ow_global.current_rom.bytewise[1],
+                    ow_global.current_rom.bytewise[2],
+                    ow_global.current_rom.bytewise[3],
+                    ow_global.current_rom.bytewise[4],
+                    ow_global.current_rom.bytewise[5],
+                    ow_global.current_rom.bytewise[6],
+                    ow_global.current_rom.bytewise[7]);
+#endif
+           ret = snprintf_P(output, len,
+                    PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                    ow_global.current_rom.bytewise[0],
+                    ow_global.current_rom.bytewise[1],
+                    ow_global.current_rom.bytewise[2],
+                    ow_global.current_rom.bytewise[3],
+                    ow_global.current_rom.bytewise[4],
+                    ow_global.current_rom.bytewise[5],
+                    ow_global.current_rom.bytewise[6],
+                    ow_global.current_rom.bytewise[7]);
 
 #ifdef DEBUG_ECMD_OW_LIST
-        debug_printf("returning %d\n", ret);
+            debug_printf("generated %d bytes\n", ret);
 #endif
-        return ECMD_FINAL(ret);
 
-    } else if (ret == 0) {
+            /* set return value that the parser has to be called again */
+            if (ret > 0)
+                ret = ECMD_AGAIN(ret);
+
+#ifdef DEBUG_ECMD_OW_LIST
+            debug_printf("returning %d\n", ret);
+#endif
+            return ECMD_FINAL(ret);
+
+#ifdef ONEWIRE_DS2502_SUPPORT
+        }
+        else {
+            /* device did not match list type: try again */
+            goto list_next;
+        }
+#endif
+    }
+    else if (ret == 0) {
         ow_global.lock = 0;
         return ECMD_FINAL_OK;
     }

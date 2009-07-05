@@ -140,6 +140,13 @@
         ( PIN_HIGH(ONEWIRE) > 0)
 
 
+/* symbolic names for the restriction of the list comamnd to certain types.
+ * These values are used only to filter the output of the list command */
+#define OW_LIST_TYPE_ALL		0
+#define OW_LIST_TYPE_TEMP_SENSOR	1
+#define OW_LIST_TYPE_EEPROM		2
+
+
 /* structures */
 struct ow_rom_code_t {
     union {
@@ -182,6 +189,9 @@ struct ow_temp_scratchpad_t {
 struct ow_global_t {
     uint8_t lock;
     int8_t last_discrepancy;
+#ifdef ONEWIRE_DS2502_SUPPORT
+    int8_t list_type;
+#endif
     struct ow_rom_code_t current_rom;
 };
 
