@@ -27,6 +27,7 @@ SUBDIRS += hardware/radio/fs20
 SUBDIRS += hardware/radio/rfm12
 SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
+SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
 SUBDIRS += protocols/dmx
 SUBDIRS += protocols/mdns_sd

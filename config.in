@@ -41,6 +41,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'Reroute to SYSLOG' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
   dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG
   comment  '----- Debugging Flags -----'
+  dep_bool 'ARTNET' DEBUG_ARTNET $DEBUG
   dep_bool 'ASK Sensing' DEBUG_ASK_SENSE $DEBUG $RFM12_ASK_SENSING_SUPPORT
   dep_bool 'ECMD' DEBUG_ECMD $DEBUG
   dep_bool 'ECMD Speed' DEBUG_ECMD_SPEED $DEBUG
@@ -254,6 +255,7 @@ source services/dyndns/config.in
 source services/watchcat/config.in
 source protocols/snmp/config.in
 source protocols/smtp/config.in
+source protocols/artnet/config.in
 source services/stella/config.in
 source hardware/radio/rfm12/rfm12_ask-config.in
 source protocols/mysql/config.in
