@@ -29,7 +29,7 @@
 int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
 {
   uint32_t working_hours = (clock_get_time() - clock_get_startup()) / 60;
-  return snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu:%02d"), working_hours / 60, working_hours % 60));
 }
 
 /*
