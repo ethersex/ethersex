@@ -886,12 +886,14 @@ uip_process(u8_t flag)
       goto udp_input;
     }
   
+#if !UIP_CONF_IPV6
     /* Check whether the packet is addressed to network's broadcast
        address, e.g. 192.168.10.255 on a 192.168.10.0/24 network. */
     if(BUF->proto == UIP_PROTO_UDP
        && BUF->destipaddr[0] == (uip_hostaddr[0] | ~uip_netmask[0])
        && BUF->destipaddr[1] == (uip_hostaddr[1] | ~uip_netmask[1]))
       goto udp_input;
+#endif
 
 #endif /* UIP_BROADCAST */
 
