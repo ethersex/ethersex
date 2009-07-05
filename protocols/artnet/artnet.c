@@ -445,6 +445,8 @@ msg->opcode = OP_POLLREPLY;
  msg->swout[0] = (artnet_subNet & 15) * 16 | (artnet_outputUniverse1 & 15);
 
  msg->style = STYLE_NODE;
+ 
+ memcpy (msg->mac, uip_ethaddr.addr, 6);
 
     /* broadcast the packet */
   artnet_send(sizeof(struct artnet_pollreply));
@@ -688,7 +690,7 @@ void artnet_main(void) {
 void artnet_get(void) {
  struct artnet_header *header;
 
- header = (struct artnet_header *)&uip_appdata;
+ header = (struct artnet_header *)uip_appdata;
  
  /* check the id */
  if ( (header->id[0] != 'A') ||
@@ -709,7 +711,7 @@ void artnet_get(void) {
   struct artnet_poll *poll;
 
   ARTNET_DEBUG("Received artnet poll packet!\r\n");
-  poll = (struct artnet_poll *)&uip_appdata;
+  poll = (struct artnet_poll *)uip_appdata;
 
 //   processPollPacket(poll);
  } else if (header->opcode == OP_POLLREPLY) {
@@ -718,26 +720,21 @@ void artnet_get(void) {
   struct artnet_dmx *dmx;
 
   ARTNET_DEBUG("Received artnet output packet!\r\n");
-  dmx = (struct artnet_dmx *)&uip_appdata;
+  dmx = (struct artnet_dmx *)uip_appdata;
 
   if (dmx->universe == ((artnet_subNet << 4) | artnet_outputUniverse1)) {
    if (artnet_dmxDirection == 0) {
-    artnet_dmxChannels = (dmx->lengthHi << 8) | dmx->length;
-    memcpy((unsigned char*)&artnet_dmxUniverse[0], &(dmx->dataStart), artnet_dmxChannels);
+    uint16_t len = (dmx->lengthHi << 8) + dmx->length;
+    ARTNET_DEBUG ("Updating %d channels ...\n", len);
+#ifdef DMX_SUPPORT
+    if (len > CONF_DMX_MAX_CHAN) len = CONF_DMX_MAX_CHAN;
+    memcpy (dmx_data, &dmx->dataStart, len);
+    dmx_prg = 0;
+#endif  /* DMX_SUPPORT */
 
-    if (artnet_dmxTransmitting == FALSE) {
-      /* setup USART */
-//       PORTD |= (1 << 3);
-//       UBRR   = (F_CPU / (250000 * 16L) - 1);
-//       UCSRC  = (1<<URSEL) | (3<<UCSZ0) | (1<<USBS);
-//       UCSRB  = (1<<TXEN) | (1<<TXCIE);
-//       UDR    = 0;					/* start transmitting */
-
-      artnet_dmxTransmitting = TRUE;
-      if (artnet_sendPollReplyOnChange == TRUE) {
-        artnet_pollReplyCounter++;
-        artnet_sendPollReply();
-      }
+    if (artnet_sendPollReplyOnChange == TRUE) {
+      artnet_pollReplyCounter++;
+      artnet_sendPollReply();
     }
    }
   }
@@ -745,14 +742,14 @@ void artnet_get(void) {
   struct artnet_address *address;
 
   ARTNET_DEBUG("Received artnet address packet!\r\n");
-  address = (struct artnet_address *)&uip_appdata;
+  address = (struct artnet_address *)uip_appdata;
 
 //   processAddressPacket(address);
  } else if (header->opcode == OP_IPPROG) {
   struct artnet_ipprog *ipprog;
 
   ARTNET_DEBUG("Received artnet ip prog packet!\r\n");
-  ipprog = (struct artnet_ipprog *)&uip_appdata;
+  ipprog = (struct artnet_ipprog *)uip_appdata;
 
 //   processIpProgPacket(ipprog);
  }
