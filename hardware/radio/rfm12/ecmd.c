@@ -28,9 +28,6 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-#ifndef TEENSY_SUPPORT
-#ifdef RFM12_SUPPORT
-
 int16_t 
 parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
 {
@@ -38,7 +35,6 @@ parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
                                  rfm12_get_status()));
 }
 
-#endif /* RFM12_SUPPORT */
 
 #ifdef RFM12_IP_SUPPORT
 int16_t
@@ -124,4 +120,15 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
 }
 
 #endif /* RFM12_IP_SUPPORT */
-#endif /* not TEENSY_SUPPORT */
+
+/*
+  -- Ethersex META --
+  ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
+  ecmd_ifdef(RFM12_IP_SUPPORT)
+    ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)
+    ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth", BW, Set RX bandwidth to BW.)
+    ecmd_feature(rfm12_setmod, "rfm12 setmod", MOD, Set modulation to MOD.)
+    ecmd_feature(rfm12_setgain, "rfm12 setgain", GAIN, Set preamplifier gain to GAIN.)
+    ecmd_feature(rfm12_setdrssi, "rfm12 setdrssi", DRSSI, Set the drssi to DRSSI.)
+  ecmd_endif()
+*/

@@ -57,29 +57,6 @@ ecmd_ifdef(STELLA_SUPPORT)
   ecmd_feature(stella_channel_get, "channel get", CHANNEL, Get stella channel value)
 ecmd_endif()
 
-block(Dallas 1-wire) dnl ==========================
-ecmd_ifdef(ONEWIRE_SUPPORT)
-  ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)
-    ecmd_feature(onewire_list, "1w list",,Return a list of the connected onewire devices)
-  ecmd_endif()
-  ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
-  ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
-ecmd_endif()
-
-block(RFM12) dnl ==========================
-ecmd_ifndef(TEENSY_SUPPORT)
-  ecmd_ifdef(RFM12_SUPPORT)
-    ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
-  ecmd_endif()
-  ecmd_ifdef(RFM12_IP_SUPPORT)
-    ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)
-    ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth", BW, Set RX bandwidth to BW.)
-    ecmd_feature(rfm12_setmod, "rfm12 setmod", MOD, Set modulation to MOD.)
-    ecmd_feature(rfm12_setgain, "rfm12 setgain", GAIN, Set preamplifier gain to GAIN.)
-    ecmd_feature(rfm12_setdrssi, "rfm12 setdrssi", DRSSI, Set the drssi to DRSSI.)
-  ecmd_endif()
-ecmd_endif()
-
 ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
   ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
   ecmd_feature(rfm12_ask_tevion_send, "rfm12 tevion", , housecode command delay cnt)
@@ -94,13 +71,6 @@ ecmd_endif()
 ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
   ecmd_feature(rfm12_ask_sense, "rfm12 ask sense",, Trigger (Tevion) ASK sensing.  Enable ext. filter pin before!)
 ecmd_endif()
-
-block(DC3840 Handycam support) dnl ==========================
-ecmd_ifdef(DC3840_SUPPORT)
-  ecmd_feature(dc3840_capture, "dc3840 capture",, Take a picture.  Access 'dc3840' via VFS afterwards.  See [[DC3840 Camera]] for details.)
-  ecmd_feature(dc3840_send, "dc3840 send ", A B C D E, Send provided command bytes to the camera.)
-  ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)
-ecmd_endif
 
 block(Sound/Melody support) dnl ==========================
 ecmd_ifdef(PWM_MELODY_SUPPORT)
@@ -184,9 +154,3 @@ dnl block(EEPROM) dnl ==========================
 ecmd_ifdef(EEPROM_SUPPORT)
   ecmd_feature(eeprom_reinit, "eeprom reinit",, Force reinitialization of the EEPROM config area)
 ecmd_endif
-
-dnl block(Infrared) dnl ==========================
-ecmd_ifdef(RC5_SUPPORT)
-  ecmd_feature(ir_send, "ir send")
-  ecmd_feature(ir_receive, "ir receive")
-ecmd_endif()

@@ -32,7 +32,6 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-#ifdef RC5_SUPPORT
 int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
 {
     int16_t ret;
@@ -90,5 +89,10 @@ int16_t parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
 
     return ECMD_FINAL(outlen);
 }
-#endif /* RC5_SUPPORT */
 
+
+/*
+  -- Ethersex META --
+  ecmd_feature(ir_send, "ir send")
+  ecmd_feature(ir_receive, "ir receive")
+*/

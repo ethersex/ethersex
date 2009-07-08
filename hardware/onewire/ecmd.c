@@ -35,7 +35,6 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-#ifdef ONEWIRE_SUPPORT
 /* parse an onewire rom address at cmd, write result to ptr */
 int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
 {
@@ -286,5 +285,13 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
         return ECMD_ERR_PARSE_ERROR;
 
 }
-#endif /* ONEWIRE_SUPPORT */
 
+
+/*
+  -- Ethersex META --
+  ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)
+    ecmd_feature(onewire_list, "1w list",,Return a list of the connected onewire devices)
+  ecmd_endif()
+  ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
+  ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
+*/
