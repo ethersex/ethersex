@@ -3,7 +3,7 @@ include $(TOPDIR)/.config
 
 $(RFM12_SUPPORT)_SRC += hardware/radio/rfm12/rfm12.c
 
-ifneq(${TEENSY_SUPPORT},y)
+ifneq (${TEENSY_SUPPORT},y)
 $(RFM12_SUPPORT)_ECMD_SRC += hardware/radio/rfm12/ecmd.c
 endif
 
