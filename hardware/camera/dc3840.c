@@ -33,6 +33,10 @@
 #define BAUD 921600
 #include "core/usart.h"
 
+#ifndef noinline
+#define noinline __attribute__((noinline))
+#endif
+
 /* Length of current image, declared extern in dc3840.h */
 uint16_t dc3840_data_length;
 
@@ -56,13 +60,13 @@ static volatile uint16_t dc3840_capture_start;
 static volatile uint16_t dc3840_capture_len;
 
 /* Send one single byte to camera UART. */
-static void dc3840_send_uart (uint8_t byte) __attribute__ ((noinline));
+static void noinline dc3840_send_uart (uint8_t byte);
 
 /* Send a command to the camera and wait for ACK (return 0).
    This function automatically repeats the command up to three times.
    Returns 1 on timeout or NAK. */
-static uint8_t dc3840_send_command (uint8_t, uint8_t, uint8_t, uint8_t,
-				    uint8_t)	__attribute__ ((noinline));
+static uint8_t noinline dc3840_send_command
+	(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 
 
 /* #define DC3840_UDP_DEBUG 1 */
