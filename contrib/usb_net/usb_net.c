@@ -187,9 +187,8 @@ usage(void)
   fprintf(stderr, 
           "Usage: %s [OPTIONEN]\n"
           " -h --help      Print this help and exit\n"
-          " -r --baudrate  set baudrate\n"
           " -a --address   adds of the interface in the form 192.168.8.1/24\n"
-          " -d --device    set the ttyS* interface to use\n"
+          " -d --device    usb id (e.g. 16c005dc) \n"
           " -m --mtu       set mtu\n"
           " -u --up        call this command, when the interface is up\n", global.argv0);
 
