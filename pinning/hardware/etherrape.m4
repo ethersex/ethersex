@@ -78,5 +78,6 @@ ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
 
 ifdef(`conf_RC5', `
   pin(RC5_SEND, PD4)
+  RC5_USE_INT(0)
 ')
 
