@@ -89,6 +89,7 @@ FNORD
 template $RC5_SUPPORT << FNORD
   /* rc5 support */
   pin(RC5_SEND, PD4)
+  RC5_USE_INT(0)
 FNORD
 
 template $FS20_SUPPORT << FNORD

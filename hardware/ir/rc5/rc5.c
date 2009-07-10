@@ -44,12 +44,14 @@ volatile struct rc5_global_t rc5_global;
  *
  * (for cpu speed F_CPU and prescaler 1024) */
 
-#if !F_CPU == 20000000UL
-# error "please correct timing values in rc5/rc5.h!"
-#endif
-
 /* #define RC5_BIT_TICKS ((uint8_t)(F_CPU * 1800 / 1024 / 1000000)) */
+#if F_CPU == 20000000UL
 #define RC5_BIT_TICKS 35    /* for 20MHz */
+#elif F_CPU == 16000000UL
+#define RC5_BIT_TICKS 28    /* for 16 MHz */
+#else
+#define RC5_BIT_TICKS ((uint8_t)(F_CPU * 1800 / 1024 / 1000000)) 
+#endif
 
 #define RC5_HALF_BIT_TICKS ((uint8_t)(RC5_BIT_TICKS/2))
 
@@ -205,17 +207,21 @@ void rc5_init(void)
     DDR_CONFIG_OUT(RC5_SEND);
     PIN_CLEAR(RC5_SEND);
 
-    /* enable timer0, set prescaler and enable overflow interrupt */
+    /* enable timer0/timer2, set prescaler and enable overflow interrupt */
+#ifdef RC5_USE_TIMER2
+    TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
+#else
     TCCR0A = 0;
     TCCR0B = _BV(CS02) | _BV(CS00);
+#endif
 
     /* configure int0 to fire at any logical change */
-    EICRA |= _BV(ISC00);
-    EICRA &= ~_BV(ISC01);
+    EICRA |= _BV(RC5_ISC0);
+    EICRA &= ~_BV(RC5_ISC1);
 
     /* clear any old interrupts and enable int0 interrupt */
-    EIFR = _BV(INTF0);
-    EIMSK |= _BV(INT0);
+    EIFR = _BV(RC5_INT_PIN);
+    EIMSK |= _BV(RC5_INT_PIN);
 
     /* reset everything to zero */
     memset((void *)&rc5_global, 0, sizeof(rc5_global));
@@ -315,8 +321,7 @@ void rc5_process(void)
     }
 }
 
-/* int0 interrupt */
-ISR(INT0_vect)
+ISR(RC5_INT_SIGNAL)
 {
 
     if (rc5_global.enabled && !rc5_global.temp_disable) {
@@ -325,9 +330,15 @@ ISR(INT0_vect)
         if (rc5_global.interrupts == 0) {
             /* reset counter, clear old overflows and enable
              * timer0 overflow interrupt */
+#ifdef RC5_USE_TIMER2
+            TCNT2 = 0;
+            _TIFR_TIMER2 = _BV(TOV2);
+            _TIMSK_TIMER2 |= _BV(TOIE2);
+#else
             TCNT0 = 0;
             TIFR0 = _BV(TOV0);
             TIMSK0 |= _BV(TOIE0);
+#endif
 
             /* reset temp buffer */
             temp_rc5.raw = 0;
@@ -335,8 +346,13 @@ ISR(INT0_vect)
         /* if this is not the first interrupt */
         } else {
             /* load and reset the counter */
+#ifdef RC5_USE_TIMER2
+            uint8_t counter = TCNT2;
+            TCNT2 = 0;
+#else
             uint8_t counter = TCNT0;
             TCNT0 = 0;
+#endif
 
             /* check how many halfbits have passed since last interrupt */
             uint8_t received_bits = 0;
@@ -391,11 +407,19 @@ ISR(INT0_vect)
 }
 
 /* timer0 overflow interrupt */
+#ifdef RC5_USE_TIMER2
+ISR(TIMER2_OVF_vect)
+#else
 ISR(TIMER0_OVF_vect)
+#endif
 {
 
     /* disable overflow interrupt */
+#ifdef RC5_USE_TIMER2
+    _TIMSK_TIMER2 &= ~_BV(TOIE2);
+#else
     TIMSK0 &= ~_BV(TOIE0);
+#endif
 
     /* check if we only received 26 halfbits,
      * so the last transmitted bit was zero,

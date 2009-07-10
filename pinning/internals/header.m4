@@ -86,6 +86,14 @@ define(`RFM12_USE_INT', `dnl
 #define RFM12_INT_SIGNAL SIG_INTERRUPT$1
 ')
 
+define(`RC5_USE_INT', `dnl
+/* rc5 interrupt line (TSOP Data out)*/
+#define RC5_INT_PIN INT$1
+#define RC5_INT_SIGNAL SIG_INTERRUPT$1
+#define RC5_ISC0 ISC$1`0'
+#define RC5_ISC1 ISC$1`1'
+')
+
 define(`RFM12_ASK_SENSE_USE_INT', `dnl
 /* rfm12 ask sense interrupt line */
 #define RFM12_ASKINT_PIN INT$1
