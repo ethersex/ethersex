@@ -56,6 +56,7 @@ define(`ecmd_else',)
 divert(9)footer
 
 [[Category:Ethersex]]
+[[Category:ECMD]]
 divert(0)
 <div class="errorbox">
 This page is automatically generated from ecmd_defs.m4 and wiki.m4 which are
