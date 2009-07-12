@@ -52,6 +52,11 @@ section at the end of this file).
  * require a precision of 2000 ppm and thus a crystal!
  * Default if not specified: 12 MHz
  */
+#if USB_CFG_CLOCK_KHZ == 18000
+#define USB_CFG_CHECK_CRC 1
+#else
+#define USB_CFG_CHECK_CRC 0
+#endif
 
 /* ----------------------- Optional Hardware Config ------------------------ */
 
