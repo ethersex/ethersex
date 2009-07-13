@@ -103,10 +103,11 @@ clock_tick(void)
     if(!sync_timestamp || sync_timestamp == timestamp)
 #endif
       timestamp ++;
-#endif
 
     if (sync_timestamp)
       sync_timestamp ++;
+
+#endif /* CLOCK_CRYSTAL_SUPPORT */
 
     ticks = 0;
   }
