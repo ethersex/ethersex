@@ -42,6 +42,14 @@ define(`normal_end_divert', 12)divert(normal_end_divert)/* C6-DIVERT: normal_end
 define(`update_pin_divert', 13)divert(update_pin_divert)/* C6-DIVERT: update_pin_divert */
 define(`control_end_divert', 14)divert(control_end_divert)/* C6-DIVERT: control_end_divert */
 
+# foreach((item_1, item_2, ..., item_n), stmt)
+# foreach(((arg_1, arg_2, ..., arg_n), (arg_1, arg_2, ..., arg_n), ..., (...)), stmt)
+# in stmt $1, $2, ..., $n 
+define(`_arg1', `$1')
+define(`FOREACH', `ifelse(`$1', `()', `',dnl
+`define(`_foreach_', `$2')define(`_arg', _arg1$1)dnl
+_foreach_(regexp(_arg, `^(?\(.*\))?$', `\1'))`'$0((shift$1), `$2')')')
+
 divert(-1)dnl
 ################################
 # Headers
