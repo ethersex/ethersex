@@ -26,7 +26,7 @@
 #include "modbus_net.h"
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
-#include "modbus/modbus.h"
+#include "protocols/modbus/modbus.h"
 
 #include "config.h"
 

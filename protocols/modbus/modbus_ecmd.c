@@ -22,10 +22,12 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
+#include <stdlib.h>
 
 #include "config.h"
 #include "core/debug.h"
 #include "modbus.h"
+#include "modbus_net.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
