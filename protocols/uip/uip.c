@@ -517,7 +517,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 #if UIP_UDP
 #if UIP_ACTIVE_OPEN
 uip_udp_conn_t *
-uip_udp_new(const uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
+uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
   register uip_udp_conn_t *conn;
 
