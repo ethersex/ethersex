@@ -72,10 +72,6 @@ dmx_init(void)
   /* Initialize the usart module */
   usart_init();
 
-  /* Enable TX Swtich as Output */
-  DDR_CONFIG_OUT(DMX_RS485EN_PIN);
-  DDR_CONFIG_OUT(DMX_RS485TX_PIN);
-
   /* Clear the buffers */
   dmx_txlen = 0;
   dmx_index = 0;
@@ -135,13 +131,13 @@ dmx_tx_start(void)
 {
   uint8_t sreg = SREG; cli();
   /* Enable transmitter */
-  PIN_SET(DMX_RS485EN_PIN); /* pull RS485EN pin high */
+  PIN_SET(DMX_RS485EN); /* pull RS485EN pin high */
 
   /* Send RESET */
-  PIN_CLEAR(DMX_RS485TX_PIN); /* pull TX pin low */
+  PIN_CLEAR(DMX_RS485TX); /* pull TX pin low */
   _delay_us(88);
   /* End of RESET; Send MARK AFTER RESET */
-  PIN_SET(DMX_RS485TX_PIN); /* pull TX pin high */
+  PIN_SET(DMX_RS485TX); /* pull TX pin high */
   _delay_us(8);
 
   /** Start a new dmx packet */
@@ -168,7 +164,7 @@ dmx_tx_stop(void)
   usart(UCSR,B) = 0;
 
   /* Disable transmitter */
-  PIN_CLEAR(DMX_RS485EN_PIN);
+  PIN_CLEAR(DMX_RS485EN);
 
   SREG = sreg; sei();
   dmx_index = 0;  /* reset output channel index */

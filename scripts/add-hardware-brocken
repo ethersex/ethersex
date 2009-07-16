@@ -57,8 +57,8 @@ FNORD
 
 template $DMX_SUPPORT << FNORD
   /* port config for dmx */
-  pin(DMX_RS485EN, PC2)
-  pin(DMX_RS485TX, PD1)
+  pin(DMX_RS485EN, PC2, OUTPUT)
+  pin(DMX_RS485TX, PD1, OUTPUT)
 FNORD
 
 template $PS2_SUPPORT << FNORD
