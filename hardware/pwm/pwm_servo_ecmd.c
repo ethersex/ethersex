@@ -52,6 +52,7 @@ parse_cmd_pwm_servo_init(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   header(hardware/pwm/pwm_servo.h)
+  block(PWM Servo Control)
   ecmd_feature(pwm_servo_set, "pwm servo_set",, Set servo position)
   ecmd_feature(pwm_servo_init, "pwm servo_init",, Initialise servo)
 */

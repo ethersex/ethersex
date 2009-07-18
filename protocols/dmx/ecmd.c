@@ -61,6 +61,7 @@ parse_cmd_dmx_fade(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(DMX)
   ecmd_feature(dmx_set6chan, "dmx set6chan ")
   ecmd_feature(dmx_fade, "dmx fade")
 */

@@ -327,6 +327,7 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(Dallas 1-wire)
   ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)
     ecmd_feature(onewire_list, "1w list",,Return a list of the connected onewire devices)
   ecmd_endif()

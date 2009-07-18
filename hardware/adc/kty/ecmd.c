@@ -100,6 +100,7 @@ int16_t parse_cmd_kty_calibration(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(KTY)
   ecmd_feature(kty_get, "kty get", [CHANNEL], Get the temperature in xxx.x °C of CHANNEL or if no channel set of all channels.)
   ecmd_feature(kty_cal_get, "kty cal get",, Return the calibration difference to 2k2 Resistor.)
   ecmd_feature(kty_calibration, "kty autocalibrate", CHANNEL, Calibrate to 1000 Ohm precision Resistor.)

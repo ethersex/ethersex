@@ -116,5 +116,6 @@ int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(Network IP Statistics)
   ecmd_feature(ipstats, "ipstats",, Display IP statistics.)
 */

@@ -134,6 +134,7 @@ int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(HD44780 LCD Display)
   ecmd_feature(lcd_clear, "lcd clear", [LINE], Clear line LINE (0..3) or the whole display (if parameter is omitted))
   ecmd_feature(lcd_write, "lcd write", TEXT, Write TEXT to the current cursor location)
   ecmd_feature(lcd_goto, "lcd goto", LINE COL, Move cursor to LINE and column COL (origin is 0/0))

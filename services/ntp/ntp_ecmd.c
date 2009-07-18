@@ -73,6 +73,7 @@ int16_t parse_cmd_ntp_query(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(NTP Client)
   ecmd_feature(ntp_query, "ntp query",, Query the NTP server to get an NTP update.)
   ecmd_feature(ntp_server, "ntp server", [IPADDR], Display/Set the IP address of the NTP server to use to IPADDR.)
 */

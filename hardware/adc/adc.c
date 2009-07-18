@@ -70,5 +70,6 @@ adc_out:
 
 /*
   -- Ethersex META --
+  block(Analog/Digital Conversion (ADC))
   ecmd_feature(adc_get, "adc get", [CHANNEL], Get the ADC value in hex of CHANNEL or if no channel set of all channels.)
 */

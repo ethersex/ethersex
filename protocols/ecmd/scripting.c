@@ -313,6 +313,7 @@ parse_cmd_echo(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(ECMD Scripting)
   ecmd_feature(goto, "goto ",N, Goto line N in currently running script)
   ecmd_feature(exit, "exit",, Exit currently running script)
   ecmd_feature(wait, "wait ",I, Wait I milliseconds)

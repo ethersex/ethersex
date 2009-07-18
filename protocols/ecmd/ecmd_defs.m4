@@ -57,6 +57,7 @@ ecmd_ifdef(STELLA_SUPPORT)
   ecmd_feature(stella_channel_get, "channel get", CHANNEL, Get stella channel value)
 ecmd_endif()
 
+block(RFM12 ASK)
 ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
   ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
   ecmd_feature(rfm12_ask_tevion_send, "rfm12 tevion", , housecode command delay cnt)

@@ -381,6 +381,7 @@ dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
   -- Ethersex META --
   header(hardware/camera/dc3840.h)
   init(dc3840_init)
+  block(DC3840 Handycam support)
   ecmd_feature(dc3840_capture, "dc3840 capture",, Take a picture.  Access 'dc3840' via VFS afterwards.  See [[DC3840 Camera]] for details.)
   ecmd_feature(dc3840_send, "dc3840 send ", A B C D E, Send provided command bytes to the camera.)
   ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)

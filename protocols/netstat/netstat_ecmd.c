@@ -41,5 +41,6 @@ int16_t parse_cmd_netstat(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(Network Statistics)
   ecmd_feature(netstat, "ns",,Net Statistic - Public anouncment of running ethersex)
 */

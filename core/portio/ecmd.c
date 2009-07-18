@@ -218,6 +218,7 @@ int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(Port I/O)
   ecmd_feature(io_set_ddr, "io set ddr", PORTNUM HEXVALUE [MASK], Set the DDR of port PORTNUM to VALUE (possibly using the provided MASK).)
   ecmd_feature(io_get_ddr, "io get ddr", PORTNUM, Display the current value of the DDR PORTNUM.)
   ecmd_feature(io_set_port, "io set port", NUM HEXVALUE [MASK], Set the PORT NUM to VALUE (possibly using the provided MASK).)

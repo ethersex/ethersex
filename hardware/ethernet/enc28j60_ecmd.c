@@ -118,5 +118,6 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(Network configuration)
   ecmd_feature(mac, "mac",[xx:xx:xx:xx:xx:xx],Display/Set the MAC address.)
 */

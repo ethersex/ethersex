@@ -47,6 +47,7 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block(Clock)
   ecmd_feature(time, "time",, Display the current time in seconds since January 1st 1970.)
   ecmd_feature(date, "date",, Display the current date.)
 */
