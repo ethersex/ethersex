@@ -36,3 +36,4 @@ protocols/mdns_sd/mdns_services.c
 services/watchcat/user_config.h
 protocols/uip/ipchair/ipchair.c
 protocols/ecmd/np_simple_glue.m4
+protocols/ecmd/wiki.txt
