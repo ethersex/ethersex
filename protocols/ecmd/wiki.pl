@@ -16,13 +16,11 @@ while(<>) {
 
 print<<FNORD
 <div class="errorbox">
-This page is automatically generated from ecmd_defs.m4 and wiki.m4 which are
-part of the Ethersex source code repository.  Do not edit this page but send
-patches for those files!
+This page is automatically generated from the files in the Ethersex source code
+repository.  Do not edit this page but send patches for those files!
 </div>
 
 __NOTOC__
-header(Network configuration)
 FNORD
  ;
 
@@ -31,8 +29,8 @@ foreach my $key (sort (keys %data)) {
   if(scalar(keys %{$data{$key}}) == 1) {
     foreach (keys %{$data{$key}}) {
       $data{$default_block}{$_} = $data{$key}{$_};
-      next;
     }
+    next;
   }
   &write_block($key);
 }

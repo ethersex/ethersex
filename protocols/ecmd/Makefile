@@ -53,8 +53,8 @@ CLEAN_FILES += protocols/ecmd/np_simple_glue.m4
 # 
 # 
 # 
-wiki.txt: wiki.pl ecmd_defs.m4
-	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' `find ${TOPDIR} -name '*.c' -type f` | \
+protocols/ecmd/wiki.txt: protocols/ecmd/wiki.pl protocols/ecmd/ecmd_defs.m4
+	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' $(wildcard $(foreach subdir,$(SUBDIRS),$(subdir)/*.c)) | \
 		perl $^ - > $@.tmp
 	@mv -f $@.tmp $@
 
