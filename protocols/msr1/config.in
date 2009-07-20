@@ -1,0 +1,9 @@
+if [ "$MSR1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+  dep_bool "Senertec Dachs MSR1 Support" MSR1_SUPPORT 
+    if [ "$MSR1_SUPPORT" = y ]; then
+      choice '  MSR1 usart select' "$(usart_choice MSR1)"
+      usart_process_choice MSR1
+    fi
+else
+  define_bool MSR1_SUPPORT n
+fi

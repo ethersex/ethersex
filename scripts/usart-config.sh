@@ -29,6 +29,9 @@ usart_count_used() {
   if [ "$MODBUS_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$MSR1_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
   if [ "$DMX_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi

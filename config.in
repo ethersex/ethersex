@@ -77,6 +77,7 @@ dep_bool_menu "Enable (Serial-Line) Debugging" DEBUG y
   dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
   dep_bool 'HTTPD' DEBUG_HTTPD $DEBUG
   dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
+  dep_bool 'MSR1' DEBUG_MSR1 $DEBUG
   dep_bool 'MySQL' DEBUG_MYSQL $DEBUG $MYSQL_SUPPORT
   dep_bool 'Networking' DEBUG_NET $DEBUG
   dep_bool '  Config' DEBUG_NET_CONFIG $DEBUG_NET
@@ -231,6 +232,7 @@ source mcuf/config_usart.in
 source protocols/modbus/config.in
 source protocols/dmx/config.in
 source protocols/yport/config.in
+source protocols/msr1/config.in
 
 if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
