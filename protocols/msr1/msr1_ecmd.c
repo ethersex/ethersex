@@ -56,7 +56,7 @@ parse_cmd_msr1_get(char *cmd, char *output, uint16_t len)
 	cmd[2] = 0;		/* counter for data blocks */
     }
     for (i = 0; i < 20; i++) {
-      sprintf(output, "%02x", c0_data.data[cmd[2] * 25 + i]);
+      sprintf(output, "%02x", c0_data.data[cmd[2] * 20 + i]);
       output += 2;
     }
     cmd[2] ++;
@@ -64,7 +64,7 @@ parse_cmd_msr1_get(char *cmd, char *output, uint16_t len)
       return ECMD_FINAL(15 * 2);
     }
     else
-      return ECMD_AGAIN(20 * 2); 
+      return ECMD_AGAIN(20 * 2 + 1); 
   } 
   return ECMD_ERR_PARSE_ERROR;
 }

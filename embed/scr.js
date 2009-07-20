@@ -9,6 +9,10 @@ function $(id) {
 		return document.layers[id];
 	return null;
 }
+function _(id, value) {
+	var obj = $(id);
+	if (obj) obj.innerHTML = value;
+}
 
 function returnObjById(id) {
 	return $(id);
