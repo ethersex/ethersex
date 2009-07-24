@@ -91,11 +91,7 @@ comment "Network"
 		int "  TCP inactivity timeout (in minutes)" UIP_TIMEOUT_COUNT 10
 	fi
 
-	if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
-		ipv6 "Default Router" CONF_ETHERRAPE_GATEWAY "2001:6f8:1209:f0::1"
-	elif [ "$IPV4_SUPPORT" = "y" -a "$BOOTP_SUPPORT" != "y" ]; then
-		ipv4 "Default gateway" CONF_ETHERRAPE_GATEWAY "192.168.23.1"
-	fi
+	ip "Default gateway" CONF_ETHERRAPE_GATEWAY "192.168.23.1" "2001:6f8:1209:f0:0:0:0:1"
 
 	define_bool UIP_MULTI_STACK $ROUTER_SUPPORT
 	source protocols/uip/ipchair/config.in
