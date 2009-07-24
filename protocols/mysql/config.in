@@ -3,4 +3,6 @@ dep_bool_menu "MySQL client (EXPERIMENTAL)" MYSQL_SUPPORT $TCP_SUPPORT $SHA1_SUP
   string "Username" CONF_MYSQL_USERNAME "root"
   string "Password" CONF_MYSQL_PASSWORD "password"
   string "Schema" CONF_MYSQL_SCHEMA "mavisdb"
+	comment  "Debugging Flags"
+	dep_bool 'MySQL' DEBUG_MYSQL $DEBUG $MYSQL_SUPPORT
 endmenu

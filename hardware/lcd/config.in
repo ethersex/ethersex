@@ -1,5 +1,5 @@
-#mainmenu_option next_comment
-#comment "LCD Displays"
+mainmenu_option next_comment
+comment "LCD Displays"
 
   dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT
     if [ "$HD44780_SUPPORT" = "y" ]; then
@@ -18,4 +18,8 @@
 
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT
 
-#endmenu
+	comment  "Debugging Flags"
+	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
+	dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
+	
+endmenu

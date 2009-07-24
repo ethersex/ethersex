@@ -72,6 +72,8 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
     endmenu
   endmenu
 
-
+	comment  "Debugging Flags"
+	dep_bool 'MCUF' DEBUG_MCUF $DEBUG
+	
 endmenu
 

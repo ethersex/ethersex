@@ -16,4 +16,6 @@ dep_bool "vt100 Telnet Output" TTY_LL_VT100_TELNET $TCP_SUPPORT $TTY_SUPPORT
 #    usart_process_choice VT100_USART
 #fi
 
+	comment  "Debugging Flags"
+	dep_bool 'TTY Layer' DEBUG_TTY_LAYER $DEBUG
 endmenu

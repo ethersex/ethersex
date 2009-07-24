@@ -10,4 +10,7 @@ dep_bool_menu "IRC client (EXPERIMENTAL)" IRC_SUPPORT $TCP_SUPPORT $CONFIG_EXPER
   if [ "$IRC_GREET_SUPPORT" = "y" ]; then
     string "Greeting Message" CONF_IRC_GREET_MSG "Hallo , herzlich willkommen hier"
   fi
+
+	comment  "Debugging Flags"
+	dep_bool 'IRC' DEBUG_IRC $DEBUG $IRC_SUPPORT
 endmenu

@@ -1,0 +1,7 @@
+dep_bool_menu "Cron daemon (Dynamic)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
+	dep_bool "Use UTC instead of LOCALTIME" CRON_DEFAULT_UTC $CRON_SUPPORT
+	dep_bool 'Test entries' CRON_SUPPORT_TEST  $CRON_SUPPORT
+	comment  "Debugging Flags"
+	dep_bool 'Cron' DEBUG_CRON $DEBUG
+endmenu
+dep_bool "Cron daemon (Static)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT

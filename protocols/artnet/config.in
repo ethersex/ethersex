@@ -1,10 +1,12 @@
 dep_bool_menu "Art-Net Node" ARTNET_SUPPORT
-if [ "$ARTNET_SUPPORT" = "y" ]; then
-  int "Art-Net max. ports" CONF_ARTNET_MAX_PORTS "4"
-  int "Art-Net max. data length" CONF_ARTNET_MAX_DATA_LENGTH "511"
-  int "Art-Net max. channeles" CONF_ARTNET_MAX_CHANNELS "512"
-  string "Art-Net OEM-ID" CONF_ARTNET_OEM_ID "0xB108"
-else
-  define_bool ARTNET_SUPPORT n
-fi
+	if [ "$ARTNET_SUPPORT" = "y" ]; then
+		int "Art-Net max. ports" CONF_ARTNET_MAX_PORTS "4"
+		int "Art-Net max. data length" CONF_ARTNET_MAX_DATA_LENGTH "511"
+		int "Art-Net max. channeles" CONF_ARTNET_MAX_CHANNELS "512"
+		string "Art-Net OEM-ID" CONF_ARTNET_OEM_ID "0xB108"
+	else
+		define_bool ARTNET_SUPPORT n
+	fi
+	comment  "Debugging Flags"
+	dep_bool 'ARTNET' DEBUG_ARTNET $DEBUG
 endmenu

@@ -1,0 +1,10 @@
+dep_bool_menu 'Jabber Client' JABBER_SUPPORT $TCP_SUPPORT
+	ip "Server IP" CONF_JABBER_IP "78.47.210.246" "2001:6f8:1209:f0:216:3eff:fe03:a7"
+	string "Server Hostname" CONF_JABBER_HOSTNAME "jabber.zerties.org"
+	string "Username" CONF_JABBER_USERNAME "esex"
+	string "Password" CONF_JABBER_PASSWORD "password"
+	string "Recource" CONF_JABBER_RESOURCE "ethersex"
+	string "Target Buddy Name" CONF_JABBER_BUDDY "stesie@jabber.zerties.org"
+	comment  "Debugging Flags"
+	dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
+endmenu

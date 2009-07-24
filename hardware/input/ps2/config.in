@@ -1,0 +1,3 @@
+dep_bool_menu "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
+endmenu

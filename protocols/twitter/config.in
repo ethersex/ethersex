@@ -4,4 +4,6 @@ dep_bool_menu "Twitter/identi.ca client (EXPERIMENTAL)" TWITTER_SUPPORT $TCP_SUP
   string "Username" CONF_TWITTER_USERNAME "ethersex"
   string "Password" CONF_TWITTER_PASSWORD ""
   define_string CONF_TWITTER_AUTH "$(scripts/http_auth_encode "$CONF_TWITTER_USERNAME" "$CONF_TWITTER_PASSWORD")"
+	comment  "Debugging Flags"
+	dep_bool 'TWITTER' DEBUG_TWITTER $DEBUG $TWITTER_SUPPORT
 endmenu

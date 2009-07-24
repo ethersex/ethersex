@@ -1,16 +1,13 @@
-dep_bool_menu "Stella: Multichannel pwm" STELLA_SUPPORT
-	//dep_bool "Gamma correction (EXPERIMENTAL)" STELLA_GAMMACORRECTION $CONFIG_EXPERIMENTAL
+dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT
 	dep_bool "Higher frequency" STELLA_HIGHFREQ
-	dep_bool "Moodlight" STELLA_MOODLIGHT
 	comment  '----- Initial -----'
-	if [ "$STELLA_MOODLIGHT" = "y" ]; then
+	if [ "$MOODLIGHT" = "y" ]; then
 		choice 'Channels'			\
 		"0% stella_start_zero	\
 		100% stella_start_all	\
 		EEPROM stella_start_eeprom	\
 		Moodlight stella_start_moodlight"	\
 		'0%' STELLA_START
-		int "Moodlight threshold" STELLA_MOODLIGHT_THRESHOLD_INIT 120
 	else
 		choice 'Channels'			\
 		"0% stella_start_zero	\
@@ -23,4 +20,5 @@ dep_bool_menu "Stella: Multichannel pwm" STELLA_SUPPORT
 	"Normal stella_fade_func_0	\
 	Flashy stella_fade_func_1"	\
 	'Normal' STELLA_FADE_FUNCTION_INIT
+	dep_bool 'Debug' DEBUG_STELLA $DEBUG
 endmenu
