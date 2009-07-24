@@ -5,13 +5,9 @@ body {
 	font-family: sans-serif;
 }
 
-a:hover{
-	color: #fff;
-}
-
-a:visited, a:active{
-	color: #ddd;
-}
+a{color: #ccc;}
+a:hover{color: #fff;}
+a:visited, a:active{color: #ddd;}
 
 .small_button:hover {
 	background-color: #555;

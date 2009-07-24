@@ -23,6 +23,7 @@ ifdef(`conf_KTY_INLINE', `<p>To see the KTY temperature see <a href="Xky.ht">her
 ifdef(`conf_ONEWIRE_INLINE', `<p>The onewire temperature values are accessible <a href="ow.ht">here</a>,
    or with a SVG-capable browser see the <a href="Xow.ht">graphical variant</a>.</p>')
 ifdef(`conf_RFM12_INLINE', `<p>To control <a href="rf.ht">RFM12 ASK</a>.</p>')
+ifdef(`conf_STELLA_INLINE', `<p>To control <a href="ste.ht">StellaLight</a>.</p>')
 ifdef(`conf_I2C_INLINE', `<p>Set <a href="i2c.ht">I<sup>2</sup>C-Bus</a> stuff.</p>')
 ifdef(`conf_CAMERA_INLINE', `<p>See the <a href="cam.ht">camera examples</a>.</p>')
 ifdef(`conf_NAMED_PIN_INLINE', `<p>Control <a href="np.ht">named outputs</a>.</p>')
