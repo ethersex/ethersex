@@ -35,10 +35,10 @@ void
 addcrontest()
 {
 	/* add jump_to_function crons */
-	cron_jobinsert_cb(-1, -2, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when hour % 2 == 0 */
-	cron_jobinsert_cb(51, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when minute is 51 */
-	cron_jobinsert_cb(-2, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when minute % 2 == 0 */
+	cron_jobinsert_callback(-1, -2, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when hour % 2 == 0 */
+	cron_jobinsert_callback(51, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when minute is 51 */
 	/* add ecmd cron */
-	/* TODO */
+	// example ecmd for stella to set channel 0 to 120
+	cron_jobinsert_ecmd(-2, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, "channel 0 120"); /* when minute % 2 == 0 */
 }
 

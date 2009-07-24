@@ -108,11 +108,16 @@ void cron_jobinsert_callback(
 * @position: -1 to append else the new job is inserted at that position
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
 */
-/** Add cron job to the linked list. Uses ecmd parser to execute the cron cmd */
 void cron_jobinsert_ecmd(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
-	uint8_t repeat, int8_t position, void* ecmd
+	uint8_t repeat, int8_t position, char* ecmd
 );
+
+/** Insert cron job to the linked list.
+* @newone: The new cron job structure (malloc'ed memory!)
+* @position: Where to insert the new job
+*/
+void cron_insert(struct cron_event_linkedlist* newone,int8_t position);
 
 /** remove the job from the linked list */
 void cron_jobrm(struct cron_event_linkedlist* job);

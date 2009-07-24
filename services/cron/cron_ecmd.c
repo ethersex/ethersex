@@ -73,12 +73,9 @@ int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 // Fields: Min Hour Day Month Dow ecmd
 int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 {
-	char* buffer = malloc(ECMD_INPUTBUF_LENGTH);
 	int8_t minute, hour, day, month, dayofweek;
-	char* ecmd = buffer +1; // reserve first byte for speed parser command
-	buffer[0] = ECMDS_EXECUTE_ECMD;
+	char ecmd[ECMD_INPUTBUF_LENGTH];
 	sscanf_P(cmd, PSTR("%i %i %i %i %i %s"), &minute, &hour, &day, &month, &dayofweek, ecmd);
-
 	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
 
 	return ECMD_FINAL_OK;

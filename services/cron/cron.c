@@ -91,20 +91,22 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 	newone->event.handler = handler;
 	newone->event.extradata = &(newone->event.extradata);
 	strncpy(newone->event.extradata, extradata, extrasize);
-	cron_insert(newone);
+	cron_insert(newone, position);
 }
 
 void
 cron_jobinsert_ecmd(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
-	uint8_t repeat, int8_t position, void* ecmd
-)
-	// emcd set?
-	uint8_t ecmdsize = strlen(ecmd);
+	uint8_t repeat, int8_t position, char* ecmd)
+{
+	uint8_t ecmdsize;
+	struct cron_event_linkedlist* newone;
+	
+	ecmdsize = strlen(ecmd);
 	if (!ecmd || ecmdsize==0) return;
 
 	// try to get ram space
-	struct cron_event_linkedlist* newone = malloc(sizeof(struct cron_event_linkedlist)+ecmdsize);
+	newone = malloc(sizeof(struct cron_event_linkedlist)+ecmdsize);
 
 	// no more ram available -> abort
 	if (!newone)
@@ -125,11 +127,11 @@ cron_jobinsert_ecmd(
 	newone->event.cmd = CRON_ECMD;
 	newone->event.ecmddata = &(newone->event.ecmddata);
 	strcpy(newone->event.ecmddata, ecmd);
-	cron_insert(newone);
+	cron_insert(newone, position);
 }
 
 void
-cron_insert(struct cron_event_linkedlist* newone)
+cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 {
 	// add to linked list
 	if (!head)
