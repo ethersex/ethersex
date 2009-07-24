@@ -69,8 +69,10 @@ divert(timer_divert)dnl
 
 divert(-1)dnl
 
-define(`header', `divert(prototypes)#include "$1"')
-define(`prototype', `divert(prototypes)$1;')
+define(`header', `divert(prototypes)#include "$1"
+divert(-1)')
+define(`prototype', `divert(prototypes)$1;
+divert(-1)')
 
 define(`init',`dnl
 dnl divert(prototypes)void $1 (void);
