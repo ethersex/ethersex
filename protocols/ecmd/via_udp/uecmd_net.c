@@ -25,7 +25,6 @@
 #include "protocols/uip/uip_router.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
-#include "protocols/ecmd/speed_parser.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 #include "config.h"
@@ -49,22 +48,7 @@ void uecmd_net_main() {
 	if (!uip_newdata ())
 		return;
 
-	/* The udp interface for ecmd provides two modes:
-	 * a) normal ecmd parse mode, default
-	 * b) speed mode: one byte command, payload, ...
-	 *    initiate with newline as first character */
-
 	char *p = (char *)uip_appdata;
-	#ifdef ECMD_SPEED_SUPPORT
-	if (*p == '\n') // speed mode
-	{
-		ecmd_speed_parse((void*)++p, uip_datalen()-1);
-		#ifdef EBCMD_RESPONSE_ACK
-		ebcmd_net_ack();
-		#endif
-		return;
-	}
-	#endif
 
 	/* Add \0 to the data and remove \n from the data */
 	do {

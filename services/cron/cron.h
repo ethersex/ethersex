@@ -46,17 +46,25 @@ struct cron_event {
 		};
 	};
 	uint8_t repeat;
-	/** If a cronjob is triggered it will forward "cmddata" to the ecmd speed
-	  * protocol. The first byte usually marks the type of the command, for
-	  * example ECMDS_JUMP_TO_FUNCTION (see: protocols/ecmd/speed_parser.h).
-	  * All additional bytes are extra user data for applications. E.g. a pointer
-	  * to a function and additional arguments for the avobe ECMDS_JUMP_TO_FUNCTION.
-	  * The memory for "cmddata" has to be allocated with malloc on the heap,
-	  * because we will free the memory "cmddata" on cronjob removal. */
-	uint8_t cmdsize;
-	void* cmddata;
+	/** Either CRON_JUMP or CRON_ECMD */
+	uint8_t cmd;
+	union {
+		/** for CRON_JUMP
+		* All additional bytes are extra user data for applications. E.g.
+		* additional arguments for the CRON_JUMP.
+		* The memory for "extradata" has to be allocated with malloc on the heap,
+		* because we will free the memory "extradata" on cronjob removal. */
+		struct {
+			void (*handler)(void*);
+			void* extradata;
+		};
+		// for CRON_ECMD
+		struct {
+			void* ecmddata;
+		};
+	};
 };
-#define cron_event_size (sizeof(struct cron_event)-sizeof(void*))
+#define cron_event_size (sizeof(struct cron_event))
 
 /** This structure is used for the double linked list of cronjobs */
 struct cron_event_linkedlist
@@ -77,6 +85,9 @@ extern uint8_t cron_use_utc;
 #define INFINIT_RUNNING 0
 #define CRON_APPEND -1
 
+#define CRON_JUMP 0
+#define CRON_ECMD 0
+
 /** Insert cron job (that invokes a callback function) to the linked list.
   * @minute, @hour: trigger time
   * @day, @month, @dayofweek: trigger date
@@ -85,15 +96,22 @@ extern uint8_t cron_use_utc;
   * @handler: callback function with signature "void func(void* data)"
   * @extrasize, @extradata: extra data that is passed to the callback function
   */
-void cron_jobinsert_cb(
+void cron_jobinsert_callback(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
 	uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
 
-/** Add cron job to the linked list. Uses ecmd speed parser to execute the cron cmd */
-void cron_jobinsert(
+/** Insert cron job (that will get parsed by the ecmd parser) to the linked list.
+* @minute, @hour: trigger time
+* @day, @month, @dayofweek: trigger date
+* @repeat: repeat>0 or INFINIT_RUNNING
+* @position: -1 to append else the new job is inserted at that position
+* @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
+*/
+/** Add cron job to the linked list. Uses ecmd parser to execute the cron cmd */
+void cron_jobinsert_ecmd(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
-	uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata
+	uint8_t repeat, int8_t position, void* ecmd
 );
 
 /** remove the job from the linked list */
@@ -104,10 +122,6 @@ uint8_t cron_jobs();
 
 /** get a pointer to the entry of the cron job's linked list at position jobposition */
 struct cron_event_linkedlist* cron_getjob(uint8_t jobposition);
-
-/** write all cronjobs to the memory position "target" but don't exceed the target's
-  * length. Return amount of cronjobs written and the actual length in bytes. */
-uint8_t cron_input(void* src);
 
 /** init cron. (Set head to NULL for example) */
 void cron_init(void);

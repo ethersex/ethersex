@@ -21,15 +21,6 @@
 #ifndef UECMD_NET_H
 #define UECMD_NET_H
 
-/* This header structure is infront of every response
-* coming via the ecmd speed protocol */
-struct ebcmd_response_header
-{
-	char protocol;
-	char cmd;
-};
-#define ECMD_SPEED_RESPONSE_HEADER 2
-
 void uecmd_net_init(void);
 void uecmd_net_main(void);
 

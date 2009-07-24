@@ -27,7 +27,6 @@
 #include "test.h"
 #include "config.h"
 #include "core/debug.h"
-#include "protocols/ecmd/speed_parser.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 #include "services/clock/clock.h"
@@ -61,42 +60,25 @@ cron_init(void)
 }
 
 void
-cron_jobinsert_cb(
+cron_jobinsert_callback(
 int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
 uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 {
-	struct newone_t {
-		char cmd;
-		void (*handler)(void*);
-	};
+	// emcd set?
+	if (!handler || (extrasize==0 && extradata)) return;
 
-	struct newone_t* newone = realloc(extradata, extrasize+sizeof(struct newone_t));
-	// realloc failed, abort creation of new cronjob
+	// try to get ram space
+	struct cron_event_linkedlist* newone = malloc(sizeof(struct cron_event_linkedlist)+extrasize);
+
+	// no more ram available -> abort
 	if (!newone)
 	{
+		#ifdef DEBUG_CRON
+		debug_printf("cron: not enough ram!\n");
+		#endif
 		free(extradata);
 		return;
 	}
-
-	memmove(newone+sizeof(struct newone_t),newone, extrasize);
-	newone->cmd = ECMDS_JUMP_TO_FUNCTION;
-	newone->handler = handler;
-
-	cron_jobinsert(minute, hour, day, month, dayofweek, repeat, position, extrasize+sizeof(struct newone_t), newone);
-}
-
-void
-cron_jobinsert(
-int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
-uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata)
-{
-	if (!cmdsize || !cmddata) return;
-
-	// try to get ram space
-	struct cron_event_linkedlist* newone = malloc(sizeof(struct cron_event_linkedlist));
-
-	// no more ram available -> abort
-	if (!newone) return;
 
 	// create new entry
 	newone->event.minute = minute;
@@ -105,9 +87,50 @@ uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata)
 	newone->event.month = month;
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
-	newone->event.cmdsize = cmdsize;
-	newone->event.cmddata = cmddata;
+	newone->event.cmd = CRON_JUMP;
+	newone->event.handler = handler;
+	newone->event.extradata = &(newone->event.extradata);
+	strncpy(newone->event.extradata, extradata, extrasize);
+	cron_insert(newone);
+}
 
+void
+cron_jobinsert_ecmd(
+	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
+	uint8_t repeat, int8_t position, void* ecmd
+)
+	// emcd set?
+	uint8_t ecmdsize = strlen(ecmd);
+	if (!ecmd || ecmdsize==0) return;
+
+	// try to get ram space
+	struct cron_event_linkedlist* newone = malloc(sizeof(struct cron_event_linkedlist)+ecmdsize);
+
+	// no more ram available -> abort
+	if (!newone)
+	{
+		#ifdef DEBUG_CRON
+		debug_printf("cron: not enough ram!\n");
+		#endif
+		return;
+	}
+
+	// create new entry
+	newone->event.minute = minute;
+	newone->event.hour = hour;
+	newone->event.day = day;
+	newone->event.month = month;
+	newone->event.dayofweek = dayofweek;
+	newone->event.repeat = repeat;
+	newone->event.cmd = CRON_ECMD;
+	newone->event.ecmddata = &(newone->event.ecmddata);
+	strcpy(newone->event.ecmddata, ecmd);
+	cron_insert(newone);
+}
+
+void
+cron_insert(struct cron_event_linkedlist* newone)
+{
 	// add to linked list
 	if (!head)
 	{ // special case: empty list (ignore position)
@@ -124,14 +147,14 @@ uint8_t repeat, int8_t position, uint8_t cmdsize, void* cmddata)
 		if (position>0)
 		{
 			struct cron_event_linkedlist* job = head;
-
+			
 			// jump to position
 			while (job)
 			{
 				if (ss++ == position) break;
 				job = job->next;
 			}
-
+			
 			newone->prev = job->prev;
 			job->prev = newone;
 			newone->next = job;
@@ -157,9 +180,6 @@ cron_jobrm(struct cron_event_linkedlist* job)
 {
 	// null check
 	if (!job) return;
-
-	// free extradata
-	free (job->event.cmddata);
 
 	// remove link from element before this
 	if (job == head) head = job->next;
@@ -212,36 +232,6 @@ cron_getjob(uint8_t jobposition)
 		return job;
 }
 
-uint8_t
-cron_input(void* src)
-{
-	uint8_t len = 0;
-
-	// map src buffer to job structure
-	uint8_t position = *((uint8_t*)src);
-	struct cron_event* jobstruct = ((void*)src+sizeof(uint8_t));
-	src += cron_event_size + 1;
-	len += cron_event_size + 1;
-
-	// we allocate heap memory for extra data
-	// this will be freed on cron job removal
-	char *cmddata = 0;
-	if (jobstruct->cmdsize)
-	{
-		len += jobstruct->cmdsize;
-		cmddata = malloc(jobstruct->cmdsize);
-		// we don't have memory space left on the heap -> abort
-		if (!cmddata) return 0;
-		memcpy(cmddata, src, jobstruct->cmdsize);
-	}
-
-	cron_jobinsert(jobstruct->minute, jobstruct->hour,
-						jobstruct->day, jobstruct->month,
-						jobstruct->dayofweek, jobstruct->repeat,
-						position, jobstruct->cmdsize, cmddata);
-	return len;
-}
-
 void
 cron_periodic(void)
 {
@@ -287,31 +277,21 @@ cron_periodic(void)
 
 		/* if it matches all conditions , execute the handler function */
 		if (condition==5) {
-			#ifdef DEBUG_CRON
-			debug_printf("cron match cmd %u!\n", *((uint8_t*)exec->event.cmddata));
-			#endif
 
-			#ifdef ECMD_SPEED_SUPPORT
-			ecmd_speed_parse(exec->event.cmddata, exec->event.cmdsize);
-			#else
-			// without ecmd speed support we only support the jump command
-			struct newone_t {
-				char cmd;
-				void (*handler)(void*);
-				void* data;
-			};
-			struct newone_t *execcmd = exec->event.cmddata;
-			if (exec->event.cmdsize && execcmd->cmd == ECMDS_JUMP_TO_FUNCTION)
+			if (exec->event.cmd == CRON_JUMP)
 			{
-				if (execcmd->handler) execcmd->handler(execcmd->data);
-			} else if (exec->event.cmdsize && execcmd->cmd == ECMDS_EXECUTE_ECMD){
+				#ifdef DEBUG_CRON
+				debug_printf("cron match: jump\n");
+				#endif
+				exec->event.handler(exec->event.extradata);
+			} else if (exec->event.cmd == CRON_ECMD){
 				// ECMD PARSER
+				#ifdef DEBUG_CRON
+				debug_printf("cron match: %s!\n", &(exec->event.ecmddata));
+				#endif
 				char output[ECMD_INPUTBUF_LENGTH];
 				uint16_t len = 0;
-				#ifdef DEBUG_CRON
-					debug_printf("parse cmd %s!\n", &execcmd->cmd+1);
-				#endif
-				ecmd_parse_command(&execcmd->cmd+1, output, len);
+				ecmd_parse_command(exec->event.ecmddata, output, len);
 				#ifdef DEBUG_CRON
 					debug_printf("cmd output %s!\n", output);
 				#endif
@@ -319,7 +299,6 @@ cron_periodic(void)
 			{
 				debug_printf("cron wrong type!\n");
 			}
-			#endif
 
 			/* Execute job endless if repeat value is equal to zero otherwise
 			 * decrement the value and check if is equal to zero.

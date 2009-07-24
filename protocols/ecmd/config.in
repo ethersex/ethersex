@@ -15,13 +15,6 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	if [ "$ECMD_UDP_SUPPORT" = "y" ]; then
 		int " UDP Port" ECMD_UDP_PORT 2701
 	fi
-	dep_bool "  UDP Speed extension" ECMD_SPEED_SUPPORT $ECMD_UDP_SUPPORT $ECMD_PARSER_SUPPORT $UDP_SUPPORT
-	if [ "$ECMD_SPEED_SUPPORT" = "y" ]; then
-		int " Broadcast UDP Port" ECMD_SPEED_BROADCAST_UDP_PORT 2702
-		dep_bool "    Acknowledge all ecmd speed packets" ECMD_SPEED_ACK
-		dep_bool "    Allow changing ip, gw, netmask, mac via ecmd speed" ECMD_SPEED_ENETCMDS
-		dep_bool "    Allow rebooting via ecmd speed" ECMD_SPEED_REBOOT
-	fi
 	dep_bool "  I2C" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
 	if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" ]; then
 		int "    I2C Address" ECMD_I2C_ADDR 8
@@ -45,4 +38,17 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool '  Disable Reboot-Commands' DISABLE_REBOOT_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
+
+	comment  "Debugging Flags"
+	dep_bool 'ECMD' DEBUG_ECMD $DEBUG
+	dep_bool 'ECMD FS20' DEBUG_ECMD_FS20 $DEBUG
+	dep_bool 'ECMD IP' DEBUG_ECMD_IP $DEBUG
+	dep_bool 'ECMD MAC' DEBUG_ECMD_MAC $DEBUG
+	dep_bool 'ECMD NET' DEBUG_ECMD_NET $DEBUG
+	dep_bool 'ECMD OW LIST' DEBUG_ECMD_OW_LIST $DEBUG
+	dep_bool 'ECMD OW ROM' DEBUG_ECMD_OW_ROM $DEBUG
+	dep_bool 'ECMD PORTIO' DEBUG_ECMD_PORTIO $DEBUG
+	dep_bool 'ECMD RC5' DEBUG_ECMD_RC5 $DEBUG
+	dep_bool 'ECMD SCRIPT' DEBUG_ECMD_SCRIPT $DEBUG $ECMD_SCRIPT_SUPPORT
+
 endmenu

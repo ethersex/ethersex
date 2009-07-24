@@ -32,10 +32,7 @@
 #include "stella.h"
 #include "core/debug.h"
 
-struct stella_timetable_struct timetable_1, timetable_2;
-struct stella_timetable_struct* int_table = &timetable_1;
-struct stella_timetable_struct* cal_table = &timetable_2;
-struct stella_timetable_entry* current;
+struct stella_timetable_entry* current = 0;
 
 /* Use port mask to switch pins on if timetable says so and
  * set the next trigger point in time for the compare interrupt.

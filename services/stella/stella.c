@@ -33,13 +33,14 @@ uint8_t stella_fade[STELLA_PINS];
 uint8_t stella_fade_func = STELLA_FADE_FUNCTION_INIT;
 uint8_t stella_fade_step = STELLA_FADE_STEP_INIT;
 volatile uint8_t stella_fade_counter = 0;
+
 volatile enum stella_update_sync stella_sync;
 uint8_t stella_portmask_neg;
-#ifdef STELLA_MOODLIGHT
-uint8_t stella_moodlight_threshold = STELLA_MOODLIGHT_THRESHOLD_INIT;
-uint8_t stella_moodlight_mask = 0;
-uint8_t stella_moodlight_counter = 0;
-#endif
+
+struct stella_timetable_struct timetable_1, timetable_2;
+struct stella_timetable_struct* int_table;
+struct stella_timetable_struct* cal_table;
+
 
 void stella_sort(void);
 
@@ -47,12 +48,24 @@ void stella_sort(void);
 void
 stella_init (void)
 {
+	int_table = &timetable_1;
+	cal_table = &timetable_2;
 	int_table->head = 0;
+	cal_table->head = 0;
+	int_table->portmask = 0;
+	cal_table->portmask = 0;
+	
 	stella_sync = NOTHING_NEW;
 
-	/* we need at least 64 ticks for the compare interrupt,
-	 * therefore choose a prescaler of at least 64. */
+	/* set stella port pins to output and save the negated port mask */
+	stella_portmask_neg = (uint8_t)~(((1 << STELLA_PINS) - 1) << STELLA_OFFSET);
+	STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
+	//DDRC = 255;
+	//debug_printf("stella ok_ %i \n", ((1 << STELLA_PINS) - 1) << STELLA_OFFSET);
 
+	/* we need at least 64 ticks for the compare interrupt,
+	* therefore choose a prescaler of at least 64. */
+	
 	#ifdef STELLA_HIGHFREQ
 	/* Normal PWM Mode, 64 Prescaler */
 	_TCCR2_PRESCALE = _BV(CS22);
@@ -66,10 +79,6 @@ stella_init (void)
 	/* Interrupt on overflow and CompareMatch */
 	_TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2);
 
-	/* set stella port pins to output and save the negated port mask */
-	stella_portmask_neg = (uint8_t)~(((1 << STELLA_PINS) - 1) << STELLA_OFFSET);
-	STELLA_DDR = ((1 << STELLA_PINS) - 1) << STELLA_OFFSET;
-
 	/* initialise the fade counter. Fading works like this:
 	* -> decrement fade_counter
 	* -> on zero, fade if neccessary
@@ -77,12 +86,6 @@ stella_init (void)
 	*/
 	stella_fade_counter = stella_fade_step;
 
-	#if STELLA_START == stella_start_moodlight
-	#ifdef STELLA_MOODLIGHT
-	stella_moodlight_mask = 0xff;
-	stella_moodlight_counter = STELLA_MOODLIGHT_THRESHOLD;
-	#endif
-	#endif
 	#if STELLA_START == stella_start_eeprom
 	stella_loadFromEEROMFading();
 	#endif
@@ -91,6 +94,7 @@ stella_init (void)
 	#endif
 
 	stella_sort();
+	
 }
 
 uint8_t
@@ -106,25 +110,13 @@ stella_output_channels(void* target)
 void
 stella_process (void)
 {
+
 	/* the main loop is too fast, slow down */
 	if (stella_fade_counter == 0)
 	{
 		uint8_t i;
-		/* Moodlight functionality */
-		#ifdef STELLA_MOODLIGHT
-		/* Only do something if any of the channels is selected
-		 * to be 'moodlighted' and the moodlight counter reached
-		 * the threshold value. */
-		if (stella_moodlight_mask && stella_moodlight_counter == stella_moodlight_threshold)
-			for (i = 0; i < STELLA_PINS; ++i)
-			{
-				if (stella_moodlight_mask & _BV(i))
-					stella_fade[i] = (uint8_t)rand()%256;
-			}
-		--stella_moodlight_counter;
-		#endif
-
-		/* Fade channels */
+		/* Fade channels. stella_fade_counter is 0 currently. Set to 1
+		if fading changed a channel brigthness value */
 		for (i = 0; i < STELLA_PINS; ++i)
 		{
 			if (stella_brightness[i] == stella_fade[i])
