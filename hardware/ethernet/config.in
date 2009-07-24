@@ -16,14 +16,17 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT
 		ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
 	fi
 
-	if [ "$IPV6_SUPPORT" = "y" ]; then
-		define_bool "IPV6_STATIC_SUPPORT" y
-	else
-		define_bool "IPV6_STATIC_SUPPORT" n
-	fi
 	comment  "Debugging Flags"
 	dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG
 	dep_bool '  Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60
 	dep_bool '  Rev. 4 Workaround' DEBUG_REV4_WORKAROUND $DEBUG_ENC28J60
 	
 endmenu
+
+if [ "$ENC28J60_SUPPORT" != "y" ]; then
+	if [ "$IPV6_SUPPORT" = "y" ]; then
+		define_bool "IPV6_STATIC_SUPPORT" y
+	else
+		define_bool "IPV6_STATIC_SUPPORT" n
+	fi
+fi
