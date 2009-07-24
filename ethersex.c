@@ -65,11 +65,15 @@ int main(void)
 	#endif
 
 	/* Clear the MCUSR Register to avoid endless wdreset loops */
-	#ifdef MCUSR
-	MCUSR = 0;
-	#endif
+	unsigned char reset_reason = 0;
 	#ifdef MCUCSR
+	reset_reason = MCUCSR;
 	MCUCSR = 0;
+	#else
+		#ifdef MCUSR
+		reset_reason = MCUSR;
+		MCUSR = 0;
+		#endif
 	#endif
 
 	/* Default DDR Config */
@@ -97,6 +101,14 @@ int main(void)
 	//FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
 	debug_init();
 	debug_printf("debugging enabled\n");
+
+	#ifdef DEBUG_RESET_REASON
+	     if (bit_is_set(reset_reason, BORF)) debug_printf("reset: Brown-out\n");
+	else if (bit_is_set(reset_reason, PORF)) debug_printf("reset: Power on\n");
+	else if (bit_is_set(reset_reason, WDRF)) debug_printf("reset: Watchdog\n");
+	else if (bit_is_set(reset_reason, EXTRF)) debug_printf("reset: Extern\n");
+	else debug_printf("reset: Unknown\n");
+	#endif
 
 	#ifdef BOOTLOADER_SUPPORT
 	/* disable interrupts */
