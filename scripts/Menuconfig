@@ -78,6 +78,10 @@ function define_bool () {
 	eval $1=$2
 }
 
+function define_symbol () {
+	true	# nothing to do, for the moment ...
+}
+
 function define_tristate () {
 	eval $1=$2
 }
