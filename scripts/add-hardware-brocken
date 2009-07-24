@@ -61,6 +61,18 @@ template $DMX_SUPPORT << FNORD
   pin(DMX_RS485TX, PD1, OUTPUT)
 FNORD
 
+template $PWM_SERVO_SUPPORT << FNORD
+  /* port config for servos*/
+  pin(SERVO0, PD7,OUTPUT)
+  pin(SERVO1, PD6,OUTPUT)
+  pin(SERVO2, PD5,OUTPUT)
+  pin(SERVO3, PD4,OUTPUT)
+  pin(SERVO4, PD3,OUTPUT)
+  pin(SERVO5, PD2,OUTPUT)
+  pin(SERVO6, PD1,OUTPUT)
+  pin(SERVO7, PD0,OUTPUT)
+FNORD
+
 template $PS2_SUPPORT << FNORD
   /* ps/2 pins */
   pin(PS2_DATA, PA7)

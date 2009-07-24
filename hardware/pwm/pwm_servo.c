@@ -31,12 +31,15 @@
 
 #include "pwm_servo.h"
 #include <avr/interrupt.h>
-#include <avr/io.h>
 
-typedef unsigned char byte;
+#if PWM_SERVOS < 1
+#error Value PWM_SERVO set to low!
+#endif
+#if PWM_SERVOS > 10
+#error Value PWM_SERVO set to high!
+#endif
 
-
-uint16_t Pulslength[PWM_SERVOS * 2]; // array for all delays
+uint16_t Pulslength[DOUBLE_PWM_SERVOS]; // array for all delays
 
 /************************************************************************
 
@@ -46,56 +49,86 @@ uint16_t Pulslength[PWM_SERVOS * 2]; // array for all delays
 ***************************************************************************/
 SIGNAL(SIG_OVERFLOW1)
 {
-   static byte servoindex_half=0;
+   static uint8_t servoindex_half=0;
 #ifdef DEBUG_PWM_SERVO
    static uint16_t debugcount=0;
 #endif
 
    switch (servoindex_half)
    {
-      case 0: HIGH_SERVO0; break;
-      case 1: LOW_SERVO0; break;
-#if PWM_SERVOS > 0 
-      case 2: HIGH_SERVO1; break;
-      case 3: LOW_SERVO1; break;
+    #ifndef HAVE_SERVO0
+      #error "SERVO 0 PIN not defined"
+    #endif
+      case 0: PIN_SET(SERVO0); break;
+      case 1: PIN_CLEAR(SERVO0); break;
+#if PWM_SERVOS > 1
+    #ifndef HAVE_SERVO1
+      #error "SERVO 1 PIN not defined"
+    #endif
+      case 2: PIN_SET(SERVO1); break;
+      case 3: PIN_CLEAR(SERVO1); break;
 #endif
-#if PWM_SERVOS > 1 
-      case 4: HIGH_SERVO2; break;
-      case 5: LOW_SERVO2; break;
+#if PWM_SERVOS > 2
+    #ifndef HAVE_SERVO2
+      #error "SERVO 2 PIN not defined"
+    #endif
+      case 4: PIN_SET(SERVO2); break;
+      case 5: PIN_CLEAR(SERVO2); break;
 #endif
-#if PWM_SERVOS > 2 
-      case 6: HIGH_SERVO3; break;
-      case 7: LOW_SERVO3; break;
+#if PWM_SERVOS > 3
+    #ifndef HAVE_SERVO3
+      #error "SERVO 3 PIN not defined"
+    #endif
+      case 6: PIN_SET(SERVO3); break;
+      case 7: PIN_CLEAR(SERVO3); break;
 #endif
-#if PWM_SERVOS > 3 
-      case 8: HIGH_SERVO4; break;
-      case 9: LOW_SERVO4; break;
+#if PWM_SERVOS > 4
+    #ifndef HAVE_SERVO4
+      #error "SERVO 4 PIN not defined"
+    #endif
+      case 8: PIN_SET(SERVO4); break;
+      case 9: PIN_CLEAR(SERVO4); break;
 #endif
-#if PWM_SERVOS > 4 
-      case 10: HIGH_SERVO5; break;
-      case 11: LOW_SERVO5; break;
+#if PWM_SERVOS > 5
+    #ifndef HAVE_SERVO5
+      #error "SERVO 5 PIN not defined"
+    #endif
+      case 10: PIN_SET(SERVO5); break;
+      case 11: PIN_CLEAR(SERVO5); break;
 #endif
-#if PWM_SERVOS > 5 
-      case 12: HIGH_SERVO6; break;
-      case 13: LOW_SERVO6; break;
+#if PWM_SERVOS > 6
+    #ifndef HAVE_SERVO6
+      #error "SERVO 6 PIN not defined"
+    #endif
+      case 12: PIN_SET(SERVO6); break;
+      case 13: PIN_CLEAR(SERVO6); break;
 #endif
-#if PWM_SERVOS > 6 
-      case 14: HIGH_SERVO7; break;
-      case 15: LOW_SERVO7; break;
+#if PWM_SERVOS > 7
+    #ifndef HAVE_SERVO7
+      #error "SERVO 7 PIN not defined"
+    #endif
+      case 14: PIN_SET(SERVO7); break;
+      case 15: PIN_CLEAR(SERVO7); break;
 #endif
-#if PWM_SERVOS > 7 
-      case 16: HIGH_SERVO8; break;
-      case 17: LOW_SERVO8; break;
+#if PWM_SERVOS > 8
+    #ifndef HAVE_SERVO8
+      #error "SERVO 8 PIN not defined"
+    #endif
+      case 16: PIN_SET(SERVO8); break;
+      case 17: PIN_CLEAR(SERVO89; break;
 #endif
-#if PWM_SERVOS > 8 
-      case 18: HIGH_SERVO9; break;
-      case 19: LOW_SERVO9; break;
+#if PWM_SERVOS > 9
+    #ifndef HAVE_SERVO9
+      #error "SERVO 9 PIN not defined"
+    #endif
+      case 18: PIN_SET(SERVO9); break;
+      case 19: PIN_CLEAR(SERVO9); break;
 #endif
    }
 
 
 #ifdef DEBUG_PWM_SERVO
-   if (debugcount > 800) {
+   if (debugcount > 2000) {
      PWMSERVODEBUG("signal: idx: %i, TCNTx: %i \n", servoindex_half, Pulslength[servoindex_half]);
      debugcount = 0;
    }
@@ -106,7 +139,7 @@ SIGNAL(SIG_OVERFLOW1)
 
    servoindex_half++; // increment timervalue index
 
-   if (servoindex_half == PWM_SERVOS * 2 ) 
+   if (servoindex_half == DOUBLE_PWM_SERVOS) 
       servoindex_half = 0;   // reset index
 }
 /************************************************************************
@@ -118,13 +151,13 @@ SIGNAL(SIG_OVERFLOW1)
 
 ***************************************************************************/
 
-void setservo(byte index, byte value)
+void setservo(uint8_t index, uint8_t value)
 {
    uint16_t wert;
 
    wert=MINPULS+(MAXPULS-MINPULS)/256*value;
    
-   // callculate hightime
+   // calculate hightime
    Pulslength[index<<1]=0-wert;
    
    // sume of low and hightime for one servo is 2ms
@@ -143,8 +176,9 @@ void setservo(byte index, byte value)
 ***************************************************************************/
 void init_servos()
 {
-   byte n;
-   for(n = 0; n< PWM_SERVOS; n++) setservo(n,128);
+   uint8_t n;
+   for(n = 0; n < PWM_SERVOS; n++) 
+	setservo(n,128);
    PWMSERVODEBUG("init servos done\n");
 }
 
@@ -156,19 +190,17 @@ void init_servos()
 
 void pwm_servo_init(void)
 {
-    /* initialize ports */
-   DDRD |= (1<<7);
-
     // init timer1
-   TCNT1 = 0-16000;
-   TCCR1A=0;  
-   TCCR1B=0x01; // ohne precaler = 400hz
-//   TCCR1B|=(1<<CS11); 
+   TCNT1 = 0 - 16000;
+   TCCR1A = 0x00;  
+   TCCR1B = 0x00; // init
+//   TCCR1B|=(1<<CS10); // no prescaler 
+//   TCCR1B |= (1<<CS11);   // prescale/8 ->62hz
+   TCCR1B |= _BV(CS11) | _BV(CS10); // 64 prescaler
 //   TCCR1B|=(1<<CS12|1<<CS10); // 256 prescaler
-   TIMSK1 |= _BV(TOIE2) | _BV(TOIE1);
+//   TIMSK1 |= _BV(TOIE2) | _BV(TOIE1);  //test
+   TIMSK1 |= _BV(TOIE1);
 
-    /* allow interrupts */
-//    sei();
    init_servos();
 }
 

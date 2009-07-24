@@ -29,50 +29,14 @@ pwm_servo_init();
 void 
 setservo(uint8_t servo, uint8_t position);
 
+#define DOUBLE_PWM_SERVOS (PWM_SERVOS*2)
+
 #define MAXPULSFREQ 500 // 2ms => 500HZ
 
-#define TIMER_MAXPULS F_CPU/MAXPULSFREQ // Timer2 value for a 2ms Puls
+#define TIMER_MAXPULS F_CPU/MAXPULSFREQ // Timer value for a 2ms Puls
 
 #define MINPULS TIMER_MAXPULS/4  // min pulslength = 0.5ms
 #define MAXPULS TIMER_MAXPULS // max pulslength=2ms
-
-// port pin definitions
-// you may redefine the pins to suit your application
-// tale a look at the interrupt routine and enable the cases for your servo
-
-#define PWM_SERVOS 1
-
-#define LOW_SERVO0 PORTD&=~(1<<7)
-#define HIGH_SERVO0 PORTD|=(1<<7)
-
-#define LOW_SERVO1 
-#define HIGH_SERVO1
-
-#define LOW_SERVO2
-#define HIGH_SERVO2
-
-#define LOW_SERVO3
-#define HIGH_SERVO3
-
-#define LOW_SERVO4
-#define HIGH_SERVO4
-
-#define LOW_SERVO5
-#define HIGH_SERVO5
-
-#define LOW_SERVO6
-#define HIGH_SERVO6
-
-#define LOW_SERVO7
-#define HIGH_SERVO7
-
-#define LOW_SERVO8
-#define HIGH_SERVO8
-
-#define LOW_SERVO9
-#define HIGH_SERVO9
-
-
 
 #ifdef DEBUG_PWM_SERVO
 # include "core/debug.h"

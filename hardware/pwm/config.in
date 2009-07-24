@@ -1,7 +1,9 @@
 dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PWM Wave" PWM_WAV_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PWM Melody" PWM_MELODY_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
-  dep_bool "PWM Servo" PWM_SERVO_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool_menu "PWM Servo" PWM_SERVO_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
+    int "Number of Servos (max 10)" PWM_SERVOS 1
+  endmenu
 	comment  "Debugging Flags"
 	dep_bool 'PWM' DEBUG_PWM $DEBUG
 	dep_bool 'PWM Servo' DEBUG_PWM_SERVO $DEBUG
