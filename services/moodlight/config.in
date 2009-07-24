@@ -1,0 +1,4 @@
+dep_bool_menu "Moodlight" MOODLIGHT_SUPPORT $STELLA_SUPPORT
+	int "Moodlight threshold" MOODLIGHT_THRESHOLD_INIT 120
+	bool "Start on boot" MOODLIGHT_START_ONBOOT
+endmenu
