@@ -48,10 +48,6 @@ pin(FS20_RECV, PB3)
 ifdef(`conf_RFM12', `dnl
 /* port the rfm12 module CS is attached to */
 pin(SPI_CS_RFM12, PD5, OUTPUT)
-
-pin(RFM12_TX_PIN, STATUSLED_TX)
-pin(RFM12_RX_PIN, STATUSLED_RX)
-
 RFM12_USE_INT(1)
 RFM12_ASK_SENSE_USE_INT(1)
 ')
@@ -59,8 +55,6 @@ RFM12_ASK_SENSE_USE_INT(1)
 ifdef(`conf_ZBUS', `dnl
 /* port config for zbus */
 pin(ZBUS_RXTX_PIN, PD2)
-dnl  pin(ZBUS_TX_PIN, GENERIC_TX_PIN)
-dnl  pin(ZBUS_RX_PIN, GENERIC_RX_PIN)
 ')
 
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl

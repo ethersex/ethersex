@@ -141,13 +141,6 @@ zbus_core_init(void)
     /* Enable RX/TX Swtich as Output */
     DDR_CONFIG_OUT(ZBUS_RXTX_PIN);
 
-#ifdef HAVE_ZBUS_RX_PIN
-    DDR_CONFIG_OUT(ZBUS_RX_PIN);
-#endif
-#ifdef HAVE_ZBUS_TX_PIN
-    DDR_CONFIG_OUT(ZBUS_TX_PIN);
-#endif
-
     /* clear the buffers */
     zbus_txlen = 0;
     zbus_rxlen = 0;
@@ -205,9 +198,9 @@ SIGNAL(usart(USART,_TX_vect))
   /* Nothing to do, disable transmitter and TX LED. */
   else {
     bus_blocked = 0;
-#ifdef HAVE_ZBUS_TX_PIN
-    PIN_CLEAR(ZBUS_TX_PIN);
-#endif
+		#ifdef ZBUS_TX_PIN
+		PIN_CLEAR(STATUSLED_TX);
+		#endif
     zbus_txlen = 0;
     zbus_rxstart ();
   }
@@ -246,12 +239,12 @@ SIGNAL(usart(USART,_RX_vect))
     else if (data == ZBUS_STOP) {
       /* Only if there was a start condition before */
       if (bus_blocked) {
-	zbus_rxstop ();
-	zbus_rxlen = zbus_index;
+				zbus_rxstop ();
+				zbus_rxlen = zbus_index;
       }
-#ifdef HAVE_ZBUS_RX_PIN
-      PIN_CLEAR(ZBUS_RX_PIN);
-#endif
+			#ifdef ZBUS_RX_PIN
+			PIN_CLEAR(STATUSLED_RX);
+			#endif
 
       /* force bus free even if we didn't catch the start condition. */
       bus_blocked = 0;
@@ -266,9 +259,9 @@ SIGNAL(usart(USART,_RX_vect))
   else if (data == '\\') {
 
     recv_escape_data = 1;
-#ifdef HAVE_ZBUS_RX_PIN
-    PIN_SET(ZBUS_RX_PIN);
-#endif
+		#ifdef ZBUS_RX_PIN
+		PIN_SET(STATUSLED_RX);
+		#endif
   }
   else {
   append_data:

@@ -1,23 +1,22 @@
-
 source scripts/usart-config.sh
 mainmenu_name "Ethersex Configuration"
-
+get_usart_count
 
 mainmenu_option next_comment
 comment "General Setup"
+	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
-	get_usart_count
 	choice 'Target MCU'			\
-		"ATmega8                atmega8	\
-			ATmega88               atmega88	\
-			ATmega128               atmega128	\
-			ATmega162              atmega162	\
-			ATmega168              atmega168	\
-			ATmega32		   atmega32	\
-			ATmega64              atmega64	\
-			ATmega644              atmega644	\
-			ATmega644p             atmega644p"	\
+		"ATmega8      atmega8	\
+		 ATmega88     atmega88	\
+		 ATmega128    atmega128	\
+		 ATmega162    atmega162	\
+		 ATmega168    atmega168	\
+		 ATmega32     atmega32	\
+		 ATmega64     atmega64	\
+		 ATmega644    atmega644	\
+		 ATmega644p   atmega644p"	\
 		'ATmega644' MCU
 
 	int "MCU frequency" FREQ 20000000
@@ -26,9 +25,9 @@ comment "General Setup"
 			"$(scripts/pinning_hardware_list.sh)" \
 		'Etherrape' HARDWARE
 
-	bool "Build a bootloader"	BOOTLOADER_SUPPORT
-	bool "Teensy build"		TEENSY_SUPPORT
-	bool "Use SPI Timeout"		SPI_TIMEOUT
+	bool "Build a bootloader" BOOTLOADER_SUPPORT
+	bool "Teensy build" TEENSY_SUPPORT
+	bool "Use SPI Timeout" SPI_TIMEOUT
 	bool "Use GIT commit hash as Version" USE_GIT_VERSION
 	if [ "$USE_GIT_VERSION" = y ]; then
 		define_string VERSION_GIT "$(scripts/get-git-version)"
@@ -36,8 +35,7 @@ comment "General Setup"
 		define_string VERSION_GIT ""
 	fi
 
-	bool 'Discard some packets' DEBUG_DISCARD_SOME
-
+	bool 'Debug: Discard some packets' DEBUG_DISCARD_SOME
 	dep_bool_menu "Enable Debugging" DEBUG y
 		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
@@ -47,22 +45,14 @@ comment "General Setup"
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG
 	endmenu
 
-	dep_bool_menu "Status LEDs" STATUSLEDS
-		bool "Status LED (Power)"	STATUSLED_POWER_SUPPORT
-		bool "Status LED (Booted)"	STATUSLED_BOOTED_SUPPORT
-		bool "Status LED (Net link)"	STATUSLED_NETLINK_SUPPORT
-		bool "Status LED (Transmitted TX)"	STATUSLED_TX_SUPPORT
-		bool "Status LED (Received RX)"	STATUSLED_RX_SUPPORT
-	endmenu
-
+	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
 	source control6/config.in
-
 endmenu
 
 mainmenu_option next_comment
-comment "Network"
+	comment "Network"
 
 	string "Hostname" CONF_HOSTNAME "ethersex"
 	source hardware/ethernet/config.in

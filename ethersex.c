@@ -55,10 +55,6 @@ extern void periodic_process(void);
 
 int main(void)
 {
-	#ifdef STATUSLED_POWER_SUPPORT
-	PIN_SET(STATUSLED_POWER);
-	#endif
-
 	#ifdef BOOTLOADER_SUPPORT
 	_IVREG = _BV(IVCE);	            /* prepare ivec change */
 	_IVREG = _BV(IVSEL);            /* change ivec to bootloader */
@@ -98,9 +94,13 @@ int main(void)
 		#endif
 	#endif
 
+	#ifdef STATUSLED_POWER_SUPPORT
+	PIN_SET(STATUSLED_POWER);
+	#endif
+
 	//FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
 	debug_init();
-	debug_printf("debugging enabled\n");
+	debug_printf("Ethersex " VERSION_STRING " (Debug mode)\n");
 
 	#ifdef DEBUG_RESET_REASON
 	     if (bit_is_set(reset_reason, BORF)) debug_printf("reset: Brown-out\n");
@@ -119,39 +119,27 @@ int main(void)
 	#endif //BOOTLOADER_SUPPORT
 
 	#ifdef USE_WATCHDOG
-	debug_printf("enabling watchdog\n");
-
+		debug_printf("enabling watchdog\n");
 		#ifdef DEBUG
 		/* for debugging, test reset cause and jump to bootloader */
 		if (MCUSR & _BV(WDRF)) {
-			debug_printf("BUG: got reset by the watchdog!!\n");
-
-			/* clear flags */
-			MCUSR &= ~_BV(WDRF);
-
-			debug_printf("jumping to bootloader...\n");
+			debug_printf("bootloader...\n");
 			jump_to_bootloader();
-
 		}
 		#endif
-
-	/* set watchdog to 2 seconds */
-	wdt_enable(WDTO_2S);
-	wdt_kick();
+		/* set watchdog to 2 seconds */
+		wdt_enable(WDTO_2S);
+		wdt_kick();
 	#else //USE_WATCHDOG
-	debug_printf("disabling watchdog\n");
-	wdt_disable();
+		debug_printf("disabling watchdog\n");
+		wdt_disable();
 	#endif //USE_WATCHDOG
-
-	/* send boot message */
-	debug_printf("ethersex firmware " VERSION_STRING "\n");
-
 
 	#ifdef ADC_SUPPORT
 	/* ADC Prescaler to 64 */
 	ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
 	/* ADC set Voltage Reference to extern*/
-	/* FIXMI: the config to the right place */
+	/* FIXME: move config to the right place */
 	ADMUX = ADC_REF; //_BV(REFS0) | _BV(REFS1);
 	#endif
 
