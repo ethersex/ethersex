@@ -95,7 +95,7 @@
 
 	// functions:
 	extern unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen);
-	extern void mca25_grab_data(char *buffer, unsigned int *datalen, char *frametype);
+	extern void mca25_grab_data(char *buffer, unsigned int *datalen, unsigned char *frametype);
 	extern void mca25_grab_jpeg(void);
 	extern void mca25_start_image_grab(void);
 	extern void mca25_configure(void);

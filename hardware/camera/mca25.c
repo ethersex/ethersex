@@ -189,7 +189,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 | grab the next x byte data frame
 | (cam must bei in jpg capture mode!)
 `======================================================================*/
-void mca25_grab_data(char *buffer, unsigned int *datalen, char *frametype){
+void mca25_grab_data(char *buffer, unsigned int *datalen, unsigned char *frametype){
 	unsigned int j=0;
 	unsigned char togo=31;
 	unsigned char rx=0;
