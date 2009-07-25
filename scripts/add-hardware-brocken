@@ -240,21 +240,30 @@ else
     pin(ECMD_SERIAL_USART_TX, PC2)
 FNORD
 
+  template $STATUSLED_POWER_SUPPORT << FNORD
+    pin(STATUSLED_POWER, PA0)
+FNORD
+  template $STATUSLED_BOOTED_SUPPORT << FNORD
+    pin(STATUSLED_BOOTED, PA1)
+FNORD
+  template $STATUSLED_NETLINK_SUPPORT << FNORD
+    pin(STATUSLED_NETLINK, PA2)
+FNORD
+  template $STATUSLED_TX_SUPPORT << FNORD
+    pin(STATUSLED_TX, PA3)
+FNORD
+  template $STATUSLED_RX_SUPPORT << FNORD
+    pin(STATUSLED_RX, PA4)
+FNORD
+
   template $ZBUS_SUPPORT << FNORD
     /* port config for zbus */
     pin(ZBUS_RXTX_PIN, PC2)
-    pin(ZBUS_TX_PIN, STATUSLED_TX)
-    pin(ZBUS_RX_PIN, STATUSLED_RX)
 FNORD
 
   template $RFM12_SUPPORT << FNORD
     /* port the rfm12 module CS is attached to */
     pin(SPI_CS_RFM12, PB0, OUTPUT)
-
-    /* port the LEDS for rfm12 txrx attached to */
-    pin(RFM12_TX_PIN, STATUSLED_TX)
-    pin(RFM12_RX_PIN, STATUSLED_TX)
-
     RFM12_USE_INT(2)
 FNORD
 
