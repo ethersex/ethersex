@@ -131,7 +131,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 void mca25_grab_data(char *buffer, unsigned int *datalen, char *frametype){
 	unsigned int j=0;
 	unsigned char togo=31;
-	char rx=0;
+	unsigned char rx=0;
 	unsigned char state=0;
 	unsigned char firstframe = 1;
 
