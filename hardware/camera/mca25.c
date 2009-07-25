@@ -113,6 +113,8 @@ PROGMEM char MCA25_CONFIG_640x480[] = {
 static void
 mca25_uart_send (PGM_P ptr, uint16_t len)
 {
+  MCA25_DEBUG("mca25_uart_send ptr=%p, len=%d\n", ptr, len);
+
   for (; len; ptr ++, len --) {
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));
 		usart(UDR) = pgm_read_byte (ptr);
@@ -786,6 +788,7 @@ void mca25_read_mux_packet(unsigned char *buffer){
 			break; //we have finished out read.
 		}
 	}
+  MCA25_DEBUG("read mux packet\n", buffer);
 	return;
 }
 
@@ -801,6 +804,8 @@ void mca25_read_at_command(unsigned char *buffer){
 			break; //we have finished out read.
 		}
 	}
+
+  MCA25_DEBUG("read at '%s'.\n", buffer);
 	return;
 }
 
