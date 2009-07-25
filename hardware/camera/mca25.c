@@ -25,6 +25,10 @@
 #include <util/delay.h>
 #include "mca25.h"
 
+#define USE_USART 0
+#define BAUD 9600
+#include "core/usart.h"
+
 unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
 unsigned char mca25_cam_status = 0;
 volatile unsigned char mca25_cam_active;
@@ -205,8 +209,8 @@ void mca25_grab_data(char *buffer, unsigned int *datalen, unsigned char *framety
 	// if we re in state12 -> continue, we do not have the full len yet
 	while( *datalen==0 || (j<*datalen) || state>99 || state == 12 ){
 		MCA25_STATUS_LED_ON();
-		while (!(USR & (1<<RXC))){}
-		rx = UDR;	
+		while (!(usart(UCSR,A) & _BV(usart(RXC))));
+		rx = usart(UDR);
 		MCA25_STATUS_LED_OFF();
 		
 		switch(state){
@@ -779,8 +783,8 @@ void mca25_read_mux_packet(unsigned char *buffer){
 	unsigned int cnt;
 	for(cnt=0;cnt < MCA25_COMM_BUFFER_LEN - 1;cnt++){
 		MCA25_STATUS_LED_ON();
-		while (!(USR & (1<<RXC))){}
-		buffer[cnt] = UDR;
+		while (!(usart(UCSR,A) & _BV(usart(RXC))));
+		buffer[cnt] = usart(UDR);
 		MCA25_STATUS_LED_OFF();
 		if (cnt>0 && buffer[cnt] == 0xF9){
 			buffer[cnt+1] = '\0';
@@ -794,8 +798,8 @@ void mca25_read_at_command(unsigned char *buffer){
 	unsigned int cnt;
 	for(cnt=0;cnt<MCA25_COMM_BUFFER_LEN;cnt++){
 		MCA25_STATUS_LED_ON();
-		while (!(USR & (1<<RXC))){}
-		buffer[cnt] = UDR;
+		while (!(usart(UCSR,A) & _BV(usart(RXC))));
+		buffer[cnt] = usart(UDR);
 		MCA25_STATUS_LED_OFF();
 		if (buffer[cnt] == '\r' || buffer[cnt] == '\n'){
 			buffer[cnt] = '\0';
