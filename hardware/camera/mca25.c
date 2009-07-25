@@ -60,17 +60,12 @@ volatile unsigned char mca25_cam_active;
 | buffer must be at least CAM_BUFFER_LEN byte long !
 `======================================================================*/
 unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
-	unsigned int result16;
 	unsigned int len = 0;
 	unsigned char frametype = 0;
 
 	//set up cam active flag (used to detect a canceled image request)
 	//see mca25_check_for_closed_tcpconn() below
 	mca25_cam_active = 1;
-	
-	//Errechnet startpunkt der Daten im Tcp buffer
-	//IP Headerl�ge + TCP Headerl�ge + Ethernetframe
-	result16 = ((buffer[IP_VERS_LEN] & 0x0F) << 2) + ((buffer[TCP_HDRFLAGS] & 0xF0) >>2) + 14;
 	
 	//if we have had an error, we need to skip 
 	//the remaining picture. cam has no ABORT cmd ?!?!
@@ -83,29 +78,13 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 			while (frametype == 0x48){
 				mca25_send_data_ack();
 	
-				mca25_grab_data((buffer+result16), &len, &frametype); //grabs 250 byte data
+				mca25_grab_data(buffer, &len, &frametype); //grabs 250 byte data
 			}	
 			printf("\xF9\x01\xEF\x0B\xE3\x07\x23\x0C\x01\x79\xF9");
 			
 			mca25_cam_status = MCA25_FIRST_DATA;	
 	}
 		
-#if USE_SERVO
-	//this is the _only_ safe position to move the servo
-	//a servo movement while cam is running freezes the cam ! 
-	//maybe a seperate power supply for servo can fix this (EM)
-	if (servo_need_update){
-		servo_move();
-		//wait some time
-		for (unsigned int z=0; z<60000; z++){
-			for (int y=0; y<20; y++){
-				nop();nop();nop();nop();nop();nop();
-			}
-		}
-	}
-#endif
-
-	
 	if (mca25_cam_status == MCA25_FIRST_DATA){
 		//start grab here, this takes a 
 		//long time...
@@ -123,28 +102,12 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 	// we use the ethernet buffer for
 	// storing the image data
 	// --> make sure it is big enough ! (fixme)
-	mca25_grab_data((buffer+result16), &len, &frametype); 
+	mca25_grab_data(buffer, &len, &frametype); 
 	
 	//sometimes the last packet seems to be empty
 	//-> send this dummy data, it does not matter ...
 	if (len == 0)
 		len = CAM_BUFFER_LEN;
-	
-		
-	//store data length
-	result16 = result16 + len;
-	
-	//fixme, do something here ...
-	/*if (result16 >  (MTU_SIZE - 1)){
-			Buffer_Full = 1;
-			printf("WARN: buffer > MTU-1 !\n");
-			break;
-	}*/
-	
-	//Wait a short Time
-	for(int a = 0;a<1000;a++){nop();};
-	
-	TCP_New_Packtlen (buffer,bufferlen,result16);
 	
 	// last picture is XX SH SL CC 00 
 	// CC = 0x48 -> more data (?)
@@ -160,33 +123,6 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 	}else
 		return 1; // this is a full packet -> there should be more (fixme)
 }
-
-/*======================================================================
-| this is called in the main loop.
-| it makes sure that the cam does not hang after a 
-| user hits "abort" while loading the picture
-`======================================================================*/
-void mca25_check_for_closed_tcpconn(void){
-	//no transfer active:
-	if (mca25_cam_busy_for_socket == MCA25_NOT_BUSY)
-		return;
-
-	mca25_cam_active = 0;
-
-	//if cam busy flag is not cleared within 5 seconds
-	//we have a problem
-	for (int i=0; i<5000; i++){
-		_delay_ms(1);
-	}
-		
-	if (mca25_cam_active == 0){
-		//active flag was not set !
-		//-> maybe someone canceled the image transfer
-		//-> set new status, httpd will cleanup later:
-		mca25_cam_busy_for_socket = MCA25_BUSY_ABORTED;
-	}
-}
-
 
 /*======================================================================
 | grab the next x byte data frame
