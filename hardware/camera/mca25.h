@@ -16,8 +16,6 @@
 	
 	//enable cam plugin:
 	#define USE_MCA25_CAM 1
-	//enable debug leds:
-	#define USE_WEBCAM_LEDS 1
 	
 	#define MCA25_COMM_BUFFER_LEN 40
 	#define MCA25_NOT_BUSY 255
@@ -27,46 +25,10 @@
 	#define MCA25_SKIP_PICTURE 99
 	#define MCA25_BUSY_ABORTED 111
 	
-	//CONFIG:
-#ifdef ISA_CTRL	
-	#define MCA25_RESET_PORT     PORTD
-	#define MCA25_RESET_PORT_DIR DDRD
-	#define MCA25_RESET_PIN      6
-#else
-	#define MCA25_RESET_PORT     PORTB
-	#define MCA25_RESET_PORT_DIR DDRB
-	#define MCA25_RESET_PIN      0
-#endif
-
 	//reset control signal
-	#define MCA25_RESET_HI() MCA25_RESET_PORT|=(1<<MCA25_RESET_PIN);
-	#define MCA25_RESET_LO() MCA25_RESET_PORT&=~(1<<MCA25_RESET_PIN);
+	#define MCA25_RESET_HI() PIN_SET(MCA25_RESET);
+	#define MCA25_RESET_LO() PIN_CLEAR(MCA25_RESET);
 	
-#if USE_WEBCAM_LEDS
-#ifdef	 ISA_CTRL
-	//led pin config:
-	#define MCA25_STATUS_PIN     3
-	#define MCA25_ERROR_PIN      5
-	#define MCA25_CLOCK_PIN      4
-#else
-	//led pin config:
-        #define MCA25_STATUS_PIN     1
-        #define MCA25_ERROR_PIN      2
-        #define MCA25_CLOCK_PIN      4
-#endif
-
-	//status led 
-	#define MCA25_STATUS_LED_OFF() MCA25_RESET_PORT|=(1<<MCA25_STATUS_PIN);
-	#define MCA25_STATUS_LED_ON()  MCA25_RESET_PORT&=~(1<<MCA25_STATUS_PIN);
-	
-	//error led on pin b2
-	#define MCA25_ERROR_LED_OFF() MCA25_RESET_PORT|=(1<<MCA25_ERROR_PIN);
-	#define MCA25_ERROR_LED_ON()  MCA25_RESET_PORT&=~(1<<MCA25_ERROR_PIN);
-	
-	//clock led on pin b4
-	#define MCA25_CLOCK_LED_OFF() MCA25_RESET_PORT|=(1<<MCA25_CLOCK_PIN);
-	#define MCA25_CLOCK_LED_ON()  MCA25_RESET_PORT&=~(1<<MCA25_CLOCK_PIN);
-#else
 	//DISABLE LED MACROS
 	//status led
 	#define MCA25_STATUS_LED_OFF() nop();
@@ -79,7 +41,6 @@
 	//clock led on pin b4
 	#define MCA25_CLOCK_LED_OFF() nop();
         #define MCA25_CLOCK_LED_ON()  nop();
-#endif
 	
 	#include <avr/pgmspace.h>
 	extern PROGMEM char MCA25_START_JPG[];

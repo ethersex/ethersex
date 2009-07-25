@@ -541,15 +541,8 @@ void mca25_init(void){
 	unsigned char state=0;
 	unsigned char buf[MCA25_COMM_BUFFER_LEN];
 	
-	MCA25_RESET_PORT_DIR |=  (1<<MCA25_RESET_PIN); //make camreset pin output
 	mca25_reset_cam();
 
-#if USE_WEBCAM_LEDS
-	MCA25_RESET_PORT_DIR |=  (1<<MCA25_STATUS_PIN); 
-	MCA25_RESET_PORT_DIR |=  (1<<MCA25_CLOCK_PIN); 
-	MCA25_RESET_PORT_DIR |=  (1<<MCA25_ERROR_PIN); 
-#endif
-	
 	MCA25_DEBUG("CAM_RUNNING\n");
 	
 	while (state != 100){
@@ -583,7 +576,7 @@ void mca25_init(void){
 				if (memcmp_P(buf,PSTR("AT+IPR=460800"),13) == 0){
 					MCA25_SEND("\r\nOK\r\n"); //bubug: here only 1 \r befor OK!
 					//set higher baudrate:
-					mca25_set_460800baud();
+					//mca25_set_460800baud();
 					//wait ...
 					state = 3;
 				}
@@ -652,7 +645,7 @@ void mca25_init(void){
 				case 14:
 					// wait for AT*EACS.17.1.r:
 					// [F9 23 EF 1B 41 54 2A 45 41 43 53 3D 31 37 2C 31 0D D1 F9]
-					//if (memcmp(buf,"\xF9\x23\xEF\x1BAT*EACS=17,1\r\xD1\xF9",19) == 0){
+					//if (memcmp(buf,"\xF9\x23\xEF\x1BAT*EACS=17,1\r\xD1\xF9",19) == 0)
 						if (memcmp_P(buf,PSTR("\xF9\x23\xEF\x1B\x41\x54\x2A\x45\x41\x43"
 													 "\x53\x3D\x31\x37\x2C\x31\x0D\xD1\xF9"),19) == 0){
 						// send mux "\r\nOK\r\n" packet:
@@ -811,5 +804,9 @@ void mca25_read_at_command(unsigned char *buffer){
 	return;
 }
 
-
-
+/*
+  -- Ethersex META --
+  header(hardware/camera/mca25.h)
+  init(mca25_init)
+  init(mca25_configure)
+*/
