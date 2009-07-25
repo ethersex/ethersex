@@ -120,7 +120,7 @@ template $USB_SUPPORT << FNORD
 FNORD
 
 template $STELLA_SUPPORT << FNORD
-  STELLA_PORT_RANGE(PD5,PD7)
+  STELLA_PORT_RANGE(PC0,PC7)
 FNORD
 
 [ "x$STATUSLED_TX_SUPPORT" = "xy" ] && template y << FNORD
@@ -171,20 +171,30 @@ if [ $HWCLASS = 8 ]; then  # ATmega8, 88, 168 and others ...
     pin(ECMD_SERIAL_USART_TX, PD2)
 FNORD
 
+  template $STATUSLED_POWER_SUPPORT << FNORD
+    pin(STATUSLED_POWER, PA3)
+FNORD
+  template $STATUSLED_BOOTED_SUPPORT << FNORD
+    pin(STATUSLED_BOOTED, PA3)
+FNORD
+  template $STATUSLED_NETLINK_SUPPORT << FNORD
+    pin(STATUSLED_NETLINK, PA3)
+FNORD
+  template $STATUSLED_TX_SUPPORT << FNORD
+    pin(STATUSLED_TX, PA3)
+FNORD
+  template $STATUSLED_RX_SUPPORT << FNORD
+    pin(STATUSLED_RX, PA3)
+FNORD
+
   template $ZBUS_SUPPORT << FNORD
     /* port config for zbus */
     pin(ZBUS_RXTX_PIN, PD2)
-    pin(ZBUS_TX_PIN, STATUSLED_TX)
-    pin(ZBUS_RX_PIN, STATUSLED_RX)
 FNORD
 
   template $RFM12_SUPPORT << FNORD
     /* port the rfm12 module CS is attached to */
     pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
-
-    /* port the LEDS for rfm12 txrx attached to */
-    pin(RFM12_TX_PIN, STATUSLED_TX)
-    pin(RFM12_RX_PIN, STATUSLED_TX)
 
     RFM12_USE_INT(0)
 FNORD
