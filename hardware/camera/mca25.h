@@ -11,6 +11,8 @@
 ***********************************************************/
 #ifndef _MCA25_H_
 	#define _MCA25_H_
+
+  #define CAM_BUFFER_LEN 512
 	
 	//enable cam plugin:
 	#define USE_MCA25_CAM 1
