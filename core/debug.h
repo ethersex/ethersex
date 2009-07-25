@@ -48,18 +48,6 @@
     #define debug_putchar(...) do { } while(0)
 #endif /* not DEBUG */
 
-/* Use 115200 baud on fast Ethersexs,
-   38400 baud on slower devices like ATmega8,
-   9600 baud for AVRs clocked lower than 2 MHz. */
-#if F_CPU < 2000000
-# define DEBUG_BAUDRATE 9600
-#elif (F_CPU <= 8000000) || defined(_ATMEGA8) || defined(_ATMEGA88) || defined(_ATMEGA128) || defined(_ATMEGA64)
-# define DEBUG_BAUDRATE 38400
-//#else
-//# define DEBUG_BAUDRATE 115200
-// use value from menuconfig
-#endif
-
 /* prototypes */
 void debug_init_uart(void);
 void debug_process_uart(void);
