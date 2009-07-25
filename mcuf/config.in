@@ -1,17 +1,19 @@
 dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPORT
 
   usart_count_used
-  if [ "$MCUF_SERIAL_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-   dep_bool_menu "MCUF usart" MCUF_SERIAL_SUPPORT $MCUF_SUPPORT
-    if [ "$MCUF_SERIAL_SUPPORT" = y ]; then
-      comment "MCUF serial screen configuration"
-      int "MCUF serial screen width" MCUF_SERIAL_SCREEN_WIDTH 18
-      int "MCUF serial screen height" MCUF_SERIAL_SCREEN_HEIGHT 8
-    fi
-   endmenu
-  else
-    define_bool MCUF_SERIAL_SUPPORT n
-  fi
+	if [ "$MCUF_SERIAL_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+		dep_bool "MCUF usart" MCUF_SERIAL_SUPPORT $MCUF_SUPPORT
+		choice '    MCUF usart select' "$(usart_choice MCUF)"
+		usart_process_choice MCUF
+		if [ "$MCUF_SERIAL_SUPPORT" = y ]; then
+			comment "MCUF serial screen configuration"
+			int "MCUF serial screen width" MCUF_SERIAL_SCREEN_WIDTH 18
+			int "MCUF serial screen height" MCUF_SERIAL_SCREEN_HEIGHT 8
+		fi
+	else
+		comment "MCUF usart not available. No free usart. ($USARTS_USED/$USARTS)"
+		define_bool MCUF_SERIAL_SUPPORT n
+	fi
 
   dep_bool_menu "MCUF output" MCUF_OUTPUT_SUPPORT $MCUF_SUPPORT
     if [ "$MCUF_OUTPUT_SUPPORT" = y ]; then

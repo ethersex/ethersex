@@ -18,7 +18,7 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 			int "  UART buffer length" ECMD_SERIAL_USART_BUFFER_LEN 50
 		fi
 	else
-		comment "No free USART ($USARTS_USED/$USARTS)"
+		comment "USART (RS232) not available. No free usart. ($USARTS_USED/$USARTS)"
 	fi
 
 	dep_bool "TCP/Telnet" ECMD_TCP_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT

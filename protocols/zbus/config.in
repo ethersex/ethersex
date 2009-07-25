@@ -1,20 +1,23 @@
-dep_bool_menu "ZBus Support" ZBUS_SUPPORT
-if [ "$ZBUS_SUPPORT" = "y" ]; then
+usart_count_used
+if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "ZBus Support" ZBUS_SUPPORT
+	if [ "$ZBUS_SUPPORT" = "y" ]; then
+		choice '  ZBus usart select' "$(usart_choice ZBUS)"
+		usart_process_choice ZBUS
 
-choice '  ZBus usart select' "$(usart_choice ZBUS)"
-usart_process_choice ZBUS
+		int "ZBus Baudrate" CONF_ZBUS_BAUDRATE "19200"
 
-int "ZBus Baudrate" CONF_ZBUS_BAUDRATE "19200"
+		if [ "$IPV6_SUPPORT" = "y" ]; then
+			ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+			int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64
+		else
+			ipv4 "IP address" CONF_ZBUS_IP "192.168.5.1"
+			ipv4 "Netmask" CONF_ZBUS_IP4_NETMASK "255.255.255.0"
+		fi
 
-if [ "$IPV6_SUPPORT" = "y" ]; then
-  ipv6 "IP address" CONF_ZBUS_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
-  int "IP prefix length" CONF_ZBUS_IP6_PREFIX_LEN 64
+		dep_bool "ZBUS ARP-Proxy" ZBUS_ARP_PROXY $ENC28J60_SUPPORT $ZBUS_SUPPORT
+	fi
+	endmenu
 else
-  ipv4 "IP address" CONF_ZBUS_IP "192.168.5.1"
-  ipv4 "Netmask" CONF_ZBUS_IP4_NETMASK "255.255.255.0"
+	comment "ZBus Support not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
-
-dep_bool "ZBUS ARP-Proxy" ZBUS_ARP_PROXY $ENC28J60_SUPPORT $ZBUS_SUPPORT
-
-fi
-endmenu

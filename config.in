@@ -70,10 +70,7 @@ comment "Network"
 	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT
 	source protocols/usb/config.in
 	source protocols/usb/usb-net-config.in
-	usart_count_used
-	if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-		source protocols/zbus/config.in
-	fi
+	source protocols/zbus/config.in
 	dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $ZBUS_SUPPORT $ROUTER_SUPPORT
 	source scripts/ip-router-conf.sh
 
@@ -116,7 +113,6 @@ comment "Network"
 		fi
 	endmenu
 
-
 	comment  "Debugging Flags"
 	dep_bool 'Networking' DEBUG_NET $DEBUG
 	dep_bool '  Config' DEBUG_NET_CONFIG $DEBUG_NET
@@ -139,13 +135,12 @@ choice "I/O abstraction model (Port I/O)" \
 	 Simple				PORTIO_SIMPLE_SUPPORT	\
 	 Full-featured			PORTIO_SUPPORT"		\
 	Simple
-dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
-
-source hardware/io_expander/config.in
-source hardware/adc/config.in
+	dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
+	source core/tty/config.in
+	source hardware/io_expander/config.in
+	source hardware/adc/config.in
 	source hardware/adc/kty/config.in
 	source hardware/lcd/config.in
-	source core/tty/config.in
 	source hardware/i2c/master/config.in
 	source hardware/camera/config.in
 	source hardware/radio/fs20/config.in
@@ -156,10 +151,6 @@ source hardware/adc/config.in
 	source hardware/input/buttons/config.in
 	source hardware/radio/rfm12/rfm12_ask-config.in
 	source mcuf/config.in
-
-	usart_count_used
-	comment "Usart Configuration ($USARTS_USED/$USARTS)"
-	source mcuf/config_usart.in
 endmenu
 
 ###############################################################################
