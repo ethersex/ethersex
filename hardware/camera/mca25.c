@@ -116,7 +116,10 @@ PROGMEM char MCA25_CONFIG_640x480[] = {
 static void
 mca25_uart_send (PGM_P ptr, uint16_t len)
 {
-
+  for (; len; ptr ++, len --) {
+    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+		usart(UDR) = pgm_read_byte (ptr);
+  }
 }
 
 #define MCA25_SEND(s)      mca25_uart_send(PSTR(s), sizeof(s)-1)
