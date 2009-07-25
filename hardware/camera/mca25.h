@@ -113,5 +113,12 @@
 
 	//helper:
 	//extern int memcmp_P(unsigned char *buf, PGM_P pointer, unsigned int len);
+
+#ifdef DEBUG_MCA25
+# include "core/debug.h"
+# define MCA25_DEBUG(a...)  debug_printf("mca25: " a)
+#else
+# define MCA25_DEBUG(a...)
+#endif
 	
 #endif

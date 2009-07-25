@@ -31,8 +31,12 @@ dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
   #############################################################################
   dep_bool_menu "MCA25 Serial camera" MCA25_SUPPORT $CAMERA_SUPPORT
     usart_count_used
+
     comment "Usart Configuration ($USARTS_USED/$USARTS)"
     choice 'MCA25 USART' "$(usart_choice MCA25)"
     usart_process_choice MCA25
+
+    comment "Debugging Flags"
+    dep_bool "MCA25" DEBUG_MCA25 $MCA25_SUPPORT
   endmenu
 endmenu

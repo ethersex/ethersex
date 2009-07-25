@@ -29,6 +29,8 @@
 #define BAUD 9600
 #include "core/usart.h"
 
+#define nop() __asm__ __volatile__ ("nop" ::)
+
 unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
 unsigned char mca25_cam_status = 0;
 volatile unsigned char mca25_cam_active;
