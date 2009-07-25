@@ -22,7 +22,4 @@ dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT
 	fi
 
 	dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
-
-	comment  "Debugging Flags"
-	dep_bool 'ASK Sensing' DEBUG_ASK_SENSE $DEBUG $RFM12_ASK_SENSING_SUPPORT
 endmenu
