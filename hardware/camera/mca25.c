@@ -413,13 +413,13 @@ void mca25_start_image_grab(){
 					// xx xx = 49 01 -> last data!
 				
 #if CAM_BUFFER_LEN == 256
-					if (memcmp(buf,"\xF9\x83\xEF\x3F\x90",5) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90"),5) == 0){
 #else
 					// 512byte buf:
 					// 90 02 00 C3 00 00 
 					// 90 02 00 48 01 FD
 					// A0 01 10 49 01 0D
-					if (memcmp(buf,"\xF9\x83\xEF\x3F\x90\x02",6) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90\x02"),6) == 0){
 #endif
 						if (buf[7] == 0xC3 && buf[8] == 0x00){
 							//first frame:
@@ -439,7 +439,7 @@ void mca25_start_image_grab(){
 						state = 1;
 						//last data -> send ack!	
 						mca25_send_data_ack();
-					}else if (memcmp(buf,"\xF9\x83\xEF\x3F\xA0",5) == 0){
+					}else if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\xA0"),5) == 0){
 						// F9 83 EF 3F A0 00 4C 49 00 49 00 
 						if(buf[7] == 0x49 && buf[8] == 0x00){
 							//end when CAM_BUF_LEN = 256
@@ -460,11 +460,11 @@ void mca25_start_image_grab(){
 					// wait for end of 256 Byte packet:
 					// [F9 83 EF 11 ** ** ** ** ** ** ** ** 3F F9 ]
 #if CAM_BUFFER_LEN == 256
-					if ( (memcmp(buf,"\xF9\x83\xEF\x11",4) == 0) ||
-					     (memcmp(buf,"\xF9\x83\xEF\x1D",4) == 0) ) {
+					if ( (memcmp_P(buf,PSTR("\xF9\x83\xEF\x11"),4) == 0) ||
+					     (memcmp_P(buf,PSTR("\xF9\x83\xEF\x1D"),4) == 0) ) {
 #else
-					if ( (memcmp(buf,"\xF9\x83\xEF\x21",4) == 0) ||
-				     (memcmp(buf,"\xF9\x83\xEF\x31",4) == 0) ) {
+					if ( (memcmp_P(buf,PSTR("\xF9\x83\xEF\x21"),4) == 0) ||
+				       (memcmp_P(buf,PSTR("\xF9\x83\xEF\x31"),4) == 0) ) {
 #endif
 						state =0;
 	
@@ -499,7 +499,7 @@ void mca25_configure(){
 			case 1:
 				// wait for cam ACK:
 				// [F9 83 EF 07 A0 00 03 C7 F9
-				if (memcmp(buf,"\xF9\x83\xEF\x07\xA0\x00\x03\xC7\xF9",9) == 0){
+				if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x07\xA0\x00\x03\xC7\xF9"),9) == 0){
 					// request camera info:
 					// [F9 81 EF 2F 83 00 17 42 00 14 78 2D 62 74 2F 63 
 					//  61 6D 65 72 61 2D 69 6E 66 6F 00 90 F9]
@@ -514,9 +514,9 @@ void mca25_configure(){
 				// -> wait for last info packet:
 				// [F9 83 EF 33 79 65 72 3D 22 31 30 22 2F 3E 3C 2F 
 				//  63 61 6D 65 72 61 2D 69 6E 66 6F 3E 00 E4 F9]
-				if (memcmp(buf,"\xF9\x83\xEF\x33\x79\x65\x72\x3D\x22\x31\x30\x22"
+				if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x33\x79\x65\x72\x3D\x22\x31\x30\x22"
 											 "\x2F\x3E\x3C\x2F\x63\x61\x6D\x65\x72\x61\x2D\x69"
-											 "\x6E\x66\x6F\x3E\x00\xE4\xF9",31)){
+											 "\x6E\x66\x6F\x3E\x00\xE4\xF9"),31)){
 						//CAM READY !
 						state = 100;
 				}
@@ -557,7 +557,7 @@ void mca25_init(void){
 		switch (state){
 			case 0:
 				//we have to wait for AT&F:
-				if (memcmp(buf,"AT&F",4) == 0){
+				if (memcmp_P(buf,PSTR("AT&F"),4) == 0){
 					//puts("AT&F");
 					mca25_send_ok();
 					state = 1;
@@ -566,7 +566,7 @@ void mca25_init(void){
 				
 			case 1:
 				//wait for AT+IPR
-				if (memcmp(buf,"AT+IPR=?",8) == 0){
+				if (memcmp_P(buf,PSTR("AT+IPR=?"),8) == 0){
 					MCA25_SEND("+IPR: (),(1200,2400,4800,9600,19200,38400,57600,460800)\r\n\r\nOK\r\n");
 					state = 2;
 				}
@@ -574,7 +574,7 @@ void mca25_init(void){
 			
 			case 2:
 				//wait for AT+IPR SET command
-				if (memcmp(buf,"AT+IPR=460800",13) == 0){
+				if (memcmp_P(buf,PSTR("AT+IPR=460800"),13) == 0){
 					MCA25_SEND("\r\nOK\r\n"); //bubug: here only 1 \r befor OK!
 					//set higher baudrate:
 					mca25_set_460800baud();
@@ -585,7 +585,7 @@ void mca25_init(void){
 
 			case 3:
 				//wait for mux info req
-				if (memcmp(buf,"AT+CMUX=?",9) == 0){
+				if (memcmp_P(buf,PSTR("AT+CMUX=?"),9) == 0){
 					MCA25_SEND("\r\r\n+CMUX: (0),(0),(1-7),(31),(10),(3),(30),(10),(1-7)\r");
 					state = 4;
 				}
@@ -593,7 +593,7 @@ void mca25_init(void){
 
 			case 4:
 				//wait for mux enable request
-				if (memcmp(buf,"AT+CMUX=0,0,7,31",16) == 0){
+				if (memcmp_P(buf,PSTR("AT+CMUX=0,0,7,31"),16) == 0){
 					mca25_send_ok();
 					state = 10;
 				}
@@ -602,7 +602,7 @@ void mca25_init(void){
 				case 10:
 					// wait for mux ch0 request:
 					// [F9 03 3F 01 1C F9]
-					if (memcmp(buf,"\xF9\x03\x3F\x01\x1C\xF9",6) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x03\x3F\x01\x1C\xF9"),6) == 0){
 						// send mux ch0 ack/open packet:
 						// [F9 03 73  01 D7 F9]
 						MCA25_SEND("\xF9\x03\x73\x01\xD7\xF9");
@@ -613,7 +613,7 @@ void mca25_init(void){
 				case 11:
 					// wait for mux ch3 request:
 					// [F9 23 3F 01 C9 F9]
-					if (memcmp(buf,"\xF9\x23\x3F\x01\xC9\xF9",6) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x23\x3F\x01\xC9\xF9"),6) == 0){
 						// send mux ch3 ack/open packet:
 						// [F9 23 73 01 02 F9]
 						MCA25_SEND("\xF9\x23\x73\x01\x02\xF9");
@@ -624,7 +624,7 @@ void mca25_init(void){
 				case 12:
 					// wait for config mux ch0 request:
 					// [F9 03 EF 09 E3 05 23 8D FB F9]
-					if (memcmp(buf,"\xF9\x03\xEF\x09\xE3\x05\x23\x8D\xFB\xF9",10) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x03\xEF\x09\xE3\x05\x23\x8D\xFB\xF9"),10) == 0){
 						// send mux ch0 config ack/open packet:
 						// [F9 01 EF 0B E3 07 23 0C 01 79 F9]
 						MCA25_SEND("\xF9\x01\xEF\x0B\xE3\x07\x23\x0C\x01\x79\xF9");
@@ -635,7 +635,7 @@ void mca25_init(void){
 				case 13:
 					// wait for config mux ch3 request:
 					// [F9 03 EF 09 E1 07 23 0C 01 FB F9]
-					if (memcmp(buf,"\xF9\x03\xEF\x09\xE1\x07\x23\x0C\x01\xFB\xF9",11) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x03\xEF\x09\xE1\x07\x23\x0C\x01\xFB\xF9"),11) == 0){
 						// send mux ch3 config ack/open packet:
 						// [F9 01 EF 09 E1 05 23 8D 9A F9]
 						MCA25_SEND("\xF9\x01\xEF\x09\xE1\x05\x23\x8D\x9A\xF9");
@@ -647,8 +647,8 @@ void mca25_init(void){
 					// wait for AT*EACS.17.1.r:
 					// [F9 23 EF 1B 41 54 2A 45 41 43 53 3D 31 37 2C 31 0D D1 F9]
 					//if (memcmp(buf,"\xF9\x23\xEF\x1BAT*EACS=17,1\r\xD1\xF9",19) == 0){
-						if (memcmp(buf,"\xF9\x23\xEF\x1B\x41\x54\x2A\x45\x41\x43"
-													 "\x53\x3D\x31\x37\x2C\x31\x0D\xD1\xF9",19) == 0){
+						if (memcmp_P(buf,PSTR("\xF9\x23\xEF\x1B\x41\x54\x2A\x45\x41\x43"
+													 "\x53\x3D\x31\x37\x2C\x31\x0D\xD1\xF9"),19) == 0){
 						// send mux "\r\nOK\r\n" packet:
 						// [F9 21 EF 0D 0D 0A 4F 4B 0D 0A 48  F9]
 						MCA25_SEND("\xF9\x21\xEF\x0D\x0D\x0A\x4F\x4B\x0D\x0A\x48\xF9");
@@ -659,8 +659,8 @@ void mca25_init(void){
 				case 15:
 					// wait for AT+CSCC=1,199\r5 peripheral AUTH req:
 					// [F9 23 EF 1D 41 54 2B 43 53 43 43 3D 31 2C 31 39 39 0D 35 F9]
-					if (memcmp(buf,"\xF9\x23\xEF\x1D\x41\x54\x2B\x43\x53\x43\x43"
-												 "\x3D\x31\x2C\x31\x39\x39\x0D\x35\xF9",20) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x23\xEF\x1D\x41\x54\x2B\x43\x53\x43\x43"
+												 "\x3D\x31\x2C\x31\x39\x39\x0D\x35\xF9"),20) == 0){
 						// send response token:
 						//DONT// [F9 21 EF 1D 41 54 2B 43 53 43 43 3D 31 2C 31 39 39 0D 54 F9]
 						// [F9 21 EF 1B 0D 0A 2B 43 53 43 43 3A 20 45 33 0D 0A B0 F9 ]
@@ -679,8 +679,8 @@ void mca25_init(void){
 					// wait for AT+CSCC=2,199.B9\r AUTH2 req:
 					// AT+CSCC.2.199.B9.r|
 					// [F9 23 EF 23 41 54 2B 43 53 43 43 3D 32 2C 31 39 39 2C 42 39 0D FB F9]
-					if (memcmp(buf,"\xF9\x23\xEF\x23\x41\x54\x2B\x43\x53\x43\x43"
-												 "\x3D\x32\x2C\x31\x39\x39\x2C\x42\x39\x0D\xFB\xF9",23) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x23\xEF\x23\x41\x54\x2B\x43\x53\x43\x43"
+												 "\x3D\x32\x2C\x31\x39\x39\x2C\x42\x39\x0D\xFB\xF9"),23) == 0){
 						// send response token: (OK)
 						// [F9 21 EF 0D 0D 0A 4F 4B 0D 0A 48  F9]
 						MCA25_SEND("\xF9\x21\xEF\x0D\x0D\x0A\x4F\x4B\x0D\x0A\x48\xF9");
@@ -695,7 +695,7 @@ void mca25_init(void){
 				case 17:
 					// wait for mux ch1 ack:
 					// [F9 81 73 01 60 F9]
-					if (memcmp(buf,"\xF9\x81\x73\x01\x60\xF9",6) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x81\x73\x01\x60\xF9"),6) == 0){
 						// channel1 is now open!
 					  state = 18;
 					}
@@ -704,7 +704,7 @@ void mca25_init(void){
 				case 18:
 					// wait for ch1 mux config:
 					// [F9 03 EF 09 E3 05 83 8D FB F9]
-					if (memcmp(buf,"\xF9\x03\xEF\x09\xE3\x05\x83\x8D\xFB\xF9",10) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x03\xEF\x09\xE3\x05\x83\x8D\xFB\xF9"),10) == 0){
 						// send config response:
 						// [F9 01 EF 09 E1 05 83 8D 9A F9]
 						MCA25_SEND("\xF9\x01\xEF\x09\xE1\x05\x83\x8D\x9A\xF9");
@@ -733,9 +733,9 @@ void mca25_init(void){
 					// cam should now accept our settings:
 					// [F9 83 EF 3F A0 00 1F 10 00 20 00 CB 00 00 00 01 4A 00
 					//  13 E3 3D 95 45 83 74 4A D7 9E C5 C1 6B E3 1E DE 8E ED F9
-					if (memcmp(buf,"\xF9\x83\xEF\x3F\xA0\x00\x1F\x10\x00\x20\x00\xCB\x00"
+					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\xA0\x00\x1F\x10\x00\x20\x00\xCB\x00"
 						             "\x00\x00\x01\x4A\x00\x13\xE3\x3D\x95\x45\x83\x74\x4A"
-												 "\xD7\x9E\xC5\xC1\x6B\xE3\x1E\xDE\x8E\xED\xF9",37) == 0){
+												 "\xD7\x9E\xC5\xC1\x6B\xE3\x1E\xDE\x8E\xED\xF9"),37) == 0){
 						state = 100; //-> exit init loop.
 					}
 					break;			
@@ -782,7 +782,7 @@ void mca25_read_mux_packet(unsigned char *buffer){
 		while (!(USR & (1<<RXC))){}
 		buffer[cnt] = UDR;
 		MCA25_STATUS_LED_OFF();
-		if (cnt>0 && buffer[cnt] == '\xF9'){
+		if (cnt>0 && buffer[cnt] == 0xF9){
 			buffer[cnt+1] = '\0';
 			break; //we have finished out read.
 		}
