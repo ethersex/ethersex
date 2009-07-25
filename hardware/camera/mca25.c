@@ -23,7 +23,6 @@
 ***********************************************************/
 #include "mca25.h"
 #include "main.h"
-volatile unsigned char mca25_uart_disabled;
 unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
 unsigned char mca25_cam_status = 0;
 volatile unsigned char mca25_cam_active;
@@ -80,15 +79,11 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 			//dirty hack but seems like cam does
 			//not have any abort commands :(
 			while (frametype == 0x48){
-				mca25_uart_disabled = 0;
 				mca25_send_data_ack();
-				mca25_uart_disabled = 1;
 	
 				mca25_grab_data((buffer+result16), &len, &frametype); //grabs 250 byte data
 			}	
-			mca25_uart_disabled=0;
 			printf("\xF9\x01\xEF\x0B\xE3\x07\x23\x0C\x01\x79\xF9");
-			mca25_uart_disabled=1;
 			
 			mca25_cam_status = MCA25_FIRST_DATA;	
 	}
@@ -120,9 +115,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 		//first packet done
 		mca25_cam_status = MCA25_NEXT_DATA;
 	}else{ // if (mca25_cam_status == MCA25_NEXT_DATA){
-		mca25_uart_disabled = 0;
 		mca25_send_data_ack();
-		mca25_uart_disabled = 1;
 	}
 	
 	// we use the ethernet buffer for
@@ -159,9 +152,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 		// we need to do this! without this the camera
 		// sometimes hangs while grabbing another image ... strange
 		// reconfig mux (?)
-		mca25_uart_disabled=0;
 		printf("\xF9\x01\xEF\x0B\xE3\x07\x23\x0C\x01\x79\xF9");
-		mca25_uart_disabled=1;
 		
 		return 0; // this is a smaller packet -> it was the last
 	}else
@@ -206,9 +197,6 @@ void mca25_grab_data(char *buffer, unsigned int *datalen, char *frametype){
 	unsigned char state=0;
 	unsigned char firstframe = 1;
 
-	//enable uart:
-	mca25_uart_disabled=0;
-	
 	*datalen = 0;
 	
 	// we start with len=0,
@@ -356,10 +344,6 @@ void mca25_grab_data(char *buffer, unsigned int *datalen, char *frametype){
 				printf_P(PSTR("yeah stack problems. out of mem ? :-X\n"));
 		}
 	}
-
-
-	//disable uart:
-	mca25_uart_disabled=1;
 }
 
 
@@ -368,18 +352,12 @@ void mca25_grab_data(char *buffer, unsigned int *datalen, char *frametype){
 | (mca_25_start_image_grab() has to be called first)
 `======================================================================*/
 void mca25_grab_jpeg(){
-	//enable uart:
-	mca25_uart_disabled=0;
-	
 	// send capture start cmd:
 	mca25_pgm_send(MCA25_START_JPG);
   
 
 	//send an ok for the power consumption message
 	//printf_P(PSTR("\xF9\x21\xEF\x0D\x0D\x0A\x4F\x4B\x0D\x0A\x48\xF9"));	  
-	
-	//disable uart:
-	mca25_uart_disabled=1;
 }
 
 
@@ -391,9 +369,6 @@ void mca25_start_image_grab(){
 	unsigned char state;
 	unsigned char datapos;
 	unsigned char buf[MCA25_COMM_BUFFER_LEN];
-	
-	//enable uart:
-	mca25_uart_disabled=0;
 	
 	//grab 6 preview pictures:
 	for (char i=0; i<6; i++){
@@ -504,8 +479,6 @@ void mca25_start_image_grab(){
 		}
 		//preview image #i has been grabbed.
 	}	
-	//disable uart:
-	mca25_uart_disabled=1;
 }
 
 
@@ -516,9 +489,6 @@ void mca25_start_image_grab(){
 void mca25_configure(){
 	unsigned char state=0;
 	unsigned char buf[MCA25_COMM_BUFFER_LEN];
-	
-	//enable uart:
-	mca25_uart_disabled=0;
 	
 	while (state != 100){
 		mca25_read_mux_packet(buf); //read MUX packet
@@ -561,8 +531,6 @@ void mca25_configure(){
 		}
 		
 	}
-	//disable uart:
-	mca25_uart_disabled=1;
 }
 
 
@@ -573,9 +541,6 @@ void mca25_configure(){
 void mca25_init(void){
 	unsigned char state=0;
 	unsigned char buf[MCA25_COMM_BUFFER_LEN];
-	
-	//enable uart:
-	mca25_uart_disabled=0;
 	
 	MCA25_RESET_PORT_DIR |=  (1<<MCA25_RESET_PIN); //make camreset pin output
 	mca25_reset_cam();
@@ -794,8 +759,6 @@ void mca25_init(void){
 				break;
 		}
 	}
-	//disable uart:
-	mca25_uart_disabled=1;
 }
 
 
