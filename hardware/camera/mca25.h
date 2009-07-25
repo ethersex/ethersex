@@ -11,7 +11,6 @@
 ***********************************************************/
 #ifndef _MCA25_H_
 	#define _MCA25_H_
-	#include "main.h"
 	
 	//enable cam plugin:
 	#define USE_MCA25_CAM 1
@@ -80,6 +79,7 @@
         #define MCA25_CLOCK_LED_ON()  nop();
 #endif
 	
+	#include <avr/pgmspace.h>
 	extern PROGMEM char MCA25_START_JPG[];
 	extern PROGMEM char MCA25_CONFIG_640x480[];
 	extern PROGMEM char MCA25_START_CAPTURING_1[];

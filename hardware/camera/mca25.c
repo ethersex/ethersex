@@ -21,8 +21,10 @@
 *
 * http://www.gnu.de/gpl-ger.html
 ***********************************************************/
+
+#include <util/delay.h>
 #include "mca25.h"
-#include "main.h"
+
 unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
 unsigned char mca25_cam_status = 0;
 volatile unsigned char mca25_cam_active;
