@@ -1,4 +1,0 @@
-if [ "$MCUF_SERIAL_SUPPORT" = y ]; then
-    choice '    MCUF usart select' "$(usart_choice MCUF)"
-    usart_process_choice MCUF
-fi
