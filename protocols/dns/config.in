@@ -1,3 +1,3 @@
-dep_bool_menu 'DNS support' DNS_SUPPORT $UDP_SUPPORT
+dep_bool_menu "DNS support" DNS_SUPPORT $UDP_SUPPORT
 	ip "DNS-Server IP address" CONF_DNS_SERVER "192.168.23.254" "2001:6f8:1209:F0:0:0:0:1"
 endmenu
