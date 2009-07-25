@@ -107,10 +107,6 @@ extern uint8_t stella_portmask_neg;
 extern uint8_t stella_fade_step;
 extern uint8_t stella_fade_func;
 
-extern uint8_t stella_moodlight_mask;
-extern uint8_t stella_moodlight_threshold;
-extern uint8_t stella_moodlight_counter;
-
 extern uint8_t stella_brightness[STELLA_PINS];
 extern uint8_t stella_fade[STELLA_PINS];
 
@@ -126,6 +122,7 @@ void stella_loadFromEEROMFading(void);
 void stella_storeToEEROM(void);
 
 uint8_t stella_output_channels(void* target);
+void stella_dmx(uint8_t* dmx_data, uint8_t len);
 
 #endif  /* STELLA_SUPPORT */
 

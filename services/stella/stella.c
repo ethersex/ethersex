@@ -106,6 +106,18 @@ stella_output_channels(void* target)
 	return sizeof(struct stella_output_channels_struct);
 }
 
+void
+stella_dmx(uint8_t* dmx_data, uint8_t len)
+{
+	// length
+	if (len<2) return; // no real data, abort
+	--len; // ignore first byte (defines fade function)
+	if (STELLA_PINS < len) len = STELLA_PINS;
+
+	for (uint8_t i=0;i<len;++i)
+		stella_setValue(dmx_data[0], i, dmx_data[i+1]);
+}
+
 /* Process recurring actions for stella */
 void
 stella_process (void)
