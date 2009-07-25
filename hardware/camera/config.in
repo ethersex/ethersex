@@ -1,5 +1,6 @@
 dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
 
+  #############################################################################
   dep_bool_menu "DC3840 Serial camera" DC3840_SUPPORT $CAMERA_SUPPORT
     choice "DC3840 resolution"		\
     	"80x64		CONFIG_DC3840_RES80	\
@@ -25,7 +26,13 @@ dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
     comment "Usart Configuration ($USARTS_USED/$USARTS)"
     choice 'DC3840 USART' "$(usart_choice DC3840)"
     usart_process_choice DC3840
-
   endmenu
 
+  #############################################################################
+  dep_bool_menu "MCA25 Serial camera" MCA25_SUPPORT $CAMERA_SUPPORT
+    usart_count_used
+    comment "Usart Configuration ($USARTS_USED/$USARTS)"
+    choice 'MCA25 USART' "$(usart_choice MCA25)"
+    usart_process_choice MCA25
+  endmenu
 endmenu
