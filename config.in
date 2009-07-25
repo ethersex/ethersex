@@ -39,6 +39,7 @@ comment "General Setup"
 	bool 'Discard some packets' DEBUG_DISCARD_SOME
 
 	dep_bool_menu "Enable Debugging" DEBUG y
+		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
 		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG
 		comment  '----- Debugging Flags -----'
@@ -159,15 +160,6 @@ source hardware/adc/config.in
 	usart_count_used
 	comment "Usart Configuration ($USARTS_USED/$USARTS)"
 	source mcuf/config_usart.in
-
-	if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-		dep_bool "Usart ecmd interface (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
-		if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
-			choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
-			usart_process_choice ECMD_SERIAL_USART
-		fi
-		dep_bool "  Usart ecmd RS485 mode" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
-	fi
 endmenu
 
 ###############################################################################

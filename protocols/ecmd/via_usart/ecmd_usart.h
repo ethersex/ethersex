@@ -21,10 +21,6 @@
 #ifndef _ECMD_SERIAL_USART_H
 #define _ECMD_SERIAL_USART_H
 
-#define ECMD_SERIAL_USART_BUFFER_LEN 50
-/* use 19200 baud  */
-#define ECMD_SERIAL_BAUDRATE 19200
-
 void ecmd_serial_usart_init(void);
 void ecmd_serial_usart_periodic(void);
 
