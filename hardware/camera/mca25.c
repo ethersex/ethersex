@@ -29,6 +29,8 @@
 #define BAUD 9600
 #include "core/usart.h"
 
+generate_usart_init_interruptless();
+
 #define nop() __asm__ __volatile__ ("nop" ::)
 
 unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
@@ -752,16 +754,9 @@ void mca25_init(void){
 | resets the camera (hw reset !)
 `======================================================================*/
 void mca25_reset_cam(){
-	unsigned char j;
 	MCA25_RESET_LO();
-	
-	//wait some time:
-	unsigned long i;
-	for (j=0; j<20; j++){
-		i = 0;
-		while (i < 60000 * 20) i++;
-	}
-	
+  for(uint8_t i = 5; i; i --)
+    _delay_ms(10);
 	MCA25_RESET_HI();
 }
 
