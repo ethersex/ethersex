@@ -20,8 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
 #include "mysql.h"
-#include "emcd_parser/ecmd.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
