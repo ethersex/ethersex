@@ -1,12 +1,12 @@
+usart_count_used
 if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  dep_bool_menu "YPort Support" YPORT_SUPPORT $TCP_SUPPORT
-    if [ "$YPORT_SUPPORT" = y ]; then
-      choice '  YPort usart select' "$(usart_choice YPORT)"
-      usart_process_choice YPORT
-      int    "  YPort TCP Port" YPORT_PORT 7970
-      int    "YPort Baudrate" YPORT_BAUDRATE 115200
-    fi
-  endmenu
+	dep_bool_menu "YPort Support" YPORT_SUPPORT $TCP_SUPPORT
+		choice '    YPort usart select' "$(usart_choice YPORT)"
+		usart_process_choice YPORT
+		int    "YPort TCP Port" YPORT_PORT 7970
+		int    "YPort Baudrate" YPORT_BAUDRATE 115200
+	endmenu
 else
-  define_bool YPORT_SUPPORT n
+	define_bool YPORT_SUPPORT n
+	comment "YPORT not available. No free usart. ($USARTS_USED/$USARTS)"
 fi

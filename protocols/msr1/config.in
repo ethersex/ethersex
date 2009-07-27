@@ -1,3 +1,4 @@
+usart_count_used
 if [ "$MSR1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 	dep_bool_menu "Senertec Dachs MSR1 Support" MSR1_SUPPORT
 		choice '  MSR1 usart select' "$(usart_choice MSR1)"
@@ -7,4 +8,5 @@ if [ "$MSR1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 	endmenu
 else
 	define_bool MSR1_SUPPORT n
+	comment "Senertec Dachs MSR1 not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
