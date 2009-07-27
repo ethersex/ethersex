@@ -1,5 +1,6 @@
 dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
-
+	usart_count_used
+	if [ "$DC3840_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   dep_bool_menu "DC3840 Serial camera" DC3840_SUPPORT $CAMERA_SUPPORT
     choice "DC3840 resolution"		\
     	"80x64		CONFIG_DC3840_RES80	\
@@ -27,5 +28,9 @@ dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
     usart_process_choice DC3840
 
   endmenu
+	else
+		define_bool DC3840_SUPPORT n
+		comment "DC3840 Serial camera not available. No free usart. ($USARTS_USED/$USARTS)"
+	fi
 
 endmenu

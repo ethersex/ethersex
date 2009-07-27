@@ -1,3 +1,4 @@
+usart_count_used
 if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   dep_bool "Modbus Support" MODBUS_SUPPORT 
     if [ "$MODBUS_SUPPORT" = y ]; then
@@ -15,4 +16,5 @@ if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     fi
 else
   define_bool MODBUS_SUPPORT n
+	comment "MODBUS not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
