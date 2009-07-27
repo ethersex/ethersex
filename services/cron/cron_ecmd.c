@@ -46,8 +46,12 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 		if (!jobll) return ECMD_FINAL_OK;
 		struct cron_event* job = &(jobll->event);
 		if (!job) return ECMD_FINAL_OK;
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("Rep\thh:min\td.m\twod\n" "%i\t%i:%i\t%i.%i\t%i\n"), \
-			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek));
+		if (job->cmd == CRON_JUMP)
+			return ECMD_FINAL(snprintf_P(output, len, PSTR("jump %i %i %i %i %i %i %p"), \
+			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, job->handler));
+		else if (job->cmd == CRON_ECMD)
+			return ECMD_FINAL(snprintf_P(output, len, PSTR("ecmd %i %i %i %i %i %i %s"), \
+			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, job->ecmddata));
 	}
 
 	// print out the amount of jobs
