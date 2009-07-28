@@ -15,15 +15,15 @@
 function parse_e8(request,data) {
   var h = split_hex(request.responseText);
   _('stunden', (h[1] * 256 + h[2]) + " Std.");
-  _('wartung', h[3] == 255 ? "erforderlich" : ("noch " + h[3] + " Stunden"));
+  _('wartung', h[3] == 255 ? "noch mehr als 254 Stunden" : ("noch " + h[3] + " Stunden"));
   _('ruecklauf', schar(h[4]) + " C");
   _('vorlauf', schar(h[5]) + " C");
-  _('abgas', schar(h[6]) + " C");
+  _('abgas', (schar(h[6]) + 15) + " C");
   _('einschalt', schar(h[7]) + " C");
 
  // Betriebszustand
    var b = new Array();
-   b[10] = 'Störabschaltung';
+   b[10] = 'St&ouml;rabschaltung';
    b[11] = 'Abschaltung MV1';
    b[11] = 'Abschaltung MV2';
    b[13] = 'Drehzahl<200 n. 25 sek.';
