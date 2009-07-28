@@ -64,19 +64,18 @@ int16_t
   (void) output;
   (void) len;
 
-  uint16_t command_16_0,command_16_1,command_16_2;
-  uint16_t delay;
-  uint16_t cnt;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u,%u,%u %u %u"),&command_16_0, &command_16_1, &command_16_2, &delay, &cnt);
-  if (ret != 5)
+  uint8_t command[3];
+  uint8_t delay = 74;
+  uint8_t cnt = 10;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%c,%u,%u %u %u"),&command[0], &command[1], &command[2], &delay, &cnt);
+  if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
-
-  uint8_t command[3]={command_16_0,command_16_1,command_16_2};
 
   rfm12_ask_2272_send(command, delay, cnt);
   return ECMD_FINAL_OK;
 }
 #endif // RFM12_ASK_2272_SUPPORT
+
 #endif  /* RFM12_ASK_SENDER_SUPPORT */
 
 #ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
