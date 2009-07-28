@@ -70,7 +70,6 @@
 	extern void mca25_read_mux_packet(unsigned char *buffer);
 	extern void mca25_send_ok(void);
 	extern void mca25_pgm_send(PGM_P);
-	extern void mca25_set_460800baud(void);
 
 	//helper:
 	//extern int memcmp_P(unsigned char *buf, PGM_P pointer, unsigned int len);

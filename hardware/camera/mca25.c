@@ -25,17 +25,45 @@
 #include <util/delay.h>
 #include "mca25.h"
 
-#define USE_USART 0
+#define USE_USART MCA25_USE_USART
 #define BAUD 9600
 #include "core/usart.h"
 
 generate_usart_init_interruptless();
+
+#undef BAUD
+#define BAUD 460800
+#include "core/setbaud.h"
 
 #define nop() __asm__ __volatile__ ("nop" ::)
 
 unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
 unsigned char mca25_cam_status = 0;
 volatile unsigned char mca25_cam_active;
+
+static void
+mca25_set_460800baud (void)
+{
+  uint8_t sreg = SREG; 
+  cli();
+
+  usart(UCSR,B) = 0;
+
+  usart(UBRR,H) = HI8(UBRRH_VALUE);
+  usart(UBRR,L) = LO8(UBRRL_VALUE);
+
+  /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */
+  /*   and set URSEL, if present, */
+  usart(UCSR,C) = _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL;
+  /* Enable the RX interrupt and receiver and transmitter */
+  usart(UCSR,B) = _BV(usart(TXEN)) | _BV(usart(RXEN));
+
+  /* Set or not set the 2x mode */
+  USART_2X();
+
+  /* Go! */
+  SREG = sreg;
+}
 
 /******************************* CONSTANTS **********************************/
 //some constants (command sequence)
@@ -578,9 +606,10 @@ void mca25_init(void){
 			case 2:
 				//wait for AT+IPR SET command
 				if (memcmp_P(buf,PSTR("AT+IPR=460800"),13) == 0){
-					MCA25_SEND("\r\nOK\r\n"); //bubug: here only 1 \r befor OK!
+					MCA25_DEBUG("switching to 460800 baud.\n");
+					MCA25_SEND("\r\r\nOK\r\n"); //bubug: here only 1 \r befor OK!
 					//set higher baudrate:
-					//mca25_set_460800baud();
+					mca25_set_460800baud();
 					//wait ...
 					state = 3;
 				}
@@ -757,6 +786,7 @@ void mca25_reset_cam(){
 	MCA25_RESET_LO();
   for(uint8_t i = 5; i; i --)
     _delay_ms(10);
+  usart_init();
 	MCA25_RESET_HI();
 }
 
