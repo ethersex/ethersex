@@ -22,9 +22,7 @@ core/portio/user_config.c
 core/portio/user_config.h
 meta.c
 meta.m4
-contrib/libecmd/libecmd.o
-contrib/libecmd/libecmd.o
-contrib/libecmd/rfm12ask_2272/rfm12ask_2272.o
+contrib/libecmd/interactive/interactive
 contrib/libecmd/rfm12ask_2272/rfm12ask_2272
 protocols/ecmd/ecmd_defs.c
 core/vfs/vfs-concat
