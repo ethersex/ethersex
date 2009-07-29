@@ -41,16 +41,13 @@ parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
   (void) output;
   (void) len;
 
-  uint16_t housecode_16_1,housecode_16_2,housecode_16_3;
-  uint16_t command_16_1,command_16_2;
-  uint16_t delay;
-  uint16_t cnt;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u,%u,%u %u,%u %u %u"),&housecode_16_1, &housecode_16_2, &housecode_16_3, &command_16_1, &command_16_2, &delay, &cnt);
-  if (ret != 7)
+  uint8_t housecode[3];
+  uint8_t command[2];
+  uint8_t delay = 99;
+  uint8_t cnt = 4;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%hhu,%hhu,%hhu %hhu,%hhu %hhu %hhu"),&housecode[0], &housecode[1], &housecode[2], &command[0], &command[1], &delay, &cnt);
+  if (ret < 5)
     return ECMD_ERR_PARSE_ERROR;
-
-  uint8_t housecode[3]={housecode_16_1,housecode_16_2,housecode_16_3};
-  uint8_t command[2]={command_16_1,command_16_2};
 
   rfm12_ask_tevion_send(housecode, command, delay, cnt);
   return ECMD_FINAL_OK;
@@ -59,7 +56,7 @@ parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
 
 #ifdef RFM12_ASK_2272_SUPPORT
 int16_t
-    parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
+parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
@@ -67,7 +64,7 @@ int16_t
   uint8_t command[3];
   uint8_t delay = 74;
   uint8_t cnt = 10;
-  int16_t ret = sscanf_P (cmd, PSTR ("%u,%u,%u %u %u"),&(command[0]), &(command[1]), &(command[2]), &delay, &cnt);
+  uint8_t ret = sscanf_P (cmd, PSTR ("%hhu,%hhu,%hhu %hhu %hhu"),&(command[0]), &(command[1]), &(command[2]), &delay, &cnt);
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
@@ -84,8 +81,8 @@ int16_t
 {
   (void) output;
   (void) len;
-  uint16_t flag;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u"),&flag);
+  uint8_t flag;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%hhu"),&flag);
   if (ret != 1)
     rfm12_ask_external_filter_deinit();
   else
@@ -93,7 +90,6 @@ int16_t
 
   return ECMD_FINAL_OK;
 }
-#endif  /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
 
 #ifdef RFM12_ASK_SENSING_SUPPORT
 int16_t
@@ -107,3 +103,4 @@ parse_cmd_rfm12_ask_sense (char *cmd, char *output, uint16_t len)
   return ECMD_FINAL_OK;
 }
 #endif  /* RFM12_ASK_SENSING_SUPPORT */
+#endif  /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
