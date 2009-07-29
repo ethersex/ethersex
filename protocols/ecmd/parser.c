@@ -182,6 +182,18 @@ int16_t parse_cmd_version(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), VERSION_STRING));
 }
 
+int16_t parse_cmd_fuse(char *cmd, char *output, uint16_t len)
+{
+    (void) cmd;
+    SPMCSR = 1<<BLBSET | 1<<SPMEN;
+    uint8_t lo = pgm_read_byte(0);
+    SPMCSR = 1<<BLBSET | 1<<SPMEN;
+    uint8_t hi = pgm_read_byte(3);
+
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("Fuses: low=%02X high=%02X"), lo, hi));
+}
+
+
 #ifndef DISABLE_REBOOT_SUPPORT
 int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 {
