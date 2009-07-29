@@ -74,8 +74,11 @@ udp_open(char *ip, int port) //ip, port
 	remote.sin_port = htons(port);
 	remote.sin_addr.s_addr = inet_addr(ip);
 
+	int flags = fcntl(fd, F_GETFL);
+	if(fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) return 0;
+
 	// connect to the socket
-	if (connect(fd, (struct sockaddr*)&remote, sizeof(remote)) < 0) return 0;
+	if (connect(fd, (struct sockaddr*)&remote, sizeof(remote)) == -1) return 0;
 
 	return fd;
 }
@@ -83,16 +86,16 @@ udp_open(char *ip, int port) //ip, port
 int
 udp_recv(int fd, char *buf, int len)
 {
-	int ret = read(fd, buf, len);
-    if (ret <= 0) 
-      return 0;
+	int ret = recv(fd, buf, len, 0);
+    if (ret < 0)
+		return 0;
     return ret; /* > 0 = ok */
 }
 
 int
 udp_send(int fd, char *data, int len)
 {
-	int ret = write(fd, data, len);
+	int ret = send(fd, data, len, 0);
     if (ret <= 0) 
 		return 0;
 	return ret; /* > 0 = ok */
@@ -113,6 +116,9 @@ tcp_open(char *ip, int port) //ip, port
 	remote.sin_family = AF_INET;
 	remote.sin_port = htons(port);
 	remote.sin_addr.s_addr = inet_addr(ip);
+
+	int flags = fcntl(fd, F_GETFL);
+	if(fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) return 0;
 
 	// connect to the socket
 	if (connect(fd, (struct sockaddr*)&remote, sizeof(remote)) < 0) return 0;
@@ -467,8 +473,8 @@ char* ecmd_execute(struct connection* c,char* ecmd,int len,int timeout) {
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		do
 		{
-			if (usb_recv(usb->fd, response_buffer, response_buffer_len, timeout) == 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer);
+			if (usb_recv(usb->fd, response_buffer, response_buffer_len, timeout) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
+			pos = strlen(response_buffer)-1;
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);
@@ -480,7 +486,7 @@ char* ecmd_execute(struct connection* c,char* ecmd,int len,int timeout) {
 		do
 		{
 			if (rs232_recv(rs232->fd, response_buffer+pos, response_buffer_len-pos) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer);
+			pos = strlen(response_buffer)-1;
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);
@@ -493,8 +499,8 @@ char* ecmd_execute(struct connection* c,char* ecmd,int len,int timeout) {
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		do
 		{
-			if (udp_recv(udp->fd, response_buffer, response_buffer_len) == 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer);
+			if (udp_recv(udp->fd, response_buffer, response_buffer_len) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
+			pos = strlen(response_buffer)-1;
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);
@@ -505,8 +511,8 @@ char* ecmd_execute(struct connection* c,char* ecmd,int len,int timeout) {
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		do
 		{
-			if (tcp_recv(udp->fd, response_buffer, response_buffer_len) == 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer);
+			if (tcp_recv(udp->fd, response_buffer, response_buffer_len) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
+			pos = strlen(response_buffer)-1;
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);

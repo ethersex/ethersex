@@ -58,8 +58,6 @@ int main(int argc, char *argv[])
 		);
 		return 1;
 	}
-	char ecmd[100];
-	int ecmd_len;
 
 	struct connection* c = ecmd_init();
 	if (ecmd_add(c, argv[1])==0)
@@ -70,27 +68,36 @@ int main(int argc, char *argv[])
 	}
 
 	// only one command
-	if (argc==3) {
-		sprintf(ecmd, "%s\n", argv[1]);
-		ecmd_len = strlen(ecmd);
+	if (argc>=3) {
+		char ecmd[100];
+		memset(ecmd, 0, 100);
+		for (int i=2;i<argc;++i) {
+			strcat(ecmd, argv[i]);
+			strcat(ecmd, " ");
+		}
+		ecmd[strlen(ecmd)] = '\n';
+		int ecmd_len = strlen(ecmd);
 
 		printf("Execute: ");
 		printf("%s", ecmd);
 		printf("Answer: ");
 		printf("%s", ecmd_execute(c, ecmd, ecmd_len, 500));
-	} else {
+	} else
+	// interactive mode
+	{
+		int ecmd_len;
 		printf("Interactive mode. Enter nothing and hit [Return] to leave.\n");
-		char *line = 0;
-		unsigned int len;
-		while (getline(&line, &len, stdin) != -1)
+		char *line = malloc(100);
+		while (1)
 		{
+			if (!fgets(line, 100, stdin)) break;
 			if (strlen(line)==1) break;
-			line[strlen(line) - 1] = 0;
-
-			sprintf(ecmd, "%s\n", line);
-			ecmd_len = strlen(ecmd);
-			printf("###\n%s###\n", ecmd_execute(c, ecmd, ecmd_len, 500));
+			line[strlen(line)] = '\n';
+			line[strlen(line)] = 0;
+			ecmd_len = strlen(line);
+			printf("###\n%s###\n", ecmd_execute(c, line, ecmd_len, 500));
 		}
+		free(line);
 	}
 	ecmd_close(c);
 	return 0;

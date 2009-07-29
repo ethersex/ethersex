@@ -131,7 +131,11 @@ int main(int argc, char *argv[])
 	printf("Execute: ");
 	printf("%s", ecmd);
 	printf("Answer: ");
-	printf("%s", ecmd_execute(c, ecmd, ecmd_len, 500));
+	char* answer = ecmd_execute(c, ecmd, ecmd_len, 1500);
+	if (strlen(answer))
+		printf("%s", answer);
+	else
+		printf("OK\n");
 
 	printf("Closing...\n");
 	ecmd_close(c);
