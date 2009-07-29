@@ -67,7 +67,7 @@ int16_t
   uint8_t command[3];
   uint8_t delay = 74;
   uint8_t cnt = 10;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%c,%u,%u %u %u"),&command[0], &command[1], &command[2], &delay, &cnt);
+  uint8_t ret = sscanf_P (cmd, PSTR ("%u,%u,%u %u %u"),&(command[0]), &(command[1]), &(command[2]), &delay, &cnt);
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
