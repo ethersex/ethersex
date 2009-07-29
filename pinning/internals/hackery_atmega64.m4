@@ -1,6 +1,8 @@
 
 #define _ATMEGA64
 
+#define _SPMCR SPMCSR
+
 /* ATmega64 specific adjustments */
 #define _TIMSK_TIMER1 TIMSK
 #define _IVREG MCUCR

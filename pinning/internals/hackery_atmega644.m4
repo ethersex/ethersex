@@ -1,6 +1,8 @@
 
 #define _ATMEGA644
 
+#define _SPMCR SPMCSR
+
 /* ATmega644 specific adjustments */
 #define _IVREG MCUCR
 #define _EIMSK EIMSK
