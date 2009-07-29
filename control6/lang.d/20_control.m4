@@ -57,5 +57,8 @@ divert(init_divert)dnl
 }
 
 divert(action_table_divert)
-};')
+};
+
+divert(control_end_divert)
+')
 
