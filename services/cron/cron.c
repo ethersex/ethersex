@@ -89,8 +89,7 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 	newone->event.repeat = repeat;
 	newone->event.cmd = CRON_JUMP;
 	newone->event.handler = handler;
-	newone->event.extradata = &(newone->event.extradata);
-	strncpy(newone->event.extradata, extradata, extrasize);
+	strncpy(&(newone->event.extradata), extradata, extrasize);
 	cron_insert(newone, position);
 }
 
@@ -125,8 +124,7 @@ cron_jobinsert_ecmd(
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
 	newone->event.cmd = CRON_ECMD;
-	newone->event.ecmddata = &(newone->event.ecmddata);
-	strcpy(newone->event.ecmddata, ecmd);
+	strcpy(&(newone->event.ecmddata), ecmd);
 	cron_insert(newone, position);
 }
 
@@ -171,7 +169,7 @@ cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 			tail->next = newone;
 			tail = newone;
 			#ifdef DEBUG_CRON
-			debug_printf("cron append\n", ss);
+			debug_printf("cron append\n");
 			#endif
 		}
 	}
@@ -285,21 +283,22 @@ cron_periodic(void)
 				#ifdef DEBUG_CRON
 				debug_printf("cron match: jump\n");
 				#endif
+				#ifndef DEBUG_CRON_DRYRUN
 				exec->event.handler(exec->event.extradata);
+				#endif
 			} else if (exec->event.cmd == CRON_ECMD){
 				// ECMD PARSER
 				#ifdef DEBUG_CRON
 				debug_printf("cron match: %s!\n", &(exec->event.ecmddata));
 				#endif
 				char output[ECMD_INPUTBUF_LENGTH];
-				uint16_t len = 0;
-				ecmd_parse_command(exec->event.ecmddata, output, len);
-				#ifdef DEBUG_CRON
-					debug_printf("cmd output %s!\n", output);
+				uint16_t len = sizeof(output);
+				#ifndef DEBUG_CRON_DRYRUN
+				ecmd_parse_command(&(exec->event.ecmddata), output, len);
 				#endif
-			} else
-			{
-				debug_printf("cron wrong type!\n");
+				#ifdef DEBUG_CRON
+					debug_printf("cron output %s!\n", output);
+				#endif
 			}
 
 			/* Execute job endless if repeat value is equal to zero otherwise

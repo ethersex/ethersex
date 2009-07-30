@@ -56,11 +56,11 @@ struct cron_event {
 		* because we will free the memory "extradata" on cronjob removal. */
 		struct {
 			void (*handler)(void*);
-			void* extradata;
+			char extradata;
 		};
 		// for CRON_ECMD
 		struct {
-			void* ecmddata;
+			char ecmddata;
 		};
 	};
 };
