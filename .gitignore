@@ -10,6 +10,7 @@ autoconf.h
 .menuconfig.old
 control6/control6.c
 control6/control6.h
+core/portio/config
 MCmenu
 MCradiolists
 ethersex
