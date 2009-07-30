@@ -39,9 +39,6 @@ uint8_t cron_use_utc;
 void
 cron_init(void)
 {
-	#ifdef DEBUG_CRON
-	debug_printf("cron init!\n");
-	#endif
 
 	// very important: set the linked lists head and tail to zero
 	head = 0;
@@ -49,6 +46,9 @@ cron_init(void)
 
 	// do we want to have some test entries?
 	#ifdef CRON_SUPPORT_TEST
+		#ifdef DEBUG_CRON
+		debug_printf("cron: add test entries\n");
+		#endif
 	addcrontest();
 	#endif
 
@@ -76,7 +76,6 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 		#ifdef DEBUG_CRON
 		debug_printf("cron: not enough ram!\n");
 		#endif
-		free(extradata);
 		return;
 	}
 
@@ -103,6 +102,7 @@ cron_jobinsert_ecmd(
 	
 	ecmdsize = strlen(ecmd);
 	if (!ecmd || ecmdsize==0) return;
+	//if (ecmd[ecmdsize-1] != '\n') ecmdsize++;
 
 	// try to get ram space
 	newone = malloc(sizeof(struct cron_event_linkedlist)+ecmdsize);
@@ -124,7 +124,7 @@ cron_jobinsert_ecmd(
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
 	newone->event.cmd = CRON_ECMD;
-	strcpy(&(newone->event.ecmddata), ecmd);
+	strncpy(&(newone->event.ecmddata), ecmd, ecmdsize+1);
 	cron_insert(newone, position);
 }
 
@@ -139,7 +139,7 @@ cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 	head = newone;
 	tail = newone;
 	#ifdef DEBUG_CRON
-	debug_printf("cron prepend!\n");
+	debug_printf("cron: insert head\n");
 	#endif
 	} else
 	{
@@ -160,7 +160,7 @@ cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 			newone->next = job;
 			if (job==head) head = newone;
 			#ifdef DEBUG_CRON
-			debug_printf("cron insert: %i\n", ss);
+			debug_printf("cron: insert %i\n", ss);
 			#endif
 		} else // insert as last element
 		{
@@ -169,7 +169,7 @@ cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 			tail->next = newone;
 			tail = newone;
 			#ifdef DEBUG_CRON
-			debug_printf("cron append\n");
+			debug_printf("cron: append\n");
 			#endif
 		}
 	}
@@ -195,7 +195,7 @@ cron_jobrm(struct cron_event_linkedlist* job)
 	free (job);
 
 	#ifdef DEBUG_CRON
-	debug_printf("cron removed. Left %u\n", cron_jobs());
+	debug_printf("cron: removed. Left %u\n", cron_jobs());
 	#endif
 }
 
@@ -246,16 +246,18 @@ cron_periodic(void)
 		clock_datetime(&d, timestamp);
 	else
 		clock_localtime(&d, timestamp);
-
+	
 	/* check every event for a match */
 	struct cron_event_linkedlist* current = head;
 	struct cron_event_linkedlist* exec;
 	uint8_t condition;
+	uint8_t counter = 0;
 	while(current)
 	{
 		/* backup current cronjob and advance current */
 		exec = current;
 		current = current->next;
+		++counter;
 
 		/* check if cron 'exec' matches current time */
 		for (condition = 0; condition < 5; ++condition)
@@ -275,29 +277,33 @@ cron_periodic(void)
 				break;
 		}
 
+		#ifdef DEBUG_CRON
+		//debug_printf("..checked %u (%u) with %u\n", counter, exec->event.cmd, condition);
+		#endif
+
 		/* if it matches all conditions , execute the handler function */
 		if (condition==5) {
-
 			if (exec->event.cmd == CRON_JUMP)
 			{
 				#ifdef DEBUG_CRON
-				debug_printf("cron match: jump\n");
+					debug_printf("cron: match %u (JUMP %p)\n", counter, &(exec->event.handler));
 				#endif
 				#ifndef DEBUG_CRON_DRYRUN
-				exec->event.handler(exec->event.extradata);
+					exec->event.handler(&(exec->event.extradata));
 				#endif
-			} else if (exec->event.cmd == CRON_ECMD){
+			} else if (exec->event.cmd == CRON_ECMD)
+			{
 				// ECMD PARSER
 				#ifdef DEBUG_CRON
-				debug_printf("cron match: %s!\n", &(exec->event.ecmddata));
+					debug_printf("cron: match %u (%s)\n", counter, (char*)&(exec->event.ecmddata));
 				#endif
-				char output[ECMD_INPUTBUF_LENGTH];
-				uint16_t len = sizeof(output);
 				#ifndef DEBUG_CRON_DRYRUN
-				ecmd_parse_command(&(exec->event.ecmddata), output, len);
-				#endif
-				#ifdef DEBUG_CRON
-					debug_printf("cron output %s!\n", output);
+					char output[ECMD_INPUTBUF_LENGTH];
+					uint16_t len = sizeof(output);
+					ecmd_parse_command((char*)&(exec->event.ecmddata), output, len);
+					#ifdef DEBUG_CRON
+						debug_printf("cron output %s\n", output);
+					#endif
 				#endif
 			}
 

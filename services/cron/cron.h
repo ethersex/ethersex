@@ -69,11 +69,11 @@ struct cron_event {
 /** This structure is used for the double linked list of cronjobs */
 struct cron_event_linkedlist
 {
-	struct cron_event event;
 	// next,prev pointer for double linked lists;
 	// last entry's next is NULL, heads prev is NULL
 	struct cron_event_linkedlist* next;
 	struct cron_event_linkedlist* prev;
+	struct cron_event event;
 };
 
 extern struct cron_event_linkedlist* head;
@@ -85,8 +85,8 @@ extern uint8_t cron_use_utc;
 #define INFINIT_RUNNING 0
 #define CRON_APPEND -1
 
-#define CRON_JUMP 0
-#define CRON_ECMD 0
+#define CRON_JUMP 10
+#define CRON_ECMD 20
 
 /** Insert cron job (that invokes a callback function) to the linked list.
   * @minute, @hour: trigger time
