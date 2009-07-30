@@ -28,6 +28,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 #include <unistd.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string>
+#include <vector>
+#include <list>
+#include <sstream>
+#include <iostream>
 #include <string.h>
 #include <time.h>
 #include <usb.h>
@@ -45,7 +50,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 #define RS232_DEFAULT_DATA 19200
 
 #define response_buffer_len 500
-char response_buffer[response_buffer_len];
 
 struct usb_esex_device {
     usb_dev_handle *fd;
@@ -67,20 +71,25 @@ struct tcp_esex_device {
     struct tcp_esex_device* next;
 };
 
-struct connection {
-  struct usb_esex_device* usb;
-  struct rs232_esex_device* rs232;
-  struct udp_esex_device* udp;
-  struct tcp_esex_device* tcp;
+
+class ecmd_connection {
+    public:
+    ecmd_connection();
+    ~ecmd_connection();
+    int add_usb_device(const char* vendor_product_id);
+    int add_rs232_device(const char* device_file, int baudrate);
+    int add_udp_device(const char* ip, int port);
+    int add_tcp_device(const char* ip, int port);
+    int add(std::string conn_string);
+    std::string execute(std::string ecmd,int timeout=500);
+
+    private:
+    std::list<usb_esex_device*> usb;
+    std::list<rs232_esex_device*> rs232;
+    std::list<udp_esex_device*> udp;
+    std::list<tcp_esex_device*> tcp;
+    std::list<std::string> responses;
 };
 
-struct connection* ecmd_init();
-int ecmd_add_usb_device(struct connection*, char* vendor_product_id);
-int ecmd_add_rs232_device(struct connection*, char* device_file, int baudrate);
-int ecmd_add_udp_device(struct connection*, char* ip, int port);
-int ecmd_add_tcp_device(struct connection*, char* ip, int port);
-int ecmd_add(struct connection*, char* conn_string);
-void ecmd_close(struct connection*);
-char* ecmd_execute(struct connection*,char* ecmd,int len,int timeout);
 
 #endif
