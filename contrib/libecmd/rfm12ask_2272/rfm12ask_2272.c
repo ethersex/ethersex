@@ -118,26 +118,16 @@ int main(int argc, char *argv[])
 	}
 
 	sprintf(ecmd,"rfm12 2272 %d,%d,%d\n",buffer[0],buffer[1],buffer[2]);
-	int ecmd_len = strlen(ecmd);
 
-	struct connection* c = ecmd_init();
-	if (ecmd_add(c, argv[1])==0)
+	ecmd_connection* c = new ecmd_connection();
+	if (c->add(argv[1])==0)
 	{
-		printf("Fatal: device adding failed\n");
-		ecmd_close(c);
-		return 0;
+		std::cerr << "Fatal: device adding failed" << std::endl;
+		delete c;
+		return 1;
 	}
 
-	printf("Execute: ");
-	printf("%s", ecmd);
-	printf("Answer: ");
-	char* answer = ecmd_execute(c, ecmd, ecmd_len, 1500);
-	if (strlen(answer))
-		printf("%s", answer);
-	else
-		printf("OK\n");
-
-	printf("Closing...\n");
-	ecmd_close(c);
+	std::cout << "Execute: " << ecmd << "Answer: " << c->execute(ecmd, 1500) << std::endl;
+	delete c;
 	return 0;
 }

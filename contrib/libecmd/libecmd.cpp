@@ -382,7 +382,7 @@ std::string ecmd_connection::execute(std::string ecmd,int timeout) {
 		do
 		{
             if (usb_recv((*iter)->fd, response_buffer, response_buffer_len, timeout) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer)-1;
+            pos = strlen(response_buffer);
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);
@@ -396,10 +396,10 @@ std::string ecmd_connection::execute(std::string ecmd,int timeout) {
 		do
 		{
             if (rs232_recv((*iter)->fd, response_buffer+pos, response_buffer_len-pos) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer)-1;
+            pos = strlen(response_buffer);
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
-		} while (timespecDiff(&end, &start)/100000 < timeout);
+        } while (timespecDiff(&end, &start)/100000 < timeout*2);
         std::string temp(response_buffer);
         // omit first received line (is an echo of the command)
         responses.push_back(temp.substr(temp.find('\n')+1));
@@ -412,7 +412,7 @@ std::string ecmd_connection::execute(std::string ecmd,int timeout) {
 		do
 		{
             if (udp_recv((*iter)->fd, response_buffer, response_buffer_len) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer)-1;
+            pos = strlen(response_buffer);
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);
@@ -426,7 +426,7 @@ std::string ecmd_connection::execute(std::string ecmd,int timeout) {
 		do
 		{
             if (tcp_recv((*iter)->fd, response_buffer, response_buffer_len) != 0) clock_gettime(CLOCK_MONOTONIC, &start);
-			pos = strlen(response_buffer)-1;
+            pos = strlen(response_buffer);
 			usleep(30000);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		} while (timespecDiff(&end, &start)/100000 < timeout);

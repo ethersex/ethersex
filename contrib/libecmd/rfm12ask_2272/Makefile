@@ -1,7 +1,7 @@
 # $Id: Makefile 5 2006-01-12 21:41:36Z matled $
 
-CC=gcc
-LD=gcc
+CC=g++
+LD=g++
 STRIP=strip
 RM=rm -f --
 
@@ -12,7 +12,7 @@ HEADERS+=$(shell echo *.h) ../libecmd.h
 TARGET=rfm12ask_2272
 
 LDFLAGS+=`libusb-config --libs` -lrt
-CFLAGS+=-std=c99 -pedantic-errors -Wall -W `libusb-config --cflags` -I../ -D_GNU_SOURCE
+CFLAGS+= -pedantic-errors -Wall -W `libusb-config --cflags` -I../
 
 ifneq ($(DEBUG),) # {{{
 	CFLAGS+=-ggdb3

@@ -59,46 +59,35 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	struct connection* c = ecmd_init();
-	if (ecmd_add(c, argv[1])==0)
+	ecmd_connection* c = new ecmd_connection();
+	if (c->add(argv[1])==0)
 	{
-		printf("Fatal: device adding failed\n");
-		ecmd_close(c);
-		return 0;
+		std::cerr << "Fatal: device adding failed" << std::endl;
+		delete c;
+		return 1;
 	}
 
 	// only one command
 	if (argc>=3) {
-		char ecmd[100];
-		memset(ecmd, 0, 100);
+		std::string ecmd;
+		// merge all command args together
 		for (int i=2;i<argc;++i) {
-			strcat(ecmd, argv[i]);
-			strcat(ecmd, " ");
+			ecmd.append(argv[i]);
+			ecmd.append(" ");
 		}
-		ecmd[strlen(ecmd)] = '\n';
-		int ecmd_len = strlen(ecmd);
-
-		printf("Execute: ");
-		printf("%s", ecmd);
-		printf("Answer: ");
-		printf("%s", ecmd_execute(c, ecmd, ecmd_len, 500));
+		std::cout << "Execute: " << ecmd << "Answer: " << c->execute(ecmd) << std::endl;
 	} else
 	// interactive mode
 	{
-		int ecmd_len;
-		printf("Interactive mode. Enter nothing and hit [Return] to leave.\n");
-		char *line = malloc(100);
+		std::cout << "Interactive mode. Enter nothing and hit [Return] to leave." << std::endl;
+		std::string line;
 		while (1)
 		{
-			if (!fgets(line, 100, stdin)) break;
-			if (strlen(line)==1) break;
-			line[strlen(line)] = '\n';
-			line[strlen(line)] = 0;
-			ecmd_len = strlen(line);
-			printf("###\n%s###\n", ecmd_execute(c, line, ecmd_len, 500));
+			std::getline (std::cin,line);
+			if (line.empty()) break;
+			std::cout << "###\n" << c->execute(line, 1500)  << "\n###" << std::endl;
 		}
-		free(line);
 	}
-	ecmd_close(c);
+	delete c;
 	return 0;
 }
