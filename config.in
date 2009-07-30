@@ -28,11 +28,13 @@ comment "General Setup"
 	bool "Build a bootloader" BOOTLOADER_SUPPORT
 	bool "Teensy build" TEENSY_SUPPORT
 	bool "Use SPI Timeout" SPI_TIMEOUT
-	bool "Use GIT commit hash as Version" USE_GIT_VERSION
-	if [ "$USE_GIT_VERSION" = y ]; then
+	choice 'Version String'			\
+		"GIT-commit-hash       USE_GIT_VERSION	\
+		Release-Version       USE_RELEASE_VERSION	\
+		Build-Date-Time       USE_BUILDDATE_VERSION"	\
+		'Release-Version' VERSION_STRING_CHOICE
+	if [ "$VERSION_STRING_CHOICE" = "USE_GIT_VERSION" ]; then
 		define_string VERSION_GIT "$(scripts/get-git-version)"
-	else
-		define_string VERSION_GIT ""
 	fi
 
 	bool 'Debug: Discard some packets' DEBUG_DISCARD_SOME
