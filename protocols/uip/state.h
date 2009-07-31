@@ -133,6 +133,12 @@ typedef union uip_udp_connection_state {
     struct zbus_raw_connection_state_t zbus_raw;
 #   endif
 
+#   ifdef CONTROL6_SUPPORT
+    struct {
+	struct pt pt;
+    } control6_udp;
+#   endif
+
 } uip_udp_appstate_t;
 
 #endif /* CONNECTION_STATE_H */
