@@ -5,9 +5,14 @@ define(`CONTROL_START', `divert(action_table_divert)struct action action_threads
 divert(timer_divert)uint32_t timers[] = {
 divert(ecmd_variable_divert)dnl
 #ifdef C6_ECMD_USED
+
+dnl Some hackery to support non-typed ECMD_GLOBAL defaulting to uint8_t.
+#define C6_TYPE_		0
+#define d_ d_uint8_t
+
 struct c6_option_t {
   PGM_P name;
-  uint8_t value;
+  struct c6_vario_type value;
 };
 
 struct c6_option_t c6_ecmd_vars[] = {
@@ -25,7 +30,7 @@ define(`CONTROL_END', `divert(control_end_divert)
 */
 divert(ecmd_variable_divert)dnl
 };
-`uint8_t control6_set(const char *varname, uint8_t value) {
+`uint8_t control6_set(const char *varname, struct c6_vario_type value) {
   uint8_t i;
   for(i = 0;i < ' ecmd_global_count `;i ++) {
     if (strcmp_P(varname, c6_ecmd_vars[i].name) == 0) {
@@ -35,7 +40,7 @@ divert(ecmd_variable_divert)dnl
   }
   return 0;
 }
-uint8_t control6_get(const char *varname, uint8_t *value) {
+uint8_t control6_get(const char *varname, struct c6_vario_type *value) {
   uint8_t i;
   for(i = 0;i < ' ecmd_global_count `;i ++) {
     if (strcmp_P(varname, c6_ecmd_vars[i].name) == 0) {

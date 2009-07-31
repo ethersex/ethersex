@@ -27,10 +27,27 @@ divert(0)
 #ifndef _CONTROL6_H
 #define _CONTROL6_H
 
+#define C6_TYPE_uint8_t		0
+#define C6_TYPE_int8_t		1
+#define C6_TYPE_uint16_t	2
+#define C6_TYPE_int16_t		3
+
+struct c6_vario_type {
+  uint8_t type;
+
+  union {
+    uint8_t d_uint8_t;
+    int8_t d_int8_t;
+    uint16_t d_uint16_t;
+    int16_t d_int16_t;
+  } data;
+};
+
 void control6_init(void);
 void control6_run(void);
-uint8_t control6_set(const char *varname, uint8_t value);
-uint8_t control6_get(const char *varname, uint8_t *value);
+
+uint8_t control6_set(const char *varname, struct c6_vario_type value);
+uint8_t control6_get(const char *varname, struct c6_vario_type *value);
 
 divert(10)#endif /* CONTROL6 */
 divert(-1)

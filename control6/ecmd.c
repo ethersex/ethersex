@@ -31,10 +31,31 @@
 
 int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 {
-  uint8_t varvalue;
+  struct c6_vario_type varvalue;
 
-  if (control6_get(cmd, &varvalue))
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue));
+  if (control6_get(cmd, &varvalue)) {
+    char *ptr;
+    ptr = output + snprintf_P (output, len, PSTR("%s "), cmd);
+    len -= (ptr - output);
+    switch (varvalue.type) {
+      case  C6_TYPE_uint8_t:
+        ptr += snprintf_P (ptr, len, PSTR("%u"), varvalue.data.d_uint8_t);
+	break;
+
+      case  C6_TYPE_int8_t:
+        ptr += snprintf_P (ptr, len, PSTR("%i"), varvalue.data.d_int8_t);
+	break;
+
+      case  C6_TYPE_uint16_t:
+        ptr += snprintf_P (ptr, len, PSTR("%u"), varvalue.data.d_uint16_t);
+	break;
+
+      case  C6_TYPE_int16_t:
+        ptr += snprintf_P (ptr, len, PSTR("%i"), varvalue.data.d_int16_t);
+	break;
+    }
+    return ECMD_FINAL(ptr - output);
+  }
   else
     return ECMD_ERR_PARSE_ERROR;
 }
@@ -42,14 +63,47 @@ int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
 {
   char *buf;
-  uint8_t varvalue;
   buf = strrchr (cmd, ' ');
-  if (buf) {
-    *(buf ++) = 0;
-    varvalue = atoi (buf);
-    if (control6_set(cmd, varvalue))
-      return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %u"), cmd, varvalue));
-  }
+  if (!buf)
     return ECMD_ERR_PARSE_ERROR;
+
+  *(buf ++) = 0;
+
+  struct c6_vario_type varvalue;
+
+  if (!control6_get(cmd, &varvalue))
+    return ECMD_ERR_PARSE_ERROR;
+
+  if (varvalue.type == C6_TYPE_int8_t || varvalue.type == C6_TYPE_int16_t) {
+    /* signed */
+    int16_t nv = strtol (buf, NULL, 10);
+
+    if (varvalue.type == C6_TYPE_int8_t) {
+      if (nv < INT8_MIN || nv > INT8_MAX)
+        range_error: 
+          return ECMD_FINAL(snprintf_P(output, len, PSTR("range error.")));
+      else
+        varvalue.data.d_int8_t = nv;
+    }
+    else
+      varvalue.data.d_int16_t = nv;
+  }
+  else {
+    /* unsigned */
+    if (*buf == '-') goto range_error;
+
+    uint16_t nv = strtoul (buf, NULL, 10);
+    if (varvalue.type == C6_TYPE_uint8_t) {
+      if (nv > INT8_MAX)
+        goto range_error;
+      else
+        varvalue.data.d_uint8_t = nv;
+    }
+    else
+      varvalue.data.d_uint16_t = nv;
+  }
+
+  control6_set (cmd, varvalue);
+  return ECMD_FINAL_OK;
 }
 
