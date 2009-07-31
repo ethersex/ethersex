@@ -2,7 +2,6 @@
 # Control
 ################################
 define(`CONTROL_START', `divert(action_table_divert)struct action action_threads[] = {
-divert(timer_divert)uint32_t timers[] = {
 divert(ecmd_variable_divert)dnl
 #ifdef C6_ECMD_USED
 

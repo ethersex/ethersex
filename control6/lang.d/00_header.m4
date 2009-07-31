@@ -69,6 +69,7 @@ divert(0)dnl
 #include "protocols/uip/uip.h"
 #include "control6.h"
 
+divert(timer_divert)uint32_t timers[] = {
 divert(-1)dnl
 define(`C6_HEADER', `')
 

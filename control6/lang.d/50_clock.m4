@@ -1,10 +1,10 @@
 ################################
 # CLOCK
 ################################
-define(`CLOCK_USED', `ifdef(`clock_used', `', `dnl
-define(`clock_used')dnl
-define(`old_divert', divnum)dnl
-divert(globals_divert)struct clock_datetime_t datetime;
+define(`CLOCK_USED', `')dnl
+define(`old_divert',divnum)dnl
+divert(globals_divert)#ifdef C6_CLOCK_USED
+struct clock_datetime_t datetime;
 uint8_t last_minute;
 #ifndef CLOCK_SUPPORT
 #error Please define clock support
@@ -12,17 +12,22 @@ uint8_t last_minute;
 #ifndef CLOCK_DATETIME_SUPPORT
 #error Please define clock date/time support
 #endif
+#endif
+divert(normal_divert)#ifdef C6_CLOCK_USED
+clock_localtime(&datetime, clock_get_time());
+#endif
+divert(control_end_divert)#ifdef C6_CLOCK_USED
+  last_minute = datetime.min;
+#endif
+divert(old_divert)
 
-divert(normal_start_divert)  clock_localtime(&datetime, clock_get_time());
-divert(control_end_divert)  last_minute = datetime.min;
-divert(old_divert)')')
+dnl PLEASE edit control6-header.m4 if you add something here
+define(`CLOCK_SEC', `datetime.sec')
+define(`CLOCK_MIN', `datetime.min')
+define(`CLOCK_HOUR', `datetime.hour')
+define(`CLOCK_DAY', `datetime.day')
+define(`CLOCK_MONTH', `datetime.month')
+define(`CLOCK_DOW', `datetime.dow')
+define(`CLOCK_YEAR', `(datetime.year + 1900)')
 
-define(`CLOCK_SEC', `CLOCK_USED()datetime.sec')
-define(`CLOCK_MIN', `CLOCK_USED()datetime.min')
-define(`CLOCK_HOUR', `CLOCK_USED()datetime.hour')
-define(`CLOCK_DAY', `CLOCK_USED()datetime.day')
-define(`CLOCK_MONTH', `CLOCK_USED()datetime.month')
-define(`CLOCK_DOW', `CLOCK_USED()datetime.dow')
-define(`CLOCK_YEAR', `CLOCK_USED()(datetime.year + 1900)')
-
-define(`ONCE', `CLOCK_USED()(datetime.min != last_minute) && ')
+define(`ONCE', `(datetime.min != last_minute) && ')
