@@ -228,7 +228,7 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
 
     }
 
-    d->year = year % 100;
+    d->year = year - 1900;
     d->month = 0;
 
     /* month */
