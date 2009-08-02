@@ -55,8 +55,8 @@
 	extern volatile unsigned char mca25_cam_active;
 
 	// functions:
-	extern unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen);
-	extern void mca25_grab_data(char *buffer, unsigned int *datalen, unsigned char *frametype);
+	extern unsigned char mca25_copy_image_data_to_tcp_buffer(uint8_t *buffer, uint16_t *bufferlen);
+	extern void mca25_grab_data(uint8_t *buffer, uint16_t *datalen, uint8_t *frametype);
 	extern void mca25_grab_jpeg(void);
 	extern void mca25_start_image_grab(void);
 	extern void mca25_configure(void);

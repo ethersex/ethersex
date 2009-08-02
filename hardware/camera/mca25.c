@@ -130,8 +130,6 @@ PROGMEM char MCA25_CONFIG_640x480[] = {
 static void
 mca25_uart_send (PGM_P ptr, uint16_t len)
 {
-  MCA25_DEBUG("mca25_uart_send ptr=%p, len=%d\n", ptr, len);
-
   for (; len; ptr ++, len --) {
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));
 		usart(UDR) = pgm_read_byte (ptr);
@@ -145,8 +143,7 @@ mca25_uart_send (PGM_P ptr, uint16_t len)
 | copy the image data to the tcp data buffer, 
 | buffer must be at least CAM_BUFFER_LEN byte long !
 `======================================================================*/
-unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
-	unsigned int len = 0;
+unsigned char mca25_copy_image_data_to_tcp_buffer(uint8_t *buffer, uint16_t *bufferlen){
 	unsigned char frametype = 0;
 
 	//if we have had an error, we need to skip 
@@ -159,8 +156,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 			//not have any abort commands :(
 			while (frametype == 0x48){
 				mca25_send_data_ack();
-	
-				mca25_grab_data(buffer, &len, &frametype); //grabs 250 byte data
+				mca25_grab_data(buffer, bufferlen, &frametype);
 			}	
 			MCA25_SEND("\xF9\x01\xEF\x0B\xE3\x07\x23\x0C\x01\x79\xF9");
 			
@@ -184,12 +180,14 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 	// we use the ethernet buffer for
 	// storing the image data
 	// --> make sure it is big enough ! (fixme)
-	mca25_grab_data(buffer, &len, &frametype); 
+	mca25_grab_data(buffer, bufferlen, &frametype);
 	
 	//sometimes the last packet seems to be empty
 	//-> send this dummy data, it does not matter ...
-	if (len == 0)
-		len = CAM_BUFFER_LEN;
+	if (*bufferlen == 0) {
+	  MCA25_DEBUG("got empty packet, last!?  bufferlen was 0, FIXME\n");
+		*bufferlen = CAM_BUFFER_LEN;
+	}
 	
 	// last picture is XX SH SL CC 00 
 	// CC = 0x48 -> more data (?)
@@ -210,7 +208,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 | grab the next x byte data frame
 | (cam must bei in jpg capture mode!)
 `======================================================================*/
-void mca25_grab_data(char *buffer, unsigned int *datalen, unsigned char *frametype){
+void mca25_grab_data(uint8_t *buffer, uint16_t *datalen, uint8_t *frametype){
 	unsigned int j=0;
 	unsigned char togo=31;
 	unsigned char rx=0;
@@ -431,16 +429,7 @@ void mca25_start_image_grab(){
 					// xx xx = 48 01 -> middle
 					// xx xx = 49 01 -> last data!
 				
-#if CAM_BUFFER_LEN == 256
-					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90"),5) == 0)
-#else
-					// 512byte buf:
-					// 90 02 00 C3 00 00 
-					// 90 02 00 48 01 FD
-					// A0 01 10 49 01 0D
-					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90\x02"),6) == 0)
-#endif
-					{
+					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90"),5) == 0) {
 						if (buf[7] == 0xC3 && buf[8] == 0x00){
 							//first frame:
 							datapos = 1;
@@ -479,13 +468,8 @@ void mca25_start_image_grab(){
 				case 1:
 					// wait for end of 256 Byte packet:
 					// [F9 83 EF 11 ** ** ** ** ** ** ** ** 3F F9 ]
-#if CAM_BUFFER_LEN == 256
-					if ( (memcmp_P(buf,PSTR("\xF9\x83\xEF\x11"),4) == 0) ||
-					     (memcmp_P(buf,PSTR("\xF9\x83\xEF\x1D"),4) == 0) ) {
-#else
-					if ( (memcmp_P(buf,PSTR("\xF9\x83\xEF\x21"),4) == 0) ||
-				       (memcmp_P(buf,PSTR("\xF9\x83\xEF\x31"),4) == 0) ) {
-#endif
+					if (memcmp_P (buf, PSTR("\xF9\x83\xEF"), 3) == 0
+					    && buf[3] != 0x3f) {
 						state =0;
 	
 						if (datapos == 3){
@@ -838,7 +822,6 @@ void mca25_read_at_command(unsigned char *buffer){
 }
 
 int16_t parse_cmd_mca25_reset(char *cmd, char *output, uint16_t len) __attribute__((alias("mca25_init")));
-
 
 /*
   -- Ethersex META --
