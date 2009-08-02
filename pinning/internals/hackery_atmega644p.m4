@@ -24,4 +24,6 @@ dnl
    second USART.
  */
 
+#define _ATMEGA644P
+
 include(internals/hackery_atmega644.m4)

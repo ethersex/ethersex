@@ -81,3 +81,12 @@ ifdef(`conf_RC5', `
   RC5_USE_INT(0)
 ')
 
+
+#ifdef _ATMEGA644P
+  /* MCA25 Camera connected to second USART, i.e. PORTD connector. */
+  pin(MCA25_RESET, PD4, OUTPUT)
+#else
+  /* Normal setup, i.e. use the MCA25 header linked to USART 1. */
+  pin(MCA25_RESET, PC3, OUTPUT)
+#endif
+
