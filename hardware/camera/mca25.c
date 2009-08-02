@@ -37,9 +37,7 @@ generate_usart_init_interruptless();
 
 #define nop() __asm__ __volatile__ ("nop" ::)
 
-unsigned char mca25_cam_busy_for_socket = MCA25_NOT_BUSY;
 unsigned char mca25_cam_status = 0;
-volatile unsigned char mca25_cam_active;
 
 static void
 mca25_set_460800baud (void)
@@ -150,10 +148,6 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(char *buffer, int *bufferlen){
 	unsigned int len = 0;
 	unsigned char frametype = 0;
 
-	//set up cam active flag (used to detect a canceled image request)
-	//see mca25_check_for_closed_tcpconn() below
-	mca25_cam_active = 1;
-	
 	//if we have had an error, we need to skip 
 	//the remaining picture. cam has no ABORT cmd ?!?!
 	if (mca25_cam_status == MCA25_SKIP_PICTURE){
