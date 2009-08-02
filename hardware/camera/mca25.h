@@ -61,6 +61,7 @@
 	extern void mca25_start_image_grab(void);
 	extern void mca25_configure(void);
 	extern void mca25_init(void);
+	extern void mca25_process(void);
 	extern void mca25_reset_cam(void);
 
 	extern void mca25_check_for_closed_tcpconn(void);
