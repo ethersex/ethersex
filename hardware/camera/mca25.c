@@ -794,7 +794,12 @@ void mca25_read_mux_packet(unsigned char *buffer){
 	unsigned int cnt;
 	for(cnt=0;cnt < MCA25_COMM_BUFFER_LEN - 1;cnt++){
 		MCA25_STATUS_LED_ON();
-		while (!(usart(UCSR,A) & _BV(usart(RXC))));
+		uint16_t timeout = 0;
+		while (!(usart(UCSR,A) & _BV(usart(RXC))))
+		  if(!--timeout) {
+			  buffer[cnt] = 0;
+				return;
+			}
 		buffer[cnt] = usart(UDR);
 		MCA25_STATUS_LED_OFF();
 		if (cnt>0 && buffer[cnt] == 0xF9){
@@ -802,7 +807,18 @@ void mca25_read_mux_packet(unsigned char *buffer){
 			break; //we have finished out read.
 		}
 	}
-  MCA25_DEBUG("read mux packet\n", buffer);
+  MCA25_DEBUG("read mux packet: ", buffer);
+#ifdef DEBUG_MCA25
+	for (uint16_t i = 0; i <= cnt; i ++) {
+	  uint8_t j = buffer[i] >> 4;
+		debug_putchar (j < 10 ? j + 48 : j + 55);
+		j = buffer[i] & 15;
+		debug_putchar (j < 10 ? j + 48 : j + 55);
+	}
+	debug_putchar(13);
+	debug_putchar(10);
+#endif
+
 	return;
 }
 
