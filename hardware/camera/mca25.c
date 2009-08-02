@@ -606,17 +606,13 @@ void mca25_process(void) {
 			}
 			break;
 
-		/* case 4:
+		case 5:
 			//wait for mux info req
 			if (memcmp_P(buf,PSTR("AT+CMUX=?"),9) == 0){
 				MCA25_SEND("\r\r\n+CMUX: (0),(0),(1-7),(31),(10),(3),(30),(10),(1-7)\r");
-				state = 4;
 			}
-			break; */
-
-		case 5:
 			//wait for mux enable request
-			if (memcmp_P(buf,PSTR("AT+CMUX=0,0,7,31"),16) == 0){
+			else if (memcmp_P(buf,PSTR("AT+CMUX=0,0,7,31"),16) == 0){
 				mca25_send_ok();
 				mca25_state = 10;
 			}
@@ -636,7 +632,10 @@ void mca25_process(void) {
 			case 11:
 				// wait for mux ch3 request:
 				// [F9 23 3F 01 C9 F9]
-				if (memcmp_P(buf,PSTR("\xF9\x23\x3F\x01\xC9\xF9"),6) == 0){
+				// after power-on cam sometimes seems to send [F9 23 F9] instead,
+				// accept that one as well, since it seems to not hurt to go on.
+				if (memcmp_P(buf,PSTR("\xF9\x23\x3F\x01\xC9\xF9"),6) == 0
+						|| memcmp_P(buf,PSTR("\xF9\x23\xF9"),3) == 0) {
 					// send mux ch3 ack/open packet:
 					// [F9 23 73 01 02 F9]
 					MCA25_SEND("\xF9\x23\x73\x01\x02\xF9");
