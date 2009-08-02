@@ -60,7 +60,7 @@
 	extern void mca25_grab_jpeg(void);
 	extern void mca25_start_image_grab(void);
 	extern void mca25_configure(void);
-	extern void mca25_init(void);
+	extern int16_t mca25_init(void);
 	extern void mca25_process(void);
 	extern void mca25_reset_cam(void);
 
@@ -71,6 +71,8 @@
 	extern void mca25_read_mux_packet(unsigned char *buffer);
 	extern void mca25_send_ok(void);
 	extern void mca25_pgm_send(PGM_P);
+
+  extern int16_t parse_cmd_mca25_reset(char *cmd, char *output, uint16_t len);
 
 	//helper:
 	//extern int memcmp_P(unsigned char *buf, PGM_P pointer, unsigned int len);

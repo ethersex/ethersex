@@ -559,11 +559,10 @@ void mca25_configure(){
 `======================================================================*/
 unsigned char mca25_state;
 
-void mca25_init(void) {
+int16_t mca25_init(void) {
 	mca25_reset_cam();
-
-	MCA25_DEBUG("CAM_RUNNING\n");
 	mca25_state = 1;
+	return 0;
 }
 
 void mca25_process(void) {
@@ -843,6 +842,8 @@ void mca25_read_at_command(unsigned char *buffer){
 	return;
 }
 
+int16_t parse_cmd_mca25_reset(char *cmd, char *output, uint16_t len) __attribute__((alias("mca25_init")));
+
 
 /*
   -- Ethersex META --
@@ -850,4 +851,5 @@ void mca25_read_at_command(unsigned char *buffer){
   init(mca25_init)
   dnl init(mca25_configure)
 	timer(1, mca25_process())
+	ecmd_feature(mca25_reset, "mca25 reset")
 */
