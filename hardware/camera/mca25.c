@@ -24,6 +24,7 @@
 
 #include <util/delay.h>
 #include "mca25.h"
+#include "protocols/uip/uip.h"
 
 #define USE_USART MCA25_USE_USART
 #define BAUD 9600
@@ -37,7 +38,7 @@ generate_usart_init_interruptless();
 
 #define nop() __asm__ __volatile__ ("nop" ::)
 
-unsigned char mca25_cam_status = 0;
+unsigned char mca25_cam_status;
 
 static void
 mca25_set_460800baud (void)
@@ -405,9 +406,7 @@ void mca25_start_image_grab(){
 		// this delay is neccessary !
 		// without this we get a lot of
 		// noise in the picture !
-		for (unsigned int z=0; z<10000; z++){
-				nop();nop();nop();nop();nop();nop();
-		}
+		_delay_ms(10);
 		mca25_pgm_send(MCA25_START_CAPTURING_2);
 		mca25_pgm_send(MCA25_START_CAPTURING_3);
 		
@@ -433,14 +432,15 @@ void mca25_start_image_grab(){
 					// xx xx = 49 01 -> last data!
 				
 #if CAM_BUFFER_LEN == 256
-					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90"),5) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90"),5) == 0)
 #else
 					// 512byte buf:
 					// 90 02 00 C3 00 00 
 					// 90 02 00 48 01 FD
 					// A0 01 10 49 01 0D
-					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90\x02"),6) == 0){
+					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90\x02"),6) == 0)
 #endif
+					{
 						if (buf[7] == 0xC3 && buf[8] == 0x00){
 							//first frame:
 							datapos = 1;
@@ -523,6 +523,7 @@ void mca25_configure(){
 					// request camera info:
 					// [F9 81 EF 2F 83 00 17 42 00 14 78 2D 62 74 2F 63 
 					//  61 6D 65 72 61 2D 69 6E 66 6F 00 90 F9]
+					MCA25_DEBUG("request camera info.\n");
 					MCA25_SEND("\xF9\x81\xEF\x2F\x83\x00\x17\x42\x00\x14\x78\x2D\x62\x74\x2F\x63"
 										 "\x61\x6D\x65\x72\x61\x2D\x69\x6E\x66\x6F\x00\x90\xF9");
 
@@ -534,10 +535,8 @@ void mca25_configure(){
 				// -> wait for last info packet:
 				// [F9 83 EF 33 79 65 72 3D 22 31 30 22 2F 3E 3C 2F 
 				//  63 61 6D 65 72 61 2D 69 6E 66 6F 3E 00 E4 F9]
-				if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x33\x79\x65\x72\x3D\x22\x31\x30\x22"
-											 "\x2F\x3E\x3C\x2F\x63\x61\x6D\x65\x72\x61\x2D\x69"
-											 "\x6E\x66\x6F\x3E\x00\xE4\xF9"),31)){
-						//CAM READY !
+				if (memcmp_P(buf,PSTR("\xF9\x83\xEF"), 3) == 0 && buf[3] != 0x3F) {
+						MCA25_DEBUG("found end of camera info.\n");
 						state = 100;
 				}
 				break;
@@ -799,6 +798,7 @@ void mca25_read_mux_packet(unsigned char *buffer){
 			break; //we have finished out read.
 		}
 	}
+#if 0
   MCA25_DEBUG("read mux packet: ", buffer);
 #ifdef DEBUG_MCA25
 	for (uint16_t i = 0; i <= cnt; i ++) {
@@ -809,6 +809,7 @@ void mca25_read_mux_packet(unsigned char *buffer){
 	}
 	debug_putchar(13);
 	debug_putchar(10);
+#endif
 #endif
 
 	return;
