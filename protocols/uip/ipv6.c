@@ -220,54 +220,58 @@ uip_router_parse_advertisement(void)
 
   IP6DEBUG ("parsing RA, first_type is %d.\n", RADVBUF->first_type);
 
-  if (RADVBUF->first_type == 1) {
-    source = (struct uip_icmp_radv_source *) &RADVBUF->first_type;
-    prefix = (struct uip_icmp_radv_prefix *) &(&RADVBUF->first_type)[8];
-  } else if (RADVBUF->first_type == 3) {
-    prefix = (struct uip_icmp_radv_prefix *) &RADVBUF->first_type;
-    source = (struct uip_icmp_radv_source *) &(&RADVBUF->first_type)[32];
-  } else
-    goto error_out;
+  uint8_t *option = &(RADVBUF->first_type);
 
-  /* check that first option is `prefix information'. */
-  if(prefix->type != 3)
-    goto error_out;
-  if(prefix->length != 4)
-    goto error_out;
-  if(prefix->prefix_length != 64)
-    goto error_out;
+  /* The first byte of an ICMPv6 option is its type, the second one is
+   * its length. */
+  while ((option + option[1]) <= (uip_buf + uip_len)) {
+    switch (option[0]) {
+      case 1:
+        /* Source link-layer address */
+        source = (struct uip_icmp_radv_source*)option;
+        if (source->length != 1)
+          goto error_out;
 
-  /* check that second option is `source link layer address'. */
-  if(source->type != 1)
-    goto error_out;
-  if(source->length != 1)
-    goto error_out;
+        /* cache neighbor entry of the advertising router. */
+        uip_neighbor_add(ICMPBUF->srcipaddr,
+                         (struct uip_neighbor_addr *) source->mac);
+        break;
+      case 3:
+	/* Prefix information */
+        prefix = (struct uip_icmp_radv_prefix*)option;
+	if (prefix->length != 4 || prefix->prefix_length != 64)
+          goto error_out;
 
-  /* packet looks sane, update configuration */
-  uip_ip6autoconfig
-    ((prefix->prefix[0] << 8) | prefix->prefix[1],
-     (prefix->prefix[2] << 8) | prefix->prefix[3],
-     (prefix->prefix[4] << 8) | prefix->prefix[5],
-     (prefix->prefix[6] << 8) | prefix->prefix[7]);
+        /* packet looks sane, update configuration */
+        uip_ip6autoconfig
+        ((prefix->prefix[0] << 8) | prefix->prefix[1],
+         (prefix->prefix[2] << 8) | prefix->prefix[3],
+         (prefix->prefix[4] << 8) | prefix->prefix[5],
+         (prefix->prefix[6] << 8) | prefix->prefix[7]);
 
-  /* cache neighbor entry of the advertising router. */
-  uip_neighbor_add(ICMPBUF->srcipaddr,
-		   (struct uip_neighbor_addr *) source->mac);
+        /* test the prefix for being a netaddress ( last 8 byte are 0 )
+         * if it is a prefix use the srcipaddr
+         */
 
-  /* test the prefix for being a netaddress ( last 8 byte are 0 )
-   * if it is a prefix use the srcipaddr
-   */
+        uint8_t i, isnt_prefix = 0;
+        for (i = 4; i < 8; i++)
+          if (prefix->prefix[i] != 0)
+            isnt_prefix = 1;
 
-  uint8_t i, isnt_prefix = 0;
-  for (i = 4; i < 8; i++)
-    if (prefix->prefix[i] != 0)
-      isnt_prefix = 1;
+        if (isnt_prefix)
+          /* use the router's ip address as new default gateway. */
+          uip_ipaddr_copy(uip_draddr, prefix->prefix);
+        else
+          uip_ipaddr_copy(uip_draddr, ICMPBUF->srcipaddr);
 
-  if (isnt_prefix)
-    /* use the router's ip address as new default gateway. */
-    uip_ipaddr_copy(uip_draddr, prefix->prefix);
-  else
-    uip_ipaddr_copy(uip_draddr, ICMPBUF->srcipaddr);
+        break;
+      default:
+	IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
+        break;
+    }
+
+    option += (option[1] * 8);
+  }
 
   return;
 

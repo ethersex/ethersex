@@ -201,9 +201,11 @@ int16_t parse_cmd_fuse(char *cmd, char *output, uint16_t len)
 #ifndef DISABLE_REBOOT_SUPPORT
 int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 {
-    (void) cmd;
     (void) output;
     (void) len;
+
+    if (*cmd != '\0')
+	    return ECMD_ERR_PARSE_ERROR;
 
     status.request_reset = 1;
 #ifdef UIP_SUPPORT
