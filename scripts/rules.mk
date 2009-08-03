@@ -23,7 +23,7 @@ compile-subdir:
 
 clean-common:
 	cd $(TOPDIR) && $(RM) $(OBJECTS) \
-		$(patsubst %.o,%.d,${OBJECTS}) \
+		$(patsubst %.o,%.dep,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
 		$(patsubst %.o,%.s,${OBJECTS}) \
 		$(CLEAN_FILES)
