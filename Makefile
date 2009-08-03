@@ -57,6 +57,7 @@ SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
 SUBDIRS += services/echo
+SUBDIRS += services/pam
 SUBDIRS += services/httpd
 SUBDIRS += services/jabber
 SUBDIRS += services/ntp

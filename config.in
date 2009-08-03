@@ -50,6 +50,7 @@ comment "General Setup"
 	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
+	source services/pam/config.in
 	source control6/config.in
 endmenu
 

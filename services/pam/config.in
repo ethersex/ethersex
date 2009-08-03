@@ -1,0 +1,7 @@
+bool 'PAM Support' PAM_SUPPORT
+if [ "$PAM_SUPPORT" = "y" ]; then
+  choice '  PAM Subsystem' \
+  	"None pam_none \
+	 Single_User pam_one" \
+	 None PAM_SUBSYSTEM
+fi
