@@ -45,6 +45,13 @@ setservo(uint8_t servo, uint8_t position);
 # define PWMSERVODEBUG(a...)
 #endif
 
+#ifdef PWM_SERVO_INVERT
+# define SERVOSET(pin) PIN_CLEAR(pin);
+# define SERVOCLEAR(pin) PIN_SET(pin);
+#else
+# define SERVOSET(pin) PIN_SET(pin);
+# define SERVOCLEAR(pin) PIN_CLEAR(pin);
+#endif
 
 #endif //PWM_SERVO_SUPPORT
 

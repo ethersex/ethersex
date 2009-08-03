@@ -59,70 +59,70 @@ SIGNAL(SIG_OVERFLOW1)
     #ifndef HAVE_SERVO0
       #error "SERVO 0 PIN not defined"
     #endif
-      case 0: PIN_SET(SERVO0); break;
-      case 1: PIN_CLEAR(SERVO0); break;
+      case 0: SERVOSET(SERVO0); break;
+      case 1: SERVOCLEAR(SERVO0); break;
 #if PWM_SERVOS > 1
     #ifndef HAVE_SERVO1
       #error "SERVO 1 PIN not defined"
     #endif
-      case 2: PIN_SET(SERVO1); break;
-      case 3: PIN_CLEAR(SERVO1); break;
+      case 2: SERVOSET(SERVO1); break;
+      case 3: SERVOCLEAR(SERVO1); break;
 #endif
 #if PWM_SERVOS > 2
     #ifndef HAVE_SERVO2
       #error "SERVO 2 PIN not defined"
     #endif
-      case 4: PIN_SET(SERVO2); break;
-      case 5: PIN_CLEAR(SERVO2); break;
+      case 4: SERVOSET(SERVO2); break;
+      case 5: SERVOCLEAR(SERVO2); break;
 #endif
 #if PWM_SERVOS > 3
     #ifndef HAVE_SERVO3
       #error "SERVO 3 PIN not defined"
     #endif
-      case 6: PIN_SET(SERVO3); break;
-      case 7: PIN_CLEAR(SERVO3); break;
+      case 6: SERVOSET(SERVO3); break;
+      case 7: SERVOCLEAR(SERVO3); break;
 #endif
 #if PWM_SERVOS > 4
     #ifndef HAVE_SERVO4
       #error "SERVO 4 PIN not defined"
     #endif
-      case 8: PIN_SET(SERVO4); break;
-      case 9: PIN_CLEAR(SERVO4); break;
+      case 8: SERVOSET(SERVO4); break;
+      case 9: SERVOCLEAR(SERVO4); break;
 #endif
 #if PWM_SERVOS > 5
     #ifndef HAVE_SERVO5
       #error "SERVO 5 PIN not defined"
     #endif
-      case 10: PIN_SET(SERVO5); break;
-      case 11: PIN_CLEAR(SERVO5); break;
+      case 10: SERVOSET(SERVO5); break;
+      case 11: SERVOCLEAR(SERVO5); break;
 #endif
 #if PWM_SERVOS > 6
     #ifndef HAVE_SERVO6
       #error "SERVO 6 PIN not defined"
     #endif
-      case 12: PIN_SET(SERVO6); break;
-      case 13: PIN_CLEAR(SERVO6); break;
+      case 12: SERVOSET(SERVO6); break;
+      case 13: SERVOCLEAR(SERVO6); break;
 #endif
 #if PWM_SERVOS > 7
     #ifndef HAVE_SERVO7
       #error "SERVO 7 PIN not defined"
     #endif
-      case 14: PIN_SET(SERVO7); break;
-      case 15: PIN_CLEAR(SERVO7); break;
+      case 14: SERVOSET(SERVO7); break;
+      case 15: SERVOCLEAR(SERVO7); break;
 #endif
 #if PWM_SERVOS > 8
     #ifndef HAVE_SERVO8
       #error "SERVO 8 PIN not defined"
     #endif
-      case 16: PIN_SET(SERVO8); break;
-      case 17: PIN_CLEAR(SERVO89; break;
+      case 16: SERVOSET(SERVO8); break;
+      case 17: SERVOCLEAR(SERVO89; break;
 #endif
 #if PWM_SERVOS > 9
     #ifndef HAVE_SERVO9
       #error "SERVO 9 PIN not defined"
     #endif
-      case 18: PIN_SET(SERVO9); break;
-      case 19: PIN_CLEAR(SERVO9); break;
+      case 18: SERVOSET(SERVO9); break;
+      case 19: SERVOCLEAR(SERVO9); break;
 #endif
    }
 
@@ -194,11 +194,7 @@ void pwm_servo_init(void)
    TCNT1 = 0 - 16000;
    TCCR1A = 0x00;  
    TCCR1B = 0x00; // init
-//   TCCR1B|=(1<<CS10); // no prescaler 
-//   TCCR1B |= (1<<CS11);   // prescale/8 ->62hz
-   TCCR1B |= _BV(CS11) | _BV(CS10); // 64 prescaler
-//   TCCR1B|=(1<<CS12|1<<CS10); // 256 prescaler
-//   TIMSK1 |= _BV(TOIE2) | _BV(TOIE1);  //test
+   TCCR1B |= (1<<CS11);   // prescale/8 ->62hz
    TIMSK1 |= _BV(TOIE1);
 
    init_servos();
