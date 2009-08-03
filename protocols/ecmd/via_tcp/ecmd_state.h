@@ -31,6 +31,9 @@ struct ecmd_connection_state_t {
     char outbuf[ECMD_OUTPUTBUF_LENGTH];
     uint8_t out_len;
     uint8_t parse_again;
+#ifdef ECMD_PAM_SUPPORT
+    uint8_t pam_state;
+#endif
     uint8_t close_requested;
 };
 

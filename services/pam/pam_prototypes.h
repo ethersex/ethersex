@@ -24,6 +24,7 @@
 
 
 enum {
+  PAM_UNKOWN, // no auth request sent
   PAM_PENDING, // The Authentification state is pending
   PAM_DENIED, // The authentification failed
   PAM_SUCCESS, // The authentification was successfull
