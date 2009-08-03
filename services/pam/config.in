@@ -1,7 +1,13 @@
-bool 'PAM Support' PAM_SUPPORT
-if [ "$PAM_SUPPORT" = "y" ]; then
-  choice '  PAM Subsystem' \
-  	"None pam_none \
-	 Single_User pam_one" \
-	 None PAM_SUBSYSTEM
-fi
+dep_bool_menu "PAM Support" PAM_SUPPORT
+	if [ "$PAM_SUPPORT" = "y" ]; then
+	  choice '  PAM Subsystem' \
+		"None pam_none \
+		 Single_User pam_single_user" \
+		 None PAM_SUBSYSTEM
+	fi
+
+	if [ "$PAM_SUBSYSTEM" = "pam_single_user" ]; then
+		string "  PAM Username" "PAM_SINGLE_USERNAME" "root"
+		string "  PAM Password" "PAM_SINGLE_PASSWORD" "fixme"
+	fi
+endmenu
