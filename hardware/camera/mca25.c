@@ -24,7 +24,6 @@
 
 #include <util/delay.h>
 #include "mca25.h"
-#include "protocols/uip/uip.h"
 
 #define USE_USART MCA25_USE_USART
 #define BAUD 9600
@@ -169,6 +168,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(uint8_t *buffer, uint16_t *buf
 		mca25_start_image_grab();
 
 		//initialise jpg dump
+		MCA25_DEBUG ("initializing jpeg dump\n");
 		mca25_grab_jpeg();
 		
 		//first packet done
@@ -390,7 +390,6 @@ void mca25_start_image_grab(){
 	
 	//grab 6 preview pictures:
 	for (char i=0; i<6; i++){
-	
 		/*while ( memcmp(buf,"\xF9\x83\xEF\x07\xA0\x00\x03",7) != 0)
 			mca25_read_mux_packet(buf);
 		*/
@@ -399,6 +398,7 @@ void mca25_start_image_grab(){
 	 	// f9 83 f9 00 32 02  ???
 		mca25_read_mux_packet(buf);
 		
+	  MCA25_DEBUG("grabbing preview picture %d\n", i);
 		// send capture start cmd:
 		mca25_pgm_send(MCA25_START_CAPTURING_1);
 		// this delay is neccessary !
@@ -430,35 +430,23 @@ void mca25_start_image_grab(){
 					// xx xx = 49 01 -> last data!
 				
 					if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\x90"),5) == 0) {
-						if (buf[7] == 0xC3 && buf[8] == 0x00){
+						if (buf[7] == 0xC3){
 							//first frame:
 							datapos = 1;
-						}else if(buf[7] == 0x48 && buf[8] == 0x01){
+						}else if(buf[7] == 0x48 ){
 							//middle
 							datapos = 2;
-						}else if(buf[7] == 0x49 && buf[8] == 0x01){
+						}else if(buf[7] == 0x49 ){
 							//end:
 							datapos = 3;
-						}else if(buf[7] == 0x48 && buf[8] == 0x00){
-							//end?
-							datapos = 2;
-						}else{
-							//printf("buf7=%x, buf8=%x\n\n",buf[7],buf[8]);
 						}
 						state = 1;
 						//last data -> send ack!	
 						mca25_send_data_ack();
 					}else if (memcmp_P(buf,PSTR("\xF9\x83\xEF\x3F\xA0"),5) == 0){
 						// F9 83 EF 3F A0 00 4C 49 00 49 00 
-						if(buf[7] == 0x49 && buf[8] == 0x00){
-							//end when CAM_BUF_LEN = 256
+						if(buf[7] == 0x49)
 							datapos = 3;
-						}else if(buf[7] == 0x49 && buf[8] == 0x01){
-							//end when CAM_BUF_LEN = 512
-							datapos = 3;
-						}else{
-							//printf("buf7=%x, buf8=%x\n\n",buf[7],buf[8]);
-						}
 						state = 1;
 						//last data -> send ack!	
 						mca25_send_data_ack();
@@ -482,6 +470,8 @@ void mca25_start_image_grab(){
 		}
 		//preview image #i has been grabbed.
 	}	
+
+	MCA25_DEBUG("finished grabbing preview pictures.\n");
 }
 
 
@@ -717,7 +707,7 @@ void mca25_process(void) {
 					MCA25_SEND("\xF9\x81\xEF\x37\x80\x00\x1A\x10\x00"
 					
 					//buffsize
-					"\x02\x00"
+					"\x00\x60"
 					
 					"\x46\x00\x13\xE3\x3D\x95\x45\x83\x74\x4A\xD7"
 					"\x9E\xC5\xC1\x6B\xE3\x1E\xDE\x8E\x61\x82\xF9"
