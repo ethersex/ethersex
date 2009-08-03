@@ -36,6 +36,38 @@ dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
     choice 'MCA25 USART' "$(usart_choice MCA25)"
     usart_process_choice MCA25
 
+    choice "Fun Layer"		\
+    	"None		CONFIG_MCA25_FUN_NONE \
+	 Bubbles	CONFIG_MCA25_FUN_BUBBLES \
+	 Hearts		CONFIG_MCA25_FUN_HEARTS \
+	 Simple-Frame	CONFIG_MCA25_FUN_SIMPLEF \
+	 Star-Frame	CONFIG_MCA25_FUN_STARF \
+	 Prison		CONFIG_MCA25_FUN_PRISON \
+	 Present	CONFIG_MCA25_FUN_PRESENT \
+	 Cinema		CONFIG_MCA25_FUN_CINEMA \
+	 Glasses	CONFIG_MCA25_FUN_GLASSES" \
+      'None'
+
+    if [ "$CONFIG_MCA25_FUN_NONE" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x30
+    elif [ "$CONFIG_MCA25_FUN_BUBBLES" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x31
+    elif [ "$CONFIG_MCA25_FUN_HEARTS" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x32
+    elif [ "$CONFIG_MCA25_FUN_SIMPLEF" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x33
+    elif [ "$CONFIG_MCA25_FUN_STARF" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x34
+    elif [ "$CONFIG_MCA25_FUN_PRISON" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x35
+    elif [ "$CONFIG_MCA25_FUN_PRESENT" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x36
+    elif [ "$CONFIG_MCA25_FUN_CINEMA" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x37
+    elif [ "$CONFIG_MCA25_FUN_GLASSES" = "y" ]; then
+      define_int MCA25_FUNLAYER 0x38
+    fi
+
     comment "Debugging Flags"
     dep_bool "MCA25" DEBUG_MCA25 $MCA25_SUPPORT
   endmenu
