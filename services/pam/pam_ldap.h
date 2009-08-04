@@ -19,18 +19,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_LDAP_AUTH_STATE_H
-#define HAVE_LDAP_AUTH_STATE_H
+#ifndef HAVE_PAM_LDAP_H
+#define HAVE_PAM_LDAP_H
 
-#include <inttypes.h>
+void pam_ldap_init (void);
+void pam_ldap_periodic (void);
 
-struct ldap_auth_connection_state_t {
-    uint8_t pending; /* We have to sent data */
+#ifdef DEBUG_LDAP_AUTH
+# include "core/debug.h"
+# define LDAP_AUTH_DEBUG(a...)  debug_printf("pam ldap: " a)
+#else
+# define LDAP_AUTH_DEBUG(a...)
+#endif
 
-    /* The packet ID we expect next. */
-    uint16_t msgid;
-    char username[16];
-    char password[16];
-};
-
-#endif  /* HAVE_LDAP_AUTH_STATE_H */
+#endif  /* HAVE_PAM_LDAP_H */

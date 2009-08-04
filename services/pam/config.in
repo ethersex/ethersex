@@ -2,7 +2,8 @@ dep_bool_menu "PAM Support" PAM_SUPPORT
 	if [ "$PAM_SUPPORT" = "y" ]; then
 	  choice '  PAM Subsystem' \
 		"None pam_none \
-		 Single_User pam_single_user" \
+		 Single_User pam_single_user \
+		 LDAP pam_ldap" \
 		 None PAM_SUBSYSTEM
 	fi
 
@@ -10,4 +11,11 @@ dep_bool_menu "PAM Support" PAM_SUPPORT
 		string "  PAM Username" "PAM_SINGLE_USERNAME" "root"
 		string "  PAM Password" "PAM_SINGLE_PASSWORD" "fixme"
 	fi
+	if [ "$PAM_SUBSYSTEM" = "pam_ldap" ]; then
+		ip "  LDAP Server IP" CONF_LDAP_AUTH_IP "192.168.98.128"
+		string "  LDAP User DN Template" CONF_LDAP_AUTH_DN "userid=%s,ou=Stettberger,ou=People,dc=zerties,dc=org"
+		dep_bool '  Debug LDAP Auth' DEBUG_LDAP_AUTH $DEBUG
+	fi
+
+	define_bool $(echo $PAM_SUBSYSTEM | tr 'a-z' 'A-Z')_SUPPORT y  # e.g. PAM_LDAP_SUPPORT
 endmenu

@@ -27,7 +27,8 @@
 
 #include "config.h"
 #include "protocols/uip/uip.h"
-#include "ldap_auth.h"
+#include "pam_ldap.h"
+#include "pam_prototypes.h"
 
 
 #define STATE (&ldap_auth_conn->appstate.ldap_auth)
@@ -43,7 +44,7 @@ struct ldap_bind_request_t {
 };
 
 static void
-ldap_auth_send_bind(void) {
+pam_ldap_send_bind(void) {
 
   struct ldap_bind_request_t *bind = uip_sappdata;
   bind->section[0] = 0x30; /* type: section */
@@ -59,11 +60,11 @@ ldap_auth_send_bind(void) {
   bind->version[2] = 3; /* version 3 */
 
   bind->bind_dn[0] = 4; /* type: octet stream */
-  bind->bind_dn[1] = sprintf(&bind->bind_dn[2], CONF_LDAP_AUTH_DN, STATE->username);
+  bind->bind_dn[1] = sprintf((char*)&bind->bind_dn[2], CONF_LDAP_AUTH_DN, STATE->username);
 
-  char *ptr = &bind->bind_dn[0] + 2 + bind->bind_dn[1];
+  uint8_t *ptr = &bind->bind_dn[0] + 2 + bind->bind_dn[1];
   ptr[0] = 0x80;
-  ptr[1] = sprintf(&ptr[2], "%s", STATE->password);
+  ptr[1] = sprintf((char *)&ptr[2], "%s", STATE->password);
   
   bind->application[1] = 3 + bind->bind_dn[1] + 2 
                       + ptr[1] + 2;
@@ -74,32 +75,17 @@ ldap_auth_send_bind(void) {
 }
 
 static void
-ldap_auth_do(const char *username, const char *password)
-{
-  if (!ldap_auth_conn)
-    ldap_auth_init();
-
-  if (!ldap_auth_conn || STATE->pending) {
-    // FIXME: another request on the wire
-    LDAP_AUTH_DEBUG("auth error\n");
-    return;
-  }
-  STATE->pending = 1;
-  strncpy(STATE->username, username, sizeof(STATE->username));
-  strncpy(STATE->password, password, sizeof(STATE->password));
-}
-
-
-static void
-ldap_auth_main(void)
+pam_ldap_main(void)
 {
     if (uip_aborted() || uip_timedout()) {
 	LDAP_AUTH_DEBUG ("connection aborted\n");
 	ldap_auth_conn = NULL;
+        if (STATE->auth_state) *STATE->auth_state = PAM_DENIED;
     }
 
     if (uip_closed()) {
 	LDAP_AUTH_DEBUG ("connection closed\n");
+        if (STATE->auth_state) *STATE->auth_state = PAM_DENIED;
 	ldap_auth_conn = NULL;
     }
 
@@ -109,7 +95,7 @@ ldap_auth_main(void)
     }
 
     if ((uip_poll() || uip_rexmit()) && STATE->pending) {
-      ldap_auth_send_bind();
+      pam_ldap_send_bind();
     }
 
     if (uip_acked())
@@ -117,28 +103,33 @@ ldap_auth_main(void)
 
     if (uip_newdata() && uip_len) {
         STATE->pending = 0;
+        // FIXME here set the auth result
         struct ldap_bind_request_t *bind = uip_sappdata;
         LDAP_AUTH_DEBUG ("bind result: %x\n", bind->version[2]);
+        if (STATE->auth_state) {
+          *STATE->auth_state = PAM_DENIED;
+          STATE->auth_state = NULL;
+        }
     }
 }
 
 
 void
-ldap_auth_periodic(void)
+pam_ldap_periodic(void)
 {
     if (!ldap_auth_conn)
-	ldap_auth_init();
+	pam_ldap_init();
 }
 
 
 void
-ldap_auth_init(void)
+pam_ldap_init(void)
 {
     LDAP_AUTH_DEBUG ("initializing ldap auth connection\n");
 
     uip_ipaddr_t ip;
     set_CONF_LDAP_AUTH_IP(&ip);
-    ldap_auth_conn = uip_connect(&ip, HTONS(389), ldap_auth_main);
+    ldap_auth_conn = uip_connect(&ip, HTONS(389), pam_ldap_main);
 
     if (! ldap_auth_conn) {
 	LDAP_AUTH_DEBUG ("no uip_conn available.\n");
@@ -147,13 +138,35 @@ ldap_auth_init(void)
 
     STATE->pending = 0;
     STATE->msgid = 1;
-    ldap_auth_do("test", "ethersex23");
+    //ldap_auth_do("test", "ethersex23");
 
 }
 
+void
+pam_auth(char *username, char *password, uint8_t *auth_state)
+{
+  if (!ldap_auth_conn)
+    pam_ldap_init();
+
+  // FIXME: implement cache and try against this cache
+  if (!ldap_auth_conn || STATE->pending) {
+    // FIXME: another request on the wire
+    LDAP_AUTH_DEBUG("auth error\n");
+    *auth_state = PAM_DENIED;
+    return;
+  }
+  *auth_state = PAM_PENDING;
+  STATE->auth_state = auth_state;
+  STATE->pending = 1;
+  strncpy(STATE->username, username, sizeof(STATE->username));
+  strncpy(STATE->password, password, sizeof(STATE->password));
+}
+
+
+
 /*
   -- Ethersex META --
-  header(protocols/ldap_auth/ldap_auth.h)
-  net_init(ldap_auth_init)
-  timer(500, ldap_auth_periodic())
+  header(services/pam/pam_ldap.h)
+  net_init(pam_ldap_init)
+  timer(500, pam_ldap_periodic())
 */

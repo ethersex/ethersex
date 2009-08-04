@@ -158,7 +158,6 @@ source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
 source protocols/irc/config.in
-source protocols/ldap_auth/config.in
 source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
 source protocols/mysql/config.in
