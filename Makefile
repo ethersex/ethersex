@@ -23,6 +23,7 @@ SUBDIRS += hardware/lcd
 SUBDIRS += hardware/lcd/s1d15g10
 SUBDIRS += hardware/onewire
 SUBDIRS += hardware/pwm
+SUBDIRS += hardware/sms
 SUBDIRS += hardware/radio/fs20
 SUBDIRS += hardware/radio/rfm12
 SUBDIRS += hardware/storage/dataflash
