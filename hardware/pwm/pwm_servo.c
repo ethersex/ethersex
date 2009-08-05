@@ -40,6 +40,7 @@
 #endif
 
 uint16_t Pulslength[DOUBLE_PWM_SERVOS]; // array for all delays
+uint8_t pos[DOUBLE_PWM_SERVOS]; // array for all positions
 
 /************************************************************************
 
@@ -151,7 +152,7 @@ SIGNAL(SIG_OVERFLOW1)
 
 ***************************************************************************/
 
-void setservo(uint8_t index, uint8_t value)
+void setservodelays(uint8_t index, uint8_t value)
 {
    uint16_t wert;
 
@@ -168,6 +169,18 @@ void setservo(uint8_t index, uint8_t value)
    PWMSERVODEBUG("setservo: servo: %i, wert: %i, p0: %i, p1: %i\n", index, wert, index<<1, Pulslength[index<<1], Pulslength[(index<<1)+1]);
 }
 
+void setservo(uint8_t index, uint8_t value){
+  pos[index]=value;  
+  setservodelays(index, pos[index]);
+}
+void servoinc(uint8_t index){
+  pos[index]++;
+  setservodelays(index, pos[index]);
+}
+void servodec(uint8_t index){
+  pos[index]--;
+  setservodelays(index, pos[index]);
+}
 /************************************************************************
 
    void init_servos()
@@ -178,8 +191,8 @@ void init_servos()
 {
    uint8_t n;
    for(n = 0; n < PWM_SERVOS; n++) 
-	setservo(n,128);
-   PWMSERVODEBUG("init servos done\n");
+	setservo(n,SERVO_STARTVALUE);
+   PWMSERVODEBUG("init servos with %i\n",SERVO_STARTVALUE);
 }
 
 /************************************************************************
@@ -199,5 +212,10 @@ void pwm_servo_init(void)
 
    init_servos();
 }
+/*
+  -- Ethersex META --
+  header(hardware/pwm/pwm_servo.h)
+  init(pwm_servo_init)
+*/
 
 #endif // PWM_SERVO_SUPPORT

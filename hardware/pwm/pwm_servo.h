@@ -28,10 +28,16 @@ void
 pwm_servo_init();
 void 
 setservo(uint8_t servo, uint8_t position);
+void 
+servoinc(uint8_t servo);
+void 
+servodec(uint8_t servo);
+
+#define SERVO_STARTVALUE 220
 
 #define DOUBLE_PWM_SERVOS (PWM_SERVOS*2)
 
-#define MAXPULSFREQ 500 // 2ms => 500HZ
+#define MAXPULSFREQ 500 // 2ms => 50HZ
 
 #define TIMER_MAXPULS F_CPU/MAXPULSFREQ // Timer value for a 2ms Puls
 
