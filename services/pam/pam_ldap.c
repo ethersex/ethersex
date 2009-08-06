@@ -43,6 +43,18 @@ struct ldap_bind_request_t {
       uint8_t bind_dn[]; /* type, length, variable rest */
 };
 
+struct pam_cache_entry {
+  char username[16];
+  char password[16];
+  uint8_t timeout;
+};
+
+
+#define CACHE_SIZE 3
+#define CACHE_TIME 6 /* expands to ca 10 seconds */
+struct pam_cache_entry cache[CACHE_SIZE];
+
+
 static void
 pam_ldap_send_bind(void) {
 
@@ -60,7 +72,8 @@ pam_ldap_send_bind(void) {
   bind->version[2] = 3; /* version 3 */
 
   bind->bind_dn[0] = 4; /* type: octet stream */
-  bind->bind_dn[1] = sprintf((char*)&bind->bind_dn[2], CONF_LDAP_AUTH_DN, STATE->username);
+  bind->bind_dn[1] = sprintf_P((char*)&bind->bind_dn[2], PSTR(CONF_LDAP_AUTH_DN),
+                             STATE->username);
 
   uint8_t *ptr = &bind->bind_dn[0] + 2 + bind->bind_dn[1];
   ptr[0] = 0x80;
@@ -71,7 +84,8 @@ pam_ldap_send_bind(void) {
   bind->section[1] = bind->application[1] + 5;
 
   uip_send(uip_sappdata, 2 + bind->section[1]);
-  LDAP_AUTH_DEBUG("bind request sent\n");
+  LDAP_AUTH_DEBUG("bind request sent %s:%s\n", STATE->username,
+                  STATE->password);
 }
 
 static void
@@ -80,12 +94,10 @@ pam_ldap_main(void)
     if (uip_aborted() || uip_timedout()) {
 	LDAP_AUTH_DEBUG ("connection aborted\n");
 	ldap_auth_conn = NULL;
-        if (STATE->auth_state) *STATE->auth_state = PAM_DENIED;
     }
 
     if (uip_closed()) {
 	LDAP_AUTH_DEBUG ("connection closed\n");
-        if (STATE->auth_state) *STATE->auth_state = PAM_DENIED;
 	ldap_auth_conn = NULL;
     }
 
@@ -102,14 +114,29 @@ pam_ldap_main(void)
       STATE->msgid ++;
 
     if (uip_newdata() && uip_len) {
+        struct ldap_bind_request_t *bind = uip_appdata;
         STATE->pending = 0;
         // FIXME here set the auth result
-        struct ldap_bind_request_t *bind = uip_sappdata;
         LDAP_AUTH_DEBUG ("bind result: %x\n", bind->version[2]);
-        if (STATE->auth_state) {
-          *STATE->auth_state = PAM_DENIED;
-          STATE->auth_state = NULL;
+        if (bind->version[2] == 0) {
+          *STATE->auth_state = PAM_SUCCESS;
+          uint8_t i, oldest_entry = 0, min = 255;
+          for (i = 0; i < CACHE_SIZE; i++) {
+            if (cache[i].timeout < min) {
+              min = cache[i].timeout;
+              oldest_entry = i;
+            }
+          }
+          strncpy(cache[oldest_entry].username, STATE->username, 
+                  sizeof(cache[0].username));
+          strncpy(cache[oldest_entry].password, STATE->password, 
+                  sizeof(cache[0].password));
+          cache[oldest_entry].timeout = CACHE_TIME;
+          
         }
+        else
+          *STATE->auth_state = PAM_DENIED;
+        STATE->auth_state = NULL;
     }
 }
 
@@ -119,6 +146,11 @@ pam_ldap_periodic(void)
 {
     if (!ldap_auth_conn)
 	pam_ldap_init();
+
+    uint8_t i;
+    for (i = 0; i < CACHE_SIZE; i++) 
+      if (cache[i].timeout) cache[i].timeout --;
+
 }
 
 
@@ -148,7 +180,18 @@ pam_auth(char *username, char *password, uint8_t *auth_state)
   if (!ldap_auth_conn)
     pam_ldap_init();
 
-  // FIXME: implement cache and try against this cache
+  /* Check the authentification cache */
+  uint8_t i;
+  for (i = 0; i < CACHE_SIZE; i++)  
+    if ((  strncmp(cache[i].username, username, sizeof(cache[0].username)) == 0)
+        &&(strncmp(cache[i].password, password, sizeof(cache[0].password)) == 0)
+        && cache[i].timeout != 0) {
+      *auth_state = PAM_SUCCESS;
+      LDAP_AUTH_DEBUG("auth success through caching\n");
+      return;
+    }
+    
+
   if (!ldap_auth_conn || STATE->pending) {
     // FIXME: another request on the wire
     LDAP_AUTH_DEBUG("auth error\n");
@@ -168,5 +211,5 @@ pam_auth(char *username, char *password, uint8_t *auth_state)
   -- Ethersex META --
   header(services/pam/pam_ldap.h)
   net_init(pam_ldap_init)
-  timer(500, pam_ldap_periodic())
+  timer(250, pam_ldap_periodic())
 */
