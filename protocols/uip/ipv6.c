@@ -1,10 +1,10 @@
 /*
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -38,10 +38,10 @@
 # define IP6DEBUG(a...)
 #endif
 
+/* force ethernet LLH, we'll never ever send solicitations over
+   tunnelled lines */
 #undef UIP_LLH_LEN
-#define UIP_LLH_LEN 14		/* force ethernet LLH, we'll never
-				   ever send solicitations over
-				   tunnelled lines */
+#define UIP_LLH_LEN (14 + VLAN_LLH_EXTRA)
 
 #define IPBUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define ETHBUF ((struct uip_eth_hdr *)&uip_buf[0])
