@@ -11,6 +11,7 @@ comment "General Setup"
 		"ATmega8      atmega8	\
 		 ATmega88     atmega88	\
 		 ATmega128    atmega128	\
+		 ATmega16     atmega16	\
 		 ATmega162    atmega162	\
 		 ATmega168    atmega168	\
 		 ATmega32     atmega32	\
