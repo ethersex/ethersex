@@ -294,10 +294,16 @@ uip_neighbor_out(void)
 
   /* Check if the destination address is on the local network.
    * FIXME, for the moment we assume a 64-bit "netmask" */
-  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8))
+  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8)) {
+    if(uip_ipaddr_cmp(uip_draddr, all_zeroes_addr)) {
+      /* Router-address not yet configured, kill packet, cannot transmit. */
+      uip_len = 0;
+      return 1;
+    }
+
     /* Remote address is not on the local network, use router */
     uip_ipaddr_copy(ipaddr, uip_draddr);
-
+  }
   else
     /* Remote address is on the local network, send directly. */
     uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
