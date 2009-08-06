@@ -373,11 +373,7 @@
  *
  * \hideinitializer
  */
-#ifdef UIP_CONF_LLH_LEN
 #define UIP_LLH_LEN UIP_CONF_LLH_LEN
-#else /* UIP_CONF_LLH_LEN */
-#define UIP_LLH_LEN     14
-#endif /* UIP_CONF_LLH_LEN */
 
 /** @} */
 /*------------------------------------------------------------------------------*/

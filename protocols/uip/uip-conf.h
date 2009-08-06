@@ -129,9 +129,17 @@ typedef unsigned short uip_stats_t;
 #define RFM12_LLH_LEN            2
 
 
+/* If IEEE 802.1q support is enabled, LLH layer is 32 bits longer. */
+#ifdef IEEE8021Q_SUPPORT
+#  define VLAN_LLH_EXTRA	4
+#else
+#  define VLAN_LLH_EXTRA	0
+#endif
+
+
 #ifdef ENC28J60_SUPPORT
 /* On stand-alone ethersex and on rfm12/zbus-bridge always use 14 byte LLH. */
-#  define __LLH_LEN  14
+#  define __LLH_LEN  (14 + VLAN_LLH_EXTRA)
 
 #elif defined(RFM12_IP_SUPPORT)	  /* cf. zbus */
 #  define __LLH_LEN              RFM12_LLH_LEN

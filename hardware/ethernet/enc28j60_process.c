@@ -1,11 +1,11 @@
 /*
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
+ * under the terms of the GNU General Public License (version 3)
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -212,6 +212,17 @@ void process_packet(void)
 
     /* process packet */
     struct uip_eth_hdr *packet = (struct uip_eth_hdr *)&uip_buf;
+
+#ifdef IEEE8021Q_SUPPORT
+    /* Check VLAN tag. */
+    if (packet->tpid != HTONS(0x8100)
+	|| (packet->vid_hi & 0x1F) != (CONF_8021Q_VID >> 8)
+	|| packet->vid_lo != (CONF_8021Q_VID & 0xFF)) {
+	debug_printf("net: wrong vlan tag detected.\n");
+    }
+    else
+#endif
+    {
     switch (HTONS(packet->type)) {
 
 #       if !UIP_CONF_IPV6
@@ -272,6 +283,7 @@ void process_packet(void)
                          LO8(ntohs(packet->type)));
             break;
 #       endif
+    }
     }
 
     /* advance receive read pointer, ensuring that an odd value is programmed

@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2007, 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007, 2008, 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -92,8 +92,8 @@ extern struct uip_stack *uip_stack;
 
 #endif /* not OPENVPN_SUPPORT */
 
-#define BASE_LLH_LEN  14
-#define UIP_CONF_LLH_LEN  14
+#define BASE_LLH_LEN  __LLH_LEN
+#define UIP_CONF_LLH_LEN  __LLH_LEN
 
 /* We have a one byte LLH on RFM12 however we might need to pass
    the packet to ethernet, therefore 14 is simpler. */
