@@ -10,7 +10,19 @@ ifdef({{conf_VFS_DC3840}}, {{}}, {{m4exit(1)}})dnl
 <script type="text/javascript">
 ifdef({{conf_VFS_DC3840}}, {{
 function capture() {
+	ArrAjax.ecmd('dc3840+sync');
 	ArrAjax.ecmd('dc3840+capture');
+        window.setTimeout("location.href='/cam.ht'",1500);
+}
+}})
+ifdef({{conf_PWM_SERVO}}, {{
+function sinc() {
+	ArrAjax.ecmd('pwm+servo_inc 0');
+        window.setTimeout("capture()",250);
+}
+function sdec() {
+	ArrAjax.ecmd('pwm+servo_dec 0');
+        window.setTimeout("capture()",250);
 }
 }})
 </script>
@@ -21,6 +33,11 @@ ifdef({{conf_VFS_DC3840}}, {{
 <a href="javascript:capture();">capture DC3440</a>
 <a href="?">reload</a><br>
 <img src="/dc3840">
+}})
+<br>
+ifdef({{conf_PWM_SERVO}}, {{
+Servo pos: <a href="javascript:sdec();">dec</a> - <a href="javascript:sinc();">inc</a>
+<br>
 }})
 <br>
 <a href="idx.ht"> Back </a>
