@@ -51,6 +51,7 @@ comment "General Setup"
 	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
+	source services/pam/config.in
 	source control6/config.in
 endmenu
 
@@ -158,7 +159,6 @@ source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
 source protocols/irc/config.in
-source protocols/ldap_auth/config.in
 source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
 source protocols/mysql/config.in

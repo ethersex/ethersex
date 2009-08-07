@@ -19,17 +19,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_LDAP_AUTH_H
-#define HAVE_LDAP_AUTH_H
+#ifndef HAVE_PAM_LDAP_H
+#define HAVE_PAM_LDAP_H
 
-void ldap_auth_init (void);
-void ldap_auth_periodic (void);
+void pam_ldap_init (void);
+void pam_ldap_periodic (void);
 
 #ifdef DEBUG_LDAP_AUTH
 # include "core/debug.h"
-# define LDAP_AUTH_DEBUG(a...)  debug_printf("ldap auth: " a)
+# define LDAP_AUTH_DEBUG(a...)  debug_printf("pam ldap: " a)
 #else
 # define LDAP_AUTH_DEBUG(a...)
 #endif
 
-#endif  /* HAVE_LDAP_AUTH_H */
+#endif  /* HAVE_PAM_LDAP_H */

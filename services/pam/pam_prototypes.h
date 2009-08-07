@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
+ *
+ * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucocde.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU General Public License as published by 
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -19,18 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_LDAP_AUTH_STATE_H
-#define HAVE_LDAP_AUTH_STATE_H
+#include "config.h"
 
-#include <inttypes.h>
 
-struct ldap_auth_connection_state_t {
-    uint8_t pending; /* We have to sent data */
-
-    /* The packet ID we expect next. */
-    uint16_t msgid;
-    char username[16];
-    char password[16];
+enum {
+  PAM_UNKOWN, // no auth request sent
+  PAM_PENDING, // The Authentification state is pending
+  PAM_DENIED, // The authentification failed
+  PAM_SUCCESS, // The authentification was successfull
 };
 
-#endif  /* HAVE_LDAP_AUTH_STATE_H */
+void pam_auth(char *username, char *password, uint8_t *auth_state);
