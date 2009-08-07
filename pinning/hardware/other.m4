@@ -48,3 +48,11 @@ ifdef(`conf_STELLA', `dnl
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
   pin(ECMD_SERIAL_USART_TX, PD2)
 ')
+
+ifdef(`conf_PS2', `dnl
+  /* port the ps2 device is attached to */
+  pin(PS2_CLOCK, PD3)
+  pin(PS2_DATA, PD4)
+
+  PS2_USE_INT(1)
+')

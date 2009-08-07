@@ -98,11 +98,16 @@ ps2_init(void)
   parity = 1;
   key.num = 0;
 
+#ifdef ps2_configure_pcint
   /* Enable the interrupt for the clock pin, because the keyboard is clocking
    * us, not vice versa 
    */
-  PCICR |= _BV(PS2_PCIE);
-  PS2_PCMSK |= PIN_BV(PS2_CLOCK);
+  ps2_configure_pcint ();
+#elif defined(HAVE_PS2_INT)
+  /* Initialize "real" Interrupt */
+  _EIMSK |= _BV(PS2_INT_PIN);
+  _EICRA = (_EICRA & ~PS2_INT_ISCMASK) | PS2_INT_ISC;
+#endif
 
   DDR_CONFIG_IN(PS2_DATA);
   DDR_CONFIG_IN(PS2_CLOCK);
@@ -245,7 +250,7 @@ decode_key(uint8_t keycode)
   }
 }
 
-SIGNAL(PS2_INTERRUPT) 
+SIGNAL(PS2_vect) 
 {
   if (! PIN_HIGH(PS2_CLOCK)) {
     /* Start the timeout to 20ms - 40ms */
