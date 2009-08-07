@@ -103,10 +103,10 @@ eeprom_init (void)
     eeprom_save(dns_server, &ip, IPADDR_LEN);
 #endif
 
-#ifdef HTTPD_AUTH_SUPPORT
+#ifdef PAM_SINGLE_USER_EEPROM_SUPPORT
     /* Copy the httpd's password. */
-    eeprom_save_P (httpd_auth_password, PSTR(CONF_HTTPD_PASSWORD), 8);
-    eeprom_save_char (httpd_auth_null_byte, 0);
+    eeprom_save_P (pam_username, PSTR(PAM_SINGLE_USERNAME), 16);
+    eeprom_save_P (pam_password, PSTR(PAM_SINGLE_PASSWORD), 16);
 #endif
 
 #ifdef KTY_SUPPORT
