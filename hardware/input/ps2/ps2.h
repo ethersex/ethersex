@@ -72,6 +72,7 @@
 
 struct key_press {
   uint8_t keycode;
+  uint8_t data;
 
   /* modifiers */
   uint8_t ctrl:1;
@@ -84,5 +85,7 @@ struct key_press {
 
 void ps2_init(void);
 void ps2_periodic(void);
+
+extern struct key_press ps2_key_cache[5];
 
 #endif /* _PS2_H */

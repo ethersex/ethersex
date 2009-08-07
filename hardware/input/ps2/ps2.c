@@ -28,6 +28,7 @@
 #include "config.h"
 #include "protocols/syslog/syslog.h"
 #include "ps2.h"
+#include "core/debug.h"
 
 #ifdef PS2_GERMAN_LAYOUT
   #define LC(a,b) (b)
@@ -46,6 +47,7 @@ static volatile uint8_t leds = 0;
 uint8_t send_next = 0;
 
 struct key_press key;
+struct key_press ps2_key_cache[5];
 
 /* This is the keymap
  * every byte from the keyboard is connected to a character
@@ -218,6 +220,18 @@ decode_key(uint8_t keycode)
     break;
 
   default:
+    /* put the decoded data into key cache */
+    key.keycode = keycode;
+    key.data = key.shift 
+      ? pgm_read_byte(&keycodes_shift[keycode])
+      : pgm_read_byte(&keycodes[keycode]);
+ 
+    memmove(&ps2_key_cache[1], &ps2_key_cache[0], 
+            sizeof(ps2_key_cache) - sizeof(*ps2_key_cache));
+    memcpy(&ps2_key_cache[0], &key, sizeof(*ps2_key_cache));
+
+    debug_printf("Key: %x %c\n", key.keycode, key.data); 
+
 #ifdef SYSLOG_SUPPORT
     /* For debugging purposes we send the keycode via syslog */
     if (key.extended && keycode == 0x6c)
