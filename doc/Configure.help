@@ -1784,3 +1784,19 @@ ECMD_SCRIPT_MAXLINES
 
   Maximum parsed lines of ECMD Scripts.
 
+PWM Servo
+PWM_SERVO_SUPPORT
+  Depends on: 
+   * PWM Generator (PWM_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Support up to 10 servo motors to be controlled via ethersex. The
+  PWM signal can be inverted if needed.
+
+I2C Master Support (EXPERIMENTAL)
+I2C_MASTER_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Support to send and receive I2C-Bus (TWI) commands.
+
