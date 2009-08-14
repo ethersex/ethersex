@@ -46,6 +46,9 @@
 
 #ifdef MCUF_MODUL_SUPPORT
 
+#ifdef MCUF_TEST_GAME_INPUT
+#include "mcuf_modul_test_game_input.h"
+#endif // MCUF_TEST_GAME_INPUT
 
 // max number of available modules
 #define MCUF_MAX_MODULES (sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)) - 1
@@ -175,7 +178,7 @@ uint8_t mcuf_list_modul(char *title, uint8_t modul){
   memcpy_P(&modulfunc, &mcuf_display_modules[modul], sizeof(struct mcuf_modul_t));
   memcpy_P(title,modulfunc.title, strlen_P(modulfunc.title) + 1);
 #ifdef DEBUG_MCUF
-    debug_printf("mcuf modul: %i, %s\n",i, modulfunc.title);
+//    debug_printf("mcuf modul: %i, %s\n",i, modulfunc.title);
 #endif
   return 1;
 }

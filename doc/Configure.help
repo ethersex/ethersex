@@ -1800,3 +1800,11 @@ I2C_MASTER_SUPPORT
 
   Support to send and receive I2C-Bus (TWI) commands.
 
+MCUF Game Input Test
+MCUF_TEST_GAME_INPUT
+  Depends on: 
+   * MCUF Module (MCUF_MODUL_SUPPORT)
+   * Game Input (GAME_INPUT_SUPPORT)
+
+  Little Test Screen for Game Input Support
+

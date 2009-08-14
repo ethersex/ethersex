@@ -10,6 +10,7 @@ $(MCUF_SUPPORT)_SRC += \
         mcuf/mcuf_text.c\
         mcuf/mcuf_modul.c\
         mcuf/mcuf_modul_examples.c\
+        mcuf/mcuf_modul_test_game_input.c\
 	mcuf/ledmatrixint.c\
 	mcuf/image/image.c\
 	mcuf/borg-16/xoni_study.c\
