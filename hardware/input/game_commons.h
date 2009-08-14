@@ -28,9 +28,9 @@
 #define HOOK_LEFT   2
 #define HOOK_RIGHT  3
 #define HOOK_FIRE   4
-#define HOOK_FIRE2  4
-#define HOOK_FIRE3  4
-#define HOOK_FIRE4  4
+#define HOOK_FIRE2  5
+#define HOOK_FIRE3  6
+#define HOOK_FIRE4  7
 
 #ifdef DEBUG_GAME_INPUT
 void
