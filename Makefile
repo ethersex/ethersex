@@ -15,6 +15,7 @@ SUBDIRS += hardware/camera
 SUBDIRS += hardware/ethernet
 SUBDIRS += hardware/i2c/master
 SUBDIRS += hardware/i2c/slave
+SUBDIRS += hardware/input
 SUBDIRS += hardware/input/ps2
 SUBDIRS += hardware/input/buttons
 SUBDIRS += hardware/io_expander
