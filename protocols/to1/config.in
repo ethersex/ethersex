@@ -8,6 +8,6 @@ if [ "$TO1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		dep_bool 'TO1' DEBUG_TO1 $DEBUG $TO1_SUPPORT
 	endmenu
 else
-	define_bool MSR1_SUPPORT n
-	comment "Senertec Dachs MSR1 not available. No free usart. ($USARTS_USED/$USARTS)"
+	define_bool TO1_SUPPORT n
+	comment "Tescon TO-1 not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
