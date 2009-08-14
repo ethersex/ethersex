@@ -16,6 +16,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 	dep_bool "Inline Named Pin" NAMED_PIN_INLINE_SUPPORT $VFS_INLINE_SUPPORT $NAMED_PIN_SUPPORT
 	dep_bool "Inline StellaLight" STELLA_INLINE_SUPPORT $VFS_INLINE_SUPPORT $STELLA_SUPPORT
 	dep_bool "Inline Dachs MSR1" MSR1_INLINE_SUPPORT $VFS_INLINE_SUPPORT $MSR1_SUPPORT
+	dep_bool "Inline Tecos TO-1" TO1_INLINE_SUPPORT $VFS_INLINE_SUPPORT $TO1_SUPPORT
 	endmenu
 
 	dep_bool_menu "SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT
