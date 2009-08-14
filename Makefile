@@ -51,6 +51,7 @@ SUBDIRS += protocols/ecmd/via_usart
 SUBDIRS += protocols/irc
 SUBDIRS += protocols/twitter
 SUBDIRS += protocols/netstat
+SUBDIRS += protocols/to1
 SUBDIRS += protocols/msr1
 SUBDIRS += services/clock
 SUBDIRS += services/cron
