@@ -175,6 +175,16 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 #define STELLA_DDR format(DDR%s, pinname)
 ')
 
+define(`ST7626_DATA_PORT', `dnl
+  forloop(`itr', 0, 7, `dnl
+    pin(`ST7626_DATA_PIN'itr, format(`P%s%d', $1, itr), OUTPUT)
+  ')dnl
+  #define ST7626_DATA PORT$1
+  #define ST7626_DATA_DDR DDR$1
+  #define ST7626_DATAIN PIN$1
+')
+
+
 ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
 ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
 ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
