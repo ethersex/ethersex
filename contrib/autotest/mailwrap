@@ -19,7 +19,7 @@ export TERM
 
 #stdout="`mktemp $TMP/stdout.XXXXX`" #; echo "stdout: $stdout"
 stdout="/dev/null"
-stderr="`mktemp $TMP/stderr.XXXXX`" #; echo "stderr: $stderr"
+stderr="`mktemp $TMP/stderr.XXXXXX`" #; echo "stderr: $stderr"
 
 export CFLAGS
 contrib/autotest/run "$1" >> "$stdout" 2>> "$stderr"
