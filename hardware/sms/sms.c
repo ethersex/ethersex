@@ -37,7 +37,6 @@ static volatile uint8_t pdu_must_parse = 0;
 static volatile uint8_t mobil_access_timeout = REINIT_MOBIL_TIMEOUT;
 /* protect mobile from multiple access */
 static volatile uint8_t global_mobil_access = 0;
-static uint8_t already_parsed = 0; /* TODO: dispensable, due to disabling rx interrupt? */
 
 static uint8_t put_index = 0, get_index = 0;
 FILE *ausgabe;
@@ -163,10 +162,8 @@ void sms_periodic_timeout()
 	static uint8_t delete_sms = 0;
 	
 	fetch_sms ++;
-#ifdef SMS_RECV
 	if (pdu_must_parse) {
 		uint8_t ret;
-		already_parsed = 1;
 		#ifdef DEBUG_ENABLE
 			debug_printf("pdu_parser called with: %s\r\n", rx_buffer);
 		#endif
@@ -174,15 +171,9 @@ void sms_periodic_timeout()
 
 		if(ret == 0) {
 			// we want to delete the recently received message 
-			//delete_sms = 1;
-			pdu_must_parse = 0;
+			delete_sms = 1;
 		}
-		else if (ret == 23) {
-			// ecmd-parser wants to be recalled 
-		}
-		else {
-			pdu_must_parse = 0;
-		}
+		pdu_must_parse = 0;
 	}
 	
 	if (!global_mobil_access && delete_sms) {
@@ -197,7 +188,6 @@ void sms_periodic_timeout()
 
 	if (!global_mobil_access && !pdu_must_parse && (!(fetch_sms % 50))) {
 		global_mobil_access = 1;
-		already_parsed = 0;
 		/* fetch received and not read messages */
 		//fprintf(ausgabe, "AT+CMGL=0\r\n"); 
 		fprintf(ausgabe, "AT+CMGL=1\r\n"); 
@@ -216,7 +206,6 @@ void sms_periodic_timeout()
 			usart(UCSR,B) |= _BV(usart(RXEN));
 		}
 	}
-#endif
 }
 
 
@@ -308,6 +297,7 @@ void sms_transmit_handler()
 				case SMS_SEND_COMPLETE:
 					free(sms_buffer[current_sms]);
 					debug_printf("free done\r\n");
+					while (1);
 					sms_buffer[current_sms] = NULL;
 					current_sms++;
 					state = SEND_LEN;
@@ -330,9 +320,9 @@ uint8_t sms_send(uint8_t *rufnummer, unsigned char *text,
 {
 	uint8_t text_len = strlen((char *) text);
 /* TODO: ifdef block machen, wenn default rufnummer angegeben wurde */
-	debug_printf("sms_send: %s, %s\r\n", rufnummer, text);
+	debug_printf("sms_send: \"%s\", \"%s\"\r\n", rufnummer, text);
 	
-	if (text_len < 170) {
+	if (text_len < 140) {
 		/* search for a free buffer field */
 		if (sms_buffer[put_index] == NULL) {
 			sms_buffer[put_index] = malloc(sizeof(sms));
