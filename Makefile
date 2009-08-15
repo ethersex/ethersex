@@ -22,6 +22,7 @@ SUBDIRS += hardware/io_expander
 SUBDIRS += hardware/ir/rc5
 SUBDIRS += hardware/lcd
 SUBDIRS += hardware/lcd/s1d15g10
+SUBDIRS += hardware/lcd/ST7626
 SUBDIRS += hardware/onewire
 SUBDIRS += hardware/pwm
 SUBDIRS += hardware/radio/fs20

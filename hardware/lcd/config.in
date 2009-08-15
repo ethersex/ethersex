@@ -18,6 +18,8 @@ comment "LCD Displays"
 
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT
 
+  dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT
+
 	comment  "Debugging Flags"
 	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
 	dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT

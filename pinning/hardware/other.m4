@@ -56,3 +56,12 @@ ifdef(`conf_PS2', `dnl
 
   PS2_USE_INT(1)
 ')
+
+ifdef(`conf_ST7626', `dnl
+  /* port the ps2 device is attached to */
+  pin(ST7626_CS, PC3, OUTPUT)
+  pin(ST7626_RD, PC4, OUTPUT)
+  pin(ST7626_WR, PC1, OUTPUT)
+  pin(ST7626_A0, PC0, OUTPUT)
+  pin(ST7626_RESET, PC2, OUTPUT)
+')
