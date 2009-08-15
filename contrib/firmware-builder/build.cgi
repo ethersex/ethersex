@@ -52,6 +52,7 @@ grep -e "^CONF_" .config | tr "=" " " | while read option value; do
 done
 
 [ -e autoconf.h ] || fail "Eeeek! There is no autoconf.h file anymore."
+run rm -f ethersex.hex
 run make
 [ -e ethersex.hex ] || fail "Eeeek! Cannot find ethersex.hex, even looking thoroughly ..."
 
