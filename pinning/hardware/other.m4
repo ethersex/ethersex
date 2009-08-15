@@ -63,4 +63,5 @@ ifdef(`conf_ST7626', `dnl
   pin(ST7626_WR, PC1, OUTPUT)
   pin(ST7626_A0, PC0, OUTPUT)
   pin(ST7626_RESET, PC2, OUTPUT)
+  ST7626_DATA_PORT(A)
 ')

@@ -6,7 +6,7 @@
 
 #ifdef ST7626_SUPPORT
 
-#define ST7626_DATA	PORTA
+//#define ST7626_DATA	PORTA
 
 /* prototypes */
 void ST7626_reset(void);

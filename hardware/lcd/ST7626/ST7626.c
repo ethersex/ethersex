@@ -52,6 +52,8 @@ void ST7626_reset(void)
 
 void ST7626_write(uint8_t mode, uint8_t data)
 {
+    ST7626_DATA_DDR = 0xFF;
+    
     if(mode)
 	PIN_SET(ST7626_A0);
     else
@@ -94,8 +96,6 @@ void ST7626_load_paint(void)
 
 void ST7626_init(void)
 {
-    DDRA = 0xFF;        
-
     ST7626_reset();
 
     ST7626_write(COMMAND, 0x30);
