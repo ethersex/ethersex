@@ -39,9 +39,9 @@ static volatile rfm12_index_t rfm12_index;
 static volatile rfm12_index_t rfm12_txlen;
 
 #ifndef TEENSY_SUPPORT
-uint8_t rfm12_bandwidth = 5;
-uint8_t rfm12_gain = 1;
-uint8_t rfm12_drssi = 4;
+uint8_t rfm12_bandwidth = RxBW134;
+uint8_t rfm12_gain = LNA_6;
+uint8_t rfm12_drssi = RSSI_79;
 #endif
 
 static void rfm12_txstart_hard (void);
