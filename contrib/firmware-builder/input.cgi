@@ -20,15 +20,10 @@ echo "<h1>"; cat $profile/description; echo "</h1>"
 [ -e $profile/info ] && { echo "<p>"; cat "$profile/info"; }
 
 echo "<form action='build.cgi' method='get'>" 
-echo "<input type=hidden name=profile value=\"$profile\"\>"
+echo "<input type=hidden name=profile value=\"$profile\">"
 echo "<div style='margin-left: 10%'><table border=1 cellspacing=5>"
-grep -e "^CONF_.*=\"" $profile/.config | tr "=" " " \
-  | grep -v -e ^CONF_OPENVPN \
-  | grep -v -e ^CONF_JABBER \
-  | grep -v -e ^CONF_MYSQL \
-  | grep -v -e ^CONF_MCUF \
-  | grep -v -e ^CONF_IRC \
-  | grep -v -e ^CONF_TWITTER \
+
+grep $(for A in $(cat $profile/options); do echo " -e "^$A=" "; done) $profile/.config | tr "=" " " \
   | while read option value; do
 
   if [ "$option" = "CONF_ENC_MAC" ]; then
@@ -55,7 +50,7 @@ grep -e "^CONF_.*=\"" $profile/.config | tr "=" " " \
 done 
 
 echo "</table>"
-echo "<p><input type='submit'\ value='compile ethersex image'>"
+echo "<p><input type='submit' value='compile ethersex image'>"
 echo "</div></form>"
 
 cat footer.html
