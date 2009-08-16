@@ -79,6 +79,6 @@ joystick_digital_periodic(void)
 /*
   -- Ethersex META --
   header(hardware/input/buttons/joystick_digital.h)
-  timer(10, joystick_digital_periodic())
+  timer(1, joystick_digital_periodic())
   init(joystick_digital_init)
 */
