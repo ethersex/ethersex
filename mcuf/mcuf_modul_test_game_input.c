@@ -45,8 +45,7 @@ test_game_input_handler(uint8_t b)
     case HOOK_UP:    if (giy > 0) giy--; break;
     case HOOK_DOWN:  if (giy < MCUF_MAX_SCREEN_HEIGHT) giy++; break;
   } 
-  setPixel(gix, giy, gic % 16);
-//  debug_printf("mcuf game input set %i %i %i\n", gix, giy, gic);
+  setPixel(gix, giy, gic);
 }
 
 void
