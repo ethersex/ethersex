@@ -29,5 +29,6 @@ ifdef(`conf_CAMERA_INLINE', `<p>See the <a href="cam.ht">camera examples</a>.</p
 ifdef(`conf_NAMED_PIN_INLINE', `<p>Control <a href="np.ht">named outputs</a>.</p>')
 ifdef(`conf_CONFIG_INLINE', `<p>Configure ethersex <a href="cfg.ht">here</a></p>')
 ifdef(`conf_NETSTAT', `<p>Visit <a target="_blank" href="http://www.ethersex.de/~habo/stat/">Ethersex online statistic</a></p>')
+ifdef(`conf_MCUF_INLINE', `<p>Select MCUF Modul <a href="mm.ht">here</a></p>')
  </body>
 </html>
