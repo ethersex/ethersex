@@ -33,31 +33,35 @@ uint8_t current_pos = 0;
 
 
 /* macros for defining the data pins as input or output */
-#ifdef HD44780_RW
-  #define CTRLMASK (_BV(HD44780_RS) | _BV(HD44780_RW) | _BV(HD44780_EN))
-#else
-  #define CTRLMASK (_BV(HD44780_RS) | _BV(HD44780_EN))
-#endif
 
-#define DATAMASK (_BV(HD44780_D4) | _BV(HD44780_D5) | _BV(HD44780_D6) | _BV(HD44780_D7))
+#define _DATA_INPUT(a)  PIN_CLEAR(HD44780_D ## a); \
+                        DDR_CONFIG_IN(HD44780_D ## a);
 
-#define CONCAT(a,b)     a##b
-#define CONCAT_PIN(x)   CONCAT(PIN,x)
-#define CONCAT_DDR(x)   CONCAT(DDR,x)
-#define CONCAT_PORT(x)  CONCAT(PORT,x)
-
-#define DATA_PORT       CONCAT_PORT(HD44780_DATA_PORT)
-#define DATA_DDR        CONCAT_DDR(HD44780_DATA_PORT)
-#define DATA_PIN        CONCAT_PIN(HD44780_DATA_PORT)
-#define CTRL_PORT       CONCAT_PORT(HD44780_CTRL_PORT)
-#define CTRL_DDR        CONCAT_DDR(HD44780_CTRL_PORT)
-
-#define DATA_INPUT() do {                               \
-                            DATA_PORT |= DATAMASK;     \
-                            DATA_DDR &= ~DATAMASK;      \
+#define DATA_INPUT() do { _DATA_INPUT(4); \
+                          _DATA_INPUT(5); \
+                          _DATA_INPUT(6); \
+                          _DATA_INPUT(7); \
                         } while (0)
-#define DATA_OUTPUT() DATA_DDR |= DATAMASK
-#define CTRL_OUTPUT() CTRL_DDR |= CTRLMASK
+
+#define DATA_OUTPUT() do { \
+                          DDR_CONFIG_OUT(HD44780_D4); \
+                          DDR_CONFIG_OUT(HD44780_D5); \
+                          DDR_CONFIG_OUT(HD44780_D6); \
+                          DDR_CONFIG_OUT(HD44780_D7); \
+                         } while (0);
+#ifdef HAVE_HD4780_RW 
+#define CTRL_OUTPUT() do { \
+                          DDR_CONFIG_OUT(HD44780_EN); \
+                          DDR_CONFIG_OUT(HD44780_RS); \
+                          DDR_CONFIG_OUT(HD44780_RW); \
+                         } while (0);
+#else 
+#define CTRL_OUTPUT() do { \
+                          DDR_CONFIG_OUT(HD44780_EN); \
+                          DDR_CONFIG_OUT(HD44780_RS); \
+                          DDR_CONFIG_OUT(HD44780_RW); \
+                         } while (0);
+#endif
 
 /* display commands */
 #define HIGH_NIBBLE(x) ((uint8_t)((x) >> 4))
@@ -82,7 +86,6 @@ uint8_t current_pos = 0;
 #define noinline __attribute__((noinline))
 
 /* own prototypes */
-static noinline void delay(uint8_t ms);
 static noinline uint8_t clock_rw(uint8_t read);
 #define clock_write() clock_rw(0)
 #define clock_read() clock_rw(1)
@@ -94,18 +97,11 @@ static noinline uint8_t input_byte(uint8_t rs);
 #endif
 
 
-/* busy-loop for ms milliseconds */
-void delay(uint8_t ms)
-{
-    for (uint8_t i = 0; i < ms; i++)
-        _delay_loop_2(F_CPU/4000);
-}
-
 uint8_t noinline clock_rw(uint8_t read)
 {
 
     /* set EN high, wait for more than 450 ns */
-    CTRL_PORT |= _BV(HD44780_EN);
+    PIN_SET(HD44780_EN);
 
     /* make sure that we really wait for more than 450 ns... */
     _delay_us(0.6);
@@ -113,12 +109,14 @@ uint8_t noinline clock_rw(uint8_t read)
     /* read data, if requested.  data pins must be configured as input! */
     uint8_t data = 0;
     if (read) {
-        data = DATA_PIN & DATAMASK;
-        data >>= HD44780_DATA_SHIFT;
+      if (PIN_HIGH(HD44780_D4)) data |= _BV(0);
+      if (PIN_HIGH(HD44780_D5)) data |= _BV(1);
+      if (PIN_HIGH(HD44780_D6)) data |= _BV(2);
+      if (PIN_HIGH(HD44780_D7)) data |= _BV(3);
     }
 
     /* set EN low */
-    CTRL_PORT &= ~_BV(HD44780_EN);
+    PIN_CLEAR(HD44780_EN);
 
     return data;
 }
@@ -126,29 +124,29 @@ uint8_t noinline clock_rw(uint8_t read)
 void output_nibble(uint8_t rs, uint8_t nibble)
 {
     /* switch to write operation and set rs */
-#ifdef HD44780_RW
-    CTRL_PORT &= ~_BV(HD44780_RW);
+#ifdef HAVE_HD44780_RW
+    PIN_CLEAR(HD44780_RW);
 #endif
+    PIN_CLEAR(HD44780_RS);
     if (rs)
-        CTRL_PORT |= _BV(HD44780_RS);
-    else
-        CTRL_PORT &= ~_BV(HD44780_RS);
+      PIN_SET(HD44780_RS);
 
     /* compute data bits */
-    uint8_t data = 0;
+    PIN_CLEAR(HD44780_D4);
+    PIN_CLEAR(HD44780_D5);
+    PIN_CLEAR(HD44780_D6);
+    PIN_CLEAR(HD44780_D7);
     if (nibble & _BV(0))
-        data |= _BV(HD44780_D4);
+        PIN_SET(HD44780_D4);
     if (nibble & _BV(1))
-        data |= _BV(HD44780_D5);
+        PIN_SET(HD44780_D5);
     if (nibble & _BV(2))
-        data |= _BV(HD44780_D6);
+        PIN_SET(HD44780_D6);
     if (nibble & _BV(3))
-        data |= _BV(HD44780_D7);
+        PIN_SET(HD44780_D7);
 
     /* set bits in mask, and delete bits not in mask */
     DATA_OUTPUT();
-    uint8_t old_value = DATA_PORT;
-    DATA_PORT = (old_value & ~DATAMASK) | data;
 
     /* toggle EN */
     clock_write();
@@ -193,13 +191,12 @@ uint8_t input_nibble(uint8_t rs)
     DATA_INPUT();
 
     /* set write bit */
-    CTRL_PORT |= _BV(HD44780_RW);
+    PIN_SET(HD44780_RW);
 
     /* set rs, if given */
+    PIN_CLEAR(HD44780_RS);
     if (rs)
-        CTRL_PORT |= _BV(HD44780_RS);
-    else
-        CTRL_PORT &= ~_BV(HD44780_RS);
+      PIN_SET(HD44780_RS);
 
     uint8_t data = clock_read();
 
@@ -207,7 +204,7 @@ uint8_t input_nibble(uint8_t rs)
     DATA_OUTPUT();
 
     /* delete RW bit */
-    CTRL_PORT &= ~_BV(HD44780_RW);
+    PIN_CLEAR(HD44780_RW);
 
     return data;
 }
@@ -252,27 +249,33 @@ void hd44780_init(void)
 
     /* init io pins */
     CTRL_OUTPUT();
-    CTRL_PORT &= ~CTRLMASK;
+    PIN_CLEAR(HD44780_RS);
+    PIN_CLEAR(HD44780_EN);
+#ifdef HAVE_HD44780_RW
+    PIN_CLEAR(HD44780_RW);
+#endif
+    PIN_CLEAR(HD44780_D4);
+    PIN_CLEAR(HD44780_D5);
+    PIN_CLEAR(HD44780_D6);
+    PIN_CLEAR(HD44780_D7);
     DATA_OUTPUT();
-    DATA_PORT &= ~DATAMASK;
 
-    delay(40);
-    DATA_PORT = _BV(HD44780_D4) | _BV(HD44780_D5);
+    _delay_ms(40);
+    PIN_SET(HD44780_D4);
+    PIN_SET(HD44780_D5);
     clock_write();
 
-    delay(4);
-    DATA_PORT = _BV(HD44780_D4) | _BV(HD44780_D5);
+    _delay_ms(4);
     clock_write();
 
-    delay(1);
-    DATA_PORT = _BV(HD44780_D4) | _BV(HD44780_D5);
+    _delay_ms(1);
     clock_write();
 
     /* init done */
-    delay(1);
-    DATA_PORT = _BV(HD44780_D5);
+    _delay_ms(1);
+    PIN_CLEAR(HD44780_D4);
     clock_write();
-    delay(1);
+    _delay_ms(1);
 
     /* configure for 4 bit, 2 lines, 5x9 font (datasheet, page 24) */
     output_byte(0, CMD_FUNCTIONSET(0, 1, 0));
@@ -351,7 +354,7 @@ int hd44780_put(char d, FILE *stream)
 
     output_byte(0, CMD_SETDRAMADR(start));
 #ifdef DEBUG_HD44780
-    delay(50);
+    _delay_ms(50);
 #endif
 
     output_byte(1, d);
