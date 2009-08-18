@@ -48,3 +48,12 @@ ifdef(`conf_ZBUS', `dnl
   pin(ZBUS_TX_PIN, STATUSLED_TX)
   pin(ZBUS_RX_PIN, STATUSLED_RX)
 ')
+
+ifdef(`conf_HD44780', `dnl
+  pin(HD44780_RS, PD0)
+  pin(HD44780_EN, PD1)
+  pin(HD44780_D4, PD4)
+  pin(HD44780_D5, PD5)
+  pin(HD44780_D6, PD6)
+  pin(HD44780_D7, PD7)
+')
