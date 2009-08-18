@@ -179,6 +179,18 @@ template $DCF1_USE_PON_SUPPORT << FNORD
   /* port config for DCF1 PowerOn pin */
   pin(DCF1_PON, PA1, OUTPUT)
 FNORD
+
+template $HD44780_SUPPORT << FNORD
+    pin(HD44780_RS, PA0)
+    /* Uncomment if you wirded RW Pin and/or want to use readback support */
+    // pin(HD44780_RW, PA1)
+    pin(HD44780_EN, PA2)
+    pin(HD44780_D4, PA3)
+    pin(HD44780_D5, PA4)
+    pin(HD44780_D6, PA5)
+    pin(HD44780_D7, PA6)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 
