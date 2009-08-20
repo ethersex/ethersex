@@ -30,7 +30,7 @@ EOF
 $MAKE dummy.E || exit 1
 PAGESZ=$(tail -n 1 dummy.E)
 
-rm -f dummy.[cE]
+fgrep -q "#define DEBUG_INLINE_DUMMY" autoconf.h || rm -f dummy.[cE]
 
 echo "The pagesize of current architecture is $PAGESZ."
 
@@ -46,13 +46,17 @@ while true; do
     continue
   fi
   unzipped=$(echo "$fn" | sed 's/\.gz$//')
-  gzip -c  -9 < "$fn" > "$fn.gz"
+  do_gzip=true
+  fgrep -q "#define DEBUG_INLINE_DISABLE_GZ" autoconf.h &&  do_gzip=false
+  fgrep -q "#define UPNP_INLINE_SUPPORT" autoconf.h && [ "${fn/#*./}" = "xml" ]  && do_gzip=false
+
+  [ "$do_gzip" = "true" ] && gzip -c  -9 < "$fn" > "$fn.gz"
 
 
   echo Embedding $fn ...
   core/vfs/vfs-concat ethersex.bin $PAGESZ "$fn" > ethersex.embed.bin || exit 1
   mv -f ethersex.embed.bin ethersex.bin
 
-  rm -f "$fn".gz
+  fgrep -q "#define DEBUG_INLINE_GZ" autoconf.h || rm -f "$fn".gz 
 done
 
