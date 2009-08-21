@@ -1,7 +1,7 @@
 typedef struct {
 	unsigned char rufnummer[20];
 	uint8_t text_len;
-	unsigned char text[110];	/* text speicher und erst vor dem verschicken bytes2string */
+	unsigned char text[120];	/* text speicher und erst vor dem verschicken bytes2string */
 	void (*sms_send_err_calback)();
 } sms;
 

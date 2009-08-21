@@ -1,10 +1,11 @@
 #include <stdio.h>
-/* warum gehts nur mit usart.h obwohl keine fehler auftreten */
-#include "core/usart.h"
-#include "core/debug.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <util/delay.h>
+/* warum gehts nur mit usart.h obwohl keine fehler auftreten */
+#include "core/usart.h"
+#include "core/debug.h"
 #include "sms_encoding.h"
 #include "sms.h"
 #include "sms_ecmd.h"
@@ -15,13 +16,10 @@
 #define DEBUG_REC
 /* define max sms length */
 //#define DATA_LEN ((160*7)/ 8) * 2 + 1
-#define WRITE_BUFF 100
+#define WRITE_BUFF 119
 
 static char write_buffer[WRITE_BUFF + 1];	
-static char dummy_buffer[10];
 static uint8_t text[50];
-static int16_t write_len;
-static int16_t reply_len = 0;
 char nummer[20];
 
 static void read_sms(uint8_t *pdu) 
@@ -59,7 +57,9 @@ uint8_t pdu_parser(uint8_t *pdu)
 {
 	uint8_t i = 3;
 	uint8_t ret_val = 1;
-	uint8_t sms_sent = 0;
+	int16_t write_len = 0;
+	uint16_t reply_len = 0;
+
 	debug_printf("pdu_parser called: %d\n", pdu[i]);
 	if (pdu[i++] == '+') {
 		debug_printf("pdu_parser called: %d\n", pdu[i]);
@@ -86,9 +86,9 @@ uint8_t pdu_parser(uint8_t *pdu)
 			
 			debug_printf("ecmd: %s\n", text);
 			do {
-				debug_printf("ret_len ecmd parser: %d\r\n", write_len);
 				if (reply_len <= (int16_t)sizeof(write_buffer)) {
 					write_len = ecmd_parse_command((char *) text, write_buffer + reply_len, sizeof(write_buffer) - reply_len);
+					debug_printf("ret_len ecmd parser: %d\r\n", write_len);
 					if (is_ECMD_AGAIN(write_len)) {
 						reply_len += -(10 + write_len);
 						*(write_buffer + reply_len) = ' ';
@@ -98,25 +98,17 @@ uint8_t pdu_parser(uint8_t *pdu)
 						// everything received, we terminate the string if it is longer
 						debug_printf("finished: \"%s\"\n", write_buffer);
 						ret_val = 0;
+						reply_len += write_len;
+						break;
 					}
 					debug_printf("%s\n", write_buffer);
 				}
 				else {
-					if (!sms_sent) {
-						write_buffer[WRITE_BUFF] = '\0';	
-						debug_printf("%s\n", write_buffer);
-						sms_send((uint8_t *) nummer, (uint8_t *) write_buffer, NULL, 1);
-						sms_sent = 1;
-					}
-					write_len = ecmd_parse_command((char *) text, write_buffer, sizeof(write_buffer));
+					break;
 				}
 			} while (write_len <= 0);
-			
-			if (!sms_sent)
-				sms_send((uint8_t *) nummer, (uint8_t *) write_buffer, NULL, 1);
-			
-			write_len = 0;
-			reply_len = 0;
+			write_buffer[reply_len] = '\0';
+			sms_send((uint8_t *) nummer, (uint8_t *) write_buffer, NULL, 1);
 		}
 	}
 	return ret_val;

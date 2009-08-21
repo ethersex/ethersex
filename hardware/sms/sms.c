@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-
+#include <util/delay.h>
 #define USE_USART 0
 #define BAUD 9600
 
@@ -17,8 +17,7 @@
 #define SMS_BUFFER 5
 #define SMS_RECV
 #define DEBUG_ENABLE
-//#define DEBUG_COMM
-//#define DEBUG_SEND
+#define DEBUG_COMM
 #define DEBUG_LEN
 #define REINIT_MOBIL_TIMEOUT 50
 
@@ -38,7 +37,7 @@ static volatile uint8_t mobil_access_timeout = REINIT_MOBIL_TIMEOUT;
 /* protect mobile from multiple access */
 static volatile uint8_t global_mobil_access = 0;
 
-static uint8_t put_index = 0, get_index = 0;
+static uint8_t put_index = 0;
 FILE *ausgabe;
 
 /* buffer for messages, to be transmitted */ 
@@ -116,28 +115,26 @@ void sms_uart_init()
 	/* disable command echo from mobil */
 	fprintf(ausgabe, "ate0\r\n");
 	global_mobil_access = 1;
-	while (global_mobil_access == 1);
-	usart(UCSR,B) |= _BV(usart(RXEN));
+	i = 255;
+	while (global_mobil_access == 1 && i--)
+		_delay_ms(4);
+	if (!i)
+		return;
 #ifdef DEBUG_ENABLE
 	debug_printf("mobil echo off\r\n");
 #endif
-
-	global_mobil_access = 1;
 	fprintf(ausgabe, "AT+CPMS=MT\r\n");	
-	while (global_mobil_access == 1);
-	usart(UCSR,B) |= _BV(usart(RXEN));
+	global_mobil_access = 1;
+	i = 255;
+	while (global_mobil_access == 1 && i--)
+		_delay_ms(4);
+	if (!i)
+		return;
+
 #ifdef DEBUG_ENABLE
 	debug_printf("mem selected\r\n");
 #endif
 
-//	fprintf(ausgabe, "AT+CMGF=0\r\n"); /* set pdu mode, for sms */
-//	fprintf(ausgabe, "AT+CSCS=GSM\r\n"); /* set 7-Bit encoding */
-// AT+CNMI konfigurieren
-/*	fprintf(ausgabe, "AT+CMGD=1\r\n");
-	global_mobil_access = 1;
-	while (global_mobil_access == 1);
-	usart(UCSR,B) |= _BV(usart(RXEN));*/
-	
 #ifdef DEBUG_ENABLE
 	debug_printf("mobil memory selected\r\n");
 #endif
@@ -189,8 +186,7 @@ void sms_periodic_timeout()
 	if (!global_mobil_access && !pdu_must_parse && (!(fetch_sms % 50))) {
 		global_mobil_access = 1;
 		/* fetch received and not read messages */
-		//fprintf(ausgabe, "AT+CMGL=0\r\n"); 
-		fprintf(ausgabe, "AT+CMGL=1\r\n"); 
+		fprintf(ausgabe, "AT+CMGL=0\r\n"); 
 	#ifdef DEBUG_ENABLE
 		debug_printf("fetch sms\n\n\n");
 	#endif
@@ -239,6 +235,12 @@ void sms_transmit_handler()
 							((sms_buffer[current_sms]->text_len * 2 +
 							strlen((char *) sms_buffer[current_sms]->rufnummer) +
 							10) >> 1));
+					#ifdef DEBUG_ENABLE 
+					debug_printf("AT+CMGS=%u\r\n", 
+							((sms_buffer[current_sms]->text_len * 2 +
+							strlen((char *) sms_buffer[current_sms]->rufnummer) +
+							10) >> 1));
+					#endif
 					state = WAIT_FOR_START;
 				#ifdef DEBUG_ENABLE
 					debug_printf("sending started at buff_index %d\r\n", current_sms);
@@ -254,7 +256,6 @@ void sms_transmit_handler()
 				
 				case SEND_SMS:
 					text_len = sms_buffer[current_sms]->text_len;
-				#ifndef DEBUG_COMM
 					fprintf(ausgabe, "001100");
 					fprintf(ausgabe, "%s", sms_buffer[current_sms]->rufnummer);
 					fprintf(ausgabe, "0000AA");
@@ -263,7 +264,7 @@ void sms_transmit_handler()
 											sms_buffer[current_sms]->text[i]);
 					}
 					fprintf(ausgabe, "%c", 0x1a);
-				#else 	
+				#ifdef DEBUG_ENABLE	
 					debug_printf( "001100");
 					debug_printf( "%s", sms_buffer[current_sms]->rufnummer);
 					debug_printf( "0000AA");
@@ -297,7 +298,6 @@ void sms_transmit_handler()
 				case SMS_SEND_COMPLETE:
 					free(sms_buffer[current_sms]);
 					debug_printf("free done\r\n");
-					while (1);
 					sms_buffer[current_sms] = NULL;
 					current_sms++;
 					state = SEND_LEN;
@@ -319,10 +319,10 @@ uint8_t sms_send(uint8_t *rufnummer, unsigned char *text,
 					void (*ptr)(), uint8_t nr_is_encoded) 
 {
 	uint8_t text_len = strlen((char *) text);
-/* TODO: ifdef block machen, wenn default rufnummer angegeben wurde */
-	debug_printf("sms_send: \"%s\", \"%s\"\r\n", rufnummer, text);
-	
-	if (text_len < 140) {
+
+	debug_printf("sms_send: \"%s\",\r\n \"%s\"\r\n", rufnummer, text);
+
+	if (text_len < 120) {
 		/* search for a free buffer field */
 		if (sms_buffer[put_index] == NULL) {
 			sms_buffer[put_index] = malloc(sizeof(sms));
