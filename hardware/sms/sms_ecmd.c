@@ -64,13 +64,8 @@ static void read_sms(uint8_t *pdu)
         }
     }
 	text[i] = '\0';
- #ifdef DEBUG_REC 	
-	debug_printf("plain: %s, %d\r\n", text, i);
-#endif
+	SMS_DEBUG("plain: %s, %d\r\n", text, i);
 }
-
-
-
 
 uint8_t pdu_parser(uint8_t *pdu) 
 {
@@ -79,13 +74,11 @@ uint8_t pdu_parser(uint8_t *pdu)
 	int16_t write_len = 0;
 	uint16_t reply_len = 0;
 
-	debug_printf("pdu_parser called: %d\n", pdu[i]);
+	SMS_DEBUG("pdu_parser called: %d\n", pdu[i]);
 	if (pdu[i++] == '+') {
-		debug_printf("pdu_parser called: %d\n", pdu[i]);
+		SMS_DEBUG("pdu_parser called: %d\n", pdu[i]);
 		if (!strncmp((char *) pdu + i, "CMGL", 4)) {	
-			#ifdef DEBUG_ENABLE
-			debug_printf("here we go!!\r\n");
-			#endif
+			SMS_DEBUG("messages will be received\r\n");
 			uint8_t smsc_len, sender_len;
 			if (reply_len == 0) {
 				while (pdu[++i] != '\n');
@@ -103,11 +96,11 @@ uint8_t pdu_parser(uint8_t *pdu)
 				read_sms((uint8_t *) pdu + i);
 			}
 			
-			debug_printf("ecmd: %s\n", text);
+			SMS_DEBUG("ecmd: %s\n", text);
 			do {
 				if (reply_len <= (int16_t)sizeof(write_buffer)) {
 					write_len = ecmd_parse_command((char *) text, write_buffer + reply_len, sizeof(write_buffer) - reply_len);
-					debug_printf("ret_len ecmd parser: %d\r\n", write_len);
+					SMS_DEBUG("ret_len ecmd parser: %d\r\n", write_len);
 					if (is_ECMD_AGAIN(write_len)) {
 						reply_len += -(10 + write_len);
 						*(write_buffer + reply_len) = ' ';
@@ -115,12 +108,12 @@ uint8_t pdu_parser(uint8_t *pdu)
 					} 
 					else if (write_len > 0) {
 						// everything received, we terminate the string if it is longer
-						debug_printf("finished: \"%s\"\n", write_buffer);
+						SMS_DEBUG("finished: \"%s\"\n", write_buffer);
 						ret_val = 0;
 						reply_len += write_len;
 						break;
 					}
-					debug_printf("%s\n", write_buffer);
+					SMS_DEBUG("%s\n", write_buffer);
 				}
 				else {
 					break;

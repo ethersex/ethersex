@@ -39,4 +39,11 @@ void sms_uart_init(void);
 
 void sms_periodic_timeout(void);
 
+#ifdef DEBUG_SMS
+# include "core/debug.h"
+# define SMS_DEBUG(a...)  debug_printf("sms: " a)
+#else
+# define SMS_DEBUG(a...)
+#endif
+
 #endif
