@@ -174,7 +174,7 @@ void sms_periodic_timeout()
 
 		if(ret == 0) {
 			// we want to delete the recently received message 
-			delete_sms = 1;
+			//delete_sms = 1;
 			pdu_must_parse = 0;
 		}
 		else if (ret == 23) {
@@ -199,8 +199,8 @@ void sms_periodic_timeout()
 		global_mobil_access = 1;
 		already_parsed = 0;
 		/* fetch received and not read messages */
-		fprintf(ausgabe, "AT+CMGL=0\r\n"); 
-		//fprintf(ausgabe, "AT+CMGL=1\r\n"); 
+		//fprintf(ausgabe, "AT+CMGL=0\r\n"); 
+		fprintf(ausgabe, "AT+CMGL=1\r\n"); 
 	#ifdef DEBUG_ENABLE
 		debug_printf("fetch sms\n\n\n");
 	#endif

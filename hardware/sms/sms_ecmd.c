@@ -1,17 +1,22 @@
 #include <stdio.h>
+/* warum gehts nur mit usart.h obwohl keine fehler auftreten */
+#include "core/usart.h"
+#include "core/debug.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include "sms_encoding.h"
 #include "sms.h"
-#include "core/debug.h"
+#include "sms_ecmd.h"
 #include "protocols/ecmd/parser.h"
+#include "protocols/ecmd/ecmd-base.h"
 
+#define DEBUG_ENABLE
 #define DEBUG_REC
 /* define max sms length */
 #define DATA_LEN ((160*7)/ 8) * 2 + 1
 
-static char write_buffer[150];	
+static char write_buffer[54];	
 static uint8_t text[50];
 static int16_t write_len;
 static uint16_t reply_len = 0;
@@ -80,17 +85,28 @@ uint8_t pdu_parser(uint8_t *pdu)
 		#ifdef DEBUG_ENABLE 
 			debug_printf("ret_len ecmd parser: %d\r\n", write_len);
 		#endif
-			if ((write_len < -10) && (reply_len < 130)) {
+			if (is_ECMD_AGAIN(write_len)) {
+				//write_len = ECMD_AGAIN(write_len);
     			reply_len += -(10 + write_len);
+				debug_printf("1.r: %d\n", reply_len);
+				*(write_buffer + reply_len) = ' ';
+				reply_len++;
+				debug_printf("2.r: %d\n", reply_len);
 				ret_val = 23; /* i want to be called once more */
     		} 
 			else if (write_len > 0) {
 				// everything received, we terminate the string if it is longer
 				write_buffer[130 - 1] = '\0';
-				sms_send((uint8_t *) nummer, (uint8_t *) write_buffer, NULL, 1);
+				//sms_send((uint8_t *) nummer, (uint8_t *) write_buffer, NULL, 1);
+				debug_printf("finished: \"%s\"\n", write_buffer);
+				// for debugging only
+				write_buffer[0] = '\0';
+				memset(write_buffer, 0x0, 53);
+				write_len = 0;
 				reply_len = 0;
 				ret_val = 0;
    			}
+			debug_printf("%s\n", write_buffer);
 		}
 	}
 	return ret_val;
