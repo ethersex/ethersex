@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <util/delay.h>
-#define USE_USART 0
+#define USE_USART SMS_USE_USART
 #define BAUD 9600
 
 #include "config.h"

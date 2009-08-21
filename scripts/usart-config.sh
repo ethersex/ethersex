@@ -50,6 +50,9 @@ usart_count_used() {
   if [ "$DC3840_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$SMS_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
 }
 
 get_usart_count

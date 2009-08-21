@@ -1,0 +1,6 @@
+dep_bool_menu "SMS Support" SMS_SUPPORT
+		choice '  SMS' "$(usart_choice SMS)"
+		usart_process_choice SMS
+		comment  "Debugging Flags"
+		dep_bool 'SMS' DEBUG_SMS $DEBUG
+endmenu

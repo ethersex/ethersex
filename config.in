@@ -133,6 +133,7 @@ choice "I/O abstraction model (Port I/O)" \
 	source core/tty/config.in
 	source hardware/io_expander/config.in
 	source hardware/adc/config.in
+	source hardware/sms/config.in
 	source hardware/adc/kty/config.in
 	source hardware/lcd/config.in
 	source hardware/i2c/master/config.in
