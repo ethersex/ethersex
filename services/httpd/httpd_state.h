@@ -38,6 +38,10 @@ struct httpd_connection_state_t {
     unsigned header_reparse		: 1;
     unsigned eof			: 1;
 
+#ifdef HTTPD_AUTH_SUPPORT
+        uint8_t auth_state;
+#endif /* HTTP_AUTH_SUPPORT */
+
     /* The associated connection handler function */
     void (* handler)();
 

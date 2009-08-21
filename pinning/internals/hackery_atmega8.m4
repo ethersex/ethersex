@@ -32,15 +32,3 @@
 #define RC5_USE_TIMER2
 
 #define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */
-
-
-#define HD44780_CTRL_PORT D
-#define HD44780_DATA_PORT D
-#define HD44780_RS PD0
-#define HD44780_EN PD1
-#define HD44780_D4 PD4
-#define HD44780_D5 PD5
-#define HD44780_D6 PD6
-#define HD44780_D7 PD7
-#define HD44780_DATA_SHIFT 4
-

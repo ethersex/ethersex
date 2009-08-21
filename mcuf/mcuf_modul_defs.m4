@@ -1,3 +1,6 @@
+modul_ifdef(MCUF_TEST_GAME_INPUT)
+  modul(test_game_input, "gameinput")
+modul_endif()
 modul_ifdef(MCUF_IMAGE_SUPPORT)
   modul(mcuf_image, "image")
 modul_endif()

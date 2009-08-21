@@ -11,12 +11,12 @@ comment "LCD Displays"
       define_bool LCD_SUPPORT y
     fi
     dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
-    dep_bool "Use Port C (instead of Port A)" HD44780_USE_PORTC $HD44780_SUPPORT
-
   endmenu
 
 
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT
+
+  dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT
 
 	comment  "Debugging Flags"
 	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG

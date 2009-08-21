@@ -62,6 +62,15 @@ extern struct uip_eth_addr uip_ethaddr;
 struct uip_eth_hdr {
   struct uip_eth_addr dest;
   struct uip_eth_addr src;
+
+#ifdef IEEE8021Q_SUPPORT
+  struct {
+    uint16_t tpid;
+    uint8_t vid_hi;
+    uint8_t vid_lo;
+  };
+#endif
+
   u16_t type;
 };
 

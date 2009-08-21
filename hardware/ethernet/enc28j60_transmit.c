@@ -1,11 +1,11 @@
 /*
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
+ * under the terms of the GNU General Public License (version 3)
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,6 +32,13 @@
 
 void transmit_packet(void)
 {
+#ifdef IEEE8021Q_SUPPORT
+    /* Write VLAN-tag to outgoing packet. */
+    struct uip_eth_hdr *eh = (struct uip_eth_hdr *) uip_buf;
+    eh->tpid = HTONS(0x8100);
+    eh->vid_hi = (CONF_8021Q_VID >> 8) | (CONF_8021Q_PRIO << 5);
+    eh->vid_lo = CONF_8021Q_VID & 0xFF;
+#endif
 
     /* wait for any transmits to end, with timeout */
     uint8_t timeout = 100;

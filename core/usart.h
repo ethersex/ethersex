@@ -104,8 +104,8 @@ usart_init(void) \
     /* The ATmega644 datasheet suggests to clear the global\
        interrupt flags on initialization ... */\
     uint8_t sreg = SREG; cli(); \
-    usart(UBRR,H) = HI8(UBRRH_VALUE); \
-    usart(UBRR,L) = LO8(UBRRL_VALUE); ;\
+    usart(UBRR,H) = UBRRH_VALUE; \
+    usart(UBRR,L) = UBRRL_VALUE; \
     /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */ \
     /*   and set URSEL, if present, */ \
     usart(UCSR,C) = _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
@@ -125,8 +125,8 @@ usart_init(void) \
     /* The ATmega644 datasheet suggests to clear the global\
        interrupt flags on initialization ... */\
     uint8_t sreg = SREG; cli(); \
-    usart(UBRR,H) = HI8(UBRRH_VALUE); \
-    usart(UBRR,L) = LO8(UBRRL_VALUE); ;\
+    usart(UBRR,H) = UBRRH_VALUE; \
+    usart(UBRR,L) = UBRRL_VALUE; \
     /* set mode: 8 bits, 2 stop, no parity, synchronous usart */ \
     /*   and set URSEL, if present, */ \
     usart(UCSR,C) =  _BV(usart(USBS)) | (3 << (usart(UCSZ,0))) | _BV_URSEL; /* 8 data bits, 2 stop bits, no parity (8N2) */ \

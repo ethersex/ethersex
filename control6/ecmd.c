@@ -76,7 +76,7 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
 
   if (varvalue.type == C6_TYPE_int8_t || varvalue.type == C6_TYPE_int16_t) {
     /* signed */
-    int16_t nv = strtol (buf, NULL, 10);
+    int16_t nv = strtol (buf, NULL, 0);
 
     if (varvalue.type == C6_TYPE_int8_t) {
       if (nv < INT8_MIN || nv > INT8_MAX)
@@ -92,9 +92,9 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
     /* unsigned */
     if (*buf == '-') goto range_error;
 
-    uint16_t nv = strtoul (buf, NULL, 10);
+    uint16_t nv = strtoul (buf, NULL, 0);
     if (varvalue.type == C6_TYPE_uint8_t) {
-      if (nv > INT8_MAX)
+      if (nv > UINT8_MAX)
         goto range_error;
       else
         varvalue.data.d_uint8_t = nv;

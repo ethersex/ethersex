@@ -39,11 +39,6 @@
 #define ENC28J60_REV4_WORKAROUND
 #define ENC28J60_REV5_WORKAROUND
 
-/* ps/2 interrupts */
-#define PS2_PCMSK PCMSK0
-#define PS2_PCIE PCIE0
-#define PS2_INTERRUPT SIG_PIN_CHANGE0
-
 /* global version defines */
 #if VERSION_STRING_CHOICE == USE_BUILDDATE_VERSION
 	#define VERSION_STRING __DATE__ " " __TIME__

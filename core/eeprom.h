@@ -58,9 +58,9 @@ struct eeprom_config_t {
     uint8_t ntp_server[IPADDR_LEN];
 #endif
 
-#ifdef HTTPD_AUTH_SUPPORT
-    char httpd_auth_password[8];
-    char httpd_auth_null_byte;
+#ifdef PAM_SINGLE_USER_EEPROM_SUPPORT
+    char pam_username[16];
+    char pam_password[16];
 #endif
 
 #ifdef KTY_SUPPORT

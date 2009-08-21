@@ -33,14 +33,14 @@
 
 
 static const char PROGMEM upnp_header[] =
-    "NOTIFY * HTTP/1.1\r\n"
-    "Host:" CONF_UPNP_MULTICAST_IP ":1900\r\n"
-    "NT:upnp:rootdevice\r\n"
-    "NTS:ssdp:alive\r\n"
-    "Location:http://" CONF_ENC_IP ":80" CONF_UPNP_SCHEME_FILENAME "\r\n"
-    "USN:uuid:00000000-0000-0001-0000-1001e3d766e5::upnp:rootdevice\r\n"
-    "SERVER: " CONF_HOSTNAME "/1.0 UPnP/1.0\r\n"
-    "Cache-Control:max-age=60\r\n\r\n";
+	"NOTIFY * HTTP/1.1\r\n"
+	"Host:" CONF_UPNP_MULTICAST_IP ":1900\r\n"
+	"NT:upnp:rootdevice\r\n"
+	"NTS:ssdp:alive\r\n"
+	"Location:http://" CONF_ENC_IP ":80" CONF_UPNP_SCHEME_FILENAME "\r\n"
+	"USN:uuid:00000000-0000-0001-0001-0001e3d766e5::upnp:rootdevice\r\n"
+	"SERVER: " CONF_HOSTNAME " UPnP/1.0\r\n"
+	"Cache-Control:max-age=60\r\n\r\n";
 
 void
 upnp_send (void)
@@ -66,4 +66,5 @@ upnp_send (void)
 /*
   -- Ethersex META --
   header(services/upnp/upnp.h)
+  timer(100,upnp_send())
 */

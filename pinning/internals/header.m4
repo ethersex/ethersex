@@ -133,6 +133,29 @@ pin(DCF1, $2, INPUT)
 #define DCF77_vect SIG_INTERRUPT$1
 ')
 
+define(`PS2_USE_PCINT', `dnl
+/* PS2 PinChange-Interrupt Line  PCINT$1 -> $2 */
+pin(PS21, $2, INPUT)
+
+dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
+#define ps2_configure_pcint() \
+  _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
+  PCICR  |= _BV(_paste(PCIE, eval($1/8)));
+
+#define PS2_vect _paste3(PCINT, eval($1/8), _vect)
+')
+
+define(`PS2_USE_INT', `dnl
+/* PS2 Interrupt Line  INT$1 -> $2 */
+pin(PS21, $2, INPUT)
+
+/* Configure real interrupt $1, set sense control to trigger on any edge */
+#define PS2_INT_PIN INT$1
+#define PS2_INT_ISC _ISC($1,0)
+#define PS2_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
+#define PS2_vect SIG_INTERRUPT$1
+')
+
 define(`STELLA_PORT_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl
@@ -151,6 +174,16 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 #define STELLA_PORT format(PORT%s, pinname)
 #define STELLA_DDR format(DDR%s, pinname)
 ')
+
+define(`ST7626_DATA_PORT', `dnl
+  forloop(`itr', 0, 7, `dnl
+    pin(`ST7626_DATA_PIN'itr, format(`P%s%d', $1, itr), OUTPUT)
+  ')dnl
+  #define ST7626_DATA PORT$1
+  #define ST7626_DATA_DDR DDR$1
+  #define ST7626_DATAIN PIN$1
+')
+
 
 ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
 ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl

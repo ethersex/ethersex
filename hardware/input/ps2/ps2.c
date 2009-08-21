@@ -28,6 +28,7 @@
 #include "config.h"
 #include "protocols/syslog/syslog.h"
 #include "ps2.h"
+#include "core/debug.h"
 
 #ifdef PS2_GERMAN_LAYOUT
   #define LC(a,b) (b)
@@ -46,6 +47,7 @@ static volatile uint8_t leds = 0;
 uint8_t send_next = 0;
 
 struct key_press key;
+struct key_press ps2_key_cache[5];
 
 /* This is the keymap
  * every byte from the keyboard is connected to a character
@@ -96,11 +98,16 @@ ps2_init(void)
   parity = 1;
   key.num = 0;
 
+#ifdef ps2_configure_pcint
   /* Enable the interrupt for the clock pin, because the keyboard is clocking
    * us, not vice versa 
    */
-  PCICR |= _BV(PS2_PCIE);
-  PS2_PCMSK |= PIN_BV(PS2_CLOCK);
+  ps2_configure_pcint ();
+#elif defined(HAVE_PS2_INT)
+  /* Initialize "real" Interrupt */
+  _EIMSK |= _BV(PS2_INT_PIN);
+  _EICRA = (_EICRA & ~PS2_INT_ISCMASK) | PS2_INT_ISC;
+#endif
 
   DDR_CONFIG_IN(PS2_DATA);
   DDR_CONFIG_IN(PS2_CLOCK);
@@ -218,6 +225,18 @@ decode_key(uint8_t keycode)
     break;
 
   default:
+    /* put the decoded data into key cache */
+    key.keycode = keycode;
+    key.data = key.shift 
+      ? pgm_read_byte(&keycodes_shift[keycode])
+      : pgm_read_byte(&keycodes[keycode]);
+ 
+    memmove(&ps2_key_cache[1], &ps2_key_cache[0], 
+            sizeof(ps2_key_cache) - sizeof(*ps2_key_cache));
+    memcpy(&ps2_key_cache[0], &key, sizeof(*ps2_key_cache));
+
+    debug_printf("Key: %x %c\n", key.keycode, key.data); 
+
 #ifdef SYSLOG_SUPPORT
     /* For debugging purposes we send the keycode via syslog */
     if (key.extended && keycode == 0x6c)
@@ -231,7 +250,7 @@ decode_key(uint8_t keycode)
   }
 }
 
-SIGNAL(PS2_INTERRUPT) 
+SIGNAL(PS2_vect) 
 {
   if (! PIN_HIGH(PS2_CLOCK)) {
     /* Start the timeout to 20ms - 40ms */

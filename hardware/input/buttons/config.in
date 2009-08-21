@@ -1,8 +1,11 @@
 
 dep_bool_menu "Buttons Input" BUTTONS_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
   int "Number of buttons" CONF_NUM_BUTTONS
-endmenu
 
-dep_bool_menu "Game Input" GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
+ dep_bool_menu "Game Input" GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL $BUTTONS_INPUT_SUPPORT
 	dep_bool "Digital Joystick" JOYSTICK_DIGITAL_SUPPORT $GAME_INPUT_SUPPORT $CONFIG_EXPERIMENTAL
+    comment "Debugging Flags"
+    dep_bool 'Digital Joystick' DEBUG_JOYSTICK_DIGITAL $DEBUG
+    dep_bool 'Game Input' DEBUG_GAME_INPUT $DEBUG
+ endmenu
 endmenu

@@ -26,6 +26,7 @@
 
 #include "ecmd_net.h"
 #include "protocols/uip/uip.h"
+#include "services/pam/pam_prototypes.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/ecmd-base.h"
@@ -46,6 +47,7 @@ void ecmd_net_init()
 void newdata(void)
 {
     struct ecmd_connection_state_t *state = &uip_conn->appstate.ecmd;
+
 
     uint16_t diff = ECMD_INPUTBUF_LENGTH - state->in_len;
     if (diff > 0) {
@@ -96,6 +98,45 @@ void newdata(void)
           skip = 1;
           state->close_requested = 1;
         }
+      
+#ifdef ECMD_PAM_SUPPORT
+        if (state->pam_state == PAM_UNKOWN) {
+          if (strncmp_P(state->inbuf + skip, PSTR("auth "), 5) != 0) { 
+            /* No authentification request */
+auth_required:
+            state->out_len = sprintf_P(state->outbuf, 
+                                       PSTR("authentification required\n"));
+            memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
+            state->in_len = 0;
+            return;          
+          } else {
+            char *user = state->inbuf + skip + 5; /* "auth " */
+            char *pass = strchr(user + 1,' ');
+            if (! pass) goto auth_required;
+            *pass = 0;
+            do { pass++; } while (*pass == ' ');
+            char *p = strchr(pass, ' ');
+            if (p) 
+              *p = 0;
+            /* Do the Pam request, the pam request will cache username and
+             * passwort if its necessary. */
+            pam_auth(user, pass, &state->pam_state);
+
+            if (p && p[1] != 0) { /* There ist something after the PAM request */
+              memmove(state->inbuf, p+1, strlen(p+1) + 1);
+              skip = 0;
+              state->in_len = strlen(p+1);
+              if (state->pam_state == PAM_PENDING)
+                state->parse_again = 1;
+            } else {
+              state->in_len = 0;
+              return;
+            }
+          }
+        }
+        if (state->pam_state == PAM_PENDING || state->pam_state == PAM_DENIED)
+          return; /* Pam Subsystem promisses to change this state */
+#endif
 
 
         /* parse command and write output to state->outbuf, reserving at least
@@ -154,11 +195,29 @@ void ecmd_net_main(void)
         state->in_len = 0;
         state->out_len = 0;
         state->parse_again = 0;
+        state->parse_again = 0;
         state->close_requested = 0;
+#ifdef ECMD_PAM_SUPPORT
+        state->pam_state = PAM_UNKOWN;
+#endif
         memset(state->inbuf, 0, ECMD_INPUTBUF_LENGTH);
     }
 
-    if(uip_acked()) {
+#ifdef ECMD_PAM_SUPPORT
+        if (state->pam_state == PAM_DENIED) {
+          state->out_len = sprintf_P(state->outbuf, 
+                                     PSTR("authentification failed\n"));
+          state->close_requested = 1;
+        }
+#endif
+
+
+    if(uip_acked()
+#ifdef ECMD_PAM_SUPPORT
+        || (state->pam_state == PAM_SUCCESS && state->in_len) 
+#endif
+       
+       ) {
         state->out_len = 0;
 
         if (state->parse_again) {

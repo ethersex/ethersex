@@ -1,4 +1,4 @@
-dep_bool_menu 'Jabber Client' JABBER_SUPPORT $TCP_SUPPORT
+dep_bool_menu "Jabber Client" JABBER_SUPPORT $TCP_SUPPORT
 	ip "Server IP" CONF_JABBER_IP "78.47.210.246" "2001:6f8:1209:f0:216:3eff:fe03:a7"
 	string "Server Hostname" CONF_JABBER_HOSTNAME "jabber.zerties.org"
 	string "Username" CONF_JABBER_USERNAME "esex"

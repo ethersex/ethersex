@@ -11,6 +11,7 @@ comment "General Setup"
 		"ATmega8      atmega8	\
 		 ATmega88     atmega88	\
 		 ATmega128    atmega128	\
+		 ATmega16     atmega16	\
 		 ATmega162    atmega162	\
 		 ATmega168    atmega168	\
 		 ATmega32     atmega32	\
@@ -50,6 +51,7 @@ comment "General Setup"
 	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
+	source services/pam/config.in
 	source control6/config.in
 endmenu
 
@@ -135,6 +137,7 @@ choice "I/O abstraction model (Port I/O)" \
 	source hardware/adc/config.in
 	source hardware/sms/config.in
 	source hardware/adc/kty/config.in
+	source hardware/dac/config.in
 	source hardware/lcd/config.in
 	source hardware/i2c/master/config.in
 	source hardware/camera/config.in
@@ -158,7 +161,6 @@ source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
 source protocols/irc/config.in
-source protocols/ldap_auth/config.in
 source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
 source protocols/mysql/config.in
@@ -169,6 +171,7 @@ source protocols/syslog/config.in
 source protocols/twitter/config.in
 source protocols/yport/config.in
 source protocols/msr1/config.in
+source protocols/to1/config.in
 
 endmenu
 

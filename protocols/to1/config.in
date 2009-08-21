@@ -1,0 +1,13 @@
+usart_count_used
+if [ "$TO1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "Tescon TO-1 Support" TO1_SUPPORT
+		choice '  TO-1 usart select' "$(usart_choice TO1)"
+		usart_process_choice TO1
+    int 'TO-1 Sensor Count' TO1_SENSOR_COUNT 1
+		comment  "Debugging Flags"
+		dep_bool 'TO1' DEBUG_TO1 $DEBUG $TO1_SUPPORT
+	endmenu
+else
+	define_bool TO1_SUPPORT n
+	comment "Tescon TO-1 not available. No free usart. ($USARTS_USED/$USARTS)"
+fi

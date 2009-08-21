@@ -33,19 +33,38 @@ int16_t
 parse_cmd_pwm_servo_set(char *cmd, char *output, uint16_t len)
 {
   uint8_t servo = 0;
-  uint8_t pos = 128;
+  uint8_t pos = SERVO_STARTVALUE;
   sscanf_P(cmd, PSTR("%i %i"), &servo, &pos);
+  if (servo >= PWM_SERVOS)
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%i invalid"),servo));
+
   setservo(servo, pos);
   return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM servo %i to %i"),servo, pos));
 }
 
 int16_t
-parse_cmd_pwm_servo_init(char *cmd, char *output, uint16_t len)
+parse_cmd_pwm_servo_inc(char *cmd, char *output, uint16_t len)
 {
-  pwm_servo_init();
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM init done")));
+  uint8_t servo = 0;
+  sscanf_P(cmd, PSTR("%i"), &servo);
+  if (servo >= PWM_SERVOS)
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%i invalid"),servo));
+
+  servoinc(servo);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM servo %i inc"),servo));
 }
 
+int16_t
+parse_cmd_pwm_servo_dec(char *cmd, char *output, uint16_t len)
+{
+  uint8_t servo = 0;
+  sscanf_P(cmd, PSTR("%i"), &servo);
+  if (servo >= PWM_SERVOS)
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%i invalid"),servo));
+
+  servodec(servo);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM servo %i dec"),servo));
+}
 
 #endif  /* PWM_SUPPORT */
 
@@ -54,6 +73,7 @@ parse_cmd_pwm_servo_init(char *cmd, char *output, uint16_t len)
   header(hardware/pwm/pwm_servo.h)
   block(PWM Servo Control)
   ecmd_feature(pwm_servo_set, "pwm servo_set",, Set servo position)
-  ecmd_feature(pwm_servo_init, "pwm servo_init",, Initialise servo)
+  ecmd_feature(pwm_servo_inc, "pwm servo_inc",, Inc servo position)
+  ecmd_feature(pwm_servo_dec, "pwm servo_dec",, Dec servo position)
 */
 

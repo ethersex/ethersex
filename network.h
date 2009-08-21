@@ -1,10 +1,11 @@
 /*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright(C) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
+ * under the terms of the GNU General Public License (version 3)
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -46,11 +47,12 @@ static inline uint8_t enc28j60_txstart(void)
 
 #if UIP_CONF_IPV6
   retval = uip_neighbor_out();
+  if (uip_len)
 #else
   retval = uip_arp_out();
 #endif
-
   transmit_packet();
+
   return retval;
 }
 

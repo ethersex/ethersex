@@ -73,6 +73,15 @@ template $PWM_SERVO_SUPPORT << FNORD
   pin(SERVO7, PD0,OUTPUT)
 FNORD
 
+template $JOYSTICK_DIGITAL_SUPPORT << FNORD
+  /* game input digital joystick */
+  pin(BUTTON_FIRE,  PD6, INPUT)
+  pin(BUTTON_DOWN,  PD5, INPUT)
+  pin(BUTTON_RIGHT, PD4, INPUT)
+  pin(BUTTON_UP,    PD3, INPUT)
+  pin(BUTTON_LEFT,  PD2, INPUT)
+FNORD
+
 template $PS2_SUPPORT << FNORD
   /* ps/2 pins */
   pin(PS2_DATA, PA7)
@@ -104,6 +113,12 @@ template $RC5_SUPPORT << FNORD
   RC5_USE_INT(0)
 FNORD
 
+template $TLC5620_SUPPORT << FNORD
+  pin(TLC5620_DATA, PD5, OUTPUT)
+  pin(TLC5620_CLOCK, PD4, OUTPUT)
+  pin(TLC5620_LOAD, PD7, OUTPUT)
+FNORD
+
 template $FS20_SUPPORT << FNORD
   /* fs20 support */
   pin(FS20_SEND, PB2)
@@ -121,6 +136,15 @@ FNORD
 
 template $STELLA_SUPPORT << FNORD
   STELLA_PORT_RANGE(PC0,PC7)
+FNORD
+
+template $ST7626_SUPPORT << FNORD
+  ST7626_DATA_PORT(A)
+  pin(ST7626_CS, PC3, OUTPUT)
+  pin(ST7626_RD, PC4, OUTPUT)
+  pin(ST7626_WR, PC1, OUTPUT)
+  pin(ST7626_A0, PC0, OUTPUT)
+  pin(ST7626_RESET, PC2, OUTPUT)
 FNORD
 
 [ "x$STATUSLED_TX_SUPPORT" = "xy" ] && template y << FNORD
@@ -161,6 +185,18 @@ template $DCF1_USE_PON_SUPPORT << FNORD
   /* port config for DCF1 PowerOn pin */
   pin(DCF1_PON, PA1, OUTPUT)
 FNORD
+
+template $HD44780_SUPPORT << FNORD
+    pin(HD44780_RS, PA0)
+    /* Uncomment if you wirded RW Pin and/or want to use readback support */
+    // pin(HD44780_RW, PA1)
+    pin(HD44780_EN, PA2)
+    pin(HD44780_D4, PA3)
+    pin(HD44780_D5, PA4)
+    pin(HD44780_D6, PA5)
+    pin(HD44780_D7, PA6)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 

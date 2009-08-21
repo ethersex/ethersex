@@ -16,6 +16,12 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT
 		ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
 	fi
 
+	dep_bool "802.1q Support (EXPERIMENTAL)" IEEE8021Q_SUPPORT $EXPERIMENTAL_SUPPORT
+	if [ "$IEEE8021Q_SUPPORT" = "y" ]; then
+		int "VLAN ID (1 to 4094)" CONF_8021Q_VID 1
+		int "User Priority (0 to 7)" CONF_8021Q_PRIO 1
+	fi
+
 	comment  "Debugging Flags"
 	dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG
 	dep_bool '  Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60

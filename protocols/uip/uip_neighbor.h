@@ -45,11 +45,7 @@
 #include "uip.h"
 
 struct uip_neighbor_addr {
-#if UIP_NEIGHBOR_CONF_ADDRTYPE
-  UIP_NEIGHBOR_CONF_ADDRTYPE addr;
-#else
   struct uip_eth_addr addr;
-#endif
 };
 
 void uip_neighbor_init(void);

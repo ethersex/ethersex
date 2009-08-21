@@ -31,6 +31,7 @@
 #include "base64.h"
 #include "core/eeprom.h"
 #include "core/vfs/vfs.h"
+#include "services/pam/pam_prototypes.h"
 
 
 #ifdef DEBUG_HTTPD
@@ -163,24 +164,22 @@ start_auth:
     base64_str_decode (ptr);
     printf ("auth: decoded auth string: '%s'.\n", ptr);
 
-    if (strncmp_P (ptr, PSTR(CONF_HTTPD_USERNAME ":"),
-		   strlen (CONF_HTTPD_USERNAME ":")) != 0) {
-	printf ("auth: username mismatch!\n");
-	goto auth_failed;
-    }
+    char *password;
 
-    char pwd[sizeof(((struct eeprom_config_t *) 0)->httpd_auth_password) + 1];
-    eeprom_restore(httpd_auth_password, pwd, sizeof(pwd));
-
-    if (strncmp(pwd, ptr + strlen(CONF_HTTPD_USERNAME ":"), strlen(pwd))) {
-	printf ("auth: wrong passphrase, %s != %s.\n",
-		pwd, ptr + strlen(CONF_HTTPD_USERNAME ":"));
-      auth_failed:
+    if ((password = strchr(ptr, ':')) == NULL) {
+	printf ("auth: didn't find colon!\n");
+auth_failed:
         httpd_cleanup();
 	STATE->handler = httpd_handle_401;
         STATE->header_reparse = 0;
 	return;
     }
+    *password = 0;
+    password++;
+
+    /* Do the PAM authentification */
+    pam_auth(ptr, password, &STATE->auth_state);
+
     if (STATE->header_reparse) {
       STATE->header_reparse = 0;
       return; /* We musn't open the file once again */
@@ -283,6 +282,9 @@ httpd_main(void)
 	STATE->header_acked = 0;
 	STATE->eof = 0;
 	STATE->header_reparse = 0;
+#ifdef HTTPD_AUTH_SUPPORT
+        STATE->auth_state = PAM_UNKOWN;
+#endif
     }
 
     if (uip_newdata() && (!STATE->handler || STATE->header_reparse)) {
@@ -290,9 +292,21 @@ httpd_main(void)
 	httpd_handle_input ();
     }
 
+#ifdef HTTPD_AUTH_SUPPORT
+    if (STATE->auth_state == PAM_DENIED && STATE->handler != httpd_handle_401) {
+      httpd_cleanup();
+      STATE->handler = httpd_handle_401;
+      STATE->header_reparse = 0;
+      printf("httpd: auth failed\n");
+    } else if (STATE->auth_state == PAM_PENDING)
+      return; /* Waiting for the PAM Layer */
+#endif
+
+
     if(uip_rexmit() ||
        uip_newdata() ||
        uip_acked() ||
+       uip_poll() ||
        uip_connected()) {
 
 	/* Call associated handler, if set already. */

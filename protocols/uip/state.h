@@ -42,7 +42,7 @@
 #include "protocols/irc/irc_state.h"
 #include "core/tty/tty-vt100-telnet.h"
 #include "core/pt/pt.h"
-#include "protocols/ldap_auth/ldap_auth_state.h"
+#include "services/pam/pam_ldap_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -95,7 +95,7 @@ typedef union uip_tcp_connection_state {
     } control6_tcp;
 #   endif
 
-#   ifdef LDAP_AUTH_SUPPORT
+#   ifdef PAM_LDAP_SUPPORT
     struct ldap_auth_connection_state_t ldap_auth;
 #   endif
 

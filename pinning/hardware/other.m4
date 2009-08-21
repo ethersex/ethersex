@@ -48,3 +48,20 @@ ifdef(`conf_STELLA', `dnl
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
   pin(ECMD_SERIAL_USART_TX, PD2)
 ')
+
+ifdef(`conf_PS2', `dnl
+  /* port the ps2 device is attached to */
+  pin(PS2_CLOCK, PD3)
+  pin(PS2_DATA, PD4)
+
+  PS2_USE_INT(1)
+')
+
+ifdef(`conf_ST7626', `dnl
+  pin(ST7626_CS, PC3, OUTPUT)
+  pin(ST7626_RD, PC4, OUTPUT)
+  pin(ST7626_WR, PC1, OUTPUT)
+  pin(ST7626_A0, PC0, OUTPUT)
+  pin(ST7626_RESET, PC2, OUTPUT)
+  ST7626_DATA_PORT(A)
+')

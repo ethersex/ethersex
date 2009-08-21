@@ -36,7 +36,7 @@ syslog_net_init(void)
 
   set_CONF_SYSLOG_SERVER(&ip);
 
-  syslog_conn = uip_udp_new(&ip, SYSLOG_PORT, syslog_net_main);
+  syslog_conn = uip_udp_new(&ip, HTONS(SYSLOG_PORT), syslog_net_main);
 
   if(! syslog_conn) {
     debug_printf("syslog: couldn't create connection\n");

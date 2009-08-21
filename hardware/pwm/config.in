@@ -3,6 +3,7 @@ dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "PWM Melody" PWM_MELODY_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool_menu "PWM Servo" PWM_SERVO_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
     int "Number of Servos (max 10)" PWM_SERVOS 1
+    bool "Invert Servo Signal" PWM_SERVO_INVERT
   endmenu
 	comment  "Debugging Flags"
 	dep_bool 'PWM' DEBUG_PWM $DEBUG
