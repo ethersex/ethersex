@@ -24,6 +24,8 @@
 
 #include <inttypes.h>
 
+#define SOAP_MAXARGS	5
+
 enum soap_parser_state 
   {
     SOAP_PARSER_WHITE,
@@ -35,27 +37,50 @@ enum soap_parser_state
     
   };
 
+enum soap_data_types
+  {
+    SOAP_TYPE_INT,
+    SOAP_TYPE_STRING,
+  };
+
+typedef struct soap_data soap_data_t;
+struct soap_data {
+  uint8_t type;
+  union {
+    int16_t d_int;
+    char *d_string;
+  } u;
+};
+
 typedef struct soap_context soap_context_t;
 struct soap_context {
-  unsigned parsing		:1;
   unsigned found_envelope	:1;
-  unsigned found_header		:1;
+  /* unsigned found_header	:1; */
   unsigned found_body		:1;
   unsigned found_funcname	:1;
 
   unsigned error		:1;
+  unsigned parsing		:1;
+  unsigned parsing_complete	:1;
   unsigned copy_string		:1;
+  unsigned evaluated		:1;
 
   uint8_t parser_state;
 
-  char buf[80];
+  char buf[69];
   uint8_t buflen;
   uint8_t buf_backtrack_pos;
+
+  soap_data_t args[SOAP_MAXARGS];
+  uint8_t argslen;
+
+  uint8_t (* handler) (uint8_t num, soap_data_t *, soap_data_t *);
 };
 
 void soap_initialize_context (soap_context_t *ctx);
 void soap_parse (soap_context_t *ctx, char *buf, uint16_t len);
-
+void soap_paste_result (soap_context_t *ctx);
+void soap_evaluate (soap_context_t *ctx);
 
 #include "config.h"
 #include "core/debug.h"

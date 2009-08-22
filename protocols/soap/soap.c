@@ -23,12 +23,49 @@
 #include <string.h>
 
 #include "protocols/soap/soap.h"
+#include "services/httpd/httpd.h"
 
-#define SOAP_STREAM_ERROR()			\
-  do {						\
-    SOAP_DEBUG("XML stream error.\n");		\
-    ctx->error = 1;				\
-    return;					\
+char PROGMEM soap_xml_start[] =
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
+char PROGMEM soap_xml_envelope[] =
+  "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+  //"xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" "
+  "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
+  "soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" "
+  "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+  "<soap:Body>";
+
+char PROGMEM soap_xml_fault[] =
+  "<soap:Fault><faultcode>soap:Client</faultcode>"
+  "<faultstring>Unable to handle request.</faultstring>"
+  "</soap:Fault>";
+
+char PROGMEM soap_xml_result_start[] =
+  "<%sResponse xmlns=\"http://ethersex.de/SOAP\">"
+  "<s-sex xsi:type=\"xsd:%S\">";
+
+char PROGMEM soap_xml_result_end[] =
+  "</s-sex></%sResponse>";
+
+char PROGMEM soap_xml_end[] =
+  "</soap:Body></soap:Envelope>";
+
+char PROGMEM soap_type_int[] = "int";
+char PROGMEM soap_type_string[] = "string";
+char PROGMEM *soap_type_table[] =
+{
+  soap_type_int,
+  soap_type_string,
+};
+
+
+#define SOAP_STREAM_ERROR()					\
+  do {								\
+    SOAP_DEBUG("XML stream error in line %d.\n", __LINE__);	\
+    ctx->error = 1;						\
+    ctx->parsing_complete = 1;					\
+    return;							\
   } while(0)
 
 void
@@ -37,18 +74,116 @@ soap_initialize_context (soap_context_t *ctx)
   memset (ctx, 0, sizeof (soap_context_t));
 }
 
+uint8_t
+soap_xmlrpc_handler (uint8_t num, soap_data_t *args, soap_data_t *result)
+{
+  if (num != 1 || args[0].type != SOAP_TYPE_STRING)
+    return 1;			/* expect string (name to greet) */
+
+  SOAP_DEBUG ("handler: greeting %s\n", args[0].u.d_string);
+
+  char buf[42];
+  sprintf_P (buf, PSTR("Hallo %s"), args[0].u.d_string);
+
+  result->type = SOAP_TYPE_STRING;
+  result->u.d_string = strdup (buf);
+  SOAP_DEBUG ("handler: reply='%s'\n", result->u.d_string);
+  return 0;
+}
+
+static void
+soap_lookup_funcname (soap_context_t *ctx)
+{
+  ctx->buf[ctx->buflen - 1] = 0; /* Strip away '>' */
+  char *funcname = ctx->buf + 1;
+
+  ctx->handler = soap_xmlrpc_handler;
+}
+
 static void
 soap_parse_element (soap_context_t *ctx)
 {
+  if (*ctx->buf != '<')
+    SOAP_STREAM_ERROR();
+
+  if (ctx->buf[1] == '?')
+    return;			/* ignore parser instruction. */
+
+  if (ctx->parsing_complete)
+    return;
+
   ctx->buf[ctx->buflen] = 0;
-  SOAP_DEBUG ("parse_element: %s\n", ctx->buf);
+  SOAP_DEBUG ("parse_element %s\n", ctx->buf);
+  if (!ctx->found_envelope)
+    {
+      if (strncmp_P (ctx->buf + 1, PSTR("Envelope"), 8))
+	SOAP_STREAM_ERROR();
+      ctx->found_envelope = 1;
+    }
+
+  else if (!ctx->found_body)
+    {
+      if (strncmp_P (ctx->buf + 1, PSTR("Body"), 4))
+	return;			/* ignore anything until <Body> */
+      ctx->found_body = 1;
+    }
+  else if (!ctx->found_funcname)
+    {
+      soap_lookup_funcname (ctx);
+      ctx->found_funcname = 1;
+    }
+  else if (strncmp_P (ctx->buf + 1, PSTR("/Body"), 5) == 0)
+    {
+      ctx->parsing_complete = 1;
+    }
+  else if (ctx->buf[1] != '/' && ctx->argslen < SOAP_MAXARGS)
+    {
+      char *ptr = strstr_P (ctx->buf + 1, PSTR("type="));
+      if (!ptr)
+	SOAP_STREAM_ERROR ();
+
+      ptr += 6;			/* Skip type=" */
+      char *end = strchr (ptr, '"');
+      if (!end)
+	SOAP_STREAM_ERROR ();
+      *end = 0;			/* chop off rest beyond type specifier */
+
+      end = strchr (ptr, ':');
+      if (end) ptr = end + 1;	/* Ignore namespace specifier */
+
+      SOAP_DEBUG ("found arg type: '%s'\n", ptr);
+      if (strcmp_P (ptr, PSTR("int")) == 0)
+	ctx->args[ctx->argslen].type = SOAP_TYPE_INT;
+      else if (strcmp_P (ptr, PSTR("string")) == 0)
+	ctx->args[ctx->argslen].type = SOAP_TYPE_STRING;
+      else
+	SOAP_STREAM_ERROR ();
+    }
 }
 
 static void
 soap_parse_data (soap_context_t *ctx)
 {
+  if (ctx->argslen >= SOAP_MAXARGS) return;
+
+  /* Zero-terminate data */
   ctx->buf[ctx->buflen] = 0;
-  SOAP_DEBUG ("parse_data: %s\n", ctx->buf);
+  SOAP_DEBUG ("parse-data: '%s'\n", ctx->buf);
+
+  switch (ctx->args[ctx->argslen].type)
+    {
+    case SOAP_TYPE_INT:
+      ctx->args[ctx->argslen].u.d_int = atoi (ctx->buf);
+      break;
+
+    case SOAP_TYPE_STRING:
+      ctx->args[ctx->argslen].u.d_string = strdup (ctx->buf);
+      SOAP_DEBUG ("args[%d].u.d_string = %s\n", ctx->argslen,
+		  ctx->args[ctx->argslen].u.d_string);
+      break;
+    }
+
+  ctx->argslen ++;
 }
 
 static inline void
@@ -202,4 +337,52 @@ soap_parse (soap_context_t *ctx, char *buf, uint16_t len)
 	  break;
 	}
     }
+}
+
+
+void
+soap_evaluate (soap_context_t *ctx)
+{
+  soap_data_t result;
+  if (ctx->handler (ctx->argslen, ctx->args, &result))
+    ctx->error = 1;
+  //memmove (&ctx->args[0], &result, sizeof (soap_context_t));
+  ctx->args[0] = result;
+}
+
+void
+soap_paste_result (soap_context_t *ctx)
+{
+  PASTE_P (soap_xml_start);
+  PASTE_P (soap_xml_envelope);
+
+  if (ctx->error)
+    PASTE_P (soap_xml_fault);
+  else
+    {
+      uint8_t type = ctx->args[0].type;
+      SOAP_DEBUG ("type = %d\n", type);
+
+      PASTE_PF (soap_xml_result_start, "greet",
+		pgm_read_word(&soap_type_table[type]));
+
+      switch (type)
+	{
+	case SOAP_TYPE_INT:
+	  PASTE_PF (PSTR("%d"), ctx->args[0].u.d_int);
+	  break;
+
+	case SOAP_TYPE_STRING:
+	  SOAP_DEBUG ("pasting string '%s'\n", ctx->args[0].u.d_string);
+	  strcat (uip_appdata, ctx->args[0].u.d_string);
+	  break;
+
+	default:
+	  SOAP_DEBUG ("invalid soap-type assigned to result.\n");
+	}
+
+      PASTE_PF (soap_xml_result_end, "greet");
+    }
+
+  PASTE_P (soap_xml_end);
 }

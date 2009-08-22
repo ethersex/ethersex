@@ -23,6 +23,14 @@
 #include "protocols/ecmd/ecmd-base.h"
 #include "httpd.h"
 
+char PROGMEM httpd_header_500_xml[] =
+"HTTP/1.1 500 Server Error\n"
+"Connection: close\n";
+
+char PROGMEM httpd_header_ct_xml[] =
+"Content-Type: text/xml; charset=utf-8\n\n";
+
+
 void
 httpd_handle_soap (void)
 {
@@ -60,5 +68,29 @@ httpd_handle_soap (void)
 	uint16_t len = uip_len - (ptr - (char *)uip_appdata);
 	if (len)
 	    soap_parse (&STATE->u.soap, ptr, len);
+    }
+
+    if (uip_acked ()) {
+	uip_close ();
+	return;
+    }
+
+    if (STATE->u.soap.parsing_complete
+	&& !STATE->u.soap.error
+	&& !STATE->u.soap.evaluated)
+	soap_evaluate (&STATE->u.soap);
+
+
+    if (STATE->u.soap.parsing_complete) {
+	PASTE_RESET ();
+
+	if (STATE->u.soap.error)
+	    PASTE_P (httpd_header_500_xml);
+	else
+	    PASTE_P (httpd_header_200);
+
+	PASTE_P (httpd_header_ct_xml);
+	soap_paste_result (&STATE->u.soap);
+	PASTE_SEND ();
     }
 }
