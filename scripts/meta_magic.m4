@@ -18,12 +18,12 @@ dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
 define(`prototypes',0)dnl
-define(`initearly_divert',5)dnl
-define(`init_divert',6)dnl
-define(`net_init_divert',7)dnl
-define(`startup_divert',8)dnl
-define(`mainloop_divert',9)dnl
-define(`timer_divert',10)dnl after timer divert there musn't be any other divert level
+define(`initearly_divert',10)dnl
+define(`init_divert',11)dnl
+define(`net_init_divert',12)dnl
+define(`startup_divert',13)dnl
+define(`mainloop_divert',14)dnl
+define(`timer_divert',15)dnl after timer divert there musn't be any other divert level
 divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */

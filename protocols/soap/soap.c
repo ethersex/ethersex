@@ -42,11 +42,11 @@ char PROGMEM soap_xml_fault[] =
   "</soap:Fault>";
 
 char PROGMEM soap_xml_result_start[] =
-  "<%sResponse xmlns=\"http://ethersex.de/SOAP\">"
+  "<%SResponse xmlns=\"http://ethersex.de/SOAP\">"
   "<s-sex xsi:type=\"xsd:%S\">";
 
 char PROGMEM soap_xml_result_end[] =
-  "</s-sex></%sResponse>";
+  "</s-sex></%SResponse>";
 
 char PROGMEM soap_xml_end[] =
   "</soap:Body></soap:Envelope>";
@@ -57,6 +57,7 @@ char PROGMEM *soap_type_table[] =
 {
   soap_type_int,
   soap_type_string,
+  soap_type_int,
 };
 
 
@@ -74,30 +75,33 @@ soap_initialize_context (soap_context_t *ctx)
   memset (ctx, 0, sizeof (soap_context_t));
 }
 
-uint8_t
-soap_xmlrpc_handler (uint8_t num, soap_data_t *args, soap_data_t *result)
-{
-  if (num != 1 || args[0].type != SOAP_TYPE_STRING)
-    return 1;			/* expect string (name to greet) */
-
-  SOAP_DEBUG ("handler: greeting %s\n", args[0].u.d_string);
-
-  char buf[42];
-  sprintf_P (buf, PSTR("Hallo %s"), args[0].u.d_string);
-
-  result->type = SOAP_TYPE_STRING;
-  result->u.d_string = strdup (buf);
-  SOAP_DEBUG ("handler: reply='%s'\n", result->u.d_string);
-  return 0;
-}
-
 static void
 soap_lookup_funcname (soap_context_t *ctx)
 {
   ctx->buf[ctx->buflen - 1] = 0; /* Strip away '>' */
   char *funcname = ctx->buf + 1;
 
-  ctx->handler = soap_xmlrpc_handler;
+  for (char *ptr = funcname; *ptr; ptr ++)
+    if (isblank (*ptr))
+      {
+	*ptr = 0;
+	break;
+      }
+
+  for (uint8_t i = 0;; i++)
+    {
+      PGM_P text = (PGM_P)pgm_read_word (&soap_cmds[i].name);
+      if (text == NULL)
+	/* End of list, i.e. not found */
+	SOAP_STREAM_ERROR ();
+
+      if (strcmp_P (funcname, text))
+	continue;		/* Mis-match, try next. */
+
+      ctx->rpc.name = text;
+      ctx->rpc.handler = (void *) pgm_read_word (&soap_cmds[i].handler);
+      return;
+    }
 }
 
 static void
@@ -344,9 +348,8 @@ void
 soap_evaluate (soap_context_t *ctx)
 {
   soap_data_t result;
-  if (ctx->handler (ctx->argslen, ctx->args, &result))
+  if (ctx->rpc.handler (ctx->argslen, ctx->args, &result))
     ctx->error = 1;
-  //memmove (&ctx->args[0], &result, sizeof (soap_context_t));
   ctx->args[0] = result;
 }
 
@@ -363,7 +366,7 @@ soap_paste_result (soap_context_t *ctx)
       uint8_t type = ctx->args[0].type;
       SOAP_DEBUG ("type = %d\n", type);
 
-      PASTE_PF (soap_xml_result_start, "greet",
+      PASTE_PF (soap_xml_result_start, ctx->rpc.name,
 		pgm_read_word(&soap_type_table[type]));
 
       switch (type)
@@ -373,15 +376,18 @@ soap_paste_result (soap_context_t *ctx)
 	  break;
 
 	case SOAP_TYPE_STRING:
-	  SOAP_DEBUG ("pasting string '%s'\n", ctx->args[0].u.d_string);
 	  strcat (uip_appdata, ctx->args[0].u.d_string);
+	  break;
+
+	case SOAP_TYPE_UINT32:
+	  PASTE_PF (PSTR("%lu"), ctx->args[0].u.d_uint32);
 	  break;
 
 	default:
 	  SOAP_DEBUG ("invalid soap-type assigned to result.\n");
 	}
 
-      PASTE_PF (soap_xml_result_end, "greet");
+      PASTE_PF (soap_xml_result_end, ctx->rpc.name);
     }
 
   PASTE_P (soap_xml_end);

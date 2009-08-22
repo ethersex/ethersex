@@ -112,6 +112,7 @@ debug:
 	@echo SRC: ${SRC}
 	@echo y_SRC: ${y_SRC}
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
+	@echo y_SOAP_SRC: ${y_SOAP_SRC}
 
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
@@ -119,6 +120,7 @@ meta.m4: ${SRC} ${y_SRC} .config
 
 y_META_SRC += scripts/meta_magic.m4
 $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_magic.m4
+$(SOAP_SUPPORT)_META_SRC += protocols/soap/soap_magic.m4
 y_META_SRC += meta.m4
 $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 
@@ -132,6 +134,7 @@ compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 .SILENT: compile-$(TARGET)
 
 ${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
+${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
 
 OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})

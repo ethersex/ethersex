@@ -22,6 +22,7 @@
 #ifndef SOAP_H
 #define SOAP_H
 
+#include <avr/pgmspace.h>
 #include <inttypes.h>
 
 #define SOAP_MAXARGS	5
@@ -41,16 +42,27 @@ enum soap_data_types
   {
     SOAP_TYPE_INT,
     SOAP_TYPE_STRING,
+
+    /* further types thar are only serializable */
+    SOAP_TYPE_UINT32,
   };
 
 typedef struct soap_data soap_data_t;
 struct soap_data {
   uint8_t type;
   union {
-    int16_t d_int;
-    char *d_string;
+    int16_t	d_int;
+    char *	d_string;
+    uint32_t	d_uint32;
   } u;
 };
+
+typedef struct soap_command soap_command_t;
+struct soap_command {
+  PGM_P name;
+  uint8_t (* handler) (uint8_t num, soap_data_t *, soap_data_t *);
+};
+
 
 typedef struct soap_context soap_context_t;
 struct soap_context {
@@ -74,7 +86,7 @@ struct soap_context {
   soap_data_t args[SOAP_MAXARGS];
   uint8_t argslen;
 
-  uint8_t (* handler) (uint8_t num, soap_data_t *, soap_data_t *);
+  soap_command_t rpc;
 };
 
 void soap_initialize_context (soap_context_t *ctx);
@@ -85,5 +97,7 @@ void soap_evaluate (soap_context_t *ctx);
 #include "config.h"
 #include "core/debug.h"
 #define SOAP_DEBUG(a...) debug_printf("SOAP: " a);
+
+extern const soap_command_t PROGMEM soap_cmds[];
 
 #endif	/* SOAP_H */
