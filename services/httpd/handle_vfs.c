@@ -41,14 +41,16 @@ httpd_handle_vfs_send_header (void)
     }
 
     /* Check whether the file is gzip compressed. */
-#ifndef VFS_TEENSY
     unsigned char buf[READ_AHEAD_LEN];
+#ifndef VFS_TEENSY
     if (VFS_HAVE_FUNC (STATE->u.vfs.fd, fseek)) {
+#endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	/* Rewind stream first, might be a rexmit */
 	vfs_rewind (STATE->u.vfs.fd);
 
 	vfs_read (STATE->u.vfs.fd, buf, READ_AHEAD_LEN);
 	vfs_rewind (STATE->u.vfs.fd);
+#ifndef VFS_TEENSY
     } else
 	goto no_gzip;
 
@@ -56,14 +58,12 @@ httpd_handle_vfs_send_header (void)
 #endif	/* not VFS_TEENSY, inlined files are always gzip'd */
 	PASTE_P (httpd_header_gzip);
 
-#ifndef VFS_TEENSY
 #ifdef MIME_SUPPORT
     PASTE_PF (PSTR ("Content-Type: %S\n\n"), httpd_mimetype_detect (buf));
     PASTE_SEND ();
     return;
 #endif	/* MIME_SUPPORT */
 no_gzip:
-#endif	/* not VFS_TEENSY, inlined files are always gzip'd */
     if (STATE->u.vfs.content_type == 'X')
 	PASTE_P (httpd_header_ct_xhtml);
     else if (STATE->u.vfs.content_type == 'S')
