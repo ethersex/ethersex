@@ -25,6 +25,7 @@
 #include "config.h"
 #include "core/vfs/vfs.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
+#include "protocols/soap/soap.h"
 
 typedef enum {
     HTTPD_STATE_CLOSED = 0,
@@ -57,6 +58,10 @@ struct httpd_connection_state_t {
 	    vfs_size_t acked, sent;
 	} vfs;
 #endif	/* VFS_SUPPORT */
+
+#ifdef HTTPD_SOAP_SUPPORT
+	struct soap_context soap;
+#endif	/* HTTPD_SOAP_SUPPORT */
 
 #ifdef HTTP_SD_DIR_SUPPORT
 	struct {

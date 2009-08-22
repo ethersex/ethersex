@@ -33,7 +33,6 @@
 #include "core/vfs/vfs.h"
 #include "services/pam/pam_prototypes.h"
 
-
 #ifdef DEBUG_HTTPD
 # include "core/debug.h"
 # define printf        debug_printf
@@ -86,11 +85,19 @@ httpd_handle_input (void)
     }
 #endif	/* HTTPD_AUTH_SUPPORT */
 
-    if (uip_len < 6) {
+    if (uip_len < 10) {
 	printf ("httpd: received request to short (%d bytes).\n", uip_len);
 	STATE->handler = httpd_handle_400;
 	return;
     }
+
+#ifdef HTTPD_SOAP_SUPPORT
+    if (strncasecmp_P (uip_appdata, PSTR ("POST /soap"), 10) == 0) {
+      soap_initialize_context (&STATE->u.soap);
+      STATE->handler = httpd_handle_soap;
+      return;
+    }
+#endif	/* HTTPD_SOAP_SUPPORT */
 
     if (strncasecmp_P (uip_appdata, PSTR ("GET /"), 5)) {
 	printf ("httpd: received request is not GET.\n");

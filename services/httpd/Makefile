@@ -4,6 +4,7 @@ include $(TOPDIR)/.config
 $(VFS_SUPPORT)_HTTPD_FILES += services/httpd/handle_vfs.c
 $(ECMD_PARSER_SUPPORT)_HTTPD_FILES += services/httpd/handle_ecmd.c
 $(HTTP_SD_DIR_SUPPORT)_HTTPD_FILES += services/httpd/handle_sd_dir.c
+$(HTTPD_SOAP_SUPPORT)_HTTPD_FILES += services/httpd/handle_soap.c
 
 $(MIME_SUPPORT)_SRC += services/httpd/magic.c
 
