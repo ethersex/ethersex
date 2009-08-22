@@ -60,6 +60,7 @@ soap_buf_putchar (soap_context_t *ctx, char ch)
       return;			/* Not enough memory. */
     }
 
+  /* SOAP_DEBUG ("putchar '%c', state=%d\n", ch, ctx->parser_state); */
   ctx->buf[ctx->buflen ++] = ch;
 }
 
@@ -143,7 +144,8 @@ soap_parse (soap_context_t *ctx, char *buf, uint16_t len)
 	  else if (*buf == '=' || *buf == ':')
 	    {
 	      if (ctx->buflen >= 5
-		  && strcmp_P (&ctx->buf[ctx->buflen - 5], PSTR("xmlns")) == 0)
+		  && strncmp_P (&ctx->buf[ctx->buflen - 5],
+				PSTR("xmlns"), 5) == 0)
 		{
 		  /* Found xmlns="..." structure, ignore it. */
 		  soap_buf_backtrack (ctx);
