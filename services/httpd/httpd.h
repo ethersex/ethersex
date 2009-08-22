@@ -47,6 +47,7 @@ void httpd_handle_404 (void);
 void httpd_handle_vfs (void);
 void httpd_handle_sd_dir (void);
 void httpd_handle_sd_dir_redirect (void);
+void httpd_handle_soap (void);
 
 void httpd_handle_ecmd_setup (char *encoded_cmd);
 void httpd_handle_ecmd (void);

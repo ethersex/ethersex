@@ -24,6 +24,8 @@
 #ifndef _CLOCK_H
 #define _CLOCK_H
 
+#include <inttypes.h>
+
 struct clock_datetime_t {
     uint8_t sec;
     union {
