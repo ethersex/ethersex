@@ -165,6 +165,7 @@ source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
 source protocols/mysql/config.in
 source protocols/netstat/config.in
+source protocols/soap/config.in
 source protocols/snmp/config.in
 source protocols/smtp/config.in
 source protocols/syslog/config.in
