@@ -36,21 +36,18 @@
 #include "sms_encoding.h"
 
 #define SMS_BUFFER 5
-#define SMS_RECV
-#define DEBUG_ENABLE
-#define DEBUG_COMM
-#define DEBUG_LEN
 #define REINIT_MOBIL_TIMEOUT 50
 
 #define SMS_TIMEOUT 100
 #define SMS_BUFFER 5
-#define RXBUFFER 200
+#define RXBUFFER 150
 
 /* index of rx_buffer */
 static volatile uint8_t len = 0;
 /* buffer for incoming data from mobile */
 static volatile unsigned char rx_buffer[RXBUFFER]; /* how much is really needed? -> one ecmds max size? */
-static volatile unsigned char endung[6];	/* TODO: calc real size */
+//static volatile unsigned char endung[6];	/* TODO: calc real size */
+static volatile unsigned char endung[4];	
 /* must parse mobile reply */
 static volatile uint8_t pdu_must_parse = 0;
 /* timeout for mobile replay */
@@ -148,9 +145,7 @@ void sms_uart_init()
 	if (!i)
 		return;
 
-#ifdef DEBUG_ENABLE
 	SMS_DEBUG("mobil memory selected\r\n");
-#endif
 	
 	for (i = 0; i < SMS_BUFFER; i++)
 		sms_buffer[i] = NULL;
@@ -313,6 +308,13 @@ void sms_transmit_handler()
 	}
 }
 
+
+/* 
+ * number must be of the form "49176123456",
+ * where "49" is country specific for germany
+ * the appropriate value for nr_is_encoded
+ * should be "0" in most cases
+ */
 
 uint8_t sms_send(uint8_t *rufnummer, unsigned char *text,
 					void (*ptr)(), uint8_t nr_is_encoded) 
