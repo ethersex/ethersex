@@ -118,11 +118,15 @@ meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
 	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
 
+$(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
+$(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
+
 y_META_SRC += scripts/meta_magic.m4
 $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_magic.m4
 $(SOAP_SUPPORT)_META_SRC += protocols/soap/soap_magic.m4
 y_META_SRC += meta.m4
 $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
+y_META_SRC += $(y_NP_SIMPLE_META_SRC)
 
 meta.c: $(y_META_SRC)
 	@m4 $^ > $@

@@ -26,6 +26,7 @@ divert(0)
 #define NP_PIN(a) (PIN ## a)
 #define NP_DDR(a) (DDR ## a)
 
+#ifdef ECMD_PARSER_SUPPORT
 const char PROGMEM np_str_on[] = "on";
 const char PROGMEM np_str_off[] = "off";
 
@@ -48,11 +49,14 @@ np_simple_check (char *cmd)
   memcpy_P (output, state ? np_str_on : np_str_off, plen);     \
   return plen;                                                 \
 } while(0)
+#endif  /* ECMD_PARSER_SUPPORT */
 
 
 divert(-1)
 define(`np_simple_implement_out', `dnl
-divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
+divert(0)dnl
+#ifdef ECMD_PARSER_SUPPORT
+int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
   char i = np_simple_check (cmd);
@@ -65,19 +69,33 @@ divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 
   REPLY (output, i);
 }
+#endif  /* ECMD_PARSER_SUPPORT */
 ')
 
+
+################################################################################
+###                                                                          ###
+###  ECMD Implementation Macros                                              ###
+###                                                                          ###
+################################################################################
+
+
 define(`np_simple_implement_in', `dnl
-divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
+divert(0)dnl
+#ifdef ECMD_PARSER_SUPPORT
+int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
   uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
   REPLY (output, $3(i));
 }
+#endif  /* ECMD_PARSER_SUPPORT */
 ')
 
 define(`np_simple_implement_toggle', `dnl
-divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
+divert(0)dnl
+#ifdef ECMD_PARSER_SUPPORT
+int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
 
@@ -110,7 +128,58 @@ divert(0)int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
   /* say just the opposite of the old situation ... */
   REPLY (output, !$3(i));
 }
+#endif  /* ECMD_PARSER_SUPPORT */
 ')
+
+
+################################################################################
+###                                                                          ###
+###  SOAP Implementation Macros                                              ###
+###                                                                          ###
+################################################################################
+
+
+define(`np_simple_implement_soap_out', `dnl
+divert(0)uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
+{
+  result->type = SOAP_TYPE_INT;
+
+  /* config: $2 $3 */
+  if (len == 0) {
+    /* read */
+    uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
+    result->u.d_int = $3(i) != 0;
+  }
+  else if (len == 1 && args[0].type == SOAP_TYPE_INT) {
+    /* write */
+    if ($3(args[0].u.d_int))
+      NP_PORT(substr($2, 1, 1)) |= _BV($2);
+    else
+      NP_PORT(substr($2, 1, 1)) &= ~_BV($2);
+    result->u.d_int = args[0].u.d_int != 0;
+  }
+  else
+    return 1;		/* fuck off */
+
+  return 0;
+}
+')
+
+define(`np_simple_implement_soap_in', `dnl
+divert(0)uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
+{
+  /* config: $2 $3 */
+  if (len != 0) return 1;	/* we do not want args. */
+
+  result->type = SOAP_TYPE_INT;
+
+  uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
+  result->u.d_int = $3(i) != 0;
+  return 0;
+}
+')
+
+
 
 define(`np_simple_normal_out', `
 ecmd_feature(np_simple_out_$2, "pin set $2 ")
@@ -119,6 +188,9 @@ ecmd_feature(np_simple_in_$2, "pin get $2")
 np_simple_implement_in(np_simple_in_$2, $1, `')
 ecmd_feature(np_simple_toggle_$2, "pin toggle $2")
 np_simple_implement_toggle(np_simple_toggle_$2, $1, `')
+
+soap_rpc(soap_rpc_np_simple_out_$2, "$2")
+np_simple_implement_soap_out(soap_rpc_np_simple_out_$2, $1, `')
 ')
 
 define(`np_simple_inverted_out', `
@@ -128,14 +200,23 @@ ecmd_feature(np_simple_in_$2, "pin get $2")
 np_simple_implement_in(np_simple_in_$2, $1, `INVERT')
 ecmd_feature(np_simple_toggle_$2, "pin toggle $2")
 np_simple_implement_toggle(np_simple_toggle_$2, $1, `INVERT')
+
+soap_rpc(soap_rpc_np_simple_out_$2, "$2")
+np_simple_implement_soap_out(soap_rpc_np_simple_out_$2, $1, `INVERT')
 ')
 
 define(`np_simple_normal_in', `
 ecmd_feature(np_simple_in_$2, "pin get $2")
 np_simple_implement_in(np_simple_in_$2, $1, `')
+
+soap_rpc(soap_rpc_np_simple_in_$2, "$2")
+np_simple_implement_soap_in(soap_rpc_np_simple_in_$2, $1, `')
 ')
 
 define(`np_simple_inverted_in', `
 ecmd_feature(np_simple_in_$2, "pin get $2")
 np_simple_implement_in(np_simple_in_$2, $1, `INVERT')
+
+soap_rpc(soap_rpc_np_simple_in_$2, "$2")
+np_simple_implement_soap_in(soap_rpc_np_simple_in_$2, $1, `INVERT')
 ')

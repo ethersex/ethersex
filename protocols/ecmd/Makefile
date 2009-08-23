@@ -30,7 +30,7 @@ CLEAN_FILES += protocols/ecmd/alias_defs.c
 # need to do the named_pin simple awk/m4 hackery ...
 ifneq ($(PORTIO_SUPPORT),y)
 ifeq ($(NAMED_PIN_SUPPORT),y)
-named_pin_simple_files=$(TOPDIR)/core/portio/np_simple.m4 $(TOPDIR)/protocols/ecmd/np_simple_glue.m4
+named_pin_simple_files += $(TOPDIR)/core/portio/np_simple.m4 $(TOPDIR)/protocols/ecmd/np_simple_glue.m4
 endif
 endif
 
