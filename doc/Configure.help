@@ -1808,3 +1808,14 @@ MCUF_TEST_GAME_INPUT
 
   Little Test Screen for Game Input Support
 
+SMS Support
+SMS_SUPPORT
+	module for interfacing ecmd via sms.
+	some mobiles provide serial connection,
+	by what they can be attached to the ethersex.
+
+	this module has been tested with:
+		* siemens me45
+		* siemens mt50
+
+
