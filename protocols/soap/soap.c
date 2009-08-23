@@ -350,7 +350,28 @@ soap_evaluate (soap_context_t *ctx)
   soap_data_t result;
   if (ctx->rpc.handler (ctx->argslen, ctx->args, &result))
     ctx->error = 1;
+
+  /* Free arg[0], before we store the result into it. */
+  if (ctx->args[0].type == SOAP_TYPE_STRING)
+    {
+      free (ctx->args[0].u.d_string);
+      ctx->args[0].u.d_string = NULL;
+    }
+
+  ctx->evaluated = 1;
   ctx->args[0] = result;
+}
+
+
+void
+soap_deallocate_context (soap_context_t *ctx)
+{
+  for (uint8_t i = 0; i < SOAP_MAXARGS; i ++)
+    if (ctx->args[i].type == SOAP_TYPE_STRING)
+      {
+	free (ctx->args[i].u.d_string);
+	ctx->args[i].u.d_string = NULL;
+      }
 }
 
 void

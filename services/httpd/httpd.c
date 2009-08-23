@@ -69,6 +69,11 @@ httpd_cleanup (void)
 	STATE->u.dir.handle = NULL;
     }
 #endif	/* HTTP_SD_DIR_SUPPORT */
+
+#ifdef HTTPD_SOAP_SUPPORT
+    if (STATE->handler == httpd_handle_soap)
+      soap_deallocate_context (&STATE->u.soap);
+#endif	/* HTTPD_SOAP_SUPPORT */
 }
 
 

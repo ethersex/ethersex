@@ -35,7 +35,6 @@ enum soap_parser_state
     SOAP_PARSER_ELEMENT,
     SOAP_PARSER_ELEMENT_WHITE,
     SOAP_PARSER_DATA,
-    
   };
 
 enum soap_data_types
@@ -93,6 +92,7 @@ void soap_initialize_context (soap_context_t *ctx);
 void soap_parse (soap_context_t *ctx, char *buf, uint16_t len);
 void soap_paste_result (soap_context_t *ctx);
 void soap_evaluate (soap_context_t *ctx);
+void soap_deallocate_context (soap_context_t *ctx);
 
 #include "config.h"
 #include "core/debug.h"
