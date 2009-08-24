@@ -23,5 +23,6 @@
 #define _SMS_ECMD_H
 
 uint8_t pdu_parser(uint8_t *string);
+void sms_fetch(void);
 
 #endif

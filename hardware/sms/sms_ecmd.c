@@ -24,12 +24,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <util/delay.h>
+#include "core/usart.h"
 #include "core/debug.h"
 #include "sms_encoding.h"
 #include "sms.h"
 #include "sms_ecmd.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/ecmd-base.h"
+
+extern volatile uint8_t pdu_must_parse;
+extern volatile unsigned char rx_buffer[]; 
 
 #define DEBUG_ENABLE
 #define DEBUG_REC
@@ -126,4 +130,43 @@ uint8_t pdu_parser(uint8_t *pdu)
 	return ret_val;
 }
 
+void sms_fetch() 
+{
+	static uint8_t fetch_sms;
+	static uint8_t delete_sms = 0;
+	
+	fetch_sms ++;
+	if (pdu_must_parse) {
+		uint8_t ret;
+		SMS_DEBUG("pdu_parser called with: %s\r\n", rx_buffer);
+		ret = pdu_parser((uint8_t *) rx_buffer);
 
+		if(ret == 0) {
+			// we want to delete the recently received message 
+			delete_sms = 1;
+		}
+		pdu_must_parse = 0;
+	}
+	
+	if (!global_mobil_access && delete_sms) {
+		global_mobil_access = 1;
+		delete_sms = 0;
+		/* delete received and read message */
+		fprintf(ausgabe, "AT+CMGD=1\r\n");	
+		SMS_DEBUG("delete sms\r\n");
+	}
+
+	if (!global_mobil_access && !pdu_must_parse && (!(fetch_sms % 50))) {
+		global_mobil_access = 1;
+		/* fetch received and not read messages */
+		fprintf(ausgabe, "AT+CMGL=0\r\n"); 
+		SMS_DEBUG("fetch sms\n\n\n");
+	}
+}
+
+
+/*
+  -- Ethersex META --
+  header(hardware/sms/sms_ecmd.h)
+  timer(10, sms_fetch())
+*/

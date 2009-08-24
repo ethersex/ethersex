@@ -42,21 +42,22 @@
 #define SMS_BUFFER 5
 #define RXBUFFER 150
 
+/* buffer for mobile reply */
+volatile unsigned char rx_buffer[RXBUFFER]; 
+/* must parse mobile reply */
+volatile uint8_t pdu_must_parse = 0;
+/* protect mobile from multiple access */
+volatile uint8_t global_mobil_access = 0;
+FILE *ausgabe;
+
 /* index of rx_buffer */
 static volatile uint8_t len = 0;
 /* buffer for incoming data from mobile */
-static volatile unsigned char rx_buffer[RXBUFFER]; /* how much is really needed? -> one ecmds max size? */
-//static volatile unsigned char endung[6];	/* TODO: calc real size */
 static volatile unsigned char endung[4];	
-/* must parse mobile reply */
-static volatile uint8_t pdu_must_parse = 0;
 /* timeout for mobile replay */
 static volatile uint8_t mobil_access_timeout = REINIT_MOBIL_TIMEOUT;
-/* protect mobile from multiple access */
-static volatile uint8_t global_mobil_access = 0;
 
 static uint8_t put_index = 0;
-FILE *ausgabe;
 
 /* buffer for messages, to be transmitted */ 
 sms *sms_buffer[SMS_BUFFER];
@@ -163,45 +164,12 @@ my_uart_put (char d, FILE *stream)
 
 void sms_periodic_timeout() 
 {
-	static uint8_t fetch_sms;
-	static uint8_t delete_sms = 0;
-	
-	fetch_sms ++;
-	if (pdu_must_parse) {
-		uint8_t ret;
-		SMS_DEBUG("pdu_parser called with: %s\r\n", rx_buffer);
-		ret = pdu_parser((uint8_t *) rx_buffer);
-
-		if(ret == 0) {
-			// we want to delete the recently received message 
-			delete_sms = 1;
-		}
-		pdu_must_parse = 0;
-	}
-	
-	if (!global_mobil_access && delete_sms) {
-		global_mobil_access = 1;
-		delete_sms = 0;
-		/* delete received and read message */
-		fprintf(ausgabe, "AT+CMGD=1\r\n");	
-		SMS_DEBUG("delete sms\r\n");
-	}
-
-	if (!global_mobil_access && !pdu_must_parse && (!(fetch_sms % 50))) {
-		global_mobil_access = 1;
-		/* fetch received and not read messages */
-		fprintf(ausgabe, "AT+CMGL=0\r\n"); 
-		SMS_DEBUG("fetch sms\n\n\n");
-	}
-	
 	if (global_mobil_access) {
 		mobil_access_timeout --;
 
 		if (!mobil_access_timeout) {
-			/* enable rx-interrupt */
 			global_mobil_access = 0;
 			mobil_access_timeout = REINIT_MOBIL_TIMEOUT;
-			usart(UCSR,B) |= _BV(usart(RXEN));
 		}
 	}
 }
@@ -249,6 +217,7 @@ void sms_transmit_handler()
 					if (mobil_access_timeout == 1) {
 						/* call error callback function -> send sms has failed */
 						state = SMS_SEND_FAILED;
+						SMS_DEBUG("WAIT_FOR_START\n");
 					}
 					break; 
 				
@@ -262,13 +231,14 @@ void sms_transmit_handler()
 											sms_buffer[current_sms]->text[i]);
 					}
 					fprintf(ausgabe, "%c", 0x1a);
-					SMS_DEBUG( "001100");
+
+					SMS_DEBUG( "\"001100");
 					SMS_DEBUG( "%s", sms_buffer[current_sms]->rufnummer);
 					SMS_DEBUG( "0000AA");
 					for (i = 0; i < text_len; i++) {
 						SMS_DEBUG( "%02X", sms_buffer[current_sms]->text[i]);
 					}
-					SMS_DEBUG( "%c\n");
+					SMS_DEBUG( "\"\n");
 
 					state = WAIT_FOR_SMS_CONFIRM;
 					break;
@@ -277,6 +247,7 @@ void sms_transmit_handler()
 					if (mobil_access_timeout == 1) {
 						/* call error callback function: send sms has failed */
 						state = SMS_SEND_FAILED;
+						SMS_DEBUG("WAIT_FOR_SMS_CONFIRM\n");
 					}
 					break;
 
@@ -286,7 +257,7 @@ void sms_transmit_handler()
 						sms_buffer[current_sms]->sms_send_err_calback();
 					}
 					SMS_DEBUG("sending failed\r\n");
-					state = SMS_SEND_COMPLETE;
+					state = SEND_LEN;
 					break;
 
 				case SMS_SEND_COMPLETE:
@@ -295,7 +266,6 @@ void sms_transmit_handler()
 					sms_buffer[current_sms] = NULL;
 					current_sms++;
 					state = SEND_LEN;
-					mobil_access_timeout = REINIT_MOBIL_TIMEOUT;
 					break;
 
 				default:

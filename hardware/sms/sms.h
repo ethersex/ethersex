@@ -21,6 +21,8 @@
 
 #ifndef _SMS_H
 #define _SMS_H 
+extern volatile uint8_t global_mobil_access;
+extern FILE *ausgabe;
 
 typedef struct {
 	unsigned char rufnummer[20];
@@ -41,7 +43,8 @@ void sms_periodic_timeout(void);
 
 #ifdef DEBUG_SMS
 # include "core/debug.h"
-# define SMS_DEBUG(a...)  debug_printf("sms: " a)
+# define SMS_DEBUG(a...)  debug_printf(a)
+//# define SMS_DEBUG(a...)  debug_printf("sms: " a)
 #else
 # define SMS_DEBUG(a...)
 #endif
