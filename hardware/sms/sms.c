@@ -86,7 +86,8 @@ SIGNAL(usart(USART,_RX_vect)) {
 		SMS_DEBUG("data %d\r\n", data);
 		global_mobil_access = 0;	
 		i = -1;
-		pdu_must_parse = 1;
+
+	   	pdu_must_parse = 1;
 		rx_buffer[len-1] = '\0';
 		len = 0;
 	}
@@ -163,13 +164,12 @@ my_uart_put (char d, FILE *stream)
 }
 
 void sms_periodic_timeout() 
-{
+{	
 	if (global_mobil_access) {
 		mobil_access_timeout --;
 
 		if (!mobil_access_timeout) {
 			global_mobil_access = 0;
-			mobil_access_timeout = REINIT_MOBIL_TIMEOUT;
 		}
 	}
 }
@@ -191,9 +191,9 @@ void sms_transmit_handler()
 			state != SEND_LEN: we have already access to serial port,
 								we needn't check global_mobil_access
 		*/
-		if (((state == SEND_LEN) && (!global_mobil_access) 
-			&& (!pdu_must_parse)) || (state != SEND_LEN)) {
-
+		if (((state == SEND_LEN) && (!global_mobil_access)) ||
+				(state != SEND_LEN)) {
+			
 			global_mobil_access = 1;
 			/*  start sending a sms */
 			switch (state) {

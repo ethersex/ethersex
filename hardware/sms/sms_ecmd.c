@@ -153,6 +153,11 @@ void sms_fetch()
 		delete_sms = 0;
 		/* delete received and read message */
 		fprintf(ausgabe, "AT+CMGD=1\r\n");	
+
+		/* try */
+		//fprintf(ausgabe, "AT+CMGD=0,1\r\n");	
+		/* try */
+
 		SMS_DEBUG("delete sms\r\n");
 	}
 
