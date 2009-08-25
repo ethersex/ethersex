@@ -2,7 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(SMS_SUPPORT)_SRC += hardware/sms/sms.c
-$(SMS_SUPPORT)_SRC += hardware/sms/sms_ecmd.c
+$(ECMD_SMS_SUPPORT)_SRC += hardware/sms/sms_ecmd.c
 $(SMS_SUPPORT)_SRC += hardware/sms/sms_encoding.c
 
 

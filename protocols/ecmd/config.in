@@ -43,6 +43,8 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	fi
 
 	dep_bool "IRC (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
+	
+	dep_bool "SMS" ECMD_SMS_SUPPORT $ECMD_PARSER_SUPPORT $SMS_SUPPORT
 
 	comment "Generate ECMD commands"
 	dep_bool "  Send via TCP" ECMD_SENDER_SUPPORT $TCP_SUPPORT
