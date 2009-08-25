@@ -157,7 +157,7 @@ int noinline
 my_uart_put (char d, FILE *stream)
 {
     if (d == '\n')
-        debug_uart_put('\r', stream);
+        my_uart_put('\r', stream);
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));
     usart(UDR) = d;
     return 0;
