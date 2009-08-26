@@ -70,6 +70,7 @@ SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/watchcat
+SUBDIRS += services/vnc
 
 rootbuild=t
 

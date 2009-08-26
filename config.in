@@ -193,6 +193,7 @@ source services/stella/config.in
 source services/tftp/config.in
 source services/upnp/config.in
 source services/watchcat/config.in
+source services/vnc/config.in
 endmenu
 
 ###############################################################################
