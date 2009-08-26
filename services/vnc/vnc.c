@@ -87,11 +87,6 @@ vnc_main(void)
           break;
         case VNC_FB_UPDATE_REQ:
           VNCDEBUG("Framebuffer update requested\n");
-          if (STATE->state == VNC_STATE_UPDATE) break;
-          uint8_t i, j;
-          for (i = 0; i < VNC_BLOCK_ROWS; i++)
-            for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
-              STATE->update_map[i][j] = 0xff;
           STATE->state = VNC_STATE_UPDATE;
           break;
         }
@@ -117,6 +112,10 @@ vnc_main(void)
 
         uip_send(uip_sappdata, sizeof(server_init)); 
         VNCDEBUG("server init, sent %d bytes\n", sizeof(server_init)); 
+        uint8_t i, j;
+        for (i = 0; i < VNC_BLOCK_ROWS; i++)
+          for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
+            STATE->update_map[i][j] = 0xff;
       } else if (STATE->state == VNC_STATE_UPDATE) {
         uint8_t updating_block_count = 
                 (1200 - 4) / sizeof(struct vnc_block);
