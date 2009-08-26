@@ -24,15 +24,18 @@
 
 #include <inttypes.h>
 
-/* The screensize is fixed to 255x255 pixel FIXME */
-#define VNC_BLOCK_HEIGHT 16
+#define VNC_BLOCK_HEIGHT 16 
 #define VNC_BLOCK_WIDTH  16
+
 #define VNC_BLOCK_ROWS   16
-#define VNC_BLOCK_COLS   16 /* Maximum is 16 FIXME */
+
+#define VNC_BLOCK_COLS   24
+#define VNC_BLOCK_COL_BYTES (VNC_BLOCK_COLS - 1) / 8 + 1
+
 #define VNC_BLOCK_LENGTH (VNC_BLOCK_WIDTH * VNC_BLOCK_HEIGHT)
 
 #define VNC_SCREEN_WIDTH (VNC_BLOCK_WIDTH * VNC_BLOCK_COLS)
-#define VNC_SCREEN_HEIGHT (VNC_BLOCK_HEIGH * VNC_BLOCK_ROWS)
+#define VNC_SCREEN_HEIGHT (VNC_BLOCK_HEIGHT * VNC_BLOCK_ROWS)
 
 struct vnc_block {
   uint16_t x;

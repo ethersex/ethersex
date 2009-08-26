@@ -68,28 +68,21 @@ void vnc_init(void);
 
 #include <inttypes.h>
 
-/* Pixel format definition. */
-struct vnc_pixel_format {
-  uint8_t bps;       /* Bits per pixel: 8, 16 or 32. */
-  uint8_t depth;     /* Color depth: 8-32 */
-  uint8_t endian;    /* 1 - big endian (motorola), 0 - little endian
-                       (x86) */
-  uint8_t truecolor; /* 1 - true color is used, 0 - true color is not used. */
+/* From server to client: */
+#define VNC_FB_UPDATE            0
+#define VNC_SET_COLORMAP_ENTRIES 1
+#define VNC_BELL                 2
+#define VNC_SERVER_CUT_TEXT      3
 
-  /* The following fields are only used if true color is used. */
-  uint16_t red_max, green_max, blue_max;
-  uint8_t red_shift, green_shift, blue_shift;
-  uint8_t pad1;
-  uint16_t pad2;
-};
+/* From client to server. */
+#define VNC_SET_PIXEL_FORMAT     0
+#define VNC_FIX_COLORMAP_ENTRIES 1
+#define VNC_SET_ENCODINGS        2
+#define VNC_FB_UPDATE_REQ        3
+#define VNC_KEY_EVENT            4
+#define VNC_POINTER_EVENT        5
+#define VNC_CLIENT_CUT_TEXT      6
 
-struct vnc_server_init {
-   uint16_t width;
-   uint16_t height;
-   struct vnc_pixel_format format;
-   u8_t namelength[4];
-   /* Followed by name. */
-};
 
 
 

@@ -26,16 +26,18 @@
 #include <string.h>
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
+#include "core/bit-macros.h"
 #include "vnc.h"
 #include "vnc_state.h"
+#include "vnc_block_factory.h"
 
 #include "config.h"
 
 uip_conn_t *vnc_conn = NULL;
 
-char PROGMEM server_init[] = {
-  0,0xff, // framebuffer-width
-  0,0xff, // framebuffer-height
+static char PROGMEM server_init[] = {
+  HI8(VNC_SCREEN_WIDTH),  LO8(VNC_SCREEN_WIDTH),  // framebuffer-width  
+  HI8(VNC_SCREEN_HEIGHT), LO8(VNC_SCREEN_HEIGHT), // framebuffer-height 
 
   // server-pixel-format
   0x08, // bits-per-pixel
@@ -54,9 +56,7 @@ char PROGMEM server_init[] = {
   'E','t','h','e','r','s','e', 'x', // name-string
 };
 
-char PROGMEM server_name[] = "ethersex";
-
-#define STATE (&uip_conn->appstate.vnc)
+#define STATE (&vnc_conn->appstate.vnc)
 
 static void 
 vnc_main(void)
@@ -67,24 +67,42 @@ vnc_main(void)
     }
 
     if (uip_closed()) {
-    VNCDEBUG ("connection closed\n");
+        VNCDEBUG ("connection closed\n");
         vnc_conn = NULL;
     }
 
     if (uip_connected()) {
-    VNCDEBUG ("new connection\n");
+        VNCDEBUG ("new connection\n");
+        vnc_conn = uip_conn;
         STATE->state = VNC_STATE_SEND_VERSION;
     }
 
     if (uip_acked() && STATE->state < VNC_STATE_IDLE)
-      STATE->state++;
+        STATE->state++;
+
+    if (uip_newdata() && STATE->state >= VNC_STATE_IDLE) {
+        switch(((char *)uip_appdata)[0]) {
+        case VNC_SET_PIXEL_FORMAT: 
+          VNCDEBUG("set pixel format, ignoring\n");
+          break;
+        case VNC_FB_UPDATE_REQ:
+          VNCDEBUG("Framebuffer update requested\n");
+          if (STATE->state == VNC_STATE_UPDATE) break;
+          uint8_t i, j;
+          for (i = 0; i < VNC_BLOCK_ROWS; i++)
+            for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
+              STATE->update_map[i][j] = 0xff;
+          STATE->state = VNC_STATE_UPDATE;
+          break;
+        }
+        
+    }
 
     if (uip_acked() 
         || (uip_poll() && STATE->state >= VNC_STATE_IDLE)
         || uip_rexmit() 
         || uip_connected() 
         || uip_newdata()) {
-      VNCDEBUG("Send Data, state: %d\n", STATE->state);
       if (STATE->state == VNC_STATE_SEND_VERSION) {
         memcpy_P(uip_sappdata, PSTR("RFB 003.003\n"), 12);
         uip_send(uip_sappdata, 12);
@@ -98,14 +116,44 @@ vnc_main(void)
         memcpy_P(uip_sappdata, server_init, sizeof(server_init));
 
         uip_send(uip_sappdata, sizeof(server_init)); 
-        VNCDEBUG("sent %d bytes\n", sizeof(server_init)); 
-        VNCDEBUG("first bytes: %02x %02x %02x %02x\n",
-                ((char *)uip_sappdata)[0],
-                ((char *)uip_sappdata)[1],
-                ((char *)uip_sappdata)[2],
-                ((char *)uip_sappdata)[3]);
+        VNCDEBUG("server init, sent %d bytes\n", sizeof(server_init)); 
+      } else if (STATE->state == VNC_STATE_UPDATE) {
+        uint8_t updating_block_count = 
+                (1200 - 4) / sizeof(struct vnc_block);
+        /* VNCDEBUG("we are able to update %d blocks at once\n", 
+                updating_block_count); */
+
+        struct vnc_update_header *update = (struct vnc_update_header *) uip_sappdata;
+        uint8_t block = 0;
+        while (block < updating_block_count) {
+            uint8_t y, x, found_block = 0;
+            
+            for (y = 0; y < VNC_BLOCK_ROWS; y++) {
+              for (x = 0; x < VNC_BLOCK_COLS; x++) {
+                if (STATE->update_map[y][x / 8] & _BV(x % 8)) {
+                  found_block = 1;
+                  goto end_update_block_finder;
+                }
+              }
+            }
+end_update_block_finder:
+            if (! found_block) {
+                VNCDEBUG("no to be updated block found, update finished\n");
+                STATE->state = VNC_STATE_IDLE;
+                break;
+            }
+            //VNCDEBUG("found to be updated block %x:%x\n",x, y);
+            STATE->update_map[y][x / 8] &= ~_BV(x % 8);
+            vnc_make_block(&update->blocks[block], x, y);
+            block++;
       }
+      update->type = 0;
+      update->padding = 0;
+      update->block_count = HTONS(block);
+      uip_send(uip_sappdata, 
+               4 + block * sizeof(struct vnc_block));
     }
+  }
 }
 
 
@@ -114,8 +162,15 @@ void vnc_init(void)
   uip_listen(HTONS(VNC_PORT), vnc_main);
 }
 
+void
+vnc_periodic(void)
+{
+  STATE->update_map[0][0] |= 1; 
+}
+
 /*
   -- Ethersex META --
   header(services/vnc/vnc.h)
   net_init(vnc_init)
+  periodic(50, vnc_periodic)
 */

@@ -24,6 +24,7 @@
 #define _VNC_STATE_H
 
 #include "config.h"
+#include "vnc_block_factory.h"
 
 typedef enum {
     VNC_STATE_CONNECTED = 0,
@@ -31,11 +32,13 @@ typedef enum {
     VNC_STATE_SEND_AUTH,
     VNC_STATE_SEND_CONFIG,
     VNC_STATE_IDLE,
+    VNC_STATE_UPDATE,
 } vnc_state_t;
-
 
 struct vnc_connection_state_t {
   uint8_t state;
+
+  uint8_t update_map[VNC_BLOCK_ROWS][VNC_BLOCK_COL_BYTES];
 };
 
 
