@@ -152,8 +152,16 @@ $(TARGET): $(OBJECTS)
 
 ##############################################################################
 
+# Generate ethersex.hex file
+# If inlining is enabled, we need to copy from ethersex.bin to not lose
+# those files.  However we mustn't always copy the binary, since that way
+# a bootloader cannot be built (the section start address would get lost).
 %.hex: %
+ifeq ($(VFS_INLINE_SUPPORT),y)
+	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
+else
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
+endif
 .SILENT: %.hex
 
 ##############################################################################
