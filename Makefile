@@ -147,8 +147,7 @@ OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 # This is currently necessary because of interdependencies between
 # the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS)
-	@$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
-	@echo "Link binary $@."
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
 
 ##############################################################################
 
@@ -156,10 +155,11 @@ $(TARGET): $(OBJECTS)
 # If inlining is enabled, we need to copy from ethersex.bin to not lose
 # those files.  However we mustn't always copy the binary, since that way
 # a bootloader cannot be built (the section start address would get lost).
-%.hex: %
 ifeq ($(VFS_INLINE_SUPPORT),y)
+%.hex: %.bin
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 else
+%.hex: %
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 endif
 .SILENT: %.hex
@@ -200,11 +200,10 @@ embed/%: embed/%.sh
 
 
 %.bin: % $(INLINE_FILES)
-	@$(OBJCOPY) -O binary -R .eeprom $< $@
+	$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
 	@$(MAKE) -C core/vfs vfs-concat TOPDIR=../.. no_deps=t
 	@core/vfs/do-embed $(INLINE_FILES)
-	@$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 endif
 
 ##############################################################################
