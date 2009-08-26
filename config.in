@@ -61,11 +61,11 @@ mainmenu_option next_comment
 	string "Hostname" CONF_HOSTNAME "ethersex"
 	source hardware/ethernet/config.in
 	source hardware/radio/rfm12/config.in
-	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT
+	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source protocols/usb/config.in
 	source protocols/usb/usb-net-config.in
 	source protocols/zbus/config.in
-	dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $ZBUS_SUPPORT $ROUTER_SUPPORT
+	dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $ZBUS_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source scripts/ip-router-conf.sh
 
 	comment "IP configuration"
