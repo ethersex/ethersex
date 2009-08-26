@@ -43,6 +43,7 @@
 #include "core/tty/tty-vt100-telnet.h"
 #include "core/pt/pt.h"
 #include "services/pam/pam_ldap_state.h"
+#include "services/vnc/vnc_state.h"
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {
@@ -70,6 +71,10 @@ typedef union uip_tcp_connection_state {
 
 #   ifdef JABBER_SUPPORT
     struct jabber_connection_state_t jabber;
+#   endif
+
+#   ifdef VNC_SUPPORT
+    struct vnc_connection_state_t vnc;
 #   endif
 
 #   ifdef MYSQL_SUPPORT

@@ -1,3 +1,5 @@
 dep_bool_menu "VNC Server Support" VNC_SUPPORT $TCP_SUPPORT
 	int    "VNC TCP Port" VNC_PORT 5900
+        comment "-- DEBUG Flags"
+	dep_bool 'VNC' DEBUG_VNC $DEBUG $VNC_SUPPORT
 endmenu
