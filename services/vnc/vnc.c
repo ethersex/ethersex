@@ -142,7 +142,6 @@ end_update_block_finder:
                 STATE->state = VNC_STATE_IDLE;
                 break;
             }
-            //VNCDEBUG("found to be updated block %x:%x\n",x, y);
             STATE->update_map[y][x / 8] &= ~_BV(x % 8);
             vnc_make_block(&update->blocks[block], x, y);
             block++;
@@ -165,12 +164,15 @@ void vnc_init(void)
 void
 vnc_periodic(void)
 {
-  STATE->update_map[0][0] |= 1; 
+  if (vnc_conn && STATE->state == VNC_STATE_IDLE) {
+    STATE->update_map[0][0] |= 1; 
+    STATE->state = VNC_STATE_UPDATE;
+  }
 }
 
 /*
   -- Ethersex META --
   header(services/vnc/vnc.h)
   net_init(vnc_init)
-  periodic(50, vnc_periodic)
+  timer(50, vnc_periodic())
 */

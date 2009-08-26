@@ -31,6 +31,7 @@
 #endif
 
 void vnc_init(void);
+void vnc_periodic(void);
  
 /*
 * Copyright (c) 2001, Adam Dunkels.
