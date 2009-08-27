@@ -96,6 +96,14 @@ vnc_main(void)
           break;
         case VNC_FB_UPDATE_REQ:
           VNCDEBUG("Framebuffer update requested\n");
+          if (((char *)uip_appdata)[1] != 1) { 
+            /* Only update on non incremental updates */
+            STATE->state = VNC_STATE_UPDATE;
+            uint8_t i, j;
+            for (i = 0; i < VNC_BLOCK_ROWS; i++)
+              for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
+                STATE->update_map[i][j] = 0xff;
+          }
           break;
         }
         
@@ -127,7 +135,7 @@ vnc_main(void)
             STATE->update_map[i][j] = 0xff;
       } else if (STATE->state == VNC_STATE_UPDATE) {
         uint8_t updating_block_count = 
-                (uip_mss() - 4 ) / sizeof(struct vnc_block) - 1;
+                (uip_mss() - 4 ) / sizeof(struct vnc_block) ;
         /* VNCDEBUG("we are able to update %d blocks at once\n", 
                 updating_block_count); */
 
@@ -171,8 +179,11 @@ void
 vnc_periodic(void)
 {
   if (vnc_conn && STATE->state == VNC_STATE_IDLE) {
-    STATE->update_map[0][0] |= 1; 
     STATE->state = VNC_STATE_UPDATE;
+    uint8_t i, j;
+    for (i = 0; i < VNC_BLOCK_ROWS; i++)
+      for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
+        STATE->update_map[i][j] = 0xff;
   }
 }
 
@@ -180,5 +191,5 @@ vnc_periodic(void)
   -- Ethersex META --
   header(services/vnc/vnc.h)
   net_init(vnc_init)
-  timer(50, vnc_periodic())
+  timer(100, vnc_periodic())
 */
