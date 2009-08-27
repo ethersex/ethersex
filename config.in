@@ -107,6 +107,12 @@ mainmenu_option next_comment
 		else
 			ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
 		fi
+
+		comment "OpenVPN Remote"
+		dep_bool "Static OpenVPN Remote" OPENVPN_STATIC_REMOTE $OPENVPN_SUPPORT
+		if [ "$OPENVPN_STATIC_REMOTE" = "y" ]; then
+			ip "Remote IP" CONF_OPENVPN_REMOTE_IP "192.168.23.254" "2001:6f8:1209:f0:230:5ff:fe23:3f8"
+		fi
 	endmenu
 
 	comment  "Debugging Flags"

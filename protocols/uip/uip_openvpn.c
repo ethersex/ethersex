@@ -310,10 +310,15 @@ openvpn_init (void)
   uip_setnetmask(&ip);
 # endif
 
+#ifdef OPENVPN_STATIC_REMOTE
+  /* Create OpenVPN UDP socket. */
+  set_CONF_OPENVPN_REMOTE_IP(&ip);
+  openvpn_conn = uip_udp_new(&ip, HTONS(OPENVPN_PORT), openvpn_handle_udp);
+#else
   /* Create OpenVPN UDP listener. */
   uip_ipaddr_copy(&ip, all_ones_addr);
-
   openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
+#endif
 
   if(! openvpn_conn)
     return;					/* dammit. */
