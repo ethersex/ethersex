@@ -40,5 +40,5 @@ vnc_make_block(struct vnc_block *dest, uint8_t x, uint8_t y)
     dest->h = HTONS(VNC_BLOCK_HEIGHT);
     dest->encoding = 0;
     
-    memset(dest->data, rand() % 2 ? rand() : 0, VNC_BLOCK_LENGTH);
+    memset(dest->data, (uint8_t) x * y, VNC_BLOCK_LENGTH);
 }

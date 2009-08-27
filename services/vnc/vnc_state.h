@@ -35,11 +35,15 @@ typedef enum {
     VNC_STATE_UPDATE,
 } vnc_state_t;
 
+#define VNC_UPDATES_SENT_LENGTH (UIP_CONF_BUFFER_SIZE/sizeof(struct vnc_block))
+
 struct vnc_connection_state_t {
   uint8_t state;
-
   uint8_t update_map[VNC_BLOCK_ROWS][VNC_BLOCK_COL_BYTES];
+  /* The first dimension of this array is NOT excact */
+  uint8_t updates_sent[VNC_UPDATES_SENT_LENGTH][2]; 
 };
+
 
 
 #endif /* _HTTPD_STATE_H */

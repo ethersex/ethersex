@@ -79,6 +79,15 @@ vnc_main(void)
 
     if (uip_acked() && STATE->state < VNC_STATE_IDLE)
         STATE->state++;
+    else if (uip_acked() && STATE->state == VNC_STATE_UPDATE) {
+      uint8_t i = 0, x, y;
+      while (STATE->updates_sent[i][0] != 0xff && i < VNC_UPDATES_SENT_LENGTH) {
+        x = STATE->updates_sent[i][0];
+        y = STATE->updates_sent[i][1];
+        STATE->update_map[y][x / 8] &= ~_BV(x % 8);
+        i++;
+      }
+    }
 
     if (uip_newdata() && STATE->state >= VNC_STATE_IDLE) {
         switch(((char *)uip_appdata)[0]) {
@@ -87,7 +96,6 @@ vnc_main(void)
           break;
         case VNC_FB_UPDATE_REQ:
           VNCDEBUG("Framebuffer update requested\n");
-          STATE->state = VNC_STATE_UPDATE;
           break;
         }
         
@@ -113,43 +121,42 @@ vnc_main(void)
         uip_send(uip_sappdata, sizeof(server_init)); 
         VNCDEBUG("server init, sent %d bytes\n", sizeof(server_init)); 
         uint8_t i, j;
+        STATE->state = VNC_STATE_UPDATE;
         for (i = 0; i < VNC_BLOCK_ROWS; i++)
           for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
             STATE->update_map[i][j] = 0xff;
       } else if (STATE->state == VNC_STATE_UPDATE) {
         uint8_t updating_block_count = 
-                (1200 - 4) / sizeof(struct vnc_block);
+                (uip_mss() - 4 ) / sizeof(struct vnc_block) - 1;
         /* VNCDEBUG("we are able to update %d blocks at once\n", 
                 updating_block_count); */
 
         struct vnc_update_header *update = (struct vnc_update_header *) uip_sappdata;
         uint8_t block = 0;
-        while (block < updating_block_count) {
-            uint8_t y, x, found_block = 0;
-            
-            for (y = 0; y < VNC_BLOCK_ROWS; y++) {
-              for (x = 0; x < VNC_BLOCK_COLS; x++) {
-                if (STATE->update_map[y][x / 8] & _BV(x % 8)) {
-                  found_block = 1;
-                  goto end_update_block_finder;
-                }
-              }
+        memset(STATE->updates_sent, 0xff, sizeof(STATE->updates_sent));
+        uint8_t y, x;
+        for (y = 0; y < VNC_BLOCK_ROWS; y++) {
+          for (x = 0; x < VNC_BLOCK_COLS; x++) {
+            if (STATE->update_map[y][x / 8] & _BV(x % 8)) {
+              STATE->updates_sent[block][0] = x;
+              STATE->updates_sent[block][1] = y;
+              vnc_make_block(&update->blocks[block], x, y);
+              block++;
+              if (block == updating_block_count) 
+                goto end_update_block_finder;
             }
+          }
+        }
 end_update_block_finder:
-            if (! found_block) {
-                VNCDEBUG("no to be updated block found, update finished\n");
-                STATE->state = VNC_STATE_IDLE;
-                break;
-            }
-            STATE->update_map[y][x / 8] &= ~_BV(x % 8);
-            vnc_make_block(&update->blocks[block], x, y);
-            block++;
-      }
-      update->type = 0;
-      update->padding = 0;
-      update->block_count = HTONS(block);
-      uip_send(uip_sappdata, 
-               4 + block * sizeof(struct vnc_block));
+        if (block != updating_block_count) {
+          VNCDEBUG("no to be updated block found, update finished\n");
+          STATE->state = VNC_STATE_IDLE;
+        }
+        update->type = 0;
+        update->padding = 0;
+        update->block_count = HTONS(block);
+        uip_send(uip_sappdata, 
+                 4 + block * sizeof(struct vnc_block));
     }
   }
 }
