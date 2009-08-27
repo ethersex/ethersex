@@ -212,4 +212,7 @@ pam_auth(char *username, char *password, uint8_t *auth_state)
   header(services/pam/pam_ldap.h)
   net_init(pam_ldap_init)
   timer(250, pam_ldap_periodic())
+
+  state_header(services/pam/pam_ldap_state.h)
+  state_tcp(struct ldap_auth_connection_state_t ldap_auth)
 */

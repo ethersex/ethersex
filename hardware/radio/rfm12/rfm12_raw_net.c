@@ -74,4 +74,7 @@ rfm12_raw_net_main(void)
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_raw_net.h)
   net_init(rfm12_raw_net_init)
+
+  state_header(protocols/zbus/zbus_raw_state.h)
+  state_udp(struct rfm12_raw_connection_state_t rfm12_raw)
 */

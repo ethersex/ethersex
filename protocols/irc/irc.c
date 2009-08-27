@@ -316,4 +316,7 @@ irc_init(void)
   header(protocols/irc/irc.h)
   net_init(irc_init)
   timer(500, irc_periodic())
+
+  state_header(protocols/irc/irc_state.h)
+  state_tcp(struct irc_connection_state_t irc)
 */

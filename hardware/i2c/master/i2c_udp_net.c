@@ -55,4 +55,7 @@ i2c_udp_net_main(void)
   -- Ethersex META --
   header(hardware/i2c/master/i2c_udp_net.h)
   net_init(i2c_udp_net_init)
+
+  state_header(hardware/i2c/master/i2c_state.h)
+  state_udp(struct i2c_connection_state_t i2c)
 */

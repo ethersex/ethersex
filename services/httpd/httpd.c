@@ -331,4 +331,7 @@ httpd_main(void)
   -- Ethersex META --
   header(services/httpd/httpd.h)
   net_init(httpd_init)
+
+  state_header(services/httpd/httpd_state.h)
+  state_tcp(struct httpd_connection_state_t httpd)
 */

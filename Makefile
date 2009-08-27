@@ -131,6 +131,9 @@ y_META_SRC += $(y_NP_SIMPLE_META_SRC)
 meta.c: $(y_META_SRC)
 	@m4 $^ > $@
 
+meta.h: scripts/meta_header_magic.m4 meta.m4
+	@m4 $^ > $@
+
 ##############################################################################
 
 compile-$(TARGET): $(TARGET).hex $(TARGET).bin
