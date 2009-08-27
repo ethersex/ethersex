@@ -324,3 +324,9 @@ openvpn_init (void)
   openvpn_conn->appstate.openvpn.seen_seqno = 0;
   openvpn_conn->appstate.openvpn.seen_timestamp = 0;
 }
+
+/*
+  -- Ethersex META --
+  state_header(protocols/uip/uip_openvpn.h)
+  state_udp(struct openvpn_connection_state_t openvpn)
+*/

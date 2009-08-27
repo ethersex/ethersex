@@ -31,10 +31,15 @@ divert(0)dnl
 
 divert(udp_state_divert)dnl
 /* uip appstate for udp */
-typedef union uip_udp_connection_state_a {
+typedef union uip_udp_connection_state {
+#   ifdef CONTROL6_SUPPORT
+    struct {
+	struct pt pt;
+    } control6_udp;
+#   endif
 
 divert(tcp_state_divert)dnl
-} uip_udp_appstate_t_a; /* end of appstate for udp */
+} uip_udp_appstate_t; /* end of appstate for udp */
 
 /* uip appstate for tcp */
 typedef union uip_tcp_connection_state {

@@ -45,43 +45,5 @@
 #include "services/pam/pam_ldap_state.h"
 
 
-/* uip appstate for udp */
-typedef union uip_udp_connection_state {
-
-#   ifdef BOOTP_SUPPORT
-    struct bootp_connection_state_t bootp;
-#   endif
-
-#   ifdef TFTP_SUPPORT
-    struct tftp_connection_state_t tftp;
-#   endif
-
-#   ifdef I2C_UDP_SUPPORT
-    struct i2c_connection_state_t i2c;
-#   endif
-
-#   ifdef I2C_SLAVE_SUPPORT
-    struct i2c_slave_connection_state_t i2c_slave;
-#   endif
-
-#   ifdef OPENVPN_SUPPORT
-    struct openvpn_connection_state_t openvpn;
-#   endif
-
-#   ifdef RFM12_RAW_SUPPORT
-    struct rfm12_raw_connection_state_t rfm12_raw;
-#   endif
-
-#   ifdef ZBUS_RAW_SUPPORT
-    struct zbus_raw_connection_state_t zbus_raw;
-#   endif
-
-#   ifdef CONTROL6_SUPPORT
-    struct {
-	struct pt pt;
-    } control6_udp;
-#   endif
-
-} uip_udp_appstate_t;
 
 #endif /* CONNECTION_STATE_H */

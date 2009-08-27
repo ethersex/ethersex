@@ -108,4 +108,7 @@ tftp_net_main(void)
   -- Ethersex META --
   header(services/tftp/tftp_net.h)
   net_init(tftp_net_init)
+
+  state_header(services/tftp/tftp_state.h)
+  state_udp(struct tftp_connection_state_t tftp)
 */
