@@ -90,7 +90,17 @@ vnc_main(void)
     }
 
     if (uip_newdata() && STATE->state >= VNC_STATE_IDLE) {
+        struct vnc_pointer_event *pointer;
+        uint8_t block_x, block_y;
         switch(((char *)uip_appdata)[0]) {
+        case VNC_POINTER_EVENT: 
+          VNCDEBUG("pointer event\n");
+          pointer = (struct vnc_pointer_event *) uip_appdata;
+          block_x = HTONS(pointer->x) / VNC_BLOCK_WIDTH;
+          block_y = HTONS(pointer->y) / VNC_BLOCK_HEIGHT;
+          STATE->update_map[block_y][block_x / 8 ] |= _BV(block_x % 8);
+          STATE->state = VNC_STATE_UPDATE;
+          break;
         case VNC_SET_PIXEL_FORMAT: 
           VNCDEBUG("set pixel format, ignoring\n");
           break;
@@ -129,10 +139,6 @@ vnc_main(void)
         uip_send(uip_sappdata, sizeof(server_init)); 
         VNCDEBUG("server init, sent %d bytes\n", sizeof(server_init)); 
         uint8_t i, j;
-        STATE->state = VNC_STATE_UPDATE;
-        for (i = 0; i < VNC_BLOCK_ROWS; i++)
-          for (j = 0; j < VNC_BLOCK_COL_BYTES; j++)
-            STATE->update_map[i][j] = 0xff;
       } else if (STATE->state == VNC_STATE_UPDATE) {
         uint8_t updating_block_count = 
                 (uip_mss() - 4 ) / sizeof(struct vnc_block) ;

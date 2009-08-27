@@ -85,6 +85,18 @@ void vnc_periodic(void);
 #define VNC_CLIENT_CUT_TEXT      6
 
 
+#define RFB_BUTTON_MASK1 1
+#define RFB_BUTTON_MASK2 2
+#define RFB_BUTTON_MASK3 4
+struct vnc_pointer_event {
+  uint8_t type;
+  uint8_t buttonmask;
+  uint16_t x;
+  uint16_t y;
+};
+
+
+
 
 
 
