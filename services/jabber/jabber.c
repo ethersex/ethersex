@@ -339,4 +339,7 @@ jabber_init(void)
   header(services/jabber/jabber.h)
   timer(500, jabber_periodic())
   net_init(jabber_init)
+
+  state_header(services/jabber/jabber_state.h)
+  state_tcp(struct jabber_connection_state_t jabber)
 */

@@ -30,7 +30,8 @@
 /* module local prototypes */
 
 uip_conn_t *
-ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data, client_return_text_callback_t callback)
+ecmd_sender_send_command(uip_ipaddr_t *ipaddr, const char *pgm_data, 
+                         client_return_text_callback_t callback)
 {
   uip_conn_t *conn = uip_connect(ipaddr, HTONS(2701), ecmd_sender_net_main);
   if (conn) {
@@ -73,3 +74,9 @@ void ecmd_sender_net_main(void)
     uip_udp_send(strlen((char *) uip_appdata));
   }
 }
+
+/*
+  -- Ethersex META --
+  state_header(protocols/ecmd/sender/ecmd_sender_state.h)
+  state_tcp(struct ecmd_sender_connection_state_t ecmd_sender)
+*/

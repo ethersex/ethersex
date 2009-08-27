@@ -114,4 +114,7 @@ tty_vt100_telnet_init (void)
   -- Ethersex META --
   header(core/tty/tty-vt100-telnet.h)
   net_init(tty_vt100_telnet_init)
+
+  state_header(core/tty/tty-vt100-telnet.h)
+  state_tcp(struct tty_vt100_state_t tty_vt100)
 */

@@ -1,5 +1,6 @@
 dnl
 dnl   Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+dnl   Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 3 as
@@ -18,12 +19,12 @@ dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
 define(`prototypes',0)dnl
-define(`initearly_divert',10)dnl
-define(`init_divert',11)dnl
-define(`net_init_divert',12)dnl
-define(`startup_divert',13)dnl
-define(`mainloop_divert',14)dnl
-define(`timer_divert',15)dnl after timer divert there musn't be any other divert level
+define(`initearly_divert',12)dnl
+define(`init_divert',13)dnl
+define(`net_init_divert',14)dnl
+define(`startup_divert',15)dnl
+define(`mainloop_divert',16)dnl
+define(`timer_divert',17)dnl after timer divert there musn't be any other divert level
 divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
@@ -38,6 +39,7 @@ divert(initearly_divert)dnl
 void
 ethersex_meta_init (void)
 {
+
 divert(net_init_divert)dnl
 }  /* End of ethersex_meta_init. */
 
@@ -93,6 +95,9 @@ define(`startup',`dnl
 dnl divert(prototypes)void $1 (void);
 divert(startup_divert)    $1 (); wdt_kick ();
 divert(-1)');
+
+define(`state_udp',`') dnl udp and tcp state is handled by meta_header_magic.m4
+define(`state_tcp', `')
 
 define(`mainloop',`dnl
 dnl divert(prototypes)void $1 (void);
