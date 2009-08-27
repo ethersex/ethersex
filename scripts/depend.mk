@@ -26,7 +26,7 @@ if test -s $@.new; then mv -f $@.new $@; else rm -f $@.new; fi
 endef
 
 # Here is how to make .dep files from .c files
-%.dep: %.c $(TOPDIR)/control6/control6.h $(TOPDIR)/pinning.c
+%.dep: %.c $(TOPDIR)/control6/control6.h $(TOPDIR)/pinning.c $(TOPDIR)/meta.h
 	@$(make-deps)
 
 %.dep: %.S
