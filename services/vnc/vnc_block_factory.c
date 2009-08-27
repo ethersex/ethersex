@@ -23,6 +23,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <string.h>
+#include <math.h>
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
 #include "vnc.h"
@@ -32,13 +33,23 @@
 #include "config.h"
 
 void
-vnc_make_block(struct vnc_block *dest, uint8_t x, uint8_t y)
+vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y)
 {
-    dest->x = HTONS(x * VNC_BLOCK_WIDTH);
-    dest->y = HTONS(y * VNC_BLOCK_HEIGHT);
+    dest->x = HTONS(block_x * VNC_BLOCK_WIDTH);
+    dest->y = HTONS(block_y * VNC_BLOCK_HEIGHT);
     dest->w = HTONS(VNC_BLOCK_WIDTH);
     dest->h = HTONS(VNC_BLOCK_HEIGHT);
     dest->encoding = 0;
+
     
-    memset(dest->data, (uint8_t) x * y, VNC_BLOCK_LENGTH);
+    uint8_t _x, _y;
+    uint16_t x, y;
+    for (_x = 0; _x < VNC_BLOCK_WIDTH; _x++)
+      for (_y = 0; _y < VNC_BLOCK_HEIGHT; _y++)  {
+        x = block_x * VNC_BLOCK_WIDTH + _x;
+        y = block_y * VNC_BLOCK_HEIGHT + _y;
+
+        dest->data[_y * VNC_BLOCK_WIDTH + _x] = x + y;
+
+      }
 }

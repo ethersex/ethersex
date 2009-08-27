@@ -55,6 +55,6 @@ struct vnc_update_header {
 
 
 /* x and y are block addresses */
-void vnc_make_block(struct vnc_block *dest, uint8_t x, uint8_t y); 
+void vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y); 
 
 #endif /* _VNC_BLOCK_FACTORY */
