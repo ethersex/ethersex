@@ -255,6 +255,7 @@ clean:
 		$(patsubst %.o,%.dep,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
 		$(patsubst %.o,%.s,${OBJECTS}) network.dep
+	$(RM) meta.c meta.h meta.m4
 	echo "Cleaning completed"
 
 fullclean: clean
