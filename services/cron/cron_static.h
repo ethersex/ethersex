@@ -29,7 +29,7 @@
  *   x is -1:       * (wildcard)
  *   x in -59..-2:  * /(-x) (step value (-x), 1 < -x < 60)
  */
-
+typedef void (* cron_static_handler_t) (void);
 struct cron_static_event_t {
     union{
         int8_t fields[5];
@@ -41,7 +41,7 @@ struct cron_static_event_t {
             int8_t dow;
         };
     };
-    void (*handler)(void);
+    cron_static_handler_t handler;
     uint8_t use_utc;
 };
 
