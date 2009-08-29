@@ -26,6 +26,7 @@ divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#include "core/pt/pt.h"
 #ifndef _META_H
 #define _META_H
 
