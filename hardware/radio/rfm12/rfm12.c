@@ -190,13 +190,21 @@ rfm12_trans(unsigned short wert)
   PIN_CLEAR(SPI_CS_RFM12);
 
   /* spi clock down */
+#ifdef CONF_RFM12_SLOW_SPI 
+  _SPCR0 |= _BV(SPR1);
+#else
   _SPCR0 |= _BV(SPR0);
+#endif
 
   werti = (spi_send ((0xFF00 & wert) >> 8) << 8);
   werti += spi_send (0x00ff & wert);
 
   /* spi clock high */
+#ifdef CONF_RFM12_SLOW_SPI
+  _SPCR0 &= ~_BV(SPR1);
+#else
   _SPCR0 &= ~_BV(SPR0);
+#endif
 
   PIN_SET(SPI_CS_RFM12);
   return werti;
@@ -212,7 +220,11 @@ rfm12_init(void)
     _delay_ms(10);		/* wait until POR done */
 
   rfm12_trans(0xC0E0);		/* AVR CLK: 10MHz */
+#if CONF_RFM12_FREQ < 800000
   rfm12_trans(0x80D7);		/* Enable FIFO */
+#else
+  rfm12_trans(0x80E7);		/* Enable FIFO */
+#endif
   rfm12_trans(0xC2AB);		/* Data Filter: internal */
   rfm12_trans(0xCA81);		/* Set FIFO mode */
   rfm12_trans(0xE000);		/* disable wakeuptimer */

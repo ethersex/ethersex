@@ -74,6 +74,16 @@
 /* bootloader config */
 #define CONF_BOOTLOAD_DELAY 250           /* five seconds */
 
+/* rfm12 config */
+#define RFM12_FREQ_433920	433920
+#define RFM12_FREQ_869775	869775
+#define RFM12_FREQ_869800	869800
+#define RFM12_FREQ_869825	869825
+#define RFM12_FREQ_869850	869850
+#define RFM12_FREQ_869875	869875
+#define RFM12_FREQ_869900	869900
+#define RFM12_FREQ_869925	869925
+
 #include "autoconf.h"
 
 /* Include pinning.c as output of m4 scripts in pinning sub-directory.
