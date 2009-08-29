@@ -96,6 +96,9 @@ void ST7626_load_paint(void)
 
 void ST7626_init(void)
 {
+    PIN_SET(ST7626_WR);
+    PIN_SET(ST7626_RD);
+
     ST7626_reset();
 
     ST7626_write(COMMAND, 0x30);
