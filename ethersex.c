@@ -155,7 +155,7 @@ int main(void)
 
 		#ifdef TEENSY_SUPPORT
 		cli ();
-		rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));	/* rfm12_setfreq(RFM12FREQ(433.92)); */
+		rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));
 		rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
 			#ifdef RFM12_IP_SUPPORT
 			rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
