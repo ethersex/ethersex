@@ -58,6 +58,7 @@ SUBDIRS += protocols/twitter
 SUBDIRS += protocols/netstat
 SUBDIRS += protocols/to1
 SUBDIRS += protocols/msr1
+SUBDIRS += protocols/nmea
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns

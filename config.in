@@ -179,6 +179,7 @@ source protocols/twitter/config.in
 source protocols/yport/config.in
 source protocols/msr1/config.in
 source protocols/to1/config.in
+source protocols/nmea/config.in
 
 endmenu
 
