@@ -22,15 +22,18 @@
 #include <avr/pgmspace.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "protocols/ecmd/ecmd-base.h"
 #include "nmea.h"
+
+static const char PROGMEM nmea_na[] = "no data available.";
 
 int16_t
 parse_cmd_nmea_get(char *cmd, char *output, uint16_t len) 
 {
   if (!nmea_data.valid)
-    return snprintf_P (output, len, PSTR("no data available.\n"));
+    return snprintf_P (output, len, nmea_na);
 
   memmove (output, nmea_data.latitude, 10);
   output[10] = ' ';
@@ -39,7 +42,18 @@ parse_cmd_nmea_get(char *cmd, char *output, uint16_t len)
   return ECMD_FINAL(22);
 }
 
+int16_t
+parse_cmd_nmea_satellites(char *cmd, char *output, uint16_t len) 
+{
+  if (!nmea_data.valid)
+    return snprintf_P (output, len, nmea_na);
+
+  itoa (nmea_data.satellites, output, 10);
+  return ECMD_FINAL(strlen (output));
+}
+
 /*
   -- Ethersex META --
   ecmd_feature(nmea_get, "nmea get")
+  ecmd_feature(nmea_satellites, "nmea satellites")
 */

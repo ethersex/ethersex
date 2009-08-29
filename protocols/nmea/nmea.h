@@ -44,6 +44,7 @@ struct nmea_t
   uint8_t longitude[10];
   uint8_t longitude_dir;
 
+  uint8_t satellites;
 };
 
 extern struct nmea_t nmea_data;

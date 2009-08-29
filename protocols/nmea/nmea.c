@@ -80,8 +80,14 @@ SIGNAL(usart(USART,_RX_vect))
     nmea_data.longitude[nmea_data.ptr - 30] = data;
 
   else if (nmea_data.ptr == 41)
+    nmea_data.longitude_dir = data;
+
+  else if (nmea_data.ptr == 45)
+    nmea_data.satellites = (data - '0') * 10;
+
+  else if (nmea_data.ptr == 46)
     {
-      nmea_data.longitude_dir = data;
+      nmea_data.satellites += (data - '0');
       nmea_data.valid = 1;
     }
 }
