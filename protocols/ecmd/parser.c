@@ -243,7 +243,8 @@ int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
 {
-    (void) len;
+    uint16_t help_len;
+    (void) help_len;
 
     /* trick: use bytes on cmd as "connection specific static variables" */
     if (cmd[0] != 23) {		/* indicator flag: real invocation:  0 */
@@ -252,7 +253,8 @@ int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
     }
 
     char *text = (char *)pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1] ++].name);
-    len = strlen_P (text);
+    help_len = strlen_P (text);
+    len = len < help_len ? len:help_len;
     memcpy_P (output, text, len);
 
     text = (char *) pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1]].name);
