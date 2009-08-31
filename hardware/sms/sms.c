@@ -291,7 +291,7 @@ uint8_t sms_send(uint8_t *rufnummer, unsigned char *text,
 
     SMS_DEBUG("sms_send: \"%s\",\r\n \"%s\"\r\n", rufnummer, text);
 
-    if (text_len < 120) {
+    if (text_len <= SMS_LEN) {
         /* search for a free buffer field */
         if (sms_buffer[put_index] == NULL) {
             sms_buffer[put_index] = malloc(sizeof(sms));

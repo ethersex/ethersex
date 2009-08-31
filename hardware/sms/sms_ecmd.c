@@ -39,7 +39,7 @@ extern volatile unsigned char rx_buffer[];
 #define DEBUG_REC
 /* define max sms length */
 //#define DATA_LEN ((160*7)/ 8) * 2 + 1
-#define WRITE_BUFF 119
+#define WRITE_BUFF SMS_LEN-1
 
 static char write_buffer[WRITE_BUFF + 1];   
 static uint8_t text[50];
@@ -102,10 +102,10 @@ uint8_t pdu_parser(uint8_t *pdu)
             
             SMS_DEBUG("ecmd: %s\n", text);
             do {
-                if (reply_len <= (int16_t)sizeof(write_buffer)) {
+                if (reply_len < (int16_t)sizeof(write_buffer)) {
                     write_len = ecmd_parse_command((char *) text, 
                                               write_buffer + reply_len, 
-                                              sizeof(write_buffer) - reply_len);
+                                              sizeof(write_buffer) - reply_len - 1);
                     SMS_DEBUG("ret_len ecmd parser: %d\r\n", write_len);
                     if (is_ECMD_AGAIN(write_len)) {
                         reply_len += -(10 + write_len);
@@ -124,6 +124,7 @@ uint8_t pdu_parser(uint8_t *pdu)
                     break;
                 }
             } while (write_len <= 0);
+           
             write_buffer[reply_len] = '\0';
             sms_send((uint8_t *) nummer, (uint8_t *) write_buffer, NULL, 1);
         }
