@@ -10,7 +10,7 @@ $(UIP_SUPPORT)_ECMD_SRC += protocols/uip/ecmd.c protocols/uip/parse.c
 endif
 $(IPSTATS_SUPPORT)_ECMD_SRC += protocols/uip/ipstats.c
 
-ifeq ($(ENC28J60_SUPPORT),y)
+ifeq ($(ETHERNET_SUPPORT),y)
 $(IPV4_SUPPORT)_SRC += protocols/uip/uip_arp.c
 $(IPV6_SUPPORT)_SRC += protocols/uip/uip_neighbor.c protocols/uip/ipv6.c
 endif

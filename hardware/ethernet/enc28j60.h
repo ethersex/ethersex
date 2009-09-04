@@ -29,6 +29,8 @@
 #include <avr/io.h>
 #include "config.h"
 
+#ifdef ENC28J60_SUPPORT
+
 #define noinline __attribute__((noinline))
 
 /* spi commands */
@@ -328,4 +330,5 @@ void dump_debug_registers(void);
 #define dump_debug_registers(x)
 #endif
 
+#endif  /* ENC28J60_SUPPORT */
 #endif /* _ENC28J60_H */

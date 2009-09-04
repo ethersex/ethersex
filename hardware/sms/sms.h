@@ -21,16 +21,16 @@
 
 #ifndef _SMS_H
 #define _SMS_H 
+extern volatile uint8_t global_mobil_access;
+extern FILE *ausgabe;
 
 typedef struct {
-	unsigned char rufnummer[20];
-	uint8_t text_len;
-	unsigned char text[120];	/* text speicher und erst vor dem verschicken bytes2string */
-	void (*sms_send_err_calback)();
+    unsigned char rufnummer[20];
+    uint8_t text_len;
+    unsigned char text[120];    
+    void (*sms_send_err_calback)();
 } sms;
 
-void callback(void);
-void ben_test(void);
 
 uint8_t sms_send(uint8_t *rufnummer, unsigned char *text, void (*ptr)(), uint8_t nr_is_encoded);
 void sms_transmit_handler(void);
@@ -41,7 +41,8 @@ void sms_periodic_timeout(void);
 
 #ifdef DEBUG_SMS
 # include "core/debug.h"
-# define SMS_DEBUG(a...)  debug_printf("sms: " a)
+# define SMS_DEBUG(a...)  debug_printf(a)
+//# define SMS_DEBUG(a...)  debug_printf("sms: " a)
 #else
 # define SMS_DEBUG(a...)
 #endif

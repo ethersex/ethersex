@@ -56,6 +56,9 @@ usart_count_used() {
   if [ "$SMS_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$NMEA_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
 }
 
 get_usart_count

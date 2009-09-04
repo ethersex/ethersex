@@ -55,4 +55,7 @@ i2c_slave_net_main(void)
   -- Ethersex META --
   header(hardware/i2c/slace/i2c_slave_net.h)
   net_init(i2c_slave_net_init)
+
+  state_header(hardware/i2c/slave/i2c_slave_state.h)
+  state_udp(struct i2c_slave_connection_state_t i2c_slave)
 */

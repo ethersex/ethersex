@@ -19,6 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
@@ -28,7 +30,6 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_neighbor.h"
 
-#include "config.h"
 #include "core/global.h"
 #include "core/debug.h"
 #include "core/spi.h"
@@ -155,7 +156,7 @@ int main(void)
 
 		#ifdef TEENSY_SUPPORT
 		cli ();
-		rfm12_trans (0xa620);	/* rfm12_setfreq(RFM12FREQ(433.92)); */
+		rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));
 		rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
 			#ifdef RFM12_IP_SUPPORT
 			rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
@@ -164,7 +165,7 @@ int main(void)
 			#endif  /* RFM12_IP_SUPPORT */
 		sei ();
 		#else  /* TEENSY_SUPPORT */
-		rfm12_setfreq(RFM12FREQ(433.92));
+		rfm12_setfreq(RFM12FREQ(CONF_RFM12_FREQ));
 		rfm12_setbandwidth(5, 1, 4);
 			#ifdef RFM12_IP_SUPPORT
 			rfm12_setbaud(CONF_RFM12_BAUD / 100);

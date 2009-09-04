@@ -80,7 +80,7 @@ struct cron_static_event_t events[] PROGMEM =
 #endif // MCUF_MODUL_CRON_SUPPORT
 
 #ifdef NETSTAT_SUPPORT
-  { { {-5, -1, -1, -1, -1} }, netstat_send, USE_LOCAL}, /* every 5 minutes  */
+  { { {-5, -1, -1, -1, -1} }, (cron_static_handler_t)netstat_send, USE_LOCAL}, /* every 5 minutes  */
 #endif // NETSTAT_SUPPORT
 
   /* This is only the end of table marker */

@@ -82,10 +82,6 @@ function define_symbol () {
 	true	# nothing to do, for the moment ...
 }
 
-function define_tristate () {
-	eval $1=$2
-}
-
 function define_hex () {
 	eval $1=$2
 }
@@ -113,69 +109,6 @@ function bool () {
 	echo -ne "'$2' '[$flag] $1$info' " >>MCmenu
 
 	echo -e "function $2 () { l_bool '$2' \"\$1\" ;}\n" >>MCradiolists
-}
-
-#
-# Create a tristate (Yes/No/Module) radiolist function
-# which calls our local tristate function.
-#
-# Collapses to a boolean (Yes/No) if module support is disabled.
-#
-function tristate () {
-	if [ "$CONFIG_MODULES" != "y" ]
-	then
-		bool "$1" "$2"
-	else
-		set_x_info "$2" "n"
-	
-		case $x in
-		y) flag="*" ;;
-		m) flag="M" ;;
-		*) flag=" " ;;
-		esac
-	
-		echo -ne "'$2' '<$flag> $1$info' " >>MCmenu
-	
-		echo -e "
-		function $2 () { l_tristate '$2' \"\$1\" ;}" >>MCradiolists
-	fi
-}
-
-#
-# Create a tristate radiolist function which is dependent on
-# another kernel configuration option.
-#
-# Quote from the original configure script:
-#
-#       If the option we depend upon is a module,
-#       then the only allowable options are M or N.  If Y, then
-#       this is a normal tristate.  This is used in cases where modules
-#       are nested, and one module requires the presence of something
-#       else in the kernel.
-#
-function dep_tristate () {
-	ques="$1"
-	var="$2"
-	dep=y
-	shift 2
-	while [ $# -gt 0 ]; do
-		if   [ "$1" = y ]; then
-			shift
-		elif [ "$1" = m ]; then
-			dep=m
-			shift
-		else
-			dep=n
-			shift $#
-		fi
-	done
-	if [ "$dep" = y ]; then
-	    tristate "$ques" "$var"
-	elif [ "$dep" = m ]; then
-	    mod_bool "$ques" "$var"
-	else 
-	    define_tristate "$var" n
-	fi
 }
 
 #
@@ -575,31 +508,6 @@ As a result, this feature will be built as a module." 4 70
 			*) eval $1=m ;;
 			esac ;;
 		*)	eval $1=n ;;
-		esac
-	else
-		echo -ne "\007"
-	fi
-}
-
-#
-# Handle a tristate (Yes/No/Module) option.
-#
-function l_tristate () {
-	if [ -n "$2" ]
-	then
-		eval x=\$$1
-
-		case "$2" in
-		y) eval $1=y ;;
-		m) eval $1=m ;;
-		c) eval x=\$$1
-		   case $x in
-		   y) eval $1=n ;;
-		   n) eval $1=m ;;
-		   m) eval $1=y ;;
-		   *) eval $1=y ;;
-		   esac ;;
-		*) eval $1=n ;;
 		esac
 	else
 		echo -ne "\007"
@@ -1334,27 +1242,6 @@ save_configuration () {
 		eval define_bool \"$2\" \"$x\"
 	}
 
-	function tristate () {
-		set_x_info "$2" "n"
-		eval define_tristate \"$2\" \"$x\"
-	}
-
-	function dep_tristate () {
-		set_x_info "$2" "n"
-		var="$2"
-		shift 2
-		while [ $# -gt 0 ]; do
-			if   [ "$1" = y ]; then
-				shift
-			elif [ "$1" = m -a "$x" != n ]; then
-				x=m; shift
-			else 
-				x=n; shift $#
-			fi
-		done
-		define_tristate "$var" "$x"
-	}
-
 	function dep_bool () {
 		set_x_info "$2" "n"
 		var="$2"
@@ -1461,28 +1348,12 @@ save_configuration () {
 	}
 
 	function define_bool () {
-		define_tristate "$1" "$2"
-	}
-
-	function define_tristate () {
 		eval $1=\"$2\"
 
    		case "$2" in
          	y)
                 	echo "$1=y" 		>>$CONFIG
                 	echo "#define $1 1"	>>$CONFIG_H
-                	;;
-
-         	m)
-			if [ "$CONFIG_MODULES" = "y" ]
-			then
-                		echo "$1=m"		   >>$CONFIG
-                		echo "#undef  $1"	   >>$CONFIG_H
-                		echo "#define $1_MODULE 1" >>$CONFIG_H
-			else
-                		echo "$1=y" 		>>$CONFIG
-                		echo "#define $1 1"	>>$CONFIG_H
-			fi
                 	;;
 
          	n)
@@ -1531,12 +1402,12 @@ save_configuration () {
 							echo "#define $define_symbol $2"	>>$CONFIG_H
 						fi
 
-						define_bool "$2" "y"
+						echo "$2=y" 	>>$CONFIG
 						chosen=1
 					else
-						define_bool "$2" "n"
+						echo "# $2 is not set"	>>$CONFIG
 					fi ;;
-			*)		define_bool "$2" "n" ;;
+			*)		echo "# $2 is not set"	>>$CONFIG ;;
 			esac
 			shift ; shift
 		done

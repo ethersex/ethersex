@@ -63,16 +63,13 @@
 /* we want to live on the outer stack, if there are two ... */
 #include "uip_openvpn.h"
 
-#include "config.h"
 #include "network.h"
 #include "uip_arp.h"
+#include "config.h"
 
 #include <string.h>
 
 #define flip(t,a,b)  do { t __j = a; a = b; b = __j; } while(0)
-
-#ifdef ENC28J60_SUPPORT
-#if !UIP_CONF_IPV6
 
 struct arp_hdr {
   struct uip_eth_hdr ethhdr;
@@ -483,9 +480,6 @@ uip_arp_lookup (uip_ipaddr_t ipaddr)
 
   return NULL;
 }
-
-#endif /* !UIP_CONF_IPV6 */
-#endif /* ENC28J60_SUPPORT */
 
 /*
   -- Ethersex META --

@@ -56,7 +56,7 @@
 #include <string.h>
 
 #include "uipopt.h"
-#include "protocols/uip/state.h"
+#include "meta.h"
 
 /**
  * Callback when something happens on a connection
@@ -1653,7 +1653,7 @@ extern volatile uint8_t _uip_buf_lock;
 static inline uint8_t uip_buf_lock (void)
 {
   uint8_t result = 0;
-#ifndef TEENSY_SUPPORT
+#if !defined(TEENSY_SUPPORT) && (ARCH != ARCH_HOST)
   uint8_t sreg = SREG; cli();
   if (_uip_buf_lock)
     result = 1;

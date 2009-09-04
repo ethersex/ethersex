@@ -1,23 +1,11 @@
 dep_bool_menu "Status LEDs" STATUSLEDS
-	bool "Status LED (Power)"	STATUSLED_POWER_SUPPORT
-	bool "Status LED (Booted)"	STATUSLED_BOOTED_SUPPORT
-	bool "Status LED (Net link)"	STATUSLED_NETLINK_SUPPORT
-	bool "Status LED (Transmitted)"	STATUSLED_TX_SUPPORT
-	if [ "$STATUSLED_TX_SUPPORT" = y ]; then
-		if [ "$RFM12_SUPPORT" = y ]; then
-			bool "   RFM12 TX"	RFM12_TX_PIN
-		fi
-		if [ "$ZBUS_SUPPORT" = y ]; then
-			bool "   ZBUS TX"	ZBUS_TX_PIN
-		fi
-	fi
-	bool "Status LED (Received)"	STATUSLED_RX_SUPPORT
-	if [ "$STATUSLED_RX_SUPPORT" = y ]; then
-		if [ "$RFM12_SUPPORT" = y ]; then
-			bool "   RFM12 RX"	RFM12_RX_PIN
-		fi
-		if [ "$ZBUS_SUPPORT" = y ]; then
-			bool "   ZBUS RX"	ZBUS_RX_PIN
-		fi
-	fi	
+	dep_bool "Status LED (Power)"		STATUSLED_POWER_SUPPORT		$STATUSLEDS
+	dep_bool "Status LED (Booted)"		STATUSLED_BOOTED_SUPPORT	$STATUSLEDS
+	dep_bool "Status LED (Net link)"	STATUSLED_NETLINK_SUPPORT	$STATUSLEDS
+	dep_bool "Status LED (Transmitted)"	STATUSLED_TX_SUPPORT		$STATUSLEDS
+	dep_bool "   RFM12 TX"			RFM12_TX_PIN			$STATUSLED_TX_SUPPORT $RFM12_SUPPORT
+	dep_bool "   ZBUS TX"			ZBUS_TX_PIN			$STATUSLED_TX_SUPPORT $ZBUS_SUPPORT
+	dep_bool "Status LED (Received)"	STATUSLED_RX_SUPPORT		$STATUSLEDS
+	dep_bool "   RFM12 RX"			RFM12_RX_PIN			$STATUSLED_RX_SUPPORT $RFM12_SUPPORT
+	dep_bool "   ZBUS RX"			ZBUS_RX_PIN			$STATUSLED_RX_SUPPORT $ZBUS_SUPPORT
 endmenu

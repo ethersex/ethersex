@@ -26,6 +26,10 @@ divert(0)
 #define NP_PIN(a) (PIN ## a)
 #define NP_DDR(a) (DDR ## a)
 
+#ifndef SOAP_SUPPORT
+#define soap_rpc(a,b)	/* no soap */
+#endif  /* SOAP_SUPPORT */
+
 #ifdef ECMD_PARSER_SUPPORT
 const char PROGMEM np_str_on[] = "on";
 const char PROGMEM np_str_off[] = "off";
@@ -140,7 +144,9 @@ int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 
 
 define(`np_simple_implement_soap_out', `dnl
-divert(0)uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
+divert(0)dnl
+#ifdef SOAP_SUPPORT
+uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
 {
   result->type = SOAP_TYPE_INT;
 
@@ -163,10 +169,13 @@ divert(0)uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
 
   return 0;
 }
+#endif  /* SOAP_SUPPORT */
 ')
 
 define(`np_simple_implement_soap_in', `dnl
-divert(0)uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
+divert(0)dnl
+#ifdef SOAP_SUPPORT
+uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
 {
   /* config: $2 $3 */
   if (len != 0) return 1;	/* we do not want args. */
@@ -177,6 +186,7 @@ divert(0)uint8_t $1 (uint8_t len, soap_data_t *args, soap_data_t *result)
   result->u.d_int = $3(i) != 0;
   return 0;
 }
+#endif  /* SOAP_SUPPORT */
 ')
 
 

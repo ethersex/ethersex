@@ -26,7 +26,7 @@
 
 void mysql_init (void);
 void mysql_periodic (void);
-uint8_t mysql_send_query (char *message);
+uint8_t mysql_send_message (char *message);
 
 #ifdef DEBUG_MYSQL
 # include "core/debug.h"

@@ -7,6 +7,12 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
+	choice 'Target Architecture'			\
+		"AVR		ARCH_AVR		\
+		 Host		ARCH_HOST"		\
+		'AVR' ARCH
+
+if [ "$ARCH_AVR" = "y" ]; then
 	choice 'Target MCU'			\
 		"ATmega8      atmega8	\
 		 ATmega88     atmega88	\
@@ -27,6 +33,8 @@ comment "General Setup"
 		'Etherrape' HARDWARE
 
 	bool "Build a bootloader" BOOTLOADER_SUPPORT
+fi
+
 	bool "Teensy build" TEENSY_SUPPORT
 	bool "Use SPI Timeout" SPI_TIMEOUT
 	choice 'Version String'			\
@@ -60,12 +68,13 @@ mainmenu_option next_comment
 
 	string "Hostname" CONF_HOSTNAME "ethersex"
 	source hardware/ethernet/config.in
+	source core/host/tap-config.in
 	source hardware/radio/rfm12/config.in
-	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT
+	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source protocols/usb/config.in
 	source protocols/usb/usb-net-config.in
 	source protocols/zbus/config.in
-	dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $ZBUS_SUPPORT $ROUTER_SUPPORT
+	dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $ZBUS_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source scripts/ip-router-conf.sh
 
 	comment "IP configuration"
@@ -107,6 +116,12 @@ mainmenu_option next_comment
 		else
 			ipv4 "OpenVPN netmask" CONF_OPENVPN_IP4_NETMASK "255.255.255.0"
 		fi
+
+		comment "OpenVPN Remote"
+		dep_bool "Static OpenVPN Remote" OPENVPN_STATIC_REMOTE $OPENVPN_SUPPORT
+		if [ "$OPENVPN_STATIC_REMOTE" = "y" ]; then
+			ip "Remote IP" CONF_OPENVPN_REMOTE_IP "192.168.23.254" "2001:6f8:1209:f0:230:5ff:fe23:3f8"
+		fi
 	endmenu
 
 	comment  "Debugging Flags"
@@ -126,12 +141,19 @@ endmenu
 mainmenu_option next_comment
 comment "I/O"
 
-choice "I/O abstraction model (Port I/O)" \
-	"None					CONFIG_IO_NONE		\
-	 Simple				PORTIO_SIMPLE_SUPPORT	\
-	 Full-featured			PORTIO_SUPPORT"		\
-	Simple
-	dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
+if [ "$ARCH_HOST" = "y" ]; then
+	define_bool PORTIO_SUPPORT n
+	define_bool PORTIO_SIMPLE_SUPPORT n
+	define_bool NAMED_PIN_SUPPORT n
+else
+	choice "I/O abstraction model (Port I/O)" \
+		"None					CONFIG_IO_NONE		\
+		 Simple				PORTIO_SIMPLE_SUPPORT	\
+		 Full-featured			PORTIO_SUPPORT"		\
+		Simple
+		dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
+fi
+
 	source core/tty/config.in
 	source hardware/io_expander/config.in
 	source hardware/adc/config.in
@@ -173,6 +195,7 @@ source protocols/twitter/config.in
 source protocols/yport/config.in
 source protocols/msr1/config.in
 source protocols/to1/config.in
+source protocols/nmea/config.in
 
 endmenu
 

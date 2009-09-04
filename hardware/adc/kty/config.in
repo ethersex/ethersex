@@ -1,4 +1,4 @@
-  dep_bool  "KTY Calculation Support" KTY_SUPPORT $ADC_SUPPORT
+  dep_bool  "KTY Calculation Support" KTY_SUPPORT $ADC_SUPPORT $ARCH_AVR
   if [ "$KTY_SUPPORT" = "y" ]; then
     choice '  KTY81 Device' "KTY81-110 KTY_DEVICE_110" 'KTY81-110'
   fi

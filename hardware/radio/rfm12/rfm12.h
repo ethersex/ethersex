@@ -66,8 +66,8 @@ unsigned short rfm12_trans(unsigned short wert);
 
 #define RFM12TxBDW(kfrq)	((uint8_t)(kfrq/15)-1)
 
-/* macro for calculating frequency value out of frequency in MHz */
-#define RFM12FREQ(freq)	((freq-430.0)/0.0025)	
+/* macro for calculating frequency value out of frequency in kHz */
+#define RFM12FREQ(freq)	(((freq<800000?freq*2:freq)-860000)/5)	
 
 // set receiver settings
 void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);

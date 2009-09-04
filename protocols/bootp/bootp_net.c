@@ -72,4 +72,7 @@ bootp_net_main(void)
   -- Ethersex META --
   header(protocols/bootp/bootp_net.h)
   net_init(bootp_net_init)
+
+  state_header(protocols/bootp/bootp_state.h)
+  state_udp(struct bootp_connection_state_t bootp)
 */

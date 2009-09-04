@@ -1,5 +1,5 @@
 
-num=`echo $ENC28J60_SUPPORT $RFM12_IP_SUPPORT $ZBUS_SUPPORT $USB_NET_SUPPORT $OPENVPN_SUPPORT | sed -e 's/[^y]//g' | tr -d '\n' | wc -c`
+num=`echo $ENC28J60_SUPPORT $TAP_SUPPORT $RFM12_IP_SUPPORT $ZBUS_SUPPORT $USB_NET_SUPPORT $OPENVPN_SUPPORT | sed -e 's/[^y]//g' | tr -d '\n' | wc -c`
 
 if [ $num -gt 1 ]; then
   #comment "Using IP Router ($num users)"

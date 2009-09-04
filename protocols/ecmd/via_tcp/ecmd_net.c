@@ -279,4 +279,7 @@ void ecmd_net_main(void)
   -- Ethersex META --
   header(protocols/ecmd/via_tcp/ecmd_net.h)
   net_init(ecmd_net_init)
+
+  state_header(protocols/ecmd/via_tcp/ecmd_state.h)
+  state_tcp(struct ecmd_connection_state_t ecmd)
 */

@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +20,8 @@
  */
 
 #include "config.h"
+#if ARCH != ARCH_HOST
+
 #include <stdint.h>
 #include <avr/interrupt.h>
 #include "core/bit-macros.h"
@@ -139,3 +140,6 @@ usart_init(void) \
 }
 
 #endif /* _USART_H */
+
+#endif /* ARCH != ARCH_HOST */
+

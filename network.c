@@ -126,12 +126,15 @@ network_init(void)
 
 #   ifdef ENC28J60_SUPPORT
     init_enc28j60();
+#   endif
+
+#   ifdef ETHERNET_SUPPORT
 #   if UIP_CONF_IPV6
     uip_neighbor_init();
 #   else
     uip_arp_init();
 #   endif
-#   endif
+#   endif  /* ETHERNET_SUPPORT */
 
 }
 

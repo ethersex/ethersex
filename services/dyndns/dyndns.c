@@ -265,3 +265,13 @@ dyndns_net_main(void)
 
 #endif
 
+/*
+  -- Ethersex META --
+  state_header(services/dyndns/dyndns_state.h)
+  state_tcp(`
+#   if defined(TCP_SUPPORT) && !defined(TEENSY_SUPPORT)
+       struct dyndns_connection_state_t dyndns;
+#   endif
+')
+*/
+

@@ -1,8 +1,8 @@
 dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 
-	dep_bool "Atmel SPI Dataflash" VFS_DF_SUPPORT $VFS_SUPPORT
+	dep_bool "Atmel SPI Dataflash" VFS_DF_SUPPORT $VFS_SUPPORT $ARCH_AVR
 
-	dep_bool_menu "VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT
+	dep_bool_menu "VFS File Inlining" VFS_INLINE_SUPPORT $VFS_SUPPORT $ARCH_AVR
 	comment "-- You can enable various html pages for various features"
 	dep_bool "Inline configuration page" CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
 	dep_bool "Inline the .config" VFS_CONFIG_INLINE_SUPPORT $CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
@@ -26,15 +26,15 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 	  dep_bool 'Disable gzip' DEBUG_INLINE_DISABLE_GZ $VFS_INLINE_SUPPORT $DEBUG
 	endmenu
 
-	dep_bool_menu "SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT
+	dep_bool_menu "SD/MMC-Card Access" VFS_SD_SUPPORT $VFS_SUPPORT $ARCH_AVR
 		define_bool SD_READER_SUPPORT $VFS_SD_SUPPORT
 		bool "Use read-timeout" SD_READ_TIMEOUT
 		dep_bool "Ping-read SD card every 10s" SD_PING_READ $SD_READER_SUPPORT $SD_READ_TIMEOUT
 	endmenu
 
-	dep_bool "EEPROM (24cxx) Filesystem" VFS_EEPROM_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT
-	dep_bool "EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT
-	dep_bool "DC3840 Camera" VFS_DC3840_SUPPORT $DC3840_SUPPORT
+	dep_bool "EEPROM (24cxx) Filesystem" VFS_EEPROM_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT $ARCH_AVR
+	dep_bool "EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT $ARCH_AVR
+	dep_bool "DC3840 Camera" VFS_DC3840_SUPPORT $DC3840_SUPPORT $ARCH_AVR
 	#dep_bool "  Proc FS" VFS_PROC_SUPPORT $VFS_SUPPORT
 
 	define_bool DATAFLASH_SUPPORT $VFS_DF_SUPPORT

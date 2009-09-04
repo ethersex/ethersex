@@ -310,10 +310,15 @@ openvpn_init (void)
   uip_setnetmask(&ip);
 # endif
 
+#ifdef OPENVPN_STATIC_REMOTE
+  /* Create OpenVPN UDP socket. */
+  set_CONF_OPENVPN_REMOTE_IP(&ip);
+  openvpn_conn = uip_udp_new(&ip, HTONS(OPENVPN_PORT), openvpn_handle_udp);
+#else
   /* Create OpenVPN UDP listener. */
   uip_ipaddr_copy(&ip, all_ones_addr);
-
   openvpn_conn = uip_udp_new(&ip, 0, openvpn_handle_udp);
+#endif
 
   if(! openvpn_conn)
     return;					/* dammit. */
@@ -324,3 +329,9 @@ openvpn_init (void)
   openvpn_conn->appstate.openvpn.seen_seqno = 0;
   openvpn_conn->appstate.openvpn.seen_timestamp = 0;
 }
+
+/*
+  -- Ethersex META --
+  state_header(protocols/uip/uip_openvpn.h)
+  state_udp(struct openvpn_connection_state_t openvpn)
+*/

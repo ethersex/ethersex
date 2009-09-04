@@ -1,4 +1,4 @@
-dep_bool_menu "Onewire support" ONEWIRE_SUPPORT
+dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	dep_bool "  Onewire device detection support" ONEWIRE_DETECT_SUPPORT $ONEWIRE_SUPPORT
 	dep_bool "  Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
 endmenu

@@ -335,4 +335,7 @@ mysql_init(void)
   header(protocols/mysql/mysql.h)
   net_init(mysql_init)
   timer(500, mysql_periodic())
+
+  state_header(protocols/mysql/mysql_state.h)
+  state_tcp(struct mysql_connection_state_t mysql)
 */

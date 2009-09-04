@@ -22,6 +22,7 @@ scripts/lxdialog/lxdialog
 core/portio/user_config.c
 core/portio/user_config.h
 meta.c
+meta.h
 meta.m4
 contrib/libecmd/interactive/interactive
 contrib/libecmd/rfm12ask_2272/rfm12ask_2272
