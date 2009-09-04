@@ -16,15 +16,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-#ifndef HOST_EEPROM_H
-#define HOST_EEPROM_H
-
 #include <stdint.h>
+#include "core/host/avr/eeprom.h"
 
-#define EEPROM_SIZE 2048
-extern uint8_t eeprom_data[EEPROM_SIZE];
-
-#define eeprom_write_byte(ptr,val)	(*(eeprom_data + ((int)ptr)) = val)
-#define eeprom_read_byte(ptr)		(*(eeprom_data + ((int)ptr)))
-
-#endif	/* HOST_EEPROM_H */
+uint8_t eeprom_data[EEPROM_SIZE];

@@ -1,6 +1,7 @@
 TOPDIR ?= ../..
 
 $(TAP_SUPPORT)_SRC += core/host/tap.c
+$(ARCH_HOST)_SRC += core/host/eeprom.c
 
 ifeq ($(ARCH_HOST),y)
 LDFLAGS += $(shell pkg-config --libs glib-2.0)
