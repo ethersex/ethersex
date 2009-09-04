@@ -29,7 +29,11 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $ARCH_AVR
 	
 endmenu
 
-if [ "$ENC28J60_SUPPORT" != "y" ]; then
+if [ "$ENC28J60_SUPPORT" = "y" -o "$TAP_SUPPORT" = "y" ]; then
+	define_bool ETHERNET_SUPPORT y
+else
+	define_bool ETHERNET_SUPPORT n
+
 	if [ "$IPV6_SUPPORT" = "y" ]; then
 		define_bool "IPV6_STATIC_SUPPORT" y
 	else

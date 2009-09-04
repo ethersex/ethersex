@@ -68,6 +68,7 @@ mainmenu_option next_comment
 
 	string "Hostname" CONF_HOSTNAME "ethersex"
 	source hardware/ethernet/config.in
+	source core/host/tap-config.in
 	source hardware/radio/rfm12/config.in
 	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source protocols/usb/config.in

@@ -4,6 +4,7 @@ TOPDIR = .
 SUBDIRS += control6
 SUBDIRS += core
 SUBDIRS += core/crypto
+SUBDIRS += core/host
 SUBDIRS += core/portio
 SUBDIRS += core/tty
 SUBDIRS += core/vfs

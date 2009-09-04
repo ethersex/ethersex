@@ -33,6 +33,12 @@ divert(0)dnl
 #include <stdint.h>
 #include "config.h"
 
+#if ARCH == ARCH_HOST
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 void dyndns_update();
 void periodic_process();
 extern uint8_t bootload_delay;
@@ -131,8 +137,17 @@ void periodic_process(void)
 {
     static uint16_t counter = 0;
 #if ARCH == ARCH_HOST
-    /* FIXME delay here */
     {
+	fd_set fds;
+	struct timeval tv = { .tv_sec = 0, .tv_usec = 20000 };
+
+	FD_ZERO (&fds);
+	FD_SET (tap_fd, &fds);
+	select (tap_fd + 1, &fds, NULL, NULL, &tv);
+
+	if (FD_ISSET (tap_fd, &fds))
+	   tap_read ();
+
 #else
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
         /* clear flag */

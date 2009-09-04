@@ -107,6 +107,12 @@
 #  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_ENC_IP4_NETMASK(ip)
 #  define CONF_ETHERRAPE_MAC		CONF_ENC_MAC
 
+#elif defined (TAP_SUPPORT)
+#  define set_CONF_ETHERRAPE_MAC(ip)		set_CONF_TAP_MAC(ip)
+#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_TAP_IP(ip)
+#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_TAP_IP4_NETMASK(ip)
+#  define CONF_ETHERRAPE_MAC			CONF_TAP_MAC
+
 #elif defined (RFM12_IP_SUPPORT)
 #  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_RFM12_IP(ip)
 #  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_RFM12_IP4_NETMASK(ip)
