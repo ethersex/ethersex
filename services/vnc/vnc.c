@@ -198,4 +198,7 @@ vnc_periodic(void)
   header(services/vnc/vnc.h)
   net_init(vnc_init)
   timer(100, vnc_periodic())
+
+  state_header(services/vnc/vnc_state.h)
+  state_tcp(struct vnc_connection_state_t vnc)
 */
