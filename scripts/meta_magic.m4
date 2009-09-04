@@ -30,7 +30,9 @@ divert(0)dnl
    Please do not modify it, edit the m4 scripts instead. */
 
 #include <avr/wdt.h>
+#include <stdint.h>
 #include "config.h"
+
 void dyndns_update();
 void periodic_process();
 extern uint8_t bootload_delay;
@@ -128,9 +130,14 @@ divert(timer_divert_base)
 void periodic_process(void)
 {
     static uint16_t counter = 0;
+#if ARCH == ARCH_HOST
+    /* FIXME delay here */
+    {
+#else
     if (_TIFR_TIMER1 & _BV(OCF1A)) {
         /* clear flag */
         _TIFR_TIMER1 = _BV(OCF1A);
+#endif
         counter++;
 #ifdef UIP_SUPPORT
         if (uip_buf_lock ()) {

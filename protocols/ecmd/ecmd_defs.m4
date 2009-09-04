@@ -120,7 +120,6 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(help, "help",, List which commands are available.)
 
   ecmd_feature(version, "version",,Display the version number.)
-  ecmd_feature(fuse, "fuse",,Display the fuse settings.)
 
 dnl  ecmd_ifdef(USART_SUPPORT)
 dnl    ecmd_feature(usart_baud, "usart baud", BAUD, Set the USART baudrate to BAUD.)

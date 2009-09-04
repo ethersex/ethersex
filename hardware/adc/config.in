@@ -1,4 +1,4 @@
-dep_bool_menu "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
+dep_bool_menu "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT $ARCH_AVR
 	if [ "$KTY_SUPPORT" = "y" ]; then
 		define_symbol ADC_REF ADC_AREF
 	else

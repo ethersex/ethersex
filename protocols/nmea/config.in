@@ -21,7 +21,7 @@
 
 usart_count_used
 if [ "$NMEA_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-	dep_bool_menu "NMEA (GPS Mouse) support" NMEA_SUPPORT
+	dep_bool_menu "NMEA (GPS Mouse) support" NMEA_SUPPORT $ARCH_AVR
 		choice '  NMEA usart select' "$(usart_choice NMEA)"
 		usart_process_choice NMEA
 	endmenu

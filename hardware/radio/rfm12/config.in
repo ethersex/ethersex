@@ -1,4 +1,4 @@
-dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT
+dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT $ARCH_AVR
 	choice 'RFM12 frequency'	\
 		"433.920MHz	RFM12_FREQ_433920	\
 		869.775MHz	RFM12_FREQ_869775	\

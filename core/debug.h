@@ -34,7 +34,10 @@
 #ifdef DEBUG
     #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
 
-#ifdef DEBUG_USE_SYSLOG
+#if ARCH == ARCH_HOST
+    #define debug_init() do { } while(0)
+    #define debug_putchar(ch) putchar(ch)
+#elif defined(DEBUG_USE_SYSLOG)
     #define debug_init() syslog_debug_init()
     #define debug_putchar(ch) syslog_debug_put(ch, NULL)
 #else  /* not DEBUG_USE_SYSLOG */

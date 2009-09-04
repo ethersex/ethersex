@@ -7,6 +7,12 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
+	choice 'Target Architecture'			\
+		"AVR		ARCH_AVR		\
+		 Host		ARCH_HOST"		\
+		'AVR' ARCH
+
+if [ "$ARCH_AVR" = "y" ]; then
 	choice 'Target MCU'			\
 		"ATmega8      atmega8	\
 		 ATmega88     atmega88	\
@@ -27,6 +33,8 @@ comment "General Setup"
 		'Etherrape' HARDWARE
 
 	bool "Build a bootloader" BOOTLOADER_SUPPORT
+fi
+
 	bool "Teensy build" TEENSY_SUPPORT
 	bool "Use SPI Timeout" SPI_TIMEOUT
 	choice 'Version String'			\
@@ -132,12 +140,19 @@ endmenu
 mainmenu_option next_comment
 comment "I/O"
 
-choice "I/O abstraction model (Port I/O)" \
-	"None					CONFIG_IO_NONE		\
-	 Simple				PORTIO_SIMPLE_SUPPORT	\
-	 Full-featured			PORTIO_SUPPORT"		\
-	Simple
-	dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
+if [ "$ARCH_HOST" = "y" ]; then
+	define_bool PORTIO_SUPPORT n
+	define_bool PORTIO_SIMPLE_SUPPORT n
+	define_bool NAMED_PIN_SUPPORT n
+else
+	choice "I/O abstraction model (Port I/O)" \
+		"None					CONFIG_IO_NONE		\
+		 Simple				PORTIO_SIMPLE_SUPPORT	\
+		 Full-featured			PORTIO_SUPPORT"		\
+		Simple
+		dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
+fi
+
 	source core/tty/config.in
 	source hardware/io_expander/config.in
 	source hardware/adc/config.in

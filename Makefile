@@ -76,20 +76,6 @@ rootbuild=t
 
 export TOPDIR
 
-##############################################################################
-all: compile-$(TARGET)
-	@echo "=======The ethersex project========"
-	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
-	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
-	@echo "==================================="
-.PHONY: all
-.SILENT: all
-
-##############################################################################
-# generic fluff
-include $(TOPDIR)/scripts/defaults.mk
-#include $(TOPDIR)/scripts/rules.mk
-
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),fullclean)
@@ -103,6 +89,24 @@ endif # MAKECMDGOALS!=fullclean
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
+
+##############################################################################
+ifeq ($(ARCH_HOST),y)
+all: $(TARGET)
+else
+all: compile-$(TARGET)
+	@echo "=======The ethersex project========"
+	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
+	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
+	@echo "==================================="
+endif
+.PHONY: all
+.SILENT: all
+
+##############################################################################
+# generic fluff
+include $(TOPDIR)/scripts/defaults.mk
+#include $(TOPDIR)/scripts/rules.mk
 
 SRC += ethersex.c
 ${UIP_SUPPORT}_SRC += network.c
@@ -136,6 +140,7 @@ meta.h: scripts/meta_header_magic.m4 meta.m4
 	@m4 $^ > $@
 
 ##############################################################################
+
 
 compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 .PHONY: compile-$(TARGET)
