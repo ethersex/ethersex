@@ -120,6 +120,9 @@ debug:
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 	@echo y_SOAP_SRC: ${y_SOAP_SRC}
 
+${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
+${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
+
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
 	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
@@ -146,9 +149,6 @@ meta.h: scripts/meta_header_magic.m4 meta.m4
 compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 .PHONY: compile-$(TARGET)
 .SILENT: compile-$(TARGET)
-
-${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
-${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
 
 OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
