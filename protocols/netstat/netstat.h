@@ -23,6 +23,7 @@
 #ifndef HAVE_NETSTAT_H
 #define HAVE_NETSTAT_H
 
+#include <stdint.h>
 uint8_t netstat_send();
 
 
