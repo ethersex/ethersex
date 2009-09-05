@@ -1,3 +1,5 @@
+#include <string.h>
+#include <avr/pgmspace.h>
 #include "gui.h"
 #include "font.h"
 
@@ -30,7 +32,7 @@ define(`PUTSTRING', `ifelse(substr(`$1', 0, 1), `"', `define(`_pgm', `1')', `def
 		for (y = 0; y < $5; y++) 
 		    for (x = 0; x < $4; x++)
 			    if ((y * $4 + x) < strlen(`$1'))  
-			        vnc_putchar(dest, ifelse(_pgm, `1', `pgm_read_byte(&data[y * $4 + x])', `((char*)$1)[y * $4 + x]'), color, $3 + y, $2 + x); 
+			        gui_putchar(dest, ifelse(_pgm, `1', `pgm_read_byte(&data[y * $4 + x])', `((char*)$1)[y * $4 + x]'), color, $3 + y, $2 + x); 
   }')
 
 define(`SCENE', `divert(graphical_divert)

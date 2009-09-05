@@ -63,9 +63,9 @@ gui_putchar(struct gui_block *dest,
  */
     /* Now we select the right row */
     uint16_t tmp = char_column * GUI_FONT_WIDTH;
-    if (! (tmp / GUI_FONT_WIDTH == dest->x)  
-        && ! ((tmp / GUI_FONT_WIDTH == (dest->x - 1) 
-        && tmp > (dest->x * GUI_FONT_WIDTH - GUI_FONT_WIDTH)))) return;
+    if (! (tmp / GUI_BLOCK_WIDTH == dest->x)  
+        && ! ((tmp / GUI_BLOCK_WIDTH == (dest->x - 1) 
+        && tmp > (dest->x * GUI_BLOCK_WIDTH - GUI_FONT_WIDTH)))) return;
 
     uint8_t char_x_offset, char_x_len;
 
@@ -77,24 +77,26 @@ gui_putchar(struct gui_block *dest,
       data = data - 'a' + 1;
 
     /* Start Pixel of character in block */
-    if (tmp >= dest->x * GUI_FONT_WIDTH) {
+    if (tmp >= dest->x * GUI_BLOCK_WIDTH) {
         char_x_offset = 0;
-        x_offset = tmp % GUI_FONT_WIDTH;
-        if (tmp + GUI_FONT_WIDTH > (dest->x + 1) * GUI_FONT_WIDTH)
-            char_x_len =  (dest->x + 1) * GUI_FONT_WIDTH - tmp;
+        x_offset = tmp % GUI_BLOCK_WIDTH;
+        if (tmp + GUI_FONT_WIDTH > (dest->x + 1) * GUI_BLOCK_WIDTH)
+            char_x_len =  (dest->x + 1) * GUI_BLOCK_WIDTH - tmp;
         else
             char_x_len = GUI_FONT_WIDTH;
     } else {
         /* Start Pixel is in the block before */
-        char_x_offset = dest->x * GUI_FONT_WIDTH - tmp;
+        char_x_offset = dest->x * GUI_BLOCK_WIDTH - tmp;
         char_x_len = GUI_FONT_WIDTH - char_x_offset;
         x_offset = 0;
     } 
+
+    printf("print %c to %d:%d\n", data, dest->x, dest->y);
      
     for (x = 0; x <  char_x_len; x++) {
         for (y = 0; y < 8; y++) {
             if (gui_font[(uint8_t)data][char_x_offset + x] & _BV(y)) {
-                dest->data[((char_line % 2) * 8 + y) * GUI_FONT_WIDTH + x + x_offset ] = color;
+                dest->data[((char_line % 2) * 8 + y) * GUI_BLOCK_WIDTH + x + x_offset ] = color;
             }
         }
     }

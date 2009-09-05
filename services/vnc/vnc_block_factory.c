@@ -41,6 +41,8 @@ vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y)
     dest->y = block_y;
     memset(dest->data, 0xff, sizeof(dest->data));
 
+    matek_scene_myscene(dest);
+
 
     dest->x = HTONS(block_x * VNC_BLOCK_WIDTH);
     dest->y = HTONS(block_y * VNC_BLOCK_HEIGHT);
