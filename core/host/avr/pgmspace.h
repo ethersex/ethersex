@@ -9,7 +9,11 @@
 
 #define memcmp_P(a...)		memcmp(a)
 #define memcpy_P(a...)		memcpy(a)
+
 #define strlen_P(a...)		strlen(a)
+#define strstr_P(a...)		strstr(a)
+#define strcpy_P(a...)		strcpy(a)
+#define strncmp_P(a...)		strncmp(a)
 
 #define pgm_read_word(a)	(*(a))
 #define pgm_read_byte(a)	(*(a))
