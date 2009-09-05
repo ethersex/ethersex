@@ -71,6 +71,13 @@ open_tap(void)
 {
   memcpy(uip_ethaddr.addr, CONF_ETHERRAPE_MAC, 6);
 
+  /* FIXME consider IPv6 and merge with ENC28J60 initialization code. */
+  uip_ipaddr_t ip;
+  set_CONF_ETHERRAPE_IP4_NETMASK(&ip);
+  uip_setnetmask(&ip);
+  set_CONF_ETHERRAPE_GATEWAY(&ip);
+  uip_setdraddr(&ip);
+
   char tap_name[16] = "esex%d";
 
   tap_fd = tap_alloc(tap_name);
