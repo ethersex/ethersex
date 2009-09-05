@@ -156,18 +156,9 @@ tap_read (void)
 }
 
 
-uint8_t
+void
 tap_send (void)
 {
-  uint8_t retval;
-
-#if UIP_CONF_IPV6
-  retval = uip_neighbor_out();
-  if (!uip_len) return retval;
-#else
-  retval = uip_arp_out();
-#endif
-
 #ifdef IEEE8021Q_SUPPORT
   /* Write VLAN-tag to outgoing packet. */
   struct uip_eth_hdr *eh = (struct uip_eth_hdr *) uip_buf;
@@ -177,8 +168,25 @@ tap_send (void)
 #endif
 
   write (tap_fd, uip_buf, uip_len);
+}
+
+
+uint8_t
+tap_txstart(void)
+{
+  uint8_t retval;
+
+#if UIP_CONF_IPV6
+  retval = uip_neighbor_out();
+  if (uip_len)
+#else
+  retval = uip_arp_out();
+#endif
+  tap_send();
+
   return retval;
 }
+
 
 
 /*

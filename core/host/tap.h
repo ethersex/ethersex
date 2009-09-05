@@ -23,6 +23,7 @@ void open_tap(void);
 extern int tap_fd;
 
 void tap_read(void);
-uint8_t tap_send(void);
+void tap_send(void);
+uint8_t tap_txstart(void);
 
 #endif  /* CORE_HOST_TAP_H */
