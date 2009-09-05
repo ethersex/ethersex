@@ -17,6 +17,37 @@
  */
 
 #include <stdint.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 #include "core/host/avr/eeprom.h"
 
 uint8_t eeprom_data[EEPROM_SIZE];
+
+void
+eeprom_host_init (void)
+{
+  int fd = open ("eeprom.bin", O_RDONLY);
+  if (fd < 0) return;
+
+  read (fd, eeprom_data, EEPROM_SIZE);
+  close (fd);
+}
+
+void
+eeprom_host_exit (void)
+{
+  int fd = open ("eeprom.bin", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  if (fd < 0) return;
+
+  write (fd, eeprom_data, EEPROM_SIZE);
+  close (fd);
+}
+
+/*
+  -- Ethersex META --
+  header(core/host/avr/eeprom.h)
+  init(eeprom_host_init)
+  exit(eeprom_host_exit)
+*/
