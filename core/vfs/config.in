@@ -40,10 +40,10 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 	define_bool DATAFLASH_SUPPORT $VFS_DF_SUPPORT
 
 	comment  "Debugging Flags"
-	dep_bool 'Dataflash File System' DEBUG_FS $DEBUG
+	dep_bool 'Dataflash File System' DEBUG_FS $DEBUG $DATAFLASH_SUPPORT
 	dep_bool '  Inode Table' DEBUG_FS_INODETABLE $DEBUG_FS
 	dep_bool '  Mark' DEBUG_FS_MARK $DEBUG_FS
-	dep_bool 'VFS EEPROM' VFS_EEPROM_DEBUG_SUPPORT $DEBUG
-	dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG
+	dep_bool 'VFS EEPROM' VFS_EEPROM_DEBUG_SUPPORT $DEBUG $VFS_EEPROM_SUPPORT
+	dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG $VFS_SD_SUPPORT
 	
 endmenu

@@ -1,6 +1,6 @@
 usart_count_used
 if [ "$MSR1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-	dep_bool_menu "Senertec Dachs MSR1 Support" MSR1_SUPPORT
+	dep_bool_menu "Senertec Dachs MSR1 Support" MSR1_SUPPORT $ARCH_AVR
 		choice '  MSR1 usart select' "$(usart_choice MSR1)"
 		usart_process_choice MSR1
 		comment  "Debugging Flags"

@@ -36,7 +36,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 fi
 
 	bool "Teensy build" TEENSY_SUPPORT
-	bool "Use SPI Timeout" SPI_TIMEOUT
+	dep_bool "Use SPI Timeout" SPI_TIMEOUT $ARCH_AVR
 	choice 'Version String'			\
 		"GIT-commit-hash       USE_GIT_VERSION	\
 		Release-Version       USE_RELEASE_VERSION	\
@@ -50,7 +50,7 @@ fi
 	dep_bool_menu "Enable Debugging" DEBUG y
 		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
-		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG
+		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG $ARCH_AVR
 		comment  '----- Debugging Flags -----'
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG

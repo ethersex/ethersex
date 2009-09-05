@@ -1,7 +1,7 @@
 mainmenu_option next_comment
 comment "LCD Displays"
 
-  dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT
+  dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT $ARCH_AVR
     if [ "$HD44780_SUPPORT" = "y" ]; then
       choice 'Controller type'					\
               "Original			HD44780_ORIGINAL	\
@@ -14,12 +14,12 @@ comment "LCD Displays"
   endmenu
 
 
-  dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT
+  dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT $ARCH_AVR
 
-  dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT
+  dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT $ARCH_AVR
 
 	comment  "Debugging Flags"
-	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
+	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
 	dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
 	
 endmenu

@@ -1,4 +1,4 @@
-dep_bool_menu "USB (Softwarestack) Support" USB_SUPPORT
+dep_bool_menu "USB (Softwarestack) Support" USB_SUPPORT $ARCH_AVR
 
 bool "device is self powered" USB_CFG_IS_SELF_POWERED
 int "USB bus power consumption" USB_CFG_MAX_BUS_POWER 20
