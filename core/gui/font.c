@@ -91,8 +91,6 @@ gui_putchar(struct gui_block *dest,
         x_offset = 0;
     } 
 
-    printf("print %c to %d:%d\n", data, dest->x, dest->y);
-     
     for (x = 0; x <  char_x_len; x++) {
         for (y = 0; y < 8; y++) {
             if (gui_font[(uint8_t)data][char_x_offset + x] & _BV(y)) {
