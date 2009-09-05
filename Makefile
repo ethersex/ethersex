@@ -11,6 +11,7 @@ SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
+SUBDIRS += hardware/avr
 SUBDIRS += hardware/dac
 SUBDIRS += hardware/clock/dcf77
 SUBDIRS += hardware/camera
