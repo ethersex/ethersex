@@ -76,8 +76,12 @@ network_init(void)
     debug_printf("net: loading base network settings\n");
 #   endif
 
-#   ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
+# ifdef ENC28J60_SUPPORT
     uip_stack_set_active(STACK_ENC);
+# else  /* TAP_SUPPORT */
+    uip_stack_set_active(STACK_TAP);
+#endif
 
     /* use uip buffer as generic space here, since when this function is called,
      * no network packets will be processed */
@@ -93,7 +97,7 @@ network_init(void)
       eeprom_init();
 #endif
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
     network_config_load();
 #endif
 
@@ -114,13 +118,13 @@ network_init(void)
 #   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */
 
 
-#   elif !defined(ROUTER_SUPPORT) /* and not ENC28J60_SUPPORT */
+#   elif !defined(ROUTER_SUPPORT) /* and not ETHERNET_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
     set_CONF_ETHERRAPE_IP(&ip);
     uip_sethostaddr(&ip);
 
-#   endif /* not ENC28J60_SUPPORT and not ROUTER_SUPPORT */
+#   endif /* not ETHERNET_SUPPORT and not ROUTER_SUPPORT */
 
     ethersex_meta_netinit();
 

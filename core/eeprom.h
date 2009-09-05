@@ -36,7 +36,7 @@
 
 
 struct eeprom_config_t {
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
     uint8_t mac[6];
 #endif
 

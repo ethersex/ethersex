@@ -25,7 +25,9 @@
 extern uint8_t eeprom_data[EEPROM_SIZE];
 
 #define eeprom_write_byte(ptr,val)	(eeprom_data[(int)ptr] = val)
+
 #define eeprom_read_byte(ptr)		(eeprom_data[(int)ptr])
+#define eeprom_read_block(dst,src,n)	memmove(dst,&eeprom_data[(int)src],n)
 
 void eeprom_host_init (void);
 void eeprom_host_exit (void);
