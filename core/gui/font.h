@@ -19,32 +19,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <string.h>
-#include <math.h>
-#include "protocols/uip/uip.h"
-#include "core/debug.h"
-#include "vnc.h"
-#include "vnc_state.h"
-#include "vnc_block_factory.h"
+#ifndef _GUI_FONT_H
+#define _GUI_FONT_H
 
-#include "config.h"
+#include <stdint.h>
+#include "gui.h"
 
+#define GUI_FONT_WIDTH 6
 
-void
-vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y)
-{
-    /* This is only for the helper functions */
-    dest->x = block_x;
-    dest->y = block_y;
-    memset(dest->data, 0xff, sizeof(dest->data));
-
-
-    dest->x = HTONS(block_x * VNC_BLOCK_WIDTH);
-    dest->y = HTONS(block_y * VNC_BLOCK_HEIGHT);
-    dest->w = HTONS(VNC_BLOCK_WIDTH);
-    dest->h = HTONS(VNC_BLOCK_HEIGHT);
-    dest->encoding = 0;
-}
+extern char gui_font[128][6];
+void gui_putchar(struct gui_block *dest, char data, uint8_t color, 
+                 uint8_t char_line, uint8_t char_column);
+#endif

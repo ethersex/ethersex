@@ -19,9 +19,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _VNC_FONT_H
-#define _VNC_FONT_H
+#ifndef _GUI_GUI_H
+#define _GUI_GUI_H
 
-extern char vnc_font[128][6];
+#include <stdint.h>
+#define GUI_BLOCK_WIDTH 16
+#define GUI_BLOCK_HEIGHT 16
+#define GUI_BLOCK_LENGTH (GUI_BLOCK_WIDTH * GUI_BLOCK_HEIGHT)
+
+/* This is the same as vnc_block for padding reasons */
+struct gui_block {
+  uint16_t x;
+  uint16_t y;
+  uint16_t w;
+  uint16_t h;
+  uint32_t encoding;
+  uint8_t data[GUI_BLOCK_LENGTH];
+};
 
 #endif

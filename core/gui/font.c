@@ -33,7 +33,76 @@
  *
  */
 
-char vnc_font[128][6] = {
+#include "font.h"
+#include <avr/io.h>
+#include "config.h"
+
+void 
+gui_putchar(struct gui_block *dest,
+            char data, 
+            uint8_t color, 
+            uint8_t char_line, 
+            uint8_t char_column) 
+{
+    uint8_t x, y;
+    /* We have to select the right line */
+    if (char_line / 2 != dest->y) return;
+
+/*
+  ______
+  ______
+  _XX___
+  ___X__
+  _XXX__
+  X__X__
+  _XXX__
+  ______ 
+   ^  ^
+   |  + char_x_offset + char_x_len;
+   +- char_x_offset
+ */
+    /* Now we select the right row */
+    uint16_t tmp = char_column * GUI_FONT_WIDTH;
+    if (! (tmp / GUI_FONT_WIDTH == dest->x)  
+        && ! ((tmp / GUI_FONT_WIDTH == (dest->x - 1) 
+        && tmp > (dest->x * GUI_FONT_WIDTH - GUI_FONT_WIDTH)))) return;
+
+    uint8_t char_x_offset, char_x_len;
+
+    /* Offset within the block */
+    uint8_t x_offset;
+
+    /* map characters (a-z) */
+    if (data >= 'a' && data <= 'z')
+      data = data - 'a' + 1;
+
+    /* Start Pixel of character in block */
+    if (tmp >= dest->x * GUI_FONT_WIDTH) {
+        char_x_offset = 0;
+        x_offset = tmp % GUI_FONT_WIDTH;
+        if (tmp + GUI_FONT_WIDTH > (dest->x + 1) * GUI_FONT_WIDTH)
+            char_x_len =  (dest->x + 1) * GUI_FONT_WIDTH - tmp;
+        else
+            char_x_len = GUI_FONT_WIDTH;
+    } else {
+        /* Start Pixel is in the block before */
+        char_x_offset = dest->x * GUI_FONT_WIDTH - tmp;
+        char_x_len = GUI_FONT_WIDTH - char_x_offset;
+        x_offset = 0;
+    } 
+     
+    for (x = 0; x <  char_x_len; x++) {
+        for (y = 0; y < 8; y++) {
+            if (gui_font[(uint8_t)data][char_x_offset + x] & _BV(y)) {
+                dest->data[((char_line % 2) * 8 + y) * GUI_FONT_WIDTH + x + x_offset ] = color;
+            }
+        }
+    }
+}
+
+/* Here comes the font data */
+
+char gui_font[128][GUI_FONT_WIDTH] = {
 {0x01, 0x02, 0x00, 0x00, 0x00, 0x00},
 /* char 0 0x00
   X_____

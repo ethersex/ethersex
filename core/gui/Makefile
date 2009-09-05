@@ -1,8 +1,7 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(VNC_SUPPORT)_SRC += services/vnc/vnc.c 
-$(VNC_SUPPORT)_SRC += services/vnc/vnc_block_factory.c
+$(GUI_SUPPORT)_SRC += core/gui/font.c 
 
 ##############################################################################
 # generic fluff
