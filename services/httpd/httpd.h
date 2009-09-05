@@ -23,10 +23,10 @@
 #define _HTTPD_H
 
 #include <stdint.h>
+#include <string.h>
+#include <avr/pgmspace.h>
 
-#ifdef AVR
 #include "protocols/uip/uip.h"
-#endif
 
 /* constants */
 #define HTTPD_PORT 80
@@ -52,7 +52,7 @@ void httpd_handle_soap (void);
 void httpd_handle_ecmd_setup (char *encoded_cmd);
 void httpd_handle_ecmd (void);
 
-const PGM_P httpd_mimetype_detect (const uint8_t *);
+PGM_P httpd_mimetype_detect (const uint8_t *);
 
 /* headers */
 extern char httpd_header_200[];
