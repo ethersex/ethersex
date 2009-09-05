@@ -49,6 +49,9 @@ struct vfs_func_t vfs_funcs[] PROGMEM = {
 #ifdef VFS_DC3840_SUPPORT
   VFS_DC3840_FUNCS,
 #endif
+#ifdef VFS_HOST_SUPPORT
+  VFS_HOST_FUNCS,
+#endif
 };
 
 struct vfs_file_handle_t *
