@@ -3,6 +3,7 @@ include $(TOPDIR)/.config
 
 $(GUI_SUPPORT)_SRC += core/gui/font.c 
 $(GUI_SUPPORT)_SRC += core/gui/matek.c 
+$(GUI_SUPPORT)_SRC += core/gui/geometric.c 
 
 MATEK_SOURCE=$(TOPDIR)/core/gui/matek/test.m4
 

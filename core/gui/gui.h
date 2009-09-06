@@ -37,4 +37,16 @@ struct gui_block {
   uint8_t data[GUI_BLOCK_LENGTH];
 };
 
+#define GUI_CIRCLE_QUADRANT1 1
+#define GUI_CIRCLE_QUADRANT2 2
+#define GUI_CIRCLE_QUADRANT3 4
+#define GUI_CIRCLE_QUADRANT4 8
+
+#define GUI_CIRCLE_FULL      0x0f
+
+#define GUI_CIRCLE_FILL      16
+
+
+void gui_draw_circle(struct gui_block *dest, uint16_t cx, uint16_t cy, uint8_t r,
+                     uint8_t color, uint8_t quadrant_mask);
 #endif
