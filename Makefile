@@ -126,7 +126,7 @@ ${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
 
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
-	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
 
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
@@ -139,10 +139,10 @@ $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_defs.m4 ${named_pin_simpl
 y_META_SRC += $(y_NP_SIMPLE_META_SRC)
 
 meta.c: $(y_META_SRC)
-	@m4 $^ > $@
+	m4 $^ > $@
 
 meta.h: scripts/meta_header_magic.m4 meta.m4
-	@m4 $^ > $@
+	m4 $^ > $@
 
 ##############################################################################
 
@@ -286,7 +286,7 @@ PINNING_FILES=pinning/internals/header.m4 \
 	$(wildcard pinning/internals/hackery_$(MCU).m4) \
 	$(wildcard pinning/hardware/$(HARDWARE).m4) pinning/internals/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
-	@m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
+	m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
 	  sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
 
 
