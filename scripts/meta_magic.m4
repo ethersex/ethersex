@@ -113,7 +113,7 @@ dnl divert(prototypes)void $1 (void);
 divert(init_divert)    $1 ();
 divert(-1)');
 
-define(`exit', `dnl
+define(`atexit', `dnl
 divert(exit_divert)	$1 ();
 divert(-1)');
 

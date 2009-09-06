@@ -49,5 +49,5 @@ eeprom_host_exit (void)
   -- Ethersex META --
   header(core/host/avr/eeprom.h)
   initearly(eeprom_host_init)
-  exit(eeprom_host_exit)
+  atexit(eeprom_host_exit)
 */
