@@ -7,7 +7,7 @@ This program contains software by other authors:
 
 * the uIP tcp/ip stack, in the directory uip/ (see http://www.sics.se/~adam/uip),
   written by Adam Dunkels <adam@sics.se>
-* usb-software stack from obdev in usb/usbdrv/ (see http://www.obdev.at/products/avrusb/index.html)
+* usb-software stack from obdev in usb/usbdrv/ (see http://www.obdev.at/products/vusb/index.html)
 * sd card reader in sd_reader from http://www.roland-riegel.de/sd-reader/index.html
 
 All other code should be licensed as GPL, see the file COPYING in the main
