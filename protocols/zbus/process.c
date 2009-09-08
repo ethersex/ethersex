@@ -46,6 +46,7 @@ zbus_process(void)
     uip_process(UIP_UDP_SEND_CONN);
     router_output ();
 
+    uip_buf_unlock ();
     zbus_rxstart ();
     return;
   }
