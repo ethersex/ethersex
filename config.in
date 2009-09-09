@@ -134,9 +134,16 @@ comment "I/O"
 
 choice "I/O abstraction model (Port I/O)" \
 	"None					CONFIG_IO_NONE		\
-	 Simple				PORTIO_SIMPLE_SUPPORT	\
-	 Full-featured			PORTIO_SUPPORT"		\
-	Simple
+	 Simple				PORTIO_SIMPLE	\
+	 Full-featured			PORTIO_FULL_FEATURED"		\
+	Simple PORTIO_SCHEME
+
+	if [ x"$PORTIO_SCHEME" = x"PORTIO_SIMPLE" ]; then
+		define_bool PORTIO_SIMPLE_SUPPORT y;
+	elif [ x"$PORTIO_SCHEME" = x"PORTIO_FULL_FEATURED" ]; then
+		define_bool PORTIO_SUPPORT y;
+	fi
+
 	dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
 	source core/tty/config.in
 	source hardware/io_expander/config.in

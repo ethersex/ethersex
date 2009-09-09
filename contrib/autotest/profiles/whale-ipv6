@@ -19,6 +19,7 @@ MCU=atmega644p
 atmega644p=y
 FREQ=20000000
 # Arduino_Duemilanove is not set
+# dac_tlc5620 is not set
 HARDWARE=etherrape
 etherrape=y
 # generic_usb_teensy is not set
@@ -26,7 +27,6 @@ etherrape=y
 # netio is not set
 # other is not set
 # radig_web is not set
-# sexyfnord is not set
 # ths is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
@@ -75,6 +75,8 @@ VFS_DF_SUPPORT=y
 # MCUF_INLINE_SUPPORT is not set
 # GAME_INPUT_INLINE_SUPPORT is not set
 # UPNP_INLINE_SUPPORT is not set
+# NMEA_INLINE_SUPPORT is not set
+# PWM_SERVO_INLINE_SUPPORT is not set
 # DEBUG_INLINE_DUMMY is not set
 # DEBUG_INLINE_GZ is not set
 # DEBUG_INLINE_DISABLE_GZ is not set
@@ -114,6 +116,16 @@ CONF_ENC_MAC="ac:de:48:fd:0f:d0"
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
 # RFM12_IP_SUPPORT is not set
+CONF_RFM12_FREQ=RFM12_FREQ_433920
+RFM12_FREQ_433920=y
+# RFM12_FREQ_869775 is not set
+# RFM12_FREQ_869800 is not set
+# RFM12_FREQ_869825 is not set
+# RFM12_FREQ_869850 is not set
+# RFM12_FREQ_869875 is not set
+# RFM12_FREQ_869900 is not set
+# RFM12_FREQ_869925 is not set
+# CONF_RFM12_SLOW_SPI is not set
 CONF_RFM12_BAUD=34500
 CONF_RFM12_IP="2001:6f8:1209:23:aede:48ff:fe0b:ee52"
 CONF_RFM12_IP6_PREFIX_LEN=64
@@ -173,6 +185,7 @@ DEBUG_UNKNOWN_PACKETS=y
 #
 # CONFIG_IO_NONE is not set
 # PORTIO_SIMPLE_SUPPORT is not set
+PORTIO_SCHEME=PORTIO_SUPPORT
 PORTIO_SUPPORT=y
 NAMED_PIN_SUPPORT=y
 TTY_SUPPORT=y
@@ -205,6 +218,7 @@ SMS_USE_USART=0
 # LCD Displays
 #
 HD44780_SUPPORT=y
+HD44780_TYPE=HD44780_ORIGINAL
 HD44780_ORIGINAL=y
 # HD44780_DISPTECH is not set
 # HD44780_KS0067B is not set
@@ -418,6 +432,10 @@ TO1_USART_0=y
 TO1_USE_USART=0
 TO1_SENSOR_COUNT=1
 # DEBUG_TO1 is not set
+# NMEA_SUPPORT is not set
+NMEA_USART_0=y
+# NMEA_USART_1 is not set
+NMEA_USE_USART=0
 
 #
 # Applications
