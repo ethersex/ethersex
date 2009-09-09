@@ -181,7 +181,9 @@ soap_parse_data (soap_context_t *ctx)
       break;
 
     case SOAP_TYPE_STRING:
-      ctx->args[ctx->argslen].u.d_string = strdup (ctx->buf);
+      ctx->args[ctx->argslen].u.d_string = malloc(strlen(ctx->buf));
+      if (!ctx->args[ctx->argslen].u.d_string) return;
+      strcpy(ctx->args[ctx->argslen].u.d_string, ctx->buf);
       SOAP_DEBUG ("args[%d].u.d_string = %s\n", ctx->argslen,
 		  ctx->args[ctx->argslen].u.d_string);
       break;
