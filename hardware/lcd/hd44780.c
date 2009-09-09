@@ -321,7 +321,7 @@ int hd44780_put(char d, FILE *stream)
         return 0;
     }
 
-#if defined(HD44780_ORIGINAL)
+#if HD44780_TYPE == HD44780_ORIGINAL
     if (current_pos <= 19)
         start = 0x00 - 00 + current_pos;
     else if (current_pos <= 39)
@@ -330,7 +330,7 @@ int hd44780_put(char d, FILE *stream)
         start = 0x40 - 40 + current_pos;
     else if (current_pos <= 79)
         start = 0x60 - 60 + current_pos;
-#elif defined(HD44780_DISPTECH)
+#elif HD44780_TYPE == HD44780_DISPTECH
     if (current_pos <= 19)
         start = 0x00 - 0 + current_pos;
     else if (current_pos <= 39)
@@ -339,7 +339,7 @@ int hd44780_put(char d, FILE *stream)
         start = 0x10 - 40 + current_pos;
     else if (current_pos <= 79)
         start = 0x50 - 60 + current_pos;
-#elif defined(HD44780_KS0067B)
+#elif HD44780_TYPE == HD44780_KS0067B
     if (current_pos <= 19)
         start = 0x00 - 0 + current_pos;
     else if (current_pos <= 39)
