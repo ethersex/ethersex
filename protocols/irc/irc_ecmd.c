@@ -37,5 +37,5 @@ int16_t parse_cmd_irc(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(IRC Client)
-  ecmd_feature(irc, "irc init",,irc initialization)
+  ecmd_feature(irc, ``"irc init"'',,irc initialization)
 */
