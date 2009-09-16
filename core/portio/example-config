@@ -14,7 +14,3 @@ PA0	OUTPUT	 HIGH		p1
 PA1	OUTPUT	 HIGH		p2
 PA2	OUTPUT	 HIGH		p3
 PA3	OUTPUT	 HIGH		p4
-PA4     OUTPUT   HIGH           p5
-PA5     OUTPUT   HIGH           p6
-PA6     OUTPUT   HIGH           p7
-PA7     OUTPUT   HIGH           p8

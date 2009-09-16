@@ -1,4 +1,5 @@
 source scripts/usart-config.sh
+source scripts/namedPinCopy.sh
 mainmenu_name "Ethersex Configuration"
 get_usart_count
 
@@ -144,6 +145,7 @@ choice "I/O abstraction model (Port I/O)" \
 		define_bool PORTIO_SUPPORT y;
 	fi
 
+	copy_example_namedpin
 	dep_bool_editor "Named and logic state I/O" NAMED_PIN_SUPPORT "$NP_CONFIG"
 	source core/tty/config.in
 	source hardware/io_expander/config.in

@@ -29,7 +29,7 @@ control6/control6.c
 control6/control6.h
 
 # portio
-core/portio/config
+namedpinConfig.user
 core/portio/user_config.c
 core/portio/user_config.h
 

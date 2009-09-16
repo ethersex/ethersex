@@ -30,6 +30,38 @@
 #include "core/portio/portio.h"
 #include "protocols/ecmd/ecmd-base.h"
 
+/**
+ * Get all named pins in a list (separator is the newline character).
+ * Warning: this funtion return only that much entries that fit into
+ * the output buffer.
+ *
+ */
+int16_t parse_cmd_pin_list(char *cmd, char *output, uint16_t len)
+{
+    uint16_t help_len = 0;
+	uint8_t counter = 0;
+
+	while (1) {
+		/* get named-pin from array */
+	    const char *text = (const char *)pgm_read_word(&portio_pincfg[ counter++ ].name);
+		/* leave loop if end of array is reached or output buffer is too small */
+		if (text == NULL) break;
+		uint8_t lineLength = strlen_P (text);
+		if (help_len+lineLength+1>len) break;
+    	memcpy_P (output, text, lineLength);
+		output += lineLength;
+		/* add newline character */
+		*output = '\n';
+		++output;
+    	help_len += lineLength+1;
+	}
+
+	/* Remove last newline character */
+	if (help_len) --help_len;
+
+    return ECMD_FINAL(help_len);
+}
+
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
 {
   uint16_t port, pin;
@@ -156,6 +188,7 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Named Pins)
+  ecmd_feature(pin_list, "pin list", List all known named-pins.)
   ecmd_feature(pin_get, "pin get", NAME, Read and display the status of pin NAME.)
   ecmd_feature(pin_set, "pin set", NAME STATUS, Set the status of pin NAME to STATUS.)
   ecmd_feature(pin_toggle, "pin toggle", NAME, Toggle the status of pin NAME.)
