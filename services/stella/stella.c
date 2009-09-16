@@ -288,7 +288,7 @@ stella_sort()
 		{
 			// same value as current item: do not add to linked list
 			// but just update the portmask (DO THIS ONLY IF PORTS DIFFER)
-			if (current->value == cal_table->channel[i].value && current->port.port != cal_table->channel[i].port.port)
+			if (current->value == cal_table->channel[i].value && current->port.port == cal_table->channel[i].port.port)
 			{
 				#ifdef STELLA_PINS_PORT2
 				if (i>=STELLA_PINS_PORT1)
