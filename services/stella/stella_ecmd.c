@@ -69,7 +69,7 @@ int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 {
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), STELLA_PINS));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), STELLA_CHANNELS));
 }
 
 int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
@@ -88,7 +88,7 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	if (ret == 0)
 	{
 		ret = 0;
-		for (ch = 0; ch<STELLA_PINS*4; ch+=4,++ret)
+		for (ch = 0; ch<STELLA_CHANNELS*4; ch+=4,++ret)
 		{
 			value = stella_getValue(ret);
 			output[ch+2] = value%10 +48;
@@ -104,14 +104,14 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	// return one channel value
 	else if (ret == 1)
 	{
-		if (ch>=STELLA_PINS) return ECMD_ERR_PARSE_ERROR;
+		if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
 
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("%u"), stella_getValue(ch)));
 	}
 	// else set channel to value
 	else if (ret >= 2)
 	{
-		if (ch>=STELLA_PINS) return ECMD_ERR_PARSE_ERROR;
+		if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
 		stella_setValue(f, ch, value);
 
 		return ECMD_FINAL_OK;

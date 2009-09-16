@@ -33,7 +33,9 @@
 
 #define IPADDR_LEN sizeof(uip_ipaddr_t)
 
-
+#ifdef STELLA_SUPPORT
+#include "services/stella/stella.h"
+#endif
 
 struct eeprom_config_t {
 #ifdef ENC28J60_SUPPORT
@@ -68,7 +70,7 @@ struct eeprom_config_t {
 #endif
 
 #ifdef STELLA_SUPPORT
-	uint8_t stella_channel_values[8];
+	uint8_t stella_channel_values[STELLA_CHANNELS];
 	uint8_t stella_fadefunc;
 	uint8_t stella_fadestep;
 #endif

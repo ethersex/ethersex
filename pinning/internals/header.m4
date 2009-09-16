@@ -156,7 +156,7 @@ pin(PS21, $2, INPUT)
 #define PS2_vect SIG_INTERRUPT$1
 ')
 
-define(`STELLA_PORT_RANGE', `dnl
+define(`STELLA_PORT1_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl
 define(`stop', substr(`$2', 2, 1))dnl
@@ -169,10 +169,29 @@ define(`stop', substr(`$2', 2, 1))dnl
 			   complaining and get the port masks right. */
 pin(STELLA_PIN, format(`P%s%d', pinname, itr))
   ' )dnl
-#define STELLA_PINS eval(stop-start+1)
-#define STELLA_OFFSET start
-#define STELLA_PORT format(PORT%s, pinname)
-#define STELLA_DDR format(DDR%s, pinname)
+#define STELLA_PINS_PORT1 eval(stop-start+1)
+#define STELLA_OFFSET_PORT1 start
+#define STELLA_PORT1 format(PORT%s, pinname)
+#define STELLA_DDR_PORT1 format(DDR%s, pinname)
+')
+
+define(`STELLA_PORT2_RANGE', `dnl
+define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
+define(`start', substr(`$1', 2, 1))dnl
+define(`stop', substr(`$2', 2, 1))dnl
+  /* stella port range configuration: */
+  forloop(`itr', start, stop, `dnl
+#undef STELLA_PIN_PORT
+#undef STELLA_PIN_PIN
+#undef HAVE_STELLA_PIN  /* quite a hack, but should do the job *g*    \
+                           this is just to keep the preprocessor from \
+			   complaining and get the port masks right. */
+pin(STELLA_PIN, format(`P%s%d', pinname, itr))
+  ' )dnl
+#define STELLA_PINS_PORT2 eval(stop-start+1)
+#define STELLA_OFFSET_PORT2 start
+#define STELLA_PORT2 format(PORT%s, pinname)
+#define STELLA_DDR_PORT2 format(DDR%s, pinname)
 ')
 
 define(`ST7626_DATA_PORT', `dnl

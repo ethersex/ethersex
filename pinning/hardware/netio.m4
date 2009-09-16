@@ -12,9 +12,11 @@ ifdef(`conf_ONEWIRE', `dnl
 ')dnl
 
 ifdef(`conf_STELLA', `dnl
-  /* stella port */
-  STELLA_PORT_RANGE(PC0,PC7)
-')
+  /* stella port 1 */
+  STELLA_PORT1_RANGE(PC0,PC7)
+')dnl
+
+dnl STELLA_PORT2_RANGE(PA0,PA3)
 
 ifdef(`conf_STATUSLED_POWER', `dnl
 pin(STATUSLED_POWER, PA3, OUTPUT)
