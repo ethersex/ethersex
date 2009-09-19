@@ -22,7 +22,7 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 		choice 'Time Zone'					\
 		"UTC			TIMEZONE_UTC	\
 		CET/CEST		TIMEZONE_CEST"	\
-		UTC
+		UTC		TIMEZONE
 	fi
 	
 	comment  "Debugging Flags"
