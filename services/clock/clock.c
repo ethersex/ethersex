@@ -312,7 +312,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
   return timestamp;
 }
 
-#ifdef TIMEZONE == TIMEZONE_CEST
+#if TIMEZONE == TIMEZONE_CEST
 /* This function checks if the last day in month is:
  * -1: in the future
  *  0: today is the last sunday in month
@@ -336,7 +336,7 @@ static int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
 void
 clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
 {
-#ifdef TIMEZONE == TIMEZONE_CEST
+#if TIMEZONE == TIMEZONE_CEST
   clock_datetime(d, timestamp);
   /* We must determine, if we have CET or CEST */
   int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
