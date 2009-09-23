@@ -30,6 +30,7 @@
 #include "ntpd_net.h"
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
+static uint8_t ntp_stratum = 0;
 
 void
 ntpd_net_init(void)
@@ -78,10 +79,12 @@ ntpd_net_main(void)
     if (stratum == 1)
 	pkt->refid = 0x44434600;	/* DCF in Network byte order */
     else {
+#ifdef NTP_SUPPORT
         if (sizeof(uip_ipaddr_t) == 4)
-	    uip_ipaddr_copy((uip_ipaddr_t *) &pkt->refid, ntp_getserver());
-	else
-	    pkt->refid = 0x3F3F3F00;	/* some virtual identifer */
+            uip_ipaddr_copy((uip_ipaddr_t *) &pkt->refid, ntp_getserver());
+        else
+#endif /* NTP_SUPPORT */
+            pkt->refid = 0x3F3F3F00;	/* some virtual identifer */
     }
 #endif /* NTP_SUPPORT || DCF_SUPPORT */
 
@@ -102,6 +105,19 @@ ntpd_net_main(void)
     uip_slen = 0;
   }
 }
+
+uint8_t
+ntp_getstratum(void)
+{
+  return ntp_stratum;
+}
+
+void
+ntp_setstratum(uint8_t stratum)
+{
+  ntp_stratum = stratum;
+}
+
 
 /*
   -- Ethersex META --

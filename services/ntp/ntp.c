@@ -26,11 +26,11 @@
 #include "protocols/dns/resolv.h"
 #include "services/clock/clock.h"
 #include "ntp.h"
+#include "ntpd_net.h"
 #include "core/debug.h"
 #include "config.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
-static uint8_t ntp_stratum = 0;
 
 #ifdef DNS_SUPPORT
 void
@@ -106,18 +106,6 @@ ntp_send_packet(void)
 #endif
   router_output();
   uip_slen = 0;
-}
-
-uint8_t
-ntp_getstratum(void)
-{
-  return ntp_stratum;
-}
-
-void
-ntp_setstratum(uint8_t stratum)
-{
-  ntp_stratum = stratum;
 }
 
 void

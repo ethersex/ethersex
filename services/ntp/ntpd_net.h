@@ -28,5 +28,7 @@
 /* prototypes */
 void ntpd_net_init(void);
 void ntpd_net_main(void);
+uint8_t ntp_getstratum(void);
+void ntp_setstratum(uint8_t stratum);
 
 #endif /* _NTPD_NET_H */
