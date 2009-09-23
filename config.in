@@ -30,6 +30,12 @@ comment "General Setup"
 	bool "Build a bootloader" BOOTLOADER_SUPPORT
 	bool "Teensy build" TEENSY_SUPPORT
 	bool "Use SPI Timeout" SPI_TIMEOUT
+	bool "Use Usart in SPI Mode" USART_SPI_SUPPORT
+    if [ "$USART_SPI_SUPPORT" = y ]; then
+      choice '  SPI usart select' "$(usart_choice SPI)"
+      usart_process_choice SPI
+    fi
+
 	choice 'Version String'			\
 		"GIT-commit-hash       USE_GIT_VERSION	\
 		Release-Version       USE_RELEASE_VERSION	\

@@ -8,7 +8,13 @@ ifneq ($(DEBUG_USE_SYSLOG),y)
 $(DEBUG)_SRC += core/debug.c
 endif
 
-SRC += core/eeprom.c core/periodic.c core/spi.c
+ifneq ($(USART_SPI_SUPPORT),y)
+SRC += core/spi.c
+else
+SRC += core/spi_usart.c
+endif
+
+SRC += core/eeprom.c core/periodic.c 
 
 ##############################################################################
 # generic fluff

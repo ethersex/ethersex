@@ -59,6 +59,9 @@ usart_count_used() {
   if [ "$NMEA_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$USART_SPI_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
 }
 
 get_usart_count
