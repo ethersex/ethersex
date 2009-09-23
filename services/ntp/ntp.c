@@ -122,7 +122,9 @@ ntp_newdata(void)
     debug_printf("NTP: Set new time: %lu\n",ntp_timestamp);
 #endif
   clock_set_time(ntp_timestamp);
+#ifdef NTPD_SUPPORT
   ntp_setstratum(pkt->stratum);
+#endif
 
 }
 

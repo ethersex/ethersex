@@ -206,7 +206,9 @@ SIGNAL (SIG_COMPARATOR)
           uint32_t timestamp = clock_utc2timestamp(&dcfdate, dcf.timezone);
           DCFDEBUG("unix-time %lu\n", timestamp);
           clock_set_time(timestamp);
+#ifdef NTPD_SUPPORT
           ntp_setstratum(1);
+#endif
         }
         dcf.sync++;
       }
