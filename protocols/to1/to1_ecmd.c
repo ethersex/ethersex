@@ -67,5 +67,6 @@ next_sensor:
 
 /*
   -- Ethersex META --
+  block([[Tanküberwachung|TO1]])
   ecmd_feature(to1_get, "to1 get",,Request data from sensor)
 */

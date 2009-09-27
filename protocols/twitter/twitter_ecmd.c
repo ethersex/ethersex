@@ -40,5 +40,6 @@ int16_t parse_cmd_tw (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block([[Twitter]])
   ecmd_feature(tw, "tw ",MESSAGE,Send MESSAGE to compiled in twitter service)
 */

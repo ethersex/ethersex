@@ -36,6 +36,6 @@ parse_cmd_mysql_query (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(MySQL)
+  block([[MySQL]])
   ecmd_feature(mysql_query, "mysql query ",QUERY, Send specified MySQL query to the configured server)
 */
