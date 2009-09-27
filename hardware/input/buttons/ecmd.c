@@ -43,5 +43,5 @@ parse_cmd_push (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(push, "push ")
+  ecmd_feature(push, "push ", NUMBER,Push button identified by NUMBER)
 */

@@ -67,5 +67,5 @@ next_sensor:
 
 /*
   -- Ethersex META --
-  ecmd_feature(to1_get, "to1 get")
+  ecmd_feature(to1_get, "to1 get",,Request data from sensor)
 */

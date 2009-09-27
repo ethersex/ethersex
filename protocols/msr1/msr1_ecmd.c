@@ -72,5 +72,5 @@ parse_cmd_msr1_get(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(msr1_get, "msr1 get")
+  ecmd_feature(msr1_get, "msr1 get",,Get data)
 */

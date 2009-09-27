@@ -35,5 +35,5 @@ int16_t parse_cmd_whm(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Clock)
-  ecmd_feature(whm, "whm",, Display the uptime.)
+  ecmd_feature(whm, "whm",, Display ethersex uptime.)
 */

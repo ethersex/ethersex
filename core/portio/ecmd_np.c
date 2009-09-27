@@ -188,7 +188,7 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Named Pins)
-  ecmd_feature(pin_list, "pin list", List all known named-pins.)
+  ecmd_feature(pin_list, "pin list",, List all known named-pins.)
   ecmd_feature(pin_get, "pin get", NAME, Read and display the status of pin NAME.)
   ecmd_feature(pin_set, "pin set", NAME STATUS, Set the status of pin NAME to STATUS.)
   ecmd_feature(pin_toggle, "pin toggle", NAME, Toggle the status of pin NAME.)
