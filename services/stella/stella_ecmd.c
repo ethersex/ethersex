@@ -124,7 +124,7 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 
 /*
 -- Ethersex META --
-block(StellaLight commands)
+block([[Stella_Light]] commands)
 ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
 ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
 ecmd_feature(stella_channels, "channels",, Return stella channel size)

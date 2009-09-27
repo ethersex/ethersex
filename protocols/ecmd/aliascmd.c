@@ -111,6 +111,6 @@ parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(ECMD Aliases)
+  block([[AliasCmd]])
   ecmd_feature(alias_list, "alias list",, List all available aliases)
 */

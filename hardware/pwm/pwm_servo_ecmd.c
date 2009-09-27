@@ -71,7 +71,7 @@ parse_cmd_pwm_servo_dec(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   header(hardware/pwm/pwm_servo.h)
-  block(PWM Servo Control)
+  block([[Servo_Ansteuerung|PWM Servo Control]])
   ecmd_feature(pwm_servo_set, "pwm servo_set",SERVONR POSITION, Set servo with SERVONR to POSITION)
   ecmd_feature(pwm_servo_inc, "pwm servo_inc",SERVONR, Increment position of servo SERVONR)
   ecmd_feature(pwm_servo_dec, "pwm servo_dec",SERVONR, Decrement position of servo SERVONR)
