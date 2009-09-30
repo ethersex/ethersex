@@ -29,8 +29,6 @@
 #endif
 
 /* constants */
-#define HTTPD_PORT 80
-#define HTTPD_ALTERNATE_PORT 8000
 
 #define HTTPD_INDEX "idx.ht"
 #define ECMD_INDEX "ecmd"
