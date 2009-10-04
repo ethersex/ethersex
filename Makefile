@@ -71,6 +71,7 @@ SUBDIRS += services/wol
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
+SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
 
 rootbuild=t
