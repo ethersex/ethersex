@@ -78,7 +78,7 @@
 #define SUBNET_DEFAULT		0
 #define INUNIVERSE_DEFAULT	1
 #define OUTUNIVERSE_DEFAULT	0
-#define PORT_DEFAULT		0x1936
+//#define PORT_DEFAULT		0x1936
 #define NETCONFIG_DEFAULT	1
 
 /* ----------------------------------------------------------------------------
@@ -233,7 +233,7 @@ unsigned int   artnet_pollReplyCounter = 0;
 unsigned char  artnet_status = RC_POWER_OK;
 char           artnet_shortName[18];
 char           artnet_longName[64];
-unsigned short artnet_port = PORT_DEFAULT;
+unsigned short artnet_port = CONF_ARTNET_PORT;
 unsigned char  artnet_netConfig = NETCONFIG_DEFAULT;
 
 volatile unsigned char  artnet_dmxUniverse[MAX_CHANNELS];
@@ -304,7 +304,7 @@ void artnet_init(void) {
  /* read Art-Net port */
 //  eeprom_read_block(&artnet_port, (unsigned char *)ARTNET_PORT_EEPROM_STORE, 2);
 //  if (artnet_port == 0xFFFF) {
-  artnet_port = PORT_DEFAULT;
+  artnet_port = CONF_ARTNET_PORT;
 //  }
 
  /* read netconfig */
@@ -660,7 +660,7 @@ parse_cmd_artnet_pollreply (char *cmd, char *output, uint16_t len)
 //   /* reset to default */
 //   if ((ipprog->command & 8) == 8) {
 //    kill_udp_app(artnet_port);
-//    artnet_port = PORT_DEFAULT;
+//    artnet_port = CONF_ARTNET_PORT;
 //    eeprom_write_block(&artnet_port, (unsigned char *)ARTNET_PORT_EEPROM_STORE, 2);
 //    add_udp_app(artnet_port, (void(*)(unsigned char))artnet_get);
 //    artnet_netConfig = 0;
