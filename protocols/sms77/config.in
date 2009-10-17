@@ -1,0 +1,8 @@
+dep_bool_menu "SMS77 client (EXPERIMENTAL)" SMS77_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+  string "Server" CONF_SMS77_SERVICE "gateway.sms77.de"
+  string "Username" CONF_SMS77_USER ""
+  string "Password" CONF_SMS77_PASS ""
+  string "Receiver" CONF_SMS77_TO ""
+	comment  "Debugging Flags"
+	dep_bool 'SMS77' DEBUG_SMS77 $DEBUG $SMS77_SUPPORT
+endmenu
