@@ -184,6 +184,10 @@ void stella_setFadestep(const uint8_t fadestep) {
   stella_fade_step = fadestep;
 }
 
+uint8_t stella_getFadestep() {
+  return stella_fade_step;
+}
+
 /* Get a channel value.
  * Only call this function with a channel<STELLA_CHANNELS ! */
 inline uint8_t
