@@ -38,6 +38,7 @@ SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
 SUBDIRS += protocols/mysql
 SUBDIRS += protocols/smtp
+SUBDIRS += protocols/sms77
 SUBDIRS += protocols/snmp
 SUBDIRS += protocols/syslog
 SUBDIRS += protocols/uip

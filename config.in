@@ -189,6 +189,7 @@ source protocols/netstat/config.in
 source protocols/soap/config.in
 source protocols/snmp/config.in
 source protocols/smtp/config.in
+source protocols/sms77/config.in
 source protocols/syslog/config.in
 source protocols/twitter/config.in
 source protocols/yport/config.in
