@@ -77,7 +77,7 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	char f=0;
 	uint8_t ch=0;
 	uint8_t value=0;
-	int8_t ret = 0;
+	uint16_t ret = 0; // must be 16 bit; because the answer length may be > 255
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
 	
 	if (f=='s') f = 0; // set
@@ -87,19 +87,26 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	// return all channel values
 	if (ret == 0)
 	{
-		ret = 0;
-		for (ch = 0; ch<STELLA_CHANNELS*4; ch+=4,++ret)
+		// First return amount of channels with three bytes
+		output[0] = ((uint8_t)STELLA_CHANNELS)/10 +48;
+		output[1] = ((uint8_t)STELLA_CHANNELS)%10 +48;
+		output[2] = '\n';
+		output += 3;
+	  
+		// return channel values
+		for (ch = 0, ret = 0; ch<STELLA_CHANNELS; ret+=4,++ch)
 		{
-			value = stella_getValue(ret);
-			output[ch+2] = value%10 +48;
+			value = stella_getValue(ch);
+			output[ret+2] = value%10 +48;
 			value /= 10;
-			output[ch+1] = value%10 +48;
+			output[ret+1] = value%10 +48;
 			value /= 10;
-			output[ch+0] = value%10 +48;
-			output[ch+3] = '\n';
+			output[ret+0] = value%10 +48;
+			output[ret+3] = '\n';
 		}
-		if (ch>0) --ch;
-		return ch;
+		// remove last newline character
+		if (ret>0) --ret;
+		return ret;
 	}
 	// return one channel value
 	else if (ret == 1)
