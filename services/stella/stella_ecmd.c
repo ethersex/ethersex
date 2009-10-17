@@ -88,13 +88,12 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	if (ret == 0)
 	{
 		// First return amount of channels with three bytes
-		output[0] = ((uint8_t)STELLA_CHANNELS)/10 +48;
-		output[1] = ((uint8_t)STELLA_CHANNELS)%10 +48;
-		output[2] = '\n';
-		output += 3;
+		output[ret++] = ((uint8_t)STELLA_CHANNELS)/10 +48;
+		output[ret++] = ((uint8_t)STELLA_CHANNELS)%10 +48;
+		output[ret++] = '\n';
 	  
 		// return channel values
-		for (ch = 0, ret = 0; ch<STELLA_CHANNELS; ret+=4,++ch)
+		for (ch = 0; ch<STELLA_CHANNELS; ret+=4,++ch)
 		{
 			value = stella_getValue(ch);
 			output[ret+2] = value%10 +48;

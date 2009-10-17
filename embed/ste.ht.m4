@@ -18,9 +18,18 @@ function stella_inittable(request) {
 	}
 
 	initial_fetch = true;
-	channels = request.responseText.split("\n");
+	var channels_source = request.responseText.split("\n");
+	var channel_length = parseInt(channels[0]);
+	var channels = channels_source.slice(1);
 
-	for (var i = 0; i < channels.length-1; i++) {
+	if (channel_length > channels.length-1) {
+		channel_length = channels.length-1;
+		ow_caption.innerHTML = (channel_length) + " Channels loaded. (Channelcount!=received Channels)";
+	} else {
+		ow_caption.innerHTML = (channel_length) + " Channels loaded.";
+	}
+
+	for (var i = 0; i < channel_length; i++) {
 		txt = "<td>Channel "+i+"</td>";
 		for (var j = 0;j <= 10; j++) {
 			txt += "<td><a href='javascript:stella("+i+","+Math.round(j*25.5)+");'>"+j*10+"%</a></td>";
@@ -29,7 +38,6 @@ function stella_inittable(request) {
 		ow_table.insertRow(i+1).innerHTML = txt;
 	}
 
-	ow_caption.innerHTML = (channels.length-1) + " Channels loaded.";
 	stella_update();
 }
 
