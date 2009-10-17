@@ -180,6 +180,10 @@ stella_setValue(const enum stella_set_function func, const uint8_t channel, cons
 	}
 }
 
+void stella_setFadestep(const uint8_t fadestep) {
+  stella_fade_step = fadestep;
+}
+
 /* Get a channel value.
  * Only call this function with a channel<STELLA_CHANNELS ! */
 inline uint8_t
