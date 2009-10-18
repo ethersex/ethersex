@@ -28,16 +28,17 @@
 
 #include "config.h"
 #include "protocols/uip/uip.h"
-#include "protocols/dns/resolv.h"MS77_TO  "&type=basicplus&text=";
+#include "protocols/dns/resolv.h"
+#include "core/eeprom.h"
 #include "sms77.h"
 
 static char *sms77_tmp_buf;
 
-static const char PROGMEM sms77_header[] =
-    "GET /?u=" CONF_SMS77_USER "&p=" CONF_SMS77_PASS "&to=" CONF_SMS77_TO  "&type=basicplus&text="; 
+//static const char PROGMEM sms77_header[] =
+//     "GET /?u=" CONF_SMS77_USER "&p=" CONF_SMS77_PASS "&to=" CONF_SMS77_TO  "&type=basicplus&text=";
     
 static const char PROGMEM sms77_secheader[] =
-    " HTTP/1.1\n"
+    "\nHTTP/1.1\n"
     "Host: " CONF_SMS77_SERVICE "\n\n";
 
 
@@ -64,7 +65,8 @@ urlencode(char* src, int nb, char* dst)
 
 static void
 sms77_net_main(void)
-{
+{	
+	
     if (uip_aborted() || uip_timedout()) {
 	SMSDEBUG ("connection aborted\n");
         if (sms77_tmp_buf) {
@@ -87,7 +89,8 @@ sms77_net_main(void)
     if (uip_connected() || uip_rexmit()) {
 	SMSDEBUG ("new connection or rexmit, sending message\n");
         char *p = uip_appdata;
-        p += sprintf_P(p, sms77_header);
+        //p += sprintf_P(p, sms77_header);
+        p += sprintf(p,  "GET /?u=%s&p=%s&to=%s&type=basicplus&text=", sms77_user, sms77_pass, sms77_recv);
         p += urlencode(sms77_tmp_buf, strlen(sms77_tmp_buf), p);
         p += sprintf_P(p, sms77_secheader);
         uip_udp_send(p - (char *)uip_appdata);
@@ -139,8 +142,23 @@ sms77_send(char *status)
   return 1;
 }
 
+void
+sms77_init(void)
+{
+#ifdef SMS77_EEPROM_SUPPORT
+	eeprom_restore(sms77_username, &sms77_user, 16);
+	eeprom_restore(sms77_password, &sms77_pass, 16);
+	eeprom_restore(sms77_receiver, &sms77_recv, 16);
+#else
+	sprintf(sms77_user, "%s", CONF_SMS77_USER);
+	sprintf(sms77_pass, "%s", CONF_SMS77_PASS);
+	sprintf(sms77_recv, "%s", CONF_SMS77_TO);
+#endif	
+}
+
 
 
 /*
   -- Ethersex META --
+  init(sms77_init)
 */

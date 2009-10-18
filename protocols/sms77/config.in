@@ -1,5 +1,6 @@
 dep_bool_menu "SMS77 client (EXPERIMENTAL)" SMS77_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
   string "Server" CONF_SMS77_SERVICE "gateway.sms77.de"
+  dep_bool 'Use EEPROM' SMS77_EEPROM_SUPPORT $SMS77_SUPPORT
   string "Username" CONF_SMS77_USER ""
   string "Password" CONF_SMS77_PASS ""
   string "Receiver" CONF_SMS77_TO ""

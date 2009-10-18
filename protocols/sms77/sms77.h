@@ -22,7 +22,12 @@
 #ifndef HAVE_SMS77_H
 #define HAVE_SMS77_H
 
+char sms77_user[16];
+char sms77_pass[16];
+char sms77_recv[16];
+
 uint8_t sms77_send(char *);
+void sms77_init(void);
 
 
 #include "config.h"

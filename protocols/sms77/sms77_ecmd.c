@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "sms77.h"
+#include "core/eeprom.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -38,8 +39,71 @@ int16_t parse_cmd_sm (char *cmd, char *output, uint16_t len)
   return ECMD_FINAL(snprintf_P(cmd, len, PSTR("sending failed")));
 }
 
+#ifdef SMS77_EEPROM_SUPPORT
+
+int16_t parse_cmd_user (char *cmd, char *output, uint16_t len)
+{
+	SMSDEBUG ("username\n");
+	while (*cmd == ' ')
+	cmd++;
+
+    if (*cmd != '\0') {
+		sprintf_P(sms77_user, cmd);
+		eeprom_save(sms77_username, sms77_user, strlen(sms77_user));
+		eeprom_update_chksum();
+		SMSDEBUG ("set new : %s\n",cmd);
+		return ECMD_FINAL_OK;
+    }
+    else {
+    	SMSDEBUG ("get current : %s\n ",sms77_user);
+		return ECMD_FINAL(*sms77_user);
+    }	
+}
+
+int16_t parse_cmd_pass (char *cmd, char *output, uint16_t len)
+{
+	
+	while (*cmd == ' ')
+	cmd++;
+
+    if (*cmd != '\0') {
+	
+		sprintf_P(sms77_pass, cmd);
+		eeprom_save(sms77_password, cmd, strlen(cmd));
+		eeprom_update_chksum();
+		return ECMD_FINAL_OK;
+    }
+    else {
+		return ECMD_FINAL(*sms77_pass);
+    }	
+}
+
+int16_t parse_cmd_recv (char *cmd, char *output, uint16_t len)
+{
+	
+	while (*cmd == ' ')
+	cmd++;
+
+    if (*cmd != '\0') {
+	
+		sprintf_P(sms77_recv, cmd);
+		eeprom_save(sms77_receiver, cmd, strlen(cmd));
+		eeprom_update_chksum();
+		return ECMD_FINAL_OK;
+    }
+    else {
+		return ECMD_FINAL(*sms77_recv);
+    }	
+}
+
+#endif
+
 /*
   -- Ethersex META --
   block([[SMS77]])
   ecmd_feature(sm, "sms77 ",MESSAGE,Send MESSAGE to compiled in sms77 service)
+  ecmd_feature(user, "sms77_user", [USERNAME], SMS77 username)
+  ecmd_feature(pass, "sms77_pass", [PASSWORD], SMS77 password)
+  ecmd_feature(recv, "sms77_recv", [RECEIVER], SMS receiver)
 */
+

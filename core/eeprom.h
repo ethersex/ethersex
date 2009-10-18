@@ -75,6 +75,12 @@ struct eeprom_config_t {
 	uint8_t stella_fadestep;
 #endif
 
+#ifdef SMS77_EEPROM_SUPPORT
+	char sms77_username[16];
+	char sms77_password[16];
+	char sms77_receiver[16];
+#endif
+
     uint8_t crc;
 };
 
