@@ -37,6 +37,10 @@
 #include "services/stella/stella.h"
 #endif
 
+#ifdef SMS77_EEPROM_SUPPORT
+#include "protocols/sms77/sms77.h"
+#endif
+
 struct eeprom_config_t {
 #ifdef ENC28J60_SUPPORT
     uint8_t mac[6];
@@ -76,9 +80,9 @@ struct eeprom_config_t {
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
-	char sms77_username[16];
-	char sms77_password[16];
-	char sms77_receiver[16];
+	char sms77_username[SMS77_VALUESIZE];
+	char sms77_password[SMS77_VALUESIZE];
+	char sms77_receiver[SMS77_VALUESIZE];
 #endif
 
     uint8_t crc;

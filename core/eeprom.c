@@ -118,6 +118,11 @@ eeprom_init (void)
 	eeprom_save (stella_channel_values, v, 10);
 #endif
 
+#ifdef SMS77_EEPROM_SUPPORT
+	eeprom_save_P(sms77_username, PSTR(CONF_SMS77_USER), SMS77_VALUESIZE);
+	eeprom_save_P(sms77_password, PSTR(CONF_SMS77_PASS), SMS77_VALUESIZE);
+	eeprom_save_P(sms77_receiver, PSTR(CONF_SMS77_TO), SMS77_VALUESIZE);
+#endif
     eeprom_update_chksum();
 }
 

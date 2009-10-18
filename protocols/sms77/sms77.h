@@ -22,9 +22,11 @@
 #ifndef HAVE_SMS77_H
 #define HAVE_SMS77_H
 
-char sms77_user[16];
-char sms77_pass[16];
-char sms77_recv[16];
+#define SMS77_VALUESIZE 16
+
+char sms77_user[SMS77_VALUESIZE];
+char sms77_pass[SMS77_VALUESIZE];
+char sms77_recv[SMS77_VALUESIZE];
 
 uint8_t sms77_send(char *);
 void sms77_init(void);

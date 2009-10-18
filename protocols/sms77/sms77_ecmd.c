@@ -48,15 +48,16 @@ int16_t parse_cmd_user (char *cmd, char *output, uint16_t len)
 	cmd++;
 
     if (*cmd != '\0') {
-		sprintf_P(sms77_user, cmd);
-		eeprom_save(sms77_username, sms77_user, strlen(sms77_user));
+		memset(sms77_user, 0, SMS77_VALUESIZE);
+		memcpy(sms77_user, cmd, SMS77_VALUESIZE);
+		eeprom_save(sms77_username, cmd, strlen(cmd));
 		eeprom_update_chksum();
 		SMSDEBUG ("set new : %s\n",cmd);
 		return ECMD_FINAL_OK;
     }
     else {
     	SMSDEBUG ("get current : %s\n ",sms77_user);
-		return ECMD_FINAL(*sms77_user);
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), sms77_user));
     }	
 }
 
@@ -67,14 +68,14 @@ int16_t parse_cmd_pass (char *cmd, char *output, uint16_t len)
 	cmd++;
 
     if (*cmd != '\0') {
-	
-		sprintf_P(sms77_pass, cmd);
+		memset(sms77_pass, 0, SMS77_VALUESIZE);
+		memcpy(sms77_pass, cmd, SMS77_VALUESIZE);
 		eeprom_save(sms77_password, cmd, strlen(cmd));
 		eeprom_update_chksum();
 		return ECMD_FINAL_OK;
     }
     else {
-		return ECMD_FINAL(*sms77_pass);
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), sms77_pass));
     }	
 }
 
@@ -86,17 +87,19 @@ int16_t parse_cmd_recv (char *cmd, char *output, uint16_t len)
 
     if (*cmd != '\0') {
 	
-		sprintf_P(sms77_recv, cmd);
+		memset(sms77_recv, 0, SMS77_VALUESIZE);
+		memcpy(sms77_recv, cmd, SMS77_VALUESIZE);
 		eeprom_save(sms77_receiver, cmd, strlen(cmd));
 		eeprom_update_chksum();
 		return ECMD_FINAL_OK;
     }
     else {
-		return ECMD_FINAL(*sms77_recv);
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), sms77_recv));
     }	
 }
 
 #endif
+
 
 /*
   -- Ethersex META --
