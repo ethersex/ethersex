@@ -105,8 +105,10 @@ int16_t parse_cmd_recv (char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[SMS77]])
   ecmd_feature(sm, "sms77 ",MESSAGE,Send MESSAGE to compiled in sms77 service)
+ecmd_ifdef(SMS77_EEPROM_SUPPORT)
   ecmd_feature(user, "sms77_user", [USERNAME], SMS77 username)
   ecmd_feature(pass, "sms77_pass", [PASSWORD], SMS77 password)
   ecmd_feature(recv, "sms77_recv", [RECEIVER], SMS receiver)
+ecmd_endif()
 */
 
