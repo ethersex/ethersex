@@ -1819,3 +1819,11 @@ SMS_SUPPORT
 		* siemens mt50
 
 
+Inline PWM Servo
+PWM_SERVO_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * PWM Servo (PWM_SERVO_SUPPORT)
+
+  Enable this to get an example inline page for servo control.
+

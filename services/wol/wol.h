@@ -1,9 +1,10 @@
-/*
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+/*                     -*- mode: C; c-file-style: "stroustrup"; -*-
+ *
+ * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,23 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
+#ifndef WOL_H
+#define WOL_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+int16_t parse_cmd_wol (char *cmd, char *output, uint16_t len) 
 
-#include "config.h"
-#include "irc.h"
-
-int16_t parse_cmd_irc(char *cmd, char *output, uint16_t len) 
-{
-  irc_init(); 
-  return snprintf_P(cmd, len, PSTR("irc init"));
-}
-
-/*
-  -- Ethersex META --
-  block(IRC Client)
-  ecmd_feature(irc, ``"irc init"'',,irc service re-initialization)
-*/
+#endif /* UDP_ECHO_NET_H */

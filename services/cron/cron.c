@@ -160,7 +160,10 @@ cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 			newone->next = job;
 			if (job==head) head = newone;
 			#ifdef DEBUG_CRON
-			debug_printf("cron: insert %i\n", ss);
+			if (newone->event.cmd == CRON_JUMP)
+			  debug_printf("cron: insert at %i jump \n", ss);
+			else
+			  debug_printf("cron: insert at %i ecmd %s\n", ss, newone->event.ecmddata);
 			#endif
 		} else // insert as last element
 		{

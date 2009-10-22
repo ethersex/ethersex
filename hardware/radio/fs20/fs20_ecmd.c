@@ -100,7 +100,7 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
     /* clear queue */
     fs20_global.fs20.len = 0;
 
-    return ECM_FINAL(outlen);
+    return ECMD_FINAL(outlen);
 }
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT

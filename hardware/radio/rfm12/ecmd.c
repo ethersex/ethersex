@@ -123,7 +123,7 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(RFM12)
+  block([[RFM12]])
   ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
   ecmd_ifdef(RFM12_IP_SUPPORT)
     ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)

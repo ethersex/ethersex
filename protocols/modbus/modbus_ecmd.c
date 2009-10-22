@@ -88,5 +88,6 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(modbus_recv, "mb recv ")
+  block([[Modbu]])
+  ecmd_feature(modbus_recv, "mb recv ",,Receive data from modbus)
 */

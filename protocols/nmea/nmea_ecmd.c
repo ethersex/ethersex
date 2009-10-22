@@ -54,6 +54,7 @@ parse_cmd_nmea_satellites(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(nmea_get, "nmea get")
-  ecmd_feature(nmea_satellites, "nmea satellites")
+  block([[GPS]])
+  ecmd_feature(nmea_get, "nmea get",,Get latitude and longitude data)
+  ecmd_feature(nmea_satellites, "nmea satellites",,Get satellites)
 */

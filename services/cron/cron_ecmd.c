@@ -88,7 +88,7 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Cron commands (dynamic variant))
+  block([[CRON-Dienst]])
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
   ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
   ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)

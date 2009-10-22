@@ -2,7 +2,7 @@
 use strict;
 my $default_block = "Miscelleanous";
 
-# block(Clock)
+# block([[Am_Puls_der_Zeit|Clock]])
 # ecmd_feature(time, "time",, Display the current time in seconds since January 1st 1970.)
 
 my %data;
@@ -17,7 +17,7 @@ while(<>) {
 print<<FNORD
 <div class="errorbox">
 This page is automatically generated from the files in the Ethersex source code
-repository.  Do not edit this page but send patches for those files!
+repository.  Do not edit this page but send [[patches]] for those files!
 </div>
 
 __NOTOC__

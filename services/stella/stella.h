@@ -110,6 +110,8 @@ void stella_process(void);
 
 uint8_t stella_getValue(const uint8_t channel);
 void stella_setValue(const enum stella_set_function func, const uint8_t channel, const uint8_t value);
+void stella_setFadestep(const uint8_t fadestep);
+uint8_t stella_getFadestep();
 
 void stella_loadFromEEROM(void);
 void stella_loadFromEEROMFading(void);

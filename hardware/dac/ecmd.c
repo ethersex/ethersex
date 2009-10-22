@@ -45,6 +45,6 @@ int16_t parse_cmd_tlc5620(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Digital/Analog Conversion (DAC))
+  block(Digital/Analog Conversion ([[DAC]]))
   ecmd_feature(tlc5620, "tlc5620 ", `[CHANNEL] [VALUE], Set Output to value (Value: 0-0xff)')
 */

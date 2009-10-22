@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +20,38 @@
  */
 
 #include <avr/pgmspace.h>
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "buttons.h"
-
+#include "config.h"
+#include "appsample.h"
 #include "protocols/ecmd/ecmd-base.h"
 
-
-int16_t
-parse_cmd_push (char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_app_sample_command(char *cmd, char *output, uint16_t len) 
 {
-  uint8_t button = atoi (cmd);
-  if (button < CONF_NUM_BUTTONS)
-    {
-      hook_buttons_input_call (button);
-      return ECMD_FINAL_OK;
-    }
+  // enter your commands here
 
-  return ECMD_ERR_PARSE_ERROR;
+  return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_app_sample_init(char *cmd, char *output, uint16_t len) 
+{
+  app_sample_init();
+  return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_app_sample_periodic(char *cmd, char *output, uint16_t len) 
+{
+  app_sample_periodic();
+  return ECMD_FINAL_OK;
 }
 
 /*
-  -- Ethersex META --
-  block(Button Input)
-  ecmd_feature(push, "push ", NUMBER,Push button identified by NUMBER)
+-- Ethersex META --
+block([[Application_Sample]])
+ecmd_feature(app_sample_command, "sample ",, Manually call application sample commands)
+ecmd_feature(app_sample_init, "sample_init",, Manually call application sample init method)
+ecmd_feature(app_sample_periodic, "sample_periodic",, Manually call application sample periodic method)
 */

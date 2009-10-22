@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +20,33 @@
  */
 
 #include <avr/pgmspace.h>
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "buttons.h"
+#include "config.h"
+#include "appsample.h"
 
-#include "protocols/ecmd/ecmd-base.h"
-
-
-int16_t
-parse_cmd_push (char *cmd, char *output, uint16_t len)
+void
+app_sample_init(void)
 {
-  uint8_t button = atoi (cmd);
-  if (button < CONF_NUM_BUTTONS)
-    {
-      hook_buttons_input_call (button);
-      return ECMD_FINAL_OK;
-    }
+  APPSAMPLEDEBUG ("init\n");
+}
 
-  return ECMD_ERR_PARSE_ERROR;
+void
+app_sample_periodic(void)
+{
+  APPSAMPLEDEBUG ("periodic\n");
 }
 
 /*
   -- Ethersex META --
-  block(Button Input)
-  ecmd_feature(push, "push ", NUMBER,Push button identified by NUMBER)
+  header(services/appsample/appsample.h)
+  ecmd_ifdef(APP_SAMPLE_INIT_AUTOSTART)
+    init(app_sample_init)
+  ecmd_endif()
+  ecmd_ifdef(APP_SAMPLE_PERIODIC_AUTOSTART)
+    timer(100,app_sample_periodic())
+  ecmd_endif()
 */

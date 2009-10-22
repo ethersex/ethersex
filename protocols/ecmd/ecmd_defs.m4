@@ -36,7 +36,7 @@ ecmd_ifndef(DISABLE_REBOOT_SUPPORT)
   ecmd_feature(bootloader, "bootloader",,Call the bootloader.)
 ecmd_endif()
 
-block(RFM12 ASK) dnl ==========================
+block([[RFM12_ASK]]) dnl ==========================
 ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
   ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
   ecmd_feature(rfm12_ask_tevion_send, "rfm12 tevion", , housecode command delay cnt)
@@ -52,7 +52,7 @@ ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
   ecmd_feature(rfm12_ask_sense, "rfm12 ask sense",, Trigger (Tevion) ASK sensing.  Enable ext. filter pin before!)
 ecmd_endif()
 
-block(Sound/Melody support) dnl ==========================
+block([[Sound]]/Melody support) dnl ==========================
 ecmd_ifdef(PWM_MELODY_SUPPORT)
   ecmd_feature(pwm_melody_play, "pwm melody", , Play melody)
 ecmd_endif
@@ -62,7 +62,7 @@ ecmd_ifdef(PWM_WAV_SUPPORT)
   ecmd_feature(pwm_wav_stop, "pwm stop", , Stop wav)
 ecmd_endif
 
-block(I2C (TWI)) dnl ==========================
+block([[I2C]] (TWI)) dnl ==========================
 ecmd_ifdef(I2C_DETECT_SUPPORT)
   ecmd_feature(i2c_detect, "i2c detect",,list detected I2C Chips)
 ecmd_endif
@@ -78,7 +78,7 @@ ecmd_ifdef(I2C_PCF8574X_SUPPORT)
   ecmd_feature(i2c_pcf8574x_set, "pcf8574x set",ADDR CHIP HEXVALUE, Set bits)
 ecmd_endif
 
-block(MCUF) dnl ============================
+block([[Blinkenlights_MCUF|MCUF]]) dnl ============================
 ecmd_ifdef(MCUF_SUPPORT)
   ecmd_ifdef(MCUF_CLOCK_SUPPORT)
     ecmd_feature(mcuf_show_clock, "mcuf showclock",, Show digital clock)
@@ -92,7 +92,7 @@ ecmd_ifdef(MCUF_SUPPORT)
   ecmd_endif
 ecmd_endif
 
-block(FS20) dnl ==========================
+block([[FS20]]) dnl ==========================
 ecmd_ifdef(FS20_SUPPORT)
   ecmd_ifdef(FS20_SEND_SUPPORT)
     ecmd_feature(fs20_send, "fs20 send",HOUSECODE ADDR CMD, Send FS20 command. See [[FS20]] for details.)
