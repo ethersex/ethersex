@@ -7,7 +7,7 @@ Contents:
 6. Various make targets
 
 ===== 1. About Ethersex =====
-Ethersex, originally developed to provide an alternative firmware for the etherrape[1] hadware,
+Ethersex, originally developed to provide an alternative firmware for the etherrape[1] hardware,
 evolved into a full-featured still light-weight firmware for the atmel atmega processors.
 For more information and a comprehensive documentation (in german) consult http://www.ethersex.de!
 
