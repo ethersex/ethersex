@@ -1,8 +1,26 @@
-Ethersex is an alternative firmware for the etherrape.  For more information
-see http://www.ethersex.de
+Contents:
+1. About Ethersex
+2. How to add a new hardware pinning
+3. How to configure the firmware
+4. Used 3rd party software
+5. License
+6. Various make targets
 
-For more information about the etherrape see http://www.lochraster.org/etherrape
+===== 1. About Ethersex =====
+Ethersex, originally developed to provide an alternative firmware for the etherrape[1] hadware,
+evolved into a full-featured still light-weight firmware for the atmel atmega processors.
+For more information and a comprehensive documentation (in german) consult http://www.ethersex.de!
 
+[1]: (etherrape) http://www.lochraster.org/etherrape
+
+===== 2. How to add a new hardware pinning =====
+[Wiki for more information: ethersex.de] Use the script at scripts/add-hardware to add a new pinning.
+
+===== 3. How to configure the firmware =====
+[Wiki for more information: ethersex.de] Make sure that you meet the requirements.
+Use "make menuconfig" to configure and "make" to compile the firmware. The final hex file is named "ethersex.hex".
+
+===== 4. Used 3rd party software =====
 This program contains software by other authors:
 
 * the uIP tcp/ip stack, in the directory uip/ (see http://www.sics.se/~adam/uip),
@@ -10,11 +28,11 @@ This program contains software by other authors:
 * usb-software stack from obdev in usb/usbdrv/ (see http://www.obdev.at/products/vusb/index.html)
 * sd card reader in sd_reader from http://www.roland-riegel.de/sd-reader/index.html
 
-All other code should be licensed as GPL, see the file COPYING in the main
-directory, but in doubt check the file header. Every file should contain a
-header, stating all contributing authors and the specific license for that
-file.
+===== 5. License =====
+All ethersex related code is licensed under GPLv3, unless otherwise noted. See COPYING in the main
+directory, but in doubt check the file header. Usually every file contain a
+header, stating all contributing authors and the specific license used.
 
-===== Various make targets =====
+===== 6. Various make targets =====
 
 * make show-config -- Show the activated modules
