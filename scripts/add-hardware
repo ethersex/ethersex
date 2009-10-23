@@ -2,9 +2,9 @@
 
 usage() {
   echo "Usage:"
-  echo "  add-hardware-brockend NAME"
+  echo "  add-hardware NAME"
   echo ""
-  echo "Generate new hardware template for NAME below pinning/hardware/"
+  echo "Generate new hardware template at pinning/hardware/user-NAME"
   echo "and start a sensible editor afterwards."
   exit $1
 }
@@ -12,7 +12,7 @@ usage() {
 if test "x$1" = "x-h"; then usage 0; fi
 if test "x$1" = "x--help"; then usage 0; fi
 
-hw=$1; shift;
+hw=user-$1; shift;
 
 while test "x`pwd`" != "x/"; do
   [ -e pinning ] && break
