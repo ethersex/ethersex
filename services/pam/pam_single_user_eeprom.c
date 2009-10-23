@@ -93,5 +93,6 @@ display_password:
 
 /*
   -- Ethersex META --
+  block(Miscelleanous)
   ecmd_feature(pam, "pam", USER PASSWORD, Use pam for user and password)
 */

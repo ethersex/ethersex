@@ -879,5 +879,6 @@ void artnet_get(void) {
   -- Ethersex META --
   header(protocols/artnet/artnet.h)
   net_init(artnet_init)
+  block(Miscelleanous)
   ecmd_feature(artnet_pollreply, "artnet test",,artnet test)
 */
