@@ -199,21 +199,27 @@ stella_getValue(const uint8_t channel)
 void
 stella_loadFromEEROMFading()
 {
+	#ifndef TEENSY_SUPPORT
 	eeprom_restore(stella_channel_values, stella_fade, STELLA_CHANNELS);
+	#endif
 }
 
 void
 stella_loadFromEEROM()
 {
+	#ifndef TEENSY_SUPPORT
 	eeprom_restore(stella_channel_values, stella_fade, STELLA_CHANNELS);
 	memcpy(stella_brightness, stella_fade, STELLA_CHANNELS);
 	stella_sync = UPDATE_VALUES;
+	#endif
 }
 
 void
 stella_storeToEEROM()
 {
+	#ifndef TEENSY_SUPPORT
 	eeprom_save(stella_channel_values, stella_brightness, STELLA_CHANNELS);
+	#endif
 }
 
 /* How to use:
