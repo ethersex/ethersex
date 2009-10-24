@@ -2,6 +2,7 @@
 #define _ATMEGA128
 
 /* ATmega128 specific adjustments */
+#define _TIMSK_TIMER0 TIMSK
 #define _TIMSK_TIMER1 TIMSK
 #define _IVREG MCUCR
 #define _EIMSK EIMSK
@@ -58,7 +59,9 @@
     #define _SPI2X0 SPI2X
 #endif
 
+#define _TIFR_TIMER0 TIFR
 #define _TIFR_TIMER1 TIFR
+#define _TIFR_TIMER2 TIFR
 
 /* i did not test the following stuff... cheers, ths. */
 #define BOOTLOADER_SECTION 0x1e000 /* atmega128 with 4096 words bootloader */
