@@ -26,6 +26,7 @@
 enum msr1_state {
   MSR1_REQUEST_E8,
   MSR1_REQUEST_C0,
+  MSR1_REQUEST_48,
 };
 
 /* Default baudrate */
@@ -40,7 +41,7 @@ struct msr1_e8_info {
   uint8_t chksum;
 };
 
-struct msr1_c0_info {
+struct msr1_generic_info {
   uint8_t data[76];
   uint8_t len;
   uint8_t chksum;

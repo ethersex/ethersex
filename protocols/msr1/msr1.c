@@ -47,10 +47,10 @@
 generate_usart_init()
 
 uint8_t state;
-struct msr1_e8_info e8_data;
-struct msr1_e8_info e8_data_new;
-struct msr1_c0_info c0_data;
-struct msr1_c0_info c0_data_new;
+struct msr1_generic_info new_data; /* This is used for all incoming messages */
+struct msr1_e8_info      msr1_e8_data;
+struct msr1_generic_info msr1_c0_data;
+struct msr1_generic_info msr1_48_data; /* This Should be 48_info */
 
 void
 msr1_init(void)
@@ -63,16 +63,19 @@ msr1_init(void)
 void
 msr1_periodic(void)
 {
+  new_data.chksum = 0;
+  new_data.len = 0;
+
   if (state == MSR1_REQUEST_C0) {
     state = MSR1_REQUEST_E8;
-    e8_data_new.chksum = 0;
-    e8_data_new.len = 0;
     usart(UDR) = 0xe8;
     MSR1_DEBUG("sent e8 command\n");
+  } else if (state == MSR1_REQUEST_E8) {
+    state = MSR1_REQUEST_48;
+    usart(UDR) = 0x48;
+    MSR1_DEBUG("sent 48 command\n");
   } else {
     state = MSR1_REQUEST_C0;
-    c0_data_new.chksum = 0;
-    c0_data_new.len = 0;
     usart(UDR) = 0xc0;
     MSR1_DEBUG("sent c0 command\n");
   }
@@ -88,30 +91,37 @@ SIGNAL(usart(USART,_RX_vect))
     return;
   }
   uint8_t data = usart(UDR);
+  new_data.data[new_data.len++] = data;
+  new_data.chksum ^= data;
+
   if (state == MSR1_REQUEST_E8) {
-    e8_data_new.data[e8_data_new.len++] = data;
-    e8_data_new.chksum ^= data;
-    if (e8_data_new.len == 22) {
-      if (e8_data_new.data[0] == 5 && e8_data_new.chksum == 0) {
-        memcpy(&e8_data, &e8_data_new, sizeof(e8_data));
-        e8_data.data[0] = 0;
-        MSR1_DEBUG("e8_data correct\n");
+    if (new_data.len == 22) {
+      if (new_data.data[0] == 5 && new_data.chksum == 0) {
+        memcpy(&msr1_e8_data, &new_data, sizeof(msr1_e8_data));
+        msr1_e8_data.data[0] = 0;
+        MSR1_DEBUG("msr1_e8_data correct\n");
       } else {
-        MSR1_DEBUG("got e8 cksum: %x != %x (calc)\n", e8_data_new.data[21], e8_data_new.chksum ^ data);
-        e8_data.data[0]++;
+        MSR1_DEBUG("got e8 cksum: %x != %x (calc)\n", new_data.data[21], 
+                   new_data.chksum ^ data);
+        msr1_e8_data.data[0]++;
       }
     }
+  } else if (state == MSR1_REQUEST_48) {
+    if (new_data.len == 76) {
+        memcpy(&msr1_48_data, &new_data, sizeof(msr1_48_data));
+        MSR1_DEBUG("48_data ready\n");
+        msr1_48_data.data[0] = 0;
+        /* FIXME: here we have to determine if there is a checksum */
+    }
   } else {
-    c0_data_new.data[c0_data_new.len++] = data;
-    c0_data_new.chksum ^= data;
-    if (c0_data_new.len == 76) {
-      if (c0_data_new.data[0] == 0 && c0_data_new.chksum == 0) {
-        memcpy(&c0_data, &c0_data_new, sizeof(c0_data));
-        MSR1_DEBUG("c0_data correct\n");
-        c0_data.data[0] = 0;
+    if (new_data.len == 76) {
+      if (new_data.data[0] == 0 && new_data.chksum == 0) {
+        memcpy(&msr1_c0_data, &new_data, sizeof(msr1_c0_data));
+        MSR1_DEBUG("msr1_c0_data correct\n");
+        msr1_c0_data.data[0] = 0;
       } else {
-        MSR1_DEBUG("got c0 cksum: %x != %x (calc)\n", c0_data_new.data[75], c0_data_new.chksum ^ data);
-        c0_data.data[0]++;
+        MSR1_DEBUG("got c0 cksum: %x != %x (calc)\n", new_data.data[75], new_data.chksum ^ data);
+        msr1_c0_data.data[0]++;
       }
     }
   }
