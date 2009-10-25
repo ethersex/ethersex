@@ -51,24 +51,28 @@ void
 clock_init(void)
 {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-  ASSR = _BV(AS2);
-  TCNT2 = 0;
+  ASSR = _BV(CLOCK_TIMER_AS);
+  CLOCK_TIMER_CNT = 0;
   /* 120 prescaler to get every second an interrupt */
-  _TCCR2_PRESCALE = _BV(CS22) | _BV(CS20);
-#ifdef TCR2BUB
-  while(ASSR & ( _BV(TCN2UB) | _BV(TCR2BUB))) {}
+  CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
+
+  /* Wait until the bytes are written */
+#ifdef CLOCK_TIMER_RBUSY
+  while(ASSR & ( _BV(CLOCK_TIMER_NBUSY) | _BV(CLOCK_TIMER_RBUSY))) {}
 #else
-  while(ASSR & ( _BV(TCN2UB))) {}
+  while(ASSR & ( _BV(CLOCK_TIMER_NBUSY))) {}
 #endif
+
   /* Clear the interrupt flags */
-  _TIFR_TIMER2 &= ~_BV(TOV2);
+  CLOCK_TIMER_TIFR &= ~_BV(CLOCK_TIMER_OVERFLOW);
+
   /* Enable the timer interrupt */
-  _TIMSK_TIMER2 |= _BV(TOIE2);
+  CLOCK_TIMER_TIMSK |= _BV(CLOCK_TIMER_ENABLE);
 #endif
 }
 
 #ifdef CLOCK_CRYSTAL_SUPPORT
-SIGNAL(SIG_OVERFLOW2)
+SIGNAL(CLOCK_SIG)
 {
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
   if (!sync_timestamp || sync_timestamp == timestamp)

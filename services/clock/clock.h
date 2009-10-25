@@ -26,6 +26,27 @@
 
 #include <inttypes.h>
 
+#if defined(atmega128)
+
+#define CLOCK_TIMER_AS AS0
+#define CLOCK_TIMER_TIFR _TIFR_TIMER0
+#define CLOCK_TIMER_TIMSK _TIMSK_TIMER0
+#define CLOCK_TIMER_TCCR TCCR0
+#define CLOCK_TIMER_CNT TCNT0
+#define CLOCK_TIMER_ENABLE TOIE0
+#define CLOCK_TIMER_OVERFLOW TOV0
+#define CLOCK_SIG SIG_OVERFLOW0
+#define CLOCK_SELECT_2 CS02
+#define CLOCK_SELECT_0 CS00
+#define CLOCK_TIMER_NBUSY TCN0UB
+#define CLOCK_TIMER_RBUSY TCR0UB
+
+#else
+
+#error "Clock untested on your target MCU"
+
+#endif
+
 struct clock_datetime_t {
     uint8_t sec;
     union {
