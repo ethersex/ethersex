@@ -31,7 +31,7 @@
 
 int16_t parse_cmd_ustream_init(char *cmd, char *output, uint16_t len) 
 {
-  ustream_init(); 
+  ustream_init();
   return snprintf_P(cmd, len, PSTR("ustream init"));
 }
 
