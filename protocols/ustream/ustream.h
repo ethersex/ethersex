@@ -22,7 +22,7 @@
 #ifndef HAVE_USTREAM_H
 #define HAVE_USTREAM_H
 
-USTREAM_URI "GET /stream/1010 HTTP/1.0\r\n\r\n"
+#define USTREAM_URI "GET /stream/1010 HTTP/1.0\r\n\r\n"
 
 void ustream_init (void);
 void ustream_periodic(void);

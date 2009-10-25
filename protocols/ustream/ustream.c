@@ -32,6 +32,8 @@
 
 #include "ustream.h"
 
+static uip_conn_t *ustream_conn;
+
 void ustream_main(void)
 {
 	if(uip_connected() || uip_rexmit())
@@ -40,7 +42,7 @@ void ustream_main(void)
 		return;
 	}
 
-	if(uid_newdata())
+	if(uip_newdata())
 	{
 		// TBD: Push data to VS1053
 		USTREAMDEBUG ("Got some data.\n");
