@@ -29,6 +29,7 @@ SUBDIRS += hardware/pwm
 SUBDIRS += hardware/sms
 SUBDIRS += hardware/radio/fs20
 SUBDIRS += hardware/radio/rfm12
+SUBDIRS += hardware/sram
 SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
 SUBDIRS += protocols/artnet

@@ -1,0 +1,3 @@
+dep_bool_menu "External SRAM support" SRAM_SUPPORT
+    bool "Perform memory test when starting" SRAM_MEMTEST_ON_BOOT
+endmenu
