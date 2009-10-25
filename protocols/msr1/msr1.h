@@ -27,6 +27,7 @@ enum msr1_state {
   MSR1_REQUEST_E8,
   MSR1_REQUEST_C0,
   MSR1_REQUEST_48,
+  MSR1_REQUEST_50,
 };
 
 /* Default baudrate */

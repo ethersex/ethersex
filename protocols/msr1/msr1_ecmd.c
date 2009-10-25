@@ -39,6 +39,7 @@
 extern struct msr1_e8_info msr1_e8_data;
 extern struct msr1_generic_info msr1_c0_data;
 extern struct msr1_generic_info msr1_48_data;
+extern struct msr1_generic_info msr1_50_data;
 
 int16_t 
 parse_cmd_msr1_get(char *cmd, char *output, uint16_t len) 
@@ -58,6 +59,8 @@ parse_cmd_msr1_get(char *cmd, char *output, uint16_t len)
       info = &msr1_c0_data;
     else if (*cmd == '2')
       info = &msr1_48_data;
+    else if (*cmd == '3')
+      info = &msr1_50_data;
     else 
       return ECMD_ERR_PARSE_ERROR;
 

@@ -50,7 +50,8 @@ uint8_t state;
 struct msr1_generic_info new_data; /* This is used for all incoming messages */
 struct msr1_e8_info      msr1_e8_data;
 struct msr1_generic_info msr1_c0_data;
-struct msr1_generic_info msr1_48_data; /* This Should be 48_info */
+struct msr1_generic_info msr1_48_data;
+struct msr1_generic_info msr1_50_data;
 
 void
 msr1_init(void)
@@ -74,6 +75,10 @@ msr1_periodic(void)
     state = MSR1_REQUEST_48;
     usart(UDR) = 0x48;
     MSR1_DEBUG("sent 48 command\n");
+  } else if (state == MSR1_REQUEST_48) {
+    state = MSR1_REQUEST_50;
+    usart(UDR) = 0x50;
+    MSR1_DEBUG("sent 50 command\n");
   } else {
     state = MSR1_REQUEST_C0;
     usart(UDR) = 0xc0;
@@ -111,6 +116,13 @@ SIGNAL(usart(USART,_RX_vect))
         memcpy(&msr1_48_data, &new_data, sizeof(msr1_48_data));
         MSR1_DEBUG("48_data ready\n");
         msr1_48_data.data[0] = 0;
+        /* FIXME: here we have to determine if there is a checksum */
+    }
+  } else if (state == MSR1_REQUEST_50) {
+    if (new_data.len == 76) {
+        memcpy(&msr1_50_data, &new_data, sizeof(msr1_48_data));
+        MSR1_DEBUG("50_data ready\n");
+        msr1_50_data.data[0] = 0;
         /* FIXME: here we have to determine if there is a checksum */
     }
   } else {
