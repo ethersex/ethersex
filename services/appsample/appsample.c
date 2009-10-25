@@ -43,10 +43,6 @@ app_sample_periodic(void)
 /*
   -- Ethersex META --
   header(services/appsample/appsample.h)
-  ecmd_ifdef(APP_SAMPLE_INIT_AUTOSTART)
-    init(app_sample_init)
-  ecmd_endif()
-  ecmd_ifdef(APP_SAMPLE_PERIODIC_AUTOSTART)
-    timer(100,app_sample_periodic())
-  ecmd_endif()
+  ifdef(`conf_APP_SAMPLE_INIT_AUTOSTART',`init(app_sample_init)')
+  ifdef(`conf_APP_SAMPLE_PERIODIC_AUTOSTART',`timer(100,app_sample_periodic)')
 */
