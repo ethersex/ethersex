@@ -27,16 +27,27 @@
 
 #include "config.h"
 #include "ustream.h"
+#include "vs1053.h"
 
-int16_t parse_cmd_ustream(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_ustream_init(char *cmd, char *output, uint16_t len) 
 {
-  ustream_init();
+  ustream_init(); 
   return snprintf_P(cmd, len, PSTR("ustream init"));
 }
 
+int16_t parse_cmd_ustream_test(char *cmd, char *output, uint16_t len)
+{
+  cs_high();
+  sci_write(0x00,(1<<SM_TESTS)|(1<<SM_SDISHARE)|(1<<SM_STREAM)|(1<<SM_SDINEW));
+  cs_low(); 
+  vs1053_sinetest(120);
+  return snprintf_P(cmd, len, PSTR("ustream test"));
+}
+
+
 /*
   -- Ethersex META --
-  block(ustream)
-  ecmd_feature(ustream, ``"ustream init"'',,initialize ustream)
+  block(Ustream Client)
+  ecmd_feature(ustream_init, ``"ustream init"'',,ustream service re-initialization)
+  ecmd_feature(ustream_test, ``"ustream test"'',,test ustream service)
 */
-
