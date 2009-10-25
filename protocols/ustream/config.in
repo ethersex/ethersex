@@ -1,0 +1,7 @@
+dep_bool_menu "ustream (EXPERIMENTAL)" USTREAM_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
+  ip "Server IP" CONF_USTREAM_IP "205.188.234.7" ""
+  int "Server Port" CONF_USTREAM_PORT 80 
+
+	comment  "Debugging Flags"
+	dep_bool 'USTREAM' DEBUG_USTREAM $DEBUG $USTREAM_SUPPORT
+endmenu
