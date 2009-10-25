@@ -134,10 +134,10 @@ $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_defs.m4 ${named_pin_simpl
 y_META_SRC += $(y_NP_SIMPLE_META_SRC)
 
 meta.c: $(y_META_SRC)
-	@m4 $^ > $@
+	@m4 `scripts/m4-defines` $^ > $@
 
 meta.h: scripts/meta_header_magic.m4 meta.m4
-	@m4 $^ > $@
+	@m4 `scripts/m4-defines` $^ > $@
 
 ##############################################################################
 
@@ -196,10 +196,8 @@ embed/%: embed/%.cpp
 
 
 embed/%: embed/%.m4
-	@if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
-		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` \
-		`grep -e "^#define CONF_.*" autoconf.h |  sed -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"` \
-		$< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)";\
+	@if ! m4 `scripts/m4-defines` $< > $@; \
+	  then $(RM) $@; echo "--> Don't include $@ ($<)";\
 		else echo "--> Include $@ ($<)";	fi
 
 embed/%: embed/%.sh
@@ -283,8 +281,7 @@ PINNING_FILES=pinning/internals/header.m4 \
 	$(wildcard pinning/internals/hackery_$(MCU).m4) \
 	$(wildcard pinning/hardware/$(HARDWARE).m4) pinning/internals/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
-	@m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
-	  sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
+	@m4 -I$(TOPDIR)/pinning `scripts/m4-defines` $(PINNING_FILES) > $@
 
 
 ##############################################################################

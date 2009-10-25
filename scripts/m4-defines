@@ -1,0 +1,4 @@
+#!/bin/sh
+
+grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"
+grep -e "^#define CONF_.*" autoconf.h |  sed -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"
