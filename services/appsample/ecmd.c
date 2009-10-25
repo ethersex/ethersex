@@ -19,11 +19,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <util/delay.h>
 
 #include "config.h"
 #include "appsample.h"
@@ -31,21 +33,17 @@
 
 int16_t parse_cmd_app_sample_command(char *cmd, char *output, uint16_t len) 
 {
-  // enter your commands here
-
-  return ECMD_FINAL_OK;
+  return app_sample_onrequest(cmd, output, len);
 }
 
 int16_t parse_cmd_app_sample_init(char *cmd, char *output, uint16_t len) 
 {
-  app_sample_init();
-  return ECMD_FINAL_OK;
+  return app_sample_init();
 }
 
 int16_t parse_cmd_app_sample_periodic(char *cmd, char *output, uint16_t len) 
 {
-  app_sample_periodic();
-  return ECMD_FINAL_OK;
+  return app_sample_periodic();
 }
 
 /*

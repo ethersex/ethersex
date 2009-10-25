@@ -28,16 +28,44 @@
 #include "config.h"
 #include "appsample.h"
 
-void
+#include "protocols/ecmd/ecmd-base.h"
+
+/*
+  If enabled in menuconfig, this function is called during boot up of ethersex
+*/
+int16_t
 app_sample_init(void)
 {
   APPSAMPLEDEBUG ("init\n");
+  // enter your code here
+
+  return ECMD_FINAL_OK;
 }
 
-void
+/*
+  If enabled in menuconfig, this function is periodically called
+  change "timer(100,app_sample_periodic)" if needed
+*/
+int16_t
 app_sample_periodic(void)
 {
   APPSAMPLEDEBUG ("periodic\n");
+  // enter your code here
+
+  return ECMD_FINAL_OK;
+}
+
+/*
+  This function will be called on request by menuconfig, if wanted...
+  You need to enable ECMD_SUPPORT for this.
+  Otherwise you can use this function for anything you like 
+*/
+int16_t
+app_sample_onrequest(char *cmd, char *output, uint16_t len){
+  APPSAMPLEDEBUG ("main\n");
+  // enter your code here
+
+  return ECMD_FINAL_OK;
 }
 
 /*

@@ -22,10 +22,13 @@
 #ifndef HAVE_APPSAMPLE_H
 #define HAVE_APPSAMPLE_H
 
-void
+int16_t
+app_sample_onrequest(char *cmd, char *output, uint16_t len);
+
+int16_t
 app_sample_init(void);
 
-void
+int16_t
 app_sample_periodic(void);
 
 
