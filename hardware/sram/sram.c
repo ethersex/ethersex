@@ -18,6 +18,7 @@
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <avr/pgmspace.h>
 #include "config.h"
 #include "sram.h"
 
@@ -25,7 +26,7 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-static void sram_memtest(void);
+static uint8_t sram_memtest(void);
 
 void
 sram_init(void)
@@ -45,12 +46,13 @@ sram_init(void)
  * thorough test and it will not necessarily find defect parts of your SRAM.
  *
  */
-static void
+static uint8_t
 sram_memtest(void)
 {
 	uint8_t *sram = SRAM_START_ADDRESS;
 	uint8_t *cnt;
 	uint8_t c = 0;
+    uint8_t ok = 1;
 	uint32_t wrote = 0;
 
 	SRAM_DEBUG("verify: Writing to SRAM...\n");
@@ -64,17 +66,22 @@ sram_memtest(void)
 	for (cnt = sram; cnt < SRAM_END_ADDRESS; cnt++) {
 		if (*cnt != c++) {
 			debug_printf("RAM error at address %p: %d != %d\n", cnt, *cnt, c-1);
+            ok = 0;
 		}
 	}
 	SRAM_DEBUG("verify: finished\n");
+    return ok;
 }
 
 #ifdef ECMD_PARSER_SUPPORT
 int16_t
 parse_cmd_sram_memtest(char *cmd, char *output, uint16_t len)
 {
-	sram_memtest();
-	return ECMD_FINAL_OK;
+	if (sram_memtest())
+        return ECMD_FINAL_OK;
+    else
+        return ECMD_FINAL( snprintf_P(output, len,
+               PSTR("memtest error: see debugging output for more information")));
 }
 #endif
 
