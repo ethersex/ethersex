@@ -43,8 +43,21 @@
 
 #else
 
-#error "Clock untested on your target MCU"
-
+/* Here we define to use the timer2 */
+#define CLOCK_TIMER_AS AS2
+#define CLOCK_TIMER_TIFR _TIFR_TIMER2
+#define CLOCK_TIMER_TIMSK _TIMSK_TIMER2
+#define CLOCK_TIMER_TCCR _TCCR2_PRESCALE
+#define CLOCK_TIMER_CNT TCNT2
+#define CLOCK_TIMER_ENABLE TOIE2
+#define CLOCK_TIMER_OVERFLOW TOV2
+#define CLOCK_SIG SIG_OVERFLOW2
+#define CLOCK_SELECT_2 CS22
+#define CLOCK_SELECT_0 CS20
+#define CLOCK_TIMER_NBUSY TCN2UB
+#ifdef TCR2BUB
+#  define CLOCK_TIMER_RBUSY TCR2BUB
+#endif
 #endif
 
 struct clock_datetime_t {
