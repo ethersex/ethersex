@@ -1827,3 +1827,24 @@ PWM_SERVO_INLINE_SUPPORT
 
   Enable this to get an example inline page for servo control.
 
+Application Sample (EXPERIMENTAL)
+APP_SAMPLE_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Example Application with empty functions to fill for your own
+  tests.
+
+  Main Application Sample file: services/appsample/appsample.c
+  Function "app_sample_init" will be executed on ethersex boot time.
+  Function "app_sample_periodic" will be executed periodically, just change
+  timer value to fit for your needs (default period is 100*20ms = 2 seconds)
+  Example:
+    timer(100,app_sample_periodic)
+
+  If ECMD is enabled 3 sample commands are available in:
+  services/appsample/ecmd.c
+  "sample"          calls "parse_cmd_app_sample_command" and can be used for own code
+  "sample_init"     calls manually app_sample_init
+  "sample_periodic" calls manually app_sample_periodic
+
