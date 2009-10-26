@@ -4,12 +4,12 @@
 
 void cs_low()
 {
-	PIN_CLEAR(SPI_VS1053_CS);
+	PIN_CLEAR(VS1053_CS);
 }
  
 void cs_high()
 {
-	PIN_SET(SPI_VS1053_CS);
+	PIN_SET(VS1053_CS);
 }
 
 int sci_read(char addr)

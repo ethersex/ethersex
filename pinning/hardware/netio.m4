@@ -67,4 +67,5 @@ ifdef(`conf_RC5', `
 pin(RC5_SEND, PD4)
 ')
 
-pin(SPI_VS1053_CS, PB0, OUTPUT)
+pin(VS1053_CS, PB0, OUTPUT)
+pin(VS1053_DREQ, PB3, OUTPUT)
