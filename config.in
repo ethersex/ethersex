@@ -192,6 +192,7 @@ source protocols/smtp/config.in
 source protocols/sms77/config.in
 source protocols/syslog/config.in
 source protocols/twitter/config.in
+source protocols/ustream/config.in
 source protocols/yport/config.in
 source protocols/msr1/config.in
 source protocols/to1/config.in

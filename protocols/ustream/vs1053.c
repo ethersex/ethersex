@@ -2,19 +2,14 @@
 #include "vs1053.h"
 #include "core/spi.h"
 
-void cs_init()
-{
-	DDRD |= (1 << PD2);
-}
-
 void cs_low()
 {
-	PORTD &= ~(1 << PD2);
+	PIN_CLEAR(SPI_VS1053_CS);
 }
  
 void cs_high()
 {
-	PORTD |= (1 << PD2);
+	PIN_SET(SPI_VS1053_CS);
 }
 
 int sci_read(char addr)

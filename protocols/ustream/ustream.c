@@ -60,8 +60,6 @@ void ustream_init(void)
 {
     USTREAMDEBUG ("initializing ustream client\n");
 
-   cs_init();
-
     uip_ipaddr_t ip;
     set_CONF_USTREAM_IP(&ip);
     ustream_conn = uip_connect(&ip, HTONS(CONF_USTREAM_PORT), ustream_main);
