@@ -67,3 +67,9 @@ ifdef(`conf_RC5', `
 pin(RC5_SEND, PD4)
 ')
 
+ifdef(`conf_LTC1257', `
+  pin(LTC1257_CLK, PA2, OUTPUT)
+  pin(LTC1257_DATA, PA1, OUTPUT)
+  pin(LTC1257_LOAD, PA0, OUTPUT)
+')
+

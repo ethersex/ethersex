@@ -1,1 +1,2 @@
 dep_bool "DAC TLC5620 Output" TLC5620_SUPPORT
+dep_bool "DAC LTC1257 Output" LTC1257_SUPPORT
