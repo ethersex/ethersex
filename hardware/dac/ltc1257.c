@@ -31,35 +31,17 @@ void
 ltc1257_delay_get(uint8_t *d)
 {
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_delay_get begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_delay_get begin.\n");
-	syslog_flush();
-#endif
 #endif
 
 	*d = Delay;
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_delay_get Delay = %u.\n", Delay);
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_delay_get Delay = %u.\n", Delay);
-	syslog_flush();
-#endif
 #endif
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_delay_get end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_delay_get end.\n");
-	syslog_flush();
-#endif
 #endif
 }
 
@@ -67,35 +49,17 @@ void
 ltc1257_delay_set(uint8_t *d)
 {
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_delay_set begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_delay_set begin.\n");
-	syslog_flush();
-#endif
 #endif
 
 	Delay = *d;
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_delay_set Delay = %u.\n", Delay);
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_delay_set Delay = %u.\n", Delay);
-	syslog_flush();
-#endif
 #endif
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_delay_set end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_delay_set end.\n");
-	syslog_flush();
-#endif
 #endif
 }
 
@@ -103,13 +67,7 @@ void
 ltc1257_init()
 {
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_init begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_init begin.\n");
-	syslog_flush();
-#endif
 #endif
 
 	/* CLK low */
@@ -118,13 +76,7 @@ ltc1257_init()
 	PIN_SET(LTC1257_LOAD);
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_init end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_init end.\n");
-	syslog_flush();
-#endif
 #endif
 }
 
@@ -135,38 +87,20 @@ ltc1257_set(uint16_t *value[], uint8_t num_values)
 	int8_t j;
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_set begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_set begin.\n");
-	syslog_flush();
-#endif
 #endif
 
 	/* first lower CLOCK */
 	PIN_CLEAR(LTC1257_CLK);
 	_delay_us(Delay);
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: lower CLOCK.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: lower CLOCK.\n");
-	syslog_flush();
-#endif
 #endif
 
 	for(i = 0; i < num_values; ++i)
 	{
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 		debug_printf("LTC1257: processing value[%u] = %u.\n", i, *value[i]);
-#endif
-#ifdef SYSLOG_SUPPORT
-		syslog_sendf("LTC1257: processing value[%u] = %u.\n", i, *value[i]);
-		syslog_flush();
-#endif
 #endif
 
 		/* output MSB first, LSB last */
@@ -177,13 +111,7 @@ ltc1257_set(uint16_t *value[], uint8_t num_values)
 				/* logical one */
 				PIN_SET(LTC1257_DATA);
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 				debug_printf("LTC1257: processing value[%u], bit %u: 1.\n", i, 11-j);
-#endif
-#ifdef SYSLOG_SUPPORT
-				syslog_sendf("LTC1257: processing value[%u], bit %u: 1.\n", i, 11-j);
-				syslog_flush();
-#endif
 #endif
 			}
 			else
@@ -191,13 +119,7 @@ ltc1257_set(uint16_t *value[], uint8_t num_values)
 				/* logical zero */
 				PIN_CLEAR(LTC1257_DATA);
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 				debug_printf("LTC1257: processing value[%u], bit %u: 0.\n", i, 11-j);
-#endif
-#ifdef SYSLOG_SUPPORT
-				syslog_sendf("LTC1257: processing value[%u], bit %u: 1.\n", i, 11-j);
-				syslog_flush();
-#endif
 #endif
 			}
 			
@@ -207,13 +129,7 @@ ltc1257_set(uint16_t *value[], uint8_t num_values)
 			PIN_CLEAR(LTC1257_CLK);
 			_delay_us(Delay);
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 			debug_printf("LTC1257: processing value[%u], rise CLOCK, lower CLOCK.\n", i);
-#endif
-#ifdef SYSLOG_SUPPORT
-			syslog_sendf("LTC1257: processing value[%u], rise CLOCK, lower CLOCK.\n", i);
-			syslog_flush();
-#endif
 #endif
 		}
 	}
@@ -223,34 +139,16 @@ ltc1257_set(uint16_t *value[], uint8_t num_values)
 	PIN_SET(LTC1257_LOAD);
 	_delay_us(Delay);
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: lower LOAD, rise LOAD.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: lower LOAD, rise LOAD\n");
-	syslog_flush();
-#endif
 #endif
 
 	/* finally rise CLOCK */
 	PIN_SET(LTC1257_CLK);
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: rise CLOCK.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: rise CLOCK.\n");
-	syslog_flush();
-#endif
 #endif
 
 #ifdef DEBUG_LTC1257
-#ifdef DEBUG
 	debug_printf("LTC1257: ltc1257_set end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ltc1257_set end.\n");
-	syslog_flush();
-#endif
 #endif
 }
