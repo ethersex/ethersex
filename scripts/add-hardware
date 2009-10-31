@@ -4,7 +4,7 @@ usage() {
   echo "Usage:"
   echo "  add-hardware NAME"
   echo ""
-  echo "Generate new hardware template at pinning/hardware/user-NAME"
+  echo "Generate new hardware template at pinning/hardware/user_NAME"
   echo "and start a sensible editor afterwards."
   exit $1
 }
@@ -12,7 +12,7 @@ usage() {
 if test "x$1" = "x-h"; then usage 0; fi
 if test "x$1" = "x--help"; then usage 0; fi
 
-hw=user-$1; shift;
+hw=user_`echo $1 | sed -e 's/[^A-Za-z0-9_]//g'`; shift;
 
 while test "x`pwd`" != "x/"; do
   [ -e pinning ] && break
