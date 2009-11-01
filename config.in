@@ -166,6 +166,7 @@ choice "I/O abstraction model (Port I/O)" \
 	source hardware/camera/config.in
 	source hardware/radio/fs20/config.in
 	source hardware/ir/rc5/config.in
+	source hardware/isdn/config.in
 	source hardware/pwm/config.in
 	source hardware/onewire/config.in
 	source hardware/input/ps2/config.in

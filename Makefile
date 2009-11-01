@@ -21,6 +21,7 @@ SUBDIRS += hardware/input/ps2
 SUBDIRS += hardware/input/buttons
 SUBDIRS += hardware/io_expander
 SUBDIRS += hardware/ir/rc5
+SUBDIRS += hardware/isdn
 SUBDIRS += hardware/lcd
 SUBDIRS += hardware/lcd/s1d15g10
 SUBDIRS += hardware/lcd/ST7626
