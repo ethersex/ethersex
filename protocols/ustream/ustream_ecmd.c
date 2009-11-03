@@ -39,12 +39,12 @@ int16_t parse_cmd_ustream_init(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_ustream_test(char *cmd, char *output, uint16_t len)
 {
-  cs_high();
-  sci_write(0x00, (1<<SM_TESTS)|(1<<SM_SDISHARE)|(1<<SM_STREAM)|(1<<SM_SDINEW));
   cs_low();
+  sci_write(0x00, (1<<SM_TESTS)|(1<<SM_SDISHARE)|(1<<SM_STREAM)|(1<<SM_SDINEW));
+  cs_high();
 
   vs1053_sinetest(120);
-  return snprintf_P(cmd, len, PSTR("ustream test"));
+  return ECMD_FINAL_OK;
 }
 
 
