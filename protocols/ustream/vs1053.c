@@ -16,7 +16,7 @@ int sci_read(char addr)
 {
 	unsigned int temp;
 
-	cs_high();
+	cs_low();
 
 	spi_send(0x03);		// read command
 	spi_send(addr);		// address
@@ -26,14 +26,14 @@ int sci_read(char addr)
 
 	temp += spi_send(0x00);	// get the lsb
 
-	cs_low();
+	cs_high();
 
 	return temp;
 }
 
 void sci_write(char addr, int data)
 {
-	cs_high();
+	cs_low();
 
 	spi_send(0x02);		// write command
 	spi_send(addr);		// address
@@ -41,7 +41,7 @@ void sci_write(char addr, int data)
 	spi_send((data >> 8) & 0xFF);	// send first 8 msb's of data
 	spi_send(data & 0xFF);		// send the lsb's
 
-	cs_low();
+	cs_high();
 
 }
 
