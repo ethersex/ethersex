@@ -53,8 +53,7 @@ void ustream_main(void)
 
 void ustream_periodic(void)
 {
-  if (!ustream_conn)
-      ustream_init();
+  if (!ustream_conn) ustream_init();
 }
 
 void ustream_init(void)
@@ -62,10 +61,12 @@ void ustream_init(void)
     USTREAMDEBUG ("Initializing ustream client\n");
 
     uip_ipaddr_t ip;
+
     set_CONF_USTREAM_IP(&ip);
     ustream_conn = uip_connect(&ip, HTONS(CONF_USTREAM_PORT), ustream_main);
 
-    if (!ustream_conn) {
+    if (!ustream_conn)
+    {
         USTREAMDEBUG ("no uip_conn available.\n");
         return;
     }
