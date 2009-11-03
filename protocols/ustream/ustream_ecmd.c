@@ -29,10 +29,12 @@
 #include "ustream.h"
 #include "vs1053.h"
 
+#include "protocols/ecmd/ecmd-base.h"
+
 int16_t parse_cmd_ustream_init(char *cmd, char *output, uint16_t len) 
 {
   ustream_init();
-  return snprintf_P(cmd, len, PSTR("ustream init"));
+  return ECMD_FINAL_OK;
 }
 
 int16_t parse_cmd_ustream_test(char *cmd, char *output, uint16_t len)

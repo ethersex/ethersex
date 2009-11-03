@@ -45,7 +45,13 @@ void ustream_main(void)
 	if(uip_newdata())
 	{
 		// TBD: Push data to VS1053
-		USTREAMDEBUG ("Got some data.\n");
+		//USTREAMDEBUG ("Got some data.\n");
+		((char *) uip_appdata)[uip_len] = 0;
+		for(int i=0; i<1200; i++);
+		//cs_low();
+		//printf("Got some data.\n");
+		//spi_send(uip_appdata);
+		//cs_high();
 	}
 }
 
