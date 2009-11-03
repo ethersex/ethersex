@@ -45,13 +45,8 @@ void ustream_main(void)
 	if(uip_newdata())
 	{
 		// TBD: Push data to VS1053
-		//USTREAMDEBUG ("Got some data.\n");
 		((char *) uip_appdata)[uip_len] = 0;
-		for(int i=0; i<1200; i++);
-		//cs_low();
-		//printf("Got some data.\n");
-		//spi_send(uip_appdata);
-		//cs_high();
+		printf("Got some data.\n");
 	}
 }
 
@@ -64,7 +59,7 @@ void ustream_periodic(void)
 
 void ustream_init(void)
 {
-    USTREAMDEBUG ("initializing ustream client\n");
+    USTREAMDEBUG ("Initializing ustream client\n");
 
     uip_ipaddr_t ip;
     set_CONF_USTREAM_IP(&ip);
