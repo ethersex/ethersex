@@ -3,5 +3,5 @@ dep_bool_menu "ustream (EXPERIMENTAL)" USTREAM_SUPPORT $TCP_SUPPORT $CONFIG_EXPE
   int "Server Port" CONF_USTREAM_PORT 80 
 
 	comment  "Debugging Flags"
-	dep_bool 'USTREAM' DEBUG_USTREAM $DEBUG $USTREAM_SUPPORT
+	dep_bool 'VS1053 µStream debugging' DEBUG_USTREAM $DEBUG $USTREAM_SUPPORT
 endmenu
