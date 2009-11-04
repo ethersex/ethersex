@@ -50,6 +50,10 @@ void spi_init(void)
     PIN_SET(SPI_CS_DF);
 #endif
 
+#ifdef USTREAM_SUPPORT
+    PIN_SET(VS1053_CS);
+#endif
+
     /* enable spi, set master and clock modes (f/2) */
     _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);
     _SPSR0 = _BV(_SPI2X0);

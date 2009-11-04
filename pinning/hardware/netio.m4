@@ -73,3 +73,7 @@ ifdef(`conf_LTC1257', `
   pin(LTC1257_LOAD, PA0, OUTPUT)
 ')
 
+ifdef(`conf_USTREAM', `
+  pin(VS1053_CS, PB0, OUTPUT)
+  pin(VS1053_DREQ, PB3, INPUT)
+')

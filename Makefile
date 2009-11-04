@@ -45,6 +45,7 @@ SUBDIRS += protocols/snmp
 SUBDIRS += protocols/syslog
 SUBDIRS += protocols/uip
 SUBDIRS += protocols/uip/ipchair
+SUBDIRS += protocols/ustream
 SUBDIRS += protocols/usb
 SUBDIRS += protocols/yport
 SUBDIRS += protocols/zbus
