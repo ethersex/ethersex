@@ -83,7 +83,7 @@ parse_cmd_i2c_pca9531(char *cmd, char *output, uint16_t len)
   uint8_t duty2;
   uint8_t firstnibble;
   uint8_t lastnibble;
-  sscanf_P(cmd, PSTR("%u %x %x %x %x %x"), &adr, &period1, &duty1, &period2, &duty2, &firstnibble, &lastnibble);
+  sscanf_P(cmd, PSTR("%u %x %x %x %x %x %x"), &adr, &period1, &duty1, &period2, &duty2, &firstnibble, &lastnibble);
   
 #ifdef DEBUG_I2C
   debug_printf("I2C PCA9531 IC %u: pwm1 period %X, duty %X; pwm2 period %X, duty%X; %X %X\n",adr, period1, duty1, period2, duty2, firstnibble, lastnibble);
