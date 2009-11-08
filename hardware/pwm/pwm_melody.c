@@ -82,8 +82,8 @@ struct song_t songs[] PROGMEM = {
 // je nach gewünschter Frequenz wird "scale" verändert, 
 // und somit die Sinuswelle schneller (hoher ton) 
 // oder langsamer (tiefer Ton) abgelaufen
-ISR(TIMER2_COMPA_vect){
-	OCR2A=pgm_read_byte(&sinewave[pwm_melody_tone][(pwm_melody_i>>8)]);
+ISR(_PWM_MELODY_COMP){
+	_PWM_MELODY_OCR=pgm_read_byte(&sinewave[pwm_melody_tone][(pwm_melody_i>>8)]);
    	pwm_melody_i += pwm_melody_scale;
 }
 
@@ -95,39 +95,33 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 	if (songnr >=MAX_PWM_SONGS)
 	  songnr=0;
 	memcpy_P(&song, &songs[songnr], sizeof(struct song_t));
-	
 
 #ifdef DEBUG_PWM
     	debug_printf("PWM title: '%s', d: %i, s %i: trans: x%i, max: %i\n", song.title, song.delay, song.size, song.transpose, MAX_PWM_SONGS);
 #endif
 // see example at http://www.infolexikon.de/blog/atmega-music/
 
-	// D7-Pin als Ausgang
-	DDRD |= (1<<7);
-	
 	// Anfangswert der PWM
-	OCR2A=0x80;
+	_PWM_MELODY_OCR=0x80;
 	
 	//Output compare OCxA 8 bit non inverted PWM
 	// Timer Counter Control Register!
 	// Bit:   7	  6	 5	4     3     2     1     0
 	// Bed: COMxA1 COMxA0 COMxB1 COMxB0 FOCxA FOCxB WGMx1 WGMx0
 	// Hier:  1       0      0      1     0     0     0     1
-	TCCR2A |= (1<<COM2A1|1<<COM2B0|1<<WGM20); // 0x91
+	_PWM_MELODY_TRCCRA |= (1<<_PWM_MELODY_COM1|1<<_PWM_MELODY_COM0|1<<_PWM_MELODY_WGM0); // 0x91
 	
 	// Timer ohne Prescaler starten
-	TCCR2B|=(1<<CS20); // 0x01;
+	_PWM_MELODY_TRCCRB |= (1<<_PWM_MELODY_CS0); // 0x01;
 	
 	// Einschalten des Ausgangs-Vergleichs-Interrupts auf OCRxA 
 	// Timer/Counter Interrupt Mask!
 	// Bit:   7	6      5      4     3      2     1      0
 	// Bed: OCIE2 TOIE2 TICIE1 OCIE1A OCIE1B TOIE1 ------ TOIE0	
 	// Hier:  0	0      0      1     0      0     0      0
-	TIMSK2 |= (1 << OCIE2A); // 0x10
+	_PWM_MELODY_TIMSK |= (1 << _PWM_MELODY_OCIE); // 0x10
 	//enable global interrupts
 	//sei();
-
-    //  ------ Play it once, Sam ---------
 
 	// durch das Noten-Array laufen und nacheinander
 	// die Töne in jeweiliger Länge abspielen

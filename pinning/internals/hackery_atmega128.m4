@@ -15,6 +15,18 @@
 #define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
 #define _TIMSK_TIMER2 TIMSK
 
+/* Timer0 - PWM Melody */
+#define _PWM_MELODY_COMP TIMER0_COMP_vect
+#define _PWM_MELODY_OCR OCR0
+#define _PWM_MELODY_TRCCRA TCCR0
+#define _PWM_MELODY_TRCCRB TCCR0
+#define _PWM_MELODY_COM1 COM01
+#define _PWM_MELODY_COM0 COM00
+#define _PWM_MELODY_WGM0 WGM00
+#define _PWM_MELODY_CS0 CS00
+#define _PWM_MELODY_TIMSK TIMSK
+#define _PWM_MELODY_OCIE OCIE0
+
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
 #ifdef SPCR0
