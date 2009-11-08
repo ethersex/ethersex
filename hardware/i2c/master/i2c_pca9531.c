@@ -44,44 +44,43 @@ i2c_pca9531_set(uint8_t address,
 	uint8_t prescaler1, uint8_t pwm1duty,
 	uint8_t led0to3, uint8_t led4to7)
 {
-
-  uint8_t ret;
   uint8_t tmp;
 
   i2c_master_select(address, TW_WRITE);
 
-  TWDR = 0x11;
+  TWDR = 0x11; // PSC0 subaddress + auto-increment
   tmp = i2c_master_transmit_with_ack();
 
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
   TWDR = prescaler0;
   tmp = i2c_master_transmit_with_ack();
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
 
   TWDR = pwm0duty;
   tmp = i2c_master_transmit_with_ack();
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
 
   TWDR = prescaler1;
   tmp = i2c_master_transmit_with_ack();
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
 
   TWDR = pwm1duty;
   tmp = i2c_master_transmit_with_ack();
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
 
   TWDR = led0to3;
   tmp = i2c_master_transmit_with_ack();
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
 
   TWDR = led4to7;
   tmp = i2c_master_transmit();
-  if (tmp != TW_MT_DATA_ACK) { ret = 0; goto end; }
+  if (tmp != TW_MT_DATA_ACK) { goto end; }
 
-  ret = 0;
+  I2CDEBUG ("err\n");
+  return 0;
 end:
   i2c_master_stop();
-  return ret;
+  return 1;
 }
 
 #endif /* I2C_PCA9531_SUPPORT */
