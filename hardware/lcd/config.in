@@ -3,6 +3,7 @@ comment "LCD Displays"
 
   dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT
     if [ "$HD44780_SUPPORT" = "y" ]; then
+	  # If you add here something, you also have to add an entry in hd44780.h!
       choice 'Controller type'					\
               "Original			HD44780_ORIGINAL	\
 	       Displaytech164A		HD44780_DISPTECH	\

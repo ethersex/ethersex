@@ -41,6 +41,10 @@
      #define HD44780_DATA_SHIFT 3
 */
 
+#define	HD44780_ORIGINAL 1
+#define	HD44780_DISPTECH 2
+#define HD44780_KS0067B  3
+
 /* lcd stream */
 extern FILE *lcd;
 
