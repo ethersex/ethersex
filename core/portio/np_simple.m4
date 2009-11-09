@@ -116,8 +116,8 @@ int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
   /* Disable interrupts to omit interference */
   uint8_t sreg = SREG; cli();
 
-  uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
-  NP_PORT(substr($2, 1, 1)) = i ^ _BV($2);
+  uint8_t i = NP_PIN(substr($2, 1, 1));
+  NP_PORT(substr($2, 1, 1)) = i  ^ _BV($2);
 
   SREG = sreg;			/* Possibly re-enable interrupts. */
 #else  /* PINx_TOGGLE_WORKAROUND */
