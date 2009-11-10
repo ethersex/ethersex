@@ -40,6 +40,7 @@ uecmd_sender_net_main(void)
     if(ucallback) {
       ucallback(uip_appdata, uip_len);
     }
+    free(send_data);
     send_data = NULL;
   }
   if (send_data) {
@@ -48,6 +49,7 @@ uecmd_sender_net_main(void)
       if(ucallback) {
 	ucallback(NULL, 0);
       }
+      free(send_data);
       send_data = NULL;
       return;
     }
@@ -81,6 +83,8 @@ uecmd_sender_send_command(uip_ipaddr_t *ipaddr, char* data, client_return_text_c
       if(callback) {
 	callback(NULL, 0);
       }
+      free(send_data);
+      send_data = NULL;
       return;
     }
   }
