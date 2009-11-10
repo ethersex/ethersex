@@ -11,7 +11,7 @@ divert(globals_divert)
 
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 
-static char* control6_uesend_printf(PGM_P *format, ...){
+static char* control6_uesend_printf(PGM_P format, ...){
   va_list args;
   uint8_t len = 0;
   len = strlen_P(format);
