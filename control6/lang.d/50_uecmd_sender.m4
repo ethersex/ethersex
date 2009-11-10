@@ -14,7 +14,7 @@ divert(globals_divert)
 static char* control6_uesend_printf(PGM_P *format, ...){
   va_list args;
   uint8_t len = 0;
-  len = strlen_P(format+1);
+  len = strlen_P(format);
   uint8_t wlen = len;
   char* buf = malloc(len);
   if (buf == NULL) 
