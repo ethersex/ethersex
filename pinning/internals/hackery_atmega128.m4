@@ -1,6 +1,8 @@
 
 #define _ATMEGA128
 
+#define _SPMCR SPMCSR
+
 /* ATmega128 specific adjustments */
 #define _TIMSK_TIMER0 TIMSK
 #define _TIMSK_TIMER1 TIMSK
