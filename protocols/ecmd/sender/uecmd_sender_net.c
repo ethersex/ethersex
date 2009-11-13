@@ -74,6 +74,7 @@ uecmd_sender_send_command(uip_ipaddr_t *ipaddr, char* data, client_return_text_c
     if(callback) {
       callback(NULL, 0);
     }
+    free(data);
     return;
   }  
 
@@ -83,7 +84,7 @@ uecmd_sender_send_command(uip_ipaddr_t *ipaddr, char* data, client_return_text_c
       if(callback) {
 	callback(NULL, 0);
       }
-      free(send_data);
+      free(data);
       send_data = NULL;
       return;
     }
