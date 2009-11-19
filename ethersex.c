@@ -152,26 +152,6 @@ int main(void)
 
 	#ifdef RFM12_SUPPORT
 		rfm12_init();
-
-		#ifdef TEENSY_SUPPORT
-		cli ();
-		rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));
-		rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
-			#ifdef RFM12_IP_SUPPORT
-			rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
-			rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
-			rfm12_rxstart();
-			#endif  /* RFM12_IP_SUPPORT */
-		sei ();
-		#else  /* TEENSY_SUPPORT */
-		rfm12_setfreq(RFM12FREQ(CONF_RFM12_FREQ));
-		rfm12_setbandwidth(5, 1, 4);
-			#ifdef RFM12_IP_SUPPORT
-			rfm12_setbaud(CONF_RFM12_BAUD / 100);
-			rfm12_setpower(0, 2);
-			rfm12_rxstart();
-			#endif  /* RFM12_IP_SUPPORT */
-		#endif  /* not TEENSY_SUPPORT */
 	#endif  /* RFM12_SUPPORT */
 
 	/* must be called AFTER all other initialization */
