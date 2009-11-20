@@ -68,8 +68,8 @@ usb_net_setup(uint8_t  data[8])
 void
 usb_net_read_finished (void)
 {
-  uip_buf_unlock ();
   usb_packet_ready = 0;
+  uip_buf_unlock ();
 }
 
 /* Host sends data to the device */
