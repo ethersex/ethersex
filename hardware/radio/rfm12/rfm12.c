@@ -247,6 +247,7 @@ rfm12_init(void)
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
 
   uint16_t status = rfm12_trans(0x0000);
+  (void) status;		/* keep GCC quiet even if debug disabled. */
   RFM12_DEBUG ("rfm12/init: %x\n", status);
 
 #ifdef TEENSY_SUPPORT
@@ -266,10 +267,10 @@ rfm12_init(void)
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 
-#ifdef HAVE_RFM12_RX_PIN
+#ifdef STATUSLED_RX_SUPPORT
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
-#ifdef HAVE_RFM12_TX_PIN
+#ifdef STATUSLED_TX_SUPPORT
   PIN_CLEAR(RFM12_TX_PIN);
 #endif
 
