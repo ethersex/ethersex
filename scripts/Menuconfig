@@ -1053,6 +1053,7 @@ Select the default profile you wish to load. \
 <Esc><Esc> to abort." \
 			15 70 7 \
 			defconfig	  "Etherrape"			0 \
+			Jackalope	  "Jackalope (Etherrape extension)"	0	\
 			ethersex	  "Standard Ethersex"		0 \
 			bootloader	  "Ethernet Bootloader"		0 \
 			netio		  "Pollin AVR Net-IO"		0 \
