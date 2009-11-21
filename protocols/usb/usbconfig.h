@@ -7,7 +7,7 @@
  * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
  * This Revision: $Id: usbconfig-prototype.h 600 2008-05-13 10:34:56Z cs $
  */
-#include "pinning.c"
+#include "config.h"
 
 #ifndef __usbconfig_h_included__
 #define __usbconfig_h_included__
@@ -139,7 +139,12 @@ section at the end of this file).
  * of the macros usbDisableAllRequests() and usbEnableAllRequests() in
  * usbdrv.h.
  */
-#define USB_CFG_LONG_TRANSFERS          0
+
+#if NET_MAX_FRAME_LENGTH > 254
+#  define USB_CFG_LONG_TRANSFERS          1
+#else
+#  define USB_CFG_LONG_TRANSFERS          0
+#endif
 /* Define this to 1 if you want to send/receive blocks of more than 254 bytes
  * in a single control-in or control-out transfer. Note that the capability
  * for long transfers increases the driver size.

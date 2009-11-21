@@ -61,7 +61,7 @@ usbFunctionSetup(uchar data[8])
 #ifdef USB_NET_SUPPORT
   if (rq->bRequest == USB_REQUEST_NET_SEND
       || rq->bRequest == USB_REQUEST_NET_RECV)
-    return (usbMsgLen_t) usb_net_setup(data);
+    return usb_net_setup(data);
 #endif
 
   return 0;   /* default for not implemented requests: return no data back to host */
