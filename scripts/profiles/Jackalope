@@ -183,9 +183,10 @@ PORTIO_SIMPLE=y
 # PORTIO_FULL_FEATURED is not set
 PORTIO_SIMPLE_SUPPORT=y
 NAMED_PIN_SUPPORT=y
-_NP_CONFIG=default
-default=y
-NP_CONFIG=pinning/named_pin/default
+# default is not set
+_NP_CONFIG=Jackalope
+Jackalope=y
+NP_CONFIG=pinning/named_pin/Jackalope
 # TTY_SUPPORT is not set
 TTY_COLS=16
 TTY_LINES=4
