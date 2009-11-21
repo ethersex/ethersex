@@ -1,9 +1,10 @@
 
 copy_example_namedpin() {
-  	if [ ! -f "namedpinConfig.user" ]
+        mkdir -p pinning/named_pin
+  	if [ ! -f "pinning/named_pin/default" ]
 	then
 		echo "Copy example named-pin file"
-		cp "core/portio/example-config" "namedpinConfig.user" > /dev/null
+		cp "core/portio/example-config" "pinning/named_pin/default" > /dev/null
 	fi
 }
 

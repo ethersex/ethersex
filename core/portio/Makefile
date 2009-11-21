@@ -24,7 +24,7 @@ $(NAMED_PIN_SUPPORT)_SRC += core/portio/named_pin.c \
 include $(TOPDIR)/scripts/rules.mk
 
 ##############################################################################
-NP_CONFIG ?= $(TOPDIR)/namedpinConfig.user
+NP_CONFIG ?= $(TOPDIR)/pinning/named_pin/default
 
 core/portio/named_pin.c: core/portio/user_config.c
 core/portio/user_config.c: $(NP_CONFIG)

@@ -1,0 +1,9 @@
+copy_example_namedpin
+dep_bool "Named and logic state I/O" NAMED_PIN_SUPPORT 
+if [ x"$NAMED_PIN_SUPPORT" = x"y" ]; then
+	choice '  Named pin configuration'	\
+			"$(cd pinning/named_pin/; for i in `ls`; do echo $i $i; done)" \
+		'default' _NP_CONFIG
+	define_symbol NP_CONFIG "pinning/named_pin/$_NP_CONFIG"
+	editor "Edit Named pin configuration" NP_CONFIG_EDIT "pinning/named_pin/$_NP_CONFIG"
+fi
