@@ -86,6 +86,26 @@ define(`RFM12_USE_INT', `dnl
 #define RFM12_INT_SIGNAL SIG_INTERRUPT$1
 ')
 
+define(`RFM12_USE_PCINT', `dnl
+/* RFM12 PinChange-Interrupt Line  PCINT$1 -> $2 */
+pin(RFM12_PCINT, $2, INPUT)
+
+dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
+#define rfm12_int_enable() \
+  do { \
+    _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
+    PCICR  |= _BV(_paste(PCIE, eval($1/8)));   \
+  } while(0)
+
+#define rfm12_int_disable() \
+  do { \
+    _paste(PCMSK, eval($1/8)) &= ~_BV(PCINT$1); \
+    PCICR  &= ~_BV(_paste(PCIE, eval($1/8)));	\
+  } while(0)
+
+#define RFM12_vect _paste3(PCINT, eval($1/8), _vect)
+')
+
 define(`RC5_USE_INT', `dnl
 /* rc5 interrupt line (TSOP Data out)*/
 #define RC5_INT_PIN INT$1

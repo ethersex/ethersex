@@ -109,10 +109,12 @@ rfm12_status_t rfm12_status;
 #define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
 
 
+#ifndef HAVE_RFM12_PCINT
 #define rfm12_int_enable()			\
   _EIMSK |= _BV(RFM12_INT_PIN);
 #define rfm12_int_disable()			\
   _EIMSK &= ~_BV(RFM12_INT_PIN);
+#endif  /* not HAVE_RFM12_PCINT */
 
 
 #define RFM12_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)

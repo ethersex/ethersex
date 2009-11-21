@@ -48,8 +48,15 @@ uint8_t rfm12_drssi = RSSI_79;
 
 static void rfm12_txstart_hard (void);
 
+#ifdef RFM12_INT_SIGNAL
 SIGNAL(RFM12_INT_SIGNAL)
+#else
+ISR(RFM12_vect)	    /* PCINT */
+#endif
 {
+#ifdef HAVE_RFM12_PCINT
+  if(PIN_HIGH(RFM12_PCINT)) return;	/* pin change to high level -> ignore */
+#endif
   uint8_t byte;
   uint16_t status = rfm12_trans (0x0000);
 
