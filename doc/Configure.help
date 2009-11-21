@@ -965,6 +965,9 @@ NAMED_PIN_SUPPORT
     pin set NAME STATUS         -- to set the pin NAME to STATUS (on/off)
     pin toggle NAME             -- to toggle the pin NAME
 
+  The Configuration files must be located in pinning/named_pin to make them
+  selectable.
+
 MCUF usart
 MCUF_SERIAL_SUPPORT
   Depends on: 
