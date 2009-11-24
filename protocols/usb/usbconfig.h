@@ -7,7 +7,7 @@
  * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
  * This Revision: $Id: usbconfig-prototype.h 600 2008-05-13 10:34:56Z cs $
  */
-#include "config.h"
+#include "pinning.c"
 
 #ifndef __usbconfig_h_included__
 #define __usbconfig_h_included__
