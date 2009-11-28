@@ -29,32 +29,30 @@
 #include <string.h>
 
 static uip_udp_conn_t *ecmd_conn;
-char* send_data = NULL;
+PGM_P send_pgm_data = NULL;
 uint8_t resend_counter;
-client_return_text_callback_t ucallback = NULL;
+client_return_text_callback_t ucallback_p = NULL;
 
 void
-uecmd_sender_net_main(void) 
+uecmd_sender_pgm_net_main(void) 
 {
   if (uip_newdata()) {
-    if(ucallback) {
-      ucallback(uip_appdata, uip_len);
+    if(ucallback_p) {
+      ucallback_p(uip_appdata, uip_len);
     }
-    free(send_data);
-    send_data = NULL;
+    send_pgm_data = NULL;
   }
-  if (send_data) {
+  if (send_pgm_data) {
     resend_counter --;
     if (!resend_counter) {
-      if(ucallback) {
-	ucallback(NULL, 0);
+      if(ucallback_p) {
+	ucallback_p(NULL, 0);
       }
-      free(send_data);
-      send_data = NULL;
+      send_pgm_data = NULL;
       return;
     }
-    uint8_t len = strlen(send_data);
-    memcpy(uip_appdata, send_data, len);
+    uint8_t len = strlen_P(send_pgm_data);
+    memcpy_P(uip_appdata, send_pgm_data, len);
     uip_slen = len;
 
     /* build a new connection on the stack */
@@ -68,30 +66,27 @@ uecmd_sender_net_main(void)
 }
 
 void
-uecmd_sender_send_command(uip_ipaddr_t *ipaddr, char* data, client_return_text_callback_t callback) 
+uecmd_sender_pgm_send_command(uip_ipaddr_t *ipaddr, PGM_P pgm_data, client_return_text_callback_t callback) 
 {
-  if (send_data) {
+  if (send_pgm_data) {
     if(callback) {
       callback(NULL, 0);
     }
-    free(data);
     return;
   }  
 
   if (!ecmd_conn) {
-    ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
+    ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_pgm_net_main);
     if (!ecmd_conn) {
       if(callback) {
 	callback(NULL, 0);
       }
-      free(data);
-      send_data = NULL;
       return;
     }
   }
   uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
-  send_data = data;
-  ucallback = callback;
+  send_pgm_data = pgm_data;
+  ucallback_p = callback;
   resend_counter = 7;
 }
 
