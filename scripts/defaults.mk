@@ -2,31 +2,16 @@
 F_CPU = 20000000UL
 MCU = atmega644
 
-CC=avr-gcc
-AR=avr-ar
-OBJCOPY = avr-objcopy
-OBJDUMP = avr-objdump
-AS = avr-as
 CP = cp
 RM = rm -f
 AVRDUDE = avrdude
 AVRDUDE_BAUDRATE = 115200
-SIZE = avr-size
-STRIP = avr-strip
 AWK = gawk
 M4 = m4
 
 HOSTCC := gcc
 export HOSTCC
 export MAKE
-
-# flags for the compiler
-CPPFLAGS += -mmcu=$(MCU) -I$(TOPDIR)
-CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
-CFLAGS += -g -Os -std=gnu99
-
-# flags for the linker
-LDFLAGS += -mmcu=$(MCU)
 
 ##############################################################################
 # include user's config.mk file
@@ -50,6 +35,39 @@ endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 
+CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
+
+ifeq ($(ARCH_HOST),y)
+  CC=gcc
+  AR=ar
+  OBJCOPY = objcopy
+  OBJDUMP = objdump
+  AS = as
+  SIZE = size
+  STRIP = strip
+
+  CPPFLAGS += -I$(TOPDIR)
+  CFLAGS += -ggdb -O0 -std=gnu99
+
+else
+
+  CC=avr-gcc
+  AR=avr-ar
+  OBJCOPY = avr-objcopy
+  OBJDUMP = avr-objdump
+  AS = avr-as
+  SIZE = avr-size
+  STRIP = avr-strip
+
+  # flags for the compiler
+  CPPFLAGS += -mmcu=$(MCU) -I$(TOPDIR)
+  CFLAGS += -g -Os -std=gnu99
+
+  # flags for the linker
+  LDFLAGS += -mmcu=$(MCU)
+
+endif
+
 ifeq ($(BOOTLOADER_SUPPORT),y)
 ifeq ($(atmega128),y)
 LDFLAGS += -Wl,--section-start=.text=0x1E000
@@ -62,10 +80,10 @@ endif
 
 
 %.s: %.c
-	@$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
+	$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
 
 %.E: %.c
-	@$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
+	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
 
 %.o: %.S
-	@$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
+	$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<

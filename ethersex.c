@@ -19,6 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
@@ -28,7 +30,6 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_neighbor.h"
 
-#include "config.h"
 #include "core/global.h"
 #include "core/debug.h"
 #include "core/spi.h"

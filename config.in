@@ -8,6 +8,12 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
+	choice 'Target Architecture'			\
+		"AVR		ARCH_AVR		\
+		 Host		ARCH_HOST"		\
+		'AVR' ARCH
+
+if [ "$ARCH_AVR" = "y" ]; then
 	choice 'Target MCU'			\
 		"ATmega8      atmega8	\
 		 ATmega88     atmega88	\
@@ -30,9 +36,11 @@ comment "General Setup"
 	source hardware/sram/config.in
 
 	bool "Build a bootloader" BOOTLOADER_SUPPORT
+fi
+
 	bool "Teensy build" TEENSY_SUPPORT
-	bool "Use SPI Timeout" SPI_TIMEOUT
-	bool "Use Usart in SPI Mode" USART_SPI_SUPPORT
+	dep_bool "Use SPI Timeout" SPI_TIMEOUT $ARCH_AVR
+	dep_bool "Use Usart in SPI Mode" USART_SPI_SUPPORT $ARCH_AVR
     if [ "$USART_SPI_SUPPORT" = y ]; then
       choice '  SPI usart select' "$(usart_choice SPI)"
       usart_process_choice SPI
@@ -51,7 +59,7 @@ comment "General Setup"
 	dep_bool_menu "Enable Debugging" DEBUG y
 		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
-		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG
+		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG $ARCH_AVR
 		comment  '----- Debugging Flags -----'
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG
@@ -69,6 +77,7 @@ mainmenu_option next_comment
 
 	string "Hostname" CONF_HOSTNAME "ethersex"
 	source hardware/ethernet/config.in
+	source core/host/tap-config.in
 	source hardware/radio/rfm12/config.in
 	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source protocols/usb/config.in
@@ -141,19 +150,26 @@ endmenu
 mainmenu_option next_comment
 comment "I/O"
 
-choice "I/O abstraction model (Port I/O)" \
-	"None					CONFIG_IO_NONE		\
-	 Simple				PORTIO_SIMPLE	\
-	 Full-featured			PORTIO_FULL_FEATURED"		\
-	Simple PORTIO_SCHEME
+	if [ "$ARCH_HOST" = "y" ]; then
+		define_bool PORTIO_SUPPORT n
+		define_bool PORTIO_SIMPLE_SUPPORT n
+		define_bool NAMED_PIN_SUPPORT n
+	else
+		choice "I/O abstraction model (Port I/O)" \
+			"None			CONFIG_IO_NONE		\
+			 Simple			PORTIO_SIMPLE		\
+			 Full-featured		PORTIO_FULL_FEATURED"	\
+			Simple PORTIO_SCHEME
 
-	if [ x"$PORTIO_SCHEME" = x"PORTIO_SIMPLE" ]; then
-		define_bool PORTIO_SIMPLE_SUPPORT y;
-	elif [ x"$PORTIO_SCHEME" = x"PORTIO_FULL_FEATURED" ]; then
-		define_bool PORTIO_SUPPORT y;
+		if [ x"$PORTIO_SCHEME" = x"PORTIO_SIMPLE" ]; then
+			define_bool PORTIO_SIMPLE_SUPPORT y;
+		elif [ x"$PORTIO_SCHEME" = x"PORTIO_FULL_FEATURED" ]; then
+			define_bool PORTIO_SUPPORT y;
+		fi
+
+		source core/portio/config.in
 	fi
 
-	source core/portio/config.in
 	source core/tty/config.in
 	source hardware/io_expander/config.in
 	source hardware/adc/config.in

@@ -1,4 +1,4 @@
-dep_bool_menu "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT
+dep_bool_menu "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPPORT $ARCH_AVR
   if [ "$DCF77_SUPPORT" = "y" ]; then
     choice 'Module'			\
 	"SelfeMade	DCFANA_SUPPORT	\

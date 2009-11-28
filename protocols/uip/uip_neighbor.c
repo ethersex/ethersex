@@ -40,7 +40,7 @@
  */
 
 #include "config.h"
-#ifdef ENC28J60_SUPPORT 
+#ifdef ETHERNET_SUPPORT 
 
 #include "uip_neighbor.h"
 
@@ -162,7 +162,7 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
 }
 /*---------------------------------------------------------------------------*/
 
-#endif /* ENC28J60_SUPPORT */
+#endif /* ETHERNET_SUPPORT */
 
 /*
   -- Ethersex META --

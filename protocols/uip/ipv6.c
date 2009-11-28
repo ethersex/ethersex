@@ -58,7 +58,7 @@ extern struct uip_eth_addr uip_ethaddr;
 extern uint8_t bootload_delay;
 #endif
 
-#if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
+#if UIP_CONF_IPV6 && defined(ETHERNET_SUPPORT)
 
 
 static void
@@ -340,4 +340,4 @@ after_neighbour_resolv:
   return 0;
 }
 
-#endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
+#endif /* UIP_CONF_IPV6 and ETHERNET_SUPPORT */

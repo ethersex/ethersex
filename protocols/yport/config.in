@@ -1,6 +1,6 @@
 usart_count_used
 if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-	dep_bool_menu "YPort Support" YPORT_SUPPORT $TCP_SUPPORT
+	dep_bool_menu "YPort Support" YPORT_SUPPORT $TCP_SUPPORT $ARCH_AVR
 		choice '    YPort usart select' "$(usart_choice YPORT)"
 		usart_process_choice YPORT
 		int    "YPort TCP Port" YPORT_PORT 7970

@@ -4,12 +4,14 @@ TOPDIR = .
 SUBDIRS += control6
 SUBDIRS += core
 SUBDIRS += core/crypto
+SUBDIRS += core/host
 SUBDIRS += core/portio
 SUBDIRS += core/tty
 SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
+SUBDIRS += hardware/avr
 SUBDIRS += hardware/dac
 SUBDIRS += hardware/clock/dcf77
 SUBDIRS += hardware/camera
@@ -82,20 +84,6 @@ rootbuild=t
 
 export TOPDIR
 
-##############################################################################
-all: compile-$(TARGET)
-	@echo "=======The ethersex project========"
-	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
-	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
-	@echo "==================================="
-.PHONY: all
-.SILENT: all
-
-##############################################################################
-# generic fluff
-include $(TOPDIR)/scripts/defaults.mk
-#include $(TOPDIR)/scripts/rules.mk
-
 ifneq ($(no_deps),t)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),fullclean)
@@ -110,6 +98,24 @@ endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 endif # no_deps!=t
 
+##############################################################################
+ifeq ($(ARCH_HOST),y)
+all: $(TARGET)
+else
+all: compile-$(TARGET)
+	@echo "=======The ethersex project========"
+	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
+	@${TOPDIR}/scripts/size $(TARGET) $(MCU)
+	@echo "==================================="
+endif
+.PHONY: all
+.SILENT: all
+
+##############################################################################
+# generic fluff
+include $(TOPDIR)/scripts/defaults.mk
+#include $(TOPDIR)/scripts/rules.mk
+
 SRC += ethersex.c
 ${UIP_SUPPORT}_SRC += network.c
 
@@ -121,9 +127,12 @@ debug:
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 	@echo y_SOAP_SRC: ${y_SOAP_SRC}
 
+${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
+${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
+
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
-	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
 
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
@@ -143,19 +152,14 @@ meta.h: scripts/meta_header_magic.m4 meta.m4
 
 ##############################################################################
 
+
 compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 .PHONY: compile-$(TARGET)
 .SILENT: compile-$(TARGET)
 
-${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
-${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
-
 OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
-# FIXME how can we omit specifying every file to be linked twice?
-# This is currently necessary because of interdependencies between
-# the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
 

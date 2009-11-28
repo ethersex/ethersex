@@ -1,4 +1,4 @@
-dep_bool_menu "SMS Support" SMS_SUPPORT
+dep_bool_menu "SMS Support" SMS_SUPPORT $ARCH_AVR
 		choice '  SMS' "$(usart_choice SMS)"
 		usart_process_choice SMS
 		comment  "Debugging Flags"

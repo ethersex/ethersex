@@ -82,7 +82,7 @@ eeprom_init (void)
     uip_ipaddr_t ip;
     (void) ip;			/* Keep GCC quiet. */
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
     eeprom_save_P (mac, PSTR(CONF_ETHERRAPE_MAC), 6);
 #endif
 

@@ -24,18 +24,6 @@ ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_endif()
 ecmd_endif()
 
-block(Resetting the controller) dnl ==========================
-ecmd_ifndef(TEENSY_SUPPORT)
-  ecmd_ifndef(DISABLE_REBOOT_SUPPORT)
-    ecmd_feature(reset, "reset",,Reset the Ethersex.)
-    ecmd_feature(wdreset, "wdreset",,Go into endless loop to trigger a watchdog timeout.)
-  ecmd_endif()
-ecmd_endif()
-
-ecmd_ifndef(DISABLE_REBOOT_SUPPORT)
-  ecmd_feature(bootloader, "bootloader",,Call the bootloader.)
-ecmd_endif()
-
 block([[RFM12_ASK]]) dnl ==========================
 ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
   ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
@@ -116,11 +104,9 @@ dnl   for commands that don't fit in any category and would thus require to add
 dnl   a category just for one specific command (which we don't want)
 
 ecmd_ifndef(TEENSY_SUPPORT)
-  ecmd_feature(d, "d ", ADDR, Dump the memory at ADDR (16 bytes).)
   ecmd_feature(help, "help",, List which commands are available.)
 
   ecmd_feature(version, "version",,Display the version number.)
-  ecmd_feature(fuse, "fuse",,Display the fuse settings.)
 
 dnl  ecmd_ifdef(USART_SUPPORT)
 dnl    ecmd_feature(usart_baud, "usart baud", BAUD, Set the USART baudrate to BAUD.)
