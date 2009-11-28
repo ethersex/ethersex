@@ -8,22 +8,6 @@ dnl
 dnl  Lines starting with `dnl' are comments.
 dnl
 
-dnl block(Network configuration) dnl ==========================
-ecmd_ifndef(TEENSY_SUPPORT)
-  ecmd_ifdef(UIP_SUPPORT)
-    ecmd_ifndef(IPV6_SUPPORT)
-      ecmd_feature(ip, "ip",[IP],Display/Set the IP address.)
-      ecmd_feature(netmask, "netmask",[IP],Display/Set the network mask.)
-      ecmd_feature(gw, "gw",[IP],Display/Set the address of the default router.)
-    ecmd_endif()
-
-    ecmd_ifdef(IPV6_STATIC_SUPPORT)
-      ecmd_feature(ip, "ip")
-      ecmd_feature(gw, "gw")
-    ecmd_endif()
-  ecmd_endif()
-ecmd_endif()
-
 block([[RFM12_ASK]]) dnl ==========================
 ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
   ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
