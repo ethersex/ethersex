@@ -82,6 +82,7 @@ mainmenu_option next_comment
 	dep_bool 'RFM12 raw' RFM12_RAW_SUPPORT $RFM12_IP_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source protocols/usb/config.in
 	source protocols/usb/usb-net-config.in
+	source protocols/usb/usb-hid-config.in
 	source protocols/zbus/config.in
 	dep_bool 'ZBUS raw' ZBUS_RAW_SUPPORT $ZBUS_SUPPORT $ROUTER_SUPPORT $UDP_SUPPORT
 	source scripts/ip-router-conf.sh
