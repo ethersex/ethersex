@@ -1849,3 +1849,12 @@ APP_SAMPLE_SUPPORT
     Also this function will be called by ECMD "sample_periodic",
   Function "app_sample_onrequest" will be execured by ECMD command "sample"
 
+Serverice
+CONF_TWITTER_SERVICE
+ For Twitter valid values are:
+   Serverice: "twitter.com"
+   API Root: " "
+   Username: [Your Twitter Username]
+   Password: [Your Twitter Password]
+  Be aware, your password will be saven in plain text in the .config-File!
+
