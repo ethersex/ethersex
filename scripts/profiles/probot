@@ -6,6 +6,9 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
+ARCH=ARCH_AVR
+ARCH_AVR=y
+# ARCH_HOST is not set
 # atmega8 is not set
 # atmega88 is not set
 MCU=atmega128
@@ -19,22 +22,24 @@ atmega128=y
 # atmega644p is not set
 FREQ=14745000
 # Arduino_Duemilanove is not set
-# browsertest is not set
+# Jackalope is not set
+# MicroWebServer is not set
 HARDWARE=conrad_probot
 conrad_probot=y
 # etherrape is not set
 # generic_usb_teensy is not set
-# MicroWebServer is not set
 # netio is not set
 # other is not set
 # pollin_funkevalboard is not set
-# radig_habo is not set
 # radig_web is not set
-# usbfifi is not set
-# usbfifiOW is not set
+# sexyfnord is not set
+# user_fnordhw is not set
+# SRAM_SUPPORT is not set
+# SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
+# USART_SPI_SUPPORT is not set
 # USE_GIT_VERSION is not set
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
@@ -79,11 +84,13 @@ DEBUG_BAUDRATE=19200
 # MCUF_INLINE_SUPPORT is not set
 # GAME_INPUT_INLINE_SUPPORT is not set
 # UPNP_INLINE_SUPPORT is not set
+# LCD_INLINE_SUPPORT is not set
 # NMEA_INLINE_SUPPORT is not set
 # PWM_SERVO_INLINE_SUPPORT is not set
 # DEBUG_INLINE_DUMMY is not set
 # DEBUG_INLINE_GZ is not set
 # DEBUG_INLINE_DISABLE_GZ is not set
+# VFS_HOST_SUPPORT is not set
 # VFS_SD_SUPPORT is not set
 # SD_READER_SUPPORT is not set
 # SD_READ_TIMEOUT is not set
@@ -98,7 +105,6 @@ DEBUG_BAUDRATE=19200
 # VFS_EEPROM_DEBUG_SUPPORT is not set
 # DEBUG_SD_READER is not set
 # PAM_SUPPORT is not set
-_SUPPORT=y
 CONTROL6_SUPPORT=y
 
 #
@@ -114,7 +120,15 @@ CONF_ENC_IP4_NETMASK="255.255.0.0"
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
+# ETHERNET_SUPPORT is not set
 # IPV6_STATIC_SUPPORT is not set
+# TAP_SUPPORT is not set
+CONF_TAP_MAC="ac:de:48:fd:0f:d0"
+# IPV6_STATIC_SUPPORT is not set
+CONF_TAP_IP="192.168.23.244"
+CONF_TAP_IP4_NETMASK="255.255.255.0"
+CONF_TAP_LOCALIP="192.168.23.1"
+# IEEE8021Q_SUPPORT is not set
 # RFM12_IP_SUPPORT is not set
 CONF_RFM12_FREQ=RFM12_FREQ_433920
 RFM12_FREQ_433920=y
@@ -182,6 +196,10 @@ PORTIO_SCHEME=PORTIO_FULL_FEATURED
 PORTIO_FULL_FEATURED=y
 PORTIO_SUPPORT=y
 NAMED_PIN_SUPPORT=y
+# Jackalope is not set
+_NP_CONFIG=default
+default=y
+NP_CONFIG=pinning/named_pin/
 # TTY_SUPPORT is not set
 TTY_COLS=16
 TTY_LINES=4
@@ -207,6 +225,7 @@ SMS_USE_USART=0
 # DEBUG_SMS is not set
 # KTY_SUPPORT is not set
 # TLC5620_SUPPORT is not set
+# LTC1257_SUPPORT is not set
 
 #
 # LCD Displays
@@ -249,6 +268,7 @@ DC3840_USE_USART=0
 # RC5IR_SUPPORT is not set
 # RC5_SUPPORT is not set
 # DEBUG_RC5 is not set
+# PSB2186_SUPPORT is not set
 # PWM_SUPPORT is not set
 # PWM_WAV_SUPPORT is not set
 # PWM_MELODY_SUPPORT is not set
@@ -317,6 +337,7 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # Protocols
 #
 # ARTNET_SUPPORT is not set
+CONF_ARTNET_PORT=6454
 CONF_ARTNET_MAX_PORTS=4
 CONF_ARTNET_MAX_DATA_LENGTH=511
 CONF_ARTNET_MAX_CHANNELS=512
@@ -380,9 +401,6 @@ CONF_MYSQL_SCHEMA="mavisdb"
 CONF_NETSTAT_SERVICE_IP="2001:6f8:1209:f0:216:3eff:fe03:ff"
 CONF_NETSTAT_SERVICE="ethersex.de"
 CONF_NETSTAT_API="/~habo/stat/"
-# NETSTAT_DETAILS_SUPPORT is not set
-CONF_NETSTAT_OWNER_SERVICE="dg1osr"
-CONF_NETSTAT_COMMENT_SERVICE="I love ethersex"
 # DEBUG_NETSTAT is not set
 # SOAP_SUPPORT is not set
 # SNMP_SUPPORT is not set
@@ -392,6 +410,13 @@ CONF_SENDMAIL_FROM="root@sex.metafnord.de"
 CONF_SENDMAIL_TO="stesie@brokenpipe.de"
 # SENDMAIL_AUTH_SUPPORT is not set
 # DEBUG_SENDMAIL is not set
+# SMS77_SUPPORT is not set
+CONF_SMS77_SERVICE="gateway.sms77.de"
+CONF_SMS77_USER=""
+CONF_SMS77_PASS=""
+CONF_SMS77_TO=""
+# SMS77_EEPROM_SUPPORT is not set
+# DEBUG_SMS77 is not set
 # SYSLOG_SUPPORT is not set
 CONF_SYSLOG_SERVER="192.168.23.73"
 # TWITTER_SUPPORT is not set
@@ -401,6 +426,10 @@ CONF_TWITTER_USERNAME="ethersex"
 CONF_TWITTER_PASSWORD=""
 CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
 # DEBUG_TWITTER is not set
+# USTREAM_SUPPORT is not set
+CONF_USTREAM_IP="205.188.234.7"
+CONF_USTREAM_PORT=80
+# DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
 YPORT_USART_0=y
 # YPORT_USART_1 is not set
@@ -427,8 +456,8 @@ NMEA_USE_USART=0
 # Applications
 #
 # APP_SAMPLE_SUPPORT is not set
-APP_SAMPLE_INIT_AUTOSTART=y
-APP_SAMPLE_PERIODIC_AUTOSTART=y
+# APP_SAMPLE_INIT_AUTOSTART_SUPPORT is not set
+# APP_SAMPLE_PERIODIC_AUTOSTART_SUPPORT is not set
 # DEBUG_APP_SAMPLE is not set
 CLOCK_SUPPORT=y
 CLOCK_DATETIME_SUPPORT=y
