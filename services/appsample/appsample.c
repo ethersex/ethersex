@@ -72,5 +72,5 @@ app_sample_onrequest(char *cmd, char *output, uint16_t len){
   -- Ethersex META --
   header(services/appsample/appsample.h)
   ifdef(`conf_APP_SAMPLE_INIT_AUTOSTART',`init(app_sample_init)')
-  ifdef(`conf_APP_SAMPLE_PERIODIC_AUTOSTART',`timer(100,app_sample_periodic)')
+  ifdef(`conf_APP_SAMPLE_PERIODIC_AUTOSTART',`timer(100,app_sample_periodic())')
 */
