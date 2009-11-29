@@ -1,0 +1,39 @@
+#
+#   Named Pin Configuration File
+#
+# You can assign names to your microcontroller's pins here.
+# Keep in mind that this names must consist of alphanumeric 
+# characters only!
+#
+# Every line starting with a hash sign (#) is a comment.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PB0	OUTPUT	 LOW 		encoder_ir		# led for encoder_right AND encoder_left
+PB4	OUTPUT	 HIGH		beep
+PB5	OUTPUT	 HIGH		motor_right
+PB6	OUTPUT	 HIGH	 	motor_left
+PB7	OUTPUT	 HIGH		motor_enable
+#
+PC0	OUTPUT	 LOW  		led_back_right
+PC1	OUTPUT	 LOW  		led_back_left
+PC2	OUTPUT	 LOW  		led_front_right
+PC3	OUTPUT	 LOW  		led_front_left
+PC4	OUTPUT	 LOW 		led_line_sensor
+#
+PD2	INPUT	 HIGH		tsop
+PD3	OUTPUT	 LOW		ir_left			# see pwm_ir
+PD4	OUTPUT	 LOW		ir_right		# see pwm_ir
+#
+PE3     OUTPUT   HIGH           pwm_ir			# pwm for ir_left AND ir_right
+PE4	INPUT	 HIGH		boot 			# boot button
+PE6	INPUT	 LOW 		encoder_right		# ?
+PE7	INPUT	 LOW 		encoder_left		# ?
+#
+PF5	INPUT	 LOW		ldr_right		# active
+PF4	INPUT	 LOW		ldr_left		# active
+PF3	INPUT	 HIGH		mic
+PF2	INPUT	 HIGH		line_sensor_right	
+PF1	INPUT	 HIGH		line_sensor_left
+PF0	INPUT	 HIGH		ub_measurement
