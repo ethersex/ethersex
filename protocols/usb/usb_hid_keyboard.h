@@ -41,6 +41,7 @@
 /* Keyboard usage values, see usb.org's HID-usage-tables document, chapter
  * 10 Keyboard/Keypad Page for more codes.
  */
+#define MOD_NONE            0
 #define MOD_CONTROL_LEFT    (1<<0)
 #define MOD_SHIFT_LEFT      (1<<1)
 #define MOD_ALT_LEFT        (1<<2)
