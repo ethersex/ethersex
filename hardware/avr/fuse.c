@@ -19,6 +19,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdio.h>
+#include <avr/pgmspace.h>
+
+#include "pinning.c"
 #include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_fuse(char *cmd, char *output, uint16_t len)

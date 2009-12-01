@@ -20,6 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdint.h>
+#include "core/global.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)

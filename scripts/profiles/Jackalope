@@ -6,6 +6,9 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
+ARCH=ARCH_AVR
+ARCH_AVR=y
+# ARCH_HOST is not set
 # atmega8 is not set
 # atmega88 is not set
 # atmega128 is not set
@@ -19,16 +22,18 @@ atmega168=y
 # atmega644p is not set
 FREQ=20000000
 # Arduino_Duemilanove is not set
-# conrad_probot is not set
-# etherrape is not set
-# generic_usb_teensy is not set
 HARDWARE=Jackalope
 Jackalope=y
 # MicroWebServer is not set
+# conrad_probot is not set
+# etherrape is not set
+# generic_usb_teensy is not set
 # netio is not set
 # other is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
+# sexyfnord is not set
+# user_fnordhw is not set
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
@@ -85,6 +90,7 @@ DEBUG_BAUDRATE=115200
 # DEBUG_INLINE_DUMMY is not set
 # DEBUG_INLINE_GZ is not set
 # DEBUG_INLINE_DISABLE_GZ is not set
+# VFS_HOST_SUPPORT is not set
 # VFS_SD_SUPPORT is not set
 # SD_READER_SUPPORT is not set
 # SD_READ_TIMEOUT is not set
@@ -99,7 +105,6 @@ DEBUG_BAUDRATE=115200
 # VFS_EEPROM_DEBUG_SUPPORT is not set
 # DEBUG_SD_READER is not set
 # PAM_SUPPORT is not set
-_SUPPORT=y
 # CONTROL6_SUPPORT is not set
 
 #
@@ -115,7 +120,15 @@ CONF_ENC_IP4_NETMASK="255.255.255.0"
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
+# ETHERNET_SUPPORT is not set
 # IPV6_STATIC_SUPPORT is not set
+# TAP_SUPPORT is not set
+CONF_TAP_MAC="ac:de:48:fd:0f:d0"
+# IPV6_STATIC_SUPPORT is not set
+CONF_TAP_IP="192.168.23.244"
+CONF_TAP_IP4_NETMASK="255.255.255.0"
+CONF_TAP_LOCALIP="192.168.23.1"
+# IEEE8021Q_SUPPORT is not set
 RFM12_IP_SUPPORT=y
 CONF_RFM12_FREQ=RFM12_FREQ_433920
 RFM12_FREQ_433920=y
@@ -183,9 +196,9 @@ PORTIO_SIMPLE=y
 # PORTIO_FULL_FEATURED is not set
 PORTIO_SIMPLE_SUPPORT=y
 NAMED_PIN_SUPPORT=y
-# default is not set
 _NP_CONFIG=Jackalope
 Jackalope=y
+# default is not set
 NP_CONFIG=pinning/named_pin/Jackalope
 # TTY_SUPPORT is not set
 TTY_COLS=16

@@ -22,6 +22,7 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #include <string.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)

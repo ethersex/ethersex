@@ -245,7 +245,7 @@ IPV6_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+ Enable IPv6 networking instead of IPv4. 
 
 Enable IP forwarding
 IP_FORWARDING_SUPPORT
@@ -291,7 +291,7 @@ PS2_GERMAN_LAYOUT
   Depends on: 
    * PS/2 keyboard (PS2_SUPPORT)
 
-  There's unfortunately no help available for this item.
+ Set german keyboard layout.
 
 ADC input
 ADC_SUPPORT
@@ -640,7 +640,8 @@ USB_NET_SUPPORT
   IP-Networking over USB.  It doesn't use kernel-driven CDC-subset
   because of too high controller load.
 
-  You need to use the userspace-space client available from contrib/usb_net
+  You need to use the userspace-space client available 
+  from contrib/usb_net
 
 USBnet ARP-Proxy
 USB_ARP_PROXY
@@ -903,7 +904,8 @@ ECMD_TCP_SUPPORT
    * ECMD support (ECMD_PARSER_SUPPORT)
    * TCP support (TCP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add TCP Telnet like ECMD support.
+  See http://ethersex.de/index.php/ECMD for help. 
 
 UDP interface
 ECMD_UDP_SUPPORT
@@ -912,7 +914,8 @@ ECMD_UDP_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add UDP ECMD support. 
+  See http://ethersex.de/index.php/ECMD for help. 
 
 I2C interface
 ECMD_SERIAL_I2C_SUPPORT
@@ -920,7 +923,8 @@ ECMD_SERIAL_I2C_SUPPORT
    * ECMD support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Add ECMD Support via TWI or I2C Interface.
+  See http://ethersex.de/index.php/ECMD for help. 
 
 USB interface
 ECMD_USB_SUPPORT
@@ -929,7 +933,8 @@ ECMD_USB_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable ECMD via USB Interface
+  See http://ethersex.de/index.php/ECMD for help. 
 
 Send ECMD messages
 ECMD_SENDER_SUPPORT
@@ -1062,14 +1067,14 @@ IPSTATS_SUPPORT
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Collects and print out network statistic.
 
 Memory usage information (free)
 FREE_SUPPORT
   Depends on: 
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Print out memory usage. 
 
 IPv6
 DEBUG_NET_IP6
@@ -1849,3 +1854,81 @@ APP_SAMPLE_SUPPORT
     Also this function will be called by ECMD "sample_periodic",
   Function "app_sample_onrequest" will be execured by ECMD command "sample"
 
+Twitter/identi.ca client (EXPERIMENTAL)
+TWITTER_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * DNS support (DNS_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+ For Twitter valid values are:
+   Serverice: "twitter.com"
+   API Root: " "
+   Username: [Your Twitter Username]
+   Password: [Your Twitter Password]
+  Be aware, your password will be saven in plain text in 
+  the .config-File!
+
+
+Buttons Input
+BUTTONS_INPUT_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Button Input add hook functions to be called by other parts
+  of ethersex without specific knowledge of the selected 
+  input device.
+  
+
+Number of buttons
+CONF_NUM_BUTTONS
+
+  Set the desired number of buttons you need.
+
+External SRAM support
+SRAM_SUPPORT
+  Depends on: 
+
+  Add SRAM support for exteral RAM ICs. This will allow to
+  expand the RAM and HEAP. 
+
+  More details at http://ethersex.de/index.php/SRAM
+
+Perform memory test when starting
+SRAM_MEMTEST_ON_BOOT
+
+  Perform a memory test at ethersex boot time.
+
+Jabber (EXPERIMENTAL)
+ECMD_JABBER_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enable support for ECMD via Jabber.
+
+ECMD (Etherrape Control Interface) support
+ECMD_PARSER_SUPPORT
+  Depends on: 
+
+  Ethersex COMand = ECMD is a kind of i/o interface.
+  More details at http://ethersex.de/index.php/ECMD
+
+IRC (EXPERIMENTAL)
+ECMD_IRC_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * IRC client (EXPERIMENTAL) (IRC_SUPPORT)
+
+  Add IRC support for ECMD. This enables to controll your
+  ethersex device via IRC chat protocol.
+
+SMS
+ECMD_SMS_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * SMS Support (SMS_SUPPORT)
+
+  Send and receive ECMD via Short Message Service.

@@ -6,9 +6,13 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
+ARCH=ARCH_AVR
+ARCH_AVR=y
+# ARCH_HOST is not set
 # atmega8 is not set
 # atmega88 is not set
 # atmega128 is not set
+# atmega16 is not set
 # atmega162 is not set
 MCU=atmega168
 atmega168=y
@@ -19,18 +23,23 @@ atmega168=y
 FREQ=16000000
 HARDWARE=Arduino_Duemilanove
 Arduino_Duemilanove=y
+# Jackalope is not set
+# MicroWebServer is not set
+# conrad_probot is not set
 # etherrape is not set
 # generic_usb_teensy is not set
-# MicroWebServer is not set
 # netio is not set
 # other is not set
+# pollin_funkevalboard is not set
 # radig_web is not set
-# ths is not set
-# usbfifi is not set
-# usbfifiOW is not set
+# sexyfnord is not set
+# user_fnordhw is not set
+# SRAM_SUPPORT is not set
+# SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
+# USART_SPI_SUPPORT is not set
 # USE_GIT_VERSION is not set
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
@@ -47,7 +56,11 @@ STATUSLEDS=y
 STATUSLED_BOOTED_SUPPORT=y
 # STATUSLED_NETLINK_SUPPORT is not set
 # STATUSLED_TX_SUPPORT is not set
+# RFM12_TX_PIN is not set
+# ZBUS_TX_PIN is not set
 # STATUSLED_RX_SUPPORT is not set
+# RFM12_RX_PIN is not set
+# ZBUS_RX_PIN is not set
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
 # MD5_SUPPORT is not set
@@ -67,6 +80,17 @@ STATUSLED_BOOTED_SUPPORT=y
 # NAMED_PIN_INLINE_SUPPORT is not set
 # STELLA_INLINE_SUPPORT is not set
 # MSR1_INLINE_SUPPORT is not set
+# TO1_INLINE_SUPPORT is not set
+# MCUF_INLINE_SUPPORT is not set
+# GAME_INPUT_INLINE_SUPPORT is not set
+# UPNP_INLINE_SUPPORT is not set
+# LCD_INLINE_SUPPORT is not set
+# NMEA_INLINE_SUPPORT is not set
+# PWM_SERVO_INLINE_SUPPORT is not set
+# DEBUG_INLINE_DUMMY is not set
+# DEBUG_INLINE_GZ is not set
+# DEBUG_INLINE_DISABLE_GZ is not set
+# VFS_HOST_SUPPORT is not set
 # VFS_SD_SUPPORT is not set
 # SD_READER_SUPPORT is not set
 # SD_READ_TIMEOUT is not set
@@ -80,6 +104,7 @@ STATUSLED_BOOTED_SUPPORT=y
 # DEBUG_FS_MARK is not set
 # VFS_EEPROM_DEBUG_SUPPORT is not set
 # DEBUG_SD_READER is not set
+# PAM_SUPPORT is not set
 # CONTROL6_SUPPORT is not set
 
 #
@@ -91,11 +116,30 @@ CONF_ENC_MAC="ac:de:48:f3:ef:3e"
 # IPV6_STATIC_SUPPORT is not set
 CONF_ENC_IP="192.168.23.133"
 CONF_ENC_IP4_NETMASK="255.255.0.0"
+# IEEE8021Q_SUPPORT is not set
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
+# ETHERNET_SUPPORT is not set
 # IPV6_STATIC_SUPPORT is not set
+# TAP_SUPPORT is not set
+CONF_TAP_MAC="ac:de:48:fd:0f:d0"
+# IPV6_STATIC_SUPPORT is not set
+CONF_TAP_IP="192.168.23.244"
+CONF_TAP_IP4_NETMASK="255.255.255.0"
+CONF_TAP_LOCALIP="192.168.23.1"
+# IEEE8021Q_SUPPORT is not set
 # RFM12_IP_SUPPORT is not set
+CONF_RFM12_FREQ=RFM12_FREQ_433920
+RFM12_FREQ_433920=y
+# RFM12_FREQ_869775 is not set
+# RFM12_FREQ_869800 is not set
+# RFM12_FREQ_869825 is not set
+# RFM12_FREQ_869850 is not set
+# RFM12_FREQ_869875 is not set
+# RFM12_FREQ_869900 is not set
+# RFM12_FREQ_869925 is not set
+# CONF_RFM12_SLOW_SPI is not set
 CONF_RFM12_BAUD=19200
 CONF_RFM12_IP="192.168.5.1"
 CONF_RFM12_IP4_NETMASK="255.255.255.0"
@@ -133,6 +177,7 @@ CONF_OPENVPN_KEY=00000000000000000000000000000000
 CONF_OPENVPN_HMAC_KEY=00000000000000000000000000000000
 CONF_OPENVPN_IP="192.168.23.244"
 CONF_OPENVPN_IP4_NETMASK="255.255.255.0"
+# OPENVPN_STATIC_REMOTE is not set
 # DEBUG_NET is not set
 # DEBUG_NET_CONFIG is not set
 # DEBUG_NET_IP6 is not set
@@ -146,8 +191,9 @@ CONF_OPENVPN_IP4_NETMASK="255.255.255.0"
 # I/O
 #
 # CONFIG_IO_NONE is not set
-PORTIO_SIMPLE_SUPPORT=y
-# PORTIO_SUPPORT is not set
+PORTIO_SCHEME=PORTIO_SIMPLE
+PORTIO_SIMPLE=y
+# PORTIO_FULL_FEATURED is not set
 # NAMED_PIN_SUPPORT is not set
 # TTY_SUPPORT is not set
 TTY_COLS=16
@@ -167,15 +213,20 @@ CONFIG_ADC_AREF=y
 # CONFIG_ADC_1_1 is not set
 # CONFIG_ADC_2_56 is not set
 ADC_REF=ADC_AREF
+# SMS_SUPPORT is not set
+SMS_USART_0=y
+# DEBUG_SMS is not set
 # KTY_SUPPORT is not set
+# TLC5620_SUPPORT is not set
+# LTC1257_SUPPORT is not set
 
 #
 # LCD Displays
 #
 # HD44780_SUPPORT is not set
 # HD44780_READBACK is not set
-# HD44780_USE_PORTC is not set
 # S1D15G10_SUPPORT is not set
+# ST7626_SUPPORT is not set
 # DEBUG_HD44780 is not set
 # DEBUG_LCD_MENU is not set
 # I2C_MASTER_SUPPORT is not set
@@ -208,11 +259,13 @@ DC3840_USE_USART=0
 # RC5IR_SUPPORT is not set
 # RC5_SUPPORT is not set
 # DEBUG_RC5 is not set
+# PSB2186_SUPPORT is not set
 # PWM_SUPPORT is not set
 # PWM_WAV_SUPPORT is not set
 # PWM_MELODY_SUPPORT is not set
 # PWM_SERVO_SUPPORT is not set
 PWM_SERVOS=1
+# PWM_SERVO_INVERT is not set
 # DEBUG_PWM is not set
 # DEBUG_PWM_SERVO is not set
 # ONEWIRE_SUPPORT is not set
@@ -220,10 +273,13 @@ PWM_SERVOS=1
 # ONEWIRE_DS2502_SUPPORT is not set
 # PS2_SUPPORT is not set
 # PS2_GERMAN_LAYOUT is not set
+# DEBUG_PS2 is not set
 # BUTTONS_INPUT_SUPPORT is not set
 CONF_NUM_BUTTONS=
 # GAME_INPUT_SUPPORT is not set
 # JOYSTICK_DIGITAL_SUPPORT is not set
+# DEBUG_JOYSTICK_DIGITAL is not set
+# DEBUG_GAME_INPUT is not set
 # RFM12_ASK_SUPPORT is not set
 # RFM12_ASK_SENDER_SUPPORT is not set
 # RFM12_ASK_2272_SUPPORT is not set
@@ -255,6 +311,7 @@ MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM=y
 MCUF_MODUL_DISPLAY_MODE=MCUF_MODUL_DISPLAY_MODE_RANDOM
 MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # MCUF_MODUL_DISPLAY_MODE_MANUAL is not set
+# MCUF_TEST_GAME_INPUT is not set
 # MCUF_CHESS_SUPPORT is not set
 # MCUF_BOX_SUPPORT is not set
 # MCUF_CLEAN_SUPPORT is not set
@@ -270,6 +327,7 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # Protocols
 #
 # ARTNET_SUPPORT is not set
+CONF_ARTNET_PORT=6454
 CONF_ARTNET_MAX_PORTS=4
 CONF_ARTNET_MAX_DATA_LENGTH=511
 CONF_ARTNET_MAX_CHANNELS=512
@@ -281,6 +339,7 @@ DMX_USART_0=y
 DMX_USE_USART=0
 ECMD_PARSER_SUPPORT=y
 # ALIASCMD_SUPPORT is not set
+# ECMD_PAM_SUPPORT is not set
 # ECMD_SCRIPT_SUPPORT is not set
 ECMD_SCRIPT_MAX_VARIABLES=4
 ECMD_SCRIPT_VARIABLE_LENGTH=10
@@ -293,6 +352,7 @@ ECMD_SCRIPT_MAXLINES=128
 # ECMD_USB_SUPPORT is not set
 # ECMD_JABBER_SUPPORT is not set
 # ECMD_IRC_SUPPORT is not set
+# ECMD_SMS_SUPPORT is not set
 # ECMD_SENDER_SUPPORT is not set
 # UECMD_SENDER_SUPPORT is not set
 # DISABLE_IPCONF_SUPPORT is not set
@@ -318,10 +378,6 @@ CONF_IRC_NICKNAME="ethersex"
 CONF_IRC_REALNAME="Ethersex Wollmilchsau"
 # IRC_GREET_SUPPORT is not set
 # DEBUG_IRC is not set
-# LDAP_AUTH_SUPPORT is not set
-CONF_LDAP_AUTH_IP="192.168.98.128"
-CONF_LDAP_AUTH_DN="userid=%s,ou=Stettberger,ou=People,dc=zerties,dc=org"
-# DEBUG_LDAP_AUTH is not set
 # MDNS_SD_SUPPORT is not set
 # MODBUS_SUPPORT is not set
 # MYSQL_SUPPORT is not set
@@ -334,10 +390,8 @@ CONF_MYSQL_SCHEMA="mavisdb"
 CONF_NETSTAT_SERVICE_IP="188.40.33.175"
 CONF_NETSTAT_SERVICE="ethersex.de"
 CONF_NETSTAT_API="/~habo/stat/"
-# NETSTAT_DETAILS_SUPPORT is not set
-CONF_NETSTAT_OWNER_SERVICE="dg1osr"
-CONF_NETSTAT_COMMENT_SERVICE="I love ethersex"
 # DEBUG_NETSTAT is not set
+# SOAP_SUPPORT is not set
 # SNMP_SUPPORT is not set
 # SENDMAIL_SUPPORT is not set
 CONF_SENDMAIL_IP="78.47.210.246"
@@ -345,6 +399,13 @@ CONF_SENDMAIL_FROM="root@sex.metafnord.de"
 CONF_SENDMAIL_TO="stesie@brokenpipe.de"
 # SENDMAIL_AUTH_SUPPORT is not set
 # DEBUG_SENDMAIL is not set
+# SMS77_SUPPORT is not set
+CONF_SMS77_SERVICE="gateway.sms77.de"
+CONF_SMS77_USER=""
+CONF_SMS77_PASS=""
+CONF_SMS77_TO=""
+# SMS77_EEPROM_SUPPORT is not set
+# DEBUG_SMS77 is not set
 # SYSLOG_SUPPORT is not set
 CONF_SYSLOG_SERVER="192.168.23.73"
 # TWITTER_SUPPORT is not set
@@ -354,6 +415,10 @@ CONF_TWITTER_USERNAME="ethersex"
 CONF_TWITTER_PASSWORD=""
 CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
 # DEBUG_TWITTER is not set
+# USTREAM_SUPPORT is not set
+CONF_USTREAM_IP="205.188.234.7"
+CONF_USTREAM_PORT=80
+# DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
 YPORT_USART_0=y
 YPORT_USE_USART=0
@@ -363,10 +428,20 @@ YPORT_BAUDRATE=115200
 MSR1_USART_0=y
 MSR1_USE_USART=0
 # DEBUG_MSR1 is not set
+# TO1_SUPPORT is not set
+TO1_USART_0=y
+TO1_SENSOR_COUNT=1
+# DEBUG_TO1 is not set
+# NMEA_SUPPORT is not set
+NMEA_USART_0=y
 
 #
 # Applications
 #
+# APP_SAMPLE_SUPPORT is not set
+# APP_SAMPLE_INIT_AUTOSTART_SUPPORT is not set
+# APP_SAMPLE_PERIODIC_AUTOSTART_SUPPORT is not set
+# DEBUG_APP_SAMPLE is not set
 CLOCK_SUPPORT=y
 CLOCK_DATETIME_SUPPORT=y
 # CLOCK_CRYSTAL_SUPPORT is not set
@@ -376,6 +451,7 @@ CLOCK_DATETIME_SUPPORT=y
 # NTP_SUPPORT is not set
 # NTPD_SUPPORT is not set
 WHM_SUPPORT=y
+TIMEZONE=TIMEZONE_UTC
 TIMEZONE_UTC=y
 # TIMEZONE_CEST is not set
 # DEBUG_NTP_ADJUST is not set
@@ -387,10 +463,14 @@ TIMEZONE_UTC=y
 CRON_STATIC_SUPPORT=y
 # DYNDNS_SUPPORT is not set
 # UDP_ECHO_NET_SUPPORT is not set
+# WOL_SUPPORT is not set
 # HTTPD_SUPPORT is not set
+# HTTPD_SOAP_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
 # HTTP_SD_DIR_SUPPORT is not set
 # MIME_SUPPORT is not set
+HTTPD_PORT=80
+HTTPD_ALTERNATE_PORT=8000
 # DEBUG_HTTPD is not set
 # JABBER_SUPPORT is not set
 CONF_JABBER_IP="78.47.210.246"
