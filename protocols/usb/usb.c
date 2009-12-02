@@ -26,9 +26,10 @@
 #include <avr/pgmspace.h>
 
 #include "config.h"
+#include "usb_hid_keyboard.h"
+#include "usb_net.h"
 #include "usbdrv/usbdrv.h"
 #include "requests.h"
-#include "usb_net.h"
 
 #ifdef USB_CFG_PULLUP_IOPORTNAME
 #undef usbDeviceConnect
@@ -62,6 +63,23 @@ usbFunctionSetup(uchar data[8])
   if (rq->bRequest == USB_REQUEST_NET_SEND
       || rq->bRequest == USB_REQUEST_NET_RECV)
     return usb_net_setup(data);
+#endif
+#ifdef USB_KEYBOARD_SUPPORT
+    usbMsgPtr = reportBuffer;
+    if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
+        if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
+            /* we only have one report type, so don't look at wValue */
+            buildReport(keyPressed());
+            return sizeof(reportBuffer);
+        }else if(rq->bRequest == USBRQ_HID_GET_IDLE){
+            usbMsgPtr = &idleRate;
+            return 1;
+        }else if(rq->bRequest == USBRQ_HID_SET_IDLE){
+            idleRate = rq->wValue.bytes[1];
+        }
+    }else{
+        /* no vendor specific requests implemented */
+    }
 #endif
 
   return 0;   /* default for not implemented requests: return no data back to host */
@@ -116,6 +134,9 @@ usb_periodic(void)
 #ifdef USB_NET_SUPPORT
   usb_net_periodic();
 #endif
+#ifdef USB_KEYBOARD_SUPPORT
+  usb_keyboard_periodic();
+#endif
 }
 
 void
@@ -123,6 +144,16 @@ usb_init(void)
 {
 #ifdef USB_NET_SUPPORT
   usb_net_init();
+#endif
+
+#ifdef USB_KEYBOARD_SUPPORT
+  USBKEYBOARDDEBUG("init HID keyboard\n");
+  USBKEYBOARDDEBUG("USB_CFG_HAVE_INTRIN_ENDPOINT %i\n", USB_CFG_HAVE_INTRIN_ENDPOINT);
+  USBKEYBOARDDEBUG("USB_CFG_INTR_POLL_INTERVAL %i\n", USB_CFG_INTR_POLL_INTERVAL);
+  USBKEYBOARDDEBUG("USB_CFG_IMPLEMENT_FN_READ %i\n", USB_CFG_IMPLEMENT_FN_READ);
+  USBKEYBOARDDEBUG("USB_CFG_DEVICE_CLASS %i\n", USB_CFG_DEVICE_CLASS);
+  USBKEYBOARDDEBUG("USB_CFG_INTERFACE_CLASS %i\n", USB_CFG_INTERFACE_CLASS);
+  USBKEYBOARDDEBUG("USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH %i\n", USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH);
 #endif
 
 #define USB_DDR_CONFIG(pin)  DDR_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))

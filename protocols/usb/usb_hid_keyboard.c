@@ -27,39 +27,26 @@
 
 #include "config.h"
 #include "requests.h"
-#include "usbdrv/usbdrv.h"
 #include "usb_hid_keyboard.h"
+#include "usbdrv/usbdrv.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef USB_KEYBOARD_SUPPORT
 
 #define MAX_SEND_LEN 64
-#ifdef USB_CFG_PULLUP_IOPORTNAME
-#undef usbDeviceConnect
-#define usbDeviceConnect()      do { \
-                                    USB_PULLUP_DDR |= (1<<USB_CFG_PULLUP_BIT); \
-                                    USB_PULLUP_OUT |= (1<<USB_CFG_PULLUP_BIT); \
-                                    USB_INTR_ENABLE |= (1 << USB_INTR_ENABLE_BIT); \
-                                   } while(0);
-#undef usbDeviceDisconnect
-#define usbDeviceDisconnect()   do { \
-                                    USB_INTR_ENABLE &= ~(1 << USB_INTR_ENABLE_BIT); \
-                                    USB_PULLUP_DDR &= ~(1<<USB_CFG_PULLUP_BIT); \
-                                    USB_PULLUP_OUT &= ~(1<<USB_CFG_PULLUP_BIT); \
-                                   } while(0);
-#endif
 
-uchar key, lastKey = 0, keyDidChange = 0;
+uchar key;
+uchar lastKey = 0, keyDidChange = 0;
 
 char *send_buf;
 uint8_t send_pos=0;
 uint8_t start_send=0;
 
-static uchar keyPressed(void)
+uchar keyPressed(void)
 {
 	key++;
-	if (key>15) key=0;
+	if (key > NUM_KEYS) key=0;
 	/*	future use
 	if (start_send) {
 		key=send_buf[send_pos];
@@ -122,6 +109,15 @@ static const char  keyReport[NUM_KEYS + 1][2] PROGMEM = {
 /* 15 */    {MOD_NONE, KEY_O},
 /* 16 */    {MOD_NONE, KEY_P},
 /* 17 */    {MOD_NONE, KEY_Q},
+/* 18 */    {MOD_NONE, KEY_R},
+/* 19 */    {MOD_NONE, KEY_S},
+/* 20 */    {MOD_NONE, KEY_T},
+/* 21 */    {MOD_NONE, KEY_U},
+/* 22 */    {MOD_NONE, KEY_V},
+/* 23 */    {MOD_NONE, KEY_W},
+/* 24 */    {MOD_NONE, KEY_X},
+/* 25 */    {MOD_NONE, KEY_Y},
+/* 26 */    {MOD_NONE, KEY_Z},
 };
 
 
@@ -131,92 +127,39 @@ void buildReport(uchar key)
     *(int *)reportBuffer = pgm_read_word(keyReport[key]);
 }
 
-void
-usbFunctionReadFinished(void)
-{
-}
-
-usbMsgLen_t	usbFunctionSetup(uchar data[8])
-{
-usbRequest_t    *rq = (void *)data;
-
-    usbMsgPtr = reportBuffer;
-    if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
-        if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
-            /* we only have one report type, so don't look at wValue */
-            buildReport(keyPressed());
-            return sizeof(reportBuffer);
-        }else if(rq->bRequest == USBRQ_HID_GET_IDLE){
-            usbMsgPtr = &idleRate;
-            return 1;
-        }else if(rq->bRequest == USBRQ_HID_SET_IDLE){
-            idleRate = rq->wValue.bytes[1];
-        }
-    }else{
-        /* no vendor specific requests implemented */
-    }
-	return 0;
-}
-
-void
-usb_keyboard_init (void)
-{
-#define USB_DDR_CONFIG(pin)  DDR_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))
-#define USB_PORT_CONFIG(pin)  PORT_CHAR( pin ## _PORT) &= ~(_BV((pin ## _PIN)) | _BV(USB_INT_PIN))
-  USB_DDR_CONFIG(USB_DMINUS);
-  USB_PORT_CONFIG(USB_DMINUS);
-#undef USB_DDR_CONFIG
-#undef USB_PORT_CONFIG
-
-  uint8_t i;
-  /* Reenummerate the device */
-  usbDeviceDisconnect();
-  for(i = 0; i < 20; i++){  /* 300 ms disconnect */
-    _delay_ms(15);
-    wdt_kick();
-  }
-  usbDeviceConnect();
-
-  /* USB Initialize */
-  usbInit();
-
-	USBKEYBOARDDEBUG("init\n");
-
-
-}
-
 uchar reportBuffer[2];    /* buffer for HID reports */
 uchar idleRate=1;           /* in 4 ms units */
 
 void
-usb_keyboard_periodic (void)
-{
-	usbPoll();
+usb_keyboard_periodic(void) {
+	uint8_t maxpolltrys=5;
 	if(keyDidChange && usbInterruptIsReady()){
 		USBKEYBOARDDEBUG("usb set interrupt lastkey %c, key: %i\n",lastKey, key);
             	buildReport(lastKey);
 		usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
-	}
-	// send end of key
-	while (keyDidChange && !usbInterruptIsReady()) {
-	_delay_ms(10); // as slow speed device we have to wait until next call
-//		USBKEYBOARDDEBUG("try stop\n");
-		usbPoll();
-            	buildReport(0);
-		usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
-		keyDidChange = 0;
+/**
+		// send end of key
+		while (keyDidChange && !usbInterruptIsReady() && maxpolltrys-->0){
+			_delay_ms(10); // as slow speed device we have to wait until next call
+			USBKEYBOARDDEBUG("try stop: %i\n", maxpolltrys);
+			usbPoll();
+			buildReport(0);
+			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+			keyDidChange = 0;
+		}
+*/
 	}
 }
-
 void
 usb_keyboard_periodic_call (void)
 {
+	USBKEYBOARDDEBUG("pre  key pressed: %i, last %i, change: %i\n",key, lastKey, keyDidChange);
         key = keyPressed();
         if(lastKey != key){
 		lastKey = key;
         	keyDidChange = 1;
         }
-//	USBKEYBOARDDEBUG("key pressed: %i\n",key);
+	USBKEYBOARDDEBUG("post key pressed: %i, last %i, change: %i\n",key, lastKey, keyDidChange);
 }
 
 
@@ -250,9 +193,7 @@ int16_t parse_cmd_keyboard_send (char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   header(protocols/usb/usb_hid_keyboard.h)
-  init(usb_keyboard_init)
-  timer(1,usb_keyboard_periodic())
-  timer(250,usb_keyboard_periodic_call())
+  timer(100,usb_keyboard_periodic_call())
   ecmd_feature(keyboard_send, "keyboard ",MESSAGE,Send MESSAGE as HID keyboard)
 */
 

@@ -1,5 +1,4 @@
-### dep_bool_menu "USB-HID" USB_HID_SUPPORT $USB_SUPPORT
-dep_bool_menu "USB-HID" USB_HID_SUPPORT
+dep_bool_menu "USB-HID" USB_HID_SUPPORT $USB_SUPPORT $CONFIG_EXPERIMENTAL
 if [ "$USB_HID_SUPPORT" = "y" ]; then
 
 	dep_bool "USB Keyboard" USB_KEYBOARD_SUPPORT $USB_HID_SUPPORT
