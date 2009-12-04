@@ -92,8 +92,8 @@ ISR(RFM12_vect)	    /* PCINT */
 	{
 	  _uip_buf_lock = 8;
 	  rfm12_buf[rfm12_index ++] = byte;
-#ifdef STATUSLED_RX_SUPPORT
-	  PIN_SET(RFM12_RX_PIN);
+#ifdef RFM12_RX_PIN
+	  PIN_SET(STATUSLED_RX);
 #endif
 	}
       else
@@ -104,8 +104,8 @@ ISR(RFM12_vect)	    /* PCINT */
 	  rfm12_trans(0x8208);
           rfm12_status = RFM12_OFF;
 	  rfm12_rxstart();
-#ifdef STATUSLED_RX_SUPPORT
-	  PIN_CLEAR(RFM12_RX_PIN);
+#ifdef RFM12_RX_PIN
+	  PIN_CLEAR(STATUSLED_RX);
 #endif
 	  return;
 	}
@@ -189,8 +189,8 @@ ISR(RFM12_vect)	    /* PCINT */
 
     case RFM12_TX_END:
       rfm12_status = RFM12_OFF;
-#ifdef STATUSLED_TX_SUPPORT
-      PIN_CLEAR(RFM12_TX_PIN);
+#ifdef RFM12_TX_PIN
+      PIN_CLEAR(STATUSLED_TX);
 #endif
       rfm12_trans(0x8208);	/* TX off */
       uip_buf_unlock();
@@ -274,11 +274,11 @@ rfm12_init(void)
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 
-#ifdef STATUSLED_RX_SUPPORT
-  PIN_CLEAR(RFM12_RX_PIN);
+#ifdef RFM12_RX_PIN
+  PIN_CLEAR(STATUSLED_RX);
 #endif
-#ifdef STATUSLED_TX_SUPPORT
-  PIN_CLEAR(RFM12_TX_PIN);
+#ifdef RFM12_TX_PIN
+  PIN_CLEAR(STATUSLED_TX);
 #endif
 
 #ifdef RFM12_IP_SUPPORT
@@ -408,8 +408,8 @@ rfm12_rxfinish(void)
   if(rfm12_status != RFM12_NEW)
     return (0);			/* no new Packet */
 
-#ifdef STATUSLED_RX_SUPPORT
-  PIN_CLEAR(RFM12_RX_PIN);
+#ifdef RFM12_RX_PIN
+  PIN_CLEAR(STATUSLED_RX);
 #endif
 
   rfm12_index_t len = rfm12_buf[1];
@@ -477,8 +477,8 @@ rfm12_txstart_hard (void)
 {
   rfm12_status = RFM12_TX;
 
-#ifdef STATUSLED_TX_SUPPORT
-  PIN_SET(RFM12_TX_PIN);
+#ifdef RFM12_TX_PIN
+  PIN_SET(STATUSLED_TX);
 #endif
 
   rfm12_index = 0;
