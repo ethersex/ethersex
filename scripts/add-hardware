@@ -147,14 +147,6 @@ template $ST7626_SUPPORT << FNORD
   pin(ST7626_RESET, PC2, OUTPUT)
 FNORD
 
-[ "x$STATUSLED_TX_SUPPORT" = "xy" ] && template y << FNORD
-  pin(STATUSLED_TX, PD6, OUTPUT)
-FNORD
-
-[ "x$STATUSLED_RX_SUPPORT" = "xy" ] && template y << FNORD
-  pin(STATUSLED_RX, PD7, OUTPUT)
-FNORD
-
 template $ENC28J60_SUPPORT << FNORD
   /* port the enc28j60 is attached to */
   pin(SPI_CS_NET, SPI_CS_HARDWARE)
@@ -208,19 +200,19 @@ if [ $HWCLASS = 8 ]; then  # ATmega8, 88, 168 and others ...
 FNORD
 
   template $STATUSLED_POWER_SUPPORT << FNORD
-    pin(STATUSLED_POWER, PA3)
+    pin(STATUSLED_POWER, PC6)
 FNORD
   template $STATUSLED_BOOTED_SUPPORT << FNORD
-    pin(STATUSLED_BOOTED, PA3)
+    pin(STATUSLED_BOOTED, PC6)
 FNORD
   template $STATUSLED_NETLINK_SUPPORT << FNORD
-    pin(STATUSLED_NETLINK, PA3)
+    pin(STATUSLED_NETLINK, PC6)
 FNORD
   template $STATUSLED_TX_SUPPORT << FNORD
-    pin(STATUSLED_TX, PA3)
+    pin(STATUSLED_TX, PD6)
 FNORD
   template $STATUSLED_RX_SUPPORT << FNORD
-    pin(STATUSLED_RX, PA3)
+    pin(STATUSLED_RX, PD7)
 FNORD
 
   template $ZBUS_SUPPORT << FNORD
