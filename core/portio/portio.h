@@ -105,5 +105,6 @@ extern virtual_port_t vport[];
 
 /* update port information (PORT and DDR) from global status */
 void portio_init(void);
+void np_simple_init(void);
   
 #endif /* _IO_H */

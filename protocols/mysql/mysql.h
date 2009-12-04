@@ -23,6 +23,7 @@
 #define HAVE_MYSQL_H
 
 #define MYSQL_SERVER_PROTO_VERSION 10
+#include <stdint.h>
 
 void mysql_init (void);
 void mysql_periodic (void);
