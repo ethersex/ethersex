@@ -22,17 +22,6 @@
 #ifndef _USB_HID_KEYBOARD_H
 #define _USB_HID_KEYBOARD_H
 
-// defines for usbconfig.h
-#define USB_CFG_HAVE_INTRIN_ENDPOINT    1
-#define USB_CFG_IMPLEMENT_FN_WRITE      0
-#define USB_CFG_IMPLEMENT_FN_READ       0
-#define USB_CFG_DEVICE_CLASS            0
-#define USB_CFG_INTERFACE_CLASS         0x03    /* HID class */
-#define USB_CFG_INTR_POLL_INTERVAL      10
-  /* total length of report descriptor */
-#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH 35
-
-
 #define NUM_KEYS    26
 
 /* Keyboard usage values, see usb.org's HID-usage-tables document, chapter
@@ -105,16 +94,11 @@
 #define schar   signed char
 #endif
 
-extern uchar reportBuffer[2];    /* buffer for HID reports */
-extern uchar idleRate;           /* in 4 ms units */
-extern uint8_t key;
-
-uchar keyPressed(void);
-void buildReport(uchar key);
-
 void usb_keyboard_periodic(void);
 /* Initialize USB keyboard. */
 void usb_keyboard_periodic_call(void);
+
+uint16_t hid_usbFunctionSetup(uchar data[8]);
 
 #include "config.h"
 #ifdef DEBUG_USB_HID_KEYBOARD

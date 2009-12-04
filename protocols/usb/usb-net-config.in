@@ -1,4 +1,4 @@
-dep_bool_menu "USBnet" USB_NET_SUPPORT $USB_SUPPORT
+dep_bool_menu "USBnet" USB_NET_SUPPORT $USB_SUPPORT $USB_NET
 if [ "$USB_NET_SUPPORT" = "y" ]; then
 
 if [ "$IPV6_SUPPORT" = "y" ]; then

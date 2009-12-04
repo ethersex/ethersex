@@ -74,8 +74,10 @@ section at the end of this file).
 
 /* --------------------------- Functional Range ---------------------------- */
 
-#ifndef USB_CFG_HAVE_INTRIN_ENDPOINT
+#ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_HAVE_INTRIN_ENDPOINT    1
+#else
+#define USB_CFG_HAVE_INTRIN_ENDPOINT    0
 #endif
 /* Define this to 1 if you want to compile a version with two endpoints: The
  * default control endpoint 0 and an interrupt-in endpoint (any other endpoint
@@ -103,7 +105,9 @@ section at the end of this file).
  * it is required by the standard. We have made it a config option because it
  * bloats the code considerably.
  */
-#ifndef USB_CFG_INTR_POLL_INTERVAL
+#ifdef USB_KEYBOARD_SUPPORT
+#define USB_CFG_INTR_POLL_INTERVAL      10
+#else
 #define USB_CFG_INTR_POLL_INTERVAL      100
 #endif
 /* If you compile a version with endpoint 1 (interrupt-in), this is the poll
@@ -121,14 +125,18 @@ section at the end of this file).
  * The value is in milliamperes. [It will be divided by two since USB
  * communicates power requirements in units of 2 mA.]
  */
-#ifndef USB_CFG_IMPLEMENT_FN_WRITE
+#ifdef USB_KEYBOARD_SUPPORT
+#define USB_CFG_IMPLEMENT_FN_WRITE      0
+#else
 #define USB_CFG_IMPLEMENT_FN_WRITE      1
 #endif
 /* Set this to 1 if you want usbFunctionWrite() to be called for control-out
  * transfers. Set it to 0 if you don't need it and want to save a couple of
  * bytes.
  */
-#ifndef USB_CFG_IMPLEMENT_FN_READ
+#ifdef USB_KEYBOARD_SUPPORT
+#define USB_CFG_IMPLEMENT_FN_READ       0
+#else
 #define USB_CFG_IMPLEMENT_FN_READ       1
 #endif
 /* Set this to 1 if you need to send control replies which are generated
@@ -185,7 +193,7 @@ section at the end of this file).
 
 /* -------------------------- Device Description --------------------------- */
 
-#define  USB_CFG_VENDOR_ID       0xc0, 0x16
+#define  USB_CFG_VENDOR_ID       0xc0, 0x17
 /* USB vendor ID for the device, low byte first. If you have registered your
  * own Vendor ID, define it here. Otherwise you use one of obdev's free shared
  * VID/PID pairs. Be sure to read USBID-License.txt for rules!
@@ -225,15 +233,20 @@ section at the end of this file).
  * to fine tune control over USB descriptors such as the string descriptor
  * for the serial number.
  */
-#ifndef USB_CFG_DEVICE_CLASS
+#ifdef USB_KEYBOARD_SUPPORT
+#define USB_CFG_DEVICE_CLASS        0
+#else 
 #define USB_CFG_DEVICE_CLASS        0xff
 #endif
+
 #define USB_CFG_DEVICE_SUBCLASS     0
 /* See USB specification if you want to conform to an existing device class.
  * Class 0xff is "vendor specific".
  */
 
-#ifndef USB_CFG_INTERFACE_CLASS
+#ifdef USB_KEYBOARD_SUPPORT
+#define USB_CFG_INTERFACE_CLASS     0x03
+#else
 #define USB_CFG_INTERFACE_CLASS     0
 #endif
 #define USB_CFG_INTERFACE_SUBCLASS  0
@@ -243,8 +256,10 @@ section at the end of this file).
  * HID class is 3, no subclass and protocol required (but may be useful!)
  * CDC class is 2, use subclass 2 and protocol 1 for ACM
  */
-#ifndef USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH
-#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH   0 
+#ifdef USB_KEYBOARD_SUPPORT
+#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH   35
+#else
+#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH   0
 #endif
 /* Define this to the length of the HID report descriptor, if you implement
  * an HID device. Otherwise don't define it or define it to 0.

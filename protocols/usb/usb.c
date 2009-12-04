@@ -1,5 +1,6 @@
 /*
  *
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
@@ -52,6 +53,7 @@ uint8_t setup_packet;
 usbMsgLen_t
 usbFunctionSetup(uchar data[8])
 {
+  USBKEYBOARDDEBUG("---------------setup keyboard\n");
   usbRequest_t    *rq = (void *)data;
   setup_packet = rq->bRequest;
 
@@ -65,21 +67,7 @@ usbFunctionSetup(uchar data[8])
     return usb_net_setup(data);
 #endif
 #ifdef USB_KEYBOARD_SUPPORT
-    usbMsgPtr = reportBuffer;
-    if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
-        if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
-            /* we only have one report type, so don't look at wValue */
-            buildReport(keyPressed());
-            return sizeof(reportBuffer);
-        }else if(rq->bRequest == USBRQ_HID_GET_IDLE){
-            usbMsgPtr = &idleRate;
-            return 1;
-        }else if(rq->bRequest == USBRQ_HID_SET_IDLE){
-            idleRate = rq->wValue.bytes[1];
-        }
-    }else{
-        /* no vendor specific requests implemented */
-    }
+  return hid_usbFunctionSetup(data);
 #endif
 
   return 0;   /* default for not implemented requests: return no data back to host */
@@ -150,6 +138,7 @@ usb_init(void)
   USBKEYBOARDDEBUG("init HID keyboard\n");
   USBKEYBOARDDEBUG("USB_CFG_HAVE_INTRIN_ENDPOINT %i\n", USB_CFG_HAVE_INTRIN_ENDPOINT);
   USBKEYBOARDDEBUG("USB_CFG_INTR_POLL_INTERVAL %i\n", USB_CFG_INTR_POLL_INTERVAL);
+  USBKEYBOARDDEBUG("USB_CFG_IMPLEMENT_FN_WRITE %i\n", USB_CFG_IMPLEMENT_FN_WRITE);
   USBKEYBOARDDEBUG("USB_CFG_IMPLEMENT_FN_READ %i\n", USB_CFG_IMPLEMENT_FN_READ);
   USBKEYBOARDDEBUG("USB_CFG_DEVICE_CLASS %i\n", USB_CFG_DEVICE_CLASS);
   USBKEYBOARDDEBUG("USB_CFG_INTERFACE_CLASS %i\n", USB_CFG_INTERFACE_CLASS);

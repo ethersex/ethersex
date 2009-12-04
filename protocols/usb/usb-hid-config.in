@@ -1,9 +1,0 @@
-dep_bool_menu "USB-HID" USB_HID_SUPPORT $USB_SUPPORT $CONFIG_EXPERIMENTAL
-if [ "$USB_HID_SUPPORT" = "y" ]; then
-
-	dep_bool "USB Keyboard" USB_KEYBOARD_SUPPORT $USB_HID_SUPPORT
-
-	comment  "Debugging Flags"
-	dep_bool 'Keyboard Debug' DEBUG_USB_HID_KEYBOARD $DEBUG $USB_KEYBOARD_SUPPORT
-fi
-endmenu
