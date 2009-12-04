@@ -66,7 +66,7 @@ dnl RFM12_USE_PCINT(0, PB0)
 
 dnl For RFM12 ASK-Sensing another interrupt line is required
 dnl (different from the interrupt line required for IP-over-RFM12)
-dnl  RFM12_ASK_SENSE_USE_INT(2)
+  RFM12_ASK_SENSE_USE_INT(2)
 ')
 
 ifdef(`conf_ZBUS', `dnl
