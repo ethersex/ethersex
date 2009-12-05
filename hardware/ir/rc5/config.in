@@ -1,5 +1,5 @@
 dep_bool_menu "RC5 IR" RC5IR_SUPPORT $ARCH_AVR
-	dep_bool "Send RC5 IR-codes" RC5_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Send RC5 IR-codes" RC5_SUPPORT $RC5IR_SUPPORT $CONFIG_EXPERIMENTAL
 	comment  "Debugging Flags"
-	dep_bool 'RC5 Send' DEBUG_RC5 $DEBUG
+	dep_bool 'RC5 Send' DEBUG_RC5 $RC5IR_SUPPORT $DEBUG
 endmenu
