@@ -7,6 +7,7 @@ BEGIN {
   print " */"
   print
   print "#include <avr/io.h>"
+  print "#include \"config.h\""
   print 
   print "void"
   print "np_simple_init(void)"
