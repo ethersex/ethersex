@@ -51,6 +51,7 @@ protocols/ecmd/wiki.txt
 # User defined pinning/named_pin profiles
 pinning/hardware/user*.m4
 pinning/named_pin/user*
+pinning/named_pin/default
 
 # transfer scripts
 transfer.sh
