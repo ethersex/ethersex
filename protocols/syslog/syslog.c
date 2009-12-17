@@ -178,7 +178,10 @@ syslog_check_cache(void)
     /* Remote address is on the local network, send directly. */
     uip_ipaddr_copy(&ipaddr, syslog_conn->ripaddr);
 
+#ifdef ETHERNET_SUPPORT
+  /* uip_arp_lookup returns a pointer if the mac is in the arp cache */
   if(uip_arp_lookup (ipaddr))
+#endif
     return 0;
 
 #endif
