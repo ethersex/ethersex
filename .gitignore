@@ -62,3 +62,4 @@ avr-gcc
 avr-objcopy
 avr-objdump
 avr-size
+avr-cpp
