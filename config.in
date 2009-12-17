@@ -215,7 +215,8 @@ source protocols/yport/config.in
 source protocols/msr1/config.in
 source protocols/to1/config.in
 source protocols/nmea/config.in
-
+source protocols/udpStella/config.in
+source protocols/udpIO/config.in
 endmenu
 
 ###############################################################################
