@@ -7,6 +7,8 @@
 
 /* the 168p has different port-definitions */
 /* define the ones used everywhere else */
+/* Problem not fixed in avr libc */
+#ifndef PB7
 #define PB7     PORTB7
 #define PB6     PORTB6
 #define PB5     PORTB5
@@ -32,6 +34,7 @@
 #define PD2     PORTD2
 #define PD1     PORTD1
 #define PD0     PORTD0
+#endif
 
 /* ATmega168 specific adjustments */
 #define _SPCR0 SPCR
