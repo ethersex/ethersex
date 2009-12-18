@@ -1,3 +1,6 @@
+#ifndef _VS1053_H_
+#define _VS1053_H_
+
 // SCI_MODE defines for the VS1053
 #define SM_DIFF 0 // Differential
 #define SM_LAYER12 1 // Allow MPEG layers I&II
@@ -22,3 +25,5 @@ void vs1053_sinetest(char pitch);	// Sinewave
 void cs_high(void);			// Set CS high
 void cs_low(void);			// Set CS low
 void cs_init(void);			// Initialize CS
+
+#endif // _VS1053_H_
