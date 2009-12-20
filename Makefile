@@ -7,6 +7,7 @@ SUBDIRS += core/crypto
 SUBDIRS += core/host
 SUBDIRS += core/portio
 SUBDIRS += core/tty
+SUBDIRS += core/util
 SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc

@@ -29,9 +29,9 @@
 #include "config.h"
 #include "core/debug.h"
 #include "core/bit-macros.h"
+#include "core/util/fixedpoint.h"
 
 #include "hardware/zacwire/zacwire.h"
-#include "hardware/zacwire/fixedpoint.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
