@@ -1,8 +1,7 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(ZACWIRE_SUPPORT)_SRC += hardware/zacwire/zacwire.c
-$(ZACWIRE_SUPPORT)_ECMD_SRC += hardware/zacwire/ecmd.c
+SRC += core/util/fixedpoint.c
 
 ##############################################################################
 # generic fluff

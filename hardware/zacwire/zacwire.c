@@ -28,7 +28,7 @@
 #include "config.h"
 #include "zacwire.h"
 
-#include "delay_bit.h"
+#include "core/util/delay_bit.h"
 
 #include "core/debug.h"
 
