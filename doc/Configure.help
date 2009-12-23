@@ -1659,6 +1659,7 @@ ECMD Scripting
 ECMD_SCRIPT_SUPPORT
   Depends on: 
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * VFS (Virtual File System) support (VFS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Scripting Support for ECMD.
