@@ -227,6 +227,7 @@ mainmenu_option next_comment
 comment "Applications"
 
 source services/appsample/config.in
+source services/bulbdial/config.in
 source services/clock/config.in
 source services/cron/config.in
 source services/dyndns/config.in
