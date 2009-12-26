@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/util/fixedpoint.h"
 
 // Attention: returns the length in bytes, not a pointer like the regular itoa
 // this is more conveniant for use in output to ECMDs output buffer 
@@ -69,7 +70,3 @@ uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
     return size;
 }
 
-/*
-  -- Ethersex META --
-  header(hardware/zacwire/fixedpoint.h)
-*/
