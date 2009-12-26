@@ -388,8 +388,8 @@ main(int argc, char *argv[])
         //     printf("escape\n");
            } else 
              escaped = 0;
-           if (l == 1)
-             printf("%d\n", netbuf[0]);
+          // if (l == 1)
+          //   printf("%d\n", netbuf[0]);
 
            if ((unsigned int)(recvlen+l) > sizeof(recvbuf))
            {
