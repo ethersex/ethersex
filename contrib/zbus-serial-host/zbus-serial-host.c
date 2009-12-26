@@ -365,6 +365,14 @@ main(int argc, char *argv[])
                recvlen = i - 2;
                packet_ended = 1;
              } else {
+               if ((unsigned int)(recvlen+i) > sizeof(recvbuf))
+               {
+                   // data too large for recvbuf -> clean buffer and forget
+                   recvlen = 0;
+                   packet_ended = 0;
+                   break;
+               }
+
                memcpy(recvbuf + recvlen , netbuf, i);
                recvlen += i;
                packet_ended = 1;
@@ -382,6 +390,15 @@ main(int argc, char *argv[])
              escaped = 0;
            if (l == 1)
              printf("%d\n", netbuf[0]);
+
+           if ((unsigned int)(recvlen+l) > sizeof(recvbuf))
+           {
+               // data too large for recvbuf -> clean buffer and forget
+               recvlen = 0;
+               packet_ended = 0;
+               break;
+           }
+
            memcpy(recvbuf + recvlen , netbuf, l);
            recvlen += l;
          }
