@@ -214,6 +214,26 @@ set_rts(int fd, int high)
   ioctl(fd, TIOCMSET, &mcs);
 }
 
+void write_blocking(int fd, const void* buf, size_t count)
+{
+    ssize_t ret;
+
+    while ((ret=write(fd,buf,count)) < (ssize_t)count)
+    {
+        if (ret < 0)
+        {
+            if (errno != EAGAIN && errno != EINTR)
+                die("write to device failed: %s\n", strerror(errno));
+        }
+        else
+        {
+            // less than count or nothing was written
+            buf=(const char*)buf+ret;
+            count-=ret;
+        }
+    }
+}
+
 void 
 usage(void)
 {
@@ -391,17 +411,17 @@ main(int argc, char *argv[])
 
        set_rts(global.tty_fd, 1);
 
-       write(global.tty_fd, "\\0", 2);
+       write_blocking(global.tty_fd, "\\0", 2);
        while (l > 0) {
          //printf("%02x ", (uint8_t) p[0]);
          if (*p == '\\')
-           write(global.tty_fd, "\\\\", 2);
+           write_blocking(global.tty_fd, "\\\\", 2);
          else
-           write(global.tty_fd, p, 1);
+           write_blocking(global.tty_fd, p, 1);
          p++; l--;
        }
        //putchar('\n');
-       write(global.tty_fd, "\\1", 2);
+       write_blocking(global.tty_fd, "\\1", 2);
 
        set_rts(global.tty_fd, 0);
 
