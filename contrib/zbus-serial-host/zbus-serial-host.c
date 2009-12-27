@@ -130,6 +130,15 @@ open_tty(char *dev, int baudrate)
   case 57600:  global.baudrate = B57600; break;
   case 115200: global.baudrate = B115200; break;
   case 230400: global.baudrate = B230400; break;
+  case 460800: global.baudrate = B460800; break;
+  case 500000: global.baudrate = B500000; break;
+  case 576000: global.baudrate = B576000; break;
+  case 921600: global.baudrate = B921600; break;
+  case 1000000: global.baudrate = B1000000; break;
+  case 1152000: global.baudrate = B1152000; break;
+  case 1500000: global.baudrate = B1500000; break;
+  case 2000000: global.baudrate = B2000000; break;
+  case 2500000: global.baudrate = B2500000; break;
   default:  die("invalid baudrate %d\n", baudrate);
   }
 
