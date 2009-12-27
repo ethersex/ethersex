@@ -30,10 +30,8 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include <termios.h>
 #include <getopt.h>
 #include <errno.h>
-#include <unistd.h>
 
 
 #include <linux/if.h>
