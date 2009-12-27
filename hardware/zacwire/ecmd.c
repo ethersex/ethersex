@@ -158,7 +158,9 @@ int16_t parse_cmd_zacwire_506(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[ZACwire]])
-  ecmd_feature(zacwire_raw, "zac raw", PORT BIT, Return raw hex temperature value of zacwire at BIT of PORT)
+  ecmd_ifdef(ZACWIRE_RAW_SUPPORT)
+    ecmd_feature(zacwire_raw, "zac raw", PORT BIT, Return raw hex temperature value of zacwire at BIT of PORT)
+  ecmd_endif()
   ecmd_ifdef(ZACWIRE_CONVERT306_SUPPORT)
     ecmd_feature(zacwire_306, "zac 306", PORT BIT, Return temperature of TSic 306 at BIT of PORT)
   ecmd_endif()
