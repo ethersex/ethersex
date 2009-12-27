@@ -21,6 +21,7 @@
 
 #include "core/vfs/vfs.h"
 #include "core/vfs/vfs-util.h"
+#ifdef ETHERNET_SUPPORT
 #include "protocols/uip/uip.h"	/* for uip_buf */
 
 #ifndef VFS_TEENSY
@@ -68,3 +69,5 @@ vfs_copy_file (const char *dest, const char *src)
 }
 
 #endif  /* VFS_TEENSY */
+
+#endif /* ETHERNET_SUPPORT */

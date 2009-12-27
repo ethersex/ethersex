@@ -42,13 +42,8 @@
 # define SCRIPTDEBUG(a...)
 #endif
 
-typedef struct {
-  struct vfs_file_handle_t *handle;
-  uint16_t linenumber;
-  vfs_size_t filepointer;
-} script_t;
-
-script_t current_script;
+int16_t
+ecmd_script_init_run(void);
 
 typedef struct {
   char value[ECMD_SCRIPT_VARIABLE_LENGTH];
