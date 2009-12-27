@@ -214,6 +214,26 @@ set_rts(int fd, int high)
   ioctl(fd, TIOCMSET, &mcs);
 }
 
+void write_blocking(int fd, const void* buf, size_t count)
+{
+    ssize_t ret;
+
+    while ((ret=write(fd,buf,count)) < (ssize_t)count)
+    {
+        if (ret < 0)
+        {
+            if (errno != EAGAIN && errno != EINTR)
+                die("write to device failed: %s\n", strerror(errno));
+        }
+        else
+        {
+            // less than count or nothing was written
+            buf=(const char*)buf+ret;
+            count-=ret;
+        }
+    }
+}
+
 void 
 usage(void)
 {
@@ -345,6 +365,14 @@ main(int argc, char *argv[])
                recvlen = i - 2;
                packet_ended = 1;
              } else {
+               if ((unsigned int)(recvlen+i) > sizeof(recvbuf))
+               {
+                   // data too large for recvbuf -> clean buffer and forget
+                   recvlen = 0;
+                   packet_ended = 0;
+                   break;
+               }
+
                memcpy(recvbuf + recvlen , netbuf, i);
                recvlen += i;
                packet_ended = 1;
@@ -360,8 +388,17 @@ main(int argc, char *argv[])
         //     printf("escape\n");
            } else 
              escaped = 0;
-           if (l == 1)
-             printf("%d\n", netbuf[0]);
+          // if (l == 1)
+          //   printf("%d\n", netbuf[0]);
+
+           if ((unsigned int)(recvlen+l) > sizeof(recvbuf))
+           {
+               // data too large for recvbuf -> clean buffer and forget
+               recvlen = 0;
+               packet_ended = 0;
+               break;
+           }
+
            memcpy(recvbuf + recvlen , netbuf, l);
            recvlen += l;
          }
@@ -391,17 +428,17 @@ main(int argc, char *argv[])
 
        set_rts(global.tty_fd, 1);
 
-       write(global.tty_fd, "\\0", 2);
+       write_blocking(global.tty_fd, "\\0", 2);
        while (l > 0) {
          //printf("%02x ", (uint8_t) p[0]);
          if (*p == '\\')
-           write(global.tty_fd, "\\\\", 2);
+           write_blocking(global.tty_fd, "\\\\", 2);
          else
-           write(global.tty_fd, p, 1);
+           write_blocking(global.tty_fd, p, 1);
          p++; l--;
        }
        //putchar('\n');
-       write(global.tty_fd, "\\1", 2);
+       write_blocking(global.tty_fd, "\\1", 2);
 
        set_rts(global.tty_fd, 0);
 
