@@ -285,7 +285,7 @@ main(int argc, char *argv[])
     {0, 0, 0, 0}
   };
 
-  while ((c = getopt_long(argc, argv, "hr:a:d:u:", longopts, 0)) != -1) {
+  while ((c = getopt_long(argc, argv, "hr:a:d:u:m:", longopts, 0)) != -1) {
     switch(c) {
     case 'h':
         usage();
@@ -302,6 +302,14 @@ main(int argc, char *argv[])
     case 'u':
         global.up = optarg;
         break;
+    case 'm':
+    {
+        char* endptr;
+        global.mtu=strtoul(optarg,&endptr,0);
+        if (*endptr != 0)
+            die("illegal value for mtu given, see `--help'");
+        break;
+    }
     default:
         die("Try `--help' for more information.");
     }
