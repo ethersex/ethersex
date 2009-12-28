@@ -37,6 +37,7 @@
 #include <linux/if.h>
 #include <linux/if_tun.h>
 
+#define MAX_MTU 1500
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
@@ -364,24 +365,37 @@ void read_tty(void)
 
 void write_tty(void)
 {
-    static char netbuf[1600];
+    static char netbuf[MAX_MTU];
+
+    // start+endmarker and worst case: all bytes need to be escaped
+    static char writebuf[(MAX_MTU*2)+4];
+    char *w = writebuf;
 
     int l = read(global.tun_fd, netbuf, sizeof(netbuf));
     char *p = netbuf;
 
-    set_rts(global.tty_fd, 1);
+    // start-marker
+    *w++='\\';
+    *w++='0';
 
-    write_blocking(global.tty_fd, "\\0", 2);
     while (l > 0)
     {
+        // escape char if it is backslash
         if (*p == '\\')
-            write_blocking(global.tty_fd, "\\\\", 2);
-        else
-            write_blocking(global.tty_fd, p, 1);
-        p++; l--;
-    }
-    write_blocking(global.tty_fd, "\\1", 2);
+            *w++='\\';
 
+        *w++=*p++;
+
+        l--;
+    }
+
+    // end-marker
+    *w++='\\';
+    *w++='1';
+
+    // write out the packet in one go
+    set_rts(global.tty_fd, 1);
+    write_blocking(global.tty_fd, writebuf, (w-writebuf));
     set_rts(global.tty_fd, 0);
 }
 
@@ -446,7 +460,7 @@ main(int argc, char *argv[])
     {
         char* endptr;
         global.mtu=strtoul(optarg,&endptr,0);
-        if (*endptr != 0)
+        if (*endptr != 0 || global.mtu == 0 || global.mtu > MAX_MTU)
             die("illegal value for mtu given, see `--help'");
         break;
     }
