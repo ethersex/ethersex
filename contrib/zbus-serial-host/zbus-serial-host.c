@@ -247,131 +247,143 @@ void read_tty(void)
     static char recvbuf[1600];
     static int recvlen = 0;
 
-       int packet_ended = 0, attached = 0;
-       int timeout = 0, first_packet = 1;
-       int packet_began = 0, escaped = 0;
-        while(1) {
-         // Read from device
-         int i, l = read(global.tty_fd, netbuf, sizeof(netbuf));
-         if (l == 0) {
-           fprintf(stderr, "%s: read from device returned 0 bytes (terminating)\n",
-                   global.argv0);
-           exit(EXIT_SUCCESS);
-         } else if (l < 0) {
-           if (errno != EAGAIN)
-             die("read from device failed: %s\n", strerror(errno));
-           else {
-             timeout += 1;
-             if (timeout > 10) {
-               printf("Packet timeout\n");
-               break;
-             }
-             usleep(3000);
-             continue;
-           }
-         }
-         timeout = 0;
-         // decoder
-         attached = 0;
-         if (l == 1 && escaped && netbuf[0] == '1') {
-           packet_ended = 1;
-           attached = 1;
-           recvlen -= 1;
-         }
-         for (i = 0; i < l - 1; i++) {
-           if (netbuf[i] == '\\' && netbuf[i+1] == '0') {
-       //      printf("Packet start %d: %d\n", i + 2, l - i - 2);
-             recvlen = l - i - 2;
-             memcpy(recvbuf, netbuf + i + 2, l - i - 2);
-             attached = 1;
-             packet_began  = 1;
+    int packet_ended = 0, attached = 0;
+    int timeout = 0, first_packet = 1;
+    int packet_began = 0, escaped = 0;
 
-           }
-           else if (netbuf[i] == '\\' && netbuf[i+1] == '1') {
-         //    printf("Packet stop %d: %d\n", i -1, i);
-             if (attached) {
-               recvlen = i - 2;
-               packet_ended = 1;
-             } else {
-               if ((unsigned int)(recvlen+i) > sizeof(recvbuf))
-               {
-                   // data too large for recvbuf -> clean buffer and forget
-                   recvlen = 0;
-                   packet_ended = 0;
-                   break;
-               }
+    while(1)
+    {
+        // Read from device
+        int i, l = read(global.tty_fd, netbuf, sizeof(netbuf));
+        if (l == 0)
+        {
+            fprintf(stderr, "%s: read from device returned 0 bytes (terminating)\n",
+                global.argv0);
+            exit(EXIT_SUCCESS);
+        }
+        else if (l < 0)
+        {
+            if (errno != EAGAIN)
+                die("read from device failed: %s\n", strerror(errno));
+            else
+            {
+                timeout += 1;
+                if (timeout > 10)
+                {
+                    printf("Packet timeout\n");
+                    break;
+                }
+                usleep(3000);
+                continue;
+            }
+        }
+        timeout = 0;
 
-               memcpy(recvbuf + recvlen , netbuf, i);
-               recvlen += i;
-               packet_ended = 1;
-               attached = 1;
-             }
-           }
+        // decoder
+        attached = 0;
+        if (l == 1 && escaped && netbuf[0] == '1')
+        {
+            packet_ended = 1;
+            attached = 1;
+            recvlen -= 1;
+        }
 
-         }
-         if (! attached ) {
-           //printf("Packet body: %d\n", l);
-           if (netbuf[l - 1] == '\\' && netbuf[l - 2] != '\\') {
-             escaped = 1;
-        //     printf("escape\n");
-           } else
-             escaped = 0;
-          // if (l == 1)
-          //   printf("%d\n", netbuf[0]);
+        for (i = 0; i < l - 1; i++)
+        {
+            if (netbuf[i] == '\\' && netbuf[i+1] == '0')
+            {
+                recvlen = l - i - 2;
+                memcpy(recvbuf, netbuf + i + 2, l - i - 2);
+                attached = 1;
+                packet_began  = 1;
 
-           if ((unsigned int)(recvlen+l) > sizeof(recvbuf))
-           {
-               // data too large for recvbuf -> clean buffer and forget
-               recvlen = 0;
-               packet_ended = 0;
-               break;
-           }
+            }
+            else if (netbuf[i] == '\\' && netbuf[i+1] == '1')
+            {
+                if (attached)
+                {
+                    recvlen = i - 2;
+                    packet_ended = 1;
+                }
+                else
+                {
+                    if ((unsigned int)(recvlen+i) > sizeof(recvbuf))
+                    {
+                        // data too large for recvbuf -> clean buffer and forget
+                        recvlen = 0;
+                        packet_ended = 0;
+                        break;
+                    }
 
-           memcpy(recvbuf + recvlen , netbuf, l);
-           recvlen += l;
-         }
-         if (packet_ended) break;
-         if (first_packet && ! packet_began) break;
-         first_packet = 0;
+                    memcpy(recvbuf + recvlen , netbuf, i);
+                    recvlen += i;
+                    packet_ended = 1;
+                    attached = 1;
+                }
+            }
+        }
 
-       }
-       if (packet_ended) {
-         //printf(">> ");
-         int p1, p2 ;
-         for (p1 = 0, p2 = 0; p1 < recvlen; p1++){
-           if(recvbuf[p1] == '\\')
-             p1 ++;
-           recvbuf[p2++] = recvbuf[p1];
-           //printf("%02x ", (uint8_t)recvbuf[p2 -1]);
-         }
-         //printf("\n");
-         write(global.tun_fd, recvbuf, p2);
-       }
+        if (! attached )
+        {
+            if (netbuf[l - 1] == '\\' && netbuf[l - 2] != '\\')
+                escaped = 1;
+            else
+                escaped = 0;
+
+            if ((unsigned int)(recvlen+l) > sizeof(recvbuf))
+            {
+                // data too large for recvbuf -> clean buffer and forget
+                recvlen = 0;
+                packet_ended = 0;
+                break;
+            }
+
+            memcpy(recvbuf + recvlen , netbuf, l);
+            recvlen += l;
+        }
+
+        if (packet_ended) break;
+        if (first_packet && ! packet_began) break;
+
+        first_packet = 0;
+    }
+
+    if (packet_ended)
+    {
+        int p1, p2 ;
+        for (p1 = 0, p2 = 0; p1 < recvlen; p1++)
+        {
+            if(recvbuf[p1] == '\\')
+                p1 ++;
+            recvbuf[p2++] = recvbuf[p1];
+        }
+
+        write(global.tun_fd, recvbuf, p2);
+    }
 }
 
 void write_tty(void)
 {
     static char netbuf[1600];
 
-       int l = read(global.tun_fd, netbuf, sizeof(netbuf));
-       char *p = netbuf;
+    int l = read(global.tun_fd, netbuf, sizeof(netbuf));
+    char *p = netbuf;
 
-       set_rts(global.tty_fd, 1);
+    set_rts(global.tty_fd, 1);
 
-       write_blocking(global.tty_fd, "\\0", 2);
-       while (l > 0) {
-         //printf("%02x ", (uint8_t) p[0]);
-         if (*p == '\\')
-           write_blocking(global.tty_fd, "\\\\", 2);
-         else
-           write_blocking(global.tty_fd, p, 1);
-         p++; l--;
-       }
-       //putchar('\n');
-       write_blocking(global.tty_fd, "\\1", 2);
+    write_blocking(global.tty_fd, "\\0", 2);
+    while (l > 0)
+    {
+        if (*p == '\\')
+            write_blocking(global.tty_fd, "\\\\", 2);
+        else
+            write_blocking(global.tty_fd, p, 1);
+        p++; l--;
+    }
+    write_blocking(global.tty_fd, "\\1", 2);
 
-       set_rts(global.tty_fd, 0);
-}    
+    set_rts(global.tty_fd, 0);
+}
 
 void 
 usage(void)
@@ -386,8 +398,6 @@ usage(void)
           " -u --up        call this command, when the interface is up\n", global.argv0);
 
 }
-
-
 
 int 
 main(int argc, char *argv[])
