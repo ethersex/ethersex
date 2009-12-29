@@ -225,13 +225,33 @@ set_rts(int fd, int high)
 void write_blocking(int fd, const void* buf, size_t count)
 {
     ssize_t ret;
+    int timeout = 0;
 
     while ((ret=write(fd,buf,count)) < (ssize_t)count)
     {
         if (ret < 0)
         {
-            if (errno != EAGAIN && errno != EINTR)
+            if (errno == EAGAIN)
+            {
+                // Packet timeout: max 30 msec transfer time per packet
+                if (++timeout > 10)
+                {
+                    fprintf(stderr,"Packet timeout\n");
+                    break;
+                }
+                usleep(3000);
+                continue;
+            }
+            else if (errno == EINTR)
+            {
+                // just try again, do not wait or increase timeout
+                continue;
+            }
+            else
+            {
+                // some severe error during io
                 die("write to device failed: %s\n", strerror(errno));
+            }
         }
         else
         {
@@ -264,18 +284,26 @@ void read_tty(void)
         }
         else if (l < 0)
         {
-            if (errno != EAGAIN)
-                die("read from device failed: %s\n", strerror(errno));
-            else
+            if (errno == EAGAIN)
             {
-                timeout += 1;
-                if (timeout > 10)
+                // Packet timeout: max 30 msec transfer time per packet
+                if (++timeout > 10)
                 {
-                    printf("Packet timeout\n");
+                    fprintf(stderr,"Packet timeout\n");
                     break;
                 }
                 usleep(3000);
                 continue;
+            }
+            else if (errno == EINTR)
+            {
+                // just try again, do not wait or increase timeout
+                continue;
+            }
+            else
+            {
+                // some severe error during io
+                die("write to device failed: %s\n", strerror(errno));
             }
         }
         timeout = 0;
