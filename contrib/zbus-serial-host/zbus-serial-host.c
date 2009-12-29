@@ -408,7 +408,7 @@ void write_tty(void)
     char netbuf[MAX_MTU];
 
     // start+endmarker and worst case: all bytes need to be escaped
-    static char writebuf[(MAX_MTU*2)+4];
+    char writebuf[(MAX_MTU*2)+4];
     char *w = writebuf;
 
     int l = read(global.tun_fd, netbuf, sizeof(netbuf));
