@@ -529,8 +529,6 @@ main(int argc, char *argv[])
 
      select(fm, &fds, NULL, NULL, NULL);
 
-     /* Incoming Packets
-      * WARNING: This piece of code grew */
      if( FD_ISSET(global.tty_fd, &fds) )
         read_tty();
 
