@@ -365,7 +365,7 @@ void read_tty(void)
 
 void write_tty(void)
 {
-    static char netbuf[MAX_MTU];
+    char netbuf[MAX_MTU];
 
     // start+endmarker and worst case: all bytes need to be escaped
     static char writebuf[(MAX_MTU*2)+4];
@@ -393,9 +393,13 @@ void write_tty(void)
     *w++='\\';
     *w++='1';
 
-    // write out the packet in one go
+    // switch to sendig mode (needed for RS485)
     set_rts(global.tty_fd, 1);
+
+    // write out the packet in one go
     write_blocking(global.tty_fd, writebuf, (w-writebuf));
+
+    // switch off sendig mode
     set_rts(global.tty_fd, 0);
 }
 
