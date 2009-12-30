@@ -29,13 +29,12 @@
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
-/* "Type" can be one of the following */
-#define UDPSTELLA_REQUEST_CHANNELS _BV(7)
-/* or:
+/*
   STELLA_SET_IMMEDIATELY,
   STELLA_SET_FADE,
   STELLA_SET_FLASHY,
   STELLA_SET_IMMEDIATELY_RELATIVE
+  STELLA_GETALL
 */
 
 struct udpstella_packet
@@ -53,15 +52,12 @@ STELLA_SET_FADE + 1 + 0
 STELLA_SET_FADE + 2 + 0
 
 Get the current channel values:
-UDPSTELLA_REQUEST_CHANNELS + 0 + 0
+STELLA_GETALL + 0 + 0
 The answer for 3 channels will be something like this:
-UDPSTELLA_ANSWER_CHANNELS + 3 + 0 + 0 + 0
+stella + 3 + 0 + 0 + 0
 
 */
 
-
-#define UDPSTELLA_ANSWER_INVALID 0
-#define UDPSTELLA_ANSWER_CHANNELS 10
 struct udpstella_answer_packet
 {
 	uint8_t type;
@@ -98,23 +94,19 @@ udpstella_net_main(void)
     uint8_t* answer = uip_appdata;
 
     while (len>=sizeof(struct udpstella_packet)) {
-	    if (packet->type & UDPSTELLA_REQUEST_CHANNELS) {
-		answer[0] = UDPSTELLA_ANSWER_CHANNELS;
-		answer[1] = (uint8_t)STELLA_CHANNELS;
+	    if (packet->type == STELLA_GETALL) {
+		answer[0] = 's';
+		answer[1] = 't';
+		answer[2] = 'e';
+		answer[3] = 'l';
+		answer[4] = 'l';
+		answer[5] = 'a';
+		answer[6] = (uint8_t)STELLA_CHANNELS;
 		for (uint8_t c=0;c<STELLA_CHANNELS;++c) {
-			answer[2+c] = stella_brightness[c];
+			answer[7+c] = stella_brightness[c];
 		}
-		uip_slen += STELLA_CHANNELS+2;
-		answer += STELLA_CHANNELS+2;
-	    }
-	    else if (packet->type & UDPSTELLA_REQUEST_PINS) {
-		answer[0] = UDPSTELLA_ANSWER_PINS;
-		answer[1] = PORTA;
-		answer[2] = PORTB;
-		answer[3] = PORTC;
-		answer[4] = PORTD;
-		uip_slen += 5;
-		answer += 5;
+		uip_slen += STELLA_CHANNELS+6;
+		answer += STELLA_CHANNELS+6;
 	    } else {
 			stella_setValue(packet->type, packet->channel, packet->value);
 	    }
