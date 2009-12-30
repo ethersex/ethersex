@@ -65,7 +65,7 @@ fi
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG
 	endmenu
-
+motorC
 	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
@@ -218,6 +218,7 @@ source protocols/to1/config.in
 source protocols/nmea/config.in
 source protocols/udpStella/config.in
 source protocols/udpIO/config.in
+source protocols/udpcurtain/config.in
 endmenu
 
 ###############################################################################
@@ -237,6 +238,7 @@ source services/httpd/config.in
 source services/jabber/config.in
 source services/moodlight/config.in
 source services/stella/config.in
+source services/curtain/config.in
 source services/tftp/config.in
 source services/upnp/config.in
 source services/watchcat/config.in

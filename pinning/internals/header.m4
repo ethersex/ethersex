@@ -171,6 +171,26 @@ pin(PS21, $2, INPUT)
 #define PS2_vect SIG_INTERRUPT$1
 ')
 
+define(`MOTORCURTAIN_PORT_RANGE', `dnl
+define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
+define(`start', substr(`$1', 2, 1))dnl
+define(`stop', substr(`$2', 2, 1))dnl
+  /* motor curtain port range configuration: */
+  forloop(`itr', start, stop, `dnl
+#undef MOTORCURTAIN_PIN_PORT
+#undef MOTORCURTAIN_PIN_PIN
+#undef HAVE_MOTORCURTAIN_PIN  /* quite a hack, but should do the job *g*    \
+                           this is just to keep the preprocessor from \
+			   complaining and get the port masks right. */
+pin(MOTORCURTAIN_PIN, format(`P%s%d', pinname, itr))
+  ' )dnl
+#define MOCU_SENSOR_COUNT eval(stop-start+1)
+#define MOCU_SENSOR_STARTPIN start
+#define MOCU_SENSORS_PORT format(PORT%s, pinname)
+#define MOCU_SENSORS_DDR_PORT format(DDR%s, pinname)
+#define MOCU_SENSORS_PIN_PORT format(PIN%s, pinname)
+')
+
 define(`STELLA_PORT1_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl

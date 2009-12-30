@@ -67,6 +67,9 @@ SUBDIRS += protocols/netstat
 SUBDIRS += protocols/to1
 SUBDIRS += protocols/msr1
 SUBDIRS += protocols/nmea
+SUBDIRS += protocols/udpIO
+SUBDIRS += protocols/udpStella
+SUBDIRS += protocols/udpcurtain
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
@@ -81,6 +84,7 @@ SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
+SUBDIRS += services/curtain
 
 rootbuild=t
 
