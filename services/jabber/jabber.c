@@ -71,8 +71,8 @@ static const char PROGMEM jabber_version_text[] =
     CONF_JABBER_USERNAME "@" CONF_JABBER_HOSTNAME "/" CONF_JABBER_RESOURCE "'>"
     "<query xmlns='jabber:iq:version'>"
     "<name>" CONF_HOSTNAME "</name>"
-    "<version>1.7.9.4</version>"
-    "<os>Windows-XP 5.23.42</os>"
+    "<version>" VERSION_STRING "</version>"
+    "<os>" CONF_JABBER_VERSION_OS "</os>"
     "</query>"
     "</iq>";
 
@@ -117,7 +117,9 @@ jabber_parse_ecmd (char *message)
 static void
 jabber_send_data (uint8_t send_state, uint8_t action)
 {
-    uint16_t iqlasttime = 4242;
+   // change iqlasttime if you ever whant dynamic values
+    uint16_t iqlasttime = CONF_JABBER_LAST_VALUE; 
+
     JABDEBUG ("send_data: %d action: %d\n", send_state, action);
 
     switch (send_state) {

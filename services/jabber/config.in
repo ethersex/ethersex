@@ -6,7 +6,13 @@ dep_bool_menu "Jabber Client" JABBER_SUPPORT $TCP_SUPPORT
 	string "Recource" CONF_JABBER_RESOURCE "ethersex"
 	string "Target Buddy Name" CONF_JABBER_BUDDY "stesie@jabber.zerties.org"
     dep_bool "Last Info" JABBER_LAST_SUPPORT $JABBER_SUPPORT
+    if [ "$JABBER_LAST_SUPPORT" = "y" ]; then
+	  int "Last access (in seconds)" CONF_JABBER_LAST_VALUE 23
+    fi
     dep_bool "Version Info" JABBER_VERSION_SUPPORT $JABBER_SUPPORT
+    if [ "$JABBER_VERSION_SUPPORT" = "y" ]; then
+	  string "Operating System" CONF_JABBER_VERSION_OS "ethersex"
+    fi
 
 	comment  "Debugging Flags"
 	dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
