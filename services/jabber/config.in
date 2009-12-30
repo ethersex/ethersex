@@ -5,6 +5,9 @@ dep_bool_menu "Jabber Client" JABBER_SUPPORT $TCP_SUPPORT
 	string "Password" CONF_JABBER_PASSWORD "password"
 	string "Recource" CONF_JABBER_RESOURCE "ethersex"
 	string "Target Buddy Name" CONF_JABBER_BUDDY "stesie@jabber.zerties.org"
+    dep_bool "Last Info" JABBER_LAST_SUPPORT $JABBER_SUPPORT
+    dep_bool "Version Info" JABBER_VERSION_SUPPORT $JABBER_SUPPORT
+
 	comment  "Debugging Flags"
 	dep_bool 'Jabber' DEBUG_JABBER $DEBUG $JABBER_SUPPORT
 endmenu
