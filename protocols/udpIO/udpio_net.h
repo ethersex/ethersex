@@ -19,10 +19,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef UDPSTELLA_NET_H
-#define UDPSTELLA_NET_H
+#ifndef UDPIO_NET_H
+#define UDPIO_NET_H
 
 void udpio_net_init(void);
 void udpio_net_main(void);
 
-#endif /* UDPSTELLA_NET_H */
+#endif /* UDPIO_NET_H */

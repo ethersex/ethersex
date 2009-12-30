@@ -26,7 +26,6 @@
 #include "core/portio/portio.h"
 #include "config.h"
 
-#define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
 struct udpio_packet
@@ -52,7 +51,7 @@ struct udpio_packet
 };
 
 void
-udpstella_net_init (void)
+udpio_net_init (void)
 {
     uip_ipaddr_t ip;
     uip_ipaddr_copy (&ip, all_ones_addr);
@@ -67,7 +66,7 @@ udpstella_net_init (void)
 
 
 void
-udpstella_net_main(void)
+udpio_net_main(void)
 {
     if (!uip_newdata ())
 	return;
@@ -99,16 +98,19 @@ udpstella_net_main(void)
 		/* Set port to "pins" value */
 		else if (packet->nstate == 2)
 		{
-			ACCESS_IO(packet->port) = packet->pins;
+			if (packet->port > IO_HARD_PORTS) break;
+			vport[packet->port].write_port(packet->port, packet->pins);
 		}
 		/* Enables pins */
 	    else if (packet->nstate == 1)
 		{
-			ACCESS_IO(packet->port) |= packet->pins;
+			if (packet->port > IO_HARD_PORTS) break;
+			vport[packet->port].write_port(packet->port, vport[packet->port].read_port(packet->port) | packet->pins);
 	    }
 		/* Disables pins */
 	    else if (packet->nstate == 0) {
-			ACCESS_IO(packet->port) &= packet->pins;
+			if (packet->port > IO_HARD_PORTS) break;
+			vport[packet->port].write_port(packet->port, vport[packet->port].read_port(packet->port) & ~(uint8_t)packet->pins);
 	    }
      	packet++;
      	len-=sizeof(struct udpio_packet);
