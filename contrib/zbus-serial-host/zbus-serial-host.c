@@ -1,4 +1,5 @@
  /* Copyright(C) 2008 Christian Dietrich <stettberger@dokucode.de>
+                 2009 Gerd v. Egidy <gerd@egidy.de>
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -30,15 +31,14 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include <termios.h>
 #include <getopt.h>
 #include <errno.h>
-#include <unistd.h>
 
 
 #include <linux/if.h>
 #include <linux/if_tun.h>
 
+#define MAX_MTU 1500
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
@@ -53,7 +53,7 @@ struct global_t {
   int tun_fd;
   char tun_name[15]; /* Interface name */
   char *address;
-  int mtu;
+  unsigned int mtu;
 
   char *up;
 } global;
@@ -130,6 +130,15 @@ open_tty(char *dev, int baudrate)
   case 57600:  global.baudrate = B57600; break;
   case 115200: global.baudrate = B115200; break;
   case 230400: global.baudrate = B230400; break;
+  case 460800: global.baudrate = B460800; break;
+  case 500000: global.baudrate = B500000; break;
+  case 576000: global.baudrate = B576000; break;
+  case 921600: global.baudrate = B921600; break;
+  case 1000000: global.baudrate = B1000000; break;
+  case 1152000: global.baudrate = B1152000; break;
+  case 1500000: global.baudrate = B1500000; break;
+  case 2000000: global.baudrate = B2000000; break;
+  case 2500000: global.baudrate = B2500000; break;
   default:  die("invalid baudrate %d\n", baudrate);
   }
 
@@ -217,13 +226,33 @@ set_rts(int fd, int high)
 void write_blocking(int fd, const void* buf, size_t count)
 {
     ssize_t ret;
+    int timeout = 0;
 
     while ((ret=write(fd,buf,count)) < (ssize_t)count)
     {
         if (ret < 0)
         {
-            if (errno != EAGAIN && errno != EINTR)
+            if (errno == EAGAIN)
+            {
+                // Packet timeout: max 30 msec transfer time per packet
+                if (++timeout > 10)
+                {
+                    fprintf(stderr,"Packet timeout\n");
+                    break;
+                }
+                usleep(3000);
+                continue;
+            }
+            else if (errno == EINTR)
+            {
+                // just try again, do not wait or increase timeout
+                continue;
+            }
+            else
+            {
+                // some severe error during io
                 die("write to device failed: %s\n", strerror(errno));
+            }
         }
         else
         {
@@ -232,6 +261,187 @@ void write_blocking(int fd, const void* buf, size_t count)
             count-=ret;
         }
     }
+}
+
+// parse some bytes received via zbus
+// returns number of bytes we have from a still incomplete packet
+unsigned int parse_zbus(char* xferbuf, unsigned int xfersize)
+{
+    static char recvpktbuf[MAX_MTU];          // just for correct packet data, already descaped etc.
+    static unsigned int recvpktpos = 0;       // current pos within recvpktbuf
+    static unsigned int escaped = 0;          // must be static as the last byte in xferbuf could be the esc sequence
+    static unsigned int pkt_started = 0;      // must be static as the packet could just be started with the last byte
+
+    unsigned int i;
+    for (i=0; i < xfersize; i++)
+    {
+        if (!escaped && xferbuf[i] == '\\')
+        {
+            escaped=1;
+            continue;
+        }
+
+        if (!pkt_started)
+        {
+            // packet has not started yet
+
+            if (escaped && xferbuf[i] == '0')
+            {
+                // start sequence detected
+                escaped=0;
+                pkt_started=1;
+            }
+
+            // something else was escaped, we don't really care
+            if (escaped)
+                escaped=0;
+
+            // ignore all rubbish between packets
+            continue;
+        }
+        else
+        {
+            // we are within a packet
+
+            if (escaped && xferbuf[i] == '1')
+            {
+                // end sequence detected, packet is complete, send it off
+                write(global.tun_fd, recvpktbuf,recvpktpos);
+
+                escaped=0;
+                pkt_started=0;
+                recvpktpos=0;
+                continue;
+            }
+
+            // something else was escaped, probably backslash, just append it
+            if (escaped)
+                escaped=0;
+
+            // try to append data
+            if (recvpktpos+1 > global.mtu)
+            {
+                // packet larger than our MRU (we assume MTU == MRU)
+
+                // we should probably send some ICMP message to inform the sender.
+                // But uIP currently can't refragment, so this would only help if
+                // data from something other than ethersex is routed over ZBUS.
+                // If someone wants to do that, add your code here
+
+                // throw it all away
+                pkt_started=0;
+                recvpktpos=0;
+            }
+            else
+            {
+                recvpktbuf[recvpktpos++]=xferbuf[i];
+            }
+        }
+    }
+
+    // maybe there are no "real" bytes in the buffer but a packet has just been started
+    if (!recvpktpos && pkt_started)
+        return 1;
+    else
+        return recvpktpos;
+}
+
+void read_tty(void)
+{
+    char xferbuf[256];                        // one read is stored here and then parsed
+
+    // read_tty is only called if there is really data to read, so it's got to be parsed
+    unsigned int left_to_be_parsed=1;
+
+    // loop until we have a complete packet and no more data waiting (or timeout)
+    while(1)
+    {
+        int timeout = 0;
+        int got;
+
+        // Read from device
+        got = read(global.tty_fd, xferbuf, sizeof(xferbuf));
+        if (got == 0)
+        {
+            // someone closed (e.g. unplugged) the device, terminate the program
+            fprintf(stderr, "%s: read from device returned 0 bytes (terminating)\n",
+                global.argv0);
+            exit(EXIT_SUCCESS);
+        }
+        else if (got < 0)
+        {
+            if (errno == EAGAIN)
+            {
+                if (!left_to_be_parsed)
+                {
+                    // nothing to be parsed anymore, no more data waiting
+                    // -> we have done our job reading so return to main loop
+                    break;
+                }
+
+                // Packet timeout: max 30 msec transfer time per packet
+                if (++timeout > 10)
+                {
+                    fprintf(stderr,"Packet timeout\n");
+                    break;
+                }
+                usleep(3000);
+                continue;
+            }
+            else if (errno == EINTR)
+            {
+                // just try again, do not wait or increase timeout
+                continue;
+            }
+            else
+            {
+                // some severe error during io
+                die("write to device failed: %s\n", strerror(errno));
+            }
+        }
+
+        left_to_be_parsed=parse_zbus(xferbuf,got);
+    }
+}
+
+void write_tty(void)
+{
+    char netbuf[MAX_MTU];
+
+    // start+endmarker and worst case: all bytes need to be escaped
+    char writebuf[(MAX_MTU*2)+4];
+    char *w = writebuf;
+
+    int l = read(global.tun_fd, netbuf, sizeof(netbuf));
+    char *p = netbuf;
+
+    // start-marker
+    *w++='\\';
+    *w++='0';
+
+    while (l > 0)
+    {
+        // escape char if it is backslash
+        if (*p == '\\')
+            *w++='\\';
+
+        *w++=*p++;
+
+        l--;
+    }
+
+    // end-marker
+    *w++='\\';
+    *w++='1';
+
+    // switch to sendig mode (needed for RS485)
+    set_rts(global.tty_fd, 1);
+
+    // write out the packet in one go
+    write_blocking(global.tty_fd, writebuf, (w-writebuf));
+
+    // switch off sendig mode
+    set_rts(global.tty_fd, 0);
 }
 
 void 
@@ -248,8 +458,6 @@ usage(void)
 
 }
 
-
-
 int 
 main(int argc, char *argv[])
 {
@@ -264,9 +472,7 @@ main(int argc, char *argv[])
   atexit(cleanup);
 
   fd_set fds;
-  char netbuf[1600];
-  char recvbuf[1600], c;
-  int recvlen = 0;
+  char c;
 
   const struct option longopts[] = {
     {"help", no_argument, 0, 'h'},
@@ -278,7 +484,7 @@ main(int argc, char *argv[])
     {0, 0, 0, 0}
   };
 
-  while ((c = getopt_long(argc, argv, "hr:a:d:u:", longopts, 0)) != -1) {
+  while ((c = getopt_long(argc, argv, "hr:a:d:u:m:", longopts, 0)) != -1) {
     switch(c) {
     case 'h':
         usage();
@@ -295,6 +501,14 @@ main(int argc, char *argv[])
     case 'u':
         global.up = optarg;
         break;
+    case 'm':
+    {
+        char* endptr;
+        global.mtu=strtoul(optarg,&endptr,0);
+        if (*endptr != 0 || global.mtu == 0 || global.mtu > MAX_MTU)
+            die("illegal value for mtu given, see `--help'");
+        break;
+    }
     default:
         die("Try `--help' for more information.");
     }
@@ -316,134 +530,12 @@ main(int argc, char *argv[])
 
      select(fm, &fds, NULL, NULL, NULL);
 
-     /* Incoming Packets
-      * WARNING: This piece of code grew */
-     if( FD_ISSET(global.tty_fd, &fds) ) {
-       int packet_ended = 0, attached = 0;
-       int timeout = 0, first_packet = 1;
-       int packet_began = 0, escaped = 0;
-        while(1) {
-         // Read from device
-         int i, l = read(global.tty_fd, netbuf, sizeof(netbuf));
-         if (l == 0) {
-           fprintf(stderr, "%s: read from device returned 0 bytes (terminating)\n",
-                   global.argv0);
-           exit(EXIT_SUCCESS);
-         } else if (l < 0) {
-           if (errno != EAGAIN) 
-             die("read from device failed: %s\n", strerror(errno));
-           else {
-             timeout += 1;
-             if (timeout > 10) {
-               printf("Packet timeout\n");
-               break;
-             }
-             usleep(3000);
-             continue;
-           }
-         }
-         timeout = 0;
-         // decoder
-         attached = 0;
-         if (l == 1 && escaped && netbuf[0] == '1') {
-           packet_ended = 1;
-           attached = 1;
-           recvlen -= 1;
-         }
-         for (i = 0; i < l - 1; i++) {
-           if (netbuf[i] == '\\' && netbuf[i+1] == '0') {
-       //      printf("Packet start %d: %d\n", i + 2, l - i - 2);
-             recvlen = l - i - 2;
-             memcpy(recvbuf, netbuf + i + 2, l - i - 2);
-             attached = 1;
-             packet_began  = 1;
-             
-           }
-           else if (netbuf[i] == '\\' && netbuf[i+1] == '1') {
-         //    printf("Packet stop %d: %d\n", i -1, i);
-             if (attached) {
-               recvlen = i - 2;
-               packet_ended = 1;
-             } else {
-               if ((unsigned int)(recvlen+i) > sizeof(recvbuf))
-               {
-                   // data too large for recvbuf -> clean buffer and forget
-                   recvlen = 0;
-                   packet_ended = 0;
-                   break;
-               }
-
-               memcpy(recvbuf + recvlen , netbuf, i);
-               recvlen += i;
-               packet_ended = 1;
-               attached = 1;
-             }
-           }
-
-         }
-         if (! attached ) {
-           //printf("Packet body: %d\n", l);
-           if (netbuf[l - 1] == '\\' && netbuf[l - 2] != '\\') {
-             escaped = 1;
-        //     printf("escape\n");
-           } else 
-             escaped = 0;
-          // if (l == 1)
-          //   printf("%d\n", netbuf[0]);
-
-           if ((unsigned int)(recvlen+l) > sizeof(recvbuf))
-           {
-               // data too large for recvbuf -> clean buffer and forget
-               recvlen = 0;
-               packet_ended = 0;
-               break;
-           }
-
-           memcpy(recvbuf + recvlen , netbuf, l);
-           recvlen += l;
-         }
-         if (packet_ended) break;
-         if (first_packet && ! packet_began) break;
-         first_packet = 0;
-
-       }
-       if (packet_ended) {
-         //printf(">> ");
-         int p1, p2 ;
-         for (p1 = 0, p2 = 0; p1 < recvlen; p1++){
-           if(recvbuf[p1] == '\\')
-             p1 ++;
-           recvbuf[p2++] = recvbuf[p1];
-           //printf("%02x ", (uint8_t)recvbuf[p2 -1]);
-         }
-         //printf("\n");
-         write(global.tun_fd, recvbuf, p2);
-       }
-     }
+     if( FD_ISSET(global.tty_fd, &fds) )
+        read_tty();
 
      // Outgoing packets
-     if( FD_ISSET(global.tun_fd, &fds) ) {
-       int l = read(global.tun_fd, netbuf, sizeof(netbuf));
-       char *p = netbuf;
-
-       set_rts(global.tty_fd, 1);
-
-       write_blocking(global.tty_fd, "\\0", 2);
-       while (l > 0) {
-         //printf("%02x ", (uint8_t) p[0]);
-         if (*p == '\\')
-           write_blocking(global.tty_fd, "\\\\", 2);
-         else
-           write_blocking(global.tty_fd, p, 1);
-         p++; l--;
-       }
-       //putchar('\n');
-       write_blocking(global.tty_fd, "\\1", 2);
-
-       set_rts(global.tty_fd, 0);
-
-
-     }
+     if( FD_ISSET(global.tun_fd, &fds) )
+        write_tty();
   }
   return 0;
 }
