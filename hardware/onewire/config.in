@@ -1,4 +1,10 @@
 dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
-	dep_bool "  Onewire device detection support" ONEWIRE_DETECT_SUPPORT $ONEWIRE_SUPPORT
-	dep_bool "  Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
+	dep_bool "Onewire device detection support" ONEWIRE_DETECT_SUPPORT $ONEWIRE_SUPPORT
+	dep_bool "Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
+	dep_bool "Onewire DS2450 (4 channel ADC) support" ONEWIRE_DS2450_SUPPORT $ONEWIRE_SUPPORT
+
+	comment  "Debugging Flags"
+	dep_bool "Onewire ROM parsing (ECMD)" DEBUG_ECMD_OW_ROM $DEBUG $ONEWIRE_SUPPORT
+	dep_bool "Onewire device detection (ECMD)" DEBUG_ECMD_OW_LIST $DEBUG $ONEWIRE_DETECT_SUPPORT
+	dep_bool "Onewire DS2450 (core and ECMD)" DEBUG_OW_DS2450 $DEBUG $ONEWIRE_DS2450_SUPPORT
 endmenu
