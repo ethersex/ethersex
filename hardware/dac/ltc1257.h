@@ -23,8 +23,8 @@
 /* how many DACs can be adressed (not hardware but memory limitation) */
 #define LTC1257_MAX_NUM_VALUES 4
 
-void ltc1257_delay_get(uint8_t *d);
-void ltc1257_delay_set(uint8_t *d);
+void ltc1257_delay_get(uint16_t *d);
+void ltc1257_delay_set(uint16_t *d);
 void ltc1257_init();
 void ltc1257_set(uint16_t *value[], uint8_t num_values);
 

@@ -27,7 +27,7 @@
 
 int16_t parse_cmd_ltc1257_delay(char *cmd, char *output, uint16_t len)
 {
-	uint8_t delay;
+	uint16_t delay;
 	uint8_t slen = 0;
 
 #ifdef DEBUG_LTC1257
@@ -56,7 +56,7 @@ int16_t parse_cmd_ltc1257_delay(char *cmd, char *output, uint16_t len)
 	
 #ifdef DEBUG_LTC1257
 #ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257_idelay end.\n");
+	debug_printf("LTC1257: parse_cmd_ltc1257_delay end.\n");
 #endif
 #ifdef SYSLOG_SUPPORT
 	syslog_sendf("LTC1257: parse_cmd_ltc1257_delay end.\n");
