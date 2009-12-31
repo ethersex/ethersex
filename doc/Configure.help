@@ -1863,7 +1863,7 @@ TWITTER_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
  For Twitter valid values are:
-   Serverice: "twitter.com"
+   Service: "twitter.com"
    API Root: " "
    Username: [Your Twitter Username]
    Password: [Your Twitter Password]
