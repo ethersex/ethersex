@@ -61,11 +61,14 @@ static const char PROGMEM jabber_startup_text[] =
        be careful ;) */
     "Your Ethersex '"CONF_HOSTNAME"' is now UP :)";
 
+#ifdef JABBER_LAST_SUPPORT
 static const char PROGMEM jabber_last_text[] =
     "<iq type='result' id='%s' to='%s' from='"
     CONF_JABBER_USERNAME "@" CONF_JABBER_HOSTNAME "/" CONF_JABBER_RESOURCE "'>"
     "<query xmlns='jabber:iq:last' seconds='%i'/>"
     "</iq>";
+#endif  /* JABBER_LAST_SUPPORT */
+#ifdef JABBER_VERSION_SUPPORT
 static const char PROGMEM jabber_version_text[] =
     "<iq type='result' id='%s' to='%s' from='"
     CONF_JABBER_USERNAME "@" CONF_JABBER_HOSTNAME "/" CONF_JABBER_RESOURCE "'>"
@@ -75,6 +78,7 @@ static const char PROGMEM jabber_version_text[] =
     "<os>" CONF_JABBER_VERSION_OS "</os>"
     "</query>"
     "</iq>";
+#endif  /* JABBER_VERSION_SUPPORT */
 
 #define JABBER_SEND(str) do {			  \
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
@@ -117,8 +121,10 @@ jabber_parse_ecmd (char *message)
 static void
 jabber_send_data (uint8_t send_state, uint8_t action)
 {
+#ifdef JABBER_LAST_SUPPORT
    // change iqlasttime if you ever whant dynamic values
     uint16_t iqlasttime = CONF_JABBER_LAST_VALUE; 
+#endif  /* JABBER_LAST_SUPPORT */
 
     JABDEBUG ("send_data: %d action: %d\n", send_state, action);
 
