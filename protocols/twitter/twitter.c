@@ -120,7 +120,3 @@ twitter_send(char *status)
   }
   return 1;
 }
-
-/*
-  -- Ethersex META --
-*/
