@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 #if defined(_ATMEGA8) || defined(_ATMEGA88) || defined(_ATMEGA168) \
-    || defined(_ATMEGA168P)
+    || defined(_ATMEGA168P || defined(_ATMEGA328P)
 #define IO_HARD_PORTS 3
 #define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD}
 #define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD}

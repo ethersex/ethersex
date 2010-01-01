@@ -1058,6 +1058,7 @@ Select the default profile you wish to load. \
 			bootloader	  "Ethernet Bootloader"		0 \
 			netio		  "Pollin AVR Net-IO"		0 \
 			radig		  "Radig AVR Webmodul"		0 \
+			fimser		  "Fieldday Instant Messenger"		0 \
 			probot		  "Conrad Probot"		0 \
 			arduino_duemilanove  "Arduino Duemilanove"		0 \
 			rfm12-teensy	  "RFM12 Standalone"		0 \
