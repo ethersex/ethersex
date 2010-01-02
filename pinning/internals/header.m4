@@ -244,6 +244,10 @@ ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
 ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
 ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
 
+define(`SHT_VOLTAGE_COMPENSATION', `dnl
+  #define SHT_VOLTAGE_COMPENSATION_D1 SHT_VOLTAGE_COMPENSATION_D1_$1
+')
+
 divert(1)
 `
 #ifndef _PINNING_HEADER
