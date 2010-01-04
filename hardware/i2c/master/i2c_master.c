@@ -19,12 +19,12 @@
 
 #include <avr/io.h>
 #include <util/twi.h>
-        
+
 #include "config.h"
 #include "core/debug.h"
 #include "i2c_master.h"
 
-void 
+void
 i2c_master_init(void)
 {
     TWSR = 0;       // Vorteiler  Bitrate = 0
@@ -58,22 +58,22 @@ i2c_master_detect(uint8_t range_start, uint8_t range_end)
 }
 
 // Wartet bis TWI-Operstion beendet ist
-// Rückgabewert = TWI-Statusbits
+// Rï¿½ckgabewert = TWI-Statusbits
 uint8_t
 i2c_master_do(uint8_t mode)
 {
-    TWCR = mode;                    // Übertragung starten 
-    while(!( TWCR & (1<<TWINT)));   // warten bis Byte übertragen ist
-    return TW_STATUS;           // Returncode = Statusbits 
+    TWCR = mode;                    // ï¿½bertragung starten
+    while(!( TWCR & (1<<TWINT)));   // warten bis Byte ï¿½bertragen ist
+    return TW_STATUS;           // Returncode = Statusbits
 }
 
 /* Send an i2c stop condition */
-void 
+void
 i2c_master_stop(void)
 {
     TWCR=((1<<TWEN)|(1<<TWINT)|(1<<TWSTO));     // Stopbedingung senden
     while (!(TWCR & (1<<TWSTO)));               // warten bis TWI fertig
-    i2c_master_disable(); 
+    i2c_master_disable();
 }
 
 /* failure, if return == 0 */
@@ -87,14 +87,14 @@ i2c_master_select(uint8_t address, uint8_t mode)
 
     /* Start Condition, test on start or repeated start */
     uint8_t tmp = i2c_master_start();
-    if (tmp != TW_START && tmp != TW_REP_START) return 0; 
+    if (tmp != TW_START && tmp != TW_REP_START) return 0;
     /* address chip */
     TWDR = (address << 1) | mode;
     tmp = i2c_master_do ((1<<TWINT)|(1<<TWEN));
-    if ((mode == TW_WRITE && tmp == TW_MT_SLA_ACK) 
+    if ((mode == TW_WRITE && tmp == TW_MT_SLA_ACK)
        || (mode == TW_READ &&  tmp == TW_MR_SLA_ACK))
-      return 1; 
-    return 0; 
+      return 1;
+    return 0;
 }
 
 /*
