@@ -3,7 +3,11 @@ dep_bool_menu "I2C Master Support (EXPERIMENTAL)" I2C_MASTER_SUPPORT $CONFIG_EXP
     int "I2C Master Baudrate in kHZ" CONF_I2C_BAUD 400
   fi
   dep_bool "  I2C detection support"	I2C_DETECT_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
-  dep_bool "  I2C gereric read/write support"	I2C_GENERIC_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool_menu "  I2C gereric read/write support"	I2C_GENERIC_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
+  if [ "$I2C_GENERIC_SUPPORT" = "y" ]; then
+  	dep_bool "Add delays for slow devices"	I2C_GENERIC_DELAYS $I2C_GENERIC_SUPPORT $CONFIG_EXPERIMENTAL
+  fi
+  endmenu
   dep_bool "  I2C EEPROM (24cxx) support"	I2C_24CXX_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "  I2C LM75 temperature sensors" I2C_LM75_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
   dep_bool "  I2C DS1631 temperature sensors" I2C_DS1631_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL

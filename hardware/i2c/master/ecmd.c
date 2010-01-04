@@ -182,7 +182,7 @@ int16_t parse_cmd_i2c_ds1631_start(char *cmd, char *output, uint16_t len)
 	sscanf_P(cmd, PSTR("%u"), &adr);
 	if (adr > 7)
 		return ECMD_ERR_PARSE_ERROR;
-	uint16_t temp = i2c_ds1631_start(I2C_SLA_DS1631 + adr);
+	uint16_t temp = i2c_ds1631_start_stop(I2C_SLA_DS1631 + adr,1);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
@@ -198,7 +198,7 @@ int16_t parse_cmd_i2c_ds1631_stop(char *cmd, char *output, uint16_t len)
 	sscanf_P(cmd, PSTR("%u"), &adr);
 	if (adr > 7)
 		return ECMD_ERR_PARSE_ERROR;
-	uint16_t temp = i2c_ds1631_stop(I2C_SLA_DS1631 + adr);
+	uint16_t temp = i2c_ds1631_start_stop(I2C_SLA_DS1631 + adr,0);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
@@ -232,7 +232,7 @@ int16_t parse_cmd_i2c_ds1631_read_temp(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_i2c_tsl2550_pwr_up(char *cmd, char *output, uint16_t len)
 {
-	uint16_t temp = i2c_tsl2550_pwr_up();
+	uint16_t temp = i2c_tsl2550_pwr(1);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
@@ -244,7 +244,7 @@ int16_t parse_cmd_i2c_tsl2550_pwr_up(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_i2c_tsl2550_pwr_down(char *cmd, char *output, uint16_t len)
 {
-	uint16_t temp = i2c_tsl2550_pwr_down();
+	uint16_t temp = i2c_tsl2550_pwr(0);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST

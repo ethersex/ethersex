@@ -148,7 +148,9 @@ uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress)
 		goto end;
 	}
 
+#ifdef I2C_GENERIC_DELAYS
 	_delay_ms(10); // for slow devices
+#endif
 
 #ifdef DEBUG_I2C
 	debug_printf("I2C: repeated start\n");
@@ -169,7 +171,9 @@ uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress)
 		goto end;
 	}
 
+#ifdef I2C_GENERIC_DELAYS
 	_delay_ms(10); // for slow devices
+#endif
 
 	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
 	{
@@ -182,7 +186,9 @@ uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress)
 	debug_printf("I2C: data0: %d 0x%x\n",data[0],data[0]);
 #endif
 
+#ifdef I2C_GENERIC_DELAYS
 	_delay_ms(10); // for slow devices
+#endif
 
 	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
 	{

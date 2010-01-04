@@ -26,8 +26,7 @@
 
 #define I2C_SLA_TSL2550 0x39 // there can only be one!
 
-uint16_t i2c_tsl2550_pwr_up();
-uint16_t i2c_tsl2550_pwr_down();
+uint16_t i2c_tsl2550_pwr(uint8_t updown); // 0 == down, > 0 == up
 uint16_t i2c_tsl2550_mode(uint8_t mode); // 0 == standard, 1 == extended
 uint16_t i2c_tsl2550_read_lux();
 

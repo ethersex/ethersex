@@ -32,7 +32,7 @@
 
 #ifdef I2C_DS1631_SUPPORT
 
-uint16_t i2c_ds1631_start(uint8_t chipaddress)
+uint16_t i2c_ds1631_start_stop(uint8_t chipaddress, uint8_t startstop)
 {
 	uint16_t ret = 0xffff;
 
@@ -42,31 +42,7 @@ uint16_t i2c_ds1631_start(uint8_t chipaddress)
 		goto end;
 	}
 
-	TWDR = 0x51; // start convert T command
-
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
-	ret = 0x0;
-
-	end: i2c_master_stop();
-	return ret;
-}
-
-uint16_t i2c_ds1631_stop(uint8_t chipaddress)
-{
-	uint16_t ret = 0xffff;
-
-	if (!i2c_master_select(chipaddress, TW_WRITE))
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
-	TWDR = 0x22; // stop convert T command
+	TWDR = (startstop == 0 ? 0x22 : 0x51); // start/stop convert T command
 
 	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
 	{

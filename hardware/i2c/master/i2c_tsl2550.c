@@ -102,7 +102,7 @@ uint16_t tsl2550_compute_lux(uint8_t adc0, uint8_t adc1)
 	return 0xfffe;
 }
 
-uint16_t i2c_tsl2550_pwr_up()
+uint16_t i2c_tsl2550_pwr(uint8_t updown)
 {
 	uint16_t ret = 0xffff;
 
@@ -112,31 +112,7 @@ uint16_t i2c_tsl2550_pwr_up()
 		goto end;
 	}
 
-	TWDR = 0x03; // power up
-
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
-	ret = 0x0;
-
-	end: i2c_master_stop();
-	return ret;
-}
-
-uint16_t i2c_tsl2550_pwr_down()
-{
-	uint16_t ret = 0xffff;
-
-	if (!i2c_master_select(I2C_SLA_TSL2550, TW_WRITE))
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
-	TWDR = 0x00; // power down
+	TWDR = (updown == 0 ? 0x00 : 0x03); // power down/up
 
 	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
 	{
