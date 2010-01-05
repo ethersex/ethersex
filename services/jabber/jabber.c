@@ -387,9 +387,11 @@ jabber_main(void)
 	STATE->stage = JABBER_OPEN_STREAM;
 	STATE->sent = JABBER_INIT;
 
+#ifdef JABBER_STARTUP_MESSAGE_SUPPORT
 	strcpy_P (STATE->target, PSTR(CONF_JABBER_BUDDY));
 	strcpy_P (STATE->outbuf, jabber_startup_text);
 	STATE->action = JABBER_ACTION_MESSAGE;
+#endif /* JABBER_STARTUP_MESSAGE_SUPPORT */
     }
 
     if (uip_acked() && STATE->stage == JABBER_CONNECTED) {
