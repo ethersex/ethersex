@@ -188,6 +188,7 @@ comment "I/O"
 	source hardware/input/ps2/config.in
 	source hardware/input/buttons/config.in
 	source hardware/radio/rfm12/rfm12_ask-config.in
+	source hardware/sht/config.in
 	source hardware/zacwire/config.in
 	source mcuf/config.in
 	source core/config-usarts.in

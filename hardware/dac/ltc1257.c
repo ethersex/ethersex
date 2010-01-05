@@ -25,10 +25,10 @@
 
 #include "ltc1257.h"
 
-uint8_t Delay = 0;
+uint16_t Delay = 0;
 
 void
-ltc1257_delay_get(uint8_t *d)
+ltc1257_delay_get(uint16_t *d)
 {
 #ifdef DEBUG_LTC1257
 	debug_printf("LTC1257: ltc1257_delay_get begin.\n");
@@ -46,7 +46,7 @@ ltc1257_delay_get(uint8_t *d)
 }
 
 void
-ltc1257_delay_set(uint8_t *d)
+ltc1257_delay_set(uint16_t *d)
 {
 #ifdef DEBUG_LTC1257
 	debug_printf("LTC1257: ltc1257_delay_set begin.\n");
