@@ -35,7 +35,7 @@
 #define PD0     PORTD0
 #endif
 
-/* ATmega328 specific adjustments */
+/* ATmega328p specific adjustments */
 #define _SPCR0 SPCR
 #define _SPE0 SPE
 #define _MSTR0 MSTR

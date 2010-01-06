@@ -26,3 +26,6 @@ dnl
 include(controllers/atmega168.m4)
 #undef ADC_CHANNELS
 #define ADC_CHANNELS 8
+
+#undef NET_MAX_FRAME_LENGTH
+#define NET_MAX_FRAME_LENGTH 384
