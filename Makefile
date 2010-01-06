@@ -168,7 +168,7 @@ OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lc -lm # Pixie Dust!!! (Bug in avr-binutils)
 
 ##############################################################################
 
