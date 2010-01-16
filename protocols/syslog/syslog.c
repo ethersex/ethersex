@@ -107,10 +107,7 @@ void
 syslog_flush (void)
 {
 
-  /* FIXME: use perhaps router to determine target Stack */
-  uip_stack_set_active(STACK_ENC);
-
-  if (syslog_check_cache ())
+  if (! syslog_conn || uip_check_cache (&syslog_conn->ripaddr))
     return;			/* ARP cache not ready, don't send request
 				   here (would flood, wait for poll event). */
 
@@ -146,47 +143,6 @@ syslog_insert_callback(syslog_callback_t callback, void *data)
       return 1;
     }
   return 0; /* No empty callback found */
-}
-
-
-uint8_t
-syslog_check_cache(void)
-{
-  uip_ipaddr_t ipaddr;
-
-#ifdef IPV6_SUPPORT
-
-  if(memcmp(syslog_conn->ripaddr, uip_hostaddr, 8))
-    /* Remote address is not on the local network, use router */
-    uip_ipaddr_copy(&ipaddr, uip_draddr);
-  else
-    /* Remote address is on the local network, send directly. */
-    uip_ipaddr_copy(&ipaddr, syslog_conn->ripaddr);
-
-  if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
-    return 1;	     /* Cowardly refusing to send IPv6 packet to :: */
-
-  if(uip_neighbor_lookup (ipaddr))
-    return 0;
-
-#else  /* IPV4_SUPPORT */
-
-  if(!uip_ipaddr_maskcmp(syslog_conn->ripaddr, uip_hostaddr, uip_netmask))
-    /* Remote address is not on the local network, use router */
-    uip_ipaddr_copy(&ipaddr, uip_draddr);
-  else
-    /* Remote address is on the local network, send directly. */
-    uip_ipaddr_copy(&ipaddr, syslog_conn->ripaddr);
-
-#ifdef ETHERNET_SUPPORT
-  /* uip_arp_lookup returns a pointer if the mac is in the arp cache */
-  if(uip_arp_lookup (ipaddr))
-#endif
-    return 0;
-
-#endif
-
-  return 1;
 }
 
 /*

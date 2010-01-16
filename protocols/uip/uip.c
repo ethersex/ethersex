@@ -1926,6 +1926,7 @@ uip_send(const void *data, int len)
     }
   }
 }
+
 /** @} */
 
 /*

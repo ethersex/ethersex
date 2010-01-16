@@ -1685,6 +1685,7 @@ static inline uint8_t uip_buf_lock (void)
 
 #endif  /* UIP_SUPPORT */
 
+
 #endif /* __UIP_H__ */
 
 

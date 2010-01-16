@@ -26,6 +26,7 @@
 #include "core/debug.h"
 #include "syslog_net.h"
 #include "protocols/syslog/syslog.h"
+#include "protocols/uip/uip_arp.h"
 
 uip_udp_conn_t *syslog_conn;
 
@@ -55,7 +56,7 @@ syslog_net_main(void)
     return;
 
 #ifdef ENC28J60_SUPPORT
-  if (syslog_check_cache ())
+  if (uip_check_cache (&syslog_conn->ripaddr))
     uip_slen = 1;		/* Trigger xmit to do force ARP lookup. */
 #endif
 }
