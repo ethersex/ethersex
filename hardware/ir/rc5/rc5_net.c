@@ -35,6 +35,7 @@
 #include "config.h"
 #include "core/debug.h"
 #include "rc5.h"
+#include "rc5_net.h"
 
 #define noinline __attribute__((noinline))
 
@@ -122,7 +123,7 @@ void rc5_udp_recv(void) {
         return;
 
 #ifdef ENC28J60_SUPPORT
-    if (uip_check_cache(udp_conn->ripaddr))
+    if (udpconn && uip_check_cache(&udpconn->ripaddr))
         uip_slen = 1; /* Trigger xmit to do force ARP lookup. */
 #endif
 }
