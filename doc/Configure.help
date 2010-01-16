@@ -1933,3 +1933,52 @@ ECMD_SMS_SUPPORT
    * SMS Support (SMS_SUPPORT)
 
   Send and receive ECMD via Short Message Service.
+
+I2C to UDP Gateway
+I2C_UDP_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * UDP support (UDP_SUPPORT)
+
+UDP/IP Gateway to transport I2C over IP. The default is port is 8995
+
+Bulbdial Clock (EXPERIMENTAL)
+BULBDIAL_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  A bulbdial clock displays the current time via lightsources or its shaddow.
+  More details at http://ethersex.de/index.php?title=Bulbdial_Clock
+
+Wake on Lan (WOL)
+WOL_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  Automatich power-on feature over network. This needs a networking
+  device capable of turning itself on at a given command.
+
+Enable startup message
+JABBER_STARTUP_MESSAGE_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables a friendly startup message, which is send to the target buddy
+  on each reboot.
+
+Last Info
+JABBER_LAST_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables the last-seen feature of this ethersex jabber client.
+
+Version Info
+JABBER_VERSION_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables to send version details of the ethersex jabber client.
+  Change the values if you need to.
