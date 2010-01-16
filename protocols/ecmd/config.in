@@ -49,7 +49,7 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	fi
 
 	dep_bool "IRC (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
-	
+
 	dep_bool "SMS" ECMD_SMS_SUPPORT $ECMD_PARSER_SUPPORT $SMS_SUPPORT
 
 	comment "Generate ECMD commands"
@@ -62,6 +62,8 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
 
+	comment "Mirror ECMD commands for output"
+	dep_bool '  Mirror ECMD commands' ECMD_MIRROR_REQUEST $ECMD_PARSER_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'ECMD' DEBUG_ECMD $DEBUG
 	dep_bool 'ECMD FS20' DEBUG_ECMD_FS20 $DEBUG

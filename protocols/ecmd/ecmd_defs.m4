@@ -38,9 +38,27 @@ block([[I2C]] (TWI)) dnl ==========================
 ecmd_ifdef(I2C_DETECT_SUPPORT)
   ecmd_feature(i2c_detect, "i2c detect",,list detected I2C Chips)
 ecmd_endif
-
+ecmd_ifdef(I2C_GENERIC_SUPPORT)
+  ecmd_feature(i2c_read_byte, "i2c rbb",ADDR,read byte from I2C chip)
+  ecmd_feature(i2c_read_byte_data, "i2c rbd",CHIPADDR DATAADDR,read byte from address at I2C chip)
+  ecmd_feature(i2c_read_word_data, "i2c rwd",CHIPADDR DATAADDR,read word from address at I2C chip)
+  ecmd_feature(i2c_write_byte, "i2c wbb",ADDR HEXVALUE,write byte to I2C chip)
+  ecmd_feature(i2c_write_byte_data, "i2c wbd",CHIPADDR DATAADDR HEXVALUE,write byte to address on I2C chip)
+  ecmd_feature(i2c_write_word_data, "i2c wwd",CHIPADDR DATAADDR HEXVALUE,write word to address on I2C chip)
+ecmd_endif
 ecmd_ifdef(I2C_LM75_SUPPORT)
   ecmd_feature(i2c_lm75, "lm75",ADDR, Get temperature)
+ecmd_endif
+ecmd_ifdef(I2C_DS1631_SUPPORT)
+  ecmd_feature(i2c_ds1631_read_temp, "ds1631 temp",ADDR, Read last converted temperature)
+  ecmd_feature(i2c_ds1631_start, "ds1631 start",ADDR, Initiate temperature conversions)
+  ecmd_feature(i2c_ds1631_stop, "ds1631 stop",ADDR, Stop temperature conversions)
+ecmd_endif
+ecmd_ifdef(I2C_TSL2550_SUPPORT)
+  ecmd_feature(i2c_tsl2550_read_lux, "tsl2550 lux",, Read ADC registers and compute light level)
+  ecmd_feature(i2c_tsl2550_pwr_up, "tsl2550 up",, Set TSL2550 to power up state)
+  ecmd_feature(i2c_tsl2550_pwr_down, "tsl2550 down",, Set TSL2550 to power down state)
+  ecmd_feature(i2c_tsl2550_mode, "tsl2550 mode",VALUE, Set TSL2550 to standard or extended mode [std|ext])
 ecmd_endif
 ecmd_ifdef(I2C_PCA9531_SUPPORT)
   ecmd_feature(i2c_pca9531, "pca9531",ADDR PERIODPWM1 DUTYPWM1 PERIODPWM2 DUTYPWM2 LED0..3 LED4..7, set PWM1 and PWM2 and LED states)
