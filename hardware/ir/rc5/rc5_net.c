@@ -32,6 +32,7 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_neighbor.h"
 #include "protocols/uip/uip_router.h"
+#include "protocols/uip/check_cache.h"
 #include "config.h"
 #include "core/debug.h"
 #include "rc5.h"
@@ -80,8 +81,10 @@ void rc5_udp_send(void) {
     if (udpconn == NULL)
         return;
 
+#ifdef ETHERNET_SUPPORT
     if (uip_check_cache(&udpconn->ripaddr))
         return;
+#endif
 
     uip_slen = 0;
     /* this code is possibly unnecessary - need to be tested
@@ -122,7 +125,7 @@ void rc5_udp_recv(void) {
     if (!uip_poll())
         return;
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
     if (udpconn && uip_check_cache(&udpconn->ripaddr))
         uip_slen = 1; /* Trigger xmit to do force ARP lookup. */
 #endif

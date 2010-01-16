@@ -29,6 +29,7 @@
 #include "core/debug.h"
 #include "protocols/uip/uip_neighbor.h"
 #include "protocols/uip/uip_router.h"
+#include "protocols/uip/check_cache.h"
 #include "syslog.h"
 #include "syslog_net.h"
 

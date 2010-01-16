@@ -26,7 +26,7 @@
 #include "core/debug.h"
 #include "syslog_net.h"
 #include "protocols/syslog/syslog.h"
-#include "protocols/uip/uip_arp.h"
+#include "protocols/uip/check_cache.h"
 
 uip_udp_conn_t *syslog_conn;
 

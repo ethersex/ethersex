@@ -65,7 +65,6 @@
 
 #include "network.h"
 #include "uip_arp.h"
-#include "uip_neighbor.h"
 #include "config.h"
 
 #include <string.h>
@@ -480,51 +479,6 @@ uip_arp_lookup (uip_ipaddr_t ipaddr)
   }
 
   return NULL;
-}
-
-/*
- *   Keep ARP/Neighbour cache up to date for ip-addr
- *   0 when cache is good
- */
-uint8_t
-uip_check_cache(uip_ipaddr_t *ripaddr) {
-#ifdef ETHERNET_SUPPORT
-    uip_ipaddr_t ipaddr;
-    uip_stack_set_active(STACK_ENC);
-
-#ifdef IPV6_SUPPORT
-
-    if (memcmp(ripaddr, uip_hostaddr, 8))
-        /* Remote address is not on the local network, use router */
-        uip_ipaddr_copy(&ipaddr, uip_draddr);
-    else
-        /* Remote address is on the local network, send directly. */
-        uip_ipaddr_copy(&ipaddr, ripaddr);
-
-    if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
-        return 1; /* Cowardly refusing to send IPv6 packet to :: */
-
-    if (uip_neighbor_lookup(ipaddr))
-        return 0;
-
-#else  /* IPV4_SUPPORT */
-
-    if (!uip_ipaddr_maskcmp(ripaddr, uip_hostaddr, uip_netmask))
-        /* Remote address is not on the local network, use router */
-        uip_ipaddr_copy(&ipaddr, uip_draddr);
-    else
-        /* Remote address is on the local network, send directly. */
-        uip_ipaddr_copy(&ipaddr, ripaddr);
-
-    /* uip_arp_lookup returns a pointer if the mac is in the arp cache */
-    if (uip_arp_lookup(ipaddr))
-        return 0;
-
-#endif /* !IPV6_SUPPORT */
-    return 1;
-#endif /* ETHERNET_SUPPORT */
-
-    return 0;
 }
 
 /*

@@ -156,22 +156,6 @@ void uip_arp_timer(void);
 
 struct arp_entry *uip_arp_lookup (uip_ipaddr_t ipaddr);
 
-/**
- * uip_check_cache, checks if the arp/neighbour cache is valid for given ip
- * address 
- *
- * bounds of available user data.
- *
- * Example:
- \code
- uip_check_cache(udp_conn->ripaddr);
- \endcode
- *
- * \hideinitializer
- */
-
-uint8_t uip_check_cache(uip_ipaddr_t *ripaddr);
-
 /** @} */
 /** @} */
 
