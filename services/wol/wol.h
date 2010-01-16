@@ -23,6 +23,6 @@
 #ifndef WOL_H
 #define WOL_H
 
-int16_t parse_cmd_wol (char *cmd, char *output, uint16_t len) 
+int16_t parse_cmd_wol (char *cmd, char *output, uint16_t len);
 
 #endif /* UDP_ECHO_NET_H */
