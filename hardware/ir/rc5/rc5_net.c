@@ -79,9 +79,7 @@ void rc5_udp_send(void) {
     if (udpconn == NULL)
         return;
 
-    uip_stack_set_active(STACK_ENC);
-
-    if (rc5_check_cache())
+    if (uip_check_cache(&udpconn->ripaddr))
         return;
 
     uip_slen = 0;
@@ -124,52 +122,11 @@ void rc5_udp_recv(void) {
         return;
 
 #ifdef ENC28J60_SUPPORT
-    if (rc5_check_cache())
+    if (uip_check_cache(udp_conn->ripaddr))
         uip_slen = 1; /* Trigger xmit to do force ARP lookup. */
 #endif
 }
 
-/*
- *  function to keep ARP cache for our peer up to date
- */
-uint8_t
-rc5_check_cache(void) {
-    uip_ipaddr_t ipaddr;
-
-#ifdef IPV6_SUPPORT
-
-    if (memcmp(udpconn->ripaddr, uip_hostaddr, 8))
-        /* Remote address is not on the local network, use router */
-        uip_ipaddr_copy(&ipaddr, uip_draddr);
-    else
-        /* Remote address is on the local network, send directly. */
-        uip_ipaddr_copy(&ipaddr, udpconn->ripaddr);
-
-    if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
-        return 1; /* Cowardly refusing to send IPv6 packet to :: */
-
-    if (uip_neighbor_lookup(ipaddr))
-        return 0;
-
-#else  /* IPV4_SUPPORT */
-
-    if (!uip_ipaddr_maskcmp(udpconn->ripaddr, uip_hostaddr, uip_netmask))
-        /* Remote address is not on the local network, use router */
-        uip_ipaddr_copy(&ipaddr, uip_draddr);
-    else
-        /* Remote address is on the local network, send directly. */
-        uip_ipaddr_copy(&ipaddr, udpconn->ripaddr);
-
-#ifdef ETHERNET_SUPPORT
-    /* uip_arp_lookup returns a pointer if the mac is in the arp cache */
-    if (uip_arp_lookup(ipaddr))
-#endif
-        return 0;
-
-#endif
-
-    return 1;
-}
 
 /*
   -- Ethersex META --
