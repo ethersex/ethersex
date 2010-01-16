@@ -1,0 +1,30 @@
+Usage of RC5 UDP function
+=========================
+
+If you enable the UDP function, you must configure your receiving server in the
+submenu. The packets are currently not direct i.e. LIRC compatible - i'm 
+working on it. They must be translated for LIRC.
+I've done a small php script, which does this job, but it's at the moment not 
+release ready. You will find it later (hope in the next days -> Jan 2010) in
+contrib/ir directory.
+
+You can choose between 2 different packet types. A binary and a simpler string 
+variant. The binary (COUNTER values in the make menu) is nearly like (yes, only 
+something like) LIRC.
+It starts and ends with 0xff sequence, then it contains the RC5 timer 
+counter values on every mark/pause change (Hi->Lo, Lo->Hi).
+It's the base for building compatibility with LIRC.
+These values needs to be converted for the LIRC UDP driver.
+
+The second one sends a simple string to the configured server.
+It's a CSV line (splitted by semicolon) with 3 values and ending newline 
+character.
+
+In example:   1;01;02
+
+The first one contains 1 or 0 which stands for the value of the RC5 toggle bit.
+The second value is the address number and the last is the command number.
+
+Both UDP packets are send to the Port 6669.
+
+If you have some questions, feel free to ask me at mario@goegel.net.
