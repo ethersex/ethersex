@@ -344,6 +344,15 @@ FNORD
     pin(S1D15G10_RESET, PA4, OUTPUT)
 FNORD
 
+  template $PSB2186_SUPPORT << FNORD
+    /* port config for ISDN PSB2186_SUPPORT */
+    /* Attention ! PORTA complete for PSB2186_SUPPORT */
+    pin(PSB2186_RD, PD7, OUTPUT)
+    pin(PSB2186_WR, PD6, OUTPUT)
+    pin(PSB2186_CS, PD5, OUTPUT)
+    pin(PSB2186_ALE, PD4, OUTPUT)
+FNORD
+
 fi
 
 ) > "pinning/hardware/$hw.m4"
