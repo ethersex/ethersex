@@ -12,10 +12,7 @@ comment "LCD Displays"
       define_bool LCD_SUPPORT y
     fi
     dep_bool "serial support" SER_LCD $HD44780_SUPPORT
-    if [ "$SER_LCD" = "y" ]; then
-    else
-        dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
-    fi
+    dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
   endmenu
 
 
