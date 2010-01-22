@@ -32,6 +32,10 @@
 #include "services/clock/clock.h"
 #include "dcf77.h"
 
+#ifdef DCF1_USE_PON_SUPPORT
+#include <util/delay.h>
+#endif
+
 volatile struct dcf77_ctx dcf;
 
 #define bcd2bin(data) (data - ((data/16) * 6))
