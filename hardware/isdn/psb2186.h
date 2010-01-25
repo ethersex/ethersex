@@ -24,7 +24,13 @@
 #ifndef PSB2186_H
 #define PSB2186_H
 
+#define CALLEE_BUF_LENGTH 10
+#define CALLER_BUF_LENGTH 15
+
+typedef uint8_t (*psb2186_callback_t)(char *callee, char *caller);
+
 void psb2186_process(void);
 void psb2186_init(void);
+
 
 #endif  /* PSB2186_H */

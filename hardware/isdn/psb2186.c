@@ -48,9 +48,11 @@ static struct {
     unsigned prefixlen	    : 3;
     uint8_t leftlen;
 
-    char caller[15];
-    char callee[10];
+    char caller[CALLER_BUF_LENGTH];
+    char callee[CALLEE_BUF_LENGTH];
 } psb2186_state;
+
+psb2186_callback_t psb2186_callback = NULL;
 
 static uint8_t
 psb2186_read(uint8_t addr)
@@ -162,6 +164,8 @@ psb2186_incoming_call(void)
     debug_printf ("incoming call: %s -> %s\n",
 	psb2186_state.caller[0] ? psb2186_state.caller : "Rufnummer unbekannt",
 	psb2186_state.callee);
+	if (psb2186_callback != NULL)
+	  psb2186_callback(&psb2186_state.callee[0], &psb2186_state.caller[0]);
 }
 
 void
