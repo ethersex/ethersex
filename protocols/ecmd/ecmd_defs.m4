@@ -67,6 +67,15 @@ ecmd_ifdef(I2C_PCF8574X_SUPPORT)
   ecmd_feature(i2c_pcf8574x_read, "pcf8574x read",ADDR CHIP, Get bits)
   ecmd_feature(i2c_pcf8574x_set, "pcf8574x set",ADDR CHIP HEXVALUE, Set bits)
 ecmd_endif
+ecmd_ifdef(I2C_MAX7311_SUPPORT)
+  ecmd_feature(i2c_max7311_setDDRw, "max7311 setDDRw", ADDR VALUE, Set Direction-Register DDR (VALUE as hex))
+  ecmd_feature(i2c_max7311_setOUTw, "max7311 setOUTw", ADDR VALUE, Set Output-Register OUT (VALUE as hex))
+  ecmd_feature(i2c_max7311_getDDRw, "max7311 getDDRw", ADDR, Get Direction-Register DDR)
+  ecmd_feature(i2c_max7311_getOUTw, "max7311 getOUTw", ADDR, Get Output-Register OUT)
+  ecmd_feature(i2c_max7311_getINw, "max7311 getINw", ADDR, Get Input-Register IN)
+  ecmd_feature(i2c_max7311_set, "max7311 set", ADDR BIT VALUE, Set Output-BIT to VALUE (bool))
+  ecmd_feature(i2c_max7311_pulse, "max7311 pulse", ADDR BIT TIME, Toggle Output-BIT for TIME (in ms))
+ecmd_endif
 
 block([[Blinkenlights_MCUF|MCUF]]) dnl ============================
 ecmd_ifdef(MCUF_SUPPORT)
