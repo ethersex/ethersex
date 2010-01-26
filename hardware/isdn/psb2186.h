@@ -27,7 +27,7 @@
 #define CALLEE_BUF_LENGTH 10
 #define CALLER_BUF_LENGTH 15
 
-typedef uint8_t (*psb2186_callback_t)(char *callee, char *caller);
+typedef void (*psb2186_callback_t)(char *callee, char *caller);
 
 void psb2186_process(void);
 void psb2186_init(void);
