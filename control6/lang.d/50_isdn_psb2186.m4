@@ -78,4 +78,37 @@ void isdn_psb2186_callback'action_thread_ident`(char *callee, char *caller) {
 
 divert(old_divert)')')
 
+define(`WAITCALL_FROM', `INTHREAD(`', `DIE(`Can use WAITCALL only in a THREAD')')ISDN_PSB2186_USED()ifelse(`$#', 1,dnl
+`waitcallfrom_psb2186_callback_callee'action_thread_ident` = NULL;
+waitcallfrom_psb2186_callback_caller'action_thread_ident` = PSTR($1);',
+`waitcallfrom_psb2186_callback_callee'action_thread_ident` = PSTR($2);
+waitcallfrom_psb2186_callback_caller'action_thread_ident` = PSTR($1);')
+`waitcallfrom_psb2186_callback_blocking'action_thread_ident` = 1;
+if(psb2186_callback != NULL)
+  waitcallfrom_psb2186_nextcallback'action_thread_ident` = psb2186_callback;
+psb2186_callback = waitcallfrom_psb2186_callback'action_thread_ident`;
+PT_WAIT_WHILE(pt, waitcallfrom_psb2186_callback_blocking'action_thread_ident` == 1);
+psb2186_callback = waitcallfrom_psb2186_nextcallback'action_thread_ident`;
+waitcallfrom_psb2186_nextcallback'action_thread_ident` = NULL;'
+ifdef(`waitcallfrom_psb2186_callback_defined'action_thread_ident, `', `
+define(`waitcallfrom_psb2186_callback_defined'action_thread_ident, 1)
+define(`old_divert', divnum)dnl
+divert(globals_divert)dnl
+uint8_t waitcallfrom_psb2186_callback_blocking'action_thread_ident`;
+char *waitcallfrom_psb2186_callback_callee'action_thread_ident`;
+char *waitcallfrom_psb2186_callback_caller'action_thread_ident`;
+
+psb2186_callback_t waitcallfrom_psb2186_nextcallback'action_thread_ident` = NULL;
+
+void waitcallfrom_psb2186_callback'action_thread_ident`(char *callee, char *caller) {
+  if(waitcallfrom_psb2186_callback_callee'action_thread_ident` == NULL || 
+    strcmp_P(callee,  waitcallfrom_psb2186_callback_callee'action_thread_ident`) == 0) {
+    if(strcmp_P(caller, waitcallfrom_psb2186_callback_caller'action_thread_ident`) == 0)
+      waitcallfrom_psb2186_callback_blocking'action_thread_ident` = 0;
+  }
+  if(waitcallfrom_psb2186_nextcallback'action_thread_ident` != NULL)
+    waitcallfrom_psb2186_nextcallback'action_thread_ident`(callee, caller);
+}')
+
+divert(old_divert)')')
 
