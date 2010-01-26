@@ -1,0 +1,5 @@
+dep_bool_menu  "ADS7822 12bit ADC" ADS7822_SUPPORT $ECMD_PARSER_SUPPORT $ARCH_AVR
+    if [ "$ADS7822_SUPPORT" = "y" ]; then
+        int "ADS7822 clock frequency (Hz)" ADS_CLOCK "100000"
+    fi
+endmenu

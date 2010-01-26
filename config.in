@@ -177,6 +177,7 @@ comment "I/O"
 	source core/tty/config.in
 	source hardware/io_expander/config.in
 	source hardware/adc/config.in
+	source hardware/adc/ads7822/config.in
 	source hardware/sms/config.in
 	source hardware/adc/kty/config.in
 	source hardware/dac/config.in
