@@ -56,12 +56,7 @@ define(`IFCALL', `ISDN_PSB2186_USED()isdn_if_call()')
 
 define(`WAITCALL', `INTHREAD(`', `DIE(`Can use WAITCALL only in a THREAD')')ISDN_PSB2186_USED()
 `isdn_psb2186_callback_blocking'action_thread_ident` = 1;
-if(psb2186_callback != NULL)
-  isdn_psb2186_nextcallback'action_thread_ident` = psb2186_callback;
-psb2186_callback = isdn_psb2186_callback'action_thread_ident`;
-PT_WAIT_WHILE(pt, isdn_psb2186_callback_blocking'action_thread_ident` == 1);
-psb2186_callback = isdn_psb2186_nextcallback'action_thread_ident`;
-isdn_psb2186_nextcallback'action_thread_ident` = NULL;'
+PT_WAIT_WHILE(pt, isdn_psb2186_callback_blocking'action_thread_ident` == 1);'
 ifdef(`isdn_psb2186_callback_defined'action_thread_ident, `', `
 define(`isdn_psb2186_callback_defined'action_thread_ident, 1)
 define(`old_divert', divnum)dnl
@@ -74,7 +69,12 @@ void isdn_psb2186_callback'action_thread_ident`(char *callee, char *caller) {
   isdn_psb2186_callback_blocking'action_thread_ident` = 0;
   if(isdn_psb2186_nextcallback'action_thread_ident` != NULL)
     isdn_psb2186_nextcallback'action_thread_ident`(callee, caller);
-}')
+}
+divert(init_divert)
+if(psb2186_callback != NULL)
+  isdn_psb2186_nextcallback'action_thread_ident` = psb2186_callback;
+psb2186_callback = isdn_psb2186_callback'action_thread_ident`;
+')
 
 divert(old_divert)')')
 
@@ -84,12 +84,7 @@ waitcallfrom_psb2186_callback_caller'action_thread_ident` = PSTR($1);',
 `waitcallfrom_psb2186_callback_callee'action_thread_ident` = PSTR($2);
 waitcallfrom_psb2186_callback_caller'action_thread_ident` = PSTR($1);')
 `waitcallfrom_psb2186_callback_blocking'action_thread_ident` = 1;
-if(psb2186_callback != NULL)
-  waitcallfrom_psb2186_nextcallback'action_thread_ident` = psb2186_callback;
-psb2186_callback = waitcallfrom_psb2186_callback'action_thread_ident`;
-PT_WAIT_WHILE(pt, waitcallfrom_psb2186_callback_blocking'action_thread_ident` == 1);
-psb2186_callback = waitcallfrom_psb2186_nextcallback'action_thread_ident`;
-waitcallfrom_psb2186_nextcallback'action_thread_ident` = NULL;'
+PT_WAIT_WHILE(pt, waitcallfrom_psb2186_callback_blocking'action_thread_ident` == 1);'
 ifdef(`waitcallfrom_psb2186_callback_defined'action_thread_ident, `', `
 define(`waitcallfrom_psb2186_callback_defined'action_thread_ident, 1)
 define(`old_divert', divnum)dnl
@@ -108,7 +103,12 @@ void waitcallfrom_psb2186_callback'action_thread_ident`(char *callee, char *call
   }
   if(waitcallfrom_psb2186_nextcallback'action_thread_ident` != NULL)
     waitcallfrom_psb2186_nextcallback'action_thread_ident`(callee, caller);
-}')
+}
+divert(init_divert)
+if(psb2186_callback != NULL)
+  waitcallfrom_psb2186_nextcallback'action_thread_ident` = psb2186_callback;
+psb2186_callback = waitcallfrom_psb2186_callback'action_thread_ident`;
+')
 
 divert(old_divert)')')
 
