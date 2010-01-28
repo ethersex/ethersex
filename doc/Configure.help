@@ -643,6 +643,8 @@ USB_NET_SUPPORT
   You need to use the userspace-space client available 
   from contrib/usb_net
 
+  See also http://ethersex.de/index.php/USB#usbnet
+
 USBnet ARP-Proxy
 USB_ARP_PROXY
   Depends on: 
@@ -906,6 +908,7 @@ ECMD_TCP_SUPPORT
 
   Add TCP Telnet like ECMD support.
   See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_TCP
 
 UDP interface
 ECMD_UDP_SUPPORT
@@ -916,6 +919,7 @@ ECMD_UDP_SUPPORT
 
   Add UDP ECMD support. 
   See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_UDP
 
 I2C interface
 ECMD_SERIAL_I2C_SUPPORT
@@ -934,7 +938,12 @@ ECMD_USB_SUPPORT
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
 
   Enable ECMD via USB Interface
+  You should set
+  "Network  ---> USB (Softwarestack) Support  ---> USB Device Type"
+  to "other".
   See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_USB and
+  http://ethersex.de/index.php/USB#ECMD_via_USB
 
 Send ECMD messages
 ECMD_SENDER_SUPPORT
@@ -1913,7 +1922,7 @@ ECMD (Etherrape Control Interface) support
 ECMD_PARSER_SUPPORT
   Depends on: 
 
-  Ethersex COMand = ECMD is a kind of i/o interface.
+  Ethersex COmanD = ECMD is a kind of i/o interface.
   More details at http://ethersex.de/index.php/ECMD
 
 IRC (EXPERIMENTAL)
@@ -1982,3 +1991,4 @@ JABBER_VERSION_SUPPORT
 
   Enables to send version details of the ethersex jabber client.
   Change the values if you need to.
+
