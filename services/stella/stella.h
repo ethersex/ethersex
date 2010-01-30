@@ -98,7 +98,7 @@ extern struct stella_timetable_struct* cal_table;
 extern volatile enum stella_update_sync stella_sync;
 extern volatile uint8_t stella_fade_counter;
 
-extern uint8_t stella_portmask_neg[STELLA_PORT_COUNT];
+extern uint8_t stella_portmask[STELLA_PORT_COUNT];
 extern uint8_t stella_fade_step;
 extern uint8_t stella_fade_func;
 
