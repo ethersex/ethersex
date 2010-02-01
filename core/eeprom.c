@@ -89,8 +89,10 @@ eeprom_init (void)
 #if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
     set_CONF_ETHERRAPE_IP(&ip);
     eeprom_save(ip, &ip, IPADDR_LEN);
+#ifdef ETHERNET_SUPPORT
     set_CONF_ETHERRAPE_GATEWAY(&ip);
     eeprom_save(gateway, &ip, IPADDR_LEN);
+#endif
 
 #ifdef IPV4_SUPPORT
     set_CONF_ETHERRAPE_IP4_NETMASK(&ip);
