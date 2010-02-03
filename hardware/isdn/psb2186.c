@@ -37,7 +37,7 @@
 #define PSB2186_STCR 0x37
 #define PSB2186_CMDR 0x21
 
-#define nop()	asm("nop"); asm("nop"); asm("nop");
+#define nop()	asm("nop"); asm("nop"); asm("nop");asm("nop"); asm("nop");
 
 static struct {
     unsigned initialized    : 1;
