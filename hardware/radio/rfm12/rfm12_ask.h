@@ -24,7 +24,9 @@
 #ifndef __RFM12_ASK_H
 #define __RFM12_ASK_H
 
+enum ASK_TYPE {T_2272, T_1527, T_TEVION};
 void rfm12_ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
+void rfm12_ask_2272_1527_switch(uint8_t);
 void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_external_filter_init(void);
 void rfm12_ask_external_filter_deinit(void);

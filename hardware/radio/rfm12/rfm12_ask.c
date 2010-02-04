@@ -33,7 +33,29 @@
 
 void rfm12_ask_trigger(uint8_t , uint16_t);
 
+uint8_t ask_2272_1527_pulse_duty_factor[4]={13,5,7,11};
+
 #ifdef RFM12_ASK_SENDER_SUPPORT
+
+void
+rfm12_ask_2272_1527_switch(uint8_t ask_type)
+{
+  if (ask_type == T_2272)
+  {
+    ask_2272_1527_pulse_duty_factor[0]=13;
+    ask_2272_1527_pulse_duty_factor[1]=5;
+    ask_2272_1527_pulse_duty_factor[2]=7;
+    ask_2272_1527_pulse_duty_factor[3]=11;
+  } else if (ask_type == T_1527)
+  {
+    ask_2272_1527_pulse_duty_factor[0]=9;
+    ask_2272_1527_pulse_duty_factor[1]=3;
+    ask_2272_1527_pulse_duty_factor[2]=3;
+    ask_2272_1527_pulse_duty_factor[3]=9;
+  }
+}
+
+
 void
 rfm12_ask_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
 {
@@ -49,11 +71,11 @@ rfm12_ask_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt
   for (uint8_t i=0;i<cnt;i++)
   {
     if (byte & (1<<(cnt-i-1))) {
-      code[append+(i*2)]=13;
-      code[append+(i*2)+1]=5;
+      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[0];
+      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[1];
     } else {
-      code[append+(i*2)]=7;
-      code[append+(i*2)+1]=11;
+      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[2];
+      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[3];
     }
   }
 }
@@ -90,7 +112,7 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uin
 }
 #endif /* RFM12_ASK_TEVION_SUPPORT */
 
-#ifdef RFM12_ASK_2272_SUPPORT
+#if defined RFM12_ASK_2272_SUPPORT || defined RFM12_ASK_1527_SUPPORT
 void
 rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
 {

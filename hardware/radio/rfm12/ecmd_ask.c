@@ -68,10 +68,31 @@ parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
+  rfm12_ask_2272_1527_switch(T_2272);
   rfm12_ask_2272_send(command, delay, cnt);
   return ECMD_FINAL_OK;
 }
 #endif // RFM12_ASK_2272_SUPPORT
+
+#ifdef RFM12_ASK_1527_SUPPORT
+int16_t
+parse_cmd_rfm12_ask_1527_send(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t command[3];
+  uint8_t delay = 74;
+  uint8_t cnt = 10;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%hhu,%hhu,%hhu %hhu %hhu"),&(command[0]), &(command[1]), &(command[2]), &delay, &cnt);
+  if (ret < 3)
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_ask_2272_1527_switch(T_1527);
+  rfm12_ask_2272_send(command, delay, cnt);
+  return ECMD_FINAL_OK;
+}
+#endif // RFM12_ASK_1527_SUPPORT
 
 #endif  /* RFM12_ASK_SENDER_SUPPORT */
 
