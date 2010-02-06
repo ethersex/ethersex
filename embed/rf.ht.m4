@@ -19,6 +19,12 @@ function ecmd_set_rf2(type, code, cmd, delay, repeat) {
 	ArrAjax.ecmd(url);
 }
 }})
+ifdef({{conf_RFM12_ASK_1527}}, {{
+function ecmd_set_rf3(type, code, delay, repeat) {
+	var url = 'rfm12+' + type + '+' + code + '+' + delay + '+' + repeat;
+	ArrAjax.ecmd(url);
+}
+}})
 </script>
 </head>
 <body>
@@ -38,11 +44,22 @@ ifdef({{conf_RFM12_ASK_TEVION}}, {{
 <h2>Tevion</h2>
 <table width="50%">
 <tr><th>Switch</th><th colspan="3">Command</th></tr>
-<tr><td>1</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','85,85',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','86,86',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','85,153',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','86,154',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','86,86',99,100)">LERN</a></td></tr>
-<tr><td>2</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','149,89',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','150,90',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','149,149',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','150,150',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','150,90',99,100)">LERN</a></td></tr>
-<tr><td>3</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','165,90',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','166,89',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','165,150',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','166,149',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','166,89',99,100)">LERN</a></td></tr>
-<tr><td>4</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','101,86',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','102,85',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','101,154',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','102,153',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','102,85',99,100)">LERN</a></td></tr>
+<tr><td>1</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','85,85',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','86,86',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','85,153',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','86,154',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','86,86',99,100)">LEARN</a></td></tr>
+<tr><td>2</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','149,89',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','150,90',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','149,149',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','150,150',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','150,90',99,100)">LEARN</a></td></tr>
+<tr><td>3</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','165,90',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','166,89',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','165,150',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','166,149',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','166,89',99,100)">LEARN</a></td></tr>
+<tr><td>4</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','101,86',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','102,85',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','101,154',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','102,153',99,1)">DOWN</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','102,85',99,100)">LEARN</a></td></tr>
 <tr><td>all</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','169,86',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','170,85',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','169,154',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','170,153',99,1)">DOWN</a></td><td></td></tr>
+</table>
+}})
+ifdef({{conf_RFM12_ASK_1527}}, {{
+<h2>1527</h2>
+<table width="50%">
+<tr><th>Switch</th><th colspan="4">Command</th></tr>
+<tr><td>1</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,87',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,95',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,95',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,87',76,45)">DOWN</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,95',76,100)">LEARN</a></td></tr>
+<tr><td>2</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,83',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,91',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,91',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,83',76,45)">DOWN</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,91',76,100)">LEARN</a></td></tr>
+<tr><td>3</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,85',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,93',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,93',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,85',76,45)">DOWN</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,93',76,100)">LEARN</a></td></tr>
+<tr><td>4</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,86',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,94',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,94',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,86',76,45)">DOWN</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,94',76,100)">LEARN</a></td></tr>
+<tr><td>all</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,88',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,80',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,80',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,88',76,45)">DOWN</a></td></tr>
 </table>
 }})
 <br>
