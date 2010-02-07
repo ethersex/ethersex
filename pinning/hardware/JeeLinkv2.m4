@@ -1,10 +1,4 @@
-ifdef(`conf_STATUSLED_TX', `dnl
-pin(STATUSLED_TX, PB1, OUTPUT)
-')dnl
-
-ifdef(`conf_STATUSLED_RX', `dnl
-pin(STATUSLED_RX, PB1, OUTPUT)
-')dnl
+pin(STATUSLED_HB_ACT, PB1, OUTPUT)
 
 ifdef(`conf_RFM12', `dnl
     /* port the rfm12 module CS is attached to */
