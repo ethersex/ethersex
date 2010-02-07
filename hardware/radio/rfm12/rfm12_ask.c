@@ -27,6 +27,7 @@
 #include <avr/wdt.h>
 
 #include "config.h"
+#include "core/heartbeat.h"
 
 #include "rfm12.h"
 #include "rfm12_ask.h"
