@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "core/spi.h"
+#include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"
@@ -95,6 +96,7 @@ ISR(RFM12_vect)	    /* PCINT */
 #ifdef RFM12_RX_PIN
 	  PIN_SET(STATUSLED_RX);
 #endif
+	  ACTIVITY_LED_RFM12_RX;
 	}
       else
 	{
@@ -480,6 +482,8 @@ rfm12_txstart_hard (void)
 #ifdef RFM12_TX_PIN
   PIN_SET(STATUSLED_TX);
 #endif
+
+  ACTIVITY_LED_RFM12_TX;
 
   rfm12_index = 0;
 

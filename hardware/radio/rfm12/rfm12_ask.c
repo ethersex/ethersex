@@ -149,6 +149,7 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
 		#ifdef RFM12_TX_PIN
 		PIN_SET(STATUSLED_TX);
 		#endif
+		ACTIVITY_LED_RFM12_TX;
     for(;us>0;us--)
       _delay_us(1);
   }

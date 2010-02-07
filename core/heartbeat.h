@@ -27,4 +27,17 @@
 void heartbeat_init(void);
 void heartbeat_periodic(void);
 
+#ifdef STATUSLED_RFM12_TX_ACT_SUPPORT
+    #define ACTIVITY_LED_RFM12_TX PIN_TOGGLE(STATUSLED_HB_ACT)
+#else
+    #define ACTIVITY_LED_RFM12_TX do { } while(0)
+#endif
+
+#ifdef STATUSLED_RFM12_RX_ACT_SUPPORT
+    #define ACTIVITY_LED_RFM12_RX PIN_TOGGLE(STATUSLED_HB_ACT)
+#else
+    #define ACTIVITY_LED_RFM12_RX do { } while(0)
+#endif
+
+
 #endif
