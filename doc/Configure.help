@@ -1870,6 +1870,8 @@ HTTPLOG_SUPPORT
    * TCP protocol support (TCP_SUPPORT)
    * DNS protocol (DNS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+  and in case you want to include unix time stamps:
+   * Date and Time support (CLOCK_DATETIME_SUPPORT)
 
 Valid values for httplog are:
   Service: <domain of server you want to log to>, e.g. "volkszaehler.org"

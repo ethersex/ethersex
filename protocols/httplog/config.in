@@ -1,4 +1,4 @@
-dep_bool_menu "httplog client (EXPERIMENTAL)" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "httplog client (EXPERIMENTAL)" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CLOCK_DATETIME_SUPPORT $CONFIG_EXPERIMENTAL
   string "Service" CONF_HTTPLOG_SERVICE "volkszaehler.org"
   string "Path" CONF_HTTPLOG_PATH "/httplog/httplog.php"
 	bool "Include unix timstamp" CONF_HTTPLOG_INCLUDE_TIMESTAMP
