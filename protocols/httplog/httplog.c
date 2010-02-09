@@ -53,7 +53,7 @@ static const char PROGMEM uuid_string[] =
 	"uuid=" CONF_HTTPLOG_UUID "&";
 #endif
 // the - optional - unix time stamp
-#ifdef CONF_HTTPLOG_INCLUDE_UUID
+#ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
 static const char PROGMEM time_string[] =
 	"time=";
 #endif
