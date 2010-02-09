@@ -1877,7 +1877,7 @@ Valid values for httplog are:
   Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
   Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
 
-A uuid (in the form of 123456789ABC-DEF0-1234-5678-90ABCDEF) can be "randomly" generated here also
+A uuid (in the form of 12345678-9ABC-DEF0-1234-567890ABCDEF) can be "randomly" generated here also
 
 Include unix timestamp
 CONF_HTTPLOG_INCLUDE_TIMESTAMP
