@@ -3,7 +3,7 @@ dep_bool_menu "httplog client (EXPERIMENTAL)" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_
   string "Path" CONF_HTTPLOG_PATH "/httplog/httplog.php"
 	bool "Include unix timstamp" CONF_HTTPLOG_INCLUDE_TIMESTAMP
 	bool "Include uuid" CONF_HTTPLOG_INCLUDE_UUID
-      string "UUID" CONF_HTTPLOG_UUID "123456789012-1234-1234-1234-1234-12345678" $CONF_HTTPLOG_INCLUDE_UUID
+      string "UUID" CONF_HTTPLOG_UUID "123456789ABC-DEF0-1234-5678-9ABCDEF0" $CONF_HTTPLOG_INCLUDE_UUID
 	script_set "  Randomize UUID" RANDOM_UUIDC "scripts/random_uuid CONF_HTTPLOG_UUID"
         comment  "Debugging Flags"
         dep_bool 'HTTPLOG' DEBUG_HTTPLOG $DEBUG $HTTPLOG_SUPPORT
