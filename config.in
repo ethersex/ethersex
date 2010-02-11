@@ -177,7 +177,6 @@ comment "I/O"
 	source core/tty/config.in
 	source hardware/io_expander/config.in
 	source hardware/adc/config.in
-	source hardware/adc/ads7822/config.in
 	source hardware/sms/config.in
 	source hardware/adc/kty/config.in
 	source hardware/dac/config.in
@@ -206,6 +205,7 @@ comment "Protocols"
 source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
+source protocols/httplog/config.in
 source protocols/irc/config.in
 source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
@@ -222,7 +222,7 @@ source protocols/yport/config.in
 source protocols/msr1/config.in
 source protocols/to1/config.in
 source protocols/nmea/config.in
-source protocols/udpstella/config.in
+source protocols/udpStella/config.in
 source protocols/udpIO/config.in
 source protocols/udpcurtain/config.in
 endmenu

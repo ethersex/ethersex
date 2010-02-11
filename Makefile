@@ -64,6 +64,7 @@ SUBDIRS += protocols/ecmd/via_udp
 SUBDIRS += protocols/ecmd/via_usart
 SUBDIRS += protocols/irc
 SUBDIRS += protocols/soap
+SUBDIRS += protocols/httplog
 SUBDIRS += protocols/twitter
 SUBDIRS += protocols/netstat
 SUBDIRS += protocols/to1

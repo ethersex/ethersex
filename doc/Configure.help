@@ -1864,6 +1864,33 @@ APP_SAMPLE_SUPPORT
     Also this function will be called by ECMD "sample_periodic",
   Function "app_sample_onrequest" will be execured by ECMD command "sample"
 
+httplog client (EXPERIMENTAL)
+HTTPLOG_SUPPORT
+  Depends on:
+   * TCP protocol support (TCP_SUPPORT)
+   * DNS protocol (DNS_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+  and in case you want to include unix time stamps:
+   * Date and Time support (CLOCK_DATETIME_SUPPORT)
+
+Valid values for httplog are:
+  Service: <domain of server you want to log to>, e.g. "volkszaehler.org"
+  Path: <path of script you want to log to>, e.g. "/httplog/httplog.php"
+  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+
+A uuid (in the form of 12345678-9ABC-DEF0-1234-567890ABCDEF) can be "randomly" generated here also
+
+Include unix timestamp
+CONF_HTTPLOG_INCLUDE_TIMESTAMP
+
+  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+
+Include uuid
+CONF_HTTPLOG_INCLUDE_UUID
+
+  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+
 Twitter/identi.ca client (EXPERIMENTAL)
 TWITTER_SUPPORT
   Depends on: 
