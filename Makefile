@@ -68,6 +68,7 @@ SUBDIRS += protocols/httplog
 SUBDIRS += protocols/twitter
 SUBDIRS += protocols/netstat
 SUBDIRS += protocols/to1
+SUBDIRS += protocols/serial_line_log
 SUBDIRS += protocols/msr1
 SUBDIRS += protocols/nmea
 SUBDIRS += protocols/udpIO
