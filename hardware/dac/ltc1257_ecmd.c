@@ -45,12 +45,29 @@ int16_t parse_cmd_ltc1257_delay(char *cmd, char *output, uint16_t len)
 	if(sscanf_P(cmd, PSTR("%u"), &delay) == 1)
 	{
 		/* set delay */
+
+		/* disable interrupts */
+		uint8_t sreg = SREG;
+		cli();
+
 		ltc1257_delay_set(&delay);
+
+		/* re-enable interrupts */
+		SREG = sreg;
 	}
 	else
 	{
 		/* return delay */
+
+		/* disable interrupts */
+		uint8_t sreg = SREG;
+		cli();
+
 		ltc1257_delay_get(&delay);
+
+		/* re-enable interrupts */
+		SREG = sreg;
+
 		slen = sprintf_P(output, PSTR("%u"), delay);
 	}
 	
@@ -87,7 +104,14 @@ int16_t parse_cmd_ltc1257_init(char *cmd, char *output, uint16_t len)
 	if(*cmd != '\0')
 		return ECMD_ERR_PARSE_ERROR;
 
+	/* disable interrupts */
+	uint8_t sreg = SREG;
+	cli();
+
 	ltc1257_init();
+
+	/* re-enable interrupts */
+	SREG = sreg;
 
 #ifdef DEBUG_LTC1257
 #ifdef DEBUG
@@ -164,7 +188,14 @@ int16_t parse_cmd_ltc1257_set(char *cmd, char *output, uint16_t len)
 #endif
 #endif
 
+	/* disable interrupts */
+	uint8_t sreg = SREG;
+	cli();
+
 	ltc1257_set(value, num_values);
+
+	/* re-enable interrupts */
+	SREG = sreg;
 
 #ifdef DEBUG_LTC1257
 #ifdef DEBUG
