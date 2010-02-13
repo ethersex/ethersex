@@ -21,7 +21,11 @@
 #define _LTC1257_H
 
 /* how many DACs can be adressed (not hardware but memory limitation) */
-#define LTC1257_MAX_NUM_VALUES 4
+#ifdef CONF_LTC1257_NUM_DEVICES
+	#define LTC1257_MAX_NUM_VALUES CONF_LTC1257_NUM_DEVICES
+#else
+	#define LTC1257_MAX_NUM_VALUES 4
+#endif
 
 
 /* Debugging */
