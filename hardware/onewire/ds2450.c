@@ -23,7 +23,6 @@
 #include <util/delay.h>
 
 #include "config.h"
-#include "core/debug.h"
 #include "core/eeprom.h"
 
 #include "ds2450.h"
@@ -50,32 +49,24 @@ int8_t noinline ow_match_skip_rom(struct ow_rom_code_t *rom)
 
 	if(rom == NULL)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_match_skip_rom: rom == NULL, using skip command.\n");
-#endif
+		DS2450_CORE_DEBUG("ow_match_skip_rom: rom == NULL, using skip command.\n");
 		ret = ow_skip_rom();
 	}
 	else
 	{
 		if(!ow_ds2450_sensor(rom))
 		{
-#ifdef DEBUG_OW_DS2450_CORE
-			debug_printf("DS2450: ow_match_skip_rom: family code mismatch!\n");
-#endif
+			DS2450_CORE_DEBUG("ow_match_skip_rom: family code mismatch!\n");
 			ret = -3;
 		}
 		else
 		{
-#ifdef DEBUG_OW_DS2450_CORE
-			debug_printf("DS2450: ow_match_skip_rom: rom != NULL, using match command.\n");
-#endif
+			DS2450_CORE_DEBUG("ow_match_skip_rom: rom != NULL, using match command.\n");
 			ret = ow_match_rom(rom);
 		}
 	}
 
-#ifdef DEBUG_OW_DS2450_CORE
-	debug_printf("DS2450: ow_match_skip_rom: returning: %i.\n", ret);
-#endif
+	DS2450_CORE_DEBUG("ow_match_skip_rom: returning: %i.\n", ret);
 
 	return ret;
 }
@@ -101,9 +92,7 @@ void noinline ow_crc16_seed(uint8_t *b, uint8_t len, uint16_t *seed)
 
 	for (i = 0; i < len; ++i)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_crc16_seed: byte: %02x, CRC16 starting seed: %04x\n", b[i], *seed);
-#endif
+		DS2450_CORE_DEBUG("ow_crc16_seed: byte: %02x, CRC16 starting seed: %04x\n", b[i], *seed);
 		*seed ^= b[i];
 		for (j = 0; j < 8; ++j)
 		{
@@ -112,9 +101,7 @@ void noinline ow_crc16_seed(uint8_t *b, uint8_t len, uint16_t *seed)
 			else
 				*seed = (*seed >> 1);
 		}
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450:\tCRC16 ending seed: %04x.\n", *seed);
-#endif
+		DS2450_CORE_DEBUG("DS2450:\tCRC16 ending seed: %04x.\n", *seed);
 	}
 }
 
@@ -125,17 +112,13 @@ int8_t noinline ow_crc16_check(uint16_t *seed)
 	if(*seed == 0xB001)
 	{
 		/* good */
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_crc16_check: CRC16 good!\n");
-#endif
+		DS2450_CORE_DEBUG("ow_crc16_check: CRC16 good!\n");
 		return 0;
 	}
 	else
 	{
 		/* bad */
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_crc16_check: CRC16 bad!\n");
-#endif
+		DS2450_CORE_DEBUG("ow_crc16_check: CRC16 bad!\n");
 		return -1;
 	}
 }
@@ -143,9 +126,7 @@ int8_t noinline ow_crc16_check(uint16_t *seed)
 /* calculates CRC16 after eating all data bytes */
 uint16_t noinline ow_crc16_calc(uint16_t *seed)
 {
-#ifdef DEBUG_OW_DS2450_CORE
-	debug_printf("DS2450: ow_crc16_calc: CRC16 seed: %04x, CRC16 seed complement: %04x.\n", *seed, ~(*seed));
-#endif
+	DS2450_CORE_DEBUG("ow_crc16_calc: CRC16 seed: %04x, CRC16 seed complement: %04x.\n", *seed, ~(*seed));
 	return ~(*seed);
 }
 
@@ -161,15 +142,11 @@ uint8_t noinline ow_ds2450_sensor(struct ow_rom_code_t *rom)
 {
 	if(rom->family == OW_DS2450_FAMILY)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_sensor: family code matched.\n");
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_sensor: family code matched.\n");
 		return 1;
 	}
 
-#ifdef DEBUG_OW_DS2450_CORE
-	debug_printf("DS2450: ow_ds2450_sensor: family code (%02x) mismatch.\n", rom->family);
-#endif
+	DS2450_CORE_DEBUG("ow_ds2450_sensor: family code (%02x) mismatch.\n", rom->family);
 
 	return 0;
 }
@@ -420,22 +397,16 @@ int8_t ow_ds2450_power_get(struct ow_rom_code_t *rom)
 	/* check returned memory page data */
 	if(b == OW_DS2450_VCC_POWERED_ON)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_power_get: VCC power: ON\n");
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_power_get: VCC power: ON\n");
 		return 1;
 	}
 	else if(b == OW_DS2450_VCC_POWERED_OFF)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_power_get: VCC power: OFF\n");
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_power_get: VCC power: OFF\n");
 		return 0;
 	}
 
-#ifdef DEBUG_OW_DS2450_CORE
-	debug_printf("DS2450: ow_ds2450_power_get: VCC power: unknown value: %02x!\n", b);
-#endif
+	DS2450_CORE_DEBUG("ow_ds2450_power_get: VCC power: unknown value: %02x!\n", b);
 	return -2;
 }
 
@@ -485,9 +456,7 @@ int8_t ow_ds2450_convert(struct ow_rom_code_t *rom, uint8_t input_select, uint8_
 	/* check CRC16 */
 	if(ow_crc16_check(&seed) < 0)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_convert: CRC16 invalid!\n");
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_convert: CRC16 invalid!\n");
 		return -2;
 	}
 
@@ -519,9 +488,7 @@ int8_t ow_ds2450_get(struct ow_rom_code_t *rom, uint8_t channel_start, uint8_t c
 	/* check if malloc did fine */
 	if(!b)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_get: malloc did not return memory pointer!\n");
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_get: malloc did not return memory pointer!\n");
 		return -4;
 	}
 #endif
@@ -536,9 +503,7 @@ int8_t ow_ds2450_get(struct ow_rom_code_t *rom, uint8_t channel_start, uint8_t c
 		/* transform two 8 bit values (LSB and MSB) to one 16 bit value */
 		res[i] = (b[(2 * i) + 1]<<8) + b[(2 * i) + 0];
 
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_get: channel %c: LSB: %02x, MSB: %02x, res: %04x.\n", (unsigned char) i+65, b[(2 * i) + 0], b[(2 * i) + 1], res[i]);
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_get: channel %c: LSB: %02x, MSB: %02x, res: %04x.\n", (unsigned char) i+65, b[(2 * i) + 0], b[(2 * i) + 1], res[i]);
 	}
 
 	return num_channels;
@@ -573,9 +538,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 		return ret;
 	}
 
-#ifdef DEBUG_OW_DS2450_CORE
-	debug_printf("DS2450: ow_ds2450_mempage_read: memory page starting addr: %02x, bytes remaining: %i, len: %i.\n", mempage, bytes_remaining, len);
-#endif
+	DS2450_CORE_DEBUG("ow_ds2450_mempage_read: memory page starting addr: %02x, bytes remaining: %i, len: %i.\n", mempage, bytes_remaining, len);
 
 	ow_write_byte(OW_DS2450_READ_MEMORY);
 	ow_crc16_seed_bytewise(OW_DS2450_READ_MEMORY, &seed);
@@ -593,9 +556,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 			/* still reading data that should be collected */
 			mem[i] = ow_read_byte();
 
-#ifdef DEBUG_OW_DS2450_CORE
-			debug_printf("DS2450: ow_ds2450_mempage_read: addr: %02x, val: %02x.\n", mempage + i , mem[i]);
-#endif
+			DS2450_CORE_DEBUG("ow_ds2450_mempage_read: addr: %02x, val: %02x.\n", mempage + i , mem[i]);
 
 			/* feeding value to CRC16 calculation */
 			ow_crc16_seed_bytewise(mem[i], &seed);
@@ -613,9 +574,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 			ow_crc16_seed_bytewise(ow_read_byte(), &seed);
 #endif
 
-#ifdef DEBUG_OW_DS2450_CORE
-			debug_printf("DS2450: ow_ds2450_mempage_read: addr: %02x, val: %02x (dropped).\n", mempage + i , b);
-#endif
+			DS2450_CORE_DEBUG("ow_ds2450_mempage_read: addr: %02x, val: %02x (dropped).\n", mempage + i , b);
 		}
 	}
 
@@ -626,9 +585,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 	/* check CRC16 */
 	if(ow_crc16_check(&seed) < 0)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_mempage_read: CRC16 invalid!\n");
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_mempage_read: CRC16 invalid!\n");
 		return -2;
 	}
 
@@ -663,9 +620,7 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 		return ret;
 	}
 
-#ifdef DEBUG_OW_DS2450_CORE
-	debug_printf("DS2450: ow_ds2450_mempage_write: memory page starting addr: %02x, bytes remaining: %i, len: %i.\n", mempage, bytes_remaining, len);
-#endif
+	DS2450_CORE_DEBUG("ow_ds2450_mempage_write: memory page starting addr: %02x, bytes remaining: %i, len: %i.\n", mempage, bytes_remaining, len);
 
 	ow_write_byte(OW_DS2450_WRITE_MEMORY);
 	ow_crc16_seed_bytewise(OW_DS2450_WRITE_MEMORY, &seed);
@@ -678,9 +633,7 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 	ret = 0;
 	for(uint8_t i = 0; i < len; ++i)
 	{
-#ifdef DEBUG_OW_DS2450_CORE
-		debug_printf("DS2450: ow_ds2450_mempage_write: addr: %02x, val: %02x.\n", mempage + i , mem[i]);
-#endif
+		DS2450_CORE_DEBUG("ow_ds2450_mempage_write: addr: %02x, val: %02x.\n", mempage + i , mem[i]);
 
 		ow_write_byte(mem[i]);
 
@@ -702,9 +655,7 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 		/* check CRC16 */
 		if(ow_crc16_check(&seed) < 0)
 		{
-#ifdef DEBUG_OW_DS2450_CORE
-			debug_printf("DS2450: ow_ds2450_mempage_write: CRC16 invalid!\n");
-#endif
+			DS2450_CORE_DEBUG("ow_ds2450_mempage_write: CRC16 invalid!\n");
 			return -2;
 		}
 
@@ -716,9 +667,7 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 		if(ow_read_byte() != mem[i])
 #endif
 		{
-#ifdef DEBUG_OW_DS2450_CORE
-			debug_printf("DS2450: ow_ds2450_mempage_write: read-back verification failed: wrote: %02x, read-back: %02x!\n", mem[i], b);
-#endif
+			DS2450_CORE_DEBUG("ow_ds2450_mempage_write: read-back verification failed: wrote: %02x, read-back: %02x!\n", mem[i], b);
 			return -2;
 		}
 

@@ -22,6 +22,26 @@
 
 #include "onewire.h"
 
+// XXX
+#define noinline __attribute__((noinline))
+
+
+/* Debugging */
+#ifdef DEBUG_OW_DS2450_CORE
+	#include "core/debug.h"
+	#define DS2450_CORE_DEBUG(a...) debug_printf("DS2450: " a)
+#else
+	#define DS2450_CORE_DEBUG(a...)
+#endif
+
+#ifdef DEBUG_OW_DS2450_ECMD
+	#include "core/debug.h"
+	#define DS2450_ECMD_DEBUG(a...) debug_printf("DS2450: " a)
+#else
+	#define DS2450_ECMD_DEBUG(a...)
+#endif
+
+
 /* 1wire family definition for DS2450 */
 #define OW_DS2450_FAMILY 0x20
 
