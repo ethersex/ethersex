@@ -17,9 +17,12 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <avr/pgmspace.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include "config.h"
-#include "core/debug.h"
 #include "protocols/ecmd/ecmd-base.h"
 #include "protocols/syslog/syslog.h"
 
@@ -30,15 +33,7 @@ int16_t parse_cmd_ltc1257_delay(char *cmd, char *output, uint16_t len)
 	uint16_t delay;
 	uint8_t slen = 0;
 
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257_delay begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: parse_cmd_ltc1257_delay begin.\n");
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("parse_cmd_ltc1257_delay begin.\n");
 
 	while(*cmd == ' ') cmd++;
 
@@ -71,15 +66,7 @@ int16_t parse_cmd_ltc1257_delay(char *cmd, char *output, uint16_t len)
 		slen = sprintf_P(output, PSTR("%u"), delay);
 	}
 	
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257_delay end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: parse_cmd_ltc1257_delay end.\n");
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("parse_cmd_ltc1257_delay end.\n");
 
 	if(slen)
 		return ECMD_FINAL(slen);
@@ -89,15 +76,7 @@ int16_t parse_cmd_ltc1257_delay(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_ltc1257_init(char *cmd, char *output, uint16_t len)
 {
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257_init begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: parse_cmd_ltc1257_init begin.\n");
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("parse_cmd_ltc1257_init begin.\n");
 
 	while(*cmd == ' ') cmd++;
 
@@ -113,15 +92,7 @@ int16_t parse_cmd_ltc1257_init(char *cmd, char *output, uint16_t len)
 	/* re-enable interrupts */
 	SREG = sreg;
 
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257_init end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: parse_cmd_ltc1257_init end.\n");
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("parse_cmd_ltc1257_init end.\n");
 
 	return ECMD_FINAL_OK;
 }
@@ -134,15 +105,7 @@ int16_t parse_cmd_ltc1257_set(char *cmd, char *output, uint16_t len)
 	char tmp[6];
 	uint8_t tmplen;
 
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257 begin.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: parse_cmd_ltc1257 begin.\n");
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("parse_cmd_ltc1257 begin.\n");
 
 	for(num_values = 0; *cmd; ++num_values)
 	{
@@ -164,29 +127,13 @@ int16_t parse_cmd_ltc1257_set(char *cmd, char *output, uint16_t len)
 
 		cmd += tmplen;
 
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-		debug_printf("LTC1257: ecmd parsed argument %u, value %u.\n", num_values, *value[num_values]);
-#endif
-#ifdef SYSLOG_SUPPORT
-		syslog_sendf("LTC1257: ecmd parsed argument %u, value %u.\n", num_values, *value[num_values]);
-		syslog_flush();
-#endif
-#endif
+		LTC1257_ECMD_DEBUG("ecmd parsed argument %u, value %u.\n", num_values, *value[num_values]);
 	}
 
 	if(num_values == 0)
 		return ECMD_ERR_PARSE_ERROR;
 
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: ecmd parsed %u arguments.\n", num_values);
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: ecmd parsed %u arguments.\n", num_values);
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("ecmd parsed %u arguments.\n", num_values);
 
 	/* disable interrupts */
 	uint8_t sreg = SREG;
@@ -197,15 +144,7 @@ int16_t parse_cmd_ltc1257_set(char *cmd, char *output, uint16_t len)
 	/* re-enable interrupts */
 	SREG = sreg;
 
-#ifdef DEBUG_LTC1257
-#ifdef DEBUG
-	debug_printf("LTC1257: parse_cmd_ltc1257 end.\n");
-#endif
-#ifdef SYSLOG_SUPPORT
-	syslog_sendf("LTC1257: parse_cmd_ltc1257 end.\n");
-	syslog_flush();
-#endif
-#endif
+	LTC1257_ECMD_DEBUG("parse_cmd_ltc1257 end.\n");
 
 	return ECMD_FINAL_OK;
 }

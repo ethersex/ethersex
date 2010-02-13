@@ -23,6 +23,23 @@
 /* how many DACs can be adressed (not hardware but memory limitation) */
 #define LTC1257_MAX_NUM_VALUES 4
 
+
+/* Debugging */
+#ifdef DEBUG_LTC1257_CORE
+	#include "core/debug.h"
+	#define LTC1257_CORE_DEBUG(a...) debug_printf("LTC1257: " a)
+#else
+	#define LTC1257_CORE_DEBUG(a...)
+#endif
+
+#ifdef DEBUG_LTC1257_ECMD
+	#include "core/debug.h"
+	#define LTC1257_ECMD_DEBUG(a...) debug_printf("LTC1257: " a)
+#else
+	#define LTC1257_ECMD_DEBUG(a...)
+#endif
+
+
 void ltc1257_delay_get(uint16_t *d);
 void ltc1257_delay_set(uint16_t *d);
 void ltc1257_init();

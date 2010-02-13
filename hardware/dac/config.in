@@ -1,2 +1,8 @@
-dep_bool "DAC TLC5620 Output" TLC5620_SUPPORT $ARCH_AVR
-dep_bool "DAC LTC1257 Output" LTC1257_SUPPORT $ARCH_AVR
+dep_bool_menu "digital-to-analog converter (DAC)" DAC_SUPPORT $ARCH_AVR
+	dep_bool "DAC TLC5620 Output" TLC5620_SUPPORT $ARCH_AVR $DAC_SUPPORT
+	dep_bool "DAC LTC1257 Output" LTC1257_SUPPORT $ARCH_AVR $DAC_SUPPORT
+
+	comment  "Debugging Flags"
+	dep_bool "DAC LTC1257 (core)" DEBUG_LTC1257_CORE $DEBUG $DAC_SUPPORT
+	dep_bool "DAC LTC1257 (ECMD)" DEBUG_LTC1257_ECMD $DEBUG $DAC_SUPPORT
+endmenu
