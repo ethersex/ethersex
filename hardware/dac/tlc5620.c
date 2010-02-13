@@ -22,6 +22,8 @@
 #include <avr/io.h>
 #include "config.h"
 
+#include "tlc5620.h"
+
 void
 tlc5620_set_channel(uint8_t channel, uint8_t value)
 {
