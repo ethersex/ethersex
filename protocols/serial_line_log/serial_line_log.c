@@ -104,7 +104,7 @@ SIGNAL(usart(USART,_RX_vect))
   } else if (sll_data_new.len >= SERIAL_LINE_LOG_COUNT) {
       /* Our Buffer is more than full, with correct configuration
 	 should this never happen */
-      sll_data.len =  sprintf_P(sll_data.data, PSTR("overrun"));
+      sll_data.len =  sprintf_P((char *)sll_data.data, PSTR("overrun"));
       SLL_DEBUG("buffer overrun\n");
       sll_data_new.len = 0;
   }

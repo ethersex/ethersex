@@ -45,6 +45,7 @@ int16_t
 parse_cmd_sll_get(char *cmd, char *output, uint16_t len) 
 {
     uint8_t sent_parts = 0;
+   len = len - 1;
 
   if (*cmd == 23) { /* Magic Marker Byte for the next calls of this function */
     sent_parts = cmd[1];
@@ -66,6 +67,7 @@ parse_cmd_sll_get(char *cmd, char *output, uint16_t len)
       return ECMD_FINAL(rest_len);
   } else {
       memcpy(output, sll_data.data + sent_parts * len, len);
+      output[len] =  ECMD_NO_NEWLINE;
       return ECMD_AGAIN(len);
   }
 }
