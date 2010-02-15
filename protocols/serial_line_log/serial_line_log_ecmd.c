@@ -23,6 +23,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include <string.h>
 #include <stdio.h>
 #include "config.h"
@@ -38,6 +39,7 @@
 
 
 extern struct serial_line_log_data sll_data;
+extern struct serial_line_log_data sll_data_new;
 
 int16_t 
 parse_cmd_sll_get(char *cmd, char *output, uint16_t len) 
@@ -54,17 +56,16 @@ parse_cmd_sll_get(char *cmd, char *output, uint16_t len)
 
   /* Sensor data has timed out */
   if (sll_data.timeout == 0)
-      return snprintf_P(output, len, "offline");
+     return snprintf_P(output, len, PSTR("offline"));
 
-  int rest_len = sll_data.len - sent_parts * (len - 1);
+  uint8_t rest_len = sll_data.len - sent_parts * len;
 
   if (rest_len < len) {
       /* This is the final packet */
-      memcpy(output, sll_data.data + sent_parts * (len - 1), rest_len);
+      memcpy(output, sll_data.data + sent_parts * len, rest_len);
       return ECMD_FINAL(rest_len);
   } else {
-      memcpy(output, sll_data.data + sent_parts * (len - 1), len - 1);
-      output[len - 1] = 0;
+      memcpy(output, sll_data.data + sent_parts * len, len);
       return ECMD_AGAIN(len);
   }
 }

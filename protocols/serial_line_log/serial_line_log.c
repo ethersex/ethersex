@@ -71,18 +71,31 @@ SIGNAL(usart(USART,_RX_vect))
     (void) v;
     return;
   }
+
   uint8_t data = usart(UDR);
+
+#ifdef SERIAL_LINE_LOG_SPACE_COMPRESSION
+  static uint8_t last_was_space;
+  if (data == ' ' || data == '\t') {
+      if (last_was_space) return;
+      last_was_space = 1;
+      data = ' ';
+  } else 
+      last_was_space = 0;
+#endif /* SPACE Compression */
 
   if (data == ((uint8_t *)SERIAL_LINE_LOG_EOL)[0]) {
       /* Yeah we have reached end of line so commit it to the real
 	 buffer */
-      memcpy(&sll_data, &sll_data_new, sizeof(sll_data_new));
+      if (sll_data_new.len > 1) {
+        memcpy(&sll_data, &sll_data_new, sizeof(sll_data_new));
 
-      /* Set the timeout for the new data correct */
-      sll_data.timeout = SERIAL_LINE_LOG_TIMEOUT;
+        /* Set the timeout for the new data correct */
+        sll_data.timeout = SERIAL_LINE_LOG_TIMEOUT;
 
-      /* Termiate the Buffer correct */
-      sll_data.data[sll_data.len++] = 0;
+        /* Termiate the Buffer correct */
+        sll_data.data[sll_data.len++] = 0;
+      }
 
       sll_data_new.len = 0;
 
@@ -91,6 +104,7 @@ SIGNAL(usart(USART,_RX_vect))
   } else if (sll_data_new.len >= SERIAL_LINE_LOG_COUNT) {
       /* Our Buffer is more than full, with correct configuration
 	 should this never happen */
+      sll_data.len =  sprintf_P(sll_data.data, PSTR("overrun"));
       SLL_DEBUG("buffer overrun\n");
       sll_data_new.len = 0;
   }
