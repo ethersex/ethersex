@@ -147,8 +147,8 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
   if (level)
   {
     rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3)); // 2. PwrMngt TX on
-		#ifdef RFM12_TX_PIN
-		PIN_SET(STATUSLED_TX);
+		#ifdef HAVE_RFM12_TX_PIN
+		PIN_SET(RFM12_TX_PIN);
 		#endif
 		ACTIVITY_LED_RFM12_TX;
     for(;us>0;us--)
@@ -157,8 +157,8 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
   else
   {
     rfm12_trans(0x8208);                      // 2. PwrMngt TX off
-		#ifdef RFM12_TX_PIN
-		PIN_CLEAR(STATUSLED_TX);
+		#ifdef HAVE_RFM12_TX_PIN
+		PIN_CLEAR(RFM12_TX_PIN);
 		#endif
     for(;us>0;us--)
       _delay_us(1);
