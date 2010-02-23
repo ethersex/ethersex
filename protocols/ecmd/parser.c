@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "control6/control6.h"
@@ -110,6 +111,8 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_ECMD
     debug_printf("rest cmd: \"%s\"\n", cmd);
 #endif
+
+    ACTIVITY_LED_ECMD;
 
     if (func != NULL)
         ret = func(cmd, output, len);

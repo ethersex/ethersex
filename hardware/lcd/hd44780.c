@@ -31,9 +31,9 @@
 FILE *lcd;
 uint8_t current_pos = 0;
 
-
 /* macros for defining the data pins as input or output */
 
+#ifndef SER_LCD
 #define _DATA_INPUT(a)  PIN_CLEAR(HD44780_D ## a); \
                         DDR_CONFIG_IN(HD44780_D ## a);
 
@@ -63,6 +63,17 @@ uint8_t current_pos = 0;
                          } while (0);
 #endif
 
+#else
+#define DATA_OUTPUT() do { \
+                          DDR_CONFIG_OUT(HD44780_SER_D); \
+                         } while (0);
+
+#define CTRL_OUTPUT() do { \
+                          DDR_CONFIG_OUT(HD44780_EN); \
+                          DDR_CONFIG_OUT(HD44780_SER_CLK); \
+                         } while (0);
+#endif
+
 /* display commands */
 #define HIGH_NIBBLE(x) ((uint8_t)((x) >> 4))
 #define LOW_NIBBLE(x)  ((uint8_t)((x) & 0x0f))
@@ -86,6 +97,9 @@ uint8_t current_pos = 0;
 #define noinline __attribute__((noinline))
 
 /* own prototypes */
+#ifdef SER_LCD
+static noinline void shift_data_out(uint8_t byte);
+#endif
 static noinline uint8_t clock_rw(uint8_t read);
 #define clock_write() clock_rw(0)
 #define clock_read() clock_rw(1)
@@ -96,6 +110,20 @@ static noinline uint8_t input_nibble(uint8_t rs);
 static noinline uint8_t input_byte(uint8_t rs);
 #endif
 
+#ifdef SER_LCD
+void noinline shift_data_out(uint8_t byte)
+{
+    for (uint8_t a=8; a>0; a--)
+    {
+	if ( (byte & (1<<(a-1))) != 0)	PIN_SET(HD44780_SER_D);
+	else				PIN_CLEAR(HD44780_SER_D);
+
+	PIN_SET(HD44780_SER_CLK);
+	_delay_us(1);
+	PIN_CLEAR(HD44780_SER_CLK);
+    }
+}
+#endif
 
 uint8_t noinline clock_rw(uint8_t read)
 {
@@ -104,16 +132,18 @@ uint8_t noinline clock_rw(uint8_t read)
     PIN_SET(HD44780_EN);
 
     /* make sure that we really wait for more than 450 ns... */
-    _delay_us(0.6);
+    _delay_us(1);
 
     /* read data, if requested.  data pins must be configured as input! */
     uint8_t data = 0;
+#ifndef SER_LCD
     if (read) {
       if (PIN_HIGH(HD44780_D4)) data |= _BV(0);
       if (PIN_HIGH(HD44780_D5)) data |= _BV(1);
       if (PIN_HIGH(HD44780_D6)) data |= _BV(2);
       if (PIN_HIGH(HD44780_D7)) data |= _BV(3);
     }
+#endif
 
     /* set EN low */
     PIN_CLEAR(HD44780_EN);
@@ -123,6 +153,7 @@ uint8_t noinline clock_rw(uint8_t read)
 
 void output_nibble(uint8_t rs, uint8_t nibble)
 {
+#ifndef SER_LCD
     /* switch to write operation and set rs */
 #ifdef HAVE_HD44780_RW
     PIN_CLEAR(HD44780_RW);
@@ -147,6 +178,15 @@ void output_nibble(uint8_t rs, uint8_t nibble)
 
     /* set bits in mask, and delete bits not in mask */
     DATA_OUTPUT();
+#else
+    uint8_t data = 0;
+    //Soll ins Seuer oder Datenregister geschrieben werden?
+    if(rs)		data |= (1<<LCD_RS_PIN);
+//	if(back_light)	data |= (1<<LCD_LIGHT_PIN);
+    data |= (nibble&0x0F)<<3; //Write Nibble
+    //Schreiben an das LCD
+    shift_data_out(data);
+#endif
 
     /* toggle EN */
     clock_write();
@@ -174,7 +214,7 @@ void output_byte(uint8_t rs, uint8_t data)
     #endif
 #else
     /* just wait the maximal time a command can take... */
-    _delay_ms(2);
+    _delay_us(1600);
 #endif
 
 }
@@ -246,7 +286,7 @@ hd44780_define_char(uint8_t n_char, uint8_t *data)
 
 void hd44780_init(void)
 {
-
+#ifndef SER_LCD
     /* init io pins */
     CTRL_OUTPUT();
     PIN_CLEAR(HD44780_RS);
@@ -275,6 +315,27 @@ void hd44780_init(void)
     _delay_ms(1);
     PIN_CLEAR(HD44780_D4);
     clock_write();
+#else
+    CTRL_OUTPUT();
+    PIN_CLEAR(HD44780_SER_CLK);
+    PIN_CLEAR(HD44780_EN);
+
+    PIN_CLEAR(HD44780_SER_D);
+    DATA_OUTPUT();
+
+    _delay_ms(40);			//Standardprozedur Datenblatt
+    output_nibble(0, 0x03);
+
+    _delay_ms(4);
+    clock_write();
+
+    _delay_ms(1);
+    clock_write();
+
+    /* init done */
+    _delay_ms(1);
+	output_nibble(0, 0x02);		//4bit mode
+#endif
     _delay_ms(1);
 
     /* configure for 4 bit, 2 lines, 5x9 font (datasheet, page 24) */
@@ -294,7 +355,7 @@ void hd44780_init(void)
 
     /* open file descriptor */
     lcd = fdevopen(hd44780_put, NULL);
-    
+
     /* set current virtual postion */
     current_pos = 0;
 }

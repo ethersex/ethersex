@@ -41,6 +41,9 @@
 /* may be used to determine len: x = ECMD_AGAIN(len) <=> len = ECMD_AGAIN(x) */
 #define ECMD_AGAIN(len)		(_ECMD_AGAIN_MAGIC - (len))
 
+/* Put this at the output at position output[returnvalue]  (byte after your last byte */
+#define ECMD_NO_NEWLINE         0x23
+
 /* error codes; requirement: ECMD_AGAIN_MAGIC < error code < 0 */
 #define ECMD_ERR_PARSE_ERROR	-1	/* parse error */
 #define ECMD_ERR_READ_ERROR	-2	/* reading data failed */

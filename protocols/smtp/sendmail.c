@@ -238,6 +238,6 @@ mail_send (void)
   header(protocols/smtp/sendmail.h)
   startup(mail_send)
 
-  state_header(protocols/sendmail/sendmail.h)
+  state_header(protocols/smtp/sendmail.h)
   state_tcp(struct sendmail_connection_state_t sendmail)
 */

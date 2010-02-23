@@ -1,0 +1,10 @@
+#!/bin/bash
+
+function random_uuid() {
+  printf "%01x" $(($RANDOM % 16 ))
+}
+
+UUID="$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)-$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)-$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)-$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)-$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)$(random_uuid)"
+
+echo "$1=\"$UUID\""
+

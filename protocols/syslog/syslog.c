@@ -107,10 +107,11 @@ syslog_send_ptr(void *message)
 void
 syslog_flush (void)
 {
-
+#ifdef ETHERNET_SUPPORT
   if (! syslog_conn || uip_check_cache (&syslog_conn->ripaddr))
     return;			/* ARP cache not ready, don't send request
 				   here (would flood, wait for poll event). */
+#endif  /* ETHERNET_SUPPORT */
 
   uip_slen = 0;
   uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;

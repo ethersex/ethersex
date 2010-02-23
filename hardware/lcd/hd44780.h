@@ -45,6 +45,11 @@
 #define	HD44780_DISPTECH 2
 #define HD44780_KS0067B  3
 
+#ifdef SER_LCD
+#define LCD_RS_PIN		0
+#define LCD_LIGHT_PIN		7
+#endif
+
 /* lcd stream */
 extern FILE *lcd;
 

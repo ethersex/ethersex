@@ -35,7 +35,7 @@ uint8_t stella_fade_step = STELLA_FADE_STEP_INIT;
 volatile uint8_t stella_fade_counter = 0;
 
 volatile enum stella_update_sync stella_sync;
-uint8_t stella_portmask_neg[STELLA_PORT_COUNT];
+uint8_t stella_portmask[STELLA_PORT_COUNT];
 
 struct stella_timetable_struct timetable_1, timetable_2;
 struct stella_timetable_struct* int_table;
@@ -54,14 +54,14 @@ stella_init (void)
 	
 	stella_sync = NOTHING_NEW;
 
-	/* set stella port pins to output and save the negated port mask */
-	stella_portmask_neg[0] = (uint8_t)~(((1 << STELLA_PINS_PORT1) - 1) << STELLA_OFFSET_PORT1);
-	STELLA_DDR_PORT1 = ((1 << STELLA_PINS_PORT1) - 1) << STELLA_OFFSET_PORT1;
+	/* set stella port pins to output and save the port mask */
+	stella_portmask[0] = ((1 << STELLA_PINS_PORT1) - 1) << STELLA_OFFSET_PORT1;
+	STELLA_DDR_PORT1 = stella_portmask[0];
 	cal_table->port[0].port = &STELLA_PORT1;
 	cal_table->port[0].mask = 0;
 	#ifdef STELLA_PINS_PORT2
-	stella_portmask_neg[1] = (uint8_t)~(((1 << STELLA_PINS_PORT2) - 1) << STELLA_OFFSET_PORT2);
-	STELLA_DDR_PORT2 = ((1 << STELLA_PINS_PORT2) - 1) << STELLA_OFFSET_PORT2;
+	stella_portmask[1] = ((1 << STELLA_PINS_PORT2) - 1) << STELLA_OFFSET_PORT2;
+	STELLA_DDR_PORT2 = stella_portmask[1];
 	cal_table->port[0].port = &STELLA_PORT2;
 	cal_table->port[1].mask = 0;
 	#endif
@@ -250,17 +250,17 @@ stella_sort()
 	struct stella_timetable_entry* current, *last;
 	uint8_t i;
 
+	cal_table->head = 0;
 	cal_table->port[0].mask = 0;
 	cal_table->port[0].port = &STELLA_PORT1;
 	#ifdef STELLA_PINS_PORT2
 	cal_table->port[1].mask = 0;
 	cal_table->port[1].port = &STELLA_PORT2;
 	#endif
-	cal_table->head = 0;
 
 	for (i=0;i<STELLA_CHANNELS;++i)
 	{
-		/* set current item */
+		/* set data of channel i */
 		cal_table->channel[i].port.mask = _BV(i+STELLA_OFFSET_PORT1);
 		cal_table->channel[i].port.port = &STELLA_PORT1;
 		#ifdef STELLA_PINS_PORT2
@@ -272,11 +272,12 @@ stella_sort()
 		cal_table->channel[i].value = 255 - stella_brightness[i];
 		cal_table->channel[i].next = 0;
 
-		/* Sepcial cases: 0% brightness */
+		/* Special case: 0% brightness (Don't include this channel!) */
 		if (stella_brightness[i] == 0) continue;
 
 		//cal_table->portmask |= _BV(i+STELLA_OFFSET);
 
+		/* Special case: 100% brightness (Merge pwm cycle start masks! Don't include this channel!) */
 		if (stella_brightness[i] == 255)
 		{
 			#ifdef STELLA_PINS_PORT2
@@ -301,7 +302,7 @@ stella_sort()
 		while (current)
 		{
 			// same value as current item: do not add to linked list
-			// but just update the portmask (DO THIS ONLY IF PORTS DIFFER)
+			// but just update the portmask (DO THIS ONLY IF BOTH CHANNELS OPERATE ON THE SAME PORT)
 			if (current->value == cal_table->channel[i].value && current->port.port == cal_table->channel[i].port.port)
 			{
 				#ifdef STELLA_PINS_PORT2
@@ -328,7 +329,7 @@ stella_sort()
 				last->next = &(cal_table->channel[i]);
 				break;
 			}
-			// reached the end of the linked list: just add our new entry
+			// reached the end of the linked list: just append our new entry
 			else if (!current->next)
 			{
 				current->next = &(cal_table->channel[i]);
@@ -353,7 +354,10 @@ stella_sort()
 		debug_printf("%u %s\n", current->value, debug_binary(current->portmask));
 		current = current->next;
 	}
-	debug_printf("%s %u\n", debug_binary(stella_portmask_neg), stella_portmask_neg);
+	debug_printf("Mask1: %s %u\n", debug_binary(stella_portmask[0]), stella_portmask[0]);
+	#ifdef STELLA_PINS_PORT2
+	debug_printf("Mask2: %s %u\n", debug_binary(stella_portmask[1]), stella_portmask[1]);
+	#endif
 	#endif
 
 	/* Allow the interrupt to actually apply the calculated values */

@@ -76,11 +76,9 @@ ISR(_VECTOR_OVERFLOW2)
 	/* Start the next pwm round */
 	current = int_table->head;
 
-	/* Deactivate pins except those used by the first timetable entry.
-	 * Only deactivate pins if they belong to stella.
-	 * Activate pins used by the first timetable entry. */
+	/* Leave all non-stella-pins the same and activate pins used by the first timetable entry. */
 	for (uint8_t i=0;i<STELLA_PORT_COUNT;++i)
-		ACCESS_IO(int_table->port[i].port) = (ACCESS_IO(int_table->port[i].port) & stella_portmask_neg[i]) | int_table->port[i].mask;
+		ACCESS_IO(int_table->port[i].port) = (ACCESS_IO(int_table->port[i].port) & ~(uint8_t)stella_portmask[i]) | int_table->port[i].mask;
 
 	if (current)
 		_OUTPUT_COMPARE_REG2 = current->value;

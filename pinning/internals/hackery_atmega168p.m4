@@ -36,6 +36,11 @@
 #define PD0     PORTD0
 #endif
 
+#ifndef SIG_INTERRUPT0
+#define SIG_INTERRUPT0 INT0_vect
+#define SIG_INTERRUPT1 INT1_vect
+#endif
+
 /* ATmega168 specific adjustments */
 #define _SPCR0 SPCR
 #define _SPE0 SPE
