@@ -252,7 +252,6 @@ CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ]; then echo /opt/local
 
 menuconfig:
 	$(MAKE) -C scripts/lxdialog all
-	echo "my config $(CONFIG_SHELL)"
 	$(CONFIG_SHELL) scripts/Menuconfig config.in
 	test -e .config
 	@$(MAKE) no_deps=t what-now-msg
