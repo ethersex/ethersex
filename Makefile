@@ -139,7 +139,9 @@ ${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
 
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
-	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@.tmp
+	if ! diff $@.tmp $@; then cp $@.tmp $@; fi
+	rm -f $@.tmp
 
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
