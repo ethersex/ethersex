@@ -23,3 +23,5 @@ $(ZBUS_SUPPORT)_SRC += protocols/uip/uip_zbus.c
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk
+
+CFLAGS += -fno-strict-aliasing

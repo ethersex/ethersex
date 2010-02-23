@@ -12,6 +12,7 @@ SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
+SUBDIRS += hardware/adc/ads7822
 SUBDIRS += hardware/avr
 SUBDIRS += hardware/dac
 SUBDIRS += hardware/clock/dcf77
@@ -63,13 +64,15 @@ SUBDIRS += protocols/ecmd/via_udp
 SUBDIRS += protocols/ecmd/via_usart
 SUBDIRS += protocols/irc
 SUBDIRS += protocols/soap
+SUBDIRS += protocols/httplog
 SUBDIRS += protocols/twitter
 SUBDIRS += protocols/netstat
 SUBDIRS += protocols/to1
+SUBDIRS += protocols/serial_line_log
 SUBDIRS += protocols/msr1
 SUBDIRS += protocols/nmea
 SUBDIRS += protocols/udpIO
-SUBDIRS += protocols/udpStella
+SUBDIRS += protocols/udpstella
 SUBDIRS += protocols/udpcurtain
 SUBDIRS += services/clock
 SUBDIRS += services/cron
@@ -140,8 +143,10 @@ ${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
 	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@.tmp
-	if ! diff $@.tmp $@; then cp $@.tmp $@; fi
-	rm -f $@.tmp
+	@echo "Copying to meta.m4"
+	@if [ ! -e $@ ]; then cp $@.tmp $@; fi
+	@if ! diff $@.tmp $@ >/dev/null; then cp $@.tmp $@; fi
+	@rm -f $@.tmp
 
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}

@@ -36,6 +36,7 @@
 #include "hardware/i2c/master/i2c_24CXX.h"
 #include "hardware/i2c/master/i2c_pca9531.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
+#include "hardware/i2c/master/i2c_max7311.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -360,3 +361,122 @@ int16_t parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 }
 
 #endif  /* I2C_PCF8574X_SUPPORT */
+
+#ifdef I2C_MAX7311_SUPPORT
+
+int16_t parse_cmd_i2c_max7311_setDDRw(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint16_t data;
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu %hX"), &adr, &data);
+  if (adr > 0x6F)
+    return ECMD_ERR_PARSE_ERROR;
+  ret = i2c_max7311_setDDRw(adr, data);
+  if (ret == 0) {
+    return ECMD_FINAL_OK;
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+
+int16_t parse_cmd_i2c_max7311_setOUTw(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint16_t data;
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu %hX"), &adr, &data);
+  if (adr > 0x6F)
+    return ECMD_ERR_PARSE_ERROR;
+  ret = i2c_max7311_setOUTw(adr, data);
+  if (ret == 0) {
+    return ECMD_FINAL_OK;
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+
+int16_t parse_cmd_i2c_max7311_getDDRw(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint16_t data;
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu"), &adr);
+  if (adr > 0x6F)
+    return ECMD_ERR_PARSE_ERROR;
+  ret = i2c_max7311_getDDRw(adr, &data);
+  if (ret == 0) {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), data));
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+
+int16_t parse_cmd_i2c_max7311_getOUTw(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint16_t data;
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu"), &adr);
+  if (adr > 0x6F)
+    return ECMD_ERR_PARSE_ERROR;
+  ret = i2c_max7311_getOUTw(adr, &data);
+  if (ret == 0) {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), data));
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+
+int16_t parse_cmd_i2c_max7311_getINw(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint16_t data;
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu"), &adr);
+  if (adr > 0x6F)
+    return ECMD_ERR_PARSE_ERROR;
+  ret = i2c_max7311_getINw(adr, &data);
+  if (ret == 0) {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), data));
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+
+int16_t parse_cmd_i2c_max7311_set(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint8_t bit;
+  uint8_t state;
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu %hhu %hhu"), &adr, &bit, &state);
+  if (adr > 0x6F | bit > 15)
+    return ECMD_ERR_PARSE_ERROR;
+  ret = i2c_max7311_set(adr, bit, state);
+  if (ret == 0) {
+    return ECMD_FINAL_OK;
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+
+int16_t parse_cmd_i2c_max7311_pulse(char *cmd, char *output, uint16_t len)
+{
+  uint8_t adr;
+  uint8_t bit;
+  uint16_t time; 
+  uint8_t ret;
+  sscanf_P(cmd, PSTR("%hhu %hhu %hu"), &adr, &bit, &time);
+  if (adr > 0x6F | bit > 15)
+    return ECMD_ERR_PARSE_ERROR;
+  if (time > 1000)
+    time = 1000;
+  ret = i2c_max7311_pulse(adr, bit, time);
+  if (ret == 0) {
+    return ECMD_FINAL_OK;
+  }else{
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+  }
+}
+#endif /* I2C_MAX7311_SUPPORT */

@@ -643,6 +643,8 @@ USB_NET_SUPPORT
   You need to use the userspace-space client available 
   from contrib/usb_net
 
+  See also http://ethersex.de/index.php/USB#usbnet
+
 USBnet ARP-Proxy
 USB_ARP_PROXY
   Depends on: 
@@ -906,6 +908,7 @@ ECMD_TCP_SUPPORT
 
   Add TCP Telnet like ECMD support.
   See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_TCP
 
 UDP interface
 ECMD_UDP_SUPPORT
@@ -916,6 +919,7 @@ ECMD_UDP_SUPPORT
 
   Add UDP ECMD support. 
   See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_UDP
 
 I2C interface
 ECMD_SERIAL_I2C_SUPPORT
@@ -934,7 +938,12 @@ ECMD_USB_SUPPORT
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
 
   Enable ECMD via USB Interface
+  You should set
+  "Network  ---> USB (Softwarestack) Support  ---> USB Device Type"
+  to "other".
   See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_USB and
+  http://ethersex.de/index.php/USB#ECMD_via_USB
 
 Send ECMD messages
 ECMD_SENDER_SUPPORT
@@ -1855,6 +1864,33 @@ APP_SAMPLE_SUPPORT
     Also this function will be called by ECMD "sample_periodic",
   Function "app_sample_onrequest" will be execured by ECMD command "sample"
 
+httplog client (EXPERIMENTAL)
+HTTPLOG_SUPPORT
+  Depends on:
+   * TCP protocol support (TCP_SUPPORT)
+   * DNS protocol (DNS_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+  and in case you want to include unix time stamps:
+   * Date and Time support (CLOCK_DATETIME_SUPPORT)
+
+Valid values for httplog are:
+  Service: <domain of server you want to log to>, e.g. "volkszaehler.org"
+  Path: <path of script you want to log to>, e.g. "/httplog/httplog.php"
+  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+
+A uuid (in the form of 12345678-9ABC-DEF0-1234-567890ABCDEF) can be "randomly" generated here also
+
+Include unix timestamp
+CONF_HTTPLOG_INCLUDE_TIMESTAMP
+
+  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+
+Include uuid
+CONF_HTTPLOG_INCLUDE_UUID
+
+  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+
 Twitter/identi.ca client (EXPERIMENTAL)
 TWITTER_SUPPORT
   Depends on: 
@@ -1913,7 +1949,7 @@ ECMD (Etherrape Control Interface) support
 ECMD_PARSER_SUPPORT
   Depends on: 
 
-  Ethersex COMand = ECMD is a kind of i/o interface.
+  Ethersex COmanD = ECMD is a kind of i/o interface.
   More details at http://ethersex.de/index.php/ECMD
 
 IRC (EXPERIMENTAL)
@@ -1982,3 +2018,4 @@ JABBER_VERSION_SUPPORT
 
   Enables to send version details of the ethersex jabber client.
   Change the values if you need to.
+

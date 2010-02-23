@@ -205,6 +205,7 @@ comment "Protocols"
 source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
+source protocols/httplog/config.in
 source protocols/irc/config.in
 source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
@@ -220,6 +221,7 @@ source protocols/ustream/config.in
 source protocols/yport/config.in
 source protocols/msr1/config.in
 source protocols/to1/config.in
+source protocols/serial_line_log/config.in
 source protocols/nmea/config.in
 source protocols/udpStella/config.in
 source protocols/udpIO/config.in

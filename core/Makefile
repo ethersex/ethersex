@@ -23,6 +23,8 @@ ifeq ($(ARCH_HOST),y)
 CPPFLAGS += -Icore/host
 endif
 
+$(STATUSLED_HB_ACT_SUPPORT)_SRC += core/heartbeat.c
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk

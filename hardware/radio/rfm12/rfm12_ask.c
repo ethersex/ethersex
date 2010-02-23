@@ -27,13 +27,36 @@
 #include <avr/wdt.h>
 
 #include "config.h"
+#include "core/heartbeat.h"
 
 #include "rfm12.h"
 #include "rfm12_ask.h"
 
 void rfm12_ask_trigger(uint8_t , uint16_t);
 
+uint8_t ask_2272_1527_pulse_duty_factor[4]={13,5,7,11};
+
 #ifdef RFM12_ASK_SENDER_SUPPORT
+
+void
+rfm12_ask_2272_1527_switch(uint8_t ask_type)
+{
+  if (ask_type == T_2272)
+  {
+    ask_2272_1527_pulse_duty_factor[0]=13;
+    ask_2272_1527_pulse_duty_factor[1]=5;
+    ask_2272_1527_pulse_duty_factor[2]=7;
+    ask_2272_1527_pulse_duty_factor[3]=11;
+  } else if (ask_type == T_1527)
+  {
+    ask_2272_1527_pulse_duty_factor[0]=9;
+    ask_2272_1527_pulse_duty_factor[1]=3;
+    ask_2272_1527_pulse_duty_factor[2]=3;
+    ask_2272_1527_pulse_duty_factor[3]=9;
+  }
+}
+
+
 void
 rfm12_ask_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
 {
@@ -49,11 +72,11 @@ rfm12_ask_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt
   for (uint8_t i=0;i<cnt;i++)
   {
     if (byte & (1<<(cnt-i-1))) {
-      code[append+(i*2)]=13;
-      code[append+(i*2)+1]=5;
+      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[0];
+      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[1];
     } else {
-      code[append+(i*2)]=7;
-      code[append+(i*2)+1]=11;
+      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[2];
+      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[3];
     }
   }
 }
@@ -90,7 +113,7 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uin
 }
 #endif /* RFM12_ASK_TEVION_SUPPORT */
 
-#ifdef RFM12_ASK_2272_SUPPORT
+#if defined RFM12_ASK_2272_SUPPORT || defined RFM12_ASK_1527_SUPPORT
 void
 rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
 {
@@ -124,17 +147,18 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
   if (level)
   {
     rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3)); // 2. PwrMngt TX on
-		#ifdef RFM12_TX_PIN
-		PIN_SET(STATUSLED_TX);
+		#ifdef HAVE_RFM12_TX_PIN
+		PIN_SET(RFM12_TX_PIN);
 		#endif
+		ACTIVITY_LED_RFM12_TX;
     for(;us>0;us--)
       _delay_us(1);
   }
   else
   {
     rfm12_trans(0x8208);                      // 2. PwrMngt TX off
-		#ifdef RFM12_TX_PIN
-		PIN_CLEAR(STATUSLED_TX);
+		#ifdef HAVE_RFM12_TX_PIN
+		PIN_CLEAR(RFM12_TX_PIN);
 		#endif
     for(;us>0;us--)
       _delay_us(1);

@@ -139,7 +139,6 @@ dc3840_send_command (uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 
 #ifdef DC3840_UDP_DEBUG
 
-#define DC3840_PORT 7676
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 
@@ -291,6 +290,35 @@ parse_cmd_dc3840_send (char *cmd, char *output, uint16_t len)
 
   return dc3840_send_command(a, b, c, d, e) ? ECMD_ERR_PARSE_ERROR : ECMD_FINAL_OK;
 }
+
+int16_t
+parse_cmd_dc3840_light (char *cmd, char *output, uint16_t len)
+{
+  uint8_t level=0; // normal
+  /* ignore leading spaces */
+  while (*cmd == ' ')
+    cmd ++;
+
+  if (cmd[0]=='1')
+    level=1; // dunkel
+
+  return dc3840_send_command(DC3840_CMD_LIGHT, level, 0, 0, 0) ? ECMD_ERR_PARSE_ERROR : ECMD_FINAL_OK;
+}
+int16_t
+parse_cmd_dc3840_zoom (char *cmd, char *output, uint16_t len)
+{
+  uint8_t zoom=1; // default ohne zoom
+  /* ignore leading spaces */
+  while (*cmd == ' ')
+    cmd ++;
+
+  if (cmd[0]=='1')
+    zoom=0; // 2x zoom
+
+  return dc3840_send_command(DC3840_CMD_DIG_ZOOM, zoom, 0, 0, 0) ? ECMD_ERR_PARSE_ERROR : ECMD_FINAL_OK;
+}
+
+
 #endif	/* ECMD_PARSER_SUPPORT */
 
 
@@ -385,4 +413,6 @@ dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len)
   ecmd_feature(dc3840_capture, "dc3840 capture",, Take a picture.  Access 'dc3840' via VFS afterwards.  See [[DC3840 Camera]] for details.)
   ecmd_feature(dc3840_send, "dc3840 send ", A B C D E, Send provided command bytes to the camera.)
   ecmd_feature(dc3840_sync, "dc3840 sync",, Re-sync to the camera)
+  ecmd_feature(dc3840_light, "dc3840 light",, Light level of camera)
+  ecmd_feature(dc3840_zoom, "dc3840 zoom",, Enable zoom of camera)
 */

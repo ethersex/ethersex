@@ -39,27 +39,41 @@
 int16_t parse_cmd_pin_list(char *cmd, char *output, uint16_t len)
 {
     uint16_t help_len = 0;
-	uint8_t counter = 0;
+    const char *text;
+
+	/* trick: use bytes on cmd as "connection specific static variables" */
+	if (cmd[0] != 23) {		/* indicator flag: real invocation:  0 */
+	    cmd[0] = 23;		/*                 continuing call: 23 */
+	    cmd[1] = 0;		/* counter for output lines */
+	}
 
 	while (1) {
 		/* get named-pin from array */
-	    const char *text = (const char *)pgm_read_word(&portio_pincfg[ counter++ ].name);
-		/* leave loop if end of array is reached or output buffer is too small */
+		text = (const char *)pgm_read_word(&portio_pincfg[ (uint8_t)cmd[1]++ ].name);
+		/* leave loop if end of array is reached */
 		if (text == NULL) break;
 		uint8_t lineLength = strlen_P (text);
-		if (help_len+lineLength+1>len) break;
-    	memcpy_P (output, text, lineLength);
+		/* leave loop if output buffer is too small */
+		if (help_len+lineLength+1>len) {
+		  // if we get called again, we have to get this entry again, too.
+		  (uint8_t)cmd[1]--;
+		  break;
+		}
+		memcpy_P (output, text, lineLength);
 		output += lineLength;
 		/* add newline character */
 		*output = '\n';
 		++output;
-    	help_len += lineLength+1;
+		help_len += lineLength+1;
 	}
 
-	/* Remove last newline character */
-	if (help_len) --help_len;
-
-    return ECMD_FINAL(help_len);
+	/* Remove last newline character if end of array is reached */
+	if (text == NULL && help_len) {
+	  --help_len;
+	  return ECMD_FINAL(help_len);
+	} else {
+	  return ECMD_AGAIN(help_len);
+	}
 }
 
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)

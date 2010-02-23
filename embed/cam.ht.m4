@@ -9,10 +9,13 @@ ifdef({{conf_VFS_DC3840}}, {{}}, {{m4exit(1)}})dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 ifdef({{conf_VFS_DC3840}}, {{
+function dc3840(c,v) {
+	ArrAjax.ecmd('dc3840+'+c+'+'+v);
+}
 function capture() {
 	ArrAjax.ecmd('dc3840+sync');
 	ArrAjax.ecmd('dc3840+capture');
-        window.setTimeout("location.href='/cam.ht'",1500);
+    window.setTimeout("location.href='/cam.ht'",1500);
 }
 }})
 ifdef({{conf_PWM_SERVO}}, {{
@@ -30,9 +33,11 @@ function sdec() {
 <body>
 <h1>Camera</h1>
 ifdef({{conf_VFS_DC3840}}, {{
-<a href="javascript:capture();">capture DC3440</a>
+<a href="javascript:capture();">capture DC3840</a><br>
+<img src="/dc3840"><br>
 <a href="?">reload</a><br>
-<img src="/dc3840">
+Zoom <a href="javascript:dc3840('zoom',1);">on</a> <a href="javascript:dc3840('zoom',0);">off</a><br>
+Bright <a href="javascript:dc3840('light',1);">on</a> <a href="javascript:dc3840('light',0);">off</a><br>
 }})
 <br>
 ifdef({{conf_PWM_SERVO}}, {{

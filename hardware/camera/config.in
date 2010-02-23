@@ -27,6 +27,11 @@ dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT $ARCH_AVR
     choice 'DC3840 USART' "$(usart_choice DC3840)"
     usart_process_choice DC3840
 
+	comment  "Debugging Flags"
+	dep_bool 'DC3840 UDP Debug' DC3840_UDP_DEBUG $DEBUG $DC3840_SUPPORT
+    if [ "$DC3840_UDP_DEBUG" = "y" ]; then
+	  int "DC3840 Port" DC3840_PORT 7676
+    fi
   endmenu
 	else
 		define_bool DC3840_SUPPORT n
