@@ -142,7 +142,7 @@ ${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
 
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
-	sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@.tmp
+	$(SED) -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@.tmp
 	@echo "Copying to meta.m4"
 	@if [ ! -e $@ ]; then cp $@.tmp $@; fi
 	@if ! diff $@.tmp $@ >/dev/null; then cp $@.tmp $@; fi
@@ -199,7 +199,7 @@ endif
 ##############################################################################
 
 ifeq ($(VFS_INLINE_SUPPORT),y)
-INLINE_FILES := $(shell ls embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
+INLINE_FILES := $(shell ls embed/* | $(SED) '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
 ifeq ($(DEBUG_INLINE_FILES),y)
 .PRECIOUS = $(INLINE_FILES)
 endif
@@ -210,7 +210,7 @@ endif
 embed/%: embed/%.cpp
 	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
-	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
+	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
 	@$(RM) $@.tmp
 
@@ -245,10 +245,14 @@ endif
 
 
 ##############################################################################
-CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ]; then echo /opt/local/bin/bash; \
+          elif [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
           else echo sh; fi)
+### Special case for MacOS X (darwin10.0)
+### bash v3.2 in 10.6 does not work, use version 4.0 from macports
+### (see "Voraussetzungen" in wiki)
 
 menuconfig:
 	$(MAKE) -C scripts/lxdialog all
@@ -313,7 +317,7 @@ show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
-	@grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define / * /" -e "s/_SUPPORT.*//"
+	@grep -e "^#define .*_SUPPORT" autoconf.h | $(SED) -e "s/^#define / * /" -e "s/_SUPPORT.*//"
 
 .PHONY: show-config
 

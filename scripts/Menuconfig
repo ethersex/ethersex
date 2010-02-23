@@ -27,7 +27,12 @@ single_menu_mode=
 #
 set -h +o posix
 
-
+### use GNU sed from macports instead of BSD sed on MacOS X
+if [ x$OSTYPE = x"darwin10.0" ]; then
+    SED=gsed
+else
+    SED=sed
+fi
 
 # Given a configuration variable, set the global variable $x to its value,
 # and the global variable $info to the string " (NEW)" if this is a new
@@ -39,7 +44,7 @@ set -h +o posix
 function set_x_info () {
     eval x=\$$1
     if [ -z "$x" ]; then
-	eval `sed -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
+	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
 	eval x=\${$1:-\"$2\"}
 	eval $1=$x
 	eval INFO_$1="' (NEW)'"
@@ -344,9 +349,9 @@ function extract_help () {
   if [ -f doc/Configure.help ]
   then
      #first escape regexp special characters in the argument:
-     var=$(echo "$1"|sed 's/[][\/.^$*]/\\&/g')
+     var=$(echo "$1"|$SED 's/[][\/.^$*]/\\&/g')
      #now pick out the right help text:
-     text=$(sed -n "/^$var[ 	]*\$/,\${
+     text=$($SED -n "/^$var[ 	]*\$/,\${
                         /^$var[ 	]*\$/c\\
 ${var}:\\
 
@@ -1295,7 +1300,7 @@ save_configuration () {
 	function hex () {
 		set_x_info "$2" "$3"
 		echo "$2=$x" 			 >>$CONFIG
-		echo "#define $2 \"$(echo "$x" | sed -e 's/\(..\)/\\x\1/g')\"" >>$CONFIG_H
+		echo "#define $2 \"$(echo "$x" | $SED -e 's/\(..\)/\\x\1/g')\"" >>$CONFIG_H
 	}
 
 	function string () {
@@ -1308,14 +1313,14 @@ save_configuration () {
 		set_x_info "$2" "$3"
 		echo "$2=\"$x\"" 		>>$CONFIG
 		echo "#define $2 " \
-		  "\"\\x$(echo "$x" | sed -e 's;:;\\x;g')\"" >> $CONFIG_H
+		  "\"\\x$(echo "$x" | $SED -e 's;:;\\x;g')\"" >> $CONFIG_H
 	}
 
 	function ipv4 () {
 		set_x_info "$2" "$3"
 		echo "$2=\"$x\"" 		>>$CONFIG
 		echo "#define set_${2}(ip) uip_ipaddr((ip),"    \
-		  $(echo "$x" | sed -e 's;\.;,;g') ")" >> $CONFIG_H
+		  $(echo "$x" | $SED -e 's;\.;,;g') ")" >> $CONFIG_H
 		echo "#define $2 \"$x\""               >> $CONFIG_H
 	}
 
@@ -1323,7 +1328,7 @@ save_configuration () {
 		set_x_info "$2" "$3"
 		echo "$2=\"$x\"" 		>>$CONFIG
 		echo "#define set_${2}(ip) uip_ip6addr((ip),"    \
-		  "0x"$(echo "$x" | sed -e 's;:;,0x;g') ")" >> $CONFIG_H
+		  "0x"$(echo "$x" | $SED -e 's;:;,0x;g') ")" >> $CONFIG_H
 		echo "#define $2 \"$x\""                    >> $CONFIG_H
 	}
 
