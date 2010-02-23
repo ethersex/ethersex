@@ -366,8 +366,11 @@ void switch_bank(uint8_t bank)
 /* dump out all the interesting registers
  * (mainly copied from avrlib) */
 #ifdef DEBUG_ENC28J60
-void dump_debug_registers(void)
+int16_t parse_cmd_enc_dump(char *cmd, char *output, uint16_t len)
 {
+    (void) cmd;
+    (void) output;
+    (void) len;
 
     debug_printf("RevID: 0x%02x\n", read_control_register(REG_EREVID));
 
@@ -423,6 +426,8 @@ void dump_debug_registers(void)
         read_control_register(REG_EDMASTL),
         read_control_register(REG_EDMANDH),
         read_control_register(REG_EDMANDL));
+
+    return 0;
 }
 #endif
 

@@ -120,4 +120,8 @@ int16_t parse_cmd_mac(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block(Network configuration)
   ecmd_feature(mac, "mac",[xx:xx:xx:xx:xx:xx],Display/Set the MAC address.)
+  ecmd_ifdef(DEBUG_ENC28J60)
+    ecmd_feature(enc_dump, "enc dump", , Dump the internal state of the enc to serial)
+  ecmd_endif()
+    
 */
