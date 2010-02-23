@@ -39,8 +39,9 @@
 #include "protocols/uip/uip.h"
 #include "protocols/dns/resolv.h"
 #include "httplog.h"
+#ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
 #include "services/clock/clock.h"
-#include <util/delay.h>
+#endif
 
 static char *httplog_tmp_buf;
 
