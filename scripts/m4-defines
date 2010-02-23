@@ -2,7 +2,7 @@
 
 ### use GNU sed from macports instead of BSD sed on MacOS X
 ### BSD sed does not support -r option
-if [ $OSTYPE == "darwin10.0" ]; then
+if [ x"$OSTYPE" = x"darwin10.0" ]; then
     SED="gsed"
 else
     SED="sed"

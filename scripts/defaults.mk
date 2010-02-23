@@ -10,7 +10,7 @@ AWK = gawk
 M4 = m4
 
 ### use GNU sed from macports instead of BSD sed on MacOS X
-SED = $(shell if [ $$OSTYPE = "darwin10.0" ]; then echo gsed; \
+SED = $(shell if [ x"$$OSTYPE" = x"darwin10.0" ]; then echo gsed; \
 	else echo sed; fi)
 
 HOSTCC := gcc

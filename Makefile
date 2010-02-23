@@ -244,11 +244,11 @@ endif
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
+          elif [ x"$$OSTYPE" = x"darwin10.0" ]; then echo /opt/local/bin/bash; \
           else echo sh; fi)
 ### Special case for MacOS X
 ### bash v3.2 in 10.6 does not work, use version 4.0 from macports
 ### (see "Voraussetzungen" in wiki)
-CONFIG_SHELL := $(shell if [ $$OSTYPE = "darwin10.0" ]; then echo /opt/local/bin/bash; fi)
 
 menuconfig:
 	$(MAKE) -C scripts/lxdialog all
