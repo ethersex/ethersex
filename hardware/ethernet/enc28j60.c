@@ -363,6 +363,15 @@ void switch_bank(uint8_t bank)
 
 }
 
+void enc28j60_periodic(void) 
+{
+    uint8_t mask = _BV(PADCFG0) | _BV(TXCRCEN) | _BV(FRMLNEN);
+
+    if ((read_control_register(REG_MACON3) & mask) != mask) {
+	init_enc28j60();
+    }
+}
+
 /* dump out all the interesting registers
  * (mainly copied from avrlib) */
 #ifdef DEBUG_ENC28J60
@@ -436,4 +445,5 @@ int16_t parse_cmd_enc_dump(char *cmd, char *output, uint16_t len)
   header(hardware/ethernet/enc28j60.h)
   net_init(init_enc28j60)
   mainloop(network_process)
+  timer(50, enc28j60_periodic())
 */
