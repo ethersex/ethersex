@@ -23,6 +23,7 @@
 
 */
 #include <string.h>
+#include <stdlib.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -33,6 +34,18 @@
 
 
 #ifdef RFM12_ASK_SENDER_SUPPORT
+
+#ifdef TEENSY_SUPPORT
+uint8_t getIntFromString(char *cmd){
+  uint8_t ptr=0;
+  char str[3];
+
+  while (*cmd >= '0' && *cmd <= '9') // count numbers
+		ptr++;
+  strncpy(str, cmd, ptr);
+  return atoi(str);
+}
+#endif /* TEENSY_SUPPORT */
 
 #ifdef RFM12_ASK_TEVION_SUPPORT
 int16_t
@@ -64,7 +77,26 @@ parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
   uint8_t command[3];
   uint8_t delay = 74;
   uint8_t cnt = 10;
+#ifdef TEENSY_SUPPORT
+  while (*cmd == ' ')
+        cmd++;
+  command[0] = getIntFromString(cmd);
+  while (*cmd == ' ' || *cmd == ',')
+        cmd++;
+  command[1] = getIntFromString(cmd);
+  while (*cmd == ' ' || *cmd == ',')
+        cmd++;
+  command[2] = getIntFromString(cmd);
+  while (*cmd == ' ')
+        cmd++;
+  delay = getIntFromString(cmd);
+  while (*cmd == ' ')
+        cmd++;
+  cnt = getIntFromString(cmd);
+  int ret = 5;
+#else
   uint8_t ret = sscanf_P (cmd, PSTR ("%hhu,%hhu,%hhu %hhu %hhu"),&(command[0]), &(command[1]), &(command[2]), &delay, &cnt);
+#endif
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
