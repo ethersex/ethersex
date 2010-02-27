@@ -129,7 +129,7 @@ debug_process_uart (void)
             ptr = buf;
         } else {
             debug_uart_put(data, stdout);
-            if (data == '\b') {if (ptr >0) ptr--;}
+            if (data == '\b') {if (ptr > &buf[0]) ptr--;}
             else
             {
                 if (ptr < &buf[LEN-1])
