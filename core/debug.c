@@ -129,11 +129,14 @@ debug_process_uart (void)
             ptr = buf;
         } else {
             debug_uart_put(data, stdout);
-
-            if (ptr < &buf[LEN-1])
-                *ptr++ = data;
+            if (data == '\b') {if (ptr >0) ptr--;}
             else
-                debug_printf("not enough space for storing '%c'\n", data);
+            {
+                if (ptr < &buf[LEN-1])
+                    *ptr++ = data;
+                else
+                    debug_printf("not enough space for storing '%c'\n", data);
+            }
         }
     }
 #endif  /* ECMD_PARSER_SUPPORT && !SOFT_UART_SUPPORT*/
