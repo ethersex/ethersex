@@ -373,5 +373,5 @@ _getch_queue (char ch)
 /*
   -- Ethersex META --
   header(core/tty/tty.h)
-  initearly(initscr)
+  init(initscr)
 */
