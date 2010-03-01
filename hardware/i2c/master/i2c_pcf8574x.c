@@ -66,8 +66,8 @@ i2c_pcf8574x_set(uint8_t address, uint8_t value){
 #endif
   i2c_master_select(address, TW_WRITE);
 
-  debug_printf("I2C: pcf8574X: 0x%X", i2c_master_transmit_with_ack());
 #ifdef DEBUG_I2C
+  debug_printf("I2C: pcf8574X: 0x%X", i2c_master_transmit_with_ack());
   debug_printf("I2C: pcf8574X read value: %X\n",value);
 #endif
   TWDR=value;
