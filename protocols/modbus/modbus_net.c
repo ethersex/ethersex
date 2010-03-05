@@ -94,7 +94,7 @@ void modbus_net_main(void)
 send_new_data:
           if (recv_len == -1) {
             // Send an error message
-            answer[8] = 0x0B; // gateway problem
+            answer[8] = 0x05; // gateway problem
             goto error_response;
           }
           uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, recv_len - 2);

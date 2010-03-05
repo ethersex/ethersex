@@ -112,7 +112,7 @@ modbus_periodic(void)
       if (recv_len) {
         PIN_SET(MODBUS_TX);
         modbus_data.data = modbus_client_state.data;
-        modbus_data.len = modbus_client_state.len;
+        modbus_data.len = recv_len; 
 
         /* Enable the tx interrupt and send the first character */
         modbus_data.sent = 1;
