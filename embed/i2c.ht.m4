@@ -10,6 +10,7 @@ ifdef({{conf_I2C_INLINE}}, {{}}, {{m4exit(1)}})dnl
 function ecmd_set(cmd, ic, value) {
 	ArrAjax.ecmd(cmd + '+' + ic + '+' + value);
 }
+
 </script>
 </head>
 <body>
@@ -44,8 +45,8 @@ Blink-LED at PWM0 and Servo at PWM1<br>
 }})
 ifdef({{conf_I2C_PCF8574X}}, {{
 PCF8574<br>
-<a href="javascript:ecmd_set('pcf8574x',0,'0+0')">I/O to OFF<a/><br>
-<a href="javascript:ecmd_set('pcf8574x',0,'0+ff')">I/O to ON<a/><br>
+<a href="javascript:ecmd_set('pcf8574x+set',0,'0+0')">I/O to OFF<a/><br>
+<a href="javascript:ecmd_set('pcf8574x+set',0,'0+ff')">I/O to ON<a/><br>
 <br>
 }})
 <br>
