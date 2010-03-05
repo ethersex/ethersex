@@ -52,12 +52,20 @@ parse_cmd_sll_get(char *cmd, char *output, uint16_t len)
     cmd[1] ++;
   } else {
     cmd[0] = 23;
+    /* If the timeout is reached we sent first a packet which is saying, that our
+       device is offline */
+    if (sll_data.timeout == 0) {
+	cmd[1] = 0;
+	len = sprintf_P(output, PSTR("output - "));
+	output[len] = ECMD_NO_NEWLINE;
+	return ECMD_AGAIN(len);
+    }
     cmd[1] = 1;
+    
   }
 
   /* Sensor data has timed out */
-  if (sll_data.timeout == 0)
-     return snprintf_P(output, len, PSTR("offline"));
+
 
   uint8_t rest_len = sll_data.len - sent_parts * len;
 
