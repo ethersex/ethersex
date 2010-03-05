@@ -56,7 +56,7 @@ parse_cmd_sll_get(char *cmd, char *output, uint16_t len)
        device is offline */
     if (sll_data.timeout == 0) {
 	cmd[1] = 0;
-	len = sprintf_P(output, PSTR("output - "));
+	len = sprintf_P(output, PSTR("offline - "));
 	output[len] = ECMD_NO_NEWLINE;
 	return ECMD_AGAIN(len);
     }
