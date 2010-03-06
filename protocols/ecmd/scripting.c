@@ -126,8 +126,10 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   sscanf_P(cmd, PSTR("%s"), &filename);  // should check for ".es" extention!
   current_script.handle = vfs_open(filename);
 
-  if (current_script.handle == NULL)
+  if (current_script.handle == NULL) {
+    SCRIPTDEBUG("%s not found\n", filename);
     return ECMD_FINAL(1);
+  }
   
   filesize = vfs_size(current_script.handle);
 
@@ -321,9 +323,17 @@ parse_cmd_echo(char *cmd, char *output, uint16_t len)
 
 // if ECMD_SCRIPT_AUTOSTART_SUPPORT is enabled
 // then call script by name ECMD_SCRIPT_AUTOSTART_NAME
+
+// could not run on startup, or init, so make this run just once!
+uint8_t ecmd_script_autorun_done = 0;  
+
 int16_t
 ecmd_script_init_run(void){
 #ifdef  ECMD_SCRIPT_AUTOSTART_SUPPORT
+  if (ecmd_script_autorun_done == 1) {
+    return ECMD_FINAL_OK;
+  }  
+  ecmd_script_autorun_done = 1;
   char cmd[] = CONF_ECMD_SCRIPT_AUTOSTART_NAME;
   char output[ECMD_SCRIPT_VARIABLE_LENGTH];
   SCRIPTDEBUG("auto run: %s\n", cmd);
@@ -348,5 +358,5 @@ ecmd_script_init_run(void){
   ecmd_feature(rem, "rem",<any>, Remark for anything)
   ecmd_feature(echo, "echo ",<any>, Print out all arguments of echo)
   header(protocols/ecmd/scripting.h)
-  ifdef(`conf_ECMD_SCRIPT_AUTOSTART',`init(ecmd_script_init_run)')
+  ifdef(`conf_ECMD_SCRIPT_AUTOSTART',`timer(50,ecmd_script_init_run())')
 */
