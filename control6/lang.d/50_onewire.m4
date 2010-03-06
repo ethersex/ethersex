@@ -30,6 +30,26 @@ divert(globals_divert)`
 #include "hardware/onewire/onewire.h"
 #include "core/bit-macros.h"
 
+int16_t ow_read_temp (struct ow_rom_code_t *rom)
+{
+  int16_t retval = 0x7FFF;  /* error */
+
+  /* disable interrupts */
+  uint8_t sreg = SREG;
+  cli();
+
+  struct ow_temp_scratchpad_t sp;
+  if (ow_temp_read_scratchpad(rom, &sp) != 1)
+    goto out;  // scratchpad read failed
+
+  uint16_t temp = ow_temp_normalize(rom, &sp);
+  retval = HI8(temp) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+
+ out:
+  SREG = sreg;
+  return retval;
+}
+
 int16_t ow_temp (struct ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
@@ -41,13 +61,7 @@ int16_t ow_temp (struct ow_rom_code_t *rom)
   if (ow_temp_start_convert_wait(rom) != 1)
     goto out;
   
-  struct ow_temp_scratchpad_t sp;
-  if (ow_temp_read_scratchpad(rom, &sp) != 1)
-    goto out;  // scratchpad read failed
-
-  uint16_t temp = ow_temp_normalize(rom, &sp);
-  retval = HI8(temp) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-
+ retval=ow_read_temp(rom);
  out:
   SREG = sreg;
   return retval;
@@ -69,6 +83,29 @@ struct ow_rom_code_t ow_$1 = {{ .bytewise = {
   `0x'substr($1,12,2), dnl
   `0x'substr($1,14,2), dnl
 }}};
+#define ONEWIRE_$1
 #endif
 divert(old_divert)ow_temp(&ow_$1)')
 
+define(`ONEWIRE_READ', `ONEWIRE_USED()dnl
+define(`old_divert', divnum)dnl
+divert(globals_divert)
+#ifndef ONEWIRE_$1
+struct ow_rom_code_t ow_$1 = {{ .bytewise = {
+  `0x'substr($1,0,2), dnl
+  `0x'substr($1,2,2), dnl
+  `0x'substr($1,4,2), dnl
+  `0x'substr($1,6,2), dnl
+  `0x'substr($1,8,2), dnl
+  `0x'substr($1,10,2), dnl
+  `0x'substr($1,12,2), dnl
+  `0x'substr($1,14,2), dnl
+}}};
+#define ONEWIRE_$1
+#endif
+divert(old_divert)ow_read_temp(&ow_$1)')
+
+define(`ONEWIRE_CONVERT', `ONEWIRE_USED()dnl
+define(`old_divert', divnum)dnl
+divert(globals_divert)
+divert(old_divert)ow_temp_start_convert(NULL,0)')

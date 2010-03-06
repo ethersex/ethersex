@@ -179,6 +179,7 @@ comment "I/O"
 	source hardware/adc/config.in
 	source hardware/sms/config.in
 	source hardware/adc/kty/config.in
+	source hardware/adc/ads7822/config.in
 	source hardware/dac/config.in
 	source hardware/lcd/config.in
 	source hardware/i2c/master/config.in

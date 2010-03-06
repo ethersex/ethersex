@@ -1,5 +1,4 @@
 /*
- *
  * hd44780 driver library
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
@@ -21,8 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _HD4480_H
-#define _HD4480_H
+#ifndef _HD44780_H
+#define _HD44780_H
 
 #include <stdio.h>
 #include "config.h"
@@ -41,17 +40,20 @@
      #define HD44780_DATA_SHIFT 3
 */
 
-#define	HD44780_ORIGINAL 1
-#define	HD44780_DISPTECH 2
+#define HD44780_ORIGINAL 1
+#define HD44780_DISPTECH 2
 #define HD44780_KS0067B  3
+#define HD44780_KS0066U  4
 
-#ifdef SER_LCD
-#define LCD_RS_PIN		0
-#define LCD_LIGHT_PIN		7
-#endif
+#define HD44780_DIREKT 16
+#define HD44780_SERLCD 17
+#define HD44780_I2CSUPPORT 18
 
 /* lcd stream */
 extern FILE *lcd;
+
+#define clock_write() clock_rw(0)
+#define clock_read() clock_rw(1)
 
 #define noinline __attribute__((noinline))
 
@@ -59,12 +61,19 @@ extern FILE *lcd;
 void hd44780_init(void);
 void hd44780_config(uint8_t cursor, uint8_t blink);
 void hd44780_define_char(uint8_t n_char, uint8_t *data);
+void hd44780_backlight(uint8_t state);
 void noinline hd44780_clear(void);
 void noinline hd44780_home(void);
 void noinline hd44780_goto(uint8_t line, uint8_t pos);
 void noinline hd44780_shift(uint8_t right);
 int noinline hd44780_put(char d, FILE *stream);
+void noinline hd44780_hw_init(void);
+uint8_t noinline clock_rw(uint8_t read);
+void noinline output_nibble(uint8_t rs, uint8_t nibble);
+#ifdef HD44780_READBACK
+uint8_t noinline input_nibble(uint8_t rs);
+#endif
 
 #endif /* HD44780_SUPPORT */
 
-#endif /* _HD4480_H */
+#endif /* _HD44780_H */

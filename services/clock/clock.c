@@ -276,7 +276,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
   timestamp += d->hour * 3600ULL;
 
   /* days */
-  timestamp += d->day * 86400ULL - 86400ULL;
+  timestamp += (d->day-1) * 86400ULL;
 
   /* month */
   while (1) {
