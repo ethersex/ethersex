@@ -58,8 +58,11 @@ divert(-1)dnl
 ################################
 divert(0)dnl
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #include "services/clock/clock.h"
 #include "core/pt/pt.h"
+#include "core/vfs/vfs.h"
+#include "core/vfs/vfs-util.h"
 #include "config.h"
 #include "hardware/adc/kty/kty81.h"
 #ifdef NAMED_PIN_SUPPORT
