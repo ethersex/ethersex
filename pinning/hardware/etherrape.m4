@@ -12,6 +12,7 @@ ifdef(`conf_ONEWIRE', `dnl
 ifdef(`conf_SD_READER', `dnl
   /* port the sd-reader CS is attached to */
   pin(SPI_CS_SD_READER, PB2, OUTPUT)
+  dnl  pin(SD_READER_POWERON, PB3, OUTPUT)
 ')dnl
 
 ifdef(`conf_FS20', `dnl
