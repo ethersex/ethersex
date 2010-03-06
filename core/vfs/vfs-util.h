@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2010 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,5 +28,13 @@
 /* Copy file SRC to DEST.  Be aware, this function uses uip_buf
    as a temporary buffer. */
 uint8_t vfs_copy_file (const char *dest, const char *src);
+
+/* Opens a FILE, if it doesn't exist, it will be created. 
+   returns a filehandle on success */
+struct vfs_file_handle_t * vfs_open_or_creat(const char* filename);
+
+/* Opens/creates a file and appends buffer to it */
+uint8_t vfs_file_append(const char *filename, uint8_t* buf, uint16_t len);
+
 
 #endif	/* VFS_UTIL_H */
