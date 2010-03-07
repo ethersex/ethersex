@@ -67,6 +67,26 @@ parse_cmd_rfm12_ask_tevion_send(char *cmd, char *output, uint16_t len)
 }
 #endif // RFM12_ASK_TEVION_SUPPORT
 
+#ifdef RFM12_ASK_INTERTECHNO_SUPPORT
+int16_t
+parse_cmd_rfm12_ask_intertechno_send(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t family;
+  uint8_t group;
+  uint8_t device;
+  uint8_t command;
+  uint8_t ret = sscanf_P (cmd, PSTR ("%hhu %hhu %hhu %hhu"), &family, &group, &device, &command);
+  if (ret < 4)
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_ask_intertechno_send(family, group, device, command);
+  return ECMD_FINAL_OK;
+}
+#endif // RFM12_ASK_INTERTECHNO_SUPPORT
+
 #ifdef RFM12_ASK_2272_SUPPORT
 int16_t
 parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
@@ -143,7 +163,6 @@ int16_t
 
   return ECMD_FINAL_OK;
 }
-
 #ifdef RFM12_ASK_SENSING_SUPPORT
 int16_t
 parse_cmd_rfm12_ask_sense (char *cmd, char *output, uint16_t len)
@@ -157,3 +176,21 @@ parse_cmd_rfm12_ask_sense (char *cmd, char *output, uint16_t len)
 }
 #endif  /* RFM12_ASK_SENSING_SUPPORT */
 #endif  /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
+
+int16_t
+parse_cmd_rfm12_ask_test (char *cmd, char *output, uint16_t len)
+{
+   uint8_t val=0;
+	uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &val);
+	if (val == 0)
+		return ECMD_FINAL_OK;
+	else
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("%u"), val));
+}
+/*
+-- Ethersex META --
+block(Cooles Modul)
+  ecmd_feature(rfm12_ask_test, "rfm12 test", [1], val)
+  ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
+*/
+
