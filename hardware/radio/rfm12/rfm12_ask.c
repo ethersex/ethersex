@@ -22,7 +22,6 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 */
-
 #include <stdlib.h>
 #include <avr/wdt.h>
 
@@ -31,6 +30,7 @@
 
 #include "rfm12.h"
 #include "rfm12_ask.h"
+
 
 void rfm12_ask_trigger(uint8_t , uint16_t);
 
@@ -112,6 +112,84 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uin
   rfm12_epilogue ();
 }
 #endif /* RFM12_ASK_TEVION_SUPPORT */
+
+#ifdef RFM12_ASK_INTERTECHNO_SUPPORT
+void 
+rfm12_ask_intertechno_send_bit(uint8_t bit)
+{
+   if (bit) {
+      rfm12_ask_trigger(1, INTERTECHNO_PERIOD);
+      rfm12_ask_trigger(0, 3*INTERTECHNO_PERIOD);
+      rfm12_ask_trigger(1, 3*INTERTECHNO_PERIOD);
+      rfm12_ask_trigger(0, INTERTECHNO_PERIOD);
+   }
+   else
+   {
+      rfm12_ask_trigger(1, INTERTECHNO_PERIOD);
+      rfm12_ask_trigger(0, 3*INTERTECHNO_PERIOD);
+      rfm12_ask_trigger(1, INTERTECHNO_PERIOD);
+      rfm12_ask_trigger(0, 3*INTERTECHNO_PERIOD);
+   }
+}
+
+void 
+rfm12_ask_intertechno_send_sync()
+{
+   rfm12_ask_trigger(1, INTERTECHNO_PERIOD);
+   rfm12_ask_trigger(0, 31*INTERTECHNO_PERIOD);
+}
+
+void
+rfm12_ask_intertechno_send(uint8_t family, uint8_t group, 
+   uint8_t device, uint8_t command)
+{
+  uint8_t code[12];
+
+  family -= 1;
+  group -= 1;
+  device -= 1;
+
+  code[0] = 1 & family;
+  code[1] = 1 & (family >> 1);
+  code[2] = 1 & (family >> 2);
+  code[3] = 1 & (family >> 3);
+
+  code[4] = 1 & device;
+  code[5] = 1 & (device >> 1);
+
+  code[6] = 1 & group;
+  code[7] = 1 & (group >> 1);
+
+  if (command == 0) 
+  {
+     code[8] = 0;
+     code[9] = 1;
+     code[10] = 1;
+     code[11] = 0;
+  }
+  else
+  {
+     code[8] = 0;
+     code[9] = 1;
+     code[10] = 1;
+     code[11] = 1;
+  }
+
+  rfm12_prologue ();
+  rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
+  for(uint8_t j = 6; j > 0; j--)         // send Sequenz 6 times
+  {
+    wdt_kick();
+    for(uint8_t i = 0; i < 12; i++)
+    {
+       rfm12_ask_intertechno_send_bit(code[i]);
+    }
+    rfm12_ask_intertechno_send_sync();
+  }
+  rfm12_trans(0x8208);                        // 2. PwrMngt TX off
+  rfm12_epilogue ();
+}
+#endif /* RFM12_ASK_INTERTECHNO_SUPPORT */
 
 #if defined RFM12_ASK_2272_SUPPORT || defined RFM12_ASK_1527_SUPPORT
 void
