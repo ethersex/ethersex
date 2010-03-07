@@ -182,15 +182,17 @@ parse_cmd_rfm12_ask_test (char *cmd, char *output, uint16_t len)
 {
    uint8_t val=0;
 	uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &val);
-	if (val == 0)
+	if (ret == 0)
 		return ECMD_FINAL_OK;
 	else
       return ECMD_FINAL(snprintf_P(output, len, PSTR("%u"), val));
 }
 /*
 -- Ethersex META --
-block(Cooles Modul)
-  ecmd_feature(rfm12_ask_test, "rfm12 test", [1], val)
-  ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
+  block(RFM ASK)
+  ecmd_ifdef(RFM12_ASK_INTERTECHNO_SUPPORT)
+    ecmd_feature(rfm12_ask_test, "rfm12 test", [1], val)
+    ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
+  ecmd_endif()
 */
 
