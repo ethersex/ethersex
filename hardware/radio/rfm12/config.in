@@ -11,6 +11,7 @@ dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT $ARCH_A
 		'433.920MHz'	CONF_RFM12_FREQ
 
 	dep_bool "Use slow SPI" CONF_RFM12_SLOW_SPI
+	dep_bool "Use RFM12B" CONF_RFM12B_SUPPORT
 		
 	if [ "$TEENSY_SUPPORT" != "y" ]; then
 		int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
