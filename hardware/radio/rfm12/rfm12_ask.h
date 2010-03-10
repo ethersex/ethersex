@@ -30,7 +30,11 @@ void rfm12_ask_2272_1527_switch(uint8_t);
 void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_external_filter_init(void);
 void rfm12_ask_external_filter_deinit(void);
-
+void rfm12_ask_intertechno_send_bit(uint8_t);
+void rfm12_ask_intertechno_send_sync();
+void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void rfm12_ask_sense_start(void);
+
+#define INTERTECHNO_PERIOD 264 // produces pulse of 360 us
 
 #endif /* __RFM12_ASK_H */

@@ -26,6 +26,15 @@ function ecmd_set_rf3(type, code, delay, repeat) {
 	ArrAjax.ecmd(url);
 }
 }})
+ifdef({{conf_RFM12_ASK_INTERTECHNO}}, {{
+function ecmd_set_rf4(command) {
+   var family = document.getElementsByName("Family")[0].value;
+   var group = document.getElementsByName("Group")[0].value;
+   var device = document.getElementsByName("Device")[0].value;
+   var url = 'rfm12+intertechno+' + family + '+' + group + '+' + device + '+' + command;
+	ArrAjax.ecmd(url);
+}
+}})
 ifdef({{conf_FS20_SEND}}, {{
 function ecmd_set_rfs20(acode, bcode, wert) {
 	var url = 'fs20+' + 'send+' + '+' + acode + '+' + bcode + '+' + wert;
@@ -88,6 +97,49 @@ ifdef({{conf_RFM12_ASK_1527}}, {{
 <tr><td>3</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,85',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,93',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,93',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,85',76,45)">DOWN</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,93',76,100)">LEARN</a></td></tr>
 <tr><td>4</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,86',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,94',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,94',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,86',76,45)">DOWN</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,94',76,100)">LEARN</a></td></tr>
 <tr><td>all</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,88',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,80',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,80',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,88',76,45)">DOWN</a></td></tr>
+</table>
+}})
+ifdef({{conf_RFM12_ASK_INTERTECHNO}}, {{
+<h2>Intertechno ITS-150</h2>
+<table>
+<tr><td>Familie</td><td>
+<select name="Family" size="1">
+<option value=1>A</option>
+<option value=2>B</option>
+<option selected value=3>C</option>
+<option value=4>D</option>
+<option value=5>E</option>
+<option value=6>F</option>
+<option value=7>G</option>
+<option value=8>H</option>
+<option value=9>I</option>
+<option value=10>J</option>
+<option value=11>K</option>
+<option value=12>L</option>
+<option value=13>M</option>
+<option value=14>N</option>
+<option value=15>O</option>
+<option value=16>P</option>
+</select>
+</td></tr><tr><td>Gruppe</td><td>
+<select name="Group" size="1">
+<option>1</option>
+<option>2</option>
+<option selected>3</option>
+<option>4</option>
+</select>
+</td></tr><tr><td>Geraet</td><td>
+<select name="Device" size="1">
+<option selected>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+</select>
+</td></tr><tr><td>Aktion</td><td>
+<input type="button" name="Ein" value="Ein" onclick="ecmd_set_rf4(1)">
+</td><td>
+<input type="button" name="Aus" value="Aus" onclick="ecmd_set_rf4(0)">
+</td></tr>
 </table>
 }})
 <br>
