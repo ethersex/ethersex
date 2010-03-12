@@ -125,6 +125,13 @@ eeprom_init (void)
 	eeprom_save_P(sms77_password, PSTR(CONF_SMS77_PASS), SMS77_VALUESIZE);
 	eeprom_save_P(sms77_receiver, PSTR(CONF_SMS77_TO), SMS77_VALUESIZE);
 #endif
+
+#ifdef JABBER_EEPROM_SUPPORT
+	eeprom_save_P(jabber_username, PSTR(CONF_JABBER_USERNAME), JABBER_VALUESIZE);
+	eeprom_save_P(jabber_password, PSTR(CONF_JABBER_PASSWORD), JABBER_VALUESIZE);
+	eeprom_save_P(jabber_resource, PSTR(CONF_JABBER_RESOURCE), JABBER_VALUESIZE);
+	eeprom_save_P(jabber_hostname, PSTR(CONF_JABBER_HOSTNAME), JABBER_VALUESIZE);
+#endif
     eeprom_update_chksum();
 }
 

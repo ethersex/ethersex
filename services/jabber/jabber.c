@@ -463,6 +463,18 @@ jabber_init(void)
 	JABDEBUG ("no uip_conn available.\n");
 	return;
     }
+
+#ifdef JABBER_EEPROM_SUPPORT
+	eeprom_restore(jabber_username, &jabber_user, 16);
+	eeprom_restore(jabber_password, &jabber_pass, 16);
+	eeprom_restore(jabber_resource, &jabber_resrc, 16);
+	eeprom_restore(jabber_hostname, &jabber_host, 16);
+#else
+	sprintf(jabber_user, "%s", CONF_JABBER_USERNAME);
+	sprintf(jabber_pass, "%s", CONF_JABBER_PASSWORD);
+	sprintf(jabber_resrc, "%s", CONF_JABBER_RESOURCE);
+	sprintf(jabber_host, "%s", CONF_JABBER_HOSTNAME);
+#endif	
 }
 
 /*
