@@ -83,7 +83,7 @@ end:
 }
 
 uint8_t 
-i2c_24CXX_write_block(uint16_t addr, uint8_t *ptr, uint8_t len)
+i2c_24CXX_write_block_int(uint16_t addr, uint8_t *ptr, uint8_t len)
 {
   uint8_t ret;
   if (!i2c_24CXX_set_addr(addr)) { ret = 0; goto end; }
@@ -107,6 +107,27 @@ end:
 
   i2c_master_stop();
   return ret;
+}
+
+uint8_t i2c_24CXX_write_block(uint16_t addr, uint8_t *ptr, uint8_t len)
+{
+  uint8_t ret;
+  uint8_t templen;
+  uint8_t writelen;
+ 
+  ret=0;
+  writelen=0;
+  do
+     {
+     if (CONF_I2C_24CXX_PAGESIZE - (addr+writelen)%CONF_I2C_24CXX_PAGESIZE <(len-writelen))
+        templen=(CONF_I2C_24CXX_PAGESIZE - (addr+writelen)%CONF_I2C_24CXX_PAGESIZE);
+     else
+	templen=len-writelen;
+     ret += i2c_24CXX_write_block_int(addr+writelen,ptr+writelen,templen);
+     writelen += templen;
+     }
+  while ((writelen < len)&&(ret==writelen));
+return ret;
 }
 
 uint8_t 
