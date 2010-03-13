@@ -31,8 +31,6 @@
 
 #include "services/clock/clock.h"
 
-#ifdef I2C_DS1337_SUPPORT
-
 uint8_t i2c_ds1337_set_block(uint8_t addr, char *data, uint8_t len) {
      uint8_t ret = 0;
 
@@ -167,12 +165,9 @@ void i2c_ds1337_init(void)
     clock_set_time(timestamp);
 #endif
 }
+
 /*
   -- Ethersex META --
   header(hardware/i2c/master/i2c_ds1337.h)
   init(i2c_ds1337_init)
 */
-
-
-#endif /* I2C_DS1337_SUPPORT */
-
