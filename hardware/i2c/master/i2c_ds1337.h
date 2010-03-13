@@ -48,4 +48,6 @@ struct ds1337_reg {
 
 typedef struct ds1337_reg ds1337_reg_t;
 
+void i2c_ds1337_init(void);
+
 #endif /* _I2C_DS1337_H */

@@ -27,6 +27,7 @@
 #include "i2c_master.h"
 #include "i2c_ds1337.h"
 #include <avr/interrupt.h>
+#include <string.h>
 
 #include "services/clock/clock.h"
 
@@ -83,7 +84,7 @@ uint8_t i2c_ds1337_get_block(uint8_t addr, char *data, uint8_t len) {
 }
 
 uint16_t i2c_ds1337_set(uint8_t reg, uint8_t data) {
-     if (i2c_ds1337_set_block( reg, &data, 1 ))
+    if (i2c_ds1337_set_block( reg, (char *)&data, 1 ))
 	  return 0x100;
      return 0;
 }
@@ -91,7 +92,7 @@ uint16_t i2c_ds1337_set(uint8_t reg, uint8_t data) {
 uint16_t i2c_ds1337_get(uint8_t reg) {
      uint8_t ret = 0;
      
-     if (i2c_ds1337_get_block( reg, &ret, 1 ))
+     if (i2c_ds1337_get_block( reg, (char *)&ret, 1 ))
 	  return 0x100;
      
      return ret;
@@ -131,34 +132,39 @@ void i2c_ds1337_sync(uint32_t timestamp) {
      rtc.month = i2b( d.month );
      rtc.year  = i2b( d.year % 100 );
 
-     i2c_ds1337_set_block( 0, &rtc, 7 ); // not the Ctrl reg
+     i2c_ds1337_set_block( 0, (char *)&rtc, 7 ); // not the Ctrl reg
      
 #endif
 }
 
 uint32_t i2c_ds1337_read() {
+#ifdef CLOCK_DATETIME_SUPPORT
         ds1337_reg_t rtc;
         struct clock_datetime_t d;
         uint32_t temp_time;
 
-        i2c_ds1337_get_block(0,&rtc,sizeof(rtc));
-        d.sec=b2i(rtc.sec);
-        d.min=b2i(rtc.min);
-        d.hour=b2i(rtc.hour);
-        d.dow=rtc.day;
-        d.day=b2i(rtc.date);
-        d.month=b2i(rtc.month);
-        d.year=b2i(rtc.year);
-        temp_time=clock_utc2timestamp(&d,0);
+        i2c_ds1337_get_block(0, (char *)&rtc, sizeof(rtc));
+        d.sec     = b2i(rtc.sec);
+        d.min     = b2i(rtc.min);
+        d.hour    = b2i(rtc.hour);
+        d.dow     = rtc.day;
+        d.day     = b2i(rtc.date);
+        d.month   = b2i(rtc.month);
+        d.year    = b2i(rtc.year);
+        temp_time = clock_utc2timestamp(&d,0);
         return temp_time;
+#else
+	return 0;
+#endif /* CLOCK_DATETIME_SUPPORT */
+
 }
 
-void i2c_ds1337_init()
+void i2c_ds1337_init(void)
 {
 #ifdef CLOCK_SUPPORT
-uint32_t timestamp;
-timestamp=i2c_ds1337_read();
-clock_set_time(timestamp);
+    uint32_t timestamp;
+    timestamp=i2c_ds1337_read();
+    clock_set_time(timestamp);
 #endif
 }
 /*
@@ -168,5 +174,5 @@ clock_set_time(timestamp);
 */
 
 
-#endif /s I2C_DS1337_SUPPOR */
+#endif /* I2C_DS1337_SUPPORT */
 
