@@ -30,6 +30,8 @@ divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <stdint.h>
 #include "config.h"
