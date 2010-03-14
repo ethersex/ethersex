@@ -32,6 +32,11 @@
 static uint32_t timestamp;
 static uint8_t ticks;
 static uint32_t sync_timestamp;
+static uint32_t n_sync_timestamp;
+static uint32_t n_sync_tick;
+static int16_t delta;
+static uint16_t ntp_count;
+static uint16_t dcf_count;
 
 #define NTP_RESYNC_PERIOD 1800
 
@@ -68,7 +73,13 @@ clock_init(void)
 
   /* Enable the timer interrupt */
   CLOCK_TIMER_TIMSK |= _BV(CLOCK_TIMER_ENABLE);
+  
+  /* reset dcf_count */
+  dcf_count=0;
 #endif
+  
+  /* reset dcf_count */
+  dcf_count=0;
 }
 
 #ifdef CLOCK_CRYSTAL_SUPPORT
@@ -151,6 +162,8 @@ clock_set_time(uint32_t new_sync_timestamp)
 #endif  /* CLOCK_NTP_ADJUST_SUPPORT */
 
 	sync_timestamp = new_sync_timestamp;
+	n_sync_timestamp = new_sync_timestamp;
+	n_sync_tick = TCNT2;
 
 	/* Allow the clock to jump forward, but not to go backward
 	 * except the time difference is greater than 5 minutes */
@@ -176,7 +189,51 @@ clock_get_time(void)
 uint32_t
 clock_last_sync(void)
 {
-  return sync_timestamp;
+  return n_sync_timestamp;
+}
+
+uint32_t
+clock_last_s_tick(void)
+{
+  return n_sync_tick;
+}
+
+int16_t
+clock_last_delta(void)
+{
+  return delta;
+}
+
+uint16_t
+clock_dcf_count(void)
+{
+  return dcf_count;
+}
+
+void
+set_dcf_count(uint16_t new_dcf_count)
+{
+  if (new_dcf_count == 0) dcf_count=0;
+  else dcf_count=dcf_count+new_dcf_count;
+}
+
+uint16_t
+clock_ntp_count(void)
+{
+  return ntp_count;
+}
+
+void
+set_ntp_count(uint16_t new_ntp_count)
+{
+  if (new_ntp_count == 0) ntp_count=0;
+  else ntp_count=ntp_count+new_ntp_count;
+}
+
+uint16_t
+clock_last_ntp(void)
+{
+  return ntp_timer;
 }
 
 #ifdef WHM_SUPPORT

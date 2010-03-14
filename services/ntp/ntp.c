@@ -122,6 +122,8 @@ ntp_newdata(void)
     debug_printf("NTP: Set new time: %lu\n",ntp_timestamp);
 #endif
   clock_set_time(ntp_timestamp);
+  set_dcf_count(0);
+  set_ntp_count(1);
 #ifdef NTPD_SUPPORT
   ntp_setstratum(pkt->stratum);
 #endif
