@@ -451,7 +451,7 @@ int16_t parse_cmd_i2c_max7311_set(char *cmd, char *output, uint16_t len)
   uint8_t state;
   uint8_t ret;
   sscanf_P(cmd, PSTR("%hhu %hhu %hhu"), &adr, &bit, &state);
-  if (adr > 0x6F | bit > 15)
+  if (adr > 0x6F || bit > 15)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_set(adr, bit, state);
   if (ret == 0) {
@@ -468,7 +468,7 @@ int16_t parse_cmd_i2c_max7311_pulse(char *cmd, char *output, uint16_t len)
   uint16_t time; 
   uint8_t ret;
   sscanf_P(cmd, PSTR("%hhu %hhu %hu"), &adr, &bit, &time);
-  if (adr > 0x6F | bit > 15)
+  if (adr > 0x6F || bit > 15)
     return ECMD_ERR_PARSE_ERROR;
   if (time > 1000)
     time = 1000;

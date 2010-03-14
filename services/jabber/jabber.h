@@ -22,6 +22,13 @@
 #ifndef HAVE_JABBER_H
 #define HAVE_JABBER_H
 
+#define JABBER_VALUESIZE 16
+
+char jabber_user[JABBER_VALUESIZE];
+char jabber_pass[JABBER_VALUESIZE];
+char jabber_resrc[JABBER_VALUESIZE];
+char jabber_host[JABBER_VALUESIZE];
+
 void jabber_init(void);
 void jabber_periodic(void);
 uint8_t jabber_send_message(char *message);

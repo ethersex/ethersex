@@ -17,6 +17,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <stdio.h>
 #include <stdlib.h>

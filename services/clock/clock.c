@@ -24,6 +24,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include "hardware/i2c/master/i2c_ds1337.h"
 #include "services/ntp/ntp.h"
 #include "core/debug.h"
 #include "clock.h"

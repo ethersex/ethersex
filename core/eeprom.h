@@ -41,6 +41,10 @@
 #include "protocols/sms77/sms77.h"
 #endif
 
+#ifdef JABBER_EEPROM_SUPPORT
+#include "serives/jabber/jabber.h"
+#endif
+
 struct eeprom_config_t {
 #ifdef ETHERNET_SUPPORT
     uint8_t mac[6];
@@ -83,6 +87,13 @@ struct eeprom_config_t {
 	char sms77_username[SMS77_VALUESIZE];
 	char sms77_password[SMS77_VALUESIZE];
 	char sms77_receiver[SMS77_VALUESIZE];
+#endif
+
+#ifdef JABBER_EEPROM_SUPPORT
+	char jabber_username[JABBER_VALUESIZE];
+	char jabber_password[JABBER_VALUESIZE];
+	char jabber_resource[JABBER_VALUESIZE];
+	char jabber_hostname[JABBER_VALUESIZE];
 #endif
 
     uint8_t crc;

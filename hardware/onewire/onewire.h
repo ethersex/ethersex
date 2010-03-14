@@ -48,7 +48,6 @@
 
 /* constants */
 
-#define NULL ((void *)0)
 #define LOW(x) ((uint8_t)(x))
 #define HIGH(x) ((uint8_t)((x) >> 8))
 

@@ -74,7 +74,6 @@ i2c_pcf8574x_set(uint8_t address, uint8_t value){
 
   i2c_master_transmit();
 
-end:
   i2c_master_stop();
   return ret;
 }

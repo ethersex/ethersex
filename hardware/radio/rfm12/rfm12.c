@@ -23,6 +23,7 @@
 
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "config.h"
@@ -33,7 +34,11 @@
 #include "rfm12_raw_net.h"
 #include "core/bit-macros.h"
 
-#define RFM12_DEBUG(a...)
+#ifdef DEBUG
+	#define RFM12_DEBUG(s, args...) printf_P(PSTR("D: " s), ## args)
+#else
+	#define RFM12_DEBUG(a...)
+#endif
 
 #ifdef RFM12_IP_SUPPORT
 rfm12_status_t rfm12_status;
@@ -248,12 +253,18 @@ rfm12_init(void)
     _delay_ms(10);		/* wait until POR done */
 
   rfm12_trans(0xC0E0);		/* AVR CLK: 10MHz */
-  rfm12_trans(0x80D7);		/* Enable FIFO */
+  rfm12_trans(RFM12BAND(CONF_RFM12_FREQ));	/* Select BAND, Enable FIFO */
   rfm12_trans(0xC2AB);		/* Data Filter: internal */
   rfm12_trans(0xCA81);		/* Set FIFO mode */
   rfm12_trans(0xE000);		/* disable wakeuptimer */
   rfm12_trans(0xC800);		/* disable low duty cycle */
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
+
+#ifdef CONF_RFM12B_SUPPORT
+  rfm12_trans(0xCED4);		/* Set Sync=2DD4 */
+//  rfm12_trans(0xCC17);		/* pll bandwitdh 1: max bitrate = 256kHz - won't work good */
+  rfm12_trans(0xCC16);		/* pll bandwitdh 0: max bitrate 86.2kHz - works ! */
+#endif
 
   uint16_t status = rfm12_trans(0x0000);
   (void) status;		/* keep GCC quiet even if debug disabled. */
