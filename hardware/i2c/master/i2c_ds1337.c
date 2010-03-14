@@ -142,14 +142,14 @@ uint32_t i2c_ds1337_read() {
         uint32_t temp_time;
 
         i2c_ds1337_get_block(0,&rtc,sizeof(rtc));
-        d.sec=b2i(rtc.sec);
-        d.min=b2i(rtc.min);
-        d.hour=b2i(rtc.hour);
-        d.dow=rtc.day;
-        d.day=b2i(rtc.date);
-        d.month=b2i(rtc.month);
-        d.year=b2i(rtc.year);
-        temp_time=clock_utc2timestamp(&d,0);
+        d.sec  = b2i(rtc.sec);
+        d.min  = b2i(rtc.min);
+        d.hour = b2i(rtc.hour);
+        d.dow  = rtc.day;
+        d.day  = b2i(rtc.date);
+        d.month = b2i(rtc.month);
+        d.year = b2i(rtc.year);
+        temp_time = clock_utc2timestamp(&d,0);
         return temp_time;
 }
 
