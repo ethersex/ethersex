@@ -116,7 +116,10 @@ SIGNAL(usart(USART,_RX_vect))
     return ;
   }
 
+#ifndef ECMD_SERIAL_USART_NO_ECHO
   usart(UDR) = data;
+#endif /* ECMD_SERIAL_USART_NO_ECHO */
+
   recv_buffer[recv_len++] = data;
 }
 
