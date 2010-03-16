@@ -74,6 +74,7 @@ typedef uint32_t vfs_size_t;
 #include "hardware/storage/dataflash/vfs_df.h"
 #include "hardware/storage/sd_reader/vfs_sd.h"
 #include "core/vfs/vfs_inline.h"
+#include "hardware/i2c/master/vfs_eeprom.h"
 #include "hardware/i2c/master/vfs_eeprom_raw.h"
 #include "hardware/camera/vfs_dc3840.h"
 #include "core/host/vfs.h"
