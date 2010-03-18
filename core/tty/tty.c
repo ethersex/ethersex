@@ -47,6 +47,9 @@ tty_ll_clear (void)
 #ifdef TTY_LL_S1D15G10
   tty_s1d15g10_clear ();
 #endif
+#ifdef TTY_LL_S1D13305
+  tty_s1d13305_clear ();
+#endif
 #ifdef TTY_LL_VT100_TELNET
   tty_vt100_clear ();
 #endif
@@ -63,6 +66,9 @@ tty_ll_goto (uint8_t y, uint8_t x)
 #endif
 #ifdef TTY_LL_VT100_TELNET
   tty_vt100_goto (y, x);
+#endif
+#ifdef TTY_LL_S1D13305
+  tty_s1d13305_goto(x, y);
 #endif
 
   tty_ll_y = y;
@@ -83,6 +89,9 @@ tty_ll_put (uint8_t y, uint8_t x, uint8_t ch)
 #endif
 #ifdef TTY_LL_S1D15G10
   tty_s1d15g10_put (y, x, ch);
+#endif
+#ifdef TTY_LL_S1D13305
+  tty_s1d13305_put (x, y, &ch);
 #endif
 #ifdef TTY_LL_VT100_TELNET
   tty_vt100_put (y, x, ch);

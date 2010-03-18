@@ -9,6 +9,9 @@
 *.rej
 *.hex
 *.bin
+*.workspace
+*.cbp
+*.layout
 
 # make generated files
 .config*
