@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 by Daniel Walter <fordprfkt@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
