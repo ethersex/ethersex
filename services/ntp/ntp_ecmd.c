@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2009 Peter Marschall <peter@adpm.de>
+ * Copyright (c) 2010 Hans Baechle <hans.baechle@gmx.net.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -30,7 +31,7 @@
 #include "ntp.h"
 
 #include "protocols/ecmd/ecmd-base.h"
-
+#include "services/clock/clock.h"
 
 int16_t parse_cmd_ntp_server(char *cmd, char *output, uint16_t len)
 {
@@ -70,10 +71,20 @@ int16_t parse_cmd_ntp_query(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL_OK;
 }
 
+int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
+{
+    uint32_t last_sync = clock_last_sync();
+    int16_t  last_delta = clock_last_delta();
+    uint16_t ntp_timer = clock_last_ntp();
+    uint16_t dcf_counter = clock_dcf_count();
+    uint16_t ntp_counter = clock_ntp_count();
+    return ECMD_FINAL(snprintf_P(output,len,PSTR("Update:%lu\ndelta:%d\nOCR1A:%u\nDCF/NTP:%d/%d\nResyn:%d"), last_sync, last_delta, OCR1A, dcf_counter, ntp_counter, ntp_timer));
+}
 
 /*
   -- Ethersex META --
   block(NTP Client)
   ecmd_feature(ntp_query, "ntp query",, Query the NTP server to get an NTP update.)
   ecmd_feature(ntp_server, "ntp server", [IPADDR], Display/Set the IP address of the NTP server to use to IPADDR.)
+  ecmd_feature(ntp_status, "ntp status",, Display NTP server status)
 */

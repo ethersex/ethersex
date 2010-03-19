@@ -90,6 +90,23 @@ uint32_t clock_get_time(void);
 /* when was the clock synced the last time (unix timestamp) */
 uint32_t clock_last_sync(void);
 
+/* when was the clock synced the last time (ticks) */
+uint32_t clock_last_s_tick(void);
+
+/* last delta time (from unix timestamp) */
+int16_t clock_last_delta(void);
+
+/* DCF syncs in Folge */
+uint16_t clock_dcf_count(void);
+void set_dcf_count(uint16_t new_dcf_count);
+
+/* NTP syncs in Folge */
+uint16_t clock_ntp_count(void);
+void set_ntp_count(uint16_t new_ntp_count);
+
+/* the actual ntp_timer */
+uint16_t clock_last_ntp(void);
+
 /* when was the device booted (unix timestamp) */
 uint32_t clock_get_startup(void);
 
