@@ -154,6 +154,7 @@
 
 #if defined(VFS_SUPPORT) && defined(VFS_INLINE_SUPPORT)	  \
   && !defined(VFS_SD_SUPPORT) && !defined(VFS_DF_SUPPORT) \
+  && !defined(VFS_EEPROM_SUPPORT)			  \
   && !defined(VFS_EEPROM_RAW_SUPPORT)			  \
   && !defined(VFS_DC3840_SUPPORT)
 #  define VFS_TEENSY 1

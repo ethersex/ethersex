@@ -271,17 +271,15 @@ uint32_t
 clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 {
   uint32_t timestamp;
-  /* seconds */
-  timestamp = d->sec ;
 
-  /* minutes */
-  timestamp += d->min * 60;
+  /* seconds + minutes */
+  timestamp = d->sec + d->min * 60;
 
   /* hours */
-  timestamp += d->hour * 3600ULL;
+  timestamp += d->hour * 3600UL;
 
   /* days */
-  timestamp += (d->day-1) * 86400ULL;
+  timestamp += (d->day-1) * 86400UL;
 
   /* month */
   while (1) {
@@ -297,7 +295,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
     if ( d->month == 2 && is_leap_year(d->year))
       monthdays++;
 
-    timestamp = timestamp + (monthdays * 86400ULL);
+    timestamp = timestamp + (monthdays * 86400UL);
 
   }
 
@@ -311,16 +309,16 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
   /* year, check if we have enough days left to fill a year */
   while (year < d->year+2000) {
     if (is_leap_year(year)) {
-      timestamp += 31622400ULL;
+      timestamp += 31622400UL;
     } else {
-      timestamp += 31536000ULL;
+      timestamp += 31536000UL;
     }
     year++;
   }
   if (cest == 0)
-    timestamp -= 3600ULL;
+    timestamp -= 3600UL;
   else
-    timestamp -= 7200ULL;
+    timestamp -= 7200UL;
 
   return timestamp;
 }
