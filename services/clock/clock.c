@@ -235,11 +235,13 @@ set_ntp_count(uint16_t new_ntp_count)
   else ntp_count=ntp_count+new_ntp_count;
 }
 
+#ifdef NTP_SUPPORT
 uint16_t
 clock_last_ntp(void)
 {
   return ntp_timer;
 }
+#endif
 
 #ifdef WHM_SUPPORT
 uint32_t
