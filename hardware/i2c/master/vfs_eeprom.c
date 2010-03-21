@@ -418,6 +418,6 @@ vfs_eeprom_write(struct vfs_file_handle_t *handle, void *data, vfs_size_t len)
 
 /*
   -- Ethersex META --
-  hardware/i2c/master/vfs_eeprom.h)
+  header(hardware/i2c/master/vfs_eeprom.h)
   initearly(vfs_eeprom_init)
 */
