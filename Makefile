@@ -75,6 +75,7 @@ SUBDIRS += protocols/nmea
 SUBDIRS += protocols/udpIO
 SUBDIRS += protocols/udpstella
 SUBDIRS += protocols/udpcurtain
+SUBDIRS += protocols/cw
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
