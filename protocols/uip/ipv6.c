@@ -259,7 +259,7 @@ uip_router_parse_advertisement(void)
          */
 
         uint8_t i, isnt_prefix = 0;
-        for (i = 4; i < 8; i++)
+        for (i = 8; i < 16; i++)
           if (prefix->prefix[i] != 0)
             isnt_prefix = 1;
 
@@ -271,7 +271,7 @@ uip_router_parse_advertisement(void)
 
         break;
       default:
-	IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
+          IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
         break;
     }
 
