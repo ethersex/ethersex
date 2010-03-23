@@ -73,6 +73,7 @@ typedef struct {
 
 
 struct vfs_file_handle_t * vfs_eeprom_open(const char * filename);
+void vfs_eeprom_init(void);
 void vfs_eeprom_close(struct vfs_file_handle_t *handle);
 vfs_size_t vfs_eeprom_write(struct vfs_file_handle_t *handle, void *buf, vfs_size_t len);
 vfs_size_t vfs_eeprom_read(struct vfs_file_handle_t *handle, void *buffer, vfs_size_t size);
