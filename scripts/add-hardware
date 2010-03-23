@@ -215,6 +215,11 @@ template $HD44780_SUPPORT << FNORD
     pin(HD44780_D7, PA6)
 FNORD
 
+template $CW_SUPPORT << FNORD
+  /* morse support */
+  pin(CW, PC6, OUTPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 
