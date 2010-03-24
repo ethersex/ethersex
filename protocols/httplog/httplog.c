@@ -61,7 +61,7 @@ static const char PROGMEM time_string[] =
 // and the http footer including the http protocol version and the server name
 static const char PROGMEM get_string_foot[] =
     " HTTP/1.1\n"
-    "Host: " CONF_HTTPLOG_SERVICE "\n\n\n";
+    "Host: " CONF_HTTPLOG_SERVICE "\r\n\r\n";
 
 
 static void
