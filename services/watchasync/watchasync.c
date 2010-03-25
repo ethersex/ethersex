@@ -47,7 +47,7 @@
 #include "services/clock/clock.h"
 #endif
 
-#define WATCHASYNC_BUFFERSIZE 32
+#define WATCHASYNC_BUFFERSIZE 64
 
 // first string is the GET part including the path
 static const char PROGMEM get_string_head[] =
@@ -96,7 +96,7 @@ ISR(PCINT2_vect)
 	if (wa_buffer_right == wa_buffer_left)
 	{
 	  wa_buffer_right = ((wa_buffer_right - 1) % WATCHASYNC_BUFFERSIZE);
-	  WATCHASYNC_DEBUG ("Buffer full, discarding message\n");
+	  WATCHASYNC_DEBUG ("Buffer full, discarding message!");
 	} else {
 	  wa_buffer[wa_buffer_right].pin = pin;
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
@@ -122,7 +122,7 @@ static void watchasync_net_main(void)
   if (uip_closed()) 
   {
     WATCHASYNC_DEBUG ("connection closed\n");
-    wa_sendstate = 2;
+    wa_sendstate = 0;
     return;
   }
 
@@ -134,22 +134,23 @@ static void watchasync_net_main(void)
 #ifdef CONF_WATCHASYNC_INCLUDE_PREFIX
     p += sprintf_P(p, prefix_string);
 #endif
-    p += sprintf_P(p, "%u", wa_buffer[wa_buffer_left].pin);
+    p += sprintf(p, "%u", wa_buffer[wa_buffer_left].pin);
 #ifdef CONF_WATCHASYNC_INCLUDE_UUID
     p += sprintf_P(p, uuid_string);
 #endif
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
     p += sprintf_P(p, time_string);
-    p += sprintf(p, "%lu&", wa_buffer[wa_buffer_left].timestamp);
+    p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp);
 #endif
     p += sprintf_P(p, get_string_foot);
     uip_udp_send(p - (char *)uip_appdata);
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
+    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
   }
 
   if (uip_acked()) {
     uip_close();
-    wa_sendstate = 0;
+    WATCHASYNC_DEBUG ("packet sent, closing\n");
   }
 }
 
@@ -192,6 +193,7 @@ void watchasync_mainloop(void)
   {
     if (wa_sendstate == 2) // Message not sent successfully
     {
+      WATCHASYNC_DEBUG ("Error, again please...\n"); 
       sendmessage();
     } else // sendstate == 0 => Idle
     {
@@ -201,7 +203,7 @@ void watchasync_mainloop(void)
 	sendmessage();
       }
     }
-  }
+  }  
 }
 
 /*

@@ -26,7 +26,7 @@
 #include "config.h"
 #ifdef DEBUG_WATCHASYNC
 # include "core/debug.h"
-# define WATCHASYNC_DEBUG(a...)  debug_printf("httplog: " a)
+# define WATCHASYNC_DEBUG(a...)  debug_printf("watchasync: " a)
 #else
 # define WATCHASYNC_DEBUG(a...)
 #endif
