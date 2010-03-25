@@ -23,6 +23,14 @@
 #ifndef _WATCHASYNC_H
 #define _WATCHASYNC_H
 
+#include "config.h"
+#ifdef DEBUG_WATCHASYNC
+# include "core/debug.h"
+# define WATCHASYNC_DEBUG(a...)  debug_printf("httplog: " a)
+#else
+# define WATCHASYNC_DEBUG(a...)
+#endif
+
 struct WatchAsyncBuffer {
   uint8_t pin;
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
