@@ -1,0 +1,11 @@
+dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+  string "Service" CONF_WATCHASYNC_SERVICE "volkszaehler.org"
+  string "Path" CONF_WATCHASYNC_PATH "/httplog/httplog.php"
+  string "Prefix" CONF_WATCHASYNC_PREFIX "PC"
+	dep_bool "Include unix timstamp" CONF_WATCHASYNC_INCLUDE_TIMESTAMP $CLOCK_DATETIME_SUPPORT
+	bool "Include uuid" CONF_WATCHASYNC_INCLUDE_UUID
+      string "UUID" CONF_WATCHASYNC_UUID "12345678-9ABC-DEF0-1234-56789ABCDEF0" $CONF_HTTPLOG_INCLUDE_UUID
+	script_set "  Randomize UUID" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_UUID"
+        comment  "Debugging Flags"
+        dep_bool 'WATCHASYNC' DEBUG_WATCHASYNC $DEBUG $WATCHASYNC_SUPPORT
+endmenu

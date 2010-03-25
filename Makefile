@@ -90,6 +90,7 @@ SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
+SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 
 rootbuild=t

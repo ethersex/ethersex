@@ -251,6 +251,7 @@ source services/curtain/config.in
 source services/tftp/config.in
 source services/upnp/config.in
 source services/watchcat/config.in
+source services/watchasync/config.in
 endmenu
 
 ###############################################################################
