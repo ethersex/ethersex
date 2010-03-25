@@ -96,7 +96,7 @@ ISR(PCINT2_vect)
 	if (wa_buffer_right == wa_buffer_left)
 	{
 	  wa_buffer_right = ((wa_buffer_right - 1) % WATCHASYNC_BUFFERSIZE);
-	  WATCHASYNC_DEBUG ("Buffer full, discarding message!");
+	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
 	} else {
 	  wa_buffer[wa_buffer_right].pin = pin;
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
@@ -115,7 +115,8 @@ static void watchasync_net_main(void)
   if (uip_aborted() || uip_timedout()) 
   {
     WATCHASYNC_DEBUG ("connection aborted\n");
-    wa_sendstate = 2;
+//    if (wa_sendstate == 1) 
+wa_sendstate = 2; // Ignore aborted, if already closed
     return;
   }
 
@@ -145,7 +146,7 @@ static void watchasync_net_main(void)
     p += sprintf_P(p, get_string_foot);
     uip_udp_send(p - (char *)uip_appdata);
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
-    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
+//    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
   }
 
   if (uip_acked()) {
@@ -200,6 +201,7 @@ void watchasync_mainloop(void)
       if (wa_buffer_left != wa_buffer_right) // there is somethiing in the buffer
       {
         wa_buffer_left = ((wa_buffer_left + 1) % WATCHASYNC_BUFFERSIZE);
+        WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
 	sendmessage();
       }
     }
