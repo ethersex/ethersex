@@ -86,22 +86,24 @@ void watchcat_edge(uint8_t pin);
 ISR(PCINT2_vect)
 {
   uint8_t portcompstate = (PINC ^ wa_portstate);
+  uint8_t pin;
+  uint8_t tempright;
   while (portcompstate)
   {
-    for (uint8_t pin = 0; pin < 8; pin ++)
+    for (pin = 0; pin < 8; pin ++)
     {
       if (portcompstate & wa_portstate & (1 << pin)) // bit changed from 1 to 0
       {
-        wa_buffer_right = ((wa_buffer_right + 1) % WATCHASYNC_BUFFERSIZE);
-	if (wa_buffer_right == wa_buffer_left)
+        tempright = ((wa_buffer_right + 1) % WATCHASYNC_BUFFERSIZE);
+	if (tempright != wa_buffer_left)
 	{
-	  wa_buffer_right = ((wa_buffer_right - 1) % WATCHASYNC_BUFFERSIZE);
-	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
-	} else {
+	  wa_buffer_right = tempright;
 	  wa_buffer[wa_buffer_right].pin = pin;
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
           wa_buffer[wa_buffer_right].timestamp = clock_get_time();
 #endif
+//	} else {
+//	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
 	}
       }
     }
@@ -114,16 +116,18 @@ static void watchasync_net_main(void)
 {
   if (uip_aborted() || uip_timedout()) 
   {
-    WATCHASYNC_DEBUG ("connection aborted\n");
-//    if (wa_sendstate == 1) 
-wa_sendstate = 2; // Ignore aborted, if already closed
-    return;
+    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
+    {
+      wa_sendstate = 2; // Ignore aborted, if already closed
+      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
+      WATCHASYNC_DEBUG ("connection aborted\n");
+      return;
+    }
   }
 
   if (uip_closed()) 
   {
     WATCHASYNC_DEBUG ("connection closed\n");
-    wa_sendstate = 0;
     return;
   }
 
@@ -144,14 +148,23 @@ wa_sendstate = 2; // Ignore aborted, if already closed
     p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp);
 #endif
     p += sprintf_P(p, get_string_foot);
+//    uip_udp_send(p - (char *)uip_appdata);
     uip_udp_send(p - (char *)uip_appdata);
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
 //    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
   }
 
   if (uip_acked()) {
-    uip_close();
-    WATCHASYNC_DEBUG ("packet sent, closing\n");
+    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
+    {
+      wa_sendstate = 0;
+      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
+      uip_close();
+      WATCHASYNC_DEBUG ("packet sent, closing\n");
+      return;
+    } else {
+      uip_abort();
+    }
   }
 }
 
@@ -159,8 +172,11 @@ wa_sendstate = 2; // Ignore aborted, if already closed
 static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
 {
   WATCHASYNC_DEBUG ("got dns response, connecting\n");
-  if(!uip_connect(ipaddr, HTONS(80), watchasync_net_main)) 
+  uip_conn_t *conn = uip_connect(ipaddr, HTONS(80), watchasync_net_main);
+  if(conn)
   {
+    conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW;
+  } else {
     wa_sendstate = 2;
   }
 }
@@ -213,4 +229,6 @@ void watchasync_mainloop(void)
   header(services/watchasync/watchasync.h)
   init(watchasync_init)
   mainloop(watchasync_mainloop)
+  state_header(services/watchasync/watchasync_state.h)
+  state_tcp(`struct watchasync_connection_state_t watchasync;')
 */

@@ -31,6 +31,11 @@
 # define WATCHASYNC_DEBUG(a...)
 #endif
 
+enum WatchAsyncConnStates {
+  WATCHASYNC_CONNSTATE_NEW,
+  WATCHASYNC_CONNSTATE_OLD,
+};
+
 struct WatchAsyncBuffer {
   uint8_t pin;
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
