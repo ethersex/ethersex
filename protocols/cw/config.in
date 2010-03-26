@@ -1,0 +1,9 @@
+dep_bool_menu "Morse Code (EXPERIMENTAL)" CW_SUPPORT $CONFIG_EXPERIMENTAL
+	int "Words per Minute" CW_WPM 12
+	dep_bool "Beacon" CW_BEACON_SUPPORT $CW_SUPPORT $CONFIG_EXPERIMENTAL
+    if [ "$CW_BEACON_SUPPORT" = "y" ]; then
+      string "Beacon text" CONF_CW_BEACON_TEXT "VVV Ethersex CW TEST";
+    fi
+	comment  "Debugging Flags"
+	dep_bool 'Morse Debug' DEBUG_CW $DEBUG $CW_SUPPORT
+endmenu

@@ -227,6 +227,11 @@ template $S1D13305_SUPPORT << FNORD
     //pin(LCD_BACKLIGHT, PC7, OUTPUT)
 FNORD
 
+template $CW_SUPPORT << FNORD
+  /* morse support */
+  pin(CW, PC6, OUTPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
