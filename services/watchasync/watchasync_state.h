@@ -23,6 +23,7 @@
 #ifndef WATCHASYNC_STATE_H
 #define WATHASYNC_STATE_H
 
+// State of coonection, new until acked or aborted, after that old
 struct watchasync_connection_state_t {
   uint8_t state;
 };

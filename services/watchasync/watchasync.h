@@ -23,6 +23,7 @@
 #ifndef _WATCHASYNC_H
 #define _WATCHASYNC_H
 
+// Convenient debugging
 #include "config.h"
 #ifdef DEBUG_WATCHASYNC
 # include "core/debug.h"
@@ -31,11 +32,13 @@
 # define WATCHASYNC_DEBUG(a...)
 #endif
 
+// Connectionstate: new until acked, aborted or timedout, old afterwards
 enum WatchAsyncConnStates {
   WATCHASYNC_CONNSTATE_NEW,
   WATCHASYNC_CONNSTATE_OLD,
 };
 
+// Buffer for storing events of interrupt-routine
 struct WatchAsyncBuffer {
   uint8_t pin;
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP

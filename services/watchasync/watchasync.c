@@ -47,6 +47,7 @@
 #include "services/clock/clock.h"
 #endif
 
+// Number of places in ringbuffer, should be a power of 2
 #define WATCHASYNC_BUFFERSIZE 64
 
 // first string is the GET part including the path
@@ -57,6 +58,7 @@ static const char PROGMEM get_string_head[] =
 static const char PROGMEM prefix_string[] =
 	CONF_WATCHASYNC_PREFIX ;
 #endif
+// optional uuid
 #ifdef CONF_WATCHASYNC_INCLUDE_UUID
 static const char PROGMEM uuid_string[] =
 	"&uuid=" CONF_WATCHASYNC_UUID ;
@@ -71,51 +73,48 @@ static const char PROGMEM get_string_foot[] =
     " HTTP/1.1\r\n"
     "Host: " CONF_WATCHASYNC_SERVICE "\r\n\r\n";
 
-
 static struct WatchAsyncBuffer wa_buffer[WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
-
 static uint8_t wa_buffer_left = 0; 	// last position sent
 static uint8_t wa_buffer_right = 0; 	// last position set
 
 static uint8_t wa_portstate = 0; 		// Last portstate saved
 static uint8_t wa_sendstate = 0; 		// 0: Idle, 1: Message being sent, 2: Sending message failed
 
-void watchcat_edge(uint8_t pin);
-
-// Handle Interrupts
+// Handle Pinchange Interrupt on PortC
 ISR(PCINT2_vect)
 {
-  uint8_t portcompstate = (PINC ^ wa_portstate);
-  uint8_t pin;
-  uint8_t tempright;
-  while (portcompstate)
+  uint8_t portcompstate = (PINC ^ wa_portstate); //  compare actual state of PortC with last saved state
+  uint8_t pin;	// loop variable for for-loop
+  uint8_t tempright;  // temporary pointer for detecting full buffer
+  while (portcompstate)  // repeat comparison as long as there are changes to the PortC
   {
-    for (pin = 0; pin < 8; pin ++)
+    for (pin = 0; pin < 8; pin ++)  // iterate through pins
     {
       if (portcompstate & wa_portstate & (1 << pin)) // bit changed from 1 to 0
       {
-        tempright = ((wa_buffer_right + 1) % WATCHASYNC_BUFFERSIZE);
-	if (tempright != wa_buffer_left)
+        tempright = ((wa_buffer_right + 1) % WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
+	if (tempright != wa_buffer_left)  // if ringbuffer not full
 	{
-	  wa_buffer_right = tempright;
-	  wa_buffer[wa_buffer_right].pin = pin;
+	  wa_buffer_right = tempright;  // select next space in ringbuffer
+	  wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
-          wa_buffer[wa_buffer_right].timestamp = clock_get_time();
+          wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
 #endif
-//	} else {
+//	} else {  // ringbuffer is full... discard event
 //	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
 	}
       }
     }
-    wa_portstate ^= portcompstate;
-    portcompstate = (PINC ^ wa_portstate);
+    wa_portstate ^= portcompstate;  // incorporate changes processed in current state
+    portcompstate = (PINC ^ wa_portstate);  // check for new changes on PortC
   }
 }
 
-static void watchasync_net_main(void)
+static void watchasync_net_main(void)  // Network-routine called by networkstack 
 {
-  if (uip_aborted() || uip_timedout()) 
+  if (uip_aborted() || uip_timedout()) // Connection aborted or timedout
   {
+    // if connectionstate is new, we have to resend the packet, otherwise just ignore the event
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
     {
       wa_sendstate = 2; // Ignore aborted, if already closed
@@ -125,67 +124,75 @@ static void watchasync_net_main(void)
     }
   }
 
-  if (uip_closed()) 
+  if (uip_closed()) // Closed connection does not expect any respond from us, resend if connnectionstate is new
   {
-    WATCHASYNC_DEBUG ("connection closed\n");
+    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
+    {
+      wa_sendstate = 2; // Ignore aborted, if already closed
+      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
+      WATCHASYNC_DEBUG ("new connection closed\n");
+    } else {
+      WATCHASYNC_DEBUG ("connection closed\n");
+    }
     return;
   }
 
 
-  if (uip_connected() || uip_rexmit()) {
+  if (uip_connected() || uip_rexmit()) { // (re-)transmit packet
     WATCHASYNC_DEBUG ("new connection or rexmit, sending message\n");
-    char *p = uip_appdata;
-    p += sprintf_P(p, get_string_head);
+    char *p = uip_appdata;  // pointer set to uip_appdata, used to store string
+    p += sprintf_P(p, get_string_head);  // Copy Header from programm memory to appdata
 #ifdef CONF_WATCHASYNC_INCLUDE_PREFIX
-    p += sprintf_P(p, prefix_string);
+    p += sprintf_P(p, prefix_string);  // Append Prefixstring if configured
 #endif
-    p += sprintf(p, "%u", wa_buffer[wa_buffer_left].pin);
+    p += sprintf(p, "%u", wa_buffer[wa_buffer_left].pin);  // append pin changed (0-7)
 #ifdef CONF_WATCHASYNC_INCLUDE_UUID
-    p += sprintf_P(p, uuid_string);
+    p += sprintf_P(p, uuid_string);  // append uuid if configured
 #endif
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
-    p += sprintf_P(p, time_string);
-    p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp);
+#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP  
+    p += sprintf_P(p, time_string);  // append timestamp attribute
+    p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp); // and timestamp value
 #endif
-    p += sprintf_P(p, get_string_foot);
+    p += sprintf_P(p, get_string_foot); // appen tail of packet from programmmemory
 //    uip_udp_send(p - (char *)uip_appdata);
     uip_udp_send(p - (char *)uip_appdata);
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
 //    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
   }
 
-  if (uip_acked()) {
-    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
+  if (uip_acked()) // Send packet acked, 
+  {
+    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW) // If packet is still new
     {
-      wa_sendstate = 0;
-      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
-      uip_close();
+      wa_sendstate = 0;  // Mark event as sent, go ahead in buffer
+      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD; // mark this packet as old, do noch resend it
+      uip_close();  // initiate closing of the connection
       WATCHASYNC_DEBUG ("packet sent, closing\n");
       return;
     } else {
-      uip_abort();
+      uip_abort();  // abort connection if old connection received an ack... this should not happen
     }
   }
 }
 
 
-static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
+static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callback for DNS query
 {
   WATCHASYNC_DEBUG ("got dns response, connecting\n");
-  uip_conn_t *conn = uip_connect(ipaddr, HTONS(80), watchasync_net_main);
-  if(conn)
+  uip_conn_t *conn = uip_connect(ipaddr, HTONS(80), watchasync_net_main);  // create new connection with ipaddr found
+  if(conn)  // if connection succesfully created
   {
-    conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW;
+    conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW; // Set connection state to new, as data still has to be send
   } else {
-    wa_sendstate = 2;
+    wa_sendstate = 2;  // if no connection initiated, set state to Retry
   }
 }
 
-void sendmessage(void)
+void sendmessage(void) // Send event in ringbuffer indicated by left pointer
 {
-  wa_sendstate = 1; // set new state
+  wa_sendstate = 1; // set new state in progress
 
-  uip_ipaddr_t *ipaddr;
+  uip_ipaddr_t *ipaddr; 
   if (!(ipaddr = resolv_lookup(CONF_WATCHASYNC_SERVICE))) { // Try to find IPAddress
     resolv_query(CONF_WATCHASYNC_SERVICE, watchasync_dns_query_cb); // If not found: query DNS
   } else {
@@ -194,7 +201,7 @@ void sendmessage(void)
   return;
 }
 
-void watchasync_init(void)
+void watchasync_init(void)  // Initilize Poirts and Interrupts
 {
   PORTC = (1<<PC7)|(1<<PC6)|(1<<PC5)|(1<<PC4)|(1<<PC3)|(1<<PC2)|(1<<PC1)|(1<<PC0);  // Enable Pull-up on PortC
   DDRC = 0; 			// PortC Input
@@ -204,21 +211,21 @@ void watchasync_init(void)
 //  SREG |= 1<<I;			//Enable Interrupts (will hopefully be done somewhere else)
 }
 
-void watchasync_mainloop(void)
+void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
 {
   if (wa_sendstate != 1) // not busy sending 
   {
     if (wa_sendstate == 2) // Message not sent successfully
     {
       WATCHASYNC_DEBUG ("Error, again please...\n"); 
-      sendmessage();
-    } else // sendstate == 0 => Idle
+      sendmessage();   // resend current event
+    } else // sendstate == 0 => Idle  // Previous send has been succesfull, send next event if any
     {
       if (wa_buffer_left != wa_buffer_right) // there is somethiing in the buffer
       {
-        wa_buffer_left = ((wa_buffer_left + 1) % WATCHASYNC_BUFFERSIZE);
+        wa_buffer_left = ((wa_buffer_left + 1) % WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
         WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
-	sendmessage();
+	sendmessage();  // send the new event
       }
     }
   }  
