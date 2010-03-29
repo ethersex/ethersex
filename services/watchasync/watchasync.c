@@ -47,9 +47,6 @@
 #include "services/clock/clock.h"
 #endif
 
-// Number of places in ringbuffer, should be a power of 2
-#define WATCHASYNC_BUFFERSIZE 64
-
 // first string is the GET part including the path
 static const char PROGMEM get_string_head[] =
     "GET " CONF_WATCHASYNC_PATH "?port=";
@@ -73,7 +70,7 @@ static const char PROGMEM get_string_foot[] =
     " HTTP/1.1\r\n"
     "Host: " CONF_WATCHASYNC_SERVICE "\r\n\r\n";
 
-static struct WatchAsyncBuffer wa_buffer[WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
+static struct WatchAsyncBuffer wa_buffer[CONF_WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
 static uint8_t wa_buffer_left = 0; 	// last position sent
 static uint8_t wa_buffer_right = 0; 	// last position set
 
@@ -92,7 +89,7 @@ ISR(PCINT2_vect)
     {
       if (portcompstate & wa_portstate & (1 << pin)) // bit changed from 1 to 0
       {
-        tempright = ((wa_buffer_right + 1) % WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
+        tempright = ((wa_buffer_right + 1) % CONF_WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
 	if (tempright != wa_buffer_left)  // if ringbuffer not full
 	{
 	  wa_buffer_right = tempright;  // select next space in ringbuffer
@@ -223,7 +220,7 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
     {
       if (wa_buffer_left != wa_buffer_right) // there is somethiing in the buffer
       {
-        wa_buffer_left = ((wa_buffer_left + 1) % WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
+        wa_buffer_left = ((wa_buffer_left + 1) % CONF_WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
         WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
 	sendmessage();  // send the new event
       }
