@@ -1,7 +1,7 @@
 dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT $ARCH_AVR
 	dep_bool "Higher frequency" STELLA_HIGHFREQ
 	comment  '----- Initial -----'
-	if [ "$MOODLIGHT" = "y" ]; then
+	if [ "$MOODLIGHT_SUPPORT" = "y" ]; then
 		choice 'Channels'			\
 		"0% stella_start_zero	\
 		100% stella_start_all	\
