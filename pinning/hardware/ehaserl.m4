@@ -18,8 +18,8 @@ dnl pin(LED_GREEN1, PB2, OUTPUT)
 dnl pin(LED_GREEN2, PB3, OUTPUT)
 
 dnl alternatively if you'd like to use stella/moodlight:
-STELLA_PORT1_RANGE(PB1,PB3)
-STELLA_PORT2_RANGE(PD6,PD6)
+dnl STELLA_PORT1_RANGE(PB1,PB3)
+dnl STELLA_PORT2_RANGE(PD6,PD6)
 
 pin(LIGHT, PC1)
 
