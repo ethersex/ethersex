@@ -103,6 +103,13 @@ void lcd_waitForCntrlrReady(void);
 void lcd_setSleepMode(bool sleepIn_b);
 void lcd_backlightOn(bool lightOn_b);
 
+#ifdef DEBUG_S1D13305
+# include "core/debug.h"
+# define LCDDEBUG(a...)  debug_printf("LCD: " a)
+#else
+# define LCDDEBUG(a...)
+#endif
+
 #endif /* _S1D13305_H */
 
 /* EOF */

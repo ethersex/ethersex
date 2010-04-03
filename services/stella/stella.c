@@ -73,7 +73,7 @@ stella_init (void)
 	*/
 	stella_fade_counter = stella_fade_step;
 
-	#if STELLA_START == stella_start_eeprom
+	#if !defined(TEENSY_SUPPORT) && STELLA_START == stella_start_eeprom
 	stella_loadFromEEROMFading();
 	#endif
 	#if STELLA_START == stella_start_all
@@ -196,31 +196,31 @@ stella_getValue(const uint8_t channel)
 	return stella_brightness[channel];
 }
 
+#ifndef TEENSY_SUPPORT
 void
 stella_loadFromEEROMFading()
 {
-	#ifndef TEENSY_SUPPORT
 	eeprom_restore(stella_channel_values, stella_fade, STELLA_CHANNELS);
-	#endif
 }
+#endif
 
+#ifndef TEENSY_SUPPORT
 void
 stella_loadFromEEROM()
 {
-	#ifndef TEENSY_SUPPORT
 	eeprom_restore(stella_channel_values, stella_fade, STELLA_CHANNELS);
 	memcpy(stella_brightness, stella_fade, STELLA_CHANNELS);
 	stella_sync = UPDATE_VALUES;
-	#endif
 }
+#endif
 
+#ifndef TEENSY_SUPPORT
 void
 stella_storeToEEROM()
 {
-	#ifndef TEENSY_SUPPORT
 	eeprom_save(stella_channel_values, stella_brightness, STELLA_CHANNELS);
-	#endif
 }
+#endif
 
 /* How to use:
  * Do not call this directly, but use "stella_sync = UPDATE_VALUES" instead.

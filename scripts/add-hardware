@@ -154,7 +154,7 @@ template $USB_SUPPORT << FNORD
 FNORD
 
 template $STELLA_SUPPORT << FNORD
-  STELLA_PORT_RANGE(PC0,PC7)
+  STELLA_PORT1_RANGE(PC0,PC7)
 FNORD
 
 template $MOTORCURTAIN_SUPPORT << FNORD
@@ -215,13 +215,24 @@ template $HD44780_SUPPORT << FNORD
     pin(HD44780_D7, PA6)
 FNORD
 
+template $S1D13305_SUPPORT << FNORD
+    /* port config for s1d13305 lcd */
+    S1D13305_DATA_PORT(A)
+    pin(S1D13305_CS, PC6, OUTPUT)
+    pin(S1D13305_RES, PD4, OUTPUT)
+    pin(S1D13305_A0, PD5, OUTPUT)
+    pin(S1D13305_RD, PD6, OUTPUT)
+    pin(S1D13305_WR, PD7, OUTPUT)
+    /* uncomment if you have enabled LCD backlight support */
+    //pin(LCD_BACKLIGHT, PC7, OUTPUT)
+FNORD
+
 template $CW_SUPPORT << FNORD
   /* morse support */
   pin(CW, PC6, OUTPUT)
 FNORD
 
 ### HARDWARE SPECIFIC TEMPLATES #############################################
-
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
 
