@@ -7,6 +7,7 @@ SUBDIRS += core/crypto
 SUBDIRS += core/host
 SUBDIRS += core/portio
 SUBDIRS += core/tty
+SUBDIRS += core/gui
 SUBDIRS += core/util
 SUBDIRS += core/vfs
 SUBDIRS += mcuf
@@ -90,6 +91,7 @@ SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
+SUBDIRS += services/vnc
 SUBDIRS += services/curtain
 
 rootbuild=t
