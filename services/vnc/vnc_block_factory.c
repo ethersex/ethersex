@@ -41,7 +41,16 @@ vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y)
     dest->y = block_y;
     memset(dest->data, 0xff, sizeof(dest->data));
 
-    matek_scene_myscene(dest);
+#ifdef GUI_SUPPORT
+    /* This calls the matek layer to draw the picture into the memory
+       area */
+    matek_draw(dest);
+#else
+    uint8_t x, y;
+    for (x = 0; x < VNC_BLOCK_WIDTH; x++)
+        for (y = 0; y < VNC_BLOCK_HEIGHT; y++) 
+            dest->data[x * VNC_BLOCK_WIDTH + y] = x + y;
+#endif
 
 
     dest->x = HTONS(block_x * VNC_BLOCK_WIDTH);

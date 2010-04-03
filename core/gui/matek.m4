@@ -7,7 +7,15 @@
 
 static uint8_t color;
 
+void
+matek_draw(struct gui_block *dest) {
+//    if (matek_selected_scene) 
+//        matek_selected_scene(dest);
+   matek_scene_myscene(dest);
+}
+
 divert(-1)
+ifelse(ARCH_AVR, y, define(`_pgm', 1))
 define(`global_divert', 1)
 define(`graphical_divert', 2)
 define(`text_divert', 3)
@@ -27,7 +35,7 @@ dnl y,h   rows not blocks
 define(`PUTSTRING', `ifelse(substr(`$1', 0, 1), `"', `define(`_pgm', `1')', `define(`_pgm', 0)')
   if (dest->y >= ROW2BLOCK($3) && dest->y <= ROW2BLOCK($3 + $5) 
       && dest->x >= COL2BLOCK($2)  && dest->x <= COL2BLOCK($2 + $4)) {
-	    ifelse(_pgm, `1', `PROGMEM char *data = `$1';')
+	    ifelse(_pgm, `1', `char *data = PSTR(`$1');')
 		uint8_t x, y;
 		for (y = 0; y < $5; y++) 
 		    for (x = 0; x < $4; x++)

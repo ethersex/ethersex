@@ -35,6 +35,7 @@
 
 #include "font.h"
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #include "config.h"
 
 void 
@@ -91,9 +92,11 @@ gui_putchar(struct gui_block *dest,
         x_offset = 0;
     } 
 
-    for (x = 0; x <  char_x_len; x++) {
+    for (x = 0; x < char_x_len; x++) {
+        char font_data = pgm_read_byte(&gui_font[(uint8_t) data][char_x_offset + x]);
+
         for (y = 0; y < 8; y++) {
-            if (gui_font[(uint8_t)data][char_x_offset + x] & _BV(y)) {
+            if (font_data & _BV(y)) {
                 dest->data[((char_line % 2) * 8 + y) * GUI_BLOCK_WIDTH + x + x_offset ] = color;
             }
         }
@@ -102,7 +105,7 @@ gui_putchar(struct gui_block *dest,
 
 /* Here comes the font data */
 
-char gui_font[128][GUI_FONT_WIDTH] = {
+char gui_font[128][GUI_FONT_WIDTH] PROGMEM = {
 {0x01, 0x02, 0x00, 0x00, 0x00, 0x00},
 /* char 0 0x00
   X_____
