@@ -31,6 +31,7 @@
 #include "config.h"
 #include "stella.h"
 #include "core/debug.h"
+#define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
 struct stella_timetable_entry* current = 0;
 
@@ -39,23 +40,17 @@ struct stella_timetable_entry* current = 0;
  * */
 ISR(_VECTOR_OUTPUT_COMPARE2)
 {
-	if (!current) return;
-	// Activate pins
-	#ifdef STELLA_GAMMACORRECTION
-	if (!current->gamma_wait_counter)
-	{
-		STELLA_PORT |= current->portmask;
-		current->gamma_wait_counter = current->gamma_wait_cycles;
-	}
-	else
-		--current->gamma_wait_counter;
-	#else
-	STELLA_PORT |= current->portmask;
-	#endif
-	current = current->next;
+	// Activate all timetable entries for this timepoint
+	// We may have more than one for a certain timepoint, if ports in the timetable entries differ
+	while (current) {
+		ACCESS_IO(current->port.port) |= current->port.mask;
+		current = current->next;
 
-	if (current)
-		_OUTPUT_COMPARE_REG2 = current->value;
+		if (current && _OUTPUT_COMPARE_REG2 != current->value) {
+			_OUTPUT_COMPARE_REG2 = current->value;
+			break;
+		}
+	}
 }
 
 /* If channel values have been updated (update_table is set) update all i_* variables.
@@ -81,10 +76,9 @@ ISR(_VECTOR_OVERFLOW2)
 	/* Start the next pwm round */
 	current = int_table->head;
 
-	/* Deactivate pins except those used by the first timetable entry.
-	 * Only deactivate pins if they belong to stella.
-	 * Activate pins used by the first timetable entry. */
-	STELLA_PORT = (STELLA_PORT & stella_portmask_neg) | int_table->portmask;
+	/* Leave all non-stella-pins the same and activate pins used by the first timetable entry. */
+	for (uint8_t i=0;i<STELLA_PORT_COUNT;++i)
+		ACCESS_IO(int_table->port[i].port) = (ACCESS_IO(int_table->port[i].port) & ~(uint8_t)stella_portmask[i]) | int_table->port[i].mask;
 
 	if (current)
 		_OUTPUT_COMPARE_REG2 = current->value;

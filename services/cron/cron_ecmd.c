@@ -51,7 +51,7 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, job->handler));
 		else if (job->cmd == CRON_ECMD)
 			return ECMD_FINAL(snprintf_P(output, len, PSTR("ecmd %i %i %i %i %i %i %s"), \
-			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, job->ecmddata));
+			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, &(job->ecmddata)));			
 	}
 
 	// print out the amount of jobs
@@ -78,8 +78,10 @@ int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 {
 	int8_t minute, hour, day, month, dayofweek;
+	int i;
 	char ecmd[ECMD_INPUTBUF_LENGTH];
-	sscanf_P(cmd, PSTR("%i %i %i %i %i %s"), &minute, &hour, &day, &month, &dayofweek, ecmd);
+	sscanf_P(cmd, PSTR("%i %i %i %i %i %n"), &minute, &hour, &day, &month, &dayofweek, &i);
+	strncpy(ecmd,cmd+i,ECMD_INPUTBUF_LENGTH);
 	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
 
 	return ECMD_FINAL_OK;
@@ -88,7 +90,7 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Cron commands (dynamic variant))
+  block([[CRON-Dienst]])
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
   ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
   ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)

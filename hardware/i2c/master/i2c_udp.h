@@ -37,7 +37,6 @@ enum i2c_request_type {
 };
 
 /* constants */
-#define I2C_PORT 0x2323
 #define I2C_DATAOFFSET 4
 
 /* prototypes */

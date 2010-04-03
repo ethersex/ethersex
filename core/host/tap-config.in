@@ -17,6 +17,11 @@ dep_bool_menu "Ethernet (Linux TAP) support" TAP_SUPPORT $ARCH_HOST
 		ipv4 "Local IP address" CONF_TAP_LOCALIP "192.168.23.1"
 	fi
 
+	if [ "$IPV6_SUPPORT" = "y" ]; then
+		ipv6 "Local IP address" CONF_TAP_LOCALIP "2001:6f8:1209:f0:221:6aff:fe32:6b12"
+		int "Local IP prefix length" CONF_TAP_LOCALPLEN 64
+	fi
+
 	dep_bool "802.1q Support (EXPERIMENTAL)" IEEE8021Q_SUPPORT $EXPERIMENTAL_SUPPORT
 	if [ "$IEEE8021Q_SUPPORT" = "y" ]; then
 		int "VLAN ID (1 to 4094)" CONF_8021Q_VID 1

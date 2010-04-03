@@ -245,7 +245,7 @@ IPV6_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+ Enable IPv6 networking instead of IPv4. 
 
 Enable IP forwarding
 IP_FORWARDING_SUPPORT
@@ -291,7 +291,7 @@ PS2_GERMAN_LAYOUT
   Depends on: 
    * PS/2 keyboard (PS2_SUPPORT)
 
-  There's unfortunately no help available for this item.
+ Set german keyboard layout.
 
 ADC input
 ADC_SUPPORT
@@ -640,7 +640,10 @@ USB_NET_SUPPORT
   IP-Networking over USB.  It doesn't use kernel-driven CDC-subset
   because of too high controller load.
 
-  You need to use the userspace-space client available from contrib/usb_net
+  You need to use the userspace-space client available 
+  from contrib/usb_net
+
+  See also http://ethersex.de/index.php/USB#usbnet
 
 USBnet ARP-Proxy
 USB_ARP_PROXY
@@ -903,7 +906,9 @@ ECMD_TCP_SUPPORT
    * ECMD support (ECMD_PARSER_SUPPORT)
    * TCP support (TCP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add TCP Telnet like ECMD support.
+  See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_TCP
 
 UDP interface
 ECMD_UDP_SUPPORT
@@ -912,7 +917,9 @@ ECMD_UDP_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Add UDP ECMD support. 
+  See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_UDP
 
 I2C interface
 ECMD_SERIAL_I2C_SUPPORT
@@ -920,7 +927,8 @@ ECMD_SERIAL_I2C_SUPPORT
    * ECMD support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  There's unfortunately no help available for this item.
+  Add ECMD Support via TWI or I2C Interface.
+  See http://ethersex.de/index.php/ECMD for help. 
 
 USB interface
 ECMD_USB_SUPPORT
@@ -929,7 +937,13 @@ ECMD_USB_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Enable ECMD via USB Interface
+  You should set
+  "Network  ---> USB (Softwarestack) Support  ---> USB Device Type"
+  to "other".
+  See http://ethersex.de/index.php/ECMD for help. 
+  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_USB and
+  http://ethersex.de/index.php/USB#ECMD_via_USB
 
 Send ECMD messages
 ECMD_SENDER_SUPPORT
@@ -964,6 +978,9 @@ NAMED_PIN_SUPPORT
     pin get NAME                -- to read NAME
     pin set NAME STATUS         -- to set the pin NAME to STATUS (on/off)
     pin toggle NAME             -- to toggle the pin NAME
+
+  The Configuration files must be located in pinning/named_pin to make them
+  selectable.
 
 MCUF usart
 MCUF_SERIAL_SUPPORT
@@ -1059,14 +1076,14 @@ IPSTATS_SUPPORT
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Collects and print out network statistic.
 
 Memory usage information (free)
 FREE_SUPPORT
   Depends on: 
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Print out memory usage. 
 
 IPv6
 DEBUG_NET_IP6
@@ -1651,6 +1668,7 @@ ECMD Scripting
 ECMD_SCRIPT_SUPPORT
   Depends on: 
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * VFS (Virtual File System) support (VFS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Scripting Support for ECMD.
@@ -1818,4 +1836,189 @@ SMS_SUPPORT
 		* siemens me45
 		* siemens mt50
 
+
+Inline PWM Servo
+PWM_SERVO_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * PWM Servo (PWM_SERVO_SUPPORT)
+
+  Enable this to get an example inline page for servo control.
+
+Application Sample (EXPERIMENTAL)
+APP_SAMPLE_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   ECMD Commands depends on 
+   * ECMD support (ECMD_PARSER_SUPPORT) 
+
+  Example Application with empty functions to fill for your own
+  tests.
+  The main Application Sample file is services/appsample/appsample.c
+
+  Function "app_sample_init" will be executed on ethersex boot time, or by
+   ECMD "sample_init".
+  Function "app_sample_periodic" will be executed periodically, just change
+    timer value to fit for your needs (default period is 100*20ms = 2 seconds)
+    Example: timer(100,app_sample_periodic)
+    Also this function will be called by ECMD "sample_periodic",
+  Function "app_sample_onrequest" will be execured by ECMD command "sample"
+
+httplog client (EXPERIMENTAL)
+HTTPLOG_SUPPORT
+  Depends on:
+   * TCP protocol support (TCP_SUPPORT)
+   * DNS protocol (DNS_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+  and in case you want to include unix time stamps:
+   * Date and Time support (CLOCK_DATETIME_SUPPORT)
+
+Valid values for httplog are:
+  Service: <domain of server you want to log to>, e.g. "volkszaehler.org"
+  Path: <path of script you want to log to>, e.g. "/httplog/httplog.php"
+  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+
+A uuid (in the form of 12345678-9ABC-DEF0-1234-567890ABCDEF) can be "randomly" generated here also
+For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
+
+Include unix timestamp
+CONF_HTTPLOG_INCLUDE_TIMESTAMP
+
+  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+
+Include uuid
+CONF_HTTPLOG_INCLUDE_UUID
+
+  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+
+  For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
+
+Twitter/identi.ca client (EXPERIMENTAL)
+TWITTER_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * DNS support (DNS_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+ For Twitter valid values are:
+   Service: "twitter.com"
+   API Root: " "
+   Username: [Your Twitter Username]
+   Password: [Your Twitter Password]
+  Be aware, your password will be saven in plain text in 
+  the .config-File!
+
+
+Buttons Input
+BUTTONS_INPUT_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Button Input add hook functions to be called by other parts
+  of ethersex without specific knowledge of the selected 
+  input device.
+  
+
+Number of buttons
+CONF_NUM_BUTTONS
+
+  Set the desired number of buttons you need.
+
+External SRAM support
+SRAM_SUPPORT
+  Depends on: 
+
+  Add SRAM support for exteral RAM ICs. This will allow to
+  expand the RAM and HEAP. 
+
+  More details at http://ethersex.de/index.php/SRAM
+
+Perform memory test when starting
+SRAM_MEMTEST_ON_BOOT
+
+  Perform a memory test at ethersex boot time.
+
+Jabber (EXPERIMENTAL)
+ECMD_JABBER_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enable support for ECMD via Jabber.
+
+ECMD (Etherrape Control Interface) support
+ECMD_PARSER_SUPPORT
+  Depends on: 
+
+  Ethersex COmanD = ECMD is a kind of i/o interface.
+  More details at http://ethersex.de/index.php/ECMD
+
+IRC (EXPERIMENTAL)
+ECMD_IRC_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * IRC client (EXPERIMENTAL) (IRC_SUPPORT)
+
+  Add IRC support for ECMD. This enables to controll your
+  ethersex device via IRC chat protocol.
+
+SMS
+ECMD_SMS_SUPPORT
+  Depends on: 
+   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * SMS Support (SMS_SUPPORT)
+
+  Send and receive ECMD via Short Message Service.
+
+I2C to UDP Gateway
+I2C_UDP_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * UDP support (UDP_SUPPORT)
+
+UDP/IP Gateway to transport I2C over IP. The default is port is 8995
+
+Bulbdial Clock (EXPERIMENTAL)
+BULBDIAL_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  A bulbdial clock displays the current time via lightsources or its shaddow.
+  More details at http://ethersex.de/index.php?title=Bulbdial_Clock
+
+Wake on Lan (WOL)
+WOL_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  Automatich power-on feature over network. This needs a networking
+  device capable of turning itself on at a given command.
+
+Enable startup message
+JABBER_STARTUP_MESSAGE_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables a friendly startup message, which is send to the target buddy
+  on each reboot.
+
+Last Info
+JABBER_LAST_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables the last-seen feature of this ethersex jabber client.
+
+Version Info
+JABBER_VERSION_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables to send version details of the ethersex jabber client.
+  Change the values if you need to.
 

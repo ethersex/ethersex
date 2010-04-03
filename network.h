@@ -38,6 +38,7 @@ void network_init(void);
 /* check for ethernet controller interrupts */
 void network_process(void);
 
+#ifdef ENC28J60_SUPPORT
 /* send a packet placed in the global buffer */
 void transmit_packet(void);
 
@@ -55,5 +56,6 @@ static inline uint8_t enc28j60_txstart(void)
 
   return retval;
 }
+#endif
 
 #endif /* _NETWORK_H */

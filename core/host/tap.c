@@ -65,26 +65,31 @@ tap_alloc(char *dev)
   return fd;
 }              
 
+#define exec_cmd(a...)						\
+  do {								\
+    char *cmd = g_strdup_printf(a);				\
+    int ret = system(cmd);					\
+    if (ret != 0)						\
+      die("Setting IP address failed with %d (%s)", ret, cmd);	\
+    g_free(cmd);						\
+  } while(0)
 
 void 
 open_tap(void)
 {
-  memcpy(uip_ethaddr.addr, CONF_ETHERRAPE_MAC, 6);
-
   char tap_name[16] = "esex%d";
 
   tap_fd = tap_alloc(tap_name);
   if (tap_fd < 0)
     die("Couldn't open tap device");
 
-  int ret;
-  char *cmd = g_strdup_printf("ifconfig %s " CONF_TAP_LOCALIP
-			      " netmask " CONF_TAP_IP4_NETMASK " up", tap_name);
-  ret = system(cmd);
-  if (ret != 0)
-    die("Setting ip address failed with %d", ret);
 
-  g_free(cmd);
+#ifdef IPV6_SUPPORT
+  exec_cmd("ip -6 a a " CONF_TAP_LOCALIP "/%d dev %s", CONF_TAP_LOCALPLEN, tap_name);
+  exec_cmd("ip link set %s up", tap_name);
+#else
+  exec_cmd("ifconfig %s " CONF_TAP_LOCALIP " netmask " CONF_TAP_IP4_NETMASK " up", tap_name);
+#endif
 }
 
 
@@ -149,18 +154,9 @@ tap_read (void)
 }
 
 
-uint8_t
+void
 tap_send (void)
 {
-  uint8_t retval;
-
-#if UIP_CONF_IPV6
-  retval = uip_neighbor_out();
-  if (!uip_len) return retval;
-#else
-  retval = uip_arp_out();
-#endif
-
 #ifdef IEEE8021Q_SUPPORT
   /* Write VLAN-tag to outgoing packet. */
   struct uip_eth_hdr *eh = (struct uip_eth_hdr *) uip_buf;
@@ -170,8 +166,25 @@ tap_send (void)
 #endif
 
   write (tap_fd, uip_buf, uip_len);
+}
+
+
+uint8_t
+tap_txstart(void)
+{
+  uint8_t retval;
+
+#if UIP_CONF_IPV6
+  retval = uip_neighbor_out();
+  if (uip_len)
+#else
+  retval = uip_arp_out();
+#endif
+  tap_send();
+
   return retval;
 }
+
 
 
 /*

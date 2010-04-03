@@ -33,6 +33,7 @@
 #define STATE(a) ((a)->appstate.modbus)
 
 
+extern int16_t *modbus_recv_len_ptr;
 static int16_t recv_len = -2;
 
 void modbus_net_init(void)
@@ -73,7 +74,7 @@ void modbus_net_main(void)
   }
 
   /* See if we can send new data */
-  if (recv_len != 0)
+  if (recv_len != 0 || !modbus_recv_len_ptr)
     /* Search for a connetion with data, that had to be send */
     for (i = 0; i < UIP_CONNS; i ++)
       if (uip_conns[i].callback == modbus_net_main
@@ -93,7 +94,7 @@ void modbus_net_main(void)
 send_new_data:
           if (recv_len == -1) {
             // Send an error message
-            answer[8] = 0x0B; // gateway problem
+            answer[8] = 0x05; // gateway problem
             goto error_response;
           }
           uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, recv_len - 2);

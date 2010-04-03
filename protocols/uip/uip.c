@@ -913,7 +913,7 @@ uip_process(u8_t flag)
        multicast packets that are sent to the ff02::/16 addresses.
        Furthermore listen for packets to our link local adress. */
     if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
        && BUF->destipaddr[0] != HTONS(0xff02)
 #endif
       ) {
@@ -1005,7 +1005,7 @@ ip_check_end:
 
   UIP_STAT(++uip_stat.icmp.recv);
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
   /* If we get a neighbor solicitation for our address we should send
      a neighbor advertisement message back. */
   if(ICMPBUF->type == ICMP6_NEIGHBOR_SOLICITATION) {
@@ -1048,7 +1048,7 @@ ip_check_end:
 		       (struct uip_neighbor_addr *) &(ICMPBUF->options[2]));
     }
   } else
-#endif /* ENC28J60_SUPPORT */
+#endif /* ETHERNET_SUPPORT */
 
   if(ICMPBUF->type == ICMP6_ECHO) {
     /* ICMP echo (i.e., ping) processing. This is simple, we only
@@ -1926,6 +1926,7 @@ uip_send(const void *data, int len)
     }
   }
 }
+
 /** @} */
 
 /*

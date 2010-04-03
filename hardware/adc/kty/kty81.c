@@ -79,7 +79,7 @@ temperatur(uint16_t sensorwert)
   R *= volt;
   R /=  5000L - volt;
   int32_t temper;
-#ifdef KTY_DEVICE_110
+#if KTY_DEVICE == KTY_DEVICE_110
   if (R > 1110){
     temper = -94379;
     temper += 131 * R;

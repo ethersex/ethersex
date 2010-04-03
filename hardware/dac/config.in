@@ -1,1 +1,9 @@
-dep_bool "DAC TLC5620 Output" TLC5620_SUPPORT $ARCH_AVR
+dep_bool_menu "digital-to-analog converter (DAC)" DAC_SUPPORT $ARCH_AVR
+	dep_bool "TLC5620 Output" TLC5620_SUPPORT $ARCH_AVR $DAC_SUPPORT
+	dep_bool "LTC1257 Output" LTC1257_SUPPORT $ARCH_AVR $DAC_SUPPORT
+	int "LTC1257: Maximum number of devices" CONF_LTC1257_NUM_DEVICES 4
+
+	comment "Debugging Flags"
+	dep_bool "LTC1257 (core)" DEBUG_LTC1257_CORE $DEBUG $LTC1257_SUPPORT
+	dep_bool "LTC1257 (ECMD)" DEBUG_LTC1257_ECMD $DEBUG $LTC1257_SUPPORT
+endmenu

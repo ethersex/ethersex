@@ -1,0 +1,26 @@
+#
+#   Named Pin Configuration File
+#
+# You can assign names to your microcontroller's pins here.
+# Keep in mind that this names must consist of alphanumeric 
+# characters only!
+#
+# Every line starting with a hash sign (#) is a comment.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PD2	OUTPUT	 HIGH		REL1
+PD3	OUTPUT	 HIGH		REL2
+PD4	OUTPUT	 HIGH		REL3
+#PD5	OUTPUT	 HIGH		REL4
+#PD6	OUTPUT   HIGH		REL5
+#PD7	OUTPUT	 HIGH		REL6
+
+#PD2	INPUT	 HIGH		IN1
+#PD3	INPUT	 HIGH		IN2
+#PD4	INPUT	 HIGH		IN3
+PD5	INPUT	 HIGH		IN4
+PD6	INPUT    HIGH		IN5
+PD7	INPUT	 HIGH		IN6
+

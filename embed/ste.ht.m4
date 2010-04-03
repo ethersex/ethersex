@@ -7,72 +7,70 @@ ifdef(`conf_STELLA_INLINE', `', `m4exit(1)')dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 
-var initial_fetch = false;
+function stella_per(valuestr) {
+	return Math.round(parseInt(valuestr)*100/255);
+}
 
 function stella_inittable(request) {
 	ow_table = $('channels_table');
 	ow_caption = $('caption');
+
 	if (ecmd_error(request)) {
-		ow_caption.innerHTML = "Fetching...Error!";
+		ow_caption.innerHTML = "Fetching error!";
 		return;
 	}
 
-	initial_fetch = true;
-	channels = request.responseText.split("\n");
+	var channels_source = request.responseText.split("\n");
+	var channels = channels_source.slice(1,channels_source.length-1); //remove first and last line
 
-	for (var i = 0; i < channels.length-1; i++) {
+        ow_caption.innerHTML = (channels.length) + " Channels loaded.";
+
+	for (var i = 0; i < channels.length; i++) {
 		txt = "<td>Channel "+i+"</td>";
 		for (var j = 0;j <= 10; j++) {
 			txt += "<td><a href='javascript:stella("+i+","+Math.round(j*25.5)+");'>"+j*10+"%</a></td>";
 		}
-		txt += "<td>Current: <span id='current"+i+"'></span>%</td>";
+		txt += "<td>Current: <span id='current"+i+"'>"+stella_per(channels[i])+"</span>%</td>";
 		ow_table.insertRow(i+1).innerHTML = txt;
 	}
-
-	ow_caption.innerHTML = (channels.length-1) + " Channels loaded.";
-	stella_update();
 }
 
 function stella_updatetable(request) {
-	ow_caption = $('caption');
 	upind = $('upind');
-	if (ecmd_error(request)) {
-		return;
-	}
 
-	channels = request.responseText.split("\n");
-	
-	for (var i = 0; i < channels.length-1; i++) {
-		$('current'+i).innerHTML = Math.round(parseInt(channels[i])*100/255);
-	}
+	if (ecmd_error(request)) return;
 	upind.innerHTML = "";
+
+	var channels_source = request.responseText.split("\n");
+	var channels = channels_source.slice(1,channels_source.length-1); //remove first and last line
+	
+	for (var i = 0; i < channels.length; i++) {
+		$('current'+i).innerHTML = stella_per(channels[i]);
+	}
 }
 
 function stella_update() {
 	upind = $('upind');
-	if (!initial_fetch) {
-		upind.innerHTML = "F";
-		ArrAjax.ecmd('channel', stella_inittable);
-	} else {
-		upind.innerHTML = "U";
-		ArrAjax.ecmd('channel', stella_updatetable);
-	}
+	upind.innerHTML = "Updating";
+	ArrAjax.ecmd('channel', stella_updatetable);
 }
 
 function stella(channel, val) {
 	ArrAjax.ecmd('channel+' + channel + '+' + val);
-	$('current'+channel).innerHTML = Math.round(parseInt(val)*100/255) + "U";
+	$('current'+channel).innerHTML = stella_per(val) + "U";
 }
 
 window.onload = function() {
+	ow_caption = $('caption');
+        ow_caption.innerHTML = "Fetching channels...";
 	setInterval('stella_update();', 5000);
-	stella_update();
+	ArrAjax.ecmd('channel', stella_inittable);
 }
 </script>
 </head>
 <body>
 	<h3>Stella Channels</h3>
-	<div><span id="caption">Loading...</span> <span id="upind"></span></div>
+	<div><span id="caption">Kein Javascript aktiviert!</span> <span id="upind"></span></div>
 	<table id="channels_table"><tr><td></td></tr></table>
 </body>
 </html>

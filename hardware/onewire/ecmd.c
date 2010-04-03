@@ -241,8 +241,14 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 	itoa (HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
 	return ECMD_FINAL(strlen(output));
 #else
-        ret = snprintf_P(output, len, PSTR("%3d.%1d"),
-                (int8_t) HI8(temp),  HI8(((temp & 0x00ff) * 10) + 0x80));
+	{
+	  uint8_t sign = ((int16_t) temp < 0);
+
+	  if (sign) temp = -temp;
+
+	  ret = snprintf_P(output, len, PSTR("%s%d.%1d"),
+			   sign?"-":"", (int8_t) HI8(temp), HI8(((temp & 0x00ff) * 10) + 0x80));
+	}
 #endif
 
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -327,7 +333,7 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Dallas 1-wire)
+  block([[Dallas_1-wire_Bus]])
   ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)
     ecmd_feature(onewire_list, "1w list",,Return a list of the connected onewire devices)
   ecmd_endif()

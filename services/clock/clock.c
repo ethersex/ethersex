@@ -24,6 +24,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include "hardware/i2c/master/i2c_ds1337.h"
 #include "services/ntp/ntp.h"
 #include "core/debug.h"
 #include "clock.h"
@@ -32,6 +33,11 @@
 static uint32_t timestamp;
 static uint8_t ticks;
 static uint32_t sync_timestamp;
+static uint32_t n_sync_timestamp;
+static uint32_t n_sync_tick;
+static int16_t delta;
+static uint16_t ntp_count;
+static uint16_t dcf_count;
 
 #define NTP_RESYNC_PERIOD 1800
 
@@ -51,20 +57,34 @@ void
 clock_init(void)
 {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-  ASSR = _BV(AS2);
-  TCNT2 = 0;
+  ASSR = _BV(CLOCK_TIMER_AS);
+  CLOCK_TIMER_CNT = 0;
   /* 120 prescaler to get every second an interrupt */
-  _TCCR2_PRESCALE = _BV(CS22) | _BV(CS20);
-  while(ASSR & ( _BV(TCN2UB) | _BV(TCR2BUB))) {}
-  /* Clear the interrupt flags */
-  _TIFR_TIMER2 &= ~_BV(TOV2);
-  /* Enable the timer interrupt */
-  _TIMSK_TIMER2 |= _BV(TOIE2);
+  CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
+
+  /* Wait until the bytes are written */
+#ifdef CLOCK_TIMER_RBUSY
+  while(ASSR & ( _BV(CLOCK_TIMER_NBUSY) | _BV(CLOCK_TIMER_RBUSY))) {}
+#else
+  while(ASSR & ( _BV(CLOCK_TIMER_NBUSY))) {}
 #endif
+
+  /* Clear the interrupt flags */
+  CLOCK_TIMER_TIFR &= ~_BV(CLOCK_TIMER_OVERFLOW);
+
+  /* Enable the timer interrupt */
+  CLOCK_TIMER_TIMSK |= _BV(CLOCK_TIMER_ENABLE);
+  
+  /* reset dcf_count */
+  dcf_count=0;
+#endif
+  
+  /* reset dcf_count */
+  dcf_count=0;
 }
 
 #ifdef CLOCK_CRYSTAL_SUPPORT
-SIGNAL(SIG_OVERFLOW2)
+SIGNAL(CLOCK_SIG)
 {
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
   if (!sync_timestamp || sync_timestamp == timestamp)
@@ -143,6 +163,8 @@ clock_set_time(uint32_t new_sync_timestamp)
 #endif  /* CLOCK_NTP_ADJUST_SUPPORT */
 
 	sync_timestamp = new_sync_timestamp;
+	n_sync_timestamp = new_sync_timestamp;
+	n_sync_tick = TCNT2;
 
 	/* Allow the clock to jump forward, but not to go backward
 	 * except the time difference is greater than 5 minutes */
@@ -153,6 +175,10 @@ clock_set_time(uint32_t new_sync_timestamp)
 	if (startup_timestamp == 0)
 		startup_timestamp = sync_timestamp;
 	#endif
+
+        #ifdef I2C_DS1337_SUPPORT
+        i2c_ds1337_sync( sync_timestamp );
+        #endif
 
 	#ifdef NTP_SUPPORT
 	ntp_timer = NTP_RESYNC_PERIOD;
@@ -168,8 +194,54 @@ clock_get_time(void)
 uint32_t
 clock_last_sync(void)
 {
-  return sync_timestamp;
+  return n_sync_timestamp;
 }
+
+uint32_t
+clock_last_s_tick(void)
+{
+  return n_sync_tick;
+}
+
+int16_t
+clock_last_delta(void)
+{
+  return delta;
+}
+
+uint16_t
+clock_dcf_count(void)
+{
+  return dcf_count;
+}
+
+void
+set_dcf_count(uint16_t new_dcf_count)
+{
+  if (new_dcf_count == 0) dcf_count=0;
+  else dcf_count=dcf_count+new_dcf_count;
+}
+
+uint16_t
+clock_ntp_count(void)
+{
+  return ntp_count;
+}
+
+void
+set_ntp_count(uint16_t new_ntp_count)
+{
+  if (new_ntp_count == 0) ntp_count=0;
+  else ntp_count=ntp_count+new_ntp_count;
+}
+
+#ifdef NTP_SUPPORT
+uint16_t
+clock_last_ntp(void)
+{
+  return ntp_timer;
+}
+#endif
 
 #ifdef WHM_SUPPORT
 uint32_t
@@ -258,17 +330,15 @@ uint32_t
 clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 {
   uint32_t timestamp;
-  /* seconds */
-  timestamp = d->sec ;
 
-  /* minutes */
-  timestamp += d->min * 60;
+  /* seconds + minutes */
+  timestamp = d->sec + d->min * 60;
 
   /* hours */
-  timestamp += d->hour * 3600ULL;
+  timestamp += d->hour * 3600UL;
 
   /* days */
-  timestamp += d->day * 86400ULL - 86400ULL;
+  timestamp += (d->day-1) * 86400UL;
 
   /* month */
   while (1) {
@@ -284,7 +354,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
     if ( d->month == 2 && is_leap_year(d->year))
       monthdays++;
 
-    timestamp = timestamp + (monthdays * 86400ULL);
+    timestamp = timestamp + (monthdays * 86400UL);
 
   }
 
@@ -298,21 +368,21 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
   /* year, check if we have enough days left to fill a year */
   while (year < d->year+2000) {
     if (is_leap_year(year)) {
-      timestamp += 31622400ULL;
+      timestamp += 31622400UL;
     } else {
-      timestamp += 31536000ULL;
+      timestamp += 31536000UL;
     }
     year++;
   }
   if (cest == 0)
-    timestamp -= 3600ULL;
+    timestamp -= 3600UL;
   else
-    timestamp -= 7200ULL;
+    timestamp -= 7200UL;
 
   return timestamp;
 }
 
-#ifdef TIMEZONE_CEST
+#if TIMEZONE == TIMEZONE_CEST
 /* This function checks if the last day in month is:
  * -1: in the future
  *  0: today is the last sunday in month
@@ -336,7 +406,7 @@ static int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
 void
 clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
 {
-#ifdef TIMEZONE_CEST
+#if TIMEZONE == TIMEZONE_CEST
   clock_datetime(d, timestamp);
   /* We must determine, if we have CET or CEST */
   int8_t last_sunday = last_sunday_in_month(d->day, d->dow);

@@ -40,11 +40,11 @@ dnl UDP_DIRECT_SEND(ip, lport, rport, text, ...)
 dnl ==========================================================================
 define(`UDP_DIRECT_SEND', `do { dnl
   ifelse(`$#', 4, dnl
-	`strcpy_P(uip_sappdata, PSTR($4));
-	 uip_slen = strlen (uip_sappdata);',
+	`strcpy_P(&uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN], PSTR($4));
+	 uip_slen = strlen ( &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN]);',
 	dnl
 	dnl multiple args, use printf syntax
-	`uip_slen = snprintf_P (uip_sappdata, UIP_BUFSIZE - UIP_IPUDPH_LEN, PSTR($4), shift(shift(shift(shift($@)))));')
+	`uip_slen = snprintf_P ( &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN], UIP_BUFSIZE - UIP_IPUDPH_LEN, PSTR($4), shift(shift(shift(shift($@)))));')
 
   { uip_udp_conn_t conn;
     IPADDR($1);
@@ -67,11 +67,11 @@ dnl UDP_SEND(text, ...)
 dnl ==========================================================================
 define(`UDP_SEND', `do {dnl
   ifelse(`$#', 1, dnl
-	`strcpy_P(uip_sappdata, PSTR($1));
-	 uip_udp_send (strlen (uip_sappdata));',
+	`strcpy_P( &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN], PSTR($1));
+	 uip_udp_send (strlen ( &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN]));',
 	dnl
 	dnl multiple args, use printf syntax
-	`uip_udp_send (snprintf_P (uip_sappdata, UIP_BUFSIZE - UIP_IPUDPH_LEN, PSTR($1), shift($@)));')
+	`uip_udp_send (snprintf_P ( &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN], UIP_BUFSIZE - UIP_IPUDPH_LEN, PSTR($1), shift($@)));')
 
 	{
          uip_udp_conn_t echo_conn;

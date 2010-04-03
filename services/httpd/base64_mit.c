@@ -26,6 +26,7 @@
 */
 
 #include <string.h>
+#include <stdint.h>
 #include <avr/pgmspace.h>
 
 static char PROGMEM cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW"

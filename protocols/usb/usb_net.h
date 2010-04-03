@@ -1,7 +1,6 @@
 /*
- *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,6 +23,8 @@
 #ifndef _USB_NET_H
 #define _USB_NET_H
 
+#include "protocols/usb/usbdrv/usbdrv.h"
+
 /* Whether there is a packet stored in uip_buf that has to be sent
    to the host. */
 extern uint8_t usb_packet_ready;
@@ -34,7 +35,7 @@ extern uint8_t usb_packet_ready;
 #  define usb_net_tx_active() (0)
 #endif
 
-uint8_t usb_net_setup(uint8_t  data[8]);
+usbMsgLen_t usb_net_setup(uint8_t  data[8]);
 uint8_t usb_net_write(uint8_t *data, uint8_t len);
 uint8_t usb_net_read(uint8_t *data, uint8_t len);
 void usb_net_read_finished(void);

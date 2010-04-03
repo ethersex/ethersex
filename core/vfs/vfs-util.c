@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2010 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 
 #include "core/vfs/vfs.h"
 #include "core/vfs/vfs-util.h"
+#ifdef ETHERNET_SUPPORT
 #include "protocols/uip/uip.h"	/* for uip_buf */
 
 #ifndef VFS_TEENSY
@@ -67,4 +69,31 @@ vfs_copy_file (const char *dest, const char *src)
   return 0;
 }
 
+struct vfs_file_handle_t *
+vfs_open_or_creat(const char* filename)
+{
+    struct vfs_file_handle_t * fd = vfs_open(filename);
+    if (! fd ) {
+	/* Perhaps the file wasn't existing */
+	fd = vfs_create(filename);
+    }
+
+    return fd; /* Here fd may be NULL or a filehandle */
+}
+
+uint8_t 
+vfs_file_append(const char *filename, uint8_t* buf, uint16_t len)
+{
+    struct vfs_file_handle_t *fd = vfs_open_or_creat(filename);
+    if (fd) {
+	vfs_fseek(fd, 0, SEEK_END);
+	vfs_write(fd, buf, len);
+	vfs_close(fd);
+	return 1;
+    }
+    return 0;
+}
+
 #endif  /* VFS_TEENSY */
+
+#endif /* ETHERNET_SUPPORT */

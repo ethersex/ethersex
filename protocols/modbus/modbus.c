@@ -51,6 +51,7 @@ volatile struct modbus_buffer modbus_data;
 
 uint8_t modbus_recv_timer = 0;
 int16_t *modbus_recv_len_ptr = NULL;
+uint8_t modbus_last_address;
 
 uint16_t
 modbus_crc_calc(uint8_t *data, uint8_t len)
@@ -112,7 +113,7 @@ modbus_periodic(void)
       if (recv_len) {
         PIN_SET(MODBUS_TX);
         modbus_data.data = modbus_client_state.data;
-        modbus_data.len = modbus_client_state.len;
+        modbus_data.len = recv_len; 
 
         /* Enable the tx interrupt and send the first character */
         modbus_data.sent = 1;
@@ -126,8 +127,13 @@ modbus_periodic(void)
   }
   if (modbus_recv_timer != 0) return;
   *modbus_recv_len_ptr = modbus_data.len;
+
   if (*modbus_recv_len_ptr < 2)
-    *modbus_recv_len_ptr = -1;
+      *modbus_recv_len_ptr = -1;
+
+  if (modbus_data.data[0] != modbus_last_address) {
+      *modbus_recv_len_ptr = -1;
+  }
   modbus_recv_len_ptr = NULL;
 }
 
@@ -141,6 +147,8 @@ modbus_rxstart(uint8_t *data, uint8_t len, int16_t *recv_len) {
   }
 #endif
   if (modbus_data.crc_len != 0) return 0; /* There is an packet on the way */
+
+  modbus_last_address = *data;
 
   /* enable the transmitter */
   PIN_SET(MODBUS_TX);

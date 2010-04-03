@@ -79,6 +79,28 @@ dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 1 0\n");
 dnl    END
 dnl  END
 
+dnl THREAD(isdn)
+dnl // wartet auf einen Anruf vom isdn und laeuft dann weiter
+dnl // in CALLER() ist die Anrufernummer und in CALLEE() die MSN
+dnl   WAITCALL()
+dnl   SYSLOG("C6 wait call %s to %s\n", CALLER(), CALLEE())
+
+dnl // wartet auf einen Anruf von 09868932945 auf der MSN 932913 und
+dnl // laeuft dann weiter, wobei die MSN auch weggelassen werden kann
+dnl // in CALLER() ist die Anrufernummer und in CALLEE() die MSN
+dnl   WAITCALL_FROM("9868932945","932913")
+dnl   SYSLOG("C6 wait call from %s to %s\n", CALLER(), CALLEE())
+dnl THREAD_END(isdn);
+
+dnl ON STARTUP DO
+dnl   THREAD_START(isdn);
+dnl END
+
+dnl // fuehrt den syslog aus sobald ein Anruf vom isdn gemeldet wird
+dnl ON IFCALL() DO
+dnl   SYSLOG("C6 if call from %s to %s\n", isdn_psb2186_callback_caller, isdn_psb2186_callback_callee)
+dnl END
+
 dnl // eine globale Variable fuer ecmd verwendet man so
 dnl ECMD_GLOBAL(Wassersoll, 20);
 dnl ECMD_GLOBAL(Raumsoll, 20);

@@ -171,7 +171,7 @@ parse_cmd_fs_inspect_inode (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(DataFlash)
+  block([[DataFlash]])
   ecmd_feature(df_status, "df status",, Display internal status.)
 
   ecmd_feature(fs_format, "fs format",, Format the filesystem.)

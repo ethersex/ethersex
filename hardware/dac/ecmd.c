@@ -18,13 +18,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string.h>
 #include <avr/pgmspace.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
-#include "core/debug.h"
-
 #include "protocols/ecmd/ecmd-base.h"
+
+#include "tlc5620.h"
 
 
 int16_t parse_cmd_tlc5620(char *cmd, char *output, uint16_t len)
@@ -45,6 +47,6 @@ int16_t parse_cmd_tlc5620(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Digital/Analog Conversion (DAC))
+  block(Digital/Analog Conversion ([[DAC]]))
   ecmd_feature(tlc5620, "tlc5620 ", `[CHANNEL] [VALUE], Set Output to value (Value: 0-0xff)')
 */

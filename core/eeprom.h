@@ -33,10 +33,20 @@
 
 #define IPADDR_LEN sizeof(uip_ipaddr_t)
 
+#ifdef STELLA_SUPPORT
+#include "services/stella/stella.h"
+#endif
 
+#ifdef SMS77_EEPROM_SUPPORT
+#include "protocols/sms77/sms77.h"
+#endif
+
+#ifdef JABBER_EEPROM_SUPPORT
+#include "serives/jabber/jabber.h"
+#endif
 
 struct eeprom_config_t {
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
     uint8_t mac[6];
 #endif
 
@@ -68,9 +78,22 @@ struct eeprom_config_t {
 #endif
 
 #ifdef STELLA_SUPPORT
-	uint8_t stella_channel_values[8];
+	uint8_t stella_channel_values[STELLA_CHANNELS];
 	uint8_t stella_fadefunc;
 	uint8_t stella_fadestep;
+#endif
+
+#ifdef SMS77_EEPROM_SUPPORT
+	char sms77_username[SMS77_VALUESIZE];
+	char sms77_password[SMS77_VALUESIZE];
+	char sms77_receiver[SMS77_VALUESIZE];
+#endif
+
+#ifdef JABBER_EEPROM_SUPPORT
+	char jabber_username[JABBER_VALUESIZE];
+	char jabber_password[JABBER_VALUESIZE];
+	char jabber_resource[JABBER_VALUESIZE];
+	char jabber_hostname[JABBER_VALUESIZE];
 #endif
 
     uint8_t crc;

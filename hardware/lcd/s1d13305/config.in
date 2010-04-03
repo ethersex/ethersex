@@ -1,0 +1,18 @@
+dep_bool_menu "S1D13305 module driver (GLCD)" S1D13305_SUPPORT $ARCH_AVR
+    if [ "$S1D13305_SUPPORT" = "y" ]; then
+	choice 'Display mode'					    \
+           "Text/Graphics   S1D13305_MIXED		\
+	       Graphics			S1D13305_GRAPHICS"	\
+           Text/Graphics	S1D13305_MODE
+	comment 'Display size'
+		int "X" CONF_S1D13305_RESX 320
+		int "Y" CONF_S1D13305_RESY 240
+	comment 'Controller settings'
+		int "XTAL" CONF_S1D13305_XTAL 10000000
+		int "Refresh rate" CONF_S1D13305_REFRESH 75
+		bool "Backlight support" LCD_BACKLIGHT_SUPPORT y
+      define_bool LCD_SUPPORT y
+    fi
+	comment  "Debugging Flags"
+	dep_bool 'S1D13305' DEBUG_S1D13305 $DEBUG $S1D13305_SUPPORT
+  endmenu

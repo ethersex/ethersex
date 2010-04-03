@@ -6,6 +6,9 @@
 # General Setup
 #
 CONFIG_EXPERIMENTAL=y
+ARCH=ARCH_AVR
+ARCH_AVR=y
+# ARCH_HOST is not set
 # atmega8 is not set
 # atmega88 is not set
 # atmega128 is not set
@@ -19,18 +22,24 @@ atmega644=y
 # atmega644p is not set
 FREQ=20000000
 # Arduino_Duemilanove is not set
+# Jackalope is not set
+# MicroWebServer is not set
+# conrad_probot is not set
 HARDWARE=etherrape
 etherrape=y
 # generic_usb_teensy is not set
-# MicroWebServer is not set
 # netio is not set
 # other is not set
+# pollin_funkevalboard is not set
 # radig_web is not set
 # sexyfnord is not set
-# ths is not set
+# user_fnordhw is not set
+# SRAM_SUPPORT is not set
+# SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
+# USART_SPI_SUPPORT is not set
 # USE_GIT_VERSION is not set
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
@@ -75,9 +84,13 @@ MD5_SUPPORT=y
 # MCUF_INLINE_SUPPORT is not set
 # GAME_INPUT_INLINE_SUPPORT is not set
 # UPNP_INLINE_SUPPORT is not set
+# LCD_INLINE_SUPPORT is not set
+# NMEA_INLINE_SUPPORT is not set
+# PWM_SERVO_INLINE_SUPPORT is not set
 # DEBUG_INLINE_DUMMY is not set
 # DEBUG_INLINE_GZ is not set
 # DEBUG_INLINE_DISABLE_GZ is not set
+# VFS_HOST_SUPPORT is not set
 # VFS_SD_SUPPORT is not set
 # SD_READER_SUPPORT is not set
 # SD_READ_TIMEOUT is not set
@@ -92,7 +105,6 @@ MD5_SUPPORT=y
 # VFS_EEPROM_DEBUG_SUPPORT is not set
 # DEBUG_SD_READER is not set
 # PAM_SUPPORT is not set
-_SUPPORT=y
 # CONTROL6_SUPPORT is not set
 
 #
@@ -106,7 +118,24 @@ CONF_ENC_MAC="ac:de:48:fd:0f:d0"
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
+ETHERNET_SUPPORT=y
+# TAP_SUPPORT is not set
+CONF_TAP_MAC="ac:de:48:fd:0f:d0"
+# IPV6_STATIC_SUPPORT is not set
+CONF_TAP_LOCALIP="2001:6f8:1209:f0:221:6aff:fe32:6b12"
+CONF_TAP_LOCALPLEN=64
+# IEEE8021Q_SUPPORT is not set
 # RFM12_IP_SUPPORT is not set
+CONF_RFM12_FREQ=RFM12_FREQ_433920
+RFM12_FREQ_433920=y
+# RFM12_FREQ_869775 is not set
+# RFM12_FREQ_869800 is not set
+# RFM12_FREQ_869825 is not set
+# RFM12_FREQ_869850 is not set
+# RFM12_FREQ_869875 is not set
+# RFM12_FREQ_869900 is not set
+# RFM12_FREQ_869925 is not set
+# CONF_RFM12_SLOW_SPI is not set
 CONF_RFM12_BAUD=19200
 CONF_RFM12_IP="2001:6f8:1209:23:aede:48ff:fe0b:ee52"
 CONF_RFM12_IP6_PREFIX_LEN=64
@@ -157,8 +186,9 @@ DEBUG_ROUTER=y
 # I/O
 #
 # CONFIG_IO_NONE is not set
-PORTIO_SIMPLE_SUPPORT=y
-# PORTIO_SUPPORT is not set
+PORTIO_SCHEME=PORTIO_SIMPLE
+PORTIO_SIMPLE=y
+# PORTIO_FULL_FEATURED is not set
 # NAMED_PIN_SUPPORT is not set
 # TTY_SUPPORT is not set
 TTY_COLS=16
@@ -184,6 +214,7 @@ SMS_USE_USART=0
 # DEBUG_SMS is not set
 # KTY_SUPPORT is not set
 # TLC5620_SUPPORT is not set
+# LTC1257_SUPPORT is not set
 
 #
 # LCD Displays
@@ -224,6 +255,7 @@ DC3840_USE_USART=0
 # RC5IR_SUPPORT is not set
 # RC5_SUPPORT is not set
 # DEBUG_RC5 is not set
+# PSB2186_SUPPORT is not set
 # PWM_SUPPORT is not set
 # PWM_WAV_SUPPORT is not set
 # PWM_MELODY_SUPPORT is not set
@@ -291,6 +323,7 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # Protocols
 #
 # ARTNET_SUPPORT is not set
+CONF_ARTNET_PORT=6454
 CONF_ARTNET_MAX_PORTS=4
 CONF_ARTNET_MAX_DATA_LENGTH=511
 CONF_ARTNET_MAX_CHANNELS=512
@@ -363,6 +396,13 @@ CONF_SENDMAIL_FROM="root@sex.metafnord.de"
 CONF_SENDMAIL_TO="stesie@brokenpipe.de"
 # SENDMAIL_AUTH_SUPPORT is not set
 # DEBUG_SENDMAIL is not set
+# SMS77_SUPPORT is not set
+CONF_SMS77_SERVICE="gateway.sms77.de"
+CONF_SMS77_USER=""
+CONF_SMS77_PASS=""
+CONF_SMS77_TO=""
+# SMS77_EEPROM_SUPPORT is not set
+# DEBUG_SMS77 is not set
 # SYSLOG_SUPPORT is not set
 CONF_SYSLOG_SERVER="2001:4b88:10e4:0:21a:92ff:fe32:53e3"
 # TWITTER_SUPPORT is not set
@@ -372,6 +412,10 @@ CONF_TWITTER_USERNAME="ethersex"
 CONF_TWITTER_PASSWORD=""
 CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
 # DEBUG_TWITTER is not set
+# USTREAM_SUPPORT is not set
+CONF_USTREAM_IP=""
+CONF_USTREAM_PORT=80
+# DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
 YPORT_USART_0=y
 YPORT_USE_USART=0
@@ -386,10 +430,16 @@ TO1_USART_0=y
 TO1_USE_USART=0
 TO1_SENSOR_COUNT=1
 # DEBUG_TO1 is not set
+# NMEA_SUPPORT is not set
+NMEA_USART_0=y
 
 #
 # Applications
 #
+# APP_SAMPLE_SUPPORT is not set
+# APP_SAMPLE_INIT_AUTOSTART_SUPPORT is not set
+# APP_SAMPLE_PERIODIC_AUTOSTART_SUPPORT is not set
+# DEBUG_APP_SAMPLE is not set
 # CLOCK_SUPPORT is not set
 # CLOCK_DATETIME_SUPPORT is not set
 # CLOCK_CRYSTAL_SUPPORT is not set
@@ -408,11 +458,14 @@ TO1_SENSOR_COUNT=1
 # CRON_STATIC_SUPPORT is not set
 # DYNDNS_SUPPORT is not set
 # UDP_ECHO_NET_SUPPORT is not set
+# WOL_SUPPORT is not set
 # HTTPD_SUPPORT is not set
 # HTTPD_SOAP_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
 # HTTP_SD_DIR_SUPPORT is not set
 # MIME_SUPPORT is not set
+HTTPD_PORT=80
+HTTPD_ALTERNATE_PORT=8000
 # DEBUG_HTTPD is not set
 # JABBER_SUPPORT is not set
 CONF_JABBER_IP="2001:6f8:1209:f0:216:3eff:fe03:a7"

@@ -21,13 +21,16 @@
 
 #ifndef _SMS_H
 #define _SMS_H 
+
+#define SMS_LEN 130
+
 extern volatile uint8_t global_mobil_access;
 extern FILE *ausgabe;
 
 typedef struct {
     unsigned char rufnummer[20];
     uint8_t text_len;
-    unsigned char text[120];    
+    unsigned char text[SMS_LEN];    
     void (*sms_send_err_calback)();
 } sms;
 

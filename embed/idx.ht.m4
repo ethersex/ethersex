@@ -24,6 +24,7 @@ ifdef(`conf_ONEWIRE_INLINE', `<p>The onewire temperature values are accessible <
    or with a SVG-capable browser see the <a href="Xow.ht">graphical variant</a>.</p>')
 ifdef(`conf_RFM12_INLINE', `<p>To control <a href="rf.ht">RFM12 ASK</a>.</p>')
 ifdef(`conf_STELLA_INLINE', `<p>To control <a href="ste.ht">StellaLight</a>.</p>')
+ifdef(`conf_MOTORCURTAIN_INLINE', `<p>To control <a href="cur.ht">MotorCurtain</a>.</p>')
 ifdef(`conf_I2C_INLINE', `<p>Set <a href="i2c.ht">I<sup>2</sup>C-Bus</a> stuff.</p>')
 ifdef(`conf_CAMERA_INLINE', `<p>See the <a href="cam.ht">camera examples</a>.</p>')
 ifdef(`conf_NAMED_PIN_INLINE', `<p>Control <a href="np.ht">named outputs</a>.</p>')
@@ -31,5 +32,7 @@ ifdef(`conf_CONFIG_INLINE', `<p>Configure ethersex <a href="cfg.ht">here</a></p>
 ifdef(`conf_NETSTAT', `<p>Visit <a target="_blank" href="http://www.ethersex.de/~habo/stat/">Ethersex online statistic</a></p>')
 ifdef(`conf_MCUF_INLINE', `<p>Select MCUF Modul <a href="mm.ht">here</a></p>')
 ifdef(`conf_GAME_INPUT_INLINE', `<p>Browser <a href="gi.ht">Game Input</a></p>')
+ifdef(`conf_PWM_SERVO_INLINE', `<p>Easy set <a href="ps.ht">Servo Position</a></p>')
+ifdef(`conf_LCD_INLINE', `<p>Handle <a href="lcd.ht">LCD and other displays</a></p>')
  </body>
 </html>

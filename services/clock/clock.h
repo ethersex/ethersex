@@ -26,6 +26,40 @@
 
 #include <inttypes.h>
 
+#if defined(atmega128)
+
+#define CLOCK_TIMER_AS AS0
+#define CLOCK_TIMER_TIFR _TIFR_TIMER0
+#define CLOCK_TIMER_TIMSK _TIMSK_TIMER0
+#define CLOCK_TIMER_TCCR TCCR0
+#define CLOCK_TIMER_CNT TCNT0
+#define CLOCK_TIMER_ENABLE TOIE0
+#define CLOCK_TIMER_OVERFLOW TOV0
+#define CLOCK_SIG SIG_OVERFLOW0
+#define CLOCK_SELECT_2 CS02
+#define CLOCK_SELECT_0 CS00
+#define CLOCK_TIMER_NBUSY TCN0UB
+#define CLOCK_TIMER_RBUSY TCR0UB
+
+#else
+
+/* Here we define to use the timer2 */
+#define CLOCK_TIMER_AS AS2
+#define CLOCK_TIMER_TIFR _TIFR_TIMER2
+#define CLOCK_TIMER_TIMSK _TIMSK_TIMER2
+#define CLOCK_TIMER_TCCR _TCCR2_PRESCALE
+#define CLOCK_TIMER_CNT TCNT2
+#define CLOCK_TIMER_ENABLE TOIE2
+#define CLOCK_TIMER_OVERFLOW TOV2
+#define CLOCK_SIG SIG_OVERFLOW2
+#define CLOCK_SELECT_2 CS22
+#define CLOCK_SELECT_0 CS20
+#define CLOCK_TIMER_NBUSY TCN2UB
+#ifdef TCR2BUB
+#  define CLOCK_TIMER_RBUSY TCR2BUB
+#endif
+#endif
+
 struct clock_datetime_t {
     uint8_t sec;
     union {
@@ -55,6 +89,23 @@ uint32_t clock_get_time(void);
 
 /* when was the clock synced the last time (unix timestamp) */
 uint32_t clock_last_sync(void);
+
+/* when was the clock synced the last time (ticks) */
+uint32_t clock_last_s_tick(void);
+
+/* last delta time (from unix timestamp) */
+int16_t clock_last_delta(void);
+
+/* DCF syncs in Folge */
+uint16_t clock_dcf_count(void);
+void set_dcf_count(uint16_t new_dcf_count);
+
+/* NTP syncs in Folge */
+uint16_t clock_ntp_count(void);
+void set_ntp_count(uint16_t new_ntp_count);
+
+/* the actual ntp_timer */
+uint16_t clock_last_ntp(void);
 
 /* when was the device booted (unix timestamp) */
 uint32_t clock_get_startup(void);

@@ -1,11 +1,17 @@
 dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
 	dep_bool "Authentification via PAM (TCP only)" ECMD_PAM_SUPPORT $ECMD_PARSER_SUPPORT $ECMD_TCP_SUPPORT $PAM_SUPPORT
-	dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
-	int "  Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
-	int "  Length of variable buffer" ECMD_SCRIPT_VARIABLE_LENGTH 10
-	int "  Length of comparator buffer" ECMD_SCRIPT_COMPARATOR_LENGTH 25
-	int "  Maximum lines of script" ECMD_SCRIPT_MAXLINES 128
+	dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $VFS_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
+	if [ "$ECMD_SCRIPT_SUPPORT" = y ]; then
+	  int "  Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
+	  int "  Length of variable buffer" ECMD_SCRIPT_VARIABLE_LENGTH 10
+	  int "  Length of comparator buffer" ECMD_SCRIPT_COMPARATOR_LENGTH 25
+	  int "  Maximum lines of script" ECMD_SCRIPT_MAXLINES 128
+      bool "Script auto start" ECMD_SCRIPT_AUTOSTART_SUPPORT $ECMD_SCRIPT_SUPPORT
+	  if [ "$ECMD_SCRIPT_AUTOSTART_SUPPORT" = y ]; then
+        string "Script name auto start" CONF_ECMD_SCRIPT_AUTOSTART_NAME "auto.es"
+      fi
+    fi
 	endmenu
 	comment "ECMD interfaces"
 	usart_count_used
@@ -15,6 +21,7 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 			choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
 			usart_process_choice ECMD_SERIAL_USART
 			dep_bool "  USART (RS485 mode)" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
+			dep_bool "  No Echo" ECMD_SERIAL_NO_ECHO $ECMD_SERIAL_USART_SUPPORT
 			int "  UART Baudrate" ECMD_SERIAL_BAUDRATE 115200
 			int "  UART buffer length" ECMD_SERIAL_USART_BUFFER_LEN 50
 		fi
@@ -43,7 +50,7 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	fi
 
 	dep_bool "IRC (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
-	
+
 	dep_bool "SMS" ECMD_SMS_SUPPORT $ECMD_PARSER_SUPPORT $SMS_SUPPORT
 
 	comment "Generate ECMD commands"
@@ -56,6 +63,8 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
 
+	comment "Mirror ECMD commands for output"
+	dep_bool '  Mirror ECMD commands' ECMD_MIRROR_REQUEST $ECMD_PARSER_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'ECMD' DEBUG_ECMD $DEBUG
 	dep_bool 'ECMD FS20' DEBUG_ECMD_FS20 $DEBUG

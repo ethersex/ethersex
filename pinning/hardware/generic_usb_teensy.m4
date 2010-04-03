@@ -36,8 +36,8 @@ ifdef(`conf_RFM12', `
   /* port the rfm12 module CS is attached to */
   pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
   /* port the LEDS for rfm12 txrx attached to */
-  pin(RFM12_TX_PIN, STATUSLED_TX)
-  pin(RFM12_RX_PIN, STATUSLED_RX)
+  ifdef(`conf_STATUSLED_TX', `pin(RFM12_TX_PIN, STATUSLED_TX)')
+  ifdef(`cong_STATUSLED_RX', `pin(RFM12_RX_PIN, STATUSLED_RX)')
 
   RFM12_USE_INT(0)
 ')

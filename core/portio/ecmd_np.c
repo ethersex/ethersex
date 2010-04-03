@@ -30,6 +30,52 @@
 #include "core/portio/portio.h"
 #include "protocols/ecmd/ecmd-base.h"
 
+/**
+ * Get all named pins in a list (separator is the newline character).
+ * Warning: this funtion return only that much entries that fit into
+ * the output buffer.
+ *
+ */
+int16_t parse_cmd_pin_list(char *cmd, char *output, uint16_t len)
+{
+    uint16_t help_len = 0;
+    const char *text;
+
+	/* trick: use bytes on cmd as "connection specific static variables" */
+	if (cmd[0] != 23) {		/* indicator flag: real invocation:  0 */
+	    cmd[0] = 23;		/*                 continuing call: 23 */
+	    cmd[1] = 0;		/* counter for output lines */
+	}
+
+	while (1) {
+		/* get named-pin from array */
+		text = (const char *)pgm_read_word(&portio_pincfg[ (uint8_t)cmd[1]++ ].name);
+		/* leave loop if end of array is reached */
+		if (text == NULL) break;
+		uint8_t lineLength = strlen_P (text);
+		/* leave loop if output buffer is too small */
+		if (help_len+lineLength+1>len) {
+		  // if we get called again, we have to get this entry again, too.
+		  (uint8_t)cmd[1]--;
+		  break;
+		}
+		memcpy_P (output, text, lineLength);
+		output += lineLength;
+		/* add newline character */
+		*output = '\n';
+		++output;
+		help_len += lineLength+1;
+	}
+
+	/* Remove last newline character if end of array is reached */
+	if (text == NULL && help_len) {
+	  --help_len;
+	  return ECMD_FINAL(help_len);
+	} else {
+	  return ECMD_AGAIN(help_len);
+	}
+}
+
 int16_t parse_cmd_pin_get(char *cmd, char *output, uint16_t len)
 {
   uint16_t port, pin;
@@ -155,7 +201,8 @@ int16_t parse_cmd_pin_toggle(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Named Pins)
+  block([[Named_PIN]])
+  ecmd_feature(pin_list, "pin list",, List all known named-pins.)
   ecmd_feature(pin_get, "pin get", NAME, Read and display the status of pin NAME.)
   ecmd_feature(pin_set, "pin set", NAME STATUS, Set the status of pin NAME to STATUS.)
   ecmd_feature(pin_toggle, "pin toggle", NAME, Toggle the status of pin NAME.)

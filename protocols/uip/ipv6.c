@@ -58,7 +58,7 @@ extern struct uip_eth_addr uip_ethaddr;
 extern uint8_t bootload_delay;
 #endif
 
-#if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
+#if UIP_CONF_IPV6 && defined(ETHERNET_SUPPORT)
 
 
 static void
@@ -222,9 +222,14 @@ uip_router_parse_advertisement(void)
 
   uint8_t *option = &(RADVBUF->first_type);
 
+  /* For IPv6, uip_len gets set to the size of only the IP payload
+   * (length field + 40 bytes for the header), so we add the link
+   * level header length */
+  uint8_t *packet_end = uip_buf + uip_len + UIP_LLH_LEN;
+
   /* The first byte of an ICMPv6 option is its type, the second one is
    * its length. */
-  while ((option + option[1]) <= (uip_buf + uip_len)) {
+  while ((option + (option[1] * 8)) <= packet_end) {
     switch (option[0]) {
       case 1:
         /* Source link-layer address */
@@ -254,7 +259,7 @@ uip_router_parse_advertisement(void)
          */
 
         uint8_t i, isnt_prefix = 0;
-        for (i = 4; i < 8; i++)
+        for (i = 8; i < 16; i++)
           if (prefix->prefix[i] != 0)
             isnt_prefix = 1;
 
@@ -266,10 +271,12 @@ uip_router_parse_advertisement(void)
 
         break;
       default:
-	IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
+          IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
         break;
     }
 
+    if ((option + (option[1] * 8)) == packet_end)
+        break;
     option += (option[1] * 8);
   }
 
@@ -340,4 +347,4 @@ after_neighbour_resolv:
   return 0;
 }
 
-#endif /* UIP_CONF_IPV6 and ENC28J60_SUPPORT */
+#endif /* UIP_CONF_IPV6 and ETHERNET_SUPPORT */

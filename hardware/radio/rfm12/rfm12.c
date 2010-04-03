@@ -23,14 +23,22 @@
 
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "config.h"
 #include "core/spi.h"
+#include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
 #include "rfm12.h"
 #include "rfm12_raw_net.h"
 #include "core/bit-macros.h"
+
+#ifdef DEBUG
+	#define RFM12_DEBUG(s, args...) printf_P(PSTR("D: " s), ## args)
+#else
+	#define RFM12_DEBUG(a...)
+#endif
 
 #ifdef RFM12_IP_SUPPORT
 rfm12_status_t rfm12_status;
@@ -46,11 +54,34 @@ uint8_t rfm12_drssi = RSSI_79;
 
 static void rfm12_txstart_hard (void);
 
+#ifdef RFM12_INT_SIGNAL
 SIGNAL(RFM12_INT_SIGNAL)
+#else
+ISR(RFM12_vect)	    /* PCINT */
+#endif
 {
+#ifdef HAVE_RFM12_PCINT
+  if(PIN_HIGH(RFM12_PCINT)) return;	/* pin change to high level -> ignore */
+#endif
   uint8_t byte;
-  if ((rfm12_trans(0x0000) & 0x8000) == 0)
+  uint16_t status = rfm12_trans (0x0000);
+
+  if (status & 0x4000) {
+    RFM12_DEBUG ("rfm12/por -> init.\n");
+    rfm12_init ();
     return;
+  }
+
+  if (status & 0x2000) {
+    RFM12_DEBUG ("rfm12/overflow -> init.\n");
+    rfm12_init ();
+    return;
+  }
+
+  if ((rfm12_trans(0x0000) & 0x8000) == 0) {
+    RFM12_DEBUG ("rfm12/spurious int: %x\n", status);
+    return;
+  }
 
   switch (rfm12_status)
     {
@@ -67,9 +98,10 @@ SIGNAL(RFM12_INT_SIGNAL)
 	{
 	  _uip_buf_lock = 8;
 	  rfm12_buf[rfm12_index ++] = byte;
-#ifdef STATUSLED_RX_SUPPORT
+#ifdef HAVE_RFM12_RX_PIN
 	  PIN_SET(RFM12_RX_PIN);
 #endif
+	  ACTIVITY_LED_RFM12_RX;
 	}
       else
 	{
@@ -79,7 +111,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 	  rfm12_trans(0x8208);
           rfm12_status = RFM12_OFF;
 	  rfm12_rxstart();
-#ifdef STATUSLED_RX_SUPPORT
+#ifdef HAVE_RFM12_RX_PIN
 	  PIN_CLEAR(RFM12_RX_PIN);
 #endif
 	  return;
@@ -164,7 +196,7 @@ SIGNAL(RFM12_INT_SIGNAL)
 
     case RFM12_TX_END:
       rfm12_status = RFM12_OFF;
-#ifdef STATUSLED_TX_SUPPORT
+#ifdef HAVE_RFM12_TX_PIN
       PIN_CLEAR(RFM12_TX_PIN);
 #endif
       rfm12_trans(0x8208);	/* TX off */
@@ -214,28 +246,64 @@ rfm12_trans(unsigned short wert)
 void
 rfm12_init(void)
 {
+  rfm12_prologue ();
   uint8_t i;
 
-  for (i=0; i<10; i++)
+  for (i=0; i<15; i++)
     _delay_ms(10);		/* wait until POR done */
 
   rfm12_trans(0xC0E0);		/* AVR CLK: 10MHz */
-#if CONF_RFM12_FREQ < 800000
-  rfm12_trans(0x80D7);		/* Enable FIFO */
-#else
-  rfm12_trans(0x80E7);		/* Enable FIFO */
-#endif
+  rfm12_trans(RFM12BAND(CONF_RFM12_FREQ));	/* Select BAND, Enable FIFO */
   rfm12_trans(0xC2AB);		/* Data Filter: internal */
   rfm12_trans(0xCA81);		/* Set FIFO mode */
   rfm12_trans(0xE000);		/* disable wakeuptimer */
   rfm12_trans(0xC800);		/* disable low duty cycle */
   rfm12_trans(0xC4F7);		/* AFC settings: autotuning: -10kHz...+7,5kHz */
-  rfm12_trans(0x0000);
+
+#ifdef CONF_RFM12B_SUPPORT
+  rfm12_trans(0xCED4);		/* Set Sync=2DD4 */
+//  rfm12_trans(0xCC17);		/* pll bandwitdh 1: max bitrate = 256kHz - won't work good */
+  rfm12_trans(0xCC16);		/* pll bandwitdh 0: max bitrate 86.2kHz - works ! */
+#endif
+
+  uint16_t status = rfm12_trans(0x0000);
+  (void) status;		/* keep GCC quiet even if debug disabled. */
+  RFM12_DEBUG ("rfm12/init: %x\n", status);
+
+#ifdef TEENSY_SUPPORT
+  rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));
+  rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
+#ifdef RFM12_IP_SUPPORT
+    rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
+    rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
+#endif  /* RFM12_IP_SUPPORT */
+
+#else  /* TEENSY_SUPPORT */
+  rfm12_setfreq(RFM12FREQ(CONF_RFM12_FREQ));
+  rfm12_setbandwidth(5, 1, 4);
+#ifdef RFM12_IP_SUPPORT
+    rfm12_setbaud(CONF_RFM12_BAUD / 100);
+    rfm12_setpower(0, 2);
+#endif  /* RFM12_IP_SUPPORT */
+#endif  /* not TEENSY_SUPPORT */
+
+#ifdef HAVE_RFM12_RX_PIN
+  PIN_CLEAR(RFM12_RX_PIN);
+#endif
+#ifdef HAVE_RFM12_TX_PIN
+  PIN_CLEAR(RFM12_TX_PIN);
+#endif
 
 #ifdef RFM12_IP_SUPPORT
   rfm12_status = RFM12_OFF;
   rfm12_int_enable ();
+  rfm12_rxstart();
+
+  status = rfm12_trans(0x0000);
+  RFM12_DEBUG ("rfm12 init'd: %x\n", status);
 #endif
+
+  rfm12_epilogue();
 }
 
 
@@ -319,7 +387,31 @@ rfm12_rxstart(void)
   rfm12_index = 0;
   rfm12_status = RFM12_RX;
 
+  rfm12_int_enable ();
   return(0);
+}
+
+
+uint8_t
+rfm12_rxstop(void)
+{
+  uint8_t result = 1;
+
+  rfm12_prologue();
+
+  if (rfm12_status > RFM12_RX
+      || (rfm12_status == RFM12_RX && rfm12_index > 0))
+    goto out;			/* module not idle */
+
+  rfm12_trans(0x8200);		/* now turn off the oscillator */
+  result = 0;
+
+  rfm12_status = RFM12_OFF;
+  rfm12_int_disable ();
+
+ out:
+  rfm12_epilogue();
+  return result;
 }
 
 
@@ -329,7 +421,7 @@ rfm12_rxfinish(void)
   if(rfm12_status != RFM12_NEW)
     return (0);			/* no new Packet */
 
-#ifdef STATUSLED_RX_SUPPORT
+#ifdef HAVE_RFM12_RX_PIN
   PIN_CLEAR(RFM12_RX_PIN);
 #endif
 
@@ -392,14 +484,17 @@ rfm12_txstart(rfm12_index_t size)
   rfm12_txstart_hard ();
 }
 
+
 static void
 rfm12_txstart_hard (void)
 {
   rfm12_status = RFM12_TX;
 
-#ifdef STATUSLED_TX_SUPPORT
+#ifdef HAVE_RFM12_TX_PIN
   PIN_SET(RFM12_TX_PIN);
 #endif
+
+  ACTIVITY_LED_RFM12_TX;
 
   rfm12_index = 0;
 

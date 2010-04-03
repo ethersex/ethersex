@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "control6/control6.h"
@@ -111,6 +112,8 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     debug_printf("rest cmd: \"%s\"\n", cmd);
 #endif
 
+    ACTIVITY_LED_ECMD;
+
     if (func != NULL)
         ret = func(cmd, output, len);
 
@@ -128,21 +131,6 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 
     return ret;
 }
-
-#ifndef DISABLE_REBOOT_SUPPORT
-int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)
-{
-    (void) cmd;
-    (void) output;
-    (void) len;
-
-    status.request_bootloader = 1;
-#   ifdef UIP_SUPPORT
-    uip_close();
-#   endif
-    return ECMD_FINAL_OK;
-}
-#endif
 
 #ifdef FREE_SUPPORT
 
@@ -182,52 +170,10 @@ int16_t parse_cmd_version(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), VERSION_STRING));
 }
 
-#ifndef DISABLE_REBOOT_SUPPORT
-int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
-{
-    (void) output;
-    (void) len;
-
-    if (*cmd != '\0')
-	    return ECMD_ERR_PARSE_ERROR;
-
-    status.request_reset = 1;
-#ifdef UIP_SUPPORT
-    uip_close();
-#endif
-    return ECMD_FINAL_OK;
-}
-
-int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
-{
-    status.request_wdreset = 1;
-#ifdef UIP_SUPPORT
-    uip_close();
-#endif
-    return ECMD_FINAL_OK;
-}
-#endif /* DISABLE_REBOOT_SUPPORT */
-
-int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
-{
-    (void) len;
-
-    while (*cmd == ' ') cmd ++;
-
-    uint16_t temp;
-    if (sscanf_P (cmd, PSTR("%x"), &temp) != 1)
-      return ECMD_ERR_PARSE_ERROR;
-
-    unsigned char *ptr = (void *) temp;
-    for (int i = 0; i < 16; i ++)
-      sprintf_P (output + (i << 1), PSTR("%02x"), * (ptr ++));
-
-    return ECMD_FINAL(32);
-}
-
 int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
 {
-    (void) len;
+    uint16_t help_len;
+    (void) help_len;
 
     /* trick: use bytes on cmd as "connection specific static variables" */
     if (cmd[0] != 23) {		/* indicator flag: real invocation:  0 */
@@ -236,7 +182,8 @@ int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
     }
 
     char *text = (char *)pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1] ++].name);
-    len = strlen_P (text);
+    help_len = strlen_P (text);
+    len = len < help_len ? len:help_len;
     memcpy_P (output, text, len);
 
     text = (char *) pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1]].name);

@@ -37,7 +37,7 @@
 #define DC3840_CMD_COMPRESS	16
 #define DC3840_CMD_LIGHT	18
 #define DC3840_CMD_COLOR	23
-/* #define DC3840_CMD_DIG_ZOOM	24 */
+#define DC3840_CMD_DIG_ZOOM	24
 
 /* Initialize (0x01) */
 #define DC3840_PREVIEW_GRAY4	1

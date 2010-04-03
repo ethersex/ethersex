@@ -52,7 +52,7 @@ moodlight_process (void)
 		 * the threshold value. */
 		if (stella_moodlight_mask && stella_moodlight_counter == stella_moodlight_threshold)
 		{
-			for (i = 0; i < STELLA_PINS; ++i)
+			for (i = 0; i < STELLA_CHANNELS; ++i)
 			{
 				if (stella_moodlight_mask & _BV(i))
 					stella_fade[i] = (uint8_t)rand()%256;

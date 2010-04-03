@@ -69,7 +69,7 @@ int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 {
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), STELLA_PINS));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), STELLA_CHANNELS));
 }
 
 int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
@@ -77,7 +77,7 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	char f=0;
 	uint8_t ch=0;
 	uint8_t value=0;
-	int8_t ret = 0;
+	uint16_t ret = 0; // must be 16 bit; because the answer length may be > 255
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
 	
 	if (f=='s') f = 0; // set
@@ -87,31 +87,37 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	// return all channel values
 	if (ret == 0)
 	{
-		ret = 0;
-		for (ch = 0; ch<STELLA_PINS*4; ch+=4,++ret)
+		// First return amount of channels with three bytes
+		output[ret++] = ((uint8_t)STELLA_CHANNELS)/10 +48;
+		output[ret++] = ((uint8_t)STELLA_CHANNELS)%10 +48;
+		output[ret++] = '\n';
+	  
+		// return channel values
+		for (ch = 0; ch<STELLA_CHANNELS; ret+=4,++ch)
 		{
-			value = stella_getValue(ret);
-			output[ch+2] = value%10 +48;
+			value = stella_getValue(ch);
+			output[ret+2] = value%10 +48;
 			value /= 10;
-			output[ch+1] = value%10 +48;
+			output[ret+1] = value%10 +48;
 			value /= 10;
-			output[ch+0] = value%10 +48;
-			output[ch+3] = '\n';
+			output[ret+0] = value%10 +48;
+			output[ret+3] = '\n';
 		}
-		if (ch>0) --ch;
-		return ch;
+		// remove last newline character
+		if (ret>0) --ret;
+		return ret;
 	}
 	// return one channel value
 	else if (ret == 1)
 	{
-		if (ch>=STELLA_PINS) return ECMD_ERR_PARSE_ERROR;
+		if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
 
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("%u"), stella_getValue(ch)));
 	}
 	// else set channel to value
 	else if (ret >= 2)
 	{
-		if (ch>=STELLA_PINS) return ECMD_ERR_PARSE_ERROR;
+		if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
 		stella_setValue(f, ch, value);
 
 		return ECMD_FINAL_OK;
@@ -124,7 +130,7 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 
 /*
 -- Ethersex META --
-block(StellaLight commands)
+block([[Stella_Light]] commands)
 ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
 ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
 ecmd_feature(stella_channels, "channels",, Return stella channel size)

@@ -4,6 +4,7 @@
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2010 by Hans Baechle <hans.baechle@gmx.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +33,21 @@
 #include "services/clock/clock.h"
 #include "dcf77.h"
 
+#ifdef DCF1_USE_PON_SUPPORT
+#include <util/delay.h>
+#endif
+
 volatile struct dcf77_ctx dcf;
+struct clock_datetime_t dcfdate;
+
+//dcf77-data valid
+uint8_t dcf77_ctx_valid=0;
+
+// act. dcf timestamp
+uint32_t timestamp=0;
+
+//last dcf77 timestamp
+uint32_t last_dcf77_timestamp=0;
 
 #define bcd2bin(data) (data - ((data/16) * 6))
 
@@ -73,6 +88,20 @@ dcf77_init(void)
 #endif
 }
 
+// compute unix-timestamp from dcf77_ctx
+uint32_t compute_dcf77_timestamp()
+{
+          dcfdate.sec   = 0;
+          dcfdate.min   = bcd2bin(dcf.time[2]);
+          dcfdate.hour  = bcd2bin(dcf.time[3]);
+          dcfdate.day   = bcd2bin(dcf.time[4]);
+          dcfdate.month = bcd2bin(dcf.time[6]);
+          // dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
+          dcfdate.year  = bcd2bin(dcf.time[7]);
+          timestamp = clock_utc2timestamp(&dcfdate, dcf.timezone);
+	  return timestamp;
+}
+
 #ifdef DCF77_vect
 SIGNAL (DCF77_vect)
 #else
@@ -104,6 +133,7 @@ SIGNAL (SIG_COMPARATOR)
           case 1:
                   dcf.timebyte = 1;
                   DCFDEBUG("in 1\n");
+		  dcf77_ctx_valid=0;
           break;
           case 16:
                   DCFDEBUG("%S\n", divtime < 34 ? PSTR("Normalantenne") : PSTR("Reserveantenne"));
@@ -175,6 +205,7 @@ SIGNAL (SIG_COMPARATOR)
           {
             DCFDEBUG("sync lost: %d\n", dcf.sync);
             dcf.sync = 0;
+	    dcf77_ctx_valid=0;
           }
         }
         else
@@ -195,17 +226,21 @@ SIGNAL (SIG_COMPARATOR)
         }
         if (dcf.sync == 59)
         {
-          struct clock_datetime_t dcfdate;
-          dcfdate.sec   = 0;
-          dcfdate.min   = bcd2bin(dcf.time[2]);
-          dcfdate.hour  = bcd2bin(dcf.time[3]);
-          dcfdate.day   = bcd2bin(dcf.time[4]);
-          dcfdate.month = bcd2bin(dcf.time[6]);
-          // dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
-          dcfdate.year  = bcd2bin(dcf.time[7]);
-          uint32_t timestamp = clock_utc2timestamp(&dcfdate, dcf.timezone);
-          DCFDEBUG("unix-time %lu\n", timestamp);
-          clock_set_time(timestamp);
+	  compute_dcf77_timestamp();
+	  // we need 2 valid timestamps; diff = 60s
+          DCFDEBUG("pre-sync act - last  %u\n",timestamp-last_dcf77_timestamp);
+	  if ((timestamp - last_dcf77_timestamp) == 60)
+	    {
+	    // ok! timestamp is valid
+	    dcf77_ctx_valid=1;
+	    }
+	  else 
+	    {
+	    // no! but remember timestamp
+	    dcf77_ctx_valid=0;
+	    set_dcf_count(0);
+	    last_dcf77_timestamp=timestamp;
+	    }
         }
         dcf.sync++;
       }
@@ -219,6 +254,21 @@ SIGNAL (SIG_COMPARATOR)
       }
       if(divtime > 0x1C0 && divtime < 0x1F0 && dcf.sync == 0)
       {
+	if (dcf77_ctx_valid == 1)
+	  {
+	  compute_dcf77_timestamp();
+          clock_set_time(timestamp);
+	  TCNT2=0;
+	  last_dcf77_timestamp=timestamp;
+          set_dcf_count(1);
+          set_ntp_count(0);
+#ifdef NTPD_SUPPORT
+	  // our DCF-77 Clock ist a primary; intern stratum 0; so we offer stratum+1 ! //
+          ntp_setstratum(0);
+#endif
+	  DCFDEBUG("set unix-time %lu\n", timestamp);
+	  dcf77_ctx_valid=0;
+	  }
         DCFDEBUG("start sync\n");
         dcf.sync = 1;
         TCNT2 = divtime;

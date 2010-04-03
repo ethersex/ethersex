@@ -35,6 +35,12 @@ parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
                                  rfm12_get_status()));
 }
 
+int16_t 
+parse_cmd_rfm12_reinit(char *cmd, char *output, uint16_t len)
+{
+    rfm12_init();
+    return ECMD_FINAL_OK;
+}
 
 #ifdef RFM12_IP_SUPPORT
 int16_t
@@ -123,8 +129,9 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(RFM12)
+  block([[RFM12]])
   ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
+  ecmd_feature(rfm12_reinit, "rfm12 reinit",, Re-initialize RFM12 module.)
   ecmd_ifdef(RFM12_IP_SUPPORT)
     ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)
     ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth", BW, Set RX bandwidth to BW.)

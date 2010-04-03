@@ -10,7 +10,7 @@
 
 #ifndef __usbdrv_h_included__
 #define __usbdrv_h_included__
-#include "usbconfig.h"
+#include "protocols/usb/usbconfig.h"
 #include "usbportability.h"
 
 /*
@@ -151,9 +151,9 @@ USB messages, even if they address another (low-speed) device on the same bus.
 /* shortcuts for well defined 8 bit integer types */
 
 #if USB_CFG_LONG_TRANSFERS  /* if more than 254 bytes transfer size required */
-#   define usbMsgLen_t unsigned
+#   define usbMsgLen_t uint16_t
 #else
-#   define usbMsgLen_t uchar
+#   define usbMsgLen_t uint8_t
 #endif
 /* usbMsgLen_t is the data type used for transfer lengths. By default, it is
  * defined to uchar, allowing a maximum of 254 bytes (255 is reserved for

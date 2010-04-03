@@ -8,10 +8,13 @@ SUBDIRS += core/host
 SUBDIRS += core/portio
 SUBDIRS += core/tty
 SUBDIRS += core/gui
+SUBDIRS += core/util
 SUBDIRS += core/vfs
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
+SUBDIRS += hardware/adc/ads7822
+SUBDIRS += hardware/avr
 SUBDIRS += hardware/dac
 SUBDIRS += hardware/clock/dcf77
 SUBDIRS += hardware/camera
@@ -23,16 +26,21 @@ SUBDIRS += hardware/input/ps2
 SUBDIRS += hardware/input/buttons
 SUBDIRS += hardware/io_expander
 SUBDIRS += hardware/ir/rc5
+SUBDIRS += hardware/isdn
 SUBDIRS += hardware/lcd
 SUBDIRS += hardware/lcd/s1d15g10
 SUBDIRS += hardware/lcd/ST7626
+SUBDIRS += hardware/lcd/s1d13305
 SUBDIRS += hardware/onewire
 SUBDIRS += hardware/pwm
 SUBDIRS += hardware/sms
 SUBDIRS += hardware/radio/fs20
 SUBDIRS += hardware/radio/rfm12
+SUBDIRS += hardware/sht
+SUBDIRS += hardware/sram
 SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
+SUBDIRS += hardware/zacwire
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
 SUBDIRS += protocols/dmx
@@ -40,10 +48,12 @@ SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
 SUBDIRS += protocols/mysql
 SUBDIRS += protocols/smtp
+SUBDIRS += protocols/sms77
 SUBDIRS += protocols/snmp
 SUBDIRS += protocols/syslog
 SUBDIRS += protocols/uip
 SUBDIRS += protocols/uip/ipchair
+SUBDIRS += protocols/ustream
 SUBDIRS += protocols/usb
 SUBDIRS += protocols/yport
 SUBDIRS += protocols/zbus
@@ -56,11 +66,17 @@ SUBDIRS += protocols/ecmd/via_udp
 SUBDIRS += protocols/ecmd/via_usart
 SUBDIRS += protocols/irc
 SUBDIRS += protocols/soap
+SUBDIRS += protocols/httplog
 SUBDIRS += protocols/twitter
 SUBDIRS += protocols/netstat
 SUBDIRS += protocols/to1
+SUBDIRS += protocols/serial_line_log
 SUBDIRS += protocols/msr1
 SUBDIRS += protocols/nmea
+SUBDIRS += protocols/udpIO
+SUBDIRS += protocols/udpstella
+SUBDIRS += protocols/udpcurtain
+SUBDIRS += protocols/cw
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
@@ -69,11 +85,14 @@ SUBDIRS += services/pam
 SUBDIRS += services/httpd
 SUBDIRS += services/jabber
 SUBDIRS += services/ntp
+SUBDIRS += services/wol
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
+SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
 SUBDIRS += services/vnc
+SUBDIRS += services/curtain
 
 rootbuild=t
 
@@ -122,9 +141,16 @@ debug:
 	@echo y_ECMD_SRC: ${y_ECMD_SRC}
 	@echo y_SOAP_SRC: ${y_SOAP_SRC}
 
+${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
+${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
+
 meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Build meta files"
-	@sed -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@
+	$(SED) -ne '/Ethersex META/{n;:loop p;n;/\*\//!bloop }' ${SRC} ${y_SRC} > $@.tmp
+	@echo "Copying to meta.m4"
+	@if [ ! -e $@ ]; then cp $@.tmp $@; fi
+	@if ! diff $@.tmp $@ >/dev/null; then cp $@.tmp $@; fi
+	@rm -f $@.tmp
 
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
@@ -137,10 +163,10 @@ $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_defs.m4 ${named_pin_simpl
 y_META_SRC += $(y_NP_SIMPLE_META_SRC)
 
 meta.c: $(y_META_SRC)
-	@m4 $^ > $@
+	@m4 `scripts/m4-defines` $^ > $@
 
 meta.h: scripts/meta_header_magic.m4 meta.m4
-	@m4 $^ > $@
+	@m4 `scripts/m4-defines` $^ > $@
 
 ##############################################################################
 
@@ -149,17 +175,11 @@ compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 .PHONY: compile-$(TARGET)
 .SILENT: compile-$(TARGET)
 
-${ECMD_PARSER_SUPPORT}_SRC += ${y_ECMD_SRC}
-${SOAP_SUPPORT}_SRC += ${y_SOAP_SRC}
-
 OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
-# FIXME how can we omit specifying every file to be linked twice?
-# This is currently necessary because of interdependencies between
-# the libraries, which aren't denoted in these however.
 $(TARGET): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lc -lm # Pixie Dust!!! (Bug in avr-binutils)
 
 ##############################################################################
 
@@ -183,7 +203,7 @@ endif
 ##############################################################################
 
 ifeq ($(VFS_INLINE_SUPPORT),y)
-INLINE_FILES := $(shell ls embed/* | sed '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
+INLINE_FILES := $(shell ls embed/* | $(SED) '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
 ifeq ($(DEBUG_INLINE_FILES),y)
 .PRECIOUS = $(INLINE_FILES)
 endif
@@ -194,16 +214,14 @@ endif
 embed/%: embed/%.cpp
 	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
-	else sed '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
+	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
 	@$(RM) $@.tmp
 
 
 embed/%: embed/%.m4
-	@if ! m4 `grep -e "^#define .*_SUPPORT" autoconf.h | \
-		sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` \
-		`grep -e "^#define CONF_.*" autoconf.h |  sed -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"` \
-		$< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)";\
+	@if ! m4 `scripts/m4-defines` $< > $@; \
+	  then $(RM) $@; echo "--> Don't include $@ ($<)";\
 		else echo "--> Include $@ ($<)";	fi
 
 embed/%: embed/%.sh
@@ -231,10 +249,14 @@ endif
 
 
 ##############################################################################
-CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ]; then echo /opt/local/bin/bash; \
+          elif [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
           else echo sh; fi)
+### Special case for MacOS X (darwin10.0)
+### bash v3.2 in 10.6 does not work, use version 4.0 from macports
+### (see "Voraussetzungen" in wiki)
 
 menuconfig:
 	$(MAKE) -C scripts/lxdialog all
@@ -287,8 +309,7 @@ PINNING_FILES=pinning/internals/header.m4 \
 	$(wildcard pinning/internals/hackery_$(MCU).m4) \
 	$(wildcard pinning/hardware/$(HARDWARE).m4) pinning/internals/footer.m4
 pinning.c: $(PINNING_FILES) autoconf.h
-	@m4 -I$(TOPDIR)/pinning `grep -e "^#define .*_SUPPORT" autoconf.h | \
-	  sed -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"` $(PINNING_FILES) > $@
+	@m4 -I$(TOPDIR)/pinning `scripts/m4-defines` $(PINNING_FILES) > $@
 
 
 ##############################################################################
@@ -300,7 +321,7 @@ show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
-	@grep -e "^#define .*_SUPPORT" autoconf.h | sed -e "s/^#define / * /" -e "s/_SUPPORT.*//"
+	@grep -e "^#define .*_SUPPORT" autoconf.h | $(SED) -e "s/^#define / * /" -e "s/_SUPPORT.*//"
 
 .PHONY: show-config
 

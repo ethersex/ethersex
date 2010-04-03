@@ -129,6 +129,9 @@ void wscroll (WINDOW *, uint8_t);
 #ifdef TTY_LL_S1D15G10
 #include "core/tty/tty-s1d15g10.h"
 #endif
+#ifdef TTY_LL_S1D13305
+#include "core/tty/tty-s1d13305.h"
+#endif
 
 #ifdef TTY_LL_VT100_TELNET
 #include "core/tty/tty-vt100.h"

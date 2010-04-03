@@ -1,6 +1,6 @@
 usart_count_used
 if [ "$TO1_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-	dep_bool_menu "Tescon TO-1 Support" TO1_SUPPORT
+	dep_bool_menu "Tescon TO-1 Support" TO1_SUPPORT $ARCH_AVR
 		choice '  TO-1 usart select' "$(usart_choice TO1)"
 		usart_process_choice TO1
     int 'TO-1 Sensor Count' TO1_SENSOR_COUNT 1

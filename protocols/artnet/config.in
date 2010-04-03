@@ -1,4 +1,5 @@
 dep_bool_menu "Art-Net Node" ARTNET_SUPPORT $UDP_SUPPORT
+        int "UDP Port" CONF_ARTNET_PORT 6454
 	int "Art-Net max. ports" CONF_ARTNET_MAX_PORTS "4"
 	int "Art-Net max. data length" CONF_ARTNET_MAX_DATA_LENGTH "511"
 	int "Art-Net max. channeles" CONF_ARTNET_MAX_CHANNELS "512"

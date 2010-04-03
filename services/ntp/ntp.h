@@ -51,7 +51,5 @@ void ntp_periodic(void);
 void ntp_send_packet(void);
 void ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr);
 uip_ipaddr_t *ntp_getserver(void);
-uint8_t ntp_getstratum(void);
-void ntp_setstratum(uint8_t stratum);
 
 #endif /* NTP_NTP_H */

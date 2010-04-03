@@ -1,41 +1,69 @@
+# file extensions
 .*.swp
-config.mk
 *~
 *.E
 *.o
 *.dep
-autoconf.h
-.config*
-.menuconfig.log
-.menuconfig.old
-control6/control6.c
-control6/control6.h
-core/portio/config
-MCmenu
-MCradiolists
-ethersex
-ethersex.bin
-ethersex.hex
-vfs/vfs-concat
-pinning.c
-scripts/lxdialog/lxdialog
-core/portio/user_config.c
-core/portio/user_config.h
-meta.c
-meta.h
-meta.m4
-contrib/libecmd/interactive/interactive
-contrib/libecmd/rfm12ask_2272/rfm12ask_2272
-protocols/ecmd/ecmd_defs.c
-core/vfs/vfs-concat
 *.orig
 *.old
 *.rej
 *.hex
-services/httpd/magic.c
+*.bin
+*.workspace
+*.cbp
+*.layout
+
+# make generated files
+.config*
+config.mk
+autoconf.h
+MCmenu
+MCradiolists
+meta.c
+meta.h
+meta.m4
+pinning.c
+scripts/lxdialog/lxdialog
+.menuconfig.log
+.menuconfig.old
+
+# control6
+control6/control6.c
+control6/control6.h
+
+# portio
+core/portio/user_config.c
+core/portio/user_config.h
+
+# executables
+ethersex
+contrib/libecmd/interactive/interactive
+contrib/libecmd/rfm12ask_2272/rfm12ask_2272
+
+# module specific files
+core/vfs/vfs-concat
 core/portio/np_simple.c
-protocols/mdns_sd/mdns_services.c
+services/httpd/magic.c
 services/watchcat/user_config.h
+protocols/ecmd/ecmd_defs.c
+protocols/mdns_sd/mdns_services.c
 protocols/uip/ipchair/ipchair.c
 protocols/ecmd/np_simple_glue.m4
 protocols/ecmd/wiki.txt
+
+# User defined pinning/named_pin profiles
+pinning/hardware/user*.m4
+pinning/named_pin/user*
+pinning/named_pin/default
+
+# transfer scripts
+transfer.sh
+
+# opensuse symlinks for cross compiling
+avr-ar
+avr-g++
+avr-gcc
+avr-objcopy
+avr-objdump
+avr-size
+avr-cpp

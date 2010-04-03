@@ -25,6 +25,7 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include "config.h"
+#include "core/heartbeat.h"
 #include "protocols/zbus/zbus_raw_net.h"
 #include "protocols/zbus/zbus.h"
 
@@ -74,7 +75,9 @@ static void __zbus_txstart(void) {
   usart(UCSR,B) = _BV(usart(TXCIE)) | _BV(usart(TXEN));
 
   /* Enable transmitter */
+#ifdef HAVE_ZBUS_RXTX_PIN
   PIN_SET(ZBUS_RXTX_PIN);
+#endif 
 
   /* reset tx interrupt flag */
   usart(UCSR,A) |= _BV(usart(TXC));
@@ -89,7 +92,8 @@ static void __zbus_txstart(void) {
 #ifdef HAVE_ZBUS_TX_PIN
   PIN_SET(ZBUS_TX_PIN);
 #endif
-
+  ACTIVITY_LED_ZBUS_TX;
+  
   return;
 }
 
@@ -108,7 +112,9 @@ zbus_rxstart (void)
   usart(UCSR,B) = _BV(usart(RXCIE)) | _BV(usart(RXEN));
 
   /* Default is reciever enabled*/
+#ifdef HAVE_ZBUS_RXTX_PIN
   PIN_CLEAR(ZBUS_RXTX_PIN);
+#endif
 
   SREG = sreg;
 }
@@ -139,7 +145,9 @@ zbus_core_init(void)
     usart_init();
 
     /* Enable RX/TX Swtich as Output */
+#ifdef HAVE_ZBUS_RXTX_PIN
     DDR_CONFIG_OUT(ZBUS_RXTX_PIN);
+#endif
 
     /* clear the buffers */
     zbus_txlen = 0;
@@ -262,6 +270,7 @@ SIGNAL(usart(USART,_RX_vect))
 		#ifdef ZBUS_RX_PIN
 		PIN_SET(STATUSLED_RX);
 		#endif
+		ACTIVITY_LED_ZBUS_RX;
   }
   else {
   append_data:

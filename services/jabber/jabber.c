@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -60,6 +61,25 @@ static const char PROGMEM jabber_startup_text[] =
        be careful ;) */
     "Your Ethersex '"CONF_HOSTNAME"' is now UP :)";
 
+#ifdef JABBER_LAST_SUPPORT
+static const char PROGMEM jabber_last_text[] =
+    "<iq type='result' id='%s' to='%s' from='"
+    CONF_JABBER_USERNAME "@" CONF_JABBER_HOSTNAME "/" CONF_JABBER_RESOURCE "'>"
+    "<query xmlns='jabber:iq:last' seconds='%i'/>"
+    "</iq>";
+#endif  /* JABBER_LAST_SUPPORT */
+#ifdef JABBER_VERSION_SUPPORT
+static const char PROGMEM jabber_version_text[] =
+    "<iq type='result' id='%s' to='%s' from='"
+    CONF_JABBER_USERNAME "@" CONF_JABBER_HOSTNAME "/" CONF_JABBER_RESOURCE "'>"
+    "<query xmlns='jabber:iq:version'>"
+    "<name>" CONF_HOSTNAME "</name>"
+    "<version>" VERSION_STRING "</version>"
+    "<os>" CONF_JABBER_VERSION_OS "</os>"
+    "</query>"
+    "</iq>";
+#endif  /* JABBER_VERSION_SUPPORT */
+
 #define JABBER_SEND(str) do {			  \
 	memcpy_P (uip_sappdata, str, sizeof (str));     \
 	uip_send (uip_sappdata, sizeof (str) - 1);      \
@@ -67,61 +87,46 @@ static const char PROGMEM jabber_startup_text[] =
 
 #define STATE (&uip_conn->appstate.jabber)
 
+#define JABBER_SENDF(str,args...) do {					\
+	uint16_t len;							\
+	len = sprintf_P (uip_sappdata, str, args);			\
+	JABDEBUG("sendf:%s\n", (((char *)uip_sappdata)[len] = 0,	\
+				uip_sappdata));				\
+	uip_send (uip_sappdata, len);					\
+    } while(0)
+
 
 static uip_conn_t *jabber_conn;
 
 
 #ifdef ECMD_JABBER_SUPPORT
 static void
-jabber_parse_ecmd (const char *from, char *message)
+jabber_parse_ecmd (char *message)
 {
-    if (strlen (from) > TARGET_BUDDY_MAXLEN) {
-	JABDEBUG ("parse_ecmd: from addr too long!\n");
-	return;
-    }
+    int16_t len = ecmd_parse_command(message, STATE->outbuf,
+				     ECMD_OUTPUTBUF_LENGTH - 1);
+    if (len <= -10) {
+	JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
+	len = -len - 10;
+   }
 
-    JABDEBUG("message from: %s\n", from);
-    uint8_t i = 0;
-    uint8_t auth = 1;
-    while (1) {
-      char *known_buddy_ptr = (char *)pgm_read_word(&jabber_known_buddies[i]);
-      if (known_buddy_ptr == NULL)
-        break;
-      auth = 0;
-      if (strcmp_P(from, known_buddy_ptr) == 0) {
-        auth = 1;
-        break;
-      }
-      i++;
-    }
-
-    JABDEBUG("ecmd: authentificated %s: %d\n", from, auth);
-    strcpy (STATE->target, from);
-
-    if (!auth) { /* authentification failed */
-      strcpy_P(STATE->outbuf, PSTR("permission denied"));
-    } else {
-      int16_t len = ecmd_parse_command(message, STATE->outbuf,
-                                       ECMD_OUTPUTBUF_LENGTH - 1);
-      if (is_ECMD_AGAIN(len)) {
-          JABDEBUG ("jabber_ecmd doesn't support multiple reply lines (yet)\n");
-	  /* convert ECMD_AGAIN back to ECMD_FINAL */
-          len = ECMD_AGAIN(len);
-      }
-
-      if (is_ECMD_ERR(len))
-          strcpy_P(STATE->outbuf, PSTR("parse error"));
-      else
-          STATE->outbuf[len] = 0;
-    }
+   if (len < 0)
+	strcpy_P (STATE->outbuf, PSTR ("parse error"));
+   else
+	STATE->outbuf[len] = 0;
 }
 #endif	/* ECMD_JABBER_SUPPORT */
 
 
 static void
-jabber_send_data (uint8_t send_state)
+jabber_send_data (uint8_t send_state, uint8_t action)
 {
-    JABDEBUG ("send_data: %d\n", send_state);
+#ifdef JABBER_LAST_SUPPORT
+   // change iqlasttime if you ever whant dynamic values
+    uint16_t iqlasttime = CONF_JABBER_LAST_VALUE; 
+#endif  /* JABBER_LAST_SUPPORT */
+
+    JABDEBUG ("send_data: %d action: %d\n", send_state, action);
 
     switch (send_state) {
     case JABBER_OPEN_STREAM:
@@ -141,12 +146,33 @@ jabber_send_data (uint8_t send_state)
 	break;
 
     case JABBER_CONNECTED:
-	if (*STATE->outbuf) {
-	    uip_slen = sprintf_P (uip_sappdata, PSTR(
-				      "<message to='%s' type='chat'>"
-				      "<body>%s</body></message>"),
-		       STATE->target, STATE->outbuf);
-        } else {
+	switch (action) {
+	case JABBER_ACTION_NONE:
+	    break;
+
+	case JABBER_ACTION_MESSAGE:
+	    if (*STATE->outbuf) {
+		uip_slen = sprintf_P (uip_sappdata, PSTR(
+					  "<message to='%s' type='chat'>"
+					  "<body>%s</body></message>"),
+				      STATE->target, STATE->outbuf);
+	    }
+	    break;
+
+#ifdef JABBER_VERSION_SUPPORT
+	case JABBER_ACTION_VERSION:
+	    JABBER_SENDF (jabber_version_text, STATE->actionid, STATE->target);
+	    break;
+#endif  /* JABBER_VERSION_SUPPORT */
+
+#ifdef JABBER_LAST_SUPPORT
+	case JABBER_ACTION_LAST:
+	    JABBER_SENDF (jabber_last_text, STATE->actionid, STATE->target,
+			  iqlasttime);
+	    break;
+#endif  /* JABBER_LAST_SUPPORT */
+
+	default:
 	    JABDEBUG ("idle, don't know what to send right now ...\n");
         }
 	break;
@@ -158,6 +184,92 @@ jabber_send_data (uint8_t send_state)
     }
 
     STATE->sent = send_state;
+}
+
+
+/* Copy ID from incoming <iq type='get'> message to our STATE. */
+static uint8_t
+jabber_extract_id (void)
+{
+    char *idptr = strstr_P (uip_appdata, PSTR ("id='"));
+    if (idptr) {
+	idptr += 4;
+	JABDEBUG ("id=' found %i \n", idptr);
+
+	char *idendptr = strchr (idptr, '\'');
+	if (idendptr) {
+	    uint8_t idlength = idendptr - idptr;
+
+	    if (idlength > 15)
+		JABDEBUG ("id too long: %i \n", idlength);
+
+	    else {
+		JABDEBUG ("endquote found %i \n", idendptr);
+		memmove (STATE->actionid, idptr, idlength);
+		STATE->actionid[idlength] = 0;
+		JABDEBUG ("given id: %s\n", STATE->actionid);
+	    }
+	}
+
+	return 0;
+    }
+    else
+	return 1;		/* Failed. */
+}
+
+
+static uint8_t
+jabber_extract_from (void)
+{
+    const char *from = strstr_P (uip_appdata, PSTR ("from="));
+    if (!from) return 1;
+
+    from += 6;		/* skip from=' */
+
+    const char *resource_end = strchr (from, '/');
+    if (!resource_end) {
+	JABDEBUG ("from addr resource not found!\n");
+	return 1;
+    }
+
+    const char *endptr = strchr (from, '\'');
+    if (!endptr) endptr = strchr(from, '\"');
+    if (!endptr) {
+	JABDEBUG ("end of from addr not found!\n");
+	return 1;
+    }
+
+    uint8_t jid_len = resource_end - from;
+    uint8_t len = endptr - from;
+    if (len + 1 > TARGET_BUDDY_MAXLEN) {
+	JABDEBUG ("extract_from: from addr too long!\n");
+	return 1;
+    }
+
+    uint8_t i = 0;
+    uint8_t auth = 1;
+    while (1) {
+	char *jidlist_ptr = (char *)pgm_read_word(&jabber_known_buddies[i]);
+	if (jidlist_ptr == NULL)
+	    break;
+
+	if (strncmp_P(from, jidlist_ptr, jid_len) == 0) {
+	    auth = 1;
+	    break;
+	}
+	else
+	    auth = 0;
+      i++;
+    }
+
+    JABDEBUG("authentificated %s: %d\n", from, auth);
+    if (!auth) return 2;	/* Permission denied. */
+
+    memmove (STATE->target, from, len);
+    STATE->target[len] = 0;
+
+    JABDEBUG("message from: %s\n", STATE->target);
+    return 0;			/* Looks good. */
 }
 
 
@@ -194,15 +306,13 @@ jabber_parse (void)
     case JABBER_CONNECTED:
 #ifdef ECMD_JABBER_SUPPORT
 	if (strncmp_P (uip_appdata, PSTR ("<mess"), 5) == 0) {
-	    const char *from = strstr_P (uip_appdata, PSTR ("from="));
 	    char *body = strstr_P (uip_appdata, PSTR ("<body>"));
 
-	    if (!from || !body) {
+	    if (!body || jabber_extract_from ()) {
 		JABDEBUG ("received invalid message.\n");
 		break;		/* Ignore, not really fatal. */
 	    }
 
-	    from += 6;		/* skip from=' */
 	    body += 6;		/* skip body tag. */
 
 	    char *ptr = strstr_P (uip_appdata, PSTR ("</bod"));
@@ -211,23 +321,39 @@ jabber_parse (void)
 		break;
 	    }
 	    *ptr = 0;		/* terminate body text. */
-
-	    ptr = strchr (from, '/');
-            if (!ptr) ptr = strchr(from, '\'');
-            if (!ptr) ptr = strchr(from, '\"');
-	    if (! ptr) {
-		JABDEBUG ("end of from addr not found!\n");
-		break;
-	    }
-	    *ptr = 0;		/* chop off resource name */
-
-	    jabber_parse_ecmd (from, body);
-	} else
-#endif	/* ECMD_JABBER_SUPPORT */
-	{
-	   JABDEBUG ("got something, but no idea how to parse it :(\n");
+	    jabber_parse_ecmd (body);
+	    STATE->action = JABBER_ACTION_MESSAGE;
+	    break;
 	}
 
+#endif	/* ECMD_JABBER_SUPPORT */
+	if (strstr_P (uip_appdata, PSTR ("type='get'"))){
+	    JABDEBUG ("type=get found!\n");
+
+	    if (jabber_extract_from ()) break;
+	    if (jabber_extract_id ()) break;
+
+#ifdef JABBER_LAST_SUPPORT
+	    char *lastptr = strstr_P (uip_appdata, PSTR ("iq:last"));
+	    if (lastptr) {
+		JABDEBUG("iq:last found!\n");
+		STATE->action = JABBER_ACTION_LAST;
+		return 0;
+	    }
+#endif	/* JABBER_LAST_SUPPORT */
+
+#ifdef JABBER_VERSION_SUPPORT
+	    char *versionptr = strstr_P (uip_appdata, PSTR ("iq:version"));
+	    if (versionptr) {
+		JABDEBUG ("iq:version found!\n");
+		STATE->action = JABBER_ACTION_VERSION;
+		return 0;
+	    }
+#endif	/* JABBER_VERSION_SUPPORT */
+	} /* End of <iq type='get'> parser. */
+
+	JABDEBUG ("got something, but no idea how to parse it(\n");
+ 
 	break;
 
     default:
@@ -261,12 +387,17 @@ jabber_main(void)
 	STATE->stage = JABBER_OPEN_STREAM;
 	STATE->sent = JABBER_INIT;
 
+#ifdef JABBER_STARTUP_MESSAGE_SUPPORT
 	strcpy_P (STATE->target, PSTR(CONF_JABBER_BUDDY));
 	strcpy_P (STATE->outbuf, jabber_startup_text);
+	STATE->action = JABBER_ACTION_MESSAGE;
+#endif /* JABBER_STARTUP_MESSAGE_SUPPORT */
     }
 
-    if (uip_acked() && STATE->stage == JABBER_CONNECTED)
+    if (uip_acked() && STATE->stage == JABBER_CONNECTED) {
+	STATE->action = JABBER_ACTION_NONE;
 	*STATE->outbuf = 0;
+    }
 
     if (uip_newdata() && uip_len) {
 	/* Zero-terminate */
@@ -280,16 +411,16 @@ jabber_main(void)
     }
 
     if (uip_rexmit())
-	jabber_send_data (STATE->sent);
+	jabber_send_data (STATE->stage, STATE->action);
 
     else if ((STATE->stage > STATE->sent || STATE->stage == JABBER_CONNECTED)
 	     && (uip_newdata()
 		 || uip_acked()
 		 || uip_connected()))
-	jabber_send_data (STATE->stage);
-    else if (STATE->stage == JABBER_CONNECTED && uip_poll() && *STATE->outbuf)
-        jabber_send_data(STATE->stage);
-
+	jabber_send_data (STATE->stage, STATE->action);
+    else if (STATE->stage == JABBER_CONNECTED && uip_poll() && STATE->action)
+	jabber_send_data (STATE->stage, STATE->action);
+ 
 }
 
 uint8_t
@@ -302,7 +433,7 @@ jabber_send_message(char *message)
   strcpy_P (STATE->target, PSTR(CONF_JABBER_BUDDY));
 
   memcpy(jabber_conn->appstate.jabber.outbuf, message,
-         sizeof(jabber_conn->appstate.jabber.outbuf));
+	 sizeof(jabber_conn->appstate.jabber.outbuf));
 
   jabber_conn->appstate.jabber.outbuf
     [sizeof(jabber_conn->appstate.jabber.outbuf) -1] = 0;
@@ -332,6 +463,18 @@ jabber_init(void)
 	JABDEBUG ("no uip_conn available.\n");
 	return;
     }
+
+#ifdef JABBER_EEPROM_SUPPORT
+	eeprom_restore(jabber_username, &jabber_user, 16);
+	eeprom_restore(jabber_password, &jabber_pass, 16);
+	eeprom_restore(jabber_resource, &jabber_resrc, 16);
+	eeprom_restore(jabber_hostname, &jabber_host, 16);
+#else
+	sprintf(jabber_user, "%s", CONF_JABBER_USERNAME);
+	sprintf(jabber_pass, "%s", CONF_JABBER_PASSWORD);
+	sprintf(jabber_resrc, "%s", CONF_JABBER_RESOURCE);
+	sprintf(jabber_host, "%s", CONF_JABBER_HOSTNAME);
+#endif	
 }
 
 /*

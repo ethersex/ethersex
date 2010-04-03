@@ -1,0 +1,17 @@
+dep_bool_menu "Motor Curtain" MOTORCURTAIN_SUPPORT $UDP_SUPPORT
+	dep_bool "Motor Enable Line is active-low" MOTORCURTAIN_INVERTED_MOTOR
+	dep_bool "Invert Motor Direction Line" MOTORCURTAIN_INVERTED_DIRECTION
+	dep_bool "Sensors are active-low" MOTORCURTAIN_INVERTED_SENSORS
+	if [ "$MOTORCURTAIN_INVERTED_SENSORS" = "y" ]; then
+		dep_bool "Sensors: Pull-up resistors" MOTORCURTAIN_SENSORS_PULLUP
+	fi
+	dep_bool "Safety switch is active-low" MOTORCURTAIN_INVERTED_SAFETYSWITCH
+	if [ "$MOTORCURTAIN_INVERTED_SAFETYSWITCH" = "y" ]; then
+		dep_bool "Safety switch: Pull-up resistor" MOTORCURTAIN_SAFETYSWITCH_PULLUP
+	fi
+	dep_bool "Report progress via UDP" MOTORCURTAIN_PROGRESS_SUPPORT
+	if [ "$MOTORCURTAIN_PROGRESS_SUPPORT" = "y" ]; then
+	  ip "Report progress IP" MOTORCURTAIN_REPORT_IP "192.168.255.255" "2001:6f8:1209:f0:0:0:0:1"
+	  int "Report progress Port" MOTORCURTAIN_REPORT_PORT 2703 $UDP_SUPPORT
+	fi
+endmenu

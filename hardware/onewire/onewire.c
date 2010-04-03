@@ -40,7 +40,6 @@ struct ow_global_t ow_global;
 
 /* module local prototypes */
 void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val);
-uint8_t ow_read_byte(void);
 
 void onewire_init(void)
 {

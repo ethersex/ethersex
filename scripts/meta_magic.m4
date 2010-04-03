@@ -22,13 +22,16 @@ define(`prototypes',0)dnl
 define(`initearly_divert',12)dnl
 define(`init_divert',13)dnl
 define(`net_init_divert',14)dnl
-define(`startup_divert',15)dnl
-define(`mainloop_divert',16)dnl
-define(`timer_divert',17)dnl after timer divert there musn't be any other divert level
+define(`exit_divert',15)dnl
+define(`startup_divert',16)dnl
+define(`mainloop_divert',17)dnl
+define(`timer_divert',18)dnl after timer divert there musn't be any other divert level
 divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <stdint.h>
 #include "config.h"
@@ -37,6 +40,14 @@ divert(0)dnl
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "core/host/tap.h"
+#include "core/host/stdin.h"
+
+/* for C-c exit handler */
+#include <signal.h>
+#include <stdlib.h>
+void ethersex_meta_exit (int signal);
+
 #endif
 
 void dyndns_update();
@@ -47,6 +58,9 @@ divert(initearly_divert)dnl
 void
 ethersex_meta_init (void)
 {
+#if ARCH == ARCH_HOST
+    signal(SIGINT, ethersex_meta_exit);
+#endif
 
 divert(net_init_divert)dnl
 }  /* End of ethersex_meta_init. */
@@ -59,8 +73,20 @@ ethersex_meta_netinit (void)
     dyndns_update();
 #   endif
 
+divert(exit_divert)dnl
+} /* End of ethersex_meta_netinit. */
+
+#if ARCH == ARCH_HOST
+void
+ethersex_meta_exit (int signal)
+{
+    if (signal != SIGINT) return;
+    printf ("Shutting down Ethersex ...\n");
 divert(startup_divert)dnl
-}  /* End of ethersex_meta_netinit. */
+    exit(0);
+} /* End of ethersex_meta_exit. */
+#endif  /* ARCH == ARCH_HOST */
+
 
 void
 ethersex_meta_startup (void)
@@ -87,6 +113,10 @@ divert(-1)')
 define(`init',`dnl
 dnl divert(prototypes)void $1 (void);
 divert(init_divert)    $1 ();
+divert(-1)');
+
+define(`atexit', `dnl
+divert(exit_divert)	$1 ();
 divert(-1)');
 
 define(`initearly',`dnl
@@ -142,8 +172,16 @@ void periodic_process(void)
 	struct timeval tv = { .tv_sec = 0, .tv_usec = 20000 };
 
 	FD_ZERO (&fds);
+#ifdef ECMD_PARSER_SUPPORT
+	FD_SET (0, &fds);
+#endif  /* ECMD_PARSER_SUPPORT */
 	FD_SET (tap_fd, &fds);
 	select (tap_fd + 1, &fds, NULL, NULL, &tv);
+
+#ifdef ECMD_PARSER_SUPPORT
+	if (FD_ISSET (0, &fds))
+	   stdin_read ();
+#endif  /* ECMD_PARSER_SUPPORT */
 
 	if (FD_ISSET (tap_fd, &fds))
 	   tap_read ();

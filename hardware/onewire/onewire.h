@@ -48,7 +48,6 @@
 
 /* constants */
 
-#define NULL ((void *)0)
 #define LOW(x) ((uint8_t)(x))
 #define HIGH(x) ((uint8_t)((x) >> 8))
 
@@ -207,6 +206,7 @@ void ow_write_1(void);
 void ow_write(uint8_t value);
 void ow_write_byte(uint8_t value);
 uint8_t ow_read(void);
+uint8_t ow_read_byte(void);
 
 /* high level functions */
 

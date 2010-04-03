@@ -45,6 +45,13 @@ enum {
     /* we're set */
 };
 
+enum {
+	JABBER_ACTION_NONE,
+	JABBER_ACTION_MESSAGE,
+	JABBER_ACTION_LAST,
+	JABBER_ACTION_VERSION,
+	JABBER_ACTION_AVATAR
+};
 #include <inttypes.h>
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 
@@ -53,6 +60,8 @@ enum {
 struct jabber_connection_state_t {
     uint8_t stage;
     uint8_t sent;
+    uint8_t action;
+    char actionid[16];
 
     char target[TARGET_BUDDY_MAXLEN];
     char outbuf[ECMD_OUTPUTBUF_LENGTH];

@@ -12,6 +12,7 @@ ifdef(`conf_ONEWIRE', `dnl
 ifdef(`conf_SD_READER', `dnl
   /* port the sd-reader CS is attached to */
   pin(SPI_CS_SD_READER, PB2, OUTPUT)
+  dnl  pin(SD_READER_POWERON, PB3, OUTPUT)
 ')dnl
 
 ifdef(`conf_FS20', `dnl
@@ -62,6 +63,10 @@ dnl   pin(RFM12_TX_PIN, STATUSLED_TX)
 dnl   pin(RFM12_RX_PIN, STATUSLED_RX)
 
   RFM12_USE_INT(2)
+dnl RFM12_USE_PCINT(0, PB0)
+
+dnl For RFM12 ASK-Sensing another interrupt line is required
+dnl (different from the interrupt line required for IP-over-RFM12)
   RFM12_ASK_SENSE_USE_INT(2)
 ')
 

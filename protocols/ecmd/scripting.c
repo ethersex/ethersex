@@ -20,19 +20,27 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 
 #include "config.h"
-#include "core/debug.h"
 #include "core/vfs/vfs.h"
 #include "protocols/ecmd/parser.h"
 #include "scripting.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 
 #include "protocols/ecmd/ecmd-base.h"
+
+typedef struct {
+  struct vfs_file_handle_t *handle;
+  uint16_t linenumber;
+  vfs_size_t filepointer;
+} script_t;
+
+script_t current_script;
 
 
 // read a line from file "handle", stored in "line", starting at "pos"
@@ -118,8 +126,10 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
   sscanf_P(cmd, PSTR("%s"), &filename);  // should check for ".es" extention!
   current_script.handle = vfs_open(filename);
 
-  if (current_script.handle == NULL)
+  if (current_script.handle == NULL) {
+    SCRIPTDEBUG("%s not found\n", filename);
     return ECMD_FINAL(1);
+  }
   
   filesize = vfs_size(current_script.handle);
 
@@ -254,7 +264,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
   } else {
     uint16_t outputvalue = atoi(output);
     uint16_t konstvalue = atoi(konst);
-    debug_printf("cmp atoi: %i %s %i\n", outputvalue, comparator, konstvalue);
+//    debug_printf("cmp atoi: %i %s %i\n", outputvalue, comparator, konstvalue);
     if ( strcmp(comparator, OK) == 0){
       SCRIPTDEBUG("try " OK "\n");
       success = outputvalue;
@@ -280,7 +290,7 @@ parse_cmd_if(char *cmd, char *output, uint16_t len)
       SCRIPTDEBUG("try " LOWEREQUALS "\n");
       success = (outputvalue <= konstvalue);
     } else {
-      debug_printf("unknown comparator: %s\n", comparator);
+//      debug_printf("unknown comparator: %s\n", comparator);
       return ECMD_FINAL(3);
     }
   }
@@ -311,9 +321,31 @@ parse_cmd_echo(char *cmd, char *output, uint16_t len)
       return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), cmd));
 }
 
+// if ECMD_SCRIPT_AUTOSTART_SUPPORT is enabled
+// then call script by name ECMD_SCRIPT_AUTOSTART_NAME
+
+// could not run on startup, or init, so make this run just once!
+uint8_t ecmd_script_autorun_done = 0;  
+
+int16_t
+ecmd_script_init_run(void){
+#ifdef  ECMD_SCRIPT_AUTOSTART_SUPPORT
+  if (ecmd_script_autorun_done == 1) {
+    return ECMD_FINAL_OK;
+  }  
+  ecmd_script_autorun_done = 1;
+  char cmd[] = CONF_ECMD_SCRIPT_AUTOSTART_NAME;
+  char output[ECMD_SCRIPT_VARIABLE_LENGTH];
+  SCRIPTDEBUG("auto run: %s\n", cmd);
+  return parse_cmd_call( cmd, output, sizeof(cmd));
+#else
+  return ECMD_FINAL_OK;
+#endif
+}
+
 /*
   -- Ethersex META --
-  block(ECMD Scripting)
+  block([[ECMDScript]])
   ecmd_feature(goto, "goto ",N, Goto line N in currently running script)
   ecmd_feature(exit, "exit",, Exit currently running script)
   ecmd_feature(wait, "wait ",I, Wait I milliseconds)
@@ -325,4 +357,6 @@ parse_cmd_echo(char *cmd, char *output, uint16_t len)
   ecmd_feature(if, "if ",( CMD/VAR == CONST ) then CMD2, If condition matches execute CMD2)
   ecmd_feature(rem, "rem",<any>, Remark for anything)
   ecmd_feature(echo, "echo ",<any>, Print out all arguments of echo)
+  header(protocols/ecmd/scripting.h)
+  ifdef(`conf_ECMD_SCRIPT_AUTOSTART',`timer(50,ecmd_script_init_run())')
 */

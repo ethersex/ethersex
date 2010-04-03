@@ -20,6 +20,18 @@ ifdef({{conf_DNS}}, {{dnl
 ifdef({{conf_NTP}}, {{dnl
 	getCmd('ntp+server', writeVal, $('ntp'));
 }})dnl
+ifdef({{conf_SMS77}}, {{dnl
+	getCmd('sms77_user', writeVal, $('sms77_user'));
+	getCmd('sms77_pass', writeVal, $('sms77_pass'));
+	getCmd('sms77_recv', writeVal, $('sms77_recv'));
+}})dnl
+ifdef({{conf_JABBER}}, {{dnl
+	getCmd('jabber_user', writeVal, $('jabber_user'));
+	getCmd('jabber_pass', writeVal, $('jabber_pass'));
+	getCmd('jabber_resrc', writeVal, $('jabber_resrc'));
+	getCmd('jabber_host', writeVal, $('jabber_host'));
+}})dnl
+
 }
 
 function getCmd(cmd, handler, data) {
@@ -80,6 +92,38 @@ ifdef({{conf_NTP}},{{dnl
 	<tr>
 	<td>NTP Server</td>
 	<td><input type="text" id="ntp" onChange='getCmd("ntp server " + this.value, changeState, this);'></td>
+	</tr>
+}})dnl
+ifdef({{conf_SMS77}},{{dnl
+	<tr>
+	<td>SMS77 User</td>
+	<td><input type="text" id="sms77_user" onChange='getCmd("sms77_user" + this.value, changeState, this);'></td>
+	</tr>
+	<tr>
+	<td>SMS77 Password</td>
+	<td><input type="text" id="sms77_pass" onChange='getCmd("sms77_pass" + this.value, changeState, this);'></td>
+	</tr>
+	<tr>
+	<td>SMS Receiver</td>
+	<td><input type="text" id="sms77_recv" onChange='getCmd("sms77_recv" + this.value, changeState, this);'></td>
+	</tr>	
+}})dnl
+ifdef({{conf_JABBER}},{{dnl
+	<tr>
+	<td>JABBER User</td>
+	<td><input type="text" id="jabber_user" onChange='getCmd("jabber_user" + this.value, changeState, this);'></td>
+	</tr>
+	<tr>
+	<td>JABBER Password</td>
+	<td><input type="text" id="jabber_pass" onChange='getCmd("jabber_pass" + this.value, changeState, this);'></td>
+	</tr>
+	<tr>
+	<td>JABBER Resource</td>
+	<td><input type="text" id="jabber_resrc" onChange='getCmd("jabber_resrc" + this.value, changeState, this);'></td>
+	</tr>	
+	<tr>
+	<td>JABBER Hostname</td>
+	<td><input type="text" id="jabber_host" onChange='getCmd("jabber_host" + this.value, changeState, this);'></td>
 	</tr>
 }})dnl
 	<tr>

@@ -82,15 +82,17 @@ eeprom_init (void)
     uip_ipaddr_t ip;
     (void) ip;			/* Keep GCC quiet. */
 
-#ifdef ENC28J60_SUPPORT
+#ifdef ETHERNET_SUPPORT
     eeprom_save_P (mac, PSTR(CONF_ETHERRAPE_MAC), 6);
 #endif
 
 #if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
     set_CONF_ETHERRAPE_IP(&ip);
     eeprom_save(ip, &ip, IPADDR_LEN);
+#ifdef ETHERNET_SUPPORT
     set_CONF_ETHERRAPE_GATEWAY(&ip);
     eeprom_save(gateway, &ip, IPADDR_LEN);
+#endif
 
 #ifdef IPV4_SUPPORT
     set_CONF_ETHERRAPE_IP4_NETMASK(&ip);
@@ -118,6 +120,18 @@ eeprom_init (void)
 	eeprom_save (stella_channel_values, v, 10);
 #endif
 
+#ifdef SMS77_EEPROM_SUPPORT
+	eeprom_save_P(sms77_username, PSTR(CONF_SMS77_USER), SMS77_VALUESIZE);
+	eeprom_save_P(sms77_password, PSTR(CONF_SMS77_PASS), SMS77_VALUESIZE);
+	eeprom_save_P(sms77_receiver, PSTR(CONF_SMS77_TO), SMS77_VALUESIZE);
+#endif
+
+#ifdef JABBER_EEPROM_SUPPORT
+	eeprom_save_P(jabber_username, PSTR(CONF_JABBER_USERNAME), JABBER_VALUESIZE);
+	eeprom_save_P(jabber_password, PSTR(CONF_JABBER_PASSWORD), JABBER_VALUESIZE);
+	eeprom_save_P(jabber_resource, PSTR(CONF_JABBER_RESOURCE), JABBER_VALUESIZE);
+	eeprom_save_P(jabber_hostname, PSTR(CONF_JABBER_HOSTNAME), JABBER_VALUESIZE);
+#endif
     eeprom_update_chksum();
 }
 

@@ -1,0 +1,1 @@
+dep_bool "Wake on Lan (WOL)" WOL_SUPPORT $UDP_SUPPORT

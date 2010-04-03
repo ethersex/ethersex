@@ -68,6 +68,7 @@ unsigned short rfm12_trans(unsigned short wert);
 
 /* macro for calculating frequency value out of frequency in kHz */
 #define RFM12FREQ(freq)	(((freq<800000?freq*2:freq)-860000)/5)	
+#define RFM12BAND(freq)	(freq<800000?0x80D7:0x80E7)
 
 // set receiver settings
 void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
@@ -109,10 +110,12 @@ rfm12_status_t rfm12_status;
 #define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
 
 
+#ifndef HAVE_RFM12_PCINT
 #define rfm12_int_enable()			\
   _EIMSK |= _BV(RFM12_INT_PIN);
 #define rfm12_int_disable()			\
   _EIMSK &= ~_BV(RFM12_INT_PIN);
+#endif  /* not HAVE_RFM12_PCINT */
 
 
 #define RFM12_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)

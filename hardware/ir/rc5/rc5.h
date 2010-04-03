@@ -46,6 +46,8 @@
 
 #ifdef RC5_SUPPORT
 
+#define RC5_COUNTERS 64
+
 /* structures */
 struct rc5_t {
     union {
@@ -57,6 +59,10 @@ struct rc5_t {
             uint8_t spare:4;            /* spare bits */
         };
     };
+#ifdef RC5_UDP_SUPPORT
+    uint8_t bitcount;
+    uint8_t cnt[RC5_COUNTERS];
+#endif
 };
 
 struct rc5_global_t {
@@ -68,6 +74,12 @@ struct rc5_global_t {
     uint8_t temp_disable;           /* disable decoder, used internally! */
     struct rc5_t queue[RC5_QUEUE_LENGTH];
     uint8_t len;
+#ifdef RC5_UDP_SUPPORT
+    /* network extension */
+    uint8_t bitcount;
+    uint8_t cnt[RC5_COUNTERS];
+    uint8_t disablelog;
+#endif
 };
 
 extern volatile struct rc5_global_t rc5_global;
@@ -77,8 +89,18 @@ extern volatile struct rc5_global_t rc5_global;
 /* one pulse half is 889us, for _delay_loop_2 */
 #define RC5_PULSE (F_CPU / 1000000 * 888 / 4)
 
+
+/* UDP constants */
+#define RC5_UDPPORT 6669
+
 /* prototypes */
 void rc5_init(void);
+#ifdef RC5_UDP_SUPPORT
+void rc5_net_init(void);
+void rc5_udp_send(void);
+void rc5_udp_recv(void);
+uint8_t rc5_check_cache(void);
+#endif
 void rc5_send(uint8_t addr, uint8_t cmd);
 void rc5_process(void);
 

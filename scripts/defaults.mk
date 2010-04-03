@@ -9,6 +9,10 @@ AVRDUDE_BAUDRATE = 115200
 AWK = gawk
 M4 = m4
 
+### use GNU sed from macports instead of BSD sed on MacOS X
+SED = $(shell if [ x"$$OSTYPE" = x"darwin10.0" ]; then echo gsed; \
+	else echo sed; fi)
+
 HOSTCC := gcc
 export HOSTCC
 export MAKE
@@ -68,6 +72,10 @@ else
 
 endif
 
+# remove all unused code and data during linking
+CFLAGS += -fdata-sections -ffunction-sections
+LDFLAGS += -Wl,--gc-sections
+
 ifeq ($(BOOTLOADER_SUPPORT),y)
 ifeq ($(atmega128),y)
 LDFLAGS += -Wl,--section-start=.text=0x1E000
@@ -80,10 +88,10 @@ endif
 
 
 %.s: %.c
-	@$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
+	$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<
 
 %.E: %.c
-	@$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
+	$(CC) -o $@ -O0 $(CPPFLAGS) -C -E -dD $<
 
 %.o: %.S
-	@$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<
+	$(CC) -o $@ $(CPPFLAGS) $(ASFLAGS) -c $<

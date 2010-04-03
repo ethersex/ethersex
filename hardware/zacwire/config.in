@@ -1,0 +1,5 @@
+dep_bool_menu "ZACwire for TSic sensors" ZACWIRE_SUPPORT $ARCH_AVR
+    dep_bool "  Raw ZACwire data" ZACWIRE_RAW_SUPPORT $ZACWIRE_SUPPORT
+    dep_bool "  Convert TSic306 data" ZACWIRE_CONVERT306_SUPPORT $ZACWIRE_SUPPORT
+    dep_bool "  Convert TSic506 data" ZACWIRE_CONVERT506_SUPPORT $ZACWIRE_SUPPORT
+endmenu

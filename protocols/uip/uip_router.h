@@ -56,7 +56,7 @@ void router_output(void);
 
 #elif defined(TAP_SUPPORT)
 #  include "core/host/tap.h"
-#  define router_output() tap_send()
+#  define router_output() tap_txstart()
 
 #elif defined(RFM12_IP_SUPPORT)
 #  include "hardware/radio/rfm12/rfm12.h"

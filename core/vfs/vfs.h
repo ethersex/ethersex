@@ -50,6 +50,9 @@ enum vfs_type_t {
 #ifdef VFS_DC3840_SUPPORT
   VFS_DC3840,
 #endif
+#ifdef VFS_HOST_SUPPORT
+  VFS_HOST,
+#endif
 
   VFS_LAST
 };
@@ -71,8 +74,10 @@ typedef uint32_t vfs_size_t;
 #include "hardware/storage/dataflash/vfs_df.h"
 #include "hardware/storage/sd_reader/vfs_sd.h"
 #include "core/vfs/vfs_inline.h"
+#include "hardware/i2c/master/vfs_eeprom.h"
 #include "hardware/i2c/master/vfs_eeprom_raw.h"
 #include "hardware/camera/vfs_dc3840.h"
+#include "core/host/vfs.h"
 
 struct vfs_file_handle_t {
   /* The vfs_type_t of the VFS module that is responsible for this
@@ -86,6 +91,7 @@ struct vfs_file_handle_t {
     vfs_file_handle_eeprom_t ee;
     vfs_file_handle_eeprom_raw_t ee_raw;
     vfs_file_handle_dc3840_t dc3840;
+    vfs_file_handle_host_t host;
   } u;
 };
 
@@ -151,7 +157,7 @@ vfs_size_t vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle,
 /* Generation of forwarder functions. */
 
 #define VFS_HAVE_FUNC(handle,call)	              \
-  (pgm_read_word(((void *)&(vfs_funcs[(handle)->fh_type].call))) != 0)
+  (pgm_read_word(((char *)&(vfs_funcs[(handle)->fh_type].call))) != 0)
 
 #define vfs_read(handle, buf, len)  vfs_read_write_size(0, handle, buf, len)
 #define vfs_write(handle, buf, len) vfs_read_write_size(1, handle, buf, len)

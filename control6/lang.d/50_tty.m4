@@ -42,7 +42,7 @@ define(`TTY_HOME', `TTY_USED()wmove(c6win,0,0);')
 define(`TTY_WRITE', `TTY_USED()ifelse(`$#', 1,dnl
 `waddstr_P(c6win,PSTR($1));',
 `wprintw_P(c6win,PSTR($1), shift($@));')')
-define(`TTY_WRITE_TIME', `TTY_USED()wprintw(c6win,"%02d:%02d:%02d", CLOCK_HOUR(), CLOCK_MIN(), CLOCK_SEC());')
+define(`TTY_WRITE_TIME', `CLOCK_USED()TTY_USED()wprintw(c6win,"%02d:%02d:%02d", CLOCK_HOUR(), CLOCK_MIN(), CLOCK_SEC());')
 
 define(`TTY_CREATE_WINDOW_NOSEL', `TTY_USED()dnl
 define(`old_divert', divnum)dnl

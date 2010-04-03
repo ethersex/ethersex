@@ -321,6 +321,7 @@ void noinline write_phy(uint8_t address, uint16_t data);
 void noinline reset_controller(void);
 void noinline reset_rx(void);
 void init_enc28j60(void);
+void enc28j60_periodic(void);
 void noinline switch_bank(uint8_t bank);
 void network_config_load(void);
 

@@ -38,5 +38,12 @@ uint8_t  i2c_master_select(uint8_t address, uint8_t mode);
 #define i2c_master_transmit() i2c_master_do(_BV(TWEN) | _BV(TWINT)) 
 #define i2c_master_transmit_with_ack() i2c_master_do(_BV(TWEN) | _BV(TWINT) | _BV(TWEA) ) 
 
+#include "config.h"
+#ifdef DEBUG_I2C
+# include "core/debug.h"
+# define I2CDEBUG(a...)  debug_printf("i2c: " a)
+#else
+# define I2CDEBUG(a...)
+#endif
 
 #endif /* _I2C_EEPROM_I2C_MASTER_H */

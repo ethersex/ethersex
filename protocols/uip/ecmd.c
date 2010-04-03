@@ -124,4 +124,17 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
     }
 }
 
+/*
+  -- Ethersex META --
+  block(Network configuration)
+  ecmd_ifndef(TEENSY_SUPPORT)
+    ecmd_ifdef(UIP_SUPPORT)
+      ecmd_ifndef(IPV6_SUPPORT)
+	ecmd_feature(netmask, "netmask",[IP],Display/Set the network mask.)
+      ecmd_endif()
 
+      ecmd_feature(ip, "ip",[IP],Display/Set the IP address.)
+      ecmd_feature(gw, "gw",[IP],Display/Set the address of the default router.)
+    ecmd_endif()
+  ecmd_endif()
+*/

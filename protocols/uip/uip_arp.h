@@ -156,7 +156,6 @@ void uip_arp_timer(void);
 
 struct arp_entry *uip_arp_lookup (uip_ipaddr_t ipaddr);
 
-
 /** @} */
 /** @} */
 

@@ -43,7 +43,7 @@ static uint16_t usb_rq_len;
 
 uint8_t usb_packet_ready;
 
-uint8_t
+usbMsgLen_t
 usb_net_setup(uint8_t  data[8])
 {
   usbRequest_t *rq = (void *)data;
@@ -68,8 +68,8 @@ usb_net_setup(uint8_t  data[8])
 void
 usb_net_read_finished (void)
 {
-  uip_buf_unlock ();
   usb_packet_ready = 0;
+  uip_buf_unlock ();
 }
 
 /* Host sends data to the device */

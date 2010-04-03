@@ -132,13 +132,37 @@ int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
   return ECMD_FINAL_OK;
 }
 
+int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
+{
+  if (strlen(cmd) < 1) 
+    return ECMD_ERR_PARSE_ERROR;
+
+  if (!strncmp_P(cmd + 1, PSTR("on"), 2))
+#ifdef HD44780_BACKLIGHT_INV
+    hd44780_backlight(0);
+#else
+    hd44780_backlight(1);
+#endif
+  else if (!strncmp_P(cmd + 1, PSTR("off"), 3)) 
+#ifdef HD44780_BACKLIGHT_INV
+    hd44780_backlight(1);
+#else
+    hd44780_backlight(0);
+#endif
+  else
+    return ECMD_ERR_PARSE_ERROR;
+
+  return ECMD_FINAL_OK;
+}
+
 /*
   -- Ethersex META --
-  block(HD44780 LCD Display)
+  block(HD44780 [[LCD]])
   ecmd_feature(lcd_clear, "lcd clear", [LINE], Clear line LINE (0..3) or the whole display (if parameter is omitted))
   ecmd_feature(lcd_write, "lcd write", TEXT, Write TEXT to the current cursor location)
   ecmd_feature(lcd_goto, "lcd goto", LINE COL, Move cursor to LINE and column COL (origin is 0/0))
   ecmd_feature(lcd_char, "lcd char", N D1 D2 D3 D4 D5 D6 D7 D8, Define use-definable char N with data D1..D8 (provide DATA in hex))
   ecmd_feature(lcd_init, "lcd reinit", CURSOR BLINK, Reinitialize the display, set whether to show the cursor (CURSOR, 0 or 1) and whether the cursor shall BLINK)
   ecmd_feature(lcd_shift, "lcd shift", DIR, Shift the display to DIR (either ''left'' or ''right''))
+  ecmd_feature(lcd_backlight, "lcd backlight", STATE, switch back light STATE to ON or OFF )
 */

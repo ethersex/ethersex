@@ -12,9 +12,11 @@ ifdef(`conf_ONEWIRE', `dnl
 ')dnl
 
 ifdef(`conf_STELLA', `dnl
-  /* stella port */
-  STELLA_PORT_RANGE(PC0,PC7)
-')
+  /* stella port 1 */
+  STELLA_PORT1_RANGE(PC0,PC7)
+')dnl
+
+dnl STELLA_PORT2_RANGE(PA0,PA3)
 
 ifdef(`conf_STATUSLED_POWER', `dnl
 pin(STATUSLED_POWER, PA3, OUTPUT)
@@ -65,3 +67,13 @@ ifdef(`conf_RC5', `
 pin(RC5_SEND, PD4)
 ')
 
+ifdef(`conf_LTC1257', `
+  pin(LTC1257_CLK, PA2, OUTPUT)
+  pin(LTC1257_DATA, PA1, OUTPUT)
+  pin(LTC1257_LOAD, PA0, OUTPUT)
+')
+
+ifdef(`conf_USTREAM', `
+  pin(VS1053_CS, PB0, OUTPUT)
+  pin(VS1053_DREQ, PB3, INPUT)
+')

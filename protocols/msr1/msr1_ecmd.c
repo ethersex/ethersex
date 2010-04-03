@@ -24,6 +24,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <string.h>
+#include <stdio.h>
 #include "config.h"
 #include "msr1.h"
 #include "protocols/ecmd/ecmd-base.h"
@@ -35,8 +36,10 @@
 # define MSR1_DEBUG(a...)
 #endif
 
-extern struct msr1_e8_info e8_data;
-extern struct msr1_c0_info c0_data;
+extern struct msr1_e8_info msr1_e8_data;
+extern struct msr1_generic_info msr1_c0_data;
+extern struct msr1_generic_info msr1_48_data;
+extern struct msr1_generic_info msr1_50_data;
 
 int16_t 
 parse_cmd_msr1_get(char *cmd, char *output, uint16_t len) 
@@ -46,17 +49,28 @@ parse_cmd_msr1_get(char *cmd, char *output, uint16_t len)
   while(*cmd == ' ') cmd ++;
   if (*cmd == 0 || *cmd == '0') {
     for (i = 0; i < 21; i++) {
-      output = output + sprintf(output, "%02x", e8_data.data[i]);
+      output = output + sprintf(output, "%02x", msr1_e8_data.data[i]);
     }
     return ECMD_FINAL(21 * 2);
-  } else if (*cmd == '1') {
+  } else {
+    /* Here we do all 76 byte long messages */
+    struct msr1_generic_info *info;
+    if (*cmd == '1') 
+      info = &msr1_c0_data;
+    else if (*cmd == '2')
+      info = &msr1_48_data;
+    else if (*cmd == '3')
+      info = &msr1_50_data;
+    else 
+      return ECMD_ERR_PARSE_ERROR;
+
     /* trick: use bytes on cmd as "connection specific static variables" */
     if (cmd[1] != 23) {		/* indicator flag: real invocation:  0 */
-	cmd[1] = 23;		/*                 continuing call: 23 */
-	cmd[2] = 0;		/* counter for data blocks */
+        cmd[1] = 23;		/*                 continuing call: 23 */
+        cmd[2] = 0;		/* counter for data blocks */
     }
     for (i = 0; i < 20; i++) {
-      sprintf(output, "%02x", c0_data.data[cmd[2] * 20 + i]);
+      sprintf(output, "%02x", info->data[cmd[2] * 20 + i]);
       output += 2;
     }
     cmd[2] ++;
@@ -72,5 +86,6 @@ parse_cmd_msr1_get(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(msr1_get, "msr1 get")
+  block([[Dachs_MSR1_auslesen|MSR1]])
+  ecmd_feature(msr1_get, "msr1 get",,Get data)
 */

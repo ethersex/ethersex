@@ -1,0 +1,46 @@
+#
+#   Named Pin Configuration File
+#
+# You can assign names to your microcontroller's pins here.
+# Keep in mind that this names must consist of alphanumeric 
+# characters only!
+#
+# Every line starting with a hash sign (#) is a comment.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PC3	OUTPUT	 HIGH 		pin1
+PC2	OUTPUT	 HIGH 		pin2
+PC1	OUTPUT	 HIGH 		pin3	# SDA
+PC0	OUTPUT	 HIGH 		pin4	# SCL
+PD7	OUTPUT	 HIGH 		pin5
+PD6	OUTPUT	 HIGH 		pin6
+PD5	OUTPUT	 HIGH 		pin7
+OD4	OUTPUT	 HIGH 		pin8
+PD3	OUTPUT	 HIGH 		pin9
+PD2	OUTPUT	 HIGH 		pin10
+PD1	OUTPUT	 HIGH 		pin11	# TXD
+PD0	OUTPUT	 HIGH 		pin12	# RXD
+PB7	OUTPUT	 HIGH 		pin13
+PB6	OUTPUT	 HIGH 		pin14
+PB5	OUTPUT	 HIGH 		pin15
+PB4	OUTPUT	 HIGH 		pin16
+#pin17
+#pin18
+#pin19
+PB0	OUTPUT	 HIGH 		pin20
+PA0	OUTPUT	 HIGH 		pin21	# ADC0
+PA1	OUTPUT	 HIGH 		pin22	# ADC1
+PA2	OUTPUT	 HIGH 		pin23	# ADC2
+PA3	OUTPUT	 HIGH 		pin24	# ADC3
+PA4	OUTPUT	 HIGH 		pin25	# ADC4
+PA5	OUTPUT	 HIGH 		pin26	# ADC5
+PA6	OUTPUT	 HIGH 		pin27	# ADC6
+PA7	OUTPUT	 HIGH 		pin28	# ADC7
+PC7	OUTPUT	 HIGH 		pin29
+PC6	OUTPUT	 HIGH 		pin30
+PC5	OUTPUT	 HIGH 		pin31
+PC4	OUTPUT	 HIGH 		pin32
+#pin33 VCC +5V
+#pin34 GND

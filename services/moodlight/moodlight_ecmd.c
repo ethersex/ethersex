@@ -37,7 +37,7 @@ int16_t parse_cmd_moodlight (char *cmd, char *output, uint16_t len)
 	uint8_t ch, onoff;
 	uint8_t ret = sscanf_P(cmd, PSTR("%u %u"), &ch, &onoff);
 	
-	if (ch>=STELLA_PINS) return ECMD_ERR_PARSE_ERROR;
+	if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
 	
 	// get
 	if (ret == 1)

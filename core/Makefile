@@ -10,13 +10,20 @@ $(DEBUG)_SRC += core/debug.c
 endif
 endif
 
-$(ARCH_AVR)_SRC += core/periodic.c core/spi.c
+$(ARCH_AVR)_SRC += core/periodic.c
+SRC += core/eeprom.c 
 
-SRC += core/eeprom.c
+ifneq ($(USART_SPI_SUPPORT),y)
+$(ARCH_AVR)_SRC += core/spi.c
+else
+$(ARCH_AVR)_SRC += core/spi_usart.c
+endif
 
 ifeq ($(ARCH_HOST),y)
 CPPFLAGS += -Icore/host
 endif
+
+$(STATUSLED_HB_ACT_SUPPORT)_SRC += core/heartbeat.c
 
 ##############################################################################
 # generic fluff

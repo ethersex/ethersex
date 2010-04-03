@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <util/delay.h>
 
 #include "hardware/storage/sd_reader/fat.h"
 #include "hardware/storage/sd_reader/sd_raw.h"
@@ -47,6 +48,13 @@ vfs_sd_try_open_rootnode (void)
   if ((vfs_sd_fat = fat_open (sd_active_partition)) == NULL
       || (vfs_sd_rootnode = vfs_sd_chdir ("/")) == NULL) {
     SDDEBUG ("SD-Card initialized, but failed to open root node.\n");
+#ifdef HAVE_SD_READER_POWERON
+    PIN_CLEAR(SD_READER_POWERON);
+    _delay_ms(100);
+    PIN_SET(SD_READER_POWERON);
+    _delay_ms(50);
+#endif
+
     return 1;
   }
 

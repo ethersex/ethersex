@@ -33,8 +33,13 @@ uip_conn_t *ecmd_sender_send_command (uip_ipaddr_t *ipaddr,
 				      client_return_text_callback_t callback);
 void ecmd_sender_net_main(void);
 
-void uecmd_sender_send_command (uip_ipaddr_t *ipaddr,
+void uecmd_sender_pgm_send_command (uip_ipaddr_t *ipaddr,
 				      PGM_P pgm_data,
+				      client_return_text_callback_t callback);
+void uecmd_sender_pgm_net_main(void);
+
+void uecmd_sender_send_command (uip_ipaddr_t *ipaddr,
+				      char *data,
 				      client_return_text_callback_t callback);
 void uecmd_sender_net_main(void);
 

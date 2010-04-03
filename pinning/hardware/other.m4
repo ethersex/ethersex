@@ -41,10 +41,6 @@ ifdef(`conf_ZBUS', `dnl
   pin(ZBUS_RX_PIN, STATUSLED_RX)
 ')
 
-ifdef(`conf_STELLA', `dnl
-  STELLA_PORT_RANGE(PB0,PB2)
-')
-
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
   pin(ECMD_SERIAL_USART_TX, PD2)
 ')

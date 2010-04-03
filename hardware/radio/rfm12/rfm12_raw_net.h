@@ -26,8 +26,6 @@
 void rfm12_raw_net_init(void);
 void rfm12_raw_net_main(void);
 
-#define RFM12_RAW_UDP_PORT 0x4242
-
 extern uip_udp_conn_t *rfm12_raw_conn;
 
 #endif /* RFM12_RAW_NET_H */

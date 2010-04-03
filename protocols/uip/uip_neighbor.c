@@ -40,7 +40,7 @@
  */
 
 #include "config.h"
-#ifdef ENC28J60_SUPPORT 
+#ifdef ETHERNET_SUPPORT 
 
 #include "uip_neighbor.h"
 
@@ -102,9 +102,8 @@ uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr)
   for(i = 0; i < ENTRIES; ++i) {
     if(entries[i].time == MAX_TIME) {
       oldest = i;
-      break;
     }
-    if(uip_ipaddr_cmp(entries[i].ipaddr, addr)) {
+    if(uip_ipaddr_cmp(entries[i].ipaddr, ipaddr)) {
       oldest = i;
       break;
     }
@@ -162,14 +161,14 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
 }
 /*---------------------------------------------------------------------------*/
 
-#endif /* ENC28J60_SUPPORT */
+#endif /* ETHERNET_SUPPORT */
 
 /*
   -- Ethersex META --
   header(protocols/uip/uip_neighbor.h)
   timer(500, `
 #	ifndef BOOTLOADER_SUPPORT
-#	ifdef ENC28J60
+#	ifdef ENC28J60_SUPPORT
 	  uip_neighbor_periodic()
 #	endif
 #	endif
