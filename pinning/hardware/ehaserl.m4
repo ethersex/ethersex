@@ -1,7 +1,7 @@
 dnl
-dnl user_ehaserl.m4
+dnl ehaserl.m4
 dnl
-dnl Pin Configuration for 'user_ehaserl'.  Edit it to fit your needs.
+dnl Pin Configuration for EH2010 eHaserl by lilafisch & schneider
 dnl
 
 dnl This must also be D+ of the USB signal
@@ -17,6 +17,21 @@ dnl pin(LED_RED2, PB1, OUTPUT)
 dnl pin(LED_GREEN1, PB2, OUTPUT)
 dnl pin(LED_GREEN2, PB3, OUTPUT)
 
+dnl alternatively if you'd like to use stella/moodlight:
+STELLA_PORT1_RANGE(PB1,PB3)
+STELLA_PORT2_RANGE(PD6,PD6)
+
 pin(LIGHT, PC1)
 
+dnl HD44780 compatible LCD display
+pin(HD44780_RS, PD4)
+pin(HD44780_EN, PC0)
+pin(HD44780_D4, PC2)
+pin(HD44780_D5, PC3)
+pin(HD44780_D6, PC4)
+pin(HD44780_D7, PC5)
 
+dnl Enable display
+dnl (just don't set it, if you connect your ehaserl to USB,
+dnl otherwise the display'll just show black boxes)
+pin(LCDON, PD3, OUTPUT)
