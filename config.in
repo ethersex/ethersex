@@ -26,7 +26,8 @@ if [ "$ARCH_AVR" = "y" ]; then
 		 ATmega328p   atmega328p \
 		 ATmega64     atmega64	\
 		 ATmega644    atmega644	\
-		 ATmega644p   atmega644p"	\
+         ATmega644p   atmega644p	\
+      	 ATmega1284p   atmega1284p"	\
 		'ATmega644' MCU
 
 	int "MCU frequency" FREQ 20000000
