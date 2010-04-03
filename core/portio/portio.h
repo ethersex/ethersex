@@ -36,9 +36,9 @@
                         255 - PORTIO_MASK_D   /* port d from pinning.m4 */ \
                        }
 
-/* ATMega644 | ATMega32 */
+/* ATMega644 (644p)| ATMega32*/
 #elif defined(_ATMEGA644) || defined(_ATMEGA32) || defined(_ATMEGA162) \
-  || defined(_ATMEGA16)
+    || defined(_ATMEGA16) || defined(_ATMEGA1284P)
 
 
 #define IO_HARD_PORTS 4
