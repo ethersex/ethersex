@@ -1,5 +1,5 @@
 #! /bin/sh
-host=sex.metafnord.de
+host=172.17.27.55
 port=2701
 
 usage() { echo "usage: $0 <sym> ";exit 1; }
@@ -12,7 +12,7 @@ sym_offset=`avr-nm ethersex | grep " $root_sym\$" | cut -c4-8 | tr [a-z] [A-Z] `
 [ "x$sym_offset" = "x" ] && { echo "extraction failed."; exit 2; }
 
 echo -n "$root_sym [$sym_offset]: "
-echo "!d $sym_offset" | nc6 $host $port
+echo "!d $sym_offset" | nc $host $port
 
 
 #rm -f tempfile.[cs]

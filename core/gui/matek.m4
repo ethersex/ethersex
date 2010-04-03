@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 #include "gui.h"
 #include "font.h"
@@ -7,11 +8,12 @@
 
 static uint8_t color;
 
+void (*matek_selected_scene)(struct gui_block *) = NULL;
+
 void
 matek_draw(struct gui_block *dest) {
-//    if (matek_selected_scene) 
-//        matek_selected_scene(dest);
-   matek_scene_myscene(dest);
+    if (matek_selected_scene) 
+        matek_selected_scene(dest);
 }
 
 divert(-1)
