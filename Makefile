@@ -86,6 +86,7 @@ SUBDIRS += services/httpd
 SUBDIRS += services/jabber
 SUBDIRS += services/ntp
 SUBDIRS += services/wol
+SUBDIRS += services/moodlight
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
