@@ -48,6 +48,20 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
     debug_printf("called ecmd_parse_command %s\n", cmd);
 #endif
 
+#ifdef ECMD_REMOVE_BACKSPACE_SUPPORT
+	uint8_t i = 0;
+	while (cmd[i] != '\0') { // search until end of string
+  		if (cmd[i] =='\b') { // check cmd for backspaces
+    		uint16_t cmdlen = strlen(cmd+i);
+    		memmove(cmd + i - 1, cmd + i + 1, cmdlen); // we found a backspace, so we move all chars backwards
+    		i--;  // and decrement char counter
+  		} else {
+    		i++; // goto char
+  		}
+	}
+	len = strlen(cmd);  // fix length
+#endif /* ECMD_REMOVE_BACKSPACE_SUPPORT */
+
 #ifdef ALIASCMD_SUPPORT
     if (cmd[0] == '$') { // alias command names start with $
 #ifdef DEBUG_ECMD
