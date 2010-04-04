@@ -1,0 +1,7 @@
+dep_bool_menu "Ultrasonic (EXPERIMENTAL)" ULTRASONIC_SUPPORT $CONFIG_EXPERIMENTAL
+    if [ "$ULTRASONIC_SUPPORT" = "y" ]; then
+	    dep_bool "SRF05" SRF05_AUTOSTART_SUPPORT $UTRASONIC_SUPPORT $CONFIG_EXPERIMENTAL
+	fi
+	comment  "Debugging Flags"
+	dep_bool 'Ultrasonic Debug' DEBUG_ULTRASONIC $DEBUG $ULTRASONIC_SUPPORT
+endmenu
