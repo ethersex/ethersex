@@ -129,6 +129,9 @@ usb_periodic(void)
 void
 usb_init(void)
 {
+#ifdef AUTOSET_USB_ENABLE_PIN_SUPPORT
+  PIN_SET(USB_ENABLE);
+#endif /* AUTOSET_USB_ENABLE_PIN_SUPPORT */
 #ifdef USB_NET_SUPPORT
   usb_net_init();
 #endif
