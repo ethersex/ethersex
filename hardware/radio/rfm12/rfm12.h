@@ -109,12 +109,14 @@ rfm12_status_t rfm12_status;
 
 #define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
 
-
-#ifndef HAVE_RFM12_PCINT
-#define rfm12_int_enable()			\
-  _EIMSK |= _BV(RFM12_INT_PIN);
-#define rfm12_int_disable()			\
-  _EIMSK &= ~_BV(RFM12_INT_PIN);
+#ifdef RFM12_USE_POLL
+	#define rfm12_int_enable()  do { } while(0)
+	#define rfm12_int_disable() do { } while(0)
+#elif !defined(HAVE_RFM12_PCINT)
+	#define rfm12_int_enable()			\
+	  _EIMSK |= _BV(RFM12_INT_PIN);
+	#define rfm12_int_disable()			\
+	  _EIMSK &= ~_BV(RFM12_INT_PIN);
 #endif  /* not HAVE_RFM12_PCINT */
 
 
@@ -198,5 +200,8 @@ extern uint8_t rfm12_drssi;
 /* return the current rfm12 status word */
 uint16_t rfm12_get_status (void);
 
+#if !defined(RFM12_USE_POLL) || !defined(RFM12_IP_SUPPORT)
+#define rfm12_int_process()  do { } while(0)
+#endif
 
 #endif /* _RFM12_H */

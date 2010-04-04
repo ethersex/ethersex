@@ -56,6 +56,8 @@ static void rfm12_txstart_hard (void);
 
 #ifdef RFM12_INT_SIGNAL
 SIGNAL(RFM12_INT_SIGNAL)
+#elif defined(RFM12_USE_POLL)
+void rfm12_int_process(void)
 #else
 ISR(RFM12_vect)	    /* PCINT */
 #endif
@@ -527,3 +529,9 @@ rfm12_get_status (void)
 
   return r;
 }
+
+/*
+  -- Ethersex META --
+  header(hardware/radio/rfm12/rfm12.h)
+  mainloop(rfm12_int_process)
+*/

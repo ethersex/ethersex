@@ -2,6 +2,7 @@ TOPDIR ?= ..
 include $(TOPDIR)/.config
 
 $(SOFT_UART_SUPPORT)_SRC += core/soft_uart.c
+$(SOFT_SPI_SUPPORT)_SRC += core/soft_spi.c
 $(USART_SUPPORT)_SRC += core/usart.c
 
 ifneq ($(DEBUG_USE_SYSLOG),y)

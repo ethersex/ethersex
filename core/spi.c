@@ -36,7 +36,7 @@ void spi_init(void)
    * doesn't have to be done here
    */
 
-  /* Set the clockselects as high */
+  /* Set the chip-selects as high */
 
 #ifdef ENC28J60_SUPPORT
     PIN_SET(SPI_CS_NET);
@@ -54,15 +54,17 @@ void spi_init(void)
     PIN_SET(VS1053_CS);
 #endif
 
+#ifndef SOFT_SPI_SUPPORT
     /* enable spi, set master and clock modes (f/2) */
     _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);
     _SPSR0 = _BV(_SPI2X0);
-
+#endif
 }
 
+
+#ifndef SOFT_SPI_SUPPORT
 static void spi_wait_busy(void)
 {
-
 #   ifdef SPI_TIMEOUT
     uint8_t timeout = 200;
 
@@ -83,8 +85,8 @@ uint8_t noinline spi_send(uint8_t data)
     spi_wait_busy();
 
     return _SPDR0;
-
 }
+#endif  /* not SOFT_SPI_SUPPORT */
 
 #endif /* DATAFLASH_SUPPORT || ENC28J60_SUPPORT || RFM12_SUPPORT 
     || SD_READER_SUPPORT */

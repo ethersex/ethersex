@@ -47,6 +47,8 @@ fi
     if [ "$USART_SPI_SUPPORT" = y ]; then
       choice '  SPI usart select' "$(usart_choice SPI)"
       usart_process_choice SPI
+    else
+      dep_bool "Use Software-SPI" SOFT_SPI_SUPPORT $ARCH_AVR
     fi
 
 	choice 'Version String'			\
