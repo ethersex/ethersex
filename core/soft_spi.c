@@ -27,7 +27,7 @@ spi_send(uint8_t outdata)
 {
   DDR_CONFIG_IN(SOFT_SPI_MISO);
 
-  uint8_t j, indata;
+  uint8_t j, indata = indata;
   for(j = 0; j < 8; j++)
   {
     if(outdata & 0x80)

@@ -28,8 +28,6 @@
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
   || defined(DATAFLASH_SUPPORT) || defined(SD_READER_SUPPORT)
 
-static void spi_wait_busy(void);
-
 void spi_init(void)
 {
   /* Input and Output configuration is done in the beginning of main(), so it
