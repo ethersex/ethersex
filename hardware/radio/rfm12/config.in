@@ -36,4 +36,8 @@ dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT $ARCH_A
 	fi
 
 	dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
+
+	if [ "$RFM12_IP_SUPPORT" != "y" ]; then
+		bool "Disable RFM12 module" RFM12_DISABLE
+	fi
 endmenu
