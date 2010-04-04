@@ -181,6 +181,14 @@ OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 $(TARGET): $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lc -lm # Pixie Dust!!! (Bug in avr-binutils)
 
+SIZEFUNCARG ?= -e printf -e scanf -e divmod
+size-check: $(OBJECTS) ethersex
+	@for obj in $^; do \
+	    if avr-nm $$obj | grep -q $(SIZEFUNCARG); then \
+		echo -n "$$obj: "; avr-nm $$obj | grep $(SIZEFUNCARG) | cut -c12- | tr '\n' ','; echo ''; \
+	    fi; \
+	done
+
 ##############################################################################
 
 # Generate ethersex.hex file
