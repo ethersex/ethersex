@@ -232,6 +232,16 @@ template $CW_SUPPORT << FNORD
   pin(CW, PC6, OUTPUT)
 FNORD
 
+template $SRF05_AUTOSTART_SUPPORT << FNORD
+  /* ultrasonic SRF05 support */
+  pin(SRF05, PA7)
+FNORD
+
+template $AUTOSET_USB_ENABLE_PIN_SUPPORT << FNORD
+  /* USB enable pin support */
+  pin(USB_ENABLE, PC6, OUTPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
