@@ -226,6 +226,12 @@
 #define p 0   // break
 
 
+// define the length of the notes
+#define VIERTEL 8   
+#define HALB 16   
+#define DREIVIERTEL 24 
+#define GANZ 32 
+
 struct notes_duration_t
 {
   uint16_t note;
