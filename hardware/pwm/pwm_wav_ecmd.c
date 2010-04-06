@@ -36,14 +36,14 @@ int16_t
 parse_cmd_pwm_wav_play(char *cmd, char *output, uint16_t len)
 {
     pwm_wav_init();
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM wav play")));
+    return ECMD_FINAL_OK;
 }
 
 int16_t
 parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
 {
     pwm_stop();
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM wav stop")));
+    return ECMD_FINAL_OK;
 }
 
 #endif  /* PWM_SUPPORT */

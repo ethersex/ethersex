@@ -83,7 +83,7 @@ struct song_t songs[] PROGMEM = {
   { "entchen", 10, 4, entchen_notes, songlength(entchen_notes) }, 
 #endif /* ENTCHEN_PWM_MELODY_SUPPORT */
 #ifdef TETRIS_PWM_MELODY_SUPPORT
-  { "tetris", 10, 4, tetris_notes, songlength(tetris_notes) }, 
+  { "tetris", 30, 1, tetris_notes, songlength(tetris_notes) }, 
 #endif /* TETRIS_PWM_MELODY_SUPPORT */
 //  { "newsong", 40, 1, newsong_notes, songlength(newsong_notes) }
 };
@@ -116,6 +116,7 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 	// Anfangswert der PWM
 	_PWM_MELODY_OCR=0x80;
 	
+	DDRD |= (1<<7); // fix me!
 	//Output compare OCxA 8 bit non inverted PWM
 	// Timer Counter Control Register!
 	// Bit:   7	  6	 5	4     3     2     1     0
@@ -145,7 +146,7 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 
 		uint16_t delay = notes.duration * 10 * song.delay / 8 ;
 #ifdef DEBUG_PWM
-//    	debug_printf("%3i. note: %4i, dur: %3i, i: %5i, scale: %5i, delay: %5i\n", y, notes.note, notes.duration, pwm_melody_i, pwm_melody_scale, delay);
+    	debug_printf("%3i. note: %4i, dur: %3i, i: %5i, scale: %5i, delay: %5i\n", y, notes.note, notes.duration, pwm_melody_i, pwm_melody_scale, delay);
 #endif
 
 		_delay_ms(delay);
