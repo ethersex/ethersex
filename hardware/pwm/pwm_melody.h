@@ -227,10 +227,13 @@
 
 
 // define the length of the notes
-#define VIERTEL 8   
-#define HALB 16   
-#define DREIVIERTEL 24 
-#define GANZ 32 
+#define GAP             1
+#define ONESIXTEEN      2   
+#define EIGHTS          4   
+#define QUARTER         8   
+#define HALF           16   
+#define THREEQUARTERS  24 
+#define FULL           32 
 
 struct notes_duration_t
 {
@@ -240,11 +243,11 @@ struct notes_duration_t
 
 struct song_t
 {
-  PGM_P title;
-  uint8_t delay;
-  uint8_t transpose;
-  struct notes_duration_t *notes;
-  uint16_t size;
+  const PGM_P title;
+  const uint8_t delay;
+  const uint8_t transpose;
+  const struct notes_duration_t *notes;
+  const uint16_t size;
 };
 
 void 

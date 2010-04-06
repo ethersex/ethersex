@@ -39,8 +39,14 @@
 
 #ifdef PWM_MELODY_SUPPORT
 #include "pwm_melody.h"
-#include "entchen.h"
-#include "tetris.h"
+
+#ifdef ENTCHEN_PWM_MELODY_SUPPORT
+ #include "entchen.h"
+#endif /* ENTCHEN_PWM_MELODY_SUPPORT */
+
+#ifdef TETRIS_PWM_MELODY_SUPPORT
+ #include "tetris.h"
+#endif /* TETRIS_PWM_MELODY_SUPPORT */
 
 uint8_t pwm_melody_tone=0;
 uint16_t pwm_melody_i=0;
@@ -98,12 +104,12 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 {
 	struct song_t song;
 	struct notes_duration_t notes;
-	if (songnr >=MAX_PWM_SONGS) // error if no songs activated
+	if (songnr >=MAX_PWM_SONGS) // causes error if no songs activated
 	  songnr=0;
 	memcpy_P(&song, &songs[songnr], sizeof(struct song_t));
 
 #ifdef DEBUG_PWM
-    	debug_printf("PWM title: '%s', d: %i, s %i: trans: x%i, max: %i\n", song.title, song.delay, song.size, song.transpose, MAX_PWM_SONGS);
+    	debug_printf("melody: title: '%s', delay: %i, size: %i: transpose: x%i, nr of songs: %i\n", song.title, song.delay, song.size, song.transpose, MAX_PWM_SONGS);
 #endif
 // see example at http://www.infolexikon.de/blog/atmega-music/
 
@@ -127,7 +133,7 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 	// Hier:  0	0      0      1     0      0     0      0
 	_PWM_MELODY_TIMSK |= (1 << _PWM_MELODY_OCIE); // 0x10
 	//enable global interrupts
-	//sei();
+	sei();
 
 	// durch das Noten-Array laufen und nacheinander
 	// die Töne in jeweiliger Länge abspielen
@@ -139,7 +145,7 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 
 		uint16_t delay = notes.duration * 10 * song.delay / 8 ;
 #ifdef DEBUG_PWM
-    	debug_printf("%3i. note: %4i, dur: %3i, i: %5i, scale: %5i, delay: %5i\n", y, notes.note, notes.duration, pwm_melody_i, pwm_melody_scale, delay);
+//    	debug_printf("%3i. note: %4i, dur: %3i, i: %5i, scale: %5i, delay: %5i\n", y, notes.note, notes.duration, pwm_melody_i, pwm_melody_scale, delay);
 #endif
 
 		_delay_ms(delay);
