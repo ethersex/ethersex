@@ -80,7 +80,7 @@ ISR(RFM12_vect)	    /* PCINT */
     return;
   }
 
-  if ((rfm12_trans(0x0000) & 0x8000) == 0) {
+  if ((status & 0x8000) == 0) {
     RFM12_DEBUG ("rfm12/spurious int: %x\n", status);
     return;
   }
