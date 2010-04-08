@@ -33,7 +33,7 @@
 #ifdef SRF05_SUPPORT
 int16_t parse_cmd_srf05_command(char *cmd, char *output, uint16_t len) 
 {
-  uint16_t distance = srf05_get(cmd, output, len);
+  uint16_t distance = srf05_get();
  
   if (distance < 0 ) {
 	return ECMD_ERR_PARSE_ERROR;
@@ -47,7 +47,8 @@ int16_t parse_cmd_srf05_command(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[Ultrasonic]])
+  header(hardware/ultrasonic/ultrasonic.h)
   ecmd_ifdef(SRF05_SUPPORT)
-    ecmd_feature(srf05_command, "srf05 ",, Get SRF05 Data)
+    ecmd_feature(srf05_command, "srf05",, Get SRF05 Data)
   ecmd_endif()
 */

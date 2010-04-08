@@ -19,19 +19,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_ULTRASONIC_H
-#define HAVE_ULTRASONIC_H
+//#ifndef HAVE_ULTRASONIC_H
+//#define HAVE_ULTRASONIC_H
 
 int16_t
-srf05_get();
+srf05_get(void);
 
 
 #include "config.h"
-#ifdef DEBUG_APP_SAMPLE
+#ifdef DEBUG_ULTRASONIC
 # include "core/debug.h"
 # define ULTRASONICDEBUG(a...)  debug_printf("ultrasonic: " a)
 #else
 # define ULTRASONICDEBUG(a...)
 #endif
 
-#endif  /* HAVE_ULTRASONIC_H */
+//#endif  /* HAVE_ULTRASONIC_H */
