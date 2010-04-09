@@ -94,6 +94,7 @@ SUBDIRS += services/upnp
 SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
 SUBDIRS += services/vnc
+SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 
 rootbuild=t
