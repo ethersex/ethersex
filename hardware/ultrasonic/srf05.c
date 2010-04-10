@@ -49,12 +49,12 @@ srf05_get(void)
 // min 700us wait until pin high 
   uint16_t i=0;
   for (i=0; i < 1000; i++){
-    if (PIN_HIGH(SRF05) == 1) break;
+    if (PIN_HIGH(SRF05)) break;
     _delay_us(1);
   }
 //  loop delay max 30ms
   for (i=0; i < 30000; i++){
-    if (PIN_HIGH(SRF05) == 0) break;
+    if (!PIN_HIGH(SRF05)) break;
     _delay_us(1);
   }
   SREG = sreg;			/* Possibly re-enable interrupts. */

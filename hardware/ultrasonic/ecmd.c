@@ -38,9 +38,13 @@ int16_t parse_cmd_srf05_command(char *cmd, char *output, uint16_t len)
   if (distance < 0 ) {
 	return ECMD_ERR_PARSE_ERROR;
   }
-
+#if !SRF05_FAKTOR
+#error SRF05_FAKTOR has to be non-zero!
+#endif
  // only metric values so far
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%i"), distance / 58 ));
+ // metric divisor is 58 for cm
+ // imperial divisor is 148 for inches
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%i"), distance / SRF05_FAKTOR ));
 }
 #endif /* SRF05_SUPPORT */
 
