@@ -232,7 +232,7 @@ template $CW_SUPPORT << FNORD
   pin(CW, PC6, OUTPUT)
 FNORD
 
-template $SRF05_AUTOSTART_SUPPORT << FNORD
+template $SRF05_SUPPORT << FNORD
   /* ultrasonic SRF05 support */
   pin(SRF05, PA7)
 FNORD
