@@ -199,7 +199,7 @@ uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
       mcuf_current_modul++;
       break;
     case MCUF_MODUL_PLAY_MODE_RANDOM: 
-      mcuf_current_modul = rand() & MCUF_MAX_MODULES ;
+      mcuf_current_modul = (random8() & MCUF_MAX_MODULES);
       break;
   }
  
