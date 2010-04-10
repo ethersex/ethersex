@@ -35,7 +35,7 @@ int16_t parse_cmd_srf05_command(char *cmd, char *output, uint16_t len)
 {
   uint16_t distance = srf05_get();
  
-  if (distance < 0 ) {
+  if (distance == 0 ) {
 	return ECMD_ERR_PARSE_ERROR;
   }
 #if !SRF05_FAKTOR
