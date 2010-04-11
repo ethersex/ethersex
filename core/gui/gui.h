@@ -49,4 +49,7 @@ struct gui_block {
 
 void gui_draw_circle(struct gui_block *dest, uint16_t cx, uint16_t cy, uint8_t r,
                      uint8_t color, uint8_t quadrant_mask);
+
+/* Interface to the current selected scene */
+void matek_draw(struct gui_block *dest);
 #endif

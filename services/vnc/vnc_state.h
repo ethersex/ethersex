@@ -35,7 +35,7 @@ typedef enum {
     VNC_STATE_UPDATE,
 } vnc_state_t;
 
-#define VNC_UPDATES_SENT_LENGTH (UIP_CONF_BUFFER_SIZE/sizeof(struct vnc_block))
+#define VNC_UPDATES_SENT_LENGTH (UIP_CONF_BUFFER_SIZE/sizeof(struct gui_block))
 
 struct vnc_connection_state_t {
   uint8_t state;

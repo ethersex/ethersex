@@ -138,10 +138,9 @@ vnc_main(void)
 
         uip_send(uip_sappdata, sizeof(server_init)); 
         VNCDEBUG("server init, sent %d bytes\n", sizeof(server_init)); 
-        uint8_t i, j;
       } else if (STATE->state == VNC_STATE_UPDATE) {
         uint8_t updating_block_count = 
-                (uip_mss() - 4 ) / sizeof(struct vnc_block) ;
+                (uip_mss() - 4 ) / sizeof(struct gui_block) ;
         /* VNCDEBUG("we are able to update %d blocks at once\n", 
                 updating_block_count); */
 
@@ -170,7 +169,7 @@ end_update_block_finder:
         update->padding = 0;
         update->block_count = HTONS(block);
         uip_send(uip_sappdata, 
-                 4 + block * sizeof(struct vnc_block));
+                 4 + block * sizeof(struct gui_block));
     }
   }
 }
