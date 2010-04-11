@@ -1,0 +1,4 @@
+dep_bool_menu "Graphic menu (EXPERIMENTAL)" GLCD-MENU_SUPPORT $CONFIG_EXPERIMENTAL
+	comment  "Debugging Flags"
+	dep_bool 'Graphic menu Debug' DEBUG_GLCD-MENU $DEBUG $GLCD-MENU_SUPPORT
+endmenu
