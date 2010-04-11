@@ -57,7 +57,6 @@ extern uint8_t back_light;
 #define CTRL_OUTPUT() do { \
 						  DDR_CONFIG_OUT(HD44780_EN); \
 						  DDR_CONFIG_OUT(HD44780_RS); \
-						  DDR_CONFIG_OUT(HD44780_RW); \
 						 } while (0);
 #endif
 
@@ -152,6 +151,10 @@ void noinline hd44780_hw_init(void)
 {
     /* init io pins */
     CTRL_OUTPUT();
+#ifdef HAVE_LCDON
+    PIN_SET(LCDON);
+#endif
+
     PIN_CLEAR(HD44780_RS);
     PIN_CLEAR(HD44780_EN);
 #ifdef HAVE_HD44780_RW

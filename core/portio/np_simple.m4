@@ -116,21 +116,21 @@ int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
   /* Disable interrupts to omit interference */
   uint8_t sreg = SREG; cli();
 
-  uint8_t i = NP_PIN(substr($2, 1, 1));
+  uint8_t i = NP_PORT(substr($2, 1, 1));
   NP_PORT(substr($2, 1, 1)) = i  ^ _BV($2);
 
   SREG = sreg;			/* Possibly re-enable interrupts. */
 #else  /* PINx_TOGGLE_WORKAROUND */
   /* First we read the current pin-state and afterwards toggle
      the pin by writing to the PINx register. */
-  uint8_t i = NP_PIN(substr($2, 1, 1)) & _BV($2);
+  uint8_t i = NP_PORT(substr($2, 1, 1));
 
   /* now toggle the port */
   NP_PIN(substr($2, 1, 1)) |= _BV($2);
 #endif  /* not PINx_TOGGLE_WORKAROUND */
 
   /* say just the opposite of the old situation ... */
-  REPLY (output, !$3(i));
+  REPLY (output, !$3(i & _BV($2)));
 }
 #endif  /* ECMD_PARSER_SUPPORT */
 ')

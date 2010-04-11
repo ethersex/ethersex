@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright(C) 2010 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,30 +19,34 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-
 #include "config.h"
-#include "core/debug.h"
+#include <avr/io.h>
 
-#include "protocols/ecmd/ecmd-base.h"
-
-#ifdef PWM_WAV_SUPPORT
-
-#include "pwm_wav.h"
-
-int16_t
-parse_cmd_pwm_wav_play(char *cmd, char *output, uint16_t len)
+uint8_t 
+spi_send(uint8_t outdata)
 {
-    pwm_wav_init();
-    return ECMD_FINAL_OK;
+  DDR_CONFIG_IN(SOFT_SPI_MISO);
+
+  uint8_t j, indata = indata;
+  for(j = 0; j < 8; j++)
+  {
+    if(outdata & 0x80)
+      PIN_SET(SOFT_SPI_MOSI);
+    else
+      PIN_CLEAR(SOFT_SPI_MOSI);
+
+    PIN_SET(SOFT_SPI_SCK);
+    indata <<= 1;
+
+    if(PIN_HIGH(SOFT_SPI_MISO))
+      indata |= 1;
+
+    PIN_CLEAR(SOFT_SPI_SCK);
+
+    outdata <<= 1;
+  }
+
+  DDR_CONFIG_OUT(SOFT_SPI_MISO);
+  return indata;
 }
 
-int16_t
-parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
-{
-    pwm_stop();
-    return ECMD_FINAL_OK;
-}
-
-#endif  /* PWM_SUPPORT */

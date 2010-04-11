@@ -151,10 +151,6 @@ int main(void)
 
 	ethersex_meta_init();
 
-	#ifdef RFM12_SUPPORT
-		rfm12_init();
-	#endif  /* RFM12_SUPPORT */
-
 	/* must be called AFTER all other initialization */
 	#ifdef PORTIO_SUPPORT
 	portio_init();

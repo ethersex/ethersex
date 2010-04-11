@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
- * Copyright (c) 2010 by Stefan Siegl <stesie@brokenpipe.de>
+ *
+ * Copyright (c) 2010 by Jens Wilmer <ethersex@jenswilmer.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,20 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "config.h"
+#ifndef WATCHASYNC_STATE_H
+#define WATHASYNC_STATE_H
 
-#ifndef MOODLIGHT_H
-#define MOODLIGHT_H
+// State of coonection, new until acked or aborted, after that old
+struct watchasync_connection_state_t {
+  uint8_t state;
+};
 
-#ifdef MOODLIGHT_SUPPORT
-
-extern uint8_t moodlight_threshold;
-extern uint8_t moodlight_mask;
-extern uint8_t moodlight_counter;
-
-void moodlight_init (void);
-void moodlight_process (void);
-
-#endif  /* MOODLIGHT_SUPPORT */
-
-#endif /* MOODLIGHT_H */
+#endif /* WATCHASYNC_STATE_H */

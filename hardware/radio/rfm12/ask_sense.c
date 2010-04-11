@@ -166,10 +166,12 @@ rfm12_ask_sense_start (void)
 static inline void
 ask_sense_decode_tevion (void)
 {
+#ifdef DEBUG_ASK_SENSE
   uint8_t code1 = (ask_buf[3] << 1) | (ask_buf[4] >> 7);
   uint8_t code2 = (ask_buf[4] << 1) | (ask_buf[5] >> 7);
   ASKDEBUG ("rfm12 tevion %d,%d,%d %d,%d 99 4\n",
 	    ask_buf[0], ask_buf[1], ask_buf[2], code1, code2);
+#endif	/* DEBUG_ASK_SENSE */
 }
 
 

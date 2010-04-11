@@ -2,6 +2,7 @@ dep_bool_menu "USB (Softwarestack) Support" USB_SUPPORT $ARCH_AVR
 
 	if [ "$USB_SUPPORT" = "y" ]; then
 		dep_bool "device is self powered" USB_CFG_IS_SELF_POWERED $USB_SUPPORT
+		dep_bool "auto set USB enable pin" AUTOSET_USB_ENABLE_PIN_SUPPORT $USB_SUPPORT
 
 		if [ "$USB_CFG_IS_SELF_POWERED" = "y" ]; then
 			int "USB bus power consumption" USB_CFG_MAX_BUS_POWER 20

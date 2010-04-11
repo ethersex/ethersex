@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,30 +19,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <avr/pgmspace.h>
+//#ifndef HAVE_ULTRASONIC_H
+//#define HAVE_ULTRASONIC_H
+
+int16_t
+srf05_get(void);
+
 
 #include "config.h"
-#include "core/debug.h"
+#ifdef DEBUG_ULTRASONIC
+# include "core/debug.h"
+# define ULTRASONICDEBUG(a...)  debug_printf("ultrasonic: " a)
+#else
+# define ULTRASONICDEBUG(a...)
+#endif
 
-#include "protocols/ecmd/ecmd-base.h"
-
-#ifdef PWM_WAV_SUPPORT
-
-#include "pwm_wav.h"
-
-int16_t
-parse_cmd_pwm_wav_play(char *cmd, char *output, uint16_t len)
-{
-    pwm_wav_init();
-    return ECMD_FINAL_OK;
-}
-
-int16_t
-parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
-{
-    pwm_stop();
-    return ECMD_FINAL_OK;
-}
-
-#endif  /* PWM_SUPPORT */
+//#endif  /* HAVE_ULTRASONIC_H */

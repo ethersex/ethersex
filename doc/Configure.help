@@ -2022,3 +2022,27 @@ JABBER_VERSION_SUPPORT
   Enables to send version details of the ethersex jabber client.
   Change the values if you need to.
 
+Ultrasonic Debug
+DEBUG_ULTRASONIC
+  Depends on: 
+   * Enable Debugging (DEBUG)
+   * Ultrasonic (EXPERIMENTAL) (ULTRASONIC_SUPPORT)
+
+  Ultrasonic sensor with 2 modes. 
+
+  Mode 1 is a two signal mode (not yet implemented)
+  Mode 2 is a one signal mode, both start and stop signal done
+  by the same pin.
+
+  More details at: 
+  http://www.rn-wissen.de/index.php/Sensorarten#Ultraschallsensor_SRF05
+
+SRF05 calibrate faktor
+SRF05_FAKTOR
+
+  Distance or calibrate faktor, used to switch between imperial or metric
+  values.
+
+  Metric: 58 -> centimenter
+  Imperial: 148 -> inches
+

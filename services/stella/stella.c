@@ -56,12 +56,12 @@ stella_init (void)
 
 	/* set stella port pins to output and save the port mask */
 	stella_portmask[0] = ((1 << STELLA_PINS_PORT1) - 1) << STELLA_OFFSET_PORT1;
-	STELLA_DDR_PORT1 = stella_portmask[0];
+	STELLA_DDR_PORT1 |= stella_portmask[0];
 	cal_table->port[0].port = &STELLA_PORT1;
 	cal_table->port[0].mask = 0;
 	#ifdef STELLA_PINS_PORT2
 	stella_portmask[1] = ((1 << STELLA_PINS_PORT2) - 1) << STELLA_OFFSET_PORT2;
-	STELLA_DDR_PORT2 = stella_portmask[1];
+	STELLA_DDR_PORT2 |= stella_portmask[1];
 	cal_table->port[0].port = &STELLA_PORT2;
 	cal_table->port[1].mask = 0;
 	#endif

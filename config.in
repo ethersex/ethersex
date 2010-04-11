@@ -47,6 +47,8 @@ fi
     if [ "$USART_SPI_SUPPORT" = y ]; then
       choice '  SPI usart select' "$(usart_choice SPI)"
       usart_process_choice SPI
+    else
+      dep_bool "Use Software-SPI" SOFT_SPI_SUPPORT $ARCH_AVR
     fi
 
 	choice 'Version String'			\
@@ -195,6 +197,7 @@ comment "I/O"
 	source hardware/radio/rfm12/rfm12_ask-config.in
 	source hardware/sht/config.in
 	source hardware/zacwire/config.in
+	source hardware/ultrasonic/config.in
 	source mcuf/config.in
 	source core/config-usarts.in
 endmenu
@@ -253,6 +256,7 @@ source services/tftp/config.in
 source services/upnp/config.in
 source services/watchcat/config.in
 source services/vnc/config.in
+source services/watchasync/config.in
 endmenu
 
 ###############################################################################
@@ -263,7 +267,7 @@ if [ "$ZBUS_SUPPORT" = "y"		\
   define_bool USART_SUPPORT y
 fi
 
-if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" ]; then
+if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" -o "$RFM12_DISABLE" = "y" ]; then
   define_bool RFM12_SUPPORT y
 else
   define_bool RFM12_SUPPORT n

@@ -35,3 +35,12 @@ dnl Enable display
 dnl (just don't set it, if you connect your ehaserl to USB,
 dnl otherwise the display'll just show black boxes)
 pin(LCDON, PD3, OUTPUT)
+
+RFM12_NO_INT
+pin(SPI_CS_RFM12, PD1, OUTPUT)
+pin(SOFT_SPI_MOSI, HD44780_D6)
+pin(SOFT_SPI_MISO, HD44780_D5)
+pin(SOFT_SPI_SCK, HD44780_D4)
+
+pin(RFM12_TX_PIN, LED_RED1)
+pin(RFM12_RX_PIN, LED_GREEN2)
