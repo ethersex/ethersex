@@ -38,7 +38,6 @@ Datum der letzten �nderung:
 */
 
 #include "menu-interpreter.h"
-#include <string.h>
 
 //make pc compatible
 #ifndef AVR_BUILD

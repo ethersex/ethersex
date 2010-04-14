@@ -1,4 +1,6 @@
-dep_bool_menu "Graphic menu (EXPERIMENTAL)" GLCD-MENU_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Graphic menu (EXPERIMENTAL)" GLCD_MENU_SUPPORT $CONFIG_EXPERIMENTAL
+	comment "Display Drivers"
+	dep_bool "S1D13305 Output" GLCDMENU_S1D13305 $S1D13305_SUPPORT $GLCD_MENU_SUPPORT
 	comment  "Debugging Flags"
-	dep_bool 'Graphic menu Debug' DEBUG_GLCD-MENU $DEBUG $GLCD-MENU_SUPPORT
+	dep_bool 'Graphic menu Debug' DEBUG_GLCD_MENU $DEBUG $GLCD_MENU_SUPPORT
 endmenu

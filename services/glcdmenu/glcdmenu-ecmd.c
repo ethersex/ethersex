@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2010 by Daniel Walter <fordprfkt@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,32 +24,42 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <util/delay.h>
 
 #include "config.h"
-#include "appsample.h"
+#include "glcdmenu.h"
 #include "protocols/ecmd/ecmd-base.h"
+#include "menu-interpreter.h"
 
-int16_t parse_cmd_app_sample_command(char *cmd, char *output, uint16_t len) 
+int16_t parse_cmd_glcdmenu_redraw(char *cmd, char *output, uint16_t len)
 {
-  return app_sample_onrequest(cmd, output, len);
+	glcdmenuRedraw();
+	return ECMD_FINAL_OK;
 }
 
-int16_t parse_cmd_app_sample_init(char *cmd, char *output, uint16_t len) 
+int16_t parse_cmd_glcdmenu_key(char *cmd, char *output, uint16_t len)
 {
-  return app_sample_init();
-}
+	uint16_t value_ui16 = 0;
 
-int16_t parse_cmd_app_sample_periodic(char *cmd, char *output, uint16_t len) 
-{
-  return app_sample_periodic();
+	if (cmd[0] != 0)
+	{
+		while(*cmd == 32) cmd ++;
+		value_ui16 = atoi(cmd);
+
+		if ((value_ui16 > 0) && (value_ui16))
+		{
+			menu_keypress((uint8_t)value_ui16);
+			return ECMD_FINAL_OK;
+		}
+		else
+			return ECMD_ERR_PARSE_ERROR;
+	}
+	else
+		return ECMD_ERR_PARSE_ERROR;
 }
 
 /*
 -- Ethersex META --
-block([[Application_Sample]])
-ecmd_feature(app_sample_command, "sample ",, Manually call application sample commands)
-ecmd_feature(app_sample_init, "sample_init",, Manually call application sample init method)
-ecmd_feature(app_sample_periodic, "sample_periodic",, Manually call application sample periodic method)
+block([[GLCD_Menu]])
+ecmd_feature(glcdmenu_redraw, "glcdmenu update",, Update the menu)
+ecmd_feature(glcdmenu_key, "glcdmenu key ",VALUE, Send a keypress to the menu)
 */

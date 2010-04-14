@@ -96,6 +96,7 @@ SUBDIRS += services/watchcat
 SUBDIRS += services/vnc
 SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
+SUBDIRS += services/glcdmenu
 
 rootbuild=t
 

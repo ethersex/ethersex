@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2010 by Daniel Walter <fordprfkt@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,25 +19,39 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_APPSAMPLE_H
-#define HAVE_APPSAMPLE_H
+#ifndef HAVE_GLCDMENU_H
+#define HAVE_GLCDMENU_H
 
 int16_t
-app_sample_onrequest(char *cmd, char *output, uint16_t len);
+glcdMenuInit_i16(void);
 
-int16_t
-app_sample_init(void);
+void
+glcdMenuUpdate(void);
 
-int16_t
-app_sample_periodic(void);
+void
+glcdmenuRedraw(void);
 
+void
+glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc);
+
+void
+glcdmenuSetChkBoxState(uint16_t idx_ui16, uint8_t state_ui8);
+
+void
+glcdmenuSetRadioBtnState(uint16_t idx_ui16, uint8_t state_ui8);
+
+void
+glcdmenuSetListIndex(uint16_t idx_ui16, uint16_t state_ui16);
+
+void
+glcdmenuSetGfxData(uint16_t idx_ui16, unsigned char* ptr_pc);
 
 #include "config.h"
-#ifdef DEBUG_APP_SAMPLE
+#ifdef DEBUG_GLCD_MENU
 # include "core/debug.h"
-# define APPSAMPLEDEBUG(a...)  debug_printf("app sample: " a)
+# define GLCDMENUDEBUG(a...)  debug_printf("glcdMenu: " a)
 #else
-# define APPSAMPLEDEBUG(a...)
+# define GLCDMENUDEBUG(a...)
 #endif
 
-#endif  /* HAVE_APPSAMPLE_H */
+#endif  /* HAVE_GLCDMENU_H */

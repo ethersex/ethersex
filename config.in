@@ -257,6 +257,7 @@ source services/upnp/config.in
 source services/watchcat/config.in
 source services/vnc/config.in
 source services/watchasync/config.in
+source services/glcdmenu/config.in
 endmenu
 
 ###############################################################################
