@@ -24,6 +24,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 		dep_bool "Inline LCD" LCD_INLINE_SUPPORT $VFS_INLINE_SUPPORT $LCD_SUPPORT 
 		dep_bool "Inline OpenStreetmap with NMEA Data" NMEA_INLINE_SUPPORT $VFS_INLINE_SUPPORT $NMEA_SUPPORT 
 		dep_bool "Inline PWM Servo" PWM_SERVO_INLINE_SUPPORT $VFS_INLINE_SUPPORT $PWM_SERVO_SUPPORT
+		dep_bool "Inline CW" CW_INLINE_SUPPORT $VFS_INLINE_SUPPORT $CW_SUPPORT
 
 		comment  "Debugging Flags"
 		dep_bool 'Keep dummy files' DEBUG_INLINE_DUMMY $VFS_INLINE_SUPPORT $DEBUG
