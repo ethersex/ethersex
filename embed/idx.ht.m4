@@ -16,6 +16,23 @@
  \___|\__|_| |_|\___|_|  |___/\___/_/\_\   |_|   \__,_|_|\___/___|
 </pre>
   <p>For details on what ethersex is, <a href="http://www.ethersex.de/">ethersex.de</a>.</p>
+ifdef(`conf_MOTD_INLINE', `<p><a href="mo.ht">MOTD</a>: <b id="motd" style="border:1px dashed white"></b></p>
+<script src="scr.js" type="text/javascript"></script>
+<script>
+function ecmd_send(cmd, handler, obj) {
+	var data = new Object();
+	data.cmd = cmd;
+	data.obj = obj;
+	ArrAjax.ecmd(cmd, handler, "GET", data);
+}
+function ecmd_get(request, data) {
+	var obj = $(data.obj);
+	obj.innerHTML = request.responseText;
+}
+
+ecmd_send("motd", ecmd_get, "motd");
+</script>
+')
   <hr>
 ifdef(`conf_VFS_IO_INLINE', `<p>To do some control tasks, see <a href="io.ht">here</a>.</p>')
 ifdef(`conf_ADC_INLINE', `<p>To see the adc channels see <a href="adc.ht">here</a>.</p>')

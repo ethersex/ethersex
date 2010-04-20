@@ -1,0 +1,4 @@
+dep_bool_menu "Message of the day (MOTD)" MOTD_SUPPORT $EEPROM_SUPPORT
+	string "Default MOTD" CONF_MOTD_DEFAULT "empty"
+	int "Max length" CONF_MOTD_SIZE 50
+endmenu

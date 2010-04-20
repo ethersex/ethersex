@@ -6,6 +6,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 		comment "-- You can enable various html pages for various features"
 		dep_bool "Inline configuration page" CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
 		dep_bool "Inline the .config" VFS_CONFIG_INLINE_SUPPORT $CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
+		dep_bool "Inline message of the day" MOTD_INLINE_SUPPORT $VFS_INLINE_SUPPORT $EEPROM_SUPPORT
 		dep_bool "Inline RFM12" RFM12_INLINE_SUPPORT $RFM12_ASK_SUPPORT $VFS_INLINE_SUPPORT
 		dep_bool "Inline I2C" I2C_INLINE_SUPPORT $I2C_MASTER_SUPPORT $VFS_INLINE_SUPPORT
 		dep_bool "Inline IO" VFS_IO_INLINE_SUPPORT $VFS_INLINE_SUPPORT

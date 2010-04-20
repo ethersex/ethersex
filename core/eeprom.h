@@ -42,7 +42,11 @@
 #endif
 
 #ifdef JABBER_EEPROM_SUPPORT
-#include "serives/jabber/jabber.h"
+#include "services/jabber/jabber.h"
+#endif
+
+#ifdef MOTD_SUPPORT
+#include "services/motd/motd.h"
 #endif
 
 struct eeprom_config_t {
@@ -94,6 +98,10 @@ struct eeprom_config_t {
 	char jabber_password[JABBER_VALUESIZE];
 	char jabber_resource[JABBER_VALUESIZE];
 	char jabber_hostname[JABBER_VALUESIZE];
+#endif
+
+#ifdef MOTD_SUPPORT
+	char motd_text[MOTD_VALUESIZE];
 #endif
 
     uint8_t crc;
