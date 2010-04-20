@@ -49,7 +49,7 @@ static uint16_t ntp_timer = 1;
 uint32_t startup_timestamp;
 #endif
 
-#ifdef CLOCK_DATETIME_SUPPORT
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT)
 static uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 #endif
 
@@ -251,6 +251,64 @@ clock_get_startup(void)
 }
 #endif
 
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT)
+uint32_t
+clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
+{
+  uint32_t timestamp;
+
+  /* seconds + minutes */
+  timestamp = d->sec + d->min * 60;
+
+  /* hours */
+  timestamp += d->hour * 3600UL;
+
+  /* days */
+  timestamp += (d->day-1) * 86400UL;
+
+  /* month */
+  while (1) {
+
+    d->month--;
+
+    if ( d->month < 1 )
+      break;
+
+    uint8_t monthdays = pgm_read_byte(&months[d->month-1]);
+
+    /* feb has one more day in a leap year */
+    if ( d->month == 2 && is_leap_year(d->year))
+      monthdays++;
+
+    timestamp = timestamp + (monthdays * 86400UL);
+
+  }
+
+  /* year: For every year from EPOCH_YEAR upto now, check for a leap year
+  *
+  * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
+  *
+  * */
+  uint16_t year = EPOCH_YEAR;
+
+  /* year, check if we have enough days left to fill a year */
+  while (year < d->year+2000) {
+    if (is_leap_year(year)) {
+      timestamp += 31622400UL;
+    } else {
+      timestamp += 31536000UL;
+    }
+    year++;
+  }
+  if (cest == 0)
+    timestamp -= 3600UL;
+  else
+    timestamp -= 7200UL;
+
+  return timestamp;
+}
+#endif
+
 #ifdef CLOCK_DATETIME_SUPPORT
 void
 clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
@@ -324,62 +382,6 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
     d->month++;
     d->day = (uint8_t)days+1;
 
-}
-
-uint32_t
-clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
-{
-  uint32_t timestamp;
-
-  /* seconds + minutes */
-  timestamp = d->sec + d->min * 60;
-
-  /* hours */
-  timestamp += d->hour * 3600UL;
-
-  /* days */
-  timestamp += (d->day-1) * 86400UL;
-
-  /* month */
-  while (1) {
-
-    d->month--;
-
-    if ( d->month < 1 )
-      break;
-
-    uint8_t monthdays = pgm_read_byte(&months[d->month-1]);
-
-    /* feb has one more day in a leap year */
-    if ( d->month == 2 && is_leap_year(d->year))
-      monthdays++;
-
-    timestamp = timestamp + (monthdays * 86400UL);
-
-  }
-
-  /* year: For every year from EPOCH_YEAR upto now, check for a leap year
-  *
-  * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
-  *
-  * */
-  uint16_t year = EPOCH_YEAR;
-
-  /* year, check if we have enough days left to fill a year */
-  while (year < d->year+2000) {
-    if (is_leap_year(year)) {
-      timestamp += 31622400UL;
-    } else {
-      timestamp += 31536000UL;
-    }
-    year++;
-  }
-  if (cest == 0)
-    timestamp -= 3600UL;
-  else
-    timestamp -= 7200UL;
-
-  return timestamp;
 }
 
 #if TIMEZONE == TIMEZONE_CEST
