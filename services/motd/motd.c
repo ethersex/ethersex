@@ -46,5 +46,5 @@ int16_t parse_cmd_motd (char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Miscelleanous)
-  ecmd_feature(motd, "motd",msg,Set 'msg' as new message of the day, otherwise show current message)
+  ecmd_feature(motd, "motd",[MESSAGE],Save MESSAGE as new message of the day, otherwise just show current message)
 */

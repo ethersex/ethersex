@@ -53,6 +53,6 @@ int16_t parse_cmd_srf05_command(char *cmd, char *output, uint16_t len)
   block([[Ultrasonic]])
   header(hardware/ultrasonic/ultrasonic.h)
   ecmd_ifdef(SRF05_SUPPORT)
-    ecmd_feature(srf05_command, "srf05",, Get SRF05 Data)
+    ecmd_feature(srf05_command, "srf05",, Read SRF05 measurement)
   ecmd_endif()
 */
