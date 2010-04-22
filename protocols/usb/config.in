@@ -10,18 +10,48 @@ dep_bool_menu "USB (Softwarestack) Support" USB_SUPPORT $ARCH_AVR
     	choice 'USB Device Type' \
         	"other                     USB_MISC \
 	        USBnet                     USB_NET \
-    	    HIDkeyboard                USB_KEYBOARD" \
+    	    HIDkeyboard                USB_KEYBOARD \
+    	    HIDmouse                   USB_MOUSE" \
         	'USBnet' USB_DEVICE_CHOICE $USB_SUPPORT
 	fi
 
 	if [ "$USB_DEVICE_CHOICE" = "USB_KEYBOARD" ]; then
 		define_bool USB_KEYBOARD_SUPPORT y;
+
+    	choice 'Keyboard text' \
+        	"sequence                  USB_HID_KEYBOARD_SEQUENCE \
+	        static                     USB_HID_KEYBOARD_STATIC \
+    	    ECMD                       USB_HID_KEYBOARD_ECMD" \
+        	'sequence' USB_HID_KEYBOARD_CHOICE $USB_KEYBOARD_SUPPORT
 	else
 		define_bool USB_KEYBOARD_SUPPORT n;
+	fi
+    if [ "$USB_HID_KEYBOARD_CHOICE" = "USB_HID_KEYBOARD_SEQUENCE" ]; then
+      define_bool USB_HID_KEYBOARD_SEQUENCE_SUPPORT y;
+    else
+      define_bool USB_HID_KEYBOARD_SEQUENCE_SUPPORT n;
+    fi
+	if [ "$USB_HID_KEYBOARD_CHOICE" = "USB_HID_KEYBOARD_STATIC" ]; then
+      define_bool USB_HID_KEYBOARD_STATIC_SUPPORT y;
+	  string "Write text" USB_HID_KEYBOARD_TEXT "I am your ethersex"
+    else
+      define_bool USB_HID_KEYBOARD_STATIC_SUPPORT n;
+    fi
+	if [ "$USB_HID_KEYBOARD_CHOICE" = "USB_HID_KEYBOARD_ECMD" ]; then
+      define_bool USB_HID_KEYBOARD_ECMD_SUPPORT y;
+    else
+      define_bool USB_HID_KEYBOARD_ECMD_SUPPORT n;
+    fi
+
+	if [ "$USB_DEVICE_CHOICE" = "USB_MOUSE" ]; then
+		define_bool USB_MOUSE_SUPPORT y;
+	else
+		define_bool USB_MOUSE_SUPPORT n;
 	fi
 
 	source protocols/usb/usb-net-config.in
 
 	comment  "Debugging Flags"
 	dep_bool 'Keyboard Debug' DEBUG_USB_HID_KEYBOARD $DEBUG $USB_KEYBOARD_SUPPORT
+	dep_bool 'Mouse Debug' DEBUG_USB_HID_MOUSE $DEBUG $USB_MOUSE_SUPPORT
 endmenu

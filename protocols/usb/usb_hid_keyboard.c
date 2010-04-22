@@ -33,10 +33,10 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef USB_KEYBOARD_SUPPORT
+#include "usb_hid_keyboard_keymap_default.h"
 
 #define MAX_SEND_LEN 64
 
-//uchar key, 
 uchar lastKey = 0, keyDidChange = 0;
 
 uchar reportBuffer[2];    /* buffer for HID reports */
@@ -45,31 +45,9 @@ uchar key;
 
 char *send_buf;
 uint8_t send_pos=0;
-uint8_t start_send=0;
-
-uchar keyPressed(void)
-{
-	key++;
-	if (key > NUM_KEYS) key=0;
-	/*	future use
-	if (start_send) {
-		key=send_buf[send_pos];
-		USBKEYBOARDDEBUG("buffer pos %i, char: %c\n",send_pos, key);
-		if (key == 0 || (send_pos > MAX_SEND_LEN) ) {
-			// end erreicht
-			send_pos = 0;
-			start_send=0;  
-		} else {  
-			send_pos++;
-		} 
-	} else {
-		return 0;
-	}
-	*/
-	return key;
-}
-
-
+#ifdef USB_HID_KEYBOARD_STATIC_SUPPORT
+PROGMEM char usb_text[]= USB_HID_KEYBOARD_TEXT;
+#endif
 
 PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
@@ -92,47 +70,57 @@ PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
     0xc0                           // END_COLLECTION
 };
 
+uchar keyPressed(void)
+{
+#ifdef USB_HID_KEYBOARD_SEQUENCE_SUPPORT
+    if (key >= 'z')
+      key = 'a';
+    else
+      key++;
+    keyDidChange = 1;
+#endif
+#ifdef USB_HID_KEYBOARD_STATIC_SUPPORT
+    key = pgm_read_byte(&usb_text[send_pos]);
+	USBKEYBOARDDEBUG("buffer pos %i, char: %c, key: %c\n",send_pos, usb_text[send_pos], key);
+    keyDidChange = 1;
+    send_pos++;
+    if (send_pos >= sizeof(usb_text) -1 ) send_pos=0;
+#endif
+#ifdef USB_HID_KEYBOARD_ECMD_SUPPORT
+    if (send_buf != 0) { // if buffer is set do... 
+    // get key from buffer and set key
+      key = send_buf[send_pos++];
+      if (key == 0x0 || send_pos >= MAX_SEND_LEN) {  // buffer finished, clear!
+        send_buf=0;
+        return lastKey;
+      }
+      keyDidChange = 1;
+    }
+#endif
+	return key;
+}
 
-
-static const char  keyReport[NUM_KEYS + 1][2] PROGMEM = {
-/* none */  {0, 0},                     /* no key pressed */
-/*  1 */    {MOD_NONE, KEY_A},
-/*  2 */    {MOD_NONE, KEY_B},
-/*  3 */    {MOD_NONE, KEY_C},
-/*  4 */    {MOD_NONE, KEY_D},
-/*  5 */    {MOD_NONE, KEY_E},
-/*  6 */    {MOD_NONE, KEY_F},
-/*  7 */    {MOD_NONE, KEY_G},
-/*  8 */    {MOD_NONE, KEY_H},
-/*  9 */    {MOD_NONE, KEY_I},
-/* 10 */    {MOD_NONE, KEY_J},
-/* 11 */    {MOD_NONE, KEY_K},
-/* 12 */    {MOD_NONE, KEY_L},
-/* 13 */    {MOD_NONE, KEY_M},
-/* 14 */    {MOD_NONE, KEY_N},
-/* 15 */    {MOD_NONE, KEY_O},
-/* 16 */    {MOD_NONE, KEY_P},
-/* 17 */    {MOD_NONE, KEY_Q},
-/* 18 */    {MOD_NONE, KEY_R},
-/* 19 */    {MOD_NONE, KEY_S},
-/* 20 */    {MOD_NONE, KEY_T},
-/* 21 */    {MOD_NONE, KEY_U},
-/* 22 */    {MOD_NONE, KEY_V},
-/* 23 */    {MOD_NONE, KEY_W},
-/* 24 */    {MOD_NONE, KEY_X},
-/* 25 */    {MOD_NONE, KEY_Y},
-/* 26 */    {MOD_NONE, KEY_Z},
-};
-
-
+#define HID_KEYMAP_SIZE (sizeof(keyReport) / sizeof(struct hid_keyboard_map_t))
 void buildReport(uchar key)
 {
 /* This (not so elegant) cast saves us 10 bytes of program memory */
-    *(int *)reportBuffer = pgm_read_word(keyReport[key]);
-}
+//    *(int *)reportBuffer = pgm_read_word(keyReport[key]);
+// modifier with ascii key table
 
-//uchar reportBuffer[2];    /* buffer for HID reports */
-//uchar idleRate=1;           /* in 4 ms units */
+    char i;
+    struct hid_keyboard_map_t keymapentry; 
+
+    for (i=0;i < HID_KEYMAP_SIZE;i++) {
+      memcpy_P(&keymapentry, &keyReport[i], sizeof(struct hid_keyboard_map_t));
+      if (key == keymapentry.character) {
+	    memcpy(reportBuffer, keymapentry.reportBuffer, sizeof(reportBuffer));
+	    return;
+      }
+    }
+    // char not found
+    reportBuffer[0] = MOD_NONE;
+    reportBuffer[1] = 0x0;
+}
 
 void
 usb_keyboard_periodic(void) {
@@ -163,12 +151,18 @@ usb_keyboard_periodic_call (void)
 }
 
 
+void
+usb_keyboard_init(void) {
+#ifdef USB_HID_KEYBOARD_SEQUENCE_SUPPORT
+  key='a';
+#endif
+}
+
+#ifdef USB_HID_KEYBOARD_ECMD_SUPPORT
 uint8_t
 send_string (char *str) {
 
   if (send_buf) return 0;
-
-  start_send=1;
 
   uint8_t len = strlen(str);
   if (len > MAX_SEND_LEN) {
@@ -181,6 +175,7 @@ send_string (char *str) {
   memcpy(send_buf, str, len);
   send_buf[len] = 0;
   send_buf[MAX_SEND_LEN] = 0;
+  send_pos=0;
 
   return 1;
 }
@@ -190,7 +185,7 @@ int16_t parse_cmd_keyboard_send (char *cmd, char *output, uint16_t len)
 	send_string(cmd);
 	return ECMD_FINAL_OK;
 }
-
+#endif /* USB_HID_KEYBOARD_ECMD_SUPPORT */
 
 uint16_t
 hid_usbFunctionSetup(uchar data[8]) 
@@ -218,8 +213,11 @@ hid_usbFunctionSetup(uchar data[8])
 /*
   -- Ethersex META --
   header(protocols/usb/usb_hid_keyboard.h)
-  timer(100,usb_keyboard_periodic_call())
-  ecmd_feature(keyboard_send, "keyboard ",MESSAGE,Send MESSAGE as HID keyboard)
+  init(usb_keyboard_init)
+  timer(8,usb_keyboard_periodic_call())
+  ecmd_ifdef(USB_HID_KEYBOARD_ECMD_SUPPORT)
+    ecmd_feature(keyboard_send, "keyboard ",MESSAGE,Send MESSAGE as HID keyboard)
+  ecmd_endif()
 */
 
 #endif
