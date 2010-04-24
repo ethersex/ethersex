@@ -136,8 +136,9 @@ hid_usbFunctionSetup(uchar data[8])
   -- Ethersex META --
   header(protocols/usb/usb_hid_mouse.h)
   timer(5,usb_mouse_periodic_call())
+  block([[USB]])
   ecmd_ifdef(USB_MOUSE_SUPPORT)
-    ecmd_feature(mouse_send, "mouse",[BUTTON] [DELTAX] [DELTAY],Send data as HID mouse)
+    ecmd_feature(mouse_send, "mouse",BUTTON DELTAX DELTAY,Send data as HID mouse)
   ecmd_endif()
 */
 
