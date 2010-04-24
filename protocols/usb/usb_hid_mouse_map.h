@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2010 by Stefan Riepenhausen <rhn@gmx.net>
+ *
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,35 +20,49 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _USB_HID_MOUSE_H
-#define _USB_HID_MOUSE_H
+// mouse position and button file
 
-#ifndef uchar
-#define uchar   unsigned char
-#endif
-#ifndef schar
-#define schar   signed char
-#endif
+struct hid_mouse_map_t mousepos[] PROGMEM = {
+{0,0,0},
+{0,2,4},
+{0,5,-9},
+{0,-15,-7},
+{0,-8,22},
+{0,28,10},
+{0,11,-35},
+{0,-41,-13},
+{0,-14,48},
+{0,30,21},
+{0,0,-39},
+{0,9,2},
+{0,0,-15},
+{0,-22,2},
+{0,4,30},
+{0,37,-6},
+{0,-8,-44},
+{0,-52,10},
+{0,8,51},
+{0,24,9},
+{0,2,-37},
+{0,8,-5},
+{0,-10,-13},
+{0,-18,16},
+{0,21,23},
+{0,28,-27},
+{0,-33,-33},
+{0,-38,38},
+{0,26,36},
+{0,14,-39},
+{0,2,4},
+{0,5,-9},
+{0,-15,-7},
+{0,-8,22},
+{0,28,10},
+{0,11,-35},
+{0,-41,-13},
+{0,-14,48},
+{0,30,21},
+{0,2,-41},
 
-void usb_mouse_periodic(void);
-/* Initialize USB mouse. */
-void usb_mouse_periodic_call(void);
-
-uint16_t hid_usbFunctionSetup(uchar data[8]);
-
-
-struct hid_mouse_map_t {
-  uchar button;
-  char deltax;
-  char deltay;
 };
 
-#include "config.h"
-#ifdef DEBUG_USB_HID_MOUSE
-# include "core/debug.h"
-# define USBMOUSEDEBUG(a...)  debug_printf("usb mouse: " a)
-#else
-# define USBMOUSEDEBUG(a...)
-#endif
-
-#endif /* __USB_HID_MOUSE_H */

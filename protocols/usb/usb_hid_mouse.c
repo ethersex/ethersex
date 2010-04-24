@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <util/delay.h>
 #include <avr/wdt.h>
@@ -83,14 +84,32 @@ usb_mouse_periodic(void) {
 	}
 }
 
+#ifdef USB_MOUSE_SEQUENCE_SUPPORT
+#include "usb_hid_mouse_map.h"
+  uint8_t mouseposcounter=0;
+#endif
+
 void
 usb_mouse_periodic_call (void)
 {
 //	USBMOUSEDEBUG("pre mouse send\n");
 #ifdef  USB_MOUSE_SEQUENCE_SUPPORT
-	reportBuffer[0]=0; // button
-	reportBuffer[1]=1; // delta x
-	reportBuffer[2]=-1; // delta y
+//	reportBuffer[0]=0; // button
+//	reportBuffer[1]=1; // delta x
+//	reportBuffer[2]=-1; // delta y
+    if (flags & FLG_CMD_RECEIVED) {
+       return;
+    }
+    struct hid_mouse_map_t mousemap; 
+    memcpy_P(&mousemap, &mousepos[mouseposcounter], sizeof(struct hid_mouse_map_t));
+	USBMOUSEDEBUG("sequence: pos %u, button=%u, dx=%i, dy=%i\n",mouseposcounter, mousemap.button,mousemap.deltax,mousemap.deltay);
+	reportBuffer[0]=mousemap.button;
+	reportBuffer[1]=mousemap.deltax;
+	reportBuffer[2]=mousemap.deltay;
+    mouseposcounter++;
+    if (mouseposcounter >= (sizeof(mousepos) / sizeof(struct hid_mouse_map_t))) {
+      mouseposcounter=0;
+    }
 	flags = FLG_CMD_RECEIVED;
 #endif
 }
@@ -122,7 +141,6 @@ hid_usbFunctionSetup(uchar data[8])
     if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
         if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
             /* we only have one report type, so don't look at wValue */
-            //makeReport();
             return sizeof(reportBuffer);
         }
     }else{
@@ -135,7 +153,7 @@ hid_usbFunctionSetup(uchar data[8])
 /*
   -- Ethersex META --
   header(protocols/usb/usb_hid_mouse.h)
-  timer(5,usb_mouse_periodic_call())
+  timer(10,usb_mouse_periodic_call())
   block([[USB]])
   ecmd_ifdef(USB_MOUSE_SUPPORT)
     ecmd_feature(mouse_send, "mouse",BUTTON DELTAX DELTAY,Send data as HID mouse)
