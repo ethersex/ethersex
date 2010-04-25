@@ -657,7 +657,7 @@ CLOCK_SUPPORT
   Enable system clock.
   
   A detailed step-by-step guide is available at
-  http://ethersex.de/tiki-index.php?page=Ethersex%3AStepByStep%3AAmPulsDerZeit
+  http://ethersex.de/index.php/Am_Puls_der_Zeit
 
 Use 32 kHz crystal to tick the clock
 CLOCK_CRYSTAL_SUPPORT
@@ -783,7 +783,8 @@ DYNDNS_SUPPORT
   Depends on: 
    * Networking support (UIP_SUPPORT)
 
-  Simple UDP echo, i.e. simply sends back what it received on UDP port 7.
+  Simple UDP echo, i.e. simply sends back what it received on 
+  UDP port 7.
 
 Watch IO changes (and react)
 WATCHCAT_SUPPORT
@@ -2045,4 +2046,37 @@ SRF05_FAKTOR
 
   Metric: 58 -> centimenter
   Imperial: 148 -> inches
+
+VNC Server Support
+VNC_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+
+  Ethersex is running a server application for virtual network
+  computing. see http://ethersex.de/index.php/VNC for more details.
+
+uPnP (EXPERIMENTAL)
+UPNP_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Universal Plug and Play. see http://ethersex.de/index.php/UPnP
+
+Motor Curtain
+MOTORCURTAIN_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+
+  Control a motor curtain or simillar devices. see 
+  http://ethersex.de/index.php/MotorCurtain
+
+Message of the day (MOTD)
+MOTD_SUPPORT
+  Depends on: 
+   *  (EEPROM_SUPPORT)
+
+  Enables to save and change a "Message of the Day" in EEPROM.
+  If enabled, you can see the MOTD on the vfs start page, otherwise
+  just enter "motd" to read the latest message.
 
