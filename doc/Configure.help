@@ -496,7 +496,8 @@ CONTROL6_SUPPORT
   than implementing these in C code.
 
   See control6/control6.src to get an impression of the language,
-  e.g. example code.  There are more examples in the Ethersex wiki.
+  e.g. example code.  There are more examples in the Ethersex wiki
+  at http://ethersex.de/index.php/Control6
 
 TCP support
 TCP_SUPPORT
@@ -629,7 +630,8 @@ USB_SUPPORT
   Depends on: 
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Support for USB functions
+  Support for USB functions. see http://ethersex.de/index.php/USB
+  for details
 
 USBnet
 USB_NET_SUPPORT
@@ -1055,6 +1057,8 @@ VFS_SD_SUPPORT
 
   Link the SD reader to VFS.
 
+  more details at http://ethersex.de/index.php/SD-Karte
+
 Disable IP-Configuration
 DISABLE_IPCONF_SUPPORT
   Depends on: 
@@ -1408,7 +1412,9 @@ VFS_DC3840_SUPPORT
   Depends on: 
    * DC3840 Serial camera (DC3840_SUPPORT)
 
- Select this to enable the vfs camera features.
+  Select this to enable the vfs camera features.
+
+  more details at http://ethersex.de/index.php/Dc3840_camera
 
 Stella polling (unicast response)
 STELLA_RESPONSE
@@ -1745,25 +1751,27 @@ CRON_STATIC_SUPPORT
   Depends on:
    * System clock support (CLOCK_SUPPORT)
 
-  Enable cron-alike service. The difference to the normal cron daemon is, that you 
-  cannot change the cronjobs after compilation. Jobs are stored in the flash memory. 
-  To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static 
-  at the same time.
+  Enable cron-alike service. The difference to the normal cron daemon 
+  is, that you cannot change the cronjobs after compilation. Jobs are 
+  stored in the flash memory. 
+  To add jobs, see cron_static/cron_static.c. You can use the normal 
+  cron and cron_static at the same time.
 
 
 Higher frequency
 STELLA_HIGHFREQ
   Depends on: 
 
-  Use a smaller prescaler for the stella timer. This actual double the pwm frequency but
-  at the same time increase processing load.
+  Use a smaller prescaler for the stella timer. This actual double 
+  the pwm frequency but at the same time increase processing load.
 
 Moodlight
 STELLA_MOODLIGHT
   Depends on: 
 
-  Activate the moodlight fader. Does nothing if you neither set the start task to moodlight
-  nor use the stella protocol with the STELLA_MOODLIGHT_MASK command.
+  Activate the moodlight fader. Does nothing if you neither set the 
+  start task to moodlight nor use the stella protocol with the 
+  STELLA_MOODLIGHT_MASK command.
 
 Stella Broadcast Response UDP Port
 STELLA_BROADCAST_UDP_PORT
@@ -1774,7 +1782,8 @@ STELLA_BROADCAST_UDP_PORT
 Use GIT commit hash as Version
 USE_GIT_VERSION
 
- Produces a short version string which can be used to locate the used source.
+ Produces a short version string which can be used to locate the 
+ used source.
 
 
 netStat client (EXPERIMENTAL)
@@ -1784,8 +1793,9 @@ NETSTAT_SUPPORT
    * Cron Static support (CRON_STATIC_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Internet Statistik for Ethersex. This function adds your ethersex to the
-  survey. Examples and Links at http://www.ethersex.de/index.php/Netstat
+  Internet Statistik for Ethersex. This function adds your ethersex to
+  the survey. 
+  Examples and Links at http://www.ethersex.de/index.php/Netstat
 
   Length of variable buffer
 ECMD_SCRIPT_VARIABLE_LENGTH
@@ -2079,4 +2089,134 @@ MOTD_SUPPORT
   Enables to save and change a "Message of the Day" in EEPROM.
   If enabled, you can see the MOTD on the vfs start page, otherwise
   just enter "motd" to read the latest message.
+
+Curtain: UDP Protocol
+MOTORCURTAIN_PROTOCOL_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+   * Motor Curtain (MOTORCURTAIN_SUPPORT)
+
+  Please add your new help-text here.
+
+Morse Code
+CW_SUPPORT
+ 
+  Command: "cw send MESSAGE"
+
+  Convert a string to morse code, which means that a pin
+  is just toggling to "on" and "off" regarding the morse 
+  code standard. Also called "continous wave" (CW)
+
+DMX Support
+DMX_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  please see http://ethersex.de/index.php/DMX
+
+MySQL client (EXPERIMENTAL)
+MYSQL_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * SHA1 (SHA1_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Basic MySQL support to connect to a MySQL server and send simple
+  statements.
+
+  Please note ECMD is limited to 50 chars.
+
+
+Ultrasonic (EXPERIMENTAL)
+ULTRASONIC_SUPPORT
+  Depends on: 
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Support for ultrasonic distance sensors such as the SRF05.
+
+SRF05
+SRF05_SUPPORT
+  Depends on: 
+   *  (UTRASONIC_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  A simple time based ultrasonic sensor. Ethersex measures the
+  ping time and calculates the distance in centimeter.
+
+
+Inline configuration page
+CONFIG_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  Inline page to display and change the basic (network) configuration
+
+Inline message of the day
+MOTD_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   *  (EEPROM_SUPPORT)
+
+ Display the Message of the day on the VFS start page and adds 
+ a VFS page to change the MOTD via HTTP
+
+Inline RFM12
+RFM12_INLINE_SUPPORT
+  Depends on: 
+   * RFM12 ASK (EXPERIMENTAL) (RFM12_ASK_SUPPORT)
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  This page is only needed and helpful for RFM12 ASK support.
+  Please see http://ethersex.de/index.php/RFM12_ASK for details.
+
+Inline I2C
+I2C_INLINE_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  Example page for I2C (TWI) chips, such as temperature sensor or
+  port extention.
+
+Inline IO
+VFS_IO_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  Powerful page to display and modify the current I/O status and 
+  data direction register.
+
+Inline OneWire
+ONEWIRE_INLINE_SUPPORT
+  Depends on: 
+   * Onewire support (ONEWIRE_SUPPORT)
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Powerful page for onewire support, with AJAX and SVG technology.
+
+Inline Camera
+CAMERA_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * DC3840 Camera (VFS_DC3840_SUPPORT)
+
+  Example page to display the current camera image.
+
+Inline Named Pin
+NAMED_PIN_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Named and logic state I/O (NAMED_PIN_SUPPORT)
+
+  Displays and modify the current status of named pins.
+
+Inline CW
+CW_INLINE_SUPPORT
+  Depends on: 
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Morse Code (EXPERIMENTAL) (CW_SUPPORT)
+
+  Simple page to enter strings which will be converted to morse.
+  Output is the desired CW pin.
 
