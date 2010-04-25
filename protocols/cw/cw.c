@@ -168,6 +168,6 @@ int16_t parse_cmd_cw_send(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[Morce_Code]])
   header(protocols/cw/cw.h)
-  ecmd_feature(cw_send, "cw send ",, Send Morce Code)
+  ecmd_feature(cw_send, "cw send ",MESSAGE, Send MESSAGE in Morce Code)
   ifdef(`CW_BEACON_SUPPORT',`timer(50*10,cw_periodic())')
 */

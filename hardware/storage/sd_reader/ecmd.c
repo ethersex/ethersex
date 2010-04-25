@@ -65,7 +65,7 @@ parse_cmd_sd_mkdir (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block([[SD/MMC-Card-Reader]])
+  block([[SD-Karte]])
   ecmd_feature(sd_dir, "sd dir",, List contents of current SD directory.)
   ecmd_feature(sd_mkdir, "sd mkdir",PATH, Create directory hierarchy PATH.)
 */

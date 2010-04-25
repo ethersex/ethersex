@@ -179,7 +179,7 @@ parse_cmd_rfm12_ask_sense (char *cmd, char *output, uint16_t len)
 
 /*
 -- Ethersex META --
-  block(RFM ASK)
+  block([[RFM12_ASK]])
   ecmd_ifdef(RFM12_ASK_INTERTECHNO_SUPPORT)
     ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
   ecmd_endif()

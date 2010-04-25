@@ -74,9 +74,13 @@ section at the end of this file).
 
 /* --------------------------- Functional Range ---------------------------- */
 
-#ifdef USB_KEYBOARD_SUPPORT
+#ifdef USB_KEYBOARD_SUPPORT 
 #define USB_CFG_HAVE_INTRIN_ENDPOINT    1
-#else
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_HAVE_INTRIN_ENDPOINT    1
+#endif
+#ifndef USB_CFG_HAVE_INTRIN_ENDPOINT
 #define USB_CFG_HAVE_INTRIN_ENDPOINT    0
 #endif
 /* Define this to 1 if you want to compile a version with two endpoints: The
@@ -107,7 +111,11 @@ section at the end of this file).
  */
 #ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_INTR_POLL_INTERVAL      10
-#else
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_INTR_POLL_INTERVAL      20
+#endif
+#ifndef USB_CFG_INTR_POLL_INTERVAL
 #define USB_CFG_INTR_POLL_INTERVAL      100
 #endif
 /* If you compile a version with endpoint 1 (interrupt-in), this is the poll
@@ -129,7 +137,11 @@ section at the end of this file).
  */
 #ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_IMPLEMENT_FN_WRITE      0
-#else
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_IMPLEMENT_FN_WRITE      0
+#endif
+#ifndef USB_CFG_IMPLEMENT_FN_WRITE
 #define USB_CFG_IMPLEMENT_FN_WRITE      1
 #endif
 /* Set this to 1 if you want usbFunctionWrite() to be called for control-out
@@ -138,7 +150,11 @@ section at the end of this file).
  */
 #ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_IMPLEMENT_FN_READ       0
-#else
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_IMPLEMENT_FN_READ       0
+#endif
+#ifndef USB_CFG_IMPLEMENT_FN_READ
 #define USB_CFG_IMPLEMENT_FN_READ       1
 #endif
 /* Set this to 1 if you need to send control replies which are generated
@@ -237,7 +253,11 @@ section at the end of this file).
  */
 #ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_DEVICE_CLASS        0
-#else 
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_DEVICE_CLASS        0
+#endif
+#ifndef USB_CFG_DEVICE_CLASS
 #define USB_CFG_DEVICE_CLASS        0xff
 #endif
 
@@ -248,11 +268,25 @@ section at the end of this file).
 
 #ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_INTERFACE_CLASS     0x03
-#else
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_INTERFACE_CLASS     0x03
+#endif
+#ifndef USB_CFG_INTERFACE_CLASS
 #define USB_CFG_INTERFACE_CLASS     0
 #endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_INTERFACE_SUBCLASS  1
+#endif
+#ifndef USB_CFG_INTERFACE_SUBCLASS
 #define USB_CFG_INTERFACE_SUBCLASS  0
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_INTERFACE_PROTOCOL  2
+#endif
+#ifndef USB_CFG_INTERFACE_PROTOCOL
 #define USB_CFG_INTERFACE_PROTOCOL  0
+#endif
 /* See USB specification if you want to conform to an existing device class or
  * protocol. The following classes must be set at interface level:
  * HID class is 3, no subclass and protocol required (but may be useful!)
@@ -260,7 +294,11 @@ section at the end of this file).
  */
 #ifdef USB_KEYBOARD_SUPPORT
 #define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH   35
-#else
+#endif
+#ifdef USB_MOUSE_SUPPORT
+#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH   50
+#endif
+#ifndef USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH
 #define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH   0
 #endif
 /* Define this to the length of the HID report descriptor, if you implement

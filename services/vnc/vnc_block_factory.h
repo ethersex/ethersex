@@ -23,9 +23,13 @@
 #define _VNC_BLOCK_FACTORY
 
 #include <inttypes.h>
+#include "core/gui/gui.h"
 
-#define VNC_BLOCK_HEIGHT 16 
-#define VNC_BLOCK_WIDTH  16
+/* We use struct gui_blocks here, please see core/gui/gui.h for details
+ */
+
+#define VNC_BLOCK_WIDTH GUI_BLOCK_WIDTH
+#define VNC_BLOCK_HEIGHT GUI_BLOCK_HEIGHT
 
 #define VNC_BLOCK_ROWS   32
 
@@ -37,24 +41,16 @@
 #define VNC_SCREEN_WIDTH (VNC_BLOCK_WIDTH * VNC_BLOCK_COLS)
 #define VNC_SCREEN_HEIGHT (VNC_BLOCK_HEIGHT * VNC_BLOCK_ROWS)
 
-struct vnc_block {
-  uint16_t x;
-  uint16_t y;
-  uint16_t w;
-  uint16_t h;
-  uint32_t encoding;
-  uint8_t data[VNC_BLOCK_LENGTH];
-};
 
 struct vnc_update_header {
   uint8_t type; /* message type, update == 0 */
   uint8_t padding; /* No Idea what this means */
   uint16_t block_count;
-  struct vnc_block blocks[];
+  struct gui_block blocks[];
 };
 
 
 /* x and y are block addresses */
-void vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y); 
+void vnc_make_block(struct gui_block *dest, uint8_t block_x, uint8_t block_y); 
 
 #endif /* _VNC_BLOCK_FACTORY */

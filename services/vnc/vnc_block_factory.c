@@ -27,6 +27,7 @@
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
 #include "vnc.h"
+#include "core/gui/gui.h"
 #include "vnc_state.h"
 #include "vnc_block_factory.h"
 
@@ -34,7 +35,7 @@
 
 
 void
-vnc_make_block(struct vnc_block *dest, uint8_t block_x, uint8_t block_y)
+vnc_make_block(struct gui_block *dest, uint8_t block_x, uint8_t block_y)
 {
     /* This is only for the helper functions */
     dest->x = block_x;

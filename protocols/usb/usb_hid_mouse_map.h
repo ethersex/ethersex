@@ -1,10 +1,10 @@
 /*
  *
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,30 +20,49 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _VNC_STATE_H
-#define _VNC_STATE_H
+// mouse position and button file
 
-#include "config.h"
-#include "vnc_block_factory.h"
+struct hid_mouse_map_t mousepos[] PROGMEM = {
+{0,0,0},
+{0,2,4},
+{0,5,-9},
+{0,-15,-7},
+{0,-8,22},
+{0,28,10},
+{0,11,-35},
+{0,-41,-13},
+{0,-14,48},
+{0,30,21},
+{0,0,-39},
+{0,9,2},
+{0,0,-15},
+{0,-22,2},
+{0,4,30},
+{0,37,-6},
+{0,-8,-44},
+{0,-52,10},
+{0,8,51},
+{0,24,9},
+{0,2,-37},
+{0,8,-5},
+{0,-10,-13},
+{0,-18,16},
+{0,21,23},
+{0,28,-27},
+{0,-33,-33},
+{0,-38,38},
+{0,26,36},
+{0,14,-39},
+{0,2,4},
+{0,5,-9},
+{0,-15,-7},
+{0,-8,22},
+{0,28,10},
+{0,11,-35},
+{0,-41,-13},
+{0,-14,48},
+{0,30,21},
+{0,2,-41},
 
-typedef enum {
-    VNC_STATE_CONNECTED = 0,
-    VNC_STATE_SEND_VERSION,
-    VNC_STATE_SEND_AUTH,
-    VNC_STATE_SEND_CONFIG,
-    VNC_STATE_IDLE,
-    VNC_STATE_UPDATE,
-} vnc_state_t;
-
-#define VNC_UPDATES_SENT_LENGTH (UIP_CONF_BUFFER_SIZE/sizeof(struct gui_block))
-
-struct vnc_connection_state_t {
-  uint8_t state;
-  uint8_t update_map[VNC_BLOCK_ROWS][VNC_BLOCK_COL_BYTES];
-  /* The first dimension of this array is NOT excact */
-  uint8_t updates_sent[VNC_UPDATES_SENT_LENGTH][2]; 
 };
 
-
-
-#endif /* _HTTPD_STATE_H */

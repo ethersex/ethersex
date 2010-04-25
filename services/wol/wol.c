@@ -53,15 +53,13 @@ int16_t parse_cmd_wol (char *cmd, char *output, uint16_t len)
     conn.rport = HTONS(9);
     uip_udp_conn = &conn;
 
-    ((uint8_t *)uip_sappdata)[0] == 0xff;
-
     uip_slen = 6 + 6 * 16;
     uip_process(UIP_UDP_SEND_CONN);
     router_output();
     uip_slen = 0;
 
-    i = sprintf_P(output, PSTR("send wol packet to "));
-    i += print_mac(&mac, &output[i], len);
+    i = snprintf_P(output, len, PSTR("send wol packet to "));
+    i += print_mac(&mac, &output[i], len - i);
     return i;
 }
 

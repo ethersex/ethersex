@@ -1882,7 +1882,9 @@ ip_check_end:
 
 #endif /* UIP_TCP */   //FIXME
 
+#if UIP_UDP
  ip_send_nolen:
+#endif /* UIP_UDP */
 
 #if UIP_CONF_IPV6
   BUF->vtc = 0x60;

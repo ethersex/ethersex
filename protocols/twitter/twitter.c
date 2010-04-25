@@ -71,7 +71,7 @@ twitter_net_main(void)
         p += sprintf_P(p, twitter_header);
         p += sprintf(p, "%d", strlen(twitter_tmp_buf) + 7);
         p += sprintf_P(p, twitter_body);
-        p += sprintf(p, twitter_tmp_buf);
+        p += sprintf(p, "%s", twitter_tmp_buf);
         uip_udp_send(p - (char *)uip_appdata);
         TWDEBUG("send %d bytes\n", p - (char *)uip_appdata);
     }
