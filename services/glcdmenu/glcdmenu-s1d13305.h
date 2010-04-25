@@ -19,48 +19,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_GLCDMENU_H
-#define HAVE_GLCDMENU_H
-
-int16_t
-glcdMenuInit_i16(void);
+#ifndef HAVE_GLCDMENU_S1D13305_H
+#define HAVE_GLCDMENU_S1D13305_H
 
 void
-glcdMenuUpdate(void);
+glcdmenuDrawS1D13305(uint16_t xPos_ui16, uint16_t yPos_ui16, uint8_t color_ui8);
 
 void
-glcdmenuRedraw(void);
+glcdmenuFlushS1D13305(void);
 
 void
-glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc);
+glcdmenuClearS1D13305(void);
 
 void
-glcdmenuSetChkBoxState(uint16_t idx_ui16, uint8_t state_ui8);
+glcdmenuInitS1D13305(void);
 
-uint8_t
-glcdmenuGetChkBoxState(uint16_t idx_ui16);
-
-void
-glcdmenuSetRadioBtnState(uint16_t idx_ui16, uint8_t state_ui8);
-
-uint8_t
-glcdmenuGetRadioBtnState(uint16_t idx_ui16);
-
-void
-glcdmenuSelectListItem(uint16_t idx_ui16, uint16_t state_ui16);
-
-uint16_t
-glcdmenuGetListItem(uint16_t idx_ui16);
-
-void
-glcdmenuSetGfxData(uint16_t idx_ui16, unsigned char* ptr_pc);
-
-#include "config.h"
-#ifdef DEBUG_GLCD_MENU
-# include "core/debug.h"
-# define GLCDMENUDEBUG(a...)  debug_printf("glcdMenu: " a)
-#else
-# define GLCDMENUDEBUG(a...)
-#endif
-
-#endif  /* HAVE_GLCDMENU_H */
+#endif  /* HAVE_GLCDMENU_S1D13305_H */

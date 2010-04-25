@@ -28,7 +28,7 @@
 #include "config.h"
 #include "glcdmenu.h"
 #include "protocols/ecmd/ecmd-base.h"
-#include "menu-interpreter.h"
+#include "menu-interpreter/menu-interpreter.h"
 
 int16_t parse_cmd_glcdmenu_redraw(char *cmd, char *output, uint16_t len)
 {

@@ -1,0 +1,212 @@
+{ Das ist eine automatisch erzeugte Lazarus-Ressourcendatei }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3#236#0#6'Height'#3#207#2#3'Top'#2'y'#5'Wid'
+  +'th'#3#250#3#7'Caption'#6#8'MenuEdit'#12'ClientHeight'#3#189#2#11'ClientWidt'
+  +'h'#3#232#3#8'OnCreate'#7#10'FormCreate'#10'ParentFont'#8#8'Position'#7#15'p'
+  +'oDesktopCenter'#10'LCLVersion'#6#6'0.9.26'#0#6'TLabel'#6'Label2'#4'Left'#3
+  +#152#2#6'Height'#2#17#3'Top'#3#144#1#5'Width'#2'?'#7'Caption'#6#8'Preview:'
+  +#11'ParentColor'#8#0#0#6'TImage'#6'Image1'#4'Left'#3#152#2#6'Height'#3#2#4#3
+  +'Top'#3#168#1#5'Width'#3#2#4#7'Stretch'#9#0#0#6'TLabel'#7'Label18'#4'Left'#3
+  +#136#2#6'Height'#2'u'#3'Top'#2'E'#5'Width'#3'k'#1#7'Caption'#6#192'Notes:'#10
+  +'Order of Objects = Drawing Ordner = Focus'#10'Order.'#10'ActionName: Will g'
+  +'enerate a #define with this'#10'name and a number used for the menu_action'
+  +#10'call. Window switch = ''RET'' -> SubWindow return'#11'ParentColor'#8#0#0
+  +#6'TLabel'#7'Label19'#4'Left'#3#136#2#6'Height'#2'M'#3'Top'#3#200#0#5'Width'
+  +#3'\'#1#7'Caption'#6#162'AnswerName: Generates a #define referencing'#10'a p'
+  +'osition in an array to read/write the state'#10'of checkboxes, groupboxes a'
+  +'nd the index of the'#10'selected item in a list.'#11'ParentColor'#8#0#0#6'T'
+  +'Label'#7'Label23'#4'Left'#3#136#2#6'Height'#2'a'#3'Top'#3' '#1#5'Width'#3']'
+  +#1#7'Caption'#6'}MenuEdit Version 1.3'#10'(c) 2009 by Malte Marwedel'#10'ter'
+  +'ms of use:'#10'GNU General Public License vesion 2.0 or later,'#10'see lice'
+  +'nse.txt'#11'ParentColor'#8#0#0#9'TGroupBox'#9'GroupBox1'#4'Left'#2#8#6'Heig'
+  +'ht'#2':'#3'Top'#2#7#5'Width'#3#207#2#7'Caption'#6#7'Project'#12'ClientHeigh'
+  +'t'#2'!'#11'ClientWidth'#3#203#2#8'TabOrder'#2#1#0#6'TLabel'#6'Label1'#4'Lef'
+  +'t'#3'V'#1#6'Height'#2#17#3'Top'#2#6#5'Width'#2'a'#7'Caption'#6#13'Display S'
+  +'ize:'#11'ParentColor'#8#0#0#7'TButton'#7'Button4'#4'Left'#2#8#6'Height'#2#23
+  +#3'Top'#2#2#5'Width'#2'\'#7'Caption'#6#4'Load'#7'OnClick'#7#12'Button4Click'
+  +#8'TabOrder'#2#0#0#0#7'TButton'#7'Button5'#4'Left'#2'n'#6'Height'#2#23#3'Top'
+  +#2#2#5'Width'#2'd'#7'Caption'#6#4'Save'#7'OnClick'#7#12'Button5Click'#8'TabO'
+  +'rder'#2#1#0#0#7'TButton'#8'Button10'#4'Left'#3#218#0#6'Height'#2#23#3'Top'#2
+  +#2#5'Width'#2'd'#7'Caption'#6#6'Export'#7'OnClick'#7#13'Button10Click'#8'Tab'
+  +'Order'#2#2#0#0#9'TSpinEdit'#9'SpinEdit1'#4'Left'#3#196#1#6'Height'#2#23#3'T'
+  +'op'#2#2#5'Width'#2'?'#8'MaxValue'#3#0#16#8'MinValue'#2#5#8'OnChange'#7#15'S'
+  +'pinEdit1Change'#8'TabOrder'#2#3#5'Value'#2'@'#0#0#9'TSpinEdit'#9'SpinEdit2'
+  +#4'Left'#3#6#2#6'Height'#2#23#3'Top'#2#2#5'Width'#2'@'#8'MaxValue'#3#0#16#8
+  +'MinValue'#2#5#8'OnChange'#7#15'SpinEdit2Change'#8'TabOrder'#2#4#5'Value'#2
+  +' '#0#0#9'TCheckBox'#9'CheckBox5'#4'Left'#3'N'#2#6'Height'#2#28#3'Top'#2#253
+  +#5'Width'#2'y'#7'Caption'#6#13'Size optimise'#8'OnChange'#7#15'CheckBox5Chan'
+  +'ge'#8'TabOrder'#2#5#0#0#0#9'TGroupBox'#9'GroupBox2'#4'Left'#2#8#6'Height'#3
+  +'h'#2#3'Top'#2'H'#5'Width'#3#144#0#7'Caption'#6#7'Windows'#12'ClientHeight'#3
+  +'O'#2#11'ClientWidth'#3#140#0#8'TabOrder'#2#2#0#7'TButton'#7'Button1'#4'Left'
+  +#2#7#6'Height'#2#25#3'Top'#2#4#5'Width'#2'}'#7'Caption'#6#10'Add Window'#7'O'
+  +'nClick'#7#12'Button1Click'#8'TabOrder'#2#0#0#0#7'TButton'#7'Button2'#4'Left'
+  +#2#6#6'Height'#2#25#3'Top'#2'i'#5'Width'#2'~'#7'Caption'#6#6'Delete'#7'OnCli'
+  +'ck'#7#12'Button2Click'#8'TabOrder'#2#3#0#0#7'TButton'#7'Button3'#4'Left'#2#6
+  +#6'Height'#2#25#3'Top'#2'$'#5'Width'#2'~'#7'Caption'#6#13'Add SubWindow'#7'O'
+  +'nClick'#7#12'Button3Click'#8'TabOrder'#2#1#0#0#8'TListBox'#8'ListBox1'#4'Le'
+  +'ft'#2#7#6'Height'#3#133#1#3'Top'#3#201#0#5'Width'#2'}'#17'OnSelectionChange'
+  +#7#23'ListBox1SelectionChange'#8'TabOrder'#2#7#8'TopIndex'#2#255#0#0#7'TButt'
+  +'on'#7'Button6'#4'Left'#2#6#6'Height'#2#25#3'Top'#3#137#0#5'Width'#2'8'#7'Ca'
+  +'ption'#6#2'Up'#7'OnClick'#7#12'Button6Click'#8'TabOrder'#2#4#0#0#7'TButton'
+  +#7'Button7'#4'Left'#2'L'#6'Height'#2#25#3'Top'#3#137#0#5'Width'#2'8'#7'Capti'
+  +'on'#6#4'Down'#7'OnClick'#7#12'Button7Click'#8'TabOrder'#2#5#0#0#7'TButton'#8
+  +'Button24'#4'Left'#2#7#6'Height'#2#25#3'Top'#3#169#0#5'Width'#2'}'#7'Caption'
+  +#6#4'Copy'#7'OnClick'#7#13'Button24Click'#8'TabOrder'#2#6#0#0#7'TButton'#8'B'
+  +'utton25'#4'Left'#2#6#6'Height'#2#25#3'Top'#2'H'#5'Width'#2'~'#7'Caption'#6
+  +#15'Global Shortcut'#7'OnClick'#7#13'Button25Click'#8'TabOrder'#2#2#0#0#0#9
+  +'TGroupBox'#9'GroupBox3'#4'Left'#3#160#0#6'Height'#3'h'#2#3'Top'#2'H'#5'Widt'
+  +'h'#3#208#0#7'Caption'#6#14'Window Objects'#12'ClientHeight'#3'O'#2#11'Clien'
+  +'tWidth'#3#204#0#7'Enabled'#8#8'TabOrder'#2#3#0#6'TLabel'#6'Label3'#4'Left'#2
+  +#6#6'Height'#2#17#3'Top'#3#255#1#5'Width'#2'y'#7'Caption'#6#15'Focus Next Ke'
+  +'y:'#11'ParentColor'#8#0#0#6'TLabel'#6'Label4'#4'Left'#2#6#6'Height'#2#17#3
+  +'Top'#3#223#1#5'Width'#2'{'#7'Caption'#6#15'Focus Prev Key:'#11'ParentColor'
+  +#8#0#0#6'TLabel'#6'Label5'#4'Left'#2#6#6'Height'#2#17#3'Top'#3#27#2#5'Width'
+  +#3#129#0#7'Caption'#6#16'Focus Enter Key:'#11'ParentColor'#8#0#0#6'TLabel'#7
+  +'Label21'#4'Left'#2#30#6'Height'#2#17#3'Top'#3'~'#1#5'Width'#2'@'#7'Caption'
+  +#6#9'Position:'#11'ParentColor'#8#0#0#6'TLabel'#7'Label22'#4'Left'#3#134#0#6
+  ,'Height'#2#17#3'Top'#3'~'#1#5'Width'#2'&'#7'Caption'#6#5'Size:'#11'ParentCol'
+  +'or'#8#0#0#8'TListBox'#8'ListBox2'#4'Left'#2#6#6'Height'#3#184#0#3'Top'#3#190
+  +#0#5'Width'#3#192#0#17'OnSelectionChange'#7#23'ListBox2SelectionChange'#8'Ta'
+  +'bOrder'#2#3#8'TopIndex'#2#255#0#0#9'TGroupBox'#9'GroupBox4'#4'Left'#2#6#6'H'
+  +'eight'#3#146#0#5'Width'#3#192#0#7'Caption'#6#3'Add'#12'ClientHeight'#2'y'#11
+  +'ClientWidth'#3#188#0#8'TabOrder'#2#12#0#7'TButton'#7'Button8'#4'Left'#2#6#6
+  +'Height'#2#25#5'Width'#2'V'#7'Caption'#6#3'Box'#7'OnClick'#7#12'Button8Click'
+  +#8'TabOrder'#2#0#0#0#7'TButton'#7'Button9'#4'Left'#2'c'#6'Height'#2#25#5'Wid'
+  +'th'#2'V'#7'Caption'#6#5'Label'#7'OnClick'#7#12'Button9Click'#8'TabOrder'#2#1
+  +#0#0#7'TButton'#8'Button11'#4'Left'#2#6#6'Height'#2#25#3'Top'#2'@'#5'Width'#2
+  +'V'#7'Caption'#6#7'RadioB.'#7'OnClick'#7#13'Button11Click'#8'TabOrder'#2#4#0
+  +#0#7'TButton'#8'Button13'#4'Left'#2#6#6'Height'#2#25#3'Top'#2'`'#5'Width'#2
+  +'V'#7'Caption'#6#4'List'#7'OnClick'#7#13'Button13Click'#8'TabOrder'#2#6#0#0#7
+  +'TButton'#8'Button14'#4'Left'#2'c'#6'Height'#2#25#3'Top'#2' '#5'Width'#2'V'#7
+  +'Caption'#6#3'GFX'#7'OnClick'#7#13'Button14Click'#8'TabOrder'#2#3#0#0#7'TBut'
+  +'ton'#8'Button15'#4'Left'#2'c'#6'Height'#2#25#3'Top'#2'@'#5'Width'#2'V'#7'Ca'
+  +'ption'#6#8'Checkbox'#7'OnClick'#7#13'Button15Click'#8'TabOrder'#2#5#0#0#7'T'
+  +'Button'#8'Button16'#4'Left'#2'c'#6'Height'#2#25#3'Top'#2'`'#5'Width'#2'V'#7
+  +'Caption'#6#8'Shortcut'#7'OnClick'#7#13'Button16Click'#8'TabOrder'#2#7#0#0#7
+  +'TButton'#8'Button17'#4'Left'#2#6#6'Height'#2#25#3'Top'#2' '#5'Width'#2'V'#7
+  +'Caption'#6#6'Button'#7'OnClick'#7#13'Button17Click'#8'TabOrder'#2#2#0#0#0#7
+  +'TButton'#8'Button12'#4'Left'#2#6#6'Height'#2#25#3'Top'#3#155#0#5'Width'#2'8'
+  +#7'Caption'#6#2'Up'#7'OnClick'#7#13'Button12Click'#8'TabOrder'#2#0#0#0#7'TBu'
+  +'tton'#8'Button18'#4'Left'#2'J'#6'Height'#2#25#3'Top'#3#155#0#5'Width'#2'8'#7
+  +'Caption'#6#4'Down'#7'OnClick'#7#13'Button18Click'#8'TabOrder'#2#1#0#0#7'TBu'
+  +'tton'#8'Button19'#4'Left'#3#142#0#6'Height'#2#25#3'Top'#3#155#0#5'Width'#2
+  +'8'#7'Caption'#6#6'Delete'#7'OnClick'#7#13'Button19Click'#8'TabOrder'#2#2#0#0
+  +#9'TSpinEdit'#9'SpinEdit3'#4'Left'#3#142#0#6'Height'#2#23#3'Top'#3#249#1#5'W'
+  +'idth'#2'7'#8'MaxValue'#3#255#0#8'OnChange'#7#15'SpinEdit3Change'#8'TabOrder'
+  +#2#5#0#0#9'TSpinEdit'#9'SpinEdit4'#4'Left'#3#142#0#6'Height'#2#23#3'Top'#3
+  +#217#1#5'Width'#2'7'#8'MaxValue'#3#255#0#8'OnChange'#7#15'SpinEdit4Change'#8
+  +'TabOrder'#2#4#0#0#9'TSpinEdit'#9'SpinEdit5'#4'Left'#3#142#0#6'Height'#2#23#3
+  +'Top'#3#21#2#5'Width'#2'7'#8'MaxValue'#3#255#0#8'OnChange'#7#15'SpinEdit5Cha'
+  +'nge'#8'TabOrder'#2#6#0#0#7'TButton'#8'Button23'#4'Left'#2#14#6'Height'#2#21
+  +#3'Top'#3'3'#2#5'Width'#2'X'#7'Caption'#6#6'Redraw'#7'OnClick'#7#13'Button23'
+  +'Click'#8'TabOrder'#2#7#0#0#9'TSpinEdit'#10'SpinEdit19'#4'Left'#2'&'#6'Heigh'
+  +'t'#2#23#3'Top'#3#150#1#5'Width'#2'7'#8'MaxValue'#3#255#15#8'OnChange'#7#16
+  +'SpinEdit19Change'#11'OnMouseDown'#7#19'SpinEdit19MouseDown'#8'TabOrder'#2#8
+  +#0#0#9'TSpinEdit'#10'SpinEdit20'#4'Left'#2'&'#6'Height'#2#23#3'Top'#3#182#1#5
+  +'Width'#2'7'#8'MaxValue'#3#255#15#8'OnChange'#7#16'SpinEdit20Change'#11'OnMo'
+  +'useDown'#7#19'SpinEdit20MouseDown'#8'TabOrder'#2#9#0#0#9'TSpinEdit'#10'Spin'
+  +'Edit21'#4'Left'#3#142#0#6'Height'#2#23#3'Top'#3#150#1#5'Width'#2'7'#8'MaxVa'
+  +'lue'#3#255#15#8'OnChange'#7#16'SpinEdit21Change'#8'TabOrder'#2#10#0#0#9'TSp'
+  +'inEdit'#10'SpinEdit22'#4'Left'#3#142#0#6'Height'#2#23#3'Top'#3#182#1#5'Widt'
+  +'h'#2'7'#8'MaxValue'#3#255#15#8'OnChange'#7#16'SpinEdit22Change'#8'TabOrder'
+  +#2#11#0#0#0#9'TGroupBox'#9'GroupBox5'#4'Left'#3'x'#1#6'Height'#3'h'#2#3'Top'
+  +#2'H'#5'Width'#3#8#1#7'Caption'#6#15'Object Settings'#12'ClientHeight'#3'O'#2
+  +#11'ClientWidth'#3#4#1#8'TabOrder'#2#4#0#6'TLabel'#6'Label6'#4'Left'#2#18#6
+  +'Height'#2#17#3'Top'#2#3#5'Width'#2'@'#7'Caption'#6#9'Position:'#11'ParentCo'
+  +'lor'#8#0#0#6'TLabel'#6'Label7'#4'Left'#3#182#0#6'Height'#2#17#3'Top'#2#3#5
+  +'Width'#2'&'#7'Caption'#6#5'Size:'#11'ParentColor'#8#0#0#6'TLabel'#6'Label8'
+  +#4'Left'#2#9#6'Height'#2#17#3'Top'#2'9'#5'Width'#2'&'#7'Caption'#6#5'Font:'
+  +#11'ParentColor'#8#0#0#6'TLabel'#6'Label9'#4'Left'#2'l'#6'Height'#2#17#3'Top'
+  +#2'9'#5'Width'#2'S'#7'Caption'#6#11'Font focus:'#11'ParentColor'#8#0#0#6'TLa'
+  +'bel'#7'Label10'#4'Left'#2#5#6'Height'#2#17#3'Top'#3#158#0#5'Width'#3#16#1#7
+  +'Caption'#6'$Text or #define NAME (One line only)'#11'ParentColor'#8#0#0#6'T'
+  +'Label'#7'Label11'#4'Left'#2#13#6'Height'#2#17#3'Top'#3#245#0#5'Width'#2'^'#7
+  +'Caption'#6#11'ActionName:'#11'ParentColor'#8#0#0#6'TLabel'#7'Label12'#4'Lef'
+  +'t'#2'v'#6'Height'#2#17#3'Top'#3#245#0#5'Width'#2'('#7'Caption'#6#5'Color'#11
+  +'ParentColor'#8#0#0#6'TLabel'#7'Label13'#4'Left'#2#13#6'Height'#2#17#3'Top'#3
+  +'%'#1#5'Width'#2'f'#7'Caption'#6#11'AnswerName:'#11'ParentColor'#8#0#0#6'TLa'
+  +'bel'#7'Label14'#4'Left'#3#182#0#6'Height'#2#17#3'Top'#3#245#0#5'Width'#2'<'
+  +#7'Caption'#6#8'SelectId'#11'ParentColor'#8#0#0#6'TLabel'#7'Label15'#4'Left'
+  +#3#139#0#6'Height'#2#17#3'Top'#3'&'#1#5'Width'#2'q'#7'Caption'#6#14'Focusles'
+  ,'s Key:'#11'ParentColor'#8#0#0#6'TLabel'#7'Label16'#4'Left'#2#6#6'Height'#2
+  +#17#3'Top'#3'V'#1#5'Width'#3#27#1#7'Caption'#6'"Keys: Up, Down, Page Up, Pag'
+  +'e down'#11'ParentColor'#8#0#0#6'TImage'#6'Image2'#4'Left'#2#12#6'Height'#3
+  +#151#0#3'Top'#3#177#1#5'Width'#3#239#0#0#0#9'TSpinEdit'#9'SpinEdit6'#4'Left'
+  +#2#9#6'Height'#2#23#3'Top'#2#19#5'Width'#2'7'#8'MaxValue'#3#255#15#8'OnChang'
+  +'e'#7#15'SpinEdit6Change'#11'OnMouseDown'#7#18'SpinEdit6MouseDown'#8'TabOrde'
+  +'r'#2#0#0#0#9'TSpinEdit'#9'SpinEdit7'#4'Left'#2'D'#6'Height'#2#23#3'Top'#2#19
+  +#5'Width'#2'7'#8'MaxValue'#3#255#15#8'OnChange'#7#15'SpinEdit7Change'#11'OnM'
+  +'ouseDown'#7#18'SpinEdit7MouseDown'#8'TabOrder'#2#1#0#0#9'TCheckBox'#9'Check'
+  +'Box1'#4'Left'#2#9#6'Height'#2#28#3'Top'#2'n'#5'Width'#2'c'#7'Caption'#6#9'F'
+  +'ocusable'#8'OnChange'#7#15'CheckBox1Change'#8'TabOrder'#2#2#0#0#9'TCheckBox'
+  +#9'CheckBox2'#4'Left'#2#9#6'Height'#2#28#3'Top'#3#134#0#5'Width'#2'`'#7'Capt'
+  +'ion'#6#9'Rectangle'#8'OnChange'#7#15'CheckBox2Change'#8'TabOrder'#2#3#0#0#9
+  +'TCheckBox'#9'CheckBox3'#4'Left'#3#135#0#6'Height'#2#28#3'Top'#2'n'#5'Width'
+  +#2't'#7'Caption'#6#10'Compressed'#8'OnChange'#7#15'CheckBox3Change'#8'TabOrd'
+  +'er'#2#4#0#0#12'TRadioButton'#12'RadioButton1'#4'Left'#2#9#6'Height'#2#28#3
+  +'Top'#2'S'#5'Width'#2'}'#7'Caption'#6#13'Local Storage'#7'Checked'#9#8'OnCha'
+  +'nge'#7#18'RadioButton1Change'#5'State'#7#9'cbChecked'#8'TabOrder'#2#5#0#0#12
+  +'TRadioButton'#12'RadioButton2'#4'Left'#3#135#0#6'Height'#2#28#3'Top'#2'S'#5
+  +'Width'#2'y'#7'Caption'#6#11'RAM Storage'#8'OnChange'#7#18'RadioButton2Chang'
+  +'e'#8'TabOrder'#2#6#0#0#9'TSpinEdit'#9'SpinEdit8'#4'Left'#3#134#0#6'Height'#2
+  +#23#3'Top'#2#19#5'Width'#2'7'#8'MaxValue'#3#255#15#8'OnChange'#7#15'SpinEdit'
+  +'8Change'#8'TabOrder'#2#7#0#0#9'TSpinEdit'#9'SpinEdit9'#4'Left'#3#198#0#6'He'
+  +'ight'#2#23#3'Top'#2#19#5'Width'#2'7'#8'MaxValue'#3#255#15#8'OnChange'#7#15
+  +'SpinEdit9Change'#8'TabOrder'#2#8#0#0#9'TSpinEdit'#10'SpinEdit10'#4'Left'#2
+  +'6'#6'Height'#2#23#3'Top'#2'8'#5'Width'#2'7'#8'MaxValue'#2#15#8'OnChange'#7
+  +#16'SpinEdit10Change'#8'TabOrder'#2#9#0#0#9'TSpinEdit'#10'SpinEdit11'#4'Left'
+  +#3#198#0#6'Height'#2#23#3'Top'#2'8'#5'Width'#2'7'#8'MaxValue'#2#15#8'OnChang'
+  +'e'#7#16'SpinEdit11Change'#8'TabOrder'#2#10#0#0#9'TComboBox'#9'ComboBox1'#4
+  +'Left'#3#143#0#6'Height'#2#25#3'Top'#3#216#0#5'Width'#2'd'#9'MaxLength'#4#255
+  +#255#0#0#8'OnChange'#7#15'ComboBox1Change'#8'TabOrder'#2#11#0#0#9'TCheckBox'
+  +#9'CheckBox4'#4'Left'#2#9#6'Height'#2#28#3'Top'#3#216#0#5'Width'#3#138#0#7'C'
+  +'aption'#6#14'Window switch:'#8'OnChange'#7#15'CheckBox4Change'#8'TabOrder'#2
+  +#12#0#0#5'TEdit'#5'Edit3'#4'Left'#2#12#6'Height'#2#23#3'Top'#3#5#1#5'Width'#2
+  +'T'#8'OnChange'#7#11'Edit3Change'#8'TabOrder'#2#13#0#0#9'TSpinEdit'#10'SpinE'
+  +'dit12'#4'Left'#2'l'#6'Height'#2#23#3'Top'#3#5#1#5'Width'#2'7'#8'MaxValue'#3
+  +#255#0#8'OnChange'#7#16'SpinEdit12Change'#8'TabOrder'#2#14#0#0#5'TEdit'#5'Ed'
+  +'it2'#4'Left'#2#12#6'Height'#2#23#3'Top'#3'5'#1#5'Width'#2'T'#8'OnChange'#7
+  +#11'Edit2Change'#8'TabOrder'#2#15#0#0#9'TSpinEdit'#10'SpinEdit13'#4'Left'#3
+  +#184#0#6'Height'#2#23#3'Top'#3#5#1#5'Width'#2'7'#8'MaxValue'#2#15#8'OnChange'
+  +#7#16'SpinEdit13Change'#8'TabOrder'#2#16#0#0#9'TSpinEdit'#10'SpinEdit14'#4'L'
+  +'eft'#3#158#0#6'Height'#2#23#3'Top'#3'5'#1#5'Width'#2'7'#8'MaxValue'#3#255#0
+  +#8'OnChange'#7#16'SpinEdit14Change'#8'TabOrder'#2#17#0#0#9'TSpinEdit'#10'Spi'
+  +'nEdit15'#4'Left'#2#12#6'Height'#2#23#3'Top'#3'f'#1#5'Width'#2'7'#8'MaxValue'
+  +#3#255#0#8'OnChange'#7#16'SpinEdit15Change'#8'TabOrder'#2#18#0#0#9'TSpinEdit'
+  +#10'SpinEdit16'#4'Left'#2'N'#6'Height'#2#23#3'Top'#3'f'#1#5'Width'#2'7'#8'Ma'
+  +'xValue'#3#255#0#8'OnChange'#7#16'SpinEdit16Change'#8'TabOrder'#2#19#0#0#9'T'
+  +'SpinEdit'#10'SpinEdit17'#4'Left'#3#134#0#6'Height'#2#23#3'Top'#3'f'#1#5'Wid'
+  +'th'#2'7'#8'MaxValue'#3#255#0#8'OnChange'#7#16'SpinEdit17Change'#8'TabOrder'
+  +#2#20#0#0#9'TSpinEdit'#10'SpinEdit18'#4'Left'#3#198#0#6'Height'#2#23#3'Top'#3
+  +'f'#1#5'Width'#2'7'#8'MaxValue'#3#255#0#8'OnChange'#7#16'SpinEdit18Change'#8
+  +'TabOrder'#2#21#0#0#5'TMemo'#5'Memo1'#4'Left'#2#6#6'Height'#2'#'#3'Top'#3#174
+  +#0#5'Width'#3#237#0#8'OnChange'#7#11'Edit1Change'#8'TabOrder'#2#22#8'WordWra'
+  +'p'#8#0#0#7'TButton'#8'Button21'#4'Left'#2#12#6'Height'#2#25#3'Top'#3#142#1#5
+  +'Width'#2'f'#7'Caption'#6#12'Image Select'#7'Enabled'#8#7'OnClick'#7#13'Butt'
+  +'on21Click'#8'TabOrder'#2#23#0#0#0#7'TButton'#8'Button20'#4'Left'#3#160#3#6
+  +'Height'#2#25#3'Top'#2#24#5'Width'#2'B'#7'Caption'#6#6'Update'#7'OnClick'#7
+  +#13'Button20Click'#8'TabOrder'#2#0#0#0#9'TGroupBox'#9'GroupBox7'#4'Left'#3
+  +#221#2#6'Height'#2':'#3'Top'#2#7#5'Width'#3#185#0#7'Caption'#6#22'Ascii to d'
+  +'ecimal + hex'#12'ClientHeight'#2'!'#11'ClientWidth'#3#181#0#8'TabOrder'#2#5
+  +#0#6'TLabel'#7'Label17'#4'Left'#2'a'#6'Height'#2'9'#3'Top'#2#2#5'Width'#2'Y'
+  +#11'ParentColor'#8#0#0#5'TEdit'#5'Edit4'#4'Left'#2#6#6'Height'#2#23#3'Top'#2
+  +#4#5'Width'#2'('#8'OnChange'#7#13'Button22Click'#8'TabOrder'#2#0#0#0#7'TButt'
+  +'on'#8'Button22'#4'Left'#2'4'#6'Height'#2#25#3'Top'#2#2#5'Width'#2'%'#7'Capt'
+  ,'ion'#6#2'->'#7'OnClick'#7#13'Button22Click'#8'TabOrder'#2#1#0#0#0#12'TRadio'
+  +'Button'#12'RadioButton3'#4'Left'#3' '#3#6'Height'#2#28#3'Top'#3#136#1#5'Wid'
+  +'th'#2'6'#7'Caption'#6#4'x0.5'#8'OnChange'#7#18'RadioButton3Change'#8'TabOrd'
+  +'er'#2#6#0#0#12'TRadioButton'#12'RadioButton4'#4'Left'#3'`'#3#6'Height'#2#28
+  +#3'Top'#3#136#1#5'Width'#2'6'#7'Caption'#6#4'x1.0'#7'Checked'#9#8'OnChange'#7
+  +#18'RadioButton4Change'#5'State'#7#9'cbChecked'#8'TabOrder'#2#7#0#0#12'TRadi'
+  +'oButton'#12'RadioButton5'#4'Left'#3#152#3#6'Height'#2#28#3'Top'#3#136#1#5'W'
+  +'idth'#2'6'#7'Caption'#6#4'x2.0'#8'OnChange'#7#18'RadioButton5Change'#8'TabO'
+  +'rder'#2#8#0#0#12'TRadioButton'#12'RadioButton6'#4'Left'#3#221#2#6'Height'#2
+  +#28#3'Top'#3#136#1#5'Width'#2'?'#7'Caption'#6#5'x0.25'#8'OnChange'#7#18'Radi'
+  +'oButton6Change'#8'TabOrder'#2#9#0#0#11'TOpenDialog'#11'OpenDialog1'#6'Filte'
+  +'r'#6#23'xml|*.xml|All files|*.*'#4'left'#3#160#3#3'top'#3#205#1#0#0#11'TSav'
+  +'eDialog'#11'SaveDialog1'#6'Filter'#6#28'XML File|*.xml|All Files|*.*'#4'lef'
+  +'t'#3#204#3#3'top'#3#205#1#0#0#22'TSelectDirectoryDialog'#22'SelectDirectory'
+  +'Dialog1'#4'left'#3#160#3#3'top'#3#239#1#0#0#18'TOpenPictureDialog'#18'OpenP'
+  +'ictureDialog1'#4'left'#3#204#3#3'top'#3#239#1#0#0#0
+]);

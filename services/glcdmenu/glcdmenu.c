@@ -26,31 +26,16 @@
 
 #include "config.h"
 #include "glcdmenu.h"
+#include "protocols/ecmd/ecmd-base.h"
+#include "menu-interpreter/menu-interpreter.h"
+#include "menu-interpreter/menudata-progmem.c"
 
 #ifdef GLCDMENU_S1D13305
-#include "hardware/lcd/s1d13305/s1d13305.h"
-#if S1D13305_MODE != S1D13305_GRAPHICS
-#error "We need 3 Layer Graphics mode here."
+#include "glcdmenu-s1d13305.h"
 #endif
-#else
-#error "Your Display type is not supported at the moment. Sorry."
-#endif /* GLCDMENU_S1D13305 */
-
-#include "protocols/ecmd/ecmd-base.h"
-
-#include "menu-interpreter.h"
-
-#include "menudata-progmem.c"
-
-/* Layer to be drawn on */
-uint8_t drawLayer_ui8 = LCD_LAYER2;
 
 /* true = redraw the menu */
 bool doRedraw_b = true;
-
-uint8_t currDrawByte_ui8 = 0;
-uint16_t currDrawX_ui16 = UINT16_MAX;
-uint16_t currDrawY_ui16 = UINT16_MAX;
 
 /**
  * @brief Returns one byte of the menu data from ROM
@@ -75,10 +60,7 @@ unsigned char menu_byte_get(MENUADDR addr)
  *
  * Called from menu_interpreter.
  * The menu_interpreter calls this function to draw the
- * menu. It is drwan directly into the video RAM. Since the
- * display memory is organized in bytes, we try to reduce
- * write cycles by buffering writes to the same RAM address
- * until a different address is written.
+ * menu.
  *
  * @param x X position on the screen
  * @param y Y position on the screen
@@ -86,110 +68,163 @@ unsigned char menu_byte_get(MENUADDR addr)
  */
 void menu_screen_set(SCREENPOS x, SCREENPOS y, unsigned char color)
 {
-	if ((x < CONF_S1D13305_RESX) && (y < CONF_S1D13305_RESY))
-	{
-		if ((x / 8 != currDrawX_ui16 / 8) || (currDrawY_ui16 != y))
-		{
-			lcd_setCursorPos(drawLayer_ui8, currDrawX_ui16, currDrawY_ui16);
-			lcd_writeCmdByte(CMD_MWRITE);
-			lcd_writeData(currDrawByte_ui8);
-
-			lcd_setCursorPos(drawLayer_ui8, x, y);
-			lcd_writeCmdByte(CMD_MREAD);
-			currDrawByte_ui8 = lcd_readData();
-
-			currDrawX_ui16 = x;
-			currDrawY_ui16 = y;
-		}
-
-		if (color & 1)
-		{
-			currDrawByte_ui8 |= (0x80 >> (x % 8));
-		}
-		else
-		{
-			currDrawByte_ui8 &= ~(0x80 >> (x % 8));
-		}
-	}
-	else
-	{
-		GLCDMENUDEBUG("Warning: Drawing %i, %i is out of bounds\n", x, y);
-	}
+	#ifdef GLCDMENU_S1D13305
+		glcdmenuDrawS1D13305(x, y, color);
+	#endif
 }
 
+/**
+ * @brief Screen drawing is done.
+ *
+ * Called from menu_interpreter.
+ * The menu_interpreter calls this function as
+ * a screen is completely drawn.
+ */
 void menu_screen_flush(void)
 {
-	lcd_setCursorPos(drawLayer_ui8, currDrawX_ui16, currDrawY_ui16);
-	lcd_writeCmdByte(CMD_MWRITE);
-	lcd_waitForCntrlrReady();
-	lcd_writeData(currDrawByte_ui8);
-
-	currDrawByte_ui8 = 0;
-	currDrawX_ui16 = UINT16_MAX;
-	currDrawY_ui16 = UINT16_MAX;
-
-	if (LCD_LAYER2 == drawLayer_ui8)
-	{
-		lcd_setLayerModes(LCD_CURSOR_OFF, LCD_LAYER1_ON | LCD_LAYER2_ON
-				| LCD_LAYER3_OFF);
-		drawLayer_ui8 = LCD_LAYER3;
-	}
-	else if (LCD_LAYER3 == drawLayer_ui8)
-	{
-		lcd_setLayerModes(LCD_CURSOR_OFF, LCD_LAYER1_ON | LCD_LAYER2_OFF
-				| LCD_LAYER3_ON);
-		drawLayer_ui8 = LCD_LAYER2;
-	}
-	else
-	{
-		GLCDMENUDEBUG("Could not switch draw layer\n");
-	}
+	#ifdef GLCDMENU_S1D13305
+		glcdmenuFlushS1D13305();
+	#endif
 }
 
+/**
+ * @brief Clears the screen.
+ *
+ * Called from menu_interpreter.
+ * The menu_interpreter calls this function to
+ * clear screen contents.
+ */
 void menu_screen_clear(void)
 {
-	lcd_clear(drawLayer_ui8);
-
+	#ifdef GLCDMENU_S1D13305
+		glcdmenuClearS1D13305();
+	#endif
 }
 
+/**
+ * @brief Clears the screen.
+ *
+ * Called from menu_interpreter.
+ * The menu_interpreter calls this function to
+ * clear screen contents.
+ */
 unsigned char menu_action(unsigned short action)
 {
 	GLCDMENUDEBUG("action: %i\n", action);
 	return 0;
 }
 
+/**
+ * @brief Demand a redraw.
+ *
+ * Call this function to redraw the screen contents.
+ */
 void glcdmenuRedraw(void)
 {
 	doRedraw_b = true;
 }
 
+/**
+ * @brief Set dynamic string contents.
+ *
+ * Call this function to set the contents of a dynamic string.
+ * @param idx_ui16 Identifier of the label
+ * @param ptr_pc Pointer to a string
+ */
 void glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc)
 {
 	menu_strings[idx_ui16] = ptr_pc;
 }
 
+/**
+ * @brief Set checkbox state.
+ *
+ * Call this function to set a checkbox state.
+ * @param idx_ui16 Identifier of the checkbox
+ * @param state_ui8 0 = unchecked, 1 = checked
+ */
 void glcdmenuSetChkBoxState(uint16_t idx_ui16, uint8_t state_ui8)
 {
 	menu_checkboxstate[idx_ui16] = state_ui8;
 }
 
+/**
+ * @brief Get checkbox state.
+ *
+ * Call this function to get a checkbox state.
+ * @param idx_ui16 Identifier of the checkbox
+ */
+uint8_t glcdmenuGetChkBoxState(uint16_t idx_ui16)
+{
+	return menu_checkboxstate[idx_ui16];
+}
+
+/**
+ * @brief Set radio button state.
+ *
+ * Call this function to set a radio button state.
+ * @param idx_ui16 Identifier of the radio button
+ * @param state_ui8 0 = unchecked, 1 = checked
+ */
 void glcdmenuSetRadioBtnState(uint16_t idx_ui16, uint8_t state_ui8)
 {
 	menu_radiobuttonstate[idx_ui16] = state_ui8;
 }
 
-void glcdmenuSetListIndex(uint16_t idx_ui16, uint16_t state_ui16)
+/**
+ * @brief Get radio button state.
+ *
+ * Call this function to get a radio button state.
+ * @param idx_ui16 Identifier of the radio button
+ */
+uint8_t glcdmenuGetRadioBtnState(uint16_t idx_ui16)
 {
-	menu_listindexstate[idx_ui16] = state_ui16;
+	return menu_radiobuttonstate[idx_ui16];
 }
 
+/**
+ * @brief Select a list item.
+ *
+ * Call this function to select a item in a list.
+ * @param idx_ui16 Identifier of the list
+ * @param item_ui16 Item to select
+ */
+void glcdmenuSelectListItem(uint16_t idx_ui16, uint16_t item_ui16)
+{
+	menu_listindexstate[idx_ui16] = item_ui16;
+}
+
+/**
+ * @brief Get the selected list item.
+ *
+ * Call this function to return the selected list item.
+ * @param idx_ui16 Identifier of the list
+ */
+uint16_t glcdmenuGetListItem(uint16_t idx_ui16)
+{
+	return menu_listindexstate[idx_ui16];
+}
+
+/**
+ * @brief Select a bitmap.
+ *
+ * Call this function to set the data pointer of a dynamic bitmap.
+ * @param idx_ui16 Identifier of the bitmap
+ * @param ptr_pc Pointer to bitmap data
+ */
 void glcdmenuSetGfxData(uint16_t idx_ui16, unsigned char* ptr_pc)
 {
 	menu_gfxdata[idx_ui16] = ptr_pc;
 }
 
+/**
+ * @brief Check if a redraw should be done.
+ *
+ * Redraws the menu if necessary.
+ */
 int16_t glcdmenuCheckRedraw(void)
 {
+	/* Check if a redraw should be done */
 	if (true == doRedraw_b)
 	{
 		GLCDMENUDEBUG("Redraw\n");
@@ -200,18 +235,18 @@ int16_t glcdmenuCheckRedraw(void)
 	return ECMD_FINAL_OK;
 }
 
+/**
+ * @brief Initialize the menu
+ *
+ * Initialize the menu app.
+ */
 int16_t glcdmenuInit(void)
 {
 	GLCDMENUDEBUG("init\n");
 
-	lcd_setLayerModes(LCD_CURSOR_OFF, LCD_LAYER1_ON | LCD_LAYER2_OFF
-			| LCD_LAYER3_OFF);
-	lcd_setOverlayMode(LCD_COMBINE_OR);
-
-	drawLayer_ui8 = LCD_LAYER2;
-	currDrawByte_ui8 = 0;
-	currDrawX_ui16 = UINT16_MAX;
-	currDrawY_ui16 = UINT16_MAX;
+	#ifdef GLCDMENU_S1D13305
+		glcdmenuInitS1D13305();
+	#endif
 
 	return ECMD_FINAL_OK;
 }
