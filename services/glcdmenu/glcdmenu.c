@@ -19,6 +19,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#define HOOK_NAME menu_action
+#define HOOK_ARGS (uint8_t menuAction)
+#define HOOK_COUNT 2
+#define HOOK_ARGS_CALL (menuAction)
+#define HOOK_IMPLEMENT 1
+
 #include <avr/pgmspace.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,11 +34,13 @@
 #include "glcdmenu.h"
 #include "protocols/ecmd/ecmd-base.h"
 #include "menu-interpreter/menu-interpreter.h"
-#include "menu-interpreter/menudata-progmem.c"
 
 #ifdef GLCDMENU_S1D13305
 #include "glcdmenu-s1d13305.h"
 #endif
+
+#include "menu-interpreter/menudata-progmem.c"
+
 
 /* true = redraw the menu */
 bool doRedraw_b = true;
@@ -68,9 +76,9 @@ unsigned char menu_byte_get(MENUADDR addr)
  */
 void menu_screen_set(SCREENPOS x, SCREENPOS y, unsigned char color)
 {
-	#ifdef GLCDMENU_S1D13305
-		glcdmenuDrawS1D13305(x, y, color);
-	#endif
+#ifdef GLCDMENU_S1D13305
+	glcdmenuDrawS1D13305(x, y, color);
+#endif
 }
 
 /**
@@ -82,9 +90,9 @@ void menu_screen_set(SCREENPOS x, SCREENPOS y, unsigned char color)
  */
 void menu_screen_flush(void)
 {
-	#ifdef GLCDMENU_S1D13305
-		glcdmenuFlushS1D13305();
-	#endif
+#ifdef GLCDMENU_S1D13305
+	glcdmenuFlushS1D13305();
+#endif
 }
 
 /**
@@ -96,21 +104,25 @@ void menu_screen_flush(void)
  */
 void menu_screen_clear(void)
 {
-	#ifdef GLCDMENU_S1D13305
-		glcdmenuClearS1D13305();
-	#endif
+#ifdef GLCDMENU_S1D13305
+	glcdmenuClearS1D13305();
+#endif
 }
 
 /**
- * @brief Clears the screen.
+ * @brief React on a menu event (Button press, etc.)
  *
  * Called from menu_interpreter.
- * The menu_interpreter calls this function to
- * clear screen contents.
+ * The menu_interpreter calls this function if a menu
+ * event occurs. A user app can register a hook
+ * to get notified of the event. See hook.def for details.
  */
 unsigned char menu_action(unsigned short action)
 {
 	GLCDMENUDEBUG("action: %i\n", action);
+
+	hook_menu_action_call(action);
+
 	return 0;
 }
 
@@ -133,7 +145,7 @@ void glcdmenuRedraw(void)
  */
 void glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc)
 {
-	if (MENU_TEXT_MAX < idx_ui16)
+	if (MENU_TEXT_MAX > idx_ui16)
 		menu_strings[idx_ui16] = ptr_pc;
 	else
 		GLCDMENUDEBUG("String index out of bounds: %i\n", idx_ui16);
@@ -148,7 +160,7 @@ void glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc)
  */
 void glcdmenuSetChkBoxState(uint16_t idx_ui16, uint8_t state_ui8)
 {
-	if (MENU_CHECKBOX_MAX < idx_ui16)
+	if (MENU_CHECKBOX_MAX > idx_ui16)
 		menu_checkboxstate[idx_ui16] = state_ui8;
 	else
 		GLCDMENUDEBUG("ChkBox index out of bounds: %i\n", idx_ui16);
@@ -162,7 +174,7 @@ void glcdmenuSetChkBoxState(uint16_t idx_ui16, uint8_t state_ui8)
  */
 uint8_t glcdmenuGetChkBoxState(uint16_t idx_ui16)
 {
-	if (MENU_CHECKBOX_MAX < idx_ui16)
+	if (MENU_CHECKBOX_MAX > idx_ui16)
 	{
 		return menu_checkboxstate[idx_ui16];
 	}
@@ -182,7 +194,7 @@ uint8_t glcdmenuGetChkBoxState(uint16_t idx_ui16)
  */
 void glcdmenuSetRadioBtnState(uint16_t idx_ui16, uint8_t state_ui8)
 {
-	if (MENU_RADIOBUTTON_MAX < idx_ui16)
+	if (MENU_RADIOBUTTON_MAX > idx_ui16)
 		menu_radiobuttonstate[idx_ui16] = state_ui8;
 	else
 		GLCDMENUDEBUG("RadioBtn index out of bounds: %i\n", idx_ui16);
@@ -196,7 +208,7 @@ void glcdmenuSetRadioBtnState(uint16_t idx_ui16, uint8_t state_ui8)
  */
 uint8_t glcdmenuGetRadioBtnState(uint16_t idx_ui16)
 {
-	if (MENU_RADIOBUTTON_MAX < idx_ui16)
+	if (MENU_RADIOBUTTON_MAX > idx_ui16)
 	{
 		return menu_radiobuttonstate[idx_ui16];
 	}
@@ -216,7 +228,7 @@ uint8_t glcdmenuGetRadioBtnState(uint16_t idx_ui16)
  */
 void glcdmenuSelectListItem(uint16_t idx_ui16, uint16_t item_ui16)
 {
-	if (MENU_LIST_MAX < idx_ui16)
+	if (MENU_LIST_MAX > idx_ui16)
 		menu_listindexstate[idx_ui16] = item_ui16;
 	else
 		GLCDMENUDEBUG("List index out of bounds: %i\n", idx_ui16);
@@ -230,14 +242,14 @@ void glcdmenuSelectListItem(uint16_t idx_ui16, uint16_t item_ui16)
  */
 uint16_t glcdmenuGetListItem(uint16_t idx_ui16)
 {
-	if (MENU_LIST_MAX < idx_ui16)
+	if (MENU_LIST_MAX > idx_ui16)
 	{
 		return menu_listindexstate[idx_ui16];
 	}
 	else
 	{
 		GLCDMENUDEBUG("List index out of bounds: %i\n", idx_ui16);
-		return UINT8_MAX;
+		return UINT16_MAX;
 	}
 }
 
@@ -250,7 +262,7 @@ uint16_t glcdmenuGetListItem(uint16_t idx_ui16)
  */
 void glcdmenuSetGfxData(uint16_t idx_ui16, unsigned char* ptr_pc)
 {
-	if (MENU_GFX_MAX < idx_ui16)
+	if (MENU_GFX_MAX > idx_ui16)
 		menu_gfxdata[idx_ui16] = ptr_pc;
 	else
 		GLCDMENUDEBUG("GFX index out of bounds: %i\n", idx_ui16);
@@ -283,9 +295,9 @@ int16_t glcdmenuInit(void)
 {
 	GLCDMENUDEBUG("init\n");
 
-	#ifdef GLCDMENU_S1D13305
-		glcdmenuInitS1D13305();
-	#endif
+#ifdef GLCDMENU_S1D13305
+	glcdmenuInitS1D13305();
+#endif
 
 	return ECMD_FINAL_OK;
 }

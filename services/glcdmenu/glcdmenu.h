@@ -23,10 +23,10 @@
 #define HAVE_GLCDMENU_H
 
 int16_t
-glcdMenuInit_i16(void);
+glcdmenuInit(void);
 
-void
-glcdMenuUpdate(void);
+int16_t
+glcdmenuCheckRedraw(void);
 
 void
 glcdmenuRedraw(void);
@@ -54,6 +54,12 @@ glcdmenuGetListItem(uint16_t idx_ui16);
 
 void
 glcdmenuSetGfxData(uint16_t idx_ui16, unsigned char* ptr_pc);
+
+#define HOOK_NAME menu_action
+#define HOOK_ARGS (uint8_t menuAction)
+#include "hook.def"
+#undef HOOK_NAME
+#undef HOOK_ARGS
 
 #include "config.h"
 #ifdef DEBUG_GLCD_MENU

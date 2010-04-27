@@ -53,13 +53,15 @@ uint16_t currDrawY_ui16 = UINT16_MAX;
  * @param yPos_ui16 Y position on the screen
  * @param color_ui8 color of the pixel
  */
-void glcdmenuDrawS1D13305(uint16_t xPos_ui16, uint16_t yPos_ui16, uint8_t color_ui8)
+void glcdmenuDrawS1D13305(uint16_t xPos_ui16, uint16_t yPos_ui16,
+		uint8_t color_ui8)
 {
 	if ((xPos_ui16 < CONF_S1D13305_RESX) && (yPos_ui16 < CONF_S1D13305_RESY))
 	{
 		/* Since we are drawing into a different byte now, send the current byte
 		 * to the controller first */
-		if ((xPos_ui16 / 8 != currDrawX_ui16 / 8) || (currDrawY_ui16 != yPos_ui16))
+		if ((xPos_ui16 / 8 != currDrawX_ui16 / 8) || (currDrawY_ui16
+				!= yPos_ui16))
 		{
 			/* Write... */
 			lcd_setCursorPos(drawLayer_ui8, currDrawX_ui16, currDrawY_ui16);
