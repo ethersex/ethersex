@@ -42,12 +42,13 @@ int16_t parse_cmd_glcdmenu_key(char *cmd, char *output, uint16_t len)
 
 	if (cmd[0] != 0)
 	{
-		while(*cmd == 32) cmd ++;
+		while (*cmd == 32)
+			cmd++;
 		value_ui16 = atoi(cmd);
 
 		if ((value_ui16 > 0) && (value_ui16))
 		{
-			menu_keypress((uint8_t)value_ui16);
+			menu_keypress((uint8_t) value_ui16);
 			return ECMD_FINAL_OK;
 		}
 		else
@@ -58,8 +59,8 @@ int16_t parse_cmd_glcdmenu_key(char *cmd, char *output, uint16_t len)
 }
 
 /*
--- Ethersex META --
-block([[GLCD_Menu]])
-ecmd_feature(glcdmenu_redraw, "glcdmenu update",, Update the menu)
-ecmd_feature(glcdmenu_key, "glcdmenu key ",VALUE, Send a keypress to the menu)
-*/
+ -- Ethersex META --
+ block([[GLCD_Menu]])
+ ecmd_feature(glcdmenu_redraw, "glcdmenu update",, Update the menu)
+ ecmd_feature(glcdmenu_key, "glcdmenu key ",VALUE, Send a keypress to the menu)
+ */
