@@ -232,6 +232,11 @@ template $CW_SUPPORT << FNORD
   pin(CW, PC6, OUTPUT)
 FNORD
 
+template $PWM_WAV_SUPPORT << FNORD
+  /* PWM WAV SUPPORT */
+  pin(SOUND, PD7, OUTPUT)
+FNORD
+
 template $SRF05_SUPPORT << FNORD
   /* ultrasonic SRF05 support */
   pin(SRF05, PA7)

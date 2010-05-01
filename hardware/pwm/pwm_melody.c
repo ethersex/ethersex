@@ -116,7 +116,8 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 	// Anfangswert der PWM
 	_PWM_MELODY_OCR=0x80;
 	
-	DDRD |= (1<<7); // fix me!
+    DDR_CONFIG_OUT(SOUND); //	allways PD7 ??? fix me!
+
 	//Output compare OCxA 8 bit non inverted PWM
 	// Timer Counter Control Register!
 	// Bit:   7	  6	 5	4     3     2     1     0
