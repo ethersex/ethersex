@@ -55,9 +55,10 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
   struct clock_datetime_t date;
   clock_current_localtime(&date);
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%.2d:%.2d:%.2d %.2d.%.2d.%.2d %s"),
-                    date.hour, date.min, date.sec, date.day, date.month, date.year % 100,
-                    weekdays[date.dow]));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
+                               weekdays[date.dow],
+                               date.day, date.month, date.year + 1900,
+                               date.hour, date.min, date.sec, date.day));
 }
 
 /*
