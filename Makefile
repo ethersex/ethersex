@@ -42,6 +42,7 @@ SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
 SUBDIRS += hardware/zacwire
 SUBDIRS += hardware/ultrasonic
+SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
 SUBDIRS += protocols/dmx
