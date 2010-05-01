@@ -100,7 +100,7 @@ SIGNAL(CLOCK_SIG)
 void
 clock_periodic(void)
 {
-	#ifdef NTP_SUPPORT
+#ifdef NTP_SUPPORT
 	if(ntp_timer)
 		ntp_timer--;
 	else
@@ -109,7 +109,7 @@ clock_periodic(void)
 	  ntp_timer = 10;
 	  ntp_send_packet();
 	}
-	#endif
+#endif
 }
 
 void
@@ -118,7 +118,7 @@ clock_tick(void)
   if(++ticks > 50){
   /* Only clock here, when no crystal is connected */
 #ifndef CLOCK_CRYSTAL_SUPPORT
-# /* Don't wait for a sync, if no sync source is enabled */
+  /* Don't wait for a sync, if no sync source is enabled */
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
     if(!sync_timestamp || sync_timestamp == timestamp)
 #endif
@@ -171,18 +171,18 @@ clock_set_time(uint32_t new_sync_timestamp)
 	if (sync_timestamp > timestamp || (timestamp - sync_timestamp) > 300)
 		timestamp = sync_timestamp;
 
-	#ifdef WHM_SUPPORT
+#ifdef WHM_SUPPORT
 	if (startup_timestamp == 0)
 		startup_timestamp = sync_timestamp;
-	#endif
+#endif
 
-        #ifdef I2C_DS1337_SUPPORT
+#ifdef I2C_DS1337_SUPPORT
         i2c_ds1337_sync( sync_timestamp );
-        #endif
+#endif
 
-	#ifdef NTP_SUPPORT
+#ifdef NTP_SUPPORT
 	ntp_timer = NTP_RESYNC_PERIOD;
-	#endif
+#endif
 }
 
 uint32_t
