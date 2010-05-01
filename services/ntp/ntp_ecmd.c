@@ -78,7 +78,7 @@ int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
     uint16_t ntp_timer = clock_last_ntp();
     uint16_t dcf_counter = clock_dcf_count();
     uint16_t ntp_counter = clock_ntp_count();
-    return ECMD_FINAL(snprintf_P(output,len,PSTR("Update:%lu\ndelta:%d\nOCR1A:%u\nDCF/NTP:%d/%d\nResyn:%d"), last_sync, last_delta, OCR1A, dcf_counter, ntp_counter, ntp_timer));
+    return ECMD_FINAL(snprintf_P(output,len,PSTR("Update:%lu\ndelta:%d\nOCR1A:%u\nDCF/NTP:%u/%u\nResyn:%u"), last_sync, last_delta, OCR1A, dcf_counter, ntp_counter, ntp_timer));
 }
 
 /*
