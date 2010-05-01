@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2009 Peter Marschall <peter@adpm.de>
+ * Copyright (c) 2009,2010 Peter Marschall <peter@adpm.de>
  * Copyright (c) 2010 Hans Baechle <hans.baechle@gmx.net.de>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -73,12 +73,41 @@ int16_t parse_cmd_ntp_query(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
 {
-    uint32_t last_sync = clock_last_sync();
-    int16_t  last_delta = clock_last_delta();
-    uint16_t ntp_timer = clock_last_ntp();
-    uint16_t dcf_counter = clock_dcf_count();
-    uint16_t ntp_counter = clock_ntp_count();
-    return ECMD_FINAL(snprintf_P(output,len,PSTR("Update:%lu\ndelta:%d\nOCR1A:%u\nDCF/NTP:%u/%u\nResyn:%u"), last_sync, last_delta, OCR1A, dcf_counter, ntp_counter, ntp_timer));
+    /* trick: use bytes on cmd as "connection specific static variables" */
+    if (cmd[0] != 23) {	/* indicator flag: real invocation:  0 */
+	cmd[0] = 23;	/*                 continuing call: 23 */
+	cmd[1] = 0;	/* counter for output lines */
+    }
+    else {
+	cmd[1]++;	/* iterate to next output line */
+    }
+
+    enum {
+	CNT_UPDATE = 0,
+	CNT_DELTA,
+	CNT_OCR1A,
+	CNT_DCFNTP,
+	CNT_RESYN,
+	CNT_LAST = CNT_RESYN
+    };
+
+    switch (cmd[1]) {
+	case CNT_UPDATE:
+	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("Update:  %lu"),
+					 clock_last_sync()));
+	case CNT_DELTA:
+	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("Delta:   %+d"),
+					 clock_last_delta()));
+	case CNT_OCR1A:
+	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("OCR1A:   %u"), OCR1A));
+	case CNT_DCFNTP:
+	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("DCF/NTP: %u/%u"),
+					 clock_dcf_count(), clock_ntp_count()));
+	case CNT_RESYN:
+	    return ECMD_FINAL(snprintf_P(output, len, PSTR("Resync:  %u"),
+					 clock_last_ntp()));
+    }
+    return ECMD_FINAL_OK;	/* never reached */
 }
 
 /*
