@@ -48,15 +48,16 @@ int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
   }
 }
 
+static const char const weekdays[][4] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
 int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
 {
-  char *weekdays = "Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
   struct clock_datetime_t date;
   clock_current_localtime(&date);
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("%.2d:%.2d:%.2d %.2d.%.2d.%.2d %s"),
                     date.hour, date.min, date.sec, date.day, date.month, date.year % 100,
-                    weekdays + date.dow * 4));
+                    weekdays[date.dow]));
 }
 
 /*
