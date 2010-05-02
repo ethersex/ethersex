@@ -57,42 +57,39 @@ void
 clock_init(void)
 {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-  ASSR = _BV(CLOCK_TIMER_AS);
-  CLOCK_TIMER_CNT = 0;
-  /* 120 prescaler to get every second an interrupt */
-  CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
+	ASSR = _BV(CLOCK_TIMER_AS);
+	CLOCK_TIMER_CNT = 0;
+	/* 120 prescaler to get every second an interrupt */
+	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
 
-  /* Wait until the bytes are written */
+	/* Wait until the bytes are written */
 #ifdef CLOCK_TIMER_RBUSY
-  while(ASSR & ( _BV(CLOCK_TIMER_NBUSY) | _BV(CLOCK_TIMER_RBUSY))) {}
+	while (ASSR & ( _BV(CLOCK_TIMER_NBUSY) | _BV(CLOCK_TIMER_RBUSY))) {}
 #else
-  while(ASSR & ( _BV(CLOCK_TIMER_NBUSY))) {}
+	while (ASSR & ( _BV(CLOCK_TIMER_NBUSY))) {}
 #endif
 
-  /* Clear the interrupt flags */
-  CLOCK_TIMER_TIFR &= ~_BV(CLOCK_TIMER_OVERFLOW);
+	/* Clear the interrupt flags */
+	CLOCK_TIMER_TIFR &= ~_BV(CLOCK_TIMER_OVERFLOW);
 
-  /* Enable the timer interrupt */
-  CLOCK_TIMER_TIMSK |= _BV(CLOCK_TIMER_ENABLE);
-  
-  /* reset dcf_count */
-  dcf_count=0;
+	/* Enable the timer interrupt */
+	CLOCK_TIMER_TIMSK |= _BV(CLOCK_TIMER_ENABLE);
 #endif
-  
-  /* reset dcf_count */
-  dcf_count=0;
+
+	/* reset dcf_count */
+	dcf_count = 0;
 }
 
 #ifdef CLOCK_CRYSTAL_SUPPORT
 SIGNAL(CLOCK_SIG)
 {
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-  if (!sync_timestamp || sync_timestamp == timestamp)
+	if (!sync_timestamp || sync_timestamp == timestamp)
 #endif
-    timestamp ++;
+		timestamp++;
 
-  if (sync_timestamp)
-    sync_timestamp ++;
+	if (sync_timestamp)
+		sync_timestamp++;
 }
 #endif
 
@@ -101,13 +98,12 @@ void
 clock_periodic(void)
 {
 #ifdef NTP_SUPPORT
-	if(ntp_timer)
+	if (ntp_timer)
 		ntp_timer--;
-	else
-	{
-	  /* Retry in ~10 seconds */
-	  ntp_timer = 10;
-	  ntp_send_packet();
+	else {
+		/* Retry in ~10 seconds */
+		ntp_timer = 10;
+		ntp_send_packet();
 	}
 #endif
 }
@@ -115,22 +111,21 @@ clock_periodic(void)
 void
 clock_tick(void)
 {
-  if(++ticks > 50){
-  /* Only clock here, when no crystal is connected */
+	if (++ticks > 50) {
+		/* Only clock here, when no crystal is connected */
 #ifndef CLOCK_CRYSTAL_SUPPORT
-  /* Don't wait for a sync, if no sync source is enabled */
+		/* Don't wait for a sync, if no sync source is enabled */
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-    if(!sync_timestamp || sync_timestamp == timestamp)
+		if (!sync_timestamp || sync_timestamp == timestamp)
 #endif
-      timestamp ++;
+			timestamp++;
 
-    if (sync_timestamp)
-      sync_timestamp ++;
-
+		if (sync_timestamp)
+			sync_timestamp++;
 #endif /* CLOCK_CRYSTAL_SUPPORT */
 
-    ticks = 0;
-  }
+		ticks = 0;
+	}
 }
 
 void
@@ -177,7 +172,7 @@ clock_set_time(uint32_t new_sync_timestamp)
 #endif
 
 #ifdef I2C_DS1337_SUPPORT
-        i2c_ds1337_sync( sync_timestamp );
+        i2c_ds1337_sync(sync_timestamp);
 #endif
 
 #ifdef NTP_SUPPORT
@@ -188,58 +183,56 @@ clock_set_time(uint32_t new_sync_timestamp)
 uint32_t
 clock_get_time(void)
 {
-  return timestamp;
+	return timestamp;
 }
 
 uint32_t
 clock_last_sync(void)
 {
-  return n_sync_timestamp;
+	return n_sync_timestamp;
 }
 
 uint32_t
 clock_last_s_tick(void)
 {
-  return n_sync_tick;
+	return n_sync_tick;
 }
 
 int16_t
 clock_last_delta(void)
 {
-  return delta;
+	return delta;
 }
 
 uint16_t
 clock_dcf_count(void)
 {
-  return dcf_count;
+	return dcf_count;
 }
 
 void
 set_dcf_count(uint16_t new_dcf_count)
 {
-  if (new_dcf_count == 0) dcf_count=0;
-  else dcf_count=dcf_count+new_dcf_count;
+	dcf_count = (new_dcf_count == 0) ? 0 : dcf_count + new_dcf_count;
 }
 
 uint16_t
 clock_ntp_count(void)
 {
-  return ntp_count;
+	return ntp_count;
 }
 
 void
 set_ntp_count(uint16_t new_ntp_count)
 {
-  if (new_ntp_count == 0) ntp_count=0;
-  else ntp_count=ntp_count+new_ntp_count;
+	ntp_count = (new_ntp_count == 0) ? 0 : ntp_count + new_ntp_count;
 }
 
 #ifdef NTP_SUPPORT
 uint16_t
 clock_last_ntp(void)
 {
-  return ntp_timer;
+	return ntp_timer;
 }
 #endif
 
@@ -247,7 +240,7 @@ clock_last_ntp(void)
 uint32_t
 clock_get_startup(void)
 {
-  return startup_timestamp;
+	return startup_timestamp;
 }
 #endif
 
@@ -255,57 +248,42 @@ clock_get_startup(void)
 uint32_t
 clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 {
-  uint32_t timestamp;
+	uint32_t timestamp;
 
-  /* seconds + minutes */
-  timestamp = d->sec + d->min * 60;
+	/* seconds + minutes */
+	timestamp = d->sec + d->min * 60;
 
-  /* hours */
-  timestamp += d->hour * 3600UL;
+	/* hours */
+	timestamp += d->hour * 3600UL;
 
-  /* days */
-  timestamp += (d->day-1) * 86400UL;
+	/* days: don't count last day - it is covered above */
+	timestamp += (d->day - 1) * 86400UL;
 
-  /* month */
-  while (1) {
+	/* month: don't count last month - it is covered above */
+	for (uint8_t month = d->month; --month >= 1; ) {
+		uint8_t monthdays = pgm_read_byte(&months[month-1]);
 
-    d->month--;
+		/* feb has one day more in a leap year */
+		if (month == 2 && is_leap_year(d->year))
+			monthdays++;
 
-    if ( d->month < 1 )
-      break;
+		timestamp += (monthdays * 86400UL);
+	}
 
-    uint8_t monthdays = pgm_read_byte(&months[d->month-1]);
+	/* year: For every year from EPOCH_YEAR upto now, check for a leap year
+	 *
+	 * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
+	 *
+	 */
+	/* year, check if we have enough days left to fill a year */
+	for (uint16_t year = EPOCH_YEAR - 2000; year < d->year; year++) {
+		timestamp += (is_leap_year(year)) ? 31622400UL : 31536000UL;
+	}
 
-    /* feb has one more day in a leap year */
-    if ( d->month == 2 && is_leap_year(d->year))
-      monthdays++;
+	/* convert to UTC depending on CEST */
+	timestamp -= (cest == 0) ? 3600UL : 7200UL;
 
-    timestamp = timestamp + (monthdays * 86400UL);
-
-  }
-
-  /* year: For every year from EPOCH_YEAR upto now, check for a leap year
-  *
-  * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
-  *
-  * */
-  uint16_t year = EPOCH_YEAR;
-
-  /* year, check if we have enough days left to fill a year */
-  while (year < d->year+2000) {
-    if (is_leap_year(year)) {
-      timestamp += 31622400UL;
-    } else {
-      timestamp += 31536000UL;
-    }
-    year++;
-  }
-  if (cest == 0)
-    timestamp -= 3600UL;
-  else
-    timestamp -= 7200UL;
-
-  return timestamp;
+	return timestamp;
 }
 #endif
 
@@ -313,75 +291,66 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 void
 clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
 {
+	/* seconds */
+	d->sec = timestamp % 60;
+	timestamp /= 60;
 
-    /* seconds */
-    d->sec = timestamp % 60;
-    timestamp /= 60;
+	/* minutes */
+	d->min = timestamp % 60;
+	timestamp /= 60;
 
-    /* minutes */
-    d->min = timestamp % 60;
-    timestamp /= 60;
+	/* hours */
+	d->hour = timestamp % 24;
+	timestamp /= 24;
 
-    /* hours */
-    d->hour = timestamp % 24;
-    timestamp /= 24;
+	/* timestamp/84600 is always <= 51000, so we can crop this to an uint16_t */
+	uint16_t days = (uint16_t)timestamp;
 
-    /* timestamp/84600 is always <= 51000, so we can crop this to an uint16_t */
-    uint16_t days = (uint16_t)timestamp;
+	/* day of week */
+	d->dow = (days + EPOCH_DOW) % 7;
 
-    /* day of week */
-    d->dow = (days + EPOCH_DOW) % 7;
+	/* year: For every year from EPOCH_YEAR up to now, check for a leap year
+	 *
+	 * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
+	 *
+	 */
+	uint16_t year = EPOCH_YEAR;
 
-    /* year: For every year from EPOCH_YEAR upto now, check for a leap year
-     *
-     * (for details on leap years see http://en.wikipedia.org/wiki/Leap_year )
-     *
-     * */
-    uint16_t year = EPOCH_YEAR;
+	/* year, check if we have enough days left to fill a year */
+	while (days >= 365) {
+		if (is_leap_year(year)) {
+			/* special case: leap year is not over after 365 days... */
+			if (days == 365)
+				break;
 
-    /* year, check if we have enough days left to fill a year */
-    while (days >= 365) {
+			/* default case: leap years have one more day */
+			days -= 1;
+		}
 
-        if (is_leap_year(year)) {
+		/* normal years have 365 days */
+		days -= 365;
+		year++;
+	}
+	d->year = year - 1900;
+	d->month = 0;
 
-            /* special case: leap year is not over after 365 days... */
-            if (days == 365)
-                break;
+	/* month */
+	while (1) {
+		uint8_t monthdays = pgm_read_byte(&months[d->month]);
 
-            /* default case: leap years have one more day */
-            days -= 1;
-        }
+		/* feb has one more day in a leap year */
+		if (d->month == 2 && is_leap_year(year))
+       			monthdays++;
 
-        /* normal years have 365 days */
-        days -= 365;
-        year++;
+		/* if we have not enough days left to fill this month, we are done */
+		if (days < monthdays)
+			break;
 
-    }
-
-    d->year = year - 1900;
-    d->month = 0;
-
-    /* month */
-    while (1) {
-
-        uint8_t monthdays = pgm_read_byte(&months[d->month]);
-
-        /* feb has one more day in a leap year */
-        if ( d->month == 2 && is_leap_year(year))
-            monthdays++;
-
-        /* if we have not enough days left to fill this month, we are done */
-        if (days < monthdays)
-            break;
-
-        days -= monthdays;
-        d->month++;
-
-    }
-
-    d->month++;
-    d->day = (uint8_t)days+1;
-
+		days -= monthdays;
+		d->month++;
+	}
+	d->month++;
+	d->day = (uint8_t) days+1;
 }
 
 #if TIMEZONE == TIMEZONE_CEST
@@ -393,15 +362,15 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
  */
 static int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
 {
-  uint8_t last_sunday = day;
-  if (last_sunday > dow)
-    last_sunday -= dow + 1;
+	uint8_t last_sunday = day;
+	if (last_sunday > dow)
+		last_sunday -= dow + 1;
 
-  if ((31 - last_sunday) <= 7) {
-    if ((dow % 7) == 0) return 0;
-    return 1;
-  }
-  return -1;
+	if ((31 - last_sunday) <= 7) {
+		if ((dow % 7) == 0) return 0;
+		return 1;
+	}
+	return -1;
 }
 #endif
 
@@ -409,23 +378,21 @@ void
 clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
 {
 #if TIMEZONE == TIMEZONE_CEST
-  clock_datetime(d, timestamp);
-  /* We must determine, if we have CET or CEST */
-  int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
-  /* march until october can be summer time */
-  if (d->month < 3 || d->month > 10) {
-    timestamp += 3600;
-  } else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
-    timestamp += 3600;
-  } else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 1))) {
-    timestamp += 3600;
-  } else {
-    timestamp += 7200;
-  }
-  clock_datetime(d, timestamp);
-#else
-  clock_datetime(d, timestamp);
+	clock_datetime(d, timestamp);
+	/* We must determine, if we have CET or CEST */
+	int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
+	/* march until october can be summer time */
+	if (d->month < 3 || d->month > 10) {
+		timestamp += 3600;
+	} else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
+		timestamp += 3600;
+	} else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 1))) {
+		timestamp += 3600;
+	} else {
+		timestamp += 7200;
+	}
 #endif
+	clock_datetime(d, timestamp);
 }
 #endif
 /*
