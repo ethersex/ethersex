@@ -232,6 +232,21 @@ template $CW_SUPPORT << FNORD
   pin(CW, PC6, OUTPUT)
 FNORD
 
+template $CH_A_PWM_GENERAL_SUPPORT << FNORD
+  /* PWM Channel A support */
+  pin(CHANNEL_A_PWM, PD5, OUTPUT)
+FNORD
+
+template $CH_B_PWM_GENERAL_SUPPORT << FNORD
+  /* PWM Channel B support */
+  pin(CHANNEL_B_PWM, PD4, OUTPUT)
+FNORD
+
+template $CH_C_PWM_GENERAL_SUPPORT << FNORD
+  /* PWM Channel C support */
+  pin(CHANNEL_C_PWM, PB7, OUTPUT)
+FNORD
+
 template $PWM_WAV_SUPPORT << FNORD
   /* PWM WAV SUPPORT */
   pin(SOUND, PD7, OUTPUT)
