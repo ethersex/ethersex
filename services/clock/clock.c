@@ -134,7 +134,7 @@ clock_set_time(uint32_t new_sync_timestamp)
 #ifdef CLOCK_NTP_ADJUST_SUPPORT
 	/* The clock was synced */
 	if (sync_timestamp) {
-		int16_t delta = new_sync_timestamp - sync_timestamp;
+		delta = new_sync_timestamp - sync_timestamp;
 		NTPADJDEBUG ("sync timestamp delta is %d\n", delta);
 		if (delta < -300 || delta > 300)
 			NTPADJDEBUG ("eeek, delta too large. "
