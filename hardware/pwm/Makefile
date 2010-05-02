@@ -1,6 +1,8 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
+$(PWM_GENERAL_SUPPORT)_SRC += hardware/pwm/pwm.c
+
 $(PWM_WAV_SUPPORT)_SRC += hardware/pwm/pwm_wav.c
 $(PWM_WAV_SUPPORT)_ECMD_SRC += hardware/pwm/pwm_wav_ecmd.c
 
