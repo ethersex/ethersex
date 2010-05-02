@@ -22,9 +22,14 @@
 #ifndef HAVE_PWM_GENERAL_H
 #define HAVE_PWM_GENERAL_H
 
+#define PWM_MIN_VALUE 0xFF
+#define PWM_MAX_VALUE 0x00
 
 void
 pwm_init();
+
+void
+pwm_periodic();
 
 #ifdef DEBUG_PWM
 # include "core/debug.h"

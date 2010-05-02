@@ -26,16 +26,22 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef CH_A_PWM_GENERAL_SUPPORT
-  uint8_t channelAval=0xFF;
+  uint8_t channelAval=PWM_MIN_VALUE;
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
 #ifdef CH_B_PWM_GENERAL_SUPPORT
-  uint8_t channelBval=0xFF;
+  uint8_t channelBval=PWM_MIN_VALUE;
 #endif /* CH_B_PWM_GENERAL_SUPPORT */
 #ifdef CH_C_PWM_GENERAL_SUPPORT
-  uint8_t channelCval=0xFF;
+  uint8_t channelCval=PWM_MIN_VALUE;
 #endif /* CH_C_PWM_GENERAL_SUPPORT */
 
+#ifdef PWM_GENERAL_FADING_SUPPORT
+  int8_t fadingAspeed=0;  // 0 = disable
+  int8_t fadingBspeed=0;
+  int8_t fadingCspeed=0;
+#endif /* PWM_GENERAL_FADING_SUPPORT */
 
+// init DDR, waveform and timer
 void
 pwm_init(){
   TCNT1=0x00FF; //set the timer counter
@@ -85,26 +91,58 @@ pwm_init(){
 
 }
 
+// return current pwm value
+uint8_t
+getpwm(char channel){
+  uint8_t ret=0;
+  switch (channel){
+#ifdef CH_A_PWM_GENERAL_SUPPORT
+    case 'a': ret=channelAval;
+	  break;
+#endif /* CH_A_PWM_GENERAL_SUPPORT */
+#ifdef CH_B_PWM_GENERAL_SUPPORT
+    case 'b': ret=channelBval;
+	  break;
+#endif /* CH_C_PWM_GENERAL_SUPPORT */
+#ifdef CH_C_PWM_GENERAL_SUPPORT
+    case 'c': ret=channelCval;
+	  break;
+#endif /* CH_A_PWM_GENERAL_SUPPORT */
+    default:
+    PWMDEBUG ("channel %c unsupported\n",channel);
+  }
+#ifdef PWM_GENERAL_INVERT_SUPPORT
+  return 255-ret;
+#else
+  return ret;
+#endif /* PWM_GENERAL_INVERT_SUPPORT */
+}
+
+// set pwm value
 void
 setpwm(char channel, uint8_t value){
   PWMDEBUG ("channel %c, values: %i\n",channel, value);
+  uint8_t setval=value;
+#ifdef PWM_GENERAL_INVERT_SUPPORT
+  setval=255-value;
+#endif /* PWM_GENERAL_INVERT_SUPPORT */
   switch (channel){
 #ifdef CH_A_PWM_GENERAL_SUPPORT
     case 'a': 
-      OCR1A=value;
-	  channelAval=value;
+      OCR1A=setval;
+	  channelAval=setval;
 	  break;
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
 #ifdef CH_B_PWM_GENERAL_SUPPORT
     case 'b': 
-      OCR1B=value;
-	  channelBval=value;
+      OCR1B=setval;
+	  channelBval=setval;
 	  break;
 #endif /* CH_C_PWM_GENERAL_SUPPORT */
 #ifdef CH_C_PWM_GENERAL_SUPPORT
     case 'c': 
-      OCR1C=value;
-	  channelCval=value;
+      OCR1C=setval;
+	  channelCval=setval;
 	  break;
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
     default:
@@ -112,33 +150,117 @@ setpwm(char channel, uint8_t value){
   }
 }
 
+// set pwm via ecmdA
 int16_t parse_cmd_pwm_command(char *cmd, char *output, uint16_t len) 
 {
-  PWMDEBUG ("call: \n");
+  uint8_t channel=cmd[1];
+  uint8_t value=atoi(cmd+3);
 
   if (cmd[0]=='\0') {
 #ifdef CH_A_PWM_GENERAL_SUPPORT
-    PWMDEBUG ("a: %i\n",channelAval);
+    PWMDEBUG ("a: %i\n",getpwm('a'));
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
 #ifdef CH_B_PWM_GENERAL_SUPPORT
-    PWMDEBUG ("b: %i\n",channelBval);
+    PWMDEBUG ("b: %i\n",getpwm('b'));
 #endif /* CH_B_PWM_GENERAL_SUPPORT */
 #ifdef CH_C_PWM_GENERAL_SUPPORT
-    PWMDEBUG ("c: %i\n",channelCval);
+    PWMDEBUG ("c: %i\n",getpwm('c'));
 #endif /* CH_C_PWM_GENERAL_SUPPORT */
     return ECMD_FINAL_OK;
   }
-  uint8_t channel=cmd[1];
-  uint8_t value=atoi(cmd+3);
+  if (cmd[2]=='\0') {
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("%i"), getpwm(channel)));
+  }
   setpwm(channel,value);
 
   return ECMD_FINAL_OK;
 }
 
+#ifdef PWM_GENERAL_FADING_SUPPORT
+// set fading for channel
+int16_t parse_cmd_pwm_fade_command(char *cmd, char *output, uint16_t len) 
+{
+  uint8_t channel=cmd[1];
+  int8_t diff=atoi(cmd+3);
+  uint8_t startvalue=atoi(cmd+8);
+
+  PWMDEBUG ("set ch: %c, diff %i, start %i\n",channel, diff,startvalue);
+  setpwm(channel,startvalue);
+
+  switch (channel){
+#ifdef CH_A_PWM_GENERAL_SUPPORT
+	case 'a': fadingAspeed=diff; break;
+#endif /* CH_A_PWM_GENERAL_SUPPORT */
+#ifdef CH_B_PWM_GENERAL_SUPPORT
+	case 'b': fadingBspeed=diff; break;
+#endif /* CH_B_PWM_GENERAL_SUPPORT */
+#ifdef CH_C_PWM_GENERAL_SUPPORT
+	case 'c': fadingCspeed=diff; break;
+#endif /* CH_C_PWM_GENERAL_SUPPORT */
+  }
+
+  return ECMD_FINAL_OK;
+}
+#endif /* PWM_GENERAL_FADING_SUPPORT */
+
+void
+pwm_periodic()
+{
+#ifdef PWM_GENERAL_FADING_SUPPORT
+
+ #ifdef CH_A_PWM_GENERAL_SUPPORT
+  if (fadingAspeed!=0){
+    int16_t chAdiff = getpwm('a')+fadingAspeed;
+    if (chAdiff >= PWM_MIN_VALUE) {
+      fadingAspeed=0;
+      setpwm('a',PWM_MIN_VALUE);
+    } else if (chAdiff<=0) {
+      fadingAspeed=0;
+      setpwm('a',PWM_MAX_VALUE);
+    } else
+      setpwm('a',chAdiff);
+  }
+ #endif /* CH_A_PWM_GENERAL_SUPPORT */
+ #ifdef CH_B_PWM_GENERAL_SUPPORT
+  if (fadingBspeed!=0){
+    int16_t chBdiff = getpwm('b')+fadingBspeed;
+    if (chBdiff >= PWM_MIN_VALUE) {
+      fadingBspeed=0;
+      setpwm('b',PWM_MIN_VALUE);
+    } else if (chBdiff<=0) {
+      fadingBspeed=0;
+      setpwm('b',PWM_MAX_VALUE);
+    } else
+      setpwm('b',chBdiff);
+  }
+ #endif /* CH_B_PWM_GENERAL_SUPPORT */
+ #ifdef CH_C_PWM_GENERAL_SUPPORT
+  if (fadingCspeed!=0){
+    int16_t chCdiff = getpwm('c')+fadingCspeed;
+    if (chCdiff >= PWM_MIN_VALUE) {
+      fadingCspeed=0;
+      setpwm('c',PWM_MIN_VALUE);
+    } else if (chCdiff<=0) {
+      fadingCspeed=0;
+      setpwm('c',PWM_MAX_VALUE);
+    } else
+      setpwm('c',chCdiff);
+  }
+ #endif /* CH_C_PWM_GENERAL_SUPPORT */
+
+#endif /* PWM_GENERAL_FADING_SUPPORT */
+}
+
+
+
 /*
   -- Ethersex META --
   header(hardware/pwm/pwm.h)
   init(pwm_init)
+  timer(5, pwm_periodic())
   block([[PWM]])
-  ecmd_feature(pwm_command, "pwm", [channel int], Set channel to value)
+  ecmd_ifdef(PWM_GENERAL_FADING_SUPPORT)
+    ecmd_feature(pwm_fade_command, "pwm fade", [channel +-diff startvalue], Set fading at channel with startvalue and change each stepp to diff (must be signed 3 digit))
+  ecmd_endif()
+  ecmd_feature(pwm_command, "pwm", [channel value], Set channel to value)
 */
