@@ -113,7 +113,7 @@ int16_t parse_cmd_host (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block([[JABBER]])
+  block([[Jabber]])
 ecmd_ifdef(JABBER_EEPROM_SUPPORT)
   ecmd_feature(user, "jabber_user", [USERNAME], JABBER username)
   ecmd_feature(pass, "jabber_pass", [PASSWORD], JABBER password)

@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with thi
 */
 
 #include "mcuf/mcuf_modul.h"
+#include <stdlib.h>
 #ifdef MCUF_MODUL_BORG16_SNAKE_SUPPORT
 
 #include "snake.h"

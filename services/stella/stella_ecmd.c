@@ -29,11 +29,9 @@
 #include "services/cron/cron.h"
 
 #include "protocols/ecmd/ecmd-base.h"
-
-#ifdef STELLA_SUPPORT
-
 #include "stella.h"
 
+#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_stella_eeprom_store (char *cmd, char *output, uint16_t len)
 {
 	stella_storeToEEROM();
@@ -45,11 +43,25 @@ int16_t parse_cmd_stella_eeprom_load (char *cmd, char *output, uint16_t len)
 	stella_loadFromEEROM();
 	return ECMD_FINAL_OK;
 }
+#endif  /* not TEENSY_SUPPORT */
 
 int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
 {
+#ifdef TEENSY_SUPPORT
+	if (cmd[0])
+	{
+		stella_fade_step = atoi(cmd);
+		return ECMD_FINAL_OK;
+	}
+	else
+	{
+		itoa(stella_fade_step, output, 10);
+		return ECMD_FINAL(strlen(output));
+	}
+#else
 	uint8_t fadestep;
 	int8_t ret = 0;
+
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u"), &fadestep);
 
 	// get
@@ -65,18 +77,54 @@ int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
 	}
 	else
 		return ECMD_ERR_PARSE_ERROR;
+#endif
 }
 
+#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 {
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), STELLA_CHANNELS));
 }
+#endif
 
 int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 {
-	char f=0;
-	uint8_t ch=0;
-	uint8_t value=0;
+	char f = 0;
+	uint8_t ch = 0;
+	uint8_t value = 0;
+
+#ifdef TEENSY_SUPPORT
+	while(*cmd == 32) cmd ++;
+	char *p = cmd;
+	while(*p && *p != ' ') p++;
+
+	ch = atoi(cmd);
+
+	if(!*p)
+	{
+		/* no second argument -> get value */
+		if (ch >= STELLA_CHANNELS)
+			return ECMD_ERR_PARSE_ERROR;
+
+		itoa(stella_getValue(ch), output, 10);
+		return ECMD_FINAL(strlen(output));
+	}
+	else
+		p ++;
+
+	value = atoi(p);
+	while(*p && *p != 32) p++;
+	if(*p) f = p[1];
+
+	if (f=='s') f = 0; // set
+	else if (f=='f') f = 1; // fade
+	else if (f=='y') f = 2; // fade variant 2
+
+	if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
+	stella_setValue(f, ch, value);
+
+	return ECMD_FINAL_OK;
+#else  /* not TEENSY_SUPPORT */
 	uint16_t ret = 0; // must be 16 bit; because the answer length may be > 255
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
 	
@@ -124,16 +172,19 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	}
 	else
 		return ECMD_ERR_PARSE_ERROR;
+#endif
 }
 
-#endif  /* STELLA_SUPPORT */
 
 /*
 -- Ethersex META --
 block([[Stella_Light]] commands)
-ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
-ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
-ecmd_feature(stella_channels, "channels",, Return stella channel size)
+ecmd_ifndef(TEENSY_SUPPORT)
+  ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
+  ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
+  ecmd_feature(stella_channels, "channels",, Return stella channel size)
+ecmd_endif()
+
 ecmd_feature(stella_channel, "channel", CHANNEL VALUE FUNCTION,Get/Set stella channel to value. Second and third parameters are optional. Function: You may use 's' for instant set, 'f' for fade and 'y' for flashy fade. )
 ecmd_feature(stella_fadestep, "fadestep", FADESTEP, Get/Set stella fade step)
 */

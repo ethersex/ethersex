@@ -56,6 +56,8 @@ static void rfm12_txstart_hard (void);
 
 #ifdef RFM12_INT_SIGNAL
 SIGNAL(RFM12_INT_SIGNAL)
+#elif defined(RFM12_USE_POLL)
+void rfm12_int_process(void)
 #else
 ISR(RFM12_vect)	    /* PCINT */
 #endif
@@ -78,7 +80,7 @@ ISR(RFM12_vect)	    /* PCINT */
     return;
   }
 
-  if ((rfm12_trans(0x0000) & 0x8000) == 0) {
+  if ((status & 0x8000) == 0) {
     RFM12_DEBUG ("rfm12/spurious int: %x\n", status);
     return;
   }
@@ -270,6 +272,11 @@ rfm12_init(void)
   (void) status;		/* keep GCC quiet even if debug disabled. */
   RFM12_DEBUG ("rfm12/init: %x\n", status);
 
+
+#ifdef RFM12_DISABLE
+  rfm12_trans(0x8200);
+
+#else  /* not RFM12_DISABLE */
 #ifdef TEENSY_SUPPORT
   rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));
   rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
@@ -301,7 +308,8 @@ rfm12_init(void)
 
   status = rfm12_trans(0x0000);
   RFM12_DEBUG ("rfm12 init'd: %x\n", status);
-#endif
+#endif  /* RFM12_IP_SUPPORT */
+#endif  /* not RFM12_DISABLE */
 
   rfm12_epilogue();
 }
@@ -527,3 +535,10 @@ rfm12_get_status (void)
 
   return r;
 }
+
+/*
+  -- Ethersex META --
+  header(hardware/radio/rfm12/rfm12.h)
+  mainloop(rfm12_int_process)
+  init(rfm12_init)
+*/

@@ -1,6 +1,8 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
+$(PWM_GENERAL_SUPPORT)_SRC += hardware/pwm/pwm.c
+
 $(PWM_WAV_SUPPORT)_SRC += hardware/pwm/pwm_wav.c
 $(PWM_WAV_SUPPORT)_ECMD_SRC += hardware/pwm/pwm_wav_ecmd.c
 
@@ -12,9 +14,6 @@ $(PWM_SERVO_SUPPORT)_ECMD_SRC += hardware/pwm/pwm_servo_ecmd.c
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk
-
-$(TOPDIR)/hardware/pwm/pwm_melody.c: $(TOPDIR)/hardware/pwm/entchen.h
-	$^ > $@
 
 PWM_WAVFILE ?= $(TOPDIR)/hardware/pwm/ethersex.wav
 $(TOPDIR)/hardware/pwm/ethersex_wav.h: $(TOPDIR)/scripts/soundinclude $(PWM_WAVFILE)

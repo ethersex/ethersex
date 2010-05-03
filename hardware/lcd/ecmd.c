@@ -34,23 +34,22 @@
 
 int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
 {
-    uint16_t line;
+    if(*cmd)
+	{
+		uint8_t line = atoi(cmd);
 
-    int ret = sscanf_P(cmd,
-            PSTR("%u"),
-            &line);
-
-    if (ret == 1) {
         if (line > 3)
             return ECMD_ERR_PARSE_ERROR;
 
-        hd44780_goto(LO8(line), 0);
+        hd44780_goto(line, 0);
         for (uint8_t i = 0; i < 20; i++)
             fputc(' ', lcd);
-        hd44780_goto(LO8(line), 0);
+        hd44780_goto(line, 0);
 
         return ECMD_FINAL_OK;
-    } else {
+    }
+	else
+	{
         hd44780_clear();
         hd44780_goto(0, 0);
         return ECMD_FINAL_OK;
@@ -68,25 +67,41 @@ int16_t parse_cmd_lcd_write(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
 {
-    uint16_t line, pos = 0;
+#ifdef TEENSY_SUPPORT
+	uint8_t line, pos = 0;
+
+	/* Skip leading spaces. */
+	while(*cmd == 32) cmd ++;
+
+	/* Seek space (pos argument), chop and atoi to `pos'.  */
+	char *p = cmd;
+	while(*p && *p != 32) p ++;
+	if(*p)
+	{
+		*p = 0;
+		pos = atoi(p + 1);
+	}
+
+	line = atoi(cmd);
+#else
+	uint16_t line, pos = 0;
 
     int ret = sscanf_P(cmd,
             PSTR("%u %u"),
-            &line, & pos);
+            &line, &pos);
+	if(!ret) return ECMD_ERR_PARSE_ERROR;
+#endif
 
-    if (ret >= 1 && line < 4) {
-        if (ret == 2 && pos >= 20) {
-            pos = 20;
-        } else if (ret == 1)
-            pos = 0;
+    if (line > 3)
+		return ECMD_ERR_PARSE_ERROR;
 
-        debug_printf("going to line %u, pos %u\n", line, pos);
+	if (LO8(pos) >= 20)
+		pos = 20;
 
-        hd44780_goto(LO8(line), LO8(pos));
-        return ECMD_FINAL_OK;
-    } else
-        return ECMD_ERR_PARSE_ERROR;
+	debug_printf("going to line %u, pos %u\n", line, pos);
 
+	hd44780_goto(LO8(line), LO8(pos));
+	return ECMD_FINAL_OK;
 }
 
 int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
@@ -107,14 +122,30 @@ int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
 {
-  uint8_t cursor, blink;
-  int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
-  if ( ret == 2 ) {
+	uint8_t cursor, blink;
+
+#ifdef TEENSY_SUPPORT
+	/* Skip leading spaces. */
+	while(*cmd == 32) cmd ++;
+
+	/* Seek space (blink argument), chop and atoi to `blink'.  */
+	char *p = cmd;
+	while(*p && *p != 32) p ++;
+	if(!*p)
+		return ECMD_ERR_PARSE_ERROR; /* Required argument `blink' missing. */
+
+	*p = 0;
+	blink = atoi(p + 1);
+	cursor = atoi(cmd);
+#else
+	int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
+	if(ret == 2)
+		return ECMD_ERR_PARSE_ERROR;
+#endif
+
     hd44780_init();
     hd44780_config(cursor, blink);
     return ECMD_FINAL_OK;
-  } else
-    return ECMD_ERR_PARSE_ERROR;
 }
 
 int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
@@ -161,7 +192,9 @@ int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
   ecmd_feature(lcd_clear, "lcd clear", [LINE], Clear line LINE (0..3) or the whole display (if parameter is omitted))
   ecmd_feature(lcd_write, "lcd write", TEXT, Write TEXT to the current cursor location)
   ecmd_feature(lcd_goto, "lcd goto", LINE COL, Move cursor to LINE and column COL (origin is 0/0))
-  ecmd_feature(lcd_char, "lcd char", N D1 D2 D3 D4 D5 D6 D7 D8, Define use-definable char N with data D1..D8 (provide DATA in hex))
+  ecmd_ifndef(TEENSY_SUPPORT)
+    ecmd_feature(lcd_char, "lcd char", N D1 D2 D3 D4 D5 D6 D7 D8, Define use-definable char N with data D1..D8 (provide DATA in hex))
+  ecmd_endif()
   ecmd_feature(lcd_init, "lcd reinit", CURSOR BLINK, Reinitialize the display, set whether to show the cursor (CURSOR, 0 or 1) and whether the cursor shall BLINK)
   ecmd_feature(lcd_shift, "lcd shift", DIR, Shift the display to DIR (either ''left'' or ''right''))
   ecmd_feature(lcd_backlight, "lcd backlight", STATE, switch back light STATE to ON or OFF )

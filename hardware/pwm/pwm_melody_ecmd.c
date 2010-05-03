@@ -25,6 +25,7 @@
 #include "config.h"
 #include "core/debug.h"
 #include "pwm_melody.h"
+#include <stdlib.h>
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -34,10 +35,9 @@
 int16_t
 parse_cmd_pwm_melody_play(char *cmd, char *output, uint16_t len)
 {
-  uint8_t song = 0;
-  sscanf_P(cmd, PSTR("%i"), &song);
+  uint8_t song = atoi(cmd);
   pwm_melody_init(song);
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("PWM melody play")));
+  return ECMD_FINAL_OK;
 }
 
 #endif  /* PWM_SUPPORT */

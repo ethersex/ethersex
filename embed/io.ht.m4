@@ -57,8 +57,9 @@ function mask_port(request, data) {
 }
 
 function generate_port(port, change_handler) {
-	document.write('<table class="iotable"><tr><th>Nr</th><th>DDR'+ port
-		       + "</th><th>PORT" + port + "</th><th>PIN" + port +" </th></tr>");
+	var name = String.fromCharCode(port + 65);
+	document.write('<table class="iotable"><tr><th>Nr</th><th>DDR' + name
+		       + '</th><th>PORT' + name + '</th><th>PIN' + name + '</th></tr>');
 	for (var i = 0; i < 8; i++) {
 		var tr = "<tr><td>" + i + "</td>";
 		tr += "<td><input id='ddr" + port + i +"'" +

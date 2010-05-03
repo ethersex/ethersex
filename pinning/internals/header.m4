@@ -75,6 +75,9 @@ define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
   
 ')
 
+define(`RFM12_NO_INT', `dnl
+#define RFM12_USE_POLL 1
+')
 define(`RFM12_USE_INT', `dnl
 /* rfm12 module interrupt line */
 #define RFM12_INT_PIN INT$1
@@ -247,10 +250,12 @@ define(`S1D13305_DATA_PORT', `dnl
   #define S1D13305_DATAIN PIN$1
 ')
 
-ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
-ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
-ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
-ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
+ifdef(`conf_SOFT_SPI', `', `dnl
+  ifdef(`conf_RFM12', `define(need_spi, 1)')dnl
+  ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
+  ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
+  ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
+')
 
 define(`SHT_VOLTAGE_COMPENSATION', `dnl
   #define SHT_VOLTAGE_COMPENSATION_D1 SHT_VOLTAGE_COMPENSATION_D1_$1

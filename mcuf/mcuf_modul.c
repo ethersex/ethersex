@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "config.h"
 #include "core/debug.h"
 #include "services/clock/clock.h"
@@ -51,7 +52,7 @@
 #endif // MCUF_TEST_GAME_INPUT
 
 // max number of available modules
-#define MCUF_MAX_MODULES (sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)) - 1
+#define MCUF_MAX_MODULES ((sizeof(mcuf_display_modules) / sizeof(struct mcuf_modul_t)) - 1)
 
 #ifdef MCUF_MODUL_BORG16_SUPPORT
 #include "mcuf/borg-16/xoni_study.h"
@@ -199,7 +200,7 @@ uint8_t mcuf_play_modul(MCUF_PLAY_MODE play_mode, uint8_t modul)
       mcuf_current_modul++;
       break;
     case MCUF_MODUL_PLAY_MODE_RANDOM: 
-      mcuf_current_modul = rand() & MCUF_MAX_MODULES ;
+      mcuf_current_modul = (rand() & MCUF_MAX_MODULES);
       break;
   }
  

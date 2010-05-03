@@ -125,12 +125,10 @@ void lcd_init(void)
   lcd_setDisplayOn(true);
   lcd_backlightOn(true);
 
-  #ifdef DEBUG_S1D13305
-    #if S1D13305_MODE == S1D13305_MIXED
-      debug_printf("LCD initialized, mixed mode.\n");
-    #else
-      debug_printf("LCD initialized, graphics mode.\n");
-    #endif
+  #if S1D13305_MODE == S1D13305_MIXED
+    LCDDEBUG("initialized, mixed mode.\n");
+  #else
+    LCDDEBUG("initialized, graphics mode.\n");
   #endif
 }
 
@@ -173,8 +171,8 @@ lcd_writeText(uint8_t* text_pui8, uint16_t len_ui16)
     lcd_writeCmdByte(CMD_MWRITE);
     for (i = 0; i < len_ui16; i++)
     {
-		lcd_waitForCntrlrReady();
-		lcd_writeData(text_pui8[i]);
+      lcd_waitForCntrlrReady();
+      lcd_writeData(text_pui8[i]);
     }
   #endif
 }
@@ -201,7 +199,7 @@ lcd_drawBitmap(uint8_t layer_ui8, uint16_t posX_ui16, uint16_t posY_ui16, uint16
   /* In mixed mode layer 1 displays text */
   #if S1D13305_MODE == S1D13305_MIXED
     if (LCD_LAYER1 == layer_ui8)
-	    return;
+      return;
   #endif
 
   for (j = 0; j < height_ui16; j++)
@@ -210,8 +208,8 @@ lcd_drawBitmap(uint8_t layer_ui8, uint16_t posX_ui16, uint16_t posY_ui16, uint16
     lcd_writeCmdByte(CMD_MWRITE);
     for (i = 0; i < byteWidth_ui16; i++)
     {
-        lcd_waitForCntrlrReady();
-        lcd_writeData(lcd_getBMPData(i+(j*byteWidth_ui16)));
+      lcd_waitForCntrlrReady();
+      lcd_writeData(lcd_getBMPData(i+(j*byteWidth_ui16)));
     }
   }
 }
@@ -253,9 +251,7 @@ lcd_setLayerModes(uint8_t cursorMode_ui8, uint8_t layerModes_ui8)
   lcd_writeCmdByte(true == displayOn_gb ? CMD_DISP_ON:CMD_DISP_OFF);
   lcd_writeData(cursorMode_ui8|layerModes_ui8);
 
-  #ifdef DEBUG_S1D13305
-  debug_printf("LCD: layer mode: %i cursor mode: %i\n", layerModes_ui8, cursorMode_ui8);
-  #endif
+  LCDDEBUG("layer mode: %i cursor mode: %i\n", layerModes_ui8, cursorMode_ui8);
 }
 
 /**
@@ -270,7 +266,8 @@ lcd_setOverlayMode(uint8_t mode_ui8)
 {
   /* Overlay mode byte
      0 0 0 OV DM2 DM1 MX1 MX0
-	 DM1 and DM2 must be set the same value */
+     DM1 and DM2 must be set the same value */
+
   mode_ui8 &= 0x03;
   lcd_writeCmdByte(CMD_OVLAY);
 
@@ -282,9 +279,7 @@ lcd_setOverlayMode(uint8_t mode_ui8)
     lcd_writeData(mode_ui8);
   #endif
 
-  #ifdef DEBUG_S1D13305
-  debug_printf("LCD: overlay mode: %i\n", mode_ui8);
-  #endif
+  LCDDEBUG("overlay mode: %i\n", mode_ui8);
 }
 
 /**
@@ -306,18 +301,18 @@ lcd_setCursorPos(uint8_t layer_ui8, uint16_t posX_ui16, uint16_t posY_ui16)
   uint16_t address_ui16;
 
   #if S1D13305_MODE == S1D13305_MIXED
-    if (LCD_LAYER1 == layer_ui8)
+  if (LCD_LAYER1 == layer_ui8)
+  {
+    if (posX_ui16 > (CONF_S1D13305_RESX / LCD_CHR_SIZE_X))
     {
-	    if (posX_ui16 > (CONF_S1D13305_RESX / LCD_CHR_SIZE_X))
-	    {
-          	posX_ui16 = (CONF_S1D13305_RESX / LCD_CHR_SIZE_X);
-	    }
-
-	    if (posY_ui16 > (CONF_S1D13305_RESY / LCD_CHR_SIZE_Y))
-	    {
-          	posY_ui16 = (CONF_S1D13305_RESY / LCD_CHR_SIZE_Y);
-	    }
+        posX_ui16 = (CONF_S1D13305_RESX / LCD_CHR_SIZE_X);
     }
+
+    if (posY_ui16 > (CONF_S1D13305_RESY / LCD_CHR_SIZE_Y))
+    {
+        posY_ui16 = (CONF_S1D13305_RESY / LCD_CHR_SIZE_Y);
+    }
+  }
   #endif
 
   if (posX_ui16 > CONF_S1D13305_RESX)
@@ -334,27 +329,27 @@ lcd_setCursorPos(uint8_t layer_ui8, uint16_t posX_ui16, uint16_t posY_ui16)
   {
     case LCD_LAYER1:
       #if S1D13305_MODE == S1D13305_GRAPHICS
-	    address_ui16 = (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16/8);
+        address_ui16 = (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16/8);
       #else
-	    address_ui16 = (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16);
+        address_ui16 = (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16);
       #endif
-	break;
+    break;
 
     case LCD_LAYER2:
-	  address_ui16 = LCD_SAD2 + (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16 / 8);
-	break;
+      address_ui16 = LCD_SAD2 + (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16 / 8);
+    break;
 
-	case LCD_LAYER3:
+    case LCD_LAYER3:
       #if S1D13305_MODE == S1D13305_GRAPHICS
-	    address_ui16 = LCD_SAD3 + (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16 / 8);
+	address_ui16 = LCD_SAD3 + (posY_ui16*LCD_BYTEWIDTH) + (posX_ui16 / 8);
       #else
         address_ui16 = 0;
       #endif
-	break;
+    break;
 
-	default:
-	  address_ui16 = 0;
-	break;
+    default:
+      address_ui16 = 0;
+    break;
   }
 
   param_ui8[0] = LOW_BYTE(address_ui16);
@@ -380,15 +375,15 @@ lcd_clear(uint8_t layer_ui8)
   if ((LCD_LAYER1 & layer_ui8) == LCD_LAYER1)
   {
     /* Set cursor to layer 1 */
-	param_ui8[0] = 0;
+    param_ui8[0] = 0;
     param_ui8[1] = 0;
     lcd_writeCmd(CMD_CSRW, 2, param_ui8);
 
     wdt_kick();
 
-	/* Clear. Screen 1 must be treated differently *
-	 * in graphics or text mode                    */
-	lcd_writeCmdByte(CMD_MWRITE);
+    /* Clear. Screen 1 must be treated differently *
+     * in graphics or text mode                    */
+    lcd_writeCmdByte(CMD_MWRITE);
     #if S1D13305_MODE == S1D13305_GRAPHICS
       for (i=0; i<LCD_BYTES_GRAPHIC; i++)
       {
@@ -402,9 +397,7 @@ lcd_clear(uint8_t layer_ui8)
       }
     #endif
 
-    #ifdef DEBUG_S1D13305
-        debug_printf("LCD: layer 1 cleared\n");
-    #endif
+    LCDDEBUG("layer 1 cleared\n");
   }
 
   if ((LCD_LAYER2 & layer_ui8) == LCD_LAYER2)
@@ -423,9 +416,8 @@ lcd_clear(uint8_t layer_ui8)
 	  lcd_waitForCntrlrReady();
       lcd_writeData(0x00);
     }
-    #ifdef DEBUG_S1D13305
-        debug_printf("LCD: layer 2 cleared\n");
-    #endif
+
+    LCDDEBUG("layer 2 cleared\n");
   }
 
   #if S1D13305_MODE == S1D13305_GRAPHICS
@@ -445,9 +437,8 @@ lcd_clear(uint8_t layer_ui8)
 	    lcd_waitForCntrlrReady();
         lcd_writeData(0x00);
       }
-      #ifdef DEBUG_S1D13305
-        debug_printf("LCD: layer 3 cleared\n");
-      #endif
+
+      LCDDEBUG("layer 3 cleared\n");
     }
   #endif
 }
@@ -492,7 +483,7 @@ lcd_readData()
 
   /* configure LCD data port as input */
   S1D13305_DATA = 0xFF;
- S1D13305_DATA_DDR = 0x00;
+  S1D13305_DATA_DDR = 0x00;
 
   /* Set controller in read mode */
   PIN_SET(S1D13305_WR);
@@ -581,36 +572,36 @@ lcd_writeCmd(uint8_t cmd_ui8, uint8_t size_ui8, uint8_t* param_aui8)
 void
 lcd_waitForCntrlrReady(void)
 {
-	uint8_t ctr_ui8 = 0;
-	uint8_t result_ui8 = 0xFF;
+  uint8_t ctr_ui8 = 0;
+  uint8_t result_ui8 = 0xFF;
 
-	/* Configure LCD data port as input */
-	S1D13305_DATA = 0xFF;
-	S1D13305_DATA_DDR = 0x00;
+  /* Configure LCD data port as input */
+  S1D13305_DATA = 0xFF;
+  S1D13305_DATA_DDR = 0x00;
 
-	/* Set status flag read mode */
-	PIN_SET(S1D13305_WR);
-	PIN_CLEAR(S1D13305_A0);
-	PIN_CLEAR(S1D13305_RD);
-	PIN_CLEAR(S1D13305_CS);
+  /* Set status flag read mode */
+  PIN_SET(S1D13305_WR);
+  PIN_CLEAR(S1D13305_A0);
+  PIN_CLEAR(S1D13305_RD);
+  PIN_CLEAR(S1D13305_CS);
 
-    wdt_kick();
+  wdt_kick();
 
-    /* Wait 255 cycles for pin 6 to go low (=memory can be written) */
-	while ((ctr_ui8++ < 255) && ((result_ui8 & 0x40) == 0x40))
-	{
-		result_ui8 = S1D13305_DATAIN;
-	}
+  /* Wait 255 cycles for pin 6 to go low (=memory can be written) */
+  while ((ctr_ui8++ < 255) && ((result_ui8 & 0x40) == 0x40))
+  {
+    result_ui8 = S1D13305_DATAIN;
+  }
 
-    /* Disable controller */
-	PIN_SET(S1D13305_RD);
-	PIN_SET(S1D13305_A0);
-	PIN_SET(S1D13305_CS);
+  /* Disable controller */
+  PIN_SET(S1D13305_RD);
+  PIN_SET(S1D13305_A0);
+  PIN_SET(S1D13305_CS);
 
-   /* Reconfigure port  */
-	S1D13305_DATA_DDR = 0xFF;
-	S1D13305_DATA = 0x00;
- }
+  /* Reconfigure port  */
+  S1D13305_DATA_DDR = 0xFF;
+  S1D13305_DATA = 0x00;
+}
 
 /**
 * @brief Controls sleep mode
@@ -626,9 +617,7 @@ lcd_setSleepMode(bool sleepIn_b)
   if (true == sleepIn_b)
   {
     lcd_writeCmdByte(CMD_SLEEP_IN);
-    #ifdef DEBUG_S1D13305
-        debug_printf("LCD: sleep in\n");
-    #endif
+    LCDDEBUG("sleep in\n");
   }
   else
   {
@@ -638,9 +627,7 @@ lcd_setSleepMode(bool sleepIn_b)
     lcd_writeCmdByte(CMD_SYSTEM_SET);
     lcd_writeData(LCD_SYSTEMSET_P1);
     lcd_writeCmdByte(CMD_DISP_ON);
-    #ifdef DEBUG_S1D13305
-        debug_printf("LCD: wake up\n");
-    #endif
+    LCDDEBUG("wake up\n");
   }
 }
 
@@ -655,14 +642,14 @@ lcd_setSleepMode(bool sleepIn_b)
 void
 lcd_backlightOn(bool lightOn_b)
 {
-  if (true == lightOn_b)
-    PIN_SET(LCD_BACKLIGHT);
-  else
-    PIN_CLEAR(LCD_BACKLIGHT);
+  #ifdef LCD_BACKLIGHT_SUPPORT
+    if (true == lightOn_b)
+      PIN_SET(LCD_BACKLIGHT);
+    else
+      PIN_CLEAR(LCD_BACKLIGHT);
 
-  #ifdef DEBUG_S1D13305
-    debug_printf("LCD: backlight %b\n", lightOn_b);
-  #endif
+    LCDDEBUG("backlight %b\n", lightOn_b);
+  #endif /* LCD_BACKLIGHT_SUPPORT */
 }
 
 /*

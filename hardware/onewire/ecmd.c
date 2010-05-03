@@ -120,7 +120,9 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #endif
 
         uint8_t sreg;
+#ifdef ONEWIRE_DS2502_SUPPORT
 list_next:
+#endif
         /* disable interrupts */
         sreg = SREG;
         cli();

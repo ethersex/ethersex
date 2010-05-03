@@ -46,5 +46,5 @@ int16_t parse_cmd_fuse(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(fuse, "fuse",,Display the fuse settings.)
+  ecmd_feature(fuse, "fuse",,Display current fuse settings)
 */

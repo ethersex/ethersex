@@ -7,6 +7,7 @@ SUBDIRS += core/crypto
 SUBDIRS += core/host
 SUBDIRS += core/portio
 SUBDIRS += core/tty
+SUBDIRS += core/gui
 SUBDIRS += core/util
 SUBDIRS += core/vfs
 SUBDIRS += mcuf
@@ -41,6 +42,8 @@ SUBDIRS += hardware/sram
 SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
 SUBDIRS += hardware/zacwire
+SUBDIRS += hardware/ultrasonic
+SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
 SUBDIRS += protocols/dmx
@@ -76,6 +79,7 @@ SUBDIRS += protocols/nmea
 SUBDIRS += protocols/udpIO
 SUBDIRS += protocols/udpstella
 SUBDIRS += protocols/udpcurtain
+SUBDIRS += protocols/cw
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
@@ -85,11 +89,15 @@ SUBDIRS += services/httpd
 SUBDIRS += services/jabber
 SUBDIRS += services/ntp
 SUBDIRS += services/wol
+SUBDIRS += services/motd
+SUBDIRS += services/moodlight
 SUBDIRS += services/stella
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
 SUBDIRS += services/watchcat
+SUBDIRS += services/vnc
+SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 
 rootbuild=t
@@ -178,6 +186,14 @@ OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lc -lm # Pixie Dust!!! (Bug in avr-binutils)
+
+SIZEFUNCARG ?= -e printf -e scanf -e divmod
+size-check: $(OBJECTS) ethersex
+	@for obj in $^; do \
+	    if avr-nm $$obj | grep -q $(SIZEFUNCARG); then \
+		echo -n "$$obj: "; avr-nm $$obj | grep $(SIZEFUNCARG) | cut -c12- | tr '\n' ','; echo ''; \
+	    fi; \
+	done
 
 ##############################################################################
 

@@ -20,14 +20,14 @@ DEBUG
   Enable serial-line debugging capability of Ethersex firmware.
   Moreover this includes an ECMD interface if the ECMD parser is
   enabled.
-  
+
   If you enable this you either want to add some debug_printf
   instructions here and there in the firmware source code or enable
   some of the pre-defined debugging-categories, see submenu.
 
 Reroute to SYSLOG
 DEBUG_USE_SYSLOG
-  Depends on: 
+  Depends on:
    * SYSLOG support (SYSLOG_SUPPORT)
    * Enable (Serial-Line) Debugging (DEBUG)
 
@@ -35,126 +35,126 @@ DEBUG_USE_SYSLOG
 
 ECMD
 DEBUG_ECMD
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD FS20
 DEBUG_ECMD_FS20
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD IP
 DEBUG_ECMD_IP
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD MAC
 DEBUG_ECMD_MAC
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD NET
 DEBUG_ECMD_NET
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD OW LIST
 DEBUG_ECMD_OW_LIST
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD OW ROM
 DEBUG_ECMD_OW_ROM
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD PORTIO
 DEBUG_ECMD_PORTIO
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD RC5
 DEBUG_ECMD_RC5
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ENC28J60
 DEBUG_ENC28J60
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Interrupt
 DEBUG_INTERRUPT
-  Depends on: 
+  Depends on:
    * ENC28J60 (DEBUG_ENC28J60)
 
   There's unfortunately no help available for this item.
 
 Networking
 DEBUG_NET
-  Depends on: 
+  Depends on:
    * ENC28J60 (DEBUG_ENC28J60)
 
   There's unfortunately no help available for this item.
 
 Config
 DEBUG_NET_CONFIG
-  Depends on: 
+  Depends on:
    * Networking (DEBUG_NET)
 
   There's unfortunately no help available for this item.
 
 Unknown packets
 DEBUG_UNKNOWN_PACKETS
-  Depends on: 
+  Depends on:
    * Networking (DEBUG_NET)
 
   There's unfortunately no help available for this item.
 
 Rev. 4 Workaround
 DEBUG_REV4_WORKAROUND
-  Depends on: 
+  Depends on:
    * ENC28J60 (DEBUG_ENC28J60)
 
   There's unfortunately no help available for this item.
 
 File System
 DEBUG_FS
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Inode Table
 DEBUG_FS_INODETABLE
-  Depends on: 
+  Depends on:
    * File System (DEBUG_FS)
 
   There's unfortunately no help available for this item.
 
 Mark
 DEBUG_FS_MARK
-  Depends on: 
+  Depends on:
    * File System (DEBUG_FS)
 
   There's unfortunately no help available for this item.
@@ -167,7 +167,7 @@ FS20_SUPPORT
 
 FS20 Receive
 DEBUG_FS20_REC
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
@@ -175,7 +175,7 @@ DEBUG_FS20_REC
 
 FS20 Receive Queue
 DEBUG_FS20_REC_QUEUE
-  Depends on: 
+  Depends on:
    * FS20 Receive (DEBUG_FS20_REC)
 
   There's unfortunately no help available for this item.
@@ -183,7 +183,7 @@ DEBUG_FS20_REC_QUEUE
 
 FS20 Receive Verbose
 DEBUG_FS20_REC_VERBOSE
-  Depends on: 
+  Depends on:
    * FS20 Receive (DEBUG_FS20_REC)
 
   There's unfortunately no help available for this item.
@@ -191,7 +191,7 @@ DEBUG_FS20_REC_VERBOSE
 
 FS20 WS300
 DEBUG_FS20_WS300
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
@@ -199,7 +199,7 @@ DEBUG_FS20_WS300
 
 FS20 WS300 Verbose
 DEBUG_FS20_WS300_VERBOSE
-  Depends on: 
+  Depends on:
    * FS20 WS300 (DEBUG_FS20_WS300)
 
   There's unfortunately no help available for this item.
@@ -207,49 +207,49 @@ DEBUG_FS20_WS300_VERBOSE
 
 HD44780
 DEBUG_HD44780
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 HTTPD
 DEBUG_HTTPD
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 RC5
 DEBUG_RC5
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Sendmail
 DEBUG_SENDMAIL
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Timer
 DEBUG_TIMER
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 IPv6 support
 IPV6_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
- Enable IPv6 networking instead of IPv4. 
+ Enable IPv6 networking instead of IPv4.
 
 Enable IP forwarding
 IP_FORWARDING_SUPPORT
-  Depends on: 
+  Depends on:
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
   Forward IP packets between several interfaces, e.g. from USB to RFM12,
@@ -257,7 +257,7 @@ IP_FORWARDING_SUPPORT
 
 HC595 output expansion
 HC595_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
 
@@ -265,7 +265,7 @@ HC595_SUPPORT
 
 HC165 support
 HC165_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
 
@@ -273,14 +273,14 @@ HC165_SUPPORT
 
 Inverse output
 HC165_INVERSE_OUTPUT
-  Depends on: 
+  Depends on:
    * HC165 support (HC165_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 PS/2 keyboard
 PS2_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Support for PS/2 keyboards, currently keystrokes are only logged to
@@ -288,14 +288,14 @@ PS2_SUPPORT
 
 PS/2: Use German layout
 PS2_GERMAN_LAYOUT
-  Depends on: 
+  Depends on:
    * PS/2 keyboard (PS2_SUPPORT)
 
  Set german keyboard layout.
 
 ADC input
 ADC_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
 
   Enable ADC abstraction layer.  This especially enables a further
@@ -304,35 +304,35 @@ ADC_SUPPORT
 
 FS20 RF-control
 FS20_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   There's unfortunately no help available for this item.
 
 Send RC5 IR-codes
 RC5_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add support to send and receive RC5 IR-remote codes.
 
 Usart ecmd interface (RS232)
 ECMD_SERIAL_USART_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
 
   Add support for ECMDs received on serial RS232 link.
 
 Usart ecmd RS485 mode
 ECMD_SERIAL_USART_RS485_SUPPORT
-  Depends on: 
+  Depends on:
    * Usart ecmd interface (RS232) (ECMD_SERIAL_USART_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 Blinkenlights - MicroControllerUnitFrame
 MCUF_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   Enables UDP-Blinkenlights-Streams reciever on Port 2323
@@ -341,9 +341,9 @@ MCUF_SUPPORT
     BLP
     EBLP
     MCUF
-  
+
   For Details see https://wiki.blinkenarea.org/index.php/Protocols
-  
+
   To use the incomming data, you have to enable
     MCUF usart
   and/or
@@ -351,39 +351,39 @@ MCUF_SUPPORT
     BlinkenLightsPro
   or
     LED-Module16x16rg
-  
-  
+
+
   Use "MCUF usart" to send Data over USART 0 or 1 for example to a
   Shifter (see https://wiki.blinkenarea.org/index.php/Shifter). If
   you want to use "MCUF usart", you also have to select the USART
   in the field "MCUF usart select".
-  
+
   Use "BlinkenLightsPro" if you have a BlinkenLedsPro or compatible
   Hardware directly connected to your microcontroller.
   See https://wiki.blinkenarea.org/index.php/BlinkenLEDs for
   Details.
-  
+
   For "LED-Module16x16rg" and further information on "Blinkenlights
   - MicroControllerUnitFrame" see
   http://www.ethersex.de/tiki-index.php?page=Blinkenlights+MCUF
 
 Readback support
 HD44780_READBACK
-  Depends on: 
+  Depends on:
    * HD44780 module driver (HD44780_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 Use Port C (instead of Port A)
 HD44780_USE_PORTC
-  Depends on: 
+  Depends on:
    * HD44780 module driver (HD44780_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 YPort Support
 YPORT_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
 
   Enable TCP-to-RS232 gateway, i.e. an X-Port.
@@ -392,7 +392,7 @@ YPORT_SUPPORT
   A really cool possibility to use YPort is socat. With socat you can set up
   a PTY device on your Linux, which you can use as a normal serial interface.
 
-  socat PTY,link=/dev/YPort TCP:192.168.1.5:7970 
+  socat PTY,link=/dev/YPort TCP:192.168.1.5:7970
 
 Cryptographic functionality
 CRYPTO_SUPPORT
@@ -403,26 +403,26 @@ CRYPTO_SUPPORT
 
 CAST5
 CAST5_SUPPORT
-  Depends on: 
+  Depends on:
    * Cryptographic functionality (CRYPTO_SUPPORT)
 
   Enable CAST-5 cipher needed for OpenVPN.
 
 MD5
 MD5_SUPPORT
-  Depends on: 
+  Depends on:
    * Cryptographic functionality (CRYPTO_SUPPORT)
 
   Enable MD5-hash for OpenVPN packet authentication.
 
 RFM12 (FSK transmitter) support
 RFM12_IP_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
   RFM12 are cheap 433 MHz FSK-transmitters (i.e. wireless)
 
-  RFM12 are available from pollin at
+  RFM12 are available from Pollin at
   http://www.pollin.de/shop/detail.php?pg=NQ==&a=MDU5OTgxOTk=
 
   For a step-by-step howto, see
@@ -430,7 +430,7 @@ RFM12_IP_SUPPORT
 
 RFM12 ARP-Proxy
 RFM12_ARP_PROXY
-  Depends on: 
+  Depends on:
    * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
    * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
 
@@ -444,7 +444,7 @@ RFM12_ASK_SUPPORT
   This ASK is very helpful for playing around with radio controlled
   power switches or similar devices.
   Due to the fact that the FM transmitting RFM12 chip is just turned
-  on of off, the modulation is ASK.
+  on or off, the modulation is ASK.
 
 RFM12 ASK SENDER (Amplitude Shift Keying) Sending Support
 RFM12_ASK_SENDER_SUPPORT
@@ -468,7 +468,7 @@ RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 
 IPchair (firewalling)
 IPCHAIR_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Basic firewalling functionallity, similar to IPtables.
@@ -477,7 +477,7 @@ IPCHAIR_SUPPORT
 
 IPchair: Masquerading
 IPCHAIR_MASQ
-  Depends on: 
+  Depends on:
    * IPchair (firewalling) (IPCHAIR_SUPPORT)
 
   Simple, quite untested, masquerading code.  You might consider using
@@ -487,7 +487,7 @@ IPCHAIR_MASQ
 
 control6 scripts
 CONTROL6_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   6Control is a BASIC-like scripting language which you can use
@@ -496,39 +496,40 @@ CONTROL6_SUPPORT
   than implementing these in C code.
 
   See control6/control6.src to get an impression of the language,
-  e.g. example code.  There are more examples in the Ethersex wiki.
+  e.g. example code.  There are more examples in the Ethersex wiki
+  at http://ethersex.de/index.php/Control6
 
 TCP support
 TCP_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 UDP support
 UDP_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 UDP broadcast support
 BROADCAST_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 ICMP support
 ICMP_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 BOOTP support
 BOOTP_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP broadcast support (BROADCAST_SUPPORT)
    * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
    * IPv4 support (IPV4_SUPPORT)
@@ -541,7 +542,7 @@ BOOTP_SUPPORT
 
 Write BOOTP data to EEPROM
 BOOTP_TO_EEPROM_SUPPORT
-  Depends on: 
+  Depends on:
    * Build a bootloader (BOOTLOADER_SUPPORT)
    * BOOTP support (BOOTP_SUPPORT)
 
@@ -549,7 +550,7 @@ BOOTP_TO_EEPROM_SUPPORT
 
 DNS support
 DNS_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   Link a simple DNS resolver into the firmware.  It can be used
@@ -558,7 +559,7 @@ DNS_SUPPORT
 
 SYSLOG support
 SYSLOG_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
@@ -568,14 +569,14 @@ SYSLOG_SUPPORT
 
 OpenVPN
 OPENVPN_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   Enable OpenVPN server.
 
   It currenly supports only symmetric ciphers (e.g. Cast5).
 
-  For details on configuration see 
+  For details on configuration see
   http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
 
 OpenVPN key
@@ -586,7 +587,7 @@ CONF_OPENVPN_KEY
   Paste the first line of hex-digits from the OpenVPN key file,
   generated on the host PC.
 
-  For details on configuration see 
+  For details on configuration see
   http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
 
 OpenVPN HMAC key
@@ -597,57 +598,58 @@ CONF_OPENVPN_HMAC_KEY
   Paste the fifth line of hex-digits from the OpenVPN key file,
   generated on the host PC.
 
-  For details on configuration see 
+  For details on configuration see
   http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
 
 RFM12 raw
 RFM12_RAW_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
   Forward raw data (sent to UDP port 16962, i.e. 0x4242) to RFM12.
 
-  Every packet received on RFM12 is passed back to the sender of the UDP 
+  Every packet received on RFM12 is passed back to the sender of the UDP
   packet, for about half a second after reception of the initial UDP packet.
 
 ZBUS raw
 ZBUS_RAW_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * ZBus Support (ZBUS_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
   Forward raw data (sent to UDP port 16963, i.e. 0x4243) to ZBUS.
 
-  Every packet received on ZBus is passed back to the sender of the UDP 
+  Every packet received on ZBus is passed back to the sender of the UDP
   packet, for about half a second after reception of the initial UDP packet.
 
 USB (Softwarestack) Support (EXPERIMENTAL)
 USB_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Support for USB functions
+  Support for USB functions. see http://ethersex.de/index.php/USB
+  for details
 
 USBnet
 USB_NET_SUPPORT
-  Depends on: 
+  Depends on:
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
    * Networking support (UIP_SUPPORT)
 
   IP-Networking over USB.  It doesn't use kernel-driven CDC-subset
   because of too high controller load.
 
-  You need to use the userspace-space client available 
-  from contrib/usb_net
+  You need to use the userspace-space client available
+  in contrib/usb_net
 
   See also http://ethersex.de/index.php/USB#usbnet
 
 USBnet ARP-Proxy
 USB_ARP_PROXY
-  Depends on: 
+  Depends on:
    * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
 
   There's unfortunately no help available for this item.
@@ -655,21 +657,21 @@ USB_ARP_PROXY
 System clock support
 CLOCK_SUPPORT
   Enable system clock.
-  
+
   A detailed step-by-step guide is available at
-  http://ethersex.de/tiki-index.php?page=Ethersex%3AStepByStep%3AAmPulsDerZeit
+  http://ethersex.de/index.php/Am_Puls_der_Zeit
 
 Use 32 kHz crystal to tick the clock
 CLOCK_CRYSTAL_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
 
-  Tick the system clock through a connected clock-crystal, not the internal
-  oscillator.
+  Tick the system clock through a clock-crystal connected to TOSC1 and TOSC2,
+  instead of the internal oscillator.
 
 Synchronize using DCF77 signal
 DCF77_SUPPORT
-  Depends on: 
+  Depends on:
    * Use 32 kHz crystal to tick the clock (CLOCK_CRYSTAL_SUPPORT)
 
   Use the DCF77-signal as a clock source to synchronize to.
@@ -677,23 +679,22 @@ DCF77_SUPPORT
 
 Synchronize using NTP protocol
 NTP_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
   Synchronize the system clock via NTP.
 
-NTP Full Qualified NTP-Server Name
+NTP Fully Qualified NTP-Server Name
 NTP_SERVER
- Enter the right fqdn of your NTP-Server right here. The Servername 
- depends on IPv4/IPv6.
+ Enter the FQDN of your NTP-Server right here.  The server name depends on
+ IPv4/IPv6.
 
 NTP Server IP Address
 NTP_SERVER_IP
  This IP depends on your IPv4 or IPv6 selection and provides
  to set the correct NTP-Server IP Address for your network.
- Usefull during disabled DNS operations.
-
+ Useful during disabled DNS operations.
 
 NTP Server Port Number
 NTP_PORT
@@ -702,12 +703,12 @@ NTP_PORT
 
 Cron daemon
 CRON_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
 
   Enable cron-alike service. Cronjobs can be added programmatically
-  or by other module ecmd commands and removed via the ecmd command cron_rm.
-  A list of all active jobs can be requested via cron_list.
+  or by other modules' ecmd commands and removed via the ecmd command
+  "cron_rm".  A list of all active jobs can be requested via "cron_list".
 
   Syntax for the cron ecmd commands:
   cron_rm POSITION (where POSITION is in 0..N-1)
@@ -718,7 +719,7 @@ CRON_SUPPORT
 
 NTP daemon
 NTPD_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
@@ -726,14 +727,14 @@ NTPD_SUPPORT
 
 Working hour meter
 WHM_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
 
   Calculate system uptime, adds further ECMD 'whm'.
 
 TFTP support
 TFTP_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   Enable built-in TFTP server.
@@ -746,14 +747,14 @@ TFTP_SUPPORT
 
 TFTP-o-matic
 TFTPOMATIC_SUPPORT
-  Depends on: 
+  Depends on:
    * TFTP support (TFTP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 MDNS service announcement (Avahi)
 MDNS_SD_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   Multi-cast DNS (well-known as "Avahi") support.
@@ -763,7 +764,7 @@ MDNS_SD_SUPPORT
 
 Stella: Multichannel PWM
 STELLA_SUPPORT
-  Depends on: 
+  Depends on:
 
   Generates up to eight independant PWM signals e.g. to control
   LEDs. Can be used as moodlight. Is controlled through the
@@ -773,21 +774,22 @@ STELLA_SUPPORT
 
 UDP Echo
 UDP_ECHO_NET_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 Update DNS records at dyn.metafnord.de
 DYNDNS_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
-  Simple UDP echo, i.e. simply sends back what it received on UDP port 7.
+  Simple UDP echo, i.e. simply sends back what it received on
+  UDP port 7.
 
 Watch IO changes (and react)
 WATCHCAT_SUPPORT
-  Depends on: 
+  Depends on:
    * Send ECMD messages (ECMD_SENDER_SUPPORT)
    * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
 
@@ -799,17 +801,17 @@ WATCHCAT_SUPPORT
 
 Simple Network Managment Protocol support (snmp)
 SNMP_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Make ADC, Hostname and Uptime available through SNMP.
-  
+
   Set default values for DESCRIPTION, LOCATION and CONTACT.
 
 Sendmail support (smtp)
 SENDMAIL_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -817,28 +819,28 @@ SENDMAIL_SUPPORT
 
 SMTP Auth Support
 SENDMAIL_AUTH_SUPPORT
-  Depends on: 
+  Depends on:
    * Sendmail support (smtp) (SENDMAIL_SUPPORT)
 
   Support for SMTP authentication.
 
 HTTP Server
 HTTPD_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
 
   Enable HTTP server.
 
 Basic Authentication
 HTTPD_AUTH_SUPPORT
-  Depends on: 
+  Depends on:
    * HTTP Server (HTTPD_SUPPORT)
 
   Enable 'basic'-Authentication for HTTP server.
 
 Modbus Support
 MODBUS_SUPPORT
-  Depends on: 
+  Depends on:
 
   Modbus is a standardized bus, see http://modbus.org/ for details.
 
@@ -846,7 +848,7 @@ MODBUS_SUPPORT
 
 KTY Calculation Support
 KTY_SUPPORT
-  Depends on: 
+  Depends on:
    * ADC input (ADC_SUPPORT)
 
   Add support for KTY temperature sensors, connected to ADC pins.
@@ -857,7 +859,7 @@ KTY_SUPPORT
 
 Ethernet (ENC28J60) support
 ENC28J60_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
  If your hardware uses the ENC28J60 IC and you want network functions, just
@@ -865,21 +867,21 @@ ENC28J60_SUPPORT
 
 Static IPv6 configuration
 IPV6_STATIC_SUPPORT
-  Depends on: 
+  Depends on:
    * IPv6 support (IPV6_SUPPORT)
 
   There's unfortunately no help available for this item.
 
 I2C Atmel dataflash
 DATAFLASH_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add code to support the dataflash found on Etherrape original hardware.
 
 ZBus Support
 ZBUS_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
 
   IP link over RS485
@@ -894,7 +896,7 @@ ZBUS_SUPPORT
 
 ZBUS ARP-Proxy
 ZBUS_ARP_PROXY
-  Depends on: 
+  Depends on:
    * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
    * ZBus Support (ZBUS_SUPPORT)
 
@@ -902,37 +904,37 @@ ZBUS_ARP_PROXY
 
 TCP/Telnet interface
 ECMD_TCP_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
    * TCP support (TCP_SUPPORT)
 
   Add TCP Telnet like ECMD support.
-  See http://ethersex.de/index.php/ECMD for help. 
+  See http://ethersex.de/index.php/ECMD for help.
   See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_TCP
 
 UDP interface
 ECMD_UDP_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
-  Add UDP ECMD support. 
-  See http://ethersex.de/index.php/ECMD for help. 
+  Add UDP ECMD support.
+  See http://ethersex.de/index.php/ECMD for help.
   See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_UDP
 
 I2C interface
 ECMD_SERIAL_I2C_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add ECMD Support via TWI or I2C Interface.
-  See http://ethersex.de/index.php/ECMD for help. 
+  See http://ethersex.de/index.php/ECMD for help.
 
 USB interface
 ECMD_USB_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
@@ -941,13 +943,13 @@ ECMD_USB_SUPPORT
   You should set
   "Network  ---> USB (Softwarestack) Support  ---> USB Device Type"
   to "other".
-  See http://ethersex.de/index.php/ECMD for help. 
+  See http://ethersex.de/index.php/ECMD for help.
   See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_USB and
   http://ethersex.de/index.php/USB#ECMD_via_USB
 
 Send ECMD messages
 ECMD_SENDER_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
 
   Add code to send ECMDs to other hosts (e.g. Etherrape/-sex compatible
@@ -974,7 +976,7 @@ NAMED_PIN_SUPPORT
 
   This way you can assign a human-readable name to a physical pin.  This
   can be used together with ecmd, e.g.
-    
+
     pin get NAME                -- to read NAME
     pin set NAME STATUS         -- to set the pin NAME to STATUS (on/off)
     pin toggle NAME             -- to toggle the pin NAME
@@ -984,7 +986,7 @@ NAMED_PIN_SUPPORT
 
 MCUF usart
 MCUF_SERIAL_SUPPORT
-  Depends on: 
+  Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
 
   Converts and sends incomming UDP-Blinkenlights-Streams to the
@@ -996,7 +998,7 @@ Workaround for MCUF-UDP-Packets with wrong max-value
 MCUF_SERIAL_WORKAROUND_FOR_BAD_MCUF_UDP_PACKETS
   Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-  
+
   Enable this to scan packet to determine maxvalue (workaround for
   some stupid programms that don't send eblp according to
   https://wiki.blinkenarea.org/index.php/ExtendedBlinkenlightsProtocol
@@ -1006,19 +1008,19 @@ MCUF serial screen width
 MCUF_SERIAL_SCREEN_WIDTH
 
   Configures screen-size for outgoing mcuf-packets over uart.
-  
+
   Use e.g. 18x8 for BlinkenLightsPro via Shifter, 16x16 for Borg16, ...
 
 MCUF serial screen height
 MCUF_SERIAL_SCREEN_HEIGHT
-  
+
   Configures screen-size for outgoing mcuf-packets over uart.
-  
+
   Use e.g. 18x8 for BlinkenLightsPro via Shifter, 16x16 for Borg16, ...
 
 VFS (Virtual File System) support
 VFS_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Enable the virtual file system abstraction layer.
@@ -1030,7 +1032,7 @@ VFS_SUPPORT
 
 Dataflash: Filesystem Access
 VFS_DF_SUPPORT
-  Depends on: 
+  Depends on:
    * VFS (Virtual File System) support (VFS_SUPPORT)
    * SPI Atmel dataflash (DATAFLASH_SUPPORT)
 
@@ -1038,7 +1040,7 @@ VFS_DF_SUPPORT
 
 VFS File Inlining
 VFS_INLINE_SUPPORT
-  Depends on: 
+  Depends on:
    * VFS (Virtual File System) support (VFS_SUPPORT)
 
   Make files attached to the end of the firmware available to the VFS.
@@ -1048,15 +1050,17 @@ VFS_INLINE_SUPPORT
 
 SD/MMC-Card Access
 VFS_SD_SUPPORT
-  Depends on: 
+  Depends on:
    * VFS (Virtual File System) support (VFS_SUPPORT)
    * MMC/SD card reader (SD_READER_SUPPORT)
 
   Link the SD reader to VFS.
 
+  more details at http://ethersex.de/index.php/SD-Karte
+
 Disable IP-Configuration
 DISABLE_IPCONF_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
@@ -1064,65 +1068,65 @@ DISABLE_IPCONF_SUPPORT
 
 Disable remote reboot
 DISABLE_REBOOT_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Disable the commands to reboot the e'sex remote (reset, wdreset and bootloader)
+  Disable the commands to reboot the ethersex from remote (reset, wdreset and bootloader)
 
 IP Statistics
 IPSTATS_SUPPORT
-  Depends on: 
+  Depends on:
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Collects and print out network statistic.
+  Collect and print out network statistic.
 
 Memory usage information (free)
 FREE_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Print out memory usage. 
+  Print out memory usage.
 
 IPv6
 DEBUG_NET_IP6
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 OpenVPN
 DEBUG_OPENVPN
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Router
 DEBUG_ROUTER
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 uIP
 DEBUG_UIP
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 SD-Reader
 DEBUG_SD_READER
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 MMC/SD card reader
 SD_READER_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add support to access SD memory cards (read and write) with
@@ -1133,7 +1137,7 @@ SD_READER_SUPPORT
 
 Jabber client (EXPERIMENTAL)
 JABBER_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1142,7 +1146,7 @@ JABBER_SUPPORT
 Server IP
 CONF_JABBER_IP
 
-  The IP of the jabber server you would like your Ethersex to 
+  The IP of the jabber server you would like your Ethersex to
   connect to.
 
 Server Hostname
@@ -1156,7 +1160,7 @@ CONF_JABBER_HOSTNAME
 Username
 CONF_JABBER_USERNAME
 
-  The username which shall be used to authenticate to the 
+  The username which shall be used to authenticate to the
   Jabber server.
 
 Password
@@ -1173,11 +1177,11 @@ CONF_JABBER_BUDDY
 
 Alias Command Names
 ALIASCMD_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Define aliases for your ecmds. Aliases are expanded if $ ist the first 
+  Define aliases for your ecmds. Aliases are expanded if $ ist the first
   character of your emcd. Example:
 
   `$i' -> `show ip'
@@ -1229,25 +1233,25 @@ MCUF_CLOCK_SUPPORT
    * System clock support (CLOCK_SUPPORT)
 
   Display current date and time using ecmd "mcuf showclock".
-  
+
   "mcuf showclock 0" (default) displays date and time using
   scrolltext.
   "mcuf showclock 1" displays only time without scrolling with
   blinking dots in the middle.
   "mcuf showclock 2" displays the time without the dots.
-  
+
   If "Cron daemon" is also enabled, the time will be displayed
   as long as no other data for the display is avail (e.g. from
   mcuf-udp or ecmd "mcuf showstring").
 
 Inline the .config
 VFS_CONFIG_INLINE_SUPPORT
-  Depends on: 
+  Depends on:
    * VFS File Inlining (VFS_INLINE_SUPPORT)
 
  Includes the .config file during compile into flash.
- Very usefull for debugging or review of compile settings.
- 
+ Very useful for debugging or review of compile settings.
+
  Access via http://ethersexip/conf
 
 Type of microcontroller
@@ -1269,7 +1273,7 @@ Build a bootloader
 BOOTLOADER_SUPPORT
 
  enable ethersex TFTP bootloader support
- Depends on TFTP to upload new firmware 
+ Depends on TFTP to upload new firmware
 
 
 device is self powered
@@ -1296,16 +1300,16 @@ CONF_ETHERRAPE_GATEWAY
 
 I2C Detection Support
 I2C_DETECT_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  enables automatic i2c bus IC detection, used by ecmd command "i2c detect" 
+  enables automatic i2c bus IC detection, used by ecmd command "i2c detect"
   and other.
 
 I2C EEPROM (24cxx) Support
 I2C_24CXX_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1314,7 +1318,7 @@ I2C_24CXX_SUPPORT
 
 I2C LM75 temperature sensors
 I2C_LM75_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1322,7 +1326,7 @@ I2C_LM75_SUPPORT
 
 I2C PCA9531 8-bit LED dimmer
 I2C_PCA9531_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1330,7 +1334,7 @@ I2C_PCA9531_SUPPORT
 
 I2C PCF8574X Port extention
 I2C_PCF8574X_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1339,32 +1343,32 @@ I2C_PCF8574X_SUPPORT
 Edit list of allowed ecmd buddies
 JABBER_KNOWN_BUDDIES
 
-  To protect your jabber ecmd interface from the evil empire. 
-  Only buddies, which are listed in jabber/known_buddies.src are allowed 
+  To protect your jabber ecmd interface from the evil empire.
+  Only buddies, which are listed in jabber/known_buddies.src are allowed
   to execute ecmds. If the file is empty everybody can execute commands.
 
   Format: every line one jabber id
 
 PWM Generator
 PWM_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Uses the integrated timer to generate PWM and CTC waveforms.
 
 PWM Wave
 PWM_WAV_SUPPORT
-  Depends on: 
+  Depends on:
    * PWM Generator (PWM_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
  Wave output support (8kHz mono output)
- Just replace pwm/ethersex.wav with your own 8-Bit, PCM, 
+ Just replace pwm/ethersex.wav with your own 8-Bit, PCM,
  mono, 8000Hz .wav file.
 
 PWM Melody
 PWM_MELODY_SUPPORT
-  Depends on: 
+  Depends on:
    * PWM Generator (PWM_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1373,20 +1377,20 @@ PWM_MELODY_SUPPORT
 
   Defined in pwm/pwm.c "entchen" with tune and duration.
 
-Randomize Mac address
+Generate random MAC address
 RANDOM_MAC
-  
+
   Press Enter here and a new MAC address is generated
 
 Camera support (EXPERIMENTAL)
 CAMERA_SUPPORT
-  Depends on: 
+  Depends on:
 
   Enables generic camera hardware support.
 
 DC3840 Serial camera
 DC3840_SUPPORT
-  Depends on: 
+  Depends on:
    * Camera support (EXPERIMENTAL) (CAMERA_SUPPORT)
 
   Serial Philips DC3840 Support
@@ -1404,28 +1408,30 @@ DC3840_BLACK_WHITE
 
 DC3840 Camera
 VFS_DC3840_SUPPORT
-  Depends on: 
+  Depends on:
    * DC3840 Serial camera (DC3840_SUPPORT)
 
- Select this to enable the vfs camera features.
+  Select this to enable the vfs camera features.
+
+  more details at http://ethersex.de/index.php/Dc3840_camera
 
 Stella polling (unicast response)
 STELLA_RESPONSE
-  Depends on: 
-  
+  Depends on:
+
   Allows stella to propagate its current channel values via the stella protocol. Explained in more
   detail at the ethersex wiki.
 
 Stella polling (broadcast response)
 STELLA_RESPONSE_BROADCAST
 
-  Send one command byte (STELLA_BROADCAST_RESPONSE) to make stella propagate all current channel values via udp
+  Send one command byte (STELLA_BROADCAST_RESPONSE) to make stella propagate all current channel values via UDP
   broadcast. The datagram is 9 bytes long. The first is always the identifier 'S', the other bytes consist of the
   brightness values from channel 0 to 7.
 
 Acknowledge packets
 STELLA_RESPONSE_ACK
-  Depends on: 
+  Depends on:
 
   Stella will acknowledge every command you send to it. This is not recommend if you send many commands in
   a short time, because the response always contains the whole original message and increases ethernet traffic
@@ -1435,14 +1441,14 @@ STELLA_RESPONSE_ACK
 
 Stella Lights
 DEBUG_STELLA
-  Depends on: 
+  Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
   Inform you about arriving stella packets, processed packets and if stella as a result send a response
 
 EEPROM saving and loading channel values. EXPERIMENTAL
 STELLA_EEPROM
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   With additional commands (STELLA_SAVE_TO_EEPROM, STELLA_LOAD_FROM_EEPROM) you can save to eeprom and load
@@ -1450,20 +1456,20 @@ STELLA_EEPROM
 
 Use eeprom values on device boot
 STELLA_EEPROM_BOOT
-  Depends on: 
+  Depends on:
 
   Use channel values from eeprom on the device boot process.
 
 Fade in with default fade function
 STELLA_EEPROM_BOOT_FADE
-  Depends on: 
+  Depends on:
 
   If you do not activate this option, the values from eeprom on device boot are applied instantly.
   If you want your device to fade to those color values you can activate this option.
 
 Cron test entries
 CRON_SUPPORT_TEST
-  Depends on: 
+  Depends on:
    * Cron daemon (CRON_SUPPORT)
 
   Add test cronjobs. They will debug out every minute, every two hours and every 51th minute
@@ -1471,7 +1477,7 @@ CRON_SUPPORT_TEST
 
 MCUF Module in Cron
 MCUF_MODUL_CRON_SUPPORT
-  Depends on: 
+  Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
    * Cron static daemon (CRON_STATIC_SUPPORT)
 
@@ -1483,7 +1489,7 @@ MCUF_MODUL_CRON_SUPPORT
 
 MCUF Module Display Mode
 MCUF_MODUL_DISPLAY_MODE_SUPPORT
-  Depends on: 
+  Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
 
@@ -1499,28 +1505,28 @@ MCUF_MODUL_DISPLAY_MODE_SUPPORT
 
 MCUF Module Borg-16
 MCUF_MODUL_BORG16_SUPPORT
-  Depends on: 
+  Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
 
   Modules made originaly for http://www.das-labor.org/wiki/Borg16 hardware.
 
 MCUF Image
 MCUF_IMAGE_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
 
   Display an image stored in /mcuf/image/image.h
 
 MCUF Xoni Study1
 MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   A short snake runs up and down every line of the display for several times.
 
 Game Input
 GAME_INPUT_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Placeholder for game input hardware such as
@@ -1537,7 +1543,7 @@ GAME_INPUT_SUPPORT
 
 MCUF Snake Interactive
 MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
    * Game Input (GAME_INPUT_SUPPORT)
 
@@ -1545,14 +1551,14 @@ MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT
 
 MCUF Snake
 MCUF_MODUL_BORG16_SNAKE_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   The Computer plays Snake against itself.
 
 MCUF Tetris
 MCUF_MODUL_BORG16_TETRIS_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
    * Game Input (GAME_INPUT_SUPPORT)
 
@@ -1560,7 +1566,7 @@ MCUF_MODUL_BORG16_TETRIS_SUPPORT
 
 MCUF Space Invaders
 MCUF_MODUL_BORG16_INVADERS_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
    * Game Input (GAME_INPUT_SUPPORT)
 
@@ -1568,88 +1574,88 @@ MCUF_MODUL_BORG16_INVADERS_SUPPORT
 
 Digital Joystick
 JOYSTICK_DIGITAL_SUPPORT
-  Depends on: 
+  Depends on:
    * Game Input (GAME_INPUT_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
  Support for standard (old style) digital Joysticks a la
  Competition Pro (http://de.wikipedia.org/wiki/Competition_Pro)
- 
+
 
 MCUF Chess
 MCUF_CHESS_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
 
   Example module to display some chess like screen
 
 MCUF Box
 MCUF_BOX_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
 
   Example to display a box.
 
 MCUF Clean
 MCUF_CLEAN_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
 
   Example module to clean the screen
 
 MCUF Spiral
 MCUF_SPIRAL_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
 
   Example of multi color/bright spiral movement screen
 
 MCUF Matrix
 MCUF_MODUL_BORG16_MATRIX_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   The famous matrix screensaver
 
 MCUF Fire
 MCUF_MODUL_BORG16_FIRE_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   A fire like animation.
 
 MCUF Spiral
 MCUF_MODUL_BORG16_SPIRAL_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   Spiral movement animation
 
 MCUF Random Bright
 MCUF_MODUL_BORG16_RANDOM_BRIGHT_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   Some random pixel and brightness animation
 
 MCUF Game of life
 MCUF_MODUL_BORG16_GAMEOFLIFE_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
-  The famous Conway's Game of Life 
+  The famous Conway's Game of Life
   (http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 
 MCUF Game of life - Glider Test
 MCUF_MODUL_BORG16_GAMEOFLIFE_GLIDER_TEST_SUPPORT
-  Depends on: 
+  Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
 
   Glider test for Game of life
 
 Gamma correction (EXPERIMENTAL)
 STELLA_GAMMACORRECTION
-  Depends on: 
+  Depends on:
 
   Increase colour space mainly in darker brightness levels.
   Does currently not work correctly.
@@ -1659,14 +1665,14 @@ CRON_STATIC_SUPPORT
   Depends on:
    * System clock support (CLOCK_SUPPORT)
 
-  Enable cron-alike service. The difference to the normal cron daemon is, that you 
-  cannot change the cronjobs after compilation. Jobs are stored in the flash memory. 
-  To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static 
+  Enable cron-alike service. The difference to the normal cron daemon is, that you
+  cannot change the cronjobs after compilation. Jobs are stored in the flash memory.
+  To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static
   at the same time.
 
 ECMD Scripting
 ECMD_SCRIPT_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
    * VFS (Virtual File System) support (VFS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
@@ -1687,7 +1693,7 @@ ECMD_SCRIPT_SUPPORT
                   -> compares output of variable or ecmd1, if successful
                      then execute ecmd2
     Available COMPARATORS are:
-    String comparators:  
+    String comparators:
       eq  ->  equals
       ne  ->  not equals
     Number comparators:
@@ -1700,7 +1706,7 @@ ECMD_SCRIPT_SUPPORT
       ==  ->  equals
       OK  ->  value is TRUE (CONST is ignored, but mandatory)
       !   ->  not (CONST is ignored, but mandatory)
-    
+
   * call file     -> calls script file from vfs and execute it line by line
 
   only available while script is running
@@ -1725,13 +1731,13 @@ ECMD_SCRIPT_SUPPORT
 Maximum number of variables
 ECMD_SCRIPT_MAX_VARIABLES
 
-  Just a very short number of variables is supported right now. 
+  Just a very short number of variables is supported right now.
   Each variable takes up to 10 bytes of memory. So if you need more than
   the default value change this number
 
 Gamma correction (EXPERIMENTAL)
 STELLA_GAMMACORRECTION
-  Depends on: 
+  Depends on:
 
   Increase colour space mainly in darker brightness levels.
   Does currently not work correctly. (I tried to avoid logarithmic calculations
@@ -1744,47 +1750,51 @@ CRON_STATIC_SUPPORT
   Depends on:
    * System clock support (CLOCK_SUPPORT)
 
-  Enable cron-alike service. The difference to the normal cron daemon is, that you 
-  cannot change the cronjobs after compilation. Jobs are stored in the flash memory. 
-  To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static 
-  at the same time.
+  Enable cron-alike service. The difference to the normal cron daemon
+  is, that you cannot change the cronjobs after compilation. Jobs are
+  stored in the flash memory.
+  To add jobs, see cron_static/cron_static.c. You can use the normal
+  cron and cron_static at the same time.
 
 
 Higher frequency
 STELLA_HIGHFREQ
-  Depends on: 
+  Depends on:
 
-  Use a smaller prescaler for the stella timer. This actual double the pwm frequency but
-  at the same time increase processing load.
+  Use a smaller prescaler for the stella timer. This actually doubles
+  the PWM frequency but at the same time increases processing load.
 
 Moodlight
 STELLA_MOODLIGHT
-  Depends on: 
+  Depends on:
 
-  Activate the moodlight fader. Does nothing if you neither set the start task to moodlight
-  nor use the stella protocol with the STELLA_MOODLIGHT_MASK command.
+  Activate the moodlight fader. Does nothing if you neither set the
+  start task to moodlight nor use the stella protocol with the
+  STELLA_MOODLIGHT_MASK command.
 
 Stella Broadcast Response UDP Port
 STELLA_BROADCAST_UDP_PORT
 
   If you asked stella to propagate its channel values via broadcasting, this port is used
-  as udp destination port.
+  as UDP destination port.
 
 Use GIT commit hash as Version
 USE_GIT_VERSION
 
- Produces a short version string which can be used to locate the used source.
+ Produces a short version string which can be used to locate the
+ source used.
 
 
 netStat client (EXPERIMENTAL)
 NETSTAT_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
    * Cron Static support (CRON_STATIC_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Internet Statistik for Ethersex. This function adds your ethersex to the
-  survey. Examples and Links at http://www.ethersex.de/index.php/Netstat
+  Internet Statistik for Ethersex. This function adds your ethersex to
+  the survey.
+  Examples and Links at http://www.ethersex.de/index.php/Netstat
 
   Length of variable buffer
 ECMD_SCRIPT_VARIABLE_LENGTH
@@ -1794,17 +1804,17 @@ ECMD_SCRIPT_VARIABLE_LENGTH
   Length of comparator buffer
 ECMD_SCRIPT_COMPARATOR_LENGTH
 
-  Comparator buffer size for output of ECMD and const values. 
+  Comparator buffer size for output of ECMD and const values.
   Default is 25
 
   Maximum lines of script
 ECMD_SCRIPT_MAXLINES
 
-  Maximum parsed lines of ECMD Scripts.
+  Maximum number of lines parsed in ECMD Scripts.
 
 PWM Servo
 PWM_SERVO_SUPPORT
-  Depends on: 
+  Depends on:
    * PWM Generator (PWM_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -1813,14 +1823,14 @@ PWM_SERVO_SUPPORT
 
 I2C Master Support (EXPERIMENTAL)
 I2C_MASTER_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Support to send and receive I2C-Bus (TWI) commands.
 
 MCUF Game Input Test
 MCUF_TEST_GAME_INPUT
-  Depends on: 
+  Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
    * Game Input (GAME_INPUT_SUPPORT)
 
@@ -1839,7 +1849,7 @@ SMS_SUPPORT
 
 Inline PWM Servo
 PWM_SERVO_INLINE_SUPPORT
-  Depends on: 
+  Depends on:
    * VFS File Inlining (VFS_INLINE_SUPPORT)
    * PWM Servo (PWM_SERVO_SUPPORT)
 
@@ -1847,10 +1857,10 @@ PWM_SERVO_INLINE_SUPPORT
 
 Application Sample (EXPERIMENTAL)
 APP_SAMPLE_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-   ECMD Commands depends on 
-   * ECMD support (ECMD_PARSER_SUPPORT) 
+   ECMD Commands depends on
+   * ECMD support (ECMD_PARSER_SUPPORT)
 
   Example Application with empty functions to fill for your own
   tests.
@@ -1896,7 +1906,7 @@ CONF_HTTPLOG_INCLUDE_UUID
 
 Twitter/identi.ca client (EXPERIMENTAL)
 TWITTER_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
    * DNS support (DNS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
@@ -1906,19 +1916,19 @@ TWITTER_SUPPORT
    API Root: " "
    Username: [Your Twitter Username]
    Password: [Your Twitter Password]
-  Be aware, your password will be saven in plain text in 
+  Be aware, your password will be saved in plain text in
   the .config-File!
 
 
 Buttons Input
 BUTTONS_INPUT_SUPPORT
-  Depends on: 
+  Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Button Input add hook functions to be called by other parts
-  of ethersex without specific knowledge of the selected 
+  Button Input adds hook functions to be called by other parts
+  of ethersex without specific knowledge of the selected
   input device.
-  
+
 
 Number of buttons
 CONF_NUM_BUTTONS
@@ -1927,10 +1937,10 @@ CONF_NUM_BUTTONS
 
 External SRAM support
 SRAM_SUPPORT
-  Depends on: 
+  Depends on:
 
   Add SRAM support for exteral RAM ICs. This will allow to
-  expand the RAM and HEAP. 
+  expand the RAM and HEAP.
 
   More details at http://ethersex.de/index.php/SRAM
 
@@ -1941,7 +1951,7 @@ SRAM_MEMTEST_ON_BOOT
 
 Jabber (EXPERIMENTAL)
 ECMD_JABBER_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Jabber Client (JABBER_SUPPORT)
@@ -1950,24 +1960,24 @@ ECMD_JABBER_SUPPORT
 
 ECMD (Etherrape Control Interface) support
 ECMD_PARSER_SUPPORT
-  Depends on: 
+  Depends on:
 
   Ethersex COmanD = ECMD is a kind of i/o interface.
   More details at http://ethersex.de/index.php/ECMD
 
 IRC (EXPERIMENTAL)
 ECMD_IRC_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * IRC client (EXPERIMENTAL) (IRC_SUPPORT)
 
-  Add IRC support for ECMD. This enables to controll your
+  Add IRC support for ECMD. This enables to control your
   ethersex device via IRC chat protocol.
 
 SMS
 ECMD_SMS_SUPPORT
-  Depends on: 
+  Depends on:
    * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
    * SMS Support (SMS_SUPPORT)
 
@@ -1975,7 +1985,7 @@ ECMD_SMS_SUPPORT
 
 I2C to UDP Gateway
 I2C_UDP_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
@@ -1984,41 +1994,228 @@ UDP/IP Gateway to transport I2C over IP. The default is port is 8995
 
 Bulbdial Clock (EXPERIMENTAL)
 BULBDIAL_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  A bulbdial clock displays the current time via lightsources or its shaddow.
+  A bulbdial clock displays the current time via lightsources or its shadow.
   More details at http://ethersex.de/index.php?title=Bulbdial_Clock
 
 Wake on Lan (WOL)
 WOL_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
 
-  Automatich power-on feature over network. This needs a networking
+  Automatic power-on feature over network. This needs a networking
   device capable of turning itself on at a given command.
 
 Enable startup message
 JABBER_STARTUP_MESSAGE_SUPPORT
-  Depends on: 
+  Depends on:
    * Jabber Client (JABBER_SUPPORT)
 
-  Enables a friendly startup message, which is send to the target buddy
+  Enables a friendly startup message, which is sent to the target buddy
   on each reboot.
 
 Last Info
 JABBER_LAST_SUPPORT
-  Depends on: 
+  Depends on:
    * Jabber Client (JABBER_SUPPORT)
 
   Enables the last-seen feature of this ethersex jabber client.
 
 Version Info
 JABBER_VERSION_SUPPORT
-  Depends on: 
+  Depends on:
    * Jabber Client (JABBER_SUPPORT)
 
   Enables to send version details of the ethersex jabber client.
   Change the values if you need to.
+
+Ultrasonic Debug
+DEBUG_ULTRASONIC
+  Depends on:
+   * Enable Debugging (DEBUG)
+   * Ultrasonic (EXPERIMENTAL) (ULTRASONIC_SUPPORT)
+
+  Ultrasonic sensor with 2 modes.
+
+  Mode 1 is a two signal mode (not yet implemented)
+  Mode 2 is a one signal mode, both start and stop signal done
+  by the same pin.
+
+  More details at:
+  http://www.rn-wissen.de/index.php/Sensorarten#Ultraschallsensor_SRF05
+
+SRF05 calibrate faktor
+SRF05_FAKTOR
+
+  Distance or calibrate faktor, used to switch between imperial or metric
+  values.
+
+  Metric: 58 -> centimenter
+  Imperial: 148 -> inches
+
+VNC Server Support
+VNC_SUPPORT
+  Depends on:
+   * TCP support (TCP_SUPPORT)
+
+  Ethersex is running a server application for virtual network
+  computing. see http://ethersex.de/index.php/VNC for more details.
+
+uPnP (EXPERIMENTAL)
+UPNP_SUPPORT
+  Depends on:
+   * UDP support (UDP_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Universal Plug and Play. see http://ethersex.de/index.php/UPnP
+
+Motor Curtain
+MOTORCURTAIN_SUPPORT
+  Depends on:
+   * UDP support (UDP_SUPPORT)
+
+  Control a motor curtain or simillar devices. see
+  http://ethersex.de/index.php/MotorCurtain
+
+Message of the day (MOTD)
+MOTD_SUPPORT
+  Depends on:
+   *  (EEPROM_SUPPORT)
+
+  Enables to save and change a "Message of the Day" in EEPROM.
+  If enabled, you can see the MOTD on the vfs start page, otherwise
+  just enter "motd" to read the latest message.
+
+Curtain: UDP Protocol
+MOTORCURTAIN_PROTOCOL_SUPPORT
+  Depends on:
+   * UDP support (UDP_SUPPORT)
+   * Motor Curtain (MOTORCURTAIN_SUPPORT)
+
+  Please add your new help-text here.
+
+Morse Code
+CW_SUPPORT
+
+  Command: "cw send MESSAGE"
+
+  Convert a string to morse code, which means that a pin
+  is just toggling to "on" and "off" regarding the morse
+  code standard. Also called "continous wave" (CW)
+
+DMX Support
+DMX_SUPPORT
+  Depends on:
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  please see http://ethersex.de/index.php/DMX
+
+MySQL client (EXPERIMENTAL)
+MYSQL_SUPPORT
+  Depends on:
+   * TCP support (TCP_SUPPORT)
+   * SHA1 (SHA1_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Basic MySQL support to connect to a MySQL server and send simple
+  statements.
+
+  Please note ECMD is limited to 50 chars.
+
+
+Ultrasonic (EXPERIMENTAL)
+ULTRASONIC_SUPPORT
+  Depends on:
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Support for ultrasonic distance sensors such as the SRF05.
+
+SRF05
+SRF05_SUPPORT
+  Depends on:
+   *  (UTRASONIC_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  A simple time based ultrasonic sensor. Ethersex measures the
+  ping time and calculates the distance in centimeter.
+
+
+Inline configuration page
+CONFIG_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  Inline page to display and change the basic (network) configuration
+
+Inline message of the day
+MOTD_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   *  (EEPROM_SUPPORT)
+
+ Display the Message of the day on the VFS start page and adds
+ a VFS page to change the MOTD via HTTP
+
+Inline RFM12
+RFM12_INLINE_SUPPORT
+  Depends on:
+   * RFM12 ASK (EXPERIMENTAL) (RFM12_ASK_SUPPORT)
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  This page is only needed and helpful for RFM12 ASK support.
+  Please see http://ethersex.de/index.php/RFM12_ASK for details.
+
+Inline I2C
+I2C_INLINE_SUPPORT
+  Depends on:
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  Example page for I2C (TWI) chips, such as temperature sensor or
+  port extention.
+
+Inline IO
+VFS_IO_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+
+  Powerful page to display and modify the current I/O status and
+  data direction register.
+
+Inline OneWire
+ONEWIRE_INLINE_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Powerful page for onewire support, with AJAX and SVG technology.
+
+Inline Camera
+CAMERA_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * DC3840 Camera (VFS_DC3840_SUPPORT)
+
+  Example page to display the current camera image.
+
+Inline Named Pin
+NAMED_PIN_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Named and logic state I/O (NAMED_PIN_SUPPORT)
+
+  Displays and modify the current status of named pins.
+
+Inline CW
+CW_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Morse Code (EXPERIMENTAL) (CW_SUPPORT)
+
+  Simple page to enter strings which will be converted to morse.
+  Output is the desired CW pin.
 

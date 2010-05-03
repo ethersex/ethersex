@@ -26,7 +26,8 @@ if [ "$ARCH_AVR" = "y" ]; then
 		 ATmega328p   atmega328p \
 		 ATmega64     atmega64	\
 		 ATmega644    atmega644	\
-		 ATmega644p   atmega644p"	\
+         ATmega644p   atmega644p	\
+      	 ATmega1284p   atmega1284p"	\
 		'ATmega644' MCU
 
 	int "MCU frequency" FREQ 20000000
@@ -46,6 +47,8 @@ fi
     if [ "$USART_SPI_SUPPORT" = y ]; then
       choice '  SPI usart select' "$(usart_choice SPI)"
       usart_process_choice SPI
+    else
+      dep_bool "Use Software-SPI" SOFT_SPI_SUPPORT $ARCH_AVR
     fi
 
 	choice 'Version String'			\
@@ -194,6 +197,8 @@ comment "I/O"
 	source hardware/radio/rfm12/rfm12_ask-config.in
 	source hardware/sht/config.in
 	source hardware/zacwire/config.in
+	source hardware/ultrasonic/config.in
+	source hardware/hbridge/config.in
 	source mcuf/config.in
 	source core/config-usarts.in
 endmenu
@@ -224,9 +229,10 @@ source protocols/msr1/config.in
 source protocols/to1/config.in
 source protocols/serial_line_log/config.in
 source protocols/nmea/config.in
-source protocols/udpStella/config.in
+source protocols/udpstella/config.in
 source protocols/udpIO/config.in
 source protocols/udpcurtain/config.in
+source protocols/cw/config.in
 endmenu
 
 ###############################################################################
@@ -242,6 +248,7 @@ source services/cron/config.in
 source services/dyndns/config.in
 source services/echo/config.in
 source services/wol/config.in
+source services/motd/config.in
 source services/httpd/config.in
 source services/jabber/config.in
 source services/moodlight/config.in
@@ -250,6 +257,8 @@ source services/curtain/config.in
 source services/tftp/config.in
 source services/upnp/config.in
 source services/watchcat/config.in
+source services/vnc/config.in
+source services/watchasync/config.in
 endmenu
 
 ###############################################################################
@@ -260,7 +269,7 @@ if [ "$ZBUS_SUPPORT" = "y"		\
   define_bool USART_SUPPORT y
 fi
 
-if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" ]; then
+if [ "$RFM12_IP_SUPPORT" = "y" -o "$RFM12_ASK_SUPPORT" = "y" -o "$RFM12_DISABLE" = "y" ]; then
   define_bool RFM12_SUPPORT y
 else
   define_bool RFM12_SUPPORT n

@@ -1,6 +1,6 @@
 /*                     -*- mode: C; c-file-style: "stroustrup"; -*-
  *
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 by David Gräff
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 

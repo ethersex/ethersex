@@ -1,4 +1,5 @@
 dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
+	dep_bool "Auto remove Backspaces" ECMD_REMOVE_BACKSPACE_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
 	dep_bool "Authentification via PAM (TCP only)" ECMD_PAM_SUPPORT $ECMD_PARSER_SUPPORT $ECMD_TCP_SUPPORT $PAM_SUPPORT
 	dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $VFS_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL

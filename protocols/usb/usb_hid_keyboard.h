@@ -22,8 +22,6 @@
 #ifndef _USB_HID_KEYBOARD_H
 #define _USB_HID_KEYBOARD_H
 
-#define NUM_KEYS    26
-
 /* Keyboard usage values, see usb.org's HID-usage-tables document, chapter
  * 10 Keyboard/Keypad Page for more codes.
  */
@@ -37,6 +35,9 @@
 #define MOD_ALT_RIGHT       (1<<6)
 #define MOD_GUI_RIGHT       (1<<7)
 
+#define KEY_errorRollOver   1
+#define KEY_POSTfail        2
+#define KEY_errorUndefined  3
 #define KEY_A       4
 #define KEY_B       5
 #define KEY_C       6
@@ -74,6 +75,24 @@
 #define KEY_9       38
 #define KEY_0       39
 
+#define KEY_ENTER   40
+#define KEY_ESC     41
+#define KEY_BCKSPACE 42 // backspace
+#define KEY_TAB     43
+#define KEY_SPACE   44 // space
+#define KEY_MINUS   45 // - (and _)
+#define KEY_EQUALS  46 // =
+#define KEY_LBR     47 // [
+#define KEY_RBR     48 // ]  -- 0x30
+#define KEY_BCKSLASH 49 // \ (and |)
+#define KEY_HASH    50 // Non-US # and ~
+#define KEY_SMCOL   51 // ; (and :)
+#define KEY_PING    52 // ' and "
+#define KEY_GRAVE   53 // Grave accent and tilde
+#define KEY_COMMA   54 // , (and <)
+#define KEY_DOT     55 // . (and >)
+#define KEY_SLASH   56 // / (and ?)
+#define KEY_CAPSLOCK  57 // capslock
 #define KEY_F1      58
 #define KEY_F2      59
 #define KEY_F3      60
@@ -87,6 +106,40 @@
 #define KEY_F11     68
 #define KEY_F12     69
 
+#define KEY_PRTSCR  70
+#define KEY_SCRLCK  71
+#define KEY_BREAK   72
+#define KEY_INS     73
+#define KEY_HOME    74
+#define KEY_PGUP    75
+#define KEY_DEL     76
+#define KEY_END     77
+#define KEY_PGDN    78
+#define KEY_RARR    79 
+#define KEY_LARR    80     // 0x50
+#define KEY_DARR    81
+#define KEY_UARR    82
+#define KEY_NUMLOCK 83
+#define KEY_KPSLASH 84
+#define KEY_KPAST   85
+#define KEY_KPMINUS 86
+#define KEY_KPPLUS  87
+#define KEY_KPENTER 88
+#define KEY_KP1     89
+#define KEY_KP2     90
+#define KEY_KP3     91
+#define KEY_KP4     92
+#define KEY_KP5     93
+#define KEY_KP6     94
+#define KEY_KP7     95
+#define KEY_KP8     96      // 0x60
+#define KEY_KP9     97
+#define KEY_KP0     98
+#define KEY_KPCOMMA 99
+#define KEY_EURO2  100
+
+
+
 #ifndef uchar
 #define uchar   unsigned char
 #endif
@@ -97,6 +150,13 @@
 void usb_keyboard_periodic(void);
 /* Initialize USB keyboard. */
 void usb_keyboard_periodic_call(void);
+
+void usb_keyboard_init(void);
+
+struct hid_keyboard_map_t {
+  uchar character;
+  uchar reportBuffer[2];    /* buffer for HID reports */
+};
 
 uint16_t hid_usbFunctionSetup(uchar data[8]);
 

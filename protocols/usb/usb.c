@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "usb_hid_keyboard.h"
+#include "usb_hid_mouse.h"
 #include "usb_net.h"
 #include "usbdrv/usbdrv.h"
 #include "requests.h"
@@ -66,6 +67,9 @@ usbFunctionSetup(uchar data[8])
     return usb_net_setup(data);
 #endif
 #ifdef USB_KEYBOARD_SUPPORT
+  return hid_usbFunctionSetup(data);
+#endif
+#ifdef USB_MOUSE_SUPPORT
   return hid_usbFunctionSetup(data);
 #endif
 
@@ -124,11 +128,17 @@ usb_periodic(void)
 #ifdef USB_KEYBOARD_SUPPORT
   usb_keyboard_periodic();
 #endif
+#ifdef USB_MOUSE_SUPPORT
+  usb_mouse_periodic();
+#endif
 }
 
 void
 usb_init(void)
 {
+#ifdef AUTOSET_USB_ENABLE_PIN_SUPPORT
+  PIN_SET(USB_ENABLE);
+#endif /* AUTOSET_USB_ENABLE_PIN_SUPPORT */
 #ifdef USB_NET_SUPPORT
   usb_net_init();
 #endif
