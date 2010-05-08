@@ -87,7 +87,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     cmd ++;
   /* skip first char of ddr,port,pin*/
   cmd ++;
-  /* test of p'i'n, d'd'r p'o'rt or m'a'sk case insensitiv */
+  /* test of p'i'n, d'd'r, p'o'rt or m'a'sk case insensitiv */
   switch (*cmd & 0xDF)
   {
     case 'I' : iotypeoffset = 0; break;
@@ -141,5 +141,5 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  ecmd_feature(io, "io ")
+  ecmd_feature(io, "io")
 */
