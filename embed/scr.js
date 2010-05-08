@@ -7,13 +7,10 @@ function $(id) {
 		return document.layers[id];
 	return null;
 }
+
 function _(id, value) {
 	var obj = $(id);
 	if (obj) obj.innerHTML = value;
-}
-
-function returnObjById(id) {
-	return $(id);
 }
 
 var AjaxQueue = new Array();
@@ -133,6 +130,5 @@ function ecmd_error(response) {
 	if (!response)
 		return true;
         return (response.responseText.indexOf("parse error") != -1);
-
 }
 
