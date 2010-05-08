@@ -1,5 +1,3 @@
-var isIE/*@cc_on = true@*/;
-
 function $(id) {
 	if (document.getElementById)
 		return document.getElementById(id);
@@ -114,15 +112,14 @@ function logger(code, text, bottom) {
 	var text = Stdtext + ":" + Mintext + " " + text;
 
 	var neuText = document.createElement("div");
-	var attr = (isIE) ? "className" : "class";
 	if (code == '0') {
-		neuText.setAttribute(attr, "lognotice");
+		neuText.className = "lognotice";
 		neuText.innerHTML = text;
 	} else if (code == 'notice') {
-		neuText.setAttribute(attr, "logerror");
+		neuText.className = "logerror";
 		neuText.innerHTML = text;
 	} else {
-		neuText.setAttribute(attr, "logerror");
+		neuText.className = "logerror";
 		neuText.innerHTML = 'Fehler: ' + text;
 	}
 	if (bottom)
