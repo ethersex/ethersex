@@ -99,7 +99,7 @@ function logger(code, text, bottom) {
 	var Min = jetzt.getMinutes();
 	var Stdtext = (Std < 10) ? '0' + Std : Std;
 	var Mintext = (Min < 10) ? '0' + Min : Min;
-	var text = Stdtext + ':' + Mintext + ' ' + text;
+	text = Stdtext + ':' + Mintext + ' ' + text;
 
 	var neuText = document.createElement('div');
 	if (code == '0') {
