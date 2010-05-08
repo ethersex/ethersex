@@ -82,18 +82,11 @@ ArrAjax.ecmd = function (address, handler, method, data) {
 }
 
 //logging
-function log_get_lines() {
-	return $('logconsole').getElementsByTagName('div').length;
-}
-
-function log_clean(bottom) {
-	var loglines = 25;
-	if (log_get_lines() > loglines) {
-		var logconsole = $('logconsole');
-		var nodes = logconsole.getElementsByTagName('div');
-		while (nodes.length > loglines) {
-			logconsole.removeChild(nodes[(bottom) ? 0 : loglines]);
-		}
+function log_clean(howmany, bottom) {
+	var logconsole = $('logconsole');
+	var nodes = logconsole.getElementsByTagName('div');
+	while (nodes.length > howmany) {
+		logconsole.removeChild(nodes[(bottom) ? 0 : howmany]);
 	}
 }
 
@@ -123,7 +116,7 @@ function logger(code, text, bottom) {
 		logconsole.appendChild(neuText);
 	else
 		logconsole.insertBefore(neuText, logconsole.firstChild);
-	log_clean(bottom);
+	log_clean(25, bottom);
 }
 
 function ecmd_error(response) {
