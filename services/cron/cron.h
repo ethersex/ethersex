@@ -25,6 +25,17 @@
 
 #include <stdint.h>
 
+/** Enumeration of Weekdays */
+typedef enum  {
+	SUN =   1,
+    MON =   2,
+	TUE =   4,
+	WED =   8,
+	THU =  16,
+	FRI =  32,
+	SAT =  64
+} days_of_week_t;
+
 /** This structure represents a cron job */
 struct cron_event {
 	union{
@@ -34,7 +45,7 @@ struct cron_event {
 		  *   x in 0..23:    absolute value (hour)
 		  *   x in 0..30:    absolute value (day)
 		  *   x in 0..12:    absolute value (month)
-		  *   x in 0..6 :    absolute value (dow) // day of the week
+		  *   x in SUN..SAT: absolute value (dow) // day of the week
 		  *   x is    -1:    wildcard
 		  *   x in -59..-2:  Example -2 for hour: when hour % 2 == 0 <=> every 2 hours */
 		struct {
@@ -42,7 +53,7 @@ struct cron_event {
 			int8_t hour;
 			int8_t day;
 			int8_t month;
-			int8_t dayofweek;
+			days_of_week_t dayofweek;
 		};
 	};
 	uint8_t repeat;
@@ -97,7 +108,7 @@ extern uint8_t cron_use_utc;
   * @extrasize, @extradata: extra data that is passed to the callback function
   */
 void cron_jobinsert_callback(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 	uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
 
@@ -109,7 +120,7 @@ void cron_jobinsert_callback(
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
 */
 void cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 	uint8_t repeat, int8_t position, char* ecmd
 );
 
@@ -117,7 +128,7 @@ void cron_jobinsert_ecmd(
 * @newone: The new cron job structure (malloc'ed memory!)
 * @position: Where to insert the new job
 */
-void cron_insert(struct cron_event_linkedlist* newone,int8_t position);
+void cron_insert(struct cron_event_linkedlist* newone, int8_t position);
 
 /** remove the job from the linked list */
 void cron_jobrm(struct cron_event_linkedlist* job);
