@@ -129,6 +129,12 @@ clock_tick(void)
 }
 
 void
+clock_set_time_raw(uint32_t new_sync_timestamp)
+{
+timestamp=new_sync_timestamp;
+}
+
+void
 clock_set_time(uint32_t new_sync_timestamp)
 {
 #ifdef CLOCK_NTP_ADJUST_SUPPORT
@@ -276,7 +282,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 	 *
 	 */
 	/* year, check if we have enough days left to fill a year */
-	for (uint16_t year = EPOCH_YEAR - 2000; year < d->year; year++) {
+	for (uint16_t year = EPOCH_YEAR; year < d->year+1900; year++) {
 		timestamp += (is_leap_year(year)) ? 31622400UL : 31536000UL;
 	}
 
@@ -360,7 +366,7 @@ clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
  *  1: in the past
  * This will ONLY work with month.day == 31
  */
-static int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
+int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
 {
 	uint8_t last_sunday = day;
 	if (last_sunday > dow)

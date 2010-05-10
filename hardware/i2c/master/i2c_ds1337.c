@@ -101,11 +101,7 @@ uint8_t b2i( uint8_t bcd ) {
 }
 
 uint8_t i2b( uint8_t i ) {
-
-     uint8_t r = i % 10;
-     i /= 10;
-
-     return (i<<4) | r;
+     return ((i/10)<<4) | i%10;
 }
 
 
@@ -116,7 +112,7 @@ void i2c_ds1337_sync(uint32_t timestamp) {
      ds1337_reg_t rtc;
      struct clock_datetime_t d;
      
-     memset( &rtc, 0, sizeof( ds1337_reg_t ));
+     memset( &rtc, 0, sizeof(rtc));
 
      clock_localtime( &d, timestamp);
 
@@ -127,10 +123,9 @@ void i2c_ds1337_sync(uint32_t timestamp) {
      rtc.day  = d.dow;
 
      rtc.date  = i2b( d.day );
-     rtc.month = i2b( d.month );
+     rtc.month = i2b( d.month ) | (d.year>= 100 ? 0x80:0);
      rtc.year  = i2b( d.year % 100 );
-
-     i2c_ds1337_set_block( 0, (char *)&rtc, 7 ); // not the Ctrl reg
+     i2c_ds1337_set_block( 0, (char *)&rtc, sizeof(rtc) ); // not the Ctrl reg
      
 #endif
 }
@@ -147,9 +142,26 @@ uint32_t i2c_ds1337_read() {
         d.hour    = b2i(rtc.hour);
         d.dow     = rtc.day;
         d.day     = b2i(rtc.date);
-        d.month   = b2i(rtc.month);
+        d.month   = b2i(rtc.month&0x1f);
         d.year    = b2i(rtc.year);
-        temp_time = clock_utc2timestamp(&d,0);
+        if (rtc.month & 0x80) d.year+= 100;
+
+        uint8_t cest=0;
+#if TIMEZONE == TIMEZONE_CEST
+        /* We must determine, if we have CET or CEST */
+        int8_t last_sunday = last_sunday_in_month(d.day, d.dow);
+        /* march until october can be summer time */
+        if (d.month < 3 || d.month > 10) {
+                cest=0;
+        } else if (d.month == 3 && (last_sunday == -1 || (last_sunday == 0 && d.hour < 1))) {
+                cest=0;
+        } else if (d.month == 10 && (last_sunday == 1 || (last_sunday == 0 && d.hour > 1))) {
+                cest=0;
+        } else {
+                cest=1;
+        }
+#endif
+        temp_time = clock_utc2timestamp(&d,cest);
         return temp_time;
 #else
 	return 0;
@@ -162,7 +174,7 @@ void i2c_ds1337_init(void)
 #ifdef CLOCK_SUPPORT
     uint32_t timestamp;
     timestamp=i2c_ds1337_read();
-    clock_set_time(timestamp);
+    clock_set_time_raw(timestamp);
 #endif
 }
 
