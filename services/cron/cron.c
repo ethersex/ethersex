@@ -61,7 +61,7 @@ cron_init(void)
 
 void
 cron_jobinsert_callback(
-int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
+int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 {
 	// emcd set?
@@ -94,7 +94,7 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 
 void
 cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t dayofweek,
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 	uint8_t repeat, int8_t position, char* ecmd)
 {
 	uint8_t ecmdsize;
@@ -279,6 +279,12 @@ cron_periodic(void)
 			if (exec->event.fields[condition] < 0 && (d.cron_fields[condition] % -(exec->event.fields[condition])) )
 				break;
 		}
+		/* check if cron 'exec' matches weekdays */
+		if(condition==4){
+			if(exec->event.fields[condition] && (1 << d.cron_fields[condition]) )
+				condition++;
+		}
+
 
 		#ifdef DEBUG_CRON
 		//debug_printf("..checked %u (%u) with %u\n", counter, exec->event.cmd, condition);
