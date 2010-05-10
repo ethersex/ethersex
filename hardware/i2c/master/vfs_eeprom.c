@@ -231,6 +231,7 @@ vfs_eeprom_filesize(struct vfs_file_handle_t *handle)
       break;
     next_page = data_page->next_page;
   }
+  vfs_eeprom_debug("filesize; size: %d\n", size);
   return size;
 }
 
@@ -241,6 +242,7 @@ vfs_eeprom_read(struct vfs_file_handle_t *handle, void * buffer, vfs_size_t size
   struct vfs_eeprom_page_file *file_page = (struct vfs_eeprom_page_file *) buf;
   struct vfs_eeprom_page_data *data_page = (struct vfs_eeprom_page_data *) buf;
   vfs_size_t count = 0;
+  uint8_t first=1;
 
   if (!handle) return 0;
   vfs_eeprom_read_page(handle->u.ee.file_page, (uint8_t *)buf, SFS_PAGE_SIZE);
@@ -269,9 +271,10 @@ vfs_eeprom_read(struct vfs_file_handle_t *handle, void * buffer, vfs_size_t size
       to_be_copied = size - count;
 
     if (page_offset + to_be_copied > data_page->page_len) {
-      eof = 1; /* We have reached the end of the file */
+      if (!first) eof = 1; /* We have reached the end of the file */
       to_be_copied = data_page->page_len - page_offset;
     }
+    first=0;
     memcpy(buffer + count, data_page->data + page_offset, to_be_copied);
     count += to_be_copied;
     handle->u.ee.offset += to_be_copied;
