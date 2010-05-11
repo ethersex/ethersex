@@ -25,6 +25,7 @@
 #define _CLOCK_H
 
 #include <inttypes.h>
+#include "config.h"
 
 #if defined(atmega128)
 
@@ -120,6 +121,10 @@ void clock_localtime(struct clock_datetime_t *d, uint32_t timestamp);
 /** convert current time to a datetime struct */
 #define clock_current_datetime(d) clock_datetime(d, clock_get_time())
 #define clock_current_localtime(d) clock_localtime(d, clock_get_time())
+
+#if TIMEZONE == TIMEZONE_CEST
+int8_t last_sunday_in_month(uint8_t day, uint8_t dow);
+#endif
 
 /** convert a datetime struct to timestamp  */
 uint32_t clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest);
