@@ -28,9 +28,8 @@ ArrAjax.aufruf = function (address, handler, method, data) {
 		request.data = data;
 		AjaxQueue.push(request);
 		return;
-	} else {
-		AjaxQueueLock.locked = true;
 	}
+	AjaxQueueLock.locked = true;
 
 	var xmlHttp = null;
 	if (!method)
