@@ -3,7 +3,6 @@ include $(TOPDIR)/.config
 
 $(HC165_SUPPORT)_SRC += hardware/io_expander/hc165.c
 $(HC595_SUPPORT)_SRC += hardware/io_expander/hc595.c
-$(MCP23S17_SUPPORT)_SRC += hardware/io_expander/mcp23s17.c
 
 ##############################################################################
 # generic fluff

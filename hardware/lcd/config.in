@@ -34,15 +34,6 @@ comment "LCD Displays"
 
   dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT $ARCH_AVR
   
-  dep_bool "LC7981 module driver (160x80-LCD)" LC7981_SUPPORT $ARCH_AVR
-  
-  if [ "$LC7981_SUPPORT" = "y" ]; then
-      choice 'connection type'					\
-              "Direkt			LC7981_DIREKT		\
-               SPI(mcp23s17)		LC7981_SPI"		\
-              'Direkt'			LC7981_CONNECTION
-  fi
-
   source hardware/lcd/s1d13305/config.in
 
 if [ "$S1D13305_SUPPORT" = "y" -o "$HD44780_SUPPORT" = "y" -o "$S1D15G10_SUPPORT" = "y" -o "$ST7626_SUPPORT" = "y" ]; then
