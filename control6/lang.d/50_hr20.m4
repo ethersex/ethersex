@@ -23,28 +23,6 @@ divert(globals_divert)dnl
 #include "hardware/lcd/hr20.h"
 #include "hardware/adc/hr20-temp.h"
 
-#ifdef NEED_HR20_GET_BATT
-uint16_t
-HR20_GET_BATT (void)
-{
-#ifndef CONFIG_ADC_AVCC
-#error ADC REF must be AVcc!
-#endif
-
-  ADMUX = 0x1e | ADC_REF;
-
-  ADCSRA |= _BV(ADSC);
-  while (ADCSRA & _BV(ADSC));
-  ADCSRA |= _BV(ADSC);
-  while (ADCSRA & _BV(ADSC));
-
-  uint32_t centivolt = 112640 / ADC;
-
-  DEBUG("get batt: %d cV", (uint16_t) centivolt);
-  return (uint16_t) centivolt;
-}
-#endif
-
 divert(-1)dnl
 
 dnl ==========================================================================

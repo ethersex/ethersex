@@ -19,32 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "config.h"
-#include "core/debug.h"
+#ifndef HR20_BATT_H
+#define HR20_BATT_H
 
-static inline int16_t
-hr20_adc_to_temp (int16_t adcvalue)
-{
-  return adcvalue * (-4) / 5 + 630;
-}
+int16_t hr20_batt_get (void);
 
-
-int16_t
-hr20_temp_get (void)
-{
-  PIN_SET (TEMP_ENABLE);
-  ADMUX = ADC_MUX_TEMP_SENSE | ADC_REF;
-
-  /* Measure twice, i.e. wait for current to settle ... */
-  ADCSRA |= _BV(ADSC);
-  while (ADCSRA & _BV(ADSC));
-  ADCSRA |= _BV(ADSC);
-  while (ADCSRA & _BV(ADSC));
-
-  uint16_t adc = ADC;
-  debug_printf ("adc result: %d\n", adc);
-
-  PIN_CLEAR (TEMP_ENABLE);
-  return hr20_adc_to_temp (adc);
-}
-
+#endif  /* HR20_BATT_H */

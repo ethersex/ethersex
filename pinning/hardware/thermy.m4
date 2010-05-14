@@ -34,13 +34,6 @@ pin(TEMP_SENSE, PF0)
 
 #define ADC_MUX_TEMP_SENSE	0
 
-static inline int16_t 
-hr20_adc_to_temp (int16_t adcvalue)
-{
-  return adcvalue * (-4) / 5 + 630;
-}
-
-
 dnl *******************************************************************************
 dnl *  LCD Layout:
 dnl *
