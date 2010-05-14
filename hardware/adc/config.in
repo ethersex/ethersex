@@ -3,10 +3,10 @@ dep_bool_menu "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT $ARCH_AVR
 		define_symbol ADC_REF ADC_AREF
 	else
 		choice 'ADC Reference'		\
-		"ARef               CONFIG_ADC_AREF	\
-			AVcc               CONFIG_ADC_AVCC	\
-			Internal_1.1V      CONFIG_ADC_1_1	        \
-			Internal_2.56V	 CONFIG_ADC_2_56"	\
+			"ARef		CONFIG_ADC_AREF		\
+			AVcc		CONFIG_ADC_AVCC		\
+			Internal_1.1V	CONFIG_ADC_1_1		\
+			Internal_2.56V	CONFIG_ADC_2_56"	\
 		'ARef'
 		if [ "$CONFIG_ADC_AREF" = "y" ]; then
 			define_symbol ADC_REF ADC_AREF
@@ -17,5 +17,13 @@ dep_bool_menu "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT $ARCH_AVR
 		else
 			define_symbol ADC_REF ADC_2_56
 		fi
+		dep_bool "HR20-style Temperature Sensor (EXPERIMENTAL)" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC $CONFIG_EXPERIMENTAL
 	fi
 endmenu
+
+if [ "$KTY_SUPPORT" = "y" -o "$HR20_TEMP_SUPPORT" = "y" ]; then
+	define_bool	NEED_TEMP2TEXT	y
+else
+	define_bool	NEED_TEMP2TEXT	n
+fi
+
