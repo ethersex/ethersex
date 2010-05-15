@@ -49,7 +49,7 @@ static uint16_t ntp_timer = 1;
 uint32_t startup_timestamp;
 #endif
 
-#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT)
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 static uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 #endif
 
@@ -250,7 +250,7 @@ clock_get_startup(void)
 }
 #endif
 
-#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT)
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 uint32_t
 clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 {
@@ -293,7 +293,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 }
 #endif
 
-#ifdef CLOCK_DATETIME_SUPPORT
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 void
 clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
 {

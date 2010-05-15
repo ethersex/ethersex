@@ -1,5 +1,12 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
-	dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
+
+	if [ "$TEENSY_SUPPORT" = "y" ]; then
+		dep_bool "Date support Only !" CLOCK_DATE_SUPPORT $CLOCK_SUPPORT
+		dep_bool "Time support Only !" CLOCK_TIME_SUPPORT $CLOCK_SUPPORT
+	else
+		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
+	fi
+
 	dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
 	dep_bool "Adjust clock to NTP clock signal (EXPERIMENTAL)" CLOCK_NTP_ADJUST_SUPPORT $CLOCK_SUPPORT $NTP_SUPPORT $CONFIG_EXPERIMENTAL
 	source hardware/clock/dcf77/config.in
