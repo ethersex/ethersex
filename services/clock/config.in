@@ -1,8 +1,7 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 
 	if [ "$TEENSY_SUPPORT" = "y" ]; then
-		dep_bool "Date support Only !" CLOCK_DATE_SUPPORT $CLOCK_SUPPORT
-		dep_bool "Time support Only !" CLOCK_TIME_SUPPORT $CLOCK_SUPPORT
+		comment "Please Define Date/Time in ECMD Configuration"
 	else
 		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
 	fi
