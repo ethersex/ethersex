@@ -19,13 +19,13 @@
   exit 1
 }
 
-grep -e "^$1=\"" .config -q || {
+grep -e "^$1=" .config -q || {
   echo "$0: $1: No such configuration variable."
   exit 1
 }
 
 CONFIG_NEW=`mktemp`
-sed -e "s&^$1=\".*\"\$&$1=$2&" .config > $CONFIG_NEW
+sed -e "s&^$1=.*\$&$1=$2&" .config > $CONFIG_NEW
 
 diff -u .config $CONFIG_NEW -q > /dev/null && {
   echo "$0: No changes needed, exiting."
