@@ -1,6 +1,6 @@
 This is the menu editor for the glcdMenu service. It needs lazarus to compile.
 
 The glcdmenu service is an ethersex wrapper for the MenuDesigner project of Malte Marwedel.
-See services/glcdmenu/menu-interpreter/doc/readme.txt and 
+See services/glcdmenu/menu-interpreter/readme.txt and 
 http://menudesigner.sourceforge.net/ or http://www.mikrocontroller.net/articles/MenuDesigner
 for further information and copyright notice.
