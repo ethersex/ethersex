@@ -1,10 +1,12 @@
 function $(id) {
 	if (document.getElementById)
 		return document.getElementById(id);
+#if defined(VFS_INLINE_OBSOLETE_BROWSER_SUPPORT)
 	if (document.all)
 		return document.all[id];
 	if (document.layers)
 		return document.layers[id];
+#endif
 	return null;
 }
 
@@ -37,6 +39,7 @@ ArrAjax.aufruf = function (address, handler, method, data) {
 	// Mozilla, Opera, Safari sowie Internet Explorer 7
 	if (typeof XMLHttpRequest != 'undefined')
 		xmlHttp = new XMLHttpRequest();
+#if defined(VFS_INLINE_OBSOLETE_BROWSER_SUPPORT)
   	if (!xmlHttp) {
 		// Internet Explorer 6 und älter
 		try {
@@ -49,6 +52,7 @@ ArrAjax.aufruf = function (address, handler, method, data) {
 			}
 		}
 	}
+#endif
 
 	if (!xmlHttp) {
 		alert('No Ajax support');
@@ -124,7 +128,7 @@ function ecmd_error(response) {
         return (response.responseText.indexOf('parse error') != -1);
 }
 
-#if defined(KTY_INLINE_SUPPORT) || defined(ONEWIRE_INLINE_SUPPORT)
+#if defined(VFS_INLINE_SVG_SUPPORT)
 // inline SVG support
 var vboxh = 300;
 var vboxw = 400;
