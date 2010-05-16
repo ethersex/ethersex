@@ -15,7 +15,6 @@ undefine(`substr')dnl
 <![endif]-->
     <link rel="stylesheet" href="Sty.c" type="text/css"/>
     <script src="scr.js" type="text/javascript"></script>
-    <script src="gph.js" type="text/javascript"></script>
     <script type="text/javascript"><![CDATA[
 var num = 8;
 var min = -10, max = 50;
