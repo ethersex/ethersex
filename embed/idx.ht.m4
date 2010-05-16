@@ -19,18 +19,13 @@
 ifdef(`conf_MOTD_INLINE', `<p><a href="mo.ht">MOTD</a>: <b id="motd" style="border:1px dashed white"></b></p>
 <script src="scr.js" type="text/javascript"></script>
 <script>
-function ecmd_send(cmd, handler, obj) {
-	var data = new Object();
-	data.cmd = cmd;
-	data.obj = obj;
-	ArrAjax.ecmd(cmd, handler, "GET", data);
-}
-function ecmd_get(request, data) {
-	var obj = $(data.obj);
-	obj.innerHTML = request.responseText;
+function motd_get(request, data) {
+	_(data, request.responseText);
 }
 
-ecmd_send("motd", ecmd_get, "motd");
+window.onload = function() {
+	ArrAjax.ecmd("motd", motd_get, "GET", "motd");
+}
 </script>
 ')
   <hr>
