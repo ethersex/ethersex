@@ -136,7 +136,7 @@ int main(void)
 		wdt_disable();
 	#endif //USE_WATCHDOG
 
-	#ifdef ADC_SUPPORT
+	#if defined(ADC_SUPPORT) || defined(ADC_LIGHT)
 	/* ADC Prescaler to 64 */
 	ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
 	/* ADC set Voltage Reference to extern*/

@@ -30,18 +30,24 @@ comment "LCD Displays"
     dep_bool "Invert Backlight switch" HD44780_BACKLIGHT_INV $HD44780_SUPPORT
   endmenu
 
+  if [ "$TEENSY_SUPPORT" = "y" ]; then
+    dep_bool "HR20-style LCD Display without ECMD (EXPERIMENTAL)" HR20_LCD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+    comment "Please Define HR20-style LCD Display ECMD Configuration"
+  else
+    dep_bool "HR20-style LCD Display (EXPERIMENTAL)" HR20_LCD_SUPPORT_FULL $atmega169 $EXPERIMENTAL_SUPPORT
+  fi
+
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT $ARCH_AVR
 
   dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT $ARCH_AVR
-  
+
   source hardware/lcd/s1d13305/config.in
 
-if [ "$S1D13305_SUPPORT" = "y" -o "$HD44780_SUPPORT" = "y" -o "$S1D15G10_SUPPORT" = "y" -o "$ST7626_SUPPORT" = "y" ]; then
-  define_bool LCD_SUPPORT y
-else
-  define_bool LCD_SUPPORT n
-fi
-
+  if [ "$S1D13305_SUPPORT" = "y" -o "$HD44780_SUPPORT" = "y" -o "$S1D15G10_SUPPORT" = "y" -o "$ST7626_SUPPORT" = "y" ]; then
+    define_bool LCD_SUPPORT y
+  else
+    define_bool LCD_SUPPORT n
+  fi
 
 	comment  "Debugging Flags"
 	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT

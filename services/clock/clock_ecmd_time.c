@@ -48,22 +48,8 @@ int16_t parse_cmd_time(char *cmd, char *output, uint16_t len)
   }
 }
 
-static const char const weekdays[][4] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-
-int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
-{
-  struct clock_datetime_t date;
-  clock_current_localtime(&date);
-
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
-                               weekdays[date.dow],
-                               date.day, date.month, date.year + 1900,
-                               date.hour, date.min, date.sec, date.day));
-}
-
 /*
   -- Ethersex META --
   block([[Am_Puls_der_Zeit|Clock]])
   ecmd_feature(time, "time",[UNIXTIME], Display/Set the current time in seconds since January 1st 1970.)
-  ecmd_feature(date, "date",, Display the current date.)
 */

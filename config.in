@@ -15,19 +15,20 @@ comment "General Setup"
 
 if [ "$ARCH_AVR" = "y" ]; then
 	choice 'Target MCU'			\
-		"ATmega8      atmega8	\
-		 ATmega88     atmega88	\
-		 ATmega128    atmega128	\
-		 ATmega16     atmega16	\
-		 ATmega162    atmega162	\
-		 ATmega168    atmega168	\
-		 ATmega168p   atmega168p \
-		 ATmega32     atmega32	\
-		 ATmega328p   atmega328p \
-		 ATmega64     atmega64	\
-		 ATmega644    atmega644	\
-         ATmega644p   atmega644p	\
-      	 ATmega1284p   atmega1284p"	\
+		"ATmega8      atmega8		\
+		 ATmega88     atmega88		\
+		 ATmega128    atmega128		\
+		 ATmega16     atmega16		\
+		 ATmega162    atmega162		\
+		 ATmega168    atmega168		\
+		 ATmega168p   atmega168p	\
+		 ATmega169    atmega169		\
+		 ATmega32     atmega32		\
+		 ATmega328p   atmega328p	\
+		 ATmega64     atmega64		\
+		 ATmega644    atmega644		\
+		 ATmega644p   atmega644p	\
+		 ATmega1284p   atmega1284p"	\
 		'ATmega644' MCU
 
 	int "MCU frequency" FREQ 20000000
@@ -192,6 +193,7 @@ comment "I/O"
 	source hardware/isdn/config.in
 	source hardware/pwm/config.in
 	source hardware/onewire/config.in
+	source hardware/input/config.in
 	source hardware/input/ps2/config.in
 	source hardware/input/buttons/config.in
 	source hardware/radio/rfm12/rfm12_ask-config.in

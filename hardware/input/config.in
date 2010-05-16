@@ -1,0 +1,3 @@
+
+dep_bool "HR20 Wheel and Button Input" HR20_INPUT_SUPPORT
+

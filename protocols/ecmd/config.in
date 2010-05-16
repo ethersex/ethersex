@@ -64,6 +64,17 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
 
+	if [ "$TEENSY_SUPPORT" = "y" ] ; then
+		dep_bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT $CLOCK_SUPPORT
+		dep_bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT $CLOCK_SUPPORT
+		if [ "$HR20_LCD_SUPPORT" = "y" ] ; then
+			dep_bool '  HR20 LCD Display ECMD' HR20_LCD_ECMD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+		fi
+		if [ "$ADC_LIGHT" = "y" ] ; then
+			dep_bool '  HR20 TEMP ECMD' HR20_TEMP_ECMD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+		fi
+	fi
+
 	comment "Mirror ECMD commands for output"
 	dep_bool '  Mirror ECMD commands' ECMD_MIRROR_REQUEST $ECMD_PARSER_SUPPORT
 	comment  "Debugging Flags"
