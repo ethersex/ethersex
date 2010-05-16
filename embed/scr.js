@@ -72,7 +72,7 @@ ArrAjax.aufruf = function (address, handler, method, data) {
 		}
 	}
 
-	xmlHttp.send(null);
+	xmlHttp.send();
 	return xmlHttp;
 }
 
