@@ -124,6 +124,8 @@ function ecmd_error(response) {
         return (response.responseText.indexOf('parse error') != -1);
 }
 
+#if defined(KTY_INLINE_SUPPORT) || defined(ONEWIRE_INLINE_SUPPORT)
+// inline SVG support
 var vboxh = 300;
 var vboxw = 400;
 var colors = [ "red", "blue", "green", "lime", "purple", "maroon", "navy", "yellow" ];
@@ -216,3 +218,4 @@ function graphCreateAxis(id, tid, min, max) {
 	addLine(obj, 0, 0, vboxw, 0);
 	addLine(obj, 0, vboxh, vboxw, vboxh);
 }
+#endif
