@@ -37,7 +37,7 @@ void periodic_init(void)
 
     /* init timer1 to expire after ~20ms, with CTC enabled */
     TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
-    OCR1A = (F_CPU/1024/50);
+    OCR1A = (F_CPU/1024/50)-1;
 
     NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
 }

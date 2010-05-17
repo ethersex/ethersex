@@ -59,7 +59,7 @@ clock_init(void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
 	ASSR = _BV(CLOCK_TIMER_AS);
 	CLOCK_TIMER_CNT = 0;
-	/* 120 prescaler to get every second an interrupt */
+	/* 128 prescaler to get every second an interrupt */
 	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
 
 	/* Wait until the bytes are written */
@@ -111,7 +111,7 @@ clock_periodic(void)
 void
 clock_tick(void)
 {
-	if (++ticks > 50) {
+	if (++ticks >= 50) {
 		/* Only clock here, when no crystal is connected */
 #ifndef CLOCK_CRYSTAL_SUPPORT
 		/* Don't wait for a sync, if no sync source is enabled */
