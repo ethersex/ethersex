@@ -48,5 +48,6 @@ struct WatchAsyncBuffer {
 
 void watchasync_init();
 void watchasync_mainloop();
+void watchasync_periodic(void);
 
 #endif /* _WATCHASYNC_H */
