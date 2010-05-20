@@ -1062,6 +1062,7 @@ Select the default profile you wish to load. \
 			ethersex	  "Standard Ethersex"				0 \
 			bootloader	  "Ethernet Bootloader"				0 \
 			netio		  "Pollin AVR Net-IO"				0 \
+			netio_aclog	  "Pollin AVR Net-IO watchasync aclog"		0 \
 			radig		  "Radig AVR Webmodul"				0 \
 			fimser		  "Fieldday Instant Messenger"			0 \
 			probot		  "Conrad Probot"				0 \

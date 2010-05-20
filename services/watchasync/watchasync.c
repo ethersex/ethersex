@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2010 by Justin Otherguy <justin@justinotherguy.org>
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
@@ -69,13 +70,73 @@ static const char PROGMEM time_string[] =
 static const char PROGMEM get_string_foot[] =
     " HTTP/1.1\r\n"
     "Host: " CONF_WATCHASYNC_SERVICE "\r\n\r\n";
-
+#ifndef CONF_WATCHASYNC_PORT
+#define CONF_WATCHASYNC_PORT 80
+#endif
 static struct WatchAsyncBuffer wa_buffer[CONF_WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
 static uint8_t wa_buffer_left = 0; 	// last position sent
 static uint8_t wa_buffer_right = 0; 	// last position set
 
 static uint8_t wa_portstate = 0; 		// Last portstate saved
 static uint8_t wa_sendstate = 0; 		// 0: Idle, 1: Message being sent, 2: Sending message failed
+
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+
+#define ELEMENTS(A) (sizeof(A)/sizeof((A)[0]))
+static uint8_t samples[3] = {0,0,0};
+
+void addToRingbuffer(int pin)
+{
+    uint8_t tempright;  // temporary pointer for detecting full buffer
+    tempright = ((wa_buffer_right + 1) % CONF_WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
+    if (tempright != wa_buffer_left)  // if ringbuffer not full
+    {
+        wa_buffer_right = tempright;  // select next space in ringbuffer
+        wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
+#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
+        wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
+#endif
+    }
+}
+
+// the main purpose of the function is detect rasing edges and put them
+// in the ring buffer. In order to debounce for signals which are not perfect
+// we require 3 consecutive samples with the same level
+void watchasync_periodic(void)
+{
+    static uint8_t idx = 0;
+    static uint8_t state = 0;
+    uint8_t i;
+    uint8_t SamplesDiff,StatesDiff;
+
+    // put element into ringbuffer
+    samples[idx] = PINC;
+    idx++;
+    if (idx>=ELEMENTS(samples)){idx = 0;}
+
+    // SamplesDiff: an high bit means this bit is stable 
+    SamplesDiff = (samples[0] ^ samples[1]) | (samples[1] ^ samples[2]);
+    // StatesDiff: a high bit means this bit has changed
+    StatesDiff  = (samples[0] ^ state) & ~SamplesDiff;
+    // leave in case there is no change
+    if (!StatesDiff) {return;}
+    for (i=0;i<8;i++){
+        uint8_t mask = (1<<i);
+        if (StatesDiff & mask){
+            if (mask & samples[0]){
+                // we have found a raising edge
+                addToRingbuffer(i);
+            }else{
+// in case somebody likes to see the falling edge as well
+//                addIntoRingbuffer(i+128);
+            }
+        }
+    }
+    state = (samples[0] & StatesDiff) | (state & ~StatesDiff);
+}
+
+#else
+void watchasync_periodic(void){}
 
 // Handle Pinchange Interrupt on PortC
 ISR(PCINT2_vect)
@@ -106,6 +167,7 @@ ISR(PCINT2_vect)
     portcompstate = (PINC ^ wa_portstate);  // check for new changes on PortC
   }
 }
+#endif
 
 static void watchasync_net_main(void)  // Network-routine called by networkstack 
 {
@@ -176,7 +238,7 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
 static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callback for DNS query
 {
   WATCHASYNC_DEBUG ("got dns response, connecting\n");
-  uip_conn_t *conn = uip_connect(ipaddr, HTONS(80), watchasync_net_main);  // create new connection with ipaddr found
+  uip_conn_t *conn = uip_connect(ipaddr, HTONS(CONF_WATCHASYNC_PORT), watchasync_net_main);  // create new connection with ipaddr found
   if(conn)  // if connection succesfully created
   {
     conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW; // Set connection state to new, as data still has to be send
@@ -202,10 +264,14 @@ void watchasync_init(void)  // Initilize Poirts and Interrupts
 {
   PORTC = (1<<PC7)|(1<<PC6)|(1<<PC5)|(1<<PC4)|(1<<PC3)|(1<<PC2)|(1<<PC1)|(1<<PC0);  // Enable Pull-up on PortC
   DDRC = 0; 			// PortC Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samples[0] = samples[1] = samples[2] = PINC; // save current state
+#else
   wa_portstate = PINC; 		// save current state
   PCMSK2 = (1<<PCINT23)|(1<<PCINT22)|(1<<PCINT21)|(1<<PCINT20)|(1<<PCINT19)|(1<<PCINT18)|(1<<PCINT17)|(1<<PCINT16);  // Enable Pinchange Interrupt on PortC
   PCICR |= 1<<PCIE2;		// Enable Pinchange Interrupt on PortC
 //  SREG |= 1<<I;			//Enable Interrupts (will hopefully be done somewhere else)
+#endif
 }
 
 void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
@@ -222,7 +288,7 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
       {
         wa_buffer_left = ((wa_buffer_left + 1) % CONF_WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
         WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
-	sendmessage();  // send the new event
+        sendmessage();  // send the new event
       }
     }
   }  
@@ -235,4 +301,5 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
   mainloop(watchasync_mainloop)
   state_header(services/watchasync/watchasync_state.h)
   state_tcp(`struct watchasync_connection_state_t watchasync;')
+  timer(1, watchasync_periodic())
 */
