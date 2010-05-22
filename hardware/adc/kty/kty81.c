@@ -24,10 +24,9 @@
 #include <avr/pgmspace.h>
 #include "config.h"
 #include "core/eeprom.h"
+#include "hardware/adc/temp2text.h"
 
 #include "kty81.h"
-
-#ifdef KTY_SUPPORT
 
 /* schaltet auf den Sensorchannel und AREF auf 0 
  * liest den adc Wert ein und gibt ihn zurueck
@@ -94,38 +93,3 @@ temperatur(uint16_t sensorwert)
 
 }
 
-/* gibt die Temperatur (in Zehntelgrad) formatiert als Klartext
- * im Textbuffer zurueck.
- * Mindestlaenge des buf ist 6 byte
- * Aequivalent zu:
- *   sprintf(textbuf, "% 3i.%1i", temperatur/10, abs(temperatur%10));
- */
-void
-temp2text(char *textbuf, int16_t temperatur)
-{
-  if (temperatur > -300 && temperatur < 1500){
-    char *ptr = textbuf;
-
-    /* fülle mit Padding-bytes auf */
-    if (temperatur >= 0 && temperatur < 10)
-      *ptr++ = ' ';
-    if (temperatur > -10 && temperatur < 100)
-      *ptr++ = ' ';
-    if (temperatur > -100 && temperatur < 1000)
-      *ptr++ = ' ';
-
-    itoa (temperatur, ptr, 10);
-
-    /* konvertiere Zehntelgrad nach Grad: baue Dezimalstelle */
-    textbuf[4] = textbuf[3];
-    textbuf[3] = '.';
-
-    textbuf[5] = '\0';
-  }
-  else{
-    /* "Out of range" Indikator */
-    strcpy_P(textbuf, PSTR("!NaN!"));
-  }
-  // return 5; <-- maybe better make it explicit
-}
-#endif
