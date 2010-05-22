@@ -1,0 +1,42 @@
+2009-12-16: Version 1.3
+  * Feature: Add size optimisation by finding data duplicates
+
+2009-12-10:
+  * Feature: Export defines for the objects really used
+  * Bug fixed: Loading compressed images like png now works as expected
+  * Bug fixed: Linebreak '\r' are removed from text. Linux and Windows version will now produce the same binary output
+
+2009-10-07:
+  * Feature: Shift + Right click on position settings results in automatic middle positioning.
+
+2009-09-10: Version 1.2
+  * Feature: Large Screen support
+  * Feature: Automated export with console parameter FILE --export DIRECTORY
+  * Feature: Zoom 0.25 and 0.5 in preview
+
+2009-08-07: Version 1.1
+
+2009-08-05
+  * Bug fixed: Labelling of the list settings up/down page up/down were switched
+  * Bug fixed: Lists accidentally had a Select ID defined, resulting in a limit of 15 different lists.
+    You should remove the 'selectnum' tag from lists in existing xml files.
+  * Feature: Add Actions for List Index change events
+  * Binary changes: Return from subwindow must be now encoded as Window switch, not as Action
+    This makes it possible to run an individual action for each subwindow return.
+    You must change your existing Objects if they use RET for a Subwindow close.
+
+2009-07-26
+  * Feature: Implement global shortcuts
+
+2009-07-24
+  * Reducing default Ysize of Checkbox and Radiobutton
+
+2009-07-23
+  * Feature: Copy Windows
+
+2009-07-02
+  * Bug fixed: Color was not correctly updated
+  * Feature: Fourth output file with PROGMEM keyword.
+
+2009-06-09: Version 1.0
+
