@@ -2,6 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 SRC += core/util/fixedpoint.c
+SRC += core/util/string_parsing.c
 
 ##############################################################################
 # generic fluff
