@@ -103,6 +103,7 @@ ethersex_meta_mainloop (void)
 divert(timer_divert)dnl
     periodic_process(); wdt_kick();
 #ifdef CPU_SLEEP
+/* Works only if there are interrupts enabled, e.g. from periodic.c */
     SMCR=_BV(SE);
     asm volatile ("sei");
     asm volatile ("sleep");
