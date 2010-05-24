@@ -22,28 +22,46 @@
  */
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 #include "config.h"
 #include "core/periodic.h"
 #include "core/debug.h"
 
-
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
-void periodic_init(void)
+extern volatile uint8_t newtick;
+
+void periodic_init(void) {
+
+#ifdef CLOCK_CPU_SUPPORT
+	/* init timer1 to expire after ~20ms, with Normal */
+	TCCR1B = _BV(CS12) | _BV(CS10);
+	TCNT1 = 65536-((F_CPU/1024)-1);
+	OCR1A = 65536-((F_CPU/1024)-1) + (F_CPU/1024/50)-1;
+	TIMSK1 |= _BV(OCIE1A)|_BV(TOIE1);
+#else
+	/* init timer1 to expire after ~20ms, with CTC enabled */
+	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
+	OCR1A = (F_CPU / 1024 / 50) - 1;
+	TIMSK1 |= _BV(OCIE1A);
+
+	NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
+#endif
+}
+
+ISR(TIMER1_COMPA_vect)
 {
-
-    /* init timer1 to expire after ~20ms, with CTC enabled */
-    TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
-    OCR1A = (F_CPU/1024/50)-1;
-
-    NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
+#ifdef CLOCK_CPU_SUPPORT
+	OCR1A += (F_CPU/1024/50)-1;
+#endif
+	newtick = 1;
 }
 
 /*
-  -- Ethersex META --
-  header(core/periodic.h)
-  init(periodic_init)
-*/
+ -- Ethersex META --
+ header(core/periodic.h)
+ init(periodic_init)
+ */

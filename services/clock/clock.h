@@ -112,6 +112,7 @@ uint16_t clock_last_ntp(void);
 uint32_t clock_get_startup(void);
 
 /* the actual time */
+void clock_set_time_raw(uint32_t new_sync_timestamp);
 void clock_set_time(uint32_t new_sync_timestamp);
 
 /** convert time in timestamp to a datetime struct */

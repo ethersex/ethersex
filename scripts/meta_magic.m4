@@ -53,6 +53,7 @@ void ethersex_meta_exit (int signal);
 void dyndns_update();
 void periodic_process();
 extern uint8_t bootload_delay;
+volatile uint8_t newtick;
 
 divert(initearly_divert)dnl
 void
@@ -187,9 +188,8 @@ void periodic_process(void)
 	   tap_read ();
 
 #else
-    if (_TIFR_TIMER1 & _BV(OCF1A)) {
-        /* clear flag */
-        _TIFR_TIMER1 = _BV(OCF1A);
+    if (newtick) {
+        newtick=0;
 #endif
         counter++;
 #ifdef UIP_SUPPORT

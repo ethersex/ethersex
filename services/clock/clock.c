@@ -80,9 +80,18 @@ clock_init(void)
 	dcf_count = 0;
 }
 
-#ifdef CLOCK_CRYSTAL_SUPPORT
+#if defined(CLOCK_CRYSTAL_SUPPORT) || defined(CLOCK_CPU_SUPPORT)
+#ifdef CLOCK_CPU_SUPPORT
+SIGNAL(TIMER1_OVF_vect)
+#else
 SIGNAL(CLOCK_SIG)
+#endif
 {
+#ifdef CLOCK_CPU_SUPPORT
+TCNT1 = 65536-((F_CPU/1024)-1);
+OCR1A = 65536-((F_CPU/1024)-1) + (F_CPU/1024/50)-1;
+#endif
+
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
 	if (!sync_timestamp || sync_timestamp == timestamp)
 #endif
@@ -113,7 +122,7 @@ clock_tick(void)
 {
 	if (++ticks >= 50) {
 		/* Only clock here, when no crystal is connected */
-#ifndef CLOCK_CRYSTAL_SUPPORT
+#if !defined(CLOCK_CRYSTAL_SUPPORT) && !defined(CLOCK_CPU_SUPPORT)
 		/* Don't wait for a sync, if no sync source is enabled */
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
 		if (!sync_timestamp || sync_timestamp == timestamp)
@@ -137,10 +146,10 @@ timestamp=new_sync_timestamp;
 void
 clock_set_time(uint32_t new_sync_timestamp)
 {
-#ifdef CLOCK_NTP_ADJUST_SUPPORT
 	/* The clock was synced */
 	if (sync_timestamp) {
 		delta = new_sync_timestamp - sync_timestamp;
+#if defined(CLOCK_NTP_ADJUST_SUPPORT) && !defined(CLOCK_CPU_SUPPORT)
 		NTPADJDEBUG ("sync timestamp delta is %d\n", delta);
 		if (delta < -300 || delta > 300)
 			NTPADJDEBUG ("eeek, delta too large. "
@@ -160,8 +169,8 @@ clock_set_time(uint32_t new_sync_timestamp)
 			NTPADJDEBUG ("new OCR1A value %d\n", new_value);
 			OCR1A = new_value;
 		}
-	}
 #endif  /* CLOCK_NTP_ADJUST_SUPPORT */
+	}
 
 	sync_timestamp = new_sync_timestamp;
 	n_sync_timestamp = new_sync_timestamp;
