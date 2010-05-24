@@ -102,6 +102,13 @@ ethersex_meta_mainloop (void)
 
 divert(timer_divert)dnl
     periodic_process(); wdt_kick();
+#ifdef CPU_SLEEP
+    SMCR=_BV(SE);
+    asm volatile ("sei");
+    asm volatile ("sleep");
+    asm volatile ("nop");
+    SMCR=0;
+#endif
 }
 
 divert(-1)dnl
