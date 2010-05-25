@@ -32,6 +32,7 @@ divert(0)dnl
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <stdint.h>
 #include "config.h"
@@ -104,11 +105,8 @@ divert(timer_divert)dnl
     periodic_process(); wdt_kick();
 #ifdef CPU_SLEEP
 /* Works only if there are interrupts enabled, e.g. from periodic.c */
-    SMCR=_BV(SE);
-    asm volatile ("sei");
-    asm volatile ("sleep");
-    asm volatile ("nop");
-    SMCR=0;
+        set_sleep_mode(SLEEP_MODE_IDLE);
+        sleep_mode();
 #endif
 }
 
