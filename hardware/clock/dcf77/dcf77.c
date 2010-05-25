@@ -61,20 +61,25 @@ uint32_t last_dcf77_timestamp=0;
 void
 dcf77_init(void)
 {
+	DCFDEBUG("init dcf77\n");
 #ifdef DCF1_USE_PON_SUPPORT
+	DCFDEBUG("PON\n");
   /* if module needs a peak on PON to enable dcf77 receiver
       configure pin as output, set low */
   PIN_SET(DCF1_PON);
 #endif
 
 #ifdef dcf77_configure_pcint
+  DCFDEBUG("configure_pcint\n");
   /* configure */
   dcf77_configure_pcint ();
 #elif defined(HAVE_DCF77_INT)
+  DCFDEBUG("HAVE_DCF77_INT\n");
   /* Initialize "real" Interrupt */
   _EIMSK |= _BV(DCF77_INT_PIN);
   _EICRA = (_EICRA & ~DCF77_INT_ISCMASK) | DCF77_INT_ISC;
 #else
+  DCFDEBUG("Analog Comparator\n");
   // Analog Comparator init
   ACSR |= _BV(ACIE);
 #endif
@@ -96,8 +101,8 @@ uint32_t compute_dcf77_timestamp()
           dcfdate.hour  = bcd2bin(dcf.time[3]);
           dcfdate.day   = bcd2bin(dcf.time[4]);
           dcfdate.month = bcd2bin(dcf.time[6]);
-          // dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
-          dcfdate.year  = bcd2bin(dcf.time[7]);
+          //dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
+          dcfdate.year  = 100 + (bcd2bin(dcf.time[7]));
           timestamp = clock_utc2timestamp(&dcfdate, dcf.timezone);
 	  return timestamp;
 }
