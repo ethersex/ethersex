@@ -124,5 +124,9 @@ vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
 }
 
 
-
 #endif	/* not VFS_TEENSY */
+
+/*
+  -- Ethersex META --
+  header(core/vfs/vfs.h)
+*/
