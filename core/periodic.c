@@ -41,12 +41,12 @@ void periodic_init(void) {
 	TCCR1B = _BV(CS12) | _BV(CS10);
 	TCNT1 = 65536-((F_CPU/1024)-1);
 	OCR1A = 65536-((F_CPU/1024)-1) + (F_CPU/1024/50)-1;
-	TIMSK1 |= _BV(OCIE1A)|_BV(TOIE1);
+	TIMSK |= _BV(OCIE1A)|_BV(TOIE1);
 #else
 	/* init timer1 to expire after ~20ms, with CTC enabled */
 	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
 	OCR1A = (F_CPU / 1024 / 50) - 1;
-	TIMSK1 |= _BV(OCIE1A);
+	TIMSK |= _BV(OCIE1A);
 
 	NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
 #endif
