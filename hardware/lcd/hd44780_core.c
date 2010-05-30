@@ -32,6 +32,45 @@ FILE *lcd;
 uint8_t current_pos = 0;
 uint8_t back_light = 0;
 
+
+
+
+/*Definition for different display types
+  Add some new Displays here*/
+#if HD44780_TYPE == HD44780_ORIGINAL
+    #define LCD_CHAR_PER_LINE 20 	
+    #define LCD_LINES 4 		
+    #define LCD_LINE_1_ADR 0x00
+    #define LCD_LINE_2_ADR 0x20
+    #define LCD_LINE_3_ADR 0x40
+    #define LCD_LINE_4_ADR 0x60
+#elif HD44780_TYPE == HD44780_DISPTECH
+    #define LCD_CHAR_PER_LINE 20 	
+    #define LCD_LINES 4 		
+    #define LCD_LINE_1_ADR 0x00
+    #define LCD_LINE_2_ADR 0x40
+    #define LCD_LINE_3_ADR 0x10
+    #define LCD_LINE_4_ADR 0x50
+#elif HD44780_TYPE == HD44780_KS0067B
+    #define LCD_CHAR_PER_LINE 20 	
+    #define LCD_LINES 4 		
+    #define LCD_LINE_1_ADR 0x00
+    #define LCD_LINE_2_ADR 0x40
+    #define LCD_LINE_3_ADR 0x14
+    #define LCD_LINE_4_ADR 0x54
+#elif HD44780_TYPE == HD44780_KS0066U
+    #define LCD_CHAR_PER_LINE 20 	
+    #define LCD_LINES 4 		
+    #define LCD_LINE_1_ADR 0x00
+    #define LCD_LINE_2_ADR 0x40
+    #define LCD_LINE_3_ADR 0x10
+    #define LCD_LINE_4_ADR 0x50
+#else
+#error "unknown hd44780 compatible controller type!"
+#endif
+
+#define LCD_MAX_CHAR LCD_CHAR_PER_LINE * LCD_LINES
+
 #define BUSY_FLAG 7
 
 #define HIGH_NIBBLE(x) ((uint8_t)((x) >> 4))
@@ -103,7 +142,7 @@ void hd44780_home(void)
 
 void hd44780_goto(uint8_t line, uint8_t pos)
 {
-    current_pos = (line * 20 + pos) % 80;
+    current_pos = (line * LCD_CHAR_PER_LINE + pos) % LCD_MAX_CHAR;
 }
 
 void hd44780_shift(uint8_t right)
@@ -182,57 +221,26 @@ int hd44780_put(char d, FILE *stream)
     uint8_t start = 0;
 
     if (d == '\n') {
-	while (current_pos % 20 > 0)
+	while (current_pos % LCD_CHAR_PER_LINE > 0)
 	    hd44780_put(' ', stream);
 
-	if (current_pos >= 80)
-	    current_pos -= 80;
+	if (current_pos >= LCD_MAX_CHAR)
+	    current_pos -= LCD_MAX_CHAR;
 
 	return 0;
     } else if (d == '\r') {
-	current_pos -= current_pos % 20;
+	current_pos -= current_pos % LCD_CHAR_PER_LINE;
 	return 0;
     }
 
-#if HD44780_TYPE == HD44780_ORIGINAL
-    if (current_pos <= 19)
-        start = 0x00 - 00 + current_pos;
-    else if (current_pos <= 39)
-        start = 0x20 - 20 + current_pos;
-    else if (current_pos <= 59)
-        start = 0x40 - 40 + current_pos;
-    else if (current_pos <= 79)
-        start = 0x60 - 60 + current_pos;
-#elif HD44780_TYPE == HD44780_DISPTECH
-    if (current_pos <= 19)
-        start = 0x00 - 0 + current_pos;
-    else if (current_pos <= 39)
-        start = 0x40 - 20 + current_pos;
-    else if (current_pos <= 59)
-        start = 0x10 - 40 + current_pos;
-    else if (current_pos <= 79)
-        start = 0x50 - 60 + current_pos;
-#elif HD44780_TYPE == HD44780_KS0067B
-    if (current_pos <= 19)
-        start = 0x00 - 0 + current_pos;
-    else if (current_pos <= 39)
-        start = 0x40 - 20 + current_pos;
-    else if (current_pos <= 59)
-        start = 0x14 - 40 + current_pos;
-    else if (current_pos <= 79)
-        start = 0x54 - 60 + current_pos;
-#elif HD44780_TYPE == HD44780_KS0066U
-    if (current_pos <= 19)
-        start = 0x00 - 0 + current_pos;
-    else if (current_pos <= 39)
-        start = 0x40 - 20 + current_pos;
-    else if (current_pos <= 59)
-        start = 0x10 - 40 + current_pos;
-    else if (current_pos <= 79)
-        start = 0x50 - 60 + current_pos;
-#else
-#error "unknown hd44780 compatible controller type!"
-#endif
+    if (current_pos <= LCD_CHAR_PER_LINE - 1)
+        start = LCD_LINE_1_ADR - 0 + current_pos;
+    else if (current_pos <= ( LCD_CHAR_PER_LINE * 2) - 1 )
+        start = LCD_LINE_2_ADR - LCD_CHAR_PER_LINE + current_pos;
+    else if (current_pos <= ( LCD_CHAR_PER_LINE * 3) - 1 )
+        start = LCD_LINE_3_ADR - (LCD_CHAR_PER_LINE * 2) + current_pos;
+    else if (current_pos <= ( LCD_CHAR_PER_LINE * 4) - 1 )
+        start = LCD_LINE_4_ADR - (LCD_CHAR_PER_LINE * 3) + current_pos;
 
     output_byte(0, CMD_SETDRAMADR(start));
 #ifdef DEBUG_HD44780
@@ -242,7 +250,7 @@ int hd44780_put(char d, FILE *stream)
     output_byte(1, d);
     current_pos++;
 
-    if (current_pos == 80)
+    if (current_pos == LCD_MAX_CHAR)
         current_pos = 0;
 
     return 0;
