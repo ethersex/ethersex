@@ -27,18 +27,6 @@
 #include "config.h"
 
 #ifdef HD44780_SUPPORT
-/* define data pins, for example:
-     #define HD44780_CTRL_PORT A
-     #define HD44780_DATA_PORT A
-     #define HD44780_RS PA0
-     #define HD44780_RW PA1
-     #define HD44780_EN PA2
-     #define HD44780_D4 PA3
-     #define HD44780_D5 PA4
-     #define HD44780_D6 PA5
-     #define HD44780_D7 PA6
-     #define HD44780_DATA_SHIFT 3
-*/
 
 #define HD44780_ORIGINAL 1
 #define HD44780_DISPTECH 2
