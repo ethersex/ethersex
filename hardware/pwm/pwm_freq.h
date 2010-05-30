@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2010 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,24 +19,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
+#ifndef HAVE_PWM_GENERAL_H
+#define HAVE_PWM_GENERAL_H
 
-#include "config.h"
-#include "core/debug.h"
-#include "pwm_melody.h"
-#include <stdlib.h>
+void
+pwm_freq_play(uint16_t frequency);
 
-#include "protocols/ecmd/ecmd-base.h"
-
-
-#ifdef PWM_MELODY_SUPPORT
-
-int16_t
-parse_cmd_pwm_melody_play(char *cmd, char *output, uint16_t len)
-{
-  uint8_t song = atoi(cmd);
-  pwm_melody_init(song);
-  return ECMD_FINAL_OK;
-}
-
-#endif  /* PWM_SUPPORT */
+#endif  /* HAVE_PWM_GENERAL_H */

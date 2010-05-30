@@ -23,8 +23,9 @@
 #include <stdlib.h>
 #include <avr/pgmspace.h>
 
-#include "config.h"
+#include "pwm_common.h"
 #include "pwm.h"
+#include "config.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef CH_A_PWM_GENERAL_SUPPORT
@@ -122,11 +123,10 @@ getpwm(char channel){
 
 // set pwm value
 void
-setpwm(char channel, uint8_t value){
-  PWMDEBUG ("channel %c, values: %i\n",channel, value);
-  uint8_t setval=value;
+setpwm(char channel, uint8_t setval){
+  PWMDEBUG ("channel %c, values: %i\n",channel, setval);
 #ifdef PWM_GENERAL_INVERT_SUPPORT
-  setval=255-value;
+  setval=255-setval;
 #endif /* PWM_GENERAL_INVERT_SUPPORT */
   switch (channel){
 #ifdef CH_A_PWM_GENERAL_SUPPORT
@@ -264,5 +264,5 @@ pwm_periodic()
   ecmd_ifdef(PWM_GENERAL_FADING_SUPPORT)
     ecmd_feature(pwm_fade_command, "pwm fade", [channel +-diff startvalue], Set fading at channel with startvalue and change each stepp to diff (must be signed 3 digit))
   ecmd_endif()
-  ecmd_feature(pwm_command, "pwm", [channel value], Set channel to value)
+  ecmd_feature(pwm_command, "pwm set", [channel value], Set channel to value)
 */

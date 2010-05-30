@@ -27,16 +27,6 @@ ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
   ecmd_feature(rfm12_ask_sense, "rfm12 ask sense",, Trigger (Tevion) ASK sensing.  Enable ext. filter pin before!)
 ecmd_endif()
 
-block([[Sound]]/Melody support) dnl ==========================
-ecmd_ifdef(PWM_MELODY_SUPPORT)
-  ecmd_feature(pwm_melody_play, "pwm melody", , Play melody)
-ecmd_endif
-
-ecmd_ifdef(PWM_WAV_SUPPORT)
-  ecmd_feature(pwm_wav_play, "pwm wav", , Play wav)
-  ecmd_feature(pwm_wav_stop, "pwm stop", , Stop wav)
-ecmd_endif
-
 block([[I2C]] (TWI)) dnl ==========================
 ecmd_ifdef(I2C_DETECT_SUPPORT)
   ecmd_feature(i2c_detect, "i2c detect",,list detected I2C Chips)

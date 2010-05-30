@@ -14,6 +14,8 @@ dep_bool_menu "PWM Generator" PWM_SUPPORT $CONFIG_EXPERIMENTAL $ARCH_AVR
     int "Number of Servos (max 10)" PWM_SERVOS 1
     bool "Invert Servo Signal" PWM_SERVO_INVERT
   endmenu
+  dep_bool "PWM Freqency" PWM_FREQ_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "PWM DTMF" PWM_DTMF_SUPPORT $PWM_SUPPORT $CONFIG_EXPERIMENTAL
 	comment  "Debugging Flags"
 	dep_bool 'PWM' DEBUG_PWM $DEBUG
 	dep_bool 'PWM Servo' DEBUG_PWM_SERVO $DEBUG

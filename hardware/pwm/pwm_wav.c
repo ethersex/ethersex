@@ -29,6 +29,7 @@
 #include "core/debug.h"
 #include "pwm_wav.h"
 #include "ethersex_wav.h"
+#include "protocols/ecmd/ecmd-base.h"
 
 //Sound Daten (got by MegaLOG of Ulrich Radig (see Radig webmodul ))
 
@@ -86,3 +87,24 @@ pwm_stop()
 	TCCR0B = 0 ;
 
 }
+
+int16_t
+parse_cmd_pwm_wav_play(char *cmd, char *output, uint16_t len)
+{
+    pwm_wav_init();
+    return ECMD_FINAL_OK;
+}
+
+int16_t
+parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
+{
+    pwm_stop();
+    return ECMD_FINAL_OK;
+}
+
+
+/*
+  -- Ethersex META --
+  ecmd_feature(pwm_wav_play, "pwm wav", , Play wav)
+  ecmd_feature(pwm_wav_stop, "pwm stop", , Stop wav)
+*/
