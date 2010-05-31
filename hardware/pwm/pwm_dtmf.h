@@ -25,6 +25,27 @@
 #define PWM_DTMF_SIGNAL			70
 #define PWM_DTMF_SIGNAL_BREAK   30
 
+//***************************  x_SW  ***************************************
+//Table of x_SW (excess 8): x_SW = ROUND(8*N_samples*f*510/Fck)
+//**************************************************************************
+
+#define SAMPLES 		128
+#define PRESCALER 		1
+// 8*SAMPLES*f*510/(FREQ/PRESCALER)
+#define recode(f...)  	(unsigned long)8*SAMPLES*f*512/(FREQ*PRESCALER)
+
+//high frequency (coloum)
+#define F1209 recode(1209)
+#define F1336 recode(1336)
+#define F1477 recode(1447)
+#define F1633 recode(1633)
+//low frequency (row)
+#define F697  recode(697)
+#define F770  recode(770)
+#define F852  recode(852)
+#define F941  recode(941)
+
+
 struct dtmf_t
 {
   char character;

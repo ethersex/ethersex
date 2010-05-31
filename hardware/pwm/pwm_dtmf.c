@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2010 by Stefan Riepenhausen <rhn@gmx.net>
  * Copyright (c) 2000, Atmel Corporation All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,39 +53,23 @@ const PROGMEM unsigned char auc_SinParam [128] = {
 0,0, 0,0, 1,1, 2,3, 4,6, 7,9, 10,12, 14,16,
 18,21, 23,25, 28,31, 33,36, 39,42, 45,48, 51,54, 57,60};
 
-//***************************  x_SW  ***************************************
-//Table of x_SW (excess 8): x_SW = ROUND(8*N_samples*f*510/Fck)
-//**************************************************************************
-
-//high frequency (coloum)
-//1209hz  ---> x_SW = 79
-//1336hz  ---> x_SW = 87
-//1477hz  ---> x_SW = 96
-//1633hz  ---> x_SW = 107
-
-//low frequency (row)
-//697hz  ---> x_SW = 46
-//770hz  ---> x_SW = 50
-//852hz  ---> x_SW = 56
-//941hz  ---> x_SW = 61
-
 struct dtmf_t dtmf_tab[] = {
-		{'1', 79, 46},
-		{'2', 87, 46},
-		{'3', 96, 46},
-		{'A',107, 46},
-		{'4', 79, 50},
-		{'5', 87, 50},
-		{'6', 96, 50},
-		{'B',107, 50},
-		{'7', 79, 56},
-		{'8', 87, 56},
-		{'9', 96, 56},
-		{'C',107, 56},
-		{'*', 79, 61},
-		{'0', 87, 61},
-		{'#', 96, 61},
-		{'D',107, 61}
+		{'1', F1209, F697},
+		{'2', F1209, F697},
+		{'3', F1477, F697},
+		{'A', F1633, F697},
+		{'4', F1209, F770},
+		{'5', F1209, F770},
+		{'6', F1477, F770},
+		{'B', F1633, F770},
+		{'7', F1209, F852},
+		{'8', F1209, F852},
+		{'9', F1477, F852},
+		{'C', F1633, F852},
+		{'*', F1209, F941},
+		{'0', F1209, F941},
+		{'#', F1477, F941},
+		{'D', F1633, F941}
 };
 
 //**************************  global variables  ****************************
@@ -116,9 +100,9 @@ ISR(_PWM_MELODY_COMP){
 //**************************************************************************
 void pwm_dtmf_init (void)
 {
-	_PWM_MELODY_TIMSK |= (1 <<_PWM_MELODY_OCIE);
-	_PWM_MELODY_TRCCRA |= (1<<_PWM_MELODY_COM1|1<<_PWM_MELODY_COM0|1<<_PWM_MELODY_WGM0); 
-	_PWM_MELODY_TRCCRB |= (1<<_PWM_MELODY_CS0); 
+	_PWM_MELODY_TIMSK = (1 <<_PWM_MELODY_OCIE);
+	_PWM_MELODY_TRCCRA = (1<<_PWM_MELODY_COM1|1<<_PWM_MELODY_COM0|1<<_PWM_MELODY_WGM0); 
+	_PWM_MELODY_TRCCRB = (1<<_PWM_MELODY_CS0);
 	DDRD |= (1<<7);
 }
 
