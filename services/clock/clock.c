@@ -27,6 +27,7 @@
 #include "hardware/i2c/master/i2c_ds1337.h"
 #include "services/ntp/ntp.h"
 #include "core/debug.h"
+#include "core/periodic.h"
 #include "clock.h"
 #include "config.h"
 
@@ -88,8 +89,8 @@ SIGNAL(CLOCK_SIG)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
-	TCNT1 = 65536-((F_CPU/1024));
-	OCR1A = 65536-((F_CPU/1024)) + (F_CPU/1024/50);
+	TCNT1 = 65536-CLOCK_SECONDS;
+	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)

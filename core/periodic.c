@@ -38,9 +38,13 @@ void periodic_init(void) {
 
 #ifdef CLOCK_CPU_SUPPORT
 	/* init timer1 to expire after ~20ms, with Normal */
+#if CLOCK_DIVIDER == 1024
 	TCCR1B = _BV(CS12) | _BV(CS10);
-	TCNT1 = 65536-((F_CPU/1024));
-	OCR1A = 65536-((F_CPU/1024)) + (F_CPU/1024/50);
+#else  // 256
+	TCCR1B = _BV(CS12);
+#endif
+	TCNT1 = 65536-CLOCK_SECONDS;
+	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
 	TIMSK |= _BV(OCIE1A)|_BV(TOIE1);
 #else
 	/* init timer1 to expire after ~20ms, with CTC enabled */
@@ -55,7 +59,7 @@ void periodic_init(void) {
 ISR(TIMER1_COMPA_vect)
 {
 #ifdef CLOCK_CPU_SUPPORT
-	OCR1A += (F_CPU/1024/50);
+	OCR1A += CLOCK_TICKS;
 #endif
 	newtick = 1;
 }

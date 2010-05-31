@@ -27,5 +27,13 @@
 /* initialize hardware timer */
 void periodic_init(void);
 
+#if F_CPU/1024 < 65536/4
+#define CLOCK_DIVIDER 256
+#else
+#define CLOCK_DIVIDER 1024
+#endif
+
+#define CLOCK_SECONDS F_CPU/CLOCK_DIVIDER
+#define CLOCK_TICKS F_CPU/CLOCK_DIVIDER/50
 
 #endif /* _PERIODIC_H */
