@@ -22,6 +22,16 @@
 #ifndef HAVE_PWM_DTMF_H
 #define HAVE_PWM_DTMF_H
 
+#define PWM_DTMF_SIGNAL			70
+#define PWM_DTMF_SIGNAL_BREAK   30
+
+struct dtmf_t
+{
+  char character;
+  char high;
+  char low;
+};
+
 int16_t 
 parse_cmd_pwm_dtmf(char *cmd, char *output, uint16_t len);
 
@@ -29,7 +39,7 @@ int16_t
 parse_cmd_pwm_dtmfstr(char *cmd, char *output, uint16_t len);
 
 void 
-dtmf(uint8_t code);
+dtmf(char input);
 
 void
 pwm_dtmf_init();

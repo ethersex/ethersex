@@ -57,15 +57,11 @@ const PROGMEM unsigned char auc_SinParam [128] = {
 //Table of x_SW (excess 8): x_SW = ROUND(8*N_samples*f*510/Fck)
 //**************************************************************************
 
-//high frequency (coloun)
+//high frequency (coloum)
 //1209hz  ---> x_SW = 79
 //1336hz  ---> x_SW = 87
 //1477hz  ---> x_SW = 96
 //1633hz  ---> x_SW = 107
-
-const unsigned char auc_frequencyH [4] = {
-107,96,
-87,79};
 
 //low frequency (row)
 //697hz  ---> x_SW = 46
@@ -73,10 +69,24 @@ const unsigned char auc_frequencyH [4] = {
 //852hz  ---> x_SW = 56
 //941hz  ---> x_SW = 61
 
-const unsigned char auc_frequencyL [4] = {
-61,56,
-50,46};
-
+struct dtmf_t dtmf_tab[] = {
+		{'1', 79, 46},
+		{'2', 87, 46},
+		{'3', 96, 46},
+		{'A',107, 46},
+		{'4', 79, 50},
+		{'5', 87, 50},
+		{'6', 96, 50},
+		{'B',107, 50},
+		{'7', 79, 56},
+		{'8', 87, 56},
+		{'9', 96, 56},
+		{'C',107, 56},
+		{'*', 79, 61},
+		{'0', 87, 61},
+		{'#', 96, 61},
+		{'D',107, 61}
+};
 
 //**************************  global variables  ****************************
 unsigned char x_SWa = 0x00;               // step width of high frequency
@@ -107,8 +117,8 @@ ISR(_PWM_MELODY_COMP){
 void pwm_dtmf_init (void)
 {
 	_PWM_MELODY_TIMSK |= (1 <<_PWM_MELODY_OCIE);
-	_PWM_MELODY_TRCCRA |= (1<<_PWM_MELODY_COM1|1<<_PWM_MELODY_WGM0);
-	_PWM_MELODY_TRCCRB |= (1<<CS10);
+	_PWM_MELODY_TRCCRA |= (1<<_PWM_MELODY_COM1|1<<_PWM_MELODY_COM0|1<<_PWM_MELODY_WGM0); 
+	_PWM_MELODY_TRCCRB |= (1<<_PWM_MELODY_CS0); 
 	DDRD |= (1<<7);
 }
 
@@ -118,32 +128,32 @@ void pwm_dtmf_init (void)
 // fix x_SWa and x_SWb
 //**************************************************************************
 
-void dtmf(uint8_t code) {
-    if (code <= 15) {
-      x_SWb = auc_frequencyL[code & 0x03];  
-      x_SWa = auc_frequencyH[(code >> 2) & 0x03];
-	  PWMDEBUG("code: %i: %i(%i), %i(%i)\n", code, x_SWb, code & 0x03, x_SWa, (code >>2  ) & 0x03);
-	  _delay_ms(100);
-    }
+void 
+dtmf(char input) {
+	struct dtmf_t code;	
     x_SWa = 0;
     x_SWb = 0;
-	_delay_ms(50);
+    for (uint8_t i=0;i<16;i++){
+		code=dtmf_tab[i];
+		if (code.character==input){
+      		x_SWa = code.high;
+      		x_SWb = code.low;
+			_delay_ms(PWM_DTMF_SIGNAL);
+			break;
+		}
+     }
+	PWMDEBUG("code: %c: %i, %i\n", input, x_SWa, x_SWb);
+    x_SWa = 0;
+    x_SWb = 0;
+	_delay_ms(PWM_DTMF_SIGNAL_BREAK);
 }
 
 int16_t
 parse_cmd_pwm_dtmf(char *cmd, char *output, uint16_t len)
 {
-	dtmf(cmd[0] - '0');
-    
-    return ECMD_FINAL_OK;
-}
-
-int16_t
-parse_cmd_pwm_dtmfstr(char *cmd, char *output, uint16_t len)
-{
 	uint8_t ptr=0;
 	while (cmd[ptr] != 0) {
-	  dtmf(cmd[ptr++] - '0');
+	  dtmf(cmd[ptr++]);
     }
     
     return ECMD_FINAL_OK;
@@ -153,6 +163,5 @@ parse_cmd_pwm_dtmfstr(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   header(hardware/pwm/pwm_dtmf.h)
   init(pwm_dtmf_init)
-  ecmd_feature(pwm_dtmf, "dtmf ", CHAR, send CHAR as DTMF)
-  ecmd_feature(pwm_dtmfstr, "dtmfstr ", CHARS, send CHARS as DTMF)
+  ecmd_feature(pwm_dtmf, "dtmf ", CHARS, send CHARS as DTMF)
 */
