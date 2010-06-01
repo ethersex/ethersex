@@ -45,7 +45,7 @@ void periodic_init(void) {
 #endif
 	TCNT1 = 65536-CLOCK_SECONDS;
 	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
-	TIMSK |= _BV(OCIE1A)|_BV(TOIE1);
+	_TIMSK_TIMER1 |= _BV(OCIE1A)|_BV(TOIE1);
 #else
 	/* init timer1 to expire after ~20ms, with CTC enabled */
 	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);

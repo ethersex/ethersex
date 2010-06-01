@@ -14,7 +14,7 @@
 #define _TIMSK_TIMER0 TIMSK0
 
 /* Timer1 - Ticks */
-#define TIMSK TIMSK1
+#define _TIMSK_TIMER1 TIMSK1
 
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2B
