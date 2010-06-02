@@ -31,6 +31,9 @@ struct cw_sign_t {
 void
 cw_periodic(void);
 
+void
+cw_boot(void);
+
 int16_t
 cw_send(char *cmd, char *output, uint16_t len);
 
