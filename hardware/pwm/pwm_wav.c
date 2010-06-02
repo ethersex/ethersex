@@ -105,6 +105,7 @@ parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  block([[Sound]]/WAV support)
   ecmd_feature(pwm_wav_play, "pwm wav", , Play wav)
   ecmd_feature(pwm_wav_stop, "pwm stop", , Stop wav)
 */
