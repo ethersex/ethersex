@@ -36,8 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pinning.c"
-#include "core/debug.h"
+#include "config.h"
 
 #include "pwm_common.h"
 #include "pwm_melody.h"
@@ -92,7 +91,7 @@ struct song_t songs[] PROGMEM = {
 //  { "newsong", 40, 1, newsong_notes, songlength(newsong_notes) }
 };
 
-#define MAX_PWM_SONGS sizeof(songs)/sizeof(struct song_t)
+#define MAX_PWM_SONGS (sizeof(songs)/sizeof(struct song_t))
 
 // Interrupt-Funktion, die den "Zeiger" hochzählt
 // je nach gewünschter Frequenz wird "scale" verändert, 
