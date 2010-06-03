@@ -36,6 +36,11 @@
 #include "hardware/pwm/pwm_freq.h"
 #endif /* CW_PWM_FREQ_SUPPORT */
 
+#ifdef CW_RFM12_ASK_SUPPORT
+#include "hardware/radio/rfm12/rfm12.h"
+#include "hardware/radio/rfm12/rfm12_ask.h"
+#endif /* CW_RFM12_ASK_SUPPORT */
+
 #ifdef CW_BEACON_SUPPORT
 void
 cw_periodic(void)
@@ -140,6 +145,11 @@ send_sign(uint8_t c){
     _delay_ms(WORDBREAK);
   } else {
 
+#ifdef CW_RFM12_ASK_SUPPORT
+  rfm12_prologue ();
+  rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
+#endif /* CW_RFM12_ASK_SUPPORT */
+
     for (i = 0; i < 8; i++) {
       if (c == 1) break;
 #ifdef CW_PIN_SUPPORT
@@ -148,6 +158,9 @@ send_sign(uint8_t c){
 #ifdef CW_PWM_FREQ_SUPPORT
       pwm_freq_play(CW_PWM_FREQ);
 #endif /* CW_PWM_FREQ_SUPPORT */
+#ifdef CW_RFM12_ASK_SUPPORT
+    rfm12_ask_trigger(1,1);
+#endif /* CW_RFM12_ASK_SUPPORT */
 
       if ((c & 0x01) == 1 ) { // read lowest bit
   		CWDEBUG ("dah ");
@@ -162,9 +175,16 @@ send_sign(uint8_t c){
 #ifdef CW_PWM_FREQ_SUPPORT
       pwm_freq_play(0);
 #endif /* CW_PWM_FREQ_SUPPORT */
+#ifdef CW_RFM12_ASK_SUPPORT
+    rfm12_ask_trigger(0,1);
+#endif /* CW_RFM12_ASK_SUPPORT */
       _delay_ms(DIT); // wait dit during morse char
       c = c >> 1;  // right shift 
     }
+#ifdef CW_RFM12_ASK_SUPPORT
+  rfm12_trans(0x8208);                        // 2. PwrMngt TX off
+  rfm12_epilogue ();
+#endif /* CW_RFM12_ASK_SUPPORT */
   }  
   CWDEBUG (".\n");
   _delay_ms(DAH); // break between morce chars
