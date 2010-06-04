@@ -147,7 +147,6 @@ send_sign(uint8_t c){
 
 #ifdef CW_RFM12_ASK_SUPPORT
   rfm12_prologue ();
-  rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
 #endif /* CW_RFM12_ASK_SUPPORT */
 
     for (i = 0; i < 8; i++) {
@@ -159,7 +158,7 @@ send_sign(uint8_t c){
       pwm_freq_play(CW_PWM_FREQ);
 #endif /* CW_PWM_FREQ_SUPPORT */
 #ifdef CW_RFM12_ASK_SUPPORT
-    rfm12_ask_trigger(1,1);
+  rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
 #endif /* CW_RFM12_ASK_SUPPORT */
 
       if ((c & 0x01) == 1 ) { // read lowest bit
@@ -176,7 +175,7 @@ send_sign(uint8_t c){
       pwm_freq_play(0);
 #endif /* CW_PWM_FREQ_SUPPORT */
 #ifdef CW_RFM12_ASK_SUPPORT
-    rfm12_ask_trigger(0,1);
+  rfm12_trans(0x8208);                        // 2. PwrMngt TX off
 #endif /* CW_RFM12_ASK_SUPPORT */
       _delay_ms(DIT); // wait dit during morse char
       c = c >> 1;  // right shift 
