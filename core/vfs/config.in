@@ -51,6 +51,10 @@ fi
 	endmenu
 
 	dep_bool "EEPROM (24cxx) Filesystem" VFS_EEPROM_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT $ARCH_AVR
+	if [ "$VFS_EEPROM_SUPPORT" = "y" ]; then
+    int "VFS Pagesize" SFS_PAGE_SIZE 32
+    int "VFS Pagecout" SFS_PAGE_COUNT 128	  
+  fi
 	dep_bool "EEPROM (24cxx) Raw Access" VFS_EEPROM_RAW_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT $ARCH_AVR
 	dep_bool "DC3840 Camera" VFS_DC3840_SUPPORT $DC3840_SUPPORT $ARCH_AVR
 	#dep_bool "  Proc FS" VFS_PROC_SUPPORT $VFS_SUPPORT

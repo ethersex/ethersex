@@ -2219,3 +2219,14 @@ CW_INLINE_SUPPORT
   Simple page to enter strings which will be converted to morse.
   Output is the desired CW pin.
 
+VFS Pagesize
+SFS_PAGE_SIZE
+
+ Size of one Page in the Filesystem.
+ Pagesize * Pagecount must match the size of your EEPROM
+
+SFS_PAGE_COUNT
+ 
+ Count of the pages in total.
+ Pagesize * Pagecount must match the size of your EEPROM
+

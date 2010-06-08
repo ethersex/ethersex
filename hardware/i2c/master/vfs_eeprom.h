@@ -24,10 +24,6 @@
 
 #include "core/vfs/vfs.h"
 
-
-#define SFS_PAGE_SIZE 128
-#define SFS_PAGE_COUNT 512
-
 #define SFS_MAGIC_SUPERBLOCK 0x5
 #define SFS_MAGIC_FILE 0x23
 #define SFS_MAGIC_DATA 0x42
@@ -44,7 +40,7 @@ typedef uint8_t vfs_eeprom_len_t;
 
 
 struct vfs_eeprom_page_superblock {
-  uint8_t magic; /* The magic byte for a file is 0x23 */
+  uint8_t magic; /* The magic byte for a superblock is 0x5 */
   uint16_t next_page; /* not used within the superblock */
   uint16_t next_file; /* A Pointer to the next file page ( in pages ) */
   uint16_t identifier[2]; /* Should be 0xDEADBEEF */
