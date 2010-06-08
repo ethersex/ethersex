@@ -47,14 +47,15 @@ vfs_eeprom_init(void)
 {
   unsigned char buf[SFS_PAGE_SIZE];
   vfs_eeprom_read_page(0, buf, sizeof(struct vfs_eeprom_page_superblock));
+  vfs_eeprom_debug("Superblock %s\n", buf);
 
   /* Page 0  is the superblock */
   struct vfs_eeprom_page_superblock *sb = (struct vfs_eeprom_page_superblock *)buf;
 
   if (sb->magic != SFS_MAGIC_SUPERBLOCK || sb->identifier[0] != 0xdead 
       || sb->identifier[1] != 0xbeef || sb->version != SFS_VERSION) {
-    vfs_eeprom_debug("unformattet filesystem, format!\n");
-    vfs_eeprom_debug("magic: %x, ident %x%x, version: %x\n", sb->magic, 
+	  vfs_eeprom_debug("unformatted filesystem, format!\n");
+	  vfs_eeprom_debug("magic: %x, ident %x%x, version: %x\n", sb->magic,
               sb->identifier[0], sb->identifier[1], sb->version);
 
     sb->magic = SFS_MAGIC_SUPERBLOCK;
@@ -114,10 +115,14 @@ vfs_eeprom_find_file(const char *filename)
   struct vfs_eeprom_page_superblock *sb = (struct vfs_eeprom_page_superblock *) buf;
   
   if (!vfs_eeprom_read_page(0, buf, sizeof(struct vfs_eeprom_page_superblock))) return 0;
+
   vfs_eeprom_inode_t inode = sb->next_file;
+  vfs_eeprom_debug("next file: %i\n", inode);
 
   while(inode) {
     vfs_eeprom_read_page(inode, buf, SFS_PAGE_SIZE);
+    vfs_eeprom_debug("magic: %i ?=? %i\n", file->magic, SFS_MAGIC_FILE);
+    vfs_eeprom_debug("file: %s \n", file->filename);
     if (file->magic != SFS_MAGIC_FILE) {
       vfs_eeprom_debug("filesystem error: non file page is referenced\n");
       return 0;
@@ -263,6 +268,7 @@ vfs_eeprom_read(struct vfs_file_handle_t *handle, void * buffer, vfs_size_t size
   while (count < size) {
     vfs_eeprom_debug("read; read page: %d\n", next_page);
     vfs_eeprom_read_page(next_page, buf, SFS_PAGE_SIZE);
+    if (data_page->magic != SFS_MAGIC_DATA) return 0;
     vfs_eeprom_len_t to_be_copied = sizeof(data_page->data);
     vfs_eeprom_len_t page_offset = handle->u.ee.offset % sizeof(data_page->data);
     uint8_t eof = 0;
@@ -270,12 +276,16 @@ vfs_eeprom_read(struct vfs_file_handle_t *handle, void * buffer, vfs_size_t size
     if ((size - count) < to_be_copied) 
       to_be_copied = size - count;
 
+
     if (page_offset + to_be_copied > data_page->page_len) {
       if (!first) eof = 1; /* We have reached the end of the file */
       to_be_copied = data_page->page_len - page_offset;
     }
+
+
     first=0;
     memcpy(buffer + count, data_page->data + page_offset, to_be_copied);
+
     count += to_be_copied;
     handle->u.ee.offset += to_be_copied;
     if (eof) break;
