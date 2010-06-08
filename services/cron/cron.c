@@ -2,6 +2,7 @@
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
+ * Copyright (c) 2010 by iT Engineering Stefan Müller <mueller@ite-web.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,18 +24,160 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include "config.h"
 #include "cron.h"
 #include "test.h"
-#include "config.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 #include "services/clock/clock.h"
 
+#ifdef CRON_VFS_SUPPORT
+	#include "core/vfs/vfs.h"
+	#include "core/vfs/vfs-util.h"
+
+   #define CRON_FILENAME "crn.t"
+#endif
+
 uint32_t last_check;
 struct cron_event_linkedlist* head;
 struct cron_event_linkedlist* tail;
 uint8_t cron_use_utc;
+
+#ifdef CRON_VFS_SUPPORT
+void
+cron_load()
+{
+	struct vfs_file_handle_t* file;
+	uint8_t extrasize;
+	uint16_t wsize;
+	uint8_t count, i;
+	struct cron_event_linkedlist* newone;
+	vfs_size_t position = sizeof(count);
+
+	file = vfs_open(CRON_FILENAME);
+	if(file == NULL) {
+		#ifdef DEBUG_CRON
+			debug_printf("cron: no cron file found!\n");
+		#endif
+		return;
+	}
+
+	if (vfs_read(file, &count, sizeof(count)) != sizeof(count)) goto end;
+	#ifdef DEBUG_CRON
+		debug_printf("cron: file with %i entries found\n", count);
+	#endif
+
+	// read each cron event
+	for(i=0; i< count; i++) {
+		// read extrasize
+		if (vfs_read( file, &extrasize, sizeof(extrasize)) != sizeof(extrasize)) goto end;
+		// try to get ram space
+		wsize = sizeof(struct cron_event_linkedlist)+extrasize;
+		newone = malloc(wsize);
+
+		#ifdef DEBUG_CRON
+			debug_printf("cron: try to allocate size of %i consist of struct %i and extrasize %i!\n", wsize, sizeof(struct cron_event_linkedlist), extrasize);
+		#endif
+
+
+		// no more ram available -> abort
+		if (!newone) {
+			#ifdef DEBUG_CRON
+			  debug_printf("cron: not enough ram!\n");
+			#endif
+			return;
+		}
+
+		wsize = sizeof(struct cron_event) + extrasize;
+		if (vfs_fseek(file, position, SEEK_SET) != 0) goto end;
+		if (vfs_read(file, &newone->event, wsize) != wsize) goto end;
+		position += wsize;
+		cron_insert(newone, CRON_APPEND);
+	}
+end:
+	vfs_close(file);
+}
+
+int8_t 
+cron_write_error(struct vfs_file_handle_t* file)
+{
+	vfs_close(file);
+
+	/* truncate file */
+	vfs_close(vfs_open(CRON_FILENAME));
+	return -1;
+}
+
+int8_t
+cron_save()
+{
+	struct vfs_file_handle_t* file;
+	uint8_t count = 0;
+	uint8_t saved_count = 0; 
+	vfs_size_t filesize = sizeof(count);
+	vfs_size_t tempsize = 0;
+	vfs_size_t test = 0;
+
+	#ifdef DEBUG_CRON
+		debug_printf("cron: saving jobs\n");
+	#endif
+
+	file = vfs_create(CRON_FILENAME);
+
+	if(file == NULL) {
+		#ifdef DEBUG_CRON
+			debug_printf("cron: can't create file\n");
+		#endif
+		return -1;
+	}
+
+	// placeholder
+	struct cron_event_linkedlist* job = head;
+	while (job) {
+		if(job->event.persistent) {
+			count++;
+		}
+		job = job->next;
+	}
+
+	if (vfs_write(file, &count, sizeof(count)) != sizeof(count))
+		return cron_write_error(file);
+		
+
+	job = head;
+	while (job) {
+		if(job->event.persistent) {
+			#ifdef DEBUG_CRON
+				debug_printf("cron: writing job %i\n", count);
+			#endif
+
+			tempsize = sizeof(struct cron_event)+job->event.extrasize;
+			test = sizeof(struct cron_event) + 0;
+			#ifdef DEBUG_CRON
+				debug_printf("cron: try to allocate size of %i consist of struct %i and extrasize %i!\n", tempsize, test , job->event.extrasize);
+			#endif
+
+			if (vfs_write(file, &job->event, tempsize ) != tempsize)
+				return cron_write_error(file);
+			filesize += tempsize;
+		}
+		job = job->next;
+		// reset watchdog only if it seems that everything is going right
+		if (++saved_count <= count)
+		{
+			wdt_kick();
+		}
+	}
+	#ifdef DEBUG_CRON
+		debug_printf("cron: all jobs written with total size of %i\n", filesize);
+	#endif
+
+	vfs_truncate(file, filesize);
+	vfs_close(file);
+	return saved_count;
+}
+#endif
 
 void
 cron_init(void)
@@ -57,12 +200,21 @@ cron_init(void)
 	#else
 	cron_use_utc = USE_LOCAL;
 	#endif
+
+	#ifdef CRON_VFS_SUPPORT
+	// load cron jobs form VFS
+	cron_load();
+	#endif
 }
+
 
 void
 cron_jobinsert_callback(
-int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
-uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
+int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek, uint8_t repeat,
+#ifdef CRON_VFS_SUPPORT
+	uint8_t persistent,
+#endif
+int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 {
 	// emcd set?
 	if (!handler || (extrasize==0 && extradata)) return;
@@ -86,7 +238,11 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 	newone->event.month = month;
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
+#ifdef CRON_VFS_SUPPORT
+	newone->event.persistent = persistent;
+#endif
 	newone->event.cmd = CRON_JUMP;
+	newone->event.extrasize = extrasize;
 	newone->event.handler = handler;
 	strncpy(&(newone->event.extradata), extradata, extrasize);
 	cron_insert(newone, position);
@@ -94,8 +250,11 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 
 void
 cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
-	uint8_t repeat, int8_t position, char* ecmd)
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,	uint8_t repeat,
+#ifdef CRON_VFS_SUPPORT
+	uint8_t persistent,
+#endif
+	int8_t position, char* ecmd)
 {
 	uint8_t ecmdsize;
 	struct cron_event_linkedlist* newone;
@@ -123,7 +282,11 @@ cron_jobinsert_ecmd(
 	newone->event.month = month;
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
+#ifdef CRON_VFS_SUPPORT
+	newone->event.persistent = persistent;
+#endif
 	newone->event.cmd = CRON_ECMD;
+	newone->event.extrasize = ecmdsize;
 	strncpy(&(newone->event.ecmddata), ecmd, ecmdsize+1);
 	cron_insert(newone, position);
 }
@@ -281,7 +444,7 @@ cron_periodic(void)
 		}
 		/* check if cron 'exec' matches weekdays */
 		if(condition==4){
-			if(exec->event.fields[condition] && (1 << d.cron_fields[condition]) )
+			if(exec->event.fields[condition] & (1 << d.cron_fields[condition]) )
 				condition++;
 		}
 

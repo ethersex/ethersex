@@ -1,6 +1,7 @@
 /*
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
+ * Copyright (c) 2010 by iT Engineering Stefan Müller <mueller@ite-web.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +26,8 @@
 
 #include <stdint.h>
 
+
+
 /** Enumeration of Weekdays */
 typedef enum  {
 	SUN =   1,
@@ -38,6 +41,7 @@ typedef enum  {
 
 /** This structure represents a cron job */
 struct cron_event {
+	uint8_t extrasize;
 	union{
 		int8_t fields[5];
 		/** meaning of the signed values in the following structure:
@@ -46,6 +50,7 @@ struct cron_event {
 		  *   x in 0..30:    absolute value (day)
 		  *   x in 0..12:    absolute value (month)
 		  *   x in SUN..SAT: absolute value (dow) // day of the week
+		  *   				 persistent 1 = save, 0 = don't save
 		  *   x is    -1:    wildcard
 		  *   x in -59..-2:  Example -2 for hour: when hour % 2 == 0 <=> every 2 hours */
 		struct {
@@ -53,7 +58,8 @@ struct cron_event {
 			int8_t hour;
 			int8_t day;
 			int8_t month;
-			days_of_week_t dayofweek;
+			days_of_week_t dayofweek : 7;
+			int8_t persistent : 1;
 		};
 	};
 	uint8_t repeat;
@@ -99,35 +105,50 @@ extern uint8_t cron_use_utc;
 #define CRON_JUMP 10
 #define CRON_ECMD 20
 
+
 /** Insert cron job (that invokes a callback function) to the linked list.
   * @minute, @hour: trigger time
   * @day, @month, @dayofweek: trigger date
+  * @peristent: 0 = don't save, 1 = save
   * @repeat: repeat>0 or INFINIT_RUNNING
   * @position: -1 to append else the new job is inserted at that position
   * @handler: callback function with signature "void func(void* data)"
   * @extrasize, @extradata: extra data that is passed to the callback function
   */
+
 void cron_jobinsert_callback(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
-	uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek, uint8_t repeat,
+#ifdef CRON_VFS_SUPPORT
+	uint8_t persistent,
+#endif
+	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
 
 /** Insert cron job (that will get parsed by the ecmd parser) to the linked list.
 * @minute, @hour: trigger time
 * @day, @month, @dayofweek: trigger date
+* @peristent: 0 = don't save, 1 = save
 * @repeat: repeat>0 or INFINIT_RUNNING
 * @position: -1 to append else the new job is inserted at that position
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
 */
 void cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
-	uint8_t repeat, int8_t position, char* ecmd
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,	uint8_t repeat,
+#ifdef CRON_VFS_SUPPORT
+	uint8_t persistent,
+#endif
+	int8_t position, char* ecmd
 );
 
+#ifdef CRON_VFS_SUPPORT
+/** Saves all as persistent marked Jobs to vfs */
+int8_t cron_save();
 /** Insert cron job to the linked list.
 * @newone: The new cron job structure (malloc'ed memory!)
 * @position: Where to insert the new job
 */
+#endif
+
 void cron_insert(struct cron_event_linkedlist* newone, int8_t position);
 
 /** remove the job from the linked list */
