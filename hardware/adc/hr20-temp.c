@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,30 +19,32 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-
 #include "config.h"
 #include "core/debug.h"
 
-#include "protocols/ecmd/ecmd-base.h"
-
-#ifdef PWM_WAV_SUPPORT
-
-#include "pwm_wav.h"
-
-int16_t
-parse_cmd_pwm_wav_play(char *cmd, char *output, uint16_t len)
+static inline int16_t
+hr20_adc_to_temp (int16_t adcvalue)
 {
-    pwm_wav_init();
-    return ECMD_FINAL_OK;
+  return adcvalue * (-4) / 5 + 630;
 }
 
+
 int16_t
-parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
+hr20_temp_get (void)
 {
-    pwm_stop();
-    return ECMD_FINAL_OK;
+  PIN_SET (TEMP_ENABLE);
+  ADMUX = ADC_MUX_TEMP_SENSE | ADC_REF;
+
+  /* Measure twice, i.e. wait for current to settle ... */
+  ADCSRA |= _BV(ADSC);
+  while (ADCSRA & _BV(ADSC));
+  ADCSRA |= _BV(ADSC);
+  while (ADCSRA & _BV(ADSC));
+
+  uint16_t adc = ADC;
+  debug_printf ("adc result: %d\n", adc);
+
+  PIN_CLEAR (TEMP_ENABLE);
+  return hr20_adc_to_temp (adc);
 }
 
-#endif  /* PWM_SUPPORT */

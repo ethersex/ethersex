@@ -1,0 +1,19 @@
+The following bugs are known to appear in the editor:
+
+Images & Text:
+  Currently, integrated images or text may not be larger than 66000 pixels/chars
+  This counts for each image/text independent
+
+Export:
+  If the menu uses 24 Bit addresses, occurring errors and warnings are always displayed twice
+
+Bugs for Linux only:
+Also applying to a build app:
+  Switching Virtual Desktop minimise the IDE windows 
+    http://bugs.freepascal.org/bug_view_advanced_page.php?bug_id=12656
+
+Bugs for Mac only:
+Export:
+  Old Mac versions up to version 9 use '\r' as linebreak, however the export function removes '\r' and only uses '\n'.
+  Version 10 uses Unix '\n' line-breaks.
+

@@ -32,6 +32,14 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
+#ifdef CW_PWM_FREQ_SUPPORT
+#include "hardware/pwm/pwm_freq.h"
+#endif /* CW_PWM_FREQ_SUPPORT */
+
+#ifdef CW_RFM12_ASK_SUPPORT
+#include "hardware/radio/rfm12/rfm12.h"
+#include "hardware/radio/rfm12/rfm12_ask.h"
+#endif /* CW_RFM12_ASK_SUPPORT */
 
 #ifdef CW_BEACON_SUPPORT
 void
@@ -41,6 +49,16 @@ cw_periodic(void)
   send( ""CONF_CW_BEACON_TEXT);
 }
 #endif
+
+#ifdef CW_BOOT_SUPPORT
+void
+cw_boot(void)
+{
+  CWDEBUG ("boot\n");
+  send( ""CONF_CW_BOOT_TEXT);
+}
+#endif
+
 
 static const char signs[][2] PROGMEM = {
  {' ', 0}, // do not modify this line
@@ -127,9 +145,22 @@ send_sign(uint8_t c){
     _delay_ms(WORDBREAK);
   } else {
 
+#ifdef CW_RFM12_ASK_SUPPORT
+  rfm12_prologue ();
+#endif /* CW_RFM12_ASK_SUPPORT */
+
     for (i = 0; i < 8; i++) {
       if (c == 1) break;
+#ifdef CW_PIN_SUPPORT
       PIN_SET(CW);
+#endif /* CW_PIN_SUPPORT */
+#ifdef CW_PWM_FREQ_SUPPORT
+      pwm_freq_play(CW_PWM_FREQ);
+#endif /* CW_PWM_FREQ_SUPPORT */
+#ifdef CW_RFM12_ASK_SUPPORT
+  rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3));   // 2. PwrMngt TX on
+#endif /* CW_RFM12_ASK_SUPPORT */
+
       if ((c & 0x01) == 1 ) { // read lowest bit
   		CWDEBUG ("dah ");
         _delay_ms(DAH); // wait dah
@@ -137,10 +168,22 @@ send_sign(uint8_t c){
   		CWDEBUG ("dit ");
         _delay_ms(DIT); // wait dit
       }
+#ifdef CW_PIN_SUPPORT
       PIN_CLEAR(CW);
+#endif /* CW_PIN_SUPPORT */
+#ifdef CW_PWM_FREQ_SUPPORT
+      pwm_freq_play(0);
+#endif /* CW_PWM_FREQ_SUPPORT */
+#ifdef CW_RFM12_ASK_SUPPORT
+  rfm12_trans(0x8208);                        // 2. PwrMngt TX off
+#endif /* CW_RFM12_ASK_SUPPORT */
       _delay_ms(DIT); // wait dit during morse char
       c = c >> 1;  // right shift 
     }
+#ifdef CW_RFM12_ASK_SUPPORT
+  rfm12_trans(0x8208);                        // 2. PwrMngt TX off
+  rfm12_epilogue ();
+#endif /* CW_RFM12_ASK_SUPPORT */
   }  
   CWDEBUG (".\n");
   _delay_ms(DAH); // break between morce chars
@@ -169,5 +212,6 @@ int16_t parse_cmd_cw_send(char *cmd, char *output, uint16_t len)
   block([[Morce_Code]])
   header(protocols/cw/cw.h)
   ecmd_feature(cw_send, "cw send ",MESSAGE, Send MESSAGE in Morce Code)
-  ifdef(`CW_BEACON_SUPPORT',`timer(50*10,cw_periodic())')
+  ifdef(`conf_CW_BOOT', `init(cw_boot)')
+  ifdef(`conf_CW_BEACON',`timer(200,cw_periodic())')
 */

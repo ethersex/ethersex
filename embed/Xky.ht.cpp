@@ -11,9 +11,12 @@
       xmlns:svg="http://www.w3.org/2000/svg">
   <head>
     <title>Ethersex KTY Temperature Sheet</title>
+<!--[if IE]>
+    <object id="AdobeSVG" classid="clsid:78156a80-c6a1-4bbf-8e6a-3cd390eeb4e2"></object>
+    <?import namespace="svg" implementation="#AdobeSVG"?>
+<![endif]-->
     <link rel="stylesheet" href="Sty.c" type="text/css"/>
     <script src="scr.js" type="text/javascript"></script>
-    <script src="gph.js" type="text/javascript"></script>
     <script type="text/javascript"><![CDATA[
 var num = 8;
 var min = -10, max = 50;
@@ -57,12 +60,6 @@ window.onload = function() {
       </table>
     </td>
     <td>
-<!--[if IE]>
-      <p>
-        <object id="AdobeSVG" classid="clsid:78156a80-c6a1-4bbf-8e6a-3cd390eeb4e2"> </object>
-      </p>
-      <?import namespace="svg" urn="http://www.w3.org/2000/svg" implementation="#AdobeSVG"?>
-<![endif]-->
       <svg:svg id="chart" width="400px" height="300px" viewBox="0 0 400 300" zoomAndPan="disable">
         <svg:g class="graph" id="g0"></svg:g>
         <svg:g class="graph" id="g1"></svg:g>

@@ -53,6 +53,7 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool "IRC (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
 
 	dep_bool "SMS" ECMD_SMS_SUPPORT $ECMD_PARSER_SUPPORT $SMS_SUPPORT
+	dep_bool "EEPROM - Read on device eeprom space" ECMD_EEPROM_SUPPORT $ECMD_PARSER_SUPPORT $ARCH_AVR
 
 	comment "Generate ECMD commands"
 	dep_bool "  Send via TCP" ECMD_SENDER_SUPPORT $TCP_SUPPORT
@@ -63,6 +64,17 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
 	dep_bool '  Disable Reboot-Commands' DISABLE_REBOOT_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
 	dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
+
+	if [ "$TEENSY_SUPPORT" = "y" ] ; then
+		dep_bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT $CLOCK_SUPPORT
+		dep_bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT $CLOCK_SUPPORT
+		if [ "$HR20_LCD_SUPPORT" = "y" ] ; then
+			dep_bool '  HR20 LCD Display ECMD' HR20_LCD_ECMD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+		fi
+		if [ "$ADC_LIGHT" = "y" ] ; then
+			dep_bool '  HR20 TEMP ECMD' HR20_TEMP_ECMD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+		fi
+	fi
 
 	comment "Mirror ECMD commands for output"
 	dep_bool '  Mirror ECMD commands' ECMD_MIRROR_REQUEST $ECMD_PARSER_SUPPORT

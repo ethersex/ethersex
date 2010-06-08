@@ -66,5 +66,5 @@ int16_t parse_cmd_wol (char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Miscelleanous)
-  ecmd_feature(wol, "wol ",IP,Send WAKE-ON-LAN command to IP)
+  ecmd_feature(wol, "wol ",MAC,Send WAKE-ON-LAN command to MAC)
 */

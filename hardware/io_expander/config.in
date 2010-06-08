@@ -6,5 +6,3 @@ dep_bool_menu "HC165 input expansion  (EXPERIMENTAL)" HC165_SUPPORT $CONFIG_EXPE
 	dep_bool "Inverse output" HC165_INVERSE_OUTPUT $HC165_SUPPORT
 	int "Number of HC165 registers" HC165_REGISTERS 1
 endmenu
-
-dep_bool "MCP23S17 output expansion" MCP23S17_SUPPORT $CONFIG_EXPERIMENTAL $PORTIO_SUPPORT

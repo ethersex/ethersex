@@ -235,22 +235,24 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
         debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 
+        uint8_t sign = ((int16_t) temp < 0);
+
 #ifdef TEENSY_SUPPORT
-	itoa (HI8(temp), output, 10);
-	char *ptr = output + strlen (output);
+        if (sign) {
+            temp = -temp;
+            output[0] = '-';
+        }
+        /* Here sign is 0 or 1 */
+        itoa (HI8(temp), output + sign, 10);
+        char *ptr = output + strlen (output);
 
-	*(ptr ++) = '.';
-	itoa (HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
-	return ECMD_FINAL(strlen(output));
+        *(ptr ++) = '.';
+        itoa (HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
+        return ECMD_FINAL(strlen(output));
 #else
-	{
-	  uint8_t sign = ((int16_t) temp < 0);
-
-	  if (sign) temp = -temp;
-
-	  ret = snprintf_P(output, len, PSTR("%s%d.%1d"),
-			   sign?"-":"", (int8_t) HI8(temp), HI8(((temp & 0x00ff) * 10) + 0x80));
-	}
+        if (sign) temp = -temp;
+        ret = snprintf_P(output, len, PSTR("%s%d.%1d"),
+                         sign?"-":"", (int8_t) HI8(temp), HI8(((temp & 0x00ff) * 10) + 0x80));
 #endif
 
 #ifdef ONEWIRE_DS2502_SUPPORT

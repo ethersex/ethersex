@@ -25,17 +25,12 @@
 #define PWM_MIN_VALUE 0xFF
 #define PWM_MAX_VALUE 0x00
 
+int16_t parse_cmd_pwm_fade_command(char *cmd, char *output, uint16_t len);
+
 void
 pwm_init();
 
 void
 pwm_periodic();
-
-#ifdef DEBUG_PWM
-# include "core/debug.h"
-# define PWMDEBUG(a...)  debug_printf("pwm: " a)
-#else
-# define PWMDEBUG(a...)
-#endif
 
 #endif  /* HAVE_PWM_GENERAL_H */

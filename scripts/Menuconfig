@@ -1057,22 +1057,23 @@ get_dflt_config () {
 Select the default profile you wish to load. \
 <Esc><Esc> to abort." \
 			15 70 7 \
-			defconfig	  "Etherrape"			0 \
-			Jackalope	  "Jackalope (Etherrape extension)"	0	\
-			ethersex	  "Standard Ethersex"		0 \
-			bootloader	  "Ethernet Bootloader"		0 \
-			netio		  "Pollin AVR Net-IO"		0 \
-			radig		  "Radig AVR Webmodul"		0 \
-			fimser		  "Fieldday Instant Messenger"		0 \
-			probot		  "Conrad Probot"		0 \
-			arduino_duemilanove  "Arduino Duemilanove"		0 \
-			rfm12-teensy	  "RFM12 Standalone"		0 \
-			zbus-teensy	  "ZBUS Standalone"		0 \
-			usb-teensy	  "USB (Network) Standalone"	0 \
-			usb-rfm12-dongle  "USB RFM12 Dongle"		0 \
-			ehaserl           "EH2010 Ehaserl Badge"		0 \
-			no-network	  "No Networking (USB only)"	0 \
+			defconfig	  "Etherrape"					0 \
+			Jackalope	  "Jackalope (Etherrape extension)"		0 \
+			ethersex	  "Standard Ethersex"				0 \
+			bootloader	  "Ethernet Bootloader"				0 \
+			netio		  "Pollin AVR Net-IO"				0 \
+			radig		  "Radig AVR Webmodul"				0 \
+			fimser		  "Fieldday Instant Messenger"			0 \
+			probot		  "Conrad Probot"				0 \
+			arduino_duemilanove "Arduino Duemilanove"			0 \
+			rfm12-teensy	  "RFM12 Standalone"				0 \
+			zbus-teensy	  "ZBUS Standalone"				0 \
+			usb-teensy	  "USB (Network) Standalone"			0 \
+			usb-rfm12-dongle  "USB RFM12 Dongle"				0 \
+			ehaserl		  "EH2010 Ehaserl Badge"			0 \
+			no-network	  "No Networking (USB only)"			0 \
 			JeeLinkv2	  "Jeelabs JeeLinkv2 (FTDI-ZBUS, RFM12)"	0 \
+			hr20		  "Rondostat HR20/Thermotronic Basic/Thermy"	0 \
 			 2>MCdialog.out
 
 		exit_status=$?

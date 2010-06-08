@@ -34,6 +34,7 @@ void rfm12_ask_intertechno_send_bit(uint8_t);
 void rfm12_ask_intertechno_send_sync();
 void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void rfm12_ask_sense_start(void);
+void rfm12_ask_trigger(uint8_t, uint16_t);
 
 #define INTERTECHNO_PERIOD 264 // produces pulse of 360 us
 

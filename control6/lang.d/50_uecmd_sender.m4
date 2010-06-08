@@ -11,21 +11,28 @@ divert(globals_divert)
 
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 
-static char* control6_uesend_printf(PGM_P format, ...){
+static char* control6_uesend_printf(PGM_P format, ...)
+{
   va_list args;
-  uint8_t len = 0;
-  len = strlen_P(format);
+  uint8_t len = strlen_P(format);
   uint8_t wlen = len;
+
+  // first round: assume output length < format string length
   char* buf = malloc(len);
-  if (buf == NULL) 
-    return 0;
+
   va_start(args, format);
-  while (wlen == len) {
-    wlen = vsnprintf_P(buf, len, format, args);
-    if (wlen <= len){
-      buf = realloc(buf, ++len);
-      if (buf == NULL) return 0;
-    }
+  while (wlen == len)
+  {
+    if (buf == NULL) return NULL;
+    wlen = vsnprintf_P(buf, len, format, args) + 1;
+
+    // actual size requirement in wlen now -> reallocate
+	buf = realloc(buf, wlen);
+    if (wlen <= len)
+      break;
+
+    // need a second round, this time with actual size requirement ...
+    len = wlen;
   }
   va_end(args);
   return buf;

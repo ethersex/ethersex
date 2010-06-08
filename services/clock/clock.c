@@ -49,7 +49,7 @@ static uint16_t ntp_timer = 1;
 uint32_t startup_timestamp;
 #endif
 
-#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT)
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 static uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 #endif
 
@@ -59,7 +59,7 @@ clock_init(void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
 	ASSR = _BV(CLOCK_TIMER_AS);
 	CLOCK_TIMER_CNT = 0;
-	/* 120 prescaler to get every second an interrupt */
+	/* 128 prescaler to get every second an interrupt */
 	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
 
 	/* Wait until the bytes are written */
@@ -111,7 +111,7 @@ clock_periodic(void)
 void
 clock_tick(void)
 {
-	if (++ticks > 50) {
+	if (++ticks >= 50) {
 		/* Only clock here, when no crystal is connected */
 #ifndef CLOCK_CRYSTAL_SUPPORT
 		/* Don't wait for a sync, if no sync source is enabled */
@@ -250,7 +250,7 @@ clock_get_startup(void)
 }
 #endif
 
-#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT)
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 uint32_t
 clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 {
@@ -293,7 +293,7 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 }
 #endif
 
-#ifdef CLOCK_DATETIME_SUPPORT
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 void
 clock_datetime(struct clock_datetime_t *d, uint32_t timestamp)
 {

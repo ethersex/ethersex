@@ -9,7 +9,8 @@ uint8_t last_minute;
 #ifndef CLOCK_SUPPORT
 #error Please define clock support
 #endif
-#ifndef CLOCK_DATETIME_SUPPORT
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
+#else
 #error Please define clock date/time support
 #endif
 #endif

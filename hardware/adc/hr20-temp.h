@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,24 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/pgmspace.h>
+#ifndef HR20_TEMP_H
+#define HR20_TEMP_H
 
-#include "config.h"
-#include "core/debug.h"
-#include "pwm_melody.h"
-#include <stdlib.h>
+int16_t hr20_temp_get (void);
 
-#include "protocols/ecmd/ecmd-base.h"
-
-
-#ifdef PWM_MELODY_SUPPORT
-
-int16_t
-parse_cmd_pwm_melody_play(char *cmd, char *output, uint16_t len)
-{
-  uint8_t song = atoi(cmd);
-  pwm_melody_init(song);
-  return ECMD_FINAL_OK;
-}
-
-#endif  /* PWM_SUPPORT */
+#endif  /* HR20_TEMP_H */

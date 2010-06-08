@@ -37,6 +37,7 @@ define(`port_mask_C', 0)
 define(`port_mask_D', 0)
 define(`port_mask_E', 0)
 define(`port_mask_F', 0)
+define(`port_mask_G', 0)
 
 define(`ddr_mask_A', 0)
 define(`ddr_mask_B', 0)
@@ -44,6 +45,7 @@ define(`ddr_mask_C', 0)
 define(`ddr_mask_D', 0)
 define(`ddr_mask_E', 0)
 define(`ddr_mask_F', 0)
+define(`ddr_mask_G', 0)
 
 dnl forloop-implementation from gnu m4 example scripts ...
 # forloop(var, from, to, stmt) - simple version

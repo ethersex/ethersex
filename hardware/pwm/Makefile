@@ -2,12 +2,12 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(PWM_GENERAL_SUPPORT)_SRC += hardware/pwm/pwm.c
+$(PWM_FREQ_SUPPORT)_SRC += hardware/pwm/pwm_freq.c
+$(PWM_DTMF_SUPPORT)_SRC += hardware/pwm/pwm_dtmf.c
 
 $(PWM_WAV_SUPPORT)_SRC += hardware/pwm/pwm_wav.c
-$(PWM_WAV_SUPPORT)_ECMD_SRC += hardware/pwm/pwm_wav_ecmd.c
 
 $(PWM_MELODY_SUPPORT)_SRC += hardware/pwm/pwm_melody.c
-$(PWM_MELODY_SUPPORT)_ECMD_SRC += hardware/pwm/pwm_melody_ecmd.c
 
 $(PWM_SERVO_SUPPORT)_SRC += hardware/pwm/pwm_servo.c
 $(PWM_SERVO_SUPPORT)_ECMD_SRC += hardware/pwm/pwm_servo_ecmd.c
