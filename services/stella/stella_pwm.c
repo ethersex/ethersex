@@ -38,7 +38,7 @@ struct stella_timetable_entry* current = 0;
 /* Use port mask to switch pins on if timetable says so and
  * set the next trigger point in time for the compare interrupt.
  * */
-ISR(_VECTOR_OUTPUT_COMPARE2)
+ISR(STELLA_COMPARE_VECTOR)
 {
 	// Activate all timetable entries for this timepoint
 	// We may have more than one for a certain timepoint, if ports in the timetable entries differ
@@ -46,8 +46,8 @@ ISR(_VECTOR_OUTPUT_COMPARE2)
 		ACCESS_IO(current->port.port) |= current->port.mask;
 		current = current->next;
 
-		if (current && _OUTPUT_COMPARE_REG2 != current->value) {
-			_OUTPUT_COMPARE_REG2 = current->value;
+		if (current && STELLA_COMPARE_REG != current->value) {
+			STELLA_COMPARE_REG = current->value;
 			break;
 		}
 	}
@@ -55,7 +55,7 @@ ISR(_VECTOR_OUTPUT_COMPARE2)
 
 /* If channel values have been updated (update_table is set) update all i_* variables.
  * Start the next pwm round. */
-ISR(_VECTOR_OVERFLOW2)
+ISR(STELLA_OVERFLOW_VECTOR)
 {
 	/* if new values are available, work with them */
 	if(stella_sync == NEW_VALUES)
@@ -81,5 +81,5 @@ ISR(_VECTOR_OVERFLOW2)
 		ACCESS_IO(int_table->port[i].port) = (ACCESS_IO(int_table->port[i].port) & ~(uint8_t)stella_portmask[i]) | int_table->port[i].mask;
 
 	if (current)
-		_OUTPUT_COMPARE_REG2 = current->value;
+		STELLA_COMPARE_REG = current->value;
 }
