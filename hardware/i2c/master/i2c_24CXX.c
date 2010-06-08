@@ -34,6 +34,9 @@ void
 i2c_24CXX_init(void)
 {
   i2c_24cxx_address = i2c_master_detect(I2C_SLA_24CXX, I2C_SLA_24CXX + 8);
+  #ifdef DEBUG_I2C
+	  debug_printf("i2c eeprom address: %i ", i2c_24cxx_address);
+  #endif
 }
 
 uint8_t 
@@ -57,6 +60,9 @@ uint8_t
 i2c_24CXX_read_block(uint16_t addr, uint8_t *ptr, uint8_t len) 
 {
   uint8_t ret;
+#ifdef DEBUG_I2C
+  debug_printf("read %i bytes at address: %i \r\n", len, addr);
+#endif
 
   if (!i2c_24CXX_set_addr(addr)) {ret = 0; goto end; }
 
@@ -71,11 +77,16 @@ i2c_24CXX_read_block(uint16_t addr, uint8_t *ptr, uint8_t len)
     /* Recv one byte and ack */
     if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) {goto end; }
     ptr[ret] = TWDR;
+#ifdef DEBUG_I2C
+    debug_printf("%i ,", ptr[ret]);
+#endif
   }
   /* recv one byte and do not ack */
   if (i2c_master_transmit() != TW_MR_DATA_NACK) {goto end; }
   ptr[ret++] = TWDR;
-
+#ifdef DEBUG_I2C
+  debug_printf("%i \r\n", ptr[ret - 1]);
+#endif
 end:
   i2c_master_stop();
   return ret;
@@ -86,13 +97,19 @@ uint8_t
 i2c_24CXX_write_block_int(uint16_t addr, uint8_t *ptr, uint8_t len)
 {
   uint8_t ret;
+
   if (!i2c_24CXX_set_addr(addr)) { ret = 0; goto end; }
 
   for (ret = 0; ret < len; ret++) {
-    TWDR = ptr[ret];
+#ifdef DEBUG_I2C
+	  debug_printf("%i ,", ptr[ret]);
+#endif
+	TWDR = ptr[ret];
     if (i2c_master_transmit() != TW_MT_DATA_ACK) {ret = 0; goto end; }
   }
-
+#ifdef DEBUG_I2C
+  debug_printf("\r\n");
+#endif
 end:
   TWCR=((1<<TWEN)|(1<<TWINT)|(1<<TWSTO));     // Stopbedingung senden
   while (!(TWCR & (1<<TWSTO)));               // warten bis TWI fertig
@@ -105,6 +122,13 @@ end:
     }
   }
 
+#ifdef DEBUG_I2C
+  if (!polls)
+  {
+	  debug_printf("NOT WRITTEN!!\r\n");
+  }
+#endif
+
   i2c_master_stop();
   return ret;
 }
@@ -113,6 +137,9 @@ uint8_t i2c_24CXX_write_block(uint16_t addr, uint8_t *ptr, uint8_t len) {
 	uint8_t ret;
 	uint8_t templen;
 	uint8_t writelen;
+#ifdef DEBUG_I2C
+	debug_printf("write %i bytes at address: %i \r\n", len, addr);
+#endif
 
 	ret = 0;
 	writelen = 0;
