@@ -194,6 +194,21 @@ pin(MOTORCURTAIN_PIN, format(`P%s%d', pinname, itr))
 #define MOCU_SENSORS_PIN_PORT format(PIN%s, pinname)
 ')
 
+define(`STELLA_USE_TIMER', `dnl
+
+/* Configure stella timer*/
+#define STELLA_PRESCALER   		format(_TCCR%s_PRESCALE, $1)
+#define STELLA_TIMSK       		_TIMSK_TIMER$1
+#define STELLA_CS0         		format(CS%s0, $1)
+#define STELLA_CS2         		format(CS%s2, $1)
+#define STELLA_TOIE        		TOIE$1
+#define STELLA_COMPARE_IE  		_OUTPUT_COMPARE_IE$1
+#define STELLA_COMPARE_VECTOR	_VECTOR_OUTPUT_COMPARE$1
+#define STELLA_OVERFLOW_VECTOR  _VECTOR_OVERFLOW$1
+#define STELLA_COMPARE_REG 		_OUTPUT_COMPARE_REG$1
+')
+
+
 define(`STELLA_PORT1_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl

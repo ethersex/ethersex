@@ -87,16 +87,16 @@ stella_init (void)
 	
 	#ifdef STELLA_HIGHFREQ
 	/* High frequency PWM Mode, 64 Prescaler */
-	_TCCR2_PRESCALE = _BV(CS22);
+	STELLA_PRESCALER = _BV(STELLA_CS2);
 	debug_printf("Stella freq: %u Hz\n", F_CPU/64/(256*2));
 	#else
 	/* Normal PWM Mode, 128 Prescaler */
-	_TCCR2_PRESCALE |= _BV(CS20) | _BV(CS22);
+	STELLA_PRESCALER |= _BV(STELLA_CS0) | _BV(STELLA_CS2);
 	debug_printf("Stella freq: %u Hz\n", F_CPU/128/(256*2));
 	#endif
 
 	/* Interrupt on overflow and CompareMatch */
-	_TIMSK_TIMER2 |= _BV(TOIE2) | _BV(_OUTPUT_COMPARE_IE2);
+	STELLA_TIMSK |= _BV(STELLA_TOIE) | _BV(STELLA_COMPARE_IE);
 }
 
 uint8_t
@@ -155,6 +155,7 @@ stella_process (void)
 void
 stella_setValue(const enum stella_set_function func, const uint8_t channel, const uint8_t value)
 {
+	debug_printf("STELLA: channel: %d of %d\n", channel+1, STELLA_CHANNELS);
 	if (channel >= STELLA_CHANNELS) return;
 
 	switch (func)
@@ -163,19 +164,26 @@ stella_setValue(const enum stella_set_function func, const uint8_t channel, cons
 			stella_brightness[channel] = value;
 			stella_fade[channel] = value;
 			stella_sync = UPDATE_VALUES;
+			debug_printf("STELLA: set immediately  value: %d\n", value);
 			break;
 		case STELLA_SET_FADE:
 			stella_fade[channel] = value;
+			debug_printf("STELLA: set fadeing value: %d\n", value);
 			break;
 		case STELLA_SET_FLASHY:
 			stella_brightness[channel] = value;
 			stella_fade[channel] = 0;
 			stella_sync = UPDATE_VALUES;
+			debug_printf("STELLA: set flashy value: %d\n", value);
 			break;
 		case STELLA_SET_IMMEDIATELY_RELATIVE:
 			stella_brightness[channel] += (int8_t)value;
 			stella_fade[channel] += (int8_t)value;
 			stella_sync = UPDATE_VALUES;
+			debug_printf("STELLA: set imidiatley relative value: %d\n", value);
+			break;
+		default:
+			debug_printf("STELLA: What? you set to %d\n", func);
 			break;
 	}
 }
@@ -351,7 +359,7 @@ stella_sort()
 	while (current)
 	{
 		i++;
-		debug_printf("%u %s\n", current->value, debug_binary(current->portmask));
+		//debug_printf("%u %s\n", current->value, debug_binary(current->portmask));
 		current = current->next;
 	}
 	debug_printf("Mask1: %s %u\n", debug_binary(stella_portmask[0]), stella_portmask[0]);
