@@ -1,6 +1,7 @@
 dep_bool_menu "Cron daemon (Dynamic)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
 	dep_bool "Use UTC instead of LOCALTIME" CRON_DEFAULT_UTC $CRON_SUPPORT
 	dep_bool 'Test entries' CRON_SUPPORT_TEST  $CRON_SUPPORT
+	dep_bool "Store Cron jobs in VFS" CRON_VFS_SUPPORT $CRON_SUPPORT $VFS_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'Dry run - Do not execute anything' DEBUG_CRON_DRYRUN
 	dep_bool 'Cron' DEBUG_CRON $DEBUG

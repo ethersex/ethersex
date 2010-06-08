@@ -58,6 +58,14 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs()));
 }
 
+#ifdef CRON_VFS_SUPPORT
+int16_t parse_cmd_cron_save (char *cmd, char *output, uint16_t len)
+{
+
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%u jobs saved"),cron_save()));
+}
+#endif
+
 int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 {
 	uint8_t jobposition;
@@ -78,12 +86,21 @@ int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 {
 	int8_t minute, hour, day, month, dayofweek;
+#ifdef CRON_VFS_SUPPORT
+	uint8_t persistent = 0;
+#endif
 	int i;
 	char ecmd[ECMD_INPUTBUF_LENGTH];
+
+#ifdef CRON_VFS_SUPPORT
+	sscanf_P(cmd, PSTR("%i %i %i %i %i %i %n"), &minute, &hour, &day, &month, &dayofweek, &persistent, &i);
+	strncpy(ecmd,cmd+i,ECMD_INPUTBUF_LENGTH);
+	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, persistent, CRON_APPEND, ecmd);
+#else
 	sscanf_P(cmd, PSTR("%i %i %i %i %i %n"), &minute, &hour, &day, &month, &dayofweek, &i);
 	strncpy(ecmd,cmd+i,ECMD_INPUTBUF_LENGTH);
 	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
-
+#endif
 	return ECMD_FINAL_OK;
 }
 
@@ -92,6 +109,9 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[CRON-Dienst]])
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
+ecmd_ifdef(CRON_VFS_SUPPORT)
+  ecmd_feature(cron_save, "cron_save",, Saves all persistent jobs)
+ecmd_endif()
   ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
   ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)
 */
