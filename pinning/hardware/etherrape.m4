@@ -89,7 +89,7 @@ ifdef(`conf_RC5', `
 ifdef(`conf_HD44780', `
     pin(HD44780_RS, PA0)
     pin(HD44780_RW, PA1)
-    pin(HD44780_EN, PA2)
+    pin(HD44780_EN1, PA2)
     pin(HD44780_D4, PA3)
     pin(HD44780_D5, PA4)
     pin(HD44780_D6, PA5)

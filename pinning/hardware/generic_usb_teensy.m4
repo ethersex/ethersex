@@ -51,7 +51,7 @@ ifdef(`conf_ZBUS', `dnl
 
 ifdef(`conf_HD44780', `dnl
   pin(HD44780_RS, PD0)
-  pin(HD44780_EN, PD1)
+  pin(HD44780_EN1, PD1)
   pin(HD44780_D4, PD4)
   pin(HD44780_D5, PD5)
   pin(HD44780_D6, PD6)

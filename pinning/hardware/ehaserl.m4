@@ -25,7 +25,7 @@ pin(LIGHT, PC1)
 
 dnl HD44780 compatible LCD display
 pin(HD44780_RS, PD4)
-pin(HD44780_EN, PC0)
+pin(HD44780_EN1, PC0)
 pin(HD44780_D4, PC2)
 pin(HD44780_D5, PC3)
 pin(HD44780_D6, PC4)
