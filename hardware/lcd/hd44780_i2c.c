@@ -58,7 +58,7 @@ extern uint8_t back_light;
 uint8_t lcd_data;
 
 
-uint8_t noinline clock_rw(uint8_t read)
+uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 {
     uint8_t data = 0;
 
@@ -80,7 +80,7 @@ uint8_t noinline clock_rw(uint8_t read)
     return data;
 }
 
-void noinline output_nibble(uint8_t rs, uint8_t nibble)
+void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
 {
     lcd_data = nibble;
 
@@ -95,11 +95,11 @@ void noinline output_nibble(uint8_t rs, uint8_t nibble)
         lcd_data &= ~(_BV(7));
 
     // toggle EN
-    clock_write();
+    clock_write(1);
 }
 
 #ifdef HD44780_READBACK
-uint8_t noinline input_nibble(uint8_t rs)
+uint8_t noinline input_nibble(uint8_t rs, uint8_t en)
 {
     // set write bit
     lcd_data |= _BV(5);			//Bit 5 (WR) setzen = lesen
