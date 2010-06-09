@@ -38,7 +38,7 @@ int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
 	{
 		uint8_t line = atoi(cmd);
 
-        if (line > LCD_LINES )
+        if (line > (LCD_LINES - 1) )
             return ECMD_ERR_PARSE_ERROR;
 
         hd44780_goto(line, 0);
