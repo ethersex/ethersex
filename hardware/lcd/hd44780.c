@@ -48,7 +48,7 @@ extern uint8_t back_light;
 						  DDR_CONFIG_OUT(HD44780_D7); \
 						 } while (0);
 
-//#ifdef HD44780_MULTIENSUPPORT
+#ifdef HD44780_MULTIENSUPPORT
 #ifdef HAVE_HD44780_RW 
 #define CTRL_OUTPUT() do { \
 						  DDR_CONFIG_OUT(HD44780_EN1); \
@@ -63,22 +63,22 @@ extern uint8_t back_light;
 						  DDR_CONFIG_OUT(HD44780_RS); \
 						 } while (0);
 #endif
-//#endif
-/*
+#endif
+
 #ifndef HD44780_MULTIENSUPPORT
 #ifdef HAVE_HD44780_RW 
 #define CTRL_OUTPUT() do { \
-						  DDR_CONFIG_OUT(HD44780_EN); \
+						  DDR_CONFIG_OUT(HD44780_EN1); \
 						  DDR_CONFIG_OUT(HD44780_RS); \
 						  DDR_CONFIG_OUT(HD44780_RW); \
 						 } while (0);
 #else 
 #define CTRL_OUTPUT() do { \
-						  DDR_CONFIG_OUT(HD44780_EN); \
+						  DDR_CONFIG_OUT(HD44780_EN1); \
 						  DDR_CONFIG_OUT(HD44780_RS); \
 						 } while (0);
 #endif
-#endif*/
+#endif
 #ifdef HD44780_MULTIENSUPPORT
  #ifndef HD44780_EN1
 	#define HD44780_EN1 HD44870_EN
