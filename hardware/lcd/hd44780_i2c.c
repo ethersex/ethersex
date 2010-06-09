@@ -110,7 +110,7 @@ uint8_t noinline input_nibble(uint8_t rs, uint8_t en)
     else
         lcd_data &= ~(_BV(4));		//Bit 4 (RS) löschen
 
-    uint8_t data = clock_read();
+    uint8_t data = clock_read(en);
 
     // delete RW bit
     lcd_data &= ~(_BV(5));		//Bit 5 (WR) löschen = schreiben

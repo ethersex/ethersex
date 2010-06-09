@@ -74,7 +74,7 @@ void output_byte(uint8_t rs, uint8_t data, uint8_t en)
      * which takes at most 1.52ms = 1520us */
     uint8_t busy, timeout = 200;
     do {
-        busy = input_byte(0) & _BV(BUSY_FLAG);
+        busy = input_byte(0,en) & _BV(BUSY_FLAG);
         _delay_us(10);
         timeout--;
     } while (busy && timeout > 0);
