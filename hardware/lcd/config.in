@@ -8,19 +8,21 @@ comment "LCD Displays"
               "Original			HD44780_ORIGINAL	\
                Displaytech164A		HD44780_DISPTECH	\
                ks0067b			HD44780_KS0067B		\
-               ks0066u			HD44780_KS0066U"	\
+               ks0066u			HD44780_KS0066U		\
+	       WD_C2704M                HD44780_WDC2704"	\	
               Original			HD44780_TYPE
       define_bool LCD_SUPPORT y
-
       choice 'connection type'					\
               "Direkt			HD44780_DIREKT		\
                I2C(pcf8574)		HD44780_I2CSUPPORT	\
                SER_LCD(74hct164)	HD44780_SERLCD"		\
               'Direkt'			HD44780_CONNECTION
+ 
     fi
 
     if [ "$HD44780_DIREKT" = "y" ]; then
         dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
+        dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_MULTIENSUPPORT
     elif [ "$HD44780_I2CSUPPORT" = "y" ]; then
         dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
         int "PCF8574 Address" HD44780_PCF8574_ADR 32
