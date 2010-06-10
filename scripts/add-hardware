@@ -207,15 +207,19 @@ FNORD
 
 template $HD44780_SUPPORT << FNORD
     pin(HD44780_RS, PA0)
-    /* Uncomment if you wirded RW Pin and/or want to use readback support */
-    // pin(HD44780_RW, PA1)
     pin(HD44780_EN1, PA2)
     pin(HD44780_D4, PA3)
     pin(HD44780_D5, PA4)
     pin(HD44780_D6, PA5)
     pin(HD44780_D7, PA6)
-    /* Uncomment if you wirded a second EN Pin and/or want to use multi enable pin support */
-    // pin(HD44780_EN2, PA7)
+FNORD
+
+template $HD44780_READBACK << FNORD
+    pin(HD44780_RW, PA1)
+FNORD
+
+template $HD44780_MULTIENSUPPORT << FNORD
+    pin(HD44780_EN2, PA7)
 FNORD
 
 template $S1D13305_SUPPORT << FNORD
