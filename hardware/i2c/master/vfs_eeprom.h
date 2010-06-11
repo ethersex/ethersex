@@ -24,6 +24,13 @@
 
 #include "core/vfs/vfs.h"
 
+#ifndef SFS_PAGE_SIZE
+	#define SFS_PAGE_SIZE 64
+#endif
+#ifndef SFS_PAGE_COUNT
+	#define SFS_PAGE_COUNT 1
+#endif
+
 #define SFS_MAGIC_SUPERBLOCK 0x5
 #define SFS_MAGIC_FILE 0x23
 #define SFS_MAGIC_DATA 0x42
