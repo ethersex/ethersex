@@ -177,6 +177,24 @@ cron_save()
 	vfs_close(file);
 	return saved_count;
 }
+
+uint8_t
+cron_make_persistent(uint8_t jobnumber)
+{
+	struct cron_event_linkedlist* job;
+
+	job = cron_getjob(jobnumber);
+	if(job == NULL)
+	{
+		#ifdef DEBUG_CRON
+			debug_printf("cron: job not found\n");
+		#endif
+		return 0;
+	}
+
+	job->event.persistent = 1;
+	return 1;
+}
 #endif
 
 void
@@ -210,11 +228,8 @@ cron_init(void)
 
 void
 cron_jobinsert_callback(
-int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek, uint8_t repeat,
-#ifdef CRON_VFS_SUPPORT
-	uint8_t persistent,
-#endif
-int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
+int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 {
 	// emcd set?
 	if (!handler || (extrasize==0 && extradata)) return;
@@ -238,9 +253,7 @@ int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 	newone->event.month = month;
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
-#ifdef CRON_VFS_SUPPORT
-	newone->event.persistent = persistent;
-#endif
+	newone->event.persistent = 0;
 	newone->event.cmd = CRON_JUMP;
 	newone->event.extrasize = extrasize;
 	newone->event.handler = handler;
@@ -250,11 +263,8 @@ int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 
 void
 cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,	uint8_t repeat,
-#ifdef CRON_VFS_SUPPORT
-	uint8_t persistent,
-#endif
-	int8_t position, char* ecmd)
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+	uint8_t repeat,	int8_t position, char* ecmd)
 {
 	uint8_t ecmdsize;
 	struct cron_event_linkedlist* newone;
@@ -282,9 +292,7 @@ cron_jobinsert_ecmd(
 	newone->event.month = month;
 	newone->event.dayofweek = dayofweek;
 	newone->event.repeat = repeat;
-#ifdef CRON_VFS_SUPPORT
-	newone->event.persistent = persistent;
-#endif
+	newone->event.persistent = 0;
 	newone->event.cmd = CRON_ECMD;
 	newone->event.extrasize = ecmdsize;
 	strncpy(&(newone->event.ecmddata), ecmd, ecmdsize+1);

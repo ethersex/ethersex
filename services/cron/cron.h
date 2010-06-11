@@ -117,11 +117,8 @@ extern uint8_t cron_use_utc;
   */
 
 void cron_jobinsert_callback(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek, uint8_t repeat,
-#ifdef CRON_VFS_SUPPORT
-	uint8_t persistent,
-#endif
-	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+	uint8_t repeat,	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
 
 /** Insert cron job (that will get parsed by the ecmd parser) to the linked list.
@@ -133,22 +130,24 @@ void cron_jobinsert_callback(
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
 */
 void cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,	uint8_t repeat,
-#ifdef CRON_VFS_SUPPORT
-	uint8_t persistent,
-#endif
-	int8_t position, char* ecmd
+	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+	uint8_t repeat, int8_t position, char* ecmd
 );
 
 #ifdef CRON_VFS_SUPPORT
 /** Saves all as persistent marked Jobs to vfs */
 int8_t cron_save();
+
+/** Mark a Jobs as persistent
+* @jobnumber: number of job to mark
+*/
+uint8_t cron_make_persistent(uint8_t jobnumber);
+#endif
+
 /** Insert cron job to the linked list.
 * @newone: The new cron job structure (malloc'ed memory!)
 * @position: Where to insert the new job
 */
-#endif
-
 void cron_insert(struct cron_event_linkedlist* newone, int8_t position);
 
 /** remove the job from the linked list */
