@@ -12,6 +12,7 @@
 #define _SPDR0 SPDR
 #define _SPI2X0 SPI2X
 #define _TIFR_TIMER1 TIFR1
+#define _TIMSK_TIMER1 TIMSK1
 #define _EIMSK EIMSK
 #define _IVREG MCUCR
 #define USART0_UDRE_vect USART_UDRE_vect
