@@ -24,6 +24,8 @@
 
 #include "core/vfs/vfs.h"
 
+/* We have to define this in Order to make the vfs_eeprom_page_file
+ * compile. Be aware, that this is a WORKAROUND */
 #ifndef SFS_PAGE_SIZE
 	#define SFS_PAGE_SIZE 64
 #endif
