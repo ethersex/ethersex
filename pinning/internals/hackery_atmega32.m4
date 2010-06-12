@@ -86,5 +86,9 @@
 
 #define _TIFR_TIMER1 TIFR
 
-dnl don't know if it is the right value
-#define BOOTLOADER_SECTION 0xe000 /* atmega32 with 4096 words bootloader */
+#define BOOTLOADER_SECTION 0x7000 /* atmega32 with 4096 words bootloader */
+/*	BOOTLOADER_SECTION 0x7e00	$3F00	256 words	4 Pages
+	BOOTLOADER_SECTION 0x7C00	$3E00	512 words	8 Pages
+	BOOTLOADER_SECTION 0x7800	$3C00	1024 words	16 Pages
+	BOOTLOADER_SECTION 0x7000	$3800	2048 words	32 Pages	*/
+
