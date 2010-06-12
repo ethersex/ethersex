@@ -15,6 +15,9 @@
 #define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
 #define _TIMSK_TIMER0 TIMSK
 
+/* Timer1 - Ticks */
+#define _TIMSK_TIMER1 TIMSK
+
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2
 #define _OUTPUT_COMPARE_IE2 OCIE2

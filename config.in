@@ -37,6 +37,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 			"$(scripts/pinning_hardware_list.sh)" \
 		'Etherrape' HARDWARE
 
+	dep_bool "Use CPU sleep (EXPERIMENTAL)" CPU_SLEEP $ARCH_AVR $CLOCK_CPU_SUPPORT $CONFIG_EXPERIMENTAL
 	source hardware/sram/config.in
 
 	bool "Build a bootloader" BOOTLOADER_SUPPORT

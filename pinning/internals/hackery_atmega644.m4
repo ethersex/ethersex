@@ -19,8 +19,10 @@
 #define _OUTPUT_COMPARE_REG0 OCR0B
 #define _VECTOR_OUTPUT_COMPARE0 TIMER0_COMPB_vect
 #define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
-#define _TIMSK_TIMER0 TIMSK0
 #define _TIFR_TIMER0 TIFR0
+
+/* Timer1 - Ticks */
+#define _TIMSK_TIMER1 TIMSK1
 
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2B

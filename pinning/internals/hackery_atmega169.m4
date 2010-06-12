@@ -15,6 +15,8 @@
 #define _EIMSK EIMSK
 #define _IVREG MCUCR
 
+/* Timer1 - Ticks */
+#define _TIMSK_TIMER1 TIMSK1
 
 
 #undef UBRR
