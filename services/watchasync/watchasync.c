@@ -136,8 +136,6 @@ void watchasync_periodic(void)
 }
 
 #else
-void watchasync_periodic(void){}
-
 // Handle Pinchange Interrupt on PortC
 ISR(PCINT2_vect)
 {
@@ -167,7 +165,7 @@ ISR(PCINT2_vect)
     portcompstate = (PINC ^ wa_portstate);  // check for new changes on PortC
   }
 }
-#endif
+#endif /* ! CONF_WATCHASYNC_EDGDETECTVIAPOLLING */
 
 static void watchasync_net_main(void)  // Network-routine called by networkstack 
 {

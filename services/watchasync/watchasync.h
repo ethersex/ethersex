@@ -48,6 +48,11 @@ struct WatchAsyncBuffer {
 
 void watchasync_init();
 void watchasync_mainloop();
+
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
 void watchasync_periodic(void);
+#else
+#define watchasync_periodic() do {} while(0)
+#endif
 
 #endif /* _WATCHASYNC_H */

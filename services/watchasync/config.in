@@ -1,4 +1,4 @@
-dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL $atmega644p
+dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
   string "Service" CONF_WATCHASYNC_SERVICE "volkszaehler.org"
   int "Port number used by the Service" CONF_WATCHASYNC_PORT 80
   string "Path" CONF_WATCHASYNC_PATH "/httplog/httplog.php"
