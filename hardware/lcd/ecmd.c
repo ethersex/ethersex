@@ -139,7 +139,7 @@ int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
 	cursor = atoi(cmd);
 #else
 	int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
-	if(ret == 2)
+	if(ret != 2)
 		return ECMD_ERR_PARSE_ERROR;
 #endif
 
