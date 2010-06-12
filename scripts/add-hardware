@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 usage() {
   echo "Usage:"
@@ -416,7 +416,7 @@ grep -v -e "^HARDWARE=" -e "^$HARDWARE=y" .config > .config.new
 echo -e "HARDWARE=$hw\n$hw=y" >> .config.new
 mv -f .config.new .config
 
-function l_editor() {
+l_editor() {
   echo "launching editor for $1 ..."
   if [ -n "$EDITOR" ]; then
     $EDITOR $1

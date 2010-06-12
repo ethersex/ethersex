@@ -21,6 +21,9 @@
 # http://www.gnu.org/copyleft/gpl.html
 #
 
+STAT_ARGS="-c %s"
+[ `uname` = "FreeBSD" ] && STAT_ARGS="-f %z"
+
 (cat <<EOF
 #include <avr/pgmspace.h>
 SPM_PAGESIZE
@@ -40,7 +43,7 @@ fgrep -q "#define VFS_INLINE_HTML_CLEAN_SUPPORT" autoconf.h &&  do_strip=true
 while true; do
   fn="$1"; shift
   test "x$fn" = "x" && {
-    SZ=$(stat -c %s ethersex.bin)
+    SZ=$(stat ${STAT_ARGS} ethersex.bin)
     echo "Final size of ethersex.bin is $SZ."
     exit 0
   }
