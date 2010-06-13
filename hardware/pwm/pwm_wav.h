@@ -25,8 +25,15 @@
 
 #include <avr/pgmspace.h>
 
-// Sound Data
-PROGMEM extern char pwmsound[];
+#define WAVEBUFFERLEN 100
+
+#define SOUNDFREQ 8000
+#define SOUNDDIVISOR (F_CPU/64/SOUNDFREQ)
+
+#ifndef VFS_PWM_WAV_SUPPORT
+  // inline data
+  PROGMEM extern char pwmsound[];
+#endif /* VFS_PWM_WAV_SUPPORT */
 
 void pwm_wav_init(void);
 void pwm_stop(void);

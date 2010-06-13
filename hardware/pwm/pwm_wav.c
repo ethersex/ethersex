@@ -29,9 +29,14 @@
 #include "core/debug.h"
 #include "pwm_wav.h"
 #include "protocols/ecmd/ecmd-base.h"
+
+/*
+ HINT: the use of DEBUG is discurraged, as the printout will destroy
+ the sound timing.
+*/
+
 #ifdef VFS_PWM_WAV_SUPPORT
   #include "core/vfs/vfs.h"
-  #define WAVEBUFFERLEN 100
   uint8_t wavebuffer[WAVEBUFFERLEN];
   uint8_t wavebuffer_pos = WAVEBUFFERLEN;
   struct vfs_file_handle_t *handle=NULL;
@@ -41,19 +46,13 @@
   #define PWMSOUNDSIZE sizeof(pwmsound)
 #endif /* VFS_PWM_WAV_SUPPORT */
 
-//Sound Daten (got by MegaLOG of Ulrich Radig (see Radig webmodul ))
-
-#define SOUNDFREQ 8000
-#define SOUNDDIVISOR (F_CPU/64/SOUNDFREQ)
-
 uint16_t pwmbytecounter = 0;
-
 
 //Timer2 Interrupt
 ISR (TIMER0_OVF_vect)
 {
 #ifdef VFS_PWM_WAV_SUPPORT
-    if (wavebuffer_pos == 100) {
+    if (wavebuffer_pos == WAVEBUFFERLEN) {
         if (vfs_read(handle, wavebuffer, WAVEBUFFERLEN) <= 0 ){
 			pwm_stop();
 		}
@@ -147,7 +146,6 @@ parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
     pwm_stop();
     return ECMD_FINAL_OK;
 }
-
 
 /*
   -- Ethersex META --
