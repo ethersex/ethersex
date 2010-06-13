@@ -31,18 +31,18 @@ temp2text(char *textbuf, int16_t temperatur)
     char *ptr = textbuf;
 
     /* fülle mit Padding-bytes auf */
-    if (temperatur >= 0 && temperatur < 10)
+    if (temperatur > -100 && temperatur < 1000)
       *ptr++ = ' ';
     if (temperatur > -10 && temperatur < 100)
       *ptr++ = ' ';
-    if (temperatur > -100 && temperatur < 1000)
-      *ptr++ = ' ';
+    if (temperatur >= 0 && temperatur < 10)
+      *ptr++ = '0';
 
     itoa (temperatur, ptr, 10);
 
     /* konvertiere Zehntelgrad nach Grad: baue Dezimalstelle */
     textbuf[4] = textbuf[3];
-    textbuf[3] = '.';
+    textbuf[3] = ',';
 
     textbuf[5] = '\0';
   }
