@@ -69,7 +69,11 @@ if [ "$ARCH_AVR" = "y" ]; then
 		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_WORDS=4096 ; fi
 	fi
 
-	dep_bool "Build a bootloader" BOOTLOADER_SUPPORT $atmega64 $atmega644 $atmega644p $atmega1284p $atmega128
+	if [ "$atmega64" = "y" -o "$atmega644" = "y" -o "$atmega644p" = "y" -o "$atmega1284p" = "y" -o "$atmega128" = "y" ] ; then
+		bool 'Build a bootloader' BOOTLOADER_SUPPORT
+	else
+		dep_bool 'Build a bootloader' BOOTLOADER_SUPPORT "n"
+	fi
 
 	if [ "$FLASH_SIZE" = "131072" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
