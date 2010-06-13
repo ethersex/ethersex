@@ -1,6 +1,4 @@
 
-#define BOOTLOADER_SECTION 0x0c00 /* atmega88 with 1024 words bootloader */
-
 #define _ATMEGA88
 
 /* ATmega88 specific adjustments */

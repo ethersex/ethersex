@@ -1,6 +1,4 @@
 
-#define BOOTLOADER_SECTION 0x0c00 /* atmega168 with 1024 words bootloader */
-
 #define _ATMEGA168
 #define USART0_RX_vect USART_RX_vect
 #define USART0_TX_vect USART_TX_vect

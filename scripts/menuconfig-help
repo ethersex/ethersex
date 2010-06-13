@@ -41,6 +41,8 @@ function dep_bool_editor() { editor "$1" "$2"; }
 function define_bool() { true; }
 function script_set() { true; }
 function define_int() { true; }
+function define_hex() { true; }
+function define_string() { true; }
 function define_symbol() { true; }
 function endmenu() { 
   let depth=$depth-1;

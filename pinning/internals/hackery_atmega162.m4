@@ -58,6 +58,3 @@
 #endif
 
 #define _TIFR_TIMER1 TIFR
-
-
-#define BOOTLOADER_SECTION 0x1c00 /* atmega162 with 1024 words bootloader */
