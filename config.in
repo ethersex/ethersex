@@ -8,6 +8,8 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
+	bool 'Prompt All Possible Options' CONFIG_EXPERT
+
 	choice 'Target Architecture'			\
 		"AVR		ARCH_AVR		\
 		 Host		ARCH_HOST"		\
@@ -83,6 +85,31 @@ mainmenu_option next_comment
 	comment "Network"
 
 	string "Hostname" CONF_HOSTNAME "ethersex"
+
+	if [ "$ENC28J60_SUPPORT" = "y" -o "$RFM12_IP_SUPPORT" = "y" -o "$ZBUS_SUPPORT" = "y" -o "$UIP_SUPPORT" = "y" ]; then
+		if [ "$NET_MAX_FRAME_LENGTH" = "" -o "$NET_MAX_FRAME_LENGTH" -gt 1500 ] ; then NET_MAX_FRAME_LENGTH=1500 ; fi
+		if [ "$atmega8" = "y" -o "$atmega88" = "y" -o "$atmega16" = "y" -o "$atmega168" = "y" -o "$atmega169" = "y" -o "$atmega168p" = "y" ] ; then
+			if [ "$NET_MAX_FRAME_LENGTH" -gt 192 ] ; then NET_MAX_FRAME_LENGTH=192 ; fi
+		fi
+		if [ "$atmega32" = "y" ] ; then
+			if [ "$TEENSY_SUPPORT" = "y" ] ; then
+				if [ "$NET_MAX_FRAME_LENGTH" -gt 192 ] ; then NET_MAX_FRAME_LENGTH=192 ; fi
+			else
+				if [ "$NET_MAX_FRAME_LENGTH" -gt 500 ] ; then NET_MAX_FRAME_LENGTH=500 ; fi
+			fi
+		fi
+		if [ "$atmega162" = "y" -a "$NET_MAX_FRAME_LENGTH" -gt 600 ] ; then NET_MAX_FRAME_LENGTH=600 ; fi
+		if [ "$atmega328p" = "y" -a "$NET_MAX_FRAME_LENGTH" -gt 384 ] ; then NET_MAX_FRAME_LENGTH=384 ; fi
+
+		Value=$NET_MAX_FRAME_LENGTH
+
+		if [ "$CONFIG_EXPERT" = "y" ] ; then
+			int "Network Buffer Size" NET_MAX_FRAME_LENGTH 1500
+		else
+			define_int NET_MAX_FRAME_LENGTH $Value
+		fi
+	fi
+
 	source hardware/ethernet/config.in
 	source core/host/tap-config.in
 	source hardware/radio/rfm12/config.in

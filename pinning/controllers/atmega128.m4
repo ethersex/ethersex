@@ -36,5 +36,4 @@ ifdef(`conf_I2C_MASTER', `
 ')dnl
 
 
-#define NET_MAX_FRAME_LENGTH 1500
 #define ADC_CHANNELS 8

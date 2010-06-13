@@ -35,8 +35,5 @@ ifdef(`conf_I2C_MASTER', `
   pin(SCL, PC5)
 ')dnl
 
-
-/* there isn't that much RAM on ATmega168, reduce uip_buf size. */
-#define NET_MAX_FRAME_LENGTH 192
 #define ADC_CHANNELS 6
 

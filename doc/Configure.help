@@ -15,6 +15,9 @@ TEENSY_SUPPORT
   You want to say Y here for ATmega8 or similar controllers and
   probably also want to disable TCP support.
 
+CONFIG_EXPERT
+  Prompt All Possible Options, Only for Expert Users
+
 Enable (Serial-Line) Debugging
 DEBUG
   Enable serial-line debugging capability of Ethersex firmware.
@@ -95,6 +98,9 @@ DEBUG_ECMD_RC5
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
+
+NET_MAX_FRAME_LENGTH
+  Define the Maximum of bytes for the uip buffer
 
 ENC28J60
 DEBUG_ENC28J60
