@@ -48,7 +48,7 @@ fi
 
 	# Set the Flash size to the cpu type
 	if [ "$atmega128" = "y" -o "$atmega1284p" = "y" ] ; then
-		FLASH_SIZE=131072	#	4096			0x1e000
+		FLASH_SIZE=131072	#	512/1024/2048/4096	0x1fc00/0x1f800/0x1f000/0x1e000
 	fi
 	if [ "$atmega64" = "y" -o "$atmega644" = "y" -o "$atmega644p" = "y" ] ; then
 		FLASH_SIZE=65536	#	512/1024/2048/4096	0xfc00/0xf800/0xf000/0xe000
@@ -72,10 +72,19 @@ fi
 		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_WORDS=4096 ; fi
 	fi
 	if [ "$FLASH_SIZE" = "131072" ] ; then
-		if [ "$BOOTLOADER_WORDS" = 4096 ] ; then
-			define_hex BOOTLOADER_SECTION 0x1e000
+		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
+			define_hex BOOTLOADER_SECTION 0x1fc00
 		else
-			define_hex BOOTLOADER_SECTION 0x1e000
+			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
+				define_hex BOOTLOADER_SECTION 0x1f800
+			else
+				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
+					define_hex BOOTLOADER_SECTION 0x1f000
+				else
+					define_hex BOOTLOADER_SECTION 0x1e000
+					BOOTLOADER_WORDS=4096
+				fi
+			fi
 		fi
 	fi
 	if [ "$FLASH_SIZE" = "65536" ] ; then
