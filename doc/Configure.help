@@ -1279,8 +1279,10 @@ Build a bootloader
 BOOTLOADER_SUPPORT
 
  enable ethersex TFTP bootloader support
- Depends on TFTP to upload new firmware
+ Depends on TFTP to upload new firmware and the chip,
+ is only possible to use on chips with 64k or 128k of flash
 
+ This Bootloader Need 4096 Words (8k Bytes) Flash on the end of the chip
 
 device is self powered
 USB_CFG_IS_SELF_POWERED

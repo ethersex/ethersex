@@ -42,9 +42,6 @@ if [ "$ARCH_AVR" = "y" ]; then
 	dep_bool "Use CPU sleep (EXPERIMENTAL)" CPU_SLEEP $ARCH_AVR $CLOCK_CPU_SUPPORT $CONFIG_EXPERIMENTAL
 	source hardware/sram/config.in
 
-	bool "Build a bootloader" BOOTLOADER_SUPPORT
-
-fi
 
 	# Set the Flash size to the cpu type
 	if [ "$atmega128" = "y" -o "$atmega1284p" = "y" ] ; then
@@ -71,6 +68,9 @@ fi
 		if [ "$FLASH_SIZE" = 65536 ] ; then BOOTLOADER_WORDS=4096 ; fi
 		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_WORDS=4096 ; fi
 	fi
+
+	dep_bool "Build a bootloader" BOOTLOADER_SUPPORT $atmega64 $atmega644 $atmega644p $atmega1284p $atmega128
+
 	if [ "$FLASH_SIZE" = "131072" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
 			define_hex BOOTLOADER_SECTION 0x1fc00
@@ -158,6 +158,8 @@ fi
 			int 'Bootloader Size in words' BOOTLOADER_WORDS ""
 		fi
 	fi
+
+fi
 
 
 
