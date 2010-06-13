@@ -54,7 +54,9 @@ ISR (TIMER0_OVF_vect)
 {
 #ifdef VFS_PWM_WAV_SUPPORT
     if (wavebuffer_pos == 100) {
-        vfs_read(handle, wavebuffer, WAVEBUFFERLEN);
+        if (vfs_read(handle, wavebuffer, WAVEBUFFERLEN) <= 0 ){
+			pwm_stop();
+		}
         wavebuffer_pos = 0;
     }
     uint8_t s = wavebuffer[wavebuffer_pos++];
@@ -150,6 +152,6 @@ parse_cmd_pwm_wav_stop(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[Sound]]/WAV support)
-  ecmd_feature(pwm_wav_play, "pwm wav", , Play wav)
+  ecmd_feature(pwm_wav_play, "pwm wav", <FILENAME>,Play wave file. Use VFS if compiled in. More details at [[Sound]])
   ecmd_feature(pwm_wav_stop, "pwm stop", , Stop wav)
 */
