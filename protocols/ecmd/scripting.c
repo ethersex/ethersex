@@ -158,6 +158,42 @@ parse_cmd_call(char *cmd, char *output, uint16_t len)
 }
 
 int16_t
+parse_cmd_cat(char *cmd, char *output, uint16_t len)
+{
+  char filename[10];
+  char line[ECMD_INPUTBUF_LENGTH];
+  uint8_t lsize=0;
+  uint8_t run=0;
+  vfs_size_t filesize;
+
+  sscanf_P(cmd, PSTR("%s"), &filename);  // should check for ".es" extention!
+  current_script.handle = vfs_open(filename);
+
+  if (current_script.handle == NULL) {
+    SCRIPTDEBUG("%s not found\n", filename);
+    return ECMD_FINAL(1);
+  }
+  
+  filesize = vfs_size(current_script.handle);
+
+  SCRIPTDEBUG("cat %s from %i bytes\n", filename, filesize);
+  current_script.linenumber=0;
+  current_script.filepointer=0;
+
+  // open file as long it is open, we have not reached max lines and 
+  // not the end of the file as we know it
+  while ( (current_script.handle != NULL) && 
+          (run++ < ECMD_SCRIPT_MAXLINES ) && 
+          (filesize > current_script.filepointer ) ) {
+
+    lsize = readline(line);
+    SCRIPTDEBUG("cat: %s\n", line);
+  }
+
+  return ECMD_FINAL_OK;
+}
+
+int16_t
 parse_cmd_wait(char *cmd, char *output, uint16_t len)
 {
   uint16_t delay;
@@ -354,6 +390,9 @@ ecmd_script_init_run(void){
   ecmd_feature(inc, "inc ",VAR, Increment variable VAR (a number) )
   ecmd_feature(dec, "dec ",VAR, Decrement variable VAR (a number) )
   ecmd_feature(call, "call ",FILENAME, Start script named FILENAME)
+  ecmd_ifdef(DEBUG_ECMD_SCRIPT)
+    ecmd_feature(cat, "cat ",FILENAME, cat file content (with debug only))
+  ecmd_endif()
   ecmd_feature(if, "if ",( CMD/VAR == CONST ) then CMD2, If condition matches execute CMD2)
   ecmd_feature(rem, "rem",<any>, Remark for anything)
   ecmd_feature(echo, "echo ",<any>, Print out all arguments of echo)
