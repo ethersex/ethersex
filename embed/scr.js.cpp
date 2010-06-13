@@ -128,7 +128,7 @@ function ecmd_error(response) {
         return (response.responseText.indexOf('parse error') != -1);
 }
 
-#if defined(VFS_INLINE_SVG_SUPPORT)
+#if defined(VFS_INLINE_INLINESVG_SUPPORT)
 // inline SVG support
 var vboxh = 300;
 var vboxw = 400;
