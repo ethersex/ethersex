@@ -46,7 +46,7 @@ else
 	endmenu
 fi
 
-if [ "$KTY_SUPPORT" = "y" -o "$HR20_TEMP_ECMD_SUPPORT" = "y" ]; then
+if [ "$KTY_SUPPORT" = "y" -o "$HR20_TEMP_ECMD_SUPPORT" = "y"  -o "$ONEWIRE_SUPPORT" = "y" ]; then
 	define_bool	NEED_TEMP2TEXT	y
 else
 	define_bool	NEED_TEMP2TEXT	n
