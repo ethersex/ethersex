@@ -138,6 +138,11 @@ network_init(void)
 #   else
     uip_arp_init();
 #   endif
+#   else /* ETHERNET_SUPPORT */
+    /* set at least fixed default gateway address
+     * to allow multi stack routing */
+    set_CONF_ETHERRAPE_GATEWAY(&ip);
+    uip_setdraddr(&ip);
 #   endif  /* ETHERNET_SUPPORT */
 
 }
