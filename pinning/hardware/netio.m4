@@ -81,7 +81,7 @@ ifdef(`conf_USTREAM', `
 ifdef(`conf_HD44780', `
   pin(HD44780_RS, PD3)
   pin(HD44780_RW, PD2)
-  pin(HD44780_EN, PB0)
+  pin(HD44780_EN1, PB0)
   pin(HD44780_D4, PD4)
   pin(HD44780_D5, PD5)
   pin(HD44780_D6, PD6)
