@@ -85,9 +85,11 @@ ntp_init()
 void
 ntp_send_packet(void)
 {
-  /* hardcode for LLH len of 14 bytes (i.e. ethernet frame),
-     this is not suitable for tunneling! */
-  struct ntp_packet *pkt = (void *) &uip_buf[14 + UIP_IPUDPH_LEN];
+  /* LLH len defined in UIP depending on stacks (i.e. 14 for ethernet frame),
+  may be already suitable for tunneling! */
+  struct ntp_packet *pkt = (void *) &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
+
+
 
   uip_slen = sizeof(struct ntp_packet);
   memset(pkt, 0, uip_slen);
