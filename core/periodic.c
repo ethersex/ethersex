@@ -51,7 +51,7 @@ void periodic_init(void) {
 	/* init timer1 to expire after ~20ms, with CTC enabled */
 	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
 	OCR1A = (F_CPU / 1024 / 50) - 1;
-    _TIMSK_TIMER1 |= _BV(OCIE1A);
+	_TIMSK_TIMER1 |= _BV(OCIE1A);
 
 
 	NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
@@ -64,7 +64,7 @@ ISR(TIMER1_COMPA_vect)
 	OCR1A += CLOCK_TICKS;
 #endif
 	newtick = 1;
-        if(milliticks++ >= 50) milliticks=0;
+        if(++milliticks >= 50) milliticks=0;
 }
 
 /*
