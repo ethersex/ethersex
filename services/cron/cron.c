@@ -161,10 +161,11 @@ cron_save()
 			if (vfs_write(file, &job->event, tempsize ) != tempsize)
 				return cron_write_error(file);
 			filesize += tempsize;
+			saved_count++;
 		}
 		job = job->next;
 		// reset watchdog only if it seems that everything is going right
-		if (++saved_count <= count)
+		if (saved_count <= count)
 		{
 			wdt_kick();
 		}
