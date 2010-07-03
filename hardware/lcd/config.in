@@ -15,7 +15,8 @@ comment "LCD Displays"
       choice 'connection type'					\
               "Direkt			HD44780_DIREKT		\
                I2C(pcf8574)		HD44780_I2CSUPPORT	\
-               SER_LCD(74hct164)	HD44780_SERLCD"		\
+               SER_LCD(74hct164)	HD44780_SERLCD	\
+               2WIRE(74hct4094)	HD44780_2WIRE"		\
               'Direkt'			HD44780_CONNECTION
  
     fi

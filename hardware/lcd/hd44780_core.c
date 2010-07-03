@@ -147,18 +147,26 @@ void hd44780_init(void)
     output_nibble(0, 0x03,1);
 
     _delay_ms(4);
+#ifdef HD44780_2WIRE
+	output_nibble(0, 0x03,1);
+#else
     clock_write(1);
+#endif /*HD44780_2WIRE*/
 
     _delay_ms(1);
+#ifdef HD44780_2WIRE
+	output_nibble(0, 0x03,1);
+#else
     clock_write(1);
+#endif /*HD44780_2WIRE*/
 
     _delay_ms(1);
     output_nibble(0, 0x02,1);		//4bit mode
     _delay_ms(1);
     /* init done */
-#endif
+#endif /*HD44780_TYPE*/
 
-    /* configure for 4 bit, 2 lines, 5x9 font (datasheet, page 24) */
+    /* configure for 4 bit, 2 lines, 5x8 font (datasheet, page 24) */
     output_byte(0, CMD_FUNCTIONSET(0, 1, 0), 1);
 
     /* turn on display, cursor and blinking */
