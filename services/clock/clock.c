@@ -89,6 +89,9 @@ SIGNAL(CLOCK_SIG)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
+	extern uint8_t milliticks;
+	milliticks = 0;
+
 	TCNT1 = 65536-CLOCK_SECONDS;
 	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
 #endif
