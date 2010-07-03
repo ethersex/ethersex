@@ -45,7 +45,7 @@ endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 
-CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare
+CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-char-subscripts 
 
 ifeq ($(ARCH_HOST),y)
   CC=gcc
