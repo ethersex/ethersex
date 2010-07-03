@@ -16,6 +16,7 @@
 #define _EIMSK GICR
 #define EIMSK GICR
 #define EICRA MCUCR
+#define _EICRA MCUCR
 #define EIFR  GIFR
 #define USART0_UDRE_vect USART_UDRE_vect
 #define USART0_RX_vect USART_RXC_vect
