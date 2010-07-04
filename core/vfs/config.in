@@ -28,7 +28,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 		dep_bool "Inline CW" CW_INLINE_SUPPORT $VFS_INLINE_SUPPORT $CW_SUPPORT
 
 		comment "Inlining Options"
-		dep_bool "Support Inline SVG" VFS_INLINE_SVG_SUPPORT $VFS_INLINE_SUPPORT
+		dep_bool "Support Inline SVG" VFS_INLINE_INLINESVG_SUPPORT $VFS_INLINE_SUPPORT
 		dep_bool "Optimize sizes when inlining" VFS_INLINE_HTML_CLEAN_SUPPORT $VFS_INLINE_SUPPORT
 		dep_bool "Suport obsolete browsers" VFS_INLINE_OBSOLETE_BROWSER_SUPPORT $VFS_INLINE_SUPPORT
 
