@@ -52,6 +52,21 @@
 #include "core/debug.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 
+/* port mapping lcd -> pcf8574x pin */
+#define HD44780_PCF8574x_DB4			(0)
+#define HD44780_PCF8574x_DB5			(1)
+#define HD44780_PCF8574x_DB6			(2)
+#define HD44780_PCF8574x_DB7			(3)
+#define HD44780_PCF8574x_RS				(4)
+#define HD44780_PCF8574x_WR				(5)
+#define HD44780_PCF8574x_EN				(6)
+#define HD44780_PCF8574x_BL				(7)
+
+#define HD44780_PCF8574x_DBx_MASK		( _BV(HD44780_PCF8574x_DB4) | \
+										  _BV(HD44780_PCF8574x_DB5) | \
+										  _BV(HD44780_PCF8574x_DB6) | \
+										  _BV(HD44780_PCF8574x_DB7) )
+
 /* global variables */
 extern FILE *lcd;
 extern uint8_t back_light;
@@ -63,22 +78,28 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
     uint8_t data = 0;
 
     if (read)
-    {
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | 0x0f);	//Datenbyte an PCF senden, DBx high zum lesen, 
-		                                                        // sollte vor EN high Flanke geschehen
-        lcd_data |= _BV(6);					//Bit 6 (EN) setzen
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | 0x0f);	//Datenbyte an PCF senden, DBx high zum lesen, EN uebertragen
-        data = i2c_pcf8574x_read(HD44780_PCF8574_ADR) & 0x0f;	//Datenbyte von PCF lesen, unteres nibble
+    {   /* Datenbyte an PCF senden, DBx high zum lesen, sollte vor EN high Flanke geschehen */
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | HD44780_PCF8574x_DBx_MASK);
+		/* EN setzen */
+        lcd_data |= _BV(HD44780_PCF8574x_EN);
+		/* Datenbyte an PCF senden, DBx high zum lesen, EN uebertragen */
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | HD44780_PCF8574x_DBx_MASK);
+		/* Datenbyte von PCF lesen, daten_nibble maskiert */
+        data = i2c_pcf8574x_read(HD44780_PCF8574_ADR) & HD44780_PCF8574x_DBx_MASK;
     }
     else
-    {
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);	//Datenbyte an PCF senden, muss vor EN high Flanke geschehen
-        lcd_data |= _BV(6);					//Bit 6 (EN) setzen
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);	//Datenbyte an PCF senden, EN status uebertragen
+    {   /* Datenbyte an PCF senden, muss vor EN high Flanke geschehen */
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+		/* EN setzen */
+        lcd_data |= _BV(HD44780_PCF8574x_EN);
+		/* Datenbyte an PCF senden, EN status uebertragen */
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
     }
 
-    lcd_data &= ~(_BV(6));					//Bit 6 (EN) löschen
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);		//Datenbyte erneut senden, EN status uebertragen
+	/* EN loeschen */
+    lcd_data &= ~(_BV(HD44780_PCF8574x_EN));
+	/* Datenbyte erneut senden, EN status uebertragen */
+    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
 
     return data;
 }
@@ -87,36 +108,40 @@ void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
 {
     lcd_data = nibble;
 
-    if (rs)				//Falls rs==1
-        lcd_data |= _BV(4);		//Bit 4 (RS) setzen
+	/* Wenn rs==1, dann RS setzen */
+    if (rs)
+        lcd_data |= _BV(HD44780_PCF8574x_RS);
 
-    lcd_data &= ~(_BV(5));		//Bit 5 (WR) löschen = schreiben
+	/* WR loeschen = schreiben */
+    lcd_data &= ~(_BV(HD44780_PCF8574x_WR));
 
-    if(back_light)			//backlight support
-        lcd_data |= _BV(7);
+	/* backlight status falls vorhanden uebernehmen */
+	if(back_light)
+        lcd_data |= _BV(HD44780_PCF8574x_BL);
     else
-        lcd_data &= ~(_BV(7));
+        lcd_data &= ~(_BV(HD44780_PCF8574x_BL));
 
-    // toggle EN
-    clock_write(1);
+    /* toggle EN, daten uebertragen */
+    clock_write(1); //FIXME: bei input_nibble steht hier 'en'
 }
 
 #ifdef HD44780_READBACK
 uint8_t noinline input_nibble(uint8_t rs, uint8_t en)
 {
-    // set write bit
-    lcd_data |= _BV(5);			//Bit 5 (WR) setzen = lesen
+    /* WR setzen = lesen */
+    lcd_data |= _BV(HD44780_PCF8574x_WR);
 
-    // set rs, if given
-    if (rs)				//Falls rs==1
-        lcd_data |= _BV(4);		//Bit 4 (RS) setzen
-    else
-        lcd_data &= ~(_BV(4));		//Bit 4 (RS) löschen
+    /* Wenn rs gesetzt, */
+    if (rs)	/* dann RS setzen */
+        lcd_data |= _BV(HD44780_PCF8574x_RS);
+    else /* sonst RS loeschen */
+        lcd_data &= ~(_BV(HD44780_PCF8574x_RS));
 
+	/* toggle EN, daten abholen */
     uint8_t data = clock_read(en);
 
-    // delete RW bit
-    lcd_data &= ~(_BV(5));		//Bit 5 (WR) löschen = schreiben
+	/* WR loeschen = schreiben */
+    lcd_data &= ~(_BV(HD44780_PCF8574x_WR));
 
     return data;
 }
@@ -126,15 +151,19 @@ void hd44780_backlight(uint8_t state)
 {
     back_light = state;
 
-    if(back_light)			//backlight support
-        lcd_data |= _BV(7);
+	/* backlight status falls vorhanden uebernehmen */
+	if(back_light)
+        lcd_data |= _BV(HD44780_PCF8574x_BL);
     else
-        lcd_data &= ~(_BV(7));
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);	// Byte senden
+        lcd_data &= ~(_BV(HD44780_PCF8574x_BL));
+	/* backlight status direkt uebertragen */
+    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
 }
 
 void noinline hd44780_hw_init(void)
 {
-    lcd_data=0;
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, 0 );	// Alle Ausgänge auf 0 setzen
+	/* alle ausgaenge auf 0 setzen */
+    lcd_data = 0;
+    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data );
 }
+
