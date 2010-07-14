@@ -62,20 +62,23 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 {
     uint8_t data = 0;
 
-    lcd_data |= _BV(6);					//Bit 6 (EN) setzen
-
     if (read)
     {
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | 0x0f);	//Datenbyte an PCF senden, DBx high zum lesen
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | 0x0f);	//Datenbyte an PCF senden, DBx high zum lesen, 
+		                                                        // sollte vor EN high Flanke geschehen
+        lcd_data |= _BV(6);					//Bit 6 (EN) setzen
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | 0x0f);	//Datenbyte an PCF senden, DBx high zum lesen, EN uebertragen
         data = i2c_pcf8574x_read(HD44780_PCF8574_ADR) & 0x0f;	//Datenbyte von PCF lesen, unteres nibble
     }
     else
     {
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);	//Datenbyte an PCF senden
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);	//Datenbyte an PCF senden, muss vor EN high Flanke geschehen
+        lcd_data |= _BV(6);					//Bit 6 (EN) setzen
+        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);	//Datenbyte an PCF senden, EN status uebertragen
     }
 
     lcd_data &= ~(_BV(6));					//Bit 6 (EN) löschen
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);		//Datenbyte erneut senden
+    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);		//Datenbyte erneut senden, EN status uebertragen
 
     return data;
 }
