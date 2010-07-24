@@ -47,6 +47,7 @@ while true; do
     echo "Final size of ethersex.bin is $SZ."
     exit 0
   }
+  cp $fn /tmp
   >/dev/null
   if [ ! -e "$fn" ]; then 
     continue
