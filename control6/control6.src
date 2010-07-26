@@ -92,9 +92,9 @@ dnl   WAITCALL_FROM("9868932945","932913")
 dnl   SYSLOG("C6 wait call from %s to %s\n", CALLER(), CALLEE())
 dnl THREAD_END(isdn);
 
-    ON STARTUP DO
-       VFS_LOG_ALLOCA("test", 40, "Barfoo %d", 23);
-    END
+dnl    ON STARTUP DO
+dnl       VFS_LOG_ALLOCA("test", 40, "Barfoo %d", 23);
+dnl    END
 
 dnl // fuehrt den syslog aus sobald ein Anruf vom isdn gemeldet wird
 dnl ON IFCALL() DO
