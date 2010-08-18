@@ -6,6 +6,9 @@ dep_bool_menu "Sendmail support (DEPRECATED)" SENDMAIL_SUPPORT $TCP_SUPPORT
 	if [ "$SENDMAIL_AUTH_SUPPORT" = "y" ]; then
 		string "SMTP Auth Username" CONF_SENDMAIL_USERNAME "tester"
 		string "SMTP Auth Password" CONF_SENDMAIL_PASSWORD "tester"
+
+		define_string CONF_SENDMAIL_USERNAME_BASE64 $(echo -n $CONF_SENDMAIL_USERNAME | base64 -)
+		define_string CONF_SENDMAIL_PASSWORD_BASE64 $(echo -n $CONF_SENDMAIL_PASSWORD | base64 -)
 	fi
 	comment  "Debugging Flags"
 	dep_bool 'Sendmail' DEBUG_SENDMAIL $DEBUG

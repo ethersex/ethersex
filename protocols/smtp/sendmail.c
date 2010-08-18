@@ -116,6 +116,9 @@ sendmail_net_main (void)
   MAIL_DEBUG ("generating data, state=%d, code=%d\n", 
               STATE->state, STATE->code);
 
+
+  unsigned char mail_auth_str[35];
+
   switch (STATE->state)
     {
     case 0:
@@ -136,29 +139,25 @@ sendmail_net_main (void)
       break;
 
     case 2:
-      unsigned char mail_auth_str[35];
 
       if (STATE->code == 334)
         {
-          decode_base64 ((unsigned char *) CONF_SENDMAIL_USERNAME, mail_auth_str);
-          MAIL_DEBUG ("2: Send Username: %s\n", mail_auth_str);
-
-	  /* FIXME really sizeof, not strlen?? */
-          memcpy (uip_sappdata, mail_auth_str, sizeof (mail_auth_str));
-          memcpy_P (uip_sappdata + sizeof (mail_auth_str) - 1, PSTR ("\r\n"), 2);
-	  uip_send (uip_sappdata, sizeof (mail_auth_str) + 1);
+          uint8_t len = strlen(CONF_SENDMAIL_USERNAME_BASE64);
+          MAIL_DEBUG ("2: Send Username: %s\n", CONF_SENDMAIL_USERNAME_BASE64);
+          memcpy_P (uip_sappdata, PSTR(CONF_SENDMAIL_PASSWORD_BASE64 "\r\n"), 
+                  len + 2); 
+          uip_send (uip_sappdata, len + 3);
         }
       break;
 
     case 3:
       if (STATE->code == 334)
         {
-          decode_base64 ((unsigned char *) CONF_SENDMAIL_PASSWORD, mail_auth_str);
-          MAIL_DEBUG ("3: Send Password: %s\n", mail_auth_str);
-
-          memcpy (uip_sappdata, mail_auth_str, sizeof (mail_auth_str));
-          memcpy_P (uip_sappdata + sizeof (mail_auth_str) - 1, PSTR ("\r\n"), 2);
-	  uip_send (uip_sappdata, sizeof (mail_auth_str) + 1);
+          uint8_t len = strlen(CONF_SENDMAIL_PASSWORD_BASE64);
+          MAIL_DEBUG ("3: Send Password: %s\n", CONF_SENDMAIL_PASSWORD_BASE64);
+          memcpy_P (uip_sappdata, PSTR(CONF_SENDMAIL_PASSWORD_BASE64 "\r\n"), 
+                  len + 2); 
+          uip_send (uip_sappdata, len + 3);
         }
       break;
 
