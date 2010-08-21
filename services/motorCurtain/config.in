@@ -1,8 +1,0 @@
-dep_bool_menu "Motor Curtain" MOTORCURTAIN_SUPPORT $UDP_SUPPORT
-	int "UDP Port" MOTORCURTAIN_PORT 2703 $UDP_SUPPORT
-	dep_bool "Report progress via UDP" MOTORCURTAIN_PROGRESS_SUPPORT
-	if [ "$MOTORCURTAIN_PROGRESS_SUPPORT" = "y" ]; then
-	  ip "Report progress IP" MOTORCURTAIN_REPORT_IP "192.168.255.255" "2001:6f8:1209:f0:0:0:0:1"
-	  int "Report progress Port" MOTORCURTAIN_REPORT_PORT 2703 $UDP_SUPPORT
-	fi
-endmenu

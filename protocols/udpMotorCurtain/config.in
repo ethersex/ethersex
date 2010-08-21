@@ -1,3 +1,0 @@
-dep_bool_menu "StellaLight: Fast and simple UDP Protocol" STELLA_PROTOCOL_SUPPORT $UDP_SUPPORT $STELLA_SUPPORT
-	int "UDP Port" UDP_STELLA_PORT 2701 $UDP_SUPPORT
-endmenu
