@@ -27,9 +27,9 @@
 
 #ifdef MOODLIGHT_SUPPORT
 
-extern uint8_t moodlight_threshold;
+extern uint16_t moodlight_changegap;
 extern uint8_t moodlight_mask;
-extern uint8_t moodlight_counter;
+extern uint16_t moodlight_counter;
 
 void moodlight_init (void);
 void moodlight_process (void);
