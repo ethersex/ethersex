@@ -21,33 +21,35 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_DS1337_H
-#define _I2C_DS1337_H
+#ifndef _I2C_DS13X7_H
+#define _I2C_DS13X7_H
 
-#define I2C_SLA_DS1337 0x68
+#define I2C_SLA_DS13X7 0x68
 
-uint16_t i2c_ds1337_set(uint8_t reg, uint8_t data);
-uint16_t i2c_ds1337_get(uint8_t reg);
+uint16_t i2c_ds13x7_set(uint8_t reg, uint8_t data);
+uint16_t i2c_ds13x7_get(uint8_t reg);
 
-uint8_t i2c_ds1337_set_block(uint8_t addr, char *data, uint8_t len);
-uint8_t i2c_ds1337_get_block(uint8_t addr, char *data, uint8_t len);
+uint8_t i2c_ds13x7_set_block(uint8_t addr, char *data, uint8_t len);
+uint8_t i2c_ds13x7_get_block(uint8_t addr, char *data, uint8_t len);
 
-void i2c_ds1337_sync(uint32_t timestamp);
+void i2c_ds13x7_sync(uint32_t timestamp);
 
-uint32_t  i2c_ds1337_read();
+uint32_t  i2c_ds13x7_read();
 
-struct ds1337_reg {
-    uint8_t sec;
+struct ds13x7_reg {
+    uint8_t ch  : 1;
+	uint8_t sec : 7;
     uint8_t min;
     uint8_t hour;
     uint8_t day;
     uint8_t date;
-    uint8_t month;
+    uint8_t century : 1;
+    uint8_t month   : 7;
     uint8_t year;
 } __attribute__((__packed__));
 
-typedef struct ds1337_reg ds1337_reg_t;
+typedef struct ds13x7_reg ds13x7_reg_t;
 
-void i2c_ds1337_init(void);
+void i2c_ds13x7_init(void);
 
-#endif /* _I2C_DS1337_H */
+#endif /* _I2C_ds13x7_H */
