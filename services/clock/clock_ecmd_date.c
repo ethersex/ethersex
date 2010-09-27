@@ -28,6 +28,9 @@
 #include "config.h"
 #include "core/debug.h"
 #include "clock.h"
+#ifdef DCF77_SUPPORT
+	#include "hardware/clock/dcf77/dcf77.h"
+#endif
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -44,8 +47,28 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
                                date.hour, date.min, date.sec, date.day));
 }
 
+#ifdef DCF77_SUPPORT
+int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
+{
+  struct clock_datetime_t date;
+  uint32_t last_valid;
+
+  last_valid = getLastValidDCFTimeStamp();
+
+  clock_localtime(&date, last_valid);
+
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
+                               weekdays[date.dow],
+                               date.day, date.month, date.year + 1900,
+                               date.hour, date.min, date.sec, date.day));
+}
+
+#endif
+
 /*
   -- Ethersex META --
   block([[Am_Puls_der_Zeit|Clock]])
   ecmd_feature(date, "date",, Display the current date.)
+  ecmd_feature(lastdcf, "lastdcf",, Display when last valid DCF Signal was received.)
 */
