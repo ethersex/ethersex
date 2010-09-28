@@ -36,6 +36,13 @@
 #define BAUD ZBUS_BAUDRATE
 #include "core/usart.h"
 
+#ifdef DEBUG_ZBUS
+#  include "core/debug.h"
+#  define ZBUS_DEBUG(str...) debug_printf ("zbusnet: " str)
+#else
+#  define ZBUS_DEBUG(...)    ((void) 0)
+#endif
+
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
@@ -46,7 +53,7 @@ static uint8_t bus_blocked = 0;
 static volatile zbus_index_t zbus_index;
 volatile zbus_index_t zbus_txlen;
 static volatile zbus_index_t zbus_rxlen;
-#ifdef DEBUG_ZBUS
+#ifdef ZBUS_ECMD
 uint16_t zbus_rx_frameerror;
 uint16_t zbus_rx_overflow;
 uint16_t zbus_rx_parityerror;
@@ -176,6 +183,11 @@ zbus_core_periodic(void)
 
 SIGNAL(usart(USART,_TX_vect))
 {
+
+#ifdef ZBUS_DEBUG
+    ZBUS_DEBUG ("send data: %s\n", uip_appdata);
+#endif
+
   /* If there's a carry byte, send it! */
   if (send_escape_data) {
     usart(UDR) = send_escape_data;
@@ -209,6 +221,9 @@ SIGNAL(usart(USART,_TX_vect))
     usart(UDR) = '\\';
   }
 
+
+
+
   /* Nothing to do, disable transmitter and TX LED. */
   else {
     bus_blocked = 0;
@@ -225,7 +240,13 @@ SIGNAL(usart(USART,_RX_vect))
   /* Ignore errors */
   if (usart(UCSR,A) & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
   {
-#ifdef DEBUG_ZBUS
+
+#ifdef ZBUS_DEBUG
+    ZBUS_DEBUG ("received data: %s\n", uip_appdata);
+#endif
+
+
+#ifdef ZBUS_ECMD
     if (usart(UCSR,A) & _BV(usart(FE))) zbus_rx_frameerror++;
     if (usart(UCSR,A) & _BV(usart(DOR))) zbus_rx_overflow++;
     if (usart(UCSR,A) & _BV(usart(UPE))) zbus_rx_parityerror++;
