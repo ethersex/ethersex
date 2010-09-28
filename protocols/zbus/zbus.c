@@ -225,7 +225,7 @@ SIGNAL(usart(USART,_RX_vect))
   /* Ignore errors */
   if (usart(UCSR,A) & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
   {
-#ifdef DEBUG_YPORT
+#ifdef DEBUG_ZBUS
     if (usart(UCSR,A) & _BV(usart(FE))) zbus_rx_frameerror++;
     if (usart(UCSR,A) & _BV(usart(DOR))) zbus_rx_overflow++;
     if (usart(UCSR,A) & _BV(usart(UPE))) zbus_rx_parityerror++;
