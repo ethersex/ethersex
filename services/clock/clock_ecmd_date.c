@@ -70,5 +70,7 @@ int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[Am_Puls_der_Zeit|Clock]])
   ecmd_feature(date, "date",, Display the current date.)
-  ecmd_feature(lastdcf, "lastdcf",, Display when last valid DCF Signal was received.)
+  ecmd_ifdef(DCF77_SUPPORT)
+    ecmd_feature(lastdcf, "lastdcf",, Display when last valid DCF Signal was received.)
+  ecmd_endif()
 */
