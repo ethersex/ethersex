@@ -77,9 +77,6 @@
 #define _TIFR_TIMER1 TIFR
 #define _TIFR_TIMER2 TIFR
 
-/* i did not test the following stuff... cheers, ths. */
-#define BOOTLOADER_SECTION 0x1e000 /* atmega128 with 4096 words bootloader */
-
 /* USART Register C (generic) */
 #undef    UMSEL
 #undef    UPM1

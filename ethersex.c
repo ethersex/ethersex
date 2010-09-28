@@ -41,6 +41,7 @@
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "core/vfs/vfs.h"
 
+#include "autoconf.h"
 
 /* global configuration */
 global_status_t status;

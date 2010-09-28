@@ -8,6 +8,8 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
+	bool 'Prompt All Possible Options' CONFIG_EXPERT
+
 	choice 'Target Architecture'			\
 		"AVR		ARCH_AVR		\
 		 Host		ARCH_HOST"		\
@@ -40,8 +42,130 @@ if [ "$ARCH_AVR" = "y" ]; then
 	dep_bool "Use CPU sleep (EXPERIMENTAL)" CPU_SLEEP $ARCH_AVR $CLOCK_CPU_SUPPORT $CONFIG_EXPERIMENTAL
 	source hardware/sram/config.in
 
-	bool "Build a bootloader" BOOTLOADER_SUPPORT
+
+	# Set the Flash size to the cpu type
+	if [ "$atmega128" = "y" -o "$atmega1284p" = "y" ] ; then
+		FLASH_SIZE=131072	#	512/1024/2048/4096	0x1fc00/0x1f800/0x1f000/0x1e000
+	fi
+	if [ "$atmega64" = "y" -o "$atmega644" = "y" -o "$atmega644p" = "y" ] ; then
+		FLASH_SIZE=65536	#	512/1024/2048/4096	0xfc00/0xf800/0xf000/0xe000
+	fi
+	if [ "$atmega32" = "y" -o "$atmega328p" = "y" ] ; then
+		FLASH_SIZE=32768	#	256/512/1024/2048	0x7e00/0x7e00/0x7800/0x7000
+	fi
+	if [ "$atmega16" = "y" -o "$atmega162" = "y" -o "$atmega168" = "y" -o "$atmega168p" = "y" -o "$atmega169" = "y" -o "$atmega162" = "y" ] ; then
+		FLASH_SIZE=16384	#	128/256/512/1024	0x3f00/0x3e00/0x3c00/0x3800
+	fi
+	if [ "$atmega88" = "y" -o "$atmega8" = "y" ] ; then
+		FLASH_SIZE=8192		#	128/256/512/1024	0x1f00/0x1e00/0x1c00/0x1800
+	fi
+
+	# set the default bootloader words to cpu flash size
+	if [ "$BOOTLOADER_JUMP" = "y" -a "$BOOTLOADER_WORDS" = "" ] ; then
+		if [ "$FLASH_SIZE" = 8192 ] ; then BOOTLOADER_WORDS=1024 ; fi
+		if [ "$FLASH_SIZE" = 16384 ] ; then BOOTLOADER_WORDS=1024 ; fi
+		if [ "$FLASH_SIZE" = 32768 ] ; then BOOTLOADER_WORDS=2048 ; fi
+		if [ "$FLASH_SIZE" = 65536 ] ; then BOOTLOADER_WORDS=4096 ; fi
+		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_WORDS=4096 ; fi
+	fi
+
+	if [ "$atmega64" = "y" -o "$atmega644" = "y" -o "$atmega644p" = "y" -o "$atmega1284p" = "y" -o "$atmega128" = "y" ] ; then
+		bool 'Build a bootloader' BOOTLOADER_SUPPORT
+	else
+		dep_bool 'Build a bootloader' BOOTLOADER_SUPPORT "n"
+	fi
+
+	if [ "$FLASH_SIZE" = "131072" ] ; then
+		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
+			define_hex BOOTLOADER_SECTION 0x1fc00
+		else
+			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
+				define_hex BOOTLOADER_SECTION 0x1f800
+			else
+				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
+					define_hex BOOTLOADER_SECTION 0x1f000
+				else
+					define_hex BOOTLOADER_SECTION 0x1e000
+					BOOTLOADER_WORDS=4096
+				fi
+			fi
+		fi
+	fi
+	if [ "$FLASH_SIZE" = "65536" ] ; then
+		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
+			define_hex BOOTLOADER_SECTION 0xfc00
+		else
+			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
+				define_hex BOOTLOADER_SECTION 0xf800
+			else
+				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
+					define_hex BOOTLOADER_SECTION 0xf000
+				else
+					define_hex BOOTLOADER_SECTION 0xe000
+					BOOTLOADER_WORDS=4096
+				fi
+			fi
+		fi
+	fi
+	if [ "$FLASH_SIZE" = "32768" ] ; then
+		if [ "$BOOTLOADER_WORDS" = 256 ] ; then
+			define_hex BOOTLOADER_SECTION 0x7e00
+		else
+			if [ "$BOOTLOADER_WORDS" = 512 ] ; then
+				define_hex BOOTLOADER_SECTION 0x7c00
+			else
+				if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
+					define_hex BOOTLOADER_SECTION 0x7800
+				else
+					define_hex BOOTLOADER_SECTION 0x7000
+					BOOTLOADER_WORDS=2048
+				fi
+			fi
+		fi
+	fi
+	if [ "$FLASH_SIZE" = "16384" ] ; then
+		if [ "$BOOTLOADER_WORDS" = 128 ] ; then
+			define_hex BOOTLOADER_SECTION 0x3f00
+		else
+			if [ "$BOOTLOADER_WORDS" = 256 ] ; then
+				define_hex BOOTLOADER_SECTION 0x3e00
+			else
+				if [ "$BOOTLOADER_WORDS" = 512 ] ; then
+					define_hex BOOTLOADER_SECTION 0x3c00
+				else
+					define_hex BOOTLOADER_SECTION 0x3800
+					BOOTLOADER_WORDS=1024
+				fi
+			fi
+		fi
+	fi
+	if [ "$FLASH_SIZE" = "8192" ] ; then
+		if [ "$BOOTLOADER_WORDS" = 128 ] ; then
+			define_hex BOOTLOADER_SECTION 0x1f00
+		else
+			if [ "$BOOTLOADER_WORDS" = 256 ] ; then
+				define_hex BOOTLOADER_SECTION 0x1e00
+			else
+				if [ "$BOOTLOADER_WORDS" = 512 ] ; then
+					define_hex BOOTLOADER_SECTION 0x1c00
+				else
+					define_hex BOOTLOADER_SECTION 0x1800
+					BOOTLOADER_WORDS=1024
+				fi
+			fi
+		fi
+	fi
+
+	if [ "$CONFIG_EXPERT" = "y" ] ; then
+		bool "Use a bootloader" BOOTLOADER_JUMP
+		if [ "$BOOTLOADER_JUMP" = "y" ] ; then
+			int 'Bootloader Size in words' BOOTLOADER_WORDS ""
+		fi
+	fi
+
 fi
+
+
 
 	bool "Teensy build" TEENSY_SUPPORT
 	dep_bool "Use SPI Timeout" SPI_TIMEOUT $ARCH_AVR
@@ -83,6 +207,35 @@ mainmenu_option next_comment
 	comment "Network"
 
 	string "Hostname" CONF_HOSTNAME "ethersex"
+
+
+#	if [ "$ENC28J60_SUPPORT" = "y" -o "$RFM12_IP_SUPPORT" = "y" -o "$ZBUS_SUPPORT" = "y" -o "$UIP_SUPPORT" = "y" -o "$UDP_SUPPORT" = "y" -o "$TCP_SUPPORT" = "y" -o "$ICMP_SUPPORT" = "y" ]; then
+		if [ "$NET_MAX_FRAME_LENGTH" = "" ] ; then NET_MAX_FRAME_LENGTH=1500 ; fi
+		if [ "$NET_MAX_FRAME_LENGTH" -lt 192 -o "$NET_MAX_FRAME_LENGTH" -gt 1500 ] ; then NET_MAX_FRAME_LENGTH=1500 ; fi
+
+		if [ "$atmega8" = "y" -o "$atmega88" = "y" -o "$atmega16" = "y" -o "$atmega168" = "y" -o "$atmega169" = "y" -o "$atmega168p" = "y" ] ; then
+			if [ "$NET_MAX_FRAME_LENGTH" -gt 192 ] ; then NET_MAX_FRAME_LENGTH=192 ; fi
+		fi
+		if [ "$atmega32" = "y" ] ; then
+			if [ "$TEENSY_SUPPORT" = "y" ] ; then
+				if [ "$NET_MAX_FRAME_LENGTH" -gt 192 ] ; then NET_MAX_FRAME_LENGTH=192 ; fi
+			else
+				if [ "$NET_MAX_FRAME_LENGTH" -gt 500 ] ; then NET_MAX_FRAME_LENGTH=500 ; fi
+			fi
+		fi
+		if [ "$atmega162" = "y" -a "$NET_MAX_FRAME_LENGTH" -gt 600 ] ; then NET_MAX_FRAME_LENGTH=600 ; fi
+		if [ "$atmega328p" = "y" -a "$NET_MAX_FRAME_LENGTH" -gt 384 ] ; then NET_MAX_FRAME_LENGTH=384 ; fi
+
+		Value=$NET_MAX_FRAME_LENGTH
+
+		if [ "$CONFIG_EXPERT" = "y" ] ; then
+			int "Network Buffer Size" NET_MAX_FRAME_LENGTH 1500
+		else
+			Value=$NET_MAX_FRAME_LENGTH
+			define_int NET_MAX_FRAME_LENGTH $Value
+		fi
+#	fi
+
 	source hardware/ethernet/config.in
 	source core/host/tap-config.in
 	source hardware/radio/rfm12/config.in

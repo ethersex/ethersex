@@ -100,6 +100,3 @@ dnl
 
 #define _TIFR_TIMER1 TIFR1
 
-
-#define BOOTLOADER_SECTION 0x1e000 /* atmega1284p with 4096 words bootloader */
-

@@ -32,7 +32,6 @@ ifdef(`conf_I2C_MASTER', `
   pin(SCL, PC0)
 ')dnl
 
-#define NET_MAX_FRAME_LENGTH 500
 #define ADC_CHANNELS 8
 
 /* MCU doesn't support toggling pins by writing to PINx register */

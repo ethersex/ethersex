@@ -1,6 +1,4 @@
 
-#define BOOTLOADER_SECTION 0x0c00 /* atmega16 with 1024 words bootloader */
-
 #define _ATMEGA16
 
 /* ATmega16 specific adjustments */
