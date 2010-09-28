@@ -46,6 +46,12 @@ static uint8_t bus_blocked = 0;
 static volatile zbus_index_t zbus_index;
 volatile zbus_index_t zbus_txlen;
 static volatile zbus_index_t zbus_rxlen;
+#ifdef DEBUG_ZBUS
+uint16_t zbus_rx_frameerror;
+uint16_t zbus_rx_overflow;
+uint16_t zbus_rx_parityerror;
+uint16_t zbus_rx_bufferfull;
+#endif
 
 static void __zbus_txstart(void);
 
@@ -217,7 +223,13 @@ SIGNAL(usart(USART,_TX_vect))
 SIGNAL(usart(USART,_RX_vect))
 {
   /* Ignore errors */
-  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
+  if (usart(UCSR,A) & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
+  {
+#ifdef DEBUG_YPORT
+    if (usart(UCSR,A) & _BV(usart(FE))) zbus_rx_frameerror++;
+    if (usart(UCSR,A) & _BV(usart(DOR))) zbus_rx_overflow++;
+    if (usart(UCSR,A) & _BV(usart(UPE))) zbus_rx_parityerror++;
+#endif
     uint8_t v = usart(UDR);
     (void) v;
     return;
