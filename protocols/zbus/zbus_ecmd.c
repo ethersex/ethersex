@@ -44,7 +44,7 @@ int16_t parse_cmd_zbus_stats(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[ZBUS]] commands)
-  ecmd_ifdef(DEBUG_ZBUS)
+  ecmd_ifdef(ZBUS_ECMD)
     ecmd_feature(zbus_stats, "zbus stats",, Report statistic counters)
   ecmd_endif()
 */
