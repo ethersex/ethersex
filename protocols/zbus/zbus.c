@@ -185,11 +185,6 @@ zbus_core_periodic(void)
 
 SIGNAL(usart(USART,_TX_vect))
 {
-
-#ifdef ZBUS_DEBUG
-    ZBUS_DEBUG ("send data: %s\n", uip_appdata);
-#endif
-
   /* If there's a carry byte, send it! */
   if (send_escape_data) {
 #ifdef ZBUS_ECMD
@@ -235,9 +230,6 @@ SIGNAL(usart(USART,_TX_vect))
     usart(UDR) = '\\';
   }
 
-
-
-
   /* Nothing to do, disable transmitter and TX LED. */
   else {
     bus_blocked = 0;
@@ -255,12 +247,6 @@ SIGNAL(usart(USART,_RX_vect))
   uint8_t flags = usart(UCSR,A);
   if (flags & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
   {
-
-#ifdef ZBUS_DEBUG
-    ZBUS_DEBUG ("received data: %s\n", uip_appdata);
-#endif
-
-
 #ifdef ZBUS_ECMD
     if (flags & _BV(usart(FE)))  zbus_rx_frameerror++;
     if (flags & _BV(usart(DOR))) zbus_rx_overflow++;
@@ -271,7 +257,7 @@ SIGNAL(usart(USART,_RX_vect))
   }
   uint8_t data = usart(UDR);
 #ifdef ZBUS_ECMD
- zbus_rx_count++;
+  zbus_rx_count++;
 #endif
 
 
