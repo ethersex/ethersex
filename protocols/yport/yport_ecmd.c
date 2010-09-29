@@ -33,11 +33,13 @@
 int16_t parse_cmd_yport_stats(char *cmd, char *output, uint16_t len)
 {
     int16_t chars = snprintf_P(output, len,
-		               PSTR("rx fe=%u, ov=%u, pe=%u, bf=%u"),
+		               PSTR("rx fe=%u, ov=%u, pe=%u, bf=%u, #=%u, tx #=%u"),
                                yport_rx_frameerror,
                                yport_rx_overflow,
                                yport_rx_parityerror,
-                               yport_rx_bufferfull);
+                               yport_rx_bufferfull,
+                               yport_rx_count,
+                               yport_tx_count);
     return ECMD_FINAL(chars);
 }
 

@@ -45,6 +45,8 @@ uint16_t yport_rx_frameerror;
 uint16_t yport_rx_overflow;
 uint16_t yport_rx_parityerror;
 uint16_t yport_rx_bufferfull;
+uint16_t yport_rx_count;
+uint16_t yport_tx_count;
 #endif
 
 void
@@ -83,6 +85,9 @@ SIGNAL(usart(USART,_TX_vect))
 {
   if (yport_send_buffer.sent < yport_send_buffer.len) {
     usart(UDR) = yport_send_buffer.data[yport_send_buffer.sent++];
+#ifdef YPORT_ECMD
+    yport_rx_count++;
+#endif
   } else {
     /* Disable this interrupt */
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
@@ -116,6 +121,9 @@ SIGNAL(usart(USART,_RX_vect))
         break;
       }
     }
+#ifdef YPORT_ECMD
+    yport_rx_count++;
+#endif
   }
 }
 
