@@ -54,6 +54,8 @@ extern uint16_t zbus_rx_frameerror;
 extern uint16_t zbus_rx_overflow;
 extern uint16_t zbus_rx_parityerror;
 extern uint16_t zbus_rx_bufferfull;
+extern uint16_t zbus_rx_count;
+extern uint16_t zbus_tx_count;
 
 enum ZBusEscapes {
   ZBUS_START = '0',
