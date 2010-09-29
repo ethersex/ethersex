@@ -39,7 +39,7 @@ uint8_t yport_rxstart(uint8_t *data, uint8_t len);
 
 extern struct yport_buffer yport_send_buffer;
 extern struct yport_buffer yport_recv_buffer;
-#ifdef DEBUG_YPORT
+#ifdef YPORT_ECMD
 extern uint16_t yport_rx_frameerror;
 extern uint16_t yport_rx_overflow;
 extern uint16_t yport_rx_parityerror;

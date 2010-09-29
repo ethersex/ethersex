@@ -6,6 +6,7 @@ if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		int    "YPort TCP Port" YPORT_PORT 7970
 		int    "YPort Baudrate" YPORT_BAUDRATE 115200
 	comment  "Debugging Flags"
+	dep_bool 'YPORT ecmd' YPORT_ECMD $YPORT_SUPPORT
 	dep_bool 'YPORT Debug' DEBUG_YPORT $YPORT_SUPPORT
 	endmenu
 else

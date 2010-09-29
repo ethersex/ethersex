@@ -40,7 +40,7 @@ generate_usart_init()
 
 struct yport_buffer yport_send_buffer;
 struct yport_buffer yport_recv_buffer;
-#ifdef DEBUG_YPORT
+#ifdef YPORT_ECMD
 uint16_t yport_rx_frameerror;
 uint16_t yport_rx_overflow;
 uint16_t yport_rx_parityerror;
@@ -91,17 +91,17 @@ SIGNAL(usart(USART,_TX_vect))
 
 SIGNAL(usart(USART,_RX_vect))
 {
-  while (usart(UCSR,A) & _BV(usart(RXC)))
+  uint8_t flags;
+  while ((flags = usart(UCSR,A)) & _BV(usart(RXC)))
   {
-    if (usart(UCSR,A) & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
+    if (flags & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
     {
-#ifdef DEBUG_YPORT
-      if (usart(UCSR,A) & _BV(usart(FE))) yport_rx_frameerror++;
-      if (usart(UCSR,A) & _BV(usart(DOR))) yport_rx_overflow++;
-      if (usart(UCSR,A) & _BV(usart(UPE))) yport_rx_parityerror++;
+#ifdef YPORT_ECMD
+      if (flags & _BV(usart(FE)))  yport_rx_frameerror++;
+      if (flags & _BV(usart(DOR))) yport_rx_overflow++;
+      if (flags & _BV(usart(UPE))) yport_rx_parityerror++;
 #endif
-      uint8_t v = usart(UDR);
-      (void) v;
+      flags = usart(UDR); /* dummy read */
     }
     else
     {
@@ -109,7 +109,7 @@ SIGNAL(usart(USART,_RX_vect))
         yport_recv_buffer.data[yport_recv_buffer.len++] = usart(UDR);
       else
       {
-#ifdef DEBUG_YPORT
+#ifdef YPORT_ECMD
 
         yport_rx_bufferfull++;
 #endif

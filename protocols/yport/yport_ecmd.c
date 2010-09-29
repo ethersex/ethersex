@@ -44,7 +44,7 @@ int16_t parse_cmd_yport_stats(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[YPORT]] commands)
-  ecmd_ifdef(DEBUG_YPORT)
+  ecmd_ifdef(YPORT_ECMD)
     ecmd_feature(yport_stats, "yport stats",, Report statistic counters)
   ecmd_endif()
 */
