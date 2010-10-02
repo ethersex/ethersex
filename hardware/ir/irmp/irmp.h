@@ -1,10 +1,10 @@
 /*
- *         simple irmp implementation
+ * Infrared-Multiprotokoll-Decoder 
  *
- *    for additional information please
- *    see http://lochraster.org/etherrape
+ * for additional information please
+ * see http://www.mikrocontroller.net/articles/IRMP
  *
- * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -23,88 +23,62 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #ifndef IRMP_H
 #define IRMP_H
 
-/* configuration:
- *
- * if you want to use this library, define IRMP_SUPPORT somewhere.
- * pin defines (eg for using PD4 for sending):
- *
- * #define IRMP_SEND_PINNUM PD4
- * #define IRMP_SEND_PORT PORTD
- * #define IRMP_SEND_DDR DDRD
- *
- * for receive:
- *
- * #define IRMP_QUEUE_LENGTH 10
- *
- */
-
 #include <stdint.h>
+#include <stdio.h>
+#include <avr/pgmspace.h>
 
 #ifdef IRMP_SUPPORT
 
-#if 0
-#define IRMP_COUNTERS 64
+typedef enum
+{
+  IR_PROTO_NONE,		/* None */
+  IR_PROTO_SIRCS,		/* Sony */
+  IR_PROTO_NEC,			/* NEC, Pioneer, JVC, Toshiba, NoName etc. */
+  IR_PROTO_SAMSUNG,		/* Samsung */
+  IR_PROTO_MATSUSHITA,		/* Matsushita */
+  IR_PROTO_KASEIKYO,		/* Kaseikyo (Panasonic etc) */
+  IR_PROTO_RECS80,		/* Thomson, Nordmende, Telefunken, Saba */
+  IR_PROTO_RC5,			/* Philips RC5 */
+  IR_PROTO_DENON,		/* Denon */
+  IR_PROTO_RC6,			/* Philips RC6 */
+  IR_PROTO_SAMSUNG32,		/* Samsung 32 */
+  IR_PROTO_APPLE,		/* Apple */
+  IR_PROTO_RECS80EXT,		/* Philips, Technisat, Thomson, Nordmende,
+				   Telefunken, Saba */
+  IR_PROTO_NUBERT,		/* Nubert */
+  IR_PROTO_BANGOLUFSEN,		/* Bang & Olufsen */
+  IR_PROTO_GRUNDIG,		/* Grundig */
+  IR_PROTO_NOKIA,		/* Nokia */
+  IR_PROTO_SIEMENS,		/* Siemens */
+  IR_PROTO_FDC,			/* FDC Keyboard */
+  IR_PROTO_RCCAR		/* RC Car */
+} ir_prot_e;
 
-/* structures */
-struct irmp_t {
-    union {
-        uint16_t raw;
-        struct {
-            uint8_t code:6;             /* first 6 bits: control code */
-            uint8_t address:5;          /* next 5 bits: address */
-            uint8_t toggle_bit:1;       /* next bit is the toggle bit */
-            uint8_t spare:4;            /* spare bits */
-        };
-    };
-#ifdef IRMP_UDP_SUPPORT
-    uint8_t bitcount;
-    uint8_t cnt[IRMP_COUNTERS];
-#endif
-};
+typedef struct
+{
+  ir_prot_e protocol;		/* protocol */
+  uint16_t address;		/* address */
+  uint16_t command;		/* command */
+  uint8_t flags;		/* repeated key */
+} ir_data_t;
 
-struct irmp_global_t {
-    struct irmp_t received_command;
-    uint8_t enabled;                /* if one, decoder is active */
-    uint8_t new_data;               /* if one, new data is available */
-    uint8_t halfbitcount;
-    uint8_t interrupts;
-    uint8_t temp_disable;           /* disable decoder, used internally! */
-    struct irmp_t queue[IRMP_QUEUE_LENGTH];
-    uint8_t len;
-#ifdef IRMP_UDP_SUPPORT
-    /* network extension */
-    uint8_t bitcount;
-    uint8_t cnt[IRMP_COUNTERS];
-    uint8_t disablelog;
-#endif
-};
+///////////////
+#define IRMP_DATA ir_data_t
+#include "irmp_lib.h"
+#define IRMP_FLAG_REPEAT IRMP_FLAG_REPETITION
+#undef F_INTERRUPTS
+///////////////
 
-extern volatile struct irmp_global_t irmp_global;
-
-/* timing constants */
-
-/* one pulse half is 889us, for _delay_loop_2 */
-#define IRMP_PULSE (F_CPU / 1000000 * 888 / 4)
-
-
-/* UDP constants */
-#define IRMP_UDPPORT 6669
-#endif
+extern const PGM_P proto_names[] PROGMEM;
+extern const char cmd_ir_text[] PROGMEM;
 
 /* prototypes */
-void irmp_init(void);
-#ifdef IRMP_UDP_SUPPORT
-void irmp_net_init(void);
-void irmp_udp_send(void);
-void irmp_udp_recv(void);
-uint8_t irmp_check_cache(void);
-#endif
-void irmp_send(uint8_t addr, uint8_t cmd);
-void irmp_process(void);
+void irmp_init (void);
+uint8_t irmp_read (ir_data_t *);
+void irmp_process (void);
 
 #endif /* IRMP_SUPPORT */
 #endif /* IRMP_H */
