@@ -1,7 +1,7 @@
 dnl
 dnl user_pollin_ether.m4
 dnl
-dnl Pin Configuration for 'user_pollin_ether'.  Edit it to fit your needs.
+dnl Pin Configuration for 'pollin_evalboard'.  Edit it to fit your needs.
 dnl
 
 ifdef(`conf_HD44780', `dnl
