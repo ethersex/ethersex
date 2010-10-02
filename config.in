@@ -8,7 +8,7 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
-	bool 'Prompt All Possible Options' CONFIG_EXPERT
+	bool 'Prompt all possible options' CONFIG_EXPERT
 
 	choice 'Target Architecture'			\
 		"AVR		ARCH_AVR		\
