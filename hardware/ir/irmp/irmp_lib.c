@@ -326,7 +326,7 @@ typedef unsigned int16  uint16_t;
 #endif // unix
 
 #ifndef IRMP_USE_AS_LIB
-//#include "irmpconfig.h"
+#include "irmpconfig.h"
 #endif
 #include "irmp.h"
 

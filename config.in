@@ -343,8 +343,7 @@ comment "I/O"
 	source hardware/i2c/master/config.in
 	source hardware/camera/config.in
 	source hardware/radio/fs20/config.in
-	source hardware/ir/rc5/config.in
-	source hardware/ir/irmp/config.in
+	source hardware/ir/config.in
 	source hardware/isdn/config.in
 	source hardware/pwm/config.in
 	source hardware/onewire/config.in
