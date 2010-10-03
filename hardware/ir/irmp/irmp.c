@@ -36,9 +36,9 @@
 #if defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL)
 #define IRMP_HZ            20000	/* interrupts per second */
 #elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL)
-#define IRMP_HZ            15000	/* interrupts per second */
+#define IRMP_HZ            15000
 #else
-#define IRMP_HZ            10000	/* interrupts per second */
+#define IRMP_HZ            10000
 #endif
 
 #define MAX_OVERFLOW       255UL
@@ -85,11 +85,11 @@
 
 #ifdef IRMP_RX_LED
 #ifdef IRMP_RX_LED_LOW_ACTIVE
-#define IRMP_RX_LED_ON     IRMP_RX_LED_PORT &= ~_BV (IRMP_RX_LED_PIN)
-#define IRMP_RX_LED_OFF    IRMP_RX_LED_PORT |= _BV (IRMP_RX_LED_PIN)
+#define IRMP_RX_LED_ON     PIN_CLEAR(IRMP_RX_LED)
+#define IRMP_RX_LED_OFF    PIN_SET(IRMP_RX_LED)
 #else
-#define IRMP_RX_LED_ON     IRMP_RX_LED_PORT |= _BV (IRMP_RX_LED_PIN)
-#define IRMP_RX_LED_OFF    IRMP_RX_LED_PORT &= ~_BV (IRMP_RX_LED_PIN)
+#define IRMP_RX_LED_ON     PIN_SET(IRMP_RX_LED)
+#define IRMP_RX_LED_OFF    PIN_CLEAR(IRMP_RX_LED)
 #endif
 #else
 #define IRMP_RX_LED_ON
@@ -97,11 +97,11 @@
 #endif
 
 #ifdef IRMP_RX_LOW_ACTIVE
-#define IRMP_RX_SPACE      _BV(IRMP_RX_PIN)
+#define IRMP_RX_SPACE      PIN_BV(IRMP_RX)
 #define IRMP_RX_MARK       0
 #else
 #define IRMP_RX_SPACE      0
-#define IRMP_RX_MARK       _BV(IRMP_RX_PIN)
+#define IRMP_RX_MARK       PIN_BV(IRMP_RX)
 #endif
 
 #define FIFO_SIZE          8
@@ -109,12 +109,10 @@
 
 
 ///////////////
-#define irmp_ISR ir_rx_process
-#define irmp_get_data ir_rx_get
-#define irsnd_ISR ir_tx_process
-#define irsnd_send_data ir_tx_put
-#define F_INTERRUPTS   IRMP_HZ
-#define IRMP_LOGGING   0
+#define irmp_ISR irmp_rx_process
+#define irmp_get_data irmp_rx_get
+#define F_INTERRUPTS IRMP_HZ
+#define IRMP_LOGGING 0
 #define IRMP_USE_AS_LIB
 #pragma push_macro("DEBUG")
 #undef DEBUG
@@ -126,12 +124,11 @@ typedef struct
 {
   uint8_t read;
   uint8_t write;
-  ir_data_t buffer[FIFO_SIZE];
-} ir_fifo_t;
-
+  irmp_data_t buffer[FIFO_SIZE];
+} irmp_fifo_t;
 
 static uint16_t prescaler;
-static ir_fifo_t ir_rx_fifo;
+static irmp_fifo_t irmp_rx_fifo;
 
 static const char proto_unknown[] PROGMEM = "unknown";
 static const char proto_sircs[] PROGMEM = "SIRCS";
@@ -156,7 +153,7 @@ static const char proto_rccar[] PROGMEM = "RCCAR";
 static const char proto_jvc[] PROGMEM = "JVC";
 static const char proto_rc6a[] PROGMEM = "RC6A";
 
-const PGM_P proto_names[] PROGMEM = {
+const PGM_P irmp_proto_names[] PROGMEM = {
   proto_unknown,
   proto_sircs,
   proto_nec,
@@ -190,8 +187,8 @@ irmp_init (void)
   PIN_CLEAR (IRMP_RX);
 
 #ifdef IRMP_RX_LED
-  DDR (IRMP_RX_LED_PORT) &= ~_BV (IRMP_RX_LED_PIN);
-  IRMP_RX_LED_PORT |= _BV (IRMP_RX_LED_PIN);
+  DDR_CONFIG_OUT (IRMP_RX_LED);
+  IRMP_RX_LED_OFF;
 #endif
 
   /* init timer0/2 to expire after 1000/IRMP_HZ ms */
@@ -211,20 +208,21 @@ irmp_init (void)
 
 
 uint8_t
-irmp_read (ir_data_t * ir_data_p)
+irmp_read (irmp_data_t * irmp_data_p)
 {
-  if (ir_rx_fifo.read == ir_rx_fifo.write)
+  if (irmp_rx_fifo.read == irmp_rx_fifo.write)
     return 0;
 
-  *ir_data_p = ir_rx_fifo.buffer[ir_rx_fifo.read =
-				 FIFO_NEXT (ir_rx_fifo.read)];
+  *irmp_data_p = irmp_rx_fifo.buffer[irmp_rx_fifo.read =
+				     FIFO_NEXT (irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
   printf_P (PSTR ("IRMP: proto "));
-  printf_P ((const char *) pgm_read_word (&proto_names[ir_data_p->protocol]));
+  printf_P ((const char *)
+	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
   printf_P (PSTR (", address %04x, command %04x, repeat %d\n"),
-	    ir_data_p->address, ir_data_p->command,
-	    ir_data_p->flags & IRMP_FLAG_REPETITION ? 1 : 0);
+	    irmp_data_p->address, irmp_data_p->command,
+	    irmp_data_p->flags & IRMP_FLAG_REPETITION ? 1 : 0);
 #endif
   return 1;
 }
@@ -233,8 +231,8 @@ irmp_read (ir_data_t * ir_data_p)
 void
 irmp_process (void)
 {
-  ir_data_t ir_data;
-  (void) irmp_read (&ir_data);
+  irmp_data_t irmp_data;
+  (void) irmp_read (&irmp_data);
 }
 
 
@@ -252,13 +250,13 @@ ISR (TIMER0_COMP_vect)
     IRMP_RX_LED_OFF;
 #endif
 
-  if (ir_rx_process (data) != 0)
+  if (irmp_rx_process (data) != 0)
     {
-      uint8_t tmphead = FIFO_NEXT (ir_rx_fifo.write);
-      if (tmphead != ir_rx_fifo.read)
+      uint8_t tmphead = FIFO_NEXT (irmp_rx_fifo.write);
+      if (tmphead != irmp_rx_fifo.read)
 	{
-	  if (ir_rx_get (&ir_rx_fifo.buffer[tmphead]))
-	    ir_rx_fifo.write = tmphead;
+	  if (irmp_rx_get (&irmp_rx_fifo.buffer[tmphead]))
+	    irmp_rx_fifo.write = tmphead;
 	}
     }
 
