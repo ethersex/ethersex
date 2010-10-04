@@ -25,9 +25,6 @@
 #define _YPORT_H
 
 
-/* The default usart baudrate is 115200 */
-#define YPORT_BUFFER_LEN 255
-
 struct yport_buffer {
   uint8_t len;
   uint8_t sent;

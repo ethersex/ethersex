@@ -5,6 +5,9 @@ if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		usart_process_choice YPORT
 		int    "YPort TCP Port" YPORT_PORT 7970
 		int    "YPort Baudrate" YPORT_BAUDRATE 115200
+		if [ "$CONFIG_EXPERT" = "y" ] ; then
+			int    "YPort Buffer Length" YPORT_BUFFER_LEN 255
+		fi
 	comment  "Debugging Flags"
 	dep_bool 'YPORT Debug' DEBUG_YPORT $YPORT_SUPPORT
 	endmenu

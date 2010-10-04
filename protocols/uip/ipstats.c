@@ -38,7 +38,7 @@ int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
     cmd[1] = 0;		/* counter for network interface */
     cmd[2] = 0;		/* counter for output lines for an interface */
   }
-  uint8_t tmp;
+  uint16_t tmp;
 #ifdef UIP_MULTI_STACK
   #undef uip_hostaddr
   #define uip_hostaddr (* (uip_stack[cmd[1]].uip_hostaddr))
