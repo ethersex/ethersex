@@ -1,8 +1,10 @@
 /*
+ * Infrared-Multiprotokoll-Decoder 
  *
- * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * for additional information please
+ * see http://www.mikrocontroller.net/articles/IRMP
+ *
+ * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -32,71 +34,21 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-int16_t parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
 {
-#if 0
-    int16_t ret;
-
-    uint16_t addr, command;
-
-    ret = sscanf_P(cmd, PSTR("%d %d"), &addr, &command);
-
-#ifdef DEBUG_ECMD_IRMP
-    debug_printf("sending ir: device %d, command %d\n", addr, command);
-#endif
-
-    /* check if two values have been given */
-    if (ret != 2)
-        return ECMD_ERR_PARSE_ERROR;
-
-    rirmp_send(LO8(addr), LO8(command));
-#endif
-    return ECMD_FINAL_OK;
-}
-
-int16_t parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
-{
-    char *s = output;
-    uint8_t l = 0;
-    uint8_t outlen = 0;
-
-#if 0
-#ifdef DEBUG_ECMD_IRMP
-    debug_printf("%u positions in queue\n", rirmp_global.len);
-#endif
-
-    while (l < rirmp_global.len && (uint8_t)(outlen+5) < len) {
-#ifdef DEBUG_ECMD_IRMP
-        debug_printf("generating for pos %u: %02u/%02u", l,
-                rirmp_global.queue[l].address,
-                rirmp_global.queue[l].code);
-#endif
-
-        sprintf_P(s, PSTR("%02u%02u\n"),
-                rirmp_global.queue[l].address,
-                rirmp_global.queue[l].code);
-
-        s += 5;
-        outlen += 5;
-        l++;
-
-#ifdef DEBUG_ECMD_IRMP
-        *s = '\0';
-        debug_printf("output is \"%s\"\n", output);
-#endif
-    }
-
-    /* clear queue */
-    rirmp_global.len = 0;
-
-    return ECMD_FINAL(outlen);
-#endif
+  irmp_data_t irmp_data;
+  return (irmp_read (&irmp_data)
+	  ? ECMD_FINAL (sprintf_P (output, PSTR ("%04X:%04X,%02X\n"),
+				   irmp_data_p->address,
+				   irmp_data_p->command,
+				   irmp_data_p->flags))
+	  : ECMD_FINAL_OK);
 }
 
 
 /*
   -- Ethersex META --
-  block(Infrared Send/Receive ([[IR-TRX]]))
-  ecmd_feature(ir_send, "ir send", PROTOCOL DEVICE COMMAND, send COMMAND to DEVICE using PROTOCOL)
-  ecmd_feature(ir_receive, "ir receive",,receive an IR command)
+  block(Infrared Send/Receive ([[IRMP-TRX]]))
+  ecmd_feature(irmp_receive, "irmp receive"",,receive an IR command)
 */

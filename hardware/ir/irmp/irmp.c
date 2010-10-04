@@ -231,8 +231,10 @@ irmp_read (irmp_data_t * irmp_data_p)
 void
 irmp_process (void)
 {
+#if 0
   irmp_data_t irmp_data;
   (void) irmp_read (&irmp_data);
+#endif
 }
 
 
