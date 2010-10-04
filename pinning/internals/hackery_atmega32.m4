@@ -14,6 +14,11 @@
 #define _TCCR0_PRESCALE TCCR0
 #define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
 #define _TIMSK_TIMER0 TIMSK
+#define _OUTPUT_COMPARE_IE0 OCIE0
+#define _OUTPUT_COMPARE_REG0 OCR0
+#define _VECTOR_OUTPUT_COMPARE0 TIMER0_COMPB_vect
+#define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
+#define _TIFR_TIMER0 TIFR0
 
 /* Timer1 - Ticks */
 #define _TIMSK_TIMER1 TIMSK
@@ -39,6 +44,7 @@
 #define _PWM_MELODY_CS0 CS20
 #define _PWM_MELODY_TIMSK TIMSK
 #define _PWM_MELODY_OCIE OCIE2
+
 
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */

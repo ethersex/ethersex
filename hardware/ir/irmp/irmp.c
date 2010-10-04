@@ -85,11 +85,11 @@
 
 #ifdef IRMP_RX_LED
 #ifdef IRMP_RX_LED_LOW_ACTIVE
-#define IRMP_RX_LED_ON     PIN_CLEAR(IRMP_RX_LED)
-#define IRMP_RX_LED_OFF    PIN_SET(IRMP_RX_LED)
+#define IRMP_RX_LED_ON     PIN_CLEAR(STATUSLED_RX)
+#define IRMP_RX_LED_OFF    PIN_SET(STATUSLED_RX)
 #else
-#define IRMP_RX_LED_ON     PIN_SET(IRMP_RX_LED)
-#define IRMP_RX_LED_OFF    PIN_CLEAR(IRMP_RX_LED)
+#define IRMP_RX_LED_ON     PIN_SET(STATUSLED_RX)
+#define IRMP_RX_LED_OFF    PIN_CLEAR(STATUSLED_RX)
 #endif
 #else
 #define IRMP_RX_LED_ON
@@ -187,22 +187,22 @@ irmp_init (void)
   PIN_CLEAR (IRMP_RX);
 
 #ifdef IRMP_RX_LED
-  DDR_CONFIG_OUT (IRMP_RX_LED);
+  DDR_CONFIG_OUT (STATUSLED_RX);
   IRMP_RX_LED_OFF;
 #endif
 
   /* init timer0/2 to expire after 1000/IRMP_HZ ms */
   prescaler = (uint16_t) IRMP_HZ;
 #ifdef IRMP_USE_TIMER2
-  TCCR2 = HW_PRESCALER_MASK;
-  OCR2 = SW_PRESCALER - 1;
+  _TCCR2_PRESCALE = HW_PRESCALER_MASK;
+  _OUTPUT_COMPARE_REG2 = SW_PRESCALER - 1;
   TCNT2 = 0;
-  _TIMSK_TIMER2 |= _BV (OCIE0);	/* enable interrupt */
+  _TIMSK_TIMER2 |= _BV (_OUTPUT_COMPARE_IE2);	/* enable interrupt */
 #else
-  TCCR0 = HW_PRESCALER_MASK;
-  OCR0 = SW_PRESCALER - 1;
+  _TCCR0_PRESCALE = HW_PRESCALER_MASK;
+  _OUTPUT_COMPARE_REG0 = SW_PRESCALER - 1;
   TCNT0 = 0;
-  _TIMSK_TIMER0 |= _BV (OCIE0);	/* enable interrupt */
+  _TIMSK_TIMER0 |= _BV (_OUTPUT_COMPARE_IE0);	/* enable interrupt */
 #endif
 }
 
@@ -237,18 +237,16 @@ irmp_process (void)
 
 
 #ifdef IRMP_USE_TIMER2
-ISR (TIMER1_COMP_vect)
+ISR (TIMER2_COMP_vect)
 #else
 ISR (TIMER0_COMP_vect)
 #endif
 {
   uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
-#ifdef IRMP_RX_LED
   if (data == IRMP_RX_MARK)
     IRMP_RX_LED_ON;
   else
     IRMP_RX_LED_OFF;
-#endif
 
   if (irmp_rx_process (data) != 0)
     {
@@ -265,17 +263,17 @@ ISR (TIMER0_COMP_vect)
 #if (F_CPU/HW_PRESCALER) % IRMP_HZ
   if (prescaler <= (F_CPU / HW_PRESCALER) % IRMP_HZ)
 #ifdef IRMP_USE_TIMER2
-    OCR2 += SW_PRESCALER + 1;	/* um 1 Takt längere Periode um
-				   den Rest abzutragen */
+    _OUTPUT_COMPARE_REG2 += SW_PRESCALER + 1;	/* um 1 Takt längere Periode um
+						   den Rest abzutragen */
 #else
-    OCR0 += SW_PRESCALER + 1;
+    _OUTPUT_COMPARE_REG0 += SW_PRESCALER + 1;
 #endif
   else
 #endif
 #ifdef IRMP_USE_TIMER2
-    OCR2 += SW_PRESCALER;	/* kurze Periode */
+    _OUTPUT_COMPARE_REG2 += SW_PRESCALER;	/* kurze Periode */
 #else
-    OCR0 += SW_PRESCALER;
+    _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
 #endif
 }
 
