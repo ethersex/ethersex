@@ -184,7 +184,7 @@ vfs_sd_open (const char *name)
 uint8_t
 vfs_sd_mkdir_recursive (const char *path)
 {
-  struct fat_dir_entry_struct handle = { 0 };
+  struct fat_dir_entry_struct handle = { .attributes = FAT_ATTRIB_DIR };
   handle.attributes = FAT_ATTRIB_DIR;
 
  recurse_loop:
