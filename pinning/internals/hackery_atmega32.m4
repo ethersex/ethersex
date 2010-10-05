@@ -6,6 +6,7 @@
 #define USART0_UDRE_vect USART_UDRE_vect
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
+#define UPE PE /* parity error */
 #define _IVREG MCUCR
 #define _EIMSK GICR
 #define _EICRA MCUCR
