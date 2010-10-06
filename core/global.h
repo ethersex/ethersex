@@ -30,7 +30,9 @@ typedef struct {
 
     uint8_t request_bootloader :1;
     uint8_t request_reset      :1;
+#ifndef TEENSY_SUPPORT
     uint8_t request_wdreset    :1;
+#endif
 } global_status_t;
 
 extern global_status_t status;
