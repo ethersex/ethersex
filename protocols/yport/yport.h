@@ -26,8 +26,13 @@
 
 
 struct yport_buffer {
+#if YPORT_BUFFER_LEN < 512
   uint8_t len;
   uint8_t sent;
+#else
+  uint16_t len;
+  uint16_t sent;
+#endif
   uint8_t data[YPORT_BUFFER_LEN];
 };
 
