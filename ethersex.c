@@ -197,7 +197,7 @@ main (void)
 	}
 #endif
 
-#ifdef BOOTLOADER_SUPPORT
+#ifdef BOOTLOADER_JUMP
       if (status.request_bootloader)
 	{
 #ifdef CLOCK_CRYSTAL_SUPPORT
