@@ -258,7 +258,7 @@ void sendmessage(void) // Send event in ringbuffer indicated by left pointer
   return;
 }
 
-void watchasync_init(void)  // Initilize Poirts and Interrupts
+void watchasync_init(void)  // Initilize Ports and Interrupts
 {
   PORTC = (1<<PC7)|(1<<PC6)|(1<<PC5)|(1<<PC4)|(1<<PC3)|(1<<PC2)|(1<<PC1)|(1<<PC0);  // Enable Pull-up on PortC
   DDRC = 0; 			// PortC Input
