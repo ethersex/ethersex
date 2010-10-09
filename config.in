@@ -77,15 +77,15 @@ if [ "$ARCH_AVR" = "y" ]; then
 
 	if [ "$FLASH_SIZE" = "131072" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-			define_hex BOOTLOADER_SECTION 0x1fc00
+			define_hex BOOTLOADER_START_ADDRESS 0x1fc00
 		else
 			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
-				define_hex BOOTLOADER_SECTION 0x1f800
+				define_hex BOOTLOADER_START_ADDRESS 0x1f800
 			else
 				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
-					define_hex BOOTLOADER_SECTION 0x1f000
+					define_hex BOOTLOADER_START_ADDRESS 0x1f000
 				else
-					define_hex BOOTLOADER_SECTION 0x1e000
+					define_hex BOOTLOADER_START_ADDRESS 0x1e000
 					BOOTLOADER_WORDS=4096
 				fi
 			fi
@@ -93,15 +93,15 @@ if [ "$ARCH_AVR" = "y" ]; then
 	fi
 	if [ "$FLASH_SIZE" = "65536" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-			define_hex BOOTLOADER_SECTION 0xfc00
+			define_hex BOOTLOADER_START_ADDRESS 0xfc00
 		else
 			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
-				define_hex BOOTLOADER_SECTION 0xf800
+				define_hex BOOTLOADER_START_ADDRESS 0xf800
 			else
 				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
-					define_hex BOOTLOADER_SECTION 0xf000
+					define_hex BOOTLOADER_START_ADDRESS 0xf000
 				else
-					define_hex BOOTLOADER_SECTION 0xe000
+					define_hex BOOTLOADER_START_ADDRESS 0xe000
 					BOOTLOADER_WORDS=4096
 				fi
 			fi
@@ -109,15 +109,15 @@ if [ "$ARCH_AVR" = "y" ]; then
 	fi
 	if [ "$FLASH_SIZE" = "32768" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 256 ] ; then
-			define_hex BOOTLOADER_SECTION 0x7e00
+			define_hex BOOTLOADER_START_ADDRESS 0x7e00
 		else
 			if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-				define_hex BOOTLOADER_SECTION 0x7c00
+				define_hex BOOTLOADER_START_ADDRESS 0x7c00
 			else
 				if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
-					define_hex BOOTLOADER_SECTION 0x7800
+					define_hex BOOTLOADER_START_ADDRESS 0x7800
 				else
-					define_hex BOOTLOADER_SECTION 0x7000
+					define_hex BOOTLOADER_START_ADDRESS 0x7000
 					BOOTLOADER_WORDS=2048
 				fi
 			fi
@@ -125,15 +125,15 @@ if [ "$ARCH_AVR" = "y" ]; then
 	fi
 	if [ "$FLASH_SIZE" = "16384" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 128 ] ; then
-			define_hex BOOTLOADER_SECTION 0x3f00
+			define_hex BOOTLOADER_START_ADDRESS 0x3f00
 		else
 			if [ "$BOOTLOADER_WORDS" = 256 ] ; then
-				define_hex BOOTLOADER_SECTION 0x3e00
+				define_hex BOOTLOADER_START_ADDRESS 0x3e00
 			else
 				if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-					define_hex BOOTLOADER_SECTION 0x3c00
+					define_hex BOOTLOADER_START_ADDRESS 0x3c00
 				else
-					define_hex BOOTLOADER_SECTION 0x3800
+					define_hex BOOTLOADER_START_ADDRESS 0x3800
 					BOOTLOADER_WORDS=1024
 				fi
 			fi
@@ -141,15 +141,15 @@ if [ "$ARCH_AVR" = "y" ]; then
 	fi
 	if [ "$FLASH_SIZE" = "8192" ] ; then
 		if [ "$BOOTLOADER_WORDS" = 128 ] ; then
-			define_hex BOOTLOADER_SECTION 0x1f00
+			define_hex BOOTLOADER_START_ADDRESS 0x1f00
 		else
 			if [ "$BOOTLOADER_WORDS" = 256 ] ; then
-				define_hex BOOTLOADER_SECTION 0x1e00
+				define_hex BOOTLOADER_START_ADDRESS 0x1e00
 			else
 				if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-					define_hex BOOTLOADER_SECTION 0x1c00
+					define_hex BOOTLOADER_START_ADDRESS 0x1c00
 				else
-					define_hex BOOTLOADER_SECTION 0x1800
+					define_hex BOOTLOADER_START_ADDRESS 0x1800
 					BOOTLOADER_WORDS=1024
 				fi
 			fi
