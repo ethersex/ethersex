@@ -39,10 +39,10 @@ parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
 {
   irmp_data_t irmp_data;
   return (irmp_read (&irmp_data)
-	  ? ECMD_FINAL (sprintf_P (output, PSTR ("%04X:%04X,%02X\n"),
-				   irmp_data_p->address,
-				   irmp_data_p->command,
-				   irmp_data_p->flags))
+	  ? ECMD_FINAL (sprintf_P (output, PSTR ("%04X:%04X:%02X\n"),
+				   irmp_data.address,
+				   irmp_data.command,
+				   irmp_data.flags))
 	  : ECMD_FINAL_OK);
 }
 
@@ -50,5 +50,5 @@ parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Infrared Send/Receive ([[IRMP-TRX]]))
-  ecmd_feature(irmp_receive, "irmp receive"",,receive an IR command)
+  ecmd_feature(irmp_receive, "irmp receive",,receive an IR command)
 */

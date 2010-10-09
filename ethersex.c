@@ -47,7 +47,7 @@
 global_status_t status;
 
 /* prototypes */
-void (*jump_to_bootloader) (void) = (void *) BOOTLOADER_SECTION;
+void (*jump_to_bootloader) (void) = (void *) BOOTLOADER_START_ADDRESS;
 
 
 extern void ethersex_meta_init (void);

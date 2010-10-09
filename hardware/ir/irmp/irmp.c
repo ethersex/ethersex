@@ -117,6 +117,12 @@
 #pragma push_macro("DEBUG")
 #undef DEBUG
 #include "irmp_lib.c"
+#ifdef IRSND_SUPPORT
+#define irsnd_ISR irmp_tx_process
+#define irsnd_send_data irmp_tx_put
+#define IRSND_USE_AS_LIB
+#include "irsnd_lib.c"
+#endif
 #pragma pop_macro("DEBUG")
 ///////////////
 
@@ -129,6 +135,9 @@ typedef struct
 
 static uint16_t prescaler;
 static irmp_fifo_t irmp_rx_fifo;
+#ifdef IRSND_SUPPORT
+static irmp_fifo_t irmp_tx_fifo;
+#endif
 
 static const char proto_unknown[] PROGMEM = "unknown";
 static const char proto_sircs[] PROGMEM = "SIRCS";
@@ -204,6 +213,19 @@ irmp_init (void)
   TCNT0 = 0;
   _TIMSK_TIMER0 |= _BV (_OUTPUT_COMPARE_IE0);	/* enable interrupt */
 #endif
+
+#ifdef IRSND_SUPPORT
+  DDR_CONFIG_OUT (IRMP_TX);
+  PIN_CLEAR (IRMP_TX);
+#ifdef IRMP_USE_TIMER2
+  _TCCR0_PRESCALE = (1 << WGM01);	/* CTC mode */
+  _TCCR0_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 0, no prescaling */
+#else
+  _TCCR2_PRESCALE = (1 << WGM21);	/* CTC mode */
+  _TCCR2_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 2, no prescaling */
+#endif
+  irsnd_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
+#endif
 }
 
 
@@ -228,14 +250,21 @@ irmp_read (irmp_data_t * irmp_data_p)
 }
 
 
+#ifdef IRSND_SUPPORT
+
 void
-irmp_process (void)
+irmp_write (irmp_data_t * irmp_data_p)
 {
-#if 0
-  irmp_data_t irmp_data;
-  (void) irmp_read (&irmp_data);
-#endif
+  uint8_t tmphead = FIFO_NEXT (irmp_tx_fifo.write);
+
+  while (tmphead == *(volatile uint8_t *) &irmp_tx_fifo.read)
+    _delay_ms (10);
+
+  irmp_rx_fifo.buffer[tmphead] = *irmp_data_p;
+  irmp_rx_fifo.write = tmphead;
 }
+
+#endif
 
 
 #ifdef IRMP_USE_TIMER2
@@ -260,6 +289,15 @@ ISR (TIMER0_COMP_vect)
 	}
     }
 
+#ifdef IRSND_SUPPORT
+  if (irmp_tx_process () == 0)
+    {
+      if (irmp_tx_fifo.read != irmp_tx_fifo.write)
+	irmp_tx_put (&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
+					  FIFO_NEXT (irmp_tx_fifo.read)], 0);
+    }
+#endif
+
   if (--prescaler == 0)
     prescaler = (uint16_t) IRMP_HZ;
 #if (F_CPU/HW_PRESCALER) % IRMP_HZ
@@ -282,6 +320,5 @@ ISR (TIMER0_COMP_vect)
 /*
   -- Ethersex META --
   header(hardware/ir/irmp/irmp.h)
-  mainloop(irmp_process)
   init(irmp_init)
 */
