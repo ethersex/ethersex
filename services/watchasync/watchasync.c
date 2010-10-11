@@ -49,36 +49,40 @@
 #endif
 
 // first string is the GET part including the path
-static const char PROGMEM get_string_head[] =
-    "GET " CONF_WATCHASYNC_PATH "?port=";
+static const char PROGMEM post_string_head[] = "POST " CONF_WATCHASYNC_PATH "/index.php/data/";
+
 // next is the - optional - inclusion of the machine identifier uuid
 #ifdef CONF_WATCHASYNC_INCLUDE_PREFIX
-static const char PROGMEM prefix_string[] =
-	CONF_WATCHASYNC_PREFIX ;
+static const char PROGMEM prefix_string[] = CONF_WATCHASYNC_PREFIX ;
 #endif
-// optional uuid
-#ifdef CONF_WATCHASYNC_INCLUDE_UUID
-static const char PROGMEM uuid_string[] =
-	"&uuid=" CONF_WATCHASYNC_UUID ;
-#endif
+
+// the controller UUID
+// its NOT the channel UUID!
+static const char PROGMEM uuid_string[] = CONF_WATCHASYNC_UUID ;
+
+// the json format string
+static const char PROGMEM format_string[] = ".json";
+
 // the - optional - unix time stamp
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
-static const char PROGMEM time_string[] =
-	"&time=";
+static const char PROGMEM time_string[] = "?ts=";
 #endif
+
 // and the http footer including the http protocol version and the server name
-static const char PROGMEM get_string_foot[] =
+static const char PROGMEM post_string_foot[] =
     " HTTP/1.1\r\n"
     "Host: " CONF_WATCHASYNC_SERVICE "\r\n\r\n";
+
 #ifndef CONF_WATCHASYNC_PORT
 #define CONF_WATCHASYNC_PORT 80
 #endif
-static struct WatchAsyncBuffer wa_buffer[CONF_WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
-static uint8_t wa_buffer_left = 0; 	// last position sent
-static uint8_t wa_buffer_right = 0; 	// last position set
 
-static uint8_t wa_portstate = 0; 		// Last portstate saved
-static uint8_t wa_sendstate = 0; 		// 0: Idle, 1: Message being sent, 2: Sending message failed
+static struct WatchAsyncBuffer wa_buffer[CONF_WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
+static uint8_t wa_buffer_left = 0;  // last position sent
+static uint8_t wa_buffer_right = 0;  // last position set
+
+static uint8_t wa_portstate = 0;  // Last portstate saved
+static uint8_t wa_sendstate = 0;  // 0: Idle, 1: Message being sent, 2: Sending message failed
 
 #ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
 
@@ -198,23 +202,23 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
   if (uip_connected() || uip_rexmit()) { // (re-)transmit packet
     WATCHASYNC_DEBUG ("new connection or rexmit, sending message\n");
     char *p = uip_appdata;  // pointer set to uip_appdata, used to store string
-    p += sprintf_P(p, get_string_head);  // Copy Header from programm memory to appdata
+
+    p += sprintf_P(p, post_string_head);  // Copy Header from programm memory to appdata
+    p += sprintf_P(p, uuid_string);  // append the controller UUID
+    p += sprintf(p, "/");  // seperator
 #ifdef CONF_WATCHASYNC_INCLUDE_PREFIX
     p += sprintf_P(p, prefix_string);  // Append Prefixstring if configured
 #endif
     p += sprintf(p, "%u", wa_buffer[wa_buffer_left].pin);  // append pin changed (0-7)
-#ifdef CONF_WATCHASYNC_INCLUDE_UUID
-    p += sprintf_P(p, uuid_string);  // append uuid if configured
-#endif
+    p += sprintf_P(p, format_string);
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP  
     p += sprintf_P(p, time_string);  // append timestamp attribute
-    p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp); // and timestamp value
+    p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp);  // and timestamp value
 #endif
-    p += sprintf_P(p, get_string_foot); // appen tail of packet from programmmemory
-//    uip_udp_send(p - (char *)uip_appdata);
+    p += sprintf_P(p, post_string_foot);  // append tail of packet from programmmemory
     uip_udp_send(p - (char *)uip_appdata);
+
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
-//    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
   }
 
   if (uip_acked()) // Send packet acked, 
