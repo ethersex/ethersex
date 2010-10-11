@@ -275,6 +275,8 @@ mainmenu_option next_comment
 	dep_bool 'BOOTP (DHCP-like) support' BOOTP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
 	dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
 
+	source protocols/dhcp/config.in
+
 	comment "Tunneling protocols"
 	dep_bool_menu "OpenVPN" OPENVPN_SUPPORT $UDP_SUPPORT
 		hex "OpenVPN key" CONF_OPENVPN_KEY "00000000000000000000000000000000"
