@@ -168,6 +168,9 @@ bootp_handle_reply(void)
     if(pk->bp_file[0] == 0)
 	return;					/* no boot filename provided */
 
+    debug_putstr(" load:");
+    debug_putstr(pk->bp_file);
+
     /* create tftp connection, which will fire the download request */
     uip_ipaddr_t ip;
     uip_ipaddr(&ip, pk->bp_siaddr[0], pk->bp_siaddr[1],
