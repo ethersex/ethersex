@@ -91,6 +91,12 @@ debug_uart_put (char d, FILE *stream)
 #endif
 }
 
+void noinline
+debug_putstr_ (const char *d)
+{
+while (*d != 0) {debug_putchar(*d++);}
+}
+
 void
 debug_process_uart (void)
 {
