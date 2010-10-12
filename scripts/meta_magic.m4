@@ -35,6 +35,7 @@ divert(0)dnl
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <stdint.h>
+#include "core/debug.h"
 #include "config.h"
 #include "core/debug.h"
 
