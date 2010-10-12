@@ -224,11 +224,15 @@ tftp_handle_packet(void)
 #           else
             bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
 #           endif
+<<<<<<< HEAD
 
             debug_putstr("end\n");
 
             debug_putstr(temp);
             debug_putstr(" bytes\r\n");
+=======
+            debug_putstr(" end:\r\n");
+>>>>>>> 7686ce3... Debug-Code for boot-loader
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
