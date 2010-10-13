@@ -8,7 +8,7 @@ comment "General Setup"
 	get_usart_count
 	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
 
-	bool 'Prompt all possible options' CONFIG_EXPERT
+	bool 'Prompt all possible options (expert mode)' CONFIG_EXPERT
 
 	choice 'Target Architecture'			\
 		"AVR		ARCH_AVR		\
@@ -39,7 +39,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 			"$(scripts/pinning_hardware_list.sh)" \
 		'Etherrape' HARDWARE
 
-	dep_bool "Use CPU sleep (EXPERIMENTAL)" CPU_SLEEP $ARCH_AVR $CLOCK_CPU_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Use CPU sleep (EXPERIMENTAL)" CPU_SLEEP $ARCH_AVR $CONFIG_EXPERIMENTAL
 	source hardware/sram/config.in
 
 
@@ -157,7 +157,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 	fi
 
 	if [ "$CONFIG_EXPERT" = "y" ] ; then
-		bool "Use a bootloader" BOOTLOADER_JUMP
+		bool "Enable bootloader jump" BOOTLOADER_JUMP
 		if [ "$BOOTLOADER_JUMP" = "y" ] ; then
 			int 'Bootloader Size in words' BOOTLOADER_WORDS ""
 		fi
@@ -211,7 +211,7 @@ mainmenu_option next_comment
 
 #	if [ "$ENC28J60_SUPPORT" = "y" -o "$RFM12_IP_SUPPORT" = "y" -o "$ZBUS_SUPPORT" = "y" -o "$UIP_SUPPORT" = "y" -o "$UDP_SUPPORT" = "y" -o "$TCP_SUPPORT" = "y" -o "$ICMP_SUPPORT" = "y" ]; then
 		if [ "$NET_MAX_FRAME_LENGTH" = "" ] ; then NET_MAX_FRAME_LENGTH=1500 ; fi
-		if [ "$NET_MAX_FRAME_LENGTH" -lt 192 -o "$NET_MAX_FRAME_LENGTH" -gt 1500 ] ; then NET_MAX_FRAME_LENGTH=1500 ; fi
+		if [ "$NET_MAX_FRAME_LENGTH" -lt 64 -o "$NET_MAX_FRAME_LENGTH" -gt 1500 ] ; then NET_MAX_FRAME_LENGTH=1500 ; fi
 
 		if [ "$atmega8" = "y" -o "$atmega88" = "y" -o "$atmega16" = "y" -o "$atmega168" = "y" -o "$atmega169" = "y" -o "$atmega168p" = "y" ] ; then
 			if [ "$NET_MAX_FRAME_LENGTH" -gt 192 ] ; then NET_MAX_FRAME_LENGTH=192 ; fi
@@ -229,7 +229,7 @@ mainmenu_option next_comment
 		Value=$NET_MAX_FRAME_LENGTH
 
 		if [ "$CONFIG_EXPERT" = "y" ] ; then
-			int "Network Buffer Size" NET_MAX_FRAME_LENGTH 1500
+			int "Network Buffer Size" NET_MAX_FRAME_LENGTH ""
 		else
 			Value=$NET_MAX_FRAME_LENGTH
 			define_int NET_MAX_FRAME_LENGTH $Value

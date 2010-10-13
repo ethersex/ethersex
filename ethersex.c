@@ -121,6 +121,8 @@ main (void)
 #ifdef BOOTLOADER_SUPPORT
   /* disable interrupts */
   cli ();
+  wdt_disable();
+  sei();
 #else
   /* enable interrupts */
   sei ();

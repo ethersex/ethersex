@@ -27,6 +27,7 @@
 
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
+#include "core/debug.h"
 #include "tftp.h"
 #include "tftp_net.h"
 
@@ -205,6 +206,7 @@ tftp_handle_packet(void)
 #           else
             bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
 #           endif
+            debug_putstr(" end:\r\n");
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
