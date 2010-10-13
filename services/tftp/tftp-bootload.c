@@ -226,6 +226,9 @@ tftp_handle_packet(void)
 #           endif
 
             debug_putstr("end\n");
+
+            debug_putstr(temp);
+            debug_putstr(" bytes\r\n");
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
