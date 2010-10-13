@@ -36,6 +36,13 @@
 #define BAUD ZBUS_BAUDRATE
 #include "core/usart.h"
 
+#ifdef DEBUG_ZBUS
+#  include "core/debug.h"
+#  define ZBUS_DEBUG(str...) debug_printf ("zbusnet: " str)
+#else
+#  define ZBUS_DEBUG(...)    ((void) 0)
+#endif
+
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
@@ -46,6 +53,14 @@ static uint8_t bus_blocked = 0;
 static volatile zbus_index_t zbus_index;
 volatile zbus_index_t zbus_txlen;
 static volatile zbus_index_t zbus_rxlen;
+#ifdef ZBUS_ECMD
+uint16_t zbus_rx_frameerror;
+uint16_t zbus_rx_overflow;
+uint16_t zbus_rx_parityerror;
+uint16_t zbus_rx_bufferfull;
+uint16_t zbus_rx_count;
+uint16_t zbus_tx_count;
+#endif
 
 static void __zbus_txstart(void);
 
@@ -170,8 +185,16 @@ zbus_core_periodic(void)
 
 SIGNAL(usart(USART,_TX_vect))
 {
+
+#ifdef ZBUS_DEBUG
+    ZBUS_DEBUG ("send data: %s\n", uip_appdata);
+#endif
+
   /* If there's a carry byte, send it! */
   if (send_escape_data) {
+#ifdef ZBUS_ECMD
+    zbus_tx_count++;
+#endif
     usart(UDR) = send_escape_data;
     send_escape_data = 0;
   }
@@ -181,10 +204,16 @@ SIGNAL(usart(USART,_TX_vect))
     if (zbus_buf[zbus_index] == '\\') {
       /* We need to quote the character. */
       send_escape_data = zbus_buf[zbus_index];
+#ifdef ZBUS_ECMD
+      zbus_tx_count++;
+#endif
       usart(UDR) = '\\';
     }
     else {
       /* No quoting needed, just send it. */
+#ifdef ZBUS_ECMD
+      zbus_tx_count++;
+#endif
       usart(UDR) = zbus_buf[zbus_index];
     }
 
@@ -200,8 +229,14 @@ SIGNAL(usart(USART,_TX_vect))
 
     /* Generate the stop condition. */
     send_escape_data = ZBUS_STOP;
+#ifdef ZBUS_ECMD
+    zbus_tx_count++;
+#endif
     usart(UDR) = '\\';
   }
+
+
+
 
   /* Nothing to do, disable transmitter and TX LED. */
   else {
@@ -217,12 +252,27 @@ SIGNAL(usart(USART,_TX_vect))
 SIGNAL(usart(USART,_RX_vect))
 {
   /* Ignore errors */
-  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
-    uint8_t v = usart(UDR);
-    (void) v;
+  uint8_t flags = usart(UCSR,A);
+  if (flags & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
+  {
+
+#ifdef ZBUS_DEBUG
+    ZBUS_DEBUG ("received data: %s\n", uip_appdata);
+#endif
+
+
+#ifdef ZBUS_ECMD
+    if (flags & _BV(usart(FE)))  zbus_rx_frameerror++;
+    if (flags & _BV(usart(DOR))) zbus_rx_overflow++;
+    if (flags & _BV(usart(UPE))) zbus_rx_parityerror++;
+#endif
+    flags = usart(UDR); /* dummy read */
     return;
   }
   uint8_t data = usart(UDR);
+#ifdef ZBUS_ECMD
+ zbus_rx_count++;
+#endif
 
 
   /* Old data is not read by application, ignore message */
@@ -276,7 +326,12 @@ SIGNAL(usart(USART,_RX_vect))
   append_data:
     /* Not enough space in buffer */
     if (zbus_index >= ZBUS_BUFFER_LEN)
+    {
+#ifdef ZBUS_ECMD
+      zbus_rx_bufferfull++;
+#endif
       return;
+    }
 
     /* If bus is not blocked we aren't on an message */
     if (!bus_blocked)
