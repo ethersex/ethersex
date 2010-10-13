@@ -199,7 +199,7 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   uip_sethostaddr(&ipaddr);
 
 # ifdef TFTPOMATIC_SUPPORT
-  const unsigned char filename[] PROGMEM = CONF_TFTP_IMAGE;
+  const char filename[] PROGMEM = CONF_TFTP_IMAGE;
   uip_ipaddr_t ip;
   set_CONF_TFTP_IP(&ip);
 

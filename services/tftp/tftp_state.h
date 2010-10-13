@@ -38,7 +38,7 @@ struct tftp_connection_state_t {
     unsigned       fire_req    :1;		/* this connection is for just
 						 * starting a tftp request */
 
-    unsigned char  filename[TFTP_FILENAME_MAXLEN];
+    char           filename[TFTP_FILENAME_MAXLEN];
 #endif
 
     uint16_t       transfered;			/* also retry countdown */
