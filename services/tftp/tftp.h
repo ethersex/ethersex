@@ -36,7 +36,7 @@ struct tftp_hdr {
 
 	struct {
 	    uint16_t block;
-	    char data[0];
+	    unsigned char data[0];
 	} data;
 
 	struct {
@@ -58,7 +58,7 @@ void tftp_handle_packet(void);
 #if defined(BOOTLOADER_SUPPORT)  \
   && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
 inline static void
-tftp_fire_tftpomatic(uip_ipaddr_t *ip, const unsigned char *filename) {
+tftp_fire_tftpomatic(uip_ipaddr_t *ip, const char *filename) {
   uip_udp_conn_t *tftp_req_conn =
     uip_udp_new(ip, HTONS(TFTP_PORT), tftp_net_main);
 
