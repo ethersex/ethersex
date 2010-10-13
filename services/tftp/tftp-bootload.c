@@ -103,7 +103,12 @@ tftp_handle_packet(void)
     /*
      * care for incoming tftp packet now ...
      */
-    uint16_t i, base;
+    uint16_t i;
+#if FLASHEND > 0xFFFFUL
+    uint32_t base;
+#else
+    uint16_t base;
+#endif
     struct tftp_hdr *pk = uip_appdata;
 
     switch(HTONS(pk->type)) {
@@ -206,7 +211,17 @@ tftp_handle_packet(void)
 #           else
             bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
 #           endif
-            debug_putstr(" end:\r\n");
+
+#ifdef DEBUG
+            char temp[6];
+#if FLASHEND > 0xFFFFUL
+            ultoa(base+uip_datalen(),temp,16);
+#else
+            utoa(base+uip_datalen(),temp,16);
+#endif
+            debug_putstr(temp);
+            debug_putstr(" bytes\r\n");
+#endif
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
