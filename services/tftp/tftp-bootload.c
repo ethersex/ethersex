@@ -58,7 +58,11 @@ flash_page(uint32_t page, uint8_t *buf)
 #endif
 
     for(i = 0; i < SPM_PAGESIZE; i ++)
+#if FLASHEND > 0xFFFFUL
+	if(buf[i] != pgm_read_byte_far(page + i))
+#else
 	if(buf[i] != pgm_read_byte_near(page + i))
+#endif
 	    goto commit_changes;
     return;					/* no changes */
 
@@ -105,10 +109,11 @@ tftp_handle_packet(void)
      */
     uint16_t i;
 #if FLASHEND > 0xFFFFUL
-    uint32_t base;
+#define FLASH_ADDR  uint32_t
 #else
-    uint16_t base;
+#define FLASH_ADDR  uint16_t
 #endif
+    FLASH_ADDR base;
     struct tftp_hdr *pk = uip_appdata;
 
     switch(HTONS(pk->type)) {
@@ -161,7 +166,11 @@ tftp_handle_packet(void)
 
 	for(i = 0; i < 512; i ++)
 	    pk->u.data.data[i] =
+#if FLASHEND > 0xFFFFUL
+              pgm_read_byte_far(base + i);
+#else
               pgm_read_byte_near(base + i);
+#endif
 
 	uip_udp_send(4 + 512);
 	uip_udp_conn->appstate.tftp.transfered ++;
@@ -213,14 +222,16 @@ tftp_handle_packet(void)
 #           endif
 
 #ifdef DEBUG
-            char temp[6];
-#if FLASHEND > 0xFFFFUL
-            ultoa(base+uip_datalen(),temp,16);
-#else
-            utoa(base+uip_datalen(),temp,16);
-#endif
+            char temp[7];
+            char tohex[] = "0123456789ABCDEF";
+            FLASH_ADDR tempx = base+uip_datalen();
+	    for(i = 6; i >=0; i-=2) {
+               temp[i]   = tohex[(uint8_t)tempx>>4];
+               temp[i-1] = tohex[(uint8_t)tempx&0xf];
+               tempx = tempx>>16;
+               }
             debug_putstr(temp);
-            debug_putstr(" bytes\r\n");
+            debug_putstr(" bytes\n");
 #endif
 	}
 
