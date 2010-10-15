@@ -49,6 +49,11 @@ uint32_t timestamp = 0;
 //last dcf77 timestamp
 uint32_t last_dcf77_timestamp = 0;
 
+//last valid timestamp
+uint32_t last_valid_dcf = 0;
+
+
+
 #define bcd2bin(data) (data - ((data/16) * 6))
 
 #ifdef DEBUG_DCF77
@@ -114,7 +119,7 @@ SIGNAL (SIG_COMPARATOR)
 	/* 1/256 since last signal pulse */
 	uint16_t divtime = (TCNT2temp + (clock_get_time() - dcf.timerover) * 0xFF) - dcf.TCNT2last;
 
-	if(divtime > 5)
+	if(divtime > 5) // div time > 90 ms ?
 	{
 #ifdef HAVE_DCF1
 		if (!PIN_HIGH(DCF1))
@@ -263,6 +268,7 @@ SIGNAL (SIG_COMPARATOR)
 					clock_set_time(timestamp);
 					TCNT2=0;
 					last_dcf77_timestamp=timestamp;
+					last_valid_dcf = timestamp;
 					set_dcf_count(1);
 					set_ntp_count(0);
 #ifdef NTPD_SUPPORT
@@ -281,6 +287,11 @@ SIGNAL (SIG_COMPARATOR)
 		dcf.TCNT2last = TCNT2temp;
 		dcf.timerover = clock_get_time();
 	}
+}
+
+uint32_t getLastValidDCFTimeStamp()
+{
+	return last_valid_dcf;
 }
 
 /*

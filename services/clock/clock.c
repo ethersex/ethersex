@@ -24,7 +24,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include "hardware/i2c/master/i2c_ds1337.h"
+#include "hardware/i2c/master/i2c_ds13x7.h"
 #include "services/ntp/ntp.h"
 #include "core/debug.h"
 #include "core/periodic.h"
@@ -199,8 +199,8 @@ clock_set_time(uint32_t new_sync_timestamp)
 		startup_timestamp = sync_timestamp;
 #endif
 
-#ifdef I2C_DS1337_SUPPORT
-        i2c_ds1337_sync(sync_timestamp);
+#ifdef I2C_DS13X7_SUPPORT
+        i2c_ds13x7_sync(sync_timestamp);
 #endif
 
 #ifdef NTP_SUPPORT

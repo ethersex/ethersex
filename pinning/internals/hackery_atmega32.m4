@@ -6,6 +6,7 @@
 #define USART0_UDRE_vect USART_UDRE_vect
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
+#define UPE PE /* parity error */
 #define _IVREG MCUCR
 #define _EIMSK GICR
 #define _EICRA MCUCR
@@ -14,6 +15,11 @@
 #define _TCCR0_PRESCALE TCCR0
 #define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
 #define _TIMSK_TIMER0 TIMSK
+#define _OUTPUT_COMPARE_IE0 OCIE0
+#define _OUTPUT_COMPARE_REG0 OCR0
+#define _VECTOR_OUTPUT_COMPARE0 TIMER0_COMPB_vect
+#define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
+#define _TIFR_TIMER0 TIFR0
 
 /* Timer1 - Ticks */
 #define _TIMSK_TIMER1 TIMSK
@@ -39,6 +45,7 @@
 #define _PWM_MELODY_CS0 CS20
 #define _PWM_MELODY_TIMSK TIMSK
 #define _PWM_MELODY_OCIE OCIE2
+
 
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
@@ -85,10 +92,4 @@
 #endif
 
 #define _TIFR_TIMER1 TIFR
-
-#define BOOTLOADER_SECTION 0x7000 /* atmega32 with 4096 words bootloader */
-/*	BOOTLOADER_SECTION 0x7e00	$3F00	256 words	4 Pages
-	BOOTLOADER_SECTION 0x7C00	$3E00	512 words	8 Pages
-	BOOTLOADER_SECTION 0x7800	$3C00	1024 words	16 Pages
-	BOOTLOADER_SECTION 0x7000	$3800	2048 words	32 Pages	*/
 

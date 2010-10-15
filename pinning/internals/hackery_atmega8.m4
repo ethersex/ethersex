@@ -21,6 +21,7 @@
 #define USART0_UDRE_vect USART_UDRE_vect
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
+#define UPE PE /* parity error */
 
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2
@@ -31,5 +32,3 @@
 #define _TIMSK_TIMER2 TIMSK
 
 #define RC5_USE_TIMER2
-
-#define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */

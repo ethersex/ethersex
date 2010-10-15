@@ -110,7 +110,7 @@ network_init(void)
 #   endif
 
 #   if defined(IPV6_STATIC_SUPPORT) && defined(TFTPOMATIC_SUPPORT)
-    const unsigned char *filename = CONF_TFTP_IMAGE;
+    const char *filename = CONF_TFTP_IMAGE;
     set_CONF_TFTP_IP(&ip);
 
     tftp_fire_tftpomatic(&ip, filename);
