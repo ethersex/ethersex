@@ -218,14 +218,14 @@ irmp_init (void)
 #endif
 
 #ifdef IRSND_SUPPORT
-  DDR_CONFIG_OUT (IRMP_TX);
   PIN_CLEAR (IRMP_TX);
+  DDR_CONFIG_OUT (IRMP_TX);
 #ifdef IRMP_USE_TIMER2
   _TCCR0_PRESCALE = (1 << WGM01);	/* CTC mode */
   _TCCR0_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 0, no prescaling */
 #else
   _TCCR2_PRESCALE = (1 << WGM21);	/* CTC mode */
-  _TCCR2_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 2, no prescaling */
+  _TCCR2_PRESCALE |= (1 << CS20);	/* 0x01, start Timer 2, no prescaling */
 #endif
   irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
@@ -262,8 +262,8 @@ irmp_write (irmp_data_t * irmp_data_p)
   while (tmphead == *(volatile uint8_t *) &irmp_tx_fifo.read)
     _delay_ms (10);
 
-  irmp_rx_fifo.buffer[tmphead] = *irmp_data_p;
-  irmp_rx_fifo.write = tmphead;
+  irmp_tx_fifo.buffer[tmphead] = *irmp_data_p;
+  irmp_tx_fifo.write = tmphead;
 }
 
 #endif
