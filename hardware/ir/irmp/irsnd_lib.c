@@ -231,9 +231,7 @@ irsnd_off (void)
 #else
         TCCR2A &= ~(1<<COM2A0);                                                         // normal port operation, OC2A disconnected.
 #endif  // __AVR...
-#if 0
         IRSND_PORT  &= ~(1<<IRSND_BIT);                                                 // set IRSND_BIT to low
-#endif
 #endif // DEBUG
         irsnd_is_on = FALSE;
     }
