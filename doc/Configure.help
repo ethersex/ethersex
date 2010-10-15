@@ -495,7 +495,6 @@ control6 scripts
 CONTROL6_SUPPORT
   Depends on:
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-   * System clock support (CLOCK_SUPPORT)
 
   6Control is a BASIC-like scripting language which you can use
   to freely program your Ethersex.  It supports threading etc.
