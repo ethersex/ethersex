@@ -68,6 +68,9 @@ typedef struct
 ///////////////
 #define IRMP_DATA irmp_data_t
 #include "irmp_lib.h"
+#ifdef IRSND_SUPPORT
+#include "irsnd_lib.h"
+#endif
 #define IRMP_FLAG_REPEAT IRMP_FLAG_REPETITION
 #undef F_INTERRUPTS
 ///////////////
@@ -77,6 +80,7 @@ extern const PGM_P irmp_proto_names[] PROGMEM;
 /* prototypes */
 void irmp_init (void);
 uint8_t irmp_read (irmp_data_t *);
+void irmp_write (irmp_data_t *);
 void irmp_process (void);
 
 #endif /* IRMP_SUPPORT */

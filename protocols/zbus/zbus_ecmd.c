@@ -1,8 +1,4 @@
 /*
- * Infrared-Multiprotokoll-Decoder 
- *
- * for additional information please
- * see http://www.mikrocontroller.net/articles/IRMP
  *
  * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
  *
@@ -29,26 +25,28 @@
 #include "config.h"
 #include "core/bit-macros.h"
 #include "core/debug.h"
-#include "hardware/ir/irmp/irmp.h"
+#include "protocols/zbus/zbus.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
 
-int16_t
-parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_zbus_stats(char *cmd, char *output, uint16_t len)
 {
-  irmp_data_t irmp_data;
-  return (irmp_read (&irmp_data)
-	  ? ECMD_FINAL (sprintf_P (output, PSTR ("%04X:%04X:%02X\n"),
-				   irmp_data.address,
-				   irmp_data.command,
-				   irmp_data.flags))
-	  : ECMD_FINAL_OK);
+    int16_t chars = snprintf_P(output, len,
+		               PSTR("rx fe=%u, ov=%u, pe=%u, bf=%u, #=%u, tx #=%u"),
+                               zbus_rx_frameerror,
+                               zbus_rx_overflow,
+                               zbus_rx_parityerror,
+                               zbus_rx_bufferfull,
+                               zbus_rx_count,
+                               zbus_tx_count);
+    return ECMD_FINAL(chars);
 }
-
 
 /*
   -- Ethersex META --
-  block(Infrared Send/Receive ([[IRMP-TRX]]))
-  ecmd_feature(irmp_receive, "irmp receive",,receive an IR command)
+  block([[ZBUS]] commands)
+  ecmd_ifdef(ZBUS_ECMD)
+    ecmd_feature(zbus_stats, "zbus stats",, Report statistic counters)
+  ecmd_endif()
 */
