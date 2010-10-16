@@ -111,6 +111,7 @@
 ///////////////
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
+#pragma push_macro("F_INTERRUPTS")
 #define F_INTERRUPTS IRMP_HZ
 #define IRMP_LOGGING 0
 #define IRMP_USE_AS_LIB
@@ -119,11 +120,18 @@
 #include "irmp_lib.c"
 #ifdef IRSND_SUPPORT
 #define irsnd_ISR irmp_tx_process
+#define irsnd_on irmp_tx_on
+#define irsnd_off irmp_tx_off
 #define irsnd_send_data irmp_tx_put
+#define irsnd_set_freq irmp_tx_set_freq
 #define IRSND_USE_AS_LIB
+static void irmp_tx_on (void);
+static void irmp_tx_off (void);
+static void irmp_tx_set_freq (uint8_t);
 #include "irsnd_lib.c"
 #endif
 #pragma pop_macro("DEBUG")
+#pragma pop_macro("F_INTERRUPTS")
 ///////////////
 
 typedef struct
@@ -133,12 +141,12 @@ typedef struct
   irmp_data_t buffer[FIFO_SIZE];
 } irmp_fifo_t;
 
-static uint16_t prescaler;
 static irmp_fifo_t irmp_rx_fifo;
 #ifdef IRSND_SUPPORT
 static irmp_fifo_t irmp_tx_fifo;
 #endif
 
+#ifdef DEBUG_IRMP
 static const char proto_unknown[] PROGMEM = "unknown";
 static const char proto_sircs[] PROGMEM = "SIRCS";
 static const char proto_nec[] PROGMEM = "NEC";
@@ -186,6 +194,7 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_jvc,
   proto_rc6a
 };
+#endif
 
 
 void
@@ -201,7 +210,6 @@ irmp_init (void)
 #endif
 
   /* init timer0/2 to expire after 1000/IRMP_HZ ms */
-  prescaler = (uint16_t) IRMP_HZ;
 #ifdef IRMP_USE_TIMER2
   _TCCR2_PRESCALE = HW_PRESCALER_MASK;
   _OUTPUT_COMPARE_REG2 = SW_PRESCALER - 1;
@@ -215,16 +223,14 @@ irmp_init (void)
 #endif
 
 #ifdef IRSND_SUPPORT
-  DDR_CONFIG_OUT (IRMP_TX);
   PIN_CLEAR (IRMP_TX);
+  DDR_CONFIG_OUT (IRMP_TX);
 #ifdef IRMP_USE_TIMER2
-  _TCCR0_PRESCALE = (1 << WGM01);	/* CTC mode */
-  _TCCR0_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 0, no prescaling */
+  _TCCR0_PRESCALE = _BV (WGM01) | _BV (CS00);	/* CTC mode, 0x01, start Timer 0, no prescaling */
 #else
-  _TCCR2_PRESCALE = (1 << WGM21);	/* CTC mode */
-  _TCCR2_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 2, no prescaling */
+  _TCCR2_PRESCALE = _BV (WGM21) | _BV (CS20);	/* CTC mode, 0x01, start Timer 2, no prescaling */
 #endif
-  irsnd_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
+  irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
 }
 
@@ -242,15 +248,56 @@ irmp_read (irmp_data_t * irmp_data_p)
   printf_P (PSTR ("IRMP: proto "));
   printf_P ((const char *)
 	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR (", address %04x, command %04x, repeat %d\n"),
-	    irmp_data_p->address, irmp_data_p->command,
-	    irmp_data_p->flags & IRMP_FLAG_REPETITION ? 1 : 0);
+  printf_P (PSTR (", address %04x, command %04x, flags %02x\n"),
+	    irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
   return 1;
 }
 
 
 #ifdef IRSND_SUPPORT
+
+static void
+irmp_tx_on (void)
+{
+  if (!irsnd_is_on)
+    {
+#ifdef IRMP_USE_TIMER2
+      _TCCR0_PRESCALE |= _BV (COM00) | _BV (WGM01);
+#else
+      _TCCR2_PRESCALE |= _BV (COM20) | _BV (WGM21);
+#endif
+      irsnd_is_on = TRUE;
+    }
+}
+
+
+static void
+irmp_tx_off (void)
+{
+  if (irsnd_is_on)
+    {
+#ifdef IRMP_USE_TIMER2
+      _TCCR0_PRESCALE &= ~_BV (COM00);
+#else
+      _TCCR2_PRESCALE &= ~_BV (COM20);
+#endif
+      PIN_CLEAR (IRMP_TX);
+      irsnd_is_on = FALSE;
+    }
+}
+
+
+static void
+irmp_tx_set_freq (uint8_t freq)
+{
+#ifdef IRMP_USE_TIMER2
+  _OUTPUT_COMPARE_REG0 = freq;
+#else
+  _OUTPUT_COMPARE_REG2 = freq;
+#endif
+}
+
 
 void
 irmp_write (irmp_data_t * irmp_data_p)
@@ -260,8 +307,8 @@ irmp_write (irmp_data_t * irmp_data_p)
   while (tmphead == *(volatile uint8_t *) &irmp_tx_fifo.read)
     _delay_ms (10);
 
-  irmp_rx_fifo.buffer[tmphead] = *irmp_data_p;
-  irmp_rx_fifo.write = tmphead;
+  irmp_tx_fifo.buffer[tmphead] = *irmp_data_p;
+  irmp_tx_fifo.write = tmphead;
 }
 
 #endif
@@ -298,22 +345,10 @@ ISR (TIMER0_COMP_vect)
     }
 #endif
 
-  if (--prescaler == 0)
-    prescaler = (uint16_t) IRMP_HZ;
-#if (F_CPU/HW_PRESCALER) % IRMP_HZ
-  if (prescaler <= (F_CPU / HW_PRESCALER) % IRMP_HZ)
 #ifdef IRMP_USE_TIMER2
-    _OUTPUT_COMPARE_REG2 += SW_PRESCALER + 1;	/* um 1 Takt längere Periode um
-						   den Rest abzutragen */
+  _OUTPUT_COMPARE_REG2 += SW_PRESCALER;
 #else
-    _OUTPUT_COMPARE_REG0 += SW_PRESCALER + 1;
-#endif
-  else
-#endif
-#ifdef IRMP_USE_TIMER2
-    _OUTPUT_COMPARE_REG2 += SW_PRESCALER;	/* kurze Periode */
-#else
-    _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
+  _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
 #endif
 }
 

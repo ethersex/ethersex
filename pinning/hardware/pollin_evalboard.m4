@@ -51,5 +51,5 @@ ifdef(`conf_IRMP', `dnl
 #define IRMP_USE_TIMER0
 #define IRMP_RX_LOW_ACTIVE
 #undef IRMP_RX_LED_LOW_ACTIVE 
-  pin(IRMP_TX, PD7) dnl OC2A
+  pin(IRMP_TX, PD7) dnl OC2
 ')
