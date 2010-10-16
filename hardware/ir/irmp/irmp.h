@@ -75,7 +75,9 @@ typedef struct
 #undef F_INTERRUPTS
 ///////////////
 
+#ifdef DEBUG_IRMP
 extern const PGM_P irmp_proto_names[] PROGMEM;
+#endif
 
 /* prototypes */
 void irmp_init (void);

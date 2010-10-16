@@ -120,11 +120,14 @@
 #include "irmp_lib.c"
 #ifdef IRSND_SUPPORT
 #define irsnd_ISR irmp_tx_process
+#define irsnd_on irmp_tx_on
+#define irsnd_off irmp_tx_off
 #define irsnd_send_data irmp_tx_put
 #define irsnd_set_freq irmp_tx_set_freq
 #define IRSND_USE_AS_LIB
-#define IRSND_PORT PORT_CHAR(IRMP_TX_PORT)
-#define IRSND_BIT PIN_CHAR(IRMP_TX_PIN)
+static void irmp_tx_on (void);
+static void irmp_tx_off (void);
+static void irmp_tx_set_freq (uint8_t);
 #include "irsnd_lib.c"
 #endif
 #pragma pop_macro("DEBUG")
@@ -143,6 +146,7 @@ static irmp_fifo_t irmp_rx_fifo;
 static irmp_fifo_t irmp_tx_fifo;
 #endif
 
+#ifdef DEBUG_IRMP
 static const char proto_unknown[] PROGMEM = "unknown";
 static const char proto_sircs[] PROGMEM = "SIRCS";
 static const char proto_nec[] PROGMEM = "NEC";
@@ -190,6 +194,7 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_jvc,
   proto_rc6a
 };
+#endif
 
 
 void
@@ -221,11 +226,9 @@ irmp_init (void)
   PIN_CLEAR (IRMP_TX);
   DDR_CONFIG_OUT (IRMP_TX);
 #ifdef IRMP_USE_TIMER2
-  _TCCR0_PRESCALE = (1 << WGM01);	/* CTC mode */
-  _TCCR0_PRESCALE |= (1 << CS00);	/* 0x01, start Timer 0, no prescaling */
+  _TCCR0_PRESCALE = _BV (WGM01) | _BV (CS00);	/* CTC mode, 0x01, start Timer 0, no prescaling */
 #else
-  _TCCR2_PRESCALE = (1 << WGM21);	/* CTC mode */
-  _TCCR2_PRESCALE |= (1 << CS20);	/* 0x01, start Timer 2, no prescaling */
+  _TCCR2_PRESCALE = _BV (WGM21) | _BV (CS20);	/* CTC mode, 0x01, start Timer 2, no prescaling */
 #endif
   irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
@@ -253,6 +256,48 @@ irmp_read (irmp_data_t * irmp_data_p)
 
 
 #ifdef IRSND_SUPPORT
+
+static void
+irmp_tx_on (void)
+{
+  if (!irsnd_is_on)
+    {
+#ifdef IRMP_USE_TIMER2
+      _TCCR0_PRESCALE |= _BV (COM00) | _BV (WGM01);
+#else
+      _TCCR2_PRESCALE |= _BV (COM20) | _BV (WGM21);
+#endif
+      irsnd_is_on = TRUE;
+    }
+}
+
+
+static void
+irmp_tx_off (void)
+{
+  if (irsnd_is_on)
+    {
+#ifdef IRMP_USE_TIMER2
+      _TCCR0_PRESCALE &= ~_BV (COM00);
+#else
+      _TCCR2_PRESCALE &= ~_BV (COM20);
+#endif
+      PIN_CLEAR (IRMP_TX);
+      irsnd_is_on = FALSE;
+    }
+}
+
+
+static void
+irmp_tx_set_freq (uint8_t freq)
+{
+#ifdef IRMP_USE_TIMER2
+  _OUTPUT_COMPARE_REG0 = freq;
+#else
+  _OUTPUT_COMPARE_REG2 = freq;
+#endif
+}
+
 
 void
 irmp_write (irmp_data_t * irmp_data_p)
@@ -301,9 +346,9 @@ ISR (TIMER0_COMP_vect)
 #endif
 
 #ifdef IRMP_USE_TIMER2
-    _OUTPUT_COMPARE_REG2 += SW_PRESCALER;
+  _OUTPUT_COMPARE_REG2 += SW_PRESCALER;
 #else
-    _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
+  _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
 #endif
 }
 
