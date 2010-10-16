@@ -73,7 +73,7 @@ parse_cmd_irmp_send (char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Infrared Send/Receive ([[IRMP-TRX]]))
+  block(Infrared Send/Receive ([[IP-TRX]]))
   ecmd_feature(irmp_receive, "irmp receive",,receive an IR command)
   ecmd_ifdef(IRSND_SUPPORT)
     ecmd_feature(irmp_send, "irmp send", PROTOCOL DEVICE COMMAND REPEAT, send COMMAND with REPEAT flag to DEVICE using PROTOCOL)
