@@ -143,6 +143,7 @@ void watchasync_periodic(void)
 // Handle Pinchange Interrupt on PortC
 ISR(PCINT2_vect)
 {
+  WATCHASYNC_DEBUG ("got interrupt\n");
   uint8_t portcompstate = (PINC ^ wa_portstate); //  compare actual state of PortC with last saved state
   uint8_t pin;	// loop variable for for-loop
   uint8_t tempright;  // temporary pointer for detecting full buffer
@@ -160,8 +161,8 @@ ISR(PCINT2_vect)
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
           wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
 #endif
-//	} else {  // ringbuffer is full... discard event
-//	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
+	} else {  // ringbuffer is full... discard event
+	  WATCHASYNC_DEBUG ("buffer full, discarding message!\n");
 	}
       }
     }
@@ -274,6 +275,8 @@ void watchasync_init(void)  // Initilize Ports and Interrupts
   PCICR |= 1<<PCIE2;		// Enable Pinchange Interrupt on PortC
 //  SREG |= 1<<I;			//Enable Interrupts (will hopefully be done somewhere else)
 #endif
+
+  WATCHASYNC_DEBUG ("init\n");
 }
 
 void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
@@ -282,14 +285,14 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
   {
     if (wa_sendstate == 2) // Message not sent successfully
     {
-      WATCHASYNC_DEBUG ("Error, again please...\n"); 
+      WATCHASYNC_DEBUG ("error, again please...\n"); 
       sendmessage();   // resend current event
     } else // sendstate == 0 => Idle  // Previous send has been succesfull, send next event if any
     {
-      if (wa_buffer_left != wa_buffer_right) // there is somethiing in the buffer
+      if (wa_buffer_left != wa_buffer_right) // there is something in the buffer
       {
         wa_buffer_left = ((wa_buffer_left + 1) % CONF_WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
-        WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
+        WATCHASYNC_DEBUG ("starting transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
         sendmessage();  // send the new event
       }
     }
