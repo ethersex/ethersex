@@ -46,6 +46,11 @@ extern uint8_t bootload_delay;
  */
 #define BUF ((struct uip_udpip_hdr *)&((char *)uip_appdata)[-UIP_IPUDPH_LEN])
 
+#if (MCU == atmega1284p) && (SPM_PAGESIZE != 256)
+#warning Invalid SPM_PAGESIZE
+#undef SPM_PAGESIZE
+#define SPM_PAGESIZE 256
+#endif
 
 static void
 flash_page(uint32_t page, uint8_t *buf)
@@ -208,6 +213,8 @@ tftp_handle_packet(void)
 	for(i = uip_datalen() - 4; i < 512; i ++)
 	    pk->u.data.data[i] = 0xFF;	        /* EOF reached, init rest */
 
+	debug_putchar('.');
+
 	for(i = 0; i < 512 / SPM_PAGESIZE; i ++)
 	    flash_page(base + i * SPM_PAGESIZE,
 		       pk->u.data.data + i * SPM_PAGESIZE);
@@ -221,18 +228,7 @@ tftp_handle_packet(void)
             bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
 #           endif
 
-#ifdef DEBUG
-            char temp[7];
-            char tohex[] = "0123456789ABCDEF";
-            FLASH_ADDR tempx = base+uip_datalen();
-	    for(i = 6; i >=0; i-=2) {
-               temp[i]   = tohex[(uint8_t)tempx>>4];
-               temp[i-1] = tohex[(uint8_t)tempx&0xf];
-               tempx = tempx>>16;
-               }
-            debug_putstr(temp);
-            debug_putstr(" bytes\n");
-#endif
+            debug_putstr("end\n");
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
