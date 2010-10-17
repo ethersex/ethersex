@@ -13,7 +13,7 @@
 #define _EIMSK GICR
 #define _IVREG MCUCR
 
-#define _TIMSK_TIMER1 TIMSK1
+#define _TIMSK_TIMER1 TIMSK
 
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2
