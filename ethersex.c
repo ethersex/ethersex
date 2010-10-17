@@ -122,11 +122,9 @@ main (void)
   /* disable interrupts */
   cli ();
   wdt_disable();
-  sei();
-#else
+#endif //BOOTLOADER_SUPPORT
   /* enable interrupts */
   sei ();
-#endif //BOOTLOADER_SUPPORT
 
 #ifdef USE_WATCHDOG
   debug_printf ("enabling watchdog\n");
