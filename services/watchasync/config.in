@@ -8,6 +8,7 @@ dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPOR
   bool "Include uuid" CONF_WATCHASYNC_INCLUDE_UUID
     string "UUID" CONF_WATCHASYNC_UUID "12345678-9ABC-DEF0-1234-56789ABCDEF0" $CONF_HTTPLOG_INCLUDE_UUID
       script_set "  Randomize UUID" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_UUID"
+  int "Resolution in seconds" CONF_WATCHASYNC_RESOLUTION 1
   int "Buffersize" CONF_WATCHASYNC_BUFFERSIZE 64
   bool "Use Polling for edge detect instead of interrupt " CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   comment  "Debugging Flags"

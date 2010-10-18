@@ -94,7 +94,12 @@ void addToRingbuffer(int pin)
         wa_buffer_right = tempright;  // select next space in ringbuffer
         wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
 #ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
+#if CONF_WATCHASYNC_RESOLUTION > 1
+//        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) * CONF_WATCHASYNC_RESOLUTION;  // add timestamp in ringbuffer
+        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )  // add timestamp in ringbuffer
+#else
         wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
+#endif
 #endif
     }
 }
@@ -148,17 +153,7 @@ ISR(PCINT2_vect)
     {
       if (portcompstate & wa_portstate & (1 << pin)) // bit changed from 1 to 0
       {
-        tempright = ((wa_buffer_right + 1) % CONF_WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
-	if (tempright != wa_buffer_left)  // if ringbuffer not full
-	{
-	  wa_buffer_right = tempright;  // select next space in ringbuffer
-	  wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
-          wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
-#endif
-//	} else {  // ringbuffer is full... discard event
-//	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
-	}
+        addToRingbuffer(pin);
       }
     }
     wa_portstate ^= portcompstate;  // incorporate changes processed in current state
@@ -169,7 +164,7 @@ ISR(PCINT2_vect)
 
 static void watchasync_net_main(void)  // Network-routine called by networkstack 
 {
-  if (uip_aborted() || uip_timedout()) // Connection aborted or timedout
+  if (uip_aborted() || uip_timedout() || uip_closed() ) // Connection aborted or timedout
   {
     // if connectionstate is new, we have to resend the packet, otherwise just ignore the event
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
@@ -178,20 +173,9 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
       uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
       WATCHASYNC_DEBUG ("connection aborted\n");
       return;
-    }
-  }
-
-  if (uip_closed()) // Closed connection does not expect any respond from us, resend if connnectionstate is new
-  {
-    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
-    {
-      wa_sendstate = 2; // Ignore aborted, if already closed
-      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
-      WATCHASYNC_DEBUG ("new connection closed\n");
-    } else {
+    } else if (uip_closed()) {
       WATCHASYNC_DEBUG ("connection closed\n");
     }
-    return;
   }
 
 
