@@ -80,11 +80,6 @@ static uint8_t wa_buffer_right = 0; 	// last position set
 static uint8_t wa_portstate = 0; 		// Last portstate saved
 static uint8_t wa_sendstate = 0; 		// 0: Idle, 1: Message being sent, 2: Sending message failed
 
-#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
-
-#define ELEMENTS(A) (sizeof(A)/sizeof((A)[0]))
-static uint8_t samples[3] = {0,0,0};
-
 void addToRingbuffer(int pin)
 {
     uint8_t tempright;  // temporary pointer for detecting full buffer
@@ -103,6 +98,11 @@ void addToRingbuffer(int pin)
 #endif
     }
 }
+
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+
+#define ELEMENTS(A) (sizeof(A)/sizeof((A)[0]))
+static uint8_t samples[3] = {0,0,0};
 
 // the main purpose of the function is detect rasing edges and put them
 // in the ring buffer. In order to debounce for signals which are not perfect
