@@ -69,7 +69,7 @@ static const char PROGMEM time_string[] =
 // and the http footer including the http protocol version and the server name
 static const char PROGMEM get_string_foot[] =
     " HTTP/1.1\r\n"
-    "Host: " CONF_WATCHASYNC_SERVICE "\r\n\r\n";
+    "Host: " CONF_WATCHASYNC_SERVER "\r\n\r\n";
 #ifndef CONF_WATCHASYNC_PORT
 #define CONF_WATCHASYNC_PORT 80
 #endif
@@ -216,7 +216,6 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
   }
 }
 
-
 static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callback for DNS query
 {
   WATCHASYNC_DEBUG ("got dns response, connecting\n");
@@ -233,12 +232,20 @@ void sendmessage(void) // Send event in ringbuffer indicated by left pointer
 {
   wa_sendstate = 1; // set new state in progress
 
+#ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr; 
-  if (!(ipaddr = resolv_lookup(CONF_WATCHASYNC_SERVICE))) { // Try to find IPAddress
-    resolv_query(CONF_WATCHASYNC_SERVICE, watchasync_dns_query_cb); // If not found: query DNS
+  if (!(ipaddr = resolv_lookup(CONF_WATCHASYNC_SERVER))) { // Try to find IPAddress
+    resolv_query(CONF_WATCHASYNC_SERVER, watchasync_dns_query_cb); // If not found: query DNS
   } else {
     watchasync_dns_query_cb(NULL, ipaddr); // If found use IPAddress
   }
+#else /* ! DNS_SUPPORT */
+  uip_ipaddr_t ip;
+  set_WATCHASYNC_SERVER_IP(&ip);
+
+  watchasync_dns_query_cb(NULL, &ip);
+#endif
+
   return;
 }
 
