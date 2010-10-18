@@ -37,23 +37,23 @@ uint8_t milliticks;
 
 void periodic_init(void) {
 
+#if CLOCK_DIVIDER == 1024
+#define CLOCKSCALE _BV(CS12) | _BV(CS10)
+#else  // 256
+#define	CLOCKSCALE  _BV(CS12)
+#endif
+
 #ifdef CLOCK_CPU_SUPPORT
 	/* init timer1 to expire after ~20ms, with Normal */
-#if CLOCK_DIVIDER == 1024
-	TCCR1B = _BV(CS12) | _BV(CS10);
-#else  // 256
-	TCCR1B = _BV(CS12);
-#endif
+	TCCR1B = CLOCKSCALE; 
 	TCNT1 = 65536-CLOCK_SECONDS;
 	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
 	_TIMSK_TIMER1 |= _BV(OCIE1A)|_BV(TOIE1);
 #else
 	/* init timer1 to expire after ~20ms, with CTC enabled */
-	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
-	OCR1A = (F_CPU / 1024 / 50) - 1;
+	TCCR1B = _BV(WGM12) | CLOCKSCALE;
+	OCR1A = CLOCK_TICKS - 1;
 	_TIMSK_TIMER1 |= _BV(OCIE1A);
-
-
 	NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
 #endif
 }
