@@ -4,15 +4,173 @@ dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPOR
 	ip "Server IP" WATCHASYNC_SERVER_IP "78.46.142.232" "::1"
   fi
   int "Port number used by the Service" CONF_WATCHASYNC_PORT 80
-  string "Path" CONF_WATCHASYNC_PATH "/httplog/httplog.php"
-  bool "Include Prefix" CONF_WATCHASYNC_INCLUDE_PREFIX
-    string "Prefix" CONF_WATCHASYNC_PREFIX "PC"
-  dep_bool "Include unix timstamp" CONF_WATCHASYNC_INCLUDE_TIMESTAMP $CLOCK_DATETIME_SUPPORT
-  bool "Include uuid" CONF_WATCHASYNC_INCLUDE_UUID
-    string "UUID" CONF_WATCHASYNC_UUID "12345678-9ABC-DEF0-1234-56789ABCDEF0" $CONF_HTTPLOG_INCLUDE_UUID
-      script_set "  Randomize UUID" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_UUID"
-  int "Resolution in seconds" CONF_WATCHASYNC_RESOLUTION 1
-  int "Buffersize" CONF_WATCHASYNC_BUFFERSIZE 64
+  string "Path in front of pin identifier" CONF_WATCHASYNC_PATH "/pfad/data/"
+  dep_bool "Include unix timestamp" CONF_WATCHASYNC_TIMESTAMP $CLOCK_DATETIME_SUPPORT
+  if [ "$CONF_WATCHASYNC_TIMESTAMP" = "y" ]; then
+    string "Path in front of timestamp" CONF_WATCHASYNC_TIMESTAMP_PATH ".json?ts="
+  fi
+  bool "Use Pin 0 of Port A" CONF_WATCHASYNC_PA0
+  if [ "$CONF_WATCHASYNC_PA0" = "y" ]; then
+    string "Pin 0 od Port A Identifier" CONF_WATCHASYNC_PA0_ID "12345678-9ABC-DEF0-1234-56789ABCDEF0"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA0_ID"
+  fi
+  bool "Use Pin 1 of Port A" CONF_WATCHASYNC_PA1
+  if [ "$CONF_WATCHASYNC_PA1" = "y" ]; then
+    string "Pin 1 od Port A Identifier" CONF_WATCHASYNC_PA1_ID "12345678-9ABC-DEF0-1234-56789ABCDEF1"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA1_ID"
+  fi
+  bool "Use Pin 2 of Port A" CONF_WATCHASYNC_PA2
+  if [ "$CONF_WATCHASYNC_PA2" = "y" ]; then
+    string "Pin 2 od Port A Identifier" CONF_WATCHASYNC_PA2_ID "12345678-9ABC-DEF0-1234-56789ABCDEF2"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA2_ID"
+  fi
+  bool "Use Pin 3 of Port A" CONF_WATCHASYNC_PA3
+  if [ "$CONF_WATCHASYNC_PA3" = "y" ]; then
+    string "Pin 3 od Port A Identifier" CONF_WATCHASYNC_PA3_ID "12345678-9ABC-DEF0-1234-56789ABCDEF3"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA3_ID"
+  fi
+  bool "Use Pin 4 of Port A" CONF_WATCHASYNC_PA4
+  if [ "$CONF_WATCHASYNC_PA4" = "y" ]; then
+    string "Pin 4 od Port A Identifier" CONF_WATCHASYNC_PA4_ID "12345678-9ABC-DEF0-1234-56789ABCDEF4"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA4_ID"
+  fi
+  bool "Use Pin 5 of Port A" CONF_WATCHASYNC_PA5
+  if [ "$CONF_WATCHASYNC_PA5" = "y" ]; then
+    string "Pin 5 od Port A Identifier" CONF_WATCHASYNC_PA5_ID "12345678-9ABC-DEF0-1234-56789ABCDEF5"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA5_ID"
+  fi
+  bool "Use Pin 6 of Port A" CONF_WATCHASYNC_PA6
+  if [ "$CONF_WATCHASYNC_PA6" = "y" ]; then
+    string "Pin 6 od Port A Identifier" CONF_WATCHASYNC_PA6_ID "12345678-9ABC-DEF0-1234-56789ABCDEF6"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA6_ID"
+  fi
+  bool "Use Pin 7 of Port A" CONF_WATCHASYNC_PA7
+  if [ "$CONF_WATCHASYNC_PA7" = "y" ]; then
+    string "Pin 7 od Port A Identifier" CONF_WATCHASYNC_PA7_ID "12345678-9ABC-DEF0-1234-56789ABCDEF7"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PA7_ID"
+  fi
+  bool "Use Pin 0 of Port B" CONF_WATCHASYNC_PB0
+  if [ "$CONF_WATCHASYNC_PB0" = "y" ]; then
+    string "Pin 0 od Port B Identifier" CONF_WATCHASYNC_PB0_ID "12345678-9ABC-DEF0-1234-56789BBCDEF0"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB0_ID"
+  fi
+  bool "Use Pin 1 of Port B" CONF_WATCHASYNC_PB1
+  if [ "$CONF_WATCHASYNC_PB1" = "y" ]; then
+    string "Pin 1 od Port B Identifier" CONF_WATCHASYNC_PB1_ID "12345678-9ABC-DEF0-1234-56789BBCDEF1"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB1_ID"
+  fi
+  bool "Use Pin 2 of Port B" CONF_WATCHASYNC_PB2
+  if [ "$CONF_WATCHASYNC_PB2" = "y" ]; then
+    string "Pin 2 od Port B Identifier" CONF_WATCHASYNC_PB2_ID "12345678-9ABC-DEF0-1234-56789BBCDEF2"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB2_ID"
+  fi
+  bool "Use Pin 3 of Port B" CONF_WATCHASYNC_PB3
+  if [ "$CONF_WATCHASYNC_PB3" = "y" ]; then
+    string "Pin 3 od Port B Identifier" CONF_WATCHASYNC_PB3_ID "12345678-9ABC-DEF0-1234-56789BBCDEF3"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB3_ID"
+  fi
+  bool "Use Pin 4 of Port B" CONF_WATCHASYNC_PB4
+  if [ "$CONF_WATCHASYNC_PB4" = "y" ]; then
+    string "Pin 4 od Port B Identifier" CONF_WATCHASYNC_PB4_ID "12345678-9ABC-DEF0-1234-56789BBCDEF4"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB4_ID"
+  fi
+  bool "Use Pin 5 of Port B" CONF_WATCHASYNC_PB5
+  if [ "$CONF_WATCHASYNC_PB5" = "y" ]; then
+    string "Pin 5 od Port B Identifier" CONF_WATCHASYNC_PB5_ID "12345678-9ABC-DEF0-1234-56789BBCDEF5"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB5_ID"
+  fi
+  bool "Use Pin 6 of Port B" CONF_WATCHASYNC_PB6
+  if [ "$CONF_WATCHASYNC_PB6" = "y" ]; then
+    string "Pin 6 od Port B Identifier" CONF_WATCHASYNC_PB6_ID "12345678-9ABC-DEF0-1234-56789BBCDEF6"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB6_ID"
+  fi
+  bool "Use Pin 7 of Port B" CONF_WATCHASYNC_PB7
+  if [ "$CONF_WATCHASYNC_PB7" = "y" ]; then
+    string "Pin 7 od Port B Identifier" CONF_WATCHASYNC_PB7_ID "12345678-9ABC-DEF0-1234-56789BBCDEF7"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PB7_ID"
+  fi
+  bool "Use Pin 0 of Port C" CONF_WATCHASYNC_PC0
+  if [ "$CONF_WATCHASYNC_PC0" = "y" ]; then
+    string "Pin 0 od Port C Identifier" CONF_WATCHASYNC_PC0_ID "12345678-9ABC-DEF0-1234-56789CBCDEF0"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC0_ID"
+  fi
+  bool "Use Pin 1 of Port C" CONF_WATCHASYNC_PC1
+  if [ "$CONF_WATCHASYNC_PC1" = "y" ]; then
+    string "Pin 1 od Port C Identifier" CONF_WATCHASYNC_PC1_ID "12345678-9ABC-DEF0-1234-56789CBCDEF1"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC1_ID"
+  fi
+  bool "Use Pin 2 of Port C" CONF_WATCHASYNC_PC2
+  if [ "$CONF_WATCHASYNC_PC2" = "y" ]; then
+    string "Pin 2 od Port C Identifier" CONF_WATCHASYNC_PC2_ID "12345678-9ABC-DEF0-1234-56789CBCDEF2"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC2_ID"
+  fi
+  bool "Use Pin 3 of Port C" CONF_WATCHASYNC_PC3
+  if [ "$CONF_WATCHASYNC_PC3" = "y" ]; then
+    string "Pin 3 od Port C Identifier" CONF_WATCHASYNC_PC3_ID "12345678-9ABC-DEF0-1234-56789CBCDEF3"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC3_ID"
+  fi
+  bool "Use Pin 4 of Port C" CONF_WATCHASYNC_PC4
+  if [ "$CONF_WATCHASYNC_PC4" = "y" ]; then
+    string "Pin 4 od Port C Identifier" CONF_WATCHASYNC_PC4_ID "12345678-9ABC-DEF0-1234-56789CBCDEF4"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC4_ID"
+  fi
+  bool "Use Pin 5 of Port C" CONF_WATCHASYNC_PC5
+  if [ "$CONF_WATCHASYNC_PC5" = "y" ]; then
+    string "Pin 5 od Port C Identifier" CONF_WATCHASYNC_PC5_ID "12345678-9ABC-DEF0-1234-56789CBCDEF5"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC5_ID"
+  fi
+  bool "Use Pin 6 of Port C" CONF_WATCHASYNC_PC6
+  if [ "$CONF_WATCHASYNC_PC6" = "y" ]; then
+    string "Pin 6 od Port C Identifier" CONF_WATCHASYNC_PC6_ID "12345678-9ABC-DEF0-1234-56789CBCDEF6"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC6_ID"
+  fi
+  bool "Use Pin 7 of Port C" CONF_WATCHASYNC_PC7
+  if [ "$CONF_WATCHASYNC_PC7" = "y" ]; then
+    string "Pin 7 od Port C Identifier" CONF_WATCHASYNC_PC7_ID "12345678-9ABC-DEF0-1234-56789CBCDEF7"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PC7_ID"
+  fi
+  bool "Use Pin 0 of Port D" CONF_WATCHASYNC_PD0
+  if [ "$CONF_WATCHASYNC_PD0" = "y" ]; then
+    string "Pin 0 od Port D Identifier" CONF_WATCHASYNC_PD0_ID "12345678-9ABC-DEF0-1234-56789DBCDEF0"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD0_ID"
+  fi
+  bool "Use Pin 1 of Port D" CONF_WATCHASYNC_PD1
+  if [ "$CONF_WATCHASYNC_PD1" = "y" ]; then
+    string "Pin 1 od Port D Identifier" CONF_WATCHASYNC_PD1_ID "12345678-9ABC-DEF0-1234-56789DBCDEF1"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD1_ID"
+  fi
+  bool "Use Pin 2 of Port D" CONF_WATCHASYNC_PD2
+  if [ "$CONF_WATCHASYNC_PD2" = "y" ]; then
+    string "Pin 2 od Port D Identifier" CONF_WATCHASYNC_PD2_ID "12345678-9ABC-DEF0-1234-56789DBCDEF2"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD2_ID"
+  fi
+  bool "Use Pin 3 of Port D" CONF_WATCHASYNC_PD3
+  if [ "$CONF_WATCHASYNC_PD3" = "y" ]; then
+    string "Pin 3 od Port D Identifier" CONF_WATCHASYNC_PD3_ID "12345678-9ABC-DEF0-1234-56789DBCDEF3"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD3_ID"
+  fi
+  bool "Use Pin 4 of Port D" CONF_WATCHASYNC_PD4
+  if [ "$CONF_WATCHASYNC_PD4" = "y" ]; then
+    string "Pin 4 od Port D Identifier" CONF_WATCHASYNC_PD4_ID "12345678-9ABC-DEF0-1234-56789DBCDEF4"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD4_ID"
+  fi
+  bool "Use Pin 5 of Port D" CONF_WATCHASYNC_PD5
+  if [ "$CONF_WATCHASYNC_PD5" = "y" ]; then
+    string "Pin 5 od Port D Identifier" CONF_WATCHASYNC_PD5_ID "12345678-9ABC-DEF0-1234-56789DBCDEF5"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD5_ID"
+  fi
+  bool "Use Pin 6 of Port D" CONF_WATCHASYNC_PD6
+  if [ "$CONF_WATCHASYNC_PD6" = "y" ]; then
+    string "Pin 6 od Port D Identifier" CONF_WATCHASYNC_PD6_ID "12345678-9ABC-DEF0-1234-56789DBCDEF6"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD6_ID"
+  fi
+  bool "Use Pin 7 of Port D" CONF_WATCHASYNC_PD7
+  if [ "$CONF_WATCHASYNC_PD7" = "y" ]; then
+    string "Pin 7 od Port D Identifier" CONF_WATCHASYNC_PD7_ID "12345678-9ABC-DEF0-1234-56789DBCDEF7"
+      script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD7_ID"
+  fi
+  int "Resolution in seconds (Power of 2)" CONF_WATCHASYNC_RESOLUTION 1
+  int "Buffersize (Power of 2)" CONF_WATCHASYNC_BUFFERSIZE 64
   bool "Use Polling for edge detect instead of interrupt " CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   comment  "Debugging Flags"
     dep_bool 'WATCHASYNC' DEBUG_WATCHASYNC $DEBUG $WATCHASYNC_SUPPORT
