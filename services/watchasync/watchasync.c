@@ -385,19 +385,19 @@ void addToRingbuffer(int pin)
 
 static uint8_t idx = 0;
 #ifdef CONF_WATCHASYNC_PA
-static uint8_t stateA = 0;
+static uint8_t stateA = 255;
 static uint8_t samplesA[3] = {0,0,0};
 #endif
 #ifdef CONF_WATCHASYNC_PB
-static uint8_t stateB = 0;
+static uint8_t stateB = 255;
 static uint8_t samplesB[3] = {0,0,0};
 #endif
 #ifdef CONF_WATCHASYNC_PC
-static uint8_t stateC = 0;
+static uint8_t stateC = 255;
 static uint8_t samplesC[3] = {0,0,0};
 #endif
 #ifdef CONF_WATCHASYNC_PD
-static uint8_t stateD = 0;
+static uint8_t stateD = 255;
 static uint8_t samplesD[3] = {0,0,0};
 #endif
 
@@ -407,6 +407,7 @@ static uint8_t samplesD[3] = {0,0,0};
 void watchasync_periodic(void)
 {
     uint8_t StateDiff;
+    uint8_t TempDiff;
 
     idx++;
     if (idx>2){idx = 0;}
@@ -414,16 +415,19 @@ void watchasync_periodic(void)
     // put element into ringbuffer
 #ifdef CONF_WATCHASYNC_PA
     samplesA[idx] = PINA;
-    // Detect rising Edges having proved stable:
-    StateDiff = 
+    // Detect changes having proved stable:
+    TempDiff = 
     // Zerobits mark unstable Bits:
     ~( (samplesA[0] ^ samplesA[1]) | (samplesA[0] ^ samplesA[2]) )
     // Bits that have changed (filter unchanged Bits)
     & (samplesA[0] ^ stateA)
-    // Bits that are set (filter falling edges)
-    & samplesA[0]
     // Bits in our Mask (Filter unwatched bits)
     & WATCHASYNC_PA_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesA[0];
+
     if (StateDiff) {
 #ifdef CONF_WATCHASYNC_PA0
       if (StateDiff & 1)
@@ -457,22 +461,25 @@ void watchasync_periodic(void)
       if (StateDiff & 128)
         addToRingbuffer(WATCHASYNC_PA7_INDEX);
 #endif      
-      stateA = samplesA[0];
     }
+    stateA ^= TempDiff;
 #endif
 
 #ifdef CONF_WATCHASYNC_PB
     samplesB[idx] = PINB;
-    // Detect rising Edges having proved stable:
-    StateDiff = 
+    // Detect changes having proved stable:
+    TempDiff = 
     // Zerobits mark unstable Bits:
     ~( (samplesB[0] ^ samplesB[1]) | (samplesB[0] ^ samplesB[2]) )
     // Bits that have changed (filter unchanged Bits)
     & (samplesB[0] ^ stateB)
-    // Bits that are set (filter falling edges)
-    & samplesB[0]
     // Bits in our Mask (Filter unwatched bits)
     & WATCHASYNC_PB_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesB[0];
+
     if (StateDiff) {
 #ifdef CONF_WATCHASYNC_PB0
       if (StateDiff & 1)
@@ -506,22 +513,25 @@ void watchasync_periodic(void)
       if (StateDiff & 128)
         addToRingbuffer(WATCHASYNC_PB7_INDEX);
 #endif      
-      stateB = samplesB[0];
     }
+    stateB ^= TempDiff;
 #endif
 
 #ifdef CONF_WATCHASYNC_PC
     samplesC[idx] = PINC;
-    // Detect rising Edges having proved stable:
-    StateDiff = 
+    // Detect changes having proved stable:
+    TempDiff = 
     // Zerobits mark unstable Bits:
     ~( (samplesC[0] ^ samplesC[1]) | (samplesC[0] ^ samplesC[2]) )
     // Bits that have changed (filter unchanged Bits)
     & (samplesC[0] ^ stateC)
-    // Bits that are set (filter falling edges)
-    & samplesC[0]
     // Bits in our Mask (Filter unwatched bits)
     & WATCHASYNC_PC_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesC[0];
+
     if (StateDiff) {
 #ifdef CONF_WATCHASYNC_PC0
       if (StateDiff & 1)
@@ -555,22 +565,25 @@ void watchasync_periodic(void)
       if (StateDiff & 128)
         addToRingbuffer(WATCHASYNC_PC7_INDEX);
 #endif      
-      stateC = samplesC[0];
     }
+    stateC ^= TempDiff;
 #endif
 
 #ifdef CONF_WATCHASYNC_PD
     samplesD[idx] = PIND;
-    // Detect rising Edges having proved stable:
-    StateDiff = 
+    // Detect changes having proved stable:
+    TempDiff = 
     // Zerobits mark unstable Bits:
     ~( (samplesD[0] ^ samplesD[1]) | (samplesD[0] ^ samplesD[2]) )
     // Bits that have changed (filter unchanged Bits)
     & (samplesD[0] ^ stateD)
-    // Bits that are set (filter falling edges)
-    & samplesD[0]
     // Bits in our Mask (Filter unwatched bits)
     & WATCHASYNC_PD_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesD[0];
+
     if (StateDiff) {
 #ifdef CONF_WATCHASYNC_PD0
       if (StateDiff & 1)
@@ -604,8 +617,8 @@ void watchasync_periodic(void)
       if (StateDiff & 128)
         addToRingbuffer(WATCHASYNC_PD7_INDEX);
 #endif      
-      stateD = samplesD[0];
     }
+    stateD ^= TempDiff;
 #endif
 }
 
