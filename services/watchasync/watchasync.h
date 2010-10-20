@@ -324,6 +324,16 @@
 #define WATCHASYNC_PD7 0
 #endif
 
+#ifndef CONF_WATCHASYNC_PA
+#ifndef CONF_WATCHASYNC_PA
+#ifndef CONF_WATCHASYNC_PA
+#ifndef CONF_WATCHASYNC_PA
+#error Watchasync: at least one pin has to be used! (No pin configured for use in watchasync)
+#endif
+#endif
+#endif
+#endif
+
 #define WATCHASYNC_PA0_INDEX 0
 #define WATCHASYNC_PA1_INDEX (WATCHASYNC_PA0_INDEX + WATCHASYNC_PA0)
 #define WATCHASYNC_PA2_INDEX (WATCHASYNC_PA1_INDEX + WATCHASYNC_PA1)
