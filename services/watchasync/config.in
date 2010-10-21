@@ -9,6 +9,21 @@ dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPOR
   if [ "$CONF_WATCHASYNC_TIMESTAMP" = "y" ]; then
     string "Path in front of timestamp" CONF_WATCHASYNC_TIMESTAMP_PATH ".json?ts="
   fi
+  dep_bool "Summarize Events" CONF_WATCHASYNC_SUMMARIZE $CLOCK_DATETIME_SUPPORT
+  if [ "$CONF_WATCHASYNC_SUMMARIZE" = "y" ]; then
+    string "Path in front of eventcount" CONF_WATCHASYNC_SUMMARIZE_PATH "&value="
+    choice "Counterrange"					\
+		"8Bits			CONF_WATCHASYNC_8BITS	\
+		16Bits			CONF_WATCHASYNC_16BITS	\
+		32Bits			CONF_WATCHASYNC_32BITS"	\
+		8Bits		CONF_WATCHASYNC_COUNTERRANGE
+  fi
+  string "Path at the end" CONF_WATCHASYNC_END_PATH ""
+  if ( [ "$CONF_WATCHASYNC_TIMESTAMP" = "y" ] && [ "$CONF_WATCHASYNC_SUMMARIZE" = "y" ] ); then
+    int "Resolution in seconds (Power of 2)" CONF_WATCHASYNC_RESOLUTION 1
+  fi
+  int "Buffersize (Power of 2)" CONF_WATCHASYNC_BUFFERSIZE 64
+  bool "Use Polling for edge detect instead of interrupt " CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   mainmenu_option next_comment
   comment "Pin Configuration"
 
@@ -173,9 +188,6 @@ dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPOR
         script_set "Enter random string in UUID format" RANDOM_UUIDC "scripts/random_uuid CONF_WATCHASYNC_PD7_ID"
     fi
   endmenu
-  int "Resolution in seconds (Power of 2)" CONF_WATCHASYNC_RESOLUTION 1
-  int "Buffersize (Power of 2)" CONF_WATCHASYNC_BUFFERSIZE 64
-  bool "Use Polling for edge detect instead of interrupt " CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   comment  "Debugging Flags"
     dep_bool 'WATCHASYNC' DEBUG_WATCHASYNC $DEBUG $WATCHASYNC_SUPPORT
 endmenu

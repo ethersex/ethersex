@@ -385,11 +385,43 @@ enum WatchAsyncConnStates {
   WATCHASYNC_CONNSTATE_OLD,
 };
 
+// Select Countersize
+#ifndef WATCHASYNC_COUNTER_TYPE
+#ifdef CONF_WATCHASYNC_32BITS
+#define WATCHASYNC_COUNTER_TYPE uint32_t
+#else // def CONF_WATCHASYNC_32BITS
+#ifdef CONF_WATCHASYNC_16BITS
+#define WATCHASYNC_COUNTER_TYPE uint16_t
+#else // def CONF_WATCHASYNC_16BITS
+#define WATCHASYNC_COUNTER_TYPE uint8_t
+#endif // def CONF_WATCHASYNC_16BITS
+#endif // def CONF_WATCHASYNC_32BITS
+#endif // ndef WATCHASYNC_COUNTER_TYPE
+
+
+#ifndef WATCHASYNC_COUNTER_FORMAT
+#ifdef CONF_WATCHASYNC_32BITS
+#define WATCHASYNC_COUNTER_FORMAT "%lu"
+#else // def CONF_WATCHASYNC_32BITS
+#ifdef CONF_WATCHASYNC_16BITS
+#define WATCHASYNC_COUNTER_FORMAT "%u"
+#else // def CONF_WATCHASYNC_16BITS
+#define WATCHASYNC_COUNTER_FORMAT "%u"
+#endif // def CONF_WATCHASYNC_16BITS
+#endif // def CONF_WATCHASYNC_32BITS
+#endif // ndef WATCHASYNC_COUNTER_FORMAT
+
+
+
 // Buffer for storing events of interrupt-routine
 struct WatchAsyncBuffer {
-  uint8_t pin;
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+  WATCHASYNC_COUNTER_TYPE pin[WATCHASYNC_PINCOUNT];
+#else
 #ifdef CONF_WATCHASYNC_TIMESTAMP
   uint32_t timestamp;
+#endif
+  uint8_t pin;
 #endif
 };
 

@@ -46,47 +46,68 @@
 
 #ifdef CONF_WATCHASYNC_TIMESTAMP
 #include "services/clock/clock.h"
-#endif
+#else // def CONF_WATCHASYNC_TIMESTAMP
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#include "services/clock/clock.h"
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+#endif // def CONF_WATCHASYNC_TIMESTAMP
 
 #include "services/watchasync/watchasync_strings.c"
 
 static struct WatchAsyncBuffer wa_buffer[CONF_WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+static uint8_t wa_buf;  // bufferposition to send
+static uint8_t wa_bufpin; // pin of bufferposition to send
+#else // def CONF_WATCHASYNC_SUMMARIZE
 static uint8_t wa_buffer_left = 0; 	// last position sent
 static uint8_t wa_buffer_right = 0; 	// last position set
+#endif // def CONF_WATCHASYNC_SUMMARIZE
 
 static uint8_t wa_sendstate = 0; 		// 0: Idle, 1: Message being sent, 2: Sending message failed
 
 void addToRingbuffer(int pin)
 {
     uint8_t tempright;  // temporary pointer for detecting full buffer
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+    tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // CONF_WATCHASYNC_RESOLUTION > 1
+    tempright = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+    if (~wa_buffer[tempright].pin[pin] != 0) // check for overflow
+    {
+        wa_buffer[tempright].pin[pin] ++;
+    }
+#else // def CONF_WATCHASYNC_SUMMARIZE
     tempright = ((wa_buffer_right + 1) % CONF_WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
     if (tempright != wa_buffer_left)  // if ringbuffer not full
     {
         wa_buffer_right = tempright;  // select next space in ringbuffer
         wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
+#ifdef CONF_WATCHASYNC_TIMESTAMP
 #if CONF_WATCHASYNC_RESOLUTION > 1
 //        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) * CONF_WATCHASYNC_RESOLUTION;  // add timestamp in ringbuffer
-        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )  // add timestamp in ringbuffer
-#else
+	wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )  // add timestamp in ringbuffer
+#else // CONF_WATCHASYNC_RESOLUTION > 1
         wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
-#endif
-#endif
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+#endif // def CONF_WATCHASYNC_TIMESTAMP
     }
+#endif // def CONF_WATCHASYNC_SUMMARIZE
 }
 
 #ifdef CONF_WATCHASYNC_PA
 static uint8_t stateA = 255;
-#endif
+#endif // def CONF_WATCHASYNC_PA
 #ifdef CONF_WATCHASYNC_PB
 static uint8_t stateB = 255;
-#endif
+#endif // def CONF_WATCHASYNC_PB
 #ifdef CONF_WATCHASYNC_PC
 static uint8_t stateC = 255;
-#endif
+#endif // def CONF_WATCHASYNC_PC
 #ifdef CONF_WATCHASYNC_PD
 static uint8_t stateD = 255;
-#endif
+#endif // def CONF_WATCHASYNC_PD
 
 
 // polling mechanism goes first
@@ -95,16 +116,16 @@ static uint8_t stateD = 255;
 static uint8_t idx = 0;
 #ifdef CONF_WATCHASYNC_PA
 static uint8_t samplesA[3] = {255,0,0};
-#endif
+#endif // def CONF_WATCHASYNC_PA
 #ifdef CONF_WATCHASYNC_PB
 static uint8_t samplesB[3] = {255,0,0};
-#endif
+#endif // def CONF_WATCHASYNC_PB
 #ifdef CONF_WATCHASYNC_PC
 static uint8_t samplesC[3] = {255,0,0};
-#endif
+#endif // def CONF_WATCHASYNC_PC
 #ifdef CONF_WATCHASYNC_PD
 static uint8_t samplesD[3] = {255,0,0};
-#endif
+#endif // def CONF_WATCHASYNC_PD
 
 // the main purpose of the function is detect rasing edges and put them
 // in the ring buffer. In order to debounce for signals which are not perfect
@@ -137,7 +158,7 @@ void watchasync_periodic(void)
 #ifdef CONF_WATCHASYNC_PA0
       if (StateDiff & 1)
         addToRingbuffer(WATCHASYNC_PA0_INDEX);
-#endif      
+#endif // def CONF_WATCHASYNC_PA0
 #ifdef CONF_WATCHASYNC_PA1
       if (StateDiff & 2)
         addToRingbuffer(WATCHASYNC_PA1_INDEX);
@@ -613,6 +634,15 @@ ISR(PCINT0_vect)
 
 #endif /* ! CONF_WATCHASYNC_EDGDETECTVIAPOLLING */
 
+
+
+
+
+
+////////////////////////////////////////////////////////////
+/// Send Data
+////////////////////////////////////////////////////////////
+
 static void watchasync_net_main(void)  // Network-routine called by networkstack 
 {
   if (uip_aborted() || uip_timedout() || uip_closed() ) // Connection aborted or timedout
@@ -620,7 +650,12 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
     // if connectionstate is new, we have to resend the packet, otherwise just ignore the event
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
     {
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+      uint8_t buf = uip_conn->appstate.watchasync.timestamp % CONF_WATCHASYNC_BUFFERSIZE;
+      wa_buffer[buf].pin[uip_conn->appstate.watchasync.pin] += uip_conn->appstate.watchasync.count;
+#else // def CONF_WATCHASYNC_SUMMARIZE
       wa_sendstate = 2; // Ignore aborted, if already closed
+#endif // def CONF_WATCHASYNC_SUMMARIZE
       uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
       WATCHASYNC_DEBUG ("connection aborted\n");
       return;
@@ -634,12 +669,24 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
     WATCHASYNC_DEBUG ("new connection or rexmit, sending message\n");
     char *p = uip_appdata;  // pointer set to uip_appdata, used to store string
     p += sprintf_P(p, watchasync_path);  // copy path from programm memory to appdata
-    p += sprintf_P(p, (PGM_P)pgm_read_word(&(watchasync_ID[wa_buffer[wa_buffer_left].pin])));  // append uuid if configured
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, (PGM_P) pgm_read_word(&(watchasync_ID[uip_conn->appstate.watchasync.pin])));  // append uuid if configured
+#else // def CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, (PGM_P) pgm_read_word(&(watchasync_ID[wa_buffer[wa_buffer_left].pin])));  // append uuid if configured
+#endif // def CONF_WATCHASYNC_SUMMARIZE
 #ifdef CONF_WATCHASYNC_TIMESTAMP  
     p += sprintf_P(p, watchasync_timestamp_path);  // append timestamp attribute
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf(p, "%lu", uip_conn->appstate.watchasync.timestamp); // and timestamp value
+#else // def CONF_WATCHASYNC_SUMMARIZE
     p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp); // and timestamp value
-#endif
-    p += sprintf_P(p, watchasync_request_end); // appen tail of packet from programmmemory
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+#endif // def CONF_WATCHASYNC_TIMESTAMP
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, watchasync_summarize_path);  // append timestamp attribute
+    p += sprintf(p,  WATCHASYNC_COUNTER_FORMAT , uip_conn->appstate.watchasync.count); // and timestamp value
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, watchasync_request_end); // append tail of packet from programmmemory
 //    uip_udp_send(p - (char *)uip_appdata);
     uip_udp_send(p - (char *)uip_appdata);
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
@@ -650,8 +697,10 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
   {
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW) // If packet is still new
     {
+#ifndef CONF_WATCHASYNC_SUMMARIZE
       wa_sendstate = 0;  // Mark event as sent, go ahead in buffer
-      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD; // mark this packet as old, do noch resend it
+#endif      
+      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD; // mark this packet as old, do not resend it
       uip_close();  // initiate closing of the connection
       WATCHASYNC_DEBUG ("packet sent, closing\n");
       return;
@@ -668,8 +717,26 @@ static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callba
   if(conn)  // if connection succesfully created
   {
     conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW; // Set connection state to new, as data still has to be send
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+    tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
+    if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION;
+#else // CONF_WATCHASYNC_RESOLUTION > 1
+    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf;
+    if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE;
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+    conn->appstate.watchasync.pin = wa_bufpin;
+    conn->appstate.watchasync.count = wa_buffer[wa_buf].pin[wa_bufpin];
+    wa_buffer[wa_buf].pin[wa_bufpin] -= conn->appstate.watchasync.count;
+    wa_sendstate = 0;
+#endif // def CONF_WATCHASYNC_SUMMARIZE
   } else {
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    wa_sendstate = 0;  // if no connection initiated, set state to Retry
+#else
     wa_sendstate = 2;  // if no connection initiated, set state to Retry
+#endif // def CONF_WATCHASYNC_SUMMARIZE
   }
 }
 
@@ -684,12 +751,12 @@ void sendmessage(void) // Send event in ringbuffer indicated by left pointer
   } else {
     watchasync_dns_query_cb(NULL, ipaddr); // If found use IPAddress
   }
-#else /* ! DNS_SUPPORT */
+#else // def DNS_SUPPORT
   uip_ipaddr_t ip;
   set_WATCHASYNC_SERVER_IP(&ip);
 
   watchasync_dns_query_cb(NULL, &ip);
-#endif
+#endif // def DNS_SUPPORT
 
   return;
 }
@@ -701,11 +768,11 @@ void watchasync_init(void)  // Initilize Poirts and Interrupts
   DDRA = 255 - WATCHASYNC_PA_MASK;  // PortA Input
 #ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   samplesA[0] = samplesA[1] = samplesA[2] = PINA;  // save current state
-#else
+#else // def CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   PCMSK0 = WATCHASYNC_PA_MASK;  // Enable Pinchange Interrupt on PortA
   PCICR |= 1<<PCIE0;  // Enable Pinchange Interrupt on PortA
-#endif
-#endif
+#endif // def CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+#endif // def CONF_WATCHASYNC_PA
 
 #ifdef CONF_WATCHASYNC_PB
   PORTB = WATCHASYNC_PB_MASK;  // Enable Pull-up on PortB
@@ -746,6 +813,20 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
 {
   if (wa_sendstate != 1) // not busy sending 
   {
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    uint8_t temp = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+    for (wa_buf = (temp + 1) % CONF_WATCHASYNC_BUFFERSIZE; wa_buf != temp; wa_buf = (wa_buf + 1) % CONF_WATCHASYNC_BUFFERSIZE)
+    {
+      for (wa_bufpin = 0; wa_bufpin < WATCHASYNC_PINCOUNT; wa_bufpin ++)
+      {
+        if (wa_buffer[wa_buf].pin[wa_bufpin] != 0)  // is there any data?
+        {
+          sendmessage();  // send the data found
+	  return;
+        }
+      }
+    }
+#else // CONF_WATCHASYNC_SUMMARIZE
     if (wa_sendstate == 2) // Message not sent successfully
     {
       WATCHASYNC_DEBUG ("Error, again please...\n"); 
@@ -759,6 +840,7 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
         sendmessage();  // send the new event
       }
     }
+#endif // CONF_WATCHASYNC_SUMMARIZE
   }  
 }
 

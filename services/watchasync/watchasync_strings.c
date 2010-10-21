@@ -9,9 +9,14 @@ static const char PROGMEM watchasync_timestamp_path[] =
 	CONF_WATCHASYNC_TIMESTAMP_PATH ;
 #endif
 
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+static const char PROGMEM watchasync_summarize_path[] =
+        CONF_WATCHASYNC_SUMMARIZE_PATH ;
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+
 // and the http footer including the http protocol version and the server name
 static const char PROGMEM watchasync_request_end[] =
-    " HTTP/1.1\r\n"
+    CONF_WATCHASYNC_END_PATH " HTTP/1.1\r\n"
     "Host: " CONF_WATCHASYNC_SERVER "\r\n\r\n";
 
 #ifndef CONF_WATCHASYNC_PORT
