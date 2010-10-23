@@ -169,7 +169,7 @@ static uint8_t sd_raw_send_command(uint8_t command, uint32_t arg);
  *
  * \returns 0 on failure, 1 on success.
  */
-uint8_t sd_raw_init()
+uint8_t sd_raw_init(void)
 {
 #if 0
     /* enable inputs for reading card status */
@@ -350,7 +350,7 @@ uint8_t sd_raw_init()
  *
  * \returns 1 if the card is available, 0 if it is not.
  */
-uint8_t sd_raw_available()
+uint8_t sd_raw_available(void)
 {
     return get_pin_available() == 0x00;
 }
@@ -361,7 +361,7 @@ uint8_t sd_raw_available()
  *
  * \returns 1 if the card is locked, 0 if it is not.
  */
-uint8_t sd_raw_locked()
+uint8_t sd_raw_locked(void)
 {
     return get_pin_locked() == 0x00;
 }
@@ -854,7 +854,7 @@ uint8_t sd_raw_write_interval(offset_t offset, uint8_t* buffer, uintptr_t length
  * \returns 0 on failure, 1 on success.
  * \see sd_raw_write
  */
-uint8_t sd_raw_sync()
+uint8_t sd_raw_sync(void)
 {
 #if SD_RAW_WRITE_BUFFERING
     if(raw_block_written)
