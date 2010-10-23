@@ -330,9 +330,13 @@ ISR (TIMER0_COMP_vect)
 {
   uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
   if (data == IRMP_RX_MARK)
-    IRMP_RX_LED_ON;
+    {
+      IRMP_RX_LED_ON;
+    }
   else
-    IRMP_RX_LED_OFF;
+    {
+      IRMP_RX_LED_OFF;
+    }
 
   if (irmp_rx_process (data) != 0)
     {
