@@ -211,11 +211,7 @@ tftp_handle_packet(void)
 
 	debug_putchar('.');
 
-<<<<<<< HEAD
 	for(i = 0; i < TFTP_BLOCK_SIZE / SPM_PAGESIZE; i ++)
-=======
-	for(i = 0; i < 512 / SPM_PAGESIZE; i ++)
->>>>>>> 9a8e1bc... Cleanup debugging bootloader
 	    flash_page(base + i * SPM_PAGESIZE,
 		       pk->u.data.data + i * SPM_PAGESIZE);
 
@@ -229,10 +225,7 @@ tftp_handle_packet(void)
 #           endif
 
             debug_putstr("end\n");
-<<<<<<< HEAD
 
-=======
->>>>>>> 9a8e1bc... Cleanup debugging bootloader
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
