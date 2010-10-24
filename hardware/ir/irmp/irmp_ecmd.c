@@ -39,7 +39,11 @@ parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
 {
   irmp_data_t irmp_data;
   return (irmp_read (&irmp_data)
-	  ? ECMD_FINAL (sprintf_P (output, PSTR ("%d:%04X:%04X:%02X\n"),
+	  ? ECMD_FINAL (sprintf_P (output,
+				   PSTR ("%02"PRIu8":"
+					 "%04"PRIX16":"
+					 "%04"PRIX16":"
+					 "%02"PRIX8"\n"),
 				   irmp_data.protocol,
 				   irmp_data.address,
 				   irmp_data.command,
@@ -54,7 +58,8 @@ parse_cmd_irmp_send (char *cmd, char *output, uint16_t len)
   int16_t ret;
   irmp_data_t irmp_data;
 
-  ret = sscanf_P (cmd, PSTR ("%hhd %x %x %hhd"),
+  /* FIXME: avrlibc/inttypes.h: __avr_libc_does_not_implement_hh_in_scanf ??? */
+  ret = sscanf_P (cmd, PSTR ("%hhd %"SCNx16" %"SCNx16" %hhx"),
 		  &irmp_data.protocol,
 		  &irmp_data.address,
 		  &irmp_data.command,
