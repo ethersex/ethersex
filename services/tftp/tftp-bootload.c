@@ -63,7 +63,7 @@ flash_page(uint32_t page, uint8_t *buf)
 #endif
 
     for(i = 0; i < SPM_PAGESIZE; i ++)
-#if FLASHEND > 0xFFFFUL
+#if FLASHEND > UINT16_MAX
 	if(buf[i] != pgm_read_byte_far(page + i))
 #else
 	if(buf[i] != pgm_read_byte_near(page + i))
@@ -113,7 +113,7 @@ tftp_handle_packet(void)
      * care for incoming tftp packet now ...
      */
     uint16_t i;
-#if FLASHEND > 0xFFFFUL
+#if FLASHEND > UINT16_MAX
 #define FLASH_ADDR  uint32_t
 #else
 #define FLASH_ADDR  uint16_t
@@ -157,7 +157,7 @@ tftp_handle_packet(void)
 
 	base = 512 * uip_udp_conn->appstate.tftp.transfered;
 
-#if FLASHEND == 0xFFFF
+#if FLASHEND == UINT16_MAX
 	if(uip_udp_conn->appstate.tftp.transfered
 	   && base == 0)     /* base overflowed ! */
 #else
@@ -171,7 +171,7 @@ tftp_handle_packet(void)
 
 	for(i = 0; i < 512; i ++)
 	    pk->u.data.data[i] =
-#if FLASHEND > 0xFFFFUL
+#if FLASHEND > UINT16_MAX
               pgm_read_byte_far(base + i);
 #else
               pgm_read_byte_near(base + i);
