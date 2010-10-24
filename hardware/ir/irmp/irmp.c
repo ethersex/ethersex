@@ -33,7 +33,7 @@
 #include "irmp.h"
 
 
-#if defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL)
+#if defined(IRMP_SUPPORT_RE_CS80_PROTOCOL) || defined(IRMP_SUPPORT_RE_CS80EXT_PROTOCOL)
 #define IRMP_HZ            20000	/* interrupts per second */
 #elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL)
 #define IRMP_HZ            15000
@@ -45,43 +45,43 @@
 #ifdef IRMP_USE_TIMER2
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define HW_PRESCALER_MASK  _BV(CS20)
+#define HW_PRESCALER_MASK  _BV(_CS20)
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define HW_PRESCALER_MASK  _BV(CS21)
+#define HW_PRESCALER_MASK  _BV(_CS21)
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define HW_PRESCALER_MASK  _BV(CS21)|_BV(CS20)
+#define HW_PRESCALER_MASK  _BV(_CS21)|_BV(_CS20)
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
 #define HW_PRESCALER       256UL
-#define HW_PRESCALER_MASK  _BV(CS22)
+#define HW_PRESCALER_MASK  _BV(_CS22)
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
 #define HW_PRESCALER       1024UL
-#define HW_PRESCALER_MASK  _BV(CS22)|_BV(CS00)
+#define HW_PRESCALER_MASK  _BV(_CS22)|_BV(_CS00)
 #else
 #error F_CPU to large
 #endif
 #else
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define HW_PRESCALER_MASK  _BV(CS00)
+#define HW_PRESCALER_MASK  _BV(_CS00)
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define HW_PRESCALER_MASK  _BV(CS01)
+#define HW_PRESCALER_MASK  _BV(_CS01)
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define HW_PRESCALER_MASK  _BV(CS01)|_BV(CS00)
+#define HW_PRESCALER_MASK  _BV(_CS01)|_BV(_CS00)
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
 #define HW_PRESCALER       256UL
-#define HW_PRESCALER_MASK  _BV(CS02)
+#define HW_PRESCALER_MASK  _BV(_CS02)
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
 #define HW_PRESCALER       1024UL
-#define HW_PRESCALER_MASK  _BV(CS02)|_BV(CS00)
+#define HW_PRESCALER_MASK  _BV(_CS02)|_BV(_CS00)
 #else
 #error F_CPU to large
 #endif
 #endif
-#define SW_PRESCALER       ((F_CPU/HW_PRESCALER)/IRMP_HZ)
+#define SW_PRESCALER       ((uint8_t)((F_CPU/HW_PRESCALER)/IRMP_HZ))
 
 #ifdef IRMP_RX_LED
 #ifdef IRMP_RX_LED_LOW_ACTIVE
@@ -148,18 +148,18 @@ static irmp_fifo_t irmp_tx_fifo;
 
 #ifdef DEBUG_IRMP
 static const char proto_unknown[] PROGMEM = "unknown";
-static const char proto_sircs[] PROGMEM = "SIRCS";
+static const char proto_sircs[] PROGMEM = "SIR_CS";
 static const char proto_nec[] PROGMEM = "NEC";
 static const char proto_samsung[] PROGMEM = "SAMSUNG";
 static const char proto_matshushita[] PROGMEM = "MATSUSHITA";
 static const char proto_kaseikyo[] PROGMEM = "KASEIKYO";
-static const char proto_recs80[] PROGMEM = "RECS80";
+static const char proto_recs80[] PROGMEM = "RE_CS80";
 static const char proto_rc5x[] PROGMEM = "RC5(x)";
 static const char proto_denon[] PROGMEM = "DENON";
 static const char proto_rc6[] PROGMEM = "RC6";
 static const char proto_samsung32[] PROGMEM = "SAMSUNG32";
 static const char proto_apple[] PROGMEM = "APPLE";
-static const char proto_recs80ext[] PROGMEM = "RECS80EXT";
+static const char proto_recs80ext[] PROGMEM = "RE_CS80EXT";
 static const char proto_nubert[] PROGMEM = "NUBERT";
 static const char proto_bang_olufsen[] PROGMEM = "BANG&OLUFSEN";
 static const char proto_grundig[] PROGMEM = "GRUNDIG";
@@ -213,12 +213,12 @@ irmp_init (void)
 #ifdef IRMP_USE_TIMER2
   _TCCR2_PRESCALE = HW_PRESCALER_MASK;
   _OUTPUT_COMPARE_REG2 = SW_PRESCALER - 1;
-  TCNT2 = 0;
+  _TCNT2 = 0;
   _TIMSK_TIMER2 |= _BV (_OUTPUT_COMPARE_IE2);	/* enable interrupt */
 #else
   _TCCR0_PRESCALE = HW_PRESCALER_MASK;
   _OUTPUT_COMPARE_REG0 = SW_PRESCALER - 1;
-  TCNT0 = 0;
+  _TCNT0 = 0;
   _TIMSK_TIMER0 |= _BV (_OUTPUT_COMPARE_IE0);	/* enable interrupt */
 #endif
 
@@ -226,9 +226,9 @@ irmp_init (void)
   PIN_CLEAR (IRMP_TX);
   DDR_CONFIG_OUT (IRMP_TX);
 #ifdef IRMP_USE_TIMER2
-  _TCCR0_PRESCALE = _BV (WGM01) | _BV (CS00);	/* CTC mode, 0x01, start Timer 0, no prescaling */
+  _TCCR0_PRESCALE = _BV (_WGM01) | _BV (_CS00);	/* CTC mode, 0x01, start Timer 0, no prescaling */
 #else
-  _TCCR2_PRESCALE = _BV (WGM21) | _BV (CS20);	/* CTC mode, 0x01, start Timer 2, no prescaling */
+  _TCCR2_PRESCALE = _BV (_WGM21) | _BV (_CS20);	/* CTC mode, 0x01, start Timer 2, no prescaling */
 #endif
   irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
@@ -245,10 +245,9 @@ irmp_read (irmp_data_t * irmp_data_p)
 				     FIFO_NEXT (irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
-  printf_P (PSTR ("IRMP RX: proto "));
-  printf_P ((const char *)
-	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR (", address %04hx, command %04hx, flags %02hhx\n"),
+  printf_P (PSTR ("IRMP RX: proto %02"PRId8" "), irmp_data_p->protocol);
+  printf_P ((const char *)pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
+  printf_P (PSTR (", address %04"PRIX16", command %04"PRIX16", flags %02"PRIX8"\n"),
 	    irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
   return 1;
@@ -263,9 +262,9 @@ irmp_tx_on (void)
   if (!irsnd_is_on)
     {
 #ifdef IRMP_USE_TIMER2
-      _TCCR0_PRESCALE |= _BV (COM00) | _BV (WGM01);
+      _TCCR0_PRESCALE |= _BV (_COM00) | _BV (_WGM01);
 #else
-      _TCCR2_PRESCALE |= _BV (COM20) | _BV (WGM21);
+      _TCCR2_PRESCALE |= _BV (_COM20) | _BV (_WGM21);
 #endif
       irsnd_is_on = TRUE;
     }
@@ -278,9 +277,9 @@ irmp_tx_off (void)
   if (irsnd_is_on)
     {
 #ifdef IRMP_USE_TIMER2
-      _TCCR0_PRESCALE &= ~_BV (COM00);
+      _TCCR0_PRESCALE &= ~_BV (_COM00);
 #else
-      _TCCR2_PRESCALE &= ~_BV (COM20);
+      _TCCR2_PRESCALE &= ~_BV (_COM20);
 #endif
       PIN_CLEAR (IRMP_TX);
       irsnd_is_on = FALSE;
@@ -303,10 +302,9 @@ void
 irmp_write (irmp_data_t * irmp_data_p)
 {
 #ifdef DEBUG_IRMP
-  printf_P (PSTR ("IRMP TX: proto "));
-  printf_P ((const char *)
-	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR (", address %04hx, command %04hx, flags %02hhx\n"),
+  printf_P (PSTR ("IRMP TX: proto %02"PRId8" "), irmp_data_p->protocol);
+  printf_P ((const char *)pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
+  printf_P (PSTR (", address %04"PRIX16", command %04"PRIX16", flags %02"PRIX8"\n"),
 	    irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
 
@@ -323,9 +321,9 @@ irmp_write (irmp_data_t * irmp_data_p)
 
 
 #ifdef IRMP_USE_TIMER2
-ISR (TIMER2_COMP_vect)
+ISR (_VECTOR_OUTPUT_COMPARE2)
 #else
-ISR (TIMER0_COMP_vect)
+ISR (_VECTOR_OUTPUT_COMPARE0)
 #endif
 {
   uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
