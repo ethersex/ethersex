@@ -719,7 +719,7 @@ static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callba
     conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW; // Set connection state to new, as data still has to be send
 #ifdef CONF_WATCHASYNC_SUMMARIZE
 #if CONF_WATCHASYNC_RESOLUTION > 1
-    tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+// No longer needed?    tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
     conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
     if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION;
 #else // CONF_WATCHASYNC_RESOLUTION > 1
