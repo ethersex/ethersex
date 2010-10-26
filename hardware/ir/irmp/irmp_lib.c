@@ -1325,7 +1325,9 @@ static uint16_t irmp_tmp_id;                                                    
 static uint8_t  xor_check[6];                                                           // check kaseikyo "parity" bits
 #endif
 
+#if 0
 static uint8_t  irmp_bit;                                                               // current bit position
+#endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  *  store bit
