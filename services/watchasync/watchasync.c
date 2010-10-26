@@ -428,7 +428,7 @@ ISR(PCINT0_vect)
 
 #ifdef CONF_WATCHASYNC_PB
 // Handle Pinchange Interrupt on PortB
-ISR(PCINT0_vect)
+ISR(PCINT1_vect)
 {
   uint8_t StateDiff;
   uint8_t TempDiff;
@@ -498,7 +498,7 @@ ISR(PCINT0_vect)
 
 #ifdef CONF_WATCHASYNC_PC
 // Handle Pinchange Interrupt on PortC
-ISR(PCINT0_vect)
+ISR(PCINT2_vect)
 {
   uint8_t StateDiff;
   uint8_t TempDiff;
@@ -567,7 +567,7 @@ ISR(PCINT0_vect)
 
 #ifdef CONF_WATCHASYNC_PD
 // Handle Pinchange Interrupt on PortD
-ISR(PCINT0_vect)
+ISR(PCINT3_vect)
 {
   uint8_t StateDiff;
   uint8_t TempDiff;

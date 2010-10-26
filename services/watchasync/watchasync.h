@@ -325,9 +325,9 @@
 #endif
 
 #ifndef CONF_WATCHASYNC_PA
-#ifndef CONF_WATCHASYNC_PA
-#ifndef CONF_WATCHASYNC_PA
-#ifndef CONF_WATCHASYNC_PA
+#ifndef CONF_WATCHASYNC_PB
+#ifndef CONF_WATCHASYNC_PC
+#ifndef CONF_WATCHASYNC_PD
 #error Watchasync: at least one pin has to be used! (No pin configured for use in watchasync)
 #endif
 #endif
