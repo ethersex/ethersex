@@ -9,6 +9,7 @@ dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPOR
   dep_bool "Include unix timestamp" CONF_WATCHASYNC_TIMESTAMP $CLOCK_DATETIME_SUPPORT
   if [ "$CONF_WATCHASYNC_TIMESTAMP" = "y" ]; then
     string "Path in front of timestamp" CONF_WATCHASYNC_TIMESTAMP_PATH ".json?ts="
+    bool "Send end of intervall instead of beginning" CONF_WATCHASYNC_SENDEND
   fi
   dep_bool "Summarize Events" CONF_WATCHASYNC_SUMMARIZE $CLOCK_DATETIME_SUPPORT
   if [ "$CONF_WATCHASYNC_SUMMARIZE" = "y" ]; then

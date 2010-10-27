@@ -70,9 +70,17 @@ void addToRingbuffer(int pin)
     uint8_t tempright;  // temporary pointer for detecting full buffer
 #ifdef CONF_WATCHASYNC_SUMMARIZE
 #if CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    tempright = ( ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) + 1 ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
     tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
 #else // CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    tempright = ( clock_get_time() + 1) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
     tempright = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
     if ((~wa_buffer[tempright].pin[pin]) != 0) // check for overflow
     {
@@ -87,7 +95,11 @@ void addToRingbuffer(int pin)
 #ifdef CONF_WATCHASYNC_TIMESTAMP
 #if CONF_WATCHASYNC_RESOLUTION > 1
 //        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) * CONF_WATCHASYNC_RESOLUTION;  // add timestamp in ringbuffer
+#ifdef CONF_WATCHASYNC_SENDEND
+	wa_buffer[wa_buffer_right].timestamp = clock_get_time() & ( (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )) + CONF_WATCHASYNC_RESOLUTION; // add timestamp in ringbuffer
+#else // def CONF_WATCHASYNC_SENDEND
 	wa_buffer[wa_buffer_right].timestamp = clock_get_time() & ( (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )); // add timestamp in ringbuffer
+#endif // def CONF_WATCHASYNC_SENDEND
 #else // CONF_WATCHASYNC_RESOLUTION > 1
         wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
@@ -820,9 +832,17 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
   {
 #ifdef CONF_WATCHASYNC_SUMMARIZE
 #if CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    uint8_t temp = ( ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) + 1 ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
     uint8_t temp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
 #else // CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    uint8_t temp = ( clock_get_time() + 1) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
     uint8_t temp = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
     for (wa_buf = (temp + 1) % CONF_WATCHASYNC_BUFFERSIZE; wa_buf != temp; wa_buf = (wa_buf + 1) % CONF_WATCHASYNC_BUFFERSIZE)
     {
