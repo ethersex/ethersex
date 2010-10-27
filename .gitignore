@@ -13,6 +13,8 @@
 *.cbp
 *.layout
 
+# svn
+.svn/
 # make generated files
 .config*
 config.mk
