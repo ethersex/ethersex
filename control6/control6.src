@@ -93,7 +93,7 @@ dnl   SYSLOG("C6 wait call from %s to %s\n", CALLER(), CALLEE())
 dnl THREAD_END(isdn);
 
 dnl    ON STARTUP DO
-dnl      GUI_SELECT_SCENE(myscene);
+dnl       VFS_LOG_ALLOCA("test", 40, "Barfoo %d", 23);
 dnl    END
 
 dnl // fuehrt den syslog aus sobald ein Anruf vom isdn gemeldet wird

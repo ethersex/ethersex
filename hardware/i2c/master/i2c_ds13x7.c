@@ -28,7 +28,6 @@
 #include "i2c_ds13x7.h"
 #include <avr/interrupt.h>
 #include <string.h>
-#include "core/debug.h"
 
 #include "services/clock/clock.h"
 
@@ -138,8 +137,6 @@ uint32_t i2c_ds13x7_read() {
         ds13x7_reg_t rtc;
         struct clock_datetime_t d;
         uint32_t temp_time;
-
-        debug_printf("read rtc \n");
 
 		i2c_ds13x7_get_block(0, (char *)&rtc, sizeof(rtc));
         d.sec     = b2i(rtc.sec);

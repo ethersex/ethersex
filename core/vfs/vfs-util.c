@@ -22,10 +22,11 @@
 
 #include "core/vfs/vfs.h"
 #include "core/vfs/vfs-util.h"
-#ifdef ETHERNET_SUPPORT
-#include "protocols/uip/uip.h"	/* for uip_buf */
 
 #ifndef VFS_TEENSY
+
+#ifdef ETHERNET_SUPPORT
+#include "protocols/uip/uip.h"	/* for uip_buf */
 
 uint8_t
 vfs_copy_file (const char *dest, const char *src)
@@ -69,6 +70,9 @@ vfs_copy_file (const char *dest, const char *src)
   return 0;
 }
 
+#endif /* ETHERNET_SUPPORT */
+
+
 struct vfs_file_handle_t *
 vfs_open_or_creat(const char* filename)
 {
@@ -95,5 +99,3 @@ vfs_file_append(const char *filename, uint8_t* buf, uint16_t len)
 }
 
 #endif  /* VFS_TEENSY */
-
-#endif /* ETHERNET_SUPPORT */

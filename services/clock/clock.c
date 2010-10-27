@@ -24,7 +24,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include "hardware/i2c/master/i2c_ds1337.h"
+#include "hardware/i2c/master/i2c_ds13x7.h"
 #include "services/ntp/ntp.h"
 #include "core/debug.h"
 #include "core/periodic.h"
@@ -60,8 +60,8 @@ clock_init(void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
 	ASSR = _BV(CLOCK_TIMER_AS);
 	CLOCK_TIMER_CNT = 0;
-	/* 128 prescaler to get every second an interrupt */
-	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
+	/* 64 prescaler to get every 0.5 second an interrupt */
+	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_1) | _BV(CLOCK_SELECT_0);
 
 	/* Wait until the bytes are written */
 #ifdef CLOCK_TIMER_RBUSY
@@ -94,6 +94,15 @@ SIGNAL(CLOCK_SIG)
 
 	TCNT1 = 65536-CLOCK_SECONDS;
 	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
+#endif
+
+#if defined(CLOCK_CRYSTAL_SUPPORT)
+    /* If we use Crystal Support we have an interrupt every 0.5
+       seconds, so we have to drop every second interrupt */
+    static uint8_t clock_crystal_interrupt_drop = 0;
+    clock_crystal_interrupt_drop ^= 1;
+    if (clock_crystal_interrupt_drop)
+        return;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
@@ -190,8 +199,8 @@ clock_set_time(uint32_t new_sync_timestamp)
 		startup_timestamp = sync_timestamp;
 #endif
 
-#ifdef I2C_DS1337_SUPPORT
-        i2c_ds1337_sync(sync_timestamp);
+#ifdef I2C_DS13X7_SUPPORT
+        i2c_ds13x7_sync(sync_timestamp);
 #endif
 
 #ifdef NTP_SUPPORT

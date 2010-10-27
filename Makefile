@@ -26,6 +26,7 @@ SUBDIRS += hardware/input/ps2
 SUBDIRS += hardware/input/buttons
 SUBDIRS += hardware/io_expander
 SUBDIRS += hardware/ir/rc5
+SUBDIRS += hardware/ir/irmp
 SUBDIRS += hardware/isdn
 SUBDIRS += hardware/lcd
 SUBDIRS += hardware/lcd/s1d15g10
@@ -336,7 +337,7 @@ show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
-	@grep -e "^#define .*_SUPPORT" autoconf.h | $(SED) -e "s/^#define / * /" -e "s/_SUPPORT.*//"
+	@$(SED) -e "/^#define \<.*_SUPPORT\>/!d;s/^#define / * /;s/_SUPPORT.*//" autoconf.h 
 
 .PHONY: show-config
 

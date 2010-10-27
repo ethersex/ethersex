@@ -43,7 +43,7 @@ int16_t ow_read_temp (struct ow_rom_code_t *rom)
     goto out;  // scratchpad read failed
 
   uint16_t temp = ow_temp_normalize(rom, &sp);
-  retval = HI8(temp) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+  retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
 
  out:
   SREG = sreg;

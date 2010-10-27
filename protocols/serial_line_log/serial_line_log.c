@@ -22,6 +22,7 @@
 
 
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <util/crc16.h>
 #include <string.h>

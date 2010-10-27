@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,12 +25,14 @@
 #define _YPORT_H
 
 
-/* The default usart baudrate is 115200 */
-#define YPORT_BUFFER_LEN 255
-
 struct yport_buffer {
+#if YPORT_BUFFER_LEN < 512
   uint8_t len;
   uint8_t sent;
+#else
+  uint16_t len;
+  uint16_t sent;
+#endif
   uint8_t data[YPORT_BUFFER_LEN];
 };
 
@@ -38,5 +41,11 @@ uint8_t yport_rxstart(uint8_t *data, uint8_t len);
 
 extern struct yport_buffer yport_send_buffer;
 extern struct yport_buffer yport_recv_buffer;
+#ifdef DEBUG_YPORT
+extern uint16_t yport_rx_frameerror;
+extern uint16_t yport_rx_overflow;
+extern uint16_t yport_rx_parityerror;
+extern uint16_t yport_rx_bufferfull;
+#endif
 
 #endif /* _YPORT_H */

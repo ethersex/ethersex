@@ -28,9 +28,9 @@
 #include "core/debug.h"
 #include "core/bit-macros.h"
 
-uint8_t moodlight_threshold = MOODLIGHT_THRESHOLD_INIT;
+uint16_t moodlight_changegap = MOODLIGHT_CHANGEGAP_INIT;
+uint16_t moodlight_counter;
 uint8_t moodlight_mask;
-uint8_t moodlight_counter;
 
 /* Initialize moodlight */
 void
@@ -48,7 +48,7 @@ moodlight_process (void)
 	/* Only do something if any of the channels is selected
 	 * to be 'moodlighted' and the moodlight counter reached
 	 * the threshold value. */
-	if (moodlight_mask && moodlight_counter == moodlight_threshold)
+	if (moodlight_mask && moodlight_counter > moodlight_changegap)
 	{
 		for (uint8_t i = 0; i < STELLA_CHANNELS; ++i)
 		{
@@ -65,6 +65,6 @@ moodlight_process (void)
 /*
   -- Ethersex META --
   header(services/moodlight/moodlight.h)
-	timer(300, moodlight_process())
+	mainloop(moodlight_process)
 	init(moodlight_init)
 */

@@ -33,6 +33,9 @@ dnl
 #define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
 #define _TIMSK_TIMER0 TIMSK0
 
+/* Timer 1 - Clock */
+#define _TIMSK_TIMER1 TIMSK1
+
 /* Timer2 - Stella */
 #define _TCCR2_PRESCALE TCCR2B
 #define _OUTPUT_COMPARE_IE2 OCIE2B
@@ -96,7 +99,4 @@ dnl
 #endif
 
 #define _TIFR_TIMER1 TIFR1
-
-
-#define BOOTLOADER_SECTION 0x1e000 /* atmega1284p with 4096 words bootloader */
 

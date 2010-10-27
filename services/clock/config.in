@@ -1,10 +1,5 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 
-	if [ "$TEENSY_SUPPORT" = "y" ]; then
-		comment "Please Define Date/Time in ECMD Configuration"
-	else
-		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
-	fi
 
 	dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
 	dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
@@ -38,4 +33,13 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	
 	comment  "Debugging Flags"
 	dep_bool "NTP Clock-Adjust" DEBUG_NTP_ADJUST $CLOCK_NTP_ADJUST_SUPPORT $DEBUG
+
+	if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
+		comment 'The Follow ECMD Options are here and in ECMD Options available'
+		bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
+		bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
+	else
+		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
+	fi
+
 endmenu

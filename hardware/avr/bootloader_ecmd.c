@@ -21,7 +21,9 @@
  */
 
 #include <stdint.h>
+#include "config.h"
 #include "core/global.h"
+#include "protocols/uip/uip.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_bootloader(char *cmd, char *output, uint16_t len)

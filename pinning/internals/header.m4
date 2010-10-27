@@ -283,7 +283,6 @@ divert(1)
 #ifndef _PINNING_HEADER
 #define _PINNING_HEADER
 
-#undef BOOTLOADER_SECTION
 #define _ISC(n,m) _BV(ISC ## n ## m)
 #define _paste(n,m) n ## m
 #define _paste3(a,b,c) a ## b ## c

@@ -31,5 +31,3 @@
 #define _TIMSK_TIMER2 TIMSK
 
 #define RC5_USE_TIMER2
-
-#define BOOTLOADER_SECTION 0x0E00 /* atmega8 with 256 words bootloader */

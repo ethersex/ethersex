@@ -1,6 +1,4 @@
 
-#define BOOTLOADER_SECTION 0x3800 /* atmega169 with 1024 words bootloader */
-
 #define _ATMEGA169
 
 /* ATmega168 specific adjustments */

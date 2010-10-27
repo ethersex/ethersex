@@ -28,7 +28,5 @@ ifdef(`need_spi', `dnl
 ')dnl
 
 
-/* there isn't that much RAM on ATmega169, reduce uip_buf size. */
-#define NET_MAX_FRAME_LENGTH 192
 #define ADC_CHANNELS 8
 

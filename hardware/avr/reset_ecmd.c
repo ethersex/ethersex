@@ -40,6 +40,7 @@ int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
 }
 
 
+#ifndef TEENSY_SUPPORT
 
 int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
 {
@@ -50,10 +51,13 @@ int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL_OK;
 }
 
+#endif
 
 /*
   -- Ethersex META --
   block(Resetting the controller)
   ecmd_feature(reset, "reset",,Reset the Ethersex.)
-  ecmd_feature(wdreset, "wdreset",,Go into endless loop to trigger a watchdog timeout.)
+  ecmd_ifndef(TEENSY_SUPPORT)
+    ecmd_feature(wdreset, "wdreset",,Go into endless loop to trigger a watchdog timeout.)
+  ecmd_endif()
 */
