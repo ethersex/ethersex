@@ -74,7 +74,7 @@ void addToRingbuffer(int pin)
 #else // CONF_WATCHASYNC_RESOLUTION > 1
     tempright = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
-    if (~wa_buffer[tempright].pin[pin] != 0) // check for overflow
+    if ((~wa_buffer[tempright].pin[pin]) != 0) // check for overflow
     {
         wa_buffer[tempright].pin[pin] ++;
     }
@@ -651,7 +651,11 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
     {
 #ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+      uint8_t buf = ( uip_conn->appstate.watchasync.timestamp / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // CONF_WATCHASYNC_RESOLUTION > 1
       uint8_t buf = uip_conn->appstate.watchasync.timestamp % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
       wa_buffer[buf].pin[uip_conn->appstate.watchasync.pin] += uip_conn->appstate.watchasync.count;
 #else // def CONF_WATCHASYNC_SUMMARIZE
       wa_sendstate = 2; // Ignore aborted, if already closed
@@ -719,11 +723,12 @@ static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callba
     conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW; // Set connection state to new, as data still has to be send
 #ifdef CONF_WATCHASYNC_SUMMARIZE
 #if CONF_WATCHASYNC_RESOLUTION > 1
-// No longer needed?    tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
-    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
+//    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
+    conn->appstate.watchasync.timestamp = ((clock_get_time() / (CONF_WATCHASYNC_RESOLUTION * CONF_WATCHASYNC_BUFFERSIZE)) * (CONF_WATCHASYNC_RESOLUTION * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
     if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION;
 #else // CONF_WATCHASYNC_RESOLUTION > 1
-    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf;
+//    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf;
+    conn->appstate.watchasync.timestamp = ((clock_get_time() / CONF_WATCHASYNC_BUFFERSIZE) * CONF_WATCHASYNC_BUFFERSIZE) + wa_buf;
     if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE;
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
     conn->appstate.watchasync.pin = wa_bufpin;
@@ -814,7 +819,11 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
   if (wa_sendstate != 1) // not busy sending 
   {
 #ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+    uint8_t temp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // CONF_WATCHASYNC_RESOLUTION > 1
     uint8_t temp = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
     for (wa_buf = (temp + 1) % CONF_WATCHASYNC_BUFFERSIZE; wa_buf != temp; wa_buf = (wa_buf + 1) % CONF_WATCHASYNC_BUFFERSIZE)
     {
       for (wa_bufpin = 0; wa_bufpin < WATCHASYNC_PINCOUNT; wa_bufpin ++)
