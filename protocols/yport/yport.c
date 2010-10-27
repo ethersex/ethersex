@@ -54,16 +54,16 @@ yport_init(void)
 }
 
 uint8_t
-yport_rxstart(uint8_t *data, uint8_t len)
+yport_rxstart(uint8_t *data, uint16_t len)
 {
-  uint8_t diff = yport_send_buffer.len - yport_send_buffer.sent;
+  uint16_t diff = yport_send_buffer.len - yport_send_buffer.sent;
   if (diff == 0) {
     /* Copy the data to the send buffer */
     memcpy(yport_send_buffer.data, data, len);
     yport_send_buffer.len = len;
     goto start_sending;
   /* The actual packet can be pushed into the buffer */
-  } else if (((uint16_t) (diff + len)) < YPORT_BUFFER_LEN) {
+  } else if ((diff + len) < YPORT_BUFFER_LEN) {
     memmove(yport_send_buffer.data, yport_send_buffer.data + yport_send_buffer.sent, diff);
     memcpy(yport_send_buffer.data + diff, data, len);
     yport_send_buffer.len = diff + len;

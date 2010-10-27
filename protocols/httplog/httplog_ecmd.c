@@ -22,7 +22,7 @@
 
 // httplog_ecmd.c
 //
-// this is a literal copy of twitter_ecmd.c which the "twitter" strings replaced by "httplog" ones
+// this is a literal copy of twitter_ecmd.c with "twitter" replaced by "httplog"
 
 #include <avr/pgmspace.h>
 
