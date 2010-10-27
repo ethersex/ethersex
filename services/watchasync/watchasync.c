@@ -87,7 +87,7 @@ void addToRingbuffer(int pin)
 #ifdef CONF_WATCHASYNC_TIMESTAMP
 #if CONF_WATCHASYNC_RESOLUTION > 1
 //        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) * CONF_WATCHASYNC_RESOLUTION;  // add timestamp in ringbuffer
-	wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )  // add timestamp in ringbuffer
+	wa_buffer[wa_buffer_right].timestamp = clock_get_time() & ( (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION ))  // add timestamp in ringbuffer
 #else // CONF_WATCHASYNC_RESOLUTION > 1
         wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
