@@ -1,7 +1,7 @@
 // Various strings used for building paths
 // First part of the path up to the pin identifier
 static const char PROGMEM watchasync_path[] =
-    "GET " CONF_WATCHASYNC_PATH ;
+    CONF_WATCHASYNC_METHOD " " CONF_WATCHASYNC_PATH ;
 
 // next is the optional part between pin identifier and timestamp
 #ifdef CONF_WATCHASYNC_TIMESTAMP

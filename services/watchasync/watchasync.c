@@ -724,8 +724,8 @@ static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callba
 #ifdef CONF_WATCHASYNC_SUMMARIZE
 #if CONF_WATCHASYNC_RESOLUTION > 1
 //    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
-    conn->appstate.watchasync.timestamp = ((clock_get_time() / (CONF_WATCHASYNC_RESOLUTION * CONF_WATCHASYNC_BUFFERSIZE)) * (CONF_WATCHASYNC_RESOLUTION * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
-    if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION;
+    conn->appstate.watchasync.timestamp = ((clock_get_time() / (uint32_t) ((uint32_t) CONF_WATCHASYNC_RESOLUTION * (uint32_t) CONF_WATCHASYNC_BUFFERSIZE)) * (uint32_t) ((uint32_t) CONF_WATCHASYNC_RESOLUTION * (uint32_t) CONF_WATCHASYNC_BUFFERSIZE)) + (uint32_t) (wa_buf * (uint32_t) CONF_WATCHASYNC_RESOLUTION);
+    if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= (uint32_t) ((uint32_t) CONF_WATCHASYNC_BUFFERSIZE * (uint32_t) CONF_WATCHASYNC_RESOLUTION);
 #else // CONF_WATCHASYNC_RESOLUTION > 1
 //    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf;
     conn->appstate.watchasync.timestamp = ((clock_get_time() / CONF_WATCHASYNC_BUFFERSIZE) * CONF_WATCHASYNC_BUFFERSIZE) + wa_buf;
