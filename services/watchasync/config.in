@@ -4,7 +4,7 @@ dep_bool_menu "watchasync service (EXPERIMENTAL)" WATCHASYNC_SUPPORT $TCP_SUPPOR
 	ip "Server IP" WATCHASYNC_SERVER_IP "78.46.142.232" "::1"
   fi
   int "Port number used by the Service" CONF_WATCHASYNC_PORT 80
-  string "HTTP Method used (normaly GET or PUT)" CONF_WATCHASYNC_METHOD "GET"
+  string "HTTP Method used (often GET or POST)" CONF_WATCHASYNC_METHOD "GET"
   string "Path in front of pin identifier" CONF_WATCHASYNC_PATH "/pfad/data/"
   dep_bool "Include unix timestamp" CONF_WATCHASYNC_TIMESTAMP $CLOCK_DATETIME_SUPPORT
   if [ "$CONF_WATCHASYNC_TIMESTAMP" = "y" ]; then
