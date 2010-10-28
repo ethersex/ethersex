@@ -35,8 +35,8 @@ divert(0)dnl
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <stdint.h>
-#include "core/debug.h"
 #include "config.h"
+#include "core/debug.h"
 
 #if ARCH == ARCH_HOST
 #include <sys/time.h>
@@ -226,7 +226,7 @@ divert(eval(timer_divert_base`+'timer_divert_last` * 2 + 2'))
 #       ifdef BOOTLOADER_SUPPORT
         if(bootload_delay)
             if(-- bootload_delay == 0) {
-	        debug_putstr("Reset()\r\n");
+	        debug_putstr("RST\n");
 		cli();
 		_IVREG = _BV(IVCE);	        /* prepare ivec change */
 		_IVREG = 0x00;                  /* change ivec */
