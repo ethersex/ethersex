@@ -80,10 +80,10 @@ endif
 
 # remove all unused code and data during linking
 CFLAGS += -fdata-sections -ffunction-sections
-LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--gc-sections,--relax
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
-ifeq ($(atmega128),y)
+ifeq ($(atmega1284p),y)
 LDFLAGS += -Wl,--section-start=.text=0x1E000
 else
 LDFLAGS += -Wl,--section-start=.text=0xE000

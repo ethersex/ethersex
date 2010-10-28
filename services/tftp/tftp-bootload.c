@@ -46,6 +46,11 @@ extern uint8_t bootload_delay;
  */
 #define BUF ((struct uip_udpip_hdr *)&((char *)uip_appdata)[-UIP_IPUDPH_LEN])
 
+#if (MCU == atmega1284p) && (SPM_PAGESIZE != 256)
+#warning Invalid SPM_PAGESIZE
+#undef SPM_PAGESIZE
+#define SPM_PAGESIZE 256
+#endif
 
 static void
 flash_page(uint32_t page, uint8_t *buf)
@@ -58,7 +63,11 @@ flash_page(uint32_t page, uint8_t *buf)
 #endif
 
     for(i = 0; i < SPM_PAGESIZE; i ++)
+#if FLASHEND > UINT16_MAX
+	if(buf[i] != pgm_read_byte_far(page + i))
+#else
 	if(buf[i] != pgm_read_byte_near(page + i))
+#endif
 	    goto commit_changes;
     return;					/* no changes */
 
@@ -103,7 +112,13 @@ tftp_handle_packet(void)
     /*
      * care for incoming tftp packet now ...
      */
-    uint16_t i, base;
+    uint16_t i;
+#if FLASHEND > UINT16_MAX
+#define FLASH_ADDR  uint32_t
+#else
+#define FLASH_ADDR  uint16_t
+#endif
+    FLASH_ADDR base;
     struct tftp_hdr *pk = uip_appdata;
 
     switch(HTONS(pk->type)) {
@@ -142,7 +157,7 @@ tftp_handle_packet(void)
 
 	base = 512 * uip_udp_conn->appstate.tftp.transfered;
 
-#if FLASHEND == 0xFFFF
+#if FLASHEND == UINT16_MAX
 	if(uip_udp_conn->appstate.tftp.transfered
 	   && base == 0)     /* base overflowed ! */
 #else
@@ -156,7 +171,11 @@ tftp_handle_packet(void)
 
 	for(i = 0; i < 512; i ++)
 	    pk->u.data.data[i] =
+#if FLASHEND > UINT16_MAX
+              pgm_read_byte_far(base + i);
+#else
               pgm_read_byte_near(base + i);
+#endif
 
 	uip_udp_send(4 + 512);
 	uip_udp_conn->appstate.tftp.transfered ++;
@@ -194,6 +213,8 @@ tftp_handle_packet(void)
 	for(i = uip_datalen() - 4; i < 512; i ++)
 	    pk->u.data.data[i] = 0xFF;	        /* EOF reached, init rest */
 
+	debug_putchar('.');
+
 	for(i = 0; i < 512 / SPM_PAGESIZE; i ++)
 	    flash_page(base + i * SPM_PAGESIZE,
 		       pk->u.data.data + i * SPM_PAGESIZE);
@@ -206,7 +227,8 @@ tftp_handle_packet(void)
 #           else
             bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
 #           endif
-            debug_putstr(" end:\r\n");
+
+            debug_putstr("end\n");
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
