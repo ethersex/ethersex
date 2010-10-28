@@ -153,7 +153,7 @@ clock_tick(void)
 void
 clock_set_time_raw(uint32_t new_sync_timestamp)
 {
-timestamp=new_sync_timestamp;
+	timestamp=new_sync_timestamp;
 }
 
 void
@@ -400,6 +400,26 @@ int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
 	}
 	return -1;
 }
+
+// return 1 if date/time is in CEST or 0 if not
+uint8_t
+datetime_is_CEST(struct clock_datetime_t *d)
+{
+	uint8_t cest;
+    /* We must determine, if we have CET or CEST */
+    int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
+    /* march until october can be summer time */
+    if (d->month < 3 || d->month > 10) {
+            cest=0;
+    } else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
+            cest=0;
+    } else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 1))) {
+            cest=0;
+    } else {
+            cest=1;
+    }
+    return cest;
+}
 #endif
 
 void
@@ -407,17 +427,10 @@ clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
 {
 #if TIMEZONE == TIMEZONE_CEST
 	clock_datetime(d, timestamp);
-	/* We must determine, if we have CET or CEST */
-	int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
-	/* march until october can be summer time */
-	if (d->month < 3 || d->month > 10) {
-		timestamp += 3600;
-	} else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
-		timestamp += 3600;
-	} else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 1))) {
-		timestamp += 3600;
-	} else {
+	if(datetime_is_CEST(d)) 	{
 		timestamp += 7200;
+	} 	else 	{
+		timestamp += 3600;
 	}
 #endif
 	clock_datetime(d, timestamp);

@@ -41,10 +41,14 @@ int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
   struct clock_datetime_t date;
   clock_current_localtime(&date);
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d %s"),
                                weekdays[date.dow],
                                date.day, date.month, date.year + 1900,
-                               date.hour, date.min, date.sec, date.day));
+                               date.hour, date.min, date.sec,
+#if TIMEZONE == TIMEZONE_CEST
+                               datetime_is_CEST(&date) ? "CEST": "CET")
+#endif
+                               );
 }
 
 #ifdef DCF77_SUPPORT
