@@ -53,7 +53,7 @@ usart_baudrate(uint16_t baudrate) {
     break;
 #endif
   default:
-    ubrr = (F_CPU/1600) / baudrate - 1;
+    ubrr = (uint8_t)((F_CPU/1600) / baudrate - 1);
   }
   return ubrr;
 }

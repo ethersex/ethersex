@@ -265,7 +265,8 @@ endif
 
 ##############################################################################
 ### Special case for MacOS X (darwin10.0) and FreeBSD
-CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] || [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /opt/local/bin/bash; \
+CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] ; then echo /opt/local/bin/bash; \
+          elif [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /usr/local/bin/bash; \
           elif [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \

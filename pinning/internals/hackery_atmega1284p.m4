@@ -32,6 +32,14 @@ dnl
 #define _TCCR0_PRESCALE TCCR0B
 #define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
 #define _TIMSK_TIMER0 TIMSK0
+#define _CS00 CS00
+#define _CS01 CS01
+#define _CS02 CS02
+#define _COM00 COM0B0
+#define _COM01 COM0B1
+#define _WGM00 WGM00
+#define _WGM01 WGM01
+#define _TCNT0 TCNT0
 
 /* Timer 1 - Clock */
 #define _TIMSK_TIMER1 TIMSK1
@@ -44,6 +52,14 @@ dnl
 #define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
 #define _TIMSK_TIMER2 TIMSK2
 #define _TIFR_TIMER2 TIFR2
+#define _CS20 CS20
+#define _CS21 CS21
+#define _CS22 CS22
+#define _COM20 COM2B0
+#define _COM21 COM2B1
+#define _WGM20 WGM20
+#define _WGM21 WGM21
+#define _TCNT2 TCNT2
 
 /* Timer0 - PWM Melody */
 #define _PWM_MELODY_COMP TIMER2_COMPA_vect

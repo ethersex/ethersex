@@ -16,6 +16,9 @@ if [ "$ZBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		fi
 
 		dep_bool "ZBUS ARP-Proxy" ZBUS_ARP_PROXY $ENC28J60_SUPPORT $ZBUS_SUPPORT
+		comment  "Debugging Flags"
+		dep_bool 'ZBUS ecmd' ZBUS_ECMD $ZBUS_SUPPORT
+		dep_bool 'ZBUS Debug' DEBUG_ZBUS $DEBUG
 	fi
 	endmenu
 else

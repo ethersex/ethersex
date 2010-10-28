@@ -34,7 +34,6 @@
 #include "core/debug.h"
 #include "core/spi.h"
 #include "network.h"
-#include "core/periodic.h"
 #include "core/portio/portio.h"
 #include "hardware/radio/rfm12/rfm12.h"
 #include "protocols/uip/ipv6.h"
@@ -53,7 +52,6 @@ void (*jump_to_bootloader) (void) = (void *) BOOTLOADER_START_ADDRESS;
 extern void ethersex_meta_init (void);
 extern void ethersex_meta_startup (void);
 extern void ethersex_meta_mainloop (void);
-extern void periodic_process (void);
 
 int
 main (void)
@@ -121,10 +119,10 @@ main (void)
 #ifdef BOOTLOADER_SUPPORT
   /* disable interrupts */
   cli ();
-#else
+  wdt_disable();
+#endif //BOOTLOADER_SUPPORT
   /* enable interrupts */
   sei ();
-#endif //BOOTLOADER_SUPPORT
 
 #ifdef USE_WATCHDOG
   debug_printf ("enabling watchdog\n");
