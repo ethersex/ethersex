@@ -778,7 +778,7 @@ void sendmessage(void) // Send event in ringbuffer indicated by left pointer
   return;
 }
 
-void watchasync_init(void)  // Initilize Poirts and Interrupts
+void watchasync_init(void)  // Initialize Ports and Interrupts
 {
 #ifdef CONF_WATCHASYNC_PA
   PORTA = WATCHASYNC_PA_MASK;  // Enable Pull-up on PortA
@@ -862,7 +862,7 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
       sendmessage();   // resend current event
     } else // sendstate == 0 => Idle  // Previous send has been succesfull, send next event if any
     {
-      if (wa_buffer_left != wa_buffer_right) // there is somethiing in the buffer
+      if (wa_buffer_left != wa_buffer_right) // there is something in the buffer
       {
         wa_buffer_left = ((wa_buffer_left + 1) % CONF_WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
         WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
