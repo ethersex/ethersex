@@ -51,9 +51,16 @@ extern uint8_t bootload_delay;
 #undef SPM_PAGESIZE
 #define SPM_PAGESIZE 256
 #endif
+#define TFTP_BLOCK_SIZE 512
+#if FLASHEND > UINT16_MAX
+typedef uint32_t flash_base_t;
+#else
+typedef uint16_t flash_base_t;
+#endif
+
 
 static void
-flash_page(uint32_t page, uint8_t *buf)
+flash_page(flash_base_t page, uint8_t *buf)
 {
     uint16_t i;
     uint8_t sreg;
@@ -62,16 +69,13 @@ flash_page(uint32_t page, uint8_t *buf)
     return;
 #endif
 
-    for(i = 0; i < SPM_PAGESIZE; i ++)
 #if FLASHEND > UINT16_MAX
-	if(buf[i] != pgm_read_byte_far(page + i))
+    if (memcmp_PF(buf, (PGM_VOID_P)page, SPM_PAGESIZE) != 0)
 #else
-	if(buf[i] != pgm_read_byte_near(page + i))
+    if (memcmp_P(buf, (PGM_VOID_P)page, SPM_PAGESIZE) != 0)
 #endif
-	    goto commit_changes;
-    return;					/* no changes */
+	return;					/* no changes */
 
- commit_changes:
     /* Disable interrupts. */
     sreg = SREG;
     cli();
@@ -113,12 +117,7 @@ tftp_handle_packet(void)
      * care for incoming tftp packet now ...
      */
     uint16_t i;
-#if FLASHEND > UINT16_MAX
-#define FLASH_ADDR  uint32_t
-#else
-#define FLASH_ADDR  uint16_t
-#endif
-    FLASH_ADDR base;
+    flash_base_t base;
     struct tftp_hdr *pk = uip_appdata;
 
     switch(HTONS(pk->type)) {
@@ -155,11 +154,11 @@ tftp_handle_packet(void)
 	pk->type = HTONS(3); /* data packet */
 	pk->u.data.block = HTONS(uip_udp_conn->appstate.tftp.transfered + 1);
 
-	base = 512 * uip_udp_conn->appstate.tftp.transfered;
+	base = TFTP_BLOCK_SIZE * uip_udp_conn->appstate.tftp.transfered;
 
+	/* base overflowed ! */
 #if FLASHEND == UINT16_MAX
-	if(uip_udp_conn->appstate.tftp.transfered
-	   && base == 0)     /* base overflowed ! */
+	if(uip_udp_conn->appstate.tftp.transfered && base == 0)
 #else
 	if(base > FLASHEND)
 #endif
@@ -169,15 +168,13 @@ tftp_handle_packet(void)
 	    return;
 	}
 
-	for(i = 0; i < 512; i ++)
-	    pk->u.data.data[i] =
 #if FLASHEND > UINT16_MAX
-              pgm_read_byte_far(base + i);
+	memcpy_PF(pk->u.data.data, (PGM_VOID_P)base, TFTP_BLOCK_SIZE);
 #else
-              pgm_read_byte_near(base + i);
+	memcpy_P(pk->u.data.data, (PGM_VOID_P)base, TFTP_BLOCK_SIZE);
 #endif
 
-	uip_udp_send(4 + 512);
+	uip_udp_send(4 + TFTP_BLOCK_SIZE);
 	uip_udp_conn->appstate.tftp.transfered ++;
 	break;
 #endif /* not TFTP_UPLOAD_ONLY */
@@ -208,18 +205,18 @@ tftp_handle_packet(void)
 	if(HTONS(pk->u.ack.block) > uip_udp_conn->appstate.tftp.transfered + 1)
 	    goto error_out;			/* too late */
 
-	base = 512 * (HTONS(pk->u.ack.block) - 1);
+	base = TFTP_BLOCK_SIZE * (HTONS(pk->u.ack.block) - 1);
 
-	for(i = uip_datalen() - 4; i < 512; i ++)
+	for(i = uip_datalen() - 4; i < TFTP_BLOCK_SIZE; i ++)
 	    pk->u.data.data[i] = 0xFF;	        /* EOF reached, init rest */
 
 	debug_putchar('.');
 
-	for(i = 0; i < 512 / SPM_PAGESIZE; i ++)
+	for(i = 0; i < TFTP_BLOCK_SIZE / SPM_PAGESIZE; i ++)
 	    flash_page(base + i * SPM_PAGESIZE,
 		       pk->u.data.data + i * SPM_PAGESIZE);
 
-	if(uip_datalen() < 512 + 4) {
+	if(uip_datalen() < TFTP_BLOCK_SIZE + 4) {
 	    uip_udp_conn->appstate.tftp.finished = 1;
 
 #           ifdef TFTPOMATIC_SUPPORT
