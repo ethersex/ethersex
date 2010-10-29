@@ -104,7 +104,7 @@ void hd44780_clear()
 #endif
 }
 
-void hd44780_home()
+void hd44780_home(void)
 {
     output_byte(0, CMD_HOME(),1);
 }
@@ -148,7 +148,7 @@ void hd44780_init(void)
 
     _delay_ms(4);
 #ifdef HD44780_2WIRE
-	output_nibble(0, 0x03,1);
+    output_nibble(0, 0x03,1);
 #else
     clock_write(1);
 #endif /*HD44780_2WIRE*/

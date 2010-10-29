@@ -42,7 +42,6 @@ char *debug_binary (uint8_t v) {
 }
 
 /* prototypes */
-int debug_uart_put(char d, FILE *stream);
 void soft_uart_putchar(uint8_t c);
 
 #define USE_USART 0
