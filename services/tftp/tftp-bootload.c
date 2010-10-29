@@ -60,7 +60,7 @@ typedef uint16_t flash_base_t;
 
 
 static void
-flash_page(flash_base_t page, uint8_t *buf)
+flash_page(uint32_t page, uint8_t *buf)
 {
     uint16_t i;
     uint8_t sreg;
@@ -70,9 +70,9 @@ flash_page(flash_base_t page, uint8_t *buf)
 #endif
 
 #if FLASHEND > UINT16_MAX
-    if (memcmp_PF(buf, (PGM_VOID_P)page, SPM_PAGESIZE) != 0)
+    if (memcmp_PF(buf, (uint_farptr_t)page, SPM_PAGESIZE) == 0)
 #else
-    if (memcmp_P(buf, (PGM_VOID_P)page, SPM_PAGESIZE) != 0)
+    if (memcmp_P(buf, (PGM_VOID_P)page, SPM_PAGESIZE) == 0)
 #endif
 	return;					/* no changes */
 
@@ -169,7 +169,7 @@ tftp_handle_packet(void)
 	}
 
 #if FLASHEND > UINT16_MAX
-	memcpy_PF(pk->u.data.data, (PGM_VOID_P)base, TFTP_BLOCK_SIZE);
+	memcpy_PF(pk->u.data.data, (uint_farptr_t)base, TFTP_BLOCK_SIZE);
 #else
 	memcpy_P(pk->u.data.data, (PGM_VOID_P)base, TFTP_BLOCK_SIZE);
 #endif
