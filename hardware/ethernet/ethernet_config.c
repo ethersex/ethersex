@@ -39,7 +39,8 @@ network_config_load (void)
 #endif
 
 #if defined(BOOTP_SUPPORT)				\
-    || (IPV6_SUPPORT && !defined(IPV6_STATIC_SUPPORT))
+    || (IPV6_SUPPORT && !defined(IPV6_STATIC_SUPPORT))	\
+    || DHCP_SUPPORT
     return;
 
 #else
