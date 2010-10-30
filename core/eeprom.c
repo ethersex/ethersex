@@ -86,7 +86,7 @@ eeprom_init (void)
     eeprom_save_P (mac, PSTR(CONF_ETHERRAPE_MAC), 6);
 #endif
 
-#if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
+#if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
     set_CONF_ETHERRAPE_IP(&ip);
     eeprom_save(ip, &ip, IPADDR_LEN);
 #ifdef ETHERNET_SUPPORT
