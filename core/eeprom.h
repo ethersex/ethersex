@@ -54,7 +54,7 @@ struct eeprom_config_t {
     uint8_t mac[6];
 #endif
 
-#if !defined(BOOTP_SUPPORT) || defined(IPV6_STATIC_SUPPORT)
+#if !defined(BOOTP_SUPPORT) || defined(IPV6_STATIC_SUPPORT) || !defined(DHCP_SUPPORT)
     uint8_t ip[IPADDR_LEN];
 #endif
 
