@@ -328,7 +328,7 @@ typedef unsigned int16  uint16_t;
 #ifndef IRMP_USE_AS_LIB
 #include "irmpconfig.h"
 #endif
-#include "irmp.h"
+#include "irmp_lib.h"
 
 #if IRMP_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRMP_SUPPORT_NOKIA_PROTOCOL == 1
 #define IRMP_SUPPORT_GRUNDIG_OR_NOKIA_PROTOCOL  1

@@ -65,16 +65,6 @@ typedef struct
   uint8_t flags;		/* repeated key */
 } irmp_data_t;
 
-///////////////
-#define IRMP_DATA irmp_data_t
-#include "irmp_lib.h"
-#ifdef IRSND_SUPPORT
-#include "irsnd_lib.h"
-#endif
-#define IRMP_FLAG_REPEAT IRMP_FLAG_REPETITION
-#undef F_INTERRUPTS
-///////////////
-
 #ifdef DEBUG_IRMP
 extern const PGM_P irmp_proto_names[] PROGMEM;
 #endif

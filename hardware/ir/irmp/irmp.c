@@ -109,14 +109,15 @@
 
 
 ///////////////
-#define irmp_ISR irmp_rx_process
-#define irmp_get_data irmp_rx_get
 #pragma push_macro("F_INTERRUPTS")
 #define F_INTERRUPTS IRMP_HZ
-#define IRMP_LOGGING 0
-#define IRMP_USE_AS_LIB
 #pragma push_macro("DEBUG")
 #undef DEBUG
+#define irmp_ISR irmp_rx_process
+#define irmp_get_data irmp_rx_get
+#define IRMP_LOGGING 0
+#define IRMP_USE_AS_LIB
+#define IRMP_DATA irmp_data_t
 #include "irmp_lib.c"
 #ifdef IRSND_SUPPORT
 #define irsnd_ISR irmp_tx_process
