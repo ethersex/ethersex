@@ -199,7 +199,7 @@ static volatile uint8_t                         irsnd_is_on = FALSE;
  *  @details  Switches PWM on with a narrow spike on all 3 channels -> leds glowing
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if 0
+#ifndef IRSND_USE_AS_LIB
 static void
 irsnd_on (void)
 {
@@ -222,7 +222,7 @@ irsnd_on (void)
  *  @details  Switches PWM off
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if 0
+#ifndef IRSND_USE_AS_LIB
 static void
 irsnd_off (void)
 {
@@ -246,7 +246,7 @@ irsnd_off (void)
  *  @details  sets pwm frequency
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if 0
+#ifndef IRSND_USE_AS_LIB
 static void
 irsnd_set_freq (uint8_t freq)
 {
@@ -265,7 +265,7 @@ irsnd_set_freq (uint8_t freq)
  *  @details  Configures 0CR0A, 0CR0B and 0CR2B as PWM channels
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if 0
+#ifndef IRSND_USE_AS_LIB
 void
 irsnd_init (void)
 {
