@@ -1217,10 +1217,10 @@ static uint8_t                              IRMP_PIN;
  *  @details  Configures IRMP input pin
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if 0
+#ifndef IRMP_USE_AS_LIB
 #ifndef ANALYZE
 void
-_irmp_init (void)
+irmp_init (void)
 {
 #ifndef PIC_CCS_COMPILER
     IRMP_PORT &= ~(1<<IRMP_BIT);                                        // deactivate pullup
@@ -1435,7 +1435,7 @@ irmp_store_bit2 (uint8_t value)
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 uint8_t
-#ifdef __AVR__
+#ifdef IRMP_USE_AS_LIB
 irmp_ISR (const uint8_t irmp_input)
 #else
 irmp_ISR (void)
@@ -1462,7 +1462,7 @@ irmp_ISR (void)
 #if IRMP_SUPPORT_MANCHESTER == 1 || IRMP_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1
     static uint8_t      last_value;                                             // last bit value
 #endif
-#ifndef __AVR__
+#ifndef IRMP_USE_AS_LIB
     uint8_t             irmp_input;                                             // input value
 #endif
 
@@ -1470,7 +1470,7 @@ irmp_ISR (void)
     time_counter++;
 #endif
 
-#ifndef __AVR__
+#ifndef IRMP_USE_AS_LIB
     irmp_input = input(IRMP_PIN);
 #endif
 
