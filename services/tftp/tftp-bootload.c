@@ -54,40 +54,6 @@ extern uint8_t bootload_delay;
 #define TFTP_BLOCK_SIZE 512
 #if FLASHEND > UINT16_MAX
 typedef uint32_t flash_base_t;
-
-#include "avr/version.h"
-#if __AVR_LIBC_VERSION__ < 10700UL
-
-static int
-memcmp_PF(const uint8_t *s1, uint_farptr_t s2, size_t len)
-{
-    while (len--)
-    {
-	uint8_t c = pgm_read_byte_far (s2);
-	if (*s1 < c)
-	    return -1;
-	else if (*s1 > c)
-	    return 1;
-	s1++;
-	s2++;
-    }
-    return 0;
-}
-
-static void*
-memcpy_PF (uint8_t *dst, uint_farptr_t src, size_t len)
-{
-    uint8_t *dst_save = dst;
-    while (len--)
-    {
-	*dst = pgm_read_byte_far (src);
-	src++;
-	dst++;
-    }
-    return  dst_save;
-}
-
-#endif
 #else
 typedef uint16_t flash_base_t;
 #endif
