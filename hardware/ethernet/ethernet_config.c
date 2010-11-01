@@ -35,7 +35,7 @@ network_config_load (void)
 #ifdef EEPROM_SUPPORT
   eeprom_restore(mac, uip_ethaddr.addr, 6);
 #else 
-#if BOOTLOADER_START_ADDRESS > UINT16_MAX
+#if defined BOOTLOADER_SUPPORT &&  BOOTLOADER_START_ADDRESS > UINT16_MAX
   memcpy_PF(uip_ethaddr.addr, (uint_farptr_t)(CONF_ETHERRAPE_MAC), 6);
 #else
   memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
