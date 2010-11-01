@@ -356,7 +356,7 @@ typedef uint8_t     PAUSE_LEN;
 
 #define IRMP_FLAG_REPETITION                    0x01
 
-#ifndef __AVR__
+#ifndef IRMP_USE_AS_LIB
 typedef struct
 {
   uint8_t               protocol;                                               // protocol, i.e. NEC_PROTOCOL
@@ -371,7 +371,9 @@ typedef struct
  *  Initialize IRMP decoder
  *  @details  Configures IRMP input pin
  */
-extern void                           _irmp_init (void);
+#ifndef IRMP_USE_AS_LIB
+extern void                           irmp_init (void);
+#endif
 
 /**
  *  Get IRMP data
@@ -385,7 +387,7 @@ extern uint8_t                        irmp_get_data (IRMP_DATA *);
  *  ISR routine
  *  @details  ISR routine, called 10000 times per second
  */
-#ifdef __AVR__
+#ifdef IRMP_USE_AS_LIB
 extern uint8_t                        irmp_ISR (const uint8_t);
 #else
 extern uint8_t                        irmp_ISR (void);
