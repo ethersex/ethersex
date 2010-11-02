@@ -44,173 +44,665 @@
 #include "protocols/ecmd/sender/ecmd_sender_net.h"
 #include "watchasync.h"
 
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
+#ifdef CONF_WATCHASYNC_TIMESTAMP
 #include "services/clock/clock.h"
-#endif
+#else // def CONF_WATCHASYNC_TIMESTAMP
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#include "services/clock/clock.h"
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+#endif // def CONF_WATCHASYNC_TIMESTAMP
 
-// first string is the GET part including the path
-static const char PROGMEM get_string_head[] =
-    "GET " CONF_WATCHASYNC_PATH "?port=";
-// next is the - optional - inclusion of the machine identifier uuid
-#ifdef CONF_WATCHASYNC_INCLUDE_PREFIX
-static const char PROGMEM prefix_string[] =
-	CONF_WATCHASYNC_PREFIX ;
-#endif
-// optional uuid
-#ifdef CONF_WATCHASYNC_INCLUDE_UUID
-static const char PROGMEM uuid_string[] =
-	"&uuid=" CONF_WATCHASYNC_UUID ;
-#endif
-// the - optional - unix time stamp
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
-static const char PROGMEM time_string[] =
-	"&time=";
-#endif
-// and the http footer including the http protocol version and the server name
-static const char PROGMEM get_string_foot[] =
-    " HTTP/1.1\r\n"
-    "Host: " CONF_WATCHASYNC_SERVICE "\r\n\r\n";
-#ifndef CONF_WATCHASYNC_PORT
-#define CONF_WATCHASYNC_PORT 80
-#endif
+#include "services/watchasync/watchasync_strings.c"
+
 static struct WatchAsyncBuffer wa_buffer[CONF_WATCHASYNC_BUFFERSIZE]; // Ringbuffer for Messages
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+static uint8_t wa_buf;  // bufferposition to send
+static uint8_t wa_bufpin; // pin of bufferposition to send
+#else // def CONF_WATCHASYNC_SUMMARIZE
 static uint8_t wa_buffer_left = 0; 	// last position sent
 static uint8_t wa_buffer_right = 0; 	// last position set
+#endif // def CONF_WATCHASYNC_SUMMARIZE
 
-static uint8_t wa_portstate = 0; 		// Last portstate saved
 static uint8_t wa_sendstate = 0; 		// 0: Idle, 1: Message being sent, 2: Sending message failed
-
-#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
-
-#define ELEMENTS(A) (sizeof(A)/sizeof((A)[0]))
-static uint8_t samples[3] = {0,0,0};
 
 void addToRingbuffer(int pin)
 {
     uint8_t tempright;  // temporary pointer for detecting full buffer
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    tempright = ( ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) + 1 ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
+    tempright = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
+#else // CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    tempright = ( clock_get_time() + 1) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
+    tempright = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+    if ((~wa_buffer[tempright].pin[pin]) != 0) // check for overflow
+    {
+        wa_buffer[tempright].pin[pin] ++;
+    }
+#else // def CONF_WATCHASYNC_SUMMARIZE
     tempright = ((wa_buffer_right + 1) % CONF_WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
     if (tempright != wa_buffer_left)  // if ringbuffer not full
     {
         wa_buffer_right = tempright;  // select next space in ringbuffer
         wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
+#ifdef CONF_WATCHASYNC_TIMESTAMP
+#if CONF_WATCHASYNC_RESOLUTION > 1
+//        wa_buffer[wa_buffer_right].timestamp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) * CONF_WATCHASYNC_RESOLUTION;  // add timestamp in ringbuffer
+#ifdef CONF_WATCHASYNC_SENDEND
+	wa_buffer[wa_buffer_right].timestamp = clock_get_time() & ( (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )) + CONF_WATCHASYNC_RESOLUTION; // add timestamp in ringbuffer
+#else // def CONF_WATCHASYNC_SENDEND
+	wa_buffer[wa_buffer_right].timestamp = clock_get_time() & ( (uint32_t) (-1 * CONF_WATCHASYNC_RESOLUTION )); // add timestamp in ringbuffer
+#endif // def CONF_WATCHASYNC_SENDEND
+#else // CONF_WATCHASYNC_RESOLUTION > 1
         wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
-#endif
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+#endif // def CONF_WATCHASYNC_TIMESTAMP
     }
+#endif // def CONF_WATCHASYNC_SUMMARIZE
 }
+
+#ifdef CONF_WATCHASYNC_PA
+static uint8_t stateA = 255;
+#endif // def CONF_WATCHASYNC_PA
+#ifdef CONF_WATCHASYNC_PB
+static uint8_t stateB = 255;
+#endif // def CONF_WATCHASYNC_PB
+#ifdef CONF_WATCHASYNC_PC
+static uint8_t stateC = 255;
+#endif // def CONF_WATCHASYNC_PC
+#ifdef CONF_WATCHASYNC_PD
+static uint8_t stateD = 255;
+#endif // def CONF_WATCHASYNC_PD
+
+
+// polling mechanism goes first
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+
+static uint8_t idx = 0;
+#ifdef CONF_WATCHASYNC_PA
+static uint8_t samplesA[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PA
+#ifdef CONF_WATCHASYNC_PB
+static uint8_t samplesB[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PB
+#ifdef CONF_WATCHASYNC_PC
+static uint8_t samplesC[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PC
+#ifdef CONF_WATCHASYNC_PD
+static uint8_t samplesD[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PD
 
 // the main purpose of the function is detect rasing edges and put them
 // in the ring buffer. In order to debounce for signals which are not perfect
 // we require 3 consecutive samples with the same level
 void watchasync_periodic(void)
 {
-    static uint8_t idx = 0;
-    static uint8_t state = 0;
-    uint8_t i;
-    uint8_t SamplesDiff,StatesDiff;
+    uint8_t StateDiff;
+    uint8_t TempDiff;
+
+    idx++;
+    if (idx>2){idx = 0;}
 
     // put element into ringbuffer
-    samples[idx] = PINC;
-    idx++;
-    if (idx>=ELEMENTS(samples)){idx = 0;}
+#ifdef CONF_WATCHASYNC_PA
+    samplesA[idx] = PINA;
+    // Detect changes having proved stable:
+    TempDiff = 
+    // Zerobits mark unstable Bits:
+    ~( (samplesA[0] ^ samplesA[1]) | (samplesA[0] ^ samplesA[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesA[0] ^ stateA)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PA_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesA[0];
 
-    // SamplesDiff: an high bit means this bit is stable 
-    SamplesDiff = (samples[0] ^ samples[1]) | (samples[1] ^ samples[2]);
-    // StatesDiff: a high bit means this bit has changed
-    StatesDiff  = (samples[0] ^ state) & ~SamplesDiff;
-    // leave in case there is no change
-    if (!StatesDiff) {return;}
-    for (i=0;i<8;i++){
-        uint8_t mask = (1<<i);
-        if (StatesDiff & mask){
-            if (mask & samples[0]){
-                // we have found a raising edge
-                addToRingbuffer(i);
-            }else{
-// in case somebody likes to see the falling edge as well
-//                addIntoRingbuffer(i+128);
-            }
-        }
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PA0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PA0_INDEX);
+#endif // def CONF_WATCHASYNC_PA0
+#ifdef CONF_WATCHASYNC_PA1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PA1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PA2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PA3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PA4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PA5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PA6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PA7_INDEX);
+#endif      
     }
-    state = (samples[0] & StatesDiff) | (state & ~StatesDiff);
+    stateA ^= TempDiff;
+#endif
+
+#ifdef CONF_WATCHASYNC_PB
+    samplesB[idx] = PINB;
+    // Detect changes having proved stable:
+    TempDiff = 
+    // Zerobits mark unstable Bits:
+    ~( (samplesB[0] ^ samplesB[1]) | (samplesB[0] ^ samplesB[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesB[0] ^ stateB)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PB_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesB[0];
+
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PB0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PB0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PB1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PB2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PB3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PB4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PB5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PB6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PB7_INDEX);
+#endif      
+    }
+    stateB ^= TempDiff;
+#endif
+
+#ifdef CONF_WATCHASYNC_PC
+    samplesC[idx] = PINC;
+    // Detect changes having proved stable:
+    TempDiff = 
+    // Zerobits mark unstable Bits:
+    ~( (samplesC[0] ^ samplesC[1]) | (samplesC[0] ^ samplesC[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesC[0] ^ stateC)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PC_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesC[0];
+
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PC0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PC0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PC1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PC2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PC3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PC4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PC5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PC6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PC7_INDEX);
+#endif      
+    }
+    stateC ^= TempDiff;
+#endif
+
+#ifdef CONF_WATCHASYNC_PD
+    samplesD[idx] = PIND;
+    // Detect changes having proved stable:
+    TempDiff = 
+    // Zerobits mark unstable Bits:
+    ~( (samplesD[0] ^ samplesD[1]) | (samplesD[0] ^ samplesD[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesD[0] ^ stateD)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PD_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesD[0];
+
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PD0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PD0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PD1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PD2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PD3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PD4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PD5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PD6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PD7_INDEX);
+#endif      
+    }
+    stateD ^= TempDiff;
+#endif
 }
 
-#else
+
+
+
+/////////////////////////////////////////////////
+// Interrupt driven routines
+/////////////////////////////////////////////////
+
+#else  /* ! CONF_WATCHASYNC_EDGDETECTVIAPOLLING */
+
+#ifdef CONF_WATCHASYNC_PA
+// Handle Pinchange Interrupt on PortA
+ISR(PCINT0_vect)
+{
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PINA;
+  // Detect changes having proved stable:
+  TempDiff = 
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateA)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PA_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
+    {
+#ifdef CONF_WATCHASYNC_PA0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PA0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PA1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PA2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PA3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PA4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PA5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PA6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PA7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PA7_INDEX);
+#endif      
+    }
+    stateA ^= TempDiff;
+
+    PinState = PINA;
+    // Detect changes having proved stable:
+    TempDiff = 
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateA)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PA_MASK;
+  }
+}
+#endif
+
+
+
+#ifdef CONF_WATCHASYNC_PB
+// Handle Pinchange Interrupt on PortB
+ISR(PCINT1_vect)
+{
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PINB;
+  // Detect changes having proved stable:
+  TempDiff = 
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateB)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PB_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
+    {
+#ifdef CONF_WATCHASYNC_PB0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PB0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PB1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PB2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PB3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PB4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PB5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PB6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PB7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PB7_INDEX);
+#endif      
+    }
+    stateB ^= TempDiff;
+
+    PinState = PINB;
+    // Detect changes having proved stable:
+    TempDiff = 
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateB)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PB_MASK;
+  }
+}
+#endif
+
+
+
+
+#ifdef CONF_WATCHASYNC_PC
 // Handle Pinchange Interrupt on PortC
 ISR(PCINT2_vect)
 {
-  uint8_t portcompstate = (PINC ^ wa_portstate); //  compare actual state of PortC with last saved state
-  uint8_t pin;	// loop variable for for-loop
-  uint8_t tempright;  // temporary pointer for detecting full buffer
-  while (portcompstate)  // repeat comparison as long as there are changes to the PortC
-  {
-    for (pin = 0; pin < 8; pin ++)  // iterate through pins
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PINC;
+  // Detect changes having proved stable:
+  TempDiff = 
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateC)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PC_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
     {
-      if (portcompstate & wa_portstate & (1 << pin)) // bit changed from 1 to 0
-      {
-        tempright = ((wa_buffer_right + 1) % CONF_WATCHASYNC_BUFFERSIZE);  // calculate next position in ringbuffer
-	if (tempright != wa_buffer_left)  // if ringbuffer not full
-	{
-	  wa_buffer_right = tempright;  // select next space in ringbuffer
-	  wa_buffer[wa_buffer_right].pin = pin;  // set pin in ringbuffer
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP
-          wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
-#endif
-//	} else {  // ringbuffer is full... discard event
-//	  WATCHASYNC_DEBUG ("Buffer full, discarding message!\n");
-	}
-      }
+#ifdef CONF_WATCHASYNC_PC0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PC0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PC1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PC2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PC3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PC4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PC5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PC6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PC7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PC7_INDEX);
+#endif      
     }
-    wa_portstate ^= portcompstate;  // incorporate changes processed in current state
-    portcompstate = (PINC ^ wa_portstate);  // check for new changes on PortC
+    stateC ^= TempDiff;
+
+    PinState = PINC;
+    // Detect changes having proved stable:
+    TempDiff = 
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateC)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PC_MASK;
   }
 }
+#endif
+
+
+
+#ifdef CONF_WATCHASYNC_PD
+// Handle Pinchange Interrupt on PortD
+ISR(PCINT3_vect)
+{
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PIND;
+  // Detect changes having proved stable:
+  TempDiff = 
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateD)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PD_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
+    {
+#ifdef CONF_WATCHASYNC_PD0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PD0_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PD1_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PD2_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PD3_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PD4_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PD5_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PD6_INDEX);
+#endif      
+#ifdef CONF_WATCHASYNC_PD7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PD7_INDEX);
+#endif      
+    }
+    stateD ^= TempDiff;
+
+    PinState = PIND;
+    // Detect changes having proved stable:
+    TempDiff = 
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateD)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PD_MASK;
+  }
+}
+#endif
+
 #endif /* ! CONF_WATCHASYNC_EDGDETECTVIAPOLLING */
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+/// Send Data
+////////////////////////////////////////////////////////////
 
 static void watchasync_net_main(void)  // Network-routine called by networkstack 
 {
-  if (uip_aborted() || uip_timedout()) // Connection aborted or timedout
+  if (uip_aborted() || uip_timedout() || uip_closed() ) // Connection aborted or timedout
   {
     // if connectionstate is new, we have to resend the packet, otherwise just ignore the event
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
     {
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+      uint8_t buf = ( uip_conn->appstate.watchasync.timestamp / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // CONF_WATCHASYNC_RESOLUTION > 1
+      uint8_t buf = uip_conn->appstate.watchasync.timestamp % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+      wa_buffer[buf].pin[uip_conn->appstate.watchasync.pin] += uip_conn->appstate.watchasync.count;
+#else // def CONF_WATCHASYNC_SUMMARIZE
       wa_sendstate = 2; // Ignore aborted, if already closed
+#endif // def CONF_WATCHASYNC_SUMMARIZE
       uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
       WATCHASYNC_DEBUG ("connection aborted\n");
       return;
-    }
-  }
-
-  if (uip_closed()) // Closed connection does not expect any respond from us, resend if connnectionstate is new
-  {
-    if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW)
-    {
-      wa_sendstate = 2; // Ignore aborted, if already closed
-      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD;
-      WATCHASYNC_DEBUG ("new connection closed\n");
-    } else {
+    } else if (uip_closed()) {
       WATCHASYNC_DEBUG ("connection closed\n");
     }
-    return;
   }
 
 
   if (uip_connected() || uip_rexmit()) { // (re-)transmit packet
     WATCHASYNC_DEBUG ("new connection or rexmit, sending message\n");
     char *p = uip_appdata;  // pointer set to uip_appdata, used to store string
-    p += sprintf_P(p, get_string_head);  // Copy Header from programm memory to appdata
-#ifdef CONF_WATCHASYNC_INCLUDE_PREFIX
-    p += sprintf_P(p, prefix_string);  // Append Prefixstring if configured
-#endif
-    p += sprintf(p, "%u", wa_buffer[wa_buffer_left].pin);  // append pin changed (0-7)
-#ifdef CONF_WATCHASYNC_INCLUDE_UUID
-    p += sprintf_P(p, uuid_string);  // append uuid if configured
-#endif
-#ifdef CONF_WATCHASYNC_INCLUDE_TIMESTAMP  
-    p += sprintf_P(p, time_string);  // append timestamp attribute
+    p += sprintf_P(p, watchasync_path);  // copy path from programm memory to appdata
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, (PGM_P) pgm_read_word(&(watchasync_ID[uip_conn->appstate.watchasync.pin])));  // append uuid if configured
+#else // def CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, (PGM_P) pgm_read_word(&(watchasync_ID[wa_buffer[wa_buffer_left].pin])));  // append uuid if configured
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+#ifdef CONF_WATCHASYNC_TIMESTAMP  
+    p += sprintf_P(p, watchasync_timestamp_path);  // append timestamp attribute
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf(p, "%lu", uip_conn->appstate.watchasync.timestamp); // and timestamp value
+#else // def CONF_WATCHASYNC_SUMMARIZE
     p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp); // and timestamp value
-#endif
-    p += sprintf_P(p, get_string_foot); // appen tail of packet from programmmemory
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+#endif // def CONF_WATCHASYNC_TIMESTAMP
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, watchasync_summarize_path);  // append timestamp attribute
+    p += sprintf(p,  WATCHASYNC_COUNTER_FORMAT , uip_conn->appstate.watchasync.count); // and timestamp value
+#endif // def CONF_WATCHASYNC_SUMMARIZE
+    p += sprintf_P(p, watchasync_request_end); // append tail of packet from programmmemory
 //    uip_udp_send(p - (char *)uip_appdata);
     uip_udp_send(p - (char *)uip_appdata);
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
@@ -221,8 +713,10 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
   {
     if (uip_conn->appstate.watchasync.state == WATCHASYNC_CONNSTATE_NEW) // If packet is still new
     {
+#ifndef CONF_WATCHASYNC_SUMMARIZE
       wa_sendstate = 0;  // Mark event as sent, go ahead in buffer
-      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD; // mark this packet as old, do noch resend it
+#endif      
+      uip_conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_OLD; // mark this packet as old, do not resend it
       uip_close();  // initiate closing of the connection
       WATCHASYNC_DEBUG ("packet sent, closing\n");
       return;
@@ -232,7 +726,6 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
   }
 }
 
-
 static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callback for DNS query
 {
   WATCHASYNC_DEBUG ("got dns response, connecting\n");
@@ -240,8 +733,27 @@ static void watchasync_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callba
   if(conn)  // if connection succesfully created
   {
     conn->appstate.watchasync.state = WATCHASYNC_CONNSTATE_NEW; // Set connection state to new, as data still has to be send
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+//    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE * CONF_WATCHASYNC_RESOLUTION)) + wa_buf * CONF_WATCHASYNC_RESOLUTION;
+    conn->appstate.watchasync.timestamp = ((clock_get_time() / (uint32_t) ((uint32_t) CONF_WATCHASYNC_RESOLUTION * (uint32_t) CONF_WATCHASYNC_BUFFERSIZE)) * (uint32_t) ((uint32_t) CONF_WATCHASYNC_RESOLUTION * (uint32_t) CONF_WATCHASYNC_BUFFERSIZE)) + (uint32_t) (wa_buf * (uint32_t) CONF_WATCHASYNC_RESOLUTION);
+    if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= (uint32_t) ((uint32_t) CONF_WATCHASYNC_BUFFERSIZE * (uint32_t) CONF_WATCHASYNC_RESOLUTION);
+#else // CONF_WATCHASYNC_RESOLUTION > 1
+//    conn->appstate.watchasync.timestamp = (clock_get_time() & (uint32_t) (-1 * CONF_WATCHASYNC_BUFFERSIZE)) + wa_buf;
+    conn->appstate.watchasync.timestamp = ((clock_get_time() / CONF_WATCHASYNC_BUFFERSIZE) * CONF_WATCHASYNC_BUFFERSIZE) + wa_buf;
+    if (conn->appstate.watchasync.timestamp > clock_get_time() ) conn->appstate.watchasync.timestamp -= CONF_WATCHASYNC_BUFFERSIZE;
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+    conn->appstate.watchasync.pin = wa_bufpin;
+    conn->appstate.watchasync.count = wa_buffer[wa_buf].pin[wa_bufpin];
+    wa_buffer[wa_buf].pin[wa_bufpin] -= conn->appstate.watchasync.count;
+    wa_sendstate = 0;
+#endif // def CONF_WATCHASYNC_SUMMARIZE
   } else {
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+    wa_sendstate = 0;  // if no connection initiated, set state to Retry
+#else
     wa_sendstate = 2;  // if no connection initiated, set state to Retry
+#endif // def CONF_WATCHASYNC_SUMMARIZE
   }
 }
 
@@ -249,46 +761,115 @@ void sendmessage(void) // Send event in ringbuffer indicated by left pointer
 {
   wa_sendstate = 1; // set new state in progress
 
+#ifdef DNS_SUPPORT
   uip_ipaddr_t *ipaddr; 
-  if (!(ipaddr = resolv_lookup(CONF_WATCHASYNC_SERVICE))) { // Try to find IPAddress
-    resolv_query(CONF_WATCHASYNC_SERVICE, watchasync_dns_query_cb); // If not found: query DNS
+  if (!(ipaddr = resolv_lookup(CONF_WATCHASYNC_SERVER))) { // Try to find IPAddress
+    resolv_query(CONF_WATCHASYNC_SERVER, watchasync_dns_query_cb); // If not found: query DNS
   } else {
     watchasync_dns_query_cb(NULL, ipaddr); // If found use IPAddress
   }
+#else // def DNS_SUPPORT
+  uip_ipaddr_t ip;
+  set_WATCHASYNC_SERVER_IP(&ip);
+
+  watchasync_dns_query_cb(NULL, &ip);
+#endif // def DNS_SUPPORT
+
   return;
 }
 
-void watchasync_init(void)  // Initilize Poirts and Interrupts
+void watchasync_init(void)  // Initialize Ports and Interrupts
 {
-  PORTC = (1<<PC7)|(1<<PC6)|(1<<PC5)|(1<<PC4)|(1<<PC3)|(1<<PC2)|(1<<PC1)|(1<<PC0);  // Enable Pull-up on PortC
-  DDRC = 0; 			// PortC Input
+#ifdef CONF_WATCHASYNC_PA
+  PORTA = WATCHASYNC_PA_MASK;  // Enable Pull-up on PortA
+  DDRA = 255 - WATCHASYNC_PA_MASK;  // PortA Input
 #ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
-  samples[0] = samples[1] = samples[2] = PINC; // save current state
+  samplesA[0] = samplesA[1] = samplesA[2] = PINA;  // save current state
+#else // def CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  PCMSK0 = WATCHASYNC_PA_MASK;  // Enable Pinchange Interrupt on PortA
+  PCICR |= 1<<PCIE0;  // Enable Pinchange Interrupt on PortA
+#endif // def CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+#endif // def CONF_WATCHASYNC_PA
+
+#ifdef CONF_WATCHASYNC_PB
+  PORTB = WATCHASYNC_PB_MASK;  // Enable Pull-up on PortB
+  DDRB = 255 - WATCHASYNC_PB_MASK;  // PortB Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samplesB[0] = samplesB[1] = samplesB[2] = PINB;  // save current state
 #else
-  wa_portstate = PINC; 		// save current state
-  PCMSK2 = (1<<PCINT23)|(1<<PCINT22)|(1<<PCINT21)|(1<<PCINT20)|(1<<PCINT19)|(1<<PCINT18)|(1<<PCINT17)|(1<<PCINT16);  // Enable Pinchange Interrupt on PortC
-  PCICR |= 1<<PCIE2;		// Enable Pinchange Interrupt on PortC
-//  SREG |= 1<<I;			//Enable Interrupts (will hopefully be done somewhere else)
+  PCMSK1 = WATCHASYNC_PB_MASK;  // Enable Pinchange Interrupt on PortA
+  PCICR |= 1<<PCIE1;  // Enable Pinchange Interrupt on PortA
 #endif
+#endif
+
+#ifdef CONF_WATCHASYNC_PC
+  PORTC = WATCHASYNC_PC_MASK;  // Enable Pull-up on PortC
+  DDRC = 255 - WATCHASYNC_PC_MASK;  // PortC Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samplesC[0] = samplesC[1] = samplesC[2] = PINC;  // save current state
+#else
+  PCMSK2 = WATCHASYNC_PC_MASK;  // Enable Pinchange Interrupt on PortC
+  PCICR |= 1<<PCIE2;  // Enable Pinchange Interrupt on PortC
+#endif
+#endif
+
+#ifdef CONF_WATCHASYNC_PD
+  PORTD = WATCHASYNC_PD_MASK;  // Enable Pull-up on PortD
+  DDRD = 255 - WATCHASYNC_PD_MASK;  // PortD Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samplesD[0] = samplesD[1] = samplesD[2] = PIND;  // save current state
+#else
+  PCMSK3 = WATCHASYNC_PD_MASK;  // Enable Pinchange Interrupt on PortD
+  PCICR |= 1<<PCIE3;  // Enable Pinchange Interrupt on PortD
+#endif
+#endif
+
 }
 
 void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
 {
   if (wa_sendstate != 1) // not busy sending 
   {
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+#if CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    uint8_t temp = ( ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) + 1 ) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
+    uint8_t temp = ( clock_get_time() / CONF_WATCHASYNC_RESOLUTION ) % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
+#else // CONF_WATCHASYNC_RESOLUTION > 1
+#ifdef CONF_WATCHASYNC_SENDEND
+    uint8_t temp = ( clock_get_time() + 1) % CONF_WATCHASYNC_BUFFERSIZE;
+#else // def CONF_WATCHASYNC_SENDEND
+    uint8_t temp = clock_get_time() % CONF_WATCHASYNC_BUFFERSIZE;
+#endif // def CONF_WATCHASYNC_SENDEND
+#endif // CONF_WATCHASYNC_RESOLUTION > 1
+    for (wa_buf = (temp + 1) % CONF_WATCHASYNC_BUFFERSIZE; wa_buf != temp; wa_buf = (wa_buf + 1) % CONF_WATCHASYNC_BUFFERSIZE)
+    {
+      for (wa_bufpin = 0; wa_bufpin < WATCHASYNC_PINCOUNT; wa_bufpin ++)
+      {
+        if (wa_buffer[wa_buf].pin[wa_bufpin] != 0)  // is there any data?
+        {
+          sendmessage();  // send the data found
+	  return;
+        }
+      }
+    }
+#else // CONF_WATCHASYNC_SUMMARIZE
     if (wa_sendstate == 2) // Message not sent successfully
     {
       WATCHASYNC_DEBUG ("Error, again please...\n"); 
       sendmessage();   // resend current event
     } else // sendstate == 0 => Idle  // Previous send has been succesfull, send next event if any
     {
-      if (wa_buffer_left != wa_buffer_right) // there is somethiing in the buffer
+      if (wa_buffer_left != wa_buffer_right) // there is something in the buffer
       {
         wa_buffer_left = ((wa_buffer_left + 1) % CONF_WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
         WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
         sendmessage();  // send the new event
       }
     }
+#endif // CONF_WATCHASYNC_SUMMARIZE
   }  
 }
 
