@@ -53,3 +53,11 @@ ifdef(`conf_IRMP', `dnl
 #undef IRMP_RX_LED_LOW_ACTIVE 
   pin(IRMP_TX, PD7) dnl OC2
 ')
+
+pin(KEY1, PD2)
+pin(KEY2, PD3)
+pin(KEY3, PD4)
+pin(LED1, PD5)
+pin(LED2, PD6)
+pin(SPEAKER, PD7)
+
