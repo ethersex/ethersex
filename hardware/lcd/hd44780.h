@@ -115,7 +115,7 @@ void hd44780_config(uint8_t cursor, uint8_t blink, uint8_t en);
 void hd44780_define_char(uint8_t n_char, uint8_t *data, uint8_t en);
 void hd44780_backlight(uint8_t state);
 void noinline hd44780_clear();
-void noinline hd44780_home();
+void noinline hd44780_home(void);
 void noinline hd44780_goto(uint8_t line, uint8_t pos);
 void noinline hd44780_shift(uint8_t right, uint8_t en);
 int noinline hd44780_put(char d, FILE *stream);

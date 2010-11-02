@@ -45,7 +45,7 @@ endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 
-CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-char-subscripts 
+CFLAGS ?= -Wall -W -Wno-unused-parameter -Wshadow -Wpointer-arith -Wno-cast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Winline -Wbad-function-cast -Wsign-compare -Wnested-externs
 
 ifeq ($(ARCH_HOST),y)
   CC=gcc
@@ -80,10 +80,10 @@ endif
 
 # remove all unused code and data during linking
 CFLAGS += -fdata-sections -ffunction-sections
-LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--gc-sections,--relax
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
-ifeq ($(atmega128),y)
+ifeq ($(atmega1284p),y)
 LDFLAGS += -Wl,--section-start=.text=0x1E000
 else
 LDFLAGS += -Wl,--section-start=.text=0xE000

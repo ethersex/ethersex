@@ -778,7 +778,7 @@ void sendmessage(void) // Send event in ringbuffer indicated by left pointer
   return;
 }
 
-void watchasync_init(void)  // Initilize Ports and Interrupts
+void watchasync_init(void)  // Initialize Ports and Interrupts
 {
 #ifdef CONF_WATCHASYNC_PA
   PORTA = WATCHASYNC_PA_MASK;  // Enable Pull-up on PortA

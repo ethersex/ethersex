@@ -10,7 +10,7 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $ARCH_AVR
 		int "IP prefix length" CONF_ENC_IP6_PREFIX_LEN 64
 	fi
 
-	if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
+	if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" -a "$DHCP_SUPPORT" != "y" ]; then
 		comment "Static IPv4 configuration"
 		ipv4 "Etherrape IP address" CONF_ENC_IP "192.168.23.244"
 		ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"

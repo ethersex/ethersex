@@ -46,6 +46,7 @@ SUBDIRS += hardware/ultrasonic
 SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
+SUBDIRS += protocols/dhcp 
 SUBDIRS += protocols/dmx
 SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
