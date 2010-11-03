@@ -29,23 +29,12 @@ void periodic_init(void);
 
 #define MAX_OVERFLOW          65535UL /* timer1 max value */
 #define HZ                    50 /* 20ms */
-#if (F_CPU/HZ) < MAX_OVERFLOW
-#define CLOCK_PRESCALER       1UL
-#define CLOCK_PRESCALER_MASK  _BV(CS10)
-#elif (F_CPU/HZ/8) < MAX_OVERFLOW
-#define CLOCK_PRESCALER       8UL
-#define CLOCK_PRESCALER_MASK  _BV(CS11)
-#elif (F_CPU/HZ/64) < MAX_OVERFLOW
-#define CLOCK_PRESCALER       64UL
-#define CLOCK_PRESCALER_MASK  _BV(CS11)|_BV(CS10)
-#elif (F_CPU/HZ/256) < MAX_OVERFLOW
+#if (F_CPU/256) < MAX_OVERFLOW
 #define CLOCK_PRESCALER       256UL
 #define CLOCK_PRESCALER_MASK  _BV(CS12)
-#elif (F_CPU/HZ/1024) < MAX_OVERFLOW
+#else
 #define CLOCK_PRESCALER       1024UL
 #define CLOCK_PRESCALER_MASK  _BV(CS12)|_BV(CS10)
-#else
-#error F_CPU to large
 #endif
 
 #define CLOCK_SECONDS F_CPU/CLOCK_PRESCALER
