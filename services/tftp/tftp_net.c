@@ -96,7 +96,11 @@ tftp_net_main(void)
     tftp_pk->type = HTONS(1);			/* read request */
     int l = strlen(uip_udp_conn->appstate.tftp.filename);
     memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
+#if BOOTLOADER_START_ADDRESS > UINT16_MAX
+    memcpy_PF(&tftp_pk->u.raw[l + 1], (uint_farptr_t)PSTR("octet"), 6);
+#else
     memcpy_P(&tftp_pk->u.raw[l + 1], PSTR("octet"), 6);
+#endif
     uip_udp_send(l + 9);
 
     /* uip_udp_conn->appstate.tftp.fire_req = 0; */
