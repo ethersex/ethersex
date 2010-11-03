@@ -32,5 +32,6 @@ dep_bool_menu "I2C Master Support (EXPERIMENTAL)" I2C_MASTER_SUPPORT $CONFIG_EXP
 
 	comment  "Debugging Flags"
 	dep_bool 'I2C' DEBUG_I2C $DEBUG
+	dep_bool 'DS13X7' DEBUG_DS13X7 $I2C_DS13X7_SUPPORT $DEBUG 
 
 endmenu
