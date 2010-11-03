@@ -27,15 +27,22 @@
 #include "config.h"
 #include "mcuf/mcuf.h"
 #include "services/clock/clock.h"
-#include "protocols/netstat/netstat.h"
 
-uint32_t last_check;
+#ifdef NETSTAT_SUPPORT
+	#include "protocols/netstat/netstat.h"
+#endif
+
+#ifdef I2C_DS13X7_SUPPORT
+	#include "hardware/i2c/master/i2c_ds13x7.h"
+#endif
+
+uint32_t cron_static_last_check;
 
 /** check if this event matches the current time */
 uint8_t cron_check_event(struct cron_static_event_t *event,
                          struct clock_datetime_t *d);
 
-void leds(void);
+//void leds(void);
 
 #ifdef  MCUF_CLOCK_SUPPORT
 void
@@ -83,6 +90,10 @@ struct cron_static_event_t events[] PROGMEM =
   { { {-5, -1, -1, -1, -1} }, (cron_static_handler_t)netstat_send, USE_LOCAL}, /* every 5 minutes  */
 #endif // NETSTAT_SUPPORT
 
+#ifdef I2C_DS13X7_SUPPORT
+  // sync cpu time to rtc
+  { { {0, 4, -1, -1, -1} }, i2c_ds13x7_update, USE_LOCAL},
+#endif // I2C_DS13X7_SUPPORT
   /* This is only the end of table marker */
   { { {-1, -1, -1, -1, -1} }, NULL, 0},
 };
@@ -95,7 +106,7 @@ cron_static_periodic(void)
     uint32_t timestamp = clock_get_time();
 
     /* Only check the tasks every minute */
-    if ((timestamp - last_check) < 60) return;
+    if ((timestamp - cron_static_last_check) < 60) return;
 
     clock_datetime(&d, timestamp);
     clock_localtime(&ld, timestamp);
@@ -123,7 +134,7 @@ cron_static_periodic(void)
     }
 
     /* save the actual timestamp */
-    last_check = timestamp - d.sec;
+    cron_static_last_check = timestamp - d.sec;
 }
 
 uint8_t

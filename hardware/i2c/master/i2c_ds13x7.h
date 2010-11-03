@@ -26,14 +26,22 @@
 
 #define I2C_SLA_DS13X7 0x68
 
+#ifdef DEBUG_DS13X7
+# include "core/debug.h"
+# define DSDEBUG(a...)  debug_printf("ds13x7: " a)
+#else
+# define DSDEBUG(a...)
+#endif
+
 uint16_t i2c_ds13x7_set(uint8_t reg, uint8_t data);
 uint16_t i2c_ds13x7_get(uint8_t reg);
 
 uint8_t i2c_ds13x7_set_block(uint8_t addr, char *data, uint8_t len);
 uint8_t i2c_ds13x7_get_block(uint8_t addr, char *data, uint8_t len);
 
-void i2c_ds13x7_sync(uint32_t timestamp);
+void i2c_ds13x7_sync(uint32_t timestamp_utc);
 
+// returns UTC timestamp
 uint32_t  i2c_ds13x7_read();
 
 struct ds13x7_reg {
@@ -53,5 +61,7 @@ struct ds13x7_reg {
 typedef struct ds13x7_reg ds13x7_reg_t;
 
 void i2c_ds13x7_init(void);
+
+void i2c_ds13x7_update(void);
 
 #endif /* _I2C_ds13x7_H */

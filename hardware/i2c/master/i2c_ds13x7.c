@@ -29,7 +29,10 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
+
 #include "services/clock/clock.h"
+
+uint8_t ds13x7_updating = 0;
 
 uint8_t i2c_ds13x7_set_block(uint8_t addr, char *data, uint8_t len) {
      uint8_t ret = 0;
@@ -109,9 +112,18 @@ void i2c_ds13x7_sync(uint32_t timestamp) {
 
 #ifdef CLOCK_DATETIME_SUPPORT
 
+	if(ds13x7_updating)
+	{
+		DSDEBUG("Write lock for updateing\n");
+		return;
+	}
+
+
      ds13x7_reg_t rtc;
      struct clock_datetime_t d;
      
+     DSDEBUG("Write data to RTC\n");
+
      memset( &rtc, 0, sizeof(rtc));
 
      clock_localtime( &d, timestamp);
@@ -138,6 +150,8 @@ uint32_t i2c_ds13x7_read() {
         struct clock_datetime_t d;
         uint32_t temp_time;
 
+        DSDEBUG("Read data from RTC\n");
+
 		i2c_ds13x7_get_block(0, (char *)&rtc, sizeof(rtc));
         d.sec     = b2i(rtc.sec);
         d.min     = b2i(rtc.min);
@@ -147,33 +161,34 @@ uint32_t i2c_ds13x7_read() {
         d.month   = b2i(rtc.month&0x1f);
         d.year    = b2i(rtc.year);
 
-#if I2C_DS13X7_TYPE == 1307
+#if I2C_DS13X7_TYPE == DS1307
         /* DS1307 has no century flag and probably we are not longer in 1900*/
+        DSDEBUG("Using DS1307 -> Century = 1\n");
         rtc.century = 1;
 #endif
         if (rtc.century) d.year+= 100;
 
         uint8_t cest=0;
 #if TIMEZONE == TIMEZONE_CEST
-        /* We must determine, if we have CET or CEST */
-        int8_t last_sunday = last_sunday_in_month(d.day, d.dow);
-        /* march until october can be summer time */
-        if (d.month < 3 || d.month > 10) {
-                cest=0;
-        } else if (d.month == 3 && (last_sunday == -1 || (last_sunday == 0 && d.hour < 1))) {
-                cest=0;
-        } else if (d.month == 10 && (last_sunday == 1 || (last_sunday == 0 && d.hour > 1))) {
-                cest=0;
-        } else {
-                cest=1;
-        }
+        cest = datetime_is_CEST(&d);
 #endif
+
         temp_time = clock_utc2timestamp(&d,cest);
         return temp_time;
 #else
 	return 0;
 #endif /* CLOCK_DATETIME_SUPPORT */
 
+}
+
+void i2c_ds13x7_update(void)
+{
+    DSDEBUG("Updating CPU Time\n");
+	int32_t timestamp;
+	timestamp=i2c_ds13x7_read();
+	ds13x7_updating = 1;
+	clock_set_time(timestamp);
+	ds13x7_updating = 0;
 }
 
 void i2c_ds13x7_init(void)
