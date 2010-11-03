@@ -44,7 +44,7 @@ struct clock_datetime_t dcfdate;
 uint8_t dcf77_ctx_valid = 0;
 
 // act. dcf timestamp
-uint32_t timestamp = 0;
+uint32_t dcf_timestamp = 0;
 
 //last dcf77 timestamp
 uint32_t last_dcf77_timestamp = 0;
@@ -105,8 +105,8 @@ uint32_t compute_dcf77_timestamp() {
 	dcfdate.month = bcd2bin(dcf.time[6]);
 	//dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
 	dcfdate.year = 100 + (bcd2bin(dcf.time[7]));
-	timestamp = clock_utc2timestamp(&dcfdate, dcf.timezone);
-	return timestamp;
+	dcf_timestamp = clock_utc2timestamp(&dcfdate, dcf.timezone);
+	return dcf_timestamp;
 }
 
 #ifdef DCF77_vect
@@ -236,8 +236,8 @@ SIGNAL (SIG_COMPARATOR)
 				{
 					compute_dcf77_timestamp();
 					// we need 2 valid timestamps; diff = 60s
-					DCFDEBUG("pre-sync act - last  %u\n",timestamp-last_dcf77_timestamp);
-					if ((timestamp - last_dcf77_timestamp) == 60)
+					DCFDEBUG("pre-sync act - last  %u\n",dcf_timestamp-last_dcf77_timestamp);
+					if ((dcf_timestamp - last_dcf77_timestamp) == 60)
 					{
 						// ok! timestamp is valid
 						dcf77_ctx_valid=1;
@@ -247,7 +247,7 @@ SIGNAL (SIG_COMPARATOR)
 						// no! but remember timestamp
 						dcf77_ctx_valid=0;
 						set_dcf_count(0);
-						last_dcf77_timestamp=timestamp;
+						last_dcf77_timestamp=dcf_timestamp;
 					}
 				}
 				dcf.sync++;
@@ -265,17 +265,17 @@ SIGNAL (SIG_COMPARATOR)
 				if (dcf77_ctx_valid == 1)
 				{
 					compute_dcf77_timestamp();
-					clock_set_time(timestamp);
+					clock_set_time(dcf_timestamp);
 					TCNT2=0;
-					last_dcf77_timestamp=timestamp;
-					last_valid_dcf = timestamp;
+					last_dcf77_timestamp=dcf_timestamp;
+					last_valid_dcf = dcf_timestamp;
 					set_dcf_count(1);
 					set_ntp_count(0);
 #ifdef NTPD_SUPPORT
 					// our DCF-77 Clock ist a primary; intern stratum 0; so we offer stratum+1 ! //
 					ntp_setstratum(0);
 #endif
-					DCFDEBUG("set unix-time %lu\n", timestamp);
+					DCFDEBUG("set unix-time %lu\n", dcf_timestamp);
 					dcf77_ctx_valid=0;
 				}
 				DCFDEBUG("start sync\n");
