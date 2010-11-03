@@ -52,6 +52,7 @@ uint32_t startup_timestamp;
 
 #if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
 static uint8_t months[] PROGMEM = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+static const char const weekdays[][4] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 #endif
 
 void
@@ -60,8 +61,8 @@ clock_init(void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
 	ASSR = _BV(CLOCK_TIMER_AS);
 	CLOCK_TIMER_CNT = 0;
-	/* 64 prescaler to get every 0.5 second an interrupt */
-	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_1) | _BV(CLOCK_SELECT_0);
+	/* 128 prescaler to get every 1 second an interrupt */
+	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_2) | _BV(CLOCK_SELECT_0);
 
 	/* Wait until the bytes are written */
 #ifdef CLOCK_TIMER_RBUSY
@@ -96,14 +97,14 @@ SIGNAL(CLOCK_SIG)
 	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
 #endif
 
-#if defined(CLOCK_CRYSTAL_SUPPORT)
+//#if defined(CLOCK_CRYSTAL_SUPPORT)
     /* If we use Crystal Support we have an interrupt every 0.5
        seconds, so we have to drop every second interrupt */
-    static uint8_t clock_crystal_interrupt_drop = 0;
-    clock_crystal_interrupt_drop ^= 1;
-    if (clock_crystal_interrupt_drop)
-        return;
-#endif
+    //static uint8_t clock_crystal_interrupt_drop = 0;
+    //clock_crystal_interrupt_drop ^= 1;
+    //if (clock_crystal_interrupt_drop)
+    //    return;
+//#endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
 	if (!sync_timestamp || sync_timestamp == timestamp)
@@ -153,7 +154,7 @@ clock_tick(void)
 void
 clock_set_time_raw(uint32_t new_sync_timestamp)
 {
-timestamp=new_sync_timestamp;
+	timestamp = new_sync_timestamp;
 }
 
 void
@@ -313,6 +314,21 @@ clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest)
 
 	return timestamp;
 }
+
+int
+clock_datetime_to_string(struct clock_datetime_t *date, char* output, uint16_t len)
+{
+	return snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d %s"),
+	                               weekdays[date->dow],
+	                               date->day, date->month, date->year + 1900,
+	                               date->hour, date->min, date->sec,
+#if TIMEZONE == TIMEZONE_CEST
+	                               datetime_is_CEST(date) ? "CEST": "CET"
+#else
+	                               "UTC"
+#endif
+	);
+}
 #endif
 
 #if defined(CLOCK_DATETIME_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
@@ -400,6 +416,26 @@ int8_t last_sunday_in_month(uint8_t day, uint8_t dow)
 	}
 	return -1;
 }
+
+// return 1 if date/time is in CEST or 0 if not
+uint8_t
+datetime_is_CEST(struct clock_datetime_t *d)
+{
+	uint8_t cest;
+    /* We must determine, if we have CET or CEST */
+    int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
+    /* march until october can be summer time */
+    if (d->month < 3 || d->month > 10) {
+            cest=0;
+    } else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
+            cest=0;
+    } else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 0))) {
+            cest=0;
+    } else {
+            cest=1;
+    }
+    return cest;
+}
 #endif
 
 void
@@ -407,17 +443,10 @@ clock_localtime(struct clock_datetime_t *d, uint32_t timestamp)
 {
 #if TIMEZONE == TIMEZONE_CEST
 	clock_datetime(d, timestamp);
-	/* We must determine, if we have CET or CEST */
-	int8_t last_sunday = last_sunday_in_month(d->day, d->dow);
-	/* march until october can be summer time */
-	if (d->month < 3 || d->month > 10) {
-		timestamp += 3600;
-	} else if (d->month == 3 && (last_sunday == -1 || (last_sunday == 0 && d->hour < 1))) {
-		timestamp += 3600;
-	} else if (d->month == 10 && (last_sunday == 1 || (last_sunday == 0 && d->hour > 1))) {
-		timestamp += 3600;
-	} else {
+	if(datetime_is_CEST(d)) 	{
 		timestamp += 7200;
+	} 	else 	{
+		timestamp += 3600;
 	}
 #endif
 	clock_datetime(d, timestamp);

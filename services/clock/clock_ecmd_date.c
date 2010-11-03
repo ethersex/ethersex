@@ -34,18 +34,22 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-static const char const weekdays[][4] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-
 int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
 {
   struct clock_datetime_t date;
   clock_current_localtime(&date);
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
-                               weekdays[date.dow],
-                               date.day, date.month, date.year + 1900,
-                               date.hour, date.min, date.sec, date.day));
+  return ECMD_FINAL(clock_datetime_to_string(&date, output, len));
 }
+
+int16_t parse_cmd_utc(char *cmd, char *output, uint16_t len)
+{
+  struct clock_datetime_t date;
+  clock_current_datetime(&date);
+
+  return ECMD_FINAL(clock_datetime_to_string(&date, output, len));
+}
+
 
 #ifdef DCF77_SUPPORT
 int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
@@ -57,11 +61,7 @@ int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
 
   clock_localtime(&date, last_valid);
 
-
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
-                               weekdays[date.dow],
-                               date.day, date.month, date.year + 1900,
-                               date.hour, date.min, date.sec, date.day));
+  return ECMD_FINAL(clock_datetime_to_string(&date, output, len));
 }
 
 #endif
@@ -70,6 +70,7 @@ int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[Am_Puls_der_Zeit|Clock]])
   ecmd_feature(date, "date",, Display the current date.)
+  ecmd_feature(utc, "utc",, Display the current date.)
   ecmd_ifdef(DCF77_SUPPORT)
     ecmd_feature(lastdcf, "lastdcf",, Display when last valid DCF Signal was received.)
   ecmd_endif()

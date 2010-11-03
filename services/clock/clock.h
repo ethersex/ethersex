@@ -125,7 +125,12 @@ void clock_localtime(struct clock_datetime_t *d, uint32_t timestamp);
 #define clock_current_datetime(d) clock_datetime(d, clock_get_time())
 #define clock_current_localtime(d) clock_localtime(d, clock_get_time())
 
+/** convert datetime into a string*/
+int clock_datetime_to_string(struct clock_datetime_t *date, char* output, uint16_t len);
+
 #if TIMEZONE == TIMEZONE_CEST
+// function calculation CEST
+uint8_t datetime_is_CEST(struct clock_datetime_t *d);
 int8_t last_sunday_in_month(uint8_t day, uint8_t dow);
 #endif
 
