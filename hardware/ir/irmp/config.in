@@ -1,4 +1,4 @@
-dep_bool_menu "IRMP IR" IRMP_SUPPORT $ARCH_AVR
+dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
 	dep_bool "Send IRMP IR-codes" IRSND_SUPPORT $IRMP_SUPPORT $CONFIG_EXPERIMENTAL
 	dep_bool 'IRMP ecmd' IRMP_ECMD $IRMP_SUPPORT
 	comment  "Protocols"
