@@ -32,8 +32,6 @@
 #include "rfm12_ask.h"
 
 
-void rfm12_ask_trigger(uint8_t , uint16_t);
-
 uint8_t ask_2272_1527_pulse_duty_factor[4]={13,5,7,11};
 
 #ifdef RFM12_ASK_SENDER_SUPPORT
@@ -133,7 +131,7 @@ rfm12_ask_intertechno_send_bit(uint8_t bit)
 }
 
 void 
-rfm12_ask_intertechno_send_sync()
+rfm12_ask_intertechno_send_sync(void)
 {
    rfm12_ask_trigger(1, INTERTECHNO_PERIOD);
    rfm12_ask_trigger(0, 31*INTERTECHNO_PERIOD);
@@ -246,7 +244,7 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
 
 #ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 void
-rfm12_ask_external_filter_init()
+rfm12_ask_external_filter_init(void)
 {
   rfm12_prologue ();
   rfm12_trans(0x82C0);                        // 2. PwrMngt TX off, enable whole receiver chain
@@ -255,7 +253,7 @@ rfm12_ask_external_filter_init()
 }
 
 void
-rfm12_ask_external_filter_deinit()
+rfm12_ask_external_filter_deinit(void)
 {
   rfm12_init();
 }
