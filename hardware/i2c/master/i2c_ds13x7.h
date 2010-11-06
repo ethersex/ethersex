@@ -37,14 +37,14 @@ void i2c_ds13x7_sync(uint32_t timestamp);
 uint32_t  i2c_ds13x7_read();
 
 struct ds13x7_reg {
+    uint8_t sec : 7;
     uint8_t ch  : 1;
-	uint8_t sec : 7;
     uint8_t min;
     uint8_t hour;
     uint8_t day;
     uint8_t date;
-    uint8_t century : 1;
     uint8_t month   : 7;
+    uint8_t century : 1;
     uint8_t year;
 } __attribute__((__packed__));
 
