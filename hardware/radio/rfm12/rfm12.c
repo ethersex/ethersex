@@ -27,6 +27,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "core/debug.h"
 #include "core/spi.h"
 #include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
