@@ -42,7 +42,7 @@ setservodelays(uint8_t index, uint8_t value);
 
 #define DOUBLE_PWM_SERVOS (PWM_SERVOS*2)
 
-#define MAXPULSFREQ 500 // 2ms => 50HZ
+#define MAXPULSFREQ 150 // 2ms => 50HZ
 
 #define TIMER_MAXPULS (F_CPU/MAXPULSFREQ) // Timer value for a 2ms Puls
 #if TIMER_MAXPULS > 0xFFFF
