@@ -51,9 +51,6 @@ uint8_t pos[DOUBLE_PWM_SERVOS]; // array for all positions
 SIGNAL(SIG_OVERFLOW1)
 {
    static uint8_t servoindex_half=0;
-#ifdef DEBUG_PWM_SERVO
-   static uint16_t debugcount=0;
-#endif
 
    switch (servoindex_half)
    {
@@ -127,16 +124,7 @@ SIGNAL(SIG_OVERFLOW1)
 #endif
    }
 
-
-#ifdef DEBUG_PWM_SERVO
-   if (debugcount > 2000) {
-     PWMSERVODEBUG("signal: idx: %i, TCNTx: %i \n", servoindex_half, Pulslength[servoindex_half]);
-     debugcount = 0;
-   }
-   debugcount++;
-#endif
-   
-   TCNT1 = Pulslength[servoindex_half]; // set time for next interrupt   
+   TCNT1 = (uint16_t)(0-Pulslength[servoindex_half]); // set time for next interrupt   
 
    servoindex_half++; // increment timervalue index
 
@@ -155,18 +143,19 @@ SIGNAL(SIG_OVERFLOW1)
 void setservodelays(uint8_t index, uint8_t value)
 {
    uint16_t wert;
+   uint8_t puls=(uint8_t)(index<<1);
 
-   wert=MINPULS+(MAXPULS-MINPULS)/256*value;
+   wert=(uint16_t)(MINPULS+(MAXPULS-MINPULS)/256*value);
    
    // calculate hightime
-   Pulslength[index<<1]=0-wert;
+   Pulslength[puls]=wert;
    
    // sume of low and hightime for one servo is 2ms
-   Pulslength[(index<<1)+1]=0-(TIMER_MAXPULS-wert);
+   Pulslength[puls+1]=(uint16_t)(TIMER_MAXPULS-wert);
    
    // 10 servos give you 10*2ms=20ms total cycle time
 
-   PWMSERVODEBUG("setservo: servo: %i, wert: %i, p0: %i, p1: %i\n", index, wert, index<<1, Pulslength[index<<1], Pulslength[(index<<1)+1]);
+   PWMSERVODEBUG("set servo-nr: %u, wert: %u(%u), puls: %u=%u/%u\n", index, wert, value, puls, Pulslength[puls], Pulslength[puls+1]);
 }
 
 void setservo(uint8_t index, uint8_t value){
@@ -187,12 +176,12 @@ void servodec(uint8_t index){
    
    initialize all servos to the start position
 ***************************************************************************/
-void init_servos()
+void init_servos(void)
 {
    uint8_t n;
    for(n = 0; n < PWM_SERVOS; n++) 
 	setservo(n,SERVO_STARTVALUE);
-   PWMSERVODEBUG("init servos with %i\n",SERVO_STARTVALUE);
+   PWMSERVODEBUG("servo value %i, TIMER_MAXPULS: %u, MINPULS: %u, MAXPULS: %u\n",SERVO_STARTVALUE, TIMER_MAXPULS, MINPULS, MAXPULS);
 }
 
 /************************************************************************
@@ -204,10 +193,10 @@ void init_servos()
 void pwm_servo_init(void)
 {
     // init timer1
-   TCNT1 = 0 - 16000;
+   TCNT1 = (uint16_t) 0 - 16000;
    TCCR1A = 0x00;  
    TCCR1B = 0x00; // init
-   TCCR1B |= (1<<CS11);   // prescale/8 ->62hz
+   TCCR1B |= (1<<CS10);   // prescale no ->50hz
    TIMSK1 |= _BV(TOIE1);
 
    init_servos();

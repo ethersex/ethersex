@@ -25,24 +25,32 @@
 #ifdef PWM_SERVO_SUPPORT
 
 void 
-pwm_servo_init();
+init_servos(void);
+void 
+pwm_servo_init(void);
 void 
 setservo(uint8_t servo, uint8_t position);
 void 
 servoinc(uint8_t servo);
 void 
 servodec(uint8_t servo);
+void 
+setservodelays(uint8_t index, uint8_t value);
 
-#define SERVO_STARTVALUE 220
+
+#define SERVO_STARTVALUE 128
 
 #define DOUBLE_PWM_SERVOS (PWM_SERVOS*2)
 
 #define MAXPULSFREQ 500 // 2ms => 50HZ
 
-#define TIMER_MAXPULS F_CPU/MAXPULSFREQ // Timer value for a 2ms Puls
+#define TIMER_MAXPULS (F_CPU/MAXPULSFREQ) // Timer value for a 2ms Puls
+#if TIMER_MAXPULS > 0xFFFF
+#error Value of MAXPULSFREQ is too low
+#endif
 
-#define MINPULS TIMER_MAXPULS/4  // min pulslength = 0.5ms
-#define MAXPULS TIMER_MAXPULS // max pulslength=2ms
+#define MINPULS (TIMER_MAXPULS/13)  // min pulslength = 0.5ms
+#define MAXPULS (TIMER_MAXPULS/3) // max pulslength=2ms
 
 #ifdef DEBUG_PWM_SERVO
 # include "core/debug.h"
