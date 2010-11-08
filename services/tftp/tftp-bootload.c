@@ -58,6 +58,7 @@ typedef uint32_t flash_base_t;
 typedef uint16_t flash_base_t;
 #endif
 
+
 static void
 flash_page(uint32_t page, uint8_t *buf)
 {
@@ -225,7 +226,6 @@ tftp_handle_packet(void)
 #           endif
 
             debug_putstr("end\n");
-
 	}
 
 	uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
