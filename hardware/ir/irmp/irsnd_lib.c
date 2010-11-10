@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.c,v 1.24 2010/09/02 10:22:26 fm Exp $
+ * $Id: irsnd.c,v 1.26 2010/11/09 21:14:31 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,12 @@ typedef unsigned short    uint16_t;
 #include "irsndconfig.h"
 #endif
 #include "irsnd_lib.h"
+
+#if IRSND_SUPPORT_NIKON_PROTOCOL == 1
+typedef uint16_t    IRSND_PAUSE_LEN;
+#else
+typedef uint8_t     IRSND_PAUSE_LEN;
+#endif
 
 #define SIRCS_START_BIT_PULSE_LEN               (uint8_t)(F_INTERRUPTS * SIRCS_START_BIT_PULSE_TIME + 0.5)
 #define SIRCS_START_BIT_PAUSE_LEN               (uint8_t)(F_INTERRUPTS * SIRCS_START_BIT_PAUSE_TIME + 0.5)
@@ -187,6 +193,14 @@ typedef unsigned short    uint16_t;
 #define JVC_1_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * JVC_1_PAUSE_TIME + 0.5)
 #define JVC_0_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * JVC_0_PAUSE_TIME + 0.5)
 #define JVC_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * JVC_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
+
+#define NIKON_START_BIT_PULSE_LEN               (uint8_t)(F_INTERRUPTS * NIKON_START_BIT_PULSE_TIME + 0.5)
+#define NIKON_START_BIT_PAUSE_LEN               (uint16_t)(F_INTERRUPTS * NIKON_START_BIT_PAUSE_TIME + 0.5)
+#define NIKON_REPEAT_START_BIT_PAUSE_LEN        (uint8_t)(F_INTERRUPTS * NIKON_REPEAT_START_BIT_PAUSE_TIME + 0.5)
+#define NIKON_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * NIKON_PULSE_TIME + 0.5)
+#define NIKON_1_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * NIKON_1_PAUSE_TIME + 0.5)
+#define NIKON_0_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * NIKON_0_PAUSE_TIME + 0.5)
+#define NIKON_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * NIKON_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
 
 static volatile uint8_t                         irsnd_busy;
 static volatile uint8_t                         irsnd_protocol;
@@ -557,7 +571,8 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
         {
             irsnd_buffer[0] = ((irmp_data_p->address & 0x0FFF) >> 5);                                           // SAAAAAAA
             irsnd_buffer[1] = ((irmp_data_p->address & 0x1F) << 3) | ((irmp_data_p->command & 0x7F) >> 5);      // AAAAA0CC
-            irsnd_buffer[2] = (irmp_data_p->command << 3);                                                      // CCCCC0
+            irsnd_buffer[2] = (irmp_data_p->command << 3) | ((~irmp_data_p->command & 0x01) << 2);              // CCCCCc
+
             irsnd_busy      = TRUE;
             break;
         }
@@ -603,6 +618,14 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_NIKON_PROTOCOL == 1
+        case IRMP_NIKON_PROTOCOL:
+        {
+            irsnd_buffer[0] = (irmp_data_p->command & 0x0003) << 6;                                             // CC
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
         default:
         {
             break;
@@ -622,9 +645,9 @@ irsnd_ISR (void)
 {
     static uint8_t  current_bit = 0xFF;
     static uint8_t  pulse_counter;
-    static uint8_t  pause_counter;
+    static IRSND_PAUSE_LEN  pause_counter;
     static uint8_t  startbit_pulse_len;
-    static uint8_t  startbit_pause_len;
+    static IRSND_PAUSE_LEN  startbit_pause_len;
     static uint8_t  pulse_1_len;
     static uint8_t  pause_1_len;
     static uint8_t  pulse_0_len;
@@ -644,7 +667,7 @@ irsnd_ISR (void)
     static uint8_t  last_bit_value;
 #endif
     static uint8_t  pulse_len = 0xFF;
-    static uint8_t  pause_len = 0xFF;
+    static IRSND_PAUSE_LEN  pause_len = 0xFF;
 
     if (irsnd_busy)
     {
@@ -1055,6 +1078,25 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_NIKON_PROTOCOL == 1
+                    case IRMP_NIKON_PROTOCOL:
+                    {
+                        startbit_pulse_len          = NIKON_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = 271; // NIKON_START_BIT_PAUSE_LEN;
+                        complete_data_len           = NIKON_COMPLETE_DATA_LEN;
+                        pulse_1_len                 = NIKON_PULSE_LEN;
+                        pause_1_len                 = NIKON_1_PAUSE_LEN;
+                        pulse_0_len                 = NIKON_PULSE_LEN;
+                        pause_0_len                 = NIKON_0_PAUSE_LEN;
+                        has_stop_bit                = NIKON_STOP_BIT;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = NIKON_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+
+                        break;
+                    }
+#endif
                     default:
                     {
                         irsnd_busy = FALSE;
@@ -1110,12 +1152,15 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_JVC_PROTOCOL == 1
                 case IRMP_JVC_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_NIKON_PROTOCOL == 1
+                case IRMP_NIKON_PROTOCOL:
+#endif
 
 
 #if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
     IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
-    IRSND_SUPPORT_JVC_PROTOCOL == 1
+    IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1
                 {
                     if (pulse_counter == 0)
                     {

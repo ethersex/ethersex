@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2010 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.43 2010/08/31 15:22:24 fm Exp $
+ * $Id: irmp.h,v 1.44 2010/11/09 19:18:32 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -29,10 +29,17 @@ extern "C"
 #define IRMP_TIMEOUT_TIME                       16500.0e-6                  // timeout after 16.5 ms darkness
 #define IRMP_TIMEOUT_TIME_MS                    16500L                      // timeout after 16.5 ms darkness
 
+#if IRMP_SUPPORT_NIKON_PROTOCOL == 1
+#define IRMP_TIMEOUT_NIKON_TIME                 29500.0e-6                  // 2nd timeout after 29.5 ms darkness (only for NIKON!)
+#define IRMP_TIMEOUT_NIKON_TIME_MS              29500L                      // 2nd timeout after 29.5 ms darkness
+typedef uint16_t    PAUSE_LEN;
+#define IRMP_TIMEOUT_NIKON_LEN                  (PAUSE_LEN)(F_INTERRUPTS * IRMP_TIMEOUT_NIKON_TIME + 0.5)
+#else
 #if (F_INTERRUPTS * IRMP_TIMEOUT_TIME_MS) / 1000000 >= 254
 typedef uint16_t    PAUSE_LEN;
 #else
 typedef uint8_t     PAUSE_LEN;
+#endif
 #endif
 
 #define IRMP_TIMEOUT_LEN                        (PAUSE_LEN)(F_INTERRUPTS * IRMP_TIMEOUT_TIME + 0.5)
@@ -62,6 +69,7 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_RCCAR_PROTOCOL                     19              // RC Car
 #define IRMP_JVC_PROTOCOL                       20              // JVC
 #define IRMP_RC6A_PROTOCOL                      21              // RC6A, e.g. Kathrein, XBOX
+#define IRMP_NIKON_PROTOCOL                     22              // Nikon
 
 // some flags of struct IRMP_PARAMETER:
 #define IRMP_PARAM_FLAG_IS_MANCHESTER           0x01
@@ -297,7 +305,7 @@ typedef uint8_t     PAUSE_LEN;
 #define SIEMENS_ADDRESS_OFFSET                  2                               // skip 2 start bits
 #define SIEMENS_ADDRESS_LEN                     12                              // read 12 address bits
 #define SIEMENS_COMMAND_OFFSET                  15                              // skip 15 bits (2 start bits + 12 address bits + 1 inverted bit)
-#define SIEMENS_COMMAND_LEN                     7                               // read 7 command bits
+#define SIEMENS_COMMAND_LEN                     8                               // read 7 + 1 command bits, last bit is only check bit.
 #define SIEMENS_COMPLETE_DATA_LEN               23                              // complete length
 #define SIEMENS_STOP_BIT                        0                               // has no stop bit
 #define SIEMENS_LSB                             0                               // MSB...LSB
@@ -347,6 +355,21 @@ typedef uint8_t     PAUSE_LEN;
 #define JVC_STOP_BIT                            1                               // has stop bit
 #define JVC_LSB                                 1                               // LSB...MSB
 #define JVC_FLAGS                               0                               // flags
+
+#define NIKON_START_BIT_PULSE_TIME              2200.0e-6                       //  2200 usec pulse
+#define NIKON_START_BIT_PAUSE_TIME             27100.0e-6                       // 27100 usec pause
+#define NIKON_PULSE_TIME                         500.0e-6                       //   520 usec pulse
+#define NIKON_1_PAUSE_TIME                      3500.0e-6                       //  3500 usec pause
+#define NIKON_0_PAUSE_TIME                      1500.0e-6                       //  1500 usec pause
+#define NIKON_FRAME_REPEAT_PAUSE_TIME             60.0e-3                       // frame repeat after 60ms
+#define NIKON_ADDRESS_OFFSET                    0                               // skip 0 bits
+#define NIKON_ADDRESS_LEN                       0                               // read 0 address bits
+#define NIKON_COMMAND_OFFSET                    0                               // skip 0 bits
+#define NIKON_COMMAND_LEN                       2                               // read 2 bits
+#define NIKON_COMPLETE_DATA_LEN                 2                               // complete length
+#define NIKON_STOP_BIT                          1                               // has stop bit
+#define NIKON_LSB                               0                               // LSB...MSB
+#define NIKON_FLAGS                             0                               // flags
 
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
                                                                                 // KASEIKYO: automatic repetition after 75ms
