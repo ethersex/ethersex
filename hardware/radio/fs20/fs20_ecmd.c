@@ -106,7 +106,17 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 {
-
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len,
+            PSTR("fs20 ws300 %u.%u %u %u.%u %u %u"),
+            fs20_global.ws300.temp,
+            fs20_global.ws300.temp_frac,
+            fs20_global.ws300.hygro,
+            fs20_global.ws300.wind,
+            fs20_global.ws300.wind_frac,
+            fs20_global.ws300.rain,
+            fs20_global.ws300.rain_value));
+#else
     return ECMD_FINAL(snprintf_P(output, len,
             PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
             fs20_global.ws300.temp,
@@ -116,7 +126,7 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
             fs20_global.ws300.wind_frac,
             fs20_global.ws300.rain,
             fs20_global.ws300.rain_value));
-
+#endif
 }
 #endif /* FS20_RECEIVE_WS300_SUPPORT */
 #endif /* FS20_RECEIVE_SUPPORT */

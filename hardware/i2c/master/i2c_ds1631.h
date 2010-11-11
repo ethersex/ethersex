@@ -27,6 +27,6 @@
 #define I2C_SLA_DS1631 0x48 // same as for LM75!
 
 uint16_t i2c_ds1631_start_stop(uint8_t address, uint8_t startstop); // startstop == 0 -> stop, all other -> start
-uint16_t i2c_ds1631_read_temp(uint8_t address, int16_t *temp, int16_t *stemp);
+uint16_t i2c_ds1631_read_temperature(uint8_t address, int16_t *temp, int16_t *stemp);
 
 #endif /* _I2C_DS1631_H */

@@ -177,39 +177,24 @@ parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
 
 #ifdef I2C_DS1631_SUPPORT
 
-int16_t parse_cmd_i2c_ds1631_start(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_i2c_ds1631_set_power_state(char *cmd, char *output, uint16_t len)
 {
 	uint8_t adr;
-	sscanf_P(cmd, PSTR("%u"), &adr);
+	uint8_t state;
+	sscanf_P(cmd, PSTR("%u %u"), &adr, &state);
 	if (adr > 7)
 		return ECMD_ERR_PARSE_ERROR;
-	uint16_t temp = i2c_ds1631_start_stop(I2C_SLA_DS1631 + adr,1);
+	uint16_t temp = i2c_ds1631_start_stop(I2C_SLA_DS1631 + adr,state);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("ds1631 start %d ok"),adr));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("ds1631 convert %d %d"),adr,state));
 #else
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("ok")));
 #endif
 }
 
-int16_t parse_cmd_i2c_ds1631_stop(char *cmd, char *output, uint16_t len)
-{
-	uint8_t adr;
-	sscanf_P(cmd, PSTR("%u"), &adr);
-	if (adr > 7)
-		return ECMD_ERR_PARSE_ERROR;
-	uint16_t temp = i2c_ds1631_start_stop(I2C_SLA_DS1631 + adr,0);
-	if (temp == 0xffff)
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
-#ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("ds1631 stop %d ok"),adr));
-#else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("ok")));
-#endif
-}
-
-int16_t parse_cmd_i2c_ds1631_read_temp(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t len)
 {
 	uint8_t adr;
 	int16_t temp;
@@ -217,7 +202,7 @@ int16_t parse_cmd_i2c_ds1631_read_temp(char *cmd, char *output, uint16_t len)
 	sscanf_P(cmd, PSTR("%u"), &adr);
 	if (adr > 7)
 		return ECMD_ERR_PARSE_ERROR;
-	uint16_t ret = i2c_ds1631_read_temp(I2C_SLA_DS1631 + adr, &temp, &stemp);
+	uint16_t ret = i2c_ds1631_read_temperature(I2C_SLA_DS1631 + adr, &temp, &stemp);
 	if (ret == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
@@ -231,51 +216,39 @@ int16_t parse_cmd_i2c_ds1631_read_temp(char *cmd, char *output, uint16_t len)
 
 #ifdef I2C_TSL2550_SUPPORT
 
-int16_t parse_cmd_i2c_tsl2550_pwr_up(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_i2c_tsl2550_set_power_state(char *cmd, char *output, uint16_t len)
 {
-	uint16_t temp = i2c_tsl2550_pwr(1);
-	if (temp == 0xffff)
+	uint8_t state;
+	sscanf_P(cmd, PSTR("%u"), &state);
+	uint16_t ret = i2c_tsl2550_set_power_state(state);
+	if (ret == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("tsl2550 up ok")));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("tsl2550 power %d"), state));
 #else
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("ok")));
 #endif
 }
 
-int16_t parse_cmd_i2c_tsl2550_pwr_down(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_i2c_tsl2550_set_operating_mode(char *cmd, char *output, uint16_t len)
 {
-	uint16_t temp = i2c_tsl2550_pwr(0);
+	uint8_t mode;
+	sscanf_P(cmd, PSTR("%u"), &mode);
+	uint16_t temp = i2c_tsl2550_set_operating_mode(mode);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("tsl2550 down ok")));
-#else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("ok")));
-#endif
-}
-
-int16_t parse_cmd_i2c_tsl2550_mode(char *cmd, char *output, uint16_t len)
-{
-	while (*cmd == ' ')
-		cmd++;
-	uint16_t temp = i2c_tsl2550_mode(strcmp(cmd, "std"));
-	if (temp == 0xffff)
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
-#ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("tsl2550 mode %s"),(temp==0?"std":"ext")));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("tsl2550 mode %d"),mode));
 #else
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"),(temp==0?"std":"ext")));
 #endif
 }
 
-int16_t parse_cmd_i2c_tsl2550_read_lux(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_i2c_tsl2550_show_lux_level(char *cmd, char *output, uint16_t len)
 {
-	uint16_t ret = i2c_tsl2550_read_lux();
+	uint16_t ret = i2c_tsl2550_show_lux_level();
 	if (ret == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
-	if (ret == 0xfffe)
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("out of range")));
 #ifdef ECMD_MIRROR_REQUEST
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("tsl2550 lux %d"), ret));
 #else
@@ -316,6 +289,10 @@ int16_t parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)
 	uint8_t chip;
 	sscanf_P(cmd, PSTR("%u %u"), &adr, &chip);
 
+#ifdef ECMD_MIRROR_REQUEST
+	uint8_t oadr = adr;
+#endif
+
 	if (chip == 0)
 	{
 		adr += I2C_SLA_PCF8574;
@@ -328,7 +305,8 @@ int16_t parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)
 	debug_printf("I2C PCF8574X IC address 0x%X\n", adr);
 #endif
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("pcf8574x read %u %u %X"), adr, chip, i2c_pcf8574x_read(adr)));
+	uint8_t rc = i2c_pcf8574x_read(adr);
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("pcf8574x read %u %u 0x%X"), oadr, chip, rc));
 #else
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), i2c_pcf8574x_read(adr)));
 #endif
@@ -340,6 +318,10 @@ int16_t parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 	uint8_t chip;
 	uint8_t value;
 	sscanf_P(cmd, PSTR("%u %u %x"), &adr, &chip, &value);
+
+#ifdef ECMD_MIRROR_REQUEST
+	uint8_t oadr = adr;
+#endif
 
 	if (chip == 0)
 	{
@@ -354,7 +336,7 @@ int16_t parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 #endif
 	i2c_pcf8574x_set(adr, value);
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("pcf8574x set %u %u %X"), adr, chip, value));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("pcf8574x set %u %u 0x%X"), oadr, chip, value));
 #else
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), value));
 #endif
@@ -374,7 +356,11 @@ int16_t parse_cmd_i2c_max7311_setDDRw(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_setDDRw(adr, data);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 setDDRw %u 0x%X"), adr, data));
+#else
     return ECMD_FINAL_OK;
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }
@@ -390,7 +376,11 @@ int16_t parse_cmd_i2c_max7311_setOUTw(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_setOUTw(adr, data);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 setOUTw %u 0x%X"), adr, data));
+#else
     return ECMD_FINAL_OK;
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }
@@ -406,7 +396,11 @@ int16_t parse_cmd_i2c_max7311_getDDRw(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_getDDRw(adr, &data);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 getDDRw %u 0x%X"), adr, data));
+#else
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), data));
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }
@@ -422,7 +416,11 @@ int16_t parse_cmd_i2c_max7311_getOUTw(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_getOUTw(adr, &data);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 getOUTw %u 0x%X"), adr, data));
+#else
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), data));
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }
@@ -438,7 +436,11 @@ int16_t parse_cmd_i2c_max7311_getINw(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_getINw(adr, &data);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 getINw %u 0x%X"), adr, data));
+#else
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%X"), data));
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }
@@ -455,7 +457,11 @@ int16_t parse_cmd_i2c_max7311_set(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   ret = i2c_max7311_set(adr, bit, state);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 set %u %u %u"), adr, bit, state));
+#else
     return ECMD_FINAL_OK;
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }
@@ -474,7 +480,11 @@ int16_t parse_cmd_i2c_max7311_pulse(char *cmd, char *output, uint16_t len)
     time = 1000;
   ret = i2c_max7311_pulse(adr, bit, time);
   if (ret == 0) {
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("max7311 pulse %u %u %u"), adr, bit, time));
+#else
     return ECMD_FINAL_OK;
+#endif
   }else{
     return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
   }

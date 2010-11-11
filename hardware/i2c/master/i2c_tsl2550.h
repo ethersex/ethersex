@@ -26,8 +26,8 @@
 
 #define I2C_SLA_TSL2550 0x39 // there can only be one!
 
-uint16_t i2c_tsl2550_pwr(uint8_t updown); // 0 == down, > 0 == up
-uint16_t i2c_tsl2550_mode(uint8_t mode); // 0 == standard, 1 == extended
-uint16_t i2c_tsl2550_read_lux();
+uint16_t i2c_tsl2550_set_power_state(uint8_t state); // 0: down, 1: up
+uint16_t i2c_tsl2550_set_operating_mode(uint8_t mode); // 0: standard, 1: extended range
+uint16_t i2c_tsl2550_show_lux_level();
 
 #endif /* _I2C_TSL2550_H */

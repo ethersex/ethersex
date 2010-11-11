@@ -56,7 +56,7 @@ uint16_t i2c_ds1631_start_stop(uint8_t chipaddress, uint8_t startstop)
 	return ret;
 }
 
-uint16_t i2c_ds1631_read_temp(uint8_t chipaddress, int16_t *temp, int16_t *stemp)
+uint16_t i2c_ds1631_read_temperature(uint8_t chipaddress, int16_t *temp, int16_t *stemp)
 {
 	int16_t data[2];
 	uint16_t ret = 0xffff;
