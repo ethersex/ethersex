@@ -28,10 +28,6 @@
 #include "config.h"
 #include "core/debug.h"
 
-/* global variables */
-extern FILE *lcd;
-extern uint8_t back_light;
-
 /* macros for defining the data pins as input or output */
 #define DATA_OUTPUT() do { \
 			  DDR_CONFIG_OUT(HD44780_SER_D); \
