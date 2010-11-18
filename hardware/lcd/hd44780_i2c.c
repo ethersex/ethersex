@@ -68,8 +68,6 @@
 										  _BV(HD44780_PCF8574x_DB7) )
 
 /* global variables */
-extern FILE *lcd;
-extern uint8_t back_light;
 uint8_t lcd_data;
 
 
