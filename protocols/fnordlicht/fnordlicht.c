@@ -27,6 +27,7 @@
 #include "soft_uart.h"
 #include "../dmx/dmx.h"
 
+#include "remote-proto.h"
 #include "remote-proto2.h"
 
 #include "protocols/ecmd/ecmd-base.h"
@@ -60,17 +61,17 @@ fnordlicht_init(void)
  * Sent some bytes as Fnordlicht-channels
  */
 void
-fnordlicht_send_chan_x(uint8_t sizeofchan, struct remote_msg_fade_rgb_t msg)
+fnordlicht_send_chan_x(uint8_t sizeofchan, struct remote_msg_fade_rgb_t * msg)
 {
-  soft_uart_putchar(msg.address);
-  soft_uart_putchar(msg.cmd);
-  soft_uart_putchar(msg.step);
-  soft_uart_putchar(msg.delay);
-  soft_uart_putchar(msg.color.red);
-  soft_uart_putchar(msg.color.green);
-  soft_uart_putchar(msg.color.blue);
+  soft_uart_putchar(msg->address);
+  soft_uart_putchar(msg->cmd);
+  soft_uart_putchar(msg->step);
+  soft_uart_putchar(msg->delay);
+  soft_uart_putchar(msg->color.red);
+  soft_uart_putchar(msg->color.green);
+  soft_uart_putchar(msg->color.blue);
  
-  for (uint8_t i=sizeof(struct remote_msg_fade_rgb_t); i < sizeofchan; i++)
+  for (uint8_t i=0; i < 8; i++)
     soft_uart_putchar(0x00);
 
 }
@@ -82,14 +83,15 @@ void
 fnordlicht_periodic(void)
 {
   wdt_kick();
-/*
-  //if(dmx_index == 0) {
-    fnordlicht_send_chan_x(15, (uint8_t []){0x00, 0x01, 0xff, 0x01, dmx_data[6], dmx_data[7], dmx_data[8], 0, 0, 0, 0, 0, 0, 0, 0});
-    fnordlicht_send_chan_x(15, (uint8_t []){0x01, 0x01, 255, 1, dmx_data[9], dmx_data[10], dmx_data[11], 0, 0, 0, 0, 0, 0, 0, 0});
-    //fnordlicht_sent_chan_x(15, (uint8_t []){0xff, 0x01, 255, 0, dmx_data[3], dmx_data[4], dmx_data[5], 0, 0, 0, 0, 0, 0, 0, 0});
-    wdt_kick();
- // }
-*/
+  struct remote_msg_fade_rgb_t msg;
+  msg.address=0;
+  msg.cmd=REMOTE_CMD_FADE_RGB;
+  msg.step=0xff;
+  msg.delay=0x01;
+  msg.color.red=dmx_data[3];
+  msg.color.green=dmx_data[4];
+  msg.color.blue=dmx_data[5];
+  fnordlicht_send_chan_x(15, &msg);
 }
 
 int16_t 
@@ -108,8 +110,7 @@ parse_cmd_fnordlicht (char *cmd, char *output, uint16_t len)
   msg.cmd=REMOTE_CMD_FADE_RGB;
   msg.step=0xff;
   msg.delay=0x01;
-//  uint8_t channel[] = {adr, 0x01, 0xff, 0x01, rgb[0], rgb[1], rgb[2], 0, 0, 0, 0, 0, 0, 0, 0};
-  fnordlicht_send_chan_x(15, msg);
+  fnordlicht_send_chan_x(15, &msg);
   return ECMD_FINAL_OK;
 }
 
