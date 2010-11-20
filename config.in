@@ -377,6 +377,7 @@ comment "Protocols"
 source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
+source protocols/fnordlicht/config.in
 source protocols/httplog/config.in
 source protocols/irc/config.in
 source protocols/mdns_sd/config.in

@@ -1,0 +1,6 @@
+dep_bool_menu "Fnordlicht control" FNORDLICHT_SUPPORT
+        int "num lights" CONF_FNORDLICHTER 1
+        int "soft uart baudrate" FNORDLICHT_BAUDRATE 19200
+	comment  "Debugging Flags"
+	dep_bool 'FNORDLICHT' DEBUG_FNORDLICHT $DEBUG
+endmenu
