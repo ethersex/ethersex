@@ -27,6 +27,8 @@
 void 
 init_servos(void);
 void 
+pwm_servo_enable(uint8_t enable);
+void 
 pwm_servo_init(void);
 void 
 setservo(uint8_t servo, uint8_t position);

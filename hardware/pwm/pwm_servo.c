@@ -41,6 +41,11 @@
 
 uint16_t Pulslength[DOUBLE_PWM_SERVOS]; // array for all delays
 uint8_t pos[DOUBLE_PWM_SERVOS]; // array for all positions
+#ifdef PWM_SERVO_DEFAULT_ENABLED
+uint8_t pwm_servo_enabled = 1;
+#else
+uint8_t pwm_servo_enabled = 0;
+#endif /* PWM_SERVO_DEFAULT_ENABLED */
 
 /************************************************************************
 
@@ -50,8 +55,8 @@ uint8_t pos[DOUBLE_PWM_SERVOS]; // array for all positions
 ***************************************************************************/
 SIGNAL(SIG_OVERFLOW1)
 {
-   static uint8_t servoindex_half=0;
-
+ static uint8_t servoindex_half=0;
+ if (pwm_servo_enabled==1) {
    switch (servoindex_half)
    {
     #ifndef HAVE_SERVO0
@@ -130,6 +135,7 @@ SIGNAL(SIG_OVERFLOW1)
 
    if (servoindex_half == DOUBLE_PWM_SERVOS) 
       servoindex_half = 0;   // reset index
+  }
 }
 /************************************************************************
 
@@ -201,6 +207,12 @@ void pwm_servo_init(void)
 
    init_servos();
 }
+
+void 
+pwm_servo_enable(uint8_t enable){
+	pwm_servo_enabled = enable;
+}
+
 /*
   -- Ethersex META --
   header(hardware/pwm/pwm_servo.h)
