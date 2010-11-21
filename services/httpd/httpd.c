@@ -213,6 +213,13 @@ after_auth:
 	strcpy_P(filename, PSTR(HTTPD_INDEX));
 #endif
 
+
+#ifdef HTTP_FAVICON_SUPPORT
+    if (strcmp_P(filename, PSTR("favicon.ico")) == 0) strcpy_P(filename, PSTR("If.ico"));
+#endif
+
+
+
 #ifdef ECMD_PARSER_SUPPORT
     uint8_t offset = strlen_P(PSTR(ECMD_INDEX "?"));
     if (strncmp_P (filename, PSTR(ECMD_INDEX "?"), offset) == 0) {
