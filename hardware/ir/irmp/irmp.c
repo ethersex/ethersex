@@ -149,18 +149,18 @@ static irmp_fifo_t irmp_tx_fifo;
 
 #ifdef DEBUG_IRMP
 static const char proto_unknown[] PROGMEM = "unknown";
-static const char proto_sircs[] PROGMEM = "SIR_CS";
+static const char proto_sircs[] PROGMEM = "SIRCS";
 static const char proto_nec[] PROGMEM = "NEC";
 static const char proto_samsung[] PROGMEM = "SAMSUNG";
 static const char proto_matshushita[] PROGMEM = "MATSUSHITA";
 static const char proto_kaseikyo[] PROGMEM = "KASEIKYO";
-static const char proto_recs80[] PROGMEM = "RE_CS80";
+static const char proto_recs80[] PROGMEM = "RECS80";
 static const char proto_rc5x[] PROGMEM = "RC5(x)";
 static const char proto_denon[] PROGMEM = "DENON";
 static const char proto_rc6[] PROGMEM = "RC6";
 static const char proto_samsung32[] PROGMEM = "SAMSUNG32";
 static const char proto_apple[] PROGMEM = "APPLE";
-static const char proto_recs80ext[] PROGMEM = "RE_CS80EXT";
+static const char proto_recs80ext[] PROGMEM = "RECS80EXT";
 static const char proto_nubert[] PROGMEM = "NUBERT";
 static const char proto_bang_olufsen[] PROGMEM = "BANG&OLUFSEN";
 static const char proto_grundig[] PROGMEM = "GRUNDIG";
