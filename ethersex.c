@@ -48,6 +48,25 @@ global_status_t status;
 /* prototypes */
 void (*jump_to_bootloader) (void) = (void *) BOOTLOADER_START_ADDRESS;
 
+#ifdef DEBUG_RESET_REASON
+uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
+#endif
+
+void __start (void) __attribute__ ((naked))
+                    __attribute__ ((used))
+                    __attribute__ ((section (".init1")));
+void __start ()
+{
+  /* Clear the MCUSR Register to avoid endless wdreset loops */
+#if defined(MCUCSR) && !defined(MCUSR)
+#define MCUSR MCUCSR
+#endif
+#ifdef DEBUG_RESET_REASON
+  mcusr_mirror = MCUSR;
+#endif
+  MCUSR = 0;
+  wdt_disable ();
+}
 
 extern void ethersex_meta_init (void);
 extern void ethersex_meta_startup (void);
@@ -59,18 +78,6 @@ main (void)
 #ifdef BOOTLOADER_SUPPORT
   _IVREG = _BV (IVCE);		/* prepare ivec change */
   _IVREG = _BV (IVSEL);		/* change ivec to bootloader */
-#endif
-
-  /* Clear the MCUSR Register to avoid endless wdreset loops */
-  unsigned char reset_reason = 0;
-#ifdef MCUCSR
-  reset_reason = MCUCSR;
-  MCUCSR = 0;
-#else
-#ifdef MCUSR
-  reset_reason = MCUSR;
-  MCUSR = 0;
-#endif
 #endif
 
   /* Default DDR Config */
@@ -104,13 +111,13 @@ main (void)
   debug_printf ("Ethersex " VERSION_STRING " (Debug mode)\n");
 
 #ifdef DEBUG_RESET_REASON
-  if (bit_is_set (reset_reason, BORF))
+  if (bit_is_set (mcusr_mirror, BORF))
     debug_printf ("reset: Brown-out\n");
-  else if (bit_is_set (reset_reason, PORF))
+  else if (bit_is_set (mcusr_mirror, PORF))
     debug_printf ("reset: Power on\n");
-  else if (bit_is_set (reset_reason, WDRF))
+  else if (bit_is_set (mcusr_mirror, WDRF))
     debug_printf ("reset: Watchdog\n");
-  else if (bit_is_set (reset_reason, EXTRF))
+  else if (bit_is_set (mcusr_mirror, EXTRF))
     debug_printf ("reset: Extern\n");
   else
     debug_printf ("reset: Unknown\n");
