@@ -32,6 +32,12 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
+#ifdef DEBUG
+	#define RFM12_DEBUG(s, args...) printf_P(PSTR("D: " s), ## args)
+#else
+	#define RFM12_DEBUG(a...)
+#endif
+
 
 #ifdef RFM12_ASK_SENDER_SUPPORT
 
@@ -40,8 +46,9 @@ uint8_t getIntFromString(char *cmd){
   uint8_t ptr=0;
   char str[3];
 
-  while (*cmd >= '0' && *cmd <= '9') // count numbers
+  while ((cmd[ptr] >= '0') && (cmd[ptr] <= '9')) {// count numbers
 		ptr++;
+  }
   strncpy(str, cmd, ptr);
   return atoi(str);
 }
@@ -101,22 +108,27 @@ parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
   while (*cmd == ' ')
         cmd++;
   command[0] = getIntFromString(cmd);
-  while (*cmd == ' ' || *cmd == ',')
+  while (*cmd != ',')
         cmd++;
+  cmd++;
   command[1] = getIntFromString(cmd);
-  while (*cmd == ' ' || *cmd == ',')
+  while (*cmd != ',')
         cmd++;
+  cmd++;
   command[2] = getIntFromString(cmd);
-  while (*cmd == ' ')
+  while (*cmd != ' ')
         cmd++;
+  cmd++;
   delay = getIntFromString(cmd);
-  while (*cmd == ' ')
+  while (*cmd != ' ')
         cmd++;
+  cmd++;
   cnt = getIntFromString(cmd);
   int ret = 5;
 #else
   uint8_t ret = sscanf_P (cmd, PSTR ("%hhu,%hhu,%hhu %hhu %hhu"),&(command[0]), &(command[1]), &(command[2]), &delay, &cnt);
 #endif
+  RFM12_DEBUG ("ps cmd %u,%u,%u d %u s %u\n", command[0], command[1], command[2], delay, cnt);
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
