@@ -70,6 +70,10 @@ no_gzip:
 	PASTE_P (httpd_header_ct_xhtml);
     else if (STATE->u.vfs.content_type == 'S')
 	PASTE_P (httpd_header_ct_css);
+#ifdef HTTP_FAVICON_SUPPORT
+    else if (STATE->u.vfs.content_type == 'I')
+	PASTE_P (httpd_header_ct_xicon);
+#endif
     else
 	PASTE_P (httpd_header_ct_html);
 

@@ -57,6 +57,11 @@ extern char httpd_header_200[];
 extern char httpd_header_ct_css[];
 extern char httpd_header_ct_html[];
 extern char httpd_header_ct_xhtml[];
+
+#ifdef HTTP_FAVICON_SUPPORT
+extern char httpd_header_ct_xicon[];
+#endif
+
 extern char httpd_header_ecmd[];
 extern char httpd_header_400[];
 extern char httpd_header_gzip[];
