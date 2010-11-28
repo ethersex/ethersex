@@ -1409,7 +1409,7 @@ save_configuration () {
 		while [ -n "$2" ]
 		do
 			case "$1" in
-			"$current"*)	if [ -z "$chosen" ]; then
+			"$current")	if [ -z "$chosen" ]; then
 						if [ \! -z "$define_symbol" ]; then
 							echo "$define_symbol=$2" 		>>$CONFIG
 							echo "#define $define_symbol $2"	>>$CONFIG_H
