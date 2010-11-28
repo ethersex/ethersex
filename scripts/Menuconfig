@@ -1072,6 +1072,7 @@ Select the default profile you wish to load. \
 			usb-teensy	  "USB (Network) Standalone"			0 \
 			usb-rfm12-dongle  "USB RFM12 Dongle"				0 \
 			ehaserl		  "EH2010 Ehaserl Badge"			0 \
+			fnordlicht_servo "Fnordlicht Servo"			0 \
 			no-network	  "No Networking (USB only)"			0 \
 			JeeLinkv2	  "Jeelabs JeeLinkv2 (FTDI-ZBUS, RFM12)"	0 \
 			hr20		  "Rondostat HR20/Thermotronic Basic/Thermy"	0 \
