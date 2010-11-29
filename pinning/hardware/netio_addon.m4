@@ -1,5 +1,7 @@
 /* onewire support */
+ifdef(`conf_ONEWIRE', `dnl
 pin(ONEWIRE, PD6)
+')
 
 /* port the enc28j60 is attached to */
 pin(SPI_CS_NET, SPI_CS_HARDWARE)
