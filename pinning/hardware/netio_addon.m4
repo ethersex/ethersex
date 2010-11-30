@@ -1,11 +1,15 @@
 /* onewire support */
+ifdef(`conf_ONEWIRE', `dnl
 pin(ONEWIRE, PD6)
+')
 
 /* port the enc28j60 is attached to */
 pin(SPI_CS_NET, SPI_CS_HARDWARE)
 
 /* port the sd-reader CS is attached to */
-pin(SPI_CS_SD_READER, PB3, OUTPUT)
+ifdef(`conf_SD_READER', `
+  pin(SPI_CS_SD_READER, PB3, OUTPUT)
+')
 
 ifdef(`conf_RFM12', `dnl
   /* port the rfm12 module CS is attached to */
