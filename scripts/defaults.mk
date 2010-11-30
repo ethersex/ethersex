@@ -62,9 +62,7 @@ ifeq ($(ARCH_HOST),y)
 
   CPPFLAGS += -I$(TOPDIR)
   CFLAGS += -ggdb -O0 -std=gnu99
-
 else
-
   CC=avr-gcc
   AR=avr-ar
   OBJCOPY = avr-objcopy
@@ -79,12 +77,18 @@ else
 
   # flags for the linker
   LDFLAGS += -mmcu=$(MCU)
-
 endif
 
 # remove all unused code and data during linking
 CFLAGS += -fdata-sections -ffunction-sections
 LDFLAGS += -Wl,--gc-sections,--relax
+
+# reduce memory usage
+CFLAGS += -funsigned-char
+CFLAGS += -funsigned-bitfields
+CFLAGS += -fpack-struct
+CFLAGS += -fshort-enums
+CFLAGS += -mcall-prologues
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
 ifeq ($(atmega1284p),y)
@@ -92,8 +96,6 @@ LDFLAGS += -Wl,--section-start=.text=0x1E000
 else
 LDFLAGS += -Wl,--section-start=.text=0xE000
 endif
-
-CFLAGS  += -mcall-prologues
 endif
 
 
