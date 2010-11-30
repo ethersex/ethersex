@@ -52,8 +52,8 @@ void ethersex_meta_exit (int signal);
 
 #endif
 
-void dyndns_update();
-void periodic_process();
+void dyndns_update(void);
+void periodic_process(void);
 extern uint8_t bootload_delay;
 volatile uint8_t newtick;
 
