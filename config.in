@@ -195,7 +195,7 @@ fi
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG
 	endmenu
-motorC
+
 	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
@@ -366,7 +366,6 @@ comment "I/O"
 	source hardware/ultrasonic/config.in
 	source hardware/hbridge/config.in
 	source mcuf/config.in
-	source core/config-usarts.in
 endmenu
 
 ###############################################################################
