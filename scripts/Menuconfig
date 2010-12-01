@@ -44,7 +44,7 @@ fi
 function set_x_info () {
     eval x=\$$1
     if [ -z "$x" ]; then
-	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
+#	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
 	eval x=\${$1:-\"$2\"}
 	eval $1=$x
 	eval INFO_$1="' (NEW)'"
