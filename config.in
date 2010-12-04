@@ -195,7 +195,7 @@ fi
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG
 	endmenu
-motorC
+
 	source core/config.in
 	source core/crypto/config.in
 	source core/vfs/config.in
@@ -272,10 +272,18 @@ mainmenu_option next_comment
 	source protocols/uip/config.in
 	source protocols/dns/config.in
 
-	dep_bool 'BOOTP (DHCP-like) support' BOOTP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
+	if [ "$DHCP_SUPPORT" = "y" ]; then
+		dep_bool 'BOOTP (DHCP-like) support' BOOTP_SUPPORT "n"
+	else
+		dep_bool 'BOOTP (DHCP-like) support' BOOTP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
+	fi
 	dep_bool 'Write BOOTP data to EEPROM' BOOTP_TO_EEPROM_SUPPORT $BOOTLOADER_SUPPORT $BOOTP_SUPPORT
 
-	source protocols/dhcp/config.in
+	if [ "$BOOTP_SUPPORT" = "y" ]; then
+		dep_bool "DHCP support" DHCP_SUPPORT "n"
+	else
+		dep_bool "DHCP support" DHCP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
+	fi
 
 	comment "Tunneling protocols"
 	dep_bool_menu "OpenVPN" OPENVPN_SUPPORT $UDP_SUPPORT
@@ -358,7 +366,6 @@ comment "I/O"
 	source hardware/ultrasonic/config.in
 	source hardware/hbridge/config.in
 	source mcuf/config.in
-	source core/config-usarts.in
 endmenu
 
 ###############################################################################
@@ -369,6 +376,7 @@ comment "Protocols"
 source protocols/artnet/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
+source protocols/fnordlicht/config.in
 source protocols/httplog/config.in
 source protocols/irc/config.in
 source protocols/mdns_sd/config.in

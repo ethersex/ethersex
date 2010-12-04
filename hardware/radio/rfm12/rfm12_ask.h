@@ -31,7 +31,7 @@ void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_external_filter_init(void);
 void rfm12_ask_external_filter_deinit(void);
 void rfm12_ask_intertechno_send_bit(uint8_t);
-void rfm12_ask_intertechno_send_sync();
+void rfm12_ask_intertechno_send_sync(void);
 void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void rfm12_ask_sense_start(void);
 void rfm12_ask_trigger(uint8_t, uint16_t);

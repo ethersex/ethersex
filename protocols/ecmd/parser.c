@@ -148,6 +148,9 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 
 #ifdef FREE_SUPPORT
 
+extern char *__brkval;
+extern unsigned char __heap_start;
+
 int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 {
 	/* Docu March 2009: http://www.nongnu.org/avr-libc/user-manual/malloc.html
@@ -159,8 +162,6 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 	Size of network packet frames is stored in NET_MAX_FRAME_LENGTH
 	*/
 
-	extern char *__brkval;
-	extern unsigned char __heap_start;
 	size_t f = (size_t)(__brkval ? (size_t)__brkval : (size_t)&__heap_start);
 	size_t allram = RAMEND;
 

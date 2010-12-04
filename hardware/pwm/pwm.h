@@ -26,11 +26,18 @@
 #define PWM_MAX_VALUE 0x00
 
 int16_t parse_cmd_pwm_fade_command(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_pwm_command(char *cmd, char *output, uint16_t len);
 
 void
 pwm_init();
 
 void
 pwm_periodic();
+
+uint8_t
+getpwm(char channel);
+
+void
+setpwm(char channel, uint8_t setval);
 
 #endif  /* HAVE_PWM_GENERAL_H */

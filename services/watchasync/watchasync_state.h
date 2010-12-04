@@ -23,9 +23,27 @@
 #ifndef WATCHASYNC_STATE_H
 #define WATHASYNC_STATE_H
 
-// State of coonection, new until acked or aborted, after that old
+// Select Countersize
+#ifndef WATCHASYNC_COUNTER_TYPE
+#ifdef CONF_WATCHASYNC_32BITS
+#define WATCHASYNC_COUNTER_TYPE uint32_t
+#else // def CONF_WATCHASYNC_32BITS
+#ifdef CONF_WATCHASYNC_16BITS
+#define WATCHASYNC_COUNTER_TYPE uint16_t
+#else // def CONF_WATCHASYNC_16BITS
+#define WATCHASYNC_COUNTER_TYPE uint8_t
+#endif // def CONF_WATCHASYNC_16BITS
+#endif // def CONF_WATCHASYNC_32BITS
+#endif // ndef WATCHASYNC_COUNTER_TYPE
+
+// State of connection, new until acked or aborted, after that old
 struct watchasync_connection_state_t {
   uint8_t state;
+#ifdef CONF_WATCHASYNC_SUMMARIZE
+  uint32_t timestamp;
+  uint8_t pin;
+  WATCHASYNC_COUNTER_TYPE count;
+#endif
 };
 
 #endif /* WATCHASYNC_STATE_H */

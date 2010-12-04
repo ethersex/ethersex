@@ -269,6 +269,14 @@ template $AUTOSET_USB_ENABLE_PIN_SUPPORT << FNORD
   pin(USB_ENABLE, PC6, OUTPUT)
 FNORD
 
+template $IRMP_SUPPORT << FNORD
+  pin(IRMP_RX, PD2)
+  #define IRMP_USE_TIMER0
+  #define IRMP_RX_LOW_ACTIVE
+  #undef IRMP_RX_LED_LOW_ACTIVE
+  pin(IRMP_TX, PD7) dnl OC2
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`

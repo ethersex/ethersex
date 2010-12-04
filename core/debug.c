@@ -42,7 +42,6 @@ char *debug_binary (uint8_t v) {
 }
 
 /* prototypes */
-int debug_uart_put(char d, FILE *stream);
 void soft_uart_putchar(uint8_t c);
 
 #define USE_USART 0
@@ -125,7 +124,7 @@ debug_process_uart (void)
             int l;
 
             do {
-                l = ecmd_parse_command(buf, output, LEN);
+                l = ecmd_parse_command(buf, output, OUTPUTLEN);
                 if (is_ECMD_FINAL(l) || is_ECMD_AGAIN(l)) {
                     output[is_ECMD_AGAIN(l) ? ECMD_AGAIN(l) : l] = 0;
                     printf_P(PSTR("%s\n"), output);

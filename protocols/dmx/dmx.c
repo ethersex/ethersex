@@ -180,10 +180,10 @@ dmx_periodic(void)
   if(dmx_index == 0) {
     if(dmx_prg == 1) {
       dmx_handle_rainbow_colors();
-      dmx_set_chan_x(0, 4, (uint8_t []){color_r, color_g, color_b, 159});
+      dmx_set_chan_x(0, 6, (uint8_t []){17, 0xff, 0, color_r, color_g, color_b});/*
       dmx_set_chan_x(4, 12, (uint8_t []){1, 128, 0, color_r, color_g, color_b, color_r, color_g, color_b, color_r, color_g, color_b});
       dmx_set_chan_x(16, 12, (uint8_t []){1, 0xff, 0, color_r, 0, 0, 0, color_g, 0, 0, 0, color_b});
-      dmx_set_chan_x(44, 6, (uint8_t []){17, 0xff, 0, color_r/2, color_g/2, color_b/2});
+      dmx_set_chan_x(44, 6, (uint8_t []){17, 0xff, 0, color_r/2, color_g/2, color_b/2});*/
       wdt_kick();
     }
     dmx_tx_start();
@@ -206,5 +206,5 @@ SIGNAL(usart(USART,_TX_vect))
   -- Ethersex META --
   header(protocols/dmx/dmx.h)
   init(dmx_init)
-  timer(10, dmx_periodic())
+  timer(2, dmx_periodic())
 */

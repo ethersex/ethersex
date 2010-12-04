@@ -34,7 +34,7 @@ divert(0)
 const char PROGMEM np_str_on[] = "on";
 const char PROGMEM np_str_off[] = "off";
 
-static char
+static int8_t
 np_simple_check (char *cmd)
 {
   /* Check for either `pin set ... 1' or `pin set ... on',
@@ -63,7 +63,7 @@ divert(0)dnl
 int16_t parse_cmd_$1 (char *cmd, char *output, uint16_t len)
 {
   /* config: $2 $3 */
-  char i = np_simple_check (cmd);
+  int8_t i = np_simple_check (cmd);
   if (i < 0) return -1;
 
   if ($3(i))

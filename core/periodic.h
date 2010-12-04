@@ -27,13 +27,17 @@
 /* initialize hardware timer */
 void periodic_init(void);
 
-#if F_CPU/1024 < 65536/4
-#define CLOCK_DIVIDER 256
+#define MAX_OVERFLOW          65535UL /* timer1 max value */
+#define HZ                    50 /* 20ms */
+#if (F_CPU/256) < MAX_OVERFLOW
+#define CLOCK_PRESCALER       256UL
+#define CLOCK_PRESCALER_MASK  _BV(CS12)
 #else
-#define CLOCK_DIVIDER 1024
+#define CLOCK_PRESCALER       1024UL
+#define CLOCK_PRESCALER_MASK  _BV(CS12)|_BV(CS10)
 #endif
 
-#define CLOCK_SECONDS F_CPU/CLOCK_DIVIDER
-#define CLOCK_TICKS F_CPU/CLOCK_DIVIDER/50
+#define CLOCK_SECONDS F_CPU/CLOCK_PRESCALER
+#define CLOCK_TICKS F_CPU/CLOCK_PRESCALER/HZ
 
 #endif /* _PERIODIC_H */

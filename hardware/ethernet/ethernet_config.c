@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-
+#include <avr/pgmspace.h>
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 
@@ -35,11 +35,16 @@ network_config_load (void)
 #ifdef EEPROM_SUPPORT
   eeprom_restore(mac, uip_ethaddr.addr, 6);
 #else 
+#if defined BOOTLOADER_SUPPORT &&  BOOTLOADER_START_ADDRESS > UINT16_MAX
+  memcpy_PF(uip_ethaddr.addr, (uint_farptr_t)PSTR(CONF_ETHERRAPE_MAC), 6);
+#else
   memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
+#endif
 #endif
 
 #if defined(BOOTP_SUPPORT)				\
-    || (IPV6_SUPPORT && !defined(IPV6_STATIC_SUPPORT))
+    || (IPV6_SUPPORT && !defined(IPV6_STATIC_SUPPORT))	\
+    || DHCP_SUPPORT
     return;
 
 #else

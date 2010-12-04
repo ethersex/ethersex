@@ -39,6 +39,10 @@ char PROGMEM httpd_header_ct_html[] =
 char PROGMEM httpd_header_ct_xhtml[] =
 "Content-Type: application/xhtml+xml; charset=utf-8\n\n";
 
+#ifdef HTTP_FAVICON_SUPPORT
+char PROGMEM httpd_header_ct_xicon[] =
+"Content-Type: image/x-icon\n\n";
+#endif
 
 #ifdef ECMD_PARSER_SUPPORT
 char PROGMEM httpd_header_ecmd[] =

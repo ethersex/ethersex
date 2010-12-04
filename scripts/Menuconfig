@@ -44,7 +44,7 @@ fi
 function set_x_info () {
     eval x=\$$1
     if [ -z "$x" ]; then
-	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
+#	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
 	eval x=\${$1:-\"$2\"}
 	eval $1=$x
 	eval INFO_$1="' (NEW)'"
@@ -1062,6 +1062,7 @@ Select the default profile you wish to load. \
 			ethersex	  "Standard Ethersex"				0 \
 			bootloader	  "Ethernet Bootloader"				0 \
 			netio		  "Pollin AVR Net-IO"				0 \
+			netio_addon	  "Pollin AVR Net-IO (w/ addon board)"		0 \
 			radig		  "Radig AVR Webmodul"				0 \
 			fimser		  "Fieldday Instant Messenger"			0 \
 			probot		  "Conrad Probot"				0 \
@@ -1071,6 +1072,7 @@ Select the default profile you wish to load. \
 			usb-teensy	  "USB (Network) Standalone"			0 \
 			usb-rfm12-dongle  "USB RFM12 Dongle"				0 \
 			ehaserl		  "EH2010 Ehaserl Badge"			0 \
+			fnordlicht_servo "Fnordlicht Servo"			0 \
 			no-network	  "No Networking (USB only)"			0 \
 			JeeLinkv2	  "Jeelabs JeeLinkv2 (FTDI-ZBUS, RFM12)"	0 \
 			hr20		  "Rondostat HR20/Thermotronic Basic/Thermy"	0 \
@@ -1407,7 +1409,7 @@ save_configuration () {
 		while [ -n "$2" ]
 		do
 			case "$1" in
-			"$current"*)	if [ -z "$chosen" ]; then
+			"$current")	if [ -z "$chosen" ]; then
 						if [ \! -z "$define_symbol" ]; then
 							echo "$define_symbol=$2" 		>>$CONFIG
 							echo "#define $define_symbol $2"	>>$CONFIG_H

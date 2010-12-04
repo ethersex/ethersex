@@ -22,7 +22,7 @@
 
 // httplog.h
 //
-// this is a literal copy of twitter.h which the "twitter" strings replaced by "httplog" ones
+// this is a literal copy of twitter.h with "twitter" replaced by "httplog"
 
 #ifndef HAVE_HTTPLOG_H
 #define HAVE_HTTPLOG_H
