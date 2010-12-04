@@ -1,6 +1,6 @@
 /* MenuInterpreter
-  Version 1.3
-  (c) 2009 by Malte Marwedel
+  Version 1.4
+  (c) 2009-2010 by Malte Marwedel
   www.marwedels.de/malte
 
   This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+
 #include "menu-interpreter.h"
 #include "menu-text.h"
 
@@ -36,7 +38,7 @@ unsigned char * menu_gfxdata[MENU_GFX_MAX];
 //the state of the menu
 //the adress of the current window
 MENUADDR menu_window_init = 0; //the drawn window
-MENUADDR menu_subwindow_start = 0;
+MENUADDR menu_subwindow_start = 0; //subwindow start adress, or 0 if no subwindow is shown
 MENUADDR menu_window_start = 1; //the window which should be drawn
 //the number of objects on the current window
 unsigned char menu_objects;
@@ -161,13 +163,17 @@ void menu_text_draw_base(SCREENPOS x, SCREENPOS y, unsigned char font,
 		if ((cdraw == '\0') || (cdraw == '\n') || (x >= maxpix)) {
 			break;
 		}
+		SCREENPOS ox = x;
 		x += menu_char_draw(x, y, font, cdraw)+1;
+		if (ox > x) {
+			break; //prevent overflow on the right side of the screen back to the left
+		}
 	}
 }
 
 void menu_text_draw(SCREENPOS x, SCREENPOS y, unsigned char font,
  unsigned char storage, MENUADDR baseaddr) {
-	menu_text_draw_base(x, y, font, storage, baseaddr, 0, MENU_SCREEN_X);
+	menu_text_draw_base(x, y, font, storage, baseaddr, 0, MENU_SCREEN_X - x);
 }
 
 void menu_box(unsigned char hasfocus) {
@@ -289,7 +295,7 @@ void menu_checkbox(unsigned char hasfocus) {
 #ifdef DEBUG
 	printf("Drawing checkbox %i with state %i\n", ckbnumber, color);
 #endif
-	//TODO: make the pattern avariable as gfx instead of hard coded values
+	//TODO: make the pattern available as gfx instead of hard coded values
 	menu_screen_set(px+1, py+4, color);
 	menu_screen_set(px+2, py+5, color);
 	menu_screen_set(px+3, py+4, color);
@@ -327,7 +333,7 @@ void menu_radiobutton(unsigned char hasfocus) {
 #ifdef DEBUG
 	printf("Drawing radiobutton of group %i, checked on %i. Tableentry: %i\n", radionumber, radioselect, menu_checkboxstate[radionumber]);
 #endif
-	//TODO: make the pattern avariable as gfx instead of hard coded values
+	//TODO: make the pattern available as gfx instead of hard coded values
 	menu_screen_set(px+3, py+2, color);
 	menu_screen_set(px+4, py+2, color);
 	menu_screen_set(px+2, py+3, color);
@@ -755,12 +761,18 @@ void menu_run_action(MENUADDR addr) {
 		menu_redraw();
 }
 
+#ifdef MENU_USE_CHECKBOX
+
 static void menu_handle_checkbox(MENUADDR addr) {
 	unsigned char index = menu_byte_get(addr+MENU_CKRAD_OFF+2*MENU_ADDR_BYTES);
 	if (index < MENU_CHECKBOX_MAX)
 		menu_checkboxstate[index] = 1-menu_checkboxstate[index];
 	menu_redraw(); //Improvement: May be faster if only the checkbox gets redrawn
 }
+
+#endif
+
+#ifdef MENU_USE_RADIOBUTTON
 
 static void menu_handle_radiobutton(MENUADDR addr) {
 	unsigned char groupindex = menu_byte_get(addr+MENU_CKRAD_OFF+2*MENU_ADDR_BYTES);
@@ -770,6 +782,8 @@ static void menu_handle_radiobutton(MENUADDR addr) {
 		menu_radiobuttonstate[groupindex] = value;
 	menu_redraw(); //Improvement: May be faster if only the radiobutton gets redrawn
 }
+
+#endif
 
 static void menu_handle_listbox(MENUADDR addr, unsigned char key) {
 	menu_pc_set(addr+MENU_LISTPOS_OFF);
@@ -912,4 +926,74 @@ void menu_keypress(unsigned char key) {
 		p += menu_object_datasize(token)+1;
 	}
 }
+
+#ifdef MENU_MOUSE_SUPPORT
+
+void menu_mouse(SCREENPOS x, SCREENPOS y, unsigned char key) {
+	MENUADDR elemmatch = 0;
+	MENUADDR seekpos = 0;
+	//check if sub window active or not
+	if (menu_subwindow_start) {
+		seekpos = menu_subwindow_start;
+	} else
+		seekpos = menu_window_start;
+	//jump over first window definitions
+	seekpos += menu_object_datasize(menu_byte_get(seekpos))+1;
+	//check objects, remember last found object
+	while(1) {
+		unsigned char obj = menu_byte_get(seekpos);
+		if ((obj == MENU_BOX) || (obj == MENU_BUTTON) || (obj == MENU_GFX) ||
+		    (obj == MENU_LIST) || (obj == MENU_CHECKBOX) || (obj == MENU_RADIOBUTTON)) {
+			MENUADDR spos2 = seekpos+1;
+			SCREENPOS px = menu_byte_get(spos2++);
+			SCREENPOS py = menu_byte_get(spos2++);
+#ifdef LARGESCREEN
+			unsigned char lpxy = menu_byte_get(spos2++);
+			px += (SCREENPOS)(lpxy & 0xF0) << 4;
+			py += (SCREENPOS)(lpxy & 0x0F) << 8;
+#endif
+			SCREENPOS sx = menu_byte_get(spos2++);
+			SCREENPOS sy = menu_byte_get(spos2++);
+#ifdef LARGESCREEN
+			unsigned char lsxy = menu_byte_get(spos2++);
+			sx += (SCREENPOS)(lsxy & 0xF0) << 4;
+			sy += (SCREENPOS)(lsxy & 0x0F) << 8;
+#endif
+			unsigned char focusable = menu_byte_get(spos2) & 1;
+			if (focusable) {
+				//compare if position fits
+				if ((x >= px) && (x < (px+sx)) && (y >= py) && (y < (py+sy))) {
+					elemmatch = seekpos;
+				}
+			}
+		} else if ((obj != MENU_LABEL) && (obj != MENU_SHORTCUT)) {
+				break;
+		}
+		seekpos += menu_object_datasize(obj)+1;
+	}
+	//run action
+	if (elemmatch) {
+		unsigned char obj = menu_byte_get(elemmatch);
+#ifdef MENU_USE_LIST
+		if (obj == MENU_LIST) {
+			menu_handle_listbox(elemmatch, key);
+		}
+#endif
+		if (key == menu_key_enter) {
+#ifdef MENU_USE_CHECKBOX
+			if (obj == MENU_CHECKBOX)
+				menu_handle_checkbox(elemmatch);
+#endif
+#ifdef MENU_USE_RADIOBUTTON
+			if (obj == MENU_RADIOBUTTON)
+				menu_handle_radiobutton(elemmatch);
+#endif
+			menu_run_action(elemmatch+MENU_ACTION_OFF); //offset for all focusable objects where action and windows are starting
+			return;
+		}
+	}
+}
+
+#endif
+
 
