@@ -26,6 +26,7 @@
 #define HOOK_IMPLEMENT 1
 
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -33,6 +34,10 @@
 #include "config.h"
 #include "glcdmenu.h"
 #include "protocols/ecmd/ecmd-base.h"
+
+/* To satisfy the watchdog during lengthy redraws */
+#undef MENU_SCHEDULE
+#define MENU_SCHEDULE wdt_kick();
 
 #ifdef GLCDMENU_MOUSE_SUPPORT
 #define MENU_MOUSE_SUPPORT
@@ -181,9 +186,13 @@ void glcdmenuMouseEvent(uint16_t xPos_ui16, uint16_t yPos_ui16, unsigned char bu
 void glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc)
 {
 	if (MENU_TEXT_MAX > idx_ui16)
+	{
 		menu_strings[idx_ui16] = ptr_pc;
+	}
 	else
+	{
 		GLCDMENUDEBUG("String index out of bounds: %i\n", idx_ui16);
+	}
 }
 
 /**
@@ -196,9 +205,13 @@ void glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc)
 void glcdmenuSetChkBoxState(uint16_t idx_ui16, uint8_t state_ui8)
 {
 	if (MENU_CHECKBOX_MAX > idx_ui16)
+	{
 		menu_checkboxstate[idx_ui16] = state_ui8;
+	}
 	else
+	{
 		GLCDMENUDEBUG("ChkBox index out of bounds: %i\n", idx_ui16);
+	}
 }
 
 /**
@@ -230,9 +243,13 @@ uint8_t glcdmenuGetChkBoxState(uint16_t idx_ui16)
 void glcdmenuSetRadioBtnState(uint16_t idx_ui16, uint8_t state_ui8)
 {
 	if (MENU_RADIOBUTTON_MAX > idx_ui16)
+	{
 		menu_radiobuttonstate[idx_ui16] = state_ui8;
+	}
 	else
+	{
 		GLCDMENUDEBUG("RadioBtn index out of bounds: %i\n", idx_ui16);
+	}
 }
 
 /**
@@ -264,9 +281,13 @@ uint8_t glcdmenuGetRadioBtnState(uint16_t idx_ui16)
 void glcdmenuSelectListItem(uint16_t idx_ui16, uint16_t item_ui16)
 {
 	if (MENU_LIST_MAX > idx_ui16)
+	{
 		menu_listindexstate[idx_ui16] = item_ui16;
+	}
 	else
+	{
 		GLCDMENUDEBUG("List index out of bounds: %i\n", idx_ui16);
+	}
 }
 
 /**
@@ -298,9 +319,13 @@ uint16_t glcdmenuGetListItem(uint16_t idx_ui16)
 void glcdmenuSetGfxData(uint16_t idx_ui16, unsigned char* ptr_pc)
 {
 	if (MENU_GFX_MAX > idx_ui16)
+	{
 		menu_gfxdata[idx_ui16] = ptr_pc;
+	}
 	else
+	{
 		GLCDMENUDEBUG("GFX index out of bounds: %i\n", idx_ui16);
+	}
 }
 
 /**
