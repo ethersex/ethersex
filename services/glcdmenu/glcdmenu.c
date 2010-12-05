@@ -33,6 +33,10 @@
 #include "config.h"
 #include "glcdmenu.h"
 #include "protocols/ecmd/ecmd-base.h"
+
+#ifdef GLCDMENU_MOUSE_SUPPORT
+#define MENU_MOUSE_SUPPORT
+#endif
 #include "menu-interpreter/menu-interpreter.h"
 
 #ifdef GLCDMENU_S1D13305
@@ -40,7 +44,6 @@
 #endif
 
 #include "menu-interpreter/menudata-progmem.c"
-
 
 /* true = redraw the menu */
 bool doRedraw_b = true;
@@ -135,6 +138,38 @@ void glcdmenuRedraw(void)
 {
 	doRedraw_b = true;
 }
+
+/**
+ * @brief Notify the menu of a keypress.
+ *
+ * This function is quite lame because it just calls the
+ * appropriate function of the menu interpreter but i
+ * wanted to keep the interface clean.
+ *
+ * @param key_uc The Scancode of the key
+ */
+void glcdmenuKeypress(unsigned char key_uc)
+{
+	menu_keypress(key_uc);
+}
+
+#ifdef GLCDMENU_MOUSE_SUPPORT
+/**
+ * @brief Notify the menu of a mouse action.
+ *
+ * This function is quite lame because it just calls the
+ * appropriate function of the menu interpreter but i
+ * wanted to keep the interface clean.
+ *
+ * @param xPos_ui16 Mouse X-Pos
+ * @param yPos_ui16 Mouse Y-Pos
+ * @param button_uc The mouse button pressed (or scrollwheel)
+ */
+void glcdmenuMouseEvent(uint16_t xPos_ui16, uint16_t yPos_ui16, unsigned char button_uc)
+{
+	menu_mouse((SCREENPOS)xPos_ui16, (SCREENPOS)yPos_ui16, button_uc);
+}
+#endif
 
 /**
  * @brief Set dynamic string contents.
