@@ -28,7 +28,7 @@ fi
 
 # re-generate autoconf.h
 rm -f autoconf.h
-echo -ne "\t\n\n" | make no_deps=t menuconfig
+/bin/echo -ne "\t\n\n" | make no_deps=t menuconfig
 [ -e autoconf.h ] || {
   echo "$0: failed to generate autoconf.h file."
   exit 1
