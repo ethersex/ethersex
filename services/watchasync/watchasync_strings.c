@@ -66,7 +66,7 @@ static const char PROGMEM watchasync_ID_PA5[] = CONF_WATCHASYNC_PA5_ID;
 #ifdef CONF_WATCHASYNC_PA6
 static const char PROGMEM watchasync_ID_PA6[] = CONF_WATCHASYNC_PA6_ID;
 #endif
-#ifdef CONF_WATCHASYNC_PB7
+#ifdef CONF_WATCHASYNC_PA7
 static const char PROGMEM watchasync_ID_PA7[] = CONF_WATCHASYNC_PA7_ID;
 #endif
 #ifdef CONF_WATCHASYNC_PB0

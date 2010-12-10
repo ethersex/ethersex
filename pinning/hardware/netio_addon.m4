@@ -1,6 +1,6 @@
 /* onewire support */
 ifdef(`conf_ONEWIRE', `dnl
-pin(ONEWIRE, PD6)
+pin(ONEWIRE, PC2)
 ')
 
 /* port the enc28j60 is attached to */
@@ -25,3 +25,28 @@ ifdef(`conf_IRMP', `dnl
   #undef IRMP_RX_LED_LOW_ACTIVE
   pin(IRMP_TX, PD7) dnl OC2
 ')
+
+ifdef(`conf_STATUSLED_POWER', `dnl
+pin(STATUSLED_POWER, PD2, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_BOOTED', `dnl
+pin(STATUSLED_BOOTED, PD2, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_NETLINK', `dnl
+pin(STATUSLED_NETLINK, PD4, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_TX', `dnl
+pin(STATUSLED_TX, PD4, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_RX', `dnl
+pin(STATUSLED_RX, PD6, OUTPUT)
+')dnl
+
+ifdef(`conf_STATUSLED_HB_ACT', `dnl
+pin(STATUSLED_HB_ACT,PD6, OUTPUT)
+')dnl
+
