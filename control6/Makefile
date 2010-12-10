@@ -1,7 +1,7 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
-m4_lang = $(wildcard $(TOPDIR)/control6/lang.d/*.m4)
+m4_lang = $(sort $(wildcard $(TOPDIR)/control6/lang.d/*.m4))
 
 $(CONTROL6_SUPPORT)_SRC += control6/control6.c
 
