@@ -25,8 +25,8 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
       dep_bool "  No Echo" ECMD_SERIAL_NO_ECHO $ECMD_SERIAL_USART_SUPPORT
       int "  UART Baudrate" ECMD_SERIAL_BAUDRATE 115200
       int "  UART buffer length" ECMD_SERIAL_USART_BUFFER_LEN 50
-      if [ $ECMD_SERIAL_USART_BUFFER_LEN -gt 256 ]; then
-        ECMD_SERIAL_USART_BUFFER_LEN=256
+      if [ $ECMD_SERIAL_USART_BUFFER_LEN -gt 255 ]; then
+        ECMD_SERIAL_USART_BUFFER_LEN=255
       fi
     fi
   else
