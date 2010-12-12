@@ -1,0 +1,17 @@
+usart_count_used
+if [ "$FNORDLICHT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "Fnordlicht" FNORDLICHT_BASIC_SUPPORT
+		int "soft uart baudrate" FNORDLICHT_BAUDRATE 19200
+		choice '  Fnordlicht usart select' "$(usart_choice FNORDLICHT)"
+		usart_process_choice FNORDLICHT
+		dep_bool_menu "Fnordlicht control" FNORDLICHT_SUPPORT $FNORDLICHT_BASIC_SUPPORT
+			int "num lights" CONF_FNORDLICHTER 1
+		endmenu
+		dep_bool "Fnordlicht servo" FNORDLICHT_SERVO_SUPPORT $PWM_SERVO_SUPPORT $FNORDLICHT_BASIC_SUPPORT
+		comment  "Debugging Flags"
+		dep_bool 'FNORDLICHT' DEBUG_FNORDLICHT $DEBUG
+	endmenu
+else
+	define_bool FNORDLICHT_SUPPORT n
+	comment "Fnordlicht not available. No free usart. ($USARTS_USED/$USARTS)"
+fi

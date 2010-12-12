@@ -103,6 +103,8 @@
 
 /* lcd stream */
 extern FILE *lcd;
+extern uint8_t current_pos;
+extern uint8_t back_light;
 
 #define clock_write(en) clock_rw(0,en)
 #define clock_read(en) clock_rw(1,en)

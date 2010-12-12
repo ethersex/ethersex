@@ -472,7 +472,7 @@ main(int argc, char *argv[])
   atexit(cleanup);
 
   fd_set fds;
-  char c;
+  int c;
 
   const struct option longopts[] = {
     {"help", no_argument, 0, 'h'},

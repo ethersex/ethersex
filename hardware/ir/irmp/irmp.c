@@ -149,18 +149,18 @@ static irmp_fifo_t irmp_tx_fifo;
 
 #ifdef DEBUG_IRMP
 static const char proto_unknown[] PROGMEM = "unknown";
-static const char proto_sircs[] PROGMEM = "SIR_CS";
+static const char proto_sircs[] PROGMEM = "SIRCS";
 static const char proto_nec[] PROGMEM = "NEC";
 static const char proto_samsung[] PROGMEM = "SAMSUNG";
 static const char proto_matshushita[] PROGMEM = "MATSUSHITA";
 static const char proto_kaseikyo[] PROGMEM = "KASEIKYO";
-static const char proto_recs80[] PROGMEM = "RE_CS80";
+static const char proto_recs80[] PROGMEM = "RECS80";
 static const char proto_rc5x[] PROGMEM = "RC5(x)";
 static const char proto_denon[] PROGMEM = "DENON";
 static const char proto_rc6[] PROGMEM = "RC6";
 static const char proto_samsung32[] PROGMEM = "SAMSUNG32";
 static const char proto_apple[] PROGMEM = "APPLE";
-static const char proto_recs80ext[] PROGMEM = "RE_CS80EXT";
+static const char proto_recs80ext[] PROGMEM = "RECS80EXT";
 static const char proto_nubert[] PROGMEM = "NUBERT";
 static const char proto_bang_olufsen[] PROGMEM = "BANG&OLUFSEN";
 static const char proto_grundig[] PROGMEM = "GRUNDIG";
@@ -170,6 +170,7 @@ static const char proto_fdc[] PROGMEM = "FDC";
 static const char proto_rccar[] PROGMEM = "RCCAR";
 static const char proto_jvc[] PROGMEM = "JVC";
 static const char proto_rc6a[] PROGMEM = "RC6A";
+static const char proto_nikon[] PROGMEM = "NIKON";
 
 const PGM_P irmp_proto_names[] PROGMEM = {
   proto_unknown,
@@ -193,7 +194,8 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_fdc,
   proto_rccar,
   proto_jvc,
-  proto_rc6a
+  proto_rc6a,
+  proto_nikon
 };
 #endif
 
@@ -246,10 +248,13 @@ irmp_read (irmp_data_t * irmp_data_p)
 				     FIFO_NEXT (irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
-  printf_P (PSTR ("IRMP RX: proto %02"PRId8" "), irmp_data_p->protocol);
-  printf_P ((const char *)pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR (", address %04"PRIX16", command %04"PRIX16", flags %02"PRIX8"\n"),
-	    irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
+  printf_P (PSTR ("IRMP RX: proto %02" PRId8 " "), irmp_data_p->protocol);
+  printf_P ((const char *)
+	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
+  printf_P (PSTR
+	    (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
+	     "\n"), irmp_data_p->address, irmp_data_p->command,
+	    irmp_data_p->flags);
 #endif
   return 1;
 }
@@ -303,10 +308,13 @@ void
 irmp_write (irmp_data_t * irmp_data_p)
 {
 #ifdef DEBUG_IRMP
-  printf_P (PSTR ("IRMP TX: proto %02"PRId8" "), irmp_data_p->protocol);
-  printf_P ((const char *)pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR (", address %04"PRIX16", command %04"PRIX16", flags %02"PRIX8"\n"),
-	    irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
+  printf_P (PSTR ("IRMP TX: proto %02" PRId8 " "), irmp_data_p->protocol);
+  printf_P ((const char *)
+	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
+  printf_P (PSTR
+	    (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
+	     "\n"), irmp_data_p->address, irmp_data_p->command,
+	    irmp_data_p->flags);
 #endif
 
   uint8_t tmphead = FIFO_NEXT (irmp_tx_fifo.write);
@@ -327,39 +335,42 @@ ISR (_VECTOR_OUTPUT_COMPARE2)
 ISR (_VECTOR_OUTPUT_COMPARE0)
 #endif
 {
-  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
-  if (data == IRMP_RX_MARK)
-    {
-      IRMP_RX_LED_ON;
-    }
-  else
-    {
-      IRMP_RX_LED_OFF;
-    }
-
-  if (irmp_rx_process (data) != 0)
-    {
-      uint8_t tmphead = FIFO_NEXT (irmp_rx_fifo.write);
-      if (tmphead != irmp_rx_fifo.read)
-	{
-	  if (irmp_rx_get (&irmp_rx_fifo.buffer[tmphead]))
-	    irmp_rx_fifo.write = tmphead;
-	}
-    }
-
-#ifdef IRSND_SUPPORT
-  if (irmp_tx_process () == 0)
-    {
-      if (irmp_tx_fifo.read != irmp_tx_fifo.write)
-	irmp_tx_put (&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
-					  FIFO_NEXT (irmp_tx_fifo.read)], 0);
-    }
-#endif
-
 #ifdef IRMP_USE_TIMER2
   _OUTPUT_COMPARE_REG2 += SW_PRESCALER;
 #else
   _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
+#endif
+  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
+
+#ifdef IRSND_SUPPORT
+  if (irmp_tx_process () == 0)
+    {
+#endif
+
+      if (data == IRMP_RX_MARK)
+	{
+	  IRMP_RX_LED_ON;
+	}
+      else
+	{
+	  IRMP_RX_LED_OFF;
+	}
+
+      if (irmp_rx_process (data) != 0)
+	{
+	  uint8_t tmphead = FIFO_NEXT (irmp_rx_fifo.write);
+	  if (tmphead != irmp_rx_fifo.read)
+	    {
+	      if (irmp_rx_get (&irmp_rx_fifo.buffer[tmphead]))
+		irmp_rx_fifo.write = tmphead;
+	    }
+	}
+
+#ifdef IRSND_SUPPORT
+      if (irmp_tx_fifo.read != irmp_tx_fifo.write)
+	irmp_tx_put (&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
+					  FIFO_NEXT (irmp_tx_fifo.read)], 0);
+    }
 #endif
 }
 

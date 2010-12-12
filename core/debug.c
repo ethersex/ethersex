@@ -124,7 +124,7 @@ debug_process_uart (void)
             int l;
 
             do {
-                l = ecmd_parse_command(buf, output, LEN);
+                l = ecmd_parse_command(buf, output, OUTPUTLEN);
                 if (is_ECMD_FINAL(l) || is_ECMD_AGAIN(l)) {
                     output[is_ECMD_AGAIN(l) ? ECMD_AGAIN(l) : l] = 0;
                     printf_P(PSTR("%s\n"), output);
