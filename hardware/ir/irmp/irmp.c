@@ -45,38 +45,38 @@
 #ifdef IRMP_USE_TIMER2
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define HW_PRESCALER_MASK  _BV(_CS20)
+#define SET_HW_PRESCALER  TC2_PRESCALER_1
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define HW_PRESCALER_MASK  _BV(_CS21)
+#define SET_HW_PRESCALER  TC2_PRESCALER_8
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define HW_PRESCALER_MASK  _BV(_CS21)|_BV(_CS20)
+#define SET_HW_PRESCALER  TC2_PRESCALER_64
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
-#define HW_PRESCALER       256UL
-#define HW_PRESCALER_MASK  _BV(_CS22)
+#define HW_PRESCALER       TC2_PRESCALER_256
+#define SET_HW_PRESCALER  _BV(_CS22)
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
-#define HW_PRESCALER       1024UL
-#define HW_PRESCALER_MASK  _BV(_CS22)|_BV(_CS00)
+#define HW_PRESCALER       TC2_PRESCALER_1024
+#define SET_HW_PRESCALER  _BV(_CS22)|_BV(_CS00)
 #else
 #error F_CPU to large
 #endif
 #else
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define HW_PRESCALER_MASK  _BV(_CS00)
+#define SET_HW_PRESCALER  TC0_PRESCALER_1
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define HW_PRESCALER_MASK  _BV(_CS01)
+#define SET_HW_PRESCALER  TC0_PRESCALER_8
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define HW_PRESCALER_MASK  _BV(_CS01)|_BV(_CS00)
+#define SET_HW_PRESCALER  TC0_PRESCALER_64
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
 #define HW_PRESCALER       256UL
-#define HW_PRESCALER_MASK  _BV(_CS02)
+#define SET_HW_PRESCALER  TC0_PRESCALER_256
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
 #define HW_PRESCALER       1024UL
-#define HW_PRESCALER_MASK  _BV(_CS02)|_BV(_CS00)
+#define SET_HW_PRESCALER  TC0_PRESCALER_1024
 #else
 #error F_CPU to large
 #endif
@@ -214,24 +214,26 @@ irmp_init (void)
 
   /* init timer0/2 to expire after 1000/IRMP_HZ ms */
 #ifdef IRMP_USE_TIMER2
-  _TCCR2_PRESCALE = HW_PRESCALER_MASK;
-  _OUTPUT_COMPARE_REG2 = SW_PRESCALER - 1;
-  _TCNT2 = 0;
-  _TIMSK_TIMER2 |= _BV (_OUTPUT_COMPARE_IE2);	/* enable interrupt */
+  SET_HW_PRESCALER;
+  TC2_COUNTER_COMPARE = SW_PRESCALER - 1;
+  TC2_COUNTER_CURRENT = 0;
+  TC2_INT_COMPARE_ON;				/* enable interrupt */
 #else
-  _TCCR0_PRESCALE = HW_PRESCALER_MASK;
-  _OUTPUT_COMPARE_REG0 = SW_PRESCALER - 1;
-  _TCNT0 = 0;
-  _TIMSK_TIMER0 |= _BV (_OUTPUT_COMPARE_IE0);	/* enable interrupt */
+  SET_HW_PRESCALER;
+  TC0_COUNTER_COMPARE = SW_PRESCALER - 1;
+  TC0_COUNTER_CURRENT = 0;
+  TC0_INT_COMPARE_ON;				/* enable interrupt */
 #endif
 
 #ifdef IRSND_SUPPORT
   PIN_CLEAR (IRMP_TX);
   DDR_CONFIG_OUT (IRMP_TX);
 #ifdef IRMP_USE_TIMER2
-  _TCCR0_PRESCALE = _BV (_WGM01) | _BV (_CS00);	/* CTC mode, 0x01, start Timer 0, no prescaling */
+  TC0_MODE_CTC;
+  TC0_PRESCALER_1;
 #else
-  _TCCR2_PRESCALE = _BV (_WGM21) | _BV (_CS20);	/* CTC mode, 0x01, start Timer 2, no prescaling */
+  TC2_MODE_CTC;
+  TC2_PRESCALER_1;
 #endif
   irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
@@ -268,9 +270,9 @@ irmp_tx_on (void)
   if (!irsnd_is_on)
     {
 #ifdef IRMP_USE_TIMER2
-      _TCCR0_PRESCALE |= _BV (_COM00) | _BV (_WGM01);
+      TC0_OUTPUT_COMPARE_TOGGLE; TC0_MODE_CTC;
 #else
-      _TCCR2_PRESCALE |= _BV (_COM20) | _BV (_WGM21);
+      TC2_OUTPUT_COMPARE_TOGGLE; TC2_MODE_CTC;
 #endif
       irsnd_is_on = TRUE;
     }
@@ -283,9 +285,9 @@ irmp_tx_off (void)
   if (irsnd_is_on)
     {
 #ifdef IRMP_USE_TIMER2
-      _TCCR0_PRESCALE &= ~_BV (_COM00);
+      TC0_OUTPUT_COMPARE_NONE;
 #else
-      _TCCR2_PRESCALE &= ~_BV (_COM20);
+      TC2_OUTPUT_COMPARE_NONE;
 #endif
       PIN_CLEAR (IRMP_TX);
       irsnd_is_on = FALSE;
@@ -297,9 +299,9 @@ static void
 irmp_tx_set_freq (uint8_t freq)
 {
 #ifdef IRMP_USE_TIMER2
-  _OUTPUT_COMPARE_REG0 = freq;
+  TC0_COUNTER_COMPARE = freq;
 #else
-  _OUTPUT_COMPARE_REG2 = freq;
+  TC2_COUNTER_COMPARE = freq;
 #endif
 }
 
@@ -330,15 +332,15 @@ irmp_write (irmp_data_t * irmp_data_p)
 
 
 #ifdef IRMP_USE_TIMER2
-ISR (_VECTOR_OUTPUT_COMPARE2)
+ISR (TC2_VECTOR_COMPARE)
 #else
-ISR (_VECTOR_OUTPUT_COMPARE0)
+ISR (TC0_VECTOR_COMPARE)
 #endif
 {
 #ifdef IRMP_USE_TIMER2
-  _OUTPUT_COMPARE_REG2 += SW_PRESCALER;
+  TC2_COUNTER_COMPARE += SW_PRESCALER;
 #else
-  _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
+  TC0_COUNTER_COMPARE += SW_PRESCALER;
 #endif
   uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
 
