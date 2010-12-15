@@ -49,7 +49,7 @@ ifdef(`conf_RC5', `
 
 ifdef(`conf_IRMP', `dnl
   pin(IRMP_RX, PD3)
-#define IRMP_USE_TIMER0
+#undef IRMP_USE_TIMER2
 #define IRMP_RX_LOW_ACTIVE
 #undef IRMP_RX_LED_LOW_ACTIVE 
   pin(IRMP_TX, PD7) dnl OC2
