@@ -34,6 +34,8 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
+#ifdef IRMP_RX_SUPPORT
+
 int16_t
 parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
 {
@@ -50,7 +52,9 @@ parse_cmd_irmp_receive (char *cmd, char *output, uint16_t len)
 				   irmp_data.flags)) : ECMD_FINAL_OK);
 }
 
-#ifdef IRSND_SUPPORT
+#endif
+
+#ifdef IRMP_TX_SUPPORT
 
 int16_t
 parse_cmd_irmp_send (char *cmd, char *output, uint16_t len)
@@ -79,8 +83,10 @@ parse_cmd_irmp_send (char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block(Infrared Send/Receive ([[IRMP]]))
-  ecmd_feature(irmp_receive, "irmp receive",,receive an IR command)
-  ecmd_ifdef(IRSND_SUPPORT)
+  ecmd_ifdef(IRMP_RX_SUPPORT)
+    ecmd_feature(irmp_receive, "irmp receive",,receive an IR command)
+  ecmd_endif()
+  ecmd_ifdef(IRMP_TX_SUPPORT)
     ecmd_feature(irmp_send, "irmp send", PROTOCOL DEVICE COMMAND REPEAT, send COMMAND with REPEAT flag to DEVICE using PROTOCOL)
   ecmd_endif()
 */

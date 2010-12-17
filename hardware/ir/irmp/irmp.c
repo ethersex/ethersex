@@ -113,13 +113,16 @@
 #define F_INTERRUPTS IRMP_HZ
 #pragma push_macro("DEBUG")
 #undef DEBUG
+#define IRMP_DATA irmp_data_t
+#define IRMP_USE_AS_LIB
+#ifdef IRMP_RX_SUPPORT
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
 #define IRMP_LOGGING 0
-#define IRMP_USE_AS_LIB
-#define IRMP_DATA irmp_data_t
 #include "irmp_lib.c"
-#ifdef IRSND_SUPPORT
+#endif
+#ifdef IRMP_TX_SUPPORT
+#define IRSND_SUPPORT
 #define irsnd_ISR irmp_tx_process
 #define irsnd_on irmp_tx_on
 #define irsnd_off irmp_tx_off
@@ -142,8 +145,10 @@ typedef struct
   irmp_data_t buffer[FIFO_SIZE];
 } irmp_fifo_t;
 
+#ifdef IRMP_RX_SUPPORT
 static irmp_fifo_t irmp_rx_fifo;
-#ifdef IRSND_SUPPORT
+#endif
+#ifdef IRMP_TX_SUPPORT
 static irmp_fifo_t irmp_tx_fifo;
 #endif
 
@@ -203,9 +208,11 @@ const PGM_P irmp_proto_names[] PROGMEM = {
 void
 irmp_init (void)
 {
+#ifdef IRMP_RX_SUPPORT
   /* configure TSOP input, disable pullup */
   DDR_CONFIG_IN (IRMP_RX);
   PIN_CLEAR (IRMP_RX);
+#endif
 
 #ifdef IRMP_RX_LED
   DDR_CONFIG_OUT (STATUSLED_RX);
@@ -225,7 +232,7 @@ irmp_init (void)
   TC0_INT_COMPARE_ON;				/* enable interrupt */
 #endif
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_TX_SUPPORT
   PIN_CLEAR (IRMP_TX);
   DDR_CONFIG_OUT (IRMP_TX);
 #ifdef IRMP_USE_TIMER2
@@ -239,6 +246,8 @@ irmp_init (void)
 #endif
 }
 
+
+#ifdef IRMP_RX_SUPPORT
 
 uint8_t
 irmp_read (irmp_data_t * irmp_data_p)
@@ -261,8 +270,9 @@ irmp_read (irmp_data_t * irmp_data_p)
   return 1;
 }
 
+#endif
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_TX_SUPPORT
 
 static void
 irmp_tx_on (void)
@@ -342,13 +352,17 @@ ISR (TC0_VECTOR_COMPARE)
 #else
   TC0_COUNTER_COMPARE += SW_PRESCALER;
 #endif
-  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_RX_SUPPORT
+  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
+#endif
+
+#ifdef IRMP_TX_SUPPORT
   if (irmp_tx_process () == 0)
     {
 #endif
 
+#ifdef IRMP_RX_SUPPORT
       if (data == IRMP_RX_MARK)
 	{
 	  IRMP_RX_LED_ON;
@@ -367,8 +381,9 @@ ISR (TC0_VECTOR_COMPARE)
 		irmp_rx_fifo.write = tmphead;
 	    }
 	}
+#endif
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_TX_SUPPORT
       if (irmp_tx_fifo.read != irmp_tx_fifo.write)
 	irmp_tx_put (&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
 					  FIFO_NEXT (irmp_tx_fifo.read)], 0);
