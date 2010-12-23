@@ -302,7 +302,7 @@ irmp_tx_on (void)
 #else
       TC2_OUTPUT_COMPARE_TOGGLE; TC2_MODE_CTC;
 #endif
-      IRMP_RX_LED_ON;
+      IRMP_TX_LED_ON;
       irsnd_is_on = TRUE;
     }
 }
@@ -319,7 +319,7 @@ irmp_tx_off (void)
       TC2_OUTPUT_COMPARE_NONE;
 #endif
       PIN_CLEAR (IRMP_TX);
-      IRMP_RX_LED_OFF;
+      IRMP_TX_LED_OFF;
       irsnd_is_on = FALSE;
     }
 }
