@@ -1,7 +1,5 @@
 #!/bin/sh
 
-if [ -d .git ]; then
-  echo -n ' ('
-  git show --abbrev-commit --pretty=oneline | sed -n '1 {s/ .*//p}' | tr -d '\n'
-  echo ') '
+if test -d .git ; then
+    git log --pretty=format:%h -n 1
 fi
