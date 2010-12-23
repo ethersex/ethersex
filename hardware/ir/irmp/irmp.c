@@ -104,6 +104,19 @@
 #define IRMP_RX_MARK       PIN_BV(IRMP_RX)
 #endif
 
+#ifdef IRMP_TX_LED
+#ifdef IRMP_TX_LED_LOW_ACTIVE
+#define IRMP_TX_LED_ON     PIN_CLEAR(STATUSLED_TX)
+#define IRMP_TX_LED_OFF    PIN_SET(STATUSLED_TX)
+#else
+#define IRMP_TX_LED_ON     PIN_SET(STATUSLED_TX)
+#define IRMP_TX_LED_OFF    PIN_CLEAR(STATUSLED_TX)
+#endif
+#else
+#define IRMP_TX_LED_ON
+#define IRMP_TX_LED_OFF
+#endif
+
 #define FIFO_SIZE          8
 #define FIFO_NEXT(x)       (((x)+1)&(FIFO_SIZE-1))
 
@@ -219,6 +232,11 @@ irmp_init (void)
   IRMP_RX_LED_OFF;
 #endif
 
+#ifdef IRMP_TX_LED
+  DDR_CONFIG_OUT (STATUSLED_TX);
+  IRMP_TX_LED_OFF;
+#endif
+
   /* init timer0/2 to expire after 1000/IRMP_HZ ms */
 #ifdef IRMP_USE_TIMER2
   SET_HW_PRESCALER;
@@ -284,6 +302,7 @@ irmp_tx_on (void)
 #else
       TC2_OUTPUT_COMPARE_TOGGLE; TC2_MODE_CTC;
 #endif
+      IRMP_RX_LED_ON;
       irsnd_is_on = TRUE;
     }
 }
@@ -300,6 +319,7 @@ irmp_tx_off (void)
       TC2_OUTPUT_COMPARE_NONE;
 #endif
       PIN_CLEAR (IRMP_TX);
+      IRMP_RX_LED_OFF;
       irsnd_is_on = FALSE;
     }
 }
