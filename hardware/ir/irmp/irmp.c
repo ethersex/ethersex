@@ -253,12 +253,14 @@ irmp_init (void)
 #ifdef IRMP_TX_SUPPORT
   PIN_CLEAR (IRMP_TX);
   DDR_CONFIG_OUT (IRMP_TX);
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
   TC0_MODE_CTC;
   TC0_PRESCALER_1;
 #else
   TC2_MODE_CTC;
   TC2_PRESCALER_1;
+#endif
 #endif
   irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
@@ -297,11 +299,15 @@ irmp_tx_on (void)
 {
   if (!irsnd_is_on)
     {
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
       TC0_OUTPUT_COMPARE_TOGGLE; TC0_MODE_CTC;
 #else
       TC2_OUTPUT_COMPARE_TOGGLE; TC2_MODE_CTC;
 #endif
+#else
+      PIN_SET (IRMP_TX);
+#endif /* IRMP_EXTERNAL_MODULATOR */
       IRMP_TX_LED_ON;
       irsnd_is_on = TRUE;
     }
@@ -313,11 +319,13 @@ irmp_tx_off (void)
 {
   if (irsnd_is_on)
     {
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
       TC0_OUTPUT_COMPARE_NONE;
 #else
       TC2_OUTPUT_COMPARE_NONE;
 #endif
+#endif /* IRMP_EXTERNAL_MODULATOR */
       PIN_CLEAR (IRMP_TX);
       IRMP_TX_LED_OFF;
       irsnd_is_on = FALSE;
@@ -328,10 +336,12 @@ irmp_tx_off (void)
 static void
 irmp_tx_set_freq (uint8_t freq)
 {
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
   TC0_COUNTER_COMPARE = freq;
 #else
   TC2_COUNTER_COMPARE = freq;
+#endif
 #endif
 }
 

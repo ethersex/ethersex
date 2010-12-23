@@ -2241,3 +2241,12 @@ SFS_PAGE_COUNT
  Count of the pages in total.
  Pagesize * Pagecount must match the size of your EEPROM
 
+Use external modulator for sender
+IRMP_EXTERNAL_MODULATOR
+  Depends on: 
+   * Send IR-codes (IRMP_TX_SUPPORT)
+
+  An external modulator, i.e. NE555 on the etherrape board, is used to
+  modulate the infrared signal. Connect it to the pin assigned to
+  IRMP_TX in pinning/hardware/<your_hardware>.
+
