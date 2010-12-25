@@ -5,8 +5,8 @@ dep_bool_menu "watchasync service" WATCHASYNC_SUPPORT $TCP_SUPPORT
   fi
   int "Port number" CONF_WATCHASYNC_PORT 80
   string "HTTP Method (often GET or POST)" CONF_WATCHASYNC_METHOD "POST"
-  string "Path in front of pin identifier" CONF_WATCHASYNC_PATH "/path/to/volkszaehler/backend/index.php/data/"
-  string "Path at the end" CONF_WATCHASYNC_END_PATH "000"
+  string "Path in front of pin identifier" CONF_WATCHASYNC_PATH "/path/to/volkszaehler/backend.php/data/"
+  string "Path at the end" CONF_WATCHASYNC_END_PATH ""
   dep_bool "Include unix timestamp" CONF_WATCHASYNC_TIMESTAMP $CLOCK_DATETIME_SUPPORT
   if [ "$CONF_WATCHASYNC_TIMESTAMP" = "y" ]; then
     string "Path in front of timestamp" CONF_WATCHASYNC_TIMESTAMP_PATH ".json?ts="
@@ -20,7 +20,7 @@ dep_bool_menu "watchasync service" WATCHASYNC_SUPPORT $TCP_SUPPORT
 		"8Bits			CONF_WATCHASYNC_8BITS	\
 		16Bits			CONF_WATCHASYNC_16BITS	\
 		32Bits			CONF_WATCHASYNC_32BITS"	\
-		16Bits		CONF_WATCHASYNC_COUNTERRANGE
+		16Bits			CONF_WATCHASYNC_COUNTERRANGE
   fi
   int "Buffersize (Power of 2)" CONF_WATCHASYNC_BUFFERSIZE 64
   bool "Use Polling for edge detect instead of interrupt " CONF_WATCHASYNC_EDGDETECTVIAPOLLING
