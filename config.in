@@ -177,14 +177,16 @@ fi
       dep_bool "Use Software-SPI" SOFT_SPI_SUPPORT $ARCH_AVR
     fi
 
-	choice 'Version String'			\
-		"GIT-commit-hash       USE_GIT_VERSION	\
-		Release-Version       USE_RELEASE_VERSION	\
+	choice 'Version String'			                    \
+		"GIT-commit-hash       USE_GIT_VERSION	        \
+		Release-Version       USE_RELEASE_VERSION	    \
 		Build-Date-Time       USE_BUILDDATE_VERSION"	\
 		'Release-Version' VERSION_STRING_CHOICE
-	if [ "$VERSION_STRING_CHOICE" = "USE_GIT_VERSION" ]; then
-		define_string VERSION_GIT "$(scripts/get-git-version)"
-	fi
+
+        if [ "$VERSION_STRING_CHOICE" = "USE_GIT_VERSION" ] || \
+            [ "$VERSION_STRING_CHOICE" = "USE_RELEASE_VERSION" ] ; then
+            define_string VERSION_GIT "$(scripts/get-git-version)"
+        fi
 
 	bool 'Debug: Discard some packets' DEBUG_DISCARD_SOME
 	dep_bool_menu "Enable Debugging" DEBUG y
