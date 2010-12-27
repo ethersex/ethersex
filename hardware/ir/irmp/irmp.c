@@ -122,10 +122,15 @@
 
 
 ///////////////
-#pragma push_macro("F_INTERRUPTS")
+#ifdef F_INTERRUPTS
+#define __IRMP_F_INTERRUPTS F_INTERRUPTS
+#undef F_INTERRUPTS
+#endif
 #define F_INTERRUPTS IRMP_HZ
-#pragma push_macro("DEBUG")
+#ifdef DEBUG
+#define __IRMP_DEBUG
 #undef DEBUG
+#endif
 #define IRMP_DATA irmp_data_t
 #define IRMP_USE_AS_LIB
 #ifdef IRMP_RX_SUPPORT
@@ -147,8 +152,12 @@ static void irmp_tx_off (void);
 static void irmp_tx_set_freq (uint8_t);
 #include "irsnd_lib.c"
 #endif
-#pragma pop_macro("DEBUG")
-#pragma pop_macro("F_INTERRUPTS")
+#ifdef __IRMP_DEBUG
+#define DEBUG
+#endif
+#ifdef __IRMP_F_INTERRUPTS
+#define F_INTERRUPTS __F_INTERRUPTS
+#endif
 ///////////////
 
 typedef struct
