@@ -2,7 +2,7 @@
 unset LANG
 
 if [ "x$CFLAGS" = "x" ]; then
-  CFLAGS="-Wall -W -Wno-unused-parameter -Wno-uninitialized -Wno-pointer-sign  -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-label"
+  CFLAGS="-Wall -W -Wno-unused-parameter -Wno-uninitialized -Wno-pointer-sign -Wno-char-subscripts -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-label"
   export CFLAGS
 fi
 
