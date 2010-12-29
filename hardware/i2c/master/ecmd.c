@@ -71,9 +71,9 @@ int16_t parse_cmd_i2c_read_byte(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint8_t val = i2c_read_byte(adr);
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rbb %d 0x%X"), adr, val));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rbb %d 0x%02X"), adr, val));
 #else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), val));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), val));
 #endif
 }
 
@@ -86,9 +86,9 @@ int16_t parse_cmd_i2c_read_byte_data(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint8_t val = i2c_read_byte_data(cadr, dadr);
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rbd %d %d 0x%X"), cadr, dadr, val));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rbd %d %d 0x%02X"), cadr, dadr, val));
 #else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), val));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), val));
 #endif
 }
 
@@ -101,9 +101,9 @@ int16_t parse_cmd_i2c_read_word_data(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t val = i2c_read_word_data(cadr, dadr);
 #ifdef ECMD_MIRROR_REQUEST
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rwd %d %d 0x%X"), cadr, dadr, val));
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rwd %d %d 0x%02X"), cadr, dadr, val));
 #else
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), val));
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), val));
 #endif
 }
 
@@ -116,9 +116,9 @@ int16_t parse_cmd_i2c_write_byte(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_byte(adr, data);
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c wbb %d 0x%X"), adr, ret));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c wbb %d 0x%02X"), adr, ret));
 #else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), ret));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), ret));
 #endif
 }
 
@@ -132,9 +132,9 @@ int16_t parse_cmd_i2c_write_byte_data(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_byte_data(cadr, dadr, data);
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c wbd %d %d 0x%X"), cadr, dadr, ret));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c wbd %d %d 0x%02X"), cadr, dadr, ret));
 #else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), ret));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), ret));
 #endif
 }
 
@@ -148,9 +148,9 @@ int16_t parse_cmd_i2c_write_word_data(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_word_data(cadr, dadr, data);
 #ifdef ECMD_MIRROR_REQUEST
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c wwd %d %d 0x%X"), cadr, dadr, ret));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c wwd %d %d 0x%02X"), cadr, dadr, ret));
 #else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), ret));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), ret));
 #endif
 }
 
