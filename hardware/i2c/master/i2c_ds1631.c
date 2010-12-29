@@ -32,13 +32,12 @@
 
 #ifdef I2C_DS1631_SUPPORT
 
-uint16_t i2c_ds1631_start_stop(uint8_t chipaddress, uint8_t startstop)
+uint16_t i2c_ds1631_start_stop(const uint8_t chipaddress, const uint8_t startstop)
 {
 	uint16_t ret = 0xffff;
 
 	if (!i2c_master_select(chipaddress, TW_WRITE))
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
@@ -46,24 +45,23 @@ uint16_t i2c_ds1631_start_stop(uint8_t chipaddress, uint8_t startstop)
 
 	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
 	ret = 0x0;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_ds1631_read_temperature(uint8_t chipaddress, int16_t *temp, int16_t *stemp)
+uint16_t i2c_ds1631_read_temperature(const uint8_t chipaddress, int16_t *temp, int16_t *stemp)
 {
 	int16_t data[2];
 	uint16_t ret = 0xffff;
 
 	if (!i2c_master_select(chipaddress, TW_WRITE))
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
@@ -71,14 +69,12 @@ uint16_t i2c_ds1631_read_temperature(uint8_t chipaddress, int16_t *temp, int16_t
 
 	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
 	/* Do an repeated start condition */
 	if (i2c_master_start() != TW_REP_START)
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
@@ -86,27 +82,27 @@ uint16_t i2c_ds1631_read_temperature(uint8_t chipaddress, int16_t *temp, int16_t
 
 	if (i2c_master_transmit() != TW_MR_SLA_ACK)
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
 	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
 	{
-		ret = 0xffff;
 		goto end;
 	}
+
 	data[1] = TWDR;
+
 #ifdef DEBUG_I2C
 	debug_printf("I2C: i2c_ds1631_read_temp: msb 0x%X\n",data[1]);
 #endif
 
 	if (i2c_master_transmit() != TW_MR_DATA_NACK)
 	{
-		ret = 0xffff;
 		goto end;
 	}
 
 	data[0] = TWDR;
+
 #ifdef DEBUG_I2C
 	debug_printf("I2C: i2c_ds1631_read_temp: lsb 0x%X\n",data[0]);
 #endif
@@ -133,7 +129,7 @@ uint16_t i2c_ds1631_read_temperature(uint8_t chipaddress, int16_t *temp, int16_t
 
 	ret = 0x0;
 
-	end:
+end:
 	i2c_master_stop();
 	return ret;
 }

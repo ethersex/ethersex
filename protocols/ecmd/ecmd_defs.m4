@@ -85,11 +85,14 @@ ecmd_endif
 block([[FS20]]) dnl ==========================
 ecmd_ifdef(FS20_SUPPORT)
   ecmd_ifdef(FS20_SEND_SUPPORT)
-    ecmd_feature(fs20_send, "fs20 send",HOUSECODE ADDR CMD, Send FS20 command. See [[FS20]] for details.)
+    ecmd_feature(fs20_send, "fs20 send",HOUSECODE ADDR CMD [CMD2], Send FS20 command. See [[FS20]] for details.)
+  ecmd_endif()
+  ecmd_ifdef(FHT_SEND_SUPPORT)
+    ecmd_feature(fht_send, "fht send",HOUSECODE ADDR CMD [CMD2], Send FHT command. See [[FS20]] for details.)
   ecmd_endif()
 
   ecmd_ifdef(FS20_RECEIVE_SUPPORT)
-    ecmd_feature(fs20_receive, "fs20 receive",, Receive FS20 sequence and display it.)
+    ecmd_feature(fs20_receive, "fs20 receive",, Receive FS20/FHT sequence and display it.)
   ecmd_endif()
 
   ecmd_ifdef(FS20_RECEIVE_WS300_SUPPORT)

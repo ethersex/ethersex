@@ -35,10 +35,10 @@
 #ifdef DEBUG_I2C
 #define DEBUGGI2C(fnc, msg...) debug_printf("I2C: %s: ", fnc); debug_printf(msg)
 #else
-#define DEBUGGI2C(msg...) 
+#define DEBUGGI2C(fnc, msg...)
 #endif
 
-uint8_t i2c_read_byte(uint8_t chipaddress)
+uint8_t i2c_read_byte(const uint8_t chipaddress)
 {
 	uint8_t data[2];
 	uint8_t ret;
@@ -60,11 +60,12 @@ uint8_t i2c_read_byte(uint8_t chipaddress)
 
     DEBUGGI2C( "read_byte", "ret: 0x%X (%d)\n",ret,ret);
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint8_t i2c_read_byte_data(uint8_t chipaddress, uint8_t dataaddress)
+uint8_t i2c_read_byte_data(const uint8_t chipaddress, const uint8_t dataaddress)
 {
 	uint8_t ret = 0xff;
 
@@ -85,14 +86,15 @@ uint8_t i2c_read_byte_data(uint8_t chipaddress, uint8_t dataaddress)
 
 	ret = TWDR;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 
 	DEBUGGI2C( "read_byte_data", "ret: 0x%X (%d)\n",ret,ret);
 
 	return ret;
 }
 
-uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress)
+uint16_t i2c_read_word_data(const uint8_t chipaddress, const uint8_t dataaddress)
 {
 	uint8_t data[2];
 	uint16_t ret = 0xffff;
@@ -136,11 +138,12 @@ uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress)
 
 	DEBUGGI2C( "read_word_data", "ret: 0x%X (%d)\n",ret,ret);
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_write_byte(uint8_t chipaddress, uint8_t data)
+uint16_t i2c_write_byte(const uint8_t chipaddress, const uint8_t data)
 {
 	uint16_t ret = 0xffff;
 
@@ -154,11 +157,12 @@ uint16_t i2c_write_byte(uint8_t chipaddress, uint8_t data)
 
 	ret = data;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_write_byte_data(uint8_t chipaddress, uint8_t dataaddress, uint8_t data)
+uint16_t i2c_write_byte_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint8_t data)
 {
 	uint16_t ret = 0xffff;
 
@@ -177,11 +181,12 @@ uint16_t i2c_write_byte_data(uint8_t chipaddress, uint8_t dataaddress, uint8_t d
 
 	ret = data;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_write_word_data(uint8_t chipaddress, uint8_t dataaddress, uint16_t data)
+uint16_t i2c_write_word_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint16_t data)
 {
 	uint16_t ret = 0xffff;
 
@@ -204,7 +209,8 @@ uint16_t i2c_write_word_data(uint8_t chipaddress, uint8_t dataaddress, uint16_t 
 
 	ret = data;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 

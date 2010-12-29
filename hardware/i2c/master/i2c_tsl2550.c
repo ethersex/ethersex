@@ -59,7 +59,7 @@ struct tsl2550_data
  * Global data
  */
 
-static const uint8_t TSL2550_MODE_RANGE[2] =
+static const uint8_t TSL2550_MODE_RANGE[2] PROGMEM =
 { TSL2550_STANDARD_RANGE, TSL2550_EXTENDED_RANGE };
 
 static struct tsl2550_data data;
@@ -70,14 +70,14 @@ static struct tsl2550_data data;
 
 #define TSL2550_MAX_LUX 1846
 
-static const uint8_t ratio_lut[129] =
+static const uint8_t ratio_lut[129] PROGMEM =
 { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
 		99, 98, 98, 98, 98, 98, 98, 98, 97, 97, 97, 97, 97, 96, 96, 96, 96, 95, 95, 95, 94, 94, 93, 93, 93, 92, 92, 91,
 		91, 90, 89, 89, 88, 87, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 75, 74, 73, 71, 69, 68, 66, 64, 62, 60, 58,
 		56, 54, 52, 49, 47, 44, 42, 41, 40, 40, 39, 39, 38, 38, 37, 37, 37, 36, 36, 36, 35, 35, 35, 35, 34, 34, 34, 34,
 		33, 33, 33, 33, 32, 32, 32, 32, 32, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, };
 
-static const uint16_t count_lut[128] =
+static const uint16_t count_lut[128] PROGMEM =
 { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46,
 		49, 53, 57, 61, 65, 69, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 115, 123, 131, 139, 147, 155, 163, 171, 179,
 		187, 195, 203, 211, 219, 227, 235, 247, 263, 279, 295, 311, 327, 343, 359, 375, 391, 407, 423, 439, 455, 471,
@@ -85,7 +85,7 @@ static const uint16_t count_lut[128] =
 		1295, 1359, 1423, 1487, 1551, 1615, 1679, 1743, 1807, 1871, 1935, 1999, 2095, 2223, 2351, 2479, 2607, 2735,
 		2863, 2991, 3119, 3247, 3375, 3503, 3631, 3759, 3887, 4015, };
 
-uint16_t tsl2550_compute_lux(uint8_t adc0, uint8_t adc1)
+uint16_t tsl2550_compute_lux(const uint8_t adc0, const uint8_t adc1)
 {
 	/* Look up count from channel values */
 	uint32_t c0 = 0;
@@ -102,8 +102,8 @@ uint16_t tsl2550_compute_lux(uint8_t adc0, uint8_t adc1)
 	debug_printf("I2C: tsl2550: adc0=%d, adc1=%d\n", adc0, adc1);
 #endif
 
-	c0 = count_lut[adc0];
-	c1 = count_lut[adc1];
+	c0 = pgm_read_word(&count_lut[adc0]);
+	c1 = pgm_read_word(&count_lut[adc1]);
 
 #ifdef DEBUG_I2C
 	debug_printf("I2C: tsl2550: c0=%ld, c1=%ld\n",c0,c1);
@@ -117,11 +117,11 @@ uint16_t tsl2550_compute_lux(uint8_t adc0, uint8_t adc1)
 			/* Calculate LUX */
 			ratio = (c1 * 128ul) / c0;
 			/* the "256" is a scaling factor */
-			lux = ((c0 - c1) * ratio_lut[ratio]) / 256;
+			lux = ((c0 - c1) * pgm_read_byte(&ratio_lut[ratio])) / 256;
 
 #ifdef DEBUG_I2C
 			debug_printf("I2C: tsl2550: ratio=%d, ratio_lut[ratio]=%d\n",
-					ratio,ratio_lut[ratio]);
+					ratio,pgm_read_byte(&ratio_lut[ratio]));
 			debug_printf("I2C: tsl2550: c0-c1=%d\n",(c0-c1));
 #endif
 		}
@@ -130,7 +130,7 @@ uint16_t tsl2550_compute_lux(uint8_t adc0, uint8_t adc1)
 	return lux > TSL2550_MAX_LUX ? TSL2550_MAX_LUX : lux;
 }
 
-uint16_t i2c_tsl2550_set_operating_mode(uint8_t mode)
+uint16_t i2c_tsl2550_set_operating_mode(const uint8_t mode)
 {
 	uint16_t ret = 0xffff;
 
@@ -138,7 +138,7 @@ uint16_t i2c_tsl2550_set_operating_mode(uint8_t mode)
 	if (!i2c_master_select(I2C_SLA_TSL2550, TW_WRITE))
 		goto end;
 
-	TWDR = TSL2550_MODE_RANGE[mode];
+	TWDR = pgm_read_byte(&TSL2550_MODE_RANGE[mode]);
 	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
 		goto end;
 
@@ -153,7 +153,7 @@ uint16_t i2c_tsl2550_set_operating_mode(uint8_t mode)
 	return ret;
 }
 
-uint16_t i2c_tsl2550_set_power_state(uint8_t state)
+uint16_t i2c_tsl2550_set_power_state(const uint8_t state)
 {
 	uint16_t ret = 0xffff;
 
@@ -186,7 +186,7 @@ uint16_t i2c_tsl2550_set_power_state(uint8_t state)
 	return ret;
 }
 
-uint16_t __tsl2550_read_adc(uint8_t adc)
+uint16_t __tsl2550_read_adc(const uint8_t adc)
 {
 	uint16_t val = 0xffff;
 	uint8_t data[2];
@@ -220,7 +220,7 @@ uint16_t __tsl2550_read_adc(uint8_t adc)
 	return val;
 }
 
-uint8_t tsl2550_read_adc(uint8_t adc)
+uint8_t tsl2550_read_adc(const uint8_t adc)
 {
 	uint16_t ret = 0xff;
 	uint8_t loop = 0;
@@ -244,7 +244,7 @@ uint8_t tsl2550_read_adc(uint8_t adc)
 	return ret & 0x7f;
 }
 
-uint16_t i2c_tsl2550_show_lux_level()
+uint16_t i2c_tsl2550_show_lux_level(void)
 {
 	uint8_t adc[2];
 	uint16_t ret = 0xffff;
