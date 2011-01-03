@@ -440,6 +440,7 @@ struct WatchAsyncBuffer {
 #else
 #ifdef CONF_WATCHASYNC_TIMESTAMP
   uint32_t timestamp;
+  uint8_t ticks;
 #endif
   uint8_t pin;
 #endif
