@@ -66,6 +66,19 @@ void __start ()
 #endif
   MCUSR = 0;
   wdt_disable ();
+  /* Disable all timer interrupts */
+#ifdef TIMSK
+  TIMSK = 0;
+#endif
+#ifdef TIMSK0
+  TIMSK0 = 0;
+#endif
+#ifdef TIMSK1
+  TIMSK1 = 0;
+#endif
+#ifdef TIMSK2
+  TIMSK2 = 0;
+#endif
 }
 
 extern void ethersex_meta_init (void);
