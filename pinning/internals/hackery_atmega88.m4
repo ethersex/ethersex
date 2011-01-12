@@ -24,7 +24,7 @@
 #define TC0_PRESCALER_1024   {TCCR0&=~(_BV(CS01));TCCR0|=_BV(CS02)|_BV(CS00);}
 
 #define TC0_MODE_OFF	     {TCCR0&=~(_BV(WGM01)|_BV(WGM00));}
-#define TC0_MODE_PWM         {TCCR0&=~(_BV(WGM01);TCCR0|=_BV(WGM00);}
+#define TC0_MODE_PWM         {TCCR0&=~(_BV(WGM01));TCCR0|=_BV(WGM00);}
 #define TC0_MODE_CTC         {TCCR0&=~(_BV(WGM00));TCCR0|=_BV(WGM01);}
 #define TC0_MODE_PWMFAST     {TCCR0|=_BV(WGM01)|_BV(WGM00);}
 
@@ -54,7 +54,7 @@
 #define TC2_PRESCALER_1024   {TCCR2&=~(_BV(CS21));TCCR2|=_BV(CS22)|_BV(CS20);}
 
 #define TC2_MODE_OFF	     {TCCR2&=~(_BV(WGM21)|_BV(WGM20));}
-#define TC2_MODE_PWM         {TCCR2&=~(_BV(WGM21);TCCR2|=_BV(WGM20);}
+#define TC2_MODE_PWM         {TCCR2&=~(_BV(WGM21));TCCR2|=_BV(WGM20);}
 #define TC2_MODE_CTC         {TCCR2&=~(_BV(WGM20));TCCR2|=_BV(WGM21);}
 #define TC2_MODE_PWMFAST     {TCCR2|=_BV(WGM21)|_BV(WGM20);}
 
