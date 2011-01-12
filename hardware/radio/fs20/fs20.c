@@ -236,7 +236,7 @@ ISR(ANALOG_COMP_vect)
 #endif
 }
 
-ISR(TIMER2_OVF_vect)
+ISR(TC2_VECTOR_OVERFLOW)
 {
 #ifdef FS20_RECV_PROFILE
     fs20_global.ovf_counter++;
@@ -515,10 +515,11 @@ void fs20_init(void)
     /* configure timer2 for receiving fs20,
      * prescaler 128
      * overflow interrupt enabled */
-    TCNT2 = 0;
-    TCCR2A = 0;
-    TCCR2B = _BV(CS20) | _BV(CS22);
-    _TIMSK_TIMER2 = _BV(TOIE2);
+    TC2_COUNTER_CURRENT = 0;
+    TC2_PRESCALER_128;
+    TC2_MODE_OFF;
+    TC2_OUTPUT_COMPARE_NONE;
+    TC2_INT_OVERFLOW_ON;
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 
