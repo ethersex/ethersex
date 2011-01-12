@@ -8,25 +8,6 @@ dnl
 dnl  Lines starting with `dnl' are comments.
 dnl
 
-block([[RFM12_ASK]]) dnl ==========================
-ecmd_ifdef(RFM12_ASK_SENDER_SUPPORT)
-  ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
-  ecmd_feature(rfm12_ask_tevion_send, "rfm12 tevion", , housecode command delay cnt)
-  ecmd_endif()
-  ecmd_ifdef(RFM12_ASK_2272_SUPPORT)
-    ecmd_feature(rfm12_ask_2272_send, "rfm12 2272", , housecodeCommand delay cnt)
-  ecmd_endif()
-  ecmd_ifdef(RFM12_ASK_1527_SUPPORT)
-    ecmd_feature(rfm12_ask_1527_send, "rfm12 1527", , housecodeCommand delay cnt)
-  ecmd_endif()
-ecmd_endif()
-ecmd_ifdef(RFM12_ASK_EXTERNAL_FILTER_SUPPORT)
-  ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter",[1], Enable ext. filter pin if argument is present (disable otherwise))
-ecmd_endif()
-ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
-  ecmd_feature(rfm12_ask_sense, "rfm12 ask sense",, Trigger (Tevion) ASK sensing.  Enable ext. filter pin before!)
-ecmd_endif()
-
 block([[I2C]] (TWI)) dnl ==========================
 ecmd_ifdef(I2C_DETECT_SUPPORT)
   ecmd_feature(i2c_detect, "i2c detect",,list detected I2C Chips)
@@ -98,9 +79,6 @@ ecmd_ifdef(FS20_SUPPORT)
     ecmd_feature(fs20_ws300, "fs20 ws300",, Receive FS20 sequence from WS300 weather station and decode it.)
   ecmd_endif()
 ecmd_endif()
-
-
-
 
 block(Miscelleanous) dnl ============================
 dnl   Put stuff that doesn't fit elsewhere here, i.e. this is a good place
