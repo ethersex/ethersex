@@ -53,7 +53,7 @@ const PROGMEM unsigned char auc_SinParam [128] = {
 0,0, 0,0, 1,1, 2,3, 4,6, 7,9, 10,12, 14,16,
 18,21, 23,25, 28,31, 33,36, 39,42, 45,48, 51,54, 57,60};
 
-struct dtmf_t dtmf_tab[] = {
+struct dtmf_t dtmf_tab[] PROGMEM = {
 		{'1', F1209, F697},
 		{'2', F1336, F697},
 		{'3', F1477, F697},
@@ -73,8 +73,8 @@ struct dtmf_t dtmf_tab[] = {
 };
 
 //**************************  global variables  ****************************
-unsigned char x_SWa = 0x00;               // step width of high frequency
-unsigned char x_SWb = 0x00;               // step width of low frequency
+uint8_t x_SWa = 0x00;               // step width of high frequency
+uint8_t x_SWb = 0x00;               // step width of low frequency
 unsigned int  i_CurSinValA = 0;           // position freq. A in LUT (extended format)
 unsigned int  i_CurSinValB = 0;           // position freq. B in LUT (extended format)
 unsigned int  i_TmpSinValA;               // position freq. A in LUT (actual position)
@@ -114,14 +114,12 @@ void pwm_dtmf_init (void)
 
 void 
 dtmf(char input) {
-	struct dtmf_t code;	
     x_SWa = 0;
     x_SWb = 0;
     for (uint8_t i=0;i<16;i++){
-		code=dtmf_tab[i];
-		if (code.character==input){
-      		x_SWa = code.high;
-      		x_SWb = code.low;
+		if (pgm_read_byte(&dtmf_tab[i].character)==input){
+      		x_SWa = pgm_read_byte(&dtmf_tab[i].high);
+      		x_SWb = pgm_read_byte(&dtmf_tab[i].low);
 			_delay_ms(PWM_DTMF_SIGNAL);
 			break;
 		}
