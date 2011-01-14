@@ -33,6 +33,7 @@
 #define HD44780_KS0067B  3
 #define HD44780_KS0066U  4
 //#define HD44780_WDC2704  5
+#define HD44780_SPLC780D 6
 
 #define HD44780_DIREKT 16
 #define HD44780_SERLCD 17
@@ -96,6 +97,17 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 2
     #define LCD_LINE_4_EN 2
+#elif HD44780_TYPE == HD44780_SPLC780D
+    #define LCD_CHAR_PER_LINE 16
+    #define LCD_LINES 4
+    #define LCD_LINE_1_ADR 0x80
+    #define LCD_LINE_2_ADR 0xC0
+    #define LCD_LINE_3_ADR 0x90
+    #define LCD_LINE_4_ADR 0xD0
+    #define LCD_LINE_1_EN 1
+    #define LCD_LINE_2_EN 1
+    #define LCD_LINE_3_EN 1
+    #define LCD_LINE_4_EN 1
 #else
 #error "unknown hd44780 compatible controller type!"
 
