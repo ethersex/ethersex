@@ -354,11 +354,12 @@ rfm12_setbaud(unsigned short baud)
   if (baud < 7)
     return;
 
-  /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
-  uint8_t param = (uint8_t)((baud < 54 ? 43104UL : 344828UL) / baud / 100) - 1;
-
   rfm12_prologue ();
-  rfm12_trans(0xC680 | param);
+  /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
+  if (baud < 54)
+    rfm12_trans(0xC680 | ((43104 / baud / 100) - 1));
+  else
+    rfm12_trans(0xC600 | ((344828UL / baud / 100) - 1));
   rfm12_epilogue ();
 }
 

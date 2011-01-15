@@ -49,8 +49,8 @@
 struct dtmf_t
 {
   char character;
-  char high;
-  char low;
+  uint8_t high;
+  uint8_t low;
 };
 
 int16_t 
@@ -63,6 +63,6 @@ void
 dtmf(char input);
 
 void
-pwm_dtmf_init();
+pwm_dtmf_init(void);
 
 #endif  /* HAVE_PWM_DTMF_H */
