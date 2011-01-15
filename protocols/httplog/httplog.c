@@ -45,9 +45,9 @@
 
 static char *httplog_tmp_buf;
 
-// first string is the GET part including the path
+// first string is the GET/POST part including the path
 static const char PROGMEM get_string_head[] =
-    "GET " CONF_HTTPLOG_PATH "?";
+    CONF_HTTPLOG_METHOD " " CONF_HTTPLOG_PATH ;
 // next is the - optional - inclusion of the machine identifier uuid
 #ifdef CONF_HTTPLOG_INCLUDE_UUID
 static const char PROGMEM uuid_string[] =

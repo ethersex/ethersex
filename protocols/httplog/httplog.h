@@ -27,6 +27,10 @@
 #ifndef HAVE_HTTPLOG_H
 #define HAVE_HTTPLOG_H
 
+#ifndef CONF_HTTPLOG_METHOD
+#define CONF_HTTPLOG_METHOD "POST"
+#endif
+
 uint8_t httplog(char *);
 
 

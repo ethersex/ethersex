@@ -16,100 +16,25 @@ dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
 
-enum sensor { Kessel,Vorlauf,Wasser,WasserRuecklauf,WasserZulauf,AussenNord,Ruecklauf,Ofen };
-
 C6_HEADER(`/* This will be in control6.h */')
+
+char temp_str[5];
+dnl max. Länge des erzeugten Strings: 5 (123.4 bzw. -12.3)
 
 CONTROL_START
 
-dnl // dnl ist der kommentar fuer m4. Zum aktivieren der beispiele einfach das dnl entfernen.
+THREAD(1wirelog)
+	int16_t Temperatur = ONEWIRE_GET(1234567890abcdef);
+	dnl hier die eigene 1wire-ID eintragen
 
-dnl  // dieses Beispiel zeigt anhand meiner Heizungssteuerung wie man zeitverzoegert die Wasserheizung
-dnl  // schaltet. Das geschieht bei einer Temperatur groesser als 55,0 Grad und nur zwischen 6 und 11 Uhr 
-dnl  THREAD(warmwasser_high)
-dnl      WAIT(60 * 15);
-dnl      PIN_SET(Warmwasser);
-dnl      THREAD_WAIT(warmwasser_high);
-dnl  THREAD_END(warmwasser_high)
-dnl  ON ONCE CLOCK_MIN && ( CLOCK_HOUR > 11 || CLOCK_HOUR < 6 ) && KTY_GET(Wasser) > 550 DO THREAD_START(warmwasser_high) END
+	itoa_fixedpoint(Temperatur, 1, temp_str);
+	HTTPLOG("01234567-1234-1234-1234-123456789012.json?value=%s\n", temp_str);
+	dnl und hier die uuid, mit der der Sensor sich melden soll
 
-dnl  // das Beispiel zeigt wie man sofort (einmal in der Minute) auf auf die Wassertemperatur reagiert und schaltet
-dnl  // der Pinname "Warmwasser" stammt aus der Konfig vom named_pin
-dnl  ON ONCE CLOCK_MIN && CLOCK_HOUR > 6 && CLOCK_HOUR < 19 && KTY_GET(Wasser) < 400 DO
-dnl    PIN_CLEAR(Warmwasser);
-dnl  END
+	WAIT(30);
+THREAD_END(1wirelog)
 
-dnl  // ein Thread der in einer Endlosschleife mit 5 Sekunden Verzoegerung laeuft 
-dnl  // definiert eine globale Variable
-dnl  GLOBAL(lastzulauf, uint16_t);
-dnl  THREAD(zulauf)
-dnl    ON ADC_GET(WasserZulauf) < (lastzulauf - 1) DO
-dnl      //sendet ein ecmd an ein anderes ethersex
-dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 0 1 0\n");
-dnl      WAIT(120);
-dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 0 0 0\n");
-dnl      lastzulauf = ADC_GET(WasserZulauf);
-dnl    END
-dnl    ON ADC_GET(4) > lastzulauf DO
-dnl	lastzulauf = ADC_GET(WasserZulauf);
-dnl    END
-dnl    WAIT(5)
-dnl  THREAD_END(zulauf)
-
-dnl  ON STARTUP DO
-dnl      THREAD_START(zulauf);
-dnl  END
-
-dnl  // schaltet morgens um 6 Uhr die Heizung ein wenn es draussen weniger als 3 Grad hat
-dnl  ON ONCE CLOCK_MIN == 0 && CLOCK_HOUR == 6 && KTY_GET(AussenNord) < 30 DO
-dnl    PIN_CLEAR(Heizung);
-dnl  END
-
-dnl  // reagiert sofort auf eine fallende Flanke am Eingangspin
-dnl  ON PIN_FALLING(Heizzirkulationspumpe) DO
-dnl    UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 1 0\n");
-dnl  END
-dnl  ON PIN_RISING(Heizzirkulationspumpe) DO
-dnl    UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 0 0\n");
-dnl  END
-dnl  // alle 10 Minuten wird geprueft ob der Pin low ist und ggf ein ecmd gesendet
-dnl  ON ONCE CLOCK_MIN % 10 == 0 DO
-dnl    ON PIN_LOW(Heizzirkulationspumpe) DO
-dnl      UESEND(2001:6f8:1209:0:0:0:0:e6, "pumpe 1 1 0\n");
-dnl    END
-dnl  END
-
-dnl THREAD(isdn)
-dnl // wartet auf einen Anruf vom isdn und laeuft dann weiter
-dnl // in CALLER() ist die Anrufernummer und in CALLEE() die MSN
-dnl   WAITCALL()
-dnl   SYSLOG("C6 wait call %s to %s\n", CALLER(), CALLEE())
-
-dnl // wartet auf einen Anruf von 09868932945 auf der MSN 932913 und
-dnl // laeuft dann weiter, wobei die MSN auch weggelassen werden kann
-dnl // in CALLER() ist die Anrufernummer und in CALLEE() die MSN
-dnl   WAITCALL_FROM("9868932945","932913")
-dnl   SYSLOG("C6 wait call from %s to %s\n", CALLER(), CALLEE())
-dnl THREAD_END(isdn);
-
-dnl    ON STARTUP DO
-dnl       VFS_LOG_ALLOCA("test", 40, "Barfoo %d", 23);
-dnl    END
-
-dnl // fuehrt den syslog aus sobald ein Anruf vom isdn gemeldet wird
-dnl ON IFCALL() DO
-dnl   SYSLOG("C6 if call from %s to %s\n", isdn_psb2186_callback_caller, isdn_psb2186_callback_callee)
-dnl END
-
-dnl // eine globale Variable fuer ecmd verwendet man so
-dnl ECMD_GLOBAL(Wassersoll, 20);
-dnl ECMD_GLOBAL(Raumsoll, 20);
-dnl ON Wassersoll > 30 DO
-dnl   Wassersoll = 30;
-dnl END
-dnl // die ecmd syntax ist "c6 get Wassersoll" oder "c6 set Wassersoll 255"
-dnl // die werte koennen von 0 bis 255 gehen.
-
+ON STARTUP DO THREAD_START(1wirelog) END
 
 CONTROL_END
 
