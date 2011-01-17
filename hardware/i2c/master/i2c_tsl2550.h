@@ -29,5 +29,6 @@
 uint16_t i2c_tsl2550_set_power_state(const uint8_t state); // 0: down, 1: up
 uint16_t i2c_tsl2550_set_operating_mode(const uint8_t mode); // 0: standard, 1: extended range
 uint16_t i2c_tsl2550_show_lux_level(void);
+void i2c_tsl2550_init(void);
 
 #endif /* _I2C_TSL2550_H */

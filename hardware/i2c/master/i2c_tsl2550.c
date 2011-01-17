@@ -275,7 +275,7 @@ uint16_t i2c_tsl2550_show_lux_level(void)
 	return ret;
 }
 
-void i2c_tsl2550_init()
+void i2c_tsl2550_init(void)
 {
 	data.power_state = 0;
 	data.operating_mode = 0;
