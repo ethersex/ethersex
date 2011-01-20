@@ -44,7 +44,7 @@
 void rfm12_init(void);
 
 // transfer 1 word to/from module
-unsigned short rfm12_trans(unsigned short wert);
+uint16_t rfm12_trans(uint16_t wert);
 
 
 #define RxBW400		1
