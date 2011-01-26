@@ -61,7 +61,7 @@ clock_init(void)
 	ASSR = _BV(CLOCK_TIMER_AS);
 	CLOCK_TIMER_CNT = 0;
 	/* 64 prescaler to get every 0.5 second an interrupt */
-	CLOCK_TIMER_TCCR = _BV(CLOCK_SELECT_1) | _BV(CLOCK_SELECT_0);
+	CLOCK_TIMER_PRESCALER_64;
 
 	/* Wait until the bytes are written */
 #ifdef CLOCK_TIMER_RBUSY
