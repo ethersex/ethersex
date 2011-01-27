@@ -64,8 +64,12 @@
 #define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 110, 260)
 
 
-/* a fs20 datagram consists of 58 bits */
+/* a fs20 datagram consists of 58 bits or 67 bits with 
+ * second command byte (bit 5 of first command byte is set)
+ */
 #define FS20_DATAGRAM_LENGTH 58
+#define FS20_DATAGRAM_LENGTH_EXT 67
+#define FS20_DATAGRAM_BITS 71
 
 /* a ws300 datagram consists of 79 = 16*4+15 bits */
 #define FS20_WS300_DATAGRAM_LENGTH 79
@@ -132,7 +136,8 @@
 #define FS20_QUEUE_LENGTH 5
 
 /* structures */
-struct fs20_datagram_t {
+struct fs20_data_t {
+	uint16_t fill:14;
     uint8_t p5:1;
     uint8_t parity:8;
     uint8_t p4:1;
@@ -144,6 +149,34 @@ struct fs20_datagram_t {
     uint8_t p1:1;
     uint8_t hc1:8;
     uint16_t sync:13;
+};
+
+struct fs20_extdata_t {
+	uint16_t fill:5;
+    uint8_t p6:1;
+    uint8_t parity:8;
+    uint8_t p5:1;
+    uint8_t cmd2:8;
+    uint8_t p4:1;
+    uint8_t cmd:8;
+    uint8_t p3:1;
+    uint8_t addr:8;
+    uint8_t p2:1;
+    uint8_t hc2:8;
+    uint8_t p1:1;
+    uint8_t hc1:8;
+    uint16_t sync:13;
+};
+
+struct fs20_datagram_t {
+    union
+    {
+        struct fs20_data_t dg;
+        struct fs20_extdata_t edg;
+        uint8_t bytes[10]; // using 58/67 of 72 bits
+    } data;
+    uint8_t ext; // 0 = dg, 1 = edg
+    uint8_t send; 
 };
 
 struct ws300_datagram_t {
@@ -183,49 +216,46 @@ struct ws300_datagram_t {
 
 struct fs20_global_t {
     uint8_t enable;
-    #ifdef FS20_RECEIVE_SUPPORT
-        struct {
-            union {
-                struct fs20_datagram_t datagram;
-                uint64_t raw;
-                uint16_t words[4];
-            };
-            uint8_t rec;
-            uint8_t err;
-            struct fs20_datagram_t queue[FS20_QUEUE_LENGTH];
-            uint8_t len;
-            uint8_t timeout;
-        } fs20;
-        #ifdef FS20_RECEIVE_WS300_SUPPORT
-            struct {
-                union {
-                    struct ws300_datagram_t datagram;
-                    uint8_t bytes[10];
-                };
-                uint8_t sync:1;
-                uint8_t null:7;
-                uint8_t rec;
-                uint8_t err;
+#ifdef FS20_RECEIVE_SUPPORT
+    struct {
+        struct fs20_datagram_t datagram;
+        //uint64_t raw;
+        uint8_t rec;
+        uint8_t err;
+        struct fs20_datagram_t queue[FS20_QUEUE_LENGTH];
+        uint8_t len;
+        uint8_t timeout;
+    } fs20;
+#ifdef FS20_RECEIVE_WS300_SUPPORT
+    struct {
+        union {
+            struct ws300_datagram_t datagram;
+            uint8_t bytes[10];
+        };
+        uint8_t sync:1;
+        uint8_t null:7;
+        uint8_t rec;
+        uint8_t err;
 
-                int8_t temp;
-                uint8_t temp_frac:4;
+        int8_t temp;
+        uint8_t temp_frac:4;
 
-                uint8_t rain:1;
-                uint16_t rain_value;
+        uint8_t rain:1;
+        uint16_t rain_value;
 
-                uint8_t hygro;
+        uint8_t hygro;
 
-                uint8_t wind;
-                uint8_t wind_frac:4;
+        uint8_t wind;
+        uint8_t wind_frac:4;
 
-                uint16_t last_update;
-            } ws300;
-        #endif
-    #endif
-    #ifdef FS20_RECV_PROFILE
-        uint16_t int_counter;
-        uint16_t ovf_counter;
-    #endif
+        uint16_t last_update;
+    } ws300;
+#endif
+#endif
+#ifdef FS20_RECV_PROFILE
+    uint16_t int_counter;
+    uint16_t ovf_counter;
+#endif
 };
 
 /* global variables */
@@ -235,7 +265,7 @@ extern volatile struct fs20_global_t fs20_global;
 void fs20_init(void);
 
 #ifdef FS20_SEND_SUPPORT
-void fs20_send(uint16_t housecode, uint8_t address, uint8_t command);
+void fs20_send(uint8_t fht, uint16_t housecode, uint8_t address, uint8_t command, uint8_t command2);
 #endif
 
 #ifdef FS20_RECEIVE_SUPPORT

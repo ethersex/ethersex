@@ -32,296 +32,185 @@
 
 #ifdef I2C_GENERIC_SUPPORT
 
-uint8_t i2c_read_byte(uint8_t chipaddress)
+#ifdef DEBUG_I2C
+#define DEBUGGI2C(fnc, msg...) debug_printf("I2C: %s: ", fnc); debug_printf(msg)
+#else
+#define DEBUGGI2C(fnc, msg...)
+#endif
+
+uint8_t i2c_read_byte(const uint8_t chipaddress)
 {
 	uint8_t data[2];
 	uint8_t ret;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: read_byte: 0x%X (%d)\n",chipaddress,chipaddress);
-#endif
-	if (!i2c_master_select(chipaddress, TW_READ))
-	{
-		ret = 0xff;
-		goto end;
-	}
+	DEBUGGI2C( "read_byte", "addr 0x%X (%d)\n", chipaddress, chipaddress);
 
-	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
-	{
-		ret = 0xff;
-		goto end;
-	}
+	if (!i2c_master_select(chipaddress, TW_READ)) goto end;
+	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) goto end;
+
 	data[0] = TWDR;
-#ifdef DEBUG_I2C
-	debug_printf("I2C: read_byte value1: %X\n", data[0]);
-#endif
+	DEBUGGI2C( "read_byte", " data0: 0x%X (%d)\n",data[0],data[0]);
 
-	if (i2c_master_transmit() != TW_MR_DATA_NACK)
-	{
-		ret = 0xff;
-		goto end;
-	}
+	if (i2c_master_transmit() != TW_MR_DATA_NACK) goto end;
+
 	data[1] = TWDR;
-#ifdef DEBUG_I2C
-	debug_printf("I2C: read_byte value2: %X\n", data[1]);
-#endif
+	DEBUGGI2C( "read_byte", " data1: 0x%X (%d)\n",data[1],data[1]);
 
 	ret = data[0];
 
-	end: i2c_master_stop();
+    DEBUGGI2C( "read_byte", "ret: 0x%X (%d)\n",ret,ret);
+
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint8_t i2c_read_byte_data(uint8_t chipaddress, uint8_t dataaddress)
+uint8_t i2c_read_byte_data(const uint8_t chipaddress, const uint8_t dataaddress)
 {
 	uint8_t ret = 0xff;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: read_byte_data: 0x%X (%d) [0x%X (%d)]\n",
+	DEBUGGI2C( "read_byte_data", "addr 0x%X (%d) daddr 0x%X (%d)\n",
 			chipaddress,chipaddress,dataaddress,dataaddress);
-#endif
-	if (!i2c_master_select(chipaddress, TW_WRITE))
-	{
-		ret = 0xff;
-		goto end;
-	}
+
+	if (!i2c_master_select(chipaddress, TW_WRITE)) goto end;
 
 	TWDR = dataaddress;
-
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	/* Do an repeated start condition */
-	if (i2c_master_start() != TW_REP_START)
-	{
-		ret = 0xff;
-		goto end;
-	}
-
+	if (i2c_master_start() != TW_REP_START) goto end;
 	TWDR = (chipaddress << 1) | TW_READ;
+	if (i2c_master_transmit() != TW_MR_SLA_ACK) goto end;
 
-	if (i2c_master_transmit() != TW_MR_SLA_ACK)
-	{
-		ret = 0xff;
-		goto end;
-	}
-
-	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
-	{
-		ret = 0xff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) goto end;
 
 	ret = TWDR;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: read_byte_data value: 0x%X (%d)\n",ret,ret);
-#endif
+	DEBUGGI2C( "read_byte_data", "ret: 0x%X (%d)\n",ret,ret);
 
 	return ret;
 }
 
-uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress)
+uint16_t i2c_read_word_data(const uint8_t chipaddress, const uint8_t dataaddress)
 {
 	uint8_t data[2];
 	uint16_t ret = 0xffff;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: read_word_data: 0x%X [0x%X]\n",chipaddress,dataaddress);
-#endif
-	if (!i2c_master_select(chipaddress, TW_WRITE))
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	DEBUGGI2C( "read_word_data", "addr 0x%X (%d) daddr 0x%X (%d)\n",chipaddress,dataaddress);
+
+	if (!i2c_master_select(chipaddress, TW_WRITE)) goto end;
 
 	TWDR = dataaddress;
 
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 #ifdef I2C_GENERIC_DELAYS
 	_delay_ms(10); // for slow devices
-#endif
-
-#ifdef DEBUG_I2C
-	debug_printf("I2C: repeated start\n");
 #endif
 
 	/* Do an repeated start condition */
-	if (i2c_master_start() != TW_REP_START)
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
+	if (i2c_master_start() != TW_REP_START) goto end;
 	TWDR = (chipaddress << 1) | TW_READ;
-
-	if (i2c_master_transmit() != TW_MR_SLA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit() != TW_MR_SLA_ACK) goto end;
 
 #ifdef I2C_GENERIC_DELAYS
 	_delay_ms(10); // for slow devices
 #endif
 
-	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) goto end;
 	data[0] = TWDR;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: data0: %d 0x%x\n",data[0],data[0]);
-#endif
+	DEBUGGI2C( "read_word_data", "data0: 0x%X (%d)\n",data[0],data[0]);
 
 #ifdef I2C_GENERIC_DELAYS
 	_delay_ms(10); // for slow devices
 #endif
 
-	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
+	if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) goto end;
 	data[1] = TWDR;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: data1: %d 0x%x\n",data[1],data[1]);
-#endif
+	DEBUGGI2C( "read_word_data", "data1: 0x%X (%d)\n",data[1],data[1]);
 
 	ret = data[0] << 8 | data[1];
 
-	end: i2c_master_stop();
+	DEBUGGI2C( "read_word_data", "ret: 0x%X (%d)\n",ret,ret);
+
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_write_byte(uint8_t chipaddress, uint8_t data)
+uint16_t i2c_write_byte(const uint8_t chipaddress, const uint8_t data)
 {
 	uint16_t ret = 0xffff;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: write_byte: 0x%X (%d)\n",chipaddress,chipaddress);
-#endif
-	if (!i2c_master_select(chipaddress, TW_WRITE))
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	DEBUGGI2C( "write_byte", "addr 0x%X (%d) data: 0x%X (%d)\n",
+                   chipaddress,chipaddress,data,data);
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: data: 0x%X\n",data);
-#endif
+	if (!i2c_master_select(chipaddress, TW_WRITE)) goto end;
 
 	TWDR = data;
-
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	ret = data;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_write_byte_data(uint8_t chipaddress, uint8_t dataaddress, uint8_t data)
+uint16_t i2c_write_byte_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint8_t data)
 {
 	uint16_t ret = 0xffff;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: write_byte_data: 0x%X [0x%X]\n",chipaddress,dataaddress);
-#endif
-	if (!i2c_master_select(chipaddress, TW_WRITE))
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	DEBUGGI2C( "write_byte_data", "addr 0x%X (%d) daddr 0x%X (%d) data 0x%X (%d)\n",
+                   chipaddress,chipaddress,dataaddress,dataaddress,data,data);
+
+	if (!i2c_master_select(chipaddress, TW_WRITE)) goto end;
 
 	TWDR = dataaddress;
 
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
-#ifdef DEBUG_I2C
-	debug_printf("I2C: data: 0x%X\n",data);
-#endif
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	TWDR = data;
 
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	ret = data;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
-uint16_t i2c_write_word_data(uint8_t chipaddress, uint8_t dataaddress, uint16_t data)
+uint16_t i2c_write_word_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint16_t data)
 {
 	uint16_t ret = 0xffff;
 
-#ifdef DEBUG_I2C
-	debug_printf("I2C: write_word_data: 0x%X [0x%X]\n",chipaddress,dataaddress);
-#endif
-	if (!i2c_master_select(chipaddress, TW_WRITE))
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	DEBUGGI2C( "write_word_data", "addr 0x%X (%d) daddr 0x%X (%d) data 0x%X (%d)\n",
+                   chipaddress,chipaddress,dataaddress,dataaddress,data,data);
+
+	if (!i2c_master_select(chipaddress, TW_WRITE)) goto end;
 
 	TWDR = dataaddress;
 
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
-
-#ifdef DEBUG_I2C
-	debug_printf("I2C: data: 0x%X\n",data);
-#endif
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	TWDR = (data >> 8) & 0xff;
 
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	TWDR = data & 0xff;
 
-	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
-	{
-		ret = 0xffff;
-		goto end;
-	}
+	if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) goto end;
 
 	ret = data;
 
-	end: i2c_master_stop();
+end:
+	i2c_master_stop();
 	return ret;
 }
 
