@@ -39,18 +39,23 @@ int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
     debug_printf("called with string %s\n", cmd);
 #endif
 
-    uint16_t hc, addr, c;
+    uint16_t hc, addr, c, c2;
 
-    int ret = sscanf_P(cmd,
-            PSTR("%x %x %x"),
-            &hc, &addr, &c);
+    int ret = sscanf_P(cmd, PSTR("%x %x %x %x"),
+                       &hc, &addr, &c, &c2);
 
-    if (ret == 3) {
+    if (ret == 3 || ret == 4) 
+    {
+        if (ret == 3) 
+        {
+            c2 = 0;
+        }
+        
 #ifdef DEBUG_ECMD_FS20
-        debug_printf("fs20_send(0x%x,0x%x,0x%x)\n", hc, LO8(addr), LO8(c));
+        debug_printf("fs20_send(0x%x,0x%x,0x%x,0x%x)\n", hc, LO8(addr), LO8(c), LO8(c2));
 #endif
 
-        fs20_send(hc, LO8(addr), LO8(c));
+        fs20_send(0, hc, LO8(addr), LO8(c), LO8(c2));
         return ECMD_FINAL_OK;
     }
 
@@ -58,6 +63,38 @@ int16_t parse_cmd_fs20_send(char *cmd, char *output, uint16_t len)
 
 }
 #endif /* FS20_SEND_SUPPORT */
+
+#ifdef FHT_SEND_SUPPORT
+int16_t parse_cmd_fht_send(char *cmd, char *output, uint16_t len)
+{
+#ifdef DEBUG_ECMD_FS20
+    debug_printf("called with string %s\n", cmd);
+#endif
+
+    uint16_t hc, addr, c, c2;
+
+    int ret = sscanf_P(cmd, PSTR("%x %x %x %x"),
+                       &hc, &addr, &c, &c2);
+
+    if (ret == 3 || ret == 4) 
+    {
+        if (ret == 3) 
+        {
+            c2 = 0;
+        }
+        
+#ifdef DEBUG_ECMD_FS20
+        debug_printf("fht_send(0x%x,0x%x,0x%x,0x%x)\n", hc, LO8(addr), LO8(c), LO8(c2));
+#endif
+
+        fs20_send(1, hc, LO8(addr), LO8(c), LO8(c2));
+        return ECMD_FINAL_OK;
+    }
+
+    return ECMD_ERR_PARSE_ERROR;
+
+}
+#endif /* FHT_SEND_SUPPORT */
 
 
 #ifdef FS20_RECEIVE_SUPPORT
@@ -71,24 +108,49 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
     debug_printf("%u positions in queue\n", fs20_global.fs20.len);
 #endif
 
-    while (l < fs20_global.fs20.len &&
-            (uint8_t)(outlen+9) < len) {
+    while (l < fs20_global.fs20.len && (uint8_t)(outlen+11) < len) 
+    {
+        if ( fs20_global.fs20.queue[l].ext )
+        {
 #ifdef DEBUG_ECMD_FS20
-        debug_printf("generating for pos %u: %02x%02x%02x%02x", l,
-                fs20_global.fs20.queue[l].hc1,
-                fs20_global.fs20.queue[l].hc2,
-                fs20_global.fs20.queue[l].addr,
-                fs20_global.fs20.queue[l].cmd);
+            debug_printf("generating for pos %u: %02x%02x%02x%02x%02x", l,
+                         fs20_global.fs20.queue[l].data.edg.hc1,
+                         fs20_global.fs20.queue[l].data.edg.hc2,
+                         fs20_global.fs20.queue[l].data.edg.addr,
+                         fs20_global.fs20.queue[l].data.edg.cmd,
+                         fs20_global.fs20.queue[l].data.edg.cmd2);
 #endif
+            
+            sprintf_P(s, PSTR("%02x%02x%02x%02x%02x\n"),
+                      fs20_global.fs20.queue[l].data.edg.hc1,
+                      fs20_global.fs20.queue[l].data.edg.hc2,
+                      fs20_global.fs20.queue[l].data.edg.addr,
+                      fs20_global.fs20.queue[l].data.edg.cmd,
+                      fs20_global.fs20.queue[l].data.edg.cmd2);
 
-        sprintf_P(s, PSTR("%02x%02x%02x%02x\n"),
-                fs20_global.fs20.queue[l].hc1,
-                fs20_global.fs20.queue[l].hc2,
-                fs20_global.fs20.queue[l].addr,
-                fs20_global.fs20.queue[l].cmd);
+            s += 11;
+            outlen += 11;
+        }
+        else
+        {
+#ifdef DEBUG_ECMD_FS20
+            debug_printf("generating for pos %u: %02x%02x%02x%02x", l,
+                         fs20_global.fs20.queue[l].data.dg.hc1,
+                         fs20_global.fs20.queue[l].data.dg.hc2,
+                         fs20_global.fs20.queue[l].data.dg.addr,
+                         fs20_global.fs20.queue[l].data.dg.cmd);
+#endif
+            
+            sprintf_P(s, PSTR("%02x%02x%02x%02x\n"),
+                      fs20_global.fs20.queue[l].data.dg.hc1,
+                      fs20_global.fs20.queue[l].data.dg.hc2,
+                      fs20_global.fs20.queue[l].data.dg.addr,
+                      fs20_global.fs20.queue[l].data.dg.cmd);
 
-        s += 9;
-        outlen += 9;
+            s += 9;
+            outlen += 9;
+        }
+    
         l++;
 
 #ifdef DEBUG_ECMD_FS20
@@ -106,17 +168,27 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 {
-
+#ifdef ECMD_MIRROR_REQUEST
     return ECMD_FINAL(snprintf_P(output, len,
-            PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
-            fs20_global.ws300.temp,
-            fs20_global.ws300.temp_frac,
-            fs20_global.ws300.hygro,
-            fs20_global.ws300.wind,
-            fs20_global.ws300.wind_frac,
-            fs20_global.ws300.rain,
-            fs20_global.ws300.rain_value));
-
+                                 PSTR("fs20 ws300 %d.%u %u %u.%u %u %u"),
+                                 fs20_global.ws300.temp,
+                                 fs20_global.ws300.temp_frac,
+                                 fs20_global.ws300.hygro,
+                                 fs20_global.ws300.wind,
+                                 fs20_global.ws300.wind_frac,
+                                 fs20_global.ws300.rain,
+                                 fs20_global.ws300.rain_value));
+#else
+    return ECMD_FINAL(snprintf_P(output, len,
+                                 PSTR("deg: %d.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
+                                 fs20_global.ws300.temp,
+                                 fs20_global.ws300.temp_frac,
+                                 fs20_global.ws300.hygro,
+                                 fs20_global.ws300.wind,
+                                 fs20_global.ws300.wind_frac,
+                                 fs20_global.ws300.rain,
+                                 fs20_global.ws300.rain_value));
+#endif
 }
 #endif /* FS20_RECEIVE_WS300_SUPPORT */
 #endif /* FS20_RECEIVE_SUPPORT */

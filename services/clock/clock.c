@@ -214,6 +214,12 @@ clock_get_time(void)
 	return timestamp;
 }
 
+uint8_t
+clock_get_ticks(void)
+{
+	return ticks;
+}
+
 uint32_t
 clock_last_sync(void)
 {

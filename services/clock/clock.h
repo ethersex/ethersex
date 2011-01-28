@@ -90,6 +90,9 @@ void clock_tick(void);
 /* the actual time as unix time stamp */
 uint32_t clock_get_time(void);
 
+/* number of ticks in the current second */
+uint8_t clock_get_ticks(void);
+
 /* when was the clock synced the last time (unix timestamp) */
 uint32_t clock_last_sync(void);
 

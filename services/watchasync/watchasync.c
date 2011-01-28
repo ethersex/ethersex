@@ -102,6 +102,7 @@ void addToRingbuffer(int pin)
 #endif // def CONF_WATCHASYNC_SENDEND
 #else // CONF_WATCHASYNC_RESOLUTION > 1
         wa_buffer[wa_buffer_right].timestamp = clock_get_time();  // add timestamp in ringbuffer
+        wa_buffer[wa_buffer_right].ticks = clock_get_ticks();
 #endif // CONF_WATCHASYNC_RESOLUTION > 1
 #endif // def CONF_WATCHASYNC_TIMESTAMP
     }
@@ -695,7 +696,7 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
 #ifdef CONF_WATCHASYNC_SUMMARIZE
     p += sprintf(p, "%lu", uip_conn->appstate.watchasync.timestamp); // and timestamp value
 #else // def CONF_WATCHASYNC_SUMMARIZE
-    p += sprintf(p, "%lu", wa_buffer[wa_buffer_left].timestamp); // and timestamp value
+    p += sprintf(p, "%lu%03u", wa_buffer[wa_buffer_left].timestamp, 20*wa_buffer[wa_buffer_left].ticks); // and timestamp value
 #endif // def CONF_WATCHASYNC_SUMMARIZE
 #endif // def CONF_WATCHASYNC_TIMESTAMP
 #ifdef CONF_WATCHASYNC_SUMMARIZE
