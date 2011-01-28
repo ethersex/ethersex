@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2010 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.44 2010/11/09 19:18:32 fm Exp $
+ * $Id: irmp.h,v 1.45 2011/01/18 13:02:15 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -55,7 +55,7 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_KASEIKYO_PROTOCOL                   5              // Kaseikyo (Panasonic etc)
 #define IRMP_RECS80_PROTOCOL                     6              // Philips, Thomson, Nordmende, Telefunken, Saba
 #define IRMP_RC5_PROTOCOL                        7              // Philips etc
-#define IRMP_DENON_PROTOCOL                      8              // Denon
+#define IRMP_DENON_PROTOCOL                      8              // Denon, Sharp
 #define IRMP_RC6_PROTOCOL                        9              // Philips etc
 #define IRMP_SAMSUNG32_PROTOCOL                 10              // Samsung32: no sync pulse at bit 16, length 32 instead of 37
 #define IRMP_APPLE_PROTOCOL                     11              // Apple, very similar to NEC
@@ -191,9 +191,9 @@ typedef uint8_t     PAUSE_LEN;
 #define RC5_LSB                                 0                               // MSB...LSB
 #define RC5_FLAGS                               IRMP_PARAM_FLAG_IS_MANCHESTER   // flags
 
-#define DENON_PULSE_TIME                        275.0e-6                        //  275 usec pulse
-#define DENON_1_PAUSE_TIME                      1900.0e-6                       // 1900 usec pause
-#define DENON_0_PAUSE_TIME                       775.0e-6                       //  775 usec pause
+#define DENON_PULSE_TIME                         310.0e-6                       //  310 usec pulse in practice,  275 in theory
+#define DENON_1_PAUSE_TIME                      1780.0e-6                       // 1780 usec pause in practice, 1900 in theory
+#define DENON_0_PAUSE_TIME                       745.0e-6                       //  745 usec pause in practice,  775 in theory
 #define DENON_FRAMES                            2                               // DENON sends each frame 2 times
 #define DENON_AUTO_REPETITION_PAUSE_TIME          65.0e-3                       // inverted repetition after 65ms
 #define DENON_FRAME_REPEAT_PAUSE_TIME             65.0e-3                       // frame repeat after 65ms
