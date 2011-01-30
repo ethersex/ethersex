@@ -53,6 +53,9 @@ dnl
 #define TC0_INT_OVERFLOW_ON  TIMSK0|=_BV(TOIE0);
 #define TC0_INT_OVERFLOW_OFF TIMSK0&=~_BV(TOIE0);
 
+#define TC0_INT_OVERFLOW_TST (TIFR0&_BV(TOV0))
+#define TC0_INT_OVERFLOW_CLR TIFR0=_BV(TOV0);
+
 #define TC0_VECTOR_OVERFLOW  TIMER0_OVF_vect
 #define TC0_VECTOR_COMPARE   TIMER0_COMPA_vect
 
@@ -82,21 +85,11 @@ dnl
 #define TC2_INT_OVERFLOW_ON  TIMSK2|=_BV(TOIE2);
 #define TC2_INT_OVERFLOW_OFF TIMSK2&=~_BV(TOIE2);
 
+#define TC2_INT_OVERFLOW_TST (TIFR2&_BV(TOV2))
+#define TC2_INT_OVERFLOW_CLR TIFR2=_BV(TOV2);
+
 #define TC2_VECTOR_OVERFLOW  TIMER2_OVF_vect
 #define TC2_VECTOR_COMPARE   TIMER2_COMPA_vect
-
-/* Timer0 - ASK Sense */
-#define _TCCR0_PRESCALE TCCR0B
-#define _VECTOR_OVERFLOW0 TIMER0_OVF_vect
-#define _TIMSK_TIMER0 TIMSK0
-#define _CS00 CS00
-#define _CS01 CS01
-#define _CS02 CS02
-#define _COM00 COM0B0
-#define _COM01 COM0B1
-#define _WGM00 WGM00
-#define _WGM01 WGM01
-#define _TCNT0 TCNT0
 
 /* Timer 1 - Clock */
 #define _TIMSK_TIMER1 TIMSK1
@@ -108,7 +101,6 @@ dnl
 #define _VECTOR_OUTPUT_COMPARE2 TIMER2_COMPB_vect
 #define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
 #define _TIMSK_TIMER2 TIMSK2
-#define _TIFR_TIMER2 TIFR2
 #define _CS20 CS20
 #define _CS21 CS21
 #define _CS22 CS22
@@ -170,6 +162,4 @@ dnl
 #else
     #define _SPI2X0 SPI2X
 #endif
-
-#define _TIFR_TIMER1 TIFR1
 

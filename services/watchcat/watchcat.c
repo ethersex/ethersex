@@ -38,12 +38,14 @@
 static struct VirtualPin vpin[IO_PORTS];
 static struct WatchcatReaction ecmd_react[];
 
+#if 0
 static uip_conn_t *
 watchcat_do_httplog (uip_ipaddr_t *ip, PGM_P msg, client_return_text_callback_t callback)
 {
   /* httplog cruft goes here ... */
   return NULL;
 }
+#endif
 
 #include "user_config.h"
 

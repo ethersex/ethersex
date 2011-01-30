@@ -1,8 +1,7 @@
 /*
  *
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
- * Copyright (c) 2008,2009 by Christian Dietrich <stettberger@dokucode.de>
- *
+ * Copyright (c) 2010 by Jens Wilmer <ethersex@jenswilmer.de>
+ * Copyright (c) 2010 by Moritz Wenk <MoritzWenk@web.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,15 +21,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _I2C_GENERIC_H
-#define _I2C_GENERIC_H
+#ifndef FS20_SENDER_STATE_H
+#define WATHASYNC_STATE_H
 
-uint8_t i2c_read_byte(const uint8_t chipaddress);
-uint8_t i2c_read_byte_data(const uint8_t chipaddress, const uint8_t dataaddress);
-uint16_t i2c_read_word_data(const uint8_t chipaddress, const uint8_t dataaddress);
+// State of coonection, new until acked or aborted, after that old
+struct fs20_sender_connection_state_t {
+  uint8_t state;
+};
 
-uint16_t i2c_write_byte(const uint8_t chipaddress, const uint8_t data);
-uint16_t i2c_write_byte_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint8_t data);
-uint16_t i2c_write_word_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint16_t data);
-
-#endif /* _I2C_GENERIC_H */
+#endif /* FS20_SENDER_STATE_H */
