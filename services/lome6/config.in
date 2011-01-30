@@ -1,0 +1,15 @@
+dep_bool_menu "lome6 Service (EXPERIMENTAL)" LOME6_SUPPORT $TCP_SUPPORT
+	dep_bool "LCD Support (only HD44780 16x2)" LOME6_LCD_SUPPORT $LOME6_SUPPORT $HD44780_SUPPORT
+
+	dep_bool_menu "OneWire Temperature Support" LOME6_ONEWIRE_SUPPORT $ONEWIRE_SUPPORT $LOME6_SUPPORT
+		comment "OneWire DS18x20 Temperature Sensor IDs:"
+		string "Sensor Power Supply" CONF_SENSOR_PSU "10:15:cc:f5:01:08:00:65"
+		string "Sensor Air Intake" CONF_SENSOR_AIR "10:56:7c:f5:01:08:00:06"
+		string "Sensor RAM" CONF_SENSOR_RAM "10:cb:a7:f5:01:08:00:d3"
+	endmenu
+
+	comment  "Expert settings"
+	int "Time to press Reset [ms]" CONF_TIME2PRESS_RESET 20
+	int "Time to press Power [ms]" CONF_TIME2PRESS_POWER 20
+	int "Time to press Power long [s]" CONF_TIME2PRESS_POWERL 3
+endmenu
