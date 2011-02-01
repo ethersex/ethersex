@@ -155,8 +155,8 @@ ISR(ANALOG_COMP_vect)
 
     /* if fs20 locked or timeout > 0, continue */
     if (fs20_global.fs20.timeout == 0
-    		&& ((fs20_global.fs20.rec < FS20_DATAGRAM_LENGTH && !(fs20_global.fs20.datagram.data.dg.cmd & (1 << 5)))
-			|| (fs20_global.fs20.rec < FS20_DATAGRAM_LENGTH_EXT && (fs20_global.fs20.datagram.data.dg.cmd & (1 << 5)))))
+    		&& ( (fs20_global.fs20.rec < FS20_DATAGRAM_LENGTH)
+    				|| ((fs20_global.fs20.datagram.data.edg.cmd & _BV(5)) && (fs20_global.fs20.rec < FS20_DATAGRAM_LENGTH_EXT)) ) )
 	{
         static uint8_t time_old = 0;
 
@@ -168,11 +168,8 @@ ISR(ANALOG_COMP_vect)
             /* we received a zero */
             time_old = 0;
             fs20_global.fs20.err = 0;
-
-            //fs20_global.fs20.raw <<= 1;
-
             fs20_global.fs20.rec++;
-        } 
+        }
         else if (FS20_PULSE_ONE(time) &&
                  FS20_PULSE_ONE(time_old) &&
                  FS20_PULSE_DIFFERENCE(time, time_old)) 
@@ -181,27 +178,24 @@ ISR(ANALOG_COMP_vect)
             time_old = 0;
             fs20_global.fs20.err = 0;
 
-            uint8_t byte = (FS20_DATAGRAM_BITS - fs20_global.fs20.rec) / 8;
-            uint8_t bit = (FS20_DATAGRAM_BITS - fs20_global.fs20.rec) % 8;
+            if (fs20_global.fs20.rec <= FS20_DATAGRAM_BITS)
+            {
+            	uint8_t o = FS20_DATAGRAM_BITS - fs20_global.fs20.rec;
+            	uint8_t byte =  o >> 3; // Division durch 8
+                uint8_t bit = o % 8;
 
-            if ( byte < 9 && bit < 8 )
-            	fs20_global.fs20.datagram.data.bytes[byte] |= (1 << bit);
-
-            //fs20_global.fs20.raw <<= 1;
-            //fs20_global.fs20.raw |= 1;
+                fs20_global.fs20.datagram.data.bytes[byte] |= _BV(bit);
+            }
 
             fs20_global.fs20.rec++;
-        } 
+        }
         else 
         {
             if (fs20_global.fs20.err > 3) 
             {
-                fs20_global.fs20.err = 0;
-                fs20_global.fs20.rec = 0;
-                time_old = 0;
-
-                memset((void *)&fs20_global.fs20.datagram, 0, sizeof(struct fs20_datagram_t));
-                //fs20_global.fs20.raw = 0;
+            	time_old = 0;
+            	fs20_global.fs20.err = 0;
+            	fs20_global.fs20.rec = 0;
             } 
             else 
             {
@@ -213,8 +207,8 @@ ISR(ANALOG_COMP_vect)
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
     /* if ws300 is not locked, continue */
-    if (fs20_global.ws300.rec < FS20_WS300_DATAGRAM_LENGTH) {
-
+    if (fs20_global.ws300.rec < FS20_WS300_DATAGRAM_LENGTH)
+    {
         /* save counter for processing */
         static uint8_t time_old = 0;
 
@@ -269,17 +263,19 @@ ISR(TC2_VECTOR_OVERFLOW)
     fs20_global.ovf_counter++;
 #endif
 
+    //uint8_t extbit = fs20_global.fs20.datagram.data.dg.cmd & (1 << 5);
+
     /* reset data structures, if not locked */
-    if ( (fs20_global.fs20.rec != FS20_DATAGRAM_LENGTH && fs20_global.fs20.rec != FS20_DATAGRAM_LENGTH_EXT) ||
-         fs20_global.fs20.timeout > 0 ) 
+    if ( ((fs20_global.fs20.rec != FS20_DATAGRAM_LENGTH) && (fs20_global.fs20.rec != FS20_DATAGRAM_LENGTH_EXT))
+    	|| (fs20_global.fs20.timeout > 0) )
     {
-        fs20_global.fs20.rec = 0;
-        //fs20_global.fs20.raw = 0;
         memset((void *)&fs20_global.fs20.datagram, 0, sizeof(struct fs20_datagram_t));
+        fs20_global.fs20.rec = 0;
     }
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
-    if (fs20_global.ws300.rec != FS20_WS300_DATAGRAM_LENGTH) {
+    if (fs20_global.ws300.rec != FS20_WS300_DATAGRAM_LENGTH)
+    {
         fs20_global.ws300.rec = 0;
         fs20_global.ws300.sync = 0;
         fs20_global.ws300.null = 0;
@@ -291,10 +287,12 @@ ISR(TC2_VECTOR_OVERFLOW)
 void fs20_process(void)
 {
     /* check if something has been received */
-    if (((fs20_global.fs20.rec == FS20_DATAGRAM_LENGTH) && !(fs20_global.fs20.datagram.data.dg.cmd & (1 << 5)))
-			|| (fs20_global.fs20.rec == FS20_DATAGRAM_LENGTH_EXT))
+	uint8_t extbit = (fs20_global.fs20.datagram.data.dg.cmd & _BV(5));
+
+    if ((fs20_global.fs20.rec == FS20_DATAGRAM_LENGTH && !extbit)
+			|| (fs20_global.fs20.rec == FS20_DATAGRAM_LENGTH_EXT && extbit))
     {
-        fs20_global.fs20.datagram.ext = (fs20_global.fs20.datagram.data.dg.cmd & (1 << 5)) ? 1 : 0;
+        fs20_global.fs20.datagram.ext = extbit ? 1 : 0;
 
 #ifdef DEBUG_FS20_REC
 		if (fs20_global.fs20.rec == FS20_DATAGRAM_LENGTH)
@@ -430,7 +428,7 @@ void fs20_process(void)
                 fs20parity += dg->data.edg.cmd2;
                 fhtparity += dg->data.edg.cmd2;
 
-                p5 = parity_even_bit(dg->data.edg.cmd2)    ^ dg->data.edg.p5;
+                p5 = parity_even_bit(dg->data.edg.cmd2)   ^ dg->data.edg.p5;
                 p6 = parity_even_bit(dg->data.edg.parity) ^ dg->data.edg.p6;
 
                 dgparity = dg->data.edg.parity;
@@ -449,12 +447,13 @@ void fs20_process(void)
 #ifdef DEBUG_FS20_REC
                 debug_printf("valid datagram\n");
 #endif
+                dg->send = 1;
+                dg->fht = (fhtparity == dgparity);
+
                 /* shift queue backwards */
                 memmove(&fs20_global.fs20.queue[1],
                         &fs20_global.fs20.queue[0],
                         (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_datagram_t));
-
-                dg->send = 1;
 
                 /* copy datagram to queue */
                 memcpy(&fs20_global.fs20.queue[0],
@@ -481,9 +480,8 @@ void fs20_process(void)
 #endif
         }
 
-        fs20_global.fs20.rec = 0;
-        //fs20_global.fs20.raw = 0;
         memset((void *)&fs20_global.fs20.datagram, 0, sizeof(struct fs20_datagram_t));
+        fs20_global.fs20.rec = 0;
     }
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
@@ -639,8 +637,7 @@ void fs20_init(void)
 
 #ifdef FS20_RECEIVE_SUPPORT
     /* reset global data structures */
-    //fs20_global.fs20.raw = 0;
-    memset((void *)&fs20_global.fs20.datagram, 0, sizeof(fs20_global.fs20.datagram));
+    memset((void *)&fs20_global.fs20, 0, sizeof(fs20_global.fs20));
 
     /* configure port pin for use as input to the analoge comparator */
     DDR_CONFIG_IN(FS20_RECV);

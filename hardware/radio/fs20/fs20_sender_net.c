@@ -82,7 +82,7 @@ static void fs20_net_main(void)  // Network-routine called by networkstack
         FS20S_DEBUG ("new connection or rexmit, sending message\n");
         char *p = uip_appdata;  // pointer set to uip_appdata, used to store string
 
-        p += sprintf_P(p, PSTR("fs20"));
+        p += sprintf_P(p, PSTR("fs20 "));
 
 		if (fs20_global.fs20.queue[fs20_qpos].ext)
 		{
@@ -143,34 +143,31 @@ static void fs20_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)  // Callback for
 
 void fs20_sendmessage(void) // Send fs20/fht command from queue to tcp port
 {
-    fs20_sendstate = 1; // set new state in progress
+	fs20_sendstate = 1; // set new state in progress
 
-    if ( fs20_qpos < FS20_QUEUE_LENGTH )
-    {
-        uip_ipaddr_t ipaddr;
-        FS20S_DEBUG ("connecting %s\n", CONF_FS20_SERVICE);
-        
-        if (parse_ip(CONF_FS20_SERVICE, &ipaddr) == -1)
+	uip_ipaddr_t ipaddr;
+	FS20S_DEBUG ("connecting %s\n", CONF_FS20_SERVICE);
+
+	if (parse_ip(CONF_FS20_SERVICE, &ipaddr) == -1)
+	{
+		uip_ipaddr_t *ripaddr;
+		// Try to find IPAddress
+		if (!(ripaddr = resolv_lookup(CONF_FS20_SERVICE)))
 		{
-			uip_ipaddr_t *ripaddr;
-			// Try to find IPAddress
-			if (!(ripaddr = resolv_lookup(CONF_FS20_SERVICE)))
-			{
-				resolv_query(CONF_FS20_SERVICE, fs20_dns_query_cb); // If not found: query DNS
-			}
-			else
-			{
-				fs20_dns_query_cb(NULL, ripaddr); // If found use IPAddress
-			}
+			resolv_query(CONF_FS20_SERVICE, fs20_dns_query_cb); // If not found: query DNS
 		}
 		else
 		{
-			FS20S_DEBUG ("ip %s\n", CONF_FS20_SERVICE);
-			fs20_dns_query_cb(NULL, &ipaddr);
+			fs20_dns_query_cb(NULL, ripaddr); // If found use IPAddress
 		}
-    }
+	}
+	else
+	{
+		FS20S_DEBUG ("ip %s\n", CONF_FS20_SERVICE);
+		fs20_dns_query_cb(NULL, &ipaddr);
+	}
 
-    return;
+	return;
 }
 
 void fs20_sender_mainloop(void)  // Mainloop routine polls command queue
