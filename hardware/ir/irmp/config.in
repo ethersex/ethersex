@@ -1,5 +1,7 @@
 dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
-	dep_bool "Send IRMP IR-codes" IRSND_SUPPORT $IRMP_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Receive IR-codes" IRMP_RX_SUPPORT $IRMP_SUPPORT
+	dep_bool "Send IR-codes" IRMP_TX_SUPPORT $IRMP_SUPPORT
+	dep_bool "Use external modulator for sender" IRMP_EXTERNAL_MODULATOR $IRMP_TX_SUPPORT
 	dep_bool 'IRMP ecmd' IRMP_ECMD $IRMP_SUPPORT
 	comment  "Protocols"
 	dep_bool 'SIRCS' IRMP_SUPPORT_SIRCS_PROTOCOL $IRMP_SUPPORT

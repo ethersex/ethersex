@@ -705,8 +705,8 @@ static void watchasync_net_main(void)  // Network-routine called by networkstack
     p += sprintf_P(p, watchasync_request_end); // append tail of packet from programmmemory
 //    uip_udp_send(p - (char *)uip_appdata);
     uip_udp_send(p - (char *)uip_appdata);
+
     WATCHASYNC_DEBUG ("send %d bytes\n", p - (char *)uip_appdata);
-//    WATCHASYNC_DEBUG ("send %s \n", uip_appdata);
   }
 
   if (uip_acked()) // Send packet acked, 
@@ -858,14 +858,14 @@ void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
 #else // CONF_WATCHASYNC_SUMMARIZE
     if (wa_sendstate == 2) // Message not sent successfully
     {
-      WATCHASYNC_DEBUG ("Error, again please...\n"); 
+      WATCHASYNC_DEBUG ("error, again please...\n"); 
       sendmessage();   // resend current event
     } else // sendstate == 0 => Idle  // Previous send has been succesfull, send next event if any
     {
       if (wa_buffer_left != wa_buffer_right) // there is something in the buffer
       {
         wa_buffer_left = ((wa_buffer_left + 1) % CONF_WATCHASYNC_BUFFERSIZE); // calculate next place in buffer
-        WATCHASYNC_DEBUG ("Starting Transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
+        WATCHASYNC_DEBUG ("starting transmission: L: %u R: %u Pin: %u\n", wa_buffer_left, wa_buffer_right, wa_buffer[wa_buffer_left].pin); 
         sendmessage();  // send the new event
       }
     }

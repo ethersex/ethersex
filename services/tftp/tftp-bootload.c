@@ -72,7 +72,7 @@ flash_page(uint32_t page, uint8_t *buf)
 #if FLASHEND > UINT16_MAX
     if (memcmp_PF(buf, (uint_farptr_t)page, SPM_PAGESIZE) == 0)
 #else
-    if (memcmp_P(buf, (PGM_VOID_P)page, SPM_PAGESIZE) == 0)
+    if (memcmp_P(buf, (PGM_VOID_P)(uint16_t)page, SPM_PAGESIZE) == 0)
 #endif
 	return;					/* no changes */
 

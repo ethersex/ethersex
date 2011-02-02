@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@
  */
 
 #include <avr/interrupt.h>
+#include <string.h>
 
 #include "config.h"
 #include "rfm12_ask.h"
@@ -57,56 +59,55 @@
   of the noise-phase (LAST_NOISE_TX - LAST_TX_TS).
 */
 
-#define PRESCALER 256
-#define NS_PER_TICK     (PRESCALER * 1000000UL / F_CPU * 1000)
-#define US_TO_TICKS(n)  ((n) * 1000UL / NS_PER_TICK)
+#define PRESCALER         256
+#define NS_PER_TICK       (PRESCALER * 1000000UL / F_CPU * 1000)
+#define US_TO_TICKS(n)    ((n) * 1000UL / NS_PER_TICK)
 
 /* Every TX-period shorter that 500us is considered part of a noise phase. */
-#define MIN_TICKS   US_TO_TICKS(500)
+#define MIN_TICKS         US_TO_TICKS(500)
 
 /* Every phase shorter than 950us is considered `short', i.e. a ZERO.
    Phases longer are considered long, i.e. a ONE. */
-#define DEF_LIMIT_TICKS US_TO_TICKS(950)
+#define DEF_LIMIT_TICKS   US_TO_TICKS(950)
 
-#define WAIT_SAMPLES_NUM	16
-#define LIMIT_TICKS (samples_num < WAIT_SAMPLES_NUM	\
-		     ? DEF_LIMIT_TICKS : samples_limit)
+#define WAIT_SAMPLES_NUM  16
+#define LIMIT_TICKS       (samples_num < WAIT_SAMPLES_NUM ? DEF_LIMIT_TICKS : samples_limit)
 
 /* Timeout */
-#define TIMEOUT_TICKS US_TO_TICKS(2000)
+#define TIMEOUT_TICKS     US_TO_TICKS(2000)
 
 
 static uint8_t last_noise_ts;
 static uint8_t last_tx_ts;
 
-static volatile struct {
-  unsigned overflow		: 1;
+static volatile struct
+{
+  uint8_t overflow;
 } bits;
 
 /* Calculate delta between new and old, considering that the values
    overflow at 256.*/
-#define DELTA(n,o) (bits.overflow == 0 ? ((n) - (o)) \
-		    : (256 - (o) + (n)))
+#define DELTA(n,o)        (uint8_t)(bits.overflow == 0 ? ((n) - (o)) : (256 - (o) + (n)))
 
-#define TICKS_TO_BIT(n) ((n) > LIMIT_TICKS ? 1 : 0)
+#define TICKS_TO_BIT(n)   ((n) > LIMIT_TICKS ? 1 : 0)
 
 
 #ifdef DEBUG_ASK_SENSE
 # include "core/debug.h"
-# define ASKDEBUG(a...)  debug_printf(a)
-# define ASKDEBUGCHAR(a) debug_putchar(a)
+# define ASKDEBUG(a...)   debug_printf(a)
+# define ASKDEBUGCHAR(a)  debug_putchar((char)(a))
 #else
-# define ASKDEBUG(a...) do { } while(0)
-# define ASKDEBUGCHAR(a) do { } while(0)
-#endif	/* DEBUG_ASK_SENSE */
+# define ASKDEBUG(a...)
+# define ASKDEBUGCHAR(a)
+#endif /* DEBUG_ASK_SENSE */
 
 
 
 /* Number of samples to gather, i.e. use for calibration. */
 static uint8_t samples_min, samples_max, samples_num, samples_limit;
 
-static inline void
-samples_learn (uint8_t new_sample)
+static void
+samples_learn (const uint8_t new_sample)
 {
   if (samples_num > WAIT_SAMPLES_NUM)
     return;			/* Gathered enough samples. */
@@ -122,25 +123,34 @@ samples_learn (uint8_t new_sample)
 	samples_max = new_sample;
     }
 
-  if (++ samples_num == WAIT_SAMPLES_NUM)
+  if (++samples_num == WAIT_SAMPLES_NUM)
     {
-      samples_limit = (samples_min + samples_max) / 2;
+      samples_limit = (uint8_t) ((samples_min + samples_max) / 2);
       ASKDEBUG ("min=%d, max=%d\n", samples_min, samples_max);
     }
 }
 
 
-
-static unsigned char ask_buf[8];
+static uint8_t ask_buf[8];
 static uint8_t ask_buf_bits;
 
-#define ASK_BUF_STORE_PTR (ask_buf[(ask_buf_bits < sizeof(ask_buf) * 8 \
-				    ? (ask_buf_bits / 8) : 0)])
-#define ASK_BUF_STORE_BIT _BV(7 - (ask_buf_bits % 8))
-#define ASK_BUF_STORE(b)  (ASK_BUF_STORE_PTR = (ASK_BUF_STORE_PTR	\
-						& ~ASK_BUF_STORE_BIT)	\
-			   | ((b) ? ASK_BUF_STORE_BIT : 0),		\
-			   ask_buf_bits ++)
+#define ASK_BUF_STORE(b)  { if (b) ask_sense_store_bit(ask_buf_bits); \
+                            ask_buf_bits++; }
+
+static void
+ask_sense_clear_bits (void)
+{
+  memset (ask_buf, 0, sizeof (ask_buf));
+  ask_buf_bits = 0;
+}
+
+static void
+ask_sense_store_bit (const uint8_t bitcount)
+{
+  uint8_t byte = (bitcount / 8) % sizeof (ask_buf);
+  uint8_t bit = bitcount % 8;
+  ask_buf[byte] |= (uint8_t)_BV (bit);
+}
 
 void
 rfm12_ask_sense_start (void)
@@ -148,30 +158,30 @@ rfm12_ask_sense_start (void)
   ASKDEBUG ("initializing.\n");
 
   /* Initialize Timer0, prescaler 1/256 */
-  _TCCR0_PRESCALE = _BV(CS02);
-  _TIMSK_TIMER0 |= _BV(TOIE0);
+  TC0_PRESCALER_256;
+  TC0_INT_COMPARE_ON;
 
   /* Initialize Interrupt */
-  _EIMSK |= _BV(RFM12_ASKINT_PIN);
-  _EICRA = (_EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC;
+  _EIMSK |= _BV (RFM12_ASKINT_PIN);
+  _EICRA = (uint8_t) ((_EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC);
 
-  last_noise_ts = TCNT0;
-  ask_buf_bits = 0;
+  last_noise_ts = TC0_COUNTER_CURRENT;
+  ask_sense_clear_bits ();
   samples_num = 0;
 
   rfm12_ask_external_filter_init ();
 }
 
 
-static inline void
+static void
 ask_sense_decode_tevion (void)
 {
 #ifdef DEBUG_ASK_SENSE
-  uint8_t code1 = (ask_buf[3] << 1) | (ask_buf[4] >> 7);
-  uint8_t code2 = (ask_buf[4] << 1) | (ask_buf[5] >> 7);
+  uint8_t code1 = (uint8_t) (ask_buf[3] << 1) | (uint8_t) (ask_buf[4] >> 7);
+  uint8_t code2 = (uint8_t) (ask_buf[4] << 1) | (uint8_t) (ask_buf[5] >> 7);
   ASKDEBUG ("rfm12 tevion %d,%d,%d %d,%d 99 4\n",
 	    ask_buf[0], ask_buf[1], ask_buf[2], code1, code2);
-#endif	/* DEBUG_ASK_SENSE */
+#endif /* DEBUG_ASK_SENSE */
 }
 
 
@@ -180,15 +190,14 @@ ask_sense_try_decode (void)
 {
   if (ask_buf_bits == 41)
     ask_sense_decode_tevion ();
-
   else
     ASKDEBUG ("try_decode: unknown code.\n");
 
-  ask_buf_bits = 0;
+  ask_sense_clear_bits ();
 }
 
 
-ISR(_VECTOR_OVERFLOW0)
+ISR (TC0_VECTOR_OVERFLOW)
 {
   if (bits.overflow && ask_buf_bits)
     {
@@ -205,9 +214,9 @@ ISR(_VECTOR_OVERFLOW0)
 }
 
 
-SIGNAL(RFM12_ASKINT_SIGNAL)
+ISR (RFM12_ASKINT_SIGNAL)
 {
-  uint8_t ts = TCNT0;		/* Get current timestamp. */
+  uint8_t ts = TC0_COUNTER_CURRENT;	/* Get current timestamp. */
   uint8_t delta = DELTA (ts, last_noise_ts);
 
   if (delta > TIMEOUT_TICKS && ask_buf_bits)
@@ -251,3 +260,4 @@ SIGNAL(RFM12_ASKINT_SIGNAL)
   last_noise_ts = ts;
   last_tx_ts = ts;
 }
+

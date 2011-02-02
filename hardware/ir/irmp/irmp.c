@@ -33,7 +33,7 @@
 #include "irmp.h"
 
 
-#if defined(IRMP_SUPPORT_RE_CS80_PROTOCOL) || defined(IRMP_SUPPORT_RE_CS80EXT_PROTOCOL)
+#if defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL)
 #define IRMP_HZ            20000	/* interrupts per second */
 #elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL)
 #define IRMP_HZ            15000
@@ -45,38 +45,38 @@
 #ifdef IRMP_USE_TIMER2
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define HW_PRESCALER_MASK  _BV(_CS20)
+#define SET_HW_PRESCALER  TC2_PRESCALER_1
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define HW_PRESCALER_MASK  _BV(_CS21)
+#define SET_HW_PRESCALER  TC2_PRESCALER_8
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define HW_PRESCALER_MASK  _BV(_CS21)|_BV(_CS20)
+#define SET_HW_PRESCALER  TC2_PRESCALER_64
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
-#define HW_PRESCALER       256UL
-#define HW_PRESCALER_MASK  _BV(_CS22)
+#define HW_PRESCALER       TC2_PRESCALER_256
+#define SET_HW_PRESCALER  _BV(_CS22)
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
-#define HW_PRESCALER       1024UL
-#define HW_PRESCALER_MASK  _BV(_CS22)|_BV(_CS00)
+#define HW_PRESCALER       TC2_PRESCALER_1024
+#define SET_HW_PRESCALER  _BV(_CS22)|_BV(_CS00)
 #else
 #error F_CPU to large
 #endif
 #else
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define HW_PRESCALER_MASK  _BV(_CS00)
+#define SET_HW_PRESCALER  TC0_PRESCALER_1
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define HW_PRESCALER_MASK  _BV(_CS01)
+#define SET_HW_PRESCALER  TC0_PRESCALER_8
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define HW_PRESCALER_MASK  _BV(_CS01)|_BV(_CS00)
+#define SET_HW_PRESCALER  TC0_PRESCALER_64
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
 #define HW_PRESCALER       256UL
-#define HW_PRESCALER_MASK  _BV(_CS02)
+#define SET_HW_PRESCALER  TC0_PRESCALER_256
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
 #define HW_PRESCALER       1024UL
-#define HW_PRESCALER_MASK  _BV(_CS02)|_BV(_CS00)
+#define SET_HW_PRESCALER  TC0_PRESCALER_1024
 #else
 #error F_CPU to large
 #endif
@@ -104,22 +104,43 @@
 #define IRMP_RX_MARK       PIN_BV(IRMP_RX)
 #endif
 
+#ifdef IRMP_TX_LED
+#ifdef IRMP_TX_LED_LOW_ACTIVE
+#define IRMP_TX_LED_ON     PIN_CLEAR(STATUSLED_TX)
+#define IRMP_TX_LED_OFF    PIN_SET(STATUSLED_TX)
+#else
+#define IRMP_TX_LED_ON     PIN_SET(STATUSLED_TX)
+#define IRMP_TX_LED_OFF    PIN_CLEAR(STATUSLED_TX)
+#endif
+#else
+#define IRMP_TX_LED_ON
+#define IRMP_TX_LED_OFF
+#endif
+
 #define FIFO_SIZE          8
 #define FIFO_NEXT(x)       (((x)+1)&(FIFO_SIZE-1))
 
 
 ///////////////
-#pragma push_macro("F_INTERRUPTS")
+#ifdef F_INTERRUPTS
+#define __IRMP_F_INTERRUPTS F_INTERRUPTS
+#undef F_INTERRUPTS
+#endif
 #define F_INTERRUPTS IRMP_HZ
-#pragma push_macro("DEBUG")
+#ifdef DEBUG
+#define __IRMP_DEBUG
 #undef DEBUG
+#endif
+#define IRMP_DATA irmp_data_t
+#define IRMP_USE_AS_LIB
+#ifdef IRMP_RX_SUPPORT
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
 #define IRMP_LOGGING 0
-#define IRMP_USE_AS_LIB
-#define IRMP_DATA irmp_data_t
 #include "irmp_lib.c"
-#ifdef IRSND_SUPPORT
+#endif
+#ifdef IRMP_TX_SUPPORT
+#define IRSND_SUPPORT
 #define irsnd_ISR irmp_tx_process
 #define irsnd_on irmp_tx_on
 #define irsnd_off irmp_tx_off
@@ -131,8 +152,12 @@ static void irmp_tx_off (void);
 static void irmp_tx_set_freq (uint8_t);
 #include "irsnd_lib.c"
 #endif
-#pragma pop_macro("DEBUG")
-#pragma pop_macro("F_INTERRUPTS")
+#ifdef __IRMP_DEBUG
+#define DEBUG
+#endif
+#ifdef __IRMP_F_INTERRUPTS
+#define F_INTERRUPTS __F_INTERRUPTS
+#endif
 ///////////////
 
 typedef struct
@@ -142,8 +167,10 @@ typedef struct
   irmp_data_t buffer[FIFO_SIZE];
 } irmp_fifo_t;
 
+#ifdef IRMP_RX_SUPPORT
 static irmp_fifo_t irmp_rx_fifo;
-#ifdef IRSND_SUPPORT
+#endif
+#ifdef IRMP_TX_SUPPORT
 static irmp_fifo_t irmp_tx_fifo;
 #endif
 
@@ -203,40 +230,53 @@ const PGM_P irmp_proto_names[] PROGMEM = {
 void
 irmp_init (void)
 {
+#ifdef IRMP_RX_SUPPORT
   /* configure TSOP input, disable pullup */
   DDR_CONFIG_IN (IRMP_RX);
   PIN_CLEAR (IRMP_RX);
+#endif
 
 #ifdef IRMP_RX_LED
   DDR_CONFIG_OUT (STATUSLED_RX);
   IRMP_RX_LED_OFF;
 #endif
 
-  /* init timer0/2 to expire after 1000/IRMP_HZ ms */
-#ifdef IRMP_USE_TIMER2
-  _TCCR2_PRESCALE = HW_PRESCALER_MASK;
-  _OUTPUT_COMPARE_REG2 = SW_PRESCALER - 1;
-  _TCNT2 = 0;
-  _TIMSK_TIMER2 |= _BV (_OUTPUT_COMPARE_IE2);	/* enable interrupt */
-#else
-  _TCCR0_PRESCALE = HW_PRESCALER_MASK;
-  _OUTPUT_COMPARE_REG0 = SW_PRESCALER - 1;
-  _TCNT0 = 0;
-  _TIMSK_TIMER0 |= _BV (_OUTPUT_COMPARE_IE0);	/* enable interrupt */
+#ifdef IRMP_TX_LED
+  DDR_CONFIG_OUT (STATUSLED_TX);
+  IRMP_TX_LED_OFF;
 #endif
 
-#ifdef IRSND_SUPPORT
+  /* init timer0/2 to expire after 1000/IRMP_HZ ms */
+#ifdef IRMP_USE_TIMER2
+  SET_HW_PRESCALER;
+  TC2_COUNTER_COMPARE = SW_PRESCALER - 1;
+  TC2_COUNTER_CURRENT = 0;
+  TC2_INT_COMPARE_ON;				/* enable interrupt */
+#else
+  SET_HW_PRESCALER;
+  TC0_COUNTER_COMPARE = SW_PRESCALER - 1;
+  TC0_COUNTER_CURRENT = 0;
+  TC0_INT_COMPARE_ON;				/* enable interrupt */
+#endif
+
+#ifdef IRMP_TX_SUPPORT
   PIN_CLEAR (IRMP_TX);
   DDR_CONFIG_OUT (IRMP_TX);
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
-  _TCCR0_PRESCALE = _BV (_WGM01) | _BV (_CS00);	/* CTC mode, 0x01, start Timer 0, no prescaling */
+  TC0_MODE_CTC;
+  TC0_PRESCALER_1;
 #else
-  _TCCR2_PRESCALE = _BV (_WGM21) | _BV (_CS20);	/* CTC mode, 0x01, start Timer 2, no prescaling */
+  TC2_MODE_CTC;
+  TC2_PRESCALER_1;
+#endif
 #endif
   irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
 #endif
 }
 
+
+#ifdef IRMP_RX_SUPPORT
 
 uint8_t
 irmp_read (irmp_data_t * irmp_data_p)
@@ -259,19 +299,25 @@ irmp_read (irmp_data_t * irmp_data_p)
   return 1;
 }
 
+#endif
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_TX_SUPPORT
 
 static void
 irmp_tx_on (void)
 {
   if (!irsnd_is_on)
     {
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
-      _TCCR0_PRESCALE |= _BV (_COM00) | _BV (_WGM01);
+      TC0_OUTPUT_COMPARE_TOGGLE; TC0_MODE_CTC;
 #else
-      _TCCR2_PRESCALE |= _BV (_COM20) | _BV (_WGM21);
+      TC2_OUTPUT_COMPARE_TOGGLE; TC2_MODE_CTC;
 #endif
+#else
+      PIN_SET (IRMP_TX);
+#endif /* IRMP_EXTERNAL_MODULATOR */
+      IRMP_TX_LED_ON;
       irsnd_is_on = TRUE;
     }
 }
@@ -282,12 +328,15 @@ irmp_tx_off (void)
 {
   if (irsnd_is_on)
     {
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
-      _TCCR0_PRESCALE &= ~_BV (_COM00);
+      TC0_OUTPUT_COMPARE_NONE;
 #else
-      _TCCR2_PRESCALE &= ~_BV (_COM20);
+      TC2_OUTPUT_COMPARE_NONE;
 #endif
+#endif /* IRMP_EXTERNAL_MODULATOR */
       PIN_CLEAR (IRMP_TX);
+      IRMP_TX_LED_OFF;
       irsnd_is_on = FALSE;
     }
 }
@@ -296,10 +345,12 @@ irmp_tx_off (void)
 static void
 irmp_tx_set_freq (uint8_t freq)
 {
+#ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
-  _OUTPUT_COMPARE_REG0 = freq;
+  TC0_COUNTER_COMPARE = freq;
 #else
-  _OUTPUT_COMPARE_REG2 = freq;
+  TC2_COUNTER_COMPARE = freq;
+#endif
 #endif
 }
 
@@ -330,23 +381,27 @@ irmp_write (irmp_data_t * irmp_data_p)
 
 
 #ifdef IRMP_USE_TIMER2
-ISR (_VECTOR_OUTPUT_COMPARE2)
+ISR (TC2_VECTOR_COMPARE)
 #else
-ISR (_VECTOR_OUTPUT_COMPARE0)
+ISR (TC0_VECTOR_COMPARE)
 #endif
 {
 #ifdef IRMP_USE_TIMER2
-  _OUTPUT_COMPARE_REG2 += SW_PRESCALER;
+  TC2_COUNTER_COMPARE += SW_PRESCALER;
 #else
-  _OUTPUT_COMPARE_REG0 += SW_PRESCALER;
+  TC0_COUNTER_COMPARE += SW_PRESCALER;
 #endif
-  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_RX_SUPPORT
+  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
+#endif
+
+#ifdef IRMP_TX_SUPPORT
   if (irmp_tx_process () == 0)
     {
 #endif
 
+#ifdef IRMP_RX_SUPPORT
       if (data == IRMP_RX_MARK)
 	{
 	  IRMP_RX_LED_ON;
@@ -365,8 +420,9 @@ ISR (_VECTOR_OUTPUT_COMPARE0)
 		irmp_rx_fifo.write = tmphead;
 	    }
 	}
+#endif
 
-#ifdef IRSND_SUPPORT
+#ifdef IRMP_TX_SUPPORT
       if (irmp_tx_fifo.read != irmp_tx_fifo.write)
 	irmp_tx_put (&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
 					  FIFO_NEXT (irmp_tx_fifo.read)], 0);

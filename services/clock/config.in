@@ -1,5 +1,12 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 
+	if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
+		comment 'The Follow ECMD Options are here and in ECMD Options available'
+		bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
+		bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
+	else
+		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
+	fi
 
 	dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
 	dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
@@ -13,12 +20,12 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	if [ "$NTP_SUPPORT" = "y" ]; then
 	if [ "$DNS_SUPPORT" = "y" ]; then
 		if [ "$IPV6_SUPPORT" = "y" ]; then
-			string "NTP Server" NTP_SERVER "time6.ipv6.uni-muenster.de"
+			string "NTP Server" NTP_SERVER "ntp.ipv6.uni-leipzig.de"
 		else
-			string "NTP Server" NTP_SERVER "pool.ntp.org"
+			string "NTP Server" NTP_SERVER "ptbtime1.ptb.de"
 		fi
 	else
-		ip "NTP IP" NTP_SERVER_IP "213.133.123.125" "2001:638:500:101:2e0:4bff:fe04:bc5f"
+		ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
 	fi
 	int "NTP Port" NTP_PORT 123
 	fi
@@ -34,12 +41,5 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool "NTP Clock-Adjust" DEBUG_NTP_ADJUST $CLOCK_NTP_ADJUST_SUPPORT $DEBUG
 
-	if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
-		comment 'The Follow ECMD Options are here and in ECMD Options available'
-		bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
-		bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
-	else
-		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
-	fi
 
 endmenu
