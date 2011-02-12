@@ -98,9 +98,9 @@ ntp_send_packet(void)
   }
 #endif
 
-  if (ntp_conn == NULL || ntp) {
+  if (ntp_conn == NULL || ntp_conn->ripaddr == NULL) {
 #ifdef DEBUG_NTP
-    debug_printf("NTP ntp_send_packet: skip send, ntp_conn not initialized\n");
+    debug_printf("NTP ntp_send_packet: skip send, ntp not initialized\n");
 #endif
     return;
   } 
