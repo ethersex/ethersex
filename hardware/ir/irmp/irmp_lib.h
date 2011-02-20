@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2010 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.45 2011/01/18 13:02:15 fm Exp $
+ * $Id: irmp.h,v 1.47 2011/02/08 08:46:22 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -70,6 +70,7 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_JVC_PROTOCOL                       20              // JVC
 #define IRMP_RC6A_PROTOCOL                      21              // RC6A, e.g. Kathrein, XBOX
 #define IRMP_NIKON_PROTOCOL                     22              // Nikon
+#define IRMP_RUWIDO_PROTOCOL                    23              // Ruwido, e.g. T-Home Mediareceiver
 
 // some flags of struct IRMP_PARAMETER:
 #define IRMP_PARAM_FLAG_IS_MANCHESTER           0x01
@@ -182,6 +183,7 @@ typedef uint8_t     PAUSE_LEN;
 
 #define RC5_BIT_TIME                             889.0e-6                       // 889 usec pulse/pause
 #define RC5_FRAME_REPEAT_PAUSE_TIME               45.0e-3                       // frame repeat after 45ms
+
 #define RC5_ADDRESS_OFFSET                      2                               // skip 2 bits (2nd start + 1 toggle)
 #define RC5_ADDRESS_LEN                         5                               // read 5 address bits
 #define RC5_COMMAND_OFFSET                      7                               // skip 5 bits (2nd start + 1 toggle + 5 address)
@@ -370,6 +372,22 @@ typedef uint8_t     PAUSE_LEN;
 #define NIKON_STOP_BIT                          1                               // has stop bit
 #define NIKON_LSB                               0                               // LSB...MSB
 #define NIKON_FLAGS                             0                               // flags
+
+#define RUWIDO_START_BIT_PULSE_TIME              889.0e-6                       //  900 usec pulse
+#define RUWIDO_START_BIT_PAUSE_TIME             1400.0e-6                       // 1400 usec pause
+#define RUWIDO_BIT_PULSE_TIME                    889.0e-6                       //  889 usec short pulse
+#define RUWIDO_BIT_PULSE_TIME_2                 1622.0e-6                       // 1622 usec long pulse
+#define RUWIDO_BIT_PAUSE_TIME                    611.0e-6                       //  611 usec short pause
+#define RUWIDO_BIT_PAUSE_TIME_2                 1361.0e-6                       // 1361 usec long pause
+#define RUWIDO_FRAME_REPEAT_PAUSE_TIME            45.0e-3                       // frame repeat after 45ms
+#define RUWIDO_ADDRESS_OFFSET                   2                               // skip 2 start bits
+#define RUWIDO_ADDRESS_LEN                      8                               // read 8 address bits
+#define RUWIDO_COMMAND_OFFSET                   10                              // skip 10 bits (2 start + 8 address)
+#define RUWIDO_COMMAND_LEN                      7                               // read 7 command bits, ignore last parity bit
+#define RUWIDO_COMPLETE_DATA_LEN                18                              // complete length
+#define RUWIDO_STOP_BIT                         0                               // has no stop bit
+#define RUWIDO_LSB                              0                               // MSB...LSB
+#define RUWIDO_FLAGS                            (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
 
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
                                                                                 // KASEIKYO: automatic repetition after 75ms
