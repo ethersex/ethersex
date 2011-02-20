@@ -198,6 +198,7 @@ static const char proto_rccar[] PROGMEM = "RCCAR";
 static const char proto_jvc[] PROGMEM = "JVC";
 static const char proto_rc6a[] PROGMEM = "RC6A";
 static const char proto_nikon[] PROGMEM = "NIKON";
+static const char proto_ruwido[] PROGMEM = "RUWIDO";
 
 const PGM_P irmp_proto_names[] PROGMEM = {
   proto_unknown,
@@ -222,7 +223,8 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_rccar,
   proto_jvc,
   proto_rc6a,
-  proto_nikon
+  proto_nikon,
+  proto_ruwido
 };
 #endif
 
