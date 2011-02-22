@@ -25,6 +25,8 @@ dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
 	dep_bool 'RCCAR' IRMP_SUPPORT_RCCAR_PROTOCOL $IRMP_SUPPORT
 	dep_bool 'NIKON' IRMP_SUPPORT_NIKON_PROTOCOL $IRMP_SUPPORT
 	dep_bool 'RUWIDO' IRMP_SUPPORT_RUWIDO_PROTOCOL $IRMP_SUPPORT
+	dep_bool 'IR60' IRMP_SUPPORT_IR60_PROTOCOL $IRMP_SUPPORT
+	dep_bool 'KATHREIN' IRMP_SUPPORT_KATHREIN_PROTOCOL $IRMP_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'IRMP Debug' DEBUG_IRMP $IRMP_SUPPORT
 	if [ "$IRMP_SUPPORT_SIRCS_PROTOCOL" = y ];  then
@@ -90,7 +92,14 @@ dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
 	if [ "$IRMP_SUPPORT_NIKON_PROTOCOL" = y ];  then
 		define_bool IRSND_SUPPORT_NIKON_PROTOCOL y
 	fi
+# the following protocols are not supported for sending yet
 #	if [ "$IRMP_SUPPORT_RUWIDO_PROTOCOL" = y ];  then
 #		define_bool IRSND_SUPPORT_RUWIDO_PROTOCOL y
+#	fi
+#	if [ "$IRMP_SUPPORT_IR60_PROTOCOL" = y ];  then
+#		define_bool IRSND_SUPPORT_IR60_PROTOCOL y
+#	fi
+#	if [ "$IRMP_SUPPORT_KATHREIN_PROTOCOL" = y ];  then
+#		define_bool IRSND_SUPPORT_KATHREIN_PROTOCOL y
 #	fi
 endmenu

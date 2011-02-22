@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2010 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.47 2011/02/08 08:46:22 fm Exp $
+ * $Id: irmp.h,v 1.53 2011/02/22 14:24:00 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -71,6 +71,8 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_RC6A_PROTOCOL                      21              // RC6A, e.g. Kathrein, XBOX
 #define IRMP_NIKON_PROTOCOL                     22              // Nikon
 #define IRMP_RUWIDO_PROTOCOL                    23              // Ruwido, e.g. T-Home Mediareceiver
+#define IRMP_IR60_PROTOCOL                      24              // IR60 (SAB2008)
+#define IRMP_KATHREIN_PROTOCOL                  25              // Kathrein
 
 // some flags of struct IRMP_PARAMETER:
 #define IRMP_PARAM_FLAG_IS_MANCHESTER           0x01
@@ -279,12 +281,12 @@ typedef uint8_t     PAUSE_LEN;
 #define BANG_OLUFSEN_LSB                        0                               // MSB...LSB
 #define BANG_OLUFSEN_FLAGS                      0                               // flags
 
-#define GRUNDIG_OR_NOKIA_BIT_TIME               528.0e-6                        // 528 usec pulse/pause
-#define GRUNDIG_OR_NOKIA_PRE_PAUSE_TIME         2639.0e-6                       // 2639 usec pause after pre bit
-#define GRUNDIG_OR_NOKIA_FRAME_REPEAT_PAUSE_TIME  117.76e-3                     // info frame repeat after 117.76 ms
-#define GRUNDIG_OR_NOKIA_STOP_BIT               0                               // has no stop bit
-#define GRUNDIG_OR_NOKIA_LSB                    1                               // MSB...LSB
-#define GRUNDIG_OR_NOKIA_FLAGS                  (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
+#define GRUNDIG_NOKIA_IR60_BIT_TIME             528.0e-6                        // 528 usec pulse/pause
+#define GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME       2639.0e-6                       // 2639 usec pause after pre bit
+#define GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_TIME  117.76e-3                   // info frame repeat after 117.76 ms
+#define GRUNDIG_NOKIA_IR60_STOP_BIT             0                               // has no stop bit
+#define GRUNDIG_NOKIA_IR60_LSB                  1                               // MSB...LSB
+#define GRUNDIG_NOKIA_IR60_FLAGS                (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
 
 #define GRUNDIG_FRAMES                          2                               // GRUNDIG sends each frame 1+1 times
 #define GRUNDIG_AUTO_REPETITION_PAUSE_TIME        20.0e-3                       // repetition after 20ms
@@ -302,16 +304,35 @@ typedef uint8_t     PAUSE_LEN;
 #define NOKIA_COMMAND_LEN                       8                               // read 8 command bits
 #define NOKIA_COMPLETE_DATA_LEN                 17                              // complete length: 1 start bit + 8 address bits + 8 command bits
 
-#define SIEMENS_BIT_TIME                        250.0e-6                        // 250 usec pulse/pause
-#define SIEMENS_FRAME_REPEAT_PAUSE_TIME          45.0e-3                        // frame repeat after 45ms
-#define SIEMENS_ADDRESS_OFFSET                  2                               // skip 2 start bits
-#define SIEMENS_ADDRESS_LEN                     12                              // read 12 address bits
-#define SIEMENS_COMMAND_OFFSET                  15                              // skip 15 bits (2 start bits + 12 address bits + 1 inverted bit)
-#define SIEMENS_COMMAND_LEN                     8                               // read 7 + 1 command bits, last bit is only check bit.
-#define SIEMENS_COMPLETE_DATA_LEN               23                              // complete length
-#define SIEMENS_STOP_BIT                        0                               // has no stop bit
-#define SIEMENS_LSB                             0                               // MSB...LSB
-#define SIEMENS_FLAGS                           (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
+#define IR60_TIMEOUT_TIME                       5000.0e-6                       // timeout grundig frame, switch to IR60
+#define IR60_ADDRESS_OFFSET                     0                               // skip 1 bits
+#define IR60_ADDRESS_LEN                        0                               // read 0 address bits
+#define IR60_COMMAND_OFFSET                     0                               // skip 1 bit (start bit after pre bit, always 1)
+#define IR60_COMMAND_LEN                        7                               // read 6 command bits
+#define IR60_COMPLETE_DATA_LEN                  7                               // complete length
+
+#define SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME    275.0e-6                      //  275 usec pulse
+#define SIEMENS_OR_RUWIDO_START_BIT_PAUSE_TIME    550.0e-6                      //  550 usec pause
+#define SIEMENS_OR_RUWIDO_BIT_PULSE_TIME          275.0e-6                      //  275 usec short pulse
+#define SIEMENS_OR_RUWIDO_BIT_PULSE_TIME_2        550.0e-6                      //  550 usec long pulse
+#define SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME          275.0e-6                      //  275 usec short pause
+#define SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME_2        550.0e-6                      //  550 usec long pause
+#define SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME 45.0e-3                       // frame repeat after 45ms
+#define SIEMENS_OR_RUWIDO_STOP_BIT                0                             // has no stop bit
+#define SIEMENS_OR_RUWIDO_LSB                     0                             // MSB...LSB
+#define SIEMENS_OR_RUWIDO_FLAGS                   (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
+
+#define RUWIDO_ADDRESS_OFFSET                   0                               // skip 0 bits
+#define RUWIDO_ADDRESS_LEN                      9                               // read 9 address bits
+#define RUWIDO_COMMAND_OFFSET                   9                               // skip 9 bits
+#define RUWIDO_COMMAND_LEN                      8                               // read 7 + 1 command bits, last bit is only check bit
+#define RUWIDO_COMPLETE_DATA_LEN                17                              // complete length
+
+#define SIEMENS_ADDRESS_OFFSET                  0                               // skip 0 bits
+#define SIEMENS_ADDRESS_LEN                     11                              // read 11 bits
+#define SIEMENS_COMMAND_OFFSET                  11                              // skip 11 bits
+#define SIEMENS_COMMAND_LEN                     11                              // read 10 + 1 command bits, last bit is only check bit
+#define SIEMENS_COMPLETE_DATA_LEN               22                              // complete length
 
 #define FDC_START_BIT_PULSE_TIME                 2085.0e-6                      // 2085 usec pulse
 #define FDC_START_BIT_PAUSE_TIME                  966.0e-6                      //  966 usec pause
@@ -373,21 +394,24 @@ typedef uint8_t     PAUSE_LEN;
 #define NIKON_LSB                               0                               // LSB...MSB
 #define NIKON_FLAGS                             0                               // flags
 
-#define RUWIDO_START_BIT_PULSE_TIME              889.0e-6                       //  900 usec pulse
-#define RUWIDO_START_BIT_PAUSE_TIME             1400.0e-6                       // 1400 usec pause
-#define RUWIDO_BIT_PULSE_TIME                    889.0e-6                       //  889 usec short pulse
-#define RUWIDO_BIT_PULSE_TIME_2                 1622.0e-6                       // 1622 usec long pulse
-#define RUWIDO_BIT_PAUSE_TIME                    611.0e-6                       //  611 usec short pause
-#define RUWIDO_BIT_PAUSE_TIME_2                 1361.0e-6                       // 1361 usec long pause
-#define RUWIDO_FRAME_REPEAT_PAUSE_TIME            45.0e-3                       // frame repeat after 45ms
-#define RUWIDO_ADDRESS_OFFSET                   2                               // skip 2 start bits
-#define RUWIDO_ADDRESS_LEN                      8                               // read 8 address bits
-#define RUWIDO_COMMAND_OFFSET                   10                              // skip 10 bits (2 start + 8 address)
-#define RUWIDO_COMMAND_LEN                      7                               // read 7 command bits, ignore last parity bit
-#define RUWIDO_COMPLETE_DATA_LEN                18                              // complete length
-#define RUWIDO_STOP_BIT                         0                               // has no stop bit
-#define RUWIDO_LSB                              0                               // MSB...LSB
-#define RUWIDO_FLAGS                            (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
+#define KATHREIN_START_BIT_PULSE_TIME            210.0e-6                       // 1340 usec pulse
+#define KATHREIN_START_BIT_PAUSE_TIME           6218.0e-6                       //  340 usec pause
+#define KATHREIN_1_PULSE_TIME                    210.0e-6                       // 1340 usec pulse
+#define KATHREIN_1_PAUSE_TIME                   3000.0e-6                       //  340 usec pause
+#define KATHREIN_0_PULSE_TIME                    210.0e-6                       //  500 usec pulse
+#define KATHREIN_0_PAUSE_TIME                   1400.0e-6                       // 1300 usec pause
+#define KATHREIN_SYNC_BIT_PAUSE_LEN_TIME        4600.0e-6                       // 4600 usec sync (on 6th and/or 8th bit)
+#define KATHREIN_FRAMES                         1                               // Kathrein sends 1 frame
+#define KATHREIN_AUTO_REPETITION_PAUSE_TIME     35.0e-3                         // auto repetition after 35ms
+#define KATHREIN_FRAME_REPEAT_PAUSE_TIME        35.0e-3                         // frame repeat after 35ms
+#define KATHREIN_ADDRESS_OFFSET                 1                               // skip 1 bits
+#define KATHREIN_ADDRESS_LEN                    4                               // read 4 address bits
+#define KATHREIN_COMMAND_OFFSET                 5                               // skip 5 bits
+#define KATHREIN_COMMAND_LEN                    7                               // read 7 bits
+#define KATHREIN_COMPLETE_DATA_LEN              13                              // complete length
+#define KATHREIN_STOP_BIT                       1                               // has stop bit
+#define KATHREIN_LSB                            0                               // MSB
+#define KATHREIN_FLAGS                          0                               // flags
 
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
                                                                                 // KASEIKYO: automatic repetition after 75ms
