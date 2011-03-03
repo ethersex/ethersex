@@ -99,7 +99,10 @@ tftp_net_main(void)
     int l = strlen(uip_udp_conn->appstate.tftp.filename);
     memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
 #if BOOTLOADER_START_ADDRESS > UINT16_MAX
-    memcpy_PF(&tftp_pk->u.raw[l + 1], pgm_get_far_address(octet), sizeof(octet));
+    uint_farptr_t src = pgm_get_far_address(octet);
+    uint8_t *dst = &tftp_pk->u.raw[l + 1];
+    for (uint8_t i = sizeof(octet); i; i--)
+      *dst++ = pgm_read_byte_far(src++);
 #else
     memcpy_P(&tftp_pk->u.raw[l + 1], octet, sizeof(octet));
 #endif
