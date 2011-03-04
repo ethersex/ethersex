@@ -169,7 +169,10 @@ tftp_handle_packet(void)
 	}
 
 #if FLASHEND > UINT16_MAX
-	memcpy_PF(pk->u.data.data, (uint_farptr_t)base, TFTP_BLOCK_SIZE);
+	uint_farptr_t src = (uint_farptr_t)base;
+	uint8_t *dst = pk->u.data.data;
+	for (uint16_t i = TFTP_BLOCK_SIZE; i; i--)
+	  *dst++ = pgm_read_byte_far(src++);
 #else
 	memcpy_P(pk->u.data.data, (PGM_VOID_P)base, TFTP_BLOCK_SIZE);
 #endif

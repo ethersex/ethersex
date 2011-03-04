@@ -22,7 +22,7 @@
  */
 
 #ifndef FS20_SENDER_STATE_H
-#define WATHASYNC_STATE_H
+#define FS20_SENDER_STATE_H
 
 // State of coonection, new until acked or aborted, after that old
 struct fs20_sender_connection_state_t {

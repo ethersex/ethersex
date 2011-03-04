@@ -133,7 +133,7 @@
 
 
 /* queue length */
-#define FS20_QUEUE_LENGTH 5
+#define FS20_QUEUE_LENGTH 4
 
 /* structures */
 struct fs20_data_t {
@@ -173,10 +173,11 @@ struct fs20_datagram_t {
     {
         struct fs20_data_t dg;
         struct fs20_extdata_t edg;
-        uint8_t bytes[10]; // using 58/67 of 72 bits
+        uint8_t bytes[9]; // using 58/67 of 72 bits
     } data;
-    uint8_t ext; // 0 = dg, 1 = edg
-    uint8_t send; 
+    uint8_t ext; // 0 = one command byte, use data.dg, 1 = extended message, 2 command bytes, use data.edg
+    uint8_t send; // 1 = send this message, 0 = message was send
+    uint8_t fht; // 0 = is a FS20 message, 1 = is a FHT message, 2 = is a FHT message
 };
 
 struct ws300_datagram_t {
@@ -219,7 +220,6 @@ struct fs20_global_t {
 #ifdef FS20_RECEIVE_SUPPORT
     struct {
         struct fs20_datagram_t datagram;
-        //uint64_t raw;
         uint8_t rec;
         uint8_t err;
         struct fs20_datagram_t queue[FS20_QUEUE_LENGTH];

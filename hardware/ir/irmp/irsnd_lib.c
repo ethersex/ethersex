@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.c,v 1.29 2011/01/18 13:02:15 fm Exp $
+ * $Id: irsnd.c,v 1.32 2011/02/22 17:05:57 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,15 +155,15 @@ typedef uint8_t     IRSND_PAUSE_LEN;
 #define BANG_OLUFSEN_TRAILER_BIT_PAUSE_LEN      (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_TRAILER_BIT_PAUSE_TIME + 0.5)
 #define BANG_OLUFSEN_FRAME_REPEAT_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * BANG_OLUFSEN_FRAME_REPEAT_PAUSE_TIME + 0.5)       // use uint16_t!
 
-#define GRUNDIG_OR_NOKIA_PRE_PAUSE_LEN          (uint8_t)(F_INTERRUPTS * GRUNDIG_OR_NOKIA_PRE_PAUSE_TIME + 0.5)
-#define GRUNDIG_OR_NOKIA_BIT_LEN                (uint8_t)(F_INTERRUPTS * GRUNDIG_OR_NOKIA_BIT_TIME + 0.5)
+#define GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN  (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME + 0.5)
+#define GRUNDIG_NOKIA_IR60_BIT_LEN        (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME + 0.5)
 #define GRUNDIG_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * GRUNDIG_AUTO_REPETITION_PAUSE_TIME + 0.5)         // use uint16_t!
 #define NOKIA_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * NOKIA_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
-#define GRUNDIG_OR_NOKIA_FRAME_REPEAT_PAUSE_LEN (uint16_t)(F_INTERRUPTS * GRUNDIG_OR_NOKIA_FRAME_REPEAT_PAUSE_TIME + 0.5)   // use uint16_t!
+#define GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN (uint16_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_TIME + 0.5)   // use uint16_t!
 
-#define SIEMENS_START_BIT_LEN                   (uint8_t)(F_INTERRUPTS * SIEMENS_BIT_TIME + 0.5)
-#define SIEMENS_BIT_LEN                         (uint8_t)(F_INTERRUPTS * SIEMENS_BIT_TIME + 0.5)
-#define SIEMENS_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SIEMENS_FRAME_REPEAT_PAUSE_TIME + 0.5)            // use uint16_t!
+#define SIEMENS_START_BIT_LEN                   (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME + 0.5)
+#define SIEMENS_BIT_LEN                         (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_BIT_PULSE_TIME + 0.5)
+#define SIEMENS_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME + 0.5)  // use uint16_t!
 
 #define IRSND_FREQ_32_KHZ                       (uint8_t) ((F_CPU / 32000 / 2) - 1)
 #define IRSND_FREQ_36_KHZ                       (uint8_t) ((F_CPU / 36000 / 2) - 1)
@@ -1060,15 +1060,15 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1
                     case IRMP_GRUNDIG_PROTOCOL:
                     {
-                        startbit_pulse_len          = GRUNDIG_OR_NOKIA_BIT_LEN;
-                        startbit_pause_len          = GRUNDIG_OR_NOKIA_PRE_PAUSE_LEN - 1;
-                        pulse_len                   = GRUNDIG_OR_NOKIA_BIT_LEN;
-                        pause_len                   = GRUNDIG_OR_NOKIA_BIT_LEN;
-                        has_stop_bit                = GRUNDIG_OR_NOKIA_STOP_BIT;
+                        startbit_pulse_len          = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        startbit_pause_len          = GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN - 1;
+                        pulse_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        pause_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        has_stop_bit                = GRUNDIG_NOKIA_IR60_STOP_BIT;
                         complete_data_len           = GRUNDIG_COMPLETE_DATA_LEN;
                         n_auto_repetitions          = GRUNDIG_FRAMES;                               // 2 frames
                         auto_repetition_pause_len   = GRUNDIG_AUTO_REPETITION_PAUSE_LEN;            // 20m sec pause
-                        repeat_frame_pause_len      = GRUNDIG_OR_NOKIA_FRAME_REPEAT_PAUSE_LEN;      // 117 msec pause
+                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;      // 117 msec pause
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
 
                         break;
@@ -1077,15 +1077,15 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_NOKIA_PROTOCOL == 1
                     case IRMP_NOKIA_PROTOCOL:
                     {
-                        startbit_pulse_len          = GRUNDIG_OR_NOKIA_BIT_LEN;
-                        startbit_pause_len          = GRUNDIG_OR_NOKIA_PRE_PAUSE_LEN - 1;
-                        pulse_len                   = GRUNDIG_OR_NOKIA_BIT_LEN;
-                        pause_len                   = GRUNDIG_OR_NOKIA_BIT_LEN;
-                        has_stop_bit                = GRUNDIG_OR_NOKIA_STOP_BIT;
+                        startbit_pulse_len          = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        startbit_pause_len          = GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN - 1;
+                        pulse_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        pause_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        has_stop_bit                = GRUNDIG_NOKIA_IR60_STOP_BIT;
                         complete_data_len           = NOKIA_COMPLETE_DATA_LEN;
                         n_auto_repetitions          = NOKIA_FRAMES;                                 // 2 frames
                         auto_repetition_pause_len   = NOKIA_AUTO_REPETITION_PAUSE_LEN;              // 20 msec pause
-                        repeat_frame_pause_len      = GRUNDIG_OR_NOKIA_FRAME_REPEAT_PAUSE_LEN;      // 117 msec pause
+                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;      // 117 msec pause
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
@@ -1097,7 +1097,7 @@ irsnd_ISR (void)
                         startbit_pause_len          = SIEMENS_BIT_LEN;
                         pulse_len                   = SIEMENS_BIT_LEN;
                         pause_len                   = SIEMENS_BIT_LEN;
-                        has_stop_bit                = SIEMENS_STOP_BIT;
+                        has_stop_bit                = SIEMENS_OR_RUWIDO_STOP_BIT;
                         complete_data_len           = SIEMENS_COMPLETE_DATA_LEN - 1;
                         n_auto_repetitions          = 1;                                            // 1 frame
                         auto_repetition_pause_len   = 0;
@@ -1429,7 +1429,7 @@ irsnd_ISR (void)
 
                                 if (repeat_counter > 0)
                                 {                                       // set 117 msec pause time
-                                    auto_repetition_pause_len = GRUNDIG_OR_NOKIA_FRAME_REPEAT_PAUSE_LEN;
+                                    auto_repetition_pause_len = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;
                                 }
 
                                 if (repeat_counter < n_repeat_frames)       // tricky: repeat n info frames per auto repetition before sending last stop frame
@@ -1474,8 +1474,8 @@ irsnd_ISR (void)
                             }
                             else                                                                        // send n'th bit
                             {
-                                pulse_len = GRUNDIG_OR_NOKIA_BIT_LEN;
-                                pause_len = GRUNDIG_OR_NOKIA_BIT_LEN;
+                                pulse_len = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                                pause_len = GRUNDIG_NOKIA_IR60_BIT_LEN;
                                 first_pulse = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ? TRUE : FALSE;
                             }
                         }
