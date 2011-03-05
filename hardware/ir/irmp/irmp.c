@@ -199,6 +199,11 @@ static const char proto_jvc[] PROGMEM = "JVC";
 static const char proto_rc6a[] PROGMEM = "RC6A";
 static const char proto_nikon[] PROGMEM = "NIKON";
 static const char proto_ruwido[] PROGMEM = "RUWIDO";
+static const char proto_ir60[] PROGMEM = "IR60";
+static const char proto_kathrein[] PROGMEM = "KATHREIN";
+static const char proto_netbox[] PROGMEM = "NETBOX";
+static const char proto_nec16[] PROGMEM = "NEC16";
+
 
 const PGM_P irmp_proto_names[] PROGMEM = {
   proto_unknown,
@@ -224,7 +229,11 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_jvc,
   proto_rc6a,
   proto_nikon,
-  proto_ruwido
+  proto_ruwido,
+  proto_ir60,
+  proto_kathrein,
+  proto_netbox,
+  proto_nec16
 };
 #endif
 
