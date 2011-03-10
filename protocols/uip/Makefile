@@ -4,10 +4,12 @@ include $(TOPDIR)/.config
 $(UIP_SUPPORT)_SRC += protocols/uip/uip.c
 $(UIP_SUPPORT)_SRC += protocols/uip/uip_multi.c
 $(UIP_SUPPORT)_SRC += protocols/uip/uip_router.c
+$(UIP_SUPPORT)_SRC += protocols/uip/parse.c
 
 $(IPSTATS_SUPPORT)_ECMD_SRC += protocols/uip/ipstats.c
+
 ifneq ($(TEENSY_SUPPORT),y)
-$(UIP_SUPPORT)_ECMD_SRC += protocols/uip/ecmd.c protocols/uip/parse.c
+$(UIP_SUPPORT)_ECMD_SRC += protocols/uip/ecmd.c
 endif
 
 ifeq ($(ETHERNET_SUPPORT),y)

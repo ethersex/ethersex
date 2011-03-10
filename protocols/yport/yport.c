@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,6 +40,12 @@ generate_usart_init()
 
 struct yport_buffer yport_send_buffer;
 struct yport_buffer yport_recv_buffer;
+#ifdef DEBUG_YPORT
+uint16_t yport_rx_frameerror;
+uint16_t yport_rx_overflow;
+uint16_t yport_rx_parityerror;
+uint16_t yport_rx_bufferfull;
+#endif
 
 void
 yport_init(void)
@@ -47,16 +54,16 @@ yport_init(void)
 }
 
 uint8_t
-yport_rxstart(uint8_t *data, uint8_t len)
+yport_rxstart(uint8_t *data, uint16_t len)
 {
-  uint8_t diff = yport_send_buffer.len - yport_send_buffer.sent;
+  uint16_t diff = yport_send_buffer.len - yport_send_buffer.sent;
   if (diff == 0) {
     /* Copy the data to the send buffer */
     memcpy(yport_send_buffer.data, data, len);
     yport_send_buffer.len = len;
     goto start_sending;
   /* The actual packet can be pushed into the buffer */
-  } else if (((uint16_t) (diff + len)) < YPORT_BUFFER_LEN) {
+  } else if ((diff + len) < YPORT_BUFFER_LEN) {
     memmove(yport_send_buffer.data, yport_send_buffer.data + yport_send_buffer.sent, diff);
     memcpy(yport_send_buffer.data + diff, data, len);
     yport_send_buffer.len = diff + len;
@@ -84,15 +91,32 @@ SIGNAL(usart(USART,_TX_vect))
 
 SIGNAL(usart(USART,_RX_vect))
 {
-  /* Ignore errors */
-  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
-    uint8_t v = usart(UDR);
-    (void) v;
-    return;
+  while (usart(UCSR,A) & _BV(usart(RXC)))
+  {
+    if (usart(UCSR,A) & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
+    {
+#ifdef DEBUG_YPORT
+      if (usart(UCSR,A) & _BV(usart(FE))) yport_rx_frameerror++;
+      if (usart(UCSR,A) & _BV(usart(DOR))) yport_rx_overflow++;
+      if (usart(UCSR,A) & _BV(usart(UPE))) yport_rx_parityerror++;
+#endif
+      uint8_t v = usart(UDR);
+      (void) v;
+    }
+    else
+    {
+      if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
+        yport_recv_buffer.data[yport_recv_buffer.len++] = usart(UDR);
+      else
+      {
+#ifdef DEBUG_YPORT
+
+        yport_rx_bufferfull++;
+#endif
+        break;
+      }
+    }
   }
-  uint8_t data = usart(UDR);
-  if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
-    yport_recv_buffer.data[yport_recv_buffer.len++] = data;
 }
 
 /*

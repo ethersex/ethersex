@@ -210,10 +210,9 @@ void rc5_init(void)
 
     /* enable timer0/timer2, set prescaler and enable overflow interrupt */
 #ifdef RC5_USE_TIMER2
-    TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
+    TC2_PRESCALER_1024;
 #else
-    TCCR0A = 0;
-    TCCR0B = _BV(CS02) | _BV(CS00);
+    TC0_PRESCALER_1024;
 #endif
 
     /* configure int0 to fire at any logical change */
@@ -342,7 +341,6 @@ void rc5_process(void)
 
 ISR(RC5_INT_SIGNAL)
 {
-
     if (rc5_global.enabled && !rc5_global.temp_disable) {
 
         /* if this is the first interrupt */
@@ -350,13 +348,13 @@ ISR(RC5_INT_SIGNAL)
             /* reset counter, clear old overflows and enable
              * timer0 overflow interrupt */
 #ifdef RC5_USE_TIMER2
-            TCNT2 = 0;
-            _TIFR_TIMER2 = _BV(TOV2);
-            _TIMSK_TIMER2 |= _BV(TOIE2);
+            TC2_COUNTER_CURRENT = 0;
+            TC2_INT_OVERFLOW_CLR;
+            TC2_INT_OVERFLOW_ON;
 #else
-            TCNT0 = 0;
-            TIFR0 = _BV(TOV0);
-            TIMSK0 |= _BV(TOIE0);
+            TC0_COUNTER_CURRENT = 0;
+            TC0_INT_OVERFLOW_CLR;
+            TC0_INT_OVERFLOW_ON;
 #endif
 
             /* reset temp buffer */
@@ -372,11 +370,11 @@ ISR(RC5_INT_SIGNAL)
         } else {
             /* load and reset the counter */
 #ifdef RC5_USE_TIMER2
-            uint8_t counter = TCNT2;
-            TCNT2 = 0;
+            uint8_t counter = TC2_COUNTER_CURRENT;
+            TC2_COUNTER_CURRENT = 0;
 #else
-            uint8_t counter = TCNT0;
-            TCNT0 = 0;
+            uint8_t counter = TC0_COUNTER_CURRENT;
+            TC0_COUNTER_CURRENT = 0;
 #endif
 
             /* check how many halfbits have passed since last interrupt */
@@ -445,19 +443,18 @@ ISR(TIMER2_OVF_vect)
 ISR(TIMER0_OVF_vect)
 #endif
 {
-
 #ifdef RC5_UDP_SUPPORT_COUNTERS
     /* disable overflow interrupt */
 #ifdef RC5_USE_TIMER2
-    _TIMSK_TIMER2 &= ~_BV(TOIE2);
+    TC0_INT_OVERFLOW_OFF;
 #else
-    TIMSK0 &= ~_BV(TOIE0);
+    TC2_INT_OVERFLOW_OFF;
 #endif
 
 #ifdef RC5_USE_TIMER2
-            uint8_t counter = TCNT2;
+    uint8_t counter = TC2_COUNTER_CURRENT;
 #else
-            uint8_t counter = TCNT0;
+    uint8_t counter = TC0_COUNTER_CURRENT;
 #endif
 #endif /* RC5_UDP_SUPPORT_COUNTERS */
 

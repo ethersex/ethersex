@@ -83,7 +83,7 @@ uint16_t usart_baudrate(uint16_t baudrate);
 
 /* If the Baudrate isn't set by the module which is using usart.h */
 #ifndef BAUD
-#define BAUD 19200
+#define BAUD 9600
 #endif
 
 /* We use setbaud.h from the avr-libc */

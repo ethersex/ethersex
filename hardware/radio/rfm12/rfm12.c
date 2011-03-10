@@ -27,6 +27,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "core/debug.h"
 #include "core/spi.h"
 #include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
@@ -35,7 +36,7 @@
 #include "core/bit-macros.h"
 
 #ifdef DEBUG
-	#define RFM12_DEBUG(s, args...) printf_P(PSTR("D: " s), ## args)
+	#define RFM12_DEBUG(s, args...) printf_P(PSTR("D: " s "\n"), ## args)
 #else
 	#define RFM12_DEBUG(a...)
 #endif
@@ -69,19 +70,19 @@ ISR(RFM12_vect)	    /* PCINT */
   uint16_t status = rfm12_trans (0x0000);
 
   if (status & 0x4000) {
-    RFM12_DEBUG ("rfm12/por -> init.\n");
+    RFM12_DEBUG ("rfm12/por -> init");
     rfm12_init ();
     return;
   }
 
   if (status & 0x2000) {
-    RFM12_DEBUG ("rfm12/overflow -> init.\n");
+    RFM12_DEBUG ("rfm12/overflow -> init");
     rfm12_init ();
     return;
   }
 
   if ((status & 0x8000) == 0) {
-    RFM12_DEBUG ("rfm12/spurious int: %x\n", status);
+    RFM12_DEBUG ("rfm12/spurious int: %x", status);
     return;
   }
 
@@ -216,28 +217,28 @@ ISR(RFM12_vect)	    /* PCINT */
 
 #endif  /* RFM12_IP_SUPPORT */
 
-unsigned short
-rfm12_trans(unsigned short wert)
+uint16_t
+rfm12_trans(uint16_t wert)
 {
-  unsigned short werti = 0;
+  uint16_t werti = 0;
 
   PIN_CLEAR(SPI_CS_RFM12);
 
   /* spi clock down */
 #ifdef CONF_RFM12_SLOW_SPI 
-  _SPCR0 |= _BV(SPR1);
+  _SPCR0 |= (uint8_t)_BV(SPR1);
 #else
-  _SPCR0 |= _BV(SPR0);
+  _SPCR0 |= (uint8_t)_BV(SPR0);
 #endif
 
-  werti = (spi_send ((0xFF00 & wert) >> 8) << 8);
-  werti += spi_send (0x00ff & wert);
+  werti = (uint16_t)(spi_send ((uint8_t)((0xff00U & wert) >> 8)) << 8);
+  werti += spi_send ((uint8_t)(0x00ffU & wert));
 
   /* spi clock high */
 #ifdef CONF_RFM12_SLOW_SPI
-  _SPCR0 &= ~_BV(SPR1);
+  _SPCR0 &= (uint8_t)~_BV(SPR1);
 #else
-  _SPCR0 &= ~_BV(SPR0);
+  _SPCR0 &= (uint8_t)~_BV(SPR0);
 #endif
 
   PIN_SET(SPI_CS_RFM12);
@@ -268,9 +269,9 @@ rfm12_init(void)
   rfm12_trans(0xCC16);		/* pll bandwitdh 0: max bitrate 86.2kHz - works ! */
 #endif
 
-  uint16_t status = rfm12_trans(0x0000);
-  (void) status;		/* keep GCC quiet even if debug disabled. */
-  RFM12_DEBUG ("rfm12/init: %x\n", status);
+  uint16_t result = rfm12_trans(0x0000);
+  (void) result;		/* keep GCC quiet even if debug disabled. */
+  RFM12_DEBUG ("rfm12/init: %x", result);
 
 
 #ifdef RFM12_DISABLE
@@ -306,8 +307,8 @@ rfm12_init(void)
   rfm12_int_enable ();
   rfm12_rxstart();
 
-  status = rfm12_trans(0x0000);
-  RFM12_DEBUG ("rfm12 init'd: %x\n", status);
+  result = rfm12_trans(0x0000);
+  RFM12_DEBUG ("rfm12 init'd: %x", result);
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not RFM12_DISABLE */
 
@@ -325,8 +326,9 @@ rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi)
   rfm12_drssi = drssi;
 #endif  /* RFM12_IP_SUPPORT */
 
+  uint8_t param = (uint8_t)((uint8_t)((bandwidth & 7) << 5) | (uint8_t)((gain & 3) << 3) | (uint8_t)(drssi & 7));
   rfm12_prologue ();
-  rfm12_trans (0x9400 | ((bandwidth & 7) << 5)|((gain & 3) << 3) | (drssi & 7));
+  rfm12_trans (0x9400U | param);
   rfm12_epilogue ();
 }
 
@@ -336,7 +338,6 @@ rfm12_setfreq(unsigned short freq)
 {
   if (freq < 96)		/* 430,2400MHz */
     freq = 96;
-
   else if (freq > 3903)		/* 439,7575MHz */
     freq = 3903;
 
@@ -354,13 +355,11 @@ rfm12_setbaud(unsigned short baud)
     return;
 
   rfm12_prologue ();
-
   /* Baudrate = 344827,58621 / (R + 1) / (1 + CS * 7) */
   if (baud < 54)
     rfm12_trans(0xC680 | ((43104 / baud / 100) - 1));
   else
     rfm12_trans(0xC600 | ((344828UL / baud / 100) - 1));
-
   rfm12_epilogue ();
 }
 
@@ -368,8 +367,9 @@ rfm12_setbaud(unsigned short baud)
 void
 rfm12_setpower(uint8_t power, uint8_t mod)
 {
+  uint8_t param = (uint8_t)((uint8_t)(power & 7) | (uint8_t)((mod & 15) << 4));
   rfm12_prologue ();
-  rfm12_trans(0x9800|(power&7)|((mod&15)<<4));
+  rfm12_trans(0x9800 | param);
   rfm12_epilogue ();
 }
 #endif  /* not RFM12_IP_SUPPORT */

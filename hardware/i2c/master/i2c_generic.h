@@ -25,12 +25,12 @@
 #ifndef _I2C_GENERIC_H
 #define _I2C_GENERIC_H
 
-uint8_t i2c_read_byte(uint8_t chipaddress);
-uint8_t i2c_read_byte_data(uint8_t chipaddress, uint8_t dataaddress);
-uint16_t i2c_read_word_data(uint8_t chipaddress, uint8_t dataaddress);
+uint8_t i2c_read_byte(const uint8_t chipaddress);
+uint8_t i2c_read_byte_data(const uint8_t chipaddress, const uint8_t dataaddress);
+uint16_t i2c_read_word_data(const uint8_t chipaddress, const uint8_t dataaddress);
 
-uint16_t i2c_write_byte(uint8_t chipaddress, uint8_t data);
-uint16_t i2c_write_byte_data(uint8_t chipaddress, uint8_t dataaddress, uint8_t data);
-uint16_t i2c_write_word_data(uint8_t chipaddress, uint8_t dataaddress, uint16_t data);
+uint16_t i2c_write_byte(const uint8_t chipaddress, const uint8_t data);
+uint16_t i2c_write_byte_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint8_t data);
+uint16_t i2c_write_word_data(const uint8_t chipaddress, const uint8_t dataaddress, const uint16_t data);
 
 #endif /* _I2C_GENERIC_H */

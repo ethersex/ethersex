@@ -37,5 +37,6 @@ struct dcf77_ctx {
 };
 
 void dcf77_init(void);
+uint32_t getLastValidDCFTimeStamp();
 
 #endif /* _DCF77_H */

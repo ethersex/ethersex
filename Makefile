@@ -26,6 +26,7 @@ SUBDIRS += hardware/input/ps2
 SUBDIRS += hardware/input/buttons
 SUBDIRS += hardware/io_expander
 SUBDIRS += hardware/ir/rc5
+SUBDIRS += hardware/ir/irmp
 SUBDIRS += hardware/isdn
 SUBDIRS += hardware/lcd
 SUBDIRS += hardware/lcd/s1d15g10
@@ -45,7 +46,9 @@ SUBDIRS += hardware/ultrasonic
 SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
+SUBDIRS += protocols/dhcp 
 SUBDIRS += protocols/dmx
+SUBDIRS += protocols/fnordlicht
 SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
 SUBDIRS += protocols/mysql
@@ -266,7 +269,8 @@ endif
 
 ##############################################################################
 ### Special case for MacOS X (darwin10.0) and FreeBSD
-CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] || [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /opt/local/bin/bash; \
+CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] ; then echo /opt/local/bin/bash; \
+          elif [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /usr/local/bin/bash; \
           elif [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
@@ -338,7 +342,7 @@ show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
-	@grep -e "^#define .*_SUPPORT" autoconf.h | $(SED) -e "s/^#define / * /" -e "s/_SUPPORT.*//"
+	@$(SED) -e "/^#define \<.*_SUPPORT\>/!d;s/^#define / * /;s/_SUPPORT.*//" autoconf.h 
 
 .PHONY: show-config
 

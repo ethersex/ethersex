@@ -1,34 +1,35 @@
 mainmenu_option next_comment
-comment "LCD Displays"
+
+  comment "LCD Displays"
 
   dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT $ARCH_AVR
     if [ "$HD44780_SUPPORT" = "y" ]; then
       # If you add here something, you also have to add an entry in hd44780.h!
-      choice 'Controller type'					\
-              "Original			HD44780_ORIGINAL	\
-               Displaytech164A		HD44780_DISPTECH	\
-               ks0067b			HD44780_KS0067B		\
-               ks0066u			HD44780_KS0066U		\
-	       WD_C2704M                HD44780_WDC2704"	\	
-              Original			HD44780_TYPE
+      choice 'Controller type'                                  \
+              "Original                 HD44780_ORIGINAL        \
+               Displaytech164A          HD44780_DISPTECH        \
+               ks0067b                  HD44780_KS0067B         \
+               ks0066u                  HD44780_KS0066U         \
+               WD_C2704M                HD44780_WDC2704         \
+               SPLC780D                 HD44780_SPLC780D"       \
+              'Original'                HD44780_TYPE
       define_bool LCD_SUPPORT y
-      choice 'connection type'					\
-              "Direkt			HD44780_DIREKT		\
-               I2C(pcf8574)		HD44780_I2CSUPPORT	\
-               SER_LCD(74hct164)	HD44780_SERLCD	\
-               2WIRE(74hct4094)	HD44780_2WIRE"		\
-              'Direkt'			HD44780_CONNECTION
- 
+      choice 'Connection type'                                  \
+              "Direkt                   HD44780_DIREKT          \
+               I2C(pcf8574)             HD44780_I2CSUPPORT      \
+               SER_LCD(74hct164)        HD44780_SERLCD          \
+               2WIRE(74hct4094)         HD44780_2WIRE"          \
+              'Direkt'                  HD44780_CONNECTION
     fi
 
     if [ "$HD44780_DIREKT" = "y" ]; then
-        dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
-        dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_DIREKT $HD44780_SUPPORT
+      dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
+      dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_DIREKT $HD44780_SUPPORT
     elif [ "$HD44780_I2CSUPPORT" = "y" ]; then
-        dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
-        int "PCF8574 Address" HD44780_PCF8574_ADR 32
-        define_bool I2C_MASTER_SUPPORT y
-        define_bool I2C_PCF8574X_SUPPORT y
+      dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
+      int "PCF8574 Address" HD44780_PCF8574_ADR 32
+      define_bool I2C_MASTER_SUPPORT y
+      define_bool I2C_PCF8574X_SUPPORT y
     fi
     dep_bool "Invert Backlight switch" HD44780_BACKLIGHT_INV $HD44780_SUPPORT
   endmenu
@@ -52,8 +53,8 @@ comment "LCD Displays"
     define_bool LCD_SUPPORT n
   fi
 
-	comment  "Debugging Flags"
-	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
-	dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
-	
+  comment  "Debugging Flags"
+  dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
+  dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
+        
 endmenu

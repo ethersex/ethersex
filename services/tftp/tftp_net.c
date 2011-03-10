@@ -43,7 +43,7 @@ tftp_net_init(void)
     tftp_conn->appstate.tftp.fire_req = 0;
 
 #ifndef IPV6_SUPPORT		/* IPv6 is handled in ipv6.c (after ra) */
-    const unsigned char *filename = CONF_TFTP_IMAGE;
+    const char *filename = CONF_TFTP_IMAGE;
     set_CONF_TFTP_IP(&ip);
 
     tftp_fire_tftpomatic(&ip, filename);
@@ -51,6 +51,8 @@ tftp_net_init(void)
 #endif /* TFTPOMATIC_SUPPORT */
 }
 
+
+static const char octet[] PROGMEM = "octet";
 
 void
 tftp_net_main(void)
@@ -96,7 +98,14 @@ tftp_net_main(void)
     tftp_pk->type = HTONS(1);			/* read request */
     int l = strlen(uip_udp_conn->appstate.tftp.filename);
     memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
-    memcpy_P(&tftp_pk->u.raw[l + 1], PSTR("octet"), 6);
+#if BOOTLOADER_START_ADDRESS > UINT16_MAX
+    uint_farptr_t src = pgm_get_far_address(octet);
+    uint8_t *dst = &tftp_pk->u.raw[l + 1];
+    for (uint8_t i = sizeof(octet); i; i--)
+      *dst++ = pgm_read_byte_far(src++);
+#else
+    memcpy_P(&tftp_pk->u.raw[l + 1], octet, sizeof(octet));
+#endif
     uip_udp_send(l + 9);
 
     /* uip_udp_conn->appstate.tftp.fire_req = 0; */

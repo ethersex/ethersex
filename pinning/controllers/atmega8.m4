@@ -62,9 +62,6 @@ ifdef(`conf_I2C_MASTER', `
   pin(SCL, PC5)
 ')dnl
 
-/* there isn't that much RAM on ATmega8, reduce uip_buf size. */
-#define NET_MAX_FRAME_LENGTH 192
-
 /* on the ATmega8 we only have 6 adc channels in the pdip version */
 #define ADC_CHANNELS 6
 

@@ -12,7 +12,9 @@ $(ARCH_AVR)_SRC += hardware/avr/reset_ecmd.c
 endif
 endif
 
+ifeq ($(BOOTLOADER_JUMP),y)
 $(ARCH_AVR)_SRC += hardware/avr/bootloader_ecmd.c
+endif
 
 ##############################################################################
 # generic fluff

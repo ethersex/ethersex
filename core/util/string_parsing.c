@@ -20,6 +20,7 @@
  */
 
 #include <stdint.h>
+#include "core/util/string_parsing.h"
 
 /* Takes a character strint and an place for the value, and parses the first integer
  * after all spaces. If there isn't an integer, it will return 0,
