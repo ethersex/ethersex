@@ -29,6 +29,8 @@
 #include "doorbell.h"
 
 #include "protocols/sip/sip.h"
+#include "protocols/ecmd/ecmd-base.h"
+
 
 int8_t timer = 0;
 
@@ -39,39 +41,44 @@ int16_t
 doorbell_init(void)
 {
   DOORBELLDEBUG ("init\n");
-  // enter your code here
 
   return ECMD_FINAL_OK;
 }
 
+int16_t
+doorbell_main(void) {
+  DOORBELLDEBUG ("main\n");
+
+	// Debug:
+	if (PIN_HIGH(RINGBUTTON))
+		PIN_SET(RELAIS1);
+	else
+		PIN_CLEAR(RELAIS1);
+
+	// Ring
+	if (PIN_HIGH(RINGBUTTON)) {
+		sip_start_ringing();
+		timer = 30;
+	}
+
+  return ECMD_FINAL_OK;
+}
+
+
 /*
-  If enabled in menuconfig, this function is periodically called
-  change "timer(100,app_sample_periodic)" if needed
+  Check periodically the timer, and eventually stop a running call
 */
 int16_t
 doorbell_periodic(void)
 {
-  DOORBELLDEBUG ("periodic\n");
-  // enter your code here
+  DOORBELLDEBUG ("periodic 1 sec\n");
 
-	// Debug:
-	if (PIN_HIGH(SCHALTER))
-		PIN_SET(LEDGN);
+	// Ring for a minimum time, even on a short press
+	if (timer > 0)
+		timer--;
 	else
-		PIN_CLEAR(LEDGN);
+		sip_stop_ringing();
 
-	// Ring
-	if (PIN_HIGH(SCHALTER) {
-		sip_start_ringing();
-		timer = 30;
-	}
-	else {
-		// Ring for a minimum time, even on a short press
-		if (timer > 0)
-			timer--;
-		else
-			sip_stop_ringing();
-	}
   return ECMD_FINAL_OK;
 }
 
@@ -80,5 +87,6 @@ doorbell_periodic(void)
   -- Ethersex META --
   header(services/appsample/appsample.h)
   ifdef(`conf_DOORBELL_INIT_AUTOSTART',`init(doorbell_init)')
-  ifdef(`conf_DOORBELL_PERIODIC_AUTOSTART',`timer(100,doorbell_periodic())')
+  mainloop(doorbell_main)
+  ifdef(`conf_DOORBELL_PERIODIC_AUTOSTART',`timer(50,doorbell_periodic())')
 */
