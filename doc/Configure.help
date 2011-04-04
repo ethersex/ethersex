@@ -2250,3 +2250,10 @@ IRMP_EXTERNAL_MODULATOR
   modulate the infrared signal. Connect it to the pin assigned to
   IRMP_TX in pinning/hardware/<your_hardware>.
 
+Netio Addon Workaround
+SD_NETIO_ADDON_WORKAROUND
+  Depends on: 
+
+  Work around a bad hardware design of the Pollin Netio Addon board.
+  This board uses resistores to adjust voltage levels, so the SD card
+  is enabled even when the chip enable pin is in tristate mode.
