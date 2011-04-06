@@ -75,6 +75,7 @@ ntp_init()
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
   else
     ntp_conf(ipaddr);
+  ntp_tries = 0; // reset try counter
 
 #else /* ! DNS_SUPPORT */
   uip_ipaddr_t ip;
