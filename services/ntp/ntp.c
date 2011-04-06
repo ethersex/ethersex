@@ -70,6 +70,7 @@ void
 ntp_init()
 {
 #ifdef DNS_SUPPORT
+  ntp_tries = 0; // reset try counter
   uip_ipaddr_t *ipaddr;
   if (ntp_conn != NULL || !(ipaddr = resolv_lookup(NTP_SERVER)))
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
