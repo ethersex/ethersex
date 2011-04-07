@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
- * Copyright (c) 2011 by David Gräff <maximilian.guentner@gmail.com>
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
