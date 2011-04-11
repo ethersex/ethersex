@@ -37,31 +37,36 @@
 #define FS20_DELAY_ONE  (6 * (F_CPU / 10000) / 4) /* 600uS, for delay_loop_2 */
 #define FS20_DELAY_CMD  ( F_CPU / 100 / 4) /* 10ms, for delay_loop_2 */
 
-#define FS20_BETWEEN(x, a, b) ((x >= a) && (x <= b))
-#define FS20_SYMM(x, y, r) ( (x-y) <= r && (y-x) <= r )
+/* FS20 read routines use timer 2 with prescaler 128 */
+#define FS20_PRESCALER 128
+#define FS20_US2T(x) (int)(F_CPU/1000000*(x)/FS20_PRESCALER)
+
+#define FS20_BETWEEN(x, a, b) ((x >= FS20_US2T(a)) && (x <= FS20_US2T(b)))
+#define FS20_SYMM(x, y, r) ( (x-y) <= FS20_US2T(r) && (y-x) <= FS20_US2T(r) )
 
 /* zero is 400uS: F_CPU/10^6 * 400 = 8000, with prescaler 128 gives 62.5
- * -> test if value is between 33 and 73 */
-#define FS20_PULSE_ZERO(x) FS20_BETWEEN((x), 33, 73)
+ * -> test if value is between 33 and 73 (with 20MHz) */
+#define FS20_PULSE_ZERO(x) FS20_BETWEEN((x), 212, 468)
 /* one is 600uS: F_CPU/10^6 * 600 = 12000, with prescaler 128 gives 93.75
- * -> test if value is between 74 and 105 */
-#define FS20_PULSE_ONE(x) FS20_BETWEEN((x), 74, 105)
+ * -> test if value is between 74 and 105 (with 20MHz) */
+#define FS20_PULSE_ONE(x) FS20_BETWEEN((x), 474, 672)
 /* maximal difference between two pulses is 115.2 uS,
- * which means 18 timer cycles with prescaler 128 */
-#define FS20_PULSE_DIFFERENCE(x,y) FS20_SYMM(x, y, 68)
+ * which means 18 timer cycles with prescaler 128
+ * MikeP: 18 would be 115.2us but in the code we had 68 which means 436us */
+#define FS20_PULSE_DIFFERENCE(x,y) FS20_SYMM(x, y, 436)
 
 
 /* ws300 timing: */
 
 /* one is a short pulse, followed by a long pulse */
-#define WS300_PULSE_ONE(x,y)  (FS20_BETWEEN((x), 20, 80) && FS20_BETWEEN((y), 90, 180))
+#define WS300_PULSE_ONE(x,y)  (FS20_BETWEEN((x), 128, 512) && FS20_BETWEEN((y), 576, 1152))
 /* zero is a long pulse, followed by a short pulse */
-#define WS300_PULSE_ZERO(x,y) (FS20_BETWEEN((x), 90, 180) && FS20_BETWEEN((y), 20, 80))
+#define WS300_PULSE_ZERO(x,y) (FS20_BETWEEN((x), 576, 1152) && FS20_BETWEEN((y), 128, 512))
 
 /* test if the received value might be a valid ws300 timing */
-#define WS300_VALID_VALUE(x) FS20_BETWEEN((x), 20, 180)
+#define WS300_VALID_VALUE(x) FS20_BETWEEN((x), 128, 1152)
 /* test if two adjacent timings might be a valid ws300 timing */
-#define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 110, 260)
+#define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 704, 1664)
 
 
 /* a fs20 datagram consists of 58 bits or 67 bits with 
