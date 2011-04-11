@@ -109,7 +109,7 @@ stella_output_channels(void* target)
 }
 
 void
-stella_dmx(uint8_t* dmx_data, uint8_t len)
+stella_dmx(uint8_t* dmx_data, uint16_t len)
 {
 	// length
 	if (len<2) return; // no real data, abort
@@ -117,7 +117,9 @@ stella_dmx(uint8_t* dmx_data, uint8_t len)
 	if (STELLA_CHANNELS < len) len = STELLA_CHANNELS;
 
 	for (uint8_t i=0;i<len;++i)
-		stella_setValue(dmx_data[0], i, dmx_data[i+1]);
+	{
+		stella_setValue(STELLA_SET_IMMEDIATELY, i, dmx_data[i+1]);
+	}
 }
 
 /* Process recurring actions for stella */

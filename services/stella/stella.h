@@ -119,7 +119,7 @@ void stella_loadFromEEROMFading(void);
 void stella_storeToEEROM(void);
 
 uint8_t stella_output_channels(void* target);
-void stella_dmx(uint8_t* dmx_data, uint8_t len);
+void stella_dmx(uint8_t* dmx_data, uint16_t len);
 
 #endif  /* STELLA_SUPPORT */
 
