@@ -33,6 +33,29 @@
 #error "F_CPU undefined!"
 #endif
 
+/*
+  FS20 and FHT on the air protokoll is described here
+  http://fhz4linux.info/tiki-index.php?page=FS20+Protocol
+  http://fhz4linux.info/tiki-index.php?page=FHT+protocol
+
+  In short
+  A logical "0" is a pulse 400us on, 400 us off
+  A logical "1" is a pulse 600us on, 600 us off
+  All bytes are secured by an even parity bit
+  A datagram consists of a starting sequence of 12 * "0" followed by a "1"
+  Then follows
+    houscode high byte
+    housecode low byte
+    address byte
+    command byte
+    optional extension byte (if bit 5 of command byte is set)
+    checksum byte
+  The checksum is 8bit sum of all bytes plus
+    0x06 for FS20
+    0x0c for FHT
+*/
+
+/* Send delays */
 #define FS20_DELAY_ZERO (4 * (F_CPU / 10000) / 4) /* 400uS, for delay_loop_2 */
 #define FS20_DELAY_ONE  (6 * (F_CPU / 10000) / 4) /* 600uS, for delay_loop_2 */
 #define FS20_DELAY_CMD  ( F_CPU / 100 / 4) /* 10ms, for delay_loop_2 */
@@ -44,30 +67,12 @@
 #define FS20_BETWEEN(x, a, b) ((x >= FS20_US2T(a)) && (x <= FS20_US2T(b)))
 #define FS20_SYMM(x, y, r) ( (x-y) <= FS20_US2T(r) && (y-x) <= FS20_US2T(r) )
 
-/* zero is 400uS: F_CPU/10^6 * 400 = 8000, with prescaler 128 gives 62.5
- * -> test if value is between 33 and 73 (with 20MHz) */
-#define FS20_PULSE_ZERO(x) FS20_BETWEEN((x), 212, 468)
-/* one is 600uS: F_CPU/10^6 * 600 = 12000, with prescaler 128 gives 93.75
- * -> test if value is between 74 and 105 (with 20MHz) */
-#define FS20_PULSE_ONE(x) FS20_BETWEEN((x), 474, 672)
-/* maximal difference between two pulses is 115.2 uS,
- * which means 18 timer cycles with prescaler 128
- * MikeP: 18 would be 115.2us but in the code we had 68 which means 436us */
-#define FS20_PULSE_DIFFERENCE(x,y) FS20_SYMM(x, y, 436)
-
-
-/* ws300 timing: */
-
-/* one is a short pulse, followed by a long pulse */
-#define WS300_PULSE_ONE(x,y)  (FS20_BETWEEN((x), 128, 512) && FS20_BETWEEN((y), 576, 1152))
-/* zero is a long pulse, followed by a short pulse */
-#define WS300_PULSE_ZERO(x,y) (FS20_BETWEEN((x), 576, 1152) && FS20_BETWEEN((y), 128, 512))
-
-/* test if the received value might be a valid ws300 timing */
-#define WS300_VALID_VALUE(x) FS20_BETWEEN((x), 128, 1152)
-/* test if two adjacent timings might be a valid ws300 timing */
-#define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 704, 1664)
-
+/* zero is 400uS: accept everything between 300us and 500us */
+#define FS20_PULSE_ZERO(x) FS20_BETWEEN((x), 300, 500)
+/* one is 600uS: accept any pulse between 500us and 700us */
+#define FS20_PULSE_ONE(x) FS20_BETWEEN((x), 500, 700)
+/* maximal difference between two pulses is 100uS */
+#define FS20_PULSE_DIFFERENCE(x,y) FS20_SYMM(x, y, 100)
 
 /* a fs20 datagram consists of 58 bits or 67 bits with 
  * second command byte (bit 5 of first command byte is set)
@@ -76,24 +81,28 @@
 #define FS20_DATAGRAM_LENGTH_EXT 67
 #define FS20_DATAGRAM_BITS 71
 
-/* a ws300 datagram consists of 79 = 16*4+15 bits */
-#define FS20_WS300_DATAGRAM_LENGTH 79
 
 /* ws300 datagram description:
  *
+ * See also
+ * http://www.dc3yc.homepage.t-online.de/protocol.htm
+ *
  * Signal:
  *
- *  ---+    +-------+  +----+                     +----
- *     |    |       |  |    |                     |
- *     +----+       +--+    +---------------------+
- *     | t1 |   t2  |t3| t4 |         t5          |
+ *    +-------+   +---+       +----
+ *    |       |   |   |       |
+ *  --+       +---+   +-------+
+ *    |  "0" wave |  "1" wave |   
  *
- * short pulse: 20 <= t <= 80
+ * 
  * long pulse: 90 <= t <= 180
  *
  * Experiments have shown, that the encoding for a logical "0" is a long high
  * pulse, followed by a short low pulse and a logical "1" is a short high
  * pulse, followed by a long low pulse.
+ *
+ * wave period is 1220 ms
+ * logic 0 is 7:3 logic 1 is 3:7 wave
  *
  * The datagram is started by sending 8-10 zeroes, followed by a "1".  After
  * that, 16 nibbles (= 4 bit, BCD) of data (LSB first) are sent, divided by
@@ -130,6 +139,21 @@
  *
  *
  */
+
+/* one is a short pulse, followed by a long pulse */
+#define WS300_PULSE_ONE(x,y)  (FS20_BETWEEN((x), 244, 488) && FS20_BETWEEN((y), 732, 976))
+/* zero is a long pulse, followed by a short pulse */
+#define WS300_PULSE_ZERO(x,y) (FS20_BETWEEN((x), 732, 976) && FS20_BETWEEN((y), 244, 488))
+
+/* test if the received value might be a valid ws300 timing */
+#define WS300_VALID_VALUE(x) FS20_BETWEEN((x), 244, 976)
+/* test if two adjacent timings might be a valid ws300 timing */
+#define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 976, 1464)
+
+
+/* a ws300 datagram consists of 79 = 16*4+15 bits */
+#define FS20_WS300_DATAGRAM_LENGTH 79
+
 
 #define FS20_WS300_CONSTANT 7
 
