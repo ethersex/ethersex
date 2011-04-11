@@ -249,6 +249,8 @@ struct fs20_global_t {
 #ifdef FS20_RECEIVE_SUPPORT
     struct {
         struct fs20_datagram_t datagram;
+        uint8_t sync:1;
+        uint8_t null:6;
         uint8_t rec;
         uint8_t err;
         struct fs20_datagram_t queue[FS20_QUEUE_LENGTH];
