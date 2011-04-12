@@ -118,7 +118,7 @@ stella_dmx(uint8_t* dmx_data, uint16_t len)
 
 	for (uint8_t i=0;i<len;++i)
 	{
-		stella_setValue(STELLA_SET_IMMEDIATELY, i, dmx_data[i+1]);
+		stella_setValue(dmx_data[0], i, dmx_data[i+1]);
 	}
 }
 
