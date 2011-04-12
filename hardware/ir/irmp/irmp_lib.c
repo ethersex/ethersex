@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmp.c - infrared multi-protocol decoder, supports several remote control protocols
  *
- * Copyright (c) 2009-2010 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.97 2011/02/25 15:24:06 fm Exp $
+ * $Id: irmp.c,v 1.100 2011/04/11 12:54:24 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -32,6 +32,7 @@
  * NIKON        - Nikon cameras
  * RUWIDO       - T-Home
  * KATHREIN     - Kathrein
+ * LEGO         - Lego Power Functions RC
  *
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  *
@@ -176,7 +177,7 @@
  *   RC6
  *   ---
  *
- *   RC6 frame:  1 start bit + 1 bit "1" + 3 mode bits + 1 toggle bit + 16 data bits + 2666 µs pause
+ *   RC6 frame:  1 start bit + 1 bit "1" + 3 mode bits + 1 toggle bit + 16 data bits + 2666 us pause
  *   RC6 data:   8 address bits + 8 command bits
  *
  *   start  bit               toggle bit "0":      toggle bit "1":     data/mode "0":      data/mode "1":
@@ -675,6 +676,17 @@ typedef unsigned int16  uint16_t;
 #define NETBOX_PULSE_REST_LEN                   ((uint8_t)(F_INTERRUPTS * NETBOX_PULSE_TIME / 4))
 #define NETBOX_PAUSE_REST_LEN                   ((uint8_t)(F_INTERRUPTS * NETBOX_PAUSE_TIME / 4))
 
+#define LEGO_START_BIT_PULSE_LEN_MIN            ((uint8_t)(F_INTERRUPTS * LEGO_START_BIT_PULSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
+#define LEGO_START_BIT_PULSE_LEN_MAX            ((uint8_t)(F_INTERRUPTS * LEGO_START_BIT_PULSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
+#define LEGO_START_BIT_PAUSE_LEN_MIN            ((uint8_t)(F_INTERRUPTS * LEGO_START_BIT_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
+#define LEGO_START_BIT_PAUSE_LEN_MAX            ((uint8_t)(F_INTERRUPTS * LEGO_START_BIT_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
+#define LEGO_PULSE_LEN_MIN                      ((uint8_t)(F_INTERRUPTS * LEGO_PULSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
+#define LEGO_PULSE_LEN_MAX                      ((uint8_t)(F_INTERRUPTS * LEGO_PULSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
+#define LEGO_1_PAUSE_LEN_MIN                    ((uint8_t)(F_INTERRUPTS * LEGO_1_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
+#define LEGO_1_PAUSE_LEN_MAX                    ((uint8_t)(F_INTERRUPTS * LEGO_1_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
+#define LEGO_0_PAUSE_LEN_MIN                    ((uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
+#define LEGO_0_PAUSE_LEN_MAX                    ((uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
+
 #define IMON_START_BIT_PULSE_LEN_MIN            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PULSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
 #define IMON_START_BIT_PULSE_LEN_MAX            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
 #define IMON_START_BIT_PAUSE_LEN_MIN            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
@@ -957,11 +969,11 @@ static PROGMEM IRMP_PARAMETER nec_rep_param =
 
 #endif
 
-#if IRMP_SUPPORT_NEC16_PROTOCOL == 1
+#if IRMP_SUPPORT_NEC42_PROTOCOL == 1
 
-static PROGMEM IRMP_PARAMETER nec16_param =
+static PROGMEM IRMP_PARAMETER nec42_param =
 {
-    IRMP_NEC16_PROTOCOL,                                                // protocol:        ir protocol
+    IRMP_NEC42_PROTOCOL,                                                // protocol:        ir protocol
     NEC_PULSE_LEN_MIN,                                                  // pulse_1_len_min: minimum length of pulse with bit value 1
     NEC_PULSE_LEN_MAX,                                                  // pulse_1_len_max: maximum length of pulse with bit value 1
     NEC_1_PAUSE_LEN_MIN,                                                // pause_1_len_min: minimum length of pause with bit value 1
@@ -970,14 +982,14 @@ static PROGMEM IRMP_PARAMETER nec16_param =
     NEC_PULSE_LEN_MAX,                                                  // pulse_0_len_max: maximum length of pulse with bit value 0
     NEC_0_PAUSE_LEN_MIN,                                                // pause_0_len_min: minimum length of pause with bit value 0
     NEC_0_PAUSE_LEN_MAX,                                                // pause_0_len_max: maximum length of pause with bit value 0
-    NEC16_ADDRESS_OFFSET,                                               // address_offset:  address offset
-    NEC16_ADDRESS_OFFSET + NEC16_ADDRESS_LEN,                           // address_end:     end of address
-    NEC16_COMMAND_OFFSET,                                               // command_offset:  command offset
-    NEC16_COMMAND_OFFSET + NEC16_COMMAND_LEN,                           // command_end:     end of command
-    NEC16_COMPLETE_DATA_LEN,                                            // complete_len:    complete length of frame
-    NEC16_STOP_BIT,                                                     // stop_bit:        flag: frame has stop bit
-    NEC16_LSB,                                                          // lsb_first:       flag: LSB first
-    NEC16_FLAGS                                                         // flags:           some flags
+    NEC42_ADDRESS_OFFSET,                                               // address_offset:  address offset
+    NEC42_ADDRESS_OFFSET + NEC_ADDRESS_LEN,                             // address_end:     end of address
+    NEC42_COMMAND_OFFSET,                                               // command_offset:  command offset
+    NEC42_COMMAND_OFFSET + NEC_COMMAND_LEN,                             // command_end:     end of command
+    NEC42_COMPLETE_DATA_LEN,                                            // complete_len:    complete length of frame
+    NEC_STOP_BIT,                                                       // stop_bit:        flag: frame has stop bit
+    NEC_LSB,                                                            // lsb_first:       flag: LSB first
+    NEC_FLAGS                                                           // flags:           some flags
 };
 
 #endif
@@ -1412,6 +1424,31 @@ static PROGMEM IRMP_PARAMETER netbox_param =
 
 #endif
 
+#if IRMP_SUPPORT_LEGO_PROTOCOL == 1
+
+static PROGMEM IRMP_PARAMETER lego_param =
+{
+    IRMP_LEGO_PROTOCOL,                                                 // protocol:        ir protocol
+    LEGO_PULSE_LEN_MIN,                                                 // pulse_1_len_min: minimum length of pulse with bit value 1
+    LEGO_PULSE_LEN_MAX,                                                 // pulse_1_len_max: maximum length of pulse with bit value 1
+    LEGO_1_PAUSE_LEN_MIN,                                               // pause_1_len_min: minimum length of pause with bit value 1
+    LEGO_1_PAUSE_LEN_MAX,                                               // pause_1_len_max: maximum length of pause with bit value 1
+    LEGO_PULSE_LEN_MIN,                                                 // pulse_0_len_min: minimum length of pulse with bit value 0
+    LEGO_PULSE_LEN_MAX,                                                 // pulse_0_len_max: maximum length of pulse with bit value 0
+    LEGO_0_PAUSE_LEN_MIN,                                               // pause_0_len_min: minimum length of pause with bit value 0
+    LEGO_0_PAUSE_LEN_MAX,                                               // pause_0_len_max: maximum length of pause with bit value 0
+    LEGO_ADDRESS_OFFSET,                                                // address_offset:  address offset
+    LEGO_ADDRESS_OFFSET + LEGO_ADDRESS_LEN,                             // address_end:     end of address
+    LEGO_COMMAND_OFFSET,                                                // command_offset:  command offset
+    LEGO_COMMAND_OFFSET + LEGO_COMMAND_LEN,                             // command_end:     end of command
+    LEGO_COMPLETE_DATA_LEN,                                             // complete_len:    complete length of frame
+    LEGO_STOP_BIT,                                                      // stop_bit:        flag: frame has stop bit
+    LEGO_LSB,                                                           // lsb_first:       flag: LSB first
+    LEGO_FLAGS                                                          // flags:           some flags
+};
+
+#endif
+
 #if IRMP_SUPPORT_IMON_PROTOCOL == 1
 
 static PROGMEM IRMP_PARAMETER imon_param =
@@ -1586,6 +1623,24 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
                 break;
 #endif
 #endif // 0
+#if IRMP_SUPPORT_LEGO_PROTOCOL == 1
+            case IRMP_LEGO_PROTOCOL:
+            {
+                uint8_t crc = 0x0F ^ ((irmp_command & 0xF000) >> 12) ^ ((irmp_command & 0x0F00) >> 8) ^ ((irmp_command & 0x00F0) >> 4);
+
+                if ((irmp_command & 0x000F) == crc)
+                {
+                    irmp_command >>= 4;
+                    rtc = TRUE;
+                }
+                else
+                {
+                    ANALYZE_PRINTF ("CRC error in LEGO protocol\n");
+                    rtc = TRUE;
+                }
+                break;
+            }
+#endif
             default:
                 rtc = TRUE;
         }
@@ -1611,12 +1666,12 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
 static uint16_t irmp_tmp_address;                                                       // ir address
 static uint16_t irmp_tmp_command;                                                       // ir command
 
-#if IRMP_SUPPORT_RC5_PROTOCOL == 1 && (IRMP_SUPPORT_FDC_PROTOCOL == 1 || IRMP_SUPPORT_RCCAR_PROTOCOL == 1)
+#if IRMP_SUPPORT_RC5_PROTOCOL == 1 && (IRMP_SUPPORT_FDC_PROTOCOL == 1 || IRMP_SUPPORT_RCCAR_PROTOCOL == 1) || IRMP_SUPPORT_NEC42_PROTOCOL == 1
 static uint16_t irmp_tmp_address2;                                                      // ir address
 static uint16_t irmp_tmp_command2;                                                      // ir command
 #endif
 
-#if IRMP_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRMP_SUPPORT_KATHREIN__PROTOCOL == 1
+#if IRMP_SUPPORT_SAMSUNG_PROTOCOL == 1
 static uint16_t irmp_tmp_id;                                                            // ir id (only SAMSUNG)
 #endif
 #if IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
@@ -1667,6 +1722,13 @@ irmp_store_bit (uint8_t value)
             irmp_tmp_command |= value;
         }
     }
+
+#if IRMP_SUPPORT_NEC42_PROTOCOL == 1
+    else if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && irmp_bit >= 13 && irmp_bit < 26)
+    {
+        irmp_tmp_address2 |= (((uint16_t) (value)) << (irmp_bit - 13));                             // CV wants cast
+    }
+#endif
 
 #if IRMP_SUPPORT_SAMSUNG_PROTOCOL == 1
     else if (irmp_param.protocol == IRMP_SAMSUNG_PROTOCOL && irmp_bit >= SAMSUNG_ID_OFFSET && irmp_bit < SAMSUNG_ID_OFFSET + SAMSUNG_ID_LEN)
@@ -1801,7 +1863,7 @@ irmp_ISR (void)
                     irmp_tmp_command        = 0;
                     irmp_tmp_address        = 0;
 
-#if IRMP_SUPPORT_RC5_PROTOCOL == 1 && (IRMP_SUPPORT_FDC_PROTOCOL == 1 || IRMP_SUPPORT_RCCAR_PROTOCOL == 1)
+#if IRMP_SUPPORT_RC5_PROTOCOL == 1 && (IRMP_SUPPORT_FDC_PROTOCOL == 1 || IRMP_SUPPORT_RCCAR_PROTOCOL == 1) || IRMP_SUPPORT_NEC42_PROTOCOL == 1
                     irmp_tmp_command2       = 0;
                     irmp_tmp_address2       = 0;
 #endif
@@ -1882,7 +1944,7 @@ irmp_ISR (void)
                         ANALYZE_PRINTF ("protocol = NEC or JVC repeat frame, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
                                         JVC_START_BIT_PULSE_LEN_MIN, JVC_START_BIT_PULSE_LEN_MAX,
                                         JVC_REPEAT_START_BIT_PAUSE_LEN_MIN, JVC_REPEAT_START_BIT_PAUSE_LEN_MAX);
-                        irmp_param_p = (IRMP_PARAMETER *) &nec_param;                                               // tricky: use nec parameters
+                        irmp_param_p = (IRMP_PARAMETER *) &nec_param;
                     }
                     else
 #endif // IRMP_SUPPORT_JVC_PROTOCOL == 1
@@ -1891,10 +1953,18 @@ irmp_ISR (void)
                     if (irmp_pulse_time >= NEC_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= NEC_START_BIT_PULSE_LEN_MAX &&
                         irmp_pause_time >= NEC_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= NEC_START_BIT_PAUSE_LEN_MAX)
                     {
+#if IRMP_SUPPORT_NEC42_PROTOCOL == 1
+                        ANALYZE_PRINTF ("protocol = NEC42, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
+                                        NEC_START_BIT_PULSE_LEN_MIN, NEC_START_BIT_PULSE_LEN_MAX,
+                                        NEC_START_BIT_PAUSE_LEN_MIN, NEC_START_BIT_PAUSE_LEN_MAX);
+                        irmp_param_p = (IRMP_PARAMETER *) &nec42_param;
+#else
                         ANALYZE_PRINTF ("protocol = NEC, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
                                         NEC_START_BIT_PULSE_LEN_MIN, NEC_START_BIT_PULSE_LEN_MAX,
                                         NEC_START_BIT_PAUSE_LEN_MIN, NEC_START_BIT_PAUSE_LEN_MAX);
                         irmp_param_p = (IRMP_PARAMETER *) &nec_param;
+#endif
+
                     }
                     else if (irmp_pulse_time >= NEC_START_BIT_PULSE_LEN_MIN        && irmp_pulse_time <= NEC_START_BIT_PULSE_LEN_MAX &&
                              irmp_pause_time >= NEC_REPEAT_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= NEC_REPEAT_START_BIT_PAUSE_LEN_MAX)
@@ -2184,6 +2254,18 @@ irmp_ISR (void)
                     }
                     else
 #endif // IRMP_SUPPORT_NETBOX_PROTOCOL == 1
+
+#if IRMP_SUPPORT_LEGO_PROTOCOL == 1
+                    if (irmp_pulse_time >= LEGO_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= LEGO_START_BIT_PULSE_LEN_MAX &&
+                        irmp_pause_time >= LEGO_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= LEGO_START_BIT_PAUSE_LEN_MAX)
+                    {
+                        ANALYZE_PRINTF ("protocol = LEGO, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
+                                        LEGO_START_BIT_PULSE_LEN_MIN, LEGO_START_BIT_PULSE_LEN_MAX,
+                                        LEGO_START_BIT_PAUSE_LEN_MIN, LEGO_START_BIT_PAUSE_LEN_MAX);
+                        irmp_param_p = (IRMP_PARAMETER *) &lego_param;
+                    }
+                    else
+#endif // IRMP_SUPPORT_NEC_PROTOCOL == 1
 
 #if IRMP_SUPPORT_IMON_PROTOCOL == 1
                     if (irmp_pulse_time >= IMON_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= IMON_START_BIT_PULSE_LEN_MAX &&
@@ -2483,6 +2565,39 @@ irmp_ISR (void)
                                 irmp_start_bit_detected = 1;                                        // tricky: don't wait for another start bit...
                             }
 #endif // IRMP_SUPPORT_JVC_PROTOCOL == 1
+
+#if IRMP_SUPPORT_NEC42_PROTOCOL == 1
+#if IRMP_SUPPORT_NEC_PROTOCOL == 1
+                            else if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && irmp_bit == 32)  // it was a NEC stop bit
+                            {
+                                ANALYZE_PRINTF ("Switching to NEC protocol\n");
+                                irmp_param.stop_bit     = TRUE;                                     // set flag
+                                irmp_param.protocol     = IRMP_NEC_PROTOCOL;                        // switch protocol
+                                irmp_param.complete_len = irmp_bit;                                 // patch length: 16 or 17
+
+                                //        0123456789ABC0123456789ABC0123456701234567
+                                // NEC42: AAAAAAAAAAAAAaaaaaaaaaaaaaCCCCCCCCcccccccc
+                                // NEC:   AAAAAAAAaaaaaaaaCCCCCCCCcccccccc
+                                irmp_tmp_address        |= (irmp_tmp_address2 & 0x0007) << 12;
+                                irmp_tmp_command        = (irmp_tmp_address2 >> 3) | (irmp_tmp_command << 10);
+                            }
+#endif // IRMP_SUPPORT_NEC_PROTOCOL == 1
+#if IRMP_SUPPORT_JVC_PROTOCOL == 1
+                            else if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && irmp_bit == 16)  // it was a JVC stop bit
+                            {
+                                ANALYZE_PRINTF ("Switching to JVC protocol\n");
+                                irmp_param.stop_bit     = TRUE;                                     // set flag
+                                irmp_param.protocol     = IRMP_JVC_PROTOCOL;                        // switch protocol
+                                irmp_param.complete_len = irmp_bit;                                 // patch length: 16 or 17
+
+                                //        0123456789ABC0123456789ABC0123456701234567
+                                // NEC42: AAAAAAAAAAAAAaaaaaaaaaaaaaCCCCCCCCcccccccc
+                                // JVC:   AAAACCCCCCCCCCCC
+                                irmp_tmp_command        = (irmp_tmp_address >> 4) | (irmp_tmp_address2 << 9);   // set command: upper 12 bits are command bits
+                                irmp_tmp_address        = irmp_tmp_address & 0x000F;                            // lower 4 bits are address bits
+                            }
+#endif // IRMP_SUPPORT_JVC_PROTOCOL == 1
+#endif // IRMP_SUPPORT_NEC42_PROTOCOL == 1
                             else
                             {
                                 ANALYZE_PRINTF ("error 2: pause %d after data bit %d too long\n", irmp_pause_time, irmp_bit);
@@ -2780,11 +2895,20 @@ irmp_ISR (void)
 #endif // IRMP_SUPPORT_SAMSUNG_PROTOCOL
 
 #if IRMP_SUPPORT_NEC16_PROTOCOL
-                    if (irmp_param.protocol == IRMP_NEC_PROTOCOL && irmp_bit == 8 &&
-                        irmp_pause_time >= NEC_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= NEC_START_BIT_PAUSE_LEN_MAX)
+#if IRMP_SUPPORT_NEC42_PROTOCOL == 1
+                    if (irmp_param.protocol == IRMP_NEC42_PROTOCOL &&
+#else // IRMP_SUPPORT_NEC_PROTOCOL instead
+                    if (irmp_param.protocol == IRMP_NEC_PROTOCOL &&
+#endif // IRMP_SUPPORT_NEC42_PROTOCOL == 1
+                        irmp_bit == 8 && irmp_pause_time >= NEC_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= NEC_START_BIT_PAUSE_LEN_MAX)
                     {
                         ANALYZE_PRINTF ("Switching to NEC16 protocol\n");
-                        memcpy_P (&irmp_param, &nec16_param, sizeof (IRMP_PARAMETER));
+                        irmp_param.protocol = IRMP_NEC16_PROTOCOL;
+                        irmp_param.address_offset   = NEC16_ADDRESS_OFFSET;
+                        irmp_param.address_end      = NEC16_ADDRESS_OFFSET + NEC16_ADDRESS_LEN;
+                        irmp_param.command_offset   = NEC16_COMMAND_OFFSET;
+                        irmp_param.command_end      = NEC16_COMMAND_OFFSET + NEC16_COMMAND_LEN;
+                        irmp_param.complete_len     = NEC16_COMPLETE_DATA_LEN;
                         wait_for_space = 0;
                     }
                     else
@@ -3297,6 +3421,12 @@ print_timings (void)
             NIKON_START_BIT_PULSE_LEN_MIN, NIKON_START_BIT_PULSE_LEN_MAX, NIKON_START_BIT_PAUSE_LEN_MIN, NIKON_START_BIT_PAUSE_LEN_MAX,
             NIKON_PULSE_LEN_MIN, NIKON_PULSE_LEN_MAX, NIKON_0_PAUSE_LEN_MIN, NIKON_0_PAUSE_LEN_MAX,
             NIKON_PULSE_LEN_MIN, NIKON_PULSE_LEN_MAX, NIKON_1_PAUSE_LEN_MIN, NIKON_1_PAUSE_LEN_MAX);
+
+    printf ("LEGO           1  %3d - %3d  %3d - %3d  %3d - %3d  %3d - %3d  %3d - %3d  %3d - %3d\n",
+            LEGO_START_BIT_PULSE_LEN_MIN, LEGO_START_BIT_PULSE_LEN_MAX, LEGO_START_BIT_PAUSE_LEN_MIN, LEGO_START_BIT_PAUSE_LEN_MAX,
+            LEGO_PULSE_LEN_MIN, LEGO_PULSE_LEN_MAX, LEGO_0_PAUSE_LEN_MIN, LEGO_0_PAUSE_LEN_MAX,
+            LEGO_PULSE_LEN_MIN, LEGO_PULSE_LEN_MAX, LEGO_1_PAUSE_LEN_MIN, LEGO_1_PAUSE_LEN_MAX);
+
 }
 
 void
@@ -3483,7 +3613,7 @@ get_fdc_key (uint16_t cmd)
                             case 0x000C: key = '\\';    break;
                             case 0x001C: key = '~';     break;
                             case 0x002D: key = '|';     break;
-                            case 0x0034: key = 'µ';     break;
+                            case 0x0034: key = 0xB5;    break; // Mu
                         }
                     }
                     else if (state & (STATE_LEFT_CTRL))
