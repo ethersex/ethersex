@@ -3,6 +3,7 @@
  *
  * Author:         Stefan Krupop <mail@stefankrupop.de>
  *                 Dirk Pannenbecker <dp@sd-gp.de>
+ *		   Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * taken from:
  *   http://www.dmxcontroler.de/wiki/Art-Net-Node_für_25_Euro
@@ -76,8 +77,8 @@
  * default values
  */
 #define SUBNET_DEFAULT		0
-#define INUNIVERSE_DEFAULT	1
-#define OUTUNIVERSE_DEFAULT	0
+#define INUNIVERSE_DEFAULT	CONF_ARTNET_INUNIVERSE
+#define OUTUNIVERSE_DEFAULT	CONF_ARTNET_OUTUNIVERSE
 //#define PORT_DEFAULT		0x1936
 #define NETCONFIG_DEFAULT	1
 
