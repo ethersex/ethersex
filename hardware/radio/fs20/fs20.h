@@ -60,8 +60,34 @@
 #define FS20_DELAY_ONE  (6 * (F_CPU / 10000) / 4) /* 600uS, for delay_loop_2 */
 #define FS20_DELAY_CMD  ( F_CPU / 100 / 4) /* 10ms, for delay_loop_2 */
 
-/* FS20 read routines use timer 2 with prescaler 128 */
-#define FS20_PRESCALER 128
+/* FS20 read routines use timer 2 */
+/* Determine best prescaler depending on F_CPU */
+/* Longest pulse comes from WS300 and is 1464 us */
+#define FS20_LONGEST_PULSE 1500
+
+#define FS20_MAX_OVERFLOW       255UL
+#if (F_CPU/1000000*FS20_LONGEST_PULSE) < FS20_MAX_OVERFLOW
+#define FS20_PRESCALER       1UL
+#define SET_FS20_PRESCALER  TC2_PRESCALER_1
+#elif (F_CPU/1000000*FS20_LONGEST_PULSE/8) < FS20_MAX_OVERFLOW
+#define FS20_PRESCALER       8UL
+#define SET_FS20_PRESCALER  TC2_PRESCALER_8
+#elif (F_CPU/1000000*FS20_LONGEST_PULSE/64) < FS20_MAX_OVERFLOW
+#define FS20_PRESCALER       64UL
+#define SET_FS20_PRESCALER  TC2_PRESCALER_64
+#elif (F_CPU/1000000*FS20_LONGEST_PULSE/128) < FS20_MAX_OVERFLOW
+#define FS20_PRESCALER       128UL
+#define SET_FS20_PRESCALER  TC2_PRESCALER_128
+#elif (F_CPU/1000000*FS20_LONGEST_PULSE/256) < FS20_MAX_OVERFLOW
+#define FS20_PRESCALER       256UL
+#define SET_FS20_PRESCALER  TC2_PRESCALER_256
+#elif (F_CPU/1000000*FS20_LONGEST_PULSE/1024) < FS20_MAX_OVERFLOW
+#define FS20_PRESCALER       1024UL
+#define SET_FS20_PRESCALER  TC2_PRESCALER_1024
+#else
+#error F_CPU to large
+#endif
+
 #define FS20_US2T(x) (int)(F_CPU/1000000*(x)/FS20_PRESCALER)
 
 #define FS20_BETWEEN(x, a, b) ((x >= FS20_US2T(a)) && (x <= FS20_US2T(b)))
@@ -101,7 +127,7 @@
  * pulse, followed by a short low pulse and a logical "1" is a short high
  * pulse, followed by a long low pulse.
  *
- * wave period is 1220 ms
+ * wave period is 1220 us
  * logic 0 is 7:3 logic 1 is 3:7 wave
  *
  * The datagram is started by sending 8-10 zeroes, followed by a "1".  After

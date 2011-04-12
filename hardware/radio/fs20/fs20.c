@@ -688,10 +688,9 @@ void fs20_init(void)
     ACSR = _BV(ACBG) | _BV(ACI) | _BV(ACIE);
 
     /* configure timer2 for receiving fs20,
-     * prescaler 128
      * overflow interrupt enabled */
     TC2_COUNTER_CURRENT = 0;
-    TC2_PRESCALER_128;
+    SET_FS20_PRESCALER;
     TC2_MODE_OFF;
     TC2_OUTPUT_COMPARE_NONE;
     TC2_INT_OVERFLOW_ON;
