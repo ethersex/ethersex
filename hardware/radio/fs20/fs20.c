@@ -150,7 +150,7 @@ ISR(ANALOG_COMP_vect)
 #endif
 
     /* save counter for later processing and reset timer */
-    uint8_t time = TCNT2;
+    uint8_t measuredTime = TCNT2;
     TCNT2 = 0;
 
     /* if fs20 locked or timeout > 0, continue */
@@ -159,58 +159,82 @@ ISR(ANALOG_COMP_vect)
     				|| ((fs20_global.fs20.datagram.data.edg.cmd & _BV(5)) && (fs20_global.fs20.rec < FS20_DATAGRAM_LENGTH_EXT)) ) )
 	{
         static uint8_t time_old = 0;
+	uint8_t time = measuredTime;
 
         /* check value */
+	int8_t v;
         if (FS20_PULSE_ZERO(time) &&
             FS20_PULSE_ZERO(time_old) &&
             FS20_PULSE_DIFFERENCE(time, time_old)) 
         {
             /* we received a zero */
-            time_old = 0;
-            fs20_global.fs20.err = 0;
-            fs20_global.fs20.rec++;
+	    v=0;
         }
         else if (FS20_PULSE_ONE(time) &&
                  FS20_PULSE_ONE(time_old) &&
                  FS20_PULSE_DIFFERENCE(time, time_old)) 
         {
             /* we received a one */
-            time_old = 0;
-            fs20_global.fs20.err = 0;
-
-            if (fs20_global.fs20.rec <= FS20_DATAGRAM_BITS)
-            {
-            	uint8_t o = FS20_DATAGRAM_BITS - fs20_global.fs20.rec;
-            	uint8_t byte =  o >> 3; // Division durch 8
-                uint8_t bit = o % 8;
-
-                fs20_global.fs20.datagram.data.bytes[byte] |= _BV(bit);
-            }
-
-            fs20_global.fs20.rec++;
+	    v=1;
         }
         else 
         {
-            if (fs20_global.fs20.err > 3) 
-            {
-            	time_old = 0;
-            	fs20_global.fs20.err = 0;
-            	fs20_global.fs20.rec = 0;
-            } 
-            else 
-            {
-                time_old = time;
-                fs20_global.fs20.err++;
-            }
+            /* first half of wave, or error */
+            v = -1;
         }
-    }
+        if (!fs20_global.fs20.sync) {
+            if (v == 0) {
+                fs20_global.fs20.null++;
+                time_old = 0;
+            } else if (v == 1) {
+                if (fs20_global.fs20.null >= 8) {
+                    fs20_global.fs20.sync = 1;
+                    fs20_global.fs20.datagram.data.dg.sync = 1;
+		    fs20_global.fs20.rec = 13;
+                    time_old = 0;
+                } else {
+                    time_old = time;
+                }
 
+                fs20_global.fs20.null = 0;
+            } else {
+                time_old = time;
+            }
+        } else {
+            /* else we are synced */
+            if (v >= 0) {
+                fs20_global.fs20.err = 0;
+                if (v == 1) {
+		    if (fs20_global.fs20.rec <= FS20_DATAGRAM_BITS) {
+	                uint8_t o = FS20_DATAGRAM_BITS - fs20_global.fs20.rec;
+                        uint8_t byte =  o >> 3; // Division durch 8
+		        uint8_t bit = o % 8;
+                	fs20_global.fs20.datagram.data.bytes[byte] |= _BV(bit);
+		    }
+		}
+                fs20_global.fs20.rec++;
+                time_old = 0;
+            } else if (fs20_global.fs20.err > 4) {
+	        fs20_global.fs20.err = 0;
+		fs20_global.fs20.rec = 0;
+		time_old = 0;
+                memset((void *)&fs20_global.fs20.datagram.data, 0, sizeof(fs20_global.fs20.datagram.data));
+                fs20_global.fs20.sync = 0;
+                fs20_global.fs20.null = 0;
+            } else {
+                time_old += time;
+	        fs20_global.fs20.err++;
+            }
+      }
+        }
+	   
 #ifdef FS20_RECEIVE_WS300_SUPPORT
     /* if ws300 is not locked, continue */
     if (fs20_global.ws300.rec < FS20_WS300_DATAGRAM_LENGTH)
     {
         /* save counter for processing */
         static uint8_t time_old = 0;
+	uint8_t time = measuredTime;
 
         int8_t v;
 
@@ -227,7 +251,7 @@ ISR(ANALOG_COMP_vect)
                 fs20_global.ws300.null++;
                 time_old = 0;
             } else if (v == 1) {
-                if (fs20_global.ws300.null >= 8) {
+                if (fs20_global.ws300.null >= 5) {
                     fs20_global.ws300.sync = 1;
                     time_old = 0;
                 } else {
@@ -250,8 +274,18 @@ ISR(ANALOG_COMP_vect)
 
                 time_old = 0;
                 fs20_global.ws300.rec++;
-            } else
-                time_old = time;
+                fs20_global.ws300.err=0;
+            } else if (fs20_global.ws300.err > 4) {
+                fs20_global.ws300.err = 0;
+                fs20_global.ws300.rec = 0;
+                time_old = 0;
+                fs20_global.ws300.sync = 0;
+                fs20_global.ws300.null = 0;
+                memset((void *)&fs20_global.ws300.datagram, 0, sizeof(fs20_global.ws300.datagram));
+            } else {
+                 time_old += time;
+                 fs20_global.ws300.err++;
+            }
         }
     }
 #endif
@@ -271,6 +305,8 @@ ISR(TC2_VECTOR_OVERFLOW)
     {
         memset((void *)&fs20_global.fs20.datagram, 0, sizeof(struct fs20_datagram_t));
         fs20_global.fs20.rec = 0;
+	fs20_global.fs20.sync = 0;
+	fs20_global.fs20.null = 0;
     }
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
@@ -512,6 +548,7 @@ void fs20_process(void)
         /* clear global data structure */
         memset((void *)&fs20_global.ws300.datagram, 0, sizeof(struct ws300_datagram_t));
         fs20_global.ws300.sync = 0;
+		fs20_global.ws300.null = 0;
         fs20_global.ws300.rec = 0;
     }
 #endif
@@ -651,10 +688,9 @@ void fs20_init(void)
     ACSR = _BV(ACBG) | _BV(ACI) | _BV(ACIE);
 
     /* configure timer2 for receiving fs20,
-     * prescaler 128
      * overflow interrupt enabled */
     TC2_COUNTER_CURRENT = 0;
-    TC2_PRESCALER_128;
+    SET_FS20_PRESCALER;
     TC2_MODE_OFF;
     TC2_OUTPUT_COMPARE_NONE;
     TC2_INT_OVERFLOW_ON;
