@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * @file irsnd.c
  *
- * Copyright (c) 2010 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.c,v 1.32 2011/02/22 17:05:57 fm Exp $
+ * $Id: irsnd.c,v 1.35 2011/04/11 13:26:17 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,12 +56,85 @@ typedef unsigned short    uint16_t;
 #endif
 #include "irsnd_lib.h"
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ *  ATmega pin definition of OC2 / OC2A / OC2B
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#ifndef IRSND_USE_AS_LIB
+#if defined (__AVR_ATmega8__)                           // ATmega8 uses OC2 = PB3
+#undef  IRSND_OC2                                       // has no OC2A / OC2B
+#define IRSND_OC2                               0       // magic: use OC2
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               3       // OC2A
+
+#elif defined (__AVR_ATmega16__)    \
+  ||  defined (__AVR_ATmega32__)                        // ATmega16|32 uses OC2 = PD7
+#undef  IRSND_OC2                                       // has no OC2A / OC2B
+#define IRSND_OC2                               0       // magic: use OC2
+#define IRSND_PORT                              PORTD   // port D
+#define IRSND_DDR                               DDRD    // ddr D
+#define IRSND_BIT                               7       // OC2
+
+#elif defined (__AVR_ATmega162__)                       // ATmega162 uses OC2 = PB1
+#undef  IRSND_OC2                                       // has no OC2A / OC2B
+#define IRSND_OC2                               0       // magic: use OC2
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               1       // OC2
+
+#elif defined (__AVR_ATmega164__)   \
+   || defined (__AVR_ATmega324__)   \
+   || defined (__AVR_ATmega644__)   \
+   || defined (__AVR_ATmega644P__)  \
+   || defined (__AVR_ATmega1284__)                      // ATmega164|324|644|644P|1284 uses OC2A = PD7 or OC2B = PD6
+#if IRSND_OC2 == 1                                      // OC2A
+#define IRSND_PORT                              PORTD   // port D
+#define IRSND_DDR                               DDRD    // ddr D
+#define IRSND_BIT                               7       // OC2A
+#elif IRSND_OC2 == 2                                    // OC2B
+#define IRSND_PORT                              PORTD   // port D
+#define IRSND_DDR                               DDRD    // ddr D
+#define IRSND_BIT                               6       // OC2B
+#else
+#error Wrong value for IRSND_OC2, choose 1 or 2 in irsndconfig.h
+#endif // IRSND_OC2
+
+#elif defined (__AVR_ATmega48__)    \
+   || defined (__AVR_ATmega88__)    \
+   || defined (__AVR_ATmega168__)   \
+   || defined (__AVR_ATmega168__)   \
+   || defined (__AVR_ATmega328__)   \
+   || defined (__AVR_ATmega328P__)                      // ATmega48|88|168|328P uses OC2A = PB3 or OC2B = PD3
+#if IRSND_OC2 == 1                                      // OC2A
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               3       // OC2A
+#elif IRSND_OC2 == 2                                    // OC2B
+#define IRSND_PORT                              PORTD   // port D
+#define IRSND_DDR                               DDRD    // ddr D
+#define IRSND_BIT                               3       // OC2B
+#else
+#error Wrong value for IRSND_OC2, choose 1 or 2 in irsndconfig.h
+#endif // IRSND_OC2
+
+#else
+#if !defined (unix) && !defined (WIN32)
+#error OC2A/OC2B not defined, please fill in definitions here.
+#endif // unix, WIN32
+#endif // __AVR...
+#endif
+
 #if IRSND_SUPPORT_NIKON_PROTOCOL == 1
 typedef uint16_t    IRSND_PAUSE_LEN;
 #else
 typedef uint8_t     IRSND_PAUSE_LEN;
 #endif
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ *  IR timings
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
 #define SIRCS_START_BIT_PULSE_LEN               (uint8_t)(F_INTERRUPTS * SIRCS_START_BIT_PULSE_TIME + 0.5)
 #define SIRCS_START_BIT_PAUSE_LEN               (uint8_t)(F_INTERRUPTS * SIRCS_START_BIT_PAUSE_TIME + 0.5)
 #define SIRCS_1_PULSE_LEN                       (uint8_t)(F_INTERRUPTS * SIRCS_1_PULSE_TIME + 0.5)
@@ -200,13 +273,25 @@ typedef uint8_t     IRSND_PAUSE_LEN;
 #define NIKON_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * NIKON_PULSE_TIME + 0.5)
 #define NIKON_1_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * NIKON_1_PAUSE_TIME + 0.5)
 #define NIKON_0_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * NIKON_0_PAUSE_TIME + 0.5)
-#define NIKON_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * NIKON_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
+#define NIKON_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * NIKON_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+
+#define LEGO_START_BIT_PULSE_LEN                (uint8_t)(F_INTERRUPTS * LEGO_START_BIT_PULSE_TIME + 0.5)
+#define LEGO_START_BIT_PAUSE_LEN                (uint8_t)(F_INTERRUPTS * LEGO_START_BIT_PAUSE_TIME + 0.5)
+#define LEGO_REPEAT_START_BIT_PAUSE_LEN         (uint8_t)(F_INTERRUPTS * LEGO_REPEAT_START_BIT_PAUSE_TIME + 0.5)
+#define LEGO_PULSE_LEN                          (uint8_t)(F_INTERRUPTS * LEGO_PULSE_TIME + 0.5)
+#define LEGO_1_PAUSE_LEN                        (uint8_t)(F_INTERRUPTS * LEGO_1_PAUSE_TIME + 0.5)
+#define LEGO_0_PAUSE_LEN                        (uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME + 0.5)
+#define LEGO_FRAME_REPEAT_PAUSE_LEN             (uint16_t)(F_INTERRUPTS * LEGO_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
 static volatile uint8_t                         irsnd_busy;
 static volatile uint8_t                         irsnd_protocol;
 static volatile uint8_t                         irsnd_buffer[6];
 static volatile uint8_t                         irsnd_repeat;
 static volatile uint8_t                         irsnd_is_on = FALSE;
+
+#if IRSND_USE_CALLBACK == 1
+static void                                     (*irsnd_callback_ptr) (uint8_t);
+#endif // IRSND_USE_CALLBACK == 1
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  *  Switch PWM on
@@ -220,12 +305,22 @@ irsnd_on (void)
     if (! irsnd_is_on)
     {
 #ifndef DEBUG
-#if defined (__AVR_ATmega32__)
-        TCCR2 |= (1<<COM20)|(1<<WGM21);                 // = 0x42: toggle OC2A on compare match, clear Timer 2 at compare match OCR2A
-#else
-        TCCR2A |= (1<<COM2A0)|(1<<WGM21);               // = 0x42: toggle OC2A on compare match, clear Timer 2 at compare match OCR2A
-#endif  // __AVR...
+#if   IRSND_OC2 == 0                                    // use OC2
+        TCCR2 |= (1<<COM20)|(1<<WGM21);                 // toggle OC2 on compare match, clear Timer 2 at compare match OCR2
+#elif IRSND_OC2 == 1                                    // use OC2A
+        TCCR2A |= (1<<COM2A0)|(1<<WGM21);               // toggle OC2A on compare match, clear Timer 2 at compare match OCR2A
+#else                                                   // use OC2B
+        TCCR2A |= (1<<COM2B0)|(1<<WGM21);               // toggle OC2B on compare match, clear Timer 2 at compare match OCR2A (yes: A, not B!)
+#endif // IRSND_OC2
 #endif // DEBUG
+
+#if IRSND_USE_CALLBACK == 1
+        if (irsnd_callback_ptr)
+        {
+            (*irsnd_callback_ptr) (TRUE);
+        }
+#endif // IRSND_USE_CALLBACK == 1
+
         irsnd_is_on = TRUE;
     }
 }
@@ -243,13 +338,23 @@ irsnd_off (void)
     if (irsnd_is_on)
     {
 #ifndef DEBUG
-#if defined (__AVR_ATmega32__)
-        TCCR2 &= ~(1<<COM20);                                                           // normal port operation, OC2A disconnected.
-#else
-        TCCR2A &= ~(1<<COM2A0);                                                         // normal port operation, OC2A disconnected.
-#endif  // __AVR...
-        IRSND_PORT  &= ~(1<<IRSND_BIT);                                                 // set IRSND_BIT to low
+#if   IRSND_OC2 == 0                                    // use OC2
+        TCCR2 &= ~(1<<COM20);                           // normal port operation, OC2 disconnected.
+#elif IRSND_OC2 == 1                                    // use OC2A
+        TCCR2A &= ~(1<<COM2A0);                         // normal port operation, OC2A disconnected.
+#else                                                   // use OC2B
+        TCCR2A &= ~(1<<COM2B0);                         // normal port operation, OC2B disconnected.
+#endif // IRSND_OC2
+        IRSND_PORT  &= ~(1<<IRSND_BIT);                 // set IRSND_BIT to low
 #endif // DEBUG
+
+#if IRSND_USE_CALLBACK == 1
+        if (irsnd_callback_ptr)
+        {
+           (*irsnd_callback_ptr) (FALSE);
+        }
+#endif // IRSND_USE_CALLBACK == 1
+
         irsnd_is_on = FALSE;
     }
 }
@@ -265,11 +370,11 @@ static void
 irsnd_set_freq (uint8_t freq)
 {
 #ifndef DEBUG
-#if defined (__AVR_ATmega32__)
-    OCR2 = freq;
+#if IRSND_OC2 == 0
+    OCR2 = freq;                                                                        // use register OCR2 for OC2
 #else
-    OCR2A = freq;
-#endif  // __AVR...
+    OCR2A = freq;                                                                       // use register OCR2A for OC2A and OC2B!
+#endif
 #endif // DEBUG
 }
 #endif
@@ -299,6 +404,14 @@ irsnd_init (void)
 #endif // DEBUG
 }
 #endif
+
+#if IRSND_USE_CALLBACK == 1
+void
+irsnd_set_callback_ptr (void (*cb)(uint8_t))
+{
+    irsnd_callback_ptr = cb;
+}
+#endif // IRSND_USE_CALLBACK == 1
 
 uint8_t
 irsnd_is_busy (void)
@@ -678,6 +791,19 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
         case IRMP_NIKON_PROTOCOL:
         {
             irsnd_buffer[0] = (irmp_data_p->command & 0x0003) << 6;                                             // CC
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_LEGO_PROTOCOL == 1
+        case IRMP_LEGO_PROTOCOL:
+        {
+            uint8_t crc = 0x0F ^ ((irmp_data_p->command & 0x0F00) >> 8) ^ ((irmp_data_p->command & 0x00F0) >> 4) ^ (irmp_data_p->command & 0x000F);
+
+            irsnd_buffer[0] = (irmp_data_p->command & 0x0FF0) >> 4;                                             // CCCCCCCC
+            irsnd_buffer[1] = ((irmp_data_p->command & 0x000F) << 4) | crc;                                     // CCCCcccc
+
+            irsnd_protocol = IRMP_LEGO_PROTOCOL;
             irsnd_busy      = TRUE;
             break;
         }
@@ -1083,9 +1209,9 @@ irsnd_ISR (void)
                         pause_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
                         has_stop_bit                = GRUNDIG_NOKIA_IR60_STOP_BIT;
                         complete_data_len           = NOKIA_COMPLETE_DATA_LEN;
-                        n_auto_repetitions          = NOKIA_FRAMES;                                 // 2 frames
-                        auto_repetition_pause_len   = NOKIA_AUTO_REPETITION_PAUSE_LEN;              // 20 msec pause
-                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;      // 117 msec pause
+                        n_auto_repetitions          = NOKIA_FRAMES;                                             // 2 frames
+                        auto_repetition_pause_len   = NOKIA_AUTO_REPETITION_PAUSE_LEN;                          // 20 msec pause
+                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;                // 117 msec pause
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
@@ -1185,6 +1311,24 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_LEGO_PROTOCOL == 1
+                    case IRMP_LEGO_PROTOCOL:
+                    {
+                        startbit_pulse_len          = LEGO_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = LEGO_START_BIT_PAUSE_LEN - 1;
+                        complete_data_len           = LEGO_COMPLETE_DATA_LEN;
+                        pulse_1_len                 = LEGO_PULSE_LEN;
+                        pause_1_len                 = LEGO_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = LEGO_PULSE_LEN;
+                        pause_0_len                 = LEGO_0_PAUSE_LEN - 1;
+                        has_stop_bit                = LEGO_STOP_BIT;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = LEGO_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
                     default:
                     {
                         irsnd_busy = FALSE;
@@ -1243,12 +1387,15 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_NIKON_PROTOCOL == 1
                 case IRMP_NIKON_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_LEGO_PROTOCOL == 1
+                case IRMP_LEGO_PROTOCOL:
+#endif
 
 
 #if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
     IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
-    IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1
+    IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || IRSND_SUPPORT_LEGO_PROTOCOL == 1 
                 {
                     if (pulse_counter == 0)
                     {

@@ -33,9 +33,9 @@
 #include "irmp.h"
 
 
-#if defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL)
+#if defined(IRMP_SUPPORT_LEGO_PROTOCOL)
 #define IRMP_HZ            20000	/* interrupts per second */
-#elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL)
+#elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL) || defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL) || defined(IRMP_SUPPORT_RUWIDO_PROTOCOL)
 #define IRMP_HZ            15000
 #else
 #define IRMP_HZ            10000
@@ -203,6 +203,8 @@ static const char proto_ir60[] PROGMEM = "IR60";
 static const char proto_kathrein[] PROGMEM = "KATHREIN";
 static const char proto_netbox[] PROGMEM = "NETBOX";
 static const char proto_nec16[] PROGMEM = "NEC16";
+static const char proto_nec42[] PROGMEM = "NEC42";
+static const char proto_lego[] PROGMEM = "LEGO";
 
 
 const PGM_P irmp_proto_names[] PROGMEM = {
@@ -233,7 +235,9 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_ir60,
   proto_kathrein,
   proto_netbox,
-  proto_nec16
+  proto_nec16,
+  proto_nec42,
+  proto_lego
 };
 #endif
 

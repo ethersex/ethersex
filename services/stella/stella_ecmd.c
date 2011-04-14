@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -135,25 +136,32 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	// return all channel values
 	if (ret == 0)
 	{
+		static uint8_t chan = 0;
 		// First return amount of channels with three bytes
+		if(chan == 0)
+		{
 		output[ret++] = ((uint8_t)STELLA_CHANNELS)/10 +48;
 		output[ret++] = ((uint8_t)STELLA_CHANNELS)%10 +48;
 		output[ret++] = '\n';
-	  
+	  	}
 		// return channel values
-		for (ch = 0; ch<STELLA_CHANNELS; ret+=4,++ch)
+		value = stella_getValue(chan);
+		output[ret+2] = value%10 +48;
+		value /= 10;
+		output[ret+1] = value%10 +48;
+		value /= 10;
+		output[ret+0] = value%10 +48;
+		ret+=3;
+		if(chan < STELLA_CHANNELS-1)
 		{
-			value = stella_getValue(ch);
-			output[ret+2] = value%10 +48;
-			value /= 10;
-			output[ret+1] = value%10 +48;
-			value /= 10;
-			output[ret+0] = value%10 +48;
-			output[ret+3] = '\n';
+			chan++;
+			return ECMD_AGAIN(ret);
 		}
-		// remove last newline character
-		if (ret>0) --ret;
-		return ret;
+		else
+		{
+			chan=0;
+			return ECMD_FINAL(ret);
+		}
 	}
 	// return one channel value
 	else if (ret == 1)

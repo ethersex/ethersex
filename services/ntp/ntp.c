@@ -31,6 +31,9 @@
 #include "config.h"
 
 static uip_udp_conn_t *ntp_conn = NULL;
+#ifdef DNS_SUPPORT
+static uint8_t ntp_tries = 0;
+#endif
 
 #ifdef DNS_SUPPORT
 void
@@ -67,8 +70,9 @@ void
 ntp_init()
 {
 #ifdef DNS_SUPPORT
+  ntp_tries = 0; // reset try counter
   uip_ipaddr_t *ipaddr;
-  if (!(ipaddr = resolv_lookup(NTP_SERVER)))
+  if (ntp_conn != NULL || !(ipaddr = resolv_lookup(NTP_SERVER)))
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
   else
     ntp_conf(ipaddr);
@@ -85,11 +89,26 @@ ntp_init()
 void
 ntp_send_packet(void)
 {
+#ifdef DNS_SUPPORT
+  if (++ntp_tries >= 5) {
+ #ifdef DEBUG_NTP
+    debug_printf("NTP ntp_send_packet: re-init after %d unsuccessful tries\n", ntp_tries);
+ #endif
+    ntp_init();
+    return;
+  }
+#endif
+
+  if (ntp_conn == NULL || ntp_conn->ripaddr == NULL) {
+#ifdef DEBUG_NTP
+    debug_printf("NTP ntp_send_packet: skip send, ntp not initialized\n");
+#endif
+    return;
+  } 
+ 
   /* LLH len defined in UIP depending on stacks (i.e. 14 for ethernet frame),
   may be already suitable for tunneling! */
   struct ntp_packet *pkt = (void *) &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
-
-
 
   uip_slen = sizeof(struct ntp_packet);
   memset(pkt, 0, uip_slen);
@@ -130,6 +149,9 @@ ntp_newdata(void)
   ntp_setstratum(pkt->stratum);
 #endif
 
+#ifdef DNS_SUPPORT
+  ntp_tries = 0; // reset try counter
+#endif
 }
 
 /*
