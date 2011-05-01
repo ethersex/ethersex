@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irsnd.h
  *
- * Copyright (c) 2010 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.h,v 1.3 2010/06/10 10:05:56 fm Exp $
+ * $Id: irsnd.h,v 1.4 2011/04/11 12:54:25 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -43,5 +43,9 @@ extern uint8_t                      irsnd_send_data (IRMP_DATA *, uint8_t);
  *  @details  ISR routine, called 10000 times per second
  */
 extern uint8_t                      irsnd_ISR (void);
+
+#if IRSND_USE_CALLBACK == 1
+extern void                         irsnd_set_callback_ptr (void (*cb)(uint8_t));
+#endif // IRSND_USE_CALLBACK == 1
 
 #endif /* _WC_IRSND_H_ */

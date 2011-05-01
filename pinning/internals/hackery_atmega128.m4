@@ -17,7 +17,7 @@
 #define TC0_PRESCALER_1024   {TCCR0&=~(_BV(CS01));TCCR0|=_BV(CS02)|_BV(CS00);}
 
 #define TC0_MODE_OFF	     {TCCR0&=~(_BV(WGM01)|_BV(WGM00));}
-#define TC0_MODE_PWM         {TCCR0&=~(_BV(WGM01);TCCR0|=_BV(WGM00);}
+#define TC0_MODE_PWM         {TCCR0&=~(_BV(WGM01));TCCR0|=_BV(WGM00);}
 #define TC0_MODE_CTC         {TCCR0&=~(_BV(WGM00));TCCR0|=_BV(WGM01);}
 #define TC0_MODE_PWMFAST     {TCCR0|=_BV(WGM01)|_BV(WGM00);}
 
@@ -34,6 +34,9 @@
 #define TC0_INT_OVERFLOW_ON  TIMSK|=_BV(TOIE0);
 #define TC0_INT_OVERFLOW_OFF TIMSK&=~_BV(TOIE0);
 
+#define TC0_INT_OVERFLOW_TST (TIFR&_BV(TOV0))
+#define TC0_INT_OVERFLOW_CLR TIFR=_BV(TOV0);
+#
 #define TC0_VECTOR_OVERFLOW  TIMER0_OVF_vect
 #define TC0_VECTOR_COMPARE   TIMER0_COMP_vect
 
@@ -44,7 +47,7 @@
 #define TC2_PRESCALER_1024   {TCCR2&=~(_BV(CS21));TCCR2|=_BV(CS22)|_BV(CS20);}
 
 #define TC2_MODE_OFF	     {TCCR2&=~(_BV(WGM21)|_BV(WGM20));}
-#define TC2_MODE_PWM         {TCCR2&=~(_BV(WGM21);TCCR2|=_BV(WGM20);}
+#define TC2_MODE_PWM         {TCCR2&=~(_BV(WGM21));TCCR2|=_BV(WGM20);}
 #define TC2_MODE_CTC         {TCCR2&=~(_BV(WGM20));TCCR2|=_BV(WGM21);}
 #define TC2_MODE_PWMFAST     {TCCR2|=_BV(WGM21)|_BV(WGM20);}
 
@@ -61,6 +64,9 @@
 #define TC2_INT_OVERFLOW_ON  TIMSK|=_BV(TOIE2);
 #define TC2_INT_OVERFLOW_OFF TIMSK&=~_BV(TOIE2);
 
+#define TC2_INT_OVERFLOW_TST (TIFR&_BV(TOV2))
+#define TC2_INT_OVERFLOW_CLR TIFR=_BV(TOV2);
+#
 #define TC2_VECTOR_OVERFLOW  TIMER2_OVF_vect
 #define TC2_VECTOR_COMPARE   TIMER2_COMP_vect
 
@@ -127,10 +133,6 @@
 #else
     #define _SPI2X0 SPI2X
 #endif
-
-#define _TIFR_TIMER0 TIFR
-#define _TIFR_TIMER1 TIFR
-#define _TIFR_TIMER2 TIFR
 
 /* USART Register C (generic) */
 #undef    UMSEL

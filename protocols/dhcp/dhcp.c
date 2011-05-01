@@ -83,11 +83,13 @@ struct dhcp_msg {
 #define DHCP_OPTION_SUBNET_MASK   1
 #define DHCP_OPTION_ROUTER        3
 #define DHCP_OPTION_DNS_SERVER    6
+#define DHCP_OPTION_HOSTNAME    12
 #define DHCP_OPTION_REQ_IPADDR   50
 #define DHCP_OPTION_LEASE_TIME   51
 #define DHCP_OPTION_MSG_TYPE     53
 #define DHCP_OPTION_SERVER_ID    54
 #define DHCP_OPTION_REQ_LIST     55
+#define DHCP_OPTION_CLIENT_ID    61
 #define DHCP_OPTION_END         255
 
 static const uint8_t xid[4] = {0xad, 0xde, 0x12, 0x23};
@@ -135,6 +137,29 @@ add_req_options(uint8_t *optptr)
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t *
+add_hostname(uint8_t *optptr)
+{
+  int len = strlen(CONF_HOSTNAME);
+  *optptr++ = DHCP_OPTION_HOSTNAME;
+  *optptr++ = len;
+  memcpy(optptr, CONF_HOSTNAME, len);
+  return optptr + len;
+}
+/*---------------------------------------------------------------------------*/
+static uint8_t *
+add_client_id(uint8_t *optptr)
+{
+  int len = 1+sizeof(struct uip_eth_addr); /* hardware type + MAC-Adress */
+  *optptr++ = DHCP_OPTION_CLIENT_ID;
+  *optptr++ = len;
+  /* hardware type: ether */
+  optptr[0] = 1;
+  /* mac address */
+  memcpy(&optptr[1], uip_ethaddr.addr, sizeof(struct uip_eth_addr));
+  return optptr + len;
+}
+/*---------------------------------------------------------------------------*/
+static uint8_t *
 add_end(uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_END;
@@ -160,7 +185,6 @@ static void create_msg(register struct dhcp_msg *m)
 #ifndef UIP_CONF_DHCP_LIGHT
   memset(m->sname, 0, sizeof(m->sname));
   memset(m->file, 0, sizeof(m->file));
-  strcpy((char *)m->sname, CONF_HOSTNAME);
 #endif
 
   memcpy(m->options, magic_cookie, sizeof(magic_cookie));
@@ -192,6 +216,8 @@ send_request(void)
   end = add_msg_type(&m->options[4], DHCPREQUEST);
   end = add_server_id(end);
   end = add_req_ipaddr(end);
+  end = add_hostname(end);
+  end = add_client_id(end);
   end = add_end(end);
   
   uip_send(uip_appdata, end - (uint8_t *)uip_appdata);
@@ -301,7 +327,7 @@ void dhcp_net_init(void) {
 #endif 
 
   uip_ipaddr_t ip;
-  uip_ipaddr(&ip, 255,255,255,255);
+  uip_ipaddr_copy(&ip, all_ones_addr);
   
   uip_udp_conn_t *dhcp_conn = uip_udp_new(&ip, HTONS(DHCPC_SERVER_PORT), dhcp_net_main);
   

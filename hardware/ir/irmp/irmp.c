@@ -33,9 +33,9 @@
 #include "irmp.h"
 
 
-#if defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL)
+#if defined(IRMP_SUPPORT_LEGO_PROTOCOL)
 #define IRMP_HZ            20000	/* interrupts per second */
-#elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL)
+#elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL) || defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL) || defined(IRMP_SUPPORT_RUWIDO_PROTOCOL)
 #define IRMP_HZ            15000
 #else
 #define IRMP_HZ            10000
@@ -45,38 +45,38 @@
 #ifdef IRMP_USE_TIMER2
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define SET_HW_PRESCALER  TC2_PRESCALER_1
+#define SET_HW_PRESCALER   TC2_PRESCALER_1
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define SET_HW_PRESCALER  TC2_PRESCALER_8
+#define SET_HW_PRESCALER   TC2_PRESCALER_8
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define SET_HW_PRESCALER  TC2_PRESCALER_64
+#define SET_HW_PRESCALER   TC2_PRESCALER_64
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
-#define HW_PRESCALER       TC2_PRESCALER_256
-#define SET_HW_PRESCALER  _BV(_CS22)
+#define HW_PRESCALER       256UL
+#define SET_HW_PRESCALER  _TC2_PRESCALER_256
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
-#define HW_PRESCALER       TC2_PRESCALER_1024
-#define SET_HW_PRESCALER  _BV(_CS22)|_BV(_CS00)
+#define HW_PRESCALER       1024UL
+#define SET_HW_PRESCALER   TC2_PRESCALER_1024
 #else
 #error F_CPU to large
 #endif
 #else
 #if (F_CPU/IRMP_HZ) < MAX_OVERFLOW
 #define HW_PRESCALER       1UL
-#define SET_HW_PRESCALER  TC0_PRESCALER_1
+#define SET_HW_PRESCALER   TC0_PRESCALER_1
 #elif (F_CPU/IRMP_HZ/8) < MAX_OVERFLOW
 #define HW_PRESCALER       8UL
-#define SET_HW_PRESCALER  TC0_PRESCALER_8
+#define SET_HW_PRESCALER   TC0_PRESCALER_8
 #elif (F_CPU/IRMP_HZ/64) < MAX_OVERFLOW
 #define HW_PRESCALER       64UL
-#define SET_HW_PRESCALER  TC0_PRESCALER_64
+#define SET_HW_PRESCALER   TC0_PRESCALER_64
 #elif (F_CPU/IRMP_HZ/256) < MAX_OVERFLOW
 #define HW_PRESCALER       256UL
-#define SET_HW_PRESCALER  TC0_PRESCALER_256
+#define SET_HW_PRESCALER   TC0_PRESCALER_256
 #elif (F_CPU/IRMP_HZ/1024) < MAX_OVERFLOW
 #define HW_PRESCALER       1024UL
-#define SET_HW_PRESCALER  TC0_PRESCALER_1024
+#define SET_HW_PRESCALER   TC0_PRESCALER_1024
 #else
 #error F_CPU to large
 #endif
@@ -198,6 +198,14 @@ static const char proto_rccar[] PROGMEM = "RCCAR";
 static const char proto_jvc[] PROGMEM = "JVC";
 static const char proto_rc6a[] PROGMEM = "RC6A";
 static const char proto_nikon[] PROGMEM = "NIKON";
+static const char proto_ruwido[] PROGMEM = "RUWIDO";
+static const char proto_ir60[] PROGMEM = "IR60";
+static const char proto_kathrein[] PROGMEM = "KATHREIN";
+static const char proto_netbox[] PROGMEM = "NETBOX";
+static const char proto_nec16[] PROGMEM = "NEC16";
+static const char proto_nec42[] PROGMEM = "NEC42";
+static const char proto_lego[] PROGMEM = "LEGO";
+
 
 const PGM_P irmp_proto_names[] PROGMEM = {
   proto_unknown,
@@ -222,7 +230,14 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_rccar,
   proto_jvc,
   proto_rc6a,
-  proto_nikon
+  proto_nikon,
+  proto_ruwido,
+  proto_ir60,
+  proto_kathrein,
+  proto_netbox,
+  proto_nec16,
+  proto_nec42,
+  proto_lego
 };
 #endif
 
