@@ -40,7 +40,7 @@ pin(STATUSLED_RX, PA0, OUTPUT)
 
 ifdef(`conf_FS20', `dnl
 /* fs20 support */
-pin(FS20_SEND, PB2)
+pin(FS20_SEND, PD7)
 ifdef(`conf_FS20_RECEIVE', `dnl
 /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
 pin(FS20_RECV, PB3)

@@ -19,7 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/io.h>
 #include <stdio.h>
+
 #include "config.h"
 #include "core/debug.h"
 #include "protocols/ecmd/parser.h"

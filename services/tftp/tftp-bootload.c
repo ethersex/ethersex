@@ -54,8 +54,10 @@ extern uint8_t bootload_delay;
 #define TFTP_BLOCK_SIZE 512
 #if FLASHEND > UINT16_MAX
 typedef uint32_t flash_base_t;
+#define __pgm_read_byte pgm_read_byte_far
 #else
 typedef uint16_t flash_base_t;
+#define __pgm_read_byte pgm_read_byte_near
 #endif
 
 
@@ -69,13 +71,12 @@ flash_page(uint32_t page, uint8_t *buf)
     return;
 #endif
 
-#if FLASHEND > UINT16_MAX
-    if (memcmp_PF(buf, (uint_farptr_t)page, SPM_PAGESIZE) == 0)
-#else
-    if (memcmp_P(buf, (PGM_VOID_P)(uint16_t)page, SPM_PAGESIZE) == 0)
-#endif
-	return;					/* no changes */
+    for (i = 0; i < SPM_PAGESIZE; i++)
+      if (buf[i] != __pgm_read_byte (page + i))
+	goto commit_changes;
+    return;			/* no changes */
 
+commit_changes:
     /* Disable interrupts. */
     sreg = SREG;
     cli();
@@ -168,11 +169,8 @@ tftp_handle_packet(void)
 	    return;
 	}
 
-#if FLASHEND > UINT16_MAX
-	memcpy_PF(pk->u.data.data, (uint_farptr_t)base, TFTP_BLOCK_SIZE);
-#else
-	memcpy_P(pk->u.data.data, (PGM_VOID_P)base, TFTP_BLOCK_SIZE);
-#endif
+	for (i = 0; i < TFTP_BLOCK_SIZE; i++)
+	  pk->u.data.data[i] = __pgm_read_byte (base + i);
 
 	uip_udp_send(4 + TFTP_BLOCK_SIZE);
 	uip_udp_conn->appstate.tftp.transfered ++;
