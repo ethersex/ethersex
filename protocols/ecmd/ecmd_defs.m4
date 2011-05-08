@@ -35,6 +35,10 @@ ecmd_endif
 ecmd_ifdef(I2C_PCA9531_SUPPORT)
   ecmd_feature(i2c_pca9531, "pca9531",ADDR PERIODPWM1 DUTYPWM1 PERIODPWM2 DUTYPWM2 LED0..3 LED4..7, set PWM1 and PWM2 and LED states)
 ecmd_endif
+ecmd_ifdef(I2C_PCA9685_SUPPORT)
+  ecmd_feature(i2c_pca9685_set_led, "pca9685s",ADDR, LED, ON, OFF )
+  ecmd_feature(i2c_pca9685_set_mode, "pca9685m",ADDR, OUTDRV, IVRT, PRESCALE )
+ecmd_endif
 ecmd_ifdef(I2C_PCF8574X_SUPPORT)
   ecmd_feature(i2c_pcf8574x_read, "pcf8574x read",ADDR CHIP, Get bits)
   ecmd_feature(i2c_pcf8574x_set, "pcf8574x set",ADDR CHIP HEXVALUE, Set bits)
