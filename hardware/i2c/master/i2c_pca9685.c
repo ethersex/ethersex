@@ -122,9 +122,9 @@ uint8_t i2c_pca9685_set_mode(uint8_t address,uint8_t outdrv,uint8_t ivrt,uint8_t
    the output changes from LOW to HI
 
    HI  |   ___________________          |   __________________          |
-   |   |                 |          |   |                |          |
+       |   |                 |          |   |                |          |
    LOW |___|                 |__________|___|                |__________|
-   |LED_ON           | LED OFF      | LED_ON         | LED_OFF
+           |LED_ON           | LED OFF      | LED_ON         | LED_OFF
 
 i2c_pca9685_set_led:
 off/on can be a value from 0-4096 (4096 means ALWAYS_ON/ALWAYS_OFF)
