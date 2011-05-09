@@ -5,6 +5,7 @@
  *    see http://koeln.ccc.de/prozesse/running/fnordlicht
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Multibus support (c) 2011 by Frank Sautter
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -111,33 +112,30 @@
 /* */
 
 /* macros */
-#define OW_CONFIG_INPUT()                        \
-    do {                                         \
-        /* enable pullup */                      \
-        PIN_SET(ONEWIRE);     \
-        /* configure as input */                 \
-        DDR_CONFIG_IN(ONEWIRE);     \
-    } while (0)
+#define OW_CONFIG_INPUT(mask)				\
+  /* enable pullup */					\
+  ONEWIRE_PORT |= mask;				\
+  /* configure as input */				\
+  ONEWIRE_DDR = ONEWIRE_DDR & (uint8_t)~mask;
 
-#define OW_CONFIG_OUTPUT()                       \
-        /* configure as output */                \
-        DDR_CONFIG_OUT(ONEWIRE);     \
+#define OW_CONFIG_OUTPUT(mask)				\
+  /* configure as output */				\
+  ONEWIRE_DDR |= mask;
 
-#define OW_LOW()                                 \
-        /* configure drive low */                \
-        PIN_CLEAR(ONEWIRE);    \
+#define OW_LOW(mask)					\
+  /* drive pin low */					\
+  ONEWIRE_PORT = ONEWIRE_PORT & (uint8_t)~mask;
 
-#define OW_HIGH()                                \
-        /* configure drive high */               \
-        PIN_SET(ONEWIRE);     \
+#define OW_HIGH(mask)					\
+  /* drive pin high */					\
+  ONEWIRE_PORT |= mask;
 
-#define OW_PULLUP()                              \
-        /* pull up resistor */                   \
-        PIN_SET(ONEWIRE);     \
+#define OW_PULLUP(mask)					\
+  /* pull up resistor */				\
+  ONEWIRE_PORT |= mask;
 
-#define OW_GET_INPUT()                           \
-        ( PIN_HIGH(ONEWIRE) > 0)
-
+#define OW_GET_INPUT(mask)				\
+  (ONEWIRE_PIN & mask)
 
 /* symbolic names for the restriction of the list comamnd to certain types.
  * These values are used only to filter the output of the list command */
@@ -181,7 +179,6 @@ struct ow_temp_scratchpad_t {
         };
     };
 };
-
 /* */
 
 /* global variables */
@@ -192,6 +189,9 @@ struct ow_global_t {
     int8_t list_type;
 #endif
     struct ow_rom_code_t current_rom;
+#ifdef ONEWIRE_MULTIBUS
+    uint8_t bus;
+#endif
 };
 
 extern struct ow_global_t ow_global;
@@ -200,13 +200,14 @@ extern struct ow_global_t ow_global;
 void onewire_init(void);
 
 /* low level functions */
-uint8_t reset_onewire(void);
-void ow_write_0(void);
-void ow_write_1(void);
-void ow_write(uint8_t value);
-void ow_write_byte(uint8_t value);
-uint8_t ow_read(void);
-uint8_t ow_read_byte(void);
+uint8_t reset_onewire(uint8_t mask);
+void ow_write_0(uint8_t mask);
+#define ow_write_1(mask) ow_read(mask)
+
+void ow_write(uint8_t mask, uint8_t value);
+void ow_write_byte(uint8_t mask, uint8_t value);
+uint8_t ow_read(uint8_t mask);
+uint8_t ow_read_byte(uint8_t mask);
 
 /* high level functions */
 
@@ -244,9 +245,9 @@ int8_t ow_match_rom(struct ow_rom_code_t *rom);
  *    1: next device id has been placed in ow_global.current_rom
  *   -1: no presence pulse has been detected, no device connected?
  */
-#define ow_search_rom_first() ow_search_rom(1)
-#define ow_search_rom_next() ow_search_rom(0)
-int8_t ow_search_rom(uint8_t first);
+#define ow_search_rom_first(mask) ow_search_rom(mask,1)
+#define ow_search_rom_next(mask) ow_search_rom(mask, 0)
+int8_t ow_search_rom(uint8_t mask, uint8_t first);
 
 
 /*

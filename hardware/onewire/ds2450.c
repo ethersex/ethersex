@@ -2,16 +2,16 @@
  * Support for ADC DS2450
  * real hardware access
  * Copyright (C) 2009 Meinhard Schneider <meini@meini.org>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; ifnot, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -432,6 +432,7 @@ int8_t ow_ds2450_power_set(struct ow_rom_code_t *rom, uint8_t vcc_powered)
 /* do AD conversion */
 int8_t ow_ds2450_convert(struct ow_rom_code_t *rom, uint8_t input_select, uint8_t readout)
 {
+	uint8_t mask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 	int8_t ret;
 	uint16_t seed = 0;
 
@@ -442,16 +443,16 @@ int8_t ow_ds2450_convert(struct ow_rom_code_t *rom, uint8_t input_select, uint8_
 		return ret;
 	}
 
-	ow_write_byte(OW_DS2450_CONVERT);
+	ow_write_byte(mask, OW_DS2450_CONVERT);
 	ow_crc16_seed_bytewise(OW_DS2450_CONVERT, &seed);
-	ow_write_byte(input_select);
+	ow_write_byte(mask, input_select);
 	ow_crc16_seed_bytewise(input_select, &seed);
-	ow_write_byte(readout);
+	ow_write_byte(mask, readout);
 	ow_crc16_seed_bytewise(readout, &seed);
 
 	/* read CRC16 */
-	ow_crc16_seed_bytewise(ow_read_byte(), &seed);
-	ow_crc16_seed_bytewise(ow_read_byte(), &seed);
+	ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
+	ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
 
 	/* check CRC16 */
 	if(ow_crc16_check(&seed) < 0)
@@ -519,6 +520,7 @@ int8_t ow_ds2450_get(struct ow_rom_code_t *rom, uint8_t channel_start, uint8_t c
 */
 int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem)
 {
+	uint8_t mask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 	int8_t ret;
 	uint16_t seed = 0;
 
@@ -540,11 +542,11 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 
 	DS2450_CORE_DEBUG("ow_ds2450_mempage_read: memory page starting addr: %02x, bytes remaining: %i, len: %i.\n", mempage, bytes_remaining, len);
 
-	ow_write_byte(OW_DS2450_READ_MEMORY);
+	ow_write_byte(mask, OW_DS2450_READ_MEMORY);
 	ow_crc16_seed_bytewise(OW_DS2450_READ_MEMORY, &seed);
-	ow_write_byte(mempage);
+	ow_write_byte(mask, mempage);
 	ow_crc16_seed_bytewise(mempage, &seed);
-	ow_write_byte(OW_DS2450_SECOND_MEM_ADDR);
+	ow_write_byte(mask, OW_DS2450_SECOND_MEM_ADDR);
 	ow_crc16_seed_bytewise(OW_DS2450_SECOND_MEM_ADDR, &seed);
 
 	/* read data from memory page */
@@ -554,7 +556,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 		if(i < len)
 		{
 			/* still reading data that should be collected */
-			mem[i] = ow_read_byte();
+			mem[i] = ow_read_byte(mask);
 
 			DS2450_CORE_DEBUG("ow_ds2450_mempage_read: addr: %02x, val: %02x.\n", mempage + i , mem[i]);
 
@@ -568,10 +570,10 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 			/* all requested data was read, but we still need to read more data to calculate CRC16 correctly... */
 			/* just feeding value to CRC16 calculation */
 #ifdef DEBUG_OW_DS2450_CORE
-			uint8_t b = ow_read_byte();
+			uint8_t b = ow_read_byte(mask);
 			ow_crc16_seed_bytewise(b, &seed);
 #else
-			ow_crc16_seed_bytewise(ow_read_byte(), &seed);
+			ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
 #endif
 
 			DS2450_CORE_DEBUG("ow_ds2450_mempage_read: addr: %02x, val: %02x (dropped).\n", mempage + i , b);
@@ -579,8 +581,8 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 	}
 
 	/* CRC16 */
-	ow_crc16_seed_bytewise(ow_read_byte(), &seed);
-	ow_crc16_seed_bytewise(ow_read_byte(), &seed);
+	ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
+	ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
 
 	/* check CRC16 */
 	if(ow_crc16_check(&seed) < 0)
@@ -601,6 +603,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
 */
 int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem)
 {
+	uint8_t mask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 	int8_t ret;
 	uint16_t seed = 0;
 
@@ -622,11 +625,11 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 
 	DS2450_CORE_DEBUG("ow_ds2450_mempage_write: memory page starting addr: %02x, bytes remaining: %i, len: %i.\n", mempage, bytes_remaining, len);
 
-	ow_write_byte(OW_DS2450_WRITE_MEMORY);
+	ow_write_byte(mask, OW_DS2450_WRITE_MEMORY);
 	ow_crc16_seed_bytewise(OW_DS2450_WRITE_MEMORY, &seed);
-	ow_write_byte(mempage);
+	ow_write_byte(mask, mempage);
 	ow_crc16_seed_bytewise(mempage, &seed);
-	ow_write_byte(OW_DS2450_SECOND_MEM_ADDR);
+	ow_write_byte(mask, OW_DS2450_SECOND_MEM_ADDR);
 	ow_crc16_seed_bytewise(OW_DS2450_SECOND_MEM_ADDR, &seed);
 
 	/* write data to memory page */
@@ -635,7 +638,7 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 	{
 		DS2450_CORE_DEBUG("ow_ds2450_mempage_write: addr: %02x, val: %02x.\n", mempage + i , mem[i]);
 
-		ow_write_byte(mem[i]);
+		ow_write_byte(mask, mem[i]);
 
 		/* reset seed and feed memory page address to CRC16 calculation only if first run is passed */
 		if(i != 0)
@@ -649,8 +652,8 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 		ow_crc16_seed_bytewise(mem[i], &seed);
 
 		/* CRC16 */
-		ow_crc16_seed_bytewise(ow_read_byte(), &seed);
-		ow_crc16_seed_bytewise(ow_read_byte(), &seed);
+		ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
+		ow_crc16_seed_bytewise(ow_read_byte(mask), &seed);
 
 		/* check CRC16 */
 		if(ow_crc16_check(&seed) < 0)
@@ -661,10 +664,10 @@ int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_
 
 		/* read-back for simple verification */
 #ifdef DEBUG_OW_DS2450_CORE
-		uint8_t b = ow_read_byte();
+		uint8_t b = ow_read_byte(mask);
 		if(b != mem[i])
 #else
-		if(ow_read_byte() != mem[i])
+		if(ow_read_byte(mask) != mem[i])
 #endif
 		{
 			DS2450_CORE_DEBUG("ow_ds2450_mempage_write: read-back verification failed: wrote: %02x, read-back: %02x!\n", mem[i], b);
