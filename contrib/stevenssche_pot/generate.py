@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
 # Released under the GPL v3
-# Generate a array of the Stevens' power law to be copy pasted directly in to c/cpp source code
+# Generate a lookup table of the Stevens' power law to be copy pasted directly in to c/cpp source code
 #
 import math
 import sys
