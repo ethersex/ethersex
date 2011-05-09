@@ -1,0 +1,15 @@
+dep_bool_menu "Starburst: Multichannel pwm" STARBURST_SUPPORT $ARCH_AVR
+
+	bool "NXP PCA9685" STARBURST_PCA9685 $STARBURST_SUPPORT I2C_PCA9685_SUPPORT
+		 
+	if [ "$STARBURST_PCA9685" = "y" ]; then
+		hex "Address" STARBURST_PCA9685_ADDRESS 0x5f
+		hex "Prescaler" STARBURST_PCA9685_PRESCALER 0x1e
+		bool "External Driver" STARBURST_PCA9685_EXTDRV y
+		bool "Inverted PWM"  STARBURST_PCA9685_IVRT n
+		comment "----- DMX related -----"
+		int "Active Channels" STARBURST_PCA9685_CHANNELS 16
+		int "Universe" STARBURST_PCA9685_UNIVERSE 0
+		int "Offset in Universe" STARBURST_PCA9685_OFFSET 0
+	fi
+endmenu
