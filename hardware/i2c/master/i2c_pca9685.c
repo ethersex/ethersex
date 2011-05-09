@@ -167,5 +167,47 @@ uint8_t i2c_pca9685_set_led(uint8_t address,uint8_t led,uint16_t on, uint16_t of
 	i2c_master_stop();
 	return ret1; //0 if everything went fine, 1 if one transmit failed
 }
-
+/* This function sets n (count) channels in sequence. A typical example is a RGB setup and you
+   want to set one LED (R-G-B) at once. This will reduce the total transmissions compared to the
+   one at a time approach by about 30% (21 transmissions / 15 transmissions) 
+   
+   the array values has the format
+   
+   values[n]=LED_ON;
+   values[n+1]=LED_OFF
+*/
+uint8_t i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,uint16_t *values)
+{
+	uint8_t value=0,ret=1;
+        if(i2c_master_select(address, TW_WRITE))
+	{
+		value=LED0_ON_L+4*startled-1; //Address of LED REGISTER low byte of the word
+		TWDR=value;
+		if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
+		{
+			for(uint8_t i=0;i<count;i++) //Now transmit all values in values in sequence
+			{	
+				value = LOW_BYTE(values[i]); //get lower byte
+				TWDR=value;
+				if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
+				{
+					value = LOW_BYTE(values[i]); // get high byte
+					TWDR=value;
+					if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
+					{
+						ret=0;
+						continue;
+					}
+					else
+					{
+						ret=1;
+						break;
+					}
+				}
+			}
+		}	
+	}	
+	i2c_master_stop();
+	return ret;
+}
 #endif

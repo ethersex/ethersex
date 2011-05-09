@@ -38,5 +38,6 @@
 uint8_t i2c_pca9685_reset();
 uint8_t i2c_pca9685_set_mode(uint8_t address,uint8_t outdrv,uint8_t ivrt,uint8_t prescaler);
 uint8_t i2c_pca9685_set_led(uint8_t address,uint8_t led,uint16_t on, uint16_t off);
+uint8_t i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,uint16_t *values);
 
 #endif
