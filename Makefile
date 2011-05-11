@@ -85,6 +85,7 @@ SUBDIRS += protocols/cw
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
+SUBDIRS += services/dmx-storage
 SUBDIRS += services/echo
 SUBDIRS += services/pam
 SUBDIRS += services/httpd
