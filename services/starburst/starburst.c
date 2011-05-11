@@ -23,9 +23,12 @@
 /* Module description: starburst is a forwarder of ethersex dmx information to various i2c PWM chips*/
 #include <avr/pgmspace.h>
 #include "starburst.h"
-#include "../../hardware/i2c/master/i2c_pca9685.h"
+#include "core/debug.h"
+#include "hardware/i2c/master/i2c_pca9685.h"
+#include "services/dmx-storage/dmx_storage.h"
 
-prog_uint16_t stevens_power[256] PROGMEM = { 
+#ifdef STARBURST_PCA9685
+prog_uint16_t stevens_power_12bit[256] PROGMEM = {
 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3,
 4, 5, 6, 7, 8, 9, 11, 12, 14, 15,
 17, 19, 21, 23, 25, 27, 29, 32, 34, 37,
@@ -52,7 +55,7 @@ prog_uint16_t stevens_power[256] PROGMEM = {
 3295, 3327, 3359, 3390, 3422, 3454, 3487, 3519, 3552, 3585,
 3618, 3651, 3684, 3717, 3751, 3785, 3819, 3853, 3887, 3921,
 3956, 3991, 4026, 4061, 4096 };
-
+#endif
 void starburst_init()
 {
 	/*Init all i2c chips*/
@@ -62,6 +65,58 @@ void starburst_init()
 }
 void starburst_process()
 {
+
+#ifdef STARBURST_PCA9685
+	if(get_dmx_universe_state(STARBURST_PCA9685_UNIVERSE) == DMX_NEWVALUES)
+	{
+		/*Prepare Array*/
+		uint16_t pca9685_values[2*STARBURST_PCA9685_CHANNELS];
+		uint16_t tmp=0;
+		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS*2;i+=2)
+		{
+			tmp=pgm_read_word_near(stevens_power_12bit + get_dmx_channel(i/2+STARBURST_PCA9685_OFFSET,STARBURST_PCA9685_UNIVERSE));
+			if(tmp == 4096) /*Special case: LED is always on, that means we need to set ON to 4096*/
+			{
+				pca9685_values[i]=4096;
+				pca9685_values[i+1]=0;
+			}
+			else if(tmp == 0) /*Special case: LED is always off, that means we need to set OFF to 4096*/
+			{
+				pca9685_values[i]=0;
+				pca9685_values[i+1]=4096;
+			}
+			else /*Default case: LED needs PWM*/
+			{
+				pca9685_values[i]=0;
+				pca9685_values[i+1]=tmp;
+			}
+		}
+		i2c_pca9685_set_leds(STARBURST_PCA9685_ADDRESS,0,STARBURST_PCA9685_CHANNELS*2,pca9685_values);
+	}
+#endif
+#ifdef STARBURST_PCA9685_TEST
+	set_dmx_channel(0,0,4);
+	static uint8_t counter[3]={1,1,1};
+	static uint8_t finished=1;
+	if(finished == 1)
+	{
+	counter[0]++;
+	counter[1]++;
+	counter[2]++;
+	if(counter[0] > 254)
+		counter[0] = 1;
+	if(counter[1] > 254)
+		counter[1] = 1;
+	if(counter[2] > 254)
+		counter[2] = 1;
+	for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS;i+=3)
+	{
+		i2c_pca9685_set_led(STARBURST_PCA9685_ADDRESS,i,0,stevens_power[counter[0]]);
+		i2c_pca9685_set_led(STARBURST_PCA9685_ADDRESS,i+1,0,stevens_power[counter[1]]);
+		i2c_pca9685_set_led(STARBURST_PCA9685_ADDRESS,i+2,0,stevens_power[counter[2]]);
+	}
+	}
+#endif
 }
 /*
   -- Ethersex META --

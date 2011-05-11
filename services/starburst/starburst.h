@@ -32,6 +32,14 @@
 #else
 	#define STARBURST_PCA9685_IVRT 0
 #endif
+/*Defines for starburst_channel element "update"*/
+#define STARBURST_UPDATE 1
+#define STARBURST_NOUPDATE 0
+
+struct starburst_channel {
+	uint8_t value;
+	uint8_t update;
+};
 void starburst_init();
 void starburst_process();
 #endif

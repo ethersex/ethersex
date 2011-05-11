@@ -1,8 +1,7 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(STARBURST_SUPPORT)_SRC += \
-	services/starburst/starburst.c
+$(STARBURST_SUPPORT)_SRC += services/starburst/starburst.c
 
 #########################################
 # generic fluff
