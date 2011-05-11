@@ -42,6 +42,9 @@
 #include "services/stella/stella.h"
 #endif
 
+#ifdef DMX_STORAGE_SUPPORT
+#include "services/dmx-storage/dmx_storage.h"
+#endif
 #ifdef ARTNET_SUPPORT
 
 
@@ -237,7 +240,7 @@ char           artnet_longName[64];
 unsigned short artnet_port = CONF_ARTNET_PORT;
 unsigned char  artnet_netConfig = NETCONFIG_DEFAULT;
 
-volatile unsigned char  artnet_dmxUniverse[MAX_CHANNELS];
+//volatile unsigned char  artnet_dmxUniverse[MAX_CHANNELS];
 volatile unsigned short artnet_dmxChannels = 0;
 volatile unsigned char  artnet_dmxTransmitting = FALSE;
 volatile unsigned char  artnet_dmxInChanged = FALSE;
@@ -531,7 +534,7 @@ parse_cmd_artnet_pollreply (char *cmd, char *output, uint16_t len)
 //  msg->lengthHi = (artnet_dmxChannels >> 8) & 0xFF;
 //  msg->length = artnet_dmxChannels & 0xFF;
 // 
-//  memcpy(&(msg->dataStart), (unsigned char *)&artnet_dmxUniverse[0], artnet_dmxChannels);
+//  memcpy(&(msg->dataStart), (unsigned char *)&artnet_dmxUniverse[0], artnet_mxChannels);
 // 
 //     /* broadcast the packet */
 //     uip_udp_send(sizeof(struct msg));
@@ -738,6 +741,9 @@ void artnet_get(void) {
 		#ifdef STELLA_SUPPORT
 			stella_dmx(&dmx->dataStart, len);
 		#endif
+    		#ifdef DMX_STORAGE_SUPPORT
+			set_dmx_channels(&dmx->dataStart,CONF_ARTNET_OUTUNIVERSE,len);
+    		#endif
 		if (artnet_sendPollReplyOnChange == TRUE) {
       artnet_pollReplyCounter++;
       artnet_sendPollReply();
