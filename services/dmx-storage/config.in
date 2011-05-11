@@ -1,0 +1,8 @@
+dep_bool_menu "DMX Storage" DMX_STORAGE_SUPPORT $ARCH_AVR
+	int "Universes" DMX_STORAGE_UNIVERSES 2
+	int "Channels per Universe" DMX_STORAGE_CHANNELS 64
+	comment "---- Mapping ----"
+	
+	comment "---- Debug ----"
+	bool "Debug" DMX_STORAGE_DEBUG
+endmenu
