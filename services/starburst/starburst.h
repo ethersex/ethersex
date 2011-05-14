@@ -32,14 +32,18 @@
 #else
 	#define STARBURST_PCA9685_IVRT 0
 #endif
-/*Defines for starburst_channel element "update"*/
-#define STARBURST_UPDATE 1
-#define STARBURST_NOUPDATE 0
-
+enum starburst_update {STARBURST_UPDATE,STARBURST_NOUPDATE};
+enum starburst_mode {STARBURST_MODE_NORMAL,STARBURST_MODE_FADE};
 struct starburst_channel {
+	//Current value
 	uint8_t value;
-	uint8_t update;
+	//Target value
+	uint8_t target;
+	enum starburst_mode mode;
+	enum starburst_update update;
 };
 void starburst_init();
-void starburst_process();
+void starburst_update();
+enum starburst_update starburst_process();
+void starburst_main();
 #endif
