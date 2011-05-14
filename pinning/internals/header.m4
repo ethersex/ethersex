@@ -74,12 +74,7 @@ ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', `dnl
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
 #define ONEWIRE_PIN format(PIN%s, pinname)
-<<<<<<< HEAD
 #define ONEWIRE_BUSMASK eval(1 << pinnum)
-=======
-#define ONEWIRE_MASK eval(1 << pinnum)
->>>>>>> effbd14f98712d15c5d13cea72e21f923aa3fa60
-
 ')dnl
 
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
@@ -213,11 +208,7 @@ define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << itr)))
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
 #define ONEWIRE_PIN format(PIN%s, pinname)
-<<<<<<< HEAD
 #define ONEWIRE_BUSMASK eval(((1 << eval(stop-start+1)) - 1) << start)
-=======
-#define ONEWIRE_MASK eval(((1 << eval(stop-start+1)) - 1) << start)
->>>>>>> effbd14f98712d15c5d13cea72e21f923aa3fa60
 #define ONEWIRE_MULTIBUS 1
 
 ')

@@ -112,7 +112,6 @@
 /* */
 
 /* macros */
-<<<<<<< HEAD
 #define OW_CONFIG_INPUT(busmask)			\
   /* enable pullup */					\
   ONEWIRE_PORT |= busmask;				\
@@ -137,32 +136,6 @@
 
 #define OW_GET_INPUT(busmask)				\
   (ONEWIRE_PIN & busmask)
-=======
-#define OW_CONFIG_INPUT(mask)				\
-  /* enable pullup */					\
-  ONEWIRE_PORT |= mask;				\
-  /* configure as input */				\
-  ONEWIRE_DDR = ONEWIRE_DDR & (uint8_t)~mask;
-
-#define OW_CONFIG_OUTPUT(mask)				\
-  /* configure as output */				\
-  ONEWIRE_DDR |= mask;
-
-#define OW_LOW(mask)					\
-  /* drive pin low */					\
-  ONEWIRE_PORT = ONEWIRE_PORT & (uint8_t)~mask;
-
-#define OW_HIGH(mask)					\
-  /* drive pin high */					\
-  ONEWIRE_PORT |= mask;
-
-#define OW_PULLUP(mask)					\
-  /* pull up resistor */				\
-  ONEWIRE_PORT |= mask;
-
-#define OW_GET_INPUT(mask)				\
-  (ONEWIRE_PIN & mask)
->>>>>>> effbd14f98712d15c5d13cea72e21f923aa3fa60
 
 /* symbolic names for the restriction of the list comamnd to certain types.
  * These values are used only to filter the output of the list command */
@@ -227,7 +200,6 @@ extern struct ow_global_t ow_global;
 void onewire_init(void);
 
 /* low level functions */
-<<<<<<< HEAD
 uint8_t reset_onewire(uint8_t busmask);
 void ow_write_0(uint8_t busmask);
 #define ow_write_1(busmask) ow_read(busmask)
@@ -236,16 +208,6 @@ void ow_write(uint8_t busmask, uint8_t value);
 void ow_write_byte(uint8_t busmask, uint8_t value);
 uint8_t ow_read(uint8_t busmask);
 uint8_t ow_read_byte(uint8_t busmask);
-=======
-uint8_t reset_onewire(uint8_t mask);
-void ow_write_0(uint8_t mask);
-#define ow_write_1(mask) ow_read(mask)
-
-void ow_write(uint8_t mask, uint8_t value);
-void ow_write_byte(uint8_t mask, uint8_t value);
-uint8_t ow_read(uint8_t mask);
-uint8_t ow_read_byte(uint8_t mask);
->>>>>>> effbd14f98712d15c5d13cea72e21f923aa3fa60
 
 /* high level functions */
 
@@ -283,15 +245,9 @@ int8_t ow_match_rom(struct ow_rom_code_t *rom);
  *    1: next device id has been placed in ow_global.current_rom
  *   -1: no presence pulse has been detected, no device connected?
  */
-<<<<<<< HEAD
 #define ow_search_rom_first(busmask) ow_search_rom(busmask,1)
 #define ow_search_rom_next(busmask) ow_search_rom(busmask, 0)
 int8_t ow_search_rom(uint8_t busmask, uint8_t first);
-=======
-#define ow_search_rom_first(mask) ow_search_rom(mask,1)
-#define ow_search_rom_next(mask) ow_search_rom(mask, 0)
-int8_t ow_search_rom(uint8_t mask, uint8_t first);
->>>>>>> effbd14f98712d15c5d13cea72e21f923aa3fa60
 
 
 /*
