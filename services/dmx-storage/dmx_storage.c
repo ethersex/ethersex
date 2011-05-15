@@ -30,7 +30,7 @@ volatile uint8_t dmx_universes[DMX_STORAGE_UNIVERSES][DMX_STORAGE_CHANNELS]={{0}
 
 volatile uint8_t dmx_universes_state[DMX_STORAGE_UNIVERSES]={DMX_UNCHANGED};
 
-uint8_t get_dmx_channel(uint16_t channel, uint8_t universe)
+uint8_t get_dmx_channel(uint8_t universe,uint16_t channel)
 {
 	/*TODO: This is a hack since this will only work with one module accessing this universe*/
 	dmx_universes_state[universe]=DMX_UNCHANGED;
@@ -39,7 +39,7 @@ uint8_t get_dmx_channel(uint16_t channel, uint8_t universe)
 	else
 		return 0;
 }
-void set_dmx_channel(uint16_t channel, uint8_t universe,uint8_t value)
+void set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value)
 {
 	
 	if(channel < DMX_STORAGE_CHANNELS && universe < DMX_STORAGE_UNIVERSES)

@@ -22,8 +22,8 @@
 #define DMX_NEWVALUES 1
 #define DMX_UNCHANGED 0
 
-uint8_t get_dmx_channel(uint16_t channel, uint8_t universe);
-void set_dmx_channel(uint16_t channel, uint8_t universe,uint8_t value);
+uint8_t get_dmx_channel(uint8_t universe,uint16_t channel);
+void set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value);
 void set_dmx_channels(uint8_t *start, uint8_t universe,uint16_t len);
 uint8_t get_dmx_universe_state(uint8_t universe);
 

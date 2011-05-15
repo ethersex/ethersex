@@ -122,9 +122,9 @@ void starburst_update()
 		uint8_t tmp=0;
 		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS*2;i+=2)
 		{
-			tmp=get_dmx_channel(i+STARBURST_PCA9685_OFFSET,STARBURST_PCA9685_UNIVERSE);
+			tmp=get_dmx_channel(STARBURST_PCA9685_UNIVERSE,i+STARBURST_PCA9685_OFFSET);
 			pca9685_channels[i/2].mode=tmp;
-			tmp=get_dmx_channel(i+1+STARBURST_PCA9685_OFFSET,STARBURST_PCA9685_UNIVERSE);
+			tmp=get_dmx_channel(STARBURST_PCA9685_UNIVERSE,i+1+STARBURST_PCA9685_OFFSET);
 			if(pca9685_channels[i/2].target != tmp)
 			{
 				/*Update the new target*/
