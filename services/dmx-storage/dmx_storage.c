@@ -39,14 +39,19 @@ uint8_t get_dmx_channel(uint8_t universe,uint16_t channel)
 	else
 		return 0;
 }
-void set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value)
+uint8_t set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value)
 {
-	
+	#ifdef DMX_STORAGE_DEBUG
+		debug_printf("DMX STOR: set dmx_channels: Universe: %d channel: %d value: %d \n", universe, channel, value);
+	#endif
 	if(channel < DMX_STORAGE_CHANNELS && universe < DMX_STORAGE_UNIVERSES)
 	{
 		dmx_universes[universe][channel]=value;
 		dmx_universes_state[universe]=DMX_NEWVALUES;
+		return 0;
 	}
+	else
+		return 1;
 }
 void set_dmx_channels(uint8_t *start, uint8_t universe,uint16_t len)
 {
