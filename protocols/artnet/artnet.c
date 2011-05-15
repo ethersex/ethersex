@@ -733,11 +733,6 @@ void artnet_get(void) {
    if (artnet_dmxDirection == 0) {
     uint16_t len = (dmx->lengthHi << 8) + dmx->length;
     ARTNET_DEBUG ("Updating %d channels ...\n", len);
-		#ifdef DMX_SUPPORT
-			if (len > CONF_DMX_MAX_CHAN) len = CONF_DMX_MAX_CHAN;
-			memcpy (dmx_data, &dmx->dataStart, len);
-			dmx_prg = 0;
-		#endif  /* DMX_SUPPORT */
 		#ifdef STELLA_SUPPORT
 			stella_dmx(&dmx->dataStart, len);
 		#endif
