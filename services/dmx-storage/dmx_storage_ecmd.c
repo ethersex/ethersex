@@ -30,8 +30,7 @@
 #ifdef DMX_STORAGE_SUPPORT
 int16_t parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 {
-	uint16_t ret=0, channel=0;
-	uint8_t universe=0;
+	uint16_t ret=0, channel=0, universe=0;
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u"), &universe, &channel);
 	if(ret == 2)
 	{
@@ -47,9 +46,7 @@ int16_t parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 }
 int16_t parse_cmd_dmx_set_channel(char *cmd, char *output, uint16_t len)
 {
-	/*value must be uint16_t since sscanf will not accecpt an uint8_t after an uint16_t*/
-	uint16_t channel=0, ret=0,value=0;
-	uint8_t universe=0;
+	uint16_t channel=0, ret=0,value=0, universe=0;
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u %u"), &universe,&channel,&value);
 	if (ret == 3)
 	{
@@ -77,8 +74,8 @@ int16_t parse_cmd_dmx_universes(char *cmd, char *output, uint16_t len)
 }
 int16_t parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
 {
-	uint16_t ret=0;
-	uint8_t universe=0, value=0;
+	uint16_t ret=0, universe=0;
+	uint8_t value=0;
 	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u"), &universe);
 	if(ret == 1 && universe < DMX_STORAGE_UNIVERSES)
 	{
