@@ -416,6 +416,7 @@ source services/clock/config.in
 source services/cron/config.in
 source services/dyndns/config.in
 source services/dmx-storage/config.in
+source services/dmx-effect/config.in
 source services/echo/config.in
 source services/wol/config.in
 source services/motd/config.in
