@@ -170,6 +170,7 @@ void starburst_main()
 }
 /*
    -- Ethersex META --
+   header(services/starburst/starburst.h)
    mainloop(starburst_main)
    init(starburst_init)
  */
