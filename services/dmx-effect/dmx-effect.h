@@ -23,9 +23,10 @@
 #ifdef DMX_EFFECT_SUPPORT
 
 #define DMX_EFFECT_DISABLED 0
-#define DMX_EFFECT_ENABLED 0
+#define DMX_EFFECT_ENABLED 1
 
 #ifdef DMX_EFFECT_RAINBOW
+extern volatile uint8_t rainbow_enabled;
 void dmx_effect_rainbow_colors(void);
 #endif
 

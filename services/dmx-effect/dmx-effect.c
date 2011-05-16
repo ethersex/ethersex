@@ -34,7 +34,7 @@
 /* This function has been copied from the ethersex dmx module
    Author: Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  */
-volatile uint8_t rainbow_enabled = DMX_EFFECT_ENABLED;
+volatile uint8_t rainbow_enabled = DMX_EFFECT_DISABLED;
 uint8_t color_r, color_g, color_b = 0;
 #define RAINBOW_DELAY 42
 void dmx_effect_rainbow_colors(void)
