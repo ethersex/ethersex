@@ -32,9 +32,9 @@
 #include "rfm12_ask.h"
 
 
-uint8_t ask_2272_1527_pulse_duty_factor[4]={13,5,7,11};
-
 #ifdef RFM12_ASK_SENDER_SUPPORT
+
+static uint8_t ask_2272_1527_pulse_duty_factor[4]={13,5,7,11};
 
 void
 rfm12_ask_2272_1527_switch(uint8_t ask_type)
@@ -54,8 +54,9 @@ rfm12_ask_2272_1527_switch(uint8_t ask_type)
   }
 }
 
+#ifdef RFM12_ASK_TEVION_SUPPORT
 
-void
+static void
 rfm12_ask_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
 {
   for (uint8_t i=0;i<cnt;i++)
@@ -64,22 +65,6 @@ rfm12_ask_encode_byte(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
   }
 }
 
-void
-rfm12_ask_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
-{
-  for (uint8_t i=0;i<cnt;i++)
-  {
-    if (byte & (1<<(cnt-i-1))) {
-      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[0];
-      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[1];
-    } else {
-      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[2];
-      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[3];
-    }
-  }
-}
-
-#ifdef RFM12_ASK_TEVION_SUPPORT
 void
 rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay, uint8_t cnt)
 {
@@ -190,6 +175,21 @@ rfm12_ask_intertechno_send(uint8_t family, uint8_t group,
 #endif /* RFM12_ASK_INTERTECHNO_SUPPORT */
 
 #if defined RFM12_ASK_2272_SUPPORT || defined RFM12_ASK_1527_SUPPORT
+static void
+rfm12_ask_encode_tribit(uint8_t *code, uint8_t append, uint8_t byte, uint8_t cnt)
+{
+  for (uint8_t i=0;i<cnt;i++)
+  {
+    if (byte & (1<<(cnt-i-1))) {
+      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[0];
+      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[1];
+    } else {
+      code[append+(i*2)]=ask_2272_1527_pulse_duty_factor[2];
+      code[append+(i*2)+1]=ask_2272_1527_pulse_duty_factor[3];
+    }
+  }
+}
+
 void
 rfm12_ask_2272_send(uint8_t *command, uint8_t delay, uint8_t cnt)
 {
@@ -223,19 +223,19 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
   if (level)
   {
     rfm12_trans(0x8200|(1<<5)|(1<<4)|(1<<3)); // 2. PwrMngt TX on
-		#ifdef HAVE_RFM12_TX_PIN
-		PIN_SET(RFM12_TX_PIN);
-		#endif
-		ACTIVITY_LED_RFM12_TX;
+    #ifdef HAVE_RFM12_TX_PIN
+    PIN_SET(RFM12_TX_PIN);
+    #endif
+    ACTIVITY_LED_RFM12_TX;
     for(;us>0;us--)
       _delay_us(1);
   }
   else
   {
     rfm12_trans(0x8208);                      // 2. PwrMngt TX off
-		#ifdef HAVE_RFM12_TX_PIN
-		PIN_CLEAR(RFM12_TX_PIN);
-		#endif
+    #ifdef HAVE_RFM12_TX_PIN
+    PIN_CLEAR(RFM12_TX_PIN);
+    #endif
     for(;us>0;us--)
       _delay_us(1);
   }
