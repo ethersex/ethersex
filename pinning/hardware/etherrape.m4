@@ -5,8 +5,8 @@ pin(SPI_CS_NET, SPI_CS_HARDWARE)
 pin(SPI_CS_DF, PB1, OUTPUT)
 
 ifdef(`conf_ONEWIRE', `dnl
-  /* onewire support */
-  pin(ONEWIRE, PD6)
+  /* onewire port range */
+  ONEWIRE_PORT_RANGE(PD6, PD6)
 ')dnl
 
 ifdef(`conf_SD_READER', `dnl

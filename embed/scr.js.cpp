@@ -132,7 +132,8 @@ function ecmd_error(response) {
 // inline SVG support
 var vboxh = 300;
 var vboxw = 400;
-var colors = [ "red", "blue", "green", "lime", "purple", "maroon", "navy", "yellow" ];
+var colors = [ "#FF5C33", "#D6FF33", "#33D6FF", "#FF33D6", "#FFC233", "#0093B8", "#70FF33", "#B82500" ];
+
 
 function initDiagram(graphs, gid, id, tid, min, max) {
 	var g = new Array();

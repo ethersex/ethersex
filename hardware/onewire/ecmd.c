@@ -71,11 +71,15 @@ int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
 #ifdef ONEWIRE_DETECT_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
+
+    int8_t firstonbus = 0;
     int16_t ret;
 
     if (ow_global.lock == 0) {
-	/* make sure only one conversion happens at a time */
-        ow_global.lock = 1;
+        firstonbus = 1;
+#ifdef ONEWIRE_MULTIBUS
+        ow_global.bus = 0;
+#endif
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("called onewire list for the first time\n");
 #endif
@@ -98,39 +102,37 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 			return ECMD_ERR_PARSE_ERROR;
 	}
 #endif
-
-        /* disable interrupts */
-        uint8_t sreg = SREG;
-        cli();
-
-        ret = ow_search_rom_first();
-
-        /* re-enable interrupts */
-        SREG = sreg;
-
-        if (ret <= 0) {
-#ifdef DEBUG_ECMD_OW_LIST
-            debug_printf("no devices on the bus\n");
-#endif
-            return ECMD_FINAL_OK;
-        }
     } else {
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("called onewire list again\n");
 #endif
-
-        uint8_t sreg;
-#ifdef ONEWIRE_DS2502_SUPPORT
-list_next:
-#endif
-        /* disable interrupts */
-        sreg = SREG;
-        cli();
-
-        ret = ow_search_rom_next();
-
-        SREG = sreg;
+        firstonbus = 0;
     }
+
+list_next: ;
+
+    /* disable interrupts */
+    uint8_t sreg = SREG;
+    cli();
+
+#ifdef ONEWIRE_MULTIBUS
+    ret = ow_search_rom(1 << (ow_global.bus + ONEWIRE_STARTPIN), firstonbus);
+#else
+    ret = ow_search_rom(ONEWIRE_MASK, firstonbus);
+#endif
+
+    /* re-enable interrupts */
+    SREG = sreg;
+
+    if (ret <= 0 && ow_global.lock == 0) {
+#ifdef DEBUG_ECMD_OW_LIST
+        debug_printf("no device on any onewire bus\n");
+#endif
+        return ECMD_FINAL_OK;
+    }
+
+    /* make sure only one conversion happens at a time */
+    ow_global.lock = 1;
 
     if (ret == 1) {
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -179,14 +181,19 @@ list_next:
             return ECMD_FINAL(ret);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
-        }
-        else {
+        } else {
             /* device did not match list type: try again */
             goto list_next;
         }
 #endif
-    }
-    else if (ret == 0) {
+    } else if (ret == 0) {
+#ifdef ONEWIRE_MULTIBUS
+        if (ow_global.bus < ONEWIRE_COUNT - 1) {
+            ow_global.bus++;
+            firstonbus = 1;
+            goto list_next;
+        }
+#endif
         ow_global.lock = 0;
         return ECMD_FINAL_OK;
     }

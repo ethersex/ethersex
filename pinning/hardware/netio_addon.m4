@@ -1,7 +1,8 @@
-/* onewire support */
 ifdef(`conf_ONEWIRE', `dnl
-pin(ONEWIRE, PC2)
-')
+  /* onewire port range */
+  ONEWIRE_PORT_RANGE(PC2, PC2)
+')dnl
+
 
 /* port the enc28j60 is attached to */
 pin(SPI_CS_NET, SPI_CS_HARDWARE)
