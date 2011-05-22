@@ -67,6 +67,16 @@ define(`pinnum', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PIN', `substr(`$
 #define HAVE_'translit(`$1',`a-z', `A-Z')` ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `HAVE_$2', `1')
 ifelse(`$3', `OUTPUT', `define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << pinnum)))')dnl
 
+ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', `dnl
+// support for legacy onewire pin defines
+#define ONEWIRE_COUNT 1
+#define ONEWIRE_STARTPIN pinnum
+#define ONEWIRE_PORT format(PORT%s, pinname)
+#define ONEWIRE_DDR format(DDR%s, pinname)
+#define ONEWIRE_PIN format(PIN%s, pinname)
+#define ONEWIRE_BUSMASK eval(1 << pinnum)
+')dnl
+
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
 #ifdef $2_USED
 #  error Pinning Error: '__file__:__line__:` $1 has a double define on $2
@@ -74,7 +84,7 @@ ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
 #define $2_USED 1
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
 ')dnl
-  
+
 ')
 
 define(`RFM12_NO_INT', `dnl
@@ -175,6 +185,34 @@ pin(PS21, $2, INPUT)
 #define PS2_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
 #define PS2_vect SIG_INTERRUPT$1
 ')
+
+
+define(`ONEWIRE_PORT_RANGE', `dnl
+define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
+define(`start', substr(`$1', 2, 1))dnl
+define(`stop', substr(`$2', 2, 1))dnl
+  /* onewire port range configuration: */
+  forloop(`itr', start, stop, `dnl
+
+#ifdef format(P%s%d_USED, pinname, itr)
+#  error Pinning Error: '__file__:__line__:` ONEWIRE has a double define on format(P%s%d_USED, pinname, itr)
+#endif
+#define format(P%s%d_USED, pinname, itr) 1
+define(`port_mask_'pinname, eval(PM(pinname) | (1 << itr)))
+define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << itr)))
+
+')dnl
+
+#define ONEWIRE_COUNT eval(stop-start+1)
+#define ONEWIRE_STARTPIN start
+#define ONEWIRE_PORT format(PORT%s, pinname)
+#define ONEWIRE_DDR format(DDR%s, pinname)
+#define ONEWIRE_PIN format(PIN%s, pinname)
+#define ONEWIRE_BUSMASK eval(((1 << eval(stop-start+1)) - 1) << start)
+#define ONEWIRE_MULTIBUS 1
+
+')
+
 
 define(`MOTORCURTAIN_PORT_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
@@ -292,7 +330,7 @@ divert(1)
 
 #define _PIN_CHAR(character) PIN ## character
 #define PIN_CHAR(character) _PIN_CHAR(character)
- 
+
 #define _DDR_CHAR(character) DDR ## character
 #define DDR_CHAR(character) _DDR_CHAR(character)
 

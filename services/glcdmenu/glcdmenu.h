@@ -32,6 +32,14 @@ void
 glcdmenuRedraw(void);
 
 void
+glcdmenuKeypress(unsigned char key_uc);
+
+#ifdef GLCDMENU_MOUSE_SUPPORT
+void
+glcdmenuMouseEvent(uint16_t xPos_ui16, uint16_t yPos_ui16, unsigned char button_uc);
+#endif
+
+void
 glcdmenuSetString(uint16_t idx_ui16, unsigned char* ptr_pc);
 
 void

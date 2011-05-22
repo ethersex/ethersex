@@ -1,8 +1,8 @@
 ======= MenuDesigner ==========
-MenuEdit Version 1.3
-MenuInterpreter Version 1.3
+MenuEdit Version 1.4
+MenuInterpreter Version 1.4
 
-(c) 2009 by Malte Marwedel
+(c) 2009-2010 by Malte Marwedel
 http://www.marwedels.de/malte
 
 Terms of use: GPL Version 2.0
@@ -13,6 +13,7 @@ menuInterpreter/pc-demo. Existing files will be overwritten.
 Change into the menuInterpreter/pc-demo directory and call make.
 run ./simple-demo
 Hint: In order to send a char to the program use Control+D instead of the return key.
+There is a more detailed Howto in the file fast-start-hello-world.pdf
 
 ======= Features ============
 Up to 16 MB menu size in 24/32 Bit addressing mode
@@ -29,6 +30,7 @@ Data for objects can either be stored statically in the menu or for dynamic data
 Four fonts included (5x7, 5x7 shrinked, 5x7 underlined, 5x7 shrinked and underlined)
 Code can run on AVR and PC.
 Amount of objects per screen is only limited by memory and computing time
+Partially mouse/touchscreen support (missing for the List)
 
 Objects:
 Window: Can contain objects
@@ -102,13 +104,13 @@ worst case it increases the space by a factor of eight compared to the uncompres
 MenuEdit can open xml files given as parameter too.
 
 ====== Known bugs and useful improvements ========
-The MenuEdit overwrites existing files without asking. Should ask before overwriting.
-
-Make the code smaller.
 
 Automatically add the .xml extention on saving if the user forgets it.
 
-See menuEditor/bugs.txt for some more issues.
+See menuEditor/bugs.txt for known problems.
+
+If mouse support is used and non-focusable objects are lying above focusable ones, the focusable ones can
+  still be be selected.
 
 ==== END OF FILE ====
 
