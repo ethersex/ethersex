@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.c,v 1.35 2011/04/11 13:26:17 fm Exp $
+ * $Id: irsnd.c,v 1.37 2011/05/20 09:31:25 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@
 #include <string.h>
 
 #define F_CPU 8000000L
-typedef unsigned char    uint8_t;
-typedef unsigned short    uint16_t;
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
 #define DEBUG
 
 #else
@@ -198,6 +198,12 @@ typedef uint8_t     IRSND_PAUSE_LEN;
 #define DENON_0_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * DENON_0_PAUSE_TIME + 0.5)
 #define DENON_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * DENON_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
 #define DENON_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * DENON_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+
+#define THOMSON_PULSE_LEN                       (uint8_t)(F_INTERRUPTS * THOMSON_PULSE_TIME + 0.5)
+#define THOMSON_1_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * THOMSON_1_PAUSE_TIME + 0.5)
+#define THOMSON_0_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * THOMSON_0_PAUSE_TIME + 0.5)
+#define THOMSON_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * THOMSON_AUTO_REPETITION_PAUSE_TIME + 0.5)         // use uint16_t!
+#define THOMSON_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * THOMSON_FRAME_REPEAT_PAUSE_TIME + 0.5)            // use uint16_t!
 
 #define RECS80EXT_START_BIT_PULSE_LEN           (uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PULSE_TIME + 0.5)
 #define RECS80EXT_START_BIT_PAUSE_LEN           (uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PAUSE_TIME + 0.5)
@@ -457,6 +463,9 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
 #if IRSND_SUPPORT_RC6_PROTOCOL == 1 || IRSND_SUPPORT_RC6A_PROTOCOL == 1
     static uint8_t  toggle_bit_rc6;
 #endif
+#if IRSND_SUPPORT_THOMSON_PROTOCOL == 1
+    static uint8_t  toggle_bit_thomson;
+#endif
     uint16_t        address;
     uint16_t        command;
 
@@ -473,7 +482,7 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
     }
 
     irsnd_protocol  = irmp_data_p->protocol;
-    irsnd_repeat    = irmp_data_p->flags;
+    irsnd_repeat    = irmp_data_p->flags & IRSND_REPETITION_MASK;
 
     switch (irsnd_protocol)
     {
@@ -685,6 +694,17 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_THOMSON_PROTOCOL == 1
+        case IRMP_THOMSON_PROTOCOL:
+        {
+            toggle_bit_thomson = toggle_bit_thomson ? 0x00 : 0x08;
+
+            irsnd_buffer[0] = ((irmp_data_p->address & 0x0F) << 4) | toggle_bit_thomson | ((irmp_data_p->command & 0x0070) >> 4);   // AAAATCCC (1st frame)
+            irsnd_buffer[1] = (irmp_data_p->command & 0x0F) << 4;                                                                   // CCCC
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_NUBERT_PROTOCOL == 1
         case IRMP_NUBERT_PROTOCOL:
         {
@@ -817,6 +837,14 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
     return irsnd_busy;
 }
 
+static volatile uint8_t  n_repeat_frames;                                                                       // number of repetition frames
+
+void
+irsnd_stop (void)
+{
+    n_repeat_frames = 0;
+}
+
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  *  ISR routine
  *  @details  ISR routine, called 10000 times per second
@@ -841,7 +869,6 @@ irsnd_ISR (void)
     static uint8_t  auto_repetition_counter;                                        // auto_repetition counter
     static uint16_t auto_repetition_pause_len;                                      // pause before auto_repetition, uint16_t!
     static uint16_t auto_repetition_pause_counter;                                  // pause before auto_repetition, uint16_t!
-    static uint8_t  n_repeat_frames;                                                // number of repeat frames
     static uint8_t  repeat_counter;                                                 // repeat counter
     static uint16_t repeat_frame_pause_len;                                         // pause before repeat, uint16_t!
     static uint16_t packet_repeat_pause_counter;                                    // pause before repeat, uint16_t!
@@ -902,7 +929,11 @@ irsnd_ISR (void)
                     return irsnd_busy;
                 }
             }
+#if 0
             else if (repeat_counter > 0 && packet_repeat_pause_counter < repeat_frame_pause_len)
+#else
+            else if (packet_repeat_pause_counter < repeat_frame_pause_len)
+#endif
             {
                 packet_repeat_pause_counter++;
 
@@ -921,6 +952,12 @@ irsnd_ISR (void)
             else
             {
                 n_repeat_frames             = irsnd_repeat;
+
+                if (n_repeat_frames == IRSND_ENDLESS_REPETITION)
+                {
+                    n_repeat_frames = 255;
+                }
+
                 packet_repeat_pause_counter = 0;
                 pulse_counter               = 0;
                 pause_counter               = 0;
@@ -1143,6 +1180,24 @@ irsnd_ISR (void)
                         auto_repetition_pause_len   = DENON_AUTO_REPETITION_PAUSE_LEN;              // 65 ms pause after 1st frame
                         repeat_frame_pause_len      = DENON_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_36_KHZ);                                         // in theory 32kHz, in practice 36kHz is better
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_THOMSON_PROTOCOL == 1
+                    case IRMP_THOMSON_PROTOCOL:
+                    {
+                        startbit_pulse_len          = 0x00;
+                        startbit_pause_len          = 0x00;
+                        pulse_1_len                 = THOMSON_PULSE_LEN;
+                        pause_1_len                 = THOMSON_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = THOMSON_PULSE_LEN;
+                        pause_0_len                 = THOMSON_0_PAUSE_LEN - 1;
+                        has_stop_bit                = THOMSON_STOP_BIT;
+                        complete_data_len           = THOMSON_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = THOMSON_FRAMES;                               // only 1 frame
+                        auto_repetition_pause_len   = THOMSON_AUTO_REPETITION_PAUSE_LEN;
+                        repeat_frame_pause_len      = DENON_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
 #endif
@@ -1369,6 +1424,9 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_DENON_PROTOCOL == 1
                 case IRMP_DENON_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_THOMSON_PROTOCOL == 1
+                case IRMP_THOMSON_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_NUBERT_PROTOCOL == 1
                 case IRMP_NUBERT_PROTOCOL:
 #endif
@@ -1395,7 +1453,7 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
     IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
-    IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || IRSND_SUPPORT_LEGO_PROTOCOL == 1 
+    IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || IRSND_SUPPORT_LEGO_PROTOCOL == 1 || IRSND_SUPPORT_THOMSON_PROTOCOL == 1 
                 {
                     if (pulse_counter == 0)
                     {
@@ -1816,6 +1874,7 @@ main (int argc, char ** argv)
         {
             irsnd_ISR ();
         }
+
         for (idx = 0; idx < 20; idx++)
         {
             irsnd_ISR ();

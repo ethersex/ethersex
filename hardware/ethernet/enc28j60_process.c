@@ -131,7 +131,7 @@ void network_process(void)
     }
 
     /* packet receive flag */
-    if (EIR & _BV(PKTIF)) {
+    if ( (EIR & _BV(PKTIF)) || pktcnt ) {
       if (uip_buf_lock ())
 	return;			/* already locked */
 
@@ -145,9 +145,11 @@ void network_process(void)
 
         bit_field_clear(REG_EIR, _BV(RXERIF));
 
+/* not needed anymore ??
 #ifdef ENC28J60_REV4_WORKAROUND
         init_enc28j60();
 #endif
+*/
 
     }
 
