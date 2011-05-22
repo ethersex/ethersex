@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.62 2011/05/20 09:31:25 fm Exp $
+ * $Id: irmp.h,v 1.60 2011/04/11 12:54:24 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -77,8 +77,6 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_NEC16_PROTOCOL                     27              // NEC with 16 bits (incl. sync)
 #define IRMP_NEC42_PROTOCOL                     28              // NEC with 42 bits
 #define IRMP_LEGO_PROTOCOL                      29              // LEGO Power Functions RC
-#define IRMP_THOMSON_PROTOCOL                   30              // Thomson
-#define IRMP_MERLIN_PROTOCOL                    31              // Pollin Merlin keyboard (bitserial)
 #define IRMP_IMON_PROTOCOL                      99              // Imon (bitserial) PROTOTYPE!
 
 // some flags of struct IRMP_PARAMETER:
@@ -449,22 +447,6 @@ typedef uint8_t     PAUSE_LEN;
 #define NETBOX_LSB                              1                               // LSB
 #define NETBOX_FLAGS                            IRMP_PARAM_FLAG_IS_SERIAL       // flags
 
-#define MERLIN_START_BIT_PULSE_TIME              340.0e-6                       //  340 usec pulse
-#define MERLIN_START_BIT_PAUSE_TIME              300.0e-6                       //  300 usec pause
-#define MERLIN_PULSE_TIME                        380.0e-6                       //  380 usec pulse
-#define MERLIN_PAUSE_TIME                        310.0e-6                       //  310 usec pause
-#define MERLIN_FRAMES                           1                               // Merlin sends 1 frame
-#define MERLIN_AUTO_REPETITION_PAUSE_TIME       35.0e-3                         // auto repetition after 35ms
-#define MERLIN_FRAME_REPEAT_PAUSE_TIME          35.0e-3                         // frame repeat after 35ms
-#define MERLIN_ADDRESS_OFFSET                   0                               // skip 0 bits
-#define MERLIN_ADDRESS_LEN                      9                               // read 16 address bits
-#define MERLIN_COMMAND_OFFSET                   9                               // skip 16 bits
-#define MERLIN_COMMAND_LEN                      16                              // read 9 bits
-#define MERLIN_COMPLETE_DATA_LEN                25                              // complete length
-#define MERLIN_STOP_BIT                         0                               // has no stop bit
-#define MERLIN_LSB                              1                               // LSB
-#define MERLIN_FLAGS                            IRMP_PARAM_FLAG_IS_SERIAL       // flags
-
 #define LEGO_START_BIT_PULSE_TIME                158.0e-6                       //  158 usec pulse ( 6 x 1/38kHz)
 #define LEGO_START_BIT_PAUSE_TIME               1026.0e-6                       // 1026 usec pause (39 x 1/38kHz)
 #define LEGO_PULSE_TIME                          158.0e-6                       //  158 usec pulse ( 6 x 1/38kHz)
@@ -479,21 +461,6 @@ typedef uint8_t     PAUSE_LEN;
 #define LEGO_STOP_BIT                           1                               // has stop bit
 #define LEGO_LSB                                0                               // MSB...LSB
 #define LEGO_FLAGS                              0                               // flags
-
-#define THOMSON_PULSE_TIME                       550.0e-6                       //  550 usec pulse
-#define THOMSON_1_PAUSE_TIME                    4500.0e-6                       // 4500 usec pause
-#define THOMSON_0_PAUSE_TIME                    2000.0e-6                       // 2000 usec pause
-#define THOMSON_FRAMES                          1                               // THOMSON sends 1 frame
-#define THOMSON_AUTO_REPETITION_PAUSE_TIME        65.0e-3                       // repetition after 65ms
-#define THOMSON_FRAME_REPEAT_PAUSE_TIME           65.0e-3                       // frame repeat after 65ms
-#define THOMSON_ADDRESS_OFFSET                  0                               // skip 0 bits
-#define THOMSON_ADDRESS_LEN                     4                               // read 4 address bits
-#define THOMSON_COMMAND_OFFSET                  5                               // skip 4 address bits + 1 toggle bit
-#define THOMSON_COMMAND_LEN                     7                               // read 7 command bits
-#define THOMSON_COMPLETE_DATA_LEN               12                              // complete length
-#define THOMSON_STOP_BIT                        1                               // has stop bit
-#define THOMSON_LSB                             0                               // MSB...LSB
-#define THOMSON_FLAGS                           0                               // flags
 
 #define IMON_START_BIT_PULSE_TIME               1333.0e-6                       // 1333 usec pulse
 #define IMON_START_BIT_PAUSE_TIME               1172.0e-6                       // 1333 usec pause
@@ -534,7 +501,7 @@ typedef struct
  *  Initialize IRMP decoder
  *  @details  Configures IRMP input pin
  */
-#ifdef IRMP_USE_AS_LIB
+#ifndef IRMP_USE_AS_LIB
 extern void                           irmp_init (void);
 #endif
 
