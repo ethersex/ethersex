@@ -77,7 +77,7 @@ void resync_led_display(void) {
 //Verwende Variante mit 4Bit Farben (16 moegliche Farbtoene)
 
 //4+24+19+(12+7+9)*16+7+5+4+27=538Takte pro Interrupt
-SIGNAL(SIG_OVERFLOW2) {
+ISR(TIMER2_OVF_vect) {
   uint8_t gspalte;
   uint8_t gtemp,gdbyte;
   uint8_t gdurchlauf_t;
@@ -141,7 +141,7 @@ SIGNAL(SIG_OVERFLOW2) {
   gdurchlauf_t = 3 nur die allerhellsten.
 */
 
-SIGNAL(SIG_OVERFLOW2) {
+ISR(TIMER2_OVF_vect) {
   uint8_t gspalte;
   uint8_t gtemp,gdbyte;
   const uint8_t gdurchlauf_t = 1;

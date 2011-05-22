@@ -55,12 +55,12 @@ uint8_t rfm12_drssi = RSSI_79;
 
 static void rfm12_txstart_hard (void);
 
-#ifdef RFM12_INT_SIGNAL
-SIGNAL(RFM12_INT_SIGNAL)
+#ifdef RFM12_INT_VECTOR
+ISR(RFM12_INT_VECTOR)
 #elif defined(RFM12_USE_POLL)
 void rfm12_int_process(void)
 #else
-ISR(RFM12_vect)	    /* PCINT */
+ISR(RFM12_VECTOR)	    /* PCINT */
 #endif
 {
 #ifdef HAVE_RFM12_PCINT
