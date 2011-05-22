@@ -118,7 +118,7 @@ list_next: ;
 #ifdef ONEWIRE_MULTIBUS
     ret = ow_search_rom(1 << (ow_global.bus + ONEWIRE_STARTPIN), firstonbus);
 #else
-    ret = ow_search_rom(ONEWIRE_MASK, firstonbus);
+    ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
 #endif
 
     /* re-enable interrupts */
