@@ -48,7 +48,7 @@ int16_t parse_cmd_glcdmenu_key(char *cmd, char *output, uint16_t len)
 
 		if ((value_ui16 > 0) && (value_ui16))
 		{
-			menu_keypress((uint8_t) value_ui16);
+			glcdmenuKeypress((unsigned char) value_ui16);
 			return ECMD_FINAL_OK;
 		}
 		else
