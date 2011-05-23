@@ -1,3 +1,14 @@
+2010-08-26: Version 1.4
+
+2010-08-15:
+  * Feature: Check function
+  * Feature: Test function
+  * Feature: Export defines for accessing static data
+  * Preview improved, GUI rearranged
+
+2010-02-10:
+  * Feature: Converting strings from UTF8 to ISO before export
+
 2009-12-16: Version 1.3
   * Feature: Add size optimisation by finding data duplicates
 
@@ -21,8 +32,8 @@
   * Bug fixed: Lists accidentally had a Select ID defined, resulting in a limit of 15 different lists.
     You should remove the 'selectnum' tag from lists in existing xml files.
   * Feature: Add Actions for List Index change events
-  * Binary changes: Return from subwindow must be now encoded as Window switch, not as Action
-    This makes it possible to run an individual action for each subwindow return.
+  * Binary changes: Return from Subwindow must be now encoded as Window switch, not as Action
+    This makes it possible to run an individual action for each Subwindow return.
     You must change your existing Objects if they use RET for a Subwindow close.
 
 2009-07-26

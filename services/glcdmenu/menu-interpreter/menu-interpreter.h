@@ -2,8 +2,8 @@
 	#define MENU_INTERPRETER_H
 
 /* MenuInterpreter
-  Version 1.2
-  (c) 2009 by Malte Marwedel
+  Version 1.4
+  (c) 2009-2010 by Malte Marwedel
   www.marwedels.de/malte
 
   This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 #include "menu-interpreter-config.h"
 
 //generate many printf messages:
@@ -54,6 +55,13 @@ example for Nut/OS:
 #define MENU_SCHEDULE
 #endif
 
+
+/* If you want to use a touch screen or mice, you may want to enable this in
+order to have a function, which accepts Screen positions, searches a proper object
+on this location and runs the action.
+NOTE: The List element is only partially supported by now.
+*/
+//#define MENU_MOUSE_SUPPORT
 
 //Implement the five functions by your own:
 extern unsigned char menu_byte_get(MENUADDR addr);
@@ -205,6 +213,10 @@ possible.
 
 void menu_redraw(void);
 void menu_keypress(unsigned char key);
+
+#ifdef MENU_MOUSE_SUPPORT
+void menu_mouse(SCREENPOS x, SCREENPOS y, unsigned char key);
+#endif
 
 
 #endif

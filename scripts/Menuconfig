@@ -1071,6 +1071,7 @@ Select the default profile you wish to load. \
 			zbus-teensy	  "ZBUS Standalone"				0 \
 			usb-teensy	  "USB (Network) Standalone"			0 \
 			usb-rfm12-dongle  "USB RFM12 Dongle"				0 \
+			USBrfm12stick  "USB RFM12 Stick"				0 \
 			ehaserl		  "EH2010 Ehaserl Badge"			0 \
 			fnordlicht_servo "Fnordlicht Servo"			0 \
 			no-network	  "No Networking (USB only)"			0 \

@@ -1,11 +1,11 @@
 The following bugs are known to appear in the editor:
 
 Images & Text:
-  Currently, integrated images or text may not be larger than 66000 pixels/chars
-  This counts for each image/text independent
+  Currently, integrated images or text may not be larger than 66000 pixels/chars.
+    This counts for each image/text independent.
 
 Export:
-  If the menu uses 24 Bit addresses, occurring errors and warnings are always displayed twice
+  If the menu uses 24 Bit addresses, occurring errors and warnings are always displayed twice.
 
 Bugs for Linux only:
 Also applying to a build app:
@@ -14,6 +14,15 @@ Also applying to a build app:
 
 Bugs for Mac only:
 Export:
-  Old Mac versions up to version 9 use '\r' as linebreak, however the export function removes '\r' and only uses '\n'.
-  Version 10 uses Unix '\n' line-breaks.
+  Old Mac versions up to version 9 use '\r' as linebreak, however the export
+   function removes '\r' and only uses '\n'. Version 10 uses Unix '\n' line-breaks.
 
+Test:
+  Security hole: The 'test' function writes the data to the temporary directory,
+    which is readable for all users on the system. (at least for a short moment)
+  If the script can't be executed, the application crashes. (Reason is unknown)
+  The test only works if there is no global shortcut using the key 254.
+
+Save Files:
+  The MenuEdit overwrites existing files without asking. Should ask before overwriting.
+  
