@@ -177,8 +177,8 @@ list_next: ;
 #ifdef ONEWIRE_DS2502_SUPPORT
         } else {
             /* device did not match list type: try again */
-             firstonbus = 0;
-             goto list_next;
+            firstonbus = 0;
+            goto list_next;
         }
 #endif
     }
