@@ -71,7 +71,7 @@ ifelse(`$3', `OUTPUT', `define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << pinn
 
 ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', `dnl
 // support for legacy onewire pin defines
-#define ONEWIRE_COUNT 1
+#define ONEWIRE_BUSCOUNT 1
 #define ONEWIRE_STARTPIN pinnum
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
@@ -205,7 +205,7 @@ define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << itr)))
 
 ')dnl
 
-#define ONEWIRE_COUNT eval(stop - start + 1)
+#define ONEWIRE_BUSCOUNT eval(stop - start + 1)
 #define ONEWIRE_STARTPIN start
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
