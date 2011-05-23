@@ -83,7 +83,7 @@ define(`RFM12_NO_INT', `dnl
 define(`RFM12_USE_INT', `dnl
 /* rfm12 module interrupt line */
 #define RFM12_INT_PIN INT$1
-#define RFM12_INT_SIGNAL SIG_INTERRUPT$1
+#define RFM12_INT_VECTOR INT$1`_vect'
 ')
 
 define(`RFM12_USE_PCINT', `dnl
@@ -103,13 +103,13 @@ dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
     PCICR  &= ~_BV(_paste(PCIE, eval($1/8)));	\
   } while(0)
 
-#define RFM12_vect _paste3(PCINT, eval($1/8), _vect)
+#define RFM12_VECTOR _paste3(PCINT, eval($1/8), _vect)
 ')
 
 define(`RC5_USE_INT', `dnl
 /* rc5 interrupt line (TSOP Data out)*/
 #define RC5_INT_PIN INT$1
-#define RC5_INT_SIGNAL SIG_INTERRUPT$1
+#define RC5_INT_VECTOR INT$1`_vect'
 #define RC5_ISC0 ISC$1`0'
 #define RC5_ISC1 ISC$1`1'
 ')
@@ -119,13 +119,13 @@ define(`RFM12_ASK_SENSE_USE_INT', `dnl
 #define RFM12_ASKINT_PIN INT$1
 #define RFM12_ASKINT_ISC _ISC($1,0)
 #define RFM12_ASKINT_ISCMASK (_ISC($1,0) | _ISC($1,1))
-#define RFM12_ASKINT_SIGNAL SIG_INTERRUPT$1
+#define RFM12_ASKINT_VECTOR INT$1`_vect'
 ')
 
 define(`USB_USE_INT', `dnl
 /* usb  interrupt line */
 #define USB_INT_PIN INT$1
-#define USB_INT_SIGNAL SIG_INTERRUPT$1
+#define USB_INT_VECTOR INT$1`_vect'
 #define USB_INTR_CFG_HACK(no) ((1 << ISC ## no ## 0) | (1 << ISC ## no ## 0))
 #define USB_INTR_CFG_SET USB_INTR_CFG_HACK($1)
 ')
@@ -139,7 +139,7 @@ dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
   _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
   PCICR  |= _BV(_paste(PCIE, eval($1/8)));
 
-#define DCF77_vect _paste3(PCINT, eval($1/8), _vect)
+#define DCF77_VECTOR _paste3(PCINT, eval($1/8), _vect)
 ')
 
 define(`DCF77_USE_INT', `dnl
@@ -150,7 +150,7 @@ pin(DCF1, $2, INPUT)
 #define DCF77_INT_PIN INT$1
 #define DCF77_INT_ISC _ISC($1,0)
 #define DCF77_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
-#define DCF77_vect SIG_INTERRUPT$1
+#define DCF77_VECTOR INT$1`_vect'
 ')
 
 define(`PS2_USE_PCINT', `dnl
@@ -162,7 +162,7 @@ dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
   _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
   PCICR  |= _BV(_paste(PCIE, eval($1/8)));
 
-#define PS2_vect _paste3(PCINT, eval($1/8), _vect)
+#define PS2_VECTOR _paste3(PCINT, eval($1/8), _vect)
 ')
 
 define(`PS2_USE_INT', `dnl
@@ -173,7 +173,7 @@ pin(PS21, $2, INPUT)
 #define PS2_INT_PIN INT$1
 #define PS2_INT_ISC _ISC($1,0)
 #define PS2_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
-#define PS2_vect SIG_INTERRUPT$1
+#define PS2_VECTOR INT$1`_vect'
 ')
 
 define(`MOTORCURTAIN_PORT_RANGE', `dnl

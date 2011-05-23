@@ -190,7 +190,7 @@ dmx_periodic(void)
   }
 }
 
-SIGNAL(usart(USART,_TX_vect))
+ISR(usart(USART,_TX_vect))
 {
   /* Send the rest */
   if(dmx_index < dmx_txlen) {

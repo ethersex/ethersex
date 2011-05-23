@@ -169,7 +169,7 @@ modbus_rxstart(uint8_t *data, uint8_t len, int16_t *recv_len) {
   return 1;
 }
 
-SIGNAL(usart(USART,_TX_vect))
+ISR(usart(USART,_TX_vect))
 {
   if (modbus_data.sent < modbus_data.len) {
     usart(UDR) = modbus_data.data[modbus_data.sent++];
@@ -189,7 +189,7 @@ SIGNAL(usart(USART,_TX_vect))
   }
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   /* Ignore errors */
   if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {

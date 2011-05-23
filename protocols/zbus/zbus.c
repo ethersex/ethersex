@@ -183,7 +183,7 @@ zbus_core_periodic(void)
 
 
 
-SIGNAL(usart(USART,_TX_vect))
+ISR(usart(USART,_TX_vect))
 {
 
 #ifdef ZBUS_DEBUG
@@ -249,7 +249,7 @@ SIGNAL(usart(USART,_TX_vect))
   }
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   /* Ignore errors */
   uint8_t flags = usart(UCSR,A);

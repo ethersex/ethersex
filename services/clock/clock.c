@@ -88,9 +88,9 @@ clock_init (void)
 
 #if defined(CLOCK_CRYSTAL_SUPPORT) || defined(CLOCK_CPU_SUPPORT)
 #ifdef CLOCK_CPU_SUPPORT
-SIGNAL (TIMER1_OVF_vect)
+ISR (TIMER1_OVF_vect)
 #else
-SIGNAL (CLOCK_SIG)
+ISR (CLOCK_SIG)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
