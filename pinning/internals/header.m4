@@ -205,13 +205,12 @@ define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << itr)))
 
 ')dnl
 
-#define ONEWIRE_COUNT eval(stop-start+1)
+#define ONEWIRE_COUNT eval(stop - start + 1)
 #define ONEWIRE_STARTPIN start
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
 #define ONEWIRE_PIN format(PIN%s, pinname)
 #define ONEWIRE_BUSMASK eval(((1 << eval(stop-start+1)) - 1) << start)U
-#define ONEWIRE_MULTIBUS 1
 
 ')
 

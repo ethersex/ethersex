@@ -189,7 +189,7 @@ struct ow_global_t {
     int8_t list_type;
 #endif
     struct ow_rom_code_t current_rom;
-#ifdef ONEWIRE_MULTIBUS
+#if ONEWIRE_COUNT > 1
     uint8_t bus;
 #endif
 };
