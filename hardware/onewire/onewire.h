@@ -114,25 +114,25 @@
 /* macros */
 #define OW_CONFIG_INPUT(busmask)			\
   /* enable pullup */					\
-  ONEWIRE_PORT |= busmask;				\
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT | busmask);	\
   /* configure as input */				\
-  ONEWIRE_DDR = ONEWIRE_DDR & (uint8_t)~busmask;
+  ONEWIRE_DDR = (uint8_t)(ONEWIRE_DDR & (uint8_t)~busmask);
 
 #define OW_CONFIG_OUTPUT(busmask)			\
   /* configure as output */				\
-  ONEWIRE_DDR |= busmask;
+  ONEWIRE_DDR = (uint8_t)(ONEWIRE_DDR | busmask);
 
 #define OW_LOW(busmask)					\
   /* drive pin low */					\
-  ONEWIRE_PORT = ONEWIRE_PORT & (uint8_t)~busmask;
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT & (uint8_t)~busmask);
 
 #define OW_HIGH(busmask)				\
   /* drive pin high */					\
-  ONEWIRE_PORT |= busmask;
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT | busmask);
 
 #define OW_PULLUP(busmask)				\
   /* pull up resistor */				\
-  ONEWIRE_PORT |= busmask;
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT | busmask);
 
 #define OW_GET_INPUT(busmask)				\
   (ONEWIRE_PIN & busmask)
@@ -334,6 +334,35 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom);
  * -3: unknown rom family code
  */
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data);
+
+/*
+ *
+ * ECMD functions
+ *
+ */
+
+/* parse an onewire rom address in cmd string
+ *
+ * *rom: contains parsed rom adress after sucessul parsing
+ *
+ * return values:
+ * 0: parsing successful
+ * -1: string could not be parsed
+ */
+int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom);
+
+
+/* list onewiredevices of requested type on all OW-buses */
+int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len);
+
+
+/* get temperature of specifued OW-device */
+int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
+
+
+/* issue temperatur convert command on all OW-buses */
+int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
+
 
 #endif /* ONEWIRE_SUPPORT */
 
