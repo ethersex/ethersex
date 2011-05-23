@@ -39,7 +39,7 @@ nmea_init(void)
 }
 
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   /* Ignore errors */
   if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE))))

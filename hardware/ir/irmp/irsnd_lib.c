@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.c,v 1.37 2011/05/20 09:31:25 fm Exp $
+ * $Id: irsnd.c,v 1.38 2011/05/22 21:40:53 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -837,12 +837,10 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
     return irsnd_busy;
 }
 
-static volatile uint8_t  n_repeat_frames;                                                                       // number of repetition frames
-
 void
 irsnd_stop (void)
 {
-    n_repeat_frames = 0;
+    irsnd_repeat = 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -865,6 +863,7 @@ irsnd_ISR (void)
     static uint8_t  has_stop_bit;
     static uint8_t  new_frame = TRUE;
     static uint8_t  complete_data_len;
+    static uint8_t  n_repeat_frames;                                                // number of repetition frames
     static uint8_t  n_auto_repetitions;                                             // number of auto_repetitions
     static uint8_t  auto_repetition_counter;                                        // auto_repetition counter
     static uint16_t auto_repetition_pause_len;                                      // pause before auto_repetition, uint16_t!
