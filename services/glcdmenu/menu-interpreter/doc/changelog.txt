@@ -1,15 +1,26 @@
+2010-08-26: Version 1.4
+
+2010-07-09
+  * Bug fix: Compiler warnings resolved
+
+2010-06-18
+  * Feature: Mouse support (Except for the List) (Extension requested and paid by GTE Industrieelektronik), OpenGL test application for mouse support
+
+2010-05-15
+  * Bug fix: Labels were not printed on the right side on the screen. They could overflow to the left too.
+
 2009-12-16: Version 1.3
 
-2009-12-10:
+2009-12-10
   * Feature: Automatically remove code if objects are not used
 
-2009-11-10:
+2009-11-10
   * Bug fix: Even more listbox scrolling improvements and support for > 255 lines now working
 
-2009-11-09:
+2009-11-09
   * Bug fix: Several listbox scrolling improvements
 
-2009-10-11:
+2009-10-11
   * Bug fix: Typo: menu_cheboxstate -> menu_checkboxstate
   * Checkbox value toggles between 0 and 1 now. Was 0 and 0xFF previous
 

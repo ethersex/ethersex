@@ -5,6 +5,7 @@
  *    see http://koeln.ccc.de/prozesse/running/fnordlicht
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Multibus support (c) 2011 by Frank Sautter
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -111,33 +112,30 @@
 /* */
 
 /* macros */
-#define OW_CONFIG_INPUT()                        \
-    do {                                         \
-        /* enable pullup */                      \
-        PIN_SET(ONEWIRE);     \
-        /* configure as input */                 \
-        DDR_CONFIG_IN(ONEWIRE);     \
-    } while (0)
+#define OW_CONFIG_INPUT(busmask)			\
+  /* enable pullup */					\
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT | busmask);	\
+  /* configure as input */				\
+  ONEWIRE_DDR = (uint8_t)(ONEWIRE_DDR & (uint8_t)~busmask);
 
-#define OW_CONFIG_OUTPUT()                       \
-        /* configure as output */                \
-        DDR_CONFIG_OUT(ONEWIRE);     \
+#define OW_CONFIG_OUTPUT(busmask)			\
+  /* configure as output */				\
+  ONEWIRE_DDR = (uint8_t)(ONEWIRE_DDR | busmask);
 
-#define OW_LOW()                                 \
-        /* configure drive low */                \
-        PIN_CLEAR(ONEWIRE);    \
+#define OW_LOW(busmask)					\
+  /* drive pin low */					\
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT & (uint8_t)~busmask);
 
-#define OW_HIGH()                                \
-        /* configure drive high */               \
-        PIN_SET(ONEWIRE);     \
+#define OW_HIGH(busmask)				\
+  /* drive pin high */					\
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT | busmask);
 
-#define OW_PULLUP()                              \
-        /* pull up resistor */                   \
-        PIN_SET(ONEWIRE);     \
+#define OW_PULLUP(busmask)				\
+  /* pull up resistor */				\
+  ONEWIRE_PORT = (uint8_t)(ONEWIRE_PORT | busmask);
 
-#define OW_GET_INPUT()                           \
-        ( PIN_HIGH(ONEWIRE) > 0)
-
+#define OW_GET_INPUT(busmask)				\
+  (ONEWIRE_PIN & busmask)
 
 /* symbolic names for the restriction of the list comamnd to certain types.
  * These values are used only to filter the output of the list command */
@@ -181,7 +179,6 @@ struct ow_temp_scratchpad_t {
         };
     };
 };
-
 /* */
 
 /* global variables */
@@ -192,6 +189,9 @@ struct ow_global_t {
     int8_t list_type;
 #endif
     struct ow_rom_code_t current_rom;
+#ifdef ONEWIRE_MULTIBUS
+    uint8_t bus;
+#endif
 };
 
 extern struct ow_global_t ow_global;
@@ -200,13 +200,14 @@ extern struct ow_global_t ow_global;
 void onewire_init(void);
 
 /* low level functions */
-uint8_t reset_onewire(void);
-void ow_write_0(void);
-void ow_write_1(void);
-void ow_write(uint8_t value);
-void ow_write_byte(uint8_t value);
-uint8_t ow_read(void);
-uint8_t ow_read_byte(void);
+uint8_t reset_onewire(uint8_t busmask);
+void ow_write_0(uint8_t busmask);
+#define ow_write_1(busmask) ow_read(busmask)
+
+void ow_write(uint8_t busmask, uint8_t value);
+void ow_write_byte(uint8_t busmask, uint8_t value);
+uint8_t ow_read(uint8_t busmask);
+uint8_t ow_read_byte(uint8_t busmask);
 
 /* high level functions */
 
@@ -244,9 +245,9 @@ int8_t ow_match_rom(struct ow_rom_code_t *rom);
  *    1: next device id has been placed in ow_global.current_rom
  *   -1: no presence pulse has been detected, no device connected?
  */
-#define ow_search_rom_first() ow_search_rom(1)
-#define ow_search_rom_next() ow_search_rom(0)
-int8_t ow_search_rom(uint8_t first);
+#define ow_search_rom_first(busmask) ow_search_rom(busmask,1)
+#define ow_search_rom_next(busmask) ow_search_rom(busmask, 0)
+int8_t ow_search_rom(uint8_t busmask, uint8_t first);
 
 
 /*
@@ -333,6 +334,35 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom);
  * -3: unknown rom family code
  */
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data);
+
+/*
+ *
+ * ECMD functions
+ *
+ */
+
+/* parse an onewire rom address in cmd string
+ *
+ * *rom: contains parsed rom adress after sucessul parsing
+ *
+ * return values:
+ * 0: parsing successful
+ * -1: string could not be parsed
+ */
+int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom);
+
+
+/* list onewiredevices of requested type on all OW-buses */
+int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len);
+
+
+/* get temperature of specifued OW-device */
+int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
+
+
+/* issue temperatur convert command on all OW-buses */
+int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
+
 
 #endif /* ONEWIRE_SUPPORT */
 

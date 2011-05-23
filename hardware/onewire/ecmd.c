@@ -71,11 +71,15 @@ int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
 #ifdef ONEWIRE_DETECT_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
+
+    uint8_t firstonbus = 0;
     int16_t ret;
 
     if (ow_global.lock == 0) {
-	/* make sure only one conversion happens at a time */
-        ow_global.lock = 1;
+        firstonbus = 1;
+#ifdef ONEWIRE_MULTIBUS
+        ow_global.bus = 0;
+#endif
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("called onewire list for the first time\n");
 #endif
@@ -98,39 +102,30 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 			return ECMD_ERR_PARSE_ERROR;
 	}
 #endif
-
-        /* disable interrupts */
-        uint8_t sreg = SREG;
-        cli();
-
-        ret = ow_search_rom_first();
-
-        /* re-enable interrupts */
-        SREG = sreg;
-
-        if (ret <= 0) {
-#ifdef DEBUG_ECMD_OW_LIST
-            debug_printf("no devices on the bus\n");
-#endif
-            return ECMD_FINAL_OK;
-        }
     } else {
 #ifdef DEBUG_ECMD_OW_LIST
         debug_printf("called onewire list again\n");
 #endif
-
-        uint8_t sreg;
-#ifdef ONEWIRE_DS2502_SUPPORT
-list_next:
-#endif
-        /* disable interrupts */
-        sreg = SREG;
-        cli();
-
-        ret = ow_search_rom_next();
-
-        SREG = sreg;
+        firstonbus = 0;
     }
+
+list_next: ;
+
+    /* disable interrupts */
+    uint8_t sreg = SREG;
+    cli();
+
+#ifdef ONEWIRE_MULTIBUS
+    ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
+#else
+    ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
+#endif
+
+    /* re-enable interrupts */
+    SREG = sreg;
+
+    /* make sure only one conversion happens at a time */
+    ow_global.lock = 1;
 
     if (ret == 1) {
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -143,8 +138,8 @@ list_next:
 #endif
 
 #ifdef DEBUG_ECMD_OW_LIST
-           debug_printf("discovered a device: "
-                    "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+           debug_printf("discovered device "
+                    "%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
                     ow_global.current_rom.bytewise[0],
                     ow_global.current_rom.bytewise[1],
                     ow_global.current_rom.bytewise[2],
@@ -152,7 +147,8 @@ list_next:
                     ow_global.current_rom.bytewise[4],
                     ow_global.current_rom.bytewise[5],
                     ow_global.current_rom.bytewise[6],
-                    ow_global.current_rom.bytewise[7]);
+                    ow_global.current_rom.bytewise[7],
+                    ow_global.bus);
 #endif
            ret = snprintf_P(output, len,
                     PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
@@ -179,19 +175,29 @@ list_next:
             return ECMD_FINAL(ret);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
-        }
-        else {
+        } else {
             /* device did not match list type: try again */
+            firstonbus = 0;
             goto list_next;
         }
 #endif
     }
-    else if (ret == 0) {
-        ow_global.lock = 0;
-        return ECMD_FINAL_OK;
-    }
 
-    return ECMD_ERR_PARSE_ERROR;
+#ifdef ONEWIRE_MULTIBUS
+#ifdef DEBUG_ECMD_OW_LIST
+    if (ret != 0) {
+        debug_printf("no devices on bus %d\n", ow_global.bus);
+    }
+#endif
+    if (ow_global.bus < ONEWIRE_COUNT - 1) {
+        ow_global.bus++;
+        firstonbus = 1;
+        goto list_next;
+    }
+#endif
+    ow_global.lock = 0;
+    return ECMD_FINAL_OK;
+
 }
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
@@ -231,11 +237,11 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
         debug_printf("successfully read scratchpad\n");
 
-        uint16_t temp = ow_temp_normalize(&rom, &sp);
+        int16_t temp = ow_temp_normalize(&rom, &sp);
 
         debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 
-        uint8_t sign = ((int16_t) temp < 0);
+        int8_t sign = (int8_t)(temp < 0);
 
 #ifdef TEENSY_SUPPORT
         if (sign) {
