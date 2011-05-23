@@ -82,7 +82,7 @@ uint8_t noinline reset_onewire(uint8_t busmask)
 
     /* if first sample is low and second sample is high, at least one device is
      * attached to this bus */
-    return !data1 && data2;
+    return (uint8_t)(~data1 & data2 & busmask);
 
 }
 
@@ -101,7 +101,7 @@ void noinline ow_write_byte(uint8_t busmask, uint8_t value)
 
     OW_CONFIG_OUTPUT(busmask);
     for (uint8_t i = 0; i < 8; i++) {
-        ow_write(busmask, value & _BV(i));
+        ow_write(busmask, (uint8_t)(value & _BV(i)));
     }
 
 }
@@ -138,7 +138,7 @@ uint8_t noinline ow_read(uint8_t busmask)
     _delay_loop_2(OW_READ_TIMEOUT_2);
 
     /* sample data now */
-    uint8_t data = (OW_GET_INPUT(busmask) > 0);
+    uint8_t data = (uint8_t)(OW_GET_INPUT(busmask) > 0);
 
     /* wait for remaining slot time */
     _delay_loop_2(OW_READ_TIMEOUT_3);
@@ -154,7 +154,7 @@ uint8_t noinline ow_read_byte(uint8_t busmask)
     uint8_t data = 0;
 
     for (uint8_t i = 0; i < 8; i++) {
-        data |= (ow_read(busmask) << i);
+        data |= (uint8_t)(ow_read(busmask) << i);
     }
 
     return data;
@@ -220,7 +220,7 @@ int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
     /* transmit rom code */
     for (uint8_t i = 0; i < 8; i++) {
         for (uint8_t j = 0; j < 8; j++) {
-            ow_write(ONEWIRE_BUSMASK, rom->bytewise[i] & _BV(j));
+            ow_write(ONEWIRE_BUSMASK, (uint8_t)(rom->bytewise[i] & _BV(j)));
         }
     }
 
@@ -233,12 +233,12 @@ void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t
 {
 
     uint8_t byte = idx / 8;
-    uint8_t bit = idx % 8;
+    uint8_t bit = (uint8_t)(idx % 8);
 
     if (val == 0)
-        rom->bytewise[byte] &= ~_BV(bit);
+        rom->bytewise[byte] = (uint8_t)(rom->bytewise[byte] & ~_BV(bit));
     else
-        rom->bytewise[byte] |= _BV(bit);
+        rom->bytewise[byte] = (uint8_t)(rom->bytewise[byte] | _BV(bit));
 
 /* */ }
 
@@ -263,7 +263,7 @@ int8_t noinline ow_search_rom(uint8_t busmask, uint8_t first)
 
     }
 
-    uint8_t discrepancy = -1;
+    int8_t discrepancy = -1;
 
     /* reset the bus */
     if (!reset_onewire(busmask))
@@ -276,7 +276,7 @@ int8_t noinline ow_search_rom(uint8_t busmask, uint8_t first)
 
         /* read bits */
         uint8_t bit1 = ow_read(busmask);
-        uint8_t bits = (ow_read(busmask) << 1) | bit1;
+        uint8_t bits = (uint8_t)((ow_read(busmask) << 1) | bit1);
 
         if (bits == 3) {
 
@@ -297,14 +297,14 @@ int8_t noinline ow_search_rom(uint8_t busmask, uint8_t first)
 
                 /* set zero */
                 ow_set_address_bit(&ow_global.current_rom, i, 0);
-                discrepancy = i;
+                discrepancy = (int8_t)i;
 
             } else {
 
-                uint8_t rom_bit = ow_global.current_rom.bytewise[i / 8] & _BV(i % 8);
+                uint8_t rom_bit = (uint8_t)(ow_global.current_rom.bytewise[i / 8] & _BV(i % 8));
 
                 if (rom_bit == 0)
-                    discrepancy = i;
+                    discrepancy = (int8_t)i;
 
                 /* transmit last bit next time */
                 bit1 = rom_bit;
@@ -343,9 +343,9 @@ int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
 {
 
     /* check for known family code */
-    return (rom->family == OW_FAMILY_DS1820 ||
-            rom->family == OW_FAMILY_DS1822 ||
-            rom->family == OW_FAMILY_DS18B20);
+    return (int8_t)(rom->family == OW_FAMILY_DS1820 ||
+                    rom->family == OW_FAMILY_DS1822 ||
+                    rom->family == OW_FAMILY_DS18B20);
 
 }
 
@@ -391,7 +391,6 @@ int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
 int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad)
 {
 
-//    uint8_t bus;
     uint8_t busmask;
     int8_t ret;
 
@@ -415,7 +414,7 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
 #ifdef ONEWIRE_MULTIBUS
     for (uint8_t bus = 0; bus < ONEWIRE_COUNT; bus++) {
         /* read 9 bytes from each onewire bus */
-        busmask = 1 << (bus + ONEWIRE_STARTPIN);
+        busmask = (uint8_t)(1 << (bus + ONEWIRE_STARTPIN));
 #else
         busmask = ONEWIRE_BUSMASK;
 #endif
@@ -461,7 +460,7 @@ int8_t ow_temp_power(struct ow_rom_code_t *rom)
     /* transmit command byte */
     ow_write_byte(busmask, OW_FUNC_READ_POWER);
 
-    return ow_read(busmask);
+    return (int8_t)(ow_read(busmask));
 
 }
 
@@ -469,11 +468,11 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
 {
 
     if (rom->family == OW_FAMILY_DS1820)
-        return ((sp->temperature & 0xfffe) << 7) - 0x40 + (((sp->count_per_c - sp->count_remain) << 8) / sp->count_per_c);
+        return (int16_t)((sp->temperature & 0xfffe) << 7) - 0x40 + (((sp->count_per_c - sp->count_remain) << 8) / sp->count_per_c);
     else if (rom->family == OW_FAMILY_DS1822 || rom->family == OW_FAMILY_DS18B20)
-        return sp->temperature << 4;
+        return (int16_t)(sp->temperature << 4);
     else
-        return 0xffff;
+        return -1;
 
 }
 
