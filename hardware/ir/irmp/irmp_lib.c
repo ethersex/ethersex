@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.103 2011/05/20 09:31:25 fm Exp $
+ * $Id: irmp.c,v 1.104 2011/05/22 21:40:52 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -1450,7 +1450,7 @@ static PROGMEM IRMP_PARAMETER lego_param =
 
 #if IRMP_SUPPORT_MERLIN_PROTOCOL == 1
 
-static PROGMEM IRMP_PARAMETER netbox_param =
+static PROGMEM IRMP_PARAMETER merlin_param =
 {
     IRMP_MERLIN_PROTOCOL,                                               // protocol:        ir protocol
     MERLIN_PULSE_LEN,                                                   // pulse_1_len_min: minimum length of pulse with bit value 1, here: exact value
@@ -2324,7 +2324,7 @@ irmp_ISR (void)
                         ANALYZE_PRINTF ("protocol = MERLIN, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
                                         MERLIN_START_BIT_PULSE_LEN_MIN, MERLIN_START_BIT_PULSE_LEN_MAX,
                                         MERLIN_START_BIT_PAUSE_LEN_MIN, MERLIN_START_BIT_PAUSE_LEN_MAX);
-                        irmp_param_p = (IRMP_PARAMETER *) &netbox_param;
+                        irmp_param_p = (IRMP_PARAMETER *) &merlin_param;
                     }
                     else
 #endif // IRMP_SUPPORT_MERLIN_PROTOCOL == 1

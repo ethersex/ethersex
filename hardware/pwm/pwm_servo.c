@@ -49,11 +49,11 @@ uint8_t pwm_servo_enabled = 0;
 
 /************************************************************************
 
-   SIGNAL(SIG_OVERFLOWx)
+   ISR(TIMERx_OVF_vect)
    timer interrupt, generates the high and low pulses for each servo
 
 ***************************************************************************/
-SIGNAL(SIG_OVERFLOW1)
+ISR(TIMER1_OVF_vect)
 {
  static uint8_t servoindex_half=0;
  if (pwm_servo_enabled==1) {
