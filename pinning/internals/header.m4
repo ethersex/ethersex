@@ -62,8 +62,10 @@ define(`pin', `dnl
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `divert(alias_divert)', `divert(define_divert)')dnl
 define(`pinname', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PORT', `translit(substr(`$2', 1, 1), `a-z', `A-Z')')')dnl
 define(`pinnum', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PIN', `substr(`$2', 2, 1)')')dnl
+ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', , `dnl
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
+')dnl
 #define HAVE_'translit(`$1',`a-z', `A-Z')` ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `HAVE_$2', `1')
 ifelse(`$3', `OUTPUT', `define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << pinnum)))')dnl
 
@@ -74,7 +76,7 @@ ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', `dnl
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
 #define ONEWIRE_PIN format(PIN%s, pinname)
-#define ONEWIRE_BUSMASK eval(1 << pinnum)
+#define ONEWIRE_BUSMASK eval(1 << pinnum)U
 ')dnl
 
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
@@ -208,7 +210,7 @@ define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << itr)))
 #define ONEWIRE_PORT format(PORT%s, pinname)
 #define ONEWIRE_DDR format(DDR%s, pinname)
 #define ONEWIRE_PIN format(PIN%s, pinname)
-#define ONEWIRE_BUSMASK eval(((1 << eval(stop-start+1)) - 1) << start)
+#define ONEWIRE_BUSMASK eval(((1 << eval(stop-start+1)) - 1) << start)U
 #define ONEWIRE_MULTIBUS 1
 
 ')
