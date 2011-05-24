@@ -52,6 +52,10 @@ void spi_init(void)
     PIN_SET(VS1053_CS);
 #endif
 
+#if defined(SPI_CS_SD_READER_PIN) && defined(SD_NETIO_ADDON_WORKAROUND)
+    PIN_SET(SPI_CS_SD_READER);
+#endif
+
 #ifndef SOFT_SPI_SUPPORT
     /* enable spi, set master and clock modes (f/2) */
     _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);

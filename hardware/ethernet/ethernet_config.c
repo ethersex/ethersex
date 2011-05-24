@@ -28,6 +28,8 @@
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 
+static const char conf_mac[] PROGMEM = CONF_ETHERRAPE_MAC;
+
 void
 network_config_load (void)
 {
@@ -36,9 +38,12 @@ network_config_load (void)
   eeprom_restore(mac, uip_ethaddr.addr, 6);
 #else 
 #if defined BOOTLOADER_SUPPORT &&  BOOTLOADER_START_ADDRESS > UINT16_MAX
-  memcpy_PF(uip_ethaddr.addr, (uint_farptr_t)PSTR(CONF_ETHERRAPE_MAC), 6);
+  uint_farptr_t src = pgm_get_far_address(conf_mac);
+  uint8_t *dst = uip_ethaddr.addr;
+  for (uint8_t i = 6; i; i--)
+    *dst++ = pgm_read_byte_far(src++);
 #else
-  memcpy_P(uip_ethaddr.addr, PSTR(CONF_ETHERRAPE_MAC), 6);
+  memcpy_P(uip_ethaddr.addr, conf_mac, 6);
 #endif
 #endif
 

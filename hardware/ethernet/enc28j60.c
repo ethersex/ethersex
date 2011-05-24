@@ -38,6 +38,19 @@
 uint8_t enc28j60_current_bank = 0;
 int16_t enc28j60_next_packet_pointer;
 
+#define DEBUG_REV6_WORKAROUND
+#ifdef DEBUG_REV6_WORKAROUND
+ uint8_t macon1 = 0;
+ uint8_t macon3 = 0;
+ uint8_t debug_guard = 0; /* if true, ENC28j60 is in reset process */
+ 
+ #define DEBUG_GUARD debug_guard
+ #define MACON1_PP macon1++
+ #define MACON3_PP macon3++
+#endif
+
+
+
 /* module local macros */
 #ifdef RFM12_IP_SUPPORT
 /* RFM12 uses interrupts which do SPI interaction, therefore
@@ -232,7 +245,7 @@ void reset_controller(void)
 
     /* wait until the controller is ready */
 #ifdef ENC28J60_REV5_WORKAROUND
-    _delay_ms (2);
+    _delay_ms (2);  /* see errata #2: Module Reset */
 #else
     while (!(read_control_register(REG_ESTAT) & _BV(CLKRDY)));
 #endif
@@ -257,6 +270,9 @@ void reset_rx(void)
 
 void init_enc28j60(void)
 {
+#ifdef DEBUG_REV6_WORKAROUND
+    debug_guard=0xff;
+#endif
 
     reset_controller();
 
@@ -351,6 +367,11 @@ void init_enc28j60(void)
     /* set auto-increment bit */
     bit_field_set(REG_ECON2, _BV(AUTOINC));
 
+#ifdef DEBUG_REV6_WORKAROUND
+    debug_guard=0x0;
+#endif
+
+
 }
 
 void switch_bank(uint8_t bank)
@@ -366,10 +387,23 @@ void switch_bank(uint8_t bank)
 void enc28j60_periodic(void) 
 {
     uint8_t mask = _BV(PADCFG0) | _BV(TXCRCEN) | _BV(FRMLNEN);
-
-    if ((read_control_register(REG_MACON3) & mask) != mask) {
+#ifdef DEBUG_REV6_WORKAROUND
+  if (!DEBUG_GUARD) {
+    if (   (read_control_register(REG_MACON3) & mask) != mask ) {
+ 	MACON1_PP;	
+	init_enc28j60();
+	}
+    if (   (read_control_register(REG_MACON1))        != 0x0D  ) {
+	MACON3_PP;
 	init_enc28j60();
     }
+  }
+#else
+    if (   ((read_control_register(REG_MACON3) & mask) != mask  )
+        || ( read_control_register(REG_MACON1)         != 0x0D  ) ) {
+        init_enc28j60();
+    }
+#endif
 }
 
 /* dump out all the interesting registers
@@ -435,6 +469,10 @@ int16_t parse_cmd_enc_dump(char *cmd, char *output, uint16_t len)
         read_control_register(REG_EDMASTL),
         read_control_register(REG_EDMANDH),
         read_control_register(REG_EDMANDL));
+
+#ifdef DEBUG_REV6_WORKAROUND
+    debug_printf("debug: macon1= %d, macon3= %d \n", macon1, macon3);
+#endif
 
     return 0;
 }

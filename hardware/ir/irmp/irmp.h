@@ -54,7 +54,18 @@ typedef enum
   IRMP_PROTO_NOKIA,		/* Nokia */
   IRMP_PROTO_SIEMENS,		/* Siemens */
   IRMP_PROTO_FDC,		/* FDC Keyboard */
-  IRMP_PROTO_RCCAR		/* RC Car */
+  IRMP_PROTO_JVC,               /* JVC */
+  IRMP_PROTO_RC6A,              /* RC6A, e.g. Kathrein, XBOX */
+  IRMP_PROTO_NIKON,             /* Nikon */
+  IRMP_PROTO_RUWIDO,            /* Ruwido, e.g. T-Home Mediareceiver */
+  IRMP_PROTO_IR60,              /* IR60 (SAB2008) */
+  IRMP_PROTO_KATHREIN,          /* Kathrein */
+  IRMP_PROTO_NETBOX,            /* Netbox keyboard (bitserial) */
+  IRMP_PROTO_NEC16,             /* NEC with 16 bits */
+  IRMP_PROTO_NEC42,             /* NEC with 42 bits */
+  IRMP_PROTO_LEGO,              /* LEGO Power Functions RC */
+  IRMP_PROTO_THOMSON,           /* Thomson */
+  IRMP_PROTO_MERLIN             /* Pollin Merlin keyboard (bitserial) */
 } irmp_prot_e;
 
 typedef struct

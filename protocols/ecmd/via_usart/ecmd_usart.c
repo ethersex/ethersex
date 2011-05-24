@@ -94,7 +94,7 @@ ecmd_serial_usart_periodic(void)
   }
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   /* Ignore errors */
   if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
@@ -123,7 +123,7 @@ SIGNAL(usart(USART,_RX_vect))
   recv_buffer[recv_len++] = data;
 }
 
-SIGNAL(usart(USART,_TX_vect))
+ISR(usart(USART,_TX_vect))
 {
   if (sent < write_len) {
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));

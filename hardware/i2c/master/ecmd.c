@@ -190,7 +190,7 @@ int16_t parse_cmd_i2c_ds1631_set_power_state(char *cmd, char *output, uint16_t l
 #ifdef ECMD_MIRROR_REQUEST
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("ds1631 convert %d %d"),adr,state));
 #else
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("ok")));
+	return ECMD_FINAL_OK;
 #endif
 }
 

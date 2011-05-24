@@ -62,10 +62,22 @@ define(`pin', `dnl
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `divert(alias_divert)', `divert(define_divert)')dnl
 define(`pinname', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PORT', `translit(substr(`$2', 1, 1), `a-z', `A-Z')')')dnl
 define(`pinnum', `ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `$2_PIN', `substr(`$2', 2, 1)')')dnl
+ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', , `dnl
 #define translit(`$1',`a-z', `A-Z')_PORT pinname
 #define translit(`$1',`a-z', `A-Z')_PIN pinnum
+')dnl
 #define HAVE_'translit(`$1',`a-z', `A-Z')` ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `HAVE_$2', `1')
 ifelse(`$3', `OUTPUT', `define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << pinnum)))')dnl
+
+ifelse(translit(`$1',`a-z', `A-Z'), `ONEWIRE', `dnl
+// support for legacy onewire pin defines
+#define ONEWIRE_COUNT 1
+#define ONEWIRE_STARTPIN pinnum
+#define ONEWIRE_PORT format(PORT%s, pinname)
+#define ONEWIRE_DDR format(DDR%s, pinname)
+#define ONEWIRE_PIN format(PIN%s, pinname)
+#define ONEWIRE_BUSMASK eval(1 << pinnum)U
+')dnl
 
 ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
 #ifdef $2_USED
@@ -74,7 +86,7 @@ ifelse(regexp($2, `^P[A-Z][0-9]$'), `-1', `', `
 #define $2_USED 1
 define(`port_mask_'pinname, eval(PM(pinname) | (1 << pinnum)))dnl
 ')dnl
-  
+
 ')
 
 define(`RFM12_NO_INT', `dnl
@@ -83,7 +95,7 @@ define(`RFM12_NO_INT', `dnl
 define(`RFM12_USE_INT', `dnl
 /* rfm12 module interrupt line */
 #define RFM12_INT_PIN INT$1
-#define RFM12_INT_SIGNAL SIG_INTERRUPT$1
+#define RFM12_INT_VECTOR INT$1`_vect'
 ')
 
 define(`RFM12_USE_PCINT', `dnl
@@ -103,13 +115,13 @@ dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
     PCICR  &= ~_BV(_paste(PCIE, eval($1/8)));	\
   } while(0)
 
-#define RFM12_vect _paste3(PCINT, eval($1/8), _vect)
+#define RFM12_VECTOR _paste3(PCINT, eval($1/8), _vect)
 ')
 
 define(`RC5_USE_INT', `dnl
 /* rc5 interrupt line (TSOP Data out)*/
 #define RC5_INT_PIN INT$1
-#define RC5_INT_SIGNAL SIG_INTERRUPT$1
+#define RC5_INT_VECTOR INT$1`_vect'
 #define RC5_ISC0 ISC$1`0'
 #define RC5_ISC1 ISC$1`1'
 ')
@@ -119,13 +131,13 @@ define(`RFM12_ASK_SENSE_USE_INT', `dnl
 #define RFM12_ASKINT_PIN INT$1
 #define RFM12_ASKINT_ISC _ISC($1,0)
 #define RFM12_ASKINT_ISCMASK (_ISC($1,0) | _ISC($1,1))
-#define RFM12_ASKINT_SIGNAL SIG_INTERRUPT$1
+#define RFM12_ASKINT_VECTOR INT$1`_vect'
 ')
 
 define(`USB_USE_INT', `dnl
 /* usb  interrupt line */
 #define USB_INT_PIN INT$1
-#define USB_INT_SIGNAL SIG_INTERRUPT$1
+#define USB_INT_VECTOR INT$1`_vect'
 #define USB_INTR_CFG_HACK(no) ((1 << ISC ## no ## 0) | (1 << ISC ## no ## 0))
 #define USB_INTR_CFG_SET USB_INTR_CFG_HACK($1)
 ')
@@ -139,7 +151,7 @@ dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
   _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
   PCICR  |= _BV(_paste(PCIE, eval($1/8)));
 
-#define DCF77_vect _paste3(PCINT, eval($1/8), _vect)
+#define DCF77_VECTOR _paste3(PCINT, eval($1/8), _vect)
 ')
 
 define(`DCF77_USE_INT', `dnl
@@ -150,7 +162,7 @@ pin(DCF1, $2, INPUT)
 #define DCF77_INT_PIN INT$1
 #define DCF77_INT_ISC _ISC($1,0)
 #define DCF77_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
-#define DCF77_vect SIG_INTERRUPT$1
+#define DCF77_VECTOR INT$1`_vect'
 ')
 
 define(`PS2_USE_PCINT', `dnl
@@ -162,7 +174,7 @@ dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
   _paste(PCMSK, eval($1/8)) |= _BV(PCINT$1); \
   PCICR  |= _BV(_paste(PCIE, eval($1/8)));
 
-#define PS2_vect _paste3(PCINT, eval($1/8), _vect)
+#define PS2_VECTOR _paste3(PCINT, eval($1/8), _vect)
 ')
 
 define(`PS2_USE_INT', `dnl
@@ -173,8 +185,36 @@ pin(PS21, $2, INPUT)
 #define PS2_INT_PIN INT$1
 #define PS2_INT_ISC _ISC($1,0)
 #define PS2_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
-#define PS2_vect SIG_INTERRUPT$1
+#define PS2_VECTOR INT$1`_vect'
 ')
+
+
+define(`ONEWIRE_PORT_RANGE', `dnl
+define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
+define(`start', substr(`$1', 2, 1))dnl
+define(`stop', substr(`$2', 2, 1))dnl
+  /* onewire port range configuration: */
+  forloop(`itr', start, stop, `dnl
+
+#ifdef format(P%s%d_USED, pinname, itr)
+#  error Pinning Error: '__file__:__line__:` ONEWIRE has a double define on format(P%s%d_USED, pinname, itr)
+#endif
+#define format(P%s%d_USED, pinname, itr) 1
+define(`port_mask_'pinname, eval(PM(pinname) | (1 << itr)))
+define(`ddr_mask_'pinname, eval(DM(pinname) | (1 << itr)))
+
+')dnl
+
+#define ONEWIRE_COUNT eval(stop-start+1)
+#define ONEWIRE_STARTPIN start
+#define ONEWIRE_PORT format(PORT%s, pinname)
+#define ONEWIRE_DDR format(DDR%s, pinname)
+#define ONEWIRE_PIN format(PIN%s, pinname)
+#define ONEWIRE_BUSMASK eval(((1 << eval(stop-start+1)) - 1) << start)U
+#define ONEWIRE_MULTIBUS 1
+
+')
+
 
 define(`MOTORCURTAIN_PORT_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
@@ -292,7 +332,7 @@ divert(1)
 
 #define _PIN_CHAR(character) PIN ## character
 #define PIN_CHAR(character) _PIN_CHAR(character)
- 
+
 #define _DDR_CHAR(character) DDR ## character
 #define DDR_CHAR(character) _DDR_CHAR(character)
 

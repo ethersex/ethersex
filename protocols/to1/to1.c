@@ -68,7 +68,7 @@ to1_periodic(void)
       if (to1_sensors[i].timeout) to1_sensors[i].timeout--;
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   /* Ignore errors */
   if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {

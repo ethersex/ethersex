@@ -31,6 +31,8 @@
 
 int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
 {
+    if (addr == NULL)
+        return snprintf(output, len, "NULL");
 #if UIP_CONF_IPV6
     return snprintf_P(output, len, PSTR("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
 		      HTONS(((u16_t *)(addr))[0]), HTONS(((u16_t *)(addr))[1]),

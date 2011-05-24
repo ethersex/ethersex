@@ -159,7 +159,7 @@ rfm12_ask_sense_start (void)
 
   /* Initialize Timer0, prescaler 1/256 */
   TC0_PRESCALER_256;
-  TC0_INT_COMPARE_ON;
+  TC0_INT_OVERFLOW_ON;
 
   /* Initialize Interrupt */
   _EIMSK |= _BV (RFM12_ASKINT_PIN);
@@ -214,7 +214,7 @@ ISR (TC0_VECTOR_OVERFLOW)
 }
 
 
-ISR (RFM12_ASKINT_SIGNAL)
+ISR (RFM12_ASKINT_VECTOR)
 {
   uint8_t ts = TC0_COUNTER_CURRENT;	/* Get current timestamp. */
   uint8_t delta = DELTA (ts, last_noise_ts);

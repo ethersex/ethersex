@@ -7,16 +7,16 @@ ifdef(`conf_SD_READER', `dnl
 ')dnl
 
 ifdef(`conf_ONEWIRE', `dnl
-  /* onewire support */
-  pin(ONEWIRE, PD6)
+  /* onewire port range */
+  ONEWIRE_PORT_RANGE(PC0, PC7)
 ')dnl
 
 ifdef(`conf_STELLA', `dnl
   /* stella port 1 */
-  STELLA_PORT1_RANGE(PC0,PC7)
+  STELLA_PORT1_RANGE(PC0, PC7)
 ')dnl
 
-dnl STELLA_PORT2_RANGE(PA0,PA3)
+dnl STELLA_PORT2_RANGE(PA0, PA3)
 
 ifdef(`conf_STATUSLED_POWER', `dnl
 pin(STATUSLED_POWER, PA3, OUTPUT)
@@ -40,7 +40,7 @@ pin(STATUSLED_RX, PA0, OUTPUT)
 
 ifdef(`conf_FS20', `dnl
 /* fs20 support */
-pin(FS20_SEND, PB2)
+pin(FS20_SEND, PD7)
 ifdef(`conf_FS20_RECEIVE', `dnl
 /* DO NOT CHANGE PIN!  USES INTERNAL COMPARATOR! */
 pin(FS20_RECV, PB3)

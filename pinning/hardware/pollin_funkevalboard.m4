@@ -8,8 +8,8 @@ pin(STATUSLED_RX, PA2, OUTPUT)
 ')dnl
 
 ifdef(`conf_ONEWIRE', `dnl
-  /* onewire support */
-  pin(ONEWIRE, PA0)
+  /* onewire port range */
+  ONEWIRE_PORT_RANGE(PA0, PA0)
 ')dnl
 
 ifdef(`conf_RFM12', `dnl
