@@ -28,6 +28,7 @@
 #include "services/dmx-storage/dmx_storage.h"
 
 #ifdef STARBURST_PCA9685
+int8_t pca9685_dmx_conn_id=-1;
 prog_uint16_t stevens_power_12bit[256] PROGMEM = {
 	0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3,
 	4, 5, 6, 7, 8, 9, 11, 12, 14, 15,
@@ -66,6 +67,9 @@ void starburst_init()
 	/*Init all i2c chips*/
 #ifdef STARBURST_PCA9685
 	i2c_pca9685_set_mode(STARBURST_PCA9685_ADDRESS,STARBURST_PCA9685_EXTDRV,STARBURST_PCA9685_IVRT,STARBURST_PCA9685_PRESCALER);
+	//Connect to dmx-storage
+	dmx_storage_connect(STARBURST_PCA9685_UNIVERSE);
+	pca9685_dmx_conn_id=dmx_storage_connect(STARBURST_PCA9685_UNIVERSE);
 #endif
 }
 enum starburst_update starburst_process()
@@ -116,15 +120,16 @@ enum starburst_update starburst_process()
 }
 void starburst_update()
 {
-	if(get_dmx_universe_state(STARBURST_PCA9685_UNIVERSE) == DMX_NEWVALUES)
+	
+	if(get_dmx_universe_state(STARBURST_PCA9685_UNIVERSE,pca9685_dmx_conn_id) == DMX_NEWVALUES)
 	{
 		/*Update values if they are really newer*/
 		uint8_t tmp=0;
 		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS*2;i+=2)
 		{
-			tmp=get_dmx_channel(STARBURST_PCA9685_UNIVERSE,i+STARBURST_PCA9685_OFFSET);
+			tmp=get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,i+STARBURST_PCA9685_OFFSET,pca9685_dmx_conn_id);
 			pca9685_channels[i/2].mode=tmp;
-			tmp=get_dmx_channel(STARBURST_PCA9685_UNIVERSE,i+1+STARBURST_PCA9685_OFFSET);
+			tmp=get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,i+1+STARBURST_PCA9685_OFFSET,pca9685_dmx_conn_id);
 			if(pca9685_channels[i/2].target != tmp)
 			{
 				/*Update the new target*/
