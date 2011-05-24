@@ -70,7 +70,7 @@ void dmx_effect_rainbow_colors(void)
 			break;
 	}
 	/*Copy colors to dmx storage*/
-	for(uint16_t i=0;i<DMX_EFFECT_RAINBOW_CHANNELS+(3*DMX_EFFECT_RAINBOW_MARGIN*DMX_EFFECT_RAINBOW_CHANNELS/3);i++)
+	for(uint16_t i=0;i<DMX_EFFECT_RAINBOW_CHANNELS+(DMX_EFFECT_RAINBOW_MARGIN*DMX_EFFECT_RAINBOW_CHANNELS);i++)
 	{
 #if (DMX_EFFECT_RAINBOW_MARGIN > 0)
 		for(uint8_t j=0;j<DMX_EFFECT_RAINBOW_MARGIN;j++)
