@@ -79,9 +79,13 @@ uint8_t set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value)
 	#endif
 	if(channel < DMX_STORAGE_CHANNELS && universe < DMX_STORAGE_UNIVERSES)
 	{
-		dmx_universes[universe][channel]=value;
-		for(uint8_t i=0;i<DMX_STORAGE_SLOTS;i++)
-			dmx_universes_state[universe][i].state=DMX_NEWVALUES;
+		uint8_t oldvalue=dmx_universes[universe][channel];
+		if(oldvalue != value)
+		{
+			dmx_universes[universe][channel]=value;
+			for(uint8_t i=0;i<DMX_STORAGE_SLOTS;i++)
+				dmx_universes_state[universe][i].state=DMX_NEWVALUES;
+		}
 		return 0;
 	}
 	else

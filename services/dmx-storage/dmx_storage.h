@@ -84,6 +84,9 @@ uint8_t get_dmx_channel_slot(uint8_t universe,uint16_t channel,int8_t slot);
 uint8_t set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value);
 /**
 *	@brief Sets many channels of an universe of dmx-storage
+*
+*	After the channel has been set and the argument value is not equal to the old value
+*	the state of the universe will be changed to DMX_NEWVALUES
 *	@param *start Pointer to the head of DMX data
 *	@param universe
 *	@param len Length of the data
