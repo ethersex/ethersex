@@ -77,7 +77,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 
     if (ow_global.lock == 0) {
         firstonbus = 1;
-#ifdef ONEWIRE_MULTIBUS
+#if ONEWIRE_BUSCOUNT > 1
         ow_global.bus = 0;
 #endif
 #ifdef DEBUG_ECMD_OW_LIST
@@ -109,13 +109,15 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
         firstonbus = 0;
     }
 
+#if defined ONEWIRE_DS2502_SUPPORT || ONEWIRE_BUSCOUNT > 1
 list_next: ;
+#endif
 
     /* disable interrupts */
     uint8_t sreg = SREG;
     cli();
 
-#ifdef ONEWIRE_MULTIBUS
+#if ONEWIRE_BUSCOUNT > 1
     ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
 #else
     ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
@@ -183,13 +185,13 @@ list_next: ;
 #endif
     }
 
-#ifdef ONEWIRE_MULTIBUS
+#if ONEWIRE_BUSCOUNT > 1
 #ifdef DEBUG_ECMD_OW_LIST
     if (ret != 0) {
         debug_printf("no devices on bus %d\n", ow_global.bus);
     }
 #endif
-    if (ow_global.bus < ONEWIRE_COUNT - 1) {
+    if (ow_global.bus < ONEWIRE_BUSCOUNT - 1) {
         ow_global.bus++;
         firstonbus = 1;
         goto list_next;
