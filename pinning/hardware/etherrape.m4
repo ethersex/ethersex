@@ -59,8 +59,8 @@ dnl
   pin(SPI_CS_RFM12, PB0, OUTPUT)
 
 dnl   /* port the LEDS for rfm12 txrx attached to */
-dnl   pin(RFM12_TX_PIN, STATUSLED_TX)
-dnl   pin(RFM12_RX_PIN, STATUSLED_RX)
+dnl   pin(STATUSLED_RFM12_TX, STATUSLED_TX)
+dnl   pin(STATUSLED_RFM12_RX, STATUSLED_RX)
 
   RFM12_USE_INT(2)
 dnl RFM12_USE_PCINT(0, PB0)
@@ -73,8 +73,8 @@ dnl (different from the interrupt line required for IP-over-RFM12)
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PD2)
-  dnl  pin(ZBUS_TX_PIN, STATUSLED_TX)
-  dnl  pin(ZBUS_RX_PIN, STATUSLED_RX)
+  dnl  pin(STATUSLED_ZBUS_TX, STATUSLED_TX)
+  dnl  pin(STATUSLED_ZBUS_RX, STATUSLED_RX)
 ')
 
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
