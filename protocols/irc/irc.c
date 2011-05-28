@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2009 by Bernd Stellwag <burned@zerties.org>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,28 +144,58 @@ irc_handle_message (char *message)
     }
 #endif
 }
-
+uint8_t irc_parse_ping()
+{
+	uint8_t *ping_pointer=strstr_P (uip_appdata, PSTR ("PING :"));
+        if(ping_pointer) /*We found the string PING*/
+        {
+                uint8_t *temp_string = (uint8_t*)malloc(20);
+                strcpy_P(temp_string, PSTR("PONG : "));
+		while((*ping_pointer < '0' || *ping_pointer > '9') && *ping_pointer != '\n')
+                        ping_pointer++;
+                if(*ping_pointer != '\n')
+                {
+			/*Copy the ping sequence*/
+                        int i=0;
+                        while(*ping_pointer >= '0' && *ping_pointer <= '9' && i<18)
+                        {
+                                *(temp_string+7+i)=*ping_pointer;
+                                i++;ping_pointer++;
+                        }
+			/*Complete the string*/
+                        *(temp_string+7+i)='\n';
+                        *(temp_string+8+i)='\0';
+                }
+		IRCDEBUG ("replying %s", temp_string);
+		/*Send the PONG*/
+	        uip_send (temp_string,strlen(temp_string));
+		return 1;
+        }
+	else
+		/*No PONG*/
+		return 0;
+}
 
 static uint8_t
 irc_parse (void)
 {
     char *message;
     IRCDEBUG ("ircparse stage=%d\n", STATE->stage);
-
-    switch (STATE->stage) {
+        switch (STATE->stage) {
     case IRC_SEND_USERNICK:
+	/*Look for PING.  On some servers the PING commands arrives together with NOTICE AUTH prior to the command. These packages will be dropped, so we need to check for PING first*/
+	if(irc_parse_ping())
+		return 0;
 	if (strstr_P (uip_appdata, PSTR (" 433 "))) {
 	    IRCDEBUG ("nickname already in use, try alternative one.");
 	    STATE->stage = IRC_SEND_ALTNICK;
 	    return 0;
 	}
-
 	if (strstr_P (uip_appdata, PSTR (" 001 "))) {
 	    IRCDEBUG ("remote host accepted connection.");
 	    STATE->stage = IRC_SEND_JOIN;
 	    return 0;
 	}
-
 	if (strstr_P (uip_appdata, PSTR ("NOTICE AUTH"))) {
 	    IRCDEBUG ("ignoring auth fluff ...");
 	    return 0;
@@ -172,6 +203,9 @@ irc_parse (void)
 	break;
 
     case IRC_SEND_ALTNICK:
+	/*Look for PING.  On some servers the PING commands arrives together with NOTICE AUTH prior to the command. These packages will be dropped, so we need to check for PING first*/
+    	if(irc_parse_ping())
+		return 0;
 	if (strstr_P (uip_appdata, PSTR (" 443 "))) {
 	    IRCDEBUG ("nickname already also in use, stop.");
 	    return 1;
@@ -210,14 +244,6 @@ irc_parse (void)
 	}
 #endif	/* IRC_GREET_SUPPORT */
 
-	if (strncmp_P (uip_appdata, PSTR ("PING :"), 6) == 0) {
-	  /* Send PONG back to server, FIXME this doesn't support rexmits,
-	     let's hope the packet will make it through (or the server
-	     at least PINGs once more) ... */
-	  ((char *)uip_appdata)[1] = 'O'; /* PING -> PONG */
-	  uip_send (uip_appdata, uip_len);
-	  IRCDEBUG ("replying pong ...\n");
-	}
 
 	return 0;
     }
