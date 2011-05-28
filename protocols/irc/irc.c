@@ -52,9 +52,12 @@ static const char PROGMEM irc_privmsg_str[] =
     "PRIVMSG #" CONF_IRC_CHANNEL " :";
 
 #ifdef IRC_GREET_SUPPORT
+/*Quakenet*/
 static const char PROGMEM irc_joinmsg_str[] =
-    " JOIN :#" CONF_IRC_CHANNEL;
-
+    " JOIN #" CONF_IRC_CHANNEL;
+/*Freenode*/
+static const char PROGMEM irc_joinmsg_alt_str[] =
+    " JOIN #:" CONF_IRC_CHANNEL;
 static const char PROGMEM irc_send_greet[] =
     CONF_IRC_GREET_MSG;
 #endif	/* IRC_GREET_SUPPORT */
@@ -219,9 +222,10 @@ irc_parse (void)
 	}
 
 #ifdef IRC_GREET_SUPPORT
-	/* :stesie!n=stesie@sudkessel.zerties.org JOIN :#ethersex */
+	/* #freenode# :stesie!n=stesie@sudkessel.zerties.org JOIN :#ethersex */
+	/* #quakenet# :stesie!n=stesie@sudkessel.zerties.org JOIN #ethersex */
 	if (((char *)uip_appdata)[0] == ':'
-	    && strstr_P (uip_appdata, irc_joinmsg_str)) {
+	    && (strstr_P (uip_appdata, irc_joinmsg_str) || strstr_P (uip_appdata, irc_joinmsg_alt_str) )) {
 	    IRCDEBUG ("found join");
 	    char *nick = uip_appdata + 1;
 	    char *endptr = strchr (nick, '!');
