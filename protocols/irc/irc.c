@@ -146,33 +146,28 @@ irc_handle_message (char *message)
 }
 uint8_t irc_parse_ping()
 {
-	uint8_t *ping_pointer=strstr_P (uip_appdata, PSTR ("PING :"));
+	char *ping_pointer=strstr_P(uip_appdata, PSTR ("PING :"));
         if(ping_pointer) /*We found the string PING*/
         {
-                uint8_t *temp_string = (uint8_t*)malloc(20);
-                strcpy_P(temp_string, PSTR("PONG : "));
-		while((*ping_pointer < '0' || *ping_pointer > '9') && *ping_pointer != '\n')
-                        ping_pointer++;
-                if(*ping_pointer != '\n')
+                char temp_string[60];
+		/*Copy the ping sequence*/
+                uint8_t i=0;
+                while(*ping_pointer != '\n' && i<58)
                 {
-			/*Copy the ping sequence*/
-                        int i=0;
-                        while(*ping_pointer >= '0' && *ping_pointer <= '9' && i<18)
-                        {
-                                *(temp_string+7+i)=*ping_pointer;
-                                i++;ping_pointer++;
-                        }
-			/*Complete the string*/
-                        *(temp_string+7+i)='\n';
-                        *(temp_string+8+i)='\0';
-                }
+			*(temp_string+i)=*ping_pointer;
+			i++;ping_pointer++;
+		}
+		/*Complete the string and replace I with O*/
+                *(temp_string+1)='O';
+                *(temp_string+i)='\n';
+                *(temp_string+1+i)='\0';
 		IRCDEBUG ("replying %s", temp_string);
 		/*Send the PONG*/
-	        uip_send (temp_string,strlen(temp_string));
+		uip_send (temp_string,strlen(temp_string));
 		return 1;
         }
 	else
-		/*No PONG*/
+		/*No PING*/
 		return 0;
 }
 
@@ -181,11 +176,11 @@ irc_parse (void)
 {
     char *message;
     IRCDEBUG ("ircparse stage=%d\n", STATE->stage);
-        switch (STATE->stage) {
+    /*Look for PING.  On some servers the PING commands arrives together with NOTICE AUTH prior to the command. These packages will be dropped, so we need to check for PING first*/
+    if(irc_parse_ping())
+	return 0;
+    switch (STATE->stage) {
     case IRC_SEND_USERNICK:
-	/*Look for PING.  On some servers the PING commands arrives together with NOTICE AUTH prior to the command. These packages will be dropped, so we need to check for PING first*/
-	if(irc_parse_ping())
-		return 0;
 	if (strstr_P (uip_appdata, PSTR (" 433 "))) {
 	    IRCDEBUG ("nickname already in use, try alternative one.");
 	    STATE->stage = IRC_SEND_ALTNICK;
@@ -203,9 +198,6 @@ irc_parse (void)
 	break;
 
     case IRC_SEND_ALTNICK:
-	/*Look for PING.  On some servers the PING commands arrives together with NOTICE AUTH prior to the command. These packages will be dropped, so we need to check for PING first*/
-    	if(irc_parse_ping())
-		return 0;
 	if (strstr_P (uip_appdata, PSTR (" 443 "))) {
 	    IRCDEBUG ("nickname already also in use, stop.");
 	    return 1;
@@ -243,7 +235,6 @@ irc_parse (void)
 	    }
 	}
 #endif	/* IRC_GREET_SUPPORT */
-
 
 	return 0;
     }
