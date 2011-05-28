@@ -20,14 +20,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include "config.h"
+#include <stdlib.h>
+
 #ifdef DMX_EFFECT_SUPPORT
 
 #define DMX_EFFECT_DISABLED 0
 #define DMX_EFFECT_ENABLED 1
 
 #ifdef DMX_EFFECT_RAINBOW
-extern volatile uint8_t rainbow_enabled;
+extern uint8_t rainbow_enabled;
+
 void dmx_effect_rainbow_colors(void);
+#endif
+#ifdef DMX_EFFECT_RANDOM
+extern uint8_t random_enabled;
+void dmx_effecT_random_colors_gen(void);
+void dmx_effecT_random_colors_show(void);
 #endif
 
 void dmx_effect_init(void);

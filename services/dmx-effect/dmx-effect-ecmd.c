@@ -55,6 +55,33 @@ int16_t parse_cmd_dmx_rainbow(char *cmd, char *output, uint16_t len)
 
 }
 #endif /*Rainbow*/
+#ifdef DMX_EFFECT_RANDOM
+int16_t parse_cmd_dmx_random(char *cmd, char *output, uint16_t len)
+{
+   uint8_t ret=0;
+   uint16_t selection=0;
+   if(cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u"), &selection);
+   if(ret == 1)
+   {
+	if(selection == DMX_EFFECT_ENABLED)
+	{
+		/*seed the srand() with timer1*/
+		srand(TCNT1);
+		random_enabled=DMX_EFFECT_ENABLED;
+                return ECMD_FINAL_OK;
+	}
+	else if(selection == DMX_EFFECT_DISABLED)
+	{
+		random_enabled=DMX_EFFECT_DISABLED;
+                return ECMD_FINAL_OK;
+	}
+   	else
+		return ECMD_ERR_PARSE_ERROR;
+   } 
+   return ECMD_ERR_PARSE_ERROR;
+
+}
+#endif /*Random*/
 
 #endif
 /*
@@ -62,6 +89,9 @@ int16_t parse_cmd_dmx_rainbow(char *cmd, char *output, uint16_t len)
    block([[DMX_Effect]] commands)
    ecmd_ifdef(DMX_EFFECT_RAINBOW)
 	ecmd_feature(dmx_rainbow, "dmx rainbow",, switch rainbow on (1) or off (0)) 
+   ecmd_endif
+   ecmd_ifdef(DMX_EFFECT_RANDOM)
+	ecmd_feature(dmx_random, "dmx random",, switch random on (1) or off (0)) 
    ecmd_endif
 */
      
