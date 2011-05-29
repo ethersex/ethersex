@@ -28,8 +28,8 @@ dnl pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
 pin(SPI_CS_RFM12, PC0, OUTPUT)
 RFM12_USE_INT(0)
 RFM12_ASK_SENSE_USE_INT(1)
-dnl pin(RFM12_TX_PIN, PD5, OUTPUT)
-dnl pin(RFM12_RX_PIN, PD6, OUTPUT)
+dnl pin(STATUSLED_RFM12_TX, PD5, OUTPUT)
+dnl pin(STATUSLED_RFM12_RX, PD6, OUTPUT)
 ')
 
 ifdef(`conf_FS20', `dnl
@@ -48,12 +48,14 @@ ifdef(`conf_RC5', `
 ')
 
 ifdef(`conf_IRMP', `dnl
-  pin(IRMP_RX, PD3)
+pin(IRMP_RX, PD3)
 #undef IRMP_USE_TIMER2
 #define IRMP_RX_LOW_ACTIVE
 #undef IRMP_RX_LED_LOW_ACTIVE 
-  pin(IRMP_TX, PD7) dnl OC2/OC2A
+pin(STATUSLED_IRMP_RX, PC3, OUTPUT)
+pin(IRMP_TX, PD7) dnl OC2/OC2A
 #undef IRMP_TX_LED_LOW_ACTIVE 
+pin(STATUSLED_IRMP_TX, PC2, OUTPUT)
 ')
 
 dnl pin(KEY1, PD2)

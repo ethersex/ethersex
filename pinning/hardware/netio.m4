@@ -38,6 +38,10 @@ ifdef(`conf_STATUSLED_RX', `dnl
 pin(STATUSLED_RX, PA0, OUTPUT)
 ')dnl
 
+ifdef(`conf_STATUSLED_HB_ACT', `dnl
+pin(STATUSLED_HB_ACT, PA0, OUTPUT)
+')dnl
+
 ifdef(`conf_FS20', `dnl
 /* fs20 support */
 pin(FS20_SEND, PD7)
