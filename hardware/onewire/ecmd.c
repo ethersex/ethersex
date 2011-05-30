@@ -150,7 +150,11 @@ list_next: ;
                     ow_global.current_rom.bytewise[5],
                     ow_global.current_rom.bytewise[6],
                     ow_global.current_rom.bytewise[7],
+#if ONEWIRE_BUSCOUNT > 1
                     ow_global.bus);
+#else
+		    1);
+#endif
 #endif
            ret = snprintf_P(output, len,
                     PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
