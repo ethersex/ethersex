@@ -141,7 +141,11 @@ list_next: ;
 
 #ifdef DEBUG_ECMD_OW_LIST
            debug_printf("discovered device "
+#if ONEWIRE_BUSCOUNT > 1
                     "%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
+#else
+                    "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+#endif
                     ow_global.current_rom.bytewise[0],
                     ow_global.current_rom.bytewise[1],
                     ow_global.current_rom.bytewise[2],
@@ -149,8 +153,12 @@ list_next: ;
                     ow_global.current_rom.bytewise[4],
                     ow_global.current_rom.bytewise[5],
                     ow_global.current_rom.bytewise[6],
-                    ow_global.current_rom.bytewise[7],
-                    ow_global.bus);
+                    ow_global.current_rom.bytewise[7]
+#if ONEWIRE_BUSCOUNT > 1
+                    ,ow_global.bus);
+#else
+		    );
+#endif
 #endif
            ret = snprintf_P(output, len,
                     PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
