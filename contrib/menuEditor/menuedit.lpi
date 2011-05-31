@@ -2,21 +2,19 @@
 <CONFIG>
   <ProjectOptions>
     <PathDelim Value="/"/>
-    <Version Value="7"/>
+    <Version Value="6"/>
     <General>
-      <Flags>
-        <LRSInOutputDirectory Value="False"/>
-      </Flags>
       <MainUnit Value="0"/>
+      <IconPath Value="./"/>
       <TargetFileExt Value=""/>
-      <ActiveEditorIndexAtStart Value="2"/>
+      <ActiveEditorIndexAtStart Value="0"/>
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <CurrentMajorRevNr Value="1"/>
       <CurrentMinorRevNr Value="3"/>
-      <CurrentBuildNr Value="7"/>
+      <CurrentBuildNr Value="2"/>
       <ProjectVersion Value="0.1.0.1"/>
     </VersionInfo>
     <PublishOptions>
@@ -40,15 +38,15 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="menuedit.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MenuEdit"/>
-        <CursorPos X="37" Y="20"/>
+        <CursorPos X="62" Y="11"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="1"/>
-        <UsageCount Value="95"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="150"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -56,25 +54,38 @@
         <ComponentName Value="Form1"/>
         <IsPartOfProject Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <ResourceFilename Value="mainedit.lrs"/>
         <UnitName Value="mainEdit"/>
-        <CursorPos X="23" Y="3"/>
-        <TopLine Value="1"/>
+        <CursorPos X="28" Y="752"/>
+        <TopLine Value="737"/>
         <EditorIndex Value="0"/>
-        <UsageCount Value="95"/>
+        <UsageCount Value="150"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="exporter.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exporter"/>
-        <CursorPos X="36" Y="301"/>
-        <TopLine Value="292"/>
-        <EditorIndex Value="2"/>
-        <UsageCount Value="73"/>
+        <CursorPos X="15" Y="714"/>
+        <TopLine Value="698"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="128"/>
         <Loaded Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="check.pas"/>
+        <ComponentName Value="Form2"/>
+        <IsPartOfProject Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <ResourceFilename Value="check.lrs"/>
+        <UnitName Value="check"/>
+        <CursorPos X="1" Y="243"/>
+        <TopLine Value="21"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="68"/>
+        <Loaded Value="True"/>
+      </Unit3>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="8"/>

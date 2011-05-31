@@ -1,7 +1,8 @@
-/* onewire support */
 ifdef(`conf_ONEWIRE', `dnl
-pin(ONEWIRE, PC2)
-')
+  /* onewire port range */
+  ONEWIRE_PORT_RANGE(PC2, PC2)
+')dnl
+
 
 /* port the enc28j60 is attached to */
 pin(SPI_CS_NET, SPI_CS_HARDWARE)
@@ -19,11 +20,11 @@ ifdef(`conf_RFM12', `dnl
 ')
 
 ifdef(`conf_IRMP', `dnl
-  pin(IRMP_RX, PB0)
-  #define IRMP_USE_TIMER0
-  #define IRMP_RX_LOW_ACTIVE
-  #undef IRMP_RX_LED_LOW_ACTIVE
-  pin(IRMP_TX, PD7) dnl OC2
+pin(IRMP_RX, PB0)
+#define IRMP_USE_TIMER0
+#define IRMP_RX_LOW_ACTIVE
+#undef IRMP_RX_LED_LOW_ACTIVE 
+pin(STATUSLED_IRMP_RX, PD7, OUTPUT)
 ')
 
 ifdef(`conf_STATUSLED_POWER', `dnl

@@ -109,10 +109,10 @@ uint32_t compute_dcf77_timestamp() {
 	return timestamp;
 }
 
-#ifdef DCF77_vect
-SIGNAL (DCF77_vect)
+#ifdef DCF77_VECTOR
+ISR (DCF77_VECTOR)
 #else
-SIGNAL (SIG_COMPARATOR)
+ISR (ANALOG_COMP_vect)
 #endif
 {
 	uint8_t TCNT2temp = TCNT2;

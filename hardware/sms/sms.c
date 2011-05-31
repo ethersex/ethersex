@@ -73,7 +73,7 @@ generate_usart_init()
 int noinline
 my_uart_put (char d, FILE *stream);
 
-SIGNAL(usart(USART,_RX_vect)) {
+ISR(usart(USART,_RX_vect)) {
     uint8_t data = usart(UDR);
     static int8_t i = -1;
 
