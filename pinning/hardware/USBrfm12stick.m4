@@ -17,11 +17,7 @@ RFM12_ASK_SENSE_USE_INT(1)
 /* port the rfm12 module CS is attached to */
 pin(SPI_CS_RFM12, PC2, OUTPUT)
 
-<<<<<<< HEAD
 dnl RFM12_USE_PCINT(0, PB0)  dnl PCINT0
-=======
-RFM12_USE_PCINT(0, PB0)  dnl PCINT0
->>>>>>> d863031... USB Stick Hardware: example with USB-NET and ASK
 
 pin(STATUSLED_TX, PD5, OUTPUT)
 
