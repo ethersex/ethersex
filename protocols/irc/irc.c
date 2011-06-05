@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2009 by Bernd Stellwag <burned@zerties.org>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,9 +52,12 @@ static const char PROGMEM irc_privmsg_str[] =
     "PRIVMSG #" CONF_IRC_CHANNEL " :";
 
 #ifdef IRC_GREET_SUPPORT
+/*Quakenet*/
 static const char PROGMEM irc_joinmsg_str[] =
-    " JOIN :#" CONF_IRC_CHANNEL;
-
+    " JOIN #" CONF_IRC_CHANNEL;
+/*Freenode*/
+static const char PROGMEM irc_joinmsg_alt_str[] =
+    " JOIN #:" CONF_IRC_CHANNEL;
 static const char PROGMEM irc_send_greet[] =
     CONF_IRC_GREET_MSG;
 #endif	/* IRC_GREET_SUPPORT */
@@ -143,14 +147,41 @@ irc_handle_message (char *message)
     }
 #endif
 }
-
+uint8_t irc_parse_ping()
+{
+	char *ping_pointer=strstr_P(uip_appdata, PSTR ("PING :"));
+        if(ping_pointer) /*We found the string PING*/
+        {
+                char temp_string[60];
+		/*Copy the ping sequence*/
+                uint8_t i=0;
+                while(*ping_pointer != '\n' && i<58)
+                {
+			*(temp_string+i)=*ping_pointer;
+			i++;ping_pointer++;
+		}
+		/*Complete the string and replace I with O*/
+                *(temp_string+1)='O';
+                *(temp_string+i)='\n';
+                *(temp_string+1+i)='\0';
+		IRCDEBUG ("replying %s", temp_string);
+		/*Send the PONG*/
+		uip_send (temp_string,strlen(temp_string));
+		return 1;
+        }
+	else
+		/*No PING*/
+		return 0;
+}
 
 static uint8_t
 irc_parse (void)
 {
     char *message;
     IRCDEBUG ("ircparse stage=%d\n", STATE->stage);
-
+    /*Look for PING.  On some servers the PING commands arrives together with NOTICE AUTH prior to the command. These packages will be dropped, so we need to check for PING first*/
+    if(irc_parse_ping())
+	return 0;
     switch (STATE->stage) {
     case IRC_SEND_USERNICK:
 	if (strstr_P (uip_appdata, PSTR (" 433 "))) {
@@ -158,13 +189,11 @@ irc_parse (void)
 	    STATE->stage = IRC_SEND_ALTNICK;
 	    return 0;
 	}
-
 	if (strstr_P (uip_appdata, PSTR (" 001 "))) {
 	    IRCDEBUG ("remote host accepted connection.");
 	    STATE->stage = IRC_SEND_JOIN;
 	    return 0;
 	}
-
 	if (strstr_P (uip_appdata, PSTR ("NOTICE AUTH"))) {
 	    IRCDEBUG ("ignoring auth fluff ...");
 	    return 0;
@@ -193,9 +222,10 @@ irc_parse (void)
 	}
 
 #ifdef IRC_GREET_SUPPORT
-	/* :stesie!n=stesie@sudkessel.zerties.org JOIN :#ethersex */
+	/* #freenode# :stesie!n=stesie@sudkessel.zerties.org JOIN :#ethersex */
+	/* #quakenet# :stesie!n=stesie@sudkessel.zerties.org JOIN #ethersex */
 	if (((char *)uip_appdata)[0] == ':'
-	    && strstr_P (uip_appdata, irc_joinmsg_str)) {
+	    && (strstr_P (uip_appdata, irc_joinmsg_str) || strstr_P (uip_appdata, irc_joinmsg_alt_str) )) {
 	    IRCDEBUG ("found join");
 	    char *nick = uip_appdata + 1;
 	    char *endptr = strchr (nick, '!');
@@ -209,15 +239,6 @@ irc_parse (void)
 	    }
 	}
 #endif	/* IRC_GREET_SUPPORT */
-
-	if (strncmp_P (uip_appdata, PSTR ("PING :"), 6) == 0) {
-	  /* Send PONG back to server, FIXME this doesn't support rexmits,
-	     let's hope the packet will make it through (or the server
-	     at least PINGs once more) ... */
-	  ((char *)uip_appdata)[1] = 'O'; /* PING -> PONG */
-	  uip_send (uip_appdata, uip_len);
-	  IRCDEBUG ("replying pong ...\n");
-	}
 
 	return 0;
     }
