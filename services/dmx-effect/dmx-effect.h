@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
+ *
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -18,16 +19,18 @@
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
  */
-
 #include "config.h"
+#ifdef DMX_EFFECT_SUPPORT
 
-#ifndef _DMX_H
-#define _DMX_H
+#define DMX_EFFECT_DISABLED 0
+#define DMX_EFFECT_ENABLED 1
 
-#ifdef DMX_SUPPORT
-void dmx_init(void);
-void dmx_periodic(void);
-extern volatile uint8_t dmx_index;
-extern volatile uint8_t dmx_txlen;
-#endif /* DMX_SUPPORT */
-#endif /* _DMX_H */
+#ifdef DMX_EFFECT_RAINBOW
+extern volatile uint8_t rainbow_enabled;
+void dmx_effect_rainbow_colors(void);
+#endif
+
+void dmx_effect_init(void);
+void dmx_effect_process(void);
+
+#endif
