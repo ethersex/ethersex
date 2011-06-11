@@ -12,6 +12,7 @@ $(I2C_MASTER_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_ds1631.c \
 	hardware/i2c/master/i2c_pcf8574x.c \
 	hardware/i2c/master/i2c_max7311.c \
+	hardware/i2c/master/i2c_pca9685.c \
 
 $(I2C_DS13X7_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_ds13x7.c
