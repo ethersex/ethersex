@@ -1,7 +1,7 @@
 #include "autoconf.h"
 #include "pinning.c"
 #ifndef ADC_INLINE_SUPPORT
-#error Don't inline this file without ADC_INLINE_SUPPORT
+#error Do not inline this file without ADC_INLINE_SUPPORT
 #endif
 <html>
 <head>

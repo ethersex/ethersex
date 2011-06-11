@@ -67,7 +67,6 @@ window.onload = function() {
   </head>
   <body>
     <h1>SVG-powered 1-Wire Status</h1>
-
     <table>
     <tr><td valign="top">
       <table id='ow_table' border="1" cellspacing="0">
@@ -89,6 +88,7 @@ window.onload = function() {
       </svg:svg>
     </td></tr>
     </table>
+    <a href="idx.ht"> Back </a>
     <div id="logconsole"></div>
   </body>
 </html>
