@@ -130,9 +130,11 @@ void dmx_effect_random_colors_show()
 #endif /*Random end*/
 void dmx_effect_init()
 {
+#ifdef DMX_EFFECT_RAINBOW
 	color_r = 255;
 	color_g = 128;
 	color_b = 0;
+#endif
 }
 void dmx_effect_process()
 {
