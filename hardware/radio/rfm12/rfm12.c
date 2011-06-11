@@ -295,10 +295,10 @@ rfm12_init(void)
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 
-#ifdef HAVE_STATUSLED_RFM12_RX
+#ifdef STATUSLED_RFM12_RX_SUPPORT
   PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
-#ifdef HAVE_STATUSLED_RFM12_TX
+#ifdef STATUSLED_RFM12_TX_SUPPORT
   PIN_CLEAR(STATUSLED_RFM12_TX);
 #endif
 
@@ -498,7 +498,7 @@ rfm12_txstart_hard (void)
 {
   rfm12_status = RFM12_TX;
 
-#ifdef HAVE_STATUSLED_RFM12_TX
+#ifdef STATUSLED_RFM12_TX_SUPPORT
   PIN_SET(STATUSLED_RFM12_TX);
 #endif
 
