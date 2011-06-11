@@ -101,8 +101,8 @@ ISR(RFM12_VECTOR)	    /* PCINT */
 	{
 	  _uip_buf_lock = 8;
 	  rfm12_buf[rfm12_index ++] = byte;
-#ifdef HAVE_RFM12_RX_PIN
-	  PIN_SET(RFM12_RX_PIN);
+#ifdef STATUSLED_RFM12_RX_SUPPORT
+	  PIN_SET(STATUSLED_RFM12_RX);
 #endif
 	  ACTIVITY_LED_RFM12_RX;
 	}
@@ -114,8 +114,8 @@ ISR(RFM12_VECTOR)	    /* PCINT */
 	  rfm12_trans(0x8208);
           rfm12_status = RFM12_OFF;
 	  rfm12_rxstart();
-#ifdef HAVE_RFM12_RX_PIN
-	  PIN_CLEAR(RFM12_RX_PIN);
+#ifdef STATUSLED_RFM12_RX_SUPPORT
+	  PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
 	  return;
 	}
@@ -199,8 +199,8 @@ ISR(RFM12_VECTOR)	    /* PCINT */
 
     case RFM12_TX_END:
       rfm12_status = RFM12_OFF;
-#ifdef HAVE_RFM12_TX_PIN
-      PIN_CLEAR(RFM12_TX_PIN);
+#ifdef STATUSLED_RFM12_TX_SUPPORT
+      PIN_CLEAR(STATUSLED_RFM12_TX);
 #endif
       rfm12_trans(0x8208);	/* TX off */
       uip_buf_unlock();
@@ -295,11 +295,11 @@ rfm12_init(void)
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 
-#ifdef HAVE_RFM12_RX_PIN
-  PIN_CLEAR(RFM12_RX_PIN);
+#ifdef HAVE_STATUSLED_RFM12_RX
+  PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
-#ifdef HAVE_RFM12_TX_PIN
-  PIN_CLEAR(RFM12_TX_PIN);
+#ifdef HAVE_STATUSLED_RFM12_TX
+  PIN_CLEAR(STATUSLED_RFM12_TX);
 #endif
 
 #ifdef RFM12_IP_SUPPORT
@@ -429,8 +429,8 @@ rfm12_rxfinish(void)
   if(rfm12_status != RFM12_NEW)
     return (0);			/* no new Packet */
 
-#ifdef HAVE_RFM12_RX_PIN
-  PIN_CLEAR(RFM12_RX_PIN);
+#ifdef HAVE_STATUSLED_RFM12_RX
+  PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
 
   rfm12_index_t len = rfm12_buf[1];
@@ -498,8 +498,8 @@ rfm12_txstart_hard (void)
 {
   rfm12_status = RFM12_TX;
 
-#ifdef HAVE_RFM12_TX_PIN
-  PIN_SET(RFM12_TX_PIN);
+#ifdef HAVE_STATUSLED_RFM12_TX
+  PIN_SET(STATUSLED_RFM12_TX);
 #endif
 
   ACTIVITY_LED_RFM12_TX;

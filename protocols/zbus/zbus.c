@@ -104,8 +104,8 @@ static void __zbus_txstart(void) {
   send_escape_data = ZBUS_START;
   usart(UDR) = '\\';
 
-#ifdef HAVE_ZBUS_TX_PIN
-  PIN_SET(ZBUS_TX_PIN);
+#ifdef STATUSLED_ZBUS_TX_SUPPORT
+  PIN_SET(STATUSLED_ZBUS_TX);
 #endif
   ACTIVITY_LED_ZBUS_TX;
   
@@ -241,9 +241,9 @@ ISR(usart(USART,_TX_vect))
   /* Nothing to do, disable transmitter and TX LED. */
   else {
     bus_blocked = 0;
-		#ifdef ZBUS_TX_PIN
-		PIN_CLEAR(STATUSLED_TX);
-		#endif
+#ifdef STATUSLED_RFM12_TX_SUPPORT
+    PIN_CLEAR(STATUSLED_ZBUS_RX);
+#endif
     zbus_txlen = 0;
     zbus_rxstart ();
   }
@@ -297,12 +297,12 @@ ISR(usart(USART,_RX_vect))
     else if (data == ZBUS_STOP) {
       /* Only if there was a start condition before */
       if (bus_blocked) {
-				zbus_rxstop ();
-				zbus_rxlen = zbus_index;
+	zbus_rxstop ();
+	zbus_rxlen = zbus_index;
       }
-			#ifdef ZBUS_RX_PIN
-			PIN_CLEAR(STATUSLED_RX);
-			#endif
+#ifdef STATUSLED_ZBUS_RX_SUPPORT
+      PIN_CLEAR(STATUSLED_ZBUS_RX);
+#endif
 
       /* force bus free even if we didn't catch the start condition. */
       bus_blocked = 0;
@@ -317,10 +317,10 @@ ISR(usart(USART,_RX_vect))
   else if (data == '\\') {
 
     recv_escape_data = 1;
-		#ifdef ZBUS_RX_PIN
-		PIN_SET(STATUSLED_RX);
-		#endif
-		ACTIVITY_LED_ZBUS_RX;
+#ifdef STATUSLED_ZBUS_RX_SUPPORT
+    PIN_SET(STATUSLED_ZBUS_RX);
+#endif
+    ACTIVITY_LED_ZBUS_RX;
   }
   else {
   append_data:

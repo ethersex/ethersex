@@ -56,11 +56,11 @@ STATUSLEDS=y
 STATUSLED_BOOTED_SUPPORT=y
 # STATUSLED_NETLINK_SUPPORT is not set
 # STATUSLED_TX_SUPPORT is not set
-# RFM12_TX_PIN is not set
-# ZBUS_TX_PIN is not set
+# STATUSLED_RFM12_TX is not set
+# STATUSLED_ZBUS_TX is not set
 # STATUSLED_RX_SUPPORT is not set
-# RFM12_RX_PIN is not set
-# ZBUS_RX_PIN is not set
+# STATUSLED_RFM12_RX is not set
+# STATUSLED_ZBUS_RX is not set
 # CRYPTO_SUPPORT is not set
 # CAST5_SUPPORT is not set
 # MD5_SUPPORT is not set
