@@ -57,14 +57,11 @@ void __start (void) __attribute__ ((naked))
                     __attribute__ ((section (".init1")));
 void __start ()
 {
-  /* Clear the MCUSR Register to avoid endless wdreset loops */
-#if defined(MCUCSR) && !defined(MCUSR)
-#define MCUSR MCUCSR
-#endif
+  /* Clear the watchdog register to avoid endless wdreset loops */
 #ifdef DEBUG_RESET_REASON
-  mcusr_mirror = MCUSR;
+  mcusr_mirror = MCU_STATUS_REGISTER;
 #endif
-  MCUSR = 0;
+  MCU_STATUS_REGISTER = 0;
   wdt_disable ();
   /* Disable all timer interrupts */
 #ifdef TIMSK
@@ -148,7 +145,7 @@ main (void)
   debug_printf ("enabling watchdog\n");
 #ifdef DEBUG
   /* for debugging, test reset cause and jump to bootloader */
-  if (MCUSR & _BV (WDRF))
+  if (MCU_STATUS_REGISTER & _BV (WDRF))
     {
       debug_printf ("bootloader...\n");
       jump_to_bootloader ();
