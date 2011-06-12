@@ -46,10 +46,12 @@ window.onload = function() {
 }
 </script>
 </head><body>
-<h1>Ethersex 1-Wire Status</h1>
+<h1>1-Wire Status</h1>
 <table id='ow_table' border=1 cellspacing=0>
 <tr><td>Address</td><td>Data</td></tr>
 </table>
+<br>
+<a href="idx.ht"> Back </a>
 <div id="logconsole"></div>
 </body>
 </html>
