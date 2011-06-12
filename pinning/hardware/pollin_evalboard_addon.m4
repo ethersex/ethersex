@@ -14,14 +14,6 @@ pin(HD44780_D7, PA7)
 pin(HD44780_EN1, PB0)
 ')dnl
 
-ifdef(`conf_STATUSLED_TX', `dnl
-pin(STATUSLED_TX, PC2, OUTPUT)
-')dnl
-
-ifdef(`conf_STATUSLED_RX', `dnl
-pin(STATUSLED_RX, PC3, OUTPUT)
-')dnl
-
 ifdef(`conf_RFM12', `dnl
 /* port the rfm12 module CS is attached to */
 dnl pin(SPI_CS_RFM12, SPI_CS_HARDWARE)

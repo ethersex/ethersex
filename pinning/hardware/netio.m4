@@ -30,14 +30,6 @@ ifdef(`conf_STATUSLED_NETLINK', `dnl
 pin(STATUSLED_NETLINK, PA2, OUTPUT)
 ')dnl
 
-ifdef(`conf_STATUSLED_TX', `dnl
-pin(STATUSLED_TX, PA1, OUTPUT)
-')dnl
-
-ifdef(`conf_STATUSLED_RX', `dnl
-pin(STATUSLED_RX, PA0, OUTPUT)
-')dnl
-
 ifdef(`conf_STATUSLED_HB_ACT', `dnl
 pin(STATUSLED_HB_ACT, PA0, OUTPUT)
 ')dnl
