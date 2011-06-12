@@ -232,7 +232,7 @@ INLINE_FILES :=
 endif
 
 embed/%: embed/%.cpp
-	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
+	@if ! avr-cpp -xc -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
