@@ -49,70 +49,71 @@
 #include "services/motd/motd.h"
 #endif
 
-struct eeprom_config_t {
+struct eeprom_config_t
+{
 #ifdef ETHERNET_SUPPORT
-    uint8_t mac[6];
+  uint8_t mac[6];
 #endif
 
-#if !defined(BOOTP_SUPPORT) || defined(IPV6_STATIC_SUPPORT) || !defined(DHCP_SUPPORT)
-    uint8_t ip[IPADDR_LEN];
+#if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
+  uint8_t ip[IPADDR_LEN];
 #endif
 
 #ifdef IPV4_SUPPORT
-    uint8_t netmask[IPADDR_LEN];
+  uint8_t netmask[IPADDR_LEN];
 #endif
 
-    uint8_t gateway[IPADDR_LEN];
+  uint8_t gateway[IPADDR_LEN];
 
 #ifdef DNS_SUPPORT
-    uint8_t dns_server[IPADDR_LEN];
+  uint8_t dns_server[IPADDR_LEN];
 #endif
 
 #ifdef NTP_SUPPORT
-    uint8_t ntp_server[IPADDR_LEN];
+  uint8_t ntp_server[IPADDR_LEN];
 #endif
 
 #ifdef PAM_SINGLE_USER_EEPROM_SUPPORT
-    char pam_username[16];
-    char pam_password[16];
+  char pam_username[16];
+  char pam_password[16];
 #endif
 
 #ifdef KTY_SUPPORT
-    int8_t kty_calibration;
+  int8_t kty_calibration;
 #endif
 
 #ifdef STELLA_SUPPORT
-	uint8_t stella_channel_values[STELLA_CHANNELS];
-	uint8_t stella_fadefunc;
-	uint8_t stella_fadestep;
+  uint8_t stella_channel_values[STELLA_CHANNELS];
+  uint8_t stella_fadefunc;
+  uint8_t stella_fadestep;
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
-	char sms77_username[SMS77_VALUESIZE];
-	char sms77_password[SMS77_VALUESIZE];
-	char sms77_receiver[SMS77_VALUESIZE];
+  char sms77_username[SMS77_VALUESIZE];
+  char sms77_password[SMS77_VALUESIZE];
+  char sms77_receiver[SMS77_VALUESIZE];
 #endif
 
 #ifdef JABBER_EEPROM_SUPPORT
-	char jabber_username[JABBER_VALUESIZE];
-	char jabber_password[JABBER_VALUESIZE];
-	char jabber_resource[JABBER_VALUESIZE];
-	char jabber_hostname[JABBER_VALUESIZE];
+  char jabber_username[JABBER_VALUESIZE];
+  char jabber_password[JABBER_VALUESIZE];
+  char jabber_resource[JABBER_VALUESIZE];
+  char jabber_hostname[JABBER_VALUESIZE];
 #endif
 
 #ifdef MOTD_SUPPORT
-	char motd_text[MOTD_VALUESIZE];
+  char motd_text[MOTD_VALUESIZE];
 #endif
 
-    uint8_t crc;
+  uint8_t crc;
 };
 
 
 #define EEPROM_CONFIG_BASE  (uint8_t *)0x0000
 
 
-uint8_t crc_checksum(void *data, uint8_t length);
-void eeprom_write_block_hack(void *dst, const void *src, size_t n);
+uint8_t crc_checksum (void *data, uint8_t length);
+void eeprom_write_block_hack (void *dst, const void *src, size_t n);
 
 /* Reset the EEPROM to sane defaults. */
 void eeprom_reset (void);
@@ -121,7 +122,7 @@ void eeprom_reset (void);
 void eeprom_init (void);
 
 /* Calculate crc value, from config saved in eeprom */
-uint8_t eeprom_get_chksum(void);
+uint8_t eeprom_get_chksum (void);
 
 #define eeprom_save(dst, data, len) \
   eeprom_write_block_hack(EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), data, len)
