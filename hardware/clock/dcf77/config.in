@@ -3,11 +3,17 @@ dep_bool_menu "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPP
     choice 'Module'			\
 	"SelfMade	DCFANA_SUPPORT	\
 	 DCF_1		DCF1_SUPPORT"	\
- 	SelfMade
+ 	"SelfMade" DCF77_MODULE
+  fi
+  if [ "$DCF77_MODULE" = "DCFANA_SUPPORT" ]; then
+    define_bool DCFANA_SUPPORT y
+  fi
+  if [ "$DCF77_MODULE" = "DCF1_SUPPORT" ]; then
+    define_bool DCF1_SUPPORT y
   fi
   if [ "$DCF1_SUPPORT" = "y" ]; then
     dep_bool "Use PON" DCF1_USE_PON_SUPPORT
   fi
-	comment  "Debugging Flags"
-	dep_bool 'DCF77' DEBUG_DCF77 $DEBUG
+  comment  "Debugging Flags"
+  dep_bool 'DCF77' DEBUG_DCF77 $DEBUG
 endmenu
