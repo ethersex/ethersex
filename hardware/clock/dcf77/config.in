@@ -9,6 +9,9 @@ dep_bool_menu "Synchronize using DCF77 signal" DCF77_SUPPORT $CLOCK_CRYSTAL_SUPP
     dep_bool "Use PON" DCF1_USE_PON_SUPPORT
     define_bool DCF1_SUPPORT y
   fi
+  if [ "$DCFANA_SUPPORT" = "y" ]; then
+    define_bool DCFANA_SUPPORT y
+  fi
 	comment  "Debugging Flags"
 	dep_bool 'DCF77' DEBUG_DCF77 $DEBUG
 endmenu
