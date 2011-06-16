@@ -94,15 +94,28 @@ uint8_t random_enabled = DMX_EFFECT_DISABLED;
 uint8_t random_channels[DMX_EFFECT_RANDOM_CHANNELS] = {0};
 void dmx_effect_random_colors_gen(void)
 {
+	uint8_t red,green,blue;
 	#ifndef DMX_EFFECT_RANDOM_ALL
-	uint8_t rnd_value=rand()%256;
+		red=rand()%256;
+		green=rand()%256;
+		blue=rand()%256;
 	#endif
 	for(uint8_t i=0;i<DMX_EFFECT_RANDOM_CHANNELS;i++)
 	{
 		#ifdef DMX_EFFECT_RANDOM_ALL
-		uint8_t rnd_value=rand()%256;
+		if(i%3 == 0)
+		{
+			red=rand()%256;
+			green=rand()%256;
+			blue=rand()%256;
+		}	
 		#endif
-		random_channels[i]=rnd_value;
+		if(i%3 == 0)
+			random_channels[i]=red;
+		if(i%3 == 1)
+			random_channels[i]=green;
+		if(i%3 == 2)
+			random_channels[i]=blue;
 		
 	}
 }
@@ -149,7 +162,7 @@ void dmx_effect_process()
 		if(counter == 0)
 		{
 			//20 seconds have passed, generate new colors
-			counter=100;
+			counter=500;
 			dmx_effect_random_colors_gen();
 		}
 		counter--;
