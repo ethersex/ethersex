@@ -14,6 +14,9 @@
 
 #define _TIMSK_TIMER1 TIMSK
 
+/* Watchdog status register */
+#define MCU_STATUS_REGISTER  MCUSR
+
 /* Generic timer macros */
 #define TC0_PRESCALER_1      {TCCR0&=~(_BV(CS02)|_BV(CS01));TCCR0|=_BV(CS00);}
 #define TC0_PRESCALER_8      {TCCR0&=~(_BV(CS02)|_BV(CS00));TCCR0|=_BV(CS01);}
