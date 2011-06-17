@@ -68,7 +68,6 @@ void starburst_init()
 #ifdef STARBURST_PCA9685
 	i2c_pca9685_set_mode(STARBURST_PCA9685_ADDRESS,STARBURST_PCA9685_EXTDRV,STARBURST_PCA9685_IVRT,STARBURST_PCA9685_PRESCALER);
 	//Connect to dmx-storage
-	dmx_storage_connect(STARBURST_PCA9685_UNIVERSE);
 	pca9685_dmx_conn_id=dmx_storage_connect(STARBURST_PCA9685_UNIVERSE);
 #endif
 }
