@@ -32,6 +32,7 @@
 #else
 	#define STARBURST_PCA9685_IVRT 0
 #endif
+
 enum starburst_update {STARBURST_UPDATE,STARBURST_NOUPDATE};
 enum starburst_mode {STARBURST_MODE_NORMAL,STARBURST_MODE_FADE};
 struct starburst_channel {
@@ -44,6 +45,6 @@ struct starburst_channel {
 };
 void starburst_init();
 void starburst_update();
-enum starburst_update starburst_process();
+void starburst_process();
 void starburst_main();
 #endif
