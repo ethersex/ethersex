@@ -45,25 +45,26 @@
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init ()
-     static uint8_t send_escape_data = 0;
-     static uint8_t recv_escape_data = 0;
-     static uint8_t bus_blocked = 0;
+static uint8_t send_escape_data = 0;
+static uint8_t recv_escape_data = 0;
+static uint8_t bus_blocked = 0;
 
-     static volatile zbus_index_t zbus_index;
-     volatile zbus_index_t zbus_txlen;
-     static volatile zbus_index_t zbus_rxlen;
+static volatile zbus_index_t zbus_index;
+volatile zbus_index_t zbus_txlen;
+static volatile zbus_index_t zbus_rxlen;
 #ifdef ZBUS_ECMD
-     uint16_t zbus_rx_frameerror;
-     uint16_t zbus_rx_overflow;
-     uint16_t zbus_rx_parityerror;
-     uint16_t zbus_rx_bufferfull;
-     uint16_t zbus_rx_count;
-     uint16_t zbus_tx_count;
+uint16_t zbus_rx_frameerror;
+uint16_t zbus_rx_overflow;
+uint16_t zbus_rx_parityerror;
+uint16_t zbus_rx_bufferfull;
+uint16_t zbus_rx_count;
+uint16_t zbus_tx_count;
 #endif
 
-     static void __zbus_txstart (void);
+static void __zbus_txstart (void);
 
-     void zbus_txstart (zbus_index_t size)
+void
+zbus_txstart (zbus_index_t size)
 {
   // FIXME
   if (zbus_txlen != 0 || zbus_rxlen != 0 || bus_blocked)
@@ -130,8 +131,8 @@ zbus_rxstart (void)
   usart (UCSR, B) = _BV (usart (RXCIE)) | _BV (usart (RXEN));
 
   /* Default is reciever enabled */
-#ifdef STATUSLED_ZBUS_RX_SUPPORT
-  PIN_SET (STATUSLED_ZBUS_RX_SUPPORT);
+#ifdef HAVE_ZBUS_RXTX_PIN
+  PIN_SET (ZBUS_RXTX_PIN);
 #endif
 
   SREG = sreg;
