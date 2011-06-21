@@ -23,13 +23,13 @@ dnl
 
 #define _SPMCR SPMCSR
 
-/* ATmega644 specific adjustments */
+/* ATmega1284P specific adjustments */
 #define _IVREG MCUCR
 #define _EIMSK EIMSK
 #define _EICRA EICRA
 
 /* Watchdog status register */
-#define MCU_STATUS_REGISTER  MCUCSR
+#define MCU_STATUS_REGISTER  MCUSR
 
 /* Generic timer macros */
 #define TC0_PRESCALER_1      {TCCR0B&=~(_BV(CS02)|_BV(CS01));TCCR0B|=_BV(CS00);}
