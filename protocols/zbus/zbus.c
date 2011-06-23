@@ -132,7 +132,7 @@ zbus_rxstart (void)
 
   /* Default is reciever enabled */
 #ifdef HAVE_ZBUS_RXTX_PIN
-  PIN_SET (ZBUS_RXTX_PIN);
+  PIN_CLEAR (ZBUS_RXTX_PIN);
 #endif
 
   SREG = sreg;
