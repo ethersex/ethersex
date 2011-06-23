@@ -61,8 +61,8 @@ clock_init (void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
   ASSR = _BV (CLOCK_TIMER_AS);
   CLOCK_TIMER_CNT = 0;
-  /* 64 prescaler to get every 0.5 second an interrupt */
-  CLOCK_TIMER_PRESCALER_64;
+  /* 128 prescaler to get every 1.0 second an interrupt (32768Hz/128 = 1Hz */
+  CLOCK_TIMER_PRESCALER_128;
 
   /* Wait until the bytes are written */
 #ifdef CLOCK_TIMER_RBUSY
@@ -99,15 +99,6 @@ ISR (CLOCK_SIG)
 
   TCNT1 = 65536 - CLOCK_SECONDS;
   OCR1A = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-#endif
-
-#if defined(CLOCK_CRYSTAL_SUPPORT)
-  /* If we use Crystal Support we have an interrupt every 0.5
-     seconds, so we have to drop every second interrupt */
-  static uint8_t clock_crystal_interrupt_drop = 0;
-  clock_crystal_interrupt_drop ^= 1;
-  if (clock_crystal_interrupt_drop)
-    return;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
