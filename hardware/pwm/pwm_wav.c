@@ -65,7 +65,7 @@ ISR (TIMER0_OVF_vect)
 #ifdef DEBUG_PWM
     	if (pwmbytecounter < 10 || ((pwmbytecounter % 1000) == 0) ) debug_printf("PWM sound %x at pos %u\n",s, pwmbytecounter);
 #endif
-	TCNT0 = 255 - SOUNDDIVISOR;
+	TC0_COUNTER_CURRENT = 255 - SOUNDDIVISOR;
 	OCR2A = s;
 	pwmbytecounter++;
 #ifdef VFS_PWM_WAV_SUPPORT
@@ -98,7 +98,7 @@ pwm_wav_init(void)
 	//Set TIMER0
 	TIMSK0 |= (1 << TOIE0);
 	TCCR0B = (1<<CS00|1<<CS01) ;
-	TCNT0 = 255 - SOUNDDIVISOR;
+	TC0_COUNTER_CURRENT = 255 - SOUNDDIVISOR;
 }
 
 void
