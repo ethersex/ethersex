@@ -72,7 +72,7 @@ void dcf77_init(void) {
 	PIN_SET(DCF1_PON);
 #endif
 
-#ifdef defined(DCF77_PCINT_PIN)
+#if defined(DCF77_PCINT_PIN)
 	DCFDEBUG("configure_pcint\n");
 	/* configure */
 	dcf77_configure_pcint ();
