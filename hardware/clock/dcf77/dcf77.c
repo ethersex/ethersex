@@ -72,11 +72,11 @@ void dcf77_init(void) {
 	PIN_SET(DCF1_PON);
 #endif
 
-#ifdef dcf77_configure_pcint
+#ifdef defined(DCF77_PCINT_PIN)
 	DCFDEBUG("configure_pcint\n");
 	/* configure */
 	dcf77_configure_pcint ();
-#elif defined(HAVE_DCF77_INT)
+#elif defined(DCF77_INT_PIN)
 	DCFDEBUG("HAVE_DCF77_INT\n");
 	/* Initialize "real" Interrupt */
 	_EIMSK |= _BV(DCF77_INT_PIN);

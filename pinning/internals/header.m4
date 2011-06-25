@@ -145,6 +145,7 @@ define(`USB_USE_INT', `dnl
 define(`DCF77_USE_PCINT', `dnl
 /* DCF77 PinChange-Interrupt Line  PCINT$1 -> $2 */
 pin(DCF1, $2, INPUT)
+#define DCF77_PCINT_PIN $2
 
 dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
 #define dcf77_configure_pcint() \
@@ -159,7 +160,6 @@ define(`DCF77_USE_INT', `dnl
 pin(DCF1, $2, INPUT)
 
 /* Configure real interrupt $1, set sense control to trigger on any edge */
-#define HAVE_DCF77_INT
 #define DCF77_INT_PIN INT$1
 #define DCF77_INT_ISC _ISC($1,0)
 #define DCF77_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
