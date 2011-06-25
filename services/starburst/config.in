@@ -8,6 +8,9 @@ dep_bool_menu "Starburst: Multichannel pwm (EXPERIMENTAL)" STARBURST_SUPPORT $DM
 		bool "External Driver" STARBURST_PCA9685_EXTDRV y
 		bool "Inverted PWM"  STARBURST_PCA9685_IVRT n
 		bool "Strobo Effect"  STARBURST_PCA9685_STROBO n
+		if [ "$STARBURST_PCA9685_STROBO" = "y" ]; then
+			define_bool PCA9685_OUTPUT_ENABLE y
+		fi
 		comment "----- DMX related -----"
 		int "Active Channels" STARBURST_PCA9685_CHANNELS 16
 		int "Universe" STARBURST_PCA9685_UNIVERSE 0

@@ -64,10 +64,6 @@ struct starburst_channel pca9685_channels[STARBURST_PCA9685_CHANNELS]={{0,0,STAR
 
 void starburst_init()
 {
-#ifdef STARBURST_PCA9685_STROBO
-	STARBURST_PCA9685_OE_DDR |= (1<<STARBURST_PCA9685_OE_PIN);
-	STARBURST_PCA9685_OE_PORT &= ~(1<<STARBURST_PCA9685_OE_PIN);
-#endif
 	/*Init all i2c chips*/
 #ifdef STARBURST_PCA9685
 	i2c_pca9685_set_mode(STARBURST_PCA9685_ADDRESS,STARBURST_PCA9685_EXTDRV,STARBURST_PCA9685_IVRT,STARBURST_PCA9685_PRESCALER);
@@ -133,7 +129,7 @@ void starburst_process()
 		{
 			if(pca9685_strobo_counter >= 50/pca9685_strobo) 
 			{
-				STARBURST_PCA9685_OE_PORT ^= (1<<STARBURST_PCA9685_OE_PIN);
+				i2c_pca9685_output_enable(TOGGLE);
 				pca9685_strobo_counter=0;
 			}
 			if(pca9685_strobo_counter<50)
@@ -142,7 +138,7 @@ void starburst_process()
 				pca9685_strobo_counter=0;
 		}
 		else
-			STARBURST_PCA9685_OE_PORT &= ~(1<<STARBURST_PCA9685_OE_PIN);
+			i2c_pca9685_output_enable(ON); 
 	#endif
 	return update;
 #endif

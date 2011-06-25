@@ -288,11 +288,11 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 #define STELLA_DDR_PORT2 format(DDR%s, pinname)
 ')
 
-define(`STARBURST_PCA9685_OE', `dnl
+define(`PCA9685_OE', `dnl
 define(`pinname', translit(substr(`$1',1,1), `a-z',`A-Z'))dnl
-#define STARBURST_PCA9685_OE_PIN $1
-#define STARBURST_PCA9685_OE_DDR format(DDR%s, pinname)
-#define STARBURST_PCA9685_OE_PORT format(PORT%s, pinname)
+#define PCA9685_OE_PIN $1
+#define PCA9685_OE_DDR format(DDR%s, pinname)
+#define PCA9685_OE_PORT format(PORT%s, pinname)
 ')
 
 define(`ST7626_DATA_PORT', `dnl
