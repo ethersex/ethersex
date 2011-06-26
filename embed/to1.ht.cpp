@@ -1,6 +1,6 @@
 #include "autoconf.h"
 #ifndef TO1_INLINE_SUPPORT
-#error Don't inline this file without TO1_INLINE_SUPPORT
+#error Do not inline this file without TO1_INLINE_SUPPORT
 #endif
 <html>
 <head>

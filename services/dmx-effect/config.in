@@ -1,0 +1,27 @@
+dep_bool_menu "DMX Effects and Animations (EXPERIMENTAL)" DMX_EFFECT_SUPPORT $DMX_STORAGE_SUPPORT $ARCH_AVR $CONFIG_EXPERIMENTAL
+
+	bool "Rainbow Colors" DMX_EFFECT_RAINBOW
+		 
+	if [ "$DMX_EFFECT_RAINBOW" = "y" ]; then
+		int "Active Channels" DMX_EFFECT_RAINBOW_CHANNELS 16
+		int "Universe" DMX_EFFECT_RAINBOW_UNIVERSE 0
+		int "Offset in Universe" DMX_EFFECT_RAINBOW_OFFSET 0
+		int "Margin between channels" DMX_EFFECT_RAINBOW_MARGIN 0
+		if [ "$DMX_EFFECT_RAINBOW_MARGIN" -gt 0 ]; then
+			int "Fill margin with value (e.g. mode selector of dmx target)" DMX_EFFECT_RAINBOW_MARGIN_FILL 0
+		fi
+	fi
+	comment " ------ "
+	bool "Random Colors" DMX_EFFECT_RANDOM
+	if [ "$DMX_EFFECT_RANDOM" = "y" ]; then
+		int "Active Channels" DMX_EFFECT_RANDOM_CHANNELS 16
+		int "Universe" DMX_EFFECT_RANDOM_UNIVERSE 0
+		int "Offset in Universe" DMX_EFFECT_RANDOM_OFFSET 0
+		int "Margin between channels" DMX_EFFECT_RANDOM_MARGIN 0
+		if [ "$DMX_EFFECT_RANDOM_MARGIN" -gt 0 ]; then
+			int "Fill margin with value (e.g. mode selector of dmx target)" DMX_EFFECT_RANDOM_MARGIN_FILL 0
+		fi
+		bool "Random value for each channel" DMX_EFFECT_RANDOM_ALL y
+	fi
+
+endmenu

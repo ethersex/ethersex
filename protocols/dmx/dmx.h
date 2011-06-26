@@ -27,11 +27,7 @@
 #ifdef DMX_SUPPORT
 void dmx_init(void);
 void dmx_periodic(void);
-void dmx_set_chan_x(uint8_t startchan, uint8_t channum, uint8_t *chan);
-
-extern unsigned char dmx_data[CONF_DMX_MAX_CHAN];
 extern volatile uint8_t dmx_index;
 extern volatile uint8_t dmx_txlen;
-extern volatile uint8_t dmx_prg;
 #endif /* DMX_SUPPORT */
 #endif /* _DMX_H */

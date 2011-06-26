@@ -16,14 +16,6 @@ ifdef(`conf_STATUSLED_NETLINK', `dnl
 pin(STATUSLED_NETLINK, PA1, OUTPUT)
 ')dnl
 
-ifdef(`conf_STATUSLED_TX', `dnl
-pin(STATUSLED_TX, PA0, OUTPUT)
-')dnl
-
-ifdef(`conf_STATUSLED_RX', `dnl
-pin(STATUSLED_RX, PA2, OUTPUT)
-')dnl
-
 ifdef(`conf_RFM12', `dnl
   /* port the rfm12 module CS is attached to */
   pin(SPI_CS_RFM12, PB0,OUTPUT)
@@ -33,10 +25,10 @@ ifdef(`conf_RFM12', `dnl
 
   /* port the LEDS for rfm12 txrx attached to */
   ifdef(`conf_STATUSLED_RFM12_TX', `
-    pin(STATUSLED_RFM12_TX, STATUSLED_TX)
+    pin(STATUSLED_RFM12_TX, PA0, OUTPUT)
   ')
   ifdef(`conf_STATUSLED_RFM12_RX', `
-    pin(STATUSLED_RFM12_RX, STATUSLED_RX)
+    pin(STATUSLED_RFM12_RX, PA2, OUTPUT)
   ')
 ')
 

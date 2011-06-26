@@ -36,14 +36,6 @@ ifdef(`conf_STATUSLED_NETLINK', `dnl
 pin(STATUSLED_NETLINK, PA2, OUTPUT)
 ')dnl
 
-ifdef(`conf_STATUSLED_TX', `dnl
-pin(STATUSLED_TX, PD4, OUTPUT)
-')dnl
-
-ifdef(`conf_STATUSLED_RX', `dnl
-pin(STATUSLED_RX, PD5, OUTPUT)
-')dnl
-
 ifdef(`conf_RFM12', `dnl
 dnl
 dnl Ancient zerties.org RFM12 pinout:
@@ -59,8 +51,8 @@ dnl
   pin(SPI_CS_RFM12, PB0, OUTPUT)
 
 dnl   /* port the LEDS for rfm12 txrx attached to */
-dnl   pin(STATUSLED_RFM12_TX, STATUSLED_TX)
-dnl   pin(STATUSLED_RFM12_RX, STATUSLED_RX)
+dnl   pin(STATUSLED_RFM12_TX, PD4)
+dnl   pin(STATUSLED_RFM12_RX, PD5)
 
   RFM12_USE_INT(2)
 dnl RFM12_USE_PCINT(0, PB0)
@@ -73,8 +65,8 @@ dnl (different from the interrupt line required for IP-over-RFM12)
 ifdef(`conf_ZBUS', `dnl
   /* port config for zbus */
   pin(ZBUS_RXTX_PIN, PD2)
-  dnl  pin(STATUSLED_ZBUS_TX, STATUSLED_TX)
-  dnl  pin(STATUSLED_ZBUS_RX, STATUSLED_RX)
+  dnl  pin(STATUSLED_ZBUS_TX, PD4)
+  dnl  pin(STATUSLED_ZBUS_RX, PD5)
 ')
 
 ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
