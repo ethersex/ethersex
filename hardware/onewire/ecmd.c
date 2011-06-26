@@ -57,7 +57,7 @@ int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
 
     if ((ret == 8) || ((ret == 9) && (end == ' '))) {
 #ifdef DEBUG_ECMD_OW_ROM
-        debug_printf("read rom %x:%x:%x:%x:%x:%x:%x:%x\n",
+        debug_printf("read rom %02x %02x %02x %02x %02x %02x %02x %02x\n",
                      addr[0], addr[1], addr[2], addr[3],
                      addr[4], addr[5], addr[6], addr[7]);
 #endif
