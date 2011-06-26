@@ -44,8 +44,7 @@
 #endif
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init()
-
+generate_usart_init ()
 static uint8_t send_escape_data = 0;
 static uint8_t recv_escape_data = 0;
 static uint8_t bus_blocked = 0;
@@ -62,53 +61,56 @@ uint16_t zbus_rx_count;
 uint16_t zbus_tx_count;
 #endif
 
-static void __zbus_txstart(void);
+static void __zbus_txstart (void);
 
 void
-zbus_txstart(zbus_index_t size)
+zbus_txstart (zbus_index_t size)
 {
   // FIXME
-  if(zbus_txlen != 0 || zbus_rxlen != 0 || bus_blocked)
+  if (zbus_txlen != 0 || zbus_rxlen != 0 || bus_blocked)
     return;			/* rx or tx in action or
 				   new packet left in buffer
-                                   or somebody is talking on the line */
+				   or somebody is talking on the line */
   zbus_index = 0;
 
   zbus_txlen = size;
 
-  if(bus_blocked)
+  if (bus_blocked)
     return;
-  __zbus_txstart();
+  __zbus_txstart ();
 }
 
-static void __zbus_txstart(void) {
+static void
+__zbus_txstart (void)
+{
 
-  uint8_t sreg = SREG; cli();
+  uint8_t sreg = SREG;
+  cli ();
   bus_blocked = 3;
 
   /* enable transmitter and receiver as well as their interrupts */
-  usart(UCSR,B) = _BV(usart(TXCIE)) | _BV(usart(TXEN));
+  usart (UCSR, B) = _BV (usart (TXCIE)) | _BV (usart (TXEN));
 
   /* Enable transmitter */
 #ifdef HAVE_ZBUS_RXTX_PIN
-  PIN_SET(ZBUS_RXTX_PIN);
-#endif 
+  PIN_SET (ZBUS_RXTX_PIN);
+#endif
 
   /* reset tx interrupt flag */
-  usart(UCSR,A) |= _BV(usart(TXC));
+  usart (UCSR, A) |= _BV (usart (TXC));
 
   /* Go! */
   SREG = sreg;
 
   /* Transmit Start sequence */
   send_escape_data = ZBUS_START;
-  usart(UDR) = '\\';
+  usart (UDR) = '\\';
 
-#ifdef HAVE_ZBUS_TX_PIN
-  PIN_SET(ZBUS_TX_PIN);
+#ifdef STATUSLED_ZBUS_TX_SUPPORT
+  PIN_SET (STATUSLED_ZBUS_TX_SUPPORT);
 #endif
   ACTIVITY_LED_ZBUS_TX;
-  
+
   return;
 }
 
@@ -116,19 +118,21 @@ static void __zbus_txstart(void) {
 void
 zbus_rxstart (void)
 {
-  if(zbus_txlen > 0){
-    return;
-  }
+  if (zbus_txlen > 0)
+    {
+      return;
+    }
   zbus_rxlen = 0;
 
-  uint8_t sreg = SREG; cli();
+  uint8_t sreg = SREG;
+  cli ();
 
   /* disable transmitter, enable receiver (and rx interrupt) */
-  usart(UCSR,B) = _BV(usart(RXCIE)) | _BV(usart(RXEN));
+  usart (UCSR, B) = _BV (usart (RXCIE)) | _BV (usart (RXEN));
 
-  /* Default is reciever enabled*/
+  /* Default is reciever enabled */
 #ifdef HAVE_ZBUS_RXTX_PIN
-  PIN_CLEAR(ZBUS_RXTX_PIN);
+  PIN_CLEAR (ZBUS_RXTX_PIN);
 #endif
 
   SREG = sreg;
@@ -138,209 +142,227 @@ zbus_rxstart (void)
 static void
 zbus_rxstop (void)
 {
-  uint8_t sreg = SREG; cli();
+  uint8_t sreg = SREG;
+  cli ();
 
   /* completely disable usart */
-  usart(UCSR,B) = 0;
+  usart (UCSR, B) = 0;
 
   SREG = sreg;
 }
 
 
 zbus_index_t
-zbus_rxfinish(void)
+zbus_rxfinish (void)
 {
   return zbus_rxlen;
 }
 
 void
-zbus_core_init(void)
+zbus_core_init (void)
 {
-    /* Initialize the usart module */
-    usart_init();
+  /* Initialize the usart module */
+  usart_init ();
 
-    /* Enable RX/TX Swtich as Output */
+  /* Enable RX/TX Swtich as Output */
 #ifdef HAVE_ZBUS_RXTX_PIN
-    DDR_CONFIG_OUT(ZBUS_RXTX_PIN);
+  DDR_CONFIG_OUT (ZBUS_RXTX_PIN);
 #endif
 
-    /* clear the buffers */
-    zbus_txlen = 0;
-    zbus_rxlen = 0;
-    zbus_index = 0;
+  /* clear the buffers */
+  zbus_txlen = 0;
+  zbus_rxlen = 0;
+  zbus_index = 0;
 
-    zbus_rxstart ();
+  zbus_rxstart ();
 }
 
 void
-zbus_core_periodic(void)
+zbus_core_periodic (void)
 {
-  if(bus_blocked)
-    if(--bus_blocked == 0 && zbus_txlen > 0)
-      __zbus_txstart();
+  if (bus_blocked)
+    if (--bus_blocked == 0 && zbus_txlen > 0)
+      __zbus_txstart ();
 }
 
 
 
 
-SIGNAL(usart(USART,_TX_vect))
+ISR (usart (USART, _TX_vect))
 {
 
 #ifdef ZBUS_DEBUG
-    ZBUS_DEBUG ("send data: %s\n", uip_appdata);
+  ZBUS_DEBUG ("send data: %s\n", uip_appdata);
 #endif
 
   /* If there's a carry byte, send it! */
-  if (send_escape_data) {
+  if (send_escape_data)
+    {
 #ifdef ZBUS_ECMD
-    zbus_tx_count++;
+      zbus_tx_count++;
 #endif
-    usart(UDR) = send_escape_data;
-    send_escape_data = 0;
-  }
+      usart (UDR) = send_escape_data;
+      send_escape_data = 0;
+    }
 
   /* Otherwise send data from send context, if any is left. */
-  else if (zbus_txlen && zbus_index < zbus_txlen) {
-    if (zbus_buf[zbus_index] == '\\') {
-      /* We need to quote the character. */
-      send_escape_data = zbus_buf[zbus_index];
+  else if (zbus_txlen && zbus_index < zbus_txlen)
+    {
+      if (zbus_buf[zbus_index] == '\\')
+	{
+	  /* We need to quote the character. */
+	  send_escape_data = zbus_buf[zbus_index];
 #ifdef ZBUS_ECMD
-      zbus_tx_count++;
+	  zbus_tx_count++;
 #endif
-      usart(UDR) = '\\';
-    }
-    else {
-      /* No quoting needed, just send it. */
+	  usart (UDR) = '\\';
+	}
+      else
+	{
+	  /* No quoting needed, just send it. */
 #ifdef ZBUS_ECMD
-      zbus_tx_count++;
+	  zbus_tx_count++;
 #endif
-      usart(UDR) = zbus_buf[zbus_index];
-    }
+	  usart (UDR) = zbus_buf[zbus_index];
+	}
 
-    zbus_index ++;
-    bus_blocked = 3;
-  }
+      zbus_index++;
+      bus_blocked = 3;
+    }
 
   /* If send_ctx contains data, but every byte has been sent over the
      wires, send a stop condition. */
-  else if (zbus_txlen) {
-    zbus_txlen = 0;		/* mark buffer as empty. */
-    uip_buf_unlock();
+  else if (zbus_txlen)
+    {
+      zbus_txlen = 0;		/* mark buffer as empty. */
+      uip_buf_unlock ();
 
-    /* Generate the stop condition. */
-    send_escape_data = ZBUS_STOP;
+      /* Generate the stop condition. */
+      send_escape_data = ZBUS_STOP;
 #ifdef ZBUS_ECMD
-    zbus_tx_count++;
+      zbus_tx_count++;
 #endif
-    usart(UDR) = '\\';
-  }
+      usart (UDR) = '\\';
+    }
 
 
 
 
   /* Nothing to do, disable transmitter and TX LED. */
-  else {
-    bus_blocked = 0;
-		#ifdef ZBUS_TX_PIN
-		PIN_CLEAR(STATUSLED_TX);
-		#endif
-    zbus_txlen = 0;
-    zbus_rxstart ();
-  }
+  else
+    {
+      bus_blocked = 0;
+#ifdef STATUSLED_ZBUS_TX_SUPPORT
+      PIN_CLEAR (STATUSLED_ZBUS_TX);
+#endif
+      zbus_txlen = 0;
+      zbus_rxstart ();
+    }
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR (usart (USART, _RX_vect))
 {
   /* Ignore errors */
-  uint8_t flags = usart(UCSR,A);
-  if (flags & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
-  {
+  uint8_t flags = usart (UCSR, A);
+  if (flags & (_BV (usart (FE)) | _BV (usart (DOR)) | _BV (usart (UPE))))
+    {
 
 #ifdef ZBUS_DEBUG
-    ZBUS_DEBUG ("received data: %s\n", uip_appdata);
+      ZBUS_DEBUG ("received data: %s\n", uip_appdata);
 #endif
 
 
 #ifdef ZBUS_ECMD
-    if (flags & _BV(usart(FE)))  zbus_rx_frameerror++;
-    if (flags & _BV(usart(DOR))) zbus_rx_overflow++;
-    if (flags & _BV(usart(UPE))) zbus_rx_parityerror++;
+      if (flags & _BV (usart (FE)))
+	zbus_rx_frameerror++;
+      if (flags & _BV (usart (DOR)))
+	zbus_rx_overflow++;
+      if (flags & _BV (usart (UPE)))
+	zbus_rx_parityerror++;
 #endif
-    flags = usart(UDR); /* dummy read */
-    return;
-  }
-  uint8_t data = usart(UDR);
+      flags = usart (UDR);	/* dummy read */
+      return;
+    }
+  uint8_t data = usart (UDR);
 #ifdef ZBUS_ECMD
- zbus_rx_count++;
+  zbus_rx_count++;
 #endif
 
 
   /* Old data is not read by application, ignore message */
-  if (zbus_rxlen != 0) return;
+  if (zbus_rxlen != 0)
+    return;
 
   /* Don't accept incoming message if we're sending and sharing
      send and receive buffer. */
-  if (zbus_txlen != 0) return;
+  if (zbus_txlen != 0)
+    return;
 
-  if (recv_escape_data) {
-    recv_escape_data = 0;
-
-    if (data == ZBUS_START) {
-      if (uip_buf_lock())
-        return; /* lock of buffer failed, ignore packet */
-
-      zbus_index = 0;
-      bus_blocked = 3;
-
-    }
-
-    else if (data == ZBUS_STOP) {
-      /* Only if there was a start condition before */
-      if (bus_blocked) {
-				zbus_rxstop ();
-				zbus_rxlen = zbus_index;
-      }
-			#ifdef ZBUS_RX_PIN
-			PIN_CLEAR(STATUSLED_RX);
-			#endif
-
-      /* force bus free even if we didn't catch the start condition. */
-      bus_blocked = 0;
-      if(zbus_txlen > 0)
-        __zbus_txstart();
-    }
-
-    else if (data == '\\')
-      goto append_data;
-  }
-
-  else if (data == '\\') {
-
-    recv_escape_data = 1;
-		#ifdef ZBUS_RX_PIN
-		PIN_SET(STATUSLED_RX);
-		#endif
-		ACTIVITY_LED_ZBUS_RX;
-  }
-  else {
-  append_data:
-    /* Not enough space in buffer */
-    if (zbus_index >= ZBUS_BUFFER_LEN)
+  if (recv_escape_data)
     {
-#ifdef ZBUS_ECMD
-      zbus_rx_bufferfull++;
+      recv_escape_data = 0;
+
+      if (data == ZBUS_START)
+	{
+	  if (uip_buf_lock ())
+	    return;		/* lock of buffer failed, ignore packet */
+
+	  zbus_index = 0;
+	  bus_blocked = 3;
+
+	}
+
+      else if (data == ZBUS_STOP)
+	{
+	  /* Only if there was a start condition before */
+	  if (bus_blocked)
+	    {
+	      zbus_rxstop ();
+	      zbus_rxlen = zbus_index;
+	    }
+#ifdef STATUSLED_ZBUS_RX_SUPPORT
+	  PIN_CLEAR (STATUSLED_ZBUS_RX);
 #endif
-      return;
+
+	  /* force bus free even if we didn't catch the start condition. */
+	  bus_blocked = 0;
+	  if (zbus_txlen > 0)
+	    __zbus_txstart ();
+	}
+
+      else if (data == '\\')
+	goto append_data;
     }
 
-    /* If bus is not blocked we aren't on an message */
-    if (!bus_blocked)
-      return;
+  else if (data == '\\')
+    {
 
-    bus_blocked = 3;
-    zbus_buf[zbus_index] = data;
-    zbus_index++;
-  }
+      recv_escape_data = 1;
+#ifdef STATUSLED_ZBUS_RX_SUPPORT
+      PIN_SET (STATUSLED_ZBUS_RX);
+#endif
+      ACTIVITY_LED_ZBUS_RX;
+    }
+  else
+    {
+    append_data:
+      /* Not enough space in buffer */
+      if (zbus_index >= ZBUS_BUFFER_LEN)
+	{
+#ifdef ZBUS_ECMD
+	  zbus_rx_bufferfull++;
+#endif
+	  return;
+	}
+
+      /* If bus is not blocked we aren't on an message */
+      if (!bus_blocked)
+	return;
+
+      bus_blocked = 3;
+      zbus_buf[zbus_index] = data;
+      zbus_index++;
+    }
 }
 
 /*

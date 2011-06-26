@@ -79,7 +79,7 @@ start_sending:
 }
 
 
-SIGNAL(usart(USART,_TX_vect))
+ISR(usart(USART,_TX_vect))
 {
   if (yport_send_buffer.sent < yport_send_buffer.len) {
     usart(UDR) = yport_send_buffer.data[yport_send_buffer.sent++];
@@ -89,7 +89,7 @@ SIGNAL(usart(USART,_TX_vect))
   }
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   while (usart(UCSR,A) & _BV(usart(RXC)))
   {

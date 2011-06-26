@@ -57,7 +57,7 @@ the file appropriate for the given clock rate.
 #else /* __IAR_SYSTEMS_ASM__ */
 
 #   ifndef USB_INTR_VECTOR /* default to hardware interrupt INT0 */
-#       define USB_INTR_VECTOR  SIG_INTERRUPT0
+#       define USB_INTR_VECTOR  INT0_vect
 #   endif
     .text
     .global USB_INTR_VECTOR

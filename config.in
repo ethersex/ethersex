@@ -415,6 +415,8 @@ source services/bulbdial/config.in
 source services/clock/config.in
 source services/cron/config.in
 source services/dyndns/config.in
+source services/dmx-storage/config.in
+source services/dmx-effect/config.in
 source services/echo/config.in
 source services/wol/config.in
 source services/motd/config.in
@@ -422,6 +424,7 @@ source services/httpd/config.in
 source services/jabber/config.in
 source services/moodlight/config.in
 source services/stella/config.in
+source services/starburst/config.in
 source services/curtain/config.in
 source services/tftp/config.in
 source services/upnp/config.in

@@ -442,7 +442,7 @@ void tx_start(uint8_t len) {
 }
 
 #ifndef SOFT_UART_SUPPORT
-SIGNAL(usart(USART,_TX_vect)) {
+ISR(usart(USART,_TX_vect)) {
   if (buffer.sent < buffer.len) {
     usart(UDR) = buffer.data[buffer.sent++];
   } else {

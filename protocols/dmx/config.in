@@ -1,7 +1,7 @@
 usart_count_used
 if [ "$DMX_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-	dep_bool_menu "DMX Support" DMX_SUPPORT $CONFIG_EXPERIMENTAL
-	int "DMX Max Chan" CONF_DMX_MAX_CHAN "512"
+	dep_bool_menu "DMX Support" DMX_SUPPORT $DMX_STORAGE_SUPPORT $CONFIG_EXPERIMENTAL
+	int "DMX Output Universe" DMX_OUTPUT_UNIVERSE 1
 	choice '  DMX usart select' "$(usart_choice DMX)"
 	usart_process_choice DMX
 	endmenu

@@ -88,9 +88,9 @@ clock_init (void)
 
 #if defined(CLOCK_CRYSTAL_SUPPORT) || defined(CLOCK_CPU_SUPPORT)
 #ifdef CLOCK_CPU_SUPPORT
-SIGNAL (TIMER1_OVF_vect)
+ISR (TIMER1_OVF_vect)
 #else
-SIGNAL (CLOCK_SIG)
+ISR (CLOCK_SIG)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
@@ -195,7 +195,7 @@ clock_set_time (uint32_t new_sync_timestamp)
 
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
-  n_sync_tick = TCNT2;
+  n_sync_tick = CLOCK_TIMER_CNT;
 
   /* Allow the clock to jump forward, but not to go backward
    * except the time difference is greater than 5 minutes */

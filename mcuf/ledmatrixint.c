@@ -55,7 +55,7 @@ void init_led_display(void) {
   LED_GREEN_DDR |= (1<<LED_GREEN_PIN);
   LED_CLOCK_DDR |= (1<<LED_CLOCK_PIN);
   */
-  TCNT2 = 0;                    //Timer 2 Resetten
+  TC2_COUNTER_CURRENT = 0;                    //Timer 2 Resetten
   _TIMSK_TIMER2  |= _BV(TOIE2); //Timer 2 Overflow Interrupt aktiv
   _TCCR2_PRESCALE = _BV(CS21) | _BV(CS20);  //Prescaler = 8 /32
   PIN_SET(LED_RESET);      //LED_RESET_PORT |= (1<<LED_RESET_PIN); //Reset high
@@ -77,13 +77,13 @@ void resync_led_display(void) {
 //Verwende Variante mit 4Bit Farben (16 moegliche Farbtoene)
 
 //4+24+19+(12+7+9)*16+7+5+4+27=538Takte pro Interrupt
-SIGNAL(SIG_OVERFLOW2) {
+ISR(TIMER2_OVF_vect) {
   uint8_t gspalte;
   uint8_t gtemp,gdbyte;
   uint8_t gdurchlauf_t;
   uint8_t gzeile_t;
 
-  TCNT2 = (uint8_t)timerset;
+  TC2_COUNTER_CURRENT = (uint8_t)timerset;
   PIN_SET(LED_BRIGHT); //Bright auf high
   _delay_us(4);
   //gdurchlauf_t und gzeile_t sind nicht volatile -> Speicher und Platz Ersparnis
@@ -141,13 +141,13 @@ SIGNAL(SIG_OVERFLOW2) {
   gdurchlauf_t = 3 nur die allerhellsten.
 */
 
-SIGNAL(SIG_OVERFLOW2) {
+ISR(TIMER2_OVF_vect) {
   uint8_t gspalte;
   uint8_t gtemp,gdbyte;
   const uint8_t gdurchlauf_t = 1;
   uint8_t gzeile_t;
 
-  TCNT2 = (uint8_t)timerset;
+  TC2_COUNTER_CURRENT = (uint8_t)timerset;
   PIN_SET(LED_BRIGHT); //Bright auf high
   _delay_us(9);
   //gdurchlauf_t und gzeile_t sind nicht volatile -> Speicher und Platz Ersparnis

@@ -33,66 +33,57 @@ static const char conf_mac[] PROGMEM = CONF_ETHERRAPE_MAC;
 void
 network_config_load (void)
 {
-    /* load settings from eeprom */
+  /* load settings from eeprom */
 #ifdef EEPROM_SUPPORT
-  eeprom_restore(mac, uip_ethaddr.addr, 6);
-#else 
-#if defined BOOTLOADER_SUPPORT &&  BOOTLOADER_START_ADDRESS > UINT16_MAX
-  uint_farptr_t src = pgm_get_far_address(conf_mac);
+  eeprom_restore (mac, uip_ethaddr.addr, 6);
+#else
+#if defined(BOOTLOADER_SUPPORT) &&  BOOTLOADER_START_ADDRESS > UINT16_MAX
+  uint_farptr_t src = pgm_get_far_address (conf_mac);
   uint8_t *dst = uip_ethaddr.addr;
   for (uint8_t i = 6; i; i--)
-    *dst++ = pgm_read_byte_far(src++);
+    *dst++ = pgm_read_byte_far (src++);
 #else
-  memcpy_P(uip_ethaddr.addr, conf_mac, 6);
+  memcpy_P (uip_ethaddr.addr, conf_mac, 6);
 #endif
 #endif
 
-#if defined(BOOTP_SUPPORT)				\
-    || (IPV6_SUPPORT && !defined(IPV6_STATIC_SUPPORT))	\
-    || DHCP_SUPPORT
-    return;
+#if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
+  uip_ipaddr_t ip;
 
-#else
-
-    uip_ipaddr_t ip;
-    (void) ip;		/* Keep GCC quiet. */
-
-    /* Configure the IP address. */
+  /* Configure the IP address. */
 #ifdef EEPROM_SUPPORT
-    /* Please Note: ip and &ip are NOT the same (cpp hell) */
-    eeprom_restore_ip(ip, &ip);
+  /* Please Note: ip and &ip are NOT the same (cpp hell) */
+  eeprom_restore_ip (ip, &ip);
 #else
-    set_CONF_ETHERRAPE_IP(&ip);
+  set_CONF_ETHERRAPE_IP (&ip);
 #endif
-    uip_sethostaddr(&ip);
+  uip_sethostaddr (&ip);
 
-
-    /* Configure prefix length (IPv6). */
+  /* Configure prefix length (IPv6). */
 #ifdef IPV6_SUPPORT
-    uip_setprefixlen(CONF_ENC_IP6_PREFIX_LEN);
+  uip_setprefixlen (CONF_ENC_IP6_PREFIX_LEN);
 #endif
-
 
 #ifdef IPV4_SUPPORT
-    /* Configure the netmask (IPv4). */
+  /* Configure the netmask (IPv4). */
 #ifdef EEPROM_SUPPORT
-    /* Please Note: ip and &ip are NOT the same (cpp hell) */
-    eeprom_restore_ip(netmask, &ip);
+  /* Please Note: ip and &ip are NOT the same (cpp hell) */
+  eeprom_restore_ip (netmask, &ip);
 #else
-    set_CONF_ETHERRAPE_IP4_NETMASK(&ip);
+  set_CONF_ETHERRAPE_IP4_NETMASK (&ip);
 #endif
-    uip_setnetmask(&ip);
-#endif  /* IPV4_SUPPORT */
+  uip_setnetmask (&ip);
+#endif /* IPV4_SUPPORT */
 
-    /* Configure the default gateway  */
+  /* Configure the default gateway  */
 #ifdef EEPROM_SUPPORT
-    /* Please Note: ip and &ip are NOT the same (cpp hell) */
-    eeprom_restore_ip(gateway, &ip);
+  /* Please Note: ip and &ip are NOT the same (cpp hell) */
+  eeprom_restore_ip (gateway, &ip);
 #else
-    set_CONF_ETHERRAPE_GATEWAY(&ip);
+  set_CONF_ETHERRAPE_GATEWAY (&ip);
 #endif
-    uip_setdraddr(&ip);
-#endif	/* No autoconfiguration. */
+  uip_setdraddr (&ip);
+#endif /* No autoconfiguration. */
 }
 
 /*

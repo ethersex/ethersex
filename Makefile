@@ -85,6 +85,8 @@ SUBDIRS += protocols/cw
 SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
+SUBDIRS += services/dmx-storage
+SUBDIRS += services/dmx-effect
 SUBDIRS += services/echo
 SUBDIRS += services/pam
 SUBDIRS += services/httpd
@@ -94,6 +96,7 @@ SUBDIRS += services/wol
 SUBDIRS += services/motd
 SUBDIRS += services/moodlight
 SUBDIRS += services/stella
+SUBDIRS += services/starburst
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
@@ -230,7 +233,7 @@ INLINE_FILES :=
 endif
 
 embed/%: embed/%.cpp
-	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
+	@if ! avr-cpp -xc -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi

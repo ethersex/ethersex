@@ -1,6 +1,8 @@
 dep_bool_menu "Graphic menu (EXPERIMENTAL)" GLCD_MENU_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Use german umlauts" GLCDMENU_UMLAUTS $GLCD_MENU_SUPPORT
+	dep_bool "Mouse support (untested!)" GLCDMENU_MOUSE_SUPPORT $GLCD_MENU_SUPPORT
 	comment "Display Drivers"
-	dep_bool "S1D13305 Output" GLCDMENU_S1D13305 $S1D13305_SUPPORT $GLCD_MENU_SUPPORT
+	dep_bool "S1D13305 Output" GLCDMENU_S1D13305 $S1D13305_SUPPORT $S1D13305_GRAPHICS $GLCD_MENU_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'Graphic menu Debug' DEBUG_GLCD_MENU $DEBUG $GLCD_MENU_SUPPORT
 endmenu
