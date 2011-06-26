@@ -51,6 +51,7 @@ void lome6_output_lcd(char *line1, char *line2) {
 
 void lome6_lcd_temperature(char *type, int temperature, int decimal) {
 
+	lome6_lcdGoto(0, 0);
 	lome6_lcdString("Temperature");
 
 	char string[17];
@@ -65,31 +66,12 @@ void lome6_lcd_temperature(char *type, int temperature, int decimal) {
 
 /*
 * lome6 one wire sensor stuff
-*
-* get the sensor id's from the config and convert them to struct ow_rom_code_t and read the scratchpads
-* maybe this should be better done during compile time, but this is run only one time on startup, so its insignificant
+* tiny get temperature function
 */
 #ifdef LOME6_ONEWIRE_SUPPORT
-void lome6_init_sensorid(void) {
-
-	lome6_read_sensorid(&romcodePSU, CONF_SENSOR_PSU);
-	lome6_read_sensorid(&romcodeRAM, CONF_SENSOR_RAM);
-	lome6_read_sensorid(&romcodeAIR, CONF_SENSOR_AIR);
-
-}
-
-void lome6_read_sensorid(struct ow_rom_code_t *romcode, char *sensor) {
-
-    uint8_t *addr = romcode->bytewise;
-	char sensorid[24];
-	memcpy(sensorid, sensor, sizeof(sensorid));
-	sscanf_P(sensorid, PSTR("%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx"), addr, addr + 1, addr + 2, addr + 3, addr + 4, addr + 5, addr + 6, addr + 7);
-
-}
-
 int16_t lome6_get_temperature(struct ow_rom_code_t *rom) {
 
-    void *addr = rom->bytewise;
+	void *addr = rom->bytewise;
 
 	int16_t retval = 0x7FFF;  /* error */
 
@@ -101,7 +83,7 @@ int16_t lome6_get_temperature(struct ow_rom_code_t *rom) {
 	retval = HI8(temp) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
 
 	out:
- 	return retval;
+	return retval;
 
 }
 #endif
@@ -110,12 +92,15 @@ int16_t lome6_get_temperature(struct ow_rom_code_t *rom) {
 
 /*
 * lome6 startup function
-*
+* get the sensor id's from the config and convert them to struct ow_rom_code_t and read the scratchpads
+* start a first one wire temperature convert
 */
 void lome6_startup(void) {
 
 #ifdef LOME6_ONEWIRE_SUPPORT
-	lome6_init_sensorid();
+	parse_ow_rom(CONF_SENSOR_PSU, &romcodePSU);
+	parse_ow_rom(CONF_SENSOR_AIR, &romcodeAIR);
+	parse_ow_rom(CONF_SENSOR_RAM, &romcodeRAM);
 
 	ow_temp_start_convert_nowait(NULL);
 #endif
@@ -163,7 +148,10 @@ void lome6_timer(void) {
 		lome6_output_lcd(lcd_line1, lcd_line2);
 
 #ifndef LOME6_ONEWIRE_SUPPORT
-		iLCDPage = 4;
+		if (PIN_HIGH(POWER_STATE))
+			iLCDPage = 4;
+		else
+			iLCDPage = 0;
 #else
 		iLCDPage++;
 #endif
@@ -189,7 +177,7 @@ void lome6_timer(void) {
 
 #endif //LOME6_ONEWIRE_SUPPORT
 	} else if (iLCDPage == 4) {
-
+	
 		lome6_lcd_temperature(PSTR("CPU: %d.%d"), iTemperatureCPU / 10, iTemperatureCPU % 10);
 		iLCDPage++;
 

@@ -42,8 +42,8 @@ extern uint8_t iCountdownTimer;
 extern int16_t iTemperatureAIR;
 extern int16_t iTemperaturePSU;
 extern int16_t iTemperatureRAM;
-extern uint32_t iUptime;
 #endif
+extern uint32_t iUptime;
 
 
 int16_t parse_cmd_lome6_reset(char *cmd, char *output, uint16_t len);

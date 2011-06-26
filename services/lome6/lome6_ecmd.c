@@ -42,7 +42,7 @@ int16_t parse_cmd_lome6_reset(char *cmd, char *output, uint16_t len) {
 /*
 * ECMD handler: "lome6 power"
 *
-* stimulate power relais for 5ms or 3000ms
+* stimulate power relais for 40ms or 3000ms
 */
 int16_t parse_cmd_lome6_power(char *cmd, char *output, uint16_t len) {
 
@@ -79,13 +79,13 @@ int16_t parse_cmd_lome6_state(char *cmd, char *output, uint16_t len) {
 
 	if (PIN_HIGH(POWER_STATE)) {
 
-		len = 2;
-		memcpy(output, "on", len);
+		len = 3;
+		memcpy(output, "off", len);
 
 	} else {
 
-		len = 3;
-		memcpy(output, "off", len);
+		len = 2;
+		memcpy(output, "on", len);
 
 	}
 
