@@ -166,7 +166,7 @@ uint8_t noinline ow_read_byte(uint8_t busmask)
 int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
 {
 
-#if ONRWIRE_BUSCOUNT > 1
+#if ONEWIRE_BUSCOUNT > 1
     uint8_t busmask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 #else
     uint8_t busmask = ONEWIRE_BUSMASK;
@@ -411,8 +411,8 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
     /* transmit command byte */
     ow_write_byte(ONEWIRE_BUSMASK, OW_FUNC_READ_SP);
 
-#if ONRWIRE_BUSCOUNT > 1
-    for (uint8_t bus = 0; bus < ONRWIRE_BUSCOUNT; bus++) {
+#if ONEWIRE_BUSCOUNT > 1
+    for (uint8_t bus = 0; bus < ONEWIRE_BUSCOUNT; bus++) {
         /* read 9 bytes from each onewire bus */
         busmask = (uint8_t)(1 << (bus + ONEWIRE_STARTPIN));
 #else
@@ -427,7 +427,7 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
             /* return if we got a valid response from one device */
             return 1;
         }
-#if ONRWIRE_BUSCOUNT > 1
+#if ONEWIRE_BUSCOUNT > 1
     }
 #endif
 
@@ -438,7 +438,7 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
 int8_t ow_temp_power(struct ow_rom_code_t *rom)
 {
 
-#if ONRWIRE_BUSCOUNT > 1
+#if ONEWIRE_BUSCOUNT > 1
     uint8_t busmask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 #else
     uint8_t busmask = ONEWIRE_BUSMASK;
@@ -497,7 +497,7 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom)
 
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 {
-#if ONRWIRE_BUSCOUNT > 1
+#if ONEWIRE_BUSCOUNT > 1
     uint8_t busmask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 #else
     uint8_t busmask = ONEWIRE_BUSMASK;
