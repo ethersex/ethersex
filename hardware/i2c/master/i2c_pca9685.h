@@ -20,7 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #ifdef I2C_PCA9685_SUPPORT
-
+#include "config.h"
 #define MODE1 0x00
 #define MODE2 0x01
 #define SUBADR1 0x02
@@ -41,5 +41,8 @@ uint8_t i2c_pca9685_set_mode(uint8_t address,uint8_t outdrv,uint8_t ivrt,uint8_t
 uint8_t i2c_pca9685_set_led(uint8_t address,uint8_t led,uint16_t on, uint16_t off);
 uint8_t i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,uint16_t *values);
 uint8_t i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled, uint8_t count,uint16_t *values);
-
+#ifdef PCA9685_OUTPUT_ENABLE
+enum i2c_pca9685_output_enable_state{ON,OFF,TOGGLE};
+void i2c_pca9685_output_enable(enum i2c_pca9685_output_enable_state choice);
+#endif
 #endif
