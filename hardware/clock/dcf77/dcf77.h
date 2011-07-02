@@ -30,7 +30,7 @@ struct dcf77_ctx {
   uint8_t timezone;
   uint8_t time[0x8];
   uint32_t timerover;
-  uint8_t TC2_COUNTER_CURRENTlast;
+  uint8_t CLOCK_TIMER_CNTlast;
   uint8_t timebyte;
   uint8_t timeparity;
   uint8_t sync;
