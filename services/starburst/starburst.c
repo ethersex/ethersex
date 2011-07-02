@@ -26,7 +26,7 @@
 #include "core/debug.h"
 #include "hardware/i2c/master/i2c_pca9685.h"
 #include "services/dmx-storage/dmx_storage.h"
-
+enum starburst_update update;
 #ifdef STARBURST_PCA9685
 int8_t pca9685_dmx_conn_id=-1;
 prog_uint16_t stevens_power_12bit[256] PROGMEM = {
@@ -71,12 +71,16 @@ void starburst_init()
 	pca9685_dmx_conn_id=dmx_storage_connect(STARBURST_PCA9685_UNIVERSE);
 #endif
 }
-enum starburst_update starburst_process()
+void starburst_process()
 {
+	starburst_update();
 #ifdef STARBURST_PCA9685
-	enum starburst_update update=STARBURST_NOUPDATE;
 	for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS;i++)
 	{
+		/*TODO: Implement a different mode setting scheme:
+			0: Set without fade
+			1-9: Fade speed (slow -> fast)
+		*/
 		switch(pca9685_channels[i].mode)
 		{
 			case(STARBURST_MODE_NORMAL):
@@ -114,11 +118,34 @@ enum starburst_update starburst_process()
 				}
 		}
 	}
+	#ifdef STARBURST_PCA9685_STROBO
+		/*Hardware stroboscope support:
+			Control all channels of a PCA9685 using the output enable. 
+			Value range: 1-25 (results in 1hz - 25hz)
+		*/
+		static uint8_t pca9685_strobo_counter = 0;
+		uint8_t pca9685_strobo = 2*get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,STARBURST_PCA9685_CHANNELS*2+STARBURST_PCA9685_OFFSET,pca9685_dmx_conn_id);
+		if(pca9685_strobo > 0 && pca9685_strobo <= 50)
+		{
+			if(pca9685_strobo_counter >= 50/pca9685_strobo) 
+			{
+				i2c_pca9685_output_enable(TOGGLE);
+				pca9685_strobo_counter=0;
+			}
+			if(pca9685_strobo_counter<50)
+				pca9685_strobo_counter++;
+			else
+				pca9685_strobo_counter=0;
+		}
+		else
+			i2c_pca9685_output_enable(ON); 
+	#endif
 	return update;
 #endif
 }
 void starburst_update()
 {
+#ifdef STARBURST_PCA9685
 	
 	if(get_dmx_universe_state(STARBURST_PCA9685_UNIVERSE,pca9685_dmx_conn_id) == DMX_NEWVALUES)
 	{
@@ -136,13 +163,11 @@ void starburst_update()
 			}
 		}
 	}
+#endif
 }
 void starburst_main()
 {
 #ifdef STARBURST_PCA9685
-	enum starburst_update update;
-	starburst_update(); //Update the channels
-	update=starburst_process(); //process the channels
 	if(update == STARBURST_UPDATE) /*Only transmit if at least one channels has been updated*/
 	{
 		update=STARBURST_NOUPDATE;
@@ -176,5 +201,6 @@ void starburst_main()
    -- Ethersex META --
    header(services/starburst/starburst.h)
    mainloop(starburst_main)
+   timer(1,starburst_process())
    init(starburst_init)
  */

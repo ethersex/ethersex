@@ -64,7 +64,7 @@ struct vfs_file_handle_t;
 /* VFS-related types. */
 #include <stdint.h>
 
-#ifdef VFS_TEENSY
+#if defined(VFS_TEENSY) && (FLASHEND < UINT16_MAX)
 /* Only VFS_INLINE is enabled, 16-bit should be enough xD */
 typedef uint16_t vfs_size_t;
 #else

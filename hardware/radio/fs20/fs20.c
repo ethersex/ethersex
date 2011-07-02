@@ -150,8 +150,8 @@ ISR(ANALOG_COMP_vect)
 #endif
 
     /* save counter for later processing and reset timer */
-    uint8_t measuredTime = TCNT2;
-    TCNT2 = 0;
+    uint8_t measuredTime = TC2_COUNTER_CURRENT;
+    TC2_COUNTER_CURRENT = 0;
 
     /* if fs20 locked or timeout > 0, continue */
     if (fs20_global.fs20.timeout == 0

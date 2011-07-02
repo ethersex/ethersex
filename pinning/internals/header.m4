@@ -289,6 +289,13 @@ pin(STELLA_PIN, format(`P%s%d', pinname, itr))
 #define STELLA_DDR_PORT2 format(DDR%s, pinname)
 ')
 
+define(`PCA9685_OE', `dnl
+define(`pinname', translit(substr(`$1',1,1), `a-z',`A-Z'))dnl
+#define PCA9685_OE_PIN $1
+#define PCA9685_OE_DDR format(DDR%s, pinname)
+#define PCA9685_OE_PORT format(PORT%s, pinname)
+')
+
 define(`ST7626_DATA_PORT', `dnl
   forloop(`itr', 0, 7, `dnl
     pin(`ST7626_DATA_PIN'itr, format(`P%s%d', $1, itr), OUTPUT)

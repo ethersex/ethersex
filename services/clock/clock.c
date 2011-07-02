@@ -186,7 +186,7 @@ clock_set_time (uint32_t new_sync_timestamp)
 
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
-  n_sync_tick = TCNT2;
+  n_sync_tick = CLOCK_TIMER_CNT;
 
   /* Allow the clock to jump forward, but not to go backward
    * except the time difference is greater than 5 minutes */
