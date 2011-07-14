@@ -105,6 +105,7 @@ SUBDIRS += services/vnc
 SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 SUBDIRS += services/glcdmenu
+SUBDIRS += services/lome6
 
 rootbuild=t
 
