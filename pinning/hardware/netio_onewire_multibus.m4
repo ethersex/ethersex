@@ -8,7 +8,7 @@ ifdef(`conf_SD_READER', `dnl
 
 ifdef(`conf_ONEWIRE', `dnl
   /* onewire port range */
-  ONEWIRE_PORT_RANGE(PD6, PD6)
+  ONEWIRE_PORT_RANGE(PC0, PC7)
 ')dnl
 
 ifdef(`conf_STELLA', `dnl

@@ -27,7 +27,7 @@ export MAKE
 # include user's config.mk file
 
 # By now we don't generate an empty example config.mk any longer,
-# since must stuff can be controlled via menuconfig finally ...
+# since most stuff can be controlled via menuconfig finally ...
 -include $(TOPDIR)/config.mk
 
 ##############################################################################
