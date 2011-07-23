@@ -29,7 +29,7 @@
 #include <stdint.h>
 #include <avr/pgmspace.h>
 
-static char PROGMEM cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW"
+static const char PROGMEM cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW"
 			   "$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
 
 void base64_decodeblock(char in[4],char out[4] )

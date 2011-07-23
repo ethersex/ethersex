@@ -23,73 +23,73 @@
 #include "httpd.h"
 
 
-char PROGMEM httpd_header_200[] =
+const char PROGMEM httpd_header_200[] =
 "HTTP/1.1 200 OK\n"
 "Connection: close\n";
 
 
-char PROGMEM httpd_header_ct_css[] =
+const char PROGMEM httpd_header_ct_css[] =
 "Content-Type: text/css; charset=utf-8\n\n";
 
 
-char PROGMEM httpd_header_ct_html[] =
+const char PROGMEM httpd_header_ct_html[] =
 "Content-Type: text/html; charset=utf-8\n\n";
 
 
-char PROGMEM httpd_header_ct_xhtml[] =
+const char PROGMEM httpd_header_ct_xhtml[] =
 "Content-Type: application/xhtml+xml; charset=utf-8\n\n";
 
 #ifdef HTTP_FAVICON_SUPPORT
-char PROGMEM httpd_header_ct_xicon[] =
+const char PROGMEM httpd_header_ct_xicon[] =
 "Content-Type: image/x-icon\n\n";
 #endif
 
 #ifdef ECMD_PARSER_SUPPORT
-char PROGMEM httpd_header_ecmd[] =
+const char PROGMEM httpd_header_ecmd[] =
 "Cache-Control: no-cache\n"
 "Cache-Control: must-revalidate\n"
 "Content-Type: text/plain; charset=utf-8\n\n";
 #endif	/* ECMD_PARSER_SUPPORT */
 
 
-char PROGMEM httpd_header_400[] =
+const char PROGMEM httpd_header_400[] =
 "HTTP/1.1 400 Bad Request\n"
 "Connection: close\n"
 "Content-Type: text/plain; charset=utf-8\n";
 
 
-char PROGMEM httpd_header_gzip[] =
+const char PROGMEM httpd_header_gzip[] =
 "Content-Encoding: gzip\n";
 
 
 #ifdef HTTPD_AUTH_SUPPORT
-char PROGMEM httpd_header_401[] =
+const char PROGMEM httpd_header_401[] =
 "HTTP/1.1 401 UNAUTHORIZED\n"
 "Connection: close\n"
 "WWW-Authenticate: Basic realm=\"Secure Area\"\n"
 "Content-Type: text/plain; charset=utf-8\n";
 
 
-char PROGMEM httpd_body_401[] =
+const char PROGMEM httpd_body_401[] =
 "Authentification required\n";
 #endif	/* HTTPD_AUTH_SUPPORT */
 
 
-char PROGMEM httpd_body_400[] =
+const char PROGMEM httpd_body_400[] =
 "Bad Request\n";
 
 
-char PROGMEM httpd_header_404[] =
+const char PROGMEM httpd_header_404[] =
 "HTTP/1.1 404 File Not Found\n"
 "Connection: close\n"
 "Content-Type: text/plain; charset=utf-8\n";
 
 
-char PROGMEM httpd_body_404[] =
+const char PROGMEM httpd_body_404[] =
 "File Not Found\n";
 
 
-char PROGMEM httpd_header_length[] = "Content-Length: ";
+const char PROGMEM httpd_header_length[] = "Content-Length: ";
 
 
-char PROGMEM httpd_header_end[] = "\n";
+const char PROGMEM httpd_header_end[] = "\n";
