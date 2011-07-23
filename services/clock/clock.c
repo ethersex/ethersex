@@ -51,7 +51,7 @@ uint32_t startup_timestamp;
 #endif
 
 #if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
-static uint8_t months[] PROGMEM =
+static const uint8_t months[] PROGMEM =
   { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 #endif
 
