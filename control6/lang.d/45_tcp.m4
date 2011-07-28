@@ -41,12 +41,12 @@ dnl TCP_SEND(text)
 dnl ==========================================================================
 define(`TCP_SEND', `dnl
   ifelse(`$#', 1,dnl
-	`strcpy_P(uip_sappdata, PSTR($1));
-	 uip_send (uip_sappdata, strlen (uip_sappdata));',
+    `strcpy_P(uip_sappdata, PSTR($1));
+     uip_send (uip_sappdata, strlen (uip_sappdata));',
 
-	dnl multiple args, use printf syntax
-	`{ uint16_t i = snprintf_P (uip_sappdata, uip_mss (), PSTR($1), shift($@));
-	   uip_send (uip_sappdata, i ); }')
+    dnl multiple args, use printf syntax
+    `{ uint16_t i = snprintf_P (uip_sappdata, uip_mss (), PSTR($1), shift($@));
+       uip_send (uip_sappdata, i ); }')
   PT_YIELD(pt);
 ')
 
@@ -109,8 +109,18 @@ dnl ==========================================================================
 dnl TCP_CONNECT(ip, port, handler)
 dnl ==========================================================================
 define(`TCP_CONNECT', `do {
-	IPADDR($1);
-	/* uip_conn_t *conn = */ uip_connect (&ip, HTONS ($2), c6_tcp_handler_$3);
+  IPADDR($1);
+  /* uip_conn_t *conn = */ uip_connect (&ip, HTONS ($2), c6_tcp_handler_$3);
+} while(0)
+')
+
+
+
+dnl ==========================================================================
+dnl TCP_LISTEN(port, handler)
+dnl ==========================================================================
+define(`TCP_LISTEN', `do {
+  uip_listen(HTONS($1), c6_tcp_handler_$2);
 } while(0)
 ')
 

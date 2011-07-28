@@ -69,7 +69,7 @@ mcuf_modul(void)
 #define USE_UTC 1
 #define USE_LOCAL 0
 
-struct cron_static_event_t events[] PROGMEM =
+const struct cron_static_event_t events[] PROGMEM =
 {
 #ifdef MCUF_CLOCK_SUPPORT
   { { {-1, -1, -1, -1, -1} }, mcuf_clock, USE_LOCAL}, /* every minute  */
