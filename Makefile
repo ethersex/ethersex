@@ -270,14 +270,15 @@ endif
 
 
 ##############################################################################
-### Special case for MacOS X (darwin10.0) and FreeBSD
+### Special case for MacOS X (darwin10.0, darwin11.0) and FreeBSD
 CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] ; then echo /opt/local/bin/bash; \
-          elif [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /usr/local/bin/bash; \
-          elif [ -x "$$BASH" ]; then echo $$BASH; \
-          elif [ -x /bin/bash ]; then echo /bin/bash; \
-          elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
-          else echo sh; fi)
-### Special case for MacOS X (darwin10.0)
+	elif [ x"$$OSTYPE" = x"darwin11.0" ] ; then echo /opt/local/bin/bash; \
+	elif [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /usr/local/bin/bash; \
+	elif [ -x "$$BASH" ]; then echo $$BASH; \
+	elif [ -x /bin/bash ]; then echo /bin/bash; \
+	elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
+	else echo sh; fi)
+### Special case for MacOS X (darwin10.0, darwin11.0)
 ### bash v3.2 in 10.6 does not work, use version 4.0 from macports
 ### (see "Voraussetzungen" in wiki)
 

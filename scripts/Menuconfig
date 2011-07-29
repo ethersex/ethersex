@@ -28,7 +28,7 @@ single_menu_mode=
 set -h +o posix
 
 ### use GNU sed from macports instead of BSD sed on MacOS X
-if [ x$OSTYPE = x"darwin10.0" ] || [ x$OSTYPE = x"FreeBSD" ] ; then
+if [ x$OSTYPE = x"darwin10.0" ] || [ x$OSTYPE = x"darwin11.0" ] || [ x$OSTYPE = x"FreeBSD" ] ; then
     SED=gsed
 else
     SED=sed
@@ -1302,10 +1302,13 @@ save_configuration () {
 		echo "#define $2 ($x)"	>>$CONFIG_H
 	}
 
+	# VPN für autoconf.h
 	function hex () {
 		set_x_info "$2" "$3"
 		echo "$2=$x" 			 >>$CONFIG
-		echo "#define $2 \"$(echo "$x" | $SED -e 's/\(..\)/\\x\1/g')\"" >>$CONFIG_H
+
+		echo "#define $2 \"$(echo "$x")\"" >>$CONFIG_H
+		# echo "#define $2 \"$(echo "$x" | $SED -e 's/\(..\)/\\x\1/g')\"" >>$CONFIG_H
 	}
 
 	function string () {
@@ -1314,11 +1317,14 @@ save_configuration () {
 		echo "#define $2 \"$x\""	>>$CONFIG_H
 	}
 
+	# MAC-Adressen für autoconf.h
 	function mac () {
 		set_x_info "$2" "$3"
 		echo "$2=\"$x\"" 		>>$CONFIG
-		echo "#define $2 " \
-		  "\"\\x$(echo "$x" | $SED -e 's;:;\\x;g')\"" >> $CONFIG_H
+
+		echo "#define $2 \"\\\\x$(echo "$x" | $SED -e 's;:;\\\\x;g' )\"" >> $CONFIG_H
+		# echo "#define $2 " \
+		# "\"\\x$(echo "$x" | $SED -e 's;:;\\x;g')\"" >> $CONFIG_H
 	}
 
 	function ipv4 () {

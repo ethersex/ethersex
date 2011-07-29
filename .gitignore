@@ -12,6 +12,7 @@
 *.workspace
 *.cbp
 *.layout
+.DS_Store
 
 # make generated files
 .config*
