@@ -8,7 +8,12 @@ do
 done
 
 IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
-FLASHSIZE=$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
+
+# ???
+# if [ x$OSTYPE = x"darwin10.0" ] || [ x$OSTYPE = x"darwin11.0" ] || [ x$OSTYPE = x"FreeBSD" ] ; then
+	FLASHSIZE=$(perl -e "print 0x$(echo "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
+#	FLASHSIZE=$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
+
 FLASHSIZE=$[$FLASHSIZE + 1]
 PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 *100.0);" )
 PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE *$maxper);" )
@@ -19,19 +24,24 @@ if [ $IMAGESIZE -gt $FLASHSIZE ];then
   echo ""
   exit 1
 else
-	echo -n "  ["
+	/bin/echo -n "  ["
+	# echo -n "  ["
 	COUNTER=0
 	while [  $COUNTER -lt $maxper ]; do
 		if [ $COUNTER -lt $PER ]; then
-			echo -n "="
+			/bin/echo -n "="
+			#echo -n "="
 		else
-			echo -n "-"
+			/bin/echo -n "-"
+			#echo -n "-"
 		fi
 		let COUNTER=COUNTER+1
 	done
 	echo "]"
 fi
 echo ""
-echo -e "Program (.text + .data)\t: $(perl -e "print ${val[0]}+${val[1]};") bytes"
-echo -e "Data (.data + .bss)\t:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
+	echo "Program (.text + .data)\t: $(perl -e "print ${val[0]}+${val[1]};") bytes"
+	echo "Data (.data + .bss)\t:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
+	# echo -e "Program (.text + .data)\t: $(perl -e "print ${val[0]}+${val[1]};") bytes"
+	# echo -e "Data (.data + .bss)\t:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
 echo ""
