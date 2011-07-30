@@ -38,9 +38,6 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "protocols/ecmd/ecmd-base.h"
-#ifdef STELLA_SUPPORT
-#include "services/stella/stella.h"
-#endif
 
 #ifdef DMX_STORAGE_SUPPORT
 #include "services/dmx-storage/dmx_storage.h"
@@ -731,17 +728,14 @@ void artnet_get(void) {
 
   if (dmx->universe == ((artnet_subNet << 4) | artnet_outputUniverse1)) {
    if (artnet_dmxDirection == 0) {
-    uint16_t len = (dmx->lengthHi << 8) + dmx->length;
-    ARTNET_DEBUG ("Updating %d channels ...\n", len);
-		#ifdef STELLA_SUPPORT
-			stella_dmx(&dmx->dataStart, len);
-		#endif
-    		#ifdef DMX_STORAGE_SUPPORT
-			set_dmx_channels(&dmx->dataStart,CONF_ARTNET_OUTUNIVERSE,len);
-    		#endif
-		if (artnet_sendPollReplyOnChange == TRUE) {
-      artnet_pollReplyCounter++;
-      artnet_sendPollReply();
+	uint16_t len = (dmx->lengthHi << 8) + dmx->length;
+	ARTNET_DEBUG ("Updating %d channels ...\n", len);
+	#ifdef DMX_STORAGE_SUPPORT
+		set_dmx_channels(&dmx->dataStart,CONF_ARTNET_OUTUNIVERSE,len);
+    	#endif
+	if (artnet_sendPollReplyOnChange == TRUE) {
+	artnet_pollReplyCounter++;
+	artnet_sendPollReply();
     }
    }
   }

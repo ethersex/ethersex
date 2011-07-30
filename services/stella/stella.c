@@ -26,6 +26,7 @@
 #include "core/debug.h"
 #include "stella.h"
 #include "stella_fading_functions.h"
+#include "services/dmx-storage/dmx_storage.h"
 
 uint8_t stella_brightness[STELLA_CHANNELS];
 uint8_t stella_fade[STELLA_CHANNELS];
@@ -40,8 +41,9 @@ uint8_t stella_portmask[STELLA_PORT_COUNT];
 struct stella_timetable_struct timetable_1, timetable_2;
 struct stella_timetable_struct* int_table;
 struct stella_timetable_struct* cal_table;
-
-
+#ifdef DMX_STORAGE_SUPPORT
+uint8_t stella_dmx_conn_id;
+#endif
 void stella_sort(void);
 
 /* Initialize stella */
@@ -97,6 +99,10 @@ stella_init (void)
 
 	/* Interrupt on overflow and CompareMatch */
 	STELLA_TIMSK |= _BV(STELLA_TOIE) | _BV(STELLA_COMPARE_IE);
+	/*Setup DMX-Storage Connection*/
+	#ifdef DMX_STORAGE_SUPPORT
+        stella_dmx_conn_id=dmx_storage_connect(STELLA_UNIVERSE);
+	#endif
 }
 
 uint8_t
@@ -108,25 +114,20 @@ stella_output_channels(void* target)
 	return sizeof(struct stella_output_channels_struct);
 }
 
-void
-stella_dmx(uint8_t* dmx_data, uint16_t len)
-{
-	// length
-	if (len<2) return; // no real data, abort
-	--len; // ignore first byte (defines fade function)
-	if (STELLA_CHANNELS < len) len = STELLA_CHANNELS;
-
-	for (uint8_t i=0;i<len;++i)
-	{
-		stella_setValue(dmx_data[0], i, dmx_data[i+1]);
-	}
-}
-
 /* Process recurring actions for stella */
 void
 stella_process (void)
 {
-
+	#ifdef DMX_STORAGE_SUPPORT
+        if(get_dmx_universe_state(STELLA_UNIVERSE,stella_dmx_conn_id) == DMX_NEWVALUES)
+	{
+		uint8_t mode=get_dmx_channel_slot(STELLA_UNIVERSE,STELLA_UNIVERSE_OFFSET,stella_dmx_conn_id);
+		for(uint8_t i=0;i<STELLA_CHANNELS;i++)
+		{
+			stella_setValue(mode, i, get_dmx_channel_slot(STELLA_UNIVERSE,STELLA_UNIVERSE_OFFSET+i+1,stella_dmx_conn_id));
+		}
+	}
+	#endif
 	/* the main loop is too fast, slow down */
 	if (stella_fade_counter == 0)
 	{
