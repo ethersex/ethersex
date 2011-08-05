@@ -145,6 +145,7 @@ define(`USB_USE_INT', `dnl
 define(`DCF77_USE_PCINT', `dnl
 /* DCF77 PinChange-Interrupt Line  PCINT$1 -> $2 */
 pin(DCF1, $2, INPUT)
+#define DCF77_PCINT_PIN $2
 
 dnl Configure pin-change-mask to monitor PCINTn and enable interrupt
 #define dcf77_configure_pcint() \
@@ -354,4 +355,30 @@ divert(1)
 #define PIN_TOGGLE(pin) PORT_CHAR(pin ## _PORT) ^= _BV(pin ## _PIN)
 #define PIN_PULSE(pin) do { PORT_CHAR(pin ## _PORT) &= ~_BV(pin ## _PIN); \
                               PORT_CHAR(pin ## _PORT) ^= _BV(pin ## _PIN); } while(0)'
+/* CLOCK Timer Settings*/
 
+#if (defined(atmega128) || defined(atmega64))
+
+#define CLOCK_TIMER_AS AS0
+#define CLOCK_INT_OVERFLOW_CLR TC0_INT_OVERFLOW_CLR
+#define CLOCK_INT_OVERFLOW_ON TC0_INT_OVERFLOW_ON
+#define CLOCK_TIMER_PRESCALER_128 TC0_PRESCALER_128
+#define CLOCK_TIMER_CNT TC0_COUNTER_CURRENT
+#define CLOCK_SIG TC0_VECTOR_OVERFLOW
+#define CLOCK_TIMER_NBUSY TCN0UB
+#define CLOCK_TIMER_RBUSY TCR0UB
+
+#else
+
+/* Here we define to use the timer2 */
+#define CLOCK_TIMER_AS AS2
+#define CLOCK_INT_OVERFLOW_CLR TC2_INT_OVERFLOW_CLR
+#define CLOCK_INT_OVERFLOW_ON TC2_INT_OVERFLOW_ON
+#define CLOCK_TIMER_PRESCALER_128 TC2_PRESCALER_128
+#define CLOCK_TIMER_CNT TC2_COUNTER_CURRENT
+#define CLOCK_SIG TC2_VECTOR_OVERFLOW
+#define CLOCK_TIMER_NBUSY TCN2UB
+#ifdef TCR2BUB
+#  define CLOCK_TIMER_RBUSY TCR2BUB
+#endif
+#endif
