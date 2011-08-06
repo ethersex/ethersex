@@ -46,3 +46,5 @@ ifdef(`conf_STATUSLED_HB_ACT', `dnl
 pin(STATUSLED_HB_ACT,PD6, OUTPUT)
 ')dnl
 
+pin(DCF1_PON, PA1, OUTPUT)
+DCF77_USE_INT(1, PD3)

@@ -209,7 +209,7 @@ static const char proto_thomson[] PROGMEM = "THOMSON";
 static const char proto_merlin[] PROGMEM = "MERLIN";
 
 
-const PGM_P irmp_proto_names[] PROGMEM = {
+const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_unknown,
   proto_sircs,
   proto_nec,

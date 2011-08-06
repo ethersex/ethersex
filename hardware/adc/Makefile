@@ -1,7 +1,9 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(ADC_SUPPORT)_ECMD_SRC += hardware/adc/adc.c
+ifeq ($(ECMD_PARSER_SUPPORT),y)
+	$(ADC_SUPPORT)_ECMD_SRC += hardware/adc/adc.c
+endif
 
 $(HR20_TEMP_SUPPORT)_SRC += hardware/adc/hr20-temp.c
 $(HR20_TEMP_SUPPORT)_SRC += hardware/adc/hr20-batt.c

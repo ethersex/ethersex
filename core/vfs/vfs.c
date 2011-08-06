@@ -24,7 +24,7 @@
 #include "core/vfs/vfs.h"
 #ifndef VFS_TEENSY
 
-struct vfs_func_t vfs_funcs[] PROGMEM = {
+const struct vfs_func_t vfs_funcs[] PROGMEM = {
 #ifdef VFS_EEPROM_SUPPORT
   VFS_EEPROM_FUNCS,
 #endif

@@ -32,10 +32,10 @@ void hr20_lcd_hourbar (uint8_t start, uint8_t stop);
 #define LCD_SEG_CLEAR(i)	((&LCDDR0)[(i)/8] &= ~(1 << ((i) & 7)))
 #define LCD_SEG_TOGGLE(i)	((&LCDDR0)[(i)/8] ^=  (1 << ((i) & 7)))
 
-extern uint8_t hr20_charset[];
-extern uint8_t hr20_nf_offsets[];
-extern uint8_t hr20_seg_offsets[];
-extern uint8_t hr20_bar_offsets[];
+extern const uint8_t hr20_charset[];
+extern const uint8_t hr20_nf_offsets[];
+extern const uint8_t hr20_seg_offsets[];
+extern const uint8_t hr20_bar_offsets[];
 
 enum {
   HR20_LCD_CHAR_0,
