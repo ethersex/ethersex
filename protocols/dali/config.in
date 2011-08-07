@@ -1,0 +1,1 @@
+dep_bool "DALI light control" DALI_SUPPORT $ARCH_AVR
