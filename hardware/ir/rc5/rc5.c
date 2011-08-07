@@ -339,7 +339,7 @@ void rc5_process(void)
     }
 }
 
-ISR(RC5_INT_SIGNAL)
+ISR(RC5_INT_VECTOR)
 {
     if (rc5_global.enabled && !rc5_global.temp_disable) {
 

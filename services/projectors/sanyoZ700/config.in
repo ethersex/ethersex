@@ -1,0 +1,12 @@
+usart_count_used
+if [ "$PROJECTOR_SANYO_Z700_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "Projectors: SanyoZ700" PROJECTOR_SANYO_Z700_SUPPORT
+		choice '    SanyoZ700 usart select' "$(usart_choice SANYO_Z700)"
+		usart_process_choice SANYO_Z700
+	comment  "Debugging Flags"
+	dep_bool 'SANYO_Z700 Debug' DEBUG_SANYO_Z700 $PROJECTOR_SANYO_Z700_SUPPORT
+	endmenu
+else
+	define_bool PROJECTOR_SANYO_Z700_SUPPORT n
+	comment "SANYO_Z700 not available. No free usart. ($USARTS_USED/$USARTS)"
+fi

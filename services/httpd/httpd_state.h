@@ -44,7 +44,7 @@ struct httpd_connection_state_t {
 #endif /* HTTP_AUTH_SUPPORT */
 
     /* The associated connection handler function */
-    void (* handler)();
+    void (* handler)(void);
 
     union {
 #ifdef VFS_SUPPORT

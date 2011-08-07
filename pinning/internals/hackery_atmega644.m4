@@ -8,6 +8,9 @@
 #define _EIMSK EIMSK
 #define _EICRA EICRA
 
+/* Watchdog status register */
+#define MCU_STATUS_REGISTER  MCUSR
+
 /* Generic timer macros */
 #define TC0_PRESCALER_1      {TCCR0B&=~(_BV(CS02)|_BV(CS01));TCCR0B|=_BV(CS00);}
 #define TC0_PRESCALER_8      {TCCR0B&=~(_BV(CS02)|_BV(CS00));TCCR0B|=_BV(CS01);}

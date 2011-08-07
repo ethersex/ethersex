@@ -38,7 +38,6 @@ divert(output_divert)
 </head>
 <body onLoad="javascript:np_init()">
 <h1>Named Pins</h1>
-<br>
 <table><tr><td valign="top">
   <h3>Outputs</h3>
   <table>

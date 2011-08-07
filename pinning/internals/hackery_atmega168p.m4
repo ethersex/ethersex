@@ -34,11 +34,6 @@
 #define PD0     PORTD0
 #endif
 
-#ifndef SIG_INTERRUPT0
-#define SIG_INTERRUPT0 INT0_vect
-#define SIG_INTERRUPT1 INT1_vect
-#endif
-
 /* ATmega168 specific adjustments */
 #define _SPCR0 SPCR
 #define _SPE0 SPE
@@ -51,6 +46,9 @@
 #define _IVREG MCUCR
 
 #define _TIMSK_TIMER1 TIMSK1
+
+/* Watchdog status register */
+#define MCU_STATUS_REGISTER  MCUSR
 
 /* Generic timer macros */
 #define TC0_PRESCALER_1      {TCCR0B&=~(_BV(CS02)|_BV(CS01));TCCR0B|=_BV(CS00);}

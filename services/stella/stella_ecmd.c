@@ -48,7 +48,6 @@ int16_t parse_cmd_stella_eeprom_load (char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
 {
-#ifdef TEENSY_SUPPORT
 	if (cmd[0])
 	{
 		stella_fade_step = atoi(cmd);
@@ -59,34 +58,13 @@ int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
 		itoa(stella_fade_step, output, 10);
 		return ECMD_FINAL(strlen(output));
 	}
-#else
-	uint8_t fadestep;
-	int8_t ret = 0;
-
-	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u"), &fadestep);
-
-	// get
-	if (ret == 0)
-	{
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), stella_fade_step));
-	}
-	// set
-	else if (ret == 1)
-	{
-		stella_fade_step = fadestep;
-		return ECMD_FINAL_OK;
-	}
-	else
-		return ECMD_ERR_PARSE_ERROR;
-#endif
 }
 
-#ifndef TEENSY_SUPPORT
 int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
 {
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), STELLA_CHANNELS));
+	itoa(STELLA_CHANNELS, output, 10);
+	return ECMD_FINAL(strlen(output));
 }
-#endif
 
 int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 {
@@ -94,49 +72,14 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 	uint8_t ch = 0;
 	uint8_t value = 0;
 
-#ifdef TEENSY_SUPPORT
-	while(*cmd == 32) cmd ++;
-	char *p = cmd;
-	while(*p && *p != ' ') p++;
-
-	ch = atoi(cmd);
-
-	if(!*p)
-	{
-		/* no second argument -> get value */
-		if (ch >= STELLA_CHANNELS)
-			return ECMD_ERR_PARSE_ERROR;
-
-		itoa(stella_getValue(ch), output, 10);
-		return ECMD_FINAL(strlen(output));
-	}
-	else
-		p ++;
-
-	value = atoi(p);
-	while(*p && *p != 32) p++;
-	if(*p) f = p[1];
-
-	if (f=='s') f = 0; // set
-	else if (f=='f') f = 1; // fade
-	else if (f=='y') f = 2; // fade variant 2
-
-	if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
-	stella_setValue(f, ch, value);
-
-	return ECMD_FINAL_OK;
-#else  /* not TEENSY_SUPPORT */
-	uint16_t ret = 0; // must be 16 bit; because the answer length may be > 255
-	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
+	// following lines same as: sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
 	
-	if (f=='s') f = 0; // set
-	else if (f=='f') f = 1; // fade
-	else if (f=='y') f = 2; // fade variant 2
-
-	// return all channel values
-	if (ret == 0)
+	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
+	if (!*cmd)
 	{
+		/* not first argument == return all channels */
 		static uint8_t chan = 0;
+		uint8_t ret = 0;
 		// First return amount of channels with three bytes
 		if(chan == 0)
 		{
@@ -163,24 +106,39 @@ int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
 			return ECMD_FINAL(ret);
 		}
 	}
-	// return one channel value
-	else if (ret == 1)
+	ch = atoi(cmd); // save first argument == channel
+	while(*cmd && *cmd != ' ') cmd++; //skip value
+	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
+	if(!*cmd)
 	{
-		if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
+		/* no second argument -> get value */
+		if (ch >= STELLA_CHANNELS)
+			return ECMD_ERR_PARSE_ERROR;
 
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("%u"), stella_getValue(ch)));
+		itoa(stella_getValue(ch), output, 10);
+		return ECMD_FINAL(strlen(output));
 	}
-	// else set channel to value
-	else if (ret >= 2)
-	{
-		if (ch>=STELLA_CHANNELS) return ECMD_ERR_PARSE_ERROR;
-		stella_setValue(f, ch, value);
 
-		return ECMD_FINAL_OK;
+	value = atoi(cmd);
+
+	while(*cmd && *cmd != ' ') cmd++; //skip value
+	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
+
+	/* third argument == fade step */
+	if(*cmd) {
+		f = *cmd;
+
+		if (f=='s') f = 0; // set
+		else if (f=='f') f = 1; // fade
+		else if (f=='y') f = 2; // fade variant 2
 	}
-	else
+	
+	if (ch>=STELLA_CHANNELS)
 		return ECMD_ERR_PARSE_ERROR;
-#endif
+	
+	stella_setValue(f, ch, value);
+
+	return ECMD_FINAL_OK;
 }
 
 
@@ -190,9 +148,9 @@ block([[Stella_Light]] commands)
 ecmd_ifndef(TEENSY_SUPPORT)
   ecmd_feature(stella_eeprom_store, "stella store",, Store values in eeprom)
   ecmd_feature(stella_eeprom_load, "stella load",, Load values from eeprom)
-  ecmd_feature(stella_channels, "channels",, Return stella channel size)
 ecmd_endif()
 
+ecmd_feature(stella_channels, "channels",, Return stella channel size)
 ecmd_feature(stella_channel, "channel", CHANNEL VALUE FUNCTION,Get/Set stella channel to value. Second and third parameters are optional. Function: You may use 's' for instant set, 'f' for fade and 'y' for flashy fade. )
 ecmd_feature(stella_fadestep, "fadestep", FADESTEP, Get/Set stella fade step)
 */

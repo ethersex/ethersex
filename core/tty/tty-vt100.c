@@ -26,7 +26,7 @@
 
 char vt100_buf[COLS * LINES];
 char *vt100_head = vt100_buf;
-char PROGMEM vt100_clr_str[] = "\033[2J\033[H";
+const char PROGMEM vt100_clr_str[] = "\033[2J\033[H";
 
 static inline void
 vt100_putbuf (char ch)

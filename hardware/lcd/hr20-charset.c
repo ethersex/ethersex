@@ -30,7 +30,7 @@
 #include <avr/pgmspace.h>
 
 // Look-up table to convert value to LCD display data (segment control)
-uint8_t hr20_charset[] PROGMEM =
+const uint8_t hr20_charset[] PROGMEM =
 {
     0x3F, // 0    0:0x3F   1:0x06   2:0x5B   3:0x4F   4:0x66   5:0x6D   6:0x7D
     0x06, // 1    ******        *   ******   ******   *    *   ******   ******
@@ -82,7 +82,7 @@ uint8_t hr20_charset[] PROGMEM =
 };
 
 // Look-up table to adress element F for one Position.
-uint8_t hr20_nf_offsets[] PROGMEM =
+const uint8_t hr20_nf_offsets[] PROGMEM =
 {
 	LCD_SEG_0F,
 	LCD_SEG_1F,
@@ -91,7 +91,7 @@ uint8_t hr20_nf_offsets[] PROGMEM =
 };
 
 // Look-up table to adress a segment inside a field (relative to xF)
-uint8_t hr20_seg_offsets[] PROGMEM =
+const uint8_t hr20_seg_offsets[] PROGMEM =
 {
 	LCD_SEG_0A - LCD_SEG_0F,	//  Seg A            AAAA
 	LCD_SEG_0B - LCD_SEG_0F,	//  Seg B           F    B
@@ -103,7 +103,7 @@ uint8_t hr20_seg_offsets[] PROGMEM =
 };
 
 //! Look-up table for adress hour-bar segments
-uint8_t hr20_bar_offsets[] PROGMEM =
+const uint8_t hr20_bar_offsets[] PROGMEM =
 {
     LCD_SEG_B0,    LCD_SEG_B1,    LCD_SEG_B2,    LCD_SEG_B3,    LCD_SEG_B4,
     LCD_SEG_B5,    LCD_SEG_B6,    LCD_SEG_B7,    LCD_SEG_B8,    LCD_SEG_B9,

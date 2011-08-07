@@ -26,19 +26,26 @@
 #include "core/eeprom.h"
 #include "core/vfs/vfs.h"
 
+#if FLASHEND > UINT16_MAX
+#define __pgm_read_byte pgm_read_byte_far
+#else
+#define __pgm_read_byte pgm_read_byte_near
+#endif
+
+
 struct vfs_file_handle_t *
 vfs_inline_open (const char *filename)
 {
-  uint16_t offset = FLASHEND - SPM_PAGESIZE + 1;
+  vfs_size_t offset = FLASHEND - SPM_PAGESIZE + 1;
   for (; offset; offset -= SPM_PAGESIZE) {
-    if (pgm_read_byte (offset) != VFS_INLINE_MAGIC)
+    if (__pgm_read_byte (offset) != VFS_INLINE_MAGIC)
       continue;
 
     union vfs_inline_node_t node;
     uint8_t i;
 
     for (i = 0; i < sizeof (node); i ++)
-      node.raw[i] = pgm_read_byte (offset + i + 1);
+      node.raw[i] = __pgm_read_byte (offset + i + 1);
 
     if (node.s.crc != crc_checksum (node.raw, sizeof (node) - 1))
       continue;
@@ -72,14 +79,14 @@ vfs_inline_close (struct vfs_file_handle_t *fh)
 vfs_size_t
 vfs_inline_read (struct vfs_file_handle_t *fh, void *buf, vfs_size_t length)
 {
-  uint16_t len = fh->u.il.len - fh->u.il.pos;
+  vfs_size_t len = fh->u.il.len - fh->u.il.pos;
   if (length < len) len = length;
 
-  for (uint16_t i = 0; i < len; i ++)
+  for (vfs_size_t i = 0; i < len; i ++)
     ((unsigned char *)buf)[i] =
-      pgm_read_byte (fh->u.il.offset + fh->u.il.pos + i);
+      __pgm_read_byte (fh->u.il.offset + fh->u.il.pos + i);
 
-  fh->u.il.pos += len;
+  fh->u.il.pos += (uint16_t)len;
   return len;
 }
 
@@ -88,7 +95,7 @@ uint8_t
 vfs_inline_fseek (struct vfs_file_handle_t *fh, vfs_size_t offset,
 		  uint8_t whence)
 {
-  uint16_t new_pos;
+  vfs_size_t new_pos;
 
   switch (whence)
     {

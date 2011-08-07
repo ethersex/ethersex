@@ -35,6 +35,7 @@
 #include "hardware/i2c/master/i2c_tsl2550.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
 #include "hardware/i2c/master/i2c_pca9531.h"
+#include "hardware/i2c/master/i2c_pca9685.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 #include "hardware/i2c/master/i2c_max7311.h"
 
@@ -281,6 +282,45 @@ parse_cmd_i2c_pca9531(char *cmd, char *output, uint16_t len)
 }
 
 #endif  /* I2C_PCA9531_SUPPORT */
+
+#ifdef I2C_PCA9685_SUPPORT
+int16_t
+parse_cmd_i2c_pca9685_set_led(char *cmd, char *output, uint16_t len)
+{
+	uint8_t adr;
+	uint8_t led;
+	uint16_t off;
+	uint16_t on;
+	sscanf_P(cmd, PSTR("%x %u %u %u"), &adr, &led, &on, &off);
+
+#ifdef DEBUG_I2C
+	debug_printf("I2C PCA9685 IC %x: led: %u, on: %u off: %u\n",adr, led, on, off);
+#endif
+	if(i2c_pca9685_set_led(adr, led, on, off) == 0)
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm ok")));
+	else
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm not ok")));
+}
+int16_t
+parse_cmd_i2c_pca9685_set_mode(char *cmd, char *output, uint16_t len)
+{
+	uint8_t adr;
+	uint8_t outdrv=1;
+	uint8_t ivrt=0;
+	uint8_t prescaler=0x1e;
+	sscanf_P(cmd, PSTR("%x %u %u %u"), &adr, &outdrv, &ivrt, &prescaler);
+
+#ifdef DEBUG_I2C
+	debug_printf("I2C PCA9685 IC %x: outdrv: %u ivrt: %u prescaler: %u\n",adr, outdrv, ivrt,prescaler);
+#endif
+	if(i2c_pca9685_set_mode(adr, outdrv, ivrt,prescaler) == 0)
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm mode ok")));
+	else
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm mode not ok")));
+}
+
+#endif  /* I2C_PCA9685_SUPPORT */
+
 
 #ifdef I2C_PCF8574X_SUPPORT
 int16_t parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)

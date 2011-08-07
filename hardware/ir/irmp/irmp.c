@@ -83,13 +83,13 @@
 #endif
 #define SW_PRESCALER       ((uint8_t)((F_CPU/HW_PRESCALER)/IRMP_HZ))
 
-#ifdef IRMP_RX_LED
+#ifdef STATUSLED_IRMP_RX_SUPPORT
 #ifdef IRMP_RX_LED_LOW_ACTIVE
-#define IRMP_RX_LED_ON     PIN_CLEAR(STATUSLED_RX)
-#define IRMP_RX_LED_OFF    PIN_SET(STATUSLED_RX)
+#define IRMP_RX_LED_ON     PIN_CLEAR(STATUSLED_IRMP_RX)
+#define IRMP_RX_LED_OFF    PIN_SET(STATUSLED_IRMP_RX)
 #else
-#define IRMP_RX_LED_ON     PIN_SET(STATUSLED_RX)
-#define IRMP_RX_LED_OFF    PIN_CLEAR(STATUSLED_RX)
+#define IRMP_RX_LED_ON     PIN_SET(STATUSLED_IRMP_RX)
+#define IRMP_RX_LED_OFF    PIN_CLEAR(STATUSLED_IRMP_RX)
 #endif
 #else
 #define IRMP_RX_LED_ON
@@ -104,13 +104,13 @@
 #define IRMP_RX_MARK       PIN_BV(IRMP_RX)
 #endif
 
-#ifdef IRMP_TX_LED
+#ifdef STATUSLED_IRMP_TX_SUPPORT
 #ifdef IRMP_TX_LED_LOW_ACTIVE
-#define IRMP_TX_LED_ON     PIN_CLEAR(STATUSLED_TX)
-#define IRMP_TX_LED_OFF    PIN_SET(STATUSLED_TX)
+#define IRMP_TX_LED_ON     PIN_CLEAR(STATUSLED_IRMP_TX)
+#define IRMP_TX_LED_OFF    PIN_SET(STATUSLED_IRMP_TX)
 #else
-#define IRMP_TX_LED_ON     PIN_SET(STATUSLED_TX)
-#define IRMP_TX_LED_OFF    PIN_CLEAR(STATUSLED_TX)
+#define IRMP_TX_LED_ON     PIN_SET(STATUSLED_IRMP_TX)
+#define IRMP_TX_LED_OFF    PIN_CLEAR(STATUSLED_IRMP_TX)
 #endif
 #else
 #define IRMP_TX_LED_ON
@@ -205,9 +205,11 @@ static const char proto_netbox[] PROGMEM = "NETBOX";
 static const char proto_nec16[] PROGMEM = "NEC16";
 static const char proto_nec42[] PROGMEM = "NEC42";
 static const char proto_lego[] PROGMEM = "LEGO";
+static const char proto_thomson[] PROGMEM = "THOMSON";
+static const char proto_merlin[] PROGMEM = "MERLIN";
 
 
-const PGM_P irmp_proto_names[] PROGMEM = {
+const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_unknown,
   proto_sircs,
   proto_nec,
@@ -237,7 +239,9 @@ const PGM_P irmp_proto_names[] PROGMEM = {
   proto_netbox,
   proto_nec16,
   proto_nec42,
-  proto_lego
+  proto_lego,
+  proto_thomson,
+  proto_merlin
 };
 #endif
 
@@ -251,13 +255,13 @@ irmp_init (void)
   PIN_CLEAR (IRMP_RX);
 #endif
 
-#ifdef IRMP_RX_LED
-  DDR_CONFIG_OUT (STATUSLED_RX);
+#ifdef STATUSLED_IRMP_RX_SUPPORT
+  DDR_CONFIG_OUT (STATUSLED_IRMP_RX);
   IRMP_RX_LED_OFF;
 #endif
 
-#ifdef IRMP_TX_LED
-  DDR_CONFIG_OUT (STATUSLED_TX);
+#ifdef STATUSLED_IRMP_TX_SUPPORT
+  DDR_CONFIG_OUT (STATUSLED_IRMP_TX);
   IRMP_TX_LED_OFF;
 #endif
 
