@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <util/delay.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -33,23 +34,107 @@
 
 int16_t parse_cmd_dali_raw(char *cmd, char *output, uint16_t len)
 {
-    uint16_t data=0;
+    uint8_t frame[2];
 
     while(*cmd == ' ') cmd++;
 
-    if (sscanf_P(cmd, PSTR("%x %x"), &data, (uint8_t*)(&data)+1) != 2)
+    if (sscanf_P(cmd, PSTR("%x %x"), frame, frame+1) != 2)
         return ECMD_ERR_PARSE_ERROR;
 
-    dali_send(&data);
+    dali_send((uint16_t*)frame);
     
     return ECMD_FINAL_OK;
 }
 
+static inline uint8_t parse_dali_target(char **cmd, uint8_t *targetcode)
+{
+    uint8_t targetno=0;
+
+    // strip whitespace
+    while(**cmd == ' ') (*cmd)++;
+
+    if (strcmp(*cmd,PSTR("all"))==0)
+    {
+        // broadcast
+        *targetcode=0xFE;
+    }
+    else if (sscanf_P(*cmd, PSTR("g%u"), &targetno) == 2)
+    {
+        // group address, 0-15
+        if (targetno > 15)
+            return 0;
+        
+        *targetcode=(targetno << 1) | 0x80;
+    }
+    else if (sscanf_P(*cmd, PSTR("s%u"), &targetno) == 2)
+    {
+        // short address, 0-63
+        if (targetno > 63)
+            return 0;
+        
+        *targetcode=(targetno << 1);
+    }
+    else
+        return 0;
+
+    // read pointer to beginning of next arg
+    while(**cmd && **cmd != ' ') (*cmd)++;
+    while(**cmd == ' ') (*cmd)++;
+    
+    return 1;
+}
+
+enum dali_cmd { CMD, DIM };
+
+static int16_t parse_cmd_dali_dimcmd(enum dali_cmd c, char *cmd, char *output, uint16_t len)
+{
+    uint8_t frame[2];
+
+    if (!parse_dali_target(&cmd,&frame[0]))
+        return ECMD_ERR_PARSE_ERROR;
+           
+    // commands are marked with lsb=1
+    if (c == CMD)
+        frame[0] |= 1;
+        
+    if (sscanf_P(*cmd, PSTR("%u"), frame+1) != 1)
+        return ECMD_ERR_PARSE_ERROR;
+
+    dali_send((uint16_t*)frame);
+
+    if (c == CMD)
+    {
+        // read pointer to beginning of next arg
+        while(*cmd && *cmd != ' ') cmd++;
+        while(*cmd == ' ') cmd++;
+
+        if (*cmd == '!')
+        {
+            // repeat the last command after 20msec (reaction + response time)
+            _delay_ms(20);
+            dali_send((uint16_t*)frame);
+        }
+    }
+    
+    return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_dali_dim(char *cmd, char *output, uint16_t len)
+{
+    return parse_cmd_dali_dimcmd(DIM,cmd,output,len);
+}
+
+int16_t parse_cmd_dali_cmd(char *cmd, char *output, uint16_t len)
+{
+    return parse_cmd_dali_dimcmd(CMD,cmd,output,len);
+}
 
 /*
   -- Ethersex META --
   block([[DALI]])
   ecmd_ifdef(DALI_SUPPORT)
     ecmd_feature(dali_raw, "dali raw", `[BYTE1] [BYTE2], send a raw frame (two bytes, given in hex) over the DALI bus')
+    ecmd_feature(dali_dim, "dali dim", `[TARGET] [LEVEL], dim targets (all, g00 to g15, s00 to s63) to given level (0-254)')
+    ecmd_feature(dali_cmd, "dali cmd", `[TARGET] [COMMAND] [!], send the given command (decimal) to targets (all, g00 to g15, s00 to s63), auto repeat with !')
   ecmd_endif()
 */

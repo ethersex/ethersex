@@ -31,7 +31,7 @@
 
 #include "dali.h"
 
-void dali_send(uint16_t *data)
+void dali_send(uint16_t *frame)
 {
     DDR_CONFIG_OUT(DALI_OUT);
 
@@ -54,7 +54,7 @@ void dali_send(uint16_t *data)
     // transmit the bytes
     for (uint8_t i=0; i<2; i++)
     {
-        uint8_t b=*((uint8_t*)(data)+i);
+        uint8_t b=*((uint8_t*)(frame)+i);
         
         // most significant bit first
         for (uint8_t j = 0; j < 8; j++, b <<= 1)
