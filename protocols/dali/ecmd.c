@@ -50,6 +50,6 @@ int16_t parse_cmd_dali_raw(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[DALI]])
   ecmd_ifdef(DALI_SUPPORT)
-    ecmd_feature(dali_raw, "dali raw", `[BYTE1] [BYTE2], send a raw command sequence (two bytes, given in hex) over the DALI bus')
+    ecmd_feature(dali_raw, "dali raw", `[BYTE1] [BYTE2], send a raw frame (two bytes, given in hex) over the DALI bus')
   ecmd_endif()
 */

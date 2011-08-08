@@ -25,6 +25,9 @@
 
 #ifdef DALI_SUPPORT
 
+// DALI uses 1200 baud, this waits for half of one bit time
+#define DALI_HALF_BIT_WAIT _delay_us(416)
+
 void dali_send(uint16_t *data);
 
 #endif /* SHT_SUPPORT */

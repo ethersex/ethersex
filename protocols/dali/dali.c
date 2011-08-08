@@ -35,27 +35,57 @@ void dali_send(uint16_t *data)
 {
     DDR_CONFIG_OUT(DALI_OUT);
 
-    PIN_SET(DALI_OUT);
-    _delay_us(416);
-
-    PIN_CLEAR(DALI_OUT);
-    _delay_us(416);
+    // we expect an inverter in the output stage:
+    // atmega output normally low, dali bus normally high
     
-    PIN_SET(DALI_OUT);
-    _delay_us(416);
+    // DALI uses Manchester encoding:
+    // rising edge at the half of the bit time means 1
 
-    PIN_CLEAR(DALI_OUT);
-    _delay_us(416);
+    // with the inverter:
+    // rising edge (SET) is 0
+    // falling edge (CLEAR) is 1
+    
+    // start bit '1'
     PIN_SET(DALI_OUT);
-    _delay_us(416);
-
+    DALI_HALF_BIT_WAIT;
     PIN_CLEAR(DALI_OUT);
-    _delay_us(416);
-    PIN_SET(DALI_OUT);
-    _delay_us(416);
+    DALI_HALF_BIT_WAIT;
 
+    // transmit the bytes
+    for (uint8_t i=0; i<2; i++)
+    {
+        uint8_t b=*((uint8_t*)(data)+i);
+        
+        // most significant bit first
+        for (uint8_t j = 0; j < 8; j++, b <<= 1)
+        {
+            // we are between two bits
+            
+            if (b & 0x80)
+            {
+                // bit is set
+                PIN_SET(DALI_OUT);
+                DALI_HALF_BIT_WAIT;
+                PIN_CLEAR(DALI_OUT);
+                DALI_HALF_BIT_WAIT;
+            }
+            else
+            {
+                // bit is clear
+                PIN_CLEAR(DALI_OUT);
+                DALI_HALF_BIT_WAIT;
+                PIN_SET(DALI_OUT);
+                DALI_HALF_BIT_WAIT;
+            }
+        }
+    }
+    
+    // 2 stop bits always high
     PIN_CLEAR(DALI_OUT);
-    _delay_us(416);
+    DALI_HALF_BIT_WAIT;
+    DALI_HALF_BIT_WAIT;
+    DALI_HALF_BIT_WAIT;
+    DALI_HALF_BIT_WAIT;
 }
 
 
