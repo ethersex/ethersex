@@ -53,12 +53,12 @@ static inline uint8_t parse_dali_target(char **cmd, uint8_t *targetcode)
     // strip whitespace
     while(**cmd == ' ') (*cmd)++;
 
-    if (strcmp(*cmd,PSTR("all"))==0)
+    if (strncmp_P(*cmd,PSTR("all"),3)==0)
     {
         // broadcast
         *targetcode=0xFE;
     }
-    else if (sscanf_P(*cmd, PSTR("g%u"), &targetno) == 2)
+    else if (sscanf_P(*cmd, PSTR("g%u"), &targetno) == 1)
     {
         // group address, 0-15
         if (targetno > 15)
@@ -66,7 +66,7 @@ static inline uint8_t parse_dali_target(char **cmd, uint8_t *targetcode)
         
         *targetcode=(targetno << 1) | 0x80;
     }
-    else if (sscanf_P(*cmd, PSTR("s%u"), &targetno) == 2)
+    else if (sscanf_P(*cmd, PSTR("s%u"), &targetno) == 1)
     {
         // short address, 0-63
         if (targetno > 63)
@@ -97,7 +97,7 @@ static int16_t parse_cmd_dali_dimcmd(enum dali_cmd c, char *cmd, char *output, u
     if (c == CMD)
         frame[0] |= 1;
         
-    if (sscanf_P(*cmd, PSTR("%u"), frame+1) != 1)
+    if (sscanf_P(cmd, PSTR("%u"), frame+1) != 1)
         return ECMD_ERR_PARSE_ERROR;
 
     dali_send((uint16_t*)frame);
