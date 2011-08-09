@@ -44,20 +44,29 @@ int16_t parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 	else
 		return ECMD_ERR_PARSE_ERROR;
 }
-int16_t parse_cmd_dmx_set_channel(char *cmd, char *output, uint16_t len)
+
+int16_t parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
 {
-	uint16_t channel=0, ret=0,value=0, universe=0;
-	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%u %u %u"), &universe,&channel,&value);
-	if (ret == 3)
-	{
-		if (channel >= DMX_STORAGE_CHANNELS)
+	uint16_t startchannel=0, universe=0, value=0, channelcounter=0, i=4;
+	if (cmd[0]!=0) {
+		sscanf_P(cmd, PSTR("%u %u"), &universe,&startchannel);
+		if (startchannel >= DMX_STORAGE_CHANNELS)
 			return ECMD_ERR_PARSE_ERROR;
 		if (universe >= DMX_STORAGE_UNIVERSES)
 			return ECMD_ERR_PARSE_ERROR;
-		if(set_dmx_channel(universe,channel,value))
-			return ECMD_ERR_WRITE_ERROR;
-		else
-			return ECMD_FINAL_OK;
+
+		while (cmd[i]!=0){           //read and write all values
+			sscanf_P(cmd+i, PSTR(" %u"),&value);
+			if(set_dmx_channel(universe,startchannel+channelcounter,value))
+				return ECMD_ERR_WRITE_ERROR;
+			channelcounter++;
+			do{                         //search for next space
+				i++;
+				if(cmd[i]==0) break;
+			}while(cmd[i]!=' ');
+		}
+
+		return ECMD_FINAL_OK;
 	}
 	else
 		return ECMD_ERR_PARSE_ERROR;
@@ -109,7 +118,7 @@ int16_t parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
    -- Ethersex META --
    block([[DMX_Storage]] commands)
    ecmd_feature(dmx_get_channel, "dmx get",, Return channel value) 
-   ecmd_feature(dmx_set_channel, "dmx set",, Set channel value) 
+   ecmd_feature(dmx_set_channels, "dmx set",, Set channel values) 
    ecmd_feature(dmx_channels, "dmx channels",, Get channels per universe) 
    ecmd_feature(dmx_universes, "dmx universes",, Get universes) 
    ecmd_feature(dmx_get_universe, "dmx universe",, Get a whole universe) 
