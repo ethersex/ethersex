@@ -84,7 +84,7 @@ static inline uint8_t parse_dali_target(char **cmd, uint8_t *targetcode)
     return 1;
 }
 
-static int16_t repeat_dali_cmd(char *cmd, uint16_t *frame)
+static void repeat_dali_cmd(char *cmd, uint16_t *frame)
 {
     // read pointer to beginning of next arg
     while(*cmd && *cmd != ' ') cmd++;
@@ -145,9 +145,9 @@ int16_t parse_cmd_dali_scmd(char *cmd, char *output, uint16_t len)
     // special commands have numbers 256-287, but that is just naming
         
     // fit into 8 bit
-    uint8_t scmd=(scmd_int-0xff);
+    uint8_t scmd=(scmd_int-0x100);
 
-    // shift, lsb is always set
+    // shift, lsb is always set, msb too
     scmd <<= 1;
     scmd++;
     
@@ -155,8 +155,11 @@ int16_t parse_cmd_dali_scmd(char *cmd, char *output, uint16_t len)
     if (scmd & 0x20)
     {
         scmd &= 0x1F;
-        scmd |= 0x40;
+        scmd |= 0xC0;
     }
+    else
+        scmd |= 0xA0;
+
     frame[0]=scmd;
 
     if (sscanf_P(cmd, PSTR("%hhu"), frame+1) != 1)
