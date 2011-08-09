@@ -104,7 +104,6 @@ extern uint8_t stella_fade_func;
 
 extern uint8_t stella_brightness[STELLA_CHANNELS];
 extern uint8_t stella_fade[STELLA_CHANNELS];
-
 /* stella.c */
 void stella_init(void);
 void stella_process(void);
@@ -119,7 +118,6 @@ void stella_loadFromEEROMFading(void);
 void stella_storeToEEROM(void);
 
 uint8_t stella_output_channels(void* target);
-void stella_dmx(uint8_t* dmx_data, uint16_t len);
 
 #endif  /* STELLA_SUPPORT */
 
