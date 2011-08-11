@@ -1,4 +1,8 @@
 dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT $ARCH_AVR
+	if [ "$DMX_STORAGE_SUPPORT" = "y" ]; then
+		int "Stella DMX Universe" STELLA_UNIVERSE 1
+		int "Offset in Universe" STELLA_UNIVERSE_OFFSET 0
+	fi
 	dep_bool "Higher frequency" STELLA_HIGHFREQ
 	comment  '----- Initial -----'
 	if [ "$MOODLIGHT_SUPPORT" = "y" ]; then
