@@ -377,6 +377,7 @@ mainmenu_option next_comment
 comment "Protocols"
 
 source protocols/artnet/config.in
+source protocols/dali/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
 source protocols/fnordlicht/config.in
