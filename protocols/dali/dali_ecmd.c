@@ -99,6 +99,40 @@ static void repeat_dali_cmd(char *cmd, uint16_t *frame)
     }
 }
     
+#ifdef DALI_RECEIVE_SUPPORT
+static int16_t read_dali_reply(char *cmd, char *output)
+{
+    // read pointer to beginning of next arg
+    while(*cmd && *cmd != ' ') cmd++;
+    while(*cmd == ' ') cmd++;
+
+    // does user want to read?
+    if (*cmd == '?')
+    {
+        uint8_t frame;
+        int8_t ret = dali_read(&frame);
+        
+        if (ret == DALI_READ_OK)
+        {
+            itoa(frame,output,10);
+            return ECMD_FINAL(strlen(output));
+        }
+        else if (ret == DALI_READ_TIMEOUT)
+        {
+            strcpy_P(output, PSTR("READ TIMEOUT"));
+            return ECMD_FINAL(12);  // length of "READ TIMEOUT"
+        }
+        else // ret == DALI_READ_ERROR
+        {
+            strcpy_P(output, PSTR("READ ERROR"));
+            return ECMD_FINAL(10);  // length of "READ ERROR"
+        }
+    }
+    else
+        return ECMD_FINAL_OK;
+}
+#endif
+
 enum dali_cmd { CMD, DIM };
 
 static int16_t parse_cmd_dali_dimcmd(enum dali_cmd c, char *cmd, char *output, uint16_t len)
@@ -118,7 +152,12 @@ static int16_t parse_cmd_dali_dimcmd(enum dali_cmd c, char *cmd, char *output, u
     dali_send((uint16_t*)frame);
 
     if (c == CMD)
+    {
         repeat_dali_cmd(cmd,(uint16_t*)frame);
+#ifdef DALI_RECEIVE_SUPPORT
+        return read_dali_reply(cmd, output);
+#endif
+    }
     
     return ECMD_FINAL_OK;
 }
@@ -138,8 +177,10 @@ int16_t parse_cmd_dali_scmd(char *cmd, char *output, uint16_t len)
     uint8_t frame[2];
     int scmd_int=0;
     
-    if (sscanf_P(cmd, PSTR(" %i"), &scmd_int) != 1
-        || scmd_int > 287)
+    while(*cmd == ' ') cmd++;
+
+    if (sscanf_P(cmd, PSTR("%i"), &scmd_int) != 1
+        || scmd_int > 287 || scmd_int < 256)
         return ECMD_ERR_PARSE_ERROR;
     
     // special commands have numbers 256-287, but that is just naming
@@ -162,12 +203,20 @@ int16_t parse_cmd_dali_scmd(char *cmd, char *output, uint16_t len)
 
     frame[0]=scmd;
 
+    // read pointer to beginning of next arg
+    while(*cmd && *cmd != ' ') cmd++;
+    while(*cmd == ' ') cmd++;
+
     if (sscanf_P(cmd, PSTR("%hhu"), frame+1) != 1)
         return ECMD_ERR_PARSE_ERROR;
 
     dali_send((uint16_t*)frame);
 
     repeat_dali_cmd(cmd,(uint16_t*)frame);
+
+#ifdef DALI_RECEIVE_SUPPORT
+    return read_dali_reply(cmd, output);
+#endif
     
     return ECMD_FINAL_OK;
 }
@@ -176,9 +225,11 @@ int16_t parse_cmd_dali_scmd(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[DALI]])
   ecmd_ifdef(DALI_SUPPORT)
-    ecmd_feature(dali_raw, "dali raw", `[BYTE1] [BYTE2], send a raw frame (two bytes, given in hex) over the DALI bus')
-    ecmd_feature(dali_dim, "dali dim", `[TARGET] [LEVEL], dim targets (all, g00 to g15, s00 to s63) to given level (0-254)')
-    ecmd_feature(dali_cmd, "dali cmd", `[TARGET] [COMMAND] [!], send the given command (decimal) to targets (all, g00 to g15, s00 to s63), auto repeat with !')
-    ecmd_feature(dali_scmd, "dali scmd", `[SPECIAL COMMAND] [DATA] [!], send special command (256-287) with data, auto repeat with !')
+    ecmd_ifdef(DALI_RAW_SUPPORT)
+        ecmd_feature(dali_raw, "dali raw", [BYTE1] [BYTE2], "send a raw frame (two bytes, given in hex) over the DALI bus")
+    ecmd_endif()
+    ecmd_feature(dali_dim, "dali dim", [TARGET] [LEVEL], "dim targets (all, g00 to g15, s00 to s63) to given level (0-254)")
+    ecmd_feature(dali_cmd, "dali cmd", [TARGET] [COMMAND] [!][?], "send the given command (decimal) to targets (all, g00 to g15, s00 to s63), auto repeat with !, read reply with ?")
+    ecmd_feature(dali_scmd, "dali scmd", [SPECIAL COMMAND] [DATA] [!][?], "send special command (256-287) with data, auto repeat with !, read reply with ?")
   ecmd_endif()
 */
