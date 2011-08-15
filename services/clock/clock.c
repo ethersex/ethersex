@@ -59,27 +59,26 @@ void
 clock_init (void)
 {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-  ASSR = _BV (CLOCK_TIMER_AS);
-  CLOCK_TIMER_CNT = 0;
+  ASSR = _BV (TIMER_8_AS_1_AS_FLAG);
+  TIMER_8_AS_1_COUNTER_CURRENT = 0;
   /* 128 prescaler to get every 1.0 second an interrupt (32768Hz/128 = 1Hz */
-  CLOCK_TIMER_PRESCALER_128;
+  TIMER_8_AS_1_PRESCALER_128;
 
   /* Wait until the bytes are written */
-#ifdef CLOCK_TIMER_RBUSY
-  while (ASSR & (_BV (CLOCK_TIMER_NBUSY) | _BV (CLOCK_TIMER_RBUSY)))
+#ifdef TIMER_8_AS_1_RBUSY
+  while (ASSR & (_BV (TIMER_8_AS_1_NBUSY) | _BV (TIMER_8_AS_1_RBUSY)))
     {
     }
 #else
-  while (ASSR & (_BV (CLOCK_TIMER_NBUSY)))
+  while (ASSR & (_BV (TIMER_8_AS_1_NBUSY)))
     {
     }
 #endif
 
   /* Clear the interrupt flags */
-  CLOCK_INT_OVERFLOW_CLR;
-
+  TIMER_8_AS_1_INT_OVERFLOW_CLR;
   /* Enable the timer interrupt */
-  CLOCK_INT_OVERFLOW_ON;
+  TIMER_8_AS_1_INT_OVERFLOW_ON;
 #endif
 
   /* reset dcf_count */
@@ -90,7 +89,7 @@ clock_init (void)
 #ifdef CLOCK_CPU_SUPPORT
 ISR (TIMER1_OVF_vect)
 #else
-ISR (CLOCK_SIG)
+ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
@@ -186,7 +185,7 @@ clock_set_time (uint32_t new_sync_timestamp)
 
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
-  n_sync_tick = CLOCK_TIMER_CNT;
+  n_sync_tick = TIMER_8_AS_1_COUNTER_CURRENT;
 
   /* Allow the clock to jump forward, but not to go backward
    * except the time difference is greater than 5 minutes */

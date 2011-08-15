@@ -115,9 +115,9 @@ ISR (DCF77_VECTOR)
 ISR (ANALOG_COMP_vect)
 #endif
 {
-	uint8_t CLOCK_TIMER_CNTtemp = CLOCK_TIMER_CNT;
+	uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
 	/* 1/256 since last signal pulse */
-	uint16_t divtime = (CLOCK_TIMER_CNTtemp + (clock_get_time() - dcf.timerover) * 0xFF) - dcf.CLOCK_TIMER_CNTlast;
+	uint16_t divtime = (timertemp + (clock_get_time() - dcf.timerover) * 0xFF) - dcf.timerlast;
 
 	if(divtime > 5) // div time > 90 ms ?
 	{
@@ -266,7 +266,7 @@ ISR (ANALOG_COMP_vect)
 				{
 					compute_dcf77_timestamp();
 					clock_set_time(timestamp);
-					CLOCK_TIMER_CNT=0;
+					TIMER_8_AS_1_COUNTER_CURRENT=0;
 					last_dcf77_timestamp=timestamp;
 					last_valid_dcf = timestamp;
 					set_dcf_count(1);
@@ -280,11 +280,11 @@ ISR (ANALOG_COMP_vect)
 				}
 				DCFDEBUG("start sync\n");
 				dcf.sync = 1;
-				CLOCK_TIMER_CNT = divtime;
-				CLOCK_TIMER_CNTtemp = divtime;
+				TIMER_8_AS_1_COUNTER_CURRENT = divtime;
+				timertemp = divtime;
 			}
 		}
-		dcf.CLOCK_TIMER_CNTlast = CLOCK_TIMER_CNTtemp;
+		dcf.timerlast = timertemp;
 		dcf.timerover = clock_get_time();
 	}
 }
