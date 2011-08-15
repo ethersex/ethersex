@@ -23,11 +23,11 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <util/crc16.h>
 
 #include "config.h"
 #include "core/bit-macros.h"
 #include "core/debug.h"
+#include "core/util/delay_bit.h"
 
 #include "dali.h"
 
@@ -88,6 +88,85 @@ void dali_send(uint16_t *frame)
     DALI_HALF_BIT_WAIT;
 }
 
+#ifdef DALI_RECEIVE_SUPPORT
+
+/** @brief read a response frame (8bit) from a DALI slave
+ *  @param *frame the data (when successfully read) will be written to the target of the pointer
+ *  @return DALI_READ_TIMEOUT: timeout, DALI_READ_ERROR: illegal data received, DALI_READ_OK: success
+ */
+int8_t dali_read(uint8_t *frame)
+{
+    // no inverter at the input pin, high means high
+    DDR_CONFIG_IN(DALI_IN);
+    *frame=0;
+
+    // initialize ptr and mask for our input pin
+    uint8_t* pin_ptr=(uint8_t*)&PIN_CHAR(DALI_IN_PORT);
+    uint8_t bitmask= 1 << DALI_IN_PIN;
+
+    // wait for the begin of the start bit, max 9.17msec
+    if (!delay_bit(COUNT_DELAY_BIT_US(9170),pin_ptr,bitmask,0))
+        return DALI_READ_TIMEOUT;
+
+    uint16_t time_remaining;
+
+    // wait for rising edge of start bit
+    time_remaining=delay_bit(COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC)*1.5,pin_ptr,bitmask,1);
+
+    if (time_remaining > COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC) ||
+        time_remaining == 0)
+    {
+        // we are way out of timing spec
+        return DALI_READ_ERROR;
+    }
+
+    // pin is high again, second half of the start bit
+    uint8_t waitfor=0;
+
+    for (int i=0; i < 8; i++)
+    {
+        // wait for bit change, record timing
+        time_remaining=delay_bit(COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC)*2.5,pin_ptr,bitmask,waitfor);
+
+        if (time_remaining > COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC)*2 ||
+            time_remaining == 0)
+        {
+            // we are way out of timing spec
+            return DALI_READ_ERROR;
+        }
+        else if (time_remaining > COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC))
+        {
+            // bit-change at bit-border -> don't care
+            if (waitfor)
+                waitfor=0;
+            else
+                waitfor=1;
+                
+            time_remaining=delay_bit(COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC)*1.5,pin_ptr,bitmask,waitfor);
+            
+            if (time_remaining > COUNT_DELAY_BIT_US(DALI_HALF_BIT_USEC) ||
+                time_remaining == 0)
+            {
+                // we are way out of timing spec
+                return DALI_READ_ERROR;
+            }
+        }
+        
+        // bit-change at middle of bit time: data
+        *frame|=waitfor;
+        if (i < 7)
+            *frame <<= 1;
+        
+        if (waitfor)
+            waitfor=0;
+        else
+            waitfor=1;
+    }
+
+    return DALI_READ_OK;
+}
+
+#endif
 
 /*
   -- Ethersex META --
