@@ -433,6 +433,7 @@ source services/watchcat/config.in
 source services/vnc/config.in
 source services/watchasync/config.in
 source services/glcdmenu/config.in
+source services/lome6/config.in
 source services/projectors/sanyoZ700/config.in
 endmenu
 

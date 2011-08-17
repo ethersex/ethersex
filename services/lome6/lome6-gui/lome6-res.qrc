@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>If.ico</file>
+        <file>translation_de_DE.qm</file>
+    </qresource>
+</RCC>
