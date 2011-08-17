@@ -102,7 +102,7 @@ int16_t parse_cmd_lome6_state(char *cmd, char *output, uint16_t len) {
 int16_t parse_cmd_lome6_set_t(char *cmd, char *output, uint16_t len) {
 
 	uint16_t temp = 0;
-	char type[50] = { 0 };
+	char type[20] = { 0 };
 
 	uint8_t ret = sscanf_P(cmd, PSTR("%s %d"), type, &temp);
 
@@ -137,7 +137,7 @@ int16_t parse_cmd_lome6_set_t(char *cmd, char *output, uint16_t len) {
 int16_t parse_cmd_lome6_get_t(char *cmd, char *output, uint16_t len) {
 
 	// if machine is down, set the external temperatures to zero
-	if (!PIN_HIGH(POWER_STATE)) {
+	if (PIN_HIGH(POWER_STATE)) {
 
 		iTemperatureSB = 0;
 		iTemperatureCPU = 0;
@@ -172,9 +172,10 @@ int16_t parse_cmd_lome6_get_t(char *cmd, char *output, uint16_t len) {
 int16_t parse_cmd_lome6_uptime(char *cmd, char *output, uint16_t len) {
 
 	// if machine is down, set the uptime to zero
-	if (!PIN_HIGH(POWER_STATE)) iUptime = 0;
+	if (PIN_HIGH(POWER_STATE))
+		iUptime = 0;
 
-	uint16_t uptime = 0;
+	uint32_t uptime = 0;
 	uint8_t ret = sscanf_P(cmd, PSTR("%ld"), &uptime);
 
 	// if 1 parameter is given -> set uptime

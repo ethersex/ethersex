@@ -25,18 +25,20 @@
 #include <avr/pgmspace.h>
 #include <string.h>
 #include <stdio.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
 #include "config.h"
 #include "hardware/onewire/onewire.h"
-#include "hardware/lcd/hd44780.h"
 #include "services/clock/clock.h"
 #include "core/bit-macros.h"
-
+#include "core/tty/tty.h"
 
 uint8_t iLCDPage = 0;
 int16_t iTemperatureCPU = 0;
 int16_t iTemperatureSB = 0;
 uint8_t iCountdownTimer = 0;
 uint32_t iUptime = 0;
+uint16_t iPOD = 0;
 
 #ifdef LOME6_ONEWIRE_SUPPORT
 int16_t iTemperatureAIR = 0;
@@ -46,26 +48,25 @@ int16_t iTemperatureRAM = 0;
 struct ow_rom_code_t romcodePSU;
 struct ow_rom_code_t romcodeAIR;
 struct ow_rom_code_t romcodeRAM;
+
+int16_t lome6_get_temperature(struct ow_rom_code_t *rom);
 #endif
 
 #ifdef LOME6_LCD_SUPPORT
-void lome6_lcdString(char *string);
-void lome6_lcdClear(void);
-#define lome6_lcdGoto(x, y) hd44780_goto(y, x)
-void lome6_output_lcd(char *line1, char *line2);
-void lome6_lcd_temperature(char *type, int temperature, int decimal);
-#endif
-
-
-#ifdef LOME6_ONEWIRE_SUPPORT
-void lome6_init_sensorid(void);
-void lome6_read_sensorid(struct ow_rom_code_t *romcode, char *sensor);
-int16_t lome6_get_temperature(struct ow_rom_code_t *rom);
+WINDOW *ttyWindow = NULL;
 #endif
 
 void lome6_startup(void);
 void lome6_timer(void);
 void lome6_timersec(void);
+
+
+#ifdef DEBUG_LOME6
+# include "core/debug.h"
+# define LOME6DEBUG(a...)  debug_printf("lome6: " a)
+#else
+# define LOME6DEBUG(a...)
+#endif
 
 
 #endif  /* HAVE_LOME6_H */

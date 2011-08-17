@@ -23,68 +23,30 @@
 #include "lome6.h"
 
 /*
-* lome6 lcd stuff
-*/
-#ifdef LOME6_LCD_SUPPORT
-void lome6_lcdString(char *string) {
-
-	for (uint8_t i = 0; i < strlen(string); i++)
-		putc(string[i], lcd);
-
-}
-
-void lome6_lcdClear(void) {
-
-	hd44780_clear();
-	hd44780_goto(0, 0);
-
-}
-
-void lome6_output_lcd(char *line1, char *line2) {
-
-	lome6_lcdString(line1);
-	lome6_lcdGoto(0, 1);
-	lome6_lcdString(line2);
-
-}
-
-
-void lome6_lcd_temperature(char *type, int temperature, int decimal) {
-
-	lome6_lcdGoto(0, 0);
-	lome6_lcdString("Temperature");
-
-	char string[17];
-
-	snprintf_P(string, sizeof(string), type, temperature, decimal);
-	lome6_lcdGoto(0, 1);
-	lome6_lcdString(string);
-
-}
-#endif
-
-
-/*
 * lome6 one wire sensor stuff
-* tiny get temperature function
+* tiny get temperature function (taken from control6)
 */
 #ifdef LOME6_ONEWIRE_SUPPORT
-int16_t lome6_get_temperature(struct ow_rom_code_t *rom) {
+int16_t lome6_get_temperature (struct ow_rom_code_t *rom) {
 
-	void *addr = rom->bytewise;
+	int16_t retval = 0x7FFF;  // error
 
-	int16_t retval = 0x7FFF;  /* error */
+	// disable interrupts
+	uint8_t sreg = SREG;
+	cli();
 
 	struct ow_temp_scratchpad_t sp;
-	if (ow_temp_read_scratchpad(addr, &sp) != 1)
+	if (ow_temp_read_scratchpad(rom, &sp) != 1)
 		goto out;  // scratchpad read failed
 
-	uint16_t temp = ow_temp_normalize(addr, &sp);
-	retval = HI8(temp) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+	uint16_t temp = ow_temp_normalize(rom, &sp);
+	retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
 
-	out:
+out:
+	sei();
+	SREG = sreg;
 	return retval;
-
+	
 }
 #endif
 
@@ -98,13 +60,24 @@ int16_t lome6_get_temperature(struct ow_rom_code_t *rom) {
 void lome6_startup(void) {
 
 #ifdef LOME6_ONEWIRE_SUPPORT
-	parse_ow_rom(CONF_SENSOR_PSU, &romcodePSU);
-	parse_ow_rom(CONF_SENSOR_AIR, &romcodeAIR);
-	parse_ow_rom(CONF_SENSOR_RAM, &romcodeRAM);
+	if (parse_ow_rom(CONF_SENSOR_PSU, &romcodePSU) == -1)
+		LOME6DEBUG("cannot parse ow rom code for psu sensor\n");
+	
+	if (parse_ow_rom(CONF_SENSOR_AIR, &romcodeAIR) == -1)
+		LOME6DEBUG("cannot parse ow rom code for air sensor\n");
+		
+	if (parse_ow_rom(CONF_SENSOR_RAM, &romcodeRAM) == -1)
+		LOME6DEBUG("cannot parse ow rom code for ram sensor\n");
 
 	ow_temp_start_convert_nowait(NULL);
 #endif
 
+#ifdef LOME6_LCD_SUPPORT
+	ttyWindow = subwin(NULL, CONF_LOME6_LCD_HEIGHT, CONF_LOME6_LCD_WIDTH, 0, 0);
+#endif
+	
+	iPOD = CONF_LOME6_POD;
+	
 }
 
 
@@ -122,18 +95,11 @@ void lome6_timer(void) {
 	iTemperaturePSU = lome6_get_temperature(&romcodePSU);
 	iTemperatureAIR = lome6_get_temperature(&romcodeAIR);
 	iTemperatureRAM = lome6_get_temperature(&romcodeRAM);
-
-	// start a new convert for the next round
-	ow_temp_start_convert_nowait(NULL);
-#endif
+#endif // LOME6_ONEWIRE_SUPPORT
 
 #ifdef LOME6_LCD_SUPPORT
-	lome6_lcdClear();
-	char lcd_line1[17];
-	char lcd_line2[17];
-	memset(lcd_line1, ' ', sizeof(lcd_line1));
-	memset(lcd_line2, ' ', sizeof(lcd_line2));
-
+	wclear(ttyWindow);
+	
 	if (iLCDPage == 0) {
 
 		// display uptime and date+time
@@ -142,13 +108,14 @@ void lome6_timer(void) {
 		struct clock_datetime_t datetime;
 		clock_current_localtime(&datetime);
 
-		snprintf_P(lcd_line1, sizeof(lcd_line1), PSTR("%02d:%02d %02d/%02d/%04d"), datetime.hour, datetime.min, datetime.day, datetime.month, (datetime.year + 1900));
-		snprintf_P(lcd_line2, sizeof(lcd_line2), PSTR("Uptime: %02lu:%02d"), working_hours / 60, working_hours % 60);
-
-		lome6_output_lcd(lcd_line1, lcd_line2);
-
+		wprintw_P(ttyWindow, PSTR("%02d:%02d %02d.%02d.%04d"), datetime.hour, datetime.min, datetime.day, datetime.month, (datetime.year + 1900));
+		wclrtoeol(ttyWindow);
+		wmove(ttyWindow, 1, 0);
+		wprintw_P(ttyWindow, PSTR("Uptime: %02lu:%02d"), working_hours / 60, working_hours % 60);
+		wclrtoeol(ttyWindow);
+		
 #ifndef LOME6_ONEWIRE_SUPPORT
-		if (PIN_HIGH(POWER_STATE))
+		if (!PIN_HIGH(POWER_STATE))
 			iLCDPage = 4;
 		else
 			iLCDPage = 0;
@@ -160,33 +127,61 @@ void lome6_timer(void) {
 	} else if (iLCDPage == 1) {
 
 		// display onewire temperature sensor data
-		lome6_lcd_temperature(PSTR("AIR: %d.%d"), iTemperatureAIR / 10, iTemperatureAIR % 10);
+		wprintw_P(ttyWindow, PSTR("Temperature"));
+		wclrtoeol(ttyWindow);
+		wmove(ttyWindow, 1, 0);
+		wprintw_P(ttyWindow, PSTR("AIR: %02d.%d"), iTemperatureAIR / 10, iTemperatureAIR % 10);
+		wclrtoeol(ttyWindow);
+
 		iLCDPage++;
 
 	} else if (iLCDPage == 2) {
 
 		// display onewire temperature sensor data
-		lome6_lcd_temperature(PSTR("RAM: %d.%d"), iTemperatureRAM / 10, iTemperatureRAM % 10);
+		wprintw_P(ttyWindow, PSTR("Temperature:"));
+		wclrtoeol(ttyWindow);
+		wmove(ttyWindow, 1, 0);
+		wprintw_P(ttyWindow, PSTR("RAM: %02d.%d"), iTemperatureRAM / 10, iTemperatureRAM % 10);
+		wclrtoeol(ttyWindow);
+
 		iLCDPage++;
 
 	} else if (iLCDPage == 3) {
 
 		// display onewire temperature sensor data
-		lome6_lcd_temperature(PSTR("PSU: %d.%d"), iTemperaturePSU / 10, iTemperaturePSU % 10);
+		wprintw_P(ttyWindow, PSTR("Temperature"));
+		wclrtoeol(ttyWindow);
+		wmove(ttyWindow, 1, 0);
+		wprintw_P(ttyWindow, PSTR("PSU: %02d.%d"), iTemperaturePSU / 10, iTemperaturePSU % 10);
+		wclrtoeol(ttyWindow);
+
 		iLCDPage++;
 
 #endif //LOME6_ONEWIRE_SUPPORT
 	} else if (iLCDPage == 4) {
 	
-		lome6_lcd_temperature(PSTR("CPU: %d.%d"), iTemperatureCPU / 10, iTemperatureCPU % 10);
+		// display temperature data
+		wprintw_P(ttyWindow, PSTR("Temperature"));
+		wclrtoeol(ttyWindow);
+		wmove(ttyWindow, 1, 0);
+		wprintw_P(ttyWindow, PSTR("CPU: %02d.%d"), iTemperatureCPU / 10, iTemperatureCPU % 10);
+		wclrtoeol(ttyWindow);
 		iLCDPage++;
 
 	} else if (iLCDPage == 5) {
 
-		lome6_lcd_temperature(PSTR("SB: %d.%d"), iTemperatureSB / 10, iTemperatureSB % 10);
+		// display temperature data
+		wprintw_P(ttyWindow, PSTR("Temperature"));
+		wclrtoeol(ttyWindow);
+		wmove(ttyWindow, 1, 0);
+		wprintw_P(ttyWindow, PSTR("SB: %02d.%d"), iTemperatureSB / 10, iTemperatureSB % 10);
+		wclrtoeol(ttyWindow);
 		iLCDPage = 0;
 
 	}
+
+	// start a new convert in next round
+	ow_temp_start_convert_nowait(NULL);
 #endif // LOME6_LCD_SUPPORT
 
 }
@@ -194,21 +189,31 @@ void lome6_timer(void) {
 
 /*
 * lome6 periodical countdown timer function
-*
 * counts down time in ~seconds since power button long is pressed (needed to prevent watchdog action)
+* manages power on delay
 */
 void lome6_timersec(void) {
 
 	if (iCountdownTimer > 0) {
 
 		iCountdownTimer--;
-
-		if (iCountdownTimer == 0) {
-
+		if (iCountdownTimer <= 0)
 			PIN_CLEAR(RELAIS_POWER);
 
-		}
+	}
+	
+	// test power on delay counter
+	// if server already on, dont do anything
+	if (iPOD > 0 && PIN_HIGH(POWER_STATE)) {
 
+		iPOD--;
+		if (iPOD <= 0) {
+		
+			PIN_SET(RELAIS_POWER);
+			_delay_ms(CONF_TIME2PRESS_POWER);
+			PIN_CLEAR(RELAIS_POWER);
+		}
+		
 	}
 
 }
