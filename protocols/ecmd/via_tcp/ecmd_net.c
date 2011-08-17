@@ -200,7 +200,6 @@ void ecmd_net_main(void)
         state->in_len = 0;
         state->out_len = 0;
         state->parse_again = 0;
-        state->parse_again = 0;
         state->close_requested = 0;
 #ifdef ECMD_PAM_SUPPORT
         state->pam_state = PAM_UNKOWN;
