@@ -122,6 +122,12 @@ auth_required:
              * passwort if its necessary. */
             pam_auth(user, pass, &state->pam_state);
 
+	    // send authentification successfull message
+	    if (state->pam_state == PAM_SUCCESS) {
+	      state->out_len = sprintf_P(state->outbuf, PSTR("authentification successful\n"));
+	      uip_send(state->outbuf, state->out_len);
+	    }
+
             if (p && p[1] != 0) { /* There ist something after the PAM request */
               memmove(state->inbuf, p+1, strlen(p+1) + 1);
               skip = 0;
@@ -137,7 +143,6 @@ auth_required:
         if (state->pam_state == PAM_PENDING || state->pam_state == PAM_DENIED)
           return; /* Pam Subsystem promisses to change this state */
 #endif
-
 
         /* parse command and write output to state->outbuf, reserving at least
          * one byte for the terminating \n */
