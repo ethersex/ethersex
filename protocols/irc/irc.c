@@ -194,7 +194,7 @@ irc_parse (void)
 	    STATE->stage = IRC_SEND_JOIN;
 	    return 0;
 	}
-	if (strstr_P (uip_appdata, PSTR ("NOTICE AUTH"))) {
+	if (strstr_P (uip_appdata, PSTR ("* "))) {
 	    IRCDEBUG ("ignoring auth fluff ...");
 	    return 0;
 	}

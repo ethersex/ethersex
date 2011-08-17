@@ -25,10 +25,10 @@
 #include "protocols/soap/soap.h"
 #include "services/httpd/httpd.h"
 
-char PROGMEM soap_xml_start[] =
+const char PROGMEM soap_xml_start[] =
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
-char PROGMEM soap_xml_envelope[] =
+const char PROGMEM soap_xml_envelope[] =
   "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
   //"xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" "
   "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
@@ -36,24 +36,24 @@ char PROGMEM soap_xml_envelope[] =
   "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
   "<soap:Body>";
 
-char PROGMEM soap_xml_fault[] =
+const char PROGMEM soap_xml_fault[] =
   "<soap:Fault><faultcode>soap:Client</faultcode>"
   "<faultstring>Unable to handle request.</faultstring>"
   "</soap:Fault>";
 
-char PROGMEM soap_xml_result_start[] =
+const char PROGMEM soap_xml_result_start[] =
   "<%SResponse xmlns=\"http://ethersex.de/SOAP\">"
   "<s-sex xsi:type=\"xsd:%S\">";
 
-char PROGMEM soap_xml_result_end[] =
+const char PROGMEM soap_xml_result_end[] =
   "</s-sex></%SResponse>";
 
-char PROGMEM soap_xml_end[] =
+const char PROGMEM soap_xml_end[] =
   "</soap:Body></soap:Envelope>";
 
-char PROGMEM soap_type_int[] = "int";
-char PROGMEM soap_type_string[] = "string";
-char PROGMEM *soap_type_table[] =
+const char PROGMEM soap_type_int[] = "int";
+const char PROGMEM soap_type_string[] = "string";
+const char* const soap_type_table[] PROGMEM =
 {
   soap_type_int,
   soap_type_string,

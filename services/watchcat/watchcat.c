@@ -36,7 +36,7 @@
                                 && (vpin[(port)].old_state & _BV(pin)))
 
 static struct VirtualPin vpin[IO_PORTS];
-static struct WatchcatReaction ecmd_react[];
+static const struct WatchcatReaction ecmd_react[];
 
 #if 0
 static uip_conn_t *

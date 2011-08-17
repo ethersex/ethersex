@@ -1,10 +1,10 @@
 /*
- *
+ * Copyright (c) 2009 by David Gräff <david.graeff@web.de>
  * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,32 +19,34 @@
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
  */
+
+#include <stdlib.h>
 #include "config.h"
-#ifdef STARBURST_SUPPORT
 
-#ifdef STARBURST_PCA9685_EXTDRV
-	#define STARBURST_PCA9685_EXTDRV 1
-#else
-	#define STARBURST_PCA9685_EXTDRV 0
-#endif
-#ifdef STARBURST_PCA9685_IVRT
-	#define STARBURST_PCA9685_IVRT 1
-#else
-	#define STARBURST_PCA9685_IVRT 0
-#endif
+#include "sanyoz700.h"
+#include "protocols/ecmd/ecmd-base.h"
+#include "core/debug.h"
 
-enum starburst_update {STARBURST_UPDATE,STARBURST_NOUPDATE};
-enum starburst_mode {STARBURST_MODE_NORMAL,STARBURST_MODE_FADE};
-struct starburst_channel {
-	//Current value
-	uint8_t value;
-	//Target value
-	uint8_t target;
-	enum starburst_mode mode;
-	enum starburst_update update;
-};
-void starburst_init();
-void starburst_update();
-void starburst_process();
-void starburst_main();
-#endif
+int16_t parse_cmd_sanyoz700 (char *cmd, char *output, uint16_t len)
+{
+	char b[2] = {0,0};
+
+	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
+	if (!*cmd)
+		return ECMD_ERR_PARSE_ERROR;
+	b[0] = *cmd;
+	while(*cmd && *cmd != ' ') cmd++; //skip value
+	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
+	if (!*cmd)
+		return ECMD_ERR_PARSE_ERROR;
+	b[1] = *cmd;
+
+	sanyoZ700cmd(b);
+	return ECMD_FINAL_OK;
+}
+
+/*
+-- Ethersex META --
+block([[Sanyo Z700]] commands)
+ecmd_feature(sanyoz700, "sanyoz700", CMD, Send command to projector)
+*/

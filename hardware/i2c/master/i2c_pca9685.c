@@ -21,7 +21,6 @@
  */
 #include <avr/io.h>
 #include <util/twi.h>
-#include "config.h"
 #include "i2c_master.h"
 #include "i2c_pca9685.h"
 #ifdef I2C_PCA9685_SUPPORT
@@ -56,6 +55,9 @@ uint8_t i2c_pca9685_reset()
 }
 uint8_t i2c_pca9685_set_mode(uint8_t address,uint8_t outdrv,uint8_t ivrt,uint8_t prescaler)
 {
+#ifdef PCA9685_OUTPUT_ENABLE
+        PCA9685_OE_DDR |= (1<<PCA9685_OE_PIN);
+#endif
 	uint8_t ret0=1,ret1=1,ret2=1,ret3=1,value=0;
 	ret0=i2c_pca9685_reset();
 	if(ret0 == 0)
@@ -255,5 +257,15 @@ uint8_t i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled, uint8_t cou
 	i2c_master_stop();
 	return ret;
 }
-
+#ifdef PCA9685_OUTPUT_ENABLE
+void i2c_pca9685_output_enable(enum i2c_pca9685_output_enable_state choice)
+{
+	if(choice == ON) /* PIN goes low*/
+		PCA9685_OE_PORT &= ~(1<<PCA9685_OE_PIN);
+	else if(choice == OFF) /*PIN goes high*/
+		PCA9685_OE_PORT |= (1<<PCA9685_OE_PIN);
+	else if(choice == TOGGLE) /*Toggle PIN*/
+		PCA9685_OE_PORT ^= (1<<PCA9685_OE_PIN);
+}
+#endif
 #endif
