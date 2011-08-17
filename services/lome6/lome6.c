@@ -76,7 +76,10 @@ void lome6_startup(void) {
 	ttyWindow = subwin(NULL, CONF_LOME6_LCD_HEIGHT, CONF_LOME6_LCD_WIDTH, 0, 0);
 #endif
 	
-	iPOD = CONF_LOME6_POD;
+	// only set iPOD if server not running
+	// (disable power on delay if server is running already)
+	if (PIN_HIGH(POWER_STATE))
+		iPOD = CONF_LOME6_POD;
 	
 }
 
@@ -212,6 +215,7 @@ void lome6_timersec(void) {
 			PIN_SET(RELAIS_POWER);
 			_delay_ms(CONF_TIME2PRESS_POWER);
 			PIN_CLEAR(RELAIS_POWER);
+			
 		}
 		
 	}
