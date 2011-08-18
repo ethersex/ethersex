@@ -84,8 +84,6 @@ struct eeprom_config_t
 
 #ifdef STELLA_SUPPORT
   uint8_t stella_channel_values[STELLA_CHANNELS];
-  uint8_t stella_fadefunc;
-  uint8_t stella_fadestep;
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
