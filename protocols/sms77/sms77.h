@@ -27,6 +27,8 @@
 char sms77_user[SMS77_VALUESIZE];
 char sms77_pass[SMS77_VALUESIZE];
 char sms77_recv[SMS77_VALUESIZE];
+char sms77_type[SMS77_VALUESIZE];
+
 
 uint8_t sms77_send(char *);
 void sms77_init(void);
