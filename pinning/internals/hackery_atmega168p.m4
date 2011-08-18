@@ -45,7 +45,7 @@
 #define _EIMSK EIMSK
 #define _IVREG MCUCR
 
-#define _TIMSK_TIMER1 TIMS1
+#define _TIMSK_TIMER1 TIMSK1
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUSR
