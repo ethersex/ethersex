@@ -92,6 +92,7 @@ struct eeprom_config_t
   char sms77_username[SMS77_VALUESIZE];
   char sms77_password[SMS77_VALUESIZE];
   char sms77_receiver[SMS77_VALUESIZE];
+  char sms77_type[SMS77_VALUESIZE];
 #endif
 
 #ifdef JABBER_EEPROM_SUPPORT

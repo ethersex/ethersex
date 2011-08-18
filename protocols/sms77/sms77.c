@@ -86,7 +86,7 @@ sms77_net_main(void)
     if (uip_connected() || uip_rexmit()) {
 	SMSDEBUG ("new connection or rexmit, sending message\n");
         char *p = uip_appdata;
-        p += sprintf(p,  "GET /?u=%s&p=%s&to=%s&type=basicplus&text=", sms77_user, sms77_pass, sms77_recv);
+        p += sprintf(p,  "GET /?u=%s&p=%s&to=%s&type=%s&text=", sms77_user, sms77_pass, sms77_recv, sms77_type);
         p += urlencode(sms77_tmp_buf, strlen(sms77_tmp_buf), p);
         p += sprintf_P(p, sms77_secheader);
         uip_udp_send(p - (char *)uip_appdata);
@@ -96,6 +96,9 @@ sms77_net_main(void)
     if (uip_acked()) {
       uip_close();
     }
+    
+    if (uip_newdata())
+    	SMSDEBUG("data: %s\n", uip_appdata);
 
 }
 
@@ -142,13 +145,15 @@ void
 sms77_init(void)
 {
 #ifdef SMS77_EEPROM_SUPPORT
-	eeprom_restore(sms77_username, &sms77_user, 16);
-	eeprom_restore(sms77_password, &sms77_pass, 16);
-	eeprom_restore(sms77_receiver, &sms77_recv, 16);
+	eeprom_restore(sms77_username, &sms77_user, SMS77_VALUESIZE);
+	eeprom_restore(sms77_password, &sms77_pass, SMS77_VALUESIZE);
+	eeprom_restore(sms77_receiver, &sms77_recv, SMS77_VALUESIZE);
+	eeprom_restore(sms77_type, &sms77_type,  SMS77_VALUESIZE);
 #else
 	sprintf(sms77_user, "%s", CONF_SMS77_USER);
 	sprintf(sms77_pass, "%s", CONF_SMS77_PASS);
 	sprintf(sms77_recv, "%s", CONF_SMS77_TO);
+	sprintf(sms77_type, "%s", CONF_SMS77_TYPE);
 #endif	
 }
 

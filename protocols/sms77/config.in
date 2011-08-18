@@ -3,6 +3,9 @@ dep_bool_menu "SMS77 client (EXPERIMENTAL)" SMS77_SUPPORT $TCP_SUPPORT $DNS_SUPP
   string "Username" CONF_SMS77_USER ""
   string "Password" CONF_SMS77_PASS ""
   string "Receiver" CONF_SMS77_TO ""
+
+  string "SMS Type" CONF_SMS77_TYPE "basicplus"
+	 
   dep_bool 'Use EEPROM' SMS77_EEPROM_SUPPORT $SMS77_SUPPORT
   comment  "Debugging Flags"
   dep_bool 'SMS77' DEBUG_SMS77 $DEBUG $SMS77_SUPPORT
