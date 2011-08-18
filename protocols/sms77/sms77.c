@@ -38,7 +38,7 @@ static char *sms77_tmp_buf;
 //     "GET /?u=" CONF_SMS77_USER "&p=" CONF_SMS77_PASS "&to=" CONF_SMS77_TO  "&type=basicplus&text=";
     
 static const char PROGMEM sms77_secheader[] =
-    "\nHTTP/1.1\n"
+    " HTTP/1.1\n"
     "Host: " CONF_SMS77_SERVICE "\n\n";
 
 
