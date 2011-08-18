@@ -99,7 +99,7 @@ main() {
 
   /* Start the Shell */
   char *line = NULL;
-  unsigned int len;
+  size_t len;
   while (getline(&line, &len, stdin) != -1) {
     line[strlen(line) - 1] = 0;
     if (usb_send(handle, line, strlen(line) + 1) == 0) {
