@@ -2264,3 +2264,17 @@ DALI_SUPPORT
 
   Enable code to control lighting via the DALI bus
   (Digital Addressable Lighting Interface)
+  
+LOME6
+LOME6_SUPPORT
+  Depends on:
+  * TCP (TCP_SUPPORT)
+  * ECMD (ECMD_PARSER_SUPPORT)
+  * Working hour meter (WHM_SUPPORT)
+  
+  Integrated server lights out management using ethersex
+  architecture.
+  Documentation is available in services/lome6/doc
+  GUI source (Qt4) is available in services/lome6/lome6-gui
+
+
