@@ -34,9 +34,6 @@
 
 static char *sms77_tmp_buf;
 
-//static const char PROGMEM sms77_header[] =
-//     "GET /?u=" CONF_SMS77_USER "&p=" CONF_SMS77_PASS "&to=" CONF_SMS77_TO  "&type=basicplus&text=";
-    
 static const char PROGMEM sms77_secheader[] =
     " HTTP/1.1\n"
     "Host: " CONF_SMS77_SERVICE "\n\n";
@@ -89,7 +86,6 @@ sms77_net_main(void)
     if (uip_connected() || uip_rexmit()) {
 	SMSDEBUG ("new connection or rexmit, sending message\n");
         char *p = uip_appdata;
-        //p += sprintf_P(p, sms77_header);
         p += sprintf(p,  "GET /?u=%s&p=%s&to=%s&type=basicplus&text=", sms77_user, sms77_pass, sms77_recv);
         p += urlencode(sms77_tmp_buf, strlen(sms77_tmp_buf), p);
         p += sprintf_P(p, sms77_secheader);
