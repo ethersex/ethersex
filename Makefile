@@ -106,6 +106,7 @@ SUBDIRS += services/vnc
 SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 SUBDIRS += services/glcdmenu
+SUBDIRS += services/lome6
 SUBDIRS += services/projectors/sanyoZ700
 
 rootbuild=t
