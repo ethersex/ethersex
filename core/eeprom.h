@@ -104,6 +104,13 @@ struct eeprom_config_t
   char motd_text[MOTD_VALUESIZE];
 #endif
 
+#ifdef ROTORHAMLIB_SUPPORT
+        uint16_t rotor_azimuth_min;
+        uint16_t rotor_azimuth_max;
+        uint16_t rotor_elevation_min;
+        uint16_t rotor_elevation_max;
+#endif
+
   uint8_t crc;
 };
 
