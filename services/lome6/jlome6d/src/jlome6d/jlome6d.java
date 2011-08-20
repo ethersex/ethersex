@@ -14,7 +14,7 @@ public class jlome6d {
      */
     public static void main(String[] args) {
 
-	System.out.println("jlome6d v0.1");
+	System.out.println("jlome6d v0.2");
 	
 	Lome6 lome6 = null;
 	Sensors sensors = null;
@@ -28,12 +28,14 @@ public class jlome6d {
 	    Integer port = Integer.parseInt(config.getXPathOption("configuration/port/@number"));
 	    String username = config.getXPathOption("configuration/auth/@username");
 	    String password = config.getXPathOption("configuration/auth/@password");
+	    String sensorCPU = config.getXPathOption("configuration/sensors/@cpu");
+	    String sensorSB = config.getXPathOption("configuration/sensors/@sb");
 
 	    System.out.println("Using the following options:");
 	    System.out.println("Host: " + ipAddress + ":" + port);
 	    System.out.println("User: " + username);
 
-	    sensors = new Sensors();
+	    sensors = new Sensors(sensorCPU, sensorSB);
 
 	    lome6 = new Lome6(ipAddress, port, username, password);
 	    lome6.connect();

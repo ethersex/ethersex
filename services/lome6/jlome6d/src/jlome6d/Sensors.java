@@ -9,13 +9,21 @@ import java.io.*;
 public class Sensors {
 
     private final String sensorsCmd = "sensors";
-    private final String cpuTemperatureString = "Core0 Temp:";
-    private final String sbTemperatureString = "temp1:";
+    private String cpuTemperatureString = "Core0 Temp:";
+    private String sbTemperatureString = "temp1:";
 
     private Integer temperatureCPU = 0;
     private Integer temperatureSB = 0;
 
     
+    public Sensors(String sensorCPU, String sensorSB) {
+
+	this.cpuTemperatureString = sensorCPU;
+	this.sbTemperatureString = sensorSB;
+
+    }
+
+
     public void parseSensors() {
 
 	try {
