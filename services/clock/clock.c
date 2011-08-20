@@ -59,7 +59,7 @@ void
 clock_init (void)
 {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-  TIMER_8_AS_1_AS_ON;
+  TIMER_8_AS_1_ASYNC_ON;
   TIMER_8_AS_1_COUNTER_CURRENT = 0;
   /* 128 prescaler to get every 1.0 second an interrupt (32768Hz/128 = 1Hz */
   TIMER_8_AS_1_PRESCALER_128;
