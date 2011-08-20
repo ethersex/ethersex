@@ -14,6 +14,9 @@ $(CLOCK_TIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_time.c
 $(WHM_SUPPORT)_ECMD_SRC += services/clock/whm_ecmd.c
 $(WHM_SUPPORT)_SOAP_SRC += services/clock/whm_soap.c
 
+$(UPTIME_SUPPORT)_ECMD_SRC += services/clock/uptime_ecmd.c
+
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk
