@@ -145,8 +145,8 @@ endif
 # calls make all and redirects stdout and stderr to make.log
 v:
 	@echo "===== logging make activity to file make.log ====="
-	@(echo "Build started on $$(LC_ALL=C LANGUAGE=C date)"; \
-		${MAKE} all) 2>&1 | tee make.log
+	@echo "Build started on " `date` | tee make.log
+	@${MAKE} all 2>&1 | tee -a make.log
 
 
 ##############################################################################
