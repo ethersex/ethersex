@@ -72,11 +72,11 @@ void dcf77_init(void) {
 	PIN_SET(DCF1_PON);
 #endif
 
-#ifdef dcf77_configure_pcint
+#if defined(DCF77_PCINT_PIN)
 	DCFDEBUG("configure_pcint\n");
 	/* configure */
 	dcf77_configure_pcint ();
-#elif defined(HAVE_DCF77_INT)
+#elif defined(DCF77_INT_PIN)
 	DCFDEBUG("HAVE_DCF77_INT\n");
 	/* Initialize "real" Interrupt */
 	_EIMSK |= _BV(DCF77_INT_PIN);
@@ -115,9 +115,9 @@ ISR (DCF77_VECTOR)
 ISR (ANALOG_COMP_vect)
 #endif
 {
-	uint8_t TC2_COUNTER_CURRENTtemp = TC2_COUNTER_CURRENT;
+	uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
 	/* 1/256 since last signal pulse */
-	uint16_t divtime = (TC2_COUNTER_CURRENTtemp + (clock_get_time() - dcf.timerover) * 0xFF) - dcf.TC2_COUNTER_CURRENTlast;
+	uint16_t divtime = (timertemp + (clock_get_time() - dcf.timerover) * 0xFF) - dcf.timerlast;
 
 	if(divtime > 5) // div time > 90 ms ?
 	{
@@ -266,7 +266,7 @@ ISR (ANALOG_COMP_vect)
 				{
 					compute_dcf77_timestamp();
 					clock_set_time(timestamp);
-					TC2_COUNTER_CURRENT=0;
+					TIMER_8_AS_1_COUNTER_CURRENT=0;
 					last_dcf77_timestamp=timestamp;
 					last_valid_dcf = timestamp;
 					set_dcf_count(1);
@@ -280,11 +280,11 @@ ISR (ANALOG_COMP_vect)
 				}
 				DCFDEBUG("start sync\n");
 				dcf.sync = 1;
-				TC2_COUNTER_CURRENT = divtime;
-				TC2_COUNTER_CURRENTtemp = divtime;
+				TIMER_8_AS_1_COUNTER_CURRENT = divtime;
+				timertemp = divtime;
 			}
 		}
-		dcf.TC2_COUNTER_CURRENTlast = TC2_COUNTER_CURRENTtemp;
+		dcf.timerlast = timertemp;
 		dcf.timerover = clock_get_time();
 	}
 }
