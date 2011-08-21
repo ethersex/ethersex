@@ -156,6 +156,27 @@ size-info:
 	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
 
 ##############################################################################
+# target help displays a short overview over make options
+help:
+	@echo "Configuration targets:"
+	@echo "  menuconfig   - Update current config utilising a menu based program"
+	@echo "                 (default when .config does not exist)"
+	@echo ""
+	@echo "Cleaning targets:"
+	@echo "  clean        - Remove bin and dep files"
+	@echo "  fullclean    - Same as "clean", but also remove object files"
+	@echo "  mrproper     - Same as "fullclean", but also remove all config files"
+	@echo ""
+	@echo "Information targets:"
+	@echo "  show-config  - show enabled modules"
+	@echo "  size-info    - show size information of compiled binary"
+	@echo ""
+	@echo "Other generic targets:"
+	@echo "  all          - Build everything as specified in .config"
+	@echo "                 (default if .config exists)"
+	@echo "  v            - Same as "all" but with logging to make.log enabled"
+
+##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/defaults.mk
 #include $(TOPDIR)/scripts/rules.mk
