@@ -55,8 +55,8 @@ ntpd_net_main(void)
 
     /* Set our time to the packet */
     pkt->rec.seconds = HTONL(clock_get_time() + 2208988800);
-//    pkt->rec.fraction = HTONL(((uint32_t)TC2_COUNTER_CURRENT) << 7);
-    pkt->rec.fraction = HTONL(((uint32_t)TC2_COUNTER_CURRENT*50000) << 7);
+//    pkt->rec.fraction = HTONL(((uint32_t)CLOCK_TIMER_CNT) << 7);
+    pkt->rec.fraction = HTONL(((uint32_t)TIMER_8_AS_1_COUNTER_CURRENT*50000) << 7);
 
     /* set the update time (reference clock) */
     pkt->reftime.seconds = HTONL(last_sync + 2208988800);
@@ -101,8 +101,8 @@ ntpd_net_main(void)
 
     /* copy the time also to the transmit time */
     pkt->xmt.seconds = HTONL(clock_get_time() + 2208988800);
-//    pkt->xmt.fraction = HTONL(((uint32_t)TC2_COUNTER_CURRENT) << 7);
-    pkt->xmt.fraction = HTONL(((uint32_t)TC2_COUNTER_CURRENT*50000) << 7);
+//    pkt->xmt.fraction = HTONL(((uint32_t)CLOCK_TIMER_CNT) << 7);
+    pkt->xmt.fraction = HTONL(((uint32_t)TIMER_8_AS_1_COUNTER_CURRENT*50000) << 7);
 
     uip_udp_send(sizeof(struct ntp_packet));
 
