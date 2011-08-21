@@ -148,6 +148,13 @@ v:
 	@(echo "Build started on $$(LC_ALL=C LANGUAGE=C date)"; \
 		${MAKE} all) 2>&1 | tee make.log
 
+
+##############################################################################
+# print information about binary size and flash usage
+size-info:
+	@echo "===== size info ====="
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/defaults.mk
