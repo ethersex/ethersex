@@ -33,17 +33,17 @@
 #include "core/bit-macros.h"
 #include "core/tty/tty.h"
 
-uint8_t iLCDPage = 0;
-int16_t iTemperatureCPU = 0;
-int16_t iTemperatureSB = 0;
-uint8_t iCountdownTimer = 0;
-uint32_t iUptime = 0;
-uint16_t iPOD = 0;
+uint8_t iLCDPage;
+int16_t iTemperatureCPU;
+int16_t iTemperatureSB;
+uint8_t iCountdownTimer;
+uint32_t iUptime;
+uint16_t iPOD;
 
 #ifdef LOME6_ONEWIRE_SUPPORT
-int16_t iTemperatureAIR = 0;
-int16_t iTemperaturePSU = 0;
-int16_t iTemperatureRAM = 0;
+int16_t iTemperatureAIR;
+int16_t iTemperaturePSU;
+int16_t iTemperatureRAM;
 
 struct ow_rom_code_t romcodePSU;
 struct ow_rom_code_t romcodeAIR;
@@ -53,7 +53,7 @@ int16_t lome6_get_temperature(struct ow_rom_code_t *rom);
 #endif
 
 #ifdef LOME6_LCD_SUPPORT
-WINDOW *ttyWindow = NULL;
+WINDOW *ttyWindow;
 #endif
 
 void lome6_startup(void);
