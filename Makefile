@@ -140,6 +140,14 @@ endif
 .PHONY: all
 .SILENT: all
 
+
+##############################################################################
+# logging to file make.log
+# calls make all and redirects stdout and stderr to make.log
+v:
+	@echo "===== logging make activity to file make.log ====="
+	$(MAKE) all 2>&1 | tee make.log
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/defaults.mk
