@@ -24,7 +24,6 @@
 
 /* constants */
 #define NTPD_PORT 123
-
 /* prototypes */
 void ntpd_net_init(void);
 void ntpd_net_main(void);

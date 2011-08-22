@@ -46,7 +46,7 @@ static uint16_t dcf_count;
 static uint16_t ntp_timer = 1;
 #endif
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 uint32_t startup_timestamp;
 #endif
 
@@ -59,27 +59,17 @@ void
 clock_init (void)
 {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-  ASSR = _BV (CLOCK_TIMER_AS);
-  CLOCK_TIMER_CNT = 0;
-  /* 64 prescaler to get every 0.5 second an interrupt */
-  CLOCK_TIMER_PRESCALER_64;
+  TIMER_8_AS_1_ASYNC_ON;
+  TIMER_8_AS_1_COUNTER_CURRENT = 0;
+  /* 128 prescaler to get every 1.0 second an interrupt (32768Hz/128 = 1Hz */
+  TIMER_8_AS_1_PRESCALER_128;
 
   /* Wait until the bytes are written */
-#ifdef CLOCK_TIMER_RBUSY
-  while (ASSR & (_BV (CLOCK_TIMER_NBUSY) | _BV (CLOCK_TIMER_RBUSY)))
-    {
-    }
-#else
-  while (ASSR & (_BV (CLOCK_TIMER_NBUSY)))
-    {
-    }
-#endif
-
+  while(TIMER_8_AS_1_COUNTER_BUSY_TST);
   /* Clear the interrupt flags */
-  CLOCK_INT_OVERFLOW_CLR;
-
+  TIMER_8_AS_1_INT_OVERFLOW_CLR;
   /* Enable the timer interrupt */
-  CLOCK_INT_OVERFLOW_ON;
+  TIMER_8_AS_1_INT_OVERFLOW_ON;
 #endif
 
   /* reset dcf_count */
@@ -90,7 +80,7 @@ clock_init (void)
 #ifdef CLOCK_CPU_SUPPORT
 ISR (TIMER1_OVF_vect)
 #else
-ISR (CLOCK_SIG)
+ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
@@ -99,15 +89,6 @@ ISR (CLOCK_SIG)
 
   TCNT1 = 65536 - CLOCK_SECONDS;
   OCR1A = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-#endif
-
-#if defined(CLOCK_CRYSTAL_SUPPORT)
-  /* If we use Crystal Support we have an interrupt every 0.5
-     seconds, so we have to drop every second interrupt */
-  static uint8_t clock_crystal_interrupt_drop = 0;
-  clock_crystal_interrupt_drop ^= 1;
-  if (clock_crystal_interrupt_drop)
-    return;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
@@ -195,7 +176,7 @@ clock_set_time (uint32_t new_sync_timestamp)
 
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
-  n_sync_tick = CLOCK_TIMER_CNT;
+  n_sync_tick = TIMER_8_AS_1_COUNTER_CURRENT;
 
   /* Allow the clock to jump forward, but not to go backward
    * except the time difference is greater than 5 minutes */
@@ -203,7 +184,7 @@ clock_set_time (uint32_t new_sync_timestamp)
       (clock_timestamp - sync_timestamp) > 300)
     clock_timestamp = sync_timestamp;
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
   if (startup_timestamp == 0)
     startup_timestamp = sync_timestamp;
 #endif
@@ -230,7 +211,7 @@ clock_last_sync (void)
 }
 
 uint32_t
-clock_last_s_tick (void)
+clock_last_sync_tick (void)
 {
   return n_sync_tick;
 }
@@ -273,7 +254,7 @@ clock_last_ntp (void)
 }
 #endif
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 uint32_t
 clock_get_startup (void)
 {
