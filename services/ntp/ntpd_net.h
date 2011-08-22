@@ -24,7 +24,6 @@
 
 /* constants */
 #define NTPD_PORT 123
-#define JAN_1970 2208988800
 /* prototypes */
 void ntpd_net_init(void);
 void ntpd_net_main(void);
