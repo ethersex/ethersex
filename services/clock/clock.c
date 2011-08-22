@@ -46,7 +46,7 @@ static uint16_t dcf_count;
 static uint16_t ntp_timer = 1;
 #endif
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 uint32_t startup_timestamp;
 #endif
 
@@ -184,7 +184,7 @@ clock_set_time (uint32_t new_sync_timestamp)
       (clock_timestamp - sync_timestamp) > 300)
     clock_timestamp = sync_timestamp;
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
   if (startup_timestamp == 0)
     startup_timestamp = sync_timestamp;
 #endif
@@ -211,7 +211,7 @@ clock_last_sync (void)
 }
 
 uint32_t
-clock_last_s_tick (void)
+clock_last_sync_tick (void)
 {
   return n_sync_tick;
 }
@@ -254,7 +254,7 @@ clock_last_ntp (void)
 }
 #endif
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 uint32_t
 clock_get_startup (void)
 {
