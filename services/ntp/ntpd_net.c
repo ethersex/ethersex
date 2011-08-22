@@ -66,7 +66,7 @@ ntpd_net_main(void)
 
     /* set the update time (reference clock) */
     pkt->reftime.seconds = HTONL(last_sync + JAN_1970);
-    pkt->reftime.fraction=HTONL((uint32_t)clock_last_s_tick() << 24);
+    pkt->reftime.fraction=HTONL((uint32_t)clock_last_sync_tick() << 24);
 
     /* We are an server and there is no error warning */
     pkt->li_vn_mode = 0x24;

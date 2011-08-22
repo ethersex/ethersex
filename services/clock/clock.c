@@ -211,7 +211,7 @@ clock_last_sync (void)
 }
 
 uint32_t
-clock_last_s_tick (void)
+clock_last_sync_tick (void)
 {
   return n_sync_tick;
 }
