@@ -45,7 +45,6 @@ extern int16_t iTemperatureRAM;
 #endif
 extern uint32_t iUptime;
 
-
 int16_t parse_cmd_lome6_reset(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_lome6_power(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_lome6_state(char *cmd, char *output, uint16_t len);

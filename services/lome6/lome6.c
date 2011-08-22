@@ -59,15 +59,36 @@ out:
 */
 void lome6_startup(void) {
 
+	iLCDPage = 0;
+	iTemperatureCPU = 0;
+	iTemperatureSB = 0;
+	iCountdownTimer = 0;
+	iUptime = 0;
+	iPOD = 0;
+
+	#ifdef LOME6_ONEWIRE_SUPPORT
+	iTemperatureAIR = 0;
+	iTemperaturePSU = 0;
+	iTemperatureRAM = 0;
+	#endif
+
+	#ifdef LOME6_LCD_SUPPORT
+	WINDOW *ttyWindow = NULL;
+	#endif
+
+
 #ifdef LOME6_ONEWIRE_SUPPORT
-	if (parse_ow_rom(CONF_SENSOR_PSU, &romcodePSU) == -1)
+	if (parse_ow_rom(CONF_SENSOR_PSU, &romcodePSU) == -1) {
 		LOME6DEBUG("cannot parse ow rom code for psu sensor\n");
+	}
 	
-	if (parse_ow_rom(CONF_SENSOR_AIR, &romcodeAIR) == -1)
+	if (parse_ow_rom(CONF_SENSOR_AIR, &romcodeAIR) == -1) {
 		LOME6DEBUG("cannot parse ow rom code for air sensor\n");
-		
-	if (parse_ow_rom(CONF_SENSOR_RAM, &romcodeRAM) == -1)
+	}
+	
+	if (parse_ow_rom(CONF_SENSOR_RAM, &romcodeRAM) == -1) {
 		LOME6DEBUG("cannot parse ow rom code for ram sensor\n");
+	}
 
 	ow_temp_start_convert_nowait(NULL);
 #endif
@@ -225,6 +246,7 @@ void lome6_timersec(void) {
 /*
   -- Ethersex META --
   block(lome6)
+  header(services/lome6/lome6.h)
   startup(lome6_startup)
   timer(300, lome6_timer())
   timer(50, lome6_timersec())

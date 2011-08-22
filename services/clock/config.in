@@ -31,6 +31,8 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	fi
 	dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
 	dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
+	dep_bool "Uptime (whm in unix format like: d days, hh:mm)" UPTIME_SUPPORT $CLOCK_SUPPORT
+	
 	if [ "$CLOCK_SUPPORT" = "y" ]; then
 		choice 'Time Zone'					\
 		"UTC			TIMEZONE_UTC	\
