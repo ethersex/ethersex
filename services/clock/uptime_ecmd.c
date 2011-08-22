@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 
+#include "config.h"
 #include "clock.h"
 #include "protocols/ecmd/ecmd-base.h"
 
