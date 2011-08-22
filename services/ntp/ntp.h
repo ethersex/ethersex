@@ -25,6 +25,8 @@
 
 #include "protocols/uip/uip.h"
 
+#define JAN_1970 2208988800
+
 struct ntp_date_time {
   uint32_t seconds;
   uint32_t fraction;
