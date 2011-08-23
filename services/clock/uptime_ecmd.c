@@ -23,18 +23,17 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 
+#include "config.h"
 #include "clock.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_uptime(char *cmd, char *output, uint16_t len)
 {
     uint32_t working_minutes = (clock_get_time() - clock_get_startup()) / 60;
-    uint16_t working_hours = (uint16_t)((working_minutes % 1440) / 60);
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu days, %02d:%02d"),
-    				 working_minutes / 1440,
-    				 working_hours,
-    				 working_minutes % 60));
-
+    int d = (int)(working_minutes / 1440);
+    int m = (int)(working_minutes % 1440);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%u days, %02u:%02u"),
+    				 d, m/60, m%60));
 }
 
 /*

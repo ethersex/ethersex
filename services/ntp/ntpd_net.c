@@ -52,15 +52,21 @@ ntpd_net_main(void)
   if (uip_newdata()) {
     struct ntp_packet *pkt = uip_appdata;
     uint32_t last_sync = clock_last_sync();
-
+    uint32_t current_timestamp = 0;
+    uint8_t  current_fraction  = 0;
+    /*We try to minimize the time between the two calls*/
+    current_timestamp=clock_get_time();
+    current_fraction=TIMER_8_AS_1_COUNTER_CURRENT;
     /* Set our time to the packet */
-    pkt->rec.seconds = HTONL(clock_get_time() + 2208988800);
-//    pkt->rec.fraction = HTONL(((uint32_t)CLOCK_TIMER_CNT) << 7);
-    pkt->rec.fraction = HTONL(((uint32_t)TIMER_8_AS_1_COUNTER_CURRENT*50000) << 7);
+    pkt->rec.seconds = HTONL(current_timestamp + JAN_1970);
+    /*  the clock timer is 8-bit and gives us steps of 0.0039 seconds,
+	the fraction part of the ntp protocol has an accuracy of 32 bit, therefore we shift
+	with 24 (not optimized: counter_fraction/255.00*4294967296) */
+    pkt->rec.fraction = HTONL((uint32_t)current_fraction << 24);
 
     /* set the update time (reference clock) */
-    pkt->reftime.seconds = HTONL(last_sync + 2208988800);
-    pkt->reftime.fraction=HTONL(((uint32_t)clock_last_s_tick()) << 7);
+    pkt->reftime.seconds = HTONL(last_sync + JAN_1970);
+    pkt->reftime.fraction=HTONL((uint32_t)clock_last_sync_tick() << 24);
 
     /* We are an server and there is no error warning */
     pkt->li_vn_mode = 0x24;
@@ -98,11 +104,12 @@ ntpd_net_main(void)
 	  }
     }
 #endif /* NTP_SUPPORT || DCF_SUPPORT */
-
+    /*We try to minimize the time between the two calls*/
+    current_timestamp=clock_get_time();
+    current_fraction=TIMER_8_AS_1_COUNTER_CURRENT;
     /* copy the time also to the transmit time */
-    pkt->xmt.seconds = HTONL(clock_get_time() + 2208988800);
-//    pkt->xmt.fraction = HTONL(((uint32_t)CLOCK_TIMER_CNT) << 7);
-    pkt->xmt.fraction = HTONL(((uint32_t)TIMER_8_AS_1_COUNTER_CURRENT*50000) << 7);
+    pkt->xmt.seconds = HTONL(current_timestamp + JAN_1970);
+    pkt->xmt.fraction = HTONL((uint32_t)current_fraction << 24);
 
     uip_udp_send(sizeof(struct ntp_packet));
 

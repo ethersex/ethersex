@@ -137,7 +137,7 @@ ntp_newdata(void)
   uint32_t ntp_timestamp;
   struct ntp_packet *pkt = uip_appdata;
   /* We must save an unix timestamp */
-  ntp_timestamp = NTOHL(pkt->rec.seconds) - 2208988800;
+  ntp_timestamp = NTOHL(pkt->rec.seconds) - JAN_1970;
 
 #ifdef DEBUG_NTP
     debug_printf("NTP: Set new time: %lu\n",ntp_timestamp);

@@ -58,7 +58,7 @@ uint32_t clock_get_time(void);
 uint32_t clock_last_sync(void);
 
 /* when was the clock synced the last time (ticks) */
-uint32_t clock_last_s_tick(void);
+uint32_t clock_last_sync_tick(void);
 
 /* last delta time (from unix timestamp) */
 int16_t clock_last_delta(void);
