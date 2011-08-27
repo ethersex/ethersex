@@ -24,6 +24,8 @@
 
 #include <avr/io.h>
 
+extern uint8_t milliticks;
+
 /* initialize hardware timer */
 void periodic_init(void);
 
