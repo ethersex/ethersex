@@ -47,11 +47,11 @@ volatile struct rc5_global_t rc5_global;
 
 /* #define RC5_BIT_TICKS ((uint8_t)(F_CPU * 1800 / 1024 / 1000000)) */
 #if F_CPU == 20000000UL
-#define RC5_BIT_TICKS 35    /* for 20MHz */
+#define RC5_BIT_TICKS 35	/* for 20MHz */
 #elif F_CPU == 16000000UL
-#define RC5_BIT_TICKS 28    /* for 16 MHz */
+#define RC5_BIT_TICKS 28	/* for 16 MHz */
 #else
-#define RC5_BIT_TICKS ((uint8_t)(F_CPU * 1800 / 1024 / 1000000)) 
+#define RC5_BIT_TICKS ((uint8_t)(F_CPU * 1800 / 1024 / 1000000))
 #endif
 
 #define RC5_HALF_BIT_TICKS ((uint8_t)(RC5_BIT_TICKS/2))
@@ -198,306 +198,329 @@ volatile struct rc5_global_t rc5_global;
 static struct rc5_t temp_rc5;
 
 /* module local prototypes */
-void noinline rc5_send_one(void);
-void noinline rc5_send_zero(void);
+static void noinline rc5_send_one (void);
+static void noinline rc5_send_zero (void);
 
-void rc5_init(void)
+void
+rc5_init (void)
 {
 
-    /* configure send pin as output, set low */
-    DDR_CONFIG_OUT(RC5_SEND);
-    PIN_CLEAR(RC5_SEND);
+  /* configure send pin as output, set low */
+  DDR_CONFIG_OUT (RC5_SEND);
+  PIN_CLEAR (RC5_SEND);
 
-    /* enable timer0/timer2, set prescaler and enable overflow interrupt */
+  /* enable timer0/timer2, set prescaler and enable overflow interrupt */
 #ifdef RC5_USE_TIMER2
-    TC2_PRESCALER_1024;
+  TC2_PRESCALER_1024;
 #else
-    TC0_PRESCALER_1024;
+  TC0_PRESCALER_1024;
 #endif
 
-    /* configure int0 to fire at any logical change */
-    EICRA |= _BV(RC5_ISC0);
-    EICRA &= ~_BV(RC5_ISC1);
+  /* configure int0 to fire at any logical change */
+  EICRA |= _BV (RC5_ISC0);
+  EICRA &= ~_BV (RC5_ISC1);
 
-    /* clear any old interrupts and enable int0 interrupt */
-    EIFR = _BV(RC5_INT_PIN);
-    EIMSK |= _BV(RC5_INT_PIN);
+  /* clear any old interrupts and enable int0 interrupt */
+  EIFR = _BV (RC5_INT_PIN);
+  EIMSK |= _BV (RC5_INT_PIN);
 
-    /* reset everything to zero */
-    memset((void *)&rc5_global, 0, sizeof(rc5_global));
+  /* reset everything to zero */
+  memset ((void *) &rc5_global, 0, sizeof (rc5_global));
 
-    /* enable rc5 receive, init variables */
-    rc5_global.enabled = 1;
+  /* enable rc5 receive, init variables */
+  rc5_global.enabled = 1;
 }
 
-void rc5_send(uint8_t addr, uint8_t cmd)
+void
+rc5_send (const uint8_t addr, const uint8_t cmd)
 {
-    static uint8_t toggle = 0;
+  static uint8_t toggle = 0;
 
-    /* send two one sync bits */
-    rc5_send_one();
-    rc5_send_one();
+  /* send two one sync bits */
+  rc5_send_one ();
+  rc5_send_one ();
 
-    /* send toggle bit */
-    if (toggle)
-        rc5_send_one();
-    else
-        rc5_send_zero();
+  /* send toggle bit */
+  if (toggle)
+    rc5_send_one ();
+  else
+    rc5_send_zero ();
 
-    toggle = !toggle;
+  toggle = !toggle;
 
-    for (int8_t i = 4; i >= 0; i--) {
-        if (addr & _BV(i))
-            rc5_send_one();
-        else
-            rc5_send_zero();
+  for (int8_t i = 4; i >= 0; i--)
+    {
+      if (addr & _BV (i))
+	rc5_send_one ();
+      else
+	rc5_send_zero ();
     }
 
-    for (int8_t i = 5; i >= 0; i--) {
-        if (cmd & _BV(i))
-            rc5_send_one();
-        else
-            rc5_send_zero();
+  for (int8_t i = 5; i >= 0; i--)
+    {
+      if (cmd & _BV (i))
+	rc5_send_one ();
+      else
+	rc5_send_zero ();
     }
 
-    /* turn off sender */
-    PIN_CLEAR(RC5_SEND);
-
+  /* turn off sender */
+  PIN_CLEAR (RC5_SEND);
 }
 
-void rc5_send_one(void)
+void
+rc5_send_one (void)
 {
-    PIN_CLEAR(RC5_SEND);
-    _delay_loop_2(RC5_PULSE);
-    PIN_SET(RC5_SEND);
-    _delay_loop_2(RC5_PULSE);
+  PIN_CLEAR (RC5_SEND);
+  _delay_loop_2 (RC5_PULSE);
+  PIN_SET (RC5_SEND);
+  _delay_loop_2 (RC5_PULSE);
 }
 
-void rc5_send_zero(void)
+void
+rc5_send_zero (void)
 {
-    PIN_SET(RC5_SEND);
-    _delay_loop_2(RC5_PULSE);
-    PIN_CLEAR(RC5_SEND);
-    _delay_loop_2(RC5_PULSE);
+  PIN_SET (RC5_SEND);
+  _delay_loop_2 (RC5_PULSE);
+  PIN_CLEAR (RC5_SEND);
+  _delay_loop_2 (RC5_PULSE);
 }
 
-void rc5_process(void)
+void
+rc5_process (void)
 {
-    static uint8_t toggle = 2;
+  static uint8_t toggle = 2;
 
-    if (rc5_global.new_data) {
+  if (rc5_global.new_data)
+    {
 #ifdef DEBUG_RC5
-        debug_printf("received new rc5 data: addr: %d, cmd %d, toggle %d\n",
-                rc5_global.received_command.address,
-                rc5_global.received_command.code,
-                rc5_global.received_command.toggle_bit);
+      debug_printf ("received new rc5 data: addr: %d, cmd %d, toggle %d\n",
+		    rc5_global.received_command.address,
+		    rc5_global.received_command.code,
+		    rc5_global.received_command.toggle_bit);
 
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-	char s[200];
-        for (uint8_t i = 0; i < rc5_global.bitcount; i++) {
-            uint8_t saddr = i*3;
-            snprintf(&s[saddr], sizeof(s) - saddr, "%02x ", rc5_global.cnt[i]);
-        }
-        debug_printf("counters: %d [%s]\n", rc5_global.bitcount, s);
+      char s[200];
+      for (uint8_t i = 0; i < rc5_global.bitcount; i++)
+	{
+	  uint8_t saddr = i * 3;
+	  snprintf (&s[saddr], sizeof (s) - saddr, "%02x ",
+		    rc5_global.cnt[i]);
+	}
+      debug_printf ("counters: %d [%s]\n", rc5_global.bitcount, s);
 #endif
 
 #endif
-        if (toggle != rc5_global.received_command.toggle_bit) {
+      if (toggle != rc5_global.received_command.toggle_bit)
+	{
 
 #ifdef DEBUG_RC5
-            debug_printf("new keypress, queue len is %d:\n", rc5_global.len);
-            for (uint8_t i = 0; i < rc5_global.len; i++)
-                debug_printf("  addr %d, cmd %d, toggle bit %d\n",
-                        rc5_global.queue[i].address,
-                        rc5_global.queue[i].code,
-                        rc5_global.queue[i].toggle_bit);
+	  debug_printf ("new keypress, queue len is %d:\n", rc5_global.len);
+	  for (uint8_t i = 0; i < rc5_global.len; i++)
+	    debug_printf ("  addr %d, cmd %d, toggle bit %d\n",
+			  rc5_global.queue[i].address,
+			  rc5_global.queue[i].code,
+			  rc5_global.queue[i].toggle_bit);
 
 #endif
 
-            /* shift queue backwards */
-            memmove((char *) &rc5_global.queue[1],
-                    (char *) &rc5_global.queue[0],
-                    (RC5_QUEUE_LENGTH-1) * sizeof(struct rc5_t));
+	  /* shift queue backwards */
+	  memmove ((char *) &rc5_global.queue[1],
+		   (char *) &rc5_global.queue[0],
+		   (RC5_QUEUE_LENGTH - 1) * sizeof (struct rc5_t));
 
-            /* copy datagram to queue and increment length */
-            rc5_global.queue[0].raw = rc5_global.received_command.raw;
-            if (rc5_global.len < RC5_QUEUE_LENGTH) 
-                rc5_global.len++;
+	  /* copy datagram to queue and increment length */
+	  rc5_global.queue[0].raw = rc5_global.received_command.raw;
+	  if (rc5_global.len < RC5_QUEUE_LENGTH)
+	    rc5_global.len++;
 
-            toggle = rc5_global.received_command.toggle_bit;
+	  toggle = rc5_global.received_command.toggle_bit;
 
-        }
+	}
 
 #ifdef RC5_UDP_SUPPORT
-        rc5_udp_send();          /* send UDP packet */
+      rc5_udp_send ();		/* send UDP packet */
 #endif
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-        rc5_global.bitcount = 0; /* delete packet */
+      rc5_global.bitcount = 0;	/* delete packet */
 #endif
-        
-        rc5_global.new_data = 0;
+
+      rc5_global.new_data = 0;
     }
 }
 
-ISR(RC5_INT_VECTOR)
+ISR (RC5_INT_VECTOR)
 {
-    if (rc5_global.enabled && !rc5_global.temp_disable) {
+  if (rc5_global.enabled && !rc5_global.temp_disable)
+    {
 
-        /* if this is the first interrupt */
-        if (rc5_global.interrupts == 0) {
-            /* reset counter, clear old overflows and enable
-             * timer0 overflow interrupt */
+      /* if this is the first interrupt */
+      if (rc5_global.interrupts == 0)
+	{
+	  /* reset counter, clear old overflows and enable
+	   * timer0 overflow interrupt */
 #ifdef RC5_USE_TIMER2
-            TC2_COUNTER_CURRENT = 0;
-            TC2_INT_OVERFLOW_CLR;
-            TC2_INT_OVERFLOW_ON;
+	  TC2_COUNTER_CURRENT = 0;
+	  TC2_INT_OVERFLOW_CLR;
+	  TC2_INT_OVERFLOW_ON;
 #else
-            TC0_COUNTER_CURRENT = 0;
-            TC0_INT_OVERFLOW_CLR;
-            TC0_INT_OVERFLOW_ON;
+	  TC0_COUNTER_CURRENT = 0;
+	  TC0_INT_OVERFLOW_CLR;
+	  TC0_INT_OVERFLOW_ON;
 #endif
 
-            /* reset temp buffer */
-            temp_rc5.raw = 0;
+	  /* reset temp buffer */
+	  temp_rc5.raw = 0;
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-            /* reset buffer */
-            temp_rc5.bitcount = 0;
+	  /* reset buffer */
+	  temp_rc5.bitcount = 0;
 
-            /* set buffer start byte */
-            temp_rc5.cnt[temp_rc5.bitcount++] = 0xff;
+	  /* set buffer start byte */
+	  temp_rc5.cnt[temp_rc5.bitcount++] = 0xff;
 #endif
-            /* if this is not the first interrupt */
-        } else {
-            /* load and reset the counter */
+	  /* if this is not the first interrupt */
+	}
+      else
+	{
+	  /* load and reset the counter */
 #ifdef RC5_USE_TIMER2
-            uint8_t counter = TC2_COUNTER_CURRENT;
-            TC2_COUNTER_CURRENT = 0;
+	  uint8_t counter = TC2_COUNTER_CURRENT;
+	  TC2_COUNTER_CURRENT = 0;
 #else
-            uint8_t counter = TC0_COUNTER_CURRENT;
-            TC0_COUNTER_CURRENT = 0;
+	  uint8_t counter = TC0_COUNTER_CURRENT;
+	  TC0_COUNTER_CURRENT = 0;
 #endif
 
-            /* check how many halfbits have passed since last interrupt */
-            uint8_t received_bits = 0;
+	  /* check how many halfbits have passed since last interrupt */
+	  uint8_t received_bits = 0;
 
-            /* check for two halfbits */
-            if ( (counter > RC5_HALF_BIT_TICKS - RC5_ENVIRONMENT &&
-                  counter < RC5_HALF_BIT_TICKS + RC5_ENVIRONMENT) ) {
-                received_bits = 1;
+	  /* check for two halfbits */
+	  if ((counter > RC5_HALF_BIT_TICKS - RC5_ENVIRONMENT &&
+	       counter < RC5_HALF_BIT_TICKS + RC5_ENVIRONMENT))
+	    {
+	      received_bits = 1;
 
-            /* check for one halfbit */
-            } else if ( (counter > RC5_BIT_TICKS - RC5_ENVIRONMENT &&
-                         counter < RC5_BIT_TICKS + RC5_ENVIRONMENT) ) {
-                received_bits = 2;
+	      /* check for one halfbit */
+	    }
+	  else if ((counter > RC5_BIT_TICKS - RC5_ENVIRONMENT &&
+		    counter < RC5_BIT_TICKS + RC5_ENVIRONMENT))
+	    {
+	      received_bits = 2;
 
-            /* else signal is invalid */
-            } else {
-                /* disable interrupt, enable timer overflow interrupt: -> timeout */
-                //GICR &= ~_BV(INT0);
-                rc5_global.temp_disable = 1;
+	      /* else signal is invalid */
+	    }
+	  else
+	    {
+	      /* disable interrupt, enable timer overflow interrupt: -> timeout */
+	      //GICR &= ~_BV(INT0);
+	      rc5_global.temp_disable = 1;
 
-                /* reset bitcounter */
-                rc5_global.halfbitcount = 0;
+	      /* reset bitcounter */
+	      rc5_global.halfbitcount = 0;
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-                temp_rc5.bitcount = 0;
+	      temp_rc5.bitcount = 0;
 #endif
-                /* quit this interrupt and wait for timeout */
-                return;
-            }
+	      /* quit this interrupt and wait for timeout */
+	      return;
+	    }
 
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-            /* add a counter value to the counter buffer */
-            temp_rc5.cnt[temp_rc5.bitcount++] = counter;
+	  /* add a counter value to the counter buffer */
+	  temp_rc5.cnt[temp_rc5.bitcount++] = counter;
 #endif
-            /* process each received halfbit */
-            while (received_bits--) {
+	  /* process each received halfbit */
+	  while (received_bits--)
+	    {
 
-                /* increase halfbit counter, since we obviously
-                 * received a halfbit */
-                rc5_global.halfbitcount++;
+	      /* increase halfbit counter, since we obviously
+	       * received a halfbit */
+	      rc5_global.halfbitcount++;
 
-                /* if the parity of the halfbit-counter is odd,
-                 * we have received a complete bit,
-                 * so save this bit to the structure*/
+	      /* if the parity of the halfbit-counter is odd,
+	       * we have received a complete bit,
+	       * so save this bit to the structure*/
 
-                if (rc5_global.halfbitcount & 1) {
-                    /* shift buffer left, and set lsb, if the
-                     * parity of the interrupt counter (interrupts
-                     * which happened _BEFORE_ this one (=postincrement))
-                     * is odd*/
-                    temp_rc5.raw <<= 1;
-                    temp_rc5.raw |= (rc5_global.interrupts & 1);
-                }
-            }
-        }
+	      if (rc5_global.halfbitcount & 1)
+		{
+		  /* shift buffer left, and set lsb, if the
+		   * parity of the interrupt counter (interrupts
+		   * which happened _BEFORE_ this one (=postincrement))
+		   * is odd*/
+		  temp_rc5.raw <<= 1;
+		  temp_rc5.raw |= (rc5_global.interrupts & 1);
+		}
+	    }
+	}
 
-        /* increase interrupt counter */
-        rc5_global.interrupts++;
+      /* increase interrupt counter */
+      rc5_global.interrupts++;
     }
 }
 
 /* timer0 overflow interrupt */
 #ifdef RC5_USE_TIMER2
-ISR(TIMER2_OVF_vect)
+ISR (TIMER2_OVF_vect)
 #else
-ISR(TIMER0_OVF_vect)
+ISR (TIMER0_OVF_vect)
 #endif
 {
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-    /* disable overflow interrupt */
+  /* disable overflow interrupt */
 #ifdef RC5_USE_TIMER2
-    TC0_INT_OVERFLOW_OFF;
+  TC0_INT_OVERFLOW_OFF;
 #else
-    TC2_INT_OVERFLOW_OFF;
+  TC2_INT_OVERFLOW_OFF;
 #endif
 
 #ifdef RC5_USE_TIMER2
-    uint8_t counter = TC2_COUNTER_CURRENT;
+  uint8_t counter = TC2_COUNTER_CURRENT;
 #else
-    uint8_t counter = TC0_COUNTER_CURRENT;
+  uint8_t counter = TC0_COUNTER_CURRENT;
 #endif
 #endif /* RC5_UDP_SUPPORT_COUNTERS */
 
-    /* check if we only received 26 halfbits,
-     * so the last transmitted bit was zero,
-     * if 27 halfbits have been received, everything
-     * went fine */
-    switch (rc5_global.halfbitcount) {
-        case 26:
-                 /* add a zero */
-                 temp_rc5.raw <<= 1;
-                 /* and fall-through to the next case */
+  /* check if we only received 26 halfbits,
+   * so the last transmitted bit was zero,
+   * if 27 halfbits have been received, everything
+   * went fine */
+  switch (rc5_global.halfbitcount)
+    {
+    case 26:
+      /* add a zero */
+      temp_rc5.raw <<= 1;
+      /* and fall-through to the next case */
 
-        case 27:
-                 /* copy data to global structure */
-                 rc5_global.received_command.raw = temp_rc5.raw;
+    case 27:
+      /* copy data to global structure */
+      rc5_global.received_command.raw = temp_rc5.raw;
 
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-                 /* add buffer end */
-                 temp_rc5.cnt[temp_rc5.bitcount++] = 0xFF;
+      /* add buffer end */
+      temp_rc5.cnt[temp_rc5.bitcount++] = 0xFF;
 
-                 /* copy temp buffer to global buffer space */
-                 rc5_global.bitcount = temp_rc5.bitcount;
-                 memcpy(&rc5_global.cnt, temp_rc5.cnt, RC5_COUNTERS);
+      /* copy temp buffer to global buffer space */
+      rc5_global.bitcount = temp_rc5.bitcount;
+      memcpy (&rc5_global.cnt, temp_rc5.cnt, RC5_COUNTERS);
 #endif
-                 /* signal main that new data has arrived */
-                 rc5_global.new_data = 1;
+      /* signal main that new data has arrived */
+      rc5_global.new_data = 1;
     }
 
-    /* reset counter */
-    rc5_global.halfbitcount = 0;
-    rc5_global.interrupts = 0;
+  /* reset counter */
+  rc5_global.halfbitcount = 0;
+  rc5_global.interrupts = 0;
 
 #ifdef RC5_UDP_SUPPORT_COUNTERS
-    /* clean up counter buffer */
-    temp_rc5.bitcount = 0;
-    memset((void *) temp_rc5.cnt, 0, RC5_COUNTERS);
+  /* clean up counter buffer */
+  temp_rc5.bitcount = 0;
+  memset ((void *) temp_rc5.cnt, 0, RC5_COUNTERS);
 #endif
-    /* if decoder is enabled, reconfigure int0 */
-    if (rc5_global.enabled) {
+  /* if decoder is enabled, reconfigure int0 */
+  if (rc5_global.enabled)
+    {
 
-        /* re-enable int0 */
-        rc5_global.temp_disable = 0;
+      /* re-enable int0 */
+      rc5_global.temp_disable = 0;
     }
 }
 
