@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2009, 2010 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -44,71 +43,78 @@
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init()
-
+generate_usart_init ()
 struct serial_line_log_data sll_data_new;
 struct serial_line_log_data sll_data;
 
-void
-serial_line_log_init(void)
+void serial_line_log_init (void)
 {
-    /* Initialize the usart module */
-    usart_init();
+  /* Initialize the usart module */
+  usart_init ();
 }
 
 void
-serial_line_log_periodic(void)
+serial_line_log_periodic (void)
 {
-    if (sll_data.timeout) 
-	sll_data.timeout --;
-    
+  if (sll_data.timeout)
+    sll_data.timeout--;
+
 }
 
-ISR(usart(USART,_RX_vect))
+ISR (usart (USART, _RX_vect))
 {
   /* Ignore errors */
-  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
-    uint8_t v = usart(UDR);
-    (void) v;
-    return;
-  }
+  if ((usart (UCSR, A) & _BV (usart (DOR)))
+      || (usart (UCSR, A) & _BV (usart (FE))))
+    {
+      uint8_t v = usart (UDR);
+      (void) v;
+      return;
+    }
 
-  uint8_t data = usart(UDR);
+  uint8_t data = usart (UDR);
 
 #ifdef SERIAL_LINE_LOG_SPACE_COMPRESSION
   static uint8_t last_was_space;
-  if (data == ' ' || data == '\t') {
-      if (last_was_space) return;
+  if (data == ' ' || data == '\t')
+    {
+      if (last_was_space)
+	return;
       last_was_space = 1;
       data = ' ';
-  } else 
-      last_was_space = 0;
+    }
+  else
+    last_was_space = 0;
 #endif /* SPACE Compression */
 
-  if (data == ((uint8_t *)SERIAL_LINE_LOG_EOL)[0]) {
+  if (data == ((uint8_t *) SERIAL_LINE_LOG_EOL)[0])
+    {
       /* Yeah we have reached end of line so commit it to the real
-	 buffer */
-      if (sll_data_new.len > 1) {
-        memcpy(&sll_data, &sll_data_new, sizeof(sll_data_new));
+         buffer */
+      if (sll_data_new.len > 1)
+	{
+	  memcpy (&sll_data, &sll_data_new, sizeof (sll_data_new));
 
-        /* Set the timeout for the new data correct */
-        sll_data.timeout = SERIAL_LINE_LOG_TIMEOUT;
+	  /* Set the timeout for the new data correct */
+	  sll_data.timeout = SERIAL_LINE_LOG_TIMEOUT;
 
-        /* Termiate the Buffer correct */
-        sll_data.data[sll_data.len++] = 0;
-      }
+	  /* Termiate the Buffer correct */
+	  sll_data.data[sll_data.len++] = 0;
+	}
 
       sll_data_new.len = 0;
 
-      SLL_DEBUG("got new line, line was stored\n");
+      SLL_DEBUG ("got new line, line was stored\n");
       return;
-  } else if (sll_data_new.len >= SERIAL_LINE_LOG_COUNT) {
+    }
+  else if (sll_data_new.len >= SERIAL_LINE_LOG_COUNT)
+    {
       /* Our Buffer is more than full, with correct configuration
-	 should this never happen */
-      sll_data.len =  sprintf_P((char *)sll_data.data, PSTR("overrun"));
-      SLL_DEBUG("buffer overrun\n");
+         should this never happen */
+      sll_data.len = sprintf_P ((char *) sll_data.data, PSTR ("overrun"));
+      SLL_DEBUG ("buffer overrun\n");
       sll_data_new.len = 0;
-  }
+    }
   sll_data_new.data[sll_data_new.len++] = data;
 }
 
