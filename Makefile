@@ -144,10 +144,9 @@ endif
 # logging to file make.log
 # calls make all and redirects stdout and stderr to make.log
 v:
-	@echo "===== logging make activity to file make.log ====="
-	@echo "Build started on " `date` | tee make.log
-	@${MAKE} all 2>&1 | tee -a make.log
-
+	(echo "===== logging make activity to file make.log =====";\
+         echo "Build started on `date`";\
+         ${MAKE} all 2>&1) | tee make.log
 
 ##############################################################################
 # print information about binary size and flash usage
