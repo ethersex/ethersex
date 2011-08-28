@@ -65,7 +65,7 @@ clock_init (void)
   TIMER_8_AS_1_PRESCALER_128;
 
   /* Wait until the bytes are written */
-  while(TIMER_8_AS_1_COUNTER_BUSY_TST);
+  while (TIMER_8_AS_1_COUNTER_BUSY_TST);
   /* Clear the interrupt flags */
   TIMER_8_AS_1_INT_OVERFLOW_CLR;
   /* Enable the timer interrupt */
@@ -84,7 +84,6 @@ ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
-  extern uint8_t milliticks;
   milliticks = 0;
 
   TCNT1 = 65536 - CLOCK_SECONDS;
