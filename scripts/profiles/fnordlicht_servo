@@ -27,8 +27,6 @@ atmega168=y
 # atmega1284p is not set
 FREQ=8000000
 # Arduino_Duemilanove is not set
-# bulbdialclock is not set
-# conrad_probot_habo is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
@@ -39,26 +37,19 @@ fnordlicht_servo=y
 # hr20 is not set
 # Jackalope is not set
 # JeeLinkv2 is not set
+# lome6 is not set
 # MicroWebServer is not set
 # netio_addon is not set
 # netio is not set
+# netio_onewire_multibus is not set
 # other is not set
+# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
 # pollin_funkevalboard is not set
-# radig_fifi2 is not set
-# radig_habo is not set
-# radig_habo_stella is not set
 # radig_web is not set
 # thermy is not set
-# usbblocky is not set
-# usbfifi is not set
-# usbfifiOW is not set
-# user_radig_habo_ps2 is not set
-# user_radig_habo_steckbrett_lcd is not set
-# user_radig_habo_vogelkasten is not set
-# user_stauffy32 is not set
-# user_usbfifips2 is not set
-# user_usbrfm12stick is not set
+# USBrfm12stick is not set
+# volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
@@ -73,6 +64,7 @@ BOOTLOADER_START_ADDRESS=0x3800
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
+VERSION_GIT="9a11ad1"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -87,6 +79,7 @@ DEBUG_BAUDRATE=115200
 # STATUSLED_TX_SUPPORT is not set
 # STATUSLED_RFM12_TX_SUPPORT is not set
 # STATUSLED_ZBUS_TX_SUPPORT is not set
+# STATUSLED_IRMP_TX_SUPPORT is not set
 # STATUSLED_RX_SUPPORT is not set
 # STATUSLED_RFM12_RX_SUPPORT is not set
 # STATUSLED_ZBUS_RX_SUPPORT is not set
@@ -305,6 +298,7 @@ CONF_LTC1257_NUM_DEVICES=4
 # I2C_DS13X7_SUPPORT is not set
 # I2C_TSL2550_SUPPORT is not set
 # I2C_PCA9531_SUPPORT is not set
+# I2C_PCA9685_SUPPORT is not set
 # I2C_PCF8574X_SUPPORT is not set
 # I2C_MAX7311_SUPPORT is not set
 # I2C_UDP_SUPPORT is not set
@@ -322,11 +316,17 @@ DC3840_USE_USART=0
 # DC3840_UDP_DEBUG is not set
 # FS20_SUPPORT is not set
 # FS20_SEND_SUPPORT is not set
+# FHT_SEND_SUPPORT is not set
 # FS20_RECEIVE_SUPPORT is not set
+# FS20_RECEIVE_SENDER is not set
+CONF_FS20_SERVICE="merkur"
+CONF_FS20_PORT=2701
 # FS20_RECEIVE_WS300_SUPPORT is not set
 # DEBUG_FS20_REC is not set
+# DEBUG_ECMD_FS20 is not set
 # DEBUG_FS20_REC_QUEUE is not set
 # DEBUG_FS20_REC_VERBOSE is not set
+# DEBUG_FS20_SENDER is not set
 # DEBUG_FS20_WS300 is not set
 # DEBUG_FS20_WS300_VERBOSE is not set
 # IR_SUPPORT is not set
@@ -336,10 +336,14 @@ DC3840_USE_USART=0
 CONF_RC5_SERVER="192.168.100.3"
 # DEBUG_RC5 is not set
 # IRMP_SUPPORT is not set
-# IRSND_SUPPORT is not set
+# IRMP_RX_SUPPORT is not set
+# IRMP_TX_SUPPORT is not set
+# IRMP_EXTERNAL_MODULATOR is not set
 # IRMP_ECMD is not set
 # IRMP_SUPPORT_SIRCS_PROTOCOL is not set
 # IRMP_SUPPORT_NEC_PROTOCOL is not set
+# IRMP_SUPPORT_NEC16_PROTOCOL is not set
+# IRMP_SUPPORT_NEC42_PROTOCOL is not set
 # IRMP_SUPPORT_JVC_PROTOCOL is not set
 # IRMP_SUPPORT_SAMSUNG_PROTOCOL is not set
 # IRMP_SUPPORT_MATSUSHITA_PROTOCOL is not set
@@ -358,6 +362,13 @@ CONF_RC5_SERVER="192.168.100.3"
 # IRMP_SUPPORT_FDC_PROTOCOL is not set
 # IRMP_SUPPORT_RCCAR_PROTOCOL is not set
 # IRMP_SUPPORT_NIKON_PROTOCOL is not set
+# IRMP_SUPPORT_RUWIDO_PROTOCOL is not set
+# IRMP_SUPPORT_IR60_PROTOCOL is not set
+# IRMP_SUPPORT_KATHREIN_PROTOCOL is not set
+# IRMP_SUPPORT_NETBOX_PROTOCOL is not set
+# IRMP_SUPPORT_LEGO_PROTOCOL is not set
+# IRMP_SUPPORT_THOMSON_PROTOCOL is not set
+# IRMP_SUPPORT_MERLIN_PROTOCOL is not set
 # DEBUG_IRMP is not set
 # PSB2186_SUPPORT is not set
 PWM_SUPPORT=y
@@ -463,9 +474,14 @@ CONF_ARTNET_MAX_PORTS=4
 CONF_ARTNET_MAX_DATA_LENGTH=511
 CONF_ARTNET_MAX_CHANNELS=512
 CONF_ARTNET_OEM_ID="0xB108"
+CONF_ARTNET_INUNIVERSE=1
+CONF_ARTNET_OUTUNIVERSE=0
 # DEBUG_ARTNET is not set
+# DALI_SUPPORT is not set
+# DALI_RAW_SUPPORT is not set
+# DALI_RECEIVE_SUPPORT is not set
 # DMX_SUPPORT is not set
-CONF_DMX_MAX_CHAN=512
+DMX_OUTPUT_UNIVERSE=1
 DMX_USART_0=y
 DMX_USE_USART=0
 # ECMD_PARSER_SUPPORT is not set
@@ -549,6 +565,12 @@ CONF_SMS77_SERVICE="gateway.sms77.de"
 CONF_SMS77_USER=""
 CONF_SMS77_PASS=""
 CONF_SMS77_TO=""
+CONF_SMS77_TYPE_CHOICE=CONF_SMS77_TYPE_BASICPLUS
+CONF_SMS77_TYPE_BASICPLUS=y
+# CONF_SMS77_TYPE_STANDARD is not set
+# CONF_SMS77_TYPE_QUALITY is not set
+# CONF_SMS77_TYPE_FESTNETZ is not set
+# CONF_SMS77_TYPE_FLASH is not set
 # SMS77_EEPROM_SUPPORT is not set
 # DEBUG_SMS77 is not set
 # SYSLOG_SUPPORT is not set
@@ -588,7 +610,6 @@ SERIAL_LINE_LOG_EOL=0A
 SERIAL_LINE_LOG_COUNT=60
 SERIAL_LINE_LOG_BAUDRATE=9600
 # SERIAL_LINE_LOG_SPACE_COMPRESSION is not set
-# DEBUG_SERIAL_LINE_LOG is not set
 # NMEA_SUPPORT is not set
 NMEA_USART_0=y
 NMEA_USE_USART=0
@@ -617,6 +638,7 @@ CW_WPM=12
 # BULBDIAL_SUPPORT is not set
 # DEBUG_BULBDIAL is not set
 # CLOCK_SUPPORT is not set
+# CLOCK_DATETIME_SUPPORT is not set
 # CLOCK_CRYSTAL_SUPPORT is not set
 # CLOCK_CPU_SUPPORT is not set
 # CLOCK_NTP_ADJUST_SUPPORT is not set
@@ -625,8 +647,8 @@ CW_WPM=12
 # NTP_SUPPORT is not set
 # NTPD_SUPPORT is not set
 # WHM_SUPPORT is not set
+# UPTIME_SUPPORT is not set
 # DEBUG_NTP_ADJUST is not set
-# CLOCK_DATETIME_SUPPORT is not set
 # CRON_SUPPORT is not set
 # CRON_DEFAULT_UTC is not set
 # CRON_SUPPORT_TEST is not set
@@ -635,6 +657,14 @@ CW_WPM=12
 # DEBUG_CRON is not set
 # CRON_STATIC_SUPPORT is not set
 # DYNDNS_SUPPORT is not set
+# DMX_STORAGE_SUPPORT is not set
+DMX_STORAGE_UNIVERSES=2
+DMX_STORAGE_CHANNELS=64
+DMX_STORAGE_SLOTS=5
+# DMX_STORAGE_DEBUG is not set
+# DMX_EFFECT_SUPPORT is not set
+# DMX_EFFECT_RAINBOW is not set
+# DMX_EFFECT_RANDOM is not set
 # UDP_ECHO_NET_SUPPORT is not set
 # WOL_SUPPORT is not set
 # MOTD_SUPPORT is not set
@@ -674,6 +704,9 @@ STELLA_FADE_FUNCTION_INIT=stella_fade_func_0
 stella_fade_func_0=y
 # stella_fade_func_1 is not set
 # DEBUG_STELLA is not set
+# STARBURST_SUPPORT is not set
+# STARBURST_PCA9685 is not set
+# STARBURST_DEBUG is not set
 # MOTORCURTAIN_SUPPORT is not set
 # MOTORCURTAIN_INVERTED_MOTOR is not set
 # MOTORCURTAIN_INVERTED_DIRECTION is not set
@@ -697,14 +730,18 @@ WATCHASYNC_SERVER_IP="78.46.142.232"
 CONF_WATCHASYNC_PORT=80
 CONF_WATCHASYNC_METHOD="GET"
 CONF_WATCHASYNC_PATH="/httplog/httplog.php"
+CONF_WATCHASYNC_END_PATH=""
 # CONF_WATCHASYNC_TIMESTAMP is not set
 # CONF_WATCHASYNC_SUMMARIZE is not set
-CONF_WATCHASYNC_END_PATH=""
 CONF_WATCHASYNC_BUFFERSIZE=64
 # CONF_WATCHASYNC_EDGDETECTVIAPOLLING is not set
 
 #
 # Pin Configuration
+#
+
+#
+# Port A
 #
 # CONF_WATCHASYNC_PA0 is not set
 # CONF_WATCHASYNC_PA1 is not set
@@ -714,6 +751,10 @@ CONF_WATCHASYNC_BUFFERSIZE=64
 # CONF_WATCHASYNC_PA5 is not set
 # CONF_WATCHASYNC_PA6 is not set
 # CONF_WATCHASYNC_PA7 is not set
+
+#
+# Port B
+#
 # CONF_WATCHASYNC_PB0 is not set
 # CONF_WATCHASYNC_PB1 is not set
 # CONF_WATCHASYNC_PB2 is not set
@@ -722,6 +763,10 @@ CONF_WATCHASYNC_BUFFERSIZE=64
 # CONF_WATCHASYNC_PB5 is not set
 # CONF_WATCHASYNC_PB6 is not set
 # CONF_WATCHASYNC_PB7 is not set
+
+#
+# Port C
+#
 # CONF_WATCHASYNC_PC0 is not set
 # CONF_WATCHASYNC_PC1 is not set
 # CONF_WATCHASYNC_PC2 is not set
@@ -730,6 +775,10 @@ CONF_WATCHASYNC_BUFFERSIZE=64
 # CONF_WATCHASYNC_PC5 is not set
 # CONF_WATCHASYNC_PC6 is not set
 # CONF_WATCHASYNC_PC7 is not set
+
+#
+# Port D
+#
 # CONF_WATCHASYNC_PD0 is not set
 # CONF_WATCHASYNC_PD1 is not set
 # CONF_WATCHASYNC_PD2 is not set
@@ -740,6 +789,21 @@ CONF_WATCHASYNC_BUFFERSIZE=64
 # CONF_WATCHASYNC_PD7 is not set
 # DEBUG_WATCHASYNC is not set
 # GLCD_MENU_SUPPORT is not set
+# GLCDMENU_UMLAUTS is not set
+# GLCDMENU_MOUSE_SUPPORT is not set
 # GLCDMENU_S1D13305 is not set
 # DEBUG_GLCD_MENU is not set
+# LOME6_SUPPORT is not set
+# LOME6_LCD_SUPPORT is not set
+# LOME6_ONEWIRE_SUPPORT is not set
+CONF_SENSOR_PSU="1015ccf501080065"
+CONF_SENSOR_AIR="10567cf501080006"
+CONF_SENSOR_RAM="10cba7f5010800d3"
+CONF_LOME6_POD=0
+CONF_TIME2PRESS_RESET=40
+CONF_TIME2PRESS_POWER=40
+CONF_TIME2PRESS_POWERL=3
+# PROJECTOR_SANYO_Z700_SUPPORT is not set
+# SANYO_Z700_USART_0 is not set
+# DEBUG_SANYO_Z700 is not set
 # RFM12_SUPPORT is not set

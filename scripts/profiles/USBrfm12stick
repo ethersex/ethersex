@@ -27,8 +27,6 @@ atmega88=y
 # atmega1284p is not set
 FREQ=16000000
 # Arduino_Duemilanove is not set
-# bulbdialclock is not set
-# conrad_probot_habo is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
@@ -38,29 +36,19 @@ FREQ=16000000
 # hr20 is not set
 # Jackalope is not set
 # JeeLinkv2 is not set
+# lome6 is not set
 # MicroWebServer is not set
 # netio_addon is not set
 # netio is not set
+# netio_onewire_multibus is not set
 # other is not set
 # pollin_evalboard_addon is not set
 # pollin_evalboard is not set
 # pollin_funkevalboard is not set
-# radig_fifi2 is not set
-# radig_habo is not set
-# radig_habo_stella is not set
 # radig_web is not set
 # thermy is not set
-# usbblocky is not set
-# usbfifi is not set
-# usbfifiOW is not set
 HARDWARE=USBrfm12stick
 USBrfm12stick=y
-# user_radig_habo_ps2 is not set
-# user_radig_habo_steckbrett_lcd is not set
-# user_radig_habo_vogelkasten is not set
-# user_stauffy32 is not set
-# user_usbfifips2 is not set
-# user_usbrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -76,7 +64,7 @@ TEENSY_SUPPORT=y
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="0d39093"
+VERSION_GIT="9a11ad1"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -318,6 +306,7 @@ CONF_LTC1257_NUM_DEVICES=4
 # I2C_DS13X7_SUPPORT is not set
 # I2C_TSL2550_SUPPORT is not set
 # I2C_PCA9531_SUPPORT is not set
+# I2C_PCA9685_SUPPORT is not set
 # I2C_PCF8574X_SUPPORT is not set
 # I2C_MAX7311_SUPPORT is not set
 # I2C_UDP_SUPPORT is not set
@@ -496,8 +485,11 @@ CONF_ARTNET_OEM_ID="0xB108"
 CONF_ARTNET_INUNIVERSE=1
 CONF_ARTNET_OUTUNIVERSE=0
 # DEBUG_ARTNET is not set
+# DALI_SUPPORT is not set
+# DALI_RAW_SUPPORT is not set
+# DALI_RECEIVE_SUPPORT is not set
 # DMX_SUPPORT is not set
-CONF_DMX_MAX_CHAN=512
+DMX_OUTPUT_UNIVERSE=1
 DMX_USART_0=y
 DMX_USE_USART=0
 ECMD_PARSER_SUPPORT=y
@@ -584,6 +576,12 @@ CONF_SMS77_SERVICE="gateway.sms77.de"
 CONF_SMS77_USER=""
 CONF_SMS77_PASS=""
 CONF_SMS77_TO=""
+CONF_SMS77_TYPE_CHOICE=CONF_SMS77_TYPE_BASICPLUS
+CONF_SMS77_TYPE_BASICPLUS=y
+# CONF_SMS77_TYPE_STANDARD is not set
+# CONF_SMS77_TYPE_QUALITY is not set
+# CONF_SMS77_TYPE_FESTNETZ is not set
+# CONF_SMS77_TYPE_FLASH is not set
 # SMS77_EEPROM_SUPPORT is not set
 # DEBUG_SMS77 is not set
 # SYSLOG_SUPPORT is not set
@@ -623,7 +621,6 @@ SERIAL_LINE_LOG_EOL=0A
 SERIAL_LINE_LOG_COUNT=60
 SERIAL_LINE_LOG_BAUDRATE=9600
 # SERIAL_LINE_LOG_SPACE_COMPRESSION is not set
-# DEBUG_SERIAL_LINE_LOG is not set
 # NMEA_SUPPORT is not set
 NMEA_USART_0=y
 NMEA_USE_USART=0
@@ -662,6 +659,7 @@ CW_WPM=12
 # NTP_SUPPORT is not set
 # NTPD_SUPPORT is not set
 # WHM_SUPPORT is not set
+# UPTIME_SUPPORT is not set
 # DEBUG_NTP_ADJUST is not set
 # CRON_SUPPORT is not set
 # CRON_DEFAULT_UTC is not set
@@ -671,6 +669,14 @@ CW_WPM=12
 # DEBUG_CRON is not set
 # CRON_STATIC_SUPPORT is not set
 # DYNDNS_SUPPORT is not set
+# DMX_STORAGE_SUPPORT is not set
+DMX_STORAGE_UNIVERSES=2
+DMX_STORAGE_CHANNELS=64
+DMX_STORAGE_SLOTS=5
+# DMX_STORAGE_DEBUG is not set
+# DMX_EFFECT_SUPPORT is not set
+# DMX_EFFECT_RAINBOW is not set
+# DMX_EFFECT_RANDOM is not set
 # UDP_ECHO_NET_SUPPORT is not set
 # WOL_SUPPORT is not set
 # MOTD_SUPPORT is not set
@@ -710,6 +716,9 @@ STELLA_FADE_FUNCTION_INIT=stella_fade_func_0
 stella_fade_func_0=y
 # stella_fade_func_1 is not set
 # DEBUG_STELLA is not set
+# STARBURST_SUPPORT is not set
+# STARBURST_PCA9685 is not set
+# STARBURST_DEBUG is not set
 # MOTORCURTAIN_SUPPORT is not set
 # MOTORCURTAIN_INVERTED_MOTOR is not set
 # MOTORCURTAIN_INVERTED_DIRECTION is not set
@@ -792,7 +801,22 @@ CONF_WATCHASYNC_BUFFERSIZE=64
 # CONF_WATCHASYNC_PD7 is not set
 # DEBUG_WATCHASYNC is not set
 # GLCD_MENU_SUPPORT is not set
+# GLCDMENU_UMLAUTS is not set
+# GLCDMENU_MOUSE_SUPPORT is not set
 # GLCDMENU_S1D13305 is not set
 # DEBUG_GLCD_MENU is not set
+# LOME6_SUPPORT is not set
+# LOME6_LCD_SUPPORT is not set
+# LOME6_ONEWIRE_SUPPORT is not set
+CONF_SENSOR_PSU="1015ccf501080065"
+CONF_SENSOR_AIR="10567cf501080006"
+CONF_SENSOR_RAM="10cba7f5010800d3"
+CONF_LOME6_POD=0
+CONF_TIME2PRESS_RESET=40
+CONF_TIME2PRESS_POWER=40
+CONF_TIME2PRESS_POWERL=3
+# PROJECTOR_SANYO_Z700_SUPPORT is not set
+# SANYO_Z700_USART_0 is not set
+# DEBUG_SANYO_Z700 is not set
 RFM12_SUPPORT=y
 IPV4_SUPPORT=y
