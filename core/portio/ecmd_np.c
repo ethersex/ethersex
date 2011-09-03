@@ -78,7 +78,7 @@ parse_cmd_pin_list (char *cmd, char *output, uint16_t len)
 
   /* Remove last newline character if end of array is reached */
   --retLen;
-  if (text == NULL /*&& retLen*/)
+  if (text == NULL)
     {
       return ECMD_FINAL (retLen);
     }
