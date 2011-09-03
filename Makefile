@@ -46,6 +46,7 @@ SUBDIRS += hardware/ultrasonic
 SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
+SUBDIRS += protocols/dali
 SUBDIRS += protocols/dhcp 
 SUBDIRS += protocols/dmx
 SUBDIRS += protocols/fnordlicht
@@ -105,6 +106,7 @@ SUBDIRS += services/vnc
 SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 SUBDIRS += services/glcdmenu
+SUBDIRS += services/lome6
 SUBDIRS += services/projectors/sanyoZ700
 
 rootbuild=t
@@ -137,6 +139,41 @@ all: compile-$(TARGET)
 endif
 .PHONY: all
 .SILENT: all
+
+##############################################################################
+# logging to file make.log
+# calls make all and redirects stdout and stderr to make.log
+v:
+	(echo "===== logging make activity to file make.log =====";\
+	 echo "Build started on `date`";\
+	 ${MAKE} all 2>&1) | tee make.log
+
+##############################################################################
+# print information about binary size and flash usage
+size-info:
+	@echo "===== size info ====="
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
+
+##############################################################################
+# target help displays a short overview over make options
+help:
+	@echo "Configuration targets:"
+	@echo "  menuconfig   - Update current config utilising a menu based program"
+	@echo "                 (default when .config does not exist)"
+	@echo ""
+	@echo "Cleaning targets:"
+	@echo "  clean        - Remove bin and dep files"
+	@echo "  fullclean    - Same as "clean", but also remove object files"
+	@echo "  mrproper     - Same as "fullclean", but also remove all config files"
+	@echo ""
+	@echo "Information targets:"
+	@echo "  show-config  - show enabled modules"
+	@echo "  size-info    - show size information of compiled binary"
+	@echo ""
+	@echo "Other generic targets:"
+	@echo "  all          - Build everything as specified in .config"
+	@echo "                 (default if .config exists)"
+	@echo "  v            - Same as "all" but with logging to make.log enabled"
 
 ##############################################################################
 # generic fluff

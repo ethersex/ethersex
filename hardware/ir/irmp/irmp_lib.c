@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.104 2011/05/22 21:40:52 fm Exp $
+ * $Id: irmp.c,v 1.106 2011/08/16 07:51:19 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -1621,6 +1621,12 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
                 {
                     rtc = TRUE;
                 }
+                break;
+#endif
+#if IRMP_SUPPORT_RC5_PROTOCOL == 1
+            case IRMP_RC5_PROTOCOL:
+                irmp_address &= ~0x20;                              // clear toggle bit
+                rtc = TRUE;
                 break;
 #endif
 #if IRMP_SUPPORT_IR60_PROTOCOL == 1
@@ -3338,7 +3344,10 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
 
                         irmp_address = irmp_tmp_address;                            // store address
 #if IRMP_SUPPORT_NEC_PROTOCOL == 1
-                        last_irmp_address = irmp_tmp_address;                       // store as last address, too
+                        if (irmp_param.protocol == IRMP_NEC_PROTOCOL)
+                        {
+                            last_irmp_address = irmp_tmp_address;                   // store as last address, too
+                        }
 #endif
 
 #if IRMP_SUPPORT_RC5_PROTOCOL == 1
@@ -3357,8 +3366,8 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
 
                 if (irmp_ir_detected)
                 {
-                    if (last_irmp_command == irmp_command &&
-                        last_irmp_address == irmp_address &&
+                    if (last_irmp_command == irmp_tmp_command &&
+                        last_irmp_address == irmp_tmp_address &&
                         repetition_len < IRMP_KEY_REPETITION_LEN)
                     {
                         irmp_flags |= IRMP_FLAG_REPETITION;

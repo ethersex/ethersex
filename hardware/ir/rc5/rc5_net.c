@@ -43,31 +43,33 @@
 /* global variables */
 extern volatile struct rc5_global_t rc5_global;
 
-
-
 /* local variables */
-
 static uip_ipaddr_t addr;
 static uip_udp_conn_t *udpconn;
 
 /*
  *  Initialize network communication
  */
-void rc5_net_init(void) {
-    /* retrieve IP address from configure script */
-    set_CONF_RC5_SERVER(&addr);
+void
+rc5_net_init (void)
+{
+  /* retrieve IP address from configure script */
+  set_CONF_RC5_SERVER (&addr);
 
-    /* init an UDP connection */
-    udpconn = uip_udp_new(&addr, HTONS(RC5_UDPPORT), rc5_udp_recv);
-    if (udpconn != NULL) {
-        uip_udp_periodic_conn(udpconn);
-        uip_udp_bind(udpconn, HTONS(RC5_UDPPORT));
+  /* init an UDP connection */
+  udpconn = uip_udp_new (&addr, HTONS (RC5_UDPPORT), rc5_udp_recv);
+  if (udpconn != NULL)
+    {
+      uip_udp_periodic_conn (udpconn);
+      uip_udp_bind (udpconn, HTONS (RC5_UDPPORT));
 #ifdef DEBUG_RC5
-        debug_printf("RC5: UDP enabled!\n");
+      debug_printf ("RC5: UDP enabled!\n");
 #endif
-    } else {
+    }
+  else
+    {
 #ifdef DEBUG_RC5
-        debug_printf("RC5: UDP not enabled!\n");
+      debug_printf ("RC5: UDP not enabled!\n");
 #endif
     }
 }
@@ -77,57 +79,61 @@ void rc5_net_init(void) {
  *
  *      code mostly taken from syslog source
  */
-void rc5_udp_send(void) {
-    if (udpconn == NULL)
-        return;
+void
+rc5_udp_send (void)
+{
+  if (udpconn == NULL)
+    return;
 
 #ifdef ETHERNET_SUPPORT
-    if (uip_check_cache(&udpconn->ripaddr))
-        return;
+  if (uip_check_cache (&udpconn->ripaddr))
+    return;
 #endif
 
-    uip_slen = 0;
-    /* this code is possibly unnecessary - need to be tested
-     * copied from syslog code  */
-    uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
+  uip_slen = 0;
+  /* this code is possibly unnecessary - need to be tested
+   * copied from syslog code  */
+  uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
 
 #ifdef RC5_SUPPORT_COUNTERS
-    /* copy counters to udp buffer */
-    memcpy(uip_appdata, &rc5_global.cnt, sizeof (rc5_global.cnt));
+  /* copy counters to udp buffer */
+  memcpy (uip_appdata, &rc5_global.cnt, sizeof (rc5_global.cnt));
 #else
-    /* create udp string */
-    char str[10];
-    snprintf(str, 10,"%u;%02u;%02u\n",
-                rc5_global.received_command.toggle_bit,
-                rc5_global.received_command.address,
-                rc5_global.received_command.code);
-    memcpy(uip_appdata, str, strlen(str));
+  /* create udp string */
+  char str[10];
+  snprintf (str, 10, "%u;%02u;%02u\n",
+	    rc5_global.received_command.toggle_bit,
+	    rc5_global.received_command.address,
+	    rc5_global.received_command.code);
+  memcpy (uip_appdata, str, strlen (str));
 #endif
 
 #ifdef RC5_SUPPORT_COUNTERS
-    uip_udp_send(rc5_global.bitcount);
+  uip_udp_send (rc5_global.bitcount);
 #else
-    uip_udp_send(strlen(str));
+  uip_udp_send (strlen (str));
 #endif
 
-    uip_udp_conn = udpconn;
-    uip_process(UIP_UDP_SEND_CONN);
-    router_output();
+  uip_udp_conn = udpconn;
+  uip_process (UIP_UDP_SEND_CONN);
+  router_output ();
 
-    uip_slen = 0;
+  uip_slen = 0;
 }
 
 /*
  *  callback function for UDP stack
  *      uip_poll has to be called before uip_udp_send
  */
-void rc5_udp_recv(void) {
-    if (!uip_poll())
-        return;
+void
+rc5_udp_recv (void)
+{
+  if (!uip_poll ())
+    return;
 
 #ifdef ETHERNET_SUPPORT
-    if (udpconn && uip_check_cache(&udpconn->ripaddr))
-        uip_slen = 1; /* Trigger xmit to do force ARP lookup. */
+  if (udpconn && uip_check_cache (&udpconn->ripaddr))
+    uip_slen = 1;		/* Trigger xmit to do force ARP lookup. */
 #endif
 }
 

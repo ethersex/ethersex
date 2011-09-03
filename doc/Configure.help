@@ -2257,3 +2257,24 @@ SD_NETIO_ADDON_WORKAROUND
   Work around a bad hardware design of the Pollin Netio Addon board.
   This board uses resistores to adjust voltage levels, so the SD card
   is enabled even when the chip enable pin is in tristate mode.
+
+DALI light control
+DALI_SUPPORT
+  Depends on: 
+
+  Enable code to control lighting via the DALI bus
+  (Digital Addressable Lighting Interface)
+  
+LOME6
+LOME6_SUPPORT
+  Depends on:
+  * TCP (TCP_SUPPORT)
+  * ECMD (ECMD_PARSER_SUPPORT)
+  * Working hour meter (WHM_SUPPORT)
+  
+  Integrated server lights out management using ethersex
+  architecture.
+  Documentation is available in services/lome6/doc
+  GUI source (Qt4) is available in services/lome6/lome6-gui
+
+

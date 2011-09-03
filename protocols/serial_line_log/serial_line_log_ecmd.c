@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -37,49 +36,50 @@
 # define SLL_DEBUG(a...)
 #endif
 
-
-extern struct serial_line_log_data sll_data;
-extern struct serial_line_log_data sll_data_new;
-
-int16_t 
-parse_cmd_sll_get(char *cmd, char *output, uint16_t len) 
+int16_t
+parse_cmd_sll_get (char *cmd, char *output, uint16_t len)
 {
-    uint8_t sent_parts = 0;
-   len = len - 1;
+  uint8_t sent_parts = 0;
+  len = len - 1;
 
-  if (*cmd == 23) { /* Magic Marker Byte for the next calls of this function */
-    sent_parts = cmd[1];
-    cmd[1] ++;
-  } else {
-    cmd[0] = 23;
-    /* If the timeout is reached we sent first a packet which is saying, that our
-       device is offline */
-    if (sll_data.timeout == 0) {
-	cmd[1] = 0;
-	len = sprintf_P(output, PSTR("offline - "));
-	output[len] = ECMD_NO_NEWLINE;
-	return ECMD_AGAIN(len);
+  /* Magic Marker Byte for the next calls of this function */
+  if (cmd[0] == 23)
+    {
+      sent_parts = cmd[1];
+      cmd[1]++;
     }
-    cmd[1] = 1;
-    
-  }
+  else
+    {
+      cmd[0] = 23;
+      /* If the timeout is reached we sent first a packet which is saying,
+         that our device is offline */
+      if (sll_data.timeout == 0)
+	{
+	  cmd[1] = 0;
+	  len = sprintf_P (output, PSTR ("offline - "));
+	  output[len] = ECMD_NO_NEWLINE;
+	  return ECMD_AGAIN (len);
+	}
+      cmd[1] = 1;
+
+    }
 
   /* Sensor data has timed out */
-
-
   uint8_t rest_len = sll_data.len - sent_parts * len;
 
-  if (rest_len < len) {
+  if (rest_len < len)
+    {
       /* This is the final packet */
-      memcpy(output, sll_data.data + sent_parts * len, rest_len);
-      return ECMD_FINAL(rest_len);
-  } else {
-      memcpy(output, sll_data.data + sent_parts * len, len);
-      output[len] =  ECMD_NO_NEWLINE;
-      return ECMD_AGAIN(len);
-  }
+      memcpy (output, sll_data.data + sent_parts * len, rest_len);
+      return ECMD_FINAL (rest_len);
+    }
+  else
+    {
+      memcpy (output, sll_data.data + sent_parts * len, len);
+      output[len] = ECMD_NO_NEWLINE;
+      return ECMD_AGAIN (len);
+    }
 }
-
 
 /*
   -- Ethersex META --

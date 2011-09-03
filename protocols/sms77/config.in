@@ -3,6 +3,31 @@ dep_bool_menu "SMS77 client (EXPERIMENTAL)" SMS77_SUPPORT $TCP_SUPPORT $DNS_SUPP
   string "Username" CONF_SMS77_USER ""
   string "Password" CONF_SMS77_PASS ""
   string "Receiver" CONF_SMS77_TO ""
+
+  choice "SMS Type" \
+  	"basicplus	CONF_SMS77_TYPE_BASICPLUS \
+  	 standard	CONF_SMS77_TYPE_STANDARD \
+  	 quality	CONF_SMS77_TYPE_QUALITY \
+  	 festnetz	CONF_SMS77_TYPE_FESTNETZ \
+  	 flash		CONF_SMS77_TYPE_FLASH" \
+  	 basicplus	CONF_SMS77_TYPE_CHOICE
+
+  if [ "$CONF_SMS77_TYPE_BASICPLUS" = "y" ]; then
+	define_string CONF_SMS77_TYPE "basicplus"
+  fi
+  if [ "$CONF_SMS77_TYPE_STANDARD" = "y" ]; then
+	define_string CONF_SMS77_TYPE "standard"
+  fi
+  if [ "$CONF_SMS77_TYPE_QUALITY" = "y" ]; then
+	define_string CONF_SMS77_TYPE "quality"
+  fi
+  if [ "$CONF_SMS77_TYPE_FESTNETZ" = "y" ]; then
+	define_string CONF_SMS77_TYPE "festnetz"
+  fi
+  if [ "$CONF_SMS77_TYPE_FLASH" = "y" ]; then
+	define_string CONF_SMS77_TYPE "flash"
+  fi
+
   dep_bool 'Use EEPROM' SMS77_EEPROM_SUPPORT $SMS77_SUPPORT
   comment  "Debugging Flags"
   dep_bool 'SMS77' DEBUG_SMS77 $DEBUG $SMS77_SUPPORT

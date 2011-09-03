@@ -128,6 +128,7 @@ eeprom_init (void)
   eeprom_save_P (sms77_username, PSTR (CONF_SMS77_USER), SMS77_VALUESIZE);
   eeprom_save_P (sms77_password, PSTR (CONF_SMS77_PASS), SMS77_VALUESIZE);
   eeprom_save_P (sms77_receiver, PSTR (CONF_SMS77_TO), SMS77_VALUESIZE);
+  eeprom_save_P (sms77_type, PSTR (CONF_SMS77_TYPE), SMS77_VALUESIZE);
 #endif
 
 #ifdef JABBER_EEPROM_SUPPORT

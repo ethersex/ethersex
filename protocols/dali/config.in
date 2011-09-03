@@ -1,0 +1,4 @@
+dep_bool_menu "DALI light control" DALI_SUPPORT $ARCH_AVR
+    dep_bool "  Raw DALI sending" DALI_RAW_SUPPORT $DALI_SUPPORT
+    dep_bool "  DALI receiving" DALI_RECEIVE_SUPPORT $DALI_SUPPORT
+endmenu
