@@ -211,12 +211,29 @@ list_next: ;
 }
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
+#ifndef TEENSY_SUPPORT
+int16_t parse_cmd_onewire_power(char *cmd, char *output, uint16_t len)
+{
+    /* use same code as get, output depends on last charater of command */
+    parse_cmd_onewire_get(cmd, output, len);
+}
+
+int16_t parse_cmd_onewire_status(char *cmd, char *output, uint16_t len)
+{
+     /* use same code as get, output depends on last charater of command */
+     parse_cmd_onewire_get(cmd, output, len);
+}
+#endif
 
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
     struct ow_rom_code_t rom;
     int16_t ret;
+#ifndef TEENSY_SUPPORT
+    char *command;
 
+    command = *(cmd-1);
+#endif
     while (*cmd == ' ')
         cmd++;
     debug_printf("called onewire_get with: \"%s\"\n", cmd);
@@ -226,6 +243,13 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     /* check for parse error */
     if (ret < 0)
         return ECMD_ERR_PARSE_ERROR;
+
+#ifndef TEENSY_SUPPORT
+    if (command == 'r') { /* power */
+        ret = snprintf_P(output, len, PSTR("%s"), ow_temp_power(&rom)?"extern":"parasite");
+        return ECMD_FINAL(ret);
+    }
+#endif
 
     if (ow_temp_sensor(&rom)) {
         debug_printf("reading temperature\n");
@@ -267,8 +291,11 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         return ECMD_FINAL(strlen(output));
 #else
         if (sign) temp = -temp;
-        ret = snprintf_P(output, len, PSTR("%s%d.%1d"),
-                         sign?"-":"", (int8_t) HI8(temp), HI8(((temp & 0x00ff) * 10) + 0x80));
+        ret = snprintf_P(output, len, PSTR("%s%d.%1d%s"),
+            sign?"-":"", (int8_t) HI8(temp), HI8(((temp & 0x00ff) * 10) + 0x80),
+            (command == 's')? /* status */
+                ow_temp_power(&rom)?" extern":" parasite"
+                :"");
 #endif
 
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -347,7 +374,6 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
     else
         /* wrong rom family code */
         return ECMD_ERR_PARSE_ERROR;
-
 }
 
 
@@ -359,4 +385,8 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
   ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
+  ecmd_ifndef(TEENSY_SUPPORT)
+    ecmd_feature(onewire_power, "1w power", DEVICE, Return temperature value and power supply status of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
+    ecmd_feature(onewire_status, "1w status", DEVICE, Return power supply status of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
+   ecmd_endif()
 */
