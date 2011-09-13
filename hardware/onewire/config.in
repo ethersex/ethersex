@@ -9,10 +9,11 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	else
 		define_bool ONEWIRE_DETECT_ECMD_SUPPORT $ONEWIRE_DETECT_SUPPORT
 	fi
-
+	dep_bool "Onewire Polling" ONEWIRE_POLLING_SUPPORT $ONEWIRE_SUPPORT
 	comment "Debugging Flags"
 	dep_bool "Onewire ROM parsing (ECMD)" DEBUG_ECMD_OW_ROM $DEBUG $ONEWIRE_SUPPORT
 	dep_bool "Onewire device detection (ECMD)" DEBUG_ECMD_OW_LIST $DEBUG $ONEWIRE_DETECT_SUPPORT
 	dep_bool "Onewire DS2450 (core)" DEBUG_OW_DS2450_CORE $DEBUG $ONEWIRE_DS2450_SUPPORT
 	dep_bool "Onewire DS2450 (ECMD)" DEBUG_OW_DS2450_ECMD $DEBUG $ONEWIRE_DS2450_SUPPORT
+	dep_bool "Onewire Polling" 	 DEBUG_OW_POLLING $DEBUG $ONEWIRE_POLLING_SUPPORT
 endmenu
