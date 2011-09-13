@@ -27,32 +27,6 @@
 #include <inttypes.h>
 #include "config.h"
 
-#if defined(atmega128)
-
-#define CLOCK_TIMER_AS AS0
-#define CLOCK_INT_OVERFLOW_CLR TC0_INT_OVERFLOW_CLR
-#define CLOCK_INT_OVERFLOW_ON TC0_INT_OVERFLOW_ON
-#define CLOCK_TIMER_PRESCALER_64 TC0_PRESCALER_64
-#define CLOCK_TIMER_CNT TC0_COUNTER_CURRENT
-#define CLOCK_SIG TC0_VECTOR_OVERFLOW
-#define CLOCK_TIMER_NBUSY TCN0UB
-#define CLOCK_TIMER_RBUSY TCR0UB
-
-#else
-
-/* Here we define to use the timer2 */
-#define CLOCK_TIMER_AS AS2
-#define CLOCK_INT_OVERFLOW_CLR TC2_INT_OVERFLOW_CLR
-#define CLOCK_INT_OVERFLOW_ON TC2_INT_OVERFLOW_ON
-#define CLOCK_TIMER_PRESCALER_64 TC2_PRESCALER_64
-#define CLOCK_TIMER_CNT TC2_COUNTER_CURRENT
-#define CLOCK_SIG TC2_VECTOR_OVERFLOW
-#define CLOCK_TIMER_NBUSY TCN2UB
-#ifdef TCR2BUB
-#  define CLOCK_TIMER_RBUSY TCR2BUB
-#endif
-#endif
-
 struct clock_datetime_t {
     uint8_t sec;
     union {
@@ -84,7 +58,7 @@ uint32_t clock_get_time(void);
 uint32_t clock_last_sync(void);
 
 /* when was the clock synced the last time (ticks) */
-uint32_t clock_last_s_tick(void);
+uint32_t clock_last_sync_tick(void);
 
 /* last delta time (from unix timestamp) */
 int16_t clock_last_delta(void);

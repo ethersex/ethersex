@@ -98,6 +98,25 @@ int16_t parse_cmd_recv (char *cmd, char *output, uint16_t len)
     }	
 }
 
+int16_t parse_cmd_type (char *cmd, char *output, uint16_t len)
+{
+	
+	while (*cmd == ' ')
+	cmd++;
+
+    if (*cmd != '\0') {
+	
+		memset(sms77_type, 0, SMS77_VALUESIZE);
+		memcpy(sms77_type, cmd, SMS77_VALUESIZE);
+		eeprom_save(sms77_type, cmd, strlen(cmd));
+		eeprom_update_chksum();
+		return ECMD_FINAL_OK;
+    }
+    else {
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), sms77_type));
+    }	
+}
+
 #endif
 
 
@@ -109,6 +128,7 @@ ecmd_ifdef(SMS77_EEPROM_SUPPORT)
   ecmd_feature(user, "sms77_user", [USERNAME], SMS77 username)
   ecmd_feature(pass, "sms77_pass", [PASSWORD], SMS77 password)
   ecmd_feature(recv, "sms77_recv", [RECEIVER], SMS receiver)
+  ecmd_feature(type, "sms77_type", [TYPE], SMS type)
 ecmd_endif()
 */
 

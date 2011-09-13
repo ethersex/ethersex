@@ -84,14 +84,13 @@ struct eeprom_config_t
 
 #ifdef STELLA_SUPPORT
   uint8_t stella_channel_values[STELLA_CHANNELS];
-  uint8_t stella_fadefunc;
-  uint8_t stella_fadestep;
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
   char sms77_username[SMS77_VALUESIZE];
   char sms77_password[SMS77_VALUESIZE];
   char sms77_receiver[SMS77_VALUESIZE];
+  char sms77_type[SMS77_VALUESIZE];
 #endif
 
 #ifdef JABBER_EEPROM_SUPPORT

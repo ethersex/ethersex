@@ -2319,5 +2319,16 @@ STARBURST_PCA9685_IVRT
 STARBURST_PCA9685_STROBO
   if you have the output enable pin connected to the avr you can use strobo effects (for all channels)
 
+LOME6
+LOME6_SUPPORT
+  Depends on:
+  * TCP (TCP_SUPPORT)
+  * ECMD (ECMD_PARSER_SUPPORT)
+  * Working hour meter (WHM_SUPPORT)
+  
+  Integrated server lights out management using ethersex
+  architecture.
+  Documentation is available in services/lome6/doc
+  GUI source (Qt4) is available in services/lome6/lome6-gui
 
 

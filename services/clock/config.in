@@ -1,7 +1,7 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 
 	if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
-		comment 'The Follow ECMD Options are here and in ECMD Options available'
+		comment 'The follow ECMD Options are here and in ECMD Options available'
 		bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
 		bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
 	else
@@ -12,34 +12,35 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 	dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
 
         if [ "$CLOCK_CPU_SUPPORT" != "y" ]; then
-	   dep_bool "Adjust clock to NTP clock signal (EXPERIMENTAL)" CLOCK_NTP_ADJUST_SUPPORT $CLOCK_SUPPORT $NTP_SUPPORT $CONFIG_EXPERIMENTAL
+	   dep_bool "Adjust clock to NTP clock signal" CLOCK_NTP_ADJUST_SUPPORT $CLOCK_SUPPORT $NTP_SUPPORT
         fi
 
 	source hardware/clock/dcf77/config.in
 	dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
 	if [ "$NTP_SUPPORT" = "y" ]; then
-	if [ "$DNS_SUPPORT" = "y" ]; then
-		if [ "$IPV6_SUPPORT" = "y" ]; then
-			string "NTP Server" NTP_SERVER "ntp.ipv6.uni-leipzig.de"
+		if [ "$DNS_SUPPORT" = "y" ]; then
+			if [ "$IPV6_SUPPORT" = "y" ]; then
+				string "NTP Server" NTP_SERVER "ntp.ipv6.uni-leipzig.de"
+			else
+				string "NTP Server" NTP_SERVER "ptbtime1.ptb.de"
+			fi
 		else
-			string "NTP Server" NTP_SERVER "ptbtime1.ptb.de"
+			ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
 		fi
-	else
-		ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
-	fi
-	int "NTP Port" NTP_PORT 123
+		int "NTP Port" NTP_PORT 123
 	fi
 	dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
 	dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
+	dep_bool "Uptime (whm in unix format like: d days, hh:mm)" UPTIME_SUPPORT $CLOCK_SUPPORT
+	
 	if [ "$CLOCK_SUPPORT" = "y" ]; then
-		choice 'Time Zone'					\
+		choice 'Time Zone'			\
 		"UTC			TIMEZONE_UTC	\
 		CET/CEST		TIMEZONE_CEST"	\
-		UTC		TIMEZONE
+		UTC			TIMEZONE
 	fi
 	
 	comment  "Debugging Flags"
 	dep_bool "NTP Clock-Adjust" DEBUG_NTP_ADJUST $CLOCK_NTP_ADJUST_SUPPORT $DEBUG
-
 
 endmenu

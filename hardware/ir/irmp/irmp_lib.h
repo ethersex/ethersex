@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.62 2011/05/20 09:31:25 fm Exp $
+ * $Id: irmp.h,v 1.64 2011/08/16 07:51:19 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -206,8 +206,8 @@ typedef uint8_t     PAUSE_LEN;
 #define RC5_BIT_TIME                             889.0e-6                       // 889 usec pulse/pause
 #define RC5_FRAME_REPEAT_PAUSE_TIME               45.0e-3                       // frame repeat after 45ms
 
-#define RC5_ADDRESS_OFFSET                      2                               // skip 2 bits (2nd start + 1 toggle)
-#define RC5_ADDRESS_LEN                         5                               // read 5 address bits
+#define RC5_ADDRESS_OFFSET                      1                               // skip 1 bit (2nd start)
+#define RC5_ADDRESS_LEN                         6                               // read 1 toggle bit (for key repetition detection) + 5 address bits
 #define RC5_COMMAND_OFFSET                      7                               // skip 5 bits (2nd start + 1 toggle + 5 address)
 #define RC5_COMMAND_LEN                         6                               // read 6 command bits
 #define RC5_COMPLETE_DATA_LEN                   13                              // complete length
@@ -401,7 +401,7 @@ typedef uint8_t     PAUSE_LEN;
 
 #define NIKON_START_BIT_PULSE_TIME              2200.0e-6                       //  2200 usec pulse
 #define NIKON_START_BIT_PAUSE_TIME             27100.0e-6                       // 27100 usec pause
-#define NIKON_PULSE_TIME                         500.0e-6                       //   520 usec pulse
+#define NIKON_PULSE_TIME                         500.0e-6                       //   500 usec pulse
 #define NIKON_1_PAUSE_TIME                      3500.0e-6                       //  3500 usec pause
 #define NIKON_0_PAUSE_TIME                      1500.0e-6                       //  1500 usec pause
 #define NIKON_FRAME_REPEAT_PAUSE_TIME             60.0e-3                       // frame repeat after 60ms
@@ -534,7 +534,7 @@ typedef struct
  *  Initialize IRMP decoder
  *  @details  Configures IRMP input pin
  */
-#ifdef IRMP_USE_AS_LIB
+#ifndef IRMP_USE_AS_LIB
 extern void                           irmp_init (void);
 #endif
 
