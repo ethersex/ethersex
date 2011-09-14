@@ -29,8 +29,9 @@ void
 artnet_net_init(void)
 {
   uip_udp_conn_t *conn;
-
-  if(! (conn = uip_udp_new(&all_ones_addr, 0, artnet_net_main))) 
+  uip_ipaddr_t ip;
+  uip_ipaddr_copy(&ip, all_ones_addr);
+  if(! (conn = uip_udp_new(&ip, 0, artnet_net_main))) 
     return; /* Couldn't bind socket */
 
   uip_udp_bind(conn, HTONS(artnet_port));
