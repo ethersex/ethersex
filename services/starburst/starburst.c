@@ -140,7 +140,6 @@ void starburst_process()
 		else
 			i2c_pca9685_output_enable(ON); 
 	#endif
-	return update;
 #endif
 }
 void starburst_update()
