@@ -33,186 +33,193 @@
 #include "ecmd_base.c"
 
 
-static uint8_t parse_set_command(char *cmd, uint8_t *port, uint8_t *data, uint8_t *mask) 
+static uint8_t
+parse_set_command (char *cmd, uint8_t * port, uint8_t * data, uint8_t * mask)
 {
 #ifndef TEENSY_SUPPORT
-  return ECMD_FINAL(sscanf_P(cmd, PSTR("%x %x %x"), port, data, mask));
+  return ECMD_FINAL (sscanf_P (cmd, PSTR ("%x %x %x"), port, data, mask));
 #else
   char *p;
-  if (! *cmd ) return ECMD_FINAL_OK;
+  if (!*cmd)
+    return ECMD_FINAL_OK;
   /* skip first space */
   while (*cmd == ' ')
-    cmd ++;
-  if (! *cmd ) return ECMD_FINAL_OK;
+    cmd++;
+  if (!*cmd)
+    return ECMD_FINAL_OK;
   *port = *cmd - '0';
   /* After the second number */
-  p = strchr(cmd, ' ');
-  if (! p) return ECMD_FINAL(1);
+  p = strchr (cmd, ' ');
+  if (!p)
+    return ECMD_FINAL (1);
   /* skip spaces */
   while (*p == ' ')
     p++;
   cmd = p;
-  *data = strtol(cmd, NULL, 16);
-  p = strchr(cmd, ' ');
-  if (! p) return ECMD_FINAL(2);
+  *data = strtol (cmd, NULL, 16);
+  p = strchr (cmd, ' ');
+  if (!p)
+    return ECMD_FINAL (2);
   /* skip spaces */
   while (*p == ' ')
     p++;
   cmd = p;
-  *mask = strtol(cmd, NULL, 16);
-  return ECMD_FINAL(3);
+  *mask = strtol (cmd, NULL, 16);
+  return ECMD_FINAL (3);
 #endif
 }
 
 
-int16_t parse_cmd_io_set_ddr(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_io_set_ddr (char *cmd, char *output, uint16_t len)
 {
-    (void) output;
-    (void) len;
+  (void) output;
+  (void) len;
 
 #ifdef DEBUG_ECMD_PORTIO
-    debug_printf("called parse_cmd_io_set_ddr with rest: \"%s\"\n", cmd);
+  debug_printf ("called parse_cmd_io_set_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint8_t port, data, mask;
-
-    uint8_t ret = parse_set_command(cmd, &port, &data, &mask);
-    /* use default mask, if no mask has been given */
-    if (ret == 2) {
-        mask = 0xff;
-        ret = 3;
+  uint8_t port, data, mask;
+  uint8_t ret = parse_set_command (cmd, &port, &data, &mask);
+  /* use default mask, if no mask has been given */
+  if (ret == 2)
+    {
+      mask = 0xff;
+      ret = 3;
     }
 
-    if (ret == 3 && port < IO_PORTS && vport[port].write_ddr 
-        && vport[port].read_ddr) {
-        vport[port].write_ddr(port, (vport[port].read_ddr(port) & ~mask)
-                              | LO8(data & mask));
-
-        return ECMD_FINAL_OK;
-    } else
-        return ECMD_ERR_PARSE_ERROR;
-
-}
-
-int16_t parse_cmd_io_get_mask(char *cmd, char *output, uint16_t len)
-{
-
-#ifdef DEBUG_ECMD_PORTIO
-    debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
-#endif
-
-    uint8_t port;
-#ifndef TEENSY_SUPPORT
-    int ret = sscanf_P(cmd,
-            PSTR("%x"),
-            &port);
-    if (ret == 1 && port < IO_PORTS && vport[port].read_ddr) 
-#else
-    port = *(cmd + 1) - '0';
-    if (port < IO_PORTS)
-#endif
-      return ECMD_FINAL(print_port(output, len, port, vport[port].mask));
-    else
-      return ECMD_ERR_PARSE_ERROR;
-
-}
-
-int16_t parse_cmd_io_get_ddr(char *cmd, char *output, uint16_t len)
-{
-
-#ifdef DEBUG_ECMD_PORTIO
-    debug_printf("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
-#endif
-
-    uint8_t port;
-#ifndef TEENSY_SUPPORT
-    int ret = sscanf_P(cmd,
-            PSTR("%x"),
-            &port);
-    if (ret == 1 && port < IO_PORTS && vport[port].read_ddr) 
-#else
-    port = *(cmd + 1) - '0';
-    if (port < IO_PORTS && vport[port].read_ddr)
-#endif
-      return ECMD_FINAL(print_port(output, len, port, vport[port].read_ddr(port)));
-    else
-      return ECMD_ERR_PARSE_ERROR;
-
-}
-
-int16_t parse_cmd_io_set_port(char *cmd, char *output, uint16_t len)
-{
-    (void) output;
-    (void) len;
-
-#ifdef DEBUG_ECMD_PORTIO
-    debug_printf("called parse_cmd_io_set_port with rest: \"%s\"\n", cmd);
-#endif
-
-    uint8_t port, data, mask;
-    uint8_t ret = parse_set_command(cmd, &port, &data, &mask);
-    /* use default mask, if no mask has been given */
-    if (ret == 2) {
-        mask = 0xff;
-        ret = 3;
+  if (ret == 3 &&
+      port < IO_PORTS &&
+      vport[port].write_ddr &&
+      vport[port].read_ddr)
+    {
+      vport[port].write_ddr (port, (vport[port].read_ddr (port) & ~mask) | (data & mask));
+      return ECMD_FINAL_OK;
     }
 
-    if (ret == 3 && port < IO_PORTS && vport[port].write_port 
-        && vport[port].read_port) {
-        vport[port].write_port(port, (vport[port].read_port(port) & ~mask)
-                               | LO8(data & mask));
-        return ECMD_FINAL_OK;
-    } else
-        return ECMD_ERR_PARSE_ERROR;
-
+  return ECMD_ERR_PARSE_ERROR;
 }
 
-int16_t parse_cmd_io_get_port(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_io_get_mask (char *cmd, char *output, uint16_t len)
 {
 
 #ifdef DEBUG_ECMD_PORTIO
-    debug_printf("called parse_cmd_io_get_port with rest: \"%s\"\n", cmd);
+  debug_printf ("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint8_t port;
-
+  uint8_t port;
 #ifndef TEENSY_SUPPORT
-    int ret = sscanf_P(cmd,
-            PSTR("%x"),
-            &port);
-    if (ret == 1 && port < IO_PORTS && vport[port].read_port) 
+  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  if (ret == 1 && port < IO_PORTS && vport[port].read_ddr)
 #else
-    port = *(cmd + 1) - '0';
-    if (port < IO_PORTS && vport[port].read_port)
+  port = *(cmd + 1) - '0';
+  if (port < IO_PORTS)
 #endif
-      return ECMD_FINAL(print_port(output, len, port, vport[port].read_port(port)));
-    else
-        return ECMD_ERR_PARSE_ERROR;
+    return ECMD_FINAL (print_port (output, len, port, vport[port].mask));
+  else
+    return ECMD_ERR_PARSE_ERROR;
 
 }
 
-int16_t parse_cmd_io_get_pin(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_io_get_ddr (char *cmd, char *output, uint16_t len)
 {
 
 #ifdef DEBUG_ECMD_PORTIO
-    debug_printf("called parse_cmd_io_get_pin with rest: \"%s\"\n", cmd);
+  debug_printf ("called parse_cmd_io_get_ddr with rest: \"%s\"\n", cmd);
 #endif
 
-    uint8_t port;
+  uint8_t port;
+#ifndef TEENSY_SUPPORT
+  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  if (ret == 1 && port < IO_PORTS && vport[port].read_ddr)
+#else
+  port = *(cmd + 1) - '0';
+  if (port < IO_PORTS && vport[port].read_ddr)
+#endif
+    return ECMD_FINAL (print_port (output, len, port,
+				   vport[port].read_ddr (port)));
+  else
+    return ECMD_ERR_PARSE_ERROR;
+
+}
+
+int16_t
+parse_cmd_io_set_port (char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+#ifdef DEBUG_ECMD_PORTIO
+  debug_printf ("called parse_cmd_io_set_port with rest: \"%s\"\n", cmd);
+#endif
+
+  uint8_t port, data, mask;
+  uint8_t ret = parse_set_command (cmd, &port, &data, &mask);
+  /* use default mask, if no mask has been given */
+  if (ret == 2)
+    {
+      mask = 0xff;
+      ret = 3;
+    }
+
+  if (ret == 3 &&
+      port < IO_PORTS &&
+      vport[port].write_port
+      && vport[port].read_port)
+    {
+      vport[port].write_port (port, (vport[port].read_port (port) & ~mask) | (data & mask));
+      return ECMD_FINAL_OK;
+    }
+
+  return ECMD_ERR_PARSE_ERROR;
+}
+
+int16_t
+parse_cmd_io_get_port (char *cmd, char *output, uint16_t len)
+{
+
+#ifdef DEBUG_ECMD_PORTIO
+  debug_printf ("called parse_cmd_io_get_port with rest: \"%s\"\n", cmd);
+#endif
+
+  uint8_t port;
+#ifndef TEENSY_SUPPORT
+  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  if (ret == 1 && port < IO_PORTS && vport[port].read_port)
+#else
+  port = *(cmd + 1) - '0';
+  if (port < IO_PORTS && vport[port].read_port)
+#endif
+    return ECMD_FINAL (print_port (output, len, port,
+			   	   vport[port].read_port (port)));
+  else
+    return ECMD_ERR_PARSE_ERROR;
+}
+
+int16_t
+parse_cmd_io_get_pin (char *cmd, char *output, uint16_t len)
+{
+
+#ifdef DEBUG_ECMD_PORTIO
+  debug_printf ("called parse_cmd_io_get_pin with rest: \"%s\"\n", cmd);
+#endif
+
+  uint8_t port;
 
 #ifndef TEENSY_SUPPORT
-    int ret = sscanf_P(cmd,
-            PSTR("%x"),
-            &port);
-    if (ret == 1 && port < IO_PORTS && vport[port].read_pin) 
+  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  if (ret == 1 && port < IO_PORTS && vport[port].read_pin)
 #else
-    port = *(cmd + 1) - '0';
-    if (port < IO_PORTS && vport[port].read_pin)
+  port = *(cmd + 1) - '0';
+  if (port < IO_PORTS && vport[port].read_pin)
 #endif
-      return ECMD_FINAL(print_port(output, len, port, vport[port].read_pin(port)));
-    else
-        return ECMD_ERR_PARSE_ERROR;
-
+    return ECMD_FINAL (print_port (output, len, port,
+			    	   vport[port].read_pin (port)));
+  else
+    return ECMD_ERR_PARSE_ERROR;
 }
 
 
