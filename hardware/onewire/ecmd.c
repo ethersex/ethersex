@@ -71,26 +71,44 @@ int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
 #ifdef ONEWIRE_POLLING_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
+	int8_t list_type;
+        while (*cmd == ' ')
+            cmd++;
+	switch (*cmd) {
+		case 't':
+			list_type = OW_LIST_TYPE_TEMP_SENSOR;
+			break;
+		case 'e':
+			list_type = OW_LIST_TYPE_EEPROM;
+			break;
+		case '\0':
+			list_type = OW_LIST_TYPE_ALL;
+			break;
+		default:
+			return ECMD_ERR_PARSE_ERROR;
+	}
 	static uint8_t i=0;
 	int16_t ret=0;
         do
 	{
 		if(ow_sensors[i].ow_rom_code.raw != 0)
 		{
-			ret = snprintf_P(output, len,
-			PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
-			ow_sensors[i].ow_rom_code.bytewise[0],
-			ow_sensors[i].ow_rom_code.bytewise[1],
-			ow_sensors[i].ow_rom_code.bytewise[2],
-			ow_sensors[i].ow_rom_code.bytewise[3],
-			ow_sensors[i].ow_rom_code.bytewise[4],
-			ow_sensors[i].ow_rom_code.bytewise[5],
-			ow_sensors[i].ow_rom_code.bytewise[6],
-			ow_sensors[i].ow_rom_code.bytewise[7]
-		);
+        		if ((list_type == OW_LIST_TYPE_ALL) || (list_type == OW_LIST_TYPE_TEMP_SENSOR && ow_temp_sensor(&ow_sensors[i].ow_rom_code)) || (list_type == OW_LIST_TYPE_EEPROM && ow_eeprom(&ow_sensors[i].ow_rom_code))) {
+				ret = snprintf_P(output, len,
+				PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+				ow_sensors[i].ow_rom_code.bytewise[0],
+				ow_sensors[i].ow_rom_code.bytewise[1],
+				ow_sensors[i].ow_rom_code.bytewise[2],
+				ow_sensors[i].ow_rom_code.bytewise[3],
+				ow_sensors[i].ow_rom_code.bytewise[4],
+				ow_sensors[i].ow_rom_code.bytewise[5],
+				ow_sensors[i].ow_rom_code.bytewise[6],
+				ow_sensors[i].ow_rom_code.bytewise[7]
+				);
+			}
 		}
 		i++;
-	}while(ret == 0);
+	}while(ret == 0 && i<OW_SENSORS_COUNT);
 	if(i<OW_SENSORS_COUNT)
 		return	ECMD_AGAIN(ret);
 	else

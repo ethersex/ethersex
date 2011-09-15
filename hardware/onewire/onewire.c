@@ -483,7 +483,6 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
  *
  */
 
-#ifdef ONEWIRE_DS2502_SUPPORT
 
 int8_t ow_eeprom(struct ow_rom_code_t *rom)
 {
@@ -495,6 +494,8 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom)
     return 0;
 
 }
+
+#ifdef ONEWIRE_DS2502_SUPPORT
 
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 {
@@ -600,10 +601,6 @@ int8_t ow_discover_sensor()
 			ow_global.lock = 1;
 
 			if(ret == 1) {
-#ifdef ONEWIRE_DS2502_SUPPORT
-				/* Only process temperature sensors*/
-				if(ow_temp_sensor(&ow_global.current_rom))
-#endif
 #ifdef DEBUG_OW_POLLING
 					debug_printf("discovered device "
 #if ONEWIRE_BUSCOUNT > 1
@@ -648,7 +645,7 @@ int8_t ow_discover_sensor()
 							/*We found a free slot...storing*/
 							ow_sensors[i].ow_rom_code.raw=ow_global.current_rom.raw;
 							ow_sensors[i].present=1;
-							ow_sensors[i].read_delay=1; /*Read temperature asap*/
+							ow_sensors[i].read_delay=1; /*Read temperature asap - note: we will check for eeprom later*/
 							break;
 						}
 					}
@@ -681,8 +678,8 @@ void ow_periodic()
 	{
 		discover_delay=DISCOVER_DELAY;
 		ow_discover_sensor();
-		uint8_t k=0;
 #ifdef DEBUG_OW_POLLING
+		uint8_t k=0;
 		for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
 		{
 			if(ow_sensors[i].ow_rom_code.raw != 0)
@@ -704,46 +701,49 @@ void ow_periodic()
 	}
 	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
 	{
-		if(ow_sensors[i].converted == 1)
+		if(ow_temp_sensor(&ow_sensors[i].ow_rom_code))
 		{
-			if(ow_sensors[i].convert_delay == 1)
-				ow_sensors[i].convert_delay = 0;
-			else
+			if(ow_sensors[i].converted == 1)
 			{
-				uint8_t ret;
+				if(ow_sensors[i].convert_delay == 1)
+					ow_sensors[i].convert_delay = 0;
+				else
+				{
+					uint8_t ret;
 #ifdef DEBUG_OW_POLLING
-				debug_printf("reading temperature\n");
+					debug_printf("reading temperature\n");
 #endif
-				/* disable interrupts */
-				uint8_t sreg = SREG;
-				cli();
-				struct ow_temp_scratchpad_t sp;
-				ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
-				/* re-enable interrupts */
-				SREG = sreg;
-				if (ret != 1) {
+					/* disable interrupts */
+					uint8_t sreg = SREG;
+					cli();
+					struct ow_temp_scratchpad_t sp;
+					ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
+					/* re-enable interrupts */
+					SREG = sreg;
+					if (ret != 1) {
 #ifdef DEBUG_OW_POLLING
-					debug_printf("scratchpad read failed: %d\n", ret);
+						debug_printf("scratchpad read failed: %d\n", ret);
 #endif
-					return;
+						return;
+					}
+#ifdef DEBUG_OW_POLLING
+					debug_printf("successfully read scratchpad\n");
+#endif
+					int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
+#ifdef DEBUG_OW_POLLING
+					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
+#endif
+					ow_sensors[i].temp=temp;
+					ow_sensors[i].converted = 0;
 				}
-#ifdef DEBUG_OW_POLLING
-				debug_printf("successfully read scratchpad\n");
-#endif
-#ifdef DEBUG_OW_POLLING
-				int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
-				debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
-#endif
-				ow_sensors[i].temp=temp;
-				ow_sensors[i].converted = 0;
 			}
-		}
-		if(--ow_sensors[i].read_delay == 0 && ow_sensors[i].converted == 0)
-		{
-			ow_sensors[i].read_delay=READ_DELAY;
-			ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
-			ow_sensors[i].convert_delay=1;
-			ow_sensors[i].converted=1;
+			if(--ow_sensors[i].read_delay == 0 && ow_sensors[i].converted == 0)
+			{
+				ow_sensors[i].read_delay=READ_DELAY;
+				ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
+				ow_sensors[i].convert_delay=1;
+				ow_sensors[i].converted=1;
+			}
 		}
 	}
 }
