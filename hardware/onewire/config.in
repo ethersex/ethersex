@@ -9,7 +9,7 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	else
 		define_bool ONEWIRE_DETECT_ECMD_SUPPORT $ONEWIRE_DETECT_SUPPORT
 	fi
-	dep_bool "Onewire Polling" ONEWIRE_POLLING_SUPPORT $ONEWIRE_SUPPORT
+	dep_bool "Onewire Polling" ONEWIRE_POLLING_SUPPORT $ONEWIRE_SUPPORT $ONEWIRE_DETECT_SUPPORT
 	if  [ "$ONEWIRE_POLLING_SUPPORT" = "y" ] ; then
 		int "Time between discoveries in 0.8s steps" OW_DISCOVER_DELAY 375
 		int "Time between polling in 0.8s steps" OW_READ_DELAY 37
