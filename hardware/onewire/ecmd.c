@@ -276,9 +276,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 			{
 				/*Found it*/
 				int16_t temp=ow_sensors[i].temp;
-				int8_t sign = (int8_t)(temp < 0);
-				if (sign) temp = -temp;
-				ret = snprintf_P(output, len, PSTR("%s%d.%1d"), sign?"-":"", (int8_t) HI8(temp), HI8(((temp & 0x00ff) * 10) + 0x80));
+				ret = snprintf_P(output, len, PSTR("%d.%1d"), temp/10, temp%10 );
 				return ECMD_FINAL(ret);
 			}
 		}

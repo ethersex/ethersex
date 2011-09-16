@@ -671,12 +671,11 @@ int8_t ow_discover_sensor()
 /*This function will be called every 800 ms*/
 void ow_periodic()
 {
-#define DISCOVER_DELAY 75
-#define READ_DELAY     25
-	static uint16_t discover_delay=DISCOVER_DELAY;
+	/*At startup we want an immediate discovery*/
+	static uint16_t discover_delay=3;
 	if(--discover_delay == 0)
 	{
-		discover_delay=DISCOVER_DELAY;
+		discover_delay=OW_DISCOVER_DELAY;
 		ow_discover_sensor();
 #ifdef DEBUG_OW_POLLING
 		uint8_t k=0;
@@ -733,13 +732,13 @@ void ow_periodic()
 #ifdef DEBUG_OW_POLLING
 					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 #endif
-					ow_sensors[i].temp=temp;
+					ow_sensors[i].temp=((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
 					ow_sensors[i].converted = 0;
 				}
 			}
 			if(--ow_sensors[i].read_delay == 0 && ow_sensors[i].converted == 0)
 			{
-				ow_sensors[i].read_delay=READ_DELAY;
+				ow_sensors[i].read_delay=OW_READ_DELAY;
 				ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
 				ow_sensors[i].convert_delay=1;
 				ow_sensors[i].converted=1;
