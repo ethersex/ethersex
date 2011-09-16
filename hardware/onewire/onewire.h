@@ -192,8 +192,6 @@ struct ow_sensor_t {
 	uint8_t present; /*this is set during discovery - all sensors with present == 0 will be deleted after the discovery*/
 };
 /* */
-#define OW_SENSORS_COUNT 5
-#define DISCOVER_DELAY 75
 
 extern struct ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
 extern uint16_t discover_delay;
@@ -380,6 +378,10 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 
 /* issue temperatur convert command on all OW-buses */
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
+
+/* Polling functions*/
+int8_t ow_discover_sensor();
+void ow_periodic();
 
 
 #endif /* ONEWIRE_SUPPORT */

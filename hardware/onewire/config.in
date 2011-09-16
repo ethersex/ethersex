@@ -10,6 +10,11 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 		define_bool ONEWIRE_DETECT_ECMD_SUPPORT $ONEWIRE_DETECT_SUPPORT
 	fi
 	dep_bool "Onewire Polling" ONEWIRE_POLLING_SUPPORT $ONEWIRE_SUPPORT
+	if  [ "$ONEWIRE_POLLING_SUPPORT" = "y" ] ; then
+		int "Time between discoveries in 0.8s steps" OW_DISCOVER_DELAY 375
+		int "Time between polling in 0.8s steps" OW_READ_DELAY 37
+		int "Maximum sensor count" OW_SENSORS_COUNT 10
+	fi
 	comment "Debugging Flags"
 	dep_bool "Onewire ROM parsing (ECMD)" DEBUG_ECMD_OW_ROM $DEBUG $ONEWIRE_SUPPORT
 	dep_bool "Onewire device detection (ECMD)" DEBUG_ECMD_OW_LIST $DEBUG $ONEWIRE_DETECT_SUPPORT
