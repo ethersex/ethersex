@@ -135,4 +135,4 @@ divert(globals_divert)
 divert(old_divert)
 #ifndef ONEWIRE_POLLING_SUPPORT
 ow_temp_start_convert(NULL,0);
-#endif')
+#endif // dirty workaround for -> ')
