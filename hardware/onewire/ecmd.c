@@ -277,7 +277,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 				/*Found it*/
 				int16_t temp=ow_sensors[i].temp;
 				div_t res = div(temp,10);
-				ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot,res.rem)
+				ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot,res.rem);
 				return ECMD_FINAL(ret);
 			}
 		}
