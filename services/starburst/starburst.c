@@ -79,7 +79,7 @@ void starburst_init()
 }
 void starburst_process()
 {
-	if(pca9685_dmx_connected == FALSE);
+	if(pca9685_dmx_connected == FALSE)
 		return;
 	starburst_update();
 #ifdef STARBURST_PCA9685
