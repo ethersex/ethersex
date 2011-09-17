@@ -114,7 +114,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 	else
 	{
 		i=0;
-		return  ECMD_FINAL_OK;
+		return  ECMD_FINAL(ret);
 	}
 }
 #else
