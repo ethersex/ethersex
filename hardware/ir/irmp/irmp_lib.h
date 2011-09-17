@@ -16,7 +16,7 @@
 
 #ifndef _WC_IRMP_H_
 #define _WC_IRMP_H_
-
+#include "core/bool.h"
 #ifdef __cplusplus
 extern "C"
 {
@@ -513,10 +513,6 @@ typedef uint8_t     PAUSE_LEN;
 
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
                                                                                 // KASEIKYO: automatic repetition after 75ms
-
-#define TRUE                                    1
-#define FALSE                                   0
-
 #define IRMP_FLAG_REPETITION                    0x01
 
 #ifndef IRMP_USE_AS_LIB
