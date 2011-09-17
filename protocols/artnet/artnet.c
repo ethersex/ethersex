@@ -66,8 +66,8 @@
  * default values
  */
 #define SUBNET_DEFAULT		0
-#define INUNIVERSE_DEFAULT	CONF_ARTNET_INUNIVERSE
-#define OUTUNIVERSE_DEFAULT	CONF_ARTNET_OUTUNIVERSE
+#define INUNIVERSE_DEFAULT	1
+#define OUTUNIVERSE_DEFAULT	0
 #define NETCONFIG_DEFAULT	1
 
 /* ----------------------------------------------------------------------------
@@ -267,9 +267,9 @@ void artnet_init(void) {
 	/* read subnet */
 	artnet_subNet = SUBNET_DEFAULT;
 
-	artnet_inputUniverse1 = INUNIVERSE_DEFAULT;
+	artnet_inputUniverse1 = CONF_ARTNET_INUNIVERSE;
 
-	artnet_outputUniverse1 = OUTUNIVERSE_DEFAULT;
+	artnet_outputUniverse1 = CONF_ARTNET_OUTUNIVERSE;
 
 	for (uint8_t i = 0; i < SHORT_NAME_LENGTH; i++) {
 		artnet_shortName[i] = 0;
@@ -489,10 +489,9 @@ void artnet_get(void) {
 
 		if (dmx->universe == ((artnet_subNet << 4) | artnet_outputUniverse1)) {
 			if (artnet_dmxDirection == 0) {
-				uint16_t len = (dmx->lengthHi << 8) + dmx->length;
-				ARTNET_DEBUG ("Updating %d channels ...\n", len);
 #ifdef DMX_STORAGE_SUPPORT
-				set_dmx_channels(&dmx->dataStart,CONF_ARTNET_OUTUNIVERSE,len);
+				uint16_t len = ((dmx->lengthHi << 8) + dmx->length);
+				set_dmx_channels(&dmx->dataStart,artnet_outputUniverse1,len);
 #endif
 				if (artnet_sendPollReplyOnChange == TRUE) {
 					artnet_pollReplyCounter++;
