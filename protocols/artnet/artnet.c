@@ -1,18 +1,7 @@
 /*
+ * Copyright (c) 2009 by Stefan Krupop <mail@stefankrupop.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
- *
- * Author:         Stefan Krupop <mail@stefankrupop.de>
- *                 Dirk Pannenbecker <dp@sd-gp.de>
- *		   Maximilian Güntner <maximilian.guentner@gmail.com>
- *
- * taken from:
- *   http://www.dmxcontroler.de/wiki/Art-Net-Node_für_25_Euro
- *    Copyright:      Stefan Krupop  mailto: mail@stefankrupop.de
- *    Author:         Stefan Krupop
- *    Remarks:        
- *    known Problems: none
- *    Version:        17.01.2009
- *    Description:    Implementation des ArtNet-Protokolls für DMX-Übertragung über Ethernet
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,7 +19,15 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
+ *
+ * ----------------------------------------------------------------------------------|
+ * |                                                                                 |
+ * | Original Project : http://www.dmxcontrol.de/wiki/Art-Net-Node_f%C3%BCr_25_Euro  |
+ * | Copied Version   : 17.01.2009                                                   |
+ * |                                                                                 |
+ * ----------------------------------------------------------------------------------|
  */
+
 
 #include "config.h"
 #include "core/bool.h"
@@ -250,7 +247,7 @@ artnet_netInit(void)
 void artnet_init(void) {
 
 	ARTNET_DEBUG("Init\n");
-	artnet_conn_id = dmx_storage_connect(INUNIVERSE_DEFAULT);
+	artnet_conn_id = dmx_storage_connect(artnet_inputUniverse1);
 	if(artnet_conn_id != -1)
 	{
 		artnet_connected = TRUE;
