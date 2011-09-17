@@ -33,6 +33,8 @@
  */
 
 #include "config.h"
+#include "core/bool.h"
+#include "core/bit-macros.h"
 #include "protocols/artnet/artnet.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
@@ -44,12 +46,6 @@
 #include <stdio.h>
 #include <avr/interrupt.h>
 
-#ifndef TRUE
-#define TRUE			1
-#endif
-#ifndef FALSE
-#define FALSE			0
-#endif
 
 /* ----------------------------------------------------------------------------
  * op-codes
@@ -234,6 +230,8 @@ volatile uint16_t artnet_dmxChannels = 0;
 volatile uint8_t  artnet_dmxTransmitting = FALSE;
 volatile uint8_t  artnet_dmxInChanged = FALSE;
 volatile uint8_t  artnet_dmxInComplete = FALSE;
+int8_t   artnet_conn_id = 0;
+uint8_t  artnet_connected = 0;
 uint8_t  artnet_dmxDirection = 0;
 uint8_t  artnet_dmxRefreshTimer = REFRESH_INTERVAL;
 
@@ -252,6 +250,17 @@ artnet_netInit(void)
 void artnet_init(void) {
 
 	ARTNET_DEBUG("Init\n");
+	artnet_conn_id = dmx_storage_connect(INUNIVERSE_DEFAULT);
+	if(artnet_conn_id != -1)
+	{
+		artnet_connected = TRUE;
+		ARTNET_DEBUG("Connection to dmx-storage established! id:%d\r\n",artnet_conn_id);
+	}
+	else
+	{
+		artnet_connected = FALSE;
+		ARTNET_DEBUG("Connection to dmx-storage couldn't be established!\r\n");
+	}
 	/* read Art-Net port */
 	artnet_port = CONF_ARTNET_PORT;
 
@@ -292,8 +301,7 @@ void artnet_init(void) {
 	return;
 }
 
-	static void
-artnet_send (uint16_t len)
+static void artnet_send (uint16_t len)
 {
 	uip_udp_conn_t artnet_conn;
 	artnet_conn.ripaddr[0] = uip_hostaddr[0] | ~uip_netmask[0];
@@ -331,8 +339,6 @@ void artnet_sendPollReply(void) {
 
 	msg->opcode = OP_POLLREPLY;
 
-	memcpy (msg->addr.ip, uip_hostaddr, 4);
-	msg->addr.port = artnet_port;
 	msg->versionInfoH = (FIRMWARE_VERSION >> 8) & 0xFF;
 	msg->versionInfo = FIRMWARE_VERSION & 0xFF;
 
@@ -379,7 +385,43 @@ void artnet_sendPollReply(void) {
 	/* broadcast the packet */
 	artnet_send(sizeof(struct artnet_pollreply));
 }                                                                                      
+/* ----------------------------------------------------------------------------
+ * send an ArtDmx packet
+ */
+void artnet_sendDmxPacket(void) {
+	static unsigned char sequence = 1;
+	/* prepare artnet Dmx packet */
+	struct artnet_dmx *msg = (struct artnet_dmx *) &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
+	//struct artnet_dmx *msg = uip_appdata;
+	memset(msg, 0, sizeof(struct artnet_dmx));
 
+	msg->id[0] = 'A';
+	msg->id[1] = 'r';
+	msg->id[2] = 't';
+	msg->id[3] = '-';
+	msg->id[4] = 'N';
+	msg->id[5] = 'e';
+	msg->id[6] = 't';
+	msg->id[7] =  0 ;
+	msg->opcode = OP_OUTPUT;
+
+	msg->versionH = 0;
+	msg->version = PROTOCOL_VERSION;
+
+	msg->sequence = sequence++;
+	if (sequence == 0) {
+		sequence = 1;
+	}
+
+	msg->physical = 1;
+	msg->universe = ((artnet_subNet << 4) | artnet_inputUniverse1);
+	msg->lengthHi = HI8(DMX_STORAGE_CHANNELS);
+	msg->length   = LO8(DMX_STORAGE_CHANNELS);
+	for(uint8_t i=0;i<DMX_STORAGE_CHANNELS;i++)
+		(&(msg->dataStart))[i]=get_dmx_channel_slot(artnet_inputUniverse1,i,artnet_conn_id);
+	/* broadcast the packet */
+	artnet_send(sizeof(struct artnet_dmx)+DMX_STORAGE_CHANNELS);
+}
 int16_t parse_cmd_artnet_pollreply (int8_t*cmd, int8_t*output, uint16_t len)
 {
 	artnet_sendPollReply();
@@ -401,8 +443,14 @@ void processPollPacket(struct artnet_poll *poll) {
 	artnet_sendPollReply();
 }
 
-void artnet_main(void) {
+void artnet_main(void) {	
+	if(get_dmx_universe_state(artnet_inputUniverse1,artnet_conn_id) == DMX_NEWVALUES && artnet_connected == TRUE)
+	{	
+		ARTNET_DEBUG("Universe has changed, sending artnet data!\r\n");
+		artnet_sendDmxPacket();
+	}
 }
+
 
 /* ----------------------------------------------------------------------------
  * receive Art-Net packet
@@ -474,6 +522,7 @@ void artnet_get(void) {
    -- Ethersex META --
    header(protocols/artnet/artnet.h)
    net_init(artnet_init)
+   mainloop(artnet_main)
    block(Miscelleanous)
    ecmd_feature(artnet_pollreply, "artnet test",,artnet test)
  */
