@@ -2278,3 +2278,41 @@ LOME6_SUPPORT
   GUI source (Qt4) is available in services/lome6/lome6-gui
 
 
+Onewire Polling
+ONEWIRE_POLLING_SUPPORT
+  Depends on: 
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
+
+  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY*0.8 seconds. 
+  After the discovery, neW sensors will be added to the list and old/defect sensors 
+  will be removed from the list.
+  Each sensor discovered will then be polled every OW_READ_DELAY*0.8 seconds and the temperature 
+  stored (cached). The advantages of this feature are that onewire opererates without 
+  any noticeable lags (compared to the 800 ms lag in normal operation mode). Also it's easier to have 
+  multiple applications requesting sensor information since more request won't increase traffic on the 
+  onewire bus.
+  The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
+
+Time between discoveries in 0.8s steps
+OW_DISCOVER_DELAY
+
+  Time between discoveries of new sensors. 1 unit is 0.8s.
+  Example:
+  Input 750 will lead to a discovery every 10 minutes.
+
+Time between polling in 0.8s steps
+OW_READ_DELAY
+
+  Time between polling for new temperatures. 1 unis is 0.8s.
+  Example:
+  Input 75 will lead to a temperature update-rate of 1 minute.
+ 
+  Please adjust this value if you need more precise data (e.g. climate cabinet).
+  It should be save to go down to 5 seconds (~ 6 units)
+
+Maximum sensor count
+OW_SENSORS_COUNT
+
+  How many sensors you expect in your setup. Make sure this value is high enough!
+
