@@ -2358,7 +2358,7 @@ OW_DISCOVER_DELAY
 Time between polling in 0.8s steps
 OW_READ_DELAY
 
-  Time between polling for new temperatures. 1 unis is 0.8s.
+  Time between polling for new temperatures. 1 unit is 0.8s.
   Example:
   Input 75 will lead to a temperature update-rate of 1 minute.
  
