@@ -25,6 +25,7 @@
         
 #include "config.h"
 #include "core/debug.h"
+#include "core/bit-macros.h"
 #include "i2c_master.h"
 #include "i2c_24CXX.h"
 
@@ -46,9 +47,9 @@ i2c_24CXX_set_addr(uint16_t addr)
 
   if (! i2c_master_select(i2c_24cxx_address, TW_WRITE)) { ret = 0; goto end; }
 
-  TWDR = (addr >> 8) & 0xff;
+  TWDR = HI8(addr);
   if (i2c_master_transmit() != TW_MT_DATA_ACK) { ret = 0; goto end; }
-  TWDR = addr & 0xff;
+  TWDR = LO8(addr);
   if (i2c_master_transmit() != TW_MT_DATA_ACK) { ret = 0; goto end; } 
 
   ret = 1;

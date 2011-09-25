@@ -23,6 +23,7 @@
 #include <util/twi.h>
 #include "i2c_master.h"
 #include "i2c_pca9685.h"
+#include "core/bit-macros.h"
 #ifdef I2C_PCA9685_SUPPORT
 
 /*The PCA9685 features two operation modes: totem-pole and open-drain. Please refer to the datasheet which one suits your
@@ -36,8 +37,6 @@
   | ivrt    | 1 | inverted pwm output (LED ON means PIN is low)      |
   | ---------------------------------------------------------------- |
  */
-#define LOW_BYTE(x)	((uint8_t)(x)&0xFF)
-#define HIGH_BYTE(x)	((uint8_t)(x>>8)&0xFF)
 uint8_t i2c_pca9685_reset()
 {
 	uint8_t ret=1;
@@ -144,19 +143,19 @@ uint8_t i2c_pca9685_set_led(uint8_t address,uint8_t led,uint16_t on, uint16_t of
 		TWDR=value;
 		if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 		{
-			value = LOW_BYTE(on); //get lower byte
+			value = LO8(on); //get lower byte
 			TWDR=value;
 			if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 			{
-				value = HIGH_BYTE(on); //get higher byte
+				value = HI8(on); //get higher byte
 				TWDR=value;
 				if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 				{
-					value = LOW_BYTE(off); //get lower byte
+					value = LO8(off); //get lower byte
 					TWDR=value;
 					if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 					{
-						value = HIGH_BYTE(off); //get higher byte
+						value = HI8(off); //get higher byte
 						TWDR=value;
 						if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 						{
@@ -190,11 +189,11 @@ uint8_t i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,ui
 		{
 			for(uint8_t i=0;i<count;i++) //Now transmit all values in values in sequence
 			{	
-				value = LOW_BYTE(values[i]); //get lower byte
+				value = LO8(values[i]); //get lower byte
 				TWDR=value;
 				if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 				{
-					value = HIGH_BYTE(values[i]); // get high byte
+					value = HI8(values[i]); // get high byte
 					TWDR=value;
 					if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 					{
@@ -232,11 +231,11 @@ uint8_t i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled, uint8_t cou
 					TWDR=0x00;
 					if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 					{
-						value = LOW_BYTE(values[i]); //get lower byte
+						value = LO8(values[i]); //get lower byte
 						TWDR=value;
 						if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 						{
-							value = HIGH_BYTE(values[i]); // get high byte
+							value = HI8(values[i]); // get high byte
 							TWDR=value;
 							if(i2c_master_transmit_with_ack() == TW_MT_DATA_ACK)
 							{
