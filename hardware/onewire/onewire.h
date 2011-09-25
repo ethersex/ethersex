@@ -179,7 +179,23 @@ struct ow_temp_scratchpad_t {
         };
     };
 };
+/*Polling Support*/
+#ifdef ONEWIRE_POLLING_SUPPORT
+struct ow_sensor_t {
+	/*May be just store the code and calculate the crc with each call + hardcode the family, would save 16bytes*/
+	struct ow_rom_code_t ow_rom_code;
+	/*We just store the temperature in order to keep memory footfrint as low as possible. We store in deci degrees (DD) => 36.4° == 364*/
+	int16_t temp;
+	uint16_t read_delay;   /*time between polling the sensor*/
+	uint8_t convert_delay; /*we need to wait 800ms for the sensor to convert the temperatures*/
+	uint8_t converted; /*when this is set, we will wait convert_delay to be 0 and then read the scratchpad*/
+	uint8_t present; /*this is set during discovery - all sensors with present == 0 will be deleted after the discovery*/
+};
 /* */
+
+extern struct ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
+extern uint16_t discover_delay;
+#endif
 
 /* global variables */
 struct ow_global_t {
@@ -362,6 +378,10 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 
 /* issue temperatur convert command on all OW-buses */
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
+
+/* Polling functions*/
+int8_t ow_discover_sensor();
+void ow_periodic();
 
 
 #endif /* ONEWIRE_SUPPORT */
