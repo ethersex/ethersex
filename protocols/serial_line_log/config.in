@@ -8,8 +8,8 @@ if [ "$SERIAL_LINE_LOG_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		int    '  Maximal Line Length' SERIAL_LINE_LOG_COUNT 60	 
 		int    '  Baudrate' SERIAL_LINE_LOG_BAUDRATE 9600	 
 		dep_bool '  Space Compression' SERIAL_LINE_LOG_SPACE_COMPRESSION
-		comment  "Debugging Flags"
-		dep_bool 'SERIAL_LINE_LOG' DEBUG_SERIAL_LINE_LOG $DEBUG $SERIAL_LINE_LOG_SUPPORT
+#		comment  "Debugging Flags"
+#		dep_bool 'SERIAL_LINE_LOG' DEBUG_SERIAL_LINE_LOG $DEBUG $SERIAL_LINE_LOG_SUPPORT
 	endmenu
 else
 	define_bool SERIAL_LINE_LOG_SUPPORT n

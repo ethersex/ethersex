@@ -2264,7 +2264,61 @@ DALI_SUPPORT
 
   Enable code to control lighting via the DALI bus
   (Digital Addressable Lighting Interface)
+
+DMX Storage
+DMX_STORAGE_SUPPORT
+  Depends on:
+
+  Part of the Ethersex Lighting Architecture
+
+  DMX Storage stores and manages DMX universes and provides routines for accessing the data with other modules.
+  Each of these modules can connect using a slot - so make sure that you have sufficient slots for each universe and each module!
+DMX Effect
+DMX_EFFECT_SUPPORT
+  Dependes on:
+   * DMX Storage (DMX_STORAGE_SUPPORT)
+
+  Part of the Ethersex Lighting Architecture
+
+  DMX Effect creates animations and effects for
+  headless setups or currently not animated devices
+DMX_EFFECT_RAINBOW
   
+  Nice color changing (smooth) animation.
+
+DMX_EFFECT_RAINBOW_MARGIN
+  If your DMX device or application needs a certain value between the channel values (e.g. mode, speed etc.) you can set the margin length here
+DMX_EFFECT_RAINBOW_MARGIN_FILL
+  If your DMX device or application needs a certain value between the channel values (e.g. mode, speed etc.) you can set the value here
+STARBURST_SUPPORT
+  Depends on:
+   * DMX Storage (DMX_STORAGE_SUPPORT)
+
+  Part of the Ethersex Lighting Architecture
+
+  Starburst manages different external PWM controllers which display data provided by DMX Storage.
+STARBURST_PCA9685
+  Depends on:
+  * I2C_PCA9685_SUPPORT
+  * STARBURST_SUPPORT
+
+  Module for Starburst which controls a NXP pca9685 (12-bit pwm 16-Channel). The dmx layout is as follows:
+  mcmcmcmcmcmcmc....s
+  m=mode (see starburst.h for available modes)
+  c=channel value (0-255)
+  s=strobo s Hz (optional, see STARBURST_PCA9685_STROBO)
+
+STARBURST_PCA9685_ADDRESS
+  The i2c address of your chip
+STARBURST_PCA9685_PRESCALER
+  Prescaler for pwm (default is 30)
+STARBURST_PCA9685_EXTDRV
+  See datasheet
+STARBURST_PCA9685_IVRT
+  See datasheet
+STARBURST_PCA9685_STROBO
+  if you have the output enable pin connected to the avr you can use strobo effects (for all channels)
+
 LOME6
 LOME6_SUPPORT
   Depends on:
