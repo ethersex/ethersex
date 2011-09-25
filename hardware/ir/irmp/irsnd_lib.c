@@ -3,7 +3,16 @@
  *
  * Copyright (c) 2010-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.c,v 1.38 2011/05/22 21:40:53 fm Exp $
+ * Supported mikrocontrollers:
+ *
+ * ATtiny45,  ATtiny85
+ * ATtiny84
+ * ATmega8,   ATmega16,  ATmega32
+ * ATmega162
+ * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284
+ * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
+ *
+ * $Id: irsnd.c,v 1.41 2011/09/20 10:45:28 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,77 +59,136 @@ typedef unsigned short  uint16_t;
 #endif // WIN32
 #endif // unix
 
-#include "irmp_lib.h"
+#include "irmp.h"
 #ifndef IRSND_USE_AS_LIB
 #include "irsndconfig.h"
 #endif
 #include "irsnd_lib.h"
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- *  ATmega pin definition of OC2 / OC2A / OC2B
+ *  ATtiny pin definition of OC0A / OC0B
+ *  ATmega pin definition of OC2 / OC2A / OC2B / OC0 / OC0A / OC0B
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRSND_USE_AS_LIB
-#if defined (__AVR_ATmega8__)                           // ATmega8 uses OC2 = PB3
-#undef  IRSND_OC2                                       // has no OC2A / OC2B
-#define IRSND_OC2                               0       // magic: use OC2
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ *  ATtiny pin definition of OC0A / OC0B
+ *  ATmega pin definition of OC2 / OC2A / OC2B / OC0 / OC0A / OC0B
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#if defined (__AVR_ATtiny84__)                          // ATtiny84 uses OC0A = PB2 or OC0B = PA7
+#if IRSND_OCx == IRSND_OC0A                             // OC0A
 #define IRSND_PORT                              PORTB   // port B
 #define IRSND_DDR                               DDRB    // ddr B
-#define IRSND_BIT                               3       // OC2A
+#define IRSND_BIT                               2       // OC0A
+#elif IRSND_OCx == IRSND_OC0B                           // OC0B
+#define IRSND_PORT                              PORTA   // port A
+#define IRSND_DDR                               DDRA    // ddr A
+#define IRSND_BIT                               7       // OC0B
+#else
+#error Wrong value for IRSND_OCx, choose IRSND_OC0A or IRSND_OC0B in irsndconfig.h
+#endif // IRSND_OCx
+
+#elif defined (__AVR_ATtiny45__) || defined (__AVR_ATtiny85__)  // ATtiny45/85 uses OC0A = PB0 or OC0B = PB1
+#if IRSND_OCx == IRSND_OC0A                             // OC0A
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               0       // OC0A
+#elif IRSND_OCx == IRSND_OC0B                           // OC0B
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               1       // OC0B
+#else
+#error Wrong value for IRSND_OCx, choose IRSND_OC0A or IRSND_OC0B in irsndconfig.h
+#endif // IRSND_OCx
+
+#elif defined (__AVR_ATmega8__)                         // ATmega8 uses only OC2 = PB3
+#if IRSND_OCx == IRSND_OC2                              // OC0A
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               3       // OC0A
+#else
+#error Wrong value for IRSND_OCx, choose IRSND_OC2 in irsndconfig.h
+#endif // IRSND_OCx
+
 
 #elif defined (__AVR_ATmega16__)    \
   ||  defined (__AVR_ATmega32__)                        // ATmega16|32 uses OC2 = PD7
-#undef  IRSND_OC2                                       // has no OC2A / OC2B
-#define IRSND_OC2                               0       // magic: use OC2
+#if IRSND_OCx == IRSND_OC2                              // OC2
 #define IRSND_PORT                              PORTD   // port D
 #define IRSND_DDR                               DDRD    // ddr D
 #define IRSND_BIT                               7       // OC2
+#else
+#error Wrong value for IRSND_OCx, choose IRSND_OC2 in irsndconfig.h
+#endif // IRSND_OCx
 
-#elif defined (__AVR_ATmega162__)                       // ATmega162 uses OC2 = PB1
-#undef  IRSND_OC2                                       // has no OC2A / OC2B
-#define IRSND_OC2                               0       // magic: use OC2
+#elif defined (__AVR_ATmega162__)                       // ATmega162 uses OC2 = PB1 or OC0 = PB0
+#if IRSND_OCx == IRSND_OC2                              // OC2
 #define IRSND_PORT                              PORTB   // port B
 #define IRSND_DDR                               DDRB    // ddr B
 #define IRSND_BIT                               1       // OC2
+#elif IRSND_OCx == IRSND_OC0                            // OC0
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               0       // OC0
+#else
+#error Wrong value for IRSND_OCx, choose IRSND_OC2 or IRSND_OC0 in irsndconfig.h
+#endif // IRSND_OCx
 
 #elif defined (__AVR_ATmega164__)   \
    || defined (__AVR_ATmega324__)   \
    || defined (__AVR_ATmega644__)   \
    || defined (__AVR_ATmega644P__)  \
-   || defined (__AVR_ATmega1284__)                      // ATmega164|324|644|644P|1284 uses OC2A = PD7 or OC2B = PD6
-#if IRSND_OC2 == 1                                      // OC2A
+   || defined (__AVR_ATmega1284__)                      // ATmega164|324|644|644P|1284 uses OC2A = PD7 or OC2B = PD6 or OC0A = PB3 or OC0B = PB4
+#if IRSND_OCx == IRSND_OC2A                             // OC2A
 #define IRSND_PORT                              PORTD   // port D
 #define IRSND_DDR                               DDRD    // ddr D
 #define IRSND_BIT                               7       // OC2A
-#elif IRSND_OC2 == 2                                    // OC2B
+#elif IRSND_OCx == IRSND_OC2B                           // OC2B
 #define IRSND_PORT                              PORTD   // port D
 #define IRSND_DDR                               DDRD    // ddr D
 #define IRSND_BIT                               6       // OC2B
+#elif IRSND_OCx == IRSND_OC0A                           // OC0A
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               3       // OC0A
+#elif IRSND_OCx == IRSND_OC0B                           // OC0B
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               4       // OC0B
 #else
-#error Wrong value for IRSND_OC2, choose 1 or 2 in irsndconfig.h
-#endif // IRSND_OC2
+#error Wrong value for IRSND_OCx, choose IRSND_OC2A, IRSND_OC2B, IRSND_OC0A, or IRSND_OC0B in irsndconfig.h
+#endif // IRSND_OCx
 
 #elif defined (__AVR_ATmega48__)    \
    || defined (__AVR_ATmega88__)    \
+   || defined (__AVR_ATmega88P__)   \
    || defined (__AVR_ATmega168__)   \
-   || defined (__AVR_ATmega168__)   \
-   || defined (__AVR_ATmega328__)   \
-   || defined (__AVR_ATmega328P__)                      // ATmega48|88|168|328P uses OC2A = PB3 or OC2B = PD3
-#if IRSND_OC2 == 1                                      // OC2A
+   || defined (__AVR_ATmega168P__)  \
+   || defined (__AVR_ATmega328P__)                      // ATmega48|88|168|168|328 uses OC2A = PB3 or OC2B = PD3 or OC0A = PD6 or OC0B = PD5
+#if IRSND_OCx == IRSND_OC2A                             // OC2A
 #define IRSND_PORT                              PORTB   // port B
 #define IRSND_DDR                               DDRB    // ddr B
 #define IRSND_BIT                               3       // OC2A
-#elif IRSND_OC2 == 2                                    // OC2B
+#elif IRSND_OCx == IRSND_OC2B                           // OC2B
 #define IRSND_PORT                              PORTD   // port D
 #define IRSND_DDR                               DDRD    // ddr D
 #define IRSND_BIT                               3       // OC2B
+#elif IRSND_OCx == IRSND_OC0A                           // OC0A
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               6       // OC0A
+#elif IRSND_OCx == IRSND_OC0B                           // OC0B
+#define IRSND_PORT                              PORTD   // port D
+#define IRSND_DDR                               DDRD    // ddr D
+#define IRSND_BIT                               5       // OC0B
 #else
-#error Wrong value for IRSND_OC2, choose 1 or 2 in irsndconfig.h
-#endif // IRSND_OC2
+#error Wrong value for IRSND_OCx, choose IRSND_OC2A, IRSND_OC2B, IRSND_OC0A, or IRSND_OC0B in irsndconfig.h
+#endif // IRSND_OCx
 
 #else
 #if !defined (unix) && !defined (WIN32)
-#error OC2A/OC2B not defined, please fill in definitions here.
+#error mikrocontroller not defined, please fill in definitions here.
 #endif // unix, WIN32
 #endif // __AVR...
 #endif
@@ -311,13 +379,21 @@ irsnd_on (void)
     if (! irsnd_is_on)
     {
 #ifndef DEBUG
-#if   IRSND_OC2 == 0                                    // use OC2
-        TCCR2 |= (1<<COM20)|(1<<WGM21);                 // toggle OC2 on compare match, clear Timer 2 at compare match OCR2
-#elif IRSND_OC2 == 1                                    // use OC2A
+#if   IRSND_OCx == IRSND_OC2                            // use OC2
+        TCCR2 |= (1<<COM20)|(1<<WGM21);                 // toggle OC2 on compare match,  clear Timer 2 at compare match OCR2
+#elif IRSND_OCx == IRSND_OC2A                           // use OC2A
         TCCR2A |= (1<<COM2A0)|(1<<WGM21);               // toggle OC2A on compare match, clear Timer 2 at compare match OCR2A
-#else                                                   // use OC2B
+#elif IRSND_OCx == IRSND_OC2B                           // use OC2B
         TCCR2A |= (1<<COM2B0)|(1<<WGM21);               // toggle OC2B on compare match, clear Timer 2 at compare match OCR2A (yes: A, not B!)
-#endif // IRSND_OC2
+#elif IRSND_OCx == IRSND_OC0                            // use OC0
+        TCCR0 |= (1<<COM00)|(1<<WGM01);                 // toggle OC0 on compare match,  clear Timer 0 at compare match OCR0
+#elif IRSND_OCx == IRSND_OC0A                           // use OC0A
+        TCCR0A |= (1<<COM0A0)|(1<<WGM01);               // toggle OC0A on compare match, clear Timer 0 at compare match OCR0A
+#elif IRSND_OCx == IRSND_OC0B                           // use OC0B
+        TCCR0A |= (1<<COM0B0)|(1<<WGM01);               // toggle OC0B on compare match, clear Timer 0 at compare match OCR0A (yes: A, not B!)
+#else
+#error wrong value of IRSND_OCx
+#endif // IRSND_OCx
 #endif // DEBUG
 
 #if IRSND_USE_CALLBACK == 1
@@ -344,13 +420,21 @@ irsnd_off (void)
     if (irsnd_is_on)
     {
 #ifndef DEBUG
-#if   IRSND_OC2 == 0                                    // use OC2
+#if   IRSND_OCx == IRSND_OC2                                    // use OC2
         TCCR2 &= ~(1<<COM20);                           // normal port operation, OC2 disconnected.
-#elif IRSND_OC2 == 1                                    // use OC2A
+#elif IRSND_OCx == IRSND_OC2A                                    // use OC2A
         TCCR2A &= ~(1<<COM2A0);                         // normal port operation, OC2A disconnected.
-#else                                                   // use OC2B
+#elif IRSND_OCx == IRSND_OC2B                                    // use OC2B
         TCCR2A &= ~(1<<COM2B0);                         // normal port operation, OC2B disconnected.
-#endif // IRSND_OC2
+#elif IRSND_OCx == IRSND_OC0                                    // use OC0
+        TCCR0 &= ~(1<<COM00);                           // normal port operation, OC0 disconnected.
+#elif IRSND_OCx == IRSND_OC0A                                    // use OC0A
+        TCCR0A &= ~(1<<COM0A0);                         // normal port operation, OC0A disconnected.
+#elif IRSND_OCx == IRSND_OC0B                                    // use OC0B
+        TCCR0A &= ~(1<<COM0B0);                         // normal port operation, OC0B disconnected.
+#else
+#error wrong value of IRSND_OCx
+#endif // IRSND_OCx
         IRSND_PORT  &= ~(1<<IRSND_BIT);                 // set IRSND_BIT to low
 #endif // DEBUG
 
@@ -376,10 +460,20 @@ static void
 irsnd_set_freq (uint8_t freq)
 {
 #ifndef DEBUG
-#if IRSND_OC2 == 0
+#if IRSND_OCx == IRSND_OC2
     OCR2 = freq;                                                                        // use register OCR2 for OC2
-#else
+#elif IRSND_OCx == IRSND_OC2A                                                                    // use OC2A
     OCR2A = freq;                                                                       // use register OCR2A for OC2A and OC2B!
+#elif IRSND_OCx == IRSND_OC2B                                                                    // use OC2B
+    OCR2A = freq;                                                                       // use register OCR2A for OC2A and OC2B!
+#elif IRSND_OCx == IRSND_OC0                                                                    // use OC0
+    OCR0 = freq;                                                                        // use register OCR2 for OC2
+#elif IRSND_OCx == IRSND_OC0A                                                                    // use OC0A
+    OCR0A = freq;                                                                       // use register OCR0A for OC0A and OC0B!
+#elif IRSND_OCx == IRSND_OC0B                                                                    // use OC0B
+    OCR0A = freq;                                                                       // use register OCR0A for OC0A and OC0B!
+#else
+#error wrong value of IRSND_OCx
 #endif
 #endif // DEBUG
 }
@@ -398,13 +492,21 @@ irsnd_init (void)
     IRSND_PORT &= ~(1<<IRSND_BIT);                                                  // set IRSND_BIT to low
     IRSND_DDR |= (1<<IRSND_BIT);                                                    // set IRSND_BIT to output
 
-#if defined (__AVR_ATmega32__)
+#if IRSND_OCx == IRSND_OC2                                                                  // use OC2
     TCCR2 = (1<<WGM21);                                                             // CTC mode
     TCCR2 |= (1<<CS20);                                                             // 0x01, start Timer 2, no prescaling
-#else
+#elif IRSND_OCx == IRSND_OC2A || IRSND_OCx == IRSND_OC2B                                              // use OC2A or OC2B
     TCCR2A = (1<<WGM21);                                                            // CTC mode
     TCCR2B |= (1<<CS20);                                                            // 0x01, start Timer 2, no prescaling
-#endif  // __AVR...    
+#elif IRSND_OCx == IRSND_OC0                                                                // use OC0
+    TCCR0 = (1<<WGM01);                                                             // CTC mode
+    TCCR0 |= (1<<CS00);                                                             // 0x01, start Timer 0, no prescaling
+#elif IRSND_OCx == IRSND_OC0A || IRSND_OCx == IRSND_OC0B                                              // use OC0A or OC0B
+    TCCR0A = (1<<WGM01);                                                            // CTC mode
+    TCCR0B |= (1<<CS00);                                                            // 0x01, start Timer 0, no prescaling
+#else
+#error wrong value of IRSND_OCx
+#endif
 
     irsnd_set_freq (IRSND_FREQ_36_KHZ);                                             // default frequency
 #endif // DEBUG
@@ -531,11 +633,10 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
 
             irsnd_protocol = IRMP_NEC_PROTOCOL;                                                         // APPLE protocol is NEC with id instead of inverted command
 
-            irsnd_buffer[0] = (address & 0xFF00) >> 8;                                                  // AAAAAAAA
-            irsnd_buffer[1] = (address & 0x00FF);                                                       // AAAAAAAA
-            irsnd_buffer[2] = (command & 0xFF00) >> 8;                                                  // CCCCCCCC
-            irsnd_buffer[3] = (command & 0x00FF);                                                       // CCCCCCCC
-
+            irsnd_buffer[0] = (address & 0xFF00) >> 8;                                                          // AAAAAAAA
+            irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
+            irsnd_buffer[2] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
+            irsnd_buffer[3] = 0x8B;                                                                             // 10001011 (id)
             irsnd_busy      = TRUE;
             break;
         }
@@ -547,13 +648,35 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             irsnd_buffer[0] = (address & 0xFF00) >> 8;                                                          // AAAAAAAA
             irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
             irsnd_buffer[2] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
+            irsnd_buffer[3] = ~((command & 0xFF00) >> 8);                                                       // cccccccc
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_NEC16_PROTOCOL == 1
+        case IRMP_NEC16_PROTOCOL:
+        {
+            address = bitsrevervse (irmp_data_p->address, NEC16_ADDRESS_LEN);
+            command = bitsrevervse (irmp_data_p->command, NEC16_COMMAND_LEN);
 
-            irsnd_protocol = IRMP_NEC_PROTOCOL; // APPLE protocol is NEC with fix bitmask instead of inverted command
-            irsnd_buffer[3] = 0x8B;                                                                         // 10001011
-            {
-                irsnd_buffer[3] = ~((command & 0xFF00) >> 8);                                                   // cccccccc
-            }
+            irsnd_buffer[0] = (address & 0x00FF);                                                               // AAAAAAAA
+            irsnd_buffer[1] = (command & 0x00FF);                                                               // CCCCCCCC
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_NEC42_PROTOCOL == 1
+        case IRMP_NEC42_PROTOCOL:
+        {
+            address = bitsrevervse (irmp_data_p->address, NEC42_ADDRESS_LEN);
+            command = bitsrevervse (irmp_data_p->command, NEC42_COMMAND_LEN);
 
+            irsnd_buffer[0] = ( (address & 0x1FE0) >> 5);                                                       // AAAAAAAA
+            irsnd_buffer[1] = ( (address & 0x001F) << 3) | ((~address & 0x1C00) >> 10);                          // AAAAAaaa
+            irsnd_buffer[2] =                              ((~address & 0x03FC) >> 2);                          // aaaaaaaa
+            irsnd_buffer[3] = ((~address & 0x0003) << 6) | ( (command & 0x00FC) >> 2);                          // aaCCCCCC
+            irsnd_buffer[4] = ( (command & 0x0003) << 6) | ((~command & 0x00FC) >> 2);                          // CCcccccc
+            irsnd_buffer[5] = ((~command & 0x0003) << 6);                                                       // cc
             irsnd_busy      = TRUE;
             break;
         }
@@ -1009,6 +1132,42 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_NEC16_PROTOCOL == 1
+                    case IRMP_NEC16_PROTOCOL:
+                    {
+                        startbit_pulse_len          = NEC_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = NEC_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = NEC_PULSE_LEN;
+                        pause_1_len                 = NEC_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = NEC_PULSE_LEN;
+                        pause_0_len                 = NEC_0_PAUSE_LEN - 1;
+                        has_stop_bit                = NEC_STOP_BIT;
+                        complete_data_len           = NEC16_COMPLETE_DATA_LEN + 1;                  // 1 more: sync bit
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = NEC_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_NEC42_PROTOCOL == 1
+                    case IRMP_NEC42_PROTOCOL:
+                    {
+                        startbit_pulse_len          = NEC_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = NEC_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = NEC_PULSE_LEN;
+                        pause_1_len                 = NEC_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = NEC_PULSE_LEN;
+                        pause_0_len                 = NEC_0_PAUSE_LEN - 1;
+                        has_stop_bit                = NEC_STOP_BIT;
+                        complete_data_len           = NEC42_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = NEC_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
 #if IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1
                     case IRMP_SAMSUNG_PROTOCOL:
                     {
@@ -1404,6 +1563,12 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_NEC_PROTOCOL == 1
                 case IRMP_NEC_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_NEC16_PROTOCOL == 1
+                case IRMP_NEC16_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_NEC42_PROTOCOL == 1
+                case IRMP_NEC42_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1
                 case IRMP_SAMSUNG_PROTOCOL:
                 case IRMP_SAMSUNG32_PROTOCOL:
@@ -1449,7 +1614,8 @@ irsnd_ISR (void)
 #endif
 
 
-#if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
+#if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_NEC16_PROTOCOL == 1 || IRSND_SUPPORT_NEC42_PROTOCOL == 1 || \
+    IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
     IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || IRSND_SUPPORT_LEGO_PROTOCOL == 1 || IRSND_SUPPORT_THOMSON_PROTOCOL == 1 
@@ -1484,6 +1650,32 @@ irsnd_ISR (void)
                                     pulse_len = SAMSUNG_PULSE_LEN;
                                     pause_len = (irsnd_buffer[cur_bit / 8] & (1<<(7-(cur_bit % 8)))) ?
                                                     (SAMSUNG_1_PAUSE_LEN - 1) : (SAMSUNG_0_PAUSE_LEN - 1);
+                                }
+                            }
+                            else
+#endif
+
+#if IRSND_SUPPORT_NEC16_PROTOCOL == 1
+                            if (irsnd_protocol == IRMP_NEC16_PROTOCOL)
+                            {
+                                if (current_bit < NEC16_ADDRESS_LEN)                                // send address bits
+                                {
+                                    pulse_len = NEC_PULSE_LEN;
+                                    pause_len = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ?
+                                                    (NEC_1_PAUSE_LEN - 1) : (NEC_0_PAUSE_LEN - 1);
+                                }
+                                else if (current_bit == NEC16_ADDRESS_LEN)                          // send SYNC bit (8th bit)
+                                {
+                                    pulse_len = NEC_PULSE_LEN;
+                                    pause_len = NEC_START_BIT_PAUSE_LEN - 1;
+                                }
+                                else if (current_bit < NEC16_COMPLETE_DATA_LEN + 1)                 // send n'th bit
+                                {
+                                    uint8_t cur_bit = current_bit - 1;                              // sync skipped, offset = -1 !
+
+                                    pulse_len = NEC_PULSE_LEN;
+                                    pause_len = (irsnd_buffer[cur_bit / 8] & (1<<(7-(cur_bit % 8)))) ?
+                                                    (NEC_1_PAUSE_LEN - 1) : (NEC_0_PAUSE_LEN - 1);
                                 }
                             }
                             else

@@ -65,7 +65,6 @@ typedef enum
   IRMP_PROTO_NEC42,             /* NEC with 42 bits */
   IRMP_PROTO_LEGO,              /* LEGO Power Functions RC */
   IRMP_PROTO_THOMSON,           /* Thomson */
-  IRMP_PROTO_MERLIN             /* Pollin Merlin keyboard (bitserial) */
 } irmp_prot_e;
 
 typedef struct
