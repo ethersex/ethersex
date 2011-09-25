@@ -31,6 +31,7 @@
 #include "config.h"
 #include "core/eeprom.h"
 #include "onewire.h"
+#include "core/bit-macros.h"
 
 #define noinline __attribute__((noinline))
 
@@ -482,7 +483,6 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
  *
  */
 
-#ifdef ONEWIRE_DS2502_SUPPORT
 
 int8_t ow_eeprom(struct ow_rom_code_t *rom)
 {
@@ -494,6 +494,8 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom)
     return 0;
 
 }
+
+#ifdef ONEWIRE_DS2502_SUPPORT
 
 int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 {
@@ -549,9 +551,206 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 }
 
 #endif /* ONEWIRE_DS2502_SUPPORT */
+#ifdef ONEWIRE_POLLING_SUPPORT
+struct ow_sensor_t ow_sensors[OW_SENSORS_COUNT]  = {{{{0}},0,0,0,0,0}};
+
+int8_t ow_discover_sensor()
+{
+	uint8_t firstonbus = 0;
+	int8_t ret=0;
+	uint8_t i=0;
+	do
+	{
+		if (ow_global.lock == 0) {
+			firstonbus = 1;
+#if ONEWIRE_BUSCOUNT > 1
+			ow_global.bus = 0;
+#endif
+#ifdef DEBUG_OW_POLLING
+			debug_printf("Starting initial discovery\n");
+#endif
+			/*Prepare existing sensors*/
+			for(i=0;i<OW_SENSORS_COUNT;i++)
+			{
+				ow_sensors[i].present=0;
+			}
+		} else {
+#ifdef DEBUG_OW_POLLING
+			debug_printf("Staring another discovery\n");
+#endif
+			firstonbus = 0;
+		}
+
+#if ONEWIRE_BUSCOUNT > 1
+		do
+		{
+#endif
+			/* disable interrupts */
+			uint8_t sreg = SREG;
+			cli();
+
+#if ONEWIRE_BUSCOUNT > 1
+			ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
+#else
+			ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
+#endif
+			/* re-enable interrupts */
+			SREG = sreg;
+
+			/* make sure only one conversion happens at a time */
+			ow_global.lock = 1;
+
+			if(ret == 1) {
+#ifdef DEBUG_OW_POLLING
+					debug_printf("discovered device "
+#if ONEWIRE_BUSCOUNT > 1
+							"%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
+#else
+							"%02x %02x %02x %02x %02x %02x %02x %02x\n",
+#endif
+							ow_global.current_rom.bytewise[0],
+							ow_global.current_rom.bytewise[1],
+							ow_global.current_rom.bytewise[2],
+							ow_global.current_rom.bytewise[3],
+							ow_global.current_rom.bytewise[4],
+							ow_global.current_rom.bytewise[5],
+							ow_global.current_rom.bytewise[6],
+							ow_global.current_rom.bytewise[7]
+#if ONEWIRE_BUSCOUNT > 1
+							,ow_global.bus);
+#else
+				);
+#endif
+#endif
+				uint8_t already_in=0;
+				/*Determine whether this sensor is already present in our list*/
+				for(i=0;i<OW_SENSORS_COUNT;i++)
+				{
+					if(ow_global.current_rom.raw == ow_sensors[i].ow_rom_code.raw)
+					{
+						ow_sensors[i].present=1;
+						already_in=1;
+						/*We skip everything else to retain a regular update rate*/
+						break;
+					}
+
+				}
+				if(already_in == 0)
+				{
+					/*The sensor we found is not in our list, so we Search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero*/
+					for(i=0;i<OW_SENSORS_COUNT;i++)
+					{
+						if(ow_sensors[i].ow_rom_code.raw == 0)
+						{
+							/*We found a free slot...storing*/
+							ow_sensors[i].ow_rom_code.raw=ow_global.current_rom.raw;
+							ow_sensors[i].present=1;
+							ow_sensors[i].read_delay=1; /*Read temperature asap - note: we will check for eeprom later*/
+							break;
+						}
+					}
+				}
+			}
+		} while (ret > 0);
+#if ONEWIRE_BUSCOUNT > 1
+		ow_global.bus++;
+		firstonbus = 1;
+	} while (ow_global.bus < ONEWIRE_BUSCOUNT - 1);
+#endif
+	ow_global.lock = 0;
+	/*We finished the discovery process. Now we delete all removed sensors*/
+	for(i=0;i<OW_SENSORS_COUNT;i++)
+	{
+		/*Mark the slot as free*/
+		if(ow_sensors[i].present == 0)
+			ow_sensors[i].ow_rom_code.raw=0;
+	}
+	return 0;
+}
+
+/*This function will be called every 800 ms*/
+void ow_periodic()
+{
+	/*At startup we want an immediate discovery*/
+	static uint16_t discover_delay=3;
+	if(--discover_delay == 0)
+	{
+		discover_delay=OW_DISCOVER_DELAY;
+		ow_discover_sensor();
+#ifdef DEBUG_OW_POLLING
+		uint8_t k=0;
+		for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
+		{
+			if(ow_sensors[i].ow_rom_code.raw != 0)
+			{
+				debug_printf("Sensor #%d in list is:  %02x %02x %02x %02x %02x %02x %02x %02x\n",
+						++k,
+						ow_sensors[i].ow_rom_code.bytewise[0],
+						ow_sensors[i].ow_rom_code.bytewise[1],
+						ow_sensors[i].ow_rom_code.bytewise[2],
+						ow_sensors[i].ow_rom_code.bytewise[3],
+						ow_sensors[i].ow_rom_code.bytewise[4],
+						ow_sensors[i].ow_rom_code.bytewise[5],
+						ow_sensors[i].ow_rom_code.bytewise[6],
+						ow_sensors[i].ow_rom_code.bytewise[7]
+					    );
+			}
+		}
+#endif
+	}
+	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
+	{
+		if(ow_temp_sensor(&ow_sensors[i].ow_rom_code))
+		{
+			if(ow_sensors[i].converted == 1)
+			{
+				if(ow_sensors[i].convert_delay == 1)
+					ow_sensors[i].convert_delay = 0;
+				else
+				{
+					uint8_t ret;
+#ifdef DEBUG_OW_POLLING
+					debug_printf("reading temperature\n");
+#endif
+					/* disable interrupts */
+					uint8_t sreg = SREG;
+					cli();
+					struct ow_temp_scratchpad_t sp;
+					ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
+					/* re-enable interrupts */
+					SREG = sreg;
+					if (ret != 1) {
+#ifdef DEBUG_OW_POLLING
+						debug_printf("scratchpad read failed: %d\n", ret);
+#endif
+						return;
+					}
+#ifdef DEBUG_OW_POLLING
+					debug_printf("successfully read scratchpad\n");
+#endif
+					int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
+#ifdef DEBUG_OW_POLLING
+					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
+#endif
+					ow_sensors[i].temp=((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+					ow_sensors[i].converted = 0;
+				}
+			}
+			if(--ow_sensors[i].read_delay == 0 && ow_sensors[i].converted == 0)
+			{
+				ow_sensors[i].read_delay=OW_READ_DELAY;
+				ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
+				ow_sensors[i].convert_delay=1;
+				ow_sensors[i].converted=1;
+			}
+		}
+	}
+}
+#endif
 
 /*
   -- Ethersex META --
   header(hardware/onewire/onewire.h)
   init(onewire_init)
+  ifdef(`conf_ONEWIRE_POLLING',`timer(40, ow_periodic())')
 */

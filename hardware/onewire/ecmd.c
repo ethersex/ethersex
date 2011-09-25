@@ -67,8 +67,57 @@ int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
     return -1;
 }
 
-
 #ifdef ONEWIRE_DETECT_SUPPORT
+#ifdef ONEWIRE_POLLING_SUPPORT
+int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
+{
+	int8_t list_type;
+        while (*cmd == ' ')
+            cmd++;
+	switch (*cmd) {
+		case 't':
+			list_type = OW_LIST_TYPE_TEMP_SENSOR;
+			break;
+		case 'e':
+			list_type = OW_LIST_TYPE_EEPROM;
+			break;
+		case '\0':
+			list_type = OW_LIST_TYPE_ALL;
+			break;
+		default:
+			return ECMD_ERR_PARSE_ERROR;
+	}
+	static uint8_t i=0;
+	int16_t ret=0;
+        do
+	{
+		if(ow_sensors[i].ow_rom_code.raw != 0)
+		{
+        		if ((list_type == OW_LIST_TYPE_ALL) || (list_type == OW_LIST_TYPE_TEMP_SENSOR && ow_temp_sensor(&ow_sensors[i].ow_rom_code)) || (list_type == OW_LIST_TYPE_EEPROM && ow_eeprom(&ow_sensors[i].ow_rom_code))) {
+				ret = snprintf_P(output, len,
+				PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+				ow_sensors[i].ow_rom_code.bytewise[0],
+				ow_sensors[i].ow_rom_code.bytewise[1],
+				ow_sensors[i].ow_rom_code.bytewise[2],
+				ow_sensors[i].ow_rom_code.bytewise[3],
+				ow_sensors[i].ow_rom_code.bytewise[4],
+				ow_sensors[i].ow_rom_code.bytewise[5],
+				ow_sensors[i].ow_rom_code.bytewise[6],
+				ow_sensors[i].ow_rom_code.bytewise[7]
+				);
+			}
+		}
+		i++;
+	}while(ret == 0 && i<OW_SENSORS_COUNT);
+	if(i<OW_SENSORS_COUNT)
+		return	ECMD_AGAIN(ret);
+	else
+	{
+		i=0;
+		return  ECMD_FINAL(ret);
+	}
+}
+#else
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
 
@@ -209,9 +258,74 @@ list_next: ;
     return ECMD_FINAL_OK;
 
 }
+#endif /* ONEWIRE_POLLING_SUPPORT*/
 #endif /* ONEWIRE_DETECT_SUPPORT */
+#ifdef ONEWIRE_POLLING_SUPPORT
+int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
+{
+    struct ow_rom_code_t rom;
+    int16_t ret;
+    ret = parse_ow_rom(cmd, &rom);
+    if (ret < 0)
+        return ECMD_ERR_PARSE_ERROR;
+    if (ow_temp_sensor(&rom)) {
+	/*Search the sensor...*/
+	        for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
+                {
+			if(ow_sensors[i].ow_rom_code.raw == rom.raw)
+			{
+				/*Found it*/
+				int16_t temp=ow_sensors[i].temp;
+				div_t res = div(temp,10);
+				ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot,res.rem);
+				return ECMD_FINAL(ret);
+			}
+		}
+		/*Sensor is not in list*/
+		ret = snprintf_P(output, len, PSTR("Sensor not in list!"));
+	        return ECMD_FINAL(ret);
+#ifdef ONEWIRE_DS2502_SUPPORT
+    } else if (ow_eeprom(&rom)) {
+        debug_printf("reading mac\n");
 
+        /* disable interrupts */
+        uint8_t sreg = SREG;
+        cli();
 
+        uint8_t mac[6];
+        ret = ow_eeprom_read(&rom, mac);
+
+        /* re-enable interrupts */
+        SREG = sreg;
+
+        if (ret != 0) {
+            debug_printf("mac read failed: %d\n", ret);
+            return ECMD_ERR_READ_ERROR;
+        }
+
+        debug_printf("successfully read mac\n");
+
+        debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+        ret = snprintf_P(output, len,
+                PSTR("mac: %02x:%02x:%02x:%02x:%02x:%02x"),
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+#endif /* ONEWIRE_DS2502_SUPPORT */
+    } else {
+        debug_printf("unknown sensor type\n");
+#ifdef TEENSY_SUPPORT
+        strcpy_P (output, PSTR("unknown sensor type"));
+        return ECMD_FINAL(strlen(output));
+#else
+        ret = snprintf_P(output, len, PSTR("unknown sensor type"));
+#endif
+    }
+
+    return ECMD_FINAL(ret);
+
+}
+#else
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
     struct ow_rom_code_t rom;
@@ -311,8 +425,13 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
     return ECMD_FINAL(ret);
 }
-
-
+#endif
+#ifdef ONEWIRE_POLLING_SUPPORT
+int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
+{
+        return ECMD_FINAL_OK;
+}
+#else
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 {
     int16_t ret;
@@ -349,7 +468,7 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
         return ECMD_ERR_PARSE_ERROR;
 
 }
-
+#endif
 
 /*
   -- Ethersex META --
