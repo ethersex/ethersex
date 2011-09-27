@@ -33,10 +33,9 @@
 #include "services/clock/clock.h"
 
 #ifdef CRON_VFS_SUPPORT
-	#include "core/vfs/vfs.h"
-	#include "core/vfs/vfs-util.h"
-
-   #define CRON_FILENAME "crn.t"
+#include "core/vfs/vfs.h"
+#include "core/vfs/vfs-util.h"
+#define CRON_FILENAME "crn.t"
 #endif
 
 uint32_t last_check;
@@ -467,24 +466,26 @@ cron_periodic(void)
 			if (exec->event.cmd == CRON_JUMP)
 			{
 				#ifdef DEBUG_CRON
-					debug_printf("cron: match %u (JUMP %p)\n", counter, &(exec->event.handler));
+				debug_printf("cron: match %u (JUMP %p)\n", counter, &(exec->event.handler));
 				#endif
 				#ifndef DEBUG_CRON_DRYRUN
-					exec->event.handler(&(exec->event.extradata));
+				exec->event.handler(&(exec->event.extradata));
 				#endif
 			} else if (exec->event.cmd == CRON_ECMD)
 			{
 				// ECMD PARSER
 				#ifdef DEBUG_CRON
-					debug_printf("cron: match %u (%s)\n", counter, (char*)&(exec->event.ecmddata));
+				debug_printf("cron: match %u (%s)\n", counter, (char*)&(exec->event.ecmddata));
 				#endif
 				#ifndef DEBUG_CRON_DRYRUN
-					char output[ECMD_INPUTBUF_LENGTH];
-					uint16_t len = sizeof(output);
-					ecmd_parse_command((char*)&(exec->event.ecmddata), output, len);
-					#ifdef DEBUG_CRON
-						debug_printf("cron output %s\n", output);
-					#endif
+				char output[ECMD_INPUTBUF_LENGTH];
+				uint16_t l = ecmd_parse_command((char*)&(exec->event.ecmddata), output, sizeof(output)-1);
+				#ifdef DEBUG_CRON
+				if (is_ECMD_FINAL(l) || is_ECMD_AGAIN(l)) {
+					output[is_ECMD_AGAIN(l) ? ECMD_AGAIN(l) : l] = 0;
+					debug_printf("cron output %s\n", output);
+				}
+				#endif
 				#endif
 			}
 
