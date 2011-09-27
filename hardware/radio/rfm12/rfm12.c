@@ -282,16 +282,16 @@ rfm12_init(void)
   rfm12_trans (0xa000 | RFM12FREQ(CONF_RFM12_FREQ));
   rfm12_trans (0x94ac);	/* rfm12_setbandwidth(5, 1, 4); */
 #ifdef RFM12_IP_SUPPORT
-    rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
-    rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
+  rfm12_trans (0xc610);	/* rfm12_setbaud(192); */
+  rfm12_trans (0x9820);	/* rfm12_setpower(0, 2); */
 #endif  /* RFM12_IP_SUPPORT */
 
 #else  /* TEENSY_SUPPORT */
   rfm12_setfreq(RFM12FREQ(CONF_RFM12_FREQ));
   rfm12_setbandwidth(5, 1, 4);
 #ifdef RFM12_IP_SUPPORT
-    rfm12_setbaud(CONF_RFM12_BAUD / 100);
-    rfm12_setpower(0, 2);
+  rfm12_setbaud(CONF_RFM12_BAUD / 100);
+  rfm12_setpower(0, 2);
 #endif  /* RFM12_IP_SUPPORT */
 #endif  /* not TEENSY_SUPPORT */
 
@@ -299,7 +299,7 @@ rfm12_init(void)
   PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
 #ifdef STATUSLED_RFM12_TX_SUPPORT
-  PIN_CLEAR(STATUSLED_RFM12_TX);
+  PIN_SET(STATUSLED_RFM12_TX); // off
 #endif
 
 #ifdef RFM12_IP_SUPPORT

@@ -67,14 +67,14 @@ ifdef({{conf_FS20_SEND}},{{
 
 <h1>RFM12 ASK</h1>
 ifdef({{conf_RFM12_ASK_2272}}, {{
-<h2>2272 (internal + external)</h2>
+<h2>Pollin Funksteckdosen</h2>
 <table width="50%" border="1" style="text-align: center">
 <tr><th>Switch</th><th colspan="4">Command</th></tr>
-<tr><td>A</td><td><a href="javascript:ecmd_set_rf1(2272,'0,5,80',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,5,81',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,5,84',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,5,85',76,10)">ON ON</a></td></tr>
-<tr><td>B</td><td><a href="javascript:ecmd_set_rf1(2272,'0,17,80',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,17,81',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,17,84',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,17,85',76,10)">ON ON</a></td></tr>
-<tr><td>C</td><td><a href="javascript:ecmd_set_rf1(2272,'0,20,80',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,20,81',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,20,84',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,20,85',76,10)">ON ON</a></td></tr>
-<tr><td>D</td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,16',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,17',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,20',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,21',76,10)">ON ON</a></td></tr>
-<tr><td>E</td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,64',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,65',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,68',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,69',76,10)">ON ON</a></td></tr>
+<tr><td>A</td><td><a href="javascript:ecmd_set_rf1(2272,'68,5,80',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,5,81',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,5,84',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,5,85',76,10)">ON ON</a></td></tr>
+<tr><td>B</td><td><a href="javascript:ecmd_set_rf1(2272,'68,17,80',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,17,81',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,17,84',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,17,85',76,10)">ON ON</a></td></tr>
+<tr><td>C</td><td><a href="javascript:ecmd_set_rf1(2272,'68,20,80',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,20,81',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,20,84',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,20,85',76,10)">ON ON</a></td></tr>
+<tr><td>D</td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,16',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,17',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,20',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,21',76,10)">ON ON</a></td></tr>
+<tr><td>E</td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,64',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,65',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,68',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'68,21,69',76,10)">ON ON</a></td></tr>
 </table>
 }})
 ifdef({{conf_RFM12_ASK_TEVION}}, {{
