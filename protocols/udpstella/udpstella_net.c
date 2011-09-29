@@ -105,10 +105,10 @@ udpstella_net_main(void)
 		for (uint8_t c=0;c<STELLA_CHANNELS;++c) {
 			answer[7+c] = stella_brightness[c];
 		}
-		uip_slen += STELLA_CHANNELS+6;
-		answer += STELLA_CHANNELS+6;
+		uip_slen += STELLA_CHANNELS+7;
+		answer += STELLA_CHANNELS+7;
 	    } else {
-			stella_setValue(packet->type, packet->channel, packet->value);
+		stella_setValue(packet->type, packet->channel, packet->value);
 	    }
      	packet++;
      	len-=sizeof(struct udpstella_packet);
