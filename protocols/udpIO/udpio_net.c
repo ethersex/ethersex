@@ -1,6 +1,20 @@
-/*                     -*- mode: C; c-file-style: "stroustrup"; -*-
+/*
+ * Authors: David Gräff <david.graeff-at-web.de> (2009-2011)
+ * 
+ * Purpose:
+ * Allows pins to be set via simple udp packages as well as
+ * requesting the current status of pins and addionally provides the
+ * ability to register a client to be informed of pin changes.
+ * This module allows very fast polling and
+ * setting without much network overhead. Recommended
+ * use only in a trusted network environment.
  *
- * Copyright (c) 2009 by David Gräff
+ * Changes:
+ * 29.09.2011: Getting port states is binary incompatible to the 2009 Version
+ * of this module!
+ *
+ * Depends on:
+ * ethersex port io abstraction, uip
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -28,95 +42,157 @@
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
+struct udpio_notify_on_change {
+	uip_ip4addr_t address;
+	uint8_t pinport;
+	uint8_t pinmask;
+	uint8_t last_pin_state;
+};
+#define ALLOWED_CLIENTS 3
+struct udpio_notify_on_change clients[ALLOWED_CLIENTS];
+
+enum udpio_packet_mode
+{
+	udpIOOnlyDisable = 0,
+	udpIOOnlyEnable = 1,
+	udpIOEnableAndDisable = 2,
+	udpIOGetAllPortPins = 3,
+	udpIORegisterClientForPortChanges = 4, /* "pinmask & PORTx" are used to compare for changes! */
+	udpIOUnRegisterClientForPortChanges = 5
+};
+
 struct udpio_packet
 {
-  /* Port, where 0=PORTA, ..., 3=PORTD
-     255=get all pins of all ports
-  */
+	/* Port: 0=PORTA, ..., 3=PORTD, ...
+	*/
 	uint8_t port;
-  /* Pins: Function depends on "nstate". Every bit
-     corresponds to one pin, where the most significant bit
-     means pin 0 of the port selected above.
-     if nstate is 0: (disable)
-       Disables all pins, where the corresponding bit of "pins"
-       is set to 0.
-     if nstate is 1: (enable)
-       Enables all pins, where the corresponding bit of "pins"
-       is set to 1.
-     if nstate is 2: (set)
-       Set the port to the value of "pins".
-  */
-	uint8_t pins;
-	uint8_t nstate;
+	/* Pins: Every bit corresponds to one pin, where the least significant (right) bit
+	means pin 0.
+	*/
+	uint8_t pinmask;
+	uint8_t /*udpio_packet_mode*/ mode;
 };
 
 void
 udpio_net_init (void)
 {
-    uip_ipaddr_t ip;
-    uip_ipaddr_copy (&ip, all_ones_addr);
+	uip_ipaddr_t ip;
+	uip_ipaddr_copy (&ip, all_ones_addr);
 
-    uip_udp_conn_t *udp_echo_conn = uip_udp_new (&ip, 0, udpio_net_main);
+	uip_udp_conn_t *udp_io_connection = uip_udp_new (&ip, 0, udpio_net_main);
 
-    if (!udp_echo_conn) 
+	if (!udp_io_connection) 
 	return; /* dammit. */
 
-    uip_udp_bind (udp_echo_conn, HTONS (UDP_IO_PORT));
+	uip_udp_bind (udp_io_connection, HTONS (UDP_IO_PORT));
 }
 
 
 void
 udpio_net_main(void)
 {
-    if (!uip_newdata ())
-	return;
+	uint8_t* answer = uip_appdata;
+	uint8_t i;
+	uip_ipaddr_t nullip;
+	uip_ipaddr(&nullip, 0,0,0,0);
 
-    uip_slen = 0;
-    uint16_t len = uip_len;
-    uint8_t buffer[uip_len];
-    memcpy(buffer, uip_appdata, uip_len);
 
-    struct udpio_packet* packet = (struct udpio_packet*)buffer;
-    uint8_t* answer = uip_appdata;
+	if (uip_newdata ()) {
+		// No new data: We will compare pins instead
+		for (i=0;i<ALLOWED_CLIENTS;++i) {
+			if(uip_ipaddr_cmp(&(clients[i].address), &nullip))
+				continue;
+			// found address of calling client in clients: compare pins now
+			if (vport[clients[i].pinport].read_port(clients[i].pinport) ^ clients[i].last_pin_state) {
+				// update last pin state
+				clients[i].last_pin_state = vport[clients[i].pinport].read_port(clients[i].pinport) & clients[i].pinmask;
+				// send changes
+				answer[0] = 'p';
+				answer[1] = 'i';
+				answer[2] = 'n';
+				answer[3] = 'c';
+				answer[4] = clients[i].pinport;
+				answer[5] = clients[i].last_pin_state;
+				uip_slen += 6;
+				answer += 6;
 
-    while (len>=sizeof(struct udpio_packet))
-	{
-		/* Get values */
-	    if (packet->port == 255)
-		{
-			answer[0] = 'p';
-			answer[1] = 'i';
-			answer[2] = 'n';
-			answer[3] = 's';
-			answer[4] = PORTA;
-			answer[5] = PORTB;
-			answer[6] = PORTC;
-			answer[7] = PORTD;
-			uip_slen += 8;
-			answer += 8;
-	    }
-		/* Set port to "pins" value */
-		else if (packet->nstate == 2)
-		{
-			if (packet->port > IO_HARD_PORTS) break;
-			vport[packet->port].write_port(packet->port, packet->pins);
+				uip_udp_conn_t echo_conn;
+				uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
+				echo_conn.rport = HTONS(UDP_IO_PORT); // send packages to clients at the udp io module port
+				echo_conn.lport = HTONS(UDP_IO_PORT);
+
+				uip_udp_conn = &echo_conn;
+				uip_process(UIP_UDP_SEND_CONN);
+				router_output();
+
+				uip_slen = 0;
+			}
 		}
-		/* Enables pins */
-	    else if (packet->nstate == 1)
-		{
-			if (packet->port > IO_HARD_PORTS) break;
-			vport[packet->port].write_port(packet->port, vport[packet->port].read_port(packet->port) | packet->pins);
-	    }
-		/* Disables pins */
-	    else if (packet->nstate == 0) {
-			if (packet->port > IO_HARD_PORTS) break;
-			vport[packet->port].write_port(packet->port, vport[packet->port].read_port(packet->port) & ~(uint8_t)packet->pins);
-	    }
-     	packet++;
-     	len-=sizeof(struct udpio_packet);
-     }
+		// No new data, return now
+		return;
+	}
 
-    if (uip_slen == 0) return;
+	uip_slen = 0;
+	uint16_t len = uip_len;
+	uint8_t buffer[uip_len];
+	memcpy(buffer, uip_appdata, uip_len);
+	struct udpio_packet* packet = (struct udpio_packet*)buffer;
+
+	while (len>=sizeof(struct udpio_packet))
+	{
+		switch(packet->mode) {
+			case udpIOOnlyDisable:
+				if (packet->port > IO_HARD_PORTS) break;
+				vport[packet->port].write_port(packet->port, vport[packet->port].read_port(packet->port) & ~(uint8_t)packet->pinmask);
+				break;
+			case udpIOOnlyEnable:
+				if (packet->port > IO_HARD_PORTS) break;
+				vport[packet->port].write_port(packet->port, vport[packet->port].read_port(packet->port) | packet->pinmask);
+				break;
+			case udpIOEnableAndDisable:
+				if (packet->port > IO_HARD_PORTS) break;
+				vport[packet->port].write_port(packet->port, packet->pinmask);
+				break;
+			case udpIOGetAllPortPins:
+				answer[0] = 'p';
+				answer[1] = 'i';
+				answer[2] = 'n';
+				answer[3] = 's';
+				answer[4] = PORTA;
+				answer[5] = PORTB;
+				answer[6] = PORTC;
+				answer[7] = PORTD;
+				uip_slen += 8;
+				answer += 8;
+				break;
+			case udpIORegisterClientForPortChanges:
+				// look for a not used entry in the array
+				for (;i<ALLOWED_CLIENTS;++i) {
+					if(uip_ipaddr_cmp(&(clients[i].address), nullip)) // found empty entry
+						break;
+				}
+				// override last array entry if no free entry available
+				if (i==ALLOWED_CLIENTS) i = ALLOWED_CLIENTS-1;
+				// create entry with ip adress of the calling client, the ioport to observe, the pinmask and the current port state
+				uip_ipaddr_copy(&(clients[i].address), BUF->srcipaddr);
+				clients[i].pinport = packet->port;
+				clients[i].pinmask = packet->pinmask;
+				clients[i].last_pin_state = vport[packet->port].read_port(packet->port) & clients[i].pinmask;
+				break;
+			case udpIOUnRegisterClientForPortChanges:
+				for (i=0;i<ALLOWED_CLIENTS;++i) {
+					if(uip_ipaddr_cmp(&(clients[i].address), &(BUF->srcipaddr))) // found address of calling client in clients: remove it now
+						uip_ipaddr(&(clients[i].address), 0,0,0,0);
+				}
+				break;
+			default:
+			break;
+		};
+		packet++;
+		len-=sizeof(struct udpio_packet);
+	}
+
+	if (uip_slen == 0) return;
 	/* Sent data out */
 
 	uip_udp_conn_t echo_conn;

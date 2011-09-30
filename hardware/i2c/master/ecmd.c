@@ -102,9 +102,9 @@ int16_t parse_cmd_i2c_read_word_data(char *cmd, char *output, uint16_t len)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t val = i2c_read_word_data(cadr, dadr);
 #ifdef ECMD_MIRROR_REQUEST
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rwd %d %d 0x%02X"), cadr, dadr, val));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c rwd %d %d 0x%02X"), cadr, dadr, val));
 #else
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), val));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), val));
 #endif
 }
 
@@ -296,10 +296,8 @@ parse_cmd_i2c_pca9685_set_led(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_I2C
 	debug_printf("I2C PCA9685 IC %x: led: %u, on: %u off: %u\n",adr, led, on, off);
 #endif
-	if(i2c_pca9685_set_led(adr, led, on, off) == 0)
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm ok")));
-	else
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm not ok")));
+	const PGM_P str = (i2c_pca9685_set_led(adr, led, on, off) == 0) ? PSTR("pwm ok") : PSTR("pwm not ok");
+	return ECMD_FINAL(snprintf_P(output, len, str));
 }
 int16_t
 parse_cmd_i2c_pca9685_set_mode(char *cmd, char *output, uint16_t len)
@@ -313,10 +311,8 @@ parse_cmd_i2c_pca9685_set_mode(char *cmd, char *output, uint16_t len)
 #ifdef DEBUG_I2C
 	debug_printf("I2C PCA9685 IC %x: outdrv: %u ivrt: %u prescaler: %u\n",adr, outdrv, ivrt,prescaler);
 #endif
-	if(i2c_pca9685_set_mode(adr, outdrv, ivrt,prescaler) == 0)
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm mode ok")));
-	else
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("pwm mode not ok")));
+	const PGM_P str = (i2c_pca9685_set_mode(adr, outdrv, ivrt,prescaler) == 0) ? PSTR("pwm mode ok") : PSTR("pwm mode not ok");
+	return ECMD_FINAL(snprintf_P(output, len, str));
 }
 
 #endif  /* I2C_PCA9685_SUPPORT */

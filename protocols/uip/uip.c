@@ -611,7 +611,6 @@ uip_add_rcv_nxt(u16_t n)
 }
 #endif
 /*---------------------------------------------------------------------------*/
-u8_t uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix);
 
 #if UIP_MULTI_STACK
 /* Return 1 if a/prefix and b/prefix are on the same network. */

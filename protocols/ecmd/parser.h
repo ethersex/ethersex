@@ -37,6 +37,6 @@ struct ecmd_command_t {
 };
 
 /* automatically generated via meta system */
-extern const struct ecmd_command_t PROGMEM ecmd_cmds[];
+extern const struct ecmd_command_t ecmd_cmds[];
 
 #endif /* _ECMD_PARSER_H */
