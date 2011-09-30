@@ -57,3 +57,10 @@ dnl pin(LED1, PD5)
 dnl pin(LED2, PD6)
 dnl pin(SPEAKER, PD7)
 
+/* port the sd-reader CS is attached to */
+ifdef(`conf_SD_READER', `
+  pin(SPI_CS_SD_READER, PC5, OUTPUT)
+')
+pin(SOFT_SPI_MOSI, PD2)
+pin(SOFT_SPI_MISO, PD3)
+pin(SOFT_SPI_SCK,  PD4)
