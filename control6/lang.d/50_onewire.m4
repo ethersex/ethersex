@@ -31,7 +31,7 @@ divert(globals_divert)`
 #include "core/bit-macros.h"
 
 #ifdef ONEWIRE_POLLING_SUPPORT
-int16_t ow_read_temp (struct ow_rom_code_t *rom)
+static int16_t ow_read_temp (struct ow_rom_code_t *rom)
 {
 	/*Search the sensor...*/
 	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
@@ -48,12 +48,12 @@ int16_t ow_read_temp (struct ow_rom_code_t *rom)
 	return 0x7FFF;  /* error */
 
 }
-int16_t ow_temp (struct ow_rom_code_t *rom)
+static int16_t ow_temp (struct ow_rom_code_t *rom)
 {
 	return ow_read_temp(rom);
 }
 #else /*ONEWIRE_POLLING_SUPPORT is not defined*/
-int16_t ow_read_temp (struct ow_rom_code_t *rom)
+static int16_t ow_read_temp (struct ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
 
@@ -73,7 +73,7 @@ int16_t ow_read_temp (struct ow_rom_code_t *rom)
   return retval;
 }
 
-int16_t ow_temp (struct ow_rom_code_t *rom)
+static int16_t ow_temp (struct ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
 
