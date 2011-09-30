@@ -221,7 +221,7 @@ enum {
 
 #endif
 
-extern u16_t upper_layer_chksum(u8_t);
+u16_t upper_layer_chksum(u8_t);
 u8_t uip_ipaddr_prefixlencmp(uip_ip6addr_t _a, uip_ip6addr_t _b, u8_t prefix);
 
 #endif /* __UIP_CONF_H__ */

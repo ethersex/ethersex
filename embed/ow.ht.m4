@@ -9,7 +9,7 @@ ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')dnl
 var sensors;
 
 function ecmd_1w_list_req() {
-	ArrAjax.ecmd('1w list', ecmd_1w_list_req_handler);
+	ArrAjax.ecmd('1w list t', ecmd_1w_list_req_handler);
 }
 
 function ecmd_1w_list_req_handler(request) {

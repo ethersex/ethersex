@@ -30,7 +30,30 @@ divert(globals_divert)`
 #include "hardware/onewire/onewire.h"
 #include "core/bit-macros.h"
 
-int16_t ow_read_temp (struct ow_rom_code_t *rom)
+#ifdef ONEWIRE_POLLING_SUPPORT
+static int16_t ow_read_temp (struct ow_rom_code_t *rom)
+{
+	/*Search the sensor...*/
+	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
+	{
+		/*Maybe check here whether the device is a temperature sensor*/
+		if(ow_sensors[i].ow_rom_code.raw == rom->raw)
+		{
+			/*Found it*/
+			int16_t temp = ow_sensors[i].temp;
+			return temp;
+		}
+	}
+	/*Sensor is not in list*/
+	return 0x7FFF;  /* error */
+
+}
+static int16_t ow_temp (struct ow_rom_code_t *rom)
+{
+	return ow_read_temp(rom);
+}
+#else /*ONEWIRE_POLLING_SUPPORT is not defined*/
+static int16_t ow_read_temp (struct ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
 
@@ -50,7 +73,7 @@ int16_t ow_read_temp (struct ow_rom_code_t *rom)
   return retval;
 }
 
-int16_t ow_temp (struct ow_rom_code_t *rom)
+static int16_t ow_temp (struct ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
 
@@ -66,6 +89,7 @@ int16_t ow_temp (struct ow_rom_code_t *rom)
   SREG = sreg;
   return retval;
 }
+#endif /*ONEWIRE_POLLING_SUPPORT*/
 '
 divert(old_divert)')')
 
@@ -108,4 +132,7 @@ divert(old_divert)ow_read_temp(&ow_$1)')
 define(`ONEWIRE_CONVERT', `ONEWIRE_USED()dnl
 define(`old_divert', divnum)dnl
 divert(globals_divert)
-divert(old_divert)ow_temp_start_convert(NULL,0)')
+divert(old_divert)
+#ifndef ONEWIRE_POLLING_SUPPORT
+ow_temp_start_convert(NULL,0);
+#endif // dirty workaround for -> ')

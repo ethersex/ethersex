@@ -2264,7 +2264,61 @@ DALI_SUPPORT
 
   Enable code to control lighting via the DALI bus
   (Digital Addressable Lighting Interface)
+
+DMX Storage
+DMX_STORAGE_SUPPORT
+  Depends on:
+
+  Part of the Ethersex Lighting Architecture
+
+  DMX Storage stores and manages DMX universes and provides routines for accessing the data with other modules.
+  Each of these modules can connect using a slot - so make sure that you have sufficient slots for each universe and each module!
+DMX Effect
+DMX_EFFECT_SUPPORT
+  Dependes on:
+   * DMX Storage (DMX_STORAGE_SUPPORT)
+
+  Part of the Ethersex Lighting Architecture
+
+  DMX Effect creates animations and effects for
+  headless setups or currently not animated devices
+DMX_EFFECT_RAINBOW
   
+  Nice color changing (smooth) animation.
+
+DMX_EFFECT_RAINBOW_MARGIN
+  If your DMX device or application needs a certain value between the channel values (e.g. mode, speed etc.) you can set the margin length here
+DMX_EFFECT_RAINBOW_MARGIN_FILL
+  If your DMX device or application needs a certain value between the channel values (e.g. mode, speed etc.) you can set the value here
+STARBURST_SUPPORT
+  Depends on:
+   * DMX Storage (DMX_STORAGE_SUPPORT)
+
+  Part of the Ethersex Lighting Architecture
+
+  Starburst manages different external PWM controllers which display data provided by DMX Storage.
+STARBURST_PCA9685
+  Depends on:
+  * I2C_PCA9685_SUPPORT
+  * STARBURST_SUPPORT
+
+  Module for Starburst which controls a NXP pca9685 (12-bit pwm 16-Channel). The dmx layout is as follows:
+  mcmcmcmcmcmcmc....s
+  m=mode (see starburst.h for available modes)
+  c=channel value (0-255)
+  s=strobo s Hz (optional, see STARBURST_PCA9685_STROBO)
+
+STARBURST_PCA9685_ADDRESS
+  The i2c address of your chip
+STARBURST_PCA9685_PRESCALER
+  Prescaler for pwm (default is 30)
+STARBURST_PCA9685_EXTDRV
+  See datasheet
+STARBURST_PCA9685_IVRT
+  See datasheet
+STARBURST_PCA9685_STROBO
+  if you have the output enable pin connected to the avr you can use strobo effects (for all channels)
+
 LOME6
 LOME6_SUPPORT
   Depends on:
@@ -2277,4 +2331,42 @@ LOME6_SUPPORT
   Documentation is available in services/lome6/doc
   GUI source (Qt4) is available in services/lome6/lome6-gui
 
+
+Onewire Polling
+ONEWIRE_POLLING_SUPPORT
+  Depends on: 
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
+
+  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY*0.8 seconds. 
+  After the discovery, new sensors will be added to the list and old/defect sensors 
+  will be removed from the list.
+  Each sensor discovered will then be polled every OW_READ_DELAY*0.8 seconds and the temperature 
+  stored (cached). The advantage of this feature is that onewire opererates without 
+  any noticeable lags (compared to the 800 ms lag in normal operation mode). Also it is easier to have 
+  multiple applications requesting sensor information since more request will not increase traffic on the 
+  onewire bus.
+  The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
+
+Time between discoveries in 0.8s steps
+OW_DISCOVER_DELAY
+
+  Time between discoveries of new sensors. 1 unit is 0.8s.
+  Example:
+  Input 750 will lead to a discovery every 10 minutes.
+
+Time between polling in 0.8s steps
+OW_READ_DELAY
+
+  Time between polling for new temperatures. 1 unit is 0.8s.
+  Example:
+  Input 75 will lead to a temperature update-rate of 1 minute.
+ 
+  Please adjust this value if you need more precise data (e.g. climate cabinet).
+  It should be save to go down to 5 seconds (~ 6 units)
+
+Maximum sensor count
+OW_SENSORS_COUNT
+
+  How many sensors you expect in your setup. Make sure this value is high enough!
 

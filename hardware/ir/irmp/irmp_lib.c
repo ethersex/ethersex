@@ -3,11 +3,20 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.106 2011/08/16 07:51:19 fm Exp $
+ * $Id: irmp.c,v 1.110 2011/09/22 10:19:44 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
- * Typical manufacturers:
+ * Supported mikrocontrollers:
+ *
+ * ATtiny45,  ATtiny85
+ * ATtiny84
+ * ATmega8,   ATmega16,  ATmega32
+ * ATmega162
+ * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284
+ * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
+ *
+ * Typical manufacturers of remote controls:
  *
  * SIRCS        - Sony
  * NEC          - NEC, Yamaha, Canon, Tevion, Harman/Kardon, Hitachi, JVC, Pioneer, Toshiba, Xoro, Orion, and many other Japanese manufacturers
@@ -288,6 +297,10 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 
+#if defined(__18CXX)
+#define PIC_C18                                                             // Microchip C18 Compiler
+#endif
+
 #if defined(__PCM__) || defined(__PCB__) || defined(__PCH__)                // CCS PIC Compiler instead of AVR
 #define PIC_CCS_COMPILER
 #endif
@@ -316,15 +329,16 @@ typedef unsigned short  uint16_t;
 
 #else
 
-#ifndef CODEVISION
-
-#ifdef PIC_CCS_COMPILER
+#if defined (PIC_CCS_COMPILER) || defined(PIC_C18)
 
 #include <string.h>
-typedef unsigned int8   uint8_t;
-typedef unsigned int16  uint16_t;
 #define PROGMEM
 #define memcpy_P        memcpy
+
+#if defined (PIC_CCS_COMPILER)
+typedef unsigned int8   uint8_t;
+typedef unsigned int16  uint16_t;
+#endif
 
 #else // AVR:
 
@@ -335,8 +349,7 @@ typedef unsigned int16  uint16_t;
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
-#endif  // PIC_CCS_COMPILER
-#endif  // CODEVISION
+#endif  // PIC_CCS_COMPILER or PIC_C18
 
 #endif // windows
 #endif // unix
@@ -368,9 +381,7 @@ typedef unsigned int16  uint16_t;
 #define IRMP_SUPPORT_MANCHESTER                 0
 #endif
 
-#if IRMP_SUPPORT_NETBOX_PROTOCOL == 1 ||                \
-    IRMP_SUPPORT_MERLIN_PROTOCOL == 1 ||                \
-    IRMP_SUPPORT_IMON_PROTOCOL == 1 
+#if IRMP_SUPPORT_NETBOX_PROTOCOL == 1
 #define IRMP_SUPPORT_SERIAL                     1
 #else
 #define IRMP_SUPPORT_SERIAL                     0
@@ -423,18 +434,18 @@ typedef unsigned int16  uint16_t;
 #define SIRCS_PAUSE_LEN_MIN                     ((uint8_t)(F_INTERRUPTS * SIRCS_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
 #define SIRCS_PAUSE_LEN_MAX                     ((uint8_t)(F_INTERRUPTS * SIRCS_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
 
-#define NEC_START_BIT_PULSE_LEN_MIN             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PULSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
-#define NEC_START_BIT_PULSE_LEN_MAX             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PULSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
-#define NEC_START_BIT_PAUSE_LEN_MIN             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
-#define NEC_START_BIT_PAUSE_LEN_MAX             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
-#define NEC_REPEAT_START_BIT_PAUSE_LEN_MIN      ((uint8_t)(F_INTERRUPTS * NEC_REPEAT_START_BIT_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
-#define NEC_REPEAT_START_BIT_PAUSE_LEN_MAX      ((uint8_t)(F_INTERRUPTS * NEC_REPEAT_START_BIT_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
-#define NEC_PULSE_LEN_MIN                       ((uint8_t)(F_INTERRUPTS * NEC_PULSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
-#define NEC_PULSE_LEN_MAX                       ((uint8_t)(F_INTERRUPTS * NEC_PULSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
-#define NEC_1_PAUSE_LEN_MIN                     ((uint8_t)(F_INTERRUPTS * NEC_1_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
-#define NEC_1_PAUSE_LEN_MAX                     ((uint8_t)(F_INTERRUPTS * NEC_1_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
-#define NEC_0_PAUSE_LEN_MIN                     ((uint8_t)(F_INTERRUPTS * NEC_0_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
-#define NEC_0_PAUSE_LEN_MAX                     ((uint8_t)(F_INTERRUPTS * NEC_0_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
+#define NEC_START_BIT_PULSE_LEN_MIN             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PULSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
+#define NEC_START_BIT_PULSE_LEN_MAX             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PULSE_TIME * MAX_TOLERANCE_30 + 0.5) + 1)
+#define NEC_START_BIT_PAUSE_LEN_MIN             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PAUSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
+#define NEC_START_BIT_PAUSE_LEN_MAX             ((uint8_t)(F_INTERRUPTS * NEC_START_BIT_PAUSE_TIME * MAX_TOLERANCE_30 + 0.5) + 1)
+#define NEC_REPEAT_START_BIT_PAUSE_LEN_MIN      ((uint8_t)(F_INTERRUPTS * NEC_REPEAT_START_BIT_PAUSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
+#define NEC_REPEAT_START_BIT_PAUSE_LEN_MAX      ((uint8_t)(F_INTERRUPTS * NEC_REPEAT_START_BIT_PAUSE_TIME * MAX_TOLERANCE_30 + 0.5) + 1)
+#define NEC_PULSE_LEN_MIN                       ((uint8_t)(F_INTERRUPTS * NEC_PULSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
+#define NEC_PULSE_LEN_MAX                       ((uint8_t)(F_INTERRUPTS * NEC_PULSE_TIME * MAX_TOLERANCE_30 + 0.5) + 1)
+#define NEC_1_PAUSE_LEN_MIN                     ((uint8_t)(F_INTERRUPTS * NEC_1_PAUSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
+#define NEC_1_PAUSE_LEN_MAX                     ((uint8_t)(F_INTERRUPTS * NEC_1_PAUSE_TIME * MAX_TOLERANCE_30 + 0.5) + 1)
+#define NEC_0_PAUSE_LEN_MIN                     ((uint8_t)(F_INTERRUPTS * NEC_0_PAUSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
+#define NEC_0_PAUSE_LEN_MAX                     ((uint8_t)(F_INTERRUPTS * NEC_0_PAUSE_TIME * MAX_TOLERANCE_30 + 0.5) + 1)
 // autodetect nec repetition frame within 50 msec:
 // NEC seems to send the first repetition frame after 40ms, further repetition frames after 100 ms
 #if 0
@@ -678,34 +689,16 @@ typedef unsigned int16  uint16_t;
 #define LEGO_0_PAUSE_LEN_MIN                    ((uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
 #define LEGO_0_PAUSE_LEN_MAX                    ((uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
 
-#define MERLIN_START_BIT_PULSE_LEN_MIN          ((uint8_t)(F_INTERRUPTS * MERLIN_START_BIT_PULSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define MERLIN_START_BIT_PULSE_LEN_MAX          ((uint8_t)(F_INTERRUPTS * MERLIN_START_BIT_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
-#define MERLIN_START_BIT_PAUSE_LEN_MIN          ((uint8_t)(F_INTERRUPTS * MERLIN_START_BIT_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define MERLIN_START_BIT_PAUSE_LEN_MAX          ((uint8_t)(F_INTERRUPTS * MERLIN_START_BIT_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
-#define MERLIN_PULSE_LEN                        ((uint8_t)(F_INTERRUPTS * MERLIN_PULSE_TIME))
-#define MERLIN_PAUSE_LEN                        ((uint8_t)(F_INTERRUPTS * MERLIN_PAUSE_TIME))
-#define MERLIN_PULSE_REST_LEN                   ((uint8_t)(F_INTERRUPTS * MERLIN_PULSE_TIME / 4))
-#define MERLIN_PAUSE_REST_LEN                   ((uint8_t)(F_INTERRUPTS * MERLIN_PAUSE_TIME / 4))
-
-#define IMON_START_BIT_PULSE_LEN_MIN            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PULSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define IMON_START_BIT_PULSE_LEN_MAX            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
-#define IMON_START_BIT_PAUSE_LEN_MIN            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define IMON_START_BIT_PAUSE_LEN_MAX            ((uint8_t)(F_INTERRUPTS * IMON_START_BIT_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
-#define IMON_PULSE_LEN                          ((uint8_t)(F_INTERRUPTS * IMON_PULSE_TIME))
-#define IMON_PAUSE_LEN                          ((uint8_t)(F_INTERRUPTS * IMON_PAUSE_TIME))
-#define IMON_PULSE_REST_LEN                     ((uint8_t)(F_INTERRUPTS * IMON_PULSE_TIME / 4))
-#define IMON_PAUSE_REST_LEN                     ((uint8_t)(F_INTERRUPTS * IMON_PAUSE_TIME / 4))
-
 #define AUTO_FRAME_REPETITION_LEN               (uint16_t)(F_INTERRUPTS * AUTO_FRAME_REPETITION_TIME + 0.5)       // use uint16_t!
 
 #ifdef ANALYZE
-#define ANALYZE_PUTCHAR(a)                        { if (! silent)             { putchar (a);          } }
-#define ANALYZE_ONLY_NORMAL_PUTCHAR(a)            { if (! silent && !verbose) { putchar (a);          } }
-#define ANALYZE_PRINTF(...)                       { if (verbose)              { printf (__VA_ARGS__); } }
-#define ANALYZE_NEWLINE()                         { if (verbose)              { putchar ('\n');       } }
-static int      silent;
-static int      time_counter;
-static int      verbose;
+#define ANALYZE_PUTCHAR(a)                      { if (! silent)             { putchar (a);          } }
+#define ANALYZE_ONLY_NORMAL_PUTCHAR(a)          { if (! silent && !verbose) { putchar (a);          } }
+#define ANALYZE_PRINTF(...)                     { if (verbose)              { printf (__VA_ARGS__); } }
+#define ANALYZE_NEWLINE()                       { if (verbose)              { putchar ('\n');       } }
+static int                                      silent;
+static int                                      time_counter;
+static int                                      verbose;
 #else
 #define ANALYZE_PUTCHAR(a)
 #define ANALYZE_ONLY_NORMAL_PUTCHAR(a)
@@ -713,6 +706,56 @@ static int      verbose;
 #define ANALYZE_NEWLINE()
 #endif
 
+#if IRMP_USE_CALLBACK == 1
+static void                                     (*irmp_callback_ptr) (uint8_t);
+#endif // IRMP_USE_CALLBACK == 1
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ *  Protocol names
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#if IRMP_PROTOCOL_NAMES == 1
+char *
+irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
+{
+    "UNKNOWN",
+    "SIRCS",
+    "NEC",
+    "SAMSUNG",
+    "MATSUSH",
+    "KASEIKYO",
+    "RECS80",
+    "RC5",
+    "DENON",
+    "RC6",
+    "SAMSG32",
+    "APPLE",
+    "RECS80EX",
+    "NUBERT",
+    "BANG OLU",
+    "GRUNDIG",
+    "NOKIA",
+    "SIEMENS",
+    "FDC",
+    "RCCAR",
+    "JVC",
+    "RC6A",
+    "NIKON",
+    "RUWIDO",
+    "IR60",
+    "KATHREIN",
+    "NETBOX",
+    "NEC16",
+    "NEC42",
+    "LEGO",
+    "THOMSON"
+};
+#endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ *  Logging
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
 #if IRMP_LOGGING == 1
 #define BAUD                                    9600L
 #include <util/setbaud.h>
@@ -983,9 +1026,9 @@ static const PROGMEM IRMP_PARAMETER nec42_param =
     NEC_0_PAUSE_LEN_MIN,                                                // pause_0_len_min: minimum length of pause with bit value 0
     NEC_0_PAUSE_LEN_MAX,                                                // pause_0_len_max: maximum length of pause with bit value 0
     NEC42_ADDRESS_OFFSET,                                               // address_offset:  address offset
-    NEC42_ADDRESS_OFFSET + NEC_ADDRESS_LEN,                             // address_end:     end of address
+    NEC42_ADDRESS_OFFSET + NEC42_ADDRESS_LEN,                           // address_end:     end of address
     NEC42_COMMAND_OFFSET,                                               // command_offset:  command offset
-    NEC42_COMMAND_OFFSET + NEC_COMMAND_LEN,                             // command_end:     end of command
+    NEC42_COMMAND_OFFSET + NEC42_COMMAND_LEN,                           // command_end:     end of command
     NEC42_COMPLETE_DATA_LEN,                                            // complete_len:    complete length of frame
     NEC_STOP_BIT,                                                       // stop_bit:        flag: frame has stop bit
     NEC_LSB,                                                            // lsb_first:       flag: LSB first
@@ -1448,31 +1491,6 @@ static const PROGMEM IRMP_PARAMETER lego_param =
 
 #endif
 
-#if IRMP_SUPPORT_MERLIN_PROTOCOL == 1
-
-static const PROGMEM IRMP_PARAMETER merlin_param =
-{
-    IRMP_MERLIN_PROTOCOL,                                               // protocol:        ir protocol
-    MERLIN_PULSE_LEN,                                                   // pulse_1_len_min: minimum length of pulse with bit value 1, here: exact value
-    MERLIN_PULSE_REST_LEN,                                              // pulse_1_len_max: maximum length of pulse with bit value 1, here: rest value
-    MERLIN_PAUSE_LEN,                                                   // pause_1_len_min: minimum length of pause with bit value 1, here: exact value
-    MERLIN_PAUSE_REST_LEN,                                              // pause_1_len_max: maximum length of pause with bit value 1, here: rest value
-    MERLIN_PULSE_LEN,                                                   // pulse_0_len_min: minimum length of pulse with bit value 0, here: exact value
-    MERLIN_PULSE_REST_LEN,                                              // pulse_0_len_max: maximum length of pulse with bit value 0, here: rest value
-    MERLIN_PAUSE_LEN,                                                   // pause_0_len_min: minimum length of pause with bit value 0, here: exact value
-    MERLIN_PAUSE_REST_LEN,                                              // pause_0_len_max: maximum length of pause with bit value 0, here: rest value
-    MERLIN_ADDRESS_OFFSET,                                              // address_offset:  address offset
-    MERLIN_ADDRESS_OFFSET + MERLIN_ADDRESS_LEN,                         // address_end:     end of address
-    MERLIN_COMMAND_OFFSET,                                              // command_offset:  command offset
-    MERLIN_COMMAND_OFFSET + MERLIN_COMMAND_LEN,                         // command_end:     end of command
-    MERLIN_COMPLETE_DATA_LEN,                                           // complete_len:    complete length of frame
-    MERLIN_STOP_BIT,                                                    // stop_bit:        flag: frame has stop bit
-    MERLIN_LSB,                                                         // lsb_first:       flag: LSB first
-    MERLIN_FLAGS                                                        // flags:           some flags
-};
-
-#endif
-
 #if IRMP_SUPPORT_THOMSON_PROTOCOL == 1
 
 static const PROGMEM IRMP_PARAMETER thomson_param =
@@ -1498,31 +1516,6 @@ static const PROGMEM IRMP_PARAMETER thomson_param =
 
 #endif
 
-#if IRMP_SUPPORT_IMON_PROTOCOL == 1
-
-static const PROGMEM IRMP_PARAMETER imon_param =
-{
-    IRMP_IMON_PROTOCOL,                                                 // protocol:        ir protocol
-    IMON_PULSE_LEN,                                                     // pulse_1_len_min: minimum length of pulse with bit value 1
-    IMON_PULSE_REST_LEN,                                                // pulse_1_len_max: maximum length of pulse with bit value 1
-    IMON_PAUSE_LEN,                                                     // pause_1_len_min: minimum length of pause with bit value 1
-    IMON_PAUSE_REST_LEN,                                                // pause_1_len_max: maximum length of pause with bit value 1
-    IMON_PULSE_LEN,                                                     // pulse_0_len_min: minimum length of pulse with bit value 0
-    IMON_PULSE_REST_LEN,                                                // pulse_0_len_max: maximum length of pulse with bit value 0
-    IMON_PAUSE_LEN,                                                     // pause_0_len_min: minimum length of pause with bit value 0
-    IMON_PAUSE_REST_LEN,                                                // pause_0_len_max: maximum length of pause with bit value 0
-    IMON_ADDRESS_OFFSET,                                                // address_offset:  address offset
-    IMON_ADDRESS_OFFSET + IMON_ADDRESS_LEN,                             // address_end:     end of address
-    IMON_COMMAND_OFFSET,                                                // command_offset:  command offset
-    IMON_COMMAND_OFFSET + IMON_COMMAND_LEN,                             // command_end:     end of command
-    IMON_COMPLETE_DATA_LEN,                                             // complete_len:    complete length of frame
-    IMON_STOP_BIT,                                                      // stop_bit:        flag: frame has stop bit
-    IMON_LSB,                                                           // lsb_first:       flag: LSB first
-    IMON_FLAGS                                                          // flags:           some flags
-};
-
-#endif
-
 static uint8_t                              irmp_bit;                   // current bit position
 static IRMP_PARAMETER                       irmp_param;
 
@@ -1536,6 +1529,7 @@ static volatile uint16_t                    irmp_address;
 static volatile uint16_t                    irmp_command;
 static volatile uint16_t                    irmp_id;                    // only used for SAMSUNG protocol
 static volatile uint8_t                     irmp_flags;
+// static volatile uint8_t                     irmp_busy_flag;
 
 #ifdef ANALYZE
 static uint8_t                              IRMP_PIN;
@@ -1551,10 +1545,10 @@ static uint8_t                              IRMP_PIN;
 void
 irmp_init (void)
 {
-#ifndef PIC_CCS_COMPILER
+#if !defined(PIC_CCS_COMPILER) && !defined(PIC_C18)                     // only AVR
     IRMP_PORT &= ~(1<<IRMP_BIT);                                        // deactivate pullup
     IRMP_DDR &= ~(1<<IRMP_BIT);                                         // set pin to input
-#endif // PIC_CCS_COMPILER
+#endif
 
 #if IRMP_LOGGING == 1
     irmp_uart_init ();
@@ -1715,6 +1709,20 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
 
     return rtc;
 }
+
+// uint8_t
+// irmp_is_busy (void)
+// {
+//     return irmp_busy_flag;
+// }
+
+#if IRMP_USE_CALLBACK == 1
+void
+irmp_set_callback_ptr (void (*cb)(uint8_t))
+{
+    irmp_callback_ptr = cb;
+}
+#endif // IRMP_USE_CALLBACK == 1
 
 // these statics must not be volatile, because they are only used by irmp_store_bit(), which is called by irmp_ISR()
 static uint16_t irmp_tmp_address;                                                       // ir address
@@ -1891,6 +1899,19 @@ irmp_ISR (void)
     irmp_input = input(IRMP_PIN);
 #endif
 
+#if IRMP_USE_CALLBACK == 1
+    if (irmp_callback_ptr)
+    {
+        static uint8_t last_inverted_input;
+
+        if (last_inverted_input != !irmp_input)
+        {
+            (*irmp_callback_ptr) (! irmp_input);
+            last_inverted_input = !irmp_input;
+        }
+    }
+#endif // IRMP_USE_CALLBACK == 1
+
     irmp_log(irmp_input);                                                       // log ir signal, if IRMP_LOGGING defined
 
     if (! irmp_ir_detected)                                                     // ir code already detected?
@@ -1899,6 +1920,7 @@ irmp_ISR (void)
         {                                                                       // no...
             if (! irmp_input)                                                   // receiving burst?
             {                                                                   // yes...
+//              irmp_busy_flag = TRUE;
 #ifdef ANALYZE
                 if (! irmp_pulse_time)
                 {
@@ -1963,6 +1985,7 @@ irmp_ISR (void)
                             ANALYZE_PRINTF ("%8d error 1: pause after start bit pulse %d too long: %d\n", time_counter, irmp_pulse_time, irmp_pause_time);
                             ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
                         }
+//                      irmp_busy_flag = FALSE;
                         irmp_start_bit_detected = 0;                            // reset flags, let's wait for another start bit
                         irmp_pulse_time         = 0;
                         irmp_pause_time         = 0;
@@ -1995,7 +2018,7 @@ irmp_ISR (void)
                         irmp_pulse_time >= JVC_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= JVC_START_BIT_PULSE_LEN_MAX &&
                         irmp_pause_time >= JVC_REPEAT_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= JVC_REPEAT_START_BIT_PAUSE_LEN_MAX)
                     {
-                        ANALYZE_PRINTF ("protocol = NEC or JVC repeat frame, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
+                        ANALYZE_PRINTF ("protocol = NEC or JVC (type 1) repeat frame, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
                                         JVC_START_BIT_PULSE_LEN_MIN, JVC_START_BIT_PULSE_LEN_MAX,
                                         JVC_REPEAT_START_BIT_PAUSE_LEN_MIN, JVC_REPEAT_START_BIT_PAUSE_LEN_MAX);
                         irmp_param_p = (IRMP_PARAMETER *) &nec_param;
@@ -2023,13 +2046,39 @@ irmp_ISR (void)
                     else if (irmp_pulse_time >= NEC_START_BIT_PULSE_LEN_MIN        && irmp_pulse_time <= NEC_START_BIT_PULSE_LEN_MAX &&
                              irmp_pause_time >= NEC_REPEAT_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= NEC_REPEAT_START_BIT_PAUSE_LEN_MAX)
                     {                                                           // it's NEC
-                        ANALYZE_PRINTF ("protocol = NEC (repetition frame), start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
-                                        NEC_START_BIT_PULSE_LEN_MIN, NEC_START_BIT_PULSE_LEN_MAX,
-                                        NEC_REPEAT_START_BIT_PAUSE_LEN_MIN, NEC_REPEAT_START_BIT_PAUSE_LEN_MAX);
+#if IRMP_SUPPORT_JVC_PROTOCOL == 1
+                        if (irmp_protocol == IRMP_JVC_PROTOCOL)                 // last protocol was JVC, awaiting repeat frame
+                        {                                                       // some jvc remote controls use nec repetition frame for jvc repetition frame
+                            ANALYZE_PRINTF ("protocol = JVC repeat frame type 2, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
+                                            NEC_START_BIT_PULSE_LEN_MIN, NEC_START_BIT_PULSE_LEN_MAX,
+                                            NEC_REPEAT_START_BIT_PAUSE_LEN_MIN, NEC_REPEAT_START_BIT_PAUSE_LEN_MAX);
+                            irmp_param_p = (IRMP_PARAMETER *) &nec_param;
+                        }
+                        else
+#endif // IRMP_SUPPORT_JVC_PROTOCOL == 1
+                        {
+                            ANALYZE_PRINTF ("protocol = NEC (repetition frame), start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
+                                            NEC_START_BIT_PULSE_LEN_MIN, NEC_START_BIT_PULSE_LEN_MAX,
+                                            NEC_REPEAT_START_BIT_PAUSE_LEN_MIN, NEC_REPEAT_START_BIT_PAUSE_LEN_MAX);
 
-                        irmp_param_p = (IRMP_PARAMETER *) &nec_rep_param;
+                            irmp_param_p = (IRMP_PARAMETER *) &nec_rep_param;
+                        }
                     }
                     else
+
+#if IRMP_SUPPORT_JVC_PROTOCOL == 1
+                    if (irmp_protocol == IRMP_JVC_PROTOCOL &&                   // last protocol was JVC, awaiting repeat frame
+                        irmp_pulse_time >= NEC_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= NEC_START_BIT_PULSE_LEN_MAX &&
+                        irmp_pause_time >= NEC_0_PAUSE_LEN_MIN         && irmp_pause_time <= NEC_0_PAUSE_LEN_MAX)
+                    {                                                           // it's JVC repetition type 3
+                        ANALYZE_PRINTF ("protocol = JVC repeat frame type 3, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
+                                        NEC_START_BIT_PULSE_LEN_MIN, NEC_START_BIT_PULSE_LEN_MAX,
+                                        NEC_0_PAUSE_LEN_MIN, NEC_0_PAUSE_LEN_MAX);
+                        irmp_param_p = (IRMP_PARAMETER *) &nec_param;
+                    }
+                    else
+#endif // IRMP_SUPPORT_JVC_PROTOCOL == 1
+
 #endif // IRMP_SUPPORT_NEC_PROTOCOL == 1
 
 #if IRMP_SUPPORT_NIKON_PROTOCOL == 1
@@ -2323,18 +2372,6 @@ irmp_ISR (void)
                     else
 #endif // IRMP_SUPPORT_NETBOX_PROTOCOL == 1
 
-#if IRMP_SUPPORT_MERLIN_PROTOCOL == 1
-                    if (irmp_pulse_time >= MERLIN_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= MERLIN_START_BIT_PULSE_LEN_MAX &&
-                        irmp_pause_time >= MERLIN_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= MERLIN_START_BIT_PAUSE_LEN_MAX)
-                    {                                                           // it's MERLIN
-                        ANALYZE_PRINTF ("protocol = MERLIN, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
-                                        MERLIN_START_BIT_PULSE_LEN_MIN, MERLIN_START_BIT_PULSE_LEN_MAX,
-                                        MERLIN_START_BIT_PAUSE_LEN_MIN, MERLIN_START_BIT_PAUSE_LEN_MAX);
-                        irmp_param_p = (IRMP_PARAMETER *) &merlin_param;
-                    }
-                    else
-#endif // IRMP_SUPPORT_MERLIN_PROTOCOL == 1
-
 #if IRMP_SUPPORT_LEGO_PROTOCOL == 1
                     if (irmp_pulse_time >= LEGO_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= LEGO_START_BIT_PULSE_LEN_MAX &&
                         irmp_pause_time >= LEGO_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= LEGO_START_BIT_PAUSE_LEN_MAX)
@@ -2345,22 +2382,11 @@ irmp_ISR (void)
                         irmp_param_p = (IRMP_PARAMETER *) &lego_param;
                     }
                     else
-#endif // IRMP_SUPPORT_NEC_PROTOCOL == 1
-
-#if IRMP_SUPPORT_IMON_PROTOCOL == 1
-                    if (irmp_pulse_time >= IMON_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= IMON_START_BIT_PULSE_LEN_MAX &&
-                        irmp_pause_time >= IMON_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= IMON_START_BIT_PAUSE_LEN_MAX)
-                    {                                                           // it's IMON
-                        ANALYZE_PRINTF ("protocol = IMON, start bit timings: pulse: %3d - %3d, pause: %3d - %3d\n",
-                                        IMON_START_BIT_PULSE_LEN_MIN, IMON_START_BIT_PULSE_LEN_MAX,
-                                        IMON_START_BIT_PAUSE_LEN_MIN, IMON_START_BIT_PAUSE_LEN_MAX);
-                        irmp_param_p = (IRMP_PARAMETER *) &imon_param;
-                    }
-                    else
-#endif // IRMP_SUPPORT_IMON_PROTOCOL == 1
+#endif // IRMP_SUPPORT_LEGO_PROTOCOL == 1
 
                     {
                         ANALYZE_PRINTF ("protocol = UNKNOWN\n");
+//                      irmp_busy_flag = FALSE;
                         irmp_start_bit_detected = 0;                            // wait for another start bit...
                     }
 
@@ -2402,8 +2428,15 @@ irmp_ISR (void)
 
                         if (! (irmp_param.flags & IRMP_PARAM_FLAG_IS_MANCHESTER))
                         {
-                            ANALYZE_PRINTF ("pulse_0: %3d - %3d\n", 2 * irmp_param.pulse_1_len_min, 2 * irmp_param.pulse_1_len_max);
-                            ANALYZE_PRINTF ("pause_0: %3d - %3d\n", 2 * irmp_param.pause_1_len_min, 2 * irmp_param.pause_1_len_max);
+                            ANALYZE_PRINTF ("pulse_0: %3d - %3d\n", irmp_param.pulse_0_len_min, irmp_param.pulse_0_len_max);
+                            ANALYZE_PRINTF ("pause_0: %3d - %3d\n", irmp_param.pause_0_len_min, irmp_param.pause_0_len_max);
+                        }
+                        else
+                        {
+                            ANALYZE_PRINTF ("pulse: %3d - %3d or %3d - %3d\n", irmp_param.pulse_0_len_min, irmp_param.pulse_0_len_max,
+                                            2 * irmp_param.pulse_0_len_min, 2 * irmp_param.pulse_0_len_max);
+                            ANALYZE_PRINTF ("pause: %3d - %3d or %3d - %3d\n", irmp_param.pause_0_len_min, irmp_param.pause_0_len_max,
+                                            2 * irmp_param.pause_0_len_min, 2 * irmp_param.pause_0_len_max);
                         }
 
 #if IRMP_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1
@@ -2532,8 +2565,10 @@ irmp_ISR (void)
                         }
                         else
                         {
-                            ANALYZE_PRINTF ("error: stop bit timing wrong\n");
+                            ANALYZE_PRINTF ("error: stop bit timing wrong, irmp_bit = %d, irmp_pulse_time = %d, pulse_0_len_min = %d, pulse_0_len_max = %d\n",
+                                            irmp_bit, irmp_pulse_time, irmp_param.pulse_0_len_min, irmp_param.pulse_0_len_max);
 
+//                          irmp_busy_flag = FALSE;
                             irmp_start_bit_detected = 0;                        // wait for another start bit...
                             irmp_pulse_time         = 0;
                             irmp_pause_time         = 0;
@@ -2564,15 +2599,6 @@ irmp_ISR (void)
                             got_light = TRUE;                                                       // this is a lie, but helps (generates stop bit)
                         }
                         else
-#if 1
-                        // MERLIN generates no stop bit, here is the timeout condition:
-                        if ((irmp_param.flags & IRMP_PARAM_FLAG_IS_SERIAL) && irmp_param.protocol == IRMP_MERLIN_PROTOCOL &&
-                            irmp_pause_time >= MERLIN_PULSE_LEN * (MERLIN_COMPLETE_DATA_LEN - irmp_bit))
-                        {
-                            got_light = TRUE;                                                       // this is a lie, but helps (generates stop bit)
-                        }
-                        else
-#endif
 #endif
 #if IRMP_SUPPORT_GRUNDIG_NOKIA_IR60_PROTOCOL == 1
                         if (irmp_param.protocol == IRMP_GRUNDIG_PROTOCOL && !irmp_param.stop_bit)
@@ -2665,7 +2691,7 @@ irmp_ISR (void)
 #if IRMP_SUPPORT_JVC_PROTOCOL == 1
                             else if (irmp_param.protocol == IRMP_NEC_PROTOCOL && (irmp_bit == 16 || irmp_bit == 17))      // it was a JVC stop bit
                             {
-                                ANALYZE_PRINTF ("Switching to JVC protocol\n");
+                                ANALYZE_PRINTF ("Switching to JVC protocol, irmp_bit = %d\n", irmp_bit);
                                 irmp_param.stop_bit     = TRUE;                                     // set flag
                                 irmp_param.protocol     = IRMP_JVC_PROTOCOL;                        // switch protocol
                                 irmp_param.complete_len = irmp_bit;                                 // patch length: 16 or 17
@@ -2692,9 +2718,9 @@ irmp_ISR (void)
                             }
 #endif // IRMP_SUPPORT_NEC_PROTOCOL == 1
 #if IRMP_SUPPORT_JVC_PROTOCOL == 1
-                            else if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && irmp_bit == 16)  // it was a JVC stop bit
+                            else if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && (irmp_bit == 16 || irmp_bit == 17))  // it was a JVC stop bit
                             {
-                                ANALYZE_PRINTF ("Switching to JVC protocol\n");
+                                ANALYZE_PRINTF ("Switching to JVC protocol, irmp_bit = %d\n", irmp_bit);
                                 irmp_param.stop_bit     = TRUE;                                     // set flag
                                 irmp_param.protocol     = IRMP_JVC_PROTOCOL;                        // switch protocol
                                 irmp_param.complete_len = irmp_bit;                                 // patch length: 16 or 17
@@ -2712,6 +2738,7 @@ irmp_ISR (void)
                                 ANALYZE_PRINTF ("error 2: pause %d after data bit %d too long\n", irmp_pause_time, irmp_bit);
                                 ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
 
+//                              irmp_busy_flag = FALSE;
                                 irmp_start_bit_detected = 0;                    // wait for another start bit...
                                 irmp_pulse_time         = 0;
                                 irmp_pause_time         = 0;
@@ -2859,6 +2886,7 @@ irmp_ISR (void)
                                 ANALYZE_NEWLINE ();
                                 ANALYZE_PRINTF ("error 3 manchester: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                                 ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                              irmp_busy_flag = FALSE;
                                 irmp_start_bit_detected = 0;                            // reset flags and wait for next start bit
                                 irmp_pause_time         = 0;
                             }
@@ -2996,6 +3024,7 @@ irmp_ISR (void)
                         {                                                           // timing incorrect!
                             ANALYZE_PRINTF ("error 3 Samsung: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                             ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                          irmp_busy_flag = FALSE;
                             irmp_start_bit_detected = 0;                            // reset flags and wait for next start bit
                             irmp_pause_time         = 0;
                         }
@@ -3011,9 +3040,8 @@ irmp_ISR (void)
 #endif // IRMP_SUPPORT_NEC42_PROTOCOL == 1
                         irmp_bit == 8 && irmp_pause_time >= NEC_START_BIT_PAUSE_LEN_MIN && irmp_pause_time <= NEC_START_BIT_PAUSE_LEN_MAX)
                     {
-printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                         ANALYZE_PRINTF ("Switching to NEC16 protocol\n");
-                        irmp_param.protocol = IRMP_NEC16_PROTOCOL;
+                        irmp_param.protocol         = IRMP_NEC16_PROTOCOL;
                         irmp_param.address_offset   = NEC16_ADDRESS_OFFSET;
                         irmp_param.address_end      = NEC16_ADDRESS_OFFSET + NEC16_ADDRESS_LEN;
                         irmp_param.command_offset   = NEC16_COMMAND_OFFSET;
@@ -3041,6 +3069,7 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                                 {                                                   // timing incorrect!
                                     ANALYZE_PRINTF ("error 3a B&O: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                                     ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                                  irmp_busy_flag = FALSE;
                                     irmp_start_bit_detected = 0;                    // reset flags and wait for next start bit
                                     irmp_pause_time         = 0;
                                 }
@@ -3057,6 +3086,7 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                                 {                                                   // timing incorrect!
                                     ANALYZE_PRINTF ("error 3b B&O: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                                     ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                                  irmp_busy_flag = FALSE;
                                     irmp_start_bit_detected = 0;                    // reset flags and wait for next start bit
                                     irmp_pause_time         = 0;
                                 }
@@ -3090,6 +3120,7 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                                 {                                                   // timing incorrect!
                                     ANALYZE_PRINTF ("error 3c B&O: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                                     ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                                  irmp_busy_flag = FALSE;
                                     irmp_start_bit_detected = 0;                    // reset flags and wait for next start bit
                                     irmp_pause_time         = 0;
                                 }
@@ -3099,6 +3130,7 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                         {                                                           // timing incorrect!
                             ANALYZE_PRINTF ("error 3d B&O: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                             ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                          irmp_busy_flag = FALSE;
                             irmp_start_bit_detected = 0;                            // reset flags and wait for next start bit
                             irmp_pause_time         = 0;
                         }
@@ -3153,6 +3185,7 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                     {                                                               // timing incorrect!
                         ANALYZE_PRINTF ("error 3: timing not correct: data bit %d,  pulse: %d, pause: %d\n", irmp_bit, irmp_pulse_time, irmp_pause_time);
                         ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
+//                      irmp_busy_flag = FALSE;
                         irmp_start_bit_detected = 0;                                // reset flags and wait for next start bit
                         irmp_pause_time         = 0;
                     }
@@ -3383,6 +3416,7 @@ printf ("! %d %d !\n", irmp_pause_time, NEC_START_BIT_PAUSE_LEN_MAX);
                     ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
                 }
 
+//              irmp_busy_flag          = FALSE;
                 irmp_start_bit_detected = 0;                                        // and wait for next start bit
                 irmp_tmp_command        = 0;
                 irmp_pulse_time         = 0;

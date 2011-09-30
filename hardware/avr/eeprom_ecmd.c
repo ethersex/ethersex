@@ -48,7 +48,7 @@ int16_t parse_cmd_eer(char *cmd, char *output, uint16_t len)
         return ECMD_ERR_PARSE_ERROR;
     
     uint16_t ptr = eeprom_start + addr_offset;
-    for (int i = 0; i < length; i ++)
+    for (uint16_t i = 0; i < length; i ++)
       sprintf_P (output + (i << 1), PSTR("%02x"), 
                  eeprom_read_byte((uint8_t *) (ptr ++)));
     
