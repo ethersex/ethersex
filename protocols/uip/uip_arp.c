@@ -115,10 +115,8 @@ static const struct uip_eth_addr broadcast_ethaddr =
 static const u16_t broadcast_ipaddr[2] = {0xffff,0xffff};
 
 static struct arp_entry arp_table[UIP_ARPTAB_SIZE];
-static u16_t ipaddr[2];
 
 static u8_t arptime;
-static u8_t tmpage;
 
 #define BUF   ((struct arp_hdr *)&uip_buf[0])
 #define IPBUF ((struct ethip_hdr *)&uip_buf[0])
@@ -208,7 +206,7 @@ uip_arp_update(u16_t *ip, struct uip_eth_addr *ethaddr)
   /* If no unused entry is found, we try to find the oldest entry and
      throw it away. */
   if(i == UIP_ARPTAB_SIZE) {
-    tmpage = 0;
+    u8_t tmpage = 0;
     u8_t c = 0;
     for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
       tabptr = &arp_table[i];
@@ -415,6 +413,7 @@ uip_arp_out(void)
     memcpy(IPBUF->ethhdr.dest.addr, &((struct uip_eth_hdr *) uip_buf)->dest, 6); 
 #endif
   } else {
+    uip_ipaddr_t ipaddr;
     /* Check if the destination address is on the local network. */
     if(!uip_ipaddr_maskcmp(IPBUF->destipaddr, uip_hostaddr, uip_netmask)) {
       /* Destination address was not on the local network, so we need to
