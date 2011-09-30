@@ -554,7 +554,8 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
 #ifdef ONEWIRE_POLLING_SUPPORT
 struct ow_sensor_t ow_sensors[OW_SENSORS_COUNT]  = {{{{0}},0,0,0,0,0}};
 
-int8_t ow_discover_sensor()
+int8_t
+ow_discover_sensor(void)
 {
 	uint8_t firstonbus = 0;
 	int8_t ret=0;
@@ -669,7 +670,8 @@ int8_t ow_discover_sensor()
 }
 
 /*This function will be called every 800 ms*/
-void ow_periodic()
+void
+ow_periodic(void)
 {
 	/*At startup we want an immediate discovery*/
 	static uint16_t discover_delay=3;

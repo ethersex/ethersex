@@ -133,7 +133,7 @@ void i2c_ds13x7_sync(uint32_t timestamp) {
 #endif
 }
 
-uint32_t i2c_ds13x7_read() {
+uint32_t i2c_ds13x7_read(void) {
 #ifdef CLOCK_DATETIME_SUPPORT
         ds13x7_reg_t rtc;
         struct clock_datetime_t d;

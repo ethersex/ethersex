@@ -380,8 +380,8 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
 
 /* Polling functions*/
-int8_t ow_discover_sensor();
-void ow_periodic();
+int8_t ow_discover_sensor(void);
+void ow_periodic(void);
 
 
 #endif /* ONEWIRE_SUPPORT */

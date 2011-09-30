@@ -115,11 +115,8 @@ static const struct uip_eth_addr broadcast_ethaddr =
 static const u16_t broadcast_ipaddr[2] = {0xffff,0xffff};
 
 static struct arp_entry arp_table[UIP_ARPTAB_SIZE];
-static u16_t ipaddr[2];
-static u8_t i, c;
 
 static u8_t arptime;
-static u8_t tmpage;
 
 #define BUF   ((struct arp_hdr *)&uip_buf[0])
 #define IPBUF ((struct ethip_hdr *)&uip_buf[0])
@@ -132,7 +129,7 @@ static u8_t tmpage;
 void
 uip_arp_init(void)
 {
-  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+  for(u8_t i = 0; i < UIP_ARPTAB_SIZE; ++i) {
     memset(arp_table[i].ipaddr, 0, 4);
   }
 }
@@ -153,7 +150,7 @@ uip_arp_timer(void)
   struct arp_entry *tabptr;
   
   ++arptime;
-  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+  for(u8_t i = 0; i < UIP_ARPTAB_SIZE; ++i) {
     tabptr = &arp_table[i];
     if((tabptr->ipaddr[0] | tabptr->ipaddr[1]) != 0 &&
        arptime - tabptr->time >= UIP_ARP_MAXAGE) {
@@ -168,6 +165,8 @@ static void
 uip_arp_update(u16_t *ip, struct uip_eth_addr *ethaddr)
 {
   register struct arp_entry *tabptr = NULL;
+  u8_t i;
+
   /* Walk through the ARP mapping table and try to find an entry to
      update. If none is found, the IP -> MAC address mapping is
      inserted in the ARP table. */
@@ -207,8 +206,8 @@ uip_arp_update(u16_t *ip, struct uip_eth_addr *ethaddr)
   /* If no unused entry is found, we try to find the oldest entry and
      throw it away. */
   if(i == UIP_ARPTAB_SIZE) {
-    tmpage = 0;
-    c = 0;
+    u8_t tmpage = 0;
+    u8_t c = 0;
     for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
       tabptr = &arp_table[i];
       if(arptime - tabptr->time > tmpage) {
@@ -326,9 +325,9 @@ uip_arp_arpin(void)
       memcpy(BUF->ethhdr.src.addr, uip_ethaddr.addr, 6);
       memcpy(BUF->ethhdr.dest.addr, BUF->dhwaddr.addr, 6);
 
-      for (uint8_t i = 0; i < 4; i ++)
-	flip (uint8_t, ((uint8_t *) BUF->dipaddr)[i],
-	      ((uint8_t *) BUF->sipaddr)[i]);
+      for (u8_t i = 0; i < 4; i ++)
+	flip (u8_t, ((u8_t *) BUF->dipaddr)[i],
+	      ((u8_t *) BUF->sipaddr)[i]);
 
       /* BUF->dipaddr[0] = BUF->sipaddr[0];
 	 BUF->dipaddr[1] = BUF->sipaddr[1];
@@ -378,7 +377,7 @@ uip_arp_arpin(void)
  * uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
-uint8_t
+u8_t
 uip_arp_out(void)
 {
 #ifdef MDNS_SD_SUPPORT
@@ -393,16 +392,16 @@ uip_arp_out(void)
      packet with an ARP request for the IP address. */
 
   /* First check if destination is a local broadcast. */
-  if(((const uint8_t *)IPBUF->destipaddr)[0] >= 224
-     && ((const uint8_t *)IPBUF->destipaddr)[0] <= 239) {
+  if(((const u8_t *)IPBUF->destipaddr)[0] >= 224
+     && ((const u8_t *)IPBUF->destipaddr)[0] <= 239) {
     /* packet is addressed to multicast ip range, generate
        the associated mac address for it. */
     IPBUF->ethhdr.dest.addr[0] = 0x01;
     IPBUF->ethhdr.dest.addr[1] = 0x00;
     IPBUF->ethhdr.dest.addr[2] = 0x5e;
-    IPBUF->ethhdr.dest.addr[3] = ((const uint8_t *)IPBUF->destipaddr)[1] & 0x7f;
-    IPBUF->ethhdr.dest.addr[4] = ((const uint8_t *)IPBUF->destipaddr)[2];
-    IPBUF->ethhdr.dest.addr[5] = ((const uint8_t *)IPBUF->destipaddr)[3];
+    IPBUF->ethhdr.dest.addr[3] = ((const u8_t *)IPBUF->destipaddr)[1] & 0x7f;
+    IPBUF->ethhdr.dest.addr[4] = ((const u8_t *)IPBUF->destipaddr)[2];
+    IPBUF->ethhdr.dest.addr[5] = ((const u8_t *)IPBUF->destipaddr)[3];
   }
   else if((IPBUF->destipaddr[0] == (uip_hostaddr[0] | ~uip_netmask[0])
            && IPBUF->destipaddr[1] == (uip_hostaddr[1] | ~uip_netmask[1]))
@@ -414,6 +413,7 @@ uip_arp_out(void)
     memcpy(IPBUF->ethhdr.dest.addr, &((struct uip_eth_hdr *) uip_buf)->dest, 6); 
 #endif
   } else {
+    uip_ipaddr_t ipaddr;
     /* Check if the destination address is on the local network. */
     if(!uip_ipaddr_maskcmp(IPBUF->destipaddr, uip_hostaddr, uip_netmask)) {
       /* Destination address was not on the local network, so we need to
@@ -470,7 +470,7 @@ uip_arp_out(void)
 struct arp_entry *
 uip_arp_lookup (uip_ipaddr_t ipaddr)
 {
-  uint8_t i;
+  u8_t i;
 
   for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
     struct arp_entry *tabptr = &arp_table[i];
