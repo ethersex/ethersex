@@ -199,13 +199,6 @@ u16_t lastport;              /* Keeps track of the last port used for
 				a new connection. */
 #endif /* UIP_ACTIVE_OPEN */
 
-/* Temporary variables. */
-static u8_t c;
-#if UIP_TCP
-static u8_t opt;
-static u16_t tmp16;
-#endif
-
 /* Structures and definitions. */
 #define TCP_FIN 0x01
 #define TCP_SYN 0x02
@@ -405,10 +398,10 @@ void
 uip_init(void)
 {
 #if UIP_TCP
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
+  for(u8_t c = 0; c < UIP_LISTENPORTS; ++c) {
     uip_listenports[c].port = 0;
   }
-  for(c = 0; c < UIP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_CONNS; ++c) {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
 #if UIP_MULTI_STACK
     uip_conns[c].stack = 0;
@@ -420,7 +413,7 @@ uip_init(void)
 #endif /* UIP_ACTIVE_OPEN */
 
 #if UIP_UDP && !defined(TEENSY_SUPPORT) /* expect bss to be clear */
-  for(c = 0; c < UIP_UDP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_UDP_CONNS; ++c) {
     uip_udp_conns[c].lport = 0;
 #if UIP_MULTI_STACK
     uip_udp_conns[c].stack = 0;
@@ -449,7 +442,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 
   /* Check if this port is already in use, and if so try to find
      another one. */
-  for(c = 0; c < UIP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_CONNS; ++c) {
     conn = &uip_conns[c];
     if(conn->tcpstateflags != UIP_CLOSED &&
        conn->lport == htons(lastport)) {
@@ -458,7 +451,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   }
 
   conn = 0;
-  for(c = 0; c < UIP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_CONNS; ++c) {
     cconn = &uip_conns[c];
     if(cconn->tcpstateflags == UIP_CLOSED) {
       conn = cconn;
@@ -532,7 +525,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   }
 
 #ifndef TEENSY_SUPPORT
-  for(c = 0; c < UIP_UDP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_UDP_CONNS; ++c) {
     if(uip_udp_conns[c].lport == htons(lastport)) {
       goto again;
     }
@@ -540,7 +533,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 #endif
 
   conn = 0;
-  for(c = 0; c < UIP_UDP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_UDP_CONNS; ++c) {
     if(uip_udp_conns[c].lport == 0) {
       conn = &uip_udp_conns[c];
       break;
@@ -576,7 +569,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 void
 uip_unlisten(u16_t port)
 {
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
+  for(u8_t c = 0; c < UIP_LISTENPORTS; ++c) {
     if(uip_listenports[c].port == port) {
       uip_listenports[c].port = 0;
       return;
@@ -588,7 +581,7 @@ uip_unlisten(u16_t port)
 void
 uip_listen(u16_t port, uip_conn_callback_t callback)
 {
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
+  for(u8_t c = 0; c < UIP_LISTENPORTS; ++c) {
     if(uip_listenports[c].port == 0) {
       uip_listenports[c].port = port;
       uip_listenports[c].callback = callback;
@@ -1205,9 +1198,9 @@ ip_check_end:
     goto reset;
   }
 
-  tmp16 = BUF->destport;
+  u16_t tmp16 = BUF->destport;
   /* Next, check listening connections. */
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
+  for(u8_t c = 0; c < UIP_LISTENPORTS; ++c) {
     if(tmp16 == uip_listenports[c].port)
       goto found_listen;
   }
@@ -1228,7 +1221,8 @@ ip_check_end:
   BUF->tcpoffset = 5 << 4;
 
   /* Flip the seqno and ackno fields in the TCP header. */
-  c = BUF->seqno[3];
+  {
+  u8_t c = BUF->seqno[3];
   BUF->seqno[3] = BUF->ackno[3];
   BUF->ackno[3] = c;
 
@@ -1242,6 +1236,7 @@ ip_check_end:
   c = BUF->seqno[0];
   BUF->seqno[0] = BUF->ackno[0];
   BUF->ackno[0] = c;
+  }
 
   /* We also have to increase the sequence number we are
      acknowledging. If the least significant byte overflowed, we need
@@ -1277,7 +1272,7 @@ ip_check_end:
      CLOSED connections are found. Thanks to Eddie C. Dost for a very
      nice algorithm for the TIME_WAIT search. */
   uip_connr = 0;
-  for(c = 0; c < UIP_CONNS; ++c) {
+  for(u8_t c = 0; c < UIP_CONNS; ++c) {
     if(uip_conns[c].tcpstateflags == UIP_CLOSED) {
       uip_connr = &uip_conns[c];
       break;
@@ -1301,7 +1296,7 @@ ip_check_end:
   uip_conn = uip_connr;
 
   /* Set callback to the given value in uip_listenports */
-  for(c = 0; c < UIP_LISTENPORTS; ++c)
+  for(u8_t c = 0; c < UIP_LISTENPORTS; ++c)
     if(tmp16 == uip_listenports[c].port) {
       uip_conn->callback = uip_listenports[c].callback;
       break;
@@ -1341,8 +1336,8 @@ ip_check_end:
 
   /* Parse the TCP MSS option, if present. */
   if((BUF->tcpoffset & 0xf0) > 0x50) {
-    for(c = 0; c < ((BUF->tcpoffset >> 4) - 5) << 2 ;) {
-      opt = uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN + c];
+    for(u8_t c = 0; c < ((BUF->tcpoffset >> 4) - 5) << 2 ;) {
+      u8_t opt = uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN + c];
       if(opt == TCP_OPT_END) {
 	/* End of options. */
 	break;
@@ -1411,11 +1406,13 @@ ip_check_end:
   }
   /* Calculated the length of the data, if the application has sent
      any data to us. */
-  c = (BUF->tcpoffset >> 4) << 2;
+  {
+  u8_t c = (BUF->tcpoffset >> 4) << 2;
   /* uip_len will contain the length of the actual TCP data. This is
      calculated by subtracing the length of the TCP header (in
      c) and the length of the IP header (20 bytes). */
   uip_len = uip_len - c - UIP_IPH_LEN;
+  }
 
   /* First, check if the sequence number of the incoming packet is
      what we're expecting next. If not, we send out an ACK with the
@@ -1511,8 +1508,8 @@ ip_check_end:
 
       /* Parse the TCP MSS option, if present. */
       if((BUF->tcpoffset & 0xf0) > 0x50) {
-	for(c = 0; c < ((BUF->tcpoffset >> 4) - 5) << 2 ;) {
-	  opt = uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN + c];
+	for(u8_t c = 0; c < ((BUF->tcpoffset >> 4) - 5) << 2 ;) {
+	  u8_t opt = uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN + c];
 	  if(opt == TCP_OPT_END) {
 	    /* End of options. */
 	    break;
