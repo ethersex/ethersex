@@ -47,11 +47,6 @@
 
 #ifdef ONEWIRE_SUPPORT
 
-/* constants */
-
-#define LOW(x) ((uint8_t)(x))
-#define HIGH(x) ((uint8_t)((x) >> 8))
-
 /* rom commands */
 #define OW_ROM_SEARCH_ROM 0xF0
 #define OW_ROM_READ_ROM 0x33
@@ -80,8 +75,6 @@
 #define OW_FUNC_READ_MEMORY 0xF0
 #define OW_FUNC_READ_STATUS 0xAA
 #define OW_FUNC_READ_DATA_CRC 0xC3
-
-/* */
 
 /* timing constants */
 /* onewire needs a 480us reset timeout, suitable for use with the delay_loop() functions */
@@ -145,7 +138,7 @@
 
 
 /* structures */
-struct ow_rom_code_t {
+typedef struct {
     union {
         uint64_t raw;
         uint8_t bytewise[8];
@@ -155,9 +148,9 @@ struct ow_rom_code_t {
             uint8_t crc;
         };
     };
-};
+} ow_rom_code_t;
 
-struct ow_temp_scratchpad_t {
+typedef struct {
     union {
         uint8_t bytewise[9];
         struct {
@@ -178,39 +171,39 @@ struct ow_temp_scratchpad_t {
             uint8_t crc;
         };
     };
-};
+} ow_temp_scratchpad_t;
+
 /*Polling Support*/
 #ifdef ONEWIRE_POLLING_SUPPORT
-struct ow_sensor_t {
+typedef struct {
 	/*May be just store the code and calculate the crc with each call + hardcode the family, would save 16bytes*/
-	struct ow_rom_code_t ow_rom_code;
+	ow_rom_code_t ow_rom_code;
 	/*We just store the temperature in order to keep memory footfrint as low as possible. We store in deci degrees (DD) => 36.4° == 364*/
 	int16_t temp;
 	uint16_t read_delay;   /*time between polling the sensor*/
 	uint8_t convert_delay; /*we need to wait 800ms for the sensor to convert the temperatures*/
 	uint8_t converted; /*when this is set, we will wait convert_delay to be 0 and then read the scratchpad*/
 	uint8_t present; /*this is set during discovery - all sensors with present == 0 will be deleted after the discovery*/
-};
+} ow_sensor_t;
 /* */
 
-extern struct ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
-extern uint16_t discover_delay;
+extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
 #endif
 
 /* global variables */
-struct ow_global_t {
+typedef struct {
     uint8_t lock;
     int8_t last_discrepancy;
 #ifdef ONEWIRE_DS2502_SUPPORT
     int8_t list_type;
 #endif
-    struct ow_rom_code_t current_rom;
+    ow_rom_code_t current_rom;
 #if ONEWIRE_BUSCOUNT > 1
     uint8_t bus;
 #endif
-};
+} ow_global_t;
 
-extern struct ow_global_t ow_global;
+extern ow_global_t ow_global;
 
 /* prototypes */
 void onewire_init(void);
@@ -234,7 +227,7 @@ uint8_t ow_read_byte(uint8_t busmask);
  *   -1: no presence pulse has been detected, no device connected?
  *   -2: crc check failed, multiple devices on the same bus? use search_rom()
  */
-int8_t ow_read_rom(struct ow_rom_code_t *rom);
+int8_t ow_read_rom(ow_rom_code_t *rom);
 
 /* skip rom addressing, only works if there is exactly one device on the bus or
  * if this command should go to ALL onewire devices!
@@ -251,7 +244,7 @@ int8_t ow_skip_rom(void);
  *    1: match rom command issued successfully
  *   -1: no presence pulse has been detected, no device connected?
  */
-int8_t ow_match_rom(struct ow_rom_code_t *rom);
+int8_t ow_match_rom(ow_rom_code_t *rom);
 
 /* detect rom codes on the onewire bus. call ow_search_rom_first() for initial
  * search, ow_search_rom_next() for next device, until 0 is returned.
@@ -278,7 +271,7 @@ int8_t ow_search_rom(uint8_t busmask, uint8_t first);
  *  0: other node
  *  1: temperature sensor (DS1820 or DS1822)
  */
-int8_t ow_temp_sensor(struct ow_rom_code_t *rom);
+int8_t ow_temp_sensor(ow_rom_code_t *rom);
 
 /* start temperature conversion on sensor with given id, or to all sensors (via
  * skip_rom) if NULL.  If wait is set, busy-loop until conversion is done on all
@@ -293,7 +286,7 @@ int8_t ow_temp_sensor(struct ow_rom_code_t *rom);
  */
 #define ow_temp_start_convert_wait(rom) ow_temp_start_convert(rom, 1)
 #define ow_temp_start_convert_nowait(rom) ow_temp_start_convert(rom, 0)
-int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait);
+int8_t ow_temp_start_convert(ow_rom_code_t *rom, uint8_t wait);
 
 /* read scratchpad memory of sensor with given id (may be null, if only one
  * sensor is connected). If rom is not NULL, the rom family code is checked for
@@ -305,7 +298,7 @@ int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait);
  *   -2: crc check failed, multiple devices on the same bus?
  *   -3: family code is unknown
  */
-int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad);
+int8_t ow_temp_read_scratchpad(ow_rom_code_t *rom, ow_temp_scratchpad_t *scratchpad);
 
 /* check for parasite powered devices, if rom is NULL, all devices are queried.
  *
@@ -315,7 +308,7 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
  *   -1: no presence pulse has been detected, no device connected?
  *   -2: given rom code is no temperature sensor
  */
-int8_t ow_temp_power(struct ow_rom_code_t *rom);
+int8_t ow_temp_power(ow_rom_code_t *rom);
 
 
 /* return normalized temperature for device
@@ -324,7 +317,7 @@ int8_t ow_temp_power(struct ow_rom_code_t *rom);
  * int16_t, 8.8 fixpoint value
  * 0xffff on error (eg unknown device)
  */
-int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp);
+int16_t ow_temp_normalize(ow_rom_code_t *rom, ow_temp_scratchpad_t *sp);
 
 
 /*
@@ -339,7 +332,7 @@ int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t
  *  0: other node
  *  1: eeprom
  */
-int8_t ow_eeprom(struct ow_rom_code_t *rom);
+int8_t ow_eeprom(ow_rom_code_t *rom);
 
 /* read 6 bit (48 byte) of eeprom memory
  *
@@ -349,7 +342,7 @@ int8_t ow_eeprom(struct ow_rom_code_t *rom);
  * -2: crc error
  * -3: unknown rom family code
  */
-int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data);
+int8_t ow_eeprom_read(ow_rom_code_t *rom, void *data);
 
 /*
  *
@@ -365,7 +358,7 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data);
  * 0: parsing successful
  * -1: string could not be parsed
  */
-int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom);
+int8_t parse_ow_rom(char *cmd, ow_rom_code_t *rom);
 
 
 /* list onewiredevices of requested type on all OW-buses */
@@ -380,7 +373,6 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
 
 /* Polling functions*/
-int8_t ow_discover_sensor(void);
 void ow_periodic(void);
 
 
