@@ -27,7 +27,7 @@
 * tiny get temperature function (taken from control6)
 */
 #ifdef LOME6_ONEWIRE_SUPPORT
-int16_t lome6_get_temperature (struct ow_rom_code_t *rom) {
+int16_t lome6_get_temperature (ow_rom_code_t *rom) {
 
 	int16_t retval = 0x7FFF;  // error
 
@@ -35,7 +35,7 @@ int16_t lome6_get_temperature (struct ow_rom_code_t *rom) {
 	uint8_t sreg = SREG;
 	cli();
 
-	struct ow_temp_scratchpad_t sp;
+	ow_temp_scratchpad_t sp;
 	if (ow_temp_read_scratchpad(rom, &sp) != 1)
 		goto out;  // scratchpad read failed
 
@@ -54,7 +54,7 @@ out:
 
 /*
 * lome6 startup function
-* get the sensor id's from the config and convert them to struct ow_rom_code_t and read the scratchpads
+* get the sensor id's from the config and convert them to ow_rom_code_t and read the scratchpads
 * start a first one wire temperature convert
 */
 void lome6_startup(void) {
