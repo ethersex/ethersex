@@ -211,16 +211,12 @@ int8_t noinline ow_match_rom(ow_rom_code_t *rom)
     return 1;
 }
 
-
 void noinline ow_set_address_bit(ow_rom_code_t *rom, uint8_t idx, uint8_t val)
 {
     uint8_t byte = idx / 8;
-    uint8_t bit = (uint8_t)(idx % 8);
-
-    if (val == 0)
-        rom->bytewise[byte] = (uint8_t)(rom->bytewise[byte] & ~_BV(bit));
-    else
-        rom->bytewise[byte] = (uint8_t)(rom->bytewise[byte] | _BV(bit));
+    uint8_t bit = (uint8_t)_BV(idx % 8);
+		rom->bytewise[byte] &= (uint8_t)~bit;
+		if (val) rom->bytewise[byte] |= bit;
 }
 
 #ifdef ONEWIRE_DETECT_SUPPORT
