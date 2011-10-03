@@ -61,6 +61,18 @@ dnl pin(SPEAKER, PD7)
 ifdef(`conf_SD_READER', `
   pin(SPI_CS_SD_READER, PC5, OUTPUT)
 ')
-pin(SOFT_SPI_MOSI, PD2)
-pin(SOFT_SPI_MISO, PD3)
-pin(SOFT_SPI_SCK,  PD4)
+dnl pin(SOFT_SPI_MOSI, PD2)
+dnl pin(SOFT_SPI_MISO, PD3)
+dnl pin(SOFT_SPI_SCK,  PD4)
+
+ifdef(`conf_ONEWIRE', `dnl
+  /* onewire support */
+  pin(ONEWIRE, PA0)
+')dnl
+
+pin(DCF1_PON, PA1, OUTPUT)
+DCF77_USE_INT(1, PD3)
+
+ifdef(`conf_STATUSLED_HB_ACT', `dnl
+pin(STATUSLED_HB_ACT, PA2, OUTPUT)
+')dnl

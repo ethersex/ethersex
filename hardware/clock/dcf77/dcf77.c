@@ -71,6 +71,9 @@ static uint32_t last_valid_dcf = 0;
 # define DCFDEBUG(a...) do { } while(0)
 #endif /* DEBUG_DCF77 */
 
+// divtime = 1/128s
+#define MS(x) (x##UL*128/1000UL)
+
 void
 dcf77_init (void)
 {
@@ -130,8 +133,7 @@ ISR (ANALOG_COMP_vect)
 {
   uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
   /* 1/256 since last signal pulse */
-  uint16_t divtime =
-    (timertemp + (clock_get_time () - dcf.timerover) * 0xFF) - dcf.timerlast;
+  uint16_t divtime = (timertemp + (clock_get_time () - dcf.timerover) * 0xFF) - dcf.timerlast;
 
   if (divtime > 5)		// div time > 90 ms ?
     {
