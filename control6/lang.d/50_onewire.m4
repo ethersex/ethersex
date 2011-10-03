@@ -1,5 +1,7 @@
-
+dnl
 dnl  Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+dnl  Copyright (c) 2011 by Maximilian Güntner
+dnl  Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
 dnl
 dnl  This program is free software; you can redistribute it and/or modify
 dnl  it under the terms of the GNU General Public License as published by
