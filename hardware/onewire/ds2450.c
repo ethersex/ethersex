@@ -43,7 +43,7 @@
 
 
 /* match ROM vs. skip ROM */
-int8_t noinline ow_match_skip_rom(struct ow_rom_code_t *rom)
+int8_t noinline ow_match_skip_rom(ow_rom_code_t *rom)
 {
 	int8_t ret;
 
@@ -138,7 +138,7 @@ void noinline ow_crc16_seed_bytewise(uint8_t b, uint16_t *seed)
 
 
 /* check sensor family againt DS2450 */
-uint8_t noinline ow_ds2450_sensor(struct ow_rom_code_t *rom)
+uint8_t noinline ow_ds2450_sensor(ow_rom_code_t *rom)
 {
 	if(rom->family == OW_DS2450_FAMILY)
 	{
@@ -153,7 +153,7 @@ uint8_t noinline ow_ds2450_sensor(struct ow_rom_code_t *rom)
 
 
 /* get AD conversion resultion mask bits */
-int8_t ow_ds2450_res_get(struct ow_rom_code_t *rom, uint8_t channel)
+int8_t ow_ds2450_res_get(ow_rom_code_t *rom, uint8_t channel)
 {
 	int8_t ret;
 	uint8_t b;
@@ -169,7 +169,7 @@ int8_t ow_ds2450_res_get(struct ow_rom_code_t *rom, uint8_t channel)
 }
 
 /* set AD conversion resultion mask bits */
-int8_t ow_ds2450_res_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t res)
+int8_t ow_ds2450_res_set(ow_rom_code_t *rom, uint8_t channel, uint8_t res)
 {
 	int8_t ret;
 	uint8_t b;
@@ -194,7 +194,7 @@ int8_t ow_ds2450_res_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t res
 }
 
 /* get output control bit */
-int8_t ow_ds2450_oc_get(struct ow_rom_code_t *rom, uint8_t channel)
+int8_t ow_ds2450_oc_get(ow_rom_code_t *rom, uint8_t channel)
 {
 	int8_t ret;
 	uint8_t b;
@@ -214,7 +214,7 @@ int8_t ow_ds2450_oc_get(struct ow_rom_code_t *rom, uint8_t channel)
 /* set output control bit */
 /* (oc == 0 => make output transistor conducting) */
 /* (oc == 1 => make output transistor non-conducting) */
-int8_t ow_ds2450_oc_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t oc)
+int8_t ow_ds2450_oc_set(ow_rom_code_t *rom, uint8_t channel, uint8_t oc)
 {
 	int8_t ret;
 	uint8_t b;
@@ -244,7 +244,7 @@ int8_t ow_ds2450_oc_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t oc)
 }
 
 /* get output enable bit */
-int8_t ow_ds2450_oe_get(struct ow_rom_code_t *rom, uint8_t channel)
+int8_t ow_ds2450_oe_get(ow_rom_code_t *rom, uint8_t channel)
 {
 	int8_t ret;
 	uint8_t b;
@@ -264,7 +264,7 @@ int8_t ow_ds2450_oe_get(struct ow_rom_code_t *rom, uint8_t channel)
 /* set output enable bit */
 /* (oe == 0 => use channel for AD conversion) */
 /* (oe == 1 => use channel as output channel) */
-int8_t ow_ds2450_oe_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t oe)
+int8_t ow_ds2450_oe_set(ow_rom_code_t *rom, uint8_t channel, uint8_t oe)
 {
 	int8_t ret;
 	uint8_t b;
@@ -294,7 +294,7 @@ int8_t ow_ds2450_oe_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t oe)
 }
 
 /* get AD conversion input voltage range (2.55/5.10V) bit */
-int8_t ow_ds2450_range_get(struct ow_rom_code_t *rom, uint8_t channel)
+int8_t ow_ds2450_range_get(ow_rom_code_t *rom, uint8_t channel)
 {
 	int8_t ret;
 	uint8_t b;
@@ -314,7 +314,7 @@ int8_t ow_ds2450_range_get(struct ow_rom_code_t *rom, uint8_t channel)
 /* set AD conversion input voltage range (2.55/5.10V) bit */
 /* (range == 0 => 2.55V) */
 /* (range == 1 => 5.10V) */
-int8_t ow_ds2450_range_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t range)
+int8_t ow_ds2450_range_set(ow_rom_code_t *rom, uint8_t channel, uint8_t range)
 {
 	int8_t ret;
 	uint8_t b;
@@ -339,7 +339,7 @@ int8_t ow_ds2450_range_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t r
 }
 
 /* get power on reset bit */
-int8_t ow_ds2450_por_get(struct ow_rom_code_t *rom, uint8_t channel)
+int8_t ow_ds2450_por_get(ow_rom_code_t *rom, uint8_t channel)
 {
 	int8_t ret;
 	uint8_t b;
@@ -359,7 +359,7 @@ int8_t ow_ds2450_por_get(struct ow_rom_code_t *rom, uint8_t channel)
 /* set power on reset bit */
 /* (por == 0 => do not respond to conditional search command) */
 /* (por == 1 => respond to conditional search command) */
-int8_t ow_ds2450_por_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t por)
+int8_t ow_ds2450_por_set(ow_rom_code_t *rom, uint8_t channel, uint8_t por)
 {
 	int8_t ret;
 	uint8_t b;
@@ -384,7 +384,7 @@ int8_t ow_ds2450_por_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t por
 }
 
 /* get power mode */
-int8_t ow_ds2450_power_get(struct ow_rom_code_t *rom)
+int8_t ow_ds2450_power_get(ow_rom_code_t *rom)
 {
 	int8_t ret;
 	uint8_t b;
@@ -411,7 +411,7 @@ int8_t ow_ds2450_power_get(struct ow_rom_code_t *rom)
 }
 
 /* set power mode */
-int8_t ow_ds2450_power_set(struct ow_rom_code_t *rom, uint8_t vcc_powered)
+int8_t ow_ds2450_power_set(ow_rom_code_t *rom, uint8_t vcc_powered)
 {
 	int8_t ret;
 
@@ -430,7 +430,7 @@ int8_t ow_ds2450_power_set(struct ow_rom_code_t *rom, uint8_t vcc_powered)
 
 
 /* do AD conversion */
-int8_t ow_ds2450_convert(struct ow_rom_code_t *rom, uint8_t input_select, uint8_t readout)
+int8_t ow_ds2450_convert(ow_rom_code_t *rom, uint8_t input_select, uint8_t readout)
 {
 	uint8_t mask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 	int8_t ret;
@@ -472,7 +472,7 @@ int8_t ow_ds2450_convert(struct ow_rom_code_t *rom, uint8_t input_select, uint8_
   res is loaded with ADC results (2 bytes per channel)
   returns the number of channels processed
 */
-int8_t ow_ds2450_get(struct ow_rom_code_t *rom, uint8_t channel_start, uint8_t channel_stop, uint16_t *res)
+int8_t ow_ds2450_get(ow_rom_code_t *rom, uint8_t channel_start, uint8_t channel_stop, uint16_t *res)
 {
 	int8_t ret;
 	int8_t num_channels = channel_stop - channel_start;
@@ -518,7 +518,7 @@ int8_t ow_ds2450_get(struct ow_rom_code_t *rom, uint8_t channel_start, uint8_t c
   mem pointer has to be big enough for the number of bytes that should be read (1..8 byte)
   returns the number of bytes successfully read, -1 on failure
 */
-int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem)
+int8_t ow_ds2450_mempage_read(ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem)
 {
 	uint8_t mask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 	int8_t ret;
@@ -601,7 +601,7 @@ int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t
   mem pointer contains data to be written (1..8 byte)
   returns the number of bytes successfully written, -1 on failure
 */
-int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem)
+int8_t ow_ds2450_mempage_write(ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem)
 {
 	uint8_t mask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 	int8_t ret;
