@@ -112,7 +112,7 @@ dcf77_init (void)
 
 // compute unix-timestamp from dcf77_ctx
 static uint32_t
-compute_dcf77_timestamp ()
+compute_dcf77_timestamp (void)
 {
   dcfdate.sec = 0;
   dcfdate.min = bcd2bin (dcf.time[2]);

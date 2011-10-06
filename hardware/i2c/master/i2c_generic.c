@@ -42,7 +42,7 @@
 uint8_t i2c_read_byte(const uint8_t chipaddress)
 {
 	uint8_t data[2];
-	uint8_t ret;
+	uint8_t ret = 0xff;
 
 	DEBUGGI2C( "read_byte", "addr 0x%X (%d)\n", chipaddress, chipaddress);
 
@@ -59,7 +59,7 @@ uint8_t i2c_read_byte(const uint8_t chipaddress)
 
 	ret = data[0];
 
-    DEBUGGI2C( "read_byte", "ret: 0x%X (%d)\n",ret,ret);
+	DEBUGGI2C( "read_byte", "ret: 0x%X (%d)\n",ret,ret);
 
 end:
 	i2c_master_stop();
