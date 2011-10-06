@@ -29,6 +29,7 @@
 #include "config.h"
 #include "core/debug.h"
 #include "core/eeprom.h"
+#include "hardware/adc/temp2text.h"
 #include "hardware/adc/kty/kty81.h"
 
 #include "protocols/ecmd/ecmd-base.h"
