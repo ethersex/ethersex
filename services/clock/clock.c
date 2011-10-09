@@ -228,7 +228,7 @@ clock_dcf_count (void)
 }
 
 void
-set_dcf_count (uint16_t new_dcf_count)
+set_dcf_count (const uint16_t new_dcf_count)
 {
   dcf_count = (new_dcf_count == 0) ? 0 : dcf_count + new_dcf_count;
 }
@@ -240,7 +240,7 @@ clock_ntp_count (void)
 }
 
 void
-set_ntp_count (uint16_t new_ntp_count)
+set_ntp_count (const uint16_t new_ntp_count)
 {
   ntp_count = (new_ntp_count == 0) ? 0 : ntp_count + new_ntp_count;
 }
