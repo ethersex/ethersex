@@ -45,11 +45,11 @@ int16_t iTemperatureAIR;
 int16_t iTemperaturePSU;
 int16_t iTemperatureRAM;
 
-struct ow_rom_code_t romcodePSU;
-struct ow_rom_code_t romcodeAIR;
-struct ow_rom_code_t romcodeRAM;
+ow_rom_code_t romcodePSU;
+ow_rom_code_t romcodeAIR;
+ow_rom_code_t romcodeRAM;
 
-int16_t lome6_get_temperature(struct ow_rom_code_t *rom);
+int16_t lome6_get_temperature(ow_rom_code_t *rom);
 #endif
 
 #ifdef LOME6_LCD_SUPPORT

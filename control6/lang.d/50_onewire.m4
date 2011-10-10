@@ -1,5 +1,7 @@
 dnl
 dnl  Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+dnl  Copyright (c) 2011 by Maximilian Güntner
+dnl  Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
 dnl
 dnl  This program is free software; you can redistribute it and/or modify
 dnl  it under the terms of the GNU General Public License as published by
@@ -27,11 +29,12 @@ divert(globals_divert)`
 #error Please define onewire support
 #endif
 
+#include <util/atomic.h>
 #include "hardware/onewire/onewire.h"
 #include "core/bit-macros.h"
 
 #ifdef ONEWIRE_POLLING_SUPPORT
-static int16_t ow_read_temp (struct ow_rom_code_t *rom)
+static int16_t ow_read_temp (ow_rom_code_t *rom)
 {
 	/*Search the sensor...*/
 	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
@@ -48,45 +51,38 @@ static int16_t ow_read_temp (struct ow_rom_code_t *rom)
 	return 0x7FFF;  /* error */
 
 }
-static int16_t ow_temp (struct ow_rom_code_t *rom)
+static int16_t ow_temp (ow_rom_code_t *rom)
 {
 	return ow_read_temp(rom);
 }
 #else /*ONEWIRE_POLLING_SUPPORT is not defined*/
-static int16_t ow_read_temp (struct ow_rom_code_t *rom)
+static int16_t ow_read_temp (ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
 
-  /* disable interrupts */
-  uint8_t sreg = SREG;
-  cli();
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    ow_temp_scratchpad_t sp;
+    if (ow_temp_read_scratchpad(rom, &sp) == 1)
+    {
+      uint16_t temp = ow_temp_normalize(rom, &sp);
+      retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+    }
+  }
 
-  struct ow_temp_scratchpad_t sp;
-  if (ow_temp_read_scratchpad(rom, &sp) != 1)
-    goto out;  // scratchpad read failed
-
-  uint16_t temp = ow_temp_normalize(rom, &sp);
-  retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-
- out:
-  SREG = sreg;
   return retval;
 }
 
-static int16_t ow_temp (struct ow_rom_code_t *rom)
+static int16_t ow_temp (ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
 
-  /* disable interrupts */
-  uint8_t sreg = SREG;
-  cli();
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    if (ow_temp_start_convert_wait(rom) == 1)
+      retval=ow_read_temp(rom);
+  }
 
-  if (ow_temp_start_convert_wait(rom) != 1)
-    goto out;
-  
- retval=ow_read_temp(rom);
- out:
-  SREG = sreg;
   return retval;
 }
 #endif /*ONEWIRE_POLLING_SUPPORT*/
@@ -97,7 +93,7 @@ define(`ONEWIRE_GET', `ONEWIRE_USED()dnl
 define(`old_divert', divnum)dnl
 divert(globals_divert)
 #ifndef ONEWIRE_$1
-struct ow_rom_code_t ow_$1 = {{ .bytewise = {
+ow_rom_code_t ow_$1 = {{ .bytewise = {
   `0x'substr($1,0,2), dnl
   `0x'substr($1,2,2), dnl
   `0x'substr($1,4,2), dnl
@@ -115,7 +111,7 @@ define(`ONEWIRE_READ', `ONEWIRE_USED()dnl
 define(`old_divert', divnum)dnl
 divert(globals_divert)
 #ifndef ONEWIRE_$1
-struct ow_rom_code_t ow_$1 = {{ .bytewise = {
+ow_rom_code_t ow_$1 = {{ .bytewise = {
   `0x'substr($1,0,2), dnl
   `0x'substr($1,2,2), dnl
   `0x'substr($1,4,2), dnl
