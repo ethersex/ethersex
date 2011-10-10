@@ -29,7 +29,7 @@ divert(globals_divert)`
 #error Please define onewire support
 #endif
 
-#include <avr/atomic.h>
+#include <util/atomic.h>
 #include "hardware/onewire/onewire.h"
 #include "core/bit-macros.h"
 
