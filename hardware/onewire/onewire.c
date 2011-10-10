@@ -1,11 +1,10 @@
 /*
- *         simple onewire library implementation
+ * Simple onewire library implementation
  *
- *    for additional information please
- *    see http://koeln.ccc.de/prozesse/running/fnordlicht
- *
- * (c) by Alexander Neumann <alexander@bumpern.de>
- * Multibus support (c) 2011 by Frank Sautter
+ * Copyright (c) Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2011 by Frank Sautter
+ * Copyright (c) 2011 by Maximilian Güntner
+ * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -25,6 +24,7 @@
  */
 
 #include <avr/io.h>
+#include <util/atomic.h>
 #include <util/delay.h>
 #include <util/crc16.h>
 #include <avr/interrupt.h>
@@ -38,20 +38,18 @@
 #include "core/debug.h"
 
 /* global variables */
-struct ow_global_t ow_global;
+ow_global_t ow_global;
 
 /* module local prototypes */
-void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val);
+void noinline ow_set_address_bit(ow_rom_code_t *rom, uint8_t idx, uint8_t val);
 
 void onewire_init(void)
 {
-
     /* configure onewire pin as input */
     OW_CONFIG_INPUT(ONEWIRE_BUSMASK);
 
     /* release lock */
     ow_global.lock = 0;
-
 }
 
 /* low-level functions */
@@ -89,39 +87,32 @@ uint8_t noinline reset_onewire(uint8_t busmask)
 
 void noinline ow_write(uint8_t busmask, uint8_t value)
 {
-
     if (value > 0)
         ow_write_1(busmask);
     else
         ow_write_0(busmask);
-
 }
 
 void noinline ow_write_byte(uint8_t busmask, uint8_t value)
 {
-
     OW_CONFIG_OUTPUT(busmask);
     for (uint8_t i = 0; i < 8; i++) {
         ow_write(busmask, (uint8_t)(value & _BV(i)));
     }
-
 }
 
 void noinline ow_write_0(uint8_t busmask)
 {
-
     /* a write 0 timeslot is initiated by holding the data line low for
      * approximately 80us */
 
     OW_LOW(busmask);
     _delay_loop_2(OW_WRITE_0_TIMEOUT);
     OW_HIGH(busmask);
-
 }
 
 uint8_t noinline ow_read(uint8_t busmask)
 {
-
     /* a read timeslot is sent by holding the data line low for
      * 1us, then wait approximately 14us, then sample data and
      * wait */
@@ -146,12 +137,10 @@ uint8_t noinline ow_read(uint8_t busmask)
 
     OW_CONFIG_OUTPUT(busmask);
     return data;
-
 }
 
 uint8_t noinline ow_read_byte(uint8_t busmask)
 {
-
     uint8_t data = 0;
 
     for (uint8_t i = 0; i < 8; i++) {
@@ -159,14 +148,12 @@ uint8_t noinline ow_read_byte(uint8_t busmask)
     }
 
     return data;
-
 }
 
 
 /* mid-level functions */
-int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
+int8_t noinline ow_read_rom(ow_rom_code_t *rom)
 {
-
 #if ONEWIRE_BUSCOUNT > 1
     uint8_t busmask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 #else
@@ -191,12 +178,10 @@ int8_t noinline ow_read_rom(struct ow_rom_code_t *rom)
         return -2;
 
     return 1;
-
 }
 
 int8_t noinline ow_skip_rom(void)
 {
-
     /* reset the bus */
     if (!reset_onewire(ONEWIRE_BUSMASK))
         return -1;
@@ -205,12 +190,10 @@ int8_t noinline ow_skip_rom(void)
     ow_write_byte(ONEWIRE_BUSMASK, OW_ROM_SKIP_ROM);
 
     return 1;
-
 }
 
-int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
+int8_t noinline ow_match_rom(ow_rom_code_t *rom)
 {
-
     /* reset the bus */
     if (!reset_onewire(ONEWIRE_BUSMASK))
         return -1;
@@ -226,28 +209,20 @@ int8_t noinline ow_match_rom(struct ow_rom_code_t *rom)
     }
 
     return 1;
-
 }
 
-
-void noinline ow_set_address_bit(struct ow_rom_code_t *rom, uint8_t idx, uint8_t val)
+void noinline ow_set_address_bit(ow_rom_code_t *rom, uint8_t idx, uint8_t val)
 {
-
     uint8_t byte = idx / 8;
-    uint8_t bit = (uint8_t)(idx % 8);
-
-    if (val == 0)
-        rom->bytewise[byte] = (uint8_t)(rom->bytewise[byte] & ~_BV(bit));
-    else
-        rom->bytewise[byte] = (uint8_t)(rom->bytewise[byte] | _BV(bit));
-
-/* */ }
+    uint8_t bit = (uint8_t)_BV(idx % 8);
+		rom->bytewise[byte] &= (uint8_t)~bit;
+		if (val) rom->bytewise[byte] |= bit;
+}
 
 #ifdef ONEWIRE_DETECT_SUPPORT
 /* high-level functions */
 int8_t noinline ow_search_rom(uint8_t busmask, uint8_t first)
 {
-
     /* reset discover state machine */
     if (first) {
         ow_global.last_discrepancy = -1;
@@ -330,29 +305,23 @@ int8_t noinline ow_search_rom(uint8_t busmask, uint8_t first)
 
     /* new device discovered */
     return 1;
-
 }
 #endif /* ONEWIRE_DETECT_SUPPORT */
 
 /*
- *
  * temperature functions
- *
  */
 
-int8_t ow_temp_sensor(struct ow_rom_code_t *rom)
+int8_t ow_temp_sensor(ow_rom_code_t *rom)
 {
-
     /* check for known family code */
     return (int8_t)(rom->family == OW_FAMILY_DS1820 ||
                     rom->family == OW_FAMILY_DS1822 ||
                     rom->family == OW_FAMILY_DS18B20);
-
 }
 
-int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
+int8_t ow_temp_start_convert(ow_rom_code_t *rom, uint8_t wait)
 {
-
     int8_t ret;
 
     if (rom == NULL)
@@ -386,12 +355,10 @@ int8_t ow_temp_start_convert(struct ow_rom_code_t *rom, uint8_t wait)
     while(!ow_read(ONEWIRE_BUSMASK));
 
     return 1;
-
 }
 
-int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *scratchpad)
+int8_t ow_temp_read_scratchpad(ow_rom_code_t *rom, ow_temp_scratchpad_t *scratchpad)
 {
-
     uint8_t busmask;
     int8_t ret;
 
@@ -433,12 +400,10 @@ int8_t ow_temp_read_scratchpad(struct ow_rom_code_t *rom, struct ow_temp_scratch
 #endif
 
     return -2;
-
 }
 
-int8_t ow_temp_power(struct ow_rom_code_t *rom)
+int8_t ow_temp_power(ow_rom_code_t *rom)
 {
-
 #if ONEWIRE_BUSCOUNT > 1
     uint8_t busmask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
 #else
@@ -462,42 +427,34 @@ int8_t ow_temp_power(struct ow_rom_code_t *rom)
     ow_write_byte(busmask, OW_FUNC_READ_POWER);
 
     return (int8_t)(ow_read(busmask));
-
 }
 
-int16_t ow_temp_normalize(struct ow_rom_code_t *rom, struct ow_temp_scratchpad_t *sp)
+int16_t ow_temp_normalize(ow_rom_code_t *rom, ow_temp_scratchpad_t *sp)
 {
-
     if (rom->family == OW_FAMILY_DS1820)
         return (int16_t)((sp->temperature & 0xfffe) << 7) - 0x40 + (((sp->count_per_c - sp->count_remain) << 8) / sp->count_per_c);
     else if (rom->family == OW_FAMILY_DS1822 || rom->family == OW_FAMILY_DS18B20)
         return (int16_t)(sp->temperature << 4);
     else
         return -1;
-
 }
 
 /*
- *
  * DS2502 data functions
- *
  */
 
-
-int8_t ow_eeprom(struct ow_rom_code_t *rom)
+int8_t ow_eeprom(ow_rom_code_t *rom)
 {
-
     /* check for known family code */
     if (rom->family == OW_FAMILY_DS2502E48)
         return 1;
 
     return 0;
-
 }
 
 #ifdef ONEWIRE_DS2502_SUPPORT
 
-int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
+int8_t ow_eeprom_read(ow_rom_code_t *rom, void *data)
 {
 #if ONEWIRE_BUSCOUNT > 1
     uint8_t busmask = 1 << (ONEWIRE_STARTPIN); // FIXME: currently only on 1st bus
@@ -547,19 +504,17 @@ int8_t ow_eeprom_read(struct ow_rom_code_t *rom, void *data)
         *p-- = ow_read_byte(busmask);
 
     return 0;
-
 }
 
 #endif /* ONEWIRE_DS2502_SUPPORT */
 #ifdef ONEWIRE_POLLING_SUPPORT
-struct ow_sensor_t ow_sensors[OW_SENSORS_COUNT]  = {{{{0}},0,0,0,0,0}};
+ow_sensor_t ow_sensors[OW_SENSORS_COUNT] = {{{{0}},0,0,0,0,0}};
 
-int8_t
+static int8_t
 ow_discover_sensor(void)
 {
 	uint8_t firstonbus = 0;
 	int8_t ret=0;
-	uint8_t i=0;
 	do
 	{
 		if (ow_global.lock == 0) {
@@ -571,7 +526,7 @@ ow_discover_sensor(void)
 			debug_printf("Starting initial discovery\n");
 #endif
 			/*Prepare existing sensors*/
-			for(i=0;i<OW_SENSORS_COUNT;i++)
+			for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
 			{
 				ow_sensors[i].present=0;
 			}
@@ -586,29 +541,25 @@ ow_discover_sensor(void)
 		do
 		{
 #endif
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
+			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+			{
 #if ONEWIRE_BUSCOUNT > 1
-			ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
+				ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
 #else
-			ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
+				ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
 #endif
-			/* re-enable interrupts */
-			SREG = sreg;
+			}
 
 			/* make sure only one conversion happens at a time */
 			ow_global.lock = 1;
 
 			if(ret == 1) {
 #ifdef DEBUG_OW_POLLING
-					debug_printf("discovered device "
+					debug_printf("discovered device %02x %02x %02x %02x %02x %02x %02x %02x"
 #if ONEWIRE_BUSCOUNT > 1
-							"%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
-#else
-							"%02x %02x %02x %02x %02x %02x %02x %02x\n",
+							" on bus %d"
 #endif
+							"\n",
 							ow_global.current_rom.bytewise[0],
 							ow_global.current_rom.bytewise[1],
 							ow_global.current_rom.bytewise[2],
@@ -618,14 +569,13 @@ ow_discover_sensor(void)
 							ow_global.current_rom.bytewise[6],
 							ow_global.current_rom.bytewise[7]
 #if ONEWIRE_BUSCOUNT > 1
-							,ow_global.bus);
-#else
-				);
+							,ow_global.bus
 #endif
+							);
 #endif
 				uint8_t already_in=0;
 				/*Determine whether this sensor is already present in our list*/
-				for(i=0;i<OW_SENSORS_COUNT;i++)
+				for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
 				{
 					if(ow_global.current_rom.raw == ow_sensors[i].ow_rom_code.raw)
 					{
@@ -638,12 +588,12 @@ ow_discover_sensor(void)
 				}
 				if(already_in == 0)
 				{
-					/*The sensor we found is not in our list, so we Search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero*/
-					for(i=0;i<OW_SENSORS_COUNT;i++)
+					/*The sensor we found is not in our list, so we search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero*/
+					for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
 					{
 						if(ow_sensors[i].ow_rom_code.raw == 0)
 						{
-							/*We found a free slot...storing*/
+							/* We found a free slot...storing*/
 							ow_sensors[i].ow_rom_code.raw=ow_global.current_rom.raw;
 							ow_sensors[i].present=1;
 							ow_sensors[i].read_delay=1; /*Read temperature asap - note: we will check for eeprom later*/
@@ -660,7 +610,7 @@ ow_discover_sensor(void)
 #endif
 	ow_global.lock = 0;
 	/*We finished the discovery process. Now we delete all removed sensors*/
-	for(i=0;i<OW_SENSORS_COUNT;i++)
+	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
 	{
 		/*Mark the slot as free*/
 		if(ow_sensors[i].present == 0)
@@ -680,12 +630,11 @@ ow_periodic(void)
 		discover_delay=OW_DISCOVER_DELAY;
 		ow_discover_sensor();
 #ifdef DEBUG_OW_POLLING
-		uint8_t k=0;
-		for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
+		for(uint8_t i=0, k=0;i<OW_SENSORS_COUNT;i++)
 		{
 			if(ow_sensors[i].ow_rom_code.raw != 0)
 			{
-				debug_printf("Sensor #%d in list is:  %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				debug_printf("sensor #%d in list is: %02x %02x %02x %02x %02x %02x %02x %02x\n",
 						++k,
 						ow_sensors[i].ow_rom_code.bytewise[0],
 						ow_sensors[i].ow_rom_code.bytewise[1],
@@ -694,8 +643,7 @@ ow_periodic(void)
 						ow_sensors[i].ow_rom_code.bytewise[4],
 						ow_sensors[i].ow_rom_code.bytewise[5],
 						ow_sensors[i].ow_rom_code.bytewise[6],
-						ow_sensors[i].ow_rom_code.bytewise[7]
-					    );
+						ow_sensors[i].ow_rom_code.bytewise[7]);
 			}
 		}
 #endif
@@ -710,17 +658,15 @@ ow_periodic(void)
 					ow_sensors[i].convert_delay = 0;
 				else
 				{
-					uint8_t ret;
 #ifdef DEBUG_OW_POLLING
 					debug_printf("reading temperature\n");
 #endif
-					/* disable interrupts */
-					uint8_t sreg = SREG;
-					cli();
-					struct ow_temp_scratchpad_t sp;
-					ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
-					/* re-enable interrupts */
-					SREG = sreg;
+					int8_t ret;
+					ow_temp_scratchpad_t sp;
+					ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+					{
+						ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
+					}
 					if (ret != 1) {
 #ifdef DEBUG_OW_POLLING
 						debug_printf("scratchpad read failed: %d\n", ret);
@@ -728,7 +674,7 @@ ow_periodic(void)
 						return;
 					}
 #ifdef DEBUG_OW_POLLING
-					debug_printf("successfully read scratchpad\n");
+					debug_printf("scratchpad read succeeded\n");
 #endif
 					int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
 #ifdef DEBUG_OW_POLLING

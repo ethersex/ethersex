@@ -36,7 +36,7 @@
 
 
 /* parse an onewire rom address at cmd, write result to ptr */
-int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom)
+int8_t parse_ow_rom(char *cmd, ow_rom_code_t *rom)
 {
     uint8_t *addr = rom->bytewise;
     uint8_t end;
@@ -263,7 +263,7 @@ list_next: ;
 #ifdef ONEWIRE_POLLING_SUPPORT
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
-    struct ow_rom_code_t rom;
+    ow_rom_code_t rom;
     int16_t ret;
     ret = parse_ow_rom(cmd, &rom);
     if (ret < 0)
@@ -328,7 +328,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 #else
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
-    struct ow_rom_code_t rom;
+    ow_rom_code_t rom;
     int16_t ret;
 
     while (*cmd == ' ')
@@ -348,7 +348,7 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
         uint8_t sreg = SREG;
         cli();
 
-        struct ow_temp_scratchpad_t sp;
+        ow_temp_scratchpad_t sp;
         ret = ow_temp_read_scratchpad(&rom, &sp);
 
         /* re-enable interrupts */
@@ -440,7 +440,7 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
         cmd++;
     debug_printf("called onewire_convert with: \"%s\"\n", cmd);
 
-    struct ow_rom_code_t rom, *romptr;
+    ow_rom_code_t rom, *romptr;
 
     ret = parse_ow_rom(cmd, &rom);
 

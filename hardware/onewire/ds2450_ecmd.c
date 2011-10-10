@@ -32,11 +32,11 @@
 
 
 /* from ecmd.c: */
-int8_t parse_ow_rom(char *cmd, struct ow_rom_code_t *rom);
+int8_t parse_ow_rom(char *cmd, ow_rom_code_t *rom);
 
 
 /* parse the command line and check for a rom code */
-int8_t noinline ow_ecmd_parse_rom_arg(char **cmd, struct ow_rom_code_t **ptr_rom)
+int8_t noinline ow_ecmd_parse_rom_arg(char **cmd, ow_rom_code_t **ptr_rom)
 {
 	int8_t ret;
 
@@ -47,7 +47,7 @@ int8_t noinline ow_ecmd_parse_rom_arg(char **cmd, struct ow_rom_code_t **ptr_rom
 	{
 		/* called with rom code */
 		DS2450_ECMD_DEBUG("ow_ecmd_parse_rom_arg: called with rom code.\n");
-		*ptr_rom = malloc(sizeof(struct ow_rom_code_t));
+		*ptr_rom = malloc(sizeof(ow_rom_code_t));
 
 #ifndef TEENSY_SUPPORT
 		/* check if malloc did fine */
@@ -116,7 +116,7 @@ int16_t parse_cmd_onewire_ds2450_power(char *cmd, char *output, uint16_t len)
 	int8_t ret;
 	uint8_t ecmd_return_len = 0;
 	uint8_t power;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -194,7 +194,7 @@ int16_t parse_cmd_onewire_ds2450_res(char *cmd, char *output, uint16_t len)
 	int8_t channel_requested;
 	uint8_t ecmd_return_len = 0;
 	uint8_t res;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -296,7 +296,7 @@ int16_t parse_cmd_onewire_ds2450_oc(char *cmd, char *output, uint16_t len)
 	int8_t channel_requested;
 	uint8_t ecmd_return_len = 0;
 	uint8_t oc;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -394,7 +394,7 @@ int16_t parse_cmd_onewire_ds2450_oe(char *cmd, char *output, uint16_t len)
 	int8_t channel_requested;
 	uint8_t ecmd_return_len = 0;
 	uint8_t oe;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -492,7 +492,7 @@ int16_t parse_cmd_onewire_ds2450_range(char *cmd, char *output, uint16_t len)
 	int8_t channel_requested;
 	uint8_t ecmd_return_len = 0;
 	uint8_t range;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -590,7 +590,7 @@ int16_t parse_cmd_onewire_ds2450_por(char *cmd, char *output, uint16_t len)
 	int8_t channel_requested;
 	uint8_t ecmd_return_len = 0;
 	uint8_t por;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -687,7 +687,7 @@ int16_t parse_cmd_onewire_ds2450_convert(char *cmd, char *output, uint16_t len)
 {
 	int8_t ret;
 	uint8_t input_select, readout;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)
@@ -759,7 +759,7 @@ int16_t parse_cmd_onewire_ds2450_get(char *cmd, char *output, uint16_t len, uint
 	int8_t ret;
 	int8_t channel_requested;
 	uint8_t ecmd_return_len;
-	struct ow_rom_code_t *ptr_rom;
+	ow_rom_code_t *ptr_rom;
 
 	ret = ow_ecmd_parse_rom_arg(&cmd, &ptr_rom);
 	if(ret != 0)

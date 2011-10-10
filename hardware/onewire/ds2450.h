@@ -112,7 +112,7 @@
 
 
 /* match ROM vs. skip ROM */
-int8_t ow_match_skip_rom(struct ow_rom_code_t *rom);
+int8_t ow_match_skip_rom(ow_rom_code_t *rom);
 
 /* check CRC16 with seed */
 void ow_crc16_seed(uint8_t *b, uint8_t len, uint16_t *seed);
@@ -128,53 +128,53 @@ uint16_t ow_crc16_calc(uint16_t *seed);
 void ow_crc16_seed_bytewise(uint8_t b, uint16_t *seed);
 
 /* check sensor family againt DS2450 */
-uint8_t ow_ds2450_sensor(struct ow_rom_code_t *rom);
+uint8_t ow_ds2450_sensor(ow_rom_code_t *rom);
 
 /* get AD conversion resultion mask bits */
-int8_t ow_ds2450_res_get(struct ow_rom_code_t *rom, uint8_t channel);
+int8_t ow_ds2450_res_get(ow_rom_code_t *rom, uint8_t channel);
 
 /* set AD conversion resultion mask bits */
-int8_t ow_ds2450_res_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t res);
+int8_t ow_ds2450_res_set(ow_rom_code_t *rom, uint8_t channel, uint8_t res);
 
 /* get output control bit */
-int8_t ow_ds2450_oc_get(struct ow_rom_code_t *rom, uint8_t channel);
+int8_t ow_ds2450_oc_get(ow_rom_code_t *rom, uint8_t channel);
 
 /* set output control bit */
-int8_t ow_ds2450_oc_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t oc);
+int8_t ow_ds2450_oc_set(ow_rom_code_t *rom, uint8_t channel, uint8_t oc);
 
 /* get output enable bit */
-int8_t ow_ds2450_oe_get(struct ow_rom_code_t *rom, uint8_t channel);
+int8_t ow_ds2450_oe_get(ow_rom_code_t *rom, uint8_t channel);
 
 /* set output enable bit */
-int8_t ow_ds2450_oe_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t oe);
+int8_t ow_ds2450_oe_set(ow_rom_code_t *rom, uint8_t channel, uint8_t oe);
 
 /* get AD conversion input voltage range (2.55/5.10V) bit */
-int8_t ow_ds2450_range_get(struct ow_rom_code_t *rom, uint8_t channel);
+int8_t ow_ds2450_range_get(ow_rom_code_t *rom, uint8_t channel);
 
 /* set AD conversion input voltage range (2.55/5.10V) bit */
-int8_t ow_ds2450_range_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t range);
+int8_t ow_ds2450_range_set(ow_rom_code_t *rom, uint8_t channel, uint8_t range);
 
 /* get power on reset bit */
-int8_t ow_ds2450_por_get(struct ow_rom_code_t *rom, uint8_t channel);
+int8_t ow_ds2450_por_get(ow_rom_code_t *rom, uint8_t channel);
 
 /* set power on reset bit */
-int8_t ow_ds2450_por_set(struct ow_rom_code_t *rom, uint8_t channel, uint8_t por);
+int8_t ow_ds2450_por_set(ow_rom_code_t *rom, uint8_t channel, uint8_t por);
 
 /* get power mode */
-int8_t ow_ds2450_power_get(struct ow_rom_code_t *rom);
+int8_t ow_ds2450_power_get(ow_rom_code_t *rom);
 
 /* set power mode */
-int8_t ow_ds2450_power_set(struct ow_rom_code_t *rom, uint8_t vcc_powered);
+int8_t ow_ds2450_power_set(ow_rom_code_t *rom, uint8_t vcc_powered);
 
 /* do AD conversion */
-int8_t ow_ds2450_convert(struct ow_rom_code_t *rom, uint8_t input_select, uint8_t readout);
+int8_t ow_ds2450_convert(ow_rom_code_t *rom, uint8_t input_select, uint8_t readout);
 
 /* get AD conversion result for one or more channels */
-int8_t ow_ds2450_get(struct ow_rom_code_t *rom, uint8_t channel_start, uint8_t channel_stop, uint16_t *res);
+int8_t ow_ds2450_get(ow_rom_code_t *rom, uint8_t channel_start, uint8_t channel_stop, uint16_t *res);
 
 /* read a memory page beginning from given address */
-int8_t ow_ds2450_mempage_read(struct ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem);
+int8_t ow_ds2450_mempage_read(ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem);
 
 /* write a memory page beginning from given address */
-int8_t ow_ds2450_mempage_write(struct ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem);
+int8_t ow_ds2450_mempage_write(ow_rom_code_t *rom, int8_t mempage, uint8_t len, uint8_t *mem);
 #endif
