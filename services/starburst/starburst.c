@@ -24,11 +24,13 @@
 #include <avr/pgmspace.h>
 #include "starburst.h"
 #include "core/debug.h"
+#include "core/bool.h"
 #include "hardware/i2c/master/i2c_pca9685.h"
 #include "services/dmx-storage/dmx_storage.h"
 enum starburst_update update;
 #ifdef STARBURST_PCA9685
 int8_t pca9685_dmx_conn_id=-1;
+uint8_t pca9685_dmx_connected = FALSE;
 prog_uint16_t stevens_power_12bit[256] PROGMEM = {
 	0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3,
 	4, 5, 6, 7, 8, 9, 11, 12, 14, 15,
@@ -69,10 +71,16 @@ void starburst_init()
 	i2c_pca9685_set_mode(STARBURST_PCA9685_ADDRESS,STARBURST_PCA9685_EXTDRV,STARBURST_PCA9685_IVRT,STARBURST_PCA9685_PRESCALER);
 	//Connect to dmx-storage
 	pca9685_dmx_conn_id=dmx_storage_connect(STARBURST_PCA9685_UNIVERSE);
+	if(pca9685_dmx_conn_id != -1)
+		pca9685_dmx_connected = TRUE;
+	else
+		pca9685_dmx_connected = FALSE;
 #endif
 }
 void starburst_process()
 {
+	if(pca9685_dmx_connected == FALSE)
+		return;
 	starburst_update();
 #ifdef STARBURST_PCA9685
 	for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS;i++)
@@ -140,7 +148,6 @@ void starburst_process()
 		else
 			i2c_pca9685_output_enable(ON); 
 	#endif
-	return update;
 #endif
 }
 void starburst_update()
