@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
+ *
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,30 +20,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <string.h>
+#define TRUE                                    1
+#define FALSE                                   0
 
-#include "protocols/uip/uip.h"
-#include "protocols/artnet/artnet.h"
-
-void
-artnet_net_init(void)
-{
-  uip_udp_conn_t *conn;
-  uip_ipaddr_t ip;
-  uip_ipaddr_copy(&ip, all_ones_addr);
-  if(! (conn = uip_udp_new(&ip, 0, artnet_net_main))) 
-    return; /* Couldn't bind socket */
-
-  uip_udp_bind(conn, HTONS(artnet_port));
-}
-
-void
-artnet_net_main(void)
-{
-  if (!uip_newdata()) return;
-  
-  ((char *) uip_appdata)[uip_len] = 0;
-  ARTNET_DEBUG ("received data: %s\n", uip_appdata);
-  artnet_get();
-}
