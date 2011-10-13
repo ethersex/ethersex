@@ -2370,3 +2370,33 @@ OW_SENSORS_COUNT
 
   How many sensors you expect in your setup. Make sure this value is high enough!
 
+Frequency counter
+FREQCOUNT_SUPPORT
+  Incompatible with:
+   * CLOCK_CPU_SUPPORT
+
+  If enabled, the frequency on the ICP1 pin is constantly sampled and stored in a
+  variable. It can then be retrieved with code or ECMD.
+  Frequencies can be from 2 Hz to about 50 CPU cycles to be sampled correctly
+
+Average over samples
+FREQCOUNT_AVERAGE
+
+  To improve the accuracy of the frequency counter it uses averaging. Enter the number
+  of samples you want to average over. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
+  code size and improve execution speed.
+
+Optimize for frequencies >300 Hz
+FREQCOUNT_NOSLOW_SUPPORT
+
+  Disable support for frequencies lower than F_CPU / 65535. This is about 305 Hz at
+  20 MHz. This saves memory, reduces cpu load and increases the maximum frequency
+  that can be sampled reliably.
+
+Duty cycle sampling
+FREQCOUNT_DUTY_SUPPORT
+
+  Not only detect the frequency of a signal, but also measure the part of the signal
+  that has a high level. Useful for measuring PWM values. Frequency and duty cycle 
+  are measured in two consecutive waves. This means you can not measure duty cycle
+  when the frequency is changing significantly.
