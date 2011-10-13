@@ -32,19 +32,17 @@
  */
 
 #include "config.h"
-
+#include <stdint.h>
 #ifndef _ARTNET_H
 #define _ARTNETCLIENT_H
 
 #ifdef ARTNET_SUPPORT
 
-extern unsigned short artnet_port;
+extern uint16_t artnet_port;
 
 
-	#include <avr/io.h>
-	#include <avr/pgmspace.h>
-// 	#include "stack.h"
-// 	#include "usart.h"
+#include <avr/io.h>
+#include <avr/pgmspace.h>
 #include "protocols/artnet/artnet_net.h"
 
 #ifdef DEBUG_ARTNET
@@ -65,7 +63,6 @@ extern unsigned short artnet_port;
 	void artnet_sendPollReply(void);
 	void artnet_main(void);
 	void artnet_get(void);
-// 	void artnet_tick(void);
 	
 #endif /* _ARTNET_H */
 #endif /* ARTNET_SUPPORT */

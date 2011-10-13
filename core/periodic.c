@@ -27,6 +27,7 @@
 #include "config.h"
 #include "core/periodic.h"
 #include "core/debug.h"
+#include "services/freqcount/freqcount.h"
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -44,16 +45,28 @@ void periodic_init(void) {
 	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
 	_TIMSK_TIMER1 |= _BV(OCIE1A)|_BV(TOIE1);
 #else
-	/* init timer1 to expire after ~20ms, with CTC enabled */
+#ifdef FREQCOUNT_SUPPORT
+    /* init timer1 to run with full cpu frequency, normal mode, 
+       compare and overflow int active */
+    TCCR1B = _BV(CS10);
+    freqcount_init();
+    _TIMSK_TIMER1 |= _BV(OCIE1A)|_BV(TOIE1);
+#else
+    /* init timer1 to expire after ~20ms, with CTC enabled */
 	TCCR1B = _BV(WGM12) | CLOCK_PRESCALER_MASK;
 	OCR1A = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
 	_TIMSK_TIMER1 |= _BV(OCIE1A);
 
 	NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
 #endif
+#endif
 }
 
+#ifdef FREQCOUNT_SUPPORT
+void timer_expired(void)
+#else
 ISR(TIMER1_COMPA_vect)
+#endif
 {
 #ifdef CLOCK_CPU_SUPPORT
 	OCR1A += CLOCK_TICKS;
