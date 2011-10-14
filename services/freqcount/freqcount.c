@@ -373,14 +373,29 @@ static void average_results(uint32_t freqcount_ticks)
 #ifdef FREQCOUNT_DEBUGGING
 #ifdef FREQCOUNT_DUTY_SUPPORT
         debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_ticks_result,
-                (freqcount_ticks_result != 0) ? (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result) : 0,
-                freqcount_duty_result);
+                freqcount_get_freq_hz(),freqcount_duty_result);
 #else
-        debug_printf("fc ticks %lu, %lu Hz\n", freqcount_ticks_result,
-                (freqcount_ticks_result != 0) ? (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result) : 0));
+        debug_printf("fc ticks %lu, %lu Hz\n", freqcount_ticks_result,freqcount_get_freq_hz());
 #endif
 #endif
     }
+}
+
+uint32_t freqcount_get_freq_hz(void)
+{
+    uint32_t hz;
+    
+    if (freqcount_ticks_result==0)
+        hz=0;
+    else
+    {
+        // numerical correct rounding
+        hz=(FREQCOUNT_CLOCKFREQ*10)/freqcount_ticks_result;
+        hz+=5;
+        hz/=10;
+    }
+
+    return hz;
 }
 
 /*
