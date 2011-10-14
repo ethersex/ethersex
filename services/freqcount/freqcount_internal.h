@@ -44,6 +44,7 @@ typedef enum freqcount_state freqcount_state_t;
 
 static void start_measure(void);
 static void measure_done(void);
+static void check_measure_timeout(void);
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
 static void average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);

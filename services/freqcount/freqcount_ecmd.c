@@ -47,7 +47,12 @@ int16_t parse_cmd_fc_freq(char *cmd, char *output, uint16_t len)
     if (len < 11)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    uint32_t hz=FREQCOUNT_CLOCKFREQ/freqcount_ticks_result;
+    uint32_t hz;
+    
+    if (freqcount_ticks_result==0)
+        hz=0;
+    else
+        hz=FREQCOUNT_CLOCKFREQ/freqcount_ticks_result;
 
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),hz));
 }

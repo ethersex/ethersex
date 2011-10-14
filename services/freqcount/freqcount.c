@@ -38,6 +38,11 @@
 volatile uint8_t timer_overflows;
 #endif
 
+// counts the number of full timer overflows
+// since freqcount_start was set
+// used to detect a frequency lower than we can measure
+volatile uint8_t overflows_since_freq_start=0;
+
 // full overflows needed to next clock tick
 volatile uint8_t overflows_to_clocktick;
 
@@ -67,7 +72,16 @@ inline void timer_overflow()
 {
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
     timer_overflows++;
-#endif
+    
+    // did we have an overflow of timer_overflows?
+    if (timer_overflows==0)
+#endif   // this endif is in between if and { intentionally, no bug!
+    {
+        // we had an overflow
+        // either of timer_overflows or of TCNT1
+        overflows_since_freq_start++;
+    }
+        
     overflows_to_clocktick--;
 }
 
@@ -121,6 +135,8 @@ void freqcount_mainloop(void)
         // for now: automatically restart
         start_measure();
     }
+    
+    check_measure_timeout();
 }
 
 static void start_measure(void)
@@ -201,6 +217,38 @@ static void measure_done(void)
 #endif
 }
 
+static void check_measure_timeout(void)
+{
+    static freqcount_state_t last_reset_state=FC_DISABLED;
+
+    if (freqcount_state != last_reset_state)
+    {
+        overflows_since_freq_start=0;
+        last_reset_state=freqcount_state;
+    }
+    else if (overflows_since_freq_start > 1 && 
+        (freqcount_state==FC_BEFORE_START ||
+         freqcount_state==FC_FREQ ||
+         freqcount_state==FC_ON_CYCLE))
+    {
+        // we are inside a measurement, but we had two overflows
+        // -> we can't get reliable data anymore
+
+        // disable timer input capture interrupt
+        TIMSK1 &= ~(_BV(ICIE1));
+
+        freqcount_state=FC_DISABLED;
+        last_reset_state=FC_DISABLED;
+        overflows_since_freq_start=0;
+        
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        average_results(0,0);
+#else
+        average_results(0);
+#endif
+    }
+}
+
 ISR(TIMER1_CAPT_vect)
 {
     if (freqcount_state==FC_BEFORE_START)
@@ -268,7 +316,7 @@ static void average_results(uint32_t freqcount_ticks)
     static uint8_t freqcount_avg_cnt=0;
 
     // collect FREQCOUNT_AVERAGE+2 values: min and max are cut off
-    if (freqcount_avg_cnt < FREQCOUNT_AVERAGE+2)
+    if (freqcount_avg_cnt < FREQCOUNT_AVERAGE+2 && freqcount_ticks != 0)
     {
         freqcount_ticks_avgsum+=freqcount_ticks;
         if (freqcount_ticks > freqcount_ticks_avg_max)
@@ -288,16 +336,27 @@ static void average_results(uint32_t freqcount_ticks)
     }
     else
     {
-        freqcount_ticks_avgsum-=freqcount_ticks_avg_max;
-        freqcount_ticks_avgsum-=freqcount_ticks_avg_min;
-        freqcount_ticks_result=freqcount_ticks_avgsum/FREQCOUNT_AVERAGE;
-        
+        if (freqcount_ticks == 0)
+        {
+            // we had a timeout, indicate this by setting the results to 0
+            freqcount_ticks_result=0;
 #ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_duty_avgsum-=freqcount_duty_avg_max;
-        freqcount_duty_avgsum-=freqcount_duty_avg_min;
-        freqcount_duty_result=freqcount_duty_avgsum/FREQCOUNT_AVERAGE;
+            freqcount_duty_result=0;
 #endif
-        
+        }
+        else
+        {
+            freqcount_ticks_avgsum-=freqcount_ticks_avg_max;
+            freqcount_ticks_avgsum-=freqcount_ticks_avg_min;
+            freqcount_ticks_result=freqcount_ticks_avgsum/FREQCOUNT_AVERAGE;
+            
+#ifdef FREQCOUNT_DUTY_SUPPORT
+            freqcount_duty_avgsum-=freqcount_duty_avg_max;
+            freqcount_duty_avgsum-=freqcount_duty_avg_min;
+            freqcount_duty_result=freqcount_duty_avgsum/FREQCOUNT_AVERAGE;
+#endif
+        }
+
         // reset averaging
         freqcount_ticks_avgsum=0;
         freqcount_ticks_avg_max=0;
@@ -314,10 +373,11 @@ static void average_results(uint32_t freqcount_ticks)
 #ifdef FREQCOUNT_DEBUGGING
 #ifdef FREQCOUNT_DUTY_SUPPORT
         debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_ticks_result,
-                (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result), freqcount_duty_result);
+                (freqcount_ticks_result != 0) ? (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result) : 0,
+                freqcount_duty_result);
 #else
         debug_printf("fc ticks %lu, %lu Hz\n", freqcount_ticks_result,
-                (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result));
+                (freqcount_ticks_result != 0) ? (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result) : 0));
 #endif
 #endif
     }
