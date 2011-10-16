@@ -35,7 +35,7 @@
 
 static void freqcount_new_result_notify(void);
 #ifdef FREQCOUNT_DUTY_SUPPORT
-static void freqcount_moving_average(uint32_t freqcount_ticks, uint8_t freqcount_duty);
+static void freqcount_moving_average(uint32_t freqcount_ticks, uint16_t freqcount_duty);
 #else
 static void freqcount_moving_average(uint32_t freqcount_ticks);
 #endif
@@ -44,7 +44,7 @@ static void freqcount_moving_average(uint32_t freqcount_ticks);
 // global if we don't have moving averages
 uint32_t freqcount_ticks_result_sum=0;
 #ifdef FREQCOUNT_DUTY_SUPPORT
-uint8_t freqcount_duty_result_sum=0;
+uint16_t freqcount_duty_result_sum=0;
 #endif
 #endif
 
@@ -72,7 +72,7 @@ void freqcount_average_results(uint32_t freqcount_ticks)
 // local if we have moving averages
     uint32_t freqcount_ticks_result_sum=0;
 #ifdef FREQCOUNT_DUTY_SUPPORT
-    uint8_t freqcount_duty_result_sum=0;
+    uint16_t freqcount_duty_result_sum=0;
 #endif
 #endif
 
@@ -148,6 +148,11 @@ void freqcount_average_results(uint32_t freqcount_ticks)
 uint32_t freqcount_moving_average_sum=0;
 uint32_t freqcount_moving_average_values[FREQCOUNT_MOVING_AVERAGE_SIZE];
 
+#ifdef FREQCOUNT_DUTY_SUPPORT
+uint16_t freqcount_moving_average_duty_sum=0;
+uint16_t freqcount_moving_average_duty_values[FREQCOUNT_MOVING_AVERAGE_SIZE];
+#endif
+
 // pointer to the last value written within freqcount_moving_average_values[]
 // magic value 255: we don't have written anything at all, 
 // freqcount_moving_average_values has to be initialized
@@ -158,13 +163,16 @@ uint32_t freqcount_moving_average_pointer=255;
 #endif
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
-static void freqcount_moving_average(uint32_t freqcount_tick_sum, uint8_t freqcount_duty_sum)
+static void freqcount_moving_average(uint32_t freqcount_tick_sum, uint16_t freqcount_duty_sum)
 #else
 static void freqcount_moving_average(uint32_t freqcount_tick_sum)
 #endif
 {
     // reduce averaging sum to one: makes sure our uint32_t for the sum doesn't overflow later
     freqcount_tick_sum/=FREQCOUNT_AVERAGE;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+    freqcount_duty_sum/=FREQCOUNT_AVERAGE;
+#endif
     
     if (freqcount_moving_average_pointer==255)
     {
@@ -174,10 +182,16 @@ static void freqcount_moving_average(uint32_t freqcount_tick_sum)
              freqcount_moving_average_pointer++)
         {
             freqcount_moving_average_values[freqcount_moving_average_pointer]=freqcount_tick_sum;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+            freqcount_moving_average_duty_values[freqcount_moving_average_pointer]=freqcount_duty_sum;
+#endif
         }
         
         freqcount_moving_average_pointer=0;
         freqcount_moving_average_sum=freqcount_tick_sum*FREQCOUNT_MOVING_AVERAGE_SIZE;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        freqcount_moving_average_duty_sum=freqcount_duty_sum*FREQCOUNT_MOVING_AVERAGE_SIZE;
+#endif
     }
     else
     {
@@ -191,6 +205,11 @@ static void freqcount_moving_average(uint32_t freqcount_tick_sum)
         freqcount_moving_average_sum-=freqcount_moving_average_values[freqcount_moving_average_pointer];
         freqcount_moving_average_values[freqcount_moving_average_pointer]=freqcount_tick_sum;
         freqcount_moving_average_sum+=freqcount_tick_sum;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        freqcount_moving_average_duty_sum-=freqcount_moving_average_duty_values[freqcount_moving_average_pointer];
+        freqcount_moving_average_duty_values[freqcount_moving_average_pointer]=freqcount_duty_sum;
+        freqcount_moving_average_duty_sum+=freqcount_duty_sum;
+#endif
     }
     
     freqcount_new_result_notify();
@@ -205,7 +224,7 @@ static void freqcount_new_result_notify(void)
 #ifdef FREQCOUNT_DEBUGGING
 #ifdef FREQCOUNT_DUTY_SUPPORT
     debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_get_freq_ticks(),
-                 freqcount_get_freq_hz(),freqcount_duty_result);
+                 freqcount_get_freq_hz(),freqcount_get_duty());
 #else
     debug_printf("fc ticks %lu, %lu Hz\n", freqcount_get_freq_ticks(),freqcount_get_freq_hz());
 #endif
@@ -269,6 +288,25 @@ uint32_t freqcount_get_freq_hz(void)
 
     return hz;
 }
+
+#ifdef FREQCOUNT_DUTY_SUPPORT
+uint8_t freqcount_get_duty(void)
+{
+    uint8_t duty;
+
+#ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
+    if (freqcount_moving_average_pointer!=255)
+        duty=freqcount_moving_average_duty_sum/FREQCOUNT_MOVING_AVERAGE_SIZE;
+    else
+        duty=0;
+#else
+    duty=freqcount_duty_result_sum/FREQCOUNT_AVERAGE;
+#endif
+
+    return duty;
+}
+#endif // FREQCOUNT_DUTY_SUPPORT
+
 
 /*
   -- Ethersex META --

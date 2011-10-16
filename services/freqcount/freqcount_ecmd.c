@@ -56,7 +56,7 @@ int16_t parse_cmd_fc_duty(char *cmd, char *output, uint16_t len)
     if (len < 4)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    itoa(freqcount_duty_result,output,10);
+    itoa(freqcount_get_duty(),output,10);
     return ECMD_FINAL(strlen(output));
 }
 
@@ -66,7 +66,7 @@ int16_t parse_cmd_fc_percent_duty(char *cmd, char *output, uint16_t len)
     if (len < 5)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    uint8_t percent=(((uint16_t)(freqcount_duty_result))*100)/256;
+    uint8_t percent=(((uint16_t)(freqcount_get_duty()))*100)/256;
 
     itoa(percent,output,10);
     return ECMD_FINAL(strlen(output));

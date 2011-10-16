@@ -36,6 +36,10 @@ void freqcount_mainloop(void);
 uint32_t freqcount_get_freq_ticks(void);
 uint32_t freqcount_get_freq_hz(void);
 
+#ifdef FREQCOUNT_DUTY_SUPPORT
+uint8_t freqcount_get_duty(void);
+#endif
+
 #endif /* FREQCOUNT_SUPPORT */
 
 #endif /* FREQCOUNT_H */
