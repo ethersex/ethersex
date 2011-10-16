@@ -4,6 +4,8 @@ if [ "$CLOCK_CPU_SUPPORT" != "y" ]; then
         int 'Average over samples' FREQCOUNT_AVERAGE "8"
         bool "Optimize for frequencies >300 Hz" FREQCOUNT_NOSLOW_SUPPORT
         bool "Duty cycle sampling" FREQCOUNT_DUTY_SUPPORT
+        bool "Additional moving average" FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        int 'Moving average samples' FREQCOUNT_MOVING_AVERAGE_SIZE "8"
         bool "Frequency counter debugging" FREQCOUNT_DEBUGGING DEBUG
     endmenu
 else

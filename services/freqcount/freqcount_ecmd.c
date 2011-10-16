@@ -38,7 +38,7 @@ int16_t parse_cmd_fc_ticks(char *cmd, char *output, uint16_t len)
     if (len < 11)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),freqcount_ticks_result));
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),freqcount_get_freq_ticks()));
 }
 
 int16_t parse_cmd_fc_freq(char *cmd, char *output, uint16_t len)
