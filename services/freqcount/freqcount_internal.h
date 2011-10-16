@@ -52,9 +52,9 @@ extern volatile uint8_t timer_overflows;
 #endif
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
-void average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);
+void freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);
 #else
-void average_results(uint32_t freqcount_ticks);
+void freqcount_average_results(uint32_t freqcount_ticks);
 #endif
 
 #endif /* FREQCOUNT_INTERNAL_H */

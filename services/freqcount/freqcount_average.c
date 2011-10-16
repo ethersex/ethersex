@@ -43,9 +43,9 @@ uint8_t freqcount_duty_result=0;
 // takes FREQCOUNT_AVERAGE+2 measurement results
 // removes min and max value, calculates average
 #ifdef FREQCOUNT_DUTY_SUPPORT
-void average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty)
+void freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty)
 #else
-void average_results(uint32_t freqcount_ticks)
+void freqcount_average_results(uint32_t freqcount_ticks)
 #endif
 {
     static uint32_t freqcount_ticks_avgsum=0;

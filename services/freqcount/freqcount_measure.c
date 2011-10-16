@@ -132,9 +132,9 @@ static void measure_done(void)
     
     uint8_t freqcount_duty=((t1-t2)<<8)/freqcount_ticks;
 
-    average_results(freqcount_ticks, freqcount_duty);
+    freqcount_average_results(freqcount_ticks, freqcount_duty);
 #else
-    average_results(freqcount_ticks);
+    freqcount_average_results(freqcount_ticks);
 #endif
 }
 
@@ -163,9 +163,9 @@ static void check_measure_timeout(void)
         overflows_since_freq_start=0;
         
 #ifdef FREQCOUNT_DUTY_SUPPORT
-        average_results(0,0);
+        freqcount_average_results(0,0);
 #else
-        average_results(0);
+        freqcount_average_results(0);
 #endif
     }
 }
