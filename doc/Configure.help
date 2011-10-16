@@ -2400,3 +2400,17 @@ FREQCOUNT_DUTY_SUPPORT
   that has a high level. Useful for measuring PWM values. Frequency and duty cycle 
   are measured in two consecutive waves. This means you can not measure duty cycle
   when the frequency is changing significantly.
+
+Additional moving average
+FREQCOUNT_MOVING_AVERAGE_SUPPORT
+
+  This adds a moving average on top of the regular averaging. It takes the results
+  from the regular averaging and stores them in a moving average buffer. The depth
+  of this buffer is defined with FREQCOUNT_MOVING_AVERAGE_SIZE.
+
+Moving average samples
+FREQCOUNT_MOVING_AVERAGE_SIZE
+
+  Number of samples for frequency (and duty cycle if enabled) the moving average
+  buffer should be able to keep. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
+  code size and improve execution speed.
