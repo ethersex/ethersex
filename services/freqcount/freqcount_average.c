@@ -33,11 +33,15 @@
 #include "freqcount.h"
 #include "freqcount_internal.h"
 
+static void freqcount_new_result_notify(void);
+
 uint32_t freqcount_ticks_result=0;
 #ifdef FREQCOUNT_DUTY_SUPPORT
 uint8_t freqcount_duty_result=0;
 #endif
 
+// takes FREQCOUNT_AVERAGE+2 measurement results
+// removes min and max value, calculates average
 #ifdef FREQCOUNT_DUTY_SUPPORT
 void average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty)
 #else
@@ -111,15 +115,23 @@ void average_results(uint32_t freqcount_ticks)
         
         freqcount_avg_cnt=0;
 
+        freqcount_new_result_notify();
+    }
+}
+
+// called whenever we have a new frequency counter result
+// if another function or module wants to be notified
+// add the call to this function
+static void freqcount_new_result_notify(void)
+{
 #ifdef FREQCOUNT_DEBUGGING
 #ifdef FREQCOUNT_DUTY_SUPPORT
-        debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_ticks_result,
-                freqcount_get_freq_hz(),freqcount_duty_result);
+    debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_ticks_result,
+                 freqcount_get_freq_hz(),freqcount_duty_result);
 #else
-        debug_printf("fc ticks %lu, %lu Hz\n", freqcount_ticks_result,freqcount_get_freq_hz());
+    debug_printf("fc ticks %lu, %lu Hz\n", freqcount_ticks_result,freqcount_get_freq_hz());
 #endif
 #endif
-    }
 }
 
 uint32_t freqcount_get_freq_hz(void)
