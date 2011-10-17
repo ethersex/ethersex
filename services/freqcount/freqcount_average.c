@@ -169,9 +169,21 @@ static void freqcount_moving_average(uint32_t freqcount_tick_sum)
 #endif
 {
     // reduce averaging sum to one: makes sure our uint32_t for the sum doesn't overflow later
-    freqcount_tick_sum/=FREQCOUNT_AVERAGE;
+    if (freqcount_tick_sum < 4294967296ULL/16)
+    {
+        // correct rounding possible
+        freqcount_tick_sum=(freqcount_tick_sum*16)/FREQCOUNT_AVERAGE;
+        freqcount_tick_sum+=8;
+        freqcount_tick_sum/=16;
+    }
+    else
+        freqcount_tick_sum=freqcount_tick_sum/FREQCOUNT_AVERAGE;
+    
 #ifdef FREQCOUNT_DUTY_SUPPORT
-    freqcount_duty_sum/=FREQCOUNT_AVERAGE;
+    uint32_t temp=freqcount_duty_sum*16;
+    temp/=FREQCOUNT_AVERAGE;
+    temp+=8;
+    freqcount_duty_sum=temp/16;
 #endif
     
     if (freqcount_moving_average_pointer==255)
@@ -237,11 +249,30 @@ uint32_t freqcount_get_freq_ticks(void)
 
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
     if (freqcount_moving_average_pointer!=255)
-        ticks=freqcount_moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE;
+    {
+        if (freqcount_moving_average_sum < 4294967296ULL/16)
+        {
+            // correct rounding possible
+            ticks=(freqcount_moving_average_sum*16)/FREQCOUNT_MOVING_AVERAGE_SIZE;
+            ticks+=8;
+            ticks/=16;
+        }
+        else
+            ticks=freqcount_moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE;
+    }
     else
         ticks=0;
 #else
-    ticks=freqcount_ticks_result_sum/FREQCOUNT_AVERAGE;
+
+    if (freqcount_ticks_result_sum < 4294967296ULL/16)
+    {
+        // correct rounding possible
+        ticks=(freqcount_ticks_result_sum*16)/FREQCOUNT_AVERAGE;
+        ticks+=8;
+        ticks/=16;
+    }
+    else
+        ticks=freqcount_ticks_result_sum/FREQCOUNT_AVERAGE;
 #endif
 
     return ticks;
@@ -254,32 +285,30 @@ uint32_t freqcount_get_freq_hz(void)
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
     if (freqcount_moving_average_pointer!=255)
     {
-#if ((FREQCOUNT_CLOCKFREQ*10ULL*FREQCOUNT_MOVING_AVERAGE_SIZE) < 4294967296ULL)
+#if ((FREQCOUNT_CLOCKFREQ*16ULL*FREQCOUNT_MOVING_AVERAGE_SIZE) < 4294967296ULL)
         // numerical correct rounding
-        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_MOVING_AVERAGE_SIZE*10)/freqcount_moving_average_sum;
+        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_MOVING_AVERAGE_SIZE*16)/freqcount_moving_average_sum;
 #else
-        hz=(FREQCOUNT_CLOCKFREQ*10)/(freqcount_moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE);
+        hz=(FREQCOUNT_CLOCKFREQ*16)/(freqcount_moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE);
 #endif
-        hz+=5;
-        hz/=10;
+        hz+=8;
+        hz/=16;
     }
     else
         hz=0;
 
 #else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
         
-    ticks=freqcount_ticks_result_sum/FREQCOUNT_AVERAGE;
-    
     if (freqcount_ticks_result_sum!=0)
     {
-#if ((FREQCOUNT_CLOCKFREQ*10ULL*FREQCOUNT_AVERAGE) < 4294967296ULL)
+#if ((FREQCOUNT_CLOCKFREQ*16ULL*FREQCOUNT_AVERAGE) < 4294967296ULL)
         // numerical correct rounding
-        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_AVERAGE*10)/freqcount_ticks_result_sum;
+        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_AVERAGE*16)/freqcount_ticks_result_sum;
 #else
-        hz=(FREQCOUNT_CLOCKFREQ*10)/(freqcount_ticks_result_sum/FREQCOUNT_AVERAGE);
+        hz=(FREQCOUNT_CLOCKFREQ*16)/(freqcount_ticks_result_sum/FREQCOUNT_AVERAGE);
 #endif
-        hz+=5;
-        hz/=10;
+        hz+=8;
+        hz/=16;
     }
     else
         hz=0;
@@ -292,18 +321,28 @@ uint32_t freqcount_get_freq_hz(void)
 #ifdef FREQCOUNT_DUTY_SUPPORT
 uint8_t freqcount_get_duty(void)
 {
-    uint8_t duty;
+    uint32_t duty;
 
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
     if (freqcount_moving_average_pointer!=255)
-        duty=freqcount_moving_average_duty_sum/FREQCOUNT_MOVING_AVERAGE_SIZE;
+    {
+        duty=freqcount_moving_average_duty_sum;
+        duty*=16;
+        duty/=FREQCOUNT_MOVING_AVERAGE_SIZE;
+        duty+=8;
+        duty/=16;
+    }
     else
         duty=0;
 #else
-    duty=freqcount_duty_result_sum/FREQCOUNT_AVERAGE;
+    duty=freqcount_duty_result_sum;
+    duty*=16;
+    duty/=FREQCOUNT_AVERAGE;
+    duty+=8;
+    duty/=16;
 #endif
 
-    return duty;
+    return (uint8_t)duty;
 }
 #endif // FREQCOUNT_DUTY_SUPPORT
 
