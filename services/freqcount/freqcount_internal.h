@@ -35,17 +35,43 @@ struct tick24bit
 };
 typedef struct tick24bit tick24bit_t;
 
+// freqcount_state is used for two things:
+// 1. communicate the current state of measurement
+//    between ISR and control logic
+// 2. count the overflows of the tick timer
+//    (used to detect a frequency lower than we can measure)
+//    freqcount_state is increased by one every overflow.
+//    check_measure_timeout() bails out if it sees *_OVERFLOW2.
+//    *_OVERFLOW3 and 4 are safety margin against times with
+//    very high interrupt load.
+// this dual use keeps the ISR hot path short and saves ram
 enum freqcount_state
 {
-    FC_DISABLED=0,
-    FC_BEFORE_START,
-    FC_FREQ,
-    FC_ON_CYCLE,
-    FC_DONE
+    FC_BEFORE_START=0,
+    FC_BEFORE_START_OVERFLOW1=1,
+    FC_BEFORE_START_OVERFLOW2=2,
+    FC_BEFORE_START_OVERFLOW3=3,
+    FC_BEFORE_START_OVERFLOW4=4,
+    FC_FREQ=5,
+    FC_FREQ_OVERFLOW1=6,
+    FC_FREQ_OVERFLOW2=7,
+    FC_FREQ_OVERFLOW3=9,
+    FC_FREQ_OVERFLOW4=10,
+    FC_ON_CYCLE=11,
+    FC_ON_CYCLE_OVERFLOW1=12,
+    FC_ON_CYCLE_OVERFLOW2=13,
+    FC_ON_CYCLE_OVERFLOW3=14,
+    FC_ON_CYCLE_OVERFLOW4=15,
+    FC_DONE=16,
+    FC_DONE_OVERFLOW1=17,
+    FC_DONE_OVERFLOW2=18,
+    FC_DONE_OVERFLOW3=19,
+    FC_DONE_OVERFLOW4=20,
+    FC_DISABLED=21,
 };
 typedef enum freqcount_state freqcount_state_t;
 
-extern volatile uint8_t overflows_since_freq_start;
+extern volatile freqcount_state_t freqcount_state;
 
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
 extern volatile uint8_t timer_overflows;

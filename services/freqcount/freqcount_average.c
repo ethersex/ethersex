@@ -235,10 +235,10 @@ static void freqcount_new_result_notify(void)
 {
 #ifdef FREQCOUNT_DEBUGGING
 #ifdef FREQCOUNT_DUTY_SUPPORT
-    debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_get_freq_ticks(),
+    debug_printf("fc %lu, %lu Hz %u duty\n", freqcount_get_freq_ticks(),
                  freqcount_get_freq_hz(),freqcount_get_duty());
 #else
-    debug_printf("fc ticks %lu, %lu Hz\n", freqcount_get_freq_ticks(),freqcount_get_freq_hz());
+    debug_printf("fc %lu, %lu Hz\n", freqcount_get_freq_ticks(),freqcount_get_freq_hz());
 #endif
 #endif
 }

@@ -48,9 +48,9 @@ volatile freqcount_state_t freqcount_state = FC_DISABLED;
 
 void freqcount_mainloop(void)
 {
-    if (freqcount_state==FC_DISABLED)
+    if (freqcount_state>=FC_DISABLED)
         start_measure();
-    else if (freqcount_state==FC_DONE)
+    else if (freqcount_state>=FC_DONE && freqcount_state<=FC_DONE_OVERFLOW4)
     {
         measure_done();
         // for now: automatically restart
@@ -140,27 +140,23 @@ static void measure_done(void)
 
 static void check_measure_timeout(void)
 {
-    static freqcount_state_t last_reset_state=FC_DISABLED;
-
-    if (freqcount_state != last_reset_state)
+    if(freqcount_state>FC_DISABLED)
     {
-        overflows_since_freq_start=0;
-        last_reset_state=freqcount_state;
+        // make sure freqcount_state does not overflow when not in use
+        // because timer_overflow() keeps increasing it
+        freqcount_state=FC_DISABLED;
     }
-    else if (overflows_since_freq_start > 1 && 
-        (freqcount_state==FC_BEFORE_START ||
-         freqcount_state==FC_FREQ ||
-         freqcount_state==FC_ON_CYCLE))
+    else if ((freqcount_state>=FC_BEFORE_START_OVERFLOW2 && freqcount_state<=FC_BEFORE_START_OVERFLOW4) ||
+             (freqcount_state>=FC_FREQ_OVERFLOW2 && freqcount_state<=FC_FREQ_OVERFLOW4) ||
+             (freqcount_state>=FC_ON_CYCLE_OVERFLOW2 && freqcount_state<=FC_ON_CYCLE_OVERFLOW4))
     {
-        // we are inside a measurement, but we had two overflows
+        // we are inside a measurement, but we had at least two overflows
         // -> we can't get reliable data anymore
 
         // disable timer input capture interrupt
         TIMSK1 &= ~(_BV(ICIE1));
 
         freqcount_state=FC_DISABLED;
-        last_reset_state=FC_DISABLED;
-        overflows_since_freq_start=0;
         
 #ifdef FREQCOUNT_DUTY_SUPPORT
         freqcount_average_results(0,0);
@@ -172,18 +168,18 @@ static void check_measure_timeout(void)
 
 ISR(TIMER1_CAPT_vect)
 {
-    if (freqcount_state==FC_BEFORE_START)
+    if (freqcount_state<=FC_BEFORE_START_OVERFLOW4)
     {
-        // start to measure frequency
+        // FC_BEFORE_START: start to measure frequency
         freqcount_start.low=ICR1;
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
         freqcount_start.high=timer_overflows;
 #endif
         freqcount_state=FC_FREQ;
     }
-    else if (freqcount_state==FC_FREQ)
+    else if (freqcount_state<=FC_FREQ_OVERFLOW4)
     {
-        // next rising edge -> we have the frequency
+        // state FC_FREQ, next rising edge -> we have the frequency
         freqcount_freq_end.low=ICR1;
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
         freqcount_freq_end.high=timer_overflows;
@@ -202,8 +198,9 @@ ISR(TIMER1_CAPT_vect)
         
         freqcount_state=FC_ON_CYCLE;
     }
-    else if (freqcount_state==FC_ON_CYCLE)
+    else if (freqcount_state<=FC_ON_CYCLE_OVERFLOW4)
     {
+        // FC_ON_CYCLE, next falling edge: we have the on-time
         freqcount_on_end.low=ICR1;
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
         freqcount_on_end.high=timer_overflows;

@@ -39,11 +39,6 @@
 volatile uint8_t timer_overflows;
 #endif
 
-// counts the number of full timer overflows
-// since freqcount_start was set
-// used to detect a frequency lower than we can measure
-volatile uint8_t overflows_since_freq_start=0;
-
 // full overflows needed to next clock tick
 volatile uint8_t overflows_to_clocktick;
 
@@ -80,7 +75,7 @@ inline void timer_overflow()
     {
         // we had an overflow
         // either of timer_overflows or of TCNT1
-        overflows_since_freq_start++;
+        freqcount_state++;
     }
         
     overflows_to_clocktick--;
