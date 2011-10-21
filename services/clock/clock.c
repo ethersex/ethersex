@@ -2,6 +2,7 @@
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -24,12 +25,20 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
+#include "config.h"
+#ifdef I2C_DS13X7_SUPPORT
 #include "hardware/i2c/master/i2c_ds13x7.h"
+#endif
+#ifdef DCF77_SUPPORT
+#include "hardware/clock/dcf77/dcf77.h"
+#endif
+#ifdef NTP_SUPPORT
 #include "services/ntp/ntp.h"
+#endif
 #include "core/debug.h"
 #include "core/periodic.h"
 #include "clock.h"
-#include "config.h"
 
 static uint32_t clock_timestamp;
 static uint8_t ticks;
@@ -83,6 +92,10 @@ ISR (TIMER1_OVF_vect)
 ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #endif
 {
+#ifdef DCF77_SUPPORT
+  dcf77_tick ();
+#endif
+
 #ifdef CLOCK_CPU_SUPPORT
   milliticks = 0;
 

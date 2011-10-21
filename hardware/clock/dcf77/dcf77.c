@@ -29,8 +29,13 @@
 #include <avr/wdt.h>
 
 #include "config.h"
+#ifdef NTPD_SUPPORT
 #include "services/ntp/ntpd_net.h"
+#endif
 #include "services/clock/clock.h"
+#ifdef CLOCK_CPU_SUPPORT
+#include "core/periodic.h"
+#endif
 #include "dcf77.h"
 
 #ifdef DCF1_USE_PON_SUPPORT
@@ -42,8 +47,12 @@ static volatile struct
   /* dcf_time: dummy, flags (S,A2,Z2,Z1,A1,R,x,x), min, stunde, tag, wochentag, monat, jahr */
   uint8_t timezone;
   uint8_t time[0x8];
-  uint32_t timerover;
+  uint8_t ticks;
+#ifdef CLOCK_CRYSTAL_SUPPORT
   uint8_t timerlast;
+#elif CLOCK_CPU_SUPPORT
+  uint32_t timerlast;
+#endif
   uint8_t timebyte;
   uint8_t timeparity;
   uint8_t bitcount;
@@ -71,13 +80,16 @@ static uint32_t last_valid_timestamp = 0;
 
 #ifdef CLOCK_CRYSTAL_SUPPORT
 // freq 32768kHz / 128 prescaler / 2^8 timer = 1sec
-#define MS(x)		((uint16_t)(x##UL*256UL/1000UL)) // x*256/1000ms
-#define TICK2MS(x)	((uint16_t)((x)*4))              // x*1000ms/256
-#define LOW(x)		(x<MS(135))
-#define HIGH(x)		(x>MS(135))
+#define MS(x)		((uint16_t)(x##UL*256UL/1000UL))	// x*32768/128/1000ms
+#define TICK2MS(x)	((uint16_t)((x)*4))			// x*1000ms/256
+#elif CLOCK_CPU_SUPPORT
+#define MS(x)		((uint32_t)(x##UL*CLOCK_SECONDS/1000UL))// x*F_CPU/CLOCK_PRESCALER/1000ms
+#define TICK2MS(x)	((uint16_t)((x)*1000UL/CLOCK_SECONDS))	// x*1000ms*CLOCK_PRESCALER/F_CPU
 #else
 #error not supported yet
 #endif
+#define LOW(x)		(x<=MS(160))
+#define HIGH(x)		(x>MS(160))
 
 void
 dcf77_init (void)
@@ -136,10 +148,13 @@ ISR (DCF77_VECTOR)
 ISR (ANALOG_COMP_vect)
 #endif
 {
+#ifdef CLOCK_CRYSTAL_SUPPORT
   uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
-  /* 1/256s since last signal pulse */
-  uint16_t divtime = ((clock_get_time () - dcf.timerover) * 255) +
-	             timertemp - dcf.timerlast;
+  uint16_t divtime = (dcf.ticks * (uint16_t) 256) + timertemp - dcf.timerlast;
+#elif CLOCK_CPU_SUPPORT
+  uint16_t timertemp = TCNT1 - (65536 - CLOCK_SECONDS);
+  uint32_t divtime = (dcf.ticks * CLOCK_SECONDS) + timertemp - dcf.timerlast;
+#endif
 
   if (divtime < MS (20))	// ignore short spikes
     return;
@@ -147,7 +162,7 @@ ISR (ANALOG_COMP_vect)
 #ifdef HAVE_DCF1
   if (PIN_HIGH (DCF1))
 #else
-  if ((ACSR & _BV (ACO)) != 0)
+  if (bit_is_set (ACSR, ACO))
 #endif
     {				// start of impulse
       if (divtime > MS (992) || divtime < MS (736))
@@ -159,7 +174,13 @@ ISR (ANALOG_COMP_vect)
 	  if (dcf.valid == 1)
 	    {
 	      clock_set_time (timestamp);
+#ifdef CLOCK_CRYSTAL_SUPPORT
 	      TIMER_8_AS_1_COUNTER_CURRENT = 0;
+#elif CLOCK_CPU_SUPPORT
+	      TCNT1 = 65536-CLOCK_SECONDS;
+	      OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
+#endif
+	      timertemp = 0;
 	      last_valid_timestamp = timestamp;
 	      set_dcf_count (1);
 	      set_ntp_count (0);
@@ -171,19 +192,17 @@ ISR (ANALOG_COMP_vect)
 	      dcf.valid = 0;
 	    }
 	  DCFDEBUG ("start sync\n");
-	  // FIXME: divtime may overflow 8 bit
 	  dcf.bitcount = 1;
-	  TIMER_8_AS_1_COUNTER_CURRENT = divtime;
-	  timertemp = divtime;
 	}
+      dcf.ticks = 0;	// start time meassure for new bit
     }
   else
     {				// end of impulse
       DCFDEBUG ("pulse: %2u %4ums %c\n",
 		dcf.bitcount,
-		TICK2MS(divtime),
-		(char)((divtime > MS (252) || divtime < MS (44)) ?
-		       'F' : HIGH(divtime) ? '1' : '0'));
+		TICK2MS (divtime),
+		(char) ((divtime > MS (250) || divtime < MS (40)) ?
+			'F' : HIGH (divtime) ? '1' : '0'));
       if (divtime > MS (250) || divtime < MS (40))
 	{			// invalid pulse
 	  dcf.bitcount = 0;
@@ -251,8 +270,7 @@ ISR (ANALOG_COMP_vect)
 		  break;
 		case 46:
 		  dcf.time[dcf.timebyte] >>= 5;
-		  DCFDEBUG ("Wochentag: %u\n",
-			    bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Wochentag: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 6;
 		  break;
 		case 51:
@@ -265,7 +283,7 @@ ISR (ANALOG_COMP_vect)
 		  dcf.timebyte = 0;
 		  break;
 		}
-	      if (divtime > MS (160))	// 1
+	      if (HIGH (divtime))	// 1
 		{
 		  dcf.timeparity ^= 1;
 		  if (dcf.timebyte)
@@ -320,13 +338,18 @@ ISR (ANALOG_COMP_vect)
 	}
     }
   dcf.timerlast = timertemp;
-  dcf.timerover = clock_get_time ();
 }
 
 uint32_t
-getLastValidDCFTimeStamp (void)
+dcf77_get_last_valid_timestamp (void)
 {
   return last_valid_timestamp;
+}
+
+void
+dcf77_tick (void)
+{
+  dcf.ticks++;
 }
 
 /*
