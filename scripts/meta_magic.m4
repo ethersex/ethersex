@@ -37,6 +37,7 @@ divert(0)dnl
 #include <stdint.h>
 #include "config.h"
 #include "core/debug.h"
+#include "services/freqcount/freqcount.h"
 
 #if ARCH == ARCH_HOST
 #include <sys/time.h>
@@ -104,6 +105,11 @@ ethersex_meta_mainloop (void)
 
 divert(timer_divert)dnl
     periodic_process(); wdt_kick();
+
+#ifdef FREQCOUNT_SUPPORT
+    freqcount_mainloop();
+#endif
+
 #ifdef CPU_SLEEP
 /* Works only if there are interrupts enabled, e.g. from periodic.c */
         set_sleep_mode(SLEEP_MODE_IDLE);

@@ -29,7 +29,7 @@ divert(globals_divert)`
 #error Please define onewire support
 #endif
 
-#include <avr/atomic.h>
+#include <util/atomic.h>
 #include "hardware/onewire/onewire.h"
 #include "core/bit-macros.h"
 
@@ -65,7 +65,7 @@ static int16_t ow_read_temp (ow_rom_code_t *rom)
     ow_temp_scratchpad_t sp;
     if (ow_temp_read_scratchpad(rom, &sp) == 1)
     {
-      uint16_t temp = ow_temp_normalize(rom, &sp);
+      int16_t temp = ow_temp_normalize(rom, &sp);
       retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
     }
   }

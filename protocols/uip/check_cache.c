@@ -24,6 +24,7 @@
 #include "uip.h"
 #include "uip_neighbor.h"
 #include "uip_arp.h"
+#include "check_cache.h"
 
 uint8_t
 uip_check_cache(uip_ipaddr_t *ripaddr) {

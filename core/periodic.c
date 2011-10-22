@@ -27,6 +27,9 @@
 #include "config.h"
 #include "core/periodic.h"
 #include "core/debug.h"
+#ifdef FREQCOUNT_SUPPORT
+#include "services/freqcount/freqcount.h"
+#endif
 
 #ifdef BOOTLOADER_SUPPORT
 uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
@@ -47,6 +50,14 @@ periodic_init (void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
+#ifdef FREQCOUNT_SUPPORT
+  /* init timer1 to run with full cpu frequency, normal mode, 
+     compare and overflow int active */
+  TC1_PRESCALER_1;
+  freqcount_init();
+  TC1_INT_COMPARE_ON;
+  TC1_INT_OVERFLOW_ON;
+#else
   /* init timer1 to expire after ~20ms, with CTC enabled */
   TC1_MODE_CTC;
   TC1_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
@@ -54,9 +65,14 @@ periodic_init (void)
 
   NTPADJDEBUG ("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
 #endif
+#endif
 }
 
+#ifdef FREQCOUNT_SUPPORT
+void timer_expired(void)
+#else
 ISR (TC1_VECTOR_COMPARE)
+#endif
 {
 #ifdef CLOCK_CPU_SUPPORT
   TC1_COUNTER_COMPARE += CLOCK_TICKS;
