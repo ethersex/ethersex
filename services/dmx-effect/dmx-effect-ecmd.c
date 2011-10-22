@@ -66,7 +66,7 @@ int16_t parse_cmd_dmx_random(char *cmd, char *output, uint16_t len)
 	if(selection == DMX_EFFECT_ENABLED)
 	{
 		/*seed the srand() with timer1*/
-		srand(TCNT1);
+		srand(TC1_COUNTER_CURRENT);
 		random_enabled=DMX_EFFECT_ENABLED;
                 return ECMD_FINAL_OK;
 	}

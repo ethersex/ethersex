@@ -1,5 +1,8 @@
 /*
 *
+* internal functions of the frequency counter
+* not intended for use from outside the frequency counter
+*
 * Copyright (c) 2011 by Gerd v. Egidy <gerd@egidy.de>
 *
 * This program is free software; you can redistribute it and/or
@@ -42,13 +45,16 @@ enum freqcount_state
 };
 typedef enum freqcount_state freqcount_state_t;
 
-static void start_measure(void);
-static void measure_done(void);
+extern volatile uint8_t overflows_since_freq_start;
+
+#ifndef FREQCOUNT_NOSLOW_SUPPORT
+extern volatile uint8_t timer_overflows;
+#endif
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
-static void average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);
+void freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);
 #else
-static void average_results(uint32_t freqcount_ticks);
+void freqcount_average_results(uint32_t freqcount_ticks);
 #endif
 
 #endif /* FREQCOUNT_INTERNAL_H */

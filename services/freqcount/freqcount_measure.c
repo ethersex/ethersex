@@ -1,5 +1,6 @@
 /*
 * frequency counter
+* main measurement functions
 *
 * Copyright (c) 2011 by Gerd v. Egidy <gerd@egidy.de>
 *
@@ -32,76 +33,10 @@
 #include "freqcount.h"
 #include "freqcount_internal.h"
 
-#ifndef FREQCOUNT_NOSLOW_SUPPORT
-// increased every 65536 clock cycles
-// is a 24 bit clock together with TCNT1
-volatile uint8_t timer_overflows;
-#endif
-
-// full overflows needed to next clock tick
-volatile uint8_t overflows_to_clocktick;
-
-#define FULL_OVERFLOWS ((FREQCOUNT_CLOCKFREQ/MAX_OVERFLOW/HZ)+1)
-#define REMAINING_TICKS ((uint16_t)((FREQCOUNT_CLOCKFREQ%(MAX_OVERFLOW*HZ))/HZ))
-
-#if (FULL_OVERFLOWS < 2)
-#error cpu frequency too low for frequency counter 
-#endif
-
-void freqcount_init (void)
-{
-    TCNT1 = 0;
-    OCR1A = REMAINING_TICKS;
-    overflows_to_clocktick=FULL_OVERFLOWS;
-
-#ifndef FREQCOUNT_NOSLOW_SUPPORT
-    timer_overflows=0;
-#endif
-    
-    // make sure FREQCOUNT_PIN is defined and an input
-    DDR_CONFIG_IN(FREQCOUNT_PIN);
-}
-
-// timer overflow
-inline void timer_overflow()
-{
-#ifndef FREQCOUNT_NOSLOW_SUPPORT
-    timer_overflows++;
-#endif
-    overflows_to_clocktick--;
-}
-
-ISR (TIMER1_OVF_vect)
-{
-    timer_overflow();
-}
-
-// timer compare
-ISR(TIMER1_COMPA_vect)
-{
-    // did the overflow and compare happen at once?
-    // make sure that the overflow vector is executed first
-    // ignore cases where compare triggered first but could
-    // not be handled yet. Limit at half the possible range for this.
-    if (TIFR1 & _BV(TOV1) && OCR1A < 32768)
-    {
-        timer_overflow();
-        // disable the int flag as we already have handled it
-        TIFR1 = _BV(TOV1);
-    }
-    
-    // we only have to look for incomplete timer overflow cycles
-    if (overflows_to_clocktick==0)
-    {
-        overflows_to_clocktick=FULL_OVERFLOWS;
-        OCR1A=REMAINING_TICKS-MAX_OVERFLOW+OCR1A;
-        if (OCR1A > REMAINING_TICKS)
-            overflows_to_clocktick--;
-
-        // call the regular ISR for timer expired condition (every 20ms)
-        timer_expired();
-    }
-}
+// define them static to allow the compiler inlining them
+static void start_measure(void);
+static void measure_done(void);
+static void check_measure_timeout(void);
 
 // variables to communicate between pin change ISR and control
 volatile tick24bit_t freqcount_start;
@@ -121,6 +56,8 @@ void freqcount_mainloop(void)
         // for now: automatically restart
         start_measure();
     }
+    
+    check_measure_timeout();
 }
 
 static void start_measure(void)
@@ -195,10 +132,42 @@ static void measure_done(void)
     
     uint8_t freqcount_duty=((t1-t2)<<8)/freqcount_ticks;
 
-    average_results(freqcount_ticks, freqcount_duty);
+    freqcount_average_results(freqcount_ticks, freqcount_duty);
 #else
-    average_results(freqcount_ticks);
+    freqcount_average_results(freqcount_ticks);
 #endif
+}
+
+static void check_measure_timeout(void)
+{
+    static freqcount_state_t last_reset_state=FC_DISABLED;
+
+    if (freqcount_state != last_reset_state)
+    {
+        overflows_since_freq_start=0;
+        last_reset_state=freqcount_state;
+    }
+    else if (overflows_since_freq_start > 1 && 
+        (freqcount_state==FC_BEFORE_START ||
+         freqcount_state==FC_FREQ ||
+         freqcount_state==FC_ON_CYCLE))
+    {
+        // we are inside a measurement, but we had two overflows
+        // -> we can't get reliable data anymore
+
+        // disable timer input capture interrupt
+        TIMSK1 &= ~(_BV(ICIE1));
+
+        freqcount_state=FC_DISABLED;
+        last_reset_state=FC_DISABLED;
+        overflows_since_freq_start=0;
+        
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        freqcount_average_results(0,0);
+#else
+        freqcount_average_results(0);
+#endif
+    }
 }
 
 ISR(TIMER1_CAPT_vect)
@@ -241,85 +210,6 @@ ISR(TIMER1_CAPT_vect)
 #endif /* FREQCOUNT_NOSLOW_SUPPORT */
         freqcount_state=FC_DONE;
 #endif /* FREQCOUNT_DUTY_SUPPORT */
-    }
-}
-
-uint32_t freqcount_ticks_result=0;
-#ifdef FREQCOUNT_DUTY_SUPPORT
-uint8_t freqcount_duty_result=0;
-#endif
-
-#ifdef FREQCOUNT_DUTY_SUPPORT
-static void average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty)
-#else
-static void average_results(uint32_t freqcount_ticks)
-#endif
-{
-    static uint32_t freqcount_ticks_avgsum=0;
-    static uint32_t freqcount_ticks_avg_max=0;
-    static uint32_t freqcount_ticks_avg_min=0xFFFFFFFF;
-    
-#ifdef FREQCOUNT_DUTY_SUPPORT
-    static uint16_t freqcount_duty_avgsum=0;
-    static uint16_t freqcount_duty_avg_max=0;
-    static uint16_t freqcount_duty_avg_min=0xFFFF;
-#endif
-    
-    static uint8_t freqcount_avg_cnt=0;
-
-    // collect FREQCOUNT_AVERAGE+2 values: min and max are cut off
-    if (freqcount_avg_cnt < FREQCOUNT_AVERAGE+2)
-    {
-        freqcount_ticks_avgsum+=freqcount_ticks;
-        if (freqcount_ticks > freqcount_ticks_avg_max)
-            freqcount_ticks_avg_max=freqcount_ticks;
-        else if (freqcount_ticks < freqcount_ticks_avg_min)
-            freqcount_ticks_avg_min=freqcount_ticks;
-
-#ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_duty_avgsum+=freqcount_duty;
-        if (freqcount_duty > freqcount_duty_avg_max)
-            freqcount_duty_avg_max=freqcount_duty;
-        else if (freqcount_duty < freqcount_duty_avg_min)
-            freqcount_duty_avg_min=freqcount_duty;
-#endif
-
-        freqcount_avg_cnt++;
-    }
-    else
-    {
-        freqcount_ticks_avgsum-=freqcount_ticks_avg_max;
-        freqcount_ticks_avgsum-=freqcount_ticks_avg_min;
-        freqcount_ticks_result=freqcount_ticks_avgsum/FREQCOUNT_AVERAGE;
-        
-#ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_duty_avgsum-=freqcount_duty_avg_max;
-        freqcount_duty_avgsum-=freqcount_duty_avg_min;
-        freqcount_duty_result=freqcount_duty_avgsum/FREQCOUNT_AVERAGE;
-#endif
-        
-        // reset averaging
-        freqcount_ticks_avgsum=0;
-        freqcount_ticks_avg_max=0;
-        freqcount_ticks_avg_min=0xFFFFFFFF;
-        
-#ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_duty_avgsum=0;
-        freqcount_duty_avg_max=0;
-        freqcount_duty_avg_min=0xFFFF;
-#endif
-        
-        freqcount_avg_cnt=0;
-
-#ifdef FREQCOUNT_DEBUGGING
-#ifdef FREQCOUNT_DUTY_SUPPORT
-        debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_ticks_result,
-                (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result), freqcount_duty_result);
-#else
-        debug_printf("fc ticks %lu, %lu Hz\n", freqcount_ticks_result,
-                (uint32_t)(FREQCOUNT_CLOCKFREQ/freqcount_ticks_result));
-#endif
-#endif
     }
 }
 

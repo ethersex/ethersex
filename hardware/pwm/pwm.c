@@ -47,10 +47,10 @@
 // init DDR, waveform and timer
 void
 pwm_init(){
-  TCNT1=0x00FF; //set the timer counter
+  TC1_COUNTER_CURRENT=0x00FF; //set the timer counter
 #ifdef CH_A_PWM_GENERAL_SUPPORT
   DDR_CONFIG_OUT(CHANNEL_A_PWM); 		// PWM OUTPUT
-  OCR1A=channelAval;
+  TC1_COUNTER_COMPARE=channelAval;
   TCCR1A|=_BV(COM1A1)|_BV(COM1A0); 		// Set OCnA on compare match
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
 #ifdef CH_B_PWM_GENERAL_SUPPORT
@@ -131,7 +131,7 @@ setpwm(char channel, uint8_t setval){
   switch (channel){
 #ifdef CH_A_PWM_GENERAL_SUPPORT
     case 'a': 
-      OCR1A=setval;
+      TC1_COUNTER_COMPARE=setval;
 	  channelAval=setval;
 	  break;
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
