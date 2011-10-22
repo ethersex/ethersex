@@ -53,7 +53,7 @@ uint8_t pwm_servo_enabled = 0;
    timer interrupt, generates the high and low pulses for each servo
 
 ***************************************************************************/
-ISR(TIMER1_OVF_vect)
+ISR(TC1_VECTOR_OVERFLOW)
 {
  static uint8_t servoindex_half=0;
  if (pwm_servo_enabled==1) {
@@ -129,7 +129,7 @@ ISR(TIMER1_OVF_vect)
 #endif
    }
 
-   TCNT1 = (uint16_t)(0-Pulslength[servoindex_half]); // set time for next interrupt   
+   TC1_COUNTER_CURRENT = (uint16_t)(0-Pulslength[servoindex_half]); // set time for next interrupt   
 
    servoindex_half++; // increment timervalue index
 
@@ -199,7 +199,7 @@ void init_servos(void)
 void pwm_servo_init(void)
 {
     // init timer1
-   TCNT1 = (uint16_t) 0 - 16000;
+   TC1_COUNTER_CURRENT = (uint16_t) 0 - 16000;
    TCCR1A = 0x00;  
    TCCR1B = 0x00; // init
    TCCR1B |= (1<<CS10);   // prescale no ->50hz

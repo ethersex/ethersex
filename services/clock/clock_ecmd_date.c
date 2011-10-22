@@ -53,7 +53,7 @@ int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
   struct clock_datetime_t date;
   uint32_t last_valid;
 
-  last_valid = getLastValidDCFTimeStamp();
+  last_valid = dcf77_get_last_valid_timestamp();
 
   clock_localtime(&date, last_valid);
 

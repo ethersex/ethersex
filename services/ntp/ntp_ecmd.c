@@ -99,7 +99,7 @@ int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
 	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("Delta:   %+d"),
 					 clock_last_delta()));
 	case CNT_OCR1A:
-	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("OCR1A:   %u"), OCR1A));
+	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("OCR1A:   %u"), TC1_COUNTER_COMPARE));
 	case CNT_DCFNTP:
 	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("DCF/NTP: %u/%u"),
 					 clock_dcf_count(), clock_ntp_count()));

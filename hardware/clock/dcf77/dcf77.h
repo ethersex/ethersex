@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +22,8 @@
 #ifndef _DCF77_H
 #define _DCF77_H
 
-uint32_t getLastValidDCFTimeStamp (void);
 void dcf77_init (void);
+uint32_t dcf77_get_last_valid_timestamp (void);
+void dcf77_tick (void);
 
 #endif /* _DCF77_H */
