@@ -65,11 +65,11 @@ int16_t clock_last_delta(void);
 
 /* DCF syncs in Folge */
 uint16_t clock_dcf_count(void);
-void set_dcf_count(uint16_t new_dcf_count);
+void set_dcf_count(const uint16_t new_dcf_count);
 
 /* NTP syncs in Folge */
 uint16_t clock_ntp_count(void);
-void set_ntp_count(uint16_t new_ntp_count);
+void set_ntp_count(const uint16_t new_ntp_count);
 
 /* the actual ntp_timer */
 uint16_t clock_last_ntp(void);

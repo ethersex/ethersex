@@ -4,6 +4,7 @@
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2010 by Hans Baechle <hans.baechle@gmx.net>
+ * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,48 +29,68 @@
 #include <avr/wdt.h>
 
 #include "config.h"
-#include "services/ntp/ntpd_net.h"
-#include "services/clock/clock.h"
-#include "dcf77.h"
-
 #ifdef DCF1_USE_PON_SUPPORT
 #include <util/delay.h>
 #endif
+#ifdef NTPD_SUPPORT
+#include "services/ntp/ntpd_net.h"
+#endif
+#include "services/clock/clock.h"
+#ifdef CLOCK_CPU_SUPPORT
+#include "core/periodic.h"
+#endif
+#include "dcf77.h"
 
-static volatile struct dcf77_s
+
+static struct
 {
   /* dcf_time: dummy, flags (S,A2,Z2,Z1,A1,R,x,x), min, stunde, tag, wochentag, monat, jahr */
   uint8_t timezone;
   uint8_t time[0x8];
-  uint32_t timerover;
+  uint8_t ticks;
+#ifdef CLOCK_CRYSTAL_SUPPORT
   uint8_t timerlast;
+#elif CLOCK_CPU_SUPPORT
+  uint32_t timerlast;
+#endif
   uint8_t timebyte;
   uint8_t timeparity;
-  uint8_t sync;
+  uint8_t bitcount;
+  uint8_t valid; // dcf77-data valid
 } dcf;
 
-static struct clock_datetime_t dcfdate;
-
-// dcf77-data valid
-static uint8_t dcf77_valid = 0;
-
-// act. dcf timestamp
+// current timestamp
 static uint32_t timestamp = 0;
 
-// last dcf77 timestamp
-static uint32_t last_dcf77_timestamp = 0;
+// last timestamp
+static uint32_t last_timestamp = 0;
 
 // last valid timestamp
-static uint32_t last_valid_dcf = 0;
+static uint32_t last_valid_timestamp = 0;
 
-#define bcd2bin(data) (data - ((data / 16) * 6))
 
 #ifdef DEBUG_DCF77
 # include "core/debug.h"
 # define DCFDEBUG(a...)  debug_printf("dcf77: " a)
+# define DCFDEBUG2(a...) debug_printf(a)
 #else
 # define DCFDEBUG(a...) do { } while(0)
 #endif /* DEBUG_DCF77 */
+
+#ifdef CLOCK_CRYSTAL_SUPPORT
+// freq 32768kHz / 128 prescaler / 2^8 timer = 1sec
+#define MS(x)		((uint16_t)(x##UL*256UL/1000UL))	// x*32768/128/1000ms
+#define TICK2MS(x)	((uint16_t)((x)*4))			// x*1000ms/256
+#elif CLOCK_CPU_SUPPORT
+#define MS(x)		((uint32_t)(x##UL*CLOCK_SECONDS/1000UL))// x*F_CPU/CLOCK_PRESCALER/1000ms
+#define TICK2MS(x)	((uint16_t)((x)*1000UL/CLOCK_SECONDS))	// x*1000ms*CLOCK_PRESCALER/F_CPU
+#else
+#error not supported yet
+#endif
+#define LOW(x)		(x<=MS(160))
+#define HIGH(x)		(x>MS(160))
+#define BCD2BIN(x)	(x-((x/16)*6))
+
 
 void
 dcf77_init (void)
@@ -108,18 +129,18 @@ dcf77_init (void)
 }
 
 // compute unix-timestamp from dcf77_ctx
-static uint32_t
+static inline uint32_t
 compute_dcf77_timestamp (void)
 {
+  struct clock_datetime_t dcfdate;
   dcfdate.sec = 0;
-  dcfdate.min = bcd2bin (dcf.time[2]);
-  dcfdate.hour = bcd2bin (dcf.time[3]);
-  dcfdate.day = bcd2bin (dcf.time[4]);
-  dcfdate.month = bcd2bin (dcf.time[6]);
+  dcfdate.min = BCD2BIN (dcf.time[2]);
+  dcfdate.hour = BCD2BIN (dcf.time[3]);
+  dcfdate.day = BCD2BIN (dcf.time[4]);
+  dcfdate.month = BCD2BIN (dcf.time[6]);
   //dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
-  dcfdate.year = 100 + (bcd2bin (dcf.time[7]));
-  timestamp = clock_utc2timestamp (&dcfdate, dcf.timezone);
-  return timestamp;
+  dcfdate.year = 100 + (BCD2BIN (dcf.time[7]));
+  return clock_utc2timestamp (&dcfdate, dcf.timezone);
 }
 
 #ifdef DCF77_VECTOR
@@ -128,198 +149,211 @@ ISR (DCF77_VECTOR)
 ISR (ANALOG_COMP_vect)
 #endif
 {
+#ifdef CLOCK_CRYSTAL_SUPPORT
   uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
-  /* 1/256 since last signal pulse */
-  uint16_t divtime =
-    (timertemp + (clock_get_time () - dcf.timerover) * 0xFF) - dcf.timerlast;
-
-  if (divtime > 5)		// div time > 90 ms ?
-    {
-#ifdef HAVE_DCF1
-      if (!PIN_HIGH (DCF1))
-#else
-      if ((ACSR & _BV (ACO)) == 0)
+  uint16_t divtime = (dcf.ticks * (uint16_t) 256) + timertemp - dcf.timerlast;
+#elif CLOCK_CPU_SUPPORT
+  uint16_t timertemp = TC1_COUNTER_CURRENT - (65536 - CLOCK_SECONDS);
+  uint32_t divtime = (dcf.ticks * CLOCK_SECONDS) + timertemp - dcf.timerlast;
 #endif
+
+  if (divtime < MS (20))	// ignore short spikes
+    return;
+
+#ifdef HAVE_DCF1
+  if (PIN_HIGH (DCF1))
+#else
+  if (bit_is_set (ACSR, ACO))
+#endif
+    {				// start of impulse
+      if (divtime > MS (992) || divtime < MS (736))
 	{
-	  DCFDEBUG ("dcf : %u\n", divtime);
-	  if (divtime > 0x3F || divtime < 0x0B)
+	  dcf.bitcount = 0;
+	}
+      if (divtime > MS (1700) && divtime < MS (2000) && dcf.bitcount == 0)
+	{
+	  if (dcf.valid == 1)
 	    {
-	      dcf.sync = 0;
-	      dcf77_valid = 0;
-	      DCFDEBUG ("aus 1\n");
+	      // set seconds
+	      clock_set_time (timestamp);
+	      // and reset milliseconds
+#ifdef CLOCK_CRYSTAL_SUPPORT
+	      timertemp = 0;
+	      TIMER_8_AS_1_COUNTER_CURRENT = timertemp;
+#elif CLOCK_CPU_SUPPORT
+	      TC1_COUNTER_COMPARE = 65536-CLOCK_SECONDS+(timertemp%CLOCK_TICKS);
+	      timertemp = 65536-CLOCK_SECONDS;
+	      TC1_COUNTER_CURRENT = timertemp;
+#endif
+	      last_valid_timestamp = timestamp;
+	      set_dcf_count (1);
+	      set_ntp_count (0);
+#ifdef NTPD_SUPPORT
+	      // our DCF-77 Clock ist a primary; intern stratum 0; so we offer stratum+1 ! //
+	      ntp_setstratum (0);
+#endif
+	      DCFDEBUG ("set unix-time %lu\n", timestamp);
+	      dcf.valid = 0;
 	    }
-	  if (dcf.sync > 0 && dcf.sync < 60)
+	  DCFDEBUG ("start sync\n");
+	  dcf.bitcount = 1;
+	}
+      dcf.ticks = 0;	// start time meassure for new bit
+    }
+  else
+    {				// end of impulse
+      DCFDEBUG ("pulse: %2u %4ums %c\n",
+		dcf.bitcount,
+		TICK2MS (divtime),
+		(char) ((divtime > MS (250) || divtime < MS (40)) ?
+			'F' : HIGH (divtime) ? '1' : '0'));
+      if (divtime > MS (250) || divtime < MS (40))
+	{			// invalid pulse
+	  dcf.bitcount = 0;
+	  dcf.valid = 0;
+	}
+      else
+	{
+	  if (dcf.bitcount > 0 && dcf.bitcount < 60)
 	    {
-	      switch (dcf.sync)
+	      switch (dcf.bitcount)
 		{
 		case 1:
 		  dcf.timebyte = 1;
-		  DCFDEBUG ("in 1\n");
-		  dcf77_valid = 0;
+		  dcf.valid = 0;
 		  break;
 		case 16:
-		  DCFDEBUG ("%S\n", divtime < 34 ?
+		  DCFDEBUG ("%S\n", LOW (divtime) ?
 			    PSTR ("Normalantenne") :
 			    PSTR ("Reserveantenne"));
 		  break;
 		case 17:
-		  DCFDEBUG ("%S\n",
-			    divtime < 34 ?
+		  DCFDEBUG ("%S\n", LOW (divtime) ?
 			    PSTR ("Kein Wechsel von MEZ/MESZ") :
 			    PSTR ("Am Ende dieser Stunde wird MEZ/MESZ umgestellt"));
 		  break;
 		case 18:
-		  dcf.timezone = divtime < 34 ? 0 : 1;
-		  DCFDEBUG ("in 17\n");
+		  dcf.timezone = LOW (divtime) ? 0 : 1;
 		  break;
 		case 19:
-		  DCFDEBUG ("%S\n", divtime < 34 ?
+		  DCFDEBUG ("%S\n", LOW (divtime) ?
 			    PSTR ("MESZ") :
 			    PSTR ("MEZ"));
 		  break;
 		case 20:
-		  DCFDEBUG ("%S\n", divtime < 34 ?
+		  DCFDEBUG ("%S\n", LOW (divtime) ?
 			    PSTR ("Keine Schaltsekunde") :
-			    PSTR ("Am Ende dieser Stunde wird eine Schaltsekunde eingefügt"));
+			    PSTR ("Am Ende dieser Stunde wird eine Schaltsekunde eingefuegt"));
 		  break;
 		case 22:
 		  dcf.timebyte = 2;
 		  dcf.timeparity = 0;
-		  DCFDEBUG ("in 22\n");
 		  break;
 		case 29:
 		  dcf.time[dcf.timebyte] >>= 1;
-		  DCFDEBUG ("Minute: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Minute: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 0;
 		  break;
 		case 30:
 		  dcf.timebyte = 3;
 		  dcf.timeparity = 0;
-		  DCFDEBUG ("in 30\n");
 		  break;
 		case 36:
 		  dcf.time[dcf.timebyte] >>= 2;
-		  DCFDEBUG ("Stunde: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Stunde: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 0;
 		  break;
 		case 37:
 		  dcf.timebyte = 4;
 		  dcf.timeparity = 0;
-		  DCFDEBUG ("in 37\n");
 		  break;
 		case 43:
 		  dcf.time[dcf.timebyte] >>= 2;
-		  DCFDEBUG ("Tag: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Tag: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 5;
 		  break;
 		case 46:
 		  dcf.time[dcf.timebyte] >>= 5;
-		  DCFDEBUG ("Wochentag: %u\n",
-			    bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Wochentag: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 6;
 		  break;
 		case 51:
 		  dcf.time[dcf.timebyte] >>= 3;
-		  DCFDEBUG ("Monat: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Monat: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 7;
 		  break;
 		case 59:
-		  DCFDEBUG ("Jahr: %u\n",
-			    2000 + bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Jahr: 20%02u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 0;
 		  break;
 		}
-	      if (divtime > 0x28)
+	      if (HIGH (divtime))	// 1
 		{
 		  dcf.timeparity ^= 1;
-		  if (dcf.timebyte != 0)
-		    dcf.time[dcf.timebyte] =
-		      (dcf.time[dcf.timebyte] >> 1) | 0x80;
-		  else if (dcf.timeparity != 0)
+		  if (dcf.timebyte)
 		    {
-		      DCFDEBUG ("sync lost: %d\n", dcf.sync);
-		      dcf.sync = 0;
-		      dcf77_valid = 0;
+		      dcf.time[dcf.timebyte] =
+			(dcf.time[dcf.timebyte] >> 1) | 0x80;
+		    }
+		  else if (dcf.timeparity)
+		    {
+		      goto parity_error;
 		    }
 		}
-	      else
+	      else			// 0
 		{
-		  if (dcf.sync == 21)
+		  if (dcf.bitcount == 21) // start of time information
 		    {
-		      dcf.sync = 0;
-		      DCFDEBUG ("aus 2\n");
+		      dcf.bitcount = 0;
 		    }
-		  dcf.timeparity ^= 0;
-		  if (dcf.timebyte != 0)
-		    dcf.time[dcf.timebyte] >>= 1;
-		  else if (dcf.timeparity != 0)
+		  if (dcf.timebyte)
 		    {
-		      dcf.sync = 0;
-		      DCFDEBUG ("aus 3\n");
+		      dcf.time[dcf.timebyte] >>= 1;
+		    }
+		  else if (dcf.timeparity)
+		    {
+		    parity_error:
+		      DCFDEBUG ("parity error\n");
+		      dcf.bitcount = 0;
+		      dcf.valid = 0;
 		    }
 		}
-	      if (dcf.sync == 59)
+	      if (dcf.bitcount == 59)
 		{
-		  compute_dcf77_timestamp ();
+		  timestamp = compute_dcf77_timestamp ();
+		  uint32_t diff = timestamp - last_timestamp;
 		  // we need 2 valid timestamps; diff = 60s
-		  DCFDEBUG ("pre-sync act - last  %u\n",
-			    timestamp - last_dcf77_timestamp);
-		  if ((timestamp - last_dcf77_timestamp) == 60)
+		  DCFDEBUG ("pre-sync act - last  %lu\n", diff);
+		  if (diff == 60)
 		    {
 		      // ok! timestamp is valid
-		      dcf77_valid = 1;
+		      dcf.valid = 1;
 		    }
 		  else
 		    {
 		      // no! but remember timestamp
-		      dcf77_valid = 0;
+		      dcf.valid = 0;
 		      set_dcf_count (0);
-		      last_dcf77_timestamp = timestamp;
+		      last_timestamp = timestamp;
 		    }
 		}
-	      dcf.sync++;
 	    }
+	  dcf.bitcount++;
 	}
-      else
-	{
-	  if (divtime > 0xF8 || divtime < 0xB8)
-	    {
-	      dcf.sync = 0;
-	      DCFDEBUG ("aus 4; divtime: 0x%x %u\n", divtime, divtime);
-	    }
-	  if (divtime > 0x1C0 && divtime < 0x1F0 && dcf.sync == 0)
-	    {
-	      if (dcf77_valid == 1)
-		{
-		  compute_dcf77_timestamp ();
-		  clock_set_time (timestamp);
-		  TIMER_8_AS_1_COUNTER_CURRENT = 0;
-		  last_dcf77_timestamp = timestamp;
-		  last_valid_dcf = timestamp;
-		  set_dcf_count (1);
-		  set_ntp_count (0);
-#ifdef NTPD_SUPPORT
-		  // our DCF-77 Clock ist a primary; intern stratum 0; so we offer stratum+1 ! //
-		  ntp_setstratum (0);
-#endif
-		  DCFDEBUG ("set unix-time %lu\n", timestamp);
-		  dcf77_valid = 0;
-		}
-	      DCFDEBUG ("start sync\n");
-	      dcf.sync = 1;
-	      TIMER_8_AS_1_COUNTER_CURRENT = divtime;
-	      timertemp = divtime;
-	    }
-	}
-      dcf.timerlast = timertemp;
-      dcf.timerover = clock_get_time ();
     }
+  dcf.timerlast = timertemp;
 }
 
 uint32_t
-getLastValidDCFTimeStamp (void)
+dcf77_get_last_valid_timestamp (void)
 {
-  return last_valid_dcf;
+  return last_valid_timestamp;
+}
+
+void
+dcf77_tick (void)
+{
+  dcf.ticks++;
 }
 
 /*
