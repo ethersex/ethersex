@@ -29,6 +29,9 @@
 #include <avr/wdt.h>
 
 #include "config.h"
+#ifdef DCF1_USE_PON_SUPPORT
+#include <util/delay.h>
+#endif
 #ifdef NTPD_SUPPORT
 #include "services/ntp/ntpd_net.h"
 #endif
@@ -38,11 +41,8 @@
 #endif
 #include "dcf77.h"
 
-#ifdef DCF1_USE_PON_SUPPORT
-#include <util/delay.h>
-#endif
 
-static volatile struct
+static struct
 {
   /* dcf_time: dummy, flags (S,A2,Z2,Z1,A1,R,x,x), min, stunde, tag, wochentag, monat, jahr */
   uint8_t timezone;
@@ -59,16 +59,15 @@ static volatile struct
   uint8_t valid; // dcf77-data valid
 } dcf;
 
-// act. dcf timestamp
+// current timestamp
 static uint32_t timestamp = 0;
 
-// last dcf77 timestamp
+// last timestamp
 static uint32_t last_timestamp = 0;
 
 // last valid timestamp
 static uint32_t last_valid_timestamp = 0;
 
-#define bcd2bin(data) (data - ((data / 16) * 6))
 
 #ifdef DEBUG_DCF77
 # include "core/debug.h"
@@ -90,6 +89,8 @@ static uint32_t last_valid_timestamp = 0;
 #endif
 #define LOW(x)		(x<=MS(160))
 #define HIGH(x)		(x>MS(160))
+#define BCD2BIN(x)	(x-((x/16)*6))
+
 
 void
 dcf77_init (void)
@@ -133,12 +134,12 @@ compute_dcf77_timestamp (void)
 {
   struct clock_datetime_t dcfdate;
   dcfdate.sec = 0;
-  dcfdate.min = bcd2bin (dcf.time[2]);
-  dcfdate.hour = bcd2bin (dcf.time[3]);
-  dcfdate.day = bcd2bin (dcf.time[4]);
-  dcfdate.month = bcd2bin (dcf.time[6]);
+  dcfdate.min = BCD2BIN (dcf.time[2]);
+  dcfdate.hour = BCD2BIN (dcf.time[3]);
+  dcfdate.day = BCD2BIN (dcf.time[4]);
+  dcfdate.month = BCD2BIN (dcf.time[6]);
   //dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
-  dcfdate.year = 100 + (bcd2bin (dcf.time[7]));
+  dcfdate.year = 100 + (BCD2BIN (dcf.time[7]));
   return clock_utc2timestamp (&dcfdate, dcf.timezone);
 }
 
@@ -152,7 +153,7 @@ ISR (ANALOG_COMP_vect)
   uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
   uint16_t divtime = (dcf.ticks * (uint16_t) 256) + timertemp - dcf.timerlast;
 #elif CLOCK_CPU_SUPPORT
-  uint16_t timertemp = TCNT1 - (65536 - CLOCK_SECONDS);
+  uint16_t timertemp = TC1_COUNTER_CURRENT - (65536 - CLOCK_SECONDS);
   uint32_t divtime = (dcf.ticks * CLOCK_SECONDS) + timertemp - dcf.timerlast;
 #endif
 
@@ -173,14 +174,17 @@ ISR (ANALOG_COMP_vect)
 	{
 	  if (dcf.valid == 1)
 	    {
+	      // set seconds
 	      clock_set_time (timestamp);
+	      // and reset milliseconds
 #ifdef CLOCK_CRYSTAL_SUPPORT
-	      TIMER_8_AS_1_COUNTER_CURRENT = 0;
-#elif CLOCK_CPU_SUPPORT
-	      TCNT1 = 65536-CLOCK_SECONDS;
-	      OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
-#endif
 	      timertemp = 0;
+	      TIMER_8_AS_1_COUNTER_CURRENT = timertemp;
+#elif CLOCK_CPU_SUPPORT
+	      TC1_COUNTER_COMPARE = 65536-CLOCK_SECONDS+(timertemp%CLOCK_TICKS);
+	      timertemp = 65536-CLOCK_SECONDS;
+	      TC1_COUNTER_CURRENT = timertemp;
+#endif
 	      last_valid_timestamp = timestamp;
 	      set_dcf_count (1);
 	      set_ntp_count (0);
@@ -247,7 +251,7 @@ ISR (ANALOG_COMP_vect)
 		  break;
 		case 29:
 		  dcf.time[dcf.timebyte] >>= 1;
-		  DCFDEBUG ("Minute: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Minute: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 0;
 		  break;
 		case 30:
@@ -256,7 +260,7 @@ ISR (ANALOG_COMP_vect)
 		  break;
 		case 36:
 		  dcf.time[dcf.timebyte] >>= 2;
-		  DCFDEBUG ("Stunde: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Stunde: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 0;
 		  break;
 		case 37:
@@ -265,21 +269,21 @@ ISR (ANALOG_COMP_vect)
 		  break;
 		case 43:
 		  dcf.time[dcf.timebyte] >>= 2;
-		  DCFDEBUG ("Tag: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Tag: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 5;
 		  break;
 		case 46:
 		  dcf.time[dcf.timebyte] >>= 5;
-		  DCFDEBUG ("Wochentag: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Wochentag: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 6;
 		  break;
 		case 51:
 		  dcf.time[dcf.timebyte] >>= 3;
-		  DCFDEBUG ("Monat: %u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Monat: %u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 7;
 		  break;
 		case 59:
-		  DCFDEBUG ("Jahr: 20%02u\n", bcd2bin (dcf.time[dcf.timebyte]));
+		  DCFDEBUG ("Jahr: 20%02u\n", BCD2BIN (dcf.time[dcf.timebyte]));
 		  dcf.timebyte = 0;
 		  break;
 		}

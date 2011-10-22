@@ -87,7 +87,7 @@ clock_init (void)
 
 #if defined(CLOCK_CRYSTAL_SUPPORT) || defined(CLOCK_CPU_SUPPORT)
 #ifdef CLOCK_CPU_SUPPORT
-ISR (TIMER1_OVF_vect)
+ISR (TC1_VECTOR_OVERFLOW)
 #else
 ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #endif
@@ -99,8 +99,8 @@ ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #ifdef CLOCK_CPU_SUPPORT
   milliticks = 0;
 
-  TCNT1 = 65536 - CLOCK_SECONDS;
-  OCR1A = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
+  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
+  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
@@ -176,12 +176,12 @@ clock_set_time (uint32_t new_sync_timestamp)
 		     "clock isn't running at all.\n");
       else
 	{
-	  uint32_t new_value = OCR1A;
+	  uint32_t new_value = TC1_COUNTER_COMPARE;
 	  new_value *= NTP_RESYNC_PERIOD;
 	  new_value /= NTP_RESYNC_PERIOD + delta;
 
 	  NTPADJDEBUG ("new OCR1A value %d\n", new_value);
-	  OCR1A = new_value;
+	  TC1_COUNTER_COMPARE = new_value;
 	}
 #endif /* CLOCK_NTP_ADJUST_SUPPORT */
     }
