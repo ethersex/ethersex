@@ -35,8 +35,9 @@
 
 // define them static to allow the compiler inlining them
 static void start_measure(void);
-static void measure_done(void);
-static void check_measure_timeout(void);
+static freqcount_average_state_t measure_done(void);
+static uint8_t check_measure_timeout(void);
+static void switch_channel_multiplex(void);
 
 // variables to communicate between pin change ISR and control
 volatile tick24bit_t freqcount_start;
@@ -46,23 +47,98 @@ volatile tick24bit_t freqcount_on_end;
 #endif
 volatile freqcount_state_t freqcount_state = FC_DISABLED;
 
+#if FREQCOUNT_CHANNELS > 1
+uint8_t freqcount_current_channel;
+#endif
+
+void freqcount_init_measure(void)
+{
+    for (uint8_t i=0; i<FREQCOUNT_CHANNELS; i++)
+    {
+        freqcount_perchannel_data[i].enabled=1;
+#ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        freqcount_perchannel_data[i].moving_average_pointer=255;
+#else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        freqcount_perchannel_data[i].ticks_result_sum=0;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        freqcount_perchannel_data[i].duty_result_sum=0;
+#endif
+#endif // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+    }
+    
+    // make sure FREQCOUNT_PIN is defined and an input
+    DDR_CONFIG_IN(FREQCOUNT_PIN);
+
+#if FREQCOUNT_CHANNELS > 1
+    freqcount_current_channel_store=0;
+    DDR_CONFIG_OUT(FREQCOUNT_CHANNEL_MULTIPLEX_BIT1);
+#endif
+
+#if FREQCOUNT_CHANNELS > 2
+    DDR_CONFIG_OUT(FREQCOUNT_CHANNEL_MULTIPLEX_BIT2);
+#endif
+#if FREQCOUNT_CHANNELS > 4
+    DDR_CONFIG_OUT(FREQCOUNT_CHANNEL_MULTIPLEX_BIT3);
+#endif
+#if FREQCOUNT_CHANNELS > 8
+    DDR_CONFIG_OUT(FREQCOUNT_CHANNEL_MULTIPLEX_CS_A);
+    PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_CS_A);
+    DDR_CONFIG_OUT(FREQCOUNT_CHANNEL_MULTIPLEX_CS_B);
+    PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_CS_B);
+#endif
+}
+
 void freqcount_mainloop(void)
 {
     if (freqcount_state>=FC_DISABLED)
-        start_measure();
+    {
+#if FREQCOUNT_CHANNELS > 1
+        // look for the next enabled channel
+        while (!freqcount_perchannel_data[freqcount_current_channel].enabled &&
+            freqcount_current_channel_store < FREQCOUNT_CHANNELS)
+        {
+            freqcount_current_channel_store++;
+        }
+        
+        if (freqcount_current_channel_store==FREQCOUNT_CHANNELS)
+        {
+            // no active channel found so wrap around
+            freqcount_current_channel_store=0;
+        }
+        else
+        {
+            start_measure();
+        }
+#else
+        if (freqcount_perchannel_data[freqcount_current_channel].enabled)
+            start_measure();
+#endif
+    }
     else if (freqcount_state>=FC_DONE && freqcount_state<=FC_DONE_OVERFLOW4)
     {
-        measure_done();
-        // for now: automatically restart
-        start_measure();
+        if (measure_done() == FC_AVERAGE_DONE)
+        {
+#if FREQCOUNT_CHANNELS > 1
+            // this channel is done, in the next loop try the next channel
+            freqcount_current_channel_store++;
+#endif
+        }
     }
     
-    check_measure_timeout();
+    if (check_measure_timeout())
+    {
+#if FREQCOUNT_CHANNELS > 1
+        // this channel is done, in the next loop try the next channel
+        freqcount_current_channel_store++;
+#endif
+    }
 }
 
 static void start_measure(void)
 {
     freqcount_state=FC_BEFORE_START;
+    
+    switch_channel_multiplex();
     
     // trigger on rising edge
     TCCR1B |= _BV(ICES1);
@@ -82,7 +158,7 @@ static void start_measure(void)
     TIMSK1 |= _BV(ICIE1);
 }
 
-static void measure_done(void)
+static freqcount_average_state_t measure_done(void)
 {
     // disable timer input capture interrupt
     TIMSK1 &= ~(_BV(ICIE1));
@@ -132,19 +208,20 @@ static void measure_done(void)
     
     uint8_t freqcount_duty=((t1-t2)<<8)/freqcount_ticks;
 
-    freqcount_average_results(freqcount_ticks, freqcount_duty);
-#else
-    freqcount_average_results(freqcount_ticks);
-#endif
+    return freqcount_average_results(freqcount_ticks, freqcount_duty);
+#else // FREQCOUNT_DUTY_SUPPORT
+    return freqcount_average_results(freqcount_ticks);
+#endif // FREQCOUNT_DUTY_SUPPORT
 }
 
-static void check_measure_timeout(void)
+static uint8_t check_measure_timeout(void)
 {
     if(freqcount_state>FC_DISABLED)
     {
         // make sure freqcount_state does not overflow when not in use
         // because timer_overflow() keeps increasing it
         freqcount_state=FC_DISABLED;
+        return 0;
     }
     else if ((freqcount_state>=FC_BEFORE_START_OVERFLOW2 && freqcount_state<=FC_BEFORE_START_OVERFLOW4) ||
              (freqcount_state>=FC_FREQ_OVERFLOW2 && freqcount_state<=FC_FREQ_OVERFLOW4) ||
@@ -163,7 +240,10 @@ static void check_measure_timeout(void)
 #else
         freqcount_average_results(0);
 #endif
+        return 1;
     }
+    
+    return 0;
 }
 
 ISR(TIMER1_CAPT_vect)
@@ -210,7 +290,56 @@ ISR(TIMER1_CAPT_vect)
     }
 }
 
+static void switch_channel_multiplex(void)
+{
+#if FREQCOUNT_CHANNELS > 1
+    if (freqcount_current_channel & 0x01)
+        PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_BIT1);
+    else
+        PIN_CLEAR(FREQCOUNT_CHANNEL_MULTIPLEX_BIT1);
+#endif
+
+#if FREQCOUNT_CHANNELS > 2
+    if (freqcount_current_channel & 0x02)
+        PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_BIT2);
+    else
+        PIN_CLEAR(FREQCOUNT_CHANNEL_MULTIPLEX_BIT2);
+#endif
+
+#if FREQCOUNT_CHANNELS > 4
+    if (freqcount_current_channel & 0x04)
+        PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_BIT3);
+    else
+        PIN_CLEAR(FREQCOUNT_CHANNEL_MULTIPLEX_BIT3);
+#endif
+
+#if FREQCOUNT_CHANNELS > 8
+    // we have two 74xx251 multiplexers
+    // they are enabled by setting the respective
+    // chip select line to low
+    // otherwise their output is in high-z
+    if (freqcount_current_channel & 0x08)
+    {
+        // bit 8 set: enable multiplexer ic B
+        PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_CS_A);
+        PIN_CLEAR(FREQCOUNT_CHANNEL_MULTIPLEX_CS_B);
+    }
+    else
+    {
+        // bit 8 not set: enable multiplexer ic A
+        PIN_CLEAR(FREQCOUNT_CHANNEL_MULTIPLEX_CS_A);
+        PIN_SET(FREQCOUNT_CHANNEL_MULTIPLEX_CS_B);
+    }
+#endif
+
+#if FREQCOUNT_CHANNELS > 16
+#error sorry, more than 16 frequency counter channels currently not supported
+#endif
+}
+
+
 /*
   -- Ethersex META --
   header(services/freqcount/freqcount.h)
+  init(freqcount_init_measure)
 */

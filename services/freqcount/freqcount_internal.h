@@ -35,6 +35,47 @@ struct tick24bit
 };
 typedef struct tick24bit tick24bit_t;
 
+struct freqcount_perchannel_data
+{
+    uint8_t enabled;
+
+#ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
+    uint32_t moving_average_sum;
+    tick24bit_t moving_average_values[FREQCOUNT_MOVING_AVERAGE_SIZE];
+
+#ifdef FREQCOUNT_DUTY_SUPPORT
+    uint16_t moving_average_duty_sum;
+    uint8_t moving_average_duty_values[FREQCOUNT_MOVING_AVERAGE_SIZE];
+#endif
+
+    // pointer to the last value written within freqcount_moving_average_values[]
+    // magic value 255: we don't have written anything at all, 
+    // freqcount_moving_average_values has to be initialized
+    uint8_t moving_average_pointer;
+
+#else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+    
+    // stored per channel if we don't have moving averages
+    uint32_t ticks_result_sum;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+    uint16_t duty_result_sum;
+#endif
+
+#endif // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+};
+typedef struct freqcount_perchannel_data freqcount_perchannel_data_t;
+
+extern freqcount_perchannel_data_t freqcount_perchannel_data[FREQCOUNT_CHANNELS];
+
+extern uint8_t freqcount_current_channel_store;
+
+#if FREQCOUNT_CHANNELS > 1
+#define freqcount_current_channel freqcount_current_channel_store
+#else
+#define freqcount_current_channel 0
+#endif
+
+
 // freqcount_state is used for two things:
 // 1. communicate the current state of measurement
 //    between ISR and control logic
@@ -73,14 +114,21 @@ typedef enum freqcount_state freqcount_state_t;
 
 extern volatile freqcount_state_t freqcount_state;
 
+enum freqcount_average_state
+{
+    FC_AVERAGE_IN_PROGRESS,
+    FC_AVERAGE_DONE
+};
+typedef enum freqcount_average_state freqcount_average_state_t;
+
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
 extern volatile uint8_t timer_overflows;
 #endif
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
-void freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);
+freqcount_average_state_t freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty);
 #else
-void freqcount_average_results(uint32_t freqcount_ticks);
+freqcount_average_state_t freqcount_average_results(uint32_t freqcount_ticks);
 #endif
 
 #endif /* FREQCOUNT_INTERNAL_H */

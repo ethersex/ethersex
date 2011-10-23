@@ -58,9 +58,6 @@ void freqcount_init (void)
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
     timer_overflows=0;
 #endif
-    
-    // make sure FREQCOUNT_PIN is defined and an input
-    DDR_CONFIG_IN(FREQCOUNT_PIN);
 }
 
 // timer overflow
