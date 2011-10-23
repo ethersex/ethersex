@@ -2379,6 +2379,11 @@ FREQCOUNT_SUPPORT
   variable. It can then be retrieved with code or ECMD.
   Frequencies can be from 2 Hz to about 50 CPU cycles to be sampled correctly
 
+Channels
+FREQCOUNT_CHANNELS
+  Number of channels the frequency counter works on. Multiple channels are multiplexed
+  with one or more 74xx251 ICs.
+
 Average over samples
 FREQCOUNT_AVERAGE
 
