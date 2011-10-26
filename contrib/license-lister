@@ -22,10 +22,18 @@
 #
 tmp=$(mktemp)
 authorsTmp=$(mktemp)
+#Only show licenses incompatible to the GPLv3
+onlyShowincompatible=false
 
 if [ $# -gt 0 ]; then
   files="$*"
-else
+  if [ ! -z `echo $files | grep "\-o"` ] ; then
+     files=`echo $files | sed -e 's/-o//g'`
+     onlyShowincompatible=true;
+  fi
+fi
+#no files passed to the script or just -o
+if [ -z $files ]; then
   files="`find . -type f -name "*.[ch]"`"
 fi
 
@@ -42,8 +50,14 @@ for f in $files; do
     if grep -qe '[Vv]ersion 2' -e 'GPL v2' "$tmp"; then
       if grep -qe 'any later version' -e 'jeder späteren Version' -e 'or later' "$tmp"; then
 	license="GPLv2+"
+	if $onlyShowincompatible == true; then
+	   continue;
+	fi
       elif grep -qe 'GPL v3' -e 'or [Vv]ersion 3' "$tmp"; then
 	license="GPLv2 or GPLv3"
+	if $onlyShowincompatible == true; then
+	   continue;
+	fi
       elif grep -qe 'license GPLv2 or LGPLv21' "$tmp"; then
 	license="GPLv2 or LGPLv21"
       else
@@ -51,6 +65,9 @@ for f in $files; do
       fi
     elif grep -qe '[Vv]ersion 3' "$tmp"; then
       license="GPLv3"
+      if $onlyShowincompatible == true; then
+	   continue;
+      fi
     fi
   elif grep -qe 'Redistribution and use in source and binary forms with or without modification are permitted provided' "$tmp"; then
     license="BSD"
@@ -58,7 +75,10 @@ for f in $files; do
     license="MIT"
   elif grep -qe 'in the public domain' "$tmp"; then
     license="gemeinfrei"
-   fi
+    if $onlyShowincompatible == true; then
+       continue;
+    fi
+  fi
 
   echo "license,$f,$license"
   for a in $authors; do
