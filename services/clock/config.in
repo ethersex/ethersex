@@ -39,6 +39,13 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
 			ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
 		fi
 		int "NTP Port" NTP_PORT 123
+
+		if [ "$CONFIG_EXPERT" = "y" ]; then
+                	if [ "$NTP_QUERY_INTERVAL" -lt 60 -o "$NTP_QUERY_INTERVAL" = "" ] ; then NTP_QUERY_INTERVAL=60 ; fi
+			int "NTP query interval (seconds)" NTP_QUERY_INTERVAL 1800
+		else
+			define_int NTP_QUERY_INTERVAL 1800
+		fi
 	fi
 	dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
 	dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
