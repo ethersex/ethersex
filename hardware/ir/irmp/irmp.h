@@ -76,7 +76,7 @@ typedef struct
 } irmp_data_t;
 
 #ifdef DEBUG_IRMP
-extern const PGM_P irmp_proto_names[] PROGMEM;
+extern const PGM_P const irmp_proto_names[] PROGMEM;
 #endif
 
 /* prototypes */
