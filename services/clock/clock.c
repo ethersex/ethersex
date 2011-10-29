@@ -49,9 +49,8 @@ static int16_t delta;
 static uint16_t ntp_count;
 static uint16_t dcf_count;
 
-#define NTP_RESYNC_PERIOD 1800
-
 #ifdef NTP_SUPPORT
+#define NTP_RESYNC_PERIOD NTP_QUERY_INTERVAL
 static uint16_t ntp_timer = 1;
 #endif
 
