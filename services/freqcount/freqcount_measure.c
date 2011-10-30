@@ -55,15 +55,11 @@ void freqcount_init_measure(void)
 {
     for (uint8_t i=0; i<FREQCOUNT_CHANNELS; i++)
     {
-        freqcount_perchannel_data[i].enabled=1;
-#ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-        freqcount_perchannel_data[i].moving_average_pointer=255;
-#else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
-        freqcount_perchannel_data[i].ticks_result_sum=0;
-#ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_perchannel_data[i].duty_result_sum=0;
+#ifdef FREQCOUNT_BOOT_ON
+        freqcount_set_state(1,i);
+#else
+        freqcount_set_state(0,i);
 #endif
-#endif // FREQCOUNT_MOVING_AVERAGE_SUPPORT
     }
     
     // make sure FREQCOUNT_PIN is defined and an input
@@ -337,6 +333,22 @@ static void switch_channel_multiplex(void)
 #endif
 }
 
+void freqcount_set_state(uint8_t state,uint8_t channel)
+{
+    freqcount_perchannel_data[channel].enabled=state;
+
+    if (!state)
+    {
+#ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        freqcount_perchannel_data[channel].moving_average_pointer=255;
+#else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        freqcount_perchannel_data[channel].ticks_result_sum=0;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        freqcount_perchannel_data[channel].duty_result_sum=0;
+#endif
+#endif // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+    }
+}
 
 /*
   -- Ethersex META --

@@ -2419,3 +2419,10 @@ FREQCOUNT_MOVING_AVERAGE_SIZE
   Number of samples for frequency (and duty cycle if enabled) the moving average
   buffer should be able to keep. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
   code size and improve execution speed.
+
+All channels active on boot
+FREQCOUNT_BOOT_ON
+
+  Usually you have to enable each frequency counter channel with "fc on [channel]"
+  before you can read out data. With this option set all channels are automatically
+  enabled on bootup.

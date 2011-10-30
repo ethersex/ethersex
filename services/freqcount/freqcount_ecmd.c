@@ -108,6 +108,38 @@ int16_t parse_cmd_fc_percent_duty(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL(strlen(output));
 }
 
+int16_t parse_cmd_fc_on(char *cmd, char *output, uint16_t len)
+{
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+    
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    freqcount_set_state(1,channel);
+    
+    return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_fc_off(char *cmd, char *output, uint16_t len)
+{
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+    
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    freqcount_set_state(0,channel);
+    
+    return ECMD_FINAL_OK;
+}
+
 /*
   -- Ethersex META --
   block([[Frequency Counter]])
@@ -118,5 +150,7 @@ int16_t parse_cmd_fc_percent_duty(char *cmd, char *output, uint16_t len)
         ecmd_feature(fc_duty, "fc duty", [CHANNEL], "returns last on duty cycle (0-255)  for given channel")
         ecmd_feature(fc_percent_duty, "fc %duty", [CHANNEL], "returns last on duty cycle in percent  for given channel")
     ecmd_endif()
+    ecmd_feature(fc_on, "fc on", [CHANNEL], "switch on frequency counting on given channel")
+    ecmd_feature(fc_off, "fc off", [CHANNEL], "switch off frequency counting on given channel")
   ecmd_endif()
 */

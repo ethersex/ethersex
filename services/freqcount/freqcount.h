@@ -34,6 +34,8 @@ void freqcount_init (void);
 void freqcount_init_measure(void);
 void freqcount_mainloop(void);
 
+void freqcount_set_state(uint8_t state,uint8_t channel);
+
 uint32_t freqcount_get_freq_ticks(uint8_t channel);
 uint32_t freqcount_get_freq_hz(uint8_t channel);
 
