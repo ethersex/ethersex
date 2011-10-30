@@ -707,6 +707,13 @@ NTP_PORT
  The Port Number for your NTP-Server
   Default is 123
 
+NTP query interval (seconds)
+NTP_QUERY_INTERVAL
+ The NTP query interval is the amount of time in seconds
+ between NTP query messages are sent to the NTP server.
+   The default value is 1800 seconds.
+   The minimum value is 60 seconds.
+
 Cron daemon
 CRON_SUPPORT
   Depends on:
