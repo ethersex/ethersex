@@ -2,6 +2,7 @@
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -24,12 +25,20 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
+#include "config.h"
+#ifdef I2C_DS13X7_SUPPORT
 #include "hardware/i2c/master/i2c_ds13x7.h"
+#endif
+#ifdef DCF77_SUPPORT
+#include "hardware/clock/dcf77/dcf77.h"
+#endif
+#ifdef NTP_SUPPORT
 #include "services/ntp/ntp.h"
+#endif
 #include "core/debug.h"
 #include "core/periodic.h"
 #include "clock.h"
-#include "config.h"
 
 static uint32_t clock_timestamp;
 static uint8_t ticks;
@@ -40,9 +49,8 @@ static int16_t delta;
 static uint16_t ntp_count;
 static uint16_t dcf_count;
 
-#define NTP_RESYNC_PERIOD 1800
-
 #ifdef NTP_SUPPORT
+#define NTP_RESYNC_PERIOD NTP_QUERY_INTERVAL
 static uint16_t ntp_timer = 1;
 #endif
 
@@ -78,16 +86,20 @@ clock_init (void)
 
 #if defined(CLOCK_CRYSTAL_SUPPORT) || defined(CLOCK_CPU_SUPPORT)
 #ifdef CLOCK_CPU_SUPPORT
-ISR (TIMER1_OVF_vect)
+ISR (TC1_VECTOR_OVERFLOW)
 #else
 ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #endif
 {
+#ifdef DCF77_SUPPORT
+  dcf77_tick ();
+#endif
+
 #ifdef CLOCK_CPU_SUPPORT
   milliticks = 0;
 
-  TCNT1 = 65536 - CLOCK_SECONDS;
-  OCR1A = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
+  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
+  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
@@ -163,12 +175,12 @@ clock_set_time (uint32_t new_sync_timestamp)
 		     "clock isn't running at all.\n");
       else
 	{
-	  uint32_t new_value = OCR1A;
+	  uint32_t new_value = TC1_COUNTER_COMPARE;
 	  new_value *= NTP_RESYNC_PERIOD;
 	  new_value /= NTP_RESYNC_PERIOD + delta;
 
 	  NTPADJDEBUG ("new OCR1A value %d\n", new_value);
-	  OCR1A = new_value;
+	  TC1_COUNTER_COMPARE = new_value;
 	}
 #endif /* CLOCK_NTP_ADJUST_SUPPORT */
     }
@@ -228,7 +240,7 @@ clock_dcf_count (void)
 }
 
 void
-set_dcf_count (uint16_t new_dcf_count)
+set_dcf_count (const uint16_t new_dcf_count)
 {
   dcf_count = (new_dcf_count == 0) ? 0 : dcf_count + new_dcf_count;
 }
@@ -240,7 +252,7 @@ clock_ntp_count (void)
 }
 
 void
-set_ntp_count (uint16_t new_ntp_count)
+set_ntp_count (const uint16_t new_ntp_count)
 {
   ntp_count = (new_ntp_count == 0) ? 0 : ntp_count + new_ntp_count;
 }

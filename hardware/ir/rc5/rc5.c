@@ -459,17 +459,17 @@ ISR (RC5_INT_VECTOR)
 
 /* timer0 overflow interrupt */
 #ifdef RC5_USE_TIMER2
-ISR (TIMER2_OVF_vect)
+ISR (TC2_VECTOR_OVERFLOW)
 #else
-ISR (TIMER0_OVF_vect)
+ISR (TC0_VECTOR_OVERFLOW)
 #endif
 {
 #ifdef RC5_UDP_SUPPORT_COUNTERS
   /* disable overflow interrupt */
 #ifdef RC5_USE_TIMER2
-  TC0_INT_OVERFLOW_OFF;
-#else
   TC2_INT_OVERFLOW_OFF;
+#else
+  TC0_INT_OVERFLOW_OFF;
 #endif
 
 #ifdef RC5_USE_TIMER2
