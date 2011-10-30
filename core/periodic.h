@@ -34,12 +34,16 @@
 #define CLOCK_SET_PRESCALER   TC1_PRESCALER_1024
 #endif
 
+// timer ticks needed for one second
 #define CLOCK_SECONDS         (F_CPU/CLOCK_PRESCALER)
+// timer ticks needed for one 20ms clock tick
 #define CLOCK_TICKS           (F_CPU/CLOCK_PRESCALER/HZ)
 
 extern uint8_t milliticks;
 
 /* initialize hardware timer */
 void periodic_init (void);
+
+void timer_expired(void);
 
 #endif /* _PERIODIC_H */
