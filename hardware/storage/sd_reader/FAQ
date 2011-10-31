@@ -1,0 +1,124 @@
+Frequently Asked Questions for sd-reader
+========================================
+
+General
+-------
+
+Q: Which cards are supported?
+A: All MMC/SD/SDHC/miniSD/microSD/microSDHC should work, although not all variants have been tested.
+   Some very old (low capacity) cards might be broken as well. Cards with a capacity of 16 MB or
+   less are usually formatted with FAT12, so these are supported in raw mode only, if at all.
+
+Q: What data rates can I expect?
+A: See the benchmark page on the homepage.
+   http://www.roland-riegel.de/sd-reader/benchmarks/
+
+Q: Are there boards available for purchase?
+A: No.
+
+Hardware
+--------
+
+Q: Where can I find the schematic?
+A: Get it on the homepage.
+   http://www.roland-riegel.de/sd-reader/sd-reader_circuit_latest.zip
+
+Q: What if my card socket has no Card-Detect and/or Card-Lock switches?
+A: Change sd_raw_config.h such that it looks like
+
+   #define configure_pin_available() /* nothing */
+   #define configure_pin_locked() /* nothing */
+
+   #define get_pin_available() 0
+   #define get_pin_locked() 1 
+
+Q: All attempts to write to the card fail, although reading works. What's the problem?
+A: Enable write support within sd_raw_config.h. And probably, your card socket has no Card-lock
+   detection (see question above).
+
+Q: The card initialization fails. What can I do?
+A: Usually this is some kind of hardware problem.
+   *  Check the physical connections.
+   *  Keep the signal lines to the card as short as possible.
+   *  Do not use diodes to derive the card's supply voltage. Use a 3.3V voltage regulator instead.
+   *  Have a stable, buffered power supply and use capacitors for correct voltage regulator
+      operation (see the schematics linked above).
+   *  Use extra capacitors of 50uF and 100nF as close to the card as possible.
+   *  When using an integrated level shifter or no level shifting at all (see the next question),
+      try adding a pullup of 50k from the data-out line of the card to 3.3V.
+   *  Make sure the limiting frequency of the level shifter is not exceeded. Have a look into its
+      datasheet!
+   *  Check the signals with a scope.
+
+Q: What alternatives to resistor level shifting exist?
+A: If you want to use additional devices with SPI or the resistor solution appears too ugly, there
+   are two possibilities. Either operate the whole circuit with a single 3.3V supply and no level
+   shifting at all or use a level shifting IC which interfaces the memory card to the AVR.
+   Depending on your requirements, adequate devices could include MAX3378E, MAX3392E, MAX3395E,
+   74LVC245 and 74HCT4050 (optionally together with 74HCT125). Please check the datasheets for the
+   required DC/AC characteristics!
+
+Software
+--------
+
+Q: What's the software license?
+A: GPLv2 or (for most parts) LGPLv2.1. Before using a file, read its license terms included at the
+   beginning of the file.
+
+Q: What's the programming language used?
+A: It's C, in compliance with the ISO C99 standard.
+
+Q: What are these .patch-files provided?
+A: Those record the source code differences between the old and new release. If you edited your
+   private sd-reader version, it might be easier to apply the patch files using the "patch" utility
+   common on Unix-like systems, rather than manually inserting the changes by hand. For Windows
+   users, the GnuWin32 project provides a port of "patch".
+
+Q: Where can I learn more about the library interface and how to use it?
+A: Look into the HTML documentation provided online or within each source distribution. Also take
+   the provided main.c as an example application and as a starting point.
+
+Q: How do I adapt it to an ATmegaXYZ and my circuit in particular?
+A: Add your MCU-specific pin configuration to sd_raw_config.h. Some commonly used ones are already
+   included.
+
+Q: How do I adapt it to a different MCU clock?
+A: Change the MCU_FREQ variable within the Makefile.
+
+Q: How do I adapt it to some different MCU architecture?
+A: Change sd_raw_init(), sd_raw_send_byte(), sd_raw_rec_byte() within sd_raw.c and the pin
+   definitions within sd_raw_config.h appropriately.
+
+Q: Can the library be used with Arduino?
+A: Yes. I do not have any experience with Arduino myself, but people report that it works with some
+   minor modifications to the library code needed due to some different compiler settings. Please
+   search the web for details.
+
+Q: Can I use software SPI?
+A: Yes, but the code is not prepared for it.
+
+Q: My application crashes somewhere in the lib. Is there some bug hidden?
+A: There might be a bug. Much more likely, however, is that you experience memory problems,
+   especially heap/stack collisions. The crashes can appear everywhere, but typically this is not
+   the place where the real problem is. Try to minimize the size of structures and other memory
+   blocks your application uses. Sum up the amount of memory your application allocates with global
+   and local variables and the memory you allocate dynamically with malloc(). The avr-nm utility
+   also helps a lot here. When called with the "--print-size --size-sort" parameters, it lists all
+   symbols and their code/memory size within the given file. See the avr-libc FAQ and the nm manual
+   for further information.
+   http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_ramoverlap
+   http://sourceware.org/binutils/docs/binutils/nm.html
+
+Q: Opening the FAT filesystem fails. What can I do?
+A: Make sure there is a FAT16 or FAT32 filesystem on the card. This usually isn't possible for old
+   cards with 16 MB or less. For larger ones, format the cards using the OS utilities, like the
+   Windows Explorer, the Unix/Linux mkdosfs command or special SD card format tools.
+   http://panasonic.jp/support/global/cs/sd/download/sd_formatter.html
+   http://www.sdcard.org/consumers/formatter/
+
+Q: Writing to the card returns no failure, but when checking the file's content the data is not
+   there. What happens?
+A: For performance reasons, writing to the card is always buffered. Before pulling the card out of
+   its socket (or issuing a reset of the MCU), make sure sd_raw_sync() gets called such that all
+   buffered data is written out to permanent card storage.
+
