@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2011 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -35,7 +35,15 @@ extern "C"
  *
  * Set to 1 to enable FAT write support, set to 0 to disable it.
  */
-#define FAT_WRITE_SUPPORT 1
+#define FAT_WRITE_SUPPORT SD_RAW_WRITE_SUPPORT
+
+/**
+ * \ingroup fat_config
+ * Controls FAT long filename (LFN) support.
+ *
+ * Set to 1 to enable LFN support, set to 0 to disable it.
+ */
+#define FAT_LFN_SUPPORT 1
 
 /**
  * \ingroup fat_config
@@ -52,6 +60,16 @@ extern "C"
  * Set to 1 to enable FAT32 support.
  */
 #define FAT_FAT32_SUPPORT SD_RAW_SDHC
+
+/**
+ * \ingroup fat_config
+ * Controls updates of directory entries.
+ *
+ * Set to 1 to delay directory entry updates until the file is closed.
+ * This can boost performance significantly, but may cause data loss
+ * if the file is not properly closed.
+ */
+#define FAT_DELAY_DIRENTRY_UPDATE 0
 
 /**
  * \ingroup fat_config
@@ -106,4 +124,5 @@ void get_datetime(uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, u
 }
 #endif
 
-#endif /* FAT_CONFIG_H */
+#endif
+
