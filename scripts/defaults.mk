@@ -88,7 +88,10 @@ CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
-CFLAGS += -mcall-prologues
+
+ifneq ($(ARCH_HOST),y)
+  CFLAGS += -mcall-prologues
+endif
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
 ifeq ($(atmega1284p),y)
