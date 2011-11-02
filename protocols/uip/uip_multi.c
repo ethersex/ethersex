@@ -87,12 +87,20 @@ struct uip_stack uip_stacks[STACK_LEN] = {
 #ifdef ENC28J60_SUPPORT
   STACK_FUNCS (enc_stack),
 #endif
+
+#ifdef TAP_SUPPORT
+  STACK_FUNCS (tap_stack),
+#endif
 };
 
 struct uip_stack *uip_stack = &uip_stacks[0];
 
 #ifdef ENC28J60_SUPPORT
 STACK_DEFINITIONS(enc_stack);
+#endif
+
+#ifdef TAP_SUPPORT
+STACK_DEFINITIONS(tap_stack);
 #endif
 
 #endif /* UIP_MULTI_STACK */
