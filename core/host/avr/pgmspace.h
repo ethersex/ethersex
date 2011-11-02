@@ -40,6 +40,7 @@ int snprintf_P (char *, int, const char *fmt, ...);
 #define strncmp_P(a...)		strncmp(a)
 #define strncasecmp_P(a...)	strncasecmp(a)
 
+#define pgm_read_dword(a)	(*(a))
 #define pgm_read_word(a)	(*(a))
 #define pgm_read_byte(a)	(*(a))
 
