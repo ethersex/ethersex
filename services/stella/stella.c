@@ -28,6 +28,11 @@
 #include "stella_fading_functions.h"
 #include "services/dmx-storage/dmx_storage.h"
 
+#define stella_vslow 0
+#define stella_slow 1
+#define stella_normal 2
+#define stella_fast 3
+
 uint8_t stella_brightness[STELLA_CHANNELS];
 uint8_t stella_fade[STELLA_CHANNELS];
 
@@ -86,16 +91,20 @@ stella_init (void)
 
 	/* we need at least 64 ticks for the compare interrupt,
 	* therefore choose a prescaler of at least 64. */
-	
-	#ifdef STELLA_HIGHFREQ
-	/* High frequency PWM Mode, 64 Prescaler */
-	STELLA_PRESCALER = _BV(STELLA_CS2);
-	debug_printf("Stella freq: %u Hz\n", F_CPU/64/(256*2));
-	#else
-	/* Normal PWM Mode, 128 Prescaler */
-	STELLA_PRESCALER |= _BV(STELLA_CS0) | _BV(STELLA_CS2);
+	#if STELLA_FREQ == stella_vslow
+	STELLA_PRESCALER =  _BV(STELLA_CS0) |_BV(STELLA_CS1) | _BV(STELLA_CS2);
+	debug_printf("Stella freq: %u Hz\n", F_CPU/1024/(256*2));
+	#elif STELLA_FREQ == stella_slow
+	STELLA_PRESCALER =  _BV(STELLA_CS1) | _BV(STELLA_CS2);
+	debug_printf("Stella freq: %u Hz\n", F_CPU/256/(256*2));
+	#elif STELLA_FREQ == stella_normal
+	STELLA_PRESCALER =  _BV(STELLA_CS0) | _BV(STELLA_CS2);
 	debug_printf("Stella freq: %u Hz\n", F_CPU/128/(256*2));
+	#elif STELLA_FREQ == stella_fast
+	STELLA_PRESCALER =  _BV(STELLA_CS2);
+	debug_printf("Stella freq: %u Hz\n", F_CPU/64/(256*2));
 	#endif
+
 
 	/* Interrupt on overflow and CompareMatch */
 	STELLA_TIMSK |= _BV(STELLA_TOIE) | _BV(STELLA_COMPARE_IE);
