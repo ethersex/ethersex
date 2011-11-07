@@ -30,7 +30,11 @@ uint8_t
 uip_check_cache(uip_ipaddr_t *ripaddr) {
 #ifdef ETHERNET_SUPPORT
     uip_ipaddr_t ipaddr;
+#if ARCH == ARCH_HOST
+    uip_stack_set_active(STACK_TAP);
+#else
     uip_stack_set_active(STACK_ENC);
+#endif
 
 #ifdef IPV6_SUPPORT
 

@@ -707,6 +707,13 @@ NTP_PORT
  The Port Number for your NTP-Server
   Default is 123
 
+NTP query interval (seconds)
+NTP_QUERY_INTERVAL
+ The NTP query interval is the amount of time in seconds
+ between NTP query messages are sent to the NTP server.
+   The default value is 1800 seconds.
+   The minimum value is 60 seconds.
+
 Cron daemon
 CRON_SUPPORT
   Depends on:
@@ -2379,6 +2386,11 @@ FREQCOUNT_SUPPORT
   variable. It can then be retrieved with code or ECMD.
   Frequencies can be from 2 Hz to about 50 CPU cycles to be sampled correctly
 
+Channels
+FREQCOUNT_CHANNELS
+  Number of channels the frequency counter works on. Multiple channels are multiplexed
+  with one or more 74xx251 ICs.
+
 Average over samples
 FREQCOUNT_AVERAGE
 
@@ -2414,3 +2426,10 @@ FREQCOUNT_MOVING_AVERAGE_SIZE
   Number of samples for frequency (and duty cycle if enabled) the moving average
   buffer should be able to keep. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
   code size and improve execution speed.
+
+All channels active on boot
+FREQCOUNT_BOOT_ON
+
+  Usually you have to enable each frequency counter channel with "fc on [channel]"
+  before you can read out data. With this option set all channels are automatically
+  enabled on bootup.

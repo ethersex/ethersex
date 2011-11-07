@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2011 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -159,8 +159,8 @@ static uint8_t raw_block_written;
 static uint8_t sd_raw_card_type;
 
 /* private helper functions */
-//static void sd_raw_send_byte(uint8_t b);
-//static uint8_t sd_raw_rec_byte();
+static void sd_raw_send_byte(uint8_t b);
+static uint8_t sd_raw_rec_byte(void);
 static uint8_t sd_raw_send_command(uint8_t command, uint32_t arg);
 
 /**
@@ -171,18 +171,19 @@ static uint8_t sd_raw_send_command(uint8_t command, uint32_t arg);
  */
 uint8_t sd_raw_init(void)
 {
-#if 0
     /* enable inputs for reading card status */
     configure_pin_available();
     configure_pin_locked();
 
     /* enable outputs for MOSI, SCK, SS, input for MISO */
+#if 0
     configure_pin_mosi();
     configure_pin_sck();
+#endif
+    configure_pin_ss();
+#if 0
     configure_pin_miso();
 #endif
-
-    configure_pin_ss();
 
     unselect_card();
 
@@ -200,8 +201,8 @@ uint8_t sd_raw_init(void)
     /* initialization procedure */
     sd_raw_card_type = 0;
     
-#if 0
-    if(!sd_raw_available()) {
+    if(!sd_raw_available())
+    {
 	SDDEBUG ("sd-card not available, stop.\n");
         return 0;
     }
@@ -212,24 +213,23 @@ uint8_t sd_raw_init(void)
         /* wait 8 clock cycles */
         sd_raw_rec_byte();
     }
-#endif
 
     /* address card */
     select_card();
 
     /* reset card */
     uint8_t response;
-    for(uint8_t i = 0; ; ++i)
+    for(uint16_t i = 0; ; ++i)
     {
         response = sd_raw_send_command(CMD_GO_IDLE_STATE, 0);
         if(response == (1 << R1_IDLE_STATE))
             break;
 
-        if(i == 5)
+        if(i == 0x1ff)
         {
             unselect_card();
             /* disabled, it's just flooding the console ...
-	       SDDEBUG ("card reset failed, response=0x%04x.\n", response); */
+            SDDEBUG ("card reset failed, response=0x%04x.\n", response); */
             return 0;
         }
     }
@@ -269,7 +269,7 @@ uint8_t sd_raw_init(void)
     }
 
     /* wait for card to get ready */
-    for(uint8_t i = 0; ; ++i)
+    for(uint16_t i = 0; ; ++i)
     {
         if(sd_raw_card_type & ((1 << SD_RAW_SPEC_1) | (1 << SD_RAW_SPEC_2)))
         {
@@ -289,10 +289,9 @@ uint8_t sd_raw_init(void)
         if((response & (1 << R1_IDLE_STATE)) == 0)
             break;
 
-        if(i == 0xff)
+        if(i == 0x7fff)
         {
             unselect_card();
-            SDDEBUG ("timeout waiting for card to become ready.\n");
             return 0;
         }
     }
@@ -343,7 +342,6 @@ uint8_t sd_raw_init(void)
     return 1;
 }
 
-#if 0
 /**
  * \ingroup sd_raw
  * Checks wether a memory card is located in the slot.
@@ -388,7 +386,7 @@ void sd_raw_send_byte(uint8_t b)
  * \returns The byte which should be read.
  * \see sd_raw_send_byte
  */
-uint8_t sd_raw_rec_byte()
+uint8_t sd_raw_rec_byte(void)
 {
     /* send dummy data for receiving some */
     SPDR = 0xff;
@@ -397,7 +395,6 @@ uint8_t sd_raw_rec_byte()
 
     return SPDR;
 }
-#endif
 
 #include "core/spi.h"
 #define sd_raw_send_byte(b) spi_send(b)
@@ -498,16 +495,17 @@ uint8_t sd_raw_read(offset_t offset, uint8_t* buffer, uintptr_t length)
 
             /* wait for data block (start byte 0xfe) */
 #ifdef SD_READ_TIMEOUT
-	    uint16_t timeout = 20000;
+            uint16_t timeout = 20000;
 
             while(sd_raw_rec_byte() != 0xfe && timeout > 0)
-		timeout --;
+                timeout --;
 
-	    if (timeout == 0) {
-		SDDEBUG ("read timeout reached!\n");
+            if (timeout == 0)
+            {
+                SDDEBUG ("read timeout reached!\n");
                 unselect_card();
                 return 0;
-	    }
+            }
 #else
             while(sd_raw_rec_byte() != 0xfe);
 #endif
@@ -697,10 +695,8 @@ uint8_t sd_raw_read_interval(offset_t offset, uint8_t* buffer, uintptr_t interva
  */
 uint8_t sd_raw_write(offset_t offset, const uint8_t* buffer, uintptr_t length)
 {
-#if 0
     if(sd_raw_locked())
         return 0;
-#endif
 
     offset_t block_address;
     uint16_t block_offset;
@@ -867,7 +863,6 @@ uint8_t sd_raw_sync(void)
 }
 #endif
 
-#if 0
 /**
  * \ingroup sd_raw
  * Reads informational data from the card.
@@ -1026,5 +1021,4 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
 
     return 1;
 }
-#endif
 

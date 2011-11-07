@@ -46,6 +46,7 @@
 global_status_t status;
 
 /* prototypes */
+#if ARCH != ARCH_HOST
 void (*jump_to_bootloader) (void) = (void *) BOOTLOADER_START_ADDRESS;
 
 #ifdef DEBUG_RESET_REASON
@@ -77,6 +78,7 @@ void __start ()
   TIMSK2 = 0;
 #endif
 }
+#endif  /* ARCH != ARCH_HOST */
 
 extern void ethersex_meta_init (void);
 extern void ethersex_meta_startup (void);

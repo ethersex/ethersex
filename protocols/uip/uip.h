@@ -1638,6 +1638,7 @@ STACK_PROTOTYPES(rfm12_stack)
 STACK_PROTOTYPES(usb_stack)
 STACK_PROTOTYPES(zbus_stack)
 STACK_PROTOTYPES(openvpn_stack)
+STACK_PROTOTYPES(tap_stack)
 #endif
 
 #ifdef UIP_SUPPORT

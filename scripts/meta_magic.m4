@@ -30,10 +30,13 @@ divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#if ARCH != ARCH_HOST
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
+#endif
+
 #include <stdint.h>
 #include "config.h"
 #include "core/debug.h"

@@ -17,10 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-    Added to Ethersex because of special exception by Daniel Otte
-    to license it under the GPLv2 for us.
-*/
-/*
  * Author:	Daniel Otte
  *
  * License: GPLv3 or later
@@ -28,9 +24,6 @@
 ; SHA1 implementation in assembler for AVR
 SHA1_BLOCK_BITS = 512
 SHA1_HASH_BITS = 160
-
-#include "autoconf.h"
-#ifdef SHA1_SUPPORT
 
 .macro precall
 	/* push r18 - r27, r30 - r31*/
@@ -185,20 +178,19 @@ sha1_prolog:
 	push r13
 	push r16
 	push r17
-	in r16, SPL
-	in r17, SPH
-	subi r16, 5*4+8
-	sbci r17, 0
+	in r30, SPL
+	in r31, SPH
+	sbiw r30, 5*4+8
 	in r0, SREG
 	cli
-	out SPL, r16
-	out SPH, r17
+	out SPL, r30
 	out SREG, r0
+	out SPH, r31
 
 	push r25
 	push r24
-	inc r16
-	adc r17, r1
+	adiw r30, 1
+	movw r16, r30
 
 	movw r8, r18		/* backup of length*/
 	movw r10, r20
@@ -210,19 +202,16 @@ sha1_prolog:
 	/* if length >= 512 */
 1:
 	tst r11
-	brne 4f
+	brne 2f
 	tst r10
-	brne 4f
-	mov r19, r9
-	cpi r19, 0x02
-	brlo 4f
-
+	breq 4f
+2:
 	movw r24, r16
 	movw r22, r12
 	rcall sha1_nextBlock
-	ldi r19, 0x64
-	add r22, r19
-	adc r23, r1
+	ldi r19, 64
+	add r12, r19
+	adc r13, r1
 	/* length -= 512 */
 	ldi r19, 0x02
 	sub r9, r19
@@ -248,8 +237,8 @@ sha1_epilog:
 	in r0, SREG
 	cli
 	out SPL, r30
-	out SPH, r31
 	out SREG, r0
+	out SPH, r31
 	pop r17
 	pop r16
 	pop r13
@@ -294,19 +283,21 @@ sha1_lastBlock:
 	pop r24
 	pop r25
 	subi r21, 2
-	subi r23, -2
+	ldi r19, 64
+	sub r22, r19
+	sbc r23, r1
 	rjmp sha1_lastBlock
 sha1_lastBlock_prolog:
 	/* allocate space on stack */
 	in r30, SPL
 	in r31, SPH
-	in r1, SREG
+	in r0, SREG
 	subi r30, lo8(64)
 	sbci r31, hi8(64) /* ??? */
 	cli
 	out SPL, r30
+	out SREG, r0
 	out SPH, r31
-	out SREG,r1
 
 	adiw r30, 1 /* SP points to next free byte on stack */
 	mov r18, r20 /* r20 = LSB(length) */
@@ -430,15 +421,14 @@ sha1_lastBlock_insert_length:
 sha1_lastBlock_epilog:
 	in r30, SPL
 	in r31, SPH
-	in r1, SREG
+	in r0, SREG
 	adiw r30, 63 ; lo8(64)
 	adiw r30,  1  ; hi8(64)
 	cli
 	out SPL, r30
+	out SREG, r0
 	out SPH, r31
-	out SREG,r1
 	clr r1
-	clr r0
 	ret
 
 /**/
@@ -497,8 +487,8 @@ sha1_nextBlock:
 	in r0, SREG
 	cli ; we want to be uninterrupted while updating SP
 	out SPL, r20
-	out SPH, r21
 	out SREG, r0
+	out SPH, r21
 
 	push r18
 	push r19 /* push old SP on new stack */
@@ -549,7 +539,7 @@ sha1_nextBlock_mainloop:
 	ld T3, X+
 	ld T4, X+
 
-	/**/
+/*
 	push r26
 	push r27
 	push T4
@@ -566,7 +556,7 @@ sha1_nextBlock_mainloop:
 	pop T4
 	pop r27
 	pop r26
-	/**/
+*/
 
 	cpi LoopC, 16
 	brlt sha1_nextBlock_mainloop_core
@@ -730,7 +720,7 @@ sha1_nextBlock_update_a:
 	std Y+1*4+1, T2
 	std Y+1*4+2, T3
 	std Y+1*4+3, T4
-
+/*
 	push r27
 	push r26
 	movw r26, W1
@@ -738,7 +728,7 @@ sha1_nextBlock_update_a:
 	dbg_hexdump 4*5
 	pop r26
 	pop r27
-
+*/
 	inc LoopC
 	cpi LoopC, 80
 	brge 1f
@@ -785,8 +775,8 @@ sha1_nextBlock_epilog:
 	in r0, SREG
 	cli ; we want to be uninterrupted while updating SP
 	out SPL, r20
-	out SPH, r21
 	out SREG, r0
+	out SPH, r21
 
 	clr r1
 	pop r29
@@ -890,6 +880,4 @@ sha1_init_vector:
 .int 0x98badcfe;
 .int 0x10325476;
 .int 0xc3d2e1f0;
-
-#endif  /* SHA1_SUPPORT */
 
