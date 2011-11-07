@@ -85,10 +85,14 @@ for f in $files; do
        continue;
     fi
   fi
-
-  for a in $authors; do
-    echo "$i,$f,$license,$a"
-  done
+  #if the files has no authors (like corrupt email address in git)
+  if [ `echo $authors | wc -w` -eq 0 ]; then
+    echo "$i,$f,$license,author unknown"
+  else
+    for a in $authors; do
+      echo "$i,$f,$license,$a"
+    done
+  fi
   let i++
 done
 
