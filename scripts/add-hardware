@@ -433,7 +433,8 @@ fi
 ) > "pinning/hardware/$hw.m4"
 
 grep -v -e "^HARDWARE=" -e "^$HARDWARE=y" .config > .config.new
-echo -e "HARDWARE=$hw\n$hw=y" >> .config.new
+echo "HARDWARE=$hw" >> .config.new
+echo "$hw=y" >> .config.new
 mv -f .config.new .config
 
 l_editor() {
