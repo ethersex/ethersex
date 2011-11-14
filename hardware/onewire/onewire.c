@@ -508,7 +508,7 @@ int8_t ow_eeprom_read(ow_rom_code_t *rom, void *data)
 
 #endif /* ONEWIRE_DS2502_SUPPORT */
 #ifdef ONEWIRE_POLLING_SUPPORT
-ow_sensor_t ow_sensors[OW_SENSORS_COUNT] = {{{{0}},0,0,0,0,0}};
+ow_sensor_t ow_sensors[OW_SENSORS_COUNT] = {{{{0}},850,0,0,0,0}};
 
 static int8_t ow_discover_sensor(void) {
 	uint8_t firstonbus = 1;
@@ -519,7 +519,7 @@ static int8_t ow_discover_sensor(void) {
 #ifdef DEBUG_OW_POLLING
 	debug_printf("starting discovery\n");
 #endif /* DEBUG_OW_POLLING */
-	/*Prepare existing sensors*/
+	/* Prepare existing sensors */
 	for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
 		ow_sensors[i].present = 0;
 
@@ -561,27 +561,28 @@ static int8_t ow_discover_sensor(void) {
 #endif /* DEBUG_OW_POLLING */
 				if (ow_temp_sensor(&ow_global.current_rom)) {
 					uint8_t already_in = 0;
-					/*Determine whether this sensor is already present in our list*/
+					/* Determine whether this sensor is already present in our list */
 					for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++) {
 						if (ow_global.current_rom.raw == ow_sensors[i].ow_rom_code.raw) {
 							ow_sensors[i].present = 1;
 							already_in = 1;
-							/*We skip everything else to retain a regular update rate*/
+							/* We skip everything else to retain a regular update rate */
 							break;
 						}
 					}
 					if (already_in == 0) {
 						uint8_t i;
-						/*The sensor we found is not in our list, so we search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero*/
+						/* The sensor we found is not in our list, so we search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero */
 						for (i = 0; i < OW_SENSORS_COUNT; i++) {
 							if (ow_sensors[i].ow_rom_code.raw == 0) {
-								/* We found a free slot...storing*/
+								/* We found a free slot...storing */
 #ifdef DEBUG_OW_POLLING
 								debug_printf("stored new sensor in pos %d\n", i);
 #endif /* DEBUG_OW_POLLING */
 								ow_sensors[i].ow_rom_code.raw = ow_global.current_rom.raw;
 								ow_sensors[i].present = 1;
-								ow_sensors[i].read_delay = 1; /*Read temperature asap - note: we will check for eeprom later*/
+								ow_sensors[i].read_delay = 1; /* Read temperature asap - note: we will check for eeprom later */
+								ow_sensors[i].temp = 850; /* default temparature */
 								break;
 							}
 						}
@@ -603,18 +604,18 @@ static int8_t ow_discover_sensor(void) {
 	} while (ow_global.bus < ONEWIRE_BUSCOUNT);
 #endif /* ONEWIRE_BUSCOUNT > 1 */
 	ow_global.lock = 0;
-	/*We finished the discovery process. Now we delete all removed sensors*/
+	/* We finished the discovery process. Now we delete all removed sensors */
 	for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++) {
-		/*Mark the slot as free*/
+		/* Mark the slot as free */
 		if (ow_sensors[i].present == 0)
 			ow_sensors[i].ow_rom_code.raw = 0;
 	}
 	return 0;
 }
 
-/*This function will be called every 800 ms*/
+/* This function will be called every 800 ms */
 void ow_periodic(void) {
-	/*At startup we want an immediate discovery*/
+	/* At startup we want an immediate discovery */
 	static uint16_t discover_delay = 3;
 	if (--discover_delay == 0) {
 		discover_delay = OW_DISCOVER_DELAY;
@@ -642,9 +643,6 @@ void ow_periodic(void) {
 				if (ow_sensors[i].convert_delay == 1)
 					ow_sensors[i].convert_delay = 0;
 				else {
-#ifdef DEBUG_OW_POLLING
-					debug_printf("reading temperature\n");
-#endif /* DEBUG_OW_POLLING */
 					int8_t ret;
 					ow_temp_scratchpad_t sp;
 					ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -656,15 +654,10 @@ void ow_periodic(void) {
 #endif /* DEBUG_OW_POLLING */
 						return;
 					}
-#ifdef DEBUG_OW_POLLING
-					debug_printf("scratchpad read succeeded\n");
-#endif /* DEBUG_OW_POLLING */
 					int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
-#ifdef DEBUG_OW_POLLING
-					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
-#endif /* DEBUG_OW_POLLING */
 					ow_sensors[i].temp = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
+					div_t res = div(ow_sensors[i].temp, 10);
+					debug_printf("temperature sensor #%d: %d.%d\n", i + 1, res.quot, res.rem);
 					ow_sensors[i].converted = 0;
 				}
 			}
