@@ -785,6 +785,15 @@ STELLA_SUPPORT
   generated channel values.
   Use StellaControl (see wiki) for a handy gui to control stella.
 
+Low Interrupt Priority
+STELLA_LOW_PRIORITY
+
+  When acitve the timer interrupt used for Stella can be interrupted.
+  This allows Stella to be used in parallel with V-USB or other components
+  needing low interrupt latency. 
+  The downside is that the Stella controlled lights may flicker when the
+  interrupt rate is high.
+
 UDP Echo
 UDP_ECHO_NET_SUPPORT
   Depends on:

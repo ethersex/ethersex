@@ -9,6 +9,7 @@ dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT $ARCH_AVR
 	    Normal stella_normal	\
 	    Fast stella_fast"	\
 	    'Normal' STELLA_FREQ
+	bool "Low Interrupt Priority" STELLA_LOW_PRIORITY
 	comment  '----- Initial -----'
 	if [ "$MOODLIGHT_SUPPORT" = "y" ]; then
 		choice 'Channels'			\

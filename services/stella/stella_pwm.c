@@ -38,8 +38,17 @@ struct stella_timetable_entry* current = 0;
 /* Use port mask to switch pins on if timetable says so and
  * set the next trigger point in time for the compare interrupt.
  * */
+#ifdef STELLA_LOW_PRIORITY
+// other interrupts can interrupt this ISR
+ISR(STELLA_COMPARE_VECTOR, ISR_NOBLOCK)
+{
+	// disable the interrupt we are in
+	// makes sure we don't interrupt ourselves
+	STELLA_TIMSK &= ~_BV(STELLA_COMPARE_IE);
+#else
 ISR(STELLA_COMPARE_VECTOR)
 {
+#endif
 	// Activate all timetable entries for this timepoint
 	// We may have more than one for a certain timepoint, if ports in the timetable entries differ
 	while (current) {
@@ -51,12 +60,27 @@ ISR(STELLA_COMPARE_VECTOR)
 			break;
 		}
 	}
+
+#ifdef STELLA_LOW_PRIORITY
+	// enable our interrupt again
+	STELLA_TIMSK |= _BV(STELLA_COMPARE_IE);
+#endif
 }
 
 /* If channel values have been updated (update_table is set) update all i_* variables.
  * Start the next pwm round. */
+
+#ifdef STELLA_LOW_PRIORITY
+// other interrupts can interrupt this ISR
+ISR(STELLA_OVERFLOW_VECTOR, ISR_NOBLOCK)
+{
+	// disable the interrupt we are in
+	// makes sure we don't interrupt ourselves
+	STELLA_TIMSK &= ~_BV(STELLA_TOIE);
+#else
 ISR(STELLA_OVERFLOW_VECTOR)
 {
+#endif
 	/* if new values are available, work with them */
 	if(stella_sync == NEW_VALUES)
 	{
@@ -82,4 +106,9 @@ ISR(STELLA_OVERFLOW_VECTOR)
 
 	if (current)
 		STELLA_COMPARE_REG = current->value;
+
+#ifdef STELLA_LOW_PRIORITY
+	// enable our interrupt again
+	STELLA_TIMSK |= _BV(STELLA_TOIE);
+#endif
 }
