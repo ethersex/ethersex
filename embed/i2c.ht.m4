@@ -25,6 +25,12 @@ Temperatur<br>
 <a href="/ecmd?lm75+1">get Sensor 1</a><br>
 <br>
 }})
+ifdef({{conf_I2C_TMP175}}, {{
+Temperatur<br>
+<a href="/ecmd?tmp175+0">get Sensor 0</a><br>
+<a href="/ecmd?tmp175+1">get Sensor 1</a><br>
+<br>
+}})
 ifdef({{conf_I2C_PCA9531}}, {{
 PCA9531 8-bit LED dimmer 0<br>
 <a href="javascript:ecmd_set('pca9531',0,'0+0+0+0+0+0')">set all I/O to OFF<a/><br>
