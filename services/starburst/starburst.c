@@ -157,16 +157,17 @@ void starburst_update()
 	if(get_dmx_universe_state(STARBURST_PCA9685_UNIVERSE,pca9685_dmx_conn_id) == DMX_NEWVALUES)
 	{
 		/*Update values if they are really newer*/
+		/*Layout for starburst is CCCCMMMMS, where C is Channel, M is Mode and S is Strobe (optional)*/
 		uint8_t tmp=0;
-		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS*2;i+=2)
+		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS;i++)
 		{
+			tmp=get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,i+STARBURST_PCA9685_OFFSET+STARBURST_PCA9685_CHANNELS,pca9685_dmx_conn_id);
+			pca9685_channels[i].mode=tmp;
 			tmp=get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,i+STARBURST_PCA9685_OFFSET,pca9685_dmx_conn_id);
-			pca9685_channels[i/2].mode=tmp;
-			tmp=get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,i+1+STARBURST_PCA9685_OFFSET,pca9685_dmx_conn_id);
-			if(pca9685_channels[i/2].target != tmp)
+			if(pca9685_channels[i].target != tmp)
 			{
 				/*Update the new target*/
-				pca9685_channels[i/2].target=tmp;
+				pca9685_channels[i].target=tmp;
 			}
 		}
 	}
