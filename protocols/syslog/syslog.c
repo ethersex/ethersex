@@ -97,6 +97,24 @@ syslog_sendf(const char *message, ...)
   return 1;
 }
 
+uint8_t
+syslog_sendf_P(PGM_P message, ...)
+{
+  va_list va;
+  uint16_t offset = strlen (send_buffer);
+
+  va_start(va, message);
+  vsnprintf_P(send_buffer + offset, MAX_DYNAMIC_SYSLOG_BUFFER - offset,
+            message, va);
+  va_end(va);
+
+  send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+
+  if (!offset)
+    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
+  return 1;
+}
+
 uint8_t 
 syslog_send_ptr(void *message)
 {
