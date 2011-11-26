@@ -242,6 +242,7 @@ define(`STELLA_USE_TIMER', `dnl
 #define STELLA_PRESCALER   		format(_TCCR%s_PRESCALE, $1)
 #define STELLA_TIMSK       		_TIMSK_TIMER$1
 #define STELLA_CS0         		format(CS%s0, $1)
+#define STELLA_CS1         		format(CS%s1, $1)
 #define STELLA_CS2         		format(CS%s2, $1)
 #define STELLA_TOIE        		TOIE$1
 #define STELLA_COMPARE_IE  		_OUTPUT_COMPARE_IE$1

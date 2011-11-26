@@ -31,13 +31,16 @@
 extern volatile uint8_t timer_overflows;
 
 void freqcount_init (void);
+void freqcount_init_measure(void);
 void freqcount_mainloop(void);
 
-uint32_t freqcount_get_freq_ticks(void);
-uint32_t freqcount_get_freq_hz(void);
+void freqcount_set_state(uint8_t state,uint8_t channel);
+
+uint32_t freqcount_get_freq_ticks(uint8_t channel);
+uint32_t freqcount_get_freq_hz(uint8_t channel);
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
-uint8_t freqcount_get_duty(void);
+uint8_t freqcount_get_duty(uint8_t channel);
 #endif
 
 #endif /* FREQCOUNT_SUPPORT */

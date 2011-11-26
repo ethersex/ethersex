@@ -785,6 +785,15 @@ STELLA_SUPPORT
   generated channel values.
   Use StellaControl (see wiki) for a handy gui to control stella.
 
+Low Interrupt Priority
+STELLA_LOW_PRIORITY
+
+  When acitve the timer interrupt used for Stella can be interrupted.
+  This allows Stella to be used in parallel with V-USB or other components
+  needing low interrupt latency. 
+  The downside is that the Stella controlled lights may flicker when the
+  interrupt rate is high.
+
 UDP Echo
 UDP_ECHO_NET_SUPPORT
   Depends on:
@@ -2386,6 +2395,11 @@ FREQCOUNT_SUPPORT
   variable. It can then be retrieved with code or ECMD.
   Frequencies can be from 2 Hz to about 50 CPU cycles to be sampled correctly
 
+Channels
+FREQCOUNT_CHANNELS
+  Number of channels the frequency counter works on. Multiple channels are multiplexed
+  with one or more 74xx251 ICs.
+
 Average over samples
 FREQCOUNT_AVERAGE
 
@@ -2421,3 +2435,10 @@ FREQCOUNT_MOVING_AVERAGE_SIZE
   Number of samples for frequency (and duty cycle if enabled) the moving average
   buffer should be able to keep. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
   code size and improve execution speed.
+
+All channels active on boot
+FREQCOUNT_BOOT_ON
+
+  Usually you have to enable each frequency counter channel with "fc on [channel]"
+  before you can read out data. With this option set all channels are automatically
+  enabled on bootup.

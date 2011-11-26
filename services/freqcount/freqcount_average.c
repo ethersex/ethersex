@@ -40,20 +40,15 @@ static void freqcount_moving_average(uint32_t freqcount_ticks, uint16_t freqcoun
 static void freqcount_moving_average(uint32_t freqcount_ticks);
 #endif
 
-#ifndef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-// global if we don't have moving averages
-uint32_t freqcount_ticks_result_sum=0;
-#ifdef FREQCOUNT_DUTY_SUPPORT
-uint16_t freqcount_duty_result_sum=0;
-#endif
-#endif
+// results and moving average data storage for all channels
+freqcount_perchannel_data_t freqcount_perchannel_data[FREQCOUNT_CHANNELS];
 
 // takes FREQCOUNT_AVERAGE+2 measurement results
 // removes min and max value, calculates average
 #ifdef FREQCOUNT_DUTY_SUPPORT
-void freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty)
+freqcount_average_state_t freqcount_average_results(uint32_t freqcount_ticks, uint8_t freqcount_duty)
 #else
-void freqcount_average_results(uint32_t freqcount_ticks)
+freqcount_average_state_t freqcount_average_results(uint32_t freqcount_ticks)
 #endif
 {
     static uint32_t freqcount_ticks_avgsum=0;
@@ -68,14 +63,6 @@ void freqcount_average_results(uint32_t freqcount_ticks)
 
     static uint8_t freqcount_avg_cnt=0;
     
-#ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-// local if we have moving averages
-    uint32_t freqcount_ticks_result_sum=0;
-#ifdef FREQCOUNT_DUTY_SUPPORT
-    uint16_t freqcount_duty_result_sum=0;
-#endif
-#endif
-
     // collect FREQCOUNT_AVERAGE+2 values: min and max are cut off
     if (freqcount_avg_cnt < FREQCOUNT_AVERAGE+2 && freqcount_ticks != 0)
     {
@@ -94,27 +81,33 @@ void freqcount_average_results(uint32_t freqcount_ticks)
 #endif
 
         freqcount_avg_cnt++;
+        return FC_AVERAGE_IN_PROGRESS;
     }
     else
     {
+        uint32_t ticks_result_sum;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        uint16_t duty_result_sum;
+#endif
+
         if (freqcount_ticks == 0)
         {
             // we had a timeout, indicate this by setting the results to 0
-            freqcount_ticks_result_sum=0;
+            ticks_result_sum=0;
 #ifdef FREQCOUNT_DUTY_SUPPORT
-            freqcount_duty_result_sum=0;
+            duty_result_sum=0;
 #endif
         }
         else
         {
             freqcount_ticks_avgsum-=freqcount_ticks_avg_max;
             freqcount_ticks_avgsum-=freqcount_ticks_avg_min;
-            freqcount_ticks_result_sum=freqcount_ticks_avgsum;
+            ticks_result_sum=freqcount_ticks_avgsum;
             
 #ifdef FREQCOUNT_DUTY_SUPPORT
             freqcount_duty_avgsum-=freqcount_duty_avg_max;
             freqcount_duty_avgsum-=freqcount_duty_avg_min;
-            freqcount_duty_result_sum=freqcount_duty_avgsum;
+            duty_result_sum=freqcount_duty_avgsum;
 #endif
         }
 
@@ -132,31 +125,28 @@ void freqcount_average_results(uint32_t freqcount_ticks)
         freqcount_avg_cnt=0;
 
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        
 #ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_moving_average(freqcount_ticks_result_sum, freqcount_duty_result_sum);
+        freqcount_moving_average(ticks_result_sum, duty_result_sum);
 #else // FREQCOUNT_DUTY_SUPPORT
-        freqcount_moving_average(freqcount_ticks_result_sum);
+        freqcount_moving_average(ticks_result_sum);
 #endif // FREQCOUNT_DUTY_SUPPORT
+        
 #else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        
+        freqcount_perchannel_data[freqcount_current_channel].ticks_result_sum=ticks_result_sum;
+#ifdef FREQCOUNT_DUTY_SUPPORT
+        freqcount_perchannel_data[freqcount_current_channel].duty_result_sum=duty_result_sum;
+#endif
+
         freqcount_new_result_notify();
 #endif // FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        
+        return FC_AVERAGE_DONE;
     }
 }
 
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-
-uint32_t freqcount_moving_average_sum=0;
-uint32_t freqcount_moving_average_values[FREQCOUNT_MOVING_AVERAGE_SIZE];
-
-#ifdef FREQCOUNT_DUTY_SUPPORT
-uint16_t freqcount_moving_average_duty_sum=0;
-uint16_t freqcount_moving_average_duty_values[FREQCOUNT_MOVING_AVERAGE_SIZE];
-#endif
-
-// pointer to the last value written within freqcount_moving_average_values[]
-// magic value 255: we don't have written anything at all, 
-// freqcount_moving_average_values has to be initialized
-uint32_t freqcount_moving_average_pointer=255;
 
 #if FREQCOUNT_MOVING_AVERAGE_SIZE > 254
 #error maximum FREQCOUNT_MOVING_AVERAGE_SIZE of 254 exeeded
@@ -185,24 +175,32 @@ static void freqcount_moving_average(uint32_t freqcount_tick_sum)
     temp+=8;
     freqcount_duty_sum=temp/16;
 #endif
+
+    freqcount_perchannel_data_t* cur_ch_data=&(freqcount_perchannel_data[freqcount_current_channel]);
     
-    if (freqcount_moving_average_pointer==255)
+    if (cur_ch_data->moving_average_pointer==255)
     {
         // initialize freqcount_moving_average_values[] by filling it with one value
-        for (freqcount_moving_average_pointer=0; 
-             freqcount_moving_average_pointer < FREQCOUNT_MOVING_AVERAGE_SIZE; 
-             freqcount_moving_average_pointer++)
+        for (cur_ch_data->moving_average_pointer=0; 
+             cur_ch_data->moving_average_pointer < FREQCOUNT_MOVING_AVERAGE_SIZE; 
+             cur_ch_data->moving_average_pointer++)
         {
-            freqcount_moving_average_values[freqcount_moving_average_pointer]=freqcount_tick_sum;
+            cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].low=(uint16_t)freqcount_tick_sum;
+
+#ifndef FREQCOUNT_NOSLOW_SUPPORT
+            cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].high=
+                    *(((uint8_t*)&freqcount_tick_sum)+2);
+#endif
+                
 #ifdef FREQCOUNT_DUTY_SUPPORT
-            freqcount_moving_average_duty_values[freqcount_moving_average_pointer]=freqcount_duty_sum;
+            cur_ch_data->moving_average_duty_values[cur_ch_data->moving_average_pointer]=freqcount_duty_sum;
 #endif
         }
         
-        freqcount_moving_average_pointer=0;
-        freqcount_moving_average_sum=freqcount_tick_sum*FREQCOUNT_MOVING_AVERAGE_SIZE;
+        cur_ch_data->moving_average_pointer=0;
+        cur_ch_data->moving_average_sum=freqcount_tick_sum*FREQCOUNT_MOVING_AVERAGE_SIZE;
 #ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_moving_average_duty_sum=freqcount_duty_sum*FREQCOUNT_MOVING_AVERAGE_SIZE;
+        cur_ch_data->moving_average_duty_sum=freqcount_duty_sum*FREQCOUNT_MOVING_AVERAGE_SIZE;
 #endif
     }
     else
@@ -210,17 +208,28 @@ static void freqcount_moving_average(uint32_t freqcount_tick_sum)
         // replace the oldest value by a new one
         
         // increase pointer
-        freqcount_moving_average_pointer++;
-        if (freqcount_moving_average_pointer == FREQCOUNT_MOVING_AVERAGE_SIZE)
-            freqcount_moving_average_pointer=0;
+        cur_ch_data->moving_average_pointer++;
+        if (cur_ch_data->moving_average_pointer == FREQCOUNT_MOVING_AVERAGE_SIZE)
+            cur_ch_data->moving_average_pointer=0;
         
-        freqcount_moving_average_sum-=freqcount_moving_average_values[freqcount_moving_average_pointer];
-        freqcount_moving_average_values[freqcount_moving_average_pointer]=freqcount_tick_sum;
-        freqcount_moving_average_sum+=freqcount_tick_sum;
+#ifdef FREQCOUNT_NOSLOW_SUPPORT
+        cur_ch_data->moving_average_sum-=cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].low;
+        cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].low=freqcount_tick_sum;
+#else
+        uint32_t temp=cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].low;
+        *(((uint8_t*)&temp)+2)=cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].high;
+        cur_ch_data->moving_average_sum-=temp;
+        
+        cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].low=(uint16_t)freqcount_tick_sum;
+        cur_ch_data->moving_average_values[cur_ch_data->moving_average_pointer].high=
+                    *(((uint8_t*)&freqcount_tick_sum)+2);
+#endif
+        cur_ch_data->moving_average_sum+=freqcount_tick_sum;
+        
 #ifdef FREQCOUNT_DUTY_SUPPORT
-        freqcount_moving_average_duty_sum-=freqcount_moving_average_duty_values[freqcount_moving_average_pointer];
-        freqcount_moving_average_duty_values[freqcount_moving_average_pointer]=freqcount_duty_sum;
-        freqcount_moving_average_duty_sum+=freqcount_duty_sum;
+        cur_ch_data->moving_average_duty_sum-=cur_ch_data->moving_average_duty_values[cur_ch_data->moving_average_pointer];
+        cur_ch_data->moving_average_duty_values[cur_ch_data->moving_average_pointer]=freqcount_duty_sum;
+        cur_ch_data->moving_average_duty_sum+=freqcount_duty_sum;
 #endif
     }
     
@@ -235,61 +244,62 @@ static void freqcount_new_result_notify(void)
 {
 #ifdef FREQCOUNT_DEBUGGING
 #ifdef FREQCOUNT_DUTY_SUPPORT
-    debug_printf("fc ticks %lu, %lu Hz %u duty\n", freqcount_get_freq_ticks(),
-                 freqcount_get_freq_hz(),freqcount_get_duty());
+    debug_printf("fc chn %u %lu, %lu Hz %u duty\n", freqcount_current_channel, freqcount_get_freq_ticks(freqcount_current_channel),
+                 freqcount_get_freq_hz(freqcount_current_channel),freqcount_get_duty(freqcount_current_channel));
 #else
-    debug_printf("fc ticks %lu, %lu Hz\n", freqcount_get_freq_ticks(),freqcount_get_freq_hz());
+    debug_printf("fc chn %u %lu, %lu Hz\n", freqcount_current_channel,
+                 freqcount_get_freq_ticks(freqcount_current_channel),freqcount_get_freq_hz(freqcount_current_channel));
 #endif
 #endif
 }
 
-uint32_t freqcount_get_freq_ticks(void)
+uint32_t freqcount_get_freq_ticks(uint8_t channel)
 {
     uint32_t ticks;
 
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-    if (freqcount_moving_average_pointer!=255)
+    if (freqcount_perchannel_data[channel].moving_average_pointer!=255)
     {
-        if (freqcount_moving_average_sum < 4294967296ULL/16)
+        if (freqcount_perchannel_data[channel].moving_average_sum < 4294967296ULL/16)
         {
             // correct rounding possible
-            ticks=(freqcount_moving_average_sum*16)/FREQCOUNT_MOVING_AVERAGE_SIZE;
+            ticks=(freqcount_perchannel_data[channel].moving_average_sum*16)/FREQCOUNT_MOVING_AVERAGE_SIZE;
             ticks+=8;
             ticks/=16;
         }
         else
-            ticks=freqcount_moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE;
+            ticks=freqcount_perchannel_data[channel].moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE;
     }
     else
         ticks=0;
 #else
 
-    if (freqcount_ticks_result_sum < 4294967296ULL/16)
+    if (freqcount_perchannel_data[channel].ticks_result_sum < 4294967296ULL/16)
     {
         // correct rounding possible
-        ticks=(freqcount_ticks_result_sum*16)/FREQCOUNT_AVERAGE;
+        ticks=(freqcount_perchannel_data[channel].ticks_result_sum*16)/FREQCOUNT_AVERAGE;
         ticks+=8;
         ticks/=16;
     }
     else
-        ticks=freqcount_ticks_result_sum/FREQCOUNT_AVERAGE;
+        ticks=freqcount_perchannel_data[channel].ticks_result_sum/FREQCOUNT_AVERAGE;
 #endif
 
     return ticks;
 }
 
-uint32_t freqcount_get_freq_hz(void)
+uint32_t freqcount_get_freq_hz(uint8_t channel)
 {
     uint32_t hz;
     
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-    if (freqcount_moving_average_pointer!=255)
+    if (freqcount_perchannel_data[channel].moving_average_pointer!=255)
     {
 #if ((FREQCOUNT_CLOCKFREQ*16ULL*FREQCOUNT_MOVING_AVERAGE_SIZE) < 4294967296ULL)
         // numerical correct rounding
-        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_MOVING_AVERAGE_SIZE*16)/freqcount_moving_average_sum;
+        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_MOVING_AVERAGE_SIZE*16)/freqcount_perchannel_data[channel].moving_average_sum;
 #else
-        hz=(FREQCOUNT_CLOCKFREQ*16)/(freqcount_moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE);
+        hz=(FREQCOUNT_CLOCKFREQ*16)/(freqcount_perchannel_data[channel].moving_average_sum/FREQCOUNT_MOVING_AVERAGE_SIZE);
 #endif
         hz+=8;
         hz/=16;
@@ -299,13 +309,13 @@ uint32_t freqcount_get_freq_hz(void)
 
 #else // FREQCOUNT_MOVING_AVERAGE_SUPPORT
         
-    if (freqcount_ticks_result_sum!=0)
+    if (freqcount_perchannel_data[channel].ticks_result_sum!=0)
     {
 #if ((FREQCOUNT_CLOCKFREQ*16ULL*FREQCOUNT_AVERAGE) < 4294967296ULL)
         // numerical correct rounding
-        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_AVERAGE*16)/freqcount_ticks_result_sum;
+        hz=(FREQCOUNT_CLOCKFREQ*FREQCOUNT_AVERAGE*16)/freqcount_perchannel_data[channel].ticks_result_sum;
 #else
-        hz=(FREQCOUNT_CLOCKFREQ*16)/(freqcount_ticks_result_sum/FREQCOUNT_AVERAGE);
+        hz=(FREQCOUNT_CLOCKFREQ*16)/(freqcount_perchannel_data[channel].ticks_result_sum/FREQCOUNT_AVERAGE);
 #endif
         hz+=8;
         hz/=16;
@@ -319,14 +329,14 @@ uint32_t freqcount_get_freq_hz(void)
 }
 
 #ifdef FREQCOUNT_DUTY_SUPPORT
-uint8_t freqcount_get_duty(void)
+uint8_t freqcount_get_duty(uint8_t channel)
 {
     uint32_t duty;
 
 #ifdef FREQCOUNT_MOVING_AVERAGE_SUPPORT
-    if (freqcount_moving_average_pointer!=255)
+    if (freqcount_perchannel_data[channel].moving_average_pointer!=255)
     {
-        duty=freqcount_moving_average_duty_sum;
+        duty=freqcount_perchannel_data[channel].moving_average_duty_sum;
         duty*=16;
         duty/=FREQCOUNT_MOVING_AVERAGE_SIZE;
         duty+=8;
@@ -335,7 +345,7 @@ uint8_t freqcount_get_duty(void)
     else
         duty=0;
 #else
-    duty=freqcount_duty_result_sum;
+    duty=freqcount_perchannel_data[channel].duty_result_sum;
     duty*=16;
     duty/=FREQCOUNT_AVERAGE;
     duty+=8;

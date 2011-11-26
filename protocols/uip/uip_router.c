@@ -32,6 +32,10 @@
 #include "protocols/zbus/zbus.h"
 #include "protocols/usb/usb_net.h"
 
+#if ARCH == ARCH_HOST
+#include "core/host/tap.h"
+#endif
+
 #ifdef IPCHAIR_SUPPORT
 #include "ipchair/ipchair.h"
 #endif
@@ -232,6 +236,13 @@ router_output_to (uint8_t dest)
       openvpn_txstart ();
       break;
 #endif  /* OPENVPN_SUPPORT */
+
+#ifdef TAP_SUPPORT
+    case STACK_TAP:
+      printf ("router_output_to: TAP.\n");
+      tap_txstart ();
+      break;
+#endif  /* TAP_SUPPORT */
 
     }
 

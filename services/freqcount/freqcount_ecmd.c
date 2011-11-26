@@ -38,7 +38,16 @@ int16_t parse_cmd_fc_ticks(char *cmd, char *output, uint16_t len)
     if (len < 11)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),freqcount_get_freq_ticks()));
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+    
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),freqcount_get_freq_ticks(channel)));
 }
 
 int16_t parse_cmd_fc_freq(char *cmd, char *output, uint16_t len)
@@ -47,7 +56,16 @@ int16_t parse_cmd_fc_freq(char *cmd, char *output, uint16_t len)
     if (len < 11)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),freqcount_get_freq_hz()));
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%lu"),freqcount_get_freq_hz(channel)));
 }
 
 int16_t parse_cmd_fc_duty(char *cmd, char *output, uint16_t len)
@@ -56,7 +74,16 @@ int16_t parse_cmd_fc_duty(char *cmd, char *output, uint16_t len)
     if (len < 4)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    itoa(freqcount_get_duty(),output,10);
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    itoa(freqcount_get_duty(channel),output,10);
     return ECMD_FINAL(strlen(output));
 }
 
@@ -66,21 +93,64 @@ int16_t parse_cmd_fc_percent_duty(char *cmd, char *output, uint16_t len)
     if (len < 5)
         return ECMD_FINAL(ECMD_ERR_PARSE_ERROR);
 
-    uint8_t percent=(((uint16_t)(freqcount_get_duty()))*100)/256;
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    uint8_t percent=(((uint16_t)(freqcount_get_duty(channel)))*100)/256;
 
     itoa(percent,output,10);
     return ECMD_FINAL(strlen(output));
+}
+
+int16_t parse_cmd_fc_on(char *cmd, char *output, uint16_t len)
+{
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+    
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    freqcount_set_state(1,channel);
+    
+    return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_fc_off(char *cmd, char *output, uint16_t len)
+{
+    // skip spaces
+    while (*cmd == ' ')
+        cmd++;
+    
+    unsigned int channel;
+    if (sscanf_P(cmd, PSTR("%u"), &channel) != 1 ||
+        channel >= FREQCOUNT_CHANNELS)
+        return ECMD_ERR_PARSE_ERROR;
+
+    freqcount_set_state(0,channel);
+    
+    return ECMD_FINAL_OK;
 }
 
 /*
   -- Ethersex META --
   block([[Frequency Counter]])
   ecmd_ifdef(FREQCOUNT_SUPPORT)
-    ecmd_feature(fc_freq, "fc freq", [CHANNEL], "returns last frequency in Hz, channel is always 0 (for now)")
-    ecmd_feature(fc_ticks, "fc ticks", [CHANNEL], "returns last frequency in CPU ticks, channel is always 0 (for now)")
+    ecmd_feature(fc_freq, "fc freq", [CHANNEL], "returns last frequency in Hz for given channel")
+    ecmd_feature(fc_ticks, "fc ticks", [CHANNEL], "returns last frequency in CPU ticks for given channel")
     ecmd_ifdef(FREQCOUNT_DUTY_SUPPORT)
-        ecmd_feature(fc_duty, "fc duty", [CHANNEL], "returns last on duty cycle (0-255), channel is always 0 (for now)")
-        ecmd_feature(fc_percent_duty, "fc %duty", [CHANNEL], "returns last on duty cycle in percent, channel is always 0 (for now)")
+        ecmd_feature(fc_duty, "fc duty", [CHANNEL], "returns last on duty cycle (0-255)  for given channel")
+        ecmd_feature(fc_percent_duty, "fc %duty", [CHANNEL], "returns last on duty cycle in percent  for given channel")
     ecmd_endif()
+    ecmd_feature(fc_on, "fc on", [CHANNEL], "switch on frequency counting on given channel")
+    ecmd_feature(fc_off, "fc off", [CHANNEL], "switch off frequency counting on given channel")
   ecmd_endif()
 */

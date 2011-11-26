@@ -427,6 +427,25 @@ uip_init(void)
 #if UIP_TCP
 #if UIP_ACTIVE_OPEN
 #ifndef BOOTLOADER_SUPPORT
+#if UIP_MULTI_STACK
+static uint8_t
+uip_find_stack_by_ripaddr(uip_ipaddr_t *ripaddr)
+{
+  uint8_t i;
+  for (i = 0; i < STACK_LEN; i++) {
+    uip_stack_set_active(i);
+#ifdef IPV6_SUPPORT
+    if(uip_ipaddr_prefixlencmp(*ripaddr, uip_hostaddr, uip_prefix_len))
+#else /* !UIP_CONF_IPV6 */
+    if(uip_ipaddr_maskcmp(*ripaddr, uip_hostaddr, uip_netmask))
+#endif
+	  return i;
+  }
+
+  return 255;					/* no match */
+}
+#endif  /* UIP_MULTI_STACK */
+
 uip_conn_t *
 uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
@@ -498,8 +517,10 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   conn->callback = callback;
 
 #if UIP_MULTI_STACK
-  conn->stack = uip_stack_get_active();
-#endif
+  conn->stack = uip_find_stack_by_ripaddr(ripaddr);
+  if(conn->stack == 255)
+	conn->stack = uip_find_stack_by_ripaddr(&uip_draddr);
+#endif	/* UIP_MULTI_STACK */
 
   return conn;
 }

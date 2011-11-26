@@ -39,11 +39,6 @@
 volatile uint8_t timer_overflows;
 #endif
 
-// counts the number of full timer overflows
-// since freqcount_start was set
-// used to detect a frequency lower than we can measure
-volatile uint8_t overflows_since_freq_start=0;
-
 // full overflows needed to next clock tick
 volatile uint8_t overflows_to_clocktick;
 
@@ -56,16 +51,13 @@ volatile uint8_t overflows_to_clocktick;
 
 void freqcount_init (void)
 {
-    TCNT1 = 0;
-    OCR1A = REMAINING_TICKS;
+    TC1_COUNTER_CURRENT = 0;
+    TC1_COUNTER_COMPARE = REMAINING_TICKS;
     overflows_to_clocktick=FULL_OVERFLOWS;
 
 #ifndef FREQCOUNT_NOSLOW_SUPPORT
     timer_overflows=0;
 #endif
-    
-    // make sure FREQCOUNT_PIN is defined and an input
-    DDR_CONFIG_IN(FREQCOUNT_PIN);
 }
 
 // timer overflow
@@ -80,37 +72,37 @@ inline void timer_overflow()
     {
         // we had an overflow
         // either of timer_overflows or of TCNT1
-        overflows_since_freq_start++;
+        freqcount_state++;
     }
         
     overflows_to_clocktick--;
 }
 
-ISR (TIMER1_OVF_vect)
+ISR (TC1_VECTOR_OVERFLOW)
 {
     timer_overflow();
 }
 
 // timer compare
-ISR(TIMER1_COMPA_vect)
+ISR(TC1_VECTOR_COMPARE)
 {
     // did the overflow and compare happen at once?
     // make sure that the overflow vector is executed first
     // ignore cases where compare triggered first but could
     // not be handled yet. Limit at half the possible range for this.
-    if (TIFR1 & _BV(TOV1) && OCR1A < 32768)
+    if (TC1_INT_OVERFLOW_TST && TC1_COUNTER_COMPARE < 32768)
     {
         timer_overflow();
         // disable the int flag as we already have handled it
-        TIFR1 = _BV(TOV1);
+        TC1_INT_OVERFLOW_CLR
     }
     
     // we only have to look for incomplete timer overflow cycles
     if (overflows_to_clocktick==0)
     {
         overflows_to_clocktick=FULL_OVERFLOWS;
-        OCR1A=REMAINING_TICKS-MAX_OVERFLOW+OCR1A;
-        if (OCR1A > REMAINING_TICKS)
+        TC1_COUNTER_COMPARE=REMAINING_TICKS-MAX_OVERFLOW+OCR1A;
+        if (TC1_COUNTER_COMPARE > REMAINING_TICKS)
             overflows_to_clocktick--;
 
         // call the regular ISR for timer expired condition (every 20ms)
