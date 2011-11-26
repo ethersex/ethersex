@@ -1,0 +1,13 @@
+dep_bool_menu "DMX FXslots for effects and animations" DMX_FXSLOT_SUPPORT $DMX_STORAGE_SUPPORT $ARCH_AVR $CONFIG_EXPERIMENTAL
+
+
+	int "Number of effect slots" DMX_FXSLOT_AMOUNT 4
+	comment " "
+	comment "Effects:"
+
+	bool "Rainbow Colors" DMX_FX_RAINBOW
+    bool "Random Colors" DMX_FX_RANDOM
+	bool "Fire Simulation" DMX_FX_FIRE
+	bool "Water Simulation" DMX_FX_WATER
+
+endmenu
