@@ -364,6 +364,7 @@ uint8_t sd_raw_locked(void)
     return get_pin_locked() == 0x00;
 }
 
+#if 0
 /**
  * \ingroup sd_raw
  * Sends a raw byte to the memory card.
@@ -395,6 +396,7 @@ uint8_t sd_raw_rec_byte(void)
 
     return SPDR;
 }
+#endif
 
 #include "core/spi.h"
 #define sd_raw_send_byte(b) spi_send(b)
