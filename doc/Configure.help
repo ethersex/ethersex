@@ -2319,7 +2319,7 @@ STARBURST_PCA9685
   * STARBURST_SUPPORT
 
   Module for Starburst which controls a NXP pca9685 (12-bit pwm 16-Channel). The dmx layout is as follows:
-  mcmcmcmcmcmcmc....s
+  ccccmmmm....s
   m=mode (see starburst.h for available modes)
   c=channel value (0-255)
   s=strobo s Hz (optional, see STARBURST_PCA9685_STROBO)
