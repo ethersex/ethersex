@@ -607,6 +607,11 @@ CONF_OPENVPN_HMAC_KEY
   For details on configuration see
   http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
 
+OpenVPN Port
+CONF_OPENVPN_PORT
+
+  The UDP port number used by OpenVPN (local and remote). 
+
 RFM12 raw
 RFM12_RAW_SUPPORT
   Depends on:
