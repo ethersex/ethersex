@@ -159,9 +159,16 @@ static uint8_t raw_block_written;
 static uint8_t sd_raw_card_type;
 
 /* private helper functions */
+#if 0
 static void sd_raw_send_byte(uint8_t b);
 static uint8_t sd_raw_rec_byte(void);
+#else
+#include "core/spi.h"
+#define sd_raw_send_byte(b) spi_send(b)
+#define sd_raw_rec_byte() spi_send(0xff)
+#endif
 static uint8_t sd_raw_send_command(uint8_t command, uint32_t arg);
+
 
 /**
  * \ingroup sd_raw
@@ -397,10 +404,6 @@ uint8_t sd_raw_rec_byte(void)
     return SPDR;
 }
 #endif
-
-#include "core/spi.h"
-#define sd_raw_send_byte(b) spi_send(b)
-#define sd_raw_rec_byte() spi_send(0xff)
 
 /**
  * \ingroup sd_raw
