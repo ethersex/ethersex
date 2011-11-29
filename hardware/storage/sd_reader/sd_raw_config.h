@@ -85,7 +85,7 @@ extern "C"
 #define get_pin_available()       PIN_HIGH(SD_READER_AVAILABLE)
 #else
 #define configure_pin_available()
-#define get_pin_available()       1
+#define get_pin_available()       0
 #endif
 
 #ifdef SD_READER_WR_PROTECT_PIN
@@ -93,7 +93,7 @@ extern "C"
 #define get_pin_locked()          PIN_HIGH(SD_READER_WR_PROTECT)
 #else
 #define configure_pin_locked()
-#define get_pin_locked()          0
+#define get_pin_locked()          1
 #endif
 
 #if SD_RAW_SDHC
