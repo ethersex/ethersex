@@ -47,22 +47,27 @@ int16_t parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
 {
-	uint16_t startchannel=0, universe=0, value=0, channelcounter=0, i=4;
+	uint16_t startchannel=0, universe=0, value=0, channelcounter=0,i=0,blankcounter=0;
 	if (cmd[0]!=0) {
 		sscanf_P(cmd, PSTR("%u %u"), &universe,&startchannel);
 		if (startchannel >= DMX_STORAGE_CHANNELS)
 			return ECMD_ERR_PARSE_ERROR;
 		if (universe >= DMX_STORAGE_UNIVERSES)
 			return ECMD_ERR_PARSE_ERROR;
-
-		while (cmd[i]!=0){           //read and write all values
+		while(blankcounter<3)
+		{	
+			if(cmd[i] == ' ')
+				blankcounter++;
+			i++;
+		}
+		while (cmd[i]!='\0'){           //read and write all values
 			sscanf_P(cmd+i, PSTR(" %u"),&value);
 			if(set_dmx_channel(universe,startchannel+channelcounter,value))
 				return ECMD_ERR_WRITE_ERROR;
 			channelcounter++;
 			do{                         //search for next space
 				i++;
-				if(cmd[i]==0) break;
+				if(cmd[i]=='\0') break;
 			}while(cmd[i]!=' ');
 		}
 
