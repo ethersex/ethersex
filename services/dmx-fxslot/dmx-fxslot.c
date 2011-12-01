@@ -31,15 +31,15 @@
 #ifdef DMX_FXSLOT_SUPPORT
 struct fxslot_struct fxslot[DMX_FXSLOT_AMOUNT];
 /*
-add new effect function here (don't forget to add in in dmx_fxslot_process as new case)
-you can use variable for effects in fxslot[number].variable[]
-max variables are defiened in dmx-fxslot.h 'DMX_FXSLOT_VARIABLE_NUMBER'
-*/
+   add new effect function here (don't forget to add in in dmx_fxslot_process as new case)
+   you can use variable for effects in fxslot[number].variable[]
+   max variables are defiened in dmx-fxslot.h 'DMX_FXSLOT_VARIABLE_NUMBER'
+ */
 
 #ifdef DMX_FX_RAINBOW
 void dmx_fx_rainbow_colors(uint8_t fxslot_number)
 { 
-  switch(fxslot[fxslot_number].effect_variable[3]) {
+	switch(fxslot[fxslot_number].effect_variable[3]) {
 		case 0:
 			if (fxslot[fxslot_number].device_channel[0] > 1) {
 				fxslot[fxslot_number].device_channel[0]--;
@@ -65,36 +65,36 @@ void dmx_fx_rainbow_colors(uint8_t fxslot_number)
 			}
 			break;
 	}
-  dmx_fxslot_setchannels(fxslot_number);
+	dmx_fxslot_setchannels(fxslot_number);
 }
 #endif /*Rainbow end*/
 
 #ifdef DMX_FX_RANDOM
 void dmx_fx_random_colors(uint8_t fxslot_number)
 {
-    fxslot[fxslot_number].device_channel[0]=rand()%256;
-	  fxslot[fxslot_number].device_channel[1]=rand()%256;
-	  fxslot[fxslot_number].device_channel[2]=rand()%256;
-	  
-	  dmx_fxslot_setchannels(fxslot_number);  
+	fxslot[fxslot_number].device_channel[0]=rand()%256;
+	fxslot[fxslot_number].device_channel[1]=rand()%256;
+	fxslot[fxslot_number].device_channel[2]=rand()%256;
+
+	dmx_fxslot_setchannels(fxslot_number);  
 }
 #endif /*Random end*/
 
 #ifdef DMX_FX_FIRE
 void dmx_fx_firesimulation(uint8_t fxslot_number)
 {
-    fxslot[fxslot_number].device_channel[0]=150+rand()%64;
-	  fxslot[fxslot_number].device_channel[1]=69+rand()%32;
-    fxslot[fxslot_number].device_channel[2]=0;
-  
-    dmx_fxslot_setchannels(fxslot_number);
+	fxslot[fxslot_number].device_channel[0]=150+rand()%64;
+	fxslot[fxslot_number].device_channel[1]=69+rand()%32;
+	fxslot[fxslot_number].device_channel[2]=0;
+
+	dmx_fxslot_setchannels(fxslot_number);
 }
 #endif /*Fire end*/
 
 #ifdef DMX_FX_WATER 
 void dmx_fx_watersimulation(uint8_t fxslot_number)
 {
-    
+
 }
 #endif /*Water end*/
 
@@ -103,102 +103,102 @@ void dmx_fx_watersimulation(uint8_t fxslot_number)
 
 void dmx_fxslot_init(uint8_t fxslot_number, uint8_t effect)
 { 
-    switch (effect)
-    {
-      /*
-      add new effect inits as new case: 
-      
-      you have to to define the channels per device changed through the effect by: 
-      fxslot[fxslot_number].max_device_channels='number of channels' 
-      */      
-      
-      #ifdef DMX_FX_RAINBOW                     //Rainbow init
-      case DMX_FXLIST_RAINBOW:
-          fxslot[fxslot_number].max_device_channels=3;
-          fxslot[fxslot_number].device_channel[0]=255; 
-          fxslot[fxslot_number].device_channel[1]=0;
-          fxslot[fxslot_number].device_channel[2]=0;
-          fxslot[fxslot_number].effect_variable[3]=0;
-      break;
-      #endif
-      
-      #ifdef DMX_FX_RANDOM       
-      case DMX_FXLIST_RANDOM:                  //Random init
-          fxslot[fxslot_number].max_device_channels=3;
-      break;
-      #endif
-        
-      #ifdef DMX_FX_FIRE
-      case DMX_FXLIST_FIRESIMULATION:         //Firesimulation init
-          fxslot[fxslot_number].max_device_channels=3;
-      break;
-      #endif
-        
-      #ifdef DMX_FX_WATER
-      case DMX_FXLIST_WATERSIMULATION:         //Watersimulation init
-      break;
-      #endif
-    }
-  
+	switch (effect)
+	{
+		/*
+		   add new effect inits as new case: 
+
+		   you have to to define the channels per device changed through the effect by: 
+		   fxslot[fxslot_number].max_device_channels='number of channels' 
+		 */      
+
+#ifdef DMX_FX_RAINBOW                     //Rainbow init
+		case DMX_FXLIST_RAINBOW:
+			fxslot[fxslot_number].max_device_channels=3;
+			fxslot[fxslot_number].device_channel[0]=255; 
+			fxslot[fxslot_number].device_channel[1]=0;
+			fxslot[fxslot_number].device_channel[2]=0;
+			fxslot[fxslot_number].effect_variable[3]=0;
+			break;
+#endif
+
+#ifdef DMX_FX_RANDOM       
+		case DMX_FXLIST_RANDOM:                  //Random init
+			fxslot[fxslot_number].max_device_channels=3;
+			break;
+#endif
+
+#ifdef DMX_FX_FIRE
+		case DMX_FXLIST_FIRESIMULATION:         //Firesimulation init
+			fxslot[fxslot_number].max_device_channels=3;
+			break;
+#endif
+
+#ifdef DMX_FX_WATER
+		case DMX_FXLIST_WATERSIMULATION:         //Watersimulation init
+			break;
+#endif
+	}
+
 }
 
 void dmx_fxslot_process()           
 {
-  for(uint8_t i=0;i< DMX_FXSLOT_AMOUNT;i++)
-  {
-      if(fxslot[i].active){
-        if(fxslot[i].speedcounter++>=fxslot[i].speed){
-          switch (fxslot[i].effect)
-            {
-              
-              /*
-              add new effect functions as new case: 
-              */
-              
-              #ifdef DMX_FX_RAINBOW
-              case DMX_FXLIST_RAINBOW:         //Rainbow
-                      dmx_fx_rainbow_colors(i);
-              break;
-              #endif
-              
-              #ifdef DMX_FX_RANDOM       
-              case DMX_FXLIST_RANDOM:         //Random
-                      dmx_fx_random_colors(i);
-              break;
-              #endif
-              
-              #ifdef DMX_FX_FIRE
-              case DMX_FXLIST_FIRESIMULATION:         //Firesimulation
-                      dmx_fx_firesimulation(i);
-              break;
-              #endif
-              
-              #ifdef DMX_FX_WATER
-              case DMX_FXLIST_WATERSIMULATION:         //Watersimulation
-                      dmx_fx_watersimulation(i);
-              break;
-              #endif
-            }
-            fxslot[i].speedcounter=0;
-        }
-      }
-      
-  }
+	for(uint8_t i=0;i< DMX_FXSLOT_AMOUNT;i++)
+	{
+		if(fxslot[i].active){
+			if(fxslot[i].speedcounter++>=fxslot[i].speed){
+				switch (fxslot[i].effect)
+				{
+
+					/*
+					   add new effect functions as new case: 
+					 */
+
+#ifdef DMX_FX_RAINBOW
+					case DMX_FXLIST_RAINBOW:         //Rainbow
+						dmx_fx_rainbow_colors(i);
+						break;
+#endif
+
+#ifdef DMX_FX_RANDOM       
+					case DMX_FXLIST_RANDOM:         //Random
+						dmx_fx_random_colors(i);
+						break;
+#endif
+
+#ifdef DMX_FX_FIRE
+					case DMX_FXLIST_FIRESIMULATION:         //Firesimulation
+						dmx_fx_firesimulation(i);
+						break;
+#endif
+
+#ifdef DMX_FX_WATER
+					case DMX_FXLIST_WATERSIMULATION:         //Watersimulation
+						dmx_fx_watersimulation(i);
+						break;
+#endif
+				}
+				fxslot[i].speedcounter=0;
+			}
+		}
+
+	}
 }
 
 void dmx_fxslot_setchannels(uint8_t fxslot_number)
 {
-  uint16_t act_channel=fxslot[fxslot_number].startchannel;
-  uint8_t universe=fxslot[fxslot_number].universe;
-  for(uint8_t i=0;i<fxslot[fxslot_number].devices;i++)
-  {
-    for(uint8_t j=0;j<fxslot[fxslot_number].max_device_channels;j++)
-    {  
-      set_dmx_channel(universe ,act_channel,fxslot[fxslot_number].device_channel[j]);
-      act_channel++;
-    }
-    act_channel+fxslot[fxslot_number].margin;
-  }
+	uint16_t act_channel=fxslot[fxslot_number].startchannel;
+	uint8_t universe=fxslot[fxslot_number].universe;
+	for(uint8_t i=0;i<fxslot[fxslot_number].devices;i++)
+	{
+		for(uint8_t j=0;j<fxslot[fxslot_number].max_device_channels;j++)
+		{  
+			set_dmx_channel(universe ,act_channel,fxslot[fxslot_number].device_channel[j]);
+			act_channel++;
+		}
+		act_channel=act_channel+fxslot[fxslot_number].margin;
+	}
 }
 
 #endif
@@ -206,4 +206,4 @@ void dmx_fxslot_setchannels(uint8_t fxslot_number)
    -- Ethersex META --
    header(services/dmx-fxslot/dmx-fxslot.h)
    timer(2,dmx_fxslot_process())
-*/
+ */
