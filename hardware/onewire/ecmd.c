@@ -88,6 +88,11 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 			return ECMD_ERR_PARSE_ERROR;
 	}
 	static uint8_t i=0;
+	if(i>=OW_SENSORS_COUNT)
+	{
+		i=0;
+		return  ECMD_FINAL_OK;
+	}
 	int16_t ret=0;
         do
 	{
@@ -109,13 +114,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 		}
 		i++;
 	}while(ret == 0 && i<OW_SENSORS_COUNT);
-	if(i<OW_SENSORS_COUNT)
-		return	ECMD_AGAIN(ret);
-	else
-	{
-		i=0;
-		return  ECMD_FINAL(ret);
-	}
+	return	ECMD_AGAIN(ret);
 }
 #else
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)

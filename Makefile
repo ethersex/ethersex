@@ -87,6 +87,7 @@ SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/dyndns
 SUBDIRS += services/dmx-storage
+SUBDIRS += services/dmx-fxslot
 SUBDIRS += services/dmx-effect
 SUBDIRS += services/echo
 SUBDIRS += services/freqcount
