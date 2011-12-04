@@ -32,7 +32,8 @@ FILE *lcd;
 uint8_t current_pos = 0;
 uint8_t back_light = 0;
 
-
+static FILE lcd_file = FDEV_SETUP_STREAM(hd44780_put, NULL,
+                                         _FDEV_SETUP_WRITE);
 
 #define LCD_MAX_CHAR LCD_CHAR_PER_LINE * LCD_LINES
 
@@ -219,8 +220,8 @@ void hd44780_init(void)
     /* set ddram address */
     output_byte(0, CMD_SETDRAMADR(0),2);
 #endif
-    /* open file descriptor */
-    lcd = fdevopen(hd44780_put, NULL);
+    /* assign file descriptor */
+    lcd = &lcd_file;
 
     /* set current virtual postion */
     current_pos = 0;
