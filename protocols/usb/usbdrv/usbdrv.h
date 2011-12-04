@@ -349,6 +349,10 @@ extern uchar    usbCurrentDataToken;
  */
 #endif
 
+USB_PUBLIC uchar usbSystemBusy();
+/* Returns true if there are usb messages expected, or to be sent.
+ */
+
 #define USB_STRING_DESCRIPTOR_HEADER(stringLength) ((2*(stringLength)+2) | (3<<8))
 /* This macro builds a descriptor header for a string descriptor given the
  * string's length. See usbdrv.c for an example how to use it.
