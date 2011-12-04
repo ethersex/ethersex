@@ -97,11 +97,6 @@ usbFunctionWrite(uchar *data, uchar len)
 uchar
 usbFunctionRead(uchar *data, uchar len)
 {
-#ifdef ECMD_USB_SUPPORT
-  if (setup_packet == USB_REQUEST_ECMD)
-    return ecmd_usb_read (data, len);
-#endif
-
   return 0; /* 0 bytes are read, this is the default fallback */
 }
 
@@ -122,6 +117,12 @@ usb_periodic(void)
 {
   usbPoll();
 
+  if ( usbSystemBusy() )
+    return;
+
+#ifdef ECMD_USB_SUPPORT
+  usb_ecmd_periodic();
+#endif
 #ifdef USB_NET_SUPPORT
   usb_net_periodic();
 #endif
