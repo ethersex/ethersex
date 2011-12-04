@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2011 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -80,6 +80,22 @@ extern "C"
 #define select_card()        PIN_CLEAR(SPI_CS_SD_READER)
 #define unselect_card()      PIN_SET(SPI_CS_SD_READER)
 
+#ifdef SD_READER_AVAILABLE_PIN
+#define configure_pin_available() DDR_CONFIG_IN(SD_READER_AVAILABLE)
+#define get_pin_available()       PIN_HIGH(SD_READER_AVAILABLE)
+#else
+#define configure_pin_available()
+#define get_pin_available()       0
+#endif
+
+#ifdef SD_READER_WR_PROTECT_PIN
+#define configure_pin_locked()    DDR_CONFIG_IN(SD_READER_WR_PROTECT)
+#define get_pin_locked()          PIN_HIGH(SD_READER_WR_PROTECT)
+#else
+#define configure_pin_locked()
+#define get_pin_locked()          1
+#endif
+
 #if SD_RAW_SDHC
     typedef uint64_t offset_t;
 #else
@@ -107,4 +123,4 @@ extern "C"
 }
 #endif
 
-#endif /* SD_RAW_CONFIG_H */
+#endif

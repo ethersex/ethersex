@@ -23,7 +23,7 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $ARCH_AVR
 	fi
 
 	comment  "Debugging Flags"
-	dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG
+	dep_bool 'ENC28J60' DEBUG_ENC28J60 $DEBUG $ENC28J60_SUPPORT
 	dep_bool '  Interrupt' DEBUG_INTERRUPT $DEBUG_ENC28J60
 	dep_bool '  Rev. 4 Workaround' DEBUG_REV4_WORKAROUND $DEBUG_ENC28J60
 	

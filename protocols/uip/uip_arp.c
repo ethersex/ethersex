@@ -247,7 +247,11 @@ uip_arp_ipin(void)
 	
   /* Only insert/update an entry if the source IP address of the
      incoming IP packet comes from a host on the local network. */
+#if ARCH == ARCH_HOST
+  uip_stack_set_active(STACK_TAP);
+#else
   uip_stack_set_active(STACK_ENC);
+#endif
   if (uip_ipaddr_maskcmp(IPBUF->srcipaddr, uip_hostaddr, uip_netmask)) 
     uip_arp_update(IPBUF->srcipaddr, &(IPBUF->ethhdr.src));
   

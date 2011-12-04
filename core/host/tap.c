@@ -29,6 +29,8 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "core/debug.h"
+#include "core/host/tap.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "protocols/uip/uip_arp.h"

@@ -305,6 +305,8 @@ mainmenu_option next_comment
 		if [ "$OPENVPN_STATIC_REMOTE" = "y" ]; then
 			ip "Remote IP" CONF_OPENVPN_REMOTE_IP "192.168.23.254" "2001:6f8:1209:f0:230:5ff:fe23:3f8"
 		fi
+		comment "OpenVPN Port"
+		int 'OpenVPN Port' CONF_OPENVPN_PORT 1194
 	endmenu
 
 	comment  "Debugging Flags"
@@ -417,6 +419,7 @@ source services/clock/config.in
 source services/cron/config.in
 source services/dyndns/config.in
 source services/dmx-storage/config.in
+source services/dmx-fxslot/config.in
 source services/dmx-effect/config.in
 source services/echo/config.in
 source services/wol/config.in
