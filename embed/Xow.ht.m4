@@ -17,7 +17,7 @@ undefine(`substr')dnl
     <script src="scr.js" type="text/javascript"></script>
     <script type="text/javascript"><![CDATA[
 var num = 8;
-var min = -10, max = 50;
+var min = -10, max = 60;
 var g;
 var sensors;
 
@@ -55,7 +55,7 @@ function ecmd_1w_get_req_handler(request, data) {
 
 	if (data < num) {
 		cell.style.color = g[data].color;
-		g[data].append(parseInt(request.responseText));
+		g[data].append(parseFloat(request.responseText));
 	}
 }
 
