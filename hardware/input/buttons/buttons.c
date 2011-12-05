@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2011 by Daniel Walter <fordprfkt@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  */
 
 #define HOOK_NAME btn_input
-#define HOOK_ARGS (uint8_t btn, uint8_t status)
+#define HOOK_ARGS (btn_ButtonsType btn, uint8_t status)
 #define HOOK_COUNT 3
 #define HOOK_ARGS_CALL (btn, status)
 #define HOOK_IMPLEMENT 1
@@ -31,6 +31,7 @@
 #include "config.h"
 #include "protocols/ecmd/ecmd-base.h"
 #include "buttons.h"
+#include "buttons_cfg.h"
 
 #ifdef BUTTONS_INPUT_SUPPORT
 
@@ -39,19 +40,14 @@
 #define BUTTON_REPEAT_START_TIME 50
 #define BUTTON_REPEAT_TIME 10
 
-const button_configType buttonConfig[CONF_NUM_BUTTONS] =
-{
-  {.port = &PIN_CHAR(BTN_UP_PORT), .pin = BTN_UP_PIN},
-  {.port = &PIN_CHAR(BTN_DOWN_PORT), .pin = BTN_DOWN_PIN},
-  {.port = &PIN_CHAR(BTN_LEFT_PORT), .pin = BTN_LEFT_PIN},
-  {.port = &PIN_CHAR(BTN_RIGHT_PORT), .pin = BTN_RIGHT_PIN},
-  {.port = &PIN_CHAR(BTN_ENTER_PORT), .pin = BTN_ENTER_PIN}
-};
+#ifdef DEBUG_BUTTONS_INPUT
+  const char* buttonNames[CONF_NUM_BUTTONS] = {BTN_CONFIG(S)};
+#endif
 
+const button_configType buttonConfig[CONF_NUM_BUTTONS] = {BTN_CONFIG(C)};
 btn_statusType buttonStatus[CONF_NUM_BUTTONS];
 
-void
-buttons_init(void)
+void buttons_init(void)
 {
   uint8_t ctr;
 
@@ -59,15 +55,14 @@ buttons_init(void)
 
   for (ctr=0; ctr<CONF_NUM_BUTTONS; ctr++)
   {
-    BUTTONDEBUG("Button %i Port %i pin %i \n", ctr, buttonConfig[ctr].port, buttonConfig[ctr].pin);
+    BUTTONDEBUG("Button %s Port %i pin %i \n", buttonNames[ctr], buttonConfig[ctr].port, buttonConfig[ctr].pin);
     buttonStatus[ctr].curStatus = 0;
     buttonStatus[ctr].status = BUTTON_NOPRESS;
     buttonStatus[ctr].ctr = 0;
   }
 }
 
-void
-buttons_periodic(void)
+void buttons_periodic(void)
 {
   uint8_t ctr;
   uint8_t curState;
@@ -103,7 +98,7 @@ buttons_periodic(void)
         {
           case BUTTON_NOPRESS:
             buttonStatus[ctr].status = BUTTON_PRESS;
-            BUTTONDEBUG("Pressed %i\n", buttonConfig[ctr].pin);
+            BUTTONDEBUG("Pressed %s\n", buttonNames[ctr]);
             hook_btn_input_call(ctr, buttonStatus[ctr].status);
           break;
 
@@ -111,7 +106,7 @@ buttons_periodic(void)
             if (BUTTON_LONG_PRESS_TIME <= buttonStatus[ctr].ctr)
             {
               buttonStatus[ctr].status = BUTTON_LONGPRESS;
-              BUTTONDEBUG("Long press %i\n", buttonConfig[ctr].pin);
+              BUTTONDEBUG("Long press %s\n", buttonNames[ctr]);
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
           break;
@@ -120,7 +115,7 @@ buttons_periodic(void)
             if (BUTTON_REPEAT_START_TIME <= buttonStatus[ctr].ctr)
             {
               buttonStatus[ctr].status = BUTTON_REPEAT;
-              BUTTONDEBUG("Repeat %i\n", buttonConfig[ctr].pin);
+              BUTTONDEBUG("Repeat %s\n", buttonNames[ctr]);
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
           break;
@@ -130,7 +125,7 @@ buttons_periodic(void)
             {
               buttonStatus[ctr].status = BUTTON_REPEAT;
               buttonStatus[ctr].ctr = BUTTON_REPEAT_START_TIME;
-              BUTTONDEBUG("Repeat %i\n", buttonConfig[ctr].pin);
+              BUTTONDEBUG("Repeat %s\n", buttonNames[ctr]);
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
           break;
@@ -143,7 +138,7 @@ buttons_periodic(void)
       else
       {
         buttonStatus[ctr].status = BUTTON_NOPRESS;
-        BUTTONDEBUG("Released %i\n", buttonConfig[ctr].pin);
+        BUTTONDEBUG("Released %s\n", buttonNames[ctr]);
         buttonStatus[ctr].ctr = 0;
         hook_btn_input_call(ctr, buttonStatus[ctr].status);
       }

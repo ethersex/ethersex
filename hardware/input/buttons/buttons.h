@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2011 by Daniel Walter <fordprfkt@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +25,21 @@
 #include "config.h"
 #ifdef BUTTONS_INPUT_SUPPORT
 
+#include "buttons_cfg.h"
+
+#define S(_v) #_v
+#define E(_v) _v
+#define C(_v) {.port = &PIN_CHAR(_v##_PORT), .pin = _v##_PIN}
+
 #define BUTTON_NOPRESS 0
 #define BUTTON_PRESS 1
 #define BUTTON_LONGPRESS 2
 #define BUTTON_REPEAT 3
+
+typedef enum
+{
+	BTN_CONFIG(E)
+}btn_ButtonsType;
 
 typedef struct
 {
@@ -58,7 +69,7 @@ buttons_periodic(void);
 #endif
 
 #define HOOK_NAME btn_input
-#define HOOK_ARGS (uint8_t btn, uint8_t status)
+#define HOOK_ARGS (btn_ButtonsType btn, uint8_t status)
 #include "hook.def"
 #undef HOOK_NAME
 #undef HOOK_ARGS
