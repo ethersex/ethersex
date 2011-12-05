@@ -25,12 +25,43 @@
 #include "config.h"
 #ifdef BUTTONS_INPUT_SUPPORT
 
+#define BUTTON_NOPRESS 0
+#define BUTTON_PRESS 1
+#define BUTTON_LONGPRESS 2
+#define BUTTON_REPEAT 3
+
+typedef struct
+{
+  uint8_t status:2;
+  uint8_t curStatus:1;
+  uint8_t unused:5;
+  uint8_t ctr;
+}btn_statusType;
+
+typedef struct
+{
+  const volatile uint8_t *port;
+  const uint8_t pin;
+}button_configType;
+
+void
+buttons_init(void);
+
+void
+buttons_periodic(void);
+
+#ifdef DEBUG_BUTTONS_INPUT
+# include "core/debug.h"
+# define BUTTONDEBUG(a...)  debug_printf("button: " a)
+#else
+# define BUTTONDEBUG(a...)
+#endif
+
+#define HOOK_NAME btn_input
+#define HOOK_ARGS (uint8_t btn, uint8_t status)
+#include "hook.def"
 #undef HOOK_NAME
 #undef HOOK_ARGS
-
-#define HOOK_NAME buttons_input
-#define HOOK_ARGS (uint8_t x)
-#include "hook.def"
 
 #endif  /* BUTTONS_INPUT_SUPPORT */
 #endif  /* BUTTONS_H */
