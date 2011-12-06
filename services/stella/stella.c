@@ -251,6 +251,7 @@ void
 stella_storeToEEROM()
 {
 	eeprom_save(stella_channel_values, stella_brightness, STELLA_CHANNELS);
+	eeprom_update_chksum();
 }
 #endif
 
