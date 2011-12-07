@@ -60,7 +60,7 @@ int16_t parse_cmd_dmx_fxslot_effect(char *cmd, char *output, uint16_t len)
 				return ECMD_ERR_PARSE_ERROR;
 
 		}  	    
-#ifdef DMX_FXSLOT_AUTOSAVE
+#ifdef DMX_FXSLOT_AUTOSAVE_SUPPORT
 		dmx_fxslot_save();
 #endif
 		return ECMD_FINAL_OK;
@@ -88,7 +88,7 @@ int16_t parse_cmd_dmx_fxslot_setdevices(char *cmd, char *output, uint16_t len)
 		fxslot[fxslot_number].startchannel=channel;   
 		fxslot[fxslot_number].devices=devices;
 		fxslot[fxslot_number].margin=margin;
-#ifdef DMX_FXSLOT_AUTOSAVE
+#ifdef DMX_FXSLOT_AUTOSAVE_SUPPORT
 		dmx_fxslot_save();
 #endif
 		return ECMD_FINAL_OK;
