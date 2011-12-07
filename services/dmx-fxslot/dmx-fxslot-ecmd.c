@@ -103,6 +103,13 @@ int16_t parse_cmd_dmx_fxslot_save(char *cmd, char *output, uint16_t len)
 		return ECMD_FINAL_OK;
 }
 
+int16_t parse_cmd_dmx_fxslot_reset(char *cmd, char *output, uint16_t len)
+{
+		memset(fxslot, 0, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct));
+		dmx_fxslot_save();
+		return ECMD_FINAL_OK;
+}
+
 int16_t parse_cmd_dmx_fxslot_restore(char *cmd, char *output, uint16_t len)
 {
 		dmx_fxslot_restore();
@@ -116,5 +123,6 @@ int16_t parse_cmd_dmx_fxslot_restore(char *cmd, char *output, uint16_t len)
    ecmd_feature(dmx_fxslot_effect, "dmx fxslot effect",,set the effect settings)
    ecmd_feature(dmx_fxslot_setdevices, "dmx fxslot devices",,set the device settings) 
    ecmd_feature(dmx_fxslot_save, "dmx fxslot save",,save the current fxslots to EEPROM)
+   ecmd_feature(dmx_fxslot_reset, "dmx fxslot reset",,reset all fxslots and clear saved ones in EEPROM)
    ecmd_feature(dmx_fxslot_restore, "dmx fxslot restore",,restore the settings from EEPROM)
  */
