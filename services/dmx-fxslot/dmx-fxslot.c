@@ -96,7 +96,44 @@ void dmx_fx_firesimulation(uint8_t fxslot_number)
 #ifdef DMX_FX_WATER 
 void dmx_fx_watersimulation(uint8_t fxslot_number)
 {
+	/* Blue */
+	if(fxslot[fxslot_number].effect_variable[0] == 0 && fxslot[fxslot_number].effect_variable[1] == 0)
+	{
+		if(rand()%2)
+			fxslot[fxslot_number].effect_variable[3] = 1; /* We will add some red */
+		else
+			fxslot[fxslot_number].effect_variable[3] = 2; /* We will add some green */
+	}
+	/* As red as it will get..*/
+	if(fxslot[fxslot_number].effect_variable[0] == 21)
+		fxslot[fxslot_number].effect_variable[3] = 3; /* Decrease red, return to blue */
+	/* As green as it will get..*/
+	if(fxslot[fxslot_number].effect_variable[1] == 170)
+		fxslot[fxslot_number].effect_variable[3] = 4; /* Decrease green, return to blue */
 
+	if(fxslot[fxslot_number].effect_variable[3] == 1)
+		fxslot[fxslot_number].effect_variable[0]++;
+	if(fxslot[fxslot_number].effect_variable[3] == 2)
+		fxslot[fxslot_number].effect_variable[1]++;
+	if(fxslot[fxslot_number].effect_variable[3] == 3)
+		fxslot[fxslot_number].effect_variable[0]--;
+	if(fxslot[fxslot_number].effect_variable[3] == 4)
+		fxslot[fxslot_number].effect_variable[1]--;
+
+	uint8_t brightness=rand()%5;
+
+	if(fxslot[fxslot_number].effect_variable[0]-brightness >= 0)
+		fxslot[fxslot_number].device_channel[0]=fxslot[fxslot_number].effect_variable[0]-brightness;
+	else
+		fxslot[fxslot_number].device_channel[0]=0;
+	if(fxslot[fxslot_number].effect_variable[1]-brightness >= 0)
+		fxslot[fxslot_number].device_channel[1]=fxslot[fxslot_number].effect_variable[1]-brightness;
+	else
+		fxslot[fxslot_number].device_channel[1]=0;
+	/* Blue is (for now) always 100% ; 255 */
+	fxslot[fxslot_number].device_channel[2]=fxslot[fxslot_number].effect_variable[2]-brightness;
+
+	dmx_fxslot_setchannels(fxslot_number);
 }
 #endif /*Water end*/
 
@@ -138,6 +175,11 @@ void dmx_fxslot_init(uint8_t fxslot_number)
 
 #ifdef DMX_FX_WATER
 		case DMX_FXLIST_WATERSIMULATION:         //Watersimulation init
+			fxslot[fxslot_number].max_device_channels=3;
+			fxslot[fxslot_number].effect_variable[0]=0;
+			fxslot[fxslot_number].effect_variable[1]=0;
+			fxslot[fxslot_number].effect_variable[2]=255;
+			fxslot[fxslot_number].effect_variable[3]=0;
 			break;
 #endif
 	}
