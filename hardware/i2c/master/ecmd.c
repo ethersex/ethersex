@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2011 by Patrick Hieber <patrick.hieber@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +32,7 @@
 #include "hardware/i2c/master/i2c_master.h"
 #include "hardware/i2c/master/i2c_generic.h"
 #include "hardware/i2c/master/i2c_lm75.h"
+#include "hardware/i2c/master/i2c_tmp175.h"
 #include "hardware/i2c/master/i2c_ds1631.h"
 #include "hardware/i2c/master/i2c_tsl2550.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
@@ -175,7 +177,43 @@ parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
 }
 
 #endif  /* I2C_LM75_SUPPORT */
+/* BEGIN TMP175 SUPPORT */
+#ifdef I2C_TMP175_SUPPORT
 
+int16_t
+parse_cmd_i2c_tmp175(char *cmd, char *output, uint16_t len)
+{
+	uint8_t chipAdrOffset;
+	sscanf_P(cmd, PSTR("%u"), &chipAdrOffset);
+	// Return a parse error if out of possible range.
+	// There are max. pow(3,3) = 27 different
+	// sensors on the i2c bus allowed.
+	// @see page 8/20 in the datasheet...
+	if (chipAdrOffset > 26)
+		return ECMD_ERR_PARSE_ERROR;
+	int16_t temp = i2c_tmp175_read_temp(I2C_SLA_TMP175 + chipAdrOffset);
+	if (temp == 0xffff)
+		return ECMD_FINAL(snprintf_P(output, len,
+			PSTR("no sensor detected")));
+	uint16_t commaValue = 0; // holds the digits for decimals
+	int8_t wholeNums = (int8_t)(temp >> 8); // holds the whole numbers
+	if (temp & 0x8000){ // MSB equal 1 -> it's negative
+		wholeNums+=1; // add offset if temp < 0
+		commaValue = ((uint8_t)temp==0)?0:(10000 - (uint8_t)(temp) * 625);
+	}else{
+		// leave wholeNums untouched
+		commaValue = (uint8_t)temp * 625;
+	}
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("tmp175 %d %3d.%04d"),
+		chipAdrOffset, wholeNums, commaValue));
+#else
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%3d.%04d"),
+		wholeNums, commaValue));
+#endif
+}
+#endif
+/* END TMP175 SUPPORT */
 #ifdef I2C_DS1631_SUPPORT
 
 int16_t parse_cmd_i2c_ds1631_set_power_state(char *cmd, char *output, uint16_t len)
