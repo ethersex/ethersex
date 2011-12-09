@@ -258,9 +258,7 @@ void dmx_fxslot_restore()
                 fxslot[i].universe=fxslots_temp[i].universe;
                 fxslot[i].devices=fxslots_temp[i].devices;
                 fxslot[i].margin=fxslots_temp[i].margin;
-		//init each fxslot if active
-		if(fxslot[i].active == 1)
-			dmx_fxslot_init(i);
+		dmx_fxslot_init(i);
         }
 
 }
