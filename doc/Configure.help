@@ -2481,5 +2481,5 @@ DMX_FXSLOT_AUTOSAVE_SUPPORT
 Automatically restore slots
 DMX_FXSLOT_AUTORESTORE_SUPPORT
 
-  If enabled, ethersex will restore previously saved fxslots during boot.
+  If enabled, ethersex will restore previously saved fxslots from EEPROM during boot.
 
