@@ -2,7 +2,8 @@ dep_bool_menu "DMX FXslots for effects and animations" DMX_FXSLOT_SUPPORT $DMX_S
 
 
 	int "Number of effect slots" DMX_FXSLOT_AMOUNT 4
-	bool "Autosave slots" DMX_FXSLOT_AUTOSAVE_SUPPORT FALSE
+	bool "Automatically save slots" DMX_FXSLOT_AUTOSAVE_SUPPORT FALSE
+	bool "Automatically restore slots" DMX_FXSLOT_AUTORESTORE_SUPPORT FALSE
 	comment " "
 	comment "Effects:"
 

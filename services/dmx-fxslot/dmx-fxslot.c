@@ -288,5 +288,5 @@ void dmx_fxslot_save()
 	header(services/dmx-fxslot/dmx-fxslot.h)
 	timer(2,dmx_fxslot_process())
 	init(dmx_fxslot_restore)
-	ifdef(`conf_DMX_FXSLOT_AUTOSAVE',`init(dmx_fxslot_restore)')
+	ifdef(`conf_DMX_FXSLOT_AUTORESTORE',`init(dmx_fxslot_restore)')
 */

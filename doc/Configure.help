@@ -2476,4 +2476,10 @@ DMX_FX_WATER
 Autosave slots
 DMX_FXSLOT_AUTOSAVE_SUPPORT
 
-  Check this if you want to save the fxslots to EEPROM whenever you change a fxslot. During boot, ethersex will restore the fxslots.
+  If enabled, the fxslots will be saved to EEPROM whenever altered through ECMD.
+
+Automatically restore slots
+DMX_FXSLOT_AUTORESTORE_SUPPORT
+
+  If enabled, ethersex will restore previously saved fxslots during boot.
+
