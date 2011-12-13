@@ -120,8 +120,13 @@ eeprom_init (void)
 #endif
 
 #ifdef STELLA_EEPROM
-  uint8_t v[10] = { 0 };
-  eeprom_save (stella_channel_values, v, 10);
+  uint8_t stella_temp[10] = { 0 };
+  eeprom_save (stella_channel_values, stella_temp, 10);
+#endif
+
+#ifdef DMX_FXSLOT_SUPPORT
+  struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
+  eeprom_save (dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
