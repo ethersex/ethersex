@@ -2472,3 +2472,14 @@ DMX_FX_FIRE
   Tip: use with speed 2
 DMX_FX_WATER
   not implemented yet
+
+Autosave slots
+DMX_FXSLOT_AUTOSAVE_SUPPORT
+
+  If enabled, the fxslots will be saved to EEPROM whenever altered through ECMD.
+
+Automatically restore slots
+DMX_FXSLOT_AUTORESTORE_SUPPORT
+
+  If enabled, ethersex will restore previously saved fxslots from EEPROM during boot.
+
