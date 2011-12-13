@@ -246,20 +246,20 @@ void dmx_fxslot_setchannels(uint8_t fxslot_number)
 }
 void dmx_fxslot_restore()
 {
-        struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
-        eeprom_restore(dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+	struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
+	eeprom_restore(dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
 	//Stripped structs have been restored, now copy the values
-        for(uint8_t i=0;i<DMX_FXSLOT_AMOUNT;i++)
-        {
-                fxslot[i].active=fxslots_temp[i].active;
-                fxslot[i].effect=fxslots_temp[i].effect;
-                fxslot[i].speed=fxslots_temp[i].speed;
-                fxslot[i].startchannel=fxslots_temp[i].startchannel;
-                fxslot[i].universe=fxslots_temp[i].universe;
-                fxslot[i].devices=fxslots_temp[i].devices;
-                fxslot[i].margin=fxslots_temp[i].margin;
+	for(uint8_t i=0;i<DMX_FXSLOT_AMOUNT;i++)
+	{
+		fxslot[i].active=fxslots_temp[i].active;
+		fxslot[i].effect=fxslots_temp[i].effect;
+		fxslot[i].speed=fxslots_temp[i].speed;
+		fxslot[i].startchannel=fxslots_temp[i].startchannel;
+		fxslot[i].universe=fxslots_temp[i].universe;
+		fxslot[i].devices=fxslots_temp[i].devices;
+		fxslot[i].margin=fxslots_temp[i].margin;
 		dmx_fxslot_init(i);
-        }
+	}
 
 }
 
@@ -278,15 +278,15 @@ void dmx_fxslot_save()
 		fxslots_temp[i].margin=fxslot[i].margin;
 	}
 	//fxslots have been stripped, now save them
-        eeprom_save(dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+	eeprom_save(dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
 	eeprom_update_chksum ();
 }
 
 #endif
 /*
-	-- Ethersex META --
-	header(services/dmx-fxslot/dmx-fxslot.h)
-	timer(2,dmx_fxslot_process())
-	init(dmx_fxslot_restore)
-	ifdef(`conf_DMX_FXSLOT_AUTORESTORE',`init(dmx_fxslot_restore)')
-*/
+   -- Ethersex META --
+   header(services/dmx-fxslot/dmx-fxslot.h)
+   timer(2,dmx_fxslot_process())
+   init(dmx_fxslot_restore)
+   ifdef(`conf_DMX_FXSLOT_AUTORESTORE',`init(dmx_fxslot_restore)')
+ */
