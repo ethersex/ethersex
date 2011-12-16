@@ -36,6 +36,7 @@ enum {
 
 uint8_t ecmd_usb_setup(uint8_t  data[8]);
 uint8_t ecmd_usb_write(uint8_t *data, uint8_t len);
-uint8_t ecmd_usb_read(uint8_t *data, uint8_t len);
+void ecmd_usb_read_finished();
+void usb_ecmd_periodic();
 
 #endif /* _USB_REQUESTS_H */
