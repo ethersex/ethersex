@@ -39,7 +39,7 @@ struct clock_datetime_t {
             uint8_t dow;
         };
     };
-    uint8_t year;
+    uint16_t year;
 };
 
 /* current_time is the amount of seconds since 1.1.1900, 00:00:00 UTC */
