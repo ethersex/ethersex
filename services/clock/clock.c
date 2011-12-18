@@ -306,7 +306,7 @@ clock_utc2timestamp (struct clock_datetime_t * d, uint8_t cest)
    *
    */
   /* year, check if we have enough days left to fill a year */
-  for (uint16_t year = EPOCH_YEAR; year < d->year + 1900; year++)
+  for (uint16_t year = EPOCH_YEAR; year < d->year; year++)
     {
       timestamp += (is_leap_year (year)) ? 31622400UL : 31536000UL;
     }
@@ -364,7 +364,7 @@ clock_datetime (struct clock_datetime_t *d, uint32_t timestamp)
       days -= 365;
       year++;
     }
-  d->year = year - 1900;
+  d->year = year;
   d->month = 0;
 
   /* month */
