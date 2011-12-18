@@ -664,7 +664,6 @@ void ow_periodic(void) {
 					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 #endif /* DEBUG_OW_POLLING */
 					ow_sensors[i].temp = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-					debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
 					ow_sensors[i].converted = 0;
 				}
 			}
