@@ -71,15 +71,8 @@ int8_t parse_ow_rom(char *cmd, ow_rom_code_t *rom)
 #ifdef ONEWIRE_POLLING_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
-	static uint8_t i=0;
+	uint16_t i=0;
 	int8_t list_type;
-	/* This is a special case: the while loop below printed a sensor which was last in the list,
-	   so we still need to send an 'OK' after the sensor id */
-	if(i>=OW_SENSORS_COUNT)
-	{
-		i=0;
-		return ECMD_FINAL_OK;
-	}
         while (*cmd == ' ')
             cmd++;
 	switch (*cmd) {
@@ -94,6 +87,15 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 			break;
 		default:
 			return ECMD_ERR_PARSE_ERROR;
+	}
+	/*Next value in cmd is the count*/
+	cmd++;
+	sscanf(cmd, "%u", &i);
+	/* This is a special case: the while loop below printed a sensor which was last in the list,
+	   so we still need to send an 'OK' after the sensor id */
+	if(i>=OW_SENSORS_COUNT)
+	{
+		return ECMD_FINAL_OK;
 	}
 	int16_t ret=0;
 	do
@@ -120,10 +122,10 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 	if(ret == 0)
 	{
 		/* => i has reached OW_SENSORS_COUNT */
-		i=0;
 		return ECMD_FINAL_OK;
 	}
 	/* else, ret is != 0 which means a sensor has been found */
+	sprintf(cmd,"%d\0", i);
 	return	ECMD_AGAIN(ret);
 }
 #else
