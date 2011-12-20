@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2011 by Daniel Walter <fordprfkt@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -30,16 +29,37 @@
 #define I2C_PCA9555_REG_POL 4
 #define I2C_PCA9555_REG_CONF 6
 
-int8_t i2c_pca9555_read(uint8_t address, uint8_t reg, uint16_t* value);
-int8_t i2c_pca9555_write(uint8_t address, uint8_t reg, uint16_t value);
+uint8_t i2c_pca9555_readWord(uint8_t addrOffset, uint8_t reg, uint16_t* value);
+uint8_t i2c_pca9555_writeWord(uint8_t addrOffset, uint8_t reg, uint16_t value);
 
-#define i2c_pca9555_setDDR(address, value) i2c_pca9555_write(address, I2C_PCA9555_REG_CONF,  value)
-#define i2c_pca9555_getDDR(address, valuePtr) i2c_pca9555_read(address, I2C_PCA9555_REG_CONF, valuePtr)
+uint8_t i2c_pca9555_readByte(uint8_t addrOffset, uint8_t reg, uint8_t* value);
+uint8_t i2c_pca9555_writeByte(uint8_t addrOffset, uint8_t reg, uint8_t value);
 
-#define i2c_pca9555_setPolarity(address, value) i2c_pca9555_write(address, I2C_PCA9555_REG_POL,  value)
-#define i2c_pca9555_getPolarity(address, valuePtr) i2c_pca9555_read(address, I2C_PCA9555_REG_POL, valuePtr)
+#define i2c_pca9555_setDDR(addrOffset, value) i2c_pca9555_writeWord(addrOffset, I2C_PCA9555_REG_CONF,  value)
+#define i2c_pca9555_getDDR(addrOffset, valuePtr) i2c_pca9555_readWord(addrOffset, I2C_PCA9555_REG_CONF, valuePtr)
 
-#define i2c_pca9555_readPort(address, value) i2c_pca9555_read(address, I2C_PCA9555_REG_IN,  data) //set output word
-#define i2c_pca9555_writePort(address, valuePtr) i2c_pca9555_write(address, I2C_PCA9555_REG_OUT,  valuePtr) //set output word
+#define i2c_pca9555_setPolarity(addrOffset, value) i2c_pca9555_writeWord(addrOffset, I2C_PCA9555_REG_POL,  value)
+#define i2c_pca9555_getPolarity(addrOffset, valuePtr) i2c_pca9555_readWord(addrOffset, I2C_PCA9555_REG_POL, valuePtr)
+
+#define i2c_pca9555_readInPort(addrOffset, valuePtr) i2c_pca9555_readWord(addrOffset, I2C_PCA9555_REG_IN,  valuePtr) //set output word
+#define i2c_pca9555_readOutPort(addrOffset, valuePtr) i2c_pca9555_readWord(addrOffset, I2C_PCA9555_REG_OUT,  valuePtr) //set output word
+#define i2c_pca9555_writeOutPort(addrOffset, value) i2c_pca9555_writeWord(addrOffset, I2C_PCA9555_REG_OUT,  value) //set output word
+
+#define i2c_pca9555_setDDRL(addrOffset, value) i2c_pca9555_writeByte(addrOffset, I2C_PCA9555_REG_CONF,  value)
+#define i2c_pca9555_setDDRH(addrOffset, value) i2c_pca9555_writeByte(addrOffset, I2C_PCA9555_REG_CONF+1,  value)
+#define i2c_pca9555_getDDRL(addrOffset, valuePtr) i2c_pca9555_reaByte(addrOffset, I2C_PCA9555_REG_CONF, valuePtr)
+#define i2c_pca9555_getDDRH(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_CONF+1, valuePtr)
+
+#define i2c_pca9555_setPolarityL(addrOffset, value) i2c_pca9555_writeByte(addrOffset, I2C_PCA9555_REG_POL,  value)
+#define i2c_pca9555_setPolarityH(addrOffset, value) i2c_pca9555_writeByte(addrOffset, I2C_PCA9555_REG_POL+1,  value)
+#define i2c_pca9555_getPolarityL(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_POL, valuePtr)
+#define i2c_pca9555_getPolarityH(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_POL+1, valuePtr)
+
+#define i2c_pca9555_readInPortL(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_IN,  valuePtr) //set output word
+#define i2c_pca9555_readInPortH(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_IN+1,  valuePtr) //set output word
+#define i2c_pca9555_readOutPortL(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_OUT,  valuePtr) //set output word
+#define i2c_pca9555_readOutPortH(addrOffset, valuePtr) i2c_pca9555_readByte(addrOffset, I2C_PCA9555_REG_OUT+1,  valuePtr) //set output word
+#define i2c_pca9555_writeOutPortL(addrOffset, value) i2c_pca9555_writeByte(addrOffset, I2C_PCA9555_REG_OUT,  value) //set output word
+#define i2c_pca9555_writeOutPortH(addrOffset, value) i2c_pca9555_writeByte(addrOffset, I2C_PCA9555_REG_OUT+1,  value) //set output word
 
 #endif /* _I2C_PCA9555_H */
