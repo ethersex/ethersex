@@ -71,7 +71,8 @@ int8_t parse_ow_rom(char *cmd, ow_rom_code_t *rom)
 #ifdef ONEWIRE_POLLING_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
-	uint16_t i=0;
+	uint8_t i = 0;
+	#ifdef ONEWIRE_DS2502_SUPPORT
 	int8_t list_type;
         while (*cmd == ' ')
             cmd++;
@@ -88,21 +89,29 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 		default:
 			return ECMD_ERR_PARSE_ERROR;
 	}
-	/*Next value in cmd is the count*/
-	cmd++;
-	sscanf(cmd, "%u", &i);
+	cmd++; /* for static bytes */
+	#endif
+	/* trick: use bytes on cmd as "connection specific static variables" */
+	if (cmd[0] != 23)	/* indicator flag: real invocation:  0 */
+	{
+		cmd[0] = 23;	/* continuing call: 23 */
+		cmd[1] = 0;	/* counter for sensors in list*/
+	}
+	i = cmd[1];
 	/* This is a special case: the while loop below printed a sensor which was last in the list,
 	   so we still need to send an 'OK' after the sensor id */
 	if(i>=OW_SENSORS_COUNT)
 	{
 		return ECMD_FINAL_OK;
 	}
-	int16_t ret=0;
+	int16_t ret = 0;
 	do
 	{
 		if(ow_sensors[i].ow_rom_code.raw != 0)
 		{
+			#ifdef ONEWIRE_DS2502_SUPPORT
         		if ((list_type == OW_LIST_TYPE_ALL) || (list_type == OW_LIST_TYPE_TEMP_SENSOR && ow_temp_sensor(&ow_sensors[i].ow_rom_code)) || (list_type == OW_LIST_TYPE_EEPROM && ow_eeprom(&ow_sensors[i].ow_rom_code))) {
+			#endif
 				ret = snprintf_P(output, len,
 				PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
 				ow_sensors[i].ow_rom_code.bytewise[0],
@@ -114,7 +123,9 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 				ow_sensors[i].ow_rom_code.bytewise[6],
 				ow_sensors[i].ow_rom_code.bytewise[7]
 				);
+			#ifdef ONEWIRE_DS2502_SUPPORT
 			}
+			#endif
 		}
 		i++;
 	} while(ret == 0 && i<OW_SENSORS_COUNT);
@@ -124,8 +135,13 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 		/* => i has reached OW_SENSORS_COUNT */
 		return ECMD_FINAL_OK;
 	}
-	/* else, ret is != 0 which means a sensor has been found */
-	sprintf(cmd,"%d\0", i);
+	/* else, ret is != 0 which means a sensor has been found and this functions has to be called again
+	   to prevent a buffer overflow 
+	*/
+	/* Save i to cmd[1] */
+
+	cmd[1] = i;
+
 	return	ECMD_AGAIN(ret);
 }
 #else
