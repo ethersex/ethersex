@@ -371,6 +371,7 @@ comment "I/O"
 	source hardware/hbridge/config.in
 	source mcuf/config.in
 	source hardware/storage/sd_reader/config.in
+	source hardware/serial_ram/config.in
 endmenu
 
 ###############################################################################
