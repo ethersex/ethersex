@@ -22,20 +22,11 @@
 #ifndef HAVE_SRAM_23K256_H
 #define HAVE_SRAM_23K256_H
 
-#define SRAM_23K256_WRSR  0x01
-#define SRAM_23K256_WRITE 0x02
-#define SRAM_23K256_READ  0x03
-#define SRAM_23K256_RDSR  0x05
-
-#define SRAM_23K256_MODE_BYTE 0
-#define SRAM_23K256_MODE_PAGE 128
-#define SRAM_23K256_MODE_SEQ 64
-
-#define SRAM_23K256_HOLD 1
+#define SRAM23K256_SIZE 32768  /* Size of the RAM in bytes */
 
 int16_t sram23k256_init(void);
-int16_t sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8);
-int16_t sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8);
+void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8);
+void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8);
 
 #include "config.h"
 #ifdef DEBUG_SER_RAM_23K256
