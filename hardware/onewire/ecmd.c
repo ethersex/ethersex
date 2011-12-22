@@ -71,7 +71,6 @@ int8_t parse_ow_rom(char *cmd, ow_rom_code_t *rom)
 #ifdef ONEWIRE_POLLING_SUPPORT
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 {
-	uint8_t i = 0;
 	#ifdef ONEWIRE_DS2502_SUPPORT
 	int8_t list_type;
         while (*cmd == ' ')
@@ -97,7 +96,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 		cmd[0] = 23;	/* continuing call: 23 */
 		cmd[1] = 0;	/* counter for sensors in list*/
 	}
-	i = cmd[1];
+	uint8_t i = cmd[1];
 	/* This is a special case: the while loop below printed a sensor which was last in the list,
 	   so we still need to send an 'OK' after the sensor id */
 	if(i>=OW_SENSORS_COUNT)
