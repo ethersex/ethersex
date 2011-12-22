@@ -80,6 +80,16 @@ void __start ()
 }
 #endif  /* ARCH != ARCH_HOST */
 
+#ifdef BOOTLOADER_SUPPORT
+ISR(__vector_default)
+{
+  /* catch any unassigned interrupt and do nothing */
+#ifdef STATUSLED_POWER_SUPPORT
+  PIN_CLEAR (STATUSLED_POWER);
+#endif
+}
+#endif
+
 extern void ethersex_meta_init (void);
 extern void ethersex_meta_startup (void);
 extern void ethersex_meta_mainloop (void);
