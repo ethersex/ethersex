@@ -213,11 +213,13 @@ stella_setValue(const enum stella_set_function func, const uint8_t channel, cons
 	}
 }
 
-void stella_setFadestep(const uint8_t fadestep) {
+void stella_setFadestep(const uint8_t fadestep)
+{
   stella_fade_step = fadestep;
 }
 
-uint8_t stella_getFadestep() {
+uint8_t stella_getFadestep(void)
+{
   return stella_fade_step;
 }
 
@@ -231,7 +233,7 @@ stella_getValue(const uint8_t channel)
 
 #ifndef TEENSY_SUPPORT
 void
-stella_loadFromEEROMFading()
+stella_loadFromEEROMFading(void)
 {
 	eeprom_restore(stella_channel_values, stella_fade, STELLA_CHANNELS);
 }
@@ -239,7 +241,7 @@ stella_loadFromEEROMFading()
 
 #ifndef TEENSY_SUPPORT
 void
-stella_loadFromEEROM()
+stella_loadFromEEROM(void)
 {
 	eeprom_restore(stella_channel_values, stella_fade, STELLA_CHANNELS);
 	memcpy(stella_brightness, stella_fade, STELLA_CHANNELS);
@@ -249,7 +251,7 @@ stella_loadFromEEROM()
 
 #ifndef TEENSY_SUPPORT
 void
-stella_storeToEEROM()
+stella_storeToEEROM(void)
 {
 	eeprom_save(stella_channel_values, stella_brightness, STELLA_CHANNELS);
 	eeprom_update_chksum();
@@ -278,7 +280,7 @@ stella_storeToEEROM()
  * pwm cycle and not touched afterwards. Channels with same brightness
  * levels are merged together (their portmask at least).
  * */
-inline void
+void
 stella_sort()
 {
 	struct stella_timetable_entry* current, *last;
