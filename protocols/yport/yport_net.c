@@ -21,6 +21,7 @@
  */
 
 #include <avr/io.h>
+#include <avr/atomic.h>
 #include <avr/interrupt.h>
 #include <string.h>
 #include "yport_net.h"
@@ -53,15 +54,12 @@ void yport_net_main(void)
       uip_close();
     else {
       /* Some data we have sent was acked, jipphie */
-      /* disable interrupts */
-      uint8_t sreg = SREG; cli();
-      yport_recv_buffer.len -= yport_recv_buffer.sent;
-      /* We should use memmove, because the data may overlap */
-      memmove(yport_recv_buffer.data,
-              yport_recv_buffer.data + yport_recv_buffer.sent,
-              yport_recv_buffer.len);
-      /* enable interrupts again */
-      SREG = sreg;
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        yport_recv_buffer.len -= yport_recv_buffer.sent;
+        memmove(yport_recv_buffer.data,
+                yport_recv_buffer.data + yport_recv_buffer.sent,
+                yport_recv_buffer.len);
+      }
     }
   } else if (uip_closed() || uip_aborted() || uip_timedout()) {
     /* if the closed connection was our connection, clean yport_conn */
@@ -85,14 +83,10 @@ void yport_net_main(void)
       && yport_conn == uip_conn
       && yport_recv_buffer.len > 0) {
     /* We have recieved data, lets propagade it */
-    /* disable interrupts */
-    uint8_t sreg = SREG; cli();
-    /* Send the data */
-    uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
-    /* so many data was send */
-    yport_recv_buffer.sent = yport_recv_buffer.len;
-    /* enable interrupts again */
-    SREG = sreg;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
+      yport_recv_buffer.sent = yport_recv_buffer.len;
+    }
   }
 }
 

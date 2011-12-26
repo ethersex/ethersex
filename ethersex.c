@@ -228,7 +228,7 @@ main (void)
       if (status.request_bootloader)
 	{
 #ifdef CLOCK_CRYSTAL_SUPPORT
-	  _TIMSK_TIMER2 &= ~_BV (TOIE2);
+	  TC2_INT_OVERFLOW_OFF;
 #endif
 #ifdef DCF77_SUPPORT
 	  ACSR &= ~_BV (ACIE);
