@@ -21,8 +21,8 @@
  */
 
 #include <avr/io.h>
-#include <avr/atomic.h>
 #include <avr/interrupt.h>
+#include <util/atomic.h>
 #include <string.h>
 #include "yport_net.h"
 #include "protocols/uip/uip.h"
