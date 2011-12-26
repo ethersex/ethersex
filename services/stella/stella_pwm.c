@@ -40,13 +40,13 @@ struct stella_timetable_entry* current = 0;
  * */
 #ifdef STELLA_LOW_PRIORITY
 // other interrupts can interrupt this ISR
-ISR(STELLA_COMPARE_VECTOR, ISR_NOBLOCK)
+ISR(STELLA_TC_VECTOR_COMPARE, ISR_NOBLOCK)
 {
 	// disable the interrupt we are in
 	// makes sure we don't interrupt ourselves
-	STELLA_TIMSK &= ~_BV(STELLA_COMPARE_IE);
+	STELLA_TC_INT_COMPARE_OFF;
 #else
-ISR(STELLA_COMPARE_VECTOR)
+ISR(STELLA_TC_VECTOR_COMPARE)
 {
 #endif
 	// Activate all timetable entries for this timepoint
@@ -55,15 +55,15 @@ ISR(STELLA_COMPARE_VECTOR)
 		ACCESS_IO(current->port.port) |= current->port.mask;
 		current = current->next;
 
-		if (current && STELLA_COMPARE_REG != current->value) {
-			STELLA_COMPARE_REG = current->value;
+		if (current && STELLA_TC_COMPARE_REG != current->value) {
+			STELLA_TC_COMPARE_REG = current->value;
 			break;
 		}
 	}
 
 #ifdef STELLA_LOW_PRIORITY
 	// enable our interrupt again
-	STELLA_TIMSK |= _BV(STELLA_COMPARE_IE);
+	STELLA_TC_INT_COMPARE_ON;
 #endif
 }
 
@@ -72,13 +72,13 @@ ISR(STELLA_COMPARE_VECTOR)
 
 #ifdef STELLA_LOW_PRIORITY
 // other interrupts can interrupt this ISR
-ISR(STELLA_OVERFLOW_VECTOR, ISR_NOBLOCK)
+ISR(STELLA_TC_VECTOR_OVERFLOW, ISR_NOBLOCK)
 {
 	// disable the interrupt we are in
 	// makes sure we don't interrupt ourselves
-	STELLA_TIMSK &= ~_BV(STELLA_TOIE);
+	STELLA_TC_INT_OVERFLOW_OFF;
 #else
-ISR(STELLA_OVERFLOW_VECTOR)
+ISR(STELLA_TC_VECTOR_OVERFLOW)
 {
 #endif
 	/* if new values are available, work with them */
@@ -105,10 +105,10 @@ ISR(STELLA_OVERFLOW_VECTOR)
 		ACCESS_IO(int_table->port[i].port) = (ACCESS_IO(int_table->port[i].port) & ~(uint8_t)stella_portmask[i]) | int_table->port[i].mask;
 
 	if (current)
-		STELLA_COMPARE_REG = current->value;
+		STELLA_TC_COMPARE_REG = current->value;
 
 #ifdef STELLA_LOW_PRIORITY
 	// enable our interrupt again
-	STELLA_TIMSK |= _BV(STELLA_TOIE);
+	STELLA_TC_INT_OVERFLOW_ON;
 #endif
 }

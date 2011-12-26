@@ -92,22 +92,23 @@ stella_init (void)
 	/* we need at least 64 ticks for the compare interrupt,
 	* therefore choose a prescaler of at least 64. */
 	#if STELLA_FREQ == stella_vslow
-	STELLA_PRESCALER =  _BV(STELLA_CS0) |_BV(STELLA_CS1) | _BV(STELLA_CS2);
+	STELLA_TC_PRESCALER_1024;
 	debug_printf("Stella freq: %u Hz\n", F_CPU/1024/(256*2));
 	#elif STELLA_FREQ == stella_slow
-	STELLA_PRESCALER =  _BV(STELLA_CS1) | _BV(STELLA_CS2);
+	STELLA_TC_PRESCALER_256;
 	debug_printf("Stella freq: %u Hz\n", F_CPU/256/(256*2));
 	#elif STELLA_FREQ == stella_normal
-	STELLA_PRESCALER =  _BV(STELLA_CS0) | _BV(STELLA_CS2);
+	STELLA_TC_PRESCALER_128;
 	debug_printf("Stella freq: %u Hz\n", F_CPU/128/(256*2));
 	#elif STELLA_FREQ == stella_fast
-	STELLA_PRESCALER =  _BV(STELLA_CS2);
+	STELLA_TC_PRESCALER_64;
 	debug_printf("Stella freq: %u Hz\n", F_CPU/64/(256*2));
 	#endif
 
 
 	/* Interrupt on overflow and CompareMatch */
-	STELLA_TIMSK |= _BV(STELLA_TOIE) | _BV(STELLA_COMPARE_IE);
+	STELLA_TC_INT_OVERFLOW_ON;
+	STELLA_TC_INT_COMPARE_ON;
 	/*Setup DMX-Storage Connection*/
 	#ifdef DMX_STORAGE_SUPPORT
         stella_dmx_conn_id=dmx_storage_connect(STELLA_UNIVERSE);
