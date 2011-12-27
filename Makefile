@@ -119,9 +119,11 @@ ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),fullclean)
 ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)
+ifneq ($(MAKECMDGOALS),indent)
 
 include $(TOPDIR)/.config
 
+endif # MAKECMDGOALS!=indent
 endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=fullclean
 endif # MAKECMDGOALS!=mrproper
@@ -399,5 +401,18 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 	@echo Ethersex compiled successfully, ignore make error!
 	@false # stop compilation
 endif
+
+
+##############################################################################
+# reformat source code
+indent: INDENT_ARGS=-nbad -sc -nut -nbad -bli0 -blf -cbi0 -cli2 -npcs -nbbo
+indent:
+	@find . $(SUBDIRS) -maxdepth 1 -name "*.[ch]" | while read f; do \
+	  indent $(INDENT_ARGS) "$$f"; \
+	  git checkout "$$f"; \
+	done
+
+.PHONY: indent
+
 
 include $(TOPDIR)/scripts/depend.mk

@@ -20,6 +20,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
+
 #include <stdint.h>
 #include "core/global.h"
 #include "protocols/ecmd/ecmd-base.h"

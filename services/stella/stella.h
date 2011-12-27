@@ -36,11 +36,11 @@
 
 enum stella_set_function
 {
-  STELLA_SET_IMMEDIATELY,
-  STELLA_SET_FADE,
-  STELLA_SET_FLASHY,
-  STELLA_SET_IMMEDIATELY_RELATIVE,
-  STELLA_GETALL = 255
+	STELLA_SET_IMMEDIATELY,
+	STELLA_SET_FADE,
+	STELLA_SET_FLASHY,
+	STELLA_SET_IMMEDIATELY_RELATIVE,
+	STELLA_GETALL = 255
 };
 
 enum
@@ -111,7 +111,7 @@ void stella_process(void);
 uint8_t stella_getValue(const uint8_t channel);
 void stella_setValue(const enum stella_set_function func, const uint8_t channel, const uint8_t value);
 void stella_setFadestep(const uint8_t fadestep);
-uint8_t stella_getFadestep();
+uint8_t stella_getFadestep(void);
 
 void stella_loadFromEEROM(void);
 void stella_loadFromEEROMFading(void);
