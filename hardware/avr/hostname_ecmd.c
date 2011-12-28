@@ -25,10 +25,11 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
-int16_t parse_cmd_hostname(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_hostname(char *cmd, char *output, uint16_t len)
 {
-    (void) cmd;
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("" CONF_HOSTNAME )));
+  (void) cmd;
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("" CONF_HOSTNAME)));
 }
 
 /*
