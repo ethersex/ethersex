@@ -1,6 +1,6 @@
 #!/bin/sh
 
-INDENTOPTS="-nbad -sc -nut -nbad -bli0 -blf -cbi0 -cli2 -npcs -nbbo"
+INDENTOPTS="-nbad -sc -nut -bli0 -blf -cbi0 -cli2 -npcs -nbbo"
 
 if test $# -eq 0; then
   echo "usage: $0 [file] [directory]"
