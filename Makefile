@@ -405,11 +405,10 @@ endif
 
 ##############################################################################
 # reformat source code
-indent: INDENT_ARGS=-nbad -sc -nut -nbad -bli0 -blf -cbi0 -cli2 -npcs -nbbo
+indent: INDENTCMD=indent -nbad -sc -nut -nbad -bli0 -blf -cbi0 -cli2 -npcs -nbbo
 indent:
-	@find . $(SUBDIRS) -maxdepth 1 -name "*.[ch]" | while read f; do \
-	  indent $(INDENT_ARGS) "$$f"; \
-	  git checkout "$$f"; \
+	@find . $(SUBDIRS) -maxdepth 1 -name "*.[ch]" | egrep -v "(ir.*_lib)" | while read f; do \
+	  $(INDENTCMD) "$$f"; \
 	done
 
 .PHONY: indent

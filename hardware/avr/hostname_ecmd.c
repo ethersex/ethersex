@@ -21,30 +21,18 @@
 
 #include <stdio.h>
 #include <avr/pgmspace.h>
+#include "config.h"
 
-#include "pinning.c"
 #include "protocols/ecmd/ecmd-base.h"
 
-int16_t parse_cmd_fuse(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_hostname(char *cmd, char *output, uint16_t len)
 {
-    (void) cmd;
-#ifdef _SPMCR
-    _SPMCR = 1<<BLBSET | 1<<SPMEN;
-    uint8_t lo = pgm_read_byte(0);
-    _SPMCR = 1<<BLBSET | 1<<SPMEN;
-    uint8_t hi = pgm_read_byte(3);
-    _SPMCR = 1<<BLBSET | 1<<SPMEN;
-    uint8_t ex = pgm_read_byte(2);
-    _SPMCR = 1<<BLBSET | 1<<SPMEN;
-    uint8_t lock = pgm_read_byte(1);
-
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("Fuses: low=%02X high=%02X ex=%02X lock=%02X"), lo, hi, ex, lock));
-#else
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("Fuses: unsupported")));
-#endif
+  (void) cmd;
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("" CONF_HOSTNAME)));
 }
 
 /*
   -- Ethersex META --
-  ecmd_feature(fuse, "fuse",,Display current fuse settings)
+  ecmd_feature(hostname, "hostname",,Display hostname.)
 */
