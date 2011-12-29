@@ -24,8 +24,8 @@
 
 #include <avr/io.h>
 
-#define MAX_OVERFLOW          65535UL	/* timer1 max value */
-#define HZ                    50	/* 20ms */
+#define MAX_OVERFLOW          65535UL   /* timer1 max value */
+#define HZ                    50        /* 20ms */
 #if (F_CPU/256) < MAX_OVERFLOW
 #define CLOCK_PRESCALER       256UL
 #define CLOCK_SET_PRESCALER   TC1_PRESCALER_256
@@ -42,7 +42,7 @@
 extern uint8_t milliticks;
 
 /* initialize hardware timer */
-void periodic_init (void);
+void periodic_init(void);
 
 void timer_expired(void);
 
