@@ -64,7 +64,7 @@ void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_u
   SERRAMDEBUG ("read\n");
 
   /* Acquire device */
-  PIN_CLEAR(SPI_CS_HARDWARE);
+  PIN_CLEAR(SPI_CS_23K256);
 
   /* send command & address */
   spi_send(SRAM_23K256_READ);
@@ -77,7 +77,7 @@ void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_u
   }
 
   /* Release device */
-  PIN_SET(SPI_CS_HARDWARE);
+  PIN_SET(SPI_CS_23K256);
 }
 
 /**
@@ -97,7 +97,7 @@ void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_
   SERRAMDEBUG ("write\n");
 
   /* Acquire device */
-  PIN_CLEAR(SPI_CS_HARDWARE);
+  PIN_CLEAR(SPI_CS_23K256);
 
   /* send command & address */
   spi_send(SRAM_23K256_WRITE);
@@ -110,7 +110,7 @@ void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_
   }
 
   /* Release device */
-  PIN_SET(SPI_CS_HARDWARE);
+  PIN_SET(SPI_CS_23K256);
 }
 
 /**
@@ -135,19 +135,19 @@ int16_t sram23k256_init(void)
   SERRAMDEBUG ("init\n");
 
   /* Acquire device */
-  PIN_CLEAR(SPI_CS_HARDWARE);
+  PIN_CLEAR(SPI_CS_23K256);
 
   /* send command & configuration byte (do not use HOLD, Sequential access) */
   spi_send(SRAM_23K256_WRSR);
   spi_send(SRAM_23K256_HOLD|SRAM_23K256_MODE_SEQ);
 
   /* Release device */
-  PIN_SET(SPI_CS_HARDWARE);
+  PIN_SET(SPI_CS_23K256);
 
 #ifdef SER_RAM_23K256_RAMTEST
 
   /* Acquire device */
-  PIN_CLEAR(SPI_CS_HARDWARE);
+  PIN_CLEAR(SPI_CS_23K256);
 
   /* Send command & start address (0) */
   spi_send(SRAM_23K256_WRITE);
@@ -161,10 +161,10 @@ int16_t sram23k256_init(void)
     data++;
   }
   /* Release device */
-  PIN_SET(SPI_CS_HARDWARE);
+  PIN_SET(SPI_CS_23K256);
 
   /* Acquire device */
-  PIN_CLEAR(SPI_CS_HARDWARE);
+  PIN_CLEAR(SPI_CS_23K256);
 
   /* Send command & start address (0) */
   spi_send(SRAM_23K256_READ);
@@ -185,7 +185,7 @@ int16_t sram23k256_init(void)
   }
 
   /* Release device */
-  PIN_SET(SPI_CS_HARDWARE);
+  PIN_SET(SPI_CS_23K256);
 
   if (true == fail)
   {
@@ -198,7 +198,7 @@ int16_t sram23k256_init(void)
 #endif
 
   /* Acquire device */
-  PIN_CLEAR(SPI_CS_HARDWARE);
+  PIN_CLEAR(SPI_CS_23K256);
 
   /* Send command & start address (0) */
   spi_send(SRAM_23K256_WRITE);
@@ -212,7 +212,7 @@ int16_t sram23k256_init(void)
   }
 
   /* Release device */
-  PIN_SET(SPI_CS_HARDWARE);
+  PIN_SET(SPI_CS_23K256);
 
   return ECMD_FINAL_OK;
 }
