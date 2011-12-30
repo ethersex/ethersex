@@ -20,35 +20,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
+
 #include <stdint.h>
 #include "core/global.h"
+#include "protocols/uip/uip.h"
 #include "protocols/ecmd/ecmd-base.h"
 
-int16_t parse_cmd_reset(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_reset(char *cmd, char *output, uint16_t len)
 {
-    (void) output;
-    (void) len;
+  (void) output;
+  (void) len;
 
-    if (*cmd != '\0')
-	    return ECMD_ERR_PARSE_ERROR;
+  if (*cmd != '\0')
+    return ECMD_ERR_PARSE_ERROR;
 
-    status.request_reset = 1;
+  status.request_reset = 1;
 #ifdef UIP_SUPPORT
-    uip_close();
+  uip_close();
 #endif
-    return ECMD_FINAL_OK;
+  return ECMD_FINAL_OK;
 }
 
 
 #ifndef TEENSY_SUPPORT
 
-int16_t parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_wdreset(char *cmd, char *output, uint16_t len)
 {
-    status.request_wdreset = 1;
+  status.request_wdreset = 1;
 #ifdef UIP_SUPPORT
-    uip_close();
+  uip_close();
 #endif
-    return ECMD_FINAL_OK;
+  return ECMD_FINAL_OK;
 }
 
 #endif

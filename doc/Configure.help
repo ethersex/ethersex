@@ -2294,23 +2294,6 @@ DMX_STORAGE_SUPPORT
 
   DMX Storage stores and manages DMX universes and provides routines for accessing the data with other modules.
   Each of these modules can connect using a slot - so make sure that you have sufficient slots for each universe and each module!
-DMX Effect
-DMX_EFFECT_SUPPORT
-  Dependes on:
-   * DMX Storage (DMX_STORAGE_SUPPORT)
-
-  Part of the Ethersex Lighting Architecture
-
-  DMX Effect creates animations and effects for
-  headless setups or currently not animated devices
-DMX_EFFECT_RAINBOW
-  
-  Nice color changing (smooth) animation.
-
-DMX_EFFECT_RAINBOW_MARGIN
-  If your DMX device or application needs a certain value between the channel values (e.g. mode, speed etc.) you can set the margin length here
-DMX_EFFECT_RAINBOW_MARGIN_FILL
-  If your DMX device or application needs a certain value between the channel values (e.g. mode, speed etc.) you can set the value here
 STARBURST_SUPPORT
   Depends on:
    * DMX Storage (DMX_STORAGE_SUPPORT)
@@ -2472,3 +2455,14 @@ DMX_FX_FIRE
   Tip: use with speed 2
 DMX_FX_WATER
   not implemented yet
+
+Autosave slots
+DMX_FXSLOT_AUTOSAVE_SUPPORT
+
+  If enabled, the fxslots will be saved to EEPROM whenever altered through ECMD.
+
+Automatically restore slots
+DMX_FXSLOT_AUTORESTORE_SUPPORT
+
+  If enabled, ethersex will restore previously saved fxslots from EEPROM during boot.
+

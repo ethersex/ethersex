@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2011 by Jonas Eickhoff <jonas02401@googlemail.com>
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -46,8 +47,8 @@ int16_t parse_cmd_dmx_fxslot_effect(char *cmd, char *output, uint16_t len)
 			case 3:
 				if(fxslot[fxslot_number].effect!=effect)              //inits effect on fxslot everytime effect is changed
 				{   
-					dmx_fxslot_init(fxslot_number,effect);
 					fxslot[fxslot_number].effect=effect;       
+					dmx_fxslot_init(fxslot_number);
 				}
 
 			case 2:
@@ -59,6 +60,9 @@ int16_t parse_cmd_dmx_fxslot_effect(char *cmd, char *output, uint16_t len)
 				return ECMD_ERR_PARSE_ERROR;
 
 		}  	    
+#ifdef DMX_FXSLOT_AUTOSAVE_SUPPORT
+		dmx_fxslot_save();
+#endif
 		return ECMD_FINAL_OK;
 	}
 	else
@@ -84,12 +88,33 @@ int16_t parse_cmd_dmx_fxslot_setdevices(char *cmd, char *output, uint16_t len)
 		fxslot[fxslot_number].startchannel=channel;   
 		fxslot[fxslot_number].devices=devices;
 		fxslot[fxslot_number].margin=margin;
+#ifdef DMX_FXSLOT_AUTOSAVE_SUPPORT
+		dmx_fxslot_save();
+#endif
 		return ECMD_FINAL_OK;
 	}
 	else
 		return ECMD_ERR_PARSE_ERROR;
 }
 
+int16_t parse_cmd_dmx_fxslot_save(char *cmd, char *output, uint16_t len)
+{
+		dmx_fxslot_save();
+		return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_dmx_fxslot_reset(char *cmd, char *output, uint16_t len)
+{
+		memset(fxslot, 0, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct));
+		dmx_fxslot_save();
+		return ECMD_FINAL_OK;
+}
+
+int16_t parse_cmd_dmx_fxslot_restore(char *cmd, char *output, uint16_t len)
+{
+		dmx_fxslot_restore();
+		return ECMD_FINAL_OK;
+}
 
 #endif
 /*
@@ -97,5 +122,7 @@ int16_t parse_cmd_dmx_fxslot_setdevices(char *cmd, char *output, uint16_t len)
    block([[DMX_FXSlot]] commands)
    ecmd_feature(dmx_fxslot_effect, "dmx fxslot effect",,set the effect settings)
    ecmd_feature(dmx_fxslot_setdevices, "dmx fxslot devices",,set the device settings) 
+   ecmd_feature(dmx_fxslot_save, "dmx fxslot save",,save the current fxslots to EEPROM)
+   ecmd_feature(dmx_fxslot_reset, "dmx fxslot reset",,reset all fxslots and clear saved ones in EEPROM)
+   ecmd_feature(dmx_fxslot_restore, "dmx fxslot restore",,restore the settings from EEPROM)
  */
-

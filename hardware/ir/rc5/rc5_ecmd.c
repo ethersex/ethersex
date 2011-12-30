@@ -32,62 +32,62 @@
 
 
 int16_t
-parse_cmd_ir_send (char *cmd, char *output, uint16_t len)
+parse_cmd_ir_send(char *cmd, char *output, uint16_t len)
 {
   int16_t ret;
 
   uint16_t addr, command;
 
-  ret = sscanf_P (cmd, PSTR ("%d %d"), &addr, &command);
+  ret = sscanf_P(cmd, PSTR("%d %d"), &addr, &command);
 
 #ifdef DEBUG_ECMD_RC5
-  debug_printf ("sending ir: device %d, command %d\n", addr, command);
+  debug_printf("sending ir: device %d, command %d\n", addr, command);
 #endif
 
   /* check if two values have been given */
   if (ret != 2)
     return ECMD_ERR_PARSE_ERROR;
 
-  rc5_send (LO8 (addr), LO8 (command));
+  rc5_send(LO8(addr), LO8(command));
   return ECMD_FINAL_OK;
 
 }
 
 int16_t
-parse_cmd_ir_receive (char *cmd, char *output, uint16_t len)
+parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
 {
   char *s = output;
   uint8_t l = 0;
   uint8_t outlen = 0;
 
 #ifdef DEBUG_ECMD_RC5
-  debug_printf ("%u positions in queue\n", rc5_global.len);
+  debug_printf("%u positions in queue\n", rc5_global.len);
 #endif
 
   while (l < rc5_global.len && (uint8_t) (outlen + 5) < len)
-    {
+  {
 #ifdef DEBUG_ECMD_RC5
-      debug_printf ("generating for pos %u: %02u/%02u", l,
-		    rc5_global.queue[l].address, rc5_global.queue[l].code);
+    debug_printf("generating for pos %u: %02u/%02u", l,
+                 rc5_global.queue[l].address, rc5_global.queue[l].code);
 #endif
 
-      sprintf_P (s, PSTR ("%02u%02u\n"),
-		 rc5_global.queue[l].address, rc5_global.queue[l].code);
+    sprintf_P(s, PSTR("%02u%02u\n"),
+              rc5_global.queue[l].address, rc5_global.queue[l].code);
 
-      s += 5;
-      outlen += 5;
-      l++;
+    s += 5;
+    outlen += 5;
+    l++;
 
 #ifdef DEBUG_ECMD_RC5
-      *s = '\0';
-      debug_printf ("output is \"%s\"\n", output);
+    *s = '\0';
+    debug_printf("output is \"%s\"\n", output);
 #endif
-    }
+  }
 
   /* clear queue */
   rc5_global.len = 0;
 
-  return ECMD_FINAL (outlen);
+  return ECMD_FINAL(outlen);
 }
 
 /*

@@ -27,54 +27,54 @@
 #ifdef STELLA_SUPPORT
 
 #ifdef STELLA_PINS_PORT2
-	#define STELLA_PORT_COUNT 2
-	#define STELLA_CHANNELS STELLA_PINS_PORT1+STELLA_PINS_PORT2
+#define STELLA_PORT_COUNT 2
+#define STELLA_CHANNELS STELLA_PINS_PORT1+STELLA_PINS_PORT2
 #else
-	#define STELLA_PORT_COUNT 1
-	#define STELLA_CHANNELS STELLA_PINS_PORT1
+#define STELLA_PORT_COUNT 1
+#define STELLA_CHANNELS STELLA_PINS_PORT1
 #endif
 
-enum stella_set_function
+typedef enum
 {
   STELLA_SET_IMMEDIATELY,
   STELLA_SET_FADE,
   STELLA_SET_FLASHY,
   STELLA_SET_IMMEDIATELY_RELATIVE,
   STELLA_GETALL = 255
-};
+} stella_set_function_e;
 
 enum
 {
-	STELLA_FADE_NORMAL,
-	STELLA_FADE_FLASHY,
-	FADE_FUNC_LEN
+  STELLA_FADE_NORMAL,
+  STELLA_FADE_FLASHY,
+  FADE_FUNC_LEN
 };
 
-enum stella_update_sync
+typedef enum
 {
-	NOTHING_NEW,
-	NEW_VALUES,
-	UPDATE_VALUES
-};
+  NOTHING_NEW,
+  NEW_VALUES,
+  UPDATE_VALUES
+} stella_update_sync_e;
 
-struct stella_output_channels_struct
+typedef struct stella_output_channels_struct
 {
-	uint8_t channel_count;
-	uint8_t pwm_channels[STELLA_CHANNELS];
-};
+  uint8_t channel_count;
+  uint8_t pwm_channels[STELLA_CHANNELS];
+} stella_output_channels_struct_s;
 
-struct stella_port_with_portmask
+typedef struct stella_port_with_portmask
 {
-	volatile uint8_t* port;
-	uint8_t mask;
-};
+  volatile uint8_t *port;
+  uint8_t mask;
+} stella_port_with_portmask_s;
 
-struct stella_timetable_entry
+typedef struct stella_timetable_entry
 {
-	uint8_t value;
-	struct stella_port_with_portmask port;
-	struct stella_timetable_entry* next;
-};
+  uint8_t value;
+  stella_port_with_portmask_s port;
+  struct stella_timetable_entry *next;
+} stella_timetable_entry_s;
 
 #if STELLA_FADE_FUNCTION_INIT == stella_fade_func_0
 #undef STELLA_FADE_FUNCTION_INIT
@@ -84,18 +84,18 @@ struct stella_timetable_entry
 #define STELLA_FADE_FUNCTION_INIT 1
 #endif
 
-struct stella_timetable_struct
+typedef struct stella_timetable_struct
 {
-	struct stella_timetable_entry channel[STELLA_CHANNELS];
-	struct stella_timetable_entry* head;
-	struct stella_port_with_portmask port[STELLA_PORT_COUNT];
-};
+  stella_timetable_entry_s channel[STELLA_CHANNELS];
+  stella_timetable_entry_s *head;
+  stella_port_with_portmask_s port[STELLA_PORT_COUNT];
+} stella_timetable_struct_s;
 
-extern struct stella_timetable_struct* int_table;
-extern struct stella_timetable_struct* cal_table;
+extern struct stella_timetable_struct *int_table;
+extern struct stella_timetable_struct *cal_table;
 
 /* to update i_* variables with their counterparts */
-extern volatile enum stella_update_sync stella_sync;
+extern volatile stella_update_sync_e stella_sync;
 extern volatile uint8_t stella_fade_counter;
 
 extern uint8_t stella_portmask[STELLA_PORT_COUNT];
@@ -104,21 +104,23 @@ extern uint8_t stella_fade_func;
 
 extern uint8_t stella_brightness[STELLA_CHANNELS];
 extern uint8_t stella_fade[STELLA_CHANNELS];
+
 /* stella.c */
 void stella_init(void);
 void stella_process(void);
 
 uint8_t stella_getValue(const uint8_t channel);
-void stella_setValue(const enum stella_set_function func, const uint8_t channel, const uint8_t value);
+void stella_setValue(const stella_set_function_e func,
+                     const uint8_t channel, const uint8_t value);
 void stella_setFadestep(const uint8_t fadestep);
-uint8_t stella_getFadestep();
+uint8_t stella_getFadestep(void);
 
 void stella_loadFromEEROM(void);
 void stella_loadFromEEROMFading(void);
 void stella_storeToEEROM(void);
 
-uint8_t stella_output_channels(void* target);
+uint8_t stella_output_channels(void *target);
 
-#endif  /* STELLA_SUPPORT */
+#endif /* STELLA_SUPPORT */
 
 #endif /* STELLA_H */
