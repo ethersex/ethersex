@@ -105,16 +105,13 @@ ISR(usart(USART,_RX_vect))
     }
     else
     {
+      uint8_t v = usart(UDR);
       if (yport_recv_buffer.len < YPORT_BUFFER_LEN)
-        yport_recv_buffer.data[yport_recv_buffer.len++] = usart(UDR);
-      else
-      {
+        yport_recv_buffer.data[yport_recv_buffer.len++] = v;
 #ifdef DEBUG_YPORT
-
+      else
         yport_rx_bufferfull++;
 #endif
-        break;
-      }
     }
   }
 }
