@@ -113,7 +113,8 @@ ISR(usart(USART,_RX_vect))
 
         yport_rx_bufferfull++;
 #endif
-        break;
+        uint8_t v = usart(UDR);
+        (void) v;
       }
     }
   }
