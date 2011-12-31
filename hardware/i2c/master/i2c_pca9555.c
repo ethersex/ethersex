@@ -189,13 +189,13 @@ uint8_t i2c_pca9555_writeByte(uint8_t addrOffset, uint8_t reg, uint8_t value)
   if (1 == result)
   {
     TWDR = reg;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 0 : 1;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
   }
 
   if (1 == result)
   {
     TWDR = value;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 0 : 1;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
   }
 
 #ifdef DEBUG_I2C
