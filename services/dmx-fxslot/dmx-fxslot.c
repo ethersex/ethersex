@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2011 by Jonas Eickhoff <jonas02401@googlemail.com>
+ * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,6 +25,7 @@
    headless setups or currently not animated devices */
 #include <avr/pgmspace.h>
 #include <stdlib.h>
+#include "core/eeprom.h"
 #include "core/debug.h"
 #include "dmx-fxslot.h"
 #include "services/dmx-storage/dmx_storage.h"
@@ -94,16 +96,53 @@ void dmx_fx_firesimulation(uint8_t fxslot_number)
 #ifdef DMX_FX_WATER 
 void dmx_fx_watersimulation(uint8_t fxslot_number)
 {
+	/* Blue */
+	if(fxslot[fxslot_number].effect_variable[0] == 0 && fxslot[fxslot_number].effect_variable[1] == 0)
+	{
+		if(rand()%2)
+			fxslot[fxslot_number].effect_variable[3] = 1; /* We will add some red */
+		else
+			fxslot[fxslot_number].effect_variable[3] = 2; /* We will add some green */
+	}
+	/* As red as it will get..*/
+	if(fxslot[fxslot_number].effect_variable[0] == 21)
+		fxslot[fxslot_number].effect_variable[3] = 3; /* Decrease red, return to blue */
+	/* As green as it will get..*/
+	if(fxslot[fxslot_number].effect_variable[1] == 170)
+		fxslot[fxslot_number].effect_variable[3] = 4; /* Decrease green, return to blue */
 
+	if(fxslot[fxslot_number].effect_variable[3] == 1)
+		fxslot[fxslot_number].effect_variable[0]++;
+	if(fxslot[fxslot_number].effect_variable[3] == 2)
+		fxslot[fxslot_number].effect_variable[1]++;
+	if(fxslot[fxslot_number].effect_variable[3] == 3)
+		fxslot[fxslot_number].effect_variable[0]--;
+	if(fxslot[fxslot_number].effect_variable[3] == 4)
+		fxslot[fxslot_number].effect_variable[1]--;
+
+	uint8_t brightness=rand()%5;
+
+	if(fxslot[fxslot_number].effect_variable[0]-brightness >= 0)
+		fxslot[fxslot_number].device_channel[0]=fxslot[fxslot_number].effect_variable[0]-brightness;
+	else
+		fxslot[fxslot_number].device_channel[0]=0;
+	if(fxslot[fxslot_number].effect_variable[1]-brightness >= 0)
+		fxslot[fxslot_number].device_channel[1]=fxslot[fxslot_number].effect_variable[1]-brightness;
+	else
+		fxslot[fxslot_number].device_channel[1]=0;
+	/* Blue is (for now) always 100% ; 255 */
+	fxslot[fxslot_number].device_channel[2]=fxslot[fxslot_number].effect_variable[2]-brightness;
+
+	dmx_fxslot_setchannels(fxslot_number);
 }
 #endif /*Water end*/
 
 
 
 
-void dmx_fxslot_init(uint8_t fxslot_number, uint8_t effect)
+void dmx_fxslot_init(uint8_t fxslot_number)
 { 
-	switch (effect)
+	switch (fxslot[fxslot_number].effect)
 	{
 		/*
 		   add new effect inits as new case: 
@@ -136,6 +175,11 @@ void dmx_fxslot_init(uint8_t fxslot_number, uint8_t effect)
 
 #ifdef DMX_FX_WATER
 		case DMX_FXLIST_WATERSIMULATION:         //Watersimulation init
+			fxslot[fxslot_number].max_device_channels=3;
+			fxslot[fxslot_number].effect_variable[0]=0;
+			fxslot[fxslot_number].effect_variable[1]=0;
+			fxslot[fxslot_number].effect_variable[2]=255;
+			fxslot[fxslot_number].effect_variable[3]=0;
 			break;
 #endif
 	}
@@ -200,10 +244,49 @@ void dmx_fxslot_setchannels(uint8_t fxslot_number)
 		act_channel=act_channel+fxslot[fxslot_number].margin;
 	}
 }
+void dmx_fxslot_restore()
+{
+	struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
+	eeprom_restore(dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+	//Stripped structs have been restored, now copy the values
+	for(uint8_t i=0;i<DMX_FXSLOT_AMOUNT;i++)
+	{
+		fxslot[i].active=fxslots_temp[i].active;
+		fxslot[i].effect=fxslots_temp[i].effect;
+		fxslot[i].speed=fxslots_temp[i].speed;
+		fxslot[i].startchannel=fxslots_temp[i].startchannel;
+		fxslot[i].universe=fxslots_temp[i].universe;
+		fxslot[i].devices=fxslots_temp[i].devices;
+		fxslot[i].margin=fxslots_temp[i].margin;
+		dmx_fxslot_init(i);
+	}
+
+}
+
+void dmx_fxslot_save()
+{
+	//Strip down channels to save space
+	struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
+	for(uint8_t i=0;i<DMX_FXSLOT_AMOUNT;i++)
+	{
+		fxslots_temp[i].active=fxslot[i].active;
+		fxslots_temp[i].effect=fxslot[i].effect;
+		fxslots_temp[i].speed=fxslot[i].speed;
+		fxslots_temp[i].startchannel=fxslot[i].startchannel;
+		fxslots_temp[i].universe=fxslot[i].universe;
+		fxslots_temp[i].devices=fxslot[i].devices;
+		fxslots_temp[i].margin=fxslot[i].margin;
+	}
+	//fxslots have been stripped, now save them
+	eeprom_save(dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+	eeprom_update_chksum ();
+}
 
 #endif
 /*
    -- Ethersex META --
    header(services/dmx-fxslot/dmx-fxslot.h)
    timer(2,dmx_fxslot_process())
+   init(dmx_fxslot_restore)
+   ifdef(`conf_DMX_FXSLOT_AUTORESTORE',`init(dmx_fxslot_restore)')
  */

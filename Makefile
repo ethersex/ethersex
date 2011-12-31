@@ -43,6 +43,7 @@ SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
 SUBDIRS += hardware/zacwire
 SUBDIRS += hardware/ultrasonic
+SUBDIRS += hardware/serial_ram/23k256
 SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
@@ -88,7 +89,6 @@ SUBDIRS += services/cron
 SUBDIRS += services/dyndns
 SUBDIRS += services/dmx-storage
 SUBDIRS += services/dmx-fxslot
-SUBDIRS += services/dmx-effect
 SUBDIRS += services/echo
 SUBDIRS += services/freqcount
 SUBDIRS += services/pam
@@ -120,9 +120,11 @@ ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),fullclean)
 ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)
+ifneq ($(MAKECMDGOALS),indent)
 
 include $(TOPDIR)/.config
 
+endif # MAKECMDGOALS!=indent
 endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=fullclean
 endif # MAKECMDGOALS!=mrproper
@@ -400,5 +402,19 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 	@echo Ethersex compiled successfully, ignore make error!
 	@false # stop compilation
 endif
+
+
+##############################################################################
+# reformat source code
+indent: INDENTCMD=indent -nbad -sc -nut -bli0 -blf -cbi0 -cli2 -npcs -nbbo
+indent:
+	@find . $(SUBDIRS) -maxdepth 1 -name "*.[ch]" | \
+	 egrep -v "(ir.*_lib|core/crypto)" | \
+	 while read f; do \
+	  $(INDENTCMD) "$$f"; \
+	done
+
+.PHONY: indent
+
 
 include $(TOPDIR)/scripts/depend.mk

@@ -1,10 +1,9 @@
 /*
- *
- * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
+ * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,26 +18,21 @@
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
  */
+
+#include <stdio.h>
+#include <avr/pgmspace.h>
 #include "config.h"
-#include <stdlib.h>
 
-#ifdef DMX_EFFECT_SUPPORT
+#include "protocols/ecmd/ecmd-base.h"
 
-#define DMX_EFFECT_DISABLED 0
-#define DMX_EFFECT_ENABLED 1
+int16_t
+parse_cmd_hostname(char *cmd, char *output, uint16_t len)
+{
+  (void) cmd;
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("" CONF_HOSTNAME)));
+}
 
-#ifdef DMX_EFFECT_RAINBOW
-extern uint8_t rainbow_enabled;
-
-void dmx_effect_rainbow_colors(void);
-#endif
-#ifdef DMX_EFFECT_RANDOM
-extern uint8_t random_enabled;
-void dmx_effecT_random_colors_gen(void);
-void dmx_effecT_random_colors_show(void);
-#endif
-
-void dmx_effect_init(void);
-void dmx_effect_process(void);
-
-#endif
+/*
+  -- Ethersex META --
+  ecmd_feature(hostname, "hostname",,Display hostname.)
+*/

@@ -23,38 +23,39 @@
 #define STELLA_FADING_FUNCTIONS_H
 
 static void
-stella_fade_normal (int i)
+stella_fade_normal(int i)
 {
-	if (stella_brightness[i] > stella_fade[i])
-		stella_brightness[i]--;
-	else /* stella_color[i] < stella_fade[i] */
-		stella_brightness[i]++;
+  if (stella_brightness[i] > stella_fade[i])
+    stella_brightness[i]--;
+  else                          /* stella_color[i] < stella_fade[i] */
+    stella_brightness[i]++;
 }
 
 
 static void
-stella_fade_flashy (int i)
+stella_fade_flashy(int i)
 {
-	/* local copies, access>=3 times */
-	uint8_t current = stella_brightness[i];
-	uint8_t target = stella_fade[i];
+  /* local copies, access>=3 times */
+  uint8_t current = stella_brightness[i];
+  uint8_t target = stella_fade[i];
 
-	if (current > target) target <<= 1;
-	if (current < target) current = target;
+  if (current > target)
+    target <<= 1;
+  if (current < target)
+    current = target;
 
-	stella_brightness[i] = current;
+  stella_brightness[i] = current;
 }
 
 
 struct fadefunc_struct
 {
-	void (* p) (int i);
+  void (*p) (int i);
 };
 
-static struct fadefunc_struct stella_fade_funcs[FADE_FUNC_LEN] =
-{
-	{ stella_fade_normal },
-	{ stella_fade_flashy },
+static struct fadefunc_struct stella_fade_funcs[FADE_FUNC_LEN] = {
+  {stella_fade_normal},
+  {stella_fade_flashy},
 };
 
 #endif /* STELLA_FADING_FUNCTIONS_H */

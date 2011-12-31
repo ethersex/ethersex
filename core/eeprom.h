@@ -49,6 +49,10 @@
 #include "services/motd/motd.h"
 #endif
 
+#ifdef DMX_FXSLOT_SUPPORT
+#include "services/dmx-fxslot/dmx-fxslot.h"
+#endif
+
 struct eeprom_config_t
 {
 #ifdef ETHERNET_SUPPORT
@@ -104,6 +108,9 @@ struct eeprom_config_t
   char motd_text[MOTD_VALUESIZE];
 #endif
 
+#ifdef DMX_FXSLOT_SUPPORT
+  struct fxslot_struct_stripped dmx_fxslots[DMX_FXSLOT_AMOUNT];
+#endif
   uint8_t crc;
 };
 

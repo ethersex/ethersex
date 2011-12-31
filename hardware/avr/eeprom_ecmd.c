@@ -29,63 +29,66 @@
 
 #define eeprom_start (sizeof(struct eeprom_config_t))
 
-int16_t parse_cmd_eer(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_eer(char *cmd, char *output, uint16_t len)
 {
-    uint16_t addr_offset, length;
+  uint16_t addr_offset, length;
 
-    uint8_t p = next_uint16(cmd, &addr_offset);
-    if (p == 0)
-        return ECMD_ERR_PARSE_ERROR;
+  uint8_t p = next_uint16(cmd, &addr_offset);
+  if (p == 0)
+    return ECMD_ERR_PARSE_ERROR;
 
-    p = next_uint16(cmd + p, &length);
-    if (p == 0) 
-        length = 1;
+  p = next_uint16(cmd + p, &length);
+  if (p == 0)
+    length = 1;
 
-    if (length * 2 >= len)
-        length = len / 2;
+  if (length * 2 >= len)
+    length = len / 2;
 
-    if (0xffff - eeprom_start - length < addr_offset)
-        return ECMD_ERR_PARSE_ERROR;
-    
-    uint16_t ptr = eeprom_start + addr_offset;
-    for (uint16_t i = 0; i < length; i ++)
-      sprintf_P (output + (i << 1), PSTR("%02x"), 
-                 eeprom_read_byte((uint8_t *) (ptr ++)));
-    
-    return ECMD_FINAL(length * 2);
+  if (0xffff - eeprom_start - length < addr_offset)
+    return ECMD_ERR_PARSE_ERROR;
+
+  uint16_t ptr = eeprom_start + addr_offset;
+  for (uint16_t i = 0; i < length; i++)
+    sprintf_P(output + (i << 1), PSTR("%02x"),
+              eeprom_read_byte((uint8_t *) (ptr++)));
+
+  return ECMD_FINAL(length * 2);
 }
 
 
 
-int16_t parse_cmd_eew(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_eew(char *cmd, char *output, uint16_t len)
 {
-    uint16_t addr_offset;
+  uint16_t addr_offset;
 
-    uint8_t p = next_uint16(cmd, &addr_offset);
-    if (p == 0)
-        return ECMD_ERR_PARSE_ERROR;
+  uint8_t p = next_uint16(cmd, &addr_offset);
+  if (p == 0)
+    return ECMD_ERR_PARSE_ERROR;
 
+  cmd += p;
+
+  uint16_t ptr = eeprom_start + addr_offset;
+  char *cmd_end = cmd + strlen(cmd);
+
+  uint8_t i = 0;
+  while (cmd < cmd_end)
+  {
+    if (ptr < eeprom_start)
+      return ECMD_ERR_PARSE_ERROR;
+
+    /* Read the next hex byte */
+    uint8_t value;
+    if (!(p = next_hexbyte(cmd, &value)))
+      return sprintf(output, "%d hexbyte '%x'", i, value);
     cmd += p;
-    
-    uint16_t ptr = eeprom_start + addr_offset;
-    char *cmd_end = cmd + strlen(cmd);
 
-    uint8_t i = 0;
-    while (cmd < cmd_end) {
-        if (ptr < eeprom_start) 
-            return ECMD_ERR_PARSE_ERROR;
+    eeprom_write_byte((uint8_t *) (ptr++), value);
+    i++;
+  }
 
-        /* Read the next hex byte */
-        uint8_t value;
-        if (!(p = next_hexbyte(cmd, &value)))
-            return sprintf(output, "%d hexbyte '%x'", i, value);
-        cmd += p;
-
-        eeprom_write_byte((uint8_t *) (ptr ++), value);
-        i++;
-    }
-    
-    return ECMD_FINAL_OK;
+  return ECMD_FINAL_OK;
 }
 
 

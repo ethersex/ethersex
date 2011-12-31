@@ -1,16 +1,12 @@
 dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT $ARCH_AVR
-	if [ "$DMX_STORAGE_SUPPORT" = "y" ]; then
-		int "Stella DMX Universe" STELLA_UNIVERSE 1
-		int "Offset in Universe" STELLA_UNIVERSE_OFFSET 0
-	fi
-	choice 'Stella Fequency'			\
+	choice 'Stella Frequency'			\
 	    "Very_Slow stella_vslow	\
 	    Slow stella_slow	\
 	    Normal stella_normal	\
 	    Fast stella_fast"	\
 	    'Normal' STELLA_FREQ
 	bool "Low Interrupt Priority" STELLA_LOW_PRIORITY
-	comment  '----- Initial -----'
+	comment  '----- Startup settings -----'
 	if [ "$MOODLIGHT_SUPPORT" = "y" ]; then
 		choice 'Channels'			\
 		"0% stella_start_zero	\
@@ -30,5 +26,12 @@ dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT $ARCH_AVR
 	"Normal stella_fade_func_0	\
 	Flashy stella_fade_func_1"	\
 	'Normal' STELLA_FADE_FUNCTION_INIT
+	if [ "$DMX_STORAGE_SUPPORT" = "y" ]; then
+		comment  '----- DMX -----'
+		int "Stella DMX Universe" STELLA_UNIVERSE 1
+		int "Offset in Universe" STELLA_UNIVERSE_OFFSET 0
+	else
+		comment  '----- DMX not available (please enable DMX Storage) -----'
+	fi
 	dep_bool 'Debug' DEBUG_STELLA $DEBUG
 endmenu

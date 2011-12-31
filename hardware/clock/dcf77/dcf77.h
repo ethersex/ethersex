@@ -22,8 +22,8 @@
 #ifndef _DCF77_H
 #define _DCF77_H
 
-void dcf77_init (void);
-uint32_t dcf77_get_last_valid_timestamp (void);
-void dcf77_tick (void);
+void dcf77_init(void);
+uint32_t dcf77_get_last_valid_timestamp(void);
+void dcf77_tick(void);
 
 #endif /* _DCF77_H */
