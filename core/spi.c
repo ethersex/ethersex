@@ -40,6 +40,10 @@ void spi_init(void)
     PIN_SET(SPI_CS_NET);
 #endif
 
+#ifdef SER_RAM_23K256_SUPPORT
+    PIN_SET(SPI_CS_HARDWARE);
+#endif
+
 #ifdef RFM12_SUPPORT
     PIN_SET(SPI_CS_RFM12);
 #endif

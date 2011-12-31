@@ -39,7 +39,7 @@ extern volatile uint8_t newtick;
 uint8_t milliticks;
 
 void
-periodic_init (void)
+periodic_init(void)
 {
   CLOCK_SET_PRESCALER;
 #ifdef CLOCK_CPU_SUPPORT
@@ -52,7 +52,7 @@ periodic_init (void)
 #else
 #ifdef FREQCOUNT_SUPPORT
   /* init timer1 to run with full cpu frequency, normal mode, 
-     compare and overflow int active */
+   * compare and overflow int active */
   TC1_PRESCALER_1;
   freqcount_init();
   TC1_INT_COMPARE_ON;
@@ -63,15 +63,16 @@ periodic_init (void)
   TC1_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
   TC1_INT_COMPARE_ON;
 
-  NTPADJDEBUG ("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
+  NTPADJDEBUG("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
 #endif
 #endif
 }
 
 #ifdef FREQCOUNT_SUPPORT
-void timer_expired(void)
+void
+timer_expired(void)
 #else
-ISR (TC1_VECTOR_COMPARE)
+ISR(TC1_VECTOR_COMPARE)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT

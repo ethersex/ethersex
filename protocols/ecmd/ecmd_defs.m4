@@ -52,6 +52,11 @@ ecmd_ifdef(I2C_MAX7311_SUPPORT)
   ecmd_feature(i2c_max7311_set, "max7311 set", ADDR BIT VALUE, Set Output-BIT to VALUE (bool))
   ecmd_feature(i2c_max7311_pulse, "max7311 pulse", ADDR BIT TIME, Toggle Output-BIT for TIME (in ms))
 ecmd_endif
+ecmd_ifdef(I2C_PCA9555_SUPPORT)
+  ecmd_feature(i2c_pca9555_out, "i2c pca9555 out",VALUE,write word to register address on I2C chip)
+  ecmd_feature(i2c_pca9555_in, "i2c pca9555 in",,read word from register address on I2C chip)
+  ecmd_feature(i2c_pca9555_mode, "i2c pca9555 mode",VALUE,select input or output mode for pins on I2C chip)
+ecmd_endif
 
 block([[Blinkenlights_MCUF|MCUF]]) dnl ============================
 ecmd_ifdef(MCUF_SUPPORT)

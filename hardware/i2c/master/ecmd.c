@@ -38,6 +38,7 @@
 #include "hardware/i2c/master/i2c_pca9685.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 #include "hardware/i2c/master/i2c_max7311.h"
+#include "hardware/i2c/master/i2c_pca9555.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -61,6 +62,49 @@ int16_t parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
 }
 
 #endif  /* I2C_DETECT_SUPPORT */
+
+#ifdef I2C_PCA9555_SUPPORT
+int16_t parse_cmd_i2c_pca9555_out(char *cmd, char *output, uint16_t len)
+{
+	uint16_t data;
+	sscanf_P(cmd, PSTR("%u"), &data);
+
+	uint16_t ret = i2c_pca9555_writeOutPort(0, data);
+
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c pca9555 0x%02X"), ret));
+#else
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), ret));
+#endif
+}
+
+int16_t parse_cmd_i2c_pca9555_in(char *cmd, char *output, uint16_t len)
+{
+	uint16_t data = 0;
+
+	uint16_t ret = i2c_pca9555_readInPort(0, &data);
+
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c pca9555 0x%02X"), ret));
+#else
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), data));
+#endif
+}
+
+int16_t parse_cmd_i2c_pca9555_mode(char *cmd, char *output, uint16_t len)
+{
+	uint16_t data;
+	sscanf_P(cmd, PSTR("%u"), &data);
+
+	uint16_t ret = i2c_pca9555_setDDR(0, data);
+
+#ifdef ECMD_MIRROR_REQUEST
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("i2c pca9555 0x%02X"), ret));
+#else
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%02X"), ret));
+#endif
+}
+#endif
 
 #ifdef I2C_GENERIC_SUPPORT
 

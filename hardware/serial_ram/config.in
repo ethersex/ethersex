@@ -1,0 +1,3 @@
+dep_bool_menu "Serial RAM support" SER_RAM_SUPPORT
+	source hardware/serial_ram/23k256/config.in 
+endmenu

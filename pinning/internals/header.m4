@@ -238,17 +238,18 @@ pin(MOTORCURTAIN_PIN, format(`P%s%d', pinname, itr))
 
 define(`STELLA_USE_TIMER', `dnl
 
-/* Configure stella timer*/
-#define STELLA_PRESCALER   		format(_TCCR%s_PRESCALE, $1)
-#define STELLA_TIMSK       		_TIMSK_TIMER$1
-#define STELLA_CS0         		format(CS%s0, $1)
-#define STELLA_CS1         		format(CS%s1, $1)
-#define STELLA_CS2         		format(CS%s2, $1)
-#define STELLA_TOIE        		TOIE$1
-#define STELLA_COMPARE_IE  		_OUTPUT_COMPARE_IE$1
-#define STELLA_COMPARE_VECTOR	_VECTOR_OUTPUT_COMPARE$1
-#define STELLA_OVERFLOW_VECTOR  _VECTOR_OVERFLOW$1
-#define STELLA_COMPARE_REG 		_OUTPUT_COMPARE_REG$1
+/* Configure stella timer */
+#define STELLA_TC_PRESCALER_1024	format(TC%s_PRESCALER_1024, $1)
+#define STELLA_TC_PRESCALER_256		format(TC%s_PRESCALER_256, $1)
+#define STELLA_TC_PRESCALER_128		format(TC%s_PRESCALER_128, $1)
+#define STELLA_TC_PRESCALER_64		format(TC%s_PRESCALER_64, $1)
+#define STELLA_TC_INT_COMPARE_ON	format(TC%s_INT_COMPARE_ON, $1)
+#define STELLA_TC_INT_COMPARE_OFF	format(TC%s_INT_COMPARE_OFF, $1)
+#define STELLA_TC_INT_OVERFLOW_ON	format(TC%s_INT_OVERFLOW_ON, $1)
+#define STELLA_TC_INT_OVERFLOW_OFF	format(TC%s_INT_OVERFLOW_OFF, $1)
+#define STELLA_TC_VECTOR_COMPARE	format(TC%s_VECTOR_COMPARE, $1)
+#define STELLA_TC_VECTOR_OVERFLOW	format(TC%s_VECTOR_OVERFLOW, $1)
+#define STELLA_TC_COMPARE_REG 		format(TC%s_COUNTER_COMPARE, $1)
 ')
 
 

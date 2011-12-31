@@ -33,37 +33,39 @@
 #include "core/debug.h"
 #define ACCESS_IO(x) (*(volatile uint8_t *)(x))
 
-struct stella_timetable_entry* current = 0;
+stella_timetable_entry_s *current = 0;
 
 /* Use port mask to switch pins on if timetable says so and
  * set the next trigger point in time for the compare interrupt.
  * */
 #ifdef STELLA_LOW_PRIORITY
 // other interrupts can interrupt this ISR
-ISR(STELLA_COMPARE_VECTOR, ISR_NOBLOCK)
+ISR(STELLA_TC_VECTOR_COMPARE, ISR_NOBLOCK)
 {
-	// disable the interrupt we are in
-	// makes sure we don't interrupt ourselves
-	STELLA_TIMSK &= ~_BV(STELLA_COMPARE_IE);
+  // disable the interrupt we are in
+  // makes sure we don't interrupt ourselves
+  STELLA_TC_INT_COMPARE_OFF;
 #else
-ISR(STELLA_COMPARE_VECTOR)
+ISR(STELLA_TC_VECTOR_COMPARE)
 {
 #endif
-	// Activate all timetable entries for this timepoint
-	// We may have more than one for a certain timepoint, if ports in the timetable entries differ
-	while (current) {
-		ACCESS_IO(current->port.port) |= current->port.mask;
-		current = current->next;
+  // Activate all timetable entries for this timepoint
+  // We may have more than one for a certain timepoint, if ports in the timetable entries differ
+  while (current)
+  {
+    ACCESS_IO(current->port.port) |= current->port.mask;
+    current = current->next;
 
-		if (current && STELLA_COMPARE_REG != current->value) {
-			STELLA_COMPARE_REG = current->value;
-			break;
-		}
-	}
+    if (current && STELLA_TC_COMPARE_REG != current->value)
+    {
+      STELLA_TC_COMPARE_REG = current->value;
+      break;
+    }
+  }
 
 #ifdef STELLA_LOW_PRIORITY
-	// enable our interrupt again
-	STELLA_TIMSK |= _BV(STELLA_COMPARE_IE);
+  // enable our interrupt again
+  STELLA_TC_INT_COMPARE_ON;
 #endif
 }
 
@@ -72,43 +74,46 @@ ISR(STELLA_COMPARE_VECTOR)
 
 #ifdef STELLA_LOW_PRIORITY
 // other interrupts can interrupt this ISR
-ISR(STELLA_OVERFLOW_VECTOR, ISR_NOBLOCK)
+ISR(STELLA_TC_VECTOR_OVERFLOW, ISR_NOBLOCK)
 {
-	// disable the interrupt we are in
-	// makes sure we don't interrupt ourselves
-	STELLA_TIMSK &= ~_BV(STELLA_TOIE);
+  // disable the interrupt we are in
+  // makes sure we don't interrupt ourselves
+  STELLA_TC_INT_OVERFLOW_OFF;
 #else
-ISR(STELLA_OVERFLOW_VECTOR)
+ISR(STELLA_TC_VECTOR_OVERFLOW)
 {
 #endif
-	/* if new values are available, work with them */
-	if(stella_sync == NEW_VALUES)
-	{
-		// swap pointer
-		struct stella_timetable_struct* temp = int_table;
-		int_table = cal_table;
-		cal_table = temp;
+  /* if new values are available, work with them */
+  if (stella_sync == NEW_VALUES)
+  {
+    // swap pointer
+    struct stella_timetable_struct *temp = int_table;
+    int_table = cal_table;
+    cal_table = temp;
 
-		// reset update flag
-		stella_sync = NOTHING_NEW;
-	}
+    // reset update flag
+    stella_sync = NOTHING_NEW;
+  }
 
-	/* count down the fade_timer counter. If zero, we process
-    * stella_process from ethersex main */
-	if (stella_fade_counter) stella_fade_counter--;
+  /* count down the fade_timer counter. If zero, we process
+   * stella_process from ethersex main */
+  if (stella_fade_counter)
+    stella_fade_counter--;
 
-	/* Start the next pwm round */
-	current = int_table->head;
+  /* Start the next pwm round */
+  current = int_table->head;
 
-	/* Leave all non-stella-pins the same and activate pins used by the first timetable entry. */
-	for (uint8_t i=0;i<STELLA_PORT_COUNT;++i)
-		ACCESS_IO(int_table->port[i].port) = (ACCESS_IO(int_table->port[i].port) & ~(uint8_t)stella_portmask[i]) | int_table->port[i].mask;
+  /* Leave all non-stella-pins the same and activate pins used by the first timetable entry. */
+  for (uint8_t i = 0; i < STELLA_PORT_COUNT; ++i)
+    ACCESS_IO(int_table->port[i].port) =
+      (ACCESS_IO(int_table->port[i].port) & ~(uint8_t) stella_portmask[i]) |
+      int_table->port[i].mask;
 
-	if (current)
-		STELLA_COMPARE_REG = current->value;
+  if (current)
+    STELLA_TC_COMPARE_REG = current->value;
 
 #ifdef STELLA_LOW_PRIORITY
-	// enable our interrupt again
-	STELLA_TIMSK |= _BV(STELLA_TOIE);
+  // enable our interrupt again
+  STELLA_TC_INT_OVERFLOW_ON;
 #endif
 }
