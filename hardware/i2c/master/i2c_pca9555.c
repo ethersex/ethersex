@@ -58,10 +58,17 @@ uint8_t i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t* 
     result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
   }
 
-  /* Address the chip for reading */
   if (1 == result)
   {
-    result = i2c_master_select(I2C_SLA_PCA9555 + addrOffset_ui8, TW_READ);
+    /* Make a repeated start */
+    result = (i2c_master_start() == TW_REP_START) ? 1 : 0;
+
+    if (1 == result)
+    {
+      /* Address the chip for reading */
+      TWDR = (I2C_SLA_PCA9555 << 1) | TW_READ;
+      result = (i2c_master_transmit() == TW_MR_SLA_ACK) ? 1 : 0;
+    }
   }
 
   /* Read low byte */
