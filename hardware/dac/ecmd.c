@@ -36,7 +36,7 @@ int16_t parse_cmd_tlc5620(char *cmd, char *output, uint16_t len)
   uint8_t value;
   while(*cmd == ' ') cmd++;
 
-  if (sscanf_P(cmd, PSTR("%u %x"), &channel, &value) != 2)
+  if (sscanf_P(cmd, PSTR("%hhu %hhx"), &channel, &value) != 2)
     return ECMD_ERR_PARSE_ERROR;
 
   if (channel > 3) channel = 3;

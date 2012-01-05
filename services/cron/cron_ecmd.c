@@ -38,7 +38,7 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	 * if the user did not specify anything and if he provided us with a number
 	 * print out that specific job with all known details */
 	uint8_t jobposition;
-	uint8_t ret = sscanf_P(cmd, PSTR("%u"), &jobposition);
+	uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &jobposition);
 
 	if (ret == 1)
 	{ // the user wants to know details
@@ -68,7 +68,7 @@ int16_t parse_cmd_cron_save (char *cmd, char *output, uint16_t len)
 uint16_t parse_cmd_cron_make_persistent (char *cmd, char *output, uint16_t len)
 {
 	uint8_t jobposition;
-	sscanf_P(cmd, PSTR("%u"), &jobposition);
+	sscanf_P(cmd, PSTR("%hhu"), &jobposition);
 
 	cron_make_persistent(jobposition);
 	return ECMD_FINAL_OK;
@@ -79,7 +79,7 @@ uint16_t parse_cmd_cron_make_persistent (char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
 {
 	uint8_t jobposition;
-	uint8_t ret = sscanf_P(cmd, PSTR("%u"), &jobposition);
+	uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &jobposition);
 
 	if (ret == 1)
 	{
@@ -99,7 +99,7 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 	int i;
 	char ecmd[ECMD_INPUTBUF_LENGTH];
 
-	sscanf_P(cmd, PSTR("%i %i %i %i %i %n"), &minute, &hour, &day, &month, &dayofweek, &i);
+	sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %n"), &minute, &hour, &day, &month, &dayofweek, &i);
 	strncpy(ecmd,cmd+i,ECMD_INPUTBUF_LENGTH);
 	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
 

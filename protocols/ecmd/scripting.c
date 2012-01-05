@@ -81,7 +81,7 @@ parse_cmd_goto(char *cmd, char *output, uint16_t len)
   if (current_script.handle == NULL) {
       return ECMD_FINAL(snprintf_P(output, len, PSTR("no script")));
   }
-  sscanf_P(cmd, PSTR("%i"), &gotoline);
+  sscanf_P(cmd, PSTR("%hhi"), &gotoline);
 
   SCRIPTDEBUG("current %i goto line %i\n", current_script.linenumber, gotoline);
 
@@ -208,7 +208,7 @@ parse_cmd_set(char *cmd, char *output, uint16_t len)
 {
   uint8_t pos;
   char value[ECMD_SCRIPT_VARIABLE_LENGTH];
-  sscanf_P(cmd, PSTR("%i %s"), &pos, &value);
+  sscanf_P(cmd, PSTR("%hhi %s"), &pos, &value);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
     return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
@@ -221,7 +221,7 @@ int16_t
 parse_cmd_get(char *cmd, char *output, uint16_t len)
 {
   uint8_t pos;
-  sscanf_P(cmd, PSTR("%i"), &pos);
+  sscanf_P(cmd, PSTR("%hhi"), &pos);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
     return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
@@ -232,7 +232,7 @@ int16_t
 parse_cmd_inc(char *cmd, char *output, uint16_t len)
 {
   uint8_t pos;
-  sscanf_P(cmd, PSTR("%i"), &pos);
+  sscanf_P(cmd, PSTR("%hhi"), &pos);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
     return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }
@@ -245,7 +245,7 @@ int16_t
 parse_cmd_dec(char *cmd, char *output, uint16_t len)
 {
   uint8_t pos;
-  sscanf_P(cmd, PSTR("%i"), &pos);
+  sscanf_P(cmd, PSTR("%hhi"), &pos);
   if (pos >= ECMD_SCRIPT_MAX_VARIABLES) {
     return ECMD_FINAL(snprintf_P(output, len, PSTR("max var exceed %i"), ECMD_SCRIPT_MAX_VARIABLES));
   }

@@ -87,7 +87,7 @@ int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
 	uint16_t line, pos = 0;
 
     int ret = sscanf_P(cmd,
-            PSTR("%u %u"),
+            PSTR("%hhu %hhu"),
             &line, &pos);
 	if(!ret) return ECMD_ERR_PARSE_ERROR;
 #endif
@@ -107,7 +107,7 @@ int16_t parse_cmd_lcd_char(char *cmd, char *output, uint16_t len)
   if (strlen(cmd) < 26) 
     return ECMD_ERR_PARSE_ERROR;
   uint8_t n_char, data[8];
-  int ret = sscanf_P(cmd, PSTR("%u %x %x %x %x %x %x %x %x"), &n_char,
+  int ret = sscanf_P(cmd, PSTR("%hhu %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx"), &n_char,
                      &data[0], &data[1], &data[2], &data[3],
                      &data[4], &data[5], &data[6], &data[7]);
 
@@ -139,7 +139,7 @@ int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
 	blink = atoi(p + 1);
 	cursor = atoi(cmd);
 #else
-	int ret = sscanf_P(cmd, PSTR("%u %u"), &cursor, &blink);
+	int ret = sscanf_P(cmd, PSTR("%hhu %hhu"), &cursor, &blink);
 	if(ret != 2)
 		return ECMD_ERR_PARSE_ERROR;
 #endif

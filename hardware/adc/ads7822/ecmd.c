@@ -37,7 +37,7 @@ int16_t parse_cmd_ads_mean(char *cmd, char *output, uint16_t len)
   uint8_t count;
   uint32_t sum=0;
 
-  sscanf_P(cmd, PSTR("%u"), &count);
+  sscanf_P(cmd, PSTR("%hhu"), &count);
   if (count < 1 || count > 15) return ECMD_ERR_PARSE_ERROR;
 
   for ( uint16_t i=0; i < (1<<count); i++) {

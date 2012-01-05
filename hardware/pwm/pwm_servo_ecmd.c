@@ -34,7 +34,7 @@ parse_cmd_pwm_servo_set(char *cmd, char *output, uint16_t len)
 {
   uint8_t servo = 0;
   uint8_t pos = SERVO_STARTVALUE;
-  sscanf_P(cmd, PSTR("%i %i"), &servo, &pos);
+  sscanf_P(cmd, PSTR("%hhi %hhi"), &servo, &pos);
   if (servo >= PWM_SERVOS)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%i invalid"),servo));
 
@@ -46,7 +46,7 @@ int16_t
 parse_cmd_pwm_servo_inc(char *cmd, char *output, uint16_t len)
 {
   uint8_t servo = 0;
-  sscanf_P(cmd, PSTR("%i"), &servo);
+  sscanf_P(cmd, PSTR("%hhi"), &servo);
   if (servo >= PWM_SERVOS)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%i invalid"),servo));
 
@@ -58,7 +58,7 @@ int16_t
 parse_cmd_pwm_servo_dec(char *cmd, char *output, uint16_t len)
 {
   uint8_t servo = 0;
-  sscanf_P(cmd, PSTR("%i"), &servo);
+  sscanf_P(cmd, PSTR("%hhi"), &servo);
   if (servo >= PWM_SERVOS)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%i invalid"),servo));
 

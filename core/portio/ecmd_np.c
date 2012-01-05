@@ -144,7 +144,7 @@ parse_cmd_pin_set (char *cmd, char *output, uint16_t len)
 	      if (ptr[1])
 		{
 		  ptr++;
-		  if (sscanf_P (ptr, PSTR ("%u"), &on) == 1)
+		  if (sscanf_P (ptr, PSTR ("%hhu"), &on) == 1)
 		    retLen = 3;
 		  else
 		    {
