@@ -29,7 +29,7 @@
 * Once connected with dmx_connect(), the client can poll for updates using his connection id (returned by dmx_connect())
 * without traversing the whole universe.
 *
-* @code #include "service/dmx-storage/dmx_storage.h" @endcode
+* @code #include "service/dmx-storage/dmx-storage.h" @endcode
 * @author Maximilian Güntner maximilian.guentner@gmail.com
 *
 */
