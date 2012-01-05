@@ -23,7 +23,7 @@
 #include <avr/io.h>
 #include "config.h"
 #include "core/debug.h"
-#include "dmx_storage.h"
+#include "dmx-storage.h"
 #ifdef DMX_STORAGE_SUPPORT
 uint8_t dmx_universes[DMX_STORAGE_UNIVERSES][DMX_STORAGE_CHANNELS]={{0}};
 

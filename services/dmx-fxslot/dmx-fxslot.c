@@ -28,7 +28,7 @@
 #include "core/eeprom.h"
 #include "core/debug.h"
 #include "dmx-fxslot.h"
-#include "services/dmx-storage/dmx_storage.h"
+#include "services/dmx-storage/dmx-storage.h"
 
 #ifdef DMX_FXSLOT_SUPPORT
 struct fxslot_struct fxslot[DMX_FXSLOT_AMOUNT];

@@ -24,7 +24,7 @@
 #include <string.h>
 #include "core/debug.h"
 #include "config.h"
-#include "dmx_storage.h"
+#include "dmx-storage.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef DMX_STORAGE_SUPPORT
