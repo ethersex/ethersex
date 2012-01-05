@@ -304,6 +304,7 @@ source protocols/artnet/config.in
 source protocols/dali/config.in
 source protocols/dmx/config.in
 source protocols/ecmd/config.in
+source protocols/ems/config.in
 source protocols/fnordlicht/config.in
 source protocols/httplog/config.in
 source protocols/irc/config.in
