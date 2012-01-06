@@ -118,16 +118,31 @@ parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
     cmd[2] = 0;                 /* reserved for chan */
     cmd[3] = 0;                 /* reserved for chan */
   }
-  ret = 0;
+  /* retrieve universe from *cmd */
   universe = cmd[1];
+  /* retrieve chan from *cmd. chan is 16 bit. 
+     cmd[1] in 16 bit is cmd[2] and cmd[3] in 8-bit */
   uint16_t chan = *((uint16_t *) (cmd) + 1);
+  /* request value from dmx-storage */
   value = get_dmx_channel(universe, chan);
-  output[ret + 2] = value % 10 + 48;
+  /* write the value to *output with leading 0 so that the output 
+     will be like this:
+     255
+     044
+     003
+     000
+  */
+  /* ones */
+  output[2] = value % 10 + 48;
   value /= 10;
-  output[ret + 1] = value % 10 + 48;
+  /* tens */
+  output[1] = value % 10 + 48;
   value /= 10;
-  output[ret + 0] = value % 10 + 48;
-  ret += 3;
+  /* hundreds */
+  output[0] = value % 10 + 48;
+  /* terminate string */
+  output[3] = '\0';
+  ret = 4;
   if (chan < DMX_STORAGE_CHANNELS - 1)
   {
     chan++;
