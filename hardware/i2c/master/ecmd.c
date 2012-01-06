@@ -144,7 +144,7 @@ int16_t parse_cmd_i2c_write_word_data(char *cmd, char *output, uint16_t len)
 	uint8_t cadr;
 	uint8_t dadr;
 	uint16_t data;
-	sscanf_P(cmd, PSTR("%hhu %hhu %hhx"), &cadr, &dadr, &data);
+	sscanf_P(cmd, PSTR("%hhu %hhu %x"), &cadr, &dadr, &data);
 	if (cadr < 7 || cadr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_word_data(cadr, dadr, data);

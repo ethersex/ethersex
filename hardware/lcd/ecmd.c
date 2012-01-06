@@ -87,7 +87,7 @@ int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
 	uint16_t line, pos = 0;
 
     int ret = sscanf_P(cmd,
-            PSTR("%hhu %hhu"),
+            PSTR("%u %u"),
             &line, &pos);
 	if(!ret) return ECMD_ERR_PARSE_ERROR;
 #endif
