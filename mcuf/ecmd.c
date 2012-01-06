@@ -70,7 +70,7 @@ int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
   MCUF_PLAY_MODE mode = MCUF_MODUL_PLAY_MODE_SEQUENCE;
 #ifdef MCUF_MODUL_DISPLAY_MODE_MANUAL
   mode = MCUF_MODUL_PLAY_MODE_MANUAL;
-  sscanf_P (cmd, PSTR ("%hhi\n"),&modul);
+  sscanf_P (cmd, PSTR ("%hhu\n"),&modul);
 #endif
 #ifdef MCUF_MODUL_DISPLAY_MODE_RANDOM
   mode = MCUF_MODUL_PLAY_MODE_RANDOM;
