@@ -26,7 +26,7 @@
 #include "core/debug.h"
 #include "stella.h"
 #include "stella_fading_functions.h"
-#include "services/dmx-storage/dmx_storage.h"
+#include "services/dmx-storage/dmx-storage.h"
 
 #define stella_vslow 0
 #define stella_slow 1

@@ -36,7 +36,7 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "protocols/ecmd/ecmd-base.h"
-#include "services/dmx-storage/dmx_storage.h"
+#include "services/dmx-storage/dmx-storage.h"
 #ifdef ARTNET_SUPPORT
 
 

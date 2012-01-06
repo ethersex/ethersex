@@ -26,7 +26,7 @@
 #include "core/debug.h"
 #include "core/bool.h"
 #include "hardware/i2c/master/i2c_pca9685.h"
-#include "services/dmx-storage/dmx_storage.h"
+#include "services/dmx-storage/dmx-storage.h"
 enum starburst_update update;
 #ifdef STARBURST_PCA9685
 int8_t pca9685_dmx_conn_id=-1;
