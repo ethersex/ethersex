@@ -28,100 +28,114 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef DMX_STORAGE_SUPPORT
-int16_t parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 {
-	uint16_t ret=0, channel=0;
-	uint8_t  universe=0;
-	if (cmd[0]!=0) ret = sscanf_P(cmd, PSTR("%hu %hhu"), &universe, &channel);
-	if(ret == 2)
-	{
-		if (channel >= DMX_STORAGE_CHANNELS)
-			return ECMD_ERR_PARSE_ERROR;
-		if (universe >= DMX_STORAGE_UNIVERSES)
-			return ECMD_ERR_PARSE_ERROR;
-		itoa(get_dmx_channel(universe,channel), output, 10);
-		return ECMD_FINAL(strlen(output));
-	}
-	else
-		return ECMD_ERR_PARSE_ERROR;
+  uint16_t ret = 0, channel = 0;
+  uint8_t universe = 0;
+  if (cmd[0] != 0)
+    ret = sscanf_P(cmd, PSTR("%hu %hhu"), &universe, &channel);
+  if (ret == 2)
+  {
+    if (channel >= DMX_STORAGE_CHANNELS)
+      return ECMD_ERR_PARSE_ERROR;
+    if (universe >= DMX_STORAGE_UNIVERSES)
+      return ECMD_ERR_PARSE_ERROR;
+    itoa(get_dmx_channel(universe, channel), output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
+  else
+    return ECMD_ERR_PARSE_ERROR;
 }
 
-int16_t parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
 {
-	uint16_t startchannel=0, value=0, channelcounter=0, blankcounter=0;
-	uint8_t universe=0, i=0;
-	if (cmd[0]!=0) {
-		sscanf_P(cmd, PSTR("%hhu %hu"), &universe, &startchannel);
-		if (startchannel >= DMX_STORAGE_CHANNELS)
-			return ECMD_ERR_PARSE_ERROR;
-		if (universe >= DMX_STORAGE_UNIVERSES)
-			return ECMD_ERR_PARSE_ERROR;
-		while(blankcounter<3)
-		{	
-			if(cmd[i] == ' ')
-				blankcounter++;
-			i++;
-		}
-		while (cmd[i]!='\0'){           //read and write all values
-			sscanf_P(cmd+i, PSTR(" %u"),&value);
-			if(set_dmx_channel(universe,startchannel+channelcounter,value))
-				return ECMD_ERR_WRITE_ERROR;
-			channelcounter++;
-			do{                         //search for next space
-				i++;
-				if(cmd[i]=='\0') break;
-			}while(cmd[i]!=' ');
-		}
+  uint16_t startchannel = 0, value = 0, channelcounter = 0, blankcounter = 0;
+  uint8_t universe = 0, i = 0;
+  if (cmd[0] != 0)
+  {
+    sscanf_P(cmd, PSTR("%hhu %hu"), &universe, &startchannel);
+    if (startchannel >= DMX_STORAGE_CHANNELS)
+      return ECMD_ERR_PARSE_ERROR;
+    if (universe >= DMX_STORAGE_UNIVERSES)
+      return ECMD_ERR_PARSE_ERROR;
+    while (blankcounter < 3)
+    {
+      if (cmd[i] == ' ')
+        blankcounter++;
+      i++;
+    }
+    while (cmd[i] != '\0')
+    {                           //read and write all values
+      sscanf_P(cmd + i, PSTR(" %u"), &value);
+      if (set_dmx_channel(universe, startchannel + channelcounter, value))
+        return ECMD_ERR_WRITE_ERROR;
+      channelcounter++;
+      do
+      {                         //search for next space
+        i++;
+        if (cmd[i] == '\0')
+          break;
+      }
+      while (cmd[i] != ' ');
+    }
 
-		return ECMD_FINAL_OK;
-	}
-	else
-		return ECMD_ERR_PARSE_ERROR;
+    return ECMD_FINAL_OK;
+  }
+  else
+    return ECMD_ERR_PARSE_ERROR;
 }
-int16_t parse_cmd_dmx_channels(char *cmd, char *output, uint16_t len)
+
+int16_t
+parse_cmd_dmx_channels(char *cmd, char *output, uint16_t len)
 {
-	itoa(DMX_STORAGE_CHANNELS, output, 10);
-	return ECMD_FINAL(strlen(output));
+  itoa(DMX_STORAGE_CHANNELS, output, 10);
+  return ECMD_FINAL(strlen(output));
 }
-int16_t parse_cmd_dmx_universes(char *cmd, char *output, uint16_t len)
+
+int16_t
+parse_cmd_dmx_universes(char *cmd, char *output, uint16_t len)
 {
-	itoa(DMX_STORAGE_UNIVERSES, output, 10);
-	return ECMD_FINAL(strlen(output));
+  itoa(DMX_STORAGE_UNIVERSES, output, 10);
+  return ECMD_FINAL(strlen(output));
 }
-int16_t parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
+
+int16_t
+parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
 {
-	uint16_t ret=0;
-	uint8_t value=0, universe=0;
-	/* trick: use bytes on cmd as "connection specific static variables" */
-	if (cmd[0] != 23)       /* indicator flag: real invocation:  0 */
-	{
-		/* read universe */
-		ret = sscanf_P(cmd, PSTR("%hhu"), &universe);
-		if(ret != 1 || universe >= DMX_STORAGE_UNIVERSES)
-			return ECMD_ERR_PARSE_ERROR;
-		cmd[0] = 23;    	/* continuing call: 23 */
-		cmd[1] = universe; 	/* universe */
-		cmd[2] = 0;		/* reserved for chan */
-		cmd[3] = 0;		/* reserved for chan */
-	}
-	ret=0;
-	universe=cmd[1];
-	uint16_t chan = *((uint16_t *)(cmd)+1);
-	value=get_dmx_channel(universe,chan);
-	output[ret+2] = value%10 +48;
-	value /= 10;
-	output[ret+1] = value%10 +48;
-	value /= 10;
-	output[ret+0] = value%10 +48;
-	ret+=3;
-	if(chan < DMX_STORAGE_CHANNELS-1)
-	{
-		chan++;
-		*((uint16_t *)(cmd)+1)=chan;
-		return ECMD_AGAIN(ret);
-	}
-	else
-		return ECMD_FINAL(ret);
+  uint16_t ret = 0;
+  uint8_t value = 0, universe = 0;
+  /* trick: use bytes on cmd as "connection specific static variables" */
+  if (cmd[0] != 23)             /* indicator flag: real invocation:  0 */
+  {
+    /* read universe */
+    ret = sscanf_P(cmd, PSTR("%hhu"), &universe);
+    if (ret != 1 || universe >= DMX_STORAGE_UNIVERSES)
+      return ECMD_ERR_PARSE_ERROR;
+    cmd[0] = 23;                /* continuing call: 23 */
+    cmd[1] = universe;          /* universe */
+    cmd[2] = 0;                 /* reserved for chan */
+    cmd[3] = 0;                 /* reserved for chan */
+  }
+  ret = 0;
+  universe = cmd[1];
+  uint16_t chan = *((uint16_t *) (cmd) + 1);
+  value = get_dmx_channel(universe, chan);
+  output[ret + 2] = value % 10 + 48;
+  value /= 10;
+  output[ret + 1] = value % 10 + 48;
+  value /= 10;
+  output[ret + 0] = value % 10 + 48;
+  ret += 3;
+  if (chan < DMX_STORAGE_CHANNELS - 1)
+  {
+    chan++;
+    *((uint16_t *) (cmd) + 1) = chan;
+    return ECMD_AGAIN(ret);
+  }
+  else
+    return ECMD_FINAL(ret);
 }
 #endif
 /*
