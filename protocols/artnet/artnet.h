@@ -29,40 +29,37 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- */
-
+ */  
+  
 #include "config.h"
 #include <stdint.h>
 #ifndef _ARTNET_H
 #define _ARTNETCLIENT_H
-
+  
 #ifdef ARTNET_SUPPORT
-
-extern uint16_t artnet_port;
-
-
+extern uint16_t artnet_port;
+  
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include "protocols/artnet/artnet_net.h"
-
+  
 #ifdef DEBUG_ARTNET
-#  include "core/debug.h"
-#  define ARTNET_DEBUG(str...) debug_printf ("artnet: " str)
-#else
-#  define ARTNET_DEBUG(...)    ((void) 0)
-#endif
-	#define ARTNET_SUBNET_EEPROM_STORE    	50
-	#define ARTNET_INUNIVERSE_EEPROM_STORE	51
-	#define ARTNET_OUTUNIVERSE_EEPROM_STORE	52
-	#define ARTNET_PORT_EEPROM_STORE    	54
-	#define ARTNET_NETCONFIG_EEPROM_STORE   56
-	#define ARTNET_SHORTNAME_EEPROM_STORE	60
-	#define ARTNET_LONGNAME_EEPROM_STORE    78
-
-	void artnet_init(void);
-	void artnet_sendPollReply(void);
-	void artnet_main(void);
-	void artnet_get(void);
-	
-#endif /* _ARTNET_H */
-#endif /* ARTNET_SUPPORT */
+#include "core/debug.h"
+#define ARTNET_DEBUG(str...) debug_printf ("artnet: " str)
+#else   /*  */
+#define ARTNET_DEBUG(...)    ((void) 0)
+#endif  /*  */
+#define ARTNET_SUBNET_EEPROM_STORE    	50
+#define ARTNET_INUNIVERSE_EEPROM_STORE	51
+#define ARTNET_OUTUNIVERSE_EEPROM_STORE	52
+#define ARTNET_PORT_EEPROM_STORE    	54
+#define ARTNET_NETCONFIG_EEPROM_STORE   56
+#define ARTNET_SHORTNAME_EEPROM_STORE	60
+#define ARTNET_LONGNAME_EEPROM_STORE    78
+void artnet_init(void);
+void artnet_sendPollReply(void);
+void artnet_main(void);
+void artnet_get(void);
+ 
+#endif  /* _ARTNET_H */
+#endif  /* ARTNET_SUPPORT */
