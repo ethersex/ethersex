@@ -54,4 +54,21 @@ int32_t bmp085_getPressure(void);
 void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval);
 void bmp085_init(void);
 
+inline uint16_t get_bmp085_measure_us_delay(bmp085_meas_t type, uint8_t oss)
+{
+    if (type==BMP085_TEMP)
+        return 4500;
+    else // (type==BMP085_PRES)
+    {
+        if (oss == 0)
+            return 4500;
+        else if (oss == 1)
+            return 7500;
+        else if (oss == 2)
+            return 13500;
+        else // oss == 3
+            return 25500;
+    }
+}
+
 #endif /* _I2C_BMP085_H */

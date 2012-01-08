@@ -218,7 +218,7 @@ void bmp085_init(void)
 
     bmp085_startMeas(BMP085_TEMP);
 
-    _delay_us(4500);
+    _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
     
     ut=bmp085_getTemp();
     
