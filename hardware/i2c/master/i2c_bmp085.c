@@ -49,18 +49,17 @@ int16_t bmp085_readRegister(uint8_t addr)
     if (!i2c_master_select(BMP085_ADDRESS, TW_WRITE))
     {
 #ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error selecting for writing\n",ret,addr);
+        debug_printf("I2C: i2c_bmp085: error selecting for writing\n");
 #endif
         goto end;
     }
 
-    // first eeprom register
     TWDR = addr;
     
     if (i2c_master_transmit() != TW_MT_DATA_ACK )
     {
 #ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error sending register address\n",ret,addr);
+        debug_printf("I2C: i2c_bmp085: error sending register address\n");
 #endif
         goto end;
     }
@@ -68,7 +67,7 @@ int16_t bmp085_readRegister(uint8_t addr)
     if (!i2c_master_select(BMP085_ADDRESS, TW_READ))
     {
 #ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error selecting for reading\n",ret,addr);
+        debug_printf("I2C: i2c_bmp085: error selecting for reading\n");
 #endif
         goto end;
     }
@@ -76,7 +75,7 @@ int16_t bmp085_readRegister(uint8_t addr)
     if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
     {
 #ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading MSB\n",ret,addr);
+        debug_printf("I2C: i2c_bmp085: error reading MSB\n");
 #endif
         goto end;
     }
@@ -87,7 +86,7 @@ int16_t bmp085_readRegister(uint8_t addr)
     if (i2c_master_transmit() != TW_MR_DATA_NACK)
     {
 #ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading LSB\n",ret,addr);
+        debug_printf("I2C: i2c_bmp085: error reading LSB\n");
 #endif
         ret = 0xffff;
         goto end;
@@ -97,7 +96,7 @@ int16_t bmp085_readRegister(uint8_t addr)
     *((uint8_t*)(&ret))=TWDR;
     
 #ifdef DEBUG_I2C
-    debug_printf("I2C: i2c_bmp085: read 0x%X from 0x%X\n",ret,addr);
+    debug_printf("I2C: i2c_bmp085: read 0x%.4X from 0x%.2X\n",ret,addr);
 #endif
    
 end:
@@ -143,26 +142,89 @@ uint8_t bmp085_readCal(uint8_t oss)
 
 uint8_t bmp085_startMeas(bmp085_meas_t type)
 {
-    return 1;
+    uint8_t ret = 0xff;
+    uint8_t cmd;
+    
+    if (!i2c_master_select(BMP085_ADDRESS, TW_WRITE))
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error selecting for writing\n");
+#endif
+        goto end;
+    }
+
+    // control register
+    TWDR = 0xF4;
+    
+    if (i2c_master_transmit() != TW_MT_DATA_ACK )
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error sending register address\n");
+#endif
+        goto end;
+    }
+
+    // command
+    cmd = (type == BMP085_TEMP ? 0x2E : 0x34 | (cal.oss << 6));
+    TWDR = cmd;
+
+    if (i2c_master_transmit() != TW_MT_DATA_ACK )
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error sending command\n");
+#endif
+        goto end;
+    }
+
+#ifdef DEBUG_I2C
+    debug_printf("I2C: i2c_bmp085: written 0x%.2X to control register 0xF4\n",cmd);
+#endif
+
+    ret=0;
+
+end:
+    i2c_master_stop();
+    return ret;
 }
 
-int32_t bmp085_getResult(bmp085_meas_t type)
+int32_t bmp085_getPressure(void)
 {
     return 1;
 }
 
 void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
 {
+    int32_t x1, x2, x3, b3, b5, b6, p;
+    uint32_t b4, b7;
+
+    x1 = ((int32_t)ut - cal.ac6) * cal.ac5 >> 15;
+    x2 = ((int32_t) cal.mc << 11) / (x1 + cal.md);
+    b5 = x1 + x2;
+    *tval = (b5 + 8) >> 4;
+    
     return;
 }
 
 void bmp085_init(void)
 {
+    int16_t ut, tval;
+    int32_t up, pval;
+    
     cal.initialized=0;
     
     _delay_ms(10);
 
     bmp085_readCal(3);
+
+    bmp085_startMeas(BMP085_TEMP);
+
+    _delay_us(4500);
+    
+    ut=bmp085_getTemp();
+    
+    bmp085_calc(ut,up,&tval,&pval);
+    
+    debug_printf("bmp085 temp: %d\n",tval);
 }
 
 /*

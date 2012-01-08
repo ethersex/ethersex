@@ -45,9 +45,12 @@ enum bmp085_meas_t { BMP085_TEMP, BMP085_PRES };
 typedef enum bmp085_meas_t bmp085_meas_t;
 
 uint8_t bmp085_readCal(uint8_t oss);
-uint8_t bmp085_startMeas(bmp085_meas_t type);
 int16_t bmp085_readRegister(uint8_t addr);
-int32_t bmp085_getResult(bmp085_meas_t type);
+uint8_t bmp085_startMeas(bmp085_meas_t type);
+
+int32_t bmp085_getPressure(void);
+#define bmp085_getTemp() bmp085_readRegister(0xF6)
+
 void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval);
 void bmp085_init(void);
 
