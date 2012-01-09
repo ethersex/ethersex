@@ -43,9 +43,11 @@
 
 static struct bmp085_cal cal;
 
-int16_t bmp085_readRegister(uint8_t addr)
+// attention: reads reverse into the buffer:
+// MSB is read first, on the atmega with gcc the MSB is last
+uint8_t bmp085_read(uint8_t regaddr, uint8_t bytes, void* buffer)
 {
-    uint16_t ret = 0xffff;
+    uint8_t ret = 0xff;
     
     if (!i2c_master_select(BMP085_ADDRESS, TW_WRITE))
     {
@@ -55,7 +57,7 @@ int16_t bmp085_readRegister(uint8_t addr)
         goto end;
     }
 
-    TWDR = addr;
+    TWDR = regaddr;
     
     if (i2c_master_transmit() != TW_MT_DATA_ACK )
     {
@@ -73,33 +75,33 @@ int16_t bmp085_readRegister(uint8_t addr)
         goto end;
     }
 
-    if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
+    while (bytes-- > 0)
     {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading MSB\n");
-#endif
-        goto end;
+        uint8_t res;
+
+        if (bytes > 0)
+            res=(i2c_master_transmit_with_ack() != TW_MR_DATA_ACK);
+        else
+            res=(i2c_master_transmit() != TW_MR_DATA_NACK);
+        
+        if (res)
+        {
+    #ifdef DEBUG_I2C
+            debug_printf("I2C: i2c_bmp085: error reading byte %d\n",bytes);
+    #endif
+            goto end;
+        }
+
+        *((unsigned char*)buffer+bytes)=TWDR;
+
+    #ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: read 0x%.2X at addr 0x%.2X\n",TWDR,regaddr++);
+    #endif
     }
 
-    // MSB first
-    *((uint8_t*)(&ret)+1)=TWDR;
-
-    if (i2c_master_transmit() != TW_MR_DATA_NACK)
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading LSB\n");
-#endif
-        ret = 0xffff;
-        goto end;
-    }
+    // success
+    ret = 0;
     
-    // then LSB
-    *((uint8_t*)(&ret))=TWDR;
-    
-#ifdef DEBUG_I2C
-    debug_printf("I2C: i2c_bmp085: read 0x%.4X from 0x%.2X\n",ret,addr);
-#endif
-   
 end:
     i2c_master_stop();
     return ret;
@@ -108,32 +110,29 @@ end:
 
 uint8_t bmp085_readCal(uint8_t oss)
 {
-    uint8_t ret = 0xff;
-
     cal.initialized=0;
-
     
-    if ((cal.ac1=bmp085_readRegister(0xAA))==0xFFFF)
+    if (bmp085_read(0xAA,2,&cal.ac1)!=0)
         return 0xff;
-    if ((cal.ac2=bmp085_readRegister(0xAC))==0xFFFF)
+    if (bmp085_read(0xAC,2,&cal.ac2)!=0)
         return 0xff;
-    if ((cal.ac3=bmp085_readRegister(0xAE))==0xFFFF)
+    if (bmp085_read(0xAE,2,&cal.ac3)!=0)
         return 0xff;
-    if ((cal.ac4=bmp085_readRegister(0xB0))==0xFFFF)
+    if (bmp085_read(0xB0,2,&cal.ac4)!=0)
         return 0xff;
-    if ((cal.ac5=bmp085_readRegister(0xB2))==0xFFFF)
+    if (bmp085_read(0xB2,2,&cal.ac5)!=0)
         return 0xff;
-    if ((cal.ac6=bmp085_readRegister(0xB4))==0xFFFF)
+    if (bmp085_read(0xB4,2,&cal.ac6)!=0)
         return 0xff;
-    if ((cal.b1=bmp085_readRegister(0xB6))==0xFFFF)
+    if (bmp085_read(0xB6,2,&cal.b1)!=0)
         return 0xff;
-    if ((cal.b2=bmp085_readRegister(0xB8))==0xFFFF)
+    if (bmp085_read(0xB8,2,&cal.b2)!=0)
         return 0xff;
-    if ((cal.mb=bmp085_readRegister(0xBA))==0xFFFF)
+    if (bmp085_read(0xBA,2,&cal.mb)!=0)
         return 0xff;
-    if ((cal.mc=bmp085_readRegister(0xBC))==0xFFFF)
+    if (bmp085_read(0xBC,2,&cal.mc)!=0)
         return 0xff;
-    if ((cal.md=bmp085_readRegister(0xBE))==0xFFFF)
+    if (bmp085_read(0xBE,2,&cal.md)!=0)
         return 0xff;
 
 /*
@@ -154,7 +153,7 @@ uint8_t bmp085_readCal(uint8_t oss)
     cal.oss=oss;
     cal.initialized=1;
     
-    return ret;
+    return 0;
 }
 
 uint8_t bmp085_startMeas(bmp085_meas_t type)
@@ -198,84 +197,6 @@ uint8_t bmp085_startMeas(bmp085_meas_t type)
 #endif
 
     ret=0;
-
-end:
-    i2c_master_stop();
-    return ret;
-}
-
-int32_t bmp085_getPressure(void)
-{
-    uint32_t ret = 0xffffffff;
-    
-    if (!i2c_master_select(BMP085_ADDRESS, TW_WRITE))
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error selecting for writing\n");
-#endif
-        goto end;
-    }
-
-    TWDR = 0xF6;
-    
-    if (i2c_master_transmit() != TW_MT_DATA_ACK )
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error sending register address\n");
-#endif
-        goto end;
-    }
-
-    if (!i2c_master_select(BMP085_ADDRESS, TW_READ))
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error selecting for reading\n");
-#endif
-        goto end;
-    }
-
-    if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading MSB\n");
-#endif
-        goto end;
-    }
-
-    // MSB first
-    ret=0;
-    *((unsigned char*)(&ret)+2)=TWDR;
-
-    if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading LSB\n");
-#endif
-        ret = 0xffffffff;
-        goto end;
-    }
-    
-    // then LSB
-    *((unsigned char*)(&ret)+1)=TWDR;
-    
-    if (i2c_master_transmit() != TW_MR_DATA_NACK)
-    {
-#ifdef DEBUG_I2C
-        debug_printf("I2C: i2c_bmp085: error reading XLSB\n");
-#endif
-        ret = 0xffffffff;
-        goto end;
-    }
-    
-    // then XLSB
-    *((unsigned char*)(&ret))=TWDR;
-
-    // shift depending on oversampling
-    ret = ret >> (8-cal.oss);
-    
-#ifdef DEBUG_I2C
-    debug_printf("I2C: i2c_bmp085: read up 0x%.8lX\n",ret);
-#endif
 
 end:
     i2c_master_stop();
@@ -340,13 +261,17 @@ void bmp085_init(void)
 
     _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
     
-    ut=bmp085_getTemp();
+    if(bmp085_read(0xF6,2,&ut)!=0)
+        debug_printf("bmp085 read error\n");
     
     bmp085_startMeas(BMP085_PRES);
 
     _delay_us(get_bmp085_measure_us_delay(BMP085_PRES,3));
     
-    up=bmp085_getPressure();
+    up=0;
+    if(bmp085_read(0xF6,3,&up)!=0)
+        debug_printf("bmp085 read error\n");
+    up >>= 8-cal.oss;
 
     bmp085_calc(ut,up,&tval,&pval);
 
