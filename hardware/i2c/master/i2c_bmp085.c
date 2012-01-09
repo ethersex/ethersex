@@ -30,6 +30,7 @@
 #include <util/twi.h>
 #include <stdint.h>
 #include <util/delay.h>
+#include <math.h>
         
 #include "config.h"
 #include "core/debug.h"
@@ -110,6 +111,7 @@ uint8_t bmp085_readCal(uint8_t oss)
     uint8_t ret = 0xff;
 
     cal.initialized=0;
+
     
     if ((cal.ac1=bmp085_readRegister(0xAA))==0xFFFF)
         return 0xff;
@@ -133,7 +135,22 @@ uint8_t bmp085_readCal(uint8_t oss)
         return 0xff;
     if ((cal.md=bmp085_readRegister(0xBE))==0xFFFF)
         return 0xff;
-    
+
+/*
+    // example values from the datasheet
+    cal.ac1 = 408;
+    cal.ac2 = -72;
+    cal.ac3 = -14383;
+    cal.ac4 = 32741;
+    cal.ac5 = 32757;
+    cal.ac6 = 23153;
+    cal.b1 = 6190;
+    cal.b2 = 4;
+    cal.mb = -32767;
+    cal.mc = -8711;
+    cal.md = 2868;
+*/
+
     cal.oss=oss;
     cal.initialized=1;
     
@@ -165,7 +182,7 @@ uint8_t bmp085_startMeas(bmp085_meas_t type)
     }
 
     // command
-    cmd = (type == BMP085_TEMP ? 0x2E : 0x34 | (cal.oss << 6));
+    cmd = (type == BMP085_TEMP ? 0x2E : (0x34 | (cal.oss << 6)));
     TWDR = cmd;
 
     if (i2c_master_transmit() != TW_MT_DATA_ACK )
@@ -189,7 +206,80 @@ end:
 
 int32_t bmp085_getPressure(void)
 {
-    return 1;
+    uint32_t ret = 0xffffffff;
+    
+    if (!i2c_master_select(BMP085_ADDRESS, TW_WRITE))
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error selecting for writing\n");
+#endif
+        goto end;
+    }
+
+    TWDR = 0xF6;
+    
+    if (i2c_master_transmit() != TW_MT_DATA_ACK )
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error sending register address\n");
+#endif
+        goto end;
+    }
+
+    if (!i2c_master_select(BMP085_ADDRESS, TW_READ))
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error selecting for reading\n");
+#endif
+        goto end;
+    }
+
+    if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error reading MSB\n");
+#endif
+        goto end;
+    }
+
+    // MSB first
+    ret=0;
+    *((unsigned char*)(&ret)+2)=TWDR;
+
+    if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error reading LSB\n");
+#endif
+        ret = 0xffffffff;
+        goto end;
+    }
+    
+    // then LSB
+    *((unsigned char*)(&ret)+1)=TWDR;
+    
+    if (i2c_master_transmit() != TW_MR_DATA_NACK)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("I2C: i2c_bmp085: error reading XLSB\n");
+#endif
+        ret = 0xffffffff;
+        goto end;
+    }
+    
+    // then XLSB
+    *((unsigned char*)(&ret))=TWDR;
+
+    // shift depending on oversampling
+    ret = ret >> (8-cal.oss);
+    
+#ifdef DEBUG_I2C
+    debug_printf("I2C: i2c_bmp085: read up 0x%.8lX\n",ret);
+#endif
+
+end:
+    i2c_master_stop();
+    return ret;
 }
 
 void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
@@ -201,6 +291,36 @@ void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
     x2 = ((int32_t) cal.mc << 11) / (x1 + cal.md);
     b5 = x1 + x2;
     *tval = (b5 + 8) >> 4;
+
+    b6 = b5 - 4000;
+    x1 = (b6*b6) >> 12;
+    x1 *= cal.b2;
+    x1 >>=11;
+
+    x2 = cal.ac2*b6;
+    x2 >>=11;
+
+    x3 = x1 + x2;
+
+    b3 = (((((int32_t)cal.ac1 )*4 + x3) << cal.oss) + 2) >> 2;
+
+    x1 = (cal.ac3* b6) >> 13;
+    x2 = (cal.b1 * ((b6*b6) >> 12) ) >> 16;
+    x3 = ((x1 + x2) + 2) >> 2;
+
+    b4 = (cal.ac4 * (uint32_t) (x3 + 32768)) >> 15;
+
+    b7 = ((uint32_t)(up - b3) * (50000>>cal.oss));
+    if (b7 < 0x80000000)
+        p = (b7 << 1) / b4;
+    else
+        p = (b7 / b4) << 1;
+
+    x1 = p >> 8;
+    x1 *= x1;
+    x1 = (x1 * 3038) >> 16;
+    x2 = (p * -7357) >> 16;
+    *pval = p + ((x1 + x2 + 3791) >> 4);    // pressure in Pa
     
     return;
 }
@@ -222,9 +342,16 @@ void bmp085_init(void)
     
     ut=bmp085_getTemp();
     
-    bmp085_calc(ut,up,&tval,&pval);
+    bmp085_startMeas(BMP085_PRES);
+
+    _delay_us(get_bmp085_measure_us_delay(BMP085_PRES,3));
     
+    up=bmp085_getPressure();
+
+    bmp085_calc(ut,up,&tval,&pval);
+
     debug_printf("bmp085 temp: %d\n",tval);
+    debug_printf("bmp085 press Pa: %ld\n",pval);
 }
 
 /*
