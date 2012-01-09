@@ -39,8 +39,6 @@
 
 #ifdef I2C_BMP085_SUPPORT
 
-#define BMP085_ADDRESS 0x77    // (0xEE >> 1)
-
 static struct bmp085_cal cal;
 
 // attention: reads reverse into the buffer:
@@ -112,6 +110,19 @@ uint8_t bmp085_readCal(uint8_t oss)
 {
     cal.initialized=0;
     
+    // check chip id
+    uint8_t id;
+    if (bmp085_read(BMP085_CHIP_ID_REG,1,&id)!=0)
+        return 0xff;
+
+    if (id != BMP085_CHIP_ID)
+        return 0xfe;
+
+    // read chip version (documented in bosch api source)
+    if (bmp085_read(BMP085_VERSION_REG,1,&cal.version)!=0)
+        return 0xff;
+        
+    // read individual calibration data
     if (bmp085_read(0xAA,2,&cal.ac1)!=0)
         return 0xff;
     if (bmp085_read(0xAC,2,&cal.ac2)!=0)
@@ -135,21 +146,6 @@ uint8_t bmp085_readCal(uint8_t oss)
     if (bmp085_read(0xBE,2,&cal.md)!=0)
         return 0xff;
 
-/*
-    // example values from the datasheet
-    cal.ac1 = 408;
-    cal.ac2 = -72;
-    cal.ac3 = -14383;
-    cal.ac4 = 32741;
-    cal.ac5 = 32757;
-    cal.ac6 = 23153;
-    cal.b1 = 6190;
-    cal.b2 = 4;
-    cal.mb = -32767;
-    cal.mc = -8711;
-    cal.md = 2868;
-*/
-
     cal.oss=oss;
     cal.initialized=1;
     
@@ -169,8 +165,7 @@ uint8_t bmp085_startMeas(bmp085_meas_t type)
         goto end;
     }
 
-    // control register
-    TWDR = 0xF4;
+    TWDR = BMP085_CTRL_MEAS_REG;
     
     if (i2c_master_transmit() != TW_MT_DATA_ACK )
     {
@@ -261,7 +256,7 @@ void bmp085_init(void)
 
     _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
     
-    if(bmp085_read(0xF6,2,&ut)!=0)
+    if(bmp085_read(BMP085_ADC_OUT_START_REG,2,&ut)!=0)
         debug_printf("bmp085 read error\n");
     
     bmp085_startMeas(BMP085_PRES);
@@ -269,7 +264,7 @@ void bmp085_init(void)
     _delay_us(get_bmp085_measure_us_delay(BMP085_PRES,3));
     
     up=0;
-    if(bmp085_read(0xF6,3,&up)!=0)
+    if(bmp085_read(BMP085_ADC_OUT_START_REG,3,&up)!=0)
         debug_printf("bmp085 read error\n");
     up >>= 8-cal.oss;
 

@@ -35,6 +35,8 @@ struct bmp085_cal
     int16_t ac1, ac2, ac3, b1, b2, mb, mc, md;
     uint16_t ac4, ac5, ac6;
 
+    uint8_t version;
+    
     // oversampling, accuracy level
     uint8_t oss;
     
@@ -44,12 +46,18 @@ struct bmp085_cal
 enum bmp085_meas_t { BMP085_TEMP, BMP085_PRES };
 typedef enum bmp085_meas_t bmp085_meas_t;
 
-uint8_t bmp085_readCal(uint8_t oss);
-int16_t bmp085_readRegister(uint8_t addr);
-uint8_t bmp085_startMeas(bmp085_meas_t type);
+#define BMP085_ADDRESS              (0xEE >> 1)
+#define BMP085_CHIP_ID_REG          0xD0
+#define BMP085_VERSION_REG          0xD1
+#define BMP085_CTRL_MEAS_REG        0xF4
+#define BMP085_ADC_OUT_START_REG    0xF6
+#define BMP085_CAL_START_REG        0xAA
 
-int32_t bmp085_getPressure(void);
-#define bmp085_getTemp() bmp085_readRegister(0xF6)
+#define BMP085_CHIP_ID              0x55
+
+uint8_t bmp085_read(uint8_t regaddr, uint8_t bytes, void* buffer);
+uint8_t bmp085_readCal(uint8_t oss);
+uint8_t bmp085_startMeas(bmp085_meas_t type);
 
 void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval);
 void bmp085_init(void);
