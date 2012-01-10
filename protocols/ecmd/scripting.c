@@ -256,7 +256,8 @@ parse_cmd_wait(char *cmd, char *output, uint16_t len)
   uint16_t delay;
   sscanf_P(cmd, PSTR("%u"), &delay);
   SCRIPTDEBUG("wait %ims\n", delay);
-  _delay_ms(delay);
+  while (delay--)
+    _delay_ms(1);
   return ECMD_FINAL_OK;
 }
 

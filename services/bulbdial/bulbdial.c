@@ -71,12 +71,14 @@ bulbdial_clock(uint8_t delay){
   clear();
   set(0x0001 << (date.sec/5));
   PIN_SET(BULBDIAL_MINUTES);
-  _delay_ms(delay);
+  for (uint8_t i = delay; i; i--)
+    _delay_ms(1);
   PIN_CLEAR(BULBDIAL_MINUTES);
   clear();
   set(0x0001 << (date.min/5));
   PIN_SET(BULBDIAL_HOURS);
-  _delay_ms(delay);
+  for (uint8_t i = delay; i; i--)
+    _delay_ms(1);
   PIN_CLEAR(BULBDIAL_HOURS);
 }
 
