@@ -151,7 +151,8 @@ pwm_melody_init(uint8_t songnr)  // Play it once, Sam!
 		uint16_t delay = notes.duration * 10 * song.delay / 8 ;
     	PWMDEBUG("%3i. note: %4i, dur: %3i, i: %5i, scale: %5i, delay: %5i\n", y, notes.note, notes.duration, pwm_melody_i, pwm_melody_scale, delay);
 
-		_delay_ms(delay);
+		while(delay--)
+			_delay_ms(1);
 		// Interrupt kurz ausschalten, gibt kurze Pause
 		// so werden die Töne getrennt
 		cli();

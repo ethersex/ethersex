@@ -38,7 +38,7 @@ int16_t parse_cmd_dali_raw(char *cmd, char *output, uint16_t len)
 
     while(*cmd == ' ') cmd++;
 
-    if (sscanf_P(cmd, PSTR("%x %x"), frame, frame+1) != 2)
+    if (sscanf_P(cmd, PSTR("%hhx %hhx"), frame, frame+1) != 2)
         return ECMD_ERR_PARSE_ERROR;
 
     dali_send((uint16_t*)frame);
