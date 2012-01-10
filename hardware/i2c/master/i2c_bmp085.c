@@ -216,6 +216,9 @@ void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
     b5 = x1 + x2;
     *tval = (b5 + 8) >> 4;
 
+    if (pval==NULL)
+        return;
+    
     b6 = b5 - 4000;
     x1 = (b6*b6) >> 12;
     x1 *= cal.b2;
@@ -249,37 +252,91 @@ void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
     return;
 }
 
-void bmp085_init(void)
+int16_t bmp085_get_temp()
+{
+    int16_t ut, tval;
+
+    if (!cal.initialized)
+        bmp085_readCal(3);
+    
+    if (bmp085_startMeas(BMP085_TEMP)!=0)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("bmp085 write error\n");
+#endif
+        return -1;
+    }
+
+    _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
+
+    if(bmp085_read(BMP085_ADC_OUT_START_REG,2,&ut)!=0)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("bmp085 read error\n");
+#endif
+        return -1;
+    }
+    
+    bmp085_calc(ut,0,&tval,NULL);
+    
+    return tval;
+}
+
+int32_t bmp085_get_abs_press()
 {
     int16_t ut, tval;
     int32_t up, pval;
-    
-    cal.initialized=0;
-    
-    _delay_ms(10);
 
-    bmp085_readCal(3);
-
-    bmp085_startMeas(BMP085_TEMP);
+    if (!cal.initialized)
+        bmp085_readCal(3);
+    
+    if (bmp085_startMeas(BMP085_TEMP)!=0)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("bmp085 write error\n");
+#endif
+        return -1;
+    }
 
     _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
-    
+
     if(bmp085_read(BMP085_ADC_OUT_START_REG,2,&ut)!=0)
+    {
+#ifdef DEBUG_I2C
         debug_printf("bmp085 read error\n");
+#endif
+        return -1;
+    }
     
-    bmp085_startMeas(BMP085_PRES);
+    if (bmp085_startMeas(BMP085_PRES)!=0)
+    {
+#ifdef DEBUG_I2C
+        debug_printf("bmp085 write error\n");
+#endif
+        return -1;
+    }
 
     _delay_us(get_bmp085_measure_us_delay(BMP085_PRES,3));
-    
+
     up=0;
     if(bmp085_read(BMP085_ADC_OUT_START_REG,3,&up)!=0)
+    {
+#ifdef DEBUG_I2C
         debug_printf("bmp085 read error\n");
+#endif
+        return 0;
+    }
+    
     up >>= 8-cal.oss;
 
     bmp085_calc(ut,up,&tval,&pval);
+    
+    return pval;
+}
 
-    debug_printf("bmp085 temp: %d\n",tval);
-    debug_printf("bmp085 press Pa: %ld\n",pval);
+void bmp085_init(void)
+{
+    cal.initialized=0;
 }
 
 /*

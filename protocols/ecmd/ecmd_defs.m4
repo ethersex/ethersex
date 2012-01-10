@@ -52,6 +52,10 @@ ecmd_ifdef(I2C_MAX7311_SUPPORT)
   ecmd_feature(i2c_max7311_set, "max7311 set", ADDR BIT VALUE, Set Output-BIT to VALUE (bool))
   ecmd_feature(i2c_max7311_pulse, "max7311 pulse", ADDR BIT TIME, Toggle Output-BIT for TIME (in ms))
 ecmd_endif
+ecmd_ifdef(I2C_BMP085_SUPPORT)
+  ecmd_feature(i2c_bmp085_temp, "bmp085 temp",, Get temperature in 0.1°C)
+  ecmd_feature(i2c_bmp085_apress, "bmp085 apress",, Get absolute pressure in Pa)
+ecmd_endif
 
 block([[Blinkenlights_MCUF|MCUF]]) dnl ============================
 ecmd_ifdef(MCUF_SUPPORT)

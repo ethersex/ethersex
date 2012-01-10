@@ -62,6 +62,9 @@ uint8_t bmp085_startMeas(bmp085_meas_t type);
 void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval);
 void bmp085_init(void);
 
+int16_t bmp085_get_temp();
+int32_t bmp085_get_abs_press();
+
 inline uint16_t get_bmp085_measure_us_delay(bmp085_meas_t type, uint8_t oss)
 {
     if (type==BMP085_TEMP)
