@@ -1,5 +1,5 @@
 /*
- * Bosch Sensortec BMP085 barometric pressure sensor support
+ * Bosch Sensortec BMP085 and BMP180 barometric pressure sensor support
  * 
  * Copyright (c) 2012 by Gerd v. Egidy <gerd@egidy.de>
  *
@@ -78,9 +78,15 @@ uint8_t bmp085_read(uint8_t regaddr, uint8_t bytes, void* buffer)
         uint8_t res;
 
         if (bytes > 0)
+        {
+            // more bytes to read
             res=(i2c_master_transmit_with_ack() != TW_MR_DATA_ACK);
+        }
         else
+        {
+            // last byte
             res=(i2c_master_transmit() != TW_MR_DATA_NACK);
+        }
         
         if (res)
         {
@@ -203,6 +209,8 @@ void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
     int32_t x1, x2, x3, b3, b5, b6, p;
     uint32_t b4, b7;
 
+    // see datasheet for formula
+    
     x1 = ((int32_t)ut - cal.ac6) * cal.ac5 >> 15;
     x2 = ((int32_t) cal.mc << 11) / (x1 + cal.md);
     b5 = x1 + x2;
