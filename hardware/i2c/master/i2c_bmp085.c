@@ -65,6 +65,9 @@ uint8_t bmp085_read(uint8_t regaddr, uint8_t bytes, void* buffer)
         goto end;
     }
 
+    // not required by datasheet but fixes transmission problems seen in practice
+    i2c_master_stop();
+
     if (!i2c_master_select(BMP085_ADDRESS, TW_READ))
     {
 #ifdef DEBUG_I2C
@@ -255,7 +258,7 @@ void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval)
 int16_t bmp085_get_temp()
 {
     int16_t ut, tval;
-
+    
     if (!cal.initialized)
         bmp085_readCal(3);
     
@@ -324,7 +327,7 @@ int32_t bmp085_get_abs_press()
 #ifdef DEBUG_I2C
         debug_printf("bmp085 read error\n");
 #endif
-        return 0;
+        return -1;
     }
     
     up >>= 8-cal.oss;
