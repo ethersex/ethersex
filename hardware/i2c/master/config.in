@@ -25,7 +25,8 @@ dep_bool_menu "I2C Master Support (EXPERIMENTAL)" I2C_MASTER_SUPPORT $CONFIG_EXP
 
   dep_bool "  I2C BMP085 barometric pressure sensor" I2C_BMP085_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
   if [ "$I2C_BMP085_SUPPORT" = "y" ]; then
-    choice 'BMP085 Pressure Oversampling' \
+    dep_bool "    BMP085 advanced barometric calculations" I2C_BMP085_BAROCALC_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
+    choice '    BMP085 Pressure Oversampling' \
         "0    BMP085_OSS_0  \
          1    BMP085_OSS_1  \
          2    BMP085_OSS_2  \

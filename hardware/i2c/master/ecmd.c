@@ -555,5 +555,39 @@ int16_t parse_cmd_i2c_bmp085_apress(char *cmd, char *output, uint16_t len)
 #endif
 }
 
+#ifdef I2C_BMP085_BAROCALC_SUPPORT
+
+int16_t parse_cmd_i2c_bmp085_height(char *cmd, char *output, uint16_t len)
+{
+    int32_t ret = bmp085_get_abs_press();
+    if (ret == -1)
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
+
+    ret=bmp085_get_height_cm(ret,103650L);
+    
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 height %ld"), ret));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%ld"), ret));
+#endif
+}
+
+int16_t parse_cmd_i2c_bmp085_pressnn(char *cmd, char *output, uint16_t len)
+{
+    int32_t ret = bmp085_get_abs_press();
+    if (ret == -1)
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
+
+    ret=bmp085_get_pa_pressure_nn(ret,33000L);
+    
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 pressnn %ld"), ret));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%ld"), ret));
+#endif
+}
+
+#endif /* I2C_BMP085_BAROCALC_SUPPORT */
+
 #endif  /* I2C_BMP085_SUPPORT */
 

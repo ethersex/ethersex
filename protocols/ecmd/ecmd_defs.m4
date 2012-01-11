@@ -55,6 +55,10 @@ ecmd_endif
 ecmd_ifdef(I2C_BMP085_SUPPORT)
   ecmd_feature(i2c_bmp085_temp, "bmp085 temp",, Get temperature in 0.1°C)
   ecmd_feature(i2c_bmp085_apress, "bmp085 apress",, Get absolute pressure in Pa)
+  ecmd_ifdef(I2C_BMP085_BAROCALC_SUPPORT)
+    ecmd_feature(i2c_bmp085_height, "bmp085 height", PRESSNN, Get height in cm, pressure at N0 needed)
+    ecmd_feature(i2c_bmp085_pressnn, "bmp085 pressnn", HEIGHT, Get pressure at N0, height in cm needed)
+  ecmd_endif
 ecmd_endif
 
 block([[Blinkenlights_MCUF|MCUF]]) dnl ============================
