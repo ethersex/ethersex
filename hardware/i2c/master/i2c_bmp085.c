@@ -260,7 +260,7 @@ int16_t bmp085_get_temp()
     int16_t ut, tval;
     
     if (!cal.initialized)
-        bmp085_readCal(3);
+        bmp085_readCal(I2C_BMP085_OVERSAMPLING);
     
     if (bmp085_startMeas(BMP085_TEMP)!=0)
     {
@@ -270,7 +270,7 @@ int16_t bmp085_get_temp()
         return -1;
     }
 
-    _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
+    _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,I2C_BMP085_OVERSAMPLING));
 
     if(bmp085_read(BMP085_ADC_OUT_START_REG,2,&ut)!=0)
     {
@@ -291,7 +291,7 @@ int32_t bmp085_get_abs_press()
     int32_t up, pval;
 
     if (!cal.initialized)
-        bmp085_readCal(3);
+        bmp085_readCal(I2C_BMP085_OVERSAMPLING);
     
     if (bmp085_startMeas(BMP085_TEMP)!=0)
     {
@@ -301,7 +301,7 @@ int32_t bmp085_get_abs_press()
         return -1;
     }
 
-    _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,3));
+    _delay_us(get_bmp085_measure_us_delay(BMP085_TEMP,I2C_BMP085_OVERSAMPLING));
 
     if(bmp085_read(BMP085_ADC_OUT_START_REG,2,&ut)!=0)
     {
@@ -319,7 +319,7 @@ int32_t bmp085_get_abs_press()
         return -1;
     }
 
-    _delay_us(get_bmp085_measure_us_delay(BMP085_PRES,3));
+    _delay_us(get_bmp085_measure_us_delay(BMP085_PRES,I2C_BMP085_OVERSAMPLING));
 
     up=0;
     if(bmp085_read(BMP085_ADC_OUT_START_REG,3,&up)!=0)

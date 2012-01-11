@@ -82,4 +82,22 @@ inline uint16_t get_bmp085_measure_us_delay(bmp085_meas_t type, uint8_t oss)
     }
 }
 
+// overcome menuconfig choice limitations
+#if I2C_BMP085_OVERSAMPLING==BMP085_OSS_0
+    #undef I2C_BMP085_OVERSAMPLING
+    #define I2C_BMP085_OVERSAMPLING 0
+#endif
+#if I2C_BMP085_OVERSAMPLING==BMP085_OSS_1
+    #undef I2C_BMP085_OVERSAMPLING
+    #define I2C_BMP085_OVERSAMPLING 1
+#endif
+#if I2C_BMP085_OVERSAMPLING==BMP085_OSS_2
+    #undef I2C_BMP085_OVERSAMPLING
+    #define I2C_BMP085_OVERSAMPLING 2
+#endif
+#if I2C_BMP085_OVERSAMPLING==BMP085_OSS_3
+    #undef I2C_BMP085_OVERSAMPLING
+    #define I2C_BMP085_OVERSAMPLING 3
+#endif
+
 #endif /* _I2C_BMP085_H */
