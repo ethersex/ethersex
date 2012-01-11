@@ -559,11 +559,16 @@ int16_t parse_cmd_i2c_bmp085_apress(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_i2c_bmp085_height(char *cmd, char *output, uint16_t len)
 {
-    int32_t ret = bmp085_get_abs_press();
+    uint32_t pnn;
+    int32_t ret;
+    if(sscanf_P(cmd, PSTR("%lu"), &pnn)!=1)
+       return ECMD_ERR_PARSE_ERROR;
+
+    ret = bmp085_get_abs_press();
     if (ret == -1)
         return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
 
-    ret=bmp085_get_height_cm(ret,103650L);
+    ret=bmp085_get_height_cm(ret,pnn);
     
 #ifdef ECMD_MIRROR_REQUEST
     return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 height %ld"), ret));
@@ -574,11 +579,16 @@ int16_t parse_cmd_i2c_bmp085_height(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_i2c_bmp085_pressnn(char *cmd, char *output, uint16_t len)
 {
-    int32_t ret = bmp085_get_abs_press();
+    uint32_t height;
+    int32_t ret;
+    if(sscanf_P(cmd, PSTR("%lu"), &height)!=1)
+       return ECMD_ERR_PARSE_ERROR;
+
+    ret = bmp085_get_abs_press();
     if (ret == -1)
         return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
 
-    ret=bmp085_get_pa_pressure_nn(ret,33000L);
+    ret=bmp085_get_pa_pressure_nn(ret,height);
     
 #ifdef ECMD_MIRROR_REQUEST
     return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 pressnn %ld"), ret));
