@@ -72,7 +72,7 @@ void
 i2c_master_stop(void)
 {
     TWCR=((1<<TWEN)|(1<<TWINT)|(1<<TWSTO));     // Stopbedingung senden
-    while (!(TWCR & (1<<TWSTO)));               // warten bis TWI fertig
+    while ((TWCR & (1<<TWSTO)));               // warten bis TWI fertig
     i2c_master_disable();
 }
 
