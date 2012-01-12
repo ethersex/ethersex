@@ -349,10 +349,7 @@ int32_t bmp085_get_height_cm(int32_t abs_pa_pressure, int32_t pa_pressure_nn)
 
 int32_t bmp085_get_pa_pressure_nn(int32_t abs_pa_pressure, int32_t height_cm)
 {
-    double p = (double)abs_pa_pressure / 100;
-    double h = (double)height_cm / 100;
-
-    return (int32_t)((p/pow((1-(h/44330.7692)),0.190295))*100);
+    return (int32_t)((double)abs_pa_pressure/pow((1-((double)height_cm/4433076.92)),5.255));
 }
 
 #endif /* I2C_BMP085_BAROCALC_SUPPORT */
