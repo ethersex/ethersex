@@ -1372,6 +1372,26 @@ I2C_PCF8574X_SUPPORT
 
   PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
 
+I2C BMP085 barometric pressure sensor
+I2C_BMP085_SUPPORT
+
+  Allows to read out absolute pressure and temperature from
+  Bosch BMP085 and BMP180 barometric pressure sensors.
+
+BMP085 advanced barometric calculations
+I2C_BMP085_BAROCALC_SUPPORT
+
+  Include calculation of height and pressure at NN based on the
+  international barometric formula. Requires floating point
+  calculations, don't enable this on systems with thight flash.
+
+BMP085 Pressure Oversampling
+I2C_BMP085_OVERSAMPLING
+
+  The BMP085 includes a mode to automatically take multiple measurements
+  and average them to increase resolution. This is the oss or osrs
+  parameter found in the datasheet.
+
 Edit list of allowed ecmd buddies
 JABBER_KNOWN_BUDDIES
 
