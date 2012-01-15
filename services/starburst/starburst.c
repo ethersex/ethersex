@@ -180,28 +180,13 @@ void starburst_main()
 	{
 		update=STARBURST_NOUPDATE;
 		/*Prepare Array*/
-		uint16_t pca9685_values[2*STARBURST_PCA9685_CHANNELS];
-		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS*2;i+=2)
+		uint16_t pca9685_values[STARBURST_PCA9685_CHANNELS];
+		for(uint8_t i=0;i<STARBURST_PCA9685_CHANNELS;i++)
 		{
-			uint16_t tmp=pgm_read_word_near(stevens_power_12bit + pca9685_channels[i/2].value);
-			pca9685_channels[i/2].update = STARBURST_NOUPDATE;
-			if(tmp == 4096) /*Special case: LED is always on, that means we need to set ON to 4096*/
-			{
-				pca9685_values[i]=4096;
-				pca9685_values[i+1]=0;
-			}
-			else if(tmp == 0) /*Special case: LED is always off, that means we need to set OFF to 4096*/
-			{
-				pca9685_values[i]=0;
-				pca9685_values[i+1]=4096;
-			}
-			else /*Default case: LED needs PWM*/
-			{
-				pca9685_values[i]=0;
-				pca9685_values[i+1]=tmp;
-			}
+			pca9685_channels[i].update = STARBURST_NOUPDATE;
+			pca9685_values[i]=pgm_read_word_near(stevens_power_12bit + pca9685_channels[i].value);
 		}
-		i2c_pca9685_set_leds(STARBURST_PCA9685_ADDRESS,0,STARBURST_PCA9685_CHANNELS*2,pca9685_values);
+		i2c_pca9685_set_leds_fast(STARBURST_PCA9685_ADDRESS,0,STARBURST_PCA9685_CHANNELS,pca9685_values);
 	}
 #endif
 }
