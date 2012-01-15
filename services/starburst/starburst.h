@@ -23,25 +23,28 @@
 #ifdef STARBURST_SUPPORT
 
 #ifdef STARBURST_PCA9685_EXTDRV
-	#define STARBURST_PCA9685_EXTDRV 1
+#define STARBURST_PCA9685_EXTDRV 1
 #else
-	#define STARBURST_PCA9685_EXTDRV 0
+#define STARBURST_PCA9685_EXTDRV 0
 #endif
 #ifdef STARBURST_PCA9685_IVRT
-	#define STARBURST_PCA9685_IVRT 1
+#define STARBURST_PCA9685_IVRT 1
 #else
-	#define STARBURST_PCA9685_IVRT 0
+#define STARBURST_PCA9685_IVRT 0
 #endif
 
-enum starburst_update {STARBURST_UPDATE,STARBURST_NOUPDATE};
-enum starburst_mode {STARBURST_MODE_NORMAL,STARBURST_MODE_FADE};
-struct starburst_channel {
-	//Current value
-	uint8_t value;
-	//Target value
-	uint8_t target;
-	enum starburst_mode mode;
-	enum starburst_update update;
+enum starburst_update
+{ STARBURST_UPDATE, STARBURST_NOUPDATE };
+enum starburst_mode
+{ STARBURST_MODE_NORMAL, STARBURST_MODE_FADE };
+struct starburst_channel
+{
+  //Current value
+  uint8_t value;
+  //Target value
+  uint8_t target;
+  enum starburst_mode mode;
+  enum starburst_update update;
 };
 void starburst_init();
 void starburst_update();
