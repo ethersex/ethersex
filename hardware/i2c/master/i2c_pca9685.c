@@ -21,10 +21,11 @@
  */
 #include <avr/io.h>
 #include <util/twi.h>
-#include "i2c_master.h"
-#include "i2c_pca9685.h"
+#include "config.h"
 #include "core/bit-macros.h"
 #include "core/debug.h"
+#include "i2c_master.h"
+#include "i2c_pca9685.h"
 #ifdef I2C_PCA9685_SUPPORT
 
 /* The PCA9685 features two modes of operation: totem-pole and open-drain. Please refer to the datasheet to find out
@@ -42,10 +43,10 @@ uint8_t
 i2c_pca9685_reset()
 {
   uint8_t ret = 1;
-  /*ALL CALL Address = 0b0000 0000 */
+  /* ALL CALL Address = 0b0000 0000 */
   if (i2c_master_select(0x00, TW_WRITE))
     goto stop;
-  TWDR = 0x06;                  //magic reset byte
+  TWDR = 0x06;                  /* magic reset byte */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
   ret = 0;
@@ -66,10 +67,10 @@ i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
     goto exit;
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = PRE_SCALE;             //Address of Prescale Register
+  TWDR = PRE_SCALE;             /* Address of Prescale Register */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
-  value = prescaler;            //Set the data to be transmitted
+  value = prescaler;            /* Set the data to be transmitted */
   TWDR = value;
 #ifdef DEBUG_I2C
   debug_printf("I2C: PCA9685 writing to register %#x:%#x\n", PRE_SCALE,
@@ -81,10 +82,10 @@ i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
   i2c_master_stop();
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = MODE2;                 //Address of Mode Register 2
+  TWDR = MODE2;                 /* Address of Mode Register 2 */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
-  value = ((outdrv << 2) | (ivrt << 4));        //Set the data to be transmitted
+  value = ((outdrv << 2) | (ivrt << 4));        /* Set the data to be transmitted */
   TWDR = value;
 #ifdef DEBUG_I2C
   debug_printf("I2C: PCA9685 writing to register %#x:%#x\n", MODE2, value);
@@ -94,13 +95,12 @@ i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
   i2c_master_stop();
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = MODE1;                 //Address of Mode Register 1
+  TWDR = MODE1;                 /* Address of Mode Register 1 */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
-  /*The chip is in sleep mode on power up..let's wake it up
-   * Settings are: Auto-Increment: true ALLCALL: true
-   */
-  value = 0b00100001;
+  /* The chip is in sleep mode on power up..let's wake it up
+   * Settings are: Auto-Increment: true ALLCALL: true */
+  value = 0 b00100001;
   TWDR = value;
 #ifdef DEBUG_I2C
   debug_printf("I2C: PCA9685 writing to register %#x:%#x\n", MODE1, value);
@@ -117,7 +117,7 @@ exit:
   else
     debug_printf("I2C: PCA9685 set mode was successful\n");
 #endif
-  return ret;                   //0 if everything went fine, 1 if one transmit failed
+  return ret;                   /* 0 if everything went fine, 1 if one transmit failed */
 }
 
 /* 
@@ -139,26 +139,26 @@ i2c_pca9685_set_led(uint8_t address, uint8_t led, uint16_t on, uint16_t off)
   uint8_t ret = 1, value = 0;
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  value = LED0_ON_L + 4 * led - 1;      //Address of LED REGISTER low byte of the word
+  value = LED0_ON_L + 4 * led - 1;      /* Address of LED REGISTER low byte of the word */
   TWDR = value;
-  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) //Transmit address of first register (LEDn_ON_L)
+  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) /* Transmit address of first register (LEDn_ON_L) */
     goto stop;
   value = LO8(on);
   TWDR = value;
-  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) //Transmit LEDn_ON_L
+  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) /* Transmit LEDn_ON_L */
     goto stop;
   value = HI8(on);
   TWDR = value;
   goto stop;
-  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) //Transmit LEDn_ON_H
+  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) /* Transmit LEDn_ON_H */
     goto stop;
   value = LO8(off);
   TWDR = value;
-  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) //Transmit LEDn_OFF_L
+  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) /* Transmit LEDn_OFF_L */
     goto stop;
   value = HI8(off);
   TWDR = value;
-  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) //Transmit LEDn_OFF_H
+  if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) /* Transmit LEDn_OFF_H */
     goto stop;
   ret = 0;
 stop:
@@ -173,7 +173,7 @@ stop:
        address, led, on, off);
 #endif
   i2c_master_stop();
-  return ret;                   //0 if everything went fine, 1 if one transmit failed
+  return ret;                   /* 0 if everything went fine, 1 if one transmit failed */
 }
 
 /*
@@ -193,10 +193,10 @@ i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,
   uint8_t ret = 1;
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = LED0_ON_L + 4 * startled - 1;  //Address of LED REGISTER
+  TWDR = LED0_ON_L + 4 * startled - 1;  /* Address of LED REGISTER */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
-  for (uint8_t i = 0; i < count; i++)   //Now transmit all values in values in sequence
+  for (uint8_t i = 0; i < count; i++)   /* Now transmit all values in values in sequence */
   {
     TWDR = LO8(values[i]);
     if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
@@ -227,33 +227,33 @@ i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled, uint8_t count,
   uint8_t ret = 1;
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = LED0_ON_L + 4 * startled - 1;  //Address of LED REGISTER
+  TWDR = LED0_ON_L + 4 * startled - 1;  /* Address of LED REGISTER */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
-  for (uint8_t i = 0; i < count; i++)   //Now transmit all values in values in sequence
+  for (uint8_t i = 0; i < count; i++)   /* Now transmit all values in values in sequence */
   {
     TWDR = 0x00;
-    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       // transmit low byte of LEDn_ON
+    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       /* transmit low byte of LEDn_ON */
       goto stop;
     if (values[i] == 4096)
-      TWDR = 0x10;              //the 4th bit of LEDn_ON_HI will be set, LED is always ON
+      TWDR = 0x10;              /* the 4th bit of LEDn_ON_HI will be set, LED is always ON */
     else
       TWDR = 0x00;
-    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       // transmit high byte of LEDn_ON
+    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       /* transmit high byte of LEDn_ON */
       goto stop;
     if (values[i] == 0 || values[i] == 4096)
       TWDR = 0x00;
     else
       TWDR = LO8(values[i]);
-    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       // transmit low byte of LEDn_OFF
+    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       /* transmit low byte of LEDn_OFF */
       goto stop;
     if (values[i] == 0)
-      TWDR = 0x10;              //the 4th bit of LEDn_OFF_HI will be set, LED is always OFF
+      TWDR = 0x10;              /* the 4th bit of LEDn_OFF_HI will be set, LED is always OFF */
     else if (values[i] == 4096)
       TWDR = 0x00;
     else
       TWDR = HI8(values[i]);
-    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       // transmit high byte of LEDn_OFF
+    if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)       /* transmit high byte of LEDn_OFF */
       goto stop;
   }
   ret = 0;
@@ -268,9 +268,9 @@ i2c_pca9685_output_enable(enum i2c_pca9685_output_enable_state choice)
 {
   if (choice == ON)             /* PIN goes low */
     PCA9685_OE_PORT &= ~(1 << PCA9685_OE_PIN);
-  else if (choice == OFF)       /*PIN goes high */
+  else if (choice == OFF)       /* PIN goes high */
     PCA9685_OE_PORT |= (1 << PCA9685_OE_PIN);
-  else if (choice == TOGGLE)    /*Toggle PIN */
+  else if (choice == TOGGLE)    /* Toggle PIN */
     PCA9685_OE_PORT ^= (1 << PCA9685_OE_PIN);
 }
 #endif
