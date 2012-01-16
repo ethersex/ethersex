@@ -24,6 +24,7 @@
 #include "i2c_master.h"
 #include "i2c_pca9685.h"
 #include "core/bit-macros.h"
+#include "core/debug.h"
 #ifdef I2C_PCA9685_SUPPORT
 
 /* The PCA9685 features two modes of operation: totem-pole and open-drain. Please refer to the datasheet to find out
