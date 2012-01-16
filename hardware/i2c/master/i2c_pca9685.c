@@ -100,7 +100,7 @@ i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
     goto stop;
   /* The chip is in sleep mode on power up..let's wake it up
    * Settings are: Auto-Increment: true ALLCALL: true */
-  value = 0b00100001;
+  value = 0x21;
   TWDR = value;
 #ifdef DEBUG_I2C
   debug_printf("I2C: PCA9685 writing to register %#x:%#x\n", MODE1, value);
