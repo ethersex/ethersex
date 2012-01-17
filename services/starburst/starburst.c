@@ -29,7 +29,7 @@
 #include "services/dmx-storage/dmx_storage.h"
 enum starburst_update update;
 #ifdef STARBURST_PCA9685
-int8_t pca9685_dmx_conn_id = (-1);
+int8_t pca9685_dmx_conn_id = -1;
 uint8_t pca9685_dmx_connected = FALSE;
 const prog_uint16_t stevens_power_12bit[256] PROGMEM = {
   0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3,
@@ -67,7 +67,7 @@ struct starburst_channel pca9685_channels[STARBURST_PCA9685_CHANNELS] =
 #endif
 
 void
-starburst_init()
+starburst_init(void)
 {
   /*Init all i2c chips */
 #ifdef STARBURST_PCA9685
@@ -83,7 +83,7 @@ starburst_init()
 }
 
 void
-starburst_process()
+starburst_process(void)
 {
   if (pca9685_dmx_connected == FALSE)
     return;
@@ -161,7 +161,7 @@ starburst_process()
 }
 
 void
-starburst_update()
+starburst_update(void)
 {
 #ifdef STARBURST_PCA9685
 
@@ -193,7 +193,7 @@ starburst_update()
 }
 
 void
-starburst_main()
+starburst_main(void)
 {
 #ifdef STARBURST_PCA9685
   if (update == STARBURST_UPDATE)       /*Only transmit if at least one channels has been updated */

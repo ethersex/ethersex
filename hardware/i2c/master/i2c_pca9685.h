@@ -36,7 +36,7 @@
 #define ALL_LED_OFF_L 0xFC
 #define ALL_LED_OFF_H 0xFD
 #define PRE_SCALE 0xFE
-uint8_t i2c_pca9685_reset();
+uint8_t i2c_pca9685_reset(void);
 uint8_t i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
                              uint8_t prescaler);
 uint8_t i2c_pca9685_set_led(uint8_t address, uint8_t led, uint16_t on,

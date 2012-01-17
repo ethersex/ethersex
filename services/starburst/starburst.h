@@ -46,8 +46,8 @@ struct starburst_channel
   enum starburst_mode mode;
   enum starburst_update update;
 };
-void starburst_init();
-void starburst_update();
-void starburst_process();
-void starburst_main();
+void starburst_init(void);
+void starburst_update(void);
+void starburst_process(void);
+void starburst_main(void);
 #endif
