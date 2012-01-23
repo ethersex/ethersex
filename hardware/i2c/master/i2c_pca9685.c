@@ -149,7 +149,6 @@ i2c_pca9685_set_led(uint8_t address, uint8_t led, uint16_t on, uint16_t off)
     goto stop;
   value = HI8(on);
   TWDR = value;
-  goto stop;
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK) /* Transmit LEDn_ON_H */
     goto stop;
   value = LO8(off);
