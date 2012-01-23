@@ -10,6 +10,7 @@ SUBDIRS += core/tty
 SUBDIRS += core/gui
 SUBDIRS += core/util
 SUBDIRS += core/vfs
+SUBDIRS += core/crc
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
@@ -245,10 +246,18 @@ size-check: $(OBJECTS) ethersex
 ##############################################################################
 
 # Generate ethersex.hex file
-# If inlining is enabled, we need to copy from ethersex.bin to not lose
+# If inlining or crc-padding is enabled, we need to copy from ethersex.bin to not lose
 # those files.  However we mustn't always copy the binary, since that way
 # a bootloader cannot be built (the section start address would get lost).
+hex_from_bin =
 ifeq ($(VFS_INLINE_SUPPORT),y)
+	hex_from_bin = yes
+endif
+ifeq ($(CRC_PAD_SUPPORT),y)
+	hex_from_bin = yes
+endif
+
+ifeq ($(hex_from_bin), yes)
 %.hex: %.bin
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 else
@@ -272,6 +281,17 @@ else
 INLINE_FILES :=
 endif
 
+# calculate the flash size when padding a crc
+ifeq ($(CRC_PAD_SUPPORT),y)
+	FLASHEND = $(shell ./core/crc/read-define FLASHEND)
+	ifeq ($(BOOTLOADER_JUMP),y)
+		BOOTLOADER_SIZE = $(shell echo $$[ $(BOOTLOADER_WORDS) * 2 ] )
+	else
+		BOOTLOADER_SIZE = 0
+	endif
+	fillto = $(shell echo $$[ $(FLASHEND) - $(BOOTLOADER_SIZE) - 1 ] )
+endif
+
 embed/%: embed/%.cpp
 	@if ! avr-cpp -xc -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
@@ -289,12 +309,18 @@ embed/%: embed/%.sh
 	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 		else echo "--> Include $@ ($<)";	fi
 
-
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
 	@$(MAKE) -C core/vfs vfs-concat TOPDIR=../.. no_deps=t
 	$(CONFIG_SHELL) core/vfs/do-embed $(INLINE_FILES)
+endif
+ifeq ($(CRC_PAD_SUPPORT),y)
+# fill up the binary to the maximum possible size minus 2 bytes for the crc
+	$(OBJCOPY) -I binary -O binary --gap-fill 0xFF --pad-to $(fillto) ethersex.bin ethersex.bin
+# pad the crc to the binary
+	@$(MAKE) -C core/crc crc16-concat TOPDIR=../.. no_deps=t
+	./core/crc/crc16-concat ethersex.bin
 endif
 
 ##############################################################################

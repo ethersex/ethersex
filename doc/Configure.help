@@ -1308,6 +1308,25 @@ BOOTLOADER_SUPPORT
 
  This is Only a Bootloader, not a normaly image
 
+Add CRC Checksum
+CRC_PAD_SUPPORT
+
+  current implementation conflicts with VFS_INLINE_SUPPORT.
+
+  Appends a CRC16 checksum at the end of the regular flash. This can then
+  be used e.g. by a bootloader to check the integrity of the flash memory.
+
+  If you use a bootloader, activate BOOTLOADER_JUMP and set the correct
+  BOOTLOADER_SIZE.
+
+CRC verification via ECMD
+CRC_VERIFY_SUPPORT
+
+  Depends on CRC_PAD_SUPPORT.
+
+  Allows to verify the crc checksum of the currently running flash via ECMD.
+  Mainly targeted at debugging the CRC_PAD_SUPPORT function.
+
 device is self powered
 USB_CFG_IS_SELF_POWERED
 
