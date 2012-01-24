@@ -54,8 +54,8 @@ static uint16_t dcf_count;
 static uint16_t ntp_timer = 1;
 #endif
 
-#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
-uint32_t startup_timestamp;
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
+uint32_t uptime_timestamp;
 #endif
 
 #if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
@@ -105,7 +105,12 @@ ISR (TIMER_8_AS_1_VECTOR_OVERFLOW)
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
   if (!sync_timestamp || sync_timestamp == clock_timestamp)
 #endif
+  {
     clock_timestamp++;
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
+    uptime_timestamp++;
+#endif
+  }
 
   if (sync_timestamp)
     sync_timestamp++;
@@ -139,7 +144,12 @@ clock_tick (void)
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
       if (!sync_timestamp || sync_timestamp == clock_timestamp)
 #endif
+      {
 	clock_timestamp++;
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
+        uptime_timestamp++;
+#endif
+      }
 
       if (sync_timestamp)
 	sync_timestamp++;
@@ -194,11 +204,6 @@ clock_set_time (uint32_t new_sync_timestamp)
   if (sync_timestamp > clock_timestamp ||
       (clock_timestamp - sync_timestamp) > 300)
     clock_timestamp = sync_timestamp;
-
-#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
-  if (startup_timestamp == 0)
-    startup_timestamp = sync_timestamp;
-#endif
 
 #ifdef I2C_DS13X7_SUPPORT
   i2c_ds13x7_sync (sync_timestamp);
@@ -265,11 +270,11 @@ clock_last_ntp (void)
 }
 #endif
 
-#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
 uint32_t
-clock_get_startup (void)
+clock_get_uptime (void)
 {
-  return startup_timestamp;
+  return uptime_timestamp;
 }
 #endif
 
