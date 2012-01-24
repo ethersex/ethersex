@@ -7,7 +7,7 @@ divert(timer_divert) -1,dnl
 divert(old_divert)dnl
 define(`timer_$1', timer_count)dnl
 define(`timer_count', incr(timer_count))')')
-define(`TIMER_START', `TIMER_NEW($1)  timers[timer_$1] = clock_get_time();')
+define(`TIMER_START', `TIMER_NEW($1)  timers[timer_$1] = clock_get_uptime();')
 
 define(`TIMER', `ifdef(`timer_used', `', `dnl
 define(`old_divert', divnum)dnl
@@ -16,7 +16,7 @@ divert(globals_divert)uint32_t act_time;
 #error Please define clock support
 #endif
 
-divert(normal_start_divert)act_time = clock_get_time();
+divert(normal_start_divert)act_time = clock_get_uptime();
 define(`timer_used')dnl
 divert(old_divert)')dnl
 (act_time - timers[timer_$1])')
