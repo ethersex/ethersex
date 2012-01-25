@@ -1308,6 +1308,25 @@ BOOTLOADER_SUPPORT
 
  This is Only a Bootloader, not a normaly image
 
+Add CRC Checksum
+CRC_PAD_SUPPORT
+
+  current implementation conflicts with VFS_INLINE_SUPPORT.
+
+  Appends a CRC16 checksum at the end of the regular flash. This can then
+  be used e.g. by a bootloader to check the integrity of the flash memory.
+
+  If you use a bootloader, activate BOOTLOADER_JUMP and set the correct
+  BOOTLOADER_SIZE.
+
+CRC verification via ECMD
+CRC_VERIFY_SUPPORT
+
+  Depends on CRC_PAD_SUPPORT.
+
+  Allows to verify the crc checksum of the currently running flash via ECMD.
+  Mainly targeted at debugging the CRC_PAD_SUPPORT function.
+
 device is self powered
 USB_CFG_IS_SELF_POWERED
 
@@ -1371,6 +1390,26 @@ I2C_PCF8574X_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
+
+I2C BMP085 barometric pressure sensor
+I2C_BMP085_SUPPORT
+
+  Allows to read out absolute pressure and temperature from
+  Bosch BMP085 and BMP180 barometric pressure sensors.
+
+BMP085 advanced barometric calculations
+I2C_BMP085_BAROCALC_SUPPORT
+
+  Include calculation of height and pressure at NN based on the
+  international barometric formula. Requires floating point
+  calculations, don't enable this on systems with thight flash.
+
+BMP085 Pressure Oversampling
+I2C_BMP085_OVERSAMPLING
+
+  The BMP085 includes a mode to automatically take multiple measurements
+  and average them to increase resolution. This is the oss or osrs
+  parameter found in the datasheet.
 
 Edit list of allowed ecmd buddies
 JABBER_KNOWN_BUDDIES

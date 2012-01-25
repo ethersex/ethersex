@@ -24,33 +24,8 @@
 
 #ifdef ECMD_SCRIPT_SUPPORT
 
-#define STR_EQUALS "eq"
-#define STR_NOTEQUALS "ne"
-#define OK "OK"
-#define NOT "!"
-#define EQUALS "=="
-#define NOTEQUALS "!="
-#define GREATER ">"
-#define LOWER "<"
-#define GREATEREQUALS ">="
-#define LOWEREQUALS "<="
+int16_t ecmd_script_init_run(void);
 
-#ifdef DEBUG_ECMD_SCRIPT
-# include "core/debug.h"
-# define SCRIPTDEBUG(a...)  debug_printf("ECMD script: " a)
-#else
-# define SCRIPTDEBUG(a...)
-#endif
-
-int16_t
-ecmd_script_init_run(void);
-
-typedef struct {
-  char value[ECMD_SCRIPT_VARIABLE_LENGTH];
-} variables_t;
-
-variables_t vars[ECMD_SCRIPT_MAX_VARIABLES];
-
-#endif  /* ECMD_SCRIPT_SUPPORT */
+#endif /* ECMD_SCRIPT_SUPPORT */
 
 #endif /* ECMD_SCRIPTING_H */

@@ -74,8 +74,8 @@ void set_ntp_count(const uint16_t new_ntp_count);
 /* the actual ntp_timer */
 uint16_t clock_last_ntp(void);
 
-/* when was the device booted (unix timestamp) */
-uint32_t clock_get_startup(void);
+/* how long is the system up (seconds) */
+uint32_t clock_get_uptime(void);
 
 /* the actual time */
 void clock_set_time_raw(uint32_t new_sync_timestamp);

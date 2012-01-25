@@ -163,6 +163,8 @@ if [ "$ARCH_AVR" = "y" ]; then
 		fi
 	fi
 
+    source core/crc/config.in
+
 fi
 
 
