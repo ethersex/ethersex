@@ -24,7 +24,8 @@
 #ifndef __RFM12_ASK_H
 #define __RFM12_ASK_H
 
-enum ASK_TYPE {T_2272, T_1527, T_TEVION};
+enum ASK_TYPE
+{ T_2272, T_1527, T_TEVION };
 void rfm12_ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_2272_1527_switch(uint8_t);
 void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
@@ -36,6 +37,6 @@ void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void rfm12_ask_sense_start(void);
 void rfm12_ask_trigger(uint8_t, uint16_t);
 
-#define INTERTECHNO_PERIOD 264 // produces pulse of 360 us
+#define INTERTECHNO_PERIOD 264  // produces pulse of 360 us
 
 #endif /* __RFM12_ASK_H */
