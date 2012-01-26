@@ -182,7 +182,7 @@ rfm12_ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
       }
     }
   }
-  code[48] = 7;                 // sync
+  *p = 7;                 // sync
 
   rfm12_prologue();
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
@@ -257,4 +257,4 @@ rfm12_ask_external_filter_deinit(void)
 {
   rfm12_init();
 }
-#endif // RFM12_ASK_EXTERNAL_FILTER_SUPPORT
+#endif /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
