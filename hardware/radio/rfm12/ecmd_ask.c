@@ -140,7 +140,6 @@ parse_cmd_rfm12_ask_2272_send (char *cmd, char *output, uint16_t len)
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
-  rfm12_ask_2272_1527_switch (T_2272);
   rfm12_ask_2272_send (command, delay, cnt);
   return ECMD_FINAL_OK;
 }
@@ -161,8 +160,7 @@ parse_cmd_rfm12_ask_1527_send (char *cmd, char *output, uint16_t len)
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
-  rfm12_ask_2272_1527_switch (T_1527);
-  rfm12_ask_2272_send (command, delay, cnt);
+  rfm12_ask_1527_send (command, delay, cnt);
   return ECMD_FINAL_OK;
 }
 #endif /* RFM12_ASK_1527_SUPPORT */
