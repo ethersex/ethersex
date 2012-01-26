@@ -30,6 +30,7 @@
 
 #include <util/delay.h>
 #include "config.h"
+#include "rfm12_hw.h"
 
 
 /* Prologue/epilogue macros, disabling/enabling interrupts. 
@@ -204,4 +205,4 @@ uint16_t rfm12_get_status (void);
 #define rfm12_int_process()  do { } while(0)
 #endif
 
-#endif /* _RFM12_H */
+#endif /* __RFM12_H */
