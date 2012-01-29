@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "core/bit-macros.h"
+#include "core/bool.h"
 
 #include "rfm12.h"
 #include "rfm12_ask.h"
@@ -38,10 +39,10 @@ send_bits(uint16_t data, uint8_t bits)
     data = (data << 1) | parity_even_bit(data);
   }
 
-  for (uint16_t mask = _BV(bits - 1); mask; mask >>= 1)
+  for (uint16_t mask = (uint16_t)_BV(bits - 1); mask; mask >>= 1)
   {
     /* Timing values empirically obtained, and used to adjust for on/off
-     * delay in the RF12. The actual on-the-air bit timing we're after is
+     * delay in the RFM12. The actual on-the-air bit timing we're after is
      * 600/600us for 1 and 400/400us for 0 - but to achieve that the RFM12B
      * needs to be turned on a bit longer and off a bit less. In addition
      * there is about 25 uS overhead in sending the on/off command over SPI.
@@ -57,7 +58,7 @@ static void
 fs20_send_internal(uint8_t fht, uint16_t house, uint8_t addr, uint8_t cmd,
                    uint8_t data)
 {
-  uint8_t sum = fht ? 0xc : 0x06;
+  uint8_t sum = fht ? 0x0c : 0x06;
 
   send_bits(1, 13);
   send_bits(HI8(house), 8);
@@ -80,13 +81,13 @@ fs20_send_internal(uint8_t fht, uint16_t house, uint8_t addr, uint8_t cmd,
 void
 rfm12_fs20_send(uint16_t house, uint8_t addr, uint8_t cmd, uint8_t data)
 {
-  fs20_send_internal(0, house, addr, cmd, data);
+  fs20_send_internal(FALSE, house, addr, cmd, data);
 }
 
 #ifdef RFM12_ASK_FHT_SUPPORT
 void
 rfm12_fht_send(uint16_t house, uint8_t addr, uint8_t cmd, uint8_t data)
 {
-  fs20_send_internal(1, house, addr, cmd, data);
+  fs20_send_internal(TRUE, house, addr, cmd, data);
 }
 #endif

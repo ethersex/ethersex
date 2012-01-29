@@ -30,47 +30,43 @@
 #include "rfm12_fs20.h"
 
 #ifdef RFM12_ASK_FS20_SUPPORT
+typedef void (*fs20_func_t) (uint16_t, uint8_t, uint8_t, uint8_t);
 
-int16_t parse_cmd_rfm12_fs20_send(char *cmd, char *output, uint16_t len)
+static int16_t
+parse_cmd_rfm12_internal(char *cmd, char *output, uint16_t len,
+                         fs20_func_t func)
 {
-    uint16_t hc, addr, c, c2;
+  uint16_t hc, addr, c, c2;
 
-    int ret = sscanf_P(cmd, PSTR("%x %x %x %x"), &hc, &addr, &c, &c2);
-    if (ret == 3 || ret == 4) 
+  int ret = sscanf_P(cmd, PSTR("%x %x %x %x"), &hc, &addr, &c, &c2);
+  if (ret == 3 || ret == 4)
+  {
+    if (ret == 3)
     {
-        if (ret == 3) 
-        {
-            c2 = 0;
-        }
-        
-        rfm12_fs20_send(hc, LO8(addr), LO8(c), LO8(c2));
-        return ECMD_FINAL_OK;
+      c2 = 0;
     }
 
-    return ECMD_ERR_PARSE_ERROR;
+    func(hc, LO8(addr), LO8(c), LO8(c2));
+    return ECMD_FINAL_OK;
+  }
+
+  return ECMD_ERR_PARSE_ERROR;
 
 }
+
+int16_t
+parse_cmd_rfm12_fs20_send(char *cmd, char *output, uint16_t len)
+{
+  return parse_cmd_rfm12_internal(cmd, output, len, rfm12_fs20_send);
+}
+
 #endif
 
 #ifdef RFM12_ASK_FHT_SUPPORT
-int16_t parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 {
-    uint16_t hc, addr, c, c2;
-
-    int ret = sscanf_P(cmd, PSTR("%x %x %x %x"), &hc, &addr, &c, &c2);
-    if (ret == 3 || ret == 4) 
-    {
-        if (ret == 3) 
-        {
-            c2 = 0;
-        }
-        
-	rfm12_fht_send(hc, LO8(addr), LO8(c), LO8(c2));
-        return ECMD_FINAL_OK;
-    }
-
-    return ECMD_ERR_PARSE_ERROR;
-
+  return parse_cmd_rfm12_internal(cmd, output, len, rfm12_fht_send);
 }
 #endif
 
