@@ -2505,3 +2505,28 @@ DMX_FXSLOT_AUTORESTORE_SUPPORT
 
   If enabled, ethersex will restore previously saved fxslots from EEPROM during boot.
 
+FS20
+RFM12_ASK_FS20_SUPPORT
+  Depends on: 
+   * RFM12 frequency (RFM12_FREQ_868300)
+   * RFM12 ASK (RFM12_ASK_SUPPORT)
+   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+
+  Send FS20 commands.
+
+  RFM12 frequency has to be set to 868.300MHz. This is done in
+  Network --> IP over RFM12 --> RFM12 frequency
+
+FHT
+RFM12_ASK_FHT_SUPPORT
+  Depends on: 
+   * RFM12 frequency (RFM12_FREQ_868300)
+   * RFM12 ASK (RFM12_ASK_SUPPORT)
+   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+   * FS20 (RFM12_ASK_FS20_SUPPORT)
+
+  Send FHT commands.
+
+  RFM12 frequency has to be set to 868.300MHz. This is done in
+  Network --> IP over RFM12 --> RFM12 frequency
+
