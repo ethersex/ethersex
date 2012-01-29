@@ -23,10 +23,11 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "hardware/radio/rfm12/rfm12.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
+#include "rfm12.h"
+#include "rfm12_ecmd.h"
 
 int16_t 
 parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
@@ -130,6 +131,7 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[RFM12]])
+  header(hardware/radio/rfm12/rfm12_ecmd.h)
   ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
   ecmd_feature(rfm12_reinit, "rfm12 reinit",, Re-initialize RFM12 module.)
   ecmd_ifdef(RFM12_IP_SUPPORT)
