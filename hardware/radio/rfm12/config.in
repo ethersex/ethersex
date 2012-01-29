@@ -1,44 +1,45 @@
 dep_bool_menu "IP over RFM12 (FSK transmitter) support" RFM12_IP_SUPPORT $ARCH_AVR
-	choice 'RFM12 frequency'	\
-		"433.920MHz	RFM12_FREQ_433920	\
-		868.300MHz	RFM12_FREQ_868300	\
-		869.775MHz	RFM12_FREQ_869775	\
-		869.800MHz	RFM12_FREQ_869800	\
-		869.825MHz	RFM12_FREQ_869825	\
-		869.850MHz	RFM12_FREQ_869850	\
-		869.875MHz	RFM12_FREQ_869875	\
-		869.900MHz	RFM12_FREQ_869900	\
-		869.925MHz	RFM12_FREQ_869925"	\
-		'433.920MHz'	CONF_RFM12_FREQ
+  if [ "$RFM12_IP_SUPPORT" = "y" ]; then
+    choice 'RFM12 frequency'  \
+      "433.920MHz  RFM12_FREQ_433920  \
+      869.775MHz  RFM12_FREQ_869775  \
+      869.800MHz  RFM12_FREQ_869800  \
+      869.825MHz  RFM12_FREQ_869825  \
+      869.850MHz  RFM12_FREQ_869850  \
+      869.875MHz  RFM12_FREQ_869875  \
+      869.900MHz  RFM12_FREQ_869900  \
+      869.925MHz  RFM12_FREQ_869925"  \
+      '433.920MHz'  CONF_RFM12_FREQ
+  fi
 
-	dep_bool "Use slow SPI" CONF_RFM12_SLOW_SPI
-	dep_bool "Use RFM12B" CONF_RFM12B_SUPPORT
-		
-	if [ "$TEENSY_SUPPORT" != "y" ]; then
-		int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
-	fi
+  dep_bool "Use slow SPI" CONF_RFM12_SLOW_SPI
+  dep_bool "Use RFM12B" CONF_RFM12B_SUPPORT
+    
+  if [ "$TEENSY_SUPPORT" != "y" ]; then
+    int "RFM12 Baudrate" CONF_RFM12_BAUD 19200
+  fi
 
-	if [ "$IPV6_SUPPORT" = "y" ]; then
-		ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
-		int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
-	else
-		ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
-		ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
-	fi
+  if [ "$IPV6_SUPPORT" = "y" ]; then
+    ipv6 "IP address" CONF_RFM12_IP "2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+    int "IP prefix length" CONF_RFM12_IP6_PREFIX_LEN 64
+  else
+    ipv4 "IP address" CONF_RFM12_IP "192.168.5.1"
+    ipv4 "Netmask" CONF_RFM12_IP4_NETMASK "255.255.255.0"
+  fi
 
-	dep_bool "Source Route ALL packets" RFM12_SOURCE_ROUTE_ALL $RFM12_IP_SUPPORT
-	if [ "$RFM12_SOURCE_ROUTE_ALL" = "y" ]; then
-		int "  Router ID" CONF_RFM12_SOURCE_ROUTE_ALL_RTRID 17
-	fi
+  dep_bool "Source Route ALL packets" RFM12_SOURCE_ROUTE_ALL $RFM12_IP_SUPPORT
+  if [ "$RFM12_SOURCE_ROUTE_ALL" = "y" ]; then
+    int "  Router ID" CONF_RFM12_SOURCE_ROUTE_ALL_RTRID 17
+  fi
 
-	dep_bool "RFM12 Packet Forwarding" RFM12_PCKT_FWD $RFM12_IP_SUPPORT
-	if [ "$RFM12_PCKT_FWD" = "y" ]; then
-		int "  Station ID" CONF_RFM12_STATID 17
-	fi
+  dep_bool "RFM12 Packet Forwarding" RFM12_PCKT_FWD $RFM12_IP_SUPPORT
+  if [ "$RFM12_PCKT_FWD" = "y" ]; then
+    int "  Station ID" CONF_RFM12_STATID 17
+  fi
 
-	dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
+  dep_bool "RFM12 ARP-Proxy" RFM12_ARP_PROXY $ENC28J60_SUPPORT $RFM12_IP_SUPPORT
 
-	if [ "$RFM12_IP_SUPPORT" != "y" ]; then
-		bool "Disable RFM12 module" RFM12_DISABLE
-	fi
+  if [ "$RFM12_IP_SUPPORT" != "y" ]; then
+    bool "Disable RFM12 module" RFM12_DISABLE
+  fi
 endmenu

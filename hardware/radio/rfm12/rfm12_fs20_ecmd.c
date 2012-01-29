@@ -28,6 +28,7 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #include "rfm12_fs20.h"
+#include "rfm12_fs20_ecmd.h"
 
 #ifdef RFM12_ASK_FS20_SUPPORT
 typedef void (*fs20_func_t) (uint16_t, uint8_t, uint8_t, uint8_t);
@@ -73,6 +74,7 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 /*
 -- Ethersex META --
   block([[RFM12_FS20]])
+  header(hardware/radio/rfm12/rfm12_fs20_ecmd.h)
   ecmd_ifdef(RFM12_ASK_FS20_SUPPORT)
     ecmd_feature(rfm12_fs20_send, "fs20 send", , housecode addr command data)
   ecmd_endif()
