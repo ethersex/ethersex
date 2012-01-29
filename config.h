@@ -22,6 +22,12 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+/* define these menu choices before including autoconf.h */
+#define BMP085_OSS_0 0
+#define BMP085_OSS_1 1
+#define BMP085_OSS_2 2
+#define BMP085_OSS_3 3
+
 #include "autoconf.h"
 
 /* network controller hardware bug defines */
