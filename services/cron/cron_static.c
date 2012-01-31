@@ -33,7 +33,7 @@ uint32_t last_check;
 
 /** check if this event matches the current time */
 uint8_t cron_check_event(struct cron_static_event_t *event,
-                         struct clock_datetime_t *d);
+                         clock_datetime_t *d);
 
 void leds(void);
 
@@ -91,7 +91,7 @@ void
 cron_static_periodic(void)
 {
     /* convert time to something useful */
-    struct clock_datetime_t d, ld;
+    clock_datetime_t d, ld;
     uint32_t timestamp = clock_get_time();
 
     /* Only check the tasks every minute */
@@ -127,7 +127,7 @@ cron_static_periodic(void)
 }
 
 uint8_t
-cron_check_event(struct cron_static_event_t *event, struct clock_datetime_t *d)
+cron_check_event(struct cron_static_event_t *event, clock_datetime_t *d)
 {
 
     for (uint8_t f = 0; f < 5; f++) {
