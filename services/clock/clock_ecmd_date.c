@@ -3,6 +3,7 @@
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2010 by Peter Marschall <peter@adpm.de>
+ * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -21,47 +22,55 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string.h>
-#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
-#include "core/debug.h"
 #include "clock.h"
 #ifdef DCF77_SUPPORT
-	#include "hardware/clock/dcf77/dcf77.h"
+#include "hardware/clock/dcf77/dcf77.h"
 #endif
 
 #include "protocols/ecmd/ecmd-base.h"
 
-static const char const weekdays[][4] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-
-int16_t parse_cmd_date(char *cmd, char *output, uint16_t len)
+static int16_t
+generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
 {
-  struct clock_datetime_t date;
-  clock_current_localtime(&date);
+  const char *dow = clock_dow_string(date->dow);
+  return ECMD_FINAL(snprintf_P(output, len,
+			       PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"),
+                               pgm_read_byte(dow),
+			       pgm_read_byte(dow + 1),
+			       pgm_read_byte(dow + 2),
+			       date->day,
+			       date->month,
+			       date->year + 1900,
+			       date->hour,
+			       date->min,
+			       date->sec,
+			       date->day));
+}
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
-                               weekdays[date.dow],
-                               date.day, date.month, date.year + 1900,
-                               date.hour, date.min, date.sec, date.day));
+int16_t
+parse_cmd_date(char *cmd, char *output, uint16_t len)
+{
+  clock_datetime_t date;
+  clock_current_localtime(&date);
+  return generate_time_string(&date, output, len);
 }
 
 #ifdef DCF77_SUPPORT
-int16_t parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
 {
-  struct clock_datetime_t date;
+  clock_datetime_t date;
   uint32_t last_valid;
 
   last_valid = dcf77_get_last_valid_timestamp();
 
   clock_localtime(&date, last_valid);
-
-
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s %02d.%02d.%04d %02d:%02d:%02d"),
-                               weekdays[date.dow],
-                               date.day, date.month, date.year + 1900,
-                               date.hour, date.min, date.sec, date.day));
+  return generate_time_string(&date, output, len);
 }
 
 #endif

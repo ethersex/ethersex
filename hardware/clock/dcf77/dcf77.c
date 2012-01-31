@@ -132,15 +132,15 @@ dcf77_init(void)
 static inline uint32_t
 compute_dcf77_timestamp(void)
 {
-  struct clock_datetime_t dcfdate;
+  clock_datetime_t dcfdate;
   dcfdate.sec = 0;
   dcfdate.min = BCD2BIN(dcf.time[2]);
   dcfdate.hour = BCD2BIN(dcf.time[3]);
   dcfdate.day = BCD2BIN(dcf.time[4]);
   dcfdate.month = BCD2BIN(dcf.time[6]);
-  //dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
+  dcfdate.dow = dcf.time[5]; // nach ISO erster Tag Montag, nicht So!
   dcfdate.year = 100 + (BCD2BIN(dcf.time[7]));
-  return clock_utc2timestamp(&dcfdate, dcf.timezone);
+  return clock_mktime(&dcfdate, 1);
 }
 
 #ifdef DCF77_VECTOR

@@ -2,6 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(CLOCK_SUPPORT)_SRC += services/clock/clock.c 
+$(CLOCK_SUPPORT)_SRC += services/clock/clock_lib.c 
 $(CLOCK_SUPPORT)_SOAP_SRC += services/clock/clock_soap.c
 
 $(CLOCK_DATETIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_date.c
