@@ -66,7 +66,7 @@ void clear(){
 
 void
 bulbdial_clock(uint8_t delay){
-  struct clock_datetime_t date;
+  clock_datetime_t date;
   clock_current_localtime(&date);
   clear();
   set(0x0001 << (date.sec/5));
