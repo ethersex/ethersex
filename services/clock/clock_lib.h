@@ -46,7 +46,7 @@ typedef struct
       uint8_t hour;             /* Stunden 0-23 */
       uint8_t day;              /* Tag des Monats 1-31 */
       uint8_t month;            /* Monat 1-12 */
-      uint8_t dow;              /* Tag der Woche 0-6 */
+      uint8_t dow;              /* Tag der Woche 0-6, So-Sa */
     };
   };
   uint8_t year;                 /* Jahr seit 1900 */
@@ -67,7 +67,6 @@ extern const uint8_t clock_monthdays[];
 extern const char cmd_date_text[];
 extern const char cmd_tz_text[];
 
-/* convert time in timestamp to a datetime struct */
 void clock_datetime(clock_datetime_t *, timestamp_t);
 void clock_localtime(clock_datetime_t *, const timestamp_t);
 timestamp_t clock_mktime(clock_datetime_t *, const uint8_t);

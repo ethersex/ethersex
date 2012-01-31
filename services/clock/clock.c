@@ -40,11 +40,11 @@
 #include "core/periodic.h"
 #include "clock.h"
 
-static uint32_t clock_timestamp;
+static timestamp_t clock_timestamp;
 static uint8_t ticks;
-static uint32_t sync_timestamp;
-static uint32_t n_sync_timestamp;
-static uint32_t n_sync_tick;
+static timestamp_t sync_timestamp;
+static timestamp_t n_sync_timestamp;
+static timestamp_t n_sync_tick;
 static int16_t delta;
 static uint16_t ntp_count;
 static uint16_t dcf_count;
@@ -55,13 +55,9 @@ static uint16_t ntp_timer = 1;
 #endif
 
 #if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
-uint32_t uptime_timestamp;
+timestamp_t uptime_timestamp;
 #endif
 
-#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
-static const uint8_t months[] PROGMEM =
-  { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-#endif
 
 void
 clock_init(void)
@@ -69,7 +65,7 @@ clock_init(void)
 #ifdef CLOCK_CRYSTAL_SUPPORT
   TIMER_8_AS_1_ASYNC_ON;
   TIMER_8_AS_1_COUNTER_CURRENT = 0;
-  /* 128 prescaler to get every 1.0 second an interrupt (32768Hz/128 = 1Hz */
+  /* 128 prescaler to get every 1.0 second an interrupt (32768Hz/128=1Hz) */
   TIMER_8_AS_1_PRESCALER_128;
 
   /* Wait until the bytes are written */
@@ -159,13 +155,13 @@ clock_tick(void)
 }
 
 void
-clock_set_time_raw(uint32_t new_sync_timestamp)
+clock_set_time_raw(timestamp_t new_sync_timestamp)
 {
   clock_timestamp = new_sync_timestamp;
 }
 
 void
-clock_set_time(uint32_t new_sync_timestamp)
+clock_set_time(timestamp_t new_sync_timestamp)
 {
   /* The clock was synced */
   if (sync_timestamp)
@@ -214,19 +210,19 @@ clock_set_time(uint32_t new_sync_timestamp)
 #endif
 }
 
-uint32_t
+timestamp_t
 clock_get_time(void)
 {
   return clock_timestamp;
 }
 
-uint32_t
+timestamp_t
 clock_last_sync(void)
 {
   return n_sync_timestamp;
 }
 
-uint32_t
+timestamp_t
 clock_last_sync_tick(void)
 {
   return n_sync_tick;
@@ -271,7 +267,7 @@ clock_last_ntp(void)
 #endif
 
 #if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
-uint32_t
+timestamp_t
 clock_get_uptime(void)
 {
   return uptime_timestamp;
