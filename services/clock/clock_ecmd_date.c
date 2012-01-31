@@ -31,6 +31,7 @@
 #ifdef DCF77_SUPPORT
 #include "hardware/clock/dcf77/dcf77.h"
 #endif
+#include "clock_ecmd_date.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -39,20 +40,20 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
 {
   const char *dow = clock_dow_string(date->dow);
   return ECMD_FINAL(snprintf_P(output, len,
-			       PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"
-				    " (doy=%d,woy=%d,dst=%d)"),
+                               PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"
+                                    " (doy=%d,woy=%d,dst=%d)"),
                                pgm_read_byte(dow),
-			       pgm_read_byte(dow + 1),
-			       pgm_read_byte(dow + 2),
-			       date->day,
-			       date->month,
-			       date->year + 1900,
-			       date->hour,
-			       date->min,
-			       date->sec,
-			       date->yday + 1,
-			       clock_woy(date->day, date->month, date->year),
-			       date->isdst));
+                               pgm_read_byte(dow + 1),
+                               pgm_read_byte(dow + 2),
+                               date->day,
+                               date->month,
+                               date->year + 1900,
+                               date->hour,
+                               date->min,
+                               date->sec,
+                               date->yday + 1,
+                               clock_woy(date->day, date->month, date->year),
+                               date->isdst));
 }
 
 int16_t
@@ -79,7 +80,6 @@ parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  header(services/clock/clock_ecmd_date.h)
   block([[Am_Puls_der_Zeit|Clock]])
   ecmd_feature(date, "date",, Print the current date.)
   ecmd_ifdef(DCF77_SUPPORT)

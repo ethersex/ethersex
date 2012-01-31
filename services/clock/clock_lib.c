@@ -32,10 +32,10 @@
 #include "clock_lib.h"
 
 
-#define UTCTIME   tz.utctime
-#define DSTTIME   tz.dsttime
-#define DSTBEGIN  &tz.dstbegin
-#define DSTEND    &tz.dstend
+#define UTCTIME   clock_tz.utctime
+#define DSTTIME   clock_tz.dsttime
+#define DSTBEGIN  &clock_tz.dstbegin
+#define DSTEND    &clock_tz.dstend
 
 
 const char clock_weekdays[] PROGMEM = {
@@ -59,23 +59,8 @@ static const uint16_t clock_monthydays[2][13] PROGMEM = {
   {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
 };
 
-typedef struct
-{
-  uint8_t month;
-  uint8_t week;
-  uint8_t dow;
-  uint8_t hour;
-} clock_dst_t;
 
-typedef struct
-{
-  int32_t utctime;              /* Offset zu UTC in Sekunden */
-  int32_t dsttime;              /* Offset zu Normalzeit in Sekunden */
-  clock_dst_t dstbegin;
-  clock_dst_t dstend;
-} clock_timezone_t;
-
-static const clock_timezone_t tz = {
+const clock_timezone_t clock_tz = {
   .utctime = TIME_ZONE_OFFSET,
   .dsttime = DST_START_MONTH,
   .dstbegin = {.month = DST_START_MONTH,

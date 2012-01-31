@@ -54,6 +54,22 @@ typedef struct
   int8_t isdst;                 /* Sommerzeit */
 } clock_datetime_t;
 
+typedef struct
+{
+  uint8_t month;
+  uint8_t week;
+  uint8_t dow;
+  uint8_t hour;
+} clock_dst_t;
+
+typedef struct
+{
+  int32_t utctime;              /* Offset zu UTC in Sekunden */
+  int32_t dsttime;              /* Offset zu Normalzeit in Sekunden */
+  clock_dst_t dstbegin;
+  clock_dst_t dstend;
+} clock_timezone_t;
+
 /* test if given year is a leap year */
 #define IS_LEAP_YEAR(y)  (((y % 4) == 0) && ( (y % 100 != 0) || (y % 400 == 0) ))
 /* current_time is the amount of seconds since 1.1.1900, 00:00:00 UTC */
@@ -66,6 +82,7 @@ extern const char clock_weekdays[];
 extern const uint8_t clock_monthdays[];
 extern const char cmd_date_text[];
 extern const char cmd_tz_text[];
+extern const clock_timezone_t clock_tz;
 
 void clock_datetime(clock_datetime_t *, timestamp_t);
 void clock_localtime(clock_datetime_t *, const timestamp_t);
