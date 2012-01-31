@@ -39,7 +39,8 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
 {
   const char *dow = clock_dow_string(date->dow);
   return ECMD_FINAL(snprintf_P(output, len,
-			       PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"),
+			       PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"
+				    " (doy=%d,woy=%d,dst=%d)"),
                                pgm_read_byte(dow),
 			       pgm_read_byte(dow + 1),
 			       pgm_read_byte(dow + 2),
@@ -49,7 +50,9 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
 			       date->hour,
 			       date->min,
 			       date->sec,
-			       date->day));
+			       date->yday + 1,
+			       clock_woy(date->day, date->month, date->year),
+			       date->isdst));
 }
 
 int16_t
@@ -72,14 +75,14 @@ parse_cmd_lastdcf(char *cmd, char *output, uint16_t len)
   clock_localtime(&date, last_valid);
   return generate_time_string(&date, output, len);
 }
-
 #endif
 
 /*
   -- Ethersex META --
+  header(services/clock/clock_ecmd_date.h)
   block([[Am_Puls_der_Zeit|Clock]])
-  ecmd_feature(date, "date",, Display the current date.)
+  ecmd_feature(date, "date",, Print the current date.)
   ecmd_ifdef(DCF77_SUPPORT)
-    ecmd_feature(lastdcf, "lastdcf",, Display when last valid DCF Signal was received.)
+    ecmd_feature(lastdcf, "lastdcf",, Print when last valid DCF signal was received.)
   ecmd_endif()
 */
