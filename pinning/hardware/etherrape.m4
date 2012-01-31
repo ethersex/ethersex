@@ -78,6 +78,12 @@ ifdef(`conf_RC5', `
   RC5_USE_INT(0)
 ')
 
+ifdef(`conf_LTC1257', `
+   pin(LTC1257_CLK, PA2, OUTPUT)
+   pin(LTC1257_DATA, PA1, OUTPUT)
+   pin(LTC1257_LOAD, PA0, OUTPUT)
+')
+
 ifdef(`conf_HD44780', `
     pin(HD44780_RS, PA0)
     pin(HD44780_RW, PA1)
