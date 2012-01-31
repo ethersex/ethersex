@@ -193,7 +193,10 @@ clock_set_time(timestamp_t new_sync_timestamp)
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
   n_sync_tick = TIMER_8_AS_1_COUNTER_CURRENT;
+
+#if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
   clock_reset_dst_change();
+#endif
 
   /* Allow the clock to jump forward, but not to go backward
    * except the time difference is greater than 5 minutes */
