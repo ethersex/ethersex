@@ -7,11 +7,9 @@ $(CLOCK_SUPPORT)_SOAP_SRC += services/clock/clock_soap.c
 
 $(CLOCK_DATETIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_date.c
 $(CLOCK_DATETIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_time.c
-$(CLOCK_DATETIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_timezone.c
 
 $(CLOCK_DATE_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_date.c
 $(CLOCK_TIME_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_time.c
-$(CLOCK_TIMEZONE_SUPPORT)_ECMD_SRC += services/clock/clock_ecmd_timezone.c
 
 $(WHM_SUPPORT)_ECMD_SRC += services/clock/whm_ecmd.c
 $(WHM_SUPPORT)_SOAP_SRC += services/clock/whm_soap.c
