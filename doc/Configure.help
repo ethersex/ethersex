@@ -2530,7 +2530,7 @@ RFM12_ASK_FHT_SUPPORT
   RFM12 frequency has to be set to 868.300MHz. This is done in
   Network --> IP over RFM12 --> RFM12 frequency
 
-Start month (1-31)
+Start month (1-12)
 DST_BEGIN_MONTH
 
   This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
@@ -2554,7 +2554,7 @@ DST_BEGIN_DOW
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
 
-End month (1-31)
+End month (1-12)
 DST_END_MONTH
 
   This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of

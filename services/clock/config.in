@@ -15,12 +15,12 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
       comment "Daylight saving"
       int "Time offset (minutes)" DST_OFFSET 60
       comment "Begin of daylight saving"
-      int "Month (1-31)" DST_BEGIN_MONTH 3
+      int "Month (1-12)" DST_BEGIN_MONTH 3
       int "Week (1-5)" DST_BEGIN_WEEK 5
       int "Day of week (0-6)" DST_BEGIN_DOW 0
       int "Hour (0-23)" DST_BEGIN_HOUR 2
       comment "End of daylight saving"
-      int "Month (1-31)" DST_END_MONTH 10
+      int "Month (1-12)" DST_END_MONTH 10
       int "Week (1-5)" DST_END_WEEK 5
       int "Day of week (0-6)" DST_END_DOW 0
       int "Hour (0-23)" DST_END_HOUR 3
