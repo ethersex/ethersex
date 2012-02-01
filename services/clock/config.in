@@ -4,6 +4,7 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
     comment 'The follow ECMD Options are here and in ECMD Options available'
     bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
     bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
+    bool '  Timezone ECMD support Only !' CLOCK_TIMEZONE_SUPPORT
   else
     dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
   fi
@@ -11,17 +12,19 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
   if [ "$CLOCK_SUPPORT" = "y" ]; then
     mainmenu_option next_comment
       comment "Timezone"
-      int "Local time offset to UTC (minutes)" TIME_ZONE_OFFSET 3600
+      int "Local time offset to UTC (minutes)" TZ_OFFSET 3600
       comment "Daylight saving"
       int "Time offset (minutes)" DST_OFFSET 3600
-      int "Start month (1-31)" DST_START_MONTH 3
-      int "Start week (1-5)" DST_START_WEEK 5
-      int "Start day of week (0-6)" DST_START_DOW 0
-      int "Start hour (0-24)" DST_START_HOUR 2
-      int "End month (1-31)" DST_END_MONTH 10
-      int "End week (1-5)" DST_END_WEEK 5
-      int "End day of week (0-6)" DST_END_DOW 0
-      int "End hour (0-24)" DST_END_HOUR 3
+      comment "Begin of daylight saving"
+      int "Month (1-31)" DST_BEGIN_MONTH 3
+      int "Week (1-5)" DST_BEGIN_WEEK 5
+      int "Day of week (0-6)" DST_BEGIN_DOW 0
+      int "Hour (0-23)" DST_BEGIN_HOUR 2
+      comment "End of daylight saving"
+      int "Month (1-31)" DST_END_MONTH 10
+      int "Week (1-5)" DST_END_WEEK 5
+      int "Day of week (0-6)" DST_END_DOW 0
+      int "Hour (0-23)" DST_END_HOUR 3
     endmenu
   fi
   

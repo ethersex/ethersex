@@ -2531,7 +2531,7 @@ RFM12_ASK_FHT_SUPPORT
   Network --> IP over RFM12 --> RFM12 frequency
 
 Start month (1-31)
-DST_START_MONTH
+DST_BEGIN_MONTH
 
   This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
   month m (1 <= m <= 12).  Week 1 is the first week in which day d
@@ -2539,7 +2539,7 @@ DST_START_MONTH
   is a Sunday.
 
 Start week (1-5)
-DST_START_WEEK
+DST_BEGIN_WEEK
 
   This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
   month m (1 <= m <= 12).  Week 1 is the first week in which day d
@@ -2547,7 +2547,7 @@ DST_START_WEEK
   is a Sunday.
 
 Start day of week (0-6)
-DST_START_DOW
+DST_BEGIN_DOW
 
   This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
   month m (1 <= m <= 12).  Week 1 is the first week in which day d
