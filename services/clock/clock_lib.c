@@ -61,12 +61,12 @@ static const uint16_t clock_monthydays[2][13] PROGMEM = {
 
 
 const clock_timezone_t clock_tz = {
-  .utctime = TIME_ZONE_OFFSET,
-  .dsttime = DST_START_MONTH,
-  .dstbegin = {.month = DST_START_MONTH,
-               .week = DST_START_WEEK,
-               .dow = DST_START_DOW,
-               .hour = DST_START_HOUR,
+  .utctime = TZ_OFFSET,
+  .dsttime = DST_BEGIN_MONTH,
+  .dstbegin = {.month = DST_BEGIN_MONTH,
+               .week = DST_BEGIN_WEEK,
+               .dow = DST_BEGIN_DOW,
+               .hour = DST_BEGIN_HOUR,
                },
   .dstend = {.month = DST_END_MONTH,
              .week = DST_END_WEEK,
