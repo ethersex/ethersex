@@ -11,9 +11,9 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
   if [ "$CLOCK_SUPPORT" = "y" ]; then
     mainmenu_option next_comment
       comment "Timezone"
-      int "Local time offset to UTC (minutes)" TZ_OFFSET 3600
+      int "Local time offset to UTC (minutes)" TZ_OFFSET 60
       comment "Daylight saving"
-      int "Time offset (minutes)" DST_OFFSET 3600
+      int "Time offset (minutes)" DST_OFFSET 60
       comment "Begin of daylight saving"
       int "Month (1-31)" DST_BEGIN_MONTH 3
       int "Week (1-5)" DST_BEGIN_WEEK 5

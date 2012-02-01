@@ -77,8 +77,8 @@ typedef struct
 } clock_timezone_t;
 
 static const clock_timezone_t PROGMEM clock_tz = {
-  .utctime = TZ_OFFSET,
-  .dsttime = DST_BEGIN_MONTH,
+  .utctime = TZ_OFFSET * 60,
+  .dsttime = DST_OFFSET * 60,
   .dstbegin = {.month = DST_BEGIN_MONTH,
                .week = DST_BEGIN_WEEK,
                .dow = DST_BEGIN_DOW,
