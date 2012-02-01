@@ -32,8 +32,8 @@
 #include "clock_lib.h"
 
 
-#define UTCTIME   clock_tz.utctime
-#define DSTTIME   clock_tz.dsttime
+#define UTCTIME   (uint32_t)pgm_read_dword(&clock_tz.utctime)
+#define DSTTIME   (uint32_t)pgm_read_dword(&clock_tz.dsttime)
 #define DSTBEGIN  &clock_tz.dstbegin
 #define DSTEND    &clock_tz.dstend
 
@@ -60,7 +60,23 @@ static const uint16_t clock_monthydays[2][13] PROGMEM = {
 };
 
 
-const clock_timezone_t clock_tz = {
+typedef struct
+{
+  uint8_t month;
+  uint8_t week;
+  uint8_t dow;
+  uint8_t hour;
+} clock_dst_t;
+
+typedef struct
+{
+  int32_t utctime;              /* Offset zu UTC in Sekunden */
+  int32_t dsttime;              /* Offset zu Normalzeit in Sekunden */
+  clock_dst_t dstbegin;
+  clock_dst_t dstend;
+} clock_timezone_t;
+
+static const clock_timezone_t PROGMEM clock_tz = {
   .utctime = TZ_OFFSET,
   .dsttime = DST_BEGIN_MONTH,
   .dstbegin = {.month = DST_BEGIN_MONTH,
@@ -74,6 +90,7 @@ const clock_timezone_t clock_tz = {
              .hour = DST_END_HOUR,
              },
 };
+
 
 typedef struct
 {
@@ -256,18 +273,22 @@ clock_date_to_timestamp(const uint8_t day, uint8_t month, const uint8_t year)
 
 
 static uint8_t
-clock_compute_change(dst_change_t * change, const clock_dst_t * dst,
+clock_compute_change(dst_change_t * change, const clock_dst_t * dst_flash,
                      const uint8_t year)
 {
+  // copy block from flash to stack for faster access
+  clock_dst_t dst;
+  memcpy_P(&dst, dst_flash, sizeof(clock_dst_t));
+
   if (change->year == year)
     return 0;
 
-  int8_t day = dst->dow - clock_dow(1, dst->month, year);
+  int8_t day = dst.dow - clock_dow(1, dst.month, year);
   if (day < 0)
     day += 7;
 
-  uint8_t monthdays = clock_month_days(dst->month);
-  for (uint8_t i = 1; i < dst->week; i++)
+  uint8_t monthdays = clock_month_days(dst.month);
+  for (uint8_t i = 1; i < dst.week; i++)
   {
     if (day + 7 >= monthdays)
       break;
@@ -275,9 +296,9 @@ clock_compute_change(dst_change_t * change, const clock_dst_t * dst,
   }
   day++;
 
-  timestamp_t t = clock_date_to_timestamp(day, dst->month, year);
+  timestamp_t t = clock_date_to_timestamp(day, dst.month, year);
   t -= UTCTIME;
-  t += dst->hour * 3600UL;
+  t += dst.hour * 3600UL;
   change->when = t;             // - UTCTIME + dst->hour * 3600UL;
   change->year = year;
   return 1;
