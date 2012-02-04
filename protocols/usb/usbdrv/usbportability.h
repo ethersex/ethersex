@@ -1,11 +1,11 @@
 /* Name: usbportability.h
- * Project: AVR USB driver
+ * Project: V-USB, virtual USB port for Atmel's(r) AVR(r) microcontrollers
  * Author: Christian Starkjohann
  * Creation Date: 2008-06-17
  * Tabsize: 4
  * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
  * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
- * This Revision: $Id: usbportability.h 692 2008-11-07 15:07:40Z cs $
+ * This Revision: $Id$
  */
 
 /*
@@ -125,7 +125,11 @@ static inline void  sei(void)
 #   include <avr/pgmspace.h>
 #endif
 
-#define USB_READ_FLASH(addr)    pgm_read_byte(addr)
+#if USB_CFG_DRIVER_FLASH_PAGE
+#   define USB_READ_FLASH(addr)    pgm_read_byte_far(((long)USB_CFG_DRIVER_FLASH_PAGE << 16) | (long)(addr))
+#else
+#   define USB_READ_FLASH(addr)    pgm_read_byte(addr)
+#endif
 
 #define macro   .macro
 #define endm    .endm
