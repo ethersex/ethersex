@@ -248,7 +248,7 @@ rfm12_ask_external_filter_init(void)
 {
   rfm12_prologue();
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ER | RFM12_PWRMGT_EBB);
-  rfm12_trans(RFM12_CMD_DATAFILTER);
+  rfm12_trans(RFM12_CMD_DATAFILTER | RFM12_DATAFILTER_S);
   rfm12_epilogue();
 }
 
