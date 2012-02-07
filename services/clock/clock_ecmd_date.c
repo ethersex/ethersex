@@ -36,13 +36,13 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #if TZ_OFFSET < 0
-#define _TZ_FORMAT_STRING " -%d%02d"
+#define _TZ_FORMAT_STRING " -%d:%02d"
 #define _TZ_OFFSET        (-TZ_OFFSET)
 #elif TZ_OFFSET > 0
-#define _TZ_FORMAT_STRING " +%d%02d"
+#define _TZ_FORMAT_STRING " +%d:%02d"
 #define _TZ_OFFSET        (TZ_OFFSET)
 #else
-#define _TZ_FORMAT_STRING " %d%02d"
+#define _TZ_FORMAT_STRING " %d:%02d"
 #define _TZ_OFFSET        (TZ_OFFSET)
 #endif
 
