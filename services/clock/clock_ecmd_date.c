@@ -35,13 +35,28 @@
 
 #include "protocols/ecmd/ecmd-base.h"
 
+#if TZ_OFFSET < 0
+#define _TZ_FORMAT_STRING " -%d%02d"
+#define _TZ_OFFSET        (-TZ_OFFSET)
+#elif TZ_OFFSET > 0
+#define _TZ_FORMAT_STRING " +%d%02d"
+#define _TZ_OFFSET        (TZ_OFFSET)
+#else
+#define _TZ_FORMAT_STRING " %d%02d"
+#define _TZ_OFFSET        (TZ_OFFSET)
+#endif
+
 static int16_t
 generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
 {
   const char *dow = clock_dow_string(date->dow);
   return ECMD_FINAL(snprintf_P(output, len,
                                PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"
-                                    " (doy=%d,woy=%d,dst=%d)"),
+                                    _TZ_FORMAT_STRING
+#ifdef CLOCK_DEBUG
+                                    " (doy=%d,woy=%d,dst=%d)"
+#endif
+				    ),
                                pgm_read_byte(dow),
                                pgm_read_byte(dow + 1),
                                pgm_read_byte(dow + 2),
@@ -51,9 +66,13 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
                                date->hour,
                                date->min,
                                date->sec,
-                               date->yday + 1,
+			       _TZ_OFFSET / 60, _TZ_OFFSET % 60
+#ifdef CLOCK_DEBUG
+                               ,date->yday + 1,
                                clock_woy(date->day, date->month, date->year),
-                               date->isdst));
+                               date->isdst
+#endif
+			       ));
 }
 
 int16_t
