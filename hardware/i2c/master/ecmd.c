@@ -1,12 +1,13 @@
 /*
+ *
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  * Copyright (c) 2011 by Patrick Hieber <patrick.hieber@gmx.net>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,7 +20,7 @@
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
- */
+*/
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
