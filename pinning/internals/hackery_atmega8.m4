@@ -18,6 +18,7 @@
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
 #define UPE PE /* parity error */
+#define ANALOG_COMP_vect ANA_COMP_vect
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUCSR
