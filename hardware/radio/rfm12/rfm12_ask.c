@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) Gregor B.
  * Copyright (c) Guido Pannenbecker
  * Copyright (c) Stefan Riepenhausen
@@ -27,6 +26,7 @@
 #include <stdlib.h>
 #include <avr/wdt.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
 
 #include "config.h"
 #include "core/heartbeat.h"
@@ -36,7 +36,7 @@
 
 #define INTERTECHNO_PERIOD 264  // produces pulse of 360 us
 
-#ifdef RFM12_ASK_SENDER_SUPPORT
+#ifdef RFM12_ASK_433_SUPPORT
 #ifdef RFM12_ASK_TEVION_SUPPORT
 void
 rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay,
@@ -63,7 +63,7 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay,
     }
   }
 
-  rfm12_prologue();
+  rfm12_prologue(RFM12_MODUL_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t ii = cnt; ii > 0; ii--)
@@ -130,7 +130,7 @@ rfm12_ask_intertechno_send(uint8_t family, uint8_t group,
   code.bits.group = group;
   code.bits.command = command ? 0x0E : 0x06;
 
-  rfm12_prologue();
+  rfm12_prologue(RFM12_MODUL_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t j = 6; j > 0; j--)
@@ -182,9 +182,9 @@ rfm12_ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
       }
     }
   }
-  *p = 7;                 // sync
+  *p = 7;                       // sync
 
-  rfm12_prologue();
+  rfm12_prologue(RFM12_MODUL_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t ii = cnt; ii > 0; ii--)
@@ -217,7 +217,9 @@ rfm12_ask_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 }
 #endif
 #endif /* RFM12_ASK_2272_SUPPORT || RFM12_ASK_1527_SUPPORT */
+#endif /* RFM12_ASK_433_SUPPORT */
 
+#if defined(RFM12_ASK_433_SUPPORT) || defined(RFM12_ASK_868_SUPPORT)
 void
 rfm12_ask_trigger(uint8_t level, uint16_t us)
 {
@@ -240,21 +242,68 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
   for (; us > 0; us--)
     _delay_us(1);
 }
-#endif // RFM12_ASK_SENDER_SUPPORT
+#endif /* RFM12_ASK_433_SUPPORT || RFM12_ASK_868_SUPPORT */
 
 #ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 void
 rfm12_ask_external_filter_init(void)
 {
-  rfm12_prologue();
+  rfm12_prologue(RFM12_MODUL_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ER | RFM12_PWRMGT_EBB);
-  rfm12_trans(RFM12_CMD_DATAFILTER);
+  rfm12_trans(RFM12_CMD_DATAFILTER | RFM12_DATAFILTER_S);
   rfm12_epilogue();
 }
 
 void
 rfm12_ask_external_filter_deinit(void)
 {
-  rfm12_init();
+  rfm12_ask_init();
 }
 #endif /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
+
+#ifdef RFM12_ASK_433_SUPPORT
+void
+rfm12_ask_init(void)
+{
+  /* wait until POR done */
+  for (uint8_t i = 0; i < 15; i++)
+    _delay_ms(10);
+
+  rfm12_prologue(RFM12_MODUL_ASK);
+
+  rfm12_trans(RFM12_CMD_LBDMCD | 0xE0);
+  rfm12_trans(RFM12BAND(RFM12_FREQ_433920));
+  rfm12_trans(RFM12_CMD_DATAFILTER | RFM12_DATAFILTER_AL | 0x03);
+  rfm12_trans(RFM12_CMD_FIFORESET | 0x80 | RFM12_FIFORESET_DR);
+  rfm12_trans(RFM12_CMD_WAKEUP);
+  rfm12_trans(RFM12_CMD_DUTYCYCLE);
+  rfm12_trans(RFM12_CMD_AFC | 0xF7);
+
+#ifdef CONF_RFM12B_SUPPORT
+  rfm12_trans(0xCED4);          /* Set Sync=2DD4 */
+  rfm12_trans(0xCC16);          /* pll bandwitdh 0: max bitrate 86.2kHz */
+#endif
+
+  uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
+  (void) result;
+  RFM12_DEBUG("rfm12_ask/init: %x", result);
+
+  rfm12_setfreq(RFM12FREQ(RFM12_FREQ_433920));
+  rfm12_setbandwidth(5, 1, 4);
+
+  rfm12_epilogue();
+
+#ifdef STATUSLED_RFM12_RX_SUPPORT
+  PIN_CLEAR(STATUSLED_RFM12_RX);
+#endif
+#ifdef STATUSLED_RFM12_TX_SUPPORT
+  PIN_CLEAR(STATUSLED_RFM12_TX);
+#endif
+}
+#endif /* RFM12_ASK_433_SUPPORT */
+
+/*
+  -- Ethersex META --
+  header(hardware/radio/rfm12/rfm12_ask.h)
+  ifdef(`conf_RFM12_ASK_433_SUPPORT',`init(rfm12_ask_init)')
+*/

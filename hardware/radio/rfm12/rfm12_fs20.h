@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -14,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  * For more information on the GPL, please go to:
  * http://www.gnu.org/copyleft/gpl.html
@@ -25,5 +24,6 @@
 
 void rfm12_fs20_send(uint16_t, uint8_t, uint8_t, uint8_t);
 void rfm12_fht_send(uint16_t, uint8_t, uint8_t, uint8_t);
+void rfm12_fs20_init(void);
 
 #endif /* __RFM12_FS20_H */

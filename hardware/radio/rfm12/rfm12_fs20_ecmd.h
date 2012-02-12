@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +21,8 @@
 
 #ifndef __RFM12_FS20_ECMD_H
 #define __RFM12_FS20_ECMD_H
+
+#include <stdint.h>
 
 int16_t parse_cmd_rfm12_fs20_send(char *, char *, uint16_t);
 int16_t parse_cmd_rfm12_fht_send(char *, char *, uint16_t);

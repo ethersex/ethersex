@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +19,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -74,7 +73,6 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 /*
 -- Ethersex META --
   block([[RFM12_FS20]])
-  header(hardware/radio/rfm12/rfm12_fs20_ecmd.h)
   ecmd_ifdef(RFM12_ASK_FS20_SUPPORT)
     ecmd_feature(rfm12_fs20_send, "fs20 send", , housecode addr command data)
   ecmd_endif()
