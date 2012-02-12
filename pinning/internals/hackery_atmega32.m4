@@ -2,6 +2,8 @@
 
 #define _SPMCR SPMCR
 
+#define ANALOG_COMP_vect  ANA_COMP_vect
+
 /* ATmega32 specific adjustments */
 #define USART0_UDRE_vect USART_UDRE_vect
 #define USART0_RX_vect USART_RXC_vect

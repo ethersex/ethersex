@@ -487,12 +487,12 @@ void fs20_process(void)
                 dg->fht = (fhtparity == dgparity);
 
                 /* shift queue backwards */
-                memmove(&fs20_global.fs20.queue[1],
-                        &fs20_global.fs20.queue[0],
+                memmove((void *)&fs20_global.fs20.queue[1],
+                        (void *)&fs20_global.fs20.queue[0],
                         (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_datagram_t));
 
                 /* copy datagram to queue */
-                memcpy(&fs20_global.fs20.queue[0],
+                memcpy((void *)&fs20_global.fs20.queue[0],
                         (const void *)&fs20_global.fs20.datagram,
                         sizeof(struct fs20_datagram_t));
 
