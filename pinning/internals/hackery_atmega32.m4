@@ -10,6 +10,7 @@
 #define _IVREG MCUCR
 #define _EIMSK GICR
 #define _EICRA MCUCR
+#define ANALOG_COMP_vect ANA_COMP_vect
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUCSR
