@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.67 2011/09/22 10:19:44 fm Exp $
+ * $Id: irmp.h,v 1.68 2012/02/13 10:55:50 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -136,8 +136,9 @@ typedef uint8_t     PAUSE_LEN;
 #define SAMSUNG_START_BIT_PULSE_TIME            4500.0e-6                       // 4500 usec pulse
 #define SAMSUNG_START_BIT_PAUSE_TIME            4500.0e-6                       // 4500 usec pause
 #define SAMSUNG_PULSE_TIME                       550.0e-6                       //  550 usec pulse
-#define SAMSUNG_1_PAUSE_TIME                    1450.0e-6                       // 1450 usec pause
-#define SAMSUNG_0_PAUSE_TIME                     450.0e-6                       //  450 usec pause
+#define SAMSUNG_1_PAUSE_TIME                    1650.0e-6                       // 1650 usec pause
+#define SAMSUNG_0_PAUSE_TIME                     550.0e-6                       //  550 usec pause
+
 #define SAMSUNG_FRAME_REPEAT_PAUSE_TIME           25.0e-3                       // frame repeat after 25ms
 #define SAMSUNG_ADDRESS_OFFSET                   0                              // skip 0 bits
 #define SAMSUNG_ADDRESS_LEN                     16                              // read 16 address bits
@@ -153,7 +154,7 @@ typedef uint8_t     PAUSE_LEN;
 #define SAMSUNG32_COMMAND_OFFSET                16                              // skip 16 bits
 #define SAMSUNG32_COMMAND_LEN                   16                              // read 16 command bits
 #define SAMSUNG32_COMPLETE_DATA_LEN             32                              // complete length
-#define SAMSUNG32_FRAMES                        2                               // SAMSUNG32 sends each frame 2 times
+#define SAMSUNG32_FRAMES                        1                               // SAMSUNG32 sends each frame 1 times
 #define SAMSUNG32_AUTO_REPETITION_PAUSE_TIME    47.0e-3                         // repetition after 47 ms
 #define SAMSUNG32_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 40ms
 
