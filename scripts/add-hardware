@@ -312,7 +312,7 @@ FNORD
 
   template $RFM12_SUPPORT << FNORD
     /* port the rfm12 module CS is attached to */
-    pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
+    pin(SPI_CS_RFM12_0, SPI_CS_HARDWARE)
 
     RFM12_USE_INT(0)
 FNORD
