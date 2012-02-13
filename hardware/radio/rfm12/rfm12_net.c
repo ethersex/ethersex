@@ -44,7 +44,7 @@ static volatile rfm12_index_t rfm12_index;
 static volatile rfm12_index_t rfm12_txlen;
 
 static void rfm12_txstart_hard(void);
-static uint8_t rfm12_rxstop(void);
+//static uint8_t rfm12_rxstop(void);
 
 
 #ifdef RFM12_INT_VECTOR
@@ -299,6 +299,7 @@ rfm12_rxstart(void)
   return 0;
 }
 
+#if 0
 static uint8_t
 rfm12_rxstop(void)
 {
@@ -320,6 +321,7 @@ out:;
   rfm12_epilogue();
   return result;
 }
+#endif
 
 
 rfm12_index_t
