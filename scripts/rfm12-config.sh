@@ -1,6 +1,6 @@
 
 get_rfm12_count() {
-  RFM12S=2
+  RFM12S=3
 }
 
 rfm12_choice() {
@@ -29,10 +29,10 @@ rfm12_count_used() {
   if [ "$RFM12_IP_SUPPORT" = "y" ]; then
     RFM12S_USED=$(($RFM12S_USED + 1))
   fi
-  if [ "$RFM12_ASK_SENDER_433_SUPPORT" = "y" ]; then
+  if [ "$RFM12_ASK_433_SUPPORT" = "y" ]; then
     RFM12S_USED=$(($RFM12S_USED + 1))
   fi
-  if [ "$RFM12_ASK_SENDER_868_SUPPORT" = "y" ]; then
+  if [ "$RFM12_ASK_868_SUPPORT" = "y" ]; then
       RFM12S_USED=$(($RFM12S_USED + 1))
   fi
 }
