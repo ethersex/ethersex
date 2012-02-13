@@ -20,6 +20,7 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
+#include <util/delay.h>
 #include "lome6_ecmd.h"
 
 /*
