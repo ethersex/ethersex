@@ -239,7 +239,7 @@ ISR(ANALOG_COMP_vect)
             break;
           case 19:
             DCFDEBUG("%S\n", LOW(divtime) ? PSTR("MESZ") : PSTR("MEZ"));
-	    dcf.isdst = LOW(divtime) ? 0 : 1;
+	    dcf.isdst = LOW(divtime) ? 1 : 0;
             break;
           case 20:
             DCFDEBUG("%S\n", LOW(divtime) ?
