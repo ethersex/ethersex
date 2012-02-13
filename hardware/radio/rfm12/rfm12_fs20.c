@@ -123,8 +123,13 @@ rfm12_fs20_init(void)
   (void) result;
   RFM12_DEBUG("rfm12_fs20/init: %x", result);
 
+#ifdef TEENSY_SUPPORT
+  rfm12_trans(RFM12_CMD_FREQUENCY | RFM12FREQ(RFM12_FREQ_868300));
+  rfm12_trans(RFM12_CMD_RXCTRL | 0x04ac);
+#else
   rfm12_setfreq(RFM12FREQ(RFM12_FREQ_868300));
   rfm12_setbandwidth(5, 1, 4);
+#endif
 
   rfm12_epilogue();
 
