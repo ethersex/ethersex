@@ -12,7 +12,7 @@
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
- * $Id: irsnd.c,v 1.41 2011/09/20 10:45:28 fm Exp $
+ * $Id: irsnd.c,v 1.45 2012/02/13 11:02:29 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,7 +139,8 @@ typedef unsigned short  uint16_t;
    || defined (__AVR_ATmega324__)   \
    || defined (__AVR_ATmega644__)   \
    || defined (__AVR_ATmega644P__)  \
-   || defined (__AVR_ATmega1284__)                      // ATmega164|324|644|644P|1284 uses OC2A = PD7 or OC2B = PD6 or OC0A = PB3 or OC0B = PB4
+   || defined (__AVR_ATmega1284__)  \
+   || defined (__AVR_ATmega1284P__)                     // ATmega164|324|644|644P|1284 uses OC2A = PD7 or OC2B = PD6 or OC0A = PB3 or OC0B = PB4
 #if IRSND_OCx == IRSND_OC2A                             // OC2A
 #define IRSND_PORT                              PORTD   // port D
 #define IRSND_DDR                               DDRD    // ddr D
@@ -184,6 +185,21 @@ typedef unsigned short  uint16_t;
 #define IRSND_BIT                               5       // OC0B
 #else
 #error Wrong value for IRSND_OCx, choose IRSND_OC2A, IRSND_OC2B, IRSND_OC0A, or IRSND_OC0B in irsndconfig.h
+#endif // IRSND_OCx
+#elif defined (__AVR_ATmega8515__) 
+#if IRSND_OCx == IRSND_OC0   
+#define IRSND_PORT                              PORTB   // port B
+#define IRSND_DDR                               DDRB    // ddr B
+#define IRSND_BIT                               0       // OC0
+#elif IRSND_OCx == IRSND_OC1A 
+#define IRSND_PORT                              PORTD   // port D
+#define IRSND_DDR                               DDRD    // ddr D
+#define IRSND_BIT                               5       // OC1A
+#elif IRSND_OCx == IRSND_OC1B 
+#define IRSND_PORT                              PORTE   // port E
+#define IRSND_DDR                               DDRE    // ddr E
+#define IRSND_BIT                               2       // OC1E
+#error Wrong value for IRSND_OCx, choose IRSND_OC0, IRSND_OC1A, or IRSND_OC1B in irsndconfig.h
 #endif // IRSND_OCx
 
 #else
@@ -725,16 +741,18 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
         case IRMP_KASEIKYO_PROTOCOL:
         {
             uint8_t xor;
+            uint16_t genre2;
 
             address = bitsrevervse (irmp_data_p->address, KASEIKYO_ADDRESS_LEN);
             command = bitsrevervse (irmp_data_p->command, KASEIKYO_COMMAND_LEN + 4);
+            genre2 = bitsrevervse ((irmp_data_p->flags & ~IRSND_REPETITION_MASK) >> 4, 4);
 
             xor = ((address & 0x000F) ^ ((address & 0x00F0) >> 4) ^ ((address & 0x0F00) >> 8) ^ ((address & 0xF000) >> 12)) & 0x0F;
 
             irsnd_buffer[0] = (address & 0xFF00) >> 8;                                                          // AAAAAAAA
             irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
             irsnd_buffer[2] = xor << 4 | (command & 0x000F);                                                    // XXXXCCCC
-            irsnd_buffer[3] = 0 | (command & 0xF000) >> 12;                                                     // 0000CCCC
+            irsnd_buffer[3] = (genre2 << 4) | (command & 0xF000) >> 12;                                         // ggggCCCC
             irsnd_buffer[4] = (command & 0x0FF0) >> 4;                                                          // CCCCCCCC
 
             xor = irsnd_buffer[2] ^ irsnd_buffer[3] ^ irsnd_buffer[4];
@@ -974,6 +992,7 @@ irsnd_stop (void)
 uint8_t
 irsnd_ISR (void)
 {
+    static uint8_t  send_trailer;
     static uint8_t  current_bit = 0xFF;
     static uint8_t  pulse_counter;
     static IRSND_PAUSE_LEN  pause_counter;
@@ -1073,6 +1092,12 @@ irsnd_ISR (void)
             }
             else
             {
+                if (send_trailer)
+                {
+                    irsnd_busy = FALSE;
+                    return irsnd_busy;
+                }
+
                 n_repeat_frames             = irsnd_repeat;
 
                 if (n_repeat_frames == IRSND_ENDLESS_REPETITION)
@@ -1996,6 +2021,8 @@ irsnd_ISR (void)
             }
             else
             {
+                irsnd_busy = TRUE;
+                send_trailer = TRUE;
                 n_repeat_frames = 0;
                 repeat_counter = 0;
             }
@@ -2028,7 +2055,6 @@ irsnd_ISR (void)
 int
 main (int argc, char ** argv)
 {
-    int         idx;
     int         protocol;
     int         address;
     int         command;
@@ -2062,11 +2088,6 @@ main (int argc, char ** argv)
         (void) irsnd_send_data (&irmp_data, TRUE);
 
         while (irsnd_busy)
-        {
-            irsnd_ISR ();
-        }
-
-        for (idx = 0; idx < 20; idx++)
         {
             irsnd_ISR ();
         }
