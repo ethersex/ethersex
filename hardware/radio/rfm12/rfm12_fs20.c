@@ -59,28 +59,33 @@ static void
 fs20_send_internal(uint8_t fht, uint16_t house, uint8_t addr, uint8_t cmd,
                    uint8_t data)
 {
-  uint8_t sum = fht ? 0x0c : 0x06;
-
-  rfm12_prologue(RFM12_MODUL_FS20);
-
-  send_bits(1, 13);
-  send_bits(HI8(house), 8);
-  sum += HI8(house);
-  send_bits(LO8(house), 8);
-  sum += LO8(house);
-  send_bits(addr, 8);
-  sum += addr;
-  send_bits(cmd, 8);
-  sum += cmd;
-  if (cmd & 0x20)
+  for (uint8_t i = 3; i; i--)
   {
-    send_bits(data, 8);
-    sum += data;
-  }
-  send_bits(sum, 8);
-  send_bits(0, 1);
+    uint8_t sum = fht ? 0x0c : 0x06;
 
-  rfm12_epilogue();
+    rfm12_prologue(RFM12_MODUL_FS20);
+
+    send_bits(1, 13);
+    send_bits(HI8(house), 8);
+    sum += HI8(house);
+    send_bits(LO8(house), 8);
+    sum += LO8(house);
+    send_bits(addr, 8);
+    sum += addr;
+    send_bits(cmd, 8);
+    sum += cmd;
+    if (cmd & 0x20)
+    {
+      send_bits(data, 8);
+      sum += data;
+    }
+    send_bits(sum, 8);
+    send_bits(0, 1);
+
+    rfm12_epilogue();
+
+    _delay_ms(10);
+  }
 }
 
 void
