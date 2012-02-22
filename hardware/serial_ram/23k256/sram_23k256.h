@@ -25,8 +25,8 @@
 #define SRAM23K256_SIZE 32768  /* Size of the RAM in bytes */
 
 int16_t sram23k256_init(void);
-void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8);
-void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8);
+void sram23k256_read(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8);
+void sram23k256_write(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8);
 
 #include "config.h"
 #ifdef DEBUG_SER_RAM_23K256

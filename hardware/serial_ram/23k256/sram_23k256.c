@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "core/spi.h"
+#include "core/bit-macros.h"
 #include "sram_23k256.h"
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -57,18 +58,19 @@
 * @param dataPtr_pui8 Pointer to destination
 * @param len_ui8 Number of bytes to be read
 */
-void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8)
+void sram23k256_read(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8)
 {
   uint16_t ctr = 0;
 
-  SERRAMDEBUG ("read\n");
+  //SERRAMDEBUG ("read\n");
 
   /* Acquire device */
   PIN_CLEAR(SPI_CS_23K256);
 
   /* send command & address */
   spi_send(SRAM_23K256_READ);
-  spi_send(address_ui16);
+  spi_send(HI8(address_ui16));
+  spi_send(LO8(address_ui16));
 
   /* Read data from chip */
   for (ctr = 0; ctr < len_ui8; ctr++)
@@ -90,7 +92,7 @@ void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_u
 * @param dataPtr_pui8 Pointer to source.
 * @param len_ui8 Number of bytes to be written
 */
-void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8)
+void sram23k256_write(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8)
 {
   uint16_t ctr = 0;
 
@@ -101,7 +103,8 @@ void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_
 
   /* send command & address */
   spi_send(SRAM_23K256_WRITE);
-  spi_send(address_ui16);
+  spi_send(HI8(address_ui16));
+  spi_send(LO8(address_ui16));
 
   /* Write data from chip */
   for (ctr = 0; ctr < len_ui8; ctr++)
@@ -220,6 +223,6 @@ int16_t sram23k256_init(void)
 /*
   -- Ethersex META --
   header(hardware/serial_ram/23k256/sram_23k256.h)
-  init(sram23k256_init)
+  initearly(sram23k256_init)
 */
 #endif /* SER_RAM_23K256_SUPPORT */
