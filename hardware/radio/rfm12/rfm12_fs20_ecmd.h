@@ -19,11 +19,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef __RFM12_FS20_H
-#define __RFM12_FS20_H
+#ifndef __RFM12_FS20_ECMD_H
+#define __RFM12_FS20_ECMD_H
 
-void rfm12_fs20_send(uint16_t, uint8_t, uint8_t, uint8_t);
-void rfm12_fht_send(uint16_t, uint8_t, uint8_t, uint8_t);
-void rfm12_fs20_init(void);
+#include <stdint.h>
 
-#endif /* __RFM12_FS20_H */
+int16_t parse_cmd_rfm12_fs20_send(char *, char *, uint16_t);
+int16_t parse_cmd_rfm12_fht_send(char *, char *, uint16_t);
+
+#endif /* __RFM12_FS20_ECMD_H */

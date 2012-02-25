@@ -17,7 +17,7 @@ pin(STATUSLED_NETLINK, PA2, OUTPUT)
 
 ifdef(`conf_RFM12', `dnl
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
+  pin(SPI_CS_RFM12_0, SPI_CS_HARDWARE)
 
   /* port the LEDS for rfm12 txrx attached to */
   pin(STATUSLED_RFM12_TX, PD6, OUTPUT)

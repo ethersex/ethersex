@@ -107,27 +107,27 @@ static volatile struct
 static uint8_t samples_min, samples_max, samples_num, samples_limit;
 
 static void
-samples_learn (const uint8_t new_sample)
+samples_learn(const uint8_t new_sample)
 {
   if (samples_num > WAIT_SAMPLES_NUM)
-    return;			/* Gathered enough samples. */
+    return;                     /* Gathered enough samples. */
 
   if (samples_num == 0)
     samples_min = samples_max = new_sample;
 
   else
-    {
-      if (new_sample < samples_min)
-	samples_min = new_sample;
-      if (new_sample > samples_max)
-	samples_max = new_sample;
-    }
+  {
+    if (new_sample < samples_min)
+      samples_min = new_sample;
+    if (new_sample > samples_max)
+      samples_max = new_sample;
+  }
 
   if (++samples_num == WAIT_SAMPLES_NUM)
-    {
-      samples_limit = (uint8_t) ((samples_min + samples_max) / 2);
-      ASKDEBUG ("min=%d, max=%d\n", samples_min, samples_max);
-    }
+  {
+    samples_limit = (uint8_t) ((samples_min + samples_max) / 2);
+    ASKDEBUG("min=%d, max=%d\n", samples_min, samples_max);
+  }
 }
 
 
@@ -138,126 +138,125 @@ static uint8_t ask_buf_bits;
                             ask_buf_bits++; }
 
 static void
-ask_sense_clear_bits (void)
+ask_sense_clear_bits(void)
 {
-  memset (ask_buf, 0, sizeof (ask_buf));
+  memset(ask_buf, 0, sizeof(ask_buf));
   ask_buf_bits = 0;
 }
 
 static void
-ask_sense_store_bit (const uint8_t bitcount)
+ask_sense_store_bit(const uint8_t bitcount)
 {
-  uint8_t byte = (bitcount / 8) % sizeof (ask_buf);
+  uint8_t byte = (bitcount / 8) % sizeof(ask_buf);
   uint8_t bit = bitcount % 8;
-  ask_buf[byte] |= (uint8_t)_BV (bit);
+  ask_buf[byte] |= (uint8_t) _BV(bit);
 }
 
 void
-rfm12_ask_sense_start (void)
+rfm12_ask_sense_start(void)
 {
-  ASKDEBUG ("initializing.\n");
+  ASKDEBUG("initializing.\n");
 
   /* Initialize Timer0, prescaler 1/256 */
   TC0_PRESCALER_256;
   TC0_INT_OVERFLOW_ON;
 
   /* Initialize Interrupt */
-  _EIMSK |= _BV (RFM12_ASKINT_PIN);
+  _EIMSK |= _BV(RFM12_ASKINT_PIN);
   _EICRA = (uint8_t) ((_EICRA & ~RFM12_ASKINT_ISCMASK) | RFM12_ASKINT_ISC);
 
   last_noise_ts = TC0_COUNTER_CURRENT;
-  ask_sense_clear_bits ();
+  ask_sense_clear_bits();
   samples_num = 0;
 
-  rfm12_ask_external_filter_init ();
+  rfm12_ask_external_filter_init();
 }
 
 
 static void
-ask_sense_decode_tevion (void)
+ask_sense_decode_tevion(void)
 {
 #ifdef DEBUG_ASK_SENSE
   uint8_t code1 = (uint8_t) (ask_buf[3] << 1) | (uint8_t) (ask_buf[4] >> 7);
   uint8_t code2 = (uint8_t) (ask_buf[4] << 1) | (uint8_t) (ask_buf[5] >> 7);
-  ASKDEBUG ("rfm12 tevion %d,%d,%d %d,%d 99 4\n",
-	    ask_buf[0], ask_buf[1], ask_buf[2], code1, code2);
+  ASKDEBUG("rfm12 tevion %d,%d,%d %d,%d 99 4\n",
+           ask_buf[0], ask_buf[1], ask_buf[2], code1, code2);
 #endif /* DEBUG_ASK_SENSE */
 }
 
 
 static void
-ask_sense_try_decode (void)
+ask_sense_try_decode(void)
 {
   if (ask_buf_bits == 41)
-    ask_sense_decode_tevion ();
+    ask_sense_decode_tevion();
   else
-    ASKDEBUG ("try_decode: unknown code.\n");
+    ASKDEBUG("try_decode: unknown code.\n");
 
-  ask_sense_clear_bits ();
+  ask_sense_clear_bits();
 }
 
 
-ISR (TC0_VECTOR_OVERFLOW)
+ISR(TC0_VECTOR_OVERFLOW)
 {
   if (bits.overflow && ask_buf_bits)
-    {
-      bits.overflow = 0;
+  {
+    bits.overflow = 0;
 
-      ASKDEBUGCHAR ('t');
-      ASKDEBUGCHAR (10);
+    ASKDEBUGCHAR('t');
+    ASKDEBUGCHAR(10);
 
-      ask_sense_try_decode ();	/* Resets ask_buf_bits. */
-      return;
-    }
+    ask_sense_try_decode();     /* Resets ask_buf_bits. */
+    return;
+  }
 
   bits.overflow = 1;
 }
 
 
-ISR (RFM12_ASKINT_VECTOR)
+ISR(RFM12_ASKINT_VECTOR)
 {
-  uint8_t ts = TC0_COUNTER_CURRENT;	/* Get current timestamp. */
-  uint8_t delta = DELTA (ts, last_noise_ts);
+  uint8_t ts = TC0_COUNTER_CURRENT;     /* Get current timestamp. */
+  uint8_t delta = DELTA(ts, last_noise_ts);
 
   if (delta > TIMEOUT_TICKS && ask_buf_bits)
-    {
-      ASKDEBUGCHAR ('T');
-      ASKDEBUGCHAR ('\n');
+  {
+    ASKDEBUGCHAR('T');
+    ASKDEBUGCHAR('\n');
 
-      ask_sense_try_decode ();	/* Resets ask_buf_bits. */
-      bits.overflow = 0;
-    }
+    ask_sense_try_decode();     /* Resets ask_buf_bits. */
+    bits.overflow = 0;
+  }
 
   if (delta < MIN_TICKS || delta > TIMEOUT_TICKS)
-    {
-      /* Within noise period, update last_noise_ts and we're done. */
-      last_noise_ts = ts;
-      return;
-    }
+  {
+    /* Within noise period, update last_noise_ts and we're done. */
+    last_noise_ts = ts;
+    return;
+  }
 
   uint8_t bit;
 
   /* We've detected the end of a TX-active phase... */
   if (ask_buf_bits)
-    {
-      /* ... and it's not the first bit we're receiving. */
-      uint8_t delta2 = DELTA (last_noise_ts, last_tx_ts);
+  {
+    /* ... and it's not the first bit we're receiving. */
+    uint8_t delta2 = DELTA(last_noise_ts, last_tx_ts);
 
-      samples_learn (delta2);
-      bit = TICKS_TO_BIT (delta2);
+    samples_learn(delta2);
+    bit = TICKS_TO_BIT(delta2);
 
-      ASKDEBUGCHAR ('0' + bit);
-      ASK_BUF_STORE (bit);
-    }
+    ASKDEBUGCHAR('0' + bit);
+    ASK_BUF_STORE(bit);
+  }
 
-  samples_learn (delta);
-  bit = TICKS_TO_BIT (delta);
+  samples_learn(delta);
+  bit = TICKS_TO_BIT(delta);
 
-  ASKDEBUGCHAR ('0' + bit);
-  ASK_BUF_STORE (bit);		/* increments ask_buf_bits. */
+  ASKDEBUGCHAR('0' + bit);
+  ASK_BUF_STORE(bit);           /* increments ask_buf_bits. */
 
   bits.overflow = 0;
   last_noise_ts = ts;
   last_tx_ts = ts;
 }
-

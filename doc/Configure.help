@@ -2514,8 +2514,11 @@ RFM12_ASK_FS20_SUPPORT
 
   Send FS20 commands.
 
-  RFM12 frequency has to be set to 868.300MHz. This is done in
-  Network --> IP over RFM12 --> RFM12 frequency
+  RFM12 frequency has to be set to 868.300MHz.
+
+  FS20 on the air protokoll is described here
+  http://fhz4linux.info/tiki-index.php?page=FS20+Protocol
+
 
 FHT
 RFM12_ASK_FHT_SUPPORT
@@ -2527,8 +2530,28 @@ RFM12_ASK_FHT_SUPPORT
 
   Send FHT commands.
 
-  RFM12 frequency has to be set to 868.300MHz. This is done in
-  Network --> IP over RFM12 --> RFM12 frequency
+  RFM12 frequency has to be set to 868.300MHz.
+
+  FHT on the air protokoll is described here
+  http://fhz4linux.info/tiki-index.php?page=FHT+protocol
+
+Pollin/Kangtai Powerswitch (IC 2272)
+RFM12_ASK_2272_SUPPORT
+  Depends on: 
+   * RFM12 frequency (RFM12_FREQ_433920)
+   * RFM12 ASK (RFM12_ASK_SUPPORT)
+   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+
+  Several hardware stores and Pollin also distribute a so-called
+  Funkschaltset consisting of a wireless remote control and radio
+  outlets 3-5.
+
+  The sockets are configurable via ten dipswitches. The remote control
+  house code can be set via DIP five switches. This code is taken from
+  the outlets. The remaining five dip switches are then available for
+  the five different outlets
+
+  RFM12 frequency has to be set to 422.920MHz..
 
 Start month (1-12)
 DST_BEGIN_MONTH
