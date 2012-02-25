@@ -18,46 +18,54 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
 #include "core/debug.h"
-#include "hardware/radio/rfm12/rfm12.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
+#include "rfm12.h"
+#include "rfm12_net.h"
+#include "rfm12_ecmd.h"
 
-int16_t 
+int16_t
 parse_cmd_rfm12_status(char *cmd, char *output, uint16_t len)
 {
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("rfm12 status: %04x"),
-                                 rfm12_get_status()));
+  uint16_t s;
+  rfm12_prologue(RFM12_MODUL_IP);
+  s = rfm12_get_status();
+  rfm12_epilogue();
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("rfm12 status: %04x"), s));
 }
 
-int16_t 
+int16_t
 parse_cmd_rfm12_reinit(char *cmd, char *output, uint16_t len)
 {
-    rfm12_init();
-    return ECMD_FINAL_OK;
+  rfm12_net_init();
+
+  return ECMD_FINAL_OK;
 }
 
-#ifdef RFM12_IP_SUPPORT
 int16_t
 parse_cmd_rfm12_setbaud(char *cmd, char *output, uint16_t len)
 {
-    (void) output;
-    (void) len;
+  (void) output;
+  (void) len;
 
-    uint16_t baud;
-    cmd[strlen(cmd) - 2] = 0;
-    uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &baud);
+  uint16_t baud;
+  cmd[strlen(cmd) - 2] = 0;
+  if (1 != sscanf_P(cmd, PSTR("%u"), &baud))
+    return ECMD_ERR_PARSE_ERROR;
 
-    if (ret != 1)
-        return ECMD_ERR_PARSE_ERROR;
+  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_setbaud(baud);
+  rfm12_epilogue();
 
-    rfm12_setbaud (baud);
-    return ECMD_FINAL_OK;
+  return ECMD_FINAL_OK;
 }
 
 int16_t
@@ -65,14 +73,16 @@ parse_cmd_rfm12_setbandwidth(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  
-  uint16_t bandwidth;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &bandwidth);
-  
-  if (ret != 1)
+
+  uint8_t bandwidth;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &bandwidth))
     return ECMD_ERR_PARSE_ERROR;
-  
-  rfm12_setbandwidth(bandwidth, rfm12_gain, rfm12_drssi);
+
+  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_setbandwidth(bandwidth, rfm12_modul->rfm12_gain,
+                     rfm12_modul->rfm12_drssi);
+  rfm12_epilogue();
+
   return ECMD_FINAL_OK;
 }
 
@@ -81,14 +91,16 @@ parse_cmd_rfm12_setgain(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  
-  uint16_t gain;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &gain);
-  
-  if (ret != 1)
+
+  uint8_t gain;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &gain))
     return ECMD_ERR_PARSE_ERROR;
-  
-  rfm12_setbandwidth(rfm12_bandwidth, gain, rfm12_drssi);
+
+  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, gain,
+                     rfm12_modul->rfm12_drssi);
+  rfm12_epilogue();
+
   return ECMD_FINAL_OK;
 }
 
@@ -97,14 +109,16 @@ parse_cmd_rfm12_setdrssi(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  
-  uint16_t drssi;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &drssi);
-  
-  if (ret != 1)
+
+  uint8_t drssi;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &drssi))
     return ECMD_ERR_PARSE_ERROR;
-  
-  rfm12_setbandwidth(rfm12_bandwidth, rfm12_gain, drssi);
+
+  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, rfm12_modul->rfm12_gain,
+                     drssi);
+  rfm12_epilogue();
+
   return ECMD_FINAL_OK;
 }
 
@@ -114,29 +128,26 @@ parse_cmd_rfm12_setmod(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  
-  uint16_t mod;
-  uint8_t ret = sscanf_P (cmd, PSTR ("%u"), &mod);
-  
-  if (ret != 1)
+
+  uint8_t mod;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &mod))
     return ECMD_ERR_PARSE_ERROR;
-  
+
+  rfm12_prologue(RFM12_MODUL_IP);
   rfm12_setpower(0, mod);
+  rfm12_epilogue();
+
   return ECMD_FINAL_OK;
 }
-
-#endif /* RFM12_IP_SUPPORT */
 
 /*
   -- Ethersex META --
   block([[RFM12]])
   ecmd_feature(rfm12_status, "rfm12 status",, Display internal status.)
   ecmd_feature(rfm12_reinit, "rfm12 reinit",, Re-initialize RFM12 module.)
-  ecmd_ifdef(RFM12_IP_SUPPORT)
-    ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)
-    ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth", BW, Set RX bandwidth to BW.)
-    ecmd_feature(rfm12_setmod, "rfm12 setmod", MOD, Set modulation to MOD.)
-    ecmd_feature(rfm12_setgain, "rfm12 setgain", GAIN, Set preamplifier gain to GAIN.)
-    ecmd_feature(rfm12_setdrssi, "rfm12 setdrssi", DRSSI, Set the drssi to DRSSI.)
-  ecmd_endif()
+  ecmd_feature(rfm12_setbaud, "rfm12 setbaud", BAUD, Set baudrate to BAUD.)
+  ecmd_feature(rfm12_setbandwidth, "rfm12 setbandwidth", BW, Set RX bandwidth to BW.)
+  ecmd_feature(rfm12_setmod, "rfm12 setmod", MOD, Set modulation to MOD.)
+  ecmd_feature(rfm12_setgain, "rfm12 setgain", GAIN, Set preamplifier gain to GAIN.)
+  ecmd_feature(rfm12_setdrssi, "rfm12 setdrssi", DRSSI, Set the drssi to DRSSI.)
 */
