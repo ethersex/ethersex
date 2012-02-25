@@ -109,7 +109,9 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 		if(ow_sensors[i].ow_rom_code.raw != 0)
 		{
 			#ifdef ONEWIRE_DS2502_SUPPORT
-        		if ((list_type == OW_LIST_TYPE_ALL) || (list_type == OW_LIST_TYPE_TEMP_SENSOR && ow_temp_sensor(&ow_sensors[i].ow_rom_code)) || (list_type == OW_LIST_TYPE_EEPROM && ow_eeprom(&ow_sensors[i].ow_rom_code))) {
+				if ( list_type == OW_LIST_TYPE_ALL ||
+				    (list_type == OW_LIST_TYPE_TEMP_SENSOR && ow_temp_sensor(&ow_sensors[i].ow_rom_code)) ||
+				    (list_type == OW_LIST_TYPE_EEPROM      && ow_eeprom(&ow_sensors[i].ow_rom_code))) {
 			#endif
 				ret = snprintf_P(output, len,
 				PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
@@ -135,8 +137,7 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 		return ECMD_FINAL_OK;
 	}
 	/* else, ret is != 0 which means a sensor has been found and this functions has to be called again
-	   to prevent a buffer overflow 
-	*/
+	   to prevent a buffer overflow */
 	/* Save i to cmd[1] */
 
 	cmd[1] = i;
@@ -188,29 +189,20 @@ int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 list_next: ;
 #endif
 
-    /* disable interrupts */
-    uint8_t sreg = SREG;
-    cli();
-
 #if ONEWIRE_BUSCOUNT > 1
     ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
 #else
     ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
 #endif
 
-    /* re-enable interrupts */
-    SREG = sreg;
-
     /* make sure only one conversion happens at a time */
     ow_global.lock = 1;
 
     if (ret == 1) {
 #ifdef ONEWIRE_DS2502_SUPPORT
-        if ((ow_global.list_type == OW_LIST_TYPE_ALL) ||
-            ((ow_global.list_type == OW_LIST_TYPE_TEMP_SENSOR) &&
-             (ow_temp_sensor(&ow_global.current_rom))) ||
-            ((ow_global.list_type == OW_LIST_TYPE_EEPROM) &&
-             (ow_eeprom(&ow_global.current_rom)))) {
+        if ( ow_global.list_type == OW_LIST_TYPE_ALL ||
+            (ow_global.list_type == OW_LIST_TYPE_TEMP_SENSOR && ow_temp_sensor(&ow_global.current_rom)) ||
+            (ow_global.list_type == OW_LIST_TYPE_EEPROM      && ow_eeprom(&ow_global.current_rom))) {
            /* only print device rom address if it matches the selected list type */
 #endif
 
@@ -314,15 +306,8 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     } else if (ow_eeprom(&rom)) {
         debug_printf("reading mac\n");
 
-        /* disable interrupts */
-        uint8_t sreg = SREG;
-        cli();
-
         uint8_t mac[6];
         ret = ow_eeprom_read(&rom, mac);
-
-        /* re-enable interrupts */
-        SREG = sreg;
 
         if (ret != 0) {
             debug_printf("mac read failed: %d\n", ret);
@@ -370,15 +355,8 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     if (ow_temp_sensor(&rom)) {
         debug_printf("reading temperature\n");
 
-        /* disable interrupts */
-        uint8_t sreg = SREG;
-        cli();
-
         ow_temp_scratchpad_t sp;
         ret = ow_temp_read_scratchpad(&rom, &sp);
-
-        /* re-enable interrupts */
-        SREG = sreg;
 
         if (ret != 1) {
             debug_printf("scratchpad read failed: %d\n", ret);
@@ -415,15 +393,8 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     } else if (ow_eeprom(&rom)) {
         debug_printf("reading mac\n");
 
-        /* disable interrupts */
-        uint8_t sreg = SREG;
-        cli();
-
         uint8_t mac[6];
         ret = ow_eeprom_read(&rom, mac);
-
-        /* re-enable interrupts */
-        SREG = sreg;
 
         if (ret != 0) {
             debug_printf("mac read failed: %d\n", ret);
@@ -475,13 +446,7 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 
     debug_printf("converting temperature...\n");
 
-    /* disable interrupts */
-    uint8_t sreg = SREG;
-    cli();
-
     ret = ow_temp_start_convert_wait(romptr);
-
-    SREG = sreg;
 
     if (ret == 1)
         /* done */

@@ -2,7 +2,7 @@
  * Simple onewire library implementation
  *
  * Copyright (c) Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2011 by Frank Sautter
+ * Copyright (c) 2012 by Frank Sautter <sautter.com>
  * Copyright (c) 2011 by Maximilian Güntner
  * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  *
@@ -56,31 +56,33 @@ void onewire_init(void)
 
 uint8_t noinline reset_onewire(uint8_t busmask)
 {
+	uint8_t data1, data2;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+	    /* pull bus low */
+	    OW_CONFIG_OUTPUT(busmask);
+	    OW_LOW(busmask);
 
-    /* pull bus low */
-    OW_CONFIG_OUTPUT(busmask);
-    OW_LOW(busmask);
+	    /* wait 480us */
+	    _delay_loop_2(OW_RESET_TIMEOUT_1);
 
-    /* wait 480us */
-    _delay_loop_2(OW_RESET_TIMEOUT_1);
+	    /* release bus */
+	    OW_CONFIG_INPUT(busmask);
 
-    /* release bus */
-    OW_CONFIG_INPUT(busmask);
+	    /* wait 60us (maximal pause) + 30 us (half minimum pulse) */
+	    _delay_loop_2(OW_RESET_TIMEOUT_2);
 
-    /* wait 60us (maximal pause) + 30 us (half minimum pulse) */
-    _delay_loop_2(OW_RESET_TIMEOUT_2);
+	    /* sample data */
+	    data1 = OW_GET_INPUT(busmask);
 
-    /* sample data */
-    uint8_t data1 = OW_GET_INPUT(busmask);
+	    /* wait 390us */
+	    _delay_loop_2(OW_RESET_TIMEOUT_3);
 
-    /* wait 390us */
-    _delay_loop_2(OW_RESET_TIMEOUT_3);
+	    /* sample data again */
+	    data2 = OW_GET_INPUT(busmask);
 
-    /* sample data again */
-    uint8_t data2 = OW_GET_INPUT(busmask);
-
-    /* if first sample is low and second sample is high, at least one device is
-     * attached to this bus */
+	    /* if first sample is low and second sample is high, at least one device is
+	     * attached to this bus */
+	}
     return (uint8_t)(~data1 & data2 & busmask);
 
 }
@@ -106,9 +108,11 @@ void noinline ow_write_0(uint8_t busmask)
     /* a write 0 timeslot is initiated by holding the data line low for
      * approximately 80us */
 
-    OW_LOW(busmask);
-    _delay_loop_2(OW_WRITE_0_TIMEOUT);
-    OW_HIGH(busmask);
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        OW_LOW(busmask);
+        _delay_loop_2(OW_WRITE_0_TIMEOUT);
+        OW_HIGH(busmask);
+    }
 }
 
 uint8_t noinline ow_read(uint8_t busmask)
@@ -119,23 +123,26 @@ uint8_t noinline ow_read(uint8_t busmask)
     /* this is also used as ow_write_1, as the only difference
      * is that the return value is discarded */
 
-    OW_CONFIG_OUTPUT(busmask);
-    OW_LOW(busmask);
+    uint8_t data;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        OW_CONFIG_OUTPUT(busmask);
+        OW_LOW(busmask);
 
-    _delay_loop_2(OW_READ_TIMEOUT_1);
+        _delay_loop_2(OW_READ_TIMEOUT_1);
 
-    OW_HIGH(busmask);
-    OW_CONFIG_INPUT(busmask);
+        OW_HIGH(busmask);
+        OW_CONFIG_INPUT(busmask);
 
-    _delay_loop_2(OW_READ_TIMEOUT_2);
+        _delay_loop_2(OW_READ_TIMEOUT_2);
 
-    /* sample data now */
-    uint8_t data = (uint8_t)(OW_GET_INPUT(busmask) > 0);
+        /* sample data now */
+        data = (uint8_t)(OW_GET_INPUT(busmask) > 0);
 
-    /* wait for remaining slot time */
-    _delay_loop_2(OW_READ_TIMEOUT_3);
+        /* wait for remaining slot time */
+        _delay_loop_2(OW_READ_TIMEOUT_3);
 
-    OW_CONFIG_OUTPUT(busmask);
+        OW_CONFIG_OUTPUT(busmask);
+    }
     return data;
 }
 
@@ -348,9 +355,9 @@ int8_t ow_temp_start_convert(ow_rom_code_t *rom, uint8_t wait)
     if (!wait)
         return 0;
 
-    _delay_ms(800); /* The specification say, that we have to wait at
-                       least 500ms in parasite mode to wait for the
-                       end of the conversion.  800ms works more reliably */
+    _delay_ms(800); /* the specification says, that we have to wait at
+                       least 500ms in parasite mode for the conversion to complete.
+	                   800ms works more reliably */
 
     while(!ow_read(ONEWIRE_BUSMASK));
 
@@ -527,13 +534,11 @@ static int8_t ow_discover_sensor(void) {
 	do {
 #endif /* ONEWIRE_BUSCOUNT > 1 */
 		do {
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
 #if ONEWIRE_BUSCOUNT > 1
 				ret = ow_search_rom((uint8_t)(1 << (ow_global.bus + ONEWIRE_STARTPIN)), firstonbus);
 #else /* ONEWIRE_BUSCOUNT > 1 */
 				ret = ow_search_rom(ONEWIRE_BUSMASK, firstonbus);
 #endif /* ONEWIRE_BUSCOUNT > 1 */
-			}
 
 			/* make sure only one conversion happens at a time */
 			ow_global.lock = 1;
@@ -572,7 +577,7 @@ static int8_t ow_discover_sensor(void) {
 					}
 					if (already_in == 0) {
 						uint8_t i;
-						/*The sensor we found is not in our list, so we search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero*/
+						/* the sensor we found is not in our list, so we search for the first free sensor slot, e.g. the first slot where ow_rom_code is zero */
 						for (i = 0; i < OW_SENSORS_COUNT; i++) {
 							if (ow_sensors[i].ow_rom_code.raw == 0) {
 								/* We found a free slot...storing*/
@@ -581,7 +586,7 @@ static int8_t ow_discover_sensor(void) {
 #endif /* DEBUG_OW_POLLING */
 								ow_sensors[i].ow_rom_code.raw = ow_global.current_rom.raw;
 								ow_sensors[i].present = 1;
-								ow_sensors[i].read_delay = 1; /*Read temperature asap - note: we will check for eeprom later*/
+								ow_sensors[i].read_delay = 1; /* read temperature asap - note: we will check for eeprom later */
 								break;
 							}
 						}
@@ -614,7 +619,7 @@ static int8_t ow_discover_sensor(void) {
 
 /*This function will be called every 800 ms*/
 void ow_periodic(void) {
-	/*At startup we want an immediate discovery*/
+	/* perform an initial bus discovery on startup */
 	static uint16_t discover_delay = 3;
 	if (--discover_delay == 0) {
 		discover_delay = OW_DISCOVER_DELAY;
@@ -647,9 +652,8 @@ void ow_periodic(void) {
 #endif /* DEBUG_OW_POLLING */
 					int8_t ret;
 					ow_temp_scratchpad_t sp;
-					ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-						ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
-					}
+					ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
+
 					if (ret != 1) {
 #ifdef DEBUG_OW_POLLING
 						debug_printf("scratchpad read failed: %d\n", ret);

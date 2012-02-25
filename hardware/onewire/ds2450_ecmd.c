@@ -123,16 +123,8 @@ int16_t parse_cmd_onewire_ds2450_power(char *cmd, char *output, uint16_t len)
 		return ret;
 
 	/* next byte may be the power value, if so: set power value, if not: read and print power value */
-	if(*cmd == '\0')
-	{
-		/* disable interrupts */
-		uint8_t sreg = SREG;
-		cli();
-
+	if(*cmd == '\0') {
 		ret = ow_ds2450_power_get(ptr_rom);
-
-		/* re-enable interrupts */
-		SREG = sreg;
 
 		DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_power: ow_ds2450_power_get ret: %i.\n", ret);
 
@@ -167,14 +159,7 @@ int16_t parse_cmd_onewire_ds2450_power(char *cmd, char *output, uint16_t len)
 		}
 #endif
 
-		/* disable interrupts */
-		uint8_t sreg = SREG;
-		cli();
-
 		ret = ow_ds2450_power_set(ptr_rom, power);
-
-		/* re-enable interrupts */
-		SREG = sreg;
 
 		DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_power: ow_ds2450_power_set ret: %i\n", ret);
 
@@ -220,16 +205,9 @@ int16_t parse_cmd_onewire_ds2450_res(char *cmd, char *output, uint16_t len)
 			++cmd;
 
 		/* next byte may be the res value, if so: set res value, if not: read and print res value */
-		if(*cmd == '\0')
-		{
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
+		if(*cmd == '\0') {
 
 			ret = ow_ds2450_res_get(ptr_rom, channel_requested);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_res: ow_ds2450_res_get ret: %i.\n", ret);
 
@@ -267,15 +245,7 @@ int16_t parse_cmd_onewire_ds2450_res(char *cmd, char *output, uint16_t len)
 				return ECMD_ERR_PARSE_ERROR;
 			}
 #endif
-
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
 			ret = ow_ds2450_res_set(ptr_rom, channel_requested, res);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_res: ow_ds2450_res_set ret: %i\n", ret);
 
@@ -322,16 +292,9 @@ int16_t parse_cmd_onewire_ds2450_oc(char *cmd, char *output, uint16_t len)
 			++cmd;
 
 		/* next byte may be the OC value, if so: set OC value, if not: read and print OC value */
-		if(*cmd == '\0')
-		{
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
+		if(*cmd == '\0') {
 
 			ret = ow_ds2450_oc_get(ptr_rom, channel_requested);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_oc: ow_ds2450_oc_get ret: %i.\n", ret);
 
@@ -366,14 +329,7 @@ int16_t parse_cmd_onewire_ds2450_oc(char *cmd, char *output, uint16_t len)
 			}
 #endif
 
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
 			ret = ow_ds2450_oc_set(ptr_rom, channel_requested, oc);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_oc: ow_ds2450_oc_set ret: %i\n", ret);
 
@@ -420,16 +376,8 @@ int16_t parse_cmd_onewire_ds2450_oe(char *cmd, char *output, uint16_t len)
 			++cmd;
 
 		/* next byte may be the oe value, if so: set oe value, if not: read and print oe value */
-		if(*cmd == '\0')
-		{
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
+		if (*cmd == '\0') {
 			ret = ow_ds2450_oe_get(ptr_rom, channel_requested);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_oe: ow_ds2450_oe_get ret: %i.\n", ret);
 
@@ -463,15 +411,7 @@ int16_t parse_cmd_onewire_ds2450_oe(char *cmd, char *output, uint16_t len)
 				return ECMD_ERR_PARSE_ERROR;
 			}
 #endif
-
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
 			ret = ow_ds2450_oe_set(ptr_rom, channel_requested, oe);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_oe: ow_ds2450_oe_set ret: %i\n", ret);
 
@@ -518,16 +458,8 @@ int16_t parse_cmd_onewire_ds2450_range(char *cmd, char *output, uint16_t len)
 			++cmd;
 
 		/* next byte may be the range value, if so: set range value, if not: read and print range value */
-		if(*cmd == '\0')
-		{
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
+		if (*cmd == '\0') {
 			ret = ow_ds2450_range_get(ptr_rom, channel_requested);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_range: ow_ds2450_range_get ret: %i.\n", ret);
 
@@ -561,15 +493,7 @@ int16_t parse_cmd_onewire_ds2450_range(char *cmd, char *output, uint16_t len)
 				return ECMD_ERR_PARSE_ERROR;
 			}
 #endif
-
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
 			ret = ow_ds2450_range_set(ptr_rom, channel_requested, range);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_range: ow_ds2450_range_set ret: %i\n", ret);
 
@@ -616,16 +540,9 @@ int16_t parse_cmd_onewire_ds2450_por(char *cmd, char *output, uint16_t len)
 			++cmd;
 
 		/* next byte may be the por value, if so: set por value, if not: read and print por value */
-		if(*cmd == '\0')
-		{
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
+		if (*cmd == '\0') {
 
 			ret = ow_ds2450_por_get(ptr_rom, channel_requested);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_por: ow_ds2450_por_get ret: %i.\n", ret);
 
@@ -659,15 +576,7 @@ int16_t parse_cmd_onewire_ds2450_por(char *cmd, char *output, uint16_t len)
 				return ECMD_ERR_PARSE_ERROR;
 			}
 #endif
-
-			/* disable interrupts */
-			uint8_t sreg = SREG;
-			cli();
-
 			ret = ow_ds2450_por_set(ptr_rom, channel_requested, por);
-
-			/* re-enable interrupts */
-			SREG = sreg;
 
 			DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_por: ow_ds2450_por_set ret: %i\n", ret);
 
@@ -736,15 +645,7 @@ int16_t parse_cmd_onewire_ds2450_convert(char *cmd, char *output, uint16_t len)
 		}
 #endif
 	}
-
-	/* disable interrupts */
-	uint8_t sreg = SREG;
-	cli();
-
 	ret = ow_ds2450_convert(ptr_rom, input_select, readout);
-
-	/* re-enable interrupts */
-	SREG = sreg;
 
 	DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_convert: ow_ds2450_convert ret: %i\n", ret);
 
@@ -790,19 +691,11 @@ int16_t parse_cmd_onewire_ds2450_get(char *cmd, char *output, uint16_t len, uint
 #endif
 	}
 
-	/* disable interrupts */
-	uint8_t sreg = SREG;
-	cli();
-
-	if(channel_requested >= 0)
-	{
+	if (channel_requested >= 0) {
 		/* request just one channel */
 		uint16_t val;
 
 		ret = ow_ds2450_get(ptr_rom, channel_requested, channel_requested, &val);
-
-		/* re-enable interrupts */
-		SREG = sreg;
 
 		DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_get: ow_ds2450_get ret: %i.\n", ret);
 
@@ -819,9 +712,6 @@ int16_t parse_cmd_onewire_ds2450_get(char *cmd, char *output, uint16_t len, uint
 		uint16_t val[4];
 
 		ret = ow_ds2450_get(ptr_rom, 0, 3, val);
-
-		/* re-enable interrupts */
-		SREG = sreg;
 
 		DS2450_ECMD_DEBUG("parse_cmd_onewire_ds2450_get: ow_ds2450_get ret: %i.\n", ret);
 
