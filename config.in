@@ -171,6 +171,8 @@ fi
 
 
 	bool "Teensy build" TEENSY_SUPPORT
+	dep_bool "Float support" FLOAT_SUPPORT $ARCH_AVR
+	dep_bool "Float scanf support" FLOAT_SCANF_SUPPORT $FLOAT_SUPPORT
 	dep_bool "Use SPI Timeout" SPI_TIMEOUT $ARCH_AVR
 	dep_bool "Use Usart in SPI Mode" USART_SPI_SUPPORT $ARCH_AVR
     if [ "$USART_SPI_SUPPORT" = y ]; then
