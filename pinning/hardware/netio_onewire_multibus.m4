@@ -45,7 +45,7 @@ pin(FS20_RECV, PB3)
 
 ifdef(`conf_RFM12', `dnl
 /* port the rfm12 module CS is attached to */
-pin(SPI_CS_RFM12, PD5, OUTPUT)
+pin(SPI_CS_RFM12_0, PD5, OUTPUT)
 RFM12_USE_INT(1)
 RFM12_ASK_SENSE_USE_INT(1)
 ')

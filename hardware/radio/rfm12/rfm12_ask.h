@@ -1,5 +1,4 @@
 /*
- * 
  * Copyright (c) Gregor B.
  * Copyright (c) 2009 Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
@@ -32,6 +31,6 @@ void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void rfm12_ask_trigger(uint8_t, uint16_t);
 void rfm12_ask_external_filter_init(void);
 void rfm12_ask_external_filter_deinit(void);
-void rfm12_ask_sense_start(void);
+void rfm12_ask_init(void);
 
 #endif /* __RFM12_ASK_H */
