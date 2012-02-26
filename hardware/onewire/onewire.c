@@ -5,6 +5,7 @@
  * Copyright (c) 2011 by Maximilian Güntner
  * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  * Copyright (c) 2011-2012 by Frank Sautter
+ * Copyright (c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -38,8 +39,16 @@
 
 #include "core/debug.h"
 
+#ifdef ONEWIRE_NAMING_SUPPORT
+#include "core/eeprom.h"
+#endif
+
 /* global variables */
 ow_global_t ow_global;
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+ow_name_t ow_names_table[OW_SENSORS_COUNT];
+#endif
 
 /* module local prototypes */
 void noinline ow_set_address_bit(ow_rom_code_t * rom, uint8_t idx,
@@ -776,6 +785,69 @@ ow_periodic(void)
 }
 #endif /* ONEWIRE_POLLING_SUPPORT */
 
+/* naming support */
+#ifdef ONEWIRE_NAMING_SUPPORT
+
+ow_rom_code_t *
+ow_name_to_rom(const char *name)
+{
+  /* search for matching name */
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    if (strncmp(name, ow_names_table[i].name, OW_NAME_LENGTH) == 0)
+    {
+      return &ow_names_table[i].ow_rom_code;
+    }
+  }
+  return NULL;
+}
+
+char *
+ow_rom_to_name(const ow_rom_code_t * rom)
+{
+  /* search for matching rom code */
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    if (rom->raw == ow_names_table[i].ow_rom_code.raw)
+    {
+      return ow_names_table[i].name;
+    }
+  }
+  return NULL;
+}
+
+void
+ow_names_save(void)
+{
+  eeprom_save(ow_names, ow_names_table, OW_SENSORS_COUNT * sizeof(ow_name_t));
+  eeprom_update_chksum();
+}
+
+#ifdef ONEWIRE_POLLING_SUPPORT
+
+ow_sensor_t *
+ow_find_sensor_idx(uint8_t index)
+{
+  if (index >= OW_SENSORS_COUNT)
+  {
+    return NULL;
+  }
+  return ow_find_sensor(&ow_names_table[index].ow_rom_code);
+}
+
+ow_sensor_t *
+ow_find_sensor_name(const char *name)
+{
+  ow_rom_code_t *rom = ow_name_to_rom(name);
+  if (rom == NULL)
+  {
+    return NULL;
+  }
+  return ow_find_sensor(rom);
+}
+
+#endif /* ONEWIRE_POLLING_SUPPORT */
+#endif /* ONEWIRE_NAMING_SUPPORT */
 
 /*
   -- Ethersex META --

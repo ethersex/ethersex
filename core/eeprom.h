@@ -57,6 +57,10 @@
 #include "hardware/adc/adc.h"
 #endif
 
+#ifdef ONEWIRE_NAMING_SUPPORT
+#include "hardware/onewire/onewire.h"
+#endif
+
 struct eeprom_config_t
 {
 #ifdef ETHERNET_SUPPORT
@@ -118,6 +122,10 @@ struct eeprom_config_t
 
 #ifdef DMX_FXSLOT_SUPPORT
   struct fxslot_struct_stripped dmx_fxslots[DMX_FXSLOT_AMOUNT];
+#endif
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+  ow_name_t ow_names[OW_SENSORS_COUNT];
 #endif
   uint8_t crc;
 };

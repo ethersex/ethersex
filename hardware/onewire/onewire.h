@@ -227,6 +227,22 @@ typedef struct
 extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
 #endif
 
+/* naming support */
+#ifdef ONEWIRE_NAMING_SUPPORT
+
+/* maximum name length */
+#define OW_NAME_LENGTH 16
+
+typedef struct
+{
+  ow_rom_code_t ow_rom_code;
+  char name[OW_NAME_LENGTH];
+} ow_name_t;
+
+extern ow_name_t ow_names_table[OW_SENSORS_COUNT];
+
+#endif /* ONEWIRE_NAMING_SUPPORT */
+
 /*
  * global variables
  */
@@ -402,6 +418,12 @@ int8_t ow_eeprom(ow_rom_code_t * rom);
  */
 int8_t ow_eeprom_read(ow_rom_code_t * rom, void *data);
 
+/* naming support */
+#ifdef ONEWIRE_NAMING_SUPPORT
+ow_rom_code_t *ow_name_to_rom(const char *name);
+char *ow_rom_to_name(const ow_rom_code_t * rom);
+void ow_names_save(void);
+#endif /* ONEWIRE_NAMING_SUPPORT */
 
 /*
  * ECMD functions
@@ -432,6 +454,17 @@ int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
 /* Polling functions*/
 void ow_periodic(void);
 
+/* naming support */
+#ifdef ONEWIRE_NAMING_SUPPORT
+int16_t parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_onewire_name_clear(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len);
+#ifdef ONEWIRE_POLLING_SUPPORT
+ow_sensor_t *ow_find_sensor_idx(uint8_t index);
+ow_sensor_t *ow_find_sensor_name(const char *name);
+#endif /* ONEWIRE_POLLING_SUPPORT */
+#endif /* ONEWIRE_NAMING_SUPPORT */
 
 #endif /* ONEWIRE_SUPPORT */
 

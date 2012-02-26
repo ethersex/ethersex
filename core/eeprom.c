@@ -69,7 +69,7 @@ eeprom_get_chksum (void)
   uint8_t eeprom_crc = 0;
   uint8_t *p = (uint8_t *) EEPROM_CONFIG_BASE;
 
-  for (uint8_t i = 0; i < (sizeof (struct eeprom_config_t) - 1); i++)
+  for (uint16_t i = 0; i < (sizeof (struct eeprom_config_t) - 1); i++)
     {
       eeprom_crc = _crc_ibutton_update (eeprom_crc, eeprom_read_byte (p));
       p++;
@@ -131,6 +131,12 @@ eeprom_init (void)
 #ifdef DMX_FXSLOT_SUPPORT
   struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
   eeprom_save (dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+#endif
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+  ow_name_t names_temp[OW_SENSORS_COUNT];
+  memset(names_temp, 0, OW_SENSORS_COUNT*sizeof(ow_name_t));
+  eeprom_save (ow_names, names_temp, OW_SENSORS_COUNT*sizeof(ow_name_t));
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
