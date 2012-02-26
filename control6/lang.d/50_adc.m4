@@ -10,12 +10,7 @@ divert(globals_divert)
 #endif
 static uint16_t
 control6_get_adc(uint8_t sensorchannel){
-  ADMUX = (ADMUX & 0xF0) | sensorchannel;
-  /* Start der adc konvertierung */
-  ADCSRA |= _BV(ADSC);
-  /* Warten bis sie fertig ist */
-  while (ADCSRA & _BV(ADSC)) {}
-  return ADC;
+  return adc_get(sensorchannel);
 }
 
 divert(old_divert)')')

@@ -21,11 +21,12 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 
+#include "hardware/adc/adc.h"
+
 #ifndef ADC_KTY81_H
 #define ADC_KTY81_H
 
-uint16_t
-get_kty(uint8_t sensorchannel);
+#define get_kty(x) adc_get(x)
 
 int8_t
 kty_calibrate(uint16_t sensorwert);

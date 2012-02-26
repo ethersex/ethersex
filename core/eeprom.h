@@ -53,6 +53,10 @@
 #include "services/dmx-fxslot/dmx-fxslot.h"
 #endif
 
+#ifdef ADC_VOLTAGE_SUPPORT
+#include "hardware/adc/adc.h"
+#endif
+
 struct eeprom_config_t
 {
 #ifdef ETHERNET_SUPPORT
@@ -80,6 +84,10 @@ struct eeprom_config_t
 #ifdef PAM_SINGLE_USER_EEPROM_SUPPORT
   char pam_username[16];
   char pam_password[16];
+#endif
+
+#ifdef ADC_VOLTAGE_SUPPORT
+  float adc_vref;
 #endif
 
 #ifdef KTY_SUPPORT
@@ -142,6 +150,11 @@ uint8_t eeprom_get_chksum (void);
 #define eeprom_save_int(dst, data) \
     do { uint16_t _t = data; eeprom_save(dst, &_t, 2); } while(0)
 
+#ifdef FLOAT_SUPPORT
+#define eeprom_save_float(dst, data) \
+    do { float _t = data; eeprom_save(dst, &_t, 4); } while(0)
+#endif
+
 /* Reads len byte from eeprom at dst into mem */
 #define eeprom_restore(dst, mem, len) \
   eeprom_read_block(mem, EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), len)
@@ -154,6 +167,11 @@ uint8_t eeprom_get_chksum (void);
 
 #define eeprom_restore_int(dst, mem) \
     eeprom_restore(dst, mem, 2)
+
+#ifdef FLOAT_SUPPORT
+#define eeprom_restore_float(dst, mem) \
+    eeprom_restore(dst, mem, 4)
+#endif
 
 /* Update the eeprom crc */
 #define eeprom_update_chksum() eeprom_save_char(crc, eeprom_get_chksum())

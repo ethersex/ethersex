@@ -19,8 +19,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <util/delay.h>
+
 #include "config.h"
 #include "core/debug.h"
+
+#include "adc.h"
 
 static inline int16_t
 hr20_adc_to_temp (int16_t adcvalue)
@@ -33,15 +37,11 @@ int16_t
 hr20_temp_get (void)
 {
   PIN_SET (TEMP_ENABLE);
-  ADMUX = ADC_MUX_TEMP_SENSE | ADC_REF;
 
-  /* Measure twice, i.e. wait for current to settle ... */
-  ADCSRA |= _BV(ADSC);
-  while (ADCSRA & _BV(ADSC));
-  ADCSRA |= _BV(ADSC);
-  while (ADCSRA & _BV(ADSC));
+  /* wait for current to settle ... */
+  _delay_us(100);
 
-  uint16_t adc = ADC;
+  uint16_t adc = adc_get(ADC_MUX_TEMP_SENSE);
   debug_printf ("adc result: %d\n", adc);
 
   PIN_CLEAR (TEMP_ENABLE);

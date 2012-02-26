@@ -1,9 +1,10 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-ifeq ($(ECMD_PARSER_SUPPORT),y)
-	$(ADC_SUPPORT)_ECMD_SRC += hardware/adc/adc.c
-endif
+$(ADC_LIGHT)_ECMD_SRC += hardware/adc/adc.c
+
+$(ADC_SUPPORT)_ECMD_SRC += hardware/adc/adc.c
+$(ADC_SUPPORT)_ECMD_SRC += hardware/adc/ecmd.c
 
 $(HR20_TEMP_SUPPORT)_SRC += hardware/adc/hr20-temp.c
 $(HR20_TEMP_SUPPORT)_SRC += hardware/adc/hr20-batt.c

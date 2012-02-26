@@ -29,6 +29,9 @@
 #include "services/clock/clock.h"
 #include "snmp.h"
 
+#ifdef ADC_SUPPORT
+#include "hardware/adc/adc.h"
+#endif
 
 #ifdef SNMP_SUPPORT
 
@@ -95,13 +98,34 @@ adc_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   {
     return 0;
   }
-  ADMUX = (ADMUX & 0xF0) | bind->data[0];
-  /* Start adc conversion */
-  ADCSRA |= _BV(ADSC);
-  /* Wait for completion of adc */
-  loop_until_bit_is_clear(ADCSRA, ADSC);
-  return encode_int(ptr, ADC);
+  return encode_int(ptr, adc_get(bind->data[0]));
 }
+
+#ifdef ADC_VOLTAGE_SUPPORT
+
+uint8_t
+adc_volt_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
+                  void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= ADC_CHANNELS)
+  {
+    return 0;
+  }
+  return encode_int(ptr, adc_get_voltage(bind->data[0]));
+}
+
+uint8_t
+adc_vref_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
+                  void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= ADC_CHANNELS)
+  {
+    return 0;
+  }
+  return encode_int(ptr, adc_get_vref());
+}
+
+#endif
 
 uint8_t
 adc_next(uint8_t * ptr, struct snmp_varbinding * bind)
@@ -142,6 +166,10 @@ const char location_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x06";
 
 #ifdef ADC_SUPPORT
 const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\x01";
+#ifdef ADC_VOLTAGE_SUPPORT
+const char adc_volt_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x02";
+const char adc_vref_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x03";
+#endif
 #endif
 
 const struct snmp_reaction snmp_reactions[] PROGMEM = {
@@ -154,6 +182,10 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {location_obj_name, string_pgm_reaction, (void *) location_value, NULL},
 #ifdef ADC_SUPPORT
   {adc_reaction_obj_name, adc_reaction, NULL, adc_next},
+#ifdef ADC_VOLTAGE_SUPPORT
+  {adc_volt_reaction_obj_name, adc_volt_reaction, NULL, adc_next},
+  {adc_vref_reaction_obj_name, adc_vref_reaction, NULL, adc_next},
+#endif
 #endif
   {NULL, NULL, NULL, NULL}
 };
