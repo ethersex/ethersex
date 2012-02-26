@@ -120,7 +120,7 @@ int16_t parse_cmd_adc_vref(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   ecmd_feature(adc_get, "adc get", [CHANNEL], Get the ADC value in hex of CHANNEL or if no channel set of all channels.)
-  ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)
+  ecmd_ifdef(ADC_VOLTAGE_SUPPORT)
     ecmd_feature(adc_vget, "adc vget", [CHANNEL], Get the ADC value in volt of CHANNEL or if no channel set of all channels.)
     ecmd_feature(adc_vref, "adc vref", [VOLTAGE], Get/Set ADC reference voltage calibration.)
   ecmd_endif()
