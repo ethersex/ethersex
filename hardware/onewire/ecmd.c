@@ -552,6 +552,7 @@ parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
 {
+<<<<<<< HEAD
   while (*cmd == ' ')
     cmd++;
 
@@ -587,6 +588,38 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
   strncpy(ow_names_table[pos].name, name, OW_NAME_LENGTH);
 
   return ECMD_FINAL_OK;
+=======
+    while (*cmd == ' ') cmd ++;
+
+    char *romstr = strchr(cmd, ' ');
+    if (romstr == NULL) {
+        return ECMD_ERR_PARSE_ERROR;
+    }
+    *(romstr++) = 0;
+    while (*romstr == ' ') romstr++;
+
+    char *name = strchr(romstr, ' ');
+    if (name == NULL) {
+        return ECMD_ERR_PARSE_ERROR;
+    }
+    *(name++) = 0;
+    while (*name == ' ') name++;
+
+    uint8_t pos = atoi(cmd);
+    if (pos >= OW_SENSORS_COUNT) {
+        return ECMD_ERR_PARSE_ERROR;
+    }
+
+    ow_rom_code_t rom;
+    if (parse_ow_rom(romstr, &rom) < 0) {
+        return ECMD_ERR_PARSE_ERROR;
+    }
+
+    ow_names_table[pos].ow_rom_code.raw = rom.raw;
+    strncpy(ow_names_table[pos].name, name, OW_NAME_LENGTH);
+
+    return ECMD_FINAL_OK;
+>>>>>>> fixed onewire ecmd parsing
 }
 
 int16_t
