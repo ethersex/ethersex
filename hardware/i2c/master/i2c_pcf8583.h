@@ -24,9 +24,9 @@
 #define _I2C_PCF8583_H
 
 #ifdef I2C_PCF8583_A0_VCC
-   #define PCF8583_ADR 0x51      // Slave address PCF8583
+#define PCF8583_ADR 0x51        // Slave address PCF8583
 #else
-   #define PCF8583_ADR 0x50      // Slave address PCF8583
+#define PCF8583_ADR 0x50        // Slave address PCF8583
 #endif
 
 // Register addresses
@@ -56,16 +56,17 @@
 #define PCF8583_STOP_COUNTING      0x80
 
 // struct for holding date/time
-struct pcf8583_reg { 
-   uint8_t hsec;
-   uint8_t sec;
-   uint8_t min;
-   uint8_t hour; 
-   uint8_t day;   
-   uint8_t wday;
-   uint8_t mon;
-   uint16_t year;
-} __attribute__((__packed__));
+struct pcf8583_reg
+{
+  uint8_t hsec;
+  uint8_t sec;
+  uint8_t min;
+  uint8_t hour;
+  uint8_t day;
+  uint8_t wday;
+  uint8_t mon;
+  uint16_t year;
+} __attribute__ ((__packed__));
 
 typedef struct pcf8583_reg pcf8583_reg_t;
 
@@ -82,7 +83,7 @@ uint8_t i2c_pcf8583_set_word(uint8_t reg, uint16_t data);
 uint16_t i2c_pcf8583_get_word(uint8_t data);
 
 uint8_t i2c_pcf8583_reset_rtc(void);
-uint8_t i2c_pcf8583_set_rtc(pcf8583_reg_t *dt);
-uint8_t i2c_pcf8583_get_rtc(pcf8583_reg_t *dt);
+uint8_t i2c_pcf8583_set_rtc(pcf8583_reg_t * dt);
+uint8_t i2c_pcf8583_get_rtc(pcf8583_reg_t * dt);
 
 #endif /* _I2C_PCF8583_H */
