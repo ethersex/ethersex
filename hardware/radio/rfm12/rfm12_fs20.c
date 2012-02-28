@@ -124,9 +124,10 @@ rfm12_fs20_init(void)
   rfm12_trans(0xCC16);          /* pll bandwitdh 0: max bitrate 86.2kHz */
 #endif
 
+#ifdef DEBUG
   uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
-  (void) result;
   RFM12_DEBUG("rfm12_fs20/init: %x", result);
+#endif
 
 #ifdef TEENSY_SUPPORT
   rfm12_trans(RFM12_CMD_FREQUENCY | RFM12FREQ(RFM12_FREQ_868300));

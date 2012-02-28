@@ -223,12 +223,15 @@ rfm12_ask_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 void
 rfm12_ask_trigger(uint8_t level, uint16_t us)
 {
+#ifdef STATUSLED_RFM12_TX_SUPPORT
+  PIN_CLEAR(STATUSLED_RFM12_TX); // on
+#endif
   if (level)
   {
     rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
                 RFM12_PWRMGT_EX);
 #ifdef STATUSLED_RFM12_TX_SUPPORT
-    PIN_SET(STATUSLED_RFM12_TX);
+    //PIN_SET(STATUSLED_RFM12_TX);
 #endif
     ACTIVITY_LED_RFM12_TX;
   }
@@ -236,11 +239,14 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
   {
     rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
 #ifdef STATUSLED_RFM12_TX_SUPPORT
-    PIN_CLEAR(STATUSLED_RFM12_TX);
+    //PIN_CLEAR(STATUSLED_RFM12_TX);
 #endif
   }
   for (; us > 0; us--)
     _delay_us(1);
+#ifdef STATUSLED_RFM12_TX_SUPPORT
+  PIN_SET(STATUSLED_RFM12_TX); // off
+#endif
 }
 #endif /* RFM12_ASK_433_SUPPORT || RFM12_ASK_868_SUPPORT */
 
@@ -284,9 +290,10 @@ rfm12_ask_init(void)
   rfm12_trans(0xCC16);          /* pll bandwitdh 0: max bitrate 86.2kHz */
 #endif
 
+#ifdef DEBUG
   uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
-  (void) result;
   RFM12_DEBUG("rfm12_ask/init: %x", result);
+#endif
 
 #ifdef TEENSY_SUPPORT
   rfm12_trans(RFM12_CMD_FREQUENCY | RFM12FREQ(RFM12_FREQ_433920));
@@ -299,10 +306,12 @@ rfm12_ask_init(void)
   rfm12_epilogue();
 
 #ifdef STATUSLED_RFM12_RX_SUPPORT
-  PIN_CLEAR(STATUSLED_RFM12_RX);
+  //PIN_CLEAR(STATUSLED_RFM12_RX);
+  PIN_SET(STATUSLED_RFM12_RX); // off
 #endif
 #ifdef STATUSLED_RFM12_TX_SUPPORT
-  PIN_CLEAR(STATUSLED_RFM12_TX);
+  //PIN_CLEAR(STATUSLED_RFM12_TX);
+  PIN_SET(STATUSLED_RFM12_TX); // off
 #endif
 }
 #endif /* RFM12_ASK_433_SUPPORT */
