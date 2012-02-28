@@ -92,7 +92,8 @@ uint8_t i2c_max7311_pulse(uint8_t address, uint8_t port, uint16_t time)
 	uint8_t ret = 0xFF;
 	if (i2c_max7311_getOUTw(address, &tmp) != 0) goto end;
 	if (i2c_max7311_setOUTw(address, tmp ^ (1 << port)) != 0) goto end;
-	_delay_ms(time);
+	while(time--)
+		_delay_ms(1);
 	if (i2c_max7311_setOUTw(address, tmp) != 0) goto end;
 	ret = 0;
 	end: return ret;

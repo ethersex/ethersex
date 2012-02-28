@@ -52,6 +52,14 @@ ecmd_ifdef(I2C_MAX7311_SUPPORT)
   ecmd_feature(i2c_max7311_set, "max7311 set", ADDR BIT VALUE, Set Output-BIT to VALUE (bool))
   ecmd_feature(i2c_max7311_pulse, "max7311 pulse", ADDR BIT TIME, Toggle Output-BIT for TIME (in ms))
 ecmd_endif
+ecmd_ifdef(I2C_BMP085_SUPPORT)
+  ecmd_feature(i2c_bmp085_temp, "bmp085 temp",, Get temperature in 0.1°C)
+  ecmd_feature(i2c_bmp085_apress, "bmp085 apress",, Get absolute pressure in Pa)
+  ecmd_ifdef(I2C_BMP085_BAROCALC_SUPPORT)
+    ecmd_feature(i2c_bmp085_height, "bmp085 height", PRESSNN, Get height in cm, pressure at N0 needed)
+    ecmd_feature(i2c_bmp085_pressnn, "bmp085 pressnn", HEIGHT, Get pressure at N0, height in cm needed)
+  ecmd_endif
+ecmd_endif
 ecmd_ifdef(I2C_PCA9555_SUPPORT)
   ecmd_feature(i2c_pca9555_out, "i2c pca9555 out",VALUE,write word to register address on I2C chip)
   ecmd_feature(i2c_pca9555_in, "i2c pca9555 in",,read word from register address on I2C chip)

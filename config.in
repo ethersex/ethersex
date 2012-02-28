@@ -1,4 +1,5 @@
 source scripts/usart-config.sh
+source scripts/rfm12-config.sh
 source scripts/namedPinCopy.sh
 mainmenu_name "Ethersex Configuration"
 get_usart_count
@@ -162,6 +163,8 @@ if [ "$ARCH_AVR" = "y" ]; then
 			int 'Bootloader Size in words' BOOTLOADER_WORDS ""
 		fi
 	fi
+
+    source core/crc/config.in
 
 fi
 
@@ -364,7 +367,7 @@ comment "I/O"
 	source hardware/input/config.in
 	source hardware/input/ps2/config.in
 	source hardware/input/buttons/config.in
-	source hardware/radio/rfm12/rfm12_ask-config.in
+	source hardware/radio/rfm12/rfm12_ask_config.in
 	source hardware/sht/config.in
 	source hardware/zacwire/config.in
 	source hardware/ultrasonic/config.in

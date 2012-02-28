@@ -46,6 +46,7 @@ static struct
 {
   /* dcf_time: dummy, flags (S,A2,Z2,Z1,A1,R,x,x), min, stunde, tag, wochentag, monat, jahr */
   uint8_t timezone;
+  int8_t isdst;
   uint8_t time[0x8];
   uint8_t ticks;
 #ifdef CLOCK_CRYSTAL_SUPPORT
@@ -132,15 +133,16 @@ dcf77_init(void)
 static inline uint32_t
 compute_dcf77_timestamp(void)
 {
-  struct clock_datetime_t dcfdate;
+  clock_datetime_t dcfdate;
   dcfdate.sec = 0;
   dcfdate.min = BCD2BIN(dcf.time[2]);
   dcfdate.hour = BCD2BIN(dcf.time[3]);
   dcfdate.day = BCD2BIN(dcf.time[4]);
   dcfdate.month = BCD2BIN(dcf.time[6]);
-  //dcfdate.dow   = dow; // nach ISO erster Tag Montag, nicht So!
+  dcfdate.dow = dcf.time[5]; // nach ISO erster Tag Montag, nicht So!
   dcfdate.year = 100 + (BCD2BIN(dcf.time[7]));
-  return clock_utc2timestamp(&dcfdate, dcf.timezone);
+  dcfdate.isdst = dcf.isdst;
+  return clock_mktime(&dcfdate, 1);
 }
 
 #ifdef DCF77_VECTOR
@@ -237,6 +239,7 @@ ISR(ANALOG_COMP_vect)
             break;
           case 19:
             DCFDEBUG("%S\n", LOW(divtime) ? PSTR("MESZ") : PSTR("MEZ"));
+	    dcf.isdst = LOW(divtime) ? 1 : 0;
             break;
           case 20:
             DCFDEBUG("%S\n", LOW(divtime) ?

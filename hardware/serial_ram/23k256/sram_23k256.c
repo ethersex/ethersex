@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2011 by Daniel Walter <fordprfkt@googlemail.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * For more information on the GPL, please go to:
- * http://www.gnu.org/copyleft/gpl.html
- */
-
+*
+* Copyright (c) 2012 by Daniel Walter <fordprfkt@googlemail.com>
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*
+* For more information on the GPL, please go to:
+* http://www.gnu.org/copyleft/gpl.html
+*/
 
 #include <avr/pgmspace.h>
 #include <stdio.h>
@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "core/spi.h"
+#include "core/bit-macros.h"
 #include "sram_23k256.h"
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -35,9 +36,9 @@
 
 /* Commands */
 #define SRAM_23K256_WRSR  0x01 /* Write status register command */
-#define SRAM_23K256_WRITE 0x02 /* Read status register command */
-#define SRAM_23K256_READ  0x03 /* Write memory command */
-#define SRAM_23K256_RDSR  0x05 /* Read memory command */
+#define SRAM_23K256_WRITE 0x02 /* Write memory command */
+#define SRAM_23K256_READ  0x03 /* Read memory command */
+#define SRAM_23K256_RDSR  0x05 /* Read status register command */
 
 /* Access mode flags for status register*/
 #define SRAM_23K256_MODE_BYTE 0   /* Byte-wise access */
@@ -57,18 +58,19 @@
 * @param dataPtr_pui8 Pointer to destination
 * @param len_ui8 Number of bytes to be read
 */
-void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8)
+void sram23k256_read(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8)
 {
   uint16_t ctr = 0;
 
-  SERRAMDEBUG ("read\n");
+  //SERRAMDEBUG ("read\n");
 
   /* Acquire device */
   PIN_CLEAR(SPI_CS_23K256);
 
   /* send command & address */
   spi_send(SRAM_23K256_READ);
-  spi_send(address_ui16);
+  spi_send(HI8(address_ui16));
+  spi_send(LO8(address_ui16));
 
   /* Read data from chip */
   for (ctr = 0; ctr < len_ui8; ctr++)
@@ -90,7 +92,7 @@ void sram23k256_read(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_u
 * @param dataPtr_pui8 Pointer to source.
 * @param len_ui8 Number of bytes to be written
 */
-void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_ui8)
+void sram23k256_write(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8)
 {
   uint16_t ctr = 0;
 
@@ -101,9 +103,10 @@ void sram23k256_write(uint16_t address_ui16, uint8_t *dataPtr_pui8, uint8_t len_
 
   /* send command & address */
   spi_send(SRAM_23K256_WRITE);
-  spi_send(address_ui16);
+  spi_send(HI8(address_ui16));
+  spi_send(LO8(address_ui16));
 
-  /* Write data from chip */
+  /* Write data to chip */
   for (ctr = 0; ctr < len_ui8; ctr++)
   {
      spi_send(dataPtr_pui8[ctr]);
@@ -220,6 +223,6 @@ int16_t sram23k256_init(void)
 /*
   -- Ethersex META --
   header(hardware/serial_ram/23k256/sram_23k256.h)
-  init(sram23k256_init)
+  initearly(sram23k256_init)
 */
 #endif /* SER_RAM_23K256_SUPPORT */

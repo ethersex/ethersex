@@ -39,17 +39,17 @@
 
 struct fxslot_struct
 {
-	uint8_t active;                                          // fxslot status 0=disabled / 1=enabled
-	uint8_t effect;                                          // which effect is assigned to the fxslot
-	uint16_t speed;                                          // speed of the effect
-	uint16_t startchannel;                                   // startchannel of the fxslot
-	uint8_t universe;                                        // universe of the fxslot
-	uint16_t speedcounter;                                   // variable to control the speed in the 'dmx_fxslot_process'
-	uint8_t effect_variable[DMX_FXSLOT_VARIABLE_NUMBER];     // variables you can use in effects
-	uint8_t devices;                                         // amount of devices
-	uint8_t margin;                                          // space between the devices
-	uint8_t max_device_channels;                             // max amount of channels per device in changed in the effect
-	uint8_t device_channel[DMX_FXSLOT_MAX_DEVICE_CHANNELS];  // channels
+  uint8_t active;               // fxslot status 0=disabled / 1=enabled
+  uint8_t effect;               // which effect is assigned to the fxslot
+  uint16_t speed;               // speed of the effect
+  uint16_t startchannel;        // startchannel of the fxslot
+  uint8_t universe;             // universe of the fxslot
+  uint16_t speedcounter;        // variable to control the speed in the 'dmx_fxslot_process'
+  uint8_t effect_variable[DMX_FXSLOT_VARIABLE_NUMBER];  // variables you can use in effects
+  uint8_t devices;              // amount of devices
+  uint8_t margin;               // space between the devices
+  uint8_t max_device_channels;  // max amount of channels per device in changed in the effect
+  uint8_t device_channel[DMX_FXSLOT_MAX_DEVICE_CHANNELS];       // channels
 };
 
 extern struct fxslot_struct fxslot[DMX_FXSLOT_AMOUNT];
@@ -57,13 +57,13 @@ extern struct fxslot_struct fxslot[DMX_FXSLOT_AMOUNT];
 //use this struct to save some space in EEPROM
 struct fxslot_struct_stripped
 {
-	uint8_t active;                                          // fxslot status 0=disabled / 1=enabled
-	uint8_t effect;                                          // which effect is assigned to the fxslot
-	uint16_t speed;                                          // speed of the effect
-	uint16_t startchannel;                                   // startchannel of the fxslot
-	uint8_t universe;                                        // universe of the fxslot
-	uint8_t devices;                                         // amount of devices
-	uint8_t margin;                                          // space between the devices
+  uint8_t active;               // fxslot status 0=disabled / 1=enabled
+  uint8_t effect;               // which effect is assigned to the fxslot
+  uint16_t speed;               // speed of the effect
+  uint16_t startchannel;        // startchannel of the fxslot
+  uint8_t universe;             // universe of the fxslot
+  uint8_t devices;              // amount of devices
+  uint8_t margin;               // space between the devices
 };
 
 
@@ -85,12 +85,12 @@ void dmx_fx_watersimulation(uint8_t);
 
 void dmx_fxslot_init(uint8_t);
 
-void dmx_fxslot_setchannels(uint8_t);                             // write device_channels to all devices defined by amout of devices and margin
+void dmx_fxslot_setchannels(uint8_t);   // write device_channels to all devices defined by amout of devices and margin
 void dmx_fxslot_process(void);
 
 //EEPROM methods
-void dmx_fxslot_restore();
-void dmx_fxslot_save();
+void dmx_fxslot_restore(void);
+void dmx_fxslot_save(void);
 
 #endif
 #endif // DMX_FXSLOT_H

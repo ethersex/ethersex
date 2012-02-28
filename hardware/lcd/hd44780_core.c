@@ -28,7 +28,7 @@
 #include "core/debug.h"
 
 /* global variables */
-FILE *lcd;
+FILE lcd = FDEV_SETUP_STREAM (hd44780_put, NULL, _FDEV_SETUP_WRITE);
 uint8_t current_pos = 0;
 uint8_t back_light = 0;
 
@@ -219,8 +219,6 @@ void hd44780_init(void)
     /* set ddram address */
     output_byte(0, CMD_SETDRAMADR(0),2);
 #endif
-    /* open file descriptor */
-    lcd = fdevopen(hd44780_put, NULL);
 
     /* set current virtual postion */
     current_pos = 0;

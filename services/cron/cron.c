@@ -409,7 +409,7 @@ cron_getjob(uint8_t jobposition)
 void
 cron_periodic(void)
 {
-	struct clock_datetime_t d;
+	clock_datetime_t d;
 	uint32_t timestamp = clock_get_time();
 
 	/* Check tasks at most once in a minute and only if at least one exists */

@@ -40,7 +40,7 @@
 uint8_t
 uptime_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
 {
-  uint32_t seconds = clock_get_time() - clock_get_startup();
+  uint32_t seconds = clock_get_uptime();
   /* This long long (uint64_t) hack is necessary, because it seems to be, that
    * seconds = seconds * 100 doesn't work at all
    */
