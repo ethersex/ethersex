@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2011 by Daniel Walter <fordprfkt@googlemail.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * For more information on the GPL, please go to:
- * http://www.gnu.org/copyleft/gpl.html
- */
-
+*
+* Copyright (c) 2012 by Daniel Walter <fordprfkt@googlemail.com>
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*
+* For more information on the GPL, please go to:
+* http://www.gnu.org/copyleft/gpl.html
+*/
 
 #include <avr/pgmspace.h>
 #include <stdio.h>
@@ -36,9 +36,9 @@
 
 /* Commands */
 #define SRAM_23K256_WRSR  0x01 /* Write status register command */
-#define SRAM_23K256_WRITE 0x02 /* Read status register command */
-#define SRAM_23K256_READ  0x03 /* Write memory command */
-#define SRAM_23K256_RDSR  0x05 /* Read memory command */
+#define SRAM_23K256_WRITE 0x02 /* Write memory command */
+#define SRAM_23K256_READ  0x03 /* Read memory command */
+#define SRAM_23K256_RDSR  0x05 /* Read status register command */
 
 /* Access mode flags for status register*/
 #define SRAM_23K256_MODE_BYTE 0   /* Byte-wise access */
@@ -106,7 +106,7 @@ void sram23k256_write(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len
   spi_send(HI8(address_ui16));
   spi_send(LO8(address_ui16));
 
-  /* Write data from chip */
+  /* Write data to chip */
   for (ctr = 0; ctr < len_ui8; ctr++)
   {
      spi_send(dataPtr_pui8[ctr]);
