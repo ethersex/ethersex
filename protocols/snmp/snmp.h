@@ -23,34 +23,70 @@
 #ifndef _SNMP_H
 #define _SNMP_H
 
-struct snmp_varbinding {
+#include "config.h"
+
+#define SNMP_VERSION1_VALUE 0
+
+#ifndef SNMP_COMMUNITY_STRING
+#define SNMP_COMMUNITY_STRING "public"
+#endif
+
+#define SNMP_TYPE_INTEGER     0x02
+#define SNMP_TYPE_STRING      0x04
+#define SNMP_TYPE_NULL        0x05
+#define SNMP_TYPE_OID         0x06
+#define SNMP_TYPE_SEQUENCE    0x30
+#define SNMP_TYPE_TIMETICKS   0x43
+#define SNMP_TYPE_ENDOFMIB    0x82
+#define SNMP_TYPE_GETREQ      0xa0
+#define SNMP_TYPE_GETNEXTREQ  0xa1
+#define SNMP_TYPE_GETRESP     0xa2
+
+#define SNMP_ERR_NONE         0x00
+#define SNMP_ERR_NO_SUCH_NAME 0x02
+
+/* Buffer overflow protection :
+ *     
+ * SNMP_MAX_OID_BUFFERSIZE:
+ * Maximum stack size allowed to use as OID buffer.
+ * 
+ * SNMP_MAX_BIND_COUNT:
+ * Maximum number of bindings per request.
+ * This value is used to prevent an overflow of the
+ * output buffer. The intend is that the data of
+ * the worst case reaction output * SNMP_MAX_BIND_COUNT
+ * fit in the network output buffer
+ */
+#define SNMP_MAX_OID_BUFFERSIZE 64
+#define SNMP_MAX_BIND_COUNT     3
+
+struct snmp_varbinding
+{
+  uint8_t store_len;
   uint8_t len;
   uint8_t *data;
-  uint8_t type;
 };
 
-struct snmp_packet {
-  uint8_t version;
-  uint8_t *community;
-  uint8_t *pdu_type;
-  uint32_t request_id;
-  uint8_t var_count;
-  struct snmp_varbinding *binds;
-};
-
-typedef uint8_t (*snmp_reaction_callback_t)(uint8_t *ptr,
-                                            struct snmp_varbinding *bind,
+typedef uint8_t(*snmp_reaction_callback_t) (uint8_t * ptr,
+                                            struct snmp_varbinding * bind,
                                             void *userdata);
-struct snmp_reaction {
+
+typedef uint8_t(*snmp_next_callback_t) (uint8_t * ptr,
+                                        struct snmp_varbinding * bind);
+
+struct snmp_reaction
+{
   const char *obj_name;
   snmp_reaction_callback_t cb;
   void *userdata;
+  snmp_next_callback_t ncb;
 };
 
-
-void snmp_new_data(void);
+extern const struct snmp_reaction snmp_reactions[];
 
 #define ucdExperimental "\x2b\x06\x01\x04\x01\x8f\x65\x0d"
+
+/* OID: 1.3.6.1.4.1.2021.13.23. */
 #define ethersexExperimental ucdExperimental "\x17"
 
 #endif /* _SNMP_H */
