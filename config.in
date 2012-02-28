@@ -1,4 +1,5 @@
 source scripts/usart-config.sh
+source scripts/rfm12-config.sh
 source scripts/namedPinCopy.sh
 mainmenu_name "Ethersex Configuration"
 get_usart_count

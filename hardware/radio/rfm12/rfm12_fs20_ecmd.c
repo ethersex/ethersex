@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +19,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -28,6 +27,7 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #include "rfm12_fs20.h"
+#include "rfm12_fs20_ecmd.h"
 
 #ifdef RFM12_ASK_FS20_SUPPORT
 typedef void (*fs20_func_t) (uint16_t, uint8_t, uint8_t, uint8_t);

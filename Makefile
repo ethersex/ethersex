@@ -411,7 +411,7 @@ show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
-	@$(SED) -e "/^#define \<.*_SUPPORT\>/!d;s/^#define / * /;s/_SUPPORT.*//" autoconf.h 
+	@$(SED) -e "/^#define \<.*_SUPPORT\>/!d;s/^#define / * /;s/_SUPPORT.*//" autoconf.h|sort -u 
 
 .PHONY: show-config
 

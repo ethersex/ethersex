@@ -5,7 +5,7 @@ dnl Pin Configuration for 'user_Fimser'.  Edit it to fit your needs.
 dnl
 
 /* port the rfm12 module CS is attached to */
-pin(SPI_CS_RFM12, PD5, OUTPUT)
+pin(SPI_CS_RFM12_0, PD5, OUTPUT)
 dnl RFM12_USE_INT(1)
 RFM12_USE_PCINT(1, PD3)
 
