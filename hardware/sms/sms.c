@@ -47,8 +47,6 @@ volatile unsigned char rx_buffer[RXBUFFER];
 volatile uint8_t pdu_must_parse = 0;
 /* protect mobile from multiple access */
 volatile uint8_t global_mobil_access = 0;
-/* dummy FILE, required by fprintf */
-FILE *ausgabe;
 
 /* index of rx_buffer */
 static volatile uint8_t len = 0;
@@ -70,8 +68,10 @@ volatile uint8_t state  = SEND_LEN;
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
 
-int noinline
-my_uart_put (char d, FILE *stream);
+static int noinline my_uart_put (const char, FILE *);
+
+/* dummy FILE, required by fprintf */
+static FILE ausgabe = FDEV_SETUP_STREAM (my_uart_put, NULL, _FDEV_SETUP_WRITE);
 
 ISR(usart(USART,_RX_vect)) {
     uint8_t data = usart(UDR);
@@ -125,11 +125,9 @@ void sms_uart_init()
     uint8_t i;
     
     usart_init();
-    /* open stream to mobil */
-    ausgabe = fdevopen(my_uart_put, NULL);  
     SMS_DEBUG("sms\r\n");
     /* disable command echo from mobil */
-    fprintf(ausgabe, "ate0\r\n");
+    fprintf(&ausgabe, "ate0\r\n");
     SMS_DEBUG("mobil echo off\r\n");
     global_mobil_access = 1;
     i = 255;
@@ -138,7 +136,7 @@ void sms_uart_init()
     if (!i)
         return;
     /* select mobil mem */
-    fprintf(ausgabe, "AT+CPMS=MT\r\n"); 
+    fprintf(&ausgabe, "AT+CPMS=MT\r\n"); 
     SMS_DEBUG("mobil memory selected\r\n");
     global_mobil_access = 1;
     i = 255;
@@ -152,8 +150,8 @@ void sms_uart_init()
         sms_buffer[i] = NULL;
 }
 
-int noinline
-my_uart_put (char d, FILE *stream)
+static int
+my_uart_put (const char d, FILE *stream)
 {
     if (d == '\n')
         my_uart_put('\r', stream);
@@ -200,7 +198,7 @@ void sms_transmit_handler()
                 case SEND_LEN:
                     global_mobil_access = 1;
                     /* we add all parts and divide it by 2 (>>1) */
-                    fprintf(ausgabe, "AT+CMGS=%u\r\n", 
+                    fprintf(&ausgabe, "AT+CMGS=%u\r\n", 
                             ((sms_buffer[current_sms]->text_len * 2 +
                             strlen((char *) sms_buffer[current_sms]->rufnummer) +
                             10) >> 1));
@@ -221,14 +219,14 @@ void sms_transmit_handler()
                 
                 case SEND_SMS:
                     text_len = sms_buffer[current_sms]->text_len;
-                    fprintf(ausgabe, "001100");
-                    fprintf(ausgabe, "%s", sms_buffer[current_sms]->rufnummer);
-                    fprintf(ausgabe, "0000AA");
+                    fprintf(&ausgabe, "001100");
+                    fprintf(&ausgabe, "%s", sms_buffer[current_sms]->rufnummer);
+                    fprintf(&ausgabe, "0000AA");
                     for (i = 0; i < text_len; i++) {
-                        fprintf(ausgabe, "%02X", 
+                        fprintf(&ausgabe, "%02X", 
                                             sms_buffer[current_sms]->text[i]);
                     }
-                    fprintf(ausgabe, "%c", 0x1a);
+                    fprintf(&ausgabe, "%c", 0x1a);
 
                     SMS_DEBUG( "\"001100");
                     SMS_DEBUG( "%s", sms_buffer[current_sms]->rufnummer);

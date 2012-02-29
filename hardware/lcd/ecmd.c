@@ -43,7 +43,7 @@ int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
 
         hd44780_goto(line, 0);
         for (uint8_t i = 0; i < LCD_CHAR_PER_LINE; i++)
-            fputc(' ', lcd);
+            fputc(' ', &lcd);
         hd44780_goto(line, 0);
 
         return ECMD_FINAL_OK;
@@ -59,7 +59,7 @@ int16_t parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_lcd_write(char *cmd, char *output, uint16_t len)
 {
     if (strlen(cmd) > 1) {
-        fputs(cmd+1, lcd);
+        fputs(cmd+1, &lcd);
         return ECMD_FINAL_OK;
     } else
         return ECMD_ERR_PARSE_ERROR;
@@ -71,11 +71,11 @@ int16_t parse_cmd_lcd_goto(char *cmd, char *output, uint16_t len)
 	uint8_t line, pos = 0;
 
 	/* Skip leading spaces. */
-	while(*cmd == 32) cmd ++;
+	while(*cmd == ' ') cmd ++;
 
 	/* Seek space (pos argument), chop and atoi to `pos'.  */
 	char *p = cmd;
-	while(*p && *p != 32) p ++;
+	while(*p && *p != ' ') p ++;
 	if(*p)
 	{
 		*p = 0;
@@ -127,11 +127,11 @@ int16_t parse_cmd_lcd_init(char *cmd, char *output, uint16_t len)
 
 #ifdef TEENSY_SUPPORT
 	/* Skip leading spaces. */
-	while(*cmd == 32) cmd ++;
+	while(*cmd == ' ') cmd ++;
 
 	/* Seek space (blink argument), chop and atoi to `blink'.  */
 	char *p = cmd;
-	while(*p && *p != 32) p ++;
+	while(*p && *p != ' ') p ++;
 	if(!*p)
 		return ECMD_ERR_PARSE_ERROR; /* Required argument `blink' missing. */
 

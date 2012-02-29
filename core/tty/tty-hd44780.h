@@ -26,6 +26,6 @@
 
 #define tty_hd44780_clear()	hd44780_clear ()
 #define tty_hd44780_goto(y,x)	hd44780_goto (y, x)
-#define tty_hd44780_put(y,x,ch) putc (ch, lcd)
+#define tty_hd44780_put(y,x,ch) putc (ch, &lcd)
 
 #endif	/* TTY_HD44780_H */

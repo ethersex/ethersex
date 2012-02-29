@@ -60,6 +60,9 @@ for f in $files; do
 	fi
       elif grep -qe 'license GPLv2 or LGPLv21' "$tmp"; then
 	license="GPLv2 or LGPLv21"
+	if $onlyShowincompatible == true; then
+	   continue;
+	fi
       else
       	license="GPLv2 (only)"
       fi

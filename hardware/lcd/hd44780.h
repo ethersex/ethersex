@@ -114,7 +114,7 @@
 #endif
 
 /* lcd stream */
-extern FILE *lcd;
+extern FILE lcd;
 extern uint8_t current_pos;
 extern uint8_t back_light;
 

@@ -31,89 +31,101 @@
 #ifdef DMX_FXSLOT_SUPPORT
 
 
-int16_t parse_cmd_dmx_fxslot_effect(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dmx_fxslot_effect(char *cmd, char *output, uint16_t len)
 {
-	uint16_t speed=0;
-	uint8_t fxslot_number=0, active=0, effect=0, ret=0;
-	if (cmd[0]!=0) {
-		ret =sscanf_P(cmd, PSTR("%hhu %hhu %hhu %u"),&fxslot_number, &active, &effect, &speed);
-		if (fxslot_number >= DMX_FXSLOT_AMOUNT)
-			return ECMD_ERR_PARSE_ERROR;	  
-		switch(ret)
-		{
-			case 4:                                                     //sets speed of fxslot
-				fxslot[fxslot_number].speed=speed;            
+  uint16_t speed = 0;
+  uint8_t fxslot_number = 0, active = 0, effect = 0, ret = 0;
+  if (cmd[0] != 0)
+  {
+    ret =
+      sscanf_P(cmd, PSTR("%hhu %hhu %hhu %u"), &fxslot_number, &active,
+               &effect, &speed);
+    if (fxslot_number >= DMX_FXSLOT_AMOUNT)
+      return ECMD_ERR_PARSE_ERROR;
+    switch (ret)
+    {
+      case 4:                  //sets speed of fxslot
+        fxslot[fxslot_number].speed = speed;
 
-			case 3:
-				if(fxslot[fxslot_number].effect!=effect)              //inits effect on fxslot everytime effect is changed
-				{   
-					fxslot[fxslot_number].effect=effect;       
-					dmx_fxslot_init(fxslot_number);
-				}
+      case 3:
+        if (fxslot[fxslot_number].effect != effect)     //inits effect on fxslot everytime effect is changed
+        {
+          fxslot[fxslot_number].effect = effect;
+          dmx_fxslot_init(fxslot_number);
+        }
 
-			case 2:
-				fxslot[fxslot_number].active=active;                  //sets fxslot as active(1) / inactive(0)
-				break;
+      case 2:
+        fxslot[fxslot_number].active = active;  //sets fxslot as active(1) / inactive(0)
+        break;
 
-			case 1:
-			case 0:
-				return ECMD_ERR_PARSE_ERROR;
+      case 1:
+      case 0:
+        return ECMD_ERR_PARSE_ERROR;
 
-		}  	    
+    }
 #ifdef DMX_FXSLOT_AUTOSAVE_SUPPORT
-		dmx_fxslot_save();
+    dmx_fxslot_save();
 #endif
-		return ECMD_FINAL_OK;
-	}
-	else
-		return ECMD_ERR_PARSE_ERROR;
+    return ECMD_FINAL_OK;
+  }
+  else
+    return ECMD_ERR_PARSE_ERROR;
 }
-int16_t parse_cmd_dmx_fxslot_setdevices(char *cmd, char *output, uint16_t len)
+
+int16_t
+parse_cmd_dmx_fxslot_setdevices(char *cmd, char *output, uint16_t len)
 {
-	uint16_t channel=0;
-	uint8_t fxslot_number, devices, margin, universe, ret=0;
-	if (cmd[0]!=0) {
-		ret = sscanf_P(cmd, PSTR("%hhu %hhu %hhu %u %hhu"),&fxslot_number, &devices, &margin, &channel, &universe);
+  uint16_t channel = 0;
+  uint8_t fxslot_number, devices, margin, universe, ret = 0;
+  if (cmd[0] != 0)
+  {
+    ret =
+      sscanf_P(cmd, PSTR("%hhu %hhu %hhu %u %hhu"), &fxslot_number, &devices,
+               &margin, &channel, &universe);
 
-		if (ret<5)
-			return ECMD_ERR_PARSE_ERROR;
+    if (ret < 5)
+      return ECMD_ERR_PARSE_ERROR;
 
-		if (universe >= DMX_STORAGE_UNIVERSES)
-			return ECMD_ERR_PARSE_ERROR;
+    if (universe >= DMX_STORAGE_UNIVERSES)
+      return ECMD_ERR_PARSE_ERROR;
 
-		if (channel >= DMX_STORAGE_CHANNELS)
-			return ECMD_ERR_PARSE_ERROR;
+    if (channel >= DMX_STORAGE_CHANNELS)
+      return ECMD_ERR_PARSE_ERROR;
 
-		fxslot[fxslot_number].universe=universe;    
-		fxslot[fxslot_number].startchannel=channel;   
-		fxslot[fxslot_number].devices=devices;
-		fxslot[fxslot_number].margin=margin;
+    fxslot[fxslot_number].universe = universe;
+    fxslot[fxslot_number].startchannel = channel;
+    fxslot[fxslot_number].devices = devices;
+    fxslot[fxslot_number].margin = margin;
 #ifdef DMX_FXSLOT_AUTOSAVE_SUPPORT
-		dmx_fxslot_save();
+    dmx_fxslot_save();
 #endif
-		return ECMD_FINAL_OK;
-	}
-	else
-		return ECMD_ERR_PARSE_ERROR;
+    return ECMD_FINAL_OK;
+  }
+  else
+    return ECMD_ERR_PARSE_ERROR;
 }
 
-int16_t parse_cmd_dmx_fxslot_save(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dmx_fxslot_save(char *cmd, char *output, uint16_t len)
 {
-		dmx_fxslot_save();
-		return ECMD_FINAL_OK;
+  dmx_fxslot_save();
+  return ECMD_FINAL_OK;
 }
 
-int16_t parse_cmd_dmx_fxslot_reset(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dmx_fxslot_reset(char *cmd, char *output, uint16_t len)
 {
-		memset(fxslot, 0, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct));
-		dmx_fxslot_save();
-		return ECMD_FINAL_OK;
+  memset(fxslot, 0, DMX_FXSLOT_AMOUNT * sizeof(struct fxslot_struct));
+  dmx_fxslot_save();
+  return ECMD_FINAL_OK;
 }
 
-int16_t parse_cmd_dmx_fxslot_restore(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dmx_fxslot_restore(char *cmd, char *output, uint16_t len)
 {
-		dmx_fxslot_restore();
-		return ECMD_FINAL_OK;
+  dmx_fxslot_restore();
+  return ECMD_FINAL_OK;
 }
 
 #endif

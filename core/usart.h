@@ -87,7 +87,7 @@ uint16_t usart_baudrate(uint16_t baudrate);
 #endif
 
 /* We use setbaud.h from the avr-libc */
-#include "core/setbaud.h"
+#include <util/setbaud.h>
 
 /* This is used in generate_usart_init() */
 #if USE_2X

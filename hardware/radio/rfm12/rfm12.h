@@ -1,51 +1,77 @@
-/**********************************************************
- Copyright(C) 2007 Jochen Roessner <jochen@lugrot.de>
- * @author      Benedikt K.
- * @author      Juergen Eckert
- * @author    Ulrich Radig (mail@ulrichradig.de) www.ulrichradig.de 
- * @date        04.06.2007  
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software Foundation,
- Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
-
-*/
+/*
+ * Copyright (c) 2007 Jochen Roessner <jochen@lugrot.de>
+ * Copyright (c) 2007 Ulrich Radig <mail@ulrichradig.de>
+ * Copyright (c) 2012 Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) Benedikt K.
+ * Copyright (c) Juergen Eckert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ */
 
 #ifndef __RFM12_H
 #define __RFM12_H
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <string.h>
-
-#include <util/delay.h>
 #include "config.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <util/atomic.h>
+#include "config.h"
+#include "core/debug.h"
+#include "rfm12_hw.h"
 
+#ifdef DEBUG
+#define RFM12_DEBUG(s, args...) printf_P(PSTR("D: " s "\n"), ## args)
+#else
+#define RFM12_DEBUG(a...)
+#endif
 
-/* Prologue/epilogue macros, disabling/enabling interrupts. 
-   Be careful, these are not well suited to be used as if-blocks. */
-#define rfm12_prologue()			\
-  uint8_t sreg = SREG; cli();
-#define rfm12_epilogue()			\
-  SREG = sreg;
+/* Prologue/epilogue macros, disabling/enabling interrupts. */
+#define rfm12_prologue(m)  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { \
+                             rfm12_modul_set_active(m);
+#define rfm12_epilogue()   }
 
+typedef struct
+{
+  volatile uint8_t *rfm12_port;
+  uint8_t rfm12_mask;
+  uint8_t rfm12_bandwidth;
+  uint8_t rfm12_gain;
+  uint8_t rfm12_drssi;
+} rfm12_modul_t;
 
-// initialize module
-void rfm12_init(void);
+enum
+{
+#ifdef RFM12_IP_SUPPORT
+  RFM12_MODUL_IP,
+#endif
+#ifdef RFM12_ASK_433_SUPPORT
+  RFM12_MODUL_ASK,
+#endif
+#ifdef RFM12_ASK_FS20_SUPPORT
+  RFM12_MODUL_FS20,
+#endif
+  RFM12_MODUL_COUNT
+};
 
-// transfer 1 word to/from module
-uint16_t rfm12_trans(uint16_t wert);
+extern rfm12_modul_t rfm12_moduls[RFM12_MODUL_COUNT];
+extern rfm12_modul_t *rfm12_modul;
 
+#define rfm12_modul_get_active()  (rfm12_modul - rfm12_moduls)
+#define rfm12_modul_set_active(i) (rfm12_modul = &rfm12_moduls[i])
+
+uint16_t rfm12_trans(uint16_t);
 
 #define RxBW400		1
 #define RxBW340		2
@@ -63,145 +89,42 @@ uint16_t rfm12_trans(uint16_t wert);
 #define TxBW105		6
 #define TxBW120		7
 
-
-#define RFM12TxBDW(kfrq)	((uint8_t)(kfrq/15)-1)
+#define RFM12TxBDW(kfrq) ((uint8_t)(kfrq/15)-1)
 
 /* macro for calculating frequency value out of frequency in kHz */
-#define RFM12FREQ(freq)	(((freq<800000?freq*2:freq)-860000)/5)	
+#define RFM12FREQ(freq)	(((freq<800000?freq*2:freq)-860000)/5)
 #define RFM12BAND(freq)	(freq<800000?0x80D7:0x80E7)
 
-// set receiver settings
-void rfm12_setbandwidth(uint8_t bandwidth, uint8_t gain, uint8_t drssi);
+#define LNA_0           0
+#define LNA_6           1
+#define LNA_14          2
+#define LNA_20          3
 
-// set center frequency
-void rfm12_setfreq(unsigned short freq);
+#define RSSI_103        0
+#define RSSI_97         1
+#define RSSI_91         2
+#define RSSI_85         3
+#define RSSI_79         4
+#define RSSI_73         5
+#define RSSI_67         6
+#define RSSI_61         7
 
-
-
-#ifdef RFM12_IP_SUPPORT
-
-typedef enum {
-  RFM12_OFF,
-  RFM12_RX,
-  RFM12_NEW,
-  RFM12_TX,
-  RFM12_TX_PREAMBLE_1,
-  RFM12_TX_PREAMBLE_2,
-  RFM12_TX_PREFIX_1,
-  RFM12_TX_PREFIX_2,
-#ifdef RFM12_SOURCE_ROUTE_ALL
-  RFM12_TX_SRCRT_SZHI,
-  RFM12_TX_SRCRT_SZLO,
-  RFM12_TX_SRCRT_DEST,
-#endif	/* RFM12_SOURCE_ROUTE_ALL */
-  RFM12_TX_SIZE_HI,
-  RFM12_TX_SIZE_LO,
-  RFM12_TX_DATA,
-  RFM12_TX_DATAEND,
-  RFM12_TX_SUFFIX_1,
-  RFM12_TX_SUFFIX_2,
-  RFM12_TX_END
-} rfm12_status_t;
+#define PWRdB_0         0
+#define PWRdB_3         1
+#define PWRdB_6         2
+#define PWRdB_9         3
+#define PWRdB_12        4
+#define PWRdB_15        5
+#define PWRdB_18        6
+#define PWRdB_21        7
 
 
-/* Current RFM12 transceiver status. */
-rfm12_status_t rfm12_status;
-
-#define rfm12_tx_active()  (rfm12_status >= RFM12_TX)
-
-#ifdef RFM12_USE_POLL
-	#define rfm12_int_enable()  do { } while(0)
-	#define rfm12_int_disable() do { } while(0)
-#elif !defined(HAVE_RFM12_PCINT)
-	#define rfm12_int_enable()			\
-	  _EIMSK |= _BV(RFM12_INT_PIN);
-	#define rfm12_int_disable()			\
-	  _EIMSK &= ~_BV(RFM12_INT_PIN);
-#endif  /* not HAVE_RFM12_PCINT */
-
-
-#define RFM12_BUFFER_LEN    (UIP_CONF_BUFFER_SIZE - RFM12_BRIDGE_OFFSET)
-#define RFM12_DATA_LEN      (RFM12_BUFFER_LEN - RFM12_LLH_LEN)
-#define rfm12_buf           (uip_buf + RFM12_BRIDGE_OFFSET)
-#define rfm12_data          (rfm12_buf + RFM12_LLH_LEN)
-
-
-#ifdef TEENSY_SUPPORT
-#  if (RFM12_BUFFER_LEN + (defined(RFM12_SOURCE_ROUTE_ALL) ? 3 : 0))  > 254
-#    error "modify code or shrink (shared) uIP buffer."
-#  endif
-typedef uint8_t rfm12_index_t;
-#else   /* TEENSY_SUPPORT */
-typedef uint16_t rfm12_index_t;
-#endif	/* not TEENSY_SUPPORT */
-
-//##############################################################################
-
-#define LNA_0		0
-#define LNA_6		1
-#define LNA_14		2
-#define LNA_20		3
-
-#define RSSI_103	0
-#define RSSI_97		1
-#define RSSI_91		2
-#define RSSI_85		3
-#define RSSI_79		4
-#define RSSI_73		5
-#define RSSI_67		6
-#define	RSSI_61		7
-
-#define PWRdB_0		0
-#define PWRdB_3		1
-#define PWRdB_6		2
-#define PWRdB_9		3
-#define PWRdB_12	4
-#define PWRdB_15	5
-#define PWRdB_18	6
-#define PWRdB_21	7
-
-//##############################################################################
-
-
-/* how many calls to wait before a retransmit */
-#define RFM12_TXDELAY 0x10
-
-
-// set baudrate
-void rfm12_setbaud(unsigned short baud);
-
-// set transmission settings
-void rfm12_setpower(uint8_t power, uint8_t mod);
-
-// start receiving a package
-uint8_t rfm12_rxstart(void);
-
-// readout the package, if one arrived
-rfm12_index_t rfm12_rxfinish(void);
-
-// start transmitting a package of size size
-void rfm12_txstart(rfm12_index_t size);
-
-void rfm12_process (void);
-
-
-extern uint8_t rfm12_bandwidth;
-extern uint8_t rfm12_gain;
-extern uint8_t rfm12_drssi;
-
-
-
-#else /* not RFM12_IP_SUPPORT */
-
-#define rfm12_int_enable()  do { } while(0)
-#define rfm12_int_disable() do { } while(0)
+#ifndef TEENSY_SUPPORT
+uint16_t rfm12_setbandwidth(uint8_t, uint8_t, uint8_t);
+uint16_t rfm12_setfreq(uint16_t);
+uint16_t rfm12_setbaud(uint16_t);
+uint16_t rfm12_setpower(uint8_t, uint8_t);
 #endif
+uint16_t rfm12_get_status(void);
 
-/* return the current rfm12 status word */
-uint16_t rfm12_get_status (void);
-
-#if !defined(RFM12_USE_POLL) || !defined(RFM12_IP_SUPPORT)
-#define rfm12_int_process()  do { } while(0)
-#endif
-
-#endif /* _RFM12_H */
+#endif /* __RFM12_H */

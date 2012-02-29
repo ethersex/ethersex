@@ -11,6 +11,7 @@
 #define _SPI2X0 SPI2X
 #define _EIMSK GICR
 #define _IVREG MCUCR
+#define ANALOG_COMP_vect ANA_COMP_vect
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUCSR

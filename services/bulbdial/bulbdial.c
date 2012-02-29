@@ -66,17 +66,19 @@ void clear(){
 
 void
 bulbdial_clock(uint8_t delay){
-  struct clock_datetime_t date;
+  clock_datetime_t date;
   clock_current_localtime(&date);
   clear();
   set(0x0001 << (date.sec/5));
   PIN_SET(BULBDIAL_MINUTES);
-  _delay_ms(delay);
+  for (uint8_t i = delay; i; i--)
+    _delay_ms(1);
   PIN_CLEAR(BULBDIAL_MINUTES);
   clear();
   set(0x0001 << (date.min/5));
   PIN_SET(BULBDIAL_HOURS);
-  _delay_ms(delay);
+  for (uint8_t i = delay; i; i--)
+    _delay_ms(1);
   PIN_CLEAR(BULBDIAL_HOURS);
 }
 

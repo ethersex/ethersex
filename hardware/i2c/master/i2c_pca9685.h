@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
+ * Copyright (c) 2011-2012 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,13 +36,18 @@
 #define ALL_LED_OFF_L 0xFC
 #define ALL_LED_OFF_H 0xFD
 #define PRE_SCALE 0xFE
-uint8_t i2c_pca9685_reset();
-uint8_t i2c_pca9685_set_mode(uint8_t address,uint8_t outdrv,uint8_t ivrt,uint8_t prescaler);
-uint8_t i2c_pca9685_set_led(uint8_t address,uint8_t led,uint16_t on, uint16_t off);
-uint8_t i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,uint16_t *values);
-uint8_t i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled, uint8_t count,uint16_t *values);
+uint8_t i2c_pca9685_reset(void);
+uint8_t i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
+                             uint8_t prescaler);
+uint8_t i2c_pca9685_set_led(uint8_t address, uint8_t led, uint16_t on,
+                            uint16_t off);
+uint8_t i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,
+                             uint16_t * values);
+uint8_t i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled,
+                                  uint8_t count, uint16_t * values);
 #ifdef PCA9685_OUTPUT_ENABLE
-enum i2c_pca9685_output_enable_state{ON,OFF,TOGGLE};
+enum i2c_pca9685_output_enable_state
+{ ON, OFF, TOGGLE };
 void i2c_pca9685_output_enable(enum i2c_pca9685_output_enable_state choice);
 #endif
 #endif

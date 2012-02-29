@@ -37,7 +37,7 @@ dc3840_save_snapshot (void)
     return;			/* Camera failed to make a picture. */
 
   /* Generate destination directory name, based on current date and hour. */
-  struct clock_datetime_t datetime;
+  clock_datetime_t datetime;
   clock_localtime(&datetime, clock_get_time());
 
   char filename[24];

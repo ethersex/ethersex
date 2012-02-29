@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.110 2011/09/22 10:19:44 fm Exp $
+ * $Id: irmp.c,v 1.112 2012/02/13 10:59:07 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -1738,6 +1738,7 @@ static uint16_t irmp_tmp_id;                                                    
 #endif
 #if IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
 static uint8_t  xor_check[6];                                                           // check kaseikyo "parity" bits
+static uint8_t  genre2;                                                                 // save genre2 bits here, later copied to MSB in flags
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1800,23 +1801,29 @@ irmp_store_bit (uint8_t value)
 #endif
 
 #if IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
-    else if (irmp_param.protocol == IRMP_KASEIKYO_PROTOCOL && irmp_bit >= 20 && irmp_bit < 24)
+    else if (irmp_param.protocol == IRMP_KASEIKYO_PROTOCOL)
     {
-        irmp_tmp_command |= (((uint16_t) (value)) << (irmp_bit - 8));                   // store 4 system bits in upper nibble with LSB first
-    }
-
-    if (irmp_param.protocol == IRMP_KASEIKYO_PROTOCOL && irmp_bit < KASEIKYO_COMPLETE_DATA_LEN)
-    {
-        if (value)
+        if (irmp_bit >= 20 && irmp_bit < 24)
         {
-            xor_check[irmp_bit / 8] |= 1 << (irmp_bit % 8);
+            irmp_tmp_command |= (((uint16_t) (value)) << (irmp_bit - 8));       // store 4 system bits (genre 1) in upper nibble with LSB first
         }
-        else
+    	else if (irmp_bit >= 24 && irmp_bit < 28)
         {
-            xor_check[irmp_bit / 8] &= ~(1 << (irmp_bit % 8));
+            genre2 |= (((uint8_t) (value)) << (irmp_bit - 20));                 // store 4 system bits (genre 2) in upper nibble with LSB first
+        }
+
+        if (irmp_bit < KASEIKYO_COMPLETE_DATA_LEN)
+        {
+            if (value)
+            {
+                xor_check[irmp_bit / 8] |= 1 << (irmp_bit % 8);
+            }
+            else
+            {
+                xor_check[irmp_bit / 8] &= ~(1 << (irmp_bit % 8));
+            }
         }
     }
-
 #endif
 
     irmp_bit++;
@@ -1924,7 +1931,7 @@ irmp_ISR (void)
 #ifdef ANALYZE
                 if (! irmp_pulse_time)
                 {
-                    ANALYZE_PRINTF("%8d [starting pulse]\n", time_counter);
+                    ANALYZE_PRINTF("%8.3fms [starting pulse]\n", (double) (time_counter * 1000) / F_INTERRUPTS);
                 }
 #endif
                 irmp_pulse_time++;                                              // increment counter
@@ -1938,6 +1945,9 @@ irmp_ISR (void)
                     wait_for_space          = 0;
                     irmp_tmp_command        = 0;
                     irmp_tmp_address        = 0;
+#if IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
+                    genre2                  = 0;
+#endif
 
 #if IRMP_SUPPORT_RC5_PROTOCOL == 1 && (IRMP_SUPPORT_FDC_PROTOCOL == 1 || IRMP_SUPPORT_RCCAR_PROTOCOL == 1) || IRMP_SUPPORT_NEC42_PROTOCOL == 1
                     irmp_tmp_command2       = 0;
@@ -1982,7 +1992,7 @@ irmp_ISR (void)
                         else
 #endif // IRMP_SUPPORT_JVC_PROTOCOL == 1
                         {
-                            ANALYZE_PRINTF ("%8d error 1: pause after start bit pulse %d too long: %d\n", time_counter, irmp_pulse_time, irmp_pause_time);
+                            ANALYZE_PRINTF ("%8.3fms error 1: pause after start bit pulse %d too long: %d\n", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_pulse_time, irmp_pause_time);
                             ANALYZE_ONLY_NORMAL_PUTCHAR ('\n');
                         }
 //                      irmp_busy_flag = FALSE;
@@ -1999,7 +2009,7 @@ irmp_ISR (void)
                     irmp_param2.protocol = 0;
 #endif
 
-                    ANALYZE_PRINTF ("%8d [start-bit: pulse = %2d, pause = %2d]\n", time_counter, irmp_pulse_time, irmp_pause_time);
+                    ANALYZE_PRINTF ("%8.3fms [start-bit: pulse = %2d, pause = %2d]\n", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_pulse_time, irmp_pause_time);
 
 #if IRMP_SUPPORT_SIRCS_PROTOCOL == 1
                     if (irmp_pulse_time >= SIRCS_START_BIT_PULSE_LEN_MIN && irmp_pulse_time <= SIRCS_START_BIT_PULSE_LEN_MAX &&
@@ -2463,14 +2473,14 @@ irmp_ISR (void)
                     {
                         if (irmp_pause_time > irmp_param.pulse_1_len_max && irmp_pause_time <= 2 * irmp_param.pulse_1_len_max)
                         {
-                            ANALYZE_PRINTF ("%8d [bit %2d: pulse = %3d, pause = %3d] ", time_counter, irmp_bit, irmp_pulse_time, irmp_pause_time);
+                            ANALYZE_PRINTF ("%8.3fms [bit %2d: pulse = %3d, pause = %3d] ", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_bit, irmp_pulse_time, irmp_pause_time);
                             ANALYZE_PUTCHAR ((irmp_param.flags & IRMP_PARAM_FLAG_1ST_PULSE_IS_1) ? '0' : '1');
                             ANALYZE_NEWLINE ();
                             irmp_store_bit ((irmp_param.flags & IRMP_PARAM_FLAG_1ST_PULSE_IS_1) ? 0 : 1);
                         }
                         else if (! last_value)  // && irmp_pause_time >= irmp_param.pause_1_len_min && irmp_pause_time <= irmp_param.pause_1_len_max)
                         {
-                            ANALYZE_PRINTF ("%8d [bit %2d: pulse = %3d, pause = %3d] ", time_counter, irmp_bit, irmp_pulse_time, irmp_pause_time);
+                            ANALYZE_PRINTF ("%8.3fms [bit %2d: pulse = %3d, pause = %3d] ", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_bit, irmp_pulse_time, irmp_pause_time);
 
                             ANALYZE_PUTCHAR ((irmp_param.flags & IRMP_PARAM_FLAG_1ST_PULSE_IS_1) ? '1' : '0');
                             ANALYZE_NEWLINE ();
@@ -2492,7 +2502,7 @@ irmp_ISR (void)
 #if IRMP_SUPPORT_DENON_PROTOCOL == 1
                     if (irmp_param.protocol == IRMP_DENON_PROTOCOL)
                     {
-                        ANALYZE_PRINTF ("%8d [bit %2d: pulse = %3d, pause = %3d] ", time_counter, irmp_bit, irmp_pulse_time, irmp_pause_time);
+                        ANALYZE_PRINTF ("%8.3fms [bit %2d: pulse = %3d, pause = %3d] ", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_bit, irmp_pulse_time, irmp_pause_time);
 
                         if (irmp_pause_time >= DENON_1_PAUSE_LEN_MIN && irmp_pause_time <= DENON_1_PAUSE_LEN_MAX)
                         {                                                       // pause timings correct for "1"?
@@ -2512,7 +2522,7 @@ irmp_ISR (void)
 #if IRMP_SUPPORT_THOMSON_PROTOCOL == 1
                     if (irmp_param.protocol == IRMP_THOMSON_PROTOCOL)
                     {
-                        ANALYZE_PRINTF ("%8d [bit %2d: pulse = %3d, pause = %3d] ", time_counter, irmp_bit, irmp_pulse_time, irmp_pause_time);
+                        ANALYZE_PRINTF ("%8.3fms [bit %2d: pulse = %3d, pause = %3d] ", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_bit, irmp_pulse_time, irmp_pause_time);
 
                         if (irmp_pause_time >= THOMSON_1_PAUSE_LEN_MIN && irmp_pause_time <= THOMSON_1_PAUSE_LEN_MAX)
                         {                                                       // pause timings correct for "1"?
@@ -2713,7 +2723,7 @@ irmp_ISR (void)
                                 //        0123456789ABC0123456789ABC0123456701234567
                                 // NEC42: AAAAAAAAAAAAAaaaaaaaaaaaaaCCCCCCCCcccccccc
                                 // NEC:   AAAAAAAAaaaaaaaaCCCCCCCCcccccccc
-                                irmp_tmp_address        |= (irmp_tmp_address2 & 0x0007) << 12;
+                                irmp_tmp_address        |= (irmp_tmp_address2 & 0x0007) << 13;      // fm 2012-02-13: 12 -> 13
                                 irmp_tmp_command        = (irmp_tmp_address2 >> 3) | (irmp_tmp_command << 10);
                             }
 #endif // IRMP_SUPPORT_NEC_PROTOCOL == 1
@@ -2753,7 +2763,7 @@ irmp_ISR (void)
 
                 if (got_light)
                 {
-                    ANALYZE_PRINTF ("%8d [bit %2d: pulse = %3d, pause = %3d] ", time_counter, irmp_bit, irmp_pulse_time, irmp_pause_time);
+                    ANALYZE_PRINTF ("%8.3fms [bit %2d: pulse = %3d, pause = %3d] ", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_bit, irmp_pulse_time, irmp_pause_time);
 
 #if IRMP_SUPPORT_MANCHESTER == 1
                     if ((irmp_param.flags & IRMP_PARAM_FLAG_IS_MANCHESTER))                                     // Manchester
@@ -3262,7 +3272,7 @@ irmp_ISR (void)
 #endif
 
                 {
-                    ANALYZE_PRINTF ("%8d code detected, length = %d\n", time_counter, irmp_bit);
+                    ANALYZE_PRINTF ("%8.3fms code detected, length = %d\n", (double) (time_counter * 1000) / F_INTERRUPTS, irmp_bit);
                     irmp_ir_detected = TRUE;
 
 #if IRMP_SUPPORT_DENON_PROTOCOL == 1
@@ -3346,6 +3356,8 @@ irmp_ISR (void)
                                 ANALYZE_PRINTF ("error 4: wrong XOR check for data bits: 0x%02x 0x%02x\n", xor, xor_check[5]);
                                 irmp_ir_detected = FALSE;
                             }
+
+                            irmp_flags |= genre2;	// write the genre2 bits into MSB of the flag byte
                         }
 #endif // IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
 
@@ -3816,7 +3828,7 @@ next_tick (void)
 
             if (verbose)
             {
-                printf ("%8d ", time_counter);
+                printf ("%8.3fms ", (double) (time_counter * 1000) / F_INTERRUPTS);
             }
 
             if (irmp_data.protocol == IRMP_FDC_PROTOCOL && (key = get_fdc_key (irmp_data.command)) != 0)
