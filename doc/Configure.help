@@ -2609,7 +2609,7 @@ CONF_ARTNET_INUNIVERSE
 Output Universe
 CONF_ARTNET_OUTUNIVERSE
 
-  Which is universe will be updated by an ArtNet controller.
+  Which universe will be updated by an ArtNet controller.
   (e.g. you want your PC to update Universe 1 on the ethersex
   device)
 
@@ -2624,6 +2624,6 @@ ARTNET_SUPPORT
    * DMX Storage (EXPERIMENTAL) (DMX_STORAGE_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
-  Artnet needs at least 572 bytes network buffer to work. You can set the network
-  buffer in Network->Network Buffer Size. Menuconfig will set your network
-  buffer size automatically aswell by entering the "Art-Net Node" menu.
+  Artnet needs at least a 572 byte network buffer to work. You can set the buffer size 
+  in "Network -> Network Buffer Size". By entering the "Art-Net Node" menu, the network
+  buffer size will be set automatically to 572 if it is less than that.
