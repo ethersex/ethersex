@@ -423,6 +423,10 @@ int8_t ow_eeprom_read(ow_rom_code_t * rom, void *data);
 ow_rom_code_t *ow_name_to_rom(const char *name);
 char *ow_rom_to_name(const ow_rom_code_t * rom);
 void ow_names_save(void);
+#ifdef ONEWIRE_POLLING_SUPPORT
+ow_sensor_t *ow_find_sensor_idx(uint8_t index);
+ow_sensor_t *ow_find_sensor_name(const char *name);
+#endif /* ONEWIRE_POLLING_SUPPORT */
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
 /*
@@ -460,10 +464,6 @@ int16_t parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_name_clear(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len);
-#ifdef ONEWIRE_POLLING_SUPPORT
-ow_sensor_t *ow_find_sensor_idx(uint8_t index);
-ow_sensor_t *ow_find_sensor_name(const char *name);
-#endif /* ONEWIRE_POLLING_SUPPORT */
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
 #endif /* ONEWIRE_SUPPORT */

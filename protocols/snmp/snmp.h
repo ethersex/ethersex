@@ -85,8 +85,6 @@ struct snmp_reaction
 extern const struct snmp_reaction snmp_reactions[];
 
 #define ucdExperimental "\x2b\x06\x01\x04\x01\x8f\x65\x0d"
-
-/* OID: 1.3.6.1.4.1.2021.13.23. */
 #define ethersexExperimental ucdExperimental "\x17"
 
 #endif /* _SNMP_H */
