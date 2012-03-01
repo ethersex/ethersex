@@ -706,6 +706,19 @@ ow_discover_sensor(void)
   return 0;
 }
 
+ow_sensor_t *
+ow_find_sensor(ow_rom_code_t * rom)
+{
+  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    if (ow_sensors[i].ow_rom_code.raw == rom->raw)
+    {
+      /* found it */
+      return &ow_sensors[i];
+    }
+  }
+  return NULL;
+}
 
 /* this function will be called every 800 ms */
 void

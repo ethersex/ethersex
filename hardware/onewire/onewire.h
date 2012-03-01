@@ -455,8 +455,10 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 /* issue temperatur convert command on all OW-buses */
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
 
-/* Polling functions*/
+#ifdef ONEWIRE_POLLING_SUPPORT
+ow_sensor_t *ow_find_sensor(ow_rom_code_t *rom);
 void ow_periodic(void);
+#endif
 
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT
