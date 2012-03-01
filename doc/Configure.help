@@ -2601,3 +2601,11 @@ DST_END_DOW
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
 
+I2C PCA9555 16bit Port extension
+I2C_PCA9555_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Enables support for the PCA9555 16-bit I2C Port extension
+
