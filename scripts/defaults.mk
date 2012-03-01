@@ -77,14 +77,6 @@ else
 
   # flags for the linker
   LDFLAGS += -mmcu=$(MCU)
-
-  # float support
-  ifeq ($(FLOAT_SUPPORT),y)
-    LDFLAGS += -Wl,-u,vfprintf -lprintf_flt
-  endif
-  ifeq ($(FLOAT_SCANF_SUPPORT),y)
-   LDFLAGS += -Wl,-u,vfscanf -lscanf_flt
-  endif
 endif
 
 # remove all unused code and data during linking
@@ -109,7 +101,6 @@ LDFLAGS += -Wl,--section-start=.text=0xE000
 endif
 endif
 
-LDFLAGS += -lm -lc
 
 %.s: %.c
 	$(CC) -o $@ -O0 $(CPPFLAGS) -std=gnu99 -S $<

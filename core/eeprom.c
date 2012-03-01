@@ -116,7 +116,7 @@ eeprom_init (void)
 #endif
 
 #ifdef ADC_VOLTAGE_SUPPORT
-  eeprom_save_float (adc_vref, ADC_REF_VOLTAGE);
+  eeprom_save_int (adc_vref, ADC_REF_VOLTAGE);
 #endif
 
 #ifdef KTY_SUPPORT

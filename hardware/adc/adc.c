@@ -3,6 +3,7 @@
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -36,56 +37,73 @@
 uint8_t last_ref;
 
 #ifdef ADC_VOLTAGE_SUPPORT
-float vref;
+uint16_t vref;
 #endif /* ADC_VOLTAGE_SUPPORT */
 
-void adc_init(void) {
+void
+adc_init(void)
+{
   /* ADC Prescaler to 64 */
-  ADCSRA = _BV (ADEN) | _BV (ADPS2) | _BV (ADPS1);
+  ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
 
   /* init reference */
   ADMUX = ADC_REF;
   last_ref = 0xff;
 
 #ifdef ADC_VOLTAGE_SUPPORT
-  eeprom_restore_float (adc_vref, &vref);
+  eeprom_restore_int(adc_vref, &vref);
 #endif
 }
 
-uint16_t adc_get_setref(uint8_t ref, uint8_t channel)
+uint16_t
+adc_get_setref(uint8_t ref, uint8_t channel)
 {
   /* select reference and channel */
   ADMUX = (ref & 0xc0) | (channel & 0x1f);
-  if (last_ref != ref) {
+  if (last_ref != ref)
+  {
     ADCSRA |= _BV(ADSC);
-    while (ADCSRA & _BV(ADSC)) {}
+    while (ADCSRA & _BV(ADSC))
+    {
+    }
     last_ref = ref;
   }
 
   /* Start adc conversion */
   ADCSRA |= _BV(ADSC);
   /* Wait for completion of adc */
-  while (ADCSRA & _BV(ADSC)) {}
+  while (ADCSRA & _BV(ADSC))
+  {
+  }
 
   return ADC;
 }
 
 #ifdef ADC_VOLTAGE_SUPPORT
 
-float adc_get_voltage_setref(uint8_t ref, uint8_t channel)
+uint16_t
+adc_get_voltage_setref(uint8_t ref, uint8_t channel)
 {
-  return vref * (float)adc_get_setref(ref, channel) * ADC_RES_RECIEP;
+  return adc_raw_to_voltage(adc_get_setref(ref, channel));
 }
 
-float adc_get_vref()
+uint16_t
+adc_raw_to_voltage(uint16_t raw)
+{
+  return ((float) vref * (float) raw * ADC_RES_RECIEP);
+}
+
+uint16_t
+adc_get_vref()
 {
   return vref;
 }
 
-void adc_set_vref(float value)
+void
+adc_set_vref(uint16_t value)
 {
   vref = value;
-  eeprom_save_float(adc_vref, vref);
+  eeprom_save_int(adc_vref, vref);
   eeprom_update_chksum();
 }
 

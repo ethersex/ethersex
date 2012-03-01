@@ -234,7 +234,7 @@ OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 $(TARGET): $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
 
 SIZEFUNCARG ?= -e printf -e scanf -e divmod
 size-check: $(OBJECTS) ethersex
