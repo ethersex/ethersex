@@ -63,6 +63,10 @@ onewire_init(void)
 
   /* release lock */
   ow_global.lock = 0;
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+  eeprom_restore(ow_names, ow_names_table, OW_SENSORS_COUNT * sizeof(ow_name_t));
+#endif
 }
 
 

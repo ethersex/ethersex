@@ -350,17 +350,14 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   if (ow_temp_sensor(&rom))
   {
-    /*Search the sensor... */
-    for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+    ow_sensor_t *sensor = ow_find_sensor(&rom);
+    if(sensor != NULL)
     {
-      if (ow_sensors[i].ow_rom_code.raw == rom.raw)
-      {
-        /*Found it */
-        int16_t temp = ow_sensors[i].temp;
-        div_t res = div(temp, 10);
-        ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot, res.rem);
-        return ECMD_FINAL(ret);
-      }
+      /* found it*/
+      int16_t temp = sensor->temp;
+      div_t res = div(temp, 10);
+      ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot, res.rem);
+      return ECMD_FINAL(ret);
     }
     /*Sensor is not in list */
     ret = snprintf_P(output, len, PSTR("sensor not in list!"));
