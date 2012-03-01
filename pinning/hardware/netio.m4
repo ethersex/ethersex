@@ -83,3 +83,7 @@ ifdef(`conf_HD44780', `
   pin(HD44780_D6, PD6)
   pin(HD44780_D7, PD7)
 ')
+ifdef(`conf_HD44780_BACKLIGHT', `
+  pin(HD44780_BL, PB1)
+')
+

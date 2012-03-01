@@ -178,7 +178,7 @@ uint8_t noinline input_nibble(uint8_t rs, uint8_t en)
 void hd44780_backlight(uint8_t state)
 {
     back_light = state;
-#ifdef HD44780_BACKLIGHTSUPPORT
+#ifdef HD44780_BACKLIGHT_SUPPORT
     if (back_light)
         PIN_SET(HD44780_BL);
     else
@@ -211,7 +211,7 @@ void noinline hd44780_hw_init(void)
     PIN_CLEAR(HD44780_D7);
     DATA_OUTPUT();
 
-#ifdef HD44780_BACKLIGHTSUPPORT
+#ifdef HD44780_BACKLIGHT_SUPPORT
     DDR_CONFIG_OUT(HD44780_BL);
     PIN_CLEAR(HD44780_BL);
 #endif
