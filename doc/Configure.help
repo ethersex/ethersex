@@ -2601,3 +2601,29 @@ DST_END_DOW
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
 
+Input Universe
+CONF_ARTNET_INUNIVERSE
+
+  Which universe will be broadcasted whenever a change occurs. 
+
+Output Universe
+CONF_ARTNET_OUTUNIVERSE
+
+  Which is universe will be updated by an ArtNet controller.
+  (e.g. you want your PC to update Universe 1 on the ethersex
+  device)
+
+UDP Port
+CONF_ARTNET_PORT
+
+  on which UDP port ethersex listens for artnet data
+
+Art-Net Node
+ARTNET_SUPPORT
+  Depends on: 
+   * DMX Storage (EXPERIMENTAL) (DMX_STORAGE_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+
+  Artnet needs at least 572 bytes network buffer to work. You can set the network
+  buffer in Network->Network Buffer Size. Menuconfig will set your network
+  buffer size automatically aswell by entering the "Art-Net Node" menu.
