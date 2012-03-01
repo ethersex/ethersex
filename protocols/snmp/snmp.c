@@ -32,26 +32,58 @@
 
 #ifdef SNMP_SUPPORT
 
+/**********************************************************
+ * helper functions 
+ **********************************************************/
+
+uint8_t
+encode_int(uint8_t * ptr, uint16_t val)
+{
+  ptr[0] = SNMP_TYPE_INTEGER;
+  ptr[1] = 2;
+  ptr[2] = HI8(val);
+  ptr[3] = LO8(val);
+  return 4;
+}
+
+uint8_t
+encode_long(uint8_t * ptr, uint32_t val)
+{
+  ptr[0] = SNMP_TYPE_INTEGER;
+  ptr[1] = 4;
+  *((uint32_t *) (ptr + 2)) = HTONL(val);
+  return 6;
+}
+
+uint8_t
+onelevel_next(uint8_t * ptr, struct snmp_varbinding * bind, uint8_t count)
+{
+  if (bind->len == 0)
+  {
+    ptr[0] = 0;
+    return 1;
+  }
+  if (bind->len == 1 && bind->data[0] < (count - 1))
+  {
+    ptr[0] = bind->data[0] + 1;
+    return 1;
+  }
+  return 0;
+}
+
+/**********************************************************
+ * reactions
+ **********************************************************/
+
 #ifdef WHM_SUPPORT
 uint8_t
-uptime_reaction(uint8_t * ptr, struct snmp_varbinding *bind, void *userdata)
+uptime_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
   if (bind->len != 0)
   {
     return 0;
   }
-  uint32_t seconds = clock_get_uptime();
-  /* This long long (uint64_t) hack is necessary, because it seems to be, that
-   * seconds = seconds * 100 doesn't work at all
-   */
-  seconds = seconds * 100LL;
-  uint32_t *time_ptr = (void *) ptr + 2;
-
-  ptr[0] = SNMP_TYPE_TIMETICKS;
-  ptr[1] = 4;
-  *time_ptr = HTONL((uint32_t) seconds);
-
-  return 6;
+  return encode_long(ptr, clock_get_uptime() * 100L);
 }
 #endif
 
@@ -70,30 +102,13 @@ adc_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   while (ADCSRA & _BV(ADSC))
   {
   }
-  uint16_t adc = ADC;
-
-  ptr[0] = SNMP_TYPE_INTEGER;
-  ptr[1] = 2;
-  ptr[2] = adc >> 8;
-  ptr[3] = adc & 0xff;
-
-  return 4;
+  return encode_int(ptr, ADC);
 }
 
 uint8_t
 adc_next(uint8_t * ptr, struct snmp_varbinding * bind)
 {
-  if (bind->len == 0)
-  {
-    ptr[0] = 0;
-    return 1;
-  }
-  if (bind->len == 1 && bind->data[0] < (ADC_CHANNELS - 1))
-  {
-    ptr[0] = bind->data[0] + 1;
-    return 1;
-  }
-  return 0;
+  return onelevel_next(ptr, bind, ADC_CHANNELS);
 }
 #endif
 
