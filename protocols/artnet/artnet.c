@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 by Stefan Krupop <mail@stefankrupop.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
- * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
+ * Copyright (c) 2011-2012 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +29,10 @@
  */
 
 
+#include <stdio.h>
+#include <string.h>
+#include <avr/interrupt.h>
+
 #include "config.h"
 #include "core/bool.h"
 #include "core/bit-macros.h"
@@ -40,195 +44,20 @@
 #ifdef ARTNET_SUPPORT
 
 
-#include <stdio.h>
-#include <avr/interrupt.h>
-
-
-/* ----------------------------------------------------------------------------
- * op-codes
- */
-#define OP_POLL			0x2000
-#define OP_POLLREPLY		0x2100
-#define OP_OUTPUT		0x5000
-#define OP_ADDRESS		0x6000
-#define OP_IPPROG		0xf800
-#define OP_IPPROGREPLY		0xf900
-
-/* ----------------------------------------------------------------------------
- * status
- */
-#define RC_POWER_OK		0x01
-#define RC_PARSE_FAIL		0x04
-#define RC_SH_NAME_OK		0x06
-#define RC_LO_NAME_OK		0x07
-
-/* ----------------------------------------------------------------------------
- * default values
- */
-#define SUBNET_DEFAULT		0
-#define INUNIVERSE_DEFAULT	1
-#define OUTUNIVERSE_DEFAULT	0
-#define NETCONFIG_DEFAULT	1
-
-/* ----------------------------------------------------------------------------
- * other defines
- */
-#define MAX_NUM_PORTS		CONF_ARTNET_MAX_PORTS
-#define SHORT_NAME_LENGTH	18
-#define LONG_NAME_LENGTH	64
-#define PORT_NAME_LENGTH	32
-#define MAX_DATA_LENGTH		CONF_ARTNET_MAX_DATA_LENGTH
-
-#define PROTOCOL_VERSION 	14      /* DMX-Hub protocol version. */
-#define FIRMWARE_VERSION 	0x0100  /* DMX-Hub firmware version. */
-#define OEM_ID 			0xff00  /* OEM Code, just testcode as yet. */
-#define STYLE_NODE 		0       /* Responder is a Node (DMX <-> Ethernet Device) */
-
-#define PORT_TYPE_DMX_OUTPUT	0x80
-#define PORT_TYPE_DMX_INPUT 	0x40
-
-#define MAX_CHANNELS 		CONF_ARTNET_MAX_CHANNELS
-#define IBG   			10      /* interbyte gap [us] */
-
-#define REFRESH_INTERVAL	4       /* [s] */
-
-/* ----------------------------------------------------------------------------
- * packet formats
- */
-struct artnet_packet_addr
-{
-  uint8_t ip[4];
-  uint16_t port;
-};
-
-struct artnet_header
-{
-  uint8_t id[8];
-  uint16_t opcode;
-};
-
-struct artnet_poll
-{
-  uint8_t id[8];
-  uint16_t opcode;
-  uint8_t versionH;
-  uint8_t version;
-  uint8_t talkToMe;
-  uint8_t pad;
-};
-
-struct artnet_pollreply
-{
-  char id[8];
-  uint16_t opcode;
-  struct artnet_packet_addr addr;
-  uint8_t versionInfoH;
-  uint8_t versionInfo;
-  uint8_t subSwitchH;
-  uint8_t subSwitch;
-  uint16_t oem;
-  uint8_t ubeaVersion;
-  uint8_t status;
-  uint16_t estaMan;
-  char shortName[SHORT_NAME_LENGTH];
-  char longName[LONG_NAME_LENGTH];
-  char nodeReport[LONG_NAME_LENGTH];
-  uint8_t numPortsH;
-  uint8_t numPorts;
-  uint8_t portTypes[MAX_NUM_PORTS];
-  uint8_t goodInput[MAX_NUM_PORTS];
-  uint8_t goodOutput[MAX_NUM_PORTS];
-  uint8_t swin[MAX_NUM_PORTS];
-  uint8_t swout[MAX_NUM_PORTS];
-  uint8_t swVideo;
-  uint8_t swMacro;
-  uint8_t swRemote;
-  uint8_t spare1;
-  uint8_t spare2;
-  uint8_t spare3;
-  uint8_t style;
-  uint8_t mac[6];
-  uint8_t filler[32];
-};
-
-struct artnet_ipprog
-{
-  char id[8];
-  uint16_t opcode;
-  uint8_t versionH;
-  uint8_t version;
-  uint8_t filler1;
-  uint8_t filler2;
-  uint8_t command;
-  uint8_t filler3;
-  uint8_t progIp[4];
-  uint8_t progSm[4];
-  uint8_t progPort[2];
-  uint8_t spare[8];
-};
-
-struct artnet_ipprogreply
-{
-  char id[8];
-  uint16_t opcode;
-  uint8_t versionH;
-  uint8_t version;
-  uint8_t filler1;
-  uint8_t filler2;
-  uint8_t filler3;
-  uint8_t filler4;
-  uint8_t progIp[4];
-  uint8_t progSm[4];
-  uint8_t progPort[2];
-  uint8_t spare[8];
-};
-
-struct artnet_address
-{
-  char id[8];
-  uint16_t opcode;
-  uint8_t versionH;
-  uint8_t version;
-  uint8_t filler1;
-  uint8_t filler2;
-  int8_t shortName[SHORT_NAME_LENGTH];
-  int8_t longName[LONG_NAME_LENGTH];
-  uint8_t swin[MAX_NUM_PORTS];
-  uint8_t swout[MAX_NUM_PORTS];
-  uint8_t subSwitch;
-  uint8_t swVideo;
-  uint8_t command;
-};
-
-struct artnet_dmx
-{
-  uint8_t id[8];
-  uint16_t opcode;
-  uint8_t versionH;
-  uint8_t version;
-  uint8_t sequence;
-  uint8_t physical;
-  uint16_t universe;
-  uint8_t lengthHi;
-  uint8_t length;
-  uint8_t dataStart;
-};
-
 /* ----------------------------------------------------------------------------
  *global variables
  */
-enum
-{ BREAK, STARTB, DATA, STOPPED };
 
 uint8_t artnet_subNet = SUBNET_DEFAULT;
-uint8_t artnet_outputUniverse1 = OUTUNIVERSE_DEFAULT;
-uint8_t artnet_inputUniverse1 = INUNIVERSE_DEFAULT;
+uint8_t artnet_outputUniverse;
+uint8_t artnet_inputUniverse;
 uint8_t artnet_sendPollReplyOnChange = TRUE;
 uint64_t artnet_pollReplyTarget = (uint64_t) 0xffffffff;
 uint32_t artnet_pollReplyCounter = 0;
 uint8_t artnet_status = RC_POWER_OK;
-char artnet_shortName[18];
-char artnet_longName[64];
+char artnet_shortName[18] = { '\0' };
+char artnet_longName[64] = { '\0' };
+
 uint16_t artnet_port = CONF_ARTNET_PORT;
 uint8_t artnet_netConfig = NETCONFIG_DEFAULT;
 
@@ -239,7 +68,8 @@ volatile uint8_t artnet_dmxInComplete = FALSE;
 int8_t artnet_conn_id = 0;
 uint8_t artnet_connected = 0;
 uint8_t artnet_dmxDirection = 0;
-uint8_t artnet_dmxRefreshTimer = REFRESH_INTERVAL;
+
+const char artnet_ID[8] PROGMEM = "Art-Net";
 
 /* ----------------------------------------------------------------------------
  * initialization of network settings
@@ -258,7 +88,7 @@ artnet_init(void)
 {
 
   ARTNET_DEBUG("Init\n");
-  artnet_conn_id = dmx_storage_connect(artnet_inputUniverse1);
+  artnet_conn_id = dmx_storage_connect(artnet_inputUniverse);
   if (artnet_conn_id != -1)
   {
     artnet_connected = TRUE;
@@ -272,32 +102,15 @@ artnet_init(void)
   }
   /* read Art-Net port */
   artnet_port = CONF_ARTNET_PORT;
-
   /* read netconfig */
   artnet_netConfig = NETCONFIG_DEFAULT;
 
   /* read subnet */
   artnet_subNet = SUBNET_DEFAULT;
-
-  artnet_inputUniverse1 = CONF_ARTNET_INUNIVERSE;
-
-  artnet_outputUniverse1 = CONF_ARTNET_OUTUNIVERSE;
-
-  for (uint8_t i = 0; i < SHORT_NAME_LENGTH; i++)
-  {
-    artnet_shortName[i] = 0;
-  }
+  artnet_inputUniverse = CONF_ARTNET_INUNIVERSE;
+  artnet_outputUniverse = CONF_ARTNET_OUTUNIVERSE;
   strcpy_P(artnet_shortName, PSTR("e6ArtNode"));
-  artnet_shortName[SHORT_NAME_LENGTH - 1] = 0;
-
-  /* read long name */
-  for (uint8_t i = 0; i < LONG_NAME_LENGTH; i++)
-  {
-    artnet_longName[i] = 0;
-  }
-  strcpy_P(artnet_longName, PSTR("e6 artnet node hostname: " CONF_HOSTNAME));
-
-  artnet_longName[LONG_NAME_LENGTH - 1] = 0;
+  strcpy_P(artnet_longName, PSTR("e6ArtNode hostname: " CONF_HOSTNAME));
 
   artnet_netInit();
 
@@ -307,7 +120,6 @@ artnet_init(void)
 
   /* enable PollReply on changes */
   artnet_sendPollReplyOnChange = TRUE;
-
   ARTNET_DEBUG("init complete\n");
   return;
 }
@@ -320,7 +132,6 @@ artnet_send(uint16_t len)
   artnet_conn.ripaddr[1] = uip_hostaddr[1] | ~uip_netmask[1];
   artnet_conn.rport = HTONS(artnet_port);
   artnet_conn.lport = HTONS(artnet_port);
-
   uip_udp_conn = &artnet_conn;
 
   uip_slen = len;
@@ -343,13 +154,7 @@ artnet_sendPollReply(void)
     (struct artnet_pollreply *) &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
   memset(msg, 0, sizeof(struct artnet_pollreply));
   ARTNET_DEBUG("PollReply allocated\n");
-  msg->id[0] = 'A';
-  msg->id[1] = 'r';
-  msg->id[2] = 't';
-  msg->id[3] = '-';
-  msg->id[4] = 'N';
-  msg->id[5] = 'e';
-  msg->id[6] = 't';
+  strncpy_P((char *) msg->id, artnet_ID, 8);
 
   msg->opcode = OP_POLLREPLY;
 
@@ -359,48 +164,36 @@ artnet_sendPollReply(void)
   msg->subSwitchH = 0;
   msg->subSwitch = artnet_subNet & 15;
 
-  msg->oem = (uint16_t) OEM_ID;
+  /* Report as 'AvrArtNode' http://www.dmxcontrol.de/wiki/Art-Net-Node_f%C3%BCr_25_Euro */
+  msg->oem = 0x08b1;
   msg->ubeaVersion = 0;
   msg->status = 0;
-  msg->estaMan = 'D' * 256 + 'P';
+  /* Report as Manufacturer "ESTA" http://tsp.plasa.org/tsp/working_groups/CP/mfctrIDs.php */
+  msg->estaMan = 0xFFFF;
   strcpy(msg->shortName, artnet_shortName);
   strcpy(msg->longName, artnet_longName);
-  sprintf(msg->nodeReport, "#%04X [%04u] AvrArtNode is ready", artnet_status,
+  sprintf(msg->nodeReport, "#%04X [%04u] e6ArtNode is ready", artnet_status,
           (unsigned int) artnet_pollReplyCounter);
 
   msg->numPortsH = 0;
   msg->numPorts = 1;
 
   if (artnet_dmxDirection == 1)
-  {
     msg->portTypes[0] = PORT_TYPE_DMX_INPUT;
-  }
   else
-  {
     msg->portTypes[0] = PORT_TYPE_DMX_OUTPUT;
-  }
 
   if (artnet_dmxDirection != 1)
-  {
     msg->goodInput[0] = (1 << 3);
-  }
-  else
-  {
-    if (artnet_dmxChannels > 0)
-    {
-      msg->goodInput[0] |= (1 << 7);
-    }
-  }
+  else if (artnet_dmxChannels > 0)
+    msg->goodInput[0] |= (1 << 7);
 
   msg->goodOutput[0] = (1 << 1);
   if (artnet_dmxTransmitting == TRUE)
-  {
     msg->goodOutput[0] |= (1 << 7);
-  }
 
-  msg->swin[0] = (artnet_subNet & 15) * 16 | (artnet_inputUniverse1 & 15);
-  msg->swout[0] = (artnet_subNet & 15) * 16 | (artnet_outputUniverse1 & 15);
-
+  msg->swin[0] = (artnet_subNet & 15) * 16 | (artnet_inputUniverse & 15);
+  msg->swout[0] = (artnet_subNet & 15) * 16 | (artnet_outputUniverse & 15);
   msg->style = STYLE_NODE;
 
   memcpy(msg->mac, uip_ethaddr.addr, 6);
@@ -419,17 +212,10 @@ artnet_sendDmxPacket(void)
   /* prepare artnet Dmx packet */
   struct artnet_dmx *msg =
     (struct artnet_dmx *) &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
-  //struct artnet_dmx *msg = uip_appdata;
   memset(msg, 0, sizeof(struct artnet_dmx));
 
-  msg->id[0] = 'A';
-  msg->id[1] = 'r';
-  msg->id[2] = 't';
-  msg->id[3] = '-';
-  msg->id[4] = 'N';
-  msg->id[5] = 'e';
-  msg->id[6] = 't';
-  msg->id[7] = 0;
+  strncpy_P((char *) msg->id, artnet_ID, 8);
+
   msg->opcode = OP_OUTPUT;
 
   msg->versionH = 0;
@@ -437,17 +223,15 @@ artnet_sendDmxPacket(void)
 
   msg->sequence = sequence++;
   if (sequence == 0)
-  {
     sequence = 1;
-  }
 
   msg->physical = 1;
-  msg->universe = ((artnet_subNet << 4) | artnet_inputUniverse1);
+  msg->universe = ((artnet_subNet << 4) | artnet_inputUniverse);
   msg->lengthHi = HI8(DMX_STORAGE_CHANNELS);
   msg->length = LO8(DMX_STORAGE_CHANNELS);
   for (uint8_t i = 0; i < DMX_STORAGE_CHANNELS; i++)
     (&(msg->dataStart))[i] =
-      get_dmx_channel_slot(artnet_inputUniverse1, i, artnet_conn_id);
+      get_dmx_channel_slot(artnet_inputUniverse, i, artnet_conn_id);
   /* broadcast the packet */
   artnet_send(sizeof(struct artnet_dmx) + DMX_STORAGE_CHANNELS);
 }
@@ -463,30 +247,20 @@ void
 processPollPacket(struct artnet_poll *poll)
 {
   if ((poll->talkToMe & 2) == 2)
-  {
     artnet_sendPollReplyOnChange = TRUE;
-  }
   else
-  {
     artnet_sendPollReplyOnChange = FALSE;
-  }
-
   if ((poll->talkToMe & 1) == 1)
-  {
     artnet_pollReplyTarget = *uip_hostaddr;
-  }
   else
-  {
     artnet_pollReplyTarget = (uint64_t) 0xffffffff;
-  }
-
   artnet_sendPollReply();
 }
 
 void
 artnet_main(void)
 {
-  if (get_dmx_universe_state(artnet_inputUniverse1, artnet_conn_id) ==
+  if (get_dmx_universe_state(artnet_inputUniverse, artnet_conn_id) ==
       DMX_NEWVALUES && artnet_connected == TRUE)
   {
     ARTNET_DEBUG("Universe has changed, sending artnet data!\r\n");
@@ -506,69 +280,50 @@ artnet_get(void)
   header = (struct artnet_header *) uip_appdata;
 
   /* check the id */
-  if ((header->id[0] != 'A') ||
-      (header->id[1] != 'r') ||
-      (header->id[2] != 't') ||
-      (header->id[3] != '-') ||
-      (header->id[4] != 'N') ||
-      (header->id[5] != 'e') ||
-      (header->id[6] != 't') || (header->id[7] != 0))
+  if (strncmp_P((char *) header->id, artnet_ID, 8))
   {
     ARTNET_DEBUG("Wrong ArtNet header, discarded\r\n");
     artnet_status = RC_PARSE_FAIL;
     return;
   }
-
-  if (header->opcode == OP_POLL)
+  switch (header->opcode)
   {
-    struct artnet_poll *poll;
+    case OP_POLL:;
+      struct artnet_poll *poll;
 
-    ARTNET_DEBUG("Received artnet poll packet!\r\n");
-    poll = (struct artnet_poll *) uip_appdata;
-    processPollPacket(poll);
+      ARTNET_DEBUG("Received artnet poll packet!\r\n");
+      poll = (struct artnet_poll *) uip_appdata;
+      processPollPacket(poll);
+      break;
+    case OP_POLLREPLY:;
+      ARTNET_DEBUG("Received artnet poll reply packet!\r\n");
+      break;
+    case OP_OUTPUT:;
+      struct artnet_dmx *dmx;
 
-  }
-  else if (header->opcode == OP_POLLREPLY)
-  {
-    ARTNET_DEBUG("Received artnet poll reply packet!\r\n");
-  }
-  else if (header->opcode == OP_OUTPUT)
-  {
-    struct artnet_dmx *dmx;
+      ARTNET_DEBUG("Received artnet output packet!\r\n");
+      dmx = (struct artnet_dmx *) uip_appdata;
 
-    ARTNET_DEBUG("Received artnet output packet!\r\n");
-    dmx = (struct artnet_dmx *) uip_appdata;
-
-    if (dmx->universe == ((artnet_subNet << 4) | artnet_outputUniverse1))
-    {
-      if (artnet_dmxDirection == 0)
+      if (dmx->universe == ((artnet_subNet << 4) | artnet_outputUniverse))
       {
-#ifdef DMX_STORAGE_SUPPORT
-        uint16_t len = ((dmx->lengthHi << 8) + dmx->length);
-        set_dmx_channels(&dmx->dataStart, artnet_outputUniverse1, len);
-#endif
-        if (artnet_sendPollReplyOnChange == TRUE)
+        if (artnet_dmxDirection == 0)
         {
-          artnet_pollReplyCounter++;
-          artnet_sendPollReply();
+          uint16_t len = ((dmx->lengthHi << 8) + dmx->length);
+          set_dmx_channels(&dmx->dataStart, artnet_outputUniverse, len);
+          if (artnet_sendPollReplyOnChange == TRUE)
+          {
+            artnet_pollReplyCounter++;
+            artnet_sendPollReply();
+          }
         }
       }
-    }
-  }
-  else if (header->opcode == OP_ADDRESS)
-  {
-    struct artnet_address *address;
-
-    ARTNET_DEBUG("Received artnet address packet!\r\n");
-    address = (struct artnet_address *) uip_appdata;
-
-  }
-  else if (header->opcode == OP_IPPROG)
-  {
-    struct artnet_ipprog *ipprog;
-
-    ARTNET_DEBUG("Received artnet ip prog packet!\r\n");
-    ipprog = (struct artnet_ipprog *) uip_appdata;
+      break;
+    case OP_ADDRESS:;
+    case OP_IPPROG:;
+      break;
+    default:
+      ARTNET_DEBUG("Received an invalid artnet packet!\r\n");
+      break;
   }
 }
 #endif /* ARTNET_SUPPORT */
