@@ -834,7 +834,23 @@ SNMP_SUPPORT
 
   Make ADC, Hostname and Uptime available through SNMP.
 
-  Set default values for DESCRIPTION, LOCATION and CONTACT.
+  Set default values for DESCRIPTION, LOCATION, CONTACT and COMMUNITY STRING.
+
+SNMP Description
+SNMP_VALUE_DESCRIPTION
+  Description of the system.
+
+SNMP Location
+SNMP_VALUE_LOCATION
+  Location of the system.
+
+SNMP Contact
+SNMP_VALUE_CONTACT
+  Administrative contact.
+
+SNMP Community String
+SNMP_COMMUNITY_STRING
+  Community string used for read requests.
 
 Sendmail support (smtp)
 SENDMAIL_SUPPORT
@@ -2600,4 +2616,9 @@ DST_END_DOW
   month m (1 <= m <= 12).  Week 1 is the first week in which day d
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
+
+  SNMP Description
+SNMP_VALUE_DESCRIPTION
+
+  Please add your new help-text here.
 
