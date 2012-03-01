@@ -31,6 +31,7 @@
 
 #include "services/clock/clock.h"
 
+#include "core/bit-macros.h"
 #include "core/debug.h"
 
 #ifdef I2C_PCF8583_SUPPORT
@@ -52,52 +53,42 @@ static uint16_t sync_timer;
 uint8_t
 i2c_pcf8583_set_addr(uint8_t Adr)
 {
-  uint8_t ret = 1;
-
   if (!i2c_master_select(PCF8583_ADR, TW_WRITE))
   {
-    ret = 0;
-    goto end;
+    return 0;
   }
 
   TWDR = Adr;
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
-    goto end;
+    return 0;
   }
 
-end:
-  return ret;
+  return 1;
 }
 
 uint8_t
 i2c_pcf8583_start_read(void)
 {
-  uint8_t ret = 1;
-
   /* Do an repeated start condition */
   if (i2c_master_start() != TW_REP_START)
   {
-    ret = 0;
-    goto end;
+    return 0;
   }
 
   TWDR = (PCF8583_ADR << 1) | TW_READ;
   if (i2c_master_transmit() != TW_MR_SLA_ACK)
   {
-    ret = 0;
-    goto end;
+    return 0;
   }
 
-end:
-  return ret;
+  return 1;
 }
 
 uint8_t
 i2c_pcf8583_set_byte(uint8_t Adr, uint8_t Val)
 {
-  uint8_t ret = 1;
+  uint8_t ret = 0;
 
 #ifdef DEBUG_I2C
   debug_printf
@@ -106,16 +97,15 @@ i2c_pcf8583_set_byte(uint8_t Adr, uint8_t Val)
 #endif
   if (!i2c_pcf8583_set_addr(Adr))
   {
-    ret = 0;
     goto end;
   }
 
   TWDR = Val;
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
+  ret = 1;
 
 end:
   i2c_master_stop();
@@ -133,20 +123,17 @@ i2c_pcf8583_get_byte(uint8_t Adr)
 #endif
   if (!i2c_pcf8583_set_addr(Adr))
   {
-    ret = 0xff;
     goto end;
   }
 
   /* start reading */
   if (!i2c_pcf8583_start_read())
   {
-    ret = 0xff;
     goto end;
   }
 
   if (i2c_master_transmit() != TW_MR_DATA_NACK)
   {
-    ret = 0xff;
     goto end;
   }
   ret = TWDR;
@@ -164,7 +151,7 @@ end:
 uint8_t
 i2c_pcf8583_set_word(uint8_t Adr, uint16_t Val)
 {
-  uint8_t ret = 1;
+  uint8_t ret = 0;
 
 #ifdef DEBUG_I2C
   debug_printf
@@ -173,23 +160,21 @@ i2c_pcf8583_set_word(uint8_t Adr, uint16_t Val)
 #endif
   if (!i2c_pcf8583_set_addr(Adr))
   {
-    ret = 0;
     goto end;
   }
 
-  TWDR = (Val >> 8) & 0xff;
+  TWDR = HI8(Val);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
 
-  TWDR = Val & 0xff;
+  TWDR = LO8(Val);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
+  ret = 1;
 
 end:
   i2c_master_stop();
@@ -207,20 +192,17 @@ i2c_pcf8583_get_word(uint8_t Adr)
 #endif
   if (!i2c_pcf8583_set_addr(Adr))
   {
-    ret = 0xffff;
     goto end;
   }
 
   /* start reading */
   if (!i2c_pcf8583_start_read())
   {
-    ret = 0xffff;
     goto end;
   }
 
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
   {
-    ret = 0xffff;
     goto end;
   }
   ret = (uint16_t) TWDR << 8;
@@ -297,6 +279,7 @@ i2c_pcf8583_get(void)
   d.day = dt.day;
   d.month = dt.mon;
   d.year = dt.year;
+  d.isdst = 0;
 
   return clock_mktime(&d, 1);
 #else
@@ -320,6 +303,7 @@ i2c_pcf8583_sync(void)
   d.day = dt.day;
   d.month = dt.mon;
   d.year = dt.year;
+  d.isdst = 0;
 
   clock_set_time_raw_hr(clock_mktime(&d, 1), (dt.hsec) >> 1);
 #endif /* CLOCK_DATETIME_SUPPORT */
@@ -343,7 +327,7 @@ i2c_pcf8583_reset_rtc(void)
 uint8_t
 i2c_pcf8583_set_rtc(pcf8583_reg_t * dt)
 {
-  uint8_t ret = 1;
+  uint8_t ret = 0;
 
 #ifdef DEBUG_I2C
   debug_printf
@@ -353,7 +337,6 @@ i2c_pcf8583_set_rtc(pcf8583_reg_t * dt)
 #endif
   if (!i2c_pcf8583_set_addr(PCF8583_CTRL_STATUS_REG))
   {
-    ret = 0;
     goto end;
   }
 
@@ -361,7 +344,6 @@ i2c_pcf8583_set_rtc(pcf8583_reg_t * dt)
   TWDR = PCF8583_STOP_COUNTING | PCF8583_MASK;
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
 
@@ -369,25 +351,21 @@ i2c_pcf8583_set_rtc(pcf8583_reg_t * dt)
   TWDR = BIN2BCD(dt->hsec);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   TWDR = BIN2BCD(dt->sec);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   TWDR = BIN2BCD(dt->min);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   TWDR = BIN2BCD(dt->hour) & 0x3f;      /* 24h mode */
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
 
@@ -395,15 +373,14 @@ i2c_pcf8583_set_rtc(pcf8583_reg_t * dt)
   TWDR = (BIN2BCD(dt->day) & 0x3f) | ((dt->year & 0x03) << 6);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   TWDR = (BIN2BCD(dt->mon) & 0x1f) | ((dt->wday & 0x07) << 5);
   if (i2c_master_transmit() != TW_MT_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
+  ret = 1;
 
 end:
   i2c_master_stop();
@@ -424,7 +401,7 @@ end:
 uint8_t
 i2c_pcf8583_get_rtc(pcf8583_reg_t * dt)
 {
-  uint8_t ret = 1;
+  uint8_t ret = 0;
   uint8_t YearCnt = 0;
   uint16_t YearReg;
 
@@ -434,39 +411,33 @@ i2c_pcf8583_get_rtc(pcf8583_reg_t * dt)
 #endif
   if (!i2c_pcf8583_set_addr(PCF8583_100S_REG))
   {
-    ret = 0;
     goto end;
   }
 
   /* start reading */
   if (!i2c_pcf8583_start_read())
   {
-    ret = 0;
     goto end;
   }
 
   /* Time */
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   dt->hsec = BCD2BIN(TWDR);
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   dt->sec = BCD2BIN(TWDR);
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   dt->min = BCD2BIN(TWDR);
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   dt->hour = BCD2BIN(TWDR & 0x3f);
@@ -474,18 +445,17 @@ i2c_pcf8583_get_rtc(pcf8583_reg_t * dt)
   /* Date */
   if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
   {
-    ret = 0;
     goto end;
   }
   YearCnt = TWDR >> 6;
   dt->day = BCD2BIN(TWDR & 0x3f);
   if (i2c_master_transmit() != TW_MR_DATA_NACK)
   {
-    ret = 0;
     goto end;
   }
   dt->mon = BCD2BIN(TWDR & 0x1f);
   dt->wday = TWDR >> 5;
+  ret = 1;
 
 end:
   i2c_master_stop();
