@@ -2601,3 +2601,9 @@ DST_END_DOW
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
 
+Buffer Length
+HTTPLOG_BUFFER_LEN
+
+  The len for the internal buffer used for HTTPLOG strings. This
+  buffer is dynamicallay allocated for each request.
+
