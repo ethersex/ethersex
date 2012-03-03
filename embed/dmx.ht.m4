@@ -7,6 +7,8 @@ ifdef(`conf_DMX_STORAGE_INLINE', `', `m4exit(1)')dnl
 
 
 <script src="scr.js" type="text/javascript"></script>
+ifdef(`conf_VFS_INLINE_HTML5_RANGE_FF', `
+<script src="h5r.js" type="text/javascript"></script>',`'')dnl
 <script type="text/javascript">
 var currentUniverse;
 var totalUniverses;
