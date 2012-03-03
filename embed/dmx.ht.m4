@@ -31,7 +31,7 @@ function dmx_init_channels(request) {
 		if(!(i%16))
 		{
 			var newBigDiv = document.createElement("div");
-			newBigDiv.style.float = "left";
+			newBigDiv.style.cssFloat = "left";
 			newBigDiv.style.margin = "10px";
 			newBigDiv.id = "bigDiv" + divCount;
 			space.appendChild(newBigDiv);
