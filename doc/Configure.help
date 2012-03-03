@@ -2601,3 +2601,25 @@ DST_END_DOW
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
 
+Serial RAM support
+SER_RAM_SUPPORT
+  Depends on: 
+
+  Enables support for serial interfaced RAM chips (connected via SPI, I2C 
+  or other serial interface).
+
+Microchip 23K256 SPI-RAM support
+SER_RAM_23K256_SUPPORT
+  Depends on: 
+   * Serial RAM support (SER_RAM_SUPPORT)
+
+  The Microchip 23K256 serial RAM chip provides 32kB RAM and is 
+  connected via SPI.
+
+Perform RAM Test on startup
+SER_RAM_23K256_RAMTEST
+  Depends on: 
+   * Debug 23K256 (DEBUG_SER_RAM_23K256)
+
+  Performs a RAM test during start up of ethersex. The whole RAM is written
+  then read out and compared with was was written before.
