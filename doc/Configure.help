@@ -2623,3 +2623,11 @@ SER_RAM_23K256_RAMTEST
 
   Performs a RAM test during start up of ethersex. The whole RAM is written
   then read out and compared with was was written before.
+
+I2C PCA9555 16bit Port extension
+I2C_PCA9555_SUPPORT
+  Depends on: 
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  Enables support for the PCA9555 16-bit I2C Port extension

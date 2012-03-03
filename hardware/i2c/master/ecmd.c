@@ -645,3 +645,12 @@ int16_t parse_cmd_i2c_bmp085_pressnn(char *cmd, char *output, uint16_t len)
 
 #endif  /* I2C_BMP085_SUPPORT */
 
+/*
+  -- Ethersex META --
+block(Button Input)
+ecmd_ifdef(I2C_PCA9555_SUPPORT)
+  ecmd_feature(i2c_pca9555_out, "i2c pca9555 out",VALUE,write word to register address on I2C chip)
+  ecmd_feature(i2c_pca9555_in, "i2c pca9555 in",,read word from register address on I2C chip)
+  ecmd_feature(i2c_pca9555_mode, "i2c pca9555 mode",VALUE,select input or output mode for pins on I2C chip)
+ecmd_endif
+*/
