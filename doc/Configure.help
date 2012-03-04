@@ -2627,3 +2627,9 @@ ARTNET_SUPPORT
 
   Artnet needs at least a 572 byte network buffer to work. You can set the buffer size 
   in "Network -> Network Buffer Size".
+
+Buffer Length
+HTTPLOG_BUFFER_LEN
+
+  The len for the internal buffer used for HTTPLOG strings. This
+  buffer is dynamicallay allocated for each request.
