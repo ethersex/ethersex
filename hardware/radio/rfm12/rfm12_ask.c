@@ -284,9 +284,10 @@ rfm12_ask_init(void)
   rfm12_trans(0xCC16);          /* pll bandwitdh 0: max bitrate 86.2kHz */
 #endif
 
+#ifdef DEBUG
   uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
-  (void) result;
   RFM12_DEBUG("rfm12_ask/init: %x", result);
+#endif
 
 #ifdef TEENSY_SUPPORT
   rfm12_trans(RFM12_CMD_FREQUENCY | RFM12FREQ(RFM12_FREQ_433920));
@@ -310,5 +311,5 @@ rfm12_ask_init(void)
 /*
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_ask.h)
-  ifdef(`conf_RFM12_ASK_433_SUPPORT',`init(rfm12_ask_init)')
+  ifdef(`conf_RFM12_ASK_433',`init(rfm12_ask_init)')
 */

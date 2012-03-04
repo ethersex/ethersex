@@ -237,9 +237,10 @@ rfm12_net_init(void)
   rfm12_trans(0xCC16);          /* pll bandwitdh 0: max bitrate 86.2kHz */
 #endif
 
+#ifdef DEBUG
   uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
-  (void) result;                /* keep GCC quiet even if debug disabled. */
   RFM12_DEBUG("rfm12_net/init: %x", result);
+#endif
 
 #ifdef RFM12_DISABLE
   rfm12_trans(RFM12_CMD_PWRMGT);
@@ -267,8 +268,10 @@ rfm12_net_init(void)
   rfm12_int_enable();
   rfm12_rxstart();
 
+#ifdef DEBUG
   result = rfm12_trans(RFM12_CMD_STATUS);
   RFM12_DEBUG("rfm12_net/init'd: %x", result);
+#endif
 #endif /* !RFM12_DISABLE */
 
   rfm12_epilogue();

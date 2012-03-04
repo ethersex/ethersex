@@ -45,8 +45,7 @@ spi_init(void)
 #ifdef RFM12_SUPPORT
   for (int8_t modul = 0; modul < RFM12_MODUL_COUNT; modul++)
   {
-    *rfm12_moduls[modul].rfm12_port &=
-      (uint8_t) ~rfm12_moduls[modul].rfm12_mask;
+    *rfm12_moduls[modul].rfm12_port |= rfm12_moduls[modul].rfm12_mask;
   }
 #endif
 
