@@ -1,13 +1,10 @@
-dep_bool_menu "Art-Net Node" ARTNET_SUPPORT $DMX_STORAGE_SUPPORT $UDP_SUPPORT
-  if [ "$NET_MAX_FRAME_LENGTH" -lt 572 ]; then
-	NET_MAX_FRAME_LENGTH=572
-  	
-	comment "**---------------------------------------------------------------------------------------------------**"
-	comment "** Attention: The Network Buffer Size has been changed to 572 bytes. Artnet will not work with less. **"
-	comment "**---------------------------------------------------------------------------------------------------**"
-	
-  fi
+if [ "$NET_MAX_FRAME_LENGTH" -gt 571 ]; then
+  define_bool NET_MAX_FRAME_LENGTH_GT_571
+else
+  NET_MAX_FRAME_LENGTH_GT_571=0
+fi
 
+dep_bool_menu "Art-Net Node" ARTNET_SUPPORT $NET_MAX_FRAME_LENGTH_GT_571 $DMX_STORAGE_SUPPORT $UDP_SUPPORT
   int "UDP Port" CONF_ARTNET_PORT 6454
   comment "Universe Settings"
   int "Input Universe" CONF_ARTNET_INUNIVERSE "1"
