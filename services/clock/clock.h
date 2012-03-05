@@ -61,6 +61,10 @@ timestamp_t clock_get_uptime(void);
 
 /* the actual time */
 void clock_set_time_raw(timestamp_t new_sync_timestamp);
+void clock_set_time_raw_hr(timestamp_t new_sync_timestamp, uint8_t new_ticks);
 void clock_set_time(timestamp_t new_sync_timestamp);
+
+/* get tick counter */
+uint8_t clock_get_ticks(void);
 
 #endif /* __CLOCK_H */
