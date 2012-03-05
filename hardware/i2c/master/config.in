@@ -21,6 +21,14 @@ dep_bool_menu "I2C Master Support (EXPERIMENTAL)" I2C_MASTER_SUPPORT $CONFIG_EXP
 		 DS1337		DS1337"		\
 		'DS1307' I2C_DS13X7_TYPE
   fi
+  dep_bool "  I2C PCF8583 RTC" I2C_PCF8583_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
+  if [ "$I2C_PCF8583_SUPPORT" = "y" ]; then
+    dep_bool "    Pin A0 on Vcc" I2C_PCF8583_A0_VCC $I2C_PCF8583_SUPPORT
+    dep_bool "    Sync system clock" I2C_PCF8583_SYNC $I2C_PCF8583_SUPPORT
+    if [ "$I2C_PCF8583_SYNC" = "y" ]; then
+      int "    Sync period in sec" I2C_PCF8583_SYNC_PERIOD 60 $I2C_PCF8583_SYNC
+    fi
+  fi
   dep_bool "  I2C TSL2550 light sensor" I2C_TSL2550_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL
 
   dep_bool "  I2C BMP085 barometric pressure sensor" I2C_BMP085_SUPPORT $I2C_MASTER_SUPPORT $CONFIG_EXPERIMENTAL

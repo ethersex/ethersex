@@ -30,6 +30,9 @@
 #ifdef I2C_DS13X7_SUPPORT
 #include "hardware/i2c/master/i2c_ds13x7.h"
 #endif
+#ifdef I2C_PCF8583_SUPPORT
+#include "hardware/i2c/master/i2c_pcf8583.h"
+#endif
 #ifdef DCF77_SUPPORT
 #include "hardware/clock/dcf77/dcf77.h"
 #endif
@@ -161,6 +164,19 @@ clock_set_time_raw(timestamp_t new_sync_timestamp)
 }
 
 void
+clock_set_time_raw_hr(timestamp_t new_sync_timestamp, uint8_t new_ticks)
+{
+  clock_timestamp = new_sync_timestamp;
+  ticks = new_ticks;
+}
+
+uint8_t
+clock_get_ticks(void)
+{
+  return ticks;
+}
+
+void
 clock_set_time(timestamp_t new_sync_timestamp)
 {
   /* The clock was synced */
@@ -206,6 +222,9 @@ clock_set_time(timestamp_t new_sync_timestamp)
 
 #ifdef I2C_DS13X7_SUPPORT
   i2c_ds13x7_sync(sync_timestamp);
+#endif
+#ifdef I2C_PCF8583_SUPPORT
+  i2c_pcf8583_set(sync_timestamp);
 #endif
 
 #ifdef NTP_SUPPORT

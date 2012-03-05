@@ -156,7 +156,7 @@ clock_datetime(clock_datetime_t * d, timestamp_t t)
     uint8_t monthdays = clock_month_days(d->month + 1);
 
     /* feb has one more day in a leap year */
-    if (d->month == 2 && IS_LEAP_YEAR(year))
+    if (d->month == 1 && IS_LEAP_YEAR(year))
       monthdays++;
 
     /* if we have not enough days left to fill this month, we are done */

@@ -13,9 +13,7 @@ divert(globals_divert)
 
 divert(old_divert)')')
 
-define(`HTTPLOG', `HTTPLOG_USED()ifelse(`$#', 1, `httplog($1)', `
-    define(`__httplog_msg', `$1')dnl
-    snprintf_P((char *)uip_buf, sizeof(uip_buf), PSTR($1), shift($@));
-    httplog((char *)uip_buf);
+define(`HTTPLOG', `HTTPLOG_USED()ifelse(`$#', 1, `httplog_P($1)', `
+    httplog_P(PSTR($1), shift($@));
 ')')')
 

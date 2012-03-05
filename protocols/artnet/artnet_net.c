@@ -31,8 +31,8 @@ artnet_net_init(void)
   uip_udp_conn_t *conn;
   uip_ipaddr_t ip;
   uip_ipaddr_copy(&ip, all_ones_addr);
-  if(! (conn = uip_udp_new(&ip, 0, artnet_net_main))) 
-    return; /* Couldn't bind socket */
+  if (!(conn = uip_udp_new(&ip, 0, artnet_net_main)))
+    return;                     /* Couldn't bind socket */
 
   uip_udp_bind(conn, HTONS(artnet_port));
 }
@@ -40,9 +40,10 @@ artnet_net_init(void)
 void
 artnet_net_main(void)
 {
-  if (!uip_newdata()) return;
-  
+  if (!uip_newdata())
+    return;
+
   ((char *) uip_appdata)[uip_len] = 0;
-  ARTNET_DEBUG ("received data: %s\n", uip_appdata);
+  ARTNET_DEBUG("received data: %s\n", uip_appdata);
   artnet_get();
 }
