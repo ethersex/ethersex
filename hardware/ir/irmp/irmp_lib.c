@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.112 2012/02/13 10:59:07 fm Exp $
+ * $Id: irmp.c,v 1.116 2012/02/24 11:40:41 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -585,10 +585,10 @@ typedef unsigned int16  uint16_t;
 #define BANG_OLUFSEN_TRAILER_BIT_PAUSE_LEN_MAX  ((uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_TRAILER_BIT_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
 
 #define IR60_TIMEOUT_LEN                        ((uint8_t)(F_INTERRUPTS * IR60_TIMEOUT_TIME * 0.5))
-#define GRUNDIG_NOKIA_IR60_START_BIT_LEN_MIN    ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
-#define GRUNDIG_NOKIA_IR60_START_BIT_LEN_MAX    ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
-#define GRUNDIG_NOKIA_IR60_BIT_LEN_MIN          ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
-#define GRUNDIG_NOKIA_IR60_BIT_LEN_MAX          ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
+#define GRUNDIG_NOKIA_IR60_START_BIT_LEN_MIN    ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
+#define GRUNDIG_NOKIA_IR60_START_BIT_LEN_MAX    ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
+#define GRUNDIG_NOKIA_IR60_BIT_LEN_MIN          ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
+#define GRUNDIG_NOKIA_IR60_BIT_LEN_MAX          ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
 #define GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN_MIN    ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME * MIN_TOLERANCE_20 + 0.5) + 1)
 #define GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN_MAX    ((uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
 
@@ -756,7 +756,11 @@ irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
  *  Logging
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if IRMP_LOGGING == 1
+#if IRMP_LOGGING == 1                                               // logging via UART
+
+#if IRMP_EXT_LOGGING == 1                                           // use external logging
+#include "irmpextlog.h"
+#else                                                               // normal UART log (IRMP_EXT_LOGGING == 0)
 #define BAUD                                    9600L
 #include <util/setbaud.h>
 
@@ -778,7 +782,7 @@ irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
 #define UART0_TXEN_BIT_VALUE                    (1<<TXEN0)
 #define UART0_UDR                               UDR0
 #define UART0_U2X                               U2X0
-
+        
 #else
 
 #define UART0_UBRRH                             UBRRH
@@ -798,7 +802,8 @@ irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
 #define UART0_UDR                               UDR
 #define UART0_U2X                               U2X
 
-#endif
+#endif //UBRR0H
+#endif //IRMP_EXT_LOGGING
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  *  Initialize  UART
@@ -808,6 +813,7 @@ irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
 void
 irmp_uart_init (void)
 {
+#if (IRMP_EXT_LOGGING == 0)                                                                         // use UART
     UART0_UBRRH = UBRRH_VALUE;                                                                      // set baud rate
     UART0_UBRRL = UBRRL_VALUE;
 
@@ -819,6 +825,9 @@ irmp_uart_init (void)
 
     UART0_UCSRC = UART0_UCSZ1_BIT_VALUE | UART0_UCSZ0_BIT_VALUE | UART0_URSEL_BIT_VALUE;
     UART0_UCSRB |= UART0_TXEN_BIT_VALUE;                                                            // enable UART TX
+#else                                                                                               // other log method
+        initextlog();                                                         
+#endif //IRMP_EXT_LOGGING
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -830,12 +839,16 @@ irmp_uart_init (void)
 void
 irmp_uart_putc (unsigned char ch)
 {
+#if (IRMP_EXT_LOGGING == 0)
     while (!(UART0_UCSRA & UART0_UDRE_BIT_VALUE))
     {
         ;
     }
 
     UART0_UDR = ch;
+#else
+    sendextlog(ch); //Use external log
+#endif
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -918,7 +931,7 @@ irmp_log (uint8_t val)
 
 #else
 #define irmp_log(val)
-#endif
+#endif //IRMP_LOGGING
 
 typedef struct
 {
@@ -1629,6 +1642,10 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
                 {
                     rtc = TRUE;
                 }
+                else
+                {
+                    ANALYZE_PRINTF("Info IR60: got start instruction frame\n");
+                }
                 break;
 #endif
 #if IRMP_SUPPORT_RCCAR_PROTOCOL == 1
@@ -1787,27 +1804,29 @@ irmp_store_bit (uint8_t value)
     }
 
 #if IRMP_SUPPORT_NEC42_PROTOCOL == 1
-    else if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && irmp_bit >= 13 && irmp_bit < 26)
+    if (irmp_param.protocol == IRMP_NEC42_PROTOCOL && irmp_bit >= 13 && irmp_bit < 26)
     {
         irmp_tmp_address2 |= (((uint16_t) (value)) << (irmp_bit - 13));                             // CV wants cast
     }
+    else
 #endif
 
 #if IRMP_SUPPORT_SAMSUNG_PROTOCOL == 1
-    else if (irmp_param.protocol == IRMP_SAMSUNG_PROTOCOL && irmp_bit >= SAMSUNG_ID_OFFSET && irmp_bit < SAMSUNG_ID_OFFSET + SAMSUNG_ID_LEN)
+    if (irmp_param.protocol == IRMP_SAMSUNG_PROTOCOL && irmp_bit >= SAMSUNG_ID_OFFSET && irmp_bit < SAMSUNG_ID_OFFSET + SAMSUNG_ID_LEN)
     {
         irmp_tmp_id |= (((uint16_t) (value)) << (irmp_bit - SAMSUNG_ID_OFFSET));                    // store with LSB first
     }
+    else
 #endif
 
 #if IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
-    else if (irmp_param.protocol == IRMP_KASEIKYO_PROTOCOL)
+    if (irmp_param.protocol == IRMP_KASEIKYO_PROTOCOL)
     {
         if (irmp_bit >= 20 && irmp_bit < 24)
         {
             irmp_tmp_command |= (((uint16_t) (value)) << (irmp_bit - 8));       // store 4 system bits (genre 1) in upper nibble with LSB first
         }
-    	else if (irmp_bit >= 24 && irmp_bit < 28)
+        else if (irmp_bit >= 24 && irmp_bit < 28)
         {
             genre2 |= (((uint8_t) (value)) << (irmp_bit - 20));                 // store 4 system bits (genre 2) in upper nibble with LSB first
         }
@@ -2613,7 +2632,7 @@ irmp_ISR (void)
 #if IRMP_SUPPORT_GRUNDIG_NOKIA_IR60_PROTOCOL == 1
                         if (irmp_param.protocol == IRMP_GRUNDIG_PROTOCOL && !irmp_param.stop_bit)
                         {
-                            if (irmp_pause_time > IR60_TIMEOUT_LEN && irmp_bit == 6)
+                            if (irmp_pause_time > IR60_TIMEOUT_LEN && (irmp_bit == 5 || irmp_bit == 6))
                             {
                                 ANALYZE_PRINTF ("Switching to IR60 protocol\n");
                                 got_light = TRUE;                                       // this is a lie, but generates a stop bit ;-)
@@ -3353,11 +3372,11 @@ irmp_ISR (void)
 
                             if (xor != xor_check[5])
                             {
-                                ANALYZE_PRINTF ("error 4: wrong XOR check for data bits: 0x%02x 0x%02x\n", xor, xor_check[5]);
+                                ANALYZE_PRINTF ("error 5: wrong XOR check for data bits: 0x%02x 0x%02x\n", xor, xor_check[5]);
                                 irmp_ir_detected = FALSE;
                             }
 
-                            irmp_flags |= genre2;	// write the genre2 bits into MSB of the flag byte
+                            irmp_flags |= genre2;       // write the genre2 bits into MSB of the flag byte
                         }
 #endif // IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
 

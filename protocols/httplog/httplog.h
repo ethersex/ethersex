@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2010 by Justin Otherguy <justin@justinotherguy.org>
+ * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,22 +21,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-// httplog.h
-//
-// this is a literal copy of twitter.h with "twitter" replaced by "httplog"
-
 #ifndef HAVE_HTTPLOG_H
 #define HAVE_HTTPLOG_H
 
-uint8_t httplog(char *);
-
-
-#include "config.h"
-#ifdef DEBUG_HTTPLOG
-# include "core/debug.h"
-# define HTTPLOG_DEBUG(a...)  debug_printf("httplog: " a)
-#else
-# define HTTPLOG_DEBUG(a...)
-#endif
+uint8_t httplog(const char*, ...);
+uint8_t httplog_P(const char*, ...);
 
 #endif  /* HAVE_HTTPLOG_H */

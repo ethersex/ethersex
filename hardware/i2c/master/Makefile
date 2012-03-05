@@ -21,6 +21,9 @@ $(I2C_PCA9555_SUPPORT)_SRC += \
 $(I2C_DS13X7_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_ds13x7.c
 
+$(I2C_PCF8583_SUPPORT)_SRC += \
+	hardware/i2c/master/i2c_pcf8583.c
+
 $(I2C_24CXX_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_24CXX.c
 

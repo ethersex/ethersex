@@ -1391,6 +1391,28 @@ I2C_PCF8574X_SUPPORT
 
   PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
 
+Pin A0 on Vcc
+I2C_PCF8583_SUPPORT
+  Depends on:
+   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+
+  PCF8583 realtime clock for I2C-bus
+
+Pin A0 on Vcc
+I2C_PCF8583_A0_VCC
+  PCF8583 address selection
+
+Sync system clock
+I2C_PCF8583_SYNC
+  Keep the system time in sync with the chip by adjusting
+  the tick counter in the middle of a second. This will
+  prevent flapping of the second.
+
+Sync period in sec
+I2C_PCF8583_SYNC_PERIOD
+  Sync system time every n seconds
+
 I2C BMP085 barometric pressure sensor
 I2C_BMP085_SUPPORT
 
@@ -2631,3 +2653,36 @@ I2C_PCA9555_SUPPORT
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Enables support for the PCA9555 16-bit I2C Port extension
+
+Input Universe
+CONF_ARTNET_INUNIVERSE
+
+  Which universe will be broadcasted whenever a change occurs. 
+
+Output Universe
+CONF_ARTNET_OUTUNIVERSE
+
+  Which universe will be updated by an ArtNet controller.
+  (e.g. you want your PC to update Universe 1 on the ethersex
+  device)
+
+UDP Port
+CONF_ARTNET_PORT
+
+  on which UDP port ethersex listens for artnet data
+
+Art-Net Node
+ARTNET_SUPPORT
+  Depends on: 
+   * DMX Storage (EXPERIMENTAL) (DMX_STORAGE_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+   * NET_MAX_FRAME_LENGTH > 571
+
+  Artnet needs at least a 572 byte network buffer to work. You can set the buffer size 
+  in "Network -> Network Buffer Size".
+
+Buffer Length
+HTTPLOG_BUFFER_LEN
+
+  The len for the internal buffer used for HTTPLOG strings. This
+  buffer is dynamicallay allocated for each request.
