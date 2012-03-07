@@ -277,6 +277,11 @@ template $IRMP_SUPPORT << FNORD
   pin(IRMP_TX, PD7) dnl OC2
 FNORD
 
+template $SER_RAM_23K256_SUPPORT << FNORD
+  /* 23K256 SRAM  Chip select */
+  pin(SPI_CS_23K256, PB1, OUTPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`

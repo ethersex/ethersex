@@ -600,4 +600,3 @@ int16_t parse_cmd_i2c_bmp085_pressnn(char *cmd, char *output, uint16_t len)
 #endif /* I2C_BMP085_BAROCALC_SUPPORT */
 
 #endif  /* I2C_BMP085_SUPPORT */
-
