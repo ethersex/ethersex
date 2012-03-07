@@ -45,7 +45,9 @@
 *
 * @result 0 = an error occurred, 1 = operation succeeded
 */
-uint8_t i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t* value_pui16)
+uint8_t
+i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8,
+                     uint16_t * value_pui16)
 {
   uint8_t result;
 
@@ -56,7 +58,7 @@ uint8_t i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t* 
   if (1 == result)
   {
     TWDR = reg_ui8;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
   if (1 == result)
@@ -75,7 +77,7 @@ uint8_t i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t* 
   /* Read low byte */
   if (1 == result)
   {
-    result = (TW_MR_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MR_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
     *value_pui16 = TWDR;
   }
 
@@ -83,14 +85,15 @@ uint8_t i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t* 
   if (1 == result)
   {
     /* Do not acknowledge last byte */
-    result = (TW_MR_DATA_NACK == i2c_master_transmit()) ? 1 : 0;
+    result = (TW_MR_DATA_NACK == i2c_master_transmit())? 1 : 0;
     *value_pui16 |= (uint16_t) TWDR << 8;
   }
 
 #ifdef DEBUG_I2C
   if (1 == result)
   {
-    debug_printf("I2C: pca9555 read word @%i OK. (%i)\n", reg_ui8, *value_pui16);
+    debug_printf("I2C: pca9555 read word @%i OK. (%i)\n", reg_ui8,
+                 *value_pui16);
   }
   else
   {
@@ -114,7 +117,9 @@ uint8_t i2c_pca9555_readWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t* 
 *
 * @result 0 = an error occurred, 1 = operation succeeded
 */
-uint8_t i2c_pca9555_readByte(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint8_t* value_pui8)
+uint8_t
+i2c_pca9555_readByte(uint8_t addrOffset_ui8, uint8_t reg_ui8,
+                     uint8_t * value_pui8)
 {
   uint8_t result;
 
@@ -125,7 +130,7 @@ uint8_t i2c_pca9555_readByte(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint8_t* v
   if (1 == result)
   {
     TWDR = reg_ui8;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
   if (1 == result)
@@ -144,14 +149,15 @@ uint8_t i2c_pca9555_readByte(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint8_t* v
   /* Read the register */
   if (1 == result)
   {
-    result = (TW_MR_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MR_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
     *value_pui8 = TWDR;
   }
 
 #ifdef DEBUG_I2C
   if (1 == result)
   {
-    debug_printf("I2C: pca9555 read byte @%i OK. (%i)\n", reg_ui8, *value_pui8);
+    debug_printf("I2C: pca9555 read byte @%i OK. (%i)\n", reg_ui8,
+                 *value_pui8);
   }
   else
   {
@@ -176,7 +182,9 @@ uint8_t i2c_pca9555_readByte(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint8_t* v
 *
 * @result 0 = an error occurred, 1 = operation succeeded
 */
-uint8_t i2c_pca9555_writeWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t value_ui16)
+uint8_t
+i2c_pca9555_writeWord(uint8_t addrOffset_ui8, uint8_t reg_ui8,
+                      uint16_t value_ui16)
 {
   uint8_t result = 1;
 
@@ -187,21 +195,21 @@ uint8_t i2c_pca9555_writeWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t 
   if (1 == result)
   {
     TWDR = reg_ui8;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
   /* Send the low byte */
   if (1 == result)
   {
     TWDR = LO8(value_ui16);
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
   /* Send the high byte */
   if (1 == result)
   {
     TWDR = HI8(value_ui16);
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
 #ifdef DEBUG_I2C
@@ -230,7 +238,9 @@ uint8_t i2c_pca9555_writeWord(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint16_t 
 *
 * @result 0 = an error occurred, 1 = operation succeeded
 */
-uint8_t i2c_pca9555_writeByte(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint8_t value_ui8)
+uint8_t
+i2c_pca9555_writeByte(uint8_t addrOffset_ui8, uint8_t reg_ui8,
+                      uint8_t value_ui8)
 {
   uint8_t result = 1;
 
@@ -241,14 +251,14 @@ uint8_t i2c_pca9555_writeByte(uint8_t addrOffset_ui8, uint8_t reg_ui8, uint8_t v
   if (1 == result)
   {
     TWDR = reg_ui8;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
   /* Send the value */
   if (1 == result)
   {
     TWDR = value_ui8;
-    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack()) ? 1 : 0;
+    result = (TW_MT_DATA_ACK == i2c_master_transmit_with_ack())? 1 : 0;
   }
 
 #ifdef DEBUG_I2C

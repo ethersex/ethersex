@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.68 2012/02/13 10:55:50 fm Exp $
+ * $Id: irmp.h,v 1.73 2012/02/24 15:00:18 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -72,7 +72,7 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_RC6A_PROTOCOL                      21              // RC6A, e.g. Kathrein, XBOX
 #define IRMP_NIKON_PROTOCOL                     22              // Nikon
 #define IRMP_RUWIDO_PROTOCOL                    23              // Ruwido, e.g. T-Home Mediareceiver
-#define IRMP_IR60_PROTOCOL                      24              // IR60 (SAB2008)
+#define IRMP_IR60_PROTOCOL                      24              // IR60 (SDA2008)
 #define IRMP_KATHREIN_PROTOCOL                  25              // Kathrein
 #define IRMP_NETBOX_PROTOCOL                    26              // Netbox keyboard (bitserial)
 #define IRMP_NEC16_PROTOCOL                     27              // NEC with 16 bits (incl. sync)
@@ -156,7 +156,7 @@ typedef uint8_t     PAUSE_LEN;
 #define SAMSUNG32_COMPLETE_DATA_LEN             32                              // complete length
 #define SAMSUNG32_FRAMES                        1                               // SAMSUNG32 sends each frame 1 times
 #define SAMSUNG32_AUTO_REPETITION_PAUSE_TIME    47.0e-3                         // repetition after 47 ms
-#define SAMSUNG32_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 40ms
+#define SAMSUNG32_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 47ms
 
 #define MATSUSHITA_START_BIT_PULSE_TIME         3488.0e-6                       // 3488 usec pulse
 #define MATSUSHITA_START_BIT_PAUSE_TIME         3488.0e-6                       // 3488 usec pause
@@ -311,7 +311,7 @@ typedef uint8_t     PAUSE_LEN;
 #define GRUNDIG_NOKIA_IR60_FLAGS                (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
 
 #define GRUNDIG_FRAMES                          2                               // GRUNDIG sends each frame 1+1 times
-#define GRUNDIG_AUTO_REPETITION_PAUSE_TIME        20.0e-3                       // repetition after 20ms
+#define GRUNDIG_AUTO_REPETITION_PAUSE_TIME      20.0e-3                         // repetition after 20ms
 #define GRUNDIG_ADDRESS_OFFSET                  0                               // no address
 #define GRUNDIG_ADDRESS_LEN                     0                               // no address
 #define GRUNDIG_COMMAND_OFFSET                  1                               // skip 1 start bit
@@ -319,13 +319,15 @@ typedef uint8_t     PAUSE_LEN;
 #define GRUNDIG_COMPLETE_DATA_LEN               10                              // complete length: 1 start bit + 9 data bits
 
 #define NOKIA_FRAMES                            3                               // NOKIA sends each frame 1 + 1 + 1 times
-#define NOKIA_AUTO_REPETITION_PAUSE_TIME          20.0e-3                       // repetition after 20ms
+#define NOKIA_AUTO_REPETITION_PAUSE_TIME        20.0e-3                         // repetition after 20ms
 #define NOKIA_ADDRESS_OFFSET                    9                               // skip 9 bits (1 start bit + 8 data bits)
 #define NOKIA_ADDRESS_LEN                       8                               // 7 address bits
 #define NOKIA_COMMAND_OFFSET                    1                               // skip 1 bit (1 start bit)
 #define NOKIA_COMMAND_LEN                       8                               // read 8 command bits
 #define NOKIA_COMPLETE_DATA_LEN                 17                              // complete length: 1 start bit + 8 address bits + 8 command bits
 
+#define IR60_FRAMES                             2                               // IR60 sends each frame 1+1 times
+#define IR60_AUTO_REPETITION_PAUSE_TIME         22.2e-3                         // repetition after 22.2ms
 #define IR60_TIMEOUT_TIME                       5000.0e-6                       // timeout grundig frame, switch to IR60
 #define IR60_ADDRESS_OFFSET                     0                               // skip 1 bits
 #define IR60_ADDRESS_LEN                        0                               // read 0 address bits

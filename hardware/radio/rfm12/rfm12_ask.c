@@ -311,5 +311,5 @@ rfm12_ask_init(void)
 /*
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_ask.h)
-  ifdef(`conf_RFM12_ASK_433_SUPPORT',`init(rfm12_ask_init)')
+  ifdef(`conf_RFM12_ASK_433',`init(rfm12_ask_init)')
 */

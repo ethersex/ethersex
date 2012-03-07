@@ -62,8 +62,6 @@ void sram23k256_read(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_
 {
   uint16_t ctr = 0;
 
-  //SERRAMDEBUG ("read\n");
-
   /* Acquire device */
   PIN_CLEAR(SPI_CS_23K256);
 
@@ -95,8 +93,6 @@ void sram23k256_read(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_
 void sram23k256_write(uint16_t address_ui16, uint8_t dataPtr_pui8[], uint8_t len_ui8)
 {
   uint16_t ctr = 0;
-
-  SERRAMDEBUG ("write\n");
 
   /* Acquire device */
   PIN_CLEAR(SPI_CS_23K256);

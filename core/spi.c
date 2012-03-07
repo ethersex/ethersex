@@ -43,7 +43,7 @@ spi_init(void)
 #endif
 
 #ifdef SER_RAM_23K256_SUPPORT
-    PIN_SET(SPI_CS_HARDWARE);
+    PIN_SET(SPI_CS_23K256);
 #endif
 
 #ifdef RFM12_SUPPORT

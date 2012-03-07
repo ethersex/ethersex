@@ -60,11 +60,6 @@ ecmd_ifdef(I2C_BMP085_SUPPORT)
     ecmd_feature(i2c_bmp085_pressnn, "bmp085 pressnn", HEIGHT, Get pressure at N0, height in cm needed)
   ecmd_endif
 ecmd_endif
-ecmd_ifdef(I2C_PCA9555_SUPPORT)
-  ecmd_feature(i2c_pca9555_out, "i2c pca9555 out",VALUE,write word to register address on I2C chip)
-  ecmd_feature(i2c_pca9555_in, "i2c pca9555 in",,read word from register address on I2C chip)
-  ecmd_feature(i2c_pca9555_mode, "i2c pca9555 mode",VALUE,select input or output mode for pins on I2C chip)
-ecmd_endif
 
 block([[Blinkenlights_MCUF|MCUF]]) dnl ============================
 ecmd_ifdef(MCUF_SUPPORT)

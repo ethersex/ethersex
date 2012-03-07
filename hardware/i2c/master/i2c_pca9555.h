@@ -23,17 +23,20 @@
 #ifndef _I2C_PCA9555_H
 #define _I2C_PCA9555_H
 
-#define I2C_SLA_PCA9555 0x20 /* Slave address of the PCA9555 */
+#define I2C_SLA_PCA9555 0x20    /* Slave address of the PCA9555 */
 
 #define I2C_PCA9555_REG_IN 0    /* Input register, low byte */
 #define I2C_PCA9555_REG_OUT 2   /* Output register, low byte */
 #define I2C_PCA9555_REG_POL 4   /* Polarity register, low byte */
 #define I2C_PCA9555_REG_CONF 6  /* Configuration register, low byte */
 
-uint8_t i2c_pca9555_readWord(uint8_t addrOffset, uint8_t reg, uint16_t* value);
-uint8_t i2c_pca9555_writeWord(uint8_t addrOffset, uint8_t reg, uint16_t value);
+uint8_t i2c_pca9555_readWord(uint8_t addrOffset, uint8_t reg,
+                             uint16_t * value);
+uint8_t i2c_pca9555_writeWord(uint8_t addrOffset, uint8_t reg,
+                              uint16_t value);
 
-uint8_t i2c_pca9555_readByte(uint8_t addrOffset, uint8_t reg, uint8_t* value);
+uint8_t i2c_pca9555_readByte(uint8_t addrOffset, uint8_t reg,
+                             uint8_t * value);
 uint8_t i2c_pca9555_writeByte(uint8_t addrOffset, uint8_t reg, uint8_t value);
 
 /* Set and get the data direction register for all pins */
