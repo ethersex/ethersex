@@ -63,18 +63,14 @@ adc_get_setref(uint8_t ref, uint8_t channel)
   if (last_ref != ref)
   {
     ADCSRA |= _BV(ADSC);
-    while (ADCSRA & _BV(ADSC))
-    {
-    }
+    loop_until_bit_is_clear(ADCSRA, ADSC);
     last_ref = ref;
   }
 
   /* Start adc conversion */
   ADCSRA |= _BV(ADSC);
   /* Wait for completion of adc */
-  while (ADCSRA & _BV(ADSC))
-  {
-  }
+  loop_until_bit_is_clear(ADCSRA, ADSC);
 
   return ADC;
 }
