@@ -2702,3 +2702,8 @@ HTTPLOG_BUFFER_LEN
 
   The len for the internal buffer used for HTTPLOG strings. This
   buffer is dynamicallay allocated for each request.
+
+Backlight support
+HD44780_BACKLIGHT_SUPPORT
+
+  Backlight support for HD44780 LCD with direct connection.
