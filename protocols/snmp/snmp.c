@@ -225,15 +225,13 @@ const char desc_value[] PROGMEM = SNMP_VALUE_DESCRIPTION;
 const char desc_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x01";
 
 #ifdef WHM_SUPPORT
-const char uptime_reaction_obj_name[] PROGMEM =
-  "\x2b\x06\x01\x02\x01\x01\x03";
+const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
 #endif
 
 const char contact_value[] PROGMEM = SNMP_VALUE_CONTACT;
 const char contact_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x04";
 
-const char hostname_reaction_obj_name[] PROGMEM =
-  "\x2b\x06\x01\x02\x01\x01\x05";
+const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
 const char hostname_value[] PROGMEM = CONF_HOSTNAME;
 
 const char location_value[] PROGMEM = SNMP_VALUE_LOCATION;
@@ -248,12 +246,9 @@ const char adc_vref_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x03
 #endif
 
 #ifdef ONEWIRE_SNMP_SUPPORT
-const char ow_rom_reaction_obj_name[] PROGMEM =
-  ethersexExperimental "\x03\x01";
-const char ow_name_reaction_obj_name[] PROGMEM =
-  ethersexExperimental "\x03\x02";
-const char ow_temp_reaction_obj_name[] PROGMEM =
-  ethersexExperimental "\x03\x03";
+const char ow_rom_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x01";
+const char ow_name_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x02";
+const char ow_temp_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x03";
 #endif
 
 const struct snmp_reaction snmp_reactions[] PROGMEM = {
@@ -262,8 +257,7 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {uptime_reaction_obj_name, uptime_reaction, NULL, NULL},
 #endif
   {contact_obj_name, string_pgm_reaction, (void *) contact_value, NULL},
-  {hostname_reaction_obj_name, string_pgm_reaction, (void *) hostname_value,
-   NULL},
+  {hostname_reaction_obj_name, string_pgm_reaction, (void *) hostname_value, NULL},
   {location_obj_name, string_pgm_reaction, (void *) location_value, NULL},
 #ifdef ADC_SUPPORT
   {adc_reaction_obj_name, adc_reaction, NULL, adc_next},
