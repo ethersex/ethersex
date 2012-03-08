@@ -212,7 +212,6 @@ void noinline hd44780_hw_init(void)
     DATA_OUTPUT();
 
 #ifdef HD44780_BACKLIGHT_SUPPORT
-    DDR_CONFIG_OUT(HD44780_BL);
     PIN_CLEAR(HD44780_BL);
 #endif
 }
