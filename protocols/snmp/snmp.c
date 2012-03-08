@@ -23,6 +23,8 @@
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include <stdlib.h>
+#include <string.h>
 #include "config.h"
 #include "core/debug.h"
 #include "core/bit-macros.h"
@@ -142,59 +144,62 @@ adc_next(uint8_t * ptr, struct snmp_varbinding * bind)
 uint8_t
 ow_rom_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
 {
-  ptr[0] = 4;
-  ptr[1] = 0;
-  if (bind->len > 0) {
-    uint8_t i = bind->data[0];
-    if (i < OW_SENSORS_COUNT) {
-      ptr[1] = (uint8_t)snprintf_P(
-        (char *)(ptr + 2), 17,
-        PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
-        ow_names_table[i].ow_rom_code.bytewise[0],
-        ow_names_table[i].ow_rom_code.bytewise[1],
-        ow_names_table[i].ow_rom_code.bytewise[2],
-        ow_names_table[i].ow_rom_code.bytewise[3],
-        ow_names_table[i].ow_rom_code.bytewise[4],
-        ow_names_table[i].ow_rom_code.bytewise[5],
-        ow_names_table[i].ow_rom_code.bytewise[6],
-        ow_names_table[i].ow_rom_code.bytewise[7]);
-    }
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
   }
+  uint8_t i = bind->data[0];
+
+  ptr[0] = SNMP_TYPE_STRING;
+  ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), 17,
+                                PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                                ow_names_table[i].ow_rom_code.bytewise[0],
+                                ow_names_table[i].ow_rom_code.bytewise[1],
+                                ow_names_table[i].ow_rom_code.bytewise[2],
+                                ow_names_table[i].ow_rom_code.bytewise[3],
+                                ow_names_table[i].ow_rom_code.bytewise[4],
+                                ow_names_table[i].ow_rom_code.bytewise[5],
+                                ow_names_table[i].ow_rom_code.bytewise[6],
+                                ow_names_table[i].ow_rom_code.bytewise[7]);
   return ptr[1] + 2;
 }
 
 uint8_t
-ow_name_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+ow_name_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  ptr[0] = 4;
-  ptr[1] = 0;
-  if (bind->len > 0) {
-    uint8_t i = bind->data[0];
-    if (i < OW_SENSORS_COUNT) {
-      ptr[1] = (uint8_t)snprintf_P(
-        (char *)(ptr + 2), OW_NAME_LENGTH,
-        PSTR("%s"),
-        ow_names_table[i].name);
-    }
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
   }
+  uint8_t i = bind->data[0];
+
+  ptr[0] = SNMP_TYPE_STRING;
+  ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), OW_NAME_LENGTH,
+                                PSTR("%s"), ow_names_table[i].name);
   return ptr[1] + 2;
 }
 
 uint8_t
-ow_temp_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+ow_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  ptr[0] = 2;
-  ptr[1] = 2;
-  ptr[2] = ptr[3] = 0;
-  if (bind->len > 0) {
-    ow_sensor_t *sensor = ow_find_sensor_idx(bind->data[0]);
-    if (sensor != NULL) {
-      int16_t temp = sensor->temp;
-      ptr[2] = temp >> 8;
-      ptr[3] = temp & 0xff;
-    }
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
   }
-  return 4;
+
+  ow_sensor_t *sensor = ow_find_sensor_idx(bind->data[0]);
+  if (sensor != NULL)
+  {
+    return encode_int(ptr, sensor->temp);
+  }
+
+  return encode_int(ptr, 0);
+}
+
+uint8_t
+ow_next(uint8_t * ptr, struct snmp_varbinding * bind)
+{
+  return onelevel_next(ptr, bind, OW_SENSORS_COUNT);
 }
 #endif
 
@@ -212,17 +217,23 @@ string_pgm_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
   return ptr[1] + 2;
 }
 
+/**********************************************************
+ * mib data
+ **********************************************************/
+
 const char desc_value[] PROGMEM = SNMP_VALUE_DESCRIPTION;
 const char desc_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x01";
 
 #ifdef WHM_SUPPORT
-const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
+const char uptime_reaction_obj_name[] PROGMEM =
+  "\x2b\x06\x01\x02\x01\x01\x03";
 #endif
 
 const char contact_value[] PROGMEM = SNMP_VALUE_CONTACT;
 const char contact_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x04";
 
-const char hostname_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x05";
+const char hostname_reaction_obj_name[] PROGMEM =
+  "\x2b\x06\x01\x02\x01\x01\x05";
 const char hostname_value[] PROGMEM = CONF_HOSTNAME;
 
 const char location_value[] PROGMEM = SNMP_VALUE_LOCATION;
@@ -237,9 +248,12 @@ const char adc_vref_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x03
 #endif
 
 #ifdef ONEWIRE_SNMP_SUPPORT
-const char ow_rom_reaction_obj_name[] PROGMEM = ethersexExperimental "\02\01";
-const char ow_name_reaction_obj_name[] PROGMEM = ethersexExperimental "\02\02";
-const char ow_temp_reaction_obj_name[] PROGMEM = ethersexExperimental "\02\03";
+const char ow_rom_reaction_obj_name[] PROGMEM =
+  ethersexExperimental "\x03\x01";
+const char ow_name_reaction_obj_name[] PROGMEM =
+  ethersexExperimental "\x03\x02";
+const char ow_temp_reaction_obj_name[] PROGMEM =
+  ethersexExperimental "\x03\x03";
 #endif
 
 const struct snmp_reaction snmp_reactions[] PROGMEM = {
@@ -248,7 +262,8 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {uptime_reaction_obj_name, uptime_reaction, NULL, NULL},
 #endif
   {contact_obj_name, string_pgm_reaction, (void *) contact_value, NULL},
-  {hostname_reaction_obj_name, string_pgm_reaction, (void *) hostname_value, NULL},
+  {hostname_reaction_obj_name, string_pgm_reaction, (void *) hostname_value,
+   NULL},
   {location_obj_name, string_pgm_reaction, (void *) location_value, NULL},
 #ifdef ADC_SUPPORT
   {adc_reaction_obj_name, adc_reaction, NULL, adc_next},
@@ -258,9 +273,9 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
 #endif
 #endif
 #ifdef ONEWIRE_SNMP_SUPPORT
-  {ow_rom_reaction_obj_name, ow_rom_reaction, NULL},
-  {ow_name_reaction_obj_name, ow_name_reaction, NULL},
-  {ow_temp_reaction_obj_name, ow_temp_reaction, NULL},
+  {ow_rom_reaction_obj_name, ow_rom_reaction, NULL, ow_next},
+  {ow_name_reaction_obj_name, ow_name_reaction, NULL, ow_next},
+  {ow_temp_reaction_obj_name, ow_temp_reaction, NULL, ow_next},
 #endif
   {NULL, NULL, NULL, NULL}
 };

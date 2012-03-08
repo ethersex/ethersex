@@ -350,6 +350,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   if (ow_temp_sensor(&rom))
   {
+    /* Search the sensor... */
     ow_sensor_t *sensor = ow_find_sensor(&rom);
     if(sensor != NULL)
     {
