@@ -29,8 +29,6 @@
 #include "snmp.h"
 #include "snmp_net.h"
 
-#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
-
 void
 snmp_net_init(void)
 {
@@ -361,9 +359,12 @@ snmp_net_main(void)
   req_type[1] += len_delta;
   vb_list_hdr[1] += len_delta;
 
+  struct uip_udpip_hdr *udpip_hdr =
+    (struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN);
+
   uip_udp_conn_t conn;
-  uip_ipaddr_copy(conn.ripaddr, BUF->srcipaddr);
-  conn.rport = BUF->srcport;
+  uip_ipaddr_copy(conn.ripaddr, udpip_hdr->srcipaddr);
+  conn.rport = udpip_hdr->srcport;
   conn.lport = HTONS(SNMP_PORT);
 
   uip_udp_conn = &conn;

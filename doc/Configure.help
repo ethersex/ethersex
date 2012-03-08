@@ -2617,8 +2617,3 @@ DST_END_DOW
   occurs and week 5 is the last week in which day d occurs.  Day 0
   is a Sunday.
 
-  SNMP Description
-SNMP_VALUE_DESCRIPTION
-
-  Please add your new help-text here.
-

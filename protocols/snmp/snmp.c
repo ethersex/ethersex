@@ -99,9 +99,7 @@ adc_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   /* Start adc conversion */
   ADCSRA |= _BV(ADSC);
   /* Wait for completion of adc */
-  while (ADCSRA & _BV(ADSC))
-  {
-  }
+  loop_until_bit_is_clear(ADCSRA, ADSC);
   return encode_int(ptr, ADC);
 }
 
