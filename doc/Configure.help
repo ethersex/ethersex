@@ -2469,6 +2469,7 @@ ONEWIRE_SNMP_SUPPORT
    * Onewire support (ONEWIRE_SUPPORT)
    * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
    * Onewire naming support (ONEWIRE_NAMING_SUPPORT)
+   * SNMP Support (SNMP_SUPPORT)
 
   Make the onewire values (currently only temperature) available via SNMP. The main OID is
   .1.3.6.1.4.1.2021.13.23.3.

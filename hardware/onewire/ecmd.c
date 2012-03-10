@@ -595,6 +595,11 @@ parse_cmd_onewire_name_clear(char *cmd, char *output, uint16_t len)
   while (*cmd == ' ')
     cmd++;
 
+  if (*cmd == 0)
+  {
+    return ECMD_ERR_PARSE_ERROR;
+  }
+
   uint8_t pos = atoi(cmd);
   if (pos > OW_SENSORS_COUNT)
   {
@@ -669,8 +674,8 @@ parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len)
   ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
   ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
   ecmd_ifdef(ONEWIRE_NAMING_SUPPORT)
-    ecmd_feature(onewire_name_set, "1w name set",,Assign a name to/from an device address)
-    ecmd_feature(onewire_name_clear, "1w name clear",,Delete a name to)
+    ecmd_feature(onewire_name_set, "1w name set",ID DEVICE NAME,Assign a name to/from an device address)
+    ecmd_feature(onewire_name_clear, "1w name clear",ID,Delete a name mapping)
     ecmd_feature(onewire_name_list, "1w name list",,Return a list of mapped device names)
     ecmd_feature(onewire_name_save, "1w name save",,Save name mappings to EEPROM)
   ecmd_endif()
