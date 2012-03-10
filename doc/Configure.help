@@ -2434,6 +2434,53 @@ ONEWIRE_POLLING_SUPPORT
   onewire bus.
   The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
 
+
+ECMD 1w list with values
+ONEWIRE_ECMD_LIST_VALUES_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+
+  Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
+  value for each sensor. Fields are separated by tab. 
+
+
+Onewire naming support
+ONEWIRE_NAMING_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Enable mapping of onewire rom addresses to names. Mapping table is stored in EEPROM and could be edited
+  by ECMD commands:
+
+  1w name list: Show current mapping table
+  1w name set ID DEVICE NAME: Set table row ID to rom address DEVICE and name NAME
+  1w name clear ID: Clear table row ID
+  1w name save: Write current mapping table to EEPROM
+
+  "1w list" shows the rom addresses together with the names (separated by tab).
+
+  Number of table rows is defined by "Maximum sensor count" (OW_SENSORS_COUNT).
+
+
+Onewire SNMP support
+ONEWIRE_SNMP_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+   * Onewire naming support (ONEWIRE_NAMING_SUPPORT)
+
+  Make the onewire values (currently only temperature) available via SNMP. The main OID is
+  .1.3.6.1.4.1.2021.13.23.3.
+
+  Sub-OIDs:
+  .1.3.6.1.4.1.2021.13.23.3.1.<ID>: rom address
+  .1.3.6.1.4.1.2021.13.23.3.2.<ID>: mapped name
+  .1.3.6.1.4.1.2021.13.23.3.3.<ID>: temperature value
+
+  ID corresponds with the ID of the name mapping table.
+
+
 Time between discoveries in 0.8s steps
 OW_DISCOVER_DELAY
 
