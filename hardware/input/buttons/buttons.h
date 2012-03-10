@@ -28,10 +28,10 @@
 
 #include "buttons_cfg.h"
 
-#define BUTTON_NOPRESS 0	/* Button is not pressed */
-#define BUTTON_PRESS 1		/* Short press */
-#define BUTTON_LONGPRESS 2	/* Long press */
-#define BUTTON_REPEAT 3		/* Repeat function enabled */
+#define BUTTON_NOPRESS 0        /* Button is not pressed */
+#define BUTTON_PRESS 1          /* Short press */
+#define BUTTON_LONGPRESS 2      /* Long press */
+#define BUTTON_REPEAT 3         /* Repeat function enabled, repeatedly triggered until button released */
 
 /* This macros allow to use the the same configuration
  * macro (in buttons_cfg.h) to initialize the
@@ -43,33 +43,33 @@
 /* Enum used in the cyclic function to loop over all buttons */
 typedef enum
 {
-	BTN_CONFIG(E)
-}btn_ButtonsType;
+  BTN_CONFIG(E)
+} btn_ButtonsType;
 
 /* Static configuration data for each button */
 typedef struct
 {
   const volatile uint8_t *port;
   const uint8_t pin;
-}button_configType;
+} button_configType;
 
 /* Status information for each button */
 typedef struct
 {
-  uint8_t status:2;		/* One of the values NOPRESS, PRESS, LONGPRESS... */
-  uint8_t curStatus:1;	/* Current pin value */
+  uint8_t status:2;             /* One of the values NOPRESS, PRESS, LONGPRESS... */
+  uint8_t curStatus:1;          /* Current pin value */
   uint8_t unused:5;
-  uint8_t ctr;			/* Debounce timer */
-}btn_statusType;
+  uint8_t ctr;                  /* Debounce timer */
+} btn_statusType;
 
 void buttons_init(void);
 void buttons_periodic(void);
 
 #ifdef DEBUG_BUTTONS_INPUT
-# include "core/debug.h"
-# define BUTTONDEBUG(a...)  debug_printf("button: " a)
+#include "core/debug.h"
+#define BUTTONDEBUG(a...)  debug_printf("button: " a)
 #else
-# define BUTTONDEBUG(a...)
+#define BUTTONDEBUG(a...)
 #endif
 
 #define HOOK_NAME btn_input
@@ -78,5 +78,5 @@ void buttons_periodic(void);
 #undef HOOK_NAME
 #undef HOOK_ARGS
 
-#endif  /* BUTTONS_INPUT_SUPPORT */
-#endif  /* BUTTONS_H */
+#endif /* BUTTONS_INPUT_SUPPORT */
+#endif /* BUTTONS_H */

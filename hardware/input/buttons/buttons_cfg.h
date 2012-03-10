@@ -18,11 +18,11 @@
 *
 * For more information on the GPL, please go to:
 * http://www.gnu.org/copyleft/gpl.html
-*/
-
+*/  
+  
 #ifndef BUTTONS_CFG_H_
 #define BUTTONS_CFG_H_
-
+  
 /*****************************************************************
  * To configure additional buttons:
  * (1) Add a line in the form of
@@ -52,14 +52,13 @@
  * pin(BTN_LEFT, PC5, INPUT)
  * pin(BTN_ENTER, PD2, INPUT)
  *
- */
-
-/* Define your buttons here: */
+ */ 
+  
+#ifdef BUTTONS_INPUT_SUPPORT
+  
+/* Define your buttons here: */ 
 #define BTN_CONFIG(_x) \
- _x(BTN_UP),\
- _x(BTN_DOWN),\
- _x(BTN_LEFT),\
- _x(BTN_RIGHT),\
- _x(BTN_ENTER)
-
-#endif /* BUTTONS_CFG_H_ */
+_x(BTN_UP), \_x(BTN_DOWN), \_x(BTN_LEFT), \_x(BTN_RIGHT),\_x(BTN_ENTER)  
+#endif //BUTTONS_INPUT_SUPPORT
+  
+#endif  /* BUTTONS_CFG_H_ */

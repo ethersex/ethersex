@@ -2686,3 +2686,23 @@ HTTPLOG_BUFFER_LEN
 
   The len for the internal buffer used for HTTPLOG strings. This
   buffer is dynamicallay allocated for each request.
+
+Use Repeat
+CONF_BTN_USE_REPEAT
+  Depends on: 
+   *  (BUTTON_INPUT_SUPPORT)
+
+  Use the repeat function (if a button is pressed for 
+  a longer time, a repeat function starts and you
+  get triggers every <x> ms. 
+
+Repeat time (x*20 ms)
+CONF_BTN_REPEAT_TIME
+ 
+  Time after which the repeat function starts.
+
+Repeat rate (x*20 ms)
+CONF_BTN_REPEAT_RATE
+
+  Interval between two REPEAT events.
+

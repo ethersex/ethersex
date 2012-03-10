@@ -35,16 +35,41 @@
 #include "buttons.h"
 #include "buttons_cfg.h"
 
+/* This driver uses the E6 hook mechanism to notify of events. (see hook.def for details)
+ * To get notified in your application of a button press:
+ * 1) #include "buttons.h"
+ *
+ * 2) Define a handler function in your application:
+ *     void hook_btn_handler(btn_ButtonsType btn, uint8_t status) {
+ *       debug_printf("Button %d Status: %d\n",btn, status);
+ *     }
+ *
+ * 3) Then register it for callback (in the Init Function of your app):
+ *     hook_btn_input_register(hook_btn_handler);
+ *
+ *     Upon a button press, the function will be called with the following parameters:
+ *     btn = The Button that was pressed.
+ *     status = One of the following values (BUTTON_PRESS, BUTTON_LONGPRESS, BUTTON_REPEAT, BUTTON_NOPRESS)
+ *
+ *     BUTTON_PRESS 	= 	Button was pressed.
+ *     BUTTON_LONGPRESS =	Button was pressed for 900ms
+ *     BUTTON_REPEAT 	= 	Button was pressed for <CONF_BTN_REPEAT_TIME>ms, this event is then
+ *                     		repeated every <CONF_BTN_REPEAT_RATE>ms until the button is released.
+ *     BUTTON_NOPRESS 	=	Button released.
+ *
+ */
+
 #ifdef BUTTONS_INPUT_SUPPORT
 
-#define BUTTON_DEBOUNCE_TIME 2		/* Debounce time in ethersex ticks (20ms) */
-#define BUTTON_LONG_PRESS_TIME 45   /* Time for long press in ethersex ticks (20ms) */
+#define BUTTON_DEBOUNCE_TIME 2  	/* Debounce time in ethersex ticks (x*20ms) */
+#define BUTTON_LONG_PRESS_TIME 45   /* Time for long press in ethersex ticks (x*20ms) */
 
 #ifdef DEBUG_BUTTONS_INPUT
-  const char* buttonNames[CONF_NUM_BUTTONS] = {BTN_CONFIG(S)};
+const char *buttonNames[CONF_NUM_BUTTONS] = { BTN_CONFIG(S) };
 #endif
 
-const button_configType buttonConfig[CONF_NUM_BUTTONS] = {BTN_CONFIG(C)};
+const button_configType buttonConfig[CONF_NUM_BUTTONS] = { BTN_CONFIG(C) };
+
 btn_statusType buttonStatus[CONF_NUM_BUTTONS];
 
 /**
@@ -55,15 +80,17 @@ btn_statusType buttonStatus[CONF_NUM_BUTTONS];
  * @param void
  * @returns void
  */
-void buttons_init(void)
+void
+buttons_init(void)
 {
   uint8_t ctr;
 
   BUTTONDEBUG("Init\n");
 
-  for (ctr=0; ctr<CONF_NUM_BUTTONS; ctr++)
+  for (ctr = 0; ctr < CONF_NUM_BUTTONS; ctr++)
   {
-    BUTTONDEBUG("Button %s Port %i pin %i \n", buttonNames[ctr], buttonConfig[ctr].port, buttonConfig[ctr].pin);
+    BUTTONDEBUG("Button %s Port %i pin %i \n", buttonNames[ctr],
+                buttonConfig[ctr].port, buttonConfig[ctr].pin);
 
     /* No button pressed */
     buttonStatus[ctr].curStatus = 0;
@@ -81,16 +108,19 @@ void buttons_init(void)
  * @param void
  * @returns void
  */
-void buttons_periodic(void)
+void
+buttons_periodic(void)
 {
   uint8_t ctr;
   uint8_t curState;
 
   /* Check all configured buttons */
-  for (ctr=0; ctr<CONF_NUM_BUTTONS; ctr++)
+  for (ctr = 0; ctr < CONF_NUM_BUTTONS; ctr++)
   {
-	/* Get current value from portpin... */
-    curState = ((*buttonConfig[ctr].port & _BV(buttonConfig[ctr].pin)) == _BV(buttonConfig[ctr].pin)) ? 0:1;
+    /* Get current value from portpin... */
+    curState =
+      ((*buttonConfig[ctr].port & _BV(buttonConfig[ctr].pin)) ==
+       _BV(buttonConfig[ctr].pin)) ? 0 : 1;
 
     /* Actual state hasn't change since the last read... */
     if (buttonStatus[ctr].curStatus == curState)
@@ -119,14 +149,14 @@ void buttons_periodic(void)
       {
         switch (buttonStatus[ctr].status)
         {
-          /* ..and was not pressed before. Send the PRESS event */
+            /* ..and was not pressed before. Send the PRESS event */
           case BUTTON_NOPRESS:
             buttonStatus[ctr].status = BUTTON_PRESS;
             BUTTONDEBUG("Pressed %s\n", buttonNames[ctr]);
             hook_btn_input_call(ctr, buttonStatus[ctr].status);
-          break;
+            break;
 
-          /* ..and was pressed before. Wait for long press. */
+            /* ..and was pressed before. Wait for long press. */
           case BUTTON_PRESS:
             if (BUTTON_LONG_PRESS_TIME <= buttonStatus[ctr].ctr)
             {
@@ -135,38 +165,39 @@ void buttons_periodic(void)
               BUTTONDEBUG("Long press %s\n", buttonNames[ctr]);
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
-          break;
+            break;
 
-          /* ..and was long pressed before. Wait for repeat start. */
+            /* ..and was long pressed before. Wait for repeat start. */
           case BUTTON_LONGPRESS:
             if (CONF_BTN_REPEAT_TIME <= buttonStatus[ctr].ctr)
             {
-                /* Repeat time reached. Send REPEAT event. */
+              /* Repeat time reached. Send REPEAT event. */
               buttonStatus[ctr].status = BUTTON_REPEAT;
               BUTTONDEBUG("Repeat %s\n", buttonNames[ctr]);
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
-          break;
+            break;
 
-          /* ..and is in repeat. Send cyclic events. */
+            /* ..and is in repeat. Send cyclic events. */
           case BUTTON_REPEAT:
-            if (CONF_BTN_REPEAT_TIME+CONF_BTN_REPEAT_RATE <= buttonStatus[ctr].ctr)
+            if (CONF_BTN_REPEAT_TIME + CONF_BTN_REPEAT_RATE <=
+                buttonStatus[ctr].ctr)
             {
               buttonStatus[ctr].status = BUTTON_REPEAT;
               buttonStatus[ctr].ctr = CONF_BTN_REPEAT_RATE;
               BUTTONDEBUG("Repeat %s\n", buttonNames[ctr]);
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
-          break;
+            break;
 
           default:
             BUTTONDEBUG("Oops! Invalid state.\n");
-          break;
+            break;
         }
       }
       else
       {
-    	/* Button is not pressed anymore. Send NO_PRESS. */
+        /* Button is not pressed anymore. Send NO_PRESS. */
         buttonStatus[ctr].status = BUTTON_NOPRESS;
         BUTTONDEBUG("Released %s\n", buttonNames[ctr]);
         buttonStatus[ctr].ctr = 0;
