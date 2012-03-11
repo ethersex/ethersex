@@ -39,6 +39,10 @@
 #include "hardware/onewire/onewire.h"
 #endif
 
+#ifdef TANKLEVEL_SUPPORT
+#include "services/tanklevel/tanklevel.h"
+#endif
+
 #ifdef SNMP_SUPPORT
 
 /**********************************************************
@@ -213,6 +217,44 @@ uint8_t
 ow_next(uint8_t * ptr, struct snmp_varbinding * bind)
 {
   return onelevel_next(ptr, bind, OW_SENSORS_COUNT);
+
+#ifdef TANKLEVEL_SUPPORT
+
+uint8_t
+tank_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 1)
+  {
+    return 0;
+  }
+
+  clock_datetime_t dt;
+  switch (bind->data[0])
+  {
+    case 0:
+      return encode_int(ptr, tanklevel_get());
+    case 1:
+      return encode_int(ptr, tanklevel_params_ram.ltr_full);
+    case 2:
+      return encode_long(ptr, tanklevel_get_ts());
+    case 3:
+      memset(&dt, 0, sizeof(dt));
+      clock_localtime(&dt, tanklevel_get_ts());
+      ptr[0] = SNMP_TYPE_STRING;
+      ptr[1] = snprintf_P((char *) (ptr + 2), 20,
+                          PSTR("%02d.%02d.%04d %02d:%02d:%02d"),
+                          dt.day,
+                          dt.month, dt.year + 1900, dt.hour, dt.min, dt.sec);
+      return ptr[1] + 2;
+    default:
+      return 0;
+  }
+}
+
+uint8_t
+tank_next(uint8_t * ptr, struct snmp_varbinding * bind)
+{
+  return onelevel_next(ptr, bind, 4);
 }
 #endif
 
@@ -267,6 +309,10 @@ const char ow_temp_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x03"
 const char ow_present_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x04";
 #endif
 
+#ifdef TANKLEVEL_SUPPORT
+const char tank_reaction_obj_name[] PROGMEM = ethersexExperimental "\x04";
+#endif
+
 const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {desc_obj_name, string_pgm_reaction, (void *) desc_value, NULL},
 #ifdef WHM_SUPPORT
@@ -282,6 +328,7 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {adc_vref_reaction_obj_name, adc_vref_reaction, NULL, adc_next},
 #endif
 #endif
+
 #ifdef ONEWIRE_SNMP_SUPPORT
   {ow_rom_reaction_obj_name, ow_rom_reaction, NULL, ow_next},
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -289,6 +336,10 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
 #endif
   {ow_temp_reaction_obj_name, ow_temp_reaction, NULL, ow_next},
   {ow_present_reaction_obj_name, ow_present_reaction, NULL, ow_next},
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+  {tank_reaction_obj_name, tank_reaction, NULL, tank_next},
 #endif
   {NULL, NULL, NULL, NULL}
 };

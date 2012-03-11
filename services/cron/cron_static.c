@@ -53,6 +53,10 @@ mcuf_modul(void)
 }
 #endif // MCUF_MODUL_CRON_SUPPORT
 
+#ifdef TANKLEVEL_CRON_SUPPORT
+#include "services/tanklevel/tanklevel.h"
+#endif // TANKLEVEL_CRON_SUPPORT
+
 /* Cron configuration:
  * Fields: Min Hour Day Month Dow
  * Values:
@@ -75,6 +79,11 @@ const struct cron_static_event_t events[] PROGMEM = {
 #ifdef NETSTAT_SUPPORT
   {{{{-5, -1, -1, -1}}, -1}, (cron_static_handler_t) netstat_send, USE_LOCAL},  /* every 5 minutes  */
 #endif // NETSTAT_SUPPORT
+
+#ifdef TANKLEVEL_CRON_SUPPORT
+  { { {0,  0, -1, -1, -1} }, (cron_static_handler_t)tanklevel_start, USE_LOCAL}, /* 0 a clock  */
+  { { {0, 12, -1, -1, -1} }, (cron_static_handler_t)tanklevel_start, USE_LOCAL}, /* 12 a clock  */
+#endif // TANKLEVEL_CRON_SUPPORT
 
   /* This is only the end of table marker */
   {{{{-1, -1, -1, -1}}, -1}, NULL, 0},

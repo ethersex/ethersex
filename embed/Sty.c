@@ -62,6 +62,33 @@ a:visited, a:active{color: #ddd;}
 	padding: 3px;
 }
 
+.tank_wrap {
+        position: relative;
+}
+
+.tank_wrap, .tank_value, .tank_text {
+	width: 500px;
+	height: 30px;
+}
+
+.tank_wrap, .tank_value {
+	background: #777777;
+}
+
+.tank_value {
+	background: #00ff00;
+	width: 0px;
+}
+
+.tank_text {
+	position: absolute;
+	top:0;
+	left:0;
+	padding-top: 5px;
+	text-align: center;
+	width: 100%;
+}
+
 svg {
 	stroke: #999;
 }
