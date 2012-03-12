@@ -8,6 +8,9 @@ divert(globals_divert)
 #ifndef ADC_SUPPORT
 #error Please define adc support
 #endif
+
+#include "hardware/adc/adc.h"
+
 static uint16_t
 control6_get_adc(uint8_t sensorchannel){
   return adc_get(sensorchannel);
