@@ -33,6 +33,10 @@
 #define stella_normal 2
 #define stella_fast 3
 
+#define stella_start_zero 0
+#define stella_start_all 1
+#define stella_start_eeprom 2
+
 uint8_t stella_brightness[STELLA_CHANNELS];
 uint8_t stella_fade[STELLA_CHANNELS];
 
@@ -85,6 +89,9 @@ stella_init(void)
 #endif
 #if STELLA_START == stella_start_all
   memset(stella_fade, 255, sizeof(stella_fade));
+#endif
+#if STELLA_START == stella_start_zero
+  memset(stella_fade, 0, sizeof(stella_fade));
 #endif
 
   stella_sort();
