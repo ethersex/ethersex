@@ -2,7 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(TANKLEVEL_SUPPORT)_ECMD_SRC += \
-	services/tanklevel/ecmd.c
+	services/tanklevel/tanklevel_ecmd.c
 
 $(TANKLEVEL_SUPPORT)_SRC += \
 	services/tanklevel/tanklevel.c \
