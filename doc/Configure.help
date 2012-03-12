@@ -303,7 +303,7 @@ ADC input
 ADC_SUPPORT
   Enable ADC abstraction layer.  This especially enables a further
   ECMD 'adc get' which triggers a ADC conversion for each channel
-  and returns the gained values (if ECMD support is enabled).
+  and returns the gained values.
 
 ADC voltage support
 ADC_VOLTAGE_SUPPORT
