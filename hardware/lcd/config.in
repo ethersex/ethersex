@@ -25,6 +25,7 @@ mainmenu_option next_comment
     if [ "$HD44780_DIREKT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
       dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_DIREKT $HD44780_SUPPORT
+      dep_bool "Backlight support" HD44780_BACKLIGHT_SUPPORT $HD44780_SUPPORT
     elif [ "$HD44780_I2CSUPPORT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
       int "PCF8574 Address" HD44780_PCF8574_ADR 32
