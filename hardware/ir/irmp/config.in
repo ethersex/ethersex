@@ -97,19 +97,18 @@ dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
 	if [ "$IRMP_SUPPORT_NIKON_PROTOCOL" = y ];  then
 		define_bool IRSND_SUPPORT_NIKON_PROTOCOL y
 	fi
-# the following protocols are not supported for sending yet
-#	if [ "$IRMP_SUPPORT_RUWIDO_PROTOCOL" = y ];  then
-#		define_bool IRSND_SUPPORT_RUWIDO_PROTOCOL y
-#	fi
-#	if [ "$IRMP_SUPPORT_IR60_PROTOCOL" = y ];  then
-#		define_bool IRSND_SUPPORT_IR60_PROTOCOL y
-#	fi
-#	if [ "$IRMP_SUPPORT_KATHREIN_PROTOCOL" = y ];  then
-#		define_bool IRSND_SUPPORT_KATHREIN_PROTOCOL y
-#	fi
-#	if [ "$IRMP_SUPPORT_NETBOX_PROTOCOL" = y ];  then
-#		define_bool IRSND_SUPPORT_NETBOX_PROTOCOL y
-#	fi
+	if [ "$IRMP_SUPPORT_IR60_PROTOCOL" = y ];  then
+		define_bool IRSND_SUPPORT_IR60_PROTOCOL y
+	fi
+	if [ "$IRMP_SUPPORT_RUWIDO_PROTOCOL" = y ];  then
+		define_bool IRSND_SUPPORT_RUWIDO_PROTOCOL y
+	fi
+	if [ "$IRMP_SUPPORT_KATHREIN_PROTOCOL" = y ];  then
+		define_bool IRSND_SUPPORT_KATHREIN_PROTOCOL y
+	fi
+	if [ "$IRMP_SUPPORT_NETBOX_PROTOCOL" = y ];  then
+		define_bool IRSND_SUPPORT_NETBOX_PROTOCOL y
+	fi
 	if [ "$IRMP_SUPPORT_NEC16_PROTOCOL" = y ];  then
 		define_bool IRSND_SUPPORT_NEC16_PROTOCOL y
 	fi
@@ -119,7 +118,7 @@ dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
 	if [ "$IRMP_SUPPORT_LEGO_PROTOCOL" = y ];  then
 		define_bool IRSND_SUPPORT_LEGO_PROTOCOL y
 	fi
-#	if [ "$IRMP_SUPPORT_THOMSON_PROTOCOL" = y ];  then
-#		define_bool IRSND_SUPPORT_THOMSON_PROTOCOL y
-#	fi
+	if [ "$IRMP_SUPPORT_THOMSON_PROTOCOL" = y ];  then
+		define_bool IRSND_SUPPORT_THOMSON_PROTOCOL y
+	fi
 endmenu

@@ -42,6 +42,10 @@ spi_init(void)
   PIN_SET(SPI_CS_NET);
 #endif
 
+#ifdef SER_RAM_23K256_SUPPORT
+    PIN_SET(SPI_CS_23K256);
+#endif
+
 #ifdef RFM12_SUPPORT
   for (int8_t modul = 0; modul < RFM12_MODUL_COUNT; modul++)
   {

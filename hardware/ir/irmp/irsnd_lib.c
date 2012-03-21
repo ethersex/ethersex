@@ -12,7 +12,7 @@
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
- * $Id: irsnd.c,v 1.45 2012/02/13 11:02:29 fm Exp $
+ * $Id: irsnd.c,v 1.48 2012/02/24 14:24:28 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,13 @@
  * (at your option) any later version.
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
+
+#if defined(__18CXX)                     
+#define PIC_C18                                                             // Microchip C18
+#include <p18cxxx.h>                                                        // basic P18 lib
+#include "timers.h"                                                         // timer lib
+#include "pwm.h"                                                            // pwm lib
+#endif                                    
 
 #ifdef unix                                                                 // test/debug on linux/unix
 #include <stdio.h>
@@ -46,14 +53,16 @@ typedef unsigned short  uint16_t;
 #else
 
 #ifdef CODEVISION
-  #define COM2A0 6
-  #define WGM21  1
-  #define CS20   0
+#define COM2A0 6
+#define WGM21  1
+#define CS20   0
+#elif defined(PIC_C18)
+    //nothing to do here
 #else
-  #include <inttypes.h>
-  #include <avr/io.h>
-  #include <util/delay.h>
-  #include <avr/pgmspace.h>
+#include <inttypes.h>
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/pgmspace.h>
 #endif // CODEVISION
 
 #endif // WIN32
@@ -71,11 +80,6 @@ typedef unsigned short  uint16_t;
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRSND_USE_AS_LIB
-/*---------------------------------------------------------------------------------------------------------------------------------------------------
- *  ATtiny pin definition of OC0A / OC0B
- *  ATmega pin definition of OC2 / OC2A / OC2B / OC0 / OC0A / OC0B
- *---------------------------------------------------------------------------------------------------------------------------------------------------
- */
 #if defined (__AVR_ATtiny84__)                          // ATtiny84 uses OC0A = PB2 or OC0B = PA7
 #if IRSND_OCx == IRSND_OC0A                             // OC0A
 #define IRSND_PORT                              PORTB   // port B
@@ -127,6 +131,7 @@ typedef unsigned short  uint16_t;
 #define IRSND_PORT                              PORTB   // port B
 #define IRSND_DDR                               DDRB    // ddr B
 #define IRSND_BIT                               1       // OC2
+
 #elif IRSND_OCx == IRSND_OC0                            // OC0
 #define IRSND_PORT                              PORTB   // port B
 #define IRSND_DDR                               DDRB    // ddr B
@@ -202,6 +207,9 @@ typedef unsigned short  uint16_t;
 #error Wrong value for IRSND_OCx, choose IRSND_OC0, IRSND_OC1A, or IRSND_OC1B in irsndconfig.h
 #endif // IRSND_OCx
 
+#elif defined (PIC_C18)    //Microchip C18 compiler
+    //Nothing here to do here -> See irsndconfig.h
+
 #else
 #if !defined (unix) && !defined (WIN32)
 #error mikrocontroller not defined, please fill in definitions here.
@@ -210,9 +218,9 @@ typedef unsigned short  uint16_t;
 #endif
 
 #if IRSND_SUPPORT_NIKON_PROTOCOL == 1
-typedef uint16_t    IRSND_PAUSE_LEN;
+    typedef uint16_t    IRSND_PAUSE_LEN;
 #else
-typedef uint8_t     IRSND_PAUSE_LEN;
+    typedef uint8_t     IRSND_PAUSE_LEN;
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -318,22 +326,36 @@ typedef uint8_t     IRSND_PAUSE_LEN;
 #define BANG_OLUFSEN_TRAILER_BIT_PAUSE_LEN      (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_TRAILER_BIT_PAUSE_TIME + 0.5)
 #define BANG_OLUFSEN_FRAME_REPEAT_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * BANG_OLUFSEN_FRAME_REPEAT_PAUSE_TIME + 0.5)       // use uint16_t!
 
-#define GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN  (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME + 0.5)
-#define GRUNDIG_NOKIA_IR60_BIT_LEN        (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME + 0.5)
+#define GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN        (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME + 0.5)
+#define GRUNDIG_NOKIA_IR60_BIT_LEN              (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME + 0.5)
 #define GRUNDIG_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * GRUNDIG_AUTO_REPETITION_PAUSE_TIME + 0.5)         // use uint16_t!
 #define NOKIA_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * NOKIA_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
 #define GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN (uint16_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_TIME + 0.5)   // use uint16_t!
+
+#define IR60_AUTO_REPETITION_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * IR60_AUTO_REPETITION_PAUSE_TIME + 0.5)            // use uint16_t!
 
 #define SIEMENS_START_BIT_LEN                   (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME + 0.5)
 #define SIEMENS_BIT_LEN                         (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_BIT_PULSE_TIME + 0.5)
 #define SIEMENS_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME + 0.5)  // use uint16_t!
 
+
+#ifdef PIC_C18
+#define IRSND_FREQ_30_KHZ                       (uint8_t) ((F_CPU / 30000  / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#define IRSND_FREQ_32_KHZ                       (uint8_t) ((F_CPU / 32000  / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#define IRSND_FREQ_36_KHZ                       (uint8_t) ((F_CPU / 36000  / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#define IRSND_FREQ_38_KHZ                       (uint8_t) ((F_CPU / 38000  / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#define IRSND_FREQ_40_KHZ                       (uint8_t) ((F_CPU / 40000  / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#define IRSND_FREQ_56_KHZ                       (uint8_t) ((F_CPU / 56000  / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#define IRSND_FREQ_455_KHZ                      (uint8_t) ((F_CPU / 455000 / 2 / Pre_Scaler / PIC_Scaler) - 1)
+#else // AVR
+#define IRSND_FREQ_30_KHZ                       (uint8_t) ((F_CPU / 30000 / 2) - 1)
 #define IRSND_FREQ_32_KHZ                       (uint8_t) ((F_CPU / 32000 / 2) - 1)
 #define IRSND_FREQ_36_KHZ                       (uint8_t) ((F_CPU / 36000 / 2) - 1)
 #define IRSND_FREQ_38_KHZ                       (uint8_t) ((F_CPU / 38000 / 2) - 1)
 #define IRSND_FREQ_40_KHZ                       (uint8_t) ((F_CPU / 40000 / 2) - 1)
 #define IRSND_FREQ_56_KHZ                       (uint8_t) ((F_CPU / 56000 / 2) - 1)
 #define IRSND_FREQ_455_KHZ                      (uint8_t) ((F_CPU / 455000 / 2) - 1)
+#endif
 
 #define FDC_START_BIT_PULSE_LEN                 (uint8_t)(F_INTERRUPTS * FDC_START_BIT_PULSE_TIME + 0.5)
 #define FDC_START_BIT_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * FDC_START_BIT_PAUSE_TIME + 0.5)
@@ -373,10 +395,10 @@ typedef uint8_t     IRSND_PAUSE_LEN;
 #define LEGO_0_PAUSE_LEN                        (uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME + 0.5)
 #define LEGO_FRAME_REPEAT_PAUSE_LEN             (uint16_t)(F_INTERRUPTS * LEGO_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
-static volatile uint8_t                         irsnd_busy;
-static volatile uint8_t                         irsnd_protocol;
-static volatile uint8_t                         irsnd_buffer[6];
-static volatile uint8_t                         irsnd_repeat;
+static volatile uint8_t                         irsnd_busy = 0;
+static volatile uint8_t                         irsnd_protocol = 0;
+static volatile uint8_t                         irsnd_buffer[6] = {0};
+static volatile uint8_t                         irsnd_repeat = 0;
 static volatile uint8_t                         irsnd_is_on = FALSE;
 
 #if IRSND_USE_CALLBACK == 1
@@ -395,6 +417,11 @@ irsnd_on (void)
     if (! irsnd_is_on)
     {
 #ifndef DEBUG
+
+#if defined(PIC_C18)
+        IRSND_PIN = 0; // output mode -> enable PWM outout pin (0=PWM on, 1=PWM off)
+#else
+
 #if   IRSND_OCx == IRSND_OC2                            // use OC2
         TCCR2 |= (1<<COM20)|(1<<WGM21);                 // toggle OC2 on compare match,  clear Timer 2 at compare match OCR2
 #elif IRSND_OCx == IRSND_OC2A                           // use OC2A
@@ -410,6 +437,8 @@ irsnd_on (void)
 #else
 #error wrong value of IRSND_OCx
 #endif // IRSND_OCx
+
+#endif //C18
 #endif // DEBUG
 
 #if IRSND_USE_CALLBACK == 1
@@ -436,6 +465,11 @@ irsnd_off (void)
     if (irsnd_is_on)
     {
 #ifndef DEBUG
+    
+#if defined(PIC_C18)
+        IRSND_PIN = 1; //input mode -> disbale PWM output pin (0=PWM on, 1=PWM off)
+#else //AVR
+
 #if   IRSND_OCx == IRSND_OC2                                    // use OC2
         TCCR2 &= ~(1<<COM20);                           // normal port operation, OC2 disconnected.
 #elif IRSND_OCx == IRSND_OC2A                                    // use OC2A
@@ -452,6 +486,7 @@ irsnd_off (void)
 #error wrong value of IRSND_OCx
 #endif // IRSND_OCx
         IRSND_PORT  &= ~(1<<IRSND_BIT);                 // set IRSND_BIT to low
+#endif //C18
 #endif // DEBUG
 
 #if IRSND_USE_CALLBACK == 1
@@ -476,6 +511,12 @@ static void
 irsnd_set_freq (uint8_t freq)
 {
 #ifndef DEBUG
+
+#if defined(PIC_C18)
+     OpenPWM(freq); 
+     SetDCPWM( (uint16_t) freq * 2); // freq*2 = Duty cycles 50%
+#else //AVR
+
 #if IRSND_OCx == IRSND_OC2
     OCR2 = freq;                                                                        // use register OCR2 for OC2
 #elif IRSND_OCx == IRSND_OC2A                                                                    // use OC2A
@@ -491,6 +532,7 @@ irsnd_set_freq (uint8_t freq)
 #else
 #error wrong value of IRSND_OCx
 #endif
+#endif //PIC_C18
 #endif // DEBUG
 }
 #endif
@@ -505,6 +547,11 @@ void
 irsnd_init (void)
 {
 #ifndef DEBUG
+#if defined(PIC_C18)
+    OpenTimer;
+    irsnd_set_freq (IRSND_FREQ_36_KHZ);   //default frequency
+    IRSND_PIN = 1; //default PWM output pin off (0=PWM on, 1=PWM off)
+#else
     IRSND_PORT &= ~(1<<IRSND_BIT);                                                  // set IRSND_BIT to low
     IRSND_DDR |= (1<<IRSND_BIT);                                                    // set IRSND_BIT to output
 
@@ -523,8 +570,8 @@ irsnd_init (void)
 #else
 #error wrong value of IRSND_OCx
 #endif
-
     irsnd_set_freq (IRSND_FREQ_36_KHZ);                                             // default frequency
+#endif //PIC_C18
 #endif // DEBUG
 }
 #endif
@@ -688,7 +735,7 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             command = bitsrevervse (irmp_data_p->command, NEC42_COMMAND_LEN);
 
             irsnd_buffer[0] = ( (address & 0x1FE0) >> 5);                                                       // AAAAAAAA
-            irsnd_buffer[1] = ( (address & 0x001F) << 3) | ((~address & 0x1C00) >> 10);                          // AAAAAaaa
+            irsnd_buffer[1] = ( (address & 0x001F) << 3) | ((~address & 0x1C00) >> 10);                         // AAAAAaaa
             irsnd_buffer[2] =                              ((~address & 0x03FC) >> 2);                          // aaaaaaaa
             irsnd_buffer[3] = ((~address & 0x0003) << 6) | ( (command & 0x00FC) >> 2);                          // aaCCCCCC
             irsnd_buffer[4] = ( (command & 0x0003) << 6) | ((~command & 0x00FC) >> 2);                          // CCcccccc
@@ -879,6 +926,17 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_IR60_PROTOCOL == 1
+        case IRMP_IR60_PROTOCOL:
+        {
+            command = (bitsrevervse (0x7d, IR60_COMMAND_LEN) << 7) | bitsrevervse (irmp_data_p->command, IR60_COMMAND_LEN);
+            irsnd_buffer[0] = command >> 6 | 0x01;                                                              // 1011111S (start instruction frame)
+            irsnd_buffer[1] = (command & 0x7F) << 1;                                                            // CCCCCCC_ (2nd frame)
+
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_NOKIA_PROTOCOL == 1
         case IRMP_NOKIA_PROTOCOL:
         {
@@ -992,32 +1050,32 @@ irsnd_stop (void)
 uint8_t
 irsnd_ISR (void)
 {
-    static uint8_t  send_trailer;
-    static uint8_t  current_bit = 0xFF;
-    static uint8_t  pulse_counter;
-    static IRSND_PAUSE_LEN  pause_counter;
-    static uint8_t  startbit_pulse_len;
-    static IRSND_PAUSE_LEN  startbit_pause_len;
-    static uint8_t  pulse_1_len;
-    static uint8_t  pause_1_len;
-    static uint8_t  pulse_0_len;
-    static uint8_t  pause_0_len;
-    static uint8_t  has_stop_bit;
-    static uint8_t  new_frame = TRUE;
-    static uint8_t  complete_data_len;
-    static uint8_t  n_repeat_frames;                                                // number of repetition frames
-    static uint8_t  n_auto_repetitions;                                             // number of auto_repetitions
-    static uint8_t  auto_repetition_counter;                                        // auto_repetition counter
-    static uint16_t auto_repetition_pause_len;                                      // pause before auto_repetition, uint16_t!
-    static uint16_t auto_repetition_pause_counter;                                  // pause before auto_repetition, uint16_t!
-    static uint8_t  repeat_counter;                                                 // repeat counter
-    static uint16_t repeat_frame_pause_len;                                         // pause before repeat, uint16_t!
-    static uint16_t packet_repeat_pause_counter;                                    // pause before repeat, uint16_t!
+    static uint8_t              send_trailer                    = FALSE;
+    static uint8_t              current_bit                     = 0xFF;
+    static uint8_t              pulse_counter                   = 0;
+    static IRSND_PAUSE_LEN      pause_counter                   = 0;
+    static uint8_t              startbit_pulse_len              = 0;
+    static IRSND_PAUSE_LEN      startbit_pause_len              = 0;
+    static uint8_t              pulse_1_len                     = 0;
+    static uint8_t              pause_1_len                     = 0;
+    static uint8_t              pulse_0_len                     = 0;
+    static uint8_t              pause_0_len                     = 0;
+    static uint8_t              has_stop_bit                    = 0;
+    static uint8_t              new_frame                       = TRUE;
+    static uint8_t              complete_data_len               = 0;
+    static uint8_t              n_repeat_frames                 = 0;                                // number of repetition frames
+    static uint8_t              n_auto_repetitions              = 0;                                // number of auto_repetitions
+    static uint8_t              auto_repetition_counter         = 0;                                // auto_repetition counter
+    static uint16_t             auto_repetition_pause_len       = 0;                                // pause before auto_repetition, uint16_t!
+    static uint16_t             auto_repetition_pause_counter   = 0;                                // pause before auto_repetition, uint16_t!
+    static uint8_t              repeat_counter                  = 0;                                // repeat counter
+    static uint16_t             repeat_frame_pause_len          = 0;                                // pause before repeat, uint16_t!
+    static uint16_t             packet_repeat_pause_counter     = 0;                                // pause before repeat, uint16_t!
 #if IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1
-    static uint8_t  last_bit_value;
+    static uint8_t              last_bit_value;
 #endif
-    static uint8_t  pulse_len = 0xFF;
-    static IRSND_PAUSE_LEN  pause_len = 0xFF;
+    static uint8_t              pulse_len = 0xFF;
+    static IRSND_PAUSE_LEN              pause_len = 0xFF;
 
     if (irsnd_busy)
     {
@@ -1031,17 +1089,22 @@ irsnd_ISR (void)
                 {
                     auto_repetition_pause_counter = 0;
 
-                    if (irsnd_protocol == IRMP_DENON_PROTOCOL)
+                    if (irsnd_protocol == IRMP_DENON_PROTOCOL)                              // n'th denon frame
                     {
                         current_bit = 16;
                         complete_data_len   = 2 * DENON_COMPLETE_DATA_LEN + 1;
                     }
-                    else if (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL)                       // n'th grundig info frame
+                    else if (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL)                       // n'th grundig frame
                     {
                         current_bit = 15;
                         complete_data_len   = 16 + GRUNDIG_COMPLETE_DATA_LEN;
                     }
-                    else if (irsnd_protocol == IRMP_NOKIA_PROTOCOL)                         // n'th nokia info frame
+                    else if (irsnd_protocol == IRMP_IR60_PROTOCOL)                          // n'th IR60 frame
+                    {
+                        current_bit = 7;
+                        complete_data_len   = 2 * IR60_COMPLETE_DATA_LEN + 1;
+                    }
+                    else if (irsnd_protocol == IRMP_NOKIA_PROTOCOL)                         // n'th nokia frame
                     {
                         if (auto_repetition_counter + 1 < n_auto_repetitions)
                         {
@@ -1092,12 +1155,14 @@ irsnd_ISR (void)
             }
             else
             {
+                
                 if (send_trailer)
                 {
                     irsnd_busy = FALSE;
+                    send_trailer = FALSE;
                     return irsnd_busy;
                 }
-
+                
                 n_repeat_frames             = irsnd_repeat;
 
                 if (n_repeat_frames == IRSND_ENDLESS_REPETITION)
@@ -1432,9 +1497,24 @@ irsnd_ISR (void)
                         complete_data_len           = GRUNDIG_COMPLETE_DATA_LEN;
                         n_auto_repetitions          = GRUNDIG_FRAMES;                               // 2 frames
                         auto_repetition_pause_len   = GRUNDIG_AUTO_REPETITION_PAUSE_LEN;            // 20m sec pause
-                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;      // 117 msec pause
+                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;    // 117 msec pause
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
-
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_IR60_PROTOCOL == 1
+                    case IRMP_IR60_PROTOCOL:
+                    {
+                        startbit_pulse_len          = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        startbit_pause_len          = GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN - 1;
+                        pulse_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        pause_len                   = GRUNDIG_NOKIA_IR60_BIT_LEN;
+                        has_stop_bit                = GRUNDIG_NOKIA_IR60_STOP_BIT;
+                        complete_data_len           = IR60_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = IR60_FRAMES;                                  // 2 frames
+                        auto_repetition_pause_len   = IR60_AUTO_REPETITION_PAUSE_LEN;               // 20m sec pause
+                        repeat_frame_pause_len      = GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN;    // 117 msec pause
+                        irsnd_set_freq (IRSND_FREQ_30_KHZ);
                         break;
                     }
 #endif
@@ -1526,7 +1606,6 @@ irsnd_ISR (void)
                         auto_repetition_pause_len   = 0;
                         repeat_frame_pause_len      = JVC_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
-
                         break;
                     }
 #endif
@@ -1545,7 +1624,6 @@ irsnd_ISR (void)
                         auto_repetition_pause_len   = 0;
                         repeat_frame_pause_len      = NIKON_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
-
                         break;
                     }
 #endif
@@ -1828,12 +1906,15 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1
                 case IRMP_GRUNDIG_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_IR60_PROTOCOL == 1
+                case IRMP_IR60_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_NOKIA_PROTOCOL == 1
                 case IRMP_NOKIA_PROTOCOL:
 #endif
 
 #if IRSND_SUPPORT_RC5_PROTOCOL == 1 || IRSND_SUPPORT_RC6_PROTOCOL == 1 || IRSND_SUPPORT_RC6A_PROTOCOL == 1 || IRSND_SUPPORT_SIEMENS_PROTOCOL == 1 || \
-    IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
+    IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_IR60_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
                 {
                     if (pulse_counter == pulse_len && pause_counter == pause_len)
                     {
@@ -1843,8 +1924,8 @@ irsnd_ISR (void)
                         {
                             current_bit = 0xFF;
 
-#if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
-                            if (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL || irsnd_protocol == IRMP_NOKIA_PROTOCOL)
+#if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_IR60_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
+                            if (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL || irsnd_protocol == IRMP_IR60_PROTOCOL || irsnd_protocol == IRMP_NOKIA_PROTOCOL)
                             {
                                 auto_repetition_counter++;
 
@@ -1882,11 +1963,12 @@ irsnd_ISR (void)
                     {
                         uint8_t first_pulse;
 
-#if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
-                        if (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL || irsnd_protocol == IRMP_NOKIA_PROTOCOL)
+#if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_IR60_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
+                        if (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL || irsnd_protocol == IRMP_IR60_PROTOCOL || irsnd_protocol == IRMP_NOKIA_PROTOCOL)
                         {
                             if (current_bit == 0xFF ||                                                                  // start bit of start-frame
                                 (irsnd_protocol == IRMP_GRUNDIG_PROTOCOL && current_bit == 15) ||                       // start bit of info-frame (Grundig)
+                                (irsnd_protocol == IRMP_IR60_PROTOCOL && current_bit == 7) ||                           // start bit of data frame (IR60)
                                 (irsnd_protocol == IRMP_NOKIA_PROTOCOL && (current_bit == 23 || current_bit == 47)))    // start bit of info- or stop-frame (Nokia)
                             {
                                 pulse_len = startbit_pulse_len;
@@ -1996,7 +2078,7 @@ irsnd_ISR (void)
                     break;
                 }
 #endif // IRSND_SUPPORT_RC5_PROTOCOL == 1 || IRSND_SUPPORT_RC6_PROTOCOL == 1 || || IRSND_SUPPORT_RC6A_PROTOCOL == 1 || IRSND_SUPPORT_SIEMENS_PROTOCOL == 1 ||
-       // IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
+       // IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1 || IRSND_SUPPORT_IR60_PROTOCOL == 1 || IRSND_SUPPORT_NOKIA_PROTOCOL == 1
 
                 default:
                 {
@@ -2021,7 +2103,7 @@ irsnd_ISR (void)
             }
             else
             {
-                irsnd_busy = TRUE;
+                irsnd_busy = TRUE; //Rainer
                 send_trailer = TRUE;
                 n_repeat_frames = 0;
                 repeat_counter = 0;

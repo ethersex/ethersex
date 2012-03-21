@@ -71,7 +71,7 @@ generate_usart_init()
 static int noinline my_uart_put (const char, FILE *);
 
 /* dummy FILE, required by fprintf */
-static FILE ausgabe = FDEV_SETUP_STREAM (my_uart_put, NULL, _FDEV_SETUP_WRITE);
+FILE ausgabe = FDEV_SETUP_STREAM (my_uart_put, NULL, _FDEV_SETUP_WRITE);
 
 ISR(usart(USART,_RX_vect)) {
     uint8_t data = usart(UDR);
