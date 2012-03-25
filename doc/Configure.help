@@ -1221,7 +1221,7 @@ CONF_JABBER_BUDDY
 Alias Command Names
 ALIASCMD_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Define aliases for your ecmds. Aliases are expanded if $ ist the first
@@ -1600,7 +1600,7 @@ MCUF Module Display Mode
 MCUF_MODUL_DISPLAY_MODE_SUPPORT
   Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
 
   Set default call mode to start any modul for ECMD.
 
@@ -1782,7 +1782,7 @@ CRON_STATIC_SUPPORT
 ECMD Scripting
 ECMD_SCRIPT_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * VFS (Virtual File System) support (VFS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -2061,13 +2061,13 @@ SRAM_MEMTEST_ON_BOOT
 Jabber (EXPERIMENTAL)
 ECMD_JABBER_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Jabber Client (JABBER_SUPPORT)
 
   Enable support for ECMD via Jabber.
 
-ECMD (Etherrape Control Interface) support
+ECMD (Ethersex Command) support
 ECMD_PARSER_SUPPORT
   Depends on:
 
@@ -2077,7 +2077,7 @@ ECMD_PARSER_SUPPORT
 IRC (EXPERIMENTAL)
 ECMD_IRC_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * IRC client (EXPERIMENTAL) (IRC_SUPPORT)
 
@@ -2087,7 +2087,7 @@ ECMD_IRC_SUPPORT
 SMS
 ECMD_SMS_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * SMS Support (SMS_SUPPORT)
 
   Send and receive ECMD via Short Message Service.
