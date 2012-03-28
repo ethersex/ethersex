@@ -115,6 +115,10 @@ eeprom_init (void)
   eeprom_save_P (pam_password, PSTR (PAM_SINGLE_PASSWORD), 16);
 #endif
 
+#ifdef ADC_VOLTAGE_SUPPORT
+  eeprom_save_int (adc_vref, ADC_REF_VOLTAGE);
+#endif
+
 #ifdef KTY_SUPPORT
   eeprom_save_char (kty_calibration, 0);
 #endif
