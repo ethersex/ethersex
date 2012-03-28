@@ -301,12 +301,17 @@ PS2_GERMAN_LAYOUT
 
 ADC input
 ADC_SUPPORT
-  Depends on:
-   * ECMD support (ECMD_PARSER_SUPPORT)
-
   Enable ADC abstraction layer.  This especially enables a further
   ECMD 'adc get' which triggers a ADC conversion for each channel
-  and returns the gained values.
+  and returns the gained values (if ECMD support is enabled).
+
+ADC voltage support
+ADC_VOLTAGE_SUPPORT
+  Depends on:
+   * ADC input (ADC_SUPPORT)
+
+  Enables the direct readout of ADC in volt. A VREF calibration value
+  can be set by ECMD and is stored in EEPROM.
 
 FS20 RF-control
 FS20_SUPPORT

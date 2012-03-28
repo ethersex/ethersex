@@ -53,6 +53,10 @@
 #include "services/dmx-fxslot/dmx-fxslot.h"
 #endif
 
+#ifdef ADC_VOLTAGE_SUPPORT
+#include "hardware/adc/adc.h"
+#endif
+
 struct eeprom_config_t
 {
 #ifdef ETHERNET_SUPPORT
@@ -80,6 +84,10 @@ struct eeprom_config_t
 #ifdef PAM_SINGLE_USER_EEPROM_SUPPORT
   char pam_username[16];
   char pam_password[16];
+#endif
+
+#ifdef ADC_VOLTAGE_SUPPORT
+  uint16_t adc_vref;
 #endif
 
 #ifdef KTY_SUPPORT

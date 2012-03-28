@@ -28,21 +28,6 @@
 
 #include "kty81.h"
 
-/* schaltet auf den Sensorchannel und AREF auf 0 
- * liest den adc Wert ein und gibt ihn zurueck
- */
-uint16_t
-get_kty(uint8_t sensorchannel)
-{
-  ADMUX = (ADMUX & 0xF0) | sensorchannel;
-  /* Start der adc konvertierung */
-  ADCSRA |= _BV(ADSC);
-  /* Warten bis sie fertig ist */
-  while (ADCSRA & _BV(ADSC))
-    ;
-  return ADC;
-}
-
 int8_t
 kty_calibrate(uint16_t sensorwert)
 {
