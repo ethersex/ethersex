@@ -198,35 +198,6 @@ typedef struct
   };
 } ow_temp_scratchpad_t;
 
-
-/*
- * polling support
- */
-#ifdef ONEWIRE_POLLING_SUPPORT
-typedef struct
-{
-  //FIXME: just storing the code and calculate the crc with each call and
-  //       hardcoding the family, would save 16bytes
-  ow_rom_code_t ow_rom_code;
-  /* just storing the temperature in order to keep memory footfrint as low as
-   * possible. storing temperature in deci degrees (DD) => 36.4° == 364 */
-  int16_t temp;
-  /* time between polling the sensor */
-  uint16_t read_delay;
-  /* need to wait 800ms for the sensor to convert the temperatures */
-  uint8_t convert_delay;
-  /* when this is set, we will wait convert_delay to be 0 and then read the
-   * scratchpad */
-  uint8_t converted;
-  /* this is set during discovery - all sensors with present == 0 will be
-   * deleted after the discovery */
-  uint8_t present;
-} ow_sensor_t;
-
-
-extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
-#endif
-
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT
 
@@ -238,10 +209,46 @@ typedef struct
   ow_rom_code_t ow_rom_code;
   char name[OW_NAME_LENGTH];
 } ow_name_t;
-
-extern ow_name_t ow_names_table[OW_SENSORS_COUNT];
-
 #endif /* ONEWIRE_NAMING_SUPPORT */
+
+#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
+typedef struct
+{
+  //FIXME: just storing the code and calculate the crc with each call and
+  //       hardcoding the family, would save 16bytes
+  ow_rom_code_t ow_rom_code;
+
+  /* bit fields */
+#ifdef ONEWIRE_POLLING_SUPPORT
+  /* when this is set, we will wait convert_delay to be 0 and then read the
+   * scratchpad */
+  unsigned converted:1;
+  /* this is set during discovery - all sensors with present == 0 will be
+   * deleted after the discovery */
+  unsigned present:1;
+#endif
+#ifdef ONEWIRE_NAMING_SUPPORT
+  /* sensor has a name assigned */
+  unsigned named:1;
+#endif
+
+  /* byte aligned fields */
+#ifdef ONEWIRE_POLLING_SUPPORT
+  /* just storing the temperature in order to keep memory footfrint as low as
+   * possible. storing temperature in deci degrees (DD) => 36.4° == 364 */
+  int16_t temp;
+  /* time between polling the sensor */
+  uint16_t read_delay;
+  /* need to wait 800ms for the sensor to convert the temperatures */
+  uint8_t convert_delay;
+#endif
+#ifdef ONEWIRE_NAMING_SUPPORT
+  char name[OW_NAME_LENGTH];
+#endif
+} ow_sensor_t;
+
+extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
+#endif
 
 /*
  * global variables
@@ -418,15 +425,20 @@ int8_t ow_eeprom(ow_rom_code_t * rom);
  */
 int8_t ow_eeprom_read(ow_rom_code_t * rom, void *data);
 
+#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
+ow_sensor_t *ow_find_sensor(ow_rom_code_t * rom);
+#endif
+
+/* Polling functions */
+#ifdef ONEWIRE_POLLING_SUPPORT
+void ow_periodic(void);
+#endif
+
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT
-ow_rom_code_t *ow_name_to_rom(const char *name);
-char *ow_rom_to_name(const ow_rom_code_t * rom);
-void ow_names_save(void);
-#ifdef ONEWIRE_POLLING_SUPPORT
-ow_sensor_t *ow_find_sensor_idx(uint8_t index);
 ow_sensor_t *ow_find_sensor_name(const char *name);
-#endif /* ONEWIRE_POLLING_SUPPORT */
+void ow_names_restore(void);
+void ow_names_save(void);
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
 /*
@@ -454,12 +466,6 @@ int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 
 /* issue temperatur convert command on all OW-buses */
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
-
-/* Polling functions */
-#ifdef ONEWIRE_POLLING_SUPPORT
-ow_sensor_t *ow_find_sensor(ow_rom_code_t *rom);
-void ow_periodic(void);
-#endif
 
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT

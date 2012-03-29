@@ -135,7 +135,11 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef ONEWIRE_NAMING_SUPPORT
         if (len > 0)
         {
-          char *name = ow_rom_to_name(&ow_sensors[i].ow_rom_code);
+          char *name = NULL;
+          if (ow_sensors[i].named)
+          {
+            name = ow_sensors[i].name;
+          }
           int16_t plen =
             snprintf_P(output, len, PSTR("\t%s"), (name == NULL) ? "" : name);
           len -= plen;
@@ -284,7 +288,12 @@ list_next:;
 #ifdef ONEWIRE_NAMING_SUPPORT
       if (len > 0)
       {
-        char *name = ow_rom_to_name(&ow_global.current_rom);
+        char *name = NULL;
+        ow_sensor_t *sensor = ow_find_sensor(&ow_global.current_rom);
+        if (sensor != NULL && sensor->named)
+        {
+          name = sensor->name;
+        }
         int16_t plen =
           snprintf_P(output, len, PSTR("\t%s"), (name == NULL) ? "" : name);
         len -= plen;
@@ -352,9 +361,9 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   {
     /* Search the sensor... */
     ow_sensor_t *sensor = ow_find_sensor(&rom);
-    if(sensor != NULL)
+    if (sensor != NULL)
     {
-      /* found it*/
+      /* found it */
       int16_t temp = sensor->temp;
       div_t res = div(temp, 10);
       ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot, res.rem);
@@ -578,13 +587,31 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
   }
 
   ow_rom_code_t rom;
-  if (parse_ow_rom(romstr, &rom) < 0)
+  if (parse_ow_rom(romstr, &rom) < 0 || rom.raw == 0)
   {
     return ECMD_ERR_PARSE_ERROR;
   }
 
-  ow_names_table[pos].ow_rom_code.raw = rom.raw;
-  strncpy(ow_names_table[pos].name, name, OW_NAME_LENGTH);
+  ow_sensors[pos].named = 1;
+  ow_sensors[pos].ow_rom_code.raw = rom.raw;
+  strncpy(ow_sensors[pos].name, name, OW_NAME_LENGTH);
+#ifdef ONEWIRE_POLLING_SUPPORT
+  ow_sensors[pos].temp = 0;
+  ow_sensors[pos].read_delay = 1;
+#endif
+
+  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    if (i != pos && ow_sensors[i].ow_rom_code.raw == rom.raw)
+    {
+      ow_sensors[i].ow_rom_code.raw = 0;
+      ow_sensors[i].named = 0;
+#ifdef ONEWIRE_POLLING_SUPPORT
+      ow_sensors[i].present = 0;
+      ow_sensors[i].temp = 0;
+#endif
+    }
+  }
 
   return ECMD_FINAL_OK;
 }
@@ -606,8 +633,7 @@ parse_cmd_onewire_name_clear(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   }
 
-  ow_names_table[pos].ow_rom_code.raw = 0;
-  ow_names_table[pos].name[0] = 0;
+  ow_sensors[pos].named = 0;
 
   return ECMD_FINAL_OK;
 }
@@ -634,20 +660,27 @@ parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL_OK;
   }
 
-  ow_name_t *item = &ow_names_table[i];
+  ow_sensor_t *item = &ow_sensors[i];
   cmd[1] = i + 1;
 
-  ret = snprintf_P(output, len,
-                   PSTR("%d\t%02x%02x%02x%02x%02x%02x%02x%02x\t%s"),
-                   i,
-                   item->ow_rom_code.bytewise[0],
-                   item->ow_rom_code.bytewise[1],
-                   item->ow_rom_code.bytewise[2],
-                   item->ow_rom_code.bytewise[3],
-                   item->ow_rom_code.bytewise[4],
-                   item->ow_rom_code.bytewise[5],
-                   item->ow_rom_code.bytewise[6],
-                   item->ow_rom_code.bytewise[7], item->name);
+  if (item->named)
+  {
+    ret = snprintf_P(output, len,
+                     PSTR("%d\t%02x%02x%02x%02x%02x%02x%02x%02x\t%s"),
+                     i,
+                     item->ow_rom_code.bytewise[0],
+                     item->ow_rom_code.bytewise[1],
+                     item->ow_rom_code.bytewise[2],
+                     item->ow_rom_code.bytewise[3],
+                     item->ow_rom_code.bytewise[4],
+                     item->ow_rom_code.bytewise[5],
+                     item->ow_rom_code.bytewise[6],
+                     item->ow_rom_code.bytewise[7], item->name);
+  }
+  else
+  {
+    ret = snprintf_P(output, len, PSTR("%d\t0000000000000000\t"), i);
+  }
 
   /* set return value that the parser has to be called again */
   if (ret > 0)

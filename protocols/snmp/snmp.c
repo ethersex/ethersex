@@ -142,7 +142,7 @@ adc_next(uint8_t * ptr, struct snmp_varbinding * bind)
 
 #ifdef ONEWIRE_SNMP_SUPPORT
 uint8_t
-ow_rom_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+ow_rom_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
   if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
   {
@@ -153,17 +153,18 @@ ow_rom_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
   ptr[0] = SNMP_TYPE_STRING;
   ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), 17,
                                 PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
-                                ow_names_table[i].ow_rom_code.bytewise[0],
-                                ow_names_table[i].ow_rom_code.bytewise[1],
-                                ow_names_table[i].ow_rom_code.bytewise[2],
-                                ow_names_table[i].ow_rom_code.bytewise[3],
-                                ow_names_table[i].ow_rom_code.bytewise[4],
-                                ow_names_table[i].ow_rom_code.bytewise[5],
-                                ow_names_table[i].ow_rom_code.bytewise[6],
-                                ow_names_table[i].ow_rom_code.bytewise[7]);
+                                ow_sensors[i].ow_rom_code.bytewise[0],
+                                ow_sensors[i].ow_rom_code.bytewise[1],
+                                ow_sensors[i].ow_rom_code.bytewise[2],
+                                ow_sensors[i].ow_rom_code.bytewise[3],
+                                ow_sensors[i].ow_rom_code.bytewise[4],
+                                ow_sensors[i].ow_rom_code.bytewise[5],
+                                ow_sensors[i].ow_rom_code.bytewise[6],
+                                ow_sensors[i].ow_rom_code.bytewise[7]);
   return ptr[1] + 2;
 }
 
+#ifdef ONEWIRE_NAMING_SUPPORT
 uint8_t
 ow_name_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
@@ -174,10 +175,15 @@ ow_name_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   uint8_t i = bind->data[0];
 
   ptr[0] = SNMP_TYPE_STRING;
-  ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), OW_NAME_LENGTH,
-                                PSTR("%s"), ow_names_table[i].name);
+  ptr[1] = 0;
+  if (ow_sensors[i].named)
+  {
+    ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), OW_NAME_LENGTH,
+                                  PSTR("%s"), ow_sensors[i].name);
+  }
   return ptr[1] + 2;
 }
+#endif
 
 uint8_t
 ow_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
@@ -186,14 +192,21 @@ ow_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   {
     return 0;
   }
+  uint8_t i = bind->data[0];
 
-  ow_sensor_t *sensor = ow_find_sensor_idx(bind->data[0]);
-  if (sensor != NULL)
+  return encode_int(ptr, ow_sensors[i].temp);
+}
+
+uint8_t
+ow_present_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
   {
-    return encode_int(ptr, sensor->temp);
+    return 0;
   }
+  uint8_t i = bind->data[0];
 
-  return encode_int(ptr, 0);
+  return encode_int(ptr, ow_sensors[i].present);
 }
 
 uint8_t
@@ -247,8 +260,11 @@ const char adc_vref_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x03
 
 #ifdef ONEWIRE_SNMP_SUPPORT
 const char ow_rom_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x01";
+#ifdef ONEWIRE_NAMING_SUPPORT
 const char ow_name_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x02";
+#endif
 const char ow_temp_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x03";
+const char ow_present_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x04";
 #endif
 
 const struct snmp_reaction snmp_reactions[] PROGMEM = {
@@ -268,8 +284,11 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
 #endif
 #ifdef ONEWIRE_SNMP_SUPPORT
   {ow_rom_reaction_obj_name, ow_rom_reaction, NULL, ow_next},
+#ifdef ONEWIRE_NAMING_SUPPORT
   {ow_name_reaction_obj_name, ow_name_reaction, NULL, ow_next},
+#endif
   {ow_temp_reaction_obj_name, ow_temp_reaction, NULL, ow_next},
+  {ow_present_reaction_obj_name, ow_present_reaction, NULL, ow_next},
 #endif
   {NULL, NULL, NULL, NULL}
 };

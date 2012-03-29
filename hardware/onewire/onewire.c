@@ -46,8 +46,8 @@
 /* global variables */
 ow_global_t ow_global;
 
-#ifdef ONEWIRE_NAMING_SUPPORT
-ow_name_t ow_names_table[OW_SENSORS_COUNT];
+#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
+ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
 #endif
 
 /* module local prototypes */
@@ -64,8 +64,14 @@ onewire_init(void)
   /* release lock */
   ow_global.lock = 0;
 
+#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
+  /* initialize sensor data */
+  memset(ow_sensors, 0, OW_SENSORS_COUNT * sizeof(ow_sensor_t));
+#endif
+
 #ifdef ONEWIRE_NAMING_SUPPORT
-  eeprom_restore(ow_names, ow_names_table, OW_SENSORS_COUNT * sizeof(ow_name_t));
+  /* restore sensor names */
+  ow_names_restore();
 #endif
 }
 
@@ -572,15 +578,23 @@ ow_eeprom_read(ow_rom_code_t * rom, void *data)
 }
 #endif /* ONEWIRE_DS2502_SUPPORT */
 
+#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
+ow_sensor_t *
+ow_find_sensor(ow_rom_code_t * rom)
+{
+  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    if (ow_sensors[i].ow_rom_code.raw == rom->raw)
+    {
+      /* found it */
+      return &ow_sensors[i];
+    }
+  }
+  return NULL;
+}
+#endif
 
 #ifdef ONEWIRE_POLLING_SUPPORT
-ow_sensor_t ow_sensors[OW_SENSORS_COUNT] = {
-  {{{0}
-    }
-   , 0, 0, 0, 0, 0}
-};
-
-
 static int8_t
 ow_discover_sensor(void)
 {
@@ -704,24 +718,20 @@ ow_discover_sensor(void)
   for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
   {
     /* mark the slot as free */
-    if (ow_sensors[i].present == 0)
-      ow_sensors[i].ow_rom_code.raw = 0;
-  }
-  return 0;
-}
-
-ow_sensor_t *
-ow_find_sensor(ow_rom_code_t * rom)
-{
-  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
-  {
-    if (ow_sensors[i].ow_rom_code.raw == rom->raw)
+    if (!ow_sensors[i].present)
     {
-      /* found it */
-      return &ow_sensors[i];
+#ifdef ONEWIRE_NAMING_SUPPORT
+      if (!ow_sensors[i].named)
+      {
+#endif
+        ow_sensors[i].ow_rom_code.raw = 0;
+#ifdef ONEWIRE_NAMING_SUPPORT
+      }
+#endif
+      ow_sensors[i].temp = 0;
     }
   }
-  return NULL;
+  return 0;
 }
 
 /* this function will be called every 800 ms */
@@ -757,7 +767,7 @@ ow_periodic(void)
   {
     if (ow_temp_sensor(&ow_sensors[i].ow_rom_code))
     {
-      if (ow_sensors[i].converted == 1)
+      if (ow_sensors[i].converted)
       {
         if (ow_sensors[i].convert_delay == 1)
           ow_sensors[i].convert_delay = 0;
@@ -790,7 +800,7 @@ ow_periodic(void)
           ow_sensors[i].converted = 0;
         }
       }
-      if (--ow_sensors[i].read_delay == 0 && ow_sensors[i].converted == 0)
+      if (--ow_sensors[i].read_delay == 0 && !ow_sensors[i].converted)
       {
         ow_sensors[i].read_delay = OW_READ_DELAY;
         ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
@@ -805,65 +815,58 @@ ow_periodic(void)
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT
 
-ow_rom_code_t *
-ow_name_to_rom(const char *name)
+ow_sensor_t *
+ow_find_sensor_name(const char *name)
 {
   /* search for matching name */
   for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
   {
-    if (strncmp(name, ow_names_table[i].name, OW_NAME_LENGTH) == 0)
+    if (ow_sensors[i].named &&
+        strncmp(name, ow_sensors[i].name, OW_NAME_LENGTH) == 0)
     {
-      return &ow_names_table[i].ow_rom_code;
-    }
-  }
-  return NULL;
-}
-
-char *
-ow_rom_to_name(const ow_rom_code_t * rom)
-{
-  /* search for matching rom code */
-  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
-  {
-    if (rom->raw == ow_names_table[i].ow_rom_code.raw)
-    {
-      return ow_names_table[i].name;
+      return &ow_sensors[i];
     }
   }
   return NULL;
 }
 
 void
+ow_names_restore(void)
+{
+  ow_name_t temp_name;
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    ow_sensors[i].named = 0;
+    eeprom_restore(ow_names[i], &temp_name, sizeof(ow_name_t));
+    if (temp_name.ow_rom_code.raw != 0)
+    {
+      ow_sensors[i].named = 1;
+      ow_sensors[i].ow_rom_code.raw = temp_name.ow_rom_code.raw;
+      strncpy(ow_sensors[i].name, temp_name.name, OW_NAME_LENGTH);
+#ifdef ONEWIRE_POLLING_SUPPORT
+      ow_sensors[i].read_delay = 1;
+#endif
+    }
+  }
+}
+
+void
 ow_names_save(void)
 {
-  eeprom_save(ow_names, ow_names_table, OW_SENSORS_COUNT * sizeof(ow_name_t));
+  ow_name_t temp_name;
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    memset(&temp_name, 0, sizeof(ow_name_t));
+    if (ow_sensors[i].named)
+    {
+      temp_name.ow_rom_code.raw = ow_sensors[i].ow_rom_code.raw;
+      strncpy(temp_name.name, ow_sensors[i].name, OW_NAME_LENGTH);
+    }
+    eeprom_save(ow_names[i], &temp_name, sizeof(ow_name_t));
+  }
   eeprom_update_chksum();
 }
 
-#ifdef ONEWIRE_POLLING_SUPPORT
-
-ow_sensor_t *
-ow_find_sensor_idx(uint8_t index)
-{
-  if (index >= OW_SENSORS_COUNT)
-  {
-    return NULL;
-  }
-  return ow_find_sensor(&ow_names_table[index].ow_rom_code);
-}
-
-ow_sensor_t *
-ow_find_sensor_name(const char *name)
-{
-  ow_rom_code_t *rom = ow_name_to_rom(name);
-  if (rom == NULL)
-  {
-    return NULL;
-  }
-  return ow_find_sensor(rom);
-}
-
-#endif /* ONEWIRE_POLLING_SUPPORT */
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
 /*

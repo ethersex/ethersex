@@ -134,9 +134,12 @@ eeprom_init (void)
 #endif
 
 #ifdef ONEWIRE_NAMING_SUPPORT
-  ow_name_t names_temp[OW_SENSORS_COUNT];
-  memset(names_temp, 0, OW_SENSORS_COUNT*sizeof(ow_name_t));
-  eeprom_save (ow_names, names_temp, OW_SENSORS_COUNT*sizeof(ow_name_t));
+  ow_name_t temp_name;
+  memset(&temp_name, 0, sizeof(ow_name_t));
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    eeprom_save(ow_names[i], &temp_name, sizeof(ow_name_t));
+  }
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
