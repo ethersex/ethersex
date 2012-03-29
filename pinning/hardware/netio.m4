@@ -8,7 +8,7 @@ ifdef(`conf_SD_READER', `dnl
 
 ifdef(`conf_ONEWIRE', `dnl
   /* onewire port range */
-  ONEWIRE_PORT_RANGE(PA7, PA7)
+  ONEWIRE_PORT_RANGE(PD6, PD6)
 ')dnl
 
 ifdef(`conf_STELLA', `dnl
@@ -45,7 +45,7 @@ pin(FS20_RECV, PB3)
 
 ifdef(`conf_RFM12', `dnl
 /* port the rfm12 module CS is attached to */
-pin(SPI_CS_RFM12, PD5, OUTPUT)
+pin(SPI_CS_RFM12_0, PD5, OUTPUT)
 RFM12_USE_INT(1)
 RFM12_ASK_SENSE_USE_INT(1)
 ')
@@ -75,8 +75,8 @@ ifdef(`conf_USTREAM', `
 ')
 
 ifdef(`conf_HD44780', `
-  pin(HD44780_RS, PD2)
-  pin(HD44780_RW, PD3)
+  pin(HD44780_RS, PD3)
+  pin(HD44780_RW, PD2)
   pin(HD44780_EN1, PB0)
   pin(HD44780_D4, PD4)
   pin(HD44780_D5, PD5)
@@ -85,12 +85,5 @@ ifdef(`conf_HD44780', `
 ')
 ifdef(`conf_HD44780_BACKLIGHT', `
   pin(HD44780_BL, PB1, OUTPUT)
-')
-
-ifdef(`conf_TANKLEVEL', `
-  pin(TANKLEVEL_PUMP, PC3)
-')
-ifdef(`conf_TANKLEVEL_LOCK', `
-  pin(TANKLEVEL_LOCK, PA2)
 ')
 
