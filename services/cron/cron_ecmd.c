@@ -58,11 +58,16 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	return ECMD_FINAL(snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs()));
 }
 
-#ifdef CRON_VFS_SUPPORT
+#ifdef CRON_PERIST_SUPPORT
 int16_t parse_cmd_cron_save (char *cmd, char *output, uint16_t len)
 {
+	int16_t ret = cron_save();
+	if (ret < 0)
+	{
+		return ECMD_FINAL(snprintf_P(output, len, "write error"));
+	}
 
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("%u jobs saved"),cron_save()));
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%d jobs saved"), ret));
 }
 
 uint16_t parse_cmd_cron_make_persistent (char *cmd, char *output, uint16_t len)
@@ -101,9 +106,14 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
 
 	sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %n"), &minute, &hour, &day, &month, &dayofweek, &i);
 	strncpy(ecmd,cmd+i,ECMD_INPUTBUF_LENGTH);
-	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
+	int16_t ret = cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
 
-	return ECMD_FINAL_OK;
+	if (ret < 0)
+	{
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("add cron failed")));
+	}
+
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("add cron %d"), ret));
 }
 
 
@@ -111,7 +121,7 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[CRON-Dienst]])
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
-ecmd_ifdef(CRON_VFS_SUPPORT)
+ecmd_ifdef(CRON_PERIST_SUPPORT)
   ecmd_feature(cron_save, "cron_save",, Saves all persistent jobs)
   ecmd_feature(cron_make_persistent, "cron_make_persistent",, Mark a Job as persistent)
 ecmd_endif()

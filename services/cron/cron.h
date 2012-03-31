@@ -26,7 +26,11 @@
 
 #include <stdint.h>
 
+#include "config.h"
 
+#if defined(CRON_VFS_SUPPORT) || defined(CRON_EEPROM_SUPPORT)
+#define CRON_PERIST_SUPPORT 1
+#endif
 
 /** Enumeration of Weekdays */
 typedef enum  {
@@ -116,7 +120,7 @@ extern uint8_t cron_use_utc;
   * @extrasize, @extradata: extra data that is passed to the callback function
   */
 
-void cron_jobinsert_callback(
+int16_t cron_jobinsert_callback(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 	uint8_t repeat,	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
@@ -129,14 +133,14 @@ void cron_jobinsert_callback(
 * @position: -1 to append else the new job is inserted at that position
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
 */
-void cron_jobinsert_ecmd(
+int16_t cron_jobinsert_ecmd(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 	uint8_t repeat, int8_t position, char* ecmd
 );
 
-#ifdef CRON_VFS_SUPPORT
+#ifdef CRON_PERIST_SUPPORT
 /** Saves all as persistent marked Jobs to vfs */
-int8_t cron_save();
+int16_t cron_save();
 
 /** Mark a Jobs as persistent
 * @jobnumber: number of job to mark
@@ -148,7 +152,7 @@ uint8_t cron_make_persistent(uint8_t jobnumber);
 * @newone: The new cron job structure (malloc'ed memory!)
 * @position: Where to insert the new job
 */
-void cron_insert(struct cron_event_linkedlist* newone, int8_t position);
+uint8_t cron_insert(struct cron_event_linkedlist* newone, int8_t position);
 
 /** remove the job from the linked list */
 void cron_jobrm(struct cron_event_linkedlist* job);

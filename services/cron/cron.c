@@ -28,6 +28,7 @@
 #include "cron.h"
 #include "test.h"
 #include "core/debug.h"
+#include "core/eeprom.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/via_tcp/ecmd_state.h"
 #include "services/clock/clock.h"
@@ -43,15 +44,17 @@ struct cron_event_linkedlist* head;
 struct cron_event_linkedlist* tail;
 uint8_t cron_use_utc;
 
-#ifdef CRON_VFS_SUPPORT
+#ifdef CRON_PERIST_SUPPORT
 void
 cron_load()
 {
-	struct vfs_file_handle_t* file;
 	uint8_t extrasize;
 	uint16_t wsize;
 	uint8_t count, i;
 	struct cron_event_linkedlist* newone;
+
+#ifdef CRON_VFS_SUPPORT
+	struct vfs_file_handle_t *file;
 	vfs_size_t position = sizeof(count);
 
 	file = vfs_open(CRON_FILENAME);
@@ -63,6 +66,10 @@ cron_load()
 	}
 
 	if (vfs_read(file, &count, sizeof(count)) != sizeof(count)) goto end;
+#else
+	uint16_t position = sizeof(count);
+	eeprom_restore_offset(crontab, 0, &count, sizeof(uint8_t));
+#endif
 	#ifdef DEBUG_CRON
 		debug_printf("cron: file with %i entries found\n", count);
 	#endif
@@ -70,7 +77,11 @@ cron_load()
 	// read each cron event
 	for(i=0; i< count; i++) {
 		// read extrasize
+#ifdef CRON_VFS_SUPPORT
 		if (vfs_read( file, &extrasize, sizeof(extrasize)) != sizeof(extrasize)) goto end;
+#else
+		eeprom_restore_offset(crontab, position, &extrasize, sizeof(extrasize));
+#endif
 		// try to get ram space
 		wsize = sizeof(struct cron_event_linkedlist)+extrasize;
 		newone = malloc(wsize);
@@ -79,26 +90,33 @@ cron_load()
 			debug_printf("cron: try to allocate size of %i consist of struct %i and extrasize %i!\n", wsize, sizeof(struct cron_event_linkedlist), extrasize);
 		#endif
 
-
 		// no more ram available -> abort
 		if (!newone) {
 			#ifdef DEBUG_CRON
 			  debug_printf("cron: not enough ram!\n");
 			#endif
-			return;
+			goto end;
 		}
 
 		wsize = sizeof(struct cron_event) + extrasize;
+#ifdef CRON_VFS_SUPPORT
 		if (vfs_fseek(file, position, SEEK_SET) != 0) goto end;
 		if (vfs_read(file, &newone->event, wsize) != wsize) goto end;
+#else
+		eeprom_restore_offset(crontab, position, &newone->event, wsize);
+#endif
 		position += wsize;
 		cron_insert(newone, CRON_APPEND);
 	}
 end:
+#ifdef CRON_VFS_SUPPORT
 	vfs_close(file);
+#endif
+	return;
 }
 
-int8_t 
+#ifdef CRON_VFS_SUPPORT
+int16_t 
 cron_write_error(struct vfs_file_handle_t* file)
 {
 	vfs_close(file);
@@ -107,21 +125,27 @@ cron_write_error(struct vfs_file_handle_t* file)
 	vfs_close(vfs_open(CRON_FILENAME));
 	return -1;
 }
+#endif
 
-int8_t
+int16_t
 cron_save()
 {
+#ifdef CRON_VFS_SUPPORT
 	struct vfs_file_handle_t* file;
-	uint8_t count = 0;
-	uint8_t saved_count = 0; 
 	vfs_size_t filesize = sizeof(count);
 	vfs_size_t tempsize = 0;
-	vfs_size_t test = 0;
+#else
+	uint16_t filesize;
+	uint16_t tempsize;
+#endif
+	uint8_t count = 0;
+	uint8_t saved_count = 0; 
 
 	#ifdef DEBUG_CRON
 		debug_printf("cron: saving jobs\n");
 	#endif
 
+#ifdef CRON_VFS_SUPPORT
 	file = vfs_create(CRON_FILENAME);
 
 	if(file == NULL) {
@@ -130,20 +154,28 @@ cron_save()
 		#endif
 		return -1;
 	}
+#endif
 
 	// placeholder
+	filesize = sizeof(count);
 	struct cron_event_linkedlist* job = head;
 	while (job) {
 		if(job->event.persistent) {
 			count++;
+			filesize += sizeof(struct cron_event) + job->event.extrasize;
 		}
 		job = job->next;
 	}
 
+#ifdef CRON_VFS_SUPPORT
 	if (vfs_write(file, &count, sizeof(count)) != sizeof(count))
 		return cron_write_error(file);
-		
+#else
+	if (filesize >= CRON_EEPROM_SIZE) return -1;
+	eeprom_save_offset(crontab, 0, &count, sizeof(uint8_t));
+#endif
 
+	filesize = sizeof(count);
 	job = head;
 	while (job) {
 		if(job->event.persistent) {
@@ -152,13 +184,16 @@ cron_save()
 			#endif
 
 			tempsize = sizeof(struct cron_event)+job->event.extrasize;
-			test = sizeof(struct cron_event) + 0;
 			#ifdef DEBUG_CRON
-				debug_printf("cron: try to allocate size of %i consist of struct %i and extrasize %i!\n", tempsize, test , job->event.extrasize);
+				debug_printf("cron: try to allocate size of %i consist of struct %i and extrasize %i!\n", tempsize, sizeof(struct cron_event), job->event.extrasize);
 			#endif
 
+#ifdef CRON_VFS_SUPPORT
 			if (vfs_write(file, &job->event, tempsize ) != tempsize)
 				return cron_write_error(file);
+#else
+			eeprom_save_offset(crontab, filesize, &job->event, tempsize);
+#endif
 			filesize += tempsize;
 			saved_count++;
 		}
@@ -173,8 +208,10 @@ cron_save()
 		debug_printf("cron: all jobs written with total size of %i\n", filesize);
 	#endif
 
+#ifdef CRON_VFS_SUPPORT
 	vfs_truncate(file, filesize);
 	vfs_close(file);
+#endif
 	return saved_count;
 }
 
@@ -200,7 +237,6 @@ cron_make_persistent(uint8_t jobnumber)
 void
 cron_init(void)
 {
-
 	// very important: set the linked lists head and tail to zero
 	head = 0;
 	tail = 0;
@@ -219,20 +255,20 @@ cron_init(void)
 	cron_use_utc = USE_LOCAL;
 	#endif
 
-	#ifdef CRON_VFS_SUPPORT
+	#ifdef CRON_PERIST_SUPPORT
 	// load cron jobs form VFS
 	cron_load();
 	#endif
 }
 
 
-void
+int16_t
 cron_jobinsert_callback(
 int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 {
 	// emcd set?
-	if (!handler || (extrasize==0 && extradata)) return;
+	if (!handler || (extrasize==0 && extradata)) return -1;
 
 	// try to get ram space
 	struct cron_event_linkedlist* newone = malloc(sizeof(struct cron_event_linkedlist)+extrasize);
@@ -243,7 +279,7 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 		#ifdef DEBUG_CRON
 		debug_printf("cron: not enough ram!\n");
 		#endif
-		return;
+		return -1;
 	}
 
 	// create new entry
@@ -258,10 +294,10 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 	newone->event.extrasize = extrasize;
 	newone->event.handler = handler;
 	strncpy(&(newone->event.extradata), extradata, extrasize);
-	cron_insert(newone, position);
+	return cron_insert(newone, position);
 }
 
-void
+int16_t
 cron_jobinsert_ecmd(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
 	uint8_t repeat,	int8_t position, char* ecmd)
@@ -270,7 +306,7 @@ cron_jobinsert_ecmd(
 	struct cron_event_linkedlist* newone;
 	
 	ecmdsize = strlen(ecmd);
-	if (!ecmd || ecmdsize==0) return;
+	if (!ecmd || ecmdsize==0) return -1;
 	//if (ecmd[ecmdsize-1] != '\n') ecmdsize++;
 
 	// try to get ram space
@@ -282,7 +318,7 @@ cron_jobinsert_ecmd(
 		#ifdef DEBUG_CRON
 		debug_printf("cron: not enough ram!\n");
 		#endif
-		return;
+		return -1;
 	}
 
 	// create new entry
@@ -296,57 +332,59 @@ cron_jobinsert_ecmd(
 	newone->event.cmd = CRON_ECMD;
 	newone->event.extrasize = ecmdsize;
 	strncpy(&(newone->event.ecmddata), ecmd, ecmdsize+1);
-	cron_insert(newone, position);
+	return cron_insert(newone, position);
 }
 
-void
+uint8_t
 cron_insert(struct cron_event_linkedlist* newone, int8_t position)
 {
 	// add to linked list
 	if (!head)
 	{ // special case: empty list (ignore position)
-	newone->prev = 0;
-	newone->next = 0;
-	head = newone;
-	tail = newone;
-	#ifdef DEBUG_CRON
-	debug_printf("cron: insert head\n");
-	#endif
-	} else
+		newone->prev = 0;
+		newone->next = 0;
+		head = newone;
+		tail = newone;
+		#ifdef DEBUG_CRON
+		debug_printf("cron: insert head\n");
+		#endif
+		return 0;
+	}
+
+	if (position>0)
 	{
 		uint8_t ss = 0;
-		if (position>0)
-		{
-			struct cron_event_linkedlist* job = head;
+		struct cron_event_linkedlist* job = head;
 			
-			// jump to position
-			while (job)
-			{
-				if (ss++ == position) break;
-				job = job->next;
-			}
-			
-			newone->prev = job->prev;
-			job->prev = newone;
-			newone->next = job;
-			if (job==head) head = newone;
-			#ifdef DEBUG_CRON
-			if (newone->event.cmd == CRON_JUMP)
-			  debug_printf("cron: insert at %i jump \n", ss);
-			else
-			  debug_printf("cron: insert at %i ecmd %s\n", ss, newone->event.ecmddata);
-			#endif
-		} else // insert as last element
+		// jump to position
+		while (job)
 		{
-			newone->next = 0;
-			newone->prev = tail;
-			tail->next = newone;
-			tail = newone;
-			#ifdef DEBUG_CRON
-			debug_printf("cron: append\n");
-			#endif
+			if (ss++ == position) break;
+			job = job->next;
 		}
+			
+		newone->prev = job->prev;
+		job->prev = newone;
+		newone->next = job;
+		if (job==head) head = newone;
+		#ifdef DEBUG_CRON
+		if (newone->event.cmd == CRON_JUMP)
+		  debug_printf("cron: insert at %i jump \n", ss);
+		else
+		  debug_printf("cron: insert at %i ecmd %s\n", ss, newone->event.ecmddata);
+		#endif
+		return ss;
 	}
+
+	// insert as last element
+	newone->next = 0;
+	newone->prev = tail;
+	tail->next = newone;
+	tail = newone;
+	#ifdef DEBUG_CRON
+	debug_printf("cron: append\n");
+	#endif
+	return cron_jobs() - 1;
 }
 
 void
