@@ -222,14 +222,14 @@ typedef struct
 #ifdef ONEWIRE_POLLING_SUPPORT
   /* when this is set, we will wait convert_delay to be 0 and then read the
    * scratchpad */
-  unsigned converted:1;
+  unsigned converted :1;
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
-  unsigned present:1;
+  unsigned present :1;
 #endif
 #ifdef ONEWIRE_NAMING_SUPPORT
   /* sensor has a name assigned */
-  unsigned named:1;
+  unsigned named :1;
 #endif
 
   /* byte aligned fields */
@@ -431,6 +431,7 @@ ow_sensor_t *ow_find_sensor(ow_rom_code_t * rom);
 
 /* Polling functions */
 #ifdef ONEWIRE_POLLING_SUPPORT
+extern uint16_t ow_discover_delay;
 void ow_periodic(void);
 #endif
 

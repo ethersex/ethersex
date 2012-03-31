@@ -120,8 +120,21 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
            ow_eeprom(&ow_sensors[i].ow_rom_code)))
       {
 #endif
-        ret = snprintf_P(output, len,
-                         PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+#ifdef ONEWIRE_NAMING_SUPPORT
+        char *name = "";
+        if (ow_sensors[i].named)
+        {
+          name = ow_sensors[i].name;
+        }
+#endif
+        ret = snprintf_P(output, len, PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"
+#ifdef ONEWIRE_NAMING_SUPPORT
+                                           "\t%s"
+#endif
+#ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
+                                           "\t%d"
+#endif
+                         ),
                          ow_sensors[i].ow_rom_code.bytewise[0],
                          ow_sensors[i].ow_rom_code.bytewise[1],
                          ow_sensors[i].ow_rom_code.bytewise[2],
@@ -129,34 +142,14 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
                          ow_sensors[i].ow_rom_code.bytewise[4],
                          ow_sensors[i].ow_rom_code.bytewise[5],
                          ow_sensors[i].ow_rom_code.bytewise[6],
-                         ow_sensors[i].ow_rom_code.bytewise[7]);
-        len -= ret;
-        output += ret;
+                         ow_sensors[i].ow_rom_code.bytewise[7]
 #ifdef ONEWIRE_NAMING_SUPPORT
-        if (len > 0)
-        {
-          char *name = NULL;
-          if (ow_sensors[i].named)
-          {
-            name = ow_sensors[i].name;
-          }
-          int16_t plen =
-            snprintf_P(output, len, PSTR("\t%s"), (name == NULL) ? "" : name);
-          len -= plen;
-          output += plen;
-          ret += plen;
-        }
+                         , name
 #endif
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
-        if (len > 0 && ow_temp_sensor(&ow_sensors[i].ow_rom_code))
-        {
-          int16_t plen =
-            snprintf_P(output, len, PSTR("\t%d"), ow_sensors[i].temp);
-          len -= plen;
-          output += plen;
-          ret += plen;
-        }
+                         , ow_sensors[i].temp
 #endif
+          );
 #ifdef ONEWIRE_DS2502_SUPPORT
       }
 #endif
@@ -273,8 +266,19 @@ list_next:;
         );
 #endif
 #endif
-      ret = snprintf_P(output, len,
-                       PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+#ifdef ONEWIRE_NAMING_SUPPORT
+      char *name = "";
+      ow_sensor_t *sensor = ow_find_sensor(&ow_global.current_rom);
+      if (sensor != NULL && sensor->named)
+      {
+        name = sensor->name;
+      }
+#endif
+      ret = snprintf_P(output, len, PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"
+#ifdef ONEWIRE_NAMING_SUPPORT
+                                         "\t%s"
+#endif
+                       ),
                        ow_global.current_rom.bytewise[0],
                        ow_global.current_rom.bytewise[1],
                        ow_global.current_rom.bytewise[2],
@@ -282,25 +286,11 @@ list_next:;
                        ow_global.current_rom.bytewise[4],
                        ow_global.current_rom.bytewise[5],
                        ow_global.current_rom.bytewise[6],
-                       ow_global.current_rom.bytewise[7]);
-      len -= ret;
-      output += ret;
+                       ow_global.current_rom.bytewise[7]
 #ifdef ONEWIRE_NAMING_SUPPORT
-      if (len > 0)
-      {
-        char *name = NULL;
-        ow_sensor_t *sensor = ow_find_sensor(&ow_global.current_rom);
-        if (sensor != NULL && sensor->named)
-        {
-          name = sensor->name;
-        }
-        int16_t plen =
-          snprintf_P(output, len, PSTR("\t%s"), (name == NULL) ? "" : name);
-        len -= plen;
-        output += plen;
-        ret += plen;
-      }
+                       , name
 #endif
+        );
 
 #ifdef DEBUG_ECMD_OW_LIST
       debug_printf("generated %d bytes\n", ret);
@@ -613,6 +603,11 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
     }
   }
 
+#ifdef ONEWIRE_POLLING_SUPPORT
+  /* perform bus discovery */
+  ow_discover_delay = 1;
+#endif
+
   return ECMD_FINAL_OK;
 }
 
@@ -634,6 +629,11 @@ parse_cmd_onewire_name_clear(char *cmd, char *output, uint16_t len)
   }
 
   ow_sensors[pos].named = 0;
+
+#ifdef ONEWIRE_POLLING_SUPPORT
+  /* perform bus discovery */
+  ow_discover_delay = 1;
+#endif
 
   return ECMD_FINAL_OK;
 }
@@ -660,27 +660,28 @@ parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL_OK;
   }
 
-  ow_sensor_t *item = &ow_sensors[i];
   cmd[1] = i + 1;
 
-  if (item->named)
+  ow_rom_code_t rom;
+  rom.raw = 0;
+  char *name = "";
+  if (ow_sensors[i].named)
   {
-    ret = snprintf_P(output, len,
-                     PSTR("%d\t%02x%02x%02x%02x%02x%02x%02x%02x\t%s"),
-                     i,
-                     item->ow_rom_code.bytewise[0],
-                     item->ow_rom_code.bytewise[1],
-                     item->ow_rom_code.bytewise[2],
-                     item->ow_rom_code.bytewise[3],
-                     item->ow_rom_code.bytewise[4],
-                     item->ow_rom_code.bytewise[5],
-                     item->ow_rom_code.bytewise[6],
-                     item->ow_rom_code.bytewise[7], item->name);
+    rom.raw = ow_sensors[i].ow_rom_code.raw;
+    name = ow_sensors[i].name;
   }
-  else
-  {
-    ret = snprintf_P(output, len, PSTR("%d\t0000000000000000\t"), i);
-  }
+
+  ret = snprintf_P(output, len,
+                   PSTR("%d\t%02x%02x%02x%02x%02x%02x%02x%02x\t%s"),
+                   i,
+                   rom.bytewise[0],
+                   rom.bytewise[1],
+                   rom.bytewise[2],
+                   rom.bytewise[3],
+                   rom.bytewise[4],
+                   rom.bytewise[5],
+                   rom.bytewise[6],
+                   rom.bytewise[7], name);
 
   /* set return value that the parser has to be called again */
   if (ret > 0)

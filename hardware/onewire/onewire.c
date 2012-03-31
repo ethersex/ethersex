@@ -46,6 +46,11 @@
 /* global variables */
 ow_global_t ow_global;
 
+#ifdef ONEWIRE_POLLING_SUPPORT
+/* perform an initial bus discovery on startup */
+uint16_t ow_discover_delay = 3;
+#endif
+
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
 ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
 #endif
@@ -738,11 +743,9 @@ ow_discover_sensor(void)
 void
 ow_periodic(void)
 {
-  /* perform an initial bus discovery on startup */
-  static uint16_t discover_delay = 3;
-  if (--discover_delay == 0)
+  if (--ow_discover_delay == 0)
   {
-    discover_delay = OW_DISCOVER_DELAY;
+    ow_discover_delay = OW_DISCOVER_DELAY;
     ow_discover_sensor();
 #ifdef DEBUG_OW_POLLING
     for (uint8_t i = 0, k = 0; i < OW_SENSORS_COUNT; i++)
@@ -785,7 +788,7 @@ ow_periodic(void)
 #ifdef DEBUG_OW_POLLING
             debug_printf("scratchpad read failed: %d\n", ret);
 #endif /* DEBUG_OW_POLLING */
-            return;
+            continue;
           }
 #ifdef DEBUG_OW_POLLING
           debug_printf("scratchpad read succeeded\n");
