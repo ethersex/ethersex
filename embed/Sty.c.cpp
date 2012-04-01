@@ -70,7 +70,7 @@ a:visited, a:active{color: #ddd;}
 
 #ifdef TANKLEVEL_INLINE_SUPPORT
 .tank_wrap {
-        position: relative;
+	position: relative;
 }
 
 .tank_wrap, .tank_value, .tank_text {
