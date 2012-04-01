@@ -297,7 +297,7 @@ endif
 embed/%: embed/%.cpp
 	@if ! avr-cpp -xc -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
-	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
+	else $(SED) '/^$$/d; /^#[^#]/d; s/@@HASH@@/#/g' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
 	@$(RM) $@.tmp
 

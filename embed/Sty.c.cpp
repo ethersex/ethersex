@@ -1,4 +1,4 @@
-
+#include "autoconf.h"
 body {
 	background-color: #333;
 	color: #eee;
@@ -9,6 +9,7 @@ a{color: #ccc;}
 a:hover{color: #fff;}
 a:visited, a:active{color: #ddd;}
 
+#ifdef MOTORCURTAIN_INLINE_SUPPORT
 .small_button:hover {
 	background-color: #555;
 }
@@ -22,8 +23,9 @@ a:visited, a:active{color: #ddd;}
 	text-align: center;
 	display: block;
 }
+#endif
 
-#logconsole {
+@@HASH@@logconsole {
 	padding: 5px 5px 5px 5px;
 	margin-top: 10px;
 	width: 98%;
@@ -31,15 +33,16 @@ a:visited, a:active{color: #ddd;}
 	visibility: hidden;
 }
 
-#logconsole .lognotice {
+@@HASH@@logconsole .lognotice {
 	color: green;
 }
 
-#logconsole .logerror {
+@@HASH@@logconsole .logerror {
 	color: red;
 	font-weight: bold;
 }
 
+#if defined(VFS_IO_INLINE_SUPPORT) || defined (ADC_INLINE_SUPPORT) || defined(MSR1_INLINE_SUPPORT) || defined(TO1_INLINE_SUPPORT)
 .iotable {
 	text-align: center;
 	padding: 15px;
@@ -48,7 +51,9 @@ a:visited, a:active{color: #ddd;}
 
 .iotable td { border-bottom: 1px dashed #FF9999 }
 .iotable th { border-bottom: 2px dashed #9999FF; padding: 3px;}
+#endif
 
+#ifdef ADC_INLINE_SUPPORT
 .adc_graph {
 	width: 500px;
 }
@@ -61,7 +66,9 @@ a:visited, a:active{color: #ddd;}
 	border-left: 1px dashed #FF9999;
 	padding: 3px;
 }
+#endif
 
+#ifdef TANKLEVEL_INLINE_SUPPORT
 .tank_wrap {
         position: relative;
 }
@@ -88,7 +95,9 @@ a:visited, a:active{color: #ddd;}
 	text-align: center;
 	width: 100%;
 }
+#endif
 
+#if defined(ONEWIRE_INLINE_SUPPORT) || defined(KTY_INLINE_SUPPORT)
 svg {
 	stroke: #999;
 }
@@ -104,3 +113,4 @@ svg #axis {
 svg #text {
 	font-size: 10pt;
 }
+#endif
