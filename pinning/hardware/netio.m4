@@ -94,8 +94,8 @@ ifdef(`conf_DCF77', `dnl
 ')dnl
 
 ifdef(`conf_TANKLEVEL', `
-  pin(TANKLEVEL_PUMP, PC3)
+  pin(TANKLEVEL_PUMP, PC3, OUTPUT)
 ')
 ifdef(`conf_TANKLEVEL_LOCK', `
-  pin(TANKLEVEL_LOCK, PA2)
+  pin(TANKLEVEL_LOCK, PA2, INPUT)
 ')

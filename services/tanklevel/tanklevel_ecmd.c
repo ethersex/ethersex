@@ -184,8 +184,8 @@ parse_cmd_tanklevel_get(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   ecmd_feature(tanklevel_show_params, "tank param show", , show tanklevel parameters)
-  ecmd_feature(tanklevel_set_param, "tank param set", , set tank parameter)
-  ecmd_feature(tanklevel_save_param, "tank param save", , set tank parameter)
+  ecmd_feature(tanklevel_set_param, "tank param set", PARAM VALUE, set tank parameter)
+  ecmd_feature(tanklevel_save_param, "tank param save", , write tank parameter to EEPROM)
   ecmd_feature(tanklevel_zero_sensor, "tank zero", , probe sensor zero offset)
   ecmd_feature(tanklevel_start, "tank start", , start measure)
   ecmd_feature(tanklevel_get, "tank get", , get last value)

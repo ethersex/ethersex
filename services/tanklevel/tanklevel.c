@@ -56,7 +56,6 @@ void
 tanklevel_init(void)
 {
   /* init pins */
-  DDR_CONFIG_OUT(TANKLEVEL_PUMP);
   TANKLEVEL_PUMP_OFF;
 
   /* restore parameters */

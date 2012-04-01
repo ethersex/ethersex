@@ -1,15 +1,13 @@
 dep_bool_menu "Tank level meter" TANKLEVEL_SUPPORT $CLOCK_SUPPORT $ADC_VOLTAGE_SUPPORT
 	int "ADC channel" TANKLEVEL_ADC_CHANNEL 0
 	dep_bool "Measure on system startup" TANKLEVEL_STARTUP $TANKLEVEL_SUPPORT
-	if  [ "$CRON_STATIC_SUPPORT" = "y" ] ; then
-		dep_bool "Measure at 12 am and 12 pm" TANKLEVEL_CRON_SUPPORT $CRON_STATIC_SUPPORT $TANKLEVEL_SUPPORT
-	fi
+	dep_bool "Measure at 12 am and 12 pm" TANKLEVEL_CRON_SUPPORT $CRON_STATIC_SUPPORT $TANKLEVEL_SUPPORT
 	dep_bool "Inverted pump output" TANKLEVEL_PUMP_INVERT $TANKLEVEL_SUPPORT
 	dep_bool "Check lock input" TANKLEVEL_LOCK_SUPPORT $TANKLEVEL_SUPPORT
 	if  [ "$TANKLEVEL_LOCK_SUPPORT" = "y" ] ; then
 		dep_bool "Inverted lock input" TANKLEVEL_LOCK_INVERT $TANKLEVEL_LOCK_SUPPORT
 	fi
-	dep_bool "Inline tank level" TANKLEVEL_INLINE_SUPPORT $TANKLEVEL_SUPPORT
+	dep_bool "Inline tank level" TANKLEVEL_INLINE_SUPPORT $TANKLEVEL_SUPPORT $VFS_INLINE_SUPPORT
 endmenu
 
 
