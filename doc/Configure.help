@@ -2837,7 +2837,7 @@ TANKLEVEL_SUPPORT
    * Clock Support (CLOCK_SUPPORT)
    * ADC voltage suppot (ADC_VOLTAGE_SUPPORT)
 
-  This provides an application for measurement of tank levels by isostatic pressure.
+  This provides an application for measurement of tank levels by hydrostatic pressure.
   You need an aquarium air pump, some kind of pipe/tube, a Freescale MPX5050DP
   pressure sensor and an relay for the pump. Parameters are configurable by ECMD
   and stored in EEPROM.
