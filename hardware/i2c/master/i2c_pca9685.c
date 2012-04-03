@@ -60,7 +60,7 @@ i2c_pca9685_set_mode(uint8_t address, uint8_t outdrv, uint8_t ivrt,
                      uint8_t prescaler)
 {
 #ifdef PCA9685_OUTPUT_ENABLE
-  PCA9685_OE_DDR |= (1 << PCA9685_OE_PIN);
+  DDR_CONFIG_OUT(PCA9685_OE);
 #endif
   uint8_t ret = 1, value = 0;
   if (!i2c_pca9685_reset())
@@ -266,11 +266,11 @@ void
 i2c_pca9685_output_enable(enum i2c_pca9685_output_enable_state choice)
 {
   if (choice == ON)             /* PIN goes low */
-    PCA9685_OE_PORT &= ~(1 << PCA9685_OE_PIN);
+    PIN_CLEAR(PCA9685_OE);
   else if (choice == OFF)       /* PIN goes high */
-    PCA9685_OE_PORT |= (1 << PCA9685_OE_PIN);
+    PIN_SET(PCA9685_OE);
   else if (choice == TOGGLE)    /* Toggle PIN */
-    PCA9685_OE_PORT ^= (1 << PCA9685_OE_PIN);
+    PIN_TOGGLE(PCA9685_OE);
 }
 #endif
 #endif
