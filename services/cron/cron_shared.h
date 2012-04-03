@@ -37,7 +37,7 @@ typedef struct
 {
   union
   {
-    int8_t fields[5];
+    int8_t fields[4];
     /** meaning of the signed values in the following structure:
       *   x in 0..59:    absolute value (minute)
       *   x in 0..23:    absolute value (hour)
@@ -53,9 +53,9 @@ typedef struct
       int8_t hour;
       int8_t day;
       int8_t month;
-      int8_t daysofweek;
     };
   };
+  int8_t daysofweek;
 } cron_conditions_t;
 
 extern uint8_t cron_check_event(cron_conditions_t * cond,
