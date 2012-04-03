@@ -214,24 +214,6 @@ cron_save()
 #endif
 	return saved_count;
 }
-
-uint8_t
-cron_make_persistent(uint8_t jobnumber)
-{
-	struct cron_event_linkedlist* job;
-
-	job = cron_getjob(jobnumber);
-	if(job == NULL)
-	{
-		#ifdef DEBUG_CRON
-			debug_printf("cron: job not found\n");
-		#endif
-		return 0;
-	}
-
-	job->event.persistent = 1;
-	return 1;
-}
 #endif
 
 void
@@ -305,9 +287,8 @@ cron_jobinsert_ecmd(
 	uint8_t ecmdsize;
 	struct cron_event_linkedlist* newone;
 	
+	if (!ecmd || ecmd[0]==0) return -1;
 	ecmdsize = strlen(ecmd);
-	if (!ecmd || ecmdsize==0) return -1;
-	//if (ecmd[ecmdsize-1] != '\n') ecmdsize++;
 
 	// try to get ram space
 	newone = malloc(sizeof(struct cron_event_linkedlist)+ecmdsize);
@@ -472,7 +453,7 @@ cron_periodic(void)
 		++counter;
 
 		/* check if cron 'exec' matches current time */
-		for (condition = 0; condition < 5; ++condition)
+		for (condition = 0; condition <= 4; ++condition)
 		{
 			/* if this field has a wildcard, just go on checking */
 			if (exec->event.fields[condition] == -1)
@@ -488,6 +469,7 @@ cron_periodic(void)
 			if (exec->event.fields[condition] < 0 && (d.cron_fields[condition] % -(exec->event.fields[condition])) )
 				break;
 		}
+
 		/* check if cron 'exec' matches weekdays */
 		if(condition==4){
 			if(exec->event.fields[condition] & (1 << d.cron_fields[condition]) )

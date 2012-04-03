@@ -35,7 +35,7 @@
 /** Enumeration of Weekdays */
 typedef enum  {
 	SUN =   1,
-    MON =   2,
+	MON =   2,
 	TUE =   4,
 	WED =   8,
 	THU =  16,
@@ -62,13 +62,18 @@ struct cron_event {
 			int8_t hour;
 			int8_t day;
 			int8_t month;
-			days_of_week_t dayofweek : 7;
-			int8_t persistent : 1;
+			days_of_week_t dayofweek;
 		};
 	};
 	uint8_t repeat;
 	/** Either CRON_JUMP or CRON_ECMD */
-	uint8_t cmd;
+	unsigned cmd : 4;
+#ifdef CRON_PERIST_SUPPORT
+	unsigned persistent : 1;
+#endif
+#ifdef CRON_ANACRON_SUPPORT
+	unsigned anacron : 1;
+#endif
 	union {
 		/** for CRON_JUMP
 		* All additional bytes are extra user data for applications. E.g.
@@ -106,8 +111,8 @@ extern uint8_t cron_use_utc;
 #define INFINIT_RUNNING 0
 #define CRON_APPEND -1
 
-#define CRON_JUMP 10
-#define CRON_ECMD 20
+#define CRON_JUMP 1
+#define CRON_ECMD 2
 
 
 /** Insert cron job (that invokes a callback function) to the linked list.
@@ -141,11 +146,6 @@ int16_t cron_jobinsert_ecmd(
 #ifdef CRON_PERIST_SUPPORT
 /** Saves all as persistent marked Jobs to vfs */
 int16_t cron_save();
-
-/** Mark a Jobs as persistent
-* @jobnumber: number of job to mark
-*/
-uint8_t cron_make_persistent(uint8_t jobnumber);
 #endif
 
 /** Insert cron job to the linked list.
