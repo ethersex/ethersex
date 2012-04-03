@@ -29,8 +29,8 @@
 #include "test.h"
 #include "core/debug.h"
 #include "core/eeprom.h"
+#include "protocols/ecmd/ecmd-base.h"
 #include "protocols/ecmd/parser.h"
-#include "protocols/ecmd/via_tcp/ecmd_state.h"
 #include "services/clock/clock.h"
 
 #ifdef CRON_VFS_SUPPORT
@@ -42,7 +42,6 @@
 uint32_t last_check;
 struct cron_event_linkedlist* head;
 struct cron_event_linkedlist* tail;
-uint8_t cron_use_utc;
 
 #ifdef CRON_PERIST_SUPPORT
 void
@@ -211,6 +210,8 @@ cron_save()
 #ifdef CRON_VFS_SUPPORT
 	vfs_truncate(file, filesize);
 	vfs_close(file);
+#else
+	eeprom_update_chksum();
 #endif
 	return saved_count;
 }
@@ -231,11 +232,7 @@ cron_init(void)
 	addcrontest();
 	#endif
 
-	#ifdef CRON_DEFAULT_UTC
-	cron_use_utc = USE_UTC;
-	#else
-	cron_use_utc = USE_LOCAL;
-	#endif
+	last_check = 0;
 
 	#ifdef CRON_PERIST_SUPPORT
 	// load cron jobs form VFS
@@ -270,6 +267,11 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 	newone->event.cond.day = day;
 	newone->event.cond.month = month;
 	newone->event.cond.daysofweek = daysofweek;
+#ifdef CRON_DEFAULT_UTC
+	newone->event.use_utc = 1;
+#else
+	newone->event.use_utc = 0;
+#endif
 	newone->event.repeat = repeat;
 	newone->event.persistent = 0;
 	newone->event.cmd = CRON_JUMP;
@@ -308,6 +310,11 @@ cron_jobinsert_ecmd(
 	newone->event.cond.day = day;
 	newone->event.cond.month = month;
 	newone->event.cond.daysofweek = daysofweek;
+#ifdef CRON_DEFAULT_UTC
+	newone->event.use_utc = 1;
+#else
+	newone->event.use_utc = 0;
+#endif
 	newone->event.repeat = repeat;
 	newone->event.persistent = 0;
 	newone->event.cmd = CRON_ECMD;
@@ -426,74 +433,154 @@ cron_getjob(uint8_t jobposition)
 }
 
 void
+cron_execute(struct cron_event_linkedlist* exec)
+{
+	if (exec->event.cmd == CRON_JUMP)
+	{
+		#ifdef DEBUG_CRON
+		debug_printf("cron: match (JUMP %p)\n", &(exec->event.handler));
+		#endif
+		#ifndef DEBUG_CRON_DRYRUN
+		exec->event.handler(&(exec->event.extradata));
+		#endif
+	} else if (exec->event.cmd == CRON_ECMD)
+	{
+		// ECMD PARSER
+		#ifdef DEBUG_CRON
+		debug_printf("cron: match (%s)\n", (char*)&(exec->event.ecmddata));
+		#endif
+		#ifndef DEBUG_CRON_DRYRUN
+		char output[ECMD_INPUTBUF_LENGTH];
+		#ifdef DEBUG_CRON
+		int16_t l =
+		#endif
+		ecmd_parse_command((char*)&(exec->event.ecmddata), output, sizeof(output)-1);
+		#ifdef DEBUG_CRON
+		if (is_ECMD_AGAIN(l)) l = ECMD_AGAIN(l);
+		if (is_ECMD_FINAL(l)) {
+			output[l] = 0;
+			debug_printf("cron output %s\n", output);
+		} else {
+			debug_printf("cron output error %d\n", l);
+		}
+		#endif
+		#endif
+	}
+
+	/* Execute job endless if repeat value is equal to zero otherwise
+	 * decrement the value and check if is equal to zero.
+	 * If that is the case, it is time to kick out this cronjob. */
+	if (exec->event.repeat > 0 && !(--exec->event.repeat))
+		cron_jobrm(exec);
+}
+
+#ifdef CRON_ANACRON_SUPPORT
+uint8_t cron_anacron(uint32_t starttime, uint32_t endtime) {
+	clock_datetime_t d, ld;
+	struct cron_event_linkedlist* curr;
+
+	/* count anacron jobs and set pending */
+	uint8_t count = 0;
+	for (curr = head; curr != 0; curr=curr->next)
+	{
+		if ((curr->event.anacron_pending = curr->event.anacron))
+			count++;
+	}
+	#ifdef DEBUG_CRON
+		debug_printf("cron: %i anacron jobs found\n", count);
+	#endif
+	if (count == 0) return 0;
+
+	/* alloc space for anacron list */
+	struct cron_event_linkedlist** tab = __builtin_alloca(count * sizeof(struct cron_event_linkedlist*));
+	if (!tab) {
+		#ifdef DEBUG_CRON
+		  debug_printf("cron: not enough ram!\n");
+		#endif
+		return 0;
+	}
+
+	/* limit range */
+	if ((endtime - starttime) > CRON_ANACRON_MAXAGE)
+		starttime = endtime - CRON_ANACRON_MAXAGE;
+
+	/* prepare anacron tab (reverse time order!!) */
+	uint8_t pos = 0;
+	uint32_t timestamp;
+	for (timestamp = endtime; timestamp > starttime && pos < count; timestamp -= 60)
+	{
+		clock_datetime(&d, timestamp);
+		clock_localtime(&ld, timestamp);
+		
+		for (curr = head; curr != 0; curr=curr->next)
+		{
+			if (curr->event.anacron_pending && cron_check_event(&curr->event.cond, curr->event.use_utc, &d, &ld))
+			{
+				curr->event.anacron_pending = 0;
+				tab[pos++] = curr;
+			}
+		}
+	}
+	#ifdef DEBUG_CRON
+		debug_printf("cron: %i pending anacron jobs\n", pos);
+	#endif
+
+	/* process jobs */
+	while(pos) cron_execute(tab[--pos]);
+
+	return 1;
+}
+#endif
+
+void
 cron_periodic(void)
 {
-	clock_datetime_t d;
+	clock_datetime_t d, ld;
 	uint32_t timestamp = clock_get_time();
+
+	/* fix last_check */
+	if (timestamp < last_check)
+	{
+		clock_datetime(&d, timestamp);
+		last_check = timestamp - d.sec;
+		return;
+	}
 
 	/* Check tasks at most once in a minute and only if at least one exists */
 	if (!head || (timestamp - last_check) < 60) return;
 
 	/* get time and date from unix timestamp */
-	if (cron_use_utc)
-		clock_datetime(&d, timestamp);
-	else
-		clock_localtime(&d, timestamp);
+	clock_datetime(&d, timestamp);
+	clock_localtime(&ld, timestamp);
+
+	/* truncate secs */
+	timestamp -= d.sec;
+
+#ifdef CRON_ANACRON_SUPPORT
+	uint8_t skip_anacron = 0;
+	if ((timestamp - last_check) > 60)
+		skip_anacron = cron_anacron(last_check, timestamp);
+#endif
 	
 	/* check every event for a match */
 	struct cron_event_linkedlist* current = head;
 	struct cron_event_linkedlist* exec;
-	uint8_t counter = 0;
 	while(current)
 	{
 		/* backup current cronjob and advance current */
 		exec = current;
 		current = current->next;
-		++counter;
 
+#ifdef CRON_ANACRON_SUPPORT
+		if (skip_anacron && exec->event.anacron) continue;
+#endif
 		/* if it matches all conditions , execute the handler function */
-		if (cron_check_event(&exec->event.cond, &d)) {
-			if (exec->event.cmd == CRON_JUMP)
-			{
-				#ifdef DEBUG_CRON
-				debug_printf("cron: match %u (JUMP %p)\n", counter, &(exec->event.handler));
-				#endif
-				#ifndef DEBUG_CRON_DRYRUN
-				exec->event.handler(&(exec->event.extradata));
-				#endif
-			} else if (exec->event.cmd == CRON_ECMD)
-			{
-				// ECMD PARSER
-				#ifdef DEBUG_CRON
-				debug_printf("cron: match %u (%s)\n", counter, (char*)&(exec->event.ecmddata));
-				#endif
-				#ifndef DEBUG_CRON_DRYRUN
-				char output[ECMD_INPUTBUF_LENGTH];
-				#ifdef DEBUG_CRON
-				uint16_t l =
-				#endif
-				ecmd_parse_command((char*)&(exec->event.ecmddata), output, sizeof(output)-1);
-				#ifdef DEBUG_CRON
-				if (is_ECMD_FINAL(l) || is_ECMD_AGAIN(l)) {
-					output[is_ECMD_AGAIN(l) ? ECMD_AGAIN(l) : l] = 0;
-					debug_printf("cron output %s\n", output);
-				}
-				#endif
-				#endif
-			}
-
-			/* Execute job endless if repeat value is equal to zero otherwise
-			 * decrement the value and check if is equal to zero.
-			 * If that is the case, it is time to kick out this cronjob. */
-			if (exec->event.repeat > 0 && !(--exec->event.repeat))
-				cron_jobrm(exec);
-
-			exec = 0;
-		}
+		if (cron_check_event(&exec->event.cond, exec->event.use_utc, &d, &ld))
+			cron_execute(exec);
 	}
 
 	/* save the actual timestamp */
-	last_check = timestamp - d.sec;
+	last_check = timestamp;
 }
 
 /*

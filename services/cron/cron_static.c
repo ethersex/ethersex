@@ -88,6 +88,13 @@ cron_static_periodic(void)
     clock_datetime_t d, ld;
     uint32_t timestamp = clock_get_time();
 
+    /* fix last_check */
+    if (timestamp < last_check) {
+        clock_datetime(&d, timestamp);
+        last_check = timestamp - d.sec;
+        return;
+    }
+
     /* Only check the tasks every minute */
     if ((timestamp - last_check) < 60) return;
 
@@ -103,17 +110,10 @@ cron_static_periodic(void)
         /* end of task list reached */
         if (event.handler == NULL) break;
 
-        uint8_t r;
-        if (event.use_utc)
-          r = cron_check_event(&event.cond, &d);
-        else
-          r = cron_check_event(&event.cond, &ld);
-
         /* if it matches, execute the handler function */
-        if (r > 0) {
+        if (cron_check_event(&event.cond, event.use_utc, &d, &ld)) {
             event.handler();
         }
-
     }
 
     /* save the actual timestamp */

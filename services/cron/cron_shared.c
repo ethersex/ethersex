@@ -2,6 +2,7 @@
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -23,8 +24,11 @@
 #include "cron_shared.h"
 
 uint8_t
-cron_check_event(cron_conditions_t * cond, clock_datetime_t * d)
+cron_check_event(cron_conditions_t * cond, uint8_t use_utc,
+                 clock_datetime_t * d, clock_datetime_t * ld)
 {
+  clock_datetime_t * cd = (use_utc) ? d : ld;
+
   /* check time */
   for (uint8_t f = 0; f <= 3; f++)
   {
@@ -35,7 +39,7 @@ cron_check_event(cron_conditions_t * cond, clock_datetime_t * d)
 
     /* IF This field has an absolute value, check this value, if it does
      * not match, this event does not match */
-    if (cond->fields[f] >= 0 && cond->fields[f] != d->cron_fields[f])
+    if (cond->fields[f] >= 0 && cond->fields[f] != cd->cron_fields[f])
       return 0;
 
     /* if this field has a step value, extract value and check */
@@ -52,7 +56,7 @@ cron_check_event(cron_conditions_t * cond, clock_datetime_t * d)
   }
 
   /* check weekdays */
-  if ((cond->daysofweek & _BV(d->dow)) == 0)
+  if ((cond->daysofweek & _BV(cd->dow)) == 0)
     return 0;
 
   /* if all fields match, this event matches */

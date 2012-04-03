@@ -41,11 +41,13 @@ struct cron_event {
 	uint8_t repeat;
 	/** Either CRON_JUMP or CRON_ECMD */
 	unsigned cmd : 4;
+	unsigned use_utc : 1;
 #ifdef CRON_PERIST_SUPPORT
 	unsigned persistent : 1;
 #endif
 #ifdef CRON_ANACRON_SUPPORT
 	unsigned anacron : 1;
+	unsigned anacron_pending : 1;
 #endif
 	union {
 		/** for CRON_JUMP
@@ -77,10 +79,7 @@ struct cron_event_linkedlist
 
 extern struct cron_event_linkedlist* head;
 extern struct cron_event_linkedlist* tail;
-extern uint8_t cron_use_utc;
 
-#define USE_UTC 1
-#define USE_LOCAL 0
 #define INFINIT_RUNNING 0
 #define CRON_APPEND -1
 
@@ -138,6 +137,11 @@ struct cron_event_linkedlist* cron_getjob(uint8_t jobposition);
 
 /** init cron. (Set head to NULL for example) */
 void cron_init(void);
+
+/** execute cron job
+* @exec: Item to execute
+*/
+void cron_execute(struct cron_event_linkedlist* exec);
 
 /** periodically check, if an event matches the current time. must be called
   * once per minute */

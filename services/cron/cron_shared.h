@@ -1,6 +1,7 @@
 /*
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -43,8 +44,6 @@ typedef struct
       *   x in 0..23:    absolute value (hour)
       *   x in 0..30:    absolute value (day)
       *   x in 0..12:    absolute value (month)
-      *   x in SUN..SAT: absolute value (dow) // day of the week
-      *   				 persistent 1 = save, 0 = don't save
       *   x is    -1:    wildcard
       *   x in -59..-2:  Example -2 for hour: when hour % 2 == 0 <=> every 2 hours */
     struct
@@ -55,10 +54,11 @@ typedef struct
       int8_t month;
     };
   };
+  /**   x in SUN..SAT: absolute value (dow) // day of the week */
   int8_t daysofweek;
 } cron_conditions_t;
 
-extern uint8_t cron_check_event(cron_conditions_t * cond,
-                                clock_datetime_t * d);
+extern uint8_t cron_check_event(cron_conditions_t * cond, uint8_t use_utc,
+                                clock_datetime_t * d, clock_datetime_t * ld);
 
 #endif /* _CRON_SHARED_H */

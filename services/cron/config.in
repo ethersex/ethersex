@@ -10,6 +10,10 @@ dep_bool_menu "Cron daemon (Dynamic)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIM
 	if  [ "$CRON_EEPROM_SUPPORT" = "y" ] ; then
 		int "Cron EEPROM size" CRON_EEPROM_SIZE 256
 	fi
+	dep_bool 'Anacon Support' CRON_ANACRON_SUPPORT $CRON_SUPPORT
+	if [ "$CRON_ANACRON_SUPPORT" = y ];  then
+		int "Anacron max age in secs"  CRON_ANACRON_MAXAGE 86400
+	fi
 	comment  "Debugging Flags"
 	dep_bool 'Dry run - Do not execute anything' DEBUG_CRON_DRYRUN
 	dep_bool 'Cron' DEBUG_CRON $DEBUG
