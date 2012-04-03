@@ -26,45 +26,18 @@
 
 #include <stdint.h>
 
+#include "services/cron/cron_shared.h"
+
 #include "config.h"
 
 #if defined(CRON_VFS_SUPPORT) || defined(CRON_EEPROM_SUPPORT)
 #define CRON_PERIST_SUPPORT 1
 #endif
 
-/** Enumeration of Weekdays */
-typedef enum  {
-	SUN =   1,
-	MON =   2,
-	TUE =   4,
-	WED =   8,
-	THU =  16,
-	FRI =  32,
-	SAT =  64
-} days_of_week_t;
-
 /** This structure represents a cron job */
 struct cron_event {
 	uint8_t extrasize;
-	union{
-		int8_t fields[5];
-		/** meaning of the signed values in the following structure:
-		  *   x in 0..59:    absolute value (minute)
-		  *   x in 0..23:    absolute value (hour)
-		  *   x in 0..30:    absolute value (day)
-		  *   x in 0..12:    absolute value (month)
-		  *   x in SUN..SAT: absolute value (dow) // day of the week
-		  *   				 persistent 1 = save, 0 = don't save
-		  *   x is    -1:    wildcard
-		  *   x in -59..-2:  Example -2 for hour: when hour % 2 == 0 <=> every 2 hours */
-		struct {
-			int8_t minute;
-			int8_t hour;
-			int8_t day;
-			int8_t month;
-			days_of_week_t dayofweek;
-		};
-	};
+	cron_conditions_t cond;
 	uint8_t repeat;
 	/** Either CRON_JUMP or CRON_ECMD */
 	unsigned cmd : 4;
@@ -126,7 +99,7 @@ extern uint8_t cron_use_utc;
   */
 
 int16_t cron_jobinsert_callback(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
 	uint8_t repeat,	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
 
@@ -139,7 +112,7 @@ int16_t cron_jobinsert_callback(
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
 */
 int16_t cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
 	uint8_t repeat, int8_t position, char* ecmd
 );
 

@@ -14,4 +14,11 @@ dep_bool_menu "Cron daemon (Dynamic)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIM
 	dep_bool 'Dry run - Do not execute anything' DEBUG_CRON_DRYRUN
 	dep_bool 'Cron' DEBUG_CRON $DEBUG
 endmenu
+if [ "$CRON_SUPPORT" = y ];  then
+  define_bool CRON_SHARED_SUPPORT y
+fi
 dep_bool "Cron daemon (Static)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
+if [ "$CRON_STATIC_SUPPORT" = y ];  then
+  define_bool CRON_SHARED_SUPPORT y
+fi
+

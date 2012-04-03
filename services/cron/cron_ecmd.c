@@ -95,15 +95,15 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	{
 		case CRON_JUMP:
 			ret = snprintf_P(output, len, PSTR("%i %i %i %i %i %p"),
-				job->hour, job->minute, job->day, job->month, job->dayofweek, job->handler);
+				job->cond.hour, job->cond.minute, job->cond.day, job->cond.month, job->cond.daysofweek, job->handler);
 			break;
 		case CRON_ECMD:
 			ret = snprintf_P(output, len, PSTR("%i %i %i %i %i %s"),
-				job->minute, job->hour, job->day, job->month, job->dayofweek, &(job->ecmddata));
+				job->cond.hour, job->cond.minute, job->cond.day, job->cond.month, job->cond.daysofweek, &(job->ecmddata));
 			break;
 		default:
 			ret = snprintf_P(output, len, PSTR("%i %i %i %i %i"),
-				job->minute, job->hour, job->day, job->month, job->dayofweek);
+				job->cond.hour, job->cond.minute, job->cond.day, job->cond.month, job->cond.daysofweek);
 	}
 
 	state->jobposition++;

@@ -31,12 +31,6 @@
 
 uint32_t last_check;
 
-/** check if this event matches the current time */
-uint8_t cron_check_event(struct cron_static_event_t *event,
-                         clock_datetime_t *d);
-
-void leds(void);
-
 #ifdef  MCUF_CLOCK_SUPPORT
 void
 mcuf_clock(void)
@@ -72,19 +66,19 @@ mcuf_modul(void)
 const struct cron_static_event_t events[] PROGMEM =
 {
 #ifdef MCUF_CLOCK_SUPPORT
-  { { {-1, -1, -1, -1, -1} }, mcuf_clock, USE_LOCAL}, /* every minute  */
+  { { { {-1, -1, -1, -1, -1} } }, mcuf_clock, USE_LOCAL}, /* every minute  */
 #endif /* MCUF_CLOCK_SUPPORT */
 
 #ifdef MCUF_MODUL_CRON_SUPPORT
-  { { {-1, -1, -1, -1, -1} }, mcuf_modul, USE_LOCAL}, /* every minute  */
+  { { { {-1, -1, -1, -1, -1} } }, mcuf_modul, USE_LOCAL}, /* every minute  */
 #endif // MCUF_MODUL_CRON_SUPPORT
 
 #ifdef NETSTAT_SUPPORT
-  { { {-5, -1, -1, -1, -1} }, (cron_static_handler_t)netstat_send, USE_LOCAL}, /* every 5 minutes  */
+  { { { {-5, -1, -1, -1, -1} } }, (cron_static_handler_t)netstat_send, USE_LOCAL}, /* every 5 minutes  */
 #endif // NETSTAT_SUPPORT
 
   /* This is only the end of table marker */
-  { { {-1, -1, -1, -1, -1} }, NULL, 0},
+  { { { {-1, -1, -1, -1, -1} } }, NULL, 0},
 };
 
 void
@@ -111,9 +105,9 @@ cron_static_periodic(void)
 
         uint8_t r;
         if (event.use_utc)
-          r = cron_check_event(&event, &d);
+          r = cron_check_event(&event.cond, &d);
         else
-          r = cron_check_event(&event, &ld);
+          r = cron_check_event(&event.cond, &ld);
 
         /* if it matches, execute the handler function */
         if (r > 0) {
@@ -124,38 +118,6 @@ cron_static_periodic(void)
 
     /* save the actual timestamp */
     last_check = timestamp - d.sec;
-}
-
-uint8_t
-cron_check_event(struct cron_static_event_t *event, clock_datetime_t *d)
-{
-
-    for (uint8_t f = 0; f < 5; f++) {
-
-        /* if this field has a wildcard, just go on checking */
-        if (event->fields[f] == -1)
-            continue;
-
-        /* IF THis field has an absolute value, check this value, if it does
-         * not match, this event does not match */
-        if (event->fields[f] >= 0 && event->fields[f] != d->cron_fields[f])
-            return 0;
-
-        /* if this field has a step value, extract value and check */
-        if (event->fields[f] < 0) {
-            uint8_t step = -(event->fields[f]);
-
-            /* if this is not within the steps, this event does not match */
-            if ((d->cron_fields[f] % step) != 0)
-                return 0;
-
-        }
-
-    }
-
-    /* if all fields match, this event matches */
-    return 1;
-
 }
 
 /*

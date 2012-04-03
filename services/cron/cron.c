@@ -246,7 +246,7 @@ cron_init(void)
 
 int16_t
 cron_jobinsert_callback(
-int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
 uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata)
 {
 	// emcd set?
@@ -265,11 +265,11 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 	}
 
 	// create new entry
-	newone->event.minute = minute;
-	newone->event.hour = hour;
-	newone->event.day = day;
-	newone->event.month = month;
-	newone->event.dayofweek = dayofweek;
+	newone->event.cond.minute = minute;
+	newone->event.cond.hour = hour;
+	newone->event.cond.day = day;
+	newone->event.cond.month = month;
+	newone->event.cond.daysofweek = daysofweek;
 	newone->event.repeat = repeat;
 	newone->event.persistent = 0;
 	newone->event.cmd = CRON_JUMP;
@@ -281,7 +281,7 @@ uint8_t repeat, int8_t position, void (*handler)(void*), uint8_t extrasize, void
 
 int16_t
 cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, days_of_week_t dayofweek,
+	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
 	uint8_t repeat,	int8_t position, char* ecmd)
 {
 	uint8_t ecmdsize;
@@ -303,11 +303,11 @@ cron_jobinsert_ecmd(
 	}
 
 	// create new entry
-	newone->event.minute = minute;
-	newone->event.hour = hour;
-	newone->event.day = day;
-	newone->event.month = month;
-	newone->event.dayofweek = dayofweek;
+	newone->event.cond.minute = minute;
+	newone->event.cond.hour = hour;
+	newone->event.cond.day = day;
+	newone->event.cond.month = month;
+	newone->event.cond.daysofweek = daysofweek;
 	newone->event.repeat = repeat;
 	newone->event.persistent = 0;
 	newone->event.cmd = CRON_ECMD;
@@ -443,7 +443,6 @@ cron_periodic(void)
 	/* check every event for a match */
 	struct cron_event_linkedlist* current = head;
 	struct cron_event_linkedlist* exec;
-	uint8_t condition;
 	uint8_t counter = 0;
 	while(current)
 	{
@@ -452,37 +451,8 @@ cron_periodic(void)
 		current = current->next;
 		++counter;
 
-		/* check if cron 'exec' matches current time */
-		for (condition = 0; condition <= 4; ++condition)
-		{
-			/* if this field has a wildcard, just go on checking */
-			if (exec->event.fields[condition] == -1)
-				continue;
-
-			/* If this field has an absolute value, check this value, if it does
-			 * not match, this event does not match */
-			if (exec->event.fields[condition] >= 0 && (exec->event.fields[condition] != d.cron_fields[condition]))
-				break;
-
-			/* If this field has a step value and that is within the steps,
-			 * this event does not match */
-			if (exec->event.fields[condition] < 0 && (d.cron_fields[condition] % -(exec->event.fields[condition])) )
-				break;
-		}
-
-		/* check if cron 'exec' matches weekdays */
-		if(condition==4){
-			if(exec->event.fields[condition] & (1 << d.cron_fields[condition]) )
-				condition++;
-		}
-
-
-		#ifdef DEBUG_CRON
-		//debug_printf("..checked %u (%u) with %u\n", counter, exec->event.cmd, condition);
-		#endif
-
 		/* if it matches all conditions , execute the handler function */
-		if (condition==5) {
+		if (cron_check_event(&exec->event.cond, &d)) {
 			if (exec->event.cmd == CRON_JUMP)
 			{
 				#ifdef DEBUG_CRON
@@ -499,7 +469,10 @@ cron_periodic(void)
 				#endif
 				#ifndef DEBUG_CRON_DRYRUN
 				char output[ECMD_INPUTBUF_LENGTH];
-				uint16_t l = ecmd_parse_command((char*)&(exec->event.ecmddata), output, sizeof(output)-1);
+				#ifdef DEBUG_CRON
+				uint16_t l =
+				#endif
+				ecmd_parse_command((char*)&(exec->event.ecmddata), output, sizeof(output)-1);
 				#ifdef DEBUG_CRON
 				if (is_ECMD_FINAL(l) || is_ECMD_AGAIN(l)) {
 					output[is_ECMD_AGAIN(l) ? ECMD_AGAIN(l) : l] = 0;

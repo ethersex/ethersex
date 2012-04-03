@@ -22,32 +22,18 @@
 #ifndef _CRON_STATIC_H
 #define _CRON_STATIC_H
 
+#include "services/cron/cron_shared.h"
+
 /* structures */
 
-/* meaning of the signed values in cron_event_t (eg for minute):
- *   x in 0..59:    absolute value (minute)
- *   x is -1:       * (wildcard)
- *   x in -59..-2:  * /(-x) (step value (-x), 1 < -x < 60)
- */
 typedef void (* cron_static_handler_t) (void);
 struct cron_static_event_t {
-    union{
-        int8_t fields[5];
-        struct {
-            int8_t minute;
-            int8_t hour;
-            int8_t day;
-            int8_t month;
-            int8_t dow;
-        };
-    };
+    cron_conditions_t cond;
     cron_static_handler_t handler;
     uint8_t use_utc;
 };
 
-
 /* constants and global variables */
-
 
 /* prototypes */
 
