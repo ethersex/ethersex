@@ -1,8 +1,10 @@
 dep_bool_menu "Cron daemon (Dynamic)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
 	dep_bool "Use UTC instead of LOCALTIME" CRON_DEFAULT_UTC $CRON_SUPPORT
-	dep_bool "Test entries" CRON_SUPPORT_TEST  $CRON_SUPPORT
-	if  [ "$CRON_EEPROM_SUPPORT" != "y" ] ; then
-		dep_bool "Store Cron jobs in VFS" CRON_VFS_SUPPORT $CRON_SUPPORT $VFS_SUPPORT
+	if  [ "$TEENSY_SUPPORT" != "y" ] ; then
+		dep_bool "Test entries" CRON_SUPPORT_TEST  $CRON_SUPPORT
+		if  [ "$CRON_EEPROM_SUPPORT" != "y" ] ; then
+			dep_bool "Store Cron jobs in VFS" CRON_VFS_SUPPORT $CRON_SUPPORT $VFS_SUPPORT
+		fi
 	fi
 	if  [ "$CRON_VFS_SUPPORT" != "y" ] ; then
 		dep_bool "Store Cron jobs in EEPROM" CRON_EEPROM_SUPPORT $CRON_SUPPORT

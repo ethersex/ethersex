@@ -131,8 +131,8 @@ cron_save()
 {
 #ifdef CRON_VFS_SUPPORT
 	struct vfs_file_handle_t* file;
-	vfs_size_t filesize = sizeof(count);
-	vfs_size_t tempsize = 0;
+	vfs_size_t filesize;
+	vfs_size_t tempsize;
 #else
 	uint16_t filesize;
 	uint16_t tempsize;
