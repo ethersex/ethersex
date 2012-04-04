@@ -28,27 +28,27 @@ atmega168=y
 FREQ=16000000
 HARDWARE=Arduino_Duemilanove
 Arduino_Duemilanove=y
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
+# alpengluehn is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
-# netio_addon is not set
 # netio is not set
-# netio_onewire_multibus is not set
+# netio_addon is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -64,7 +64,7 @@ BOOTLOADER_START_ADDRESS=0x3800
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="caf1e0d"
+VERSION_GIT="8aa169a"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
 DEBUG_BAUDRATE=19200
@@ -120,7 +120,9 @@ STATUSLED_BOOTED_SUPPORT=y
 # NMEA_INLINE_SUPPORT is not set
 # PWM_SERVO_INLINE_SUPPORT is not set
 # CW_INLINE_SUPPORT is not set
+# DMX_STORAGE_INLINE_SUPPORT is not set
 # VFS_INLINE_INLINESVG_SUPPORT is not set
+# VFS_INLINE_HTML5_RANGE_FF_SUPPORT is not set
 # VFS_INLINE_HTML_CLEAN_SUPPORT is not set
 # VFS_INLINE_OBSOLETE_BROWSER_SUPPORT is not set
 # DEBUG_INLINE_DUMMY is not set
@@ -169,6 +171,7 @@ CONF_TAP_LOCALIP="192.168.23.1"
 # RFM12_IP_SUPPORT is not set
 # RFM12_IP_RFM12_0 is not set
 # RFM12_IP_RFM12_1 is not set
+# RFM12_IP_RFM12_2 is not set
 CONF_RFM12_FREQ=RFM12_FREQ_433920
 RFM12_FREQ_433920=y
 # RFM12_FREQ_869775 is not set
@@ -265,6 +268,7 @@ CONFIG_ADC_AREF=y
 # CONFIG_ADC_2_56 is not set
 ADC_REF=ADC_AREF
 # HR20_TEMP_SUPPORT is not set
+# ADC_VOLTAGE_SUPPORT is not set
 # NEED_TEMP2TEXT is not set
 # SMS_SUPPORT is not set
 SMS_USART_0=y
@@ -299,11 +303,13 @@ CONF_LTC1257_NUM_DEVICES=4
 # I2C_LM75_SUPPORT is not set
 # I2C_DS1631_SUPPORT is not set
 # I2C_DS13X7_SUPPORT is not set
+# I2C_PCF8583_SUPPORT is not set
 # I2C_TSL2550_SUPPORT is not set
 # I2C_BMP085_SUPPORT is not set
 # I2C_PCA9531_SUPPORT is not set
 # I2C_PCA9685_SUPPORT is not set
 # I2C_PCF8574X_SUPPORT is not set
+# I2C_PCA9555_SUPPORT is not set
 # I2C_MAX7311_SUPPORT is not set
 # I2C_UDP_SUPPORT is not set
 # DEBUG_I2C is not set
@@ -472,16 +478,14 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 # MCUF_MODUL_BORG16_SNAKE_SUPPORT is not set
 # MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT is not set
 # DEBUG_MCUF is not set
+# SER_RAM_SUPPORT is not set
 
 #
 # Protocols
 #
+# NET_MAX_FRAME_LENGTH_GT_571 is not set
 # ARTNET_SUPPORT is not set
 CONF_ARTNET_PORT=6454
-CONF_ARTNET_MAX_PORTS=4
-CONF_ARTNET_MAX_DATA_LENGTH=511
-CONF_ARTNET_MAX_CHANNELS=512
-CONF_ARTNET_OEM_ID="0xB108"
 CONF_ARTNET_INUNIVERSE=1
 CONF_ARTNET_OUTUNIVERSE=0
 # DEBUG_ARTNET is not set
@@ -536,6 +540,7 @@ CONF_HTTPLOG_PATH="/httplog/httplog.php"
 # CONF_HTTPLOG_INCLUDE_TIMESTAMP is not set
 # CONF_HTTPLOG_INCLUDE_UUID is not set
 CONF_HTTPLOG_UUID="12345678-9ABC-DEF0-1234-56789ABCDEF0"
+HTTPLOG_BUFFER_LEN=140
 # DEBUG_HTTPLOG is not set
 # IRC_SUPPORT is not set
 CONF_IRC_IP="192.168.23.254"
