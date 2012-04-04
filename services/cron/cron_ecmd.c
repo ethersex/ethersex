@@ -70,7 +70,7 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 		}
 		return ECMD_AGAIN(snprintf_P(output, len,
 			PSTR("cron %i rep %d%s%s"
-#ifdef CRON_PERIST_SUPPORT
+#ifdef CRON_PERSIST_SUPPORT
 				"%s"
 #endif
 #ifdef CRON_ANACRON_SUPPORT
@@ -81,7 +81,7 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 			job->repeat,
 			type
 			, (job->use_utc) ? " utc" : ""
-#ifdef CRON_PERIST_SUPPORT
+#ifdef CRON_PERSIST_SUPPORT
 			, (job->persistent) ? " pers" : ""
 #endif
 #ifdef CRON_ANACRON_SUPPORT
@@ -113,7 +113,7 @@ int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
 	return ECMD_AGAIN(ret);
 }
 
-#ifdef CRON_PERIST_SUPPORT
+#ifdef CRON_PERSIST_SUPPORT
 int16_t parse_cmd_cron_save (char *cmd, char *output, uint16_t len)
 {
 	int16_t ret = cron_save();
@@ -142,7 +142,7 @@ uint16_t parse_cmd_cron_persistent (char *cmd, char *output, uint16_t len)
 		return ECMD_FINAL_OK;
 	}
 
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("cron %d peristent %d"),
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("cron %d persistent %d"),
 		jobposition, job->persistent));
 }
 #endif
@@ -239,7 +239,7 @@ int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[CRON-Dienst]])
   ecmd_feature(cron_list, "cron_list",, Show all cron entries)
-ecmd_ifdef(CRON_PERIST_SUPPORT)
+ecmd_ifdef(CRON_PERSIST_SUPPORT)
   ecmd_feature(cron_save, "cron_save",, Saves all persistent jobs)
   ecmd_feature(cron_persistent, "cron_persistent", POSITION [STATE], show/set job persistance state)
 ecmd_endif()

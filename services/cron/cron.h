@@ -31,7 +31,7 @@
 #include "config.h"
 
 #if defined(CRON_VFS_SUPPORT) || defined(CRON_EEPROM_SUPPORT)
-#define CRON_PERIST_SUPPORT 1
+#define CRON_PERSIST_SUPPORT 1
 #endif
 
 /** This structure represents a cron job */
@@ -42,7 +42,7 @@ struct cron_event {
 	/** Either CRON_JUMP or CRON_ECMD */
 	unsigned cmd : 4;
 	unsigned use_utc : 1;
-#ifdef CRON_PERIST_SUPPORT
+#ifdef CRON_PERSIST_SUPPORT
 	unsigned persistent : 1;
 #endif
 #ifdef CRON_ANACRON_SUPPORT
@@ -90,7 +90,7 @@ extern struct cron_event_linkedlist* tail;
 /** Insert cron job (that invokes a callback function) to the linked list.
   * @minute, @hour: trigger time
   * @day, @month, @dayofweek: trigger date
-  * @peristent: 0 = don't save, 1 = save
+  * @persistent: 0 = don't save, 1 = save
   * @repeat: repeat>0 or INFINIT_RUNNING
   * @position: -1 to append else the new job is inserted at that position
   * @handler: callback function with signature "void func(void* data)"
@@ -105,7 +105,7 @@ int16_t cron_jobinsert_callback(
 /** Insert cron job (that will get parsed by the ecmd parser) to the linked list.
 * @minute, @hour: trigger time
 * @day, @month, @dayofweek: trigger date
-* @peristent: 0 = don't save, 1 = save
+* @persistent: 0 = don't save, 1 = save
 * @repeat: repeat>0 or INFINIT_RUNNING
 * @position: -1 to append else the new job is inserted at that position
 * @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
@@ -115,7 +115,7 @@ int16_t cron_jobinsert_ecmd(
 	uint8_t repeat, int8_t position, char* ecmd
 );
 
-#ifdef CRON_PERIST_SUPPORT
+#ifdef CRON_PERSIST_SUPPORT
 /** Saves all as persistent marked Jobs to vfs */
 int16_t cron_save();
 #endif

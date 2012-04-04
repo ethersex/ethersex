@@ -43,7 +43,7 @@ uint32_t last_check;
 struct cron_event_linkedlist* head;
 struct cron_event_linkedlist* tail;
 
-#ifdef CRON_PERIST_SUPPORT
+#ifdef CRON_PERSIST_SUPPORT
 void
 cron_load()
 {
@@ -234,7 +234,7 @@ cron_init(void)
 
 	last_check = 0;
 
-	#ifdef CRON_PERIST_SUPPORT
+	#ifdef CRON_PERSIST_SUPPORT
 	// load cron jobs form VFS
 	cron_load();
 	#endif
