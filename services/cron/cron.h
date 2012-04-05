@@ -87,29 +87,37 @@ extern struct cron_event_linkedlist* tail;
 #define CRON_ECMD 2
 
 
-/** Insert cron job (that invokes a callback function) to the linked list.
-  * @minute, @hour: trigger time
-  * @day, @month, @dayofweek: trigger date
-  * @persistent: 0 = don't save, 1 = save
-  * @repeat: repeat>0 or INFINIT_RUNNING
-  * @position: -1 to append else the new job is inserted at that position
-  * @handler: callback function with signature "void func(void* data)"
-  * @extrasize, @extradata: extra data that is passed to the callback function
-  */
-
+/**
+ * @brief Insert cron job (that invokes a callback function) to the linked list.
+ * @param minute minute of trigger time
+ * @param hour hour of trigger time
+ * @param day day of trigger date
+ * @param month month of trigger date
+ * @param daysofweek bitmask of selected weekdays of trigger date
+ * @param repeat repeat>0 or INFINIT_RUNNING
+ * @param position -1 to append else the new job is inserted at that position
+ * @param handler callback function with signature "void func(void* data)"
+ * @param extrasize size of extra data that is passed to the callback function
+ * @param extradata pointer to extra data that is passed to the callback function
+ * @return position where job is inserted, -1 in case of error
+ */
 int16_t cron_jobinsert_callback(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
 	uint8_t repeat,	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
 );
 
-/** Insert cron job (that will get parsed by the ecmd parser) to the linked list.
-* @minute, @hour: trigger time
-* @day, @month, @dayofweek: trigger date
-* @persistent: 0 = don't save, 1 = save
-* @repeat: repeat>0 or INFINIT_RUNNING
-* @position: -1 to append else the new job is inserted at that position
-* @cmddata: ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
-*/
+/**
+ * @brief Insert cron job (that will get parsed by the ecmd parser) to the linked list.
+ * @param minute minute of trigger time
+ * @param hour hour of trigger time
+ * @param day day of trigger date
+ * @param month month of trigger date
+ * @param daysofweek bitmask of selected weekdays of trigger date
+ * @param repeat repeat>0 or INFINIT_RUNNING
+ * @param position -1 to append else the new job is inserted at that position
+ * @param cmddata ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
+ * @return position where job is inserted, -1 in case of error
+ */
 int16_t cron_jobinsert_ecmd(
 	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
 	uint8_t repeat, int8_t position, char* ecmd
@@ -120,10 +128,12 @@ int16_t cron_jobinsert_ecmd(
 int16_t cron_save();
 #endif
 
-/** Insert cron job to the linked list.
-* @newone: The new cron job structure (malloc'ed memory!)
-* @position: Where to insert the new job
-*/
+/**
+ * @brief Insert cron job to the linked list.
+ * @param newone The new cron job structure (malloc'ed memory!)
+ * @param position Where to insert the new job
+ * @return position where job is inserted
+ */
 uint8_t cron_insert(struct cron_event_linkedlist* newone, int8_t position);
 
 /** remove the job from the linked list */
@@ -138,9 +148,10 @@ struct cron_event_linkedlist* cron_getjob(uint8_t jobposition);
 /** init cron. (Set head to NULL for example) */
 void cron_init(void);
 
-/** execute cron job
-* @exec: Item to execute
-*/
+/**
+ * @brief execute cron job
+ * @param exec Item to execute
+ */
 void cron_execute(struct cron_event_linkedlist* exec);
 
 /** periodically check, if an event matches the current time. must be called
