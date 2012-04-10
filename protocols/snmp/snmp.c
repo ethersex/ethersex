@@ -236,9 +236,10 @@ uint8_t
 ow_next(uint8_t * ptr, struct snmp_varbinding * bind)
 {
   return onelevel_next(ptr, bind, OW_SENSORS_COUNT);
+}
+#endif
 
 #ifdef TANKLEVEL_SUPPORT
-
 uint8_t
 tank_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
@@ -339,7 +340,6 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {adc_vref_reaction_obj_name, adc_vref_reaction, NULL, adc_next},
 #endif
 #endif
-
 #ifdef ONEWIRE_SNMP_SUPPORT
   {ow_rom_reaction_obj_name, ow_rom_reaction, NULL, ow_next},
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -348,7 +348,6 @@ const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {ow_temp_reaction_obj_name, ow_temp_reaction, NULL, ow_next},
   {ow_present_reaction_obj_name, ow_present_reaction, NULL, ow_next},
 #endif
-
 #ifdef TANKLEVEL_SUPPORT
   {tank_reaction_obj_name, tank_reaction, NULL, tank_next},
 #endif
