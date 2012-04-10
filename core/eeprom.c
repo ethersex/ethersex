@@ -163,6 +163,11 @@ eeprom_init (void)
 #ifdef MOTD_SUPPORT
   eeprom_save_P (motd_text, PSTR (CONF_MOTD_DEFAULT), MOTD_VALUESIZE);
 #endif
+
+#ifdef CRON_EEPROM_SUPPORT
+  uint8_t count = 0;
+  eeprom_save_offset(crontab, 0, &count, sizeof(count));
+#endif
   eeprom_update_chksum ();
 }
 

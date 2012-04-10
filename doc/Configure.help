@@ -730,15 +730,85 @@ CRON_SUPPORT
    * System clock support (CLOCK_SUPPORT)
 
   Enable cron-alike service. Cronjobs can be added programmatically
-  or by other modules' ecmd commands and removed via the ecmd command
-  "cron_rm".  A list of all active jobs can be requested via "cron_list".
+  or by other module's ecmd commands and removed via the ecmd command
+  "cron rm".  A list of all active jobs can be requested via "cron list".
 
   Syntax for the cron ecmd commands:
-  cron_rm POSITION (where POSITION is in 0..N-1)
-  cron_list
+  cron add MIN HOUR DAY MONTH DOW ECMD : add a cron job
+  cron rm [POSITION} (where POSITION is in 0..N-1) : remove all/selected job
+  cron list : list all jobs
+  cron utc POSITION [STATE] : show/set flag to use UTC time for a job
 
   To add a stella cron job to, for example, fade up all lights at 6pm,
   compile in stella support and use the stella ecmd command "stella cron"
+
+Use UTC instead of LOCALTIME
+CRON_DEFAULT_UTC
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create conjobs with UTC flag set by default.
+
+Test entries
+CRON_SUPPORT_TEST
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create some test jobs at system startup (for debuging).
+
+Store Cron jobs in VFS
+CRON_VFS_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * VFS support (VFS_SUPPORT)
+   * !NOT! Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Store cron jobs as file on VFS storage like SD card.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to file
+
+Store Cron jobs in EEPROM
+CRON_EEPROM_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * !NOT! Store Cron jobs in VFS (CRON_VFS_SUPPORT)
+
+  Store cron jobs as file in EEPROM.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to EEPROM
+
+Cron EEPROM size
+CRON_EEPROM_SIZE
+  Depends on:
+   * Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Size of EEPROM reserved for crontab storage.
+
+Anacon Support
+CRON_ANACRON_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  If system is booted (with an RTC attached) or an time gap is detected
+  (i.e. by an NTP adjustment) all missed jobs are executed, if marked as
+  anacron job. The maximum time span is configured by CRON_ANACRON_MAXAGE.
+  This function is usefull for jobs that set internal states (for example
+  the target temperature of a heating control dependend on the daytime).
+
+  Syntax for the corresponding ecmd commands:
+  cron anacron POSITION [STATE] : show/set anacron flag for a job
+
+Anacron max age in secs
+CRON_ANACRON_MAXAGE
+  Depends on:
+   * Anacon Support (CRON_ANACRON_SUPPORT)
+
+  Maximum time span covered by CRON_ANACRON_SUPPORT in secs. Default is
+  86400 secs (one day).
 
 NTP daemon
 NTPD_SUPPORT
