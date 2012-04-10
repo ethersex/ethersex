@@ -45,10 +45,10 @@ void
 mcuf_modul(void)
 {
 #ifdef MCUF_MODUL_DISPLAY_MODE_CRON_RANDOM
-  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_RANDOM,0);
+  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_RANDOM, 0);
 #endif
 #ifdef MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE
-  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE,0);
+  mcuf_play_modul(MCUF_MODUL_PLAY_MODE_SEQUENCE, 0);
 #endif
 }
 #endif // MCUF_MODUL_CRON_SUPPORT
@@ -63,61 +63,65 @@ mcuf_modul(void)
 #define USE_UTC 1
 #define USE_LOCAL 0
 
-const struct cron_static_event_t events[] PROGMEM =
-{
+const struct cron_static_event_t events[] PROGMEM = {
 #ifdef MCUF_CLOCK_SUPPORT
-  { { { {-1, -1, -1, -1} }, -1 }, mcuf_clock, USE_LOCAL}, /* every minute  */
+  {{{{-1, -1, -1, -1}}, -1}, mcuf_clock, USE_LOCAL},    /* every minute  */
 #endif /* MCUF_CLOCK_SUPPORT */
 
 #ifdef MCUF_MODUL_CRON_SUPPORT
-  { { { {-1, -1, -1, -1} }, -1 }, mcuf_modul, USE_LOCAL}, /* every minute  */
+  {{{{-1, -1, -1, -1}}, -1}, mcuf_modul, USE_LOCAL},    /* every minute  */
 #endif // MCUF_MODUL_CRON_SUPPORT
 
 #ifdef NETSTAT_SUPPORT
-  { { { {-5, -1, -1, -1} }, -1 }, (cron_static_handler_t)netstat_send, USE_LOCAL}, /* every 5 minutes  */
+  {{{{-5, -1, -1, -1}}, -1}, (cron_static_handler_t) netstat_send, USE_LOCAL},  /* every 5 minutes  */
 #endif // NETSTAT_SUPPORT
 
   /* This is only the end of table marker */
-  { { { {-1, -1, -1, -1} }, -1 }, NULL, 0},
+  {{{{-1, -1, -1, -1}}, -1}, NULL, 0},
 };
 
 void
 cron_static_periodic(void)
 {
-    /* convert time to something useful */
-    clock_datetime_t d, ld;
-    uint32_t timestamp = clock_get_time();
+  /* convert time to something useful */
+  clock_datetime_t d, ld;
+  uint32_t timestamp = clock_get_time();
 
-    /* fix last_check */
-    if (timestamp < last_check) {
-        clock_datetime(&d, timestamp);
-        last_check = timestamp - d.sec;
-        return;
-    }
-
-    /* Only check the tasks every minute */
-    if ((timestamp - last_check) < 60) return;
-
+  /* fix last_check */
+  if (timestamp < last_check)
+  {
     clock_datetime(&d, timestamp);
-    clock_localtime(&ld, timestamp);
-
-    struct cron_static_event_t event;
-
-    /* check every event for a match */
-    for (uint8_t i = 0; ; i++) {
-        memcpy_P(&event, &events[i], sizeof(struct cron_static_event_t));
-
-        /* end of task list reached */
-        if (event.handler == NULL) break;
-
-        /* if it matches, execute the handler function */
-        if (cron_check_event(&event.cond, event.use_utc, &d, &ld)) {
-            event.handler();
-        }
-    }
-
-    /* save the actual timestamp */
     last_check = timestamp - d.sec;
+    return;
+  }
+
+  /* Only check the tasks every minute */
+  if ((timestamp - last_check) < 60)
+    return;
+
+  clock_datetime(&d, timestamp);
+  clock_localtime(&ld, timestamp);
+
+  struct cron_static_event_t event;
+
+  /* check every event for a match */
+  for (uint8_t i = 0;; i++)
+  {
+    memcpy_P(&event, &events[i], sizeof(struct cron_static_event_t));
+
+    /* end of task list reached */
+    if (event.handler == NULL)
+      break;
+
+    /* if it matches, execute the handler function */
+    if (cron_check_event(&event.cond, event.use_utc, &d, &ld))
+    {
+      event.handler();
+    }
+  }
+
+  /* save the actual timestamp */
+  last_check = timestamp - d.sec;
 }
 
 /*

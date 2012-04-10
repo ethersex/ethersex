@@ -27,7 +27,7 @@ uint8_t
 cron_check_event(cron_conditions_t * cond, uint8_t use_utc,
                  clock_datetime_t * d, clock_datetime_t * ld)
 {
-  clock_datetime_t * cd = (use_utc) ? d : ld;
+  clock_datetime_t *cd = (use_utc) ? d : ld;
 
   /* check time */
   for (uint8_t f = 0; f <= 3; f++)

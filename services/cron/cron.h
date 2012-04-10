@@ -35,50 +35,54 @@
 #endif
 
 /** This structure represents a cron job */
-struct cron_event {
-	uint8_t extrasize;
-	cron_conditions_t cond;
-	uint8_t repeat;
-	/** Either CRON_JUMP or CRON_ECMD */
-	unsigned cmd : 4;
-	unsigned use_utc : 1;
+struct cron_event
+{
+  uint8_t extrasize;
+  cron_conditions_t cond;
+  uint8_t repeat;
+        /** Either CRON_JUMP or CRON_ECMD */
+  unsigned cmd:4;
+  unsigned use_utc:1;
 #ifdef CRON_PERSIST_SUPPORT
-	unsigned persistent : 1;
+  unsigned persistent:1;
 #endif
 #ifdef CRON_ANACRON_SUPPORT
-	unsigned anacron : 1;
-	unsigned anacron_pending : 1;
+  unsigned anacron:1;
+  unsigned anacron_pending:1;
 #endif
-	union {
-		/** for CRON_JUMP
+  union
+  {
+                /** for CRON_JUMP
 		* All additional bytes are extra user data for applications. E.g.
 		* additional arguments for the CRON_JUMP.
 		* The memory for "extradata" has to be allocated with malloc on the heap,
 		* because we will free the memory "extradata" on cronjob removal. */
-		struct {
-			void (*handler)(void*);
-			char extradata;
-		};
-		// for CRON_ECMD
-		struct {
-			char ecmddata;
-		};
-	};
+    struct
+    {
+      void (*handler) (void *);
+      char extradata;
+    };
+    // for CRON_ECMD
+    struct
+    {
+      char ecmddata;
+    };
+  };
 };
 #define cron_event_size (sizeof(struct cron_event))
 
 /** This structure is used for the double linked list of cronjobs */
 struct cron_event_linkedlist
 {
-	// next,prev pointer for double linked lists;
-	// last entry's next is NULL, heads prev is NULL
-	struct cron_event_linkedlist* next;
-	struct cron_event_linkedlist* prev;
-	struct cron_event event;
+  // next,prev pointer for double linked lists;
+  // last entry's next is NULL, heads prev is NULL
+  struct cron_event_linkedlist *next;
+  struct cron_event_linkedlist *prev;
+  struct cron_event event;
 };
 
-extern struct cron_event_linkedlist* head;
-extern struct cron_event_linkedlist* tail;
+extern struct cron_event_linkedlist *head;
+extern struct cron_event_linkedlist *tail;
 
 #define INFINIT_RUNNING 0
 #define CRON_APPEND -1
@@ -101,10 +105,11 @@ extern struct cron_event_linkedlist* tail;
  * @param extradata pointer to extra data that is passed to the callback function
  * @return position where job is inserted, -1 in case of error
  */
-int16_t cron_jobinsert_callback(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
-	uint8_t repeat,	int8_t position, void (*handler)(void*), uint8_t extrasize, void* extradata
-);
+int16_t cron_jobinsert_callback(int8_t minute, int8_t hour, int8_t day,
+                                int8_t month, int8_t daysofweek,
+                                uint8_t repeat, int8_t position,
+                                void (*handler) (void *), uint8_t extrasize,
+                                void *extradata);
 
 /**
  * @brief Insert cron job (that will get parsed by the ecmd parser) to the linked list.
@@ -118,10 +123,9 @@ int16_t cron_jobinsert_callback(
  * @param cmddata ecmd string (cron will not free memory but just copy from pointerposition! Has to be null terminated.)
  * @return position where job is inserted, -1 in case of error
  */
-int16_t cron_jobinsert_ecmd(
-	int8_t minute, int8_t hour, int8_t day, int8_t month, int8_t daysofweek,
-	uint8_t repeat, int8_t position, char* ecmd
-);
+int16_t cron_jobinsert_ecmd(int8_t minute, int8_t hour, int8_t day,
+                            int8_t month, int8_t daysofweek, uint8_t repeat,
+                            int8_t position, char *ecmd);
 
 #ifdef CRON_PERSIST_SUPPORT
 /** Saves all as persistent marked Jobs to vfs */
@@ -134,16 +138,16 @@ int16_t cron_save();
  * @param position Where to insert the new job
  * @return position where job is inserted
  */
-uint8_t cron_insert(struct cron_event_linkedlist* newone, int8_t position);
+uint8_t cron_insert(struct cron_event_linkedlist *newone, int8_t position);
 
 /** remove the job from the linked list */
-void cron_jobrm(struct cron_event_linkedlist* job);
+void cron_jobrm(struct cron_event_linkedlist *job);
 
 /** count jobs */
 uint8_t cron_jobs();
 
 /** get a pointer to the entry of the cron job's linked list at position jobposition */
-struct cron_event_linkedlist* cron_getjob(uint8_t jobposition);
+struct cron_event_linkedlist *cron_getjob(uint8_t jobposition);
 
 /** init cron. (Set head to NULL for example) */
 void cron_init(void);
@@ -152,7 +156,7 @@ void cron_init(void);
  * @brief execute cron job
  * @param exec Item to execute
  */
-void cron_execute(struct cron_event_linkedlist* exec);
+void cron_execute(struct cron_event_linkedlist *exec);
 
 /** periodically check, if an event matches the current time. must be called
   * once per minute */

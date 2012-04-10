@@ -26,11 +26,12 @@
 
 /* structures */
 
-typedef void (* cron_static_handler_t) (void);
-struct cron_static_event_t {
-    cron_conditions_t cond;
-    cron_static_handler_t handler;
-    uint8_t use_utc;
+typedef void (*cron_static_handler_t) (void);
+struct cron_static_event_t
+{
+  cron_conditions_t cond;
+  cron_static_handler_t handler;
+  uint8_t use_utc;
 };
 
 /* constants and global variables */
