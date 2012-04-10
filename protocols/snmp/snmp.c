@@ -49,6 +49,9 @@
  * helper functions 
  **********************************************************/
 
+#define TIMESTAMP_TEXT_FORMAT "%02d.%02d.%04d %02d:%02d:%02d"
+#define TIMESTAMP_TEXT_LENGTH 20
+
 uint8_t
 encode_int(uint8_t * ptr, uint16_t val)
 {
@@ -66,6 +69,22 @@ encode_long(uint8_t * ptr, uint32_t val)
   ptr[1] = 4;
   *((uint32_t *) (ptr + 2)) = HTONL(val);
   return 6;
+}
+
+uint8_t
+encode_timestamp_text(uint8_t * ptr, timestamp_t ts)
+{
+  clock_datetime_t dt;
+
+  memset(&dt, 0, sizeof(dt));
+  clock_localtime(&dt, ts);
+  ptr[0] = SNMP_TYPE_STRING;
+  ptr[1] = snprintf_P((char *) (ptr + 2),
+                      TIMESTAMP_TEXT_LENGTH,
+                      PSTR(TIMESTAMP_TEXT_FORMAT),
+                      dt.day, dt.month, dt.year + 1900, dt.hour, dt.min,
+                      dt.sec);
+  return ptr[1] + 2;
 }
 
 uint8_t
@@ -228,7 +247,6 @@ tank_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
     return 0;
   }
 
-  clock_datetime_t dt;
   switch (bind->data[0])
   {
     case 0:
@@ -238,14 +256,7 @@ tank_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
     case 2:
       return encode_long(ptr, tanklevel_get_ts());
     case 3:
-      memset(&dt, 0, sizeof(dt));
-      clock_localtime(&dt, tanklevel_get_ts());
-      ptr[0] = SNMP_TYPE_STRING;
-      ptr[1] = snprintf_P((char *) (ptr + 2), 20,
-                          PSTR("%02d.%02d.%04d %02d:%02d:%02d"),
-                          dt.day,
-                          dt.month, dt.year + 1900, dt.hour, dt.min, dt.sec);
-      return ptr[1] + 2;
+      return encode_timestamp_text(ptr, tanklevel_get_ts());
     default:
       return 0;
   }

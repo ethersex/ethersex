@@ -2901,7 +2901,7 @@ TANKLEVEL_CRON_SUPPORT
   Start measurement at fixed time. Can be changed in services/cron/cron_static.c.
 
 Inverted pump output
-TANKLEVEL_PUMP_INVERT
+TANKLEVEL_PUMP_ACTIVE_LOW
 
   Output pin for pump is inverted.
 
@@ -2912,7 +2912,7 @@ TANKLEVEL_LOCK_SUPPORT
   This is used to delay the measurement e.g. if the oil burner is running.
 
 Inverted lock input
-TANKLEVEL_LOCK_INVERT
+TANKLEVEL_LOCK_ACTIVE_LOW
 
   Lock input pin is inverted.
 
@@ -2923,4 +2923,40 @@ TANKLEVEL_INLINE_SUPPORT
    * Tank level meter (TANKLEVEL_SUPPORT)
 
   Inline a page to query the tank level.
+
+Default zero offset of the pressure sensor (in mV)
+TANKLEVEL_SENSOR_OFFSET
+
+  Zero offset of the pressure sensor (in mV). Can be changed at runtime via
+  ECMD command "tank param set sensor_offset VALUE" and stored in EEPROM.
+
+Default medium density (in g/ltr)
+TANKLEVEL_MED_DENSITY
+
+  Medium density (in g/ltr). Can be changed at runtime via
+  ECMD command "tank param set med_density VALUE" and stored in EEPROM.
+
+Default ltr per meter tank level
+TANKLEVEL_LTR_PER_M
+
+  Ltr per meter tank level. Can be changed at runtime via
+  ECMD command "tank param set ltr_per_m VALUE" and stored in EEPROM.
+
+Default tank capacity (in ltr)
+TANKLEVEL_LTR_FULL
+
+  Tank capacity (in ltr). Can be changed at runtime via
+  ECMD command "tank param set ltr_full VALUE" and stored in EEPROM.
+
+Default pump on time (in 1/50 secs)
+TANKLEVEL_RAISE_TIME
+
+  Pump on time (in 1/50 secs). Can be changed at runtime via
+  ECMD command "tank param set raise_time VALUE" and stored in EEPROM.
+
+Default hold time before measurement (in 1/50 secs)
+TANKLEVEL_HOLD_TIME
+
+  Hold time before measurement (in 1/50 secs). Can be changed at runtime via
+  ECMD command "tank param set hold_time VALUE" and stored in EEPROM.
 

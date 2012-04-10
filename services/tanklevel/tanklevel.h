@@ -2,9 +2,10 @@
  *
  * Copyright(c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,14 +24,6 @@
 #define _TANKLEVEL_H
 
 #include "services/clock/clock.h"
-
-/* parameter defaults */
-#define TANKLEVEL_SENSOR_OFFSET 0
-#define TANKLEVEL_MED_DENSITY   840
-#define TANKLEVEL_LTR_PER_M     3409
-#define TANKLEVEL_LTR_FULL      10000
-#define TANKLEVEL_RAISE_TIME    50
-#define TANKLEVEL_HOLD_TIME     20
 
 /* sensor sensitivity in mV/kPa */
 #define TANKLEVEL_SENSOR_SENS   90.0F

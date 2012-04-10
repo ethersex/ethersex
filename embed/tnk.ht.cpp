@@ -60,6 +60,7 @@ window.onload = function() {
 <form>
 <input type="button" value="Start measure" onclick="ArrAjax.ecmd('tank start', null);"/>
 </form>
+<a href="idx.ht"> Back </a>
 <div id="logconsole"></div>
 </body>
 </html>

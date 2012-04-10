@@ -2,9 +2,10 @@
  *
  * Copyright(c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,7 +33,7 @@
 #define TANKLEVEL_STATE_REQ      1
 #define TANKLEVEL_STATE_BUSY     2
 
-#ifdef TANKLEVEL_PUMP_INVERT
+#ifdef TANKLEVEL_PUMP_ACTIVE_LOW
 #define TANKLEVEL_PUMP_ON  PIN_CLEAR(TANKLEVEL_PUMP)
 #define TANKLEVEL_PUMP_OFF PIN_SET(TANKLEVEL_PUMP)
 #else
@@ -40,11 +41,21 @@
 #define TANKLEVEL_PUMP_OFF PIN_CLEAR(TANKLEVEL_PUMP)
 #endif
 
+#ifdef TANKLEVEL_LOCK_SUPPORT
+#ifdef TANKLEVEL_LOCK_ACTIVE_LOW
+#define TANKLEVEL_CHECK_LOCK (locked || PIN_LOW(TANKLEVEL_LOCK))
+#else
+#define TANKLEVEL_CHECK_LOCK (locked || PIN_HIGH(TANKLEVEL_LOCK))
+#endif
+#else
+#define TANKLEVEL_CHECK_LOCK (locked)
+#endif
+
 tanklevel_params_t tanklevel_params_ram;
 
 float tanklevel_factor;
 
-volatile uint8_t state;
+volatile uint8_t state = TANKLEVEL_STATE_IDLE;
 volatile uint8_t locked;
 volatile uint16_t capture_adc;
 volatile timestamp_t capture_ts;
@@ -62,15 +73,6 @@ tanklevel_init(void)
   eeprom_restore(tanklevel_params, &tanklevel_params_ram, sizeof(tanklevel_params_t));
   tanklevel_update_factor();
 
-  /* init vars */
-  state = TANKLEVEL_STATE_IDLE;
-  locked = 0;
-  capture_adc = 0;
-  capture_ts = 0;
-  raise_timer = 0;
-  hold_timer = 0;
-  get_ts = 0;
-
 #ifdef TANKLEVEL_STARTUP
   tanklevel_start();
 #endif
@@ -82,10 +84,10 @@ tanklevel_update_factor(void)
   float mul = 1000.0F * (float)tanklevel_params_ram.ltr_per_m;
   float div = (float)tanklevel_params_ram.med_density * TANKLEVEL_SENSOR_SENS * TANKLEVEL_GRAVITY;
 
-  if (mul > 0 && div > 0) {
+  if (mul > 0.0F && div > 0.0F) {
     tanklevel_factor = mul / div;
   } else {
-    tanklevel_factor = 0;
+    tanklevel_factor = 0.0F;
   }
 }
 
@@ -102,15 +104,7 @@ tanklevel_periodic(void)
       hold_timer = tanklevel_params_ram.hold_time;
 
       /* check lock */
-#ifdef TANKLEVEL_LOCK_SUPPORT
-#ifdef TANKLEVEL_LOCK_INVERT
-      if (locked || PIN_LOW(TANKLEVEL_LOCK)) {
-#else
-      if (locked || PIN_HIGH(TANKLEVEL_LOCK)) {
-#endif
-#else
-      if (locked) {
-#endif
+      if (TANKLEVEL_CHECK_LOCK) {
         return;
       }
 
