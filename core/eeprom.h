@@ -57,7 +57,6 @@
 #include "hardware/adc/adc.h"
 #endif
 
-
 #ifdef ONEWIRE_NAMING_SUPPORT
 #include "hardware/onewire/onewire.h"
 #endif
