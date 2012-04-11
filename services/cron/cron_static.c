@@ -81,8 +81,8 @@ const struct cron_static_event_t events[] PROGMEM = {
 #endif // NETSTAT_SUPPORT
 
 #ifdef TANKLEVEL_CRON_SUPPORT
-  { { {0,  0, -1, -1, -1} }, (cron_static_handler_t)tanklevel_start, USE_LOCAL}, /* 0 a clock  */
-  { { {0, 12, -1, -1, -1} }, (cron_static_handler_t)tanklevel_start, USE_LOCAL}, /* 12 a clock  */
+  {{{{0,  0, -1, -1}}, -1}, (cron_static_handler_t)tanklevel_start, USE_LOCAL}, /* 0 a clock  */
+  {{{{0, 12, -1, -1}}, -1}, (cron_static_handler_t)tanklevel_start, USE_LOCAL}, /* 12 a clock  */
 #endif // TANKLEVEL_CRON_SUPPORT
 
   /* This is only the end of table marker */

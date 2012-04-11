@@ -43,12 +43,12 @@
 
 #ifdef TANKLEVEL_LOCK_SUPPORT
 #ifdef TANKLEVEL_LOCK_ACTIVE_LOW
-#define TANKLEVEL_CHECK_LOCK (locked || PIN_LOW(TANKLEVEL_LOCK))
+#define TANKLEVEL_IS_LOCKED (locked || PIN_LOW(TANKLEVEL_LOCK))
 #else
-#define TANKLEVEL_CHECK_LOCK (locked || PIN_HIGH(TANKLEVEL_LOCK))
+#define TANKLEVEL_IS_LOCKED (locked || PIN_HIGH(TANKLEVEL_LOCK))
 #endif
 #else
-#define TANKLEVEL_CHECK_LOCK (locked)
+#define TANKLEVEL_IS_LOCKED (locked)
 #endif
 
 tanklevel_params_t tanklevel_params_ram;
@@ -104,7 +104,7 @@ tanklevel_periodic(void)
       hold_timer = tanklevel_params_ram.hold_time;
 
       /* check lock */
-      if (TANKLEVEL_CHECK_LOCK) {
+      if (TANKLEVEL_IS_LOCKED) {
         return;
       }
 
