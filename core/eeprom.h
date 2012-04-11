@@ -61,7 +61,6 @@
 #include "hardware/onewire/onewire.h"
 #endif
 
-
 #ifdef CRON_EEPROM_SUPPORT
 #include "services/cron/cron.h"
 #endif
