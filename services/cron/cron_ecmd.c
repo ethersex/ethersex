@@ -29,92 +29,246 @@
 #include "cron.h"
 
 #include "protocols/ecmd/ecmd-base.h"
-#include "protocols/ecmd/via_tcp/ecmd_state.h"
 
-
-int16_t parse_cmd_cron_list (char *cmd, char *output, uint16_t len)
+typedef struct
 {
-	/* We can't output the whole cronjob list. Just print out the amount of jobs
-	 * if the user did not specify anything and if he provided us with a number
-	 * print out that specific job with all known details */
-	uint8_t jobposition;
-	uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &jobposition);
+  uint8_t magic;
+  uint8_t jobposition;
+  struct cron_event_linkedlist *pos;
+  uint8_t lineno;
+} cron_list_state_t;
 
-	if (ret == 1)
-	{ // the user wants to know details
-		struct cron_event_linkedlist* jobll = cron_getjob(jobposition);
-		if (!jobll) return ECMD_FINAL_OK;
-		struct cron_event* job = &(jobll->event);
-		if (!job) return ECMD_FINAL_OK;
-		if (job->cmd == CRON_JUMP)
-			return ECMD_FINAL(snprintf_P(output, len, PSTR("jump %i %i %i %i %i %i %p"), \
-			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, job->handler));
-		else if (job->cmd == CRON_ECMD)
-			return ECMD_FINAL(snprintf_P(output, len, PSTR("ecmd %i %i %i %i %i %i %s"), \
-			job->repeat, job->hour, job->minute, job->day, job->month, job->dayofweek, &(job->ecmddata)));			
-	}
+int16_t
+parse_cmd_cron_list(char *cmd, char *output, uint16_t len)
+{
+  // trick: use bytes on cmd as "connection specific static variables"
+  cron_list_state_t *state = (cron_list_state_t *) cmd;
+  if (state->magic != 23)       // indicator flag: real invocation:  0
+  {
+    state->magic = 23;          // continuing call: 23
+    state->jobposition = 0;
+    state->pos = head;
+    state->lineno = 0;
+  }
 
-	// print out the amount of jobs
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("Jobs: %u"), cron_jobs()));
+  if (!state->pos)
+    return ECMD_FINAL_OK;
+  struct cron_event *job = &(state->pos->event);
+
+  // first line: print job attributes
+  if (state->lineno == 0)
+  {
+    state->lineno++;
+    char *type;
+    switch (job->cmd)
+    {
+      case CRON_JUMP:
+        type = " jump";
+        break;
+      case CRON_ECMD:
+        type = " ecmd";
+        break;
+      default:
+        type = "";
+    }
+    return ECMD_AGAIN(snprintf_P(output, len, PSTR("cron %i rep %d%s%s"
+#ifdef CRON_PERSIST_SUPPORT
+                                                   "%s"
+#endif
+#ifdef CRON_ANACRON_SUPPORT
+                                                   "%s"
+#endif
+                                 ),
+                                 state->jobposition,
+                                 job->repeat,
+                                 type, (job->use_utc) ? " utc" : ""
+#ifdef CRON_PERSIST_SUPPORT
+                                 , (job->persistent) ? " pers" : ""
+#endif
+#ifdef CRON_ANACRON_SUPPORT
+                                 , (job->anacron) ? " anac" : ""
+#endif
+                      ));
+  }
+
+  // print job
+  int16_t ret;
+  switch (job->cmd)
+  {
+    case CRON_JUMP:
+      ret = snprintf_P(output, len, PSTR("%i %i %i %i %i %p"),
+                       job->cond.minute, job->cond.hour, job->cond.day,
+                       job->cond.month, job->cond.daysofweek, job->handler);
+      break;
+    case CRON_ECMD:
+      ret = snprintf_P(output, len, PSTR("%i %i %i %i %i %s"),
+                       job->cond.minute, job->cond.hour, job->cond.day,
+                       job->cond.month, job->cond.daysofweek,
+                       &(job->ecmddata));
+      break;
+    default:
+      ret = snprintf_P(output, len, PSTR("%i %i %i %i %i"),
+                       job->cond.minute, job->cond.hour, job->cond.day,
+                       job->cond.month, job->cond.daysofweek);
+  }
+
+  state->jobposition++;
+  state->pos = state->pos->next;
+  state->lineno = 0;
+  return ECMD_AGAIN(ret);
 }
 
-#ifdef CRON_VFS_SUPPORT
-int16_t parse_cmd_cron_save (char *cmd, char *output, uint16_t len)
+#ifdef CRON_PERSIST_SUPPORT
+int16_t
+parse_cmd_cron_save(char *cmd, char *output, uint16_t len)
 {
+  int16_t ret = cron_save();
+  if (ret < 0)
+    return ECMD_FINAL(snprintf_P(output, len, "write error"));
 
-	return ECMD_FINAL(snprintf_P(output, len, PSTR("%u jobs saved"),cron_save()));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%d jobs saved"), ret));
 }
 
-uint16_t parse_cmd_cron_make_persistent (char *cmd, char *output, uint16_t len)
+uint16_t
+parse_cmd_cron_persistent(char *cmd, char *output, uint16_t len)
 {
-	uint8_t jobposition;
-	sscanf_P(cmd, PSTR("%hhu"), &jobposition);
+  uint8_t jobposition, state;
+  uint8_t ret = sscanf_P(cmd, PSTR("%hhu %hhu"), &jobposition, &state);
 
-	cron_make_persistent(jobposition);
-	return ECMD_FINAL_OK;
+  struct cron_event_linkedlist *jobll = NULL;
+  if (ret >= 1)
+  {
+    jobll = cron_getjob(jobposition);
+  }
 
+  if (jobll == NULL)
+    return ECMD_ERR_PARSE_ERROR;
+  struct cron_event *job = &(jobll->event);
+
+  if (ret >= 2)
+  {
+    job->persistent = state;
+    return ECMD_FINAL_OK;
+  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("cron %d persistent %d"),
+                               jobposition, job->persistent));
 }
 #endif
 
-int16_t parse_cmd_cron_rm (char *cmd, char *output, uint16_t len)
+#ifdef CRON_ANACRON_SUPPORT
+uint16_t
+parse_cmd_cron_anacron(char *cmd, char *output, uint16_t len)
 {
-	uint8_t jobposition;
-	uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &jobposition);
+  uint8_t jobposition, state;
+  uint8_t ret = sscanf_P(cmd, PSTR("%hhu %hhu"), &jobposition, &state);
 
-	if (ret == 1)
-	{
-		cron_jobrm(cron_getjob(jobposition));
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("rm cron %u"), jobposition));
-	} else {
-		while (head) cron_jobrm(head);
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("rm all cron")));
-	}
+  struct cron_event_linkedlist *jobll = NULL;
+  if (ret >= 1)
+  {
+    jobll = cron_getjob(jobposition);
+  }
+
+  if (!jobll)
+    return ECMD_ERR_PARSE_ERROR;
+  struct cron_event *job = &(jobll->event);
+
+  if (ret >= 2)
+  {
+    job->anacron = state;
+    return ECMD_FINAL_OK;
+  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("cron %d anacron %d"),
+                               jobposition, job->anacron));
+}
+#endif
+
+uint16_t
+parse_cmd_cron_utc(char *cmd, char *output, uint16_t len)
+{
+  uint8_t jobposition, state;
+  uint8_t ret = sscanf_P(cmd, PSTR("%hhu %hhu"), &jobposition, &state);
+
+  struct cron_event_linkedlist *jobll = NULL;
+  if (ret >= 1)
+  {
+    jobll = cron_getjob(jobposition);
+  }
+
+  if (!jobll)
+    return ECMD_ERR_PARSE_ERROR;
+  struct cron_event *job = &(jobll->event);
+
+  if (ret >= 2)
+  {
+    job->use_utc = state;
+    return ECMD_FINAL_OK;
+  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("cron %d utc %d"),
+                               jobposition, job->use_utc));
+}
+
+int16_t
+parse_cmd_cron_rm(char *cmd, char *output, uint16_t len)
+{
+  uint8_t jobposition;
+  uint8_t ret = sscanf_P(cmd, PSTR("%hhu"), &jobposition);
+
+  if (ret == 1)
+  {
+    struct cron_event_linkedlist *jobll = cron_getjob(jobposition);
+    if (!jobll)
+      return ECMD_ERR_PARSE_ERROR;
+    cron_jobrm(jobll);
+    return
+      ECMD_FINAL(snprintf_P(output, len, PSTR("rm cron %u"), jobposition));
+  }
+
+  while (head)
+    cron_jobrm(head);
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("rm all cron")));
 }
 
 // generic cron add
 // Fields: Min Hour Day Month Dow ecmd
-int16_t parse_cmd_cron_add (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_cron_add(char *cmd, char *output, uint16_t len)
 {
-	int8_t minute, hour, day, month, dayofweek;
-	int i;
-	char ecmd[ECMD_INPUTBUF_LENGTH];
+  int8_t minute, hour, day, month, dayofweek;
+  int i;
 
-	sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %n"), &minute, &hour, &day, &month, &dayofweek, &i);
-	strncpy(ecmd,cmd+i,ECMD_INPUTBUF_LENGTH);
-	cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING, CRON_APPEND, ecmd);
+  if (sscanf_P
+      (cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %n"), &minute, &hour, &day, &month,
+       &dayofweek, &i) != 5)
+  {
+    return ECMD_ERR_PARSE_ERROR;
+  }
 
-	return ECMD_FINAL_OK;
+  int16_t ret =
+    cron_jobinsert_ecmd(minute, hour, day, month, dayofweek, INFINIT_RUNNING,
+                        CRON_APPEND, cmd + i);
+  if (ret < 0)
+  {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("add cron failed")));
+  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("add cron %d"), ret));
 }
-
 
 /*
   -- Ethersex META --
   block([[CRON-Dienst]])
-  ecmd_feature(cron_list, "cron_list",, Show all cron entries)
-ecmd_ifdef(CRON_VFS_SUPPORT)
-  ecmd_feature(cron_save, "cron_save",, Saves all persistent jobs)
-  ecmd_feature(cron_make_persistent, "cron_make_persistent",, Mark a Job as persistent)
+  ecmd_feature(cron_list, "cron list",, Show all cron entries)
+ecmd_ifdef(CRON_PERSIST_SUPPORT)
+  ecmd_feature(cron_save, "cron save",, Saves all persistent jobs)
+  ecmd_feature(cron_persistent, "cron persistent", POSITION [STATE], show/set job persistance state)
 ecmd_endif()
-  ecmd_feature(cron_rm, "cron_rm", POSITION, Remove one cron entry)
-  ecmd_feature(cron_add, "cron_add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)
+ecmd_ifdef(CRON_ANACRON_SUPPORT)
+  ecmd_feature(cron_anacron, "cron anacron", POSITION [STATE], show/set job anacron state)
+ecmd_endif()
+  ecmd_feature(cron_utc, "cron utc", POSITION [STATE], show/set utc state)
+  ecmd_feature(cron_rm, "cron rm", [POSITION], Remove one cron entry)
+  ecmd_feature(cron_add, "cron add", MIN HOUR DAY MONTH DOW ECMD, Add ECMD to cron to be executed at given time)
 */
