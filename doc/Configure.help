@@ -301,12 +301,17 @@ PS2_GERMAN_LAYOUT
 
 ADC input
 ADC_SUPPORT
-  Depends on:
-   * ECMD support (ECMD_PARSER_SUPPORT)
-
   Enable ADC abstraction layer.  This especially enables a further
   ECMD 'adc get' which triggers a ADC conversion for each channel
-  and returns the gained values.
+  and returns the gained values (if ECMD support is enabled).
+
+ADC voltage support
+ADC_VOLTAGE_SUPPORT
+  Depends on:
+   * ADC input (ADC_SUPPORT)
+
+  Enables the direct readout of ADC in volt. A VREF calibration value
+  can be set by ECMD and is stored in EEPROM.
 
 FS20 RF-control
 FS20_SUPPORT
@@ -725,15 +730,85 @@ CRON_SUPPORT
    * System clock support (CLOCK_SUPPORT)
 
   Enable cron-alike service. Cronjobs can be added programmatically
-  or by other modules' ecmd commands and removed via the ecmd command
-  "cron_rm".  A list of all active jobs can be requested via "cron_list".
+  or by other module's ecmd commands and removed via the ecmd command
+  "cron rm".  A list of all active jobs can be requested via "cron list".
 
   Syntax for the cron ecmd commands:
-  cron_rm POSITION (where POSITION is in 0..N-1)
-  cron_list
+  cron add MIN HOUR DAY MONTH DOW ECMD : add a cron job
+  cron rm [POSITION} (where POSITION is in 0..N-1) : remove all/selected job
+  cron list : list all jobs
+  cron utc POSITION [STATE] : show/set flag to use UTC time for a job
 
   To add a stella cron job to, for example, fade up all lights at 6pm,
   compile in stella support and use the stella ecmd command "stella cron"
+
+Use UTC instead of LOCALTIME
+CRON_DEFAULT_UTC
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create conjobs with UTC flag set by default.
+
+Test entries
+CRON_SUPPORT_TEST
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create some test jobs at system startup (for debuging).
+
+Store Cron jobs in VFS
+CRON_VFS_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * VFS support (VFS_SUPPORT)
+   * !NOT! Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Store cron jobs as file on VFS storage like SD card.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to file
+
+Store Cron jobs in EEPROM
+CRON_EEPROM_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * !NOT! Store Cron jobs in VFS (CRON_VFS_SUPPORT)
+
+  Store cron jobs as file in EEPROM.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to EEPROM
+
+Cron EEPROM size
+CRON_EEPROM_SIZE
+  Depends on:
+   * Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Size of EEPROM reserved for crontab storage.
+
+Anacon Support
+CRON_ANACRON_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  If system is booted (with an RTC attached) or an time gap is detected
+  (i.e. by an NTP adjustment) all missed jobs are executed, if marked as
+  anacron job. The maximum time span is configured by CRON_ANACRON_MAXAGE.
+  This function is usefull for jobs that set internal states (for example
+  the target temperature of a heating control dependend on the daytime).
+
+  Syntax for the corresponding ecmd commands:
+  cron anacron POSITION [STATE] : show/set anacron flag for a job
+
+Anacron max age in secs
+CRON_ANACRON_MAXAGE
+  Depends on:
+   * Anacon Support (CRON_ANACRON_SUPPORT)
+
+  Maximum time span covered by CRON_ANACRON_SUPPORT in secs. Default is
+  86400 secs (one day).
 
 NTP daemon
 NTPD_SUPPORT
@@ -834,7 +909,23 @@ SNMP_SUPPORT
 
   Make ADC, Hostname and Uptime available through SNMP.
 
-  Set default values for DESCRIPTION, LOCATION and CONTACT.
+  Set default values for DESCRIPTION, LOCATION, CONTACT and COMMUNITY STRING.
+
+SNMP Description
+SNMP_VALUE_DESCRIPTION
+  Description of the system.
+
+SNMP Location
+SNMP_VALUE_LOCATION
+  Location of the system.
+
+SNMP Contact
+SNMP_VALUE_CONTACT
+  Administrative contact.
+
+SNMP Community String
+SNMP_COMMUNITY_STRING
+  Community string used for read requests.
 
 Sendmail support (smtp)
 SENDMAIL_SUPPORT
@@ -1205,7 +1296,7 @@ CONF_JABBER_BUDDY
 Alias Command Names
 ALIASCMD_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Define aliases for your ecmds. Aliases are expanded if $ ist the first
@@ -1584,7 +1675,7 @@ MCUF Module Display Mode
 MCUF_MODUL_DISPLAY_MODE_SUPPORT
   Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
 
   Set default call mode to start any modul for ECMD.
 
@@ -1766,7 +1857,7 @@ CRON_STATIC_SUPPORT
 ECMD Scripting
 ECMD_SCRIPT_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * VFS (Virtual File System) support (VFS_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -2045,13 +2136,13 @@ SRAM_MEMTEST_ON_BOOT
 Jabber (EXPERIMENTAL)
 ECMD_JABBER_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Jabber Client (JABBER_SUPPORT)
 
   Enable support for ECMD via Jabber.
 
-ECMD (Etherrape Control Interface) support
+ECMD (Ethersex Command) support
 ECMD_PARSER_SUPPORT
   Depends on:
 
@@ -2061,7 +2152,7 @@ ECMD_PARSER_SUPPORT
 IRC (EXPERIMENTAL)
 ECMD_IRC_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * IRC client (EXPERIMENTAL) (IRC_SUPPORT)
 
@@ -2071,7 +2162,7 @@ ECMD_IRC_SUPPORT
 SMS
 ECMD_SMS_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * SMS Support (SMS_SUPPORT)
 
   Send and receive ECMD via Short Message Service.
@@ -2413,6 +2504,54 @@ ONEWIRE_POLLING_SUPPORT
   onewire bus.
   The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
 
+
+ECMD 1w list with values
+ONEWIRE_ECMD_LIST_VALUES_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+
+  Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
+  value for each sensor. Fields are separated by tab. 
+
+
+Onewire naming support
+ONEWIRE_NAMING_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Enable mapping of onewire rom addresses to names. Mapping table is stored in EEPROM and could be edited
+  by ECMD commands:
+
+  1w name list: Show current mapping table
+  1w name set ID DEVICE NAME: Set table row ID to rom address DEVICE and name NAME
+  1w name clear ID: Clear table row ID
+  1w name save: Write current mapping table to EEPROM
+
+  "1w list" shows the rom addresses together with the names (separated by tab).
+
+  Number of table rows is defined by "Maximum sensor count" (OW_SENSORS_COUNT).
+
+
+Onewire SNMP support
+ONEWIRE_SNMP_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+   * SNMP Support (SNMP_SUPPORT)
+
+  Make the onewire values (currently only temperature) available via SNMP. The main OID is
+  .1.3.6.1.4.1.2021.13.23.3.
+
+  Sub-OIDs:
+  .1.3.6.1.4.1.2021.13.23.3.1.<ID>: rom address
+  .1.3.6.1.4.1.2021.13.23.3.2.<ID>: mapped name (with ONEWIRE_NAMING_SUPPORT)
+  .1.3.6.1.4.1.2021.13.23.3.3.<ID>: temperature value
+  .1.3.6.1.4.1.2021.13.23.3.4.<ID>: last discovery state (0 = absent, 1 = present)
+
+  ID corresponds with the ID of the name mapping table.
+
+
 Time between discoveries in 0.8s steps
 OW_DISCOVER_DELAY
 
@@ -2706,3 +2845,7 @@ CONF_BTN_REPEAT_RATE
 
   Interval between two REPEAT events.
 
+Backlight support
+HD44780_BACKLIGHT_SUPPORT
+
+  Backlight support for HD44780 LCD with direct connection.

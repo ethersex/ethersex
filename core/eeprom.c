@@ -69,7 +69,7 @@ eeprom_get_chksum (void)
   uint8_t eeprom_crc = 0;
   uint8_t *p = (uint8_t *) EEPROM_CONFIG_BASE;
 
-  for (uint8_t i = 0; i < (sizeof (struct eeprom_config_t) - 1); i++)
+  for (uint16_t i = 0; i < (sizeof (struct eeprom_config_t) - 1); i++)
     {
       eeprom_crc = _crc_ibutton_update (eeprom_crc, eeprom_read_byte (p));
       p++;
@@ -115,6 +115,10 @@ eeprom_init (void)
   eeprom_save_P (pam_password, PSTR (PAM_SINGLE_PASSWORD), 16);
 #endif
 
+#ifdef ADC_VOLTAGE_SUPPORT
+  eeprom_save_int (adc_vref, ADC_REF_VOLTAGE);
+#endif
+
 #ifdef KTY_SUPPORT
   eeprom_save_char (kty_calibration, 0);
 #endif
@@ -127,6 +131,15 @@ eeprom_init (void)
 #ifdef DMX_FXSLOT_SUPPORT
   struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
   eeprom_save (dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+#endif
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+  ow_name_t temp_name;
+  memset(&temp_name, 0, sizeof(ow_name_t));
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    eeprom_save(ow_names[i], &temp_name, sizeof(ow_name_t));
+  }
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
@@ -149,6 +162,11 @@ eeprom_init (void)
 
 #ifdef MOTD_SUPPORT
   eeprom_save_P (motd_text, PSTR (CONF_MOTD_DEFAULT), MOTD_VALUESIZE);
+#endif
+
+#ifdef CRON_EEPROM_SUPPORT
+  uint8_t count = 0;
+  eeprom_save_offset(crontab, 0, &count, sizeof(count));
 #endif
   eeprom_update_chksum ();
 }

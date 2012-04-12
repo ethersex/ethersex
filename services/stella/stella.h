@@ -76,13 +76,8 @@ typedef struct stella_timetable_entry
   struct stella_timetable_entry *next;
 } stella_timetable_entry_s;
 
-#if STELLA_FADE_FUNCTION_INIT == stella_fade_func_0
-#undef STELLA_FADE_FUNCTION_INIT
-#define STELLA_FADE_FUNCTION_INIT 0
-#else
-#undef STELLA_FADE_FUNCTION_INIT
-#define STELLA_FADE_FUNCTION_INIT 1
-#endif
+#define stella_fade_func_0 0
+#define stella_fade_func_1 1
 
 typedef struct stella_timetable_struct
 {
