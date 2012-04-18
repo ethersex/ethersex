@@ -33,7 +33,8 @@
   STELLA_SET_IMMEDIATELY,
   STELLA_SET_FADE,
   STELLA_SET_FLASHY,
-  STELLA_SET_IMMEDIATELY_RELATIVE
+  STELLA_SET_IMMEDIATELY_RELATIVE,
+  STELLA_SET_FADESTEP,
   STELLA_GETALL
 */
 
@@ -107,6 +108,8 @@ udpstella_net_main(void)
 		}
 		uip_slen += STELLA_CHANNELS+7;
 		answer += STELLA_CHANNELS+7;
+	    } else if (packet->type == STELLA_SET_FADESTEP) {
+	    	stella_setFadestep(packet->value);
 	    } else {
 		stella_setValue(packet->type, packet->channel, packet->value);
 	    }
