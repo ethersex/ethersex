@@ -101,6 +101,7 @@ SUBDIRS += services/motd
 SUBDIRS += services/moodlight
 SUBDIRS += services/stella
 SUBDIRS += services/starburst
+SUBDIRS += services/tanklevel
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
