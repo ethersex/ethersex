@@ -38,7 +38,7 @@ function dmx_updatetable(request) {
 	{
 		return;
 	}
-	document".getElementById("upind").innerHTML = "";
+	document.getElementById("upind").innerHTML = "";
 
 	var channels_source = request.responseText.split("\n");
 	var channels = channels_source.slice(0,channels_source.length - 1); 
