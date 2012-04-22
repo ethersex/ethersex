@@ -53,9 +53,9 @@
 #define TIMESTAMP_TEXT_LENGTH 20
 
 uint8_t
-encode_int(uint8_t * ptr, uint16_t val)
+encode_short(uint8_t * ptr, uint8_t type, uint16_t val)
 {
-  ptr[0] = SNMP_TYPE_INTEGER;
+  ptr[0] = type;
   ptr[1] = 2;
   ptr[2] = HI8(val);
   ptr[3] = LO8(val);
@@ -63,12 +63,18 @@ encode_int(uint8_t * ptr, uint16_t val)
 }
 
 uint8_t
-encode_long(uint8_t * ptr, uint32_t val)
+encode_long(uint8_t * ptr, uint8_t type, uint32_t val)
 {
-  ptr[0] = SNMP_TYPE_INTEGER;
+  ptr[0] = type;
   ptr[1] = 4;
   *((uint32_t *) (ptr + 2)) = HTONL(val);
   return 6;
+}
+
+uint8_t
+encode_timeticks(uint8_t * ptr, timestamp_t ts)
+{
+  return encode_long(ptr, SNMP_TYPE_TIMETICKS, ts * 100L);
 }
 
 uint8_t
@@ -107,7 +113,7 @@ onelevel_next(uint8_t * ptr, struct snmp_varbinding * bind, uint8_t count)
  * reactions
  **********************************************************/
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 uint8_t
 uptime_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
@@ -115,7 +121,7 @@ uptime_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   {
     return 0;
   }
-  return encode_long(ptr, clock_get_uptime() * 100L);
+  return encode_timeticks(ptr, clock_get_uptime());
 }
 #endif
 
@@ -127,7 +133,7 @@ adc_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   {
     return 0;
   }
-  return encode_int(ptr, adc_get(bind->data[0]));
+  return encode_short(ptr, SNMP_TYPE_INTEGER, adc_get(bind->data[0]));
 }
 
 #ifdef ADC_VOLTAGE_SUPPORT
@@ -140,7 +146,7 @@ adc_volt_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
   {
     return 0;
   }
-  return encode_int(ptr, adc_get_voltage(bind->data[0]));
+  return encode_short(ptr, SNMP_TYPE_INTEGER, adc_get_voltage(bind->data[0]));
 }
 
 uint8_t
@@ -151,7 +157,7 @@ adc_vref_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
   {
     return 0;
   }
-  return encode_int(ptr, adc_get_vref());
+  return encode_short(ptr, SNMP_TYPE_INTEGER, adc_get_vref());
 }
 
 #endif
@@ -217,7 +223,7 @@ ow_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   }
   uint8_t i = bind->data[0];
 
-  return encode_int(ptr, ow_sensors[i].temp);
+  return encode_short(ptr, SNMP_TYPE_INTEGER, ow_sensors[i].temp);
 }
 
 uint8_t
@@ -229,7 +235,7 @@ ow_present_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata
   }
   uint8_t i = bind->data[0];
 
-  return encode_int(ptr, ow_sensors[i].present);
+  return encode_short(ptr, SNMP_TYPE_INTEGER, ow_sensors[i].present);
 }
 
 uint8_t
@@ -251,11 +257,11 @@ tank_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   switch (bind->data[0])
   {
     case 0:
-      return encode_int(ptr, tanklevel_get());
+      return encode_short(ptr, SNMP_TYPE_INTEGER, tanklevel_get());
     case 1:
-      return encode_int(ptr, tanklevel_params_ram.ltr_full);
+      return encode_short(ptr, SNMP_TYPE_INTEGER, tanklevel_params_ram.ltr_full);
     case 2:
-      return encode_long(ptr, tanklevel_get_ts());
+      return encode_long(ptr, SNMP_TYPE_COUNTER, tanklevel_get_ts());
     case 3:
       return encode_timestamp_text(ptr, tanklevel_get_ts());
     default:
@@ -291,7 +297,7 @@ string_pgm_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
 const char desc_value[] PROGMEM = SNMP_VALUE_DESCRIPTION;
 const char desc_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x01";
 
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
 #endif
 
@@ -305,29 +311,29 @@ const char location_value[] PROGMEM = SNMP_VALUE_LOCATION;
 const char location_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x06";
 
 #ifdef ADC_SUPPORT
-const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\x01";
+const char adc_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x01";
 #ifdef ADC_VOLTAGE_SUPPORT
-const char adc_volt_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x02";
-const char adc_vref_reaction_obj_name[] PROGMEM = ethersexExperimental "\x02\x03";
+const char adc_volt_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x02\x02";
+const char adc_vref_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x02\x03";
 #endif
 #endif
 
 #ifdef ONEWIRE_SNMP_SUPPORT
-const char ow_rom_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x01";
+const char ow_rom_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x01";
 #ifdef ONEWIRE_NAMING_SUPPORT
-const char ow_name_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x02";
+const char ow_name_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x02";
 #endif
-const char ow_temp_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x03";
-const char ow_present_reaction_obj_name[] PROGMEM = ethersexExperimental "\x03\x04";
+const char ow_temp_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x03";
+const char ow_present_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x04";
 #endif
 
 #ifdef TANKLEVEL_SUPPORT
-const char tank_reaction_obj_name[] PROGMEM = ethersexExperimental "\x04";
+const char tank_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x04";
 #endif
 
 const struct snmp_reaction snmp_reactions[] PROGMEM = {
   {desc_obj_name, string_pgm_reaction, (void *) desc_value, NULL},
-#ifdef WHM_SUPPORT
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
   {uptime_reaction_obj_name, uptime_reaction, NULL, NULL},
 #endif
   {contact_obj_name, string_pgm_reaction, (void *) contact_value, NULL},
