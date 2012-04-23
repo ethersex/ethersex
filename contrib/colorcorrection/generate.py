@@ -1,30 +1,36 @@
 #!/usr/bin/python3
 # Copyright (c) 2011-2012 by Maximilian Güntner <maximilian.guentner@gmail.com>
 # Released under the GPL v3
-# usage: generate.py OPTION
-# OPTION:
-# s: Generates a lookup table of the Stevens' power law to be copy pasted directly in to c/cpp source code
-# c: Generates a lookup table of the CIELUV (CIE 1931) color space to be copy pasted directly in to c/cpp source code
+# usage: generate.py [-h] -f FUNCTION
+# OPTIONS:
+# -h/--help: Print this usage
+# -f: FUNCTION
+# FUNCTION:
+#  s: Generates a lookup table of the Stevens' power law to be copy pasted directly in to c/cpp source code
+#  c: Generates a lookup table of the CIELUV (CIE 1931) color space to be copy pasted directly in to c/cpp source code
 #
 # For more information, see
 # (1) http://en.wikipedia.org/wiki/CIELUV
 # (2) http://en.wikipedia.org/wiki/Stevens_power_law
 #
+import getopt
 import math
 import sys
 pwm_size=4096.00
 pwm_levels=255
 
 def printUsage():
-  print('''usage: generate.py OPTION
- OPTION: 
- s: Generates a lookup table of the Stevens\' power law to be copy pasted directly in to c/cpp source code
- c: Generates a lookup table of the CIELUV (CIE 1931) color space to be copy pasted directly in to c/cpp source code
+  print('''usage: generate.py [-h] -f FUNCTION
+ OPTIONS:
+ -h/--help: Prints this usage
+ -f FUNCTION
+ FUNCTION:
+  s: Generates a lookup table of the Stevens' power law to be copy pasted directly in to c/cpp source code
+  c: Generates a lookup table of the CIELUV (CIE 1931) color space to be copy pasted directly in to c/cpp source code
 
  For more information, see
  (1) http://en.wikipedia.org/wiki/CIELUV
- (2) http://en.wikipedia.org/wiki/Stevens_power_law
-''')
+ (2) http://en.wikipedia.org/wiki/Stevens_power_law''')
 
 def stevensPowerLaw():
   print('datatype stevens_power[%d] = {' % (pwm_levels+1), end=" ")
@@ -54,13 +60,24 @@ def cieLuminance():
     else:
       print('%d };' % result)
 
-if len(sys.argv) < 2:
+if __name__ == "__main__":
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "hf:", ["help"])
+  except getopt.GetoptError as err:
+    print(err.msg, file=sys.stderr)
+    printUsage()
+    sys.exit(2)
+  for o,a in opts:
+    if o == "-f" and a == "s":
+      stevensPowerLaw()
+      sys.exit(0)
+    elif o == "-f" and a == "c":
+      cieLuminance()
+      sys.exit(0)
+    elif o == "--help" or o == "-h":
+      printUsage()
+      sys.exit(0)
+#Handle all no arguments/arbitrary input
+  print("this program requires at least one valid option", file=sys.stderr)
   printUsage()
-  sys.exit(0)
-if sys.argv[1] == "s":
-  stevensPowerLaw()
-elif sys.argv[1] == "c":
-  cieLuminance()
-else:
-  printUsage()
-sys.exit(0)
+  sys.exit(2)
