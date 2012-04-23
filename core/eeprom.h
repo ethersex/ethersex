@@ -65,6 +65,10 @@
 #include "services/cron/cron.h"
 #endif
 
+#ifdef TANKLEVEL_SUPPORT
+#include "services/tanklevel/tanklevel.h"
+#endif
+
 struct eeprom_config_t
 {
 #ifdef ETHERNET_SUPPORT
@@ -134,6 +138,10 @@ struct eeprom_config_t
 
 #ifdef CRON_EEPROM_SUPPORT
   uint8_t crontab[CRON_EEPROM_SIZE];
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+  tanklevel_params_t tanklevel_params;
 #endif
   uint8_t crc;
 };
