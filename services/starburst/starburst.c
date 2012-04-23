@@ -31,7 +31,7 @@ enum starburst_update update;
 #ifdef STARBURST_PCA9685
 int8_t pca9685_dmx_conn_id = -1;
 uint8_t pca9685_dmx_connected = FALSE;
-const cie_luminance_12bit[256] PROGMEM =
+const uint16_t cie_luminance_12bit[256] PROGMEM =
   { 0, 1, 3, 13, 14, 15, 16, 17, 18, 19, 20,
   21, 23, 24, 26, 27, 29, 30, 32, 33, 35,
   37, 39, 41, 43, 45, 47, 49, 51, 53, 56,
