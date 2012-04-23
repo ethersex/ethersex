@@ -70,14 +70,15 @@ if __name__ == "__main__":
   for o,a in opts:
     if o == "-f" and a == "s":
       stevensPowerLaw()
-      sys.exit(0)
     elif o == "-f" and a == "c":
       cieLuminance()
-      sys.exit(0)
     elif o == "--help" or o == "-h":
       printUsage()
-      sys.exit(0)
-#Handle all no arguments/arbitrary input
-  print("this program requires at least one valid option", file=sys.stderr)
-  printUsage()
-  sys.exit(2)
+    else:
+      assert False, "unhandled option"
+  if not opts:
+    #Handle no arguments/arbitrary input
+    print("this program requires at least one valid option", file=sys.stderr)
+    printUsage()
+    sys.exit(2)
+  sys.exit(0)
