@@ -2849,3 +2849,9 @@ Backlight support
 HD44780_BACKLIGHT_SUPPORT
 
   Backlight support for HD44780 LCD with direct connection.
+
+Use internal pullups
+CONF_BTN_USE_PULLUPS
+
+  Enable the internal pullup resistors of the controller.
+

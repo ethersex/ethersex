@@ -26,8 +26,8 @@
 /*****************************************************************
  * To configure additional buttons:
  * (1) Add a line in the form of
- *     _x(<NameOfYourButton>),\
- *     to the #define below. Omit the ',' on the last line but keep the _x.
+ *     _x(<NameOfYourButton>)\
+ *     to the #define below.
  *
  * (2) Add a line in the form of
  *     pin(<Name of your Button>, <Pin of your button>, INPUT)
@@ -39,10 +39,10 @@
  *  1) Set the define up like this:
  *
  * #define BTN_CONFIG(_x) \
- * _x(BTN_UP),\
- * _x(BTN_DOWN),\
- * _x(BTN_LEFT),\
- * _x(BTN_RIGHT),\
+ * _x(BTN_UP)\
+ * _x(BTN_DOWN)\
+ * _x(BTN_LEFT)\
+ * _x(BTN_RIGHT)\
  * _x(BTN_ENTER)
  *
  * 2) In the pinning configuration file for you hardware, add the following:
@@ -58,7 +58,7 @@
   
 /* Define your buttons here: */ 
 #define BTN_CONFIG(_x) \
-_x(BTN_UP), \_x(BTN_DOWN), \_x(BTN_LEFT), \_x(BTN_RIGHT),\_x(BTN_ENTER)  
+_x(BTN_UP)\_x(BTN_DOWN)\_x(BTN_LEFT)\_x(BTN_RIGHT)\_x(BTN_ENTER)  
 #endif //BUTTONS_INPUT_SUPPORT
   
 #endif  /* BUTTONS_CFG_H_ */

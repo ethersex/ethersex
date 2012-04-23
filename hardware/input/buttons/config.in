@@ -1,8 +1,20 @@
 dep_bool_menu "Buttons Input" BUTTONS_INPUT_SUPPORT $CONFIG_EXPERIMENTAL $ARCH_AVR
-  int "Number of buttons" CONF_NUM_BUTTONS
-	dep_bool "Use Repeat" CONF_BTN_USE_REPEAT $BUTTON_INPUT_SUPPORT
+	int "Number of buttons" CONF_NUM_BUTTONS
+	bool "Use internal pullups" CONF_BTN_USE_PULLUPS $BUTTON_INPUT_SUPPORT
+	choice "Button pressed level" 		\
+    	"HIGH CONF_BUTTON_LVL_HIGH	\
+	 	 LOW CONF_BUTTON_LVL_LOW" \
+        'LOW'
+	if [ "$CONF_BUTTON_LVL_HIGH" = "y" ]; then
+      define_int CONF_BUTTON_LVL 1
+    else
+      define_int CONF_BUTTON_LVL 2
+    fi
+
+	bool "Use Repeat" CONF_BTN_USE_REPEAT $BUTTON_INPUT_SUPPORT
 	int "Repeat time (x*20 ms)" CONF_BTN_REPEAT_TIME 50 $CONF_BTN_USE_REPEAT
 	int "Repeat rate (x*20 ms)" CONF_BTN_REPEAT_RATE 10 $CONF_BTN_USE_REPEAT
+	
 	comment  "Debugging Flags"
 	dep_bool "Button input Debug" DEBUG_BUTTONS_INPUT $DEBUG $BUTTONS_INPUT_SUPPORT
 endmenu

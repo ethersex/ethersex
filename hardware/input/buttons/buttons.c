@@ -61,8 +61,8 @@
 
 #ifdef BUTTONS_INPUT_SUPPORT
 
-#define BUTTON_DEBOUNCE_TIME 2  	/* Debounce time in ethersex ticks (x*20ms) */
-#define BUTTON_LONG_PRESS_TIME 45   /* Time for long press in ethersex ticks (x*20ms) */
+#define BUTTON_DEBOUNCE_TIME 3  /* Debounce time in ethersex ticks (x*20ms) */
+#define BUTTON_LONG_PRESS_TIME 50       /* Time for long press in ethersex ticks (x*20ms) */
 
 #ifdef DEBUG_BUTTONS_INPUT
 const char *buttonNames[CONF_NUM_BUTTONS] = { BTN_CONFIG(S) };
@@ -87,10 +87,14 @@ buttons_init(void)
 
   BUTTONDEBUG("Init\n");
 
+#ifdef CONF_BTN_USE_PULLUPS
+  BTN_CONFIG(PULLUP);
+#endif
+
   for (ctr = 0; ctr < CONF_NUM_BUTTONS; ctr++)
   {
     BUTTONDEBUG("Button %s Port %i pin %i \n", buttonNames[ctr],
-                buttonConfig[ctr].port, buttonConfig[ctr].pin);
+                buttonConfig[ctr].portIn, buttonConfig[ctr].pin);
 
     /* No button pressed */
     buttonStatus[ctr].curStatus = 0;
@@ -118,10 +122,15 @@ buttons_periodic(void)
   for (ctr = 0; ctr < CONF_NUM_BUTTONS; ctr++)
   {
     /* Get current value from portpin... */
+#if CONF_BUTTON_LVL == 2
     curState =
-      ((*buttonConfig[ctr].port & _BV(buttonConfig[ctr].pin)) ==
+      ((*buttonConfig[ctr].portIn & _BV(buttonConfig[ctr].pin)) ==
        _BV(buttonConfig[ctr].pin)) ? 0 : 1;
-
+#else
+    curState =
+      ((*buttonConfig[ctr].portIn & _BV(buttonConfig[ctr].pin)) ==
+       _BV(buttonConfig[ctr].pin)) ? 1 : 0;
+#endif
     /* Actual state hasn't change since the last read... */
     if (buttonStatus[ctr].curStatus == curState)
     {
