@@ -107,16 +107,16 @@ parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
   uint16_t ret = 0;
   uint8_t value = 0, universe = 0;
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23)             /* indicator flag: real invocation:  0 */
+  if (cmd[0] != ECMD_STATE_MAGIC) /* indicator flag: real invocation:  0 */
   {
     /* read universe */
     ret = sscanf_P(cmd, PSTR("%hhu"), &universe);
     if (ret != 1 || universe >= DMX_STORAGE_UNIVERSES)
       return ECMD_ERR_PARSE_ERROR;
-    cmd[0] = 23;                /* continuing call: 23 */
-    cmd[1] = universe;          /* universe */
-    cmd[2] = 0;                 /* reserved for chan */
-    cmd[3] = 0;                 /* reserved for chan */
+    cmd[0] = ECMD_STATE_MAGIC;    /* continuing call: 23 */
+    cmd[1] = universe;            /* universe */
+    cmd[2] = 0;                   /* reserved for chan */
+    cmd[3] = 0;                   /* reserved for chan */
   }
   /* retrieve universe from *cmd */
   universe = cmd[1];

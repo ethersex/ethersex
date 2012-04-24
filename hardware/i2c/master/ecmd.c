@@ -47,9 +47,9 @@
 int16_t parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
 {
 	/* First call, we initialize our magic bytes*/
-	if (cmd[0] != 0x23)
+	if (cmd[0] != ECMD_STATE_MAGIC)
 	{
-		cmd[0] = 0x23;
+		cmd[0] = ECMD_STATE_MAGIC;
 		cmd[1] = 0;
 	}
 	uint8_t next_address = i2c_master_detect(cmd[1], 127);

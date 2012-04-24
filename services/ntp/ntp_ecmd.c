@@ -74,9 +74,9 @@ int16_t parse_cmd_ntp_query(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
 {
     /* trick: use bytes on cmd as "connection specific static variables" */
-    if (cmd[0] != 23) {	/* indicator flag: real invocation:  0 */
-	cmd[0] = 23;	/*                 continuing call: 23 */
-	cmd[1] = 0;	/* counter for output lines */
+    if (cmd[0] != ECMD_STATE_MAGIC) {	/* indicator flag: real invocation:  0 */
+	cmd[0] = ECMD_STATE_MAGIC;	/*                 continuing call: 23 */
+	cmd[1] = 0;			/* counter for output lines */
     }
     else {
 	cmd[1]++;	/* iterate to next output line */
