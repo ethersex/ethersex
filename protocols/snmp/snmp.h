@@ -65,8 +65,16 @@
 /* OID: 1.3.6.1.4.1. */
 #define SNMP_OID_ENTERPRISES "\x2b\x06\x01\x04\x01"
 
+/* OID: 1.3.6.1.4.1.2021.13.23. */
+#define SNMP_OID_UCDEXPERIMENTAL "\x2b\x06\x01\x04\x01\x8f\x65\x0d"
+
+#ifdef SNMP_EXPERIMENTAL_TREE_SUPPORT
+/* OID: 1.3.6.1.4.1.2021.13.23. */
+#define SNMP_OID_ETHERSEX SNMP_OID_UCDEXPERIMENTAL "\x17"
+#else
 /* OID: 1.3.6.1.4.1. */
 #define SNMP_OID_ETHERSEX SNMP_OID_ENTERPRISES "\x17"
+#endif
 
 struct snmp_varbinding
 {

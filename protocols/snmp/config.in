@@ -4,5 +4,6 @@ if [ "$SNMP_SUPPORT" = "y" ]; then
   string "  SNMP Location"         SNMP_VALUE_LOCATION    "over the rainbow"
   string "  SNMP Contact"          SNMP_VALUE_CONTACT     "http://www.ethersex.de"
   string "  SNMP Community String" SNMP_COMMUNITY_STRING  "public"
+  dep_bool "  Use legacy experimental OIDs" SNMP_EXPERIMENTAL_TREE_SUPPORT $SNMP_SUPPORT
 fi
 endmenu
