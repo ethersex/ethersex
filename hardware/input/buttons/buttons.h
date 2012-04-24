@@ -33,15 +33,13 @@
 #define BUTTON_LONGPRESS 2      /* Long press */
 #define BUTTON_REPEAT 3         /* Repeat function enabled, repeatedly triggered until button released */
 
-/* This macros allow to use the the same configuration
+/* These macros allow to use the the same configuration
  * macro (in buttons_cfg.h) to initialize the
- * btn_ButtonsType enum and the button_configType struct. */
+ * btn_ButtonsType enum, the button_configType struct and set the pullups. */
 #define S(_v) #_v,
 #define E(_v) _v,
 #define C(_v) {.portIn = &PIN_CHAR(_v##_PORT), .pin = _v##_PIN},
-
 #define PULLUP(_v) PIN_SET(_v);
-
 
 /* Enum used in the cyclic function to loop over all buttons */
 typedef enum
