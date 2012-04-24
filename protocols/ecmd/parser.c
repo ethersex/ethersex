@@ -50,18 +50,14 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 #endif
 
 #ifdef ECMD_REMOVE_BACKSPACE_SUPPORT
-    uint8_t i;
-    for (i=0; cmd[i] != '\0' && cmd[i] != ECMD_STATE_MAGIC && i < ECMD_OUTPUTBUF_LENGTH; i++);
-    if (cmd[i] != ECMD_STATE_MAGIC) { // skip if state tracking is in use
-        i = 0;
-        while (cmd[i] != '\0' && i < ECMD_OUTPUTBUF_LENGTH) { // search until end of string
-            if (cmd[i] =='\b') { // check cmd for backspaces
-                uint16_t cmdlen = strlen(cmd+i);
-                memmove(cmd + i - 1, cmd + i + 1, cmdlen); // we found a backspace, so we move all chars backwards
-                i--;  // and decrement char counter
-            } else {
-                i++; // goto char
-            }
+    uint8_t i = 0;
+    while (cmd[i] != '\0' && cmd[i] != ECMD_STATE_MAGIC && i < ECMD_OUTPUTBUF_LENGTH) { // search until end of string
+        if (cmd[i] =='\b') { // check cmd for backspaces
+            uint16_t cmdlen = strlen(cmd+i);
+            memmove(cmd + i - 1, cmd + i + 1, cmdlen); // we found a backspace, so we move all chars backwards
+            i--;  // and decrement char counter
+        } else {
+            i++; // goto char
         }
     }
 #endif /* ECMD_REMOVE_BACKSPACE_SUPPORT */
