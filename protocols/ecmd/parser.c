@@ -50,15 +50,17 @@ int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 #endif
 
 #ifdef ECMD_REMOVE_BACKSPACE_SUPPORT
-	uint8_t i = 0;
-	while (cmd[i] != '\0' && i < ECMD_OUTPUTBUF_LENGTH) { // search until end of string
-  		if (cmd[i] =='\b') { // check cmd for backspaces
-    		uint16_t cmdlen = strlen(cmd+i);
-    		memmove(cmd + i - 1, cmd + i + 1, cmdlen); // we found a backspace, so we move all chars backwards
-    		i--;  // and decrement char counter
-  		} else {
-    		i++; // goto char
-  		}
+	if (cmd[0] != ECMD_STATE_MAGIC) { // skip if state tracking is in action
+		uint8_t i = 0;
+		while (cmd[i] != '\0' && i < ECMD_OUTPUTBUF_LENGTH) { // search until end of string
+	  		if (cmd[i] =='\b') { // check cmd for backspaces
+	    		uint16_t cmdlen = strlen(cmd+i);
+	    		memmove(cmd + i - 1, cmd + i + 1, cmdlen); // we found a backspace, so we move all chars backwards
+	    		i--;  // and decrement char counter
+	  		} else {
+	    		i++; // goto char
+	  		}
+		}
 	}
 #endif /* ECMD_REMOVE_BACKSPACE_SUPPORT */
 
@@ -191,9 +193,9 @@ int16_t parse_cmd_help(char *cmd, char *output, uint16_t len)
     (void) help_len;
 
     /* trick: use bytes on cmd as "connection specific static variables" */
-    if (cmd[0] != 23) {		/* indicator flag: real invocation:  0 */
-	cmd[0] = 23;		/*                 continuing call: 23 */
-	cmd[1] = 0;		/* counter for output lines */
+    if (cmd[0] != ECMD_STATE_MAGIC) {	/* indicator flag: real invocation:  0 */
+	cmd[0] = ECMD_STATE_MAGIC;	/*                 continuing call: 23 */
+	cmd[1] = 0;			/* counter for output lines */
     }
 
     char *text = (char *)pgm_read_word(&ecmd_cmds[(uint8_t) cmd[1] ++].name);

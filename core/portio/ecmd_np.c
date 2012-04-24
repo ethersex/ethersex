@@ -46,10 +46,10 @@ parse_cmd_pin_list (char *cmd, char *output, uint16_t len)
   PGM_P text;
 
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23)
-    {				/* indicator flag: real invocation:  0 */
-      cmd[0] = 23;		/*                 continuing call: 23 */
-      cmd[1] = 0;		/* counter for output lines */
+  if (cmd[0] != ECMD_STATE_MAGIC)
+    {					/* indicator flag: real invocation:  0 */
+      cmd[0] = ECMD_STATE_MAGIC;	/*                 continuing call: 23 */
+      cmd[1] = 0;			/* counter for output lines */
     }
 
   while (1)

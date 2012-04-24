@@ -63,10 +63,10 @@ parse_cmd_fs_list (char *cmd, char *output, uint16_t len)
 {
   char name[FS_FILENAME + 1];
 
-  if (cmd[0] != 0x05) 
+  if (cmd[0] != ECMD_STATE_MAGIC) 
     {
       /* first function entry */
-      cmd[0] = 0x05;		/* set magic byte ... */
+      cmd[0] = ECMD_STATE_MAGIC;	/* set magic byte ... */
       cmd[1] = 0x00;
 
       return ECMD_AGAIN(snprintf_P(output, len, PSTR("name  :inode :size\n"
