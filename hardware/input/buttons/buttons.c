@@ -176,6 +176,7 @@ buttons_periodic(void)
             }
             break;
 
+#ifdef CONF_BTN_USE_REPEAT
             /* ..and was long pressed before. Wait for repeat start. */
           case BUTTON_LONGPRESS:
             if (CONF_BTN_REPEAT_TIME <= buttonStatus[ctr].ctr)
@@ -198,6 +199,11 @@ buttons_periodic(void)
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
             break;
+#else
+          case BUTTON_LONGPRESS:
+        	  /* Wait for button release */
+              break;
+#endif
 
           default:
             BUTTONDEBUG("Oops! Invalid state.\n");
