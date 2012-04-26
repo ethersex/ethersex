@@ -84,8 +84,8 @@ int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
 {
   char title[15];
 
-  if (cmd[0] != 0x05) {
-    cmd[0] = 0x05;  //magic byte
+  if (cmd[0] != ECMD_STATE_MAGIC) {
+    cmd[0] = ECMD_STATE_MAGIC;  //magic byte
     cmd[1] = 0x00;
  
     return ECMD_AGAIN(snprintf_P(output, len, PSTR("available modules:\n")));

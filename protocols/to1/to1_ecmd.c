@@ -45,11 +45,11 @@ parse_cmd_to1_get(char *cmd, char *output, uint16_t len)
   TO1_DEBUG("called to1 get ecmd %d\n", cmd[1]);
 
 next_sensor:
-  if (*cmd == 23) { /* Magic Marker Byte for the next calls of this function */
+  if (*cmd == ECMD_STATE_MAGIC) { /* Magic Marker Byte for the next calls of this function */
     next_sensor = cmd[1];
     cmd[1] ++;
   } else {
-    cmd[0] = 23;
+    cmd[0] = ECMD_STATE_MAGIC;
     cmd[1] = 1;
   }
 

@@ -33,10 +33,10 @@
 int16_t parse_cmd_ipstats(char *cmd, char *output, uint16_t len)
 {
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23) {	/* indicator flag: real invocation:  0 */
-    cmd[0] = 23;	/*                 continuing call: 23 */
-    cmd[1] = 0;		/* counter for network interface */
-    cmd[2] = 0;		/* counter for output lines for an interface */
+  if (cmd[0] != ECMD_STATE_MAGIC) {	/* indicator flag: real invocation:  0 */
+    cmd[0] = ECMD_STATE_MAGIC;		/*                 continuing call: 23 */
+    cmd[1] = 0;				/* counter for network interface */
+    cmd[2] = 0;				/* counter for output lines for an interface */
   }
   uint16_t tmp;
 #ifdef UIP_MULTI_STACK
