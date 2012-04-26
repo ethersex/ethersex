@@ -26,29 +26,29 @@ ARCH_AVR=y
 MCU=atmega1284p
 atmega1284p=y
 FREQ=16000000
-# Arduino_Duemilanove is not set
-# Fimser is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
-# MicroWebServer is not set
-# USBrfm12stick is not set
 # alpengluehn is not set
+# Arduino_Duemilanove is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
+# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
 HARDWARE=lome6
 lome6=y
-# netio is not set
+# MicroWebServer is not set
 # netio_addon is not set
+# netio is not set
 # other is not set
-# pollin_evalboard is not set
 # pollin_evalboard_addon is not set
+# pollin_evalboard is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
+# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -66,7 +66,7 @@ VERSION_STRING_CHOICE=USE_GIT_VERSION
 USE_GIT_VERSION=y
 # USE_RELEASE_VERSION is not set
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="8aa169a"
+VERSION_GIT="197795c"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -211,7 +211,6 @@ CONF_RFM12_IP4_NETMASK="255.255.255.0"
 # USB_NET_SUPPORT is not set
 # DEBUG_USB_HID_KEYBOARD is not set
 # DEBUG_USB_HID_MOUSE is not set
-# ZBUS_SUPPORT is not set
 # ZBUS_RAW_SUPPORT is not set
 # ROUTER_SUPPORT is not set
 UIP_SUPPORT=y
@@ -283,7 +282,6 @@ ADC_REF=ADC_AREF
 NEED_TEMP2TEXT=y
 # SMS_SUPPORT is not set
 SMS_USART_0=y
-# SMS_USART_1 is not set
 SMS_USE_USART=0
 # DEBUG_SMS is not set
 # KTY_SUPPORT is not set
@@ -343,15 +341,6 @@ LCD_SUPPORT=y
 # DEBUG_I2C is not set
 # CAMERA_SUPPORT is not set
 # DC3840_SUPPORT is not set
-# CONFIG_DC3840_RES80 is not set
-# CONFIG_DC3840_RES160 is not set
-# CONFIG_DC3840_RES320 is not set
-# CONFIG_DC3840_RES640 is not set
-# DC3840_HIGH_COMPRESSION is not set
-# DC3840_BLACK_WHITE is not set
-# DC3840_USART_0 is not set
-# DC3840_USART_1 is not set
-# DC3840_UDP_DEBUG is not set
 # FS20_SUPPORT is not set
 # FS20_SEND_SUPPORT is not set
 # FHT_SEND_SUPPORT is not set
@@ -434,6 +423,8 @@ ONEWIRE_SUPPORT=y
 # ONEWIRE_DS2450_SUPPORT is not set
 # ONEWIRE_DETECT_ECMD_SUPPORT is not set
 # ONEWIRE_POLLING_SUPPORT is not set
+# ONEWIRE_NAMING_SUPPORT is not set
+# ONEWIRE_SNMP_SUPPORT is not set
 # DEBUG_ECMD_OW_ROM is not set
 # DEBUG_ECMD_OW_LIST is not set
 # DEBUG_OW_DS2450_CORE is not set
@@ -472,8 +463,6 @@ CONF_NUM_BUTTONS=
 # DEBUG_HBRIDGE is not set
 # MCUF_SUPPORT is not set
 # MCUF_SERIAL_SUPPORT is not set
-# MCUF_USART_0 is not set
-# MCUF_USART_1 is not set
 # MCUF_OUTPUT_SUPPORT is not set
 # BLP_SUPPORT is not set
 # LEDRG_SUPPORT is not set
@@ -521,15 +510,11 @@ CONF_ARTNET_OUTUNIVERSE=0
 # DALI_RAW_SUPPORT is not set
 # DALI_RECEIVE_SUPPORT is not set
 # DMX_SUPPORT is not set
-DMX_OUTPUT_UNIVERSE=1
-# DMX_USART_0 is not set
-# DMX_USART_1 is not set
 ECMD_PARSER_SUPPORT=y
 # ECMD_REMOVE_BACKSPACE_SUPPORT is not set
 # ALIASCMD_SUPPORT is not set
 ECMD_PAM_SUPPORT=y
 # ECMD_SCRIPT_SUPPORT is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
 ECMD_TCP_SUPPORT=y
 ECMD_TCP_PORT=2701
 # ECMD_UDP_SUPPORT is not set
@@ -556,14 +541,7 @@ FREE_SUPPORT=y
 # DEBUG_ECMD_PORTIO is not set
 # DEBUG_ECMD_RC5 is not set
 # DEBUG_ECMD_SCRIPT is not set
-# FNORDLICHT_BASIC_SUPPORT is not set
-FNORDLICHT_BAUDRATE=19200
-# FNORDLICHT_USART_0 is not set
-# FNORDLICHT_USART_1 is not set
 # FNORDLICHT_SUPPORT is not set
-CONF_FNORDLICHTER=1
-# FNORDLICHT_SERVO_SUPPORT is not set
-# DEBUG_FNORDLICHT is not set
 # HTTPLOG_SUPPORT is not set
 CONF_HTTPLOG_SERVICE="volkszaehler.org"
 CONF_HTTPLOG_PATH="/httplog/httplog.php"
@@ -631,32 +609,15 @@ CONF_USTREAM_PORT=80
 # DEBUG_USTREAM is not set
 YPORT_SUPPORT=y
 YPORT_USART_0=y
-# YPORT_USART_1 is not set
 YPORT_USE_USART=0
 YPORT_PORT=10001
 YPORT_BAUDRATE=19200
 YPORT_BUFFER_LEN=768
 # DEBUG_YPORT is not set
 # MSR1_SUPPORT is not set
-# MSR1_USART_0 is not set
-# MSR1_USART_1 is not set
-# DEBUG_MSR1 is not set
 # TO1_SUPPORT is not set
-# TO1_USART_0 is not set
-# TO1_USART_1 is not set
-TO1_SENSOR_COUNT=1
-# DEBUG_TO1 is not set
 # SERIAL_LINE_LOG_SUPPORT is not set
-# SERIAL_LINE_LOG_USART_0 is not set
-# SERIAL_LINE_LOG_USART_1 is not set
-SERIAL_LINE_LOG_TIMEOUT=20
-SERIAL_LINE_LOG_EOL=0A
-SERIAL_LINE_LOG_COUNT=60
-SERIAL_LINE_LOG_BAUDRATE=9600
-# SERIAL_LINE_LOG_SPACE_COMPRESSION is not set
 # NMEA_SUPPORT is not set
-# NMEA_USART_0 is not set
-# NMEA_USART_1 is not set
 # STELLA_PROTOCOL_SUPPORT is not set
 UDP_STELLA_PORT=2702
 # IOUDP_PROTOCOL_SUPPORT is not set
@@ -714,6 +675,8 @@ WHM_SUPPORT=y
 # CRON_DEFAULT_UTC is not set
 # CRON_SUPPORT_TEST is not set
 # CRON_VFS_SUPPORT is not set
+# CRON_EEPROM_SUPPORT is not set
+# CRON_ANACRON_SUPPORT is not set
 # DEBUG_CRON_DRYRUN is not set
 # DEBUG_CRON is not set
 # CRON_STATIC_SUPPORT is not set
@@ -877,9 +840,6 @@ CONF_TIME2PRESS_RESET=40
 CONF_TIME2PRESS_POWER=40
 CONF_TIME2PRESS_POWERL=3
 # PROJECTOR_SANYO_Z700_SUPPORT is not set
-# SANYO_Z700_USART_0 is not set
-# SANYO_Z700_USART_1 is not set
-# DEBUG_SANYO_Z700 is not set
 # FREQCOUNT_SUPPORT is not set
 FREQCOUNT_CHANNELS=1
 # FREQCOUNT_BOOT_ON is not set
@@ -888,6 +848,19 @@ FREQCOUNT_AVERAGE=8
 # FREQCOUNT_DUTY_SUPPORT is not set
 # FREQCOUNT_MOVING_AVERAGE_SUPPORT is not set
 # FREQCOUNT_DEBUGGING is not set
+# TANKLEVEL_SUPPORT is not set
+TANKLEVEL_ADC_CHANNEL=0
+# TANKLEVEL_STARTUP is not set
+# TANKLEVEL_CRON_SUPPORT is not set
+# TANKLEVEL_PUMP_ACTIVE_LOW is not set
+# TANKLEVEL_LOCK_SUPPORT is not set
+# TANKLEVEL_INLINE_SUPPORT is not set
+TANKLEVEL_SENSOR_OFFSET=0
+TANKLEVEL_MED_DENSITY=840
+TANKLEVEL_LTR_PER_M=3409
+TANKLEVEL_LTR_FULL=10000
+TANKLEVEL_RAISE_TIME=50
+TANKLEVEL_HOLD_TIME=20
 USART_SUPPORT=y
 # RFM12_SUPPORT is not set
 IPV4_SUPPORT=y

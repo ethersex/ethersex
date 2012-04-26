@@ -26,29 +26,29 @@ atmega8=y
 # atmega644p is not set
 # atmega1284p is not set
 FREQ=8000000
-# Arduino_Duemilanove is not set
-# Fimser is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
-# MicroWebServer is not set
-# USBrfm12stick is not set
 # alpengluehn is not set
+# Arduino_Duemilanove is not set
 # conrad_probot is not set
 # ehaserl is not set
 HARDWARE=etherrape
 etherrape=y
+# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
 # lome6 is not set
-# netio is not set
+# MicroWebServer is not set
 # netio_addon is not set
+# netio is not set
 # other is not set
-# pollin_evalboard is not set
 # pollin_evalboard_addon is not set
+# pollin_evalboard is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
+# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -64,7 +64,7 @@ TEENSY_SUPPORT=y
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="8aa169a"
+VERSION_GIT="197795c"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -403,6 +403,8 @@ PWM_SERVOS=1
 # ONEWIRE_DS2450_SUPPORT is not set
 # ONEWIRE_DETECT_ECMD_SUPPORT is not set
 # ONEWIRE_POLLING_SUPPORT is not set
+# ONEWIRE_NAMING_SUPPORT is not set
+# ONEWIRE_SNMP_SUPPORT is not set
 # DEBUG_ECMD_OW_ROM is not set
 # DEBUG_ECMD_OW_LIST is not set
 # DEBUG_OW_DS2450_CORE is not set
@@ -628,8 +630,8 @@ CW_WPM=12
 # DEBUG_NTP_ADJUST is not set
 # CRON_SUPPORT is not set
 # CRON_DEFAULT_UTC is not set
-# CRON_SUPPORT_TEST is not set
-# CRON_VFS_SUPPORT is not set
+# CRON_EEPROM_SUPPORT is not set
+# CRON_ANACRON_SUPPORT is not set
 # DEBUG_CRON_DRYRUN is not set
 # DEBUG_CRON is not set
 # CRON_STATIC_SUPPORT is not set
@@ -799,6 +801,19 @@ FREQCOUNT_AVERAGE=8
 # FREQCOUNT_DUTY_SUPPORT is not set
 # FREQCOUNT_MOVING_AVERAGE_SUPPORT is not set
 # FREQCOUNT_DEBUGGING is not set
+# TANKLEVEL_SUPPORT is not set
+TANKLEVEL_ADC_CHANNEL=0
+# TANKLEVEL_STARTUP is not set
+# TANKLEVEL_CRON_SUPPORT is not set
+# TANKLEVEL_PUMP_ACTIVE_LOW is not set
+# TANKLEVEL_LOCK_SUPPORT is not set
+# TANKLEVEL_INLINE_SUPPORT is not set
+TANKLEVEL_SENSOR_OFFSET=0
+TANKLEVEL_MED_DENSITY=840
+TANKLEVEL_LTR_PER_M=3409
+TANKLEVEL_LTR_FULL=10000
+TANKLEVEL_RAISE_TIME=50
+TANKLEVEL_HOLD_TIME=20
 USART_SUPPORT=y
 # RFM12_SUPPORT is not set
 IPV4_SUPPORT=y
