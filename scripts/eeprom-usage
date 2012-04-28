@@ -21,7 +21,7 @@ main(void)
 #ifdef EEPROM_SUPPORT
   int ee_size = E2END + 1;
   int ee_used = sizeof(struct eeprom_config_t);
-  printf("EEPROM usage: %d/%d bytes: (%.2f%%)\n", ee_used, ee_size,
+  printf("EEPROM usage: %d/%d bytes (%.2f%%)\n", ee_used, ee_size,
          100 * (float) ee_used / ee_size);
 #else
   printf("EEPROM_SUPPORT not enabled.\n");
