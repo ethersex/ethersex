@@ -171,18 +171,8 @@ int16_t parse_cmd_free(char *cmd, char *output, uint16_t len)
 	net: 500
 	*/
 	return ECMD_FINAL(snprintf_P(output, len,
-		PSTR(
-			"free: %d/%d\nheap: %d\nnet: " xstr(NET_MAX_FRAME_LENGTH)
-#ifdef EEPROM_SUPPORT
-			"\nee: %d"
-#endif
-		),
-		SP-f, allram,
-		f-(size_t)&__heap_start
-#ifdef EEPROM_SUPPORT
-		,sizeof(struct eeprom_config_t)
-#endif
-	));
+		PSTR("free: %d/%d\nheap: %d\nnet: " xstr(NET_MAX_FRAME_LENGTH)),
+		SP-f, allram, f-(size_t)&__heap_start));
 }
 
 #endif /* FREE_SUPPORT */

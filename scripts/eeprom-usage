@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [ ! -f "autoconf.h" ]; then
+  echo "autoconf.h not found."
+  exit 1
+fi
+
+tmp=`mktemp`
+
+mcu=`cat autoconf.h | grep '^#define MCU ' | sed -e 's/^#define MCU //'`
+if [ -z "$mcu" ]; then
+  echo "unable to detect MCU."
+  exit 1
+fi
+
+avr-gcc -mmcu=atmega644 -E -dM - < /dev/null | grep "_AVR_AT" >$tmp.c
+
+cat >> $tmp.c << EOF
+#include <stdio.h>
+#include "config.h"
+#include "core/eeprom.h"
+#include "avr/io.h"
+
+int
+main(void)
+{
+#ifdef EEPROM_SUPPORT
+  int ee_size = E2END + 1;
+  int ee_used = sizeof(struct eeprom_config_t);
+  printf("EEPROM usage: %d/%d bytes: (%.2f%%)\n", ee_used, ee_size,
+         100 * (float) ee_used / ee_size);
+#else
+  printf("EEPROM_SUPPORT not enabled.\n");
+#endif
+  return 0;
+}
+
+EOF
+
+avr-cpp -I. $tmp.c | gcc -w -x c -o $tmp - && $tmp
+
+rm -f $tmp.c $tmp
+
