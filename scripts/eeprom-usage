@@ -13,7 +13,7 @@ if [ -z "$mcu" ]; then
   exit 1
 fi
 
-avr-gcc -mmcu=atmega644 -E -dM - < /dev/null | grep "_AVR_AT" >$tmp.c
+avr-gcc -mmcu=$mcu -E -dM - < /dev/null | grep "_AVR_AT" >$tmp.c
 
 cat >> $tmp.c << EOF
 #include <stdio.h>
