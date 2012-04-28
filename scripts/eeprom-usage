@@ -1,19 +1,13 @@
 #!/bin/bash
 
-if [ ! -f "autoconf.h" ]; then
-  echo "autoconf.h not found."
+if [ "$#" -lt "1" ]; then
+  echo "USAGE: eeprom-usage <mcu>"
   exit 1
 fi
 
 tmp=`mktemp`
 
-mcu=`cat autoconf.h | grep '^#define MCU ' | sed -e 's/^#define MCU //'`
-if [ -z "$mcu" ]; then
-  echo "unable to detect MCU."
-  exit 1
-fi
-
-avr-gcc -mmcu=$mcu -E -dM - < /dev/null | grep "_AVR_AT" >$tmp.c
+avr-gcc -mmcu=$1 -E -dM - </dev/null 2>/dev/null | grep "_AVR_AT" >$tmp.c
 
 cat >> $tmp.c << EOF
 #include <stdio.h>
@@ -37,7 +31,12 @@ main(void)
 
 EOF
 
-avr-cpp -I. $tmp.c | gcc -w -x c -o $tmp - && $tmp
+which gcc avr-gcc >/dev/null && avr-cpp -I. $tmp.c 2>/dev/null | gcc -x c -o $tmp - 2>/dev/null
+if [ -x $tmp ]; then
+  $tmp
+else
+  echo "EEPROM size couldn't be determined."
+fi
 
 rm -f $tmp.c $tmp
 
