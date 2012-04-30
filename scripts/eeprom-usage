@@ -1,42 +1,45 @@
 #!/bin/bash
 
-if [ "$#" -lt "1" ]; then
-  echo "USAGE: eeprom-usage <mcu>"
+if [ "$#" -lt "2" ]; then
+  echo "USAGE: eeprom-usage <CFLAGS> <CPPFLAGS>"
   exit 1
 fi
 
 tmp=`mktemp`
 
-avr-gcc -mmcu=$1 -E -dM - </dev/null 2>/dev/null | grep "_AVR_AT" >$tmp.c
-
-cat >> $tmp.c << EOF
-#include <stdio.h>
+avr-gcc -x c $1 $2 -o $tmp - << EOF
+#include <avr/io.h>
+#include <avr/eeprom.h>
 #include "config.h"
 #include "core/eeprom.h"
-#include "avr/io.h"
 
-int
-main(void)
+#ifdef EEPROM_SUPPORT
+struct eeprom_config_t eeprom_config EEMEM;
+#endif
+
+int main()
 {
 #ifdef EEPROM_SUPPORT
-  int ee_size = E2END + 1;
-  int ee_used = sizeof(struct eeprom_config_t);
-  printf("EEPROM usage: %d/%d bytes (%.2f%%)\n", ee_used, ee_size,
-         100 * (float) ee_used / ee_size);
-#else
-  printf("EEPROM_SUPPORT not enabled.\n");
+  (void)eeprom_read_byte((const uint8_t *)&eeprom_config);
 #endif
   return 0;
 }
-
 EOF
 
-which gcc avr-gcc >/dev/null && avr-cpp -I. $tmp.c 2>/dev/null | gcc -x c -o $tmp - 2>/dev/null
-if [ -x $tmp ]; then
-  $tmp
-else
-  echo "EEPROM size couldn't be determined."
+ee_used=`avr-size -A $tmp | grep '\.eeprom' | sed -e "s/^\.eeprom *//g" | cut -d " " -f1`
+rm -f $tmp
+if [ -z "$ee_used" ]; then
+  exit 0
 fi
 
-rm -f $tmp.c $tmp
+ee_size=`echo -e "#include <avr/eeprom.h>\nE2END" | avr-cpp $2 | tail -n 1 | cut -c 3-`
+ee_size=`perl -e "print 0x$ee_size + 1;"`
+ee_pct=`perl -e "printf('%.2f', $ee_used.0 / $ee_size.0 * 100.0);"`
+
+echo "EEPROM usage: $ee_used/$ee_size bytes (${ee_pct}%)"
+
+if [ "$ee_used" -gt "$ee_size" ]; then
+  echo "ERROR: EEPROM memory exhausted.";
+  exit 1
+fi
 
