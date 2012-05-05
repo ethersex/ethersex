@@ -17,7 +17,7 @@ avr-gcc -x c $1 $2 -o $tmp - << EOF
 struct eeprom_config_t eeprom_config EEMEM;
 #endif
 
-int main()
+int main(void)
 {
 #ifdef EEPROM_SUPPORT
   (void)eeprom_read_byte((const uint8_t *)&eeprom_config);
