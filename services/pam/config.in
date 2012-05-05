@@ -23,6 +23,6 @@ dep_bool_menu "PAM Support" PAM_SUPPORT
 			dep_bool '  Debug LDAP Auth' DEBUG_LDAP_AUTH $DEBUG
 		fi
 
-		define_bool $(echo $PAM_SUBSYSTEM | tr 'a-z' 'A-Z')_SUPPORT y  # e.g. PAM_LDAP_SUPPORT
+		define_bool `echo $PAM_SUBSYSTEM | tr 'a-z' 'A-Z'`_SUPPORT y  # e.g. PAM_LDAP_SUPPORT
 	fi
 endmenu
