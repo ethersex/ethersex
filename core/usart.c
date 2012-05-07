@@ -39,8 +39,14 @@ usart_baudrate(uint16_t baudrate) {
   case 24:
     ubrr = 520;
     break;
+  case 96:
+    ubrr = 129;
+    break;
   case 144:
     ubrr = 86;
+    break;
+  case 192:
+    ubrr = 64;
     break;
   case 384:
     ubrr = 32;
@@ -50,6 +56,28 @@ usart_baudrate(uint16_t baudrate) {
     break;
   case 1152:
     ubrr = 10;
+    break;
+#elif F_CPU == 16000000UL
+  case 24:
+    ubrr = 416;
+    break;
+  case 96:
+    ubrr = 103;
+    break;
+  case 144:
+    ubrr = 68;
+    break;
+  case 192:
+    ubrr = 51;
+    break;
+  case 384:
+    ubrr = 25;
+    break;
+  case 576:
+    ubrr = 16;
+    break;
+  case 1152:
+    ubrr = 8;
     break;
 #endif
   default:

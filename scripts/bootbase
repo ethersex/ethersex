@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "ibase=10;obase=16;$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$1 | tail -n 1 |cut -c3-) + 1 - $2;")" | bc
