@@ -29,12 +29,6 @@
 #ifndef _USART_H
 #define _USART_H
 
-
-/* The baudrate had to be baudrate/100 */
-#ifndef TEENSY_SUPPORT
-uint16_t usart_baudrate(uint16_t baudrate);
-#endif
-
 #ifndef USE_USART
 #define USE_USART
 #endif
@@ -111,7 +105,7 @@ usart_init(void) \
     /*   and set URSEL, if present, */ \
     usart(UCSR,C) = _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
     /* Enable the RX interrupt and receiver and transmitter */ \
-    usart(UCSR,B) |= _BV(usart(TXEN)) | _BV(usart(RXEN)) | _BV(usart(RXCIE));\
+    usart(UCSR,B) |= _BV(usart(TXEN)) | _BV(usart(RXEN)) | _BV(usart(RXCIE)); \
     /* Set or not set the 2x mode */ \
     USART_2X(); \
     /* Go! */ \
@@ -128,9 +122,9 @@ usart_init(void) \
     uint8_t sreg = SREG; cli(); \
     usart(UBRR,H) = UBRRH_VALUE; \
     usart(UBRR,L) = UBRRL_VALUE; \
-    /* set mode: 8 bits, 2 stop, no parity, synchronous usart */ \
+    /* set mode 8N2: 8 bits, 2 stop, no parity, synchronous usart */ \
     /*   and set URSEL, if present, */ \
-    usart(UCSR,C) =  _BV(usart(USBS)) | (3 << (usart(UCSZ,0))) | _BV_URSEL; /* 8 data bits, 2 stop bits, no parity (8N2) */ \
+    usart(UCSR,C) =  _BV(usart(USBS)) | (3 << (usart(UCSZ,0))) | _BV_URSEL; \
     /* Do not enable the RX interrupt and receiver and transmitter */ \
     usart(UCSR,B) = 0;\
     /* Set or not set the 2x mode */ \
