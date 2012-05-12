@@ -26,14 +26,14 @@ int main(void)
 }
 EOF
 
-ee_used=`avr-size -A $tmp | grep '\.eeprom' | sed -e "s/^\.eeprom *//g" | cut -d " " -f1`
+ee_used=`avr-size -A $tmp | sed -e '/^\.eeprom/!d;s/[^0-9]*\([0-9]*\).*/\1/'`
 rm -f $tmp
 if [ -z "$ee_used" ]; then
   exit 0
 fi
 
-ee_size=`echo -e "#include <avr/eeprom.h>\nE2END" | avr-cpp $2 | tail -n 1 | cut -c 3-`
-ee_size=`perl -e "print 0x$ee_size + 1;"`
+ee_size=`echo -e "#include <avr/eeprom.h>\nE2END" | avr-cpp $2 | sed '$!d;s/^..//'`
+ee_size=`echo $(( 0x$ee_size + 1 ))`
 ee_pct=`perl -e "printf('%.2f', $ee_used.0 / $ee_size.0 * 100.0);"`
 
 echo "EEPROM usage: $ee_used/$ee_size bytes (${ee_pct}%)"
