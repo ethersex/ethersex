@@ -94,7 +94,7 @@ ifneq ($(ARCH_HOST),y)
 endif
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
-LDFLAGS += -Wl,--section-start=.text=0x$(shell scripts/bootbase $(MCU) 8192)
+LDFLAGS += -Wl,--section-start=.text=0x$(shell scripts/bootbase $(MCU) $(BOOTLOADER_SIZE))
 endif
 
 
