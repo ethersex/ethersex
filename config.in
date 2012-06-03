@@ -48,127 +48,34 @@ if [ "$ARCH_AVR" = "y" ]; then
 
 
 	# Set the Flash size to the cpu type
-	if [ "$atmega128" = "y" -o "$atmega1284p" = "y" -o "$at90can128" = "y" ] ; then
-		FLASH_SIZE=131072	#	512/1024/2048/4096	0x1fc00/0x1f800/0x1f000/0x1e000
-	fi
-	if [ "$atmega64" = "y" -o "$atmega644" = "y" -o "$atmega644p" = "y" -o "$at90can64" = "y" ] ; then
-		FLASH_SIZE=65536	#	512/1024/2048/4096	0xfc00/0xf800/0xf000/0xe000
-	fi
-	if [ "$atmega32" = "y" -o "$atmega328p" = "y" -o "$at90can32" = "y" ] ; then
-		FLASH_SIZE=32768	#	256/512/1024/2048	0x7e00/0x7e00/0x7800/0x7000
-	fi
-	if [ "$atmega16" = "y" -o "$atmega162" = "y" -o "$atmega168" = "y" -o "$atmega168p" = "y" -o "$atmega169" = "y" -o "$atmega162" = "y" ] ; then
-		FLASH_SIZE=16384	#	128/256/512/1024	0x3f00/0x3e00/0x3c00/0x3800
-	fi
-	if [ "$atmega88" = "y" -o "$atmega8" = "y" ] ; then
-		FLASH_SIZE=8192		#	128/256/512/1024	0x1f00/0x1e00/0x1c00/0x1800
-	fi
+    FLASH_SIZE=$(( 0x`echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$MCU | sed '$!d;s/^..//'` + 1 ))
 
 	# set the default bootloader words to cpu flash size
-	if [ "$BOOTLOADER_JUMP" = "y" -a "$BOOTLOADER_WORDS" = "" ] ; then
-		if [ "$FLASH_SIZE" = 8192 ] ; then BOOTLOADER_WORDS=1024 ; fi
-		if [ "$FLASH_SIZE" = 16384 ] ; then BOOTLOADER_WORDS=1024 ; fi
-		if [ "$FLASH_SIZE" = 32768 ] ; then BOOTLOADER_WORDS=2048 ; fi
-		if [ "$FLASH_SIZE" = 65536 ] ; then BOOTLOADER_WORDS=4096 ; fi
-		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_WORDS=4096 ; fi
+	if [ "$BOOTLOADER_SIZE" = "" ] ; then
+		if [ "$FLASH_SIZE" = 8192 ] ; then BOOTLOADER_SIZE=2048 ; fi
+		if [ "$FLASH_SIZE" = 16384 ] ; then BOOTLOADER_SIZE=2048 ; fi
+		if [ "$FLASH_SIZE" = 32768 ] ; then BOOTLOADER_SIZE=4096 ; fi
+		if [ "$FLASH_SIZE" = 65536 ] ; then BOOTLOADER_SIZE=8192 ; fi
+		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_SIZE=8192 ; fi
 	fi
 
-	if [ "$atmega64" = "y" -o "$atmega644" = "y" -o "$atmega644p" = "y" -o "$atmega1284p" = "y" -o "$atmega128" = "y" -o "$at90can128" = "y" -o "$at90can64" = "y" ] ; then
+	if [ "$FLASH_SIZE" -gt 65535 ] ; then
 		bool 'Build a bootloader' BOOTLOADER_SUPPORT
 	else
 		dep_bool 'Build a bootloader' BOOTLOADER_SUPPORT "n"
 	fi
 
-	if [ "$FLASH_SIZE" = "131072" ] ; then
-		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-			define_hex BOOTLOADER_START_ADDRESS 0x1fc00
-		else
-			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
-				define_hex BOOTLOADER_START_ADDRESS 0x1f800
-			else
-				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
-					define_hex BOOTLOADER_START_ADDRESS 0x1f000
-				else
-					define_hex BOOTLOADER_START_ADDRESS 0x1e000
-					BOOTLOADER_WORDS=4096
-				fi
-			fi
-		fi
-	fi
-	if [ "$FLASH_SIZE" = "65536" ] ; then
-		if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-			define_hex BOOTLOADER_START_ADDRESS 0xfc00
-		else
-			if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
-				define_hex BOOTLOADER_START_ADDRESS 0xf800
-			else
-				if [ "$BOOTLOADER_WORDS" = 2048 ] ; then
-					define_hex BOOTLOADER_START_ADDRESS 0xf000
-				else
-					define_hex BOOTLOADER_START_ADDRESS 0xe000
-					BOOTLOADER_WORDS=4096
-				fi
-			fi
-		fi
-	fi
-	if [ "$FLASH_SIZE" = "32768" ] ; then
-		if [ "$BOOTLOADER_WORDS" = 256 ] ; then
-			define_hex BOOTLOADER_START_ADDRESS 0x7e00
-		else
-			if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-				define_hex BOOTLOADER_START_ADDRESS 0x7c00
-			else
-				if [ "$BOOTLOADER_WORDS" = 1024 ] ; then
-					define_hex BOOTLOADER_START_ADDRESS 0x7800
-				else
-					define_hex BOOTLOADER_START_ADDRESS 0x7000
-					BOOTLOADER_WORDS=2048
-				fi
-			fi
-		fi
-	fi
-	if [ "$FLASH_SIZE" = "16384" ] ; then
-		if [ "$BOOTLOADER_WORDS" = 128 ] ; then
-			define_hex BOOTLOADER_START_ADDRESS 0x3f00
-		else
-			if [ "$BOOTLOADER_WORDS" = 256 ] ; then
-				define_hex BOOTLOADER_START_ADDRESS 0x3e00
-			else
-				if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-					define_hex BOOTLOADER_START_ADDRESS 0x3c00
-				else
-					define_hex BOOTLOADER_START_ADDRESS 0x3800
-					BOOTLOADER_WORDS=1024
-				fi
-			fi
-		fi
-	fi
-	if [ "$FLASH_SIZE" = "8192" ] ; then
-		if [ "$BOOTLOADER_WORDS" = 128 ] ; then
-			define_hex BOOTLOADER_START_ADDRESS 0x1f00
-		else
-			if [ "$BOOTLOADER_WORDS" = 256 ] ; then
-				define_hex BOOTLOADER_START_ADDRESS 0x1e00
-			else
-				if [ "$BOOTLOADER_WORDS" = 512 ] ; then
-					define_hex BOOTLOADER_START_ADDRESS 0x1c00
-				else
-					define_hex BOOTLOADER_START_ADDRESS 0x1800
-					BOOTLOADER_WORDS=1024
-				fi
-			fi
-		fi
-	fi
 
 	if [ "$CONFIG_EXPERT" = "y" ] ; then
 		bool "Enable bootloader jump" BOOTLOADER_JUMP
 		if [ "$BOOTLOADER_JUMP" = "y" ] ; then
-			int 'Bootloader Size in words' BOOTLOADER_WORDS ""
+			int 'Bootloader Size in bytes' BOOTLOADER_SIZE ""
 		fi
 	fi
 
-    source core/crc/config.in
+    define_hex BOOTLOADER_START_ADDRESS "$(scripts/bootbase $MCU $BOOTLOADER_SIZE)"
 
+    source core/crc/config.in
 fi
 
 
