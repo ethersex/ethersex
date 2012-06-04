@@ -8,8 +8,8 @@ do
 done
 
 IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
-FLASHSIZE=$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
-FLASHSIZE=$[$FLASHSIZE + 1]
+FLASHSIZE=`echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | sed '$!d;s/^..//'`
+FLASHSIZE=`echo $(( 0x$FLASHSIZE + 1 ))`
 PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 *100.0);" )
 PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE *$maxper);" )
 
