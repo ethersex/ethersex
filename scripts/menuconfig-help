@@ -2,8 +2,8 @@
 
 export MCU=atmega8
 depth=0
-tmp=`mktemp`
-tmp2=`mktemp`
+tmp=`mktemp mc1XXXXXX`
+tmp2=`mktemp mc2XXXXXX`
 
 function _bool() {
   eval "$2=y"
