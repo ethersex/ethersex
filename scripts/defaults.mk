@@ -15,8 +15,7 @@ SED = gsed
 else
 M4 = m4
 ### use GNU sed from macports instead of BSD sed on MacOS X 
-SED = $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] ; then echo gsed; \
-	else echo sed; fi)
+SED = $(shell [ x"`uname`" = x"Darwin" ] && echo g)sed
 endif 
 
 HOSTCC := gcc

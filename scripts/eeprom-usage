@@ -5,9 +5,9 @@ if [ "$#" -lt "2" ]; then
   exit 1
 fi
 
-tmp=`mktemp`
+tmp=`mktemp eeXXXXXX`
 
-avr-gcc -x c $1 $2 -o $tmp - << EOF
+avr-gcc -xc $1 $2 -o $tmp - << EOF
 #include <avr/io.h>
 #include <avr/eeprom.h>
 #include "config.h"
