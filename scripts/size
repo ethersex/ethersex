@@ -9,7 +9,7 @@ done
 
 IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
 if [ "$3" != "y" ]; then
-  FLASHSIZE=$(echo $(( 0x`echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | sed '$!d;s/^..//'` + 1 )))
+  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | sed '$!d'` + 1 )))
 else
   FLASHSIZE=$4
 fi

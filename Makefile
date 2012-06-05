@@ -159,7 +159,7 @@ v:
 # print information about binary size and flash usage
 size-info:
 	@echo "===== size info ====="
-	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU) $(BOOTLOADER_SUPPORT) $(BOOTLOADER_SIZE)
 
 ##############################################################################
 # target help displays a short overview over make options

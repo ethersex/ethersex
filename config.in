@@ -47,10 +47,10 @@ if [ "$ARCH_AVR" = "y" ]; then
 	source hardware/sram/config.in
 
 
-	# Set the Flash size to the cpu type
-    FLASH_SIZE=$(( 0x`echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$MCU | sed '$!d;s/^..//'` + 1 ))
+	# get the flash size according to the cpu type
+	FLASH_SIZE=$(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$MCU | sed '$!d'` + 1 ))
 
-	# set the default bootloader words to cpu flash size
+	# set the default bootloader bytes according to cpu flash size
 	if [ "$BOOTLOADER_SIZE" = "" ] ; then
 		if [ "$FLASH_SIZE" = 8192 ] ; then BOOTLOADER_SIZE=2048 ; fi
 		if [ "$FLASH_SIZE" = 16384 ] ; then BOOTLOADER_SIZE=2048 ; fi
@@ -68,14 +68,22 @@ if [ "$ARCH_AVR" = "y" ]; then
 
 	if [ "$CONFIG_EXPERT" = "y" ] ; then
 		bool "Enable bootloader jump" BOOTLOADER_JUMP
-		if [ "$BOOTLOADER_JUMP" = "y" ] ; then
+		if [ "$BOOTLOADER_JUMP" = "y" -o "$BOOTLOADER_SUPPORT" = "y" ] ; then
 			int 'Bootloader Size in bytes' BOOTLOADER_SIZE ""
+		else
+			define_int BOOTLOADER_SIZE "$((BOOTLOADER_SIZE))"
 		fi
 	fi
 
-    define_hex BOOTLOADER_START_ADDRESS "$(scripts/bootbase $MCU $BOOTLOADER_SIZE)"
+	define_hex BOOTLOADER_START_ADDRESS "$(printf '0x%X\n' $(($FLASH_SIZE - $BOOTLOADER_SIZE)))"
 
-    source core/crc/config.in
+	define_hex FLASH_SIZE "$(printf '0x%X\n' $FLASH_SIZE)"
+	define_hex EEPROM_SIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nE2END" | avr-cpp -mmcu=$MCU | sed '$!d'` + 1)))"
+	define_hex RAM_SIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nRAMEND" | avr-cpp -mmcu=$MCU | sed '$!d'` + 1)))"
+	define_hex FLASH_PAGESIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nSPM_PAGESIZE" | avr-cpp -mmcu=$MCU | sed '$!d'`)))"
+	define_hex EEPROM_PAGESIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nE2PAGESIZE" | avr-cpp -mmcu=$MCU | sed '$!d'`)))"
+
+	source core/crc/config.in
 fi
 
 

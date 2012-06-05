@@ -1,8 +1,0 @@
-#!/bin/bash
-if [ $# -ne 2 ] ; then
-  echo "Usage: bootbase mcuType [bootSize]"
-  echo "Returns the hex value in bytes of the base address of the bootloader area depending"
-  echo "on the MCUtype and size of the bootloader area (bootSize) in bytes."
-  exit 1
-fi
-printf '%X\n' $(( 0x`echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$1 | sed '$!d;s/^..//'` + 1 - $2 ))

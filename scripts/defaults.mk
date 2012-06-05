@@ -93,7 +93,7 @@ ifneq ($(ARCH_HOST),y)
 endif
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
-LDFLAGS += -Wl,--section-start=.text=0x$(BOOTLOADER_START_ADDRESS)
+LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_START_ADDRESS)
 endif
 
 
