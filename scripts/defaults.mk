@@ -93,11 +93,7 @@ ifneq ($(ARCH_HOST),y)
 endif
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
-ifeq ($(atmega1284p),y)
-LDFLAGS += -Wl,--section-start=.text=0x1E000
-else
-LDFLAGS += -Wl,--section-start=.text=0xE000
-endif
+LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_START_ADDRESS)
 endif
 
 

@@ -25,6 +25,9 @@ atmega88=y
 # atmega644 is not set
 # atmega644p is not set
 # atmega1284p is not set
+# at90can32 is not set
+# at90can64 is not set
+# at90can128 is not set
 FREQ=16000000
 # alpengluehn is not set
 # Arduino_Duemilanove is not set
@@ -54,8 +57,14 @@ USBrfm12stick=y
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
-BOOTLOADER_START_ADDRESS=0x1800
 # BOOTLOADER_JUMP is not set
+BOOTLOADER_SIZE=2048
+BOOTLOADER_START_ADDRESS=0x1800
+FLASH_SIZE=0x2000
+EEPROM_SIZE=0x200
+RAM_SIZE=0x500
+FLASH_PAGESIZE=0x40
+EEPROM_PAGESIZE=0x4
 # CRC_PAD_SUPPORT is not set
 TEENSY_SUPPORT=y
 # SPI_TIMEOUT is not set
@@ -65,7 +74,7 @@ TEENSY_SUPPORT=y
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="197795c"
+VERSION_GIT="9df83d1"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
