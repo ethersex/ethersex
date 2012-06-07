@@ -1390,14 +1390,17 @@ FREQ
 Build a bootloader
 BOOTLOADER_SUPPORT
 
- enable ethersex TFTP bootloader support
+ Enable ethersex TFTP bootloader support.
 
- Depends on TFTP to upload new firmware and the chip,
- is only possible to use on chips with 64k or 128k of flash
+ Depends on TFTP to download a new firmware and programm the flash.
 
- This Bootloader Need 4096 Words (8k Bytes) Flash on the end of the chip
+ This bootloader needs 8k flash memory at the top of the flash, so only
+ MCUs with 64k or 128k flash can be used.
 
- This is Only a Bootloader, not a normaly image
+ This is only a bootloader with a very limited functionality.
+
+ Select 'Enable bootloader jump' in your 'normal' ROM to be able re-enter the
+ bootloader mode.
 
 Add CRC Checksum
 CRC_PAD_SUPPORT

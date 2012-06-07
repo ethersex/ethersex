@@ -140,7 +140,7 @@ else
 all: compile-$(TARGET)
 	@echo "=======The ethersex project========"
 	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
-	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU) $(BOOTLOADER_SUPPORT) $(BOOTLOADER_SIZE)
 	@$(CONFIG_SHELL) ${TOPDIR}/scripts/eeprom-usage "$(CFLAGS)" "$(CPPFLAGS)"
 	@echo "==================================="
 endif
@@ -159,7 +159,7 @@ v:
 # print information about binary size and flash usage
 size-info:
 	@echo "===== size info ====="
-	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU) $(BOOTLOADER_SUPPORT) $(BOOTLOADER_SIZE)
 
 ##############################################################################
 # target help displays a short overview over make options
@@ -287,12 +287,15 @@ endif
 # calculate the flash size when padding a crc
 ifeq ($(CRC_PAD_SUPPORT),y)
 	FLASHEND = $(shell ./core/crc/read-define FLASHEND)
-	ifeq ($(BOOTLOADER_JUMP),y)
-		BOOTLOADER_SIZE = $(shell echo $$[ $(BOOTLOADER_WORDS) * 2 ] )
+	ifeq ($(BOOTLOADER_SUPPORT),y)
+		fillto = $(shell echo $$(( $(BOOTLOADER_SIZE) - 2 )) )
 	else
-		BOOTLOADER_SIZE = 0
+		ifeq ($(BOOTLOADER_JUMP),y)
+			fillto = $(shell echo $$(( $(FLASHEND) - $(BOOTLOADER_SIZE) - 1 )) )
+		else
+			fillto = $(shell echo $$(( $(FLASHEND) - 1 )) )
+		endif
 	endif
-	fillto = $(shell echo $$[ $(FLASHEND) - $(BOOTLOADER_SIZE) - 1 ] )
 endif
 
 embed/%: embed/%.cpp

@@ -25,6 +25,9 @@ MCU=atmega644
 atmega644=y
 # atmega644p is not set
 # atmega1284p is not set
+# at90can32 is not set
+# at90can64 is not set
+# at90can128 is not set
 FREQ=20000000
 # alpengluehn is not set
 # Arduino_Duemilanove is not set
@@ -54,7 +57,12 @@ etherrape=y
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
-BOOTLOADER_START_ADDRESS=0xe000
+BOOTLOADER_START_ADDRESS=0xE000
+FLASH_SIZE=0x10000
+EEPROM_SIZE=0x800
+RAM_SIZE=0x1100
+FLASH_PAGESIZE=0x100
+EEPROM_PAGESIZE=0x8
 # CRC_PAD_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
@@ -64,7 +72,7 @@ BOOTLOADER_START_ADDRESS=0xe000
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="197795c"
+VERSION_GIT="9df83d1"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
 DEBUG_BAUDRATE=115200
