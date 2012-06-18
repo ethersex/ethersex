@@ -73,7 +73,7 @@
 #define SNMP_OID_ETHERSEX SNMP_OID_UCDEXPERIMENTAL "\x17"
 #else
 /* OID: 1.3.6.1.4.1.39967 */
-#define SNMP_OID_ETHERSEX SNMP_OID_ENTERPRISES "\x9f\xb8\x02"
+#define SNMP_OID_ETHERSEX SNMP_OID_ENTERPRISES "\x82\xb8\x1f"
 #endif
 
 struct snmp_varbinding
