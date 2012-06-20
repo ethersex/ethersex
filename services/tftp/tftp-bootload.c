@@ -219,11 +219,7 @@ tftp_handle_packet(void)
 	if(uip_datalen() < TFTP_BLOCK_SIZE + 4) {
 	    uip_udp_conn->appstate.tftp.finished = 1;
 
-#           ifdef TFTPOMATIC_SUPPORT
             bootload_delay = 1;                      /* ack, then start app */
-#           else
-            bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
-#           endif
 
             debug_putstr("end\n");
 	}
