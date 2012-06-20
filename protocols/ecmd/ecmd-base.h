@@ -61,4 +61,7 @@
 /* Did the function fail */
 #define is_ECMD_ERR(len)	(len > _ECMD_AGAIN_MAGIC && len < 0)
 
+/* Magic value to use cmd buffer for state tracking */
+#define ECMD_STATE_MAGIC	23
+
 #endif /* _ECMD_BASE_H */

@@ -38,10 +38,10 @@ int16_t
 parse_cmd_tanklevel_show_params(char *cmd, char *output, uint16_t len)
 {
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23)	/* indicator flag: real invocation:  0 */
+  if (cmd[0] != ECMD_STATE_MAGIC)	/* indicator flag: real invocation:  0 */
   {
-    cmd[0] = 23;	/* continuing call: 23 */
-    cmd[1] = 0;		/* counter for sensors in list*/
+    cmd[0] = ECMD_STATE_MAGIC;		/* continuing call: 23 */
+    cmd[1] = 0;				/* counter for sensors in list*/
   }
 
   uint8_t i = cmd[1];

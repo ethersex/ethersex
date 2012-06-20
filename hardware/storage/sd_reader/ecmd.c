@@ -37,9 +37,9 @@ parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
   if (vfs_sd_rootnode == 0)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("SD/MMC backend not available.")));
 
-  if (cmd[0] != 0x05) {
+  if (cmd[0] != ECMD_STATE_MAGIC) {
     fat_reset_dir(vfs_sd_rootnode);
-    cmd[0] = 0x05;
+    cmd[0] = ECMD_STATE_MAGIC;
   }
 
   struct fat_dir_entry_struct dir_entry;

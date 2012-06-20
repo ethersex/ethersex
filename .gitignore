@@ -43,6 +43,7 @@ contrib/libecmd/rfm12ask_2272/rfm12ask_2272
 # module specific files
 core/vfs/vfs-concat
 core/portio/np_simple.c
+core/crc/crc16-concat
 services/httpd/magic.c
 services/watchcat/user_config.h
 protocols/ecmd/ecmd_defs.c

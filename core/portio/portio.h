@@ -69,8 +69,8 @@
                         255 - PORTIO_MASK_F   /* port f from pinning.m4 */ \
                        }
 
-/* ATMega169 */
-#elif defined(_ATMEGA169)
+/* ATMega169 | AT90CAN128 | AT90CAN64 | AT90CAN32 */
+#elif defined(_ATMEGA169) || defined(_AT90CAN128) || defined(_AT90CAN64) || defined(_AT90CAN32)
 
 
 #define IO_HARD_PORTS 7

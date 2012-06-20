@@ -43,14 +43,14 @@ parse_cmd_sll_get (char *cmd, char *output, uint16_t len)
   len = len - 1;
 
   /* Magic Marker Byte for the next calls of this function */
-  if (cmd[0] == 23)
+  if (cmd[0] == ECMD_STATE_MAGIC)
     {
       sent_parts = cmd[1];
       cmd[1]++;
     }
   else
     {
-      cmd[0] = 23;
+      cmd[0] = ECMD_STATE_MAGIC;
       /* If the timeout is reached we sent first a packet which is saying,
          that our device is offline */
       if (sll_data.timeout == 0)

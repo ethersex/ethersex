@@ -95,10 +95,10 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
   cmd++;                        /* for static bytes */
 #endif
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23)             /* indicator flag: real invocation:  0 */
+  if (cmd[0] != ECMD_STATE_MAGIC) /* indicator flag: real invocation:  0 */
   {
-    cmd[0] = 23;                /* continuing call: 23 */
-    cmd[1] = 0;                 /* counter for sensors in list */
+    cmd[0] = ECMD_STATE_MAGIC;    /* continuing call: 23 */
+    cmd[1] = 0;                   /* counter for sensors in list */
   }
   uint8_t i = cmd[1];
   /* This is a special case: the while loop below printed a sensor which was
@@ -645,10 +645,10 @@ parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len)
   int16_t ret;
 
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != 23)             /* indicator flag: real invocation:  0 */
+  if (cmd[0] != ECMD_STATE_MAGIC) /* indicator flag: real invocation:  0 */
   {
-    cmd[0] = 23;                /* continuing call: 23 */
-    cmd[1] = 0;                 /* counter for sensors in list */
+    cmd[0] = ECMD_STATE_MAGIC;    /* continuing call: 23 */
+    cmd[1] = 0;                   /* counter for sensors in list */
   }
 
   uint8_t i = cmd[1];
