@@ -57,6 +57,18 @@
 #include "hardware/adc/adc.h"
 #endif
 
+#ifdef ONEWIRE_NAMING_SUPPORT
+#include "hardware/onewire/onewire.h"
+#endif
+
+#ifdef CRON_EEPROM_SUPPORT
+#include "services/cron/cron.h"
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+#include "services/tanklevel/tanklevel.h"
+#endif
+
 struct eeprom_config_t
 {
 #ifdef ETHERNET_SUPPORT
@@ -119,6 +131,18 @@ struct eeprom_config_t
 #ifdef DMX_FXSLOT_SUPPORT
   struct fxslot_struct_stripped dmx_fxslots[DMX_FXSLOT_AMOUNT];
 #endif
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+  ow_name_t ow_names[OW_SENSORS_COUNT];
+#endif
+
+#ifdef CRON_EEPROM_SUPPORT
+  uint8_t crontab[CRON_EEPROM_SIZE];
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+  tanklevel_params_t tanklevel_params;
+#endif
   uint8_t crc;
 };
 
@@ -141,6 +165,9 @@ uint8_t eeprom_get_chksum (void);
 #define eeprom_save(dst, data, len) \
   eeprom_write_block_hack(EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), data, len)
 
+#define eeprom_save_offset(dst, off, data, len) \
+  eeprom_write_block_hack(EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst) + off, data, len)
+
 #define eeprom_save_P(dst,data_pgm,len) \
     do { char data[len]; memcpy_P(data, data_pgm, len); eeprom_save(dst, data, len);} while(0)
 
@@ -153,6 +180,9 @@ uint8_t eeprom_get_chksum (void);
 /* Reads len byte from eeprom at dst into mem */
 #define eeprom_restore(dst, mem, len) \
   eeprom_read_block(mem, EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst), len)
+
+#define eeprom_restore_offset(dst, off, mem, len) \
+  eeprom_read_block(mem, EEPROM_CONFIG_BASE + offsetof(struct eeprom_config_t, dst) + off, len)
 
 #define eeprom_restore_ip(dst,mem) \
     eeprom_restore(dst, mem, IPADDR_LEN)

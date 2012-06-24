@@ -155,7 +155,8 @@ tftp_handle_packet(void)
 	pk->type = HTONS(3); /* data packet */
 	pk->u.data.block = HTONS(uip_udp_conn->appstate.tftp.transfered + 1);
 
-	base = TFTP_BLOCK_SIZE * uip_udp_conn->appstate.tftp.transfered;
+	base = (flash_base_t)TFTP_BLOCK_SIZE *
+		(flash_base_t)(uip_udp_conn->appstate.tftp.transfered);
 
 	/* base overflowed ! */
 #if FLASHEND == UINT16_MAX
@@ -203,7 +204,8 @@ tftp_handle_packet(void)
 	if(HTONS(pk->u.ack.block) > uip_udp_conn->appstate.tftp.transfered + 1)
 	    goto error_out;			/* too late */
 
-	base = TFTP_BLOCK_SIZE * (HTONS(pk->u.ack.block) - 1);
+	base = (flash_base_t)TFTP_BLOCK_SIZE *
+		(flash_base_t)(HTONS(pk->u.ack.block) - 1);
 
 	for(i = uip_datalen() - 4; i < TFTP_BLOCK_SIZE; i ++)
 	    pk->u.data.data[i] = 0xFF;	        /* EOF reached, init rest */
@@ -217,11 +219,7 @@ tftp_handle_packet(void)
 	if(uip_datalen() < TFTP_BLOCK_SIZE + 4) {
 	    uip_udp_conn->appstate.tftp.finished = 1;
 
-#           ifdef TFTPOMATIC_SUPPORT
             bootload_delay = 1;                      /* ack, then start app */
-#           else
-            bootload_delay = CONF_BOOTLOAD_DELAY;    /* Restart bootloader. */
-#           endif
 
             debug_putstr("end\n");
 	}

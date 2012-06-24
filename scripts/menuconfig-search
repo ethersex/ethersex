@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tmp=`mktemp`
+tmp=`mktemp msXXXXXX`
 
 dialog --inputbox "Search Configuration Option" 8 30 2> $tmp
 

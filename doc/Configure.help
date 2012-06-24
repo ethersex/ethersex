@@ -730,15 +730,85 @@ CRON_SUPPORT
    * System clock support (CLOCK_SUPPORT)
 
   Enable cron-alike service. Cronjobs can be added programmatically
-  or by other modules' ecmd commands and removed via the ecmd command
-  "cron_rm".  A list of all active jobs can be requested via "cron_list".
+  or by other module's ecmd commands and removed via the ecmd command
+  "cron rm".  A list of all active jobs can be requested via "cron list".
 
   Syntax for the cron ecmd commands:
-  cron_rm POSITION (where POSITION is in 0..N-1)
-  cron_list
+  cron add MIN HOUR DAY MONTH DOW ECMD : add a cron job
+  cron rm [POSITION} (where POSITION is in 0..N-1) : remove all/selected job
+  cron list : list all jobs
+  cron utc POSITION [STATE] : show/set flag to use UTC time for a job
 
   To add a stella cron job to, for example, fade up all lights at 6pm,
   compile in stella support and use the stella ecmd command "stella cron"
+
+Use UTC instead of LOCALTIME
+CRON_DEFAULT_UTC
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create conjobs with UTC flag set by default.
+
+Test entries
+CRON_SUPPORT_TEST
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create some test jobs at system startup (for debuging).
+
+Store Cron jobs in VFS
+CRON_VFS_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * VFS support (VFS_SUPPORT)
+   * !NOT! Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Store cron jobs as file on VFS storage like SD card.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to file
+
+Store Cron jobs in EEPROM
+CRON_EEPROM_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * !NOT! Store Cron jobs in VFS (CRON_VFS_SUPPORT)
+
+  Store cron jobs as file in EEPROM.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to EEPROM
+
+Cron EEPROM size
+CRON_EEPROM_SIZE
+  Depends on:
+   * Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Size of EEPROM reserved for crontab storage.
+
+Anacon Support
+CRON_ANACRON_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  If system is booted (with an RTC attached) or an time gap is detected
+  (i.e. by an NTP adjustment) all missed jobs are executed, if marked as
+  anacron job. The maximum time span is configured by CRON_ANACRON_MAXAGE.
+  This function is usefull for jobs that set internal states (for example
+  the target temperature of a heating control dependend on the daytime).
+
+  Syntax for the corresponding ecmd commands:
+  cron anacron POSITION [STATE] : show/set anacron flag for a job
+
+Anacron max age in secs
+CRON_ANACRON_MAXAGE
+  Depends on:
+   * Anacon Support (CRON_ANACRON_SUPPORT)
+
+  Maximum time span covered by CRON_ANACRON_SUPPORT in secs. Default is
+  86400 secs (one day).
 
 NTP daemon
 NTPD_SUPPORT
@@ -1320,14 +1390,17 @@ FREQ
 Build a bootloader
 BOOTLOADER_SUPPORT
 
- enable ethersex TFTP bootloader support
+ Enable ethersex TFTP bootloader support.
 
- Depends on TFTP to upload new firmware and the chip,
- is only possible to use on chips with 64k or 128k of flash
+ Depends on TFTP to download a new firmware and programm the flash.
 
- This Bootloader Need 4096 Words (8k Bytes) Flash on the end of the chip
+ This bootloader needs 8k flash memory at the top of the flash, so only
+ MCUs with 64k or 128k flash can be used.
 
- This is Only a Bootloader, not a normaly image
+ This is only a bootloader with a very limited functionality.
+
+ Select 'Enable bootloader jump' in your 'normal' ROM to be able re-enter the
+ bootloader mode.
 
 Add CRC Checksum
 CRC_PAD_SUPPORT
@@ -2434,6 +2507,54 @@ ONEWIRE_POLLING_SUPPORT
   onewire bus.
   The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
 
+
+ECMD 1w list with values
+ONEWIRE_ECMD_LIST_VALUES_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+
+  Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
+  value for each sensor. Fields are separated by tab. 
+
+
+Onewire naming support
+ONEWIRE_NAMING_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Enable mapping of onewire rom addresses to names. Mapping table is stored in EEPROM and could be edited
+  by ECMD commands:
+
+  1w name list: Show current mapping table
+  1w name set ID DEVICE NAME: Set table row ID to rom address DEVICE and name NAME
+  1w name clear ID: Clear table row ID
+  1w name save: Write current mapping table to EEPROM
+
+  "1w list" shows the rom addresses together with the names (separated by tab).
+
+  Number of table rows is defined by "Maximum sensor count" (OW_SENSORS_COUNT).
+
+
+Onewire SNMP support
+ONEWIRE_SNMP_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+   * SNMP Support (SNMP_SUPPORT)
+
+  Make the onewire values (currently only temperature) available via SNMP. The main OID is
+  .1.3.6.1.4.1.2021.13.23.3.
+
+  Sub-OIDs:
+  .1.3.6.1.4.1.2021.13.23.3.1.<ID>: rom address
+  .1.3.6.1.4.1.2021.13.23.3.2.<ID>: mapped name (with ONEWIRE_NAMING_SUPPORT)
+  .1.3.6.1.4.1.2021.13.23.3.3.<ID>: temperature value
+  .1.3.6.1.4.1.2021.13.23.3.4.<ID>: last discovery state (0 = absent, 1 = present)
+
+  ID corresponds with the ID of the name mapping table.
+
+
 Time between discoveries in 0.8s steps
 OW_DISCOVER_DELAY
 
@@ -2712,3 +2833,133 @@ Backlight support
 HD44780_BACKLIGHT_SUPPORT
 
   Backlight support for HD44780 LCD with direct connection.
+
+Tank level meter
+TANKLEVEL_SUPPORT
+  Depends on: 
+   * Clock Support (CLOCK_SUPPORT)
+   * ADC voltage suppot (ADC_VOLTAGE_SUPPORT)
+
+  This provides an application for measurement of tank levels by hydrostatic pressure.
+  You need an aquarium air pump, some kind of pipe/tube, a Freescale MPX5050DP
+  pressure sensor and an relay for the pump. Parameters are configurable by ECMD
+  and stored in EEPROM.
+
+  ECMD commands:
+
+    tank param show : show current parameter settings
+    tank param set PARAM VALUE : set tank parameter
+      sensor_offset : zero offset of the pressure sensor
+      med_density : medium density in g/ltr (default of 840 for fuel oil)
+      ltr_per_m : Ltr per meter tank level
+      ltr_full : Tank capacity in ltr
+      raise_time : Pump time (in 1/50 secs)
+      hold_time : Hold time before measurement (in 1/50 secs)
+    tank param save : write tank parameter to EEPROM
+    tank zero : probe sensor zero offset
+    tank start : start measurement
+    tank get : get last value
+
+  Mechanical setup:
+
+                           +-------+
+                           |Sensor |
+                           +---+---+
+                               | +--------+
+               +---------------+-+  Pump  |
+               |                 +--------+
+        +------+------+
+        |      |      |
+        |      |      |
+        |~~~~~~|~~~~~~|
+        |      |      |
+        |      |      |
+        |      |      |
+        +-------------+
+             Tank
+
+  Electrical setup:
+
+    Electrical Setup is quite simple. Connect the TANK_PUMP port with an relay
+    (usually via an Transistor as current amp) and the output of the Sensor
+    with the selected ADC channel (have a look at the datasheet for power supply
+    decoupling and output filtering). Select a optimal Vref for the ADC if
+    possible.
+
+ADC channel
+TANKLEVEL_ADC_CHANNEL
+
+  ADC channel that is connected to the MPX5050DP pressure sensor.
+
+Measure on system startup
+TANKLEVEL_STARTUP
+
+  Start initial measurement at system startup.
+
+Measure at 12 am and 12 pm
+TANKLEVEL_CRON_SUPPORT
+  Depends on: 
+   * Static Cron Support (CRON_SUPPORT)
+
+  Start measurement at fixed time. Can be changed in services/cron/cron_static.c.
+
+Inverted pump output
+TANKLEVEL_PUMP_ACTIVE_LOW
+
+  Output pin for pump is inverted.
+
+Check lock input
+TANKLEVEL_LOCK_SUPPORT
+
+  Check lock pin before measurement and wait if needed.
+  This is used to delay the measurement e.g. if the oil burner is running.
+
+Inverted lock input
+TANKLEVEL_LOCK_ACTIVE_LOW
+
+  Lock input pin is inverted.
+
+Inline tank level
+TANKLEVEL_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Tank level meter (TANKLEVEL_SUPPORT)
+
+  Inline a page to query the tank level.
+
+Default zero offset of the pressure sensor (in mV)
+TANKLEVEL_SENSOR_OFFSET
+
+  Zero offset of the pressure sensor (in mV). Can be changed at runtime via
+  ECMD command "tank param set sensor_offset VALUE" and stored in EEPROM.
+
+Default medium density (in g/ltr)
+TANKLEVEL_MED_DENSITY
+
+  Medium density (in g/ltr). Can be changed at runtime via
+  ECMD command "tank param set med_density VALUE" and stored in EEPROM.
+
+Default ltr per meter tank level
+TANKLEVEL_LTR_PER_M
+
+  Ltr per meter tank level. Can be changed at runtime via
+  ECMD command "tank param set ltr_per_m VALUE" and stored in EEPROM.
+
+Default tank capacity (in ltr)
+TANKLEVEL_LTR_FULL
+
+  Tank capacity (in ltr). Can be changed at runtime via
+  ECMD command "tank param set ltr_full VALUE" and stored in EEPROM.
+
+Default pump on time (in 1/50 secs)
+TANKLEVEL_RAISE_TIME
+
+  Pump on time (in 1/50 secs). Can be changed at runtime via
+  ECMD command "tank param set raise_time VALUE" and stored in EEPROM.
+
+Default hold time before measurement (in 1/50 secs)
+TANKLEVEL_HOLD_TIME
+
+  Hold time before measurement (in 1/50 secs). Can be changed at runtime via
+  ECMD command "tank param set hold_time VALUE" and stored in EEPROM.
+

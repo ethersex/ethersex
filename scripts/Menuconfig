@@ -28,7 +28,8 @@ single_menu_mode=
 set -h +o posix
 
 ### use GNU sed from macports instead of BSD sed on MacOS X
-if [ x$OSTYPE = x"darwin10.0" ] || [ x$OSTYPE = x"FreeBSD" ] ; then
+SYSTEM=`uname`
+if [ x$SYSTEM = x"Darwin" -o  x$SYSTEM = x"FreeBSD" ] ; then
     SED=gsed
 else
     SED=sed

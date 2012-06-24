@@ -1,9 +1,30 @@
 dep_bool_menu "Cron daemon (Dynamic)" CRON_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
 	dep_bool "Use UTC instead of LOCALTIME" CRON_DEFAULT_UTC $CRON_SUPPORT
-	dep_bool 'Test entries' CRON_SUPPORT_TEST  $CRON_SUPPORT
-	dep_bool "Store Cron jobs in VFS" CRON_VFS_SUPPORT $CRON_SUPPORT $VFS_SUPPORT
+	if  [ "$TEENSY_SUPPORT" != "y" ] ; then
+		dep_bool "Test entries" CRON_SUPPORT_TEST  $CRON_SUPPORT
+		if  [ "$CRON_EEPROM_SUPPORT" != "y" ] ; then
+			dep_bool "Store Cron jobs in VFS" CRON_VFS_SUPPORT $CRON_SUPPORT $VFS_SUPPORT
+		fi
+	fi
+	if  [ "$CRON_VFS_SUPPORT" != "y" ] ; then
+		dep_bool "Store Cron jobs in EEPROM" CRON_EEPROM_SUPPORT $CRON_SUPPORT
+	fi
+	if  [ "$CRON_EEPROM_SUPPORT" = "y" ] ; then
+		int "Cron EEPROM size" CRON_EEPROM_SIZE 256
+	fi
+	dep_bool "Anacon Support" CRON_ANACRON_SUPPORT $CRON_SUPPORT
+	if [ "$CRON_ANACRON_SUPPORT" = y ];  then
+		int "Anacron max age in secs"  CRON_ANACRON_MAXAGE 86400
+	fi
 	comment  "Debugging Flags"
 	dep_bool 'Dry run - Do not execute anything' DEBUG_CRON_DRYRUN
 	dep_bool 'Cron' DEBUG_CRON $DEBUG
 endmenu
+if [ "$CRON_SUPPORT" = y ];  then
+  define_bool CRON_SHARED_SUPPORT y
+fi
 dep_bool "Cron daemon (Static)" CRON_STATIC_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
+if [ "$CRON_STATIC_SUPPORT" = y ];  then
+  define_bool CRON_SHARED_SUPPORT y
+fi
+

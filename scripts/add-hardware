@@ -286,6 +286,20 @@ template $SER_RAM_23K256_SUPPORT << FNORD
   pin(SPI_CS_23K256, PB1, OUTPUT)
 FNORD
 
+template $PCA9685_OUTPUT_ENABLE << FNORD
+  /* PCA9685 Output Enable Pin */
+  pin(PCA9685_OE, PA0)
+FNORD
+
+template $TANKLEVEL_SUPPORT << FNORD
+  /* tank levelmeter pump output */
+  pin(TANKLEVEL_PUMP, PC3, OUTPUT)
+FNORD
+template $TANKLEVEL_LOCK_SUPPORT << FNORD
+  /* tank levelmeter lock input */
+  pin(TANKLEVEL_LOCK, PA2, INPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`

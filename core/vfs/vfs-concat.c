@@ -28,7 +28,7 @@ typedef uint32_t vfs_size_t;
 
 #include "vfs_inline.h"
 
-#define BUFLEN 65535
+#define MAX_IMAGE_SIZE 131072
 
 static void
 usage (int exitval)
@@ -72,7 +72,7 @@ crc_calc (uint8_t *data, int len)
 int
 main (int argc, char **argv)
 {
-  uint8_t buf_image[BUFLEN], buf_file[BUFLEN];
+  uint8_t buf_image[MAX_IMAGE_SIZE], buf_file[MAX_IMAGE_SIZE];
   int image_len, file_len, pagesz;
   FILE *f;
   union vfs_inline_node_t node = { .s = { .fn = "", .len = 0 } };
@@ -92,7 +92,7 @@ main (int argc, char **argv)
     return 1;
   }
 
-  image_len = fread (buf_image, 1, BUFLEN, f);
+  image_len = fread (buf_image, 1, MAX_IMAGE_SIZE, f);
   fclose (f);
 
 
@@ -115,7 +115,7 @@ main (int argc, char **argv)
 
   free(filename_gz);
 
-  file_len = fread (buf_file, 1, BUFLEN, f);
+  file_len = fread (buf_file, 1, MAX_IMAGE_SIZE, f);
   fclose (f);
 
   fprintf (stderr, "vfs-concat: Lengths: image=%d, file=%d\n",
