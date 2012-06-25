@@ -114,28 +114,28 @@
    (and that is assigned to the primary stack). */
 
 #ifdef ENC28J60_SUPPORT
-#  define set_CONF_ETHERRAPE_MAC(ip)		set_CONF_ENC_MAC(ip)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_ENC_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_ENC_IP4_NETMASK(ip)
-#  define CONF_ETHERRAPE_MAC		CONF_ENC_MAC
+#  define set_CONF_ETHERSEX_MAC(ip)		set_CONF_ENC_MAC(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_ENC_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_ENC_IP4_NETMASK(ip)
+#  define CONF_ETHERSEX_MAC		CONF_ENC_MAC
 
 #elif defined (TAP_SUPPORT)
-#  define set_CONF_ETHERRAPE_MAC(ip)		set_CONF_TAP_MAC(ip)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_TAP_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_TAP_IP4_NETMASK(ip)
-#  define CONF_ETHERRAPE_MAC			CONF_TAP_MAC
+#  define set_CONF_ETHERSEX_MAC(ip)		set_CONF_TAP_MAC(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_TAP_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_TAP_IP4_NETMASK(ip)
+#  define CONF_ETHERSEX_MAC			CONF_TAP_MAC
 
 #elif defined (RFM12_IP_SUPPORT)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_RFM12_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_RFM12_IP4_NETMASK(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_RFM12_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_RFM12_IP4_NETMASK(ip)
 
 #elif defined (ZBUS_SUPPORT)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_ZBUS_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_ZBUS_IP4_NETMASK(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_ZBUS_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_ZBUS_IP4_NETMASK(ip)
 
 #elif defined (USB_NET_SUPPORT)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_USB_NET_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_USB_NET_IP4_NETMASK(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_USB_NET_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_USB_NET_IP4_NETMASK(ip)
 #endif
 
 /* ADC Reference Flags */

@@ -121,7 +121,7 @@ network_init(void)
 #   elif !defined(ROUTER_SUPPORT) /* and not ETHERNET_SUPPORT */
     /* Don't allow for eeprom-based configuration of rfm12/zbus IP address,
        mainly for code size reasons. */
-    set_CONF_ETHERRAPE_IP(&ip);
+    set_CONF_ETHERSEX_IP(&ip);
     uip_sethostaddr(&ip);
 
 #   endif /* not ETHERNET_SUPPORT and not ROUTER_SUPPORT */
@@ -141,7 +141,7 @@ network_init(void)
 #   else /* ETHERNET_SUPPORT */
     /* set at least fixed default gateway address
      * to allow multi stack routing */
-    set_CONF_ETHERRAPE_GATEWAY(&ip);
+    set_CONF_ETHERSEX_GATEWAY(&ip);
     uip_setdraddr(&ip);
 #   endif  /* ETHERNET_SUPPORT */
 

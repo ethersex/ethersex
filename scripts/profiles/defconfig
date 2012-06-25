@@ -29,29 +29,35 @@ atmega644=y
 # at90can64 is not set
 # at90can128 is not set
 FREQ=20000000
-# alpengluehn is not set
 # Arduino_Duemilanove is not set
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
+# alpengluehn is not set
 # conrad_probot is not set
 # ehaserl is not set
 HARDWARE=etherrape
 etherrape=y
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
-# netio_addon is not set
 # netio is not set
+# netio_addon is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
+# user_lexpedit is not set
+# user_moodlamp is not set
+# user_my_netio is not set
+# user_test is not set
+# user_test2 is not set
+# user_zonealarm is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -72,7 +78,7 @@ EEPROM_PAGESIZE=0x8
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="9df83d1"
+VERSION_GIT="8ff2777"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -217,7 +223,7 @@ NET_SUPPORT=y
 IPV4_SUPPORT=y
 # IP_FORWARDING_SUPPORT is not set
 # UIP_TIMEOUT_SUPPORT is not set
-CONF_ETHERRAPE_GATEWAY="192.168.23.1"
+CONF_ETHERSEX_GATEWAY="192.168.23.1"
 # UIP_MULTI_STACK is not set
 # IPCHAIR_SUPPORT is not set
 # IPCHAIR_MASQ is not set
