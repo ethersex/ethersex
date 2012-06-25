@@ -87,19 +87,19 @@ eeprom_init (void)
   (void) ip;			/* Keep GCC quiet. */
 
 #ifdef ETHERNET_SUPPORT
-  eeprom_save_P (mac, PSTR (CONF_ETHERRAPE_MAC), 6);
+  eeprom_save_P (mac, PSTR (CONF_ETHERSEX_MAC), 6);
 #endif
 
 #if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
-  set_CONF_ETHERRAPE_IP (&ip);
+  set_CONF_ETHERSEX_IP (&ip);
   eeprom_save (ip, &ip, IPADDR_LEN);
 #ifdef ETHERNET_SUPPORT
-  set_CONF_ETHERRAPE_GATEWAY (&ip);
+  set_CONF_ETHERSEX_GATEWAY (&ip);
   eeprom_save (gateway, &ip, IPADDR_LEN);
 #endif
 
 #ifdef IPV4_SUPPORT
-  set_CONF_ETHERRAPE_IP4_NETMASK (&ip);
+  set_CONF_ETHERSEX_IP4_NETMASK (&ip);
   eeprom_save (netmask, &ip, IPADDR_LEN);
 #endif
 #endif
