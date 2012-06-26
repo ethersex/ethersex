@@ -1438,7 +1438,7 @@ CONF_HOSTNAME
   Enter a hostname for your device. This value is used e.g. by SNMP
 
 Network Gateway IP
-CONF_ETHERRAPE_GATEWAY
+CONF_ETHERSEX_GATEWAY
 
   Enter the default gateway IP for your network
 

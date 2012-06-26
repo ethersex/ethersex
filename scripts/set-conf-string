@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 [ x"$1" = x ] && show_usage=y
 [ x"$2" = x ] && show_usage=y
