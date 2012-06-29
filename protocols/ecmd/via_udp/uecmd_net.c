@@ -49,19 +49,17 @@ void uecmd_net_main() {
 		return;
 
 	char *p = (char *)uip_appdata;
-
-	/* Add \0 to the data and remove \n from the data */
-	do {
-		if (*p == '\r' || *p == '\n') {
+	/* This may be 1-2 chars too big in case there is a \r or \n, but it saves us a counting loop */
+	char cmd[ uip_datalen() + 1 ];
+	char *dp = cmd;
+	/* Copy over into temporary buffer, remove \r \n if present, add \0 */
+	while ( p < (char*)uip_appdata + uip_datalen() )
+	{
+		if (*p == '\r' || *p == '\n')
 			break;
-		}
-	} while ( ++p <= ((char *)uip_appdata + uip_datalen()));
-
-	/* Parse the Data */
-	*p = 0;
-	char cmd[p - (char *)uip_appdata];
-
-	strncpy(cmd, uip_appdata, p - (char *)uip_appdata + 1);
+                *dp++=*p++;
+	}
+	*dp=0;
 
 	uip_slen = 0;
 	while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
