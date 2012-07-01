@@ -36,6 +36,8 @@
 #define SNMP_TYPE_NULL        0x05
 #define SNMP_TYPE_OID         0x06
 #define SNMP_TYPE_SEQUENCE    0x30
+#define SNMP_TYPE_COUNTER     0x41
+#define SNMP_TYPE_GAUGE       0x42
 #define SNMP_TYPE_TIMETICKS   0x43
 #define SNMP_TYPE_ENDOFMIB    0x82
 #define SNMP_TYPE_GETREQ      0xa0
@@ -60,6 +62,17 @@
 #define SNMP_MAX_OID_BUFFERSIZE 64
 #define SNMP_MAX_BIND_COUNT     3
 
+/* OID: 1.3.6.1.4.1. */
+#define SNMP_OID_ENTERPRISES "\x2b\x06\x01\x04\x01"
+
+#ifdef SNMP_UCDEXPERIMENTAL_SUPPORT
+/* OID: 1.3.6.1.4.1.2021.13.23. */
+#define SNMP_OID_ETHERSEX SNMP_OID_ENTERPRISES "\x8f\x65\x0d\x17"
+#else
+/* OID: 1.3.6.1.4.1.39967 */
+#define SNMP_OID_ETHERSEX SNMP_OID_ENTERPRISES "\x82\xb8\x1f"
+#endif
+
 struct snmp_varbinding
 {
   uint8_t store_len;
@@ -83,10 +96,5 @@ struct snmp_reaction
 };
 
 extern const struct snmp_reaction snmp_reactions[];
-
-#define ucdExperimental "\x2b\x06\x01\x04\x01\x8f\x65\x0d"
-
-/* OID: 1.3.6.1.4.1.2021.13.23. */
-#define ethersexExperimental ucdExperimental "\x17"
 
 #endif /* _SNMP_H */
