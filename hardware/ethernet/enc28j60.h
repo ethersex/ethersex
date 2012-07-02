@@ -287,6 +287,15 @@
 
 #define RECEIVE_BUFFER_WRAP(x) ((x) & (RXBUFFER_END))
 
+/* ECOCON setup */
+#define ECOCON_UNSET _unset_
+#define ECOCON_6 6
+#define ECOCON_4 4
+#define ECOCON_3 3
+#define ECOCON_2 2
+#define ECOCON_1 1
+#define ECOCON_0 0
+
 /* global variables */
 extern int16_t enc28j60_next_packet_pointer;
 
