@@ -24,11 +24,11 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $ARCH_AVR
 
 	choice 'ENC28J60 CLKOUT Prescaler (ECOCON)' \
 		"Unset  ECOCON_UNSET \
-		 3.125Mhz(8)  ECOCON_6 \
+		 3.125MHz(8)  ECOCON_6 \
 		 6.250MHz(4)  ECOCON_4 \
-		 8.333Mhz(3)  ECOCON_3 \
+		 8.333MHz(3)  ECOCON_3 \
 		 12.50MHz(2)  ECOCON_2 \
-		 25.00Mhz(1)  ECOCON_1 \
+		 25.00MHz(1)  ECOCON_1 \
 		 CLKOUT_Off  ECOCON_0" \
 		'Unset' CONF_ENC_ECOCON
 
