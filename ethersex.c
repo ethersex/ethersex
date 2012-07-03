@@ -55,7 +55,7 @@ uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 
 void __start (void) __attribute__ ((naked))
                     __attribute__ ((used))
-                    __attribute__ ((section (".init1")));
+                    __attribute__ ((section (".init3")));
 void __start ()
 {
   /* Clear the watchdog register to avoid endless wdreset loops */
