@@ -113,6 +113,7 @@ ENC28J60 CLKOUT Prescaler (ECOCON)
 ECOCON_UNSET
   Depends on:
    * ENC28J60
+   * CONFIG_EXPERT
 
   Sets the ENC28j60's CLKOUT prescaler register ECOCON
   during network initialization. The CLKOUT pin can then
