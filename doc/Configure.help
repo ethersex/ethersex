@@ -109,6 +109,17 @@ DEBUG_ENC28J60
 
   There's unfortunately no help available for this item.
 
+ENC28J60 CLKOUT Prescaler (ECOCON)
+ECOCON_UNSET
+  Depends on:
+   * ENC28J60
+   * CONFIG_EXPERT
+
+  Sets the ENC28j60's CLKOUT prescaler register ECOCON
+  during network initialization. The CLKOUT pin can then
+  be used to clock other devices, even the AVR itself.
+  See the ENC datasheet section 2.3 for details. 
+
 Interrupt
 DEBUG_INTERRUPT
   Depends on:
