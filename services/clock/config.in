@@ -1,64 +1,76 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 
-	if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
-		comment 'The follow ECMD Options are here and in ECMD Options available'
-		bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
-		bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
-	else
-		dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
-	fi
+  if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
+    comment 'The follow ECMD Options are here and in ECMD Options available'
+    bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
+    bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
+  else
+    dep_bool "Date and Time support" CLOCK_DATETIME_SUPPORT $CLOCK_SUPPORT
+  fi
 
-	if [ "$CLOCK_CPU_SUPPORT" = "y" ]; then
-		dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT "n"
-	else
-		dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
-	fi
+  if [ "$CLOCK_SUPPORT" = "y" ]; then
+    mainmenu_option next_comment
+      comment "Timezone"
+      int "Local time offset to UTC (minutes)" TZ_OFFSET 60
+      comment "Daylight saving"
+      int "Time offset (minutes)" DST_OFFSET 60
+      comment "Begin of daylight saving"
+      int "Month (1-12)" DST_BEGIN_MONTH 3
+      int "Week (1-5)" DST_BEGIN_WEEK 5
+      int "Day of week (0-6)" DST_BEGIN_DOW 0
+      int "Hour (0-23)" DST_BEGIN_HOUR 2
+      comment "End of daylight saving"
+      int "Month (1-12)" DST_END_MONTH 10
+      int "Week (1-5)" DST_END_WEEK 5
+      int "Day of week (0-6)" DST_END_DOW 0
+      int "Hour (0-23)" DST_END_HOUR 3
+    endmenu
+  fi
+  
+  if [ "$CLOCK_CPU_SUPPORT" = "y" ]; then
+    dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT "n"
+  else
+    dep_bool "Use 32 kHz crystal to tick the clock" CLOCK_CRYSTAL_SUPPORT $CLOCK_SUPPORT
+  fi
 
-	if [ "$CLOCK_CRYSTAL_SUPPORT" = "y" ]; then
-		dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT "n"
-	else
-		dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
-	fi
+  if [ "$CLOCK_CRYSTAL_SUPPORT" = "y" ]; then
+    dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT "n"
+  else
+    dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
+  fi
 
-        if [ "$CLOCK_CPU_SUPPORT" = "y" ]; then
-		dep_bool "Adjust clock to NTP clock signal" CLOCK_NTP_ADJUST_SUPPORT "n"
-	else
-		dep_bool "Adjust clock to NTP clock signal" CLOCK_NTP_ADJUST_SUPPORT $CLOCK_SUPPORT $NTP_SUPPORT
-        fi
+  if [ "$CLOCK_CPU_SUPPORT" = "y" ]; then
+    dep_bool "Adjust clock to NTP clock signal" CLOCK_NTP_ADJUST_SUPPORT "n"
+  else
+    dep_bool "Adjust clock to NTP clock signal" CLOCK_NTP_ADJUST_SUPPORT $CLOCK_SUPPORT $NTP_SUPPORT
+  fi
 
-	source hardware/clock/dcf77/config.in
-	dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
-	if [ "$NTP_SUPPORT" = "y" ]; then
-		if [ "$DNS_SUPPORT" = "y" ]; then
-			if [ "$IPV6_SUPPORT" = "y" ]; then
-				string "NTP Server" NTP_SERVER "ntp.ipv6.uni-leipzig.de"
-			else
-				string "NTP Server" NTP_SERVER "ptbtime1.ptb.de"
-			fi
-		else
-			ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
-		fi
-		int "NTP Port" NTP_PORT 123
+  source hardware/clock/dcf77/config.in
+  dep_bool "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+  if [ "$NTP_SUPPORT" = "y" ]; then
+    if [ "$DNS_SUPPORT" = "y" ]; then
+      if [ "$IPV6_SUPPORT" = "y" ]; then
+        string "NTP Server" NTP_SERVER "ntp.ipv6.uni-leipzig.de"
+      else
+        string "NTP Server" NTP_SERVER "ptbtime1.ptb.de"
+      fi
+    else
+      ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
+    fi
+    int "NTP Port" NTP_PORT 123
 
-		if [ "$CONFIG_EXPERT" = "y" ]; then
-                	if [ "$NTP_QUERY_INTERVAL" -lt 60 -o "$NTP_QUERY_INTERVAL" = "" ] ; then NTP_QUERY_INTERVAL=60 ; fi
-			int "NTP query interval (seconds)" NTP_QUERY_INTERVAL 1800
-		else
-			define_int NTP_QUERY_INTERVAL 1800
-		fi
-	fi
-	dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
-	dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
-	dep_bool "Uptime (whm in unix format like: d days, hh:mm)" UPTIME_SUPPORT $CLOCK_SUPPORT
-	
-	if [ "$CLOCK_SUPPORT" = "y" ]; then
-		choice 'Time Zone'			\
-		"UTC			TIMEZONE_UTC	\
-		CET/CEST		TIMEZONE_CEST"	\
-		UTC			TIMEZONE
-	fi
-	
-	comment  "Debugging Flags"
-	dep_bool "NTP Clock-Adjust" DEBUG_NTP_ADJUST $CLOCK_NTP_ADJUST_SUPPORT $DEBUG
+    if [ "$CONFIG_EXPERT" = "y" ]; then
+                  if [ "$NTP_QUERY_INTERVAL" -lt 60 -o "$NTP_QUERY_INTERVAL" = "" ] ; then NTP_QUERY_INTERVAL=60 ; fi
+      int "NTP query interval (seconds)" NTP_QUERY_INTERVAL 1800
+    else
+      define_int NTP_QUERY_INTERVAL 1800
+    fi
+  fi
+  dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+  dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT
+  dep_bool "Uptime (whm in unix format like: d days, hh:mm)" UPTIME_SUPPORT $CLOCK_SUPPORT
+  
+  comment  "Debugging Flags"
+  dep_bool "NTP Clock-Adjust" DEBUG_NTP_ADJUST $CLOCK_NTP_ADJUST_SUPPORT $DEBUG
 
 endmenu

@@ -15,7 +15,7 @@ pin(USB_ENABLE, PD4, OUTPUT)
 RFM12_ASK_SENSE_USE_INT(1)
 
 /* port the rfm12 module CS is attached to */
-pin(SPI_CS_RFM12, PC2, OUTPUT)
+pin(SPI_CS_RFM12_0, PC2, OUTPUT)
 
 dnl RFM12_USE_PCINT(0, PB0)  dnl PCINT0
 

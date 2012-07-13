@@ -33,112 +33,126 @@
 #include "stella.h"
 
 #ifndef TEENSY_SUPPORT
-int16_t parse_cmd_stella_eeprom_store (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_stella_eeprom_store(char *cmd, char *output, uint16_t len)
 {
-	stella_storeToEEROM();
-	return ECMD_FINAL_OK;
+  stella_storeToEEROM();
+  return ECMD_FINAL_OK;
 }
 
-int16_t parse_cmd_stella_eeprom_load (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_stella_eeprom_load(char *cmd, char *output, uint16_t len)
 {
-	stella_loadFromEEROM();
-	return ECMD_FINAL_OK;
+  stella_loadFromEEROM();
+  return ECMD_FINAL_OK;
 }
-#endif  /* not TEENSY_SUPPORT */
+#endif /* not TEENSY_SUPPORT */
 
-int16_t parse_cmd_stella_fadestep (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_stella_fadestep(char *cmd, char *output, uint16_t len)
 {
-	if (cmd[0])
-	{
-		stella_fade_step = atoi(cmd);
-		return ECMD_FINAL_OK;
-	}
-	else
-	{
-		itoa(stella_fade_step, output, 10);
-		return ECMD_FINAL(strlen(output));
-	}
-}
-
-int16_t parse_cmd_stella_channels (char *cmd, char *output, uint16_t len)
-{
-	itoa(STELLA_CHANNELS, output, 10);
-	return ECMD_FINAL(strlen(output));
+  if (cmd[0])
+  {
+    stella_fade_step = atoi(cmd);
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    itoa(stella_fade_step, output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
 }
 
-int16_t parse_cmd_stella_channel (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_stella_channels(char *cmd, char *output, uint16_t len)
 {
-	char f = 0;
-	uint8_t ch = 0;
-	uint8_t value = 0;
+  itoa(STELLA_CHANNELS, output, 10);
+  return ECMD_FINAL(strlen(output));
+}
 
-	// following lines same as: sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
-	
-	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
-	if (!*cmd)
-	{
-		/* not first argument == return all channels */
-		static uint8_t chan = 0;
-		uint8_t ret = 0;
-		// First return amount of channels with three bytes
-		if(chan == 0)
-		{
-		output[ret++] = ((uint8_t)STELLA_CHANNELS)/10 +48;
-		output[ret++] = ((uint8_t)STELLA_CHANNELS)%10 +48;
-		output[ret++] = '\n';
-	  	}
-		// return channel values
-		value = stella_getValue(chan);
-		output[ret+2] = value%10 +48;
-		value /= 10;
-		output[ret+1] = value%10 +48;
-		value /= 10;
-		output[ret+0] = value%10 +48;
-		ret+=3;
-		if(chan < STELLA_CHANNELS-1)
-		{
-			chan++;
-			return ECMD_AGAIN(ret);
-		}
-		else
-		{
-			chan=0;
-			return ECMD_FINAL(ret);
-		}
-	}
-	ch = atoi(cmd); // save first argument == channel
-	while(*cmd && *cmd != ' ') cmd++; //skip value
-	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
-	if(!*cmd)
-	{
-		/* no second argument -> get value */
-		if (ch >= STELLA_CHANNELS)
-			return ECMD_ERR_PARSE_ERROR;
+int16_t
+parse_cmd_stella_channel(char *cmd, char *output, uint16_t len)
+{
+  char f = 0;
+  uint8_t ch = 0;
+  uint8_t value = 0;
 
-		itoa(stella_getValue(ch), output, 10);
-		return ECMD_FINAL(strlen(output));
-	}
+  // following lines same as: sscanf_P(cmd, PSTR("%u %u %c"), &ch, &value, &f);
 
-	value = atoi(cmd);
+  while (*cmd && *cmd == ' ')
+    cmd++;                      // skip whitespace
+  if (!*cmd)
+  {
+    /* not first argument == return all channels */
+    static uint8_t chan = 0;
+    uint8_t ret = 0;
+    // First return amount of channels with three bytes
+    if (chan == 0)
+    {
+      output[ret++] = ((uint8_t) STELLA_CHANNELS) / 10 + 48;
+      output[ret++] = ((uint8_t) STELLA_CHANNELS) % 10 + 48;
+      output[ret++] = '\n';
+    }
+    // return channel values
+    value = stella_getValue(chan);
+    output[ret + 2] = value % 10 + 48;
+    value /= 10;
+    output[ret + 1] = value % 10 + 48;
+    value /= 10;
+    output[ret + 0] = value % 10 + 48;
+    ret += 3;
+    if (chan < STELLA_CHANNELS - 1)
+    {
+      chan++;
+      return ECMD_AGAIN(ret);
+    }
+    else
+    {
+      chan = 0;
+      return ECMD_FINAL(ret);
+    }
+  }
+  ch = atoi(cmd);               // save first argument == channel
+  while (*cmd && *cmd != ' ')
+    cmd++;                      // skip value
+  while (*cmd && *cmd == ' ')
+    cmd++;                      // skip whitespace
+  if (!*cmd)
+  {
+    /* no second argument -> get value */
+    if (ch >= STELLA_CHANNELS)
+      return ECMD_ERR_PARSE_ERROR;
 
-	while(*cmd && *cmd != ' ') cmd++; //skip value
-	while(*cmd && *cmd == ' ') cmd++; //skip whitespace
+    itoa(stella_getValue(ch), output, 10);
+    return ECMD_FINAL(strlen(output));
+  }
 
-	/* third argument == fade step */
-	if(*cmd) {
-		f = *cmd;
+  value = atoi(cmd);
 
-		if (f=='s') f = 0; // set
-		else if (f=='f') f = 1; // fade
-		else if (f=='y') f = 2; // fade variant 2
-	}
-	
-	if (ch>=STELLA_CHANNELS)
-		return ECMD_ERR_PARSE_ERROR;
-	
-	stella_setValue(f, ch, value);
+  while (*cmd && *cmd != ' ')
+    cmd++;                      // skip value
+  while (*cmd && *cmd == ' ')
+    cmd++;                      // skip whitespace
 
-	return ECMD_FINAL_OK;
+  /* third argument == fade step */
+  if (*cmd)
+  {
+    f = *cmd;
+
+    if (f == 's')
+      f = STELLA_SET_IMMEDIATELY;
+    else if (f == 'f')
+      f = STELLA_SET_FADE;
+    else if (f == 'y')
+      f = STELLA_SET_FLASHY;
+  }
+
+  if (ch >= STELLA_CHANNELS)
+    return ECMD_ERR_PARSE_ERROR;
+
+  stella_setValue(f, ch, value);
+
+  return ECMD_FINAL_OK;
 }
 
 

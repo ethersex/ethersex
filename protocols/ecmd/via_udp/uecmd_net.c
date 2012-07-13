@@ -31,65 +31,71 @@
 
 #define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
 
-void uecmd_net_init() {
-	uip_ipaddr_t ip;
-	uip_ipaddr_copy(&ip, all_ones_addr);
+void
+uecmd_net_init()
+{
+  uip_ipaddr_t ip;
+  uip_ipaddr_copy(&ip, all_ones_addr);
 
-	uip_udp_conn_t *uecmd_conn = uip_udp_new(&ip, 0, uecmd_net_main);
-	if(! uecmd_conn) {
-		debug_printf("ecmd: udp failed\n");
-		return;
-	}
+  uip_udp_conn_t *uecmd_conn = uip_udp_new(&ip, 0, uecmd_net_main);
+  if (!uecmd_conn)
+  {
+    debug_printf("ecmd: udp failed\n");
+    return;
+  }
 
-	uip_udp_bind (uecmd_conn, HTONS(ECMD_UDP_PORT));
+  uip_udp_bind(uecmd_conn, HTONS(ECMD_UDP_PORT));
 }
 
-void uecmd_net_main() {
-	if (!uip_newdata ())
-		return;
+void
+uecmd_net_main()
+{
+  if (!uip_newdata())
+    return;
 
-	char *p = (char *)uip_appdata;
+  char *p = (char *) uip_appdata;
+  /* This may be 1-2 chars too big in case there is a \r or \n, but it saves us a counting loop */
+  char cmd[uip_datalen() + 1];
+  char *dp = cmd;
+  /* Copy over into temporary buffer, remove \r \n if present, add \0 */
+  while (p < (char *) uip_appdata + uip_datalen())
+  {
+    if (*p == '\r' || *p == '\n')
+      break;
+    *dp++ = *p++;
+  }
+  *dp = 0;
 
-	/* Add \0 to the data and remove \n from the data */
-	do {
-		if (*p == '\r' || *p == '\n') {
-			break;
-		}
-	} while ( ++p <= ((char *)uip_appdata + uip_datalen()));
+  uip_slen = 0;
+  while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN)
+  {
+    int16_t len = ecmd_parse_command(cmd, ((char *) uip_appdata) + uip_slen,
+                                     (UIP_BUFSIZE - UIP_IPUDPH_LEN) -
+                                     uip_slen);
+    uint8_t real_len = len;
+    if (!is_ECMD_FINAL(len))
+    {                           /* what about the errors ? */
+      /* convert ECMD_AGAIN back to ECMD_FINAL */
+      real_len = (uint8_t) ECMD_AGAIN(len);
+    }
+    uip_slen += real_len + 1;
+    ((char *) uip_appdata)[uip_slen - 1] = '\n';
+    if (real_len == len || len == 0)
+      break;
+  }
 
-	/* Parse the Data */
-	*p = 0;
-	char cmd[p - (char *)uip_appdata];
+  /* Sent data out */
 
-	strncpy(cmd, uip_appdata, p - (char *)uip_appdata + 1);
+  uip_udp_conn_t echo_conn;
+  uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
+  echo_conn.rport = BUF->srcport;
+  echo_conn.lport = HTONS(ECMD_UDP_PORT);
 
-	uip_slen = 0;
-	while (uip_slen < UIP_BUFSIZE - UIP_IPUDPH_LEN) {
-		int16_t len = ecmd_parse_command(cmd, ((char *)uip_appdata) + uip_slen,
-						 (UIP_BUFSIZE - UIP_IPUDPH_LEN) - uip_slen);
-		uint8_t real_len = len;
-		if (!is_ECMD_FINAL(len)) { /* what about the errors ? */
-			/* convert ECMD_AGAIN back to ECMD_FINAL */
-			real_len = (uint8_t) ECMD_AGAIN(len);
-		}
-		uip_slen += real_len + 1;
-		((char *)uip_appdata)[uip_slen - 1] = '\n';
-		if (real_len == len || len == 0)
-			break;
-	}
+  uip_udp_conn = &echo_conn;
+  uip_process(UIP_UDP_SEND_CONN);
+  router_output();
 
-	/* Sent data out */
-
-	uip_udp_conn_t echo_conn;
-	uip_ipaddr_copy(echo_conn.ripaddr, BUF->srcipaddr);
-	echo_conn.rport = BUF->srcport;
-	echo_conn.lport = HTONS(ECMD_UDP_PORT);
-
-	uip_udp_conn = &echo_conn;
-	uip_process(UIP_UDP_SEND_CONN);
-	router_output();
-
-	uip_slen = 0;
+  uip_slen = 0;
 }
 
 /*

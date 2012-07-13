@@ -9,7 +9,6 @@
 #define _SPIF0 SPIF
 #define _SPDR0 SPDR
 #define _SPI2X0 SPI2X
-#define _TIMSK_TIMER2 TIMSK
 #define _EIMSK GICR
 #define EIMSK GICR
 #define EICRA MCUCR
@@ -19,6 +18,7 @@
 #define USART0_RX_vect USART_RXC_vect
 #define USART0_TX_vect USART_TXC_vect
 #define UPE PE /* parity error */
+#define ANALOG_COMP_vect ANA_COMP_vect
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUCSR
@@ -157,15 +157,5 @@
 #define TIMER_8_AS_1_COMPARE_CONTROL_BUSY_TST (ASSR&_BV(TIMER_8_AS_1_COMPARE_CONTROL_BUSY))
 /* both tests combined */
 #define TIMER_8_AS_1_COUNTER_BUSY_TST (TIMER_8_AS_1_COMPARE_CONTROL_BUSY_TST || TIMER_8_AS_1_COUNTER_CURRENT_BUSY_TST)
-
-
-
-/* Timer2 - Stella */
-#define _TCCR2_PRESCALE TCCR2
-#define _OUTPUT_COMPARE_IE2 OCIE2
-#define _OUTPUT_COMPARE_REG2 OCR2
-#define _VECTOR_OUTPUT_COMPARE2 TIMER2_COMP_vect
-#define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
-#define _TIMSK_TIMER2 TIMSK
 
 #define RC5_USE_TIMER2

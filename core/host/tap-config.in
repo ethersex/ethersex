@@ -1,18 +1,18 @@
 dep_bool_menu "Ethernet (Linux TAP) support" TAP_SUPPORT $ARCH_HOST
-	mac "Etherrape MAC address" CONF_TAP_MAC "ac:de:48:fd:0f:d0"
+	mac "MAC address" CONF_TAP_MAC "ac:de:48:fd:0f:d0"
 	script_set "  Randomize MAC address" RANDOM_MAC "scripts/random_mac CONF_TAP_MAC"
 
 	dep_bool 'Static IPv6 configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
 
 	if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
 		comment "Static IPv6 configuration"
-		ipv6 "Etherrape IP address" CONF_TAP_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+		ipv6 "IP address" CONF_TAP_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
 		int "IP prefix length" CONF_TAP_IP6_PREFIX_LEN 64
 	fi
 
 	if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" ]; then
 		comment "Static IPv4 configuration"
-		ipv4 "Etherrape IP address" CONF_TAP_IP "192.168.23.244"
+		ipv4 "IP address" CONF_TAP_IP "192.168.23.244"
 		ipv4 "Netmask" CONF_TAP_IP4_NETMASK "255.255.255.0"
 		ipv4 "Local IP address" CONF_TAP_LOCALIP "192.168.23.1"
 	fi

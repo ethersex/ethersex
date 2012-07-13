@@ -127,9 +127,9 @@ void lome6_timer(void) {
 	if (iLCDPage == 0) {
 
 		// display uptime and date+time
-		uint32_t working_hours = (clock_get_time() - clock_get_startup()) / 60;
+		uint32_t working_hours = clock_get_uptime() / 60;
 
-		struct clock_datetime_t datetime;
+		clock_datetime_t datetime;
 		clock_current_localtime(&datetime);
 
 		wprintw_P(ttyWindow, PSTR("%02d:%02d %02d.%02d.%04d"), datetime.hour, datetime.min, datetime.day, datetime.month, (datetime.year + 1900));

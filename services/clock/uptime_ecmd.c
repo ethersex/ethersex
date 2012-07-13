@@ -29,7 +29,7 @@
 
 int16_t parse_cmd_uptime(char *cmd, char *output, uint16_t len)
 {
-    uint32_t working_minutes = (clock_get_time() - clock_get_startup()) / 60;
+    uint32_t working_minutes = clock_get_uptime() / 60;
     int d = (int)(working_minutes / 1440);
     int m = (int)(working_minutes % 1440);
     return ECMD_FINAL(snprintf_P(output, len, PSTR("%u days, %02u:%02u"),

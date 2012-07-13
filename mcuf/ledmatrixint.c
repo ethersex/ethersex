@@ -55,9 +55,9 @@ void init_led_display(void) {
   LED_GREEN_DDR |= (1<<LED_GREEN_PIN);
   LED_CLOCK_DDR |= (1<<LED_CLOCK_PIN);
   */
-  TC2_COUNTER_CURRENT = 0;                    //Timer 2 Resetten
-  _TIMSK_TIMER2  |= _BV(TOIE2); //Timer 2 Overflow Interrupt aktiv
-  _TCCR2_PRESCALE = _BV(CS21) | _BV(CS20);  //Prescaler = 8 /32
+  TC2_COUNTER_CURRENT = 0;
+  TC2_INT_OVERFLOW_ON;
+  TC2_PRESCALER_32;
   PIN_SET(LED_RESET);      //LED_RESET_PORT |= (1<<LED_RESET_PIN); //Reset high
   gzeile = 0;                   //beginne mit Zeile 0
   PIN_CLEAR(LED_RESET); //Reset low

@@ -1,11 +1,11 @@
 /* Name: usbdrvasm128.inc
- * Project: AVR USB driver
+ * Project: V-USB, virtual USB port for Atmel's(r) AVR(r) microcontrollers
  * Author: Christian Starkjohann
  * Creation Date: 2008-10-11
  * Tabsize: 4
  * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
  * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
- * This Revision: $Id: usbdrvasm128.inc 692 2008-11-07 15:07:40Z cs $
+ * This Revision: $Id$
  */
 
 /* Do not link this file! Link usbdrvasm.S instead, which includes the
@@ -31,8 +31,9 @@ limitations:
 They typical range is 14.5 MHz and most AVRs can actually reach this rate.
 (2) Writing EEPROM and Flash may be unreliable (short data lifetime) since
 the write procedure is timed from the RC oscillator.
-(3) End Of Packet detection is between bit 0 and bit 1 where the EOP condition
-may not be reliable when a hub is used. It should be in bit 1.
+(3) End Of Packet detection (SE0) should be in bit 1, bit it is only checked
+if bits 0 and 1 both read as 0 on D- and D+ read as 0 in the middle. This may
+cause problems with old hubs which delay SE0 by up to one cycle.
 (4) Code size is much larger than that of the other modules.
 
 Since almost all of this code is timing critical, don't change unless you
@@ -217,8 +218,10 @@ unstuff0s:
     ifioclr USBIN, USBMINUS     ;[00]
     ifioset USBIN, USBPLUS      ;[01]
     rjmp    bit0IsClr           ;[02] executed if first expr false or second true
-jumpToSe0AndStore:
-    rjmp    se0AndStore         ;[03] executed only if both bits 0
+se0AndStore:                    ; executed only if both bits 0
+    st      y+, x1              ;[15/17] cycles after start of byte
+    rjmp    se0                 ;[17/19]
+
 bit0IsClr:
     ifrset  phase, USBMINUS     ;[04] check phase only if D- changed
     lpm                         ;[05]
@@ -228,7 +231,7 @@ bit1AfterClr:
     andi    phase, USBMASK      ;[08]
     ifioset USBIN, USBMINUS     ;[09] <--- sample 1
     rjmp    bit1IsSet           ;[10]
-    breq    jumpToSe0AndStore   ;[11]
+    breq    se0AndStore         ;[11] if D- was 0 in bits 0 AND 1 and D+ was 0 in between, we have SE0
     andi    shift, ~(7 << 1)    ;[12]
     in      phase, USBIN        ;[13] <- phase
     breq    unstuff1c           ;[14]
@@ -355,10 +358,6 @@ unstuff7c:
     nop                         ;[59]
     rjmp    bit7IsSet           ;[60]
 
-se0AndStore:
-    st      y+, x1              ;[15/17] cycles after start of byte
-    rjmp    se0                 ;[17/19]
-
 bit7IsClr:
     ifrset  phase, USBMINUS     ;[62] check phase only if D- changed
     lpm                         ;[63]
@@ -391,25 +390,24 @@ bit0IsSet:
     in      phase, USBIN        ;[06] <- phase (one cycle too late)
     ori     shift, 1 << 0       ;[07]
 bit1AfterSet:
-    andi    phase, USBMASK      ;[08]
+    andi    shift, ~(7 << 1)    ;[08] compensated by "ori shift, 1<<1" if bit1IsClr
     ifioclr USBIN, USBMINUS     ;[09] <--- sample 1
     rjmp    bit1IsClr           ;[10]
-    andi    shift, ~(7 << 1)    ;[11]
-    breq    unstuff1s           ;[12]
-    in      phase, USBIN        ;[13] <- phase
-    nop                         ;[14]
+    breq    unstuff1s           ;[11]
+    nop2                        ;[12] do not check for SE0 if bit 0 was 1
+    in      phase, USBIN        ;[14] <- phase (one cycle too late)
     rjmp    bit2AfterSet        ;[15]
 unstuff1s:
-    in      phase, USBIN        ;[14] <- phase (one cycle too late)
-    andi    fix, ~(1 << 1)      ;[15]
-    nop2                        ;[08]
+    in      phase, USBIN        ;[13] <- phase
+    andi    fix, ~(1 << 1)      ;[14]
+    lpm                         ;[07]
     nop2                        ;[10]
 bit1IsClr:
     ifrset  phase, USBMINUS     ;[12] check phase only if D- changed
     lpm                         ;[13]
     in      phase, USBIN        ;[14] <- phase (one cycle too late)
-    breq    se0AndStore         ;[15] if we come from unstuff1s, Z bit is never set
-    ori     shift, 1 << 1       ;[16]
+    ori     shift, 1 << 1       ;[15]
+    nop                         ;[16]
 bit2AfterClr:
     ifioset USBIN, USBMINUS     ;[17] <--- sample 2
     rjmp    bit2IsSet           ;[18]

@@ -55,7 +55,7 @@ uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 
 void __start (void) __attribute__ ((naked))
                     __attribute__ ((used))
-                    __attribute__ ((section (".init1")));
+                    __attribute__ ((section (".init3")));
 void __start ()
 {
   /* Clear the watchdog register to avoid endless wdreset loops */
@@ -79,6 +79,16 @@ void __start ()
 #endif
 }
 #endif  /* ARCH != ARCH_HOST */
+
+#ifdef BOOTLOADER_SUPPORT
+ISR(__vector_default)
+{
+  /* catch any unassigned interrupt and do nothing */
+#ifdef STATUSLED_POWER_SUPPORT
+  PIN_CLEAR (STATUSLED_POWER);
+#endif
+}
+#endif
 
 extern void ethersex_meta_init (void);
 extern void ethersex_meta_startup (void);
@@ -161,14 +171,6 @@ main (void)
   wdt_disable ();
 #endif //USE_WATCHDOG
 
-#if defined(ADC_SUPPORT) || defined(ADC_LIGHT)
-  /* ADC Prescaler to 64 */
-  ADCSRA = _BV (ADEN) | _BV (ADPS2) | _BV (ADPS1);
-  /* ADC set Voltage Reference to extern */
-  /* FIXME: move config to the right place */
-  ADMUX = ADC_REF;		//_BV(REFS0) | _BV(REFS1);
-#endif
-
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
 	|| defined(DATAFLASH_SUPPORT)
   spi_init ();
@@ -218,7 +220,7 @@ main (void)
       if (status.request_bootloader)
 	{
 #ifdef CLOCK_CRYSTAL_SUPPORT
-	  _TIMSK_TIMER2 &= ~_BV (TOIE2);
+	  TC2_INT_OVERFLOW_OFF;
 #endif
 #ifdef DCF77_SUPPORT
 	  ACSR &= ~_BV (ACIE);

@@ -1,18 +1,18 @@
 dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $ARCH_AVR
-	mac "Etherrape MAC address" CONF_ENC_MAC "ac:de:48:fd:0f:d0"
+	mac "MAC address" CONF_ENC_MAC "ac:de:48:fd:0f:d0"
 	script_set "  Randomize MAC address" RANDOM_MAC "scripts/random_mac CONF_ENC_MAC"
 
 	dep_bool 'Static IPv6 configuration' IPV6_STATIC_SUPPORT $IPV6_SUPPORT
 
 	if [ "$IPV6_STATIC_SUPPORT" = "y" ]; then
 		comment "Static IPv6 configuration"
-		ipv6 "Etherrape IP address" CONF_ENC_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
+		ipv6 "IP address" CONF_ENC_IP "2001:6f8:1209:23:0:0:fe9b:ee52"
 		int "IP prefix length" CONF_ENC_IP6_PREFIX_LEN 64
 	fi
 
 	if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" -a "$DHCP_SUPPORT" != "y" ]; then
 		comment "Static IPv4 configuration"
-		ipv4 "Etherrape IP address" CONF_ENC_IP "192.168.23.244"
+		ipv4 "IP address" CONF_ENC_IP "192.168.23.244"
 		ipv4 "Netmask" CONF_ENC_IP4_NETMASK "255.255.255.0"
 	fi
 
@@ -20,6 +20,20 @@ dep_bool_menu "Ethernet (ENC28J60) support" ENC28J60_SUPPORT $ARCH_AVR
 	if [ "$IEEE8021Q_SUPPORT" = "y" ]; then
 		int "VLAN ID (1 to 4094)" CONF_8021Q_VID 1
 		int "User Priority (0 to 7)" CONF_8021Q_PRIO 1
+	fi
+
+	if [ "$CONFIG_EXPERT" = "y" ] ; then
+		choice 'ENC28J60 CLKOUT Prescaler (ECOCON)' \
+			"Unset  ECOCON_UNSET \
+			 3.125MHz(8)  ECOCON_6 \
+			 6.250MHz(4)  ECOCON_4 \
+			 8.333MHz(3)  ECOCON_3 \
+			 12.50MHz(2)  ECOCON_2 \
+			 25.00MHz(1)  ECOCON_1 \
+			 CLKOUT_Off  ECOCON_0" \
+			'Unset' CONF_ENC_ECOCON
+	else
+		define_symbol CONF_ENC_ECOCON ECOCON_UNSET
 	fi
 
 	comment  "Debugging Flags"

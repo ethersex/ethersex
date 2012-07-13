@@ -53,13 +53,13 @@ EOF
 
 my $counter = 1;
 foreach (keys %mimetypes) {
-  printf "static char PROGMEM httpd_mimetype_%d[] = \"%s\";\n", $counter, $_;
+  printf "static const char PROGMEM httpd_mimetype_%d[] = \"%s\";\n", $counter, $_;
   $mimetypes{$_} = $counter ++;
 }
 
 print "\n/* The tests we try to match */\n";
 for (0..scalar(@lines)-1) {
-  printf "static char PROGMEM httpd_magic_%d[] = \"%s\";\n", $_, $lines[$_][2]
+  printf "static const char PROGMEM httpd_magic_%d[] = \"%s\";\n", $_, $lines[$_][2]
     if ($lines[$_][1] =~ m/^string/);
 }
 

@@ -70,7 +70,7 @@ int16_t parse_cmd_mcuf_modul(char *cmd, char *output, uint16_t len)
   MCUF_PLAY_MODE mode = MCUF_MODUL_PLAY_MODE_SEQUENCE;
 #ifdef MCUF_MODUL_DISPLAY_MODE_MANUAL
   mode = MCUF_MODUL_PLAY_MODE_MANUAL;
-  sscanf_P (cmd, PSTR ("%i\n"),&modul);
+  sscanf_P (cmd, PSTR ("%hhu\n"),&modul);
 #endif
 #ifdef MCUF_MODUL_DISPLAY_MODE_RANDOM
   mode = MCUF_MODUL_PLAY_MODE_RANDOM;
@@ -84,8 +84,8 @@ int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
 {
   char title[15];
 
-  if (cmd[0] != 0x05) {
-    cmd[0] = 0x05;  //magic byte
+  if (cmd[0] != ECMD_STATE_MAGIC) {
+    cmd[0] = ECMD_STATE_MAGIC;  //magic byte
     cmd[1] = 0x00;
  
     return ECMD_AGAIN(snprintf_P(output, len, PSTR("available modules:\n")));

@@ -107,7 +107,7 @@ __zbus_txstart (void)
   usart (UDR) = '\\';
 
 #ifdef STATUSLED_ZBUS_TX_SUPPORT
-  PIN_SET (STATUSLED_ZBUS_TX_SUPPORT);
+  PIN_SET (STATUSLED_ZBUS_TX);
 #endif
   ACTIVITY_LED_ZBUS_TX;
 

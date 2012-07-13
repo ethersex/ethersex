@@ -37,7 +37,7 @@ dnl otherwise the display'll just show black boxes)
 pin(LCDON, PD3, OUTPUT)
 
 RFM12_NO_INT
-pin(SPI_CS_RFM12, PD1, OUTPUT)
+pin(SPI_CS_RFM12_0, PD1, OUTPUT)
 pin(SOFT_SPI_MOSI, HD44780_D6)
 pin(SOFT_SPI_MISO, HD44780_D5)
 pin(SOFT_SPI_SCK, HD44780_D4)

@@ -14,7 +14,7 @@ ifdef(`conf_SD_READER', `
 
 ifdef(`conf_RFM12', `dnl
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PD5, OUTPUT)
+  pin(SPI_CS_RFM12_0, PD5, OUTPUT)
   RFM12_USE_INT(1)
   RFM12_ASK_SENSE_USE_INT(1)
   pin(STATUSLED_RFM12_TX, PD4, OUTPUT)
@@ -45,6 +45,7 @@ pin(STATUSLED_NETLINK, PD4, OUTPUT)
 ifdef(`conf_STATUSLED_HB_ACT', `dnl
 pin(STATUSLED_HB_ACT,PD6, OUTPUT)
 ')dnl
-
-pin(DCF1_PON, PA1, OUTPUT)
-DCF77_USE_INT(1, PD3)
+ifdef(`conf_DCF77', `dnl
+  DCF77_USE_INT(1, PD3)
+  pin(DCF1_PON, PA1, OUTPUT)
+')dnl

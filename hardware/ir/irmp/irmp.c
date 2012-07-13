@@ -34,7 +34,7 @@
 
 
 #if defined(IRMP_SUPPORT_LEGO_PROTOCOL)
-#define IRMP_HZ            20000	/* interrupts per second */
+#define IRMP_HZ            20000        /* interrupts per second */
 #elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL) || defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL) || defined(IRMP_SUPPORT_RUWIDO_PROTOCOL)
 #define IRMP_HZ            15000
 #else
@@ -147,9 +147,9 @@
 #define irsnd_send_data irmp_tx_put
 #define irsnd_set_freq irmp_tx_set_freq
 #define IRSND_USE_AS_LIB
-static void irmp_tx_on (void);
-static void irmp_tx_off (void);
-static void irmp_tx_set_freq (uint8_t);
+static void irmp_tx_on(void);
+static void irmp_tx_off(void);
+static void irmp_tx_set_freq(uint8_t);
 #include "irsnd_lib.c"
 #endif
 #ifdef __IRMP_DEBUG
@@ -245,21 +245,21 @@ const PGM_P const irmp_proto_names[] PROGMEM = {
 
 
 void
-irmp_init (void)
+irmp_init(void)
 {
 #ifdef IRMP_RX_SUPPORT
   /* configure TSOP input, disable pullup */
-  DDR_CONFIG_IN (IRMP_RX);
-  PIN_CLEAR (IRMP_RX);
+  DDR_CONFIG_IN(IRMP_RX);
+  PIN_CLEAR(IRMP_RX);
 #endif
 
 #ifdef STATUSLED_IRMP_RX_SUPPORT
-  DDR_CONFIG_OUT (STATUSLED_IRMP_RX);
+  DDR_CONFIG_OUT(STATUSLED_IRMP_RX);
   IRMP_RX_LED_OFF;
 #endif
 
 #ifdef STATUSLED_IRMP_TX_SUPPORT
-  DDR_CONFIG_OUT (STATUSLED_IRMP_TX);
+  DDR_CONFIG_OUT(STATUSLED_IRMP_TX);
   IRMP_TX_LED_OFF;
 #endif
 
@@ -268,17 +268,17 @@ irmp_init (void)
   SET_HW_PRESCALER;
   TC2_COUNTER_COMPARE = SW_PRESCALER - 1;
   TC2_COUNTER_CURRENT = 0;
-  TC2_INT_COMPARE_ON;				/* enable interrupt */
+  TC2_INT_COMPARE_ON;           /* enable interrupt */
 #else
   SET_HW_PRESCALER;
   TC0_COUNTER_COMPARE = SW_PRESCALER - 1;
   TC0_COUNTER_CURRENT = 0;
-  TC0_INT_COMPARE_ON;				/* enable interrupt */
+  TC0_INT_COMPARE_ON;           /* enable interrupt */
 #endif
 
 #ifdef IRMP_TX_SUPPORT
-  PIN_CLEAR (IRMP_TX);
-  DDR_CONFIG_OUT (IRMP_TX);
+  PIN_CLEAR(IRMP_TX);
+  DDR_CONFIG_OUT(IRMP_TX);
 #ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
   TC0_MODE_CTC;
@@ -288,7 +288,7 @@ irmp_init (void)
   TC2_PRESCALER_1;
 #endif
 #endif
-  irmp_tx_set_freq (IRSND_FREQ_36_KHZ);	/* default frequency */
+  irmp_tx_set_freq(IRSND_FREQ_36_KHZ);  /* default frequency */
 #endif
 }
 
@@ -296,22 +296,22 @@ irmp_init (void)
 #ifdef IRMP_RX_SUPPORT
 
 uint8_t
-irmp_read (irmp_data_t * irmp_data_p)
+irmp_read(irmp_data_t * irmp_data_p)
 {
   if (irmp_rx_fifo.read == irmp_rx_fifo.write)
     return 0;
 
   *irmp_data_p = irmp_rx_fifo.buffer[irmp_rx_fifo.read =
-				     FIFO_NEXT (irmp_rx_fifo.read)];
+                                     FIFO_NEXT(irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
-  printf_P (PSTR ("IRMP RX: proto %02" PRId8 " "), irmp_data_p->protocol);
-  printf_P ((const char *)
-	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR
-	    (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
-	     "\n"), irmp_data_p->address, irmp_data_p->command,
-	    irmp_data_p->flags);
+  printf_P(PSTR("IRMP RX: proto %02" PRId8 " "), irmp_data_p->protocol);
+  printf_P((const char *)
+           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]));
+  printf_P(PSTR
+           (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
+            "\n"), irmp_data_p->address, irmp_data_p->command,
+           irmp_data_p->flags);
 #endif
   return 1;
 }
@@ -321,46 +321,48 @@ irmp_read (irmp_data_t * irmp_data_p)
 #ifdef IRMP_TX_SUPPORT
 
 static void
-irmp_tx_on (void)
+irmp_tx_on(void)
 {
   if (!irsnd_is_on)
-    {
+  {
 #ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
-      TC0_OUTPUT_COMPARE_TOGGLE; TC0_MODE_CTC;
+    TC0_OUTPUT_COMPARE_TOGGLE;
+    TC0_MODE_CTC;
 #else
-      TC2_OUTPUT_COMPARE_TOGGLE; TC2_MODE_CTC;
+    TC2_OUTPUT_COMPARE_TOGGLE;
+    TC2_MODE_CTC;
 #endif
 #else
-      PIN_SET (IRMP_TX);
+    PIN_SET(IRMP_TX);
 #endif /* IRMP_EXTERNAL_MODULATOR */
-      IRMP_TX_LED_ON;
-      irsnd_is_on = TRUE;
-    }
+    IRMP_TX_LED_ON;
+    irsnd_is_on = TRUE;
+  }
 }
 
 
 static void
-irmp_tx_off (void)
+irmp_tx_off(void)
 {
   if (irsnd_is_on)
-    {
+  {
 #ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
-      TC0_OUTPUT_COMPARE_NONE;
+    TC0_OUTPUT_COMPARE_NONE;
 #else
-      TC2_OUTPUT_COMPARE_NONE;
+    TC2_OUTPUT_COMPARE_NONE;
 #endif
 #endif /* IRMP_EXTERNAL_MODULATOR */
-      PIN_CLEAR (IRMP_TX);
-      IRMP_TX_LED_OFF;
-      irsnd_is_on = FALSE;
-    }
+    PIN_CLEAR(IRMP_TX);
+    IRMP_TX_LED_OFF;
+    irsnd_is_on = FALSE;
+  }
 }
 
 
 static void
-irmp_tx_set_freq (uint8_t freq)
+irmp_tx_set_freq(uint8_t freq)
 {
 #ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
@@ -373,22 +375,22 @@ irmp_tx_set_freq (uint8_t freq)
 
 
 void
-irmp_write (irmp_data_t * irmp_data_p)
+irmp_write(irmp_data_t * irmp_data_p)
 {
 #ifdef DEBUG_IRMP
-  printf_P (PSTR ("IRMP TX: proto %02" PRId8 " "), irmp_data_p->protocol);
-  printf_P ((const char *)
-	    pgm_read_word (&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P (PSTR
-	    (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
-	     "\n"), irmp_data_p->address, irmp_data_p->command,
-	    irmp_data_p->flags);
+  printf_P(PSTR("IRMP TX: proto %02" PRId8 " "), irmp_data_p->protocol);
+  printf_P((const char *)
+           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]));
+  printf_P(PSTR
+           (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
+            "\n"), irmp_data_p->address, irmp_data_p->command,
+           irmp_data_p->flags);
 #endif
 
-  uint8_t tmphead = FIFO_NEXT (irmp_tx_fifo.write);
+  uint8_t tmphead = FIFO_NEXT(irmp_tx_fifo.write);
 
   while (tmphead == *(volatile uint8_t *) &irmp_tx_fifo.read)
-    _delay_ms (10);
+    _delay_ms(10);
 
   irmp_tx_fifo.buffer[tmphead] = *irmp_data_p;
   irmp_tx_fifo.write = tmphead;
@@ -398,9 +400,9 @@ irmp_write (irmp_data_t * irmp_data_p)
 
 
 #ifdef IRMP_USE_TIMER2
-ISR (TC2_VECTOR_COMPARE)
+ISR(TC2_VECTOR_COMPARE)
 #else
-ISR (TC0_VECTOR_COMPARE)
+ISR(TC0_VECTOR_COMPARE)
 #endif
 {
 #ifdef IRMP_USE_TIMER2
@@ -410,40 +412,40 @@ ISR (TC0_VECTOR_COMPARE)
 #endif
 
 #ifdef IRMP_RX_SUPPORT
-  uint8_t data = PIN_HIGH (IRMP_RX) & PIN_BV (IRMP_RX);
+  uint8_t data = PIN_HIGH(IRMP_RX) & PIN_BV(IRMP_RX);
 #endif
 
 #ifdef IRMP_TX_SUPPORT
-  if (irmp_tx_process () == 0)
-    {
+  if (irmp_tx_process() == 0)
+  {
 #endif
 
 #ifdef IRMP_RX_SUPPORT
-      if (data == IRMP_RX_MARK)
-	{
-	  IRMP_RX_LED_ON;
-	}
-      else
-	{
-	  IRMP_RX_LED_OFF;
-	}
+    if (data == IRMP_RX_MARK)
+    {
+      IRMP_RX_LED_ON;
+    }
+    else
+    {
+      IRMP_RX_LED_OFF;
+    }
 
-      if (irmp_rx_process (data) != 0)
-	{
-	  uint8_t tmphead = FIFO_NEXT (irmp_rx_fifo.write);
-	  if (tmphead != irmp_rx_fifo.read)
-	    {
-	      if (irmp_rx_get (&irmp_rx_fifo.buffer[tmphead]))
-		irmp_rx_fifo.write = tmphead;
-	    }
-	}
+    if (irmp_rx_process(data) != 0)
+    {
+      uint8_t tmphead = FIFO_NEXT(irmp_rx_fifo.write);
+      if (tmphead != irmp_rx_fifo.read)
+      {
+        if (irmp_rx_get(&irmp_rx_fifo.buffer[tmphead]))
+          irmp_rx_fifo.write = tmphead;
+      }
+    }
 #endif
 
 #ifdef IRMP_TX_SUPPORT
-      if (irmp_tx_fifo.read != irmp_tx_fifo.write)
-	irmp_tx_put (&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
-					  FIFO_NEXT (irmp_tx_fifo.read)], 0);
-    }
+    if (irmp_tx_fifo.read != irmp_tx_fifo.write)
+      irmp_tx_put(&irmp_tx_fifo.buffer[irmp_tx_fifo.read =
+                                       FIFO_NEXT(irmp_tx_fifo.read)], 0);
+  }
 #endif
 }
 

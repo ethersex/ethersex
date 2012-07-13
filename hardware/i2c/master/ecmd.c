@@ -40,6 +40,7 @@
 #include "hardware/i2c/master/i2c_pca9685.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 #include "hardware/i2c/master/i2c_max7311.h"
+#include "hardware/i2c/master/i2c_bmp085.h"
 
 #include "protocols/ecmd/ecmd-base.h"
 
@@ -48,9 +49,9 @@
 int16_t parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
 {
 	/* First call, we initialize our magic bytes*/
-	if (cmd[0] != 0x23)
+	if (cmd[0] != ECMD_STATE_MAGIC)
 	{
-		cmd[0] = 0x23;
+		cmd[0] = ECMD_STATE_MAGIC;
 		cmd[1] = 0;
 	}
 	uint8_t next_address = i2c_master_detect(cmd[1], 127);
@@ -69,7 +70,7 @@ int16_t parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_i2c_read_byte(char *cmd, char *output, uint16_t len)
 {
 	uint8_t adr;
-	sscanf_P(cmd, PSTR("%u"), &adr);
+	sscanf_P(cmd, PSTR("%hhu"), &adr);
 	if (adr < 7 || adr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint8_t val = i2c_read_byte(adr);
@@ -84,7 +85,7 @@ int16_t parse_cmd_i2c_read_byte_data(char *cmd, char *output, uint16_t len)
 {
 	uint8_t cadr;
 	uint8_t dadr;
-	sscanf_P(cmd, PSTR("%u %u"), &cadr, &dadr);
+	sscanf_P(cmd, PSTR("%hhu %hhu"), &cadr, &dadr);
 	if (cadr < 7 || cadr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint8_t val = i2c_read_byte_data(cadr, dadr);
@@ -99,7 +100,7 @@ int16_t parse_cmd_i2c_read_word_data(char *cmd, char *output, uint16_t len)
 {
 	uint8_t cadr;
 	uint8_t dadr;
-	sscanf_P(cmd, PSTR("%u %u"), &cadr, &dadr);
+	sscanf_P(cmd, PSTR("%hhu %hhu"), &cadr, &dadr);
 	if (cadr < 7 || cadr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t val = i2c_read_word_data(cadr, dadr);
@@ -114,7 +115,7 @@ int16_t parse_cmd_i2c_write_byte(char *cmd, char *output, uint16_t len)
 {
 	uint8_t adr;
 	uint8_t data;
-	sscanf_P(cmd, PSTR("%u %x"), &adr, &data);
+	sscanf_P(cmd, PSTR("%hhu %hhx"), &adr, &data);
 	if (adr < 7 || adr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_byte(adr, data);
@@ -130,7 +131,7 @@ int16_t parse_cmd_i2c_write_byte_data(char *cmd, char *output, uint16_t len)
 	uint8_t cadr;
 	uint8_t dadr;
 	uint8_t data;
-	sscanf_P(cmd, PSTR("%u %u %x"), &cadr, &dadr, &data);
+	sscanf_P(cmd, PSTR("%hhu %hhu %hhx"), &cadr, &dadr, &data);
 	if (cadr < 7 || cadr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_byte_data(cadr, dadr, data);
@@ -146,7 +147,7 @@ int16_t parse_cmd_i2c_write_word_data(char *cmd, char *output, uint16_t len)
 	uint8_t cadr;
 	uint8_t dadr;
 	uint16_t data;
-	sscanf_P(cmd, PSTR("%u %u %x"), &cadr, &dadr, &data);
+	sscanf_P(cmd, PSTR("%hhu %hhu %x"), &cadr, &dadr, &data);
 	if (cadr < 7 || cadr > 127)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_write_word_data(cadr, dadr, data);
@@ -220,7 +221,7 @@ int16_t parse_cmd_i2c_ds1631_set_power_state(char *cmd, char *output, uint16_t l
 {
 	uint8_t adr;
 	uint8_t state;
-	sscanf_P(cmd, PSTR("%u %u"), &adr, &state);
+	sscanf_P(cmd, PSTR("%hhu %hhu"), &adr, &state);
 	if (adr > 7)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t temp = i2c_ds1631_start_stop(I2C_SLA_DS1631 + adr,state);
@@ -238,7 +239,7 @@ int16_t parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t 
 	uint8_t adr;
 	int16_t temp;
 	int16_t stemp;
-	sscanf_P(cmd, PSTR("%u"), &adr);
+	sscanf_P(cmd, PSTR("%hhu"), &adr);
 	if (adr > 7)
 		return ECMD_ERR_PARSE_ERROR;
 	uint16_t ret = i2c_ds1631_read_temperature(I2C_SLA_DS1631 + adr, &temp, &stemp);
@@ -258,7 +259,7 @@ int16_t parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t 
 int16_t parse_cmd_i2c_tsl2550_set_power_state(char *cmd, char *output, uint16_t len)
 {
 	uint8_t state;
-	sscanf_P(cmd, PSTR("%u"), &state);
+	sscanf_P(cmd, PSTR("%hhu"), &state);
 	uint16_t ret = i2c_tsl2550_set_power_state(state);
 	if (ret == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
@@ -272,7 +273,7 @@ int16_t parse_cmd_i2c_tsl2550_set_power_state(char *cmd, char *output, uint16_t 
 int16_t parse_cmd_i2c_tsl2550_set_operating_mode(char *cmd, char *output, uint16_t len)
 {
 	uint8_t mode;
-	sscanf_P(cmd, PSTR("%u"), &mode);
+	sscanf_P(cmd, PSTR("%hhu"), &mode);
 	uint16_t temp = i2c_tsl2550_set_operating_mode(mode);
 	if (temp == 0xffff)
 		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
@@ -308,7 +309,7 @@ parse_cmd_i2c_pca9531(char *cmd, char *output, uint16_t len)
 	uint8_t duty2;
 	uint8_t firstnibble;
 	uint8_t lastnibble;
-	sscanf_P(cmd, PSTR("%u %x %x %x %x %x %x"), &adr, &period1, &duty1, &period2, &duty2, &firstnibble, &lastnibble);
+	sscanf_P(cmd, PSTR("%hhu %hhx %hhx %hhx %hhx %hhx %hhx"), &adr, &period1, &duty1, &period2, &duty2, &firstnibble, &lastnibble);
 
 #ifdef DEBUG_I2C
 	debug_printf("I2C PCA9531 IC %u: pwm1 period %X, duty %X; pwm2 period %X, duty%X; %X %X\n",adr, period1, duty1, period2, duty2, firstnibble, lastnibble);
@@ -329,7 +330,7 @@ parse_cmd_i2c_pca9685_set_led(char *cmd, char *output, uint16_t len)
 	uint8_t led;
 	uint16_t off;
 	uint16_t on;
-	sscanf_P(cmd, PSTR("%x %u %u %u"), &adr, &led, &on, &off);
+	sscanf_P(cmd, PSTR("%hhx %hhu %u %u"), &adr, &led, &on, &off);
 
 #ifdef DEBUG_I2C
 	debug_printf("I2C PCA9685 IC %x: led: %u, on: %u off: %u\n",adr, led, on, off);
@@ -344,7 +345,7 @@ parse_cmd_i2c_pca9685_set_mode(char *cmd, char *output, uint16_t len)
 	uint8_t outdrv=1;
 	uint8_t ivrt=0;
 	uint8_t prescaler=0x1e;
-	sscanf_P(cmd, PSTR("%x %u %u %u"), &adr, &outdrv, &ivrt, &prescaler);
+	sscanf_P(cmd, PSTR("%hhx %hhu %hhu %hhu"), &adr, &outdrv, &ivrt, &prescaler);
 
 #ifdef DEBUG_I2C
 	debug_printf("I2C PCA9685 IC %x: outdrv: %u ivrt: %u prescaler: %u\n",adr, outdrv, ivrt,prescaler);
@@ -361,7 +362,7 @@ int16_t parse_cmd_i2c_pcf8574x_read(char *cmd, char *output, uint16_t len)
 {
 	uint8_t adr;
 	uint8_t chip;
-	sscanf_P(cmd, PSTR("%u %u"), &adr, &chip);
+	sscanf_P(cmd, PSTR("%hhu %hhu"), &adr, &chip);
 
 #ifdef ECMD_MIRROR_REQUEST
 	uint8_t oadr = adr;
@@ -391,7 +392,7 @@ int16_t parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 	uint8_t adr;
 	uint8_t chip;
 	uint8_t value;
-	sscanf_P(cmd, PSTR("%u %u %x"), &adr, &chip, &value);
+	sscanf_P(cmd, PSTR("%hhu %hhu %hhx"), &adr, &chip, &value);
 
 #ifdef ECMD_MIRROR_REQUEST
 	uint8_t oadr = adr;
@@ -564,3 +565,76 @@ int16_t parse_cmd_i2c_max7311_pulse(char *cmd, char *output, uint16_t len)
   }
 }
 #endif /* I2C_MAX7311_SUPPORT */
+
+#ifdef I2C_BMP085_SUPPORT
+
+
+int16_t parse_cmd_i2c_bmp085_temp(char *cmd, char *output, uint16_t len)
+{
+    int16_t ret = bmp085_get_temp();
+    if (ret == -1)
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 temp %d"), ret));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), ret));
+#endif
+}
+
+int16_t parse_cmd_i2c_bmp085_apress(char *cmd, char *output, uint16_t len)
+{
+    int32_t ret = bmp085_get_abs_press();
+    if (ret == -1)
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 apress %ld"), ret));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%ld"), ret));
+#endif
+}
+
+#ifdef I2C_BMP085_BAROCALC_SUPPORT
+
+int16_t parse_cmd_i2c_bmp085_height(char *cmd, char *output, uint16_t len)
+{
+    uint32_t pnn;
+    int32_t ret;
+    if(sscanf_P(cmd, PSTR("%lu"), &pnn)!=1)
+       return ECMD_ERR_PARSE_ERROR;
+
+    ret = bmp085_get_abs_press();
+    if (ret == -1)
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
+
+    ret=bmp085_get_height_cm(ret,pnn);
+    
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 height %ld"), ret));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%ld"), ret));
+#endif
+}
+
+int16_t parse_cmd_i2c_bmp085_pressnn(char *cmd, char *output, uint16_t len)
+{
+    uint32_t height;
+    int32_t ret;
+    if(sscanf_P(cmd, PSTR("%lu"), &height)!=1)
+       return ECMD_ERR_PARSE_ERROR;
+
+    ret = bmp085_get_abs_press();
+    if (ret == -1)
+        return ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
+
+    ret=bmp085_get_pa_pressure_nn(ret,height);
+    
+#ifdef ECMD_MIRROR_REQUEST
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("bmp085 pressnn %ld"), ret));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%ld"), ret));
+#endif
+}
+
+#endif /* I2C_BMP085_BAROCALC_SUPPORT */
+
+#endif  /* I2C_BMP085_SUPPORT */

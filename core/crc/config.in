@@ -1,0 +1,10 @@
+if [ "$VFS_INLINE_SUPPORT" != "y" ]; then
+    dep_bool "Add CRC Checksum" CRC_PAD_SUPPORT $ARCH_AVR
+
+    if [ "$CRC_PAD_SUPPORT" = "y" ]; then
+        dep_bool "  CRC verification via ECMD" CRC_VERIFY_SUPPORT $CRC_PAD_SUPPORT
+    fi
+else
+    define_bool CRC_PAD_SUPPORT "n"
+    comment "CRC padding and VFS inlining currently incompatible"
+fi

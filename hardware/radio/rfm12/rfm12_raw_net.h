@@ -19,13 +19,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef RFM12_RAW_NET_H
-#define RFM12_RAW_NET_H
+#ifndef __RFM12_RAW_NET_H
+#define __RFM12_RAW_NET_H
 
-/* prototypes */
+#include "config.h"
+#include "protocols/uip/uip.h"
+
+extern uip_udp_conn_t* rfm12_raw_conn;
+
 void rfm12_raw_net_init(void);
 void rfm12_raw_net_main(void);
 
-extern uip_udp_conn_t *rfm12_raw_conn;
-
-#endif /* RFM12_RAW_NET_H */
+#endif /* __RFM12_RAW_NET_H */

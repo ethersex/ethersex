@@ -16,8 +16,8 @@ pin(HD44780_EN1, PB0)
 
 ifdef(`conf_RFM12', `dnl
 /* port the rfm12 module CS is attached to */
-dnl pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
-pin(SPI_CS_RFM12, PC0, OUTPUT)
+dnl pin(SPI_CS_RFM12_0, SPI_CS_HARDWARE)
+pin(SPI_CS_RFM12_0, PC0, OUTPUT)
 RFM12_USE_INT(0)
 RFM12_ASK_SENSE_USE_INT(1)
 dnl pin(STATUSLED_RFM12_TX, PD5, OUTPUT)

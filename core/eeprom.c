@@ -69,7 +69,7 @@ eeprom_get_chksum (void)
   uint8_t eeprom_crc = 0;
   uint8_t *p = (uint8_t *) EEPROM_CONFIG_BASE;
 
-  for (uint8_t i = 0; i < (sizeof (struct eeprom_config_t) - 1); i++)
+  for (uint16_t i = 0; i < (sizeof (struct eeprom_config_t) - 1); i++)
     {
       eeprom_crc = _crc_ibutton_update (eeprom_crc, eeprom_read_byte (p));
       p++;
@@ -87,19 +87,19 @@ eeprom_init (void)
   (void) ip;			/* Keep GCC quiet. */
 
 #ifdef ETHERNET_SUPPORT
-  eeprom_save_P (mac, PSTR (CONF_ETHERRAPE_MAC), 6);
+  eeprom_save_P (mac, PSTR (CONF_ETHERSEX_MAC), 6);
 #endif
 
 #if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
-  set_CONF_ETHERRAPE_IP (&ip);
+  set_CONF_ETHERSEX_IP (&ip);
   eeprom_save (ip, &ip, IPADDR_LEN);
 #ifdef ETHERNET_SUPPORT
-  set_CONF_ETHERRAPE_GATEWAY (&ip);
+  set_CONF_ETHERSEX_GATEWAY (&ip);
   eeprom_save (gateway, &ip, IPADDR_LEN);
 #endif
 
 #ifdef IPV4_SUPPORT
-  set_CONF_ETHERRAPE_IP4_NETMASK (&ip);
+  set_CONF_ETHERSEX_IP4_NETMASK (&ip);
   eeprom_save (netmask, &ip, IPADDR_LEN);
 #endif
 #endif
@@ -115,13 +115,31 @@ eeprom_init (void)
   eeprom_save_P (pam_password, PSTR (PAM_SINGLE_PASSWORD), 16);
 #endif
 
+#ifdef ADC_VOLTAGE_SUPPORT
+  eeprom_save_int (adc_vref, ADC_REF_VOLTAGE);
+#endif
+
 #ifdef KTY_SUPPORT
   eeprom_save_char (kty_calibration, 0);
 #endif
 
 #ifdef STELLA_EEPROM
-  uint8_t v[10] = { 0 };
-  eeprom_save (stella_channel_values, v, 10);
+  uint8_t stella_temp[10] = { 0 };
+  eeprom_save (stella_channel_values, stella_temp, 10);
+#endif
+
+#ifdef DMX_FXSLOT_SUPPORT
+  struct fxslot_struct_stripped fxslots_temp[DMX_FXSLOT_AMOUNT] = { {0,0,0,0,0,0,0} };
+  eeprom_save (dmx_fxslots, fxslots_temp, DMX_FXSLOT_AMOUNT*sizeof(struct fxslot_struct_stripped));
+#endif
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+  ow_name_t temp_name;
+  memset(&temp_name, 0, sizeof(ow_name_t));
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  {
+    eeprom_save(ow_names[i], &temp_name, sizeof(ow_name_t));
+  }
 #endif
 
 #ifdef SMS77_EEPROM_SUPPORT
@@ -144,6 +162,23 @@ eeprom_init (void)
 
 #ifdef MOTD_SUPPORT
   eeprom_save_P (motd_text, PSTR (CONF_MOTD_DEFAULT), MOTD_VALUESIZE);
+#endif
+
+#ifdef CRON_EEPROM_SUPPORT
+  uint8_t count = 0;
+  eeprom_save_offset(crontab, 0, &count, sizeof(count));
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+  tanklevel_params_t tanklevel_temp = {
+    .sensor_offset = TANKLEVEL_SENSOR_OFFSET,
+    .med_density = TANKLEVEL_MED_DENSITY,
+    .ltr_per_m = TANKLEVEL_LTR_PER_M,
+    .ltr_full = TANKLEVEL_LTR_FULL,
+    .raise_time = TANKLEVEL_RAISE_TIME,
+    .hold_time = TANKLEVEL_HOLD_TIME
+  };
+  eeprom_save (tanklevel_params, &tanklevel_temp, sizeof(tanklevel_params_t));
 #endif
   eeprom_update_chksum ();
 }

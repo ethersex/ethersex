@@ -268,3 +268,51 @@ Scroll down to the bottom to see the most recent changes.
   - Integrated a module with CRC checks at 18 MHz by Lukas Schrittwieser.
 
 * Release 2009-03-23
+
+  - Hid-mouse example used settings from hid-data example, fixed that.
+  - Renamed project to V-USB due to a trademark issue with Atmel(r).
+  - Changed CommercialLicense.txt and USBID-License.txt to make the
+    background of USB ID registration clearer.
+
+* Release 2009-04-15
+
+  - Changed CommercialLicense.txt to reflect the new range of PIDs from
+    Jason Kotzin.
+  - Removed USBID-License.txt in favor of USB-IDs-for-free.txt and
+    USB-ID-FAQ.txt
+  - Fixed a bug in the 12.8 MHz module: End Of Packet decection was made in
+    the center between bit 0 and 1 of each byte. This is where the data lines
+    are expected to change and the sampled data may therefore be nonsense.
+    We therefore check EOP ONLY if bits 0 AND 1 have both been read as 0 on D-.
+  - Fixed a bitstuffing problem in the 16 MHz module: If bit 6 was stuffed,
+    the unstuffing code in the receiver routine was 1 cycle too long. If
+    multiple bytes had the unstuffing in bit 6, the error summed up until the
+    receiver was out of sync.
+  - Included option for faster CRC routine.
+    Thanks to Slawomir Fras (BoskiDialer) for this code!
+  - Updated bits in Configuration Descriptor's bmAttributes according to
+    USB 1.1 (in particular bit 7, it is a must-be-set bit now).
+
+* Release 2009-08-22
+
+  - Moved first DBG1() after odDebugInit() in all examples.
+  - Use vector INT0_vect instead of SIG_INTERRUPT0 if defined. This makes
+    V-USB compatible with the new "p" suffix devices (e.g. ATMega328p).
+  - USB_CFG_CLOCK_KHZ setting is now required in usbconfig.h (no default any
+    more).
+  - New option USB_CFG_DRIVER_FLASH_PAGE allows boot loaders on devices with
+    more than 64 kB flash.
+  - Built-in configuration descriptor allows custom definition for second
+    endpoint now.
+
+* Release 2010-07-15
+
+  - Fixed bug in usbDriverSetup() which prevented descriptor sizes above 255
+    bytes.
+  - Avoid a compiler warning for unused parameter in usbHandleResetHook() when
+    compiler option -Wextra is enabled.
+  - Fixed wrong hex value for some IDs in USB-IDs-for-free.txt.
+  - Keep a define for USBATTR_BUSPOWER, although the flag does not exist
+    in USB 1.1 any more. Set it to 0. This is for backward compatibility.
+
+* Release 2012-01-09

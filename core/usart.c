@@ -24,38 +24,3 @@
 
 #include "config.h"
 #include "core/usart.h"
-
-#ifndef TEENSY_SUPPORT
-/* Sets the ubrr register according to baudrate
- * The baudrate had to be baudrate/100 */
-uint16_t
-usart_baudrate(uint16_t baudrate) {
-  uint16_t ubrr;
-
-  switch(baudrate) {
-/* We use here precalucated values, because the floating point aritmetic would
- * be too expensive */
-#if F_CPU == 20000000UL
-  case 24:
-    ubrr = 520;
-    break;
-  case 144:
-    ubrr = 86;
-    break;
-  case 384:
-    ubrr = 32;
-    break;
-  case 576:
-    ubrr = 21;
-    break;
-  case 1152:
-    ubrr = 10;
-    break;
-#endif
-  default:
-    ubrr = (uint8_t)((F_CPU/1600) / baudrate - 1);
-  }
-  return ubrr;
-}
-
-#endif

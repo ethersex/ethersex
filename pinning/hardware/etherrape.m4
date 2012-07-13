@@ -48,7 +48,7 @@ dnl Configuration suggest for Etherrape hardware
 dnl (all pins available at SPI connector)
 dnl
   /* port the rfm12 module CS is attached to */
-  pin(SPI_CS_RFM12, PB0, OUTPUT)
+  pin(SPI_CS_RFM12_0, PB0, OUTPUT)
 
 dnl   /* port the LEDS for rfm12 txrx attached to */
 dnl   pin(STATUSLED_RFM12_TX, PD4)

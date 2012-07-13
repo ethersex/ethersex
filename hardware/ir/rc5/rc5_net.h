@@ -35,10 +35,10 @@
 #define RC5_UDPPORT 6669
 
 /* prototypes */
-void rc5_net_init (void);
-void rc5_udp_send (void);
-void rc5_udp_recv (void);
-uint8_t rc5_check_cache (void);
+void rc5_net_init(void);
+void rc5_udp_send(void);
+void rc5_udp_recv(void);
+uint8_t rc5_check_cache(void);
 
 #endif /* RC5_UDP_SUPPORT */
 #endif /* RC5_NET_H */

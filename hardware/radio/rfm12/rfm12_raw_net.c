@@ -19,10 +19,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "protocols/uip/uip.h"
 #include "config.h"
 #include "core/debug.h"
-#include "hardware/radio/rfm12/rfm12.h"
+#include "protocols/uip/uip.h"
+
+#include "rfm12.h"
 #include "rfm12_raw_net.h"
 
 uip_udp_conn_t *rfm12_raw_conn;
@@ -36,35 +37,34 @@ rfm12_raw_net_init(void)
   uip_ipaddr_copy(&ip, all_ones_addr);
 
   rfm12_raw_conn = uip_udp_new(&ip, 0, rfm12_raw_net_main);
-  if(! rfm12_raw_conn) return;
-
-  uip_udp_bind (rfm12_raw_conn, HTONS(RFM12_RAW_UDP_PORT));
-}
-
-
-
-void
-rfm12_raw_net_main(void) 
-{
-  if (uip_newdata ())
-    {
-      /* 600ms timeout */
-      uip_udp_conn->appstate.rfm12_raw.timeout = 3;
-
-      uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
-      uip_udp_conn->rport = BUF->srcport;
-
-      memmove (rfm12_data, uip_appdata, uip_len);
-
-      rfm12_txstart(uip_len);
-      return;
-    }
-
-  if (! uip_udp_conn->appstate.rfm12_raw.timeout)
+  if (!rfm12_raw_conn)
     return;
 
-  if (-- uip_udp_conn->appstate.rfm12_raw.timeout)
-    return;			/* timeout not yet over. */
+  uip_udp_bind(rfm12_raw_conn, HTONS(RFM12_RAW_UDP_PORT));
+}
+
+void
+rfm12_raw_net_main(void)
+{
+  if (uip_newdata())
+  {
+    /* 600ms timeout */
+    uip_udp_conn->appstate.rfm12_raw.timeout = 3;
+
+    uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
+    uip_udp_conn->rport = BUF->srcport;
+
+    memmove(rfm12_data, uip_appdata, uip_len);
+
+    rfm12_txstart(uip_len);
+    return;
+  }
+
+  if (!uip_udp_conn->appstate.rfm12_raw.timeout)
+    return;
+
+  if (--uip_udp_conn->appstate.rfm12_raw.timeout)
+    return;                     /* timeout not yet over. */
 
   uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
   uip_udp_conn->rport = 0;
@@ -74,7 +74,6 @@ rfm12_raw_net_main(void)
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_raw_net.h)
   net_init(rfm12_raw_net_init)
-
   state_header(hardware/radio/rfm12/rfm12_raw_state.h)
   state_udp(struct rfm12_raw_connection_state_t rfm12_raw)
 */

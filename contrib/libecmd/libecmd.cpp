@@ -110,7 +110,7 @@ tcp_open(const char *ip, int port) //ip, port
 	struct sockaddr_in remote;
 	int fd;
 
-	if ((fd=socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP))==-1) return 0;
+	if ((fd=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))==-1) return 0;
 
 	memset((char *) &remote, 0, sizeof(remote));
 	remote.sin_family = AF_INET;

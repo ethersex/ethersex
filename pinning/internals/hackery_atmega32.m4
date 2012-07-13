@@ -10,6 +10,7 @@
 #define _IVREG MCUCR
 #define _EIMSK GICR
 #define _EICRA MCUCR
+#define ANALOG_COMP_vect ANA_COMP_vect
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUCSR
@@ -53,7 +54,7 @@
 
 #define TC1_MODE_OFF	     {TCCR1A&=~(_BV(WGM11)|_BV(WGM10));TCCR1B&=~(_BV(WGM12));}
 #define TC1_MODE_PWM         {TCCR1A&=~(_BV(WGM11));TCCR1A|=_BV(WGM10);TCCR1B&=~(_BV(WGM12));}
-#define TC1_MODE_CTC         {TCCR1A&=~(_BV(WGM10));TCCR1A|=_BV(WGM11);TCCR1B&=~(_BV(WGM12));}
+#define TC1_MODE_CTC         {TCCR1A&=~(_BV(WGM10));TCCR1A&=~(_BV(WGM11));TCCR1B|=_BV(WGM12);}
 #define TC1_MODE_PWMFAST     {TCCR1A|=_BV(WGM11)|_BV(WGM10);TCCR1B&=~(_BV(WGM12));}
 
 #define TC1_OUTPUT_COMPARE_NONE   {TCCR1A&=~(_BV(COM1A1)|_BV(COM1A0));}
@@ -151,23 +152,6 @@
 #define TIMER_8_AS_1_COUNTER_BUSY_TST (TIMER_8_AS_1_COMPARE_CONTROL_BUSY_TST || TIMER_8_AS_1_COUNTER_CURRENT_BUSY_TST)
 
 
-
-/* Timer2 - Stella */
-#define _TCCR2_PRESCALE TCCR2
-#define _OUTPUT_COMPARE_IE2 OCIE2
-#define _OUTPUT_COMPARE_REG2 OCR2
-#define _VECTOR_OUTPUT_COMPARE2 TIMER2_COMP_vect
-#define _VECTOR_OVERFLOW2 TIMER2_OVF_vect
-#define _TIMSK_TIMER2 TIMSK
-#define TCR2BUB TCR2UB
-#define _CS20 CS20
-#define _CS21 CS21
-#define _CS22 CS22
-#define _COM20 COM20
-#define _COM21 COM21
-#define _WGM20 WGM20
-#define _WGM21 WGM21
-#define _TCNT2 TCNT2
 
 /* Timer2 - PWM Melody */
 #define _PWM_MELODY_COMP TIMER2_COMP_vect

@@ -15,14 +15,24 @@ $(I2C_MASTER_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_max7311.c \
 	hardware/i2c/master/i2c_pca9685.c \
 
+$(I2C_PCA9555_SUPPORT)_SRC += \
+	hardware/i2c/master/i2c_pca9555.c \
+	hardware/i2c/master/i2c_pca9555_ecmd.c \
+
 $(I2C_DS13X7_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_ds13x7.c
+
+$(I2C_PCF8583_SUPPORT)_SRC += \
+	hardware/i2c/master/i2c_pcf8583.c
 
 $(I2C_24CXX_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_24CXX.c
 
 $(I2C_TSL2550_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_tsl2550.c
+
+$(I2C_BMP085_SUPPORT)_SRC += \
+	hardware/i2c/master/i2c_bmp085.c
 
 $(I2C_UDP_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_udp.c \

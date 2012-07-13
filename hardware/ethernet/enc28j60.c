@@ -275,6 +275,11 @@ void init_enc28j60(void)
 #endif
 
     reset_controller();
+    
+#if CONF_ENC_ECOCON != ECOCON_UNSET
+    /* set ECOCON (CLKOUT prescaler) */
+    write_control_register(REG_ECOCON, CONF_ENC_ECOCON);
+#endif
 
     /* set receive buffer to span from 0 to 4kb */
     write_control_register(REG_ERXSTL, LO8(RXBUFFER_START));
