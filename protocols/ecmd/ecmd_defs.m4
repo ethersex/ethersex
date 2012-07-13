@@ -23,6 +23,9 @@ ecmd_endif
 ecmd_ifdef(I2C_LM75_SUPPORT)
   ecmd_feature(i2c_lm75, "lm75",ADDR, Get temperature)
 ecmd_endif
+ecmd_ifdef(I2C_TMP175_SUPPORT)
+  ecmd_feature(i2c_tmp175, "tmp175",ADDR, Get temperature)
+ecmd_endif
 ecmd_ifdef(I2C_DS1631_SUPPORT)
   ecmd_feature(i2c_ds1631_read_temperature, "ds1631 temp",ADDR, Read last converted temperature)
   ecmd_feature(i2c_ds1631_set_power_state, "ds1631 convert",ADDR VALUE, Initiate temperature conversions (0: stop, 1: convert))
