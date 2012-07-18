@@ -51,8 +51,19 @@ int16_t parse_cmd_c6_get(char *cmd, char *output, uint16_t len)
 	break;
 
       case  C6_TYPE_int16_t:
-        ptr += snprintf_P (ptr, len, PSTR("%i"), varvalue.data.d_int16_t);
+	ptr += snprintf_P (ptr, len, PSTR("%i"), varvalue.data.d_int16_t);
 	break;
+	
+      case  C6_TYPE_uint32_t:
+        ptr += snprintf_P (ptr, len, PSTR("%lu"), varvalue.data.d_uint32_t);
+	break;
+      case  C6_TYPE_int32_t:
+        ptr += snprintf_P (ptr, len, PSTR("%li"), varvalue.data.d_int32_t);
+	break;
+
+	
+	
+	
     }
     return ECMD_FINAL(ptr - output);
   }
@@ -77,6 +88,7 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
   if (varvalue.type == C6_TYPE_int8_t || varvalue.type == C6_TYPE_int16_t) {
     /* signed */
     int16_t nv = strtol (buf, NULL, 0);
+    int32_t nlv = strtol (buf, NULL, 0);
 
     if (varvalue.type == C6_TYPE_int8_t) {
       if (nv < INT8_MIN || nv > INT8_MAX)
@@ -86,13 +98,22 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
         varvalue.data.d_int8_t = nv;
     }
     else
+
+	if (varvalue.type == C6_TYPE_int32_t) {
+	varvalue.data.d_int32_t = nlv;
+	}
+     
+    else
       varvalue.data.d_int16_t = nv;
+      
   }
   else {
     /* unsigned */
     if (*buf == '-') goto range_error;
 
     uint16_t nv = strtoul (buf, NULL, 0);
+    uint32_t nlv = strtoul (buf, NULL, 0);
+
     if (varvalue.type == C6_TYPE_uint8_t) {
       if (nv > UINT8_MAX)
         goto range_error;
@@ -100,8 +121,14 @@ int16_t parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
         varvalue.data.d_uint8_t = nv;
     }
     else
+    
+	if (varvalue.type == C6_TYPE_uint32_t) {
+	varvalue.data.d_uint32_t = nlv;
+	}
+    
+    else
       varvalue.data.d_uint16_t = nv;
-  }
+    }
 
   control6_set (cmd, varvalue);
   return ECMD_FINAL_OK;
