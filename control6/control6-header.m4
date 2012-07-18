@@ -41,6 +41,9 @@ divert(0)
 #define C6_TYPE_int8_t		1
 #define C6_TYPE_uint16_t	2
 #define C6_TYPE_int16_t		3
+#define C6_TYPE_uint32_t	4
+#define C6_TYPE_int32_t		5
+
 
 struct c6_vario_type {
   uint8_t type;
@@ -50,6 +53,8 @@ struct c6_vario_type {
     int8_t d_int8_t;
     uint16_t d_uint16_t;
     int16_t d_int16_t;
+    uint32_t d_uint32_t;
+    int32_t d_int32_t;
   } data;
 };
 
