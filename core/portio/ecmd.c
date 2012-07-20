@@ -37,7 +37,7 @@ static uint8_t
 parse_set_command (char *cmd, uint8_t * port, uint8_t * data, uint8_t * mask)
 {
 #ifndef TEENSY_SUPPORT
-  return ECMD_FINAL (sscanf_P (cmd, PSTR ("%x %x %x"), port, data, mask));
+  return ECMD_FINAL (sscanf_P (cmd, PSTR ("%hhx %hhx %hhx"), port, data, mask));
 #else
   char *p;
   if (!*cmd)
@@ -111,7 +111,7 @@ parse_cmd_io_get_mask (char *cmd, char *output, uint16_t len)
 
   uint8_t port;
 #ifndef TEENSY_SUPPORT
-  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  int ret = sscanf_P (cmd, PSTR ("%hhx"), &port);
   if (ret == 1 && port < IO_PORTS && vport[port].read_ddr)
 #else
   port = *(cmd + 1) - '0';
@@ -133,7 +133,7 @@ parse_cmd_io_get_ddr (char *cmd, char *output, uint16_t len)
 
   uint8_t port;
 #ifndef TEENSY_SUPPORT
-  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  int ret = sscanf_P (cmd, PSTR ("%hhx"), &port);
   if (ret == 1 && port < IO_PORTS && vport[port].read_ddr)
 #else
   port = *(cmd + 1) - '0';
@@ -187,7 +187,7 @@ parse_cmd_io_get_port (char *cmd, char *output, uint16_t len)
 
   uint8_t port;
 #ifndef TEENSY_SUPPORT
-  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  int ret = sscanf_P (cmd, PSTR ("%hhx"), &port);
   if (ret == 1 && port < IO_PORTS && vport[port].read_port)
 #else
   port = *(cmd + 1) - '0';
@@ -210,7 +210,7 @@ parse_cmd_io_get_pin (char *cmd, char *output, uint16_t len)
   uint8_t port;
 
 #ifndef TEENSY_SUPPORT
-  int ret = sscanf_P (cmd, PSTR ("%x"), &port);
+  int ret = sscanf_P (cmd, PSTR ("%hhx"), &port);
   if (ret == 1 && port < IO_PORTS && vport[port].read_pin)
 #else
   port = *(cmd + 1) - '0';
