@@ -72,7 +72,7 @@ typedef unsigned short  uint16_t;
 #ifndef IRSND_USE_AS_LIB
 #include "irsndconfig.h"
 #endif
-#include "irsnd_lib.h"
+#include "irsnd.h"
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  *  ATtiny pin definition of OC0A / OC0B

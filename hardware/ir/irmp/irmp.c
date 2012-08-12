@@ -137,7 +137,7 @@
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
 #define IRMP_LOGGING 0
-#include "irmp_lib.c"
+#include "lib/irmp.c"
 #endif
 #ifdef IRMP_TX_SUPPORT
 #define IRSND_SUPPORT
@@ -150,7 +150,7 @@
 static void irmp_tx_on(void);
 static void irmp_tx_off(void);
 static void irmp_tx_set_freq(uint8_t);
-#include "irsnd_lib.c"
+#include "lib/irsnd.c"
 #endif
 #ifdef __IRMP_DEBUG
 #define DEBUG
