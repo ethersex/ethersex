@@ -161,6 +161,7 @@ httplog(const char *message, ...)
   if (result)
   {
     va_list va;
+    va_start(va, message);
     vsnprintf(httplog_tmp_buf, HTTPLOG_BUFFER_LEN, message, va);
     va_end(va);
     httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
@@ -177,6 +178,7 @@ httplog_P(const char *message, ...)
   if (result)
   {
     va_list va;
+    va_start(va, message);
     vsnprintf_P(httplog_tmp_buf, HTTPLOG_BUFFER_LEN, message, va);
     va_end(va);
     httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
