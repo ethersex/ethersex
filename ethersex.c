@@ -33,6 +33,7 @@
 #include "core/global.h"
 #include "core/debug.h"
 #include "core/spi.h"
+#include "core/mbr.h"
 #include "network.h"
 #include "core/portio/portio.h"
 #include "hardware/radio/rfm12/rfm12.h"
@@ -125,24 +126,24 @@ main (void)
 #endif
 
 #ifdef STATUSLED_POWER_SUPPORT
-  PIN_SET (STATUSLED_POWER);
+  PIN_SET(STATUSLED_POWER);
 #endif
 
   //FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
-  debug_init ();
-  debug_printf ("Ethersex " VERSION_STRING " (Debug mode)\n");
+  debug_init();
+  debug_printf("Ethersex " VERSION_STRING " (Debug mode)\n");
 
 #ifdef DEBUG_RESET_REASON
   if (bit_is_set (mcusr_mirror, BORF))
-    debug_printf ("reset: Brown-out\n");
+    debug_printf("reset: Brown-out\n");
   else if (bit_is_set (mcusr_mirror, PORF))
-    debug_printf ("reset: Power on\n");
+    debug_printf("reset: Power on\n");
   else if (bit_is_set (mcusr_mirror, WDRF))
-    debug_printf ("reset: Watchdog\n");
+    debug_printf("reset: Watchdog\n");
   else if (bit_is_set (mcusr_mirror, EXTRF))
-    debug_printf ("reset: Extern\n");
+    debug_printf("reset: Extern\n");
   else
-    debug_printf ("reset: Unknown\n");
+    debug_printf("reset: Unknown\n");
 #endif
 
 #ifdef BOOTLOADER_SUPPORT
@@ -154,96 +155,95 @@ main (void)
   sei ();
 
 #ifdef USE_WATCHDOG
-  debug_printf ("enabling watchdog\n");
+  debug_printf("enabling watchdog\n");
 #ifdef DEBUG
   /* for debugging, test reset cause and jump to bootloader */
   if (MCU_STATUS_REGISTER & _BV (WDRF))
-    {
-      debug_printf ("bootloader...\n");
-      jump_to_bootloader ();
-    }
+  {
+    debug_printf("bootloader...\n");
+    jump_to_bootloader();
+  }
 #endif
   /* set watchdog to 2 seconds */
-  wdt_enable (WDTO_2S);
-  wdt_kick ();
+  wdt_enable(WDTO_2S);
+  wdt_kick();
 #else //USE_WATCHDOG
-  debug_printf ("disabling watchdog\n");
-  wdt_disable ();
+  debug_printf("disabling watchdog\n");
+  wdt_disable();
 #endif //USE_WATCHDOG
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
 	|| defined(DATAFLASH_SUPPORT)
-  spi_init ();
+  spi_init();
 #endif
 
-  ethersex_meta_init ();
+  ethersex_meta_init();
 
   /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
-  portio_init ();
+  portio_init();
 #elif defined(NAMED_PIN_SUPPORT)
-  np_simple_init ();
+  np_simple_init();
 #endif
 
 #ifdef ENC28J60_SUPPORT
-  debug_printf ("enc28j60 revision 0x%x\n",
+  debug_printf("enc28j60 revision 0x%x\n",
 		read_control_register (REG_EREVID));
-  debug_printf ("mac: %x:%x:%x:%x:%x:%x\n", uip_ethaddr.addr[0],
+  debug_printf("mac: %x:%x:%x:%x:%x:%x\n", uip_ethaddr.addr[0],
 		uip_ethaddr.addr[1], uip_ethaddr.addr[2], uip_ethaddr.addr[3],
 		uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
 #endif
 
 #ifdef STATUSLED_BOOTED_SUPPORT
-  PIN_SET (STATUSLED_BOOTED);
+  PIN_SET(STATUSLED_BOOTED);
 #endif
 
-  ethersex_meta_startup ();
-
+  ethersex_meta_startup();
   /* main loop */
   while (1)
-    {
-
-      wdt_kick ();
-      ethersex_meta_mainloop ();
+  {
+    wdt_kick();
+    ethersex_meta_mainloop();
 
 #ifdef SD_READER_SUPPORT
-      if (sd_active_partition == NULL)
-	{
-	  if (!sd_try_init ())
-	    vfs_sd_try_open_rootnode ();
-
-	  wdt_kick ();
-	}
+    if (sd_active_partition == NULL)
+    {
+      if (!sd_try_init())
+        vfs_sd_try_open_rootnode();
+      wdt_kick();
+    }
 #endif
 
 #ifdef BOOTLOADER_JUMP
-      if (status.request_bootloader)
-	{
+    if (status.request_bootloader)
+    {
+      mbr.bootloader = 1;
+      write_mbr();
 #ifdef CLOCK_CRYSTAL_SUPPORT
-	  TC2_INT_OVERFLOW_OFF;
+      TC2_INT_OVERFLOW_OFF;
 #endif
 #ifdef DCF77_SUPPORT
-	  ACSR &= ~_BV (ACIE);
+      ACSR &= ~_BV (ACIE);
 #endif
-	  cli ();
-	  jump_to_bootloader ();
-	}
+      cli();
+      jump_to_bootloader();
+    }
 #endif
 
 #ifndef TEENSY_SUPPORT
-      if (status.request_wdreset)
-	{
-	  cli ();
-	  wdt_enable (WDTO_15MS);
-	  for (;;);
-	}
+    if (status.request_wdreset)
+    {
+      cli();
+      wdt_enable(WDTO_15MS);
+      for (;;);
+    }
 #endif
 
-      if (status.request_reset)
-	{
-	  cli ();
-	  void (*reset) (void) = NULL;
-	  reset ();
-	}
+    if (status.request_reset)
+    {
+      cli();
+      void (*reset) (void) = NULL;
+      reset();
     }
+  }
 }
