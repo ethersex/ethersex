@@ -37,6 +37,10 @@ typedef struct {
 #endif
 } global_status_t;
 
+#ifdef BOOTLOADER_SUPPORT
+extern uint16_t bootload_delay;
+#endif
+
 extern global_status_t status;
 
 #endif /* _GLOBAL_H */

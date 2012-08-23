@@ -55,7 +55,7 @@ extern struct uip_eth_addr uip_ethaddr;
 #define uip_icmp6chksum() (upper_layer_chksum(UIP_PROTO_ICMP6))
 
 #ifdef BOOTLOADER_SUPPORT
-extern uint8_t bootload_delay;
+extern uint16_t bootload_delay;
 #endif
 
 #if UIP_CONF_IPV6 && defined(ETHERNET_SUPPORT)
