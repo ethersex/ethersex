@@ -58,7 +58,6 @@ void ethersex_meta_exit (int signal);
 
 void dyndns_update(void);
 void periodic_process(void);
-extern uint8_t bootload_delay;
 volatile uint8_t newtick;
 
 divert(initearly_divert)dnl
@@ -214,7 +213,7 @@ void periodic_process(void)
            _uip_buf_lock --;
            if (uip_buf_lock ()) {
              return;           /* hmpf, try again shortly
-                                   (let's hope we don't miss too many ticks */
+                                 (let's hope we don't miss too many ticks */
            }
            else {
                rfm12_status = RFM12_OFF;
@@ -232,23 +231,32 @@ divert(eval(timer_divert_base`+'timer_divert_last` * 2 + 2'))
    uip_buf_unlock ();
 #endif
 
-#       ifdef BOOTLOADER_SUPPORT
-        if(bootload_delay)
-            if(-- bootload_delay == 0) {
-	        debug_putstr("RST\n");
-		cli();
-		_IVREG = _BV(IVCE);	        /* prepare ivec change */
-		_IVREG = 0x00;                  /* change ivec */
-
-		#ifdef USE_WATCHDOG
-			wdt_disable();
-		#endif
-		
-                void (*jump_to_application)(void) = NULL;
-                jump_to_application();
-            }
-#       endif
+#ifdef BOOTLOADER_SUPPORT
+  if(bootload_delay) {
+#ifdef DEBUG
+    if(bootload_delay%50 == 0) {
+      char seconds[5];
+      debug_putstr("Time left to flash: ");
+      itoa(bootload_delay/50, seconds, 10);
+      debug_putstr(seconds);
+      debug_putstr(" seconds\n");
     }
+#endif
+    if(-- bootload_delay == 0) {
+      debug_putstr("RST\n");
+      cli();
+      _IVREG = _BV(IVCE);         /* prepare ivec change */
+      _IVREG = 0x00;              /* change ivec */
+
+#ifdef USE_WATCHDOG
+      wdt_disable();
+#endif
+      void (*jump_to_application)(void) = NULL;
+      jump_to_application();
+    }
+  }
+#endif
+  }
 }
 divert(-1)
 timer(timer_divert_last, `counter = 0')
