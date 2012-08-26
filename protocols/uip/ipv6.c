@@ -29,6 +29,7 @@
 #include "services/dyndns/dyndns.h"
 #include "protocols/uip/ipv6.h"
 #include "config.h"
+#include "core/global.h"
 #include "core/debug.h"
 
 #ifdef DEBUG_NET_IP6
@@ -53,10 +54,6 @@ extern struct uip_eth_addr uip_ethaddr;
 
 /* Calculate ICMP6 Checksum, exported from uip/uip.c */
 #define uip_icmp6chksum() (upper_layer_chksum(UIP_PROTO_ICMP6))
-
-#ifdef BOOTLOADER_SUPPORT
-extern uint16_t bootload_delay;
-#endif
 
 #if UIP_CONF_IPV6 && defined(ETHERNET_SUPPORT)
 
