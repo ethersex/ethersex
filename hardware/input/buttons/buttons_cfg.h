@@ -58,7 +58,8 @@
   
 /* Define your buttons here: */ 
 #define BTN_CONFIG(_x) \
-_x(BTN_UP)\_x(BTN_DOWN)\_x(BTN_LEFT)\_x(BTN_RIGHT)\_x(BTN_ENTER)  
+_x(BTN_UP)\_x(BTN_DOWN)\_x(BTN_LEFT)\_x(BTN_RIGHT)\_x(BTN_FIRE)\_x(BTN_FIRE2)
+ 
 #endif //BUTTONS_INPUT_SUPPORT
   
 #endif  /* BUTTONS_CFG_H_ */
