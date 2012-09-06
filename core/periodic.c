@@ -41,6 +41,11 @@ uint8_t milliticks;
 void
 periodic_init(void)
 {
+  // Well, WriteAccess to 16bit timer registers has to be protected
+  // but as Timer1Ints are expected to be disabled here,
+  // hopefully nobody else will touch timer1 registers right now, 
+  // and we can save some code bytes in not using ATOMIC_BLOCK!
+
   CLOCK_SET_PRESCALER;
 #ifdef CLOCK_CPU_SUPPORT
   /* init timer1 to expire after ~20ms, with Normal */
@@ -62,7 +67,6 @@ periodic_init(void)
   TC1_MODE_CTC;
   TC1_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
   TC1_INT_COMPARE_ON;
-
   NTPADJDEBUG("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
 #endif
 #endif

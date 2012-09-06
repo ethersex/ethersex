@@ -46,7 +46,7 @@ syslog_net_init(void)
 
   uip_udp_bind(syslog_conn, HTONS(SYSLOG_PORT));
 
-  syslog_send("booting ethersex\n");
+  syslog_send_P(PSTR("booting ethersex (" VERSION_STRING ")\n"));
 }
 
 void

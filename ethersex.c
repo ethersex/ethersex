@@ -55,7 +55,7 @@ uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 
 void __start (void) __attribute__ ((naked))
                     __attribute__ ((used))
-                    __attribute__ ((section (".init1")));
+                    __attribute__ ((section (".init3")));
 void __start ()
 {
   /* Clear the watchdog register to avoid endless wdreset loops */
@@ -98,12 +98,12 @@ int
 main (void)
 {
 #ifdef BOOTLOADER_SUPPORT
-  _IVREG = _BV (IVCE);		/* prepare ivec change */
-  _IVREG = _BV (IVSEL);		/* change ivec to bootloader */
+  _IVREG = _BV (IVCE);    /* prepare ivec change */
+  _IVREG = _BV (IVSEL);   /* change ivec to bootloader */
 #endif
 
   /* Default DDR Config */
-#if IO_HARD_PORTS == 4 && DDR_MASK_A != 0
+#if IO_HARD_PORTS >= 4 && DDR_MASK_A != 0
   DDRA = DDR_MASK_A;
 #endif
 #if DDR_MASK_B != 0
@@ -115,7 +115,7 @@ main (void)
 #if DDR_MASK_D != 0
   DDRD = DDR_MASK_D;
 #endif
-#if IO_HARD_PORTS == 6
+#if IO_HARD_PORTS >= 6
 #if DDR_MASK_E != 0
   DDRE = DDR_MASK_E;
 #endif
@@ -123,6 +123,12 @@ main (void)
   DDRF = DDR_MASK_F;
 #endif
 #endif
+#if IO_HARD_PORTS >= 7
+#if DDR_MASK_G != 0
+  DDRG = DDR_MASK_G;
+#endif
+#endif
+
 
 #ifdef STATUSLED_POWER_SUPPORT
   PIN_SET (STATUSLED_POWER);
@@ -172,7 +178,7 @@ main (void)
 #endif //USE_WATCHDOG
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
-	|| defined(DATAFLASH_SUPPORT)
+  || defined(DATAFLASH_SUPPORT)
   spi_init ();
 #endif
 
@@ -187,10 +193,10 @@ main (void)
 
 #ifdef ENC28J60_SUPPORT
   debug_printf ("enc28j60 revision 0x%x\n",
-		read_control_register (REG_EREVID));
+    read_control_register (REG_EREVID));
   debug_printf ("mac: %x:%x:%x:%x:%x:%x\n", uip_ethaddr.addr[0],
-		uip_ethaddr.addr[1], uip_ethaddr.addr[2], uip_ethaddr.addr[3],
-		uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
+    uip_ethaddr.addr[1], uip_ethaddr.addr[2], uip_ethaddr.addr[3],
+    uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
 #endif
 
 #ifdef STATUSLED_BOOTED_SUPPORT
@@ -201,49 +207,48 @@ main (void)
 
   /* main loop */
   while (1)
-    {
-
-      wdt_kick ();
-      ethersex_meta_mainloop ();
+  {
+    wdt_kick ();
+    ethersex_meta_mainloop ();
 
 #ifdef SD_READER_SUPPORT
-      if (sd_active_partition == NULL)
-	{
-	  if (!sd_try_init ())
-	    vfs_sd_try_open_rootnode ();
+    if (sd_active_partition == NULL)
+    {
+      if (!sd_try_init ())
+        vfs_sd_try_open_rootnode ();
 
-	  wdt_kick ();
-	}
+      wdt_kick ();
+    }
 #endif
 
 #ifdef BOOTLOADER_JUMP
-      if (status.request_bootloader)
-	{
+    if (status.request_bootloader)
+    {
 #ifdef CLOCK_CRYSTAL_SUPPORT
-	  TC2_INT_OVERFLOW_OFF;
+      TC2_INT_OVERFLOW_OFF;
 #endif
 #ifdef DCF77_SUPPORT
-	  ACSR &= ~_BV (ACIE);
+      ACSR &= ~_BV (ACIE);
 #endif
-	  cli ();
-	  jump_to_bootloader ();
-	}
+      cli ();
+      jump_to_bootloader ();
+    }
 #endif
 
 #ifndef TEENSY_SUPPORT
-      if (status.request_wdreset)
-	{
-	  cli ();
-	  wdt_enable (WDTO_15MS);
-	  for (;;);
-	}
+    if (status.request_wdreset)
+    {
+      cli ();
+      wdt_enable (WDTO_15MS);
+      for (;;);
+    }
 #endif
 
-      if (status.request_reset)
-	{
-	  cli ();
-	  void (*reset) (void) = NULL;
-	  reset ();
-	}
+    if (status.request_reset)
+    {
+      cli ();
+      void (*reset) (void) = NULL;
+      reset ();
     }
+  }
 }

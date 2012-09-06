@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * irmp.h
+ * irmp-system.h - irmp target system definitions
  *
- * Copyright (c) 2009-2011 Frank Meyer - frank(at)fli4l.de
+ * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H or IRSND.H!
  *
- * $Id: irmp.h,v 1.73 2012/02/24 15:00:18 fm Exp $
+ * Copyright (c) 2012 Frank Meyer - frank(at)fli4l.de
  *
- * ATMEGA88 @ 8 MHz
+ * $Id: irmpprotocols.h,v 1.5 2012/07/11 12:44:30 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,36 +14,12 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 
-#ifndef _WC_IRMP_H_
-#define _WC_IRMP_H_
+#ifndef _IRMP_PROTOCOLS_H_
+#define _IRMP_PROTOCOLS_H_
 
-#if defined(__18CXX)                                                        // Microchip C18 declaration of missing typedef
-typedef unsigned char                           uint8_t;
-typedef unsigned int                            uint16_t;
-#endif //Microchip C18
-
-/*---------------------------------------------------------------------------------------------------------------------------------------------------
- * timing constants:
- *---------------------------------------------------------------------------------------------------------------------------------------------------
- */
-// fm 22.09.2011: may not be more than 16000L, otherwise some JVC codes will not be accepted
-#define IRMP_TIMEOUT_TIME                       15500.0e-6                  // timeout after 15.5 ms darkness
-#define IRMP_TIMEOUT_TIME_MS                    15500L                      // timeout after 15.5 ms darkness
-
-#if IRMP_SUPPORT_NIKON_PROTOCOL == 1
-#define IRMP_TIMEOUT_NIKON_TIME                 29500.0e-6                  // 2nd timeout after 29.5 ms darkness (only for NIKON!)
-#define IRMP_TIMEOUT_NIKON_TIME_MS              29500L                      // 2nd timeout after 29.5 ms darkness
-typedef uint16_t    PAUSE_LEN;
-#define IRMP_TIMEOUT_NIKON_LEN                  (PAUSE_LEN)(F_INTERRUPTS * IRMP_TIMEOUT_NIKON_TIME + 0.5)
-#else
-#if (F_INTERRUPTS * IRMP_TIMEOUT_TIME_MS) / 1000000 >= 254
-typedef uint16_t    PAUSE_LEN;
-#else
-typedef uint8_t     PAUSE_LEN;
+#if !defined(_IRMP_H_) && !defined(_IRSND_H_)
+#  error please include only irmp.h or irsnd.h, not irmpprotocols.h
 #endif
-#endif
-
-#define IRMP_TIMEOUT_LEN                        (PAUSE_LEN)(F_INTERRUPTS * IRMP_TIMEOUT_TIME + 0.5)
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * IR protocols
@@ -79,8 +55,32 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP_NEC42_PROTOCOL                     28              // NEC with 42 bits
 #define IRMP_LEGO_PROTOCOL                      29              // LEGO Power Functions RC
 #define IRMP_THOMSON_PROTOCOL                   30              // Thomson
+#define IRMP_BOSE_PROTOCOL                      31              // BOSE
 
-#define IRMP_N_PROTOCOLS                        30              // number of supported protocols
+#define IRMP_N_PROTOCOLS                        31              // number of supported protocols
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * timing constants:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+// fm 22.09.2011: may not be more than 16000L, otherwise some JVC codes will not be accepted
+#define IRMP_TIMEOUT_TIME                       15500.0e-6                  // timeout after 15.5 ms darkness
+#define IRMP_TIMEOUT_TIME_MS                    15500L                      // timeout after 15.5 ms darkness
+
+#if IRMP_SUPPORT_NIKON_PROTOCOL == 1
+#  define IRMP_TIMEOUT_NIKON_TIME               29500.0e-6                  // 2nd timeout after 29.5 ms darkness (only for NIKON!)
+#  define IRMP_TIMEOUT_NIKON_TIME_MS            29500L                      // 2nd timeout after 29.5 ms darkness
+typedef uint16_t    PAUSE_LEN;
+#  define IRMP_TIMEOUT_NIKON_LEN                (PAUSE_LEN)(F_INTERRUPTS * IRMP_TIMEOUT_NIKON_TIME + 0.5)
+#else
+#  if (F_INTERRUPTS * IRMP_TIMEOUT_TIME_MS) / 1000000 >= 254
+typedef uint16_t    PAUSE_LEN;
+#  else
+typedef uint8_t     PAUSE_LEN;
+#  endif
+#endif
+
+#define IRMP_TIMEOUT_LEN                        (PAUSE_LEN)(F_INTERRUPTS * IRMP_TIMEOUT_TIME + 0.5)
 
 // some flags of struct IRMP_PARAMETER:
 #define IRMP_PARAM_FLAG_IS_MANCHESTER           0x01
@@ -222,7 +222,7 @@ typedef uint8_t     PAUSE_LEN;
 #define DENON_0_PAUSE_TIME                       745.0e-6                       //  745 usec pause in practice,  775 in theory
 #define DENON_FRAMES                            2                               // DENON sends each frame 2 times
 #define DENON_AUTO_REPETITION_PAUSE_TIME          65.0e-3                       // inverted repetition after 65ms
-#define DENON_FRAME_REPEAT_PAUSE_TIME             65.0e-3                       // frame repeat after 65ms
+#define DENON_FRAME_REPEAT_PAUSE_TIME            130.0e-3                       // frame repeat after 2 * 65ms
 #define DENON_ADDRESS_OFFSET                    0                               // skip 0 bits
 #define DENON_ADDRESS_LEN                       5                               // read 5 address bits
 #define DENON_COMMAND_OFFSET                    5                               // skip 5
@@ -483,41 +483,21 @@ typedef uint8_t     PAUSE_LEN;
 #define THOMSON_LSB                             0                               // MSB...LSB
 #define THOMSON_FLAGS                           0                               // flags
 
+#define BOSE_START_BIT_PULSE_TIME               1060.0e-6                       // 1060 usec pulse
+#define BOSE_START_BIT_PAUSE_TIME               1430.0e-6                       // 1430 usec pause
+#define BOSE_PULSE_TIME                          550.0e-6                       //  550 usec pulse
+#define BOSE_1_PAUSE_TIME                       1425.0e-6                       // 1425 usec pause
+#define BOSE_0_PAUSE_TIME                        437.0e-6                       //  437 usec pause
+#define BOSE_FRAME_REPEAT_PAUSE_TIME              40.0e-3                       // frame repeat after 40ms???
+#define BOSE_ADDRESS_OFFSET                      0                              // skip 0 bits
+#define BOSE_ADDRESS_LEN                         0                              // read 16 address bits
+#define BOSE_COMMAND_OFFSET                      0                              // skip 16 bits (8 address + 8 /address)
+#define BOSE_COMMAND_LEN                        16                              // read 16 bits (8 command + 8 /command)
+#define BOSE_COMPLETE_DATA_LEN                  16                              // complete length
+#define BOSE_STOP_BIT                           1                               // has stop bit
+#define BOSE_LSB                                1                               // LSB...MSB
+#define BOSE_FLAGS                              0                               // flags
+
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
-                                                                                // KASEIKYO: automatic repetition after 75ms
 
-#define TRUE                                    1
-#define FALSE                                   0
-
-#define IRMP_FLAG_REPETITION                    0x01
-
-#ifndef IRMP_USE_AS_LIB
-typedef struct
-{
-  uint8_t               protocol;                                               // protocol, i.e. NEC_PROTOCOL
-  uint16_t              address;                                                // address
-  uint16_t              command;                                                // command
-  uint8_t               flags;                                                  // flags, e.g. repetition
-} IRMP_DATA;
-#endif
-
-#ifndef IRMP_USE_AS_LIB
-extern void                             irmp_init (void);
-#endif
-extern uint8_t                          irmp_get_data (IRMP_DATA *);
-extern uint8_t                          irmp_is_busy (void);
-#ifdef IRMP_USE_AS_LIB
-extern uint8_t                          irmp_ISR (const uint8_t);
-#else
-extern uint8_t                          irmp_ISR (void);
-#endif
-
-#if IRMP_PROTOCOL_NAMES == 1
-extern char *                           irmp_protocol_names[IRMP_N_PROTOCOLS + 1];
-#endif
-
-#if IRMP_USE_CALLBACK == 1
-extern void                             irmp_set_callback_ptr (void (*cb)(uint8_t));
-#endif // IRSND_USE_CALLBACK == 1
-
-#endif /* _WC_IRMP_H_ */
+#endif // _IRMP_PROTOCOLS_H_

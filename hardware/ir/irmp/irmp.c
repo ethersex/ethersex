@@ -137,7 +137,7 @@
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
 #define IRMP_LOGGING 0
-#include "irmp_lib.c"
+#include "lib/irmp.c"
 #endif
 #ifdef IRMP_TX_SUPPORT
 #define IRSND_SUPPORT
@@ -147,10 +147,11 @@
 #define irsnd_send_data irmp_tx_put
 #define irsnd_set_freq irmp_tx_set_freq
 #define IRSND_USE_AS_LIB
+#undef DENON_AUTO_REPETITION_PAUSE_LEN
 static void irmp_tx_on(void);
 static void irmp_tx_off(void);
 static void irmp_tx_set_freq(uint8_t);
-#include "irsnd_lib.c"
+#include "lib/irsnd.c"
 #endif
 #ifdef __IRMP_DEBUG
 #define DEBUG
@@ -206,6 +207,7 @@ static const char proto_nec16[] PROGMEM = "NEC16";
 static const char proto_nec42[] PROGMEM = "NEC42";
 static const char proto_lego[] PROGMEM = "LEGO";
 static const char proto_thomson[] PROGMEM = "THOMSON";
+static const char proto_bose[] PROGMEM = "BOSE";
 
 
 const PGM_P const irmp_proto_names[] PROGMEM = {
@@ -240,6 +242,7 @@ const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_nec42,
   proto_lego,
   proto_thomson,
+  proto_bose,
 };
 #endif
 
