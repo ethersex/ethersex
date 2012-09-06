@@ -1716,28 +1716,11 @@ MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
 
   A short snake runs up and down every line of the display for several times.
 
-Game Input
-GAME_INPUT_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
-  Placeholder for game input hardware such as
-
-  * digital Joystick (start up placeholder)
-
-  (not yet implemented)
-  * PS/2 Keyboard
-  * ECMD
-  * RFM12
-  * RFM12-ASK
-  * IRDA
-  * Input Pins
-
 MCUF Snake Interactive
 MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
   Interactive edition of snake or tron
 
@@ -1752,7 +1735,7 @@ MCUF Tetris
 MCUF_MODUL_BORG16_TETRIS_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
  Interactive Tetris clone.
 
@@ -1760,18 +1743,9 @@ MCUF Space Invaders
 MCUF_MODUL_BORG16_INVADERS_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
  Interactive Space Invaders Clone
-
-Digital Joystick
-JOYSTICK_DIGITAL_SUPPORT
-  Depends on:
-   * Game Input (GAME_INPUT_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
- Support for standard (old style) digital Joysticks a la
- Competition Pro (http://de.wikipedia.org/wiki/Competition_Pro)
 
 
 MCUF Chess
@@ -2024,7 +1998,7 @@ MCUF Game Input Test
 MCUF_TEST_GAME_INPUT
   Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
   Little Test Screen for Game Input Support
 
