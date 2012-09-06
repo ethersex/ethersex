@@ -28,7 +28,7 @@
 
 #include "buttons_cfg.h"
 
-#define BUTTON_NOPRESS 0        /* Button is not pressed */
+#define BUTTON_RELEASE 0        /* Button is not pressed */
 #define BUTTON_PRESS 1          /* Short press */
 #define BUTTON_LONGPRESS 2      /* Long press */
 #define BUTTON_REPEAT 3         /* Repeat function enabled, repeatedly triggered until button released */
@@ -57,7 +57,7 @@ typedef struct
 /* Status information for each button */
 typedef struct
 {
-  uint8_t status:2;             /* One of the values NOPRESS, PRESS, LONGPRESS... */
+  uint8_t status:2;             /* One of the values RELEASE, PRESS, LONGPRESS... */
   uint8_t curStatus:1;          /* Current pin value */
   uint8_t unused:5;
   uint8_t ctr;                  /* Debounce timer */
