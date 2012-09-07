@@ -2107,11 +2107,6 @@ BUTTONS_INPUT_SUPPORT
   input device.
 
 
-Number of buttons
-CONF_NUM_BUTTONS
-
-  Set the desired number of buttons you need.
-
 External SRAM support
 SRAM_SUPPORT
   Depends on:

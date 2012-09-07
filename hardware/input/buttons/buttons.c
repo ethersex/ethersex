@@ -30,10 +30,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <avr/io.h>
+#include "buttons.h"
 #include "config.h"
 #include "protocols/ecmd/ecmd-base.h"
-#include "buttons.h"
-#include "buttons_cfg.h"
 
 /* This driver uses the E6 hook mechanism to notify of events. (see hook.def for details)
  * To get notified in your application of a button press:
