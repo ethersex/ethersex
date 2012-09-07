@@ -61,9 +61,6 @@
 
 #ifdef BUTTONS_INPUT_SUPPORT
 
-#define BUTTON_DEBOUNCE_TIME 3  	/* Debounce time in ethersex ticks (x*20ms) */
-#define BUTTON_LONG_PRESS_TIME 50   /* Time for long press in ethersex ticks (x*20ms) */
-
 #ifdef DEBUG_BUTTONS_INPUT
 const char *buttonNames[CONF_NUM_BUTTONS] = { BTN_CONFIG(S) };
 #endif
@@ -151,7 +148,7 @@ buttons_periodic(void)
     }
 
     /* Button was stable for DEBOUNCE_TIME*20 ms */
-    if (BUTTON_DEBOUNCE_TIME <= buttonStatus[ctr].ctr)
+    if (CONF_BTN_DEBOUNCE_TIME <= buttonStatus[ctr].ctr)
     {
       /* Button is pressed.. */
       if (1 == buttonStatus[ctr].curStatus)
@@ -167,7 +164,7 @@ buttons_periodic(void)
 
             /* ..and was pressed before. Wait for long press. */
           case BUTTON_PRESS:
-            if (BUTTON_LONG_PRESS_TIME <= buttonStatus[ctr].ctr)
+            if (CONF_BTN_LONGPRESS_TIME <= buttonStatus[ctr].ctr)
             {
               /* Long press time reached. Send LONGPRESS event. */
               buttonStatus[ctr].status = BUTTON_LONGPRESS;
@@ -212,7 +209,7 @@ buttons_periodic(void)
       }
       else
       {
-        /* Button is not pressed anymore. Send NO_PRESS. */
+        /* Button is not pressed anymore. Send RELEASE. */
         buttonStatus[ctr].status = BUTTON_RELEASE;
         BUTTONDEBUG("Released %s\n", buttonNames[ctr]);
         buttonStatus[ctr].ctr = 0;
