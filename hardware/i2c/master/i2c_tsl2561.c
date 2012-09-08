@@ -75,6 +75,9 @@ uint8_t i2c_tsl2561_getluminosity(uint8_t devnum,uint16_t *ch0,uint16_t *ch1)
 	return 0;
 }
 
+//
+// Calculation code is taken directly from datasheet
+//
 #define LUX_SCALE 14 // scale by 2^14
 #define RATIO_SCALE 9 // scale ratio by 2^9
 // Integration time scaling factors
@@ -290,7 +293,7 @@ int32_t i2c_tsl2561_getlux(uint8_t devnum)
 
   if(i2c_tsl2561_getluminosity(devnum,&ch0,&ch1))
   	  return -1;
-  if(ch1>=ch0)
+  if(ch1>=ch0 || ch0==0xffff || ch1==0xffff)
   {
   	// Clipping
   	return -2;

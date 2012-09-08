@@ -49,8 +49,8 @@ enum
   
 enum
 {
-  TSL2561_GAIN_0X = 0x00, // No gain
-  TSL2561_GAIN_16X = 0x10, // 16x gain
+  TSL2561_GAIN_1X = 0x00, // Low gain (1x)
+  TSL2561_GAIN_16X = 0x10, // High gain (16x)
 };
 
 int32_t i2c_tsl2561_getlux(uint8_t devnum);
