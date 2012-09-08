@@ -32,6 +32,11 @@ ecmd_ifdef(I2C_TSL2550_SUPPORT)
   ecmd_feature(i2c_tsl2550_set_power_state, "tsl2550 power", VALUE, Set the TSL2550s power state (0: down, 1:up))
   ecmd_feature(i2c_tsl2550_set_operating_mode, "tsl2550 mode", VALUE, Set the TSL2550s operating mode (0: standard range, 1: extended range))
 ecmd_endif
+ecmd_ifdef(I2C_TSL2561_SUPPORT)
+  ecmd_feature(i2c_tsl2561_getlux, "tsl2561 lux", DEVNUM, Get LUX value)
+  ecmd_feature(i2c_tsl2561_getraw, "tsl2561 raw", DEVNUM, Get RAW channel values)
+  ecmd_feature(i2c_tsl2561_setmode, "tsl2561 setmode", DEVNUM TIME GAIN PACKAGE, Set device mode)
+ecmd_endif
 ecmd_ifdef(I2C_PCA9531_SUPPORT)
   ecmd_feature(i2c_pca9531, "pca9531",ADDR PERIODPWM1 DUTYPWM1 PERIODPWM2 DUTYPWM2 LED0..3 LED4..7, set PWM1 and PWM2 and LED states)
 ecmd_endif

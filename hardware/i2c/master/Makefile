@@ -30,6 +30,9 @@ $(I2C_24CXX_SUPPORT)_SRC += \
 $(I2C_TSL2550_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_tsl2550.c
 
+$(I2C_TSL2561_SUPPORT)_SRC += \
+	hardware/i2c/master/i2c_tsl2561.c
+
 $(I2C_BMP085_SUPPORT)_SRC += \
 	hardware/i2c/master/i2c_bmp085.c
 

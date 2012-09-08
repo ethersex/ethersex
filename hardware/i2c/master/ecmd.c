@@ -33,6 +33,7 @@
 #include "hardware/i2c/master/i2c_lm75.h"
 #include "hardware/i2c/master/i2c_ds1631.h"
 #include "hardware/i2c/master/i2c_tsl2550.h"
+#include "hardware/i2c/master/i2c_tsl2561.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
 #include "hardware/i2c/master/i2c_pca9531.h"
 #include "hardware/i2c/master/i2c_pca9685.h"
@@ -259,6 +260,43 @@ int16_t parse_cmd_i2c_tsl2550_show_lux_level(char *cmd, char *output, uint16_t l
 }
 
 #endif  /* I2C_TSL2550_SUPPORT */
+
+#ifdef I2C_TSL2561_SUPPORT
+
+int16_t parse_cmd_i2c_tsl2561_getlux(char *cmd, char *output, uint16_t len)
+{
+	uint8_t devnum,mode;
+
+	if((sscanf_P(cmd, PSTR("%hhu"), &devnum)!=1)||devnum>2)
+		return ECMD_ERR_PARSE_ERROR;
+	int32_t ret = i2c_tsl2561_getlux(devnum);
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%ld"), ret));
+}
+
+int16_t parse_cmd_i2c_tsl2561_getraw(char *cmd, char *output, uint16_t len)
+{
+	uint8_t devnum;
+	uint16_t ch0,ch1;
+
+	if((sscanf_P(cmd, PSTR("%hhu"), &devnum)!=1)||devnum>2)
+		return ECMD_ERR_PARSE_ERROR;
+	if(i2c_tsl2561_getluminosity(devnum,&ch0,&ch1))
+		return ECMD_ERR_READ_ERROR;
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%u %u"), ch0, ch1));
+}
+
+int16_t parse_cmd_i2c_tsl2561_setmode(char *cmd, char *output, uint16_t len)
+{
+	uint8_t devnum,time,gain,package;
+
+	if((sscanf_P(cmd, PSTR("%hhu %hhu %hhu %hhu"), &devnum, &time, &gain, &package)!=4)||devnum>2)
+		return ECMD_ERR_PARSE_ERROR;
+	if(i2c_tsl2561_setmode(devnum,time,gain,package))
+		return ECMD_ERR_READ_ERROR;
+	return ECMD_FINAL_OK;
+}
+
+#endif
 
 #ifdef I2C_PCA9531_SUPPORT
 int16_t
