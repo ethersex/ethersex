@@ -293,7 +293,7 @@ int32_t i2c_tsl2561_getlux(uint8_t devnum)
 
   if(i2c_tsl2561_getluminosity(devnum,&ch0,&ch1))
   	  return -1;
-  if(ch1>=ch0 || ch0==0xffff || ch1==0xffff)
+  if(ch1>ch0 || ch0==0xffff || ch1==0xffff)
   {
   	// Clipping
   	return -2;
