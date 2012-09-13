@@ -67,22 +67,25 @@
 typedef volatile uint8_t * const portPtrType;
 
 /* Enum used in the cyclic function to loop over all buttons */
-typedef enum {
-	BTN_CONFIG(E)
-} btn_ButtonsType;
+typedef enum
+{
+  BTN_CONFIG(E)
+}btn_ButtonsType;
 
 /* Static configuration data for each button */
-typedef struct {
-	portPtrType portIn;
-	const uint8_t pin;
+typedef struct
+{
+  portPtrType portIn;
+  const uint8_t pin;
 } button_configType;
 
 /* Status information for each button */
-typedef struct {
-	uint8_t status :2; /* One of the values RELEASE, PRESS, LONGPRESS... */
-	uint8_t curStatus :1; /* Current pin value */
-	uint8_t unused :5;
-	uint8_t ctr; /* Debounce timer */
+typedef struct
+{
+  uint8_t status :2; /* One of the values RELEASE, PRESS, LONGPRESS... */
+  uint8_t curStatus :1; /* Current pin value */
+  uint8_t unused :5;
+  uint8_t ctr; /* Debounce timer */
 } btn_statusType;
 
 void buttons_init(void);
