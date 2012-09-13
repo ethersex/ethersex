@@ -119,8 +119,9 @@ buttons_periodic(void)
        _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ? 0 : 1;
 #else
     curState =
-      ((*buttonConfig[ctr].portIn & _BV(buttonConfig[ctr].pin)) ==
-       _BV(buttonConfig[ctr].pin)) ? 1 : 0;
+      ((*((portPtrType) pgm_read_word(&buttonConfig[ctr].portIn)) &
+        _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ==
+       _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ? 1 : 0;
 #endif
     /* Actual state hasn't change since the last read... */
     if (buttonStatus[ctr].curStatus == curState)
