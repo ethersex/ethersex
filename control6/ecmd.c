@@ -128,7 +128,7 @@ parse_cmd_c6_set(char *cmd, char *output, uint16_t len)
         goto range_error;
       varvalue.data.d_uint8_t = (uint8_t) nv;
     }
-    else if (varvalue.type == C6_TYPE_unt16_t)
+    else if (varvalue.type == C6_TYPE_uint16_t)
     {
       if (nv > UINT16_MAX)
         goto range_error;
