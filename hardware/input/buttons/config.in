@@ -13,14 +13,14 @@ if [ "$BUTTONS_INPUT_SUPPORT" = "y" ]; then
     fi
 
 	comment  "Timing parameters"
-	int "Debounce time (x*20 ms)" CONF_BTN_DEBOUNCE_TIME 3
-	int "Longpress time (x*20 ms)" CONF_BTN_LONGPRESS_TIME 50
+	int "Debounce time (x*20 ms)" CONF_BTN_DEBOUNCE_TIME 4
+	int "Longpress time (x*20 ms)" CONF_BTN_LONGPRESS_TIME 100
 	
 	comment  "Repeat function"
 	dep_bool "Use Repeat" CONF_BTN_USE_REPEAT $BUTTONS_INPUT_SUPPORT
 	if [ "$CONF_BTN_USE_REPEAT" = "y" ]; then
-		int "Repeat time (x*20 ms)" CONF_BTN_REPEAT_TIME 65
-		int "Repeat rate (x*20 ms)" CONF_BTN_REPEAT_RATE 10
+		int "Repeat time (x*20 ms)" CONF_BTN_REPEAT_TIME 175
+		int "Repeat rate (x*20 ms)" CONF_BTN_REPEAT_RATE 25
 	fi
 	comment  "Debugging Flags"
 	dep_bool "Button input Debug" DEBUG_BUTTONS_INPUT $DEBUG $BUTTONS_INPUT_SUPPORT

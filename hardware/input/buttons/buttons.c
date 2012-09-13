@@ -1,24 +1,24 @@
 /*
-*
-* Copyright (c) 2012 by Daniel Walter <fordprfkt@googlemail.com>
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 3
-* of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*
-* For more information on the GPL, please go to:
-* http://www.gnu.org/copyleft/gpl.html
-*/
+ *
+ * Copyright (c) 2012 by Daniel Walter <fordprfkt@googlemail.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 /* Enable the hook btn_input */
 #define HOOK_NAME btn_input
@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #include "buttons.h"
 #include "config.h"
 #include "protocols/ecmd/ecmd-base.h"
@@ -61,11 +62,17 @@
 #ifdef BUTTONS_INPUT_SUPPORT
 
 #ifdef DEBUG_BUTTONS_INPUT
-const char *buttonNames[CONF_NUM_BUTTONS] = { BTN_CONFIG(S) };
+	/*  For providing the actual name of the buttons for debug output */
+	#define STR(_v)  const char _v##_str[] PROGMEM = #_v;
+	#define STRLIST(_v) _v##_str,
+	#define GET_BUTTON_NAME(i) ((PGM_P)pgm_read_word(&buttonNames[i]))
+
+    /* This creates an array of string in ROM which hold the button names. */
+	BTN_CONFIG(STR);
+	PGM_P const buttonNames[CONF_NUM_BUTTONS] PROGMEM = { BTN_CONFIG(STRLIST) };
 #endif
 
-const button_configType buttonConfig[CONF_NUM_BUTTONS] = { BTN_CONFIG(C) };
-
+const button_configType buttonConfig[CONF_NUM_BUTTONS] PROGMEM =   { BTN_CONFIG(C) };
 btn_statusType buttonStatus[CONF_NUM_BUTTONS];
 
 /**
@@ -79,24 +86,11 @@ btn_statusType buttonStatus[CONF_NUM_BUTTONS];
 void
 buttons_init(void)
 {
-  uint8_t ctr;
-
   BUTTONDEBUG("Init\n");
 
 #ifdef CONF_BTN_USE_PULLUPS
   BTN_CONFIG(PULLUP);
 #endif
-
-  for (ctr = 0; ctr < CONF_NUM_BUTTONS; ctr++)
-  {
-    BUTTONDEBUG("Button %s Port %i pin %i \n", buttonNames[ctr],
-                buttonConfig[ctr].portIn, buttonConfig[ctr].pin);
-
-    /* No button pressed */
-    buttonStatus[ctr].curStatus = 0;
-    buttonStatus[ctr].status = BUTTON_RELEASE;
-    buttonStatus[ctr].ctr = 0;
-  }
 }
 
 /**
@@ -120,8 +114,9 @@ buttons_periodic(void)
     /* Get current value from portpin... */
 #if CONF_BUTTON_LVL == 2
     curState =
-      ((*buttonConfig[ctr].portIn & _BV(buttonConfig[ctr].pin)) ==
-       _BV(buttonConfig[ctr].pin)) ? 0 : 1;
+      ((*((portPtrType) pgm_read_word(&buttonConfig[ctr].portIn)) &
+        _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ==
+       _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ? 0 : 1;
 #else
     curState =
       ((*buttonConfig[ctr].portIn & _BV(buttonConfig[ctr].pin)) ==
@@ -157,7 +152,7 @@ buttons_periodic(void)
             /* ..and was not pressed before. Send the PRESS event */
           case BUTTON_RELEASE:
             buttonStatus[ctr].status = BUTTON_PRESS;
-            BUTTONDEBUG("Pressed %s\n", buttonNames[ctr]);
+            BUTTONDEBUG("Pressed %S\n", GET_BUTTON_NAME(ctr));
             hook_btn_input_call(ctr, buttonStatus[ctr].status);
             break;
 
@@ -167,7 +162,7 @@ buttons_periodic(void)
             {
               /* Long press time reached. Send LONGPRESS event. */
               buttonStatus[ctr].status = BUTTON_LONGPRESS;
-              BUTTONDEBUG("Long press %s\n", buttonNames[ctr]);
+              BUTTONDEBUG("Long press %S\n", GET_BUTTON_NAME(ctr));
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
             break;
@@ -179,7 +174,7 @@ buttons_periodic(void)
             {
               /* Repeat time reached. Send REPEAT event. */
               buttonStatus[ctr].status = BUTTON_REPEAT;
-              BUTTONDEBUG("Repeat %s\n", buttonNames[ctr]);
+              BUTTONDEBUG("Repeat %S\n", GET_BUTTON_NAME(ctr));
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
             break;
@@ -190,15 +185,15 @@ buttons_periodic(void)
                 buttonStatus[ctr].ctr)
             {
               buttonStatus[ctr].status = BUTTON_REPEAT;
-              buttonStatus[ctr].ctr = CONF_BTN_REPEAT_RATE;
-              BUTTONDEBUG("Repeat %s\n", buttonNames[ctr]);
+              buttonStatus[ctr].ctr = CONF_BTN_REPEAT_TIME;
+              BUTTONDEBUG("Repeat %S\n", GET_BUTTON_NAME(ctr));
               hook_btn_input_call(ctr, buttonStatus[ctr].status);
             }
             break;
 #else
           case BUTTON_LONGPRESS:
-        	  /* Wait for button release */
-              break;
+            /* Wait for button release */
+            break;
 #endif
 
           default:
@@ -210,7 +205,7 @@ buttons_periodic(void)
       {
         /* Button is not pressed anymore. Send RELEASE. */
         buttonStatus[ctr].status = BUTTON_RELEASE;
-        BUTTONDEBUG("Released %s\n", buttonNames[ctr]);
+        BUTTONDEBUG("Released %S\n", GET_BUTTON_NAME(ctr));
         buttonStatus[ctr].ctr = 0;
         hook_btn_input_call(ctr, buttonStatus[ctr].status);
       }
@@ -218,11 +213,11 @@ buttons_periodic(void)
   }
 }
 
-/*
-  -- Ethersex META --
-  header(hardware/input/buttons/buttons.h)
-  timer(1, buttons_periodic())
-  init(buttons_init)
-*/
+        /*
+         * -- Ethersex META --
+         * header(hardware/input/buttons/buttons.h)
+         * timer(1, buttons_periodic())
+         * init(buttons_init)
+         */
 
 #endif //BUTTONS_INPUT_SUPPORT
