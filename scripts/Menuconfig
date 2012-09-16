@@ -1064,7 +1064,6 @@ Select the default profile you wish to load. \
 			bootloader	  "Ethernet Bootloader"				0 \
 			netio		  "Pollin AVR Net-IO"				0 \
 			netio_addon	  "Pollin AVR Net-IO (w/ addon board)"		0 \
-			netio_ems	  "Pollin AVR Net-IO (w/ EMS hardware)"		0 \
 			radig		  "Radig AVR Webmodul"				0 \
 			fimser		  "Fieldday Instant Messenger"			0 \
 			probot		  "Conrad Probot"				0 \
