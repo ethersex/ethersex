@@ -77,9 +77,9 @@ void ems_net_main(void);
 #define ERROR    _BV(1)
 void ems_uart_process_input_byte(uint8_t data, uint8_t status);
 
-#define LED_BLUE     0
-#define LED_GREEN    1
-#define LED_RED      2
+#define LED_TX       0
+#define LED_RX_OK    1
+#define LED_RX_FAIL  2
 #define EMS_NUM_LEDS 3
 void ems_set_led(uint8_t led, uint8_t enable, uint8_t timeout /* x 100ms */);
 

@@ -74,7 +74,7 @@ process_prepare_buffer(uint8_t source_byte)
     EMSPROTODEBUG("Packet CRC %02x calc %02x\n", prepare_buffer[prepare_fill], crc);
     if (crc != prepare_buffer[prepare_fill]) {
       UPDATE_STATS(bad_packets, 1);
-      ems_set_led(LED_RED, 1, 2);
+      ems_set_led(LED_RX_FAIL, 1, 2);
       return;
     }
   }
@@ -90,7 +90,7 @@ process_prepare_buffer(uint8_t source_byte)
 
   UPDATE_STATS(good_bytes, prepare_fill);
   UPDATE_STATS(good_packets, 1);
-  ems_set_led(LED_GREEN, 1, 1);
+  ems_set_led(LED_RX_OK, 1, 1);
 
   if (ems_net_connected()) {
     /* start-of-frame */

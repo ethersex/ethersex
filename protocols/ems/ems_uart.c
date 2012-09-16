@@ -133,7 +133,7 @@ switch_mode(uint8_t tx)
 static void
 go_to_rx(void)
 {
-  ems_set_led(LED_BLUE, 0, 0);
+  ems_set_led(LED_TX, 0, 0);
   /* drain input buffer */
   while (usart(UCSR,A) & _BV(usart(RXC))) {
     uint8_t data = usart(UDR);
@@ -206,7 +206,7 @@ ISR(usart(USART,_UDRE_vect))
             response_wait_mode = WAIT_FOR_ACK;
           }
           last_send_dest = byte & ~EMS_REQUEST_MASK;
-          ems_set_led(LED_BLUE, 1, 0);
+          ems_set_led(LED_TX, 1, 0);
         }
         ems_send_buffer.sent++;
         last_sent_byte = byte;

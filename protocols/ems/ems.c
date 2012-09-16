@@ -42,12 +42,18 @@ ems_init(void)
 {
   ems_uart_init();
 
-  PIN_CLEAR(EMS_LED_BLUE);
-  DDR_CONFIG_OUT(EMS_LED_BLUE);
-  PIN_CLEAR(EMS_LED_RED);
-  DDR_CONFIG_OUT(EMS_LED_RED);
-  PIN_CLEAR(EMS_LED_GREEN);
-  DDR_CONFIG_OUT(EMS_LED_GREEN);
+#ifdef HAVE_EMS_LED_TX
+  PIN_CLEAR(EMS_LED_TX);
+  DDR_CONFIG_OUT(EMS_LED_TX);
+#endif
+#ifdef HAVE_EMS_LED_RX_FAIL
+  PIN_CLEAR(EMS_LED_RX_FAIL);
+  DDR_CONFIG_OUT(EMS_LED_RX_FAIL);
+#endif
+#ifdef HAVE_EMS_LED_RX_OK
+  PIN_CLEAR(EMS_LED_RX_OK);
+  DDR_CONFIG_OUT(EMS_LED_RX_OK);
+#endif
 }
 
 void
@@ -67,22 +73,22 @@ ems_periodic_timeout(void)
 void ems_set_led(uint8_t led, uint8_t enable, uint8_t timeout)
 {
   switch (led) {
-#ifdef HAVE_EMS_LED_BLUE
-    case LED_BLUE:
-      if (enable) PIN_SET(EMS_LED_BLUE);
-      else PIN_CLEAR(EMS_LED_BLUE);
+#ifdef HAVE_EMS_LED_TX
+    case LED_TX:
+      if (enable) PIN_SET(EMS_LED_TX);
+      else PIN_CLEAR(EMS_LED_TX);
       break;
 #endif
-#ifdef HAVE_EMS_LED_GREEN
-    case LED_GREEN:
-      if (enable) PIN_SET(EMS_LED_GREEN);
-      else PIN_CLEAR(EMS_LED_GREEN);
+#ifdef HAVE_EMS_LED_RX_OK
+    case LED_RX_OK:
+      if (enable) PIN_SET(EMS_LED_RX_OK);
+      else PIN_CLEAR(EMS_LED_RX_OK);
       break;
 #endif
-#ifdef HAVE_EMS_LED_RED
-    case LED_RED:
-      if (enable) PIN_SET(EMS_LED_RED);
-      else PIN_CLEAR(EMS_LED_RED);
+#ifdef HAVE_EMS_LED_RX_FAIL
+    case LED_RX_FAIL:
+      if (enable) PIN_SET(EMS_LED_RX_FAIL);
+      else PIN_CLEAR(EMS_LED_RX_FAIL);
       break;
 #endif
     default:
