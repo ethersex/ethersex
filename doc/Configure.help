@@ -2995,7 +2995,8 @@ EMS_SUPPORT
   source address and EMS checksum should be omitted.
 
   EMS ACK and NACK bytes are sent to the client as a (fake) data packet
-  with source = (N)ACK, dest = PC (0x0b), type = 0xff.
+  with source = <last TX destination>, dest = PC (0x0b), type = 0xff,
+  data = (N)ACK (1 byte, ACK = 0x01, NACK = 0x04).
 
 Statistics ECMD
 EMS_DEBUG_STATS
