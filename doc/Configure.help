@@ -2979,3 +2979,28 @@ TANKLEVEL_HOLD_TIME
   Hold time before measurement (in 1/50 secs). Can be changed at runtime via
   ECMD command "tank param set hold_time VALUE" and stored in EEPROM.
 
+Buderus EMS Support
+EMS_SUPPORT
+  Depends on:
+   * TCP support (TCP_SUPPORT)
+
+  Enable TCP gateway code for Buderus EMS heating bus. It translates EMS
+  on USART1 to ethernet data.
+
+  Incoming data packets are framed as
+  <0xaa>, <0x55>, <len>, <data>, <running xor over data>. <Data> includes
+  both sender and destination address, but EMS checksum is stripped.
+
+  Outgoing data is expected to be sent over TCP as it should be sent out,
+  source address and EMS checksum should be omitted.
+
+  EMS ACK and NACK bytes are sent to the client as a (fake) data packet
+  with source = (N)ACK, dest = PC (0x0b), type = 0xff.
+
+Statistics ECMD
+EMS_DEBUG_STATS
+  Depends on:
+   * ECMD support (ECMD_PARSER_SUPPORT)
+
+  Enable ECMD 'ems stats' that shows statistical information about EMS
+  traffic (number of bytes, number of packets etc.).
