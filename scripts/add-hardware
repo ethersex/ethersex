@@ -408,10 +408,6 @@ FNORD
   template $EMS_SUPPORT << FNORD
     /* port config for EMS - pin must match USART1 TX line */
     pin(EMS_UART_TX, PD3)
-    /* uncomment if you have debugging LEDs connected */
-    //pin(EMS_LED_TX, PD4)
-    //pin(EMS_LED_RX_OK, PD6)
-    //pin(EMS_LED_RX_FAIL, PB0)
 FNORD
 
   template $RFM12_SUPPORT << FNORD

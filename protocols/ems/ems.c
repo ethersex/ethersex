@@ -24,6 +24,7 @@
 #include <util/atomic.h>
 #include <string.h>
 #include "config.h"
+#include "core/heartbeat.h"
 #include "ems.h"
 
 struct ems_uart_input_buffer ems_input_buffer;
@@ -42,17 +43,14 @@ ems_init(void)
 {
   ems_uart_init();
 
-#ifdef HAVE_EMS_LED_TX
-  PIN_CLEAR(EMS_LED_TX);
-  DDR_CONFIG_OUT(EMS_LED_TX);
+#ifdef STATUSLED_EMS_TX_SUPPORT
+  PIN_CLEAR(STATUSLED_EMS_TX);
 #endif
-#ifdef HAVE_EMS_LED_RX_FAIL
-  PIN_CLEAR(EMS_LED_RX_FAIL);
-  DDR_CONFIG_OUT(EMS_LED_RX_FAIL);
+#ifdef STATUSLED_EMS_RX_FAIL_SUPPORT
+  PIN_CLEAR(STATUSLED_EMS_RX_FAIL);
 #endif
-#ifdef HAVE_EMS_LED_RX_OK
-  PIN_CLEAR(EMS_LED_RX_OK);
-  DDR_CONFIG_OUT(EMS_LED_RX_OK);
+#ifdef STATUSLED_EMS_RX_OK_SUPPORT
+  PIN_CLEAR(STATUSLED_EMS_RX_OK);
 #endif
 }
 
@@ -73,24 +71,26 @@ ems_periodic_timeout(void)
 void ems_set_led(uint8_t led, uint8_t enable, uint8_t timeout)
 {
   switch (led) {
-#ifdef HAVE_EMS_LED_TX
     case LED_TX:
-      if (enable) PIN_SET(EMS_LED_TX);
-      else PIN_CLEAR(EMS_LED_TX);
-      break;
+#ifdef STATUSLED_EMS_TX_SUPPORT
+      if (enable) PIN_SET(STATUSLED_EMS_TX);
+      else PIN_CLEAR(STATUSLED_EMS_TX);
 #endif
-#ifdef HAVE_EMS_LED_RX_OK
+      ACTIVITY_LED_EMS_TX;
+      break;
     case LED_RX_OK:
-      if (enable) PIN_SET(EMS_LED_RX_OK);
-      else PIN_CLEAR(EMS_LED_RX_OK);
-      break;
+#ifdef STATUSLED_EMS_RX_OK_SUPPORT
+      if (enable) PIN_SET(STATUSLED_EMS_RX_OK);
+      else PIN_CLEAR(STATUSLED_EMS_RX_OK);
 #endif
-#ifdef HAVE_EMS_LED_RX_FAIL
+      ACTIVITY_LED_EMS_RX;
+      break;
     case LED_RX_FAIL:
-      if (enable) PIN_SET(EMS_LED_RX_FAIL);
-      else PIN_CLEAR(EMS_LED_RX_FAIL);
-      break;
+#ifdef STATUSLED_HAVE_EMS_RX_FAIL_SUPPORT
+      if (enable) PIN_SET(STATUSLED_EMS_RX_FAIL);
+      else PIN_CLEAR(STATUSLED_EMS_RX_FAIL);
 #endif
+      break;
     default:
       return;
   }

@@ -51,6 +51,18 @@ void heartbeat_periodic(void);
     #define ACTIVITY_LED_ZBUS_RX do { } while(0)
 #endif
 
+#ifdef STATUSLED_EMS_TX_ACT_SUPPORT
+    #define ACTIVITY_LED_EMS_TX PIN_TOGGLE(STATUSLED_HB_ACT)
+#else
+    #define ACTIVITY_LED_EMS_TX do { } while(0)
+#endif
+
+#ifdef STATUSLED_EMS_RX_ACT_SUPPORT
+    #define ACTIVITY_LED_EMS_RX PIN_TOGGLE(STATUSLED_HB_ACT)
+#else
+    #define ACTIVITY_LED_EMS_RX do { } while(0)
+#endif
+
 #ifdef STATUSLED_ECMD_ACT_SUPPORT
     #define ACTIVITY_LED_ECMD PIN_TOGGLE(STATUSLED_HB_ACT)
 #else
