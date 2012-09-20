@@ -99,9 +99,3 @@ ifdef(`conf_TANKLEVEL', `
 ifdef(`conf_TANKLEVEL_LOCK', `
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 
-ifdef(`conf_EMS', `
-  pin(EMS_UART_TX, PD3)
-  pin(EMS_LED_BLUE, PD4)
-  pin(EMS_LED_GREEN, PD6)
-  pin(EMS_LED_RED, PB0)
-')
