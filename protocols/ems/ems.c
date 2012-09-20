@@ -68,7 +68,8 @@ ems_periodic_timeout(void)
   }
 }
 
-void ems_set_led(uint8_t led, uint8_t enable, uint8_t timeout)
+void
+ems_set_led(uint8_t led, uint8_t enable, uint8_t timeout)
 {
   switch (led) {
     case LED_TX:
@@ -106,7 +107,8 @@ ems_process_txdata(uint8_t *data, uint16_t len)
     /* Copy the data to the send buffer */
     ems_send_buffer.addr_byte = OUR_EMS_ADDRESS;
     memcpy(ems_send_buffer.data, data, len);
-    ems_send_buffer.data[len] = ems_calc_checksum(&ems_send_buffer.addr_byte, len + 1);
+    ems_send_buffer.data[len] =
+        ems_calc_checksum(&ems_send_buffer.addr_byte, len + 1);
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       ems_send_buffer.len = len + 1 /* data + checksum */;
       ems_send_buffer.sent = 0;

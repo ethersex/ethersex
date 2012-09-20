@@ -94,7 +94,8 @@ ems_uart_got_response(void)
   }
 }
 
-static inline uint8_t is_polled(void)
+static inline uint8_t
+is_polled(void)
 {
   uint8_t polled = (ems_poll_address == (OUR_EMS_ADDRESS | EMS_REQUEST_MASK));
   if (response_wait_mode == WAIT_FOR_ACK) {
@@ -104,9 +105,10 @@ static inline uint8_t is_polled(void)
     if (ems_poll_address == EMS_RESPONSE_FAIL) {
       UPDATE_STATS(onebyte_nack_packets, 1);
     }
-    if (ems_poll_address == EMS_RESPONSE_OK || ems_poll_address == EMS_RESPONSE_FAIL) {
-        ems_add_source_to_eop(last_send_dest);
-        polled = 1;
+    if (ems_poll_address == EMS_RESPONSE_OK
+        || ems_poll_address == EMS_RESPONSE_FAIL) {
+      ems_add_source_to_eop(last_send_dest);
+      polled = 1;
     }
   }
   if (polled) {
@@ -159,7 +161,9 @@ ems_uart_periodic(void)
 static void
 start_break(void)
 {
-  usart(UCSR,B) &= ~(_BV(usart(UDRIE)) | _BV(usart(TXEN)) | _BV(usart(TXCIE)));
+  usart(UCSR,B) &= ~(_BV(usart(UDRIE)) |
+                     _BV(usart(TXEN))  |
+                     _BV(usart(TXCIE)));
   bit_counter = 11;
   TC2_COUNTER_COMPARE = BIT_TIME;
   TC2_COUNTER_CURRENT = 0;
@@ -243,7 +247,8 @@ ISR(usart(USART,_RX_vect))
         data = usart(UDR);
         if (last_sent_byte != data) {
           /* mismatch -> abort */
-          EMSERRORDEBUG("Last sent byte %02x, echo %02x -> MISMATCH\n", last_sent_byte, data);
+          EMSERRORDEBUG("Last sent byte %02x, echo %02x -> MISMATCH\n",
+                        last_sent_byte, data);
           ems_send_buffer.sent = tx_packet_start;
           start_break();
         } else {
@@ -258,8 +263,12 @@ ISR(usart(USART,_RX_vect))
 
         data = usart(UDR);
 
-        if (status & _BV(usart(FE))) real_status |= FRAMEEND;
-        if (status & (_BV(usart(DOR)) | _BV(usart(UPE)))) real_status |= ERROR;
+        if (status & _BV(usart(FE))) {
+          real_status |= FRAMEEND;
+        }
+        if (status & (_BV(usart(DOR)) | _BV(usart(UPE)))) {
+          real_status |= ERROR;
+        }
 
         ems_uart_process_input_byte(data, real_status);
       }
@@ -270,7 +279,8 @@ ISR(usart(USART,_RX_vect))
         switch_mode(1);
 #ifdef EMS_DEBUG
         if (ems_send_buffer.sent != ems_send_buffer.len) {
-          EMSIODEBUG("Sending %d bytes\n", ems_send_buffer.len - ems_send_buffer.sent);
+          EMSIODEBUG("Sending %d bytes\n",
+                     ems_send_buffer.len - ems_send_buffer.sent);
         }
 #endif
       }

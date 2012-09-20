@@ -28,17 +28,20 @@
 
 uip_conn_t *ems_conn = NULL;
 
-void ems_net_init(void)
+void
+ems_net_init(void)
 {
   uip_listen(HTONS(EMS_PORT), ems_net_main);
 }
 
-uint8_t ems_net_connected(void)
+uint8_t
+ems_net_connected(void)
 {
   return ems_conn != NULL;
 }
 
-void ems_net_main(void)
+void
+ems_net_main(void)
 {
   if (uip_connected()) {
     if (ems_conn == NULL) {
@@ -70,9 +73,11 @@ void ems_net_main(void)
       }
     }
   } else if (uip_newdata()) {
-    if (uip_len <= EMS_BUFFER_LEN && ems_process_txdata(uip_appdata, uip_len) != 0) {
-      /* Prevent the other side from sending more data */
-      uip_stop();
+    if (uip_len <= EMS_BUFFER_LEN) {
+      if (ems_process_txdata(uip_appdata, uip_len) != 0) {
+        /* Prevent the other side from sending more data */
+        uip_stop();
+      }
     }
   }
   if (uip_poll()

@@ -28,7 +28,8 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef EMS_DEBUG_STATS
-int16_t parse_cmd_ems_stats(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_ems_stats(char *cmd, char *output, uint16_t len)
 {
   struct ems_stats *stats = &ems_stats_buffer;
 
@@ -54,28 +55,38 @@ int16_t parse_cmd_ems_stats(char *cmd, char *output, uint16_t len)
 
   switch (cmd[1]) {
     case CNT_TOTALBYTES:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Bytes total:%lu"), stats->total_bytes));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Bytes total:%lu"),
+                                   stats->total_bytes));
     case CNT_GOODBYTES:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Bytes good:%lu"), stats->good_bytes));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Bytes good:%lu"),
+                                   stats->good_bytes));
     case CNT_DROPPEDBYTES:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Bytes dropped:%lu"), stats->dropped_bytes));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Bytes dropped:%lu"),
+                                   stats->dropped_bytes));
     case CNT_GOODPACKETS:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Packets good:%lu"), stats->good_packets));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Packets good:%lu"),
+                                   stats->good_packets));
     case CNT_BADPACKETS:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Packets bad:%lu"), stats->bad_packets));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Packets bad:%lu"),
+                                   stats->bad_packets));
     case CNT_ONEBYTEPACKETS:
       return ECMD_AGAIN(snprintf_P(output, len, PSTR("Packets 1byte:%lu %lu"),
-        stats->onebyte_packets, stats->onebyte_own_packets));
+                                   stats->onebyte_packets,
+                                   stats->onebyte_own_packets));
     case CNT_ACKNACKPACKETS:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Packets ack:%lu nack:%lu"),
-        stats->onebyte_ack_packets, stats->onebyte_nack_packets));
+      return ECMD_AGAIN(snprintf_P(output, len,
+                                   PSTR("Packets ack:%lu nack:%lu"),
+                                   stats->onebyte_ack_packets,
+                                   stats->onebyte_nack_packets));
     case CNT_OVERFLOW:
-      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Overflow:%lu"), stats->buffer_overflow));
+      return ECMD_AGAIN(snprintf_P(output, len, PSTR("Overflow:%lu"),
+                                   stats->buffer_overflow));
     case CNT_MAXFILL:
-      return ECMD_FINAL(snprintf_P(output, len, PSTR("Max fill:%u"), stats->max_fill));
+      return ECMD_FINAL(snprintf_P(output, len, PSTR("Max fill:%u"),
+                                   stats->max_fill));
   }
 
-  return ECMD_FINAL_OK;	/* never reached */
+  return ECMD_FINAL_OK; /* never reached */
 }
 #endif
 

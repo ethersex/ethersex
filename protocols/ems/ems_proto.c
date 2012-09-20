@@ -71,7 +71,8 @@ process_prepare_buffer(uint8_t source_byte)
     prepare_fill--;
 
     uint8_t crc = ems_calc_checksum(prepare_buffer, prepare_fill);
-    EMSPROTODEBUG("Packet CRC %02x calc %02x\n", prepare_buffer[prepare_fill], crc);
+    EMSPROTODEBUG("Packet CRC %02x calc %02x\n",
+                  prepare_buffer[prepare_fill], crc);
     if (crc != prepare_buffer[prepare_fill]) {
       UPDATE_STATS(bad_packets, 1);
       ems_set_led(LED_RX_FAIL, 1, 2);
@@ -122,8 +123,10 @@ ems_process(void)
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     buffer_shadow.count = ems_input_buffer.count;
     if (ems_input_buffer.count > 0) {
-      memcpy(buffer_shadow.data, ems_input_buffer.data, ems_input_buffer.count);
-      memcpy(buffer_shadow.eop, ems_input_buffer.eop, sizeof(buffer_shadow.eop));
+      memcpy(buffer_shadow.data, ems_input_buffer.data,
+             ems_input_buffer.count);
+      memcpy(buffer_shadow.eop, ems_input_buffer.eop,
+             sizeof(buffer_shadow.eop));
       ems_input_buffer.count = 0;
       memset(ems_input_buffer.eop, 0, sizeof(ems_input_buffer.eop));
     }
