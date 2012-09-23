@@ -1523,6 +1523,13 @@ Sync period in sec
 I2C_PCF8583_SYNC_PERIOD
   Sync system time every n seconds
 
+I2C_TSL2561 digital light sensor
+I2C_TSL2561_SUPPORT
+
+  Support for the TSL2561 digital light sensor via I2C.
+  Includes conversion routines to get visible light in lux.
+  Datasheet http://www.adafruit.com/datasheets/TSL2561.pdf
+
 I2C BMP085 barometric pressure sensor
 I2C_BMP085_SUPPORT
 
