@@ -93,6 +93,7 @@ template $PWM_SERVO_SUPPORT << FNORD
 FNORD
 
 template $BUTTONS_INPUT_SUPPORT << FNORD
+ifdef(`conf_BUTTONS_INPUT', `
   /* input buttons */
   pin(BTN_UP, PC2, INPUT)
   pin(BTN_RIGHT, PC3, INPUT)
@@ -101,15 +102,16 @@ template $BUTTONS_INPUT_SUPPORT << FNORD
   pin(BTN_FIRE, PD2, INPUT)
   pin(BTN_FIRE2, PD3, INPUT)
 
-  #define CONF_NUM_BUTTONS 6
+  #define BUTTONS_COUNT 6
 
-  #define BTN_CONFIG(_x) \
+  #define BUTTONS_CONFIG(_x) \
   _x(BTN_UP)\
   _x(BTN_DOWN)\
   _x(BTN_LEFT)\
   _x(BTN_RIGHT)\
   _x(BTN_FIRE)\
   _x(BTN_FIRE2)
+')
 FNORD
 
 template $PS2_SUPPORT << FNORD
