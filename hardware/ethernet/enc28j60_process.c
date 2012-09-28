@@ -265,25 +265,18 @@ void process_packet(void)
 		router_output();
 
             break;
-#       ifdef DEBUG_UNKNOWN_PACKETS
-        default:
-            /* debug output */
-            debug_printf("net: unknown packet, %02x%02x%02x%02x%02x%02x "
-                         "-> %02x%02x%02x%02x%02x%02x, type 0x%02x%02x\n",
-                         packet->src.addr[0],
-                         packet->src.addr[1],
-                         packet->src.addr[2],
-                         packet->src.addr[3],
-                         packet->src.addr[4],
-                         packet->src.addr[5],
-                         packet->dest.addr[0],
-                         packet->dest.addr[1],
-                         packet->dest.addr[2],
-                         packet->dest.addr[3],
-                         packet->dest.addr[4],
-                         packet->dest.addr[5],
-                         HI8(ntohs(packet->type)),
-                         LO8(ntohs(packet->type)));
+#ifdef DEBUG_UNKNOWN_PACKETS
+      default:
+      	/* debug output */
+        debug_printf("net: unknown packet, %02x%02x%02x%02x%02x%02x "
+                     "-> %02x%02x%02x%02x%02x%02x, type 0x%04x\n",
+                     packet->src.addr[0], packet->src.addr[1],
+                     packet->src.addr[2], packet->src.addr[3],
+                     packet->src.addr[4], packet->src.addr[5],
+                     packet->dest.addr[0], packet->dest.addr[1],
+                     packet->dest.addr[2], packet->dest.addr[3],
+                     packet->dest.addr[4], packet->dest.addr[5],
+                     ntohs(packet->type));
             break;
 #       endif
     }

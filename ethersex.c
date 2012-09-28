@@ -193,10 +193,10 @@ main (void)
 
 #ifdef ENC28J60_SUPPORT
   debug_printf ("enc28j60 revision 0x%x\n",
-    read_control_register (REG_EREVID));
-  debug_printf ("mac: %x:%x:%x:%x:%x:%x\n", uip_ethaddr.addr[0],
-    uip_ethaddr.addr[1], uip_ethaddr.addr[2], uip_ethaddr.addr[3],
-    uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
+  read_control_register (REG_EREVID));
+  debug_printf ("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+	  uip_ethaddr.addr[0], uip_ethaddr.addr[1], uip_ethaddr.addr[2],
+	  uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
 #endif
 
 #ifdef STATUSLED_BOOTED_SUPPORT
