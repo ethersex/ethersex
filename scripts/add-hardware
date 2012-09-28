@@ -92,13 +92,26 @@ template $PWM_SERVO_SUPPORT << FNORD
   pin(SERVO7, PD0, OUTPUT)
 FNORD
 
-template $JOYSTICK_DIGITAL_SUPPORT << FNORD
-  /* game input digital joystick */
-  pin(BUTTON_FIRE,  PD6, INPUT)
-  pin(BUTTON_DOWN,  PD5, INPUT)
-  pin(BUTTON_RIGHT, PD4, INPUT)
-  pin(BUTTON_UP,    PD3, INPUT)
-  pin(BUTTON_LEFT,  PD2, INPUT)
+template $BUTTONS_INPUT_SUPPORT << FNORD
+ifdef(`conf_BUTTONS_INPUT', `
+  /* input buttons */
+  pin(BTN_UP, PC2, INPUT)
+  pin(BTN_RIGHT, PC3, INPUT)
+  pin(BTN_DOWN, PC4, INPUT)
+  pin(BTN_LEFT, PC5, INPUT)
+  pin(BTN_FIRE, PD2, INPUT)
+  pin(BTN_FIRE2, PD3, INPUT)
+
+  #define BUTTONS_COUNT 6
+
+  #define BUTTONS_CONFIG(_x) \
+  _x(BTN_UP)\
+  _x(BTN_DOWN)\
+  _x(BTN_LEFT)\
+  _x(BTN_RIGHT)\
+  _x(BTN_FIRE)\
+  _x(BTN_FIRE2)
+')
 FNORD
 
 template $PS2_SUPPORT << FNORD

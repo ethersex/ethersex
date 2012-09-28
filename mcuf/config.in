@@ -65,7 +65,7 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
       manual          MCUF_MODUL_DISPLAY_MODE_MANUAL" \
       'random' MCUF_MODUL_DISPLAY_MODE
     endmenu
-    dep_bool "MCUF Game Input Test" MCUF_TEST_GAME_INPUT $MCUF_MODUL_SUPPORT $GAME_INPUT_SUPPORT
+    dep_bool "MCUF Game Input Test" MCUF_TEST_GAME_INPUT $MCUF_MODUL_SUPPORT $BUTTONS_INPUT_SUPPORT
     dep_bool "MCUF Chess" MCUF_CHESS_SUPPORT $MCUF_MODUL_SUPPORT
     dep_bool "MCUF Box" MCUF_BOX_SUPPORT $MCUF_MODUL_SUPPORT
     dep_bool "MCUF Clean" MCUF_CLEAN_SUPPORT $MCUF_MODUL_SUPPORT
