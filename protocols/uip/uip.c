@@ -536,7 +536,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
   register uip_udp_conn_t *conn;
 
   /* Find an unused local port. */
-#ifndef TEENSY_SUPPORT
+#if !defined(TEENSY_SUPPORT) || (GCC_VERSION < 40601)
  again:
 #endif
   ++lastport;
@@ -545,7 +545,7 @@ uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
     lastport = 4096;
   }
 
-#ifndef TEENSY_SUPPORT
+#if !defined(TEENSY_SUPPORT) || (GCC_VERSION < 40601)
   for(u8_t c = 0; c < UIP_UDP_CONNS; ++c) {
     if(uip_udp_conns[c].lport == htons(lastport)) {
       goto again;
@@ -912,9 +912,15 @@ uip_process(u8_t flag)
 
 #endif /* UIP_BROADCAST */
 
-    /* Check if the packet is destined for our IP address. */
+    /*
+     * Check if the packet is destined for our IP address or the local
+     * address is all zeros. In the latter case we assume that the address
+     * hasn't been configured and accept all packets so that bootp/dhcp can
+     * do their thing.
+     */
 #if !UIP_CONF_IPV6
-    if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
+    if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr) &&
+        (uip_hostaddr[0] != 0 || uip_hostaddr[1] != 0)) {
       UIP_STAT(++uip_stat.ip.drop);
       goto drop;
     }
@@ -1131,8 +1137,8 @@ ip_check_end:
       goto udp_found;
     }
   }
-  DEBUG_PRINTF("udp: no matching connection found, sport %d, dport %d\n",
-               UDPBUF->srcport, UDPBUF->destport);
+  DEBUG_PRINTF("udp: no matching connection found, sport %hu, dport %hu\n",
+               ntohs(UDPBUF->srcport), ntohs(UDPBUF->destport));
   goto drop;
 
  udp_found:
@@ -1593,7 +1599,7 @@ ip_check_end:
     state. We require that there is no outstanding data; otherwise the
     sequence numbers will be screwed up. */
 
-    if(BUF->flags & TCP_FIN && !(uip_connr->tcpstateflags & UIP_STOPPED)) {
+    if((BUF->flags & TCP_FIN) && !(uip_connr->tcpstateflags & UIP_STOPPED)) {
       if(uip_outstanding(uip_connr)) {
 	goto drop;
       }
@@ -1830,6 +1836,7 @@ ip_check_end:
       uip_connr->tcpstateflags = UIP_TIME_WAIT;
       uip_connr->timer = 0;
     }
+    break;
   }
   goto drop;
 
