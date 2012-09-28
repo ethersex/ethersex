@@ -2974,7 +2974,6 @@ TANKLEVEL_HOLD_TIME
   Hold time before measurement (in 1/50 secs). Can be changed at runtime via
   ECMD command "tank param set hold_time VALUE" and stored in EEPROM.
 
-<<<<<<< HEAD
 Buderus EMS Support
 EMS_SUPPORT
   Depends on:
@@ -3001,24 +3000,22 @@ EMS_DEBUG_STATS
 
   Enable ECMD 'ems stats' that shows statistical information about EMS
   traffic (number of bytes, number of packets etc.).
-=======
+
 Use internal pullups
 CONF_BTN_USE_PULLUPS
 
   Enable the internal pullup resistors of the controller.
 
-Debounce time (x*20 ms)
+Debounce time (x * 20 ms)
 CONF_BTN_DEBOUNCE_TIME
 
   Configures the amount of time the driver waits until
   it considers the state of a button stable. Increase this
   value if bouncing effects appear.
 
-Longpress time (x*20 ms)
+Longpress time (x * 20 ms)
 CONF_BTN_LONGPRESS_TIME
 
   Configures the amount of time the button must be pressed 
   until a longpress event  (=The Button is pressed for a 
   longer time) is generated.
-
->>>>>>> a837e41aae7a49f4ae466457885effb1fe119a11
