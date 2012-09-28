@@ -1137,7 +1137,7 @@ ip_check_end:
       goto udp_found;
     }
   }
-  DEBUG_PRINTF("udp: no matching connection found, sport %d, dport %d\n",
+  DEBUG_PRINTF("udp: no matching connection found, sport %hu, dport %hu\n",
                ntohs(UDPBUF->srcport), ntohs(UDPBUF->destport));
   goto drop;
 
@@ -1599,7 +1599,7 @@ ip_check_end:
     state. We require that there is no outstanding data; otherwise the
     sequence numbers will be screwed up. */
 
-    if(BUF->flags & TCP_FIN && !(uip_connr->tcpstateflags & UIP_STOPPED)) {
+    if((BUF->flags & TCP_FIN) && !(uip_connr->tcpstateflags & UIP_STOPPED)) {
       if(uip_outstanding(uip_connr)) {
 	goto drop;
       }
@@ -1836,6 +1836,7 @@ ip_check_end:
       uip_connr->tcpstateflags = UIP_TIME_WAIT;
       uip_connr->timer = 0;
     }
+    break;
   }
   goto drop;
 
