@@ -1734,28 +1734,11 @@ MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
 
   A short snake runs up and down every line of the display for several times.
 
-Game Input
-GAME_INPUT_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
-  Placeholder for game input hardware such as
-
-  * digital Joystick (start up placeholder)
-
-  (not yet implemented)
-  * PS/2 Keyboard
-  * ECMD
-  * RFM12
-  * RFM12-ASK
-  * IRDA
-  * Input Pins
-
 MCUF Snake Interactive
 MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
   Interactive edition of snake or tron
 
@@ -1770,7 +1753,7 @@ MCUF Tetris
 MCUF_MODUL_BORG16_TETRIS_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
  Interactive Tetris clone.
 
@@ -1778,18 +1761,9 @@ MCUF Space Invaders
 MCUF_MODUL_BORG16_INVADERS_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
  Interactive Space Invaders Clone
-
-Digital Joystick
-JOYSTICK_DIGITAL_SUPPORT
-  Depends on:
-   * Game Input (GAME_INPUT_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
- Support for standard (old style) digital Joysticks a la
- Competition Pro (http://de.wikipedia.org/wiki/Competition_Pro)
 
 
 MCUF Chess
@@ -2042,7 +2016,7 @@ MCUF Game Input Test
 MCUF_TEST_GAME_INPUT
   Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
   Little Test Screen for Game Input Support
 
@@ -2139,11 +2113,6 @@ BUTTONS_INPUT_SUPPORT
   of ethersex without specific knowledge of the selected
   input device.
 
-
-Number of buttons
-CONF_NUM_BUTTONS
-
-  Set the desired number of buttons you need.
 
 External SRAM support
 SRAM_SUPPORT
@@ -2852,6 +2821,25 @@ HTTPLOG_BUFFER_LEN
   The len for the internal buffer used for HTTPLOG strings. This
   buffer is dynamicallay allocated for each request.
 
+Use Repeat
+CONF_BTN_USE_REPEAT
+  Depends on: 
+   *  (BUTTON_INPUT_SUPPORT)
+
+  Use the repeat function (if a button is pressed for 
+  a certain amount of time, a repeat function starts and you
+  get triggers every <x> ms. 
+
+Repeat time (x*20 ms)
+CONF_BTN_REPEAT_TIME
+ 
+  Time after which the repeat function starts.
+
+Repeat rate (x*20 ms)
+CONF_BTN_REPEAT_RATE
+
+  Interval between two REPEAT events.
+
 Backlight support
 HD44780_BACKLIGHT_SUPPORT
 
@@ -2986,6 +2974,7 @@ TANKLEVEL_HOLD_TIME
   Hold time before measurement (in 1/50 secs). Can be changed at runtime via
   ECMD command "tank param set hold_time VALUE" and stored in EEPROM.
 
+<<<<<<< HEAD
 Buderus EMS Support
 EMS_SUPPORT
   Depends on:
@@ -3012,3 +3001,24 @@ EMS_DEBUG_STATS
 
   Enable ECMD 'ems stats' that shows statistical information about EMS
   traffic (number of bytes, number of packets etc.).
+=======
+Use internal pullups
+CONF_BTN_USE_PULLUPS
+
+  Enable the internal pullup resistors of the controller.
+
+Debounce time (x*20 ms)
+CONF_BTN_DEBOUNCE_TIME
+
+  Configures the amount of time the driver waits until
+  it considers the state of a button stable. Increase this
+  value if bouncing effects appear.
+
+Longpress time (x*20 ms)
+CONF_BTN_LONGPRESS_TIME
+
+  Configures the amount of time the button must be pressed 
+  until a longpress event  (=The Button is pressed for a 
+  longer time) is generated.
+
+>>>>>>> a837e41aae7a49f4ae466457885effb1fe119a11
