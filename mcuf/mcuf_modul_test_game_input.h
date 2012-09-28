@@ -25,7 +25,7 @@
 #include "hardware/input/buttons/buttons.h"
 
 void
-test_game_input_handler(btn_ButtonsType btn, uint8_t status);
+test_game_input_handler(buttons_ButtonsType button, uint8_t status);
 void
 test_game_input(void);
 

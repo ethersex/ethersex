@@ -32,20 +32,20 @@ uint8_t giy = MCUF_MAX_SCREEN_HEIGHT / 2;
 uint8_t gic = 1;
 
 void
-test_game_input_handler(btn_ButtonsType btn, uint8_t status)
+test_game_input_handler(buttons_ButtonsType button, uint8_t status)
 {
   if (BUTTON_PRESS == status)
   {
-	  switch (btn)
-	  {
-	    case BTN_FIRE:  gic++; break;
-	    case BTN_FIRE2: gic--; break;
-	    case BTN_LEFT:  if (gix > 0) gix--; break;
-	    case BTN_RIGHT: if (gix < MCUF_MAX_SCREEN_WIDTH) gix++; break;
-	    case BTN_UP:    if (giy > 0) giy--; break;
-	    case BTN_DOWN:  if (giy < MCUF_MAX_SCREEN_HEIGHT) giy++; break;
-	  }
-	  setPixel(gix, giy, gic);
+    switch (button)
+    {
+      case BTN_FIRE:  gic++; break;
+      case BTN_FIRE2: gic--; break;
+      case BTN_LEFT:  if (gix > 0) gix--; break;
+      case BTN_RIGHT: if (gix < MCUF_MAX_SCREEN_WIDTH) gix++; break;
+      case BTN_UP:    if (giy > 0) giy--; break;
+      case BTN_DOWN:  if (giy < MCUF_MAX_SCREEN_HEIGHT) giy++; break;
+    }
+    setPixel(gix, giy, gic);
   }
 }
 
@@ -56,10 +56,10 @@ test_game_input(void)
   for (int y=0; y < MCUF_MAX_SCREEN_WIDTH; y++)
     for (int x=0; x < MCUF_MAX_SCREEN_HEIGHT; x++)
        setPixel(x, y, 0);
-  
+
   setPixel(gix, giy, gic);
-  
-  hook_btn_input_register(test_game_input_handler);
+
+  hook_buttons_input_register(test_game_input_handler);
   debug_printf("mcuf game input init done\n");
 }
 #endif //MCUF_TEST_GAME_INPUT
