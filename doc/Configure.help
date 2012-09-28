@@ -2811,25 +2811,6 @@ HTTPLOG_BUFFER_LEN
   The len for the internal buffer used for HTTPLOG strings. This
   buffer is dynamicallay allocated for each request.
 
-Use Repeat
-CONF_BTN_USE_REPEAT
-  Depends on:
-   *  (BUTTON_INPUT_SUPPORT)
-
-  Use the repeat function (if a button is pressed for
-  a certain amount of time, a repeat function starts and you
-  get triggers every <x> ms.
-
-Repeat time (x*20 ms)
-CONF_BTN_REPEAT_TIME
-
-  Time after which the repeat function starts.
-
-Repeat rate (x*20 ms)
-CONF_BTN_REPEAT_RATE
-
-  Interval between two REPEAT events.
-
 Backlight support
 HD44780_BACKLIGHT_SUPPORT
 
@@ -3005,22 +2986,21 @@ BUTTONS_INPUT_SUPPORT
   1) #include "buttons.h"
 
   2) Define a handler function in your application:
-      void hook_btn_handler(btn_ButtonsType btn, uint8_t status) {
-        debug_printf("Button %d Status: %d\n",btn, status);
+      void hook_button_handler(buttons_ButtonsType button, uint8_t status) {
+        debug_printf("Button %d Status: %d\n",button, status);
       }
 
   3) Register it for callback (in the Init Function of your app):
-      hook_btn_input_register(hook_btn_handler);
+      hook_buttons_input_register(hook_buttons_handler);
 
       Upon a button press, the function will be called with the following
       parameters:
-        btn = The Button that was pressed.
-        status = One of the following values
-
+      button           = The button that was pressed.
+      status           = One of the following values:
         BUTTON_PRESS     = Button was pressed
-                           <CONF_BTN_DEBOUNCE_TIME> * 20ms (default: 80ms)
+                           <CONF_BUTTONS_DEBOUNCE_TIME> * 20ms (default: 80ms)
         BUTTON_LONGPRESS = Button was pressed for
-                           <CONF_BTN_LONGPRESS_TIME> * 20ms (default: 2s)
+                           <CONF_BUTTONS_LONGPRESS_TIME> * 20ms (default: 2s)
         BUTTON_REPEAT    = Button was pressed for
                            <CONF_BUTTONS_REPEAT_DELAY> * 20ms (default 3.5s),
                            this event is then repeated every

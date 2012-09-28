@@ -20,11 +20,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-/* Enable the hook btn_input */
-#define HOOK_NAME btn_input
-#define HOOK_ARGS (btn_ButtonsType btn, uint8_t status)
+/* Enable the hook buttons_input */
+#define HOOK_NAME buttons_input
+#define HOOK_ARGS (buttons_ButtonsType button, uint8_t status)
 #define HOOK_COUNT 3
-#define HOOK_ARGS_CALL (btn, status)
+#define HOOK_ARGS_CALL (button, status)
 #define HOOK_IMPLEMENT 1
 
 #include <stdio.h>
@@ -41,28 +41,27 @@
  * 1) #include "buttons.h"
  *
  * 2) Define a handler function in your application:
- *     void hook_btn_handler(btn_ButtonsType btn, uint8_t status) {
- *       debug_printf("Button %d Status: %d\n",btn, status);
- *     }
+ *    void hook_button_handler(buttons_ButtonsType button, uint8_t status) {
+ *      debug_printf("Button %d Status: %d\n",button, status);
+ *    }
  *
  * 3) Register it for callback (in the Init Function of your app):
- *     hook_btn_input_register(hook_btn_handler);
+ *    hook_buttons_input_register(hook_buttons_handler);
  *
- *     Upon a button press, the function will be called with the following
- *     parameters:
- *       btn = The Button that was pressed.
- *       status = One of the following values
- *
- *       BUTTON_PRESS     = Button was pressed
- *                          <CONF_BTN_DEBOUNCE_TIME> * 20ms (default: 80ms)
- *       BUTTON_LONGPRESS = Button was pressed for
- *                          <CONF_BTN_LONGPRESS_TIME> * 20ms (default: 2s)
- *       BUTTON_REPEAT    = Button was pressed for
- *                          <CONF_BUTTONS_REPEAT_DELAY> * 20ms (default 3.5s),
- *                          this event is then repeated every
- *                          <CONF_BUTTONS_REPEAT_RATE> * 20ms (default 0.5s)
- *                          until the button is released.
- *       BUTTON_RELEASE   = Button released.
+ *    Upon a button press, the function will be called with the following
+ *    parameters:
+ *    button           = The button that was pressed.
+ *    status           = One of the following values:
+ *      BUTTON_PRESS     = Button was pressed
+ *                         <CONF_BUTTONS_DEBOUNCE_TIME> * 20ms (default: 80ms)
+ *      BUTTON_LONGPRESS = Button was pressed for
+ *                         <CONF_BUTTONS_LONGPRESS_TIME> * 20ms (default: 2s)
+ *      BUTTON_REPEAT    = Button was pressed for
+ *                         <CONF_BUTTONS_REPEAT_DELAY> * 20ms (default 3.5s),
+ *                         this event is then repeated every
+ *                         <CONF_BUTTONS_REPEAT_RATE> * 20ms (default 0.5s)
+ *                         until the button is released.
+ *      BUTTON_RELEASE   = Button released.
  */
 
 #ifdef BUTTONS_INPUT_SUPPORT
@@ -78,9 +77,9 @@
   PGM_P const buttonNames[BUTTONS_COUNT] PROGMEM = { BUTTONS_CONFIG(STRLIST) };
 #endif
 
-const button_configType buttonConfig[BUTTONS_COUNT] PROGMEM =
+const buttons_configType buttonConfig[BUTTONS_COUNT] PROGMEM =
   { BUTTONS_CONFIG(C) };
-btn_statusType buttonStatus[BUTTONS_COUNT];
+buttons_statusType buttonStatus[BUTTONS_COUNT];
 
 /**
  * @brief Initializes the module after startup
@@ -161,7 +160,7 @@ buttons_periodic(void)
           case BUTTON_RELEASE:
             buttonStatus[i].status = BUTTON_PRESS;
             BUTTONS_DEBUG("Pressed %S\n", BUTTONS_GET_NAME(i));
-            hook_btn_input_call(i, buttonStatus[i].status);
+            hook_buttons_input_call(i, buttonStatus[i].status);
             break;
 
           /* ..and was pressed before. Wait for long press. */
@@ -171,7 +170,7 @@ buttons_periodic(void)
               /* Long press time reached. Send LONGPRESS event. */
               buttonStatus[i].status = BUTTON_LONGPRESS;
               BUTTONS_DEBUG("Long press %S\n", BUTTONS_GET_NAME(i));
-              hook_btn_input_call(i, buttonStatus[i].status);
+              hook_buttons_input_call(i, buttonStatus[i].status);
             }
             break;
 
@@ -183,7 +182,7 @@ buttons_periodic(void)
               /* Repeat time reached. Send first REPEAT event. */
               buttonStatus[i].status = BUTTON_REPEAT;
               BUTTONS_DEBUG("Repeat %S\n", BUTTONS_GET_NAME(i));
-              hook_btn_input_call(i, buttonStatus[i].status);
+              hook_buttons_input_call(i, buttonStatus[i].status);
             }
             break;
 
@@ -195,7 +194,7 @@ buttons_periodic(void)
               buttonStatus[i].status = BUTTON_REPEAT;
               buttonStatus[i].ctr = CONF_BUTTONS_REPEAT_DELAY;
               BUTTONS_DEBUG("Repeat %S\n", BUTTONS_GET_NAME(i));
-              hook_btn_input_call(i, buttonStatus[i].status);
+              hook_buttons_input_call(i, buttonStatus[i].status);
             }
             break;
 
@@ -216,7 +215,7 @@ buttons_periodic(void)
         buttonStatus[i].status = BUTTON_RELEASE;
         BUTTONS_DEBUG("Released %S\n", BUTTONS_GET_NAME(i));
         buttonStatus[i].ctr = 0;
-        hook_btn_input_call(i, buttonStatus[i].status);
+        hook_buttons_input_call(i, buttonStatus[i].status);
       }
     }
   }

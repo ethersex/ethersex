@@ -64,7 +64,7 @@ enum
 };
 
 /* These macros allow to use the the same configuration macro (in
- * buttons_cfg.h) to initialize the btn_ButtonsType enum, the
+ * buttons_cfg.h) to initialize the buttons_ButtonsType enum, the
  * button_configType struct and set the pullups. */
 #define E(_v) _v,
 #define C(_v) {.portIn = &PIN_CHAR(_v##_PORT), .pin = _v##_PIN},
@@ -76,14 +76,14 @@ typedef volatile uint8_t * const portPtrType;
 typedef enum
 {
   BUTTONS_CONFIG(E)
-} btn_ButtonsType;
+} buttons_ButtonsType;
 
 /* Static configuration data for each button */
 typedef struct
 {
   portPtrType portIn;
   const uint8_t pin;
-} button_configType;
+} buttons_configType;
 
 /* Status information for each button */
 typedef struct
@@ -92,7 +92,7 @@ typedef struct
   uint8_t curStatus :1; // Current pin value
   uint8_t :5;           // unused
   uint8_t ctr;          // Debounce timer
-} btn_statusType;
+} buttons_statusType;
 
 void buttons_init(void);
 void buttons_periodic(void);
@@ -104,8 +104,8 @@ void buttons_periodic(void);
 #define BUTTONS_DEBUG(a...)
 #endif
 
-#define HOOK_NAME btn_input
-#define HOOK_ARGS (btn_ButtonsType btn, uint8_t status)
+#define HOOK_NAME buttons_input
+#define HOOK_ARGS (buttons_ButtonsType button, uint8_t status)
 #include "hook.def"
 #undef HOOK_NAME
 #undef HOOK_ARGS
