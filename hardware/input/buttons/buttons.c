@@ -35,7 +35,8 @@
 #include "config.h"
 #include "protocols/ecmd/ecmd-base.h"
 
-/* This driver uses the E6 hook mechanism to notify of events. (see hook.def for details)
+/* This driver uses the E6 hook mechanism to notify of events. (see hook.def
+ * for details)
  * To get notified in your application of a button press:
  * 1) #include "buttons.h"
  *
@@ -44,41 +45,47 @@
  *       debug_printf("Button %d Status: %d\n",btn, status);
  *     }
  *
- * 3) Then register it for callback (in the Init Function of your app):
+ * 3) Register it for callback (in the Init Function of your app):
  *     hook_btn_input_register(hook_btn_handler);
  *
- *     Upon a button press, the function will be called with the following parameters:
- *     btn = The Button that was pressed.
- *     status = One of the following values (BUTTON_PRESS, BUTTON_LONGPRESS, BUTTON_REPEAT, BUTTON_RELEASE)
+ *     Upon a button press, the function will be called with the following
+ *     parameters:
+ *       btn = The Button that was pressed.
+ *       status = One of the following values
  *
- *     BUTTON_PRESS 	= 	Button was pressed.
- *     BUTTON_LONGPRESS =	Button was pressed for 900ms
- *     BUTTON_REPEAT 	= 	Button was pressed for <CONF_BTN_REPEAT_TIME>ms, this event is then
- *                     		repeated every <CONF_BTN_REPEAT_RATE>ms until the button is released.
- *     BUTTON_RELEASE 	=	Button released.
- *
+ *       BUTTON_PRESS     = Button was pressed
+ *                          <CONF_BTN_DEBOUNCE_TIME> * 20ms (default: 80ms)
+ *       BUTTON_LONGPRESS = Button was pressed for
+ *                          <CONF_BTN_LONGPRESS_TIME> * 20ms (default: 2s)
+ *       BUTTON_REPEAT    = Button was pressed for
+ *                          <CONF_BUTTONS_REPEAT_DELAY> * 20ms (default 3.5s),
+ *                          this event is then repeated every
+ *                          <CONF_BUTTONS_REPEAT_RATE> * 20ms (default 0.5s)
+ *                          until the button is released.
+ *       BUTTON_RELEASE   = Button released.
  */
 
 #ifdef BUTTONS_INPUT_SUPPORT
 
-#ifdef DEBUG_BUTTONS_INPUT
+#ifdef DEBUG_BUTTONS
   /*  For providing the actual name of the buttons for debug output */
   #define STR(_v)  const char _v##_str[] PROGMEM = #_v;
   #define STRLIST(_v) _v##_str,
-  #define GET_BUTTON_NAME(i) ((PGM_P)pgm_read_word(&buttonNames[i]))
+  #define BUTTONS_GET_NAME(i) ((PGM_P)pgm_read_word(&buttonNames[i]))
 
   /* This creates an array of string in ROM which hold the button names. */
-  BTN_CONFIG(STR);
-  PGM_P const buttonNames[CONF_NUM_BUTTONS] PROGMEM = { BTN_CONFIG(STRLIST) };
+  BUTTONS_CONFIG(STR);
+  PGM_P const buttonNames[BUTTONS_COUNT] PROGMEM = { BUTTONS_CONFIG(STRLIST) };
 #endif
 
-const button_configType buttonConfig[CONF_NUM_BUTTONS] PROGMEM =   { BTN_CONFIG(C) };
-btn_statusType buttonStatus[CONF_NUM_BUTTONS];
+const button_configType buttonConfig[BUTTONS_COUNT] PROGMEM =
+  { BUTTONS_CONFIG(C) };
+btn_statusType buttonStatus[BUTTONS_COUNT];
 
 /**
  * @brief Initializes the module after startup
  *
- * Resets all buttons to NOT_PRESSED.
+ * Resets all buttons to BUTTON_RELEASE.
  *
  * @param void
  * @returns void
@@ -86,10 +93,10 @@ btn_statusType buttonStatus[CONF_NUM_BUTTONS];
 void
 buttons_init(void)
 {
-  BUTTONDEBUG("Init\n");
+  BUTTONS_DEBUG("Init\n");
 
-#ifdef CONF_BTN_USE_PULLUPS
-  BTN_CONFIG(PULLUP);
+#ifdef CONF_BUTTONS_USE_PULLUPS
+  BUTTONS_CONFIG(PULLUP);
 #endif
 }
 
@@ -105,111 +112,111 @@ buttons_init(void)
 void
 buttons_periodic(void)
 {
-  uint8_t ctr;
-  uint8_t curState;
-
   /* Check all configured buttons */
-  for (ctr = 0; ctr < CONF_NUM_BUTTONS; ctr++)
+  for (uint8_t i = 0; i < BUTTONS_COUNT; i++)
   {
     /* Get current value from portpin... */
-#if CONF_BUTTON_LVL == 2
-    curState =
-      ((*((portPtrType) pgm_read_word(&buttonConfig[ctr].portIn)) &
-      _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ==
-      _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ? 0 : 1;
+#if CONF_BUTTONS_LEVEL == 2
+    uint8_t curState =
+      ((*((portPtrType) pgm_read_word(&buttonConfig[i].portIn)) &
+      _BV(pgm_read_byte(&buttonConfig[i].pin))) ==
+      _BV(pgm_read_byte(&buttonConfig[i].pin))) ? 0 : 1;
 #else
-    curState =
-      ((*((portPtrType) pgm_read_word(&buttonConfig[ctr].portIn)) &
-      _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ==
-     _BV(pgm_read_byte(&buttonConfig[ctr].pin))) ? 1 : 0;
+    uint8_t curState =
+      ((*((portPtrType) pgm_read_word(&buttonConfig[i].portIn)) &
+      _BV(pgm_read_byte(&buttonConfig[i].pin))) ==
+     _BV(pgm_read_byte(&buttonConfig[i].pin))) ? 1 : 0;
 #endif
 
     /* Actual state hasn't change since the last read... */
-    if (buttonStatus[ctr].curStatus == curState)
+    if (buttonStatus[i].curStatus == curState)
     {
       /* If the current button state is different from the last stable state,
        * run the debounce timer. Also keep the debounce timer running if the
-       * button is pressed, because we need it for long press/repeat recognition */
-      if ((buttonStatus[ctr].curStatus != buttonStatus[ctr].status) ||
-          (BUTTON_RELEASE != buttonStatus[ctr].status))
+       * button is pressed, because we need it for long press/repeat
+       * recognition */
+      if ((buttonStatus[i].curStatus != buttonStatus[i].status) ||
+          (BUTTON_RELEASE != buttonStatus[i].status))
       {
-        buttonStatus[ctr].ctr++;
+        buttonStatus[i].ctr++;
       }
     }
     else
     {
-      /* Actual state has changed since the last read. Restart the debounce timer */
-      buttonStatus[ctr].ctr = 0;
-      buttonStatus[ctr].curStatus = curState;
+      /* Actual state has changed since the last read. Restart the debounce
+       * timer */
+      buttonStatus[i].ctr = 0;
+      buttonStatus[i].curStatus = curState;
     }
 
-    /* Button was stable for DEBOUNCE_TIME*20 ms */
-    if (CONF_BTN_DEBOUNCE_TIME <= buttonStatus[ctr].ctr)
+    /* Button was stable for DEBOUNCE_TIME * 20 ms */
+    if (CONF_BUTTONS_DEBOUNCE_DELAY <= buttonStatus[i].ctr)
     {
       /* Button is pressed.. */
-      if (1 == buttonStatus[ctr].curStatus)
+      if (1 == buttonStatus[i].curStatus)
       {
-        switch (buttonStatus[ctr].status)
+        switch (buttonStatus[i].status)
         {
-            /* ..and was not pressed before. Send the PRESS event */
+          /* ..and was not pressed before. Send the PRESS event */
           case BUTTON_RELEASE:
-            buttonStatus[ctr].status = BUTTON_PRESS;
-            BUTTONDEBUG("Pressed %S\n", GET_BUTTON_NAME(ctr));
-            hook_btn_input_call(ctr, buttonStatus[ctr].status);
+            buttonStatus[i].status = BUTTON_PRESS;
+            BUTTONS_DEBUG("Pressed %S\n", BUTTONS_GET_NAME(i));
+            hook_btn_input_call(i, buttonStatus[i].status);
             break;
 
-            /* ..and was pressed before. Wait for long press. */
+          /* ..and was pressed before. Wait for long press. */
           case BUTTON_PRESS:
-            if (CONF_BTN_LONGPRESS_TIME <= buttonStatus[ctr].ctr)
+            if (CONF_BUTTONS_LONGPRESS_DELAY <= buttonStatus[i].ctr)
             {
               /* Long press time reached. Send LONGPRESS event. */
-              buttonStatus[ctr].status = BUTTON_LONGPRESS;
-              BUTTONDEBUG("Long press %S\n", GET_BUTTON_NAME(ctr));
-              hook_btn_input_call(ctr, buttonStatus[ctr].status);
+              buttonStatus[i].status = BUTTON_LONGPRESS;
+              BUTTONS_DEBUG("Long press %S\n", BUTTONS_GET_NAME(i));
+              hook_btn_input_call(i, buttonStatus[i].status);
             }
             break;
 
-#ifdef CONF_BTN_USE_REPEAT
-            /* ..and was long pressed before. Wait for repeat start. */
+#ifdef CONF_BUTTONS_USE_REPEAT
+          /* ..and was long pressed before. Wait for repeat start. */
           case BUTTON_LONGPRESS:
-            if (CONF_BTN_REPEAT_TIME <= buttonStatus[ctr].ctr)
+            if (CONF_BUTTONS_REPEAT_DELAY <= buttonStatus[i].ctr)
             {
-              /* Repeat time reached. Send REPEAT event. */
-              buttonStatus[ctr].status = BUTTON_REPEAT;
-              BUTTONDEBUG("Repeat %S\n", GET_BUTTON_NAME(ctr));
-              hook_btn_input_call(ctr, buttonStatus[ctr].status);
+              /* Repeat time reached. Send first REPEAT event. */
+              buttonStatus[i].status = BUTTON_REPEAT;
+              BUTTONS_DEBUG("Repeat %S\n", BUTTONS_GET_NAME(i));
+              hook_btn_input_call(i, buttonStatus[i].status);
             }
             break;
 
-            /* ..and is in repeat. Send cyclic events. */
+          /* ..and is in repeat. Send cyclic REPEAT events. */
           case BUTTON_REPEAT:
-            if (CONF_BTN_REPEAT_TIME + CONF_BTN_REPEAT_RATE <=
-                buttonStatus[ctr].ctr)
+            if (CONF_BUTTONS_REPEAT_DELAY + CONF_BUTTONS_REPEAT_RATE <=
+                buttonStatus[i].ctr)
             {
-              buttonStatus[ctr].status = BUTTON_REPEAT;
-              buttonStatus[ctr].ctr = CONF_BTN_REPEAT_TIME;
-              BUTTONDEBUG("Repeat %S\n", GET_BUTTON_NAME(ctr));
-              hook_btn_input_call(ctr, buttonStatus[ctr].status);
+              buttonStatus[i].status = BUTTON_REPEAT;
+              buttonStatus[i].ctr = CONF_BUTTONS_REPEAT_DELAY;
+              BUTTONS_DEBUG("Repeat %S\n", BUTTONS_GET_NAME(i));
+              hook_btn_input_call(i, buttonStatus[i].status);
             }
             break;
+
 #else
           case BUTTON_LONGPRESS:
             /* Wait for button release */
             break;
-#endif
 
+#endif
           default:
-            BUTTONDEBUG("Oops! Invalid state.\n");
+            BUTTONS_DEBUG("Oops! Invalid state.\n");
             break;
         }
       }
       else
       {
         /* Button is not pressed anymore. Send RELEASE. */
-        buttonStatus[ctr].status = BUTTON_RELEASE;
-        BUTTONDEBUG("Released %S\n", GET_BUTTON_NAME(ctr));
-        buttonStatus[ctr].ctr = 0;
-        hook_btn_input_call(ctr, buttonStatus[ctr].status);
+        buttonStatus[i].status = BUTTON_RELEASE;
+        BUTTONS_DEBUG("Released %S\n", BUTTONS_GET_NAME(i));
+        buttonStatus[i].ctr = 0;
+        hook_btn_input_call(i, buttonStatus[i].status);
       }
     }
   }

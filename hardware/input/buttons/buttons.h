@@ -26,40 +26,46 @@
 #include "config.h"
 #ifdef BUTTONS_INPUT_SUPPORT
 
-#if !defined(CONF_NUM_BUTTONS) || !defined(BTN_CONFIG)
-#error Error in pinning configuration for buttons module. Check your pinning configuration.
+#if !defined(BUTTONS_COUNT) || !defined(BUTTONS_CONFIG)
+#error Error in pinning configuration for buttons module. Check your pinning\
+ configuration.
 #endif
 
 /*
- * To configure additional buttons add the following to your pinning
- * configuration:
+ * To configure the buttons add the following to your pinning configuration:
  *
- * pin(BTN_UP, PC2, INPUT)
- * pin(BTN_RIGHT, PC3, INPUT)
- * pin(BTN_DOWN, PC4, INPUT)
- * pin(BTN_LEFT, PC5, INPUT)
- * pin(BTN_FIRE, PD2, INPUT)
- * pin(BTN_FIRE2, PD2, INPUT)
+ifdef(`conf_BUTTONS_INPUT', `
+  pin(BTN_UP, PC2, INPUT)
+  pin(BTN_RIGHT, PC3, INPUT)
+  pin(BTN_DOWN, PC4, INPUT)
+  pin(BTN_LEFT, PC5, INPUT)
+  pin(BTN_FIRE, PD2, INPUT)
+  pin(BTN_FIRE2, PD3, INPUT)
+
+  #define BUTTONS_COUNT 6
+
+  #define BUTTONS_CONFIG(_x) \
+  _x(BTN_UP)\
+  _x(BTN_DOWN)\
+  _x(BTN_LEFT)\
+  _x(BTN_RIGHT)\
+  _x(BTN_FIRE)\
+  _x(BTN_FIRE2)
+')
  *
- * #define CONF_NUM_BUTTONS 6
- *
- * #define BTN_CONFIG(_x) \
- * _x(BTN_UP)\
- * _x(BTN_DOWN)\
- * _x(BTN_LEFT)\
- * _x(BTN_RIGHT)\
- * _x(BTN_FIRE)\
- * _x(BTN_FIRE2)
  */
 
-#define BUTTON_RELEASE 0         /* Button is not pressed */
-#define BUTTON_PRESS 1             /* Short press */
-#define BUTTON_LONGPRESS 2   /* Long press */
-#define BUTTON_REPEAT 3          /* Repeat function enabled, repeatedly triggered until button released */
+enum
+{
+  BUTTON_RELEASE   = 0, // Button is not pressed / released
+  BUTTON_PRESS     = 1, // Button pressed
+  BUTTON_LONGPRESS = 2, // Long pressed button
+  BUTTON_REPEAT    = 3  // Repeat during long presses button
+};
 
-/* These macros allow to use the the same configuration
- * macro (in buttons_cfg.h) to initialize the
- * btn_ButtonsType enum, the button_configType struct and set the pullups. */
+/* These macros allow to use the the same configuration macro (in
+ * buttons_cfg.h) to initialize the btn_ButtonsType enum, the
+ * button_configType struct and set the pullups. */
 #define E(_v) _v,
 #define C(_v) {.portIn = &PIN_CHAR(_v##_PORT), .pin = _v##_PIN},
 #define PULLUP(_v) PIN_SET(_v);
@@ -69,8 +75,8 @@ typedef volatile uint8_t * const portPtrType;
 /* Enum used in the cyclic function to loop over all buttons */
 typedef enum
 {
-  BTN_CONFIG(E)
-}btn_ButtonsType;
+  BUTTONS_CONFIG(E)
+} btn_ButtonsType;
 
 /* Static configuration data for each button */
 typedef struct
@@ -82,20 +88,20 @@ typedef struct
 /* Status information for each button */
 typedef struct
 {
-  uint8_t status :2; /* One of the values RELEASE, PRESS, LONGPRESS... */
-  uint8_t curStatus :1; /* Current pin value */
-  uint8_t unused :5;
-  uint8_t ctr; /* Debounce timer */
+  uint8_t status :2;    // RELEASE, PRESS, LONGPRESS, REPEAT
+  uint8_t curStatus :1; // Current pin value
+  uint8_t :5;           // unused
+  uint8_t ctr;          // Debounce timer
 } btn_statusType;
 
 void buttons_init(void);
 void buttons_periodic(void);
 
-#ifdef DEBUG_BUTTONS_INPUT
+#ifdef DEBUG_BUTTONS
 #include "core/debug.h"
-#define BUTTONDEBUG(a...)  debug_printf("button: " a)
+#define BUTTONS_DEBUG(a...)  debug_printf("button: " a)
 #else
-#define BUTTONDEBUG(a...)
+#define BUTTONS_DEBUG(a...)
 #endif
 
 #define HOOK_NAME btn_input

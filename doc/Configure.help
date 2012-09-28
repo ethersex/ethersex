@@ -118,7 +118,7 @@ ECOCON_UNSET
   Sets the ENC28j60's CLKOUT prescaler register ECOCON
   during network initialization. The CLKOUT pin can then
   be used to clock other devices, even the AVR itself.
-  See the ENC datasheet section 2.3 for details. 
+  See the ENC datasheet section 2.3 for details.
 
 Interrupt
 DEBUG_INTERRUPT
@@ -626,7 +626,7 @@ CONF_OPENVPN_HMAC_KEY
 OpenVPN Port
 CONF_OPENVPN_PORT
 
-  The UDP port number used by OpenVPN (local and remote). 
+  The UDP port number used by OpenVPN (local and remote).
 
 RFM12 raw
 RFM12_RAW_SUPPORT
@@ -881,7 +881,7 @@ STELLA_LOW_PRIORITY
 
   When acitve the timer interrupt used for Stella can be interrupted.
   This allows Stella to be used in parallel with V-USB or other components
-  needing low interrupt latency. 
+  needing low interrupt latency.
   The downside is that the Stella controlled lights may flicker when the
   interrupt rate is high.
 
@@ -2022,13 +2022,13 @@ MCUF_TEST_GAME_INPUT
 
 SMS Support
 SMS_SUPPORT
-	module for interfacing ecmd via sms.
-	some mobiles provide serial connection,
-	by what they can be attached to the ethersex.
+  module for interfacing ecmd via sms.
+  some mobiles provide serial connection,
+  by what they can be attached to the ethersex.
 
-	this module has been tested with:
-		* siemens me45
-		* siemens mt50
+  this module has been tested with:
+    * siemens me45
+    * siemens mt50
 
 
 Inline PWM Servo
@@ -2102,16 +2102,6 @@ TWITTER_SUPPORT
    Password: [Your Twitter Password]
   Be aware, your password will be saved in plain text in
   the .config-File!
-
-
-Buttons Input
-BUTTONS_INPUT_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
-  Button Input adds hook functions to be called by other parts
-  of ethersex without specific knowledge of the selected
-  input device.
 
 
 External SRAM support
@@ -2405,13 +2395,13 @@ SFS_PAGE_SIZE
  Pagesize * Pagecount must match the size of your EEPROM
 
 SFS_PAGE_COUNT
- 
+
  Count of the pages in total.
  Pagesize * Pagecount must match the size of your EEPROM
 
 Use external modulator for sender
 IRMP_EXTERNAL_MODULATOR
-  Depends on: 
+  Depends on:
    * Send IR-codes (IRMP_TX_SUPPORT)
 
   An external modulator, i.e. NE555 on the etherrape board, is used to
@@ -2420,7 +2410,7 @@ IRMP_EXTERNAL_MODULATOR
 
 Netio Addon Workaround
 SD_NETIO_ADDON_WORKAROUND
-  Depends on: 
+  Depends on:
 
   Work around a bad hardware design of the Pollin Netio Addon board.
   This board uses resistores to adjust voltage levels, so the SD card
@@ -2428,7 +2418,7 @@ SD_NETIO_ADDON_WORKAROUND
 
 DALI light control
 DALI_SUPPORT
-  Depends on: 
+  Depends on:
 
   Enable code to control lighting via the DALI bus
   (Digital Addressable Lighting Interface)
@@ -2476,7 +2466,7 @@ LOME6_SUPPORT
   * TCP (TCP_SUPPORT)
   * ECMD (ECMD_PARSER_SUPPORT)
   * Working hour meter (WHM_SUPPORT)
-  
+
   Integrated server lights out management using ethersex
   architecture.
   Documentation is available in services/lome6/doc
@@ -2485,17 +2475,17 @@ LOME6_SUPPORT
 
 Onewire Polling
 ONEWIRE_POLLING_SUPPORT
-  Depends on: 
+  Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
    * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
 
-  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY*0.8 seconds. 
-  After the discovery, new sensors will be added to the list and old/defect sensors 
+  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY*0.8 seconds.
+  After the discovery, new sensors will be added to the list and old/defect sensors
   will be removed from the list.
-  Each sensor discovered will then be polled every OW_READ_DELAY*0.8 seconds and the temperature 
-  stored (cached). The advantage of this feature is that onewire opererates without 
-  any noticeable lags (compared to the 800 ms lag in normal operation mode). Also it is easier to have 
-  multiple applications requesting sensor information since more request will not increase traffic on the 
+  Each sensor discovered will then be polled every OW_READ_DELAY*0.8 seconds and the temperature
+  stored (cached). The advantage of this feature is that onewire opererates without
+  any noticeable lags (compared to the 800 ms lag in normal operation mode). Also it is easier to have
+  multiple applications requesting sensor information since more request will not increase traffic on the
   onewire bus.
   The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
 
@@ -2507,7 +2497,7 @@ ONEWIRE_ECMD_LIST_VALUES_SUPPORT
    * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
 
   Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
-  value for each sensor. Fields are separated by tab. 
+  value for each sensor. Fields are separated by tab.
 
 
 Onewire naming support
@@ -2560,7 +2550,7 @@ OW_READ_DELAY
   Time between polling for new temperatures. 1 unit is 0.8s.
   Example:
   Input 75 will lead to a temperature update-rate of 1 minute.
- 
+
   Please adjust this value if you need more precise data (e.g. climate cabinet).
   It should be save to go down to 5 seconds (~ 6 units)
 
@@ -2601,7 +2591,7 @@ Duty cycle sampling
 FREQCOUNT_DUTY_SUPPORT
 
   Not only detect the frequency of a signal, but also measure the part of the signal
-  that has a high level. Useful for measuring PWM values. Frequency and duty cycle 
+  that has a high level. Useful for measuring PWM values. Frequency and duty cycle
   are measured in two consecutive waves. This means you can not measure duty cycle
   when the frequency is changing significantly.
 
@@ -2630,17 +2620,17 @@ DMX FXSlot
 DMX_FXSLOT_SUPPORT
   Depends on:
   * DMX Storage (DMX_STORAGE_SUPPORT)
-        
-  Architecture to set effects and animations on different DMX-devices. 
+
+  Architecture to set effects and animations on different DMX-devices.
   You can change following properties during runtime:
   - active /inactive
   - effect
   - speed
-  - amount of devices 
+  - amount of devices
   - start channel of devices
-  - margin between the devices          
+  - margin between the devices
 DMX_FXSLOT_AMOUNT
-  Amount of fxslots available during runtime 
+  Amount of fxslots available during runtime
 DMX_FX_RAINBOW
   fade over RGB (for RGB LEDs)
 DMX_FX_RANDOM
@@ -2663,7 +2653,7 @@ DMX_FXSLOT_AUTORESTORE_SUPPORT
 
 FS20
 RFM12_ASK_FS20_SUPPORT
-  Depends on: 
+  Depends on:
    * RFM12 frequency (RFM12_FREQ_868300)
    * RFM12 ASK (RFM12_ASK_SUPPORT)
    * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
@@ -2678,7 +2668,7 @@ RFM12_ASK_FS20_SUPPORT
 
 FHT
 RFM12_ASK_FHT_SUPPORT
-  Depends on: 
+  Depends on:
    * RFM12 frequency (RFM12_FREQ_868300)
    * RFM12 ASK (RFM12_ASK_SUPPORT)
    * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
@@ -2693,7 +2683,7 @@ RFM12_ASK_FHT_SUPPORT
 
 Pollin/Kangtai Powerswitch (IC 2272)
 RFM12_ASK_2272_SUPPORT
-  Depends on: 
+  Depends on:
    * RFM12 frequency (RFM12_FREQ_433920)
    * RFM12 ASK (RFM12_ASK_SUPPORT)
    * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
@@ -2759,22 +2749,22 @@ DST_END_DOW
 
 Serial RAM support
 SER_RAM_SUPPORT
-  Depends on: 
+  Depends on:
 
-  Enables support for serial interfaced RAM chips (connected via SPI, I2C 
+  Enables support for serial interfaced RAM chips (connected via SPI, I2C
   or other serial interface).
 
 Microchip 23K256 SPI-RAM support
 SER_RAM_23K256_SUPPORT
-  Depends on: 
+  Depends on:
    * Serial RAM support (SER_RAM_SUPPORT)
 
-  The Microchip 23K256 serial RAM chip provides 32kB RAM and is 
+  The Microchip 23K256 serial RAM chip provides 32kB RAM and is
   connected via SPI.
 
 Perform RAM Test on startup
 SER_RAM_23K256_RAMTEST
-  Depends on: 
+  Depends on:
    * Debug 23K256 (DEBUG_SER_RAM_23K256)
 
   Performs a RAM test during start up of ethersex. The whole RAM is written
@@ -2782,7 +2772,7 @@ SER_RAM_23K256_RAMTEST
 
 I2C PCA9555 16bit Port extension
 I2C_PCA9555_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
    * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
@@ -2791,7 +2781,7 @@ I2C_PCA9555_SUPPORT
 Input Universe
 CONF_ARTNET_INUNIVERSE
 
-  Which universe will be broadcasted whenever a change occurs. 
+  Which universe will be broadcasted whenever a change occurs.
 
 Output Universe
 CONF_ARTNET_OUTUNIVERSE
@@ -2807,12 +2797,12 @@ CONF_ARTNET_PORT
 
 Art-Net Node
 ARTNET_SUPPORT
-  Depends on: 
+  Depends on:
    * DMX Storage (EXPERIMENTAL) (DMX_STORAGE_SUPPORT)
    * UDP support (UDP_SUPPORT)
    * NET_MAX_FRAME_LENGTH > 571
 
-  Artnet needs at least a 572 byte network buffer to work. You can set the buffer size 
+  Artnet needs at least a 572 byte network buffer to work. You can set the buffer size
   in "Network -> Network Buffer Size".
 
 Buffer Length
@@ -2823,16 +2813,16 @@ HTTPLOG_BUFFER_LEN
 
 Use Repeat
 CONF_BTN_USE_REPEAT
-  Depends on: 
+  Depends on:
    *  (BUTTON_INPUT_SUPPORT)
 
-  Use the repeat function (if a button is pressed for 
+  Use the repeat function (if a button is pressed for
   a certain amount of time, a repeat function starts and you
-  get triggers every <x> ms. 
+  get triggers every <x> ms.
 
 Repeat time (x*20 ms)
 CONF_BTN_REPEAT_TIME
- 
+
   Time after which the repeat function starts.
 
 Repeat rate (x*20 ms)
@@ -2847,7 +2837,7 @@ HD44780_BACKLIGHT_SUPPORT
 
 Tank level meter
 TANKLEVEL_SUPPORT
-  Depends on: 
+  Depends on:
    * Clock Support (CLOCK_SUPPORT)
    * ADC voltage suppot (ADC_VOLTAGE_SUPPORT)
 
@@ -2909,7 +2899,7 @@ TANKLEVEL_STARTUP
 
 Measure at 12 am and 12 pm
 TANKLEVEL_CRON_SUPPORT
-  Depends on: 
+  Depends on:
    * Static Cron Support (CRON_SUPPORT)
 
   Start measurement at fixed time. Can be changed in services/cron/cron_static.c.
@@ -3001,21 +2991,78 @@ EMS_DEBUG_STATS
   Enable ECMD 'ems stats' that shows statistical information about EMS
   traffic (number of bytes, number of packets etc.).
 
+Buttons Input
+BUTTONS_INPUT_SUPPORT
+
+  Buttons Input adds hook functions to be called by other parts of ethersex
+  without specific knowledge of the selected input device.
+  Delivers some high level functionality like debouncing, long presses and
+  repeats.
+
+  This driver uses the E6 hook mechanism to notify of events. (see hook.def
+  for details)
+  To get notified in your application of a button press:
+  1) #include "buttons.h"
+
+  2) Define a handler function in your application:
+      void hook_btn_handler(btn_ButtonsType btn, uint8_t status) {
+        debug_printf("Button %d Status: %d\n",btn, status);
+      }
+
+  3) Register it for callback (in the Init Function of your app):
+      hook_btn_input_register(hook_btn_handler);
+
+      Upon a button press, the function will be called with the following
+      parameters:
+        btn = The Button that was pressed.
+        status = One of the following values
+
+        BUTTON_PRESS     = Button was pressed
+                           <CONF_BTN_DEBOUNCE_TIME> * 20ms (default: 80ms)
+        BUTTON_LONGPRESS = Button was pressed for
+                           <CONF_BTN_LONGPRESS_TIME> * 20ms (default: 2s)
+        BUTTON_REPEAT    = Button was pressed for
+                           <CONF_BUTTONS_REPEAT_DELAY> * 20ms (default 3.5s),
+                           this event is then repeated every
+                           <CONF_BUTTONS_REPEAT_RATE> * 20ms (default 0.5s)
+                           until the button is released.
+        BUTTON_RELEASE   = Button released.
+
 Use internal pullups
-CONF_BTN_USE_PULLUPS
+CONF_BUTTONS_USE_PULLUPS
 
-  Enable the internal pullup resistors of the controller.
+  Enable the internal weak pullup resistors of the controller.
 
-Debounce time (x * 20 ms)
-CONF_BTN_DEBOUNCE_TIME
+Button active level
+CONF_BUTTONS_LEVEL_HIGH
 
-  Configures the amount of time the driver waits until
-  it considers the state of a button stable. Increase this
-  value if bouncing effects appear.
+  Choose high or low active inputs
 
-Longpress time (x * 20 ms)
-CONF_BTN_LONGPRESS_TIME
+Debounce delay (x * 20 ms)
+CONF_BUTTONS_DEBOUNCE_DELAY
 
-  Configures the amount of time the button must be pressed 
-  until a longpress event  (=The Button is pressed for a 
-  longer time) is generated.
+  Configures the delay (x * 20ms) the driver waits until it considers the
+  state of a button stable. Increase this value if bouncing effects appear.
+
+Longpress delay (x * 20 ms)
+CONF_BUTTONS_LONGPRESS_DELAY
+
+  Configures the delay (x * 20ms) the button must be pressed until a longpress
+  event (the button is pressed for a longer time) is generated.
+
+Enable repeat
+CONF_BUTTONS_USE_REPEAT
+
+  Enables the repeat functionality
+
+Repeat delay
+CONF_BUTTONS_REPEAT_DELAY
+
+  Configures the delay (x * 20ms) the button must be pressed until the first
+  repeat event is generated
+
+Repeat rate
+CONF_BUTTONS_REPEAT_RATE
+
+  Configures the time (x * 20ms) between continous repeat events are
+  generated.

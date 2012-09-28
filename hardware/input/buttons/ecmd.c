@@ -32,7 +32,7 @@ int16_t
 parse_cmd_push(char *cmd, char *output, uint16_t len)
 {
   uint8_t button = atoi(cmd);
-  if (button < CONF_NUM_BUTTONS)
+  if (button < BUTTONS_COUNT)
   {
     hook_btn_input_call(button, BUTTON_PRESS);
     return ECMD_FINAL_OK;
