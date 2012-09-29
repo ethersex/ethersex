@@ -22,10 +22,8 @@
 
 #include "config.h"
 #ifdef MCUF_TEST_GAME_INPUT
-
 #include "mcuf_modul.h"
 #include "mcuf_modul_test_game_input.h"
-#include "hardware/input/game_commons.h"
 
 #include "core/debug.h"
 
@@ -34,18 +32,21 @@ uint8_t giy = MCUF_MAX_SCREEN_HEIGHT / 2;
 uint8_t gic = 1;
 
 void
-test_game_input_handler(uint8_t b)
+test_game_input_handler(buttons_ButtonsType button, uint8_t status)
 {
-  switch (b)
+  if (BUTTON_PRESS == status)
   {
-    case HOOK_FIRE:  gic++; break;
-    case HOOK_FIRE2: gic--; break;
-    case HOOK_LEFT:  if (gix > 0) gix--; break;
-    case HOOK_RIGHT: if (gix < MCUF_MAX_SCREEN_WIDTH) gix++; break;
-    case HOOK_UP:    if (giy > 0) giy--; break;
-    case HOOK_DOWN:  if (giy < MCUF_MAX_SCREEN_HEIGHT) giy++; break;
-  } 
-  setPixel(gix, giy, gic);
+    switch (button)
+    {
+      case BTN_FIRE:  gic++; break;
+      case BTN_FIRE2: gic--; break;
+      case BTN_LEFT:  if (gix > 0) gix--; break;
+      case BTN_RIGHT: if (gix < MCUF_MAX_SCREEN_WIDTH) gix++; break;
+      case BTN_UP:    if (giy > 0) giy--; break;
+      case BTN_DOWN:  if (giy < MCUF_MAX_SCREEN_HEIGHT) giy++; break;
+    }
+    setPixel(gix, giy, gic);
+  }
 }
 
 void
@@ -55,9 +56,9 @@ test_game_input(void)
   for (int y=0; y < MCUF_MAX_SCREEN_WIDTH; y++)
     for (int x=0; x < MCUF_MAX_SCREEN_HEIGHT; x++)
        setPixel(x, y, 0);
-  
+
   setPixel(gix, giy, gic);
-  
+
   hook_buttons_input_register(test_game_input_handler);
   debug_printf("mcuf game input init done\n");
 }

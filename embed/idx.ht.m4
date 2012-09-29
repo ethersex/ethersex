@@ -43,7 +43,6 @@ ifdef(`conf_NAMED_PIN_INLINE', `<p>Control <a href="np.ht">named outputs</a>.</p
 ifdef(`conf_CONFIG_INLINE', `<p>Configure ethersex <a href="cfg.ht">here</a></p>')
 ifdef(`conf_NETSTAT', `<p>Visit <a target="_blank" href="http://www.ethersex.de/~habo/stat/">Ethersex online statistic</a></p>')
 ifdef(`conf_MCUF_INLINE', `<p>Select MCUF Modul <a href="mm.ht">here</a></p>')
-ifdef(`conf_GAME_INPUT_INLINE', `<p>Browser <a href="gi.ht">Game Input</a></p>')
 ifdef(`conf_PWM_SERVO_INLINE', `<p>Easy set <a href="ps.ht">Servo Position</a></p>')
 ifdef(`conf_LCD_INLINE', `<p>Handle <a href="lcd.ht">LCD and other displays</a></p>')
 ifdef(`conf_CW_INLINE', `<p>Send <a href="cw.ht">Morse code</a></p>')
