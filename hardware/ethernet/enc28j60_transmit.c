@@ -30,51 +30,53 @@
 #include "core/debug.h"
 
 
-void transmit_packet(void)
+void
+transmit_packet(void)
 {
 #ifdef IEEE8021Q_SUPPORT
-    /* Write VLAN-tag to outgoing packet. */
-    struct uip_eth_hdr *eh = (struct uip_eth_hdr *) uip_buf;
-    eh->tpid = HTONS(0x8100);
-    eh->vid_hi = (CONF_8021Q_VID >> 8) | (CONF_8021Q_PRIO << 5);
-    eh->vid_lo = CONF_8021Q_VID & 0xFF;
+  /* Write VLAN-tag to outgoing packet. */
+  struct uip_eth_hdr *eh = (struct uip_eth_hdr *) uip_buf;
+  eh->tpid = HTONS(0x8100);
+  eh->vid_hi = (CONF_8021Q_VID >> 8) | (CONF_8021Q_PRIO << 5);
+  eh->vid_lo = CONF_8021Q_VID & 0xFF;
 #endif
 
-    /* wait for any transmits to end, with timeout */
-    uint8_t timeout = 100;
-    while (read_control_register(REG_ECON1) & _BV(ECON1_TXRTS) && timeout-- > 0);
+  /* wait for any transmits to end, with timeout */
+  uint8_t timeout = 100;
+  while (read_control_register(REG_ECON1) & _BV(ECON1_TXRTS) &&
+         timeout-- > 0);
 
-    if (timeout == 0) {
-        debug_printf("net: timeout waiting for TXRTS, aborting transmit!\n");
-        return;
-    }
+  if (timeout == 0)
+  {
+    debug_printf("net: timeout waiting for TXRTS, aborting transmit!\n");
+    return;
+  }
 
-    uint16_t start_pointer = TXBUFFER_START;
+  uint16_t start_pointer = TXBUFFER_START;
 
-    /* set send control registers */
-    write_control_register(REG_ETXSTL, LO8(start_pointer));
-    write_control_register(REG_ETXSTH, HI8(start_pointer));
+  /* set send control registers */
+  write_control_register(REG_ETXSTL, LO8(start_pointer));
+  write_control_register(REG_ETXSTH, HI8(start_pointer));
 
-    write_control_register(REG_ETXNDL, LO8(start_pointer + uip_len));
-    write_control_register(REG_ETXNDH, HI8(start_pointer + uip_len));
+  write_control_register(REG_ETXNDL, LO8(start_pointer + uip_len));
+  write_control_register(REG_ETXNDH, HI8(start_pointer + uip_len));
 
-    /* set pointer to beginning of tx buffer */
-    set_write_buffer_pointer(start_pointer);
+  /* set pointer to beginning of tx buffer */
+  set_write_buffer_pointer(start_pointer);
 
-    /* write override byte */
-    write_buffer_memory(0);
+  /* write override byte */
+  write_buffer_memory(0);
 
-    /* write data */
-    for (uint16_t i = 0; i < uip_len; i++)
-        write_buffer_memory(uip_buf[i]);
+  /* write data */
+  for (uint16_t i = 0; i < uip_len; i++)
+    write_buffer_memory(uip_buf[i]);
 
-#   ifdef ENC28J60_REV4_WORKAROUND
-    /* reset transmit hardware, see errata #12 */
-    bit_field_set(REG_ECON1, _BV(ECON1_TXRST));
-    bit_field_clear(REG_ECON1, _BV(ECON1_TXRST));
-#   endif
+#ifdef ENC28J60_REV4_WORKAROUND
+  /* reset transmit hardware, see errata #12 */
+  bit_field_set(REG_ECON1, _BV(ECON1_TXRST));
+  bit_field_clear(REG_ECON1, _BV(ECON1_TXRST));
+#endif
 
-    /* transmit packet */
-    bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
-
+  /* transmit packet */
+  bit_field_set(REG_ECON1, _BV(ECON1_TXRTS));
 }

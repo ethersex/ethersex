@@ -36,6 +36,6 @@
  * \hideinitializer
  */
 
-uint8_t uip_check_cache(uip_ipaddr_t *ripaddr);
+uint8_t uip_check_cache(uip_ipaddr_t * ripaddr);
 
 #endif /* _UIP_CHECK_CACHE_H */

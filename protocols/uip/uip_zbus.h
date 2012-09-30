@@ -27,8 +27,8 @@
 
 #include "uip-conf.h"
 
-void zbus_stack_init (void);
+void zbus_stack_init(void);
 
 
-#endif /* ZBUS_SUPPORT and ROUTER_SUPPORT */
+#endif /* ZBUS_SUPPORT && ROUTER_SUPPORT */
 #endif /* not UIP_ZBUS_H */

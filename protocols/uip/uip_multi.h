@@ -22,7 +22,8 @@
 #ifndef UIP_MULTI_H
 #define UIP_MULTI_H
 
-struct uip_stack {
+struct uip_stack
+{
   uip_ipaddr_t *uip_hostaddr;
 #ifdef IPV6_SUPPORT
   u8_t *uip_prefix_len;
@@ -31,15 +32,15 @@ struct uip_stack {
 #endif
 
 #ifdef IPSTATS_SUPPORT
-  struct uip_stats *uip_stat;  
+  struct uip_stats *uip_stat;
 #endif
 };
 
-#define STACK_HACKARY(foo,stackname)					\
-  foo struct uip_stats stackname ## _stat;				\
-  foo uip_ipaddr_t stackname ## _hostaddr;				\
-  foo uip_ipaddr_t stackname ## _netmask;				\
-  foo u8_t stackname ## _prefix_len;				        
+#define STACK_HACKARY(foo,stackname) \
+  foo struct uip_stats stackname ## _stat; \
+  foo uip_ipaddr_t stackname ## _hostaddr; \
+  foo uip_ipaddr_t stackname ## _netmask; \
+  foo u8_t stackname ## _prefix_len;
 
 #define STACK_PROTOTYPES(stackname)  STACK_HACKARY(extern,stackname)
 #define STACK_DEFINITIONS(stackname) STACK_HACKARY(,stackname)
@@ -58,36 +59,36 @@ extern struct uip_stack *uip_stack;
 
 
 #ifdef OPENVPN_SUPPORT
-     /* The header of the link layer (of the inner stack) consists of:
-      *
-      *                                       IPv4          IPv6
-      *
-      *     actual link layer (ethernet)        14            14
-      *     IP header of OpenVPN stack          20            40
-      *     UDP header of OpenVPN stack          8             8
-      *   ----------------------------------------------------------
-      *     total                               42            62
-      */
-#  if UIP_CONF_IPV6
-#    define OPENVPN_LLH_LEN (__LLH_LEN + 40 + 8)
-#  else
-#    define OPENVPN_LLH_LEN (__LLH_LEN + 20 + 8)
-#  endif
+/* The header of the link layer (of the inner stack) consists of:
+ *
+ *                                       IPv4          IPv6
+ *
+ *     actual link layer (ethernet)        14            14
+ *     IP header of OpenVPN stack          20            40
+ *     UDP header of OpenVPN stack          8             8
+ *   ----------------------------------------------------------
+ *     total                               42            62
+ */
+#if UIP_CONF_IPV6
+#define OPENVPN_LLH_LEN (__LLH_LEN + 40 + 8)
+#else
+#define OPENVPN_LLH_LEN (__LLH_LEN + 20 + 8)
+#endif
 
-#  ifdef MD5_SUPPORT
-#    define OPENVPN_HMAC_LLH_LEN   16
-#  else
-#    define OPENVPN_HMAC_LLH_LEN   0
-#  endif
+#ifdef MD5_SUPPORT
+#define OPENVPN_HMAC_LLH_LEN   16
+#else
+#define OPENVPN_HMAC_LLH_LEN   0
+#endif
 
-#  ifdef CAST5_SUPPORT
-#    define OPENVPN_CRYPT_LLH_LEN  16 /* 8 bytes IV + 8 bytes packet id */
-#  else
-#    define OPENVPN_CRYPT_LLH_LEN  0
-#  endif
+#ifdef CAST5_SUPPORT
+#define OPENVPN_CRYPT_LLH_LEN  16       /* 8 bytes IV + 8 bytes packet id */
+#else
+#define OPENVPN_CRYPT_LLH_LEN  0
+#endif
 
-#  define OPENVPN_HMAC_CRYPT_LEN  (OPENVPN_HMAC_LLH_LEN + OPENVPN_CRYPT_LLH_LEN)
-#  define OPENVPN_TOTAL_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_HMAC_CRYPT_LEN)
+#define OPENVPN_HMAC_CRYPT_LEN  (OPENVPN_HMAC_LLH_LEN + OPENVPN_CRYPT_LLH_LEN)
+#define OPENVPN_TOTAL_LLH_LEN  (OPENVPN_LLH_LEN + OPENVPN_HMAC_CRYPT_LEN)
 
 
 #endif /* not OPENVPN_SUPPORT */
@@ -95,8 +96,8 @@ extern struct uip_stack *uip_stack;
 #define BASE_LLH_LEN  __LLH_LEN
 #define UIP_CONF_LLH_LEN  __LLH_LEN
 
-/* We have a one byte LLH on RFM12 however we might need to pass
-   the packet to ethernet, therefore 14 is simpler. */
+/* We have a one byte LLH on RFM12 however we might need to pass the packet to
+ *  ethernet, therefore 14 is simpler. */
 #define RFM12_BRIDGE_OFFSET  (BASE_LLH_LEN - RFM12_LLH_LEN)
 #define ZBUS_BRIDGE_OFFSET   (BASE_LLH_LEN)
 #define USB_BRIDGE_OFFSET    (BASE_LLH_LEN)

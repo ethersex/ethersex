@@ -7,13 +7,13 @@
  * \addtogroup uiparp
  * @{
  */
- 
+
 /**
  * \file
  * Macros and definitions for the ARP module.
  * \author Adam Dunkels <adam@dunkels.com>
  */
-  
+
 
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
@@ -57,12 +57,14 @@
 /**
  * The Ethernet header.
  */
-struct uip_eth_hdr {
+struct uip_eth_hdr
+{
   struct uip_eth_addr dest;
   struct uip_eth_addr src;
 
 #ifdef IEEE8021Q_SUPPORT
-  struct {
+  struct
+  {
     uint16_t tpid;
     uint8_t vid_hi;
     uint8_t vid_lo;
@@ -72,9 +74,11 @@ struct uip_eth_hdr {
   u16_t type;
 };
 
-#define UIP_ETHTYPE_ARP 0x0806
-#define UIP_ETHTYPE_IP  0x0800
-#define UIP_ETHTYPE_IP6 0x86dd
+enum {
+  UIP_ETHTYPE_ARP = 0x0806,
+  UIP_ETHTYPE_IP  = 0x0800,
+  UIP_ETHTYPE_IP6 = 0x86dd
+};
 
 
 /* The uip_arp_init() function must be called before any of the other
@@ -144,15 +148,13 @@ void uip_arp_timer(void);
  *
  * \hideinitializer
  */
-#define uip_setethaddr(eaddr) do {uip_ethaddr.addr[0] = eaddr.addr[0]; \
-                              uip_ethaddr.addr[1] = eaddr.addr[1];\
-                              uip_ethaddr.addr[2] = eaddr.addr[2];\
-                              uip_ethaddr.addr[3] = eaddr.addr[3];\
-                              uip_ethaddr.addr[4] = eaddr.addr[4];\
-                              uip_ethaddr.addr[5] = eaddr.addr[5];} while(0)
+#define uip_setethaddr(eaddr) do {\
+  uip_ethaddr.addr[0] = eaddr.addr[0]; uip_ethaddr.addr[1] = eaddr.addr[1];\
+  uip_ethaddr.addr[2] = eaddr.addr[2]; uip_ethaddr.addr[3] = eaddr.addr[3];\
+  uip_ethaddr.addr[4] = eaddr.addr[4]; uip_ethaddr.addr[5] = eaddr.addr[5];\
+  } while(0)
 
-
-struct arp_entry *uip_arp_lookup (uip_ipaddr_t ipaddr);
+struct arp_entry *uip_arp_lookup(uip_ipaddr_t ipaddr);
 
 /** @} */
 /** @} */

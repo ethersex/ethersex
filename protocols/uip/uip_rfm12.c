@@ -26,8 +26,8 @@
 
 STACK_DEFINITIONS(rfm12_stack);
 
-void 
-rfm12_stack_init (void)
+void
+rfm12_stack_init(void)
 {
   uip_ipaddr_t ip;
 

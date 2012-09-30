@@ -32,10 +32,10 @@
 #include "core/debug.h"
 
 #ifdef DEBUG_NET_IP6
-# include "core/debug.h"
-# define IP6DEBUG(a...)  debug_printf("ip6: " a)
+#include "core/debug.h"
+#define IP6DEBUG(a...)  debug_printf("ip6: " a)
 #else
-# define IP6DEBUG(a...)
+#define IP6DEBUG(a...)
 #endif
 
 /* force ethernet LLH, we'll never ever send solicitations over
@@ -59,7 +59,6 @@ extern uint8_t bootload_delay;
 #endif
 
 #if UIP_CONF_IPV6 && defined(ETHERNET_SUPPORT)
-
 
 static void
 uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
@@ -96,7 +95,7 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
   ICMPBUF->destipaddr[6] = ipaddr[6] | HTONS(0xFF00);
   ICMPBUF->destipaddr[7] = ipaddr[7];
 
-  ICMPBUF->type = 135;  /* neighbour solicitation */
+  ICMPBUF->type = 135;          /* neighbour solicitation */
   // ICMPBUF->icode = 0;
   // ICMPBUF->icmpchksum = 0;
   // ICMPBUF->flags = 0;
@@ -105,8 +104,8 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
   // ICMPBUF->reserved3 = 0;
   memcpy(ICMPBUF->icmp6data, ipaddr, 16);
 
-  ICMPBUF->options[0] = 1; /* type: 1, aka source link layer address */
-  ICMPBUF->options[1] = 1; /* length: 8 bytes */
+  ICMPBUF->options[0] = 1;      /* type: 1, aka source link layer address */
+  ICMPBUF->options[1] = 1;      /* length: 8 bytes */
   memcpy(ICMPBUF->options + 2, uip_ethaddr.addr, 6);
 
   /* Calculate checksum */
@@ -118,7 +117,7 @@ uip_neighbor_send_solicitation(uip_ipaddr_t ipaddr)
 void
 uip_router_send_solicitation(void)
 {
-  IP6DEBUG ("emitting router solicitation.\n");
+  IP6DEBUG("emitting router solicitation.\n");
 
   uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
   uip_len = UIP_LLH_LEN + UIP_IPH_LEN + 16;
@@ -152,7 +151,7 @@ uip_router_send_solicitation(void)
   // ICMPBUF->destipaddr[6] = 0;
   ICMPBUF->destipaddr[7] = HTONS(0x0002);
 
-  ICMPBUF->type = 133;  /* router solicitation */
+  ICMPBUF->type = 133;          /* router solicitation */
   // ICMPBUF->icode = 0;
   // ICMPBUF->icmpchksum = 0;
   // ICMPBUF->flags = 0;
@@ -160,8 +159,8 @@ uip_router_send_solicitation(void)
   // ICMPBUF->reserved2 = 0;
   // ICMPBUF->reserved3 = 0;
 
-  ICMPBUF->icmp6data[0] = 1; /* type: 1, aka source link layer address */
-  ICMPBUF->icmp6data[1] = 1; /* length: 8 bytes */
+  ICMPBUF->icmp6data[0] = 1;    /* type: 1, aka source link layer address */
+  ICMPBUF->icmp6data[1] = 1;    /* length: 8 bytes */
   memcpy(ICMPBUF->icmp6data + 2, uip_ethaddr.addr, 6);
 
   /* Calculate checksum */
@@ -172,7 +171,7 @@ uip_router_send_solicitation(void)
 
 void
 uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
-		  uint16_t addr2, uint16_t addr3)
+                  uint16_t addr2, uint16_t addr3)
 {
   uip_ipaddr_t ipaddr;
 
@@ -183,31 +182,34 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
 
   uip_ip6addr(ipaddr, addr0, addr1, addr2, addr3, addr4, addr5, addr6, addr7);
 
-# ifdef DYNDNS_SUPPORT
-  if (addr0 != 0xFE80) {
+#ifdef DYNDNS_SUPPORT
+  if (addr0 != 0xFE80)
+  {
     /* Get old host address */
     uip_ipaddr_t old_ipaddr;
     uip_gethostaddr(&old_ipaddr);
 
-    if(! uip_ipaddr_cmp(&ipaddr, &old_ipaddr)) {
+    if (!uip_ipaddr_cmp(&ipaddr, &old_ipaddr))
+    {
       /* Update the dyndns name only if address has changed */
       dyndns_update();
     }
   }
-# endif
+#endif
 
   uip_sethostaddr(&ipaddr);
 
-# ifdef TFTPOMATIC_SUPPORT
+#ifdef TFTPOMATIC_SUPPORT
   const char filename[] PROGMEM = CONF_TFTP_IMAGE;
   uip_ipaddr_t ip;
   set_CONF_TFTP_IP(&ip);
 
-  if (addr0 != 0xFE80) {
+  if (addr0 != 0xFE80)
+  {
     tftp_fire_tftpomatic(&ip, filename);
     bootload_delay = CONF_BOOTLOAD_DELAY;
   }
-# endif /* TFTPOMATIC_SUPPORT */
+#endif /* TFTPOMATIC_SUPPORT */
 }
 
 #ifndef IPV6_STATIC_SUPPORT
@@ -218,7 +220,7 @@ uip_router_parse_advertisement(void)
   struct uip_icmp_radv_prefix *prefix;
   struct uip_icmp_radv_source *source;
 
-  IP6DEBUG ("parsing RA, first_type is %d.\n", RADVBUF->first_type);
+  IP6DEBUG("parsing RA, first_type is %d.\n", RADVBUF->first_type);
 
   uint8_t *option = &(RADVBUF->first_type);
 
@@ -229,11 +231,13 @@ uip_router_parse_advertisement(void)
 
   /* The first byte of an ICMPv6 option is its type, the second one is
    * its length. */
-  while ((option + (option[1] * 8)) <= packet_end) {
-    switch (option[0]) {
+  while ((option + (option[1] * 8)) <= packet_end)
+  {
+    switch (option[0])
+    {
       case 1:
         /* Source link-layer address */
-        source = (struct uip_icmp_radv_source*)option;
+        source = (struct uip_icmp_radv_source *) option;
         if (source->length != 1)
           goto error_out;
 
@@ -242,17 +246,17 @@ uip_router_parse_advertisement(void)
                          (struct uip_neighbor_addr *) source->mac);
         break;
       case 3:
-	/* Prefix information */
-        prefix = (struct uip_icmp_radv_prefix*)option;
-	if (prefix->length != 4 || prefix->prefix_length != 64)
+        /* Prefix information */
+        prefix = (struct uip_icmp_radv_prefix *) option;
+        if (prefix->length != 4 || prefix->prefix_length != 64)
           goto error_out;
 
         /* packet looks sane, update configuration */
         uip_ip6autoconfig
-        ((prefix->prefix[0] << 8) | prefix->prefix[1],
-         (prefix->prefix[2] << 8) | prefix->prefix[3],
-         (prefix->prefix[4] << 8) | prefix->prefix[5],
-         (prefix->prefix[6] << 8) | prefix->prefix[7]);
+          ((prefix->prefix[0] << 8) | prefix->prefix[1],
+           (prefix->prefix[2] << 8) | prefix->prefix[3],
+           (prefix->prefix[4] << 8) | prefix->prefix[5],
+           (prefix->prefix[6] << 8) | prefix->prefix[7]);
 
         /* test the prefix for being a netaddress ( last 8 byte are 0 )
          * if it is a prefix use the srcipaddr
@@ -271,19 +275,19 @@ uip_router_parse_advertisement(void)
 
         break;
       default:
-          IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
+        IP6DEBUG("Ignoring option type 0x%02x of RA\n", option[0]);
         break;
     }
 
     if ((option + (option[1] * 8)) == packet_end)
-        break;
+      break;
     option += (option[1] * 8);
   }
 
   return;
 
 error_out:
-  IP6DEBUG ("unabled to parse RA.\n");
+  IP6DEBUG("unabled to parse RA.\n");
   return;
 }
 #endif /* not IPV6_STATIC_SUPPORT */
@@ -296,13 +300,15 @@ uip_neighbor_out(void)
   struct uip_neighbor_addr *remote_mac;
 #ifdef MDNS_SD_SUPPORT
   const uip_ipaddr_t mdns_address =
-  {0x02ff,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0xfb00};
+    { 0x02ff, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xfb00 };
 #endif /* MDNS_SD_SUPPORT */
 
   /* Check if the destination address is on the local network.
    * FIXME, for the moment we assume a 64-bit "netmask" */
-  if(memcmp(IPBUF->destipaddr, uip_hostaddr, 8)) {
-    if(uip_ipaddr_cmp(uip_draddr, all_zeroes_addr)) {
+  if (memcmp(IPBUF->destipaddr, uip_hostaddr, 8))
+  {
+    if (uip_ipaddr_cmp(uip_draddr, all_zeroes_addr))
+    {
       /* Router-address not yet configured, kill packet, cannot transmit. */
       uip_len = 0;
       return 1;
@@ -316,18 +322,21 @@ uip_neighbor_out(void)
     uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
 
 #ifdef MDNS_SD_SUPPORT
-  if (uip_ipaddr_cmp(IPBUF->destipaddr, mdns_address))  {
+  if (uip_ipaddr_cmp(IPBUF->destipaddr, mdns_address))
+  {
     /* The MDNS remote address will always be on the same network, so we don't
      * have to use the router */
     uip_ipaddr_copy(ipaddr, IPBUF->destipaddr);
-    /* We send the answer to the mac of the asking machine */
+    /* We send the answer to the MAC of the asking machine */
     memcpy(ETHBUF->dest.addr, ETHBUF->src.addr, 6);
     goto after_neighbour_resolv;
-  } else
+  }
+  else
 #endif /* MDNS_SD_SUPPORT */
     remote_mac = uip_neighbor_lookup(ipaddr);
 
-  if(! remote_mac) {
+  if (!remote_mac)
+  {
     /* We don't know the remote MAC so far, therefore send neighbor
      * solicitation packet. */
     uip_neighbor_send_solicitation(ipaddr);
@@ -347,4 +356,4 @@ after_neighbour_resolv:
   return 0;
 }
 
-#endif /* UIP_CONF_IPV6 and ETHERNET_SUPPORT */
+#endif /* UIP_CONF_IPV6 && ETHERNET_SUPPORT */

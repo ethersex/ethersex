@@ -29,66 +29,69 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/parse.h"
 
-int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len)
+int16_t
+print_ipaddr(uip_ipaddr_t * addr, char *output, uint16_t len)
 {
-    if (addr == NULL)
-        return snprintf(output, len, "NULL");
+  if (addr == NULL)
+    return snprintf(output, len, "NULL");
 #if UIP_CONF_IPV6
-    return snprintf_P(output, len, PSTR("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
-		      HTONS(((u16_t *)(addr))[0]), HTONS(((u16_t *)(addr))[1]),
-		      HTONS(((u16_t *)(addr))[2]), HTONS(((u16_t *)(addr))[3]),
-		      HTONS(((u16_t *)(addr))[4]), HTONS(((u16_t *)(addr))[5]),
-		      HTONS(((u16_t *)(addr))[6]), HTONS(((u16_t *)(addr))[7]));
+  return snprintf_P(output, len,
+      PSTR("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x"),
+      HTONS(((u16_t *) (addr))[0]), HTONS(((u16_t *) (addr))[1]),
+      HTONS(((u16_t *) (addr))[2]), HTONS(((u16_t *) (addr))[3]),
+      HTONS(((u16_t *) (addr))[4]), HTONS(((u16_t *) (addr))[5]),
+      HTONS(((u16_t *) (addr))[6]), HTONS(((u16_t *) (addr))[7]));
 #else
-    uint8_t *ip = (uint8_t *) addr;
-    return snprintf_P(output, len, PSTR("%u.%u.%u.%u"),
-		      ip[0], ip[1], ip[2], ip[3]);
-#endif  
+  uint8_t *ip = (uint8_t *) addr;
+  return snprintf_P(output, len, PSTR("%u.%u.%u.%u"),
+      ip[0], ip[1], ip[2], ip[3]);
+#endif
 }
 
 
-#if !defined(DISABLE_IPCONF_SUPPORT) || defined(NTP_SUPPORT) || defined(DNS_SUPPORT)
+#if !defined(DISABLE_IPCONF_SUPPORT) || defined(NTP_SUPPORT) || \
+     defined(DNS_SUPPORT)
 /* parse an ip address at cmd, write result to ptr */
-int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr)
+int8_t
+parse_ip(char *cmd, uip_ipaddr_t * ptr)
 {
-    if (ptr != NULL) {
+  if (ptr != NULL)
+  {
 #ifdef DEBUG_ECMD_IP
-	debug_printf("called parse_ip with string '%s'\n", cmd);
+    debug_printf("called parse_ip with string '%s'\n", cmd);
 #endif
 
 #if UIP_CONF_IPV6
-	uint16_t *ip = (uint16_t *) ptr;
-	int8_t ret = sscanf_P(cmd,
-		PSTR("%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx"),
-			      ip, ip+1, ip+2, ip+3, ip+4, ip+5, ip+6, ip+7);
+    uint16_t *ip = (uint16_t *) ptr;
+    int8_t ret = sscanf_P(cmd,
+        PSTR("%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx:%4hhx"),
+        ip, ip + 1, ip + 2, ip + 3, ip + 4, ip + 5, ip + 6, ip + 7);
 
 #ifdef DEBUG_ECMD_IP
-	debug_printf("scanf returned %d\n", ret);
+    debug_printf("scanf returned %d\n", ret);
 #endif
 
-	if (ret != 8)
-	    return -1;
+    if (ret != 8)
+      return -1;
 
-	for (int i = 0; i < 8; i ++)
-	    ip[i] = HTONS(ip[i]);
+    for (int i = 0; i < 8; i++)
+      ip[i] = HTONS(ip[i]);
 #else
-	uint8_t *ip = (uint8_t *) ptr;
-	int8_t ret = sscanf_P(cmd, PSTR("%hhu.%hhu.%hhu.%hhu"),
-			      ip, ip+1, ip+2, ip+3);
+    uint8_t *ip = (uint8_t *) ptr;
+    int8_t ret = sscanf_P(cmd, PSTR("%hhu.%hhu.%hhu.%hhu"),
+        ip, ip + 1, ip + 2, ip + 3);
 
 #ifdef DEBUG_ECMD_IP
-	debug_printf("scanf returned %d\n", ret);
+    debug_printf("scanf returned %d\n", ret);
 #endif
 
-	if (ret != 4)
-	    return -1;
+    if (ret != 4)
+      return -1;
 #endif
 
-	return 0;
-    }
+    return 0;
+  }
 
-    return -1;
+  return -1;
 }
 #endif /* !DISABLE_IPCONF_SUPPORT || NTP_SUPPORT || DNS_SUPPORT */
-
-

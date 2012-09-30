@@ -27,47 +27,47 @@
 #include "check_cache.h"
 
 uint8_t
-uip_check_cache(uip_ipaddr_t *ripaddr) {
+uip_check_cache(uip_ipaddr_t * ripaddr)
+{
 #ifdef ETHERNET_SUPPORT
-    uip_ipaddr_t ipaddr;
+  uip_ipaddr_t ipaddr;
 #if ARCH == ARCH_HOST
-    uip_stack_set_active(STACK_TAP);
+  uip_stack_set_active(STACK_TAP);
 #else
-    uip_stack_set_active(STACK_ENC);
+  uip_stack_set_active(STACK_ENC);
 #endif
 
 #ifdef IPV6_SUPPORT
 
-    if (memcmp(ripaddr, uip_hostaddr, 8))
-        /* Remote address is not on the local network, use router */
-        uip_ipaddr_copy(&ipaddr, uip_draddr);
-    else
-        /* Remote address is on the local network, send directly. */
-        uip_ipaddr_copy(&ipaddr, ripaddr);
+  if (memcmp(ripaddr, uip_hostaddr, 8))
+    /* Remote address is not on the local network, use router */
+    uip_ipaddr_copy(&ipaddr, uip_draddr);
+  else
+/* Remote address is on the local network, send directly. */
+    uip_ipaddr_copy(&ipaddr, ripaddr);
 
-    if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
-        return 1; /* Cowardly refusing to send IPv6 packet to :: */
+  if (uip_ipaddr_cmp(&ipaddr, &all_zeroes_addr))
+    /* Cowardly refusing to send IPv6 packet to :: */
+    return 1;
+  if (uip_neighbor_lookup(ipaddr))
+    return 0;
 
-    if (uip_neighbor_lookup(ipaddr))
-        return 0;
+#else /* IPV4_SUPPORT */
 
-#else  /* IPV4_SUPPORT */
+  if (!uip_ipaddr_maskcmp(ripaddr, uip_hostaddr, uip_netmask))
+    /* Remote address is not on the local network, use router */
+    uip_ipaddr_copy(&ipaddr, uip_draddr);
+  else
+    /* Remote address is on the local network, send directly. */
+    uip_ipaddr_copy(&ipaddr, ripaddr);
 
-    if (!uip_ipaddr_maskcmp(ripaddr, uip_hostaddr, uip_netmask))
-        /* Remote address is not on the local network, use router */
-        uip_ipaddr_copy(&ipaddr, uip_draddr);
-    else
-        /* Remote address is on the local network, send directly. */
-        uip_ipaddr_copy(&ipaddr, ripaddr);
-
-    /* uip_arp_lookup returns a pointer if the mac is in the arp cache */
-    if (uip_arp_lookup(ipaddr))
-        return 0;
+  /* uip_arp_lookup returns a pointer if the mac is in the arp cache */
+  if (uip_arp_lookup(ipaddr))
+    return 0;
 
 #endif /* !IPV6_SUPPORT */
-    return 1;
+  return 1;
 #endif /* ETHERNET_SUPPORT */
 
-    return 0;
+  return 0;
 }
-

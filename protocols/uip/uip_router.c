@@ -41,37 +41,39 @@
 #endif
 
 #ifdef DEBUG_ROUTER
-# include "core/debug.h"
-# define printf  debug_printf
+#include "core/debug.h"
+#define printf  debug_printf
 #else
-# define printf(a...)
+#define printf(a...)
 #endif
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 uint8_t
-router_find_stack(uip_ipaddr_t *forwardip)
+router_find_stack(uip_ipaddr_t * forwardip)
 {
   uint8_t i;
 routing_input:
-  for (i = 0; i < STACK_LEN; i++) {
+  for (i = 0; i < STACK_LEN; i++)
+  {
     uip_stack_set_active(i);
-    if((! forwardip) && uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr))
+    if ((!forwardip) && uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr))
       return i;
 #ifdef IPV6_SUPPORT
-    if(forwardip && uip_ipaddr_prefixlencmp(*forwardip, uip_hostaddr,
-                                            uip_prefix_len))
+    if (forwardip && uip_ipaddr_prefixlencmp(*forwardip, uip_hostaddr,
+                                             uip_prefix_len))
       return i;
 #else /* !UIP_CONF_IPV6 */
-    if(forwardip && uip_ipaddr_maskcmp(*forwardip, uip_hostaddr,
-                                       uip_netmask))
-       return i;
+    if (forwardip && uip_ipaddr_maskcmp(*forwardip, uip_hostaddr,
+                                        uip_netmask))
+      return i;
 #endif
   }
-  /* we didn't find an interface for the forwadip, so try it again with the
+  /* we didn't find an interface for the forwardip, so try it again with the
    * default router
    */
-  if (forwardip && forwardip != &uip_draddr){
+  if (forwardip && forwardip != &uip_draddr)
+  {
     forwardip = &uip_draddr;
     goto routing_input;
   }
@@ -86,168 +88,174 @@ router_input(uint8_t origin)
 {
 #ifdef IPCHAIR_HAVE_PREROUTING
   ipchair_PREROUTING_chair();
-  if(!uip_len) return;
+  if (!uip_len)
+    return;
 #endif
   /* uip_len is set to the number of received bytes, including the LLH.
-     For RFM12, ZBus, etc.  it's the full 14-byte Ethernet LLH even also. */
+   * For RFM12, ZBus, etc.  it's the full 14-byte Ethernet LLH even also. */
 
   /* Check if packet is addressed to one stack's
-     configured host address. */
+   * configured host address. */
   uint8_t dest = router_find_stack(NULL);
-  if (dest < 255) {
-      uip_stack_set_active(dest);
+  if (dest < 255)
+  {
+    uip_stack_set_active(dest);
 #ifdef IPCHAIR_HAVE_INPUT
-      ipchair_INPUT_chair();
-      if(!uip_len) return;
+    ipchair_INPUT_chair();
+    if (!uip_len)
+      return;
 #endif
-      uip_input ();
+    uip_input();
   }
 #if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
   else if (BUF->destipaddr[0] == HTONS(0xff02))
-    {
-      /* Packet is addressed to one of the multicast addresses. */
-      uip_stack_set_active (STACK_ENC);
-      uip_input ();
-    }
-#endif	/* UIP_CONF_IPV6 */
+  {
+    /* Packet is addressed to one of the multicast addresses. */
+    uip_stack_set_active(STACK_ENC);
+    uip_input();
+  }
+#endif /* UIP_CONF_IPV6 */
   else
-    {
+  {
 #ifdef IP_FORWARDING_SUPPORT
-      /* Packet not addressed to us, check destination address to where
-	 the packet has to be routed. */
-      uint8_t dest = router_find_stack(&BUF->destipaddr);
-      if (dest == 255)
-        {
-	  uip_len = 0;
-          return; /* Packet was dropped by the router */
-        }
+    /* Packet not addressed to us, check destination address to where
+     * the packet has to be routed. */
+    uint8_t dest = router_find_stack(&BUF->destipaddr);
+    if (dest == 255)
+    {
+      uip_len = 0;
+      return;                   /* Packet was dropped by the router */
+    }
 
-      if (origin == dest)
-	goto drop;
+    if (origin == dest)
+      goto drop;
 
-      if (-- BUF->ttl == 0)
-	{
-	  /* TODO send ICMP message */
-	  printf ("ttl exceeded, should send ICMP message.\n");
-	  goto drop;
-	}
-
-#ifdef IPCHAIR_HAVE_FORWARD
-      ipchair_FORWARD_chair();
-      if(!uip_len) return;
-#endif
-
-#if !UIP_CONF_IPV6
-      /* For IPv4 we must adjust the chksum */
-      if(BUF->ipchksum >= HTONS(0xffff - (1 << 8)))
-	BUF->ipchksum += HTONS(1 << 8) + 1;
-
-      else
-	BUF->ipchksum += HTONS(1 << 8);
-#endif
-
-      /* For router_output_to uip_len must be set to the number of
-	 bytes to send, excluding the LLH (since it'll generate the needed
-	 one itself).  However uip_len is currently set to the number of
-	 received bytes, i.e. including the LLH. */
-      uip_len -= UIP_LLH_LEN;
-
-      /* TODO check MTU and send suitable ICMP message if needed. */
-      router_output_to (dest);
-
-#endif /* IP_FORWARDING_SUPPORT */
-
+    if (--BUF->ttl == 0)
+    {
+      /* TODO send ICMP message */
+      printf("ttl exceeded, should send ICMP message.\n");
       goto drop;
     }
 
+#ifdef IPCHAIR_HAVE_FORWARD
+    ipchair_FORWARD_chair();
+    if (!uip_len)
+      return;
+#endif
+
+#if !UIP_CONF_IPV6
+    /* For IPv4 we must adjust the chksum */
+    if (BUF->ipchksum >= HTONS(0xffff - (1 << 8)))
+      BUF->ipchksum += HTONS(1 << 8) + 1;
+
+    else
+      BUF->ipchksum += HTONS(1 << 8);
+#endif
+
+    /* For router_output_to uip_len must be set to the number of bytes to
+     * send, excluding the LLH (since it'll generate the needed one itself).
+     * However uip_len is currently set to the number of received bytes, i.e.
+     * including the LLH. */
+    uip_len -= UIP_LLH_LEN;
+
+    /* TODO check MTU and send suitable ICMP message if needed. */
+    router_output_to(dest);
+
+#endif /* IP_FORWARDING_SUPPORT */
+
+    goto drop;
+  }
+
   return;
 
- drop:
+drop:
   uip_len = 0;
   return;
 }
 
 void
-router_output(void) {
+router_output(void)
+{
 #ifdef IPCHAIR_HAVE_OUTPUT
   ipchair_OUTPUT_chair();
 #endif
 
   uint8_t dest = router_find_stack(&BUF->destipaddr);
   if (dest == 255)
-    {
-      uip_len = 0;
-      return;
-    }
+  {
+    uip_len = 0;
+    return;
+  }
 
   router_output_to(dest);
 }
 
 uint8_t
-router_output_to (uint8_t dest)
+router_output_to(uint8_t dest)
 {
   uint8_t retval = 0;
 
-  uip_stack_set_active (dest);
+  uip_stack_set_active(dest);
 
 #ifdef IPCHAIR_HAVE_POSTROUTING
   ipchair_POSTROUTING_chair();
-  if(!uip_len) return 0;
+  if (!uip_len)
+    return 0;
 #endif
 
   switch (dest)
-    {
+  {
 
 #ifdef ENC28J60_SUPPORT
     case STACK_ENC:
-      printf ("router_output_to: ENC28J60.\n");
-      enc28j60_txstart ();
+      printf("router_output_to: ENC28J60.\n");
+      enc28j60_txstart();
       break;
-#endif	/* ENC28J60_SUPPORT */
+#endif /* ENC28J60_SUPPORT */
 
 
 #ifdef RFM12_IP_SUPPORT
     case STACK_RFM12:
-      printf ("router_output_to: RFM12.\n");
-      rfm12_txstart (uip_len);
+      printf("router_output_to: RFM12.\n");
+      rfm12_txstart(uip_len);
       break;
-#endif	/* RFM12_IP_SUPPORT */
+#endif /* RFM12_IP_SUPPORT */
 
 
 #ifdef ZBUS_SUPPORT
     case STACK_ZBUS:
-      printf ("router_output_to: ZBUS.\n");
-      zbus_txstart (uip_len);
+      printf("router_output_to: ZBUS.\n");
+      zbus_txstart(uip_len);
       break;
-#endif	/* ZBUS_SUPPORT */
+#endif /* ZBUS_SUPPORT */
 
 
 #ifdef USB_NET_SUPPORT
     case STACK_USB:
-      printf ("router_output_to: USB.\n");
-      usb_net_txstart ();
+      printf("router_output_to: USB.\n");
+      usb_net_txstart();
       break;
-#endif	/* USB_NET_SUPPORT */
+#endif /* USB_NET_SUPPORT */
 
 
 #ifdef OPENVPN_SUPPORT
     case STACK_OPENVPN:
-      printf ("router_output_to: OpenVPN.\n");
-      openvpn_txstart ();
+      printf("router_output_to: OpenVPN.\n");
+      openvpn_txstart();
       break;
-#endif  /* OPENVPN_SUPPORT */
+#endif /* OPENVPN_SUPPORT */
+
 
 #ifdef TAP_SUPPORT
     case STACK_TAP:
-      printf ("router_output_to: TAP.\n");
-      tap_txstart ();
+      printf("router_output_to: TAP.\n");
+      tap_txstart();
       break;
-#endif  /* TAP_SUPPORT */
+#endif /* TAP_SUPPORT */
 
-    }
+  }
 
   return retval;
 }
 
-
-#endif	/* ROUTER_SUPPORT */
+#endif /* ROUTER_SUPPORT */
