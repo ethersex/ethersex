@@ -427,6 +427,7 @@ int8_t ow_eeprom_read(ow_rom_code_t * rom, void *data);
 
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
 ow_sensor_t *ow_find_sensor(ow_rom_code_t * rom);
+int8_t ow_find_sensor_index(ow_rom_code_t * rom);
 #endif
 
 /* Polling functions */
