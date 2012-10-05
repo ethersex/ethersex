@@ -587,10 +587,12 @@ ow_eeprom_read(ow_rom_code_t * rom, void *data)
 ow_sensor_t *
 ow_find_sensor(ow_rom_code_t * rom)
 {
-  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
-    if (ow_sensors[i].ow_rom_code.raw == rom->raw)
-      return &ow_sensors[i];  /* found it */
-  return NULL;
+  int8_t i = ow_find_sensor_index(rom);
+
+  if (i >= 0)
+    return &ow_sensors[i];
+  else
+    return NULL;
 }
 
 int8_t
