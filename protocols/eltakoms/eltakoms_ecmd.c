@@ -35,9 +35,15 @@
 int16_t
 parse_cmd_eltakoms_get(char *cmd, char *output, uint16_t len)
 {
-  memcpy(output, eltakoms_data.buffer, 40);
-
-  return ECMD_FINAL(40);
+  if(eltakoms_data.valid)
+    return ECMD_FINAL(snprintf_P(output, len,
+      PSTR("t%+3.3d s%2.2d w%2.2d e%2.2d %c d%3.3d v%3.3d %c"),
+      eltakoms_data.temperature, eltakoms_data.suns, eltakoms_data.sunw,
+      eltakoms_data.sune, (eltakoms_data.obscure ? 'O' : 'o'),
+      eltakoms_data.dawn, eltakoms_data.wind,
+      (eltakoms_data.rain ? 'R' : 'r')));
+  else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("eltakoms data invalid")));
 }
 #endif /* ELTAKOMS_H */
 

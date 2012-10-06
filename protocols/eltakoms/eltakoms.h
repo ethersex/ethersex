@@ -78,12 +78,14 @@ struct eltakoms_t
   uint8_t  rain:1;
   uint8_t  :5;
   uint8_t  ptr;
+  uint32_t ts;
   char  buffer[40];
 };
 
 extern struct eltakoms_t eltakoms_data;
 
 void eltakoms_init(void);
+void eltakoms_periodic(void);
 
 #endif /* ELTAKOMS_SUPPORT */
 #endif /* ELTAKOMS_H */

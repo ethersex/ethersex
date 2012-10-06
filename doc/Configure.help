@@ -3046,3 +3046,35 @@ CONF_BUTTONS_REPEAT_RATE
 
   Configures the time (x * 20ms) between continous repeat events are
   generated.
+
+Eltako MultiSensor
+ELTAKOMS_SUPPORT
+  The Eltako MultiSensor is a outdoor sensor device that is able to measure
+  wind (without moving parts) [m/s], temperature [°C], rain [yes/no], sun 
+  intensity [klux] from 3 directions, obscurity [lux] and darkness [yes/no].
+
+  All this data is sent out once per second with 9600bps on a RS485 
+  connection. The device needs a power supply from 12 to 24V. The ethersex
+  hardware needs a RS485 level shifter connected to one of its USARTs. You may
+  need to define a pin in your hardware description where the transmit enable
+  of the RS485 is defined (RS485TE_USART0 / RS485TE_USART1).    
+
+  A datagram looks like this: W+07.6016300N99901.2N?151515151515?1889
+
+  The ECMD command "eltakoms get" returns a datagram like this if valid data
+  was received within the last 10 seconds:
+     t+076 s01 w63 e00 o d999 v012 r
+  
+  t+076 : Temperature in °C * 10 (-30 - +50 °C) -> +7.6°C
+  s01   : Sunlight from south in klux (0 - 99 klux) -> 1klux
+  w63   : Sunlight from west in klux (0 - 99 klux) -> 63klux
+  e00   : Sunlight from east in klux (0 - 99 klux) -> 0klux
+  o     : Darkness/obscurity (o: day - O: night)
+  d     : Dawning (0 - 999 lux) -> max
+  v012  : Wind in m/s * 10 (0 - 99 m/s) -> 1.2m/s
+  r     : Rain (r: no rain - R: rain)
+
+  datasheets:
+  http://www.eltako.com/fileadmin/downloads/de/Datenblatt/H_datenblatt_MS.pdf
+  http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_4801_internet_dtsch.pdf
+  http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_20000084-1_dt_internet.pdf

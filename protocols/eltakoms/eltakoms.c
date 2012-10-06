@@ -19,11 +19,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/io.h>
+#include <stdio.h>
+
 #include "config.h"
 
 #ifdef ELTAKOMS_SUPPORT
 
 #include "eltakoms.h"
+#include "services/clock/clock.h"
 
 struct eltakoms_t eltakoms_data;
 
@@ -32,45 +36,31 @@ struct eltakoms_t eltakoms_data;
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-//generate_usart_init()
-
+generate_usart_init()
 
 void eltakoms_init(void)
 {
-  uint8_t sreg = SREG; cli(); \
-  usart(UBRR,H) = UBRRH_VALUE; \
-  usart(UBRR,L) = UBRRL_VALUE; \
-  /* set mode: 8 bits, 1 stop, no parity, asynchronous usart */ \
-  /*   and set URSEL, if present, */ \
-  usart(UCSR,C) = _BV(UCSZ0) | _BV(UCSZ1) | _BV_URSEL; \
-  /* Enable the RX interrupt and receiver and transmitter */ \
-  usart(UCSR,B) |= _BV(TXEN) | _BV(RXEN) | _BV(RXCIE); \
-  /* Set or not set the 2x mode */ \
-  USART_2X(); \
-  /* Go! */ \
-  SREG = sreg;\
+  usart_init();
 
-
-  //  usart_init();
-#ifdef HAVE_RS485TE_USART1
-  /* disable RS485 transmitter */
-  PIN_CLEAR(RS485TE_USART1);
-#endif  /* HAV_usart_catE_RS485TE_USART1 */
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
+#else
+  #warning no RS485 transmit enable pin defined
+#endif
   ELTAKOMS_DEBUG("init\n");
 }
 
 ISR(usart(USART, _RX_vect))
 {
   /* ignore errors */
-//  if ((usart(UCSR, B) &
-//      _BV(DOR)) ||
-//      (usart(UCSR, B) &
-//          _BV(FE)))
-//  {
-//    uint8_t v = usart(UDR);
-//    (void) v;
-//    return;
-//  }
+  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE))))
+  {
+    uint8_t v = usart(UDR);
+    (void) v;
+    return;
+  }
 
   uint8_t data = usart(UDR);
 
@@ -132,7 +122,6 @@ ISR(usart(USART, _RX_vect))
   if (atoi(&eltakoms_data.buffer[ELTAKOMS_CHECKSUM]) != sum)
   streamerror: {
     ELTAKOMS_DEBUG("%d - 0x%02x - %c\n", i, data, data);
-    eltakoms_data.valid = 0;
     eltakoms_data.ptr = 0;
     return;
   }
@@ -163,17 +152,22 @@ ISR(usart(USART, _RX_vect))
   eltakoms_data.buffer[ELTAKOMS_TEMP + 4] = '\0';
   eltakoms_data.temperature = atoi(&eltakoms_data.buffer[ELTAKOMS_TEMP]);
 
+  eltakoms_data.ts = clock_get_time();
   eltakoms_data.valid = 1;
 
-  ELTAKOMS_DEBUG("t%+3.3ds%2.2dw%2.2de%2.2d%cd%3.3dv%3.3d%c\n",
-      eltakoms_data.temperature,
-      eltakoms_data.suns,
-      eltakoms_data.sunw,
-      eltakoms_data.sune,
-      (eltakoms_data.obscure ? 'O' : 'o'),
-      eltakoms_data.dawn,
-      eltakoms_data.wind,
-      (eltakoms_data.rain ? 'R' : 'r'));
+  ELTAKOMS_DEBUG("t%+3.3d s%2.2d w%2.2d e%2.2d %c d%3.3d v%3.3d %c\n",
+    eltakoms_data.temperature, eltakoms_data.suns, eltakoms_data.sunw,
+    eltakoms_data.sune, (eltakoms_data.obscure ? 'O' : 'o'),
+    eltakoms_data.dawn, eltakoms_data.wind, (eltakoms_data.rain ? 'R' : 'r'));
+}
+
+void eltakoms_periodic(void)
+{
+  if (eltakoms_data.valid == 1 && (eltakoms_data.ts + 10 < clock_get_time()))
+  {
+    eltakoms_data.valid = 0;  /* invalid data after 10 seconds no reception */
+    ELTAKOMS_DEBUG("data invalid\n");
+  }
 }
 #endif /* ELTAKOMS_SUPPORT */
 
@@ -181,4 +175,6 @@ ISR(usart(USART, _RX_vect))
   -- Ethersex META --
   header(protocols/eltakoms/eltakoms.h)
   init(eltakoms_init)
+  timer(50, eltakoms_periodic())
+
 */
