@@ -33,7 +33,7 @@
 
 
 int16_t
-parse_cmd_eltakoms_get(char *cmd, char *output, uint16_t len)
+parse_cmd_weather(char *cmd, char *output, uint16_t len)
 {
   if(eltakoms_data.valid)
     return ECMD_FINAL(snprintf_P(output, len,
@@ -50,5 +50,5 @@ parse_cmd_eltakoms_get(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[Eltako]])
-  ecmd_feature(eltakoms_get, "eltakoms get",,Get weather data)
+  ecmd_feature(weather, "weather",,Get eltako weather data)
 */

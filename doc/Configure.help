@@ -3049,32 +3049,79 @@ CONF_BUTTONS_REPEAT_RATE
 
 Eltako MultiSensor
 ELTAKOMS_SUPPORT
-  The Eltako MultiSensor is a outdoor sensor device that is able to measure
-  wind (without moving parts) [m/s], temperature [°C], rain [yes/no], sun 
-  intensity [klux] from 3 directions, obscurity [lux] and darkness [yes/no].
+  The Elsner / Eltako MultiSensor is a outdoor sensor device that is able to 
+  measure wind (without moving parts) [m/s], temperature [°C], rain [yes/no],
+  sun intensity [klux] from 3 directions, obscurity [lux] and darkness 
+  [yes/no]. There is an option for a DCF77 receiver.
 
-  All this data is sent out once per second with 9600bps on a RS485 
-  connection. The device needs a power supply from 12 to 24V. The ethersex
-  hardware needs a RS485 level shifter connected to one of its USARTs. You may
-  need to define a pin in your hardware description where the transmit enable
-  of the RS485 is defined (RS485TE_USART0 / RS485TE_USART1).    
+  All this data is sent once per second at 19200bps 8N1 on a RS485 connection.
+  The device needs a 24V 150mA power supply. The ethersex hardware needs a
+  RS485 level shifter connected to one of its USARTs. You may need to define a
+  pin in your hardware description where the transmit enable of the RS485 is
+  defined (RS485TE_USART0 / RS485TE_USART1).    
 
-  A datagram looks like this: W+07.6016300N99901.2N?151515151515?1889
-
-  The ECMD command "eltakoms get" returns a datagram like this if valid data
-  was received within the last 10 seconds:
+  The ECMD command "weather" returns a datagram like this if valid data was
+  received within the last 10 seconds:
      t+076 s01 w63 e00 o d999 v012 r
   
   t+076 : Temperature in °C * 10 (-30 - +50 °C) -> +7.6°C
   s01   : Sunlight from south in klux (0 - 99 klux) -> 1klux
   w63   : Sunlight from west in klux (0 - 99 klux) -> 63klux
   e00   : Sunlight from east in klux (0 - 99 klux) -> 0klux
-  o     : Darkness/obscurity (o: day - O: night)
+  o     : Darkness/obscurity (o: day - O: night <11lux)
   d     : Dawning (0 - 999 lux) -> max
   v012  : Wind in m/s * 10 (0 - 99 m/s) -> 1.2m/s
   r     : Rain (r: no rain - R: rain)
 
   datasheets:
+  http://www.elsner-elektronik.de/uploads/tx_bmproducts/P033-RS485_DataSheet_EN_01.pdf
+  http://www.eltako.com/fileadmin/downloads/en/datasheets/H_datasheet_MS.pdf
+  
   http://www.eltako.com/fileadmin/downloads/de/Datenblatt/H_datenblatt_MS.pdf
   http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_4801_internet_dtsch.pdf
   http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_20000084-1_dt_internet.pdf
+
+  pinout:  (1): +24V;  (2): 0V;  (A): RS485A;  (B):RS485B
+
+  A datagram looks like this: W+07.6016300N99901.2N?151515151515?1889
+   # char              meaning
+   0 W                 Weather data start
+   1 Temp Sign         Temperature sign - / +
+   2 Temp 1st digit    Temperature 1st digit (tens) in °C
+   3 Temp 2nd digit    Temperature 2nd digit (ones)
+   4 Temp Point        Temperature decimal point
+   5 Temp 3rd digit    Temperature 3rd digit (tenth)
+   6 SunS 1st digit    Sun South 1st digit (tens)
+   7 SunS 2nd digit    Sun South 2nd digit (ones)
+   8 SunW 1st digit    Sun West 1st digit (tens)
+   9 SunW 2nd digit    Sun West 2nd digit (ones)
+  10 SunE 1st digit    Sun East 1st digit (tens) 
+  11 SunE 2nd digit    Sun East 2nd digit (ones)
+  12 TwiL              Twilight: J: <=10 lux; N: >10 lux
+  13 DayL 0-999Lx      Daylight (1st digit hundreds)
+  14 DayL 0-999Lx      Daylight (2nd digit tens)
+  15 DayL 0-999Lx      Daylight (3rd digit ones)
+  16 Wind 1st digit    Wind 1st digit (tens) in m/s
+  17 Wind 2nd digit    Wind 2nd digit (ones)
+  18 Wind Point        Wind decimal point
+  19 Wind 3rd digit    Wind 3rd digit (tenth)
+  20 Rain              J: rain;  N: no rain
+  21 Weekday 1-7?      Weekday: 1...7: Mo...Su ?: no DCF77 reception
+  22 Day 1st digit     Day 1st digit (tens)
+  23 Day 2nd digit     Day 2nd digit (ones)
+  24 Month 1st digit   Month 1st digit (tens)
+  25 Month 2nd digit   Month 2nd digit (ones)
+  26 Year 1st digit    Year 1st digit (tens)
+  27 Year 2nd digit    Year 2nd digit (ones)
+  28 Hour 1st digit    Hour 1st digit (tens)
+  29 Hour 2nd digit    Hour 2nd digit (ones)
+  30 Minute 1st digit  Minute 1st digit (tens)
+  31 Minute 2nd digit  Minute 2nd digit (ones)
+  32 Second 1st digit  Second 1st digit (tens)
+  33 Second 2nd digit  Second 2nd digit (ones)
+  34 Summertime        J: Summertime;  N: Wintertime;  ?: no DCF77 reception
+  35 Checksum          Checksum 1st digit (thousands) 
+  36 Checksum          Checksum 2nd digit (hundreds)
+  37 Checksum          Checksum 3rd digit (tens)
+  38 Checksum          Checksum 4th digit (ones)
+  39 0x03              End

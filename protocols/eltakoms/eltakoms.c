@@ -29,11 +29,12 @@
 #include "eltakoms.h"
 #include "services/clock/clock.h"
 
+#define USE_USART ELTAKOMS_USE_USART
+#define BAUD 19200
+#include "core/usart.h"
+
 struct eltakoms_t eltakoms_data;
 
-#define USE_USART ELTAKOMS_USE_USART
-#define BAUD 9600
-#include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
@@ -68,7 +69,7 @@ ISR(usart(USART, _RX_vect))
       eltakoms_data.ptr >= sizeof(eltakoms_data.buffer))
     eltakoms_data.ptr = 0;
 
-  if (data != 0x03 && data != 0x0D)           // end of frame
+  if (data != 0x03)           // end of text
   {
     eltakoms_data.buffer[eltakoms_data.ptr++] = data;
     return;
@@ -103,8 +104,11 @@ ISR(usart(USART, _RX_vect))
         goto streamerror;
       break;
     case 21:
+      if (data != '?' && (data <  '1' || data >  '7'))
+        goto streamerror;
+      break;
     case 34:
-      if (data != '?')
+      if (data != '?' && (data != 'J' && data != 'N' ))
         goto streamerror;
       break;
     case 12:

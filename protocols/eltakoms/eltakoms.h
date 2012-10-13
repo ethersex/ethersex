@@ -40,19 +40,20 @@
    W+07.6016300N99901.2N?151515151515?1889
 
    0         1         2         3
-   012345678901234567890123456789012345678
-   ||    | | | ||  |   ||             |   |
-   ST    S S S OD  V   RE DCF option? C
-   TE    U U U BA  E   AN             H
-   AM    N N N SW  L   ID             E
-   RP          UN  O   N              C
-   TE    S W E R   C    W             K
-    R    O E A I   I    E             S
-    A    U S S T   T    A             U
-    T    T T T Y   Y    T             M
-    U    H              H
-    R                   E
-    E                   R
+   0123456789012345678901234567890123456789
+   ||    | | | ||  |   ||| | | | | | ||   |
+   ST    S S S OD  V   RWD M Y H M S DC   E
+   TE    U U U BA  E   AEA O E O I E AH   T
+   AM    N N N SW  L   IEY N A U N C YE   X
+   RP          UN  O   NK  T R R U O LC
+   TE    S W E R   C    D  H     T N IK
+    R    O E A I   I    A        E D GS
+    A    U S S T   T    Y            HU
+    T    T T T Y   Y                 TM
+    U    H                           S
+    R                                A
+    E                                V
+                                     E
  */
 
 #define ELTAKOMS_TEMP        1
@@ -76,7 +77,8 @@ struct eltakoms_t
   uint8_t  valid:1;
   uint8_t  obscure:1;
   uint8_t  rain:1;
-  uint8_t  :5;
+  uint8_t  dcf:1;
+  uint8_t  :4;
   uint8_t  ptr;
   uint32_t ts;
   char  buffer[40];
