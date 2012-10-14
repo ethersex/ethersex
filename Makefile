@@ -51,6 +51,7 @@ SUBDIRS += protocols/bootp
 SUBDIRS += protocols/dali
 SUBDIRS += protocols/dhcp 
 SUBDIRS += protocols/dmx
+SUBDIRS += protocols/eltakoms
 SUBDIRS += protocols/ems
 SUBDIRS += protocols/fnordlicht
 SUBDIRS += protocols/mdns_sd

@@ -32,46 +32,46 @@
 
 /* define macros, if debug is enabled */
 #ifdef DEBUG
-    #ifndef TEENSY_SUPPORT
-    #define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
-    #else
-    #define debug_printf(s, args...) do {} while(0)
-    #endif
-    #define debug_putstr(s) debug_putstr_(s)
+#ifndef TEENSY_SUPPORT
+#define debug_printf(s, args...) printf_P(PSTR("D: " s), ## args)
+#else
+#define debug_printf(s, args...) do {} while(0)
+#endif
+#define debug_putstr(s) debug_putstr_(s)
 
 #if ARCH == ARCH_HOST
-    #define debug_init() do { } while(0)
-    #define debug_putchar(ch) putchar(ch)
+#define debug_init() do { } while(0)
+#define debug_putchar(ch) putchar(ch)
 #elif defined(DEBUG_USE_SYSLOG)
-    #define debug_init() syslog_debug_init()
-    #define debug_putchar(ch) syslog_debug_put(ch, NULL)
-#else  /* not DEBUG_USE_SYSLOG */
-    #define debug_init() debug_init_uart()
-    #define debug_putchar(ch) debug_uart_put (ch, NULL)
-#endif	/* not DEBUG_USE_SYSLOG */
+#define debug_init() syslog_debug_init()
+#define debug_putchar(ch) syslog_debug_put(ch, NULL)
+#else /* not DEBUG_USE_SYSLOG */
+#define debug_init() debug_init_uart()
+#define debug_putchar(ch) debug_uart_put (ch, NULL)
+#endif /* not DEBUG_USE_SYSLOG */
 
-#else  /* not DEBUG */
-    #define debug_init(...) do { } while(0)
-    #define debug_printf(s, args...) do {} while(0)
-    #define debug_putchar(...) do { } while(0)
-    #define debug_putstr(...) do { } while(0)
+#else /* not DEBUG */
+#define debug_init(...) do { } while(0)
+#define debug_printf(s, args...) do {} while(0)
+#define debug_putchar(...) do { } while(0)
+#define debug_putstr(...) do { } while(0)
 #endif /* not DEBUG */
 
 /* prototypes */
 void debug_init_uart(void);
 void debug_process_uart(void);
-int noinline debug_uart_put (char d, FILE *stream);
+int noinline debug_uart_put(char d, FILE * stream);
 void noinline debug_putstr_(const char *);
 
 /* Return a string of 0 and 1 expressing the value of the 8bit integer v.
  * Example: 00001000 */
-char *debug_binary (uint8_t v);
+char *debug_binary(uint8_t v);
 
 
 #ifdef DEBUG_NTP_ADJUST
-# define NTPADJDEBUG(a...)  debug_printf("ntpadj: " a)
+#define NTPADJDEBUG(a...)  debug_printf("ntpadj: " a)
 #else
-# define NTPADJDEBUG(a...)
+#define NTPADJDEBUG(a...)
 #endif
 
 #endif /* _DEBUG_H */
