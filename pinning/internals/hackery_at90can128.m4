@@ -36,7 +36,7 @@
 #define TC0_INT_OVERFLOW_OFF TIMSK0&=~_BV(TOIE0);
 
 #define TC0_VECTOR_OVERFLOW  TIMER0_OVF_vect
-#define TC0_VECTOR_COMPARE   TIMER0_COMPA_vect
+#define TC0_VECTOR_COMPARE   TIMER0_COMP_vect
 
 #define TC0_INT_OVERFLOW_TST (TIFR0&_BV(TOV0))
 #define TC0_INT_OVERFLOW_CLR TIFR0=_BV(TOV0);
@@ -101,7 +101,7 @@
 #define TC2_INT_OVERFLOW_CLR TIFR2=_BV(TOV2);
 
 #define TC2_VECTOR_OVERFLOW  TIMER2_OVF_vect
-#define TC2_VECTOR_COMPARE   TIMER2_COMPA_vect
+#define TC2_VECTOR_COMPARE   TIMER2_COMP_vect
 
 /* First Asyncronous Timer */
 /* Flag for asyncronous operation */
