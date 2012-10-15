@@ -48,7 +48,7 @@ ow_global_t ow_global;
 
 #ifdef ONEWIRE_POLLING_SUPPORT
 /* perform an initial bus discovery on startup */
-uint16_t ow_discover_delay = 3;
+uint16_t ow_discover_interval = 1; // 200ms initial delay
 #endif
 
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
@@ -698,7 +698,7 @@ ow_discover_sensor(void)
                 ow_sensors[i].present = 1;
                 /* read temperature asap
                  * eeproms will be checked for later */
-                ow_sensors[i].read_delay = 1;
+                ow_sensors[i].read_interval = 1;
                 break;
               }
             }
@@ -745,13 +745,13 @@ ow_discover_sensor(void)
   return 0;
 }
 
-/* this function will be called every 800 ms */
+/* this function will be called every 200 ms */
 void
 ow_periodic(void)
 {
-  if (--ow_discover_delay == 0)
+  if (--ow_discover_interval == 0)
   {
-    ow_discover_delay = OW_DISCOVER_DELAY;
+    ow_discover_interval = OW_DISCOVER_INTERVAL;
     ow_discover_sensor();
 #ifdef DEBUG_OW_POLLING
     for (uint8_t i = 0, k = 0; i < OW_SENSORS_COUNT; i++)
@@ -778,9 +778,7 @@ ow_periodic(void)
     {
       if (ow_sensors[i].converted)
       {
-        if (ow_sensors[i].convert_delay == 1)
-          ow_sensors[i].convert_delay = 0;
-        else
+        if (ow_sensors[i].convert_delay-- == 0)
         {
 #ifdef DEBUG_OW_POLLING
           debug_printf("reading temperature\n");
@@ -809,11 +807,11 @@ ow_periodic(void)
           ow_sensors[i].converted = 0;
         }
       }
-      if (--ow_sensors[i].read_delay == 0 && !ow_sensors[i].converted)
+      if (--ow_sensors[i].read_interval == 0 && !ow_sensors[i].converted)
       {
-        ow_sensors[i].read_delay = OW_READ_DELAY;
+        ow_sensors[i].read_interval = OW_READ_INTERVAL;
         ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
-        ow_sensors[i].convert_delay = 1;
+        ow_sensors[i].convert_delay = 4;  // delay 800ms for conversion
         ow_sensors[i].converted = 1;
       }
     }
@@ -882,5 +880,5 @@ ow_names_save(void)
   -- Ethersex META --
   header(hardware/onewire/onewire.h)
   init(onewire_init)
-  ifdef(`conf_ONEWIRE_POLLING',`timer(40, ow_periodic())')
+  ifdef(`conf_ONEWIRE_POLLING',`timer(10, ow_periodic())')
 */

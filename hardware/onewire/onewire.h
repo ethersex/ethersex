@@ -238,7 +238,7 @@ typedef struct
    * possible. storing temperature in deci degrees (DD) => 36.4° == 364 */
   int16_t temp;
   /* time between polling the sensor */
-  uint16_t read_delay;
+  uint16_t read_interval;
   /* need to wait 800ms for the sensor to convert the temperatures */
   uint8_t convert_delay;
 #endif
@@ -432,7 +432,7 @@ int8_t ow_find_sensor_index(ow_rom_code_t * rom);
 
 /* Polling functions */
 #ifdef ONEWIRE_POLLING_SUPPORT
-extern uint16_t ow_discover_delay;
+extern uint16_t ow_discover_interval;
 void ow_periodic(void);
 #endif
 
