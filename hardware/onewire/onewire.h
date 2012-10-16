@@ -244,7 +244,7 @@ typedef struct
   uint8_t named :1;
 #endif
 #ifdef ONEWIRE_POLLING_SUPPORT
-  /* when this is set, we will wait convert_interval to be 0 and then read the
+  /* when this is set, we will wait convert_delay to be 0 and then read the
    * scratchpad */
   uint8_t converted :1;
   /* this is set during discovery - all sensors with present == 0 will be
