@@ -79,7 +79,7 @@ ow_ecmd_parse_rom_arg(char **cmd, ow_rom_code_t ** ptr_rom)
 #ifdef DEBUG_OW_DS2450_ECMD
     uint8_t *addr = (*ptr_rom)->bytewise;
     DS2450_ECMD_DEBUG
-      ("ow_ecmd_parse_rom_arg: parsed rom code: " +
+      ("ow_ecmd_parse_rom_arg: parsed rom code: "
        "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x.\n", addr[0], addr[1],
        addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
 #endif
@@ -173,7 +173,7 @@ parse_cmd_onewire_ds2450_power(char *cmd, char *output, uint16_t len)
     if (strlen(cmd) > 0)
     {
       DS2450_ECMD_DEBUG
-        ("parse_cmd_onewire_ds2450_power: cmd still contains data after " +
+        ("parse_cmd_onewire_ds2450_power: cmd still contains data after "
          "parsing all argumentes!\n");
       return ECMD_ERR_PARSE_ERROR;
     }
@@ -212,7 +212,7 @@ parse_cmd_onewire_ds2450_res(char *cmd, char *output, uint16_t len)
   {
     /* no more data to read from cmd */
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_res: not enogh arguments, expecting at " +
+      ("parse_cmd_onewire_ds2450_res: not enogh arguments, expecting at "
        "least a channel name!\n");
     return ECMD_ERR_PARSE_ERROR;
   }
@@ -278,7 +278,7 @@ parse_cmd_onewire_ds2450_res(char *cmd, char *output, uint16_t len)
       if (strlen(cmd) > 0)
       {
         DS2450_ECMD_DEBUG
-          ("parse_cmd_onewire_ds2450_res: cmd still contains data after " +
+          ("parse_cmd_onewire_ds2450_res: cmd still contains data after "
            "parsing all argumentes!\n");
         return ECMD_ERR_PARSE_ERROR;
       }
@@ -317,7 +317,7 @@ parse_cmd_onewire_ds2450_oc(char *cmd, char *output, uint16_t len)
   {
     /* no more data to read from cmd */
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_oc: not enogh arguments, expecting at " +
+      ("parse_cmd_onewire_ds2450_oc: not enogh arguments, expecting at "
        "least a channel name!\n");
     return ECMD_ERR_PARSE_ERROR;
   }
@@ -377,7 +377,7 @@ parse_cmd_onewire_ds2450_oc(char *cmd, char *output, uint16_t len)
       if (strlen(cmd) > 0)
       {
         DS2450_ECMD_DEBUG
-          ("parse_cmd_onewire_ds2450_oc: cmd still contains data after " +
+          ("parse_cmd_onewire_ds2450_oc: cmd still contains data after "
            "parsing all argumentes!\n");
         return ECMD_ERR_PARSE_ERROR;
       }
@@ -417,7 +417,7 @@ parse_cmd_onewire_ds2450_oe(char *cmd, char *output, uint16_t len)
   {
     /* no more data to read from cmd */
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_oe: not enogh arguments, expecting at " +
+      ("parse_cmd_onewire_ds2450_oe: not enogh arguments, expecting at "
        "least a channel name!\n");
     return ECMD_ERR_PARSE_ERROR;
   }
@@ -476,7 +476,7 @@ parse_cmd_onewire_ds2450_oe(char *cmd, char *output, uint16_t len)
       if (strlen(cmd) > 0)
       {
         DS2450_ECMD_DEBUG
-          ("parse_cmd_onewire_ds2450_oe: cmd still contains data after " +
+          ("parse_cmd_onewire_ds2450_oe: cmd still contains data after "
            "parsing all argumentes!\n");
         return ECMD_ERR_PARSE_ERROR;
       }
@@ -514,7 +514,7 @@ parse_cmd_onewire_ds2450_range(char *cmd, char *output, uint16_t len)
   {
     /* no more data to read from cmd */
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_range: not enogh arguments, expecting at " +
+      ("parse_cmd_onewire_ds2450_range: not enogh arguments, expecting at "
        "least a channel name!\n");
     return ECMD_ERR_PARSE_ERROR;
   }
@@ -574,7 +574,7 @@ parse_cmd_onewire_ds2450_range(char *cmd, char *output, uint16_t len)
       if (strlen(cmd) > 0)
       {
         DS2450_ECMD_DEBUG
-          ("parse_cmd_onewire_ds2450_range: cmd still contains data after " +
+          ("parse_cmd_onewire_ds2450_range: cmd still contains data after "
            "parsing all argumentes!\n");
         return ECMD_ERR_PARSE_ERROR;
       }
@@ -614,7 +614,7 @@ parse_cmd_onewire_ds2450_por(char *cmd, char *output, uint16_t len)
   {
     /* no more data to read from cmd */
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_por: not enogh arguments, expecting at " +
+      ("parse_cmd_onewire_ds2450_por: not enogh arguments, expecting at "
        "least a channel name!\n");
     return ECMD_ERR_PARSE_ERROR;
   }
@@ -674,7 +674,7 @@ parse_cmd_onewire_ds2450_por(char *cmd, char *output, uint16_t len)
       if (strlen(cmd) > 0)
       {
         DS2450_ECMD_DEBUG
-          ("parse_cmd_onewire_ds2450_por: cmd still contains data after " +
+          ("parse_cmd_onewire_ds2450_por: cmd still contains data after "
            "parsing all argumentes!\n");
         return ECMD_ERR_PARSE_ERROR;
       }
@@ -718,14 +718,14 @@ parse_cmd_onewire_ds2450_convert(char *cmd, char *output, uint16_t len)
   {
     /* no more data to read from cmd */
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_convert: no input select mask and " +
+      ("parse_cmd_onewire_ds2450_convert: no input select mask and "
        "read-out control given, using default values.\n");
   }
   else
   {
     uint8_t ret = sscanf_P(cmd, PSTR("%2hhx %2hhx"), &input_select, &readout);
     DS2450_ECMD_DEBUG
-      ("parse_cmd_onewire_ds2450_convert: sscanf_P ret: %i, input select " +
+      ("parse_cmd_onewire_ds2450_convert: sscanf_P ret: %i, input select "
        "mask: %02x, read-out control: %02x.\n", ret, input_select, readout);
     if (ret != 2)
       return ECMD_ERR_PARSE_ERROR;
@@ -751,7 +751,7 @@ parse_cmd_onewire_ds2450_convert(char *cmd, char *output, uint16_t len)
     if (strlen(cmd) > 0)
     {
       DS2450_ECMD_DEBUG
-        ("parse_cmd_onewire_ds2450_convert: cmd still contains data after " +
+        ("parse_cmd_onewire_ds2450_convert: cmd still contains data after "
          "parsing all argumentes!\n");
       return ECMD_ERR_PARSE_ERROR;
     }
@@ -803,7 +803,7 @@ parse_cmd_onewire_ds2450_get(char *cmd, char *output, uint16_t len,
     if (strlen(cmd) > 0)
     {
       DS2450_ECMD_DEBUG
-        ("parse_cmd_onewire_ds2450_get: cmd still contains data after " +
+        ("parse_cmd_onewire_ds2450_get: cmd still contains data after "
          "parsing all argumentes!\n");
       return ECMD_ERR_PARSE_ERROR;
     }

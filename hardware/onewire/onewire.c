@@ -72,6 +72,7 @@ onewire_init(void)
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
   /* initialize sensor data */
   memset(ow_sensors, 0, OW_SENSORS_COUNT * sizeof(ow_sensor_t));
+  ow_periodic();
 #endif
 
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -384,10 +385,13 @@ ow_temp_sensor(ow_rom_code_t * rom)
 int8_t
 ow_temp_start_convert(ow_rom_code_t * rom, uint8_t wait)
 {
+
   int8_t ret;
 
-  if (rom == NULL)
+  if (rom == NULL) {
     ret = ow_skip_rom();
+    OW_DEBUG_POLL("start conversion on all sensors\n");
+  }
   else
   {
     /* check for known family code */
@@ -395,6 +399,10 @@ ow_temp_start_convert(ow_rom_code_t * rom, uint8_t wait)
       return -2;
 
     ret = ow_match_rom(rom);
+    OW_DEBUG_POLL("start conversion on device %02x %02x %02x %02x %02x %02x "
+        "%02x %02x\n", rom->bytewise[0], rom->bytewise[1],
+        rom->bytewise[2], rom->bytewise[3], rom->bytewise[4],
+        rom->bytewise[5], rom->bytewise[6], rom->bytewise[7]);
   }
 
   if (ret < 0)
@@ -616,9 +624,7 @@ ow_discover_sensor(void)
   ow_global.bus = 0;
 #endif /* ONEWIRE_BUSCOUNT */
 
-#ifdef DEBUG_OW_POLLING
-  debug_printf("starting discovery\n");
-#endif /* DEBUG_OW_POLLING */
+  OW_DEBUG_POLL("starting discovery\n");
 
   /* prepare existing sensors */
   for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
@@ -646,8 +652,7 @@ ow_discover_sensor(void)
       if (ret == 1)
       {
         firstonbus = 0;
-#ifdef DEBUG_OW_POLLING
-        debug_printf
+        OW_DEBUG_POLL
           ("discovered device %02x %02x %02x %02x %02x %02x %02x %02x"
 #if ONEWIRE_BUSCOUNT > 1
            " on bus %d"
@@ -665,7 +670,6 @@ ow_discover_sensor(void)
            , ow_global.bus
 #endif /* ONEWIRE_BUSCOUNT > 1 */
           );
-#endif /* DEBUG_OW_POLLING */
         if (ow_temp_sensor(&ow_global.current_rom))
         {
           uint8_t already_in = 0;
@@ -691,20 +695,18 @@ ow_discover_sensor(void)
               if (ow_sensors[i].ow_rom_code.raw == 0)
               {
                 /* found a free slot... storing */
-#ifdef DEBUG_OW_POLLING
-                debug_printf("stored new sensor in pos %d\n", i);
-#endif /* DEBUG_OW_POLLING */
+                OW_DEBUG_POLL("stored new sensor in pos %d\n", i);
                 ow_sensors[i].ow_rom_code.raw = ow_global.current_rom.raw;
                 ow_sensors[i].present = 1;
                 /* read temperature asap
                  * eeproms will be checked for later */
-                ow_sensors[i].read_interval = 1;
+                ow_sensors[i].polling_delay = 1;
                 break;
               }
             }
 #ifdef DEBUG_OW_POLLING
             if (i == OW_SENSORS_COUNT - 1)
-              debug_printf("number of sensors exceeds list size of %d\n",
+              OW_DEBUG_POLL("number of sensors exceeds list size of %d\n",
                            OW_SENSORS_COUNT);
 #endif /* DEBUG_OW_POLLING */
           }
@@ -712,7 +714,7 @@ ow_discover_sensor(void)
         }
         else
         {
-          debug_printf("not a temperature sensor\n");
+          OW_DEBUG_POLL("not a temperature sensor\n");
 #endif /* DEBUG_OW_POLLING */
         }
       }
@@ -758,7 +760,7 @@ ow_periodic(void)
     {
       if (ow_sensors[i].ow_rom_code.raw != 0)
       {
-        debug_printf
+        OW_DEBUG_POLL
           ("sensor #%d in list is: %02x %02x %02x %02x %02x %02x %02x %02x\n",
            ++k, ow_sensors[i].ow_rom_code.bytewise[0],
            ow_sensors[i].ow_rom_code.bytewise[1],
@@ -780,36 +782,28 @@ ow_periodic(void)
       {
         if (ow_sensors[i].convert_delay-- == 0)
         {
-#ifdef DEBUG_OW_POLLING
-          debug_printf("reading temperature\n");
-#endif /* DEBUG_OW_POLLING */
+          OW_DEBUG_POLL("reading temperature\n");
           int8_t ret;
           ow_temp_scratchpad_t sp;
           ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
 
           if (ret != 1)
           {
-#ifdef DEBUG_OW_POLLING
-            debug_printf("scratchpad read failed: %d\n", ret);
-#endif /* DEBUG_OW_POLLING */
+            OW_DEBUG_POLL("scratchpad read failed: %d\n", ret);
             continue;
           }
-#ifdef DEBUG_OW_POLLING
-          debug_printf("scratchpad read succeeded\n");
-#endif /* DEBUG_OW_POLLING */
+          OW_DEBUG_POLL("scratchpad read succeeded\n");
           int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
-#ifdef DEBUG_OW_POLLING
-          debug_printf("temperature: %d.%d\n", HI8(temp),
-                       LO8(temp) > 0 ? 5 : 0);
-#endif /* DEBUG_OW_POLLING */
+          OW_DEBUG_POLL("temperature: %d.%d\n", HI8(temp),
+              LO8(temp) > 0 ? 5 : 0);
           ow_sensors[i].temp =
             ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
           ow_sensors[i].converted = 0;
         }
       }
-      if (--ow_sensors[i].read_interval == 0 && !ow_sensors[i].converted)
+      if (--ow_sensors[i].polling_delay == 0 && !ow_sensors[i].converted)
       {
-        ow_sensors[i].read_interval = OW_READ_INTERVAL;
+        ow_sensors[i].polling_delay = OW_POLLING_INTERVAL;
         ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
         ow_sensors[i].convert_delay = 4;  // delay 800ms for conversion
         ow_sensors[i].converted = 1;
@@ -851,7 +845,7 @@ ow_names_restore(void)
       ow_sensors[i].ow_rom_code.raw = temp_name.ow_rom_code.raw;
       strncpy(ow_sensors[i].name, temp_name.name, OW_NAME_LENGTH);
 #ifdef ONEWIRE_POLLING_SUPPORT
-      ow_sensors[i].read_delay = 1;
+      ow_sensors[i].polling_delay = 1;
 #endif
     }
   }

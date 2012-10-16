@@ -42,26 +42,20 @@ parse_ow_rom(char *cmd, ow_rom_code_t * rom)
   uint8_t *addr = rom->bytewise;
   uint8_t end;
 
-#ifdef DEBUG_ECMD_OW_ROM
-  debug_printf("called parse_ow_rom with string '%s'\n", cmd);
-#endif
+  OW_DEBUG_ROM("called parse_ow_rom with string '%s'\n", cmd);
 
   /* read 8 times 2 hex chars into a byte */
   int ret = sscanf_P(cmd, PSTR("%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%c"),
                      addr + 0, addr + 1, addr + 2, addr + 3,
                      addr + 4, addr + 5, addr + 6, addr + 7, &end);
 
-#ifdef DEBUG_ECMD_OW_ROM
-  debug_printf("scanf returned %d\n", ret);
-#endif
+  OW_DEBUG_ROM("scanf returned %d\n", ret);
 
   if ((ret == 8) || ((ret == 9) && (end == ' ')))
   {
-#ifdef DEBUG_ECMD_OW_ROM
-    debug_printf("read rom %02x %02x %02x %02x %02x %02x %02x %02x\n",
+    OW_DEBUG_ROM("read rom %02x %02x %02x %02x %02x %02x %02x %02x\n",
                  addr[0], addr[1], addr[2], addr[3],
                  addr[4], addr[5], addr[6], addr[7]);
-#endif
     return 0;
   }
 
@@ -186,9 +180,7 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #if ONEWIRE_BUSCOUNT > 1
     ow_global.bus = 0;
 #endif
-#ifdef DEBUG_ECMD_OW_LIST
-    debug_printf("called onewire list for the first time\n");
-#endif
+    OW_DEBUG_LIST("called onewire list for the first time\n");
 
 #ifdef ONEWIRE_DS2502_SUPPORT
     /* parse optional parameters */
@@ -212,9 +204,7 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
   }
   else
   {
-#ifdef DEBUG_ECMD_OW_LIST
-    debug_printf("called onewire list again\n");
-#endif
+    OW_DEBUG_LIST("called onewire list again\n");
     firstonbus = 0;
   }
 
@@ -245,8 +235,7 @@ list_next:;
       /* only print device rom address if it matches the selected list type */
 #endif
 
-#ifdef DEBUG_ECMD_OW_LIST
-      debug_printf("discovered device "
+      OW_DEBUG_LIST("discovered device "
 #if ONEWIRE_BUSCOUNT > 1
                    "%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
 #else
@@ -264,7 +253,6 @@ list_next:;
                    , ow_global.bus);
 #else
         );
-#endif
 #endif
 #ifdef ONEWIRE_NAMING_SUPPORT
       char *name = "";
@@ -292,17 +280,13 @@ list_next:;
 #endif
         );
 
-#ifdef DEBUG_ECMD_OW_LIST
-      debug_printf("generated %d bytes\n", ret);
-#endif
+      OW_DEBUG_LIST("generated %d bytes\n", ret);
 
       /* set return value that the parser has to be called again */
       if (ret > 0)
         ret = ECMD_AGAIN(ret);
 
-#ifdef DEBUG_ECMD_OW_LIST
-      debug_printf("returning %d\n", ret);
-#endif
+      OW_DEBUG_LIST("returning %d\n", ret);
       return ECMD_FINAL(ret);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -319,9 +303,7 @@ list_next:;
 #if ONEWIRE_BUSCOUNT > 1
 #ifdef DEBUG_ECMD_OW_LIST
   if (ret != 0)
-  {
-    debug_printf("no devices on bus %d\n", ow_global.bus);
-  }
+    OW_DEBUG_LIST("no devices on bus %d\n", ow_global.bus);
 #endif
   if (ow_global.bus < ONEWIRE_BUSCOUNT - 1)
   {
@@ -587,7 +569,7 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
   strncpy(ow_sensors[pos].name, name, OW_NAME_LENGTH);
 #ifdef ONEWIRE_POLLING_SUPPORT
   ow_sensors[pos].temp = 0;
-  ow_sensors[pos].read_delay = 1;
+  ow_sensors[pos].polling_delay = 1;
 #endif
 
   for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
@@ -605,7 +587,7 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
 
 #ifdef ONEWIRE_POLLING_SUPPORT
   /* perform bus discovery */
-  ow_discover_delay = 1;
+  ow_discover_interval = 1;
 #endif
 
   return ECMD_FINAL_OK;
@@ -632,7 +614,7 @@ parse_cmd_onewire_name_clear(char *cmd, char *output, uint16_t len)
 
 #ifdef ONEWIRE_POLLING_SUPPORT
   /* perform bus discovery */
-  ow_discover_delay = 1;
+  ow_discover_interval = 1;
 #endif
 
   return ECMD_FINAL_OK;
