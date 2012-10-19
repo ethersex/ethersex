@@ -29,14 +29,15 @@
 #include "uip-conf.h"
 
 void openvpn_handle_udp(void);
-void openvpn_init (void);
-void openvpn_process_out (void);
-void openvpn_txstart (void);
+void openvpn_init(void);
+void openvpn_process_out(void);
+void openvpn_txstart(void);
 
 /* The port number to use for OpenVPN. */
 #define OPENVPN_PORT CONF_OPENVPN_PORT
 
-struct openvpn_connection_state_t {
+struct openvpn_connection_state_t
+{
   uint32_t next_seqno;
   uint32_t seen_seqno;
   uint32_t seen_timestamp;

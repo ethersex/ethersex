@@ -33,95 +33,101 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-int16_t parse_cmd_ip(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_ip(char *cmd, char *output, uint16_t len)
 {
-    uip_ipaddr_t hostaddr;
+  uip_ipaddr_t hostaddr;
 
-    while (*cmd == ' ')
-	cmd++;
+  while (*cmd == ' ')
+    cmd++;
 
 #ifndef DISABLE_IPCONF_SUPPORT
-#if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT))		\
+#if (!defined(IPV6_SUPPORT) && !defined(BOOTP_SUPPORT)) \
   || defined(IPV6_STATIC_SUPPORT)
-    if (*cmd != '\0') {
-        /* try to parse ip */
-        if (parse_ip(cmd, &hostaddr))
-	    return ECMD_ERR_PARSE_ERROR;
+  if (*cmd != '\0')
+  {
+    /* try to parse ip */
+    if (parse_ip(cmd, &hostaddr))
+      return ECMD_ERR_PARSE_ERROR;
 
-        eeprom_save(ip, &hostaddr, IPADDR_LEN);
-        eeprom_update_chksum();
+    eeprom_save(ip, &hostaddr, IPADDR_LEN);
+    eeprom_update_chksum();
 
-        return ECMD_FINAL_OK;
-    }
-    else
+    return ECMD_FINAL_OK;
+  }
+  else
 #endif /* IPv4-static || IPv6-static || OpenVPN */
 #endif /* DISABLE_IPCONF_SUPPORT */
-    {
-        uip_gethostaddr(&hostaddr);
+  {
+    uip_gethostaddr(&hostaddr);
 
-        return ECMD_FINAL(print_ipaddr(&hostaddr, output, len));
-    }
+    return ECMD_FINAL(print_ipaddr(&hostaddr, output, len));
+  }
 }
 
 #ifndef IPV6_SUPPORT
-int16_t parse_cmd_netmask(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_netmask(char *cmd, char *output, uint16_t len)
 {
-    uip_ipaddr_t netmask;
+  uip_ipaddr_t netmask;
 
-    while (*cmd == ' ')
-	cmd++;
+  while (*cmd == ' ')
+    cmd++;
 
 #ifndef DISABLE_IPCONF_SUPPORT
 #if !UIP_CONF_IPV6 && !defined(BOOTP_SUPPORT)
-    if (*cmd != '\0') {
-        /* try to parse ip */
-        if (parse_ip (cmd, &netmask))
-	    return ECMD_ERR_PARSE_ERROR;
+  if (*cmd != '\0')
+  {
+    /* try to parse ip */
+    if (parse_ip(cmd, &netmask))
+      return ECMD_ERR_PARSE_ERROR;
 
-        eeprom_save(netmask, &netmask, IPADDR_LEN);
-        eeprom_update_chksum();
+    eeprom_save(netmask, &netmask, IPADDR_LEN);
+    eeprom_update_chksum();
 
-        return ECMD_FINAL_OK;
-    }
-    else
-#endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
+    return ECMD_FINAL_OK;
+  }
+  else
+#endif /* !UIP_CONF_IPV6 && !BOOTP_SUPPORT */
 #endif /* DISABLE_IPCONF_SUPPORT */
-    {
-        uip_getnetmask(&netmask);
+  {
+    uip_getnetmask(&netmask);
 
-        return ECMD_FINAL(print_ipaddr(&netmask, output, len));
-    }
+    return ECMD_FINAL(print_ipaddr(&netmask, output, len));
+  }
 }
 #endif /* !IPV6_SUPPORT */
 
-int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_gw(char *cmd, char *output, uint16_t len)
 {
-    uip_ipaddr_t gwaddr;
+  uip_ipaddr_t gwaddr;
 
-    while (*cmd == ' ')
-	cmd++;
+  while (*cmd == ' ')
+    cmd++;
 
 #ifndef DISABLE_IPCONF_SUPPORT
 #if (!UIP_CONF_IPV6 || IPV6_STATIC_SUPPORT) && !defined(BOOTP_SUPPORT)
 
-    if (*cmd != '\0') {
-        /* try to parse ip */
-        if (parse_ip (cmd, &gwaddr))
-	    return ECMD_ERR_PARSE_ERROR;
+  if (*cmd != '\0')
+  {
+    /* try to parse ip */
+    if (parse_ip(cmd, &gwaddr))
+      return ECMD_ERR_PARSE_ERROR;
 
-        eeprom_save(gateway, &gwaddr, IPADDR_LEN);
-        eeprom_update_chksum();
+    eeprom_save(gateway, &gwaddr, IPADDR_LEN);
+    eeprom_update_chksum();
 
-        return ECMD_FINAL_OK;
-    }
-    else
+    return ECMD_FINAL_OK;
+  }
+  else
 #endif /* !UIP_CONF_IPV6 and !BOOTP_SUPPORT */
 #endif /* DISABLE_IPCONF_SUPPORT */
-    {
-        uip_getdraddr(&gwaddr);
+  {
+    uip_getdraddr(&gwaddr);
 
-        return ECMD_FINAL(print_ipaddr(&gwaddr, output, len));
-    }
+    return ECMD_FINAL(print_ipaddr(&gwaddr, output, len));
+  }
 }
 
 /*
@@ -130,7 +136,7 @@ int16_t parse_cmd_gw(char *cmd, char *output, uint16_t len)
   ecmd_ifndef(TEENSY_SUPPORT)
     ecmd_ifdef(UIP_SUPPORT)
       ecmd_ifndef(IPV6_SUPPORT)
-	ecmd_feature(netmask, "netmask",[IP],Display/Set the network mask.)
+	      ecmd_feature(netmask, "netmask",[IP],Display/Set the network mask.)
       ecmd_endif()
 
       ecmd_feature(ip, "ip",[IP],Display/Set the IP address.)

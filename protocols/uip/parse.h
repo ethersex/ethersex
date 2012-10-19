@@ -24,8 +24,8 @@
 #ifndef UIP_PARSE_H
 #define UIP_PARSE_H
 
-int16_t print_ipaddr(uip_ipaddr_t *addr, char *output, uint16_t len);
-int8_t parse_ip(char *cmd, uip_ipaddr_t *ptr);
+int16_t print_ipaddr(uip_ipaddr_t * addr, char *output, uint16_t len);
+int8_t parse_ip(char *cmd, uip_ipaddr_t * ptr);
 
 int16_t print_mac(struct uip_eth_addr *mac, char *output, uint16_t len);
 int8_t parse_mac(char *cmd, struct uip_eth_addr *mac);

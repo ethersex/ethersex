@@ -27,8 +27,7 @@
 
 #include "uip-conf.h"
 
-void rfm12_stack_init (void);
-
+void rfm12_stack_init(void);
 
 #endif /* RFM12_IP_SUPPORT and ROUTER_SUPPORT */
 #endif /* not UIP_RFM12_H */

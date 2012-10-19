@@ -27,8 +27,8 @@
 
 STACK_DEFINITIONS(zbus_stack);
 
-void 
-zbus_stack_init (void)
+void
+zbus_stack_init(void)
 {
   uip_ipaddr_t ip;
 

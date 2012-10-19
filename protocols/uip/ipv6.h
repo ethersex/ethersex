@@ -33,7 +33,7 @@ void uip_router_send_solicitation(void);
 
 /* Assign IPv6 autoconfiguration address for own MAC address. */
 void uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
-		       uint16_t addr2, uint16_t addr3);
+                       uint16_t addr2, uint16_t addr3);
 
 /* Parse an ICMPv6 router advertisement. */
 void uip_router_parse_advertisement(void);
@@ -42,15 +42,15 @@ void uip_router_parse_advertisement(void);
 /**
  * The ICMPv6 Router Advertisement header.
  */
-struct uip_icmp_radv_hdr {
+struct uip_icmp_radv_hdr
+{
   /* IPv6 header. */
-  u8_t vtc,
-    tcf;
+  u8_t vtc, tcf;
   u16_t flow;
   u8_t len[2];
   u8_t proto, ttl;
   uip_ip6addr_t srcipaddr, destipaddr;
-  
+
   /* ICMP (echo) header. */
   u8_t type, icode;
   u16_t icmpchksum;
@@ -65,21 +65,23 @@ struct uip_icmp_radv_hdr {
   u8_t first_type;
 };
 
-struct uip_icmp_radv_prefix {
-    u8_t type;
-    u8_t length;
-    u8_t prefix_length;
-    u8_t flags;
-    u16_t valid_lifetime[2];
-    u16_t preferred_lifetime[2];
-    u8_t reserved[4];
-    u8_t prefix[16];
+struct uip_icmp_radv_prefix
+{
+  u8_t type;
+  u8_t length;
+  u8_t prefix_length;
+  u8_t flags;
+  u16_t valid_lifetime[2];
+  u16_t preferred_lifetime[2];
+  u8_t reserved[4];
+  u8_t prefix[16];
 };
 
-struct uip_icmp_radv_source {
-    u8_t type;
-    u8_t length;
-    u8_t mac[6];
+struct uip_icmp_radv_source
+{
+  u8_t type;
+  u8_t length;
+  u8_t mac[6];
 };
 
 

@@ -44,7 +44,8 @@
 
 #include "uip.h"
 
-struct uip_neighbor_addr {
+struct uip_neighbor_addr
+{
   struct uip_eth_addr addr;
 };
 

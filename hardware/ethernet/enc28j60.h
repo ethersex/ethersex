@@ -34,12 +34,12 @@
 #define noinline __attribute__((noinline))
 
 /* spi commands */
-#define CMD_RCR    0x00 /* address */
-#define CMD_RBM    0x3A /* no argument */
-#define CMD_WCR    0x40 /* address, data */
-#define CMD_WBM    0x7A /* data */
-#define CMD_BFS    0x80 /* address, data */
-#define CMD_BFC    0xA0 /* address, data */
+#define CMD_RCR    0x00         /* address */
+#define CMD_RBM    0x3A         /* no argument */
+#define CMD_WCR    0x40         /* address, data */
+#define CMD_WBM    0x7A         /* data */
+#define CMD_BFS    0x80         /* address, data */
+#define CMD_BFC    0xA0         /* address, data */
 #define CMD_RESET  0xFF
 
 /* registers */
@@ -277,8 +277,8 @@
 #define BANK_MASK               0x03
 
 /* key registers allows access without switching banks */
-#define KEY_REGISTERS  0x1B         /* (0x1B to 0x1F)
-                                       EIE, EIR, ESTAT, ECON2 and ECON1 */
+#define KEY_REGISTERS  0x1B     /* (0x1B to 0x1F)
+                                 * EIE, EIR, ESTAT, ECON2 and ECON1 */
 
 /* defines */
 #define RXBUFFER_START 0x0000   /* start receive buffer at the beginning */
@@ -303,13 +303,15 @@ extern int16_t enc28j60_next_packet_pointer;
 /* #define SPI_TIMEOUT */
 
 /* structs */
-struct receive_packet_vector_t {
-    uint16_t received_packet_size;
-    uint8_t state[2];
+struct receive_packet_vector_t
+{
+  uint16_t received_packet_size;
+  uint8_t state[2];
 };
 
-struct transmit_packet_vector_t {
-    uint8_t byte[7];
+struct transmit_packet_vector_t
+{
+  uint8_t byte[7];
 };
 
 #define bit_field_clear(addr,mask) bit_field_modify(addr, mask, CMD_BFC);
@@ -340,5 +342,5 @@ void dump_debug_registers(void);
 #define dump_debug_registers(x)
 #endif
 
-#endif  /* ENC28J60_SUPPORT */
+#endif /* ENC28J60_SUPPORT */
 #endif /* _ENC28J60_H */

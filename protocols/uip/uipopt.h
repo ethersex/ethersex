@@ -175,7 +175,7 @@
 #ifndef UIP_CONF_MAX_CONNECTIONS
 #define UIP_CONNS       10
 #else /* UIP_CONF_MAX_CONNECTIONS */
-#define UIP_CONNS UIP_CONF_MAX_CONNECTIONS
+#define UIP_CONNS       UIP_CONF_MAX_CONNECTIONS
 #endif /* UIP_CONF_MAX_CONNECTIONS */
 
 
@@ -201,7 +201,7 @@
  *
  * \hideinitializer
  */
-#define UIP_URGDATA      0
+#define UIP_URGDATA     0
 
 /**
  * The initial retransmission timeout counted in timer pulses.
@@ -225,7 +225,7 @@
  *
  * This should not need to be changed.
  */
-#define UIP_MAXSYNRTX      5
+#define UIP_MAXSYNRTX   5
 
 /**
  * The TCP maximum segment size.
