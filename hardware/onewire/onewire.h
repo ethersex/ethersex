@@ -244,14 +244,14 @@ typedef struct
   uint8_t named :1;
 #endif
 #ifdef ONEWIRE_POLLING_SUPPORT
-  /* when this is set, we will wait convert_interval to be 0 and then read the
+  /* when this is set, we will wait convert_delay to be 0 and then read the
    * scratchpad */
   uint8_t converted :1;
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
   uint8_t present :1;
-  /* need to wait 800ms for the sensor to convert the temperatures */
-  uint8_t convert_delay :3;
+  /* waiting 1s for the sensor to convert the temperatures */
+  uint8_t convert_delay :1;
 #endif
 
   /* byte aligned fields */

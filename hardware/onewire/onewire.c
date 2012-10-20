@@ -747,7 +747,7 @@ ow_discover_sensor(void)
   return 0;
 }
 
-/* this function will be called every 200 ms */
+/* this function will be called every 1s */
 void
 ow_periodic(void)
 {
@@ -780,7 +780,7 @@ ow_periodic(void)
     {
       if (ow_sensors[i].converted)
       {
-        if (ow_sensors[i].convert_delay-- == 0)
+        if (--ow_sensors[i].convert_delay == 0)
         {
           OW_DEBUG_POLL("reading temperature\n");
           int8_t ret;
@@ -805,7 +805,7 @@ ow_periodic(void)
       {
         ow_sensors[i].polling_delay = OW_POLLING_INTERVAL;
         ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
-        ow_sensors[i].convert_delay = 4;  // delay 800ms for conversion
+        ow_sensors[i].convert_delay = 1;  // wait 1s for conversion
         ow_sensors[i].converted = 1;
       }
     }
@@ -874,5 +874,5 @@ ow_names_save(void)
   -- Ethersex META --
   header(hardware/onewire/onewire.h)
   init(onewire_init)
-  ifdef(`conf_ONEWIRE_POLLING',`timer(10, ow_periodic())')
+  ifdef(`conf_ONEWIRE_POLLING',`timer(50, ow_periodic())')
 */
