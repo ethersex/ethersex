@@ -874,5 +874,5 @@ ow_names_save(void)
   -- Ethersex META --
   header(hardware/onewire/onewire.h)
   init(onewire_init)
-  ifdef(`conf_ONEWIRE_POLLING',`timer(50, ow_periodic())')
+  ifdef(`ONEWIRE_POLLING_SUPPORT',`timer(50, ow_periodic())')
 */
