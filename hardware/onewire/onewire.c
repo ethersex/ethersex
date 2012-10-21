@@ -72,6 +72,10 @@ onewire_init(void)
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
   /* initialize sensor data */
   memset(ow_sensors, 0, OW_SENSORS_COUNT * sizeof(ow_sensor_t));
+#endif
+
+#if ONEWIRE_POLLING_SUPPORT
+  ow_discover_interval = 1;
   ow_periodic();
 #endif
 
@@ -782,7 +786,6 @@ ow_periodic(void)
       {
         if (--ow_sensors[i].convert_delay == 0)
         {
-          OW_DEBUG_POLL("reading temperature\n");
           int8_t ret;
           ow_temp_scratchpad_t sp;
           ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
@@ -792,10 +795,17 @@ ow_periodic(void)
             OW_DEBUG_POLL("scratchpad read failed: %d\n", ret);
             continue;
           }
-          OW_DEBUG_POLL("scratchpad read succeeded\n");
           int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
-          OW_DEBUG_POLL("temperature: %d.%d\n", HI8(temp),
-              LO8(temp) > 0 ? 5 : 0);
+          OW_DEBUG_POLL("temperature: %d.%d°C on device "
+              "%02x %02x %02x %02x %02x %02x %02x %02x\n", HI8(temp),
+              LO8(temp) > 0 ? 5 : 0, ow_sensors[i].ow_rom_code.bytewise[0],
+                  ow_sensors[i].ow_rom_code.bytewise[1],
+                  ow_sensors[i].ow_rom_code.bytewise[2],
+                  ow_sensors[i].ow_rom_code.bytewise[3],
+                  ow_sensors[i].ow_rom_code.bytewise[4],
+                  ow_sensors[i].ow_rom_code.bytewise[5],
+                  ow_sensors[i].ow_rom_code.bytewise[6],
+                  ow_sensors[i].ow_rom_code.bytewise[7]);
           ow_sensors[i].temp =
             ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
           ow_sensors[i].converted = 0;
@@ -874,5 +884,5 @@ ow_names_save(void)
   -- Ethersex META --
   header(hardware/onewire/onewire.h)
   init(onewire_init)
-  ifdef(`ONEWIRE_POLLING_SUPPORT',`timer(50, ow_periodic())')
+  ifdef(`conf_ONEWIRE_POLLING',`timer(50, ow_periodic())')
 */
