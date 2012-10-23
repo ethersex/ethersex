@@ -508,7 +508,7 @@ int16_t parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len);
 enum
 {
   OW_CONVERT,
-  OW_READ
+  OW_READY
 };
 
 #endif /* ONEWIRE_SUPPORT */

@@ -814,7 +814,7 @@ ow_periodic(void)
           ow_sensors[i].temp =
             ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
           ow_sensors[i].converted = 0;
-          hook_ow_poll_call(&ow_sensors[i], OW_READ);
+          hook_ow_poll_call(&ow_sensors[i], OW_READY);
         }
       }
       if (--ow_sensors[i].polling_delay == 0 && !ow_sensors[i].converted)
