@@ -31,17 +31,17 @@
 /* Debugging */
 #ifdef DEBUG_OW_DS2450_CORE
 #include "core/debug.h"
-#define DS2450_CORE_DEBUG(a...) debug_printf("DS2450: " a)
+#define DS2450_CORE_DEBUG(str...) debug_printf("DS2450: " str)
 #else
-#define DS2450_CORE_DEBUG(a...)
+#define DS2450_CORE_DEBUG(...)    ((void) 0)
 #endif
 
 
 #ifdef DEBUG_OW_DS2450_ECMD
 #include "core/debug.h"
-#define DS2450_ECMD_DEBUG(a...) debug_printf("DS2450: " a)
+#define DS2450_ECMD_DEBUG(str...) debug_printf("DS2450: " str)
 #else
-#define DS2450_ECMD_DEBUG(a...)
+#define DS2450_ECMD_DEBUG(...)    ((void) 0)
 #endif
 
 
