@@ -13,6 +13,7 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	if  [ "$ONEWIRE_POLLING_SUPPORT" = "y" ] ; then
 		int "Time between 1w-bus discoveries in 1s steps" OW_DISCOVER_INTERVAL 600
 		int "Time between polling in 1s steps" OW_POLLING_INTERVAL 30
+		dep_bool "Hooks" ONEWIRE_HOOK_SUPPORT $ONEWIRE_POLLING_SUPPORT
 		dep_bool "ECMD 1w list with values" ONEWIRE_ECMD_LIST_VALUES_SUPPORT $ONEWIRE_POLLING_SUPPORT
 	fi
 	dep_bool "Onewire naming support" ONEWIRE_NAMING_SUPPORT $ONEWIRE_SUPPORT

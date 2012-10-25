@@ -28,6 +28,8 @@
 #ifndef ONEWIRE_H
 #define ONEWIRE_H
 
+#include "config.h"
+
 /* for an introduction to the onewire bus protocol see
  * http://www.ibutton.com/ibuttons/standard.pdf and the ds18s20 datasheet */
 
@@ -499,6 +501,7 @@ int16_t parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len);
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
+#ifdef ONEWIRE_HOOK_SUPPORT
 #define HOOK_NAME ow_poll
 #define HOOK_ARGS (ow_sensor_t * ow_sensor, uint8_t state)
 #include "hook.def"
@@ -510,6 +513,7 @@ enum
   OW_CONVERT,
   OW_READY
 };
+#endif
 
 #endif /* ONEWIRE_SUPPORT */
 #endif /* ONEWIRE_H */

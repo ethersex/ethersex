@@ -24,19 +24,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-/* Enable the hook ow_tempConverted */
+#include "config.h"
+
+#ifdef ONEWIRE_HOOK_SUPPORT
 #define HOOK_NAME ow_poll
 #define HOOK_ARGS (ow_sensor_t * ow_sensor, uint8_t state)
 #define HOOK_COUNT 3
 #define HOOK_ARGS_CALL (ow_sensor, state)
 #define HOOK_IMPLEMENT 1
+#endif
 
 #include <avr/io.h>
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <util/crc16.h>
 
-#include "config.h"
 #include "core/eeprom.h"
 #include "onewire.h"
 #include "core/bit-macros.h"
@@ -814,7 +816,9 @@ ow_periodic(void)
           ow_sensors[i].temp =
             ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
           ow_sensors[i].converted = 0;
+#ifdef ONEWIRE_HOOK_SUPPORT
           hook_ow_poll_call(&ow_sensors[i], OW_READY);
+#endif
         }
       }
       if (--ow_sensors[i].polling_delay == 0 && !ow_sensors[i].converted)
@@ -823,7 +827,9 @@ ow_periodic(void)
         ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
         ow_sensors[i].convert_delay = 1;  // wait 1s for conversion
         ow_sensors[i].converted = 1;
+#ifdef ONEWIRE_HOOK_SUPPORT
         hook_ow_poll_call(&ow_sensors[i], OW_CONVERT);
+#endif
       }
     }
   }
