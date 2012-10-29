@@ -23,13 +23,12 @@
 #ifndef _ALIASCMD_H
 #define _ALIASCMD_H
 
-typedef struct {
+typedef struct
+{
   PGM_P name;
   PGM_P cmd;
 } aliascmd_t;
 
 char *aliascmd_decode(char *cmd);
-uint8_t
-aliascmd_list(uint8_t nr, char *name, char *cmd);
 
 #endif /* _ALIASCMD_H */
