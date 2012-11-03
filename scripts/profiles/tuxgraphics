@@ -28,7 +28,7 @@ atmega168=y
 # at90can32 is not set
 # at90can64 is not set
 # at90can128 is not set
-FREQ=12000000
+FREQ=12500000
 # Arduino_Duemilanove is not set
 # Fimser is not set
 # Jackalope is not set
