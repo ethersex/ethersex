@@ -29,41 +29,41 @@ atmega168=y
 # at90can64 is not set
 # at90can128 is not set
 FREQ=12000000
-# alpengluehn is not set
 # Arduino_Duemilanove is not set
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
+# alpengluehn is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
-# netio_addon is not set
 # netio is not set
+# netio_addon is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
+# volkszaehler_so_server is not set
 HARDWARE=tuxgraphics
 tuxgraphics=y
-# USBrfm12stick is not set
-# volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
-BOOTLOADER_START_ADDRESS=0x3800
-FLASH_SIZE=0x4000
-EEPROM_SIZE=0x200
-RAM_SIZE=0x500
-FLASH_PAGESIZE=0x80
-EEPROM_PAGESIZE=0x4
+BOOTLOADER_START_ADDRESS=
+FLASH_SIZE=0x1
+EEPROM_SIZE=0x1
+RAM_SIZE=0x1
+FLASH_PAGESIZE=0x0
+EEPROM_PAGESIZE=0x0
 # CRC_PAD_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
@@ -73,7 +73,7 @@ EEPROM_PAGESIZE=0x4
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="c4fdfba"
+VERSION_GIT="94fdd92"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -81,8 +81,8 @@ DEBUG_BAUDRATE=115200
 # SOFT_UART_SUPPORT is not set
 # DEBUG_HOOK is not set
 # DEBUG_RESET_REASON is not set
-# STATUSLEDS is not set
-# STATUSLED_POWER_SUPPORT is not set
+STATUSLEDS=y
+STATUSLED_POWER_SUPPORT=y
 # STATUSLED_BOOTED_SUPPORT is not set
 # STATUSLED_NETLINK_SUPPORT is not set
 # STATUSLED_TX_SUPPORT is not set
@@ -110,9 +110,9 @@ DEBUG_BAUDRATE=115200
 # CAST5_SUPPORT is not set
 # MD5_SUPPORT is not set
 # SHA1_SUPPORT is not set
-VFS_SUPPORT=y
+# VFS_SUPPORT is not set
 # VFS_DF_SUPPORT is not set
-VFS_INLINE_SUPPORT=y
+# VFS_INLINE_SUPPORT is not set
 # CONFIG_INLINE_SUPPORT is not set
 # VFS_CONFIG_INLINE_SUPPORT is not set
 # MOTD_INLINE_SUPPORT is not set
@@ -163,12 +163,10 @@ VFS_INLINE_SUPPORT=y
 # Network
 #
 CONF_HOSTNAME="ethersex"
-NET_MAX_FRAME_LENGTH=192
+NET_MAX_FRAME_LENGTH=1500
 ENC28J60_SUPPORT=y
 CONF_ENC_MAC="ac:de:48:fd:0f:d0"
 # IPV6_STATIC_SUPPORT is not set
-CONF_ENC_IP="192.168.23.244"
-CONF_ENC_IP4_NETMASK="255.255.255.0"
 # IEEE8021Q_SUPPORT is not set
 CONF_ENC_ECOCON=ECOCON_UNSET
 # DEBUG_ENC28J60 is not set
@@ -178,9 +176,8 @@ ETHERNET_SUPPORT=y
 # TAP_SUPPORT is not set
 CONF_TAP_MAC="ac:de:48:fd:0f:d0"
 # IPV6_STATIC_SUPPORT is not set
-CONF_TAP_IP="192.168.23.244"
-CONF_TAP_IP4_NETMASK="255.255.255.0"
-CONF_TAP_LOCALIP="192.168.23.1"
+CONF_TAP_LOCALIP="2001:6f8:1209:f0:221:6aff:fe32:6b12"
+CONF_TAP_LOCALPLEN=64
 # IEEE8021Q_SUPPORT is not set
 # RFM12_IP_SUPPORT is not set
 # RFM12_IP_RFM12_0 is not set
@@ -198,8 +195,8 @@ RFM12_FREQ_433920=y
 # CONF_RFM12_SLOW_SPI is not set
 # CONF_RFM12B_SUPPORT is not set
 CONF_RFM12_BAUD=19200
-CONF_RFM12_IP="192.168.5.1"
-CONF_RFM12_IP4_NETMASK="255.255.255.0"
+CONF_RFM12_IP="2001:6f8:1209:23:aede:48ff:fe0b:ee52"
+CONF_RFM12_IP6_PREFIX_LEN=64
 # RFM12_SOURCE_ROUTE_ALL is not set
 # RFM12_PCKT_FWD is not set
 # RFM12_ARP_PROXY is not set
@@ -220,11 +217,10 @@ CONF_RFM12_IP4_NETMASK="255.255.255.0"
 # ROUTER_SUPPORT is not set
 UIP_SUPPORT=y
 NET_SUPPORT=y
-# IPV6_SUPPORT is not set
-IPV4_SUPPORT=y
+IPV6_SUPPORT=y
+# IPV4_SUPPORT is not set
 # IP_FORWARDING_SUPPORT is not set
 # UIP_TIMEOUT_SUPPORT is not set
-CONF_ETHERSEX_GATEWAY="192.168.23.1"
 # UIP_MULTI_STACK is not set
 # IPCHAIR_SUPPORT is not set
 # IPCHAIR_MASQ is not set
@@ -233,15 +229,15 @@ UDP_SUPPORT=y
 BROADCAST_SUPPORT=y
 ICMP_SUPPORT=y
 # DNS_SUPPORT is not set
-CONF_DNS_SERVER="192.168.23.254"
+CONF_DNS_SERVER="2001:6f8:1209:F0:0:0:0:1"
 # BOOTP_SUPPORT is not set
 # BOOTP_TO_EEPROM_SUPPORT is not set
 # DHCP_SUPPORT is not set
 # OPENVPN_SUPPORT is not set
 CONF_OPENVPN_KEY=00000000000000000000000000000000
 CONF_OPENVPN_HMAC_KEY=00000000000000000000000000000000
-CONF_OPENVPN_IP="192.168.23.244"
-CONF_OPENVPN_IP4_NETMASK="255.255.255.0"
+CONF_OPENVPN_IP="2001:6f8:1209:F0:0:0:0:1"
+CONF_OPENVPN_IP6_PREFIX_LEN=64
 # OPENVPN_STATIC_REMOTE is not set
 CONF_OPENVPN_PORT=1194
 # DEBUG_NET is not set
@@ -262,13 +258,7 @@ PORTIO_SIMPLE=y
 # PORTIO_FULL_FEATURED is not set
 PORTIO_SIMPLE_SUPPORT=y
 NAMED_PIN_SUPPORT=y
-# conrad_probot is not set
-_NP_CONFIG=default
-default=y
-# Jackalope is not set
-# netio_k8io is not set
-# radig_web is not set
-NP_CONFIG=pinning/named_pin/default
+NP_CONFIG=pinning/named_pin/tuxgraphics
 # TTY_SUPPORT is not set
 TTY_COLS=16
 TTY_LINES=4
@@ -365,7 +355,7 @@ CONF_FS20_PORT=2701
 # RC5_SUPPORT is not set
 # RC5_SUPPORT is not set
 # RC5_UDP_SUPPORT is not set
-CONF_RC5_SERVER="192.168.100.3"
+CONF_RC5_SERVER="2001:4b88:10e4:0:21a:92ff:fe32:53e3"
 # DEBUG_RC5 is not set
 # IRMP_SUPPORT is not set
 # IRMP_RX_SUPPORT is not set
@@ -503,7 +493,7 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 #
 # Protocols
 #
-# NET_MAX_FRAME_LENGTH_GT_571 is not set
+NET_MAX_FRAME_LENGTH_GT_571=y
 # ARTNET_SUPPORT is not set
 CONF_ARTNET_PORT=6454
 CONF_ARTNET_INUNIVERSE=1
@@ -574,7 +564,7 @@ CONF_HTTPLOG_UUID="12345678-9ABC-DEF0-1234-56789ABCDEF0"
 HTTPLOG_BUFFER_LEN=140
 # DEBUG_HTTPLOG is not set
 # IRC_SUPPORT is not set
-CONF_IRC_IP="192.168.23.254"
+CONF_IRC_IP="2001:19f0:feee:0:0:dead:beef:cafe"
 CONF_IRC_PORT=6667
 CONF_IRC_CHANNEL="ethersex"
 CONF_IRC_USERNAME="ethersex"
@@ -585,20 +575,20 @@ CONF_IRC_REALNAME="Ethersex Wollmilchsau"
 # MDNS_SD_SUPPORT is not set
 # MODBUS_SUPPORT is not set
 # MYSQL_SUPPORT is not set
-CONF_MYSQL_IP="192.168.23.254"
+CONF_MYSQL_IP="2001:6f8:1209:f0:230:5ff:fe23:3f8"
 CONF_MYSQL_USERNAME="root"
 CONF_MYSQL_PASSWORD="password"
 CONF_MYSQL_SCHEMA="mavisdb"
 # DEBUG_MYSQL is not set
 # NETSTAT_SUPPORT is not set
-CONF_NETSTAT_SERVICE_IP="188.40.33.175"
+CONF_NETSTAT_SERVICE_IP="2001:6f8:1209:f0:216:3eff:fe03:ff"
 CONF_NETSTAT_SERVICE="ethersex.de"
 CONF_NETSTAT_API="/~habo/stat/"
 # DEBUG_NETSTAT is not set
 # SOAP_SUPPORT is not set
 # SNMP_SUPPORT is not set
 # SENDMAIL_SUPPORT is not set
-CONF_SENDMAIL_IP="78.47.210.246"
+CONF_SENDMAIL_IP=""
 CONF_SENDMAIL_FROM="root@sex.metafnord.de"
 CONF_SENDMAIL_TO="stesie@brokenpipe.de"
 # SENDMAIL_AUTH_SUPPORT is not set
@@ -618,7 +608,7 @@ CONF_SMS77_TYPE="basicplus"
 # SMS77_EEPROM_SUPPORT is not set
 # DEBUG_SMS77 is not set
 # SYSLOG_SUPPORT is not set
-CONF_SYSLOG_SERVER="192.168.23.73"
+CONF_SYSLOG_SERVER="2001:4b88:10e4:0:21a:92ff:fe32:53e3"
 # TWITTER_SUPPORT is not set
 CONF_TWITTER_SERVICE="identi.ca"
 CONF_TWITTER_API="/api"
@@ -627,7 +617,7 @@ CONF_TWITTER_PASSWORD=""
 CONF_TWITTER_AUTH="ZXRoZXJzZXg6"
 # DEBUG_TWITTER is not set
 # USTREAM_SUPPORT is not set
-CONF_USTREAM_IP="205.188.234.7"
+CONF_USTREAM_IP=""
 CONF_USTREAM_PORT=80
 # DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
@@ -680,31 +670,14 @@ CW_WPM=12
 # DEBUG_APP_SAMPLE is not set
 # BULBDIAL_SUPPORT is not set
 # DEBUG_BULBDIAL is not set
-CLOCK_SUPPORT=y
+# CLOCK_SUPPORT is not set
 # CLOCK_DATETIME_SUPPORT is not set
-
-#
-# Timezone
-#
-TZ_OFFSET=60
-DST_OFFSET=60
-DST_BEGIN_MONTH=3
-DST_BEGIN_WEEK=5
-DST_BEGIN_DOW=0
-DST_BEGIN_HOUR=2
-DST_END_MONTH=10
-DST_END_WEEK=5
-DST_END_DOW=0
-DST_END_HOUR=3
 # CLOCK_CRYSTAL_SUPPORT is not set
 # CLOCK_CPU_SUPPORT is not set
 # CLOCK_NTP_ADJUST_SUPPORT is not set
 # DCF77_SUPPORT is not set
 # DEBUG_DCF77 is not set
-NTP_SUPPORT=y
-NTP_SERVER_IP="213.133.123.125"
-NTP_PORT=123
-NTP_QUERY_INTERVAL=1800
+# NTP_SUPPORT is not set
 # NTPD_SUPPORT is not set
 # WHM_SUPPORT is not set
 # UPTIME_SUPPORT is not set
@@ -737,7 +710,7 @@ DMX_FXSLOT_AMOUNT=4
 # MOTD_SUPPORT is not set
 CONF_MOTD_DEFAULT="empty"
 CONF_MOTD_SIZE=50
-HTTPD_SUPPORT=y
+# HTTPD_SUPPORT is not set
 # HTTPD_SOAP_SUPPORT is not set
 # HTTPD_AUTH_SUPPORT is not set
 # HTTP_SD_DIR_SUPPORT is not set
@@ -747,7 +720,7 @@ HTTPD_ALTERNATE_PORT=8000
 # HTTP_FAVICON_SUPPORT is not set
 # DEBUG_HTTPD is not set
 # JABBER_SUPPORT is not set
-CONF_JABBER_IP="78.47.210.246"
+CONF_JABBER_IP="2001:6f8:1209:f0:216:3eff:fe03:a7"
 CONF_JABBER_HOSTNAME="jabber.zerties.org"
 CONF_JABBER_USERNAME="esex"
 CONF_JABBER_PASSWORD="password"
@@ -788,7 +761,7 @@ stella_fade_func_0=y
 # TFTP_SUPPORT is not set
 # TFTPOMATIC_SUPPORT is not set
 # UPNP_SUPPORT is not set
-CONF_UPNP_MULTICAST_IP="239.255.255.250"
+CONF_UPNP_MULTICAST_IP=""
 CONF_UPNP_SCHEME_FILENAME="/ih.xml"
 # DEBUG_UPNP is not set
 # WATCHCAT_SUPPORT is not set
@@ -798,7 +771,7 @@ VNC_PORT=5900
 # DEBUG_VNC is not set
 # WATCHASYNC_SUPPORT is not set
 CONF_WATCHASYNC_SERVER="volkszaehler.org"
-WATCHASYNC_SERVER_IP="78.46.142.232"
+WATCHASYNC_SERVER_IP="::1"
 CONF_WATCHASYNC_PORT=80
 CONF_WATCHASYNC_METHOD="POST"
 CONF_WATCHASYNC_PATH="/path/to/volkszaehler/backend.php/data/"
@@ -900,4 +873,3 @@ TANKLEVEL_LTR_FULL=10000
 TANKLEVEL_RAISE_TIME=50
 TANKLEVEL_HOLD_TIME=20
 # RFM12_SUPPORT is not set
-IPV4_SUPPORT=y
