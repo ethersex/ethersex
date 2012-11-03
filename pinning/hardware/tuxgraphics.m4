@@ -1,5 +1,5 @@
 dnl
-dnl user_tuxgraphics.m4
+dnl tuxgraphics.m4
 dnl
 dnl Pin Configuration for 'tuxgraphics'.  Edit it to fit your needs.
 dnl
