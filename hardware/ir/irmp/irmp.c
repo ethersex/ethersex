@@ -285,10 +285,18 @@ irmp_init(void)
 #ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
   TC0_MODE_CTC;
+#if AVR_PRESCALER == 8
+  TC0_PRESCALER_8;
+#else
   TC0_PRESCALER_1;
+#endif
 #else
   TC2_MODE_CTC;
+#if AVR_PRESCALER == 8
+  TC2_PRESCALER_8;
+#else
   TC2_PRESCALER_1;
+#endif
 #endif
 #endif
   irmp_tx_set_freq(IRSND_FREQ_36_KHZ);  /* default frequency */
