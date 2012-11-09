@@ -308,13 +308,11 @@ irmp_read(irmp_data_t * irmp_data_p)
                                      FIFO_NEXT(irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
-  printf_P(PSTR("IRMP RX: proto %02" PRId8 " "), irmp_data_p->protocol);
-  printf_P((const char *)
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P(PSTR
-           (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
-            "\n"), irmp_data_p->address, irmp_data_p->command,
-           irmp_data_p->flags);
+  printf_P(PSTR("IRMP RX: proto %02" PRId8 " %S, address %04" PRIX16
+                ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
+           irmp_data_p->protocol,
+           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+           irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
   return 1;
 }
@@ -381,13 +379,11 @@ void
 irmp_write(irmp_data_t * irmp_data_p)
 {
 #ifdef DEBUG_IRMP
-  printf_P(PSTR("IRMP TX: proto %02" PRId8 " "), irmp_data_p->protocol);
-  printf_P((const char *)
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P(PSTR
-           (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
-            "\n"), irmp_data_p->address, irmp_data_p->command,
-           irmp_data_p->flags);
+  printf_P(PSTR("IRMP TX: proto %02" PRId8 " %S, address %04" PRIX16
+                ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
+           irmp_data_p->protocol,
+           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+           irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
 
   uint8_t tmphead = FIFO_NEXT(irmp_tx_fifo.write);

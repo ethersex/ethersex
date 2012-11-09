@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.5 2012/07/11 12:44:30 fm Exp $
+ * $Id: irmpprotocols.h,v 1.6 2012/10/05 07:58:39 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -484,7 +484,7 @@ typedef uint8_t     PAUSE_LEN;
 #define THOMSON_FLAGS                           0                               // flags
 
 #define BOSE_START_BIT_PULSE_TIME               1060.0e-6                       // 1060 usec pulse
-#define BOSE_START_BIT_PAUSE_TIME               1430.0e-6                       // 1430 usec pause
+#define BOSE_START_BIT_PAUSE_TIME               1425.0e-6                       // 1425 usec pause
 #define BOSE_PULSE_TIME                          550.0e-6                       //  550 usec pulse
 #define BOSE_1_PAUSE_TIME                       1425.0e-6                       // 1425 usec pause
 #define BOSE_0_PAUSE_TIME                        437.0e-6                       //  437 usec pause
