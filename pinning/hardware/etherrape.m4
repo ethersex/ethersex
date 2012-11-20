@@ -69,10 +69,6 @@ ifdef(`conf_ZBUS', `dnl
   dnl  pin(STATUSLED_ZBUS_RX, PD5)
 ')
 
-ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
-  pin(ECMD_SERIAL_USART_TX, PC2)
-')
-
 ifdef(`conf_RC5', `
   pin(RC5_SEND, PD4)
   RC5_USE_INT(0)

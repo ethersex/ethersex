@@ -153,3 +153,9 @@
 /* both tests combined */
 #define TIMER_8_AS_1_COUNTER_BUSY_TST (TIMER_8_AS_1_COMPARE_CONTROL_BUSY_TST || TIMER_8_AS_1_COUNTER_CURRENT_BUSY_TST)
 
+#define RXD0_PORT  D
+#define RXD0_PIN   0
+
+#define TXD0_PORT  D
+#define TXD0_PIN   1
+

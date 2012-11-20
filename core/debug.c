@@ -67,6 +67,14 @@ void
 debug_init_uart(void)
 {
 #ifndef SOFT_UART_SUPPORT
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
+  DDR_CONFIG_OUT(RS485TE_USART0);
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
+  DDR_CONFIG_OUT(RS485TE_USART1);
+#endif
+
   usart_init();
 
   /* disable the receiver we just enabled */

@@ -22,6 +22,7 @@
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
+#include <util/atomic.h>
 #include "config.h"
 #include "services/dmx-storage/dmx_storage.h"
 #ifndef DMX_USE_USART
@@ -31,7 +32,7 @@
 #define BAUD 250000
 #include "core/usart.h"
 
-/* We generate our own usart init module, for our usart port */
+/* generating private usart init */
 generate_usart_init_8N2()
 
 volatile uint8_t dmx_index;
@@ -43,7 +44,17 @@ volatile uint8_t dmx_txlen;
 void
 dmx_init(void)
 {
-  /* Initialize the usart module */
+  /* initialize the usart module */
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  PIN_CLEAR(RS485TE_USART0);      // disable RS485 transmitter for usart 0
+  DDR_CONFIG_OUT(RS485TE_USART0);
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+  PIN_CLEAR(RS485TE_USART1);      // disable RS485 transmitter for usart 1
+  DDR_CONFIG_OUT(RS485TE_USART1);
+#else
+  #warning no RS485 transmit enable pin for DMX defined
+#endif
+
   usart_init();
   /* Clear the buffers */
   dmx_txlen = DMX_STORAGE_CHANNELS;
@@ -56,45 +67,48 @@ dmx_init(void)
 void
 dmx_tx_start(void)
 {
-  uint8_t sreg = SREG; cli();
-  /* Enable transmitter */
-  PIN_SET(DMX_RS485EN); /* pull RS485EN pin high */
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+#if (USE_USART == 0)
+#ifdef HAVE_RS485TE_USART0
+    PIN_SET(RS485TE_USART0);          // enable RS485 transmitter for usart 0
+#endif
+    PIN_CLEAR(TXD0);                  // generate a break signal on usart 0
+    _delay_us(88);
+    PIN_SET(TXD0);                    // make after break
+    _delay_us(8);
+#elif (USE_USART == 1)
+#ifdef HAVE_RS485TE_USART1
+    PIN_SET(RS485TE_USART1);          // enable RS485 transmitter for usart 1
+#endif
+    PIN_CLEAR(TXD1);                  // generate a break signal on usart 1
+    _delay_us(88);
+    PIN_SET(TXD1);                    // make after break
+    _delay_us(8);
+#endif
 
-  /* Send RESET */
-  PIN_CLEAR(DMX_RS485TX); /* pull TX pin low */
-  _delay_us(88);
-  /* End of RESET; Send MARK AFTER RESET */
-  PIN_SET(DMX_RS485TX); /* pull TX pin high */
-  _delay_us(8);
-
-  /** Start a new dmx packet */
-  /* Enable USART */
-  usart(UCSR,B) = _BV(usart(TXEN));
-
-  /* reset Transmit Complete flag */
-  usart(UCSR,A) |= _BV(usart(TXC));
-
-  /* Send Startbyte (not always 0!) */
-  usart(UDR) = 0;
-
-  /* Enable USART interrupt*/
-  usart(UCSR,B) |= _BV(usart(TXCIE));
-  SREG = sreg; sei();
+    /* start a new dmx packet */
+    usart(UCSR,B) = _BV(usart(TXEN));   // enable usart
+    usart(UCSR,A) |= _BV(usart(TXC));   // reset transmit complete flag
+    usart(UDR) = 0;                     // send startbyte (not always 0!)
+    usart(UCSR,B) |= _BV(usart(TXCIE)); // enable usart interrupt
+  }
 }
 
 void
 dmx_tx_stop(void)
 {
-  uint8_t sreg = SREG; cli();
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    usart(UCSR, B) = 0;               // disable usart
 
-  /* Disable USART */
-  usart(UCSR,B) = 0;
-
-  /* Disable transmitter */
-  PIN_CLEAR(DMX_RS485EN);
-
-  SREG = sreg; sei();
-  dmx_index = 0;  /* reset output channel index */
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+    PIN_CLEAR(RS485TE_USART0);        // disable RS485 transmitter for usart 0
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+    PIN_CLEAR(RS485TE_USART1);        // disable RS485 transmitter for usart 1
+#endif
+    dmx_index = 0;                    // reset output channel index
+  }
 }
 
 /**
@@ -113,8 +127,8 @@ ISR(usart(USART,_TX_vect))
 {
   /* Send the rest */
   if(dmx_index < dmx_txlen) {
-    if(usart(UCSR,A) & _BV(usart(UDRE))) {
-      usart(UDR) = get_dmx_channel(DMX_OUTPUT_UNIVERSE,dmx_index++);
+    if(usart(UCSR, A) & _BV(usart(UDRE))) {
+      usart(UDR) = get_dmx_channel(DMX_OUTPUT_UNIVERSE, dmx_index++);
     }
   } else
     dmx_tx_stop();

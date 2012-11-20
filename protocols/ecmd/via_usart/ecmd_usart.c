@@ -48,11 +48,16 @@ ecmd_serial_usart_init(void) {
   must_parse = 0;
   write_len = 0;
   /* Initialize the usart module */
-  usart_init();
-#ifdef ECMD_SERIAL_USART_RS485_SUPPORT
-  DDR_CONFIG_OUT(ECMD_SERIAL_USART_TX);
-  PIN_CLEAR(ECMD_SERIAL_USART_TX);
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
+  DDR_CONFIG_OUT(RS485TE_USART0);
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
+  DDR_CONFIG_OUT(RS485TE_USART1);
+#else
+  #warning no RS485 transmit enable pin for ECMD serial defined
 #endif
+  usart_init();
 }
 
 void
@@ -82,8 +87,10 @@ ecmd_serial_usart_periodic(void)
     write_buffer[write_len++] = '\r';
     write_buffer[write_len++] = '\n';
 
-#ifdef ECMD_SERIAL_USART_RS485_SUPPORT
-    PIN_SET(ECMD_SERIAL_USART_TX);
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  PIN_SET(RS485TE_USART0);  // enable RS485 transmitter for usart 0
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+  PIN_SET(RS485TE_USART1);  // enable RS485 transmitter for usart 1
 #endif
 
     /* Enable the tx interrupt and send the first character */
@@ -134,8 +141,10 @@ ISR(usart(USART,_TX_vect))
 
     write_len = 0;
 
-#ifdef ECMD_SERIAL_USART_RS485_SUPPORT
-    PIN_CLEAR(ECMD_SERIAL_USART_TX);
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
+#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
+  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
 #endif
   }
 }
