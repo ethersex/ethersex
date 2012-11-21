@@ -38,6 +38,12 @@ generate_usart_init_8N2()
 volatile uint8_t dmx_index;
 volatile uint8_t dmx_txlen;
 
+/*
+ * for timing specifications see
+ * http://www.erwinrol.com/dmx512/ or
+ * http://opendmx.net/index.php/DMX512-A
+ */
+
 /**
  * Init DMX
  */
@@ -46,11 +52,15 @@ dmx_init(void)
 {
   /* initialize the usart module */
 #if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_CLEAR(RS485TE_USART0);      // disable RS485 transmitter for usart 0
+  PIN_CLEAR(RS485TE_USART0);          // disable RS485 transmitter for usart 0
   DDR_CONFIG_OUT(RS485TE_USART0);
+  PIN_SET(TXD0);                      // mark
+  DDR_CONFIG_OUT(TXD0);
 #elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_CLEAR(RS485TE_USART1);      // disable RS485 transmitter for usart 1
+  PIN_CLEAR(RS485TE_USART1);          // disable RS485 transmitter for usart 1
   DDR_CONFIG_OUT(RS485TE_USART1);
+  PIN_SET(TXD1);                      // mark
+  DDR_CONFIG_OUT(TXD1);
 #else
   #warning no RS485 transmit enable pin for DMX defined
 #endif
@@ -74,17 +84,17 @@ dmx_tx_start(void)
     PIN_SET(RS485TE_USART0);          // enable RS485 transmitter for usart 0
 #endif
     PIN_CLEAR(TXD0);                  // generate a break signal on usart 0
-    _delay_us(88);
-    PIN_SET(TXD0);                    // make after break
-    _delay_us(8);
+    _delay_us(176);                   // according to DMX512-A standard
+    PIN_SET(TXD0);                    // mark after break
+    _delay_us(12);                    // according to DMX512-A standard
 #elif (USE_USART == 1)
 #ifdef HAVE_RS485TE_USART1
     PIN_SET(RS485TE_USART1);          // enable RS485 transmitter for usart 1
 #endif
     PIN_CLEAR(TXD1);                  // generate a break signal on usart 1
-    _delay_us(88);
-    PIN_SET(TXD1);                    // make after break
-    _delay_us(8);
+    _delay_us(176);                   // according to DMX512-A standard
+    PIN_SET(TXD1);                    // mark after break
+    _delay_us(12);                    // according to DMX512-A standard
 #endif
 
     /* start a new dmx packet */
@@ -104,8 +114,10 @@ dmx_tx_stop(void)
 
 #if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
     PIN_CLEAR(RS485TE_USART0);        // disable RS485 transmitter for usart 0
+    PIN_SET(TXD0);                    // mark
 #elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
     PIN_CLEAR(RS485TE_USART1);        // disable RS485 transmitter for usart 1
+    PIN_SET(TXD1);                    // mark
 #endif
     dmx_index = 0;                    // reset output channel index
   }
@@ -138,5 +150,5 @@ ISR(usart(USART,_TX_vect))
   -- Ethersex META --
   header(protocols/dmx/dmx.h)
   init(dmx_init)
-  timer(2, dmx_periodic())
+  timer(1, dmx_periodic())
 */
