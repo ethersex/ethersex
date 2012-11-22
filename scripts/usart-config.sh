@@ -65,6 +65,9 @@ usart_count_used() {
   if [ "$SERIAL_LINE_LOG_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$ELTAKOMS_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
 }
 
 get_usart_count

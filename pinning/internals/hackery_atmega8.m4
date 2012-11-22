@@ -160,8 +160,8 @@
 
 #define RC5_USE_TIMER2
 
-#define RXD1_PORT  D
-#define RXD1_PIN   0
+#define RXD0_PORT  D
+#define RXD0_PIN   0
 
-#define TXD1_PORT  D
-#define TXD1_PIN   1
+#define TXD0_PORT  D
+#define TXD0_PIN   1
