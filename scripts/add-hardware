@@ -51,11 +51,6 @@ FNORD
 
 template() { if test "x$1" = "xy"; then echo ""; sed -e 's/^\s*//'; fi; }
 
-template $MODBUS_SUPPORT << FNORD
-  /* modbus tx  */
-  pin(MODBUS_TX, PC2)
-FNORD
-
 template $BULBDIAL_SUPPORT << FNORD
   /* port config for bulbdial clock */
   pin(BULBDIAL_HOURS,   PD7, OUTPUT)
