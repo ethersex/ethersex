@@ -27,6 +27,10 @@ ecmd_ifdef(I2C_DS1631_SUPPORT)
   ecmd_feature(i2c_ds1631_read_temperature, "ds1631 temp",ADDR, Read last converted temperature)
   ecmd_feature(i2c_ds1631_set_power_state, "ds1631 convert",ADDR VALUE, Initiate temperature conversions (0: stop, 1: convert))
 ecmd_endif
+ecmd_ifdef(I2C_MCP9801_SUPPORT)
+  ecmd_feature(i2c_mcp9801_read_temperature, "mcp9801 temp",ADDR, Read last converted temperature)
+  ecmd_feature(i2c_mcp9801_set_resolution, "mcp9801 resolution",ADDR VALUE, Set resolution of sensor 0: 9bit ... 3: 12bit)
+ecmd_endif
 ecmd_ifdef(I2C_TSL2550_SUPPORT)
   ecmd_feature(i2c_tsl2550_show_lux_level, "tsl2550 lux",, Show light level by reading adc registers and computing level)
   ecmd_feature(i2c_tsl2550_set_power_state, "tsl2550 power", VALUE, Set the TSL2550s power state (0: down, 1:up))

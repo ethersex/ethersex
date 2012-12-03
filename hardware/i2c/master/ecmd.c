@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2012 by Daniel Schulte <daniel@schulte.me>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +33,7 @@
 #include "hardware/i2c/master/i2c_generic.h"
 #include "hardware/i2c/master/i2c_lm75.h"
 #include "hardware/i2c/master/i2c_ds1631.h"
+#include "hardware/i2c/master/i2c_mcp9801.h"
 #include "hardware/i2c/master/i2c_tsl2550.h"
 #include "hardware/i2c/master/i2c_tsl2561.h"
 #include "hardware/i2c/master/i2c_24CXX.h"
@@ -249,6 +251,52 @@ parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t len)
 }
 
 #endif /* I2C_DS1631_SUPPORT */
+
+#ifdef I2C_MCP9801_SUPPORT
+
+int16_t parse_cmd_i2c_mcp9801_set_resolution(char *cmd, char *output,
+		uint16_t len) {
+	uint8_t adr;
+	uint8_t resolution;
+	sscanf_P(cmd, PSTR("%hhu %hhu"), &adr, &resolution);
+	if (adr > 7)
+		return ECMD_ERR_PARSE_ERROR;
+	uint16_t temp = i2c_mcp9801_set_resolution(I2C_SLA_MCP9801 + adr,
+			resolution);
+	if (temp == 0xffff)
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+#ifdef ECMD_MIRROR_REQUEST
+	return
+	ECMD_FINAL(snprintf_P
+			(output, len, PSTR("mcp9801 resolution %d %d"), adr, resolution));
+#else
+	return ECMD_FINAL_OK;
+#endif
+}
+
+int16_t parse_cmd_i2c_mcp9801_read_temperature(char *cmd, char *output,
+		uint16_t len) {
+	uint8_t adr;
+	uint8_t negative;
+	uint16_t tempM;
+	uint16_t tempL;
+	sscanf_P(cmd, PSTR("%hhu"), &adr);
+	if (adr > 7)
+		return ECMD_ERR_PARSE_ERROR;
+	uint16_t ret = i2c_mcp9801_read_temperature(I2C_SLA_MCP9801 + adr,
+			&negative, &tempM, &tempL);
+	if (ret == 0xffff)
+		return ECMD_FINAL(snprintf_P(output, len, PSTR("no sensor detected")));
+#ifdef ECMD_MIRROR_REQUEST
+	return
+	ECMD_FINAL(snprintf_P
+			(output, len, PSTR("mcp9801 temp %d %s%u.%04u"), adr, (negative ? "-" : ""), tempM, tempL)));
+#else
+	return ECMD_FINAL(snprintf_P(output, len, PSTR("%s%u.%04u"), (negative ? "-" : ""), tempM, tempL));
+#endif
+}
+
+#endif /* I2C_MCP9801_SUPPORT */
 
 #ifdef I2C_TSL2550_SUPPORT
 
