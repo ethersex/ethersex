@@ -22,6 +22,7 @@
 
 
 #include <string.h>
+#include <stdlib.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
@@ -338,7 +339,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
       /* found it */
       int16_t temp = sensor->temp;
       div_t res = div(temp, 10);
-      ret = snprintf_P(output, len, PSTR("%d.%1d"), res.quot, res.rem);
+      ret = snprintf_P(output, len, PSTR("%d.%1u"), res.quot, abs(res.rem));
       return ECMD_FINAL(ret);
     }
     /*Sensor is not in list */
