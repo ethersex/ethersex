@@ -116,7 +116,7 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
       {
 #endif
 #ifdef ONEWIRE_NAMING_SUPPORT
-        char *name = "";
+        const char *name = "";
         if (ow_sensors[i].named)
         {
           name = ow_sensors[i].name;
@@ -338,8 +338,10 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     {
       /* found it */
       int16_t temp = sensor->temp;
-      div_t res = div(temp, 10);
-      ret = snprintf_P(output, len, PSTR("%d.%1u"), res.quot, abs(res.rem));
+      uint8_t sign = temp < 0;
+      div_t res = div(abs(temp), 10);
+      ret = snprintf_P(output, len, PSTR("%S%d.%1u"),
+                       sign ? PSTR("-"): PSTR(""), res.quot, res.rem);
       return ECMD_FINAL(ret);
     }
     /*Sensor is not in list */
@@ -647,7 +649,7 @@ parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len)
 
   ow_rom_code_t rom;
   rom.raw = 0;
-  char *name = "";
+  const char *name = "";
   if (ow_sensors[i].named)
   {
     rom.raw = ow_sensors[i].ow_rom_code.raw;
