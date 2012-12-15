@@ -411,7 +411,15 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
   /* check for parse error */
   if (ret < 0)
-    return ECMD_ERR_PARSE_ERROR;
+  {
+#ifdef ONEWIRE_NAMING_SUPPORT
+    ow_sensor_t *sensor = ow_find_sensor_name(cmd);
+    if (sensor != NULL)
+      memcpy(&rom, &sensor->ow_rom_code, sizeof(rom));
+    else
+#endif
+      return ECMD_ERR_PARSE_ERROR;
+  }
 
   if (ow_temp_sensor(&rom))
   {
