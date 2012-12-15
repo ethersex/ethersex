@@ -90,10 +90,10 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
   cmd++;                        /* for static bytes */
 #endif
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != ECMD_STATE_MAGIC) /* indicator flag: real invocation:  0 */
+  if (cmd[0] != ECMD_STATE_MAGIC)       /* indicator flag: real invocation:  0 */
   {
-    cmd[0] = ECMD_STATE_MAGIC;    /* continuing call: 23 */
-    cmd[1] = 0;                   /* counter for sensors in list */
+    cmd[0] = ECMD_STATE_MAGIC;  /* continuing call: 23 */
+    cmd[1] = 0;                 /* counter for sensors in list */
   }
   uint8_t i = cmd[1];
   /* This is a special case: the while loop below printed a sensor which was
@@ -238,20 +238,20 @@ list_next:;
 
       OW_DEBUG_LIST("discovered device "
 #if ONEWIRE_BUSCOUNT > 1
-                   "%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
+                    "%02x %02x %02x %02x %02x %02x %02x %02x on bus %d\n",
 #else
-                   "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                    "%02x %02x %02x %02x %02x %02x %02x %02x\n",
 #endif
-                   ow_global.current_rom.bytewise[0],
-                   ow_global.current_rom.bytewise[1],
-                   ow_global.current_rom.bytewise[2],
-                   ow_global.current_rom.bytewise[3],
-                   ow_global.current_rom.bytewise[4],
-                   ow_global.current_rom.bytewise[5],
-                   ow_global.current_rom.bytewise[6],
-                   ow_global.current_rom.bytewise[7]
+                    ow_global.current_rom.bytewise[0],
+                    ow_global.current_rom.bytewise[1],
+                    ow_global.current_rom.bytewise[2],
+                    ow_global.current_rom.bytewise[3],
+                    ow_global.current_rom.bytewise[4],
+                    ow_global.current_rom.bytewise[5],
+                    ow_global.current_rom.bytewise[6],
+                    ow_global.current_rom.bytewise[7]
 #if ONEWIRE_BUSCOUNT > 1
-                   , ow_global.bus);
+                    , ow_global.bus);
 #else
         );
 #endif
@@ -329,7 +329,15 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   int16_t ret;
   ret = parse_ow_rom(cmd, &rom);
   if (ret < 0)
-    return ECMD_ERR_PARSE_ERROR;
+  {
+#ifdef ONEWIRE_NAMING_SUPPORT
+    ow_sensor_t *sensor = ow_find_sensor_name(cmd);
+    if (sensor != NULL)
+      memcpy(&rom, &sensor->ow_rom_code, sizeof(rom));
+    else
+#endif
+      return ECMD_ERR_PARSE_ERROR;
+  }
   if (ow_temp_sensor(&rom))
   {
     /* Search the sensor... */
@@ -341,7 +349,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
       uint8_t sign = temp < 0;
       div_t res = div(abs(temp), 10);
       ret = snprintf_P(output, len, PSTR("%S%d.%1u"),
-                       sign ? PSTR("-"): PSTR(""), res.quot, res.rem);
+                       sign ? PSTR("-") : PSTR(""), res.quot, res.rem);
       return ECMD_FINAL(ret);
     }
     /*Sensor is not in list */
@@ -488,13 +496,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 #endif
 
 
-#ifdef ONEWIRE_POLLING_SUPPORT
-int16_t
-parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
-{
-  return ECMD_FINAL_OK;
-}
-#else
+#ifndef ONEWIRE_POLLING_SUPPORT
 int16_t
 parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 {
@@ -630,10 +632,10 @@ parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len)
   int16_t ret;
 
   /* trick: use bytes on cmd as "connection specific static variables" */
-  if (cmd[0] != ECMD_STATE_MAGIC) /* indicator flag: real invocation:  0 */
+  if (cmd[0] != ECMD_STATE_MAGIC)       /* indicator flag: real invocation:  0 */
   {
-    cmd[0] = ECMD_STATE_MAGIC;    /* continuing call: 23 */
-    cmd[1] = 0;                   /* counter for sensors in list */
+    cmd[0] = ECMD_STATE_MAGIC;  /* continuing call: 23 */
+    cmd[1] = 0;                 /* counter for sensors in list */
   }
 
   uint8_t i = cmd[1];
@@ -664,9 +666,7 @@ parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len)
                    rom.bytewise[2],
                    rom.bytewise[3],
                    rom.bytewise[4],
-                   rom.bytewise[5],
-                   rom.bytewise[6],
-                   rom.bytewise[7], name);
+                   rom.bytewise[5], rom.bytewise[6], rom.bytewise[7], name);
 
   /* set return value that the parser has to be called again */
   if (ret > 0)
@@ -690,8 +690,14 @@ parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len)
   ecmd_ifdef(ONEWIRE_DETECT_SUPPORT)
     ecmd_feature(onewire_list, "1w list",,Return a list of the connected onewire devices)
   ecmd_endif()
-  ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
-  ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
+  ecmd_ifdef(ONEWIRE_NAMING_SUPPORT)
+    ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits or sensor name))
+  ecmd_else()
+    ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire DEVICE (provide 64-bit ID as 16-hex-digits))
+  ecmd_endif()
+  ecmd_ifndef(ONEWIRE_POLLING_SUPPORT)
+    ecmd_feature(onewire_convert, "1w convert", [DEVICE], Trigger temperature conversion of either DEVICE or all connected devices)
+  ecmd_endif()
   ecmd_ifdef(ONEWIRE_NAMING_SUPPORT)
     ecmd_feature(onewire_name_set, "1w name set",ID DEVICE NAME,Assign a name to/from an device address)
     ecmd_feature(onewire_name_clear, "1w name clear",ID,Delete a name mapping)

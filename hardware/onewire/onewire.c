@@ -617,7 +617,7 @@ ow_find_sensor(ow_rom_code_t * rom)
 int8_t
 ow_find_sensor_index(ow_rom_code_t * rom)
 {
-  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
     if (ow_sensors[i].ow_rom_code.raw == rom->raw)
       return i; /* found it */
   return -1;
