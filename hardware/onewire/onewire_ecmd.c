@@ -327,6 +327,11 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
   ow_rom_code_t rom;
   int16_t ret;
+
+  while (*cmd == ' ')
+    cmd++;
+  debug_printf("called onewire_get with: \"%s\"\n", cmd);
+
   ret = parse_ow_rom(cmd, &rom);
   if (ret < 0)
   {
@@ -408,8 +413,6 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   debug_printf("called onewire_get with: \"%s\"\n", cmd);
 
   ret = parse_ow_rom(cmd, &rom);
-
-  /* check for parse error */
   if (ret < 0)
   {
 #ifdef ONEWIRE_NAMING_SUPPORT
