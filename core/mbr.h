@@ -25,8 +25,7 @@
 #include "config.h"
 #include <avr/eeprom.h>
 
-#define EEPROM_MBR_OFFSET (uint8_t*) (E2END)
-#define MBR_MAGIC 0x17 /* 23 */
+#define EEPROM_MBR_OFFSET (uint8_t*) (E2END-3)
 
 typedef union {
   struct {
@@ -42,8 +41,11 @@ typedef union {
      1: bootloader will wait for an image */ 
     unsigned bootloader: 1;
     unsigned padding: 5;
+    char identifier[3];
   };
-  uint8_t raw;
+  uint32_t raw;
+  uint8_t bytes[4];
+
 } mbr_t;
 
 extern mbr_t mbr;
