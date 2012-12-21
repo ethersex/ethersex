@@ -1,7 +1,7 @@
 dnl
 dnl  Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
 dnl  Copyright (c) 2011 by Maximilian Güntner
-dnl  Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
+dnl  Copyright (c) 2011-2012 by Erik Kunze <ethersex@erik-kunze.de>
 dnl
 dnl  This program is free software; you can redistribute it and/or modify
 dnl  it under the terms of the GNU General Public License as published by
@@ -34,53 +34,63 @@ divert(globals_divert)`
 #include "core/bit-macros.h"
 
 #ifdef ONEWIRE_POLLING_SUPPORT
-static int16_t ow_read_temp (ow_rom_code_t *rom)
+static int16_t
+ow_read_temp(ow_rom_code_t *rom)
 {
-	/*Search the sensor...*/
-	for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
-	{
-		/*Maybe check here whether the device is a temperature sensor*/
-		if(ow_sensors[i].ow_rom_code.raw == rom->raw)
-		{
-			/*Found it*/
-			int16_t temp = ow_sensors[i].temp;
-			return temp;
-		}
-	}
-	/*Sensor is not in list*/
-	return 0x7FFF;  /* error */
+  /*Search the sensor...*/
+  for(uint8_t i=0;i<OW_SENSORS_COUNT;i++)
+  {
+    /*Maybe check here whether the device is a temperature sensor*/
+    if(ow_sensors[i].ow_rom_code.raw == rom->raw)
+    {
+      /*Found it*/
+      int16_t temp = ow_sensors[i].temp;
+      return temp;
+    }
+  }
+  /*Sensor is not in list*/
+  return 0x7FFF;  /* error */
 
 }
-static int16_t ow_temp (ow_rom_code_t *rom)
+static int16_t
+ow_temp (ow_rom_code_t *rom)
 {
-	return ow_read_temp(rom);
+  return ow_read_temp(rom);
 }
 #else /*ONEWIRE_POLLING_SUPPORT is not defined*/
-static int16_t ow_read_temp (ow_rom_code_t *rom)
+static int16_t
+ow_read_temp(ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
+  ow_temp_scratchpad_t sp;
+  uint8_t ret;
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
   {
-    ow_temp_scratchpad_t sp;
-    if (ow_temp_read_scratchpad(rom, &sp) == 1)
-    {
-      int16_t temp = ow_temp_normalize(rom, &sp);
-      retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-    }
+    ret = ow_temp_read_scratchpad(rom, &sp);
+  }
+  if (ret == 1)
+  {
+    int16_t temp = ow_temp_normalize(rom, &sp);
+    retval = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
   }
 
   return retval;
 }
 
-static int16_t ow_temp (ow_rom_code_t *rom)
+static int16_t
+ow_temp (ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
+  uint8_t ret;
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
   {
-    if (ow_temp_start_convert_wait(rom) == 1)
-      retval=ow_read_temp(rom);
+    ret = ow_temp_start_convert_wait(rom);
+  }
+  if (ret == 1)
+  {
+    retval = ow_read_temp(rom);
   }
 
   return retval;
