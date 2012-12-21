@@ -156,7 +156,7 @@ ow_rom_code_t ow_$1 = {{ .bytewise = {
 }}};
 #define ONEWIRE_$1
 #endif
-divert(old_divert)ow_read_temp(ow_$1)')
+divert(old_divert)ow_read_temp(&ow_$1)')
 
 define(`ONEWIRE_CONVERT', `ONEWIRE_USED()dnl
 define(`old_divert', divnum)dnl
