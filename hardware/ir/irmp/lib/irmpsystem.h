@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpsystem.h,v 1.6 2012/05/23 14:02:45 fm Exp $
+ * $Id: irmpsystem.h,v 1.7 2012/11/18 17:51:26 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,9 @@
 #  include <stm32f4xx.h>
 #  define ARM_STM32
 #  define ARM_STM32F4XX
+#elif defined(TARGET_IS_BLIZZARD_RA2)                                                                                           // TI Stellaris (tested on Stellaris Launchpad with Code Composer Studio)
+#  define STELLARIS_ARM_CORTEX_M4
+#  define F_CPU (SysCtlClockGet())
 #elif defined(unix) || defined(WIN32)                                               // Unix/Linux or Windows
 #  define UNIX_OR_WINDOWS
 #else
@@ -74,12 +77,28 @@ typedef unsigned short                  uint16_t;
 #  define IRSND_OC0                     3       // OC0
 #  define IRSND_OC0A                    4       // OC0A
 #  define IRSND_OC0B                    5       // OC0B
+#elif defined(STELLARIS_ARM_CORTEX_M4)
+#  include "inc/hw_ints.h"
+#  include "inc/hw_memmap.h"
+#  include "inc/hw_types.h"
+#  include "inc/hw_gpio.h"
+#  include "driverlib/fpu.h"
+#  include "driverlib/sysctl.h"
+#  include "driverlib/interrupt.h"
+#  include "driverlib/gpio.h"
+#  include "driverlib/rom.h"
+#  include "driverlib/systick.h"
+#  include "driverlib/pin_map.h"
+#  include "driverlib/timer.h"
+#  define PROGMEM volatile
+#  define memcpy_P memcpy
+#  define APP_SYSTICKS_PER_SEC          32
 #else
 #  define PROGMEM
 #  define memcpy_P                      memcpy
 #endif
 
-#if defined(PIC_CCS) || defined(PIC_C18) || defined(ARM_STM32)
+#if defined(PIC_CCS) || defined(PIC_C18) || defined(ARM_STM32) || defined(STELLARIS_ARM_CORTEX_M4)
 typedef unsigned char                   uint8_t;
 typedef unsigned short                  uint16_t;
 #endif

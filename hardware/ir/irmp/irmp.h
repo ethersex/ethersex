@@ -66,6 +66,7 @@ typedef enum
   IRMP_PROTO_LEGO,              /* LEGO Power Functions RC */
   IRMP_PROTO_THOMSON,           /* Thomson */
   IRMP_PROTO_BOSE,              /* Bose */
+  IRMP_PROTO_A1TVBOX,           /* A1 TV-Box */
 } irmp_prot_e;
 
 typedef struct

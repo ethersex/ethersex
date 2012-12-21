@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.79 2012/05/23 12:26:25 fm Exp $
+ * $Id: irmp.h,v 1.80 2012/11/18 17:51:26 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -53,6 +53,15 @@
 #  ifndef USE_STDPERIPH_DRIVER
 #    warning The STM32 port of IRMP uses the ST standard peripheral drivers which are not enabled in your build configuration.
 #  endif
+#elif defined (STELLARIS_ARM_CORTEX_M4)
+#  define _CONCAT(a,b)                          a##b
+#  define CONCAT(a,b)                           _CONCAT(a,b)
+#  define IRMP_PORT_PERIPH                      CONCAT(SYSCTL_PERIPH_GPIO, IRMP_PORT_LETTER)
+#  define IRMP_PORT_BASE                        CONCAT(GPIO_PORT, CONCAT(IRMP_PORT_LETTER, _BASE))
+#  define IRMP_PORT_PIN                         CONCAT(GPIO_PIN_, IRMP_BIT_NUMBER)
+#  define IRMP_PIN                              IRMP_PORT_PIN
+#  define input(x)                              ((uint8_t)(ROM_GPIOPinRead(IRMP_PORT_BASE, IRMP_PORT_PIN)))
+#  define sei()                                 IntMasterEnable()
 #endif
 #endif
 
