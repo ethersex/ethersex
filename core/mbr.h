@@ -25,7 +25,7 @@
 #include "config.h"
 #include <avr/eeprom.h>
 
-#define EEPROM_MBR_OFFSET (uint8_t*) (E2END-3)
+#define EEPROM_MBR_OFFSET (uint8_t*) (E2END-sizeof(mbr_t)-3)
 
 typedef union {
   struct {
