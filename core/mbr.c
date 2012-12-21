@@ -63,7 +63,8 @@ flashed %d, bootloader %d, identifier %c%c (0x%x 0x%x 0x%x)\n",
     mbr.flashed = 0;
   }
 #ifdef BOOTLOADER_SUPPORT
-  if (mbr.bootloader == 1 || mbr.success == 0 || mbr.identifier[0] != 'e' || mbr.identifier[1] != '6' || mbr.identifier[2] != '\0' )
+  if (mbr.bootloader == 1 || mbr.success == 0 || mbr.identifier[0] != 'e' 
+      || mbr.identifier[1] != '6' || mbr.identifier[2] != '\0' )
     bootload_delay = CONF_BOOTLOAD_DELAY;
   else
     bootload_delay = 1;
