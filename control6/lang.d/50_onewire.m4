@@ -63,7 +63,7 @@ ow_read_temp(ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
   ow_temp_scratchpad_t sp;
-  uint8_t ret;
+  int8_t ret;
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
   {
@@ -79,10 +79,10 @@ ow_read_temp(ow_rom_code_t *rom)
 }
 
 static int16_t
-ow_temp (ow_rom_code_t *rom)
+ow_temp(ow_rom_code_t *rom)
 {
   int16_t retval = 0x7FFF;  /* error */
-  uint8_t ret;
+  int8_t ret;
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
   {
@@ -96,6 +96,20 @@ ow_temp (ow_rom_code_t *rom)
   return retval;
 }
 #endif /*ONEWIRE_POLLING_SUPPORT*/
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+static int16_t
+ow_temp_by_name(const char* name)
+{
+  int16_t retval = 0x7FFF;  /* error */
+
+  ow_sensor_t *sensor = ow_find_sensor_name(name);
+  if (sensor != NULL)
+    retval = ow_temp(&sensor->ow_rom_code);
+
+  return retval;
+}
+#endif /*ONEWIRE_NAMING_SUPPORT*/
 '
 divert(old_divert)')')
 
@@ -117,6 +131,15 @@ ow_rom_code_t ow_$1 = {{ .bytewise = {
 #endif
 divert(old_divert)ow_temp(&ow_$1)')
 
+define(`ONEWIRE_GET_BY_NAME', `ONEWIRE_USED()dnl
+define(`old_divert', divnum)dnl
+divert(globals_divert)
+#ifndef ONEWIRE_$1
+const char* ow_$1_name = "$1";
+#define ONEWIRE_$1
+#endif
+divert(old_divert)ow_temp_by_name(ow_$1_name)')
+
 define(`ONEWIRE_READ', `ONEWIRE_USED()dnl
 define(`old_divert', divnum)dnl
 divert(globals_divert)
@@ -133,7 +156,7 @@ ow_rom_code_t ow_$1 = {{ .bytewise = {
 }}};
 #define ONEWIRE_$1
 #endif
-divert(old_divert)ow_read_temp(&ow_$1)')
+divert(old_divert)ow_read_temp(ow_$1)')
 
 define(`ONEWIRE_CONVERT', `ONEWIRE_USED()dnl
 define(`old_divert', divnum)dnl
