@@ -48,7 +48,15 @@ void mbr_init(void )
 {
   mbr.raw = 0x00;
   restore_mbr();
-  debug_printf("Master Boot Record: success %d, flashed %d, bootloader %d - identifier %s\n", mbr.success, mbr.flashed, mbr.bootloader, mbr.identifier);
+  debug_printf("Master Boot Record: success %d, \
+flashed %d, bootloader %d, identifier %c%c (0x%x 0x%x 0x%x)\n",
+      mbr.success, mbr.flashed, mbr.bootloader, 
+      mbr.identifier[0],
+      mbr.identifier[1],
+      mbr.identifier[0],
+      mbr.identifier[1],
+      mbr.identifier[2]
+      );
   if (mbr.flashed == 1)
   {
     debug_printf("Flash successful!\n");
