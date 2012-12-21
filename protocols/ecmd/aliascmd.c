@@ -89,8 +89,6 @@ parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
   }
   else
   {
-    char aliasname[20];
-    char aliascmd[50];
     uint8_t i = cmd[1]++;
     if (i < ALIASCMD_MAX)
     {
