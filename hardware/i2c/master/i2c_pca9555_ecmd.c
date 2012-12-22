@@ -85,9 +85,7 @@ parse_cmd_i2c_pca9555_mode(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_PCA9555_SUPPORT)
-    ecmd_feature(i2c_pca9555_out, "i2c pca9555 out",VALUE,write word to register address on I2C chip)
-    ecmd_feature(i2c_pca9555_in, "i2c pca9555 in",,read word from register address on I2C chip)
-    ecmd_feature(i2c_pca9555_mode, "i2c pca9555 mode",VALUE,select input or output mode for pins on I2C chip)
-  ecmd_endif
+  ecmd_feature(i2c_pca9555_out, "i2c pca9555 out",VALUE,write word to register address on I2C chip)
+  ecmd_feature(i2c_pca9555_in, "i2c pca9555 in",,read word from register address on I2C chip)
+  ecmd_feature(i2c_pca9555_mode, "i2c pca9555 mode",VALUE,select input or output mode for pins on I2C chip)
 */

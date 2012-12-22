@@ -104,8 +104,6 @@ parse_cmd_i2c_pcf8574x_set(char *cmd, char *output, uint16_t len)
 -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_PCF8574X_SUPPORT)
-    ecmd_feature(i2c_pcf8574x_read, "pcf8574x read",ADDR CHIP, Get bits)
-    ecmd_feature(i2c_pcf8574x_set, "pcf8574x set",ADDR CHIP HEXVALUE, Set bits)
-  ecmd_endif
+  ecmd_feature(i2c_pcf8574x_read, "pcf8574x read",ADDR CHIP, Get bits)
+  ecmd_feature(i2c_pcf8574x_set, "pcf8574x set",ADDR CHIP HEXVALUE, Set bits)
 */

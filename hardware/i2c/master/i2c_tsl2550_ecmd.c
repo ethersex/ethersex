@@ -82,9 +82,7 @@ parse_cmd_i2c_tsl2550_show_lux_level(char *cmd, char *output, uint16_t len)
 -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_TSL2550_SUPPORT)
-    ecmd_feature(i2c_tsl2550_show_lux_level, "tsl2550 lux",, Show light level by reading adc registers and computing level)
-    ecmd_feature(i2c_tsl2550_set_power_state, "tsl2550 power", VALUE, Set the TSL2550s power state (0: down, 1:up))
-    ecmd_feature(i2c_tsl2550_set_operating_mode, "tsl2550 mode", VALUE, Set the TSL2550s operating mode (0: standard range, 1: extended range))
-  ecmd_endif
+  ecmd_feature(i2c_tsl2550_show_lux_level, "tsl2550 lux",, Show light level by reading adc registers and computing level)
+  ecmd_feature(i2c_tsl2550_set_power_state, "tsl2550 power", VALUE, Set the TSL2550s power state (0: down, 1:up))
+  ecmd_feature(i2c_tsl2550_set_operating_mode, "tsl2550 mode", VALUE, Set the TSL2550s operating mode (0: standard range, 1: extended range))
 */

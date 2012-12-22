@@ -29,37 +29,8 @@
 #include "autoconf.h"
 #include "config.h"
 #include "core/debug.h"
-#include "hardware/i2c/master/i2c_master.h"
 #include "hardware/i2c/master/i2c_generic.h"
-
 #include "protocols/ecmd/ecmd-base.h"
-
-#ifdef I2C_DETECT_SUPPORT
-
-int16_t
-parse_cmd_i2c_detect(char *cmd, char *output, uint16_t len)
-{
-  /* First call, we initialize our magic bytes */
-  if (cmd[0] != ECMD_STATE_MAGIC)
-  {
-    cmd[0] = ECMD_STATE_MAGIC;
-    cmd[1] = 0;
-  }
-  uint8_t next_address = i2c_master_detect(cmd[1], 127);
-  cmd[1] = next_address + 1;
-
-  if (next_address > 127)       /* End of scaning */
-    return ECMD_FINAL_OK;
-  else
-    return
-      ECMD_AGAIN(snprintf_P
-                 (output, len, PSTR("detected at: 0x%x (%d)"), next_address,
-                  next_address));
-}
-
-#endif /* I2C_DETECT_SUPPORT */
-
-#ifdef I2C_GENERIC_SUPPORT
 
 int16_t
 parse_cmd_i2c_read_byte(char *cmd, char *output, uint16_t len)
@@ -168,21 +139,14 @@ parse_cmd_i2c_write_word_data(char *cmd, char *output, uint16_t len)
 #endif
 }
 
-#endif /* I2C_GENERIC_SUPPORT */
-
 /*
 -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_DETECT_SUPPORT)
-    ecmd_feature(i2c_detect, "i2c detect",,list detected I2C Chips)
-  ecmd_endif
-  ecmd_ifdef(I2C_GENERIC_SUPPORT)
-    ecmd_feature(i2c_read_byte, "i2c rbb",ADDR,read byte from I2C chip)
-    ecmd_feature(i2c_read_byte_data, "i2c rbd",CHIPADDR REGADDR,read byte from register address at I2C chip)
-    ecmd_feature(i2c_read_word_data, "i2c rwd",CHIPADDR REGADDR,read word from register address at I2C chip)
-    ecmd_feature(i2c_write_byte, "i2c wbb",ADDR HEXVALUE,write byte to I2C chip)
-    ecmd_feature(i2c_write_byte_data, "i2c wbd",CHIPADDR REGADDR HEXVALUE,write byte to register address on I2C chip)
-    ecmd_feature(i2c_write_word_data, "i2c wwd",CHIPADDR REGADDR HEXVALUE,write word to register address on I2C chip)
-  ecmd_endif
+  ecmd_feature(i2c_read_byte, "i2c rbb",ADDR,read byte from I2C chip)
+  ecmd_feature(i2c_read_byte_data, "i2c rbd",CHIPADDR REGADDR,read byte from register address at I2C chip)
+  ecmd_feature(i2c_read_word_data, "i2c rwd",CHIPADDR REGADDR,read word from register address at I2C chip)
+  ecmd_feature(i2c_write_byte, "i2c wbb",ADDR HEXVALUE,write byte to I2C chip)
+  ecmd_feature(i2c_write_byte_data, "i2c wbd",CHIPADDR REGADDR HEXVALUE,write byte to register address on I2C chip)
+  ecmd_feature(i2c_write_word_data, "i2c wwd",CHIPADDR REGADDR HEXVALUE,write word to register address on I2C chip)
 */

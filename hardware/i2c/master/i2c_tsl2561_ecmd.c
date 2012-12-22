@@ -74,9 +74,7 @@ parse_cmd_i2c_tsl2561_setmode(char *cmd, char *output, uint16_t len)
 -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_TSL2561_SUPPORT)
-    ecmd_feature(i2c_tsl2561_getlux, "tsl2561 lux", DEVNUM, Get LUX value)
-    ecmd_feature(i2c_tsl2561_getraw, "tsl2561 raw", DEVNUM, Get RAW channel values)
-    ecmd_feature(i2c_tsl2561_setmode, "tsl2561 setmode", DEVNUM TIME GAIN PACKAGE, Set device mode)
-  ecmd_endif
+  ecmd_feature(i2c_tsl2561_getlux, "tsl2561 lux", DEVNUM, Get LUX value)
+  ecmd_feature(i2c_tsl2561_getraw, "tsl2561 raw", DEVNUM, Get RAW channel values)
+  ecmd_feature(i2c_tsl2561_setmode, "tsl2561 setmode", DEVNUM TIME GAIN PACKAGE, Set device mode)
 */

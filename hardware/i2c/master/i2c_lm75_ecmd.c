@@ -57,7 +57,5 @@ parse_cmd_i2c_lm75(char *cmd, char *output, uint16_t len)
 -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_LM75_SUPPORT)
-    ecmd_feature(i2c_lm75, "lm75",ADDR, Get temperature)
-  ecmd_endif
+  ecmd_feature(i2c_lm75, "lm75",ADDR, Get temperature)
 */

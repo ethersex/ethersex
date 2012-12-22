@@ -78,8 +78,6 @@ parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t len)
 -- Ethersex META --
 
   block([[I2C]] (TWI))
-  ecmd_ifdef(I2C_DS1631_SUPPORT)
-    ecmd_feature(i2c_ds1631_read_temperature, "ds1631 temp",ADDR, Read last converted temperature)
-    ecmd_feature(i2c_ds1631_set_power_state, "ds1631 convert",ADDR VALUE, Initiate temperature conversions (0: stop, 1: convert))
-  ecmd_endif
+  ecmd_feature(i2c_ds1631_read_temperature, "ds1631 temp",ADDR, Read last converted temperature)
+  ecmd_feature(i2c_ds1631_set_power_state, "ds1631 convert",ADDR VALUE, Initiate temperature conversions (0: stop, 1: convert))
 */
