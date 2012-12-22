@@ -24,11 +24,8 @@
 #include "mcuf/mcuf.h"
 #include "mcuf/mcuf_modul.h"
 #include "core/debug.h"
-
 #include "protocols/ecmd/ecmd-base.h"
 
-
-#ifdef MCUF_SUPPORT
 #ifdef MCUF_CLOCK_SUPPORT
 int16_t parse_cmd_mcuf_show_clock(char *cmd, char *output, uint16_t len)
 {
@@ -102,4 +99,18 @@ int16_t parse_cmd_mcuf_modul_list(char *cmd, char *output, uint16_t len)
 
 #endif //MCUF_MODUL_SUPPORT
 
-#endif
+/*
+-- Ethersex META --
+
+  block([[Blinkenlights_MCUF|MCUF]])
+  ecmd_ifdef(MCUF_CLOCK_SUPPORT)
+    ecmd_feature(mcuf_show_clock, "mcuf showclock",, Show digital clock)
+  ecmd_endif
+  ecmd_ifdef(MCUF_SCROLLTEXT_SUPPORT)
+   ecmd_feature(mcuf_show_string, "mcuf showstring",MESSAGE, Show scrolling MESSAGE on the display)
+  ecmd_endif
+  ecmd_ifdef(MCUF_MODUL_SUPPORT)
+   ecmd_feature(mcuf_modul_list, "mcuf modul list",, List all modules)
+   ecmd_feature(mcuf_modul, "mcuf modul",N, Select module N)
+  ecmd_endif
+*/
