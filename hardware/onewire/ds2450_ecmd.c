@@ -70,6 +70,8 @@ ow_ecmd_parse_rom_arg(char **cmd, ow_rom_code_t ** ptr_rom)
       DS2450_ECMD_DEBUG
         ("ow_ecmd_parse_rom_arg: parser error (parse_ow_rom ret: %i)!\n",
          ret);
+      free(*ptr_rom);
+      *ptr_rom = NULL;
       return ECMD_ERR_PARSE_ERROR;
     }
 
