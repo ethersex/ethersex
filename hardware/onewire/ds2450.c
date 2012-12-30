@@ -553,7 +553,10 @@ ow_ds2450_get(ow_rom_code_t * rom, uint8_t channel_start,
                            num_channels * 2, b);
 
   if (ret != num_channels * 2)
+  {
+    free(b);
     return -2;
+  }
 
   for (i = 0; i < num_channels; ++i)
   {
@@ -564,6 +567,8 @@ ow_ds2450_get(ow_rom_code_t * rom, uint8_t channel_start,
       ("ow_ds2450_get: channel %c: LSB: %02x, MSB: %02x, res: %04x.\n",
        (unsigned char) i + 65, b[(2 * i) + 0], b[(2 * i) + 1], res[i]);
   }
+  
+  free(b);
 
   return num_channels;
 }
