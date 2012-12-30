@@ -42,7 +42,10 @@ get_calibration_value(int sensor_index, char *calibration_file)
     int sensor, value;
     fgets(buf, 4095, file);
     if (sscanf(buf, "%d: %d", &sensor, &value) == 2) {
-      if (sensor == sensor_index) return value;
+      if (sensor == sensor_index) {
+        fclose(file);
+        return value;
+      }
     }
   }
 
