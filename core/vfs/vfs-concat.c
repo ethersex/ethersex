@@ -109,6 +109,7 @@ main (int argc, char **argv)
   if ((f = fopen (filename_gz, "rb")) == NULL) {
     if ((f = fopen (argv[3], "rb")) == NULL) {
       fprintf (stderr, "vfs-concat: Unable to read %s.\n", argv[3]);
+      free(filename_gz);
       return 1;
     }
   }
