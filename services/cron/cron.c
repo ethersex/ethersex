@@ -109,7 +109,11 @@ cron_load()
     if (vfs_fseek(file, position, SEEK_SET) != 0)
       goto end;
     if (vfs_read(file, &newone->event, wsize) != wsize)
+    {
+      free(newone);
+      newone = NULL;
       goto end;
+    }
 #else
     eeprom_restore_offset(crontab, position, &newone->event, wsize);
 #endif
