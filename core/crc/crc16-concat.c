@@ -78,6 +78,7 @@ int main (int argc, char **argv)
     if (ferror(f))
     {
         fprintf (stderr, "Error reading from %s.\n", argv[1]);
+        fclose(f);
         return 1;
     }
 
