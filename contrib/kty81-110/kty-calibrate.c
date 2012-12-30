@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
   int i;
   int16_t adc[8];
 
-  if (scanf("%x %x %x %x %x %x %x", 
+  if (scanf("%x %x %x %x %x %x %x %x", 
             &adc[0], &adc[1],&adc[2],
             &adc[3],&adc[4],&adc[5],
             &adc[6],&adc[7]) < 4) {
