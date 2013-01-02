@@ -218,7 +218,7 @@ tftp_handle_packet(void)
         uip_udp_conn->appstate.tftp.finished = 1;
 
         bootload_delay = 1;     /* ack, then start app */
-        mbr.flashed = 1;
+        mbr_config.flashed = 1;
         write_mbr();
         debug_putstr("end\n");
       }

@@ -25,6 +25,9 @@
 #include "config.h"
 #include <avr/eeprom.h>
 
+/* Reserve last 4 bytes for flash count
+ * http://www.nongnu.org/avrdude/user-manual/avrdude_4.html
+ */
 #define EEPROM_MBR_OFFSET (uint8_t*) (E2END-sizeof(mbr_t)-3)
 
 typedef union {
@@ -41,18 +44,25 @@ typedef union {
      1: bootloader will wait for an image */ 
     unsigned bootloader: 1;
     unsigned padding: 5;
-    char identifier[3];
+  };
+  uint8_t raw;
+
+} mbr_config_t;
+
+typedef union {
+  struct {
+      mbr_config_t mbr_config;
+      char identifier[3];
   };
   uint32_t raw;
   uint8_t bytes[4];
-
 } mbr_t;
 
-extern mbr_t mbr;
+extern mbr_config_t mbr_config;
 
 void write_mbr(void );
 
-void restore_mbr(void );
+int restore_mbr(void );
 
 void mbr_init(void );
 

@@ -223,7 +223,7 @@ main (void)
 #ifdef BOOTLOADER_JUMP
     if (status.request_bootloader)
     {
-      mbr.bootloader = 1;
+      mbr_config.bootloader = 1;
       write_mbr();
 #ifdef CLOCK_CRYSTAL_SUPPORT
       TC2_INT_OVERFLOW_OFF;

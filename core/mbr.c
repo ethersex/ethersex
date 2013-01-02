@@ -20,51 +20,64 @@
  */
 
 #include <avr/eeprom.h>
+#include <string.h>
 
 #include "config.h"
 #include "core/debug.h"
 #include "core/global.h"
 #include "core/mbr.h"
 
-mbr_t mbr;
+mbr_config_t mbr_config;
 
 void write_mbr(void )
 {
-  eeprom_write_byte(EEPROM_MBR_OFFSET, mbr.bytes[0]);
-  eeprom_write_byte(EEPROM_MBR_OFFSET+1, mbr.bytes[1]);
-  eeprom_write_byte(EEPROM_MBR_OFFSET+2, mbr.bytes[2]);
-  eeprom_write_byte(EEPROM_MBR_OFFSET+3, mbr.bytes[3]);
+  /* Restore volatile parts */
+  mbr_t mbr;
+  eeprom_read_block(&mbr, EEPROM_MBR_OFFSET, sizeof(mbr));
+  memcpy(&mbr.mbr_config, &mbr_config, sizeof(mbr_config_t));
+#ifndef BOOTLOADER_SUPPORT
+  mbr.identifier[0] = 'e';
+  mbr.identifier[1] = '6';
+  mbr.identifier[2] = '\0';
+#endif
+  eeprom_write_block(&mbr, EEPROM_MBR_OFFSET, sizeof(mbr));
 }
 
-void restore_mbr(void )
+int restore_mbr(void )
 {
-  mbr.bytes[0] = eeprom_read_byte(EEPROM_MBR_OFFSET);
-  mbr.bytes[1] = eeprom_read_byte(EEPROM_MBR_OFFSET+1);
-  mbr.bytes[2] = eeprom_read_byte(EEPROM_MBR_OFFSET+2);
-  mbr.bytes[3] = eeprom_read_byte(EEPROM_MBR_OFFSET+3);
-}
-
-void mbr_init(void )
-{
-  mbr.raw = 0x00;
-  restore_mbr();
-  debug_printf("Master Boot Record: success %d, \
-flashed %d, bootloader %d, identifier %c%c (0x%x 0x%x 0x%x)\n",
-      mbr.success, mbr.flashed, mbr.bootloader, 
+  mbr_t mbr;
+  eeprom_read_block(&mbr, EEPROM_MBR_OFFSET, sizeof(mbr));
+  memcpy(&mbr_config, &mbr.mbr_config, sizeof(mbr_config_t));
+  debug_printf("mbr.identifier %c%c (0x%x 0x%x 0x%x)\n",
       mbr.identifier[0],
       mbr.identifier[1],
       mbr.identifier[0],
       mbr.identifier[1],
       mbr.identifier[2]
-      );
-  if (mbr.flashed == 1)
+  );
+#ifdef BOOTLOADER_SUPPORT
+  if (mbr.identifier[0] != 'e' || mbr.identifier[1] != '6' || mbr.identifier[2] != '\0')
+    return 1;
+#endif
+  return 0;
+}
+
+void mbr_init(void )
+{
+  mbr_config.raw = 0x00;
+  uint8_t is_e6 = restore_mbr();
+  debug_printf("Master Boot Record: success %d, \
+flashed %d, bootloader %d\n",
+      mbr_config.success,
+      mbr_config.flashed,
+      mbr_config.bootloader);
+  if (mbr_config.flashed == 1)
   {
     debug_printf("Flash successful!\n");
-    mbr.flashed = 0;
+    mbr_config.flashed = 0;
   }
 #ifdef BOOTLOADER_SUPPORT
-  if (mbr.bootloader == 1 || mbr.success == 0 || mbr.identifier[0] != 'e' 
-      || mbr.identifier[1] != '6' || mbr.identifier[2] != '\0' )
+  if (mbr_config.bootloader == 1 || mbr_config.success == 0 || is_e6 == 1)
     bootload_delay = CONF_BOOTLOAD_DELAY;
   else
     bootload_delay = 1;
@@ -74,14 +87,11 @@ flashed %d, bootloader %d, identifier %c%c (0x%x 0x%x 0x%x)\n",
 void mbr_startup(void )
 {
 #ifndef BOOTLOADER_SUPPORT
-  mbr.success = 1;
-  mbr.identifier[0] = 'e';
-  mbr.identifier[1] = '6';
-  mbr.identifier[2] = '\0';
+  mbr_config.success = 1;
 #else
-  mbr.success = 0;
+  mbr_config.success = 0;
 #endif
-  mbr.bootloader = 0;
+  mbr_config.bootloader = 0;
   write_mbr();
 }
 
