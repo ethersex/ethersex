@@ -72,12 +72,12 @@ uecmd_net_main()
     int16_t len = ecmd_parse_command(cmd, ((char *) uip_appdata) + uip_slen,
                                      (UIP_BUFSIZE - UIP_IPUDPH_LEN) -
                                      uip_slen);
-    uint8_t real_len = len;
-    if (!is_ECMD_FINAL(len))
-    {                           /* what about the errors ? */
-      /* convert ECMD_AGAIN back to ECMD_FINAL */
-      real_len = (uint8_t) ECMD_AGAIN(len);
-    }
+    /* At this point, len is either >= 0 or ECMD_AGAIN(x) - errors have been converted before */                                     
+    int16_t real_len;
+    if (is_ECMD_AGAIN(len))
+      real_len = ECMD_AGAIN(len);
+    else
+      real_len = len;    
     uip_slen += real_len + 1;
     ((char *) uip_appdata)[uip_slen - 1] = '\n';
     if (real_len == len || len == 0)
