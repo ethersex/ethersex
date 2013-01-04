@@ -25,6 +25,8 @@
 #include "config.h"
 #include <avr/eeprom.h>
 
+#undef MBR_DEBUG
+
 /* Reserve last 4 bytes for flash count
  * http://www.nongnu.org/avrdude/user-manual/avrdude_4.html
  */

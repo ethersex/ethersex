@@ -48,6 +48,7 @@ int restore_mbr(void )
   mbr_t mbr;
   eeprom_read_block(&mbr, EEPROM_MBR_OFFSET, sizeof(mbr));
   memcpy(&mbr_config, &mbr.mbr_config, sizeof(mbr_config_t));
+#ifdef MBR_DEBUG
   debug_printf("mbr.identifier %c%c (0x%x 0x%x 0x%x)\n",
       mbr.identifier[0],
       mbr.identifier[1],
@@ -55,6 +56,7 @@ int restore_mbr(void )
       mbr.identifier[1],
       mbr.identifier[2]
   );
+#endif
 #ifdef BOOTLOADER_SUPPORT
   if (mbr.identifier[0] != 'e' || mbr.identifier[1] != '6' || mbr.identifier[2] != '\0')
     return 1;
@@ -66,14 +68,18 @@ void mbr_init(void )
 {
   mbr_config.raw = 0x00;
   uint8_t is_e6 = restore_mbr();
+#ifdef MBR_DEBUG
   debug_printf("Master Boot Record: success %d, \
 flashed %d, bootloader %d\n",
       mbr_config.success,
       mbr_config.flashed,
       mbr_config.bootloader);
+#endif
   if (mbr_config.flashed == 1)
   {
+#ifdef MBR_DEBUG
     debug_printf("Flash successful!\n");
+#endif
     mbr_config.flashed = 0;
   }
 #ifdef BOOTLOADER_SUPPORT
