@@ -47,7 +47,7 @@ print <<EOF
 #include <stdint.h>
 
 /* The mimetypes we know */
-static char PROGMEM httpd_mimetype_plain[] = "text/plain";
+static const char PROGMEM httpd_mimetype_plain[] = "text/plain";
 EOF
   ;
 
