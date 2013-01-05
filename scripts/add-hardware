@@ -484,6 +484,8 @@ l_editor() {
     $EDITOR $1
   elif [ -n "`which nano`" ]; then
     nano $1
+  elif [ -n "`which vi`" ]; then
+    vi $1
   fi
 }
 
