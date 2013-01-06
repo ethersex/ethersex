@@ -32,7 +32,7 @@
 #endif
 
 #ifdef BOOTLOADER_SUPPORT
-uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
+uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
 extern volatile uint8_t newtick;
