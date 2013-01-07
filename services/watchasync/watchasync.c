@@ -26,8 +26,9 @@
  * 
  * based heavily on httplog.c based heavily on twitter.c
  * purpose:
- * Watch changes on PORTC via Interrupt and log httplog like against a web server
- * optionally including the current unix time stamp and a unique machine identifier (uuid)
+ * Watch changes on ports via interrupt and log httplog like against a web
+ * server optionally including the current unix time stamp and a unique
+ * machine identifier (uuid)
  */
 
 #include <avr/pgmspace.h>
@@ -120,6 +121,15 @@ static uint8_t stateC = 255;
 #ifdef CONF_WATCHASYNC_PD
 static uint8_t stateD = 255;
 #endif // def CONF_WATCHASYNC_PD
+#ifdef CONF_WATCHASYNC_PE
+static uint8_t stateE = 255;
+#endif // def CONF_WATCHASYNC_PE
+#ifdef CONF_WATCHASYNC_PF
+static uint8_t stateF = 255;
+#endif // def CONF_WATCHASYNC_PF
+#ifdef CONF_WATCHASYNC_PG
+static uint8_t stateG = 255;
+#endif // def CONF_WATCHASYNC_PG
 
 
 // polling mechanism goes first
@@ -138,6 +148,15 @@ static uint8_t samplesC[3] = {255,0,0};
 #ifdef CONF_WATCHASYNC_PD
 static uint8_t samplesD[3] = {255,0,0};
 #endif // def CONF_WATCHASYNC_PD
+#ifdef CONF_WATCHASYNC_PE
+static uint8_t samplesE[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PE
+#ifdef CONF_WATCHASYNC_PF
+static uint8_t samplesF[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PF
+#ifdef CONF_WATCHASYNC_PG
+static uint8_t samplesG[3] = {255,0,0};
+#endif // def CONF_WATCHASYNC_PG
 
 // the main purpose of the function is detect rasing edges and put them
 // in the ring buffer. In order to debounce for signals which are not perfect
@@ -357,6 +376,150 @@ void watchasync_periodic(void)
 #endif      
     }
     stateD ^= TempDiff;
+#endif
+
+#ifdef CONF_WATCHASYNC_PE
+    samplesE[idx] = PINE;
+    // Detect changes having proved stable:
+    TempDiff =
+    // Zerobits mark unstable Bits:
+    ~( (samplesE[0] ^ samplesE[1]) | (samplesE[0] ^ samplesE[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesE[0] ^ stateE)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PE_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesE[0];
+
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PE0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PE0_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PE1_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PE2_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PE3_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PE4_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PE5_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PE6_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PE7_INDEX);
+#endif
+    }
+    stateE ^= TempDiff;
+#endif
+
+#ifdef CONF_WATCHASYNC_PF
+    samplesF[idx] = PINF;
+    // Detect changes having proved stable:
+    TempDiff =
+    // Zerobits mark unstable Bits:
+    ~( (samplesF[0] ^ samplesF[1]) | (samplesF[0] ^ samplesF[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesF[0] ^ stateF)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PF_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesF[0];
+
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PF0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PF0_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PF1_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PF2_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PF3_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PF4_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PF5_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PF6_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PF7_INDEX);
+#endif
+    }
+    stateF ^= TempDiff;
+#endif
+
+    #ifdef CONF_WATCHASYNC_PG
+    samplesG[idx] = PING;
+    // Detect changes having proved stable:
+    TempDiff =
+    // Zerobits mark unstable Bits:
+    ~( (samplesG[0] ^ samplesG[1]) | (samplesG[0] ^ samplesG[2]) )
+    // Bits that have changed (filter unchanged Bits)
+    & (samplesG[0] ^ stateG)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PG_MASK;
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+    // Bits that are set (filter falling edges)
+    & samplesG[0];
+
+    if (StateDiff) {
+#ifdef CONF_WATCHASYNC_PG0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PG0_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PG1_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PG2_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PG3_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PG4_INDEX);
+#endif
+    }
+    stateG ^= TempDiff;
 #endif
 }
 
@@ -644,10 +807,201 @@ ISR(PCINT3_vect)
 }
 #endif
 
+
+
+#ifdef CONF_WATCHASYNC_PE
+// Handle Pinchange Interrupt on PortE
+ISR(PCINT4_vect)
+{
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PINE;
+  // Detect changes having proved stable:
+  TempDiff =
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateE)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PE_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
+    {
+#ifdef CONF_WATCHASYNC_PE0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PE0_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PE1_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PE2_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PE3_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PE4_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PE5_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PE6_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PE7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PE7_INDEX);
+#endif
+    }
+    stateE ^= TempDiff;
+
+    PinState = PINE;
+    // Detect changes having proved stable:
+    TempDiff =
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateE)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PE_MASK;
+  }
+}
+#endif
+
+
+
+#ifdef CONF_WATCHASYNC_PF
+// Handle Pinchange Interrupt on PortF
+ISR(PCINT5_vect)
+{
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PINF;
+  // Detect changes having proved stable:
+  TempDiff =
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateF)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PF_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
+    {
+#ifdef CONF_WATCHASYNC_PF0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PF0_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PF1_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PF2_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PF3_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PF4_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF5
+      if (StateDiff & 32)
+        addToRingbuffer(WATCHASYNC_PF5_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF6
+      if (StateDiff & 64)
+        addToRingbuffer(WATCHASYNC_PF6_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PF7
+      if (StateDiff & 128)
+        addToRingbuffer(WATCHASYNC_PF7_INDEX);
+#endif
+    }
+    stateF ^= TempDiff;
+
+    PinState = PINF;
+    // Detect changes having proved stable:
+    TempDiff =
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateF)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PF_MASK;
+  }
+}
+#endif
+
+
+
+#ifdef CONF_WATCHASYNC_PG
+// Handle Pinchange Interrupt on PortG
+ISR(PCINT6_vect)
+{
+  uint8_t StateDiff;
+  uint8_t TempDiff;
+  uint8_t PinState = PING;
+  // Detect changes having proved stable:
+  TempDiff =
+    // Bits that have changed (filter unchanged Bits)
+    (PinState ^ stateG)
+    // Bits in our Mask (Filter unwatched bits)
+    & WATCHASYNC_PG_MASK;
+
+  while (TempDiff) {
+    // Detect rising edges having proved stable:
+    StateDiff = TempDiff
+      // Bits that are set (filter falling edges)
+      & PinState;
+    if (StateDiff)
+    {
+#ifdef CONF_WATCHASYNC_PG0
+      if (StateDiff & 1)
+        addToRingbuffer(WATCHASYNC_PG0_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG1
+      if (StateDiff & 2)
+        addToRingbuffer(WATCHASYNC_PG1_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG2
+      if (StateDiff & 4)
+        addToRingbuffer(WATCHASYNC_PG2_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG3
+      if (StateDiff & 8)
+        addToRingbuffer(WATCHASYNC_PG3_INDEX);
+#endif
+#ifdef CONF_WATCHASYNC_PG4
+      if (StateDiff & 16)
+        addToRingbuffer(WATCHASYNC_PG4_INDEX);
+#endif
+    }
+    stateD ^= TempDiff;
+
+    PinState = PING;
+    // Detect changes having proved stable:
+    TempDiff =
+      // Bits that have changed (filter unchanged Bits)
+      (PinState ^ stateG)
+      // Bits in our Mask (Filter unwatched bits)
+      & WATCHASYNC_PG_MASK;
+  }
+}
+#endif
 #endif /* ! CONF_WATCHASYNC_EDGDETECTVIAPOLLING */
-
-
-
 
 
 
@@ -824,6 +1178,38 @@ void watchasync_init(void)  // Initialize Ports and Interrupts
 #endif
 #endif
 
+#ifdef CONF_WATCHASYNC_PE
+  PORTE = WATCHASYNC_PE_MASK;  // Enable Pull-up on PortE
+  DDRE = 255 - WATCHASYNC_PE_MASK;  // PortE Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samplesE[0] = samplesE[1] = samplesE[2] = PINE;  // save current state
+#else
+  PCMSK4 = WATCHASYNC_PE_MASK;  // Enable Pinchange Interrupt on PortE
+  PCICR |= 1<<PCIE4;  // Enable Pinchange Interrupt on PortE
+#endif
+#endif
+
+#ifdef CONF_WATCHASYNC_PF
+  PORTF = WATCHASYNC_PF_MASK;  // Enable Pull-up on PortF
+  DDRF = 255 - WATCHASYNC_PF_MASK;  // PortF Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samplesF[0] = samplesF[1] = samplesF[2] = PINF;  // save current state
+#else
+  PCMSK5 = WATCHASYNC_PF_MASK;  // Enable Pinchange Interrupt on PortF
+  PCICR |= 1<<PCIE5;  // Enable Pinchange Interrupt on PortF
+#endif
+#endif
+
+#ifdef CONF_WATCHASYNC_PG
+  PORTG = WATCHASYNC_PG_MASK;  // Enable Pull-up on PortG
+  DDRG = 255 - WATCHASYNC_PG_MASK;  // PortG Input
+#ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
+  samplesG[0] = samplesG[1] = samplesG[2] = PING;  // save current state
+#else
+  PCMSK6 = WATCHASYNC_PG_MASK;  // Enable Pinchange Interrupt on PortG
+  PCICR |= 1<<PCIE6;  // Enable Pinchange Interrupt on PortG
+#endif
+#endif
 }
 
 void watchasync_mainloop(void)  // Mainloop routine poll ringsbuffer
