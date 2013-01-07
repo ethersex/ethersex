@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010-2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.h,v 1.13 2012/06/05 12:00:46 fm Exp $
+ * $Id: irsnd.h,v 1.14 2012/12/12 15:44:53 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -80,6 +80,12 @@
 #  warning F_INTERRUPTS too low, SIEMENS protocol disabled (should be at least 15000)
 #  undef IRSND_SUPPORT_SIEMENS_PROTOCOL
 #  define IRSND_SUPPORT_SIEMENS_PROTOCOL        0
+#endif
+
+#if IRSND_SUPPORT_A1TVBOX_PROTOCOL == 1 && F_INTERRUPTS < 15000
+#  warning F_INTERRUPTS too low, A1TVBOX protocol disabled (should be at least 15000)
+#  undef IRSND_SUPPORT_A1TVBOX_PROTOCOL
+#  define IRSND_SUPPORT_A1TVBOX_PROTOCOL        0
 #endif
 
 #if IRSND_SUPPORT_RECS80_PROTOCOL == 1 && F_INTERRUPTS < 20000

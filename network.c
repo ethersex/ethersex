@@ -40,13 +40,7 @@
 #include "services/tftp/tftp.h"
 #include "hardware/ethernet/enc28j60.h"
 
-#ifdef BOOTLOADER_SUPPORT
-extern uint8_t bootload_delay;
-#endif
-
 extern void ethersex_meta_netinit (void);
-
-
 
 void
 network_init(void)
@@ -112,9 +106,10 @@ network_init(void)
 #   if defined(IPV6_STATIC_SUPPORT) && defined(TFTPOMATIC_SUPPORT)
     const char *filename = CONF_TFTP_IMAGE;
     set_CONF_TFTP_IP(&ip);
-
-    tftp_fire_tftpomatic(&ip, filename);
-    bootload_delay = CONF_BOOTLOAD_DELAY;
+    if (mbr.bootloader == 1) {
+      tftp_fire_tftpomatic(&ip, filename);
+      bootload_delay = CONF_BOOTLOAD_DELAY;
+    }
 #   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */
 
 

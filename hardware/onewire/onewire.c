@@ -82,13 +82,13 @@ onewire_init(void)
   memset(ow_sensors, 0, OW_SENSORS_COUNT * sizeof(ow_sensor_t));
 #endif
 
-#if ONEWIRE_POLLING_SUPPORT
-  ow_periodic();
-#endif
-
 #ifdef ONEWIRE_NAMING_SUPPORT
   /* restore sensor names */
   ow_names_restore();
+#endif
+
+#if ONEWIRE_POLLING_SUPPORT
+  ow_periodic();
 #endif
 }
 
@@ -617,7 +617,7 @@ ow_find_sensor(ow_rom_code_t * rom)
 int8_t
 ow_find_sensor_index(ow_rom_code_t * rom)
 {
-  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  for (int8_t i = 0; i < OW_SENSORS_COUNT; i++)
     if (ow_sensors[i].ow_rom_code.raw == rom->raw)
       return i; /* found it */
   return -1;
@@ -683,21 +683,19 @@ ow_discover_sensor(void)
           );
         if (ow_temp_sensor(&ow_global.current_rom))
         {
-          uint8_t already_in = 0;
+          uint8_t i;
           /* determine whether this sensor is already present in our list */
-          for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+          for (i = 0; i < OW_SENSORS_COUNT; i++)
           {
             if (ow_global.current_rom.raw == ow_sensors[i].ow_rom_code.raw)
             {
               ow_sensors[i].present = 1;
-              already_in = 1;
               /* skip everything else to retain a regular update rate */
               break;
             }
           }
-          if (already_in == 0)
+          if (i == OW_SENSORS_COUNT)
           {
-            uint8_t i;
             /* the sensor found is not in our list, so search for the first
              * free sensor slot, e.g. the first slot where ow_rom_code is
              * zero */

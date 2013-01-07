@@ -192,3 +192,20 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 }
 #endif /* FS20_RECEIVE_WS300_SUPPORT */
 #endif /* FS20_RECEIVE_SUPPORT */
+
+/*
+-- Ethersex META --
+  block([[FS20]])
+  ecmd_ifdef(FS20_SEND_SUPPORT)
+    ecmd_feature(fs20_send, "fs20 send",HOUSECODE ADDR CMD [CMD2], Send FS20 command. See [[FS20]] for details.)
+  ecmd_endif()
+  ecmd_ifdef(FHT_SEND_SUPPORT)
+    ecmd_feature(fht_send, "fht send",HOUSECODE ADDR CMD [CMD2], Send FHT command. See [[FS20]] for details.)
+  ecmd_endif()
+  ecmd_ifdef(FS20_RECEIVE_SUPPORT)
+    ecmd_feature(fs20_receive, "fs20 receive",, Receive FS20/FHT sequence and display it.)
+  ecmd_endif()
+  ecmd_ifdef(FS20_RECEIVE_WS300_SUPPORT)
+    ecmd_feature(fs20_ws300, "fs20 ws300",, Receive FS20 sequence from WS300 weather station and decode it.)
+  ecmd_endif()
+*/
