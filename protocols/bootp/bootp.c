@@ -158,6 +158,7 @@ bootp_handle_reply(void)
 #ifdef NTP_SUPPORT
     eeprom_save(ntp_server, &ips[4], IPADDR_LEN);
 #endif
+    eeprom_update_chksum();
 #endif /* BOOTP_TO_EEPROM_SUPPORT */
 
 #ifdef DYNDNS_SUPPORT
