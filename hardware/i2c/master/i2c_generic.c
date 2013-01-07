@@ -32,8 +32,6 @@
 #include "i2c_master.h"
 #include "i2c_generic.h"
 
-#ifdef I2C_GENERIC_SUPPORT
-
 #ifdef DEBUG_I2C
 #define DEBUGGI2C(fnc, msg...) debug_printf("I2C: %s: ", fnc); debug_printf(msg)
 #else
@@ -247,5 +245,3 @@ end:
   i2c_master_stop();
   return ret;
 }
-
-#endif /* I2C_GENERIC_SUPPORT */

@@ -28,6 +28,8 @@
 #ifndef ONEWIRE_H
 #define ONEWIRE_H
 
+#include "config.h"
+
 /* for an introduction to the onewire bus protocol see
  * http://www.ibutton.com/ibuttons/standard.pdf and the ds18s20 datasheet */
 
@@ -66,6 +68,7 @@
 #else
 #define OW_DEBUG_POLL(...)    ((void) 0)
 #endif
+
 
 /* rom commands */
 #define OW_ROM_SEARCH_ROM     0xF0
@@ -250,8 +253,8 @@ typedef struct
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
   uint8_t present :1;
-  /* need to wait 800ms for the sensor to convert the temperatures */
-  uint8_t convert_delay :3;
+  /* waiting 1s for the sensor to convert the temperatures */
+  uint8_t convert_delay :1;
 #endif
 
   /* byte aligned fields */
@@ -469,7 +472,7 @@ void ow_names_save(void);
 
 /* parse an onewire rom address in cmd string
  *
- * *rom: contains parsed rom adress after sucessul parsing
+ * *rom: contains parsed rom address after successful parsing
  *
  * return values:
  *    0: parsing successful
@@ -478,16 +481,17 @@ void ow_names_save(void);
 int8_t parse_ow_rom(char *cmd, ow_rom_code_t * rom);
 
 
-/* list onewiredevices of requested type on all OW-buses */
+/* list onewire devices of requested type on all OW-buses */
 int16_t parse_cmd_onewire_list(char *cmd, char *output, uint16_t len);
 
 
-/* get temperature of specifued OW-device */
+/* get temperature of specified OW-device */
 int16_t parse_cmd_onewire_get(char *cmd, char *output, uint16_t len);
 
 
-/* issue temperatur convert command on all OW-buses */
+/* issue temperature convert command on all OW-buses */
 int16_t parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len);
+
 
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -497,6 +501,20 @@ int16_t parse_cmd_onewire_name_list(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len);
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
-#endif /* ONEWIRE_SUPPORT */
+#ifdef ONEWIRE_HOOK_SUPPORT
+#define HOOK_NAME ow_poll
+#define HOOK_ARGS (ow_sensor_t * ow_sensor, uint8_t state)
+#include "hook.def"
+#undef HOOK_NAME
+#undef HOOK_ARGS
 
+enum
+{
+  OW_CONVERT,
+  OW_READY
+};
+#endif
+
+#endif /* ONEWIRE_SUPPORT */
 #endif /* ONEWIRE_H */
+

@@ -3,9 +3,9 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRSND.H!
  *
- * Copyright (c) 2010-2011 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsndconfig.h,v 1.40 2012/06/18 09:00:46 fm Exp $
+ * $Id: irsndconfig.h,v 1.45 2012/12/12 15:44:53 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -71,6 +71,7 @@
 #define IRSND_SUPPORT_FDC_PROTOCOL              0       // FDC IR keyboard      >= 10000 (better 15000)  ~150 bytes
 #define IRSND_SUPPORT_RCCAR_PROTOCOL            0       // RC CAR               >= 10000 (better 15000)  ~150 bytes
 #define IRSND_SUPPORT_RUWIDO_PROTOCOL           0       // RUWIDO, T-Home       >= 15000                 DON'T CHANGE, NOT SUPPORTED YET!
+#define IRSND_SUPPORT_A1TVBOX_PROTOCOL          0       // A1 TV BOX            >= 15000 (better 20000)  ~200 bytes
 #define IRSND_SUPPORT_LEGO_PROTOCOL             0       // LEGO Power RC        >= 20000                 ~150 bytes
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------

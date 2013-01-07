@@ -38,75 +38,69 @@
 char *
 aliascmd_decode(char *cmd)
 {
-	aliascmd_t alias;
-    uint8_t alias_cmp_len = 0;
-    int8_t alias_cmp_idx = -1;
-	for (uint8_t i = 0; ; i++) {
-		memcpy_P(&alias, &aliascmdlist[i], sizeof(aliascmd_t));
-		if (alias.name == NULL) break;
+  aliascmd_t alias;
+  uint8_t alias_cmp_len = 0;
+  int8_t alias_cmp_idx = -1;
+  uint8_t i;
+  for (i = 0; i < ALIASCMD_MAX; i++)
+  {
+    memcpy_P(&alias, &aliascmdlist[i], sizeof(aliascmd_t));
 #ifdef DEBUG_ECMD
-    	debug_printf("test cmd %s vs. alias %S\n", cmd+1, alias.name);
+    debug_printf("test cmd %s vs. alias %S\n", cmd + 1, alias.name);
 #endif
-		if(strncmp_P(cmd + 1, alias.name, strlen_P(alias.name)) == 0
-           && alias_cmp_len < strlen_P(alias.name)) {
-          alias_cmp_len = strlen_P(alias.name);
-          alias_cmp_idx = i;
-        }
+    size_t len = strlen_P(alias.name);
+    if (strncmp_P(cmd + 1, alias.name, len) == 0 && alias_cmp_len < len)
+    {
+      alias_cmp_len = len;
+      alias_cmp_idx = i;
     }
-
-    if (alias_cmp_idx != -1) {/* copy alias in cmd buffer */
-		memcpy_P(&alias, &aliascmdlist[alias_cmp_idx], sizeof(aliascmd_t));
-		uint8_t newlen = strlen_P(alias.cmd);
-
-
-		memmove(cmd + newlen, cmd + alias_cmp_len + 1,
-                strlen(cmd + alias_cmp_len + 1) + 1);
-        memcpy_P(cmd, alias.cmd, newlen);
-
-#ifdef DEBUG_ECMD
-       debug_printf("alias found at pos %i: %S -> %S\n", i, alias.name, alias.cmd);
-#endif
-       return cmd;
-	}
-#ifdef DEBUG_ECMD
-    debug_printf("no alias found\n");
-#endif
-    return NULL;
-}
-
-uint8_t
-aliascmd_list(uint8_t nr, char *name, char *cmd){
-
-  if ( nr > ALIASCMD_MAX) {
-    return 0;
   }
 
-  aliascmd_t alias;
-  memcpy_P(&alias, &aliascmdlist[nr], sizeof(aliascmd_t));
-  if (alias.name == NULL) return 0;
+  if (alias_cmp_idx != -1)
+  {                             /* copy alias in cmd buffer */
+    memcpy_P(&alias, &aliascmdlist[alias_cmp_idx], sizeof(aliascmd_t));
+    uint8_t newlen = strlen_P(alias.cmd);
 
-  memcpy_P(cmd, alias.cmd, strlen_P(alias.cmd) + 1);
-  memcpy_P(name, alias.name, strlen_P(alias.name) +1 );
+    memmove(cmd + newlen, cmd + alias_cmp_len + 1,
+            strlen(cmd + alias_cmp_len + 1) + 1);
+    memcpy_P(cmd, alias.cmd, newlen);
 
-  return 1;
+#ifdef DEBUG_ECMD
+    debug_printf("alias found at pos %i: %S -> %S\n", i, alias.name,
+                 alias.cmd);
+#endif
+    return cmd;
+  }
+#ifdef DEBUG_ECMD
+  debug_printf("no alias found\n");
+#endif
+  return NULL;
 }
 
 int16_t
 parse_cmd_alias_list(char *cmd, char *output, uint16_t len)
 {
 
-	if (cmd[0] != ECMD_STATE_MAGIC) {
-		cmd[0] = ECMD_STATE_MAGIC;  //magic byte
-		cmd[1] = 0x00;
-		return ECMD_AGAIN(snprintf_P(output, len, PSTR("aliases:")));
-	} else {
-		char aliasname[20];
-		char aliascmd[50];
-		int i = cmd[1]++;
-		if (aliascmd_list(i, aliasname, aliascmd) == 0)
-			return ECMD_FINAL_OK;
-		return ECMD_AGAIN(snprintf_P(output, len, PSTR("%s -> %s"), aliasname, aliascmd));
-	}
+  if (cmd[0] != ECMD_STATE_MAGIC)
+  {
+    cmd[0] = ECMD_STATE_MAGIC;  //magic byte
+    cmd[1] = 0x00;
+    return ECMD_AGAIN(snprintf_P(output, len, PSTR("aliases:")));
+  }
+  else
+  {
+    uint8_t i = cmd[1]++;
+    if (i < ALIASCMD_MAX)
+    {
+      const aliascmd_t *aliasp = &aliascmdlist[i];
+      return
+        ECMD_AGAIN(snprintf_P
+                   (output, len, PSTR("%S -> %S"),
+                    pgm_read_word(aliasp->name), pgm_read_word(aliasp->cmd)));
+    }
+    else
+      return ECMD_FINAL_OK;
+  }
 }
 
 /*

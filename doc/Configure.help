@@ -3125,3 +3125,11 @@ ELTAKOMS_SUPPORT
   37 Checksum          Checksum 3rd digit (tens)
   38 Checksum          Checksum 4th digit (ones)
   39 0x03              End
+
+Hooks
+ONEWIRE_HOOK_SUPPORT
+  Depends on: 
+   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
+
+  Support for callback hooks. For details see hook.def in the top directory.
+

@@ -208,6 +208,7 @@ static const char proto_nec42[] PROGMEM = "NEC42";
 static const char proto_lego[] PROGMEM = "LEGO";
 static const char proto_thomson[] PROGMEM = "THOMSON";
 static const char proto_bose[] PROGMEM = "BOSE";
+static const char proto_a1tvbox[] PROGMEM = "A1TVBOX";
 
 
 const PGM_P const irmp_proto_names[] PROGMEM = {
@@ -243,6 +244,7 @@ const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_lego,
   proto_thomson,
   proto_bose,
+  proto_a1tvbox,
 };
 #endif
 
@@ -285,10 +287,18 @@ irmp_init(void)
 #ifndef IRMP_EXTERNAL_MODULATOR
 #ifdef IRMP_USE_TIMER2
   TC0_MODE_CTC;
+#if AVR_PRESCALER == 8
+  TC0_PRESCALER_8;
+#else
   TC0_PRESCALER_1;
+#endif
 #else
   TC2_MODE_CTC;
+#if AVR_PRESCALER == 8
+  TC2_PRESCALER_8;
+#else
   TC2_PRESCALER_1;
+#endif
 #endif
 #endif
   irmp_tx_set_freq(IRSND_FREQ_36_KHZ);  /* default frequency */
@@ -308,13 +318,11 @@ irmp_read(irmp_data_t * irmp_data_p)
                                      FIFO_NEXT(irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
-  printf_P(PSTR("IRMP RX: proto %02" PRId8 " "), irmp_data_p->protocol);
-  printf_P((const char *)
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P(PSTR
-           (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
-            "\n"), irmp_data_p->address, irmp_data_p->command,
-           irmp_data_p->flags);
+  printf_P(PSTR("IRMP RX: proto %02" PRId8 " %S, address %04" PRIX16
+                ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
+           irmp_data_p->protocol,
+           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+           irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
   return 1;
 }
@@ -381,13 +389,11 @@ void
 irmp_write(irmp_data_t * irmp_data_p)
 {
 #ifdef DEBUG_IRMP
-  printf_P(PSTR("IRMP TX: proto %02" PRId8 " "), irmp_data_p->protocol);
-  printf_P((const char *)
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]));
-  printf_P(PSTR
-           (", address %04" PRIX16 ", command %04" PRIX16 ", flags %02" PRIX8
-            "\n"), irmp_data_p->address, irmp_data_p->command,
-           irmp_data_p->flags);
+  printf_P(PSTR("IRMP TX: proto %02" PRId8 " %S, address %04" PRIX16
+                ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
+           irmp_data_p->protocol,
+           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+           irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
 
   uint8_t tmphead = FIFO_NEXT(irmp_tx_fifo.write);

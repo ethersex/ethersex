@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009-2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpconfig.h,v 1.92 2012/07/11 13:14:08 fm Exp $
+ * $Id: irmpconfig.h,v 1.97 2012/12/11 21:31:36 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -81,7 +81,9 @@
 #define IRMP_SUPPORT_FDC_PROTOCOL               0       // FDC3402 keyboard     >= 10000 (better 15000)  ~150 bytes (~400 in combination with RC5)
 #define IRMP_SUPPORT_RCCAR_PROTOCOL             0       // RC Car               >= 10000 (better 15000)  ~150 bytes (~500 in combination with RC5)
 #define IRMP_SUPPORT_RUWIDO_PROTOCOL            0       // RUWIDO, T-Home       >= 15000                 ~550 bytes
+#define IRMP_SUPPORT_A1TVBOX_PROTOCOL           0       // A1 TV BOX            >= 15000 (better 20000)  ~300 bytes
 #define IRMP_SUPPORT_LEGO_PROTOCOL              0       // LEGO Power RC        >= 20000                 ~150 bytes
+
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change hardware pin here for ATMEL AVR
@@ -112,6 +114,14 @@
 #elif defined (ARM_STM32)                                               // use C13 as IR input on STM32
 #  define IRMP_PORT_LETTER                      C
 #  define IRMP_BIT_NUMBER                       13
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for Stellaris ARM Cortex M4
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (STELLARIS_ARM_CORTEX_M4)                                 // use B4 as IR input on Stellaris LM4F
+#  define IRMP_PORT_LETTER                      B
+#  define IRMP_BIT_NUMBER                       4
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Handling of unknown target system: DON'T CHANGE

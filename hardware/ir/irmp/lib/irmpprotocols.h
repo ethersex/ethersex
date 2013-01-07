@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * irmp-system.h - irmp target system definitions
+ * irmpprotocols.h - irmp protocols
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H or IRSND.H!
  *
  * Copyright (c) 2012 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.5 2012/07/11 12:44:30 fm Exp $
+ * $Id: irmpprotocols.h,v 1.9 2012/12/12 15:44:53 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,8 +56,9 @@
 #define IRMP_LEGO_PROTOCOL                      29              // LEGO Power Functions RC
 #define IRMP_THOMSON_PROTOCOL                   30              // Thomson
 #define IRMP_BOSE_PROTOCOL                      31              // BOSE
+#define IRMP_A1TVBOX_PROTOCOL                   32              // A1 TV Box
 
-#define IRMP_N_PROTOCOLS                        31              // number of supported protocols
+#define IRMP_N_PROTOCOLS                        32              // number of supported protocols
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * timing constants:
@@ -163,7 +164,7 @@ typedef uint8_t     PAUSE_LEN;
 #define MATSUSHITA_PULSE_TIME                    872.0e-6                       //  872 usec pulse
 #define MATSUSHITA_1_PAUSE_TIME                 2616.0e-6                       // 2616 usec pause
 #define MATSUSHITA_0_PAUSE_TIME                  872.0e-6                       //  872 usec pause
-#define MATSUSHITA_FRAME_REPEAT_PAUSE_TIME        45.0e-3                       // frame repeat after 45ms
+#define MATSUSHITA_FRAME_REPEAT_PAUSE_TIME        40.0e-3                       // frame repeat after 40ms
 #define MATSUSHITA_ADDRESS_OFFSET               12                              // skip 12 bits
 #define MATSUSHITA_ADDRESS_LEN                  12                              // read 12 address bits
 #define MATSUSHITA_COMMAND_OFFSET               0                               // skip 0 bits
@@ -472,8 +473,8 @@ typedef uint8_t     PAUSE_LEN;
 #define THOMSON_1_PAUSE_TIME                    4500.0e-6                       // 4500 usec pause
 #define THOMSON_0_PAUSE_TIME                    2000.0e-6                       // 2000 usec pause
 #define THOMSON_FRAMES                          1                               // THOMSON sends 1 frame
-#define THOMSON_AUTO_REPETITION_PAUSE_TIME        65.0e-3                       // repetition after 65ms
-#define THOMSON_FRAME_REPEAT_PAUSE_TIME           65.0e-3                       // frame repeat after 65ms
+#define THOMSON_AUTO_REPETITION_PAUSE_TIME        35.0e-3                       // repetition after 35ms
+#define THOMSON_FRAME_REPEAT_PAUSE_TIME           35.0e-3                       // frame repeat after 35ms
 #define THOMSON_ADDRESS_OFFSET                  0                               // skip 0 bits
 #define THOMSON_ADDRESS_LEN                     4                               // read 4 address bits
 #define THOMSON_COMMAND_OFFSET                  5                               // skip 4 address bits + 1 toggle bit
@@ -484,7 +485,7 @@ typedef uint8_t     PAUSE_LEN;
 #define THOMSON_FLAGS                           0                               // flags
 
 #define BOSE_START_BIT_PULSE_TIME               1060.0e-6                       // 1060 usec pulse
-#define BOSE_START_BIT_PAUSE_TIME               1430.0e-6                       // 1430 usec pause
+#define BOSE_START_BIT_PAUSE_TIME               1425.0e-6                       // 1425 usec pause
 #define BOSE_PULSE_TIME                          550.0e-6                       //  550 usec pulse
 #define BOSE_1_PAUSE_TIME                       1425.0e-6                       // 1425 usec pause
 #define BOSE_0_PAUSE_TIME                        437.0e-6                       //  437 usec pause
@@ -497,6 +498,21 @@ typedef uint8_t     PAUSE_LEN;
 #define BOSE_STOP_BIT                           1                               // has stop bit
 #define BOSE_LSB                                1                               // LSB...MSB
 #define BOSE_FLAGS                              0                               // flags
+
+#define A1TVBOX_START_BIT_PULSE_TIME            300.0e-6                        // 300 usec pulse
+#define A1TVBOX_START_BIT_PAUSE_TIME            340.0e-6                        // 340 usec pause
+#define A1TVBOX_BIT_PULSE_TIME                  250.0e-6                        // 250 usec pulse/pause
+#define A1TVBOX_BIT_PAUSE_TIME                  150.0e-6                        // 150 usec pulse/pause
+#define A1TVBOX_STOP_BIT                        0                               // has no stop bit
+#define A1TVBOX_LSB                             0                               // MSB...LSB
+#define A1TVBOX_FLAGS                           (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1 )  // flags
+#define A1TVBOX_FRAMES                          1                               // A1TVBOX sends each frame 1 times
+#define A1TVBOX_ADDRESS_OFFSET                  1                               // skip 1 bits
+#define A1TVBOX_ADDRESS_LEN                     8                               // read 8 address bits
+#define A1TVBOX_COMMAND_OFFSET                  9                               // skip 9 bits (start bit + address)
+#define A1TVBOX_COMMAND_LEN                     8                               // read 8 command bits
+#define A1TVBOX_COMPLETE_DATA_LEN               17                              // complete length incl. start bit
+#define A1TVBOX_FRAME_REPEAT_PAUSE_TIME         50.0e-3                         // 50 msec pause between frames, don't know if it is correct
 
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
 
