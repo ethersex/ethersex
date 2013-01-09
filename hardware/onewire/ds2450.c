@@ -536,7 +536,7 @@ ow_ds2450_get(ow_rom_code_t * rom, uint8_t channel_start,
   if (++num_channels <= 0 || num_channels > 4)
     return -4;
 
-  b = malloc(sizeof(uint8_t) * num_channels * 2);
+  b = alloca(sizeof(uint8_t) * num_channels * 2);
 
 #ifndef TEENSY_SUPPORT
   /* check if malloc did fine */
@@ -553,7 +553,9 @@ ow_ds2450_get(ow_rom_code_t * rom, uint8_t channel_start,
                            num_channels * 2, b);
 
   if (ret != num_channels * 2)
+  {
     return -2;
+  }
 
   for (i = 0; i < num_channels; ++i)
   {

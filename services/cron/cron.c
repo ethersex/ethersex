@@ -107,9 +107,17 @@ cron_load()
     wsize = sizeof(struct cron_event) + extrasize;
 #ifdef CRON_VFS_SUPPORT
     if (vfs_fseek(file, position, SEEK_SET) != 0)
+    {
+      free(newone);
+      newone = NULL;
       goto end;
+    }
     if (vfs_read(file, &newone->event, wsize) != wsize)
+    {
+      free(newone);
+      newone = NULL;
       goto end;
+    }
 #else
     eeprom_restore_offset(crontab, position, &newone->event, wsize);
 #endif
