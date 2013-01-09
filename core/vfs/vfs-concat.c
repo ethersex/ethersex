@@ -25,6 +25,7 @@ typedef uint32_t vfs_size_t;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h> // PATH_MAX
 
 #include "vfs_inline.h"
 
@@ -78,7 +79,7 @@ main(int argc, char **argv)
   FILE *f;
   union vfs_inline_node_t node = {.s = {.fn = "",.len = 0} };
   char *ptr;
-  char filename_gz[MAX_PATH];
+  char filename_gz[PATH_MAX];
 
   if (argc == 2 && strcmp(argv[1], "--help") == 0)
     usage(0);
