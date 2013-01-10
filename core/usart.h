@@ -92,6 +92,24 @@
 #endif
 
 
+/* code to en-/disable RS485 transmitters depending on the usart used */
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  #define RS485_DISABLE_TX PIN_CLEAR(RS485TE_USART0)
+  #define RS485_ENABLE_TX  PIN_SET(RS485TE_USART0)
+#elif (USE_USART == 1 && defined(HAVE_RS485TE_USART1))
+  #define RS485_DISABLE_TX PIN_CLEAR(RS485TE_USART1)
+  #define RS485_ENABLE_TX  PIN_SET(RS485TE_USART1)
+#endif
+
+
+/* set RS485 transmit enable pin to output mode */
+#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
+  #define RS485_TE_SETUP DDR_CONFIG_OUT(RS485TE_USART0)
+#elif (USE_USART == 1 && defined(HAVE_RS485TE_USART1))
+  #define RS485_TE_SETUP DDR_CONFIG_OUT(RS485TE_USART1)
+#endif
+
+
 /* init the usart module */
 #define generate_usart_init() \
 static void \
@@ -101,6 +119,7 @@ usart_init(void) \
    * interrupt flags on initialization ... */\
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) \
   { \
+    RS485_TE_SETUP; \
     usart(UBRR,H) = UBRRH_VALUE; \
     usart(UBRR,L) = UBRRL_VALUE; \
     /* set mode 8N1: 8 bits, 1 stop, no parity, asynchronous usart \
