@@ -160,6 +160,12 @@
 #define _PWM_MELODY_TIMSK TIMSK2
 #define _PWM_MELODY_OCIE OCIE2A
 
+#define RXD0_PORT  D
+#define RXD0_PIN   0
+
+#define TXD0_PORT  D
+#define TXD0_PIN   1
+
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
 #ifdef SPCR0

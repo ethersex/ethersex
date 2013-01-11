@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
+ * Copyright (c) 2012 by Frank Sautter <ethersix@sautter.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,110 +19,158 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+/*
+ * for DMX timing specifications see
+ * http://www.erwinrol.com/dmx512/ or
+ * http://opendmx.net/index.php/DMX512-A
+ */
+
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
+#include <util/atomic.h>
 #include "config.h"
 #include "services/dmx-storage/dmx_storage.h"
 #ifndef DMX_USE_USART
 #define DMX_USE_USART 0
 #endif
 #define USE_USART DMX_USE_USART
+
+/* baudrate used for DMX data bytes */
 #define BAUD 250000
+/* baudrate to generate 176µs break signal at start of packet */
+#define BAUD_BREAK 51000
+
 #include "core/usart.h"
+#include "pinning.c"
 
-/* We generate our own usart init module, for our usart port */
-generate_usart_init_8N2()
+#define UBRR_DMX       (((F_CPU) + 8UL * (BAUD)) / (16UL * (BAUD)) -1UL)
+#define UBRR_DMX_BREAK (((F_CPU) + 8UL * (BAUD_BREAK)) / \
+                         (16UL * (BAUD_BREAK)) -1UL)
 
-volatile uint8_t dmx_index;
-volatile uint8_t dmx_txlen;
+typedef enum {
+  DMX_BREAK,
+  DMX_START,
+  DMX_DATA,
+} dmx_tx_state_t;
+
+static volatile uint16_t dmx_index = 0;
+static volatile uint16_t dmx_txlen = DMX_STORAGE_CHANNELS;
+static volatile dmx_tx_state_t dmx_tx_state = DMX_START;
+
 
 /**
- * Init DMX
+ * init DMX
+ * after initialisation of IOs, all data transfer is done by ISRs without the
+ * need for any delay loops
  */
-void
-dmx_init(void)
-{
-  /* Initialize the usart module */
-  usart_init();
-  /* Clear the buffers */
-  dmx_txlen = DMX_STORAGE_CHANNELS;
-  dmx_index = 0;
+void dmx_init(void) {
+
+#if (USE_USART == 0)
+  PIN_SET(TXD0);              // set usart tx pin high (mark)
+  DDR_CONFIG_OUT(TXD0);       // configure usart tx pin as output
+#elif (USE_USART == 1)
+  PIN_SET(TXD1);              // set usart tx pin high (mark)
+  DDR_CONFIG_OUT(TXD1);       // configure usart tx pin as output
+#endif
+
+  RS485_TE_SETUP;             // configure RS485 transmit enable as output
+  RS485_ENABLE_TX;            // enable RS485 transmitter
+
+#if !RS485_HAVE_TE
+  #warning no RS485 transmit enable pin for DMX defined
+#endif
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    usart(UBRR,H) = (UBRR_DMX_BREAK >> 8);
+    usart(UBRR,L) = (UBRR_DMX_BREAK & 0xff);
+    /* set mode 8N2: 8 bits, 2 stop, no parity, asynchronous usart
+     * and set URSEL, if present, */
+    usart(UCSR,C) =  _BV(usart(USBS)) | (3 << (usart(UCSZ,0))) | _BV_URSEL;
+    USART_2X();
+    /* transmitter enable, TX complete interrupt enable, UDR empty disable */
+    usart(UCSR, B) = _BV(usart(TXEN)) | _BV(usart(TXCIE));
+
+    /* start by sending a break signal */
+    usart(UDR) = 0;
+  }
+
 }
 
 /**
- * Send DMX-channels via USART
+ * DMX interrupt service routines
+ * DMX_BREAK: send a 176µs break signal
+ * DMX_START: send a start byte with 250kbps
+ * DMX_DATA:  send up to 511 bytes of DMX data with 250kbps
+ *
+ * how this all works:
+ * - the usart is initialized with 8N2.
+ *   baudrate is set to BAUD_BREAK achieve a break signal.
+ *   transfer register is filled with a 0 byte.
+ *   TXCIE (transmission complete) interrupt is enabled.
+ * - after the break signal is completely sent TXCIE interrupt is triggered.
+ *   baudrate is set to 250kbps
+ *   the start of frame byte (0) is stored in the transfer register
+ *   TXCIE interrupt is disabled
+ *   UDRE (transmission register empty) is enabled
+ * - all DMX data is sent in UDRE interrupt
+ *   after the last byte UDRE interrupt is disabled and TXCIE enabled
+ * - baudrate is set to BAUD_BREAK
+ *   break signal is sent
+ *
+ * why so complicated?
+ * to achieve maximum transmission rate and not to loose time having the next
+ * byte not already prepared (only using TXCIE would lead to ~ 1-2 bittime
+ * longer marks)
+ * using the usart to generate the break signal makes delay loops unnecessary.
+ * everything - except initialization- is done using interrupts.
  */
-void
-dmx_tx_start(void)
+ISR(usart(USART, _TX_vect))
 {
-  uint8_t sreg = SREG; cli();
-  /* Enable transmitter */
-  PIN_SET(DMX_RS485EN); /* pull RS485EN pin high */
+  switch (dmx_tx_state) {
+    case DMX_BREAK:
+      /* set break baudrate */
+      usart(UBRR,H) = (UBRR_DMX_BREAK >> 8);
+      usart(UBRR,L) = (UBRR_DMX_BREAK & 0xff);
+      /* send break signal */
+      usart(UDR) = 0;
+      /* reset data pointer */
+      dmx_index = 0;
+      dmx_tx_state = DMX_START;
+      break;
 
-  /* Send RESET */
-  PIN_CLEAR(DMX_RS485TX); /* pull TX pin low */
-  _delay_us(88);
-  /* End of RESET; Send MARK AFTER RESET */
-  PIN_SET(DMX_RS485TX); /* pull TX pin high */
-  _delay_us(8);
-
-  /** Start a new dmx packet */
-  /* Enable USART */
-  usart(UCSR,B) = _BV(usart(TXEN));
-
-  /* reset Transmit Complete flag */
-  usart(UCSR,A) |= _BV(usart(TXC));
-
-  /* Send Startbyte (not always 0!) */
-  usart(UDR) = 0;
-
-  /* Enable USART interrupt*/
-  usart(UCSR,B) |= _BV(usart(TXCIE));
-  SREG = sreg; sei();
+    case DMX_START:
+      /* set normal DMX baudrate */
+      usart(UBRR,H) = (UBRR_DMX >> 8);
+      usart(UBRR,L) = (UBRR_DMX & 0xff);
+      /* send start byte */
+      usart(UDR) = 0;
+      /* transmitter enable, TX complete interrupt disable, UDR empty enable */
+      usart(UCSR, B) = _BV(usart(TXEN)) | _BV(usart(UDRE));
+      dmx_tx_state = DMX_DATA;
+      break;
+    default:        // just to quiet compiler warning
+      break;
+    }
 }
 
-void
-dmx_tx_stop(void)
+ISR(usart(USART, _UDRE_vect))
 {
-  uint8_t sreg = SREG; cli();
+  /* send DMX data bytes */
+  usart(UDR) = get_dmx_channel(DMX_OUTPUT_UNIVERSE, dmx_index++);
 
-  /* Disable USART */
-  usart(UCSR,B) = 0;
-
-  /* Disable transmitter */
-  PIN_CLEAR(DMX_RS485EN);
-
-  SREG = sreg; sei();
-  dmx_index = 0;  /* reset output channel index */
-}
-
-/**
- * Send DMX-packet
- */
-void
-dmx_periodic(void)
-{
-  wdt_kick();
-  if(dmx_index == 0) {
-    dmx_tx_start();
+  /* restart if end of universe is reached */
+  if (dmx_index >= dmx_txlen)
+  {
+    /* transmitter enable, TX complete interrupt enable, UDR empty disable */
+    usart(UCSR, B) = _BV(usart(TXEN)) | _BV(usart(TXCIE));
+    dmx_tx_state = DMX_BREAK;
   }
 }
 
-ISR(usart(USART,_TX_vect))
-{
-  /* Send the rest */
-  if(dmx_index < dmx_txlen) {
-    if(usart(UCSR,A) & _BV(usart(UDRE))) {
-      usart(UDR) = get_dmx_channel(DMX_OUTPUT_UNIVERSE,dmx_index++);
-    }
-  } else
-    dmx_tx_stop();
-}
-
 /*
-  -- Ethersex META --
-  header(protocols/dmx/dmx.h)
-  init(dmx_init)
-  timer(2, dmx_periodic())
-*/
+ -- Ethersex META --
+ header(protocols/dmx/dmx.h)
+ init(dmx_init)
+ */

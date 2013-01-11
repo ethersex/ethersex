@@ -41,15 +41,14 @@ generate_usart_init()
 
 void eltakoms_init(void)
 {
+#if !RS485_HAVE_TE
+  #warning no RS485 transmit enable pin for ELTAKOMS defined
+#endif
+
+  RS485_TE_SETUP;               // configure RS485 transmit enable as output
+  RS485_DISABLE_TX;             // disable RS485 transmitter
   usart_init();
 
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
-#else
-  #warning no RS485 transmit enable pin defined
-#endif
   ELTAKOMS_DEBUG("init\n");
 }
 

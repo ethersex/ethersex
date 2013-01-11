@@ -25,3 +25,10 @@ dnl
  */
 
 include(internals/hackery_atmega644.m4)
+
+#define RXD1_PORT  D
+#define RXD1_PIN   2
+
+#define TXD1_PORT  D
+#define TXD1_PIN   3
+

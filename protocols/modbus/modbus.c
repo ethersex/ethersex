@@ -33,11 +33,11 @@
 #include "modbus.h"
 #include "modbus_client.h"
 
-#include "pinning.c"
 
 #define USE_USART MODBUS_USE_USART
 #define BAUD MODBUS_BAUDRATE
 #include "core/usart.h"
+#include "pinning.c"
 
 #ifdef MODBUS_CLIENT_SUPPORT
 struct modbus_connection_state_t modbus_client_state;
@@ -66,16 +66,17 @@ modbus_crc_calc(uint8_t *data, uint8_t len)
 void
 modbus_init(void)
 {
-    /* Initialize the usart module */
-    usart_init();
+#if !RS485_HAVE_TE
+  #error no RS485 transmit enable pin for MODBUS defined
+#endif
 
-    /* Enable RX/TX Swtich as Output */
-    DDR_CONFIG_OUT(MODBUS_TX);
-    PIN_CLEAR(MODBUS_TX);
+  RS485_TE_SETUP;             // configure RS485 transmit enable as output
+  RS485_DISABLE_TX;           // disable RS485 transmitter
+  usart_init();               // initialize the usart module
 
-    modbus_data.len = 0;
-    modbus_data.sent = 0;
-    modbus_data.crc_len = 0;
+  modbus_data.len = 0;
+  modbus_data.sent = 0;
+  modbus_data.crc_len = 0;
 
 #ifdef MODBUS_CLIENT_SUPPORT
     modbus_client_state.len = 0;
@@ -111,7 +112,8 @@ modbus_periodic(void)
       modbus_client_process(modbus_client_state.data, modbus_client_state.len,
                             &recv_len);
       if (recv_len) {
-        PIN_SET(MODBUS_TX);
+        RS485_ENABLE_TX;
+
         modbus_data.data = modbus_client_state.data;
         modbus_data.len = recv_len; 
 
@@ -150,8 +152,7 @@ modbus_rxstart(uint8_t *data, uint8_t len, int16_t *recv_len) {
 
   modbus_last_address = *data;
 
-  /* enable the transmitter */
-  PIN_SET(MODBUS_TX);
+  RS485_ENABLE_TX;
 
   modbus_recv_len_ptr = recv_len;
 
@@ -179,8 +180,9 @@ ISR(usart(USART,_TX_vect))
   } else {
     /* Disable this interrupt */
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
-    /* Disable the transmitter */
-    PIN_CLEAR(MODBUS_TX);
+
+    RS485_DISABLE_TX;
+
     /* No we are waiting for an answer */
     if (modbus_recv_len_ptr) {
       modbus_data.len = 0;
@@ -192,7 +194,8 @@ ISR(usart(USART,_TX_vect))
 ISR(usart(USART,_RX_vect))
 {
   /* Ignore errors */
-  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE)))) {
+  if ((usart(UCSR,A) & _BV(usart(DOR))) || (usart(UCSR,A) & _BV(usart(FE))))
+  {
     uint8_t v = usart(UDR);
     (void) v;
     return;
@@ -200,7 +203,8 @@ ISR(usart(USART,_RX_vect))
   uint8_t data = usart(UDR);
 
 
-  if (!modbus_recv_len_ptr) {
+  if (!modbus_recv_len_ptr)
+  {
 #ifdef MODBUS_CLIENT_SUPPORT
     /* This byte is not answer to a modbus/TCP || ecmd modbus request */
     modbus_client_state.data[modbus_client_state.len++] = data;
