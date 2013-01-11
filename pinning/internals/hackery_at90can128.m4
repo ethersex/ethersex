@@ -159,6 +159,18 @@
 #define _PWM_MELODY_TIMSK   TIMSK
 #define _PWM_MELODY_OCIE    OCIE0
 
+#define RXD0_PORT  E
+#define RXD0_PIN   0
+
+#define TXD0_PORT  E
+#define TXD0_PIN   1
+
+#define RXD1_PORT  D
+#define RXD1_PIN   2
+
+#define TXD1_PORT  D
+#define TXD1_PIN   3
+
 /* workaround for avr-libc devs not being able to decide how these registers
  * should be named... */
 #ifdef SPCR0
@@ -212,7 +224,6 @@
 #undef    UCSZ0
 #undef    UCPOL
 
-
 /* USART Status Register A (generic) */
 #undef    RXC
 #undef    TXC
@@ -233,4 +244,3 @@
 #undef    UCSZ2
 #undef    RXB8
 #undef    TXB8
-
