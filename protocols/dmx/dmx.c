@@ -42,6 +42,7 @@
 #define BAUD_BREAK 51000
 
 #include "core/usart.h"
+#include "pinning.c"
 
 #define UBRR_DMX       (((F_CPU) + 8UL * (BAUD)) / (16UL * (BAUD)) -1UL)
 #define UBRR_DMX_BREAK (((F_CPU) + 8UL * (BAUD_BREAK)) / \
@@ -64,19 +65,20 @@ static volatile dmx_tx_state_t dmx_tx_state = DMX_START;
  * need for any delay loops
  */
 void dmx_init(void) {
-  /* initialize the usart module */
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_SET(RS485TE_USART0);              // enable RS485 driver for usart 0
-  DDR_CONFIG_OUT(RS485TE_USART0);
-  PIN_SET(TXD0);                        // mark
-  DDR_CONFIG_OUT(TXD0);
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_SET(RS485TE_USART1);              // enable RS485 driver for usart 1
-  DDR_CONFIG_OUT(RS485TE_USART1);
-  PIN_SET(TXD1);                        // mark
-  DDR_CONFIG_OUT(TXD1);
-#else
-#warning no RS485 transmit enable pin for DMX defined
+
+#if (USE_USART == 0)
+  PIN_SET(TXD0);              // set usart tx pin high (mark)
+  DDR_CONFIG_OUT(TXD0);       // configure usart tx pin as output
+#elif (USE_USART == 1)
+  PIN_SET(TXD1);              // set usart tx pin high (mark)
+  DDR_CONFIG_OUT(TXD1);       // configure usart tx pin as output
+#endif
+
+  RS485_TE_SETUP;             // configure RS485 transmit enable as output
+  RS485_ENABLE_TX;            // enable RS485 transmitter
+
+#if !RS485_HAVE_TE
+  #warning no RS485 transmit enable pin for DMX defined
 #endif
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)

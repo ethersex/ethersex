@@ -33,11 +33,11 @@
 #include "modbus.h"
 #include "modbus_client.h"
 
-#include "pinning.c"
 
 #define USE_USART MODBUS_USE_USART
 #define BAUD MODBUS_BAUDRATE
 #include "core/usart.h"
+#include "pinning.c"
 
 #ifdef MODBUS_CLIENT_SUPPORT
 struct modbus_connection_state_t modbus_client_state;
@@ -66,19 +66,13 @@ modbus_crc_calc(uint8_t *data, uint8_t len)
 void
 modbus_init(void)
 {
-  /* Initialize the usart module */
-  usart_init();
-
-  /* Enable RX/TX Switch as Output */
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_CLEAR(RS485TE_USART0);            // disable RS485 driver for usart 0
-  DDR_CONFIG_OUT(RS485TE_USART0);
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_CLEAR(RS485TE_USART1);            // disable RS485 driver for usart 1
-  DDR_CONFIG_OUT(RS485TE_USART1);
-#else
-#error no RS485 transmit enable pin for MODBUS defined
+#if !RS485_HAVE_TE
+  #error no RS485 transmit enable pin for MODBUS defined
 #endif
+
+  RS485_TE_SETUP;             // configure RS485 transmit enable as output
+  RS485_DISABLE_TX;           // disable RS485 transmitter
+  usart_init();               // initialize the usart module
 
   modbus_data.len = 0;
   modbus_data.sent = 0;
@@ -118,11 +112,7 @@ modbus_periodic(void)
       modbus_client_process(modbus_client_state.data, modbus_client_state.len,
                             &recv_len);
       if (recv_len) {
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-          PIN_SET(RS485TE_USART0);              // enable RS485 driver for usart 0
-        #elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-          PIN_SET(RS485TE_USART1);              // enable RS485 driver for usart 1
-        #endif
+        RS485_ENABLE_TX;
 
         modbus_data.data = modbus_client_state.data;
         modbus_data.len = recv_len; 
@@ -162,12 +152,7 @@ modbus_rxstart(uint8_t *data, uint8_t len, int16_t *recv_len) {
 
   modbus_last_address = *data;
 
-  /* enable the transmitter */
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_SET(RS485TE_USART0);              // enable RS485 driver for usart 0
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_SET(RS485TE_USART1);              // enable RS485 driver for usart 1
-#endif
+  RS485_ENABLE_TX;
 
   modbus_recv_len_ptr = recv_len;
 
@@ -196,11 +181,7 @@ ISR(usart(USART,_TX_vect))
     /* Disable this interrupt */
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
 
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-    PIN_CLEAR(RS485TE_USART0);            // disable RS485 driver for usart 0
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-    PIN_CLEAR(RS485TE_USART1);            // disable RS485 driver for usart 1
-#endif
+    RS485_DISABLE_TX;
 
     /* No we are waiting for an answer */
     if (modbus_recv_len_ptr) {

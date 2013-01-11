@@ -51,13 +51,14 @@ debug_binary(uint8_t v)
 void soft_uart_putchar(uint8_t c);
 
 #ifdef DEBUG_USE_USART
-#define USE_USART DEBUG_USE_USART
+  #define USE_USART DEBUG_USE_USART
 #else
-#define USE_USART 0
+  #define USE_USART 0
 #endif
 
 #define BAUD DEBUG_BAUDRATE
 #include "core/usart.h"
+#include "pinning.c"
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
@@ -67,6 +68,8 @@ void
 debug_init_uart(void)
 {
 #ifndef SOFT_UART_SUPPORT
+  RS485_TE_SETUP;
+  RS485_DISABLE_TX;
   usart_init();
 
   /* disable the receiver we just enabled */
@@ -95,12 +98,11 @@ debug_uart_put(char d, FILE * stream)
   #else /* SOFT_UART_SUPPORT */
     while (!(usart(UCSR, A) & _BV(usart(UDRE))));
 
-    #if (HAVE_RS485TE_USART0 == 1 || HAVE_RS485TE_USART1 == 1)
+    #if RS485_HAVE_TE
       /* enable interrupt usart transmit complete */
       usart(UCSR,B) |= _BV(usart(TXCIE));
-      /* enable RS485 transmitter */
       RS485_ENABLE_TX;
-    #endif  /* HAVE_RS485TE_USART0 == 1 || HAVE_RS485TE_USART1 == 1 */
+    #endif  /* RS485_HAVE_TE */
 
     usart(UDR) = d;
   #endif /* SOFT_UART_SUPPORT */
@@ -108,16 +110,14 @@ debug_uart_put(char d, FILE * stream)
 }
 
 /* interrupt routine to disable the RS485 transmitter */
-#if (HAVE_RS485TE_USART0 == 1 || HAVE_RS485TE_USART1 == 1)
+#if RS485_HAVE_TE
   ISR(usart(USART,_TX_vect))
   {
-    /* disable RS485 transmitter */
     RS485_DISABLE_TX;
-
     /* disable interrupt usart transmit complete */
     usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
   }
-#endif  /* HAVE_RS485TE_USART0 == 1 || HAVE_RS485TE_USART1 == 1 */
+#endif  /* RS485_HAVE_TE */
 
 
 void noinline

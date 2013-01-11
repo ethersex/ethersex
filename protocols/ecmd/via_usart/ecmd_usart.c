@@ -32,6 +32,8 @@
 #define USE_USART ECMD_SERIAL_USART_USE_USART
 #define BAUD ECMD_SERIAL_BAUDRATE
 #include "core/usart.h"
+#include "pinning.c"
+
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
@@ -47,17 +49,10 @@ ecmd_serial_usart_init(void) {
   recv_len = 0;
   must_parse = 0;
   write_len = 0;
-  /* Initialize the usart module */
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
-  DDR_CONFIG_OUT(RS485TE_USART0);
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
-  DDR_CONFIG_OUT(RS485TE_USART1);
-#else
-  #warning no RS485 transmit enable pin for ECMD serial defined
-#endif
-  usart_init();
+
+  RS485_TE_SETUP;             // configure RS485 transmit enable as output
+  RS485_DISABLE_TX;           // disable RS485 transmitter
+  usart_init();               // initialize the usart module
 }
 
 void
@@ -87,11 +82,7 @@ ecmd_serial_usart_periodic(void)
     write_buffer[write_len++] = '\r';
     write_buffer[write_len++] = '\n';
 
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_SET(RS485TE_USART0);  // enable RS485 transmitter for usart 0
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_SET(RS485TE_USART1);  // enable RS485 transmitter for usart 1
-#endif
+    RS485_ENABLE_TX;
 
     /* Enable the tx interrupt and send the first character */
     sent = 1;
@@ -141,11 +132,7 @@ ISR(usart(USART,_TX_vect))
 
     write_len = 0;
 
-#if (USE_USART == 0 && defined(HAVE_RS485TE_USART0))
-  PIN_CLEAR(RS485TE_USART0);  // disable RS485 transmitter for usart 0
-#elif (USE_USART == 1  && defined(HAVE_RS485TE_USART1))
-  PIN_CLEAR(RS485TE_USART1);  // disable RS485 transmitter for usart 1
-#endif
+    RS485_DISABLE_TX;
   }
 }
 
