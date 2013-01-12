@@ -338,19 +338,15 @@ RC5_SUPPORT
 
   Add support to send and receive RC5 IR-remote codes.
 
-Usart ecmd interface (RS232)
+Usart ecmd interface (RS232/RS485)
 ECMD_SERIAL_USART_SUPPORT
   Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Add support for ECMDs received on serial RS232 link.
+  Add support for ECMDs received on serial RS232/RS485 link.
+  You may need to define a pin in your hardware description where the 
+  transmit enable of the RS485 is defined (RS485TE_USART0 / RS485TE_USART1).    
 
-Usart ecmd RS485 mode
-ECMD_SERIAL_USART_RS485_SUPPORT
-  Depends on:
-   * Usart ecmd interface (RS232) (ECMD_SERIAL_USART_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 Blinkenlights - MicroControllerUnitFrame
 MCUF_SUPPORT

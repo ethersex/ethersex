@@ -33,10 +33,6 @@ ifdef(`conf_ZBUS', `dnl
   pin(STATUSLED_ZBUS_RX, PD7, OUTPUT)
 ')
 
-ifdef(`conf_ECMD_SERIAL_USART_RS485', `dnl
-  pin(ECMD_SERIAL_USART_TX, PD2)
-')
-
 ifdef(`conf_PS2', `dnl
   /* port the ps2 device is attached to */
   pin(PS2_CLOCK, PD3)

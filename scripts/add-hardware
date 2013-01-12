@@ -51,17 +51,6 @@ FNORD
 
 template() { if test "x$1" = "xy"; then echo ""; sed -e 's/^\s*//'; fi; }
 
-template $MODBUS_SUPPORT << FNORD
-  /* modbus tx  */
-  pin(MODBUS_TX, PC2)
-FNORD
-
-template $DMX_SUPPORT << FNORD
-  /* port config for dmx */
-  pin(DMX_RS485EN, PC2, OUTPUT)
-  pin(DMX_RS485TX, PD1, OUTPUT)
-FNORD
-
 template $BULBDIAL_SUPPORT << FNORD
   /* port config for bulbdial clock */
   pin(BULBDIAL_HOURS,   PD7, OUTPUT)
@@ -318,10 +307,6 @@ FNORD
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
 
 if [ $HWCLASS = 8 ]; then  # ATmega8, 88, 168 and others ...
-  template $ECMD_SERIAL_USART_RS485_SUPPORT << FNORD
-    pin(ECMD_SERIAL_USART_TX, PD2)
-FNORD
-
   template $STATUSLED_POWER_SUPPORT << FNORD
     pin(STATUSLED_POWER, PC6, OUTPUT)
 FNORD
@@ -390,10 +375,6 @@ FNORD
 #                                                                            #
 ##############################################################################
 else
-  template $ECMD_SERIAL_USART_RS485_SUPPORT << FNORD
-    pin(ECMD_SERIAL_USART_TX, PC2)
-FNORD
-
   template $STATUSLED_POWER_SUPPORT << FNORD
     pin(STATUSLED_POWER, PA0, OUTPUT)
 FNORD
