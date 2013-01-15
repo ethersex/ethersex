@@ -55,7 +55,10 @@ uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
         while(i < fixeddigits)
             s[i++]='0';
         s[i++]='.';
+        s[i++]='0';
     }
+    else if(i == fixeddigits)
+        s[i++]='0';
 
     if (sign)
         s[i++] = '-';
