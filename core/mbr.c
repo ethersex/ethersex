@@ -67,7 +67,11 @@ int restore_mbr(void )
 void mbr_init(void )
 {
   mbr_config.raw = 0x00;
+#ifdef BOOTLOADER_SUPPORT
   uint8_t is_e6 = restore_mbr();
+#else
+  restore_mbr();
+#endif
 #ifdef MBR_DEBUG
   debug_printf("Master Boot Record: success %d, \
 flashed %d, bootloader %d\n",
