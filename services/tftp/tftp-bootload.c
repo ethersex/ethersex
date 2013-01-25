@@ -33,7 +33,7 @@
 #include "tftp_net.h"
 
 /* Define if you want to support firmware upload only. */
-#undef  TFTP_UPLOAD_ONLY
+#define  TFTP_UPLOAD_ONLY
 
 /* Define if you want to temporarily disable firmware flashing. */
 #undef  TFTP_DEBUG_DO_NOT_FLASH
@@ -149,7 +149,7 @@ tftp_handle_packet(void)
         return;                 /* nothing more to do */
       }
 
-      pk->type = HTONS(3);       /* data packet */
+      pk->type = HTONS(3);      /* data packet */
       pk->u.data.block = HTONS(uip_udp_conn->appstate.tftp.transfered + 1);
 
       base = (flash_base_t) TFTP_BLOCK_SIZE *
