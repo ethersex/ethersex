@@ -88,18 +88,6 @@ artnet_init(void)
 {
 
   ARTNET_DEBUG("Init\n");
-  artnet_conn_id = dmx_storage_connect(artnet_inputUniverse);
-  if (artnet_conn_id != -1)
-  {
-    artnet_connected = TRUE;
-    ARTNET_DEBUG("Connection to dmx-storage established! id:%d\r\n",
-                 artnet_conn_id);
-  }
-  else
-  {
-    artnet_connected = FALSE;
-    ARTNET_DEBUG("Connection to dmx-storage couldn't be established!\r\n");
-  }
   /* read Art-Net port */
   artnet_port = CONF_ARTNET_PORT;
   /* read netconfig */
@@ -112,6 +100,21 @@ artnet_init(void)
   strcpy_P(artnet_shortName, PSTR("e6ArtNode"));
   strcpy_P(artnet_longName, PSTR("e6ArtNode hostname: " CONF_HOSTNAME));
 
+  /* dmx storage connection */
+  artnet_conn_id = dmx_storage_connect(artnet_inputUniverse);
+  if (artnet_conn_id != -1)
+  {
+    artnet_connected = TRUE;
+    ARTNET_DEBUG("Connection to dmx-storage established! id:%d\r\n",
+                 artnet_conn_id);
+  }
+  else
+  {
+    artnet_connected = FALSE;
+    ARTNET_DEBUG("Connection to dmx-storage couldn't be established!\r\n");
+  }
+
+  /* net_init */
   artnet_netInit();
 
   /* annouce that we are here  */
