@@ -39,7 +39,7 @@ int16_t parse_cmd_hr20_toggle(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_hr20_hourbar(char *cmd, char *output, uint16_t len)
 {
   /* skip leading extra spaces */
-  while (*cmd == 32) cmd ++;
+  while (*cmd == ' ') cmd ++;
 
   char *ptr = strchr (cmd, ' ');
   if (!ptr) return ECMD_ERR_PARSE_ERROR;
