@@ -63,7 +63,8 @@ void tftp_handle_packet(void);
 #if defined(BOOTLOADER_SUPPORT)  \
   && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
 inline static void
-tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
+tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
+    uint8_t verify_crc)
 {
   uip_udp_conn_t *tftp_req_conn =
     uip_udp_new(ip, HTONS(TFTP_PORT), tftp_net_main);
@@ -84,11 +85,12 @@ tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
   if (!tftp_recv_conn)
     return;                     /* dammit. */
 
-  uip_udp_bind(tftp_recv_conn, HTONS(TFTP_ALT_PORT));
   tftp_recv_conn->appstate.tftp.download = 0;
   tftp_recv_conn->appstate.tftp.transfered = 0;
   tftp_recv_conn->appstate.tftp.finished = 0;
   tftp_recv_conn->appstate.tftp.bootp_image = 1;
+  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc;
+  uip_udp_bind(tftp_recv_conn, HTONS(TFTP_ALT_PORT));
 }
 #endif /* TFTPOMATIC_SUPPORT || BOOTP_SUPPORT */
 

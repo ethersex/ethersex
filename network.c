@@ -107,7 +107,7 @@ network_init(void)
     const char *filename = CONF_TFTP_IMAGE;
     set_CONF_TFTP_IP(&ip);
     if (mbr.bootloader == 1) {
-      tftp_fire_tftpomatic(&ip, filename);
+      tftp_fire_tftpomatic(&ip, filename, 0);
       bootload_delay = CONF_BOOTLOAD_DELAY;
     }
 #   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */

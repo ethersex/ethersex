@@ -102,6 +102,16 @@ commit_changes:
 }
 
 
+static void
+check_application_crc(uint8_t * buf)
+{
+  char bla[6];
+  itoa(0xaffe, bla, 16);
+  debug_putstr(bla);
+  debug_putstr("crc\n");
+}
+
+
 void
 tftp_handle_packet(void)
 {
@@ -209,18 +219,31 @@ tftp_handle_packet(void)
 
       debug_putchar('.');
 
-      for (i = 0; i < TFTP_BLOCK_SIZE / SPM_PAGESIZE; i++)
-        flash_page(base + i * SPM_PAGESIZE,
-                   pk->u.data.data + i * SPM_PAGESIZE);
+      /* only flash when not verifying crc */
+      if(uip_udp_conn->appstate.tftp.verify_crc == 0)
+      {
+        for (i = 0; i < TFTP_BLOCK_SIZE / SPM_PAGESIZE; i++)
+          flash_page(base + i * SPM_PAGESIZE,
+              pk->u.data.data + i * SPM_PAGESIZE);
+      }
 
       if (uip_datalen() < TFTP_BLOCK_SIZE + 4)
       {
         uip_udp_conn->appstate.tftp.finished = 1;
 
-        bootload_delay = 1;     /* ack, then start app */
-        mbr_config.flashed = 1;
-        write_mbr();
-        debug_putstr("end\n");
+        if(uip_udp_conn->appstate.tftp.verify_crc == 0)
+        {
+          bootload_delay = 1;     /* ack, then start app */
+          mbr_config.flashed = 1;
+          write_mbr();
+          debug_putstr("end\n");
+        }
+        else
+        {
+          bootload_delay = 5000;  //FIXME
+          check_application_crc(pk->u.data.data);
+          debug_putstr("crc\n");
+        }
       }
 
       uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);

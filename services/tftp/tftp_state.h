@@ -38,6 +38,8 @@ struct tftp_connection_state_t
   unsigned bootp_image:1;
   unsigned fire_req:1;          /* this connection is for just
                                  * starting a tftp request */
+  unsigned verify_crc:1;        /* load a crc file and compare it to our
+                                 * application's crc */
 
   char filename[TFTP_FILENAME_MAXLEN];
 #endif

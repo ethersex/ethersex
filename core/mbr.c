@@ -90,7 +90,7 @@ flashed %d, bootloader %d\n",
   if (mbr_config.bootloader == 1 || mbr_config.success == 0 || is_e6 == 1)
     bootload_delay = CONF_BOOTLOAD_DELAY;
   else
-    bootload_delay = 1;
+    bootload_delay = 5000;  //FIXME
 #endif
 }
 

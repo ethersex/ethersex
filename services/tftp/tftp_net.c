@@ -46,7 +46,7 @@ tftp_net_init(void)
   const char *filename = CONF_TFTP_IMAGE;
   set_CONF_TFTP_IP(&ip);
 
-  tftp_fire_tftpomatic(&ip, filename);
+  tftp_fire_tftpomatic(&ip, filename, 0);
 #endif /* !IPV6_SUPPORT */
 #endif /* TFTPOMATIC_SUPPORT */
 }
