@@ -33,6 +33,7 @@ struct dhcp_connection_state_t {
     uint16_t netmask[2];
     uint16_t dnsaddr[2];
     uint16_t default_router[2];
+    uint16_t ntpaddr[2];
 
     uint8_t retry_timer;
     uint8_t retry_counter;
