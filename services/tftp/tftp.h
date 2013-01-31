@@ -89,7 +89,7 @@ tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
   tftp_recv_conn->appstate.tftp.transfered = 0;
   tftp_recv_conn->appstate.tftp.finished = 0;
   tftp_recv_conn->appstate.tftp.bootp_image = 1;
-  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc;
+  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc & 0x01;
   uip_udp_bind(tftp_recv_conn, HTONS(TFTP_ALT_PORT));
 }
 #endif /* TFTPOMATIC_SUPPORT || BOOTP_SUPPORT */

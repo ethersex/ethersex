@@ -182,30 +182,6 @@ bootp_handle_reply(void)
   uip_ipaddr(&ip, pk->bp_siaddr[0], pk->bp_siaddr[1],
              pk->bp_siaddr[2], pk->bp_siaddr[3]);
 
-  /* this could easily be done by using sprintf, but the lib has a much to
-   * great memory footprint, so we convert the mac-address into a hex string
-   * on our own */
-  char crc_filename[20];
-  crc_filename[0] = '/';
-  for (uint8_t i = 0; i < 6; i++)
-  {
-    // convert high nibble into hex ascii
-    crc_filename[1 + i * 2] = (uip_ethaddr.addr[i] >> 4) + '0';
-    if ((uip_ethaddr.addr[i] >> 4) > 9)
-      crc_filename[1 + i * 2] += 'A' - '0' - 10;
-
-    // convert low nibble into hex ascii
-    crc_filename[2 + i * 2] = (uip_ethaddr.addr[i] & 0X0F) + '0';
-    if ((uip_ethaddr.addr[i] & 0X0F) > 9)
-      crc_filename[2 + i * 2] += 'A' - '0' - 10;
-  }
-  crc_filename[13] = '.';
-  crc_filename[14] = 'c';
-  crc_filename[15] = 'r';
-  crc_filename[16] = 'c';
-  crc_filename[17] = '\0';
-
-  tftp_fire_tftpomatic(&ip, crc_filename, 1);
-  tftp_fire_tftpomatic(&ip, pk->bp_file, 0);
+  tftp_fire_tftpomatic(&ip, pk->bp_file, 1);
 #endif /* TFTP_SUPPORT */
 }

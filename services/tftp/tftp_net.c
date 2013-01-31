@@ -94,13 +94,48 @@ tftp_net_main(void)
     return;
   }
 
+
+
+
   /*
    * fire download request packet ...
    */
+  int l = 0;
   struct tftp_hdr *tftp_pk = uip_appdata;
   tftp_pk->type = HTONS(1);     /* read request */
-  int l = strlen(uip_udp_conn->appstate.tftp.filename);
-  memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
+  if(uip_udp_conn->appstate.tftp.verify_crc)
+  {
+    /* this could easily be done by using sprintf, but the lib has a much to
+     * great memory footprint, so we convert the mac-address into a hex string
+     * on our own */
+    tftp_pk->u.raw[0] = '/';
+    for (uint8_t i = 0; i < 6; i++)
+    {
+      // convert high nibble into hex ascii
+      tftp_pk->u.raw[1 + i * 2] = (uip_ethaddr.addr[i] >> 4) + '0';
+      if ((uip_ethaddr.addr[i] >> 4) > 9)
+        tftp_pk->u.raw[1 + i * 2] += 'A' - '0' - 10;
+
+      // convert low nibble into hex ascii
+      tftp_pk->u.raw[2 + i * 2] = (uip_ethaddr.addr[i] & 0X0F) + '0';
+      if ((uip_ethaddr.addr[i] & 0X0F) > 9)
+        tftp_pk->u.raw[2 + i * 2] += 'A' - '0' - 10;
+    }
+    tftp_pk->u.raw[13] = '.';
+    tftp_pk->u.raw[14] = 'c';
+    tftp_pk->u.raw[15] = 'r';
+    tftp_pk->u.raw[16] = 'c';
+    tftp_pk->u.raw[17] = '\0';
+
+    l = 17;
+  }
+  else
+  {
+    l = strlen(uip_udp_conn->appstate.tftp.filename);
+    memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
+  }
+
+
 #if BOOTLOADER_START_ADDRESS > UINT16_MAX
   uint_farptr_t src = pgm_get_far_address(octet);
   uint8_t *dst = &tftp_pk->u.raw[l + 1];

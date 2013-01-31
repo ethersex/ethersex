@@ -105,10 +105,10 @@ commit_changes:
 static void
 check_application_crc(uint8_t * buf)
 {
-  char bla[6];
-  itoa(0xaffe, bla, 16);
-  debug_putstr(bla);
-  debug_putstr("crc\n");
+//  char bla[6];
+//  itoa(0xaffe, bla, 16);
+//  debug_putstr(bla);
+//  debug_putstr("crc\n");
 }
 
 
@@ -123,7 +123,7 @@ tftp_handle_packet(void)
 
   /*
    * care for incoming tftp packet now ...
-   */
+   */bootload_delay = 1;
   uint16_t i;
   flash_base_t base;
   struct tftp_hdr *pk = uip_appdata;
@@ -220,7 +220,7 @@ tftp_handle_packet(void)
       debug_putchar('.');
 
       /* only flash when not verifying crc */
-      if(uip_udp_conn->appstate.tftp.verify_crc == 0)
+      if(!uip_udp_conn->appstate.tftp.verify_crc)
       {
         for (i = 0; i < TFTP_BLOCK_SIZE / SPM_PAGESIZE; i++)
           flash_page(base + i * SPM_PAGESIZE,
@@ -240,7 +240,6 @@ tftp_handle_packet(void)
         }
         else
         {
-          bootload_delay = 5000;  //FIXME
           check_application_crc(pk->u.data.data);
           debug_putstr("crc\n");
         }
@@ -251,6 +250,11 @@ tftp_handle_packet(void)
     send_ack:
       pk->type = HTONS(4);
       uip_udp_send(4);          /* send ack */
+      if(uip_udp_conn->appstate.tftp.finished &&
+         uip_udp_conn->appstate.tftp.verify_crc)
+      {
+        tftp_fire_tftpomatic(uip_udp_conn->ripaddr, uip_udp_conn->appstate.tftp.filename, 0);
+      }
       break;
 
       /*
