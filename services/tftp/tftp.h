@@ -72,11 +72,12 @@ tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
   if (!tftp_req_conn)
     return;                     /* dammit. */
 
-  uip_udp_bind(tftp_req_conn, HTONS(TFTP_ALT_PORT));
   tftp_req_conn->appstate.tftp.fire_req = 1;
+  tftp_req_conn->appstate.tftp.verify_crc = verify_crc;
   memcpy(tftp_req_conn->appstate.tftp.filename, filename,
          TFTP_FILENAME_MAXLEN);
   tftp_req_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;
+  uip_udp_bind(tftp_req_conn, HTONS(TFTP_ALT_PORT));
 
 
   /* create suitable tftp receiver */
@@ -89,7 +90,10 @@ tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
   tftp_recv_conn->appstate.tftp.transfered = 0;
   tftp_recv_conn->appstate.tftp.finished = 0;
   tftp_recv_conn->appstate.tftp.bootp_image = 1;
-  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc & 0x01;
+  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc;
+  memcpy(tftp_recv_conn->appstate.tftp.filename, filename,
+         TFTP_FILENAME_MAXLEN);
+  tftp_recv_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;
   uip_udp_bind(tftp_recv_conn, HTONS(TFTP_ALT_PORT));
 }
 #endif /* TFTPOMATIC_SUPPORT || BOOTP_SUPPORT */

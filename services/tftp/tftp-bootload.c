@@ -123,7 +123,7 @@ tftp_handle_packet(void)
 
   /*
    * care for incoming tftp packet now ...
-   */bootload_delay = 1;
+   */
   uint16_t i;
   flash_base_t base;
   struct tftp_hdr *pk = uip_appdata;
@@ -267,6 +267,10 @@ tftp_handle_packet(void)
       pk->u.error.code = HTONS(0);      /* undefined error code */
       pk->u.error.msg[0] = 0;   /* yes, really expressive */
       uip_udp_send(5);
+      if(uip_udp_conn->appstate.tftp.verify_crc)
+      {
+        tftp_fire_tftpomatic(uip_udp_conn->ripaddr, uip_udp_conn->appstate.tftp.filename, 0);
+      }
       break;
   }
 }
