@@ -3,6 +3,7 @@ include $(TOPDIR)/.config
 
 SRC += core/util/fixedpoint.c
 SRC += core/util/string_parsing.c
+SRC += core/util/byte2hex.c
 
 ##############################################################################
 # generic fluff
