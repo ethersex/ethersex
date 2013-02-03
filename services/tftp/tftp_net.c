@@ -152,28 +152,6 @@ tftp_net_main(void)
             break;
         }
       }
-//      else
-//      {
-//        switch(uip_udp_conn->appstate.tftp.filename[i + 1])
-//        {
-//          case 'M':   // mac address
-//            tftp_pk->u.raw[l++] = '-';
-//            for(uint8_t k = 0; k < 6; k++)
-//              l += byte2hex(uip_ethaddr.addr[k], &tftp_pk->u.raw[l]);
-//            break;
-//
-//          case 'E':   // extension
-//            tftp_pk->u.raw[l++] = '.';
-//            tftp_pk->u.raw[l++] = 'b';
-//            tftp_pk->u.raw[l++] = 'i';
-//            tftp_pk->u.raw[l++] = 'n';
-//            while(uip_udp_conn->appstate.tftp.filename[i++]);
-//            break;
-//
-//          default:    // ignore unknown formatting instruction
-//            break;
-//        }
-//      }
       i += 2;
     }
     else
@@ -182,24 +160,6 @@ tftp_net_main(void)
     }
   }
   tftp_pk->u.raw[l] = '\0';
-
-//  if(uip_udp_conn->appstate.tftp.verify_crc)
-//  {
-////    tftp_pk->u.raw[0] = '/';
-////    tftp_pk->u.raw[13] = '.';
-////    tftp_pk->u.raw[14] = 'c';
-////    tftp_pk->u.raw[15] = 'r';
-////    tftp_pk->u.raw[16] = 'c';
-////    tftp_pk->u.raw[17] = '\0';
-////
-////    l = 17;
-//  }
-//  else
-//  {
-//    l = strlen(uip_udp_conn->appstate.tftp.filename);
-//    memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
-//  }
-
 
 #if BOOTLOADER_START_ADDRESS > UINT16_MAX
   uint_farptr_t src = pgm_get_far_address(octet);
