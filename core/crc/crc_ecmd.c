@@ -39,11 +39,11 @@
 int16_t
 parse_cmd_crc_calc(char *cmd, char *output, uint16_t len)
 {
-  uint8_t *p;
+  uint_farptr_t p;
   uint16_t crc = 0xffff;
 
-  for (p = 0; p < (uint8_t *) CRC_BYTE_POS; p++)
-    crc = _crc16_update(crc, pgm_read_byte(p));
+  for (p = 0; p < (uint_farptr_t) CRC_BYTE_POS; p++)
+    crc = _crc16_update(crc, pgm_read_byte_far(p));
 
   return ECMD_FINAL(sprintf_P(output, PSTR("%.4X"), crc));
 }
@@ -54,7 +54,7 @@ parse_cmd_crc_read(char *cmd, char *output, uint16_t len)
 {
   uint16_t crc;
 
-  crc = pgm_read_word(CRC_BYTE_POS);
+  crc = pgm_read_word_far(CRC_BYTE_POS);
 
   return ECMD_FINAL(sprintf_P(output, PSTR("%.4X"), crc));
 }

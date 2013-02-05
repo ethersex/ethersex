@@ -20,13 +20,15 @@
  */
 
 #include <avr/pgmspace.h>
-#include <util/crc16.h>
 
 #include "protocols/uip/uip.h"
 #include "tftp.h"
 #include "tftp_net.h"
 #include "tftp_state.h"
 #include "core/util/byte2hex.h"
+#include "core/util/app_crc.h"
+#include "core/global.h"
+
 
 void
 tftp_net_init(void)
@@ -53,8 +55,6 @@ tftp_net_init(void)
 #endif /* TFTPOMATIC_SUPPORT */
 }
 
-
-static const char octet[] PROGMEM = "octet";
 
 void
 tftp_net_main(void)
@@ -97,25 +97,14 @@ tftp_net_main(void)
   }
 
 
-
-  uint16_t
-  calc_application_crc(void)
-  {
-    uint_farptr_t p;
-    uint16_t crc = 0xffff;
-
-    for (p = 0; p < (uint_farptr_t) BOOTLOADER_START_ADDRESS; p++)
-      crc = _crc16_update(crc, pgm_read_byte_far(p));
-
-    return (crc);
-  }
-
-
   /*
    * fire download request packet ...
    */
-  int i = 0, l = 0;
+  uint8_t tag_found = 0;
+  uint16_t i = 0, l = 0;
   struct tftp_hdr *tftp_pk = uip_appdata;
+  status.verify_tftp_crc_content = 0;
+
   tftp_pk->type = HTONS(1);     /* read request */
 
   while(i < strlen(uip_udp_conn->appstate.tftp.filename))
@@ -126,53 +115,72 @@ tftp_net_main(void)
       {
         switch(uip_udp_conn->appstate.tftp.filename[i + 1])
         {
-          case 'm':   // mac address
+          /* append mac address */
+          case 'm':
+            tag_found = 1;
             tftp_pk->u.raw[l++] = '-';
             for(uint8_t k = 0; k < 6; k++)
               l += byte2hex(uip_ethaddr.addr[k], &tftp_pk->u.raw[l]);
             break;
 
-          case 'c':   // application crc
+          /* append application crc */
+          case 'c':
           {
+            tag_found = 1;
             tftp_pk->u.raw[l++] = '-';
             uint16_t crc = calc_application_crc();
             l += byte2hex(crc >> 8, &tftp_pk->u.raw[l]);
             l += byte2hex(crc &0x00ff, &tftp_pk->u.raw[l]);
             break;
           }
-          case 'e':   // extension
+
+          case 'C':
+            tag_found = 1;
+            status.verify_tftp_crc_content = 1;
+            break;
+
+            /* append crc file extension */
+          case 'e':
+            tag_found = 1;
             tftp_pk->u.raw[l++] = '.';
             tftp_pk->u.raw[l++] = 'c';
             tftp_pk->u.raw[l++] = 'r';
             tftp_pk->u.raw[l++] = 'c';
+
+            /* remove rest of filename */
             while(uip_udp_conn->appstate.tftp.filename[i++]);
             break;
 
-          default:    // ignore unknown formatting instruction
+          /* ignore unknown formatting tags */
+          default:
             break;
         }
       }
       i += 2;
     }
     else
-    {
       tftp_pk->u.raw[l++] = uip_udp_conn->appstate.tftp.filename[i++];
-    }
   }
-  tftp_pk->u.raw[l] = '\0';
+  tftp_pk->u.raw[l++] = '\0';
 
-#if BOOTLOADER_START_ADDRESS > UINT16_MAX
-  uint_farptr_t src = pgm_get_far_address(octet);
-  char *dst = &tftp_pk->u.raw[l + 1];
-  for (uint8_t i = sizeof(octet); i; i--)
-    *dst++ = pgm_read_byte_far(src++);
-#else
-  memcpy_P(&tftp_pk->u.raw[l + 1], octet, sizeof(octet));
-#endif
+  /* uses less space than progmem copy of such a small string */
+  tftp_pk->u.raw[l++] = 'o';
+  tftp_pk->u.raw[l++] = 'c';
+  tftp_pk->u.raw[l++] = 't';
+  tftp_pk->u.raw[l++] = 'e';
+  tftp_pk->u.raw[l++] = 't';
+  tftp_pk->u.raw[l++] = '\0';
+
+  /* no valid % tags in the filename to generate crc file */
+  if(uip_udp_conn->appstate.tftp.verify_crc && !tag_found)
+    uip_udp_conn->appstate.tftp.verify_crc = 0;
+
   uip_udp_send(l + 9);
 
   /* uip_udp_conn->appstate.tftp.fire_req = 0; */
-  uip_udp_conn->appstate.tftp.transfered = 5;   /* retransmit in 2.5 seconds */
+
+  /* retransmit in 2.5 seconds */
+  uip_udp_conn->appstate.tftp.transfered = 5;
 #endif
 }
 

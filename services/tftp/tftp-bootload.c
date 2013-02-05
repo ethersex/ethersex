@@ -31,6 +31,9 @@
 #include "core/debug.h"
 #include "tftp.h"
 #include "tftp_net.h"
+#include "core/global.h"
+#include "core/util/app_crc.h"
+
 
 /* Define if you want to support firmware upload only. */
 #define  TFTP_UPLOAD_ONLY
@@ -99,16 +102,6 @@ commit_changes:
 
   /* Re-enable interrupts (if they were ever enabled). */
   SREG = sreg;
-}
-
-
-static void
-check_application_crc(uint8_t * buf)
-{
-//  char bla[6];
-//  itoa(0xaffe, bla, 16);
-//  debug_putstr(bla);
-//  debug_putstr("crc\n");
 }
 
 
@@ -196,20 +189,20 @@ tftp_handle_packet(void)
       pk->u.ack.block = HTONS(0);
       goto send_ack;
 
-    case 3:                    /* data packet */
-      bootload_delay = 0;       /* Stop bootloader. */
+    case 3:                             /* data packet */
+      bootload_delay = 0;               /* stop bootloader. */
 
       if (uip_udp_conn->appstate.tftp.download != 0)
         goto error_out;
 
       if (HTONS(pk->u.ack.block) < uip_udp_conn->appstate.tftp.transfered)
-        goto error_out;         /* too early */
+        goto error_out;                 /* too early */
 
       if (HTONS(pk->u.ack.block) == uip_udp_conn->appstate.tftp.transfered)
-        goto send_ack;          /* already handled */
+        goto send_ack;                  /* already handled */
 
       if (HTONS(pk->u.ack.block) > uip_udp_conn->appstate.tftp.transfered + 1)
-        goto error_out;         /* too late */
+        goto error_out;                 /* too late */
 
       base = (flash_base_t) TFTP_BLOCK_SIZE *
         (flash_base_t) (HTONS(pk->u.ack.block) - 1);
@@ -219,55 +212,69 @@ tftp_handle_packet(void)
 
       debug_putchar('.');
 
-      /* only flash when not verifying crc */
-      if(!uip_udp_conn->appstate.tftp.verify_crc)
+      /* only flash when we are receiving an application binary */
+      if (!uip_udp_conn->appstate.tftp.verify_crc)
       {
         for (i = 0; i < TFTP_BLOCK_SIZE / SPM_PAGESIZE; i++)
           flash_page(base + i * SPM_PAGESIZE,
               pk->u.data.data + i * SPM_PAGESIZE);
       }
 
+      /* last packet in sequence */
       if (uip_datalen() < TFTP_BLOCK_SIZE + 4)
       {
         uip_udp_conn->appstate.tftp.finished = 1;
 
-        if(uip_udp_conn->appstate.tftp.verify_crc == 0)
+        if (status.verify_tftp_crc_content)
         {
-          bootload_delay = 1;     /* ack, then start app */
-          mbr_config.flashed = 1;
-          write_mbr();
-          debug_putstr("end\n");
+          uint16_t crc = calc_application_crc();
+          if (pk->u.data.data[0] != (crc & 0x00ff) ||
+              pk->u.data.data[1] != (crc >> 8))
+          {
+            pk->u.error.msg[1] = (crc & 0x00ff);
+            pk->u.error.msg[2] = (crc >> 8);
+            goto error_out;
+          }
         }
         else
         {
-          check_application_crc(pk->u.data.data);
-          debug_putstr("crc\n");
+          if (uip_udp_conn->appstate.tftp.verify_crc)
+          {
+            debug_putstr("\nCRC OK\n");
+          }
+          else
+          {
+            mbr_config.flashed = 1;
+            write_mbr();
+            debug_putstr("\nApp flashed\n");
+          }
         }
+        bootload_delay = 1;             /* give time to ack packet,
+                                         * then start app */
       }
 
       uip_udp_conn->appstate.tftp.transfered = HTONS(pk->u.ack.block);
 
+    /* send ack */
     send_ack:
       pk->type = HTONS(4);
-      uip_udp_send(4);          /* send ack */
-      if(uip_udp_conn->appstate.tftp.finished &&
-         uip_udp_conn->appstate.tftp.verify_crc)
-      {
-        tftp_fire_tftpomatic(uip_udp_conn->ripaddr, uip_udp_conn->appstate.tftp.filename, 0);
-      }
+      uip_udp_send(4);
       break;
 
-      /*
-       * protocol errors
-       */
+    /* handle errors */
     error_out:
-    case 5:                    /* error */
+    case 5:                             /* error */
     default:
-      pk->type = HTONS(5);      /* data packet */
+      pk->type = HTONS(5);              /* data packet */
       pk->u.error.code = HTONS(0);      /* undefined error code */
-      pk->u.error.msg[0] = 0;   /* yes, really expressive */
-      uip_udp_send(5);
+      pk->u.error.msg[0] = 0;           /* yes, really expressive */
+      uip_udp_send(7);
+
       if(uip_udp_conn->appstate.tftp.verify_crc)
-        tftp_fire_tftpomatic(uip_udp_conn->ripaddr, uip_udp_conn->appstate.tftp.filename, 0);
+        /* there was no matching crc file on the tftp server.
+         * so we will try to get the application binary.
+         * the initial request connection should already be unbound. */
+        tftp_fire_tftpomatic(&uip_udp_conn->ripaddr,
+            uip_udp_conn->appstate.tftp.filename, 0);
   }
 }
