@@ -35,7 +35,9 @@ typedef struct {
 #ifndef TEENSY_SUPPORT
     uint8_t request_wdreset         :1;
 #endif
+#if TFTP_CRC_SUPPORT
     uint8_t verify_tftp_crc_content :1;
+#endif
 } global_status_t;
 
 #ifdef BOOTLOADER_SUPPORT

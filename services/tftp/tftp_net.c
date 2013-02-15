@@ -103,17 +103,20 @@ tftp_net_main(void)
   uint8_t tag_found = 0;
   uint16_t i = 0, l = 0;
   struct tftp_hdr *tftp_pk = uip_appdata;
+#if TFTP_CRC_SUPPORT
   status.verify_tftp_crc_content = 0;
+#endif
 
   tftp_pk->type = HTONS(1);     /* read request */
 
-  while(i < strlen(uip_udp_conn->appstate.tftp.filename))
+  while (i < strlen(uip_udp_conn->appstate.tftp.filename))
   {
-    if(uip_udp_conn->appstate.tftp.filename[i] == '%')
+#if TFTP_CRC_SUPPORT
+    if (uip_udp_conn->appstate.tftp.filename[i] == '%')
     {
-      if(uip_udp_conn->appstate.tftp.verify_crc)
+      if (uip_udp_conn->appstate.tftp.verify_crc)
       {
-        switch(uip_udp_conn->appstate.tftp.filename[i + 1])
+        switch (uip_udp_conn->appstate.tftp.filename[i + 1])
         {
           /* append mac address */
           case 'm':
@@ -148,7 +151,7 @@ tftp_net_main(void)
             tftp_pk->u.raw[l++] = 'c';
 
             /* remove rest of filename */
-            while(uip_udp_conn->appstate.tftp.filename[i++]);
+            while (uip_udp_conn->appstate.tftp.filename[i++]);
             break;
 
           /* ignore unknown formatting tags */
@@ -159,6 +162,7 @@ tftp_net_main(void)
       i += 2;
     }
     else
+#endif
       tftp_pk->u.raw[l++] = uip_udp_conn->appstate.tftp.filename[i++];
   }
   tftp_pk->u.raw[l++] = '\0';
@@ -172,8 +176,10 @@ tftp_net_main(void)
   tftp_pk->u.raw[l++] = '\0';
 
   /* no valid % tags in the filename to generate crc file */
-  if(uip_udp_conn->appstate.tftp.verify_crc && !tag_found)
+#if TFTP_CRC_SUPPORT
+  if (uip_udp_conn->appstate.tftp.verify_crc && !tag_found)
     uip_udp_conn->appstate.tftp.verify_crc = 0;
+#endif
 
   uip_udp_send(l + 9);
 
