@@ -202,7 +202,7 @@ tftp_handle_packet(void)
 
       debug_putchar('.');
 
-#if TFTP_CRC_SUPPORT
+#ifdef TFTP_CRC_SUPPORT
       /* only flash when we are receiving an application binary */
       if (!uip_udp_conn->appstate.tftp.verify_crc)
 #endif
@@ -217,7 +217,7 @@ tftp_handle_packet(void)
       {
         uip_udp_conn->appstate.tftp.finished = 1;
 
-#if TFTP_CRC_SUPPORT
+#ifdef TFTP_CRC_SUPPORT
         if (status.verify_tftp_crc_content)
         {
           uint16_t crc = calc_application_crc();
@@ -266,7 +266,7 @@ tftp_handle_packet(void)
       pk->u.error.msg[0] = 0;           /* yes, really expressive */
       uip_udp_send(7);
 
-#if TFTP_CRC_SUPPORT
+#ifdef TFTP_CRC_SUPPORT
       if(uip_udp_conn->appstate.tftp.verify_crc)
         /* there was no matching crc file on the tftp server.
          * so we will try to get the application binary.

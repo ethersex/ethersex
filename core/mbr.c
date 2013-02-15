@@ -67,7 +67,7 @@ int restore_mbr(void )
 void mbr_init(void )
 {
   mbr_config.raw = 0x00;
-#ifdef BOOTLOADER_SUPPORT
+#if defined(BOOTLOADER_SUPPORT) && !defined(TFTP_CRC_SUPPORT)
   uint8_t is_e6 = restore_mbr();
 #else
   restore_mbr();
@@ -87,11 +87,14 @@ flashed %d, bootloader %d\n",
     mbr_config.flashed = 0;
   }
 #ifdef BOOTLOADER_SUPPORT
+#ifndef TFTP_CRC_SUPPORT
   if (mbr_config.bootloader == 1 || mbr_config.success == 0 || is_e6 == 1)
- //   bootload_delay = CONF_BOOTLOAD_DELAY;
-    bootload_delay = 500;  //FIXME
+    bootload_delay = CONF_BOOTLOAD_DELAY;
   else
-    bootload_delay = 500;  //FIXME
+    bootload_delay = 1;
+#else
+  bootload_delay = CONF_BOOTLOAD_DELAY;
+#endif
 #endif
 }
 

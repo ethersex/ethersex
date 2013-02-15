@@ -103,7 +103,7 @@ tftp_net_main(void)
   uint8_t tag_found = 0;
   uint16_t i = 0, l = 0;
   struct tftp_hdr *tftp_pk = uip_appdata;
-#if TFTP_CRC_SUPPORT
+#ifdef TFTP_CRC_SUPPORT
   status.verify_tftp_crc_content = 0;
 #endif
 
@@ -111,7 +111,7 @@ tftp_net_main(void)
 
   while (i < strlen(uip_udp_conn->appstate.tftp.filename))
   {
-#if TFTP_CRC_SUPPORT
+#ifdef TFTP_CRC_SUPPORT
     if (uip_udp_conn->appstate.tftp.filename[i] == '%')
     {
       if (uip_udp_conn->appstate.tftp.verify_crc)
@@ -176,7 +176,7 @@ tftp_net_main(void)
   tftp_pk->u.raw[l++] = '\0';
 
   /* no valid % tags in the filename to generate crc file */
-#if TFTP_CRC_SUPPORT
+#ifdef TFTP_CRC_SUPPORT
   if (uip_udp_conn->appstate.tftp.verify_crc && !tag_found)
     uip_udp_conn->appstate.tftp.verify_crc = 0;
 #endif
