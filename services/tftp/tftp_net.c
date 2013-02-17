@@ -109,7 +109,7 @@ tftp_net_main(void)
 
   tftp_pk->type = HTONS(1);     /* read request */
 
-  while (uip_udp_conn->appstate.tftp.filename[i])
+  while (uip_udp_conn->appstate.tftp.filename[i] && l < TFTP_FILENAME_MAXLEN)
   {
 #ifdef TFTP_CRC_SUPPORT
     if (uip_udp_conn->appstate.tftp.filename[i] == '%')
