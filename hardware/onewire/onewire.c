@@ -56,7 +56,8 @@ ow_global_t ow_global;
 
 #ifdef ONEWIRE_POLLING_SUPPORT
 /* perform an initial bus discovery on startup */
-uint16_t ow_discover_interval = 1; // minimal initial delay
+uint16_t ow_discover_interval = 1; /* minimal initial delay */
+uint16_t ow_polling_delay;         /* time between polling the sensors */
 #endif
 
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
@@ -709,10 +710,10 @@ ow_discover_sensor(void)
                 ow_sensors[i].present = 1;
                 /* read temperature asap
                  * eeproms will be checked for later */
-                ow_sensors[i].polling_delay = 1;
                 break;
               }
             }
+            ow_polling_delay = 1;
 #ifdef DEBUG_OW_POLLING
             if (i == OW_SENSORS_COUNT - 1)
               OW_DEBUG_POLL("number of sensors exceeds list size of %d\n",
@@ -783,53 +784,52 @@ ow_periodic(void)
     }
 #endif /* DEBUG_OW_POLLING */
   }
-  for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
+  if (ow_sensors[0].converted && --ow_sensors[0].convert_delay == 0)
   {
-    if (ow_temp_sensor(&ow_sensors[i].ow_rom_code))
+    ow_sensors[0].converted = 0;
+    for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
     {
-      if (ow_sensors[i].converted)
+      if (ow_temp_sensor(&ow_sensors[i].ow_rom_code))
       {
-        if (--ow_sensors[i].convert_delay == 0)
-        {
-          int8_t ret;
-          ow_temp_scratchpad_t sp;
-          ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
+        int8_t ret;
+        ow_temp_scratchpad_t sp;
+        ret = ow_temp_read_scratchpad(&ow_sensors[i].ow_rom_code, &sp);
 
-          if (ret != 1)
-          {
-            OW_DEBUG_POLL("scratchpad read failed: %d\n", ret);
-            continue;
-          }
-          int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
-          OW_DEBUG_POLL("temperature: %d.%d°C on device "
-              "%02x %02x %02x %02x %02x %02x %02x %02x\n", HI8(temp),
-              LO8(temp) > 0 ? 5 : 0, ow_sensors[i].ow_rom_code.bytewise[0],
-                  ow_sensors[i].ow_rom_code.bytewise[1],
-                  ow_sensors[i].ow_rom_code.bytewise[2],
-                  ow_sensors[i].ow_rom_code.bytewise[3],
-                  ow_sensors[i].ow_rom_code.bytewise[4],
-                  ow_sensors[i].ow_rom_code.bytewise[5],
-                  ow_sensors[i].ow_rom_code.bytewise[6],
-                  ow_sensors[i].ow_rom_code.bytewise[7]);
-          ow_sensors[i].temp =
-            ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-          ow_sensors[i].converted = 0;
-#ifdef ONEWIRE_HOOK_SUPPORT
-          hook_ow_poll_call(&ow_sensors[i], OW_READY);
-#endif
+        if (ret != 1)
+        {
+          OW_DEBUG_POLL("scratchpad read failed: %d\n", ret);
+          continue;
         }
-      }
-      if (--ow_sensors[i].polling_delay == 0 && !ow_sensors[i].converted)
-      {
-        ow_sensors[i].polling_delay = OW_POLLING_INTERVAL;
-        ow_temp_start_convert_nowait(&ow_sensors[i].ow_rom_code);
-        ow_sensors[i].convert_delay = 1;  // wait 1s for conversion
-        ow_sensors[i].converted = 1;
-#ifdef ONEWIRE_HOOK_SUPPORT
-        hook_ow_poll_call(&ow_sensors[i], OW_CONVERT);
-#endif
+        int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
+        OW_DEBUG_POLL("temperature: %d.%d°C on device "
+            "%02x %02x %02x %02x %02x %02x %02x %02x\n", HI8(temp),
+            LO8(temp) > 0 ? 5 : 0, ow_sensors[i].ow_rom_code.bytewise[0],
+                ow_sensors[i].ow_rom_code.bytewise[1],
+                ow_sensors[i].ow_rom_code.bytewise[2],
+                ow_sensors[i].ow_rom_code.bytewise[3],
+                ow_sensors[i].ow_rom_code.bytewise[4],
+                ow_sensors[i].ow_rom_code.bytewise[5],
+                ow_sensors[i].ow_rom_code.bytewise[6],
+                ow_sensors[i].ow_rom_code.bytewise[7]);
+        ow_sensors[i].temp =
+          ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+        OW_DEBUG_POLL("power mode: %d\n",
+            ow_temp_power(&ow_sensors[i].ow_rom_code));
+  #ifdef ONEWIRE_HOOK_SUPPORT
+        hook_ow_poll_call(&ow_sensors[i], OW_READY);
+  #endif
       }
     }
+  }
+  if (--ow_polling_delay == 0 && !ow_sensors[0].converted)
+  {
+    ow_polling_delay = OW_POLLING_INTERVAL;
+    ow_temp_start_convert_nowait(NULL);
+    ow_sensors[0].convert_delay = 2;  // wait 2s for conversion
+    ow_sensors[0].converted = 1;
+#ifdef ONEWIRE_HOOK_SUPPORT
+    hook_ow_poll_call(&ow_sensors[0], OW_CONVERT);
+#endif
   }
 }
 #endif /* ONEWIRE_POLLING_SUPPORT */
@@ -866,7 +866,7 @@ ow_names_restore(void)
       ow_sensors[i].ow_rom_code.raw = temp_name.ow_rom_code.raw;
       strncpy(ow_sensors[i].name, temp_name.name, OW_NAME_LENGTH);
 #ifdef ONEWIRE_POLLING_SUPPORT
-      ow_sensors[i].polling_delay = 1;
+      ow_polling_delay = 1;
 #endif
     }
   }

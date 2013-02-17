@@ -253,8 +253,8 @@ typedef struct
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
   uint8_t present :1;
-  /* waiting 1s for the sensor to convert the temperatures */
-  uint8_t convert_delay :1;
+  /* delay for the sensor to convert the temperatures */
+  uint8_t convert_delay :2;
 #endif
 
   /* byte aligned fields */
@@ -262,8 +262,6 @@ typedef struct
   /* just storing the temperature in order to keep memory footprint as low as
    * possible. storing temperature in deci degrees (DD) => 36.4° == 364 */
   int16_t temp;
-  /* time between polling the sensor */
-  uint16_t polling_delay;
 #endif
 #ifdef ONEWIRE_NAMING_SUPPORT
   char name[OW_NAME_LENGTH];
