@@ -247,9 +247,11 @@ typedef struct
   uint8_t named :1;
 #endif
 #ifdef ONEWIRE_POLLING_SUPPORT
+  /* power mode (parasite / external) */
+  uint8_t power :1;
   /* when this is set, we will wait convert_delay to be 0 and then read the
    * scratchpad */
-  uint8_t converted :1;
+  uint8_t converting :1;
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
   uint8_t present :1;
