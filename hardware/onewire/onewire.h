@@ -246,9 +246,11 @@ typedef struct
   /* sensor has a name assigned */
   uint8_t named :1;
 #endif
-#ifdef ONEWIRE_POLLING_SUPPORT
+#ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
   /* power mode (parasite / external) */
   uint8_t power :1;
+#endif
+#ifdef ONEWIRE_POLLING_SUPPORT
   /* when this is set, we will wait convert_delay to be 0 and then read the
    * scratchpad */
   uint8_t converting :1;

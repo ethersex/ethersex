@@ -129,6 +129,9 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
                                            "\t%d"
 #endif
+#ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
+                                           "\t%d"
+#endif
                          ),
                          ow_sensors[i].ow_rom_code.bytewise[0],
                          ow_sensors[i].ow_rom_code.bytewise[1],
@@ -143,6 +146,9 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #endif
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
                          , ow_sensors[i].temp
+#endif
+#ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
+                         , ow_sensors[i].power
 #endif
           );
 #ifdef ONEWIRE_DS2502_SUPPORT

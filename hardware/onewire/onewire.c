@@ -803,21 +803,38 @@ ow_periodic(void)
           OW_DEBUG_POLL("scratchpad read failed: %d\n", ret);
           continue;
         }
+#ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
         ow_sensors[i].power = ow_temp_power(&ow_sensors[i].ow_rom_code);
+#endif
 
         int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
-        OW_DEBUG_POLL("temperature: %d.%d°C on device "
-            "%02x%02x%02x%02x%02x%02x%02x%02x %d\n", HI8(temp),
-            LO8(temp) > 0 ? 5 : 0, ow_sensors[i].ow_rom_code.bytewise[0],
-                ow_sensors[i].ow_rom_code.bytewise[1],
-                ow_sensors[i].ow_rom_code.bytewise[2],
-                ow_sensors[i].ow_rom_code.bytewise[3],
-                ow_sensors[i].ow_rom_code.bytewise[4],
-                ow_sensors[i].ow_rom_code.bytewise[5],
-                ow_sensors[i].ow_rom_code.bytewise[6],
-                ow_sensors[i].ow_rom_code.bytewise[7],
-                ow_sensors[i].power);
 
+#ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
+        OW_DEBUG_POLL("temperature: %d.%d°C on device "
+            "%02x%02x%02x%02x%02x%02x%02x%02x %d\n",
+            HI8(temp), LO8(temp) > 0 ? 5 : 0,
+            ow_sensors[i].ow_rom_code.bytewise[0],
+            ow_sensors[i].ow_rom_code.bytewise[1],
+            ow_sensors[i].ow_rom_code.bytewise[2],
+            ow_sensors[i].ow_rom_code.bytewise[3],
+            ow_sensors[i].ow_rom_code.bytewise[4],
+            ow_sensors[i].ow_rom_code.bytewise[5],
+            ow_sensors[i].ow_rom_code.bytewise[6],
+            ow_sensors[i].ow_rom_code.bytewise[7],
+            ow_sensors[i].power);
+#else
+        OW_DEBUG_POLL("temperature: %d.%d°C on device "
+            "%02x%02x%02x%02x%02x%02x%02x%02x\n",
+            HI8(temp), LO8(temp) > 0 ? 5 : 0,
+            ow_sensors[i].ow_rom_code.bytewise[0],
+            ow_sensors[i].ow_rom_code.bytewise[1],
+            ow_sensors[i].ow_rom_code.bytewise[2],
+            ow_sensors[i].ow_rom_code.bytewise[3],
+            ow_sensors[i].ow_rom_code.bytewise[4],
+            ow_sensors[i].ow_rom_code.bytewise[5],
+            ow_sensors[i].ow_rom_code.bytewise[6],
+            ow_sensors[i].ow_rom_code.bytewise[7]);
+#endif
         ow_sensors[i].temp =
           ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
 
