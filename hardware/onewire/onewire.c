@@ -791,12 +791,17 @@ ow_periodic(void)
 
         int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
 
-        OW_DEBUG_POLL("temperature: %d.%d°C on device "
+#ifdef DEBUG_OW_POLLING
+        char temperature[6];
+        itoa_fixedpoint(((int8_t) HI8(temp)) * 10 +
+            HI8(((temp & 0x00ff) * 10) + 0x80), 1, temperature);
+
+        OW_DEBUG_POLL("temperature: %s°C on device "
             "%02x%02x%02x%02x%02x%02x%02x%02x"
 #ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
             " %d"
 #endif
-            "\n", HI8(temp), LO8(temp) > 0 ? 5 : 0
+            "\n", temperature
             , ow_sensors[i].ow_rom_code.bytewise[0]
             , ow_sensors[i].ow_rom_code.bytewise[1]
             , ow_sensors[i].ow_rom_code.bytewise[2]
@@ -809,9 +814,17 @@ ow_periodic(void)
             , ow_sensors[i].power
 #endif
             );
+#endif
 
-        ow_sensors[i].temp =
-          ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+        /* a value of 85.0°C will only be stored if we get it twice, to
+         * eliminate communication errors */
+        if ((temp == 21760 && ow_sensors[i].conv_error) ||
+             temp != 21760 )
+          ow_sensors[i].temp =
+              ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+
+        /* set a semaphore of if we had a conversion or communication error */
+        ow_sensors[i].conv_error = (temp == 21760);
 
   #ifdef ONEWIRE_HOOK_SUPPORT
         hook_ow_poll_call(&ow_sensors[i], OW_READY);

@@ -255,6 +255,8 @@ typedef struct
    * deleted after the discovery */
   uint8_t present :1;
 #endif
+  /* semaphore for conversion error 85.0°C */
+  uint8_t conv_error :1;
 
   /* byte aligned fields */
 #ifdef ONEWIRE_POLLING_SUPPORT
