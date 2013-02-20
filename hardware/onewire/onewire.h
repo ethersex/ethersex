@@ -251,14 +251,9 @@ typedef struct
   uint8_t power :1;
 #endif
 #ifdef ONEWIRE_POLLING_SUPPORT
-  /* when this is set, we will wait convert_delay to be 0 and then read the
-   * scratchpad */
-  uint8_t converting :1;
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
   uint8_t present :1;
-  /* delay for the sensor to convert the temperatures */
-  uint8_t convert_delay :2;
 #endif
 
   /* byte aligned fields */
@@ -280,7 +275,14 @@ extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
  */
 typedef struct
 {
-  uint8_t lock;
+  uint8_t lock :1;
+#ifdef ONEWIRE_POLLING_SUPPORT
+  /* when this is set, we will wait convert_delay to be 0 and then read the
+   * scratchpad */
+  uint8_t converting :1;
+  /* delay for the sensor to convert the temperatures */
+  uint8_t convert_delay :2;
+#endif
   int8_t last_discrepancy;
 #ifdef ONEWIRE_DS2502_SUPPORT
   int8_t list_type;
