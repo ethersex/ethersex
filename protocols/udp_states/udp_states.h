@@ -25,7 +25,10 @@
 #define UDP_SENSOR_H
 
 #include "protocols/uip/uip.h"
+#include "protocols/uip/uip_router.h"
+#include "protocols/uip/uip-conf.h"
 #include "config.h"
+#include "core/debug.h"
 #ifdef UDP_STATES_RECIEVE
 #include "stdlib.h"
 #endif
@@ -52,11 +55,11 @@
 /*
  * rechnet daten in 24bit floating point um: VZ[1]|mantisse[15]|exponent[8]
  */
- uint8_t udp_states_make_float(uint8_t *data,int16_t input_data,int8_t expo);
+void udp_states_make_float(int8_t *data,int16_t input_data,int8_t expo);
  /*
   * transmit data
   */
-  void udp_states_send(uint8_t type,uint8_t part,uint8_t *data,uint8_t length);
+  void udp_states_send(uint8_t type,uint8_t part,int8_t *data,uint8_t length);
  #endif
 /*
  * to register a state to read from network, return a number to get the scaled Value
@@ -67,7 +70,7 @@
  * callback:	callback function like a interrupt
  */
  #ifdef UDP_STATES_RECIEVE
-uint8_t udp_states_register_state(uint8_t last_IP_byte, uint8_t type,uint8_t state_place,uint8_t scale,void (*callback)(void));
+uint8_t udp_states_register_state(uint8_t node, uint8_t type,uint8_t state_place,uint8_t scale,void (*callback)(void));
 
 /*
  *  read skaled value, input the number form the udp_states_register_state
@@ -94,7 +97,6 @@ void _udp_states_process(void);
 void _udp_states_timer(void);
 uint8_t _udp_states_register_callback(void (*callback)(void));
 int _udp_states_compare(const void *lp,const void *rp);
-int16_t _udp_states_make_value(uint8_t type,int8_t expo,uint8_t *data,uint8_t len,uint8_t index,int16_t old);
 #endif
 /*
  * constants
@@ -137,7 +139,10 @@ typedef struct {
   int8_t expo;
   uint8_t prio;
 }udp_states_value_t;
-
+//Functionen
+int16_t udp_states_make_IO_value_word(uint8_t highbyte,uint8_t lowbyte);
+int16_t udp_states_make_float_value(int8_t *data, udp_states_value_t *state);
+inline void udp_states_make_state(udp_states_state_t *found_state,udp_states_packet_t packet,uint8_t len);
 /*
  * Glob_variabelen
  */

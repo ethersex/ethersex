@@ -1,0 +1,5 @@
+UDP-STATES Header
+revision|node	|type	|part	|priority	|
+8	|8	|8	|8	|8		|
+
+ein State hat 24 Bit (3 Byte)

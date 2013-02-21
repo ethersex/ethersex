@@ -22,19 +22,35 @@
 
 #include "config.h"
 #include "udp_states.h"
+uint8_t index;
+void udp_states_example_init(void){
+  DDRD=0xFF;
+  index=udp_states_register_state(1,0xe0,0,0,NULL);
+  debug_printf("UDP_STATES_EXAMPLE_Index %d", index);
+}
 
 void udp_states_sample(void)
 {
-		DDRD = 0xFF;
-		static uint8_t i = 0;
-		uint8_t data[3];
-		PORTD = i;
+		static int16_t i = 0;
+		int8_t data[3];
+		udp_states_value_t state;
+		state.expo=-10;
 		udp_states_make_float(data,i,0);
-		udp_states_send(0xAA,1,data,3);
-		i++;
+		udp_states_send(0x2F,0,data,3);
+		i+=1;
+}
+
+void udp_states_example_recieve(void)
+{
+  if(udp_states_get_time(index)<10)
+    PORTD=~((uint8_t)(udp_states_get_value(index)&0xFF)|0x01);
+  else
+    PORTD=~0;
 }
 
 /*
   -- Ethersex META --
+  startup(udp_states_example_init)
   timer(50,udp_states_sample());
+  timer(50,udp_states_example_recieve());
 */

@@ -20,31 +20,47 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include "udp_states.h"
+#include "udp_states_transmit.h"
 
-uint8_t udp_states_make_float(uint8_t *data,int16_t input_data,int8_t expo)
+void udp_states_make_float(int8_t *data,int16_t input_data,int8_t expo)
  {
-	 data[0]=(input_data>>8)&0xFF;
-	 data[1]=(input_data)&0xFF;
-	 data[2]=expo;
+   uint8_t i;
+   int8_t s_expo=expo;
+   uint16_t result=(input_data<0)?(-input_data):(input_data);
+   result&=0x7FFF;
+   if(result!=0){
+     for(i=0;i<15&&(result&0x4000)==0;i++){
+       result<<=1;
+    }
+   }
+   else
+   {
+     i = 15;
+   }
+   result=(input_data<0)?(-result):(result);
+   data[0]=(result>>8)&0xFF;	   
+   data[1]=(result)&0xFF;
+   data[2]=(s_expo-i);
  }
  
- void udp_states_transmit(uint8_t type, uint8_t part, uint8_t *data, uint8_t len)
+ void udp_states_send(uint8_t type, uint8_t part, int8_t *data, uint8_t len)
  {
-	 uint8_t* packet = uip_appdata;
+	 uip_ipaddr_t mip;
+	 set_UDP_STATES_MULTICAST_IP_ADDR(mip);
+	 uint8_t* packet = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
 	 packet[0]=UDP_STATES_NODE_ID;
 	 packet[1]=type;
 	 packet[2]=part;
 	 packet[3]=0;
 	 memcpy(&packet[4],data,len);
 	 uip_slen=4+len;
-	 uip_udp_conn_t echo_conn;
-    uip_ipaddr_copy(echo_conn.ripaddr, UDP_STATES_MULTICAST_IP_ADDR);
-    echo_conn.rport = HTONS(UDP_STATES_PORT);
-    echo_conn.lport = HTONS(UDP_STATES_PORT);
-
-    uip_udp_conn = &echo_conn;
-    uip_process(UIP_UDP_SEND_CONN); 
-    uip_slen = 0;
+	 uip_udp_conn_t udp_states_conn;
+	 uip_ipaddr_copy(udp_states_conn.ripaddr, mip );
+	 udp_states_conn.rport = HTONS(UDP_STATES_PORT);
+	 udp_states_conn.lport = HTONS(UDP_STATES_PORT);
+	 uip_udp_conn = &udp_states_conn;
+	 uip_process(UIP_UDP_SEND_CONN);
+	 router_output(	);
+	 uip_slen = 0;
 }
 	 
