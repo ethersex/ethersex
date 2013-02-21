@@ -4,7 +4,11 @@
 import socket
 import time
 
+<<<<<<< HEAD
 ANY = "192.168.0.89"
+=======
+ANY = "0.0.0.0"
+>>>>>>> 5bdba682f09993cb1948518be21c3f1b499357c2
 MCAST_ADDR = "224.224.224.10"
 MCAST_PORT = 6282
 #create a UDP socket
