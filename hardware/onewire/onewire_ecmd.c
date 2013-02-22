@@ -704,9 +704,6 @@ parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len)
 }
 
 #endif /* ONEWIRE_NAMING_SUPPORT */
-//ecmd_ifdef(ONEWIRE_ECMD_LIST_POWER_SUPPORT)
-//  ecmd_feature(onewire_power, "1w power", DEVICE, Return temperature value of onewire device (provide 64-bit ID as 16-hex-digits))
-//ecmd_endif()
 
 /*
   -- Ethersex META --
