@@ -143,7 +143,7 @@ all: compile-$(TARGET)
 	@echo "=======The ethersex project========"
 	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
 	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU) $(BOOTLOADER_SUPPORT) $(BOOTLOADER_SIZE)
-	@$(CONFIG_SHELL) ${TOPDIR}/scripts/eeprom-usage "$(CFLAGS)" "$(CPPFLAGS)"
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/eeprom-usage "$(CFLAGS)" "$(CPPFLAGS)" 2> /dev/null
 	@echo "==================================="
 endif
 .PHONY: all

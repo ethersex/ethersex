@@ -60,7 +60,7 @@ int16_t parse_cmd_dns_server(char *cmd, char *output, uint16_t len)
 
 int16_t parse_cmd_nslookup (char *cmd, char *output, uint16_t len)
 {
-  while (*cmd == 32) cmd ++;
+  while (*cmd == ' ') cmd ++;
   uip_ipaddr_t *addr = resolv_lookup (cmd);
 
   if (addr) {

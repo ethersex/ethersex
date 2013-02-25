@@ -30,6 +30,8 @@ divert(0)dnl
 /* This file has been generated automatically.
    Please do not modify it, edit the m4 scripts instead. */
 
+#include "config.h"
+
 #if ARCH != ARCH_HOST
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -38,7 +40,6 @@ divert(0)dnl
 #endif
 
 #include <stdint.h>
-#include "config.h"
 #include "core/debug.h"
 #include "services/freqcount/freqcount.h"
 

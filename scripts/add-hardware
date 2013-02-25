@@ -81,7 +81,7 @@ template $PWM_SERVO_SUPPORT << FNORD
   pin(SERVO7, PD0, OUTPUT)
 FNORD
 
-template $BUTTONS_INPUT_SUPPORT << FNORD
+template $BUTTONS_INPUT_SUPPORT << 'FNORD'
 ifdef(`conf_BUTTONS_INPUT', `
   /* input buttons */
   pin(BTN_UP, PC2, INPUT)
@@ -465,6 +465,8 @@ l_editor() {
     $EDITOR $1
   elif [ -n "`which nano`" ]; then
     nano $1
+  elif [ -n "`which vi`" ]; then
+    vi $1
   fi
 }
 
