@@ -1,7 +1,7 @@
 /*
-* fixedpoint utils
+* Read and convert data from a DHT hygro & temp sensor
 *
-* Copyright (c) 2009 by Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -21,11 +21,22 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef _UTIL_FIXEDPOINT_H_
-#define _UTIL_FIXEDPOINT_H_
+#ifndef DHT_H
+#define DHT_H
 
 #include <stdint.h>
 
-uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
+typedef struct
+{
+  uint16_t polling_delay;
+  uint8_t busy;
+  int16_t temp;
+  int16_t humid;
+} dht_global_t;
 
-#endif
+extern dht_global_t dht_global;
+
+void dht_init(void);
+void dht_periodic(void);
+
+#endif /* DHT_H */

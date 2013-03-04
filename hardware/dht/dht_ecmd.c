@@ -1,7 +1,7 @@
 /*
-* fixedpoint utils
+* ECMD-commands to handle reading SHT humidity & temp sensors
 *
-* Copyright (c) 2009 by Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -21,11 +21,28 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef _UTIL_FIXEDPOINT_H_
-#define _UTIL_FIXEDPOINT_H_
-
 #include <stdint.h>
 
-uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
+#include "config.h"
+#include "core/util/fixedpoint.h"
+#include "protocols/ecmd/ecmd-base.h"
 
-#endif
+#include "dht.h"
+#include "dht_ecmd.h"
+
+int16_t parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
+{
+  return ECMD_FINAL(itoa_fixedpoint(dht_global.temp,1,output));
+}
+
+int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
+{
+  return ECMD_FINAL(itoa_fixedpoint(dht_global.humid,1,output));
+}
+
+/*
+  -- Ethersex META --
+  block([[DHT]])
+  ecmd_feature(dht_temp, "dht temp",, Return temperature of DHT sensor)
+  ecmd_feature(dht_humid, "dht humid",, Return humidity of DHT sensor)
+*/
