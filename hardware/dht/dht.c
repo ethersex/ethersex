@@ -26,9 +26,15 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "core/periodic.h" /* for HZ */
+#include "core/periodic.h"      /* for HZ */
 
 #include "dht.h"
+
+#ifdef DEBUG_DHT
+#define DHT_DEBUG(s, args...) printf_P(PSTR("D: DHT " s "\n"), ## args)
+#else
+#define DHT_DEBUG(a...)
+#endif
 
 /*
 		 _________
@@ -92,7 +98,6 @@ dht_global_t dht_global;
 static void
 dht_start(void)
 {
-  debug_printf("DHT: start");
   DDR_CONFIG_OUT(DHT);
   PIN_CLEAR(DHT);
 }
@@ -100,7 +105,6 @@ dht_start(void)
 static void
 dht_read(void)
 {
-  debug_printf("DHT: read");
   PIN_SET(DHT);
   _delay_us(40);
   DDR_CONFIG_IN(DHT);
@@ -118,14 +122,14 @@ dht_read(void)
       _delay_us(5);
       if (++counter == 20)
       {
-        debug_printf("DHT: read timeout");
+        DHT_DEBUG("read timeout");
         return;                 /* timeout in conversation */
       }
     }
     last_state = current_state;
 
     /* ignore first three transitions */
-    if ((i >= 4) && (i & 1 == 0))
+    if ((i >= 4) && (i % 2 == 0))
     {
       /* shift each bit into the storage bytes */
       data[j / 8] <<= 1;
@@ -137,15 +141,15 @@ dht_read(void)
 
   /* check we read 40 bits and that the checksum matches */
   if ((j < 40) ||
-      (data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)));
+      (data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)))
   {
-    debug_printf("DHT: read failed");
+    debug_printf("DHT: read failed\n");
     return;
   }
 
   int16_t t;
 #if DHT_TYPE == DHT_TYPE_11
-  t = (int8_t)data[2];
+  t = (int8_t) data[2];
   t *= 10;
   dht_global.temp = t;
   t = data[0];
@@ -159,13 +163,7 @@ dht_read(void)
   t = data[0] << 8 | data[1];
   dht_global.humid = t;
 #endif
-  debug_printf("DHT: t=%d, h=%d%%", dht_global.temp, dht_global.humid);
-}
-
-static void
-dht_convert(void)
-{
-  debug_printf("DHT: valid");
+  DHT_DEBUG("t=%d, h=%d%%", dht_global.temp, dht_global.humid);
 }
 
 void
