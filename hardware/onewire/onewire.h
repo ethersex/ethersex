@@ -246,24 +246,23 @@ typedef struct
   /* sensor has a name assigned */
   uint8_t named :1;
 #endif
+#ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
+  /* power mode (parasite / external) */
+  uint8_t power :1;
+#endif
 #ifdef ONEWIRE_POLLING_SUPPORT
-  /* when this is set, we will wait convert_delay to be 0 and then read the
-   * scratchpad */
-  uint8_t converted :1;
   /* this is set during discovery - all sensors with present == 0 will be
    * deleted after the discovery */
   uint8_t present :1;
-  /* waiting 1s for the sensor to convert the temperatures */
-  uint8_t convert_delay :1;
 #endif
+  /* semaphore for conversion error 85.0°C */
+  uint8_t conv_error :1;
 
   /* byte aligned fields */
 #ifdef ONEWIRE_POLLING_SUPPORT
   /* just storing the temperature in order to keep memory footprint as low as
    * possible. storing temperature in deci degrees (DD) => 36.4° == 364 */
   int16_t temp;
-  /* time between polling the sensor */
-  uint16_t polling_delay;
 #endif
 #ifdef ONEWIRE_NAMING_SUPPORT
   char name[OW_NAME_LENGTH];
@@ -278,7 +277,14 @@ extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
  */
 typedef struct
 {
-  uint8_t lock;
+  uint8_t lock :1;
+#ifdef ONEWIRE_POLLING_SUPPORT
+  /* when this is set, we will wait convert_delay to be 0 and then read the
+   * scratchpad */
+  uint8_t converting :1;
+  /* delay for the sensor to convert the temperatures */
+  uint8_t convert_delay :2;
+#endif
   int8_t last_discrepancy;
 #ifdef ONEWIRE_DS2502_SUPPORT
   int8_t list_type;

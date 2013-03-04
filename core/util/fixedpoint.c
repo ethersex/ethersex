@@ -27,56 +27,56 @@
 #include "core/debug.h"
 #include "core/util/fixedpoint.h"
 
-// Attention: returns the length in bytes, not a pointer like the regular itoa
-// this is more conveniant for use in output to ECMDs output buffer 
-uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
+/* Attention: returns the length in bytes, not a pointer like the regular
+ * itoa this is more convenient for use in output to ECMDs output buffer */
+uint8_t
+itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
 {
-    uint8_t i=0, j=0, sign=0, size=0;
+  uint8_t i = 0, j = 0, sign = 0, size = 0;
 
-    if (n < 0)
-    {
-        /* record sign */
-        sign=1;
-        /* make n positive */
-        n = -n;
-    }
+  if (n < 0)
+  {
+    /* record sign */
+    sign = 1;
+    /* make n positive */
+    n = -n;
+  }
 
-    do
-    {
-        /* generate digits in reverse order */
-        s[i++] = n % 10 + '0';   /* get next digit */
-        if (i == fixeddigits)
-            s[i++]='.';
-    }
-    while ((n /= 10) > 0);     /* delete it */
+  do
+  {
+    /* generate digits in reverse order */
+    s[i++] = n % 10 + '0';   /* get next digit */
+    if (i == fixeddigits)
+      s[i++]='.';
+  }
+  while ((n /= 10) > 0);     /* delete it */
 
-    if (i < fixeddigits)
-    {
-        while(i < fixeddigits)
-            s[i++]='0';
-        s[i++]='.';
-        s[i++]='0';
-    }
-    else if(i == fixeddigits)
-        s[i++]='0';
+  if (i <= fixeddigits)
+  {
+    while(i < fixeddigits)
+      s[i++] = '0';
+    s[i++] = '.';
+    s[i++] = '0';
+  }
+  else if(i == fixeddigits + 1)
+    s[i++] = '0';
 
-    if (sign)
-        s[i++] = '-';
-    s[i] = '\0';
+  if (sign)
+    s[i++] = '-';
+  s[i] = '\0';
 
-    size=i;
+  size = i;
 
-    // in-place reverse
+  /* in-place reverse */
+  i--;
+  while (j < i)
+  {
+    sign = s[j];
+    s[j] = s[i];
+    s[i] = sign;
     i--;
-    while(j<i)
-    {
-        sign = s[j];
-        s[j] = s[i];
-        s[i] = sign;
-        i--;
-        j++;
-    }
+    j++;
+  }
 
-    return size;
+  return size;
 }
-
