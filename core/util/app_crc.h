@@ -1,5 +1,5 @@
 /*
-* byte to HEX utils
+* calculate the 16 bit crc of the application area
 *
 * Copyright (c) 2013 by Frank Sautter <ethersix@sautter.com>
 *
@@ -21,9 +21,9 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef _UTIL_BTOH_H_
-#define _UTIL_BTOH_H_
+#ifndef _UTIL_APP_CRC_H_
+#define _UTIL_APP_CRC_H_
 
-uint8_t byte2hex (uint8_t value, char *string);
+uint16_t calc_application_crc(void);
 
 #endif

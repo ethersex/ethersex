@@ -62,9 +62,14 @@ void tftp_handle_packet(void);
 
 #if defined(BOOTLOADER_SUPPORT)  \
   && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
+#ifdef TFTP_CRC_SUPPORT
 inline static void
 tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
     uint8_t verify_crc)
+#else
+inline static void
+tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
+#endif
 {
   uip_udp_conn_t *tftp_req_conn =
     uip_udp_new(ip, HTONS(TFTP_PORT), tftp_net_main);
@@ -73,7 +78,9 @@ tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
     return;                     /* dammit. */
 
   tftp_req_conn->appstate.tftp.fire_req = 1;
+#ifdef TFTP_CRC_SUPPORT
   tftp_req_conn->appstate.tftp.verify_crc = verify_crc;
+#endif
   memcpy(tftp_req_conn->appstate.tftp.filename, filename,
          TFTP_FILENAME_MAXLEN);
   tftp_req_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;
@@ -90,7 +97,9 @@ tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
   tftp_recv_conn->appstate.tftp.transfered = 0;
   tftp_recv_conn->appstate.tftp.finished = 0;
   tftp_recv_conn->appstate.tftp.bootp_image = 1;
+#ifdef TFTP_CRC_SUPPORT
   tftp_recv_conn->appstate.tftp.verify_crc = verify_crc;
+#endif
   memcpy(tftp_recv_conn->appstate.tftp.filename, filename,
          TFTP_FILENAME_MAXLEN);
   tftp_recv_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;

@@ -1,5 +1,5 @@
 /*
-* byte to HEX utils
+* calculate the 16 bit crc of the application area
 *
 * Copyright (c) 2013 by Frank Sautter <ethersix@sautter.com>
 *
@@ -21,9 +21,26 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef _UTIL_BTOH_H_
-#define _UTIL_BTOH_H_
+#include <avr/pgmspace.h>
+#include <util/crc16.h>
 
-uint8_t byte2hex (uint8_t value, char *string);
+#include "config.h"
+#include "core/util/app_crc.h"
 
+uint16_t
+calc_application_crc(void)
+{
+  uint16_t crc = 0xffff;
+
+#if FLASHEND > UINT16_MAX
+  uint_farptr_t p;
+  for (p = 0; p < (uint_farptr_t) BOOTLOADER_START_ADDRESS; p++)
+    crc = _crc16_update(crc, pgm_read_byte_far(p));
+#else
+  uint8_t *p;
+  for (p = 0; p < (uint8_t *) BOOTLOADER_START_ADDRESS; p++)
+    crc = _crc16_update(crc, pgm_read_byte(p));
 #endif
+
+  return (crc);
+}

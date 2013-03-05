@@ -1,7 +1,7 @@
 /*
 * byte to HEX utils
 *
-* Copyright (c) 2013 by Frank Sautter
+* Copyright (c) 2013 by Frank Sautter <ethersix@sautter.com>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,6 @@
 #include <avr/io.h>
 
 #include "config.h"
-#include "core/debug.h"
 #include "core/util/byte2hex.h"
 
 /* this could easily be done by using sprintf, but the lib has a much to big

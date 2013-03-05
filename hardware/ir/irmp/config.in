@@ -35,98 +35,98 @@ dep_bool_menu "IRMP IR" IRMP_SUPPORT $IR_SUPPORT $ARCH_AVR
 	dep_bool 'BOSE' IRMP_SUPPORT_BOSE_PROTOCOL $IRMP_SUPPORT
 	dep_bool 'A1TVBOX' IRMP_SUPPORT_A1TVBOX_PROTOCOL $IRMP_SUPPORT
 	comment  "Debugging Flags"
-	dep_bool 'IRMP Debug' DEBUG_IRMP $IRMP_SUPPORT
-	if [ "$IRMP_SUPPORT_SIRCS_PROTOCOL" = y ];  then
+	dep_bool 'IRMP' DEBUG_IRMP $IRMP_SUPPORT
+	if [ "$IRMP_SUPPORT_SIRCS_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_SIRCS_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NEC_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NEC_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NEC_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_JVC_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_JVC_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_JVC_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_SAMSUNG_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_SAMSUNG_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_SAMSUNG_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_MATSUSHITA_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_MATSUSHITA_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_MATSUSHITA_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_MATSUSHITA_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_MATSUSHITA_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_MATSUSHITA_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_KASEIKYO_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_KASEIKYO_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_KASEIKYO_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_DENON_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_DENON_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_DENON_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RECS80_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RECS80_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RECS80_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RECS80EXT_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RECS80EXT_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RECS80EXT_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RC5_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RC5_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RC5_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RC6_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RC6_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RC6_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RC6A_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RC6A_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RC6A_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NUBERT_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NUBERT_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NUBERT_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_BANG_OLUFSEN_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_BANG_OLUFSEN_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_GRUNDIG_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_GRUNDIG_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_GRUNDIG_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NOKIA_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NOKIA_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NOKIA_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_SIEMENS_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_SIEMENS_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_SIEMENS_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_FDC_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_FDC_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_FDC_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RCCAR_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RCCAR_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RCCAR_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NIKON_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NIKON_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NIKON_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_IR60_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_IR60_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_IR60_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_RUWIDO_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_RUWIDO_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_RUWIDO_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_KATHREIN_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_KATHREIN_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_KATHREIN_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NETBOX_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NETBOX_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NETBOX_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NEC16_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NEC16_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NEC16_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_NEC42_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_NEC42_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_NEC42_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_LEGO_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_LEGO_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_LEGO_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_THOMSON_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_THOMSON_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_THOMSON_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_BOSE_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_BOSE_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_BOSE_PROTOCOL y
 	fi
-	if [ "$IRMP_SUPPORT_A1TVBOX_PROTOCOL" = y ];  then
+	if [ "$IRMP_SUPPORT_A1TVBOX_PROTOCOL" = "y" ];  then
 		define_bool IRSND_SUPPORT_A1TVBOX_PROTOCOL y
 	fi
 endmenu

@@ -35,11 +35,13 @@ struct tftp_connection_state_t
   unsigned finished:1;
 
 #ifdef BOOTLOADER_SUPPORT
-  unsigned bootp_image:1;
-  unsigned fire_req:1;          /* this connection is for just
-                                 * starting a tftp request */
-  unsigned verify_crc:1;        /* load a crc file and compare it to our
-                                 * application's crc */
+  unsigned bootp_image:1;       // FIXME is this of any use?
+  unsigned fire_req:1;          /* this connection is just for starting a
+                                 * tftp request */
+#ifdef TFTP_CRC_SUPPORT
+  unsigned verify_crc:1;        /* try if a file with our crc exists */
+  unsigned verify_content:1;    /* check content of crc file */
+#endif
 
   char filename[TFTP_FILENAME_MAXLEN];
 #endif
