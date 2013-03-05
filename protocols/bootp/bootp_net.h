@@ -23,8 +23,8 @@
 #define BOOTP_NET_H
 
 /* constants */
-#define BOOTPS_PORT 67 
-#define BOOTPC_PORT 68 
+#define BOOTPS_PORT 67
+#define BOOTPC_PORT 68
 
 /* prototypes */
 void bootp_net_init(void);
