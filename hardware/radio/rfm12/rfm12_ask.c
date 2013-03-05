@@ -154,7 +154,7 @@ rfm12_ask_intertechno_send(uint8_t family, uint8_t group,
 #ifdef RFM12_ASK_2272_SUPPORT
 static const uint8_t ask_2272_pulse_duty_factor[4] PROGMEM = { 13, 5, 7, 11 };
 #endif
-#if defined RFM12_ASK_1527_SUPPORT
+#ifdef RFM12_ASK_1527_SUPPORT
 static const uint8_t ask_1527_pulse_duty_factor[4] PROGMEM = { 9, 3, 3, 9 };
 #endif
 
