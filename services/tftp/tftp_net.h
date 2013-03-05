@@ -26,7 +26,7 @@
 #define TFTP_PORT              69
 #define TFTP_ALT_PORT          42023
 
-#define TFTP_FILENAME_MAXLEN   16
+#define TFTP_FILENAME_MAXLEN   32
 
 /* prototypes */
 void tftp_net_init(void);

@@ -26,9 +26,9 @@
 
 /* state */
 struct bootp_connection_state_t {
-    unsigned char  xid[4];
-    uint8_t        retry_timer;
-    uint8_t        retry_counter;
+  unsigned char  xid[4];
+  uint8_t        retry_timer;
+  uint8_t        retry_counter;
 };
 
 #endif /* BOOTP_STATE_H */
