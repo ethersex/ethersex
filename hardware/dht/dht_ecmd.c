@@ -1,5 +1,5 @@
 /*
-* ECMD-commands to handle reading SHT humidity & temp sensors
+* ECMD-commands to handle reading DHT humidity & temp sensors
 *
 * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *

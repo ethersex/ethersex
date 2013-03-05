@@ -172,23 +172,20 @@ dht_init(void)
   DDR_CONFIG_IN(DHT);
 
   dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ / 2;
-  dht_global.busy = 0;
 }
 
 void
 dht_periodic(void)
 {
-  if (dht_global.busy)
+  if (dht_global.polling_delay == 0)
   {
     /* read sensor data */
     dht_read();
-    dht_global.busy = 0;
-  }
-  if (--dht_global.polling_delay == 0 && !dht_global.busy)
-  {
     dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ / 2;
+  }
+  else if (--dht_global.polling_delay == 0)
+  {
     dht_start();
-    dht_global.busy = 1;
   }
 }
 
