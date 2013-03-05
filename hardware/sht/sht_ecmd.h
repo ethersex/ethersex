@@ -1,7 +1,7 @@
 /*
-* fixedpoint utils
 *
-* Copyright (c) 2009 by Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2010 Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -21,11 +21,13 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef _UTIL_FIXEDPOINT_H_
-#define _UTIL_FIXEDPOINT_H_
+#ifndef __SHT_ECMD_H
+#define __SHT_ECMD_H
 
 #include <stdint.h>
 
-uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
+int16_t parse_cmd_sht_raw(char *, char *, uint16_t);
+int16_t parse_cmd_sht_temp(char *, char *, uint16_t);
+int16_t parse_cmd_sht_humid(char *, char *, uint16_t);
 
-#endif
+#endif /* __SHT_ECMD_H */

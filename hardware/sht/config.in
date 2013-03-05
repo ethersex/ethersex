@@ -1,4 +1,4 @@
-dep_bool_menu "SHT 1x/7x humidity & temp sensors" SHT_SUPPORT $ARCH_AVR
+dep_bool_menu "SHT 1x/7x" SHT_SUPPORT $ARCH_AVR
     if [ "$SHT_SUPPORT" = "y" ]; then
         int "SHT transmission frequency (Hz)" SHT_FREQUENCY "50000"
         dep_bool "Raw SHT data" SHT_RAW_SUPPORT $SHT_SUPPORT

@@ -1,8 +1,8 @@
 TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
-$(SHT_SUPPORT)_SRC += hardware/sht/sht.c
-$(SHT_SUPPORT)_ECMD_SRC += hardware/sht/sht_ecmd.c
+$(DHT_SUPPORT)_SRC += hardware/dht/dht.c
+$(DHT_SUPPORT)_ECMD_SRC += hardware/dht/dht_ecmd.c
 
 ##############################################################################
 # generic fluff
