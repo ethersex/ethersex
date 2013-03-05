@@ -42,140 +42,143 @@
 void
 tftp_handle_packet(void)
 {
-    struct tftp_connection_state_t *state = &uip_udp_conn->appstate.tftp;
-    /*
-     * overwrite udp connection information (i.e. take from incoming packet)
-     */
-    uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
-    uip_udp_conn->rport = BUF->srcport;
+  struct tftp_connection_state_t *state = &uip_udp_conn->appstate.tftp;
+  /*
+   * overwrite udp connection information (i.e. take from incoming packet)
+   */
+  uip_ipaddr_copy(uip_udp_conn->ripaddr, BUF->srcipaddr);
+  uip_udp_conn->rport = BUF->srcport;
 
-    /*
-     * care for incoming tftp packet now ...
-     */
-    struct tftp_hdr *pk = uip_appdata;
+  /*
+   * care for incoming tftp packet now ...
+   */
+  struct tftp_hdr *pk = uip_appdata;
 
-    switch(HTONS(pk->type)) {
-    /*
-     * streaming data back to the client (download) ...
-     */
-    case 1:			/* read request */
-	state->download = 1;
-	state->transfered = 0;
-	state->finished = 0;
+  switch (HTONS(pk->type))
+  {
+      /*
+       * streaming data back to the client (download) ...
+       */
+    case 1:                    /* read request */
+      state->download = 1;
+      state->transfered = 0;
+      state->finished = 0;
 
-	state->fh = vfs_open (pk->u.raw);
-	if (state->fh == NULL) goto error_out;
+      state->fh = vfs_open(pk->u.raw);
+      if (state->fh == NULL)
+        goto error_out;
 
-	goto send_data;
+      goto send_data;
 
-    case 4:			/* acknowledgement */
-	if(state->download != 1)
-	    goto error_out;
+    case 4:                    /* acknowledgement */
+      if (state->download != 1)
+        goto error_out;
 
-	if(HTONS(pk->u.ack.block) < state->transfered
-	   || (HTONS(pk->u.ack.block) >
-	       state->transfered + 1))
-	    goto error_out;	/* ack out of order */
+      if (HTONS(pk->u.ack.block) < state->transfered
+          || (HTONS(pk->u.ack.block) > state->transfered + 1))
+        goto error_out;         /* ack out of order */
 
-	state->transfered = HTONS(pk->u.ack.block);
+      state->transfered = HTONS(pk->u.ack.block);
 
     send_data:
-	if(state->finished)
-	    goto close_connection;
+      if (state->finished)
+        goto close_connection;
 
-	pk->type = HTONS(3);	/* data packet */
-	pk->u.data.block = HTONS(state->transfered + 1);
+      pk->type = HTONS(3);      /* data packet */
+      pk->u.data.block = HTONS(state->transfered + 1);
 
-	fs_size_t ret = vfs_read (state->fh, pk->u.data.data, 512);
+      fs_size_t ret = vfs_read(state->fh, pk->u.data.data, 512);
 
-	if (ret < 0)
-	    goto error_out;
+      if (ret < 0)
+        goto error_out;
 
-	if (ret < 512)
-	    state->finished = 1;
+      if (ret < 512)
+        state->finished = 1;
 
-	uip_udp_send (4 + ret);
-	state->transfered ++;
-	break;
+      uip_udp_send(4 + ret);
+      state->transfered++;
+      break;
 
-    /*
-     * streaming data from the client (firmware upload) ...
-     */
-    case 2:			/* write request */
-	state->download = 0;
-	state->transfered = 0;
-	state->finished = 0;
+      /*
+       * streaming data from the client (firmware upload) ...
+       */
+    case 2:                    /* write request */
+      state->download = 0;
+      state->transfered = 0;
+      state->finished = 0;
 
-	/* try to create the file, shouldn't hurt if it already exists */
-	state->fh = vfs_create (pk->u.raw);
-	/* fs_truncate (&fs, state->fs_inode, 0); */
+      /* try to create the file, shouldn't hurt if it already exists */
+      state->fh = vfs_create(pk->u.raw);
+      /* fs_truncate (&fs, state->fs_inode, 0); */
 
-	if (state->fh == NULL) goto error_out;
+      if (state->fh == NULL)
+        goto error_out;
 
-	pk->u.ack.block = HTONS(0);
-	goto send_ack;
+      pk->u.ack.block = HTONS(0);
+      goto send_ack;
 
-    case 3:			/* data packet */
-	if (state->download != 0)
-	    goto error_out;
+    case 3:                    /* data packet */
+      if (state->download != 0)
+        goto error_out;
 
-	if (HTONS (pk->u.ack.block) < state->transfered)
-	    goto error_out;	/* too early */
+      if (HTONS(pk->u.ack.block) < state->transfered)
+        goto error_out;         /* too early */
 
-	if (HTONS (pk->u.ack.block) == state->transfered)
-	    goto send_ack;	/* already handled */
+      if (HTONS(pk->u.ack.block) == state->transfered)
+        goto send_ack;          /* already handled */
 
-	if (HTONS (pk->u.ack.block) > state->transfered + 1)
-	    goto error_out;	/* too late */
+      if (HTONS(pk->u.ack.block) > state->transfered + 1)
+        goto error_out;         /* too late */
 
-	if (vfs_write (state->fh, pk->u.data.data, uip_datalen () - 4) <= 0)
-	    goto error_out;
+      if (vfs_write(state->fh, pk->u.data.data, uip_datalen() - 4) <= 0)
+        goto error_out;
 
-	if (uip_datalen () < 512 + 4)
-	    state->finished = 1;
+      if (uip_datalen() < 512 + 4)
+        state->finished = 1;
 
-	state->transfered = HTONS (pk->u.ack.block);
+      state->transfered = HTONS(pk->u.ack.block);
 
     send_ack:
-	pk->type = HTONS (4);
-	uip_udp_send (4);	/* send ack */
+      pk->type = HTONS(4);
+      uip_udp_send(4);          /* send ack */
 
-	if (state->finished)
-	    goto close_connection;
+      if (state->finished)
+        goto close_connection;
 
-	break;
+      break;
 
-    /*
-     * protocol errors
-     */
+      /*
+       * protocol errors
+       */
     error_out:
-    case 5:			/* error */
+    case 5:                    /* error */
     default:
-	pk->type = HTONS(5);          /* data packet */
-	pk->u.error.code = HTONS(0);  /* undefined error code */
-	pk->u.error.msg[0] = 0;       /* yes, really expressive */
-	uip_udp_send(5);
+      pk->type = HTONS(5);      /* data packet */
+      pk->u.error.code = HTONS(0);      /* undefined error code */
+      pk->u.error.msg[0] = 0;   /* yes, really expressive */
+      uip_udp_send(5);
 
     close_connection:
-	if (uip_slen) {
-	    /* there's still data that has to be sent,
-	       push it immediately. */
-	    uip_process(UIP_UDP_SEND_CONN);
-	    router_output();
+      if (uip_slen)
+      {
+        /* there's still data that has to be sent,
+         * push it immediately. */
+        uip_process(UIP_UDP_SEND_CONN);
+        router_output();
 
-	    uip_slen = 0;	/* don't send twice. */
-	}
+        uip_slen = 0;           /* don't send twice. */
+      }
 
-	/* Reset connection. */
-	uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
-	uip_udp_conn->rport = 0;
+      /* Reset connection. */
+      uip_ipaddr_copy(uip_udp_conn->ripaddr, all_ones_addr);
+      uip_udp_conn->rport = 0;
 
-	if (state->fh) {
-	    vfs_close (state->fh);
-	    state->fh = NULL;
-	}
+      if (state->fh)
+      {
+        vfs_close(state->fh);
+        state->fh = NULL;
+      }
 
-	break;
-    }
+      break;
+  }
 }
-

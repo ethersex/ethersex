@@ -26,22 +26,27 @@
 #include "core/vfs/vfs.h"
 
 /* state */
-struct tftp_connection_state_t {
+struct tftp_connection_state_t
+{
 #ifdef VFS_SUPPORT
-    struct vfs_file_handle_t *fh;
+  struct vfs_file_handle_t *fh;
 #endif
-    unsigned       download    :1;
-    unsigned       finished    :1;
+  unsigned download:1;
+  unsigned finished:1;
 
 #ifdef BOOTLOADER_SUPPORT
-    unsigned       bootp_image :1;
-    unsigned       fire_req    :1;		/* this connection is for just
-						 * starting a tftp request */
-
-    char           filename[TFTP_FILENAME_MAXLEN];
+  unsigned bootp_image:1;       // FIXME is this of any use?
+  unsigned fire_req:1;          /* this connection is just for starting a
+                                 * tftp request */
+#ifdef TFTP_CRC_SUPPORT
+  unsigned verify_crc:1;        /* try if a file with our crc exists */
+  unsigned verify_content:1;    /* check content of crc file */
 #endif
 
-    uint16_t       transfered;			/* also retry countdown */
+  char filename[TFTP_FILENAME_MAXLEN];
+#endif
+
+  uint16_t transfered;          /* also retry countdown */
 };
 
 #endif /* TFTP_STATE_H */
