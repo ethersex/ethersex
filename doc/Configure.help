@@ -850,7 +850,35 @@ TFTPOMATIC_SUPPORT
   Depends on:
    * TFTP support (TFTP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Setup TFTP-client without using BOOTP
+
+TFTP CRC verify
+TFTP_CRC_SUPPORT
+  Verify if the programmed application has the same 16-bit CRC as a seperate
+  CRC-file on the TFTP-server.
+  
+  There are two modes possible:
+  * Test if CRC-file exists.
+    - If yes, then immediately start application.
+    - if no, then try to load and program application
+    
+  * Verify content of crc file.
+    - If file exists and content matches current application CRC, then 
+      immediately start application.
+    - If file does not exist or content does not match current application 
+      CRC, then try to load and program application
+  
+  The filename of the CRC-file is constructed out of the application filename
+  having additional formatting keys.
+  %m : replace with '-[MAC-ADDRESS]' (13 characters hex uppercase)
+  %c : replace with '-[APPCRC]' (5 characters hex uppercase)
+  %e : replace with '.crc' - the rest of the filename is truncated
+  %C : replace with '' - verify CRC-file content
+  
+  Example:
+  Supplied filename:    ethersex%m%c%e.bin
+  CRC-filename:         ethersex-DEADBEEFCAFE-1337.crc
+  Application filename: ethersex.bin
 
 MDNS service announcement (Avahi)
 MDNS_SD_SUPPORT
@@ -2475,15 +2503,15 @@ ONEWIRE_POLLING_SUPPORT
    * Onewire support (ONEWIRE_SUPPORT)
    * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
 
-  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY*0.8 seconds.
+  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY seconds.
   After the discovery, new sensors will be added to the list and old/defect sensors
   will be removed from the list.
-  Each sensor discovered will then be polled every OW_READ_DELAY*0.8 seconds and the temperature
+  Each sensor discovered will then be polled every OW_READ_DELAY seconds and the temperature
   stored (cached). The advantage of this feature is that onewire opererates without
-  any noticeable lags (compared to the 800 ms lag in normal operation mode). Also it is easier to have
+  any noticeable lags compared to the 800 ms lag in normal operation mode. Also it is easier to have
   multiple applications requesting sensor information since more request will not increase traffic on the
   onewire bus.
-  The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY*0.8s)
+  The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY).
 
 
 ECMD 1w list with values

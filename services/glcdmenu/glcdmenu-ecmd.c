@@ -42,7 +42,7 @@ int16_t parse_cmd_glcdmenu_key(char *cmd, char *output, uint16_t len)
 
 	if (cmd[0] != 0)
 	{
-		while (*cmd == 32)
+		while (*cmd == ' ')
 			cmd++;
 		value_ui16 = atoi(cmd);
 
