@@ -30,11 +30,16 @@
 uint16_t
 calc_application_crc(void)
 {
-  uint_farptr_t p;
   uint16_t crc = 0xffff;
 
+#if FLASHEND > UINT16_MAX
   for (p = 0; p < (uint_farptr_t) BOOTLOADER_START_ADDRESS; p++)
     crc = _crc16_update(crc, pgm_read_byte_far(p));
+#else
+  uint8_t *p;
+  for (p = 0; p < (uint8_t *) BOOTLOADER_START_ADDRESS; p++)
+    crc = _crc16_update(crc, pgm_read_byte(p));
+#endif
 
   return (crc);
 }
