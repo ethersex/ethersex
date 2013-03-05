@@ -1,4 +1,4 @@
-dep_bool_menu "DHT 11/22 sensors" DHT_SUPPORT $ARCH_AVR
+dep_bool_menu "DHT 11/22" DHT_SUPPORT $ARCH_AVR
 	if [ "$DHT_SUPPORT" = "y" ]; then
 		choice 'Sensor type'                  \
 			"DHT11                  DHT_TYPE_11   \
