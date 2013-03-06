@@ -1,4 +1,4 @@
-dep_bool_menu "IRC client (EXPERIMENTAL)" IRC_SUPPORT $TCP_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "IRC client" IRC_SUPPORT $TCP_SUPPORT
   ip "Server IP" CONF_IRC_IP "192.168.23.254" "2001:19f0:feee:0:0:dead:beef:cafe"
   int "Server Port" CONF_IRC_PORT 6667
   string "Channel" CONF_IRC_CHANNEL "ethersex"

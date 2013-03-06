@@ -18,7 +18,7 @@ if [ "$TEENSY_SUPPORT" = "y" ]; then
 			else
 				define_symbol ADC_REF ADC_2_56
 			fi
-			dep_bool "HR20-style Temperature Sensor (EXPERIMENTAL)" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC $CONFIG_EXPERIMENTAL
+			dep_bool "HR20-style Temperature Sensor" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC
 		fi
 	endmenu
 else
@@ -41,8 +41,8 @@ else
 			else
 				define_symbol ADC_REF ADC_2_56
 			fi
-			dep_bool "HR20-style Temperature Sensor (EXPERIMENTAL)" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC $CONFIG_EXPERIMENTAL
-			dep_bool "ADC voltage support" ADC_VOLTAGE_SUPPORT $ADC_SUPPORT $CONFIG_EXPERIMENTAL
+			dep_bool "HR20-style Temperature Sensor" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC
+			dep_bool "ADC voltage support" ADC_VOLTAGE_SUPPORT $ADC_SUPPORT
 		fi
 	endmenu
 fi

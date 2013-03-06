@@ -1,6 +1,6 @@
 dep_bool_menu "System clock support" CLOCK_SUPPORT
 
-  if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ]; then
+  if [ "$TEENSY_SUPPORT" = "y" ]; then
     comment 'The follow ECMD Options are here and in ECMD Options available'
     bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT
     bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT
@@ -34,9 +34,9 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
   fi
 
   if [ "$CLOCK_CRYSTAL_SUPPORT" = "y" ]; then
-    dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT "n"
+    dep_bool "Use CPU clock to tick the clock" CLOCK_CPU_SUPPORT "n"
   else
-    dep_bool "Use CPU clock to tick the clock (EXPERIMENTAL)" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
+    dep_bool "Use CPU clock to tick the clock" CLOCK_CPU_SUPPORT $CLOCK_SUPPORT
   fi
 
   if [ "$CLOCK_CPU_SUPPORT" = "y" ]; then
@@ -59,12 +59,8 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
     fi
     int "NTP Port" NTP_PORT 123
 
-    if [ "$CONFIG_EXPERT" = "y" ]; then
-                  if [ "$NTP_QUERY_INTERVAL" -lt 60 -o "$NTP_QUERY_INTERVAL" = "" ] ; then NTP_QUERY_INTERVAL=60 ; fi
-      int "NTP query interval (seconds)" NTP_QUERY_INTERVAL 1800
-    else
-      define_int NTP_QUERY_INTERVAL 1800
-    fi
+    if [ "$NTP_QUERY_INTERVAL" -lt 60 -o "$NTP_QUERY_INTERVAL" = "" ] ; then NTP_QUERY_INTERVAL=60 ; fi
+    int "NTP query interval (seconds)" NTP_QUERY_INTERVAL 1800
   fi
   dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
   dep_bool "Working hour meter" WHM_SUPPORT $CLOCK_SUPPORT

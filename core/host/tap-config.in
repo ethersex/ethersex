@@ -22,7 +22,7 @@ dep_bool_menu "Ethernet (Linux TAP) support" TAP_SUPPORT $ARCH_HOST
 		int "Local IP prefix length" CONF_TAP_LOCALPLEN 64
 	fi
 
-	dep_bool "802.1q Support (EXPERIMENTAL)" IEEE8021Q_SUPPORT $EXPERIMENTAL_SUPPORT
+	dep_bool "802.1q Support" IEEE8021Q_SUPPORT
 	if [ "$IEEE8021Q_SUPPORT" = "y" ]; then
 		int "VLAN ID (1 to 4094)" CONF_8021Q_VID 1
 		int "User Priority (0 to 7)" CONF_8021Q_PRIO 1

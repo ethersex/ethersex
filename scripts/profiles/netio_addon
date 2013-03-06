@@ -5,8 +5,6 @@
 #
 # General Setup
 #
-CONFIG_EXPERIMENTAL=y
-# CONFIG_EXPERT is not set
 ARCH=ARCH_AVR
 ARCH_AVR=y
 # ARCH_HOST is not set
@@ -36,6 +34,7 @@ FREQ=16000000
 # MicroWebServer is not set
 # USBrfm12stick is not set
 # alpengluehn is not set
+# beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
@@ -57,7 +56,9 @@ netio_addon=y
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
-BOOTLOADER_START_ADDRESS=
+# BOOTLOADER_JUMP is not set
+BOOTLOADER_SIZE=0
+BOOTLOADER_START_ADDRESS=0x1
 FLASH_SIZE=0x1
 EEPROM_SIZE=0x1
 RAM_SIZE=0x1
@@ -72,7 +73,7 @@ SPI_TIMEOUT=y
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="94fdd92"
+VERSION_GIT="b4ce844"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -170,6 +171,13 @@ CONF_ENC_IP="192.168.0.6"
 CONF_ENC_IP4_NETMASK="255.255.255.0"
 # IEEE8021Q_SUPPORT is not set
 CONF_ENC_ECOCON=ECOCON_UNSET
+ECOCON_UNSET=y
+# ECOCON_6 is not set
+# ECOCON_4 is not set
+# ECOCON_3 is not set
+# ECOCON_2 is not set
+# ECOCON_1 is not set
+# ECOCON_0 is not set
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
@@ -331,6 +339,7 @@ CONF_I2C_BAUD=400
 # I2C_GENERIC_SUPPORT is not set
 # I2C_24CXX_SUPPORT is not set
 # I2C_LM75_SUPPORT is not set
+# I2C_TMP175_SUPPORT is not set
 # I2C_DS1631_SUPPORT is not set
 # I2C_DS13X7_SUPPORT is not set
 # I2C_PCF8583_SUPPORT is not set
@@ -401,6 +410,7 @@ IRMP_SUPPORT_GRUNDIG_PROTOCOL=y
 # IRMP_SUPPORT_LEGO_PROTOCOL is not set
 # IRMP_SUPPORT_THOMSON_PROTOCOL is not set
 # IRMP_SUPPORT_BOSE_PROTOCOL is not set
+# IRMP_SUPPORT_A1TVBOX_PROTOCOL is not set
 # DEBUG_IRMP is not set
 IRSND_SUPPORT_NEC_PROTOCOL=y
 IRSND_SUPPORT_RC5_PROTOCOL=y
