@@ -1,19 +1,19 @@
-dep_bool_menu "Morse Code (EXPERIMENTAL)" CW_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Morse Code" CW_SUPPORT
 	int "Words per Minute" CW_WPM 12
-	dep_bool "CW on boot" CW_BOOT_SUPPORT $CW_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "CW on boot" CW_BOOT_SUPPORT $CW_SUPPORT
     if [ "$CW_BOOT_SUPPORT" = "y" ]; then
       string "Boot text" CONF_CW_BOOT_TEXT "VVV";
     fi
-	dep_bool "Beacon" CW_BEACON_SUPPORT $CW_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Beacon" CW_BEACON_SUPPORT $CW_SUPPORT
     if [ "$CW_BEACON_SUPPORT" = "y" ]; then
       string "Beacon text" CONF_CW_BEACON_TEXT "VVV Ethersex CW TEST";
     fi
-	dep_bool "Output Pin" CW_PIN_SUPPORT $CW_SUPPORT $CONFIG_EXPERIMENTAL
-	dep_bool "Output PWM" CW_PWM_FREQ_SUPPORT $CW_SUPPORT $PWM_FREQ_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Output Pin" CW_PIN_SUPPORT $CW_SUPPORT
+	dep_bool "Output PWM" CW_PWM_FREQ_SUPPORT $CW_SUPPORT $PWM_FREQ_SUPPORT
     if [ "$CW_PWM_FREQ_SUPPORT" = "y" ]; then
 	  int "  PWM frequency" CW_PWM_FREQ 700
     fi
-	dep_bool "Output RFM12 ASK" CW_RFM12_ASK_SUPPORT $RFM12_ASK_SUPPORT $PWM_FREQ_SUPPORT $CONFIG_EXPERIMENTAL
+	dep_bool "Output RFM12 ASK" CW_RFM12_ASK_SUPPORT $RFM12_ASK_SUPPORT $PWM_FREQ_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'Morse Debug' DEBUG_CW $DEBUG $CW_SUPPORT
 endmenu

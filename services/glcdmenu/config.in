@@ -1,4 +1,4 @@
-dep_bool_menu "Graphic menu (EXPERIMENTAL)" GLCD_MENU_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Graphic menu" GLCD_MENU_SUPPORT
 	dep_bool "Use german umlauts" GLCDMENU_UMLAUTS $GLCD_MENU_SUPPORT
 	dep_bool "Mouse support (untested!)" GLCDMENU_MOUSE_SUPPORT $GLCD_MENU_SUPPORT
 	comment "Display Drivers"

@@ -1,4 +1,4 @@
-dep_bool_menu "SMS77 client (EXPERIMENTAL)" SMS77_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "SMS77 client" SMS77_SUPPORT $TCP_SUPPORT $DNS_SUPPORT
   string "Server" CONF_SMS77_SERVICE "gateway.sms77.de"
   string "Username" CONF_SMS77_USER ""
   string "Password" CONF_SMS77_PASS ""

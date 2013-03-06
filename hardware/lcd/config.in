@@ -36,10 +36,10 @@ mainmenu_option next_comment
   endmenu
 
   if [ "$TEENSY_SUPPORT" = "y" ]; then
-    dep_bool "HR20-style LCD Display without ECMD (EXPERIMENTAL)" HR20_LCD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+    dep_bool "HR20-style LCD Display without ECMD" HR20_LCD_SUPPORT $atmega169
     comment "Please Define HR20-style LCD Display ECMD Configuration"
   else
-    dep_bool "HR20-style LCD Display (EXPERIMENTAL)" HR20_LCD_SUPPORT_FULL $atmega169 $EXPERIMENTAL_SUPPORT
+    dep_bool "HR20-style LCD Display" HR20_LCD_SUPPORT_FULL $atmega169
   fi
 
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT $ARCH_AVR
