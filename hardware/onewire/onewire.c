@@ -42,6 +42,7 @@
 #include "core/eeprom.h"
 #include "onewire.h"
 #include "core/bit-macros.h"
+#include "core/util/fixedpoint.h"
 
 #define noinline __attribute__((noinline))
 

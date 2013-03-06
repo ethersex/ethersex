@@ -595,7 +595,7 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
   strncpy(ow_sensors[pos].name, name, OW_NAME_LENGTH);
 #ifdef ONEWIRE_POLLING_SUPPORT
   ow_sensors[pos].temp = 0;
-  ow_sensors[pos].polling_delay = 1;
+  ow_polling_interval = 1;
 #endif
 
   for (uint8_t i = 0; i < OW_SENSORS_COUNT; i++)
