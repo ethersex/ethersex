@@ -462,6 +462,7 @@ int8_t ow_find_sensor_index(ow_rom_code_t * rom);
 /* Polling functions */
 #ifdef ONEWIRE_POLLING_SUPPORT
 extern uint16_t ow_discover_interval;
+extern uint16_t ow_polling_interval;
 void ow_periodic(void);
 #endif
 

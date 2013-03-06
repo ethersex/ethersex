@@ -1,4 +1,4 @@
-dep_bool_menu "Bulbdial Clock (EXPERIMENTAL)" BULBDIAL_SUPPORT $CLOCK_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Bulbdial Clock" BULBDIAL_SUPPORT $CLOCK_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'Bulbdial Debug' DEBUG_BULBDIAL $DEBUG $BULBDIAL_SUPPORT
 endmenu

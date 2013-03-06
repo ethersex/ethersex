@@ -302,6 +302,11 @@ template $TANKLEVEL_LOCK_SUPPORT << FNORD
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 FNORD
 
+template $DHT_SUPPORT << FNORD
+  /* DHT 11/22 humidity and temperature sensors */
+ pin(DHT, PA0, INPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`

@@ -1,1 +1,1 @@
-dep_bool "PSB2186 (ISDN) D-channel controller (EXPERIMENTAL)" PSB2186_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "PSB2186 (ISDN) D-channel controller" PSB2186_SUPPORT

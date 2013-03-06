@@ -1,4 +1,4 @@
-dep_bool_menu "DMX Storage (EXPERIMENTAL)" DMX_STORAGE_SUPPORT $ARCH_AVR $CONFIG_EXPERIMENTAL
+dep_bool_menu "DMX Storage" DMX_STORAGE_SUPPORT $ARCH_AVR
 	int "Universes" DMX_STORAGE_UNIVERSES 2
 	int "Channels per Universe" DMX_STORAGE_CHANNELS 64
 	int "Slots per Universe" DMX_STORAGE_SLOTS 5

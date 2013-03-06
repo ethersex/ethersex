@@ -1,4 +1,4 @@
-dep_bool_menu "httplog client (EXPERIMENTAL)" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "httplog client" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_SUPPORT
   string "Service" CONF_HTTPLOG_SERVICE "volkszaehler.org"
   string "Path" CONF_HTTPLOG_PATH "/httplog/httplog.php"
   dep_bool "Include unix timstamp" CONF_HTTPLOG_INCLUDE_TIMESTAMP $CLOCK_DATETIME_SUPPORT
@@ -8,11 +8,7 @@ dep_bool_menu "httplog client (EXPERIMENTAL)" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_
   if [ "$HTTPLOG_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
     HTTPLOG_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
   fi
-  if [ "$CONFIG_EXPERT" = "y" ] ; then
-    int    "Buffer Length" HTTPLOG_BUFFER_LEN ""
-  else
-    define_int HTTPLOG_BUFFER_LEN 140
-  fi
+  int "Buffer Length" HTTPLOG_BUFFER_LEN 140
   comment  "Debugging Flags"
   dep_bool 'HTTPLOG' DEBUG_HTTPLOG $DEBUG $HTTPLOG_SUPPORT
 endmenu

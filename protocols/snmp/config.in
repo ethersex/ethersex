@@ -1,4 +1,4 @@
-dep_bool_menu "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Simple Network Managment Protocol support (snmp)" SNMP_SUPPORT $UDP_SUPPORT
 if [ "$SNMP_SUPPORT" = "y" ]; then
   string "SNMP Description"      SNMP_VALUE_DESCRIPTION "ethersex"
   string "SNMP Location"         SNMP_VALUE_LOCATION    "over the rainbow"

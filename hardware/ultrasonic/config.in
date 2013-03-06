@@ -1,6 +1,6 @@
-dep_bool_menu "Ultrasonic (EXPERIMENTAL)" ULTRASONIC_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Ultrasonic" ULTRASONIC_SUPPORT
     if [ "$ULTRASONIC_SUPPORT" = "y" ]; then
-	    dep_bool "SRF05" SRF05_SUPPORT $UTRASONIC_SUPPORT $CONFIG_EXPERIMENTAL
+	    dep_bool "SRF05" SRF05_SUPPORT $UTRASONIC_SUPPORT
 	    int "SRF05 calibrate faktor" SRF05_FAKTOR 58
 	fi
 	comment  "Debugging Flags"

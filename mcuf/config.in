@@ -51,7 +51,7 @@ dep_bool_menu "Blinkenlights - MicroControllerUnitFrame" MCUF_SUPPORT $UDP_SUPPO
   dep_bool "  Clock autostart" MCUF_CLOCK_AUTOSTART_SUPPORT $MCUF_SUPPORT $CLOCK_SUPPORT $MCUF_CLOCK_SUPPORT
 
   comment "MCUF Module"
-  dep_bool_menu "MCUF Module" MCUF_MODUL_SUPPORT $MCUF_SUPPORT $MCUF_OUTPUT_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool_menu "MCUF Module" MCUF_MODUL_SUPPORT $MCUF_SUPPORT $MCUF_OUTPUT_SUPPORT
     dep_bool_menu "MCUF Module in Cron" MCUF_MODUL_CRON_SUPPORT $MCUF_SUPPORT $CRON_STATIC_SUPPORT
     choice 'Modul Display Mode Cron' \
      "sequence        MCUF_MODUL_DISPLAY_MODE_CRON_SEQUENCE \

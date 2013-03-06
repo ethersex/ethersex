@@ -12,11 +12,7 @@ if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		if [ "$YPORT_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
 			YPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
 		fi
-		if [ "$CONFIG_EXPERT" = "y" ] ; then
-			int    "YPort Buffer Length" YPORT_BUFFER_LEN ""
-		else
-			define_int YPORT_BUFFER_LEN 32
-		fi
+		int    "YPort Buffer Length" YPORT_BUFFER_LEN 32
 	comment  "Debugging Flags"
 	dep_bool 'YPORT Debug' DEBUG_YPORT $YPORT_SUPPORT
 	endmenu

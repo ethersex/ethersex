@@ -1,2 +1,2 @@
-dep_bool "IPchair (firewalling) (EXPERIMENTAL)" IPCHAIR_SUPPORT $CONFIG_EXPERIMENTAL
-dep_bool "IPchair: Masquerading (UNTESTED)" IPCHAIR_MASQ $IPCHAIR_SUPPORT
+dep_bool "IPchair (firewalling)" IPCHAIR_SUPPORT
+dep_bool "IPchair: Masquerading" IPCHAIR_MASQ $IPCHAIR_SUPPORT

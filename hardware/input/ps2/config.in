@@ -1,4 +1,4 @@
-dep_bool_menu "PS/2 keyboard" PS2_SUPPORT $CONFIG_EXPERIMENTAL $ARCH_AVR
+dep_bool_menu "PS/2 keyboard" PS2_SUPPORT $ARCH_AVR
 	dep_bool "PS/2: Use German layout" PS2_GERMAN_LAYOUT $PS2_SUPPORT
         comment "Debugging"
         dep_bool "Debug PS/2" DEBUG_PS2 $PS2_SUPPORT $DEBUG

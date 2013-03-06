@@ -20,6 +20,7 @@ SUBDIRS += hardware/dac
 SUBDIRS += hardware/clock/dcf77
 SUBDIRS += hardware/camera
 SUBDIRS += hardware/ethernet
+SUBDIRS += hardware/dht
 SUBDIRS += hardware/i2c/master
 SUBDIRS += hardware/i2c/slave
 SUBDIRS += hardware/input
