@@ -1,0 +1,11 @@
+dep_bool_menu "DHT 11/22" DHT_SUPPORT $ARCH_AVR
+	if [ "$DHT_SUPPORT" = "y" ]; then
+		choice 'Sensor type'                  \
+			"DHT11          DHT_TYPE_11   \
+			 DHT22/AM2302   DHT_TYPE_22"  \
+			'DHT11'         DHT_TYPE
+		int "Time between polling in 1s steps" DHT_POLLING_INTERVAL 30
+		comment "Debugging Flags"
+		dep_bool "DHT" DEBUG_DHT $DEBUG $DHT_SUPPORT
+	fi
+endmenu
