@@ -1,7 +1,8 @@
 /*
 * Fixedpoint utils
 *
-* Copyright (c) 2009 by Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2009 Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -32,51 +33,64 @@
 uint8_t
 itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
 {
-  uint8_t i = 0, j = 0, sign = 0, size = 0;
+  uint8_t len = 0;
 
   if (n < 0)
   {
-    /* record sign */
-    sign = 1;
-    /* make n positive */
+    s[len++] = '-';
     n = -n;
   }
 
-  do
+  /* Anzahl Stellen bestimmen */
+  uint8_t digits = 1;
+  int16_t m = 10;
+  while (m <= n)
   {
-    /* generate digits in reverse order */
-    s[i++] = n % 10 + '0';   /* get next digit */
-    if (i == fixeddigits)
-      s[i++]='.';
+    m *= 10;
+    digits++;
   }
-  while ((n /= 10) > 0);     /* delete it */
+  m /= 10;
 
-  if (i <= fixeddigits)
+  /* Vorkommastellen? */
+  if (digits <= fixeddigits)
   {
-    while(i < fixeddigits)
-      s[i++] = '0';
-    s[i++] = '.';
-    s[i++] = '0';
+    s[len++] = '0';
   }
-  else if(i == fixeddigits + 1)
-    s[i++] = '0';
-
-  if (sign)
-    s[i++] = '-';
-  s[i] = '\0';
-
-  size = i;
-
-  /* in-place reverse */
-  i--;
-  while (j < i)
+  else
   {
-    sign = s[j];
-    s[j] = s[i];
-    s[i] = sign;
-    i--;
-    j++;
+    /* Vorkommastellen ausgeben */
+    while (digits > fixeddigits)
+    {
+      uint8_t i;
+      for (i = '0'; n >= m; n -= m, i++);
+      s[len++] = i;
+      m /= 10;
+      digits--;
+    }
   }
 
-  return size;
+  /* Nachkommastellen? */
+  if (fixeddigits)
+  {
+    s[len++] = '.';
+
+    /* Mit Nullen auffüllen */
+    while (digits < fixeddigits)
+    {
+      s[len++] = '0';
+      fixeddigits--;
+    }
+
+    /* Nachkommestellen ausgeben */
+    while (digits)
+    {
+      uint8_t i;
+      for (i = '0'; n >= m; n -= m, i++);
+      s[len++] = i;
+      m /= 10;
+      digits--;
+    }
+  }
+
+  return len;
 }
