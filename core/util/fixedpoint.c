@@ -22,11 +22,10 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include <avr/io.h>
+#include <stdint.h>
 
 #include "config.h"
-#include "core/debug.h"
-#include "core/util/fixedpoint.h"
+#include "fixedpoint.h"
 
 /* Attention: returns the length in bytes, not a pointer like the regular
  * itoa this is more convenient for use in output to ECMDs output buffer */
@@ -91,6 +90,7 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
       digits--;
     }
   }
+  s[len] = '\0';
 
   return len;
 }
