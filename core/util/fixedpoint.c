@@ -81,13 +81,13 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
     }
 
     /* Nachkommestellen ausgeben */
-    while (digits)
+    while (fixeddigits)
     {
       uint8_t i;
       for (i = '0'; n >= m; n -= m, i++);
       s[len++] = i;
       m /= 10;
-      digits--;
+      fixeddigits--;
     }
   }
   s[len] = '\0';
