@@ -92,7 +92,7 @@ parse_cmd_ir_receive(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
-  block(Infrared Send/Receive ([[IR-TRX]]))
+  block(Infrared Send/Receive ([[RC5]]))
   ecmd_feature(ir_send, "ir send", DEVICE COMMAND, send COMMAND to DEVICE)
   ecmd_feature(ir_receive, "ir receive",,receive an IR command)
 */

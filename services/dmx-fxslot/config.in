@@ -1,5 +1,4 @@
-dep_bool_menu "DMX FXslots for effects and animations" DMX_FXSLOT_SUPPORT $DMX_STORAGE_SUPPORT $ARCH_AVR $CONFIG_EXPERIMENTAL
-
+dep_bool_menu "DMX FXslots for effects and animations" DMX_FXSLOT_SUPPORT $DMX_STORAGE_SUPPORT $ARCH_AVR
 
 	int "Number of effect slots" DMX_FXSLOT_AMOUNT 4
 	bool "Automatically save slots" DMX_FXSLOT_AUTOSAVE_SUPPORT FALSE

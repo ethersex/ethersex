@@ -7,9 +7,6 @@ get_usart_count
 mainmenu_option next_comment
 comment "General Setup"
 	get_usart_count
-	bool 'Prompt for experimental code' CONFIG_EXPERIMENTAL
-
-	bool 'Prompt all possible options (expert mode)' CONFIG_EXPERT
 
 	choice 'Target Architecture'			\
 		"AVR		ARCH_AVR		\
@@ -43,7 +40,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 			"$(scripts/pinning_hardware_list.sh)" \
 		'Etherrape' HARDWARE
 
-	dep_bool "Use CPU sleep (EXPERIMENTAL)" CPU_SLEEP $ARCH_AVR $CONFIG_EXPERIMENTAL
+	dep_bool "Use CPU sleep" CPU_SLEEP $ARCH_AVR
 	source hardware/sram/config.in
 
 
@@ -66,13 +63,11 @@ if [ "$ARCH_AVR" = "y" ]; then
 	fi
 
 
-	if [ "$CONFIG_EXPERT" = "y" ] ; then
-		bool "Enable bootloader jump" BOOTLOADER_JUMP
-		if [ "$BOOTLOADER_JUMP" = "y" -o "$BOOTLOADER_SUPPORT" = "y" ] ; then
-			int 'Bootloader Size in bytes' BOOTLOADER_SIZE ""
-		else
-			define_int BOOTLOADER_SIZE "$((BOOTLOADER_SIZE))"
-		fi
+	bool "Enable bootloader jump" BOOTLOADER_JUMP
+	if [ "$BOOTLOADER_JUMP" = "y" -o "$BOOTLOADER_SUPPORT" = "y" ] ; then
+		int 'Bootloader Size in bytes' BOOTLOADER_SIZE ""
+	else
+		define_int BOOTLOADER_SIZE "$((BOOTLOADER_SIZE))"
 	fi
 
 	define_hex BOOTLOADER_START_ADDRESS "$(printf '0x%X\n' $(($FLASH_SIZE - $BOOTLOADER_SIZE)))"
@@ -151,12 +146,7 @@ mainmenu_option next_comment
 
 		Value=$NET_MAX_FRAME_LENGTH
 
-		if [ "$CONFIG_EXPERT" = "y" ] ; then
-			int "Network Buffer Size" NET_MAX_FRAME_LENGTH ""
-		else
-			Value=$NET_MAX_FRAME_LENGTH
-			define_int NET_MAX_FRAME_LENGTH $Value
-		fi
+		int "Network Buffer Size" NET_MAX_FRAME_LENGTH $NET_MAX_FRAME_LENGTH
 #	fi
 
 	source hardware/ethernet/config.in

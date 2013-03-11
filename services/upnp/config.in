@@ -1,4 +1,4 @@
-dep_bool_menu "uPnP (EXPERIMENTAL)" UPNP_SUPPORT $UDP_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "uPnP" UPNP_SUPPORT $UDP_SUPPORT
 	ip "Multicast IP" CONF_UPNP_MULTICAST_IP "239.255.255.250" ""
 	string "Scheme filename" CONF_UPNP_SCHEME_FILENAME "/ih.xml"
 	comment  "Debugging Flags"

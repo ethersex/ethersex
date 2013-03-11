@@ -29,7 +29,6 @@
 typedef struct
 {
   uint16_t polling_delay;
-  uint8_t busy;
   int16_t temp;
   int16_t humid;
 } dht_global_t;

@@ -5,8 +5,6 @@
 #
 # General Setup
 #
-CONFIG_EXPERIMENTAL=y
-# CONFIG_EXPERT is not set
 ARCH=ARCH_AVR
 ARCH_AVR=y
 # ARCH_HOST is not set
@@ -29,41 +27,43 @@ ARCH_AVR=y
 MCU=at90can128
 at90can128=y
 FREQ=16000000
-# alpengluehn is not set
 # Arduino_Duemilanove is not set
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
+# alpengluehn is not set
 HARDWARE=beteigeuze
 beteigeuze=y
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
-# netio_addon is not set
 # netio is not set
+# netio_addon is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
 # SRAM_MEMTEST_ON_BOOT is not set
 # BOOTLOADER_SUPPORT is not set
-BOOTLOADER_START_ADDRESS=0x1E000
-FLASH_SIZE=0x20000
-EEPROM_SIZE=0x1000
-RAM_SIZE=0x1100
-FLASH_PAGESIZE=0x100
-EEPROM_PAGESIZE=0x8
+# BOOTLOADER_JUMP is not set
+BOOTLOADER_SIZE=0
+BOOTLOADER_START_ADDRESS=0x1
+FLASH_SIZE=0x1
+EEPROM_SIZE=0x1
+RAM_SIZE=0x1
+FLASH_PAGESIZE=0x0
+EEPROM_PAGESIZE=0x0
 # CRC_PAD_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
@@ -73,7 +73,7 @@ EEPROM_PAGESIZE=0x8
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="452e72f"
+VERSION_GIT="b4ce844"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
 DEBUG_BAUDRATE=115200
@@ -172,6 +172,13 @@ CONF_ENC_IP="192.168.0.90"
 CONF_ENC_IP4_NETMASK="255.255.255.0"
 # IEEE8021Q_SUPPORT is not set
 CONF_ENC_ECOCON=ECOCON_UNSET
+ECOCON_UNSET=y
+# ECOCON_6 is not set
+# ECOCON_4 is not set
+# ECOCON_3 is not set
+# ECOCON_2 is not set
+# ECOCON_1 is not set
+# ECOCON_0 is not set
 # DEBUG_ENC28J60 is not set
 # DEBUG_INTERRUPT is not set
 # DEBUG_REV4_WORKAROUND is not set
@@ -286,7 +293,6 @@ ADC_REF=ADC_AREF
 NEED_TEMP2TEXT=y
 # SMS_SUPPORT is not set
 SMS_USART_0=y
-# SMS_USART_1 is not set
 SMS_USE_USART=0
 # DEBUG_SMS is not set
 # KTY_SUPPORT is not set
@@ -348,47 +354,6 @@ CONF_FS20_PORT=2701
 # DEBUG_FS20_WS300 is not set
 # DEBUG_FS20_WS300_VERBOSE is not set
 # IR_SUPPORT is not set
-# RC5_SUPPORT is not set
-# RC5_SUPPORT is not set
-# RC5_UDP_SUPPORT is not set
-CONF_RC5_SERVER="192.168.100.3"
-# DEBUG_RC5 is not set
-# IRMP_SUPPORT is not set
-# IRMP_RX_SUPPORT is not set
-# IRMP_TX_SUPPORT is not set
-# IRMP_EXTERNAL_MODULATOR is not set
-# IRMP_ECMD is not set
-# IRMP_SUPPORT_SIRCS_PROTOCOL is not set
-# IRMP_SUPPORT_NEC_PROTOCOL is not set
-# IRMP_SUPPORT_NEC16_PROTOCOL is not set
-# IRMP_SUPPORT_NEC42_PROTOCOL is not set
-# IRMP_SUPPORT_JVC_PROTOCOL is not set
-# IRMP_SUPPORT_SAMSUNG_PROTOCOL is not set
-# IRMP_SUPPORT_MATSUSHITA_PROTOCOL is not set
-# IRMP_SUPPORT_KASEIKYO_PROTOCOL is not set
-# IRMP_SUPPORT_DENON_PROTOCOL is not set
-# IRMP_SUPPORT_RECS80_PROTOCOL is not set
-# IRMP_SUPPORT_RECS80EXT_PROTOCOL is not set
-# IRMP_SUPPORT_RC5_PROTOCOL is not set
-# IRMP_SUPPORT_RC6_PROTOCOL is not set
-# IRMP_SUPPORT_RC6A_PROTOCOL is not set
-# IRMP_SUPPORT_NUBERT_PROTOCOL is not set
-# IRMP_SUPPORT_BANG_OLUFSEN_PROTOCOL is not set
-# IRMP_SUPPORT_GRUNDIG_PROTOCOL is not set
-# IRMP_SUPPORT_NOKIA_PROTOCOL is not set
-# IRMP_SUPPORT_SIEMENS_PROTOCOL is not set
-# IRMP_SUPPORT_FDC_PROTOCOL is not set
-# IRMP_SUPPORT_RCCAR_PROTOCOL is not set
-# IRMP_SUPPORT_NIKON_PROTOCOL is not set
-# IRMP_SUPPORT_RUWIDO_PROTOCOL is not set
-# IRMP_SUPPORT_IR60_PROTOCOL is not set
-# IRMP_SUPPORT_KATHREIN_PROTOCOL is not set
-# IRMP_SUPPORT_NETBOX_PROTOCOL is not set
-# IRMP_SUPPORT_LEGO_PROTOCOL is not set
-# IRMP_SUPPORT_THOMSON_PROTOCOL is not set
-# IRMP_SUPPORT_BOSE_PROTOCOL is not set
-# IRMP_SUPPORT_A1TVBOX_PROTOCOL is not set
-# DEBUG_IRMP is not set
 # PSB2186_SUPPORT is not set
 # PWM_SUPPORT is not set
 # PWM_GENERAL_SUPPORT is not set
@@ -420,6 +385,7 @@ OW_DISCOVER_INTERVAL=600
 OW_POLLING_INTERVAL=30
 ONEWIRE_HOOK_SUPPORT=y
 ONEWIRE_ECMD_LIST_VALUES_SUPPORT=y
+# ONEWIRE_ECMD_LIST_POWER_SUPPORT is not set
 ONEWIRE_NAMING_SUPPORT=y
 OW_SENSORS_COUNT=10
 # ONEWIRE_SNMP_SUPPORT is not set
@@ -505,7 +471,6 @@ CONF_ARTNET_OUTUNIVERSE=0
 DMX_SUPPORT=y
 DMX_OUTPUT_UNIVERSE=1
 DMX_USART_0=y
-# DMX_USART_1 is not set
 DMX_USE_USART=0
 # ECMD_PARSER_SUPPORT is not set
 # ECMD_REMOVE_BACKSPACE_SUPPORT is not set
@@ -566,8 +531,6 @@ CONF_IRC_REALNAME="Ethersex Wollmilchsau"
 # MDNS_SD_SUPPORT is not set
 MODBUS_SUPPORT=y
 # MODBUS_USART_0 is not set
-MODBUS_USART_1=y
-MODBUS_USE_USART=1
 MODBUS_CLIENT_SUPPORT=y
 MODBUS_ADDRESS=240
 MODBUS_BROADCAST=255
