@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-13 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #include "rfm12_fs20.h"
+#include "rfm12_fs20_lib.h"
 #include "rfm12_fs20_ecmd.h"
 
 #ifdef RFM12_ASK_FS20_SUPPORT
@@ -70,6 +71,48 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 }
 #endif
 
+int16_t
+parse_cmd_rfm12_fs20_setgain(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t gain;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &gain))
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_fs20_setgain(gain);
+  return ECMD_FINAL_OK;
+}
+
+int16_t
+parse_cmd_rfm12_fs20_setdrssi(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t drssi;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &drssi))
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_fs20_setdrssi(drssi);
+  return ECMD_FINAL_OK;
+}
+
+int16_t
+parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t debug;
+  if (1 != sscanf_P(cmd, PSTR("%hhx"), &debug))
+    return ECMD_ERR_PARSE_ERROR;
+
+  rx_report = debug;
+  return ECMD_FINAL_OK;
+}
+
 /*
 -- Ethersex META --
   block([[RFM12_FS20]])
@@ -78,5 +121,10 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_FHT_SUPPORT)
     ecmd_feature(rfm12_fht_send, "fht send", , housecode addr command data)
+  ecmd_endif()
+  ecmd_feature(rfm12_fs20_setgain, "fs20 setgain", GAIN, Set preamplifier gain to GAIN.)
+  ecmd_feature(rfm12_fs20_setdrssi, "fs20 setdrssi", DRSSI, Set the drssi to DRSSI.)
+  ecmd_ifdef(DEBUG_ASK_FS20)
+    ecmd_feature(rfm12_fs20_setdebug, "fs20 setdebug", DEBUG, Set debug to DEBUG.)
   ecmd_endif()
 */

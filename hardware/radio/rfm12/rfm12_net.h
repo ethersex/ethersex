@@ -78,9 +78,9 @@ extern rfm12_status_t rfm12_status;
 
 
 #ifdef TEENSY_SUPPORT
-#  if (RFM12_BUFFER_LEN + (defined(RFM12_SOURCE_ROUTE_ALL) ? 3 : 0))  > 254
-#    error "modify code or shrink (shared) uIP buffer."
-#  endif
+#if (RFM12_BUFFER_LEN + (defined(RFM12_SOURCE_ROUTE_ALL) ? 3 : 0))  > 254
+#error "modify code or shrink (shared) uIP buffer."
+#endif
 typedef uint8_t rfm12_index_t;
 #else /* TEENSY_SUPPORT */
 typedef uint16_t rfm12_index_t;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-13 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,5 +26,8 @@
 
 int16_t parse_cmd_rfm12_fs20_send(char *, char *, uint16_t);
 int16_t parse_cmd_rfm12_fht_send(char *, char *, uint16_t);
+int16_t parse_cmd_rfm12_fs20_setgain(char *, char *, uint16_t);
+int16_t parse_cmd_rfm12_fs20_setdrssi(char *, char *, uint16_t);
+int16_t parse_cmd_rfm12_fs20_setdebug(char *, char *, uint16_t);
 
 #endif /* __RFM12_FS20_ECMD_H */
