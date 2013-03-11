@@ -219,7 +219,7 @@ rfm12_ask_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 #endif /* RFM12_ASK_2272_SUPPORT || RFM12_ASK_1527_SUPPORT */
 
 #ifdef RFM12_ASK_OASEFMMASTER_SUPPORT
-static const uint8_t ask_oase_pulse_duty_factor[4] PROGMEM = { 9, 3, 3, 9 };
+static const uint8_t ask_oase_pulse_duty_factor[4] PROGMEM = { 9, 18, 18, 9 };
 
 void
 rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
@@ -262,7 +262,7 @@ rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
     {
       rfm12_ask_trigger(rfm12_trigger_level ^= 1, code[i] * delay);
     }
-    rfm12_ask_trigger(0, 24 * delay);
+    rfm12_ask_trigger(0, 64 * delay);
   }
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
   rfm12_epilogue();
