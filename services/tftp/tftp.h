@@ -63,12 +63,14 @@ void tftp_handle_packet(void);
 #if defined(BOOTLOADER_SUPPORT)  \
   && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
 #ifdef TFTP_CRC_SUPPORT
+#define tftp_fire_tftpomatic(a,b,c) __tftp_fire_tftpomatic(a,b,c)
 inline static void
-tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
+__tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename,
     uint8_t verify_crc)
 #else
+#define tftp_fire_tftpomatic(a,b,c) __tftp_fire_tftpomatic(a,b)
 inline static void
-tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
+__tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
 #endif
 {
   uip_udp_conn_t *tftp_req_conn =

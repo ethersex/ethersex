@@ -182,10 +182,6 @@ bootp_handle_reply(void)
   uip_ipaddr(&ip, pk->bp_siaddr[0], pk->bp_siaddr[1],
              pk->bp_siaddr[2], pk->bp_siaddr[3]);
 
-#ifdef TFTP_CRC_SUPPORT
   tftp_fire_tftpomatic(&ip, pk->bp_file, 1);
-#else
-  tftp_fire_tftpomatic(&ip, pk->bp_file);
-#endif
 #endif /* TFTP_SUPPORT */
 }
