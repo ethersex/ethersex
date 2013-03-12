@@ -13,7 +13,7 @@ endif
 
 $(ARCH_AVR)_SRC += core/periodic.c
 SRC += core/eeprom.c 
-SRC += core/mbr.c
+$(MBR_SUPPORT)_SRC += core/mbr.c
 
 ifneq ($(USART_SPI_SUPPORT),y)
 $(ARCH_AVR)_SRC += core/spi.c

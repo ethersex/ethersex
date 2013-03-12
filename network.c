@@ -28,6 +28,7 @@
 #include "network.h"
 #include "config.h"
 #include "core/eeprom.h"
+#include "core/mbr.h"
 #include "protocols/uip/ipv6.h"
 #include "protocols/zbus/zbus.h"
 
@@ -106,7 +107,10 @@ network_init(void)
 #   if defined(IPV6_STATIC_SUPPORT) && defined(TFTPOMATIC_SUPPORT)
     const char *filename = CONF_TFTP_IMAGE;
     set_CONF_TFTP_IP(&ip);
-    if (mbr.bootloader == 1) {
+#ifdef MBR_SUPPORT
+    if (mbr.bootloader == 1)
+#endif
+    {
       tftp_fire_tftpomatic(&ip, filename, 0);
       bootload_delay = CONF_BOOTLOAD_DELAY;
     }

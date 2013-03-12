@@ -81,9 +81,10 @@ if [ "$ARCH_AVR" = "y" ]; then
 	source core/crc/config.in
 fi
 
-
+	bool "MBR support" MBR_SUPPORT
 
 	bool "Teensy build" TEENSY_SUPPORT
+
 	dep_bool "Use SPI Timeout" SPI_TIMEOUT $ARCH_AVR
 	dep_bool "Use Usart in SPI Mode" USART_SPI_SUPPORT $ARCH_AVR
     if [ "$USART_SPI_SUPPORT" = y ]; then

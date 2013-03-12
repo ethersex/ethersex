@@ -239,11 +239,13 @@ tftp_handle_packet(void)
 #else
         {
 #endif
+#ifdef MBR_SUPPORT
           {
             mbr_config.flashed = 1;
             write_mbr();
             debug_putstr("\nApp flashed\n");
           }
+#endif
         }
         bootload_delay = 1;             /* give time to ack packet,
                                          * then start app */
