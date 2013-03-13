@@ -219,8 +219,6 @@ rfm12_ask_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 #endif /* RFM12_ASK_2272_SUPPORT || RFM12_ASK_1527_SUPPORT */
 
 #ifdef RFM12_ASK_OASEFMMASTER_SUPPORT
-static const uint8_t ask_oase_pulse_duty_factor[4] PROGMEM = { 9, 18, 18, 9 };
-
 void
 rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 {
@@ -229,8 +227,8 @@ rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 
   /* Eine 0 im voraus, die immer bleibt, so dass befehl trotzdem in
    * 3 Byte übergeben werden kann. */
-  *p++ = pgm_read_byte(ask_oase_pulse_duty_factor + 2);
-  *p++ = pgm_read_byte(ask_oase_pulse_duty_factor + 3);
+  *p++ = 18;
+  *p++ = 9;
 
   for (uint8_t i = 0; i < 3; i++)
   {
@@ -239,13 +237,13 @@ rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
     {
       if (byte & mask)
       {
-        *p++ = pgm_read_byte(ask_oase_pulse_duty_factor);
-        *p++ = pgm_read_byte(ask_oase_pulse_duty_factor + 1);
+        *p++ = 9;
+        *p++ = 18;
       }
       else
       {
-        *p++ = pgm_read_byte(ask_oase_pulse_duty_factor + 2);
-        *p++ = pgm_read_byte(ask_oase_pulse_duty_factor + 3);
+        *p++ = 18;
+        *p++ = 9;
       }
     }
   }
