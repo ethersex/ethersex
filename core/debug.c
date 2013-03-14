@@ -125,7 +125,7 @@ debug_uart_put(char d, FILE * stream)
 
 
 void noinline
-debug_putstr_(const char *d)
+debug_uart_putstr(const char *d)
 {
   while (*d != 0)
   {
