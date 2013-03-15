@@ -4,7 +4,7 @@
  * Copyright (c) Dirk Pannenbecker
  * Copyright (c) Guido Pannenbecker
  * Copyright (c) Stefan Riepenhausen
- * Copyright (c) 2012 Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-13 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,6 +162,26 @@ parse_cmd_rfm12_ask_1527_send(char *cmd, char *output, uint16_t len)
 }
 #endif /* RFM12_ASK_1527_SUPPORT */
 
+#ifdef RFM12_ASK_OASEFMMASTER_SUPPORT
+int16_t
+parse_cmd_rfm12_ask_oase_send(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t command[3];
+  uint8_t delay = 74;
+  uint8_t cnt = 20;
+  int ret = sscanf_P(cmd, PSTR("%hhu,%hhu,%hhu %hhu %hhu"), &(command[0]),
+                     &(command[1]), &(command[2]), &delay, &cnt);
+  if (ret < 3)
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_ask_oase_send(command, delay, cnt);
+  return ECMD_FINAL_OK;
+}
+#endif /* RFM12_ASK_OASEFMMASTER_SUPPORT */
+
 #ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 int16_t
 parse_cmd_rfm12_ask_external_filter(char *cmd, char *output, uint16_t len)
@@ -206,6 +226,9 @@ parse_cmd_rfm12_ask_sense(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_INTERTECHNO_SUPPORT)
     ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
+  ecmd_endif()
+  ecmd_ifdef(RFM12_ASK_OASEFMMASTER_SUPPORT)
+    ecmd_feature(rfm12_ask_oase_send, "rfm12 oase", , family group device command)
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_EXTERNAL_FILTER_SUPPORT)
     ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter",[1], Enable ext. filter pin if argument is present (disable otherwise))
