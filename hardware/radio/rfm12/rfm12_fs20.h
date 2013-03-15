@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-13 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,8 +22,13 @@
 #ifndef __RFM12_FS20_H
 #define __RFM12_FS20_H
 
+#include <stdint.h>
+
 void rfm12_fs20_send(uint16_t, uint8_t, uint8_t, uint8_t);
 void rfm12_fht_send(uint16_t, uint8_t, uint8_t, uint8_t);
+void rfm12_fs20_setgain(uint8_t);
+void rfm12_fs20_setdrssi(uint8_t);
 void rfm12_fs20_init(void);
+void rfm12_fs20_process(void);
 
 #endif /* __RFM12_FS20_H */

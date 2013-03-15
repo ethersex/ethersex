@@ -93,12 +93,12 @@ static volatile struct
 
 
 #ifdef DEBUG_ASK_SENSE
-# include "core/debug.h"
-# define ASKDEBUG(a...)   debug_printf(a)
-# define ASKDEBUGCHAR(a)  debug_putchar((char)(a))
+#include "core/debug.h"
+#define ASKDEBUG(a...)   debug_printf(a)
+#define ASKDEBUGCHAR(a)  debug_putchar((char)(a))
 #else
-# define ASKDEBUG(a...)
-# define ASKDEBUGCHAR(a)
+#define ASKDEBUG(a...)
+#define ASKDEBUGCHAR(a)
 #endif /* DEBUG_ASK_SENSE */
 
 
