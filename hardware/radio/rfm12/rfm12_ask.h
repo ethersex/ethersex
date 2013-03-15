@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Gregor B.
  * Copyright (c) 2009 Dirk Pannenbecker <dp@sd-gp.de>
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-13 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ void rfm12_ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_1527_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
+void rfm12_ask_oase_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_trigger(uint8_t, uint16_t);
 void rfm12_ask_external_filter_init(void);
 void rfm12_ask_external_filter_deinit(void);

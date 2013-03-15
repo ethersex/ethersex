@@ -3,7 +3,7 @@
  * Copyright (c) Guido Pannenbecker
  * Copyright (c) Stefan Riepenhausen
  * Copyright (c) 2009 Dirk Pannenbecker <dp@sd-gp.de>
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-13 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -217,6 +217,55 @@ rfm12_ask_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt)
 }
 #endif
 #endif /* RFM12_ASK_2272_SUPPORT || RFM12_ASK_1527_SUPPORT */
+
+#ifdef RFM12_ASK_OASEFMMASTER_SUPPORT
+void
+rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
+{
+  uint8_t code[51];
+  uint8_t *p = code;
+
+  /* Eine 0 im voraus, die immer bleibt, so dass befehl trotzdem in
+   * 3 Byte übergeben werden kann. */
+  *p++ = 18;
+  *p++ = 9;
+
+  for (uint8_t i = 0; i < 3; i++)
+  {
+    uint8_t byte = command[i];
+    for (uint8_t mask = 0x80; mask; mask >>= 1)
+    {
+      if (byte & mask)
+      {
+        *p++ = 9;
+        *p++ = 18;
+      }
+      else
+      {
+        *p++ = 18;
+        *p++ = 9;
+      }
+    }
+  }
+  *p = 7;                       // sync
+
+  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
+              RFM12_PWRMGT_EX);
+  for (uint8_t ii = cnt; ii > 0; ii--)
+  {
+    wdt_kick();
+    uint8_t rfm12_trigger_level = 1;
+    for (uint8_t i = 0; i < 51; i++)
+    {
+      rfm12_ask_trigger(rfm12_trigger_level ^= 1, code[i] * delay);
+    }
+    rfm12_ask_trigger(0, 64 * delay);
+  }
+  rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
+  rfm12_epilogue();
+}
+#endif /* RFM12_ASK_OASEFMMASTER_SUPPORT */
 #endif /* RFM12_ASK_433_SUPPORT */
 
 #if defined(RFM12_ASK_433_SUPPORT) || defined(RFM12_ASK_868_SUPPORT)
