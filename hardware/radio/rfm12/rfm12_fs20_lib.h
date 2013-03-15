@@ -1,9 +1,9 @@
-/* 
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+/*
+ * Copyright (c) 2012-13 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,15 +19,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef __RFM12_RAW_NET_H
-#define __RFM12_RAW_NET_H
+#ifndef __RFM12_FS20_LIB_H
+#define __RFM12_FS20_LIB_H
 
-#include "config.h"
-#include "protocols/uip/uip.h"
+#include <stdint.h>
 
-extern uip_udp_conn_t *rfm12_raw_conn;
+extern uint8_t rx_report;
 
-void rfm12_raw_net_init(void);
-void rfm12_raw_net_main(void);
+void rfm12_fs20_lib_init(void);
+void rfm12_fs20_lib_rx_timeout(void);
+void rfm12_fs20_lib_rx_level_changed(uint8_t, uint8_t);
+void rfm12_fs20_lib_process(void);
 
-#endif /* __RFM12_RAW_NET_H */
+#endif /* __RFM12_FS20_LIB_H */
