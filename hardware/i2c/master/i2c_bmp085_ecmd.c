@@ -106,6 +106,8 @@ parse_cmd_i2c_bmp085_pressnn(char *cmd, char *output, uint16_t len)
 #endif
 }
 
+#endif
+
 /*
 -- Ethersex META --
 
