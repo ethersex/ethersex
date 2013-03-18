@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmpsystem.h - system specific includes and defines
  *
- * Copyright (c) 2009-2012 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpsystem.h,v 1.7 2012/11/18 17:51:26 fm Exp $
+ * $Id: irmpsystem.h,v 1.8 2013/01/17 07:33:13 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
