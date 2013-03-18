@@ -3,9 +3,9 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H!
  *
- * Copyright (c) 2009-2012 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpconfig.h,v 1.97 2012/12/11 21:31:36 fm Exp $
+ * $Id: irmpconfig.h,v 1.98 2013/01/17 07:33:13 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *

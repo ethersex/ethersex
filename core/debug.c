@@ -47,6 +47,9 @@ debug_binary(uint8_t v)
 }
 
 
+static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_SETUP_WRITE);
+
+
 /* prototypes */
 void soft_uart_putchar(uint8_t c);
 
@@ -76,7 +79,8 @@ debug_init_uart(void)
   usart(UCSR, B) &= ~(_BV(usart(RXCIE)) | _BV(usart(RXEN)));
 #endif
   /* open stdout/stderr */
-  fdevopen(debug_uart_put, NULL);
+  stdout = &debug_uart_stream;
+  stderr = &debug_uart_stream;
 }
 
 
@@ -121,7 +125,7 @@ debug_uart_put(char d, FILE * stream)
 
 
 void noinline
-debug_putstr_(const char *d)
+debug_uart_putstr(const char *d)
 {
   while (*d != 0)
   {

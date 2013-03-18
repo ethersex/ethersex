@@ -425,8 +425,6 @@ rfm12_txstart_hard(void)
    * the RFM12 interrupt disabled as well. */
   _uip_buf_lock = 8;
   rfm12_int_enable();
-
-  return;
 }
 
 

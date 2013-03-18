@@ -156,6 +156,15 @@ define(`RFM12_ASK_SENSE_USE_INT', `dnl
 #define RFM12_ASKINT_VECTOR INT$1`_vect'
 ')
 
+define(`RFM12_FS20_USE_INT', `dnl
+/* rfm12 module interrupt line */
+#define RFM12_FS20INT_PIN INT$1
+#define RFM12_FS20INT_ISC _ISC($1,0)
+#define RFM12_FS20INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
+#define RFM12_FS20INT_VECTOR INT$1`_vect'
+pin(RFM12_FS20IN, format(PD%d,eval(2+$1)), INPUT)
+')
+
 define(`USB_USE_INT', `dnl
 /* usb  interrupt line */
 #define USB_INT_PIN INT$1

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmp.c - infrared multi-protocol decoder, supports several remote control protocols
  *
- * Copyright (c) 2009-2012 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.136 2012/12/11 20:27:59 fm Exp $
+ * $Id: irmp.c,v 1.139 2013/03/12 12:49:59 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -11,10 +11,10 @@
  *
  * ATtiny87,  ATtiny167
  * ATtiny45,  ATtiny85
- * ATtiny84
+ * ATtiny44,  ATtiny84
  * ATmega8,   ATmega16,  ATmega32
  * ATmega162
- * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284
+ * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284, ATmega1284P
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
  * This program is free software; you can redistribute it and/or modify
@@ -155,12 +155,12 @@
 #define KASEIKYO_0_PAUSE_LEN_MIN                ((uint8_t)(F_INTERRUPTS * KASEIKYO_0_PAUSE_TIME * MIN_TOLERANCE_50 + 0.5) - 1)
 #define KASEIKYO_0_PAUSE_LEN_MAX                ((uint8_t)(F_INTERRUPTS * KASEIKYO_0_PAUSE_TIME * MAX_TOLERANCE_50 + 0.5) + 1)
 
-#define RECS80_START_BIT_PULSE_LEN_MIN          ((uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PULSE_TIME * MIN_TOLERANCE_00 + 0.5) - 1)
-#define RECS80_START_BIT_PULSE_LEN_MAX          ((uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
+#define RECS80_START_BIT_PULSE_LEN_MIN          ((uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PULSE_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
+#define RECS80_START_BIT_PULSE_LEN_MAX          ((uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PULSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
 #define RECS80_START_BIT_PAUSE_LEN_MIN          ((uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
 #define RECS80_START_BIT_PAUSE_LEN_MAX          ((uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
-#define RECS80_PULSE_LEN_MIN                    ((uint8_t)(F_INTERRUPTS * RECS80_PULSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define RECS80_PULSE_LEN_MAX                    ((uint8_t)(F_INTERRUPTS * RECS80_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
+#define RECS80_PULSE_LEN_MIN                    ((uint8_t)(F_INTERRUPTS * RECS80_PULSE_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
+#define RECS80_PULSE_LEN_MAX                    ((uint8_t)(F_INTERRUPTS * RECS80_PULSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
 #define RECS80_1_PAUSE_LEN_MIN                  ((uint8_t)(F_INTERRUPTS * RECS80_1_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
 #define RECS80_1_PAUSE_LEN_MAX                  ((uint8_t)(F_INTERRUPTS * RECS80_1_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
 #define RECS80_0_PAUSE_LEN_MIN                  ((uint8_t)(F_INTERRUPTS * RECS80_0_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
@@ -205,12 +205,12 @@
 #define RC6_BIT_PAUSE_LEN_MIN                   ((uint8_t)(F_INTERRUPTS * RC6_BIT_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
 #define RC6_BIT_PAUSE_LEN_MAX                   ((uint8_t)(F_INTERRUPTS * RC6_BIT_TIME * MAX_TOLERANCE_20 + 0.5) + 1)       // pauses: 300 - 600
 
-#define RECS80EXT_START_BIT_PULSE_LEN_MIN       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PULSE_TIME * MIN_TOLERANCE_00 + 0.5) - 1)
-#define RECS80EXT_START_BIT_PULSE_LEN_MAX       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PULSE_TIME * MAX_TOLERANCE_00 + 0.5) + 1)
-#define RECS80EXT_START_BIT_PAUSE_LEN_MIN       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PAUSE_TIME * MIN_TOLERANCE_05 + 0.5) - 1)
-#define RECS80EXT_START_BIT_PAUSE_LEN_MAX       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PAUSE_TIME * MAX_TOLERANCE_05 + 0.5) + 1)
-#define RECS80EXT_PULSE_LEN_MIN                 ((uint8_t)(F_INTERRUPTS * RECS80EXT_PULSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define RECS80EXT_PULSE_LEN_MAX                 ((uint8_t)(F_INTERRUPTS * RECS80EXT_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
+#define RECS80EXT_START_BIT_PULSE_LEN_MIN       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PULSE_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
+#define RECS80EXT_START_BIT_PULSE_LEN_MAX       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PULSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
+#define RECS80EXT_START_BIT_PAUSE_LEN_MIN       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
+#define RECS80EXT_START_BIT_PAUSE_LEN_MAX       ((uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
+#define RECS80EXT_PULSE_LEN_MIN                 ((uint8_t)(F_INTERRUPTS * RECS80EXT_PULSE_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
+#define RECS80EXT_PULSE_LEN_MAX                 ((uint8_t)(F_INTERRUPTS * RECS80EXT_PULSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
 #define RECS80EXT_1_PAUSE_LEN_MIN               ((uint8_t)(F_INTERRUPTS * RECS80EXT_1_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
 #define RECS80EXT_1_PAUSE_LEN_MAX               ((uint8_t)(F_INTERRUPTS * RECS80EXT_1_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
 #define RECS80EXT_0_PAUSE_LEN_MIN               ((uint8_t)(F_INTERRUPTS * RECS80EXT_0_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
@@ -1898,7 +1898,7 @@ irmp_ISR (void)
 
                             if (denon_repetition_len >= DENON_AUTO_REPETITION_PAUSE_LEN && last_irmp_denon_command != 0)
                             {
-                                ANALYZE_PRINTF ("%8.3fms error 6: did not receive inverted command repetition\n",
+                                ANALYZE_PRINTF ("%8.3fms warning: did not receive inverted command repetition\n",
                                                 (double) (time_counter * 1000) / F_INTERRUPTS);
                                 last_irmp_denon_command = 0;
                                 denon_repetition_len = 0xFFFF;
@@ -3251,22 +3251,23 @@ irmp_ISR (void)
 
                             irmp_protocol = irmp_param.protocol;                    // store protocol
                             irmp_address = irmp_tmp_address;                        // store address
-                            irmp_command = irmp_tmp_command ;                       // store command
+                            irmp_command = irmp_tmp_command;                        // store command
                         }
                         else
                         {
-                            if ((irmp_tmp_command & 0x03) == 0)
+                            if ((irmp_tmp_command & 0x01) == 0x00)
                             {
-                                ANALYZE_PRINTF ("%8.3fms waiting for inverted command repetition\n", (double) (time_counter * 1000) / F_INTERRUPTS);
+                                ANALYZE_PRINTF ("%8.3fms info Denon: waiting for inverted command repetition\n", (double) (time_counter * 1000) / F_INTERRUPTS);
                                 last_irmp_denon_command = irmp_tmp_command;
                                 denon_repetition_len = 0;
+                                irmp_ir_detected = FALSE;
                             }
                             else
                             {
-                                ANALYZE_PRINTF ("%8.3fms got unexpected inverted command, ignoring it\n", (double) (time_counter * 1000) / F_INTERRUPTS);
+                                ANALYZE_PRINTF ("%8.3fms warning Denon: got unexpected inverted command, ignoring it\n", (double) (time_counter * 1000) / F_INTERRUPTS);
                                 last_irmp_denon_command = 0;
+                                irmp_ir_detected = FALSE;
                             }
-                            irmp_ir_detected = FALSE;
                         }
                     }
                     else

@@ -25,7 +25,7 @@
 #include "config.h"
 #include "protocols/uip/uip.h"
 
-extern uip_udp_conn_t* rfm12_raw_conn;
+extern uip_udp_conn_t *rfm12_raw_conn;
 
 void rfm12_raw_net_init(void);
 void rfm12_raw_net_main(void);

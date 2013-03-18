@@ -41,6 +41,7 @@
 #	define RFM12_BAND_868 0x20
 #	define RFM12_BAND_915 0x30
 #	define RFM12_XTAL_12PF 0x07
+#	define RFM12_XTAL_135PF 0x0A
 
 /*
 	2. Power Management Command

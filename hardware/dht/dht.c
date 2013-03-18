@@ -31,7 +31,7 @@
 #include "dht.h"
 
 #ifdef DEBUG_DHT
-#define DHT_DEBUG(s, args...) printf_P(PSTR("D: DHT " s "\n"), ## args)
+#define DHT_DEBUG(s, args...) debug_printf("DHT " s "\n", ## args)
 #else
 #define DHT_DEBUG(a...)
 #endif
@@ -143,7 +143,7 @@ dht_read(void)
   if ((j < 40) ||
       (data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)))
   {
-    debug_printf("DHT: read failed\n");
+    DHT_DEBUG("read failed\n");
     return;
   }
 
