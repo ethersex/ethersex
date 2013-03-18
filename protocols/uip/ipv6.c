@@ -201,7 +201,7 @@ uip_ip6autoconfig(uint16_t addr0, uint16_t addr1,
   set_CONF_TFTP_IP(&ip);
 
   if (addr0 != 0xFE80) {
-    tftp_fire_tftpomatic(&ip, filename, 0);
+    tftp_fire_tftpomatic(&ip, filename, 1);
     bootload_delay = CONF_BOOTLOAD_DELAY;
   }
 # endif /* TFTPOMATIC_SUPPORT */

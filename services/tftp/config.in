@@ -2,12 +2,14 @@ dep_bool_menu "TFTP support" TFTP_SUPPORT $UDP_SUPPORT
 
 if [ "$BOOTP_SUPPORT" != "y" ]; then
    dep_bool "TFTP-o-matic" TFTPOMATIC_SUPPORT $TFTP_SUPPORT
-   if [ "$IPV6_SUPPORT" = "y" ]; then
-     ipv6 "TFTP-server IPv6 address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
-   else
-    ipv4 "TFTP-server IPv4 address" CONF_TFTP_IP "192.168.23.73"
+   if [ "$TFTPOMATIC_SUPPORT" = "y" ]; then
+     if [ "$IPV6_SUPPORT" = "y" ]; then
+       ipv6 "TFTP-server IPv6 address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+     else
+       ipv4 "TFTP-server IPv4 address" CONF_TFTP_IP "192.168.23.73"
+     fi
+     string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
    fi
-   string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
 else
   # cannot use TFTP-o-matic with BOOTP
   define_bool TFTPOMATIC_SUPPORT n

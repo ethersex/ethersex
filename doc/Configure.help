@@ -3084,3 +3084,8 @@ ONEWIRE_HOOK_SUPPORT
 
   Support for callback hooks. For details see hook.def in the top directory.
 
+Bootloader timeout
+CONF_BOOTLOAD_DELAY
+  How long to wait for a remote server to answer until the bootloader exits.
+  Measured in 1/50th seconds. Default value 250 = 5 seconds.
+
