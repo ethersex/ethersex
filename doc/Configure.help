@@ -1186,7 +1186,7 @@ DISABLE_IPCONF_SUPPORT
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Disable the ecmd's to set ip, gw, netmask and mac
+  Disable the ECMDs to set ip, gw, netmask and mac
 
 Disable remote reboot
 DISABLE_REBOOT_SUPPORT
@@ -3088,4 +3088,13 @@ Bootloader timeout
 CONF_BOOTLOAD_DELAY
   How long to wait for a remote server to answer until the bootloader exits.
   Measured in 1/50th seconds. Default value 250 = 5 seconds.
+
+TFTP image to load
+CONF_TFTP_IMAGE
+  Filename of binary image to load from and programm into the application flash
+  memory when in TFTP-o-matic mode.
+
+Address of TFTP-Server
+CONF_TFTP_IP
+  IPv4 or IPv6 address of TFTP-server when in TFTP-o-matic mode.
 
