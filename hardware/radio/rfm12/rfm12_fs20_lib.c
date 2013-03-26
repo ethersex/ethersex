@@ -62,7 +62,7 @@
 #define MAXMSG         12       /* EMEM messages */
 #endif
 
-#define RCV_BUCKETS 4
+#define RCV_BUCKETS    4
 
 #define FHT_ACTUATOR   0x00
 #define FHT_ACK        0x4B
@@ -345,7 +345,7 @@ analyze_esa(bucket_t * b)
 }
 #endif
 
-#ifdef HAS_TX3
+#ifdef RFM12_ASK_TX3_SUPPORT
 static uint8_t
 analyze_TX3(bucket_t * b)
 {
@@ -400,8 +400,8 @@ rfm12_fs20_lib_process(void)
       DC('f');
       if (rx_report & REP_BINTIME)
         DU(lowtime, 2);
-#endif
     }
+#endif
     lowtime = 0;
   }
 
@@ -450,7 +450,7 @@ rfm12_fs20_lib_process(void)
   if (!datatype && analyze_hms(b))
     datatype = TYPE_HMS;
 
-#ifdef HAS_TX3
+#ifdef RFM12_ASK_TX3_SUPPORT
   if (!datatype && analyze_TX3(b))
     datatype = TYPE_TX3;
 #endif
@@ -482,10 +482,17 @@ rfm12_fs20_lib_process(void)
           if (robuf[roby] != obuf[roby])
             break;
 
-#if 0
-        if (roby == oby && ticks - reptime < (uint32_t)(CLOCK_SECONDS / 3))     /* ~0.3 sec */
-          isrep = 1;
-#endif
+        if (roby == oby)
+        {
+          uint32_t elapsed_time = ticks;
+          if (elapsed_time < reptime)
+            elapsed_time += ticks_per_second;
+          elapsed_time -= reptime;
+
+          /* ~0.1 sec */
+          if (elapsed_time < (ticks_per_second / 10))
+            isrep = 1;
+        }
       }
 
       /* save the data */
@@ -504,6 +511,7 @@ rfm12_fs20_lib_process(void)
 
     if (!isrep)
     {
+#ifdef DEBUG_ASK_FS20
       DC(datatype);
       if (nibble)
         oby--;
@@ -512,6 +520,7 @@ rfm12_fs20_lib_process(void)
       if (nibble)
         DH(obuf[oby] & 0xf, 1);
       DNL();
+#endif
     }
   }
 
