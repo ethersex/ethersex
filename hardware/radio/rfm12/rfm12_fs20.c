@@ -64,6 +64,7 @@
 #define FS20_TIMER_CNT_CURR  TC2_COUNTER_CURRENT
 #define FS20_TIMER_CNT_COMP  TC2_COUNTER_COMPARE
 #define ticks                TC1_COUNTER_CURRENT
+#define ticks_per_second     CLOCK_SECONDS
 
 /* culfw decoding routines */
 #include "rfm12_fs20_lib.c"
