@@ -400,8 +400,8 @@ rfm12_fs20_lib_process(void)
       DC('f');
       if (rx_report & REP_BINTIME)
         DU(lowtime, 2);
-#endif
     }
+#endif
     lowtime = 0;
   }
 
