@@ -23,10 +23,13 @@
 #define __RFM12_FS20_H
 
 #include <stdint.h>
+#include "rfm12_fs20_lib.h"
 
 void rfm12_fs20_send(uint16_t, uint8_t, uint8_t, uint8_t);
 void rfm12_fht_send(uint16_t, uint8_t, uint8_t, uint8_t);
 void rfm12_fs20_init(void);
 void rfm12_fs20_process(void);
+fs20_data_t *rfm12_fs20_read(void);
+
 
 #endif /* __RFM12_FS20_H */
