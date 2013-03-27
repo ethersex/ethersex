@@ -24,9 +24,6 @@
 #include <util/parity.h>
 
 #include "config.h"
-#ifdef RFM12_ASK_SYSLOG
-#include "protocols/syslog/syslog.h"
-#endif
 
 #include "rfm12.h"
 #include "rfm12_fs20_lib.h"

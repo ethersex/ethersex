@@ -27,6 +27,9 @@
 #include "core/bool.h"
 #include "core/heartbeat.h"
 #include "core/periodic.h"
+#ifdef RFM12_ASK_SYSLOG
+#include "protocols/syslog/syslog.h"
+#endif
 
 #include "rfm12.h"
 #include "rfm12_ask.h"
