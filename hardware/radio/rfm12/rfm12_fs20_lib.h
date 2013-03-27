@@ -24,11 +24,25 @@
 
 #include <stdint.h>
 
+#ifdef RFM12_ASK_ESA_SUPPORT
+#define FS20_MAXMSG         20  /* ESA messages */
+#else
+#define FS20_MAXMSG         12  /* EMEM messages */
+#endif
+
+typedef struct
+{
+  uint8_t datatype;
+  uint8_t count;
+  uint8_t nibble;
+  uint8_t data[FS20_MAXMSG];
+} fs20_data_t;
+
 extern uint8_t rx_report;
 
 void rfm12_fs20_lib_init(void);
 void rfm12_fs20_lib_rx_timeout(void);
 void rfm12_fs20_lib_rx_level_changed(uint8_t, uint8_t);
-void rfm12_fs20_lib_process(void);
+int rfm12_fs20_lib_process(fs20_data_t *);
 
 #endif /* __RFM12_FS20_LIB_H */

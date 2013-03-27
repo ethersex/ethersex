@@ -27,6 +27,9 @@
 #include "core/bool.h"
 #include "core/heartbeat.h"
 #include "core/periodic.h"
+#ifdef RFM12_ASK_SYSLOG
+#include "protocols/syslog/syslog.h"
+#endif
 
 #include "rfm12.h"
 #include "rfm12_ask.h"
@@ -68,6 +71,17 @@
 /* culfw decoding routines */
 #include "rfm12_fs20_lib.c"
 
+#define FIFO_SIZE            8
+#define FIFO_NEXT(x)         (((x)+1)&(FIFO_SIZE-1))
+
+typedef struct
+{
+  uint8_t read;
+  uint8_t write;
+  fs20_data_t buffer[FIFO_SIZE];
+} fs20_fifo_t;
+
+static fs20_fifo_t fs20_rx_fifo;
 
 static void
 activate_ask_receiver(void)
@@ -257,7 +271,36 @@ rfm12_fs20_init(void)
 void
 rfm12_fs20_process(void)
 {
-  rfm12_fs20_lib_process();
+  uint8_t tmphead = FIFO_NEXT(fs20_rx_fifo.write);
+  if (tmphead != fs20_rx_fifo.read)
+  {
+    fs20_data_t *fs20_data_p = &fs20_rx_fifo.buffer[tmphead];
+    if (rfm12_fs20_lib_process(fs20_data_p))
+    {
+      fs20_rx_fifo.write = tmphead;
+#ifdef RFM12_ASK_SYSLOG
+      syslog_sendf_P(PSTR("%c"), fs20_data_p->datatype);
+      uint8_t count = fs20_data_p->count;
+      if (fs20_data_p->nibble)
+        count--;
+      for (uint8_t i = 0; i < count; i++)
+        syslog_sendf_P(PSTR("%02" PRIX8), fs20_data_p->data[i]);
+      if (nibble)
+        syslog_sendf_P(PSTR("%01" PRIX8), fs20_data_p->data[count] & 0xf);
+#endif
+    }
+  }
+}
+
+uint8_t
+rfm12_fs20_read(fs20_data_t * fs20_data_p)
+{
+  if (fs20_rx_fifo.read == fs20_rx_fifo.write)
+    return 0;
+
+  *fs20_data_p = fs20_rx_fifo.buffer[fs20_rx_fifo.read =
+                                     FIFO_NEXT(fs20_rx_fifo.read)];
+  return 1;
 }
 
 /*

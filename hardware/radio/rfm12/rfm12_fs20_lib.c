@@ -59,12 +59,6 @@
 #define STATE_ESA      5
 
 /* public prototypes */
-#ifdef RFM12_ASK_ESA_SUPPORT
-#define MAXMSG         20       /* ESA messages */
-#else
-#define MAXMSG         12       /* EMEM messages */
-#endif
-
 #define RCV_BUCKETS    4
 
 #define FHT_ACTUATOR   0x00
@@ -112,16 +106,16 @@ typedef struct
 typedef struct
 {
   uint8_t state, byteidx, sync, bitidx;
-  uint8_t data[MAXMSG];         /* contains parity and checksum, but no sync */
+  uint8_t data[FS20_MAXMSG];    /* contains parity and checksum, but no sync */
   wave_t zero, one;
 } bucket_t;
 
 static bucket_t bucket_array[RCV_BUCKETS];
-static uint8_t bucket_in;                 /* Pointer to the in (terrupt) queue */
-static uint8_t bucket_out;                /* Pointer to the out (analyze) queue */
-static uint8_t bucket_nrused;             /* Number of unprocessed buckets */
-static uint8_t oby, obuf[MAXMSG], nibble; /* parity-stripped output */
-static uint8_t roby, robuf[MAXMSG];       /* for Repeat check: buffer and time */
+static uint8_t bucket_in;                       /* Pointer to the in (terrupt) queue */
+static uint8_t bucket_out;                      /* Pointer to the out (analyze) queue */
+static uint8_t bucket_nrused;                   /* Number of unprocessed buckets */
+static uint8_t oby, obuf[FS20_MAXMSG], nibble;  /* parity-stripped output */
+static uint8_t roby, robuf[FS20_MAXMSG];        /* for Repeat check: buffer and time */
 static uint32_t reptime;
 static uint8_t hightime, lowtime;
 
@@ -386,8 +380,8 @@ analyze_TX3(bucket_t * b)
 }
 #endif
 
-void
-rfm12_fs20_lib_process(void)
+int
+rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
 {
   uint8_t datatype = 0;
   bucket_t *b;
@@ -524,15 +518,11 @@ rfm12_fs20_lib_process(void)
         DH(obuf[oby] & 0xf, 1);
       DNL();
 #endif
-#ifdef RFM12_ASK_SYSLOG
-      syslog_sendf_P(PSTR("%c"), datatype);
-      if (nibble)
-        oby--;
+      fs20_data_p->datatype = datatype;
+      fs20_data_p->count = oby;
+      fs20_data_p->nibble = nibble;
       for (uint8_t i = 0; i < oby; i++)
-        syslog_sendf_P(PSTR("%02X"), obuf[i]);
-      if (nibble)
-        syslog_sendf_P(PSTR("%01X"), obuf[oby] & 0xf);
-#endif
+        fs20_data_p->data[i] = obuf[i];
     }
   }
 
@@ -563,6 +553,8 @@ rfm12_fs20_lib_process(void)
   bucket_out++;
   if (bucket_out == RCV_BUCKETS)
     bucket_out = 0;
+
+  return 1;
 }
 
 static void
