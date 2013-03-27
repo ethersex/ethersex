@@ -4,7 +4,7 @@
  * for additional information please
  * see http://www.mikrocontroller.net/articles/IRMP
  *
- * Copyright (c) 2010-12 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2010-13 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -308,14 +308,14 @@ irmp_init(void)
 
 #ifdef IRMP_RX_SUPPORT
 
-uint8_t
-irmp_read(irmp_data_t * irmp_data_p)
+irmp_data_t *
+irmp_read(void)
 {
   if (irmp_rx_fifo.read == irmp_rx_fifo.write)
     return 0;
 
-  *irmp_data_p = irmp_rx_fifo.buffer[irmp_rx_fifo.read =
-                                     FIFO_NEXT(irmp_rx_fifo.read)];
+  irmp_data_t *irmp_data_p =
+    &irmp_rx_fifo.buffer[irmp_rx_fifo.read = FIFO_NEXT(irmp_rx_fifo.read)];
 
 #ifdef DEBUG_IRMP
   printf_P(PSTR("IRMP RX: proto %02" PRId8 " %S, address %04" PRIX16
@@ -324,7 +324,7 @@ irmp_read(irmp_data_t * irmp_data_p)
            pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
            irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
-  return 1;
+  return irmp_data_p;
 }
 
 #endif
