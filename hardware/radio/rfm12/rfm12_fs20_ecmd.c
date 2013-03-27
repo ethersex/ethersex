@@ -73,6 +73,28 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 #endif
 
 int16_t
+parse_cmd_rfm12_fs20_receive(char *cmd, char *output, uint16_t len)
+{
+  fs20_data_t fs20_data;
+  if (rfm12_fs20_read(&fs20_data) == 0)
+    return ECMD_FINAL_OK;
+
+  int16_t len_out = 1;
+  output[0] = fs20_data.datatype;
+  if (fs20_data.nibble)
+    fs20_data.count--;
+  for (uint8_t i = 0; i < fs20_data.count; i++)
+    len_out +=
+      sprintf_P(&output[len_out], PSTR("%02" PRIX8), fs20_data.data[i]);
+  if (fs20_data.nibble)
+    len_out +=
+      sprintf_P(&output[len_out], PSTR("%01" PRIX8),
+                fs20_data.data[fs20_data.count] & 0xf);
+
+  return ECMD_FINAL(len_out);
+}
+
+int16_t
 parse_cmd_rfm12_fs20_setbandwidth(char *cmd, char *output, uint16_t len)
 {
   (void) output;
@@ -149,6 +171,7 @@ parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
   ecmd_ifdef(RFM12_ASK_FHT_SUPPORT)
     ecmd_feature(rfm12_fht_send, "fht send", , housecode addr command data)
   ecmd_endif()
+  ecmd_feature(rfm12_fs20_receive, "fs20 receive", , Receive FS20/FHT sequence and display it.)
   ecmd_feature(rfm12_fs20_setbandwidth, "fs20 setbandwidth", BW, Set receiver bandwidth to BW.)
   ecmd_feature(rfm12_fs20_setgain, "fs20 setgain", GAIN, Set preamplifier gain to GAIN.)
   ecmd_feature(rfm12_fs20_setdrssi, "fs20 setdrssi", DRSSI, Set the drssi to DRSSI.)
