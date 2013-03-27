@@ -26,8 +26,6 @@
 
 void rfm12_fs20_send(uint16_t, uint8_t, uint8_t, uint8_t);
 void rfm12_fht_send(uint16_t, uint8_t, uint8_t, uint8_t);
-void rfm12_fs20_setgain(uint8_t);
-void rfm12_fs20_setdrssi(uint8_t);
 void rfm12_fs20_init(void);
 void rfm12_fs20_process(void);
 

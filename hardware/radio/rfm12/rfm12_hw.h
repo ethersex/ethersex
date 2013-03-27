@@ -142,6 +142,7 @@
 	1 0 1 134
 	1 1 0 67
 	1 1 1 reserved
+
 	Bits 4-3 (g1 to g0): LNA gain select:
 	g1 g0 relative to maximum [dB]
 	0 0 0

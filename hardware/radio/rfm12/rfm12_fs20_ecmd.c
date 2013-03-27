@@ -26,6 +26,7 @@
 #include "core/bit-macros.h"
 #include "protocols/ecmd/ecmd-base.h"
 
+#include "rfm12.h"
 #include "rfm12_fs20.h"
 #include "rfm12_fs20_lib.h"
 #include "rfm12_fs20_ecmd.h"
@@ -72,6 +73,24 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 #endif
 
 int16_t
+parse_cmd_rfm12_fs20_setbandwidth(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+
+  uint8_t bandwidth;
+  if (1 != sscanf_P(cmd, PSTR("%hhu"), &bandwidth))
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_prologue(RFM12_MODUL_FS20);
+  rfm12_setbandwidth(bandwidth, rfm12_modul->rfm12_gain,
+                     rfm12_modul->rfm12_drssi);
+  rfm12_epilogue();
+
+  return ECMD_FINAL_OK;
+}
+
+int16_t
 parse_cmd_rfm12_fs20_setgain(char *cmd, char *output, uint16_t len)
 {
   (void) output;
@@ -81,7 +100,11 @@ parse_cmd_rfm12_fs20_setgain(char *cmd, char *output, uint16_t len)
   if (1 != sscanf_P(cmd, PSTR("%hhu"), &gain))
     return ECMD_ERR_PARSE_ERROR;
 
-  rfm12_fs20_setgain(gain);
+  rfm12_prologue(RFM12_MODUL_FS20);
+  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, gain,
+                     rfm12_modul->rfm12_drssi);
+  rfm12_epilogue();
+
   return ECMD_FINAL_OK;
 }
 
@@ -95,7 +118,11 @@ parse_cmd_rfm12_fs20_setdrssi(char *cmd, char *output, uint16_t len)
   if (1 != sscanf_P(cmd, PSTR("%hhu"), &drssi))
     return ECMD_ERR_PARSE_ERROR;
 
-  rfm12_fs20_setdrssi(drssi);
+  rfm12_prologue(RFM12_MODUL_FS20);
+  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, rfm12_modul->rfm12_gain,
+                     drssi);
+  rfm12_epilogue();
+
   return ECMD_FINAL_OK;
 }
 
@@ -122,6 +149,7 @@ parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
   ecmd_ifdef(RFM12_ASK_FHT_SUPPORT)
     ecmd_feature(rfm12_fht_send, "fht send", , housecode addr command data)
   ecmd_endif()
+  ecmd_feature(rfm12_fs20_setbandwidth, "fs20 setbandwidth", BW, Set receiver bandwidth to BW.)
   ecmd_feature(rfm12_fs20_setgain, "fs20 setgain", GAIN, Set preamplifier gain to GAIN.)
   ecmd_feature(rfm12_fs20_setdrssi, "fs20 setdrssi", DRSSI, Set the drssi to DRSSI.)
   ecmd_ifdef(DEBUG_ASK_FS20)

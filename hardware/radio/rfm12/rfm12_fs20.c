@@ -34,21 +34,20 @@
 
 /* FS20 read routines use timer 2 */
 /* Determine best prescaler depending on F_CPU */
-/* Longest pulse comes from WS300 and is 1464 us */
-#define FS20_LONGEST_PULSE   1500
+#define FS20_SILENCE         4100
 
 #define FS20_MAX_OVERFLOW    255UL
-#if (F_CPU/1000000*FS20_LONGEST_PULSE) < FS20_MAX_OVERFLOW
+#if (F_CPU/1000000*FS20_SILENCE) < FS20_MAX_OVERFLOW
 #define FS20_PRESCALER       1UL
-#elif (F_CPU/1000000*FS20_LONGEST_PULSE/8) < FS20_MAX_OVERFLOW
+#elif (F_CPU/1000000*FS20_SILENCE/8) < FS20_MAX_OVERFLOW
 #define FS20_PRESCALER       8UL
-#elif (F_CPU/1000000*FS20_LONGEST_PULSE/64) < FS20_MAX_OVERFLOW
+#elif (F_CPU/1000000*FS20_SILENCE/64) < FS20_MAX_OVERFLOW
 #define FS20_PRESCALER       64UL
-#elif (F_CPU/1000000*FS20_LONGEST_PULSE/128) < FS20_MAX_OVERFLOW
+#elif (F_CPU/1000000*FS20_SILENCE/128) < FS20_MAX_OVERFLOW
 #define FS20_PRESCALER       128UL
-#elif (F_CPU/1000000*FS20_LONGEST_PULSE/256) < FS20_MAX_OVERFLOW
+#elif (F_CPU/1000000*FS20_SILENCE/256) < FS20_MAX_OVERFLOW
 #define FS20_PRESCALER       256UL
-#elif (F_CPU/1000000*FS20_LONGEST_PULSE/1024) < FS20_MAX_OVERFLOW
+#elif (F_CPU/1000000*FS20_SILENCE/1024) < FS20_MAX_OVERFLOW
 #define FS20_PRESCALER       1024UL
 #else
 #error F_CPU to large
@@ -161,24 +160,6 @@ rfm12_fht_send(uint16_t house, uint8_t addr, uint8_t cmd, uint8_t data)
 }
 #endif
 
-void
-rfm12_fs20_setgain(uint8_t gain)
-{
-  rfm12_prologue(RFM12_MODUL_FS20);
-  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, gain,
-                     rfm12_modul->rfm12_drssi);
-  rfm12_epilogue();
-}
-
-void
-rfm12_fs20_setdrssi(uint8_t drssi)
-{
-  rfm12_prologue(RFM12_MODUL_FS20);
-  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, rfm12_modul->rfm12_gain,
-                     drssi);
-  rfm12_epilogue();
-}
-
 ISR(TC2_VECTOR_COMPARE)
 {
   rfm12_fs20_lib_rx_timeout();
@@ -219,7 +200,7 @@ rfm12_fs20_init_rx(void)
 #endif
   TC2_MODE_OFF;
   TC2_OUTPUT_COMPARE_NONE;
-  TC2_INT_COMPARE_ON;
+  TC2_INT_COMPARE_OFF;
   TC2_INT_OVERFLOW_OFF;
 
 #ifdef DEBUG_ASK_FS20
@@ -261,7 +242,8 @@ rfm12_fs20_init(void)
 #endif
 
   rfm12_setfreq(RFM12FREQ(RFM12_FREQ_868300));
-  rfm12_setbandwidth(4, 1, 2);
+  /* bandwidth, gain, drssi */
+  rfm12_setbandwidth(4, 2, 1);
 
   rfm12_epilogue();
 
