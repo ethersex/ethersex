@@ -521,6 +521,15 @@ rfm12_fs20_lib_process(void)
         DH(obuf[oby] & 0xf, 1);
       DNL();
 #endif
+#ifdef RFM12_ASK_SYSLOG
+      syslog_sendf_P(PSTR("%c"), datatype);
+      if (nibble)
+        oby--;
+      for (uint8_t i = 0; i < oby; i++)
+        syslog_sendf_P(PSTR("%02X"), obuf[i]);
+      if (nibble)
+        syslog_sendf_P(PSTR("%01X"), obuf[oby] & 0xf);
+#endif
     }
   }
 
