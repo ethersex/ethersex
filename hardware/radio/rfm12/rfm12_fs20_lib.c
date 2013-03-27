@@ -380,6 +380,7 @@ analyze_TX3(bucket_t * b)
 int
 rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
 {
+  uint8_t valid = 0;
   uint8_t datatype = 0;
   bucket_t *b;
 
@@ -400,7 +401,7 @@ rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
   }
 
   if (bucket_nrused == 0)
-    return;
+    return valid;
 
   ACTIVITY_LED_RFM12_RX;
 
@@ -505,6 +506,11 @@ rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
 
     if (!isrep)
     {
+      fs20_data_p->datatype = datatype;
+      fs20_data_p->count = oby;
+      fs20_data_p->nibble = nibble;
+      for (uint8_t i = 0; i < oby; i++)
+        fs20_data_p->data[i] = obuf[i];
 #ifdef DEBUG_ASK_FS20
       DC(datatype);
       if (nibble)
@@ -515,11 +521,7 @@ rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
         DH(obuf[oby] & 0xf, 1);
       DNL();
 #endif
-      fs20_data_p->datatype = datatype;
-      fs20_data_p->count = oby;
-      fs20_data_p->nibble = nibble;
-      for (uint8_t i = 0; i < oby; i++)
-        fs20_data_p->data[i] = obuf[i];
+      valid = 1;
     }
   }
 
@@ -551,7 +553,7 @@ rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
   if (bucket_out == RCV_BUCKETS)
     bucket_out = 0;
 
-  return 1;
+  return valid;
 }
 
 static void

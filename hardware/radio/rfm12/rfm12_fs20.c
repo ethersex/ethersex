@@ -271,36 +271,34 @@ rfm12_fs20_init(void)
 void
 rfm12_fs20_process(void)
 {
-  uint8_t tmphead = FIFO_NEXT(fs20_rx_fifo.write);
-  if (tmphead != fs20_rx_fifo.read)
+  fs20_data_t fs20_data;
+  if (rfm12_fs20_lib_process(&fs20_data))
   {
-    fs20_data_t *fs20_data_p = &fs20_rx_fifo.buffer[tmphead];
-    if (rfm12_fs20_lib_process(fs20_data_p))
-    {
-      fs20_rx_fifo.write = tmphead;
 #ifdef RFM12_ASK_SYSLOG
-      syslog_sendf_P(PSTR("%c"), fs20_data_p->datatype);
-      uint8_t count = fs20_data_p->count;
-      if (fs20_data_p->nibble)
-        count--;
-      for (uint8_t i = 0; i < count; i++)
-        syslog_sendf_P(PSTR("%02" PRIX8), fs20_data_p->data[i]);
-      if (nibble)
-        syslog_sendf_P(PSTR("%01" PRIX8), fs20_data_p->data[count] & 0xf);
+    syslog_sendf_P(PSTR("%c"), fs20_data.datatype);
+    uint8_t count = fs20_data.count;
+    if (fs20_data.nibble)
+      count--;
+    for (uint8_t i = 0; i < count; i++)
+      syslog_sendf_P(PSTR("%02" PRIX8), fs20_data.data[i]);
+    if (nibble)
+      syslog_sendf_P(PSTR("%01" PRIX8), fs20_data.data[count] & 0xf);
 #endif
+    uint8_t tmphead = FIFO_NEXT(fs20_rx_fifo.write);
+    if (tmphead != fs20_rx_fifo.read)
+    {
+      fs20_rx_fifo.buffer[tmphead] = fs20_data;
+      fs20_rx_fifo.write = tmphead;
     }
   }
 }
 
-uint8_t
-rfm12_fs20_read(fs20_data_t * fs20_data_p)
+fs20_data_t *
+rfm12_fs20_read(void)
 {
-  if (fs20_rx_fifo.read == fs20_rx_fifo.write)
-    return 0;
-
-  *fs20_data_p = fs20_rx_fifo.buffer[fs20_rx_fifo.read =
-                                     FIFO_NEXT(fs20_rx_fifo.read)];
-  return 1;
+  return (fs20_rx_fifo.read == fs20_rx_fifo.write ?
+          0 : &fs20_rx_fifo.buffer[fs20_rx_fifo.read =
+                                   FIFO_NEXT(fs20_rx_fifo.read)]);
 }
 
 /*

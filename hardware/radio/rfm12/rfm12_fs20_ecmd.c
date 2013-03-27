@@ -75,21 +75,23 @@ parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_rfm12_fs20_receive(char *cmd, char *output, uint16_t len)
 {
-  fs20_data_t fs20_data;
-  if (rfm12_fs20_read(&fs20_data) == 0)
+  (void) cmd;
+  (void) len;
+
+  fs20_data_t *fs20_data_p = rfm12_fs20_read();
+  if (fs20_data_p == 0)
     return ECMD_FINAL_OK;
 
   int16_t len_out = 1;
-  output[0] = fs20_data.datatype;
-  if (fs20_data.nibble)
-    fs20_data.count--;
-  for (uint8_t i = 0; i < fs20_data.count; i++)
-    len_out +=
-      sprintf_P(&output[len_out], PSTR("%02" PRIX8), fs20_data.data[i]);
-  if (fs20_data.nibble)
-    len_out +=
-      sprintf_P(&output[len_out], PSTR("%01" PRIX8),
-                fs20_data.data[fs20_data.count] & 0xf);
+  output[0] = fs20_data_p->datatype;
+  if (fs20_data_p->nibble)
+    fs20_data_p->count--;
+  for (uint8_t i = 0; i < fs20_data_p->count; i++)
+    len_out += sprintf_P(&output[len_out], PSTR("%02" PRIX8),
+                         fs20_data_p->data[i]);
+  if (fs20_data_p->nibble)
+    len_out += sprintf_P(&output[len_out], PSTR("%01" PRIX8),
+                         fs20_data_p->data[fs20_data_p->count] & 0xf);
 
   return ECMD_FINAL(len_out);
 }
