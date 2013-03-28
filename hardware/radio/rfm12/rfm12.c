@@ -42,7 +42,7 @@
 #define RFM12_PIN(c)  _RFM12_PIN(c)
 
 
-rfm12_modul_t rfm12_moduls[RFM12_MODUL_COUNT] = {
+rfm12_modul_t rfm12_moduls[RFM12_MODULE_COUNT] = {
 #ifdef RFM12_IP_SUPPORT
   {&RFM12_PORT(RFM12_IP_USE_RFM12),
    _BV(RFM12_PIN(RFM12_IP_USE_RFM12)),

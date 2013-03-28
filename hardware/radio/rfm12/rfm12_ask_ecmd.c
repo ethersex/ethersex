@@ -188,6 +188,7 @@ parse_cmd_rfm12_ask_external_filter(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
+
   uint8_t flag;
   int ret = sscanf_P(cmd, PSTR("%hhu"), &flag);
   if (ret == 1 && flag == 1)

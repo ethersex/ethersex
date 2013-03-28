@@ -61,7 +61,7 @@ ISR(RFM12_VECTOR)               /* PCINT */
     return;                     /* pin change to high level -> ignore */
 #endif
 
-  rfm12_modul_set_active(RFM12_MODUL_IP);
+  rfm12_modul_set_active(RFM12_MODULE_IP);
   uint16_t status = rfm12_trans(RFM12_CMD_STATUS);
 
   if (status & RFM12_STATUS_POR)
@@ -222,7 +222,7 @@ rfm12_net_init(void)
   for (uint8_t i = 15; i; i--)
     _delay_ms(10);
 
-  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_prologue(RFM12_MODULE_IP);
 
   rfm12_trans(RFM12_CMD_LBDMCD | 0xE0);
   rfm12_trans(RFM12BAND(CONF_RFM12_FREQ));
@@ -285,7 +285,7 @@ rfm12_rxstart(void)
     return 1;                   /* rfm12 is not free for RX or now in RX */
   }
 
-  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_prologue(RFM12_MODULE_IP);
 
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ER | RFM12_PWRMGT_EBB |
               RFM12_PWRMGT_EX);
@@ -308,7 +308,7 @@ rfm12_rxstop(void)
 {
   uint8_t result = 1;
 
-  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_prologue(RFM12_MODULE_IP);
 
   if (rfm12_status > RFM12_RX
       || (rfm12_status == RFM12_RX && rfm12_index > 0))
@@ -413,7 +413,7 @@ rfm12_txstart_hard(void)
 
   rfm12_index = 0;
 
-  rfm12_prologue(RFM12_MODUL_IP);
+  rfm12_prologue(RFM12_MODULE_IP);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   rfm12_epilogue();

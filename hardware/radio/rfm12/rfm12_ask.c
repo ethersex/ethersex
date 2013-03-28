@@ -63,7 +63,7 @@ rfm12_ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay,
     }
   }
 
-  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t ii = cnt; ii > 0; ii--)
@@ -130,7 +130,7 @@ rfm12_ask_intertechno_send(uint8_t family, uint8_t group,
   code.bits.group = group;
   code.bits.command = command ? 0x0E : 0x06;
 
-  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t j = 6; j > 0; j--)
@@ -184,7 +184,7 @@ rfm12_ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
   }
   *p = 7;                       // sync
 
-  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t ii = cnt; ii > 0; ii--)
@@ -225,7 +225,7 @@ rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
   uint8_t code[51];
   uint8_t *p = code;
 
-  /* Eine 0 im voraus, die immer bleibt, so dass befehl trotzdem in
+  /* Eine 0 im voraus, die immer bleibt, so dass Befehl trotzdem in
    * 3 Byte übergeben werden kann. */
   *p++ = 18;
   *p++ = 9;
@@ -249,7 +249,7 @@ rfm12_ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
   }
   *p = 7;                       // sync
 
-  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
   for (uint8_t ii = cnt; ii > 0; ii--)
@@ -297,7 +297,7 @@ rfm12_ask_trigger(uint8_t level, uint16_t us)
 void
 rfm12_ask_external_filter_init(void)
 {
-  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ER | RFM12_PWRMGT_EBB);
   rfm12_trans(RFM12_CMD_DATAFILTER | RFM12_DATAFILTER_S);
   rfm12_epilogue();
@@ -318,7 +318,7 @@ rfm12_ask_init(void)
   for (uint8_t i = 0; i < 15; i++)
     _delay_ms(10);
 
-  rfm12_prologue(RFM12_MODUL_ASK);
+  rfm12_prologue(RFM12_MODULE_ASK);
 
   rfm12_trans(RFM12_CMD_LBDMCD | 0xE0);
   rfm12_trans(RFM12BAND(RFM12_FREQ_433920));

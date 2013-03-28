@@ -97,60 +97,6 @@ parse_cmd_rfm12_fs20_receive(char *cmd, char *output, uint16_t len)
 }
 
 int16_t
-parse_cmd_rfm12_fs20_setbandwidth(char *cmd, char *output, uint16_t len)
-{
-  (void) output;
-  (void) len;
-
-  uint8_t bandwidth;
-  if (1 != sscanf_P(cmd, PSTR("%hhu"), &bandwidth))
-    return ECMD_ERR_PARSE_ERROR;
-
-  rfm12_prologue(RFM12_MODUL_FS20);
-  rfm12_setbandwidth(bandwidth, rfm12_modul->rfm12_gain,
-                     rfm12_modul->rfm12_drssi);
-  rfm12_epilogue();
-
-  return ECMD_FINAL_OK;
-}
-
-int16_t
-parse_cmd_rfm12_fs20_setgain(char *cmd, char *output, uint16_t len)
-{
-  (void) output;
-  (void) len;
-
-  uint8_t gain;
-  if (1 != sscanf_P(cmd, PSTR("%hhu"), &gain))
-    return ECMD_ERR_PARSE_ERROR;
-
-  rfm12_prologue(RFM12_MODUL_FS20);
-  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, gain,
-                     rfm12_modul->rfm12_drssi);
-  rfm12_epilogue();
-
-  return ECMD_FINAL_OK;
-}
-
-int16_t
-parse_cmd_rfm12_fs20_setdrssi(char *cmd, char *output, uint16_t len)
-{
-  (void) output;
-  (void) len;
-
-  uint8_t drssi;
-  if (1 != sscanf_P(cmd, PSTR("%hhu"), &drssi))
-    return ECMD_ERR_PARSE_ERROR;
-
-  rfm12_prologue(RFM12_MODUL_FS20);
-  rfm12_setbandwidth(rfm12_modul->rfm12_bandwidth, rfm12_modul->rfm12_gain,
-                     drssi);
-  rfm12_epilogue();
-
-  return ECMD_FINAL_OK;
-}
-
-int16_t
 parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
 {
   (void) output;
@@ -167,16 +113,11 @@ parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
 /*
 -- Ethersex META --
   block([[RFM12_FS20]])
-  ecmd_ifdef(RFM12_ASK_FS20_SUPPORT)
-    ecmd_feature(rfm12_fs20_send, "fs20 send", , housecode addr command data)
-  ecmd_endif()
+  ecmd_feature(rfm12_fs20_send, "fs20 send", , housecode addr command data)
   ecmd_ifdef(RFM12_ASK_FHT_SUPPORT)
     ecmd_feature(rfm12_fht_send, "fht send", , housecode addr command data)
   ecmd_endif()
   ecmd_feature(rfm12_fs20_receive, "fs20 receive", , Receive FS20/FHT sequence and display it.)
-  ecmd_feature(rfm12_fs20_setbandwidth, "fs20 setbandwidth", BW, Set receiver bandwidth to BW.)
-  ecmd_feature(rfm12_fs20_setgain, "fs20 setgain", GAIN, Set preamplifier gain to GAIN.)
-  ecmd_feature(rfm12_fs20_setdrssi, "fs20 setdrssi", DRSSI, Set the drssi to DRSSI.)
   ecmd_ifdef(DEBUG_ASK_FS20)
     ecmd_feature(rfm12_fs20_setdebug, "fs20 setdebug", DEBUG, Set debug to DEBUG.)
   ecmd_endif()

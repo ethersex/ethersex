@@ -54,18 +54,18 @@ typedef struct
 enum
 {
 #ifdef RFM12_IP_SUPPORT
-  RFM12_MODUL_IP,
+  RFM12_MODULE_IP,
 #endif
 #ifdef RFM12_ASK_433_SUPPORT
-  RFM12_MODUL_ASK,
+  RFM12_MODULE_ASK,
 #endif
 #ifdef RFM12_ASK_FS20_SUPPORT
-  RFM12_MODUL_FS20,
+  RFM12_MODULE_FS20,
 #endif
-  RFM12_MODUL_COUNT
+  RFM12_MODULE_COUNT
 };
 
-extern rfm12_modul_t rfm12_moduls[RFM12_MODUL_COUNT];
+extern rfm12_modul_t rfm12_moduls[RFM12_MODULE_COUNT];
 extern rfm12_modul_t *rfm12_modul;
 
 #define rfm12_modul_get_active()  (rfm12_modul - rfm12_moduls)

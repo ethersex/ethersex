@@ -87,7 +87,7 @@ static void
 activate_ask_receiver(void)
 {
   /* turn on external filter again */
-  rfm12_prologue(RFM12_MODUL_FS20);
+  rfm12_prologue(RFM12_MODULE_FS20);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ER | RFM12_PWRMGT_EBB);
   rfm12_trans(RFM12_CMD_DATAFILTER & ~0x0008);
   rfm12_epilogue();
@@ -129,7 +129,7 @@ fs20_send_internal(uint8_t fht, uint16_t house, uint8_t addr, uint8_t cmd,
     PIN_SET(STATUSLED_RFM12_TX);
 #endif
 
-    rfm12_prologue(RFM12_MODUL_FS20);
+    rfm12_prologue(RFM12_MODULE_FS20);
 
     send_bits(1, 13);
     send_bits(HI8(house), 8);
@@ -197,7 +197,7 @@ rfm12_fs20_init_rx(void)
 {
   rfm12_fs20_lib_init();
 
-  /* configure timer1 for receiving fs20, overflow interrupt enabled */
+  /* configure timer2 for receiving fs20 */
   TC2_COUNTER_CURRENT = 0;
 #if FS20_PRESCALER == 1UL
   TC2_PRESCALER_1;
@@ -240,7 +240,7 @@ rfm12_fs20_init(void)
   for (uint8_t i = 15; i; i--)
     _delay_ms(10);
 
-  rfm12_prologue(RFM12_MODUL_FS20);
+  rfm12_prologue(RFM12_MODULE_FS20);
 
   rfm12_trans(RFM12_CMD_LBDMCD | 0xE0);
   rfm12_trans(RFM12_CMD_CFG | RFM12_BAND_868 | RFM12_XTAL_135PF);
