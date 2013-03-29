@@ -40,9 +40,9 @@ typedef struct
 
 extern uint8_t rx_report;
 
-void rfm12_fs20_lib_init(void);
-void rfm12_fs20_lib_rx_timeout(void);
-void rfm12_fs20_lib_rx_level_changed(uint8_t, uint8_t);
-int rfm12_fs20_lib_process(fs20_data_t *);
+static void rfm12_fs20_lib_init(void);
+static void rfm12_fs20_lib_rx_timeout(void);
+static void rfm12_fs20_lib_rx_level_changed(uint8_t, uint8_t);
+static int rfm12_fs20_lib_process(fs20_data_t *);
 
 #endif /* __RFM12_FS20_LIB_H */

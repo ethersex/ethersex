@@ -484,8 +484,8 @@ rfm12_fs20_lib_process(fs20_data_t * fs20_data_p)
             elapsed_time += ticks_per_second;
           elapsed_time -= reptime;
 
-          /* ~0.1 sec */
-          if (elapsed_time < (ticks_per_second / 10))
+          /* ~0.2 sec */
+          if (elapsed_time < (ticks_per_second / 5))
             isrep = 1;
         }
       }
@@ -563,7 +563,7 @@ reset_input(void)
   bucket_array[bucket_in].state = STATE_RESET;
 }
 
-void
+static void
 rfm12_fs20_lib_rx_timeout(void)
 {
   FS20_TIMER_INT_OFF;           /* Disable "us" */
@@ -645,7 +645,7 @@ delbit(bucket_t * b)
   }
 }
 
-void
+static void
 rfm12_fs20_lib_rx_level_changed(uint8_t c, uint8_t is_raising_edge)
 {
   bucket_t *b = bucket_array + bucket_in;       /* where to fill in the bit */
@@ -780,7 +780,7 @@ rfm12_fs20_lib_rx_level_changed(uint8_t c, uint8_t is_raising_edge)
   }
 }
 
-void
+static void
 rfm12_fs20_lib_init(void)
 {
   for (uint8_t i = 1; i < RCV_BUCKETS; i++)
