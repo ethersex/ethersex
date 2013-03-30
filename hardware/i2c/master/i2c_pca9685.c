@@ -192,7 +192,7 @@ i2c_pca9685_set_leds(uint8_t address, uint8_t startled, uint8_t count,
   uint8_t ret = 1;
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = LED0_ON_L + 4 * startled - 1;  /* Address of LED REGISTER */
+  TWDR = LED0_ON_L + 4 * startled;  /* Address of LED REGISTER */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
   for (uint8_t i = 0; i < count; i++)   /* Now transmit all values in values in sequence */
@@ -226,7 +226,7 @@ i2c_pca9685_set_leds_fast(uint8_t address, uint8_t startled, uint8_t count,
   uint8_t ret = 1;
   if (!i2c_master_select(address, TW_WRITE))
     goto stop;
-  TWDR = LED0_ON_L + 4 * startled - 1;  /* Address of LED REGISTER */
+  TWDR = LED0_ON_L + 4 * startled;  /* Address of LED REGISTER */
   if (i2c_master_transmit_with_ack() != TW_MT_DATA_ACK)
     goto stop;
   for (uint8_t i = 0; i < count; i++)   /* Now transmit all values in values in sequence */
