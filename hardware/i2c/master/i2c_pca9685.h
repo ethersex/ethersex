@@ -27,8 +27,8 @@
 #define SUBADR2 0x03
 #define SUBADR  0x04
 #define ALLCALLADR 0x05
-#define LED0_ON_H 0x06
-#define LED0_ON_L 0x07
+#define LED0_ON_L 0x06
+#define LED0_ON_H 0x07
 #define LED0_OFF_L 0x08
 #define LED0_OFF_H 0x09
 #define ALL_LED_ON_L 0xFA
