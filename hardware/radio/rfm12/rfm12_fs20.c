@@ -27,7 +27,7 @@
 #include "core/bool.h"
 #include "core/heartbeat.h"
 #include "core/periodic.h"
-#ifdef RFM12_ASK_SYSLOG
+#ifdef RFM12_ASK_FS20_SYSLOG
 #include "protocols/syslog/syslog.h"
 #endif
 
@@ -274,7 +274,7 @@ rfm12_fs20_process(void)
   fs20_data_t fs20_data;
   if (rfm12_fs20_lib_process(&fs20_data))
   {
-#ifdef RFM12_ASK_SYSLOG
+#ifdef RFM12_ASK_FS20_SYSLOG
     syslog_sendf_P(PSTR("%c"), fs20_data.datatype);
     uint8_t count = fs20_data.count;
     if (fs20_data.nibble)
