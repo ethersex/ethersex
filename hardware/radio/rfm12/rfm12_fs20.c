@@ -35,6 +35,8 @@
 #include "rfm12_ask.h"
 #include "rfm12_fs20.h"
 
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
+
 /* FS20 read routines use timer 2 */
 /* Determine best prescaler depending on F_CPU */
 #define FS20_SILENCE         4100
@@ -92,7 +94,10 @@ activate_ask_receiver(void)
   rfm12_trans(RFM12_CMD_DATAFILTER & ~0x0008);
   rfm12_epilogue();
 }
+#endif /* RFM12_ASK_FS20_RX_SUPPORT */
 
+
+#ifdef RFM12_ASK_FS20_TX_SUPPORT
 static void
 send_bits(uint16_t data, uint8_t bits)
 {
@@ -157,7 +162,9 @@ fs20_send_internal(uint8_t fht, uint16_t house, uint8_t addr, uint8_t cmd,
     _delay_ms(10);
   }
 
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
   activate_ask_receiver();
+#endif
 }
 
 void
@@ -172,8 +179,10 @@ rfm12_fht_send(uint16_t house, uint8_t addr, uint8_t cmd, uint8_t data)
 {
   fs20_send_internal(TRUE, house, addr, cmd, data);
 }
-#endif
+#endif /* RFM12_ASK_FHT_SUPPORT */
+#endif /* RFM12_ASK_FS20_TX_SUPPORT */
 
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
 ISR(TC2_VECTOR_COMPARE)
 {
   rfm12_fs20_lib_rx_timeout();
@@ -232,6 +241,7 @@ rfm12_fs20_init_rx(void)
   PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
 }
+#endif /* RFM12_ASK_FS20_RX_SUPPORT */
 
 void
 rfm12_fs20_init(void)
@@ -257,7 +267,7 @@ rfm12_fs20_init(void)
 
   rfm12_setfreq(RFM12FREQ(RFM12_FREQ_868300));
   /* bandwidth, gain, drssi */
-  rfm12_setbandwidth(4, 2, 1);
+  rfm12_setbandwidth(1, 2, 1);
 
   rfm12_epilogue();
 
@@ -265,9 +275,12 @@ rfm12_fs20_init(void)
   PIN_CLEAR(STATUSLED_RFM12_TX);
 #endif
 
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
   rfm12_fs20_init_rx();
+#endif
 }
 
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
 void
 rfm12_fs20_process(void)
 {
@@ -300,10 +313,11 @@ rfm12_fs20_read(void)
           0 : &fs20_rx_fifo.buffer[fs20_rx_fifo.read =
                                    FIFO_NEXT(fs20_rx_fifo.read)]);
 }
+#endif /* RFM12_ASK_FS20_RX_SUPPORT */
 
 /*
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_fs20.h)
   init(rfm12_fs20_init)
-  mainloop(rfm12_fs20_process)
+  ifdef(`conf_RFM12_ASK_FS20_RX', `mainloop(rfm12_fs20_process)')
 */

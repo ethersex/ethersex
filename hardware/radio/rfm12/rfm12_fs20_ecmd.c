@@ -31,7 +31,7 @@
 #include "rfm12_fs20_lib.h"
 #include "rfm12_fs20_ecmd.h"
 
-#ifdef RFM12_ASK_FS20_SUPPORT
+#ifdef RFM12_ASK_FS20_TX_SUPPORT
 typedef void (*fs20_func_t) (uint16_t, uint8_t, uint8_t, uint8_t);
 
 static int16_t
@@ -62,16 +62,16 @@ parse_cmd_rfm12_fs20_send(char *cmd, char *output, uint16_t len)
   return parse_cmd_rfm12_internal(cmd, output, len, rfm12_fs20_send);
 }
 
-#endif
-
 #ifdef RFM12_ASK_FHT_SUPPORT
 int16_t
 parse_cmd_rfm12_fht_send(char *cmd, char *output, uint16_t len)
 {
   return parse_cmd_rfm12_internal(cmd, output, len, rfm12_fht_send);
 }
-#endif
+#endif /* RFM12_ASK_FHT_SUPPORT */
+#endif /* RFM12_ASK_FS20_TX_SUPPORT */
 
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
 int16_t
 parse_cmd_rfm12_fs20_receive(char *cmd, char *output, uint16_t len)
 {
@@ -96,6 +96,7 @@ parse_cmd_rfm12_fs20_receive(char *cmd, char *output, uint16_t len)
   return ECMD_FINAL(len_out);
 }
 
+#ifdef DEBUG_ASK_FS20
 int16_t
 parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
 {
@@ -109,16 +110,22 @@ parse_cmd_rfm12_fs20_setdebug(char *cmd, char *output, uint16_t len)
   rx_report = debug;
   return ECMD_FINAL_OK;
 }
+#endif /* DEBUG_ASK_FS20 */
+#endif /* RFM12_ASK_FS20_RX_SUPPORT */
 
 /*
 -- Ethersex META --
   block([[RFM12_FS20]])
-  ecmd_feature(rfm12_fs20_send, "fs20 send", , housecode addr command data)
-  ecmd_ifdef(RFM12_ASK_FHT_SUPPORT)
-    ecmd_feature(rfm12_fht_send, "fht send", , housecode addr command data)
+  ecmd_ifdef(RFM12_ASK_FS20_TX_SUPPORT)
+    ecmd_feature(rfm12_fs20_send, "fs20 send", , housecode addr command data)
+    ecmd_ifdef(RFM12_ASK_FHT_SUPPORT)
+      ecmd_feature(rfm12_fht_send, "fht send", , housecode addr command data)
+    ecmd_endif()
   ecmd_endif()
-  ecmd_feature(rfm12_fs20_receive, "fs20 receive", , Receive FS20/FHT sequence and display it.)
-  ecmd_ifdef(DEBUG_ASK_FS20)
-    ecmd_feature(rfm12_fs20_setdebug, "fs20 setdebug", DEBUG, Set debug to DEBUG.)
+  ecmd_ifdef(RFM12_ASK_FS20_RX_SUPPORT)
+    ecmd_feature(rfm12_fs20_receive, "fs20 receive", , Receive FS20/FHT sequence and display it.)
+    ecmd_ifdef(DEBUG_ASK_FS20)
+      ecmd_feature(rfm12_fs20_setdebug, "fs20 setdebug", DEBUG, Set debug to DEBUG.)
+    ecmd_endif()
   ecmd_endif()
 */

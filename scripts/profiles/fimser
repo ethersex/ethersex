@@ -27,30 +27,30 @@ atmega328p=y
 # at90can64 is not set
 # at90can128 is not set
 FREQ=1000000
-# alpengluehn is not set
 # Arduino_Duemilanove is not set
+HARDWARE=Fimser
+Fimser=y
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
+# alpengluehn is not set
 # beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
-HARDWARE=Fimser
-Fimser=y
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
-# netio_addon is not set
 # netio is not set
+# netio_addon is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -58,12 +58,12 @@ Fimser=y
 # BOOTLOADER_SUPPORT is not set
 # BOOTLOADER_JUMP is not set
 BOOTLOADER_SIZE=0
-BOOTLOADER_START_ADDRESS=0x8000
-FLASH_SIZE=0x8000
-EEPROM_SIZE=0x400
-RAM_SIZE=0x900
-FLASH_PAGESIZE=0x80
-EEPROM_PAGESIZE=0x4
+BOOTLOADER_START_ADDRESS=0x1
+FLASH_SIZE=0x1
+EEPROM_SIZE=0x1
+RAM_SIZE=0x1
+FLASH_PAGESIZE=0x0
+EEPROM_PAGESIZE=0x0
 # CRC_PAD_SUPPORT is not set
 # MBR_SUPPORT is not set
 # TEENSY_SUPPORT is not set
@@ -74,7 +74,7 @@ EEPROM_PAGESIZE=0x4
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="af7daa3"
+VERSION_GIT="72db952"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=9600
@@ -414,11 +414,13 @@ PWM_SERVOS=1
 # RFM12_ASK_EXTERNAL_FILTER_SUPPORT is not set
 # RFM12_ASK_SENSING_SUPPORT is not set
 # RFM12_ASK_868_SUPPORT is not set
-# RFM12_ASK_FS20_SUPPORT is not set
+# RFM12_ASK_FS20_TX_SUPPORT is not set
+# RFM12_ASK_FS20_RX_SUPPORT is not set
 # RFM12_ASK_FHT_SUPPORT is not set
 # RFM12_ASK_ESA_SUPPORT is not set
 # RFM12_ASK_TX3_SUPPORT is not set
 # RFM12_ASK_FS20_SYSLOG is not set
+# RFM12_ASK_FS20_SUPPORT is not set
 # DEBUG_ASK_SENSE is not set
 # DEBUG_ASK_FS20 is not set
 # HUM_TEMP_SUPPORT is not set
