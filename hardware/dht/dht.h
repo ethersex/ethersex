@@ -26,6 +26,9 @@
 
 #include <stdint.h>
 
+#define DHT_TYPE_11 11
+#define DHT_TYPE_22 22
+
 typedef struct
 {
   uint16_t polling_delay;
