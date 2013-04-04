@@ -28,6 +28,7 @@
 #include "core/heartbeat.h"
 #include "core/periodic.h"
 #ifdef RFM12_ASK_FS20_SYSLOG
+#include "core/util/byte2hex.h"
 #include "protocols/syslog/syslog.h"
 #endif
 
@@ -288,14 +289,22 @@ rfm12_fs20_process(void)
   if (rfm12_fs20_lib_process(&fs20_data))
   {
 #ifdef RFM12_ASK_FS20_SYSLOG
-    syslog_sendf_P(PSTR("%c"), fs20_data.datatype);
+    uint8_t buf[2 * FS20_MAXMSG + 2];
+    buf[0] = fs20_data.datatype;
     uint8_t count = fs20_data.count;
     if (fs20_data.nibble)
       count--;
-    for (uint8_t i = 0; i < count; i++)
-      syslog_sendf_P(PSTR("%02" PRIX8), fs20_data.data[i]);
+    uint8_t i = 1;
+    for (uint8_t j = 0; j < count; j++)
+      i += byte2hex(fs20_data.data[j], &buf[i]);
     if (nibble)
-      syslog_sendf_P(PSTR("%01" PRIX8), fs20_data.data[count] & 0xf);
+    {
+      byte2hex(fs20_data.data[count], &buf[i]);
+      buf[i] = buf[i + 1];
+      i++;
+    }
+    buf[i] = '\0';
+    syslog_send(buf);
 #endif
     uint8_t tmphead = FIFO_NEXT(fs20_rx_fifo.write);
     if (tmphead != fs20_rx_fifo.read)

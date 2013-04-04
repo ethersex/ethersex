@@ -24,6 +24,9 @@
 
 #include "config.h"
 #include "core/bit-macros.h"
+#ifdef RFM12_ASK_FS20_RX_SUPPORT
+#include "core/util/byte2hex.h"
+#endif
 #include "protocols/ecmd/ecmd-base.h"
 
 #include "rfm12.h"
@@ -82,16 +85,20 @@ parse_cmd_rfm12_fs20_receive(char *cmd, char *output, uint16_t len)
   if (fs20_data_p == 0)
     return ECMD_FINAL_OK;
 
-  int16_t len_out = 1;
   output[0] = fs20_data_p->datatype;
+  uint8_t count = fs20_data_p->count;
   if (fs20_data_p->nibble)
-    fs20_data_p->count--;
-  for (uint8_t i = 0; i < fs20_data_p->count; i++)
-    len_out += sprintf_P(&output[len_out], PSTR("%02" PRIX8),
-                         fs20_data_p->data[i]);
+    count--;
+  int16_t len_out = 1;
+  for (uint8_t i = 0; i < count; i++)
+    len_out += byte2hex(fs20_data_p->data[i], &output[len_out]);
   if (fs20_data_p->nibble)
-    len_out += sprintf_P(&output[len_out], PSTR("%01" PRIX8),
-                         fs20_data_p->data[fs20_data_p->count] & 0xf);
+  {
+    byte2hex(fs20_data_p->data[count], &output[len_out]);
+    output[len_out] = output[len_out + 1];
+    len_out++;
+  }
+  output[len_out] = '\0';
 
   return ECMD_FINAL(len_out);
 }
