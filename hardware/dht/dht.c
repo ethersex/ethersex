@@ -106,7 +106,7 @@ static void
 dht_read(void)
 {
   PIN_SET(DHT);
-  _delay_us(40);
+  _delay_us(30);
   DDR_CONFIG_IN(DHT);
 
   /* read in timings */
@@ -143,13 +143,13 @@ dht_read(void)
   if ((j < 40) ||
       (data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)))
   {
-    DHT_DEBUG("read failed\n");
+    DHT_DEBUG("read failed");
     return;
   }
 
   int16_t t;
 #if DHT_TYPE == DHT_TYPE_11
-  t = (int8_t) data[2];
+  t = data[2];
   t *= 10;
   dht_global.temp = t;
   t = data[0];
@@ -157,8 +157,11 @@ dht_read(void)
   dht_global.humid = t;
 #elif DHT_TYPE == DHT_TYPE_22
   t = data[2] << 8 | data[3];
-  if (data[2] & 0x80)
+  if (t & 0x8000)
+  {
+    t &= ~0x8000;
     t = -t;
+  }
   dht_global.temp = t;
   t = data[0] << 8 | data[1];
   dht_global.humid = t;
@@ -171,7 +174,7 @@ dht_init(void)
 {
   DDR_CONFIG_IN(DHT);
 
-  dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ / 2;
+  dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ;
 }
 
 void
@@ -181,7 +184,7 @@ dht_periodic(void)
   {
     /* read sensor data */
     dht_read();
-    dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ / 2;
+    dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ;
   }
   else if (--dht_global.polling_delay == 0)
   {
@@ -193,5 +196,5 @@ dht_periodic(void)
   -- Ethersex META --
   header(hardware/dht/dht.h)
   init(dht_init)
-  timer(2,dht_periodic())
+  timer(1,dht_periodic())
 */
