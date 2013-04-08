@@ -109,8 +109,12 @@ dht_read(void)
   _delay_us(30);
   DDR_CONFIG_IN(DHT);
 
-  /* read in timings */
-  uint8_t last_state = DHT_PIN;
+  /* Read in timingss, which takes approx. 4,5 milliseconds.
+   * We do not disable interrupts, because a failed read is outweighed
+   * by a non-serviced interrupt. Please never enclose the for-loop
+   * with an ATOMIC_BLOCK! */
+
+  uint8_t last_state = PIN_BV(DHT);
   uint8_t j = 0;
   uint8_t data[5];
   for (uint8_t i = 0; i < MAXTIMINGS; i++)
@@ -122,7 +126,7 @@ dht_read(void)
       _delay_us(5);
       if (++counter == 20)
       {
-        DHT_DEBUG("read timeout");
+        DHT_DEBUG("read timeout, edge=%u", i);
         return;                 /* timeout in conversation */
       }
     }
@@ -143,7 +147,8 @@ dht_read(void)
   if ((j < 40) ||
       (data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)))
   {
-    DHT_DEBUG("read failed");
+    DHT_DEBUG("read failed, bits=%u, %02X %02X %02X %02X %02X",
+              j, data[0], data[1], data[2], data[3], data[4]);
     return;
   }
 
