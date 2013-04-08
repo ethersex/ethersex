@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include "core/global.h"
 #include "core/eeprom.h"
