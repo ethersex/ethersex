@@ -18,8 +18,16 @@ define(`IRMP_ADDRESS', `control6_irmp_data_rx.address')
 define(`IRMP_COMMAND', `control6_irmp_data_rx.command')
 define(`IRMP_FLAGS', `control6_irmp_data_rx.flags')
 
+static uint8_t control6_irmp_read(void)
+{
+  irmp_data_t* p = irmp_read();
+  if (0 == p)  return 0;
+  control6_irmp_data_rx = *p;
+  return 1;
+}
+
 divert(old_divert)')')
 
-define(`IRMP_READ', `IRMP_USED()irmp_read(&control6_irmp_data_rx)')
+define(`IRMP_READ', `IRMP_USED()control6_irmp_read()')
 define(`IRMP_WRITE', `IRMP_USED()irmp_write(&control6_irmp_data_rx)')
 
