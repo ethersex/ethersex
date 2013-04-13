@@ -111,7 +111,7 @@ network_init(void)
     if (mbr.bootloader == 1)
 #endif
     {
-      tftp_fire_tftpomatic(&ip, filename, 0);
+      tftp_fire_tftpomatic(&ip, filename, 1);
       bootload_delay = CONF_BOOTLOAD_DELAY;
     }
 #   endif /* IPV6_STATIC_SUPPORT && TFTPOMATIC_SUPPORT */

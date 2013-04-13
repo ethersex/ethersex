@@ -34,7 +34,7 @@ ifdef({{conf_ONEWIRE_NAMING}}, {{dnl
 		var name = colums[j++];
 }})dnl
 ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{dnl
-		var temp = parseFloat(colums[j++]) / 10
+		var temp = parseFloat(colums[j++])
 }})dnl
 		ow_table.insertRow(i+1).innerHTML = "dnl
 <td><code><b>" + addr + "</b></code></td>dnl
