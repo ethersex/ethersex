@@ -825,6 +825,26 @@ TFTPOMATIC_SUPPORT
 
   Setup TFTP-client without using BOOTP
 
+Bootloader timeout
+CONF_BOOTLOAD_DELAY
+  How long to wait for a remote server to answer until the bootloader exits.
+  Measured in 1/50th seconds. Default value 250 = 5 seconds.
+
+TFTP image to load
+CONF_TFTP_IMAGE
+  Depends on: 
+   * TFTP-o-matic (TFTPOMATIC_SUPPORT)
+
+  Filename of binary image to load from and programm into the application flash
+  memory when in TFTP-o-matic mode.
+
+Address of TFTP-Server
+CONF_TFTP_IP
+  Depends on: 
+   * TFTP-o-matic (TFTPOMATIC_SUPPORT)
+
+  IPv4 or IPv6 address of TFTP-server when in TFTP-o-matic mode.
+
 TFTP CRC verify
 TFTP_CRC_SUPPORT
   Verify if the programmed application has the same 16-bit CRC as a seperate
@@ -841,6 +861,9 @@ TFTP_CRC_SUPPORT
     - If file does not exist or content does not match current application 
       CRC, then try to load and program application
   
+  %M is replaced with '-[MAC-ADDRESS]' (13 characters hex uppercase) in both
+  (CRC and binary) filenames
+  
   The filename of the CRC-file is constructed out of the application filename
   having additional formatting keys.
   %m : replace with '-[MAC-ADDRESS]' (13 characters hex uppercase)
@@ -848,10 +871,19 @@ TFTP_CRC_SUPPORT
   %e : replace with '.crc' - the rest of the filename is truncated
   %C : replace with '' - verify CRC-file content
   
-  Example:
+  Example 1:
   Supplied filename:    ethersex%m%c%e.bin
   CRC-filename:         ethersex-DEADBEEFCAFE-1337.crc
   Application filename: ethersex.bin
+  Existence of CRC-file is checked. If not existent, application binary is
+  loaded and programmed into flash.
+
+  Example 2:
+  Supplied filename:    %Cethersex%M%e.bin
+  CRC-filename:         ethersex-DEADBEEFCAFE.crc
+  Application filename: ethersex-DEADBEEFCAFE.bin
+  Content of CRC-file is checked for correct CRC of application. If content 
+  mismatchces application binary is loaded and programmed into flash.
 
 MDNS service announcement (Avahi)
 MDNS_SD_SUPPORT
@@ -1186,7 +1218,7 @@ DISABLE_IPCONF_SUPPORT
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Disable the ecmd's to set ip, gw, netmask and mac
+  Disable the ECMDs to set ip, gw, netmask and mac
 
 Disable remote reboot
 DISABLE_REBOOT_SUPPORT
@@ -2450,6 +2482,16 @@ ONEWIRE_ECMD_LIST_VALUES_SUPPORT
 
   Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
   value for each sensor. Fields are separated by tab.
+
+
+ECMD 1w list with power mode
+ONEWIRE_ECMD_LIST_POWER_SUPPORT
+  Depends on: 
+   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
+
+  Show the power mode of each onewire node on "1w list" command. Fields are separated by tab.
+  0: parasitic powered
+  1: non-parasitic powered
 
 
 Onewire naming support
