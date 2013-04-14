@@ -41,10 +41,6 @@ void heartbeat_periodic(void)
 /*
   -- Ethersex META --
   header(core/heartbeat.h)
-  ifdef(`conf_STATUSLED_HB_ACT', `init(heartbeat_init)')
-#ifdef BOOTLOADER_SUPPORT
-  ifdef(`conf_STATUSLED_HEARTBEAT', `timer(20, heartbeat_periodic())')
-#else
-  ifdef(`conf_STATUSLED_HEARTBEAT', `timer(100, heartbeat_periodic())')
-#endif
+  ifdef(`conf_STATUSLED_HB_ACT',`init(heartbeat_init)')
+  ifdef(`conf_STATUSLED_HEARTBEAT',`timer(100,heartbeat_periodic())')
 */
