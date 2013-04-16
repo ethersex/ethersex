@@ -83,7 +83,8 @@ __tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
 #ifdef TFTP_CRC_SUPPORT
   uint8_t tag_found = 0, i = 0;
 
-  while (filename[i++] && i < TFTP_FILENAME_MAXLEN)
+  /* search for a valid crc filename formatting code */
+  while (verify_crc && filename[i++] && i < TFTP_FILENAME_MAXLEN)
   {
     if (filename[i - 1] == '%')
     {
