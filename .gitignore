@@ -12,6 +12,7 @@
 *.workspace
 *.cbp
 *.layout
+*.dSYM
 
 # make generated files
 .config*
