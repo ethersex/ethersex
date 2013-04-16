@@ -100,7 +100,6 @@ tftp_net_main(void)
   /*
    * fire download request packet ...
    */
-  uint8_t tag_found = 0;
   uint16_t i = 0, l = 0;
   struct tftp_hdr *tftp_pk = uip_appdata;
 #ifdef TFTP_CRC_SUPPORT
@@ -117,7 +116,6 @@ tftp_net_main(void)
       /* append mac address */
       if (uip_udp_conn->appstate.tftp.filename[i + 1] == 'M')
       {
-        tag_found = 1;
         tftp_pk->u.raw[l++] = '-';
         for(uint8_t k = 0; k < 6; k++)
           l += byte2hex(uip_ethaddr.addr[k], &tftp_pk->u.raw[l]);
@@ -130,7 +128,6 @@ tftp_net_main(void)
           {
             /* append mac address */
             case 'm':
-              tag_found = 1;
               tftp_pk->u.raw[l++] = '-';
               for(uint8_t k = 0; k < 6; k++)
                 l += byte2hex(uip_ethaddr.addr[k], &tftp_pk->u.raw[l]);
@@ -139,7 +136,6 @@ tftp_net_main(void)
             /* append application crc */
             case 'c':
             {
-              tag_found = 1;
               tftp_pk->u.raw[l++] = '-';
               uint16_t crc = calc_application_crc();
               l += byte2hex(crc >> 8, &tftp_pk->u.raw[l]);
@@ -148,13 +144,11 @@ tftp_net_main(void)
             }
 
             case 'C':
-              tag_found = 1;
               status.verify_tftp_crc_content = 1;
               break;
 
             /* append crc file extension */
             case 'e':
-              tag_found = 1;
               tftp_pk->u.raw[l++] = '.';
               tftp_pk->u.raw[l++] = 'c';
               tftp_pk->u.raw[l++] = 'r';
@@ -185,12 +179,6 @@ tftp_net_main(void)
   tftp_pk->u.raw[l++] = 'e';
   tftp_pk->u.raw[l++] = 't';
   tftp_pk->u.raw[l++] = '\0';
-
-  /* no valid % tags in the filename to generate crc file */
-#ifdef TFTP_CRC_SUPPORT
-  if (uip_udp_conn->appstate.tftp.verify_crc && !tag_found)
-    uip_udp_conn->appstate.tftp.verify_crc = 0;
-#endif
 
   uip_udp_send(l + 9);
 

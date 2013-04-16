@@ -81,7 +81,29 @@ __tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
 
   tftp_req_conn->appstate.tftp.fire_req = 1;
 #ifdef TFTP_CRC_SUPPORT
-  tftp_req_conn->appstate.tftp.verify_crc = verify_crc;
+  uint8_t tag_found = 0, i = 0;
+
+  /* search for a valid crc filename formatting code */
+  while (verify_crc && filename[i++] && i < TFTP_FILENAME_MAXLEN)
+  {
+    if (filename[i - 1] == '%')
+    {
+      switch (filename[i])
+      {
+        /* valid crc formatting codes */
+        case 'm':
+        case 'c':
+        case 'C':
+        case 'e':
+          tag_found = 1;
+          continue;
+
+        default:
+          break;
+      }
+    }
+  }
+  tftp_req_conn->appstate.tftp.verify_crc = verify_crc && tag_found;
 #endif
   memcpy(tftp_req_conn->appstate.tftp.filename, filename,
          TFTP_FILENAME_MAXLEN);
@@ -100,8 +122,9 @@ __tftp_fire_tftpomatic(uip_ipaddr_t * ip, const char *filename)
   tftp_recv_conn->appstate.tftp.finished = 0;
   tftp_recv_conn->appstate.tftp.bootp_image = 1;
 #ifdef TFTP_CRC_SUPPORT
-  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc;
+  tftp_recv_conn->appstate.tftp.verify_crc = verify_crc && tag_found;
 #endif
+
   memcpy(tftp_recv_conn->appstate.tftp.filename, filename,
          TFTP_FILENAME_MAXLEN);
   tftp_recv_conn->appstate.tftp.filename[TFTP_FILENAME_MAXLEN - 1] = 0;
