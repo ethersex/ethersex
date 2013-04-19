@@ -89,9 +89,6 @@ onewire_init(void)
   ow_names_restore();
 #endif
 
-#if ONEWIRE_POLLING_SUPPORT
-  ow_periodic();
-#endif
 }
 
 
