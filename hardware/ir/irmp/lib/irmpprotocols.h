@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.10 2013/01/17 07:33:13 fm Exp $
+ * $Id: irmpprotocols.h,v 1.14 2013/04/09 11:59:12 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,8 +57,11 @@
 #define IRMP_THOMSON_PROTOCOL                   30              // Thomson
 #define IRMP_BOSE_PROTOCOL                      31              // BOSE
 #define IRMP_A1TVBOX_PROTOCOL                   32              // A1 TV Box
+#define IRMP_ORTEK_PROTOCOL                     33              // ORTEK - Hama
+#define IRMP_TELEFUNKEN_PROTOCOL                34              // Telefunken (1560)
+#define IRMP_ROOMBA_PROTOCOL                    35              // iRobot Roomba vacuum cleaner
 
-#define IRMP_N_PROTOCOLS                        32              // number of supported protocols
+#define IRMP_N_PROTOCOLS                        35              // number of supported protocols
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * timing constants:
@@ -622,6 +625,62 @@ typedef uint8_t     PAUSE_LEN;
 #define A1TVBOX_COMMAND_LEN                     8                               // read 8 command bits
 #define A1TVBOX_COMPLETE_DATA_LEN               17                              // complete length incl. start bit
 #define A1TVBOX_FRAME_REPEAT_PAUSE_TIME         50.0e-3                         // 50 msec pause between frames, don't know if it is correct
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * ORTEK (Hama): 6 address bits + 2 frame type bits + 6 command bits + 1 parity bit + 1 unknown bit + "1" + "0"
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define ORTEK_START_BIT_PULSE_TIME              2000.0e-6                       // 2000 usec pulse
+#define ORTEK_START_BIT_PAUSE_TIME              1000.0e-6                       // 1000 usec pause
+#define ORTEK_BIT_TIME                           500.0e-6                       //  500 usec pulse/pause
+#define ORTEK_FRAME_REPEAT_PAUSE_TIME             45.0e-3                       // frame repeat after 45ms
+#define ORTEK_ADDRESS_OFFSET                    0                               // skip 0 bits
+#define ORTEK_ADDRESS_LEN                       8                               // read 6 address bits + 2 special bits
+#define ORTEK_COMMAND_OFFSET                    8                               // skip 6 address bits + 2 special bits
+#define ORTEK_COMMAND_LEN                       6                               // read 6 command bits
+#define ORTEK_COMPLETE_DATA_LEN                 18                              // complete length
+#define ORTEK_STOP_BIT                          0                               // has no stop bit
+#define ORTEK_LSB                               0                               // MSB...LSB
+#define ORTEK_FLAGS                             (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)   // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * TELEFUNKEN:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define TELEFUNKEN_START_BIT_PULSE_TIME          600.0e-6                       //  600 usec pulse
+#define TELEFUNKEN_START_BIT_PAUSE_TIME         1500.0e-6                       // 1500 usec pause
+#define TELEFUNKEN_PULSE_TIME                    600.0e-6                       //  600 usec pulse
+#define TELEFUNKEN_1_PAUSE_TIME                 1500.0e-6                       // 1500 usec pause
+#define TELEFUNKEN_0_PAUSE_TIME                  600.0e-6                       //  600 usec pause
+#define TELEFUNKEN_FRAME_REPEAT_PAUSE_TIME        22.0e-3                       // frame repeat after XX ms ?????
+#define TELEFUNKEN_ADDRESS_OFFSET                0                              // skip 0 bits
+#define TELEFUNKEN_ADDRESS_LEN                   0                              // read 0 address bits
+#define TELEFUNKEN_COMMAND_OFFSET                0                              // skip 0 bits
+#define TELEFUNKEN_COMMAND_LEN                  15                              // read 15 bits
+#define TELEFUNKEN_COMPLETE_DATA_LEN            15                              // complete length
+#define TELEFUNKEN_STOP_BIT                     1                               // has stop bit
+#define TELEFUNKEN_LSB                          0                               // LSB...MSB
+#define TELEFUNKEN_FLAGS                        0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * ROOMBA
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define ROOMBA_START_BIT_PULSE_TIME             2790.0e-6                       // 2790 usec pulse
+#define ROOMBA_START_BIT_PAUSE_TIME              930.0e-6                       //  930 usec pause
+#define ROOMBA_0_PULSE_TIME                      930.0e-6                       //  930 usec pulse
+#define ROOMBA_1_PULSE_TIME                     2790.0e-6                       // 2790 usec pulse
+#define ROOMBA_0_PAUSE_TIME                     2790.0e-6                       // 2790 usec pause
+#define ROOMBA_1_PAUSE_TIME                      930.0e-6                       //  930 usec pause
+#define ROOMBA_FRAME_REPEAT_PAUSE_TIME            18.0e-3                       // frame repeat after 18ms
+#define ROOMBA_ADDRESS_OFFSET                    0                              // skip 0 bits
+#define ROOMBA_ADDRESS_LEN                       0                              // read 0 address bits
+#define ROOMBA_COMMAND_OFFSET                    0                              // skip 0 bits
+#define ROOMBA_COMMAND_LEN                       7                              // read 7 bits
+#define ROOMBA_COMPLETE_DATA_LEN                 7                              // complete length
+#define ROOMBA_STOP_BIT                         0                               // has stop bit
+#define ROOMBA_LSB                              0                               // MSB...LSB
+#define ROOMBA_FLAGS                            0                               // flags
 
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
 

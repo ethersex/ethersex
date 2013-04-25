@@ -209,6 +209,9 @@ static const char proto_lego[] PROGMEM = "LEGO";
 static const char proto_thomson[] PROGMEM = "THOMSON";
 static const char proto_bose[] PROGMEM = "BOSE";
 static const char proto_a1tvbox[] PROGMEM = "A1TVBOX";
+static const char proto_ortek[] PROGMEM = "ORTEK";
+static const char proto_telefunken[] PROGMEM = "TELEFUNKEN";
+static const char proto_roomba[] PROGMEM = "ROOMBA";
 
 
 const PGM_P const irmp_proto_names[] PROGMEM = {
@@ -245,6 +248,9 @@ const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_thomson,
   proto_bose,
   proto_a1tvbox,
+  proto_ortek,
+  proto_telefunken,
+  proto_roomba,
 };
 #endif
 

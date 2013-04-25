@@ -67,6 +67,9 @@ typedef enum
   IRMP_PROTO_THOMSON,           /* Thomson */
   IRMP_PROTO_BOSE,              /* Bose */
   IRMP_PROTO_A1TVBOX,           /* A1 TV-Box */
+  IRMP_PROTO_ORTEK,             /* ORTEK - Hama */
+  IRMP_PROTO_TELEFUNKEN,        /* Telefunken (1560) */
+  IRMP_PROTO_ROOMBA,            /* iRobot Roomba vacuum cleaner */
 } irmp_prot_e;
 
 typedef struct

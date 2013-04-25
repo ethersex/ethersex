@@ -13,7 +13,7 @@
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284, ATmega1284P
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
- * $Id: irsnd.c,v 1.68 2013/03/12 12:49:59 fm Exp $
+ * $Id: irsnd.c,v 1.69 2013/04/09 14:19:11 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -358,6 +358,14 @@
 #define A1TVBOX_BIT_PAUSE_LEN                   (uint8_t)(F_INTERRUPTS * A1TVBOX_BIT_PAUSE_TIME + 0.5)
 #define A1TVBOX_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * A1TVBOX_FRAME_REPEAT_PAUSE_TIME + 0.5)            // use uint16_t!
 #define A1TVBOX_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * A1TVBOX_FRAME_REPEAT_PAUSE_TIME + 0.5)            // use uint16_t!
+
+#define ROOMBA_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * ROOMBA_START_BIT_PULSE_TIME + 0.5)
+#define ROOMBA_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * ROOMBA_START_BIT_PAUSE_TIME + 0.5)
+#define ROOMBA_1_PULSE_LEN                      (uint8_t)(F_INTERRUPTS * ROOMBA_1_PULSE_TIME + 0.5)
+#define ROOMBA_0_PULSE_LEN                      (uint8_t)(F_INTERRUPTS * ROOMBA_0_PULSE_TIME + 0.5)
+#define ROOMBA_1_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * ROOMBA_1_PAUSE_TIME + 0.5)
+#define ROOMBA_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * ROOMBA_0_PAUSE_TIME + 0.5)
+#define ROOMBA_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * ROOMBA_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
 static volatile uint8_t                         irsnd_busy = 0;
 static volatile uint8_t                         irsnd_protocol = 0;
@@ -1116,6 +1124,15 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_ROOMBA_PROTOCOL == 1
+        case IRMP_ROOMBA_PROTOCOL:
+        {
+
+            irsnd_buffer[0] = (irmp_data_p->command & 0x7F) << 1;                                               // CCCCCCC.
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 	default:
 	{
 	    printf_P ("protocol %d not compiled in\n", irsnd_protocol);
@@ -1772,6 +1789,24 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_ROOMBA_PROTOCOL == 1
+                    case IRMP_ROOMBA_PROTOCOL:
+                    {
+                        startbit_pulse_len          = ROOMBA_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = ROOMBA_START_BIT_PAUSE_LEN;
+                        pulse_1_len                 = ROOMBA_1_PULSE_LEN;
+                        pause_1_len                 = ROOMBA_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = ROOMBA_0_PULSE_LEN;
+                        pause_0_len                 = ROOMBA_0_PAUSE_LEN - 1;
+                        has_stop_bit                = ROOMBA_STOP_BIT;
+                        complete_data_len           = ROOMBA_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = ROOMBA_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
                     default:
                     {
                         irsnd_busy = FALSE;
@@ -1841,6 +1876,9 @@ irsnd_ISR (void)
 #endif
 #if IRSND_SUPPORT_LEGO_PROTOCOL == 1
                 case IRMP_LEGO_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_ROOMBA_PROTOCOL == 1
+                case IRMP_ROOMBA_PROTOCOL:
 #endif
 
 #if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_NEC16_PROTOCOL == 1 || IRSND_SUPPORT_NEC42_PROTOCOL == 1 || \
