@@ -3126,3 +3126,15 @@ ONEWIRE_HOOK_SUPPORT
 
   Support for callback hooks. For details see hook.def in the top directory.
 
+MBR support
+MBR_SUPPORT
+
+  This writes a tiny master boot record into the internal EEPROM.
+  When booting, the bootloader will read the MBR from EEPROM and will continue
+  immediately to the main application if the previously flashed image reaches
+  the main loop.
+  It will however delay the application for CONF_BOOTLOAD_DELAY seconds if
+  the flashed image does not reach the main loop or if the user has invoked
+  'bootloader' via ECMD.
+  This gives the user some time to upload a new image via TFTP.
+
