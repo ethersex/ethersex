@@ -24,25 +24,23 @@
 #include "udp_states.h"
 uint8_t index;
 void udp_states_example_init(void){
-  DDRD=0xFF;
-  index=udp_states_register_state(1,0xe0,0,0,NULL);
+  DDRD=0xFF; //set port d to output
+  index=udp_states_register_state(1,0xe0,0,0,NULL); //register state to from node 1, type 0xE0 part 0 index 0, no Callback fcn
   debug_printf("UDP_STATES_EXAMPLE_Index %d", index);
 }
 
 void udp_states_sample(void)
 {
-		static int16_t i = 0;
-		int8_t data[3];
-		udp_states_value_t state;
-		state.expo=-10;
-		udp_states_make_float(data,i,0);
-		udp_states_send(0x2F,0,data,3);
+		static int16_t i = 0; //begin at 0
+		int8_t data[3]; //3 bytes for data
+		udp_states_make_float(data,i,0);//makes from the i and 0 exponent a float (eg 1 as binary 0b0100 0000 0000 0000 0000 1111) 
+		udp_states_send(0x2F,0,data,3);//send the data with type 0x2F, index 0, data with 3 bytes
 		i+=1;
 }
-
+//If something is recieved in the last ~4 minutes then put the first last signifacant byte to de PORT D
 void udp_states_example_recieve(void)
 {
-  if(udp_states_get_time(index)<10)
+  if(udp_states_get_time(index)<254) 
     PORTD=~((uint8_t)(udp_states_get_value(index)&0xFF)|0x01);
   else
     PORTD=~0;

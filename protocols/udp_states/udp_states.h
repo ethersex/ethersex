@@ -36,18 +36,18 @@
  * Type konstants one type for unit
  */
 //base units
-#define IO		0xE0 //IO-subtye goes from 0xE0 to 0xFF
+#define IO		0xE0	//IO-subtye goes from 0xE0 to 0xFF
 
-#define METER 		0x1
-#define KG		0x2
-#define SEC		0x3
-#define	AMP		0x4
-#define KELVIN		0x5
-#define MOL		0x6
-#define	CANDELA		0x7
+#define METER 			0x0	//States with Unit Meter
+#define KG			0x2	//States with Unit kilo gram
+#define SEC			0x4	//States with Unit second
+#define	AMP			0x6	//States with Unit ampere
+#define KELVIN			0x8	//States with Unit Kelvin
+#define MOL			0xA	//States with Unit mol
+#define	CANDELA			0xC	// States with Unit Candela
 //not baseunits
-#define	ONE_PER_ONE		0x10
-#define METER_PER_SECOND	0x11
+#define	ONE_PER_ONE		0xE	//States with 
+#define METER_PER_SECOND	0x10	//States with Unit m/s Speeds
 /*
  * function Prototypes
  */
@@ -63,10 +63,10 @@ void udp_states_make_float(int8_t *data,int16_t input_data,int8_t expo);
  #endif
 /*
  * to register a state to read from network, return a number to get the scaled Value
- * last_IP_byte: eg. 244 is the last_IP_byte from 192.168.0.244
+ * node: 	 from the sending node
  * type: 	 witch unit have the number
  * state_place: index of the Sensor/State in the Packet
- * scale:	value*2^(scale-64)
+ * scale:	value*2^(scale)
  * callback:	callback function like a interrupt
  */
  #ifdef UDP_STATES_RECIEVE
@@ -92,11 +92,11 @@ uint8_t udp_states_register_state(uint8_t node, uint8_t type,uint8_t state_place
 /*
  * internal functions
  */
-void _udp_states_init(void);
-void _udp_states_process(void);
-void _udp_states_timer(void);
-uint8_t _udp_states_register_callback(void (*callback)(void));
-int _udp_states_compare(const void *lp,const void *rp);
+void _udp_states_init(void); //initialise the udp_states machine
+void _udp_states_process(void); //function wich process the recieved packets
+void _udp_states_timer(void); 	//timer to make alter data
+uint8_t _udp_states_register_callback(void (*callback)(void)); //function to register the calback function
+int _udp_states_compare(const void *lp,const void *rp); //function to compare the states for b-search
 #endif
 /*
  * constants
@@ -109,10 +109,12 @@ int _udp_states_compare(const void *lp,const void *rp);
 /*
  * Typedefs
  */
+
+// tpye to descripe the packet 
  typedef struct {
-	 uint8_t node;
-	 uint8_t type;
-	 uint8_t part;
+	 uint8_t node; //transmitter
+	 uint8_t type;	//witch Unit from State
+	 uint8_t part;	//0-63 to have the capability to transmit more then 8 States
 	 union {
 		uint8_t prio_byte;
 		struct{
@@ -124,32 +126,33 @@ int _udp_states_compare(const void *lp,const void *rp);
 	 uint8_t *data;
  }udp_states_packet_t;
 #ifdef UDP_STATES_RECIEVE
+ //type manage states that to be recieve and processed
 typedef struct {
-  uint8_t node,type;
-  uint8_t part:5;
-  uint8_t index:3;
-  uint8_t callback:2;
-  uint8_t value_index:6;
+  uint8_t node,type; //transmitter and Type
+  uint8_t part:5;	//part 0 - 63
+  uint8_t index:3;	//index from the Sensor
+  uint8_t callback:2;	//index for the Callback function
+  uint8_t value_index:6;	//index for the memory for the value
 } udp_states_state_t;
 
-
+//type to store data from States eg. the Value, how old the exponent and the priority
 typedef struct {
-  uint8_t ttl;
-  int16_t value;
-  int8_t expo;
-  uint8_t prio;
+  uint8_t ttl; //time to live, but counts from 0 to 255, 0 means recieved at the moment and 255 more then 255 Seconds old.
+  int16_t value; //last recieved value
+  int8_t expo;//exponent to the value
+  uint8_t prio; //byte to store the recieved priority value
 }udp_states_value_t;
 //Functionen
-int16_t udp_states_make_IO_value_word(uint8_t highbyte,uint8_t lowbyte);
-int16_t udp_states_make_float_value(int8_t *data, udp_states_value_t *state);
-inline void udp_states_make_state(udp_states_state_t *found_state,udp_states_packet_t packet,uint8_t len);
+int16_t udp_states_make_IO_value_word(uint8_t highbyte,uint8_t lowbyte); //makes a word from 2 byte NOT TESTED YET
+int16_t udp_states_make_float_value(int8_t *data, udp_states_value_t *state); //store the recieved Value in the Memory
+inline void udp_states_make_state(udp_states_state_t *found_state,udp_states_packet_t packet,uint8_t len); //extract the data for the State
 /*
  * Glob_variabelen
  */
-uint8_t udp_states_n_registert_states;
-uint8_t udp_states_n_registert_callbacks;
-udp_states_state_t udp_states_states[UDP_STATES_MAX_READ_STATES];
-udp_states_value_t udp_states_values[UDP_STATES_MAX_READ_STATES];
-void (*udp_states_callbacks[3])(void);
+uint8_t udp_states_n_registert_states; //count the registert states;
+uint8_t udp_states_n_registert_callbacks; //count the registert callbacks
+udp_states_state_t udp_states_states[UDP_STATES_MAX_READ_STATES];s //memory for the states
+udp_states_value_t udp_states_values[UDP_STATES_MAX_READ_STATES]; //memory for the values from the states
+void (*udp_states_callbacks[3])(void); //memory for the callbacks
 #endif
 #endif

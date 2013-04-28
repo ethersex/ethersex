@@ -1,5 +1,11 @@
 UDP-STATES Header
-revision|node	|type	|part	|priority	|
-8	|8	|8	|8	|8		|
+node	|type	|part	|priority	|
+8	|8	|8	|8		|
 
+node: ID des nodes
+type: beschreibung des types (über physikalische einheit vll. noch mehr)
+part: um mehrere States als 8 (jetztige beschränkung im Code) zu übertragen
+priority: eigenschaft um über ein Computer daten zu überschreiben, um Functionalität zu testen
 ein State hat 24 Bit (3 Byte)
+1 bit Vorzeichen 15 Bit Zahl ohne Vorzeichen + 8 Bit Vorzeichen behaftet 2 Exponent
+Darstellung+-(2^15-1) *2^+-(2^7-1)
