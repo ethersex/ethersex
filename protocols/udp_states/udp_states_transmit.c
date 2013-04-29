@@ -22,7 +22,8 @@
 
 #include "udp_states_transmit.h"
 
-void udp_states_make_float(int8_t *data,int16_t input_data,int8_t expo)
+void 
+udp_states_make_float(int8_t *data,int16_t input_data,int8_t expo)
  {
    uint8_t i;
    int8_t s_expo=expo; //exponent from the input data
@@ -44,7 +45,8 @@ void udp_states_make_float(int8_t *data,int16_t input_data,int8_t expo)
    data[2]=(s_expo-i);
  }
  
- void udp_states_send(uint8_t type, uint8_t part, int8_t *data, uint8_t len)
+ void 
+ udp_states_send(uint8_t type, uint8_t part, int8_t *data, uint8_t len)
  {
 	 uip_ipaddr_t mip;
 	 set_UDP_STATES_MULTICAST_IP_ADDR(mip); //Multicast Address from the make menuconfig
