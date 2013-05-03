@@ -84,3 +84,14 @@ ifdef(`conf_HD44780', `
     pin(HD44780_D7, PA6)
 ')
 
+ifdef(`conf_ROTORHAMLIB', `
+  pin(ROTOR_CW, PC3, OUTPUT)
+  pin(ROTOR_CCW, PC4, OUTPUT)
+  pin(ROTOR_BREAK, PC5, OUTPUT)
+')
+
+ifdef(`conf_TOWERLILO', `
+  pin(TOWER_LIFT,  PC0, OUTPUT)
+  pin(TOWER_LOWER, PC1, OUTPUT)  
+  pin(TOWER_POWER, PC2, OUTPUT)
+')
