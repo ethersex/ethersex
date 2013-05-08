@@ -82,6 +82,7 @@ onewire_init(void)
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
   /* initialize sensor data */
   memset(ow_sensors, 0, OW_SENSORS_COUNT * sizeof(ow_sensor_t));
+  ow_periodic();
 #endif
 
 #ifdef ONEWIRE_NAMING_SUPPORT
