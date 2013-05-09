@@ -34,6 +34,9 @@ $(I2C_BMP085_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_bmp085_ecmd.c
 $(I2C_PCA9531_SUPPORT)_SRC += hardware/i2c/master/i2c_pca9531.c
 $(I2C_PCA9531_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_pca9531_ecmd.c
 
+$(I2C_PCA9632_SUPPORT)_SRC += hardware/i2c/master/i2c_pca9632.c
+$(I2C_PCA9531_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_pca9632_ecmd.c
+
 $(I2C_PCF8574X_SUPPORT)_SRC += hardware/i2c/master/i2c_pcf8574x.c
 $(I2C_PCF8574X_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_pcf8574x_ecmd.c
 
