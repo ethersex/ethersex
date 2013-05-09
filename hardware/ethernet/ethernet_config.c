@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include <avr/pgmspace.h>
+#include "network.h"
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 
@@ -86,11 +87,13 @@ network_config_load (void)
 #endif /* No autoconfiguration. */
 }
 
-/*
-  -- Ethersex META --
-  timer(1, `
+/** moved stray code from timer macro to function */
+void ethernet_config_periodic(void)
+{
+  static uint8_t counter = 0;
+
 #       if UIP_CONF_IPV6
-        if (counter == 5) {
+        if (counter == 0) {
             // Send a router solicitation every 10 seconds, as long
             // as we only got a link local address.  First time one
             // second after boot 
@@ -101,6 +104,15 @@ network_config_load (void)
             }
 #           endif
         }
-#       endif // UIP_CONF_IPV6 
-')
+#       endif // UIP_CONF_IPV6
+
+  counter++;
+  if (counter == 10)
+    counter = 0;
+}
+
+/*
+  -- Ethersex META --
+  header(hardware/ethernet/enc28j60.h)
+  ifdef(`conf_IPV6', `ifdef(`conf_IPV6_STATIC', `', `timer(50, `ethernet_config_periodic()')')')
 */
