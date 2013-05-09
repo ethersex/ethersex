@@ -51,16 +51,19 @@ sd_try_init (void)
   return 0;
 }
 
+/** moved stray code from timer macro to function */
+void sd_ping_read_periodic(void)
+{
+#  ifdef SD_PING_READ
+   if (vfs_sd_ping ()) {
+       SDDEBUG("sd_ping failed, eeek.  card removed?\n");
+       vfs_sd_umount ();
+   }
+#  endif
+}
+
 /*
   -- Ethersex META --
   header(hardware/storage/sd_reader/sd_raw.h)
-  header(core/debug.h)
-  timer(500, `
-#           ifdef SD_PING_READ
-	    if (vfs_sd_ping ()) {
-		debug_printf("sd_ping failed, eeek.  card removed?\n");
-		vfs_sd_umount ();
-	    }
-#	    endif
-  ')
+  ifdef(`conf_SD_PING_READ', `timer(500, `sd_ping_read_periodic()')')
 */
