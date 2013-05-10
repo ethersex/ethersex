@@ -1650,6 +1650,7 @@ extern volatile uint8_t _uip_buf_lock;
 #include "hardware/radio/rfm12/rfm12_net.h"
 #include "protocols/zbus/zbus.h"
 #include "protocols/usb/usb_net.h"
+#include "protocols/uip/uip_router.h"
 
 static inline uint8_t uip_buf_lock (void)
 {
@@ -1683,6 +1684,10 @@ static inline uint8_t uip_buf_lock (void)
     _uip_buf_lock = 0;				\
     rfm12_int_enable();				\
   } while(0)
+
+/* periodic timer */
+void uip_tcp_timer(void);
+void uip_udp_timer(void);
 
 #endif  /* UIP_SUPPORT */
 
