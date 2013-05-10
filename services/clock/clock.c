@@ -301,5 +301,5 @@ clock_get_uptime(void)
   header(services/clock/clock.h)
   init(clock_init)
   timer(1, clock_tick())
-  timer(50, clock_periodic())
+  ifdef(`conf_NTP', `timer(50, clock_periodic())')
 */
