@@ -87,7 +87,7 @@ network_config_load (void)
 #endif /* No autoconfiguration. */
 }
 
-#if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
+#if defined(IPV6_SUPPORT) && !defined(IPV6_STATIC_SUPPORT)
 void ethernet_config_periodic(void)
 {
   static uint8_t counter = 0;
