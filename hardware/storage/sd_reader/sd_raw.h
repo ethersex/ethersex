@@ -139,9 +139,6 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info);
 /* init.c */
 extern struct partition_struct *sd_active_partition;
 uint8_t sd_try_init (void);
-#ifdef SD_PING_READ
-void sd_ping_read_periodic(void);
-#endif
 
 /**
  * @}

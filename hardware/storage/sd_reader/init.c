@@ -24,7 +24,6 @@
 #include "hardware/storage/sd_reader/sd_raw.h"
 #include "hardware/storage/sd_reader/partition.h"
 #include "hardware/storage/sd_reader/fat.h"
-#include "hardware/storage/sd_reader/vfs_sd.h"
 
 #ifndef NULL
 #define NULL ((void *) 0)
@@ -51,19 +50,3 @@ sd_try_init (void)
 
   return 0;
 }
-
-#ifdef SD_PING_READ
-void sd_ping_read_periodic(void)
-{
-   if (vfs_sd_ping ()) {
-       SDDEBUG("sd_ping failed, eeek.  card removed?\n");
-       vfs_sd_umount ();
-   }
-}
-#endif
-
-/*
-  -- Ethersex META --
-  header(hardware/storage/sd_reader/sd_raw.h)
-  ifdef(`conf_SD_PING_READ', `timer(500, `sd_ping_read_periodic()')')
-*/
