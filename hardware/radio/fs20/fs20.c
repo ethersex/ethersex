@@ -708,17 +708,20 @@ void fs20_init(void)
 #endif
 }
 
-/** moved stray code from timer macro to function */
+#ifdef FS20_RECEIVE_WS300_SUPPORT
 void
 fs20_receive_ws300_timer(void)
 {
   fs20_global.ws300.last_update++;
 }
+#endif
 
 /**
- * moved stray code from timer macro to function
  * Debug only? FS20_RECV_PROFILE is defined nowhere?
+ * FIXME fs20_recv_profile_timer should depend on proper _SUPPORT value
+ * to enable profiling?!
  */
+#ifdef FS20_RECEIVE_SUPPORT
 void
 fs20_recv_profile_timer(void)
 {
@@ -731,6 +734,7 @@ fs20_recv_profile_timer(void)
             debug_printf("fs20 profile: %u %u\n", c1, c2);
 #           endif  // FS20_RECV_PROFILE
 }
+#endif
 
 /*
   -- Ethersex META --
