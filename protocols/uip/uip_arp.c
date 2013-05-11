@@ -488,5 +488,5 @@ uip_arp_lookup (uip_ipaddr_t ipaddr)
 /*
   -- Ethersex META --
   header(protocols/uip/uip_arp.h)
-  timer(500, uip_arp_timer())
+  ifdef(`conf_BOOTLOADER', `', `ifdef(`conf_TEENSY', `', `timer(500, `uip_arp_timer()')')')
 */

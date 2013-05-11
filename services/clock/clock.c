@@ -116,10 +116,10 @@ ISR(TIMER_8_AS_1_VECTOR_OVERFLOW)
 }
 #endif
 
+#ifdef NTP_SUPPORT
 void
 clock_periodic(void)
 {
-#ifdef NTP_SUPPORT
   if (ntp_timer)
     ntp_timer--;
   else
@@ -128,8 +128,8 @@ clock_periodic(void)
     ntp_timer = 10;
     ntp_send_packet();
   }
-#endif
 }
+#endif
 
 void
 clock_tick(void)
@@ -301,5 +301,5 @@ clock_get_uptime(void)
   header(services/clock/clock.h)
   init(clock_init)
   timer(1, clock_tick())
-  timer(50, clock_periodic())
+  ifdef(`conf_NTP', `timer(50, clock_periodic())')
 */

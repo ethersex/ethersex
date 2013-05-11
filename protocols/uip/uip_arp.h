@@ -116,8 +116,6 @@ uint8_t uip_arp_out(void);
    is responsible for flushing old entries in the ARP table. */
 #if !defined(BOOTLOADER_SUPPORT) && !defined(TEENSY_SUPPORT)
 void uip_arp_timer(void);
-#else
-#define uip_arp_timer() do {} while(0)
 #endif
 
 /** @} */
