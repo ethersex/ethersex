@@ -1686,8 +1686,12 @@ static inline uint8_t uip_buf_lock (void)
   } while(0)
 
 /* periodic timer */
+#if UIP_TCP == 1
 void uip_tcp_timer(void);
+#endif
+#if UIP_UDP == 1
 void uip_udp_timer(void);
+#endif
 
 #endif  /* UIP_SUPPORT */
 

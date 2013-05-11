@@ -1953,7 +1953,7 @@ uip_send(const void *data, int len)
   }
 }
 
-/** moved stray code from timer macro to function */
+#if UIP_TCP == 1
 void
 uip_tcp_timer(void)
 {
@@ -1963,7 +1963,6 @@ uip_tcp_timer(void)
   uint16_t i;
 #endif
 
-#if UIP_TCP == 1
   for (i = 0; i < UIP_CONNS; i++) {
     uip_stack_set_active(uip_conns[i].stack);
     uip_periodic(i);
@@ -1972,12 +1971,12 @@ uip_tcp_timer(void)
     if (uip_len > 0)
       router_output();
   }
-#endif // UIP_TCP == 1
 
   return;
 }
+#endif // UIP_TCP == 1
 
-/** moved stray code from timer macro to function */
+#if UIP_UDP == 1
 void
 uip_udp_timer(void)
 {
@@ -1986,7 +1985,7 @@ uip_udp_timer(void)
 #else
   uint16_t i;
 #endif
-#if UIP_UDP == 1
+
   // check udp connections every time
   for (i = 0; i < UIP_UDP_CONNS; i++) {
     uip_stack_set_active(uip_udp_conns[i].stack);
@@ -1996,9 +1995,10 @@ uip_udp_timer(void)
     if (uip_len > 0)
       router_output();
   }
-#endif
+
   return;
 }
+#endif
 
 /** @} */
 
