@@ -87,29 +87,26 @@ network_config_load (void)
 #endif /* No autoconfiguration. */
 }
 
-/** moved stray code from timer macro to function */
+#if UIP_CONF_IPV6 && !defined(IPV6_STATIC_SUPPORT)
 void ethernet_config_periodic(void)
 {
   static uint8_t counter = 0;
 
-#       if UIP_CONF_IPV6
-        if (counter == 0) {
-            // Send a router solicitation every 10 seconds, as long
-            // as we only got a link local address.  First time one
-            // second after boot 
-#           ifndef IPV6_STATIC_SUPPORT
-            if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
-                uip_router_send_solicitation();
-                transmit_packet();
-            }
-#           endif
-        }
-#       endif // UIP_CONF_IPV6
+  if (counter == 0) {
+    // Send a router solicitation every 10 seconds, as long
+    // as we only got a link local address.  First time one
+    // second after boot
+    if(((u16_t *)(uip_hostaddr))[0] == HTONS(0xFE80)) {
+      uip_router_send_solicitation();
+      transmit_packet();
+    }
+  }
 
   counter++;
   if (counter == 10)
     counter = 0;
 }
+#endif
 
 /*
   -- Ethersex META --
