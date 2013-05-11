@@ -116,10 +116,10 @@ ISR(TIMER_8_AS_1_VECTOR_OVERFLOW)
 }
 #endif
 
+#ifdef NTP_SUPPORT
 void
 clock_periodic(void)
 {
-#ifdef NTP_SUPPORT
   if (ntp_timer)
     ntp_timer--;
   else
@@ -128,8 +128,8 @@ clock_periodic(void)
     ntp_timer = 10;
     ntp_send_packet();
   }
-#endif
 }
+#endif
 
 void
 clock_tick(void)
