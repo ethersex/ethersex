@@ -333,6 +333,9 @@ void init_enc28j60(void);
 void enc28j60_periodic(void);
 void noinline switch_bank(uint8_t bank);
 void network_config_load(void);
+#if defined(IPV6_SUPPORT) && !defined(IPV6_STATIC_SUPPORT)
+void ethernet_config_periodic(void);
+#endif
 
 #ifdef DEBUG_ENC28J60
 void dump_debug_registers(void);

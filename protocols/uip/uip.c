@@ -1953,41 +1953,59 @@ uip_send(const void *data, int len)
   }
 }
 
+#if UIP_TCP == 1
+void
+uip_tcp_timer(void)
+{
+#if UIP_CONNS <= 255
+  uint8_t i;
+#else
+  uint16_t i;
+#endif
+
+  for (i = 0; i < UIP_CONNS; i++) {
+    uip_stack_set_active(uip_conns[i].stack);
+    uip_periodic(i);
+
+    // if this generated a packet, send it now
+    if (uip_len > 0)
+      router_output();
+  }
+
+  return;
+}
+#endif // UIP_TCP == 1
+
+#if UIP_UDP == 1
+void
+uip_udp_timer(void)
+{
+#if UIP_CONNS <= 255
+  uint8_t i;
+#else
+  uint16_t i;
+#endif
+
+  // check udp connections every time
+  for (i = 0; i < UIP_UDP_CONNS; i++) {
+    uip_stack_set_active(uip_udp_conns[i].stack);
+    uip_udp_periodic(i);
+
+    // if this generated a packet, send it now
+    if (uip_len > 0)
+      router_output();
+  }
+
+  return;
+}
+#endif
+
 /** @} */
 
 /*
   -- Ethersex META --
   header(protocols/uip/uip.h)
   header(protocols/uip/uip_router.h)
-  timer(10, ` 
-#       if UIP_CONNS <= 255
-            uint8_t i;
-#       else
-            uint16_t i;
-#endif
-
-#           if UIP_TCP == 1
-            for (i = 0; i < UIP_CONNS; i++) {
-		uip_stack_set_active(uip_conns[i].stack);
-                uip_periodic(i);
-
-                // if this generated a packet, send it now 
-                if (uip_len > 0)
-		    router_output();
-            }
-#           endif // UIP_TCP == 1
-
-#           if UIP_UDP == 1
-            // check udp connections every time 
-            for (i = 0; i < UIP_UDP_CONNS; i++) {
-		uip_stack_set_active(uip_udp_conns[i].stack);
-                uip_udp_periodic(i);
-
-                // if this generated a packet, send it now
-                if (uip_len > 0)
-		    router_output();
-            }
-#           endif
-  
-')
+  ifdef(`conf_TCP', `timer(10, `uip_tcp_timer()')')
+  ifdef(`conf_UDP', `timer(10, `uip_udp_timer()')')
 */

@@ -333,6 +333,14 @@ void fs20_process_timeout(void);
 #define fs20_process_timeout()
 #endif
 
+#ifdef FS20_RECEIVE_WS300_SUPPORT
+void fs20_receive_ws300_timer(void);
+#endif
+
+#ifdef FS20_RECEIVE_SUPPORT
+void fs20_recv_profile_timer(void);
+#endif
+
 #endif /* FS20_SUPPORT */
 
 #endif /* _FS20_H */

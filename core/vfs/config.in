@@ -50,6 +50,7 @@ fi
 		define_bool SD_READER_SUPPORT $VFS_SD_SUPPORT
 		bool "Use read-timeout" SD_READ_TIMEOUT
 		dep_bool "Ping-read SD card every 10s" SD_PING_READ $SD_READER_SUPPORT $SD_READ_TIMEOUT
+		define_bool SD_PING_READ_SUPPORT $SD_PING_READ
 	endmenu
 
 	dep_bool "EEPROM (24cxx) Filesystem" VFS_EEPROM_SUPPORT $VFS_SUPPORT $I2C_24CXX_SUPPORT $ARCH_AVR

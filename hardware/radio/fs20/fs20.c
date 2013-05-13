@@ -708,32 +708,42 @@ void fs20_init(void)
 #endif
 }
 
-/*
-  -- Ethersex META --
-  header(hardware/radio/fs20/fs20.h)
-  init(fs20_init)
-  mainloop(fs20_process)
-  timer(10, `
+#ifdef FS20_RECEIVE_WS300_SUPPORT
+void
+fs20_receive_ws300_timer(void)
+{
+  fs20_global.ws300.last_update++;
+}
+#endif
+
+/**
+ * Debug only? FS20_RECV_PROFILE is defined nowhere?
+ * FIXME fs20_recv_profile_timer should depend on proper _SUPPORT value
+ * to enable profiling?!
+ */
+#ifdef FS20_RECEIVE_SUPPORT
+void
+fs20_recv_profile_timer(void)
+{
 #           ifdef FS20_RECV_PROFILE
-	    // output fs20 profiling information
+            // output fs20 profiling information
             uint16_t c1 = fs20_global.int_counter;
             uint16_t c2 = fs20_global.ovf_counter;
             fs20_global.int_counter = 0;
             fs20_global.ovf_counter = 0;
             debug_printf("fs20 profile: %u %u\n", c1, c2);
 #           endif  // FS20_RECV_PROFILE
-')
+}
+#endif
 
-  timer(1, `
-#       ifdef FS20_RECEIVE_SUPPORT
-        fs20_process_timeout();
-#       endif
-')
-
-  timer(50, `
-#           ifdef FS20_RECEIVE_WS300_SUPPORT
-            fs20_global.ws300.last_update++;
-#           endif
-')
+/*
+  -- Ethersex META --
+  header(hardware/radio/fs20/fs20.h)
+  init(fs20_init)
+  ifdef(`conf_FS20_RECEIVE', `mainloop(fs20_process)')
+  dnl FIXME fs20_recv_profile_timer should depend on proper _SUPPORT value to enable profiling?!
+  ifdef(`conf_FS20_RECEIVE', `timer(10, `fs20_recv_profile_timer()')')
+  ifdef(`conf_FS20_RECEIVE', `timer(1, `fs20_process_timeout()')')
+  ifdef(`conf_FS20_RECEIVE_WS300', `timer(50, `fs20_receive_ws300_timer()')')
 
 */
