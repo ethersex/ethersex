@@ -35,6 +35,9 @@ FREQ=20000000
 # USBrfm12stick is not set
 HARDWARE=alpengluehn
 alpengluehn=y
+# antares_I is not set
+# antares_IO is not set
+# antares_O is not set
 # beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
@@ -74,7 +77,7 @@ EEPROM_PAGESIZE=0x0
 VERSION_STRING_CHOICE=USE_RELEASE_VERSION
 USE_RELEASE_VERSION=y
 # USE_BUILDDATE_VERSION is not set
-VERSION_GIT="72db952"
+VERSION_GIT="a881d02"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 DEBUG_BAUDRATE=115200
@@ -136,6 +139,7 @@ DEBUG_BAUDRATE=115200
 # PWM_SERVO_INLINE_SUPPORT is not set
 # CW_INLINE_SUPPORT is not set
 # DMX_STORAGE_INLINE_SUPPORT is not set
+# WOL_INLINE_SUPPORT is not set
 # VFS_INLINE_INLINESVG_SUPPORT is not set
 # VFS_INLINE_HTML5_RANGE_FF_SUPPORT is not set
 # VFS_INLINE_HTML_CLEAN_SUPPORT is not set
@@ -148,6 +152,7 @@ DEBUG_BAUDRATE=115200
 # SD_READER_SUPPORT is not set
 # SD_READ_TIMEOUT is not set
 # SD_PING_READ is not set
+# SD_PING_READ_SUPPORT is not set
 # VFS_EEPROM_SUPPORT is not set
 # VFS_EEPROM_RAW_SUPPORT is not set
 # VFS_DC3840_SUPPORT is not set
@@ -751,6 +756,9 @@ STARBURST_PCA9685_OFFSET=0
 # MOTORCURTAIN_PROGRESS_SUPPORT is not set
 # TFTP_SUPPORT is not set
 # TFTPOMATIC_SUPPORT is not set
+# TFTP_UPLOAD_SUPPORT is not set
+CONF_BOOTLOAD_DELAY=250
+# TFTP_CRC_SUPPORT is not set
 # UPNP_SUPPORT is not set
 CONF_UPNP_MULTICAST_IP="239.255.255.250"
 CONF_UPNP_SCHEME_FILENAME="/ih.xml"
