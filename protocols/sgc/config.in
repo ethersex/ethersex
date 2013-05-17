@@ -1,0 +1,14 @@
+usart_count_used
+if [ "$SGC_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "SGC Support" SGC_SUPPORT $ARCH_AVR
+		choice '    SGC usart select' "$(usart_choice SGC)"
+		usart_process_choice SGC
+		int    "SGC Baudrate" SGC_BAUDRATE 9600
+	dep_bool "Timeout Counter" SGC_TIMEOUT_COUNTER 
+	int    "Timeout (Min)" SGC_TIMEOUT 10
+	endmenu
+else
+	define_bool SGC_SUPPORT n
+	comment "SGC not available. No free usart. ($USARTS_USED/$USARTS)"
+fi
+
