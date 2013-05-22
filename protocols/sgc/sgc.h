@@ -23,29 +23,32 @@
 
 #ifndef _SGC_H
 #define _SGC_H
-#define SGC_BUFFER_LENGTH 17
+#define SGC_BUFFER_LENGTH 18
 
-struct sgc_buffer {
+struct sgc_buffer
+{
   uint8_t len;
   uint8_t pos;
   uint8_t busy;
   uint8_t rxenable;
-  uint8_t txdata[SGC_BUFFER_LENGTH];
-  uint8_t rxdata;
-  uint8_t ack;
-  uint8_t acktimer;
+  char txdata[SGC_BUFFER_LENGTH];
 };
 
-struct sgc_state {
- uint8_t ist;
- uint8_t contrast;
- uint8_t timer;
- uint8_t baudcounter;
- uint8_t from_reset;
-#ifdef SGC_TIMEOUT_COUNTER
- uint16_t mincount;
- uint8_t timeout;
-#endif /* SGC_TIMEOUT_COUNTER */
+struct sgc_state
+{
+  uint8_t ist;
+  uint8_t contrast;
+  uint8_t timer;
+  uint8_t ack;
+  uint8_t acktimer;
+  uint8_t ack_timeout;
+  uint8_t baudcounter;
+  uint8_t from_reset;
+#ifdef SGC_TIMEOUT_COUNTER_SUPPORT
+  uint16_t mincount;
+  uint8_t timeout;
+  uint8_t timer_max;
+#endif                          /* SGC_TIMEOUT_COUNTER_SUPPORT */
 };
 
 /* define some important states */
@@ -64,19 +67,28 @@ struct sgc_state {
 #define BUSY 5
 #define TIMEOUT 6
 
-void sgc_init (void);
-uint8_t sgc_setpowerstate (uint8_t soll);
-uint8_t sgc_getpowerstate (void);
-uint8_t sgc_sendcommand (uint8_t cmdlen, uint8_t *data, uint8_t from_sequence);
-uint8_t sgc_getcommandresult (void);
-uint8_t sgc_setcontrast (uint8_t contrast);
-uint8_t rgb2sgc (uint8_t red, uint8_t green, uint8_t blue, uint8_t *ret);
-#ifdef SGC_TIMEOUT_COUNTER
-void sgc_reset_timeout (void);
-#endif /* SGC_TIMEOUT_COUNTER */
-void sgc_pwr_periodic (void);
+/* define command options */
+#define OPT_NO_ACK 0
+#define OPT_LONG_ACK 1
+#define OPT_NORMAL 2
+#define OPT_INTERNAL 3
 
-extern struct sgc_buffer sgc_send;
-extern struct sgc_state sgc_power_state;
+void sgc_init(void);
+uint8_t sgc_setpowerstate(uint8_t soll);
+uint8_t sgc_getpowerstate(void);
+
+#ifdef SGC_ECMD_SEND_SUPPORT
+int8_t sgc_setip(char *data);
+#endif /* SGC_ECMD_SEND_SUPPORT */
+
+#ifdef SGC_TIMEOUT_COUNTER_SUPPORT
+void sgc_settimeout(uint8_t time);
+#endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
+
+uint8_t sgc_sendcommand(uint8_t cmdlen, char *data, uint8_t option);
+uint8_t sgc_getcommandresult(void);
+uint8_t sgc_setcontrast(uint8_t contrast);
+uint8_t rgb2sgc(char *col, int8_t stop);
+void sgc_pwr_periodic(void);
 
 #endif /* _SGC_H */

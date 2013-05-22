@@ -4,8 +4,10 @@ if [ "$SGC_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		choice '    SGC usart select' "$(usart_choice SGC)"
 		usart_process_choice SGC
 		int    "SGC Baudrate" SGC_BAUDRATE 9600
-	dep_bool "Timeout Counter" SGC_TIMEOUT_COUNTER 
+	dep_bool "Timeout Counter" SGC_TIMEOUT_COUNTER_SUPPORT
 	int    "Timeout (Min)" SGC_TIMEOUT 10
+        dep_bool "Send result via ECMD" SGC_ECMD_SEND_SUPPORT $ECMD_SENDER_SUPPORT
+        ipv4 "IP address" SGC_ECMD_IP "192.168.1.1"
 	endmenu
 else
 	define_bool SGC_SUPPORT n
