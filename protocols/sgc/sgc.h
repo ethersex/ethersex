@@ -10,7 +10,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -23,7 +23,10 @@
 
 #ifndef _SGC_H
 #define _SGC_H
-#define SGC_BUFFER_LENGTH 18
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
+#define SGC_BUFFER_LENGTH ECMD_INPUTBUF_LENGTH - 12 + 6
+/* min string ECMD length: 12 (sgc_stt) */
+/* SGC command length is 6 */
 
 struct sgc_buffer
 {
@@ -37,7 +40,9 @@ struct sgc_buffer
 struct sgc_state
 {
   uint8_t ist;
-  uint8_t contrast;
+  char contrast;
+  char pensize;
+  char font[3];
   uint8_t timer;
   uint8_t ack;
   uint8_t acktimer;
@@ -54,7 +59,7 @@ struct sgc_state
 /* define some important states */
 #define DISP_RESET 0
 #define SHUTDOWN 9
-#define POWERUP 14
+#define POWERUP 16
 #define BEGIN_SHUTDOWN 5
 #define BEGIN_POWERUP 10
 
@@ -70,8 +75,9 @@ struct sgc_state
 /* define command options */
 #define OPT_NO_ACK 0
 #define OPT_LONG_ACK 1
-#define OPT_NORMAL 2
-#define OPT_INTERNAL 3
+#define OPT_STRING 2
+#define OPT_NORMAL 3
+#define OPT_INTERNAL 4
 
 void sgc_init(void);
 uint8_t sgc_setpowerstate(uint8_t soll);
@@ -85,9 +91,12 @@ int8_t sgc_setip(char *data);
 void sgc_settimeout(uint8_t time);
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
 
-uint8_t sgc_sendcommand(uint8_t cmdlen, char *data, uint8_t option);
+uint8_t sgc_sendcommand(uint8_t cmdlen, char *data, char *option);
 uint8_t sgc_getcommandresult(void);
-uint8_t sgc_setcontrast(uint8_t contrast);
+uint8_t sgc_setcontrast(char contrast);
+uint8_t sgc_setpensize(char pensize);
+uint8_t sgc_setfont(char *font);
+void sgc_getfont(char *font);
 uint8_t rgb2sgc(char *col, int8_t stop);
 void sgc_pwr_periodic(void);
 

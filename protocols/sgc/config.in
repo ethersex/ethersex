@@ -1,16 +1,28 @@
 usart_count_used
 if [ "$SGC_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 	dep_bool_menu "SGC Support" SGC_SUPPORT $ARCH_AVR
-		choice '    SGC usart select' "$(usart_choice SGC)"
+		choice 'SGC usart select' "$(usart_choice SGC)"
 		usart_process_choice SGC
 		int    "SGC Baudrate" SGC_BAUDRATE 9600
 	dep_bool "Timeout Counter" SGC_TIMEOUT_COUNTER_SUPPORT
-	int    "Timeout (Min)" SGC_TIMEOUT 10
+			if [ "$SGC_TIMEOUT_COUNTER_SUPPORT" = "y" ] ; then
+		    if [ "$SGC_TIMEOUT" = "" ] ; then
+			    SGC_TIMEOUT=1
+		    fi
+		    if [ 1 -gt "$SGC_TIMEOUT" ] ; then
+			    SGC_TIMEOUT=1
+		    fi
+		    if [ "$SGC_TIMEOUT" -gt 255 ] ; then
+			    SGC_TIMEOUT=255
+		    fi
+		    int    "    Timeout (Min)" SGC_TIMEOUT 1
+		  fi
         dep_bool "Send result via ECMD" SGC_ECMD_SEND_SUPPORT $ECMD_SENDER_SUPPORT
-        ipv4 "IP address" SGC_ECMD_IP "192.168.1.1"
+        if [ "$SGC_ECMD_SEND_SUPPORT" = "y" ] ; then
+          ip "IP address" SGC_ECMD_IP "192.168.1.1" "2001:6f8:1209:f0:0:0:0:1"
+        fi
 	endmenu
 else
 	define_bool SGC_SUPPORT n
 	comment "SGC not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
-
