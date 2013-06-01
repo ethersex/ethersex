@@ -39,6 +39,7 @@
 generate_usart_init()
      struct sgc_buffer sgc_uart_buffer;
      struct sgc_state sgc_power_state;
+     struct sgc_vars sgc_disp_vars;
 
 #ifdef SGC_ECMD_SEND_SUPPORT
      uip_ipaddr_t ip;
@@ -48,7 +49,6 @@ generate_usart_init()
 {
   PIN_SET(SGC_RESET);           /* hold display in reset */
   usart_init();                 /* Initialize the usart module */
-  sgc_uart_buffer.rxenable = 0; /* ignore anything on the RX line */
 
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   sgc_power_state.mincount = 0; /* any command resets the counter */
@@ -61,6 +61,8 @@ generate_usart_init()
 #endif /* SGC_ECMD_SEND_SUPPORT */
 }
 
+uint8_t bitstates;
+
 uint8_t
 sgc_setpowerstate(uint8_t soll)
 {
@@ -71,13 +73,15 @@ sgc_setpowerstate(uint8_t soll)
 
   if ((sgc_power_state.ist != SHUTDOWN) && (sgc_power_state.ist != POWERUP))
     return 1;                   /* state machine busy */
-  sgc_power_state.bitstates &= ~F_RESET;
+  bitstates &= ~F_RESET;
+
   if (soll == 0)
   {
     if (sgc_power_state.ist != SHUTDOWN)        /* already in desired state? */
       sgc_power_state.ist = BEGIN_SHUTDOWN;
     return 0;
   }
+
   if (sgc_power_state.ist != POWERUP)   /* already in desired state? */
     sgc_power_state.ist = BEGIN_POWERUP;
   return 0;
@@ -102,6 +106,7 @@ sgc_setip(char *data)
   sgc_power_state.mincount = 0; /* any command resets the counter */
   sgc_power_state.timeout = 0;
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
+
   return parse_ip(data, &ip);
 }
 #endif /* SGC_ECMD_SEND_SUPPORT */
@@ -117,6 +122,27 @@ sgc_settimeout(uint8_t time)
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
 
 uint8_t
+sgc_sleep(char mode)
+{
+  char command[3];
+
+#ifdef SGC_TIMEOUT_COUNTER_SUPPORT
+  sgc_power_state.mincount = 0; /* any command resets the counter */
+  sgc_power_state.timeout = 0;
+#endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
+
+  command[0] = 0x5A;            /* "Sleep" Command */
+  command[1] = mode + 1;        /* set sleep mode (1 Ser. 2 Joyst.) */
+  command[2] = 0x00;            /* unused delay */
+
+  if (sgc_sendcommand(3, INFINITE, OPT_NORMAL, command, command) != 0)  /* busy with other command */
+    return 1;
+
+  bitstates |= SLEEP;           /* save status */
+  return 0;                     /* success */
+}
+
+uint8_t
 sgc_sendcommand(uint8_t cmdlen, uint16_t timeout, uint8_t option, char *data,
                 char *cmdline)
 {
@@ -128,7 +154,7 @@ sgc_sendcommand(uint8_t cmdlen, uint16_t timeout, uint8_t option, char *data,
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
 
   if ((sgc_uart_buffer.pos != 0) || (((sgc_power_state.ist <= SHUTDOWN) ||
-                                      (sgc_uart_buffer.busy == 1) ||
+                                      (bitstates & TXBUSY) ||
                                       (sgc_power_state.ack > NACK)) &&
                                      (~option & OPT_INTERNAL)))
     return 1;                   /* Waiting, TX busy, Shutdown, not yet init, reserved */
@@ -140,25 +166,34 @@ sgc_sendcommand(uint8_t cmdlen, uint16_t timeout, uint8_t option, char *data,
     while ((cmdline[stringlen - 1 - cmdlen] >= 0x20) &&
            (stringlen < SGC_BUFFER_LENGTH) &&
            ((stringlen - cmdlen + data[cmdlen] + 7) < ECMD_INPUTBUF_LENGTH));
+
     cmdline[stringlen - 1 - cmdlen] = 0x00;     /* add terminator character */
     memcpy(&sgc_uart_buffer.txdata[cmdlen], &cmdline[0], stringlen - cmdlen);
   }
-  sgc_power_state.bitstates &= (~F_RESET | (((option & OPT_INTERNAL) >> SH_INTERNAL) << SH_F_RESET));   /* from_reset */
+  bitstates &= (~F_RESET | (((option & OPT_INTERNAL) >> SH_INTERNAL) << SH_F_RESET));   /* from_reset */
   memcpy(sgc_uart_buffer.txdata, data, cmdlen); /* copy send buffer */
   sgc_uart_buffer.len = stringlen;      /* copy command length */
   sgc_power_state.acktimer = 0; /* reset ACK timeout */
   sgc_power_state.ack = SENDING;
   usart(UCSR, B) |= _BV(usart(TXCIE));  /* activate TX interrupt */
-  if (sgc_power_state.bitstates & SLEEPING)     /* first: wake up processor */
+
+  if (bitstates & SLEEPING)     /* first: wake up processor */
   {
     sgc_uart_buffer.pos = 0;    /* set TX buffer pointer */
-    sgc_power_state.ack_timeout = 250;  /* wakeup timeout 5sec */
+    sgc_power_state.ack_timeout = FIVE_SEC;     /* wakeup timeout 5sec */
     usart(UDR) = 0x55;          /* harmless message for wakeup (Autobaud) */
   }
   else
   {
     sgc_uart_buffer.pos = 1;    /* set TX buffer pointer */
-    sgc_power_state.ack_timeout = timeout;      /* set timeout (20ms steps) */
+
+    if (timeout == INFINITE)
+    {
+      bitstates |= ACK_INF;
+      sgc_power_state.ack_timeout = INF_TIMER;
+    }
+    else
+      sgc_power_state.ack_timeout = timeout;    /* set timeout (20ms steps) */
     usart(UDR) = sgc_uart_buffer.txdata[0];     /* transmit first byte */
   }
   return 0;                     /* success */
@@ -172,9 +207,10 @@ sgc_getcommandresult(void)
   sgc_power_state.timeout = 0;
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
 
-  if ((sgc_uart_buffer.busy == 1) || (sgc_power_state.ack > NONE))
+  if ((bitstates & TXBUSY) || (sgc_power_state.ack > NONE))
     return BUSY;                /* not valid while in a command sequence or timeout */
-  if (sgc_power_state.bitstates & F_RESET)
+
+  if (bitstates & F_RESET)
     return FROM_RESET;
   return sgc_power_state.ack;   /* send last result */
 }
@@ -183,23 +219,28 @@ uint8_t
 sgc_setcontrast(char contrast)
 {
   char command[3];
+
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   sgc_power_state.mincount = 0; /* any command resets the counter */
   sgc_power_state.timeout = 0;
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
+
   if (sgc_power_state.ist == POWERUP)
   {
     command[0] = 0x59;          /* "Control" Command */
     command[1] = 0x02;          /* "Contrast" Command */
     command[2] = contrast;      /* Value */
-    if (sgc_sendcommand(3, 25, OPT_NORMAL, command, command) != 0)      /* busy with other command */
+
+    if (sgc_sendcommand(3, HALF_SEC, OPT_NORMAL, command, command) != 0)        /* busy with other command */
       return 1;
   }
+
 #ifdef SGC_ECMD_SEND_SUPPORT
   else
     ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
-  sgc_power_state.contrast = contrast;  /* save contrast for next powerup */
+
+  sgc_disp_vars.contrast = contrast;    /* save contrast for next powerup */
   return 0;                     /* success */
 }
 
@@ -207,78 +248,123 @@ uint8_t
 sgc_setpensize(char pensize)
 {
   char command[2];
+
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   sgc_power_state.mincount = 0; /* any command resets the counter */
   sgc_power_state.timeout = 0;
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
+
   if (sgc_power_state.ist == POWERUP)
   {
     command[0] = 0x70;          /* "Pensize" Command */
     command[1] = pensize;       /* Value */
-    if (sgc_sendcommand(2, 25, OPT_NORMAL, command, command) != 0)      /* busy with other command */
+
+    if (sgc_sendcommand(2, HALF_SEC, OPT_NORMAL, command, command) != 0)        /* busy with other command */
       return 1;
   }
+
 #ifdef SGC_ECMD_SEND_SUPPORT
   else
     ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
-  sgc_power_state.pensize = pensize;    /* save pensize for next powerup */
+
+  sgc_disp_vars.pensize = pensize;      /* save pensize for next powerup */
   return 0;                     /* success */
 }
 
 uint8_t
-sgc_setfont(char *font)
+sgc_setfont(char font)
 {
   char command[2];
+
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   sgc_power_state.mincount = 0; /* any command resets the counter */
   sgc_power_state.timeout = 0;
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
-  if ((sgc_power_state.ist == POWERUP) &&
-      (font[0] != sgc_power_state.font[0]))
+
+  if ((sgc_power_state.ist == POWERUP) && (font != sgc_disp_vars.font))
   {
     command[0] = 0x46;          /* "Set Font" Command */
-    command[1] = font[0] & 0x0F;        /* standard without proportional setting */
-    if (sgc_sendcommand(2, 25, OPT_NORMAL, command, command) != 0)      /* busy with other command */
+    command[1] = font & 0x0F;   /* standard without proportional setting */
+
+    if (sgc_sendcommand(2, HALF_SEC, OPT_NORMAL, command, command) != 0)        /* busy with other command */
       return 1;
   }
+
 #ifdef SGC_ECMD_SEND_SUPPORT
   else
     ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
-  memcpy(sgc_power_state.font, font, 3);        /* save font setting */
+
+  sgc_disp_vars.font = font;    /* save font setting */
   return 0;                     /* success */
 }
 
-uint8_t
-sgc_sleep(char mode)
+char
+sgc_getfont(void)               /* internal command - no timeout counter reset! */
 {
-  char command[3];
+  return sgc_disp_vars.font;
+}
+
+void
+sgc_setcolour(char *colour)
+{
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   sgc_power_state.mincount = 0; /* any command resets the counter */
   sgc_power_state.timeout = 0;
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
-  command[0] = 0x5A;            /* "Sleep" Command */
-  command[1] = mode + 1;        /* set sleep mode (1 Ser. 2 Joyst.) */
-  command[2] = 0x00;            /* unused delay */
-  if (sgc_sendcommand(3, 0, OPT_NORMAL, command, command) != 0) /* busy with other command */
-    return 1;
-  sgc_power_state.bitstates |= SLEEP;   /* save status */
+
+#ifdef SGC_ECMD_SEND_SUPPORT
+  ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+#endif /* SGC_ECMD_SEND_SUPPORT */
+
+  sgc_disp_vars.colour[0] = colour[0];  /* save colour setting */
+  sgc_disp_vars.colour[1] = colour[1];  /* save colour setting */
+}
+
+uint8_t
+sgc_setopacity(char opacity)
+{
+  char command[2];
+
+#ifdef SGC_TIMEOUT_COUNTER_SUPPORT
+  sgc_power_state.mincount = 0; /* any command resets the counter */
+  sgc_power_state.timeout = 0;
+#endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
+
+  if (sgc_power_state.ist == POWERUP)
+  {
+    command[0] = 0x4F;          /* "Opacity" Command */
+    command[1] = opacity;       /* Value */
+
+    if (sgc_sendcommand(2, HALF_SEC, OPT_NORMAL, command, command) != 0)        /* busy with other command */
+      return 1;
+  }
+
+#ifdef SGC_ECMD_SEND_SUPPORT
+  else
+    ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+#endif /* SGC_ECMD_SEND_SUPPORT */
+
+  sgc_disp_vars.opacity = opacity;      /* save pensize for next powerup */
   return 0;                     /* success */
 }
 
 void
-sgc_getfont(char *font)         /* internal command - no timeout counter reset! */
+sgc_getcolour(char *colour)
 {
-  memcpy(font, sgc_power_state.font, 3);
+  colour[0] = sgc_disp_vars.colour[0];  /* copy colour setting */
+  colour[1] = sgc_disp_vars.colour[1];  /* copy colour setting */
 }
 
 uint8_t
 rgb2sgc(char *col, int8_t stop) /* 0: red; 1:green; 2:blue */
 {
   uint8_t green6;
+
   if ((col[0] > 0x1F) || (col[1] > 0x1F) || (col[2] > 0x1F))
     return 1;                   /* out of range error or no conversion necessary */
+
   if (stop == 0)
   {
     green6 = (((col[1] & 0x1F) << 1) | (col[1] & 0x01));        /* 5bit to 6bit RGB */
@@ -292,24 +378,40 @@ void
 sgc_pwr_periodic(void)          /* runs with 20ms */
 {
   char pcmd[3];
-  if ((sgc_power_state.ack == NONE) || (sgc_power_state.ack == WAKEUP))
-    sgc_power_state.acktimer++; /* ACK Timer */
-  if (sgc_power_state.acktimer > sgc_power_state.ack_timeout)
-  {
-    sgc_power_state.acktimer = 0;
-    sgc_uart_buffer.rxenable = 0;       /* disable reception */
-    if (sgc_power_state.ack == WAKEUP)
-      sgc_power_state.ist = DISP_RESET;
-    else
-      sgc_power_state.ack = TIMEOUT;
-  }
 
+  if ((sgc_power_state.ack == NONE) || (sgc_power_state.ack == WAKEUP))
+  {
+    sgc_power_state.acktimer++; /* ACK Timer */
+    if (sgc_power_state.acktimer > sgc_power_state.ack_timeout)
+    {
+      if (bitstates & ACK_INF)
+      {
+        sgc_power_state.ack = ACK;      /* if nominally no ack expected */
+        bitstates &= ~ACK_INF;
+
+#ifdef SGC_ECMD_SEND_SUPPORT
+        ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+#endif /* SGC_ECMD_SEND_SUPPORT */
+      }
+      else
+      {
+        sgc_power_state.acktimer = 0;
+        bitstates &= ~RXENABLE; /* disable reception */
+
+        if (sgc_power_state.ack == WAKEUP)
+          sgc_power_state.ist = DISP_RESET;
+        else
+          sgc_power_state.ack = TIMEOUT;
+      }
+    }
+  }
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   if (sgc_power_state.ist == POWERUP)
   {
     if (++sgc_power_state.mincount == 3000)     /* 1 minute */
     {
       sgc_power_state.mincount = 0;
+
       if (++sgc_power_state.timeout >= sgc_power_state.timer_max)
         sgc_power_state.ist = BEGIN_SHUTDOWN;   /* shutdown if timed out */
     }
@@ -319,25 +421,21 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
   switch (sgc_power_state.ist)
   {
     case DISP_RESET:           /* STATE 0: Begin Reset Sequence */
-      sgc_uart_buffer.busy = 1; /* block UART for command sequence */
-      sgc_uart_buffer.rxenable = 0;     /* ignore anything on the RX line */
       if (sgc_uart_buffer.pos != 0)     /* let UART finish if necessary */
         break;                  /* attention, this is combined with TX pointer settings with sleep mode */
       PIN_SET(SGC_RESET);       /* put display in reset */
       sgc_power_state.baudcounter = 0;  /* reset autobaud command counter */
       sgc_power_state.ack = ACK;        /* for the first time to enable sending */
-      sgc_power_state.contrast = 0x0F;  /* default value */
-      sgc_power_state.pensize = 0x00;   /* default value */
-      sgc_power_state.font[0] = 0x00;   /* font default value */
-      sgc_power_state.font[1] = 0xFF;   /* col0 default value */
-      sgc_power_state.font[2] = 0xFF;   /* col1 default value */
       sgc_power_state.timer = 0;        /* start reset timer */
       sgc_power_state.ist = 1;  /* proceed to next state */
-      sgc_power_state.bitstates &= ~(SLEEP | SLEEPING);
-      sgc_power_state.bitstates |= F_RESET;
-#ifdef SGC_ECMD_SEND_SUPPORT
-      ecmd_sender_send_command(&ip, PSTR("RESET\n"), NULL);
-#endif /* SGC_ECMD_SEND_SUPPORT */
+      sgc_disp_vars.contrast = 0x0F;    /* default value */
+      sgc_disp_vars.pensize = 0x00;     /* default value */
+      sgc_disp_vars.font = 0x00;        /* font default value */
+      sgc_disp_vars.opacity = 0x00;
+      sgc_disp_vars.colour[0] = 0xFF;   /* col0 default value */
+      sgc_disp_vars.colour[1] = 0xFF;   /* col1 default value */
+      bitstates &= ~(SLEEP | SLEEPING | RXENABLE | ACK_INF);    /* not sleeping and ignore RX line, ACK normal */
+      bitstates |= (F_RESET | TXBUSY);  /* Rrom Reset and block UART for sequence */
       break;
 
     case 1:                    /* STATE 1: Wait for Reset to time out */
@@ -353,17 +451,15 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
     case 2:                    /* STATE 2: Wait for boot-up to time out */
       sgc_power_state.timer++;  /* periodically count timer up */
       if (sgc_power_state.timer == 100) /* 2sec for display bootup */
-      {
         sgc_power_state.ist = 3;        /* proceed to next state */
-      }
       break;
 
     case 3:                    /* STATE 3: Auto-baud display */
       if (sgc_power_state.baudcounter < 10)     /* try autobauding 10 times */
       {
         pcmd[0] = 0x55;         /* put autobaud command into sending queue */
-        sgc_uart_buffer.rxenable = 1;   /* enable the RX line */
-        if (sgc_sendcommand(1, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        bitstates |= RXENABLE;  /* enable the RX line */
+        if (sgc_sendcommand(1, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 4;      /* if send command successful, proceed */
           break;
@@ -390,7 +486,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       break;                    /* if NACK or any unexpected response, restart reset sequence */
 
     case BEGIN_SHUTDOWN:       /* STATE 5: Start shutdown sequence */
-      sgc_uart_buffer.busy = 1; /* block UART for command sequence */
+      bitstates |= TXBUSY;      /* block UART for command sequence */
       if ((sgc_power_state.ack >= SENDING) && (sgc_power_state.ack <= NONE))
         break;                  /* wait for last command to finish if necessary */
       if (sgc_power_state.ack <= NACK)
@@ -398,7 +494,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
         pcmd[0] = 0x59;         /* "Control" Command */
         pcmd[1] = 0x01;         /* "Display OnOff" Command */
         pcmd[2] = 0x00;         /* "Off" Command */
-        if (sgc_sendcommand(3, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        if (sgc_sendcommand(3, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 6;
           break;                /* if send command successful, proceed to next state */
@@ -413,7 +509,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
       {
         pcmd[0] = 0x45;         /* "Clear Screen" Command */
-        if (sgc_sendcommand(1, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        if (sgc_sendcommand(1, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 7;
           break;                /* if send command successful, proceed to next state */
@@ -430,7 +526,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
         pcmd[0] = 0x59;         /* "Control" Command */
         pcmd[1] = 0x02;         /* "Contrast" Command */
         pcmd[2] = 0x00;         /* "Zero" value */
-        if (sgc_sendcommand(3, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        if (sgc_sendcommand(3, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 8;
           break;                /* if send command successful, proceed to next state */
@@ -447,7 +543,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
         pcmd[0] = 0x59;         /* "Control" Command */
         pcmd[1] = 0x03;         /* "Display OnOff" Command */
         pcmd[2] = 0x00;         /* "Shutdown" Command */
-        if (sgc_sendcommand(3, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        if (sgc_sendcommand(3, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 9;
           break;                /* if send command successful, proceed to next state */
@@ -462,15 +558,17 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
       {
         sgc_power_state.ist = SHUTDOWN;
-        sgc_uart_buffer.busy = 0;       /* release UART */
+        bitstates &= ~TXBUSY;   /* release UART */
+
 #ifdef SGC_ECMD_SEND_SUPPORT
-        if (sgc_power_state.bitstates & F_RESET)
+        if (bitstates & F_RESET)
         {
           ecmd_sender_send_command(&ip, PSTR("RESET\n"), NULL);
           break;
         }
         ecmd_sender_send_command(&ip, PSTR("SHUTDOWN\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
+
         break;
       }
       sgc_power_state.ist = DISP_RESET;
@@ -482,7 +580,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       break;
 
     case BEGIN_POWERUP:        /* STATE 11: Start power-up sequence */
-      sgc_uart_buffer.busy = 1; /* block UART for command sequence */
+      bitstates |= TXBUSY;      /* block UART for command sequence */
       if ((sgc_power_state.ack >= SENDING) && (sgc_power_state.ack <= NONE))
         break;                  /* wait for UART to finish sending if necessary */
       if (sgc_power_state.ack <= NACK)
@@ -490,7 +588,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
         pcmd[0] = 0x59;         /* "Control" Command */
         pcmd[1] = 0x03;         /* "Display OnOff" Command */
         pcmd[2] = 0x01;         /* "Power Up" Command */
-        if (sgc_sendcommand(3, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        if (sgc_sendcommand(3, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 12;     /* if send command successful, proceed */
           break;
@@ -506,8 +604,8 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       {
         pcmd[0] = 0x59;         /* "Control" Command */
         pcmd[1] = 0x02;         /* "Contrast" Command */
-        pcmd[2] = sgc_power_state.contrast;     /* Restore Contrast */
-        if (sgc_sendcommand(3, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        pcmd[2] = sgc_disp_vars.contrast;       /* Restore Contrast */
+        if (sgc_sendcommand(3, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 13;
           break;                /* if send command successful, proceed to next state */
@@ -522,8 +620,8 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
       {
         pcmd[0] = 0x46;         /* "Set Font" Command */
-        pcmd[1] = sgc_power_state.font[0] & 0x0F;       /* standard without proportional setting */
-        if (sgc_sendcommand(2, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        pcmd[1] = sgc_disp_vars.font & 0x0F;    /* standard without proportional setting */
+        if (sgc_sendcommand(2, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 14;
           break;                /* if send command successful, proceed to next state */
@@ -532,14 +630,14 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       sgc_power_state.ist = DISP_RESET;
       break;                    /* if NACK, unexpected result or timeout --> reset */
 
-    case 14:                   /* STATE 14: Restore Pensize setting */
+    case 14:                   /* STATE 14: Restore Opacity setting */
       if ((sgc_power_state.ack >= SENDING) && (sgc_power_state.ack <= NONE))
         break;                  /* no answer yet received, wait */
       if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
       {
-        pcmd[0] = 0x70;         /* "Pensize" Command */
-        pcmd[1] = sgc_power_state.pensize;      /* standard without proportional setting */
-        if (sgc_sendcommand(2, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        pcmd[0] = 0x4F;         /* "Opacity" Command */
+        pcmd[1] = sgc_disp_vars.opacity;        /* value */
+        if (sgc_sendcommand(2, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 15;
           break;                /* if send command successful, proceed to next state */
@@ -548,15 +646,14 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       sgc_power_state.ist = DISP_RESET;
       break;                    /* if NACK, unexpected result or timeout --> reset */
 
-    case 15:                   /* STATE 12: Turn display on */
+    case 15:                   /* STATE 14: Restore Pensize setting */
       if ((sgc_power_state.ack >= SENDING) && (sgc_power_state.ack <= NONE))
         break;                  /* no answer yet received, wait */
       if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
       {
-        pcmd[0] = 0x59;         /* "Control" Command */
-        pcmd[1] = 0x01;         /* "Display OnOff" Command */
-        pcmd[2] = 0x01;         /* "On" Command */
-        if (sgc_sendcommand(3, 25, OPT_INTERNAL, pcmd, pcmd) == 0)      /* busy with other command */
+        pcmd[0] = 0x70;         /* "Pensize" Command */
+        pcmd[1] = sgc_disp_vars.pensize;        /* standard without proportional setting */
+        if (sgc_sendcommand(2, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
         {
           sgc_power_state.ist = 16;
           break;                /* if send command successful, proceed to next state */
@@ -565,16 +662,35 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
       sgc_power_state.ist = DISP_RESET;
       break;                    /* if NACK, unexpected result or timeout --> reset */
 
-    case 16:                   /* STATE 15: wait for last ACK */
+    case 16:                   /* STATE 12: Turn display on */
+      if ((sgc_power_state.ack >= SENDING) && (sgc_power_state.ack <= NONE))
+        break;                  /* no answer yet received, wait */
+      if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
+      {
+        pcmd[0] = 0x59;         /* "Control" Command */
+        pcmd[1] = 0x01;         /* "Display OnOff" Command */
+        pcmd[2] = 0x01;         /* "On" Command */
+        if (sgc_sendcommand(3, HALF_SEC, OPT_INTERNAL, pcmd, pcmd) == 0)        /* busy with other command */
+        {
+          sgc_power_state.ist = 17;
+          break;                /* if send command successful, proceed to next state */
+        }
+      }
+      sgc_power_state.ist = DISP_RESET;
+      break;                    /* if NACK, unexpected result or timeout --> reset */
+
+    case 17:                   /* STATE 15: wait for last ACK */
       if ((sgc_power_state.ack >= SENDING) && (sgc_power_state.ack <= NONE))
         break;                  /* no answer yet received, wait */
       if (sgc_power_state.ack == ACK)   /* continue only if ACK was received */
       {
         sgc_power_state.ist = POWERUP;
-        sgc_uart_buffer.busy = 0;       /* release UART */
+        bitstates &= ~TXBUSY;   /* release UART */
+
 #ifdef SGC_ECMD_SEND_SUPPORT
         ecmd_sender_send_command(&ip, PSTR("POWERUP\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
+
         break;
       }
       sgc_power_state.ist = DISP_RESET;
@@ -592,12 +708,12 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
 
 ISR(usart(USART, _TX_vect))
 {
-  if ((sgc_uart_buffer.pos < sgc_uart_buffer.len) && (~sgc_power_state.bitstates & SLEEPING))   /* still bytes in buffer? */
+  if ((sgc_uart_buffer.pos < sgc_uart_buffer.len) && (~bitstates & SLEEPING))   /* still bytes in buffer? */
   {
     usart(UDR) = sgc_uart_buffer.txdata[sgc_uart_buffer.pos];   /* send next */
     sgc_uart_buffer.pos++;      /* increment buffer pointer */
   }
-  else if (sgc_power_state.bitstates & SLEEPING)        /* wakeup command sent */
+  else if (bitstates & SLEEPING)        /* wakeup command sent */
   {
     sgc_power_state.ack = WAKEUP;       /* set state and start timeout counter */
   }
@@ -606,19 +722,12 @@ ISR(usart(USART, _TX_vect))
     usart(UCSR, B) &= ~(_BV(usart(TXCIE)));     /* Disable this interrupt */
     sgc_uart_buffer.pos = 0;    /* clear for next transmission */
     sgc_uart_buffer.len = 0;
-    if (sgc_power_state.ack_timeout == 0)
+    sgc_power_state.ack = NONE; /* set status, enable timeout counter */
+
+    if (bitstates & SLEEP)
     {
-      sgc_power_state.ack = ACK;        /* if nominally no ack expected */
-#ifdef SGC_ECMD_SEND_SUPPORT
-      ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
-#endif /* SGC_ECMD_SEND_SUPPORT */
-    }
-    else
-      sgc_power_state.ack = NONE;       /* set status, enable timeout counter */
-    if (sgc_power_state.bitstates & SLEEP)
-    {
-      sgc_power_state.bitstates &= ~SLEEP;
-      sgc_power_state.bitstates |= SLEEPING;
+      bitstates &= ~SLEEP;
+      bitstates |= SLEEPING;
     }
   }
 }
@@ -630,14 +739,17 @@ ISR(usart(USART, _RX_vect))
   flags = usart(UCSR, A);
   rxdata = usart(UDR);          /* read input buffer */
 
-  if (sgc_uart_buffer.rxenable == 1)    /* only if reception is enabled */
+  if (bitstates & RXENABLE)     /* only if reception is enabled */
   {
     if ((flags & _BV(usart(DOR))) || (flags & _BV(usart(FE))) || ((rxdata != 0x06) && (rxdata != 0x15)) || ((sgc_power_state.ack != NONE) && (sgc_power_state.ack != WAKEUP)))  /* Error or unexpected */
     {
       sgc_power_state.ist = DISP_RESET;
       return;                   /* something must have gone very wrong, reset to resync */
     }
-    if (sgc_power_state.bitstates & SLEEPING)   /* display has woken up */
+
+    bitstates &= ~ACK_INF;
+
+    if (bitstates & SLEEPING)   /* display has woken up */
     {
       sgc_power_state.acktimer = 0;     /* reset ACK timeout */
       sgc_power_state.ack = SENDING;
@@ -647,23 +759,24 @@ ISR(usart(USART, _RX_vect))
 
     if (rxdata == 0x06)         /* ACK was received */
     {
+
 #ifdef SGC_ECMD_SEND_SUPPORT
       if (((sgc_power_state.ist == SHUTDOWN) ||
-           (sgc_power_state.ist == POWERUP)) &&
-          (~sgc_power_state.bitstates & SLEEPING))
+           (sgc_power_state.ist == POWERUP)) && (~bitstates & SLEEPING))
         ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
-      sgc_power_state.bitstates &= ~SLEEPING;   /* sleep mode ends with first response from display */
+
+      bitstates &= ~SLEEPING;   /* sleep mode ends with first response from display */
       sgc_power_state.ack = ACK;
       return;
     }
 #ifdef SGC_ECMD_SEND_SUPPORT
     if (((sgc_power_state.ist == SHUTDOWN) ||
-         (sgc_power_state.ist == POWERUP)) &&
-        (~sgc_power_state.bitstates & SLEEPING))
+         (sgc_power_state.ist == POWERUP)) && (~bitstates & SLEEPING))
       ecmd_sender_send_command(&ip, PSTR("NACK\n"), NULL);
 #endif /* SGC_ECMD_SEND_SUPPORT */
-    sgc_power_state.bitstates &= ~SLEEPING;     /* sleep mode ends with first response from display */
+
+    bitstates &= ~SLEEPING;     /* sleep mode ends with first response from display */
     sgc_power_state.ack = NACK; /* the only left possibility */
   }
 }

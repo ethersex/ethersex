@@ -32,23 +32,27 @@ struct sgc_buffer
 {
   uint8_t len;
   uint8_t pos;
-  uint8_t busy;
-  uint8_t rxenable;
   char txdata[SGC_BUFFER_LENGTH];
+};
+
+struct sgc_vars
+{
+  char contrast;
+  char pensize;
+  char font;
+  char opacity;
+  char colour[2];
 };
 
 struct sgc_state
 {
   uint8_t ist;
-  uint8_t bitstates;
-  char contrast;
-  char pensize;
-  char font[3];
-  uint8_t timer;
   uint8_t ack;
+  uint8_t timer;
+  uint8_t baudcounter;
   uint16_t acktimer;
   uint16_t ack_timeout;
-  uint8_t baudcounter;
+
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
   uint16_t mincount;
   uint8_t timeout;
@@ -56,20 +60,26 @@ struct sgc_state
 #endif                          /* SGC_TIMEOUT_COUNTER_SUPPORT */
 };
 
-/* define some bitmasks */
+/* define bitstates */
 #define SH_SLEEP 0
 #define SH_SLEEPING 1
 #define SH_F_RESET 2
+#define SH_TXBUSY 3
+#define SH_RXENABLE 4
+#define SH_ACK_INF 5
 #define SLEEP (0x01 << SH_SLEEP)
 #define SLEEPING (0x01 << SH_SLEEPING)
 #define F_RESET (0x01 << SH_F_RESET)
+#define TXBUSY (0x01 << SH_TXBUSY)
+#define RXENABLE (0x01 << SH_RXENABLE)
+#define ACK_INF (0x01 << SH_ACK_INF)
 
 /* define some important states */
 #define DISP_RESET 0
 #define BEGIN_SHUTDOWN 5
 #define SHUTDOWN 10
 #define BEGIN_POWERUP 11
-#define POWERUP 17
+#define POWERUP 18
 
 /* define display answers */
 #define FROM_RESET 0
@@ -89,9 +99,17 @@ struct sgc_state
 #define OPT_NORMAL (0x01 << SH_NORMAL)
 #define OPT_INTERNAL (0x01 << SH_INTERNAL)
 
+/* define ACK waiting times */
+#define INFINITE 0
+#define HALF_SEC 25
+#define TWO_SEC 100
+#define FIVE_SEC 250
+#define INF_TIMER TWO_SEC
+
 void sgc_init(void);
 uint8_t sgc_setpowerstate(uint8_t soll);
 uint8_t sgc_getpowerstate(void);
+uint8_t sgc_sleep(char mode);
 
 #ifdef SGC_ECMD_SEND_SUPPORT
 int8_t sgc_setip(char *data);
@@ -106,9 +124,11 @@ uint8_t sgc_sendcommand(uint8_t cmdlen, uint16_t timeout, uint8_t option,
 uint8_t sgc_getcommandresult(void);
 uint8_t sgc_setcontrast(char contrast);
 uint8_t sgc_setpensize(char pensize);
-uint8_t sgc_setfont(char *font);
-uint8_t sgc_sleep(char mode);
-void sgc_getfont(char *font);
+uint8_t sgc_setfont(char font);
+char sgc_getfont(void);
+uint8_t sgc_setopacity(char opacity);
+void sgc_setcolour(char *colour);
+void sgc_getcolour(char *colour);
 uint8_t rgb2sgc(char *col, int8_t stop);
 void sgc_pwr_periodic(void);
 
