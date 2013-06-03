@@ -47,18 +47,20 @@ doorbell_init(void)
 
 int16_t
 doorbell_main(void) {
-  DOORBELLDEBUG ("main\n");
+  //DOORBELLDEBUG ("main\n");
 
 	// Debug:
-	if (PIN_HIGH(RINGBUTTON))
+	if (PIN_HIGH(RINGBUTTON)) {
 		PIN_SET(RELAIS1);
+	    DOORBELLDEBUG ("input:ring\n");
+	}
 	else
 		PIN_CLEAR(RELAIS1);
 
 	// Ring
 	if (PIN_HIGH(RINGBUTTON)) {
 		sip_start_ringing();
-		timer = 30;
+		timer = DOORBELL_TIMEOUT;
 	}
 
   return ECMD_FINAL_OK;
