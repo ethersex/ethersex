@@ -80,7 +80,7 @@ const char PROGMEM SIP_REALM[]	= ",realm=\"";
 const char PROGMEM SIP_NONCE[]	= "\",nonce=\"";																	
 const char PROGMEM SIP_RESPONSE[]	= "\",uri=\"sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP"\",response=\"";
 const char PROGMEM SIP_ALGO[]	  = "\",algorithm=MD5";
-const char PROGMEM SIP_CSEG[]	  = "\r\nCSeq: 350 ";
+const char PROGMEM SIP_CSEG[]	  = "\r\nCSeq:";
 const char PROGMEM SIP_HEADEREND[] =	"\r\n\r\n";
 
 void 
@@ -107,12 +107,22 @@ md5(void* block, uint16_t length)
 }
 */
 
+char* 
+sip_append_cseg_number(char* p) {
+	itoa(cseg_counter%10, p, 10);
+	p++;
+	*p = ' ';
+	p++;
+	return p;
+}
+
 void 
 sip_send_ACK(char* uip_appdata) {
 	char* p = uip_appdata;
   my_strcat_P(p, SIP_ACK);
   my_strcat_P(p, SIP_HEADER);
   my_strcat_P(p, SIP_CSEG);
+  p = sip_append_cseg_number(p);
   my_strcat_P(p, SIP_ACK);
   my_strcat_P(p, SIP_HEADEREND);
 
@@ -160,6 +170,7 @@ sip_main()
       	*p2 = 0;
       	}
 				sip_send_ACK(uip_appdata);
+				cseg_counter++;
 				state = SIPS_INVITE_AUTH;
 				
 				break;
@@ -205,6 +216,7 @@ sip_main()
     	
     // Busy here
     case 486:
+			sip_send_ACK(uip_appdata);
 			state = SIPS_IDLE;
     	break;
     
@@ -238,6 +250,7 @@ sip_main()
 	      my_strcat_P(p, SIP_INVITE);
 	      my_strcat_P(p, SIP_HEADER);
 			  my_strcat_P(p, SIP_CSEG);
+          p = sip_append_cseg_number(p);
   			my_strcat_P(p, SIP_INVITE);
 	      my_strcat_P(p, SIP_HEADEREND);
 	  
@@ -315,6 +328,7 @@ sip_main()
 	      p+=strlen(buffer);
 	      my_strcat_P(p, SIP_ALGO);
 			  my_strcat_P(p, SIP_CSEG);
+          p = sip_append_cseg_number(p);
   			my_strcat_P(p, SIP_INVITE);
 	      my_strcat_P(p, SIP_HEADEREND);
 	
@@ -327,6 +341,7 @@ sip_main()
 	      my_strcat_P(p, SIP_CANCEL);
 	      my_strcat_P(p, SIP_HEADER);
 			  my_strcat_P(p, SIP_CSEG);
+          p = sip_append_cseg_number(p);
   			my_strcat_P(p, SIP_CANCEL);
 	      my_strcat_P(p, SIP_HEADEREND);
 	  
