@@ -35,7 +35,7 @@ extern "C"
  *
  * Set to 1 to enable MMC/SD write support, set to 0 to disable it.
  */
-#define SD_RAW_WRITE_SUPPORT 1
+#define SD_RAW_WRITE_SUPPORT SD_WRITE_SUPPORT
 
 /**
  * \ingroup sd_raw_config
@@ -66,7 +66,7 @@ extern "C"
  * Set to 1 to support so-called SDHC memory cards, i.e. SD
  * cards with more than 2 gigabytes of memory.
  */
-#define SD_RAW_SDHC 0
+#define SD_RAW_SDHC SD_SDHC_SUPPORT
 
 /**
  * @}

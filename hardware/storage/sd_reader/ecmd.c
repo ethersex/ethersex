@@ -53,6 +53,7 @@ parse_cmd_sd_dir (char *cmd, char *output, uint16_t len)
 }
 
 
+#ifdef SD_WRITE_SUPPORT
 int16_t
 parse_cmd_sd_mkdir (char *cmd, char *output, uint16_t len)
 {
@@ -61,11 +62,14 @@ parse_cmd_sd_mkdir (char *cmd, char *output, uint16_t len)
 
   return -vfs_sd_mkdir_recursive (cmd);
 }
+#endif
 
 
 /*
   -- Ethersex META --
   block([[SD-Karte]])
   ecmd_feature(sd_dir, "sd dir",, List contents of current SD directory.)
-  ecmd_feature(sd_mkdir, "sd mkdir",PATH, Create directory hierarchy PATH.)
+  ecmd_ifdef(SD_WRITE_SUPPORT)
+    ecmd_feature(sd_mkdir, "sd mkdir",PATH, Create directory hierarchy PATH.)
+  ecmd_endif
 */

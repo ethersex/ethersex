@@ -1202,16 +1202,6 @@ VFS_INLINE_SUPPORT
   The make system automatically attaches all files stored below vfs/embed/
   to the firmware.
 
-SD/MMC-Card Access
-VFS_SD_SUPPORT
-  Depends on:
-   * VFS (Virtual File System) support (VFS_SUPPORT)
-   * MMC/SD card reader (SD_READER_SUPPORT)
-
-  Link the SD reader to VFS.
-
-  more details at http://old.ethersex.de/index.php/SD-Karte
-
 Disable IP-Configuration
 DISABLE_IPCONF_SUPPORT
   Depends on:
@@ -1266,13 +1256,6 @@ DEBUG_ROUTER
 
 uIP
 DEBUG_UIP
-  Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-SD-Reader
-DEBUG_SD_READER
   Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
@@ -3137,4 +3120,48 @@ MBR_SUPPORT
   the flashed image does not reach the main loop or if the user has invoked
   'bootloader' via ECMD.
   This gives the user some time to upload a new image via TFTP.
+
+SD/MMC-Card Filesystem
+VFS_SD_SUPPORT
+  Depends on: 
+   * VFS (Virtual File System) support (VFS_SUPPORT)
+   * SD/MMC-Card Reader (SD_READER_SUPPORT)
+
+  Link the SD reader to VFS.
+
+  more details at http://ethersex.de/index.php/SD_CARD
+
+SDHC support
+SD_SDHC_SUPPORT
+
+  Suport SDHC cards up to 32GB.
+  Consumes ~3900 bytes of flash memory and ~100 bytes of RAM.
+
+VFAT LFN support
+SD_LFN_SUPPORT
+
+  Support long file names as introduced by Microsoft with Windows 95.
+  Consumes ~550 bytes of flash memory and ~12 bytes of RAM.
+
+Read-only mode
+SD_READONLY
+
+  Use SD card in read-only mode.
+  Saves ~3000 bytes of flash memory and ~500 bytes of RAM.
+  If the SD card is only used for the embedded web server enable
+  read-only mode.
+
+Use read-timeout
+SD_READ_TIMEOUT
+
+  If enabled, read access will return with an error if card does
+  not respond. If disabled Ethersex will endless block.
+
+Ping-read SD card every 10s
+SD_PING_READ
+  Depends on: 
+   * SD/MMC-Card Reader (SD_READER_SUPPORT)
+   * Use read-timeout (SD_READ_TIMEOUT)
+
+  Check every 10s if a card is available. Detects removing a card.
 

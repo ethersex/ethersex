@@ -1,4 +1,23 @@
-if [ "$SD_READER_SUPPORT" = "y" -o "$BOOTLOADER_SUPPORT" = "y" ]; then
-	comment "SD/MM-Card Access"
-	dep_bool "Netio Addon Workaround" SD_NETIO_ADDON_WORKAROUND
-fi
+dep_bool_menu "SD/MMC-Card Reader" SD_READER_SUPPORT $ARCH_AVR
+
+  if [ "$SD_READER_SUPPORT" = "y" ]; then
+
+    bool "SDHC support" SD_SDHC_SUPPORT
+    bool "VFAT LFN support" SD_LFN_SUPPORT
+    bool "Read-only mode" SD_READONLY
+    if [ "$SD_READONLY" = "n" ]; then
+      define_bool SD_WRITE_SUPPORT "y"
+    else
+      define_bool SD_WRITE_SUPPORT "n"
+    fi
+    
+    bool "Use read-timeout" SD_READ_TIMEOUT
+    dep_bool "Ping-read SD card every 10s" SD_PING_READ $SD_READER_SUPPORT $SD_READ_TIMEOUT
+    define_bool SD_PING_READ_SUPPORT $SD_PING_READ
+
+    comment  "Debugging Flags"
+    dep_bool 'SD-Reader' DEBUG_SD_READER $DEBUG $VFS_SD_SUPPORT
+
+  fi
+
+endmenu
