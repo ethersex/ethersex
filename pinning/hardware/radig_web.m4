@@ -41,3 +41,10 @@ ifdef(`conf_RFM12', `dnl
 ')
 
 
+ifdef(`conf_DOORBELL', `
+  pin(RINGBUTTON, PD2, INPUT)
+  pin(RELAIS1, PC2, OUTPUT)
+  pin(RELAIS2, PC3, OUTPUT)
+  pin(RELAIS3, PD6, OUTPUT)
+  pin(RELAIS4, PD7, OUTPUT)
+')
