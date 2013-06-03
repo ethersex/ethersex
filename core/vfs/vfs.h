@@ -131,7 +131,7 @@ struct vfs_func_t {
   vfs_size_t (*size) (struct vfs_file_handle_t *);
 };
 
-extern struct vfs_func_t vfs_funcs[];
+extern const struct vfs_func_t vfs_funcs[];
 
 #define SEEK_SET 0
 #define SEEK_CUR 1
