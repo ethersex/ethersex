@@ -1,13 +1,13 @@
 /*----------------------------------------------------------------------------
- Copyright:      Johann Gail  mailto: gailj@gmx.de
+ Copyright:      Johann Gail  mailto: johann.gail.gmx.de
  Author:         Johann Gail
  Remarks:        
  known Problems: none
- Version:        20.12.2010
- Description:    Send MAIL Client
+ Version:        03.06.2013
+ Description:    SIP Client for VOIP Calls
 
  Modifications to fit Ethersex firmware:
- Copyright (C) 2010 by Johann Gail 
+ Copyright (C) 2013 by Johann Gail
 
  Dieses Programm ist freie Software. Sie k�nnen es unter den Bedingungen der 
  GNU General Public License, wie von der Free Software Foundation ver�ffentlicht, 
