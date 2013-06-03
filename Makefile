@@ -10,6 +10,7 @@ SUBDIRS += core/tty
 SUBDIRS += core/gui
 SUBDIRS += core/util
 SUBDIRS += core/vfs
+SUBDIRS += core/crc
 SUBDIRS += mcuf
 SUBDIRS += hardware/adc
 SUBDIRS += hardware/adc/kty
@@ -19,6 +20,7 @@ SUBDIRS += hardware/dac
 SUBDIRS += hardware/clock/dcf77
 SUBDIRS += hardware/camera
 SUBDIRS += hardware/ethernet
+SUBDIRS += hardware/dht
 SUBDIRS += hardware/i2c/master
 SUBDIRS += hardware/i2c/slave
 SUBDIRS += hardware/input
@@ -43,11 +45,15 @@ SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
 SUBDIRS += hardware/zacwire
 SUBDIRS += hardware/ultrasonic
+SUBDIRS += hardware/serial_ram/23k256
 SUBDIRS += hardware/hbridge
 SUBDIRS += protocols/artnet
 SUBDIRS += protocols/bootp
+SUBDIRS += protocols/dali
 SUBDIRS += protocols/dhcp 
 SUBDIRS += protocols/dmx
+SUBDIRS += protocols/eltakoms
+SUBDIRS += protocols/ems
 SUBDIRS += protocols/fnordlicht
 SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
@@ -87,7 +93,10 @@ SUBDIRS += services/clock
 SUBDIRS += services/cron
 SUBDIRS += services/doorbell
 SUBDIRS += services/dyndns
+SUBDIRS += services/dmx-storage
+SUBDIRS += services/dmx-fxslot
 SUBDIRS += services/echo
+SUBDIRS += services/freqcount
 SUBDIRS += services/pam
 SUBDIRS += services/httpd
 SUBDIRS += services/jabber
@@ -96,6 +105,8 @@ SUBDIRS += services/wol
 SUBDIRS += services/motd
 SUBDIRS += services/moodlight
 SUBDIRS += services/stella
+SUBDIRS += services/starburst
+SUBDIRS += services/tanklevel
 SUBDIRS += services/tftp
 SUBDIRS += services/upnp
 SUBDIRS += services/appsample
@@ -104,6 +115,8 @@ SUBDIRS += services/vnc
 SUBDIRS += services/watchasync
 SUBDIRS += services/curtain
 SUBDIRS += services/glcdmenu
+SUBDIRS += services/lome6
+SUBDIRS += services/projectors/sanyoZ700
 
 rootbuild=t
 
@@ -114,9 +127,11 @@ ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),fullclean)
 ifneq ($(MAKECMDGOALS),mrproper)
 ifneq ($(MAKECMDGOALS),menuconfig)
+ifneq ($(MAKECMDGOALS),indent)
 
 include $(TOPDIR)/.config
 
+endif # MAKECMDGOALS!=indent
 endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=fullclean
 endif # MAKECMDGOALS!=mrproper
@@ -130,11 +145,47 @@ else
 all: compile-$(TARGET)
 	@echo "=======The ethersex project========"
 	@echo "Compiled for: $(MCU) at $(FREQ)Hz"
-	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU)
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU) $(BOOTLOADER_SUPPORT) $(BOOTLOADER_SIZE)
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/eeprom-usage "$(CFLAGS)" "$(CPPFLAGS)" 2> /dev/null
 	@echo "==================================="
 endif
 .PHONY: all
 .SILENT: all
+
+##############################################################################
+# logging to file make.log
+# calls make all and redirects stdout and stderr to make.log
+v:
+	(echo "===== logging make activity to file make.log =====";\
+	 echo "Build started on `date`";\
+	 ${MAKE} all 2>&1) | tee make.log
+
+##############################################################################
+# print information about binary size and flash usage
+size-info:
+	@echo "===== size info ====="
+	@$(CONFIG_SHELL) ${TOPDIR}/scripts/size $(TARGET) $(MCU) $(BOOTLOADER_SUPPORT) $(BOOTLOADER_SIZE)
+
+##############################################################################
+# target help displays a short overview over make options
+help:
+	@echo "Configuration targets:"
+	@echo "  menuconfig   - Update current config utilising a menu based program"
+	@echo "                 (default when .config does not exist)"
+	@echo ""
+	@echo "Cleaning targets:"
+	@echo "  clean        - Remove bin and dep files"
+	@echo "  fullclean    - Same as "clean", but also remove object files"
+	@echo "  mrproper     - Same as "fullclean", but also remove all config files"
+	@echo ""
+	@echo "Information targets:"
+	@echo "  show-config  - show enabled modules"
+	@echo "  size-info    - show size information of compiled binary"
+	@echo ""
+	@echo "Other generic targets:"
+	@echo "  all          - Build everything as specified in .config"
+	@echo "                 (default if .config exists)"
+	@echo "  v            - Same as "all" but with logging to make.log enabled"
 
 ##############################################################################
 # generic fluff
@@ -190,7 +241,7 @@ OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lc -lm # Pixie Dust!!! (Bug in avr-binutils)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
 
 SIZEFUNCARG ?= -e printf -e scanf -e divmod
 size-check: $(OBJECTS) ethersex
@@ -203,10 +254,18 @@ size-check: $(OBJECTS) ethersex
 ##############################################################################
 
 # Generate ethersex.hex file
-# If inlining is enabled, we need to copy from ethersex.bin to not lose
+# If inlining or crc-padding is enabled, we need to copy from ethersex.bin to not lose
 # those files.  However we mustn't always copy the binary, since that way
 # a bootloader cannot be built (the section start address would get lost).
+hex_from_bin =
 ifeq ($(VFS_INLINE_SUPPORT),y)
+	hex_from_bin = yes
+endif
+ifeq ($(CRC_PAD_SUPPORT),y)
+	hex_from_bin = yes
+endif
+
+ifeq ($(hex_from_bin), yes)
 %.hex: %.bin
 	$(OBJCOPY) -O ihex -I binary $(TARGET).bin $(TARGET).hex
 else
@@ -230,8 +289,22 @@ else
 INLINE_FILES :=
 endif
 
+# calculate the flash size when padding a crc
+ifeq ($(CRC_PAD_SUPPORT),y)
+	FLASHEND = $(shell ./core/crc/read-define FLASHEND)
+	ifeq ($(BOOTLOADER_SUPPORT),y)
+		fillto = $(shell echo $$(( $(BOOTLOADER_SIZE) - 2 )) )
+	else
+		ifeq ($(BOOTLOADER_JUMP),y)
+			fillto = $(shell echo $$(( $(FLASHEND) - $(BOOTLOADER_SIZE) - 1 )) )
+		else
+			fillto = $(shell echo $$(( $(FLASHEND) - 1 )) )
+		endif
+	endif
+endif
+
 embed/%: embed/%.cpp
-	@if ! avr-cpp -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
+	@if ! avr-cpp -xc -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
 		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
 	  echo "--> Include $@ ($<)"; fi
@@ -247,12 +320,18 @@ embed/%: embed/%.sh
 	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)"; \
 		else echo "--> Include $@ ($<)";	fi
 
-
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
 	@$(MAKE) -C core/vfs vfs-concat TOPDIR=../.. no_deps=t
 	$(CONFIG_SHELL) core/vfs/do-embed $(INLINE_FILES)
+endif
+ifeq ($(CRC_PAD_SUPPORT),y)
+# fill up the binary to the maximum possible size minus 2 bytes for the crc
+	$(OBJCOPY) -I binary -O binary --gap-fill 0xFF --pad-to $(fillto) ethersex.bin ethersex.bin
+# pad the crc to the binary
+	@$(MAKE) -C core/crc crc16-concat TOPDIR=../.. no_deps=t
+	./core/crc/crc16-concat ethersex.bin
 endif
 
 ##############################################################################
@@ -268,14 +347,15 @@ endif
 
 
 ##############################################################################
-### Special case for MacOS X (darwin10.0) and FreeBSD
-CONFIG_SHELL := $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] ; then echo /opt/local/bin/bash; \
-          elif [ x"$$OSTYPE" = x"FreeBSD" ]; then echo /usr/local/bin/bash; \
+### Special case for MacOS X and FreeBSD
+CONFIG_SHELL := $(shell if [ x"`uname`" = x"Darwin" ] && [ -x /opt/local/bin/bash ] ; then echo /opt/local/bin/bash; \
+          elif [ x"`uname`" = x"Darwin" ] && [ -x /usr/local/bin/bash ] ; then echo /usr/local/bin/bash; \
+          elif [ x"`uname`" = x"FreeBSD" ]; then echo /usr/local/bin/bash; \
           elif [ -x "$$BASH" ]; then echo $$BASH; \
           elif [ -x /bin/bash ]; then echo /bin/bash; \
           elif [ -x /usr/local/bin/bash ]; then echo /usr/local/bin/bash; \
           else echo sh; fi)
-### Special case for MacOS X (darwin10.0)
+### Special case for MacOS X
 ### bash v3.2 in 10.6 does not work, use version 4.0 from macports
 ### (see "Voraussetzungen" in wiki)
 
@@ -342,7 +422,7 @@ show-config: autoconf.h
 	@echo
 	@echo "These modules are currently enabled: "
 	@echo "======================================"
-	@$(SED) -e "/^#define \<.*_SUPPORT\>/!d;s/^#define / * /;s/_SUPPORT.*//" autoconf.h 
+	@$(SED) -e "/^#define \<.*_SUPPORT\>/!d;s/^#define / * /;s/_SUPPORT.*//" autoconf.h|sort -u 
 
 .PHONY: show-config
 
@@ -359,5 +439,19 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 	@echo Ethersex compiled successfully, ignore make error!
 	@false # stop compilation
 endif
+
+
+##############################################################################
+# reformat source code
+indent: INDENTCMD=indent -nbad -sc -nut -bli0 -blf -cbi0 -cli2 -npcs -nbbo
+indent:
+	@find . $(SUBDIRS) -maxdepth 1 -name "*.[ch]" | \
+	 egrep -v "(ir.*_lib|core/crypto)" | \
+	 while read f; do \
+	  $(INDENTCMD) "$$f"; \
+	done
+
+.PHONY: indent
+
 
 include $(TOPDIR)/scripts/depend.mk

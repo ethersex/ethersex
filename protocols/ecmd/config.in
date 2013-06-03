@@ -1,8 +1,8 @@
-dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
+dep_bool_menu "ECMD (Ethersex Command) support" ECMD_PARSER_SUPPORT
   dep_bool "Auto remove Backspaces" ECMD_REMOVE_BACKSPACE_SUPPORT $ECMD_PARSER_SUPPORT
-  dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool_editor "Alias Command Names" ALIASCMD_SUPPORT "protocols/ecmd/alias_defs.m4" $ECMD_PARSER_SUPPORT
   dep_bool "Authentification via PAM (TCP only)" ECMD_PAM_SUPPORT $ECMD_PARSER_SUPPORT $ECMD_TCP_SUPPORT $PAM_SUPPORT
-  dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $VFS_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool_menu "ECMD Scripting" ECMD_SCRIPT_SUPPORT $VFS_SUPPORT $ECMD_PARSER_SUPPORT
   if [ "$ECMD_SCRIPT_SUPPORT" = y ]; then
     int "  Maximum number of variables" ECMD_SCRIPT_MAX_VARIABLES 4
     int "  Length of variable buffer" ECMD_SCRIPT_VARIABLE_LENGTH 10
@@ -17,20 +17,19 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
   comment "ECMD interfaces"
   usart_count_used
   if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-    dep_bool "USART (RS232)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
+    dep_bool "USART (RS232/RS485)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
     if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
       choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
       usart_process_choice ECMD_SERIAL_USART
-      dep_bool "  USART (RS485 mode)" ECMD_SERIAL_USART_RS485_SUPPORT $ECMD_SERIAL_USART_SUPPORT
       dep_bool "  No Echo" ECMD_SERIAL_NO_ECHO $ECMD_SERIAL_USART_SUPPORT
-      int "  UART Baudrate" ECMD_SERIAL_BAUDRATE 115200
-      int "  UART buffer length" ECMD_SERIAL_USART_BUFFER_LEN 50
+      int "  USART Baudrate" ECMD_SERIAL_BAUDRATE 115200
+      int "  USART buffer length" ECMD_SERIAL_USART_BUFFER_LEN 50
       if [ $ECMD_SERIAL_USART_BUFFER_LEN -gt 255 ]; then
         ECMD_SERIAL_USART_BUFFER_LEN=255
       fi
     fi
   else
-    comment "USART (RS232) not available. No free usart. ($USARTS_USED/$USARTS)"
+    comment "USART (RS232/RS485) not available. No free usart. ($USARTS_USED/$USARTS)"
   fi
 
   dep_bool "TCP/Telnet" ECMD_TCP_SUPPORT $ECMD_PARSER_SUPPORT $TCP_SUPPORT
@@ -41,19 +40,19 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
   if [ "$ECMD_UDP_SUPPORT" = "y" ]; then
     int " UDP Port" ECMD_UDP_PORT 2701
   fi
-  dep_bool "I2C" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL
+  dep_bool "I2C" ECMD_SERIAL_I2C_SUPPORT $ECMD_PARSER_SUPPORT
   if [ "$ECMD_SERIAL_I2C_SUPPORT" = "y" ]; then
     int "    I2C Address" ECMD_I2C_ADDR 8
     int "    I2C Buffer Len" ECMD_I2C_BUFFER_LEN 50
   fi
-  dep_bool "USB" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $USB_SUPPORT
+  dep_bool "USB" ECMD_USB_SUPPORT $ECMD_PARSER_SUPPORT $USB_SUPPORT
 
-  dep_bool "Jabber (EXPERIMENTAL)" ECMD_JABBER_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $JABBER_SUPPORT
+  dep_bool "Jabber" ECMD_JABBER_SUPPORT $ECMD_PARSER_SUPPORT $JABBER_SUPPORT
   if [ "$ECMD_JABBER_SUPPORT" = "y" ]; then
     editor "    Edit list of allowed ecmd buddies" JABBER_KNOWN_BUDDIES services/jabber/known_buddies.src
   fi
 
-  dep_bool "IRC (EXPERIMENTAL)" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $CONFIG_EXPERIMENTAL $IRC_SUPPORT
+  dep_bool "IRC" ECMD_IRC_SUPPORT $ECMD_PARSER_SUPPORT $IRC_SUPPORT
 
   dep_bool "SMS" ECMD_SMS_SUPPORT $ECMD_PARSER_SUPPORT $SMS_SUPPORT
   dep_bool "EEPROM - Read on device eeprom space" ECMD_EEPROM_SUPPORT $ECMD_PARSER_SUPPORT $ARCH_AVR
@@ -68,14 +67,14 @@ dep_bool_menu "ECMD (Etherrape Control Interface) support" ECMD_PARSER_SUPPORT
   dep_bool '  IP Statistics' IPSTATS_SUPPORT $UIP_SUPPORT $ECMD_PARSER_SUPPORT
   dep_bool '  Memory usage information (free)' FREE_SUPPORT $ECMD_PARSER_SUPPORT
 
-  if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ] ; then
+  if [ "$TEENSY_SUPPORT" = "y" ] ; then
     dep_bool '  Date ECMD support Only !' CLOCK_DATE_SUPPORT $CLOCK_SUPPORT
     dep_bool '  Time ECMD support Only !' CLOCK_TIME_SUPPORT $CLOCK_SUPPORT
     if [ "$HR20_LCD_SUPPORT" = "y" ] ; then
-      dep_bool '  HR20 LCD Display ECMD' HR20_LCD_ECMD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+      dep_bool '  HR20 LCD Display ECMD' HR20_LCD_ECMD_SUPPORT $atmega169
     fi
     if [ "$ADC_LIGHT" = "y" ] ; then
-      dep_bool '  HR20 TEMP ECMD' HR20_TEMP_ECMD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+      dep_bool '  HR20 TEMP ECMD' HR20_TEMP_ECMD_SUPPORT $atmega169
     fi
   fi
 

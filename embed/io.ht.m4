@@ -113,6 +113,7 @@ function port_change(obj) {
 </table>
 </center>
 
+<a href="idx.ht"> Back </a>
 <div id="logconsole"></div>
 </body>
 </html>

@@ -33,39 +33,42 @@
 void
 bootp_net_init(void)
 {
-    uip_ipaddr_t ip;
-    uip_ipaddr(&ip, 255,255,255,255);
+  uip_ipaddr_t ip;
+  uip_ipaddr(&ip, 255, 255, 255, 255);
 
-    uip_udp_conn_t *bootp_conn = uip_udp_new(&ip, HTONS(BOOTPS_PORT), bootp_net_main);
+  uip_udp_conn_t *bootp_conn =
+    uip_udp_new(&ip, HTONS(BOOTPS_PORT), bootp_net_main);
 
-    if(! bootp_conn)
-	return; /* dammit. */
+  if (!bootp_conn)
+    return;                     /* dammit. */
 
-    uip_udp_bind(bootp_conn, HTONS(BOOTPC_PORT));
+  uip_udp_bind(bootp_conn, HTONS(BOOTPC_PORT));
 
-    bootp_conn->appstate.bootp.retry_timer = 0;
+  bootp_conn->appstate.bootp.retry_timer = 0;
 }
 
 
 void
 bootp_net_main(void)
 {
-    if(uip_newdata()) {
-	bootp_handle_reply();
-        return;
-    }
+  if (uip_newdata())
+  {
+    bootp_handle_reply();
+    return;
+  }
 
-    if(! uip_udp_conn->appstate.bootp.retry_timer) {
-	bootp_send_request();
+  if (!uip_udp_conn->appstate.bootp.retry_timer)
+  {
+    bootp_send_request();
 
-	if(uip_udp_conn->appstate.bootp.retry_counter < 5)
-	    uip_udp_conn->appstate.bootp.retry_timer =
-		2 << (++ uip_udp_conn->appstate.bootp.retry_counter);
-	else
-	    uip_udp_conn->appstate.bootp.retry_timer = 64 + (rand() & 63);
-    }
+    if (uip_udp_conn->appstate.bootp.retry_counter < 5)
+      uip_udp_conn->appstate.bootp.retry_timer =
+        2 << (++uip_udp_conn->appstate.bootp.retry_counter);
     else
-	uip_udp_conn->appstate.bootp.retry_timer --;
+      uip_udp_conn->appstate.bootp.retry_timer = 64 + (rand() & 63);
+  }
+  else
+    uip_udp_conn->appstate.bootp.retry_timer--;
 }
 
 /*

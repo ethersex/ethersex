@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jnlp codebase="http://www.domain.de/webstart/" href="launch.jnlp" spec="1.0+">
+    <information>
+        <title>jlome6gui</title>
+        <vendor>tobi</vendor>
+        <homepage href=""/>
+        <description>jlome6gui</description>
+        <description kind="short">jlome6gui</description>
+        
+        
+    </information>
+    <update check="always"/>
+    <security>
+<all-permissions/>
+</security>
+    <resources>
+        <j2se version="1.6+"/>
+        <jar href="jlome6gui.jar" main="true"/>
+        
+        
+    </resources>
+    <application-desc main-class="jlome6gui.Jlome6gui">
+        
+    </application-desc>
+</jnlp>

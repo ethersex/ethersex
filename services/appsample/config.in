@@ -1,6 +1,6 @@
-dep_bool_menu "Application Sample (EXPERIMENTAL)" APP_SAMPLE_SUPPORT $CONFIG_EXPERIMENTAL
-	dep_bool "Method init auto start" APP_SAMPLE_INIT_AUTOSTART_SUPPORT $APP_SAMPLE_SUPPORT $CONFIG_EXPERIMENTAL
-	dep_bool "Method periodic auto start" APP_SAMPLE_PERIODIC_AUTOSTART_SUPPORT $APP_SAMPLE_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Application Sample" APP_SAMPLE_SUPPORT
+	dep_bool "Method init auto start" APP_SAMPLE_INIT_AUTOSTART_SUPPORT $APP_SAMPLE_SUPPORT
+	dep_bool "Method periodic auto start" APP_SAMPLE_PERIODIC_AUTOSTART_SUPPORT $APP_SAMPLE_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'Application Sample Debug' DEBUG_APP_SAMPLE $DEBUG $APP_SAMPLE_SUPPORT
 endmenu

@@ -29,13 +29,20 @@ typedef struct {
     uint8_t link :1;
 
 #ifdef BOOTLOADER_JUMP
-    uint8_t request_bootloader :1;
+    uint8_t request_bootloader      :1;
 #endif
-    uint8_t request_reset      :1;
+    uint8_t request_reset           :1;
 #ifndef TEENSY_SUPPORT
-    uint8_t request_wdreset    :1;
+    uint8_t request_wdreset         :1;
+#endif
+#ifdef TFTP_CRC_SUPPORT
+    uint8_t verify_tftp_crc_content :1;
 #endif
 } global_status_t;
+
+#ifdef BOOTLOADER_SUPPORT
+extern uint16_t bootload_delay;
+#endif
 
 extern global_status_t status;
 

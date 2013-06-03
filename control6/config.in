@@ -1,1 +1,1 @@
-dep_bool "control6 scripts (EXPERIMENTAL)" CONTROL6_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool "control6 script" CONTROL6_SUPPORT

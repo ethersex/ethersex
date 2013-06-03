@@ -32,7 +32,7 @@
 #define BLACK		0x00
 #define WHITE		0xFF
 
-FILE *lcd;
+FILE lcd = FDEV_SETUP_STREAM(ST7626_putc, NULL, _FDEV_SETUP_WRITE);
 uint16_t current_pos;
 
 uint8_t ST7626_paint[4][16] PROGMEM = {
@@ -156,8 +156,6 @@ void ST7626_init(void)
     ST7626_write(COMMAND, 0x30);
 
     ST7626_clear(WHITE);
-
-    lcd = fdevopen(ST7626_putc, NULL);
 }
 
 void ST7626_clear(uint8_t color)

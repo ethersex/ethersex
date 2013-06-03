@@ -56,7 +56,7 @@ fnordlicht_servo_init(void)
   memset(flmmax,0xff, PWM_SERVOS);
 }
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   uint8_t data = usart(UDR);
 

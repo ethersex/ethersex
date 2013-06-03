@@ -27,39 +27,64 @@
 #include "config.h"
 #include "core/periodic.h"
 #include "core/debug.h"
+#ifdef FREQCOUNT_SUPPORT
+#include "services/freqcount/freqcount.h"
+#endif
 
 #ifdef BOOTLOADER_SUPPORT
-uint8_t bootload_delay = CONF_BOOTLOAD_DELAY;
+uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
 extern volatile uint8_t newtick;
 uint8_t milliticks;
 
-void periodic_init(void) {
+void
+periodic_init(void)
+{
+  // Well, WriteAccess to 16bit timer registers has to be protected
+  // but as Timer1Ints are expected to be disabled here,
+  // hopefully nobody else will touch timer1 registers right now, 
+  // and we can save some code bytes in not using ATOMIC_BLOCK!
 
+  CLOCK_SET_PRESCALER;
 #ifdef CLOCK_CPU_SUPPORT
-	/* init timer1 to expire after ~20ms, with Normal */
-	TCCR1B = CLOCK_PRESCALER_MASK;
-	TCNT1 = 65536-CLOCK_SECONDS;
-	OCR1A = 65536-CLOCK_SECONDS+CLOCK_TICKS;
-	_TIMSK_TIMER1 |= _BV(OCIE1A)|_BV(TOIE1);
+  /* init timer1 to expire after ~20ms, with Normal */
+  TC1_MODE_OFF;
+  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
+  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
+  TC1_INT_COMPARE_ON;
+  TC1_INT_OVERFLOW_ON;
 #else
-	/* init timer1 to expire after ~20ms, with CTC enabled */
-	TCCR1B = _BV(WGM12) | CLOCK_PRESCALER_MASK;
-	OCR1A = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
-	_TIMSK_TIMER1 |= _BV(OCIE1A);
-
-	NTPADJDEBUG ("configured OCR1A to %d\n", OCR1A);
+#ifdef FREQCOUNT_SUPPORT
+  /* init timer1 to run with full cpu frequency, normal mode, 
+   * compare and overflow int active */
+  TC1_PRESCALER_1;
+  freqcount_init();
+  TC1_INT_COMPARE_ON;
+  TC1_INT_OVERFLOW_ON;
+#else
+  /* init timer1 to expire after ~20ms, with CTC enabled */
+  TC1_MODE_CTC;
+  TC1_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
+  TC1_INT_COMPARE_ON;
+  NTPADJDEBUG("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
+#endif
 #endif
 }
 
-ISR(TIMER1_COMPA_vect)
+#ifdef FREQCOUNT_SUPPORT
+void
+timer_expired(void)
+#else
+ISR(TC1_VECTOR_COMPARE)
+#endif
 {
 #ifdef CLOCK_CPU_SUPPORT
-	OCR1A += CLOCK_TICKS;
+  TC1_COUNTER_COMPARE += CLOCK_TICKS;
 #endif
-	newtick = 1;
-        if (++milliticks >= HZ) milliticks-=HZ;
+  newtick = 1;
+  if (++milliticks >= HZ)
+    milliticks -= HZ;
 }
 
 /*

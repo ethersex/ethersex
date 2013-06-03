@@ -37,7 +37,7 @@ int16_t parse_cmd_moodlight (char *cmd, char *output, uint16_t len)
 {
 	uint8_t ch, onoff;
 
-	while(*cmd == 32) cmd ++;
+	while(*cmd == ' ') cmd ++;
 	char *p = cmd;
 	while(*p && *p != ' ') p++;
 

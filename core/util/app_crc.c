@@ -1,0 +1,46 @@
+/*
+* calculate the 16 bit crc of the application area
+*
+* Copyright (c) 2013 by Frank Sautter <ethersix@sautter.com>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the Free
+* Software Foundation; either version 3 of the License, or (at your option)
+* any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program; if not, write to the Free Software Foundation, Inc., 675 Mass
+* Ave, Cambridge, MA 02139, USA.
+*
+* For more information on the GPL, please go to:
+* http://www.gnu.org/copyleft/gpl.html
+*/
+
+#include <avr/pgmspace.h>
+#include <util/crc16.h>
+
+#include "config.h"
+#include "core/util/app_crc.h"
+
+uint16_t
+calc_application_crc(void)
+{
+  uint16_t crc = 0xffff;
+
+#if FLASHEND > UINT16_MAX
+  uint_farptr_t p;
+  for (p = 0; p < (uint_farptr_t) BOOTLOADER_START_ADDRESS; p++)
+    crc = _crc16_update(crc, pgm_read_byte_far(p));
+#else
+  uint8_t *p;
+  for (p = 0; p < (uint8_t *) BOOTLOADER_START_ADDRESS; p++)
+    crc = _crc16_update(crc, pgm_read_byte(p));
+#endif
+
+  return (crc);
+}

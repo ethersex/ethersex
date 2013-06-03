@@ -250,7 +250,7 @@ decode_key(uint8_t keycode)
   }
 }
 
-SIGNAL(PS2_vect) 
+ISR(PS2_VECTOR) 
 {
   if (! PIN_HIGH(PS2_CLOCK)) {
     /* Start the timeout to 20ms - 40ms */

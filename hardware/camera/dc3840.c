@@ -322,7 +322,7 @@ parse_cmd_dc3840_zoom (char *cmd, char *output, uint16_t len)
 #endif	/* ECMD_PARSER_SUPPORT */
 
 
-SIGNAL(usart(USART,_RX_vect))
+ISR(usart(USART,_RX_vect))
 {
   uint8_t temp = usart (UDR);
 

@@ -8,10 +8,13 @@ do
 done
 
 IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
-FLASHSIZE=$(perl -e "print 0x$(echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | tail -n 1 |cut -c3-);")
-FLASHSIZE=$[$FLASHSIZE + 1]
-PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 *100.0);" )
-PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE *$maxper);" )
+if [ "$3" != "y" ]; then
+  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | sed '$!d'` + 1 )))
+else
+  FLASHSIZE=$4
+fi
+PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);" )
+PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE * $maxper);" )
 
 echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${PERCENT}%)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then

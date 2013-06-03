@@ -25,6 +25,7 @@ mainmenu_option next_comment
     if [ "$HD44780_DIREKT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
       dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_DIREKT $HD44780_SUPPORT
+      dep_bool "Backlight support" HD44780_BACKLIGHT_SUPPORT $HD44780_SUPPORT
     elif [ "$HD44780_I2CSUPPORT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
       int "PCF8574 Address" HD44780_PCF8574_ADR 32
@@ -35,10 +36,10 @@ mainmenu_option next_comment
   endmenu
 
   if [ "$TEENSY_SUPPORT" = "y" ]; then
-    dep_bool "HR20-style LCD Display without ECMD (EXPERIMENTAL)" HR20_LCD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+    dep_bool "HR20-style LCD Display without ECMD" HR20_LCD_SUPPORT $atmega169
     comment "Please Define HR20-style LCD Display ECMD Configuration"
   else
-    dep_bool "HR20-style LCD Display (EXPERIMENTAL)" HR20_LCD_SUPPORT_FULL $atmega169 $EXPERIMENTAL_SUPPORT
+    dep_bool "HR20-style LCD Display" HR20_LCD_SUPPORT_FULL $atmega169
   fi
 
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT $ARCH_AVR

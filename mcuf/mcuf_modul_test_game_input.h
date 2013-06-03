@@ -22,9 +22,10 @@
 
 #ifndef _MCUF_MODUL_TEST_GAME_INPUT_H
 #define _MCUF_MODUL_TEST_GAME_INPUT_H
+#include "hardware/input/buttons/buttons.h"
 
 void
-test_game_input_handler(uint8_t b);
+test_game_input_handler(buttons_ButtonsType button, uint8_t status);
 void
 test_game_input(void);
 

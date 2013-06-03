@@ -1,0 +1,4 @@
+if [ "$SD_READER_SUPPORT" = "y" -o "$BOOTLOADER_SUPPORT" = "y" ]; then
+	comment "SD/MM-Card Access"
+	dep_bool "Netio Addon Workaround" SD_NETIO_ADDON_WORKAROUND
+fi

@@ -22,6 +22,8 @@
 #include "config.h"
 #include "core/debug.h"
 
+#include "adc.h"
+
 uint16_t
 hr20_batt_get (void)
 {
@@ -29,14 +31,7 @@ hr20_batt_get (void)
 //    #error ADC REF must be AVcc!
 //    #endif
 
-    ADMUX = 0x1e | ADC_REF;
-
-    ADCSRA |= _BV(ADSC);
-    while (ADCSRA & _BV(ADSC));
-    ADCSRA |= _BV(ADSC);
-    while (ADCSRA & _BV(ADSC));
-
-    uint32_t centivolt = 112640 / ADC;
+    uint32_t centivolt = 112640 / adc_get(0x1e);
 
     debug_printf ("get batt: %d cV\n", centivolt);
 //    DEBUG("get batt: %d cV", (uint16_t) centivolt);

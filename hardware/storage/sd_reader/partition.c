@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2011 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -8,6 +8,7 @@
  * published by the Free Software Foundation.
  */
 
+#include "byteordering.h"
 #include "partition.h"
 #include "partition_config.h"
 #include "sd-reader_config.h"
@@ -110,14 +111,8 @@ struct partition_struct* partition_open(device_read_t device_read, device_read_i
     if(index >= 0)
     {
         new_partition->type = buffer[4];
-        new_partition->offset = ((uint32_t) buffer[8]) |
-                                ((uint32_t) buffer[9] << 8) |
-                                ((uint32_t) buffer[10] << 16) |
-                                ((uint32_t) buffer[11] << 24);
-        new_partition->length = ((uint32_t) buffer[12]) |
-                                ((uint32_t) buffer[13] << 8) |
-                                ((uint32_t) buffer[14] << 16) |
-                                ((uint32_t) buffer[15] << 24);
+        new_partition->offset = read32(&buffer[8]);
+        new_partition->length = read32(&buffer[12]);
     }
     else
     {

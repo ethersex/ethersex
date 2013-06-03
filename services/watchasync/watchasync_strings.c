@@ -39,7 +39,8 @@ static const char PROGMEM watchasync_summarize_path[] =
 // and the http footer including the http protocol version and the server name
 static const char PROGMEM watchasync_request_end[] =
     CONF_WATCHASYNC_END_PATH " HTTP/1.1\r\n"
-    "Host: " CONF_WATCHASYNC_SERVER "\r\n\r\n";
+    "Host: " CONF_WATCHASYNC_SERVER "\r\n"
+    "Content-Length: 0\r\n\r\n";
 
 #ifndef CONF_WATCHASYNC_PORT
 #define CONF_WATCHASYNC_PORT 80
@@ -142,7 +143,7 @@ static const char PROGMEM watchasync_ID_PD6[] = CONF_WATCHASYNC_PD6_ID;
 static const char PROGMEM watchasync_ID_PD7[] = CONF_WATCHASYNC_PD7_ID;
 #endif
 
-PGM_P watchasync_ID[] PROGMEM =
+const PGM_P const watchasync_ID[] PROGMEM =
 {
 #ifdef CONF_WATCHASYNC_PA0
   watchasync_ID_PA0

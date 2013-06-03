@@ -1,0 +1,16 @@
+dep_bool_menu "EMS Support" EMS_SUPPORT $TCP_SUPPORT $ARCH_AVR
+	if [ "$EMS_BUFFER_LEN" = "" ] ; then
+		EMS_BUFFER_LEN=255
+	fi
+	if [ "$EMS_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
+		EMS_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
+	fi
+	int    "EMS Buffer Length" EMS_BUFFER_LEN 64
+	int    "EMS TCP Port" EMS_PORT 7950
+	comment  "Debugging Flags"
+	dep_bool 'Statistics ECMD' EMS_DEBUG_STATS $ECMD_PARSER_SUPPORT $EMS_SUPPORT
+	dep_bool 'Protocol Debug Output' EMS_PROTO_DEBUG $DEBUG $EMS_SUPPORT
+	dep_bool 'I/O Debug Output' EMS_IO_DEBUG $DEBUG $EMS_SUPPORT
+	dep_bool 'Error Output' EMS_ERROR_DEBUG $DEBUG $EMS_SUPPORT
+endmenu
+

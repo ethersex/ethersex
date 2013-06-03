@@ -43,65 +43,65 @@ SOFTWARE.
 #ifndef BOOTP_BOOTPHDR_H
 #define BOOTP_BOOTPHDR_H
 
-#define BP_CHADDR_LEN	 16
-#define BP_SNAME_LEN	 64
-#define BP_FILE_LEN	128
-#define BP_VEND_LEN	 64
-#define BP_MINPKTSZ	300	/* to check sizeof(struct bootp) */
+#define BP_CHADDR_LEN           16
+#define BP_SNAME_LEN            64
+#define BP_FILE_LEN             128
+#define BP_VEND_LEN             64
+#define BP_MINPKTSZ             300     /* to check sizeof(struct bootp) */
 
 /* Tell the server to broadcast to reach me flag */
 #define BPFLAG_BROADCAST ( 1 << 15 )
 
-struct bootp {
-    unsigned char    bp_op;			/* packet opcode type */
-    unsigned char    bp_htype;			/* hardware addr type */
-    unsigned char    bp_hlen;			/* hardware addr length */
-    unsigned char    bp_hops;			/* gateway hops */
-    unsigned char    bp_xid[4];			/* transaction ID */
-    u16_t            bp_secs;			/* seconds since boot began */
-    u16_t            bp_flags;			/* RFC1532 broadcast, etc. */
-    unsigned char    bp_ciaddr[4];		/* client IP address */
-    unsigned char    bp_yiaddr[4];		/* 'your' IP address */
-    unsigned char    bp_siaddr[4];		/* (next) server IP address */
-    unsigned char    bp_riaddr[4];		/* relay IP address */
-    unsigned char    bp_chaddr[BP_CHADDR_LEN];	/* client hardware address */
-    char	     bp_sname[BP_SNAME_LEN];	/* server host name */
-    char	     bp_file[BP_FILE_LEN];	/* boot file name */
-    unsigned char    bp_vend[BP_VEND_LEN];	/* vendor-specific area */
-    /* note that bp_vend can be longer, extending to end of packet. */
+struct bootp
+{
+  unsigned char bp_op;                    /* packet opcode type */
+  unsigned char bp_htype;                 /* hardware addr type */
+  unsigned char bp_hlen;                  /* hardware addr length */
+  unsigned char bp_hops;                  /* gateway hops */
+  unsigned char bp_xid[4];                /* transaction ID */
+  u16_t bp_secs;                          /* seconds since boot began */
+  u16_t bp_flags;                         /* RFC1532 broadcast, etc. */
+  unsigned char bp_ciaddr[4];             /* client IP address */
+  unsigned char bp_yiaddr[4];             /* 'your' IP address */
+  unsigned char bp_siaddr[4];             /* (next) server IP address */
+  unsigned char bp_riaddr[4];             /* relay IP address */
+  unsigned char bp_chaddr[BP_CHADDR_LEN]; /* client hardware address */
+  char bp_sname[BP_SNAME_LEN];            /* server host name */
+  char bp_file[BP_FILE_LEN];              /* boot file name */
+  unsigned char bp_vend[BP_VEND_LEN];     /* vendor-specific area */
+  /* note that bp_vend can be longer, extending to end of packet. */
 };
 
 /*
  * UDP port numbers, server and client.
  */
-#define	IPPORT_BOOTPS		67
-#define	IPPORT_BOOTPC		68
+#define	IPPORT_BOOTPS           67
+#define	IPPORT_BOOTPC           68
 
-#define BOOTREPLY		2
-#define BOOTREQUEST		1
+#define BOOTREPLY               2
+#define BOOTREQUEST             1
 
 /*
  * Hardware types from Assigned Numbers RFC.
  */
-#define HTYPE_ETHERNET		  1
-#define HTYPE_EXP_ETHERNET	  2
-#define HTYPE_AX25		  3
-#define HTYPE_PRONET		  4
-#define HTYPE_CHAOS		  5
-#define HTYPE_IEEE802		  6
-#define HTYPE_ARCNET		  7
+#define HTYPE_ETHERNET          1
+#define HTYPE_EXP_ETHERNET      2
+#define HTYPE_AX25              3
+#define HTYPE_PRONET            4
+#define HTYPE_CHAOS             5
+#define HTYPE_IEEE802           6
+#define HTYPE_ARCNET            7
 
 /*
  * Vendor magic cookie (v_magic) for CMU
  */
-#define VM_CMU		"CMU"
+#define VM_CMU                  "CMU"
 
 /*
  * Vendor magic cookie (v_magic) for RFC1048
  */
-#define VM_RFC1048	{ 99, 130, 83, 99 }
+#define VM_RFC1048              { 99, 130, 83, 99 }
 
-
 
 /*
  * Tag values used to specify what information is being supplied in
@@ -109,47 +109,47 @@ struct bootp {
  */
 /* RFC 1048 */
 /* End of cookie */
-#define TAG_END			((unsigned char) 255)
+#define TAG_END                 ((unsigned char) 255)
 /* padding for alignment */
-#define TAG_PAD			((unsigned char)   0)
+#define TAG_PAD                 ((unsigned char)   0)
 /* Subnet mask */
-#define TAG_SUBNET_MASK		((unsigned char)   1)
+#define TAG_SUBNET_MASK         ((unsigned char)   1)
 /* Time offset from UTC for this system */
-#define TAG_TIME_OFFSET		((unsigned char)   2)
+#define TAG_TIME_OFFSET         ((unsigned char)   2)
 /* List of routers on this subnet */
-#define TAG_GATEWAY		((unsigned char)   3)
+#define TAG_GATEWAY             ((unsigned char)   3)
 /* List of rfc868 time servers available to client */
-#define TAG_TIME_SERVER		((unsigned char)   4)
+#define TAG_TIME_SERVER         ((unsigned char)   4)
 /* List of IEN 116 name servers */
-#define TAG_NAME_SERVER		((unsigned char)   5)
+#define TAG_NAME_SERVER         ((unsigned char)   5)
 /* List of DNS name servers */
-#define TAG_DOMAIN_SERVER	((unsigned char)   6)
+#define TAG_DOMAIN_SERVER       ((unsigned char)   6)
 /* List of MIT-LCS UDL log servers */
-#define TAG_LOG_SERVER		((unsigned char)   7)
+#define TAG_LOG_SERVER          ((unsigned char)   7)
 /* List of rfc865 cookie servers */
-#define TAG_COOKIE_SERVER	((unsigned char)   8)
+#define TAG_COOKIE_SERVER       ((unsigned char)   8)
 /* List of rfc1179 printer servers (in order to try) */
-#define TAG_LPR_SERVER		((unsigned char)   9)
+#define TAG_LPR_SERVER          ((unsigned char)   9)
 /* List of Imagen Impress servers (in prefered order) */
-#define TAG_IMPRESS_SERVER	((unsigned char)  10)
+#define TAG_IMPRESS_SERVER      ((unsigned char)  10)
 /* List of rfc887 Resourse Location servers */
-#define TAG_RLP_SERVER		((unsigned char)  11)
+#define TAG_RLP_SERVER          ((unsigned char)  11)
 /* Hostname of client */
-#define TAG_HOST_NAME		((unsigned char)  12)
+#define TAG_HOST_NAME           ((unsigned char)  12)
 /* boot file size */
-#define TAG_BOOT_SIZE		((unsigned char)  13)
+#define TAG_BOOT_SIZE           ((unsigned char)  13)
 /* RFC 1395 */
 /* path to dump to in case of crash */
-#define TAG_DUMP_FILE		((unsigned char)  14)
+#define TAG_DUMP_FILE           ((unsigned char)  14)
 /* domain name for use with the DNS */
-#define TAG_DOMAIN_NAME		((unsigned char)  15)
+#define TAG_DOMAIN_NAME         ((unsigned char)  15)
 /* IP address of the swap server for this machine */
-#define TAG_SWAP_SERVER		((unsigned char)  16)
+#define TAG_SWAP_SERVER         ((unsigned char)  16)
 /* The path name to the root filesystem for this machine */
-#define TAG_ROOT_PATH		((unsigned char)  17)
+#define TAG_ROOT_PATH           ((unsigned char)  17)
 /* RFC 1497 */
 /* filename to tftp with more options in it */
-#define TAG_EXTEN_FILE		((unsigned char)  18)
+#define TAG_EXTEN_FILE          ((unsigned char)  18)
 /* RFC 1533 */
 /* The following are in rfc1533 and may be used by BOOTP/DHCP */
 /* IP forwarding enable/disable */
@@ -195,11 +195,11 @@ struct bootp {
 /* don't send keepalive with an octet of garbage for compatability */
 #define TAG_IP_TCP_KA_GARBAGE   ((unsigned char)  39)
 /* NIS domainname */
-#define TAG_NIS_DOMAIN		((unsigned char)  40)
+#define TAG_NIS_DOMAIN          ((unsigned char)  40)
 /* list of NIS servers */
-#define TAG_NIS_SERVER		((unsigned char)  41)
+#define TAG_NIS_SERVER          ((unsigned char)  41)
 /* list of NTP servers */
-#define TAG_NTP_SERVER		((unsigned char)  42)
+#define TAG_NTP_SERVER          ((unsigned char)  42)
 /* and stuff vendors may want to add */
 #define TAG_VEND_SPECIFIC       ((unsigned char)  43)
 /* NetBios over TCP/IP name server */
@@ -249,20 +249,21 @@ struct bootp {
  * "vendor" data permitted for CMU bootp clients.
  */
 
-struct cmu_vend {
-	char		v_magic[4];	/* magic number */
-	unsigned int32	v_flags;	/* flags/opcodes, etc. */
-	struct in_addr 	v_smask;	/* Subnet mask */
-	struct in_addr 	v_dgate;	/* Default gateway */
-	struct in_addr	v_dns1, v_dns2; /* Domain name servers */
-	struct in_addr	v_ins1, v_ins2; /* IEN-116 name servers */
-	struct in_addr	v_ts1, v_ts2;	/* Time servers */
-	int32		v_unused[6];	/* currently unused */
+struct cmu_vend
+{
+  char v_magic[4];                  /* magic number */
+  unsigned int32 v_flags;           /* flags/opcodes, etc. */
+  struct in_addr v_smask;           /* Subnet mask */
+  struct in_addr v_dgate;           /* Default gateway */
+  struct in_addr v_dns1, v_dns2;    /* Domain name servers */
+  struct in_addr v_ins1, v_ins2;    /* IEN-116 name servers */
+  struct in_addr v_ts1, v_ts2;      /* Time servers */
+  int32 v_unused[6];                /* currently unused */
 };
 
 
 /* v_flags values */
-#define VF_SMASK	1	/* Subnet mask field contains valid data */
+#define VF_SMASK	1       /* Subnet mask field contains valid data */
 
 #endif /* 0 */
 

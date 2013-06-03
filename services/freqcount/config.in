@@ -1,0 +1,19 @@
+# CLOCK_CPU_SUPPORT and FREQCOUNT_SUPPORT are currently not compatible
+if [ "$CLOCK_CPU_SUPPORT" != "y" ]; then
+    dep_bool_menu "Frequency counter" FREQCOUNT_SUPPORT $ARCH_AVR
+        int 'Channels' FREQCOUNT_CHANNELS "1"
+        bool "All channels active on boot" FREQCOUNT_BOOT_ON
+        int 'Average over samples' FREQCOUNT_AVERAGE "8"
+        bool "Optimize for frequencies >300 Hz" FREQCOUNT_NOSLOW_SUPPORT
+        bool "Duty cycle sampling" FREQCOUNT_DUTY_SUPPORT
+        bool "Additional moving average" FREQCOUNT_MOVING_AVERAGE_SUPPORT
+        if [ "$FREQCOUNT_MOVING_AVERAGE_SUPPORT" = y ]; then
+            int 'Moving average samples' FREQCOUNT_MOVING_AVERAGE_SIZE "8"
+        fi
+        bool "Frequency counter debugging" FREQCOUNT_DEBUGGING DEBUG
+    endmenu
+else
+    define_bool FREQCOUNT_SUPPORT "n"
+    comment "Frequency counter not available: CPU clock active"
+fi
+

@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <avr/pgmspace.h>
+#include "hardware/adc/temp2text.h"
 
 /* gibt die Temperatur (in Zehntelgrad) formatiert als Klartext
  * im Textbuffer zurueck.

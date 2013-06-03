@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 [ x"$1" = x ] && show_usage=y
 [ x"$2" = x ] && show_usage=y
@@ -24,7 +24,7 @@ grep -e "^$1=" .config -q || {
   exit 1
 }
 
-CONFIG_NEW=`mktemp`
+CONFIG_NEW=`mktemp cnXXXXXX`
 sed -e "s&^$1=.*\$&$1=$2&" .config > $CONFIG_NEW
 
 diff -u .config $CONFIG_NEW -q > /dev/null && {

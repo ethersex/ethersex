@@ -119,7 +119,7 @@ int16_t parse_cmd_mouse_send (char *cmd, char *output, uint16_t len)
 	uint8_t buttons=0;
 	int8_t deltax=0;
 	int8_t deltay=0;
-	sscanf_P(cmd, PSTR("%u %i %i"), &buttons, &deltax, &deltay);
+	sscanf_P(cmd, PSTR("%hhu %hhi %hhi"), &buttons, &deltax, &deltay);
   	USBMOUSEDEBUG("send: %u %i %i\n", buttons, deltax, deltay);
 
 	reportBuffer[0]=buttons; // button

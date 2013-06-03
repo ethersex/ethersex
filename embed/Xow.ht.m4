@@ -1,6 +1,7 @@
-ifdef(`conf_ONEWIRE', `', `m4exit(1)')dnl
-ifdef(`conf_ONEWIRE_INLINE', `', `m4exit(1)')dnl
-undefine(`substr')dnl
+changequote({{,}})dnl
+ifdef({{conf_ONEWIRE}}, {{}}, {{m4exit(1)}})dnl
+ifdef({{conf_ONEWIRE_INLINE}}, {{}}, {{m4exit(1)}})dnl
+undefine({{substr}})dnl
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC
     "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
@@ -17,12 +18,12 @@ undefine(`substr')dnl
     <script src="scr.js" type="text/javascript"></script>
     <script type="text/javascript"><![CDATA[
 var num = 8;
-var min = -10, max = 50;
+var min = -10, max = 60;
 var g;
 var sensors;
 
 function ecmd_1w_list_req() {
-	ArrAjax.ecmd('1w list', ecmd_1w_list_req_handler);
+	ArrAjax.ecmd('1w list t', ecmd_1w_list_req_handler);
 }
 
 function ecmd_1w_list_req_handler(request) {
@@ -31,21 +32,46 @@ function ecmd_1w_list_req_handler(request) {
 	sensors = request.responseText.split("\n");
 	var ow_table = $('ow_table');
 
+	ow_table.innerHTML = "<tr>dnl
+<td>Address</td>dnl
+ifdef({{conf_ONEWIRE_NAMING}}, {{<td>Name</td>}})dnl
+<td>Data</td>dnl
+</tr>";
 	for (var i = 0; i < sensors.length; i++) {
 		if (sensors[i] == "OK")
 			 break;
-		ow_table.insertRow(i+1).innerHTML = "<td>" + sensors[i] + "</td><td id='ow" + i +"'>No data</td>";
-		ecmd_1w_convert_req(i);
-		setInterval('ecmd_1w_convert_req('+ i +')', 5000);
+		var j=0;
+		var colums = sensors[i].split("\t");
+		var addr = colums[j++];
+ifdef({{conf_ONEWIRE_NAMING}}, {{dnl
+		var name = colums[j++];
+}})dnl
+ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{dnl
+		var temp = parseFloat(colums[j++])
+}})dnl
+		ow_table.insertRow(i+1).innerHTML = "dnl
+<td><code><b>" + addr + "</b></code></td>dnl
+ifdef({{conf_ONEWIRE_NAMING}}, {{<td><code><b>" + name + "</b></code></td>}})dnl
+ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{<td style='color:" + g[i].color + "'>" + temp + " °C</td>}}, {{<td id='ow" + i +"'>No data</td>}})dnl
+";
+ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{dnl
+		g[i].append(temp);
+}})dnl
 	}
+ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{}}, {{dnl
+        ecmd_1w_convert_req();
+        setInterval('ecmd_1w_convert_req()', 10000);
+}})dnl
 }
 
-function ecmd_1w_convert_req(data) {
-	ArrAjax.ecmd('1w convert ' + sensors[data], ecmd_1w_convert_req_handler, 'GET', data);
-}
-
-function ecmd_1w_convert_req_handler(request, data) {
-	ArrAjax.ecmd('1w get ' + sensors[data], ecmd_1w_get_req_handler, 'GET', data);
+ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{}}, {{dnl
+function ecmd_1w_convert_req() {
+        ArrAjax.ecmd('1w convert');
+        for (var i = 0; i < sensors.length; i++) {
+                if (sensors[i] == "OK")
+                        break;
+                ArrAjax.ecmd('1w get ' + sensors[i].split("\t")[0], ecmd_1w_get_req_handler, 'GET', i);
+        }
 }
 
 function ecmd_1w_get_req_handler(request, data) {
@@ -54,23 +80,25 @@ function ecmd_1w_get_req_handler(request, data) {
 
 	if (data < num) {
 		cell.style.color = g[data].color;
-		g[data].append(parseInt(request.responseText));
+		g[data].append(parseFloat(request.responseText));
 	}
 }
 
+}})dnl
 window.onload = function() {
 	g = initDiagram(num, "g#", "axis", "text", min, max);
 	ecmd_1w_list_req();
+ifdef({{conf_ONEWIRE_ECMD_LIST_VALUES}}, {{dnl
+	setInterval('ecmd_1w_list_req()', 10000);
+}})dnl
 }
 ]]></script>
   </head>
   <body>
     <h1>SVG-powered 1-Wire Status</h1>
-
     <table>
     <tr><td valign="top">
       <table id='ow_table' border="1" cellspacing="0">
-        <tr><td>Address</td><td>Data</td></tr>
       </table>
     </td>
     <td>
@@ -88,6 +116,7 @@ window.onload = function() {
       </svg:svg>
     </td></tr>
     </table>
+    <a href="idx.ht"> Back </a>
     <div id="logconsole"></div>
   </body>
 </html>

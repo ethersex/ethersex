@@ -1,0 +1,33 @@
+#
+# Copyright (c) 2012 by Frank Sautter <ethersix@sautter.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 675 Mass
+# Ave, Cambridge, MA 02139, USA.
+#
+# For more information on the GPL, please go to:
+# http://www.gnu.org/copyleft/gpl.html
+#
+
+usart_count_used
+if [ "$ELTAKOMS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "Eltako MultiSensor (Weather Sensor) support" ELTAKOMS_SUPPORT $ARCH_AVR
+		choice '  Eltako USART select' "$(usart_choice ELTAKOMS)"
+		usart_process_choice ELTAKOMS
+		comment "Debugging Flags"
+    dep_bool "Eltako MultiSensor" DEBUG_ELTAKOMS $ELTAKOMS_SUPPORT $DEBUG
+	endmenu
+else
+	define_bool ELTAKOMS_SUPPORT n
+	comment "Eltako MultiSensor (Weather Sensor) not available. No free USART. ($USARTS_USED/$USARTS)"
+fi

@@ -1,6 +1,6 @@
 #		-*- mode: sh -*-
 
-dep_bool_menu "TTY Layer (EXPERIMENTAL)" TTY_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "TTY Layer" TTY_SUPPORT
 
 int "screen width" TTY_COLS 16
 int "screen height" TTY_LINES 4

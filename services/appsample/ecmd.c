@@ -49,7 +49,7 @@ int16_t parse_cmd_app_sample_periodic(char *cmd, char *output, uint16_t len)
 /*
 -- Ethersex META --
 block([[Application_Sample]])
-ecmd_feature(app_sample_command, "sample ",, Manually call application sample commands)
+ecmd_feature(app_sample_command, "sample",, Manually call application sample commands)
 ecmd_feature(app_sample_init, "sample_init",, Manually call application sample init method)
 ecmd_feature(app_sample_periodic, "sample_periodic",, Manually call application sample periodic method)
 */

@@ -1,4 +1,4 @@
-dep_bool_menu "netStat client (EXPERIMENTAL)" NETSTAT_SUPPORT $TCP_SUPPORT $CRON_STATIC_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "netStat client" NETSTAT_SUPPORT $TCP_SUPPORT $CRON_STATIC_SUPPORT
   ip "Service IP" CONF_NETSTAT_SERVICE_IP 188.40.33.175 "2001:6f8:1209:f0:216:3eff:fe03:ff"
   string "Service Hostname" CONF_NETSTAT_SERVICE "ethersex.de"
   string "Base Path" CONF_NETSTAT_API "/~habo/stat/"

@@ -1,8 +1,8 @@
 unit mainEdit;
 
 { MenuEdit
-  Version 1.3
-  (c) 2009 by Malte Marwedel
+  Version 1.4
+  (c) 2009-2010 by Malte Marwedel
   www.marwedels.de/malte
 
   This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, ComCtrls, DOM, XMLWrite, XMLRead, Math, ExtDlgs, exporter;
+  StdCtrls, Spin, ExtCtrls, ComCtrls, DOM, XMLWrite, XMLRead, Math, ExtDlgs, exporter, check,
+  process;
 
 type
 
@@ -51,7 +52,18 @@ type
     Button23: TButton;
     Button24: TButton;
     Button25: TButton;
+    Button26: TButton;
+    Button27: TButton;
+    Button28: TButton;
+    Button29: TButton;
     Button3: TButton;
+    Button30: TButton;
+    Button31: TButton;
+    Button32: TButton;
+    Button33: TButton;
+    Button34: TButton;
+    Button35: TButton;
+    Button36: TButton;
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
@@ -72,6 +84,7 @@ type
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     Image1: TImage;
     Image2: TImage;
@@ -84,12 +97,9 @@ type
     Label15: TLabel;
     Label16: TLabel;
     Label17: TLabel;
-    Label18: TLabel;
-    Label19: TLabel;
     Label2: TLabel;
     Label21: TLabel;
     Label22: TLabel;
-    Label23: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -102,6 +112,7 @@ type
     Memo1: TMemo;
     OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
+    Process1: TProcess;
     RadioButton1: TRadioButton;
     RadioButton2: TRadioButton;
     RadioButton3: TRadioButton;
@@ -132,6 +143,7 @@ type
     SpinEdit7: TSpinEdit;
     SpinEdit8: TSpinEdit;
     SpinEdit9: TSpinEdit;
+    procedure AsyncProcess1ReadData(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
     procedure Button12Click(Sender: TObject);
@@ -149,7 +161,18 @@ type
     procedure Button23Click(Sender: TObject);
     procedure Button24Click(Sender: TObject);
     procedure Button25Click(Sender: TObject);
+    procedure Button26Click(Sender: TObject);
+    procedure Button27Click(Sender: TObject);
+    procedure Button28Click(Sender: TObject);
+    procedure Button29Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button30Click(Sender: TObject);
+    procedure Button31Click(Sender: TObject);
+    procedure Button32Click(Sender: TObject);
+    procedure Button33Click(Sender: TObject);
+    procedure Button34Click(Sender: TObject);
+    procedure Button35Click(Sender: TObject);
+    procedure Button36Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
@@ -173,6 +196,7 @@ type
     procedure Edit6Change(Sender: TObject);
     procedure Edit7Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
     procedure ListBox1SelectionChange(Sender: TObject; User: boolean);
     procedure ListBox2SelectionChange(Sender: TObject; User: boolean);
     procedure RadioButton1Change(Sender: TObject);
@@ -381,6 +405,11 @@ begin
   end;
 end;
 
+procedure TForm1.AsyncProcess1ReadData(Sender: TObject);
+begin
+
+end;
+
 procedure TForm1.Button17Click(Sender: TObject);
   var ch: TDomNode;
 begin
@@ -450,6 +479,7 @@ begin
   groupbox3.Enabled := false;
   groupbox5.enabled := false;
   button21.Enabled := false;
+  button35.Enabled := false;
   maxwindow := 0;
   while Assigned(bases) do begin
     temp := bases.Attributes.GetNamedItem('number').NodeValue;
@@ -494,7 +524,6 @@ begin
       end;
       str2 := str2 + str1;
     end;
-    //showmessage(str2);
     if (assigned(ao.FirstChild)) then
       ao.RemoveChild(ao.FirstChild);
     ch := doc.CreateElement('bmp');
@@ -515,12 +544,36 @@ end;
 
 procedure TForm1.Button23Click(Sender: TObject);
   var ch: TDomNode;
-  p1, p2, p3, p4: integer;
+  p1, p2, p3, p4, ix, iy, vx, vy: integer;
   te: String;
+  img: TBitmap;
 begin
+  vx := (spinedit1.value+2);
+  vy := (spinedit2.value+2);
+  ix := vx;
+  iy := vy;
+  if radiobutton6.checked then begin
+    ix := ix div 4;
+    iy := iy div 4;
+  end;
+  if radiobutton3.checked then begin
+    ix := ix div 2;
+    iy := iy div 2;
+  end;
+  if radiobutton5.checked then begin
+    ix := ix * 2;
+    iy := iy * 2;
+  end;
+  image1.Width :=  ix;
+  image1.Height :=  iy;
   with image1 do begin
+    img := TBitmap.Create();
+    img.SetSize(vx, vy);
+    img.canvas.FillRect(0,0, vx, vy);
+    FreeAndNil(Picture.Graphic);
+    image1.Picture.Graphic := img;
     canvas.Brush.Color := clwhite;
-    canvas.FillRect(0,0, 4098, 4098);
+    canvas.FillRect(0,0, vx, vy);
     canvas.Brush.Color := clwhite;
     canvas.Pen.Color := clred;
     canvas.Font.Size := 8;
@@ -608,12 +661,130 @@ begin
   Button20Click(sender);
 end;
 
+procedure TForm1.Button26Click(Sender: TObject);
+begin
+  showmessage('Order of objects = Drawing order = Focus order. The first window in the list is always the starting window for the menu.');
+end;
+
+procedure TForm1.Button27Click(Sender: TObject);
+begin
+  showmessage('ActionName: Will generate a #define with this text, defining a number to use with the menu_action function.');
+end;
+
+procedure TForm1.Button28Click(Sender: TObject);
+begin
+   showmessage('AnswerName: Generates a #define referencing a position in an array to read/write the state of checkboxes, groupboxes and the index of the selected item in a list.');
+end;
+
+procedure TForm1.Button29Click(Sender: TObject);
+begin
+  showmessage('Enter the special keyword "RET" into the Window switch field in order to return from a SubWindow to the previous normal Window.');
+end;
+
 procedure TForm1.Button2Click(Sender: TObject);
 begin
   if (listbox1.itemindex >= 0) then begin
     RootNode.RemoveChild(aw);
     button20click(sender);
   end;
+end;
+
+procedure TForm1.Button30Click(Sender: TObject);
+begin
+  showmessage('Static text: Just enter the text in the big field and select "Local Storage". Dynamic text: Select "RAM Storage" and enter an identifier in the big field'+
+  ' (must begin with a characterer and may only contain characters+numbers, no new line).');
+end;
+
+procedure TForm1.Button31Click(Sender: TObject);
+begin
+  showmessage('MenuEdit Version 1.4    (c) 2009-2010 by Malte Marwedel      terms of use: GNU General Public License version 2.0 or later, see license.txt');
+end;
+
+procedure TForm1.Button32Click(Sender: TObject);
+begin
+  showmessage('Only Lists can handle multiple lines. You can enter them into the text field. If you use dynamic text, a newline character (\n) is used to separate the lines.');
+end;
+
+procedure TForm1.Button33Click(Sender: TObject);
+begin
+   showmessage('Currently four 5x7 fonts are defined: 0 Compact 5x7 font, 1: Fixed 5x7 font. 2 and 3: The first two fonts with an underline (as 8. Pixel).');
+end;
+
+procedure TForm1.Button34Click(Sender: TObject);
+var clone, ch, fakew: TDomNode;
+targ, targ2, tops, exec, cpath, texec: string;
+begin
+//1. clone current tree, 2. insert switch window, 3. export and 4. run program
+  //1
+  clone := RootNode.CloneNode(true);
+  //2
+  targ2 := '254';
+  fakew := doc.CreateElement('window');
+  TDOMElement(fakew).SetAttribute('number', inttostr(maxwindow+1));
+  TDOMElement(fakew).SetAttribute('focusNextKey', '0');
+  TDOMElement(fakew).SetAttribute('focusPrevKey', '0');
+  TDOMElement(fakew).SetAttribute('focusEnterKey', '0');
+  clone.InsertBefore(fakew, clone.FirstChild);
+  tops := form2.identifier(aw);
+  ch := doc.CreateElement('shortcut');
+  TDOMElement(ch).SetAttribute('number', '1');
+  TDOMElement(ch).SetAttribute('shortcutkey', targ2);
+  TDOMElement(ch).SetAttribute('action', '');
+  TDOMElement(ch).SetAttribute('screen', tops);
+  fakew.AppendChild(ch);
+  //3
+  targ := GetTempDir(false);
+  targ := targ+'testmenu_temp'+inttostr(random(1000000));
+  createdir(targ);
+  exporter.exportit(targ, clone, true);
+  //4
+  cpath := extractfilepath(application.ExeName);
+  process1.CurrentDirectory := cpath;
+  exec := cpath+'menutester.NotUnixNotWin32'; //error case
+  {$IfDef Unix}
+  exec := cpath+'menutester.sh';
+  {$Endif}
+  {$IfDef Win32}
+  exec := cpath+'menutester.bat';
+  {$Endif}
+  if (process1.Running) then begin
+    process1.Terminate(0);
+  end;
+  if fileexists(exec) then begin
+    process1.CommandLine := exec+' "'+targ+'" "'+targ2+'"';
+    //working dir: path with menuedit executable
+    //first parameter: paht for temporary dir where the files are exported
+    //second parameter: key to jump into the right menu
+    process1.Execute;
+    //Bug: if execute fails, the program chrashes
+    if (process1.Running = false) then begin
+      showmessage('Error: '+exec+' found. But starting failed.');
+    end else begin
+      sleep(1500);
+      texec := targ+system.DirectorySeparator+'menutester';
+      {$IfDef Win32}
+      texec := texec+'menutester.exe';
+      {$Endif}
+      if (process1.running = false) and (fileexists(texec) = false) then
+        showmessage('Error: '+texec+' creation failed, see compileerror.log in the temporary directory');
+    end;
+  end else begin
+    showmessage('Error: program '+exec+' not found.');
+  end;
+  clone.Destroy;
+end;
+
+procedure TForm1.Button35Click(Sender: TObject);
+begin
+  if (assigned(ao.FirstChild)) then
+    ao.RemoveChild(ao.FirstChild);
+  image2.Canvas.Rectangle(0, 0, 512, 512);
+end;
+
+procedure TForm1.Button36Click(Sender: TObject);
+begin
+  form2.doc := doc;
+  form2.Show;
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
@@ -660,6 +831,8 @@ procedure TForm1.Button4Click(Sender: TObject);
 begin
   if (opendialog1.Execute) then begin
     loadfile(opendialog1.filename);
+    form2.close;
+    form2.ListBox1.Clear;
   end;
 end;
 
@@ -842,7 +1015,7 @@ begin
   TDOMElement(RootNode).SetAttribute('compact', '0');
   TDOMElement(RootNode).SetAttribute('languages', '1');
   img := TBitmap.Create();
-  img.SetSize(1026, 1026);
+  img.SetSize(512, 512);
   img.canvas.FillRect(0,0, 4096, 4096);
   image1.Picture.Graphic := img;
   Button20Click(sender);
@@ -857,6 +1030,11 @@ begin
         end;
      end;
   end;
+end;
+
+procedure TForm1.ListBox1Click(Sender: TObject);
+begin
+
 end;
 
 
@@ -976,6 +1154,7 @@ begin
     combobox1.enabled := false;
     groupbox5.enabled := true;
     button21.enabled := false;
+    button35.enabled := false;
     //radiogroup1.enabled := false;
     //groupbox6.enabled := false;
     if (ao.Attributes.GetNamedItem('Xpos') <> nil) then begin
@@ -1069,8 +1248,10 @@ begin
       spinedit18.enabled := true;
       spinedit18.Value := strtoint(ao.Attributes.GetNamedItem('pagedownkey').NodeValue);
     end;
-    if (ao.NodeName = 'gfx') then
+    if (ao.NodeName = 'gfx') then begin
       button21.enabled := true;
+      button35.enabled := true;
+    end;
     if (ao.FirstChild <> nil) then
       if (ao.FirstChild.NodeName = 'bmp') then begin
         bmpdraw(ao.FirstChild);
@@ -1118,26 +1299,22 @@ end;
 
 procedure TForm1.RadioButton3Change(Sender: TObject);
 begin
-  image1.Width := 1026 div 2;
-  image1.Height := 1026 div 2;
+  button23click(sender);
 end;
 
 procedure TForm1.RadioButton4Change(Sender: TObject);
 begin
-    image1.Width := 1026;
-  image1.Height := 1026;
+  button23click(sender);
 end;
 
 procedure TForm1.RadioButton5Change(Sender: TObject);
 begin
-    image1.Width := 1026 * 2;
-  image1.Height := 1026 * 2;
+  button23click(sender);
 end;
 
 procedure TForm1.RadioButton6Change(Sender: TObject);
 begin
-    image1.Width := 1026 div 4;
-  image1.Height := 1026 div 4;
+  button23click(sender);
 end;
 
 procedure TForm1.RadioGroup1Click(Sender: TObject);

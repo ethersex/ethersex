@@ -105,7 +105,7 @@ void i2c_slave_core_newdata(void)
 
 /* Interruptroutine des TWI
  */
-SIGNAL (SIG_2WIRE_SERIAL)
+ISR (TWI_vect)
 {
   
   switch (TWSR & 0xF8){
