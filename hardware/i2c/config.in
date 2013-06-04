@@ -1,0 +1,6 @@
+dep_bool_menu "I2C Support" I2C_SUPPORT
+  if [ "$I2C_SUPPORT" = "y" ]; then
+    source hardware/i2c/master/config.in
+    source hardware/i2c/slave/config.in
+  fi
+endmenu

@@ -1,0 +1,4 @@
+dep_bool_menu "I2C Slave support" I2C_SLAVE_SUPPORT $I2C_SUPPORT
+	comment  "Debugging Flags"
+	dep_bool 'I2C' DEBUG_I2C_SLAVE $DEBUG $I2C_SLAVE_SUPPORT $I2C_SUPPORT
+endmenu
