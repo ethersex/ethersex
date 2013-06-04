@@ -187,6 +187,13 @@ help:
 	@echo "                 (default if .config exists)"
 	@echo "  v            - Same as "all" but with logging to make.log enabled"
 
+
+##############################################################################
+# download to the webserver
+download: $(TARGET)
+	@echo "[DOWNLOAD]"
+	@avrdude -v -p atmega644 -c avrispmkII -P usb -U flash:w:ethersex.hex make clean
+
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/defaults.mk
