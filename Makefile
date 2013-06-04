@@ -192,7 +192,7 @@ help:
 # download to the webserver
 download: $(TARGET)
 	@echo "[DOWNLOAD]"
-	@avrdude -v -p atmega644 -c avrispmkII -P usb -U flash:w:ethersex.hex make clean
+	@avrdude -v -p atmega644 -c avrispmkII -P usb -U flash:w:ethersex.hex
 
 ##############################################################################
 # generic fluff
