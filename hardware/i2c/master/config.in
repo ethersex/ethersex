@@ -55,6 +55,6 @@ dep_bool_menu "I2C Master Support" I2C_MASTER_SUPPORT $ARCH_AVR
   fi
 
 	comment  "Debugging Flags"
-	dep_bool 'I2C' DEBUG_I2C $DEBUG
+	dep_bool 'I2C' DEBUG_I2C $DEBUG $I2C_MASTER_SUPPORT
 
 endmenu
