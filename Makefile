@@ -226,7 +226,7 @@ meta.defines: autoconf.h pinning.c
 	scripts/m4-defines > $@.tmp
 	grep -e "^#define [A-Z].*_PIN " pinning.c  | $(SED) -e "s/^#define \([^ 	]*\)_PIN.*/-Dpin_\1/;s/[()]/_/g" >> $@.tmp
 	$(SED) -e ':a' -e 'N' -e '$$!ba' -e 's/\n/ /g' $@.tmp > $@
-	$(RM) -f $@.tmp
+	$(RM) $@.tmp
 
 $(y_META_SRC): meta.defines
 
