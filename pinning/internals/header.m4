@@ -345,6 +345,9 @@ ifdef(`conf_SOFT_SPI', `', `dnl
   ifdef(`conf_ENC28J60', `define(need_spi, 1)')dnl
   ifdef(`conf_DATAFLASH', `define(need_spi, 1)')dnl
   ifdef(`conf_SD_READER', `define(need_spi, 1)')dnl
+  ifdef(`conf_USTREAM', `define(need_spi, 1)')dnl
+  ifdef(`conf_SER_RAM_23K256', `define(need_spi, 1)')dnl
+  ifdef(`conf_S1D15G10', `define(need_spi, 1)')dnl
 ')
 
 define(`SHT_VOLTAGE_COMPENSATION', `dnl

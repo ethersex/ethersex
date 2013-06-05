@@ -31,7 +31,8 @@
     defined(RFM12_SUPPORT)          || \
     defined(DATAFLASH_SUPPORT)      || \
     defined(USTREAM_SUPPORT)        || \
-    defined(SPI_CS_SD_READER_PIN)
+    defined(SPI_CS_SD_READER_PIN)   || \
+    defined(S1D15G10_SUPPORT)
 
 void
 spi_init(void)
@@ -67,6 +68,10 @@ spi_init(void)
 
 #if defined(SPI_CS_SD_READER_PIN)
   PIN_SET(SPI_CS_SD_READER);
+#endif
+
+#ifdef S1D15G10_SUPPORT
+  PIN_SET(S1D15G10_CS);
 #endif
 
 #ifndef SOFT_SPI_SUPPORT
@@ -105,4 +110,4 @@ spi_send(uint8_t data)
 }
 #endif /* !SOFT_SPI_SUPPORT */
 
-#endif /* ENC28J60_SUPPORT || SER_RAM_23K256_SUPPORT || RFM12_SUPPORT || DATAFLASH_SUPPORT || USTREAM_SUPPORT || SPI_CS_SD_READER_PIN */
+#endif /* ENC28J60_SUPPORT || SER_RAM_23K256_SUPPORT || RFM12_SUPPORT || DATAFLASH_SUPPORT || USTREAM_SUPPORT || SPI_CS_SD_READER_PIN || S1D15G10_SUPPORT*/
