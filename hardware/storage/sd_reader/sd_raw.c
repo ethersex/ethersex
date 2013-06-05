@@ -210,7 +210,7 @@ uint8_t sd_raw_init(void)
     
     if(!sd_raw_available())
     {
-	SDDEBUG ("sd-card not available, stop.\n");
+	SDDEBUGRAW ("sd-card not available, stop.\n");
         return 0;
     }
 
@@ -236,7 +236,7 @@ uint8_t sd_raw_init(void)
         {
             unselect_card();
             /* disabled, it's just flooding the console ...
-            SDDEBUG ("card reset failed, response=0x%04x.\n", response); */
+            SDDEBUGRAW ("card reset failed, response=0x%04x.\n", response); */
             return 0;
         }
     }
@@ -266,12 +266,12 @@ uint8_t sd_raw_init(void)
         {
             /* card conforms to SD 1 card specification */
             sd_raw_card_type |= (1 << SD_RAW_SPEC_1);
-            SDDEBUG ("found SD 1 card\n");
+            SDDEBUGRAW ("found SD 1 card\n");
         }
         else
         {
             /* MMC card */
-            SDDEBUG ("found MMC card\n");
+            SDDEBUGRAW ("found MMC card\n");
         }
     }
 
@@ -325,7 +325,7 @@ uint8_t sd_raw_init(void)
     if(sd_raw_send_command(CMD_SET_BLOCKLEN, 512))
     {
         unselect_card();
-        SDDEBUG ("failed to set block size to 512 bytes.\n");
+        SDDEBUGRAW ("failed to set block size to 512 bytes.\n");
         return 0;
     }
 
@@ -507,7 +507,7 @@ uint8_t sd_raw_read(offset_t offset, uint8_t* buffer, uintptr_t length)
 
             if (timeout == 0)
             {
-                SDDEBUG ("read timeout reached!\n");
+                SDDEBUGRAW ("read timeout reached!\n");
                 unselect_card();
                 return 0;
             }

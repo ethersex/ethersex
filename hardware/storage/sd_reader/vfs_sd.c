@@ -49,7 +49,7 @@ vfs_sd_try_open_rootnode(void)
   if ((vfs_sd_fat = fat_open(sd_active_partition)) == NULL
       || (vfs_sd_rootnode = vfs_sd_chdir("/")) == NULL)
   {
-    SDDEBUG("SD-Card initialized, but failed to open root node.\n");
+    SDDEBUGVFS("SD-Card initialized, but failed to open root node.\n");
 #ifdef HAVE_SD_READER_POWERON
     PIN_CLEAR(SD_READER_POWERON);
     _delay_ms(100);
@@ -60,7 +60,7 @@ vfs_sd_try_open_rootnode(void)
     return 1;
   }
 
-  SDDEBUG("SD-Card initialized and root node opened.\n");
+  SDDEBUGVFS("SD-Card initialized and root node opened.\n");
   return 0;                     /* Jippie, we're set. */
 }
 
@@ -279,13 +279,13 @@ vfs_sd_ping(void)
   uint8_t result = 0;
   unsigned char buf[5];
 
-  SDDEBUG("performing sd_ping ...\n");
+  SDDEBUGVFS("performing sd_ping ...\n");
   if (sd_raw_read(0, buf, 5) == 0)
     result = 1;
   if (sd_raw_read(512, buf, 5) == 0)
     result = 1;
 
-  SDDEBUG("ping result: %d\n", result);
+  SDDEBUGVFS("ping result: %d\n", result);
   return result;
 }
 

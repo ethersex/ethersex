@@ -112,11 +112,23 @@ extern "C"
 #endif
 
 
-#ifdef DEBUG_SD_READER
+#ifdef DEBUG_SD_READER_FAT
 # include "core/debug.h"
-# define SDDEBUG(a...)  debug_printf("sd_reader: " a)
+# define SDDEBUG(a...)  debug_printf(a)
 #else
 # define SDDEBUG(a...)
+#endif
+#ifdef DEBUG_SD_READER_RAW
+# include "core/debug.h"
+# define SDDEBUGRAW(a...)  debug_printf("sd_raw: " a)
+#else
+# define SDDEBUGRAW(a...)
+#endif
+#ifdef DEBUG_SD_READER_VFS
+# include "core/debug.h"
+# define SDDEBUGVFS(a...)  debug_printf("sd_vfs: " a)
+#else
+# define SDDEBUGVFS(a...)
 #endif
 
 #ifdef __cplusplus

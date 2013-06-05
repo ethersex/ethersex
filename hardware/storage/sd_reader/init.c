@@ -50,7 +50,7 @@ sd_try_init (void)
   if ((sd_active_partition = sd_try_open_partition (0)) == NULL
       && (sd_active_partition = sd_try_open_partition (-1)) == NULL)
     {
-      SDDEBUG ("Initialized SD-Card, but cannot open partition.\n");
+      SDDEBUGRAW ("Initialized SD-Card, but cannot open partition.\n");
       return 1;
     }
 
