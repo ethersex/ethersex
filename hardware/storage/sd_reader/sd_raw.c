@@ -368,7 +368,7 @@ uint8_t sd_raw_available(void)
  */
 uint8_t sd_raw_locked(void)
 {
-    return get_pin_locked() == 0x00;
+    return get_pin_locked() != 0x00;
 }
 
 #if 0
