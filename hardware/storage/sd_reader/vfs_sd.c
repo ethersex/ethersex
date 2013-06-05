@@ -64,7 +64,8 @@ vfs_sd_try_open_rootnode(void)
   return 0;                     /* Jippie, we're set. */
 }
 
-static inline struct vfs_file_handle_t *
+#if SD_WRITE_SUPPORT == 1
+static struct vfs_file_handle_t *
 vfs_sd_open_in(struct fat_dir_struct *parent, const char *filename)
 {
   fat_reset_dir(parent);
@@ -92,6 +93,7 @@ vfs_sd_open_in(struct fat_dir_struct *parent, const char *filename)
 
   return NULL;                  /* No such file. */
 }
+#endif
 
 void
 vfs_sd_close(struct vfs_file_handle_t *fh)
@@ -302,7 +304,6 @@ vfs_sd_umount(void)
     vfs_sd_fat = NULL;
   }
 
-
   if (sd_active_partition)
   {
     partition_close(sd_active_partition);
@@ -315,7 +316,6 @@ vfs_sd_ping_read_periodic(void)
 {
   if (vfs_sd_ping())
   {
-    SDDEBUG("sd_ping failed, eeek.  card removed?\n");
     vfs_sd_umount();
   }
 }
