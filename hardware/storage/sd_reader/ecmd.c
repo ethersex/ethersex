@@ -100,11 +100,11 @@ parse_cmd_sd_rm(char *cmd, char *output, uint16_t len)
   while (*cmd == ' ')
     cmd++;
 
-  struct vfs_file_handle_t *fh = vfs_open(cmd);
+  struct vfs_file_handle_t *fh = vfs_sd_open(cmd);
   if (fh == 0)
     return ECMD_ERR_WRITE_ERROR;
-  vfs_truncate(fh, 0);
-  vfs_close(fh);
+  vfs_sd_truncate(fh, 0);
+  vfs_sd_close(fh);
   return ECMD_FINAL_OK;
 }
 #endif
