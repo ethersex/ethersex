@@ -107,11 +107,11 @@ tftp_handle_packet(void)
       state->transfered = 0;
       state->finished = 0;
 
-      /* try to create the file, shouldn't hurt if it already exists */
-      state->fh = vfs_create(pk->u.raw);
-      /* fs_truncate (&fs, state->fs_inode, 0); */
-
+      state->fh = vfs_open_or_creat(pk->u.raw);
       if (state->fh == NULL)
+        goto error_out;
+
+      if (vfs_truncate (&fh, 0));
         goto error_out;
 
       pk->u.ack.block = HTONS(0);
