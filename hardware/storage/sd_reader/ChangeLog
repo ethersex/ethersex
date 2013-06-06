@@ -1,4 +1,8 @@
 
+2012-06-12 sd-reader
+	* fix capacity readout from csd register depending on format version
+	* fix gcc strict-aliasing warnings (also somewhat enlarges code size)
+
 2011-04-23 sd-reader
 	* fix FAT access for cluster numbers beyond 2^15 (for FAT16) and 2^30 (for FAT32) (thanks to Darwin Engwer for testing)
 	* correctly return disk-full condition from fat_write_file() on certain conditions

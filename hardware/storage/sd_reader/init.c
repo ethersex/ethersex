@@ -31,9 +31,15 @@
 
 struct partition_struct *sd_active_partition;
 
+#if SD_RAW_WRITE_SUPPORT == 1
 #define sd_try_open_partition(partno)				\
   partition_open (sd_raw_read, sd_raw_read_interval,		\
 		  sd_raw_write, sd_raw_write_interval, partno)
+#else
+#define sd_try_open_partition(partno)				\
+  partition_open (sd_raw_read, sd_raw_read_interval,		\
+		  NULL, 0, partno)
+#endif
 
 uint8_t
 sd_try_init (void)
@@ -44,7 +50,7 @@ sd_try_init (void)
   if ((sd_active_partition = sd_try_open_partition (0)) == NULL
       && (sd_active_partition = sd_try_open_partition (-1)) == NULL)
     {
-      SDDEBUG ("Initialized SD-Card, but cannot open partition.\n");
+      SDDEBUGRAW ("Initialized SD-Card, but cannot open partition.\n");
       return 1;
     }
 

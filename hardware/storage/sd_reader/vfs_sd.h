@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008,2009 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,23 +27,24 @@
 #include "hardware/storage/dataflash/fs.h"
 #include "hardware/storage/sd_reader/fat.h"
 
-typedef struct fat_file_struct* vfs_file_handle_sd_t;
+typedef struct fat_file_struct *vfs_file_handle_sd_t;
 
 /* vfs_sd_ Prototypes. */
-struct vfs_file_handle_t *vfs_sd_open (const char *filename);
-void vfs_sd_close (struct vfs_file_handle_t *);
-vfs_size_t vfs_sd_read  (struct vfs_file_handle_t *, void *buf,
-			 vfs_size_t length);
-vfs_size_t vfs_sd_write (struct vfs_file_handle_t *, void *buf,
-			 vfs_size_t length);
-uint8_t vfs_sd_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
-		      uint8_t whence);
-uint8_t vfs_sd_truncate (struct vfs_file_handle_t *, vfs_size_t length);
-struct vfs_file_handle_t *vfs_sd_create (const char *name);
-vfs_size_t vfs_sd_size (struct vfs_file_handle_t *);
-uint8_t vfs_sd_mkdir_recursive (const char *path);
+struct vfs_file_handle_t *vfs_sd_open(const char *filename);
+void vfs_sd_close(struct vfs_file_handle_t *);
+vfs_size_t vfs_sd_read(struct vfs_file_handle_t *, void *buf,
+                       vfs_size_t length);
+vfs_size_t vfs_sd_write(struct vfs_file_handle_t *, void *buf,
+                        vfs_size_t length);
+uint8_t vfs_sd_fseek(struct vfs_file_handle_t *, vfs_size_t offset,
+                     uint8_t whence);
+uint8_t vfs_sd_truncate(struct vfs_file_handle_t *, vfs_size_t length);
+struct vfs_file_handle_t *vfs_sd_create(const char *name);
+vfs_size_t vfs_sd_size(struct vfs_file_handle_t *);
+uint8_t vfs_sd_mkdir_recursive(const char *path);
 
 
+#if SD_WRITE_SUPPORT == 1
 #define VFS_SD_FUNCS {				\
     "sd",					\
     vfs_sd_open,				\
@@ -54,16 +56,27 @@ uint8_t vfs_sd_mkdir_recursive (const char *path);
     vfs_sd_create,				\
     vfs_sd_size,				\
   }
+#else
+#define VFS_SD_FUNCS {				\
+    "sd",					\
+    vfs_sd_open,				\
+    vfs_sd_close,				\
+    vfs_sd_read,				\
+    NULL, /* write */				\
+    vfs_sd_fseek,				\
+    NULL, /* truncate */			\
+    NULL, /* create */				\
+    vfs_sd_size,				\
+  }
+#endif
 
 extern struct fat_dir_struct *vfs_sd_rootnode;
 
-uint8_t vfs_sd_try_open_rootnode (void);
-struct fat_dir_struct *vfs_sd_chdir (const char *dirname);
+uint8_t vfs_sd_try_open_rootnode(void);
+struct fat_dir_struct *vfs_sd_chdir(const char *dirname);
 #ifdef SD_PING_READ
-uint8_t vfs_sd_ping (void);
-void vfs_sd_umount (void);
 void vfs_sd_ping_read_periodic(void);
 #endif
 
 
-#endif	/* VFS_SD_H */
+#endif /* VFS_SD_H */

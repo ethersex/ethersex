@@ -1,6 +1,6 @@
 /*
- * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2012 Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2012-2013 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -26,8 +26,13 @@
 #include "config.h"
 #include "hardware/radio/rfm12/rfm12.h"
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) || \
-    defined(DATAFLASH_SUPPORT) || defined(SD_READER_SUPPORT)
+#if defined(ENC28J60_SUPPORT)       || \
+    defined(SER_RAM_23K256_SUPPORT) || \
+    defined(RFM12_SUPPORT)          || \
+    defined(DATAFLASH_SUPPORT)      || \
+    defined(USTREAM_SUPPORT)        || \
+    defined(SPI_CS_SD_READER_PIN)   || \
+    defined(S1D15G10_SUPPORT)
 
 void
 spi_init(void)
@@ -43,7 +48,7 @@ spi_init(void)
 #endif
 
 #ifdef SER_RAM_23K256_SUPPORT
-    PIN_SET(SPI_CS_23K256);
+  PIN_SET(SPI_CS_23K256);
 #endif
 
 #ifdef RFM12_SUPPORT
@@ -61,8 +66,12 @@ spi_init(void)
   PIN_SET(VS1053_CS);
 #endif
 
-#if defined(SPI_CS_SD_READER_PIN) && defined(SD_NETIO_ADDON_WORKAROUND)
+#if defined(SPI_CS_SD_READER_PIN)
   PIN_SET(SPI_CS_SD_READER);
+#endif
+
+#ifdef S1D15G10_SUPPORT
+  PIN_SET(S1D15G10_CS);
 #endif
 
 #ifndef SOFT_SPI_SUPPORT
@@ -77,7 +86,7 @@ spi_init(void)
 static void
 spi_wait_busy(void)
 {
-#   ifdef SPI_TIMEOUT
+#ifdef SPI_TIMEOUT
   uint8_t timeout = 200;
 
   while (!(_SPSR0 & _BV(_SPIF0)) && timeout > 0)
@@ -85,9 +94,9 @@ spi_wait_busy(void)
 
   if (timeout == 0)
     debug_printf("ERROR: spi timeout reached!\r\n");
-#   else
+#else
   while (!(_SPSR0 & _BV(_SPIF0)));
-#   endif
+#endif
 
 }
 
@@ -101,5 +110,4 @@ spi_send(uint8_t data)
 }
 #endif /* !SOFT_SPI_SUPPORT */
 
-#endif /* DATAFLASH_SUPPORT || ENC28J60_SUPPORT || RFM12_SUPPORT ||
-          SD_READER_SUPPORT */
+#endif /* ENC28J60_SUPPORT || SER_RAM_23K256_SUPPORT || RFM12_SUPPORT || DATAFLASH_SUPPORT || USTREAM_SUPPORT || SPI_CS_SD_READER_PIN || S1D15G10_SUPPORT*/
