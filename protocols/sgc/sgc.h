@@ -30,12 +30,12 @@
 
 struct sgc_buffer
 {
-  uint8_t len;
-  uint8_t pos;
-  char txdata[SGC_BUFFER_LENGTH];
+  uint8_t len;                  /* command length */
+  uint8_t pos;                  /* TX pointer */
+  char txdata[SGC_BUFFER_LENGTH];       /* TX buffer */
 };
 
-struct sgc_vars
+struct sgc_vars                 /* storage for display settings */
 {
   char contrast;
   char pensize;
@@ -46,40 +46,41 @@ struct sgc_vars
 
 struct sgc_state
 {
-  uint8_t ist;
-  uint8_t ack;
-  uint8_t timer;
-  uint8_t baudcounter;
-  uint16_t acktimer;
-  uint16_t ack_timeout;
+  uint8_t ist;                  /* current state */
+  uint8_t ack;                  /* command status */
+  uint8_t counter;              /* timer for reset / autobaud */
+  uint16_t acktimer;            /* timer for display answer */
+  uint16_t ack_timeout;         /* max. time for display answer */
 
 #ifdef SGC_TIMEOUT_COUNTER_SUPPORT
-  uint16_t mincount;
-  uint8_t timeout;
-  uint8_t timer_max;
+  uint16_t mincount;            /* one-minute-timer */
+  uint8_t timeout;              /* no-activity time counter */
+  uint8_t timer_max;            /* no-activity timeout value */
 #endif                          /* SGC_TIMEOUT_COUNTER_SUPPORT */
 };
 
 /* define bitstates */
-#define SH_SLEEP 0
-#define SH_SLEEPING 1
-#define SH_F_RESET 2
-#define SH_TXBUSY 3
-#define SH_RXENABLE 4
-#define SH_ACK_INF 5
+#define SH_SLEEP 0              /* go to sleep mode */
+#define SH_SLEEPING 1           /* in sleep mode */
+#define SH_F_RESET 2            /* coming from reset */
+#define SH_TXBUSY 3             /* reserve TX for internal command */
+#define SH_RXENABLE 4           /* enable RX after reset */
+#define SH_SHDN_SLEEP 5         /* enable auto-sleep in shutdown */
+#define SH_SHDN_SLEEPMODE (SH_SHDN_SLEEP + 1)   /* auto-sleep mode */
 #define SLEEP (0x01 << SH_SLEEP)
 #define SLEEPING (0x01 << SH_SLEEPING)
 #define F_RESET (0x01 << SH_F_RESET)
 #define TXBUSY (0x01 << SH_TXBUSY)
 #define RXENABLE (0x01 << SH_RXENABLE)
-#define ACK_INF (0x01 << SH_ACK_INF)
+#define SHDN_SLEEP (0x01 << SH_SHDN_SLEEP)
+#define SHDN_SLEEPMODE (0x01 << SH_SHDN_SLEEPMODE)
 
 /* define some important states */
 #define DISP_RESET 0
 #define BEGIN_SHUTDOWN 5
-#define SHUTDOWN 10
-#define BEGIN_POWERUP 11
-#define POWERUP 18
+#define SHUTDOWN 11
+#define BEGIN_POWERUP 12
+#define POWERUP 19
 
 /* define display answers */
 #define FROM_RESET 0
@@ -101,15 +102,14 @@ struct sgc_state
 
 /* define ACK waiting times */
 #define INFINITE 0
-#define HALF_SEC 25
-#define TWO_SEC 100
+#define ONE_SEC 50
 #define FIVE_SEC 250
-#define INF_TIMER TWO_SEC
 
 void sgc_init(void);
 uint8_t sgc_setpowerstate(uint8_t soll);
 uint8_t sgc_getpowerstate(void);
-uint8_t sgc_sleep(char mode);
+void sgc_setshdnsleep(char sleepmode);
+uint8_t sgc_sleep(char mode, uint8_t option);
 
 #ifdef SGC_ECMD_SEND_SUPPORT
 int8_t sgc_setip(char *data);

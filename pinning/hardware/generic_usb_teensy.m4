@@ -4,6 +4,10 @@ dnl
 dnl Pin Configuration for 'generic-usb-teensy.m4'.  Edit it to fit your needs.
 dnl
 
+ifdef(`conf_SGC', `dnl
+pin(SGC_RESET, PB3, OUTPUT)
+')dnl
+
 ifdef(`conf_USB', `
   dnl This must also be D+ of the USB signal
   USB_USE_INT(1)
