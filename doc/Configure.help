@@ -2407,6 +2407,31 @@ DALI_SUPPORT
   Enable code to control lighting via the DALI bus
   (Digital Addressable Lighting Interface)
 
+SGC Support
+SGC_SUPPORT
+
+  Slave Graphics Controller for colour graphics displays 
+  by 4DSystems (http://www.4dsystems.com.au/)
+
+SGC_SHDN_SLEEP_ACTIVE
+  Set processor into sleep mode when 
+  shutting down display (further power saving)
+SGC_SLEEPMODE
+  Set default sleep mode (0: wake by UART, 1: wake by joystick)
+SGC_TIMEOUT_COUNTER_SUPPORT
+  Enable host inactivity timeout,
+  display will shut down after this time
+SGC_TIMEOUT
+  Auto Shutdown time (minutes) 1-255
+SGC_ECMD_SEND_SUPPORT
+  Send display anwers by ECMD 
+  for fully bidirectional communication
+  
+  Depends on: 
+  * ECMD_SENDER_SUPPORT
+SGC_ECMD_IP
+  Host IP adress to send ECMDs to
+
 DMX Storage
 DMX_STORAGE_SUPPORT
   Depends on:
