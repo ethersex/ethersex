@@ -65,8 +65,12 @@ void bmp085_init(void);
 int16_t bmp085_get_temp();
 int32_t bmp085_get_abs_press();
 
+#ifdef I2C_BMP085_BAROCALC_SUPPORT
+
 int32_t bmp085_get_height_cm(int32_t abs_pa_pressure, int32_t pa_pressure_nn);
 int32_t bmp085_get_pa_pressure_nn(int32_t abs_pa_pressure, int32_t height_cm);
+
+#endif /* I2C_BMP085_BAROCALC_SUPPORT */
 
 inline uint16_t get_bmp085_measure_us_delay(bmp085_meas_t type, uint8_t oss)
 {
@@ -84,6 +88,5 @@ inline uint16_t get_bmp085_measure_us_delay(bmp085_meas_t type, uint8_t oss)
             return 25500;
     }
 }
-
 
 #endif /* _I2C_BMP085_H */
