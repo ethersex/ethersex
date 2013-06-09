@@ -2407,31 +2407,6 @@ DALI_SUPPORT
   Enable code to control lighting via the DALI bus
   (Digital Addressable Lighting Interface)
 
-SGC Support
-SGC_SUPPORT
-
-  Slave Graphics Controller for colour graphics displays 
-  by 4DSystems (http://www.4dsystems.com.au/)
-
-SGC_SHDN_SLEEP_ACTIVE
-  Set processor into sleep mode when 
-  shutting down display (further power saving)
-SGC_SLEEPMODE
-  Set default sleep mode (0: wake by UART, 1: wake by joystick)
-SGC_TIMEOUT_COUNTER_SUPPORT
-  Enable host inactivity timeout,
-  display will shut down after this time
-SGC_TIMEOUT
-  Auto Shutdown time (minutes) 1-255
-SGC_ECMD_SEND_SUPPORT
-  Send display anwers by ECMD 
-  for fully bidirectional communication
-  
-  Depends on: 
-  * ECMD_SENDER_SUPPORT
-SGC_ECMD_IP
-  Host IP adress to send ECMDs to
-
 DMX Storage
 DMX_STORAGE_SUPPORT
   Depends on:
@@ -3162,4 +3137,54 @@ MBR_SUPPORT
   the flashed image does not reach the main loop or if the user has invoked
   'bootloader' via ECMD.
   This gives the user some time to upload a new image via TFTP.
+
+SGC Support
+SGC_SUPPORT
+  Depends on: 
+   *  (ARCH_AVR)
+
+  Slave Graphics Controller for colour graphics displays 
+  by 4DSystems (http://www.4dsystems.com.au/)
+
+Preset: Sleep when Shutdown
+SGC_SHDN_SLEEP_ACTIVE
+  Depends on: 
+
+  Set processor into sleep mode when shutting down display 
+  (further power saving)
+
+Default Sleep Mode (0:Serial 1: Joystick)
+SGC_SLEEPMODE
+
+  Set default sleep mode for Shutdown Auto Sleep
+  (0: wake by UART, 1: wake by joystick)
+
+Timeout Counter
+SGC_TIMEOUT_COUNTER_SUPPORT
+  Depends on: 
+
+  Enable host inactivity timeout, display will shut down 
+  after this time without receiving any commands
+
+Timeout (Min)
+SGC_TIMEOUT
+  Depends on: 
+
+  Auto Shutdown inactivity time (minutes) 1-255
+
+Send result via ECMD
+SGC_ECMD_SEND_SUPPORT
+  Depends on: 
+   * Send via TCP (ECMD_SENDER_SUPPORT)
+
+  Send display anwers back to host via ECMD for 
+  fully bidirectional communication
+
+IP address
+SGC_ECMD_IP
+  Depends on: 
+   * Send via TCP (ECMD_SENDER_SUPPORT)
+
+  Host IP adress to send ECMDs to
+  port will be the ECMD port set in "Send via TCP"
 
