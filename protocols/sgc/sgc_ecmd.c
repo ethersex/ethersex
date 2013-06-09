@@ -5,14 +5,15 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
+
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <string.h>
@@ -21,6 +22,7 @@
 #include "core/bit-macros.h"
 #include "core/debug.h"
 #include "protocols/sgc/sgc.h"
+#include "protocols/sgc/sgc_ecmd.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 int16_t
@@ -114,6 +116,7 @@ parse_cmd_sgc_setsleep(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
 
   mode[0] |= (mode[1] << 1);
+
   sgc_setshdnsleep(mode[0]);
 
   return ECMD_FINAL_OK;
