@@ -1,0 +1,4 @@
+dep_bool_menu "VersaTower control (EXPERIMENTAL)" TOWERCTL_SUPPORT $CONFIG_EXPERIMENTAL
+        dep_bool "Tower lifting and lowering" TOWERLILO_SUPPORT $TOWERCTL_SUPPORT $CONFIG_EXPERIMENTAL
+
+endmenu

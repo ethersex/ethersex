@@ -43,6 +43,7 @@ SUBDIRS += hardware/sht
 SUBDIRS += hardware/sram
 SUBDIRS += hardware/storage/dataflash
 SUBDIRS += hardware/storage/sd_reader
+SUBDIRS += hardware/tower
 SUBDIRS += hardware/zacwire
 SUBDIRS += hardware/ultrasonic
 SUBDIRS += hardware/serial_ram/23k256
