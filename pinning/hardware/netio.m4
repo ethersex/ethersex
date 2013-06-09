@@ -89,10 +89,6 @@ ifdef(`conf_DCF77', `dnl
   pin(DCF1_PON, PA1, OUTPUT)
 ')dnl
 
-ifdef(`conf_SGC', `dnl
-pin(SGC_RESET, PC3, OUTPUT)
-')dnl
-
 ifdef(`conf_TANKLEVEL', `
   pin(TANKLEVEL_PUMP, PC3, OUTPUT)
 ')

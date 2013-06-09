@@ -307,6 +307,11 @@ template $DHT_SUPPORT << FNORD
  pin(DHT, PA0, INPUT)
 FNORD
 
+template $SGC_SUPPORT << FNORD
+  /* 4DSystems Slave Graphics Controller */
+ pin(SGC_RESET, PC3, OUTPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
