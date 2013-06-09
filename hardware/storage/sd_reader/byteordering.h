@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2011 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2012 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -150,22 +150,12 @@ uint16_t ltoh16(uint16_t l);
  */
 uint32_t ltoh32(uint32_t l);
 
-uint16_t read16(const uint8_t* p);
-uint32_t read32(const uint8_t* p);
-void write16(uint8_t* p, uint16_t i);
-void write32(uint8_t* p, uint32_t i);
-
 #elif SWAP_NEEDED
 
 #define htol16(h) swap16(h)
 #define htol32(h) swap32(h)
 #define ltoh16(l) swap16(l)
 #define ltoh32(l) swap32(l)
-
-uint16_t read16(const uint8_t* p);
-uint32_t read32(const uint8_t* p);
-void write16(uint8_t* p, uint16_t i);
-void write32(uint8_t* p, uint32_t i);
 
 #else
 
@@ -174,19 +164,12 @@ void write32(uint8_t* p, uint32_t i);
 #define ltoh16(l) (l)
 #define ltoh32(l) (l)
 
-#if __AVR__
-#define read16(p) (*(const uint16_t*) (p))
-#define read32(p) (*(const uint32_t*) (p))
-#define write16(p, i) { *((uint16_t*) (p)) = i; }
-#define write32(p, i) { *((uint32_t*) (p)) = i; }
-#else
+#endif
+
 uint16_t read16(const uint8_t* p);
 uint32_t read32(const uint8_t* p);
 void write16(uint8_t* p, uint16_t i);
 void write32(uint8_t* p, uint32_t i);
-#endif
-
-#endif
 
 /**
  * @}

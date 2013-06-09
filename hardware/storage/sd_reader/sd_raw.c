@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2011 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2012 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -210,7 +210,7 @@ uint8_t sd_raw_init(void)
     
     if(!sd_raw_available())
     {
-	SDDEBUG ("sd-card not available, stop.\n");
+	SDDEBUGRAW ("sd-card not available, stop.\n");
         return 0;
     }
 
@@ -236,7 +236,7 @@ uint8_t sd_raw_init(void)
         {
             unselect_card();
             /* disabled, it's just flooding the console ...
-            SDDEBUG ("card reset failed, response=0x%04x.\n", response); */
+            SDDEBUGRAW ("card reset failed, response=0x%04x.\n", response); */
             return 0;
         }
     }
@@ -266,12 +266,12 @@ uint8_t sd_raw_init(void)
         {
             /* card conforms to SD 1 card specification */
             sd_raw_card_type |= (1 << SD_RAW_SPEC_1);
-            SDDEBUG ("found SD 1 card\n");
+            SDDEBUGRAW ("found SD 1 card\n");
         }
         else
         {
             /* MMC card */
-            SDDEBUG ("found MMC card\n");
+            SDDEBUGRAW ("found MMC card\n");
         }
     }
 
@@ -325,7 +325,7 @@ uint8_t sd_raw_init(void)
     if(sd_raw_send_command(CMD_SET_BLOCKLEN, 512))
     {
         unselect_card();
-        SDDEBUG ("failed to set block size to 512 bytes.\n");
+        SDDEBUGRAW ("failed to set block size to 512 bytes.\n");
         return 0;
     }
 
@@ -368,7 +368,7 @@ uint8_t sd_raw_available(void)
  */
 uint8_t sd_raw_locked(void)
 {
-    return get_pin_locked() == 0x00;
+    return get_pin_locked() != 0x00;
 }
 
 #if 0
@@ -507,7 +507,7 @@ uint8_t sd_raw_read(offset_t offset, uint8_t* buffer, uintptr_t length)
 
             if (timeout == 0)
             {
-                SDDEBUG ("read timeout reached!\n");
+                SDDEBUGRAW ("read timeout reached!\n");
                 unselect_card();
                 return 0;
             }
@@ -946,6 +946,7 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
 #else
     uint32_t csd_c_size = 0;
 #endif
+    uint8_t csd_structure = 0;
     if(sd_raw_send_command(CMD_SEND_CSD, 0))
     {
         unselect_card();
@@ -956,7 +957,11 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
     {
         uint8_t b = sd_raw_rec_byte();
 
-        if(i == 14)
+        if(i == 0)
+        {
+            csd_structure = b >> 6;
+        }
+        else if(i == 14)
         {
             if(b & 0x40)
                 info->flag_copy = 1;
@@ -969,7 +974,7 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
         else
         {
 #if SD_RAW_SDHC
-            if(sd_raw_card_type & (1 << SD_RAW_SPEC_2))
+            if(csd_structure == 0x01)
             {
                 switch(i)
                 {
@@ -987,7 +992,7 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
                     info->capacity = (offset_t) csd_c_size * 512 * 1024;
                 }
             }
-            else
+            else if(csd_structure == 0x00)
 #endif
             {
                 switch(i)
@@ -1015,7 +1020,6 @@ uint8_t sd_raw_get_info(struct sd_raw_info* info)
                         csd_c_size_mult |= b >> 7;
 
                         info->capacity = (uint32_t) csd_c_size << (csd_c_size_mult + csd_read_bl_len + 2);
-
                         break;
                 }
             }
