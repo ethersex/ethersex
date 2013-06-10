@@ -3140,7 +3140,7 @@ SGC_TIMEOUT_COUNTER_SUPPORT
   after this time without receiving any commands
 
 Timeout (Min)
-SGC_TIMEOUT
+SGC_CONN_TIMEOUT
   Depends on: 
 
   Auto Shutdown inactivity time (minutes) 1-255
