@@ -1405,14 +1405,12 @@ FREQ
 Build a bootloader
 BOOTLOADER_SUPPORT
 
- Enable ethersex TFTP bootloader support.
+ This actually builds an Ethersex based TFTP bootloader.
 
  Depends on TFTP to download a new firmware and programm the flash.
 
  This bootloader needs 8k flash memory at the top of the flash, so only
  MCUs with 64k or 128k flash can be used.
-
- This is only a bootloader with a very limited functionality.
 
  Select 'Enable bootloader jump' in your 'normal' ROM to be able re-enter the
  bootloader mode.
@@ -3156,4 +3154,10 @@ SD_PING_READ
    * Use read-timeout (SD_READ_TIMEOUT)
 
   Check every 10s if a card is available. Detects removing a card.
+
+Enable bootloader jump
+BOOTLOADER_JUMP
+
+ Enables the ECMD command 'bootloader' to enter the bootloader without
+ resetting the MCU.
 
