@@ -52,4 +52,3 @@ ifdef(`conf_DCF77', `dnl
   DCF77_USE_INT(1, PD3)
   pin(DCF1_PON, PA1, OUTPUT)
 ')dnl
-

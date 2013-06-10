@@ -443,11 +443,12 @@ parse_cmd_sgc_rectangle(char *cmd, char *output, uint16_t len)
 int16_t                         /* draw "text" char, col, row, char */
 parse_cmd_sgc_tchar(char *cmd, char *output, uint16_t len)
 {
-  char font[3], data[5];
+  char font, data[5];
+  font = sgc_getfont();
 
   if ((sscanf_P(cmd, PSTR("%hhu %hhu %hhu"), &data[2], &data[3], &data[1]) != 3) || (data[1] < 0x20) || (data[1] > 0x7F) ||     /* valid font char range */
-      (data[2] > 20) || ((data[2] > 15) && ((font[0] & 0x0F) != 0x00)) ||       /* valid col */
-      (data[3] > 15) || ((data[3] > 9) && ((font[0] & 0x0F) == 0x02)))  /* valid row */
+      (data[2] > 20) || ((data[2] > 15) && ((font & 0x0F) != 0x00)) ||       /* valid col */
+      (data[3] > 15) || ((data[3] > 9) && ((font & 0x0F) == 0x02)))  /* valid row */
     return ECMD_ERR_PARSE_ERROR;
 
   data[0] = 0x54;               /* "Draw ASCII Char" Command */

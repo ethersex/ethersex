@@ -215,7 +215,7 @@ sgc_getcommandresult(void)
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
 
   if ((bitstates & TXBUSY) || (sgc_power_state.ack > NONE))
-    return BUSY;                /* not valid while in a command sequence or timeout */
+    return SGC_BUSY;                /* not valid while in a command sequence or timeout */
 
   if (bitstates & F_RESET)
     return FROM_RESET;

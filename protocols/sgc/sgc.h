@@ -83,7 +83,7 @@ struct sgc_state
 #define SENDING 3
 #define WAKEUP 4
 #define NONE 5
-#define BUSY 6
+#define SGC_BUSY 6
 #define TIMEOUT 7
 
 /* define command options */
