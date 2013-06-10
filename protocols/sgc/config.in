@@ -1,0 +1,36 @@
+usart_count_used
+if [ "$SGC_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+	dep_bool_menu "SGC Support" SGC_SUPPORT $ARCH_AVR
+		choice 'SGC usart select' "$(usart_choice SGC)"
+		usart_process_choice SGC
+		int    "SGC Baudrate" SGC_BAUDRATE 9600
+	dep_bool "Preset: Sleep when Shutdown" SGC_SHDN_SLEEP_ACTIVE
+	         if [ "$SGC_SLEEPMODE" -gt 1 ] ; then
+			      SGC_SLEEPMODE=1
+		 fi
+                 if [ 0 -gt "$SGC_SLEEPMODE" ] ; then
+			      SGC_SLEEPMODE=0
+		 fi
+			    int    "     Default Sleep Mode (0:Serial 1: Joystick)" SGC_SLEEPMODE 0
+	dep_bool "Timeout Counter" SGC_TIMEOUT_COUNTER_SUPPORT
+			if [ "$SGC_TIMEOUT_COUNTER_SUPPORT" = "y" ] ; then
+		    if [ "$SGC_CONN_TIMEOUT" = "" ] ; then
+			    SGC_CONN_TIMEOUT=1
+		    fi
+		    if [ 1 -gt "$SGC_CONN_TIMEOUT" ] ; then
+			    SGC_CONN_TIMEOUT=1
+		    fi
+		    if [ "$SGC_CONN_TIMEOUT" -gt 255 ] ; then
+			    SGC_CONN_TIMEOUT=255
+		    fi
+		    int    "    Timeout (Min)" SGC_CONN_TIMEOUT 1
+		  fi
+        dep_bool "Send result via ECMD" SGC_ECMD_SEND_SUPPORT $ECMD_SENDER_SUPPORT
+        if [ "$SGC_ECMD_SEND_SUPPORT" = "y" ] ; then
+          ip "IP address" SGC_ECMD_IP "192.168.1.1" "2001:6f8:1209:f0:0:0:0:1"
+        fi
+	endmenu
+else
+	define_bool SGC_SUPPORT n
+	comment "SGC not available. No free usart. ($USARTS_USED/$USARTS)"
+fi

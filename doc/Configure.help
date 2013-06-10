@@ -3111,6 +3111,56 @@ MBR_SUPPORT
   'bootloader' via ECMD.
   This gives the user some time to upload a new image via TFTP.
 
+SGC Support
+SGC_SUPPORT
+  Depends on: 
+   *  (ARCH_AVR)
+
+  Slave Graphics Controller for colour graphics displays 
+  by 4DSystems (http://www.4dsystems.com.au/)
+
+Preset: Sleep when Shutdown
+SGC_SHDN_SLEEP_ACTIVE
+  Depends on: 
+
+  Set processor into sleep mode when shutting down display 
+  (further power saving)
+
+Default Sleep Mode (0:Serial 1: Joystick)
+SGC_SLEEPMODE
+
+  Set default sleep mode for Shutdown Auto Sleep
+  (0: wake by UART, 1: wake by joystick)
+
+Timeout Counter
+SGC_TIMEOUT_COUNTER_SUPPORT
+  Depends on: 
+
+  Enable host inactivity timeout, display will shut down 
+  after this time without receiving any commands
+
+Timeout (Min)
+SGC_CONN_TIMEOUT
+  Depends on: 
+
+  Auto Shutdown inactivity time (minutes) 1-255
+
+Send result via ECMD
+SGC_ECMD_SEND_SUPPORT
+  Depends on: 
+   * Send via TCP (ECMD_SENDER_SUPPORT)
+
+  Send display anwers back to host via ECMD for 
+  fully bidirectional communication
+
+IP address
+SGC_ECMD_IP
+  Depends on: 
+   * Send via TCP (ECMD_SENDER_SUPPORT)
+
+  Host IP adress to send ECMDs to
+  port will be the ECMD port set in "Send via TCP"
+
 SD/MMC-Card Filesystem
 VFS_SD_SUPPORT
   Depends on: 
