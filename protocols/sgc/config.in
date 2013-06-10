@@ -14,16 +14,16 @@ if [ "$SGC_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 			    int    "     Default Sleep Mode (0:Serial 1: Joystick)" SGC_SLEEPMODE 0
 	dep_bool "Timeout Counter" SGC_TIMEOUT_COUNTER_SUPPORT
 			if [ "$SGC_TIMEOUT_COUNTER_SUPPORT" = "y" ] ; then
-		    if [ "$SGC_TIMEOUT" = "" ] ; then
-			    SGC_TIMEOUT=1
+		    if [ "$SGC_CONN_TIMEOUT" = "" ] ; then
+			    SGC_CONN_TIMEOUT=1
 		    fi
-		    if [ 1 -gt "$SGC_TIMEOUT" ] ; then
-			    SGC_TIMEOUT=1
+		    if [ 1 -gt "$SGC_CONN_TIMEOUT" ] ; then
+			    SGC_CONN_TIMEOUT=1
 		    fi
-		    if [ "$SGC_TIMEOUT" -gt 255 ] ; then
-			    SGC_TIMEOUT=255
+		    if [ "$SGC_CONN_TIMEOUT" -gt 255 ] ; then
+			    SGC_CONN_TIMEOUT=255
 		    fi
-		    int    "    Timeout (Min)" SGC_TIMEOUT 1
+		    int    "    Timeout (Min)" SGC_CONN_TIMEOUT 1
 		  fi
         dep_bool "Send result via ECMD" SGC_ECMD_SEND_SUPPORT $ECMD_SENDER_SUPPORT
         if [ "$SGC_ECMD_SEND_SUPPORT" = "y" ] ; then

@@ -53,51 +53,35 @@ struct sgc_state
 #endif                          /* SGC_TIMEOUT_COUNTER_SUPPORT */
 };
 
-/* define bitstates */
-#define SH_SLEEP 0              /* go to sleep mode */
-#define SH_SLEEPING 1           /* in sleep mode */
-#define SH_F_RESET 2            /* coming from reset */
-#define SH_TXBUSY 3             /* reserve TX for internal command */
-#define SH_RXENABLE 4           /* enable RX after reset */
-#define SH_SHDN_SLEEP 5         /* enable auto-sleep in shutdown */
-#define SH_SHDN_SLEEPMODE (SH_SHDN_SLEEP + 1)   /* auto-sleep mode */
-#define SLEEP (0x01 << SH_SLEEP)
-#define SLEEPING (0x01 << SH_SLEEPING)
-#define F_RESET (0x01 << SH_F_RESET)
-#define TXBUSY (0x01 << SH_TXBUSY)
-#define RXENABLE (0x01 << SH_RXENABLE)
-#define SHDN_SLEEP (0x01 << SH_SHDN_SLEEP)
-#define SHDN_SLEEPMODE (0x01 << SH_SHDN_SLEEPMODE)
-
-/* define some important states */
-#define DISP_RESET 0
-#define BEGIN_SHUTDOWN 5
-#define SHUTDOWN 11
-#define BEGIN_POWERUP 12
-#define POWERUP 19
-
 /* define display answers */
-#define FROM_RESET 0
-#define ACK 1
-#define NACK 2
-#define SENDING 3
-#define WAKEUP 4
-#define NONE 5
+#define SGC_FROM_RESET 0
+#define SGC_ACK 1
+#define SGC_NACK 2
+#define SGC_SENDING 3
+#define SGC_WAKEUP 4
+#define SGC_NONE 5
 #define SGC_BUSY 6
-#define TIMEOUT 7
+#define SGC_TIMEOUT 7
 
 /* define command options */
-#define SH_STRING 0
-#define SH_NORMAL 1
-#define SH_INTERNAL 2
-#define OPT_STRING (0x01 << SH_STRING)
-#define OPT_NORMAL (0x01 << SH_NORMAL)
-#define OPT_INTERNAL (0x01 << SH_INTERNAL)
+#define SGC_SH_STRING 0
+#define SGC_SH_NORMAL 1
+#define SGC_SH_INTERNAL 2
+#define SGC_OPT_STRING (0x01 << SGC_SH_STRING)
+#define SGC_OPT_NORMAL (0x01 << SGC_SH_NORMAL)
+#define SGC_OPT_INTERNAL (0x01 << SGC_SH_INTERNAL)
 
 /* define ACK waiting times */
-#define INFINITE 0
-#define ONE_SEC 50
-#define FIVE_SEC 250
+#define SGC_INFINITE 0
+#define SGC_ONE_SEC 50
+#define SGC_FIVE_SEC 250
+
+/* define some important states */
+#define SGC_DISP_RESET 0
+#define SGC_BEGIN_SHUTDOWN 5
+#define SGC_SHUTDOWN 11
+#define SGC_BEGIN_POWERUP 12
+#define SGC_POWERUP 19
 
 void sgc_init(void);
 uint8_t sgc_setpowerstate(uint8_t soll);

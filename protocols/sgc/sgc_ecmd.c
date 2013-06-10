@@ -32,17 +32,17 @@ parse_cmd_sgc_result(char *cmd, char *output, uint16_t len)
   cmdres = sgc_getcommandresult();
   switch (cmdres)
   {
-    case FROM_RESET:           /* 0 */
+    case SGC_FROM_RESET:           /* 0 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("RESET")));
-    case ACK:                  /* 1 */
+    case SGC_ACK:                  /* 1 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("ACK")));
-    case NACK:                 /* 2 */
+    case SGC_NACK:                 /* 2 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("NACK")));
-    case SENDING:              /* 3 */
+    case SGC_SENDING:              /* 3 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("SENDING")));
-    case WAKEUP:               /* 4 */
+    case SGC_WAKEUP:               /* 4 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("WAKEUP")));
-    case NONE:                 /* 5 */
+    case SGC_NONE:                 /* 5 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("NONE")));
     default:                   /* 6 */
       return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -71,10 +71,10 @@ parse_cmd_sgc_getpwr(char *cmd, char *output, uint16_t len)
 
   pwrstate = sgc_getpowerstate();
 
-  if (pwrstate == SHUTDOWN)
+  if (pwrstate == SGC_SHUTDOWN)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("SHUTDOWN")));
 
-  if (pwrstate == POWERUP)
+  if (pwrstate == SGC_POWERUP)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("POWERUP")));
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -133,7 +133,7 @@ parse_cmd_sgc_onoff(char *cmd, char *output, uint16_t len)
   data[0] = 0x59;               /* "Control" Command */
   data[1] = 0x01;               /* "Display OnOff" Command */
 
-  if (sgc_sendcommand(3, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(3, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -147,7 +147,7 @@ parse_cmd_sgc_sleep(char *cmd, char *output, uint16_t len)
   if ((sscanf_P(cmd, PSTR("%hhu"), &mode) != 1) || (mode > 1))  /* status only 1 or 0 */
     return ECMD_ERR_PARSE_ERROR;
 
-  if (sgc_sleep(mode, OPT_NORMAL) == 0)
+  if (sgc_sleep(mode, SGC_OPT_NORMAL) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -241,7 +241,7 @@ parse_cmd_sgc_setbgc(char *cmd, char *output, uint16_t len)
 
   data[0] = 0x4B;               /* "Set Background Colour" Command */
 
-  if (sgc_sendcommand(3, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(3, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -259,7 +259,7 @@ parse_cmd_sgc_repbgc(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   data[0] = 0x42;               /* "Replace Background Colour" Command */
 
-  if (sgc_sendcommand(3, FIVE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(3, SGC_FIVE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -281,7 +281,7 @@ parse_cmd_sgc_repcol(char *cmd, char *output, uint16_t len)
   data[0] = 0x6B;               /* "Replace Colour" Command */
   sgc_getcolour(&data[7]);      /* get colour setting */
 
-  if (sgc_sendcommand(9, FIVE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(9, SGC_FIVE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -293,7 +293,7 @@ parse_cmd_sgc_cls(char *cmd, char *output, uint16_t len)
   char data[1];
   data[0] = 0x45;               /* "Clear Screen" Command */
 
-  if (sgc_sendcommand(1, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(1, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -309,7 +309,7 @@ parse_cmd_sgc_adduc(char *cmd, char *output, uint16_t len)
 
   data[0] = 0x41;               /* "Add User Character" Command */
 
-  if (sgc_sendcommand(10, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(10, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -327,7 +327,7 @@ parse_cmd_sgc_scrcp(char *cmd, char *output, uint16_t len)
 
   data[0] = 0x63;               /* "Screen Copy Paste" Command */
 
-  if (sgc_sendcommand(7, FIVE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(7, SGC_FIVE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -345,7 +345,7 @@ parse_cmd_sgc_circle(char *cmd, char *output, uint16_t len)
   data[0] = 0x43;               /* "Draw Circle" Command */
   sgc_getcolour(&data[4]);      /* get colour setting */
 
-  if (sgc_sendcommand(6, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(6, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -363,7 +363,7 @@ parse_cmd_sgc_druc(char *cmd, char *output, uint16_t len)
   data[0] = 0x44;               /* "Draw User Character" Command */
   sgc_getcolour(&data[4]);      /* get colour setting */
 
-  if (sgc_sendcommand(6, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(6, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -381,7 +381,7 @@ parse_cmd_sgc_triangle(char *cmd, char *output, uint16_t len)
   data[0] = 0x47;               /* "Draw Triangle" Command */
   sgc_getcolour(&data[7]);      /* get colour setting */
 
-  if (sgc_sendcommand(9, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(9, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -399,7 +399,7 @@ parse_cmd_sgc_line(char *cmd, char *output, uint16_t len)
   data[0] = 0x4C;               /* "Draw Line" Command */
   sgc_getcolour(&data[5]);      /* get colour setting */
 
-  if (sgc_sendcommand(7, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(7, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -416,7 +416,7 @@ parse_cmd_sgc_pixel(char *cmd, char *output, uint16_t len)
   data[0] = 0x50;               /* "Draw Pixel" Command */
   sgc_getcolour(&data[3]);      /* get colour setting */
 
-  if (sgc_sendcommand(5, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(5, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -434,7 +434,7 @@ parse_cmd_sgc_rectangle(char *cmd, char *output, uint16_t len)
   data[0] = 0x72;               /* "Draw Rectangle" Command */
   sgc_getcolour(&data[5]);      /* get colour setting */
 
-  if (sgc_sendcommand(7, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(7, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -454,7 +454,7 @@ parse_cmd_sgc_tchar(char *cmd, char *output, uint16_t len)
   data[0] = 0x54;               /* "Draw ASCII Char" Command */
   sgc_getcolour(&data[4]);      /* get colour setting */
 
-  if (sgc_sendcommand(6, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(6, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -471,7 +471,7 @@ parse_cmd_sgc_gchar(char *cmd, char *output, uint16_t len)
   data[0] = 0x74;               /* "Draw Graphic Char" Command */
   sgc_getcolour(&data[4]);      /* get colour setting */
 
-  if (sgc_sendcommand(8, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(8, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -492,7 +492,7 @@ parse_cmd_sgc_stt(char *cmd, char *output, uint16_t len)
   sgc_getcolour(&data[4]);      /* get colour setting */
   data[6] = (char) length;
 
-  if (sgc_sendcommand(6, ONE_SEC, OPT_STRING, data, &cmd[data[6]]) == 0)
+  if (sgc_sendcommand(6, SGC_ONE_SEC, SGC_OPT_STRING, data, &cmd[data[6]]) == 0)
     return ECMD_FINAL_OK;       /* send whole command incl. string */
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -513,7 +513,7 @@ parse_cmd_sgc_stg(char *cmd, char *output, uint16_t len)
   sgc_getcolour(&data[4]);      /* get colour setting */
   data[8] = (char) length;
 
-  if (sgc_sendcommand(8, ONE_SEC, OPT_STRING, data, &cmd[data[8]]) == 0)
+  if (sgc_sendcommand(8, SGC_ONE_SEC, SGC_OPT_STRING, data, &cmd[data[8]]) == 0)
     return ECMD_FINAL_OK;       /* send whole command incl. string */
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -533,7 +533,7 @@ parse_cmd_sgc_sdicon(char *cmd, char *output, uint16_t len)
   data[1] = 0x49;               /* "Display Image Icon from SD" Command */
   data[6] = 0x10;               /* colour mode - only 65k mode possible */
 
-  if (sgc_sendcommand(10, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(10, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -567,7 +567,7 @@ parse_cmd_sgc_video(char *cmd, char *output, uint16_t len)
   data[1] = 0x56;               /* "Video" Command */
   data[6] = 0x10;               /* "65k Colour mode" Command */
 
-  if (sgc_sendcommand(13, temp, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(13, temp, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -585,7 +585,7 @@ parse_cmd_sgc_object(char *cmd, char *output, uint16_t len)
   data[0] = 0x40;               /* "Extended Command" Command */
   data[1] = 0x4F;               /* "Display Object" Command */
 
-  if (sgc_sendcommand(6, ONE_SEC, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(6, SGC_ONE_SEC, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
@@ -603,7 +603,7 @@ parse_cmd_sgc_script(char *cmd, char *output, uint16_t len)
   data[0] = 0x40;               /* "Extended Command" Command */
   data[1] = 0x50;               /* "Display Object" Command */
 
-  if (sgc_sendcommand(6, INFINITE, OPT_NORMAL, data, cmd) == 0)
+  if (sgc_sendcommand(6, SGC_INFINITE, SGC_OPT_NORMAL, data, cmd) == 0)
     return ECMD_FINAL_OK;
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("BUSY")));
