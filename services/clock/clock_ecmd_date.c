@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -38,18 +39,26 @@
 #if TZ_OFFSET < 0
 #define _TZ_FORMAT_STRING " -%d:%02d"
 #define _TZ_OFFSET        (-TZ_OFFSET)
+#define _DST_OFFSET       (-DST_OFFSET)
 #elif TZ_OFFSET > 0
 #define _TZ_FORMAT_STRING " +%d:%02d"
 #define _TZ_OFFSET        (TZ_OFFSET)
+#define _DST_OFFSET       (DST_OFFSET)
+#elif _DST_OFFSET > 0
+#define _TZ_FORMAT_STRING " +%d:%02d"
+#define _TZ_OFFSET        (TZ_OFFSET)
+#define _DST_OFFSET       (DST_OFFSET)
 #else
 #define _TZ_FORMAT_STRING " %d:%02d"
 #define _TZ_OFFSET        (TZ_OFFSET)
+#define _DST_OFFSET       (DST_OFFSET)
 #endif
 
 static int16_t
 generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
 {
   const char *dow = clock_dow_string(date->dow);
+  div_t tz = div(_TZ_OFFSET + (date->isdst ? DST_OFFSET : 0), 60);
   return ECMD_FINAL(snprintf_P(output, len,
                                PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"
                                     _TZ_FORMAT_STRING
@@ -66,7 +75,7 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
                                date->hour,
                                date->min,
                                date->sec,
-			       _TZ_OFFSET / 60, _TZ_OFFSET % 60
+			       tz.quot, tz.rem
 #ifdef CLOCK_DEBUG
                                ,date->yday + 1,
                                clock_woy(date->day, date->month, date->year),

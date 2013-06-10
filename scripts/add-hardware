@@ -189,6 +189,12 @@ FNORD
 template $SD_READER_SUPPORT << FNORD
   /* port the sd-reader CS is attached to */
   pin(SPI_CS_SD_READER, PB2, OUTPUT)
+  /* uncomment and edit this if you have connected the CD (card detect) signal */
+  //pin(SD_READER_AVAILABLE, PD4, INPUT)
+  /* uncomment and edit this if you have connected the WP (write protected) signal */
+  //pin(SD_READER_WR_PROTECT, PD5, INPUT)
+  /* uncomment and edit this if power of the SD card can be switched on/off */
+  //pin(SD_READER_POWERON, PD6, OUTPUT)
 FNORD
 
 template $SOFT_UART_SUPPORT << FNORD

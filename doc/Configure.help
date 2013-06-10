@@ -1202,16 +1202,6 @@ VFS_INLINE_SUPPORT
   The make system automatically attaches all files stored below vfs/embed/
   to the firmware.
 
-SD/MMC-Card Access
-VFS_SD_SUPPORT
-  Depends on:
-   * VFS (Virtual File System) support (VFS_SUPPORT)
-   * MMC/SD card reader (SD_READER_SUPPORT)
-
-  Link the SD reader to VFS.
-
-  more details at http://old.ethersex.de/index.php/SD-Karte
-
 Disable IP-Configuration
 DISABLE_IPCONF_SUPPORT
   Depends on:
@@ -1266,13 +1256,6 @@ DEBUG_ROUTER
 
 uIP
 DEBUG_UIP
-  Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-SD-Reader
-DEBUG_SD_READER
   Depends on:
    * Enable (Serial-Line) Debugging (DEBUG)
 
@@ -1422,14 +1405,12 @@ FREQ
 Build a bootloader
 BOOTLOADER_SUPPORT
 
- Enable ethersex TFTP bootloader support.
+ This actually builds an Ethersex based TFTP bootloader.
 
  Depends on TFTP to download a new firmware and programm the flash.
 
  This bootloader needs 8k flash memory at the top of the flash, so only
  MCUs with 64k or 128k flash can be used.
-
- This is only a bootloader with a very limited functionality.
 
  Select 'Enable bootloader jump' in your 'normal' ROM to be able re-enter the
  bootloader mode.
@@ -2392,14 +2373,6 @@ IRMP_EXTERNAL_MODULATOR
   modulate the infrared signal. Connect it to the pin assigned to
   IRMP_TX in pinning/hardware/<your_hardware>.
 
-Netio Addon Workaround
-SD_NETIO_ADDON_WORKAROUND
-  Depends on:
-
-  Work around a bad hardware design of the Pollin Netio Addon board.
-  This board uses resistores to adjust voltage levels, so the SD card
-  is enabled even when the chip enable pin is in tristate mode.
-
 DALI light control
 DALI_SUPPORT
   Depends on:
@@ -3187,4 +3160,54 @@ SGC_ECMD_IP
 
   Host IP adress to send ECMDs to
   port will be the ECMD port set in "Send via TCP"
+
+SD/MMC-Card Filesystem
+VFS_SD_SUPPORT
+  Depends on: 
+   * VFS (Virtual File System) support (VFS_SUPPORT)
+   * SD/MMC-Card Reader (SD_READER_SUPPORT)
+
+  Link the SD reader to VFS.
+
+  more details at http://ethersex.de/index.php/SD_CARD
+
+SDHC support
+SD_SDHC_SUPPORT
+
+  Suport SDHC cards up to 32GB.
+  Consumes ~3900 bytes of flash memory and ~100 bytes of RAM.
+
+VFAT LFN support
+SD_LFN_SUPPORT
+
+  Support long file names as introduced by Microsoft with Windows 95.
+  Consumes ~550 bytes of flash memory and ~12 bytes of RAM.
+
+Read-only mode
+SD_READONLY
+
+  Use SD card in read-only mode.
+  Saves ~3000 bytes of flash memory and ~500 bytes of RAM.
+  If the SD card is only used for the embedded web server enable
+  read-only mode.
+
+Use read-timeout
+SD_READ_TIMEOUT
+
+  If enabled, read access will return with an error if card does
+  not respond. If disabled Ethersex will endless block.
+
+Ping-read SD card every 10s
+SD_PING_READ
+  Depends on: 
+   * SD/MMC-Card Reader (SD_READER_SUPPORT)
+   * Use read-timeout (SD_READ_TIMEOUT)
+
+  Check every 10s if a card is available. Detects removing a card.
+
+Enable bootloader jump
+BOOTLOADER_JUMP
+
+ Enables the ECMD command 'bootloader' to enter the bootloader without
+ resetting the MCU.
 

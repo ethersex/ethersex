@@ -223,11 +223,19 @@ y_META_SRC += meta.m4
 $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 y_META_SRC += $(y_NP_SIMPLE_META_SRC)
 
+meta.defines: autoconf.h pinning.c
+	scripts/m4-defines > $@.tmp
+	grep -e "^#define [A-Z].*_PIN " pinning.c  | $(SED) -e "s/^#define \([^ 	]*\)_PIN.*/-Dpin_\1/;s/[()]/_/g" >> $@.tmp
+	$(SED) -e ':a' -e 'N' -e '$$!ba' -e 's/\n/ /g' $@.tmp > $@
+	$(RM) $@.tmp
+
+$(y_META_SRC): meta.defines
+
 meta.c: $(y_META_SRC)
-	$(M4) `scripts/m4-defines` $^ > $@
+	$(M4) `cat meta.defines` $^ > $@
 
 meta.h: scripts/meta_header_magic.m4 meta.m4
-	$(M4) `scripts/m4-defines` $^ > $@
+	$(M4) `cat meta.defines` $^ > $@
 
 ##############################################################################
 
@@ -386,7 +394,7 @@ clean:
 		$(patsubst %.o,%.dep,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
 		$(patsubst %.o,%.s,${OBJECTS}) network.dep
-	$(RM) meta.c meta.h meta.m4
+	$(RM) meta.c meta.h meta.m4 meta.defines
 	echo "Cleaning completed"
 
 fullclean: clean
