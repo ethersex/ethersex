@@ -25,6 +25,10 @@
  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA. 
 ------------------------------------------------------------------------------*/
 
+
+// SIP Protocoll see at RFC 3261
+// http://www.ietf.org/rfc/rfc3261.txt
+
 #include "config.h"
 
 #include <avr/pgmspace.h>
@@ -69,19 +73,37 @@ const char PROGMEM SIP_CANCEL[] = "CANCEL";
 const char PROGMEM SIP_ACK[]    = "ACK";
 const char PROGMEM SIP_INVITE[] = "INVITE"; 
 const char PROGMEM SIP_HEADER[] = " sip:"CONF_SIP_TO"@" CONF_SIP_PROXY_IP " SIP/2.0\r\n"
-																	"Via: SIP/2.0/UDP "CONF_SIP_PROXY_IP";branch=z9hG4bK12345678\r\n"
-                                  "From: \"Doorbell\" <sip:"CONF_SIP_AUTH_USER"@"CONF_SIP_PROXY_IP">;tag=pfhdc\r\n"
-																	"To: <sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP">\r\n"
-																	"Max-Forwards: 70\r\n"
-																	"Call-ID: hkmhwqdsqvsmnqd@"CONF_HOSTNAME"\r\n"
-																	"Contact: <sip:"CONF_SIP_FROM"@"CONF_HOSTNAME">\r\n"
-																	"Authorization: Digest username=\""CONF_SIP_AUTH_USER"\"";
-const char PROGMEM SIP_REALM[]	= ",realm=\"";																	
-const char PROGMEM SIP_NONCE[]	= "\",nonce=\"";																	
-const char PROGMEM SIP_RESPONSE[]	= "\",uri=\"sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP"\",response=\"";
-const char PROGMEM SIP_ALGO[]	  = "\",algorithm=MD5";
+                                  "Via: SIP/2.0/UDP "CONF_ENC_IP":5060;rport;branch=z9hG4bK1234." ;
+const char PROGMEM SIP_HEADER2[]= "\r\nFrom: \"Doorbell\" <sip:"CONF_SIP_AUTH_USER"@"CONF_SIP_PROXY_IP">;tag=pfhdc\r\n"
+                                  "To: <sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP">\r\n"
+                                  "Max-Forwards: 70\r\n"
+                                  "Call-ID: hkmhwqdsqvsmnqd@"CONF_HOSTNAME"\r\n"
+                                  "Contact: <sip:"CONF_SIP_FROM"@"CONF_ENC_IP">\r\n"
+                                  "Authorization: Digest username=\""CONF_SIP_AUTH_USER"\"";
+const char PROGMEM SIP_REALM[]	= ", realm=\"";
+const char PROGMEM SIP_NONCE[]	= "\", nonce=\"";
+const char PROGMEM SIP_RESPONSE[]	= "\", uri=\"sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP"\", response=\"";
+const char PROGMEM SIP_ALGO[]	  = "\", algorithm=MD5";
 const char PROGMEM SIP_CSEG[]	  = "\r\nCSeq:";
 const char PROGMEM SIP_HEADEREND[] =	"\r\n\r\n";
+/*const char PROGMEM SIP_CONTENT[] =  "\r\nUser-Agent: Ethersex/2013/Doorbell\r\n"
+                                    "Content-Length: 311\r\n"
+                                    "Content-Type: application/sdp\r\n"
+                                    "\r\n"
+                                    "v=0\r\n"
+                                    "o=621@192.168.178.1 0 0 IN IP4 192.168.178.90\r\n"
+                                    "s=Session SIP/SDP\r\n"
+                                    "c=IN IP4 192.168.178.90\r\n"
+                                    "t=0 0\r\n"
+                                    "m=audio 21000 RTP/AVP 9 8 0 101\r\n"
+                                    "a=rtpmap:9 G722/8000\r\n"
+                                    "a=rtpmap:8 PCMA/8000\r\n"
+                                    "a=rtpmap:0 PCMU/8000\r\n"
+                                    "a=rtpmap:101 telephone-event/8000\r\n"
+                                    "a=fmtp:101 0-15\r\n"
+                                    "m=video 21070 RTP/AVP 103\r\n"
+                                    "a=rtpmap:103 h263-1998/90000\r\n";
+*/
 
 void 
 MD5ToHex(md5_ctx_t *md5, char* buffer)
@@ -121,6 +143,8 @@ sip_send_ACK(char* uip_appdata) {
 	char* p = uip_appdata;
   my_strcat_P(p, SIP_ACK);
   my_strcat_P(p, SIP_HEADER);
+  p = sip_append_cseg_number(p);
+  my_strcat_P(p, SIP_HEADER2);
   my_strcat_P(p, SIP_CSEG);
   p = sip_append_cseg_number(p);
   my_strcat_P(p, SIP_ACK);
@@ -249,6 +273,8 @@ sip_main()
 
 	      my_strcat_P(p, SIP_INVITE);
 	      my_strcat_P(p, SIP_HEADER);
+          p = sip_append_cseg_number(p);
+	      my_strcat_P(p, SIP_HEADER2);
 			  my_strcat_P(p, SIP_CSEG);
           p = sip_append_cseg_number(p);
   			my_strcat_P(p, SIP_INVITE);
@@ -317,6 +343,8 @@ sip_main()
 	      p = uip_appdata;
 	      my_strcat_P(p, SIP_INVITE);
 	      my_strcat_P(p, SIP_HEADER);
+              p = sip_append_cseg_number(p);
+	      my_strcat_P(p, SIP_HEADER2);
 	      my_strcat_P(p, SIP_REALM);
 	      strcpy(p, realm);
 	      p+=strlen(realm);
@@ -340,6 +368,8 @@ sip_main()
 	
 	      my_strcat_P(p, SIP_CANCEL);
 	      my_strcat_P(p, SIP_HEADER);
+              p = sip_append_cseg_number(p);
+	      my_strcat_P(p, SIP_HEADER2);
 			  my_strcat_P(p, SIP_CSEG);
           p = sip_append_cseg_number(p);
   			my_strcat_P(p, SIP_CANCEL);
