@@ -49,6 +49,9 @@
 #  define SIP_DEBUG(...)    ((void) 0)
 #endif
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 #define my_strcat_P(p, s) { strcpy_P(p, s);  p+= strlen_P(s);}
 //#define my_strcat_P(p, s) { strcpy_P(p, s);  p+= sizeof(s)-1;}  //Flash doesn't change, so can take constants instead of function calls
 
@@ -73,7 +76,7 @@ const char PROGMEM SIP_CANCEL[] = "CANCEL";
 const char PROGMEM SIP_ACK[]    = "ACK";
 const char PROGMEM SIP_INVITE[] = "INVITE"; 
 const char PROGMEM SIP_HEADER[] = " sip:"CONF_SIP_TO"@" CONF_SIP_PROXY_IP " SIP/2.0\r\n"
-                                  "Via: SIP/2.0/UDP "CONF_ENC_IP":5060;rport;branch=z9hG4bK1234." ;
+                                  "Via: SIP/2.0/UDP "CONF_ENC_IP":" STR(SIP_PORT) ";rport;branch=z9hG4bK1234." ;
 const char PROGMEM SIP_HEADER2[]= "\r\nFrom: \"Doorbell\" <sip:"CONF_SIP_AUTH_USER"@"CONF_SIP_PROXY_IP">;tag=pfhdc\r\n"
                                   "To: <sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP">\r\n"
                                   "Max-Forwards: 70\r\n"
@@ -180,16 +183,24 @@ sip_main()
         char *p1 = strstr_P(p, PSTR("realm=\""))+7; 
         char *p2 = realm;
         if (p1 != NULL)
-          while (*p1 != '\"') {  //TODO Bufferoverflow possible!
+          while (*p1 != '\"') {
             *p2++ = *p1++;
+						if (p2 >= realm+sizeof(realm)) {
+              SIP_DEBUG ("Buffer too small!\n");
+              break;
+            }
           }
         *p2 = 0;
       
         p1 = strstr_P(p, PSTR("nonce=\""))+7; 
         p2 = nonce;
         if (p1 != NULL)
-          while (*p1 != '\"') {  //TODO Bufferoverflow possible!
+          while (*p1 != '\"') {
             *p2++ = *p1++;
+						if (p2 >= nonce+sizeof(nonce)) {
+              SIP_DEBUG ("Buffer too small!\n");
+              break;
+            }
           }
         *p2 = 0;
         }
