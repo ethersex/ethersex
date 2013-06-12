@@ -516,8 +516,13 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 }
 #endif
 
-
-#ifndef ONEWIRE_POLLING_SUPPORT
+#ifdef ONEWIRE_POLLING_SUPPORT
+int16_t
+parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
+{
+  return ECMD_FINAL_OK;
+}
+#else
 int16_t
 parse_cmd_onewire_convert(char *cmd, char *output, uint16_t len)
 {
@@ -716,9 +721,7 @@ parse_cmd_onewire_name_save(char *cmd, char *output, uint16_t len)
   ecmd_else()
     ecmd_feature(onewire_get, "1w get", DEVICE, Return temperature value of onewire device (provide 64-bit ID as 16-hex-digits))
   ecmd_endif()
-  ecmd_ifndef(ONEWIRE_POLLING_SUPPORT)
-    ecmd_feature(onewire_convert, "1w convert", DEVICE, Trigger temperature conversion of either DEVICE or all connected devices)
-  ecmd_endif()
+  ecmd_feature(onewire_convert, "1w convert", DEVICE, Trigger temperature conversion of either DEVICE or all connected devices)
   ecmd_ifdef(ONEWIRE_NAMING_SUPPORT)
     ecmd_feature(onewire_name_set, "1w name set", ID DEVICE NAME, Assign a name to/from an device address)
     ecmd_feature(onewire_name_clear, "1w name clear", ID, Delete a name mapping)
