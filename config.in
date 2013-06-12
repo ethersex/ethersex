@@ -301,6 +301,7 @@ source protocols/udpstella/config.in
 source protocols/udpIO/config.in
 source protocols/udpcurtain/config.in
 source protocols/cw/config.in
+source protocols/sgc/config.in
 endmenu
 
 ###############################################################################
