@@ -16,6 +16,7 @@ source hardware/input/config.in
 source hardware/input/ps2/config.in
 source hardware/input/buttons/config.in
 source hardware/radio/rfm12/rfm12_ask_config.in
+source hardware/rotor/config.in
 source hardware/tower/config.in
 
 dep_bool_menu "Humidity & temperature sensors" HUM_TEMP_SUPPORT $ARCH_AVR

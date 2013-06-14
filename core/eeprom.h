@@ -140,6 +140,15 @@ struct eeprom_config_t
   uint8_t crontab[CRON_EEPROM_SIZE];
 #endif
 
+#ifdef ROTORHAMLIB_SUPPORT
+        uint16_t rotor_azimuth_min;
+        uint16_t rotor_azimuth_max;
+        uint16_t rotor_elevation_min;
+        uint16_t rotor_elevation_max;
+        uint16_t rotor_azimuth_parkpos;
+        uint16_t rotor_elevation_parkpos;
+#endif
+
 #ifdef TANKLEVEL_SUPPORT
   tanklevel_params_t tanklevel_params;
 #endif
