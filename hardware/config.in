@@ -5,7 +5,7 @@ source hardware/adc/kty/config.in
 source hardware/adc/ads7822/config.in
 source hardware/dac/config.in
 source hardware/lcd/config.in
-source hardware/storage/sd_reader/config.in
+source hardware/storage/config.in
 source hardware/i2c/master/config.in
 source hardware/camera/config.in
 source hardware/radio/fs20/config.in
@@ -30,4 +30,3 @@ endmenu
 source hardware/zacwire/config.in
 source hardware/ultrasonic/config.in
 source hardware/hbridge/config.in
-source hardware/serial_ram/config.in

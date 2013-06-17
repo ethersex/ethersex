@@ -46,10 +46,10 @@ vfs_sd_chdir(const char *dirname)
 uint8_t
 vfs_sd_try_open_rootnode(void)
 {
-  if ((vfs_sd_fat = fat_open(sd_active_partition)) == NULL
-      || (vfs_sd_rootnode = vfs_sd_chdir("/")) == NULL)
+  if ((vfs_sd_fat = fat_open(sd_active_partition)) == NULL ||
+      (vfs_sd_rootnode = vfs_sd_chdir("/")) == NULL)
   {
-    SDDEBUGVFS("SD-Card initialized, but failed to open root node.\n");
+    SDDEBUGVFS("card initialized, but failed to open root node\n");
 #ifdef HAVE_SD_READER_POWERON
     PIN_CLEAR(SD_READER_POWERON);
     _delay_ms(100);
@@ -60,7 +60,7 @@ vfs_sd_try_open_rootnode(void)
     return 1;
   }
 
-  SDDEBUGVFS("SD-Card initialized and root node opened.\n");
+  SDDEBUGVFS("card initialized and root node opened\n");
   return 0;                     /* Jippie, we're set. */
 }
 
@@ -119,10 +119,7 @@ vfs_sd_write(struct vfs_file_handle_t * fh, void *buf, vfs_size_t length)
 uint8_t
 vfs_sd_fseek(struct vfs_file_handle_t * fh, vfs_size_t offset, uint8_t whence)
 {
-  if (fat_seek_file(fh->u.sd, &offset, whence) == 0)
-    return -1;                  /* Fail. */
-  else
-    return 0;
+  return fat_seek_file(fh->u.sd, &offset, whence) == 0;
 }
 
 #if SD_WRITE_SUPPORT == 1
@@ -202,7 +199,7 @@ recurse_loop:
   struct fat_dir_struct *dir = fat_open_dir(vfs_sd_fat, &handle);
   if (dir == NULL)
   {
-    debug_printf("VFS-SD: fat_open_dir failed.  eek.\n");
+    debug_printf("fat_open_dir failed\n");
     return 1;
   }
 
@@ -226,7 +223,7 @@ recurse_loop:
 
     if (!(handle.attributes & FAT_ATTRIB_DIR))
     {
-      debug_printf("VFS-SD: '%s' isn't a directory.\n", path);
+      debug_printf("'%s' isn't a directory.\n", path);
       return 1;
     }
 
@@ -246,7 +243,7 @@ recurse_loop:
     if (!fat_create_dir(dir, buf, &handle))
     {
       fat_close_dir(dir);
-      debug_printf("VFS-SD: Failed to create dir '%s'\n", buf);
+      debug_printf("failed to create dir '%s'\n", buf);
       return 1;
     }
 
@@ -279,13 +276,12 @@ vfs_sd_ping(void)
   uint8_t result = 0;
   unsigned char buf[5];
 
-  SDDEBUGVFS("performing sd_ping ...\n");
   if (sd_raw_read(0, buf, 5) == 0)
     result = 1;
   if (sd_raw_read(512, buf, 5) == 0)
     result = 1;
 
-  SDDEBUGVFS("ping result: %d\n", result);
+  SDDEBUGVFS("ping result=%d\n", result);
   return result;
 }
 
