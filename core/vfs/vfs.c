@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008-2009 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,63 +55,64 @@ const struct vfs_func_t vfs_funcs[] PROGMEM = {
 #endif
 };
 
-struct vfs_file_handle_t *
-vfs_open (const char *filename)
-{
-  struct vfs_file_handle_t *fh = NULL;
-  struct vfs_func_t funcs;
 
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++) {
+struct vfs_file_handle_t *
+vfs_open(const char *filename)
+{
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
+  {
+    struct vfs_func_t funcs;
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
-    fh = funcs.open (filename);
+    if (funcs.open)
+      return funcs.open(filename);
   }
 
-  return fh;
+  return NULL;
 }
 
 struct vfs_file_handle_t *
-vfs_create (const char *name)
+vfs_create(const char *name)
 {
-  struct vfs_file_handle_t *fh = NULL;
-  struct vfs_func_t funcs;
-
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i ++) {
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
+  {
+    struct vfs_func_t funcs;
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
     if (funcs.create)
-      fh = funcs.create (name);
+      return funcs.create(name);
   }
 
-  return fh;
+  return NULL;
 }
 
 /* flag: 0=read, 1=write, 2=size */
 vfs_size_t
-vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle, void *buf,
-               vfs_size_t length)
+vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t * handle,
+                    void *buf, vfs_size_t length)
 {
   struct vfs_func_t funcs;
   memcpy_P(&funcs, &vfs_funcs[handle->fh_type], sizeof(struct vfs_func_t));
 
   if (flag == 0 && funcs.read)
-      return funcs.read(handle, buf, length);
+    return funcs.read(handle, buf, length);
 
   if (flag == 1 && funcs.write)
     return funcs.write(handle, buf, length);
 
   if (flag == 2 && funcs.size)
     return funcs.size(handle);
-    return 0;
+
+  return 0;
 }
 
 /* flag: 0=fseek, 1=truncate, 2=close */
 uint8_t
-vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
+vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t * handle,
                          vfs_size_t length, uint8_t whence)
 {
   struct vfs_func_t funcs;
   memcpy_P(&funcs, &vfs_funcs[handle->fh_type], sizeof(struct vfs_func_t));
 
-  if (flag == 0 && funcs.fseek) 
+  if (flag == 0 && funcs.fseek)
     /* handle, offset, whence */
     return funcs.fseek(handle, length, whence);
 
@@ -123,8 +125,21 @@ vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
   return 0;
 }
 
+uint8_t
+vfs_unlink(const char *filename)
+{
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
+  {
+    struct vfs_func_t funcs;
+    memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
+    if (funcs.unlink)
+      return funcs.unlink(filename);
+  }
 
-#endif	/* not VFS_TEENSY */
+  return 0;
+}
+
+#endif /* not VFS_TEENSY */
 
 /*
   -- Ethersex META --

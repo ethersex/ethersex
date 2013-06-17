@@ -96,7 +96,8 @@ struct vfs_file_handle_t * vfs_eeprom_create(const char * filename);
     vfs_eeprom_fseek,                   \
     NULL,      /* truncate */           \
     vfs_eeprom_create,                  \
-    vfs_eeprom_filesize                \
+    NULL,      /* unlink */             \
+    vfs_eeprom_filesize                 \
   }
 
 #endif	/* VFS_EEPROM_H */

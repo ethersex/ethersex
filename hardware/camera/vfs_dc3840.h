@@ -47,6 +47,7 @@ uint8_t vfs_dc3840_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
     NULL, /* fseek */			\
     NULL, /* truncate */		\
     NULL, /* create */			\
+    NULL, /* unlink */			\
     NULL, /* size */			\
   }
 
