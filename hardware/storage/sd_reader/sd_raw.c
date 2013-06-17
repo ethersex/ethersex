@@ -255,6 +255,8 @@ uint8_t sd_raw_init(void)
 
         /* card conforms to SD 2 card specification */
         sd_raw_card_type |= (1 << SD_RAW_SPEC_2);
+
+        SDDEBUGRAW ("found SD 2 card\n");
     }
     else
 #endif
