@@ -94,9 +94,9 @@
 #include "pinning.c"
 
 /* use watchdog only when not debugging */
-//#ifndef DEBUG
+#ifndef DEBUG
 #   define USE_WATCHDOG
-//#endif
+#endif
 
 /* macros */
 #ifdef USE_WATCHDOG
