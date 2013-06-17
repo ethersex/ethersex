@@ -42,7 +42,7 @@ parse_cmd_sd_info(char *cmd, char *output, uint16_t len)
 
   uint16_t cap = info.capacity / 1000000UL;
   return ECMD_FINAL(snprintf_P(output, len,
-                               PSTR("%3s %6s %d.20%02d %uMB %d %d %d"),
+                               PSTR("%3s %6s %d/20%02d %uMB %d %d %d"),
                                &info.oem, &info.product,
                                info.manufacturing_month,
                                info.manufacturing_year,
