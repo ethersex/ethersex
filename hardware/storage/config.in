@@ -1,0 +1,9 @@
+mainmenu_option next_comment
+
+  comment "Storage"
+
+  source hardware/storage/dataflash/config.in
+  source hardware/storage/sd_reader/config.in
+  source hardware/serial_ram/config.in
+
+endmenu
