@@ -47,10 +47,10 @@ sd_try_init (void)
   if (sd_raw_init () != 1)
     return 1;			/* Low-level init failed. */
 
-  if ((sd_active_partition = sd_try_open_partition (0)) == NULL
-      && (sd_active_partition = sd_try_open_partition (-1)) == NULL)
+  if ((sd_active_partition = sd_try_open_partition (0)) == NULL &&
+      (sd_active_partition = sd_try_open_partition (-1)) == NULL)
     {
-      SDDEBUGRAW ("Initialized SD-Card, but cannot open partition.\n");
+      SDDEBUGRAW ("initialized SD-Card, but cannot open partition\n");
       return 1;
     }
 
