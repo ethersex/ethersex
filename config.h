@@ -22,11 +22,18 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+/* define these menu choices before including autoconf.h */
+#define BMP085_OSS_0 0
+#define BMP085_OSS_1 1
+#define BMP085_OSS_2 2
+#define BMP085_OSS_3 3
+
 #include "autoconf.h"
 
 /* network controller hardware bug defines */
 #define ENC28J60_REV4_WORKAROUND
 #define ENC28J60_REV5_WORKAROUND
+#define ENC28J60_REV6_WORKAROUND  /* rev is 6; but microchip calls it B7 */
 
 /* global version defines */
 #define USE_BUILDDATE_VERSION 1
@@ -64,11 +71,9 @@
 /* rc5 support */
 #define RC5_QUEUE_LENGTH 10
 
-/* bootloader config */
-#define CONF_BOOTLOAD_DELAY 250           /* five seconds */
-
 /* rfm12 config */
 #define RFM12_FREQ_433920	433920
+#define RFM12_FREQ_868300	868300
 #define RFM12_FREQ_869775	869775
 #define RFM12_FREQ_869800	869800
 #define RFM12_FREQ_869825	869825
@@ -106,28 +111,28 @@
    (and that is assigned to the primary stack). */
 
 #ifdef ENC28J60_SUPPORT
-#  define set_CONF_ETHERRAPE_MAC(ip)		set_CONF_ENC_MAC(ip)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_ENC_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_ENC_IP4_NETMASK(ip)
-#  define CONF_ETHERRAPE_MAC		CONF_ENC_MAC
+#  define set_CONF_ETHERSEX_MAC(ip)		set_CONF_ENC_MAC(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_ENC_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_ENC_IP4_NETMASK(ip)
+#  define CONF_ETHERSEX_MAC		CONF_ENC_MAC
 
 #elif defined (TAP_SUPPORT)
-#  define set_CONF_ETHERRAPE_MAC(ip)		set_CONF_TAP_MAC(ip)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_TAP_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_TAP_IP4_NETMASK(ip)
-#  define CONF_ETHERRAPE_MAC			CONF_TAP_MAC
+#  define set_CONF_ETHERSEX_MAC(ip)		set_CONF_TAP_MAC(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_TAP_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_TAP_IP4_NETMASK(ip)
+#  define CONF_ETHERSEX_MAC			CONF_TAP_MAC
 
 #elif defined (RFM12_IP_SUPPORT)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_RFM12_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_RFM12_IP4_NETMASK(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_RFM12_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_RFM12_IP4_NETMASK(ip)
 
 #elif defined (ZBUS_SUPPORT)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_ZBUS_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_ZBUS_IP4_NETMASK(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_ZBUS_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_ZBUS_IP4_NETMASK(ip)
 
 #elif defined (USB_NET_SUPPORT)
-#  define set_CONF_ETHERRAPE_IP(ip)		set_CONF_USB_NET_IP(ip)
-#  define set_CONF_ETHERRAPE_IP4_NETMASK(ip)	set_CONF_USB_NET_IP4_NETMASK(ip)
+#  define set_CONF_ETHERSEX_IP(ip)		set_CONF_USB_NET_IP(ip)
+#  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_USB_NET_IP4_NETMASK(ip)
 #endif
 
 /* ADC Reference Flags */

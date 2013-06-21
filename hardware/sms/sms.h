@@ -25,7 +25,7 @@
 #define SMS_LEN 130
 
 extern volatile uint8_t global_mobil_access;
-extern FILE *ausgabe;
+extern FILE ausgabe;
 
 typedef struct {
     unsigned char rufnummer[20];

@@ -1,4 +1,4 @@
-dep_bool_menu "MySQL client (EXPERIMENTAL)" MYSQL_SUPPORT $TCP_SUPPORT $SHA1_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "MySQL client" MYSQL_SUPPORT $TCP_SUPPORT $SHA1_SUPPORT
   ip "Server IP" CONF_MYSQL_IP "192.168.23.254" "2001:6f8:1209:f0:230:5ff:fe23:3f8"
   string "Username" CONF_MYSQL_USERNAME "root"
   string "Password" CONF_MYSQL_PASSWORD "password"

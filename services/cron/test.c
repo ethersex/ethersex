@@ -24,21 +24,21 @@
 #include "config.h"
 #include "core/debug.h"
 
-void test(void* data)
+void
+test(void *data)
 {
-	#ifdef DEBUG
-	debug_printf("cron test event\n");
-	#endif
+#ifdef DEBUG
+  debug_printf("cron test event\n");
+#endif
 }
 
 void
 addcrontest()
 {
-	/* add jump_to_function crons */
-	cron_jobinsert_callback(-1, -2, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when hour % 2 == 0 */
-	cron_jobinsert_callback(51, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL); /* when minute is 51 */
-	/* add ecmd cron */
-	// example ecmd for stella to set channel 0 to 120
-	cron_jobinsert_ecmd(-1, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, "channel 0 120 f"); /* when minute % 2 == 0 */
+  /* add jump_to_function crons */
+  cron_jobinsert_callback(-1, -2, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL);     /* when hour % 2 == 0 */
+  cron_jobinsert_callback(51, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, test, 0, NULL);     /* when minute is 51 */
+  /* add ecmd cron */
+  // example ecmd for stella to set channel 0 to 120
+  cron_jobinsert_ecmd(-1, -1, -1, -1, -1, INFINIT_RUNNING, CRON_APPEND, "channel 0 120 f");     /* when minute % 2 == 0 */
 }
-

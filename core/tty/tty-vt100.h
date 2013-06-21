@@ -37,7 +37,7 @@ extern char *vt100_head;
 #define vt100_end (&vt100_buf[sizeof(vt100_buf)])
 
 /* VT100 escape sequence to clear screen and go home. */
-extern char PROGMEM vt100_clr_str[];
+extern const char PROGMEM vt100_clr_str[];
 
 void tty_vt100_clear (void);
 void tty_vt100_goto (uint8_t y, uint8_t x);

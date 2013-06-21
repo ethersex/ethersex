@@ -3,16 +3,29 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	dep_bool "Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
 	dep_bool "Onewire DS2450 (4 channel ADC) support" ONEWIRE_DS2450_SUPPORT $ONEWIRE_SUPPORT
 
-	if [ "$CONFIG_EXPERT" = "y" -a "$TEENSY_SUPPORT" = "y" ] ; then
+	if [ "$TEENSY_SUPPORT" = "y" ] ; then
 		comment "ECMD Support"
 		dep_bool "  Onewire device ECMD detection support" ONEWIRE_DETECT_ECMD_SUPPORT $ONEWIRE_DETECT_SUPPORT
 	else
 		define_bool ONEWIRE_DETECT_ECMD_SUPPORT $ONEWIRE_DETECT_SUPPORT
 	fi
-
+	dep_bool "Onewire Polling" ONEWIRE_POLLING_SUPPORT $ONEWIRE_SUPPORT $ONEWIRE_DETECT_SUPPORT
+	if  [ "$ONEWIRE_POLLING_SUPPORT" = "y" ] ; then
+		int "Time between 1w-bus discoveries in 1s steps" OW_DISCOVER_INTERVAL 600
+		int "Time between polling in 1s steps" OW_POLLING_INTERVAL 30
+		dep_bool "Hooks" ONEWIRE_HOOK_SUPPORT $ONEWIRE_POLLING_SUPPORT
+		dep_bool "ECMD 1w list with values" ONEWIRE_ECMD_LIST_VALUES_SUPPORT $ONEWIRE_POLLING_SUPPORT
+    dep_bool "ECMD 1w list with power mode" ONEWIRE_ECMD_LIST_POWER_SUPPORT $ONEWIRE_POLLING_SUPPORT
+	fi
+	dep_bool "Onewire naming support" ONEWIRE_NAMING_SUPPORT $ONEWIRE_SUPPORT
+	if  [ "$ONEWIRE_POLLING_SUPPORT" = "y" -o "$ONEWIRE_NAMING_SUPPORT" = "y" ] ; then
+		int "Maximum sensor count" OW_SENSORS_COUNT 10
+	fi
+	dep_bool "Onewire SNMP support" ONEWIRE_SNMP_SUPPORT $SNMP_SUPPORT $ONEWIRE_POLLING_SUPPORT
 	comment "Debugging Flags"
 	dep_bool "Onewire ROM parsing (ECMD)" DEBUG_ECMD_OW_ROM $DEBUG $ONEWIRE_SUPPORT
 	dep_bool "Onewire device detection (ECMD)" DEBUG_ECMD_OW_LIST $DEBUG $ONEWIRE_DETECT_SUPPORT
 	dep_bool "Onewire DS2450 (core)" DEBUG_OW_DS2450_CORE $DEBUG $ONEWIRE_DS2450_SUPPORT
 	dep_bool "Onewire DS2450 (ECMD)" DEBUG_OW_DS2450_ECMD $DEBUG $ONEWIRE_DS2450_SUPPORT
+	dep_bool "Onewire Polling" 	 DEBUG_OW_POLLING $DEBUG $ONEWIRE_POLLING_SUPPORT
 endmenu

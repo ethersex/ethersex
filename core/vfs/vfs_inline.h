@@ -38,7 +38,7 @@ union vfs_inline_node_t {
 };
 
 typedef struct {
-  uint16_t offset;		/* Offset in program memory. */
+  vfs_size_t offset;		/* Offset in program memory. */
   uint16_t pos;			/* Position in file. */
   uint16_t len;			/* Length of file. */
 } vfs_file_handle_inline_t;

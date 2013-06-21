@@ -22,27 +22,27 @@
 #include "config.h"
 #include "httpd.h"
 
-char PROGMEM httpd_sd_dir_header[] =
+const char PROGMEM httpd_sd_dir_header[] =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"
     "<html><body>"
     "<h1>Index of %s</h1>"
     "<table><tr><th>Name</th><th>Size</th></tr>\n";
 
-char PROGMEM httpd_sd_dir_parent[] =
+const char PROGMEM httpd_sd_dir_parent[] =
     "<tr><td><a href='%s'>Parent Directory</a></td><td>-</td></tr>";
 
-char PROGMEM httpd_sd_dir_footer[] =
+const char PROGMEM httpd_sd_dir_footer[] =
     "</table><hr>"
     "<address>Your friendly Ethersex HTTP service with VFS and mod_m4 :-)</address>"
     "</body></html>";
 
-char PROGMEM httpd_sd_dir_entry[] =
+const char PROGMEM httpd_sd_dir_entry[] =
     "<tr><td><a href='%s'>%s</a></td><td>%ld</td></tr>\n";
 
-char PROGMEM httpd_sd_dir_entry_dir[] =
+const char PROGMEM httpd_sd_dir_entry_dir[] =
     "<tr><td><a href='%s/'>%s</a></td><td>-</td></tr>";
 
-char PROGMEM httpd_header_301_redirect[] =
+const char PROGMEM httpd_header_301_redirect[] =
     "HTTP/1.1 301 REDIRECT\n"
     "Location: %s/\n\n";
 

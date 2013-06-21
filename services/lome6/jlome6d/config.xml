@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<configuration>
+	<ip address="192.168.144.251" />
+	<port number="2701" />
+	<auth username="admin" password="password" />
+	<sensors cpu="Core0 Temp:" sb="temp1:" />
+</configuration>
+

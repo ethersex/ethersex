@@ -65,7 +65,7 @@ openvpn_decrypt_and_verify (void)
       /* store cbc-carry for next round */
       memcpy (cbc_carry_next, ptr, 8);
 
-      cast5_dec (&ctx, ptr);
+      cast5_dec (ptr, &ctx);
 
       /* apply cbc-carry of this round */
       for (int i = 0; i < 8; i ++)
@@ -127,7 +127,7 @@ openvpn_encrypt (void)
       for (int i = 0; i < 8; i ++)
 	ptr[i] ^= ptr[i - 8];
 
-      cast5_enc (&ctx, ptr);
+      cast5_enc (ptr, &ctx);
     }
 }
 
@@ -296,7 +296,7 @@ openvpn_init (void)
   uip_ipaddr_t ip;
 
 #ifdef CAST5_SUPPORT
-  cast5_init(&ctx, key, 128);
+  cast5_init(key, 128, &ctx);
 #endif
 
   /* Initialize OpenVPN stack IP config, if necessary. */

@@ -21,7 +21,7 @@
  */
 
 #ifndef WATCHASYNC_STATE_H
-#define WATHASYNC_STATE_H
+#define WATCHASYNC_STATE_H
 
 // Select Countersize
 #ifndef WATCHASYNC_COUNTER_TYPE

@@ -1,7 +1,8 @@
 /*
 * fixedpoint utils
 *
-* Copyright (c) 2009 by Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2009 Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -23,6 +24,8 @@
 
 #ifndef _UTIL_FIXEDPOINT_H_
 #define _UTIL_FIXEDPOINT_H_
+
+#include <stdint.h>
 
 uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
 

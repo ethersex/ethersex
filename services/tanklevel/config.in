@@ -1,0 +1,19 @@
+dep_bool_menu "Tank level meter" TANKLEVEL_SUPPORT $CLOCK_SUPPORT $ADC_VOLTAGE_SUPPORT
+	int "ADC channel" TANKLEVEL_ADC_CHANNEL 0
+	dep_bool "Measure on system startup" TANKLEVEL_STARTUP $TANKLEVEL_SUPPORT
+	dep_bool "Measure at 12 am and 12 pm" TANKLEVEL_CRON_SUPPORT $CRON_STATIC_SUPPORT $TANKLEVEL_SUPPORT
+	dep_bool "Pump output is active low" TANKLEVEL_PUMP_ACTIVE_LOW $TANKLEVEL_SUPPORT
+	dep_bool "Check lock input" TANKLEVEL_LOCK_SUPPORT $TANKLEVEL_SUPPORT
+	if  [ "$TANKLEVEL_LOCK_SUPPORT" = "y" ] ; then
+		dep_bool "Lock input is active low" TANKLEVEL_LOCK_ACTIVE_LOW $TANKLEVEL_LOCK_SUPPORT
+	fi
+	dep_bool "Inline tank level" TANKLEVEL_INLINE_SUPPORT $TANKLEVEL_SUPPORT $VFS_INLINE_SUPPORT
+	int "Default zero offset of the pressure sensor (in mV)" TANKLEVEL_SENSOR_OFFSET 0
+	int "Default medium density (in g/ltr)" TANKLEVEL_MED_DENSITY 840
+	int "Default ltr per meter tank level" TANKLEVEL_LTR_PER_M 3409
+	int "Default tank capacity (in ltr)" TANKLEVEL_LTR_FULL 10000
+	int "Default pump on time (in 1/50 secs)" TANKLEVEL_RAISE_TIME 50
+	int "Default hold time before measurement (in 1/50 secs)" TANKLEVEL_HOLD_TIME 20
+endmenu
+
+

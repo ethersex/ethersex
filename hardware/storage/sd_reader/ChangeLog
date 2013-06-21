@@ -1,4 +1,32 @@
 
+2011-04-23 sd-reader
+	* fix FAT access for cluster numbers beyond 2^15 (for FAT16) and 2^30 (for FAT32) (thanks to Darwin Engwer for testing)
+	* correctly return disk-full condition from fat_write_file() on certain conditions
+	* use byteorder memory access functions for fat_fs_get_free()
+	* be more specific on the return value of fat_write_file()
+
+2011-02-05 sd-reader
+	* implement renaming a file or directory
+	* rewrite byteorder handling to fix unaligned memory accesses on 32-bit and probably 16-bit architectures
+	* make fat_create_file() not return failure if the file already exists
+	* make the "cat" output respect the count of bytes actually read
+	* document how to use fat_seek_file() for retrieving the file position
+
+2010-10-10 sd-reader
+	* Fix equal file names when reading two successive 8.3 directory entries.
+	* Fix calculation of cluster positions beyond 4GB (32 bit integer overflow).
+	* Fix endless looping of directory listing (occured with valid entry at end of last cluster).
+
+2010-01-10 sd-reader
+	* Make LFN support configurable.
+	* Ignore LFN directory entries without 8.3 name.
+	* Ignore LFN directory entries which do not match the 8.3 name's checksum.
+	* Implement delayed directory entry updates (disabled by default) (thanks to Adam Mayer).
+	* Speedup search for free cluster.
+	* Fix memory leak when using the "init" command (thanks to Tibor Vilhan).
+	* Fix ATmega328P-specific pin mappings.
+	* Add some of the picoPower MCU variants.
+
 2009-03-30 sd-reader
 	* Make 8.3 basename and/or extension lowercase when told by Windows NT and later.
 	* Add ATmega328 pin configuration.
@@ -7,7 +35,7 @@
 	* Fix fat size calculation for FAT16 when configured with FAT32.
 	* Fix compilation for read-only configurations.
 	* Fix card lock detection.
-	* Make it easier to link with a C++ application.
+	* Make it easier to link with a C++ application (thanks to Jérôme Despatis).
 
 2008-11-21 sd-reader
 	* Support for SDHC cards (disabled by default).

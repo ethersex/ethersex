@@ -166,11 +166,5 @@ uip_neighbor_lookup(uip_ipaddr_t ipaddr)
 /*
   -- Ethersex META --
   header(protocols/uip/uip_neighbor.h)
-  timer(500, `
-#	ifndef BOOTLOADER_SUPPORT
-#	ifdef ENC28J60_SUPPORT
-	  uip_neighbor_periodic()
-#	endif
-#	endif
-')
+  ifdef(`conf_BOOTLOADER', `', `ifdef(`conf_ENC28J60', `timer(500, `uip_neighbor_periodic()')')')
 */

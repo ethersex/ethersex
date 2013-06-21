@@ -2,8 +2,8 @@ TOPDIR ?= ../..
 
 ifneq ($(TEENSY_SUPPORT),y)
 $(ARCH_AVR)_SRC += hardware/avr/dump_ecmd.c
-$(ARCH_AVR)_SRC += hardware/avr/fuse.c
-$(ARCH_AVR)_SRC += hardware/avr/hostname.c
+$(ARCH_AVR)_SRC += hardware/avr/fuse_ecmd.c
+$(ARCH_AVR)_SRC += hardware/avr/hostname_ecmd.c
 
 $(ECMD_EEPROM_SUPPORT)_SRC += hardware/avr/eeprom_ecmd.c
 

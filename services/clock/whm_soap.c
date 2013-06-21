@@ -27,7 +27,7 @@ uint8_t soap_rpc_whm(uint8_t len, soap_data_t *args, soap_data_t *result)
   if (len != 0) return 1;	/* we don't want args. */
 
   result->type = SOAP_TYPE_UINT32;
-  result->u.d_uint32 = clock_get_time() - clock_get_startup();
+  result->u.d_uint32 = clock_get_uptime();
   return 0;
 }
 

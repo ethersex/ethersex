@@ -52,7 +52,7 @@ doorbell_main(void) {
 	// Debug:
 	if (PIN_HIGH(RINGBUTTON)) {
 		PIN_SET(RELAIS1);
-	    DOORBELLDEBUG ("input:ring\n");
+	    //DOORBELLDEBUG ("input:ring\n");
 	}
 	else
 		PIN_CLEAR(RELAIS1);

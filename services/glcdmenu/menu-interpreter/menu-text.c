@@ -29,15 +29,18 @@ http://overcode.yak.net/12
 
 Zus�tzlich gibt es Funktionen zum anzeigen von Texten und Scrolltexten
 
-Datum der letzten �nderung:
+Date of last changes:
+  2010-05-15: Prevent overflow of chars to the left side
+  2010-02-10: Add german umlauts, fix & and ~ sign, translate some comments
   2009-09-10: Use SCREENPOS datatype to support 16 bit screen resolution
   2009-05-24: Changed in black/white char renderer
   2005-07-19: Buchstabe "P" war falsch
-  2005-07-23: draw_tinynumber(), draw_tinydigit() hinzugef�gt
+  2005-07-23: draw_tinynumber(), draw_tinydigit() hinzugefuegt
 
 */
 
 #include "menu-interpreter.h"
+#include <string.h>
 
 //make pc compatible
 #ifndef AVR_BUILD
@@ -47,15 +50,23 @@ Datum der letzten �nderung:
   #include <avr/pgmspace.h>
 #endif
 
+//comment out to get the old behaviour (saves code + cpu time)
+#define ENABLE_GERMAN_UMLAUTS
+
+#ifdef ENABLE_GERMAN_UMLAUTS
+#define MENU_CHARACTERS 100
+#else
+#define MENU_CHARACTERS 95
+#endif
 
 const char characters[] PROGMEM = {
-0x00,0x00,0x00,0x00,0x00, //Leerzeichen
+0x00,0x00,0x00,0x00,0x00, //Space
 0x00,0x00,0x5F,0x00,0x00, //Ausrufezeichen
 0x00,0x03,0x00,0x03,0x00,
 0x14,0x7F,0x14,0x7F,0x14,
 0x24,0x2A,0x7F,0x2A,0x12,
 0x26,0x16,0x08,0x34,0x32,
-0x4A,0x55,0x21,0x50,0x00,
+0x36,0x49,0x55,0x22,0x50, //&
 0x00,0x00,0x03,0x00,0x00,
 0x00,0x1C,0x22,0x41,0x00,
 0x00,0x41,0x22,0x1C,0x00,
@@ -82,7 +93,7 @@ const char characters[] PROGMEM = {
 0x41,0x22,0x14,0x08,0x00,
 0x02,0x01,0x51,0x09,0x06,
 0x3E,0x41,0x5D,0x55,0x1E,
-0x7E,0x09,0x09,0x09,0x7E,
+0x7E,0x09,0x09,0x09,0x7E, //A
 0x7F,0x49,0x49,0x49,0x36,
 0x3E,0x41,0x41,0x41,0x22,
 0x7F,0x41,0x41,0x41,0x3E,
@@ -143,7 +154,14 @@ const char characters[] PROGMEM = {
 0x08,0x36,0x41,0x41,0x00,
 0x00,0x00,0x7F,0x00,0x00,
 0x41,0x41,0x36,0x08,0x00,
-0x08,0x04,0x08,0x10,0x08,
+0x08,0x04,0x08,0x10,0x08 //~
+#ifdef ENABLE_GERMAN_UMLAUTS
+,0x79,0x14,0x12,0x14,0x79, //A with dots
+0x39,0x44,0x44,0x44,0x39, //O with dots
+0x3D,0x40,0x40,0x40,0x3D, //U with dots
+0x31,0x48,0x48,0x48,0x7D, //a with dots (o and u with dots are the same on a 5x7 font)
+0x7E,0x01,0x49,0x49,0x36, //sz (spoken as 'sharp s')
+#endif
 };
 
 unsigned char menu_font_heigth(unsigned char font) {
@@ -154,9 +172,9 @@ unsigned char menu_font_heigth(unsigned char font) {
 
 
 unsigned char menu_char_draw(SCREENPOS posx, SCREENPOS posy, unsigned char font, unsigned char cdraw) {
-	unsigned char nunbyte,charwidth,nunbit;
+	unsigned char nunbyte, charwidth, nunbit;
 	unsigned char copyedbytes[5];
-	SCREENPOS tempx,tempy;
+	SCREENPOS tempx, tempy;
 	unsigned char byte_eq_count,nun;
 	unsigned char shrink;
 	if ((font & 1)) {
@@ -164,14 +182,21 @@ unsigned char menu_char_draw(SCREENPOS posx, SCREENPOS posy, unsigned char font,
 	} else
 		shrink = 1;
 	charwidth = 0;
+#ifdef ENABLE_GERMAN_UMLAUTS
+	if (cdraw == 196) cdraw = 127;
+	if ((cdraw == 214) || (cdraw == 246)) cdraw = 128;
+	if ((cdraw == 220) || (cdraw == 252)) cdraw = 129;
+	if (cdraw == 228) cdraw = 130;
+	if (cdraw == 223) cdraw = 131;
+#endif
 	cdraw -= 32;
-	if (cdraw < 94) { //g�ltiges Zeichen
+	if (cdraw < MENU_CHARACTERS) { //valid character
 #ifdef STOREINRAM
 		memcpy(copyedbytes,characters+cdraw*5,5);
 #else
 		memcpy_P(copyedbytes,characters+cdraw*5,5);
 #endif
-		//Automatisches verk�rzen der Buchstaben
+		//automated shortening of chars
 		if (shrink != 0) {
 			byte_eq_count = 0;
 			for (nun = 0; nun < 4; nun++) {
@@ -180,17 +205,20 @@ unsigned char menu_char_draw(SCREENPOS posx, SCREENPOS posy, unsigned char font,
 					byte_eq_count = 0;
 				}
 				if (byte_eq_count == 2) {
-					//wir streichen das Byte weg, weil 3x das gleiche
+					//remove one byte, if it repeated three times
 					copyedbytes[nun] = 0;
 				}
 				if (byte_eq_count == 4) {
-					//bei 5 mal das gleiche Zeichen streichen wir ein zweites
+					//if there are 5 bytes equal, we remove a second one
 					copyedbytes[nun] = 0;
 				}
-			} //ende der schleife
-		} //ende wenn shrink != 0
+			} //end of loop
+		} //end if shrink != 0
 		for (nunbyte = 0; nunbyte < 5;nunbyte++) {
 			tempx = posx+charwidth;
+			if (tempx < posx+charwidth) {
+				break; //prevent overflow to the left side of the screen
+			}
 			for (nunbit = 0; nunbit < 7;nunbit++) {
 				tempy = posy+nunbit;
 				if ((copyedbytes[nunbyte] & (0x01<<nunbit)) != 0) {

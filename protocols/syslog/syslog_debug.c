@@ -21,8 +21,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdio.h>
+
 #include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
+
+
+static FILE syslog_stream = FDEV_SETUP_STREAM (syslog_debug_put, NULL, _FDEV_SETUP_WRITE);
 
 int
 syslog_debug_put (char d, FILE *stream)
@@ -36,7 +41,8 @@ syslog_debug_put (char d, FILE *stream)
 void
 syslog_debug_init (void)
 {
-  fdevopen(syslog_debug_put, NULL);
+  stdout = &syslog_stream;
+  stderr = &syslog_stream;
 }
 
 /*

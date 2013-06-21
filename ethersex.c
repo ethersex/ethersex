@@ -33,6 +33,7 @@
 #include "core/global.h"
 #include "core/debug.h"
 #include "core/spi.h"
+#include "core/mbr.h"
 #include "network.h"
 #include "core/portio/portio.h"
 #include "hardware/radio/rfm12/rfm12.h"
@@ -46,6 +47,7 @@
 global_status_t status;
 
 /* prototypes */
+#if ARCH != ARCH_HOST
 void (*jump_to_bootloader) (void) = (void *) BOOTLOADER_START_ADDRESS;
 
 #ifdef DEBUG_RESET_REASON
@@ -54,17 +56,14 @@ uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 
 void __start (void) __attribute__ ((naked))
                     __attribute__ ((used))
-                    __attribute__ ((section (".init1")));
+                    __attribute__ ((section (".init3")));
 void __start ()
 {
-  /* Clear the MCUSR Register to avoid endless wdreset loops */
-#if defined(MCUCSR) && !defined(MCUSR)
-#define MCUSR MCUCSR
-#endif
+  /* Clear the watchdog register to avoid endless wdreset loops */
 #ifdef DEBUG_RESET_REASON
-  mcusr_mirror = MCUSR;
+  mcusr_mirror = MCU_STATUS_REGISTER;
 #endif
-  MCUSR = 0;
+  MCU_STATUS_REGISTER = 0;
   wdt_disable ();
   /* Disable all timer interrupts */
 #ifdef TIMSK
@@ -80,6 +79,17 @@ void __start ()
   TIMSK2 = 0;
 #endif
 }
+#endif  /* ARCH != ARCH_HOST */
+
+#ifdef BOOTLOADER_SUPPORT
+ISR(__vector_default)
+{
+  /* catch any unassigned interrupt and do nothing */
+#ifdef STATUSLED_POWER_SUPPORT
+  PIN_CLEAR (STATUSLED_POWER);
+#endif
+}
+#endif
 
 extern void ethersex_meta_init (void);
 extern void ethersex_meta_startup (void);
@@ -89,12 +99,12 @@ int
 main (void)
 {
 #ifdef BOOTLOADER_SUPPORT
-  _IVREG = _BV (IVCE);		/* prepare ivec change */
-  _IVREG = _BV (IVSEL);		/* change ivec to bootloader */
+  _IVREG = _BV (IVCE);    /* prepare ivec change */
+  _IVREG = _BV (IVSEL);   /* change ivec to bootloader */
 #endif
 
   /* Default DDR Config */
-#if IO_HARD_PORTS == 4 && DDR_MASK_A != 0
+#if IO_HARD_PORTS >= 4 && DDR_MASK_A != 0
   DDRA = DDR_MASK_A;
 #endif
 #if DDR_MASK_B != 0
@@ -106,7 +116,7 @@ main (void)
 #if DDR_MASK_D != 0
   DDRD = DDR_MASK_D;
 #endif
-#if IO_HARD_PORTS == 6
+#if IO_HARD_PORTS >= 6
 #if DDR_MASK_E != 0
   DDRE = DDR_MASK_E;
 #endif
@@ -114,26 +124,32 @@ main (void)
   DDRF = DDR_MASK_F;
 #endif
 #endif
+#if IO_HARD_PORTS >= 7
+#if DDR_MASK_G != 0
+  DDRG = DDR_MASK_G;
+#endif
+#endif
+
 
 #ifdef STATUSLED_POWER_SUPPORT
-  PIN_SET (STATUSLED_POWER);
+  PIN_SET(STATUSLED_POWER);
 #endif
 
   //FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
-  debug_init ();
-  debug_printf ("Ethersex " VERSION_STRING " (Debug mode)\n");
+  debug_init();
+  debug_printf("Ethersex " VERSION_STRING " (Debug mode)\n");
 
 #ifdef DEBUG_RESET_REASON
   if (bit_is_set (mcusr_mirror, BORF))
-    debug_printf ("reset: Brown-out\n");
+    debug_printf("reset: Brown-out\n");
   else if (bit_is_set (mcusr_mirror, PORF))
-    debug_printf ("reset: Power on\n");
+    debug_printf("reset: Power on\n");
   else if (bit_is_set (mcusr_mirror, WDRF))
-    debug_printf ("reset: Watchdog\n");
+    debug_printf("reset: Watchdog\n");
   else if (bit_is_set (mcusr_mirror, EXTRF))
-    debug_printf ("reset: Extern\n");
+    debug_printf("reset: Extern\n");
   else
-    debug_printf ("reset: Unknown\n");
+    debug_printf("reset: Unknown\n");
 #endif
 
 #ifdef BOOTLOADER_SUPPORT
@@ -145,104 +161,97 @@ main (void)
   sei ();
 
 #ifdef USE_WATCHDOG
-  debug_printf ("enabling watchdog\n");
+  debug_printf("enabling watchdog\n");
 #ifdef DEBUG
   /* for debugging, test reset cause and jump to bootloader */
-  if (MCUSR & _BV (WDRF))
-    {
-      debug_printf ("bootloader...\n");
-      jump_to_bootloader ();
-    }
+  if (MCU_STATUS_REGISTER & _BV (WDRF))
+  {
+    debug_printf("bootloader...\n");
+    jump_to_bootloader();
+  }
 #endif
   /* set watchdog to 2 seconds */
-  wdt_enable (WDTO_2S);
-  wdt_kick ();
+  wdt_enable(WDTO_2S);
+  wdt_kick();
 #else //USE_WATCHDOG
-  debug_printf ("disabling watchdog\n");
-  wdt_disable ();
+  debug_printf("disabling watchdog\n");
+  wdt_disable();
 #endif //USE_WATCHDOG
-
-#if defined(ADC_SUPPORT) || defined(ADC_LIGHT)
-  /* ADC Prescaler to 64 */
-  ADCSRA = _BV (ADEN) | _BV (ADPS2) | _BV (ADPS1);
-  /* ADC set Voltage Reference to extern */
-  /* FIXME: move config to the right place */
-  ADMUX = ADC_REF;		//_BV(REFS0) | _BV(REFS1);
-#endif
 
 #if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
 	|| defined(DATAFLASH_SUPPORT)
-  spi_init ();
+  spi_init();
 #endif
 
-  ethersex_meta_init ();
+  ethersex_meta_init();
 
   /* must be called AFTER all other initialization */
 #ifdef PORTIO_SUPPORT
-  portio_init ();
+  portio_init();
 #elif defined(NAMED_PIN_SUPPORT)
-  np_simple_init ();
+  np_simple_init();
 #endif
 
 #ifdef ENC28J60_SUPPORT
   debug_printf ("enc28j60 revision 0x%x\n",
-		read_control_register (REG_EREVID));
-  debug_printf ("mac: %x:%x:%x:%x:%x:%x\n", uip_ethaddr.addr[0],
-		uip_ethaddr.addr[1], uip_ethaddr.addr[2], uip_ethaddr.addr[3],
-		uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
+  read_control_register (REG_EREVID));
+  debug_printf ("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+	  uip_ethaddr.addr[0], uip_ethaddr.addr[1], uip_ethaddr.addr[2],
+	  uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
 #endif
 
 #ifdef STATUSLED_BOOTED_SUPPORT
-  PIN_SET (STATUSLED_BOOTED);
+  PIN_SET(STATUSLED_BOOTED);
 #endif
 
-  ethersex_meta_startup ();
-
+  ethersex_meta_startup();
   /* main loop */
   while (1)
-    {
-
-      wdt_kick ();
-      ethersex_meta_mainloop ();
+  {
+    wdt_kick();
+    ethersex_meta_mainloop();
 
 #ifdef SD_READER_SUPPORT
-      if (sd_active_partition == NULL)
-	{
-	  if (!sd_try_init ())
-	    vfs_sd_try_open_rootnode ();
-
-	  wdt_kick ();
-	}
+    if (sd_active_partition == NULL)
+    {
+      if (!sd_try_init())
+        vfs_sd_try_open_rootnode();
+      wdt_kick();
+    }
 #endif
 
 #ifdef BOOTLOADER_JUMP
-      if (status.request_bootloader)
-	{
+    if (status.request_bootloader)
+    {
+#ifdef MBR_SUPPORT
+      mbr_config.bootloader = 1;
+      write_mbr();
+#endif
 #ifdef CLOCK_CRYSTAL_SUPPORT
-	  _TIMSK_TIMER2 &= ~_BV (TOIE2);
+      TC2_INT_OVERFLOW_OFF;
 #endif
 #ifdef DCF77_SUPPORT
-	  ACSR &= ~_BV (ACIE);
+      ACSR &= ~_BV (ACIE);
 #endif
-	  cli ();
-	  jump_to_bootloader ();
-	}
+      cli();
+      jump_to_bootloader();
+    }
 #endif
 
 #ifndef TEENSY_SUPPORT
-      if (status.request_wdreset)
-	{
-	  cli ();
-	  wdt_enable (WDTO_15MS);
-	  for (;;);
-	}
+    if (status.request_wdreset)
+    {
+      cli();
+      wdt_enable(WDTO_15MS);
+      for (;;);
+    }
 #endif
 
-      if (status.request_reset)
-	{
-	  cli ();
-	  void (*reset) (void) = NULL;
-	  reset ();
-	}
+    if (status.request_reset)
+    {
+      cli();
+      void (*reset) (void) = NULL;
+      reset();
     }
+  }
 }

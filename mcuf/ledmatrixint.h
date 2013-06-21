@@ -108,6 +108,5 @@ extern uint8_t volatile gzeile;       //Welche Zeile gerade behandelt wird
 
 void init_led_display(void); //Initialisiert das LED Display
 void resync_led_display(void); //kurz ein Reset bei eventuellen Fehlern
-//SIGNAL(SIG_OVERFLOW2); //Schreibt die Display Daten
 
 #endif /* LEDMATRIXINT_H */

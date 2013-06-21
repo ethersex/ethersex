@@ -22,16 +22,20 @@
 
 #ifndef _SLL_H
 #define _SLL_H
+
 #include "config.h"
 
-void serial_line_log_init(void);
-void serial_line_log_periodic(void);
-
-struct serial_line_log_data {
-  uint8_t data[SERIAL_LINE_LOG_COUNT+1];
+struct serial_line_log_data
+{
+  uint8_t data[SERIAL_LINE_LOG_COUNT + 1];
   uint8_t len;
   uint8_t timeout;
 };
 
+extern struct serial_line_log_data sll_data_new;
+extern struct serial_line_log_data sll_data;
+
+void serial_line_log_init (void);
+void serial_line_log_periodic (void);
 
 #endif /* _SLL_H */

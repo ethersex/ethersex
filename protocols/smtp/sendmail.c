@@ -144,7 +144,7 @@ sendmail_net_main (void)
         {
           uint8_t len = strlen(CONF_SENDMAIL_USERNAME_BASE64);
           MAIL_DEBUG ("2: Send Username: %s\n", CONF_SENDMAIL_USERNAME_BASE64);
-          memcpy_P (uip_sappdata, PSTR(CONF_SENDMAIL_PASSWORD_BASE64 "\r\n"), 
+          memcpy_P (uip_sappdata, PSTR(CONF_SENDMAIL_USERNAME_BASE64 "\r\n"), 
                   len + 2); 
           uip_send (uip_sappdata, len + 3);
         }

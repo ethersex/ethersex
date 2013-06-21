@@ -1,0 +1,63 @@
+object Form2: TForm2
+  Left = 1173
+  Height = 415
+  Top = 353
+  Width = 637
+  Caption = 'Check Menu'
+  ClientHeight = 415
+  ClientWidth = 637
+  ParentFont = False
+  Position = poDesktopCenter
+  LCLVersion = '0.9.26'
+  object ListBox1: TListBox
+    Left = 8
+    Height = 368
+    Top = 8
+    Width = 621
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 0
+    TopIndex = -1
+  end
+  object Button1: TButton
+    Left = 16
+    Height = 25
+    Top = 384
+    Width = 88
+    Align = alCustom
+    Anchors = [akLeft, akBottom]
+    Caption = 'Check'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object Button2: TButton
+    Left = 288
+    Height = 25
+    Top = 384
+    Width = 75
+    Anchors = [akBottom]
+    Caption = 'Clear'
+    OnClick = Button2Click
+    TabOrder = 2
+  end
+  object Button3: TButton
+    Left = 551
+    Height = 25
+    Top = 384
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Close'
+    OnClick = Button3Click
+    TabOrder = 3
+  end
+  object CheckBox1: TCheckBox
+    Left = 128
+    Height = 28
+    Top = 381
+    Width = 105
+    Anchors = [akLeft, akBottom]
+    Caption = 'Show Hints'
+    Checked = True
+    State = cbChecked
+    TabOrder = 4
+  end
+end

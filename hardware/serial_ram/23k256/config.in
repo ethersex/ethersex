@@ -1,0 +1,6 @@
+if [ "$SER_RAM_SUPPORT" = "y" ]; then
+	dep_bool "Microchip 23K256 SPI-RAM support" SER_RAM_23K256_SUPPORT $SER_RAM_SUPPORT 
+	comment  "Debugging Flags"
+		dep_bool 'Debug 23K256' DEBUG_SER_RAM_23K256 $DEBUG $SER_RAM_23K256_SUPPORT
+		dep_bool "Perform RAM Test on startup" SER_RAM_23K256_RAMTEST $DEBUG_SER_RAM_23K256
+fi

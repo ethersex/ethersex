@@ -1,0 +1,21 @@
+dep_bool_menu "lome6 Service" LOME6_SUPPORT $TCP_SUPPORT $ECMD_PARSER_SUPPORT $WHM_SUPPORT
+	dep_bool "LCD Support (TTY needed)" LOME6_LCD_SUPPORT $LOME6_SUPPORT $TTY_SUPPORT
+	if [ "$LOME6_LCD_SUPPORT" = "y" ]; then
+		int "LCD width (chars)" CONF_LOME6_LCD_WIDTH 16
+		int "LCD height (chars)" CONF_LOME6_LCD_HEIGHT 2
+	fi
+
+	dep_bool_menu "OneWire Temperature Support" LOME6_ONEWIRE_SUPPORT $ONEWIRE_SUPPORT $LOME6_SUPPORT
+		comment "OneWire DS18x20 Temperature Sensor IDs:"
+		string "Sensor Power Supply" CONF_SENSOR_PSU "1015ccf501080065"
+		string "Sensor Air Intake" CONF_SENSOR_AIR "10567cf501080006"
+		string "Sensor RAM" CONF_SENSOR_RAM "10cba7f5010800d3"
+	endmenu
+	
+	int "Power on delay (seconds, 0 to disable)" CONF_LOME6_POD 0
+
+	comment  "Expert settings"
+	int "Time to press Reset [ms]" CONF_TIME2PRESS_RESET 40
+	int "Time to press Power [ms]" CONF_TIME2PRESS_POWER 40
+	int "Time to press Power long [s]" CONF_TIME2PRESS_POWERL 3
+endmenu

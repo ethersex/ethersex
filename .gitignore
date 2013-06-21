@@ -12,6 +12,7 @@
 *.workspace
 *.cbp
 *.layout
+*.dSYM
 
 # make generated files
 .config*
@@ -26,6 +27,11 @@ pinning.c
 scripts/lxdialog/lxdialog
 .menuconfig.log
 .menuconfig.old
+
+# eclipse project files
+.project
+.cproject
+.settings/*
 
 # control6
 control6/control6.c
@@ -43,6 +49,7 @@ contrib/libecmd/rfm12ask_2272/rfm12ask_2272
 # module specific files
 core/vfs/vfs-concat
 core/portio/np_simple.c
+core/crc/crc16-concat
 services/httpd/magic.c
 services/watchcat/user_config.h
 protocols/ecmd/ecmd_defs.c

@@ -43,6 +43,6 @@ divert(rule_cpp)
 #define watchcat_port_init() do {\
 divert(rule_end_cpp)} while(0)
 divert(rule_divert)
-static struct WatchcatReaction ecmd_react[] PROGMEM = {
+static const struct WatchcatReaction ecmd_react[] PROGMEM = {
 divert(rule_end_divert)    { .port = 255, .pin = 255, .rising = 255}
 };

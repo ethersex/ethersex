@@ -63,7 +63,7 @@ uint8_t
 i2c_master_do(uint8_t mode)
 {
     TWCR = mode;                    // �bertragung starten
-    while(!( TWCR & (1<<TWINT)));   // warten bis Byte �bertragen ist
+    loop_until_bit_is_set(TWCR,TWINT);
     return TW_STATUS;           // Returncode = Statusbits
 }
 
@@ -72,7 +72,7 @@ void
 i2c_master_stop(void)
 {
     TWCR=((1<<TWEN)|(1<<TWINT)|(1<<TWSTO));     // Stopbedingung senden
-    while (!(TWCR & (1<<TWSTO)));               // warten bis TWI fertig
+    loop_until_bit_is_clear(TWCR, TWSTO);
     i2c_master_disable();
 }
 

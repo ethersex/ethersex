@@ -34,7 +34,7 @@ void openvpn_process_out (void);
 void openvpn_txstart (void);
 
 /* The port number to use for OpenVPN. */
-#define OPENVPN_PORT 1194
+#define OPENVPN_PORT CONF_OPENVPN_PORT
 
 struct openvpn_connection_state_t {
   uint32_t next_seqno;

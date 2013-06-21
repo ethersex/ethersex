@@ -1,33 +1,27 @@
+dep_bool_menu "TFTP support" TFTP_SUPPORT $UDP_SUPPORT
 
-if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
-  dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT 
+if [ "$BOOTP_SUPPORT" != "y" ]; then
+   dep_bool "TFTP-o-matic" TFTPOMATIC_SUPPORT $TFTP_SUPPORT
+   if [ "$TFTPOMATIC_SUPPORT" = "y" ]; then
+     if [ "$IPV6_SUPPORT" = "y" ]; then
+       ipv6 "TFTP-server IPv6 address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+     else
+       ipv4 "TFTP-server IPv4 address" CONF_TFTP_IP "192.168.23.73"
+     fi
+     string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
+   fi
 else
-  dep_bool 'TFTP support' TFTP_SUPPORT $UDP_SUPPORT $VFS_SUPPORT
-fi
-
-if [ "$BOOTLOADER_SUPPORT" = "y" -a "$TFTP_SUPPORT" = "y" ]; then
-  mainmenu_option next_comment
-  comment "Bootloader configuration"
-
-  if [ "$BOOTP_SUPPORT" != "y" ]; then
-    dep_bool 'TFTP-o-matic' TFTPOMATIC_SUPPORT $TFTP_SUPPORT
-  else
-    # cannot use TFTP-o-matic with BOOTP
-    define_bool TFTPOMATIC_SUPPORT n
-  fi
-  if [ "$TFTPOMATIC_SUPPORT" = "y" ]; then
-    comment "TFTP-o-matic configuration"
-    if [ "$IPV6_SUPPORT" = "y" ]; then
-      ipv6 "TFTP IP address" CONF_TFTP_IP "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
-    else
-      ipv4 "TFTP IP address" CONF_TFTP_IP "192.168.23.73"
-    fi
-    string "TFTP image to load" CONF_TFTP_IMAGE "ethersex.bin"
-  fi
-
-  endmenu
-
-else
-  # no bootloader ...
+  # cannot use TFTP-o-matic with BOOTP
   define_bool TFTPOMATIC_SUPPORT n
+  comment "TFTP-o-matic not available due to active BOOTP"
 fi
+
+if [ "$BOOTLOADER_SUPPORT" != "y" ]; then
+  dep_bool "TFTP upload support" TFTP_UPLOAD_SUPPORT $VFS_SUPPORT
+fi
+
+int "Bootloader timeout" CONF_BOOTLOAD_DELAY 250
+
+dep_bool "TFTP CRC verify" TFTP_CRC_SUPPORT $BOOTLOADER_SUPPORT
+
+endmenu

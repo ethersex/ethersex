@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2011-2012 by Erik Kunze <ethersex@erik-kunze.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -21,108 +22,49 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _CLOCK_H
-#define _CLOCK_H
+#ifndef __CLOCK_H
+#define __CLOCK_H
 
 #include <inttypes.h>
 #include "config.h"
-
-#if defined(atmega128)
-
-#define CLOCK_TIMER_AS AS0
-#define CLOCK_INT_OVERFLOW_CLR TC0_INT_OVERFLOW_CLR
-#define CLOCK_INT_OVERFLOW_ON TC0_INT_OVERFLOW_ON
-#define CLOCK_TIMER_PRESCALER_64 TC0_PRESCALER_64
-#define CLOCK_TIMER_CNT TC0_COUNTER_CURRENT
-#define CLOCK_SIG TC0_VECTOR_OVERFLOW
-#define CLOCK_TIMER_NBUSY TCN0UB
-#define CLOCK_TIMER_RBUSY TCR0UB
-
-#else
-
-/* Here we define to use the timer2 */
-#define CLOCK_TIMER_AS AS2
-#define CLOCK_INT_OVERFLOW_CLR TC2_INT_OVERFLOW_CLR
-#define CLOCK_INT_OVERFLOW_ON TC2_INT_OVERFLOW_ON
-#define CLOCK_TIMER_PRESCALER_64 TC2_PRESCALER_64
-#define CLOCK_TIMER_CNT TC2_COUNTER_CURRENT
-#define CLOCK_SIG TC2_VECTOR_OVERFLOW
-#define CLOCK_TIMER_NBUSY TCN2UB
-#ifdef TCR2BUB
-#  define CLOCK_TIMER_RBUSY TCR2BUB
-#endif
-#endif
-
-struct clock_datetime_t {
-    uint8_t sec;
-    union {
-        uint8_t cron_fields[5];
-        struct {
-            uint8_t min;
-            uint8_t hour;
-            uint8_t day;
-            uint8_t month;
-            uint8_t dow;
-        };
-    };
-    uint8_t year;
-};
-
-/* current_time is the amount of seconds since 1.1.1900, 00:00:00 UTC */
-#define EPOCH_YEAR 1970
-/* 1.1.1970 was a thursday */
-#define EPOCH_DOW 4
+#include "services/clock/clock_lib.h"
 
 void clock_init(void);
 void clock_periodic(void);
 void clock_tick(void);
 
 /* the actual time as unix time stamp */
-uint32_t clock_get_time(void);
+timestamp_t clock_get_time(void);
 
 /* when was the clock synced the last time (unix timestamp) */
-uint32_t clock_last_sync(void);
+timestamp_t clock_last_sync(void);
 
 /* when was the clock synced the last time (ticks) */
-uint32_t clock_last_s_tick(void);
+timestamp_t clock_last_sync_tick(void);
 
 /* last delta time (from unix timestamp) */
 int16_t clock_last_delta(void);
 
 /* DCF syncs in Folge */
 uint16_t clock_dcf_count(void);
-void set_dcf_count(uint16_t new_dcf_count);
+void set_dcf_count(const uint16_t new_dcf_count);
 
 /* NTP syncs in Folge */
 uint16_t clock_ntp_count(void);
-void set_ntp_count(uint16_t new_ntp_count);
+void set_ntp_count(const uint16_t new_ntp_count);
 
 /* the actual ntp_timer */
 uint16_t clock_last_ntp(void);
 
-/* when was the device booted (unix timestamp) */
-uint32_t clock_get_startup(void);
+/* how long is the system up (seconds) */
+timestamp_t clock_get_uptime(void);
 
 /* the actual time */
-void clock_set_time_raw(uint32_t new_sync_timestamp);
-void clock_set_time(uint32_t new_sync_timestamp);
+void clock_set_time_raw(timestamp_t new_sync_timestamp);
+void clock_set_time_raw_hr(timestamp_t new_sync_timestamp, uint8_t new_ticks);
+void clock_set_time(timestamp_t new_sync_timestamp);
 
-/** convert time in timestamp to a datetime struct */
-void clock_datetime(struct clock_datetime_t *d, uint32_t timestamp);
-void clock_localtime(struct clock_datetime_t *d, uint32_t timestamp);
+/* get tick counter */
+uint8_t clock_get_ticks(void);
 
-/** convert current time to a datetime struct */
-#define clock_current_datetime(d) clock_datetime(d, clock_get_time())
-#define clock_current_localtime(d) clock_localtime(d, clock_get_time())
-
-#if TIMEZONE == TIMEZONE_CEST
-int8_t last_sunday_in_month(uint8_t day, uint8_t dow);
-#endif
-
-/** convert a datetime struct to timestamp  */
-uint32_t clock_utc2timestamp(struct clock_datetime_t *d, uint8_t cest);
-
-/** test if given year is a leap year */
-#define is_leap_year(y)     (((y % 4) == 0) && ( (y % 100 != 0) || (y % 400 == 0) ))
-
-#endif /* _CLOCK_H */
+#endif /* __CLOCK_H */

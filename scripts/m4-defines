@@ -2,10 +2,12 @@
 
 ### use GNU sed from macports instead of BSD sed on MacOS X
 ### BSD sed does not support -r option
-if [ x"$OSTYPE" = x"darwin10.0" ] || [ x"$OSTYPE" = x"FreeBSD" ]; then
-    SED="gsed"
+### use GNU sed from macports instead of BSD sed on MacOS X
+SYSTEM=`uname`
+if [ x$SYSTEM = x"Darwin" -o  x$SYSTEM = x"FreeBSD" ] ; then
+    SED=gsed
 else
-    SED="sed"
+    SED=sed
 fi
 
 grep -e "^#define .*_SUPPORT" autoconf.h | $SED -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"

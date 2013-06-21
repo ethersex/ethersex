@@ -1,0 +1,115 @@
+/* port the enc28j60 is attached to */
+pin(SPI_CS_NET, SPI_CS_HARDWARE)
+pin(RS485TE_USART0, PD1, OUTPUT)
+pin(RS485TE_USART1, PD4, OUTPUT)
+#define DEBUG_USE_USART 1
+
+
+/* infrared support */
+ifdef(`conf_IRMP_RX', `dnl
+  #define IRMP_USE_TIMER0
+  #define IRMP_RX_LOW_ACTIVE
+  pin(IRMP_RX, PD0)
+  ifdef(`conf_STATUSLED_IRMP_RX', `dnl
+    #define IRMP_RX_LED_LOW_ACTIVE
+    pin(STATUSLED_IRMP_RX, PG3, OUTPUT)
+  ')dnl
+')dnl
+
+
+/* heartbeat LED */
+ifdef(`conf_STATUSLED_HB_ACT', `dnl
+  pin(STATUSLED_HB_ACT, PG3, OUTPUT)
+')dnl
+
+
+/* onewire */
+ifdef(`conf_ONEWIRE', `dnl
+  /* onewire port range */
+  ONEWIRE_PORT_RANGE(PG4, PG4)
+')dnl
+
+
+ifdef(`conf_HD44780', `
+  pin(HD44780_RS, PG0)
+  pin(HD44780_RW, PG1)
+  pin(HD44780_EN1, PG2)
+  pin(HD44780_D4, PB4)
+  pin(HD44780_D5, PB5)
+  pin(HD44780_D6, PB6)
+  pin(HD44780_D7, PB7)
+')
+
+
+ifdef(`conf_RSCP', `
+  pin(RSCP_CONFIG_BUTTON, PD7)
+  pin(RSCP_INPUT00, PA0)
+  pin(RSCP_INPUT01, PA1)
+  pin(RSCP_INPUT02, PA2)
+  pin(RSCP_INPUT03, PA3)
+  pin(RSCP_INPUT04, PA4)
+  pin(RSCP_INPUT05, PA5)
+  pin(RSCP_INPUT06, PA6)
+  pin(RSCP_INPUT07, PA7)
+  pin(RSCP_INPUT08, PF0)
+  pin(RSCP_INPUT09, PF1)
+  pin(RSCP_INPUT10, PF2)
+  pin(RSCP_INPUT11, PF3)
+  pin(RSCP_INPUT12, PF4)
+  pin(RSCP_INPUT13, PF5)
+  pin(RSCP_INPUT14, PF6)
+  pin(RSCP_INPUT15, PF7)
+  pin(RSCP_OUTPUT00, PC0)
+  pin(RSCP_OUTPUT01, PC1)
+  pin(RSCP_OUTPUT02, PC2)
+  pin(RSCP_OUTPUT03, PC3)
+  pin(RSCP_OUTPUT04, PC4)
+  pin(RSCP_OUTPUT05, PC5)
+  pin(RSCP_OUTPUT06, PC6)
+  pin(RSCP_OUTPUT07, PC7)
+  pin(RSCP_OUTPUT08, PE0)
+  pin(RSCP_OUTPUT09, PE1)
+  pin(RSCP_OUTPUT10, PE2)
+  pin(RSCP_OUTPUT11, PE3)
+  pin(RSCP_OUTPUT12, PE4)
+  pin(RSCP_OUTPUT13, PE5)
+  pin(RSCP_OUTPUT14, PE6)
+  pin(RSCP_OUTPUT15, PE7)
+
+#define RSCP_IOS 33
+
+#define RSCP_IO_CONFIG(_x) \
+_x(RSCP_CONFIG_BUTTON)\
+_x(RSCP_INPUT00)\
+_x(RSCP_INPUT01)\
+_x(RSCP_INPUT02)\
+_x(RSCP_INPUT03)\
+_x(RSCP_INPUT04)\
+_x(RSCP_INPUT05)\
+_x(RSCP_INPUT06)\
+_x(RSCP_INPUT07)\
+_x(RSCP_INPUT08)\
+_x(RSCP_INPUT09)\
+_x(RSCP_INPUT10)\
+_x(RSCP_INPUT11)\
+_x(RSCP_INPUT12)\
+_x(RSCP_INPUT13)\
+_x(RSCP_INPUT14)\
+_x(RSCP_INPUT15)\
+_x(RSCP_OUTPUT00)\
+_x(RSCP_OUTPUT01)\
+_x(RSCP_OUTPUT02)\
+_x(RSCP_OUTPUT03)\
+_x(RSCP_OUTPUT04)\
+_x(RSCP_OUTPUT05)\
+_x(RSCP_OUTPUT06)\
+_x(RSCP_OUTPUT07)\
+_x(RSCP_OUTPUT08)\
+_x(RSCP_OUTPUT09)\
+_x(RSCP_OUTPUT10)\
+_x(RSCP_OUTPUT11)\
+_x(RSCP_OUTPUT12)\
+_x(RSCP_OUTPUT13)\
+_x(RSCP_OUTPUT14)\
+_x(RSCP_OUTPUT15)
+')

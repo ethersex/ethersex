@@ -99,7 +99,7 @@ init_hbridge(){
   DDR_CONFIG_OUT(HBRIDGE_1_ENABLE); // PWM OUTPUT
   OCR1C=enable1_pwm;
 
-  TCNT1=0x00FF; //set the timer counter
+  TC1_COUNTER_CURRENT=0x00FF; //set the timer counter
 
   TCCR1A|=_BV(COM1C1)|_BV(COM1C0); // Set OCnC on compare match
   TCCR1A|=_BV(WGM10);  // PWM, Phase Correct, 8-bit

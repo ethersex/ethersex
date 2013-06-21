@@ -1,4 +1,4 @@
-dep_bool_menu "Twitter/identi.ca client (EXPERIMENTAL)" TWITTER_SUPPORT $TCP_SUPPORT $DNS_SUPPORT $CONFIG_EXPERIMENTAL
+dep_bool_menu "Twitter/identi.ca client" TWITTER_SUPPORT $TCP_SUPPORT $DNS_SUPPORT
   string "Service" CONF_TWITTER_SERVICE "identi.ca"
   string "API Root" CONF_TWITTER_API "/api"
   string "Username" CONF_TWITTER_USERNAME "ethersex"

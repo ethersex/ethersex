@@ -25,21 +25,23 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 
-int16_t parse_cmd_d(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_d(char *cmd, char *output, uint16_t len)
 {
-    (void) len;
+  (void) len;
 
-    while (*cmd == ' ') cmd ++;
+  while (*cmd == ' ')
+    cmd++;
 
-    uint16_t temp;
-    if (sscanf_P (cmd, PSTR("%x"), &temp) != 1)
-      return ECMD_ERR_PARSE_ERROR;
+  uint16_t temp;
+  if (sscanf_P(cmd, PSTR("%x"), &temp) != 1)
+    return ECMD_ERR_PARSE_ERROR;
 
-    unsigned char *ptr = (void *) temp;
-    for (int i = 0; i < 16; i ++)
-      sprintf_P (output + (i << 1), PSTR("%02x"), * (ptr ++));
+  unsigned char *ptr = (void *) temp;
+  for (int i = 0; i < 16; i++)
+    sprintf_P(output + (i << 1), PSTR("%02x"), *(ptr++));
 
-    return ECMD_FINAL(32);
+  return ECMD_FINAL(32);
 }
 
 /*

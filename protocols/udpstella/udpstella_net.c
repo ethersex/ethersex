@@ -33,7 +33,8 @@
   STELLA_SET_IMMEDIATELY,
   STELLA_SET_FADE,
   STELLA_SET_FLASHY,
-  STELLA_SET_IMMEDIATELY_RELATIVE
+  STELLA_SET_IMMEDIATELY_RELATIVE,
+  STELLA_SET_FADESTEP,
   STELLA_GETALL
 */
 
@@ -105,10 +106,12 @@ udpstella_net_main(void)
 		for (uint8_t c=0;c<STELLA_CHANNELS;++c) {
 			answer[7+c] = stella_brightness[c];
 		}
-		uip_slen += STELLA_CHANNELS+6;
-		answer += STELLA_CHANNELS+6;
+		uip_slen += STELLA_CHANNELS+7;
+		answer += STELLA_CHANNELS+7;
+	    } else if (packet->type == STELLA_SET_FADESTEP) {
+	    	stella_setFadestep(packet->value);
 	    } else {
-			stella_setValue(packet->type, packet->channel, packet->value);
+		stella_setValue(packet->type, packet->channel, packet->value);
 	    }
      	packet++;
      	len-=sizeof(struct udpstella_packet);

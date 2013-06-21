@@ -1,8 +1,8 @@
 unit exporter;
 
 { MenuEdit
-  Version 1.3
-  (c) 2009 by Malte Marwedel
+  Version 1.4
+  (c) 2009-2010 by Malte Marwedel
   www.marwedels.de/malte
 
   This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ unit exporter;
 interface
 
 uses
-  Classes, SysUtils, DOM, Math, StrUtils, Dialogs, IniFiles;
+  Classes, SysUtils, DOM, Math, StrUtils, Dialogs, IniFiles, lconvencoding ;
 
 
   function getobjectid(str: String):integer;
@@ -50,7 +50,7 @@ uses
 var
   //everything for data storage
   data: ^Byte;
-  windowaddr, actionlist, textlist, checkboxlist, radiobuttonlist, listindexlist, gfxlist : THashedStringList;
+  windowaddr, actionlist, textlist, checkboxlist, radiobuttonlist, listindexlist, gfxlist, staticdatalist : THashedStringList;
   maxo, maxwindow, maxtext, maxlist, maxcheckbox, maxradiobutton, maxactions, maxgfx: integer;
   addrsize, dataptr, objectptr: integer;
   largescreen: boolean;
@@ -465,13 +465,14 @@ end;
 function includetext(obj: TDOMNode):integer;
   var wptr, i:integer;
     tempdata: array [0..66000] of byte;
-    text:string;
+    text, isotext:string;
 begin
    text := obj.Attributes.GetNamedItem('text').NodeValue;
+   isotext := ConvertEncoding(text, EncodingUTF8, 'iso88591');
    wptr := 0;
-   for i := 1 to length(text) do begin
-     if (ord(text[i]) <> 13) then begin //remove carriage return -> for windows compatibility
-       tempdata[wptr] := ord(text[i]);
+   for i := 1 to length(isotext) do begin
+     if (ord(isotext[i]) <> 13) then begin //remove carriage return -> for windows compatibility
+       tempdata[wptr] := ord(isotext[i]);
        inc(wptr);
      end;
    end;
@@ -481,18 +482,21 @@ begin
 end;
 
 procedure appendDataAttribute(obj: TDOMnode);
-  var method, i, theptr: integer;
-     text, tmp:string;
+  var method, theptr: integer;
+     text, tmp, key, parentid:string;
      compressed: boolean;
 begin
   if (obj.Attributes.GetNamedItem('storagemethod') <> nil) then begin
     method := strtoint(obj.Attributes.GetNamedItem('storagemethod').NodeValue);
     if (obj.Attributes.GetNamedItem('text') <> nil) then begin
       text := obj.Attributes.GetNamedItem('text').NodeValue;
+      parentid := obj.ParentNode.Attributes.GetNamedItem('number').NodeValue;
+      key := parentid+'_'+obj.Attributes.GetNamedItem('number').NodeValue;
       if (obj.NodeName <> 'gfx') then begin
          //store text
         if (method = 0) then begin //store in menu data
           theptr := includetext(obj);
+          staticdatalist.values[key] := inttostr(theptr);
         end else begin //store in ram
           tmp := textlist.values[text];
           if (tmp = '') then begin
@@ -508,6 +512,7 @@ begin
         if (method = 0) then begin
           compressed := strtobool(obj.Attributes.GetNamedItem('compressed').NodeValue);
           theptr := includegfx(obj, compressed);
+          staticdatalist.values[key] := inttostr(theptr);
         end else begin //store in ram
           //showmessage('gfx in ram');
           tmp := gfxlist.values[text];
@@ -663,6 +668,7 @@ begin
   radiobuttonlist:= THashedStringList.Create;
   listindexlist  := THashedStringList.Create;
   gfxlist := THashedStringList.Create;
+  staticdatalist := THashedStringList.Create;
   GetMem(data, 16777216 * sizeof(byte)); //16 MB array
   for i := 0 to 255 do begin
     objecttypeused[i] := false;
@@ -847,6 +853,11 @@ begin
     end;
   end;
   writeln(toft, '');
+  for i := 0 to staticdatalist.count-1 do begin //added in version 1.4
+    temp := staticdatalist.names[i];
+    writeln(toft, '#define MENU_SDATA_'+temp+' '+staticdatalist.values[temp]);
+  end;
+  writeln(toft, '');
   writeln(toft, '#endif');
   writeln(toft, '');
   closefile(toft);
@@ -858,6 +869,7 @@ begin
   radiobuttonlist.destroy;
   listindexlist.destroy;
   gfxlist.destroy;
+  staticdatalist.destroy;
   if (silent = false) then begin
     showmessage('Export done. address size: '+inttostr(addrsize)+
       ' bit, menu size: '+ inttostr(dataptr)+' byte');

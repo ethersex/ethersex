@@ -1,6 +1,6 @@
 
 get_usart_count() {
-  USARTS=$(( $(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -C -E -dD - | sed -n 's/.* UDR\([0-9]\+\).*/\1/p' | sort -n -r | sed -n 1p) + 1 ))
+  USARTS=$(( $(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -C -E -dD - | sed -n 's/.* UDR\([0-9]*\).*/\1/p' | sort -n -r | sed -n 1p) + 1 ))
 }
 
 usart_choice() {
@@ -63,6 +63,9 @@ usart_count_used() {
     USARTS_USED=$(($USARTS_USED + 1))
   fi
   if [ "$SERIAL_LINE_LOG_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
+  if [ "$ELTAKOMS_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
 }

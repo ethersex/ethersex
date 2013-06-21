@@ -15,8 +15,7 @@ SED = gsed
 else
 M4 = m4
 ### use GNU sed from macports instead of BSD sed on MacOS X 
-SED = $(shell if [ x"$$OSTYPE" = x"darwin10.0" ] ; then echo gsed; \
-	else echo sed; fi)
+SED = $(shell [ x"`uname`" = x"Darwin" ] && echo g)sed
 endif 
 
 HOSTCC := gcc
@@ -27,7 +26,7 @@ export MAKE
 # include user's config.mk file
 
 # By now we don't generate an empty example config.mk any longer,
-# since must stuff can be controlled via menuconfig finally ...
+# since most stuff can be controlled via menuconfig finally ...
 -include $(TOPDIR)/config.mk
 
 ##############################################################################
@@ -88,14 +87,13 @@ CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
-CFLAGS += -mcall-prologues
+
+ifneq ($(ARCH_HOST),y)
+  CFLAGS += -mcall-prologues
+endif
 
 ifeq ($(BOOTLOADER_SUPPORT),y)
-ifeq ($(atmega1284p),y)
-LDFLAGS += -Wl,--section-start=.text=0x1E000
-else
-LDFLAGS += -Wl,--section-start=.text=0xE000
-endif
+LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_START_ADDRESS)
 endif
 
 

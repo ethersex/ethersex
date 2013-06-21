@@ -34,7 +34,7 @@ uint8_t i2c_ds13x7_get_block(uint8_t addr, char *data, uint8_t len);
 
 void i2c_ds13x7_sync(uint32_t timestamp);
 
-uint32_t  i2c_ds13x7_read();
+uint32_t  i2c_ds13x7_read(void);
 
 struct ds13x7_reg {
     uint8_t ch  : 1;

@@ -19,11 +19,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef RFM12_RAW_STATE_H
-#define RFM12_RAW_STATE_H
+#ifndef __RFM12_RAW_STATE_H
+#define __RFM12_RAW_STATE_H
 
-struct rfm12_raw_connection_state_t {
-	uint8_t timeout;
+#include <stdint.h>
+
+struct rfm12_raw_connection_state_t
+{
+  uint8_t timeout;
 };
 
-#endif /* RFM12_RAW_STATE_H */
+#endif /* __RFM12_RAW_STATE_H */

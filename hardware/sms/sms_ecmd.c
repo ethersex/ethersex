@@ -154,14 +154,14 @@ void sms_fetch()
         global_mobil_access = 1;
         delete_sms = 0;
         /* delete received and read message */
-        fprintf(ausgabe, "AT+CMGD=1\r\n");  
+        fprintf(&ausgabe, "AT+CMGD=1\r\n");  
         SMS_DEBUG("delete sms\r\n");
     }
 
     if (!global_mobil_access && !pdu_must_parse && (!(fetch_sms % 50))) {
         global_mobil_access = 1;
         /* fetch received and not read messages */
-        fprintf(ausgabe, "AT+CMGL=0\r\n"); 
+        fprintf(&ausgabe, "AT+CMGL=0\r\n"); 
         SMS_DEBUG("fetch sms\n\n\n");
     }
 }

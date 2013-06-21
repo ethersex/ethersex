@@ -33,7 +33,7 @@ divert(1)dnl
 divert(2)dnl
 
 /* Definition of alias pointer array follows */
-static const PROGMEM char *jabber_known_buddies[] = {
+static const PROGMEM char * const jabber_known_buddies[] = {
 divert(-1)dnl
 define(`buddy_counter', 0)
 

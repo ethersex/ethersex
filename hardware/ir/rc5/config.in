@@ -1,21 +1,23 @@
 dep_bool_menu "RC5 IR (deprecated)" RC5_SUPPORT $IR_SUPPORT $ARCH_AVR
-	dep_bool "Send RC5 IR-codes" RC5_SUPPORT $RC5_SUPPORT $CONFIG_EXPERIMENTAL
+
+	dep_bool "Send RC5 IR-codes" RC5_SUPPORT $RC5_SUPPORT
 	dep_bool_menu "RC5 IR UDP" RC5_UDP_SUPPORT $RC5_SUPPORT $UDP_SUPPORT $ARCH_AVR
-		ip "RC5/LIRC-Server IP address" CONF_RC5_SERVER "192.168.100.3" "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
-if [ "$RC5_UDP_SUPPORT" = "y" ]; then
-	choice 'Transmission Value'			\
-		"COUNTERS     rc5udpcounters	\
-		 COMMANDS     rc5udpcommands"	\
-		'COUNTERS' RC5_UDP_SUPPORT_CHOICE
-	if [ "$RC5_UDP_SUPPORT_CHOICE" = "rc5udpcounters" ]; then
-		define_bool RC5_UDP_SUPPORT_COUNTERS y;
-		define_bool RC5_UDP_SUPPORT_COMMANDS n;
-	else
-		define_bool RC5_UDP_SUPPORT_COUNTERS n;
-		define_bool RC5_UDP_SUPPORT_COMMANDS y;
+	ip "RC5/LIRC-Server IP address" CONF_RC5_SERVER "192.168.100.3" "2001:4b88:10e4:0:21a:92ff:fe32:53e3"
+	if [ "$RC5_UDP_SUPPORT" = "y" ]; then
+		choice 'Transmission Value'			\
+			"COUNTERS     rc5udpcounters	\
+			 COMMANDS     rc5udpcommands"	\
+			'COUNTERS' RC5_UDP_SUPPORT_CHOICE
+		if [ "$RC5_UDP_SUPPORT_CHOICE" = "rc5udpcounters" ]; then
+			define_bool RC5_UDP_SUPPORT_COUNTERS y;
+			define_bool RC5_UDP_SUPPORT_COMMANDS n;
+		else
+			define_bool RC5_UDP_SUPPORT_COUNTERS n;
+			define_bool RC5_UDP_SUPPORT_COMMANDS y;
+		fi
 	fi
-fi
 	endmenu
 	comment  "Debugging Flags"
-	dep_bool 'RC5 Debug' DEBUG_RC5 $RC5_SUPPORT $DEBUG
+	dep_bool 'RC5' DEBUG_RC5 $RC5_SUPPORT $DEBUG
+
 endmenu

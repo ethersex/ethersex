@@ -1,6 +1,6 @@
 /*
- *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,21 +22,8 @@
 #ifndef _DCF77_H
 #define _DCF77_H
 
-#include "config.h"
-
-
-struct dcf77_ctx {
-  /* dcf_time: dummy, flags (S,A2,Z2,Z1,A1,R,x,x), min, stunde, tag, wochentag, monat, jahr */
-  uint8_t timezone;
-  uint8_t time[0x8];
-  uint32_t timerover;
-  uint8_t TCNT2last;
-  uint8_t timebyte;
-  uint8_t timeparity;
-  uint8_t sync;
-};
-
 void dcf77_init(void);
-uint32_t getLastValidDCFTimeStamp();
+uint32_t dcf77_get_last_valid_timestamp(void);
+void dcf77_tick(void);
 
 #endif /* _DCF77_H */

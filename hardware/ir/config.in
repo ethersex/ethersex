@@ -1,4 +1,8 @@
 dep_bool_menu "IR Receivers" IR_SUPPORT $ARCH_AVR
-	source hardware/ir/rc5/config.in
-	source hardware/ir/irmp/config.in
+
+	if [ "$IR_SUPPORT" = "y" ]; then
+		source hardware/ir/rc5/config.in
+		source hardware/ir/irmp/config.in
+	fi
+
 endmenu

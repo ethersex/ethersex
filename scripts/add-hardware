@@ -51,17 +51,6 @@ FNORD
 
 template() { if test "x$1" = "xy"; then echo ""; sed -e 's/^\s*//'; fi; }
 
-template $MODBUS_SUPPORT << FNORD
-  /* modbus tx  */
-  pin(MODBUS_TX, PC2)
-FNORD
-
-template $DMX_SUPPORT << FNORD
-  /* port config for dmx */
-  pin(DMX_RS485EN, PC2, OUTPUT)
-  pin(DMX_RS485TX, PD1, OUTPUT)
-FNORD
-
 template $BULBDIAL_SUPPORT << FNORD
   /* port config for bulbdial clock */
   pin(BULBDIAL_HOURS,   PD7, OUTPUT)
@@ -74,7 +63,7 @@ template $BULBDIAL_SUPPORT << FNORD
   pin(BULBDIAL_SIX,     PA5, OUTPUT)
   pin(BULBDIAL_SEVEN,   PC4, OUTPUT)
   pin(BULBDIAL_EIGHT,   PA6, OUTPUT)
-  pin(BULBDIAL_NINE,    PC3, OUTPUT) 
+  pin(BULBDIAL_NINE,    PC3, OUTPUT)
   pin(BULBDIAL_TEN,     PA0, OUTPUT)
   pin(BULBDIAL_ELEVEN,  PA1, OUTPUT)
   pin(BULBDIAL_TWELVE,  PA2, OUTPUT)
@@ -82,23 +71,36 @@ FNORD
 
 template $PWM_SERVO_SUPPORT << FNORD
   /* port config for servos*/
-  pin(SERVO0, PD7,OUTPUT)
-  pin(SERVO1, PD6,OUTPUT)
-  pin(SERVO2, PD5,OUTPUT)
-  pin(SERVO3, PD4,OUTPUT)
-  pin(SERVO4, PD3,OUTPUT)
-  pin(SERVO5, PD2,OUTPUT)
-  pin(SERVO6, PD1,OUTPUT)
-  pin(SERVO7, PD0,OUTPUT)
+  pin(SERVO0, PD7, OUTPUT)
+  pin(SERVO1, PD6, OUTPUT)
+  pin(SERVO2, PD5, OUTPUT)
+  pin(SERVO3, PD4, OUTPUT)
+  pin(SERVO4, PD3, OUTPUT)
+  pin(SERVO5, PD2, OUTPUT)
+  pin(SERVO6, PD1, OUTPUT)
+  pin(SERVO7, PD0, OUTPUT)
 FNORD
 
-template $JOYSTICK_DIGITAL_SUPPORT << FNORD
-  /* game input digital joystick */
-  pin(BUTTON_FIRE,  PD6, INPUT)
-  pin(BUTTON_DOWN,  PD5, INPUT)
-  pin(BUTTON_RIGHT, PD4, INPUT)
-  pin(BUTTON_UP,    PD3, INPUT)
-  pin(BUTTON_LEFT,  PD2, INPUT)
+template $BUTTONS_INPUT_SUPPORT << 'FNORD'
+ifdef(`conf_BUTTONS_INPUT', `
+  /* input buttons */
+  pin(BTN_UP, PC2, INPUT)
+  pin(BTN_RIGHT, PC3, INPUT)
+  pin(BTN_DOWN, PC4, INPUT)
+  pin(BTN_LEFT, PC5, INPUT)
+  pin(BTN_FIRE, PD2, INPUT)
+  pin(BTN_FIRE2, PD3, INPUT)
+
+  #define BUTTONS_COUNT 6
+
+  #define BUTTONS_CONFIG(_x) \
+  _x(BTN_UP)\
+  _x(BTN_DOWN)\
+  _x(BTN_LEFT)\
+  _x(BTN_RIGHT)\
+  _x(BTN_FIRE)\
+  _x(BTN_FIRE2)
+')
 FNORD
 
 template $PS2_SUPPORT << FNORD
@@ -122,8 +124,8 @@ template $HC165_SUPPORT << FNORD
 FNORD
 
 template $ONEWIRE_SUPPORT << FNORD
-  /* onewire support */
-  pin(ONEWIRE, PC0)
+  /* onewire port range */
+   ONEWIRE_PORT_RANGE(PC0, PC0)
 FNORD
 
 template $RC5_SUPPORT << FNORD
@@ -147,7 +149,7 @@ FNORD
 
 template $USB_SUPPORT << FNORD
   dnl This must also be D+ of the USB signal
-  USB_USE_INT(1) 
+  USB_USE_INT(1)
   dnl This pin must have the 1k5 Pullup and must be on the same port as the Interupt pin
   pin(USB_DMINUS, PD5)
   pin(USB_DPLUS, PD3)
@@ -155,11 +157,11 @@ FNORD
 
 template $STELLA_SUPPORT << FNORD
   STELLA_USE_TIMER(2)
-  STELLA_PORT1_RANGE(PC0,PC7) 
+  STELLA_PORT1_RANGE(PC0, PC7)
 FNORD
 
 template $MOTORCURTAIN_SUPPORT << FNORD
-  MOTORCURTAIN_PORT_RANGE(PD2,PD6)
+  MOTORCURTAIN_PORT_RANGE(PD2, PD6)
   pin(MOCU_MOTOR_ENABLE, PA7, OUTPUT)
   pin(MOCU_MOTOR_DIRECTION, PA6, OUTPUT)
   pin(MOCU_SAFETYSWITCH, PD7, INPUT)
@@ -222,6 +224,10 @@ template $HD44780_MULTIENSUPPORT << FNORD
     pin(HD44780_EN2, PA7)
 FNORD
 
+template $HD44780_BACKLIGHT_SUPPORT << FNORD
+    pin(HD44780_BL, PB1, OUTPUT)
+FNORD
+
 template $S1D13305_SUPPORT << FNORD
     /* port config for s1d13305 lcd */
     S1D13305_DATA_PORT(A)
@@ -277,29 +283,52 @@ template $IRMP_SUPPORT << FNORD
   pin(IRMP_TX, PD7) dnl OC2
 FNORD
 
+template $SER_RAM_23K256_SUPPORT << FNORD
+  /* 23K256 SRAM  Chip select */
+  pin(SPI_CS_23K256, PB1, OUTPUT)
+FNORD
+
+template $PCA9685_OUTPUT_ENABLE << FNORD
+  /* PCA9685 Output Enable Pin */
+  pin(PCA9685_OE, PA0)
+FNORD
+
+template $TANKLEVEL_SUPPORT << FNORD
+  /* tank levelmeter pump output */
+  pin(TANKLEVEL_PUMP, PC3, OUTPUT)
+FNORD
+template $TANKLEVEL_LOCK_SUPPORT << FNORD
+  /* tank levelmeter lock input */
+  pin(TANKLEVEL_LOCK, PA2, INPUT)
+FNORD
+
+template $DHT_SUPPORT << FNORD
+  /* DHT 11/22 humidity and temperature sensors */
+ pin(DHT, PA0, INPUT)
+FNORD
+
 ### HARDWARE SPECIFIC TEMPLATES #############################################
 
 HWCLASS=`echo $MCU | sed  's/.*\(.\)/\1/'`
 
 if [ $HWCLASS = 8 ]; then  # ATmega8, 88, 168 and others ...
-  template $ECMD_SERIAL_USART_RS485_SUPPORT << FNORD
-    pin(ECMD_SERIAL_USART_TX, PD2)
-FNORD
-
   template $STATUSLED_POWER_SUPPORT << FNORD
-    pin(STATUSLED_POWER, PC6)
+    pin(STATUSLED_POWER, PC6, OUTPUT)
 FNORD
   template $STATUSLED_BOOTED_SUPPORT << FNORD
-    pin(STATUSLED_BOOTED, PC6)
+    pin(STATUSLED_BOOTED, PC6, OUTPUT)
 FNORD
   template $STATUSLED_NETLINK_SUPPORT << FNORD
-    pin(STATUSLED_NETLINK, PC6)
+    pin(STATUSLED_NETLINK, PC6, OUTPUT)
 FNORD
   template $STATUSLED_TX_SUPPORT << FNORD
-    pin(STATUSLED_TX, PD6)
+    pin(STATUSLED_TX, PD6, OUTPUT)
 FNORD
   template $STATUSLED_RX_SUPPORT << FNORD
-    pin(STATUSLED_RX, PD7)
+    pin(STATUSLED_RX, PD7, OUTPUT)
+FNORD
+  template $STATUSLED_HB_ACT_SUPPORT << FNORD
+    pin(STATUSLED_HB_ACT, PD7, OUTPUT)
 FNORD
 
   template $ZBUS_SUPPORT << FNORD
@@ -309,7 +338,7 @@ FNORD
 
   template $RFM12_SUPPORT << FNORD
     /* port the rfm12 module CS is attached to */
-    pin(SPI_CS_RFM12, SPI_CS_HARDWARE)
+    pin(SPI_CS_RFM12_0, SPI_CS_HARDWARE)
 
     RFM12_USE_INT(0)
 FNORD
@@ -350,30 +379,34 @@ FNORD
 # ATmega162, 32, 644 etc.                                                    #
 #                                                                            #
 ##############################################################################
-else  
-  template $ECMD_SERIAL_USART_RS485_SUPPORT << FNORD
-    pin(ECMD_SERIAL_USART_TX, PC2)
-FNORD
-
+else
   template $STATUSLED_POWER_SUPPORT << FNORD
-    pin(STATUSLED_POWER, PA0)
+    pin(STATUSLED_POWER, PA0, OUTPUT)
 FNORD
   template $STATUSLED_BOOTED_SUPPORT << FNORD
-    pin(STATUSLED_BOOTED, PA1)
+    pin(STATUSLED_BOOTED, PA1, OUTPUT)
 FNORD
   template $STATUSLED_NETLINK_SUPPORT << FNORD
-    pin(STATUSLED_NETLINK, PA2)
+    pin(STATUSLED_NETLINK, PA2, OUTPUT)
 FNORD
   template $STATUSLED_TX_SUPPORT << FNORD
-    pin(STATUSLED_TX, PA3)
+    pin(STATUSLED_TX, PA3, OUTPUT)
 FNORD
   template $STATUSLED_RX_SUPPORT << FNORD
-    pin(STATUSLED_RX, PA4)
+    pin(STATUSLED_RX, PA4, OUTPUT)
+FNORD
+  template $STATUSLED_HB_ACT_SUPPORT << FNORD
+    pin(STATUSLED_HB_ACT, PA4, OUTPUT)
 FNORD
 
   template $ZBUS_SUPPORT << FNORD
     /* port config for zbus */
     pin(ZBUS_RXTX_PIN, PC2)
+FNORD
+
+  template $EMS_SUPPORT << FNORD
+    /* port config for EMS - pin must match USART1 TX line */
+    pin(EMS_UART_TX, PD3)
 FNORD
 
   template $RFM12_SUPPORT << FNORD
@@ -427,7 +460,8 @@ fi
 ) > "pinning/hardware/$hw.m4"
 
 grep -v -e "^HARDWARE=" -e "^$HARDWARE=y" .config > .config.new
-echo -e "HARDWARE=$hw\n$hw=y" >> .config.new
+echo "HARDWARE=$hw" >> .config.new
+echo "$hw=y" >> .config.new
 mv -f .config.new .config
 
 l_editor() {
@@ -436,6 +470,8 @@ l_editor() {
     $EDITOR $1
   elif [ -n "`which nano`" ]; then
     nano $1
+  elif [ -n "`which vi`" ]; then
+    vi $1
   fi
 }
 

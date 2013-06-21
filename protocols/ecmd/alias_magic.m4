@@ -68,7 +68,6 @@ divert(2)#endif
 divert(-1)')
 
 divert(4)dnl
-        { NULL, NULL }
 };
 divert(-1)dnl
 dnl yippie, we're done!

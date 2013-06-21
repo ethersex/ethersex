@@ -28,7 +28,8 @@ single_menu_mode=
 set -h +o posix
 
 ### use GNU sed from macports instead of BSD sed on MacOS X
-if [ x$OSTYPE = x"darwin10.0" ] || [ x$OSTYPE = x"FreeBSD" ] ; then
+SYSTEM=`uname`
+if [ x$SYSTEM = x"Darwin" -o  x$SYSTEM = x"FreeBSD" ] ; then
     SED=gsed
 else
     SED=sed
@@ -1071,11 +1072,18 @@ Select the default profile you wish to load. \
 			zbus-teensy	  "ZBUS Standalone"				0 \
 			usb-teensy	  "USB (Network) Standalone"			0 \
 			usb-rfm12-dongle  "USB RFM12 Dongle"				0 \
+			USBrfm12stick  "USB RFM12 Stick"				0 \
 			ehaserl		  "EH2010 Ehaserl Badge"			0 \
 			fnordlicht_servo "Fnordlicht Servo"			0 \
 			no-network	  "No Networking (USB only)"			0 \
 			JeeLinkv2	  "Jeelabs JeeLinkv2 (FTDI-ZBUS, RFM12)"	0 \
 			hr20		  "Rondostat HR20/Thermotronic Basic/Thermy"	0 \
+			lome6		  "lome6 - lights out management for ethersex"	0 \
+			alpengluehn	  "Alpengluehn 16 Channel LED Driver Hardware"	0 \
+			antares_O     "Antares O - AT90CAN, 40 Outputs, DIN rail"   0 \
+			antares_I     "Antares I - AT90CAN, 32 Inputs, DIN rail"    0 \
+			antares_IO    "Antares IO - AT90CAN, 16 I, 16 O, uSDcard, DIN rail"    0 \
+			beteigeuze	  "Beteigeuze - AT90CAN, 42 I/O, Unterputzdose" 0 \
 			 2>MCdialog.out
 
 		exit_status=$?

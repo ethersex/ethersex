@@ -1,17 +1,17 @@
 object Form1: TForm1
-  Left = 236
-  Height = 719
-  Top = 121
-  Width = 1018
+  Left = 327
+  Height = 716
+  Top = 135
+  Width = 1039
   Caption = 'MenuEdit'
-  ClientHeight = 701
-  ClientWidth = 1000
+  ClientHeight = 716
+  ClientWidth = 1039
   OnCreate = FormCreate
   ParentFont = False
   Position = poDesktopCenter
   LCLVersion = '0.9.26'
   object Label2: TLabel
-    Left = 664
+    Left = 696
     Height = 17
     Top = 400
     Width = 63
@@ -19,44 +19,20 @@ object Form1: TForm1
     ParentColor = False
   end
   object Image1: TImage
-    Left = 664
-    Height = 1026
+    Left = 696
+    Height = 266
     Top = 424
-    Width = 1026
+    Width = 320
     Stretch = True
-  end
-  object Label18: TLabel
-    Left = 648
-    Height = 117
-    Top = 69
-    Width = 363
-    Caption = 'Notes:'#10'Order of Objects = Drawing Ordner = Focus'#10'Order.'#10'ActionName: Will generate a #define with this'#10'name and a number used for the menu_action'#10'call. Window switch = ''RET'' -> SubWindow return'
-    ParentColor = False
-  end
-  object Label19: TLabel
-    Left = 648
-    Height = 77
-    Top = 200
-    Width = 348
-    Caption = 'AnswerName: Generates a #define referencing'#10'a position in an array to read/write the state'#10'of checkboxes, groupboxes and the index of the'#10'selected item in a list.'
-    ParentColor = False
-  end
-  object Label23: TLabel
-    Left = 648
-    Height = 97
-    Top = 288
-    Width = 349
-    Caption = 'MenuEdit Version 1.3'#10'(c) 2009 by Malte Marwedel'#10'terms of use:'#10'GNU General Public License vesion 2.0 or later,'#10'see license.txt'
-    ParentColor = False
   end
   object GroupBox1: TGroupBox
     Left = 8
     Height = 58
     Top = 7
-    Width = 719
+    Width = 832
     Caption = 'Project'
     ClientHeight = 33
-    ClientWidth = 715
+    ClientWidth = 828
     TabOrder = 1
     object Label1: TLabel
       Left = 342
@@ -124,21 +100,30 @@ object Form1: TForm1
       OnChange = CheckBox5Change
       TabOrder = 5
     end
+    object Button36: TButton
+      Left = 766
+      Height = 24
+      Top = 4
+      Width = 56
+      Caption = 'Check'
+      OnClick = Button36Click
+      TabOrder = 6
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
     Height = 616
     Top = 72
-    Width = 144
+    Width = 152
     Caption = 'Windows'
     ClientHeight = 591
-    ClientWidth = 140
+    ClientWidth = 148
     TabOrder = 2
     object Button1: TButton
       Left = 7
       Height = 25
       Top = 4
-      Width = 125
+      Width = 131
       Caption = 'Add Window'
       OnClick = Button1Click
       TabOrder = 0
@@ -147,7 +132,7 @@ object Form1: TForm1
       Left = 6
       Height = 25
       Top = 105
-      Width = 126
+      Width = 132
       Caption = 'Delete'
       OnClick = Button2Click
       TabOrder = 3
@@ -156,16 +141,17 @@ object Form1: TForm1
       Left = 6
       Height = 25
       Top = 36
-      Width = 126
+      Width = 132
       Caption = 'Add SubWindow'
       OnClick = Button3Click
       TabOrder = 1
     end
     object ListBox1: TListBox
-      Left = 7
+      Left = 8
       Height = 389
       Top = 201
-      Width = 125
+      Width = 133
+      OnClick = ListBox1Click
       OnSelectionChange = ListBox1SelectionChange
       TabOrder = 7
       TopIndex = -1
@@ -180,9 +166,9 @@ object Form1: TForm1
       TabOrder = 4
     end
     object Button7: TButton
-      Left = 76
+      Left = 82
       Height = 25
-      Top = 137
+      Top = 136
       Width = 56
       Caption = 'Down'
       OnClick = Button7Click
@@ -192,7 +178,7 @@ object Form1: TForm1
       Left = 7
       Height = 25
       Top = 169
-      Width = 125
+      Width = 131
       Caption = 'Copy'
       OnClick = Button24Click
       TabOrder = 6
@@ -201,14 +187,14 @@ object Form1: TForm1
       Left = 6
       Height = 25
       Top = 72
-      Width = 126
+      Width = 132
       Caption = 'Global Shortcut'
       OnClick = Button25Click
       TabOrder = 2
     end
   end
   object GroupBox3: TGroupBox
-    Left = 160
+    Left = 168
     Height = 616
     Top = 72
     Width = 208
@@ -402,7 +388,7 @@ object Form1: TForm1
     object Button23: TButton
       Left = 14
       Height = 21
-      Top = 563
+      Top = 565
       Width = 88
       Caption = 'Redraw'
       OnClick = Button23Click
@@ -446,15 +432,24 @@ object Form1: TForm1
       OnChange = SpinEdit22Change
       TabOrder = 11
     end
+    object Button34: TButton
+      Left = 110
+      Height = 21
+      Top = 565
+      Width = 75
+      Caption = 'Test'
+      OnClick = Button34Click
+      TabOrder = 13
+    end
   end
   object GroupBox5: TGroupBox
-    Left = 376
+    Left = 384
     Height = 616
     Top = 72
-    Width = 264
+    Width = 304
     Caption = 'Object Settings'
     ClientHeight = 591
-    ClientWidth = 260
+    ClientWidth = 300
     TabOrder = 4
     object Label6: TLabel
       Left = 18
@@ -465,9 +460,9 @@ object Form1: TForm1
       ParentColor = False
     end
     object Label7: TLabel
-      Left = 182
+      Left = 206
       Height = 17
-      Top = 3
+      Top = 1
       Width = 38
       Caption = 'Size:'
       ParentColor = False
@@ -481,9 +476,9 @@ object Form1: TForm1
       ParentColor = False
     end
     object Label9: TLabel
-      Left = 108
+      Left = 139
       Height = 17
-      Top = 57
+      Top = 56
       Width = 83
       Caption = 'Font focus:'
       ParentColor = False
@@ -491,39 +486,39 @@ object Form1: TForm1
     object Label10: TLabel
       Left = 5
       Height = 17
-      Top = 158
+      Top = 161
       Width = 272
       Caption = 'Text or #define NAME (One line only)'
       ParentColor = False
     end
     object Label11: TLabel
-      Left = 13
+      Left = 14
       Height = 17
-      Top = 245
+      Top = 273
       Width = 94
       Caption = 'ActionName:'
       ParentColor = False
     end
     object Label12: TLabel
-      Left = 118
+      Left = 126
       Height = 17
-      Top = 245
+      Top = 273
       Width = 40
       Caption = 'Color'
       ParentColor = False
     end
     object Label13: TLabel
-      Left = 13
+      Left = 14
       Height = 17
-      Top = 293
+      Top = 329
       Width = 102
       Caption = 'AnswerName:'
       ParentColor = False
     end
     object Label14: TLabel
-      Left = 182
+      Left = 206
       Height = 17
-      Top = 245
+      Top = 271
       Width = 60
       Caption = 'SelectId'
       ParentColor = False
@@ -531,24 +526,24 @@ object Form1: TForm1
     object Label15: TLabel
       Left = 139
       Height = 17
-      Top = 294
+      Top = 329
       Width = 113
       Caption = 'Focusless Key:'
       ParentColor = False
     end
     object Label16: TLabel
-      Left = 6
+      Left = 9
       Height = 17
-      Top = 342
-      Width = 283
-      Caption = 'Keys: Up, Down, Page Up, Page down'
+      Top = 377
+      Width = 281
+      Caption = 'Keys: Up, Down, Page up, Page down'
       ParentColor = False
     end
     object Image2: TImage
       Left = 12
-      Height = 151
-      Top = 433
-      Width = 239
+      Height = 127
+      Top = 457
+      Width = 278
     end
     object SpinEdit6: TSpinEdit
       Left = 9
@@ -618,7 +613,7 @@ object Form1: TForm1
       TabOrder = 6
     end
     object SpinEdit8: TSpinEdit
-      Left = 134
+      Left = 165
       Height = 23
       Top = 19
       Width = 55
@@ -627,7 +622,7 @@ object Form1: TForm1
       TabOrder = 7
     end
     object SpinEdit9: TSpinEdit
-      Left = 198
+      Left = 230
       Height = 23
       Top = 19
       Width = 55
@@ -645,7 +640,7 @@ object Form1: TForm1
       TabOrder = 9
     end
     object SpinEdit11: TSpinEdit
-      Left = 198
+      Left = 232
       Height = 23
       Top = 56
       Width = 55
@@ -656,50 +651,50 @@ object Form1: TForm1
     object ComboBox1: TComboBox
       Left = 143
       Height = 25
-      Top = 216
-      Width = 100
+      Top = 244
+      Width = 149
       MaxLength = 65535
       OnChange = ComboBox1Change
       TabOrder = 11
     end
     object CheckBox4: TCheckBox
-      Left = 9
+      Left = 12
       Height = 28
-      Top = 216
+      Top = 244
       Width = 138
       Caption = 'Window switch:'
       OnChange = CheckBox4Change
       TabOrder = 12
     end
     object Edit3: TEdit
-      Left = 12
+      Left = 14
       Height = 23
-      Top = 261
+      Top = 297
       Width = 84
       OnChange = Edit3Change
       TabOrder = 13
     end
     object SpinEdit12: TSpinEdit
-      Left = 108
+      Left = 126
       Height = 23
-      Top = 261
+      Top = 297
       Width = 55
       MaxValue = 255
       OnChange = SpinEdit12Change
       TabOrder = 14
     end
     object Edit2: TEdit
-      Left = 12
+      Left = 14
       Height = 23
-      Top = 309
+      Top = 345
       Width = 84
       OnChange = Edit2Change
       TabOrder = 15
     end
     object SpinEdit13: TSpinEdit
-      Left = 184
+      Left = 206
       Height = 23
-      Top = 261
+      Top = 297
       Width = 55
       MaxValue = 15
       OnChange = SpinEdit13Change
@@ -708,7 +703,7 @@ object Form1: TForm1
     object SpinEdit14: TSpinEdit
       Left = 158
       Height = 23
-      Top = 309
+      Top = 345
       Width = 55
       MaxValue = 255
       OnChange = SpinEdit14Change
@@ -717,7 +712,7 @@ object Form1: TForm1
     object SpinEdit15: TSpinEdit
       Left = 12
       Height = 23
-      Top = 358
+      Top = 393
       Width = 55
       MaxValue = 255
       OnChange = SpinEdit15Change
@@ -726,25 +721,25 @@ object Form1: TForm1
     object SpinEdit16: TSpinEdit
       Left = 78
       Height = 23
-      Top = 358
+      Top = 393
       Width = 55
       MaxValue = 255
       OnChange = SpinEdit16Change
       TabOrder = 19
     end
     object SpinEdit17: TSpinEdit
-      Left = 134
+      Left = 143
       Height = 23
-      Top = 358
+      Top = 393
       Width = 55
       MaxValue = 255
       OnChange = SpinEdit17Change
       TabOrder = 20
     end
     object SpinEdit18: TSpinEdit
-      Left = 198
+      Left = 211
       Height = 23
-      Top = 358
+      Top = 393
       Width = 55
       MaxValue = 255
       OnChange = SpinEdit18Change
@@ -752,9 +747,10 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 6
-      Height = 35
-      Top = 174
-      Width = 237
+      Height = 59
+      Hint = 'Enter a single line for a #define for storing the text in the RAM'#10'Use multiple lines for static text with a list.'
+      Top = 185
+      Width = 286
       OnChange = Edit1Change
       TabOrder = 22
       WordWrap = False
@@ -762,25 +758,35 @@ object Form1: TForm1
     object Button21: TButton
       Left = 12
       Height = 25
-      Top = 398
+      Top = 423
       Width = 102
-      Caption = 'Image Select'
+      Caption = 'Image select'
       Enabled = False
       OnClick = Button21Click
       TabOrder = 23
     end
+    object Button35: TButton
+      Left = 174
+      Height = 25
+      Top = 425
+      Width = 113
+      Caption = 'Image remove'
+      OnClick = Button35Click
+      TabOrder = 24
+    end
   end
   object Button20: TButton
-    Left = 928
+    Left = 912
     Height = 25
-    Top = 24
-    Width = 66
+    Top = 96
+    Width = 72
     Caption = 'Update'
     OnClick = Button20Click
     TabOrder = 0
+    Visible = False
   end
   object GroupBox7: TGroupBox
-    Left = 733
+    Left = 848
     Height = 58
     Top = 7
     Width = 185
@@ -790,9 +796,9 @@ object Form1: TForm1
     TabOrder = 5
     object Label17: TLabel
       Left = 97
-      Height = 57
+      Height = 68
       Top = 2
-      Width = 89
+      Width = 100
       ParentColor = False
     end
     object Edit4: TEdit
@@ -814,7 +820,7 @@ object Form1: TForm1
     end
   end
   object RadioButton3: TRadioButton
-    Left = 800
+    Left = 840
     Height = 28
     Top = 392
     Width = 54
@@ -823,7 +829,7 @@ object Form1: TForm1
     TabOrder = 6
   end
   object RadioButton4: TRadioButton
-    Left = 864
+    Left = 896
     Height = 28
     Top = 392
     Width = 54
@@ -834,7 +840,7 @@ object Form1: TForm1
     TabOrder = 7
   end
   object RadioButton5: TRadioButton
-    Left = 920
+    Left = 952
     Height = 28
     Top = 392
     Width = 54
@@ -843,13 +849,97 @@ object Form1: TForm1
     TabOrder = 8
   end
   object RadioButton6: TRadioButton
-    Left = 733
+    Left = 773
     Height = 28
     Top = 392
     Width = 63
     Caption = 'x0.25'
     OnChange = RadioButton6Change
     TabOrder = 9
+  end
+  object GroupBox6: TGroupBox
+    Left = 704
+    Height = 313
+    Top = 74
+    Width = 177
+    Caption = 'Help'
+    ClientHeight = 288
+    ClientWidth = 173
+    Color = clMaroon
+    ParentColor = False
+    TabOrder = 10
+    object Button26: TButton
+      Left = 6
+      Height = 25
+      Top = -1
+      Width = 160
+      Caption = 'Order of Objects'
+      OnClick = Button26Click
+      TabOrder = 0
+    end
+    object Button27: TButton
+      Left = 6
+      Height = 25
+      Top = 63
+      Width = 160
+      Caption = 'Action Name'
+      OnClick = Button27Click
+      TabOrder = 1
+    end
+    object Button28: TButton
+      Left = 6
+      Height = 25
+      Top = 95
+      Width = 160
+      Caption = 'Answer Name'
+      OnClick = Button28Click
+      TabOrder = 2
+    end
+    object Button29: TButton
+      Left = 7
+      Height = 25
+      Top = 31
+      Width = 159
+      Caption = 'Subwindow'
+      OnClick = Button29Click
+      TabOrder = 3
+    end
+    object Button30: TButton
+      Left = 6
+      Height = 25
+      Top = 127
+      Width = 160
+      Caption = 'Static dynamic text'
+      OnClick = Button30Click
+      TabOrder = 4
+    end
+    object Button31: TButton
+      Left = 7
+      Height = 25
+      Top = 257
+      Width = 159
+      Caption = 'About'
+      OnClick = Button31Click
+      TabOrder = 5
+    end
+    object Button32: TButton
+      Left = 6
+      Height = 25
+      Top = 159
+      Width = 160
+      Caption = 'Multiple text lines'
+      OnClick = Button32Click
+      TabOrder = 6
+    end
+    object Button33: TButton
+      Left = 7
+      Height = 25
+      Top = 191
+      Width = 159
+      Caption = 'Fonts'
+      OnClick = Button33Click
+      TabOrder = 7
+    end
   end
   object OpenDialog1: TOpenDialog
     Filter = 'xml|*.xml|All files|*.*'
@@ -868,5 +958,10 @@ object Form1: TForm1
   object OpenPictureDialog1: TOpenPictureDialog
     left = 972
     top = 495
+  end
+  object Process1: TProcess
+    Priority = ppNormal
+    left = 1000
+    top = 96
   end
 end

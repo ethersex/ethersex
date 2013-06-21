@@ -1,7 +1,8 @@
 /*
 * Fixedpoint utils
 *
-* Copyright (c) 2009 by Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2009 Gerd v. Egidy <gerd@egidy.de>
+* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -21,59 +22,75 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include <avr/io.h>
+#include <stdint.h>
 
 #include "config.h"
-#include "core/debug.h"
-#include "core/util/fixedpoint.h"
+#include "fixedpoint.h"
 
-// Attention: returns the length in bytes, not a pointer like the regular itoa
-// this is more conveniant for use in output to ECMDs output buffer 
-uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
+/* Attention: returns the length in bytes, not a pointer like the regular
+ * itoa this is more convenient for use in output to ECMDs output buffer */
+uint8_t
+itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
 {
-    uint8_t i=0, j=0, sign=0, size=0;
+  uint8_t len = 0;
 
-    if (n < 0)
+  if (n < 0)
+  {
+    s[len++] = '-';
+    n = -n;
+  }
+
+  /* Anzahl Stellen bestimmen */
+  uint8_t digits = 1;
+  int16_t m = 10;
+  while (m <= n)
+  {
+    m *= 10;
+    digits++;
+  }
+  m /= 10;
+
+  /* Vorkommastellen? */
+  if (digits <= fixeddigits)
+  {
+    s[len++] = '0';
+  }
+  else
+  {
+    /* Vorkommastellen ausgeben */
+    while (digits > fixeddigits)
     {
-        /* record sign */
-        sign=1;
-        /* make n positive */
-        n = -n;
+      uint8_t i;
+      for (i = '0'; n >= m; n -= m, i++);
+      s[len++] = i;
+      m /= 10;
+      digits--;
+    }
+  }
+
+  /* Nachkommastellen? */
+  if (fixeddigits)
+  {
+    s[len++] = '.';
+
+    /* Mit Nullen auffüllen */
+    while (digits < fixeddigits)
+    {
+      s[len++] = '0';
+      fixeddigits--;
     }
 
-    do
+    /* Nachkommestellen ausgeben */
+    while (fixeddigits)
     {
-        /* generate digits in reverse order */
-        s[i++] = n % 10 + '0';   /* get next digit */
-        if (i == fixeddigits && fixeddigits != 0)
-            s[i++]='.';
+      uint8_t i;
+      for (i = '0'; n >= m; n -= m, i++);
+      s[len++] = i;
+      m /= 10;
+      fixeddigits--;
     }
-    while ((n /= 10) > 0);     /* delete it */
+  }
+  s[len] = '\0';
 
-    if (i < fixeddigits)
-    {
-        while(i < fixeddigits)
-            s[i++]='0';
-        s[i++]='.';
-    }
-
-    if (sign)
-        s[i++] = '-';
-    s[i] = '\0';
-
-    size=i;
-
-    // in-place reverse
-    i--;
-    while(j<i)
-    {
-        sign = s[j];
-        s[j] = s[i];
-        s[i] = sign;
-        i--;
-        j++;
-    }
-
-    return size;
+  return len;
 }
-

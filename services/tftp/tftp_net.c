@@ -25,91 +25,167 @@
 #include "tftp.h"
 #include "tftp_net.h"
 #include "tftp_state.h"
+#include "core/util/byte2hex.h"
+#include "core/util/app_crc.h"
+#include "core/global.h"
+
 
 void
 tftp_net_init(void)
 {
-    uip_ipaddr_t ip;
-    uip_ipaddr_copy(&ip, all_ones_addr);
+  uip_ipaddr_t ip;
+  uip_ipaddr_copy(&ip, all_ones_addr);
 
-    uip_udp_conn_t *tftp_conn = uip_udp_new(&ip, 0, tftp_net_main);
+  uip_udp_conn_t *tftp_conn = uip_udp_new(&ip, 0, tftp_net_main);
 
-    if(! tftp_conn)
-	return;			/* dammit. */
+  if (!tftp_conn)
+    return;                     /* dammit. */
 
-    uip_udp_bind(tftp_conn, HTONS(TFTP_PORT));
+  uip_udp_bind(tftp_conn, HTONS(TFTP_PORT));
 
 #ifdef TFTPOMATIC_SUPPORT
-    tftp_conn->appstate.tftp.fire_req = 0;
+  tftp_conn->appstate.tftp.fire_req = 0;
 
-#ifndef IPV6_SUPPORT		/* IPv6 is handled in ipv6.c (after ra) */
-    const char *filename = CONF_TFTP_IMAGE;
-    set_CONF_TFTP_IP(&ip);
+#ifndef IPV6_SUPPORT            /* IPv6 is handled in ipv6.c (after ra) */
+  const char *filename = CONF_TFTP_IMAGE;
+  set_CONF_TFTP_IP(&ip);
 
-    tftp_fire_tftpomatic(&ip, filename);
+  tftp_fire_tftpomatic(&ip, filename, 1);
 #endif /* !IPV6_SUPPORT */
 #endif /* TFTPOMATIC_SUPPORT */
 }
 
 
-static const char octet[] PROGMEM = "octet";
-
 void
 tftp_net_main(void)
 {
-    if(uip_newdata()) {
+  if (uip_newdata())
+  {
 #ifdef BOOTLOADER_SUPPORT
-	if(uip_udp_conn->lport == HTONS(TFTP_ALT_PORT)) {
-	    /* got reply packet for tftp download request,
-	     * seek request connection and shut it down */
-	    uip_udp_conn_t *req_conn;
-	    for(req_conn = &uip_udp_conns[0];
-		req_conn < &uip_udp_conns[UIP_UDP_CONNS];
-		++ req_conn) {
-		if(req_conn->lport != HTONS(TFTP_ALT_PORT))
-		    continue;
-		if(req_conn->rport != HTONS(TFTP_PORT))
-		    continue;
+    if (uip_udp_conn->lport == HTONS(TFTP_ALT_PORT))
+    {
+      /* got reply packet for tftp download request,
+       * seek request connection and shut it down */
+      uip_udp_conn_t *req_conn;
+      for (req_conn = &uip_udp_conns[0];
+           req_conn < &uip_udp_conns[UIP_UDP_CONNS]; ++req_conn)
+      {
+        if (req_conn->lport != HTONS(TFTP_ALT_PORT))
+          continue;
+        if (req_conn->rport != HTONS(TFTP_PORT))
+          continue;
 
-		req_conn->lport = 0;		/* clear connection */
-		break;
-	    }
-	}
+        req_conn->lport = 0;    /* clear connection */
+        break;
+      }
+    }
 #endif /* BOOTLOADER_SUPPORT */
 
-	tftp_handle_packet();
-	return;
-    }
+    tftp_handle_packet();
+    return;
+  }
 
 #if defined(BOOTLOADER_SUPPORT)  \
   && (defined(TFTPOMATIC_SUPPORT) || defined(BOOTP_SUPPORT))
-    if(! uip_udp_conn->appstate.tftp.fire_req)
-	return;
+  if (!uip_udp_conn->appstate.tftp.fire_req)
+    return;
 
-    if(uip_udp_conn->appstate.tftp.transfered) {
-	uip_udp_conn->appstate.tftp.transfered --;
-	return;
-    }
+  if (uip_udp_conn->appstate.tftp.transfered)
+  {
+    uip_udp_conn->appstate.tftp.transfered--;
+    return;
+  }
 
-    /*
-     * fire download request packet ...
-     */
-    struct tftp_hdr *tftp_pk = uip_appdata;
-    tftp_pk->type = HTONS(1);			/* read request */
-    int l = strlen(uip_udp_conn->appstate.tftp.filename);
-    memcpy(tftp_pk->u.raw, uip_udp_conn->appstate.tftp.filename, l + 1);
-#if BOOTLOADER_START_ADDRESS > UINT16_MAX
-    uint_farptr_t src = pgm_get_far_address(octet);
-    uint8_t *dst = &tftp_pk->u.raw[l + 1];
-    for (uint8_t i = sizeof(octet); i; i--)
-      *dst++ = pgm_read_byte_far(src++);
-#else
-    memcpy_P(&tftp_pk->u.raw[l + 1], octet, sizeof(octet));
+
+  /*
+   * fire download request packet ...
+   */
+  uint16_t i = 0, l = 0;
+  struct tftp_hdr *tftp_pk = uip_appdata;
+#ifdef TFTP_CRC_SUPPORT
+  status.verify_tftp_crc_content = 0;
 #endif
-    uip_udp_send(l + 9);
 
-    /* uip_udp_conn->appstate.tftp.fire_req = 0; */
-    uip_udp_conn->appstate.tftp.transfered = 5; /* retransmit in 2.5 seconds */
+  tftp_pk->type = HTONS(1);     /* read request */
+
+  while (uip_udp_conn->appstate.tftp.filename[i] && i < TFTP_FILENAME_MAXLEN)
+  {
+#ifdef TFTP_CRC_SUPPORT
+    if (uip_udp_conn->appstate.tftp.filename[i] == '%')
+    {
+      /* append mac address */
+      if (uip_udp_conn->appstate.tftp.filename[i + 1] == 'M')
+      {
+        tftp_pk->u.raw[l++] = '-';
+        for(uint8_t k = 0; k < 6; k++)
+          l += byte2hex(uip_ethaddr.addr[k], &tftp_pk->u.raw[l]);
+      }
+      else
+      {
+        if (uip_udp_conn->appstate.tftp.verify_crc)
+        {
+          switch (uip_udp_conn->appstate.tftp.filename[i + 1])
+          {
+            /* append mac address */
+            case 'm':
+              tftp_pk->u.raw[l++] = '-';
+              for(uint8_t k = 0; k < 6; k++)
+                l += byte2hex(uip_ethaddr.addr[k], &tftp_pk->u.raw[l]);
+              break;
+
+            /* append application crc */
+            case 'c':
+            {
+              tftp_pk->u.raw[l++] = '-';
+              uint16_t crc = calc_application_crc();
+              l += byte2hex(crc >> 8, &tftp_pk->u.raw[l]);
+              l += byte2hex(crc &0x00ff, &tftp_pk->u.raw[l]);
+              break;
+            }
+
+            case 'C':
+              status.verify_tftp_crc_content = 1;
+              break;
+
+            /* append crc file extension */
+            case 'e':
+              tftp_pk->u.raw[l++] = '.';
+              tftp_pk->u.raw[l++] = 'c';
+              tftp_pk->u.raw[l++] = 'r';
+              tftp_pk->u.raw[l++] = 'c';
+
+              /* remove rest of filename */
+              while (uip_udp_conn->appstate.tftp.filename[i++]);
+              break;
+
+            /* ignore unknown formatting tags */
+            default:
+              break;
+          }
+        }
+      }
+      i += 2;
+    }
+    else
+#endif
+      tftp_pk->u.raw[l++] = uip_udp_conn->appstate.tftp.filename[i++];
+  }
+  tftp_pk->u.raw[l++] = '\0';
+
+  /* uses less space than progmem copy of such a small string */
+  tftp_pk->u.raw[l++] = 'o';
+  tftp_pk->u.raw[l++] = 'c';
+  tftp_pk->u.raw[l++] = 't';
+  tftp_pk->u.raw[l++] = 'e';
+  tftp_pk->u.raw[l++] = 't';
+  tftp_pk->u.raw[l++] = '\0';
+
+  uip_udp_send(l + 9);
+
+  /* uip_udp_conn->appstate.tftp.fire_req = 0; */
+
+  /* retransmit in 2.5 seconds */
+  uip_udp_conn->appstate.tftp.transfered = 5;
 #endif
 }
 

@@ -1,4 +1,4 @@
-dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT $ARCH_AVR
+dep_bool_menu "Camera support" CAMERA_SUPPORT $ARCH_AVR
 	usart_count_used
 	if [ "$DC3840_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   dep_bool_menu "DC3840 Serial camera" DC3840_SUPPORT $CAMERA_SUPPORT

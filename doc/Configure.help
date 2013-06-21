@@ -1,11 +1,5 @@
 # Hello World
 
-Prompt for experimental code
-CONFIG_EXPERIMENTAL
-  Allow to enable experimental features.  Beware that work in
-  progress code might be less stable and might not work or compile
-  even.
-
 Teensy build
 TEENSY_SUPPORT
   Reduce size of built firmware here and there.  For example reduce
@@ -14,9 +8,6 @@ TEENSY_SUPPORT
 
   You want to say Y here for ATmega8 or similar controllers and
   probably also want to disable TCP support.
-
-CONFIG_EXPERT
-  Prompt All Possible Options, Only for Expert Users
 
 Enable (Serial-Line) Debugging
 DEBUG
@@ -108,6 +99,16 @@ DEBUG_ENC28J60
    * Enable (Serial-Line) Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
+
+ENC28J60 CLKOUT Prescaler (ECOCON)
+ECOCON_UNSET
+  Depends on:
+   * ENC28J60
+
+  Sets the ENC28j60's CLKOUT prescaler register ECOCON
+  during network initialization. The CLKOUT pin can then
+  be used to clock other devices, even the AVR itself.
+  See the ENC datasheet section 2.3 for details.
 
 Interrupt
 DEBUG_INTERRUPT
@@ -264,7 +265,6 @@ IP_FORWARDING_SUPPORT
 HC595 output expansion
 HC595_SUPPORT
   Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
 
   There's unfortunately no help available for this item.
@@ -272,7 +272,6 @@ HC595_SUPPORT
 HC165 support
 HC165_SUPPORT
   Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
 
   There's unfortunately no help available for this item.
@@ -286,8 +285,6 @@ HC165_INVERSE_OUTPUT
 
 PS/2 keyboard
 PS2_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Support for PS/2 keyboards, currently keystrokes are only logged to
   SYSLOG.  That is, you need to modify the firmware for further use.
@@ -301,40 +298,37 @@ PS2_GERMAN_LAYOUT
 
 ADC input
 ADC_SUPPORT
-  Depends on:
-   * ECMD support (ECMD_PARSER_SUPPORT)
-
   Enable ADC abstraction layer.  This especially enables a further
   ECMD 'adc get' which triggers a ADC conversion for each channel
-  and returns the gained values.
+  and returns the gained values (if ECMD support is enabled).
+
+ADC voltage support
+ADC_VOLTAGE_SUPPORT
+  Depends on:
+   * ADC input (ADC_SUPPORT)
+
+  Enables the direct readout of ADC in volt. A VREF calibration value
+  can be set by ECMD and is stored in EEPROM.
 
 FS20 RF-control
 FS20_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   There's unfortunately no help available for this item.
 
 Send RC5 IR-codes
 RC5_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add support to send and receive RC5 IR-remote codes.
 
-Usart ecmd interface (RS232)
+Usart ecmd interface (RS232/RS485)
 ECMD_SERIAL_USART_SUPPORT
   Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Add support for ECMDs received on serial RS232 link.
+  Add support for ECMDs received on serial RS232/RS485 link.
+  You may need to define a pin in your hardware description where the 
+  transmit enable of the RS485 is defined (RS485TE_USART0 / RS485TE_USART1).    
 
-Usart ecmd RS485 mode
-ECMD_SERIAL_USART_RS485_SUPPORT
-  Depends on:
-   * Usart ecmd interface (RS232) (ECMD_SERIAL_USART_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 Blinkenlights - MicroControllerUnitFrame
 MCUF_SUPPORT
@@ -371,7 +365,7 @@ MCUF_SUPPORT
 
   For "LED-Module16x16rg" and further information on "Blinkenlights
   - MicroControllerUnitFrame" see
-  http://www.ethersex.de/tiki-index.php?page=Blinkenlights+MCUF
+  http://old.ethersex.de/index.php/Blinkenlights_MCUF
 
 Readback support
 HD44780_READBACK
@@ -432,7 +426,7 @@ RFM12_IP_SUPPORT
   http://www.pollin.de/shop/detail.php?pg=NQ==&a=MDU5OTgxOTk=
 
   For a step-by-step howto, see
-  http://ethersex.de/tiki-index.php?page=Ethersex%3AStepByStep%3ARFM12
+  http://ethersex.de/index.php/RFM12
 
 RFM12 ARP-Proxy
 RFM12_ARP_PROXY
@@ -474,8 +468,6 @@ RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 
 IPchair (firewalling)
 IPCHAIR_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Basic firewalling functionallity, similar to IPtables.
 
@@ -493,8 +485,6 @@ IPCHAIR_MASQ
 
 control6 scripts
 CONTROL6_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   6Control is a BASIC-like scripting language which you can use
   to freely program your Ethersex.  It supports threading etc.
@@ -503,7 +493,7 @@ CONTROL6_SUPPORT
 
   See control6/control6.src to get an impression of the language,
   e.g. example code.  There are more examples in the Ethersex wiki
-  at http://ethersex.de/index.php/Control6
+  at http://old.ethersex.de/index.php/Control6
 
 TCP support
 TCP_SUPPORT
@@ -566,7 +556,6 @@ DNS_SUPPORT
 SYSLOG support
 SYSLOG_SUPPORT
   Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
   Enable syslog CLIENT support, i.e. allow to log messages to specified
@@ -583,7 +572,7 @@ OPENVPN_SUPPORT
   It currenly supports only symmetric ciphers (e.g. Cast5).
 
   For details on configuration see
-  http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
+  http://old.ethersex.de/index.php/OpenVPN
 
 OpenVPN key
 CONF_OPENVPN_KEY
@@ -594,7 +583,7 @@ CONF_OPENVPN_KEY
   generated on the host PC.
 
   For details on configuration see
-  http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
+  http://old.ethersex.de/index.php/OpenVPN
 
 OpenVPN HMAC key
 CONF_OPENVPN_HMAC_KEY
@@ -605,12 +594,16 @@ CONF_OPENVPN_HMAC_KEY
   generated on the host PC.
 
   For details on configuration see
-  http://ethersex.de/tiki-index.php?page=EtherSexNetworkOpenVpn
+  http://old.ethersex.de/index.php/OpenVPN
+
+OpenVPN Port
+CONF_OPENVPN_PORT
+
+  The UDP port number used by OpenVPN (local and remote).
 
 RFM12 raw
 RFM12_RAW_SUPPORT
   Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
@@ -622,7 +615,6 @@ RFM12_RAW_SUPPORT
 ZBUS raw
 ZBUS_RAW_SUPPORT
   Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * ZBus Support (ZBUS_SUPPORT)
    * Router support (enable several network interfaces!) (ROUTER_SUPPORT)
 
@@ -631,18 +623,16 @@ ZBUS_RAW_SUPPORT
   Every packet received on ZBus is passed back to the sender of the UDP
   packet, for about half a second after reception of the initial UDP packet.
 
-USB (Softwarestack) Support (EXPERIMENTAL)
+USB (Softwarestack) Support
 USB_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Support for USB functions. see http://ethersex.de/index.php/USB
+  Support for USB functions. see http://old.ethersex.de/index.php/USB
   for details
 
 USBnet
 USB_NET_SUPPORT
   Depends on:
-   * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
+   * USB (Softwarestack) Support (USB_SUPPORT)
    * Networking support (UIP_SUPPORT)
 
   IP-Networking over USB.  It doesn't use kernel-driven CDC-subset
@@ -651,7 +641,7 @@ USB_NET_SUPPORT
   You need to use the userspace-space client available
   in contrib/usb_net
 
-  See also http://ethersex.de/index.php/USB#usbnet
+  See also http://old.ethersex.de/index.php/USB#usbnet
 
 USBnet ARP-Proxy
 USB_ARP_PROXY
@@ -665,7 +655,7 @@ CLOCK_SUPPORT
   Enable system clock.
 
   A detailed step-by-step guide is available at
-  http://ethersex.de/index.php/Am_Puls_der_Zeit
+  http://old.ethersex.de/index.php/Am_Puls_der_Zeit
 
 Use 32 kHz crystal to tick the clock
 CLOCK_CRYSTAL_SUPPORT
@@ -707,21 +697,98 @@ NTP_PORT
  The Port Number for your NTP-Server
   Default is 123
 
+NTP query interval (seconds)
+NTP_QUERY_INTERVAL
+ The NTP query interval is the amount of time in seconds
+ between NTP query messages are sent to the NTP server.
+   The default value is 1800 seconds.
+   The minimum value is 60 seconds.
+
 Cron daemon
 CRON_SUPPORT
   Depends on:
    * System clock support (CLOCK_SUPPORT)
 
   Enable cron-alike service. Cronjobs can be added programmatically
-  or by other modules' ecmd commands and removed via the ecmd command
-  "cron_rm".  A list of all active jobs can be requested via "cron_list".
+  or by other module's ecmd commands and removed via the ecmd command
+  "cron rm".  A list of all active jobs can be requested via "cron list".
 
   Syntax for the cron ecmd commands:
-  cron_rm POSITION (where POSITION is in 0..N-1)
-  cron_list
+  cron add MIN HOUR DAY MONTH DOW ECMD : add a cron job
+  cron rm [POSITION} (where POSITION is in 0..N-1) : remove all/selected job
+  cron list : list all jobs
+  cron utc POSITION [STATE] : show/set flag to use UTC time for a job
 
   To add a stella cron job to, for example, fade up all lights at 6pm,
   compile in stella support and use the stella ecmd command "stella cron"
+
+Use UTC instead of LOCALTIME
+CRON_DEFAULT_UTC
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create conjobs with UTC flag set by default.
+
+Test entries
+CRON_SUPPORT_TEST
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  Create some test jobs at system startup (for debuging).
+
+Store Cron jobs in VFS
+CRON_VFS_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * VFS support (VFS_SUPPORT)
+   * !NOT! Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Store cron jobs as file on VFS storage like SD card.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to file
+
+Store Cron jobs in EEPROM
+CRON_EEPROM_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+   * !NOT! Store Cron jobs in VFS (CRON_VFS_SUPPORT)
+
+  Store cron jobs as file in EEPROM.
+
+  Syntax for the corresponding ecmd commands:
+  cron persistent POSITION [STATE] : show/set persistence flag for a job
+  cron save : write all persistent jobs to EEPROM
+
+Cron EEPROM size
+CRON_EEPROM_SIZE
+  Depends on:
+   * Store Cron jobs in EEPROM (CRON_EEPROM_SUPPORT)
+
+  Size of EEPROM reserved for crontab storage.
+
+Anacon Support
+CRON_ANACRON_SUPPORT
+  Depends on:
+   * Cron daemon (CRON_SUPPORT)
+
+  If system is booted (with an RTC attached) or an time gap is detected
+  (i.e. by an NTP adjustment) all missed jobs are executed, if marked as
+  anacron job. The maximum time span is configured by CRON_ANACRON_MAXAGE.
+  This function is usefull for jobs that set internal states (for example
+  the target temperature of a heating control dependend on the daytime).
+
+  Syntax for the corresponding ecmd commands:
+  cron anacron POSITION [STATE] : show/set anacron flag for a job
+
+Anacron max age in secs
+CRON_ANACRON_MAXAGE
+  Depends on:
+   * Anacon Support (CRON_ANACRON_SUPPORT)
+
+  Maximum time span covered by CRON_ANACRON_SUPPORT in secs. Default is
+  86400 secs (one day).
 
 NTP daemon
 NTPD_SUPPORT
@@ -756,7 +823,67 @@ TFTPOMATIC_SUPPORT
   Depends on:
    * TFTP support (TFTP_SUPPORT)
 
-  There's unfortunately no help available for this item.
+  Setup TFTP-client without using BOOTP
+
+Bootloader timeout
+CONF_BOOTLOAD_DELAY
+  How long to wait for a remote server to answer until the bootloader exits.
+  Measured in 1/50th seconds. Default value 250 = 5 seconds.
+
+TFTP image to load
+CONF_TFTP_IMAGE
+  Depends on: 
+   * TFTP-o-matic (TFTPOMATIC_SUPPORT)
+
+  Filename of binary image to load from and programm into the application flash
+  memory when in TFTP-o-matic mode.
+
+Address of TFTP-Server
+CONF_TFTP_IP
+  Depends on: 
+   * TFTP-o-matic (TFTPOMATIC_SUPPORT)
+
+  IPv4 or IPv6 address of TFTP-server when in TFTP-o-matic mode.
+
+TFTP CRC verify
+TFTP_CRC_SUPPORT
+  Verify if the programmed application has the same 16-bit CRC as a seperate
+  CRC-file on the TFTP-server.
+  
+  There are two modes possible:
+  * Test if CRC-file exists.
+    - If yes, then immediately start application.
+    - if no, then try to load and program application
+    
+  * Verify content of crc file.
+    - If file exists and content matches current application CRC, then 
+      immediately start application.
+    - If file does not exist or content does not match current application 
+      CRC, then try to load and program application
+  
+  %M is replaced with '-[MAC-ADDRESS]' (13 characters hex uppercase) in both
+  (CRC and binary) filenames
+  
+  The filename of the CRC-file is constructed out of the application filename
+  having additional formatting keys.
+  %m : replace with '-[MAC-ADDRESS]' (13 characters hex uppercase)
+  %c : replace with '-[APPCRC]' (5 characters hex uppercase)
+  %e : replace with '.crc' - the rest of the filename is truncated
+  %C : replace with '' - verify CRC-file content
+  
+  Example 1:
+  Supplied filename:    ethersex%m%c%e.bin
+  CRC-filename:         ethersex-DEADBEEFCAFE-1337.crc
+  Application filename: ethersex.bin
+  Existence of CRC-file is checked. If not existent, application binary is
+  loaded and programmed into flash.
+
+  Example 2:
+  Supplied filename:    %Cethersex%M%e.bin
+  CRC-filename:         ethersex-DEADBEEFCAFE.crc
+  Application filename: ethersex-DEADBEEFCAFE.bin
+  Content of CRC-file is checked for correct CRC of application. If content 
+  mismatchces application binary is loaded and programmed into flash.
 
 MDNS service announcement (Avahi)
 MDNS_SD_SUPPORT
@@ -777,6 +904,15 @@ STELLA_SUPPORT
   stella UDP protocol, ecmd commands, cron jobs or via "random"
   generated channel values.
   Use StellaControl (see wiki) for a handy gui to control stella.
+
+Low Interrupt Priority
+STELLA_LOW_PRIORITY
+
+  When acitve the timer interrupt used for Stella can be interrupted.
+  This allows Stella to be used in parallel with V-USB or other components
+  needing low interrupt latency.
+  The downside is that the Stella controlled lights may flicker when the
+  interrupt rate is high.
 
 UDP Echo
 UDP_ECHO_NET_SUPPORT
@@ -809,17 +945,36 @@ Simple Network Managment Protocol support (snmp)
 SNMP_SUPPORT
   Depends on:
    * UDP support (UDP_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Make ADC, Hostname and Uptime available through SNMP.
 
-  Set default values for DESCRIPTION, LOCATION and CONTACT.
+  Set default values for DESCRIPTION, LOCATION, CONTACT and COMMUNITY STRING.
+
+SNMP Description
+SNMP_VALUE_DESCRIPTION
+  Description of the system.
+
+SNMP Location
+SNMP_VALUE_LOCATION
+  Location of the system.
+
+SNMP Contact
+SNMP_VALUE_CONTACT
+  Administrative contact.
+
+SNMP Community String
+SNMP_COMMUNITY_STRING
+  Community string used for read requests.
+
+Use legacy UCD experimental OIDs
+SNMP_UCDEXPERIMENTAL_SUPPORT
+  Use the legacy 1.3.6.1.4.1.2021.13.23.x OIDs instead of
+  the official ethersex 1.3.6.1.4.1.39967.x OIDs.
 
 Sendmail support (smtp)
 SENDMAIL_SUPPORT
   Depends on:
    * TCP support (TCP_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Sample code to send emails on custom events (currently start-up only).
 
@@ -861,7 +1016,7 @@ KTY_SUPPORT
   This results in a further ecmd 'kty get 0', 'kty get 1', etc.
 
   For hardware layout and further howto, look at
-  http://ethersex.de/tiki-index.php?page=KtyTemperatur
+  http://old.ethersex.de/index.php/KTY
 
 Ethernet (ENC28J60) support
 ENC28J60_SUPPORT
@@ -880,8 +1035,6 @@ IPV6_STATIC_SUPPORT
 
 I2C Atmel dataflash
 DATAFLASH_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add code to support the dataflash found on Etherrape original hardware.
 
@@ -898,7 +1051,7 @@ ZBUS_SUPPORT
   32 stations possible on one bus.
 
   The ZBUS protocol is our own development, its no official standard.
-  For details on ZBus see http://dokucode.de/tiki-index.php?page=ZBusInterface
+  For details on ZBus see http://old.ethersex.de/index.php/Zbus
 
 ZBUS ARP-Proxy
 ZBUS_ARP_PROXY
@@ -916,24 +1069,22 @@ ECMD_TCP_SUPPORT
 
   Add TCP Telnet like ECMD support.
   See http://ethersex.de/index.php/ECMD for help.
-  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_TCP
+  See also http://old.ethersex.de/index.php/ECMD_Protocols#ECMD_via_TCP
 
 UDP interface
 ECMD_UDP_SUPPORT
   Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    * UDP support (UDP_SUPPORT)
 
   Add UDP ECMD support.
   See http://ethersex.de/index.php/ECMD for help.
-  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_UDP
+  See also http://old.ethersex.de/index.php/ECMD_Protocols#ECMD_via_UDP
 
 I2C interface
 ECMD_SERIAL_I2C_SUPPORT
   Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add ECMD Support via TWI or I2C Interface.
   See http://ethersex.de/index.php/ECMD for help.
@@ -942,16 +1093,15 @@ USB interface
 ECMD_USB_SUPPORT
   Depends on:
    * ECMD support (ECMD_PARSER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-   * USB (Softwarestack) Support (EXPERIMENTAL) (USB_SUPPORT)
+   * USB (Softwarestack) Support (USB_SUPPORT)
 
   Enable ECMD via USB Interface
   You should set
   "Network  ---> USB (Softwarestack) Support  ---> USB Device Type"
   to "other".
   See http://ethersex.de/index.php/ECMD for help.
-  See also http://ethersex.de/index.php/ECMD_Protocols#ECMD_via_USB and
-  http://ethersex.de/index.php/USB#ECMD_via_USB
+  See also http://old.ethersex.de/index.php/ECMD_Protocols#ECMD_via_USB and
+  http://old.ethersex.de/index.php/USB#ECMD_via_USB
 
 Send ECMD messages
 ECMD_SENDER_SUPPORT
@@ -1026,8 +1176,6 @@ MCUF_SERIAL_SCREEN_HEIGHT
 
 VFS (Virtual File System) support
 VFS_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Enable the virtual file system abstraction layer.
 
@@ -1062,7 +1210,7 @@ VFS_SD_SUPPORT
 
   Link the SD reader to VFS.
 
-  more details at http://ethersex.de/index.php/SD-Karte
+  more details at http://old.ethersex.de/index.php/SD-Karte
 
 Disable IP-Configuration
 DISABLE_IPCONF_SUPPORT
@@ -1070,7 +1218,7 @@ DISABLE_IPCONF_SUPPORT
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Disable the ecmd's to set ip, gw, netmask and mac
+  Disable the ECMDs to set ip, gw, netmask and mac
 
 Disable remote reboot
 DISABLE_REBOOT_SUPPORT
@@ -1132,8 +1280,6 @@ DEBUG_SD_READER
 
 MMC/SD card reader
 SD_READER_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Add support to access SD memory cards (read and write) with
   FAT or FAT32 file system.
@@ -1141,11 +1287,10 @@ SD_READER_SUPPORT
   The files can be accessed via the 'Virtual File System',
   and as a result through HTTP (read only) or TFTP (read/write).
 
-Jabber client (EXPERIMENTAL)
+Jabber client
 JABBER_SUPPORT
   Depends on:
    * TCP support (TCP_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Enable Jabber client.
 
@@ -1184,8 +1329,7 @@ CONF_JABBER_BUDDY
 Alias Command Names
 ALIASCMD_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
 
   Define aliases for your ecmds. Aliases are expanded if $ ist the first
   character of your emcd. Example:
@@ -1208,7 +1352,7 @@ MCUF_OUTPUT_SUPPORT
   Use add-hardwarebrocken.sh to configure pinning.
 
   See also
-  http://www.ethersex.de/tiki-index.php?page=Blinkenlights+MCUF
+  http://old.ethersex.de/index.php/Blinkenlights_MCUF
 
 MCUF screen width
 MCUF_OUTPUT_SCREEN_WIDTH
@@ -1278,14 +1422,36 @@ FREQ
 Build a bootloader
 BOOTLOADER_SUPPORT
 
- enable ethersex TFTP bootloader support
+ Enable ethersex TFTP bootloader support.
 
- Depends on TFTP to upload new firmware and the chip,
- is only possible to use on chips with 64k or 128k of flash
+ Depends on TFTP to download a new firmware and programm the flash.
 
- This Bootloader Need 4096 Words (8k Bytes) Flash on the end of the chip
+ This bootloader needs 8k flash memory at the top of the flash, so only
+ MCUs with 64k or 128k flash can be used.
 
- This is Only a Bootloader, not a normaly image
+ This is only a bootloader with a very limited functionality.
+
+ Select 'Enable bootloader jump' in your 'normal' ROM to be able re-enter the
+ bootloader mode.
+
+Add CRC Checksum
+CRC_PAD_SUPPORT
+
+  current implementation conflicts with VFS_INLINE_SUPPORT.
+
+  Appends a CRC16 checksum at the end of the regular flash. This can then
+  be used e.g. by a bootloader to check the integrity of the flash memory.
+
+  If you use a bootloader, activate BOOTLOADER_JUMP and set the correct
+  BOOTLOADER_SIZE.
+
+CRC verification via ECMD
+CRC_VERIFY_SUPPORT
+
+  Depends on CRC_PAD_SUPPORT.
+
+  Allows to verify the crc checksum of the currently running flash via ECMD.
+  Mainly targeted at debugging the CRC_PAD_SUPPORT function.
 
 device is self powered
 USB_CFG_IS_SELF_POWERED
@@ -1304,7 +1470,7 @@ CONF_HOSTNAME
   Enter a hostname for your device. This value is used e.g. by SNMP
 
 Network Gateway IP
-CONF_ETHERRAPE_GATEWAY
+CONF_ETHERSEX_GATEWAY
 
   Enter the default gateway IP for your network
 
@@ -1312,8 +1478,7 @@ CONF_ETHERRAPE_GATEWAY
 I2C Detection Support
 I2C_DETECT_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
 
   enables automatic i2c bus IC detection, used by ecmd command "i2c detect"
   and other.
@@ -1321,8 +1486,7 @@ I2C_DETECT_SUPPORT
 I2C EEPROM (24cxx) Support
 I2C_24CXX_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
 
   I2C EEPROM Support e.g M24C32, M24C64
 
@@ -1330,26 +1494,71 @@ I2C_24CXX_SUPPORT
 I2C LM75 temperature sensors
 I2C_LM75_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
 
   Digital Temperatur Sensor and Thermal Watchdog IC LM75 Support
 
 I2C PCA9531 8-bit LED dimmer
 I2C_PCA9531_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
 
   PCA9531 - 8-bit I2C LED dimmer Support for I2C-bus
 
 I2C PCF8574X Port extention
 I2C_PCF8574X_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
 
   PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
+
+Pin A0 on Vcc
+I2C_PCF8583_SUPPORT
+  Depends on:
+   * I2C Master Support (I2C_MASTER_SUPPORT)
+
+  PCF8583 realtime clock for I2C-bus
+
+Pin A0 on Vcc
+I2C_PCF8583_A0_VCC
+  PCF8583 address selection
+
+Sync system clock
+I2C_PCF8583_SYNC
+  Keep the system time in sync with the chip by adjusting
+  the tick counter in the middle of a second. This will
+  prevent flapping of the second.
+
+Sync period in sec
+I2C_PCF8583_SYNC_PERIOD
+  Sync system time every n seconds
+
+I2C_TSL2561 digital light sensor
+I2C_TSL2561_SUPPORT
+
+  Support for the TSL2561 digital light sensor via I2C.
+  Includes conversion routines to get visible light in lux.
+  Datasheet http://www.adafruit.com/datasheets/TSL2561.pdf
+
+I2C BMP085 barometric pressure sensor
+I2C_BMP085_SUPPORT
+
+  Allows to read out absolute pressure and temperature from
+  Bosch BMP085 and BMP180 barometric pressure sensors.
+
+BMP085 advanced barometric calculations
+I2C_BMP085_BAROCALC_SUPPORT
+
+  Include calculation of height and pressure at NN based on the
+  international barometric formula. Requires floating point
+  calculations, don't enable this on systems with thight flash.
+
+BMP085 Pressure Oversampling
+I2C_BMP085_OVERSAMPLING
+
+  The BMP085 includes a mode to automatically take multiple measurements
+  and average them to increase resolution. This is the oss or osrs
+  parameter found in the datasheet.
 
 Edit list of allowed ecmd buddies
 JABBER_KNOWN_BUDDIES
@@ -1362,8 +1571,6 @@ JABBER_KNOWN_BUDDIES
 
 PWM Generator
 PWM_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Uses the integrated timer to generate PWM and CTC waveforms.
 
@@ -1371,7 +1578,6 @@ PWM Wave
 PWM_WAV_SUPPORT
   Depends on:
    * PWM Generator (PWM_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
  Wave output support (8kHz mono output)
  Just replace pwm/ethersex.wav with your own 8-Bit, PCM,
@@ -1381,7 +1587,6 @@ PWM Melody
 PWM_MELODY_SUPPORT
   Depends on:
    * PWM Generator (PWM_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   enables support for tunes and duration, which saves much
   more memory than wave output.
@@ -1393,7 +1598,7 @@ RANDOM_MAC
 
   Press Enter here and a new MAC address is generated
 
-Camera support (EXPERIMENTAL)
+Camera support
 CAMERA_SUPPORT
   Depends on:
 
@@ -1402,7 +1607,7 @@ CAMERA_SUPPORT
 DC3840 Serial camera
 DC3840_SUPPORT
   Depends on:
-   * Camera support (EXPERIMENTAL) (CAMERA_SUPPORT)
+   * Camera support (CAMERA_SUPPORT)
 
   Serial Philips DC3840 Support
 
@@ -1424,7 +1629,7 @@ VFS_DC3840_SUPPORT
 
   Select this to enable the vfs camera features.
 
-  more details at http://ethersex.de/index.php/Dc3840_camera
+  more details at http://old.ethersex.de/index.php/Dc3840_camera
 
 Stella polling (unicast response)
 STELLA_RESPONSE
@@ -1457,10 +1662,8 @@ DEBUG_STELLA
 
   Inform you about arriving stella packets, processed packets and if stella as a result send a response
 
-EEPROM saving and loading channel values. EXPERIMENTAL
+EEPROM saving and loading channel values.
 STELLA_EEPROM
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   With additional commands (STELLA_SAVE_TO_EEPROM, STELLA_LOAD_FROM_EEPROM) you can save to eeprom and load
   channel values from eeprom.
@@ -1502,7 +1705,7 @@ MCUF Module Display Mode
 MCUF_MODUL_DISPLAY_MODE_SUPPORT
   Depends on:
    * Blinkenlights - MicroControllerUnitFrame (MCUF_SUPPORT)
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
 
   Set default call mode to start any modul for ECMD.
 
@@ -1535,28 +1738,11 @@ MCUF_MODUL_BORG16_XONI_STUDY_SUPPORT
 
   A short snake runs up and down every line of the display for several times.
 
-Game Input
-GAME_INPUT_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
-  Placeholder for game input hardware such as
-
-  * digital Joystick (start up placeholder)
-
-  (not yet implemented)
-  * PS/2 Keyboard
-  * ECMD
-  * RFM12
-  * RFM12-ASK
-  * IRDA
-  * Input Pins
-
 MCUF Snake Interactive
 MCUF_MODUL_BORG16_SNAKE_INTERACTIVE_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
   Interactive edition of snake or tron
 
@@ -1571,7 +1757,7 @@ MCUF Tetris
 MCUF_MODUL_BORG16_TETRIS_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
  Interactive Tetris clone.
 
@@ -1579,18 +1765,9 @@ MCUF Space Invaders
 MCUF_MODUL_BORG16_INVADERS_SUPPORT
   Depends on:
    * MCUF Module Borg-16 (MCUF_MODUL_BORG16_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
  Interactive Space Invaders Clone
-
-Digital Joystick
-JOYSTICK_DIGITAL_SUPPORT
-  Depends on:
-   * Game Input (GAME_INPUT_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
- Support for standard (old style) digital Joysticks a la
- Competition Pro (http://de.wikipedia.org/wiki/Competition_Pro)
 
 
 MCUF Chess
@@ -1664,7 +1841,7 @@ MCUF_MODUL_BORG16_GAMEOFLIFE_GLIDER_TEST_SUPPORT
 
   Glider test for Game of life
 
-Gamma correction (EXPERIMENTAL)
+Gamma correction
 STELLA_GAMMACORRECTION
   Depends on:
 
@@ -1684,9 +1861,8 @@ CRON_STATIC_SUPPORT
 ECMD Scripting
 ECMD_SCRIPT_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * VFS (Virtual File System) support (VFS_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Scripting Support for ECMD.
 
@@ -1746,7 +1922,7 @@ ECMD_SCRIPT_MAX_VARIABLES
   Each variable takes up to 10 bytes of memory. So if you need more than
   the default value change this number
 
-Gamma correction (EXPERIMENTAL)
+Gamma correction
 STELLA_GAMMACORRECTION
   Depends on:
 
@@ -1796,16 +1972,15 @@ USE_GIT_VERSION
  source used.
 
 
-netStat client (EXPERIMENTAL)
+netStat client
 NETSTAT_SUPPORT
   Depends on:
    * TCP support (TCP_SUPPORT)
    * Cron Static support (CRON_STATIC_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Internet Statistik for Ethersex. This function adds your ethersex to
   the survey.
-  Examples and Links at http://www.ethersex.de/index.php/Netstat
+  Examples and Links at http://old.ethersex.de/index.php/Netstat
 
   Length of variable buffer
 ECMD_SCRIPT_VARIABLE_LENGTH
@@ -1827,15 +2002,12 @@ PWM Servo
 PWM_SERVO_SUPPORT
   Depends on:
    * PWM Generator (PWM_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Support up to 10 servo motors to be controlled via ethersex. The
   PWM signal can be inverted if needed.
 
-I2C Master Support (EXPERIMENTAL)
+I2C Master Support
 I2C_MASTER_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Support to send and receive I2C-Bus (TWI) commands.
 
@@ -1843,19 +2015,19 @@ MCUF Game Input Test
 MCUF_TEST_GAME_INPUT
   Depends on:
    * MCUF Module (MCUF_MODUL_SUPPORT)
-   * Game Input (GAME_INPUT_SUPPORT)
+   * Buttons Input (BUTTONS_INPUT_SUPPORT)
 
   Little Test Screen for Game Input Support
 
 SMS Support
 SMS_SUPPORT
-	module for interfacing ecmd via sms.
-	some mobiles provide serial connection,
-	by what they can be attached to the ethersex.
+  module for interfacing ecmd via sms.
+  some mobiles provide serial connection,
+  by what they can be attached to the ethersex.
 
-	this module has been tested with:
-		* siemens me45
-		* siemens mt50
+  this module has been tested with:
+    * siemens me45
+    * siemens mt50
 
 
 Inline PWM Servo
@@ -1866,10 +2038,9 @@ PWM_SERVO_INLINE_SUPPORT
 
   Enable this to get an example inline page for servo control.
 
-Application Sample (EXPERIMENTAL)
+Application Sample
 APP_SAMPLE_SUPPORT
   Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
    ECMD Commands depends on
    * ECMD support (ECMD_PARSER_SUPPORT)
 
@@ -1885,12 +2056,11 @@ APP_SAMPLE_SUPPORT
     Also this function will be called by ECMD "sample_periodic",
   Function "app_sample_onrequest" will be execured by ECMD command "sample"
 
-httplog client (EXPERIMENTAL)
+httplog client
 HTTPLOG_SUPPORT
   Depends on:
    * TCP protocol support (TCP_SUPPORT)
    * DNS protocol (DNS_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
   and in case you want to include unix time stamps:
    * Date and Time support (CLOCK_DATETIME_SUPPORT)
 
@@ -1915,12 +2085,11 @@ CONF_HTTPLOG_INCLUDE_UUID
 
   For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
 
-Twitter/identi.ca client (EXPERIMENTAL)
+Twitter/identi.ca client
 TWITTER_SUPPORT
   Depends on:
    * TCP support (TCP_SUPPORT)
    * DNS support (DNS_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
  For Twitter valid values are:
    Service: "twitter.com"
@@ -1931,21 +2100,6 @@ TWITTER_SUPPORT
   the .config-File!
 
 
-Buttons Input
-BUTTONS_INPUT_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-
-  Button Input adds hook functions to be called by other parts
-  of ethersex without specific knowledge of the selected
-  input device.
-
-
-Number of buttons
-CONF_NUM_BUTTONS
-
-  Set the desired number of buttons you need.
-
 External SRAM support
 SRAM_SUPPORT
   Depends on:
@@ -1953,35 +2107,33 @@ SRAM_SUPPORT
   Add SRAM support for exteral RAM ICs. This will allow to
   expand the RAM and HEAP.
 
-  More details at http://ethersex.de/index.php/SRAM
+  More details at http://old.ethersex.de/index.php/SRAM
 
 Perform memory test when starting
 SRAM_MEMTEST_ON_BOOT
 
   Perform a memory test at ethersex boot time.
 
-Jabber (EXPERIMENTAL)
+Jabber
 ECMD_JABBER_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * Jabber Client (JABBER_SUPPORT)
 
   Enable support for ECMD via Jabber.
 
-ECMD (Etherrape Control Interface) support
+ECMD (Ethersex Command) support
 ECMD_PARSER_SUPPORT
   Depends on:
 
   Ethersex COmanD = ECMD is a kind of i/o interface.
   More details at http://ethersex.de/index.php/ECMD
 
-IRC (EXPERIMENTAL)
+IRC
 ECMD_IRC_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
-   * IRC client (EXPERIMENTAL) (IRC_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
+   * IRC client (IRC_SUPPORT)
 
   Add IRC support for ECMD. This enables to control your
   ethersex device via IRC chat protocol.
@@ -1989,7 +2141,7 @@ ECMD_IRC_SUPPORT
 SMS
 ECMD_SMS_SUPPORT
   Depends on:
-   * ECMD (Etherrape Control Interface) support (ECMD_PARSER_SUPPORT)
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * SMS Support (SMS_SUPPORT)
 
   Send and receive ECMD via Short Message Service.
@@ -1997,20 +2149,18 @@ ECMD_SMS_SUPPORT
 I2C to UDP Gateway
 I2C_UDP_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
 UDP/IP Gateway to transport I2C over IP. The default is port is 8995
 
-Bulbdial Clock (EXPERIMENTAL)
+Bulbdial Clock
 BULBDIAL_SUPPORT
   Depends on:
    * System clock support (CLOCK_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   A bulbdial clock displays the current time via lightsources or its shadow.
-  More details at http://ethersex.de/index.php?title=Bulbdial_Clock
+  More details at http://old.ethersex.de/index.php/Bulbdial_Clock
 
 Wake on Lan (WOL)
 WOL_SUPPORT
@@ -2047,7 +2197,7 @@ Ultrasonic Debug
 DEBUG_ULTRASONIC
   Depends on:
    * Enable Debugging (DEBUG)
-   * Ultrasonic (EXPERIMENTAL) (ULTRASONIC_SUPPORT)
+   * Ultrasonic (ULTRASONIC_SUPPORT)
 
   Ultrasonic sensor with 2 modes.
 
@@ -2073,15 +2223,14 @@ VNC_SUPPORT
    * TCP support (TCP_SUPPORT)
 
   Ethersex is running a server application for virtual network
-  computing. see http://ethersex.de/index.php/VNC for more details.
+  computing. see http://old.ethersex.de/index.php/VNC for more details.
 
-uPnP (EXPERIMENTAL)
+uPnP
 UPNP_SUPPORT
   Depends on:
    * UDP support (UDP_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  Universal Plug and Play. see http://ethersex.de/index.php/UPnP
+  Universal Plug and Play. see http://old.ethersex.de/index.php/UPnP
 
 Motor Curtain
 MOTORCURTAIN_SUPPORT
@@ -2089,7 +2238,7 @@ MOTORCURTAIN_SUPPORT
    * UDP support (UDP_SUPPORT)
 
   Control a motor curtain or simillar devices. see
-  http://ethersex.de/index.php/MotorCurtain
+  http://old.ethersex.de/index.php/MotorCurtain
 
 Message of the day (MOTD)
 MOTD_SUPPORT
@@ -2119,17 +2268,14 @@ CW_SUPPORT
 
 DMX Support
 DMX_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
-  please see http://ethersex.de/index.php/DMX
+  please see http://old.ethersex.de/index.php/DMX
 
-MySQL client (EXPERIMENTAL)
+MySQL client
 MYSQL_SUPPORT
   Depends on:
    * TCP support (TCP_SUPPORT)
    * SHA1 (SHA1_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Basic MySQL support to connect to a MySQL server and send simple
   statements.
@@ -2137,18 +2283,15 @@ MYSQL_SUPPORT
   Please note ECMD is limited to 50 chars.
 
 
-Ultrasonic (EXPERIMENTAL)
+Ultrasonic
 ULTRASONIC_SUPPORT
-  Depends on:
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
 
   Support for ultrasonic distance sensors such as the SRF05.
 
 SRF05
 SRF05_SUPPORT
   Depends on:
-   *  (UTRASONIC_SUPPORT)
-   * Prompt for experimental code (CONFIG_EXPERIMENTAL)
+   * Ultrasonic(UTRASONIC_SUPPORT)
 
   A simple time based ultrasonic sensor. Ethersex measures the
   ping time and calculates the distance in centimeter.
@@ -2173,7 +2316,6 @@ MOTD_INLINE_SUPPORT
 Inline RFM12
 RFM12_INLINE_SUPPORT
   Depends on:
-   * RFM12 ASK (EXPERIMENTAL) (RFM12_ASK_SUPPORT)
    * VFS File Inlining (VFS_INLINE_SUPPORT)
 
   This page is only needed and helpful for RFM12 ASK support.
@@ -2182,7 +2324,7 @@ RFM12_INLINE_SUPPORT
 Inline I2C
 I2C_INLINE_SUPPORT
   Depends on:
-   * I2C Master Support (EXPERIMENTAL) (I2C_MASTER_SUPPORT)
+   * I2C Master Support (I2C_MASTER_SUPPORT)
    * VFS File Inlining (VFS_INLINE_SUPPORT)
 
   Example page for I2C (TWI) chips, such as temperature sensor or
@@ -2225,7 +2367,7 @@ Inline CW
 CW_INLINE_SUPPORT
   Depends on:
    * VFS File Inlining (VFS_INLINE_SUPPORT)
-   * Morse Code (EXPERIMENTAL) (CW_SUPPORT)
+   * Morse Code (CW_SUPPORT)
 
   Simple page to enter strings which will be converted to morse.
   Output is the desired CW pin.
@@ -2237,16 +2379,762 @@ SFS_PAGE_SIZE
  Pagesize * Pagecount must match the size of your EEPROM
 
 SFS_PAGE_COUNT
- 
+
  Count of the pages in total.
  Pagesize * Pagecount must match the size of your EEPROM
 
 Use external modulator for sender
 IRMP_EXTERNAL_MODULATOR
-  Depends on: 
+  Depends on:
    * Send IR-codes (IRMP_TX_SUPPORT)
 
   An external modulator, i.e. NE555 on the etherrape board, is used to
   modulate the infrared signal. Connect it to the pin assigned to
   IRMP_TX in pinning/hardware/<your_hardware>.
+
+Netio Addon Workaround
+SD_NETIO_ADDON_WORKAROUND
+  Depends on:
+
+  Work around a bad hardware design of the Pollin Netio Addon board.
+  This board uses resistores to adjust voltage levels, so the SD card
+  is enabled even when the chip enable pin is in tristate mode.
+
+DALI light control
+DALI_SUPPORT
+  Depends on:
+
+  Enable code to control lighting via the DALI bus
+  (Digital Addressable Lighting Interface)
+
+DMX Storage
+DMX_STORAGE_SUPPORT
+  Depends on:
+
+  Part of the Ethersex Lighting Architecture
+
+  DMX Storage stores and manages DMX universes and provides routines for accessing the data with other modules.
+  Each of these modules can connect using a slot - so make sure that you have sufficient slots for each universe and each module!
+STARBURST_SUPPORT
+  Depends on:
+   * DMX Storage (DMX_STORAGE_SUPPORT)
+
+  Part of the Ethersex Lighting Architecture
+
+  Starburst manages different external PWM controllers which display data provided by DMX Storage.
+STARBURST_PCA9685
+  Depends on:
+  * I2C_PCA9685_SUPPORT
+  * STARBURST_SUPPORT
+
+  Module for Starburst which controls a NXP pca9685 (12-bit pwm 16-Channel). The dmx layout is as follows:
+  ccccmmmm....s
+  m=mode (see starburst.h for available modes)
+  c=channel value (0-255)
+  s=strobo s Hz (optional, see STARBURST_PCA9685_STROBO)
+
+STARBURST_PCA9685_ADDRESS
+  The i2c address of your chip
+STARBURST_PCA9685_PRESCALER
+  Prescaler for pwm (default is 30)
+STARBURST_PCA9685_EXTDRV
+  See datasheet
+STARBURST_PCA9685_IVRT
+  See datasheet
+STARBURST_PCA9685_STROBO
+  if you have the output enable pin connected to the avr you can use strobo effects (for all channels)
+
+LOME6
+LOME6_SUPPORT
+  Depends on:
+  * TCP (TCP_SUPPORT)
+  * ECMD (ECMD_PARSER_SUPPORT)
+  * Working hour meter (WHM_SUPPORT)
+
+  Integrated server lights out management using ethersex
+  architecture.
+  Documentation is available in services/lome6/doc
+  GUI source (Qt4) is available in services/lome6/lome6-gui
+
+
+Onewire Polling
+ONEWIRE_POLLING_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
+
+  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY seconds.
+  After the discovery, new sensors will be added to the list and old/defect sensors
+  will be removed from the list.
+  Each sensor discovered will then be polled every OW_READ_DELAY seconds and the temperature
+  stored (cached). The advantage of this feature is that onewire opererates without
+  any noticeable lags compared to the 800 ms lag in normal operation mode. Also it is easier to have
+  multiple applications requesting sensor information since more request will not increase traffic on the
+  onewire bus.
+  The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY).
+
+
+ECMD 1w list with values
+ONEWIRE_ECMD_LIST_VALUES_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+
+  Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
+  value for each sensor. Fields are separated by tab.
+
+
+ECMD 1w list with power mode
+ONEWIRE_ECMD_LIST_POWER_SUPPORT
+  Depends on: 
+   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
+
+  Show the power mode of each onewire node on "1w list" command. Fields are separated by tab.
+  0: parasitic powered
+  1: non-parasitic powered
+
+
+Onewire naming support
+ONEWIRE_NAMING_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Enable mapping of onewire rom addresses to names. Mapping table is stored in EEPROM and could be edited
+  by ECMD commands:
+
+  1w name list: Show current mapping table
+  1w name set ID DEVICE NAME: Set table row ID to rom address DEVICE and name NAME
+  1w name clear ID: Clear table row ID
+  1w name save: Write current mapping table to EEPROM
+
+  "1w list" shows the rom addresses together with the names (separated by tab).
+
+  Number of table rows is defined by "Maximum sensor count" (OW_SENSORS_COUNT).
+
+
+Onewire SNMP support
+ONEWIRE_SNMP_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
+   * SNMP Support (SNMP_SUPPORT)
+
+  Make the onewire values (currently only temperature) available via SNMP. The main OID is
+  .1.3.6.1.4.1.39967.3.
+
+  Sub-OIDs:
+  .1.3.6.1.4.1.39967.3.1.<ID>: rom address
+  .1.3.6.1.4.1.39967.3.2.<ID>: mapped name (with ONEWIRE_NAMING_SUPPORT)
+  .1.3.6.1.4.1.39967.3.3.<ID>: temperature value
+  .1.3.6.1.4.1.39967.3.4.<ID>: last discovery state (0 = absent, 1 = present)
+
+  ID corresponds with the ID of the name mapping table.
+
+
+Time between discoveries in 0.8s steps
+OW_DISCOVER_DELAY
+
+  Time between discoveries of new sensors. 1 unit is 0.8s.
+  Example:
+  Input 750 will lead to a discovery every 10 minutes.
+
+Time between polling in 0.8s steps
+OW_READ_DELAY
+
+  Time between polling for new temperatures. 1 unit is 0.8s.
+  Example:
+  Input 75 will lead to a temperature update-rate of 1 minute.
+
+  Please adjust this value if you need more precise data (e.g. climate cabinet).
+  It should be save to go down to 5 seconds (~ 6 units)
+
+Maximum sensor count
+OW_SENSORS_COUNT
+
+  How many sensors you expect in your setup. Make sure this value is high enough!
+
+Frequency counter
+FREQCOUNT_SUPPORT
+  Incompatible with:
+   * CLOCK_CPU_SUPPORT
+
+  If enabled, the frequency on the ICP1 pin is constantly sampled and stored in a
+  variable. It can then be retrieved with code or ECMD.
+  Frequencies can be from 2 Hz to about 50 CPU cycles to be sampled correctly
+
+Channels
+FREQCOUNT_CHANNELS
+  Number of channels the frequency counter works on. Multiple channels are multiplexed
+  with one or more 74xx251 ICs.
+
+Average over samples
+FREQCOUNT_AVERAGE
+
+  To improve the accuracy of the frequency counter it uses averaging. Enter the number
+  of samples you want to average over. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
+  code size and improve execution speed.
+
+Optimize for frequencies >300 Hz
+FREQCOUNT_NOSLOW_SUPPORT
+
+  Disable support for frequencies lower than F_CPU / 65535. This is about 305 Hz at
+  20 MHz. This saves memory, reduces cpu load and increases the maximum frequency
+  that can be sampled reliably.
+
+Duty cycle sampling
+FREQCOUNT_DUTY_SUPPORT
+
+  Not only detect the frequency of a signal, but also measure the part of the signal
+  that has a high level. Useful for measuring PWM values. Frequency and duty cycle
+  are measured in two consecutive waves. This means you can not measure duty cycle
+  when the frequency is changing significantly.
+
+Additional moving average
+FREQCOUNT_MOVING_AVERAGE_SUPPORT
+
+  This adds a moving average on top of the regular averaging. It takes the results
+  from the regular averaging and stores them in a moving average buffer. The depth
+  of this buffer is defined with FREQCOUNT_MOVING_AVERAGE_SIZE.
+
+Moving average samples
+FREQCOUNT_MOVING_AVERAGE_SIZE
+
+  Number of samples for frequency (and duty cycle if enabled) the moving average
+  buffer should be able to keep. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
+  code size and improve execution speed.
+
+All channels active on boot
+FREQCOUNT_BOOT_ON
+
+  Usually you have to enable each frequency counter channel with "fc on [channel]"
+  before you can read out data. With this option set all channels are automatically
+  enabled on bootup.
+
+DMX FXSlot
+DMX_FXSLOT_SUPPORT
+  Depends on:
+  * DMX Storage (DMX_STORAGE_SUPPORT)
+
+  Architecture to set effects and animations on different DMX-devices.
+  You can change following properties during runtime:
+  - active /inactive
+  - effect
+  - speed
+  - amount of devices
+  - start channel of devices
+  - margin between the devices
+DMX_FXSLOT_AMOUNT
+  Amount of fxslots available during runtime
+DMX_FX_RAINBOW
+  fade over RGB (for RGB LEDs)
+DMX_FX_RANDOM
+  Random colors (for RGB LEDs)
+DMX_FX_FIRE
+  fire effect (for RGB LEDs).
+  Tip: use with speed 2
+DMX_FX_WATER
+  not implemented yet
+
+Autosave slots
+DMX_FXSLOT_AUTOSAVE_SUPPORT
+
+  If enabled, the fxslots will be saved to EEPROM whenever altered through ECMD.
+
+Automatically restore slots
+DMX_FXSLOT_AUTORESTORE_SUPPORT
+
+  If enabled, ethersex will restore previously saved fxslots from EEPROM during boot.
+
+FS20
+RFM12_ASK_FS20_SUPPORT
+  Depends on:
+   * RFM12 frequency (RFM12_FREQ_868300)
+   * RFM12 ASK (RFM12_ASK_SUPPORT)
+   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+
+  Send FS20 commands.
+
+  RFM12 frequency has to be set to 868.300MHz.
+
+  FS20 on the air protokoll is described here
+  http://fhz4linux.info/tiki-index.php?page=FS20+Protocol
+
+
+FHT
+RFM12_ASK_FHT_SUPPORT
+  Depends on:
+   * RFM12 frequency (RFM12_FREQ_868300)
+   * RFM12 ASK (RFM12_ASK_SUPPORT)
+   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+   * FS20 (RFM12_ASK_FS20_SUPPORT)
+
+  Send FHT commands.
+
+  RFM12 frequency has to be set to 868.300MHz.
+
+  FHT on the air protokoll is described here
+  http://fhz4linux.info/tiki-index.php?page=FHT+protocol
+
+Pollin/Kangtai Powerswitch (IC 2272)
+RFM12_ASK_2272_SUPPORT
+  Depends on:
+   * RFM12 frequency (RFM12_FREQ_433920)
+   * RFM12 ASK (RFM12_ASK_SUPPORT)
+   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+
+  Several hardware stores and Pollin also distribute a so-called
+  Funkschaltset consisting of a wireless remote control and radio
+  outlets 3-5.
+
+  The sockets are configurable via ten dipswitches. The remote control
+  house code can be set via DIP five switches. This code is taken from
+  the outlets. The remaining five dip switches are then available for
+  the five different outlets
+
+  RFM12 frequency has to be set to 422.920MHz..
+
+Start month (1-12)
+DST_BEGIN_MONTH
+
+  This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
+  month m (1 <= m <= 12).  Week 1 is the first week in which day d
+  occurs and week 5 is the last week in which day d occurs.  Day 0
+  is a Sunday.
+
+Start week (1-5)
+DST_BEGIN_WEEK
+
+  This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
+  month m (1 <= m <= 12).  Week 1 is the first week in which day d
+  occurs and week 5 is the last week in which day d occurs.  Day 0
+  is a Sunday.
+
+Start day of week (0-6)
+DST_BEGIN_DOW
+
+  This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
+  month m (1 <= m <= 12).  Week 1 is the first week in which day d
+  occurs and week 5 is the last week in which day d occurs.  Day 0
+  is a Sunday.
+
+End month (1-12)
+DST_END_MONTH
+
+  This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
+  month m (1 <= m <= 12).  Week 1 is the first week in which day d
+  occurs and week 5 is the last week in which day d occurs.  Day 0
+  is a Sunday.
+
+End week (1-5)
+DST_END_WEEK
+
+  This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
+  month m (1 <= m <= 12).  Week 1 is the first week in which day d
+  occurs and week 5 is the last week in which day d occurs.  Day 0
+  is a Sunday.
+
+End day of week (0-6)
+DST_END_DOW
+
+  This specifies day d (0 <= d <= 6) of week w (1 <= w <= 5) of
+  month m (1 <= m <= 12).  Week 1 is the first week in which day d
+  occurs and week 5 is the last week in which day d occurs.  Day 0
+  is a Sunday.
+
+Serial RAM support
+SER_RAM_SUPPORT
+  Depends on:
+
+  Enables support for serial interfaced RAM chips (connected via SPI, I2C
+  or other serial interface).
+
+Microchip 23K256 SPI-RAM support
+SER_RAM_23K256_SUPPORT
+  Depends on:
+   * Serial RAM support (SER_RAM_SUPPORT)
+
+  The Microchip 23K256 serial RAM chip provides 32kB RAM and is
+  connected via SPI.
+
+Perform RAM Test on startup
+SER_RAM_23K256_RAMTEST
+  Depends on:
+   * Debug 23K256 (DEBUG_SER_RAM_23K256)
+
+  Performs a RAM test during start up of ethersex. The whole RAM is written
+  then read out and compared with was was written before.
+
+I2C PCA9555 16bit Port extension
+I2C_PCA9555_SUPPORT
+  Depends on:
+   * I2C Master Support (I2C_MASTER_SUPPORT)
+
+  Enables support for the PCA9555 16-bit I2C Port extension
+
+Input Universe
+CONF_ARTNET_INUNIVERSE
+
+  Which universe will be broadcasted whenever a change occurs.
+
+Output Universe
+CONF_ARTNET_OUTUNIVERSE
+
+  Which universe will be updated by an ArtNet controller.
+  (e.g. you want your PC to update Universe 1 on the ethersex
+  device)
+
+UDP Port
+CONF_ARTNET_PORT
+
+  on which UDP port ethersex listens for artnet data
+
+Art-Net Node
+ARTNET_SUPPORT
+  Depends on:
+   * DMX Storage (DMX_STORAGE_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+   * NET_MAX_FRAME_LENGTH > 571
+
+  Artnet needs at least a 572 byte network buffer to work. You can set the buffer size
+  in "Network -> Network Buffer Size".
+
+Buffer Length
+HTTPLOG_BUFFER_LEN
+
+  The len for the internal buffer used for HTTPLOG strings. This
+  buffer is dynamicallay allocated for each request.
+
+Backlight support
+HD44780_BACKLIGHT_SUPPORT
+
+  Backlight support for HD44780 LCD with direct connection.
+
+Tank level meter
+TANKLEVEL_SUPPORT
+  Depends on:
+   * Clock Support (CLOCK_SUPPORT)
+   * ADC voltage suppot (ADC_VOLTAGE_SUPPORT)
+
+  This provides an application for measurement of tank levels by hydrostatic pressure.
+  You need an aquarium air pump, some kind of pipe/tube, a Freescale MPX5050DP
+  pressure sensor and an relay for the pump. Parameters are configurable by ECMD
+  and stored in EEPROM.
+
+  ECMD commands:
+
+    tank param show : show current parameter settings
+    tank param set PARAM VALUE : set tank parameter
+      sensor_offset : zero offset of the pressure sensor
+      med_density : medium density in g/ltr (default of 840 for fuel oil)
+      ltr_per_m : Ltr per meter tank level
+      ltr_full : Tank capacity in ltr
+      raise_time : Pump time (in 1/50 secs)
+      hold_time : Hold time before measurement (in 1/50 secs)
+    tank param save : write tank parameter to EEPROM
+    tank zero : probe sensor zero offset
+    tank start : start measurement
+    tank get : get last value
+
+  Mechanical setup:
+
+                           +-------+
+                           |Sensor |
+                           +---+---+
+                               | +--------+
+               +---------------+-+  Pump  |
+               |                 +--------+
+        +------+------+
+        |      |      |
+        |      |      |
+        |~~~~~~|~~~~~~|
+        |      |      |
+        |      |      |
+        |      |      |
+        +-------------+
+             Tank
+
+  Electrical setup:
+
+    Electrical Setup is quite simple. Connect the TANK_PUMP port with an relay
+    (usually via an Transistor as current amp) and the output of the Sensor
+    with the selected ADC channel (have a look at the datasheet for power supply
+    decoupling and output filtering). Select a optimal Vref for the ADC if
+    possible.
+
+ADC channel
+TANKLEVEL_ADC_CHANNEL
+
+  ADC channel that is connected to the MPX5050DP pressure sensor.
+
+Measure on system startup
+TANKLEVEL_STARTUP
+
+  Start initial measurement at system startup.
+
+Measure at 12 am and 12 pm
+TANKLEVEL_CRON_SUPPORT
+  Depends on:
+   * Static Cron Support (CRON_SUPPORT)
+
+  Start measurement at fixed time. Can be changed in services/cron/cron_static.c.
+
+Inverted pump output
+TANKLEVEL_PUMP_ACTIVE_LOW
+
+  Output pin for pump is inverted.
+
+Check lock input
+TANKLEVEL_LOCK_SUPPORT
+
+  Check lock pin before measurement and wait if needed.
+  This is used to delay the measurement e.g. if the oil burner is running.
+
+Inverted lock input
+TANKLEVEL_LOCK_ACTIVE_LOW
+
+  Lock input pin is inverted.
+
+Inline tank level
+TANKLEVEL_INLINE_SUPPORT
+  Depends on:
+   * VFS File Inlining (VFS_INLINE_SUPPORT)
+   * Tank level meter (TANKLEVEL_SUPPORT)
+
+  Inline a page to query the tank level.
+
+Default zero offset of the pressure sensor (in mV)
+TANKLEVEL_SENSOR_OFFSET
+
+  Zero offset of the pressure sensor (in mV). Can be changed at runtime via
+  ECMD command "tank param set sensor_offset VALUE" and stored in EEPROM.
+
+Default medium density (in g/ltr)
+TANKLEVEL_MED_DENSITY
+
+  Medium density (in g/ltr). Can be changed at runtime via
+  ECMD command "tank param set med_density VALUE" and stored in EEPROM.
+
+Default ltr per meter tank level
+TANKLEVEL_LTR_PER_M
+
+  Ltr per meter tank level. Can be changed at runtime via
+  ECMD command "tank param set ltr_per_m VALUE" and stored in EEPROM.
+
+Default tank capacity (in ltr)
+TANKLEVEL_LTR_FULL
+
+  Tank capacity (in ltr). Can be changed at runtime via
+  ECMD command "tank param set ltr_full VALUE" and stored in EEPROM.
+
+Default pump on time (in 1/50 secs)
+TANKLEVEL_RAISE_TIME
+
+  Pump on time (in 1/50 secs). Can be changed at runtime via
+  ECMD command "tank param set raise_time VALUE" and stored in EEPROM.
+
+Default hold time before measurement (in 1/50 secs)
+TANKLEVEL_HOLD_TIME
+
+  Hold time before measurement (in 1/50 secs). Can be changed at runtime via
+  ECMD command "tank param set hold_time VALUE" and stored in EEPROM.
+
+Buderus EMS Support
+EMS_SUPPORT
+  Depends on:
+   * TCP support (TCP_SUPPORT)
+
+  Enable TCP gateway code for Buderus EMS heating bus. It translates EMS
+  on USART1 to ethernet data.
+
+  Incoming data packets are framed as
+  <0xaa>, <0x55>, <len>, <data>, <running xor over data>. <Data> includes
+  both sender and destination address, but EMS checksum is stripped.
+
+  Outgoing data is expected to be sent over TCP as it should be sent out,
+  source address and EMS checksum should be omitted.
+
+  EMS ACK and NACK bytes are sent to the client as a (fake) data packet
+  with source = <last TX destination>, dest = PC (0x0b), type = 0xff,
+  data = (N)ACK (1 byte, ACK = 0x01, NACK = 0x04).
+
+Statistics ECMD
+EMS_DEBUG_STATS
+  Depends on:
+   * ECMD support (ECMD_PARSER_SUPPORT)
+
+  Enable ECMD 'ems stats' that shows statistical information about EMS
+  traffic (number of bytes, number of packets etc.).
+
+Buttons Input
+BUTTONS_INPUT_SUPPORT
+
+  Buttons Input adds hook functions to be called by other parts of ethersex
+  without specific knowledge of the selected input device.
+  Delivers some high level functionality like debouncing, long presses and
+  repeats.
+
+  This driver uses the E6 hook mechanism to notify of events. (see hook.def
+  for details)
+  To get notified in your application of a button press:
+  1) #include "buttons.h"
+
+  2) Define a handler function in your application:
+      void hook_button_handler(buttons_ButtonsType button, uint8_t status) {
+        debug_printf("Button %d Status: %d\n",button, status);
+      }
+
+  3) Register it for callback (in the Init Function of your app):
+      hook_buttons_input_register(hook_buttons_handler);
+
+      Upon a button press, the function will be called with the following
+      parameters:
+      button           = The button that was pressed.
+      status           = One of the following values:
+        BUTTON_PRESS     = Button was pressed
+                           <CONF_BUTTONS_DEBOUNCE_TIME> * 20ms (default: 80ms)
+        BUTTON_LONGPRESS = Button was pressed for
+                           <CONF_BUTTONS_LONGPRESS_TIME> * 20ms (default: 2s)
+        BUTTON_REPEAT    = Button was pressed for
+                           <CONF_BUTTONS_REPEAT_DELAY> * 20ms (default 3.5s),
+                           this event is then repeated every
+                           <CONF_BUTTONS_REPEAT_RATE> * 20ms (default 0.5s)
+                           until the button is released.
+        BUTTON_RELEASE   = Button released.
+
+Use internal pullups
+CONF_BUTTONS_USE_PULLUPS
+
+  Enable the internal weak pullup resistors of the controller.
+
+Button active level
+CONF_BUTTONS_LEVEL_HIGH
+
+  Choose high or low active inputs
+
+Debounce delay (x * 20 ms)
+CONF_BUTTONS_DEBOUNCE_DELAY
+
+  Configures the delay (x * 20ms) the driver waits until it considers the
+  state of a button stable. Increase this value if bouncing effects appear.
+
+Longpress delay (x * 20 ms)
+CONF_BUTTONS_LONGPRESS_DELAY
+
+  Configures the delay (x * 20ms) the button must be pressed until a longpress
+  event (the button is pressed for a longer time) is generated.
+
+Enable repeat
+CONF_BUTTONS_USE_REPEAT
+
+  Enables the repeat functionality
+
+Repeat delay
+CONF_BUTTONS_REPEAT_DELAY
+
+  Configures the delay (x * 20ms) the button must be pressed until the first
+  repeat event is generated
+
+Repeat rate
+CONF_BUTTONS_REPEAT_RATE
+
+  Configures the time (x * 20ms) between continous repeat events are
+  generated.
+
+Eltako MultiSensor
+ELTAKOMS_SUPPORT
+  The Elsner / Eltako MultiSensor is a outdoor sensor device that is able to 
+  measure wind (without moving parts) [m/s], temperature [°C], rain [yes/no],
+  sun intensity [klux] from 3 directions, obscurity [lux] and darkness 
+  [yes/no]. There is an option for a DCF77 receiver.
+
+  All this data is sent once per second at 19200bps 8N1 on a RS485 connection.
+  The device needs a 24V 150mA power supply. The ethersex hardware needs a
+  RS485 level shifter connected to one of its USARTs. You may need to define a
+  pin in your hardware description where the transmit enable of the RS485 is
+  defined (RS485TE_USART0 / RS485TE_USART1).    
+
+  The ECMD command "weather" returns a datagram like this if valid data was
+  received within the last 10 seconds:
+     t+076 s01 w63 e00 o d999 v012 r
+  
+  t+076 : Temperature in °C * 10 (-30 - +50 °C) -> +7.6°C
+  s01   : Sunlight from south in klux (0 - 99 klux) -> 1klux
+  w63   : Sunlight from west in klux (0 - 99 klux) -> 63klux
+  e00   : Sunlight from east in klux (0 - 99 klux) -> 0klux
+  o     : Darkness/obscurity (o: day - O: night <11lux)
+  d     : Dawning (0 - 999 lux) -> max
+  v012  : Wind in m/s * 10 (0 - 99 m/s) -> 1.2m/s
+  r     : Rain (r: no rain - R: rain)
+
+  datasheets:
+  http://www.elsner-elektronik.de/uploads/tx_bmproducts/P033-RS485_DataSheet_EN_01.pdf
+  http://www.eltako.com/fileadmin/downloads/en/datasheets/H_datasheet_MS.pdf
+  
+  http://www.eltako.com/fileadmin/downloads/de/Datenblatt/H_datenblatt_MS.pdf
+  http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_4801_internet_dtsch.pdf
+  http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_20000084-1_dt_internet.pdf
+
+  pinout:  (1): +24V;  (2): 0V;  (A): RS485A;  (B):RS485B
+
+  A datagram looks like this: W+07.6016300N99901.2N?151515151515?1889
+   # char              meaning
+   0 W                 Weather data start
+   1 Temp Sign         Temperature sign - / +
+   2 Temp 1st digit    Temperature 1st digit (tens) in °C
+   3 Temp 2nd digit    Temperature 2nd digit (ones)
+   4 Temp Point        Temperature decimal point
+   5 Temp 3rd digit    Temperature 3rd digit (tenth)
+   6 SunS 1st digit    Sun South 1st digit (tens)
+   7 SunS 2nd digit    Sun South 2nd digit (ones)
+   8 SunW 1st digit    Sun West 1st digit (tens)
+   9 SunW 2nd digit    Sun West 2nd digit (ones)
+  10 SunE 1st digit    Sun East 1st digit (tens) 
+  11 SunE 2nd digit    Sun East 2nd digit (ones)
+  12 TwiL              Twilight: J: <=10 lux; N: >10 lux
+  13 DayL 0-999Lx      Daylight (1st digit hundreds)
+  14 DayL 0-999Lx      Daylight (2nd digit tens)
+  15 DayL 0-999Lx      Daylight (3rd digit ones)
+  16 Wind 1st digit    Wind 1st digit (tens) in m/s
+  17 Wind 2nd digit    Wind 2nd digit (ones)
+  18 Wind Point        Wind decimal point
+  19 Wind 3rd digit    Wind 3rd digit (tenth)
+  20 Rain              J: rain;  N: no rain
+  21 Weekday 1-7?      Weekday: 1...7: Mo...Su ?: no DCF77 reception
+  22 Day 1st digit     Day 1st digit (tens)
+  23 Day 2nd digit     Day 2nd digit (ones)
+  24 Month 1st digit   Month 1st digit (tens)
+  25 Month 2nd digit   Month 2nd digit (ones)
+  26 Year 1st digit    Year 1st digit (tens)
+  27 Year 2nd digit    Year 2nd digit (ones)
+  28 Hour 1st digit    Hour 1st digit (tens)
+  29 Hour 2nd digit    Hour 2nd digit (ones)
+  30 Minute 1st digit  Minute 1st digit (tens)
+  31 Minute 2nd digit  Minute 2nd digit (ones)
+  32 Second 1st digit  Second 1st digit (tens)
+  33 Second 2nd digit  Second 2nd digit (ones)
+  34 Summertime        J: Summertime;  N: Wintertime;  ?: no DCF77 reception
+  35 Checksum          Checksum 1st digit (thousands) 
+  36 Checksum          Checksum 2nd digit (hundreds)
+  37 Checksum          Checksum 3rd digit (tens)
+  38 Checksum          Checksum 4th digit (ones)
+  39 0x03              End
+
+Hooks
+ONEWIRE_HOOK_SUPPORT
+  Depends on: 
+   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
+
+  Support for callback hooks. For details see hook.def in the top directory.
+
+MBR support
+MBR_SUPPORT
+
+  This writes a tiny master boot record into the internal EEPROM.
+  When booting, the bootloader will read the MBR from EEPROM and will continue
+  immediately to the main application if the previously flashed image reaches
+  the main loop.
+  It will however delay the application for CONF_BOOTLOAD_DELAY seconds if
+  the flashed image does not reach the main loop or if the user has invoked
+  'bootloader' via ECMD.
+  This gives the user some time to upload a new image via TFTP.
 

@@ -1,11 +1,11 @@
 /* Name: usbdrvasm15.inc
- * Project: AVR USB driver
+ * Project: V-USB, virtual USB port for Atmel's(r) AVR(r) microcontrollers
  * Author: contributed by V. Bosch
  * Creation Date: 2007-08-06
  * Tabsize: 4
  * Copyright: (c) 2007 by OBJECTIVE DEVELOPMENT Software GmbH
  * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
- * Revision: $Id: usbdrvasm15.inc 692 2008-11-07 15:07:40Z cs $
+ * Revision: $Id$
  */
 
 /* Do not link this file! Link usbdrvasm.S instead, which includes the

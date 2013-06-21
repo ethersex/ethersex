@@ -16,8 +16,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-#ifndef HOST_EEPROM_H
-#define HOST_EEPROM_H
+#ifndef HOST_AVR_EEPROM_H
+#define HOST_AVR_EEPROM_H
 
 #include <stdint.h>
 
@@ -32,4 +32,4 @@ extern uint8_t eeprom_data[EEPROM_SIZE];
 void eeprom_host_init (void);
 void eeprom_host_exit (void);
 
-#endif	/* HOST_EEPROM_H */
+#endif	/* HOST_AVR_EEPROM_H */

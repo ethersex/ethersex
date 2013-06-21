@@ -442,7 +442,7 @@ void tx_start(uint8_t len) {
 }
 
 #ifndef SOFT_UART_SUPPORT
-SIGNAL(usart(USART,_TX_vect)) {
+ISR(usart(USART,_TX_vect)) {
   if (buffer.sent < buffer.len) {
     usart(UDR) = buffer.data[buffer.sent++];
   } else {
@@ -514,7 +514,7 @@ void mcuf_show_clock(uint8_t clockswitch) {
   else
     blp_toc=21;
 
-  struct clock_datetime_t date;
+  clock_datetime_t date;
   clock_current_localtime(&date);
 #ifdef MCUF_SCROLLTEXT_SUPPORT
   if (mcuf_scrolltext_buffer.tomove == 0) {

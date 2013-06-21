@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2012 by Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,76 +23,283 @@
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include <stdlib.h>
+#include <string.h>
 #include "config.h"
-#include "protocols/uip/uip.h"
-#include "protocols/uip/uip_router.h"
 #include "core/debug.h"
 #include "core/bit-macros.h"
 #include "services/clock/clock.h"
-#include "snmp_net.h"
 #include "snmp.h"
 
+#ifdef ADC_SUPPORT
+#include "hardware/adc/adc.h"
+#endif
+
+#ifdef ONEWIRE_SNMP_SUPPORT
+#include "hardware/onewire/onewire.h"
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+#include "services/tanklevel/tanklevel.h"
+#endif
 
 #ifdef SNMP_SUPPORT
 
-#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
+/**********************************************************
+ * helper functions 
+ **********************************************************/
 
-#ifdef WHM_SUPPORT
+#define TIMESTAMP_TEXT_FORMAT "%02d.%02d.%04d %02d:%02d:%02d"
+#define TIMESTAMP_TEXT_LENGTH 20
+
 uint8_t
-uptime_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+encode_short(uint8_t * ptr, uint8_t type, uint16_t val)
 {
-  uint32_t seconds = clock_get_time() - clock_get_startup();
-  /* This long long (uint64_t) hack is necessary, because it seems to be, that
-   * seconds = seconds * 100 doesn't work at all
-   */
-  seconds = seconds * 100LL;
-  uint32_t *time_ptr = (void *) ptr + 2;
+  ptr[0] = type;
+  ptr[1] = 2;
+  ptr[2] = HI8(val);
+  ptr[3] = LO8(val);
+  return 4;
+}
 
-  ptr[0] = 0x43;
+uint8_t
+encode_long(uint8_t * ptr, uint8_t type, uint32_t val)
+{
+  ptr[0] = type;
   ptr[1] = 4;
-  *time_ptr = HTONL((uint32_t)seconds);
-
+  *((uint32_t *) (ptr + 2)) = HTONL(val);
   return 6;
+}
+
+uint8_t
+encode_timeticks(uint8_t * ptr, timestamp_t ts)
+{
+  return encode_long(ptr, SNMP_TYPE_TIMETICKS, ts * 100L);
+}
+
+uint8_t
+encode_timestamp_text(uint8_t * ptr, timestamp_t ts)
+{
+  clock_datetime_t dt;
+
+  memset(&dt, 0, sizeof(dt));
+  clock_localtime(&dt, ts);
+  ptr[0] = SNMP_TYPE_STRING;
+  ptr[1] = snprintf_P((char *) (ptr + 2),
+                      TIMESTAMP_TEXT_LENGTH,
+                      PSTR(TIMESTAMP_TEXT_FORMAT),
+                      dt.day, dt.month, dt.year + 1900, dt.hour, dt.min,
+                      dt.sec);
+  return ptr[1] + 2;
+}
+
+uint8_t
+onelevel_next(uint8_t * ptr, struct snmp_varbinding * bind, uint8_t count)
+{
+  if (bind->len == 0)
+  {
+    ptr[0] = 0;
+    return 1;
+  }
+  if (bind->len == 1 && bind->data[0] < (count - 1))
+  {
+    ptr[0] = bind->data[0] + 1;
+    return 1;
+  }
+  return 0;
+}
+
+/**********************************************************
+ * reactions
+ **********************************************************/
+
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
+uint8_t
+uptime_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 0)
+  {
+    return 0;
+  }
+  return encode_timeticks(ptr, clock_get_uptime());
 }
 #endif
 
 #ifdef ADC_SUPPORT
 uint8_t
-adc_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+adc_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  ptr[0] = 2;
-  ptr[1] = 2;
-  if ( bind->len > 0 && bind->data[0] < ADC_CHANNELS) {
-    ADMUX = (ADMUX & 0xF0) | bind->data[0];
-    /* Start adc conversion */
-    ADCSRA |= _BV(ADSC);
-    /* Wait for completion of adc */
-    while (ADCSRA & _BV(ADSC)) {}
-    uint16_t adc = ADC;
-    ptr[2] = adc >> 8;
-    ptr[3] = adc & 0xff;
-  } else {
-    ptr[2] = ptr[3] = 0;
+  if (bind->len != 1 || bind->data[0] >= ADC_CHANNELS)
+  {
+    return 0;
   }
+  return encode_short(ptr, SNMP_TYPE_INTEGER, adc_get(bind->data[0]));
+}
 
-  return 4;
+#ifdef ADC_VOLTAGE_SUPPORT
+
+uint8_t
+adc_volt_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
+                  void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= ADC_CHANNELS)
+  {
+    return 0;
+  }
+  return encode_short(ptr, SNMP_TYPE_INTEGER, adc_get_voltage(bind->data[0]));
+}
+
+uint8_t
+adc_vref_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
+                  void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= ADC_CHANNELS)
+  {
+    return 0;
+  }
+  return encode_short(ptr, SNMP_TYPE_INTEGER, adc_get_vref());
+}
+
+#endif
+
+uint8_t
+adc_next(uint8_t * ptr, struct snmp_varbinding * bind)
+{
+  return onelevel_next(ptr, bind, ADC_CHANNELS);
+}
+#endif
+
+#ifdef ONEWIRE_SNMP_SUPPORT
+uint8_t
+ow_rom_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
+  }
+  uint8_t i = bind->data[0];
+
+  ptr[0] = SNMP_TYPE_STRING;
+  ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), 17,
+                                PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                                ow_sensors[i].ow_rom_code.bytewise[0],
+                                ow_sensors[i].ow_rom_code.bytewise[1],
+                                ow_sensors[i].ow_rom_code.bytewise[2],
+                                ow_sensors[i].ow_rom_code.bytewise[3],
+                                ow_sensors[i].ow_rom_code.bytewise[4],
+                                ow_sensors[i].ow_rom_code.bytewise[5],
+                                ow_sensors[i].ow_rom_code.bytewise[6],
+                                ow_sensors[i].ow_rom_code.bytewise[7]);
+  return ptr[1] + 2;
+}
+
+#ifdef ONEWIRE_NAMING_SUPPORT
+uint8_t
+ow_name_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
+  }
+  uint8_t i = bind->data[0];
+
+  ptr[0] = SNMP_TYPE_STRING;
+  ptr[1] = 0;
+  if (ow_sensors[i].named)
+  {
+    ptr[1] = (uint8_t) snprintf_P((char *) (ptr + 2), OW_NAME_LENGTH,
+                                  PSTR("%s"), ow_sensors[i].name);
+  }
+  return ptr[1] + 2;
 }
 #endif
 
 uint8_t
-string_pgm_reaction(uint8_t *ptr, struct snmp_varbinding *bind, void *userdata)
+ow_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  (void) bind;
-  ptr[0] = 4;
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
+  }
+  uint8_t i = bind->data[0];
+
+  return encode_short(ptr, SNMP_TYPE_INTEGER, ow_sensors[i].temp);
+}
+
+uint8_t
+ow_present_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 1 || bind->data[0] >= OW_SENSORS_COUNT)
+  {
+    return 0;
+  }
+  uint8_t i = bind->data[0];
+
+  return encode_short(ptr, SNMP_TYPE_INTEGER, ow_sensors[i].present);
+}
+
+uint8_t
+ow_next(uint8_t * ptr, struct snmp_varbinding * bind)
+{
+  return onelevel_next(ptr, bind, OW_SENSORS_COUNT);
+}
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+uint8_t
+tank_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
+{
+  if (bind->len != 1)
+  {
+    return 0;
+  }
+
+  switch (bind->data[0])
+  {
+    case 0:
+      return encode_short(ptr, SNMP_TYPE_INTEGER, tanklevel_get());
+    case 1:
+      return encode_short(ptr, SNMP_TYPE_INTEGER, tanklevel_params_ram.ltr_full);
+    case 2:
+      return encode_long(ptr, SNMP_TYPE_COUNTER, tanklevel_get_ts());
+    case 3:
+      return encode_timestamp_text(ptr, tanklevel_get_ts());
+    default:
+      return 0;
+  }
+}
+
+uint8_t
+tank_next(uint8_t * ptr, struct snmp_varbinding * bind)
+{
+  return onelevel_next(ptr, bind, 4);
+}
+#endif
+
+uint8_t
+string_pgm_reaction(uint8_t * ptr, struct snmp_varbinding * bind,
+                    void *userdata)
+{
+  if (bind->len != 0)
+  {
+    return 0;
+  }
+  ptr[0] = SNMP_TYPE_STRING;
   ptr[1] = strlen_P((char *) userdata);
   memcpy_P(ptr + 2, userdata, ptr[1]);
   return ptr[1] + 2;
 }
 
+/**********************************************************
+ * mib data
+ **********************************************************/
+
 const char desc_value[] PROGMEM = SNMP_VALUE_DESCRIPTION;
 const char desc_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x01";
 
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
 const char uptime_reaction_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x03";
+#endif
 
 const char contact_value[] PROGMEM = SNMP_VALUE_CONTACT;
 const char contact_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x04";
@@ -102,166 +310,54 @@ const char hostname_value[] PROGMEM = CONF_HOSTNAME;
 const char location_value[] PROGMEM = SNMP_VALUE_LOCATION;
 const char location_obj_name[] PROGMEM = "\x2b\x06\x01\x02\x01\x01\x06";
 
-const char adc_reaction_obj_name[] PROGMEM = ethersexExperimental "\01";
-
-static struct snmp_reaction snmp_reactions[] = {
 #ifdef ADC_SUPPORT
-  {adc_reaction_obj_name, adc_reaction, NULL},
+const char adc_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x01";
+#ifdef ADC_VOLTAGE_SUPPORT
+const char adc_volt_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x02\x02";
+const char adc_vref_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x02\x03";
 #endif
-  {desc_obj_name, string_pgm_reaction, (void *)desc_value},
-#ifdef WHM_SUPPORT
-  {uptime_reaction_obj_name, uptime_reaction, NULL},
 #endif
-  {contact_obj_name, string_pgm_reaction, (void *)contact_value},
-  {hostname_reaction_obj_name, string_pgm_reaction, (void *)hostname_value},
-  {location_obj_name, string_pgm_reaction, (void *)location_value},
-  {NULL, NULL, 0}
+
+#ifdef ONEWIRE_SNMP_SUPPORT
+const char ow_rom_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x01";
+#ifdef ONEWIRE_NAMING_SUPPORT
+const char ow_name_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x02";
+#endif
+const char ow_temp_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x03";
+const char ow_present_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x03\x04";
+#endif
+
+#ifdef TANKLEVEL_SUPPORT
+const char tank_reaction_obj_name[] PROGMEM = SNMP_OID_ETHERSEX "\x04";
+#endif
+
+const struct snmp_reaction snmp_reactions[] PROGMEM = {
+  {desc_obj_name, string_pgm_reaction, (void *) desc_value, NULL},
+#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT)
+  {uptime_reaction_obj_name, uptime_reaction, NULL, NULL},
+#endif
+  {contact_obj_name, string_pgm_reaction, (void *) contact_value, NULL},
+  {hostname_reaction_obj_name, string_pgm_reaction, (void *) hostname_value, NULL},
+  {location_obj_name, string_pgm_reaction, (void *) location_value, NULL},
+#ifdef ADC_SUPPORT
+  {adc_reaction_obj_name, adc_reaction, NULL, adc_next},
+#ifdef ADC_VOLTAGE_SUPPORT
+  {adc_volt_reaction_obj_name, adc_volt_reaction, NULL, adc_next},
+  {adc_vref_reaction_obj_name, adc_vref_reaction, NULL, adc_next},
+#endif
+#endif
+#ifdef ONEWIRE_SNMP_SUPPORT
+  {ow_rom_reaction_obj_name, ow_rom_reaction, NULL, ow_next},
+#ifdef ONEWIRE_NAMING_SUPPORT
+  {ow_name_reaction_obj_name, ow_name_reaction, NULL, ow_next},
+#endif
+  {ow_temp_reaction_obj_name, ow_temp_reaction, NULL, ow_next},
+  {ow_present_reaction_obj_name, ow_present_reaction, NULL, ow_next},
+#endif
+#ifdef TANKLEVEL_SUPPORT
+  {tank_reaction_obj_name, tank_reaction, NULL, tank_next},
+#endif
+  {NULL, NULL, NULL, NULL}
 };
 
-void
-snmp_new_data(void)
-{
-  struct snmp_packet pkt;
-  uint8_t pdu_type;
-  uint8_t tmp, *request = (uint8_t *)uip_appdata;
-  uint16_t ptr = 0;
-  /* Parse the packet */
-  ptr += 4; /* Consume packet encapsulation and version field */
-  pkt.version = request[ptr];
-  /* Community string */
-  ptr += 2;
-  tmp = request[ptr]; /* Community string length */
-  pkt.community = &request[ptr + 1];
-  pkt.pdu_type = &request[ptr + 1 + tmp]; /* We must save the pdu type, becaus
-                                          it is overwritten in the next step */
-  pdu_type = pkt.pdu_type[0];
-
-  pkt.community[tmp] = 0;
-  ptr +=  1 + tmp + 4;
-  memcpy(&pkt.request_id, &request[ptr], 4);
-  ptr += 11; /* Skip error status, error index and the varbind encapsulation*/
-  uint8_t *varbind_start = request + ptr - 1;
-
-  uint16_t x, var_len = request[ptr];
-  uint8_t y;
-
-  pkt.var_count = 0;
-  ptr += 2;
-  for(x = 0; x != var_len;) {
-    x += 2 + request[ptr + x];
-    pkt.var_count++;
-  }
-  pkt.binds = __builtin_alloca(pkt.var_count * sizeof(struct snmp_varbinding));
-  for(tmp = 0, x = 0; x < var_len;) {
-    pkt.binds[tmp].len = request[ptr + x + 2];
-    pkt.binds[tmp].data = &request[ptr + x + 3];
-    tmp++;
-
-    x += 2 + request[ptr + x];
-  }
-
-  /* interpret the different mibs */
-  uint8_t z;
-  for (y = 0; y < pkt.var_count; y++) {
-    pkt.binds[y].type = 0xff;
-
-    for (z = 0; snmp_reactions[z].obj_name; z++) {
-  /*    syslog_sendf("%d %d; %d %x : %d %x | ", y, z,
-                   pkt.binds[y].len, pkt.binds[y].data[0],
-                   strlen((char *)snmp_reactions[z].obj_name)
-                          + snmp_reactions[z].append_zero,
-                          snmp_reactions[z].obj_name[0]); */
-
-      uint8_t store_len = strlen_P((char *)snmp_reactions[z].obj_name);
-      uint8_t request_len = pkt.binds[y].len;
-      uint8_t cmp_len = store_len > request_len ? request_len : store_len;
-
-      debug_printf("d: len %d, rlen %d\n", store_len, request_len);
-      if (memcmp_P(pkt.binds[y].data, snmp_reactions[z].obj_name, cmp_len) == 0) {
-        pkt.binds[y].type = z;
-        if (pdu_type == 0xa1 && request_len == store_len) {
-          if (snmp_reactions[z+1].obj_name) {
-            pkt.binds[y].type += 1;
-          } else {
-            pkt.binds[y].type = 0xff;
-          }
-        }
-        if (store_len < pkt.binds[y].len) {
-          uint8_t *data_ptr = pkt.binds[y].data;
-          pkt.binds[y].len = pkt.binds[y].len - store_len;
-          pkt.binds[y].data = __builtin_alloca(pkt.binds[y].len);
-          memcpy(pkt.binds[y].data, data_ptr + store_len,
-                 pkt.binds[y].len);
-        } else {
-          pkt.binds[y].data = NULL;
-          pkt.binds[y].len = 0;
-        }
-
-        break;
-      }
-    }
-  }
-
-  /* We assemble the packet within the received packet */
-  pkt.pdu_type[0] = 0xa2; /* Our packet type is an get-response packet */
-  request[1] = pkt.pdu_type - request;
-
-  varbind_start[0] = 0x30; /* Varbind encapsulation */
-  varbind_start[1] = 0;
-
-  uint8_t *bind_start = varbind_start + 2;
-  for (ptr = 0; ptr < pkt.var_count; ptr++) {
-    uint8_t type = pkt.binds[ptr].type;
-    if (type == 0xff) {
-      /* This datatype is not defined */
-      pkt.pdu_type[1 + 2 + 4 + 3] = 2; /* NoSuchName */;
-      pkt.pdu_type[1 + 2 + 4 + 3 + 3 ] = ptr; /* Error in this Node */;
-      varbind_start[1] = 0;
-      break;
-    }
-    bind_start[0] = 0x30;
-    bind_start[1] = 2 + strlen_P((char *)snmp_reactions[type].obj_name);
-    /* Object identifier */
-    bind_start[2] = 0x06; /* Object identifier start */
-    bind_start[3] = bind_start[1] - 2;
-    memcpy_P(bind_start + 4, snmp_reactions[type].obj_name, bind_start[3]);
-
-    /* Variable part  of the object identifier*/
-    memcpy(bind_start + 4 + bind_start[3], pkt.binds[ptr].data,
-           pkt.binds[ptr].len);
-    bind_start[3] += pkt.binds[ptr].len;
-    bind_start[1] += pkt.binds[ptr].len;
-
-    /* Append the value */
-    bind_start[1] += snmp_reactions[type].cb(bind_start + 4 + bind_start[3],
-                                             &pkt.binds[ptr],
-                                             snmp_reactions[type].userdata);
-
-    varbind_start[1] += bind_start[1] + 2;
-
-    bind_start += bind_start[1] + 2;
-  }
-
-  pkt.pdu_type[1] = varbind_start[1] + 14;
-  request[1] += pkt.pdu_type[1];
-
-
-  uip_udp_send(request[1] + 2);
-  /* Send the packet */
-  uip_udp_conn_t conn;
-  uip_ipaddr_copy(conn.ripaddr, BUF->srcipaddr);
-  conn.rport = BUF->srcport;
-  conn.lport = HTONS(SNMP_PORT);
-
-  uip_udp_conn = &conn;
-
-  /* Send immediately */
-  uip_process(UIP_UDP_SEND_CONN);
-  router_output();
-
-  uip_slen = 0;
-
-}
-
 #endif
-
