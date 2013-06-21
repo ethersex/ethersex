@@ -44,9 +44,11 @@
 
 #ifdef DEBUG_SIP
 #  include "core/debug.h"
-#  define SIP_DEBUG(str...) debug_printf ("sip: " str)
+#  define SIP_DEBUG(str...)      debug_printf ("sip: " str)
+#  define SIP_DEBUG_STOP(p, str...) *p=0;debug_printf ("sip: " str)
 #else
-#  define SIP_DEBUG(...)    ((void) 0)
+#  define SIP_DEBUG(...)         ((void) 0)
+#  define SIP_DEBUG_STOP(...)    ((void) 0)
 #endif
 
 #define STR_HELPER(x) #x
@@ -160,7 +162,7 @@ sip_send_status_200(char* uip_appdata) {
     }
   }
   uip_udp_send(p - (char *)uip_appdata);
-  SIP_DEBUG ("SIP sent %d %d %s\r\n", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+  SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *)uip_appdata, (char *)uip_appdata );
 }
 
 void 
@@ -176,7 +178,7 @@ sip_send_ACK(char* uip_appdata) {
   my_strcat_P(p, SIP_HEADEREND);
 
   uip_udp_send(p - (char *)uip_appdata);
-  SIP_DEBUG ("SIP sent %d %d %s\r\n", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+  SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *)uip_appdata, (char *)uip_appdata );
 }
 
 //----------------------------------------------------------------------------
@@ -195,7 +197,7 @@ sip_main()
         (((char*)uip_appdata)[1] == 'Y') &&
         (((char*)uip_appdata)[2] == 'E') ) {
 			
-      SIP_DEBUG ("---------SIP BYE empfangen\n\r");
+      SIP_DEBUG ("received SIP BYE\n\r");
       sip_send_status_200(uip_appdata);
       cseg_counter++;
       state = SIPS_IDLE;
@@ -349,7 +351,7 @@ sip_main()
         my_strcat_P(p, SIP_HEADEREND);
     
         uip_udp_send(p - (char *)uip_appdata);
-        SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+        SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *)uip_appdata, (char *)uip_appdata );
       }
       else if (state == SIPS_INVITE_AUTH) 
       {  
@@ -429,7 +431,7 @@ sip_main()
         my_strcat_P(p, SIP_HEADEREND);
   
         uip_udp_send(p - (char *)uip_appdata);
-        SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+        SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *)uip_appdata, (char *)uip_appdata );
       }
       else if (state == SIPS_CANCELING) {  
         char *p = uip_appdata;
@@ -444,7 +446,7 @@ sip_main()
         my_strcat_P(p, SIP_HEADEREND);
     
         uip_udp_send(p - (char *)uip_appdata);
-        SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+        SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *)uip_appdata, (char *)uip_appdata );
       }
       else if (state == SIPS_BYE) {
         char *p = uip_appdata;
@@ -460,7 +462,7 @@ sip_main()
         my_strcat_P(p, SIP_HEADEREND);
     
         uip_udp_send(p - (char *)uip_appdata);
-        SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+        SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *)uip_appdata, (char *)uip_appdata );
       }
 
     }
