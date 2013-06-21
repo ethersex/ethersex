@@ -61,7 +61,8 @@
 #define SIPS_INVITE_AUTH 2
 #define SIPS_RINGING 3
 #define SIPS_CANCELING 4
-#define SIPS_BYE 5
+#define SIPS_SPEAKING 5
+#define SIPS_BYE 6
 
 uip_udp_conn_t *udp_sip_conn = NULL;
 uint8_t state = SIPS_IDLE;
@@ -71,6 +72,8 @@ uint8_t cseg_counter = 0;
 char realm[32];
 char nonce[32];
 
+const char PROGMEM SIP20[]      = "SIP/2.0\r\n";
+const char PROGMEM SIP_200_OK[] = "SIP/2.0 200 OK\r\n";
 
 const char PROGMEM SIP_CANCEL[] = "CANCEL";
 const char PROGMEM SIP_ACK[]    = "ACK";
@@ -144,6 +147,24 @@ sip_append_cseg_number(char* p) {
   return p;
 }
 
+void
+sip_send_status_200(char* uip_appdata) {
+  char* p = uip_appdata;
+  char* a = strstr_P(p, SIP20);
+  SIP_DEBUG ("xSTRSTR found %d %s\r\n", p - a, a );
+  my_strcat_P(p, SIP_200_OK);
+  SIP_DEBUG ("STRSTR %s\r\n", p );
+  if (a != 0) {
+    a += (sizeof(SIP20)-1);
+    char* end = uip_appdata + uip_datalen();
+    while (a < end) {
+      *p++ = *a++;
+    }
+  }
+  uip_udp_send(p - (char *)uip_appdata);
+  SIP_DEBUG ("SIP sent %d %d %s\r\n", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+}
+
 void 
 sip_send_ACK(char* uip_appdata) {
   char* p = uip_appdata;
@@ -157,7 +178,7 @@ sip_send_ACK(char* uip_appdata) {
   my_strcat_P(p, SIP_HEADEREND);
 
   uip_udp_send(p - (char *)uip_appdata);
-  SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
+  SIP_DEBUG ("SIP sent %d %d %s\r\n", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
 }
 
 //----------------------------------------------------------------------------
@@ -176,10 +197,11 @@ sip_main()
         (((char*)uip_appdata)[1] == 'Y') &&
         (((char*)uip_appdata)[2] == 'E') ) {
 			
-//TODO: Send 200 OK!
-        sip_send_ACK(uip_appdata);
-        cseg_counter++;
-        state = SIPS_IDLE;
+      SIP_DEBUG ("---------SIP BYE empfangen\n\r");
+      sip_send_status_200(uip_appdata);
+      cseg_counter++;
+      state = SIPS_IDLE;
+      return;
     }
     
     uint16_t code = atol ((char *) uip_appdata + 8);
@@ -239,17 +261,16 @@ sip_main()
       break;
       
     // OK
-    case 200: 
+    case 200:
       sip_send_ACK(uip_appdata);
-      // If the invited person takes the call, terminate it now.
       if (state==SIPS_RINGING) {
-      //state = SIPS_SPEAKING;
-      //  cseg_counter++;
-      //  state = SIPS_BYE;
-        state = SIPS_CANCELING;
+        state = SIPS_SPEAKING;
+        cseg_counter++;
+        // If the invited person takes the call, terminate it immediatelly.
+        //state = SIPS_BYE;
       }
-			else
-				state = SIPS_IDLE;
+      else
+        state = SIPS_IDLE;
       break;
 
     // Illegal Contact Header
@@ -299,8 +320,8 @@ sip_main()
       break;
 
     default:
-			state = SIPS_IDLE;
-			break;
+      state = SIPS_IDLE;
+      break;
 
     }
   }
@@ -316,7 +337,7 @@ sip_main()
     }        
     //Every 1 sec repeat last UDP-Telegramm, may be lost. 
     if (pollcounter % 10 == 0) {
-			SIP_DEBUG ("State: %d\r\n", state);
+      SIP_DEBUG ("State: %d\r\n", state);
       if (state == SIPS_INVITE) {  
         char *p = uip_appdata;
 
@@ -427,7 +448,7 @@ sip_main()
         uip_udp_send(p - (char *)uip_appdata);
         SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
       }
-/*      else if (state == SIPS_BYE) {
+      else if (state == SIPS_BYE) {
         char *p = uip_appdata;
   
         my_strcat_P(p, SIP_BYE);
@@ -443,7 +464,7 @@ sip_main()
         uip_udp_send(p - (char *)uip_appdata);
         SIP_DEBUG ("SIP sent %d %d %s\n\r", strlen(p), p - (char *)uip_appdata, (char *)uip_appdata );
       }
-*/
+
     }
   }
 }
