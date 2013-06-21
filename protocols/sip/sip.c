@@ -151,9 +151,7 @@ void
 sip_send_status_200(char* uip_appdata) {
   char* p = uip_appdata;
   char* a = strstr_P(p, SIP20);
-  SIP_DEBUG ("xSTRSTR found %d %s\r\n", p - a, a );
   my_strcat_P(p, SIP_200_OK);
-  SIP_DEBUG ("STRSTR %s\r\n", p );
   if (a != 0) {
     a += (sizeof(SIP20)-1);
     char* end = uip_appdata + uip_datalen();
