@@ -64,6 +64,30 @@ vfs_sd_try_open_rootnode(void)
   return 0;                     /* Jippie, we're set. */
 }
 
+static struct fat_dir_struct *
+vfs_sd_traverse(const char *path, const char **basename)
+{
+  while (*path == '/')
+    path++;
+  *basename = path;
+
+  struct fat_dir_struct *parent = vfs_sd_rootnode;
+  char *sep = strrchr(path, '/');
+
+  if (sep)
+  {
+    char *dirname = strdup(path);
+    if (dirname == NULL)
+      return NULL;
+    dirname[sep - path] = 0;
+    parent = vfs_sd_chdir(dirname);
+    free(dirname);
+    *basename = sep + 1;
+  }
+
+  return parent;
+}
+
 #if SD_WRITE_SUPPORT == 1
 static struct vfs_file_handle_t *
 vfs_sd_open_in(struct fat_dir_struct *parent, const char *filename)
@@ -128,40 +152,30 @@ vfs_sd_truncate(struct vfs_file_handle_t * fh, vfs_size_t length)
 {
   return fat_resize_file(fh->u.sd, length) == 0;
 }
+#endif
 
 static struct vfs_file_handle_t *
 vfs_sd_create_open(const char *name, uint8_t create)
 {
-  while (*name == '/')
-    name++;
+  const char *basename;
+  struct fat_dir_struct *parent = vfs_sd_traverse(name, &basename);
+  if (!parent)
+    return NULL;
 
-  struct fat_dir_struct *parent = vfs_sd_rootnode;
-  char *sep = strrchr(name, '/');
-
-  if (sep)
-  {                             /* We got a path component in NAME. */
-    *sep = 0;                   /* Temporarily terminate the path component,
-                                 * this isn't really pretty, since const, but
-                                 * it's cheaper than copying around :-) */
-    parent = vfs_sd_chdir(name);
-    *sep = '/';                 /* Restore filename. */
-
-    if (!parent)
-      return NULL;              /* Parent directory doesn't exist. */
-
-    name = sep + 1;
-  }
-
+#if SD_WRITE_SUPPORT == 1
   if (create)
   {
     struct fat_dir_entry_struct file_entry;
-    fat_create_file(parent, name, &file_entry);
+    fat_create_file(parent, basename, &file_entry);
   }
+#endif
 
-  struct vfs_file_handle_t *fh = vfs_sd_open_in(parent, name);
+  struct vfs_file_handle_t *fh = vfs_sd_open_in(parent, basename);
 
+#if SD_WRITE_SUPPORT == 1
   if (create && fh && vfs_sd_size(fh) != 0)
     vfs_sd_truncate(fh, 0);
+#endif
 
   if (parent != vfs_sd_rootnode)
     fat_close_dir(parent);
@@ -169,7 +183,7 @@ vfs_sd_create_open(const char *name, uint8_t create)
   return fh;
 }
 
-
+#if SD_WRITE_SUPPORT == 1
 struct vfs_file_handle_t *
 vfs_sd_create(const char *name)
 {
@@ -183,7 +197,6 @@ vfs_sd_open(const char *name)
 {
   return vfs_sd_create_open(name, 0);
 }
-
 
 #if SD_WRITE_SUPPORT == 1
 uint8_t
@@ -199,7 +212,7 @@ recurse_loop:
   struct fat_dir_struct *dir = fat_open_dir(vfs_sd_fat, &handle);
   if (dir == NULL)
   {
-    debug_printf("fat_open_dir failed\n");
+    SDDEBUGVFS("fat_open_dir failed\n");
     return 1;
   }
 
@@ -223,7 +236,7 @@ recurse_loop:
 
     if (!(handle.attributes & FAT_ATTRIB_DIR))
     {
-      debug_printf("'%s' isn't a directory.\n", path);
+      SDDEBUGVFS("'%s' isn't a directory.\n", path);
       return 1;
     }
 
@@ -243,7 +256,7 @@ recurse_loop:
     if (!fat_create_dir(dir, buf, &handle))
     {
       fat_close_dir(dir);
-      debug_printf("failed to create dir '%s'\n", buf);
+      SDDEBUGVFS("failed to create dir '%s'\n", buf);
       return 1;
     }
 
@@ -256,11 +269,32 @@ recurse_loop:
     goto recurse_loop;          /* Yippie, one more round ... */
   }
 }
+
+uint8_t
+vfs_sd_unlink(const char *name)
+{
+  const char *basename;
+
+  struct fat_dir_struct *dd = vfs_sd_traverse(name, &basename);
+  if (dd)
+  {
+    struct fat_dir_entry_struct file_entry;
+    while (fat_read_dir(dd, &file_entry))
+    {
+      if (strcmp(file_entry.long_name, basename) == 0)
+      {
+        fat_reset_dir(dd);
+        return fat_delete_file(vfs_sd_fat, &file_entry) == 0;
+      }
+    }
+  }
+
+  return 1;
+}
 #endif
 
-
 vfs_size_t
-vfs_sd_size(struct vfs_file_handle_t *fh)
+vfs_sd_size(struct vfs_file_handle_t * fh)
 {
   return fh->u.sd->dir_entry.file_size;
 }

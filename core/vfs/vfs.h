@@ -132,9 +132,9 @@ struct vfs_func_t
    * If the file exists already it's automatically truncated to zero size. */
   struct vfs_file_handle_t *(*create) (const char *name);
 
-  /* Unlink the already existing file named FILENAME.
+  /* Unlink the already existing file named NAME.
    * Return 0 on success. */
-    uint8_t(*unlink) (const char *filename);
+    uint8_t(*unlink) (const char *name);
 
   /* Return the size of the file. */
     vfs_size_t(*size) (struct vfs_file_handle_t *);

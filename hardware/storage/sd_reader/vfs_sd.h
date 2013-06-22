@@ -40,6 +40,7 @@ uint8_t vfs_sd_fseek(struct vfs_file_handle_t *, vfs_size_t offset,
                      uint8_t whence);
 uint8_t vfs_sd_truncate(struct vfs_file_handle_t *, vfs_size_t length);
 struct vfs_file_handle_t *vfs_sd_create(const char *name);
+uint8_t vfs_sd_unlink(const char *name);
 vfs_size_t vfs_sd_size(struct vfs_file_handle_t *);
 uint8_t vfs_sd_mkdir_recursive(const char *path);
 

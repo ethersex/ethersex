@@ -59,7 +59,7 @@ const struct vfs_func_t vfs_funcs[] PROGMEM = {
 struct vfs_file_handle_t *
 vfs_open(const char *filename)
 {
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
+  for (uint8_t i = 0; i < VFS_LAST; i++)
   {
     struct vfs_func_t funcs;
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
@@ -73,7 +73,7 @@ vfs_open(const char *filename)
 struct vfs_file_handle_t *
 vfs_create(const char *name)
 {
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
+  for (uint8_t i = 0; i < VFS_LAST; i++)
   {
     struct vfs_func_t funcs;
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
@@ -126,14 +126,14 @@ vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t * handle,
 }
 
 uint8_t
-vfs_unlink(const char *filename)
+vfs_unlink(const char *name)
 {
-  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
+  for (uint8_t i = 0; i < VFS_LAST; i++)
   {
     struct vfs_func_t funcs;
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
     if (funcs.unlink)
-      return funcs.unlink(filename);
+      return funcs.unlink(name);
   }
 
   return 0;
