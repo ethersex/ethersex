@@ -1,6 +1,6 @@
 /*
- *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2007 Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,15 +22,6 @@
 
 #ifndef _DYNDNS_H
 #define _DYNDNS_H
-
-enum DynDnsStates {
-  DYNDNS_HOSTNAME,
-  DYNDNS_IP,
-  DYNDNS_USERNAME,
-  DYNDNS_PASSWORD,
-  DYNDNS_READY,
-  DYNDNS_CANCEL,
-};
 
 void dyndns_update(void);
 
