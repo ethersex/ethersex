@@ -1,14 +1,31 @@
 source hardware/io_expander/config.in
-source hardware/adc/config.in
 source hardware/sms/config.in
-source hardware/adc/kty/config.in
-source hardware/adc/ads7822/config.in
-source hardware/dac/config.in
+
+mainmenu_option next_comment
+
+  comment "ADC / DAC"
+
+  source hardware/adc/config.in
+  source hardware/adc/kty/config.in
+  source hardware/adc/ads7822/config.in
+  source hardware/dac/config.in
+
+endmenu
+
 source hardware/lcd/config.in
 source hardware/storage/config.in
 source hardware/i2c/master/config.in
 source hardware/camera/config.in
-source hardware/radio/fs20/config.in
+
+mainmenu_option next_comment
+
+  comment "Radio"
+
+  source hardware/radio/fs20/config.in
+  source hardware/radio/rfm12/rfm12_ask_config.in
+
+endmenu
+
 source hardware/ir/config.in
 source hardware/isdn/config.in
 source hardware/pwm/config.in
@@ -16,14 +33,13 @@ source hardware/onewire/config.in
 source hardware/input/config.in
 source hardware/input/ps2/config.in
 source hardware/input/buttons/config.in
-source hardware/radio/rfm12/rfm12_ask_config.in
 
-dep_bool_menu "Humidity & temperature sensors" HUM_TEMP_SUPPORT $ARCH_AVR
+mainmenu_option next_comment
 
-  if [ "$HUM_TEMP_SUPPORT" = "y" ]; then
-    source hardware/sht/config.in
-    source hardware/dht/config.in
-  fi
+  comment "Humidity & temperature sensors"
+
+  source hardware/sht/config.in
+  source hardware/dht/config.in
 
 endmenu
 

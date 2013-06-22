@@ -285,6 +285,17 @@ function ipv6 () {
 }
 
 #
+# Negate the boolean value. Usesful for dep_XXX
+#
+function not() {
+	if [ "$1" = "y" ] ; then
+		echo -ne "n"
+	else
+		echo -ne "y"
+	fi
+}
+
+#
 # Add a menu item which will call our local random_mac function.
 #
 

@@ -4,14 +4,6 @@ source scripts/namedPinCopy.sh
 mainmenu_name "Ethersex Configuration"
 get_usart_count
 
-function neg()
-{
-  if [ "$1" = "y" ] ; then
-    echo -ne "n"
-  else
-    echo -ne "y"
-  fi
-}
 
 mainmenu_option next_comment
 comment "General Setup"
@@ -65,8 +57,8 @@ if [ "$ARCH_AVR" = "y" ]; then
 		if [ "$FLASH_SIZE" = 131072 ] ; then BOOTLOADER_SIZE=8192 ; fi
 	fi
 
-	dep_bool 'Build a bootloader'     BOOTLOADER_SUPPORT "$(neg $BOOTLOADER_JUMP)"  "$(if [ $FLASH_SIZE -gt 65535 ] ; then echo -ne "y"; else echo -ne "n"; fi)"
-	dep_bool "Enable bootloader jump" BOOTLOADER_JUMP    "$(neg $BOOTLOADER_SUPPORT)"
+	dep_bool 'Build a bootloader'     BOOTLOADER_SUPPORT "$(not $BOOTLOADER_JUMP)"  "$(if [ $FLASH_SIZE -gt 65535 ] ; then echo -ne "y"; else echo -ne "n"; fi)"
+	dep_bool "Enable bootloader jump" BOOTLOADER_JUMP    "$(not $BOOTLOADER_SUPPORT)"
 
 	if [ "$BOOTLOADER_JUMP" = "y" -o "$BOOTLOADER_SUPPORT" = "y" ] ; then
 		int 'Bootloader size in bytes' BOOTLOADER_SIZE ""
@@ -114,7 +106,7 @@ fi
 		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
 		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG $ARCH_AVR
-		comment  '----- Debugging Flags -----'
+		comment  'Debugging Flags'
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG
 	endmenu

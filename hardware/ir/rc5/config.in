@@ -1,4 +1,4 @@
-dep_bool_menu "RC5 IR (deprecated)" RC5_SUPPORT $IR_SUPPORT $ARCH_AVR
+dep_bool_menu "RC5 IR (deprecated)" RC5_SUPPORT $ARCH_AVR
 
 	dep_bool "Send RC5 IR-codes" RC5_SUPPORT $RC5_SUPPORT
 	dep_bool_menu "RC5 IR UDP" RC5_UDP_SUPPORT $RC5_SUPPORT $UDP_SUPPORT $ARCH_AVR

@@ -1,8 +1,14 @@
-dep_bool_menu "HC595 output expansion" HC595_SUPPORT $PORTIO_SUPPORT
-		int "Number of HC595 registers" HC595_REGISTERS 5
-endmenu
+mainmenu_option next_comment
+
+  comment "Port expansion"
+
+  dep_bool_menu "HC595 output expansion" HC595_SUPPORT $PORTIO_SUPPORT
+	int "Number of HC595 registers" HC595_REGISTERS 5
+  endmenu
 	
-dep_bool_menu "HC165 input expansion" HC165_SUPPORT $PORTIO_SUPPORT
+  dep_bool_menu "HC165 input expansion" HC165_SUPPORT $PORTIO_SUPPORT
 	dep_bool "Inverse output" HC165_INVERSE_OUTPUT $HC165_SUPPORT
 	int "Number of HC165 registers" HC165_REGISTERS 1
+  endmenu
+
 endmenu
