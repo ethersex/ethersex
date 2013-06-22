@@ -14,6 +14,7 @@ dep_bool_menu "ECMD (Ethersex Command) support" ECMD_PARSER_SUPPORT
     fi
   fi
   endmenu
+  dep_bool "Log commands via SYSLOG" ECMD_LOG_VIA_SYSLOG $ECMD_PARSER_SUPPORT $SYSLOG_SUPPORT
   comment "ECMD interfaces"
   usart_count_used
   if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
@@ -80,6 +81,7 @@ dep_bool_menu "ECMD (Ethersex Command) support" ECMD_PARSER_SUPPORT
 
   comment "Mirror ECMD commands for output"
   dep_bool '  Mirror ECMD commands' ECMD_MIRROR_REQUEST $ECMD_PARSER_SUPPORT
+
   comment  "Debugging Flags"
   dep_bool 'ECMD' DEBUG_ECMD $DEBUG
   dep_bool 'ECMD FS20' DEBUG_ECMD_FS20 $DEBUG

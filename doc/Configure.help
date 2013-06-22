@@ -3211,3 +3211,11 @@ BOOTLOADER_JUMP
  Enables the ECMD command 'bootloader' to enter the bootloader without
  resetting the MCU.
 
+Log commands via SYSLOG
+ECMD_LOG_VIA_SYSLOG
+  Depends on: 
+   * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
+   * SYSLOG support (SYSLOG_SUPPORT)
+
+  Log any received ECMD via SYSLOG.
+

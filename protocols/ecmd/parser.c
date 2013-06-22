@@ -1,8 +1,9 @@
 /*
- * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007,2008 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2007,2008 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2008 Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2009 Stefan Riepenhausen <rhn@gmx.net>
+ * Copyright (c) 2013 Erik Kunze <ethersexerik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +33,9 @@
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "control6/control6.h"
+#ifdef ECMD_LOG_VIA_SYSLOG
+#include "protocols/syslog/syslog.h"
+#endif
 #include "protocols/ecmd/aliascmd.h"
 #include "protocols/ecmd/parser.h"
 
@@ -44,9 +48,11 @@
 
 int16_t ecmd_parse_command(char *cmd, char *output, uint16_t len)
 {
-
 #ifdef DEBUG_ECMD
     debug_printf("called ecmd_parse_command %s\n", cmd);
+#endif
+#ifdef ECMD_LOG_VIA_SYSLOG
+    syslog_sendf_P(PSTR("ecmd: %s"), cmd);
 #endif
 
 #ifdef ECMD_REMOVE_BACKSPACE_SUPPORT
