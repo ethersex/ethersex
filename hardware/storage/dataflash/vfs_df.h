@@ -54,6 +54,7 @@ vfs_size_t vfs_df_size (struct vfs_file_handle_t *);
     vfs_df_fseek,				\
     vfs_df_truncate,				\
     vfs_df_create,				\
+    NULL, /* unlink */				\
     vfs_df_size,				\
   }
 

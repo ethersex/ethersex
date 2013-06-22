@@ -57,6 +57,7 @@ fs_size_t vfs_df_size (struct vfs_file_handle_t *); */
     NULL, /* fseek */                                   \
     NULL, /* truncate */                                \
     vfs_eeprom_raw_open, /* create */                   \
+    NULL, /* unlink */                                  \
     NULL, /* filesize */                                \
   }
 

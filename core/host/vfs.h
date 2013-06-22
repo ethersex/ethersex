@@ -45,6 +45,7 @@ uint8_t vfs_host_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
     vfs_host_fseek,			\
     NULL, /* truncate */		\
     NULL, /* create */			\
+    NULL, /* unlink */			\
     NULL, /* size */			\
   }
 

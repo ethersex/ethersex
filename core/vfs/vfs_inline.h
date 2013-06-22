@@ -62,6 +62,7 @@ uint8_t vfs_inline_fseek (struct vfs_file_handle_t *, vfs_size_t offset,
     vfs_inline_fseek,			\
     NULL, /* truncate */		\
     NULL, /* create */			\
+    NULL, /* unlink */			\
     vfs_inline_size,			\
   }
 
