@@ -55,7 +55,7 @@ uint8_t vfs_sd_mkdir_recursive(const char *path);
     vfs_sd_fseek,				\
     vfs_sd_truncate,				\
     vfs_sd_create,				\
-    NULL, /* unlink */				\
+    vfs_sd_unlink,				\
     vfs_sd_size,				\
   }
 #else
