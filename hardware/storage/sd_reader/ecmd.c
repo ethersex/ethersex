@@ -89,23 +89,19 @@ parse_cmd_sd_mkdir(char *cmd, char *output, uint16_t len)
     cmd++;
 
   return (vfs_sd_mkdir_recursive(cmd) == 0 ?
-          ECMD_FINAL_OK : ECMD_ERR_WRITE_ERROR);
+          ECMD_FINAL_OK : ECMD_FINAL(snprintf_P(output, len, PSTR("write error"))));
 }
 #endif
 
-#ifdef SD_WRITE_SUPPORT
+#ifdef SD_RM_ECMD_SUPPORT
 int16_t
 parse_cmd_sd_rm(char *cmd, char *output, uint16_t len)
 {
   while (*cmd == ' ')
     cmd++;
 
-  struct vfs_file_handle_t *fh = vfs_sd_open(cmd);
-  if (fh == 0)
-    return ECMD_ERR_WRITE_ERROR;
-  vfs_sd_truncate(fh, 0);
-  vfs_sd_close(fh);
-  return ECMD_FINAL_OK;
+  return (vfs_sd_unlink(cmd) == 0 ?
+          ECMD_FINAL_OK : ECMD_FINAL(snprintf_P(output, len, PSTR("write error"))));
 }
 #endif
 #endif /* SD_WRITE_SUPPORT */
