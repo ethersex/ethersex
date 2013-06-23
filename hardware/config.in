@@ -14,7 +14,7 @@ endmenu
 
 source hardware/lcd/config.in
 source hardware/storage/config.in
-source hardware/i2c/master/config.in
+source hardware/i2c/config.in
 source hardware/camera/config.in
 
 mainmenu_option next_comment
