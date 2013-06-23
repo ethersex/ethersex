@@ -1,14 +1,14 @@
-dep_bool_menu "I2C Master Support" I2C_MASTER_SUPPORT $ARCH_AVR
+dep_bool_menu "I2C master" I2C_MASTER_SUPPORT $ARCH_AVR
   if [ "$I2C_MASTER_SUPPORT" = "y" ]; then
     int "I2C master baudrate in kHz" CONF_I2C_BAUD 400
   fi
-  dep_bool "  I2C detection support"	I2C_DETECT_SUPPORT $I2C_MASTER_SUPPORT
-  dep_bool_menu "I2C generic read/write support"	I2C_GENERIC_SUPPORT $I2C_MASTER_SUPPORT
+  dep_bool "I2C detection support" I2C_DETECT_SUPPORT $I2C_MASTER_SUPPORT
+  dep_bool_menu "I2C generic read/write support" I2C_GENERIC_SUPPORT $I2C_MASTER_SUPPORT
   if [ "$I2C_GENERIC_SUPPORT" = "y" ]; then
-  	dep_bool "Add delays for slow devices"	I2C_GENERIC_DELAYS $I2C_GENERIC_SUPPORT
+    dep_bool "Add delays for slow devices" I2C_GENERIC_DELAYS $I2C_GENERIC_SUPPORT
   fi
   endmenu
-  dep_bool "I2C EEPROM (24cxx) support"	I2C_24CXX_SUPPORT $I2C_MASTER_SUPPORT
+  dep_bool "I2C EEPROM (24cxx) support" I2C_24CXX_SUPPORT $I2C_MASTER_SUPPORT
   if [ "$I2C_24CXX_SUPPORT" = "y" ]; then
     int "I2C 24CXX Pagesize" CONF_I2C_24CXX_PAGESIZE 128
   fi
@@ -17,10 +17,10 @@ dep_bool_menu "I2C Master Support" I2C_MASTER_SUPPORT $ARCH_AVR
   dep_bool "I2C DS1631 temperature sensor" I2C_DS1631_SUPPORT $I2C_MASTER_SUPPORT
   dep_bool "I2C DS13X7  RTC" I2C_DS13X7_SUPPORT $I2C_MASTER_SUPPORT
   if [ "$I2C_DS13X7_SUPPORT" = "y" ]; then
-  	choice 'RTC Type'			\
-		"DS1307		DS1307		\
-		 DS1337		DS1337"		\
-		'DS1307' I2C_DS13X7_TYPE
+    choice 'RTC Type'       \
+           "DS1307  DS1307  \
+            DS1337  DS1337" \
+           'DS1307' I2C_DS13X7_TYPE
   fi
   dep_bool "I2C PCF8583 RTC" I2C_PCF8583_SUPPORT $I2C_MASTER_SUPPORT
   if [ "$I2C_PCF8583_SUPPORT" = "y" ]; then
@@ -37,11 +37,11 @@ dep_bool_menu "I2C Master Support" I2C_MASTER_SUPPORT $ARCH_AVR
   if [ "$I2C_BMP085_SUPPORT" = "y" ]; then
     dep_bool "  BMP085 advanced barometric calculations" I2C_BMP085_BAROCALC_SUPPORT $I2C_MASTER_SUPPORT
     choice '    BMP085 Pressure Oversampling' \
-        "0    BMP085_OSS_0  \
-         1    BMP085_OSS_1  \
-         2    BMP085_OSS_2  \
-         3    BMP085_OSS_3"  \
-        '3' I2C_BMP085_OVERSAMPLING
+           "0    BMP085_OSS_0                 \
+            1    BMP085_OSS_1                 \
+            2    BMP085_OSS_2                 \
+            3    BMP085_OSS_3"                \
+           '3' I2C_BMP085_OVERSAMPLING
   fi
 
   dep_bool "I2C PCA9531  8-bit LED dimmer" I2C_PCA9531_SUPPORT $I2C_MASTER_SUPPORT
@@ -54,7 +54,7 @@ dep_bool_menu "I2C Master Support" I2C_MASTER_SUPPORT $ARCH_AVR
     int "I2C to UDP gateway port" I2C_PORT 8995 $I2C_UDP_SUPPORT
   fi
 
-   comment  "Debugging Flags"
-   dep_bool "I2C" DEBUG_I2C $DEBUG
+  comment  "Debugging Flags"
+  dep_bool "I2C" DEBUG_I2C $DEBUG
 
 endmenu
