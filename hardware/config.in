@@ -40,9 +40,9 @@ mainmenu_option next_comment
 
   source hardware/sht/config.in
   source hardware/dht/config.in
+  source hardware/zacwire/config.in
 
 endmenu
 
-source hardware/zacwire/config.in
 source hardware/ultrasonic/config.in
 source hardware/hbridge/config.in
