@@ -27,14 +27,14 @@
 /* constants */
 #define I2C_SLAVE_PORT 0x2321
 #ifndef CONF_I2C_SLAVE_ADDR
-#  define TWIADDR 0x04
+#define TWIADDR 0x04
 #else
-#  define TWIADDR CONF_I2C_SLAVE_ADDR
+#define TWIADDR CONF_I2C_SLAVE_ADDR
 #endif
 
 /* prototypes */
-void i2c_slave_core_init (uip_udp_conn_t *i2c_slave_conn);
-void i2c_slave_core_periodic (void);
-void i2c_slave_core_newdata (void);
+void i2c_slave_core_init(uip_udp_conn_t * i2c_slave_conn);
+void i2c_slave_core_periodic(void);
+void i2c_slave_core_newdata(void);
 
 #endif /* _I2C_SLAVE_H */
