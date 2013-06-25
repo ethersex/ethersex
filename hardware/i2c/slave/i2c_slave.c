@@ -121,7 +121,9 @@ ISR (TWI_vect)
     }
 
     if(SLAVE.smbuscommand == 0xF0 && SLAVE.smbuscount == 1 && 0xF1 == TWDR){
-      cfg.request_bootloader = 1;
+#ifdef BOOTLOADER_JUMP
+      status.request_bootloader = 1;
+#endif
     }
     else if (SLAVE.smbuscommand == 0x40){
       if (SLAVE.byteanzahl > 1){
@@ -180,6 +182,4 @@ ISR (TWI_vect)
   }
   TWCR |= (1<<TWINT); //TWI wieder aktivieren
 }
-
-
 
