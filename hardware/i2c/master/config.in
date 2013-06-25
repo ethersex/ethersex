@@ -1,4 +1,4 @@
-dep_bool_menu "I2C master" I2C_MASTER_SUPPORT $ARCH_AVR
+dep_bool_menu "I2C master" I2C_MASTER_SUPPORT "$(not $I2C_SLAVE_SUPPORT)" $ARCH_AVR
   if [ "$I2C_MASTER_SUPPORT" = "y" ]; then
     int "I2C master baudrate in kHz" CONF_I2C_BAUD 400
   fi
@@ -55,6 +55,6 @@ dep_bool_menu "I2C master" I2C_MASTER_SUPPORT $ARCH_AVR
   fi
 
   comment  "Debugging Flags"
-  dep_bool "I2C" DEBUG_I2C $DEBUG
+  dep_bool "I2C" DEBUG_I2C $DEBUG $I2C_MASTER_SUPPORT
 
 endmenu
