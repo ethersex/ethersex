@@ -1,0 +1,7 @@
+dep_bool_menu "I2C slave" I2C_SLAVE_SUPPORT "$(not $I2C_MASTER_SUPPORT)" $UDP_SUPPORT $ARCH_AVR
+
+  comment  "Debugging Flags"
+  dep_bool 'I2C' DEBUG_I2C_SLAVE $DEBUG $I2C_SLAVE_SUPPORT
+
+endmenu
+
