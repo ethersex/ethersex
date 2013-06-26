@@ -95,3 +95,10 @@ ifdef(`conf_TANKLEVEL', `
 ifdef(`conf_TANKLEVEL_LOCK', `
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 ')
+
+ifdef(`conf_ROTORHAMLIB', ` 
+  pin(ROTOR_CW,    PC0, OUTPUT)
+  pin(ROTOR_CCW,   PC1, OUTPUT)
+  pin(ROTOR_BREAK, PC2, OUTPUT)
+')
+

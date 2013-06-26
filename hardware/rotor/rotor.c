@@ -71,6 +71,9 @@ void rotor_periodic(void)
 
   //syslog_sendf("%s,%d,%d", rtstr[rot.az_movement], rot.azimuth, rot.az_value); syslog_flush();
 
+#ifdef DEBUG_ROTOR_
+       debug_printf("ROTOR: %s,%d,%d\n", rtstr[rot.az_movement], rot.azimuth, rot.az_value);
+#endif
 
   if (rot.is_auto) {
     uint8_t mv = get_az_movement();
@@ -88,12 +91,18 @@ void rotor_periodic(void)
        job.az_stop = true;
        job.az_haswork = true;
        job.az_finish = false;
+#ifdef DEBUG_ROTOR
+       debug_printf("ROTOR: stop\n");
+#endif
 
     } else if (rot.az_movement == CW && rot.az_value >= rot.az_max_store) {
        job.az_stop_immediately = true;
        job.az_stop = true;
        job.az_haswork = true;
        job.az_finish = false;
+#ifdef DEBUG_ROTOR
+       debug_printf("ROTOR: stop\n");
+#endif
     }
   }
 
@@ -204,6 +213,9 @@ void break_free(uint16_t delay) {
   if(delay > 0)
     _delay_ms(delay250ms);
   PIN_SET(ROTOR_BREAK);
+#ifdef DEBUG_ROTOR
+       debug_printf("ROTOR: break free\n");
+#endif
 }
 
 /**
@@ -215,6 +227,9 @@ void break_set(uint16_t delay) {
   if(delay > 0)
     _delay_ms(delay250ms);
   PIN_CLEAR(ROTOR_BREAK);
+#ifdef DEBUG_ROTOR
+       debug_printf("ROTOR: break set\n");
+#endif
 }
 
 /**
@@ -234,6 +249,7 @@ void rotor_turn(uint8_t rotation, uint8_t isauto)
           break_free(500);
           _delay_ms(delay250ms);
 	}
+        break_free(0);
         PIN_SET(ROTOR_CW);
 	rot.az_movement = rotation;  // wieder setzen weil durch stop entfallen
       }
@@ -245,6 +261,7 @@ void rotor_turn(uint8_t rotation, uint8_t isauto)
           break_free(500);
           _delay_ms(delay250ms);
 	}
+        break_free(0);
         PIN_SET(ROTOR_CCW);
 	rot.az_movement = rotation;
       }
