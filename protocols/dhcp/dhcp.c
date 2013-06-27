@@ -290,8 +290,6 @@ void dhcp_set_static(void) {
 #ifdef EEPROM_SUPPORT
   /* Please Note: ip and &ip are NOT the same (cpp hell) */
   eeprom_restore_ip(ip, &ip);
-#else
-  set_CONF_ETHERSEX_IP(&ip);
 #endif
   uip_sethostaddr(&ip);
   
@@ -300,8 +298,6 @@ void dhcp_set_static(void) {
 #ifdef EEPROM_SUPPORT
   /* Please Note: ip and &ip are NOT the same (cpp hell) */
   eeprom_restore_ip(netmask, &ip);
-#else
-  set_CONF_ETHERSEX_IP4_NETMASK(&ip);
 #endif
   uip_setnetmask(&ip);
   
@@ -309,8 +305,6 @@ void dhcp_set_static(void) {
 #ifdef EEPROM_SUPPORT
   /* Please Note: ip and &ip are NOT the same (cpp hell) */
   eeprom_restore_ip(gateway, &ip);
-#else
-  set_CONF_ETHERSEX_GATEWAY(&ip);
 #endif
   uip_setdraddr(&ip);
   

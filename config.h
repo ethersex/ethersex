@@ -114,7 +114,7 @@
 #  define set_CONF_ETHERSEX_MAC(ip)		set_CONF_ENC_MAC(ip)
 #  define set_CONF_ETHERSEX_IP(ip)		set_CONF_ENC_IP(ip)
 #  define set_CONF_ETHERSEX_IP4_NETMASK(ip)	set_CONF_ENC_IP4_NETMASK(ip)
-#  define CONF_ETHERSEX_MAC		CONF_ENC_MAC
+#  define CONF_ETHERSEX_MAC			CONF_ENC_MAC
 
 #elif defined (TAP_SUPPORT)
 #  define set_CONF_ETHERSEX_MAC(ip)		set_CONF_TAP_MAC(ip)
