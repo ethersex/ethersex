@@ -136,6 +136,75 @@ md5(void* block, uint16_t length)
 }
 */
 
+char*
+sip_insert_md5_auth(char *d) {
+  // Form "username:realm:password"
+  char buffer[99]; //32 + : + 32 + : + 32 + \0
+  char* p = buffer;
+  strcpy(p, CONF_SIP_AUTH_USER);
+  p+=strlen(CONF_SIP_AUTH_USER);
+  *p++ = ':';
+  strcpy(p, realm);
+  p+=strlen(realm);
+  *p++ = ':';
+  strcpy(p, CONF_SIP_AUTH_PASS);
+  p+=strlen(CONF_SIP_AUTH_PASS);
+  *p = 0;
+
+  SIP_DEBUG("input h1: %s\r\n", buffer);
+  md5_ctx_t h1;
+  md5_init(&h1);
+  md5_lastBlock(&h1, buffer, (p-buffer)*8);
+
+
+  // Form "method:digesturi"
+  p = buffer;
+  strcpy(p, "INVITE");
+  p+=strlen("INVITE");
+  *p++ = ':';
+  strcpy(p, "sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP);
+  p+=strlen("sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP);
+  *p = 0;
+
+  SIP_DEBUG("input h2: %s\r\n", buffer);
+  md5_ctx_t h2;
+  md5_init(&h2);
+  md5_lastBlock(&h2, buffer, (p-buffer)*8);
+
+  // Response h1:nonce:h2
+  p = buffer;
+  MD5ToHex(&h1, p);
+  p += 32;
+  *p++ = ':';
+  strcpy(p, nonce);
+  p+=strlen(nonce);
+  *p++ = ':';
+  MD5ToHex(&h2, p);
+  p += 32;
+  *p = 0;
+
+  SIP_DEBUG("input response: %s\r\n", buffer);
+  md5_ctx_t response;
+  md5_init(&response);
+  md5_lastBlock(&response, buffer, (p-buffer)*8);
+
+  MD5ToHex(&response, buffer);
+  buffer[32]=0;
+  SIP_DEBUG("response: %s\r\n", buffer);
+
+  my_strcat_P(d, SIP_REALM);
+  strcpy(d, realm);
+  d+=strlen(realm);
+  my_strcat_P(d, SIP_NONCE);
+  strcpy(d, nonce);
+  d+=strlen(nonce);
+  my_strcat_P(d, SIP_RESPONSE);
+  strcpy(d, buffer);
+  d+=strlen(buffer);
+  my_strcat_P(d, SIP_ALGO);
+  return d;
+}
+
 char* 
 sip_append_cseg_number(char* p) {
   itoa(cseg_counter%10, p, 10);
@@ -351,76 +420,12 @@ sip_main()
       }
       else if (state == SIPS_INVITE_AUTH) 
       {  
-        // Form "username:realm:password"
-        char buffer[99]; //32 + : + 32 + : + 32 + \0
-        char* p = buffer;
-        strcpy(p, CONF_SIP_AUTH_USER);
-        p+=strlen(CONF_SIP_AUTH_USER);
-        *p++ = ':';
-        strcpy(p, realm);
-        p+=strlen(realm);
-        *p++ = ':';
-        strcpy(p, CONF_SIP_AUTH_PASS);
-        p+=strlen(CONF_SIP_AUTH_PASS);
-        *p = 0;
-        
-        SIP_DEBUG("input h1: %s\r\n", buffer);
-        md5_ctx_t h1;
-        md5_init(&h1);
-        md5_lastBlock(&h1, buffer, (p-buffer)*8);
-  
-  
-        // Form "method:digesturi"
-        p = buffer;
-        strcpy(p, "INVITE");
-        p+=strlen("INVITE");
-        *p++ = ':';
-        strcpy(p, "sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP);
-        p+=strlen("sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP);
-        *p = 0;
-  
-        SIP_DEBUG("input h2: %s\r\n", buffer);
-        md5_ctx_t h2;
-        md5_init(&h2);
-        md5_lastBlock(&h2, buffer, (p-buffer)*8);
-  
-        // Response h1:nonce:h2
-        p = buffer;
-        MD5ToHex(&h1, p);
-        p += 32;
-        *p++ = ':';
-        strcpy(p, nonce);
-        p+=strlen(nonce);
-        *p++ = ':';
-        MD5ToHex(&h2, p);
-        p += 32;
-        *p = 0;
-        
-        SIP_DEBUG("input response: %s\r\n", buffer);
-        md5_ctx_t response;
-        md5_init(&response);
-        md5_lastBlock(&response, buffer, (p-buffer)*8);
-  
-        MD5ToHex(&response, buffer);
-        buffer[32]=0;
-        SIP_DEBUG("response: %s\r\n", buffer);
-  
-  
-        p = uip_appdata;
+        char *p = uip_appdata;
         my_strcat_P(p, SIP_INVITE);
         my_strcat_P(p, SIP_HEADER);
         p = sip_append_cseg_number(p);
         my_strcat_P(p, SIP_HEADER2);
-        my_strcat_P(p, SIP_REALM);
-        strcpy(p, realm);
-        p+=strlen(realm);
-        my_strcat_P(p, SIP_NONCE);
-        strcpy(p, nonce);
-        p+=strlen(nonce);
-        my_strcat_P(p, SIP_RESPONSE);
-        strcpy(p, buffer);
-        p+=strlen(buffer);
-        my_strcat_P(p, SIP_ALGO);
+        p = sip_insert_md5_auth(p);
         my_strcat_P(p, SIP_CSEG);
         p = sip_append_cseg_number(p);
         my_strcat_P(p, SIP_INVITE);
