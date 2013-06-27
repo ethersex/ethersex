@@ -23,9 +23,6 @@
 #include <stdint.h>
 #include "config.h"
 
-#ifdef TOWERCTL_SUPPORT
-
-
 void tower_periodic(void);
 void tower_init(void);
 
@@ -38,5 +35,3 @@ uint8_t is_button_up;
 uint8_t is_button_down;
 
 void set_power(uint8_t on);
-
-#endif

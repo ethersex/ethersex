@@ -63,24 +63,9 @@ int16_t parse_cmd_pushbutton_down (char *cmd, char *output, uint16_t len)
       return ECMD_ERR_PARSE_ERROR;
 }
 
-// depricated
-int16_t parse_cmd_pushbutton (char *cmd, char *output, uint16_t len)
-{
-   uint16_t val1 = 0;
-   uint16_t val2 = 0;
-   uint8_t ret  = 0;
-
-   ret = sscanf_P(cmd, PSTR("%hhu %hhu"), &val1, &val2 );
-   if (ret == 2)
-	   //return ECMD_FINAL_OK;
-      return ECMD_FINAL(snprintf_P(output, len, PSTR("%u:%u"), val1, val2 ));
-   else
-      return ECMD_ERR_PARSE_ERROR;
-}
-
 int16_t parse_cmd_getstatus (char *cmd, char *output, uint16_t len)
 {
-   char* rtstr[] = {"np", "up", "down"};
+   char* rtstr[] = {PSTR("np"), PSTR("up"), PSTR("down")};
    uint8_t ret;
    if (is_button_up == 1)
       ret =  1;
@@ -108,16 +93,14 @@ int16_t parse_cmd_set_power (char *cmd, char *output, uint16_t len)
       return ECMD_ERR_PARSE_ERROR;
 }
 
-//  ecmd_feature(pushbutton, "tower set", BUTTON TIME, push the button)
-
 /*
   -- Ethersex META --
   header(hardware/tower/tower.h)
   timer(50, tower_periodic())
   init(tower_init)
-  ecmd_feature(pushbutton_up, "tower up" , TIME, push the button up)
-  ecmd_feature(pushbutton_down, "tower down", TIME, push the button down)
-  ecmd_feature(set_power, "tower power", ON, switch power)
-  ecmd_feature(getstatus, "tower status", , get the button)
+  ecmd_feature(pushbutton_up, "tower up" , TIME, calls the lift function for the specified time )
+  ecmd_feature(pushbutton_down, "tower down", TIME, calls the reduce function for the specified time)
+  ecmd_feature(set_power, "tower power", ON, switch the main power)
+  ecmd_feature(getstatus, "tower status", , get the status)
 */
 
