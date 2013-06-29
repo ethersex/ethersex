@@ -60,8 +60,8 @@ parse_cmd_i2c_24CXX_dir(char *cmd, char *output, uint16_t len)
     return ECMD_FINAL(snprintf_P(output, len, PSTR("read error")));
   }
 
-  *((vfs_eeprom_inode_t *) & cmd[1]) = file->next_file;
   int16_t l = snprintf_P(output, len, PSTR("%s"), file->filename);
+  *((vfs_eeprom_inode_t *) & cmd[1]) = file->next_file;
   return (file->next_file == 0 ? ECMD_FINAL(l) : ECMD_AGAIN(l));
 }
 
