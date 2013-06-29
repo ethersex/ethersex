@@ -49,7 +49,7 @@ vfs_eeprom_init(void)
   vfs_eeprom_read_page(0, buf, sizeof(struct vfs_eeprom_page_superblock));
   vfs_eeprom_debug("superblock %s\n", buf);
 
-  /* Page 0  is the superblock */
+  /* Page 0 is the superblock */
   struct vfs_eeprom_page_superblock *sb =
     (struct vfs_eeprom_page_superblock *) buf;
 
@@ -114,7 +114,7 @@ vfs_eeprom_find_free_page(vfs_eeprom_inode_t suggested)
 }
 
 static vfs_eeprom_inode_t
-vfs_eeprom_find_file(const char *filename)
+vfs_eeprom_find_file(const char *filename, vfs_eeprom_inode_t * prev_inode)
 {
   unsigned char buf[SFS_PAGE_SIZE];
   struct vfs_eeprom_page_file *file = (struct vfs_eeprom_page_file *) buf;
@@ -125,6 +125,8 @@ vfs_eeprom_find_file(const char *filename)
                             sizeof(struct vfs_eeprom_page_superblock)))
     return 0;
 
+  if (prev_inode)
+    *prev_inode = 0;
   vfs_eeprom_inode_t inode = sb->next_file;
   vfs_eeprom_debug("next file: %i\n", inode);
 
@@ -148,6 +150,8 @@ vfs_eeprom_find_file(const char *filename)
     {
       return inode;
     }
+    if (prev_inode)
+      *prev_inode = inode;
     inode = file->next_file;
   }
   vfs_eeprom_debug("file %s not found\n", filename);
@@ -157,7 +161,7 @@ vfs_eeprom_find_file(const char *filename)
 struct vfs_file_handle_t *
 vfs_eeprom_create(const char *filename)
 {
-  vfs_eeprom_inode_t inode = vfs_eeprom_find_file(filename);
+  vfs_eeprom_inode_t inode = vfs_eeprom_find_file(filename, NULL);
   vfs_eeprom_inode_t next_file = 0;
 
   unsigned char buf[SFS_PAGE_SIZE];
@@ -172,7 +176,7 @@ vfs_eeprom_create(const char *filename)
       vfs_eeprom_debug("no space left on device\n");
       return NULL;
     }
-    vfs_eeprom_inode_t last_file = vfs_eeprom_find_file(NULL);  /* find the last file */
+    vfs_eeprom_inode_t last_file = vfs_eeprom_find_file(NULL, NULL);    /* find the last file */
     vfs_eeprom_debug("last file in chain is %d\n", last_file);
     vfs_eeprom_write_slice(last_file, 3, (unsigned char *) &inode, 2);
   }
@@ -214,7 +218,7 @@ vfs_eeprom_create(const char *filename)
 struct vfs_file_handle_t *
 vfs_eeprom_open(const char *filename)
 {
-  vfs_eeprom_inode_t inode = vfs_eeprom_find_file(filename);
+  vfs_eeprom_inode_t inode = vfs_eeprom_find_file(filename, NULL);
 
   if (inode == 0)
     return NULL;
@@ -476,6 +480,43 @@ vfs_eeprom_write(struct vfs_file_handle_t * handle, void *data,
   }
 
   return written_len;
+}
+
+uint8_t
+vfs_eeprom_unlink(const char *filename)
+{
+  uint8_t buf[SFS_PAGE_SIZE];
+  struct vfs_eeprom_page_file *file_page =
+    (struct vfs_eeprom_page_file *) buf;
+  struct vfs_eeprom_page_data *data_page =
+    (struct vfs_eeprom_page_data *) buf;
+
+  vfs_eeprom_inode_t prev_inode;
+  vfs_eeprom_inode_t inode = vfs_eeprom_find_file(filename, &prev_inode);
+
+  if (inode == 0)
+    return 1;                   /* file not found */
+
+  vfs_eeprom_read_page(inode, buf, SFS_PAGE_SIZE);
+  vfs_eeprom_inode_t next_page = file_page->next_page;
+  vfs_eeprom_inode_t next_file = file_page->next_file;
+
+  vfs_eeprom_read_page(prev_inode, buf, SFS_PAGE_SIZE);
+  file_page->next_file = next_file;
+  vfs_eeprom_write_page(prev_inode, buf, SFS_PAGE_SIZE);
+
+  memset(buf, 0, SFS_PAGE_SIZE);
+  vfs_eeprom_write_page(inode, buf, SFS_PAGE_SIZE);
+
+  while (next_page)
+  {
+    vfs_eeprom_read_page(next_page, buf, 4);
+    next_page = data_page->next_page;
+    memset(buf, 0, SFS_PAGE_SIZE);
+    vfs_eeprom_write_page(inode, buf, SFS_PAGE_SIZE);
+  }
+
+  return 0;
 }
 
 /*

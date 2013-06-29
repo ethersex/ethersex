@@ -85,9 +85,10 @@ vfs_size_t vfs_eeprom_read(struct vfs_file_handle_t *handle, void *buffer, vfs_s
 vfs_size_t vfs_eeprom_filesize(struct vfs_file_handle_t *handle);
 uint8_t vfs_eeprom_fseek (struct vfs_file_handle_t *handle, vfs_size_t offset, uint8_t whence);
 struct vfs_file_handle_t * vfs_eeprom_create(const char * filename);
+uint8_t vfs_eeprom_unlink(const char * filename);
 
 
-#define VFS_EEPROM_FUNCS {				\
+#define VFS_EEPROM_FUNCS {		\
     "ee",	        		\
     vfs_eeprom_open,			\
     vfs_eeprom_close,			\
@@ -96,7 +97,7 @@ struct vfs_file_handle_t * vfs_eeprom_create(const char * filename);
     vfs_eeprom_fseek,                   \
     NULL,      /* truncate */           \
     vfs_eeprom_create,                  \
-    NULL,      /* unlink */             \
+    vfs_eeprom_unlink,                  \
     vfs_eeprom_filesize                 \
   }
 

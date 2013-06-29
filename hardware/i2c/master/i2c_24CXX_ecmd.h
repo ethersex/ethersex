@@ -25,5 +25,6 @@
 #include <stdint.h>
 
 int16_t parse_cmd_i2c_24CXX_dir(char *, char *, uint16_t);
+int16_t parse_cmd_i2c_24CXX_rm(char *, char *, uint16_t);
 
 #endif /* I2C_24CXX_ECMD_H */

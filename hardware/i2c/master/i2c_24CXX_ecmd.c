@@ -46,6 +46,8 @@ parse_cmd_i2c_24CXX_dir(char *cmd, char *output, uint16_t len)
       goto read_error;
 
     inode = ((struct vfs_eeprom_page_superblock *) buf)->next_file;
+    if (!inode)
+      return ECMD_FINAL_OK;
   }
   else
   {
@@ -65,9 +67,21 @@ parse_cmd_i2c_24CXX_dir(char *cmd, char *output, uint16_t len)
   return (file->next_file == 0 ? ECMD_FINAL(l) : ECMD_AGAIN(l));
 }
 
+int16_t
+parse_cmd_i2c_24CXX_rm(char *cmd, char *output, uint16_t len)
+{
+  while (*cmd == ' ')
+    cmd++;
+
+  return (vfs_eeprom_unlink(cmd) == 0 ?
+          ECMD_FINAL_OK : ECMD_FINAL(snprintf_P(output, len, PSTR("write error"))));
+
+}
+
 /*
   -- Ethersex META --
 
   block([[I2C]] (TWI))
   ecmd_feature(i2c_24CXX_dir, "ee dir",, List files in I2C EEPROM.)
+  ecmd_feature(i2c_24CXX_rm, "ee rm",PATH, Remove file PATH.)
 */
