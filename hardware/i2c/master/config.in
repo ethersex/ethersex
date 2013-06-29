@@ -3,11 +3,10 @@ dep_bool_menu "I2C master" I2C_MASTER_SUPPORT "$(not $I2C_SLAVE_SUPPORT)" $ARCH_
     int "I2C master baudrate in kHz" CONF_I2C_BAUD 400
   fi
   dep_bool "I2C detection support" I2C_DETECT_SUPPORT $I2C_MASTER_SUPPORT
-  dep_bool_menu "I2C generic read/write support" I2C_GENERIC_SUPPORT $I2C_MASTER_SUPPORT
+  dep_bool "I2C generic read/write support" I2C_GENERIC_SUPPORT $I2C_MASTER_SUPPORT
   if [ "$I2C_GENERIC_SUPPORT" = "y" ]; then
-    dep_bool "Add delays for slow devices" I2C_GENERIC_DELAYS $I2C_GENERIC_SUPPORT
+    dep_bool "  Add delays for slow devices" I2C_GENERIC_DELAYS $I2C_GENERIC_SUPPORT
   fi
-  endmenu
   dep_bool "I2C EEPROM (24cxx) support" I2C_24CXX_SUPPORT $I2C_MASTER_SUPPORT
   if [ "$I2C_24CXX_SUPPORT" = "y" ]; then
     int "I2C 24CXX Pagesize" CONF_I2C_24CXX_PAGESIZE 128
