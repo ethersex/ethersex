@@ -1459,7 +1459,7 @@ CONF_ETHERSEX_GATEWAY
 I2C Detection Support
 I2C_DETECT_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   enables automatic i2c bus IC detection, used by ecmd command "i2c detect"
   and other.
@@ -1467,7 +1467,7 @@ I2C_DETECT_SUPPORT
 I2C EEPROM (24cxx) Support
 I2C_24CXX_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   I2C EEPROM Support e.g M24C32, M24C64
 
@@ -1475,28 +1475,28 @@ I2C_24CXX_SUPPORT
 I2C LM75 temperature sensors
 I2C_LM75_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   Digital Temperatur Sensor and Thermal Watchdog IC LM75 Support
 
 I2C PCA9531 8-bit LED dimmer
 I2C_PCA9531_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   PCA9531 - 8-bit I2C LED dimmer Support for I2C-bus
 
 I2C PCF8574X Port extention
 I2C_PCF8574X_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   PCF8574 and PCF8574A Remote 8-bit I/O expander for I2C-bus
 
 Pin A0 on Vcc
 I2C_PCF8583_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   PCF8583 realtime clock for I2C-bus
 
@@ -1987,10 +1987,13 @@ PWM_SERVO_SUPPORT
   Support up to 10 servo motors to be controlled via ethersex. The
   PWM signal can be inverted if needed.
 
-I2C Master Support
+I2C Master
 I2C_MASTER_SUPPORT
+  Depends on:
+   * not I2C slave (I2C_SLAVE_SUPPORT)
+   * y (ARCH_AVR)
 
-  Support to send and receive I2C-Bus (TWI) commands.
+  Act as a master on I2C-Bus (TWI).
 
 MCUF Game Input Test
 MCUF_TEST_GAME_INPUT
@@ -2130,7 +2133,7 @@ ECMD_SMS_SUPPORT
 I2C to UDP Gateway
 I2C_UDP_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
 UDP/IP Gateway to transport I2C over IP. The default is port is 8995
@@ -2305,7 +2308,7 @@ RFM12_INLINE_SUPPORT
 Inline I2C
 I2C_INLINE_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
    * VFS File Inlining (VFS_INLINE_SUPPORT)
 
   Example page for I2C (TWI) chips, such as temperature sensor or
@@ -2740,7 +2743,7 @@ SER_RAM_23K256_RAMTEST
 I2C PCA9555 16bit Port extension
 I2C_PCA9555_SUPPORT
   Depends on:
-   * I2C Master Support (I2C_MASTER_SUPPORT)
+   * I2C Master (I2C_MASTER_SUPPORT)
 
   Enables support for the PCA9555 16-bit I2C Port extension
 
@@ -3218,4 +3221,13 @@ ECMD_LOG_VIA_SYSLOG
    * SYSLOG support (SYSLOG_SUPPORT)
 
   Log any received ECMD via SYSLOG.
+
+I2C slave
+I2C_SLAVE_SUPPORT
+  Depends on: 
+   * not I2C master (I2C_MASTER_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+   * y (ARCH_AVR)
+
+  Act as a slave on I2C-Bus (TWI).
 
