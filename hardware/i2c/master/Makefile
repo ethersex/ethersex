@@ -21,6 +21,7 @@ $(I2C_DS13X7_SUPPORT)_SRC += hardware/i2c/master/i2c_ds13x7.c
 $(I2C_PCF8583_SUPPORT)_SRC += hardware/i2c/master/i2c_pcf8583.c
 
 $(I2C_24CXX_SUPPORT)_SRC += hardware/i2c/master/i2c_24CXX.c
+$(I2C_24CXX_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_24CXX_ecmd.c
 
 $(I2C_TSL2550_SUPPORT)_SRC += hardware/i2c/master/i2c_tsl2550.c
 $(I2C_TSL2550_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_tsl2550_ecmd.c

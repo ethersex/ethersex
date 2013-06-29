@@ -1,0 +1,9 @@
+mainmenu_option next_comment
+
+  comment "I2C"
+
+  source hardware/i2c/master/config.in
+  source hardware/i2c/slave/config.in
+
+endmenu
+

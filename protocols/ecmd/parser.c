@@ -175,6 +175,13 @@ extern unsigned char __heap_start;
 int16_t
 parse_cmd_free(char *cmd, char *output, uint16_t len)
 {
+  /* trick: use bytes on cmd as "connection specific static variables" */
+  if (cmd[0] != ECMD_STATE_MAGIC)
+  {                             /* indicator flag: real invocation:  0 */
+    cmd[0] = ECMD_STATE_MAGIC;  /*                 continuing call: 23 */
+    cmd[1] = 0;                 /* counter for output lines */
+  }
+
   /* Docu March 2009: http://www.nongnu.org/avr-libc/user-manual/malloc.html
    * Stack size: RAMEND-SP
    * Heap size: __brkval-__heap_start
@@ -193,10 +200,19 @@ parse_cmd_free(char *cmd, char *output, uint16_t len)
    * heap: 10234
    * net: 500
    */
+  switch (cmd[1]++)
+  {
+    case 0:
+      return ECMD_AGAIN(snprintf_P(output, len,
+                                   PSTR("free: %u/%u"),
+                                   SP - f, allram));
+    case 1:
+      return ECMD_AGAIN(snprintf_P(output, len,
+                                   PSTR("heap: %u"),
+                                   f - (size_t) & __heap_start));
+  }
   return ECMD_FINAL(snprintf_P(output, len,
-                               PSTR("free: %d/%d\nheap: %d\nnet: "
-                                    xstr(NET_MAX_FRAME_LENGTH)), SP - f,
-                               allram, f - (size_t) & __heap_start));
+                               PSTR("net: " xstr(NET_MAX_FRAME_LENGTH))));
 }
 #endif /* FREE_SUPPORT */
 
