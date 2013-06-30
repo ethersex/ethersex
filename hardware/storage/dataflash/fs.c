@@ -810,7 +810,7 @@ fs_status_t fs_create(fs_t *fs, const char *name)
 
 }
 
-fs_status_t fs_remove(fs_t *fs, char *name)
+fs_status_t fs_remove(fs_t *fs, const char *name)
 {
 
     /* search for this filename in the nodetable */

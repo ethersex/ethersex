@@ -82,7 +82,7 @@ fs_size_t noinline fs_read(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offs
 fs_status_t noinline fs_write(fs_t *fs, fs_inode_t inode, void *buf, fs_size_t offset, fs_size_t length);
 fs_status_t noinline fs_truncate(fs_t *fs, fs_inode_t inode, fs_size_t length);
 fs_status_t noinline fs_create(fs_t *fs, const char *name);
-fs_status_t noinline fs_remove(fs_t *fs, char *name);
+fs_status_t noinline fs_remove(fs_t *fs, const char *name);
 fs_size_t noinline fs_size(fs_t *fs, fs_inode_t inode);
 
 /* local */

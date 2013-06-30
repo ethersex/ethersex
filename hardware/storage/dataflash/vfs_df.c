@@ -130,6 +130,12 @@ vfs_df_create (const char *name)
 }
 
 
+uint8_t
+vfs_df_unlink (const char *name)
+{
+  return fs_remove (&fs, name);
+}
+
 vfs_size_t
 vfs_df_size (struct vfs_file_handle_t *fh)
 {
