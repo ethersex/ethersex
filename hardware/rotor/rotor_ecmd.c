@@ -45,7 +45,7 @@ char* rtstr[] = {"not defined", "hold", "cw", "ccw"};
 int16_t parse_cmd_rotor_status(char *cmd, char *output, uint16_t len)
 {
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s az=%d el=%d v=%d ad0=%d"),
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%-4s az=%d el=%d v=%d ad0=%d"),
                                rtstr[rot.az_movement],
 			       rot.azimuth,
 			       rot.elevation,
