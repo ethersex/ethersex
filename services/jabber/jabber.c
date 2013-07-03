@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "protocols/uip/uip.h"
+#include "core/eeprom.h"
 #include "jabber.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/ecmd-base.h"
