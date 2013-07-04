@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009 by Stefan Müller <mueller@cos-gbr.de>
+ * Copyright (c) 2009 Stefan Müller <mueller@cos-gbr.de>
+ * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,95 +31,99 @@
 #include "core/eeprom.h"
 
 #include "protocols/ecmd/ecmd-base.h"
+#include "jabber_ecmd.h"
 
 
-#ifdef JABBER_EEPROM_SUPPORT
-
-int16_t parse_cmd_user (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_user(char *cmd, char *output, uint16_t len)
 {
-	JABDEBUG ("username\n");
-	while (*cmd == ' ')
-	cmd++;
+  JABDEBUG("username\n");
+  while (*cmd == ' ')
+    cmd++;
 
-    if (*cmd != '\0') {
-		memset(jabber_user, 0, JABBER_VALUESIZE);
-		memcpy(jabber_user, cmd, JABBER_VALUESIZE);
-		eeprom_save(jabber_username, cmd, strlen(cmd));
-		eeprom_update_chksum();
-		JABDEBUG ("set new : %s\n",cmd);
-		return ECMD_FINAL_OK;
-    }
-    else {
-    	JABDEBUG ("get current : %s\n ",jabber_user);
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_user));
-    }	
+  if (*cmd != '\0')
+  {
+    memset(jabber_user, 0, JABBER_VALUESIZE);
+    memcpy(jabber_user, cmd, JABBER_VALUESIZE);
+    eeprom_save(jabber_username, cmd, strlen(cmd));
+    eeprom_update_chksum();
+    JABDEBUG("set new : %s\n", cmd);
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    JABDEBUG("get current : %s\n ", jabber_user);
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_user));
+  }
 }
 
-int16_t parse_cmd_pass (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_pass(char *cmd, char *output, uint16_t len)
 {
-	
-	while (*cmd == ' ')
-	cmd++;
+  while (*cmd == ' ')
+    cmd++;
 
-    if (*cmd != '\0') {
-		memset(jabber_pass, 0, JABBER_VALUESIZE);
-		memcpy(jabber_pass, cmd, JABBER_VALUESIZE);
-		eeprom_save(jabber_password, cmd, strlen(cmd));
-		eeprom_update_chksum();
-		return ECMD_FINAL_OK;
-    }
-    else {
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_pass));
-    }	
+  if (*cmd != '\0')
+  {
+    memset(jabber_pass, 0, JABBER_VALUESIZE);
+    memcpy(jabber_pass, cmd, JABBER_VALUESIZE);
+    eeprom_save(jabber_password, cmd, strlen(cmd));
+    eeprom_update_chksum();
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_pass));
+  }
 }
 
-int16_t parse_cmd_resrc (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_resrc(char *cmd, char *output, uint16_t len)
 {
-	
-	while (*cmd == ' ')
-	cmd++;
+  while (*cmd == ' ')
+    cmd++;
 
-    if (*cmd != '\0') {
-		memset(jabber_resrc, 0, JABBER_VALUESIZE);
-		memcpy(jabber_resrc, cmd, JABBER_VALUESIZE);
-		eeprom_save(jabber_resource, cmd, strlen(cmd));
-		eeprom_update_chksum();
-		return ECMD_FINAL_OK;
-    }
-    else {
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_resrc));
-    }	
+  if (*cmd != '\0')
+  {
+    memset(jabber_resrc, 0, JABBER_VALUESIZE);
+    memcpy(jabber_resrc, cmd, JABBER_VALUESIZE);
+    eeprom_save(jabber_resource, cmd, strlen(cmd));
+    eeprom_update_chksum();
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_resrc));
+  }
 }
 
-int16_t parse_cmd_host (char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_host(char *cmd, char *output, uint16_t len)
 {
-	
-	while (*cmd == ' ')
-	cmd++;
+  while (*cmd == ' ')
+    cmd++;
 
-    if (*cmd != '\0') {
-		memset(jabber_host, 0, JABBER_VALUESIZE);
-		memcpy(jabber_host, cmd, JABBER_VALUESIZE);
-		eeprom_save(jabber_hostname, cmd, strlen(cmd));
-		eeprom_update_chksum();
-		return ECMD_FINAL_OK;
-    }
-    else {
-		return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_host));
-    }	
+  if (*cmd != '\0')
+  {
+    memset(jabber_host, 0, JABBER_VALUESIZE);
+    memcpy(jabber_host, cmd, JABBER_VALUESIZE);
+    eeprom_save(jabber_hostname, cmd, strlen(cmd));
+    eeprom_update_chksum();
+    return ECMD_FINAL_OK;
+  }
+  else
+  {
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_host));
+  }
 }
-
-#endif
 
 
 /*
   -- Ethersex META --
-  block([[Jabber]])
-ecmd_ifdef(JABBER_EEPROM_SUPPORT)
-  ecmd_feature(user, "jabber_user", [USERNAME], JABBER username)
-  ecmd_feature(pass, "jabber_pass", [PASSWORD], JABBER password)
-  ecmd_feature(pass, "jabber_resrc", [RESOURCE], JABBER resource)
-  ecmd_feature(pass, "jabber_host", [HOSTNAME], JABBER hostname)
-ecmd_endif()
-*/
 
+  block([[Jabber]])
+  ecmd_feature(user,  "jabber_user",  USERNAME, JABBER username)
+  ecmd_feature(pass,  "jabber_pass",  PASSWORD, JABBER password)
+  ecmd_feature(resrc, "jabber_resrc", RESOURCE, JABBER resource)
+  ecmd_feature(host,  "jabber_host",  HOSTNAME, JABBER hostname)
+*/

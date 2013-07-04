@@ -2,6 +2,7 @@ TOPDIR ?= ..
 include $(TOPDIR)/.config
 
 $(JABBER_SUPPORT)_SRC += services/jabber/jabber.c
+$(JABBER_EEPROM_SUPPORT)_ECMD_SRC += services/jabber/jabber_ecmd.c
 
 ##############################################################################
 # generic fluff
