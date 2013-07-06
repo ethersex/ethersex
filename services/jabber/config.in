@@ -5,7 +5,7 @@ dep_bool_menu "Jabber Client" JABBER_SUPPORT $TCP_SUPPORT
 	string "Password" CONF_JABBER_PASSWORD "password"
 	string "Recource" CONF_JABBER_RESOURCE "ethersex"
 	string "Target Buddy Name" CONF_JABBER_BUDDY "stesie@jabber.zerties.org"
-    dep_bool 'Use EEPROM' JABBER_EEPROM_SUPPORT $JABBER_SUPPORT
+    dep_bool 'Use EEPROM' JABBER_EEPROM_SUPPORT $JABBER_SUPPORT "$(not $TEENSY_SUPPORT)"
     dep_bool "Enable startup message" JABBER_STARTUP_MESSAGE_SUPPORT $JABBER_SUPPORT
     dep_bool "Last Info" JABBER_LAST_SUPPORT $JABBER_SUPPORT
     if [ "$JABBER_LAST_SUPPORT" = "y" ]; then

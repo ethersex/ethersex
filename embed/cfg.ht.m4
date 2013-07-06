@@ -108,7 +108,7 @@ ifdef({{conf_SMS77}},{{dnl
 	<td><input type="text" id="sms77_recv" onChange='getCmd("sms77_recv" + this.value, changeState, this);'></td>
 	</tr>	
 }})dnl
-ifdef({{conf_JABBER}},{{dnl
+ifdef({{conf_JABBER_EEPROM}},{{dnl
 	<tr>
 	<td>JABBER User</td>
 	<td><input type="text" id="jabber_user" onChange='getCmd("jabber_user" + this.value, changeState, this);'></td>

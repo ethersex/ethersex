@@ -37,24 +37,19 @@
 int16_t
 parse_cmd_user(char *cmd, char *output, uint16_t len)
 {
-  JABDEBUG("username\n");
   while (*cmd == ' ')
     cmd++;
 
   if (*cmd != '\0')
   {
-    memset(jabber_user, 0, JABBER_VALUESIZE);
-    memcpy(jabber_user, cmd, JABBER_VALUESIZE);
-    eeprom_save(jabber_username, cmd, strlen(cmd));
+    strncpy(jabber_user, cmd, sizeof(jabber_user));
+    jabber_user[sizeof(jabber_user) - 1] = '\0';
+    eeprom_save(jabber_username, jabber_user, JABBER_VALUESIZE);
     eeprom_update_chksum();
-    JABDEBUG("set new : %s\n", cmd);
     return ECMD_FINAL_OK;
   }
-  else
-  {
-    JABDEBUG("get current : %s\n ", jabber_user);
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_user));
-  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_user));
 }
 
 int16_t
@@ -65,16 +60,14 @@ parse_cmd_pass(char *cmd, char *output, uint16_t len)
 
   if (*cmd != '\0')
   {
-    memset(jabber_pass, 0, JABBER_VALUESIZE);
-    memcpy(jabber_pass, cmd, JABBER_VALUESIZE);
-    eeprom_save(jabber_password, cmd, strlen(cmd));
+    strncpy(jabber_pass, cmd, sizeof(jabber_pass));
+    jabber_pass[sizeof(jabber_pass) - 1] = '\0';
+    eeprom_save(jabber_password, jabber_pass, JABBER_VALUESIZE);
     eeprom_update_chksum();
     return ECMD_FINAL_OK;
   }
-  else
-  {
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_pass));
-  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_pass));
 }
 
 int16_t
@@ -85,16 +78,14 @@ parse_cmd_resrc(char *cmd, char *output, uint16_t len)
 
   if (*cmd != '\0')
   {
-    memset(jabber_resrc, 0, JABBER_VALUESIZE);
-    memcpy(jabber_resrc, cmd, JABBER_VALUESIZE);
-    eeprom_save(jabber_resource, cmd, strlen(cmd));
+    strncpy(jabber_resrc, cmd, sizeof(jabber_resrc));
+    jabber_resrc[sizeof(jabber_resrc) - 1] = '\0';
+    eeprom_save(jabber_resource, jabber_resrc, JABBER_VALUESIZE);
     eeprom_update_chksum();
     return ECMD_FINAL_OK;
   }
-  else
-  {
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_resrc));
-  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_resrc));
 }
 
 int16_t
@@ -105,16 +96,14 @@ parse_cmd_host(char *cmd, char *output, uint16_t len)
 
   if (*cmd != '\0')
   {
-    memset(jabber_host, 0, JABBER_VALUESIZE);
-    memcpy(jabber_host, cmd, JABBER_VALUESIZE);
-    eeprom_save(jabber_hostname, cmd, strlen(cmd));
+    strncpy(jabber_host, cmd, sizeof(jabber_host));
+    jabber_host[sizeof(jabber_host) - 1] = '\0';
+    eeprom_save(jabber_hostname, jabber_host, JABBER_VALUESIZE);
     eeprom_update_chksum();
     return ECMD_FINAL_OK;
   }
-  else
-  {
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_host));
-  }
+
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), jabber_host));
 }
 
 
@@ -122,8 +111,8 @@ parse_cmd_host(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
 
   block([[Jabber]])
-  ecmd_feature(user,  "jabber_user",  USERNAME, JABBER username)
-  ecmd_feature(pass,  "jabber_pass",  PASSWORD, JABBER password)
-  ecmd_feature(resrc, "jabber_resrc", RESOURCE, JABBER resource)
-  ecmd_feature(host,  "jabber_host",  HOSTNAME, JABBER hostname)
+  ecmd_feature(user,  "jabber_user",  [USERNAME], JABBER username)
+  ecmd_feature(pass,  "jabber_pass",  [PASSWORD], JABBER password)
+  ecmd_feature(resrc, "jabber_resrc", [RESOURCE], JABBER resource)
+  ecmd_feature(host,  "jabber_host",  [HOSTNAME], JABBER hostname)
 */
