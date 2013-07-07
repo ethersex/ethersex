@@ -118,7 +118,7 @@ static const char PROGMEM jabber_startup_text[] =
   "Your Ethersex '" CONF_HOSTNAME "' is now UP :)";
 
 
-#define JABBER_SEND_BUFLEN (sizeof(UIP_BUFSIZE)-UIP_IPTCPH_LEN-UIP_LLH_LEN)
+#define JABBER_SEND_BUFLEN (sizeof(UIP_BUFSIZE)-UIP_IPTCPH_LEN-UIP_LLH_LEN-1)
 #define JABBER_SEND(...) {                                           \
     int len;                                                         \
     len = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN, __VA_ARGS__); \
