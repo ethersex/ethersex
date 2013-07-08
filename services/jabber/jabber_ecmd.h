@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2009 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 Stefan Müller <mueller@cos-gbr.de>
  * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,29 +20,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef JABBER_H
-#define JABBER_H
+#ifndef JABBER_ECMD_H
+#define JABBER_ECMD_H
 
 #include <stdint.h>
-#include "config.h"
 
-#ifdef DEBUG_JABBER
-#include "core/debug.h"
-#define JABDEBUG(a...)  debug_printf("jabber: " a)
-#else
-#define JABDEBUG(a...)
-#endif
+int16_t parse_cmd_user(char *, char *, uint16_t);
+int16_t parse_cmd_pass(char *, char *, uint16_t);
+int16_t parse_cmd_resrc(char *, char *, uint16_t);
+int16_t parse_cmd_host(char *, char *, uint16_t);
 
-#ifdef JABBER_EEPROM_SUPPORT
-#define JABBER_VALUESIZE 16
-extern char jabber_user[JABBER_VALUESIZE];
-extern char jabber_pass[JABBER_VALUESIZE];
-extern char jabber_resrc[JABBER_VALUESIZE];
-extern char jabber_host[JABBER_VALUESIZE];
-#endif
-
-void jabber_init(void);
-void jabber_periodic(void);
-uint8_t jabber_send_message(char *message);
-
-#endif /* JABBER_H */
+#endif /* JABBER_ECMD_H */
