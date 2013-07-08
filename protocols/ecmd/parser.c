@@ -53,7 +53,8 @@ ecmd_parse_command(char *cmd, char *output, uint16_t len)
   debug_printf("called ecmd_parse_command %s\n", cmd);
 #endif
 #ifdef ECMD_LOG_VIA_SYSLOG
-  syslog_sendf_P(PSTR("ecmd: %s"), cmd);
+  if (0 == strchr(cmd, ECMD_STATE_MAGIC))
+    syslog_sendf_P(PSTR("ecmd: %s"), cmd);
 #endif
 
 #ifdef ECMD_REMOVE_BACKSPACE_SUPPORT
