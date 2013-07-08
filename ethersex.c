@@ -215,7 +215,11 @@ main (void)
     if (sd_active_partition == NULL)
     {
       if (!sd_try_init())
+      {
+#ifdef VFS_SD_SUPPORT
         vfs_sd_try_open_rootnode();
+#endif
+      }
       wdt_kick();
     }
 #endif
