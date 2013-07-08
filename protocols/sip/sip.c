@@ -79,6 +79,8 @@ const char PROGMEM SIP_INVITE[] = "INVITE";
 const char PROGMEM SIP_BYE[]    = "BYE"; 
 const char PROGMEM SIP_REGISTER[]="REGISTER"; 
 
+const char PROGMEM SIP_HEADER_URI[] = "sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP;
+
 const char PROGMEM SIP_HEADER[] = " sip:"CONF_SIP_TO"@" CONF_SIP_PROXY_IP " SIP/2.0\r\n"
                                   "Via: SIP/2.0/UDP "CONF_ENC_IP":" STR(SIP_PORT) ";rport;branch=z9hG4bK1234." ;
 const char PROGMEM SIP_HEADER2[]= "\r\nFrom: \"Doorbell\" <sip:"CONF_SIP_AUTH_USER"@"CONF_SIP_PROXY_IP">;tag=pfhdc\r\n"
@@ -89,7 +91,8 @@ const char PROGMEM SIP_HEADER2[]= "\r\nFrom: \"Doorbell\" <sip:"CONF_SIP_AUTH_US
                                   "Authorization: Digest username=\""CONF_SIP_AUTH_USER"\"";
 const char PROGMEM SIP_REALM[]  = ", realm=\"";
 const char PROGMEM SIP_NONCE[]  = "\", nonce=\"";
-const char PROGMEM SIP_RESPONSE[]  = "\", uri=\"sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP"\", response=\"";
+const char PROGMEM SIP_URI[]    = "\", uri=\"";
+const char PROGMEM SIP_RESPONSE[]  = "\", response=\"";
 const char PROGMEM SIP_ALGO[]    = "\", algorithm=MD5";
 const char PROGMEM SIP_CSEG[]    = "\r\nCSeq:";
 const char PROGMEM SIP_HEADEREND[] =  "\r\n\r\n";
@@ -137,7 +140,7 @@ md5(void* block, uint16_t length)
 */
 
 char*
-sip_insert_md5_auth(char *d) {
+sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri) {
   // Form "username:realm:password"
   char buffer[99]; //32 + : + 32 + : + 32 + \0
   char* p = buffer;
@@ -159,11 +162,11 @@ sip_insert_md5_auth(char *d) {
 
   // Form "method:digesturi"
   p = buffer;
-  strcpy(p, "INVITE");
-  p+=strlen("INVITE");
+  strcpy_P(p, method);
+  p+=strlen_P(method);
   *p++ = ':';
-  strcpy(p, "sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP);
-  p+=strlen("sip:"CONF_SIP_TO"@"CONF_SIP_PROXY_IP);
+  strcpy_P(p, uri);
+  p+=strlen_P(uri);
   *p = 0;
 
   SIP_DEBUG("input h2: %s\r\n", buffer);
@@ -198,6 +201,9 @@ sip_insert_md5_auth(char *d) {
   my_strcat_P(d, SIP_NONCE);
   strcpy(d, nonce);
   d+=strlen(nonce);
+  my_strcat_P(d, SIP_URI);
+  strcpy_P(d, uri);
+  d+=strlen_P(uri);
   my_strcat_P(d, SIP_RESPONSE);
   strcpy(d, buffer);
   d+=strlen(buffer);
@@ -398,7 +404,7 @@ sip_main()
       if (pollcounter == 0) {
 	      cseg_counter++;
 	      state = SIPS_IDLE;
-			}
+      }
     }        
     //Every 1 sec repeat last UDP-Telegramm, may be lost. 
     if (pollcounter % 10 == 0) {
@@ -425,7 +431,7 @@ sip_main()
         my_strcat_P(p, SIP_HEADER);
         p = sip_append_cseg_number(p);
         my_strcat_P(p, SIP_HEADER2);
-        p = sip_insert_md5_auth(p);
+        p = sip_insert_md5_auth(p, SIP_INVITE, SIP_HEADER_URI);
         my_strcat_P(p, SIP_CSEG);
         p = sip_append_cseg_number(p);
         my_strcat_P(p, SIP_INVITE);
@@ -459,7 +465,6 @@ sip_main()
         my_strcat_P(p, SIP_CSEG);
         p = sip_append_cseg_number(p);
         my_strcat_P(p, SIP_BYE);
-				//include basic auth
         my_strcat_P(p, SIP_HEADEREND);
     
         uip_udp_send(p - (char *)uip_appdata);
