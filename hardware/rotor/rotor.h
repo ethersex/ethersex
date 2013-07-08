@@ -26,9 +26,6 @@
 #ifdef ROTORHAMLIB_SUPPORT
 
 
-#define HYSTERESIS 0       /* Hysterese 2 Grad */
-
-
 void     rotor_init(void);
 void     rotor_periodic(void);
 
@@ -38,23 +35,23 @@ void     rotor_stop(uint8_t);
 void     rotor_park();
 
 void     break_free(uint16_t delay);
-void     break_set(uint16_t delay);
+void     break_set();
 
 uint8_t  get_az_movement();
 uint16_t get_adc(int channel);
 
 struct rot_t {
    /* azimuth values */
-   uint8_t  az_movement;  // in the direction of movement
-   uint16_t az_preset;    // desired target
-   uint16_t azimuth;      // current angle of rotation
-   uint16_t az_value;     // current value of rotation
+   uint8_t  az_movement;  // direction of movement
+   int16_t az_preset;    // desired target
+   int16_t azimuth;      // current angle of rotation
+   int16_t az_value;     // current value of rotation
    uint16_t az_min_store, az_max_store;
 
    /* elevation values */
-   uint8_t  el_movement;  // in the direction of movement
-   uint16_t el_preset;    // desired target
-   uint16_t elevation;    // current angle of elevation
+   uint8_t  el_movement;  // direction of movement
+   int16_t el_preset;    // desired target
+   int16_t elevation;    // current angle of elevation
    
    uint8_t  is_auto;
    uint16_t speed;

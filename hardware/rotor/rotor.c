@@ -44,7 +44,9 @@
 * CW  bedeutet clockwise        -> Rechtsdrehung
 * CCW bedeutet counterclockwise -> Linksdrehung
 * nord = 0 , ost = 90 , sued = 180 , west = 270
-+ enum {NO, CW, CCW};
+* ad values from ham 4 ---> ham 4 mode needs -180 to 180 mode
+* adc   50%        75%      0%/100%          25%
+* enum {NO, CW, CCW};
 */
 
 extern char* rtstr[];
@@ -67,6 +69,11 @@ void rotor_periodic(void)
   
   az *= 360;
   az /= (rot.az_max_store - rot.az_min_store);
+
+#ifdef ROTOR_HAM4_SUPPORT
+  az -= 180;
+#endif
+
   rot.azimuth = az;
 
   //syslog_sendf("%s,%d,%d", rtstr[rot.az_movement], rot.azimuth, rot.az_value); syslog_flush();
@@ -186,7 +193,7 @@ void rotor_stop(uint8_t immediately) {
   
 
   syslog_sendf("rotor_stop %d,%d", rot.azimuth, rot.az_value); syslog_flush();
-  break_set(250);
+  break_set();
 
 }
 
@@ -222,11 +229,11 @@ void break_free(uint16_t delay) {
 * close break (break is in use)
 * @param delay in ms
 */
-void break_set(uint16_t delay) {
-  uint16_t delay250ms = 200;
-  if(delay > 0)
-    _delay_ms(delay250ms);
+void break_set() {
+#ifdef ROTOR_HAM4_SUPPORT
   PIN_CLEAR(ROTOR_BREAK);
+#endif
+
 #ifdef DEBUG_ROTOR
        debug_printf("ROTOR: break set\n");
 #endif
@@ -304,13 +311,13 @@ uint8_t  get_az_movement() {
 
   //syslog_sendf("move:az=%d ps=%d", rot.azimuth, rot.az_preset); syslog_flush();
   
-  if (rot.azimuth >= rot.az_preset && rot.azimuth <= rot.az_preset + HYSTERESIS) {
+  if (rot.azimuth >= rot.az_preset && rot.azimuth <= rot.az_preset) {
     return NO;
-  } else if (rot.azimuth <= rot.az_preset && rot.azimuth >= rot.az_preset - HYSTERESIS) {
+  } else if (rot.azimuth <= rot.az_preset && rot.azimuth >= rot.az_preset) {
     return NO;
-  } else if (rot.azimuth < rot.az_preset - HYSTERESIS) {
+  } else if (rot.azimuth < rot.az_preset) {
     return CW;
-  } else if (rot.azimuth > rot.az_preset + HYSTERESIS) {
+  } else if (rot.azimuth > rot.az_preset) {
     return CCW;
   }
   return rot.az_movement;

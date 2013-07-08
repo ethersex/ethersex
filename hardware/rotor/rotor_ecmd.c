@@ -61,7 +61,8 @@ int16_t parse_cmd_rotor_status(char *cmd, char *output, uint16_t len)
 */
 int16_t parse_cmd_rotor_azimuth(char *cmd, char *output, uint16_t len)
 {
-  uint16_t az_angle, speed;
+  uint16_t speed;
+  int16_t az_angle;
 
   while(*cmd == ' ') cmd++;
 
