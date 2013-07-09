@@ -1309,6 +1309,38 @@ CONF_JABBER_BUDDY
   well as messages emitted by 6Control scripts shall be
   sent to.
 
+Use EEPROM
+JABBER_EEPROM_SUPPORT
+  Depends on: 
+   * Jabber Client (JABBER_SUPPORT)
+   * !NOT! TEENSY_SUPPORT
+
+  If enabled, the Jabber settings will be changeable and stored in
+  EEPROM.
+
+Enable startup message
+JABBER_STARTUP_MESSAGE_SUPPORT
+  Depends on:
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables a friendly startup message, which is sent to the target buddy
+  on each reboot.
+
+Last Info
+JABBER_LAST_SUPPORT
+  Depends on:
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables the last-seen feature of this ethersex jabber client.
+
+Version Info
+JABBER_VERSION_SUPPORT
+  Depends on:
+   * Jabber Client (JABBER_SUPPORT)
+
+  Enables to send version details of the ethersex jabber client.
+  Change the values if you need to.
+
 Alias Command Names
 ALIASCMD_SUPPORT
   Depends on:
@@ -2153,29 +2185,6 @@ WOL_SUPPORT
 
   Automatic power-on feature over network. This needs a networking
   device capable of turning itself on at a given command.
-
-Enable startup message
-JABBER_STARTUP_MESSAGE_SUPPORT
-  Depends on:
-   * Jabber Client (JABBER_SUPPORT)
-
-  Enables a friendly startup message, which is sent to the target buddy
-  on each reboot.
-
-Last Info
-JABBER_LAST_SUPPORT
-  Depends on:
-   * Jabber Client (JABBER_SUPPORT)
-
-  Enables the last-seen feature of this ethersex jabber client.
-
-Version Info
-JABBER_VERSION_SUPPORT
-  Depends on:
-   * Jabber Client (JABBER_SUPPORT)
-
-  Enables to send version details of the ethersex jabber client.
-  Change the values if you need to.
 
 Ultrasonic Debug
 DEBUG_ULTRASONIC

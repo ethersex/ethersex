@@ -46,7 +46,6 @@ define(`buddy_counter', incr(buddy_counter))dnl
 divert(-1)')
 
 divert(4)dnl
-        NULL
 };
 divert(-1)dnl
 dnl yippie, we're done!

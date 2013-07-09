@@ -146,26 +146,29 @@
    - ECMD without TEENSY (IP address configuration etc.)
    - BOOTP with to-EEPROM-feature
    - STELLA with eeprom load/write support */
-#if (defined(ECMD_PARSER_SUPPORT) && (!defined(TEENSY_SUPPORT)))  \
-  || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)) \
-  || (defined(STELLA_SUPPORT) && !defined(TEENSY_SUPPORT))
+#if (defined(ECMD_PARSER_SUPPORT) && !defined(TEENSY_SUPPORT))   || \
+    (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)) || \
+    (defined(STELLA_SUPPORT) && !defined(TEENSY_SUPPORT))        || \
+    defined(JABBER_EEPROM_SUPPORT)
 #  define EEPROM_SUPPORT 1
 #endif
 
 
 /* Figure out whether we need CRC_SUPPORT: */
-#if defined(EEPROM_SUPPORT)			\
-  || defined(ONEWIRE_SUPPORT)			\
-  || defined(VFS_INLINE_SUPPORT)		\
-  || defined(TFTP_SUPPORT)
+#if defined(EEPROM_SUPPORT)     || \
+    defined(ONEWIRE_SUPPORT)    || \
+    defined(VFS_INLINE_SUPPORT) || \
+    defined(TFTP_SUPPORT)
 #  define CRC_SUPPORT 1
 #endif
 
-#if defined(VFS_SUPPORT) && defined(VFS_INLINE_SUPPORT)	  \
-  && !defined(VFS_SD_SUPPORT) && !defined(VFS_DF_SUPPORT) \
-  && !defined(VFS_EEPROM_SUPPORT)			  \
-  && !defined(VFS_EEPROM_RAW_SUPPORT)			  \
-  && !defined(VFS_DC3840_SUPPORT)
+#if defined(VFS_SUPPORT)             && \
+    defined(VFS_INLINE_SUPPORT)	     && \
+    !defined(VFS_SD_SUPPORT)         && \
+    !defined(VFS_DF_SUPPORT)         && \
+    !defined(VFS_EEPROM_SUPPORT)     && \
+    !defined(VFS_EEPROM_RAW_SUPPORT) && \
+    !defined(VFS_DC3840_SUPPORT)
 #  define VFS_TEENSY 1
 #endif
 
