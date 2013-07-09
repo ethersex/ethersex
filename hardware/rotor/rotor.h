@@ -42,16 +42,18 @@ uint16_t get_adc(int channel);
 
 struct rot_t {
    /* azimuth values */
-   uint8_t  az_movement;  // direction of movement
+   uint8_t az_movement;  // direction of movement
    int16_t az_preset;    // desired target
    int16_t azimuth;      // current angle of rotation
    int16_t az_value;     // current value of rotation
    uint16_t az_min_store, az_max_store;
 
    /* elevation values */
-   uint8_t  el_movement;  // direction of movement
+   uint8_t el_movement;  // direction of movement
    int16_t el_preset;    // desired target
    int16_t elevation;    // current angle of elevation
+   int16_t el_value;     // current value of rotation
+   uint16_t el_min_store, el_max_store;
    
    uint8_t  is_auto;
    uint16_t speed;

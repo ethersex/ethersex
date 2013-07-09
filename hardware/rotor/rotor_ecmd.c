@@ -56,26 +56,40 @@ int16_t parse_cmd_rotor_status(char *cmd, char *output, uint16_t len)
 
 /**
 * rotor preset DIRECTION SPEED
-* @param direction in degree
+* @param azimuth in degree
+* @param elevation in degree
 * @param speed in percent
 */
-int16_t parse_cmd_rotor_azimuth(char *cmd, char *output, uint16_t len)
+int16_t parse_cmd_rotor_move(char *cmd, char *output, uint16_t len)
 {
   uint16_t speed;
   int16_t az_angle;
+  int16_t el_angle;
+  
+  speed = 0;
+  az_angle = 0;
+  el_angle = 0;
 
   while(*cmd == ' ') cmd++;
 
-  if (sscanf_P(cmd, PSTR("%d %d"), &az_angle, &speed) != 2)
+  int ret = sscanf_P(cmd, PSTR("%d %d %d"), &az_angle, &el_angle, &speed);
+  if (ret < 1)
     return ECMD_ERR_PARSE_ERROR;
 
   rot.az_preset = az_angle;
-  rot.speed = speed;
+  if (ret >= 2) {
+    rot.el_preset = el_angle;
+    rot.elevation = el_angle;
+  }
+  if (ret >= 3)
+    rot.speed = speed;
+
   uint8_t mvto = get_az_movement();
 
   rotor_turn(mvto, AUTO);
   
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("OK azimuth=%d speed=%d movement=%s"), rot.az_preset, rot.speed, rtstr[mvto]));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("OK az=%d el=%d v=%d move=%s"),
+    rot.az_preset, rot.el_preset, rot.speed, rtstr[mvto]));
 }
 
 
@@ -167,8 +181,8 @@ int16_t parse_cmd_rotor_getcal_azimuth(char *cmd, char *output, uint16_t len)
 */
 int16_t parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
 {
-  uint16_t azpos;
-  uint16_t elpos;
+  int16_t azpos;
+  int16_t elpos;
   while(*cmd == ' ') cmd++;
 
   if (sscanf_P(cmd, PSTR("%d %d"), &azpos, &elpos) != 2)
@@ -178,7 +192,7 @@ int16_t parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
   eeprom_save_int(rotor_elevation_parkpos, elpos);
   eeprom_update_chksum();
 
-  uint16_t az_park_pos, el_park_pos;
+  int16_t az_park_pos, el_park_pos;
   eeprom_restore_int(rotor_azimuth_parkpos, &az_park_pos);
   eeprom_restore_int(rotor_elevation_parkpos, &el_park_pos);
   return ECMD_FINAL(snprintf_P(output, len, PSTR("park azimuth=%d elevation=%d"), az_park_pos, el_park_pos ));
@@ -187,7 +201,7 @@ int16_t parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[Rotor Interface]]))
-  ecmd_feature(rotor_azimuth, "rotor move", [DIRECTION] [SPEED], 'Set Geographic Direction (Angle: 0-359) Speed in % : 1-100')
+  ecmd_feature(rotor_move, "rotor move", [DIRECTION] [SPEED], 'Set Geographic Direction (Angle: 0-359) Speed in % : 1-100')
   ecmd_feature(rotor_status, "rotor status",, Display the current rotor status.)
   ecmd_feature(rotor_cw,  "rotor cw" , [SPEED], Turn clockwise (speed in percent))
   ecmd_feature(rotor_ccw, "rotor ccw", [SPEED], Turn counterclockwise (speed in percent))

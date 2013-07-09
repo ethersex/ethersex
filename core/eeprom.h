@@ -145,8 +145,8 @@ struct eeprom_config_t
         uint16_t rotor_azimuth_max;
         uint16_t rotor_elevation_min;
         uint16_t rotor_elevation_max;
-        uint16_t rotor_azimuth_parkpos;
-        uint16_t rotor_elevation_parkpos;
+        int16_t rotor_azimuth_parkpos;
+        int16_t rotor_elevation_parkpos;
 #endif
 
 #ifdef TANKLEVEL_SUPPORT
