@@ -27,6 +27,7 @@
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
 #include "core/vfs/vfs.h"
+#include "core/vfs/vfs-util.h"
 #include "core/debug.h"
 #include "tftp.h"
 #include "tftp_net.h"
@@ -111,7 +112,7 @@ tftp_handle_packet(void)
       if (state->fh == NULL)
         goto error_out;
 
-      if (vfs_truncate (&fh, 0));
+      if (vfs_truncate(state->fh, 0))
         goto error_out;
 
       pk->u.ack.block = HTONS(0);
