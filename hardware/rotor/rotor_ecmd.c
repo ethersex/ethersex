@@ -196,6 +196,9 @@ int16_t parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
   if (sscanf_P(cmd, PSTR("%d %d"), &azpos, &elpos) != 2)
     return ECMD_ERR_PARSE_ERROR;
 
+  if (azpos > 180)
+    azpos = (360 - azpos) * -1;
+
   eeprom_save_int(rotor_azimuth_parkpos, azpos);
   eeprom_save_int(rotor_elevation_parkpos, elpos);
   eeprom_update_chksum();
