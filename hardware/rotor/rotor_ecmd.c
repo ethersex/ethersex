@@ -76,7 +76,15 @@ int16_t parse_cmd_rotor_move(char *cmd, char *output, uint16_t len)
   if (ret < 1)
     return ECMD_ERR_PARSE_ERROR;
 
-  rot.az_preset = az_angle;
+#ifdef DEBUG_ROTOR
+       debug_printf("ROTOR parse move: az=%d el=%d v=%d\n", az_angle, el_angle, speed);
+#endif
+
+  if (az_angle > 180)
+    rot.az_preset = (360 - az_angle) * -1;
+  else
+    rot.az_preset = az_angle;
+
   if (ret >= 2) {
     rot.el_preset = el_angle;
     rot.elevation = el_angle;

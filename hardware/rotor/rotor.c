@@ -78,7 +78,7 @@ void rotor_periodic(void)
 
   //syslog_sendf("%s,%d,%d", rtstr[rot.az_movement], rot.azimuth, rot.az_value); syslog_flush();
 
-#ifdef DEBUG_ROTOR_
+#ifdef DEBUG_ROTOR_FINE
        debug_printf("ROTOR: %s,%d,%d\n", rtstr[rot.az_movement], rot.azimuth, rot.az_value);
 #endif
 
