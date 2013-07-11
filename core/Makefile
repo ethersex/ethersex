@@ -31,3 +31,11 @@ $(STATUSLED_HB_ACT_SUPPORT)_SRC += core/heartbeat.c
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk
 
+SUBSUBDIRS += core/crypto
+SUBSUBDIRS += core/host
+SUBSUBDIRS += core/portio
+SUBSUBDIRS += core/tty
+SUBSUBDIRS += core/gui
+SUBSUBDIRS += core/util
+SUBSUBDIRS += core/vfs
+SUBSUBDIRS += core/crc
