@@ -59,9 +59,9 @@ int16_t
 parse_cmd_rotor_state(char *cmd, char *output, uint16_t len)
 {
 #ifdef ROTOR_HAM4_SUPPORT
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("-180/0/180 az=%d el=%d"), rot.azimuth, rot.elevation));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("-180/180 0/90")));
 #else
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("0/360 az=%d el=%d"), rot.azimuth, rot.elevation));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("0/360 0/90")));
 #endif
 }
 
