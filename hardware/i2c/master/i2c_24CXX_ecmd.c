@@ -67,6 +67,7 @@ parse_cmd_i2c_24CXX_dir(char *cmd, char *output, uint16_t len)
   return (file->next_file == 0 ? ECMD_FINAL(l) : ECMD_AGAIN(l));
 }
 
+#ifdef VFS_EEPROM_SUPPORT
 int16_t
 parse_cmd_i2c_24CXX_rm(char *cmd, char *output, uint16_t len)
 {
@@ -77,11 +78,14 @@ parse_cmd_i2c_24CXX_rm(char *cmd, char *output, uint16_t len)
           ECMD_FINAL_OK : ECMD_FINAL(snprintf_P(output, len, PSTR("write error"))));
 
 }
+#endif /* VFS_EEPROM_SUPPORT */
 
 /*
   -- Ethersex META --
 
   block([[I2C]] (TWI))
   ecmd_feature(i2c_24CXX_dir, "ee dir",, List files in I2C EEPROM.)
-  ecmd_feature(i2c_24CXX_rm, "ee rm",PATH, Remove file PATH.)
+  ecmd_ifdef(VFS_EEPROM_SUPPORT)
+    ecmd_feature(i2c_24CXX_rm, "ee rm",PATH, Remove file PATH.)
+  ecmd_endif()
 */
