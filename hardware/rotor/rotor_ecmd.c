@@ -42,7 +42,8 @@ char* rtstr[] = {"not defined", "hold", "cw", "ccw"};
 * rotor status
 * returns String cw,speed=75, preset=100, alpha=89
 */
-int16_t parse_cmd_rotor_status(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rotor_status(char *cmd, char *output, uint16_t len)
 {
 
   return ECMD_FINAL(snprintf_P(output, len, PSTR("%-4s az=%d el=%d v=%d ad0=%d"),
@@ -54,13 +55,24 @@ int16_t parse_cmd_rotor_status(char *cmd, char *output, uint16_t len)
 			       ));
 }
 
+int16_t
+parse_cmd_rotor_state(char *cmd, char *output, uint16_t len)
+{
+#ifdef ROTOR_HAM4_SUPPORT
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("-180/0/180 az=%d el=%d"), rot.azimuth, rot.elevation));
+#else
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("0/360 az=%d el=%d"), rot.azimuth, rot.elevation));
+#endif
+}
+
 /**
 * rotor preset DIRECTION SPEED
 * @param azimuth in degree
 * @param elevation in degree
 * @param speed in percent
 */
-int16_t parse_cmd_rotor_move(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rotor_move(char *cmd, char *output, uint16_t len)
 {
   uint16_t speed;
   int16_t az_angle;
@@ -105,7 +117,8 @@ int16_t parse_cmd_rotor_move(char *cmd, char *output, uint16_t len)
 * rotor cw
 * @params [speed]  in percent
 */
-int16_t parse_cmd_rotor_cw(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rotor_cw(char *cmd, char *output, uint16_t len)
 {
   while(*cmd == ' ') cmd++;
     if(strlen(cmd) > 0) {
@@ -146,7 +159,8 @@ int16_t parse_cmd_rotor_stop(char *cmd, char *output, uint16_t len)
 /**
 * rotor park
 */
-int16_t parse_cmd_rotor_park(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rotor_park(char *cmd, char *output, uint16_t len)
 {
   rotor_park();
   return ECMD_FINAL_OK;
@@ -175,7 +189,8 @@ int16_t parse_cmd_rotor_cal_azimuth(char *cmd, char *output, uint16_t len)
 * rotor get calibrate
 * returns String min:0 max:1023
 */
-int16_t parse_cmd_rotor_getcal_azimuth(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rotor_getcal_azimuth(char *cmd, char *output, uint16_t len)
 {
   uint16_t min_store, max_store;
   eeprom_restore_int(rotor_azimuth_min, &min_store);
@@ -187,7 +202,8 @@ int16_t parse_cmd_rotor_getcal_azimuth(char *cmd, char *output, uint16_t len)
 /**
 * set park parameter azimuth elevation
 */
-int16_t parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
 {
   int16_t azpos;
   int16_t elpos;
@@ -214,6 +230,7 @@ int16_t parse_cmd_rotor_parkpos(char *cmd, char *output, uint16_t len)
   block([[Rotor Interface]]))
   ecmd_feature(rotor_move, "rotor move", [DIRECTION] [SPEED], 'Set Geographic Direction (Angle: 0-359) Speed in % : 1-100')
   ecmd_feature(rotor_status, "rotor status",, Display the current rotor status.)
+  ecmd_feature(rotor_state, "rotor state",, Display the rotor state.)
   ecmd_feature(rotor_cw,  "rotor cw" , [SPEED], Turn clockwise (speed in percent))
   ecmd_feature(rotor_ccw, "rotor ccw", [SPEED], Turn counterclockwise (speed in percent))
   ecmd_feature(rotor_stop, "rotor stop",, Stop rotor)
