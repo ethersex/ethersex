@@ -3290,7 +3290,7 @@ AVRDUDE_BITCLOCK_4
 
   avrdude option '-B'.
   Specify the bit clock period for the JTAG interface or the ISP clock.
-  Setting a lower value means higher programming speed. Use lower values
+  Setting a lower value means higher programming speed. Use higher values
   if you experience programming errors in your setup.
   
   The available choices depend on the MCU frequency setting and should
