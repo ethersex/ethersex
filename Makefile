@@ -460,5 +460,6 @@ indent:
 
 .PHONY: indent
 
+include $(TOPDIR)/scripts/avrdude.mk
 
 include $(TOPDIR)/scripts/depend.mk
