@@ -278,6 +278,7 @@ source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
 source protocols/mysql/config.in
 source protocols/netstat/config.in
+source protocols/sip/config.in
 source protocols/soap/config.in
 source protocols/snmp/config.in
 source protocols/smtp/config.in
@@ -307,6 +308,7 @@ source services/appsample/config.in
 source services/bulbdial/config.in
 source services/clock/config.in
 source services/cron/config.in
+source services/doorbell/config.in
 source services/dyndns/config.in
 source services/dmx-storage/config.in
 source services/dmx-fxslot/config.in

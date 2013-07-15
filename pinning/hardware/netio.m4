@@ -81,6 +81,7 @@ ifdef(`conf_HD44780', `
   pin(HD44780_D6, PD6)
   pin(HD44780_D7, PD7)
 ')
+
 ifdef(`conf_HD44780_BACKLIGHT', `
   pin(HD44780_BL, PB1, OUTPUT)
 ')
@@ -94,4 +95,9 @@ ifdef(`conf_TANKLEVEL', `
 ')
 ifdef(`conf_TANKLEVEL_LOCK', `
   pin(TANKLEVEL_LOCK, PA2, INPUT)
+')
+
+ifdef(`conf_DOORBELL', `
+  pin(RINGBUTTON, PA0, INPUT)
+  pin(LEDGN, PC3, OUTPUT)
 ')
