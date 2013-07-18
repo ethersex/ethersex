@@ -189,12 +189,6 @@ help:
 
 
 ##############################################################################
-# download to the webserver
-download: $(TARGET)
-	@echo "[DOWNLOAD]"
-	@avrdude -v -p atmega644 -c avrispmkII -P usb -U flash:w:ethersex.hex
-
-##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/defaults.mk
 #include $(TOPDIR)/scripts/rules.mk
