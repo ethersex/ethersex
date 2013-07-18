@@ -187,7 +187,6 @@ help:
 	@echo "                 (default if .config exists)"
 	@echo "  v            - Same as "all" but with logging to make.log enabled"
 
-
 ##############################################################################
 # generic fluff
 include $(TOPDIR)/scripts/defaults.mk
