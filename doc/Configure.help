@@ -3345,3 +3345,12 @@ CONFIG_AVRDUDE_EFUSE
         http://www.mikrocontroller.net/articles/AVR_Fuses
   Online fuse calculator:
         http://www.engbedded.com/fusecalc
+
+SIP support (PARTIAL)
+SIP_SUPPORT
+  Depends on: 
+   * UDP support (UDP_SUPPORT)
+   * MD5 (MD5_SUPPORT)
+
+  Client implementation of the Session Initiation Protocol (SIP).
+
