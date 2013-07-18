@@ -30,8 +30,6 @@ struct sip_connection_state_t
   uint8_t state;
 };
 
-#include "protocols/uip/uip.h"
-//uip_conn_t *sip_call (void);
 void sip_call_init(void);
 void sip_main(void);
 

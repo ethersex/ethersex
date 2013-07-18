@@ -50,10 +50,6 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
-#define my_strcat_P(p, s) { strcpy_P(p, s);  p+= strlen_P(s);}
-//#define my_strcat_P(p, s) { strcpy_P(p, s);  p+= sizeof(s)-1;}  //Flash doesn't change, so can take constants instead of function calls
-
-
 #define SIPS_IDLE 0
 #define SIPS_INVITE 1
 #define SIPS_INVITE_AUTH 2
@@ -62,76 +58,68 @@
 #define SIPS_SPEAKING 5
 #define SIPS_BYE 6
 
-uip_udp_conn_t *udp_sip_conn = NULL;
-uint8_t state = SIPS_IDLE;
-uint8_t pollcounter = 0;
-uint8_t cseg_counter = 0;
+static uip_udp_conn_t *udp_sip_conn = NULL;
+static uint8_t state = SIPS_IDLE;
+static uint8_t pollcounter = 0;
+static uint8_t cseg_counter = 0;
 
-char realm[32];
-char nonce[32];
+static char realm[32];
+static char nonce[32];
 
-const char PROGMEM SIP20[] = "SIP/2.0\r\n";
-const char PROGMEM SIP_200_OK[] = "SIP/2.0 200 OK\r\n";
+static const char PROGMEM SIP20[] = "SIP/2.0\r\n";
+static const char PROGMEM SIP_200_OK[] = "SIP/2.0 200 OK\r\n";
 
-const char PROGMEM SIP_CANCEL[] = "CANCEL";
-const char PROGMEM SIP_ACK[] = "ACK";
-const char PROGMEM SIP_INVITE[] = "INVITE";
-const char PROGMEM SIP_BYE[] = "BYE";
-const char PROGMEM SIP_REGISTER[] = "REGISTER";
+static const char PROGMEM SIP_CANCEL[] = "CANCEL";
+static const char PROGMEM SIP_ACK[] = "ACK";
+static const char PROGMEM SIP_INVITE[] = "INVITE";
+static const char PROGMEM SIP_BYE[] = "BYE";
+static const char PROGMEM SIP_REGISTER[] = "REGISTER";
 
-const char PROGMEM SIP_HEADER_URI[] =
+static const char PROGMEM SIP_HEADER_URI[] =
   "sip:" CONF_SIP_TO "@" CONF_SIP_PROXY_IP;
 
-const char PROGMEM SIP_HEADER[] =
+static const char PROGMEM SIP_HEADER[] =
   " sip:" CONF_SIP_TO "@" CONF_SIP_PROXY_IP " SIP/2.0\r\n" "Via: SIP/2.0/UDP "
   CONF_ENC_IP ":" STR(SIP_PORT) ";rport;branch=z9hG4bK1234.";
-     const char PROGMEM
-       SIP_HEADER2[] =
-       "\r\nFrom: \"Doorbell\" <sip:" CONF_SIP_AUTH_USER "@" CONF_SIP_PROXY_IP
-       ">;tag=pfhdc\r\n" "To: <sip:" CONF_SIP_TO "@" CONF_SIP_PROXY_IP ">\r\n"
-       "Max-Forwards: 70\r\n" "Call-ID: hkmhwqdsqvsmnqd@" CONF_HOSTNAME "\r\n"
-       "Contact: <sip:" CONF_SIP_FROM "@" CONF_ENC_IP ">\r\n"
-       "Authorization: Digest username=\"" CONF_SIP_AUTH_USER "\"";
-     const char PROGMEM
-       SIP_REALM[] = ", realm=\"";
-     const char PROGMEM
-       SIP_NONCE[] = "\", nonce=\"";
-     const char PROGMEM
-       SIP_URI[] = "\", uri=\"";
-     const char PROGMEM
-       SIP_RESPONSE[] = "\", response=\"";
-     const char PROGMEM
-       SIP_ALGO[] = "\", algorithm=MD5";
-     const char PROGMEM
-       SIP_CSEG[] = "\r\nCSeq:";
-     const char PROGMEM
-       SIP_HEADEREND[] = "\r\n\r\n";
-/*const char PROGMEM SIP_CONTENT[] =  "\r\nUser-Agent: Ethersex/2013/Doorbell\r\n"
-                                    "Content-Length: 311\r\n"
-                                    "Content-Type: application/sdp\r\n"
-                                    "\r\n"
-                                    "v=0\r\n"
-                                    "o=621@192.168.178.1 0 0 IN IP4 192.168.178.90\r\n"
-                                    "s=Session SIP/SDP\r\n"
-                                    "c=IN IP4 192.168.178.90\r\n"
-                                    "t=0 0\r\n"
-                                    "m=audio 21000 RTP/AVP 9 8 0 101\r\n"
-                                    "a=rtpmap:9 G722/8000\r\n"
-                                    "a=rtpmap:8 PCMA/8000\r\n"
-                                    "a=rtpmap:0 PCMU/8000\r\n"
-                                    "a=rtpmap:101 telephone-event/8000\r\n"
-                                    "a=fmtp:101 0-15\r\n"
-                                    "m=video 21070 RTP/AVP 103\r\n"
-                                    "a=rtpmap:103 h263-1998/90000\r\n";
+static const char PROGMEM SIP_HEADER2[] =
+  "\r\nFrom: \"Ethersex\" <sip:" CONF_SIP_AUTH_USER "@" CONF_SIP_PROXY_IP
+  ">;tag=pfhdc\r\n" "To: <sip:" CONF_SIP_TO "@" CONF_SIP_PROXY_IP ">\r\n"
+  "Max-Forwards: 70\r\n" "Call-ID: hkmhwqdsqvsmnqd@" CONF_HOSTNAME "\r\n"
+  "Contact: <sip:" CONF_SIP_FROM "@" CONF_ENC_IP ">\r\n"
+  "Authorization: Digest username=\"" CONF_SIP_AUTH_USER "\"";
+static const char PROGMEM SIP_REALM[] = ", realm=\"";
+static const char PROGMEM SIP_NONCE[] = "\", nonce=\"";
+static const char PROGMEM SIP_URI[] = "\", uri=\"";
+static const char PROGMEM SIP_RESPONSE[] = "\", response=\"";
+static const char PROGMEM SIP_ALGO[] = "\", algorithm=MD5";
+static const char PROGMEM SIP_CSEG[] = "\r\nCSeq:";
+static const char PROGMEM SIP_HEADEREND[] = "\r\n\r\n";
+/*const char PROGMEM SIP_CONTENT[] = 
+  "\r\nUser-Agent: Ethersex/2013/Doorbell\r\n"
+  "Content-Length: 311\r\n"
+  "Content-Type: application/sdp\r\n"
+  "\r\n"
+  "v=0\r\n"
+  "o=621@192.168.178.1 0 0 IN IP4 192.168.178.90\r\n"
+  "s=Session SIP/SDP\r\n"
+  "c=IN IP4 192.168.178.90\r\n"
+  "t=0 0\r\n"
+  "m=audio 21000 RTP/AVP 9 8 0 101\r\n"
+  "a=rtpmap:9 G722/8000\r\n"
+  "a=rtpmap:8 PCMA/8000\r\n"
+  "a=rtpmap:0 PCMU/8000\r\n"
+  "a=rtpmap:101 telephone-event/8000\r\n"
+  "a=fmtp:101 0-15\r\n"
+  "m=video 21070 RTP/AVP 103\r\n"
+  "a=rtpmap:103 h263-1998/90000\r\n";
 */
 
-     void
-     MD5ToHex(md5_ctx_t * md5, char *buffer)
+static void
+MD5ToHex(md5_ctx_t * md5, char *buffer)
 {
-  int i, j;
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
-    for (j = 0; j < 8; j++)
+    for (int j = 0; j < 8; j++)
     {
       unsigned int val = (md5->a[i] >> 4 * j) & 0x0f;
       buffer[8 * i + (j ^ 1)] = (val < 10) ? '0' + val : 'a' - 10 + val;
@@ -139,63 +127,42 @@ const char PROGMEM SIP_HEADER[] =
   }
 }
 
-/*
-void
-md5(void* block, uint16_t length)
-{
-  md5_ctx_t ctx_state;
-  md5_init(&ctx_state);
-  md5_lastBlock(&ctx_state, block, length);
-}
-*/
-
-char *
+static char *
 sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri)
 {
-  // Form "username:realm:password"
   char buffer[99];              //32 + : + 32 + : + 32 + \0
-  char *p = buffer;
-  strcpy(p, CONF_SIP_AUTH_USER);
-  p += strlen(CONF_SIP_AUTH_USER);
-  *p++ = ':';
-  strcpy(p, realm);
-  p += strlen(realm);
-  *p++ = ':';
-  strcpy(p, CONF_SIP_AUTH_PASS);
-  p += strlen(CONF_SIP_AUTH_PASS);
-  *p = 0;
+
+  // Form "username:realm:password"
+  uint8_t len = snprintf_P(buffer, sizeof(buffer) - 1,
+                           PSTR(CONF_SIP_AUTH_USER ":%s:" CONF_SIP_AUTH_PASS),
+                           realm);
+  buffer[len] = '\0';
 
   SIP_DEBUG("input h1: %s\r\n", buffer);
   md5_ctx_t h1;
   md5_init(&h1);
-  md5_lastBlock(&h1, buffer, (p - buffer) * 8);
+  md5_lastBlock(&h1, buffer, len * 8);
 
 
   // Form "method:digesturi"
-  p = buffer;
-  strcpy_P(p, method);
-  p += strlen_P(method);
-  *p++ = ':';
-  strcpy_P(p, uri);
-  p += strlen_P(uri);
-  *p = 0;
+  len = snprintf_P(buffer, sizeof(buffer) - 1, PSTR("%S:%S"), method, uri);
+  buffer[len] = '\0';
 
   SIP_DEBUG("input h2: %s\r\n", buffer);
   md5_ctx_t h2;
   md5_init(&h2);
-  md5_lastBlock(&h2, buffer, (p - buffer) * 8);
+  md5_lastBlock(&h2, buffer, len * 8);
 
   // Response h1:nonce:h2
-  p = buffer;
+  char *p = buffer;
   MD5ToHex(&h1, p);
   p += 32;
   *p++ = ':';
-  strcpy(p, nonce);
-  p += strlen(nonce);
+  p += snprintf(p, sizeof(buffer) - 34, nonce);
   *p++ = ':';
   MD5ToHex(&h2, p);
   p += 32;
-  *p = 0;
+  *p = '\0';
 
   SIP_DEBUG("input response: %s\r\n", buffer);
   md5_ctx_t response;
@@ -206,23 +173,13 @@ sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri)
   buffer[32] = 0;
   SIP_DEBUG("response: %s\r\n", buffer);
 
-  my_strcat_P(d, SIP_REALM);
-  strcpy(d, realm);
-  d += strlen(realm);
-  my_strcat_P(d, SIP_NONCE);
-  strcpy(d, nonce);
-  d += strlen(nonce);
-  my_strcat_P(d, SIP_URI);
-  strcpy_P(d, uri);
-  d += strlen_P(uri);
-  my_strcat_P(d, SIP_RESPONSE);
-  strcpy(d, buffer);
-  d += strlen(buffer);
-  my_strcat_P(d, SIP_ALGO);
+  sprintf_P(d, PSTR("%S%s%S%s%S%s%S%s%S"),
+            SIP_REALM, realm, SIP_NONCE, nonce,
+            SIP_URI, uri, SIP_RESPONSE, buffer, SIP_ALGO);
   return d;
 }
 
-char *
+static char *
 sip_append_cseg_number(char *p)
 {
   itoa(cseg_counter % 10, p, 10);
@@ -232,12 +189,12 @@ sip_append_cseg_number(char *p)
   return p;
 }
 
-void
+static void
 sip_send_status_200(char *uip_appdata)
 {
   char *p = uip_appdata;
   char *a = strstr_P(p, SIP20);
-  my_strcat_P(p, SIP_200_OK);
+  p += sprintf_P(p, SIP_200_OK);
   if (a != 0)
   {
     a += (sizeof(SIP20) - 1);
@@ -252,18 +209,15 @@ sip_send_status_200(char *uip_appdata)
                  (char *) uip_appdata);
 }
 
-void
+static void
 sip_send_ACK(char *uip_appdata)
 {
   char *p = uip_appdata;
-  my_strcat_P(p, SIP_ACK);
-  my_strcat_P(p, SIP_HEADER);
+  p += sprintf_P(p, PSTR("%S%S"), SIP_ACK, SIP_HEADER);
   p = sip_append_cseg_number(p);
-  my_strcat_P(p, SIP_HEADER2);
-  my_strcat_P(p, SIP_CSEG);
+  p += sprintf_P(p, PSTR("%S%S"), SIP_HEADER2, SIP_CSEG);
   p = sip_append_cseg_number(p);
-  my_strcat_P(p, SIP_ACK);
-  my_strcat_P(p, SIP_HEADEREND);
+  p += sprintf_P(p, PSTR("%S%S"), SIP_ACK, SIP_HEADEREND);
 
   uip_udp_send(p - (char *) uip_appdata);
   SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n", p - (char *) uip_appdata,
@@ -303,7 +257,7 @@ sip_main()
 
       case 401:
       case 407:
-      {
+        {
         char *p = uip_appdata;
 
         char *p1 = strstr_P(p, PSTR("realm=\"")) + 7;
@@ -333,7 +287,7 @@ sip_main()
             }
           }
         *p2 = 0;
-      }
+        }
         sip_send_ACK(uip_appdata);
         cseg_counter++;
         state = SIPS_INVITE_AUTH;
@@ -442,14 +396,11 @@ sip_main()
       {
         char *p = uip_appdata;
 
-        my_strcat_P(p, SIP_INVITE);
-        my_strcat_P(p, SIP_HEADER);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_INVITE, SIP_HEADER);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_HEADER2);
-        my_strcat_P(p, SIP_CSEG);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_HEADER2, SIP_CSEG);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_INVITE);
-        my_strcat_P(p, SIP_HEADEREND);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_INVITE, SIP_HEADEREND);
 
         uip_udp_send(p - (char *) uip_appdata);
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
@@ -458,15 +409,13 @@ sip_main()
       else if (state == SIPS_INVITE_AUTH)
       {
         char *p = uip_appdata;
-        my_strcat_P(p, SIP_INVITE);
-        my_strcat_P(p, SIP_HEADER);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_INVITE, SIP_HEADER);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_HEADER2);
+        p += sprintf_P(p, SIP_HEADER2);
         p = sip_insert_md5_auth(p, SIP_INVITE, SIP_HEADER_URI);
-        my_strcat_P(p, SIP_CSEG);
+        p += sprintf_P(p, SIP_CSEG);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_INVITE);
-        my_strcat_P(p, SIP_HEADEREND);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_INVITE, SIP_HEADEREND);
 
         uip_udp_send(p - (char *) uip_appdata);
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
@@ -476,14 +425,11 @@ sip_main()
       {
         char *p = uip_appdata;
 
-        my_strcat_P(p, SIP_CANCEL);
-        my_strcat_P(p, SIP_HEADER);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_CANCEL, SIP_HEADER);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_HEADER2);
-        my_strcat_P(p, SIP_CSEG);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_HEADER2, SIP_CSEG);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_CANCEL);
-        my_strcat_P(p, SIP_HEADEREND);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_CANCEL, SIP_HEADEREND);
 
         uip_udp_send(p - (char *) uip_appdata);
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
@@ -493,20 +439,16 @@ sip_main()
       {
         char *p = uip_appdata;
 
-        my_strcat_P(p, SIP_BYE);
-        my_strcat_P(p, SIP_HEADER);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_BYE, SIP_HEADER);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_HEADER2);
-        my_strcat_P(p, SIP_CSEG);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_HEADER2, SIP_CSEG);
         p = sip_append_cseg_number(p);
-        my_strcat_P(p, SIP_BYE);
-        my_strcat_P(p, SIP_HEADEREND);
+        p += sprintf_P(p, PSTR("%S%S"), SIP_BYE, SIP_HEADEREND);
 
         uip_udp_send(p - (char *) uip_appdata);
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
                        p - (char *) uip_appdata, (char *) uip_appdata);
       }
-
     }
   }
 }
