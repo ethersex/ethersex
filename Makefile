@@ -58,6 +58,7 @@ SUBDIRS += protocols/fnordlicht
 SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
 SUBDIRS += protocols/mysql
+SUBDIRS += protocols/sip
 SUBDIRS += protocols/smtp
 SUBDIRS += protocols/sms77
 SUBDIRS += protocols/snmp
@@ -185,6 +186,13 @@ help:
 	@echo "  all          - Build everything as specified in .config"
 	@echo "                 (default if .config exists)"
 	@echo "  v            - Same as "all" but with logging to make.log enabled"
+
+
+##############################################################################
+# download to the webserver
+download: $(TARGET)
+	@echo "[DOWNLOAD]"
+	@avrdude -v -p atmega644 -c avrispmkII -P usb -U flash:w:ethersex.hex
 
 ##############################################################################
 # generic fluff
