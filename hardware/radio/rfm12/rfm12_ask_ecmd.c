@@ -97,6 +97,31 @@ parse_cmd_rfm12_ask_intertechno_send(char *cmd, char *output, uint16_t len)
 }
 #endif /* RFM12_ASK_INTERTECHNO_SUPPORT */
 
+#ifdef RFM12_ASK_INTERTECHNO_SL_SUPPORT
+int16_t
+parse_cmd_rfm12_ask_intertechno_sl_send(char *cmd, char *output, uint16_t len)
+{
+  (void) output;
+  (void) len;
+  
+  uint32_t house;
+  uint8_t group;
+  uint8_t on;
+  uint8_t unit;
+  uint8_t button;
+  uint8_t dim=0;
+
+  int ret = sscanf_P(cmd, PSTR("%lu %hhu %hhu %hhu"), &house,
+                     &on, &button, &dim);
+  if (ret < 3 || (ret == 3 && on == 3))
+    return ECMD_ERR_PARSE_ERROR;
+
+  rfm12_ask_intertechno_sl_send(house, on, button, dim);
+  return ECMD_FINAL_OK;
+}
+#endif /* RFM12_ASK_INTERTECHNO_SL_SUPPORT */
+
+
 #ifdef RFM12_ASK_2272_SUPPORT
 int16_t
 parse_cmd_rfm12_ask_2272_send(char *cmd, char *output, uint16_t len)
@@ -227,6 +252,9 @@ parse_cmd_rfm12_ask_sense(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_INTERTECHNO_SUPPORT)
     ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
+  ecmd_endif()
+  ecmd_ifdef(RFM12_ASK_INTERTECHNO_SL_SUPPORT)
+ ecmd_feature(rfm12_ask_intertechno_sl_send, "rfm12 sl", , house on button dim)
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_OASEFMMASTER_SUPPORT)
     ecmd_feature(rfm12_ask_oase_send, "rfm12 oase", , family group device command)

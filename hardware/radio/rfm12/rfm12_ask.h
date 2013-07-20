@@ -28,6 +28,8 @@ void rfm12_ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_2272_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_1527_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
+void rfm12_ask_intertechno_sl_send(uint32_t, uint8_t, 
+								uint8_t, uint8_t);
 void rfm12_ask_oase_send(uint8_t *, uint8_t, uint8_t);
 void rfm12_ask_trigger(uint8_t, uint16_t);
 void rfm12_ask_external_filter_init(void);
