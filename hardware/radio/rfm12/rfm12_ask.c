@@ -168,7 +168,6 @@ rfm12_ask_intertechno_sl_send_bit(const uint8_t bit)
     rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
     rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
     rfm12_ask_trigger(0, 5 * INTERTECHNO_SL_PERIOD);
-	
   }
 }
 
@@ -179,7 +178,6 @@ rfm12_ask_intertechno_sl_send_dim(void)
     rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
     rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
     rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
-	
 }
 
 static void
@@ -202,41 +200,41 @@ rfm12_ask_intertechno_sl_send(uint32_t house,
   rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
               RFM12_PWRMGT_EX);
-	  
+
   for (uint8_t j = 8; j > 0; j--)
   {
     wdt_kick();
     rfm12_ask_intertechno_sl_send_sync();
-	
-	uint32_t c = house;
+
+    uint32_t c = house;
     for (uint8_t i = 26; i; i--)
     {
       rfm12_ask_intertechno_sl_send_bit(c & 1);
       c >>= 1;
     }
-	uint8_t tmp;
-	rfm12_ask_intertechno_sl_send_bit(0); //Group
-	
-	if (on==INTERTECHNO_SL_DIM) {
-		rfm12_ask_intertechno_sl_send_dim();
-	}
-	else {
-		rfm12_ask_intertechno_sl_send_bit(on & 1); //an
-    }
-	tmp=button;
-	for (uint8_t i = 4; i; i--)
+  uint8_t tmp;
+  rfm12_ask_intertechno_sl_send_bit(0); //Group
+  
+  if (on==INTERTECHNO_SL_DIM) {
+    rfm12_ask_intertechno_sl_send_dim();
+  }
+  else {
+    rfm12_ask_intertechno_sl_send_bit(on & 1);
+  }
+  tmp=button;
+  for (uint8_t i = 4; i; i--)
     {
       rfm12_ask_intertechno_sl_send_bit(tmp & 1);
       tmp >>= 1;
     }
-	if (on==INTERTECHNO_SL_DIM) {
-		tmp=dim;
-		for (int8_t i = 3; i>=0; i--)
-	    {
-	      rfm12_ask_intertechno_sl_send_bit(dim & 1 << i);
-	    }
-	}
-	rfm12_ask_intertechno_sl_send_bit(0);
+  if (on==INTERTECHNO_SL_DIM) {
+    tmp=dim;
+    for (int8_t i = 3; i>=0; i--)
+      {
+        rfm12_ask_intertechno_sl_send_bit(dim & 1 << i);
+      }
+  }
+  rfm12_ask_intertechno_sl_send_bit(0);
     rfm12_ask_intertechno_sl_send_pause();
   }
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
