@@ -1,15 +1,18 @@
 #!/bin/bash
+
+. scripts/osdefaults.sh
+
 j=0
 maxper=30
 for i in ".text" ".data" ".bss"
 do
-	val[$j]=$(avr-size -A $1 | grep $i | sed -e "s/^$i *//g" | cut -d " " -f1)
+	val[$j]=$(avr-size -A $1 | grep $i | ${SED} -e "s/^$i *//g" | cut -d " " -f1)
 	let j=$j+1
 done
 
-IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
+IMAGESIZE=$(ls -l $1.bin | ${AWK} '{ print $5 }')
 if [ "$3" != "y" ]; then
-  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | sed '$!d'` + 1 )))
+  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | ${SED} '$!d'` + 1 )))
 else
   FLASHSIZE=$4
 fi

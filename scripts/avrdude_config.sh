@@ -1,4 +1,8 @@
 #
+# avrdude_config.sh
+# config.in helper
+
+. scripts/osdefaults.sh
 
 get_avrdude() {
 	AVRDUDE=$( command -v avrdude )
@@ -11,7 +15,7 @@ get_avrdude_programmer_types() {
 	# gnampf, Menuconfig choice does not like names starting
 	# with numbers nor math ops like '-'
 	AVRDUDE_PROGRAMMER_TYPES=$( ${AVRDUDE} -c ? 2>&1 |\
-		awk '/^.* = .*$/ { gsub(/=.*$/,""); \
+		${AWK} '/^.* = .*$/ { gsub(/=.*$/,""); \
 		 gsub(/ +/, " "); \
 		 sub(/^ /, ""); \
 		 sub(/ $/, ""); \
