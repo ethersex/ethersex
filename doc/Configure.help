@@ -458,6 +458,22 @@ RFM12_ASK_SENDER_SUPPORT
     - Tevion
     - ELRO
 
+RFM12 ASK Intertechno Self Learning Support
+RFM12_ASK_INTERTECHNO_SL_SUPPORT
+  Depends on:
+   * RFM12 ASK (Amplitude Shift Keying) Support
+
+   Enables the native protocol of newer Intertechno devices without 
+   coding wheel (self learning). This protocol allows sending an
+   absolute dim value (0-15) and uses longer house codes.
+   Intertechno uses chips from Arctech which are also used in several
+   other devices, for example: 
+    - Nexa
+    - Proove
+    - Home Easy
+    - Klik aan Klik uit
+    - ...
+   
 RFM12 ASK external filter enables external filter Support
 RFM12_ASK_EXTERNAL_FILTER_SUPPORT
   Depends on:
