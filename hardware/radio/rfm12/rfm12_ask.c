@@ -36,7 +36,6 @@
 
 #define INTERTECHNO_PERIOD 264  // produces pulse of 360 us
 #define INTERTECHNO_SL_PERIOD 216
-#define INTERTECHNO_SL_DIM 3
 
 #ifdef RFM12_ASK_433_SUPPORT
 #ifdef RFM12_ASK_TEVION_SUPPORT
@@ -195,7 +194,7 @@ rfm12_ask_intertechno_sl_send_pause(void)
 
 void
 rfm12_ask_intertechno_sl_send(uint32_t house,
-                           uint8_t on, uint8_t button, uint8_t dim)
+                           uint8_t on, uint8_t button, int8_t dim)
 {
   rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
@@ -206,30 +205,24 @@ rfm12_ask_intertechno_sl_send(uint32_t house,
     wdt_kick();
     rfm12_ask_intertechno_sl_send_sync();
 
-    uint32_t c = house;
-    for (uint8_t i = 26; i; i--)
+    for (int8_t i = 25; i>=0; i--)
     {
-      rfm12_ask_intertechno_sl_send_bit(c & 1);
-      c >>= 1;
+      rfm12_ask_intertechno_sl_send_bit(house & 1 << i);
     }
-  uint8_t tmp;
   rfm12_ask_intertechno_sl_send_bit(0); //Group
   
-  if (on==INTERTECHNO_SL_DIM) {
+  if (on == 1 && dim != -1) {
     rfm12_ask_intertechno_sl_send_dim();
   }
   else {
     rfm12_ask_intertechno_sl_send_bit(on & 1);
   }
-  tmp=button;
-  for (uint8_t i = 4; i; i--)
+  for (int8_t i = 3; i >= 0; i--)
     {
-      rfm12_ask_intertechno_sl_send_bit(tmp & 1);
-      tmp >>= 1;
+      rfm12_ask_intertechno_sl_send_bit(button & 1 << i);
     }
-  if (on==INTERTECHNO_SL_DIM) {
-    tmp=dim;
-    for (int8_t i = 3; i>=0; i--)
+  if (dim!=-1) {
+    for (int8_t i = 3; i >= 0; i--)
       {
         rfm12_ask_intertechno_sl_send_bit(dim & 1 << i);
       }

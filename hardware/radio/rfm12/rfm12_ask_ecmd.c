@@ -109,11 +109,11 @@ parse_cmd_rfm12_ask_intertechno_sl_send(char *cmd, char *output, uint16_t len)
   uint8_t on;
   uint8_t unit;
   uint8_t button;
-  uint8_t dim=0;
+  int8_t dim=-1;
 
   int ret = sscanf_P(cmd, PSTR("%lu %hhu %hhu %hhu"), &house,
                      &on, &button, &dim);
-  if (ret < 3 || (ret == 3 && on == 3))
+  if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 
   rfm12_ask_intertechno_sl_send(house, on, button, dim);
@@ -242,22 +242,22 @@ parse_cmd_rfm12_ask_sense(char *cmd, char *output, uint16_t len)
   -- Ethersex META --
   block([[RFM12_ASK]])
   ecmd_ifdef(RFM12_ASK_TEVION_SUPPORT)
-    ecmd_feature(rfm12_ask_tevion_send, "rfm12 tevion", , housecode command delay cnt)
+    ecmd_feature(rfm12_ask_tevion_send, "rfm12 tevion", HOUSECODE COMMAND DELAY CNT, )
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_2272_SUPPORT)
-    ecmd_feature(rfm12_ask_2272_send, "rfm12 2272", , housecodeCommand delay cnt)
+    ecmd_feature(rfm12_ask_2272_send, "rfm12 2272", HOUSECODECOMMAND DELAY CNT, )
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_1527_SUPPORT)
-    ecmd_feature(rfm12_ask_1527_send, "rfm12 1527", , housecodeCommand delay cnt)
+    ecmd_feature(rfm12_ask_1527_send, "rfm12 1527", HOUSECODECOMMAND DELAY CNT, )
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_INTERTECHNO_SUPPORT)
-    ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", , family group device command)
+    ecmd_feature(rfm12_ask_intertechno_send, "rfm12 intertechno", FAMILY GROUP DEVICE COMMAND, "Send Command to Intertechno switches (with coding wheel). FAMILY: A=1, ...")
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_INTERTECHNO_SL_SUPPORT)
-    ecmd_feature(rfm12_ask_intertechno_sl_send, "rfm12 sl", , house on button dim)
+    ecmd_feature(rfm12_ask_intertechno_sl_send, "rfm12 intertechno_sl", HOUSECODE COMMAND BUTTON [DIM] , "Send Command to Intertechno Self learning switches and dimmers. DIM works only with dimmers and values 0-15.")
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_OASEFMMASTER_SUPPORT)
-    ecmd_feature(rfm12_ask_oase_send, "rfm12 oase", , family group device command)
+    ecmd_feature(rfm12_ask_oase_send, "rfm12 oase", FAMILY GROUP DEVICE COMMAND, )
   ecmd_endif()
   ecmd_ifdef(RFM12_ASK_EXTERNAL_FILTER_SUPPORT)
     ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter",[1], Enable ext. filter pin if argument is present (disable otherwise))
