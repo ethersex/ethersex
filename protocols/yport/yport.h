@@ -41,6 +41,10 @@ extern uint16_t yport_rx_frameerror;
 extern uint16_t yport_rx_overflow;
 extern uint16_t yport_rx_parityerror;
 extern uint16_t yport_rx_bufferfull;
+extern uint16_t yport_eth_retransmit;
 #endif
+extern uint8_t yport_lastservice;
+extern uint8_t yport_lf;
+
 
 #endif /* _YPORT_H */
