@@ -71,7 +71,6 @@ twi_slave_periodic(void)
 	if((TWSR & 0xF8) == 0x00)
 		twi_slave_init();
 	
-//	if (twi_parse == 1 && !ecmd_ret_len) {
 	if (twi_parse == 1) {
 		twi_parse=0;
 		twi_parse_ecmd();
@@ -83,11 +82,6 @@ twi_slave_periodic(void)
 void
 twi_parse_ecmd (void)
 {
-//int i=0;
-//	for (i = 0; i < sizeof write_buffer; i++)   
-//		write_buffer[i]=0;
-//        TWIDEBUG("qwe\n");
-
 	/* twi master can send 2 raw bytes (protocol specified), 
 	 * dont know how to determ if 2 bytes are 2 raw bytes 
 	 * or ecmd command like 'ip'
@@ -105,9 +99,6 @@ twi_parse_ecmd (void)
 	}
 
         TWIDEBUG("write_buffer:%s ecmd_ret_len:%d\n",write_buffer,ecmd_ret_len);
-
-//	write_buffer[ecmd_ret_len++] = '\r';
-//        write_buffer[ecmd_ret_len++] = '\n';
 }
 
 /* Interruptroutine des TWI
@@ -119,9 +110,6 @@ ISR(TWI_vect)
   switch (TWSR & 0xF8)
   {
     case 0x60:	/* Own SLA+W has been received; ACK has been returned */
-//	for (i = 0; i < sizeof recv_buffer; i++)   
-//		recv_buffer[i]=0;
-
 		sent_len=0;
 		recv_len=0;
 		twi_parse=0;
