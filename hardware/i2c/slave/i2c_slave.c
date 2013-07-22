@@ -36,7 +36,7 @@
 #include "i2c_slave.h"
 
 static char recv_buffer[ECMD_TWI_BUFFER_LEN];
-static char write_buffer[ECMD_TWI_BUFFER_LEN + 2]; //for returning \r\n 
+static char write_buffer[ECMD_TWI_BUFFER_LEN]; 
 static int16_t recv_len,sent_len, ecmd_ret_len;
 static int8_t twi_parse;
 
@@ -65,8 +65,6 @@ twi_slave_init(void)
 void
 twi_slave_periodic(void)
 {
-
-
 	/* error detection on i2c bus */
 	if((TWSR & 0xF8) == 0x00)
 		twi_slave_init();
@@ -75,13 +73,13 @@ twi_slave_periodic(void)
 		twi_parse=0;
 		twi_parse_ecmd();
 	}
-
-	
 }
 
 void
 twi_parse_ecmd (void)
 {
+        TWIDEBUG("recv_buffer:%s ecmd_ret_len:%d\n",recv_buffer,ecmd_ret_len);
+
 	/* twi master can send 2 raw bytes (protocol specified), 
 	 * dont know how to determ if 2 bytes are 2 raw bytes 
 	 * or ecmd command like 'ip'
@@ -106,34 +104,29 @@ twi_parse_ecmd (void)
 
 ISR(TWI_vect)
 {
-//int i = 0;
   switch (TWSR & 0xF8)
   {
     case 0x60:	/* Own SLA+W has been received; ACK has been returned */
-		sent_len=0;
 		recv_len=0;
 		twi_parse=0;
       break;
     case 0x80:	/* Previously addressed with own SLA+W; data has been received; ACK has been returned */
 		if (recv_len < (sizeof(recv_buffer) - 1))
 			recv_buffer[recv_len++] = TWDR;	
-
-		if (TWDR == '\0') {
-			//TWIDEBUG("2write_buffer:%s ecmd_ret_len:%d\n",write_buffer,ecmd_ret_len);
-			//twi_parse_ecmd();
+		
+		if (TWDR == '\0') { /*end of string received need to parse data*/
 			twi_parse=1;
 		 }
-
       break;
     case 0xA8:	/* Own SLA+R has been received; ACK has been returned */
+		sent_len=0;
 		TWDR=write_buffer[sent_len++];
 	break;
     case 0xB8:	/* Data byte in TWDR has been transmitted; ACK has been received */
 		if (sent_len < ecmd_ret_len )
 			TWDR=write_buffer[sent_len++];
-		else {
+		else { 
 			TWDR = twi_parse ? '\n': 0;
-		//	ecmd_ret_len=0;
 		}
       break;
 
