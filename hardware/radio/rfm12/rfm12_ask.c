@@ -35,6 +35,7 @@
 #include "rfm12_ask.h"
 
 #define INTERTECHNO_PERIOD 264  // produces pulse of 360 us
+#define INTERTECHNO_SL_PERIOD 216
 
 #ifdef RFM12_ASK_433_SUPPORT
 #ifdef RFM12_ASK_TEVION_SUPPORT
@@ -148,6 +149,92 @@ rfm12_ask_intertechno_send(uint8_t family, uint8_t group,
   rfm12_epilogue();
 }
 #endif /* RFM12_ASK_INTERTECHNO_SUPPORT */
+
+#ifdef RFM12_ASK_INTERTECHNO_SL_SUPPORT
+
+static void
+rfm12_ask_intertechno_sl_send_bit(const uint8_t bit)
+{
+  rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+  if (bit)
+  {
+      rfm12_ask_trigger(0, 5 * INTERTECHNO_SL_PERIOD);
+      rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+      rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+  }
+  else
+  {
+    rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(0, 5 * INTERTECHNO_SL_PERIOD);
+  }
+}
+
+static void 
+rfm12_ask_intertechno_sl_send_dim(void)
+{
+    rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+}
+
+static void
+rfm12_ask_intertechno_sl_send_sync(void)
+{
+  rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+  rfm12_ask_trigger(0, 10 * INTERTECHNO_SL_PERIOD);
+}
+
+static void
+rfm12_ask_intertechno_sl_send_pause(void)
+{
+  rfm12_ask_trigger(0, 40 * INTERTECHNO_SL_PERIOD);
+}
+
+void
+rfm12_ask_intertechno_sl_send(uint32_t house,
+                           uint8_t on, uint8_t button, int8_t dim)
+{
+  rfm12_prologue(RFM12_MODULE_ASK);
+  rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
+              RFM12_PWRMGT_EX);
+
+  for (uint8_t j = 8; j > 0; j--)
+  {
+    wdt_kick();
+    rfm12_ask_intertechno_sl_send_sync();
+
+    for (int8_t i = 25; i>=0; i--)
+    {
+      rfm12_ask_intertechno_sl_send_bit(house & 1 << i);
+    }
+  rfm12_ask_intertechno_sl_send_bit(0); //Group
+  
+  if (on == 1 && dim != -1) {
+    rfm12_ask_intertechno_sl_send_dim();
+  }
+  else {
+    rfm12_ask_intertechno_sl_send_bit(on & 1);
+  }
+  for (int8_t i = 3; i >= 0; i--)
+    {
+      rfm12_ask_intertechno_sl_send_bit(button & 1 << i);
+    }
+  if (dim!=-1) {
+    for (int8_t i = 3; i >= 0; i--)
+      {
+        rfm12_ask_intertechno_sl_send_bit(dim & 1 << i);
+      }
+  }
+  rfm12_ask_intertechno_sl_send_bit(0);
+    rfm12_ask_intertechno_sl_send_pause();
+  }
+  rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
+  rfm12_epilogue();
+}
+
+#endif /* RFM12_ASK_INTERTECHNO_SL_SUPPORT */
 
 #if defined RFM12_ASK_2272_SUPPORT || defined RFM12_ASK_1527_SUPPORT
 
