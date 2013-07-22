@@ -40,20 +40,22 @@ void yport_net_init(void)
 
 void yport_net_main(void)
 {
+  yport_lastservice++;
+
   if(uip_connected()) {
     if (yport_conn == NULL) {
       yport_conn = uip_conn;
       uip_conn->wnd = YPORT_BUFFER_LEN - 1;
     }
     else
-      /* if we have already an connection, send an error */
-      uip_send("ERROR: Connection blocked\n", 27);
+      /* if we already have a connection, send an error */
+      uip_send("ERROR: connection blocked\n", 27);
   } else if (uip_acked()) {
-    /* If the peer is not our connection, close it */
+    /* if the peer is not our connection, close it */
     if (yport_conn != uip_conn)
       uip_close();
     else {
-      /* Some data we have sent was acked, jipphie */
+      /* data we have sent was acked */
       ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         yport_recv_buffer.len -= yport_recv_buffer.sent;
         memmove(yport_recv_buffer.data,
@@ -67,25 +69,44 @@ void yport_net_main(void)
       yport_conn = NULL;
   } else if (uip_newdata()) {
     if (uip_len <= YPORT_BUFFER_LEN && yport_rxstart(uip_appdata, uip_len) != 0) {
-      /* Prevent the other side from sending more data */
+      /* prevent the other side from sending more data via tcp */
       uip_stop();
     }
   }
+
+  /* retransmit last packet */
+  if (uip_rexmit()
+      && yport_conn == uip_conn) {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      uip_send(yport_recv_buffer.data, yport_recv_buffer.sent);
+    }
+#ifdef DEBUG_YPORT
+    yport_eth_retransmit++;
+#endif
+  }
+
+  /* restart connection */
   if (uip_poll()
-      && uip_conn == yport_conn
+      && yport_conn == uip_conn
       && uip_stopped(yport_conn)
       && yport_send_buffer.sent == yport_send_buffer.len)
     uip_restart();
-  /* Send data */
-  if ((uip_poll()
+
+  /* send data */
+  if ((   uip_poll()
        || uip_acked()
-       || uip_rexmit())
-      && yport_conn == uip_conn
-      && yport_recv_buffer.len > 0) {
-    /* We have recieved data, lets propagade it */
+       ) && yport_conn == uip_conn
+         && (   yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
+             || yport_lastservice > 50
+             || yport_lf
+             )
+       ) {
+    /* we have received uart data, send it via tcp */
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
       yport_recv_buffer.sent = yport_recv_buffer.len;
+      yport_lastservice = 0;
+      yport_lf = 0;
     }
   }
 }
@@ -94,4 +115,5 @@ void yport_net_main(void)
   -- Ethersex META --
   header(protocols/yport/yport_net.h)
   net_init(yport_net_init)
+  timer(1, uip_tcp_timer())
 */
