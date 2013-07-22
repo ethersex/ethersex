@@ -1,0 +1,9 @@
+D: Ethersex 0.2 (45b2bde) (Debug mode)
+D: disabling watchdogCÃ¡D: twi: recv_buffer:fuse ecmd_ret_len:0
+D: twi: write_buffer:Fuses: low=CE high=D9 ex=FF lock=FF ecmd_ret_len:35
+D: twi: recv_buffer:version ecmd_ret_len:0
+D: twi: write_buffer:0.2 (45b2bde) ecmd_ret_len:13
+D: twi: recv_buffer:help ecmd_ret_len:0
+D: twi: write_buffer:d 2 (45b2bde) ecmd_ret_len:2
+D: twi: recv_buffer:helpn ecmd_ret_len:0
+D: twi: write_buffer:fuse(45b2bde) ecmd_ret_len:4
