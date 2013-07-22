@@ -83,30 +83,34 @@ void yport_net_main(void)
 #ifdef DEBUG_YPORT
     yport_eth_retransmit++;
 #endif
-  }
+  } else {
 
-  /* restart connection */
-  if (uip_poll()
-      && yport_conn == uip_conn
-      && uip_stopped(yport_conn)
-      && yport_send_buffer.sent == yport_send_buffer.len)
-    uip_restart();
+    /* restart connection */
+    if (uip_poll()
+        && yport_conn == uip_conn
+        && uip_stopped(yport_conn)
+        && yport_send_buffer.sent == yport_send_buffer.len)
+      uip_restart();
 
-  /* send data */
-  if ((   uip_poll()
-       || uip_acked()
-       ) && yport_conn == uip_conn
-         && (   yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
-             || yport_lastservice > 50
-             || yport_lf
-             )
-       ) {
-    /* we have received uart data, send it via tcp */
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-      uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
-      yport_recv_buffer.sent = yport_recv_buffer.len;
-      yport_lastservice = 0;
-      yport_lf = 0;
+    /* send data */
+    if ((   uip_poll()
+         || uip_acked()
+         ) && yport_conn == uip_conn
+               /* receive buffer reached water mark */
+           && (   yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
+               /* last transmission at least one second ago */
+               || yport_lastservice >= 50
+               /* we received a linefeed character, send immediately */
+               || yport_lf
+               )
+         ) {
+      /* we have enough uart data, send it via tcp */
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
+        yport_recv_buffer.sent = yport_recv_buffer.len;
+        yport_lastservice = 0;
+        yport_lf = 0;
+      }
     }
   }
 }
