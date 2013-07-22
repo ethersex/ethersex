@@ -158,9 +158,9 @@ rfm12_ask_intertechno_sl_send_bit(const uint8_t bit)
   rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
   if (bit)
   {
-      rfm12_ask_trigger(0, 5 * INTERTECHNO_SL_PERIOD);
-      rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
-      rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(0, 5 * INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+    rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
   }
   else
   {
@@ -170,13 +170,13 @@ rfm12_ask_intertechno_sl_send_bit(const uint8_t bit)
   }
 }
 
-static void 
+static void
 rfm12_ask_intertechno_sl_send_dim(void)
 {
-    rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
-    rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
-    rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
-    rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+  rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+  rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
+  rfm12_ask_trigger(1, INTERTECHNO_SL_PERIOD);
+  rfm12_ask_trigger(0, INTERTECHNO_SL_PERIOD);
 }
 
 static void
@@ -194,7 +194,7 @@ rfm12_ask_intertechno_sl_send_pause(void)
 
 void
 rfm12_ask_intertechno_sl_send(uint32_t house,
-                           uint8_t on, uint8_t button, int8_t dim)
+                              uint8_t on, uint8_t button, int8_t dim)
 {
   rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
@@ -205,29 +205,32 @@ rfm12_ask_intertechno_sl_send(uint32_t house,
     wdt_kick();
     rfm12_ask_intertechno_sl_send_sync();
 
-    for (int8_t i = 25; i>=0; i--)
+    for (int8_t i = 25; i >= 0; i--)
     {
       rfm12_ask_intertechno_sl_send_bit(house & 1 << i);
     }
-  rfm12_ask_intertechno_sl_send_bit(0); //Group
-  
-  if (on == 1 && dim != -1) {
-    rfm12_ask_intertechno_sl_send_dim();
-  }
-  else {
-    rfm12_ask_intertechno_sl_send_bit(on & 1);
-  }
-  for (int8_t i = 3; i >= 0; i--)
+    rfm12_ask_intertechno_sl_send_bit(0);       //Group
+
+    if (on == 1 && dim != -1)
+    {
+      rfm12_ask_intertechno_sl_send_dim();
+    }
+    else
+    {
+      rfm12_ask_intertechno_sl_send_bit(on & 1);
+    }
+    for (int8_t i = 3; i >= 0; i--)
     {
       rfm12_ask_intertechno_sl_send_bit(button & 1 << i);
     }
-  if (dim!=-1) {
-    for (int8_t i = 3; i >= 0; i--)
+    if (dim != -1)
+    {
+      for (int8_t i = 3; i >= 0; i--)
       {
         rfm12_ask_intertechno_sl_send_bit(dim & 1 << i);
       }
-  }
-  rfm12_ask_intertechno_sl_send_bit(0);
+    }
+    rfm12_ask_intertechno_sl_send_bit(0);
     rfm12_ask_intertechno_sl_send_pause();
   }
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);

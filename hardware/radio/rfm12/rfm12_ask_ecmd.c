@@ -103,13 +103,13 @@ parse_cmd_rfm12_ask_intertechno_sl_send(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
-  
+
   uint32_t house;
   uint8_t group;
   uint8_t on;
   uint8_t unit;
   uint8_t button;
-  int8_t dim=-1;
+  int8_t dim = -1;
 
   int ret = sscanf_P(cmd, PSTR("%lu %hhu %hhu %hhu"), &house,
                      &on, &button, &dim);
