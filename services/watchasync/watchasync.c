@@ -797,8 +797,8 @@ void watchasync_init(void)  // Initialize Ports and Interrupts
 #ifdef CONF_WATCHASYNC_EDGDETECTVIAPOLLING
   samplesB[0] = samplesB[1] = samplesB[2] = PINB;  // save current state
 #else
-  PCMSK1 = WATCHASYNC_PB_MASK;  // Enable Pinchange Interrupt on PortA
-  PCICR |= 1<<PCIE1;  // Enable Pinchange Interrupt on PortA
+  PCMSK1 = WATCHASYNC_PB_MASK;  // Enable Pinchange Interrupt on PortB
+  PCICR |= 1<<PCIE1;  // Enable Pinchange Interrupt on PortB
 #endif
 #endif
 
