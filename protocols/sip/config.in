@@ -1,0 +1,9 @@
+dep_bool_menu "SIP support (PARTIAL)" SIP_SUPPORT $UDP_SUPPORT $MD5_SUPPORT
+	ip "SIP provider address" CONF_SIP_PROXY_IP "192.168.178.1"
+	string "SIP From Address" CONF_SIP_FROM "621"
+	string "SIP To Address" CONF_SIP_TO "622"
+	string "SIP Auth Username" CONF_SIP_AUTH_USER "621"
+	string "SIP Auth Password" CONF_SIP_AUTH_PASS "tester"
+	comment  "Debugging Flags"
+	dep_bool 'SIP Debug' DEBUG_SIP $DEBUG
+endmenu 
