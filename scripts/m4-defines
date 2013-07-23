@@ -1,14 +1,6 @@
 #!/bin/sh
 
-### use GNU sed from macports instead of BSD sed on MacOS X
-### BSD sed does not support -r option
-### use GNU sed from macports instead of BSD sed on MacOS X
-SYSTEM=`uname`
-if [ x$SYSTEM = x"Darwin" -o  x$SYSTEM = x"FreeBSD" ] ; then
-    SED=gsed
-else
-    SED=sed
-fi
+. scripts/osdefaults.sh
 
 grep -e "^#define .*_SUPPORT" autoconf.h | $SED -e "s/^#define /-Dconf_/" -e "s/_SUPPORT.*//"
 grep -e "^#define CONF_.*" autoconf.h |  $SED -e "s/^#define CONF_/-Dvalue_/" -re "s/( )/=/" -e "s/[ \"]//g"
