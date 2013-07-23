@@ -59,12 +59,12 @@
 #define SIPS_BYE 6
 
 static uip_udp_conn_t *udp_sip_conn = NULL;
-static uint8_t state = SIPS_IDLE;
-static uint8_t pollcounter = 0;
-static uint8_t cseg_counter = 0;
+static uint8_t sip_state = SIPS_IDLE;
+static uint8_t sip_pollcounter = 0;
+static uint8_t sip_cseg_counter = 0;
 
-static char realm[32];
-static char nonce[32];
+static char sip_realm[32];
+static char sip_nonce[32];
 
 static const char PROGMEM SIP20[] = "SIP/2.0\r\n";
 static const char PROGMEM SIP_200_OK[] = "SIP/2.0 200 OK\r\n";
@@ -135,14 +135,13 @@ sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri)
   // Form "username:realm:password"
   uint8_t len = snprintf_P(buffer, sizeof(buffer) - 1,
                            PSTR(CONF_SIP_AUTH_USER ":%s:" CONF_SIP_AUTH_PASS),
-                           realm);
+                           sip_realm);
   buffer[len] = '\0';
 
   SIP_DEBUG("input h1: %s\r\n", buffer);
   md5_ctx_t h1;
   md5_init(&h1);
   md5_lastBlock(&h1, buffer, len * 8);
-
 
   // Form "method:digesturi"
   len = snprintf_P(buffer, sizeof(buffer) - 1, PSTR("%S:%S"), method, uri);
@@ -158,7 +157,7 @@ sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri)
   MD5ToHex(&h1, p);
   p += 32;
   *p++ = ':';
-  p += snprintf(p, sizeof(buffer) - 34, nonce);
+  p += snprintf(p, sizeof(buffer) - 34, sip_nonce);
   *p++ = ':';
   MD5ToHex(&h2, p);
   p += 32;
@@ -174,7 +173,7 @@ sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri)
   SIP_DEBUG("response: %s\r\n", buffer);
 
   sprintf_P(d, PSTR("%S%s%S%s%S%s%S%s%S"),
-            SIP_REALM, realm, SIP_NONCE, nonce,
+            SIP_REALM, sip_realm, SIP_NONCE, sip_nonce,
             SIP_URI, uri, SIP_RESPONSE, buffer, SIP_ALGO);
   return d;
 }
@@ -182,7 +181,7 @@ sip_insert_md5_auth(char *d, const PGM_P method, const PGM_P uri)
 static char *
 sip_append_cseg_number(char *p)
 {
-  itoa(cseg_counter % 10, p, 10);
+  *p = '0' + (sip_cseg_counter % 10);
   p++;
   *p = ' ';
   p++;
@@ -234,7 +233,7 @@ sip_main()
 
     SIP_DEBUG("SIP UDP empfangen %s\n\r", (char *) uip_appdata);
 
-    pollcounter = 0;
+    sip_pollcounter = 0;
 
     if ((((char *) uip_appdata)[0] == 'B') &&
         (((char *) uip_appdata)[1] == 'Y') &&
@@ -243,8 +242,8 @@ sip_main()
 
       SIP_DEBUG("received SIP BYE\n\r");
       sip_send_status_200(uip_appdata);
-      cseg_counter++;
-      state = SIPS_IDLE;
+      sip_cseg_counter++;
+      sip_state = SIPS_IDLE;
       return;
     }
 
@@ -261,12 +260,12 @@ sip_main()
         char *p = uip_appdata;
 
         char *p1 = strstr_P(p, PSTR("realm=\"")) + 7;
-        char *p2 = realm;
+        char *p2 = sip_realm;
         if (p1 != NULL)
           while (*p1 != '\"')
           {
             *p2++ = *p1++;
-            if (p2 >= realm + sizeof(realm))
+            if (p2 >= sip_realm + sizeof(sip_realm))
             {
               SIP_DEBUG("Buffer too small!\n");
               break;
@@ -275,12 +274,12 @@ sip_main()
         *p2 = 0;
 
         p1 = strstr_P(p, PSTR("nonce=\"")) + 7;
-        p2 = nonce;
+        p2 = sip_nonce;
         if (p1 != NULL)
           while (*p1 != '\"')
           {
             *p2++ = *p1++;
-            if (p2 >= nonce + sizeof(nonce))
+            if (p2 >= sip_nonce + sizeof(sip_nonce))
             {
               SIP_DEBUG("Buffer too small!\n");
               break;
@@ -289,88 +288,88 @@ sip_main()
         *p2 = 0;
         }
         sip_send_ACK(uip_appdata);
-        cseg_counter++;
-        state = SIPS_INVITE_AUTH;
+        sip_cseg_counter++;
+        sip_state = SIPS_INVITE_AUTH;
 
         break;
 
         // Trying
       case 100:
-        state = SIPS_RINGING;
+        sip_state = SIPS_RINGING;
         break;
 
         // Ringing
       case 180:
-        state = SIPS_RINGING;
+        sip_state = SIPS_RINGING;
         break;
 
         // Session Progress
       case 183:
-        state = SIPS_RINGING;
+        sip_state = SIPS_RINGING;
         break;
 
         // OK
       case 200:
         sip_send_ACK(uip_appdata);
-        if (state == SIPS_RINGING)
+        if (sip_state == SIPS_RINGING)
         {
-          state = SIPS_SPEAKING;
-          cseg_counter++;
+          sip_state = SIPS_SPEAKING;
+          sip_cseg_counter++;
           // If the invited person takes the call, terminate it immediatelly.
-          //state = SIPS_BYE;
+          //sip_state = SIPS_BYE;
         }
         else
-          state = SIPS_IDLE;
+          sip_state = SIPS_IDLE;
         break;
 
         // Illegal Contact Header
         // Method mismatch between requst line and CSeg
       case 400:
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
         // Not found
         // Could happen with wrong FROM: field.
       case 404:
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
         // User not responding
       case 480:
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
         // Call Leg/Transaction does not exist (Wrong call id at bye)
       case 481:
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
 
         // Busy here
       case 486:
         sip_send_ACK(uip_appdata);
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
         // Request terminated
       case 487:
         sip_send_ACK(uip_appdata);
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
         // Internal server error
       case 500:
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
         // Decline
       case 603:
         sip_send_ACK(uip_appdata);
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
       default:
-        state = SIPS_IDLE;
+        sip_state = SIPS_IDLE;
         break;
 
     }
@@ -378,21 +377,21 @@ sip_main()
   else if (uip_poll())
   {
 
-    if (pollcounter > 0)
+    if (sip_pollcounter > 0)
     {
-      pollcounter--;
+      sip_pollcounter--;
       // Nicht endlos versuchen, irgendwann aufgeben
-      if (pollcounter == 0)
+      if (sip_pollcounter == 0)
       {
-        cseg_counter++;
-        state = SIPS_IDLE;
+        sip_cseg_counter++;
+        sip_state = SIPS_IDLE;
       }
     }
     //Every 1 sec repeat last UDP-Telegramm, may be lost. 
-    if (pollcounter % 10 == 0)
+    if (sip_pollcounter % 10 == 0)
     {
-      SIP_DEBUG("State: %d\r\n", state);
-      if (state == SIPS_INVITE)
+      SIP_DEBUG("State: %d\r\n", sip_state);
+      if (sip_state == SIPS_INVITE)
       {
         char *p = uip_appdata;
 
@@ -406,7 +405,7 @@ sip_main()
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
                        p - (char *) uip_appdata, (char *) uip_appdata);
       }
-      else if (state == SIPS_INVITE_AUTH)
+      else if (sip_state == SIPS_INVITE_AUTH)
       {
         char *p = uip_appdata;
         p += sprintf_P(p, PSTR("%S%S"), SIP_INVITE, SIP_HEADER);
@@ -421,7 +420,7 @@ sip_main()
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
                        p - (char *) uip_appdata, (char *) uip_appdata);
       }
-      else if (state == SIPS_CANCELING)
+      else if (sip_state == SIPS_CANCELING)
       {
         char *p = uip_appdata;
 
@@ -435,7 +434,7 @@ sip_main()
         SIP_DEBUG_STOP(p, "SIP sent %d bytes:\r\n%s\r\n",
                        p - (char *) uip_appdata, (char *) uip_appdata);
       }
-      else if (state == SIPS_BYE)
+      else if (sip_state == SIPS_BYE)
       {
         char *p = uip_appdata;
 
@@ -481,11 +480,11 @@ sip_call_init(void)
 void
 sip_start_ringing(void)
 {
-  if (state == SIPS_IDLE)
+  if (sip_state == SIPS_IDLE)
   {
     SIP_DEBUG("--Start call");
-    pollcounter = 100;
-    state = SIPS_INVITE;
+    sip_pollcounter = 100;
+    sip_state = SIPS_INVITE;
   }
 }
 
@@ -494,11 +493,11 @@ sip_start_ringing(void)
 void
 sip_stop_ringing(void)
 {
-  if ((state == SIPS_RINGING))
+  if ((sip_state == SIPS_RINGING))
   {
     SIP_DEBUG("--Cancel call");
-    pollcounter = 100;
-    state = SIPS_CANCELING;
+    sip_pollcounter = 100;
+    sip_state = SIPS_CANCELING;
   }
 }
 
