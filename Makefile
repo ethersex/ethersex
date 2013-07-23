@@ -58,6 +58,7 @@ SUBDIRS += protocols/fnordlicht
 SUBDIRS += protocols/mdns_sd
 SUBDIRS += protocols/modbus
 SUBDIRS += protocols/mysql
+SUBDIRS += protocols/sip
 SUBDIRS += protocols/smtp
 SUBDIRS += protocols/sms77
 SUBDIRS += protocols/snmp
