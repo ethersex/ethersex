@@ -6,7 +6,7 @@ j=0
 maxper=30
 for i in ".text" ".data" ".bss"
 do
-	val[$j]=$(avr-size -A $1 | grep $i | ${SED} -e "s/^$i *//g" | cut -d " " -f1)
+	val[$j]=$(avr-size -A $1 | ${SED} -e "/$i/!d;s/^$i *//g;s/^\([^ ]*\).*/\1/")
 	let j=$j+1
 done
 
