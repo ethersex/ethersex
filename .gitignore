@@ -17,6 +17,7 @@
 # make generated files
 .config*
 config.mk
+custom.mk
 autoconf.h
 MCmenu
 MCradiolists
