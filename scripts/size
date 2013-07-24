@@ -16,8 +16,8 @@ if [ "$3" != "y" ]; then
 else
   FLASHSIZE=$4
 fi
-PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);" )
-PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE * $maxper);" )
+PERCENT=$(${AWK} "BEGIN {printf(\"%.2f\", $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);}")
+PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
 
 echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${PERCENT}%)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
@@ -38,6 +38,6 @@ else
 	echo "]"
 fi
 echo ""
-echo -e "Program (.text + .data)\t: $(perl -e "print ${val[0]}+${val[1]};") bytes"
-echo -e "Data (.data + .bss)\t:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
+echo -e "Program (.text + .data)\t: $(${AWK} "BEGIN {print ${val[0]}+${val[1]};}") bytes"
+echo -e "Data (.data + .bss)\t:  $(${AWK} "BEGIN {print ${val[2]}+${val[1]};}") bytes"
 echo ""
