@@ -1,0 +1,39 @@
+SUBSUBDIRS += hardware/adc
+SUBSUBDIRS += hardware/adc/kty
+SUBSUBDIRS += hardware/adc/ads7822
+SUBSUBDIRS += hardware/avr
+SUBSUBDIRS += hardware/dac
+SUBSUBDIRS += hardware/clock/dcf77
+SUBSUBDIRS += hardware/camera
+SUBSUBDIRS += hardware/ethernet
+SUBSUBDIRS += hardware/dht
+SUBSUBDIRS += hardware/i2c/master
+SUBSUBDIRS += hardware/i2c/slave
+SUBSUBDIRS += hardware/input
+SUBSUBDIRS += hardware/input/ps2
+SUBSUBDIRS += hardware/input/buttons
+SUBSUBDIRS += hardware/io_expander
+SUBSUBDIRS += hardware/ir/rc5
+SUBSUBDIRS += hardware/ir/irmp
+SUBSUBDIRS += hardware/isdn
+SUBSUBDIRS += hardware/lcd
+SUBSUBDIRS += hardware/lcd/s1d15g10
+SUBSUBDIRS += hardware/lcd/ST7626
+SUBSUBDIRS += hardware/lcd/s1d13305
+SUBSUBDIRS += hardware/onewire
+SUBSUBDIRS += hardware/pwm
+SUBSUBDIRS += hardware/sms
+SUBSUBDIRS += hardware/radio/fs20
+SUBSUBDIRS += hardware/radio/rfm12
+SUBSUBDIRS += hardware/sht
+SUBSUBDIRS += hardware/sram
+SUBSUBDIRS += hardware/storage/dataflash
+SUBSUBDIRS += hardware/storage/sd_reader
+SUBSUBDIRS += hardware/zacwire
+SUBSUBDIRS += hardware/ultrasonic
+SUBSUBDIRS += hardware/serial_ram/23k256
+SUBSUBDIRS += hardware/hbridge
+
+# generic fluff
+include $(TOPDIR)/scripts/rules.mk
+include ${TOPDIR}/hardware/custom.mk
