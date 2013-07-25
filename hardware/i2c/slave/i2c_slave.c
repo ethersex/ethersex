@@ -1,29 +1,3 @@
-/*
- * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * For more information on the GPL, please go to:
- * http://www.gnu.org/copyleft/gpl.html
- */
-//case 0x68:  /* Arbitration lost in SLA+R/W as Master; own SLA+W has been received; ACK has been returned */
-//case 0xB0:  /* Arbitration lost in SLA+R/W as Master; own SLA+R has been received; ACK has been returned */
-//case 0xC0: /* Data byte in TWDR has been transmitted; NOT ACK has been received */
-//case 0xC8: /* Last data byte in TWDR has been transmitted (TWEA = .0.); ACK has been received */
- 
-#include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -35,111 +9,144 @@
 
 #include "i2c_slave.h"
 
-static char recv_buffer[ECMD_TWI_BUFFER_LEN];
-static char write_buffer[ECMD_TWI_BUFFER_LEN]; 
-static int16_t recv_len,sent_len, ecmd_ret_len;
-static int8_t twi_parse;
+static char test_buffer[ECMD_TWI_BUFFER_LEN];
+static char rx_buffer[ECMD_TWI_BUFFER_LEN];
+static char tx_buffer[ECMD_TWI_BUFFER_LEN];
+static char i2c_debug_buffer[20];
 
-void 
-twi_slave_init(void)
-{
+static int16_t rx_len, tx_len, ecmd_len, debug_len, twi_parse;
+
+void
+twi_init(void){
   /*fuer das Initialisieren bei einem status fehler*/
-  TWCR = 0;                     
+  TWCR = 0;
 
   /* INIT fuer den TWI i2c
-   * hier wird die Addresse des �C festgelegt
+   * hier wird die Addresse des ï¿½C festgelegt
    * (in den oberen 7 Bit, das LSB(niederwertigstes Bit)
-   * steht daf�r ob der �C auf einen general callreagiert
+   * steht dafï¿½r ob der ï¿½C auf einen general callreagiert
    */
   TWAR = TWIADDR << 1;
 
-  /* TWI Control Register, hier wird der TWI aktiviert, 
+  /* TWI Control Register, hier wird der TWI aktiviert,
    * der Interrupt aktiviert und solche Sachen
    */
   TWCR = (1 << TWIE) | (1 << TWEN) | (1 << TWEA);
 
   /* TWI Status Register init */
   TWSR &= 0xFC;
+
 }
+
 
 void
-twi_slave_periodic(void)
+twi_periodic(void)
 {
-	/* error detection on i2c bus */
-	if((TWSR & 0xF8) == 0x00)
-		twi_slave_init();
-	
-	if (twi_parse == 1) {
-		twi_parse=0;
-		twi_parse_ecmd();
-	}
-}
+    if((TWSR & 0xF8) == 0x00)
+		twi_init();
 
-void
-twi_parse_ecmd (void)
-{
-        TWIDEBUG("recv_buffer:%s ecmd_ret_len:%d\n",recv_buffer,ecmd_ret_len);
 
-	/* twi master can send 2 raw bytes (protocol specified), 
-	 * dont know how to determ if 2 bytes are 2 raw bytes 
-	 * or ecmd command like 'ip'
-	 */
-
-	ecmd_ret_len = ecmd_parse_command(recv_buffer, write_buffer, 
-					sizeof(write_buffer));	
-					
-	if (is_ECMD_AGAIN(ecmd_ret_len)) {
-	      	/* convert ECMD_AGAIN back to ECMD_FINAL */
-      		ecmd_ret_len = ECMD_AGAIN(ecmd_ret_len);
-     	}
-	else if (is_ECMD_ERR(ecmd_ret_len)) {
-	       	return;
-	}
-
-        TWIDEBUG("write_buffer:%s ecmd_ret_len:%d\n",write_buffer,ecmd_ret_len);
-}
-
-/* Interruptroutine des TWI
- */
-
-ISR(TWI_vect)
-{
-  switch (TWSR & 0xF8)
-  {
-    case 0x60:	/* Own SLA+W has been received; ACK has been returned */
-		recv_len=0;
-		twi_parse=0;
-      break;
-    case 0x80:	/* Previously addressed with own SLA+W; data has been received; ACK has been returned */
-		if (recv_len < (sizeof(recv_buffer) - 1))
-			recv_buffer[recv_len++] = TWDR;	
+	if ((twi_parse == 1) || (twi_parse == 3))
+	{
+		if(rx_len <= 1) return;
 		
-		if (TWDR == '\0') { /*end of string received need to parse data*/
-			twi_parse=1;
-		 }
-      break;
-    case 0xA8:	/* Own SLA+R has been received; ACK has been returned */
-		sent_len=0;
-		TWDR=write_buffer[sent_len++];
-	break;
-    case 0xB8:	/* Data byte in TWDR has been transmitted; ACK has been received */
-		if (sent_len < ecmd_ret_len )
-			TWDR=write_buffer[sent_len++];
-		else { 
-			TWDR = twi_parse ? '\n': 0;
+		ecmd_len = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
+		//twi_parse = 0;
+		if (is_ECMD_AGAIN(ecmd_len)) {
+		  /* convert ECMD_AGAIN back to ECMD_FINAL */
+		  ecmd_len = ECMD_AGAIN(ecmd_len);
+		  //parse = 1;
 		}
-      break;
+		else if (is_ECMD_ERR(ecmd_len))
+		   return;		
+		
+		twi_parse = 2;
+	}
+		
+		
+		
+		
+		
+}
 
-    default:
-      break;
-  }
-  TWCR |= (1 << TWINT);         //TWI wieder aktivieren
+/* twi interrupt */
+ISR (TWI_vect)
+{
+	if (TWSR)
+		i2c_debug_buffer[debug_len++]=TWSR; 
+	
+	switch (TWSR & 0xF8)
+	{	
+	//slave receiver		
+		case TWI_SRX_ADR_ACK : 				//0x60 //Own SLA+W has been received;ACK has been returned	      
+	      rx_len=0;		  
+		  ecmd_len=0;
+		  
+		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   
+		break;
+
+		case TWI_SRX_ADR_DATA_ACK :			//0x80 //Previously addressed with own SLA+W; data has been received; ACK has been returned
+          rx_buffer[rx_len++] = TWDR;
+		  
+		  if ( rx_buffer[rx_len-1] == 0) 
+			twi_parse=1;
+		  if ( rx_buffer[rx_len-1] == '\n') 
+			twi_parse=1;
+
+		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   			
+		break;
+		
+	//slave transmitter
+		case TWI_STX_ADR_ACK:				//0xA8 //Own SLA+R has been received;ACK has been returned
+			tx_len=0;
+		    TWDR=tx_buffer[tx_len++];
+
+		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   
+			break;
+		case TWI_STX_DATA_ACK :				//0xB8 //Data byte in TWDR has been transmitted; ACK has been received
+			if (tx_len < ecmd_len) 
+				TWDR=tx_buffer[tx_len++];
+			else
+			{
+				twi_parse=3;
+				tx_len=0;
+			}
+			
+ 		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   						
+		break;		
+    	
+		case TWI_STX_DATA_NACK:          //0xC0   Data byte in TWDR has been transmitted; NACK has been received. 		
+
+ 		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   
+		break;
+		
+		case TWI_SRX_STOP_RESTART:       //0xA0   A STOP condition or repeated START condition has been received while still addressed as Slave    
+		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   		
+        break; 	 
+	}
 }
 
 /*
   -- Ethersex META --
   header(hardware/i2c/slave/i2c_slave.h)
-  init(twi_slave_init)
-  timer(1,twi_slave_periodic())
+  init(twi_init)
+  timer(1, twi_periodic())
 */
-

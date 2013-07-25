@@ -22,6 +22,19 @@
 
 #ifndef _TWI_SLAVE_H
 #define _TWI_SLAVE_H
+
+//Status Codes for Slave Receiver Mode
+#define TWI_SRX_ADR_ACK            0x60 //Own SLA+W has been received;ACK has been returned
+#define TWI_SRX_ADR_DATA_ACK       0x80 //Previously addressed with own SLA+W; data has been received; ACK has been returned
+#define TWI_SRX_STOP_RESTART       0xA0 //A STOP condition or repeated START condition has been received while still addressed as Slave
+
+//Status Codes for Slave Transmitter Mode
+#define TWI_STX_ADR_ACK            0xA8 //Own SLA+R has been received;ACK has been returned
+#define TWI_STX_DATA_ACK 		   0xB8 //Data byte in TWDR has been transmitted; ACK has been received
+#define TWI_STX_DATA_NACK 		   0xC0 //Data byte in TWDR has been transmitted; NOT ACK has been received
+
+
+
 #define DEBUG_TWI
 
 #include "config.h"
@@ -41,11 +54,11 @@
 #define TWIADDR CONF_I2C_SLAVE_ADDR
 #endif
 
-#define ECMD_TWI_BUFFER_LEN 80
+#define ECMD_TWI_BUFFER_LEN 50
 
-void twi_slave_init (void);
-void twi_slave_periodic(void);
-void twi_parse_ecmd (void);
+void twi_init (void);
+void twi_periodic(void);
+//void twi_parse_ecmd (void);
 //static uint8_t twi_parse_data (void);
 //static void twi_handle_ecmd (void);
 
