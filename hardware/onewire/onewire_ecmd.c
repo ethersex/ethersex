@@ -389,7 +389,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   {
     debug_printf("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
-    strcpy_P(output, PSTR("unknown sensor type"));
+    strncpy_P(output, PSTR("unknown sensor type"), ECMD_OUTPUTBUF_LENGTH-1);
     ret = strlen(output);
 #else
     ret = snprintf_P(output, len, PSTR("unknown sensor type"));
@@ -468,7 +468,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   {
     debug_printf("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
-    strcpy_P(output, PSTR("unknown sensor type"));
+    strncpy_P(output, PSTR("unknown sensor type"), ECMD_OUTPUTBUF_LENGTH-1);
     ret = strlen(output);
 #else
     ret = snprintf_P(output, len, PSTR("unknown sensor type"));
