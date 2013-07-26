@@ -68,6 +68,9 @@ flash_page(uint32_t page, uint8_t * buf)
   return;
 #endif
 
+  if ((page + SPM_PAGESIZE) > (uint32_t)BOOTLOADER_START_ADDRESS)
+   return;
+
   for (i = 0; i < SPM_PAGESIZE; i++)
     if (buf[i] != __pgm_read_byte(page + i))
       goto commit_changes;
