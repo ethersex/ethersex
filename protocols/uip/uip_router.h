@@ -43,11 +43,23 @@ void router_output(void);
 
 /* No routing support, simply pass packet to uip_input of the stack
    in question.*/
+#ifdef UIP_SPLIT_SUPPORT
+#define router_input(stack)			\
+  do {						\
+    uip_stack_set_active(stack);		\
+    uip_input();				\
+    if (uip_len > 0) {                          \
+      uip_split_output();                       \
+      router_output();                          \
+    }\
+  } while(0)
+#else
 #define router_input(stack)			\
   do {						\
     uip_stack_set_active(stack);		\
     uip_input();				\
   } while(0)
+#endif
 
 
 #if defined(ENC28J60_SUPPORT)

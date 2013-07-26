@@ -173,6 +173,7 @@ mainmenu_option next_comment
 	if [ "$UIP_TIMEOUT_SUPPORT" = "y" ]; then
 		int "  TCP inactivity timeout (in minutes)" UIP_TIMEOUT_COUNT 10
 	fi
+	dep_bool 'Enable TCP outbound splittig' UIP_SPLIT_SUPPORT $UIP_SUPPORT
 
         if [ "$IPV6_SUPPORT" != "y" -a "$BOOTP_SUPPORT" != "y" -o "$IPV6_STATIC_SUPPORT" = "y" ]; then
 		ip "Default gateway" CONF_ETHERSEX_GATEWAY "192.168.23.1" "2001:6f8:1209:f0:0:0:0:1"
