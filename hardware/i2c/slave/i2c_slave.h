@@ -33,34 +33,31 @@
 #define TWI_STX_DATA_ACK 		   0xB8 //Data byte in TWDR has been transmitted; ACK has been received
 #define TWI_STX_DATA_NACK 		   0xC0 //Data byte in TWDR has been transmitted; NOT ACK has been received
 
-
-
-#define DEBUG_TWI
-
-#include "config.h"
-#ifdef DEBUG_TWI
+#ifdef DEBUG_I2C_SLAVE
 # include "core/debug.h"
 # define TWIDEBUG(a...)  debug_printf("twi: " a)
 #else
 # define TWIDEBUG(a...)
 #endif
-
-/* constants */
-//#define I2C_SLAVE_PORT 0x2321
-
+/*
 #ifndef CONF_I2C_SLAVE_ADDR
-#define TWIADDR 0x04
+#define TWI_ADDR 0x04
 #else
-#define TWIADDR CONF_I2C_SLAVE_ADDR
+#define TWI_ADDR CONF_I2C_SLAVE_ADDR
 #endif
+*/
+//test
+#define TWI_ADDR 0x04
 
-#define ECMD_TWI_BUFFER_LEN 50
+#define ECMD_I2C_SLAVE_SUPPORT TRUE
+
+#define TWI_BUFFER_LEN 50
 
 void twi_init (void);
 void twi_periodic(void);
-//void twi_parse_ecmd (void);
-//static uint8_t twi_parse_data (void);
-//static void twi_handle_ecmd (void);
 
+//#ifdef ECMD_I2C_SLAVE_SUPPORT
+int16_t parse_cmd_twi_slave (char *cmd, char *output, uint16_t len);
+//#endif
 
 #endif /* _TWI_SLAVE_H */

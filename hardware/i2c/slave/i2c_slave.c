@@ -4,22 +4,18 @@
 
 #include "config.h"
 #include "core/global.h"
-#include "protocols/ecmd/parser.h"
-#include "protocols/ecmd/ecmd-base.h"
 
 #include "i2c_slave.h"
 
-static char test_buffer[ECMD_TWI_BUFFER_LEN];
-static char rx_buffer[ECMD_TWI_BUFFER_LEN];
-static char tx_buffer[ECMD_TWI_BUFFER_LEN];
-static char i2c_debug_buffer[20];
+static char rx_buffer[TWI_BUFFER_LEN];
+static char tx_buffer[TWI_BUFFER_LEN];
+static int16_t rx_len, tx_len,tx_total_len, twi_parse;
 
-static int16_t rx_len, tx_len, ecmd_len, twi_parse;
-
-static int16_t debug_len;
-static int8_t i2c_debug;
-
-
+#ifdef DEBUG_I2C_SLAVE
+static char   twi_debug_buffer[TWI_BUFFER_LEN];
+static int8_t twi_debug_len;
+static int8_t twi_debug;
+#endif
 
 void
 twi_init(void){
@@ -31,8 +27,9 @@ twi_init(void){
    * (in den oberen 7 Bit, das LSB(niederwertigstes Bit)
    * steht dafï¿½r ob der ï¿½C auf einen general callreagiert
    */
-  TWAR = TWIADDR << 1;
-
+   
+  TWAR = TWI_ADDR << 1;
+  TWAMR = 0000011;
   /* TWI Control Register, hier wird der TWI aktiviert,
    * der Interrupt aktiviert und solche Sachen
    */
@@ -49,65 +46,58 @@ twi_periodic(void)
     if((TWSR & 0xF8) == 0x00)
 		twi_init();
 
-
-	if (twi_parse == 1)
+	if (!(TWCR & (1<<TWIE))) //wait until TWI interrupt is disabled
 	{
-		TWIDEBUG("parse data\n");
-		twi_parse=0;
-		TWIDEBUG("1rx:%s,tx:%s,\n",rx_buffer,tx_buffer);
-		//if(rx_len <= 1) return;
+		TWCR = 	(1<<TWEN)|                                 // TWI Interface enabled
+				(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+				(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+				(0<<TWWC);   
 		
-		ecmd_len = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
-		TWIDEBUG("2rx:%s,tx:%s,\n",rx_buffer,tx_buffer);
-	   if (is_ECMD_AGAIN(ecmd_len)) {
-		  /* convert ECMD_AGAIN back to ECMD_FINAL */
-		  ecmd_len = ECMD_AGAIN(ecmd_len);
+		#ifdef ECMD_I2C_SLAVE_SUPPORT
+		//parse_cmd_twi_slave(rx_buffer, tx_buffer, sizeof(tx_buffer));
+		#endif
+		
+		if (rx_len)
+		{
+			rx_len=0;
+
+			if (rx_buffer[0] == 0x01)
+				if (rx_buffer[1] == 0x02)
+				status.request_wdreset =1;
+				
+			if (rx_buffer[0] == 0x06)
+				status.request_reset = 1;
 		}
-		else if (is_ECMD_ERR(ecmd_len))
-		   return;
-
-		//twi_parse = 2;
-		/*dont know how to return multiple lines in tx_buffer*/
-		
-		//twi_parse = 0;
-		//if (is_ECMD_AGAIN(ecmd_len)) {
-		  /* convert ECMD_AGAIN back to ECMD_FINAL */
-		  //ecmd_len = ECMD_AGAIN(ecmd_len);
-		  //parse = 1;
-		//}
-		//else if (is_ECMD_ERR(ecmd_len))
-		//{
-		//   twi_parse = 0;
-		//   return;		
-		//}
-		//twi_parse = 2;
-	}	
+	}	   
 	
-	
-	if (i2c_debug)
+	#ifdef DEBUG_I2C_SLAVE
+	if (twi_debug)
 	{
-		i2c_debug=0;
-		int i;
-		TWIDEBUG("i2c_debug_buffer:\n");
-		for (i = 0; i < debug_len; i++)
+		twi_debug=0;
+		uint8_t i;
+		TWIDEBUG("twi_debug_buffer:\n");
+		for (i = 0; i < twi_debug_len; i++)
 		{			
-			TWIDEBUG("%d %02X\n",i, i2c_debug_buffer[i]);
+			TWIDEBUG("%d %02X\n",i, twi_debug_buffer[i]);
 		}	
-		 debug_len=0;
+		twi_debug_len=0;
 	}
-	
+	#endif	 
 }
 
 /* twi interrupt */
 ISR (TWI_vect)
 {
-	//if (TWSR)
-		//i2c_debug_buffer[debug_len++]=TWSR; 
+	#ifdef DEBUG_I2C_SLAVE
+	if (TWSR)
+		if (twi_debug_len < (sizeof(twi_debug_buffer)))
+			twi_debug_buffer[twi_debug_len++]=TWSR; 
+	#endif
 	
 	switch (TWSR & 0xF8)
 	{	
 	//slave receiver		
-		case TWI_SRX_ADR_ACK : 				//0x60 //Own SLA+W has been received;ACK has been returned	      
+		case TWI_SRX_ADR_ACK : 								//0x60 //Own SLA+W has been received;ACK has been returned	      
 	      rx_len=0;		  
 		  //ecmd_len=0;
 		  
@@ -117,12 +107,12 @@ ISR (TWI_vect)
 			     (0<<TWWC);   
 		break;
 
-		case TWI_SRX_ADR_DATA_ACK :			//0x80 //Previously addressed with own SLA+W; data has been received; ACK has been returned
+		case TWI_SRX_ADR_DATA_ACK :							//0x80 //Previously addressed with own SLA+W; data has been received; ACK has been returned
           if (rx_len < (sizeof(rx_buffer) - 1))
 			rx_buffer[rx_len++] = TWDR;
 		  
-		  if ( rx_buffer[rx_len-1] == '\0') 
-			twi_parse=1;
+		  //if ( rx_buffer[rx_len-1] == '\0') 
+			//twi_parse=1;
 
 		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
 			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
@@ -130,42 +120,46 @@ ISR (TWI_vect)
 			     (0<<TWWC);   			
 		break;
 
-		case TWI_SRX_STOP_RESTART:       //0xA0   A STOP condition or repeated START condition has been received while still addressed as Slave    
-		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
-			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
-			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
-			     (0<<TWWC);   		
+		case TWI_SRX_STOP_RESTART:							//0xA0   A STOP condition or repeated START condition has been received while still addressed as Slave    
+			TWCR = (1<<TWEN)|                               // Enable TWI-interface and release TWI pins
+					(0<<TWIE)|(0<<TWINT)|                      // Disable Interupt
+					(0<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Do not acknowledge on any new requests.
+					(0<<TWWC);                                 //			
         break; 			
 
 		//slave transmitter
-		case TWI_STX_ADR_ACK:				//0xA8 //Own SLA+R has been received;ACK has been returned
+		case TWI_STX_ADR_ACK:								//0xA8 //Own SLA+R has been received;ACK has been returned
 			tx_len=0;
-		    //if (twi_parse == 2)
+
 			TWDR=tx_buffer[tx_len++];
 
-		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
-			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
-			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
-			     (0<<TWWC);   
+			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+					(0<<TWWC);   
 			break;
-		case TWI_STX_DATA_ACK :				//0xB8 //Data byte in TWDR has been transmitted; ACK has been received
-			if (tx_len < ecmd_len) 
+		case TWI_STX_DATA_ACK :								//0xB8 //Data byte in TWDR has been transmitted; ACK has been received
+			//hier kan nog misgaan, heb = bijgeplaatst
+			if (tx_len <= tx_total_len) 
 				TWDR=tx_buffer[tx_len++];
 			else
 				TWDR= twi_parse ? '\n': 0;
 			
- 		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
-			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
-			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
-			     (0<<TWWC);   						
+			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+					(0<<TWWC);   						
 		break;		
     	
-		case TWI_STX_DATA_NACK:          //0xC0   Data byte in TWDR has been transmitted; NACK has been received. 		
-		  //i2c_debug=1;	
- 		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
-			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
-			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
-			     (0<<TWWC);   
+		case TWI_STX_DATA_NACK:          					//0xC0   Data byte in TWDR has been transmitted; NACK has been received. 		
+			#ifdef DEBUG_I2C_SLAVE
+			twi_debug=1;	
+			#endif
+			
+			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+					(0<<TWWC);   
 		break;
 		
  

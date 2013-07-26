@@ -1,5 +1,8 @@
 dep_bool_menu "I2C slave" I2C_SLAVE_SUPPORT "$(not $I2C_MASTER_SUPPORT)" $ARCH_AVR
 
+  if [ "$I2C_SLAVE_SUPPORT" = "y" ]; then
+    hex "I2C slave address" CONF_I2C_SLAVE_ADDR 0x04
+  fi
   comment  "Debugging Flags"
   dep_bool 'I2C' DEBUG_I2C_SLAVE $DEBUG $I2C_SLAVE_SUPPORT
 
