@@ -23,6 +23,13 @@
 #ifndef _TWI_SLAVE_H
 #define _TWI_SLAVE_H
 
+//doesnt work
+#ifndef CONF_TWI_SLAVE_ADDR
+#define TWI_ADDR 0x04
+#else
+#define TWI_ADDR CONF_TWI_SLAVE_ADDR
+#endif
+
 //Status Codes for Slave Receiver Mode
 #define TWI_SRX_ADR_ACK            0x60 //Own SLA+W has been received;ACK has been returned
 #define TWI_SRX_ADR_DATA_ACK       0x80 //Previously addressed with own SLA+W; data has been received; ACK has been returned
@@ -33,31 +40,27 @@
 #define TWI_STX_DATA_ACK 		   0xB8 //Data byte in TWDR has been transmitted; ACK has been received
 #define TWI_STX_DATA_NACK 		   0xC0 //Data byte in TWDR has been transmitted; NOT ACK has been received
 
-#ifdef DEBUG_I2C_SLAVE
+//Miscellaneous States
+#define TWI_BUS_ERROR              0x00  // Bus error due to an illegal START or STOP condition
+
+#ifdef DEBUG_TWI_SLAVE
 # include "core/debug.h"
-# define TWIDEBUG(a...)  debug_printf("twi: " a)
+# define TWIDEBUG(a...)  debug_printf("twi sl: " a)
 #else
 # define TWIDEBUG(a...)
 #endif
-/*
-#ifndef CONF_I2C_SLAVE_ADDR
-#define TWI_ADDR 0x04
-#else
-#define TWI_ADDR CONF_I2C_SLAVE_ADDR
-#endif
-*/
-//test
-#define TWI_ADDR 0x04
 
-#define ECMD_I2C_SLAVE_SUPPORT TRUE
-
-#define TWI_BUFFER_LEN 50
 
 void twi_init (void);
+unsigned char twi_busy( void );
+int16_t twi_get_rx_data(char *cmd, int16_t len);
+void twi_set_tx_data(char *cmd, int16_t len);
+void parse_rawdata_twi_slave(void);
 void twi_periodic(void);
 
-//#ifdef ECMD_I2C_SLAVE_SUPPORT
-int16_t parse_cmd_twi_slave (char *cmd, char *output, uint16_t len);
-//#endif
+#ifdef ECMD_TWI_SLAVE_SUPPORT
+void ecmd_twi_periodic(void);
+int16_t parse_ecmd_twi_slave (void);
+#endif
 
 #endif /* _TWI_SLAVE_H */
