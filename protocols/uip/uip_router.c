@@ -24,6 +24,7 @@
 #ifdef ROUTER_SUPPORT
 
 #include "protocols/uip/uip.h"
+#include "protocols/uip/uip_split.h"
 #include "protocols/uip/uip_neighbor.h"
 
 #include "protocols/uip/ipv6.h"
@@ -101,6 +102,12 @@ router_input(uint8_t origin)
       if(!uip_len) return;
 #endif
       uip_input ();
+#ifdef UIP_SPLIT_SUPPORT
+      if (uip_len > 0) {
+        uip_split_output();
+        router_output();
+      }
+#endif
   }
 #if UIP_CONF_IPV6 && defined(ENC28J60_SUPPORT)
   else if (BUF->destipaddr[0] == HTONS(0xff02))
@@ -108,6 +115,12 @@ router_input(uint8_t origin)
       /* Packet is addressed to one of the multicast addresses. */
       uip_stack_set_active (STACK_ENC);
       uip_input ();
+#ifdef UIP_SPLIT_SUPPORT
+      if (uip_len > 0) {
+        uip_split_output();
+        router_output();
+      }
+#endif
     }
 #endif	/* UIP_CONF_IPV6 */
   else

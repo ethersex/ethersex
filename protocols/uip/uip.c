@@ -257,9 +257,9 @@ struct uip_stats uip_stat;
 
 #if ! UIP_ARCH_ADD32 && UIP_TCP
 /* Temporary variable */
-static u8_t uip_acc32[4];
+u8_t uip_acc32[4];
 
-static void noinline
+void noinline
 uip_add32(u8_t *op32, u16_t op16)
 {
   uip_acc32[3] = op32[3] + (op16 & 0xff);
@@ -330,7 +330,7 @@ uip_chksum(u16_t *data, u16_t len)
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
 #if !UIP_CONF_IPV6
-static u16_t
+u16_t
 uip_ipchksum(void)
 {
   u16_t sum;
@@ -378,7 +378,7 @@ uip_icmp6chksum(void)
 #endif /* UIP_CONF_IPV6 */
 /*---------------------------------------------------------------------------*/
 #if UIP_TCP
-static u16_t
+u16_t
 uip_tcpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_TCP);

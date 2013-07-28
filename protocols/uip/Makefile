@@ -2,6 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(UIP_SUPPORT)_SRC += protocols/uip/uip.c
+$(UIP_SUPPORT)_SRC += protocols/uip/uip_split.c
 $(UIP_SUPPORT)_SRC += protocols/uip/uip_multi.c
 $(UIP_SUPPORT)_SRC += protocols/uip/uip_router.c
 $(UIP_SUPPORT)_SRC += protocols/uip/parse.c

@@ -3370,3 +3370,11 @@ SIP_SUPPORT
 
   Client implementation of the Session Initiation Protocol (SIP).
 
+Enable TCP outbound splittig
+UIP_SPLIT_SUPPORT
+  Depends on: 
+   * Networking support (UIP_SUPPORT)
+
+  Split outbound TCP segments in two to avoid the delayed ACK
+  throughput degradation.
+

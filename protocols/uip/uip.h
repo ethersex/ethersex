@@ -1624,6 +1624,13 @@ extern const uip_ipaddr_t all_zeroes_addr;
 
 extern struct uip_listen_port uip_listenports[UIP_LISTENPORTS];
 
+extern u8_t uip_acc32[4];
+void uip_add32(u8_t *op32, u16_t op16);
+u16_t uip_ipchksum(void);
+u16_t uip_tcpchksum(void);
+
+
+
 /**
  * Representation of a 48-bit Ethernet address.
  */
