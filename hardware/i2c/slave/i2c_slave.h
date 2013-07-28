@@ -24,11 +24,11 @@
 #define _TWI_SLAVE_H
 
 //doesnt work
-#ifndef CONF_TWI_SLAVE_ADDR
-#define TWI_ADDR 0x04
-#else
-#define TWI_ADDR CONF_TWI_SLAVE_ADDR
-#endif
+//#ifndef CONF_TWI_SLAVE_ADDR
+//#define TWI_ADDR 0x04
+//#else
+//#define TWI_ADDR CONF_TWI_SLAVE_ADDR
+//#endif
 
 //Status Codes for Slave Receiver Mode
 #define TWI_SRX_ADR_ACK            0x60 //Own SLA+W has been received;ACK has been returned
@@ -53,7 +53,7 @@
 
 void twi_init (void);
 unsigned char twi_busy( void );
-int16_t twi_get_rx_data(char *cmd, int16_t len);
+int16_t twi_get_rx_data(char *cmd);
 void twi_set_tx_data(char *cmd, int16_t len);
 void parse_rawdata_twi_slave(void);
 void twi_periodic(void);
