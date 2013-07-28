@@ -119,8 +119,10 @@ twi_periodic(void)
 		//{
 			//parse_ecmd_twi_slave();
 		//	TWIDEBUG("parse_ecmd_twi_slave\n");
+
+			//tx_total_len = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
 			test = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
-			tx_total_len = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
+			
 			//TWIDEBUG("cmd_tx_buffer:%s, ecmd_len:%d\n",cmd_tx_buffer,ecmd_len);	
 			//twi_set_tx_data(cmd_tx_buffer,ecmd_len);			
 		//}
