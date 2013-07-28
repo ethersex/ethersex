@@ -74,6 +74,8 @@ httpd_cleanup (void)
     if (STATE->handler == httpd_handle_soap)
       soap_deallocate_context (&STATE->u.soap);
 #endif	/* HTTPD_SOAP_SUPPORT */
+
+    STATE->handler = NULL;
 }
 
 
@@ -290,13 +292,15 @@ void
 httpd_main(void)
 {
     if (uip_aborted() || uip_timedout()) {
-	httpd_cleanup ();
 	printf ("httpd: connection aborted\n");
+	httpd_cleanup ();
+        return;
     }
 
     if (uip_closed()) {
-	httpd_cleanup ();
 	printf ("httpd: connection closed\n");
+	httpd_cleanup ();
+        return;
     }
 
     if (uip_connected()) {
