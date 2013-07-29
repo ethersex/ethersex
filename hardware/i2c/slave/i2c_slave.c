@@ -59,7 +59,7 @@ twi_get_rx_data(char *cmd)
 {
 	int16_t i;
 
-	for (i=0; i<rx_len; i++)
+	for (i=0; i<TWI_BUFFER_LEN; i++)
 	{
 		cmd[i] = rx_buffer[i];
 		rx_buffer[i]='\0';
