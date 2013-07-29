@@ -7,16 +7,17 @@
 
 #include "i2c_slave.h"
 
-
 #define TWI_ADDR 0x04
 
 static char rx_buffer[TWI_BUFFER_LEN];
 static char tx_buffer[TWI_BUFFER_LEN];
-static int16_t rx_len, tx_len,tx_total_len, twi_parse,twi_debug,twi_debug_len,test;
-static char twi_debug_buffer[20];
+static int16_t rx_len, tx_len,tx_total_len, twi_parse;
 
-
-
+#ifdef DEBUG_TWI_SLAVE
+static char twi_debug_buffer[60];
+static int16_t twi_debug_len;
+static int8_t twi_debug;
+#endif
 
 void
 twi_init(void){
@@ -47,127 +48,102 @@ twi_busy( void )
 	return ( TWCR & (1<<TWIE) );  
 }
 
-//#ifdef ECMD_TWI_SLAVE_SUPPORT
 int16_t 
+twi_rx_len(void)
+{
+	return rx_len;
+}
+
+void
 twi_get_rx_data(char *cmd)
 {
 	int16_t i;
-	//len=rx_len;
-	//TWIDEBUG("len %d\n",rx_len);
+
 	for (i=0; i<rx_len; i++)
 	{
 		cmd[i] = rx_buffer[i];
+		rx_buffer[i]='\0';
 	}
-	//TWIDEBUG("rx_buffer:%s cmd:%s rx_len:%d\n",rx_buffer,cmd,rx_len);
-	return rx_len;	
 }
 
 void 
-twi_set_tx_data(char *cmd, int16_t len)
+twi_set_tx_data(char *cmd)
 {
 	int16_t i;
-	tx_total_len = len;
 	
-	for (i=0; i<tx_total_len; i++)
+	TWIDEBUG("cmd %s\n",cmd);
+	
+	for (i=0; i<TWI_BUFFER_LEN; i++)
 	{
-		tx_buffer[i] = cmd[i];
-		
+		tx_buffer[i] = cmd[i];	
 	}
-	//TWIDEBUG("tx_buffer:%s cmd:%s\n",tx_buffer,cmd);
+
+	for (i=0; i<TWI_BUFFER_LEN; i++)
+	{
+		cmd[i] = '\0';	
+	}
 }
-//#endif
-/*
+
 void
 parse_rawdata_twi_slave(void)
 {
-		if (rx_len)
-		{
-			TWIDEBUG("parse_rawdata_twi_slave\n");
-			//i2cset -y 1 0x04 0x01 0x02
-			if (rx_buffer[0] == 0x01)
-				if (rx_buffer[1] == 0x02)
-					status.request_wdreset =1;
-				
-			if (rx_buffer[0] == 0x06)
-				status.request_reset = 1;	
-			
-			if (rx_buffer[0] == 0x07)
-			{
-				tx_buffer[0] = 0x67;
-				tx_total_len=1;
-			}
-		}
+	char cmd_rx_buffer[TWI_BUFFER_LEN];
+	char cmd_tx_buffer[TWI_BUFFER_LEN];
+	int8_t cmd_rx_len;
+
+	TWIDEBUG("parse_rawdata_twi_slave %s\n",cmd_rx_buffer);
+	
+	cmd_rx_len = twi_get_rx_data(cmd_rx_buffer);
+
+	//i2cset -y 1 0x04 0x01 0x02
+	if (cmd_rx_buffer[0] == 0x01)
+		if (cmd_rx_buffer[1] == 0x02)
+			status.request_wdreset =1;
+		
+	if (cmd_rx_buffer[0] == 0x06)
+		status.request_reset = 1;	
+	
+	if (cmd_rx_buffer[0] == 0x07)
+	{
+		cmd_tx_buffer[0] = 0x67;
+		
+	}
+	twi_set_tx_data(cmd_tx_buffer);	
 }
-*/
 
 void
 twi_periodic(void)
 {
     if((TWSR & 0xF8) == 0x00)
 		twi_init();
-		
-	//if (!twi_busy()) //wait until TWI interrupt is disabled
-	if (!( TWCR & (1<<TWIE) ))
+
+	#ifndef ECMD_TWI_SLAVE_SUPPORT
+	if (!twi_busy()) //wait until TWI interrupt is disabled
 	{
 		TWIDEBUG("ecmd_twi_periodic\n");		
-		//cmd_rx_len = twi_get_rx_data(cmd_rx_buffer);
-		//TWIDEBUG("cmd_rx_buffer %s cmd_rx_len %d\n",cmd_rx_buffer,cmd_rx_len);	
 
-		//if (cmd_rx_len<=2) //assume its raw
-			//parse_rawdata_twi_slave();
-		//else 
-		//{
-			//parse_ecmd_twi_slave();
-		//	TWIDEBUG("parse_ecmd_twi_slave\n");
-
-			//tx_total_len = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
-			test = ecmd_parse_command(rx_buffer, tx_buffer, sizeof(tx_buffer));
-			
-			//TWIDEBUG("cmd_tx_buffer:%s, ecmd_len:%d\n",cmd_tx_buffer,ecmd_len);	
-			//twi_set_tx_data(cmd_tx_buffer,ecmd_len);			
-		//}
-		TWCR = 	(1<<TWEN)|                                 // TWI Interface enabled
-				(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
-				(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
-				(0<<TWWC);  		
-	}	   
-	
-	
-	//#ifndef ECMD_TWI_SLAVE_SUPPORT
-	//if (!twi_busy()) //wait until TWI interrupt is disabled
-	/*if (!( TWCR & (1<<TWIE) ))
-	{
-		//parse_rawdata_twi_slave();
-	
+		parse_rawdata_twi_slave();
 	
 		TWCR = 	(1<<TWEN)|                                 // TWI Interface enabled
 				(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
 				(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
 				(0<<TWWC);   
 	}
-	//#endif
-	*/
-	if (twi_debug==2)
-	{
-		twi_debug=0;
-		uint8_t i;
-		TWIDEBUG("twi_debug_buffer:\n");
-		for (i = 0; i < twi_debug_len; i++)
-		{			
-			TWIDEBUG("%d %02X\n",i, twi_debug_buffer[i]);
-		}	
-		twi_debug_len=0;
-	}	
+	#endif
 	
-	
+	//if (twi_debug)
+		//twi_debug_twsr();
 }
 
 /* twi interrupt */
 ISR (TWI_vect)
 {
-	//if (TWSR)
-		//twi_debug_buffer[twi_debug_len++]=TWSR; 
-
+	#ifdef DEBUG_TWI_SLAVE
+	if (TWSR& 0xF8)
+		if (twi_debug_len < (sizeof(twi_debug_buffer) - 1))
+			twi_debug_buffer[twi_debug_len++]=TWSR; 
+	#endif
+	
 	switch (TWSR & 0xF8)
 	{	
 	//slave receiver		
@@ -199,28 +175,26 @@ ISR (TWI_vect)
 		case TWI_STX_ADR_ACK:								//0xA8 //Own SLA+R has been received;ACK has been returned
 			tx_len=0;
 			TWDR=tx_buffer[tx_len++];
-			//TWDR=0x69;
 			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
 					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
 					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
 					(0<<TWWC);   
 			break;
-		case TWI_STX_DATA_ACK :								//0xB8 //Data byte in TWDR has been transmitted; ACK has been received
-			//if (tx_len <= tx_total_len)
-			if (tx_len <= test) 
-			//if (1 <= 2) 
+		case TWI_STX_DATA_ACK :								//0xB8 //Data byte in TWDR has been transmitted; ACK has been received			
+			//if (tx_len < (sizeof(tx_buffer) - 1)) 		//if uncommented the data is sending borked to the master 
 				TWDR=tx_buffer[tx_len++];
-				//TWDR=0x70;
-			else
-				TWDR= twi_parse ? '\n': 0;
-				//TWDR=0x72;
+			//else
+				//TWDR= twi_parse ? '\n': 0;
+
 			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
 					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
 					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
 					(0<<TWWC);   						
 		break;		   	
 		case TWI_STX_DATA_NACK:          					//0xC0   Data byte in TWDR has been transmitted; NACK has been received. 		
-twi_debug=1;
+			#ifdef DEBUG_TWI_SLAVE
+			twi_debug=1;
+			#endif
 			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
 					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
 					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
@@ -231,6 +205,26 @@ twi_debug=1;
 		//need to fix 		
 	}
 }
+
+#ifdef DEBUG_TWI_SLAVE
+void 
+twi_debug_twsr(void)
+{
+		twi_debug=0;
+		uint16_t i;
+		TWIDEBUG("twi_debug_buffer:\n");
+		for (i = 0; i < twi_debug_len; i++)
+		{			
+			TWIDEBUG("%d %02X\n",i, twi_debug_buffer[i]);
+		}	
+
+		for (i = 0; i < twi_debug_len; i++)
+		{			
+			twi_debug_buffer[i] = '\0';
+		}	
+		twi_debug_len=0;
+}
+#endif
 
 /*
   -- Ethersex META --

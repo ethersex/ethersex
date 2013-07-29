@@ -53,10 +53,12 @@
 
 void twi_init (void);
 unsigned char twi_busy( void );
-int16_t twi_get_rx_data(char *cmd);
-void twi_set_tx_data(char *cmd, int16_t len);
+int16_t twi_rx_len(void);
+twi_get_rx_data(char *cmd);
+void twi_set_tx_data(char *cmd);
 void parse_rawdata_twi_slave(void);
 void twi_periodic(void);
+void twi_debug_twsr(void);
 
 #ifdef ECMD_TWI_SLAVE_SUPPORT
 void ecmd_twi_periodic(void);
