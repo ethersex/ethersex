@@ -89,11 +89,11 @@ parse_rawdata_twi_slave(void)
 {
 	char cmd_rx_buffer[TWI_BUFFER_LEN];
 	char cmd_tx_buffer[TWI_BUFFER_LEN];
-	int8_t cmd_rx_len;
+	
 
 	TWIDEBUG("parse_rawdata_twi_slave %s\n",cmd_rx_buffer);
 	
-	cmd_rx_len = twi_get_rx_data(cmd_rx_buffer);
+	twi_get_rx_data(cmd_rx_buffer);
 
 	//i2cset -y 1 0x04 0x01 0x02
 	if (cmd_rx_buffer[0] == 0x01)

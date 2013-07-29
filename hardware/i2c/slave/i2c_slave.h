@@ -53,8 +53,7 @@
 
 void twi_init (void);
 unsigned char twi_busy( void );
-int16_t twi_rx_len(void);
-twi_get_rx_data(char *cmd);
+void twi_get_rx_data(char *cmd);
 void twi_set_tx_data(char *cmd);
 void parse_rawdata_twi_slave(void);
 void twi_periodic(void);
