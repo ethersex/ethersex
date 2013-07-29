@@ -1,20 +1,23 @@
 #!/bin/bash
+
+. scripts/osdefaults.sh
+
 j=0
 maxper=30
 for i in ".text" ".data" ".bss"
 do
-	val[$j]=$(avr-size -A $1 | grep $i | sed -e "s/^$i *//g" | cut -d " " -f1)
+	val[$j]=$(avr-size -A $1 | ${SED} -e "/$i/!d;s/^$i *//g;s/^\([^ ]*\).*/\1/")
 	let j=$j+1
 done
 
-IMAGESIZE=$(ls -l $1.bin | awk '{ print $5 }')
+IMAGESIZE=$(ls -l $1.bin | ${AWK} '{ print $5 }')
 if [ "$3" != "y" ]; then
-  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | sed '$!d'` + 1 )))
+  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | ${SED} '$!d'` + 1 )))
 else
   FLASHSIZE=$4
 fi
-PERCENT=$(perl -e "printf('%.2f', $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);" )
-PER=$(perl -e "printf('%i', $IMAGESIZE / $FLASHSIZE * $maxper);" )
+PERCENT=$(${AWK} "BEGIN {printf(\"%.2f\", $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);}")
+PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
 
 echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${PERCENT}%)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
@@ -35,6 +38,6 @@ else
 	echo "]"
 fi
 echo ""
-echo -e "Program (.text + .data)\t: $(perl -e "print ${val[0]}+${val[1]};") bytes"
-echo -e "Data (.data + .bss)\t:  $(perl -e "print ${val[2]}+${val[1]};") bytes"
+echo -e "Program (.text + .data)\t: $(${AWK} "BEGIN {print ${val[0]}+${val[1]};}") bytes"
+echo -e "Data (.data + .bss)\t:  $(${AWK} "BEGIN {print ${val[2]}+${val[1]};}") bytes"
 echo ""
