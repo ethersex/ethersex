@@ -1,7 +1,7 @@
 ifdef(`conf_STELLA', `', `m4exit(1)')dnl
 ifdef(`conf_STELLA_INLINE', `', `m4exit(1)')dnl
 <html><head>
-<title>StellaLight Control</title>
+<title>Ethersex - StellaLight Control</title>
 <link rel="StyleSheet"  href="Sty.c" type="text/css" />
 
 <script src="scr.js" type="text/javascript"></script>

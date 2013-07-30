@@ -81,7 +81,7 @@ window.onload = function() {
 
 </script>
 </head><body>
-<h1>Ethersex TO-1 Status</h1>
+<h1>TO-1 Status</h1>
 <div id="to1_status"></div>
 
 <div id="logconsole"></div>
