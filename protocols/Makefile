@@ -1,0 +1,47 @@
+SUBSUBDIRS += protocols/artnet
+SUBSUBDIRS += protocols/bootp
+SUBSUBDIRS += protocols/dali
+SUBSUBDIRS += protocols/dhcp
+SUBSUBDIRS += protocols/dmx
+SUBSUBDIRS += protocols/eltakoms
+SUBSUBDIRS += protocols/ems
+SUBSUBDIRS += protocols/fnordlicht
+SUBSUBDIRS += protocols/mdns_sd
+SUBSUBDIRS += protocols/modbus
+SUBSUBDIRS += protocols/mysql
+SUBSUBDIRS += protocols/smtp
+SUBSUBDIRS += protocols/sms77
+SUBSUBDIRS += protocols/snmp
+SUBSUBDIRS += protocols/syslog
+SUBSUBDIRS += protocols/uip
+SUBSUBDIRS += protocols/uip/ipchair
+SUBSUBDIRS += protocols/ustream
+SUBSUBDIRS += protocols/usb
+SUBSUBDIRS += protocols/yport
+SUBSUBDIRS += protocols/zbus
+SUBSUBDIRS += protocols/dns
+SUBSUBDIRS += protocols/ecmd/
+SUBSUBDIRS += protocols/ecmd/sender
+SUBSUBDIRS += protocols/ecmd/via_i2c
+SUBSUBDIRS += protocols/ecmd/via_tcp
+SUBSUBDIRS += protocols/ecmd/via_udp
+SUBSUBDIRS += protocols/ecmd/via_usart
+SUBSUBDIRS += protocols/irc
+SUBSUBDIRS += protocols/soap
+SUBSUBDIRS += protocols/httplog
+SUBSUBDIRS += protocols/twitter
+SUBSUBDIRS += protocols/netstat
+SUBSUBDIRS += protocols/to1
+SUBSUBDIRS += protocols/serial_line_log
+SUBSUBDIRS += protocols/msr1
+SUBSUBDIRS += protocols/nmea
+SUBSUBDIRS += protocols/udpIO
+SUBSUBDIRS += protocols/udpstella
+SUBSUBDIRS += protocols/udpcurtain
+SUBSUBDIRS += protocols/cw
+SUBSUBDIRS += protocols/sgc
+SUBSUBDIRS += protocols/sip
+
+# generic fluff
+include $(TOPDIR)/scripts/rules.mk
+include $(TOPDIR)/protocols/custom.mk

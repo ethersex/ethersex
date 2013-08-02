@@ -357,19 +357,9 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     /* search the sensor... */
     ow_sensor_t *sensor = ow_find_sensor(&rom);
     if (sensor != NULL)
-    {
-      /* found it */
-      int16_t temp = sensor->temp;
-      uint8_t sign = temp < 0;
-      div_t res = div(abs(temp), 10);
-      ret = snprintf_P(output, len, PSTR("%S%d.%1u"),
-                       sign ? PSTR("-") : PSTR(""), res.quot, res.rem);
-
-      return ECMD_FINAL(itoa_fixedpoint(temp, 1, output));
-    }
-    /* sensor is not in list */
-    ret = snprintf_P(output, len, PSTR("sensor not in list!"));
-    return ECMD_FINAL(ret);
+      ret = itoa_fixedpoint(sensor->temp, 1, output);
+    else
+      ret = snprintf_P(output, len, PSTR("sensor not in list!"));
 #ifdef ONEWIRE_DS2502_SUPPORT
   }
   else if (ow_eeprom(&rom))
@@ -399,19 +389,15 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   {
     debug_printf("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
-    strcpy_P(output, PSTR("unknown sensor type"));
-    return ECMD_FINAL(strlen(output));
+    strncpy_P(output, PSTR("unknown sensor type"), len);
+    ret = strlen(output);
 #else
     ret = snprintf_P(output, len, PSTR("unknown sensor type"));
 #endif
   }
-
   return ECMD_FINAL(ret);
-
 }
-#else
-
-
+#else /* ONEWIRE_POLLING_SUPPORT */
 int16_t
 parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 {
@@ -448,33 +434,10 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     }
 
     debug_printf("successfully read scratchpad\n");
-
     int16_t temp = ow_temp_normalize(&rom, &sp);
-
     debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
-
-    int8_t sign = (int8_t) (temp < 0);
-
-#ifdef TEENSY_SUPPORT
-    if (sign)
-    {
-      temp = -temp;
-      output[0] = '-';
-    }
-    /* Here sign is 0 or 1 */
-    itoa(HI8(temp), output + sign, 10);
-    char *ptr = output + strlen(output);
-
-    *(ptr++) = '.';
-    itoa(HI8(((temp & 0x00ff) * 10) + 0x80), ptr, 10);
-    return ECMD_FINAL(strlen(output));
-#else
-    if (sign)
-      temp = -temp;
-    ret = snprintf_P(output, len, PSTR("%s%d.%1d"),
-                     sign ? "-" : "", (int8_t) HI8(temp),
-                     HI8(((temp & 0x00ff) * 10) + 0x80));
-#endif
+    temp = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+    ret = itoa_fixedpoint(temp, 1, output);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
   }
@@ -505,8 +468,8 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   {
     debug_printf("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
-    strcpy_P(output, PSTR("unknown sensor type"));
-    return ECMD_FINAL(strlen(output));
+    strncpy_P(output, PSTR("unknown sensor type"), len);
+    ret = strlen(output);
 #else
     ret = snprintf_P(output, len, PSTR("unknown sensor type"));
 #endif
@@ -514,7 +477,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
   return ECMD_FINAL(ret);
 }
-#endif
+#endif /* ONEWIRE_POLLING_SUPPORT */
 
 #ifdef ONEWIRE_POLLING_SUPPORT
 int16_t

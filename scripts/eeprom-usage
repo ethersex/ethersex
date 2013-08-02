@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. scripts/osdefaults.sh
+
 if [ "$#" -lt "2" ]; then
   echo "USAGE: eeprom-usage <CFLAGS> <CPPFLAGS>"
   exit 1
@@ -32,8 +34,8 @@ if [ -z "$ee_used" ]; then
   exit 0
 fi
 
-ee_size=$(echo $(( `echo -e "#include <avr/io.h>\nE2END" | avr-cpp $2 | sed '$!d'` + 1 )))
-ee_pct=`perl -e "printf('%.2f', $ee_used.0 / $ee_size.0 * 100.0);"`
+ee_size=$(echo $(( `echo -e "#include <avr/io.h>\nE2END" | avr-cpp $2 | ${SED} '$!d'` + 1 )))
+ee_pct=$(${AWK} "BEGIN {printf(\"%.2f\", $ee_used.0 / $ee_size.0 * 100.0);}")
 
 echo "EEPROM usage: $ee_used/$ee_size bytes (${ee_pct}%)"
 
