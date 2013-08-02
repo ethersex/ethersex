@@ -47,7 +47,6 @@ uint16_t yport_rx_parityerror;
 uint16_t yport_rx_bufferfull;
 uint16_t yport_eth_retransmit;
 #endif
-uint8_t yport_lastservice;
 uint8_t yport_lf;
 
 void
