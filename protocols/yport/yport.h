@@ -44,7 +44,9 @@ extern uint16_t yport_rx_parityerror;
 extern uint16_t yport_rx_bufferfull;
 extern uint16_t yport_eth_retransmit;
 #endif
+#if YPORT_FLUSH > 0
 extern uint8_t yport_lf;
+#endif
 
 
 #endif /* _YPORT_H */
