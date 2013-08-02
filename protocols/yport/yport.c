@@ -37,68 +37,80 @@
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
-
-struct yport_buffer yport_send_buffer;
-struct yport_buffer yport_recv_buffer;
+     struct yport_buffer yport_send_buffer;
+     struct yport_buffer yport_recv_buffer;
 #ifdef DEBUG_YPORT
-uint16_t yport_rx_frameerror;
-uint16_t yport_rx_overflow;
-uint16_t yport_rx_parityerror;
-uint16_t yport_rx_bufferfull;
+     uint16_t yport_rx_frameerror;
+     uint16_t yport_rx_overflow;
+     uint16_t yport_rx_parityerror;
+     uint16_t yport_rx_bufferfull;
+     uint16_t yport_eth_retransmit;
+#endif
+#if YPORT_FLUSH > 0
+     uint8_t yport_lf;
 #endif
 
-void
-yport_init(void)
+     void yport_init(void)
 {
   usart_init();
 }
 
 uint8_t
-yport_rxstart(uint8_t *data, uint16_t len)
+yport_rxstart(uint8_t * data, uint16_t len)
 {
   uint16_t diff = yport_send_buffer.len - yport_send_buffer.sent;
-  if (diff == 0) {
+  if (diff == 0)
+  {
     /* Copy the data to the send buffer */
     memcpy(yport_send_buffer.data, data, len);
     yport_send_buffer.len = len;
     goto start_sending;
-  /* The actual packet can be pushed into the buffer */
-  } else if ((diff + len) < YPORT_BUFFER_LEN) {
-    memmove(yport_send_buffer.data, yport_send_buffer.data + yport_send_buffer.sent, diff);
+    /* The actual packet can be pushed into the buffer */
+  }
+  else if ((diff + len) < YPORT_BUFFER_LEN)
+  {
+    memmove(yport_send_buffer.data,
+            yport_send_buffer.data + yport_send_buffer.sent, diff);
     memcpy(yport_send_buffer.data + diff, data, len);
     yport_send_buffer.len = diff + len;
     goto start_sending;
   }
   return 0;
 start_sending:
-    yport_send_buffer.sent = 1;
-    /* Enable the tx interrupt and send the first character */
-    usart(UCSR,B) |= _BV(usart(TXCIE));
-    usart(UDR) = yport_send_buffer.data[0];
-    return 1;
+  yport_send_buffer.sent = 1;
+  /* Enable the tx interrupt and send the first character */
+  usart(UCSR, B) |= _BV(usart(TXCIE));
+  usart(UDR) = yport_send_buffer.data[0];
+  return 1;
 }
 
 
-ISR(usart(USART,_TX_vect))
+ISR(usart(USART, _TX_vect))
 {
-  if (yport_send_buffer.sent < yport_send_buffer.len) {
+  if (yport_send_buffer.sent < yport_send_buffer.len)
+  {
     usart(UDR) = yport_send_buffer.data[yport_send_buffer.sent++];
-  } else {
+  }
+  else
+  {
     /* Disable this interrupt */
-    usart(UCSR,B) &= ~(_BV(usart(TXCIE)));
+    usart(UCSR, B) &= ~(_BV(usart(TXCIE)));
   }
 }
 
-ISR(usart(USART,_RX_vect))
+ISR(usart(USART, _RX_vect))
 {
-  while (usart(UCSR,A) & _BV(usart(RXC)))
+  while (usart(UCSR, A) & _BV(usart(RXC)))
   {
-    if (usart(UCSR,A) & (_BV(usart(FE))|_BV(usart(DOR))|_BV(usart(UPE))))
+    if (usart(UCSR, A) & (_BV(usart(FE)) | _BV(usart(DOR)) | _BV(usart(UPE))))
     {
 #ifdef DEBUG_YPORT
-      if (usart(UCSR,A) & _BV(usart(FE))) yport_rx_frameerror++;
-      if (usart(UCSR,A) & _BV(usart(DOR))) yport_rx_overflow++;
-      if (usart(UCSR,A) & _BV(usart(UPE))) yport_rx_parityerror++;
+      if (usart(UCSR, A) & _BV(usart(FE)))
+        yport_rx_frameerror++;
+      if (usart(UCSR, A) & _BV(usart(DOR)))
+        yport_rx_overflow++;
+      if (usart(UCSR, A) & _BV(usart(UPE)))
+        yport_rx_parityerror++;
 #endif
       uint8_t v = usart(UDR);
       (void) v;
@@ -111,6 +123,10 @@ ISR(usart(USART,_RX_vect))
 #ifdef DEBUG_YPORT
       else
         yport_rx_bufferfull++;
+#endif
+#if YPORT_FLUSH > 0
+      if (v == 0x0A)
+        yport_lf = 1;
 #endif
     }
   }

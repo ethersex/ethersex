@@ -25,14 +25,15 @@
 #define _YPORT_H
 
 
-struct yport_buffer {
+struct yport_buffer
+{
   uint16_t len;
   uint16_t sent;
   uint8_t data[YPORT_BUFFER_LEN];
 };
 
 void yport_init(void);
-uint8_t yport_rxstart(uint8_t *data, uint16_t len);
+uint8_t yport_rxstart(uint8_t * data, uint16_t len);
 
 extern struct yport_buffer yport_send_buffer;
 extern struct yport_buffer yport_recv_buffer;
@@ -41,6 +42,11 @@ extern uint16_t yport_rx_frameerror;
 extern uint16_t yport_rx_overflow;
 extern uint16_t yport_rx_parityerror;
 extern uint16_t yport_rx_bufferfull;
+extern uint16_t yport_eth_retransmit;
 #endif
+#if YPORT_FLUSH > 0
+extern uint8_t yport_lf;
+#endif
+
 
 #endif /* _YPORT_H */
