@@ -46,7 +46,9 @@ generate_usart_init()
      uint16_t yport_rx_bufferfull;
      uint16_t yport_eth_retransmit;
 #endif
+#if YPORT_FLUSH > 0
      uint8_t yport_lf;
+#endif
 
      void yport_init(void)
 {
@@ -122,8 +124,10 @@ ISR(usart(USART, _RX_vect))
       else
         yport_rx_bufferfull++;
 #endif
+#if YPORT_FLUSH > 0
       if (v == 0x0A)
         yport_lf = 1;
+#endif
     }
   }
 }

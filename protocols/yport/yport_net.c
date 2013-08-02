@@ -32,7 +32,9 @@
 #include "config.h"
 
 uip_conn_t *yport_conn = NULL;
+#if YPORT_FLUSH > 0
 static uint8_t yport_lastservice;
+#endif
 
 void
 yport_net_init(void)
@@ -43,7 +45,9 @@ yport_net_init(void)
 void
 yport_net_main(void)
 {
+#if YPORT_FLUSH > 0
   yport_lastservice++;
+#endif
 
   if (uip_connected())
   {
@@ -127,8 +131,10 @@ yport_net_main(void)
       {
         uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
         yport_recv_buffer.sent = yport_recv_buffer.len;
+#if YPORT_FLUSH > 0
         yport_lastservice = 0;
         yport_lf = 0;
+#endif
       }
     }
   }
