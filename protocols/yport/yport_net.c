@@ -32,6 +32,7 @@
 #include "config.h"
 
 uip_conn_t *yport_conn = NULL;
+static uint8_t yport_lastservice;
 
 void yport_net_init(void)
 {
@@ -97,12 +98,14 @@ void yport_net_main(void)
          || uip_acked()
          ) && yport_conn == uip_conn
                /* receive buffer reached water mark */
+#if YPORT_FLUSH > 0
            && (   yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
-               /* last transmission at least one second ago */
-               || yport_lastservice >= 50
+               /* last transmission is at least one second ago */
+               || yport_lastservice >= YPORT_FLUSH
                /* we received a linefeed character, send immediately */
                || yport_lf
                )
+#endif
          ) {
       /* we have enough uart data, send it via tcp */
       ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -115,9 +118,23 @@ void yport_net_main(void)
   }
 }
 
+
+void
+yport_net_periodic(void)
+{
+  if (yport_conn)
+  {
+      uip_stack_set_active(yport_conn->stack);
+      uip_conn = yport_conn;
+      uip_process(UIP_TIMER);
+      if (uip_len > 0)
+        router_output();
+  }
+}
+
 /*
   -- Ethersex META --
   header(protocols/yport/yport_net.h)
   net_init(yport_net_init)
-  timer(1, uip_tcp_timer())
+  timer(1, yport_net_periodic())
 */
