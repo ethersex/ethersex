@@ -1073,6 +1073,7 @@ Select the default profile you wish to load. \
 			Jackalope	  "Jackalope (Etherrape extension)"		0 \
 			ethersex	  "Standard Ethersex"				0 \
 			bootloader	  "Ethernet Bootloader"				0 \
+			aqualog       "Aqua logging"				0 \
 			netio		  "Pollin AVR Net-IO"				0 \
 			netio_addon	  "Pollin AVR Net-IO (w/ addon board)"		0 \
 			radig		  "Radig AVR Webmodul"				0 \
