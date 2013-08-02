@@ -1,0 +1,9 @@
+dep_bool_menu "I2C slave" TWI_SLAVE_SUPPORT "$(not $TWI_MASTER_SUPPORT)" $ARCH_AVR
+  if [ "$TWI_SLAVE_SUPPORT" = "y" ]; then
+        hex "addr" CONF_TWI_SLAVE_ADDR "$(printf '0x%02X\n' $CONF_TWI_SLAVE_ADDR )"
+        dep_bool "Receive ECMD" ECMD_TWI_SLAVE_SUPPORT
+        int "TWI Buffer length" TWI_BUFFER_LEN 50
+    comment "Debugging Flags"
+    dep_bool 'I2C' DEBUG_TWI_SLAVE $DEBUG
+  fi
+endmenu
