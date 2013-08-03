@@ -25,5 +25,6 @@
 
 void yport_net_init(void);
 void yport_net_main(void);
+void yport_net_periodic(void);
 
 #endif /* YPORT_NET_H */
