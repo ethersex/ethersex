@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
+ * Copyright (c) 2011-2013 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,13 +34,23 @@
 *
 */
 /*@{*/
-enum dmx_state {DMX_UNCHANGED,DMX_NEWVALUES};
+enum dmx_slot_state {DMX_UNCHANGED,DMX_NEWVALUES};
+enum dmx_universe_state {DMX_LIVE,DMX_BLACKOUT};
 enum dmx_slot_used {DMX_SLOT_FREE,DMX_SLOT_USED};
+
 struct dmx_slot
 {
-	enum dmx_state state;
+	enum dmx_slot_state slot_state;
 	enum dmx_slot_used inuse;
 };
+
+struct dmx_universe
+{
+  uint8_t channels[DMX_STORAGE_CHANNELS];
+  struct dmx_slot slots[DMX_STORAGE_SLOTS];
+  enum dmx_universe_state universe_state;
+};
+
 /** 
  *  @name Functions
  */
@@ -99,5 +109,28 @@ void    set_dmx_channels(uint8_t *start, uint8_t universe,uint16_t len);
 *	@param slot
 *	@return the state of the universe for the slot
 */
-enum dmx_state get_dmx_universe_state(uint8_t universe,int8_t slot);
+enum dmx_slot_state get_dmx_slot_state(uint8_t universe, int8_t slot);
+
+/**
+*	@brief Gets the current state of an universe
+*	@param universe
+*	@return the state of the universe
+*/
+enum dmx_universe_state get_dmx_universe_state(uint8_t universe);
+
+/**
+*	@brief Sets the state of an universe
+*	@param universe
+*	@param state
+*	@return none
+*/
+void dmx_set_universe_state(uint8_t universe, enum dmx_universe_state state);
+
+/**
+*	@brief Initializes the dmx storage module
+*	@param none
+*	@return none
+*/
+void dmx_storage_init(void);
+
 /*@}*/
