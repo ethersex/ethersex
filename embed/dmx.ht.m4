@@ -12,8 +12,9 @@ ifdef(`conf_VFS_INLINE_HTML5_RANGE_FF', `
 <script src="h5r.js" type="text/javascript"></script>',`'')dnl
 </head>
 <body>
-	<h3>DMX Channels</h3><span style="margin-bottom:10px;" id="universeSelection"><span style="padding:5px">Select universe</span></span>
-	<div style="padding: 5px"><span id="caption">Please activate Javascript.</span><span id="upind"></span></div>
-	<div id="channels"></div>
+  <h3>DMX Channels</h3><span style="margin-bottom:10px;" id="universeSelection"><span style="padding:5px">Select universe</span></span>
+  <span style="padding:5px">State</span><span id="stateButton"></span>
+  <div style="padding: 5px"><span id="caption">Please activate Javascript.</span><span id="upind"></span></div>
+  <div id="channels"></div>
 </body>
 </html>
