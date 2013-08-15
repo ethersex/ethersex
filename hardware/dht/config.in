@@ -7,5 +7,6 @@ dep_bool_menu "DHT 11/22" DHT_SUPPORT $ARCH_AVR
 		int "Time between polling in 1s steps" DHT_POLLING_INTERVAL 30
 		comment "Debugging Flags"
 		dep_bool "DHT" DEBUG_DHT $DEBUG $DHT_SUPPORT
+		dep_bool "DHT SNMP support" DHT_SNMP_SUPPORT $SNMP_SUPPORT
 	fi
 endmenu
