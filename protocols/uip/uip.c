@@ -91,6 +91,10 @@
 #include "uip_neighbor.h"
 #endif /* UIP_CONF_IPV6 */
 
+#ifdef NET_ACTIVITY_WATCHDOG_SUPPORT
+#include "services/net_activity_watchdog/net_activity_watchdog.h"
+#endif
+
 #include <string.h>
 
 #define noinline __attribute__((noinline))
@@ -825,6 +829,11 @@ uip_process(u8_t flag)
 
   /* This is where the input processing starts. */
   UIP_STAT(++uip_stat.ip.recv);
+
+#ifdef NET_ACTIVITY_WATCHDOG_SUPPORT
+  /* we received something... */
+  net_activity_watchdog_feed();
+#endif
 
   /* Start of IP input header processing code. */
 

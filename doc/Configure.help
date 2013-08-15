@@ -957,6 +957,14 @@ WATCHCAT_SUPPORT
   For example you can configure a ECMD to be sent to another host if
   there is a falling edge on PA1.
 
+Watch for received network packets (and reboot if none)
+NET_ACTIVITY_WATCHDOG_SUPPORT
+  Depends on:
+   * Networking support (UIP_SUPPORT)
+
+  Watches for received network packets. If none were received within
+  60s, reboots the MCU.
+
 Simple Network Managment Protocol support (snmp)
 SNMP_SUPPORT
   Depends on:

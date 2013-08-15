@@ -25,6 +25,7 @@ SUBSUBDIRS += services/curtain
 SUBSUBDIRS += services/glcdmenu
 SUBSUBDIRS += services/lome6
 SUBSUBDIRS += services/projectors/sanyoZ700
+SUBSUBDIRS += services/net_activity_watchdog
 
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk

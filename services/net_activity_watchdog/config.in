@@ -1,0 +1,5 @@
+dep_bool_menu "Watch incoming network packets (and reboot if none)" NET_ACTIVITY_WATCHDOG_SUPPORT $UIP_SUPPORT
+	if [ "$NET_ACTIVITY_WATCHDOG_SUPPORT" = "y" ]; then
+		int "Inactivity timeout in minutes" NET_ACTIVITY_WATCHDOG_INTERVAL 31
+	fi
+endmenu
