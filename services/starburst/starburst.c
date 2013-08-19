@@ -165,7 +165,7 @@ starburst_update(void)
 {
 #ifdef STARBURST_PCA9685
 
-  if (get_dmx_universe_state(STARBURST_PCA9685_UNIVERSE, pca9685_dmx_conn_id)
+  if (get_dmx_slot_state(STARBURST_PCA9685_UNIVERSE, pca9685_dmx_conn_id)
       == DMX_NEWVALUES)
   {
     /*Update values if they are really newer */

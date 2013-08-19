@@ -263,7 +263,7 @@ processPollPacket(struct artnet_poll *poll)
 void
 artnet_main(void)
 {
-  if (get_dmx_universe_state(artnet_inputUniverse, artnet_conn_id) ==
+  if (get_dmx_slot_state(artnet_inputUniverse, artnet_conn_id) ==
       DMX_NEWVALUES && artnet_connected == TRUE)
   {
     ARTNET_DEBUG("Universe has changed, sending artnet data!\r\n");
