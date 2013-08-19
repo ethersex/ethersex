@@ -134,7 +134,7 @@ void
 stella_process(void)
 {
 #ifdef DMX_STORAGE_SUPPORT
-  if (get_dmx_universe_state(STELLA_UNIVERSE, stella_dmx_conn_id) ==
+  if (get_dmx_slot_state(STELLA_UNIVERSE, stella_dmx_conn_id) ==
       DMX_NEWVALUES)
   {
     uint8_t mode =
