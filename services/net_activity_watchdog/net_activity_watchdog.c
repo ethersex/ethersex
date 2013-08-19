@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "net_activity_watchdog.h"
+#include "core/global.h"
 #include <stdbool.h>
 
 static volatile bool net_activity_detected = true;
@@ -38,14 +39,18 @@ void net_activity_watchdog_periodic(void)
 		if (net_activity_detected) {
 			net_activity_detected = false;
 		} else {
-			/* be careful, the reboot method is different in DEBUG */
+			/* Reboot by watchdog if possible. In DEBUG mode or
+			 * with TEENSY_SUPPORT, there is no watchdog. In that
+			 * case, try to reboot by other means (jump to 0) */
+#ifdef TEENSY_SUPPORT
+			status.request_reset = 1;
+#else /* TEENSY_SUPPORT */
 #ifdef DEBUG
-			/* jump to address 0, since there is no watchdog in DEBUG */
-			void (*reboot)(void) = 0;
-			reboot();
-#else
-			while(1); /* let the watchdog reboot us */
-#endif
+			status.request_reset = 1;
+#else /* DEBUG */
+			status.request_wdreset = 1;
+#endif /* DEBUG */
+#endif /* TEENSY_SUPPORT */
 		}
 	};
 }
