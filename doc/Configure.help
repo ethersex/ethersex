@@ -3383,7 +3383,7 @@ YPORT_FLUSH
 
   Default value is 25 = 500ms
 
-DHT SNMP support
+SNMP support
 DHT_SNMP_SUPPORT
   Depends on:
    * SNMP Support (SNMP_SUPPORT)
