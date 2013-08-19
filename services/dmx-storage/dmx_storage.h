@@ -34,14 +34,17 @@
 *
 */
 /*@{*/
-enum dmx_slot_state {DMX_UNCHANGED,DMX_NEWVALUES};
-enum dmx_universe_state {DMX_LIVE,DMX_BLACKOUT};
-enum dmx_slot_used {DMX_SLOT_FREE,DMX_SLOT_USED};
+enum dmx_slot_state
+{ DMX_UNCHANGED, DMX_NEWVALUES };
+enum dmx_universe_state
+{ DMX_LIVE, DMX_BLACKOUT };
+enum dmx_slot_used
+{ DMX_SLOT_FREE, DMX_SLOT_USED };
 
 struct dmx_slot
 {
-	enum dmx_slot_state slot_state;
-	enum dmx_slot_used inuse;
+  enum dmx_slot_state slot_state;
+  enum dmx_slot_used inuse;
 };
 
 struct dmx_universe
@@ -59,21 +62,21 @@ struct dmx_universe
 *	@param universe
 *	@return connection id (>= 0) or -1 when all slots are full
 */
-int8_t  dmx_storage_connect(uint8_t universe);
+int8_t dmx_storage_connect(uint8_t universe);
 /**
 *	@brief Disconnects a module from an universe of dmx-storage
 *	@param universe
 *	@param slot 
 *	@return none
 */
-void    dmx_storage_disconnect(uint8_t universe, int8_t slot);
+void dmx_storage_disconnect(uint8_t universe, int8_t slot);
 /**
 *	@brief Get a channel of an universe of dmx-storage
 *	@param universe
 *	@param channel
 *	@return the channel value 
 */
-uint8_t get_dmx_channel(uint8_t universe,uint16_t channel);
+uint8_t get_dmx_channel(uint8_t universe, uint16_t channel);
 /**
 *	@brief Returns a channel of an universe of dmx-storage using a slot
 *
@@ -83,7 +86,7 @@ uint8_t get_dmx_channel(uint8_t universe,uint16_t channel);
 *	@param slot
 *	@return the channel value 
 */
-uint8_t get_dmx_channel_slot(uint8_t universe,uint16_t channel,int8_t slot);
+uint8_t get_dmx_channel_slot(uint8_t universe, uint16_t channel, int8_t slot);
 /**
 *	@brief Sets a channel of an universe of dmx-storage
 *	@param universe
@@ -102,7 +105,7 @@ uint8_t set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value);
 *	@param len Length of the data
 *	@return none
 */
-void    set_dmx_channels(uint8_t *start, uint8_t universe,uint16_t len);
+void set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len);
 /**
 *	@brief Gets the current state of an universe for a specific slot (connection id)
 *	@param universe
