@@ -37,20 +37,21 @@
 
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
-     struct yport_buffer yport_send_buffer;
-     struct yport_buffer yport_recv_buffer;
+
+struct yport_buffer yport_send_buffer;
+struct yport_buffer yport_recv_buffer;
 #ifdef DEBUG_YPORT
-     uint16_t yport_rx_frameerror;
-     uint16_t yport_rx_overflow;
-     uint16_t yport_rx_parityerror;
-     uint16_t yport_rx_bufferfull;
-     uint16_t yport_eth_retransmit;
+uint16_t yport_rx_frameerror;
+uint16_t yport_rx_overflow;
+uint16_t yport_rx_parityerror;
+uint16_t yport_rx_bufferfull;
+uint16_t yport_eth_retransmit;
 #endif
 #if YPORT_FLUSH > 0
-     uint8_t yport_lf;
+uint8_t yport_lf;
 #endif
 
-     void yport_init(void)
+void yport_init(void)
 {
   usart_init();
 }
