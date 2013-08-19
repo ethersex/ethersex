@@ -52,7 +52,7 @@ void net_activity_watchdog_periodic(void)
 #endif /* DEBUG */
 #endif /* TEENSY_SUPPORT */
 		}
-	};
+	}
 }
 
 /*
