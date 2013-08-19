@@ -38,7 +38,14 @@ void net_activity_watchdog_periodic(void)
 		if (net_activity_detected) {
 			net_activity_detected = false;
 		} else {
+			/* be careful, the reboot method is different in DEBUG */
+#ifdef DEBUG
+			/* jump to address 0, since there is no watchdog in DEBUG */
+			void (*reboot)(void) = 0;
+			reboot();
+#else
 			while(1); /* let the watchdog reboot us */
+#endif
 		}
 	};
 }

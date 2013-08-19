@@ -964,6 +964,10 @@ NET_ACTIVITY_WATCHDOG_SUPPORT
 
   Watches for received network packets. If none were received within
   60s, reboots the MCU.
+  
+  Be aware that the reboot method is different in DEBUG mode: normally, a
+  watchdog reset is triggered by an endless loop; in DEBUG however, a jump to
+  address 0 is taken.
 
 Simple Network Managment Protocol support (snmp)
 SNMP_SUPPORT
