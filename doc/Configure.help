@@ -3382,3 +3382,12 @@ YPORT_FLUSH
   * If the value is = 0, the serial receive buffer is flushed immediately
 
   Default value is 25 = 500ms
+
+DHT SNMP support
+DHT_SNMP_SUPPORT
+  Depends on:
+   * SNMP Support (SNMP_SUPPORT)
+  
+  Make humidity and temperature measured by the DHT available via SNMP. Only one DHT sensor
+  is currently supported. OIDs are .5.1.0 (polling delay), .5.2.0 (temperature * 10) and
+  .5.3.0 (humidity * 10).
