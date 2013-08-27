@@ -19,6 +19,16 @@ DEBUG
   instructions here and there in the firmware source code or enable
   some of the pre-defined debugging-categories, see submenu.
 
+DEBUG_USE_USART
+  Define which USART channel is used for serial-line debugging output,
+  defaulting to channel 0.
+  The channel number is checked against selected MCU, channels other
+  than 0 can only be used if the particular MCU supports them.
+
+DEBUG_BAUDRATE
+  Define baudrate for serial-line debugging. Transmission parameters
+  are 8,n,1.
+
 Reroute to SYSLOG
 DEBUG_USE_SYSLOG
   Depends on:
@@ -326,8 +336,8 @@ ECMD_SERIAL_USART_SUPPORT
    * ECMD support (ECMD_PARSER_SUPPORT)
 
   Add support for ECMDs received on serial RS232/RS485 link.
-  You may need to define a pin in your hardware description where the 
-  transmit enable of the RS485 is defined (RS485TE_USART0 / RS485TE_USART1).    
+  You may need to define a pin in your hardware description where the
+  transmit enable of the RS485 is defined (RS485TE_USART0 / RS485TE_USART1).
 
 
 Blinkenlights - MicroControllerUnitFrame
@@ -463,17 +473,17 @@ RFM12_ASK_INTERTECHNO_SL_SUPPORT
   Depends on:
    * RFM12 ASK (Amplitude Shift Keying) Support
 
-   Enables the native protocol of newer Intertechno devices without 
+   Enables the native protocol of newer Intertechno devices without
    coding wheel (self learning). This protocol allows sending an
    absolute dim value (0-15) and uses longer house codes.
    Intertechno uses chips from Arctech which are also used in several
-   other devices, for example: 
+   other devices, for example:
     - Nexa
     - Proove
     - Home Easy
     - Klik aan Klik uit
     - ...
-   
+
 RFM12 ASK external filter enables external filter Support
 RFM12_ASK_EXTERNAL_FILTER_SUPPORT
   Depends on:
@@ -848,7 +858,7 @@ CONF_BOOTLOAD_DELAY
 
 TFTP image to load
 CONF_TFTP_IMAGE
-  Depends on: 
+  Depends on:
    * TFTP-o-matic (TFTPOMATIC_SUPPORT)
 
   Filename of binary image to load from and programm into the application flash
@@ -856,7 +866,7 @@ CONF_TFTP_IMAGE
 
 Address of TFTP-Server
 CONF_TFTP_IP
-  Depends on: 
+  Depends on:
    * TFTP-o-matic (TFTPOMATIC_SUPPORT)
 
   IPv4 or IPv6 address of TFTP-server when in TFTP-o-matic mode.
@@ -865,28 +875,28 @@ TFTP CRC verify
 TFTP_CRC_SUPPORT
   Verify if the programmed application has the same 16-bit CRC as a seperate
   CRC-file on the TFTP-server.
-  
+
   There are two modes possible:
   * Test if CRC-file exists.
     - If yes, then immediately start application.
     - if no, then try to load and program application
-    
+
   * Verify content of crc file.
-    - If file exists and content matches current application CRC, then 
+    - If file exists and content matches current application CRC, then
       immediately start application.
-    - If file does not exist or content does not match current application 
+    - If file does not exist or content does not match current application
       CRC, then try to load and program application
-  
+
   %M is replaced with '-[MAC-ADDRESS]' (13 characters hex uppercase) in both
   (CRC and binary) filenames
-  
+
   The filename of the CRC-file is constructed out of the application filename
   having additional formatting keys.
   %m : replace with '-[MAC-ADDRESS]' (13 characters hex uppercase)
   %c : replace with '-[APPCRC]' (5 characters hex uppercase)
   %e : replace with '.crc' - the rest of the filename is truncated
   %C : replace with '' - verify CRC-file content
-  
+
   Example 1:
   Supplied filename:    ethersex%m%c%e.bin
   CRC-filename:         ethersex-DEADBEEFCAFE-1337.crc
@@ -898,7 +908,7 @@ TFTP_CRC_SUPPORT
   Supplied filename:    %Cethersex%M%e.bin
   CRC-filename:         ethersex-DEADBEEFCAFE.crc
   Application filename: ethersex-DEADBEEFCAFE.bin
-  Content of CRC-file is checked for correct CRC of application. If content 
+  Content of CRC-file is checked for correct CRC of application. If content
   mismatchces application binary is loaded and programmed into flash.
 
 MDNS service announcement (Avahi)
@@ -1327,7 +1337,7 @@ CONF_JABBER_BUDDY
 
 Use EEPROM
 JABBER_EEPROM_SUPPORT
-  Depends on: 
+  Depends on:
    * Jabber Client (JABBER_SUPPORT)
    * !NOT! TEENSY_SUPPORT
 
@@ -2205,7 +2215,7 @@ WOL_SUPPORT
 Ultrasonic Debug
 DEBUG_ULTRASONIC
   Depends on:
-   * Enable Debugging (DEBUG)
+   * Enable (Serial-Line) Debugging (DEBUG)
    * Ultrasonic (ULTRASONIC_SUPPORT)
 
   Ultrasonic sensor with 2 modes.
@@ -2487,7 +2497,7 @@ ONEWIRE_ECMD_LIST_VALUES_SUPPORT
 
 ECMD 1w list with power mode
 ONEWIRE_ECMD_LIST_POWER_SUPPORT
-  Depends on: 
+  Depends on:
    * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
 
   Show the power mode of each onewire node on "1w list" command. Fields are separated by tab.
@@ -3043,21 +3053,21 @@ CONF_BUTTONS_REPEAT_RATE
 
 Eltako MultiSensor
 ELTAKOMS_SUPPORT
-  The Elsner / Eltako MultiSensor is a outdoor sensor device that is able to 
+  The Elsner / Eltako MultiSensor is a outdoor sensor device that is able to
   measure wind (without moving parts) [m/s], temperature [°C], rain [yes/no],
-  sun intensity [klux] from 3 directions, obscurity [lux] and darkness 
+  sun intensity [klux] from 3 directions, obscurity [lux] and darkness
   [yes/no]. There is an option for a DCF77 receiver.
 
   All this data is sent once per second at 19200bps 8N1 on a RS485 connection.
   The device needs a 24V 150mA power supply. The ethersex hardware needs a
   RS485 level shifter connected to one of its USARTs. You may need to define a
   pin in your hardware description where the transmit enable of the RS485 is
-  defined (RS485TE_USART0 / RS485TE_USART1).    
+  defined (RS485TE_USART0 / RS485TE_USART1).
 
   The ECMD command "weather" returns a datagram like this if valid data was
   received within the last 10 seconds:
      t+076 s01 w63 e00 o d999 v012 r
-  
+
   t+076 : Temperature in °C * 10 (-30 - +50 °C) -> +7.6°C
   s01   : Sunlight from south in klux (0 - 99 klux) -> 1klux
   w63   : Sunlight from west in klux (0 - 99 klux) -> 63klux
@@ -3070,7 +3080,7 @@ ELTAKOMS_SUPPORT
   datasheets:
   http://www.elsner-elektronik.de/uploads/tx_bmproducts/P033-RS485_DataSheet_EN_01.pdf
   http://www.eltako.com/fileadmin/downloads/en/datasheets/H_datasheet_MS.pdf
-  
+
   http://www.eltako.com/fileadmin/downloads/de/Datenblatt/H_datenblatt_MS.pdf
   http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_4801_internet_dtsch.pdf
   http://www.eltako.com/fileadmin/downloads/de/_bedienung/Multisensor_MS_20000084-1_dt_internet.pdf
@@ -3089,7 +3099,7 @@ ELTAKOMS_SUPPORT
    7 SunS 2nd digit    Sun South 2nd digit (ones)
    8 SunW 1st digit    Sun West 1st digit (tens)
    9 SunW 2nd digit    Sun West 2nd digit (ones)
-  10 SunE 1st digit    Sun East 1st digit (tens) 
+  10 SunE 1st digit    Sun East 1st digit (tens)
   11 SunE 2nd digit    Sun East 2nd digit (ones)
   12 TwiL              Twilight: J: <=10 lux; N: >10 lux
   13 DayL 0-999Lx      Daylight (1st digit hundreds)
@@ -3114,7 +3124,7 @@ ELTAKOMS_SUPPORT
   32 Second 1st digit  Second 1st digit (tens)
   33 Second 2nd digit  Second 2nd digit (ones)
   34 Summertime        J: Summertime;  N: Wintertime;  ?: no DCF77 reception
-  35 Checksum          Checksum 1st digit (thousands) 
+  35 Checksum          Checksum 1st digit (thousands)
   36 Checksum          Checksum 2nd digit (hundreds)
   37 Checksum          Checksum 3rd digit (tens)
   38 Checksum          Checksum 4th digit (ones)
@@ -3122,7 +3132,7 @@ ELTAKOMS_SUPPORT
 
 Hooks
 ONEWIRE_HOOK_SUPPORT
-  Depends on: 
+  Depends on:
    * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
 
   Support for callback hooks. For details see hook.def in the top directory.
@@ -3141,17 +3151,17 @@ MBR_SUPPORT
 
 SGC Support
 SGC_SUPPORT
-  Depends on: 
+  Depends on:
    *  (ARCH_AVR)
 
-  Slave Graphics Controller for colour graphics displays 
+  Slave Graphics Controller for colour graphics displays
   by 4DSystems (http://www.4dsystems.com.au/)
 
 Preset: Sleep when Shutdown
 SGC_SHDN_SLEEP_ACTIVE
-  Depends on: 
+  Depends on:
 
-  Set processor into sleep mode when shutting down display 
+  Set processor into sleep mode when shutting down display
   (further power saving)
 
 Default Sleep Mode (0:Serial 1: Joystick)
@@ -3162,28 +3172,28 @@ SGC_SLEEPMODE
 
 Timeout Counter
 SGC_TIMEOUT_COUNTER_SUPPORT
-  Depends on: 
+  Depends on:
 
-  Enable host inactivity timeout, display will shut down 
+  Enable host inactivity timeout, display will shut down
   after this time without receiving any commands
 
 Timeout (Min)
 SGC_CONN_TIMEOUT
-  Depends on: 
+  Depends on:
 
   Auto Shutdown inactivity time (minutes) 1-255
 
 Send result via ECMD
 SGC_ECMD_SEND_SUPPORT
-  Depends on: 
+  Depends on:
    * Send via TCP (ECMD_SENDER_SUPPORT)
 
-  Send display anwers back to host via ECMD for 
+  Send display anwers back to host via ECMD for
   fully bidirectional communication
 
 IP address
 SGC_ECMD_IP
-  Depends on: 
+  Depends on:
    * Send via TCP (ECMD_SENDER_SUPPORT)
 
   Host IP adress to send ECMDs to
@@ -3191,7 +3201,7 @@ SGC_ECMD_IP
 
 SD/MMC-Card Filesystem
 VFS_SD_SUPPORT
-  Depends on: 
+  Depends on:
    * VFS (Virtual File System) support (VFS_SUPPORT)
    * SD/MMC-Card Reader (SD_READER_SUPPORT)
 
@@ -3227,7 +3237,7 @@ SD_READ_TIMEOUT
 
 Ping-read SD card every 10s
 SD_PING_READ
-  Depends on: 
+  Depends on:
    * SD/MMC-Card Reader (SD_READER_SUPPORT)
    * Use read-timeout (SD_READ_TIMEOUT)
 
@@ -3241,7 +3251,7 @@ BOOTLOADER_JUMP
 
 Log commands via SYSLOG
 ECMD_LOG_VIA_SYSLOG
-  Depends on: 
+  Depends on:
    * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
    * SYSLOG support (SYSLOG_SUPPORT)
 
@@ -3249,7 +3259,7 @@ ECMD_LOG_VIA_SYSLOG
 
 I2C slave
 I2C_SLAVE_SUPPORT
-  Depends on: 
+  Depends on:
    * not I2C master (I2C_MASTER_SUPPORT)
    * UDP support (UDP_SUPPORT)
    * y (ARCH_AVR)
@@ -3308,9 +3318,9 @@ AVRDUDE_BITCLOCK_4
   Specify the bit clock period for the JTAG interface or the ISP clock.
   Setting a lower value means higher programming speed. Use higher values
   if you experience programming errors in your setup.
-  
+
   The available choices depend on the MCU frequency setting and should
-  not exceed 4/F_CPU in micro seconds. 
+  not exceed 4/F_CPU in micro seconds.
 
   4 micro seconds is required for F_CPU < 4 MHz.
   1 micro second is appropriate for F_CPU < 10 MHz.
@@ -3364,7 +3374,7 @@ CONFIG_AVRDUDE_EFUSE
 
 SIP support (PARTIAL)
 SIP_SUPPORT
-  Depends on: 
+  Depends on:
    * UDP support (UDP_SUPPORT)
    * MD5 (MD5_SUPPORT)
 
@@ -3374,9 +3384,9 @@ YPort Max Buffer Flush Interval (N*20ms)
 YPORT_FLUSH
 
   To reduce the number of ethernet packets, a flush interval can be set.
-  The given value is a multiple of 20ms. 
+  The given value is a multiple of 20ms.
 
-  * If the value is > 0, the serial receive buffer is flushed, if the flush interval has elapsed, 
+  * If the value is > 0, the serial receive buffer is flushed, if the flush interval has elapsed,
     a linefeed character was received or the receive buffer is filled more then 25%.
 
   * If the value is = 0, the serial receive buffer is flushed immediately
@@ -3387,7 +3397,7 @@ SNMP support
 DHT_SNMP_SUPPORT
   Depends on:
    * SNMP Support (SNMP_SUPPORT)
-  
+
   Make humidity and temperature measured by the DHT available via SNMP. Only one DHT sensor
   is currently supported. OIDs are .5.1.0 (polling delay), .5.2.0 (temperature * 10) and
   .5.3.0 (humidity * 10).

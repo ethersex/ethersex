@@ -104,6 +104,26 @@ fi
 
 	bool 'Debug: Discard some packets' DEBUG_DISCARD_SOME
 	dep_bool_menu "Enable Debugging" DEBUG y
+		int "USART 0 or 1" DEBUG_USE_USART 0
+        if [ "$DEBUG_USE_USART" -eq 0 ] ; then
+        	define_symbol DEBUG_USE_USART_CHANNEL 0
+
+		elif [ "$DEBUG_USE_USART" -eq 1 ] ; then
+			case "$MCU" in
+				at90can*|atmega1284p)
+					define_symbol DEBUG_USE_USART_CHANNEL 1
+				;;
+				*)
+					define_symbol DEBUG_USE_USART_CHANNEL INVALID_VALUE
+					echo -e "\007*** Selected CPU has only USART channel 0"
+				;;
+			esac
+
+        else
+    	    define_symbol DEBUG_USE_USART_CHANNEL INVALID_VALUE
+   	    	echo -e "\007*** USART channel must be 0 or 1"
+        fi
+
 		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
 		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG $ARCH_AVR
