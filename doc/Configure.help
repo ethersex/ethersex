@@ -9,84 +9,89 @@ TEENSY_SUPPORT
   You want to say Y here for ATmega8 or similar controllers and
   probably also want to disable TCP support.
 
-Enable (Serial-Line) Debugging
+Enable Debugging
 DEBUG
-  Enable serial-line debugging capability of Ethersex firmware.
-  Moreover this includes an ECMD interface if the ECMD parser is
-  enabled.
+  Enable debugging capability of Ethersex firmware.
+  Optionally debug can be rerouted to Syslog, but in most cases
+  debug will go to a serial line. In this case an ECMD interface
+  is included if the ECMD parser is enabled.
 
-  If you enable this you either want to add some debug_printf
-  instructions here and there in the firmware source code or enable
-  some of the pre-defined debugging-categories, see submenu.
+  Enable DEBUG if you want to add debug_printf instructions in
+  the firmware source code or enable pre-defined
+  debugging-categories found in multiple submenus.
+
+DEBUG_BAUDRATE
+  Define baudrate for serial-line debugging. Transmission parameters
+  are 8,n,1.
 
 Reroute to SYSLOG
 DEBUG_USE_SYSLOG
   Depends on:
    * SYSLOG support (SYSLOG_SUPPORT)
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD
 DEBUG_ECMD
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD FS20
 DEBUG_ECMD_FS20
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD IP
 DEBUG_ECMD_IP
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD MAC
 DEBUG_ECMD_MAC
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD NET
 DEBUG_ECMD_NET
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD OW LIST
 DEBUG_ECMD_OW_LIST
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD OW ROM
 DEBUG_ECMD_OW_ROM
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD PORTIO
 DEBUG_ECMD_PORTIO
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 ECMD RC5
 DEBUG_ECMD_RC5
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
@@ -96,7 +101,7 @@ NET_MAX_FRAME_LENGTH
 ENC28J60
 DEBUG_ENC28J60
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
@@ -148,7 +153,7 @@ DEBUG_REV4_WORKAROUND
 File System
 DEBUG_FS
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
@@ -175,7 +180,7 @@ FS20_SUPPORT
 FS20 Receive
 DEBUG_FS20_REC
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
   For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
@@ -199,7 +204,7 @@ DEBUG_FS20_REC_VERBOSE
 FS20 WS300
 DEBUG_FS20_WS300
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
   For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
@@ -215,35 +220,35 @@ DEBUG_FS20_WS300_VERBOSE
 HD44780
 DEBUG_HD44780
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 HTTPD
 DEBUG_HTTPD
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 RC5
 DEBUG_RC5
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Sendmail
 DEBUG_SENDMAIL
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Timer
 DEBUG_TIMER
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
@@ -1252,28 +1257,28 @@ FREE_SUPPORT
 IPv6
 DEBUG_NET_IP6
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 OpenVPN
 DEBUG_OPENVPN
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 Router
 DEBUG_ROUTER
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
 uIP
 DEBUG_UIP
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   There's unfortunately no help available for this item.
 
@@ -1687,7 +1692,7 @@ STELLA_RESPONSE_ACK
 Stella Lights
 DEBUG_STELLA
   Depends on:
-   * Enable (Serial-Line) Debugging (DEBUG)
+   * Enable Debugging (DEBUG)
 
   Inform you about arriving stella packets, processed packets and if stella as a result send a response
 
@@ -3391,3 +3396,4 @@ DHT_SNMP_SUPPORT
   Make humidity and temperature measured by the DHT available via SNMP. Only one DHT sensor
   is currently supported. OIDs are .5.1.0 (polling delay), .5.2.0 (temperature * 10) and
   .5.3.0 (humidity * 10).
+
