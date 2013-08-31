@@ -26,7 +26,7 @@ usart_process_choice() {
 usart_count_used() {
   USARTS_USED=0
 
-  if [ "$DEBUG" = y ]; then
+  if [ "$DEBUG" = y ] && [ "$DEBUG_USE_SYSLOG" != y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
   if [ "$MODBUS_SUPPORT" = y ]; then
