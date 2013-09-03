@@ -147,14 +147,6 @@ ISR(usart(USART, _RX_vect))
   {
     if (usart(UCSR, A) & (_BV(usart(FE)) | _BV(usart(DOR)) | _BV(usart(UPE))))
     {
-#ifdef DEBUG_BSBPORT
-      if (usart(UCSR, A) & _BV(usart(FE)))
-        bsbport_rx_frameerror++;
-      if (usart(UCSR, A) & _BV(usart(DOR)))
-        bsbport_rx_overflow++;
-      if (usart(UCSR, A) & _BV(usart(UPE)))
-        bsbport_rx_parityerror++;
-#endif
       uint8_t v = usart(UDR);
       (void) v;
     }
@@ -163,16 +155,12 @@ ISR(usart(USART, _RX_vect))
       uint8_t v = usart(UDR);
       if (bsbport_recvnet_buffer.len < BSBPORT_BUFFER_LEN)
         bsbport_recvnet_buffer.data[bsbport_recvnet_buffer.len++] = v;
-#ifdef DEBUG_BSBPORT
       else
         bsbport_rx_net_bufferfull++;
-#endif
       if (bsbport_recv_buffer.len < BSBPORT_BUFFER_LEN)
         bsbport_recv_buffer.data[bsbport_recv_buffer.len++] = v ^ 0xFF;
-#ifdef DEBUG_BSBPORT
       else
         bsbport_rx_bufferfull++;
-#endif
 #if BSBPORT_FLUSH > 0
       if (v == 0x23)
         bsbport_lf = 1;

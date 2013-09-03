@@ -184,7 +184,7 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 	uint8_t dest=0;
 	int16_t ret = 0;
 	char type[4];
-	ret = sscanf_P(cmd, PSTR("%3s %f %hhi %hhi %hhi %hhi %hhi") ,type,&val, &p1, &p2, &p3, &p4, &dest);
+	ret = sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s %f ") , &p1, &p2, &p3, &p4, &dest,type,&val);
 	if (ret == 6 || ret == 7)
 	{
 		uint8_t data[3];
@@ -225,13 +225,17 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 			len=3;
 		}
 		else
-			return ECMD_ERR_PARSE_ERROR;
+			return  ECMD_FINAL(snprintf_P(output, len, PSTR("type unknown")));
+
+#ifdef DEBUG_BSBPORT_ECMD
+	debug_printf("ECMD set command: %02x%02x%02x%02x%02x %02d ",p1,p2,p3,p4,dest,len);
+#endif	
 		
 		if(bsbport_set(p1,p2,p3,p4,dest,data,len)) return ECMD_FINAL_OK;
 		else return ECMD_FINAL(snprintf_P(output, len, PSTR("txbuffer is full!")));
 	}
 	else
-		return ECMD_ERR_PARSE_ERROR;
+		return  ECMD_FINAL(snprintf_P(output, len, PSTR("param count at: %d"),ret));
 }
 
 
@@ -241,6 +245,6 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
   ecmd_feature(bsbport_stats, "bsbport stats",, Report statistic counters OK/CRC/Lenght/Frame/Overflow/Parity/Buffer/BufferNet/Retransmit)
   ecmd_feature(bsbport_list, "bsbport list",, List all messages currently in buffer)
   ecmd_feature(bsbport_get, "bsbport get",TYPE P1 P2 P3 P4, Show specific message currently in buffer format value as TYPE, type is one of RAW,TMP,FP1,FP5)
-  ecmd_feature(bsbport_set, "bsbport set",TYPE VALUE P1 P2 P3 P4 [DEST], Send Message to set value, type is one of RAW,SEL,TMP,FP1,FP5, DEST is optional defaults to 0)
+  ecmd_feature(bsbport_set, "bsbport set",P1 P2 P3 P4 DEST TYPE VALUE, Send Message to set value, type is one of RAW,SEL,TMP,FP1,FP5, DEST is optional defaults to 0)
   ecmd_feature(bsbport_query, "bsbport query",P1 P2 P3 P4 [DEST], Send Message to query for a value, DEST is optional defaults to 0 )
 */

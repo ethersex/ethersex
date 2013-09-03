@@ -44,7 +44,17 @@ uint8_t bsbport_send(uint8_t* msg) {
     msg[len -2] = (crc >> 8);
     msg[len -1] = (crc & 0xFF);
   }
-  return bsbport_txstart(msg,msg[LEN]);
+
+#ifdef DEBUG_BSBPORT_TX
+	debug_printf("Send MSG: %02x%02x%02x%02x%02x%02x%02x%02x%02x ",msg[SOT],msg[SRC],msg[DEST],msg[LEN],msg[TYPE],msg[P1],msg[P2],msg[P3],msg[P4]);
+	debug_printf("Data:");
+	for (uint8_t i=DATA;i<msg[LEN]-2;i++)
+	{
+		debug_printf("%02x",msg[i]);
+	}
+	debug_printf("CRC: %02x%02x ",msg[len-2],msg[len-1]);
+#endif	
+    return bsbport_txstart(msg,msg[LEN]);
 }
 
 
@@ -64,7 +74,7 @@ uint8_t bsbport_query(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t de
 
 // High-level sending to bus
 uint8_t bsbport_set(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest, uint8_t* data, uint8_t datalen) {
-  uint8_t msg[datalen+11];
+  uint8_t msg[BSBPORT_MESSAGE_MAX_LEN];
   msg[LEN] = datalen+11;
   msg[TYPE] = SET;
   msg[DEST] = 0x80 & dest;
@@ -73,12 +83,12 @@ uint8_t bsbport_set(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest
   msg[P2] = A2;
   msg[P3] = A3;
   msg[P4] = A4;
-  
+
   for (uint8_t i=DATA;i<msg[LEN]-2;i++)
   {
 	msg[i] = data[i-DATA];
   }
-  
+
   return bsbport_send(msg);
 }
 
@@ -112,7 +122,7 @@ bsbport_tx_periodic(void)
 	        break;
 
 		// Sollwerte
-		case 4 : 	//	Kompfortsollwert
+		case 4 : 	//	Kompfortsollwert 0x2d 0x3d 0x05 0x8e
 			bsbport_query(0x2d,0x3d,0x05,0x8e,0x00);
 			step++;
             break;

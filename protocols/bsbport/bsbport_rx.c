@@ -60,7 +60,7 @@ bsbport_rx_periodic(void)
 	while (bsbport_recv_buffer.len > bsbport_recv_buffer.read)
 //	&& bsbport_recv_buffer.len > 11)	// Minimal Message Size reached 
 	{
-		#ifdef DEBUG_BSBPORT
+		#ifdef DEBUG_BSBPORT_RX
 			debug_printf("Start Read: %u bytes avail ",bsbport_recv_buffer.len);
 		#endif 
 
@@ -102,7 +102,7 @@ bsbport_rx_periodic(void)
 				// Seems to have received all data
 				if (bsbport_crc(buffer, i) == 0)
 				{ 
-#ifdef DEBUG_BSBPORT
+#ifdef DEBUG_BSBPORT_RX
 					debug_printf("Valid: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],buffer[14],buffer[15],buffer[16],buffer[17],buffer[18],buffer[19],i);
 #endif 
 					bsbport_rx_ok++;
@@ -120,7 +120,7 @@ bsbport_rx_periodic(void)
 				}
 				else	/*	CRC Error */
 				{
-#ifdef DEBUG_BSBPORT
+#ifdef DEBUG_BSBPORT_RX
 					debug_printf("CRC Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],buffer[14],buffer[15],buffer[16],buffer[17],buffer[18],buffer[19],i);
 #endif
 					bsbport_rx_crcerror++;
@@ -130,7 +130,7 @@ bsbport_rx_periodic(void)
 			else if(i < buffer[LEN]
 					&& i < BSBPORT_MESSAGE_MAX_LEN)
 			{
-#ifdef DEBUG_BSBPORT
+#ifdef DEBUG_BSBPORT_RX
 //				debug_printf("Partial: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],buffer[14],buffer[15],buffer[16],buffer[17],buffer[18],buffer[19],i);
 #endif
 				bsbport_recv_buffer.read=0; 
@@ -139,14 +139,14 @@ bsbport_rx_periodic(void)
 			// Length error
 			else if(i < buffer[LEN])
 			{
-#ifdef DEBUG_BSBPORT
+#ifdef DEBUG_BSBPORT_RX
 				debug_printf("LUV Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],buffer[14],buffer[15],buffer[16],buffer[17],buffer[18],buffer[19],i);
 #endif
 				bsbport_rx_lenghtunder++;
 			}
 			else if(i > buffer[LEN])
 			{
-#ifdef DEBUG_BSBPORT
+#ifdef DEBUG_BSBPORT_RX
 				debug_printf("LOV Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],buffer[14],buffer[15],buffer[16],buffer[17],buffer[18],buffer[19],i);
 #endif
 				bsbport_rx_lenghtover++;
@@ -157,7 +157,7 @@ bsbport_rx_periodic(void)
 			bsbport_rx_dropped++;		
 		}
 
-		#ifdef DEBUG_BSBPORT
+		#ifdef DEBUG_BSBPORT_RX
 			debug_printf("Delete Bytes: %u ",bsbport_recv_buffer.read);
 		#endif 
 
@@ -227,7 +227,7 @@ void bsbport_calc_value(struct bsbport_msg* msg)
 void bsbport_store_msg(uint8_t* msg,uint8_t len)
 {
 	uint8_t saved=0;
-#ifdef DEBUG_BSBPORT
+#ifdef DEBUG_BSBPORT_RX
 	debug_printf("Store MSG at POS: %d ",bsbport_msg_buffer.act);
 #endif
 		for(uint8_t i=0;i<BSBPORT_MESSAGE_BUFFER_LEN;i++)

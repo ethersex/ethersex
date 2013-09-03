@@ -100,9 +100,7 @@ bsbport_net_main(void)
     {
       uip_send(bsbport_recvnet_buffer.data, bsbport_recvnet_buffer.sent);
     }
-#ifdef DEBUG_BSBPORT
     bsbport_eth_retransmit++;
-#endif
   }
   else
   {
