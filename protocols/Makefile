@@ -18,6 +18,7 @@ SUBSUBDIRS += protocols/uip/ipchair
 SUBSUBDIRS += protocols/ustream
 SUBSUBDIRS += protocols/usb
 SUBSUBDIRS += protocols/yport
+SUBSUBDIRS += protocols/bsbport
 SUBSUBDIRS += protocols/zbus
 SUBSUBDIRS += protocols/dns
 SUBSUBDIRS += protocols/ecmd/
