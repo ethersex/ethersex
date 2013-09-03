@@ -191,18 +191,27 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 		uint8_t len=3;
 		if(strcmp_P(type,PSTR("RAW"))==0)
 		{
-			data[1] = val;
+			data[0] = 0x01;
+			data[1] = (uint8_t)((uint16_t)val >> 8);
+			data[2] = (uint8_t)(0x00FF & (uint16_t)val);
+			len=3;
+		}
+		if(strcmp_P(type,PSTR("SEL"))==0)
+		{
+			data[0] = 0x01;
+			data[1] = (uint8_t)(val);
 			len=2;
 		}
 		else if(strcmp_P(type,PSTR("TMP"))==0)
 		{
 			bsbport_ConvertTempToData(val,&data[1]);
-			data[0]=0;
+			data[0]=0x01;
 			len=3;
 		}
 		else if(strcmp_P(type,PSTR("FP1"))==0)
 		{
 			int16_t tmp=0;
+			data[0]=0x01;
 			tmp = val*10;
 			memcpy(&data[1],&tmp,2);
 			len=3;
@@ -210,6 +219,7 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 		else if(strcmp_P(type,PSTR("FP5"))==0)
 		{
 			int16_t tmp=0;
+			data[0]=0x01;
 			tmp = val*2;
 			memcpy(&data[1],&tmp,2);
 			len=3;
@@ -231,6 +241,6 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
   ecmd_feature(bsbport_stats, "bsbport stats",, Report statistic counters OK/CRC/Lenght/Frame/Overflow/Parity/Buffer/BufferNet/Retransmit)
   ecmd_feature(bsbport_list, "bsbport list",, List all messages currently in buffer)
   ecmd_feature(bsbport_get, "bsbport get",TYPE P1 P2 P3 P4, Show specific message currently in buffer format value as TYPE, type is one of RAW,TMP,FP1,FP5)
-  ecmd_feature(bsbport_set, "bsbport set",TYPE VALUE P1 P2 P3 P4 [DEST], Send Message to set value, type is one of RAW,TMP,FP1,FP5, DEST is optional defaults to 0)
+  ecmd_feature(bsbport_set, "bsbport set",TYPE VALUE P1 P2 P3 P4 [DEST], Send Message to set value, type is one of RAW,SEL,TMP,FP1,FP5, DEST is optional defaults to 0)
   ecmd_feature(bsbport_query, "bsbport query",P1 P2 P3 P4 [DEST], Send Message to query for a value, DEST is optional defaults to 0 )
 */
