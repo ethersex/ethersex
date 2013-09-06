@@ -41,6 +41,7 @@ SUBSUBDIRS += protocols/udpcurtain
 SUBSUBDIRS += protocols/cw
 SUBSUBDIRS += protocols/sgc
 SUBSUBDIRS += protocols/sip
+SUBSUBDIRS += protocols/pport
 
 # generic fluff
 include $(TOPDIR)/scripts/rules.mk

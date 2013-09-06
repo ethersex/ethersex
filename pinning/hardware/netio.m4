@@ -95,3 +95,15 @@ ifdef(`conf_TANKLEVEL', `
 ifdef(`conf_TANKLEVEL_LOCK', `
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 ')
+
+ifdef(`conf_PPORT', `
+  PPORT_USE_INT(0, PD2)
+  pin(PPORT_ACK, PA0)
+  pin(PPORT_BUSY, PA1)
+  pin(PPORT_PE, PA2)
+  pin(PPORT_SEL, PA3)
+  pin(PPORT_RES, PA4)
+  pin(PPORT_SELP, PA5)
+  #define PPORT_DATA C
+  #define PPORT_HAVE_74112
+')

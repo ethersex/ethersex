@@ -1,0 +1,14 @@
+dep_bool_menu "PPort Support" PPORT_SUPPORT $TCP_SUPPORT $ARCH_AVR
+	int    "PPort TCP Port" PPORT_PORT 1284
+
+	if [ "$PPORT_BUFFER_LEN" = "" ] ; then
+		PPORT_BUFFER_LEN=500
+	fi
+	if [ "$PPORT_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
+		PPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
+	fi
+	int    "PPort Buffer Length" PPORT_BUFFER_LEN 500
+  int    "PPort Max Buffer Flush Interval (N*20ms)" PPORT_FLUSH 25
+	comment  "Debugging Flags"
+	dep_bool 'PPORT Debug' DEBUG_PPORT $PPORT_SUPPORT
+endmenu
