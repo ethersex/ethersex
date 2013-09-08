@@ -126,7 +126,7 @@ int16_t parse_cmd_bsbport_get (char *cmd, char *output, uint16_t len)
 #endif	
 				if(strcmp_P(type,PSTR("RAW"))==0)
 				{
-					ret = snprintf_P(output, len, PSTR("%.1f"), bsbport_msg_buffer.msg[i].value_raw);
+					ret = snprintf_P(output, len, PSTR("%u"), bsbport_msg_buffer.msg[i].value_raw);
 				}
 				else if(strcmp_P(type,PSTR("TMP"))==0)
 				{
@@ -184,29 +184,34 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 	uint8_t dest=0;
 	int16_t ret = 0;
 	char type[4];
-	ret = sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s %f ") , &p1, &p2, &p3, &p4, &dest,type,&val);
+	char strvalue[9];
+	ret = sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s %s") , &p1, &p2, &p3, &p4, &dest,type,strvalue);
+	val = strtod (strvalue, NULL);
+#ifdef DEBUG_BSBPORT_ECMD
+	debug_printf("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %f", len, ret, p1, p2, p3, p4, type, strvalue, val);
+#endif
 	if (ret == 6 || ret == 7)
 	{
 		uint8_t data[3];
-		uint8_t len=3;
+		uint8_t datalen=3;
 		if(strcmp_P(type,PSTR("RAW"))==0)
 		{
 			data[0] = 0x01;
 			data[1] = (uint8_t)((uint16_t)val >> 8);
 			data[2] = (uint8_t)(0x00FF & (uint16_t)val);
-			len=3;
+			datalen=3;
 		}
 		if(strcmp_P(type,PSTR("SEL"))==0)
 		{
 			data[0] = 0x01;
 			data[1] = (uint8_t)(val);
-			len=2;
+			datalen=2;
 		}
 		else if(strcmp_P(type,PSTR("TMP"))==0)
 		{
 			bsbport_ConvertTempToData(val,&data[1]);
 			data[0]=0x01;
-			len=3;
+			datalen=3;
 		}
 		else if(strcmp_P(type,PSTR("FP1"))==0)
 		{
@@ -214,7 +219,7 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 			data[0]=0x01;
 			tmp = val*10;
 			memcpy(&data[1],&tmp,2);
-			len=3;
+			datalen=3;
 		}
 		else if(strcmp_P(type,PSTR("FP5"))==0)
 		{
@@ -222,16 +227,16 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 			data[0]=0x01;
 			tmp = val*2;
 			memcpy(&data[1],&tmp,2);
-			len=3;
+			datalen=3;
 		}
 		else
 			return  ECMD_FINAL(snprintf_P(output, len, PSTR("type unknown")));
 
 #ifdef DEBUG_BSBPORT_ECMD
-	debug_printf("ECMD set command: %02x%02x%02x%02x%02x %02d ",p1,p2,p3,p4,dest,len);
+	debug_printf("ECMD set parsed data: %02x %02x %02x %02d ",data[0],data[0],data[0],datalen);
 #endif	
 		
-		if(bsbport_set(p1,p2,p3,p4,dest,data,len)) return ECMD_FINAL_OK;
+		if(bsbport_set(p1,p2,p3,p4,dest,data,datalen)) return ECMD_FINAL_OK;
 		else return ECMD_FINAL(snprintf_P(output, len, PSTR("txbuffer is full!")));
 	}
 	else
