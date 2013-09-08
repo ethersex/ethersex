@@ -78,9 +78,9 @@ uint8_t bsbport_set(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest
   msg[LEN] = datalen+11;
   msg[TYPE] = SET;
   msg[DEST] = 0x80 & dest;
-  // Adress 
-  msg[P1] = A1;
-  msg[P2] = A2;
+  // Adress switch A1,A2 for a set msg
+  msg[P2] = A1;
+  msg[P1] = A2;
   msg[P3] = A3;
   msg[P4] = A4;
 
@@ -105,12 +105,12 @@ bsbport_tx_periodic(void)
 			step++;
             break;
 
-        case 1 : 	//	SolarVorlauftemperatur
+        case 1 : 	//	SolarRücklauftemperatur
 			bsbport_query(0x49,0x3d,0x05,0x0f,0x00);
 			step++;
             break;
 
-		case 2 : 	//	SolarRücklauftemperatur
+		case 2 : 	//	SolarVorlauftemperatur
 			bsbport_query(0x49,0x3d,0x05,0x0e,0x00);
 			step++;
             break;
@@ -139,6 +139,16 @@ bsbport_tx_periodic(void)
 
 		case 7 : 	//	Trinkwasserreduziertsollwert 
 			bsbport_query(0x31,0x3d,0x06,0xba,0x00);
+			step++;
+	        break;
+
+		case 8 : 	//	Trinkwassertemperatur 31	3d	05	2f
+			bsbport_query(0x31,0x3d,0x05,0x2f,0x00);
+			step++;
+	        break;
+
+		case 9 : 	//	Puffertemperatur 05	3d	05	34
+			bsbport_query(0x05,0x3d,0x05,0x34,0x00);
 			step++;
 	        break;
 			
