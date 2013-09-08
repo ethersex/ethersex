@@ -99,19 +99,20 @@ int16_t parse_cmd_bsbport_get (char *cmd, char *output, uint16_t len)
 	uint8_t p2=0;
 	uint8_t p3=0;
 	uint8_t p4=0;
+	uint8_t src=0;
 	int16_t ret = 0;
 	char type[4];
 	
 	//Trim Leading spaces
 	while(cmd[0]==' '){cmd++;}
 	
-	ret = sscanf_P(cmd, PSTR("%3s %hhi %hhi %hhi %hhi"), type, &p1, &p2, &p3, &p4);
+	ret = sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s"), &p1, &p2, &p3, &p4, &src, type);
 
 #ifdef DEBUG_BSBPORT_ECMD
 	debug_printf("ECMD(%d) get MSG ARGS:%d %3s %02x %02x %02x %02x ", len, ret, type, p1, p2, p3, p4);
 #endif
 	
-	if (ret == 5)
+	if (ret == 6)
 	{
 		for(uint8_t i=0;i<BSBPORT_MESSAGE_BUFFER_LEN;i++)
 		{
@@ -119,7 +120,8 @@ int16_t parse_cmd_bsbport_get (char *cmd, char *output, uint16_t len)
 				&& bsbport_msg_buffer.msg[i].data[P1]==p1
 				&& bsbport_msg_buffer.msg[i].data[P2]==p2
 				&& bsbport_msg_buffer.msg[i].data[P3]==p3
-				&& bsbport_msg_buffer.msg[i].data[P4]==p4)
+				&& bsbport_msg_buffer.msg[i].data[P4]==p4
+				&& (bsbport_msg_buffer.msg[i].data[SRC] & 0x0F)==src)
 			{
 #ifdef DEBUG_BSBPORT_ECMD
 	debug_printf("ECMD get MSG found at: %02d ",i);
@@ -249,7 +251,7 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
   block([[BSBPORT]] commands)
   ecmd_feature(bsbport_stats, "bsbport stats",, Report statistic counters OK/CRC/Lenght/Frame/Overflow/Parity/Buffer/BufferNet/Retransmit)
   ecmd_feature(bsbport_list, "bsbport list",, List all messages currently in buffer)
-  ecmd_feature(bsbport_get, "bsbport get",TYPE P1 P2 P3 P4, Show specific message currently in buffer format value as TYPE, type is one of RAW,TMP,FP1,FP5)
+  ecmd_feature(bsbport_get, "bsbport get",P1 P2 P3 P4 SRC TYPE, Show specific message currently in buffer format value as TYPE, type is one of RAW,TMP,FP1,FP5)
   ecmd_feature(bsbport_set, "bsbport set",P1 P2 P3 P4 DEST TYPE VALUE, Send Message to set value, type is one of RAW,SEL,TMP,FP1,FP5, DEST is optional defaults to 0)
   ecmd_feature(bsbport_query, "bsbport query",P1 P2 P3 P4 [DEST], Send Message to query for a value, DEST is optional defaults to 0 )
 */
