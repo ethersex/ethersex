@@ -1,30 +1,26 @@
 /*
- *
  * Copyright (c) 2013 by Frank Sautter <ethersix@sautter.com>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * For more information on the GPL, please go to:
- * http://www.gnu.org/copyleft/gpl.html
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 /*
  * This module allows to receive parallel/centronics/ieee1284 printer data
- * and forward it via tcp.
+ * and forward it via TCP.
  * It needs only a few additional wires on an pollin avr-netio (minimum PD2 or
- * PD3 as /STROBE on pin1 of the 25pin sub-D header).
+ * PD3 as /STROBE on pin1 and BUSY on pin 11 of the 25pin sub-D header).
  * On sending systems that do not pay attention to the /ACK signal an
  * additional 74HCT112 J/K-FlipFlip is needed to assure the tight BUSY signal
  * timing.
@@ -127,11 +123,6 @@ ISR(PPORT_VECTOR)
 
 /*
   -- Ethersex META --
-  dnl pport_init call must be done after network_init.
-  dnl Therefore we initialize via net_init and control the
-  dnl order via the Makefile.
-
   header(protocols/pport/pport.h)
-
   net_init(pport_init)
 */

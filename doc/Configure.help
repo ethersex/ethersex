@@ -3391,3 +3391,63 @@ DHT_SNMP_SUPPORT
   Make humidity and temperature measured by the DHT available via SNMP. Only one DHT sensor
   is currently supported. OIDs are .5.1.0 (polling delay), .5.2.0 (temperature * 10) and
   .5.3.0 (humidity * 10).
+
+PPort Support
+PPORT_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+   * y (ARCH_AVR)
+
+  This module allows to receive parallel/centronics/ieee1284 printer data and forward it via TCP.
+  It needs only a few additional wires on an pollin avr-netio (minimum PD2 or PD3 as /STROBE on pin1
+  and BUSY on pin 11 of the 25pin sub-D header).
+  On sending systems that do not pay attention to the /ACK signal an additional 74HCT112 J/K-FlipFlip
+  is needed to assure the tight BUSY signal timing.
+  
+  Pin on DB25              74HCT112
+                        +------------+
+    1 : /STROBE  : /C1 -| 1        16|- Vcc :  Vcc
+            Vcc  :  K1 -| 2        15|- /R1 :  Vcc
+            GND  :  J1 -| 3        14|- /R2 :  Vcc
+   10 :    /ACK  : /S1 -| 4        13|- /C2 :  Vcc
+           n.c.  :  Q1 -| 5        12|- K2  :  GND
+   11 :    BUSY  : /Q1 -| 6        11|- J2  :  GND
+           n.c.  : /Q2 -| 7        10|- /S2 :  GND
+            GND  : GND -| 8         9|- Q2  :  n.c.
+                        +------------+
+
+PPort TCP Port
+PPORT_PORT
+
+  TCP port number for PPort.
+  Default 1284 in accordance to IEEE1284 Centronics standard.
+
+PPort Buffer Length
+PPORT_BUFFER_LEN
+
+  Size of PPort buffer.
+  A small buffer size, decreasese the speed of PPort significantly and 
+  increases the number of TCP packets.
+  Maximum buffer size is limited by the ethernet MTU size.
+
+PPort Max Buffer Flush Interval (N*20ms)
+PPORT_FLUSH
+
+  To reduce the number of ethernet packets, a flush interval can be set.
+  The given value is a multiple of 20ms.
+
+  * If the value is > 0, the serial receive buffer is flushed, if the flush interval has elapsed,
+    a linefeed character was received or the receive buffer is filled more then 25%.
+
+  * If the value is = 0, the serial receive buffer is flushed immediately
+
+  Default value is 25 = 500ms
+
+PPORT Debug
+DEBUG_PPORT
+  Depends on: 
+   * PPort Support (PPORT_SUPPORT)
+
+  Enables the ECMD command "pport stats"
+  It shows transmitted bytes, buffer overruns, TCP retransmits and state of /STROBE and BUSY pin.
+
