@@ -221,6 +221,21 @@ pin(PS21, $2, INPUT)
 ')
 
 
+define(`PPORT_USE_INT', `dnl
+/* PPORT interrupt line  INT$1 -> $2 */
+pin(PPORT_STROBE, $2)
+
+/* configure real interrupt $1, set sense control to trigger on falling edge */
+#define PPORT_INT_PIN INT$1
+#define PPORT_INT_ISC _ISC($1,1)
+#define PPORT_INT_ISCMASK (_ISC($1,0) | _ISC($1,1))
+#define PPORT_VECTOR INT$1`_vect'
+#define PPORT_DATA_PIN  PIN_CHAR(PPORT_DATA)
+#define PPORT_DATA_DDR  DDR_CHAR(PPORT_DATA)
+#define PPORT_DATA_PORT PORT_CHAR(PPORT_DATA)
+')
+
+
 define(`ONEWIRE_PORT_RANGE', `dnl
 define(`pinname', translit(substr(`$1', 1, 1), `a-z', `A-Z'))dnl
 define(`start', substr(`$1', 2, 1))dnl
