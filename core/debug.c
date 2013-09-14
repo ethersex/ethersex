@@ -53,12 +53,7 @@ static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_S
 /* prototypes */
 void soft_uart_putchar(uint8_t c);
 
-#ifdef DEBUG_USE_USART
-  #define USE_USART DEBUG_USE_USART
-#else
-  #define USE_USART 0
-#endif
-
+#define USE_USART DEBUG_USE_USART
 #define BAUD DEBUG_BAUDRATE
 #include "core/usart.h"
 #include "pinning.c"
