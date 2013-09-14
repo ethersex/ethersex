@@ -79,6 +79,9 @@ VERSION_STRING_CHOICE=USE_BUILDDATE_VERSION
 USE_BUILDDATE_VERSION=y
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
+# DEBUG_USART_0 is not set
+DEBUG_USART_1=y
+DEBUG_USE_USART=1
 DEBUG_BAUDRATE=115200
 # DEBUG_USE_SYSLOG is not set
 # SOFT_UART_SUPPORT is not set
@@ -223,7 +226,6 @@ CONF_RFM12_IP4_NETMASK="255.255.255.0"
 # USB_NET_SUPPORT is not set
 # DEBUG_USB_HID_KEYBOARD is not set
 # DEBUG_USB_HID_MOUSE is not set
-# ZBUS_SUPPORT is not set
 # ZBUS_RAW_SUPPORT is not set
 # ROUTER_SUPPORT is not set
 UIP_SUPPORT=y
@@ -359,16 +361,6 @@ CONF_LTC1257_NUM_DEVICES=4
 # DEBUG_I2C_SLAVE is not set
 # CAMERA_SUPPORT is not set
 # DC3840_SUPPORT is not set
-# CONFIG_DC3840_RES80 is not set
-# CONFIG_DC3840_RES160 is not set
-# CONFIG_DC3840_RES320 is not set
-# CONFIG_DC3840_RES640 is not set
-# DC3840_HIGH_COMPRESSION is not set
-# DC3840_BLACK_WHITE is not set
-DC3840_USART_0=y
-# DC3840_USART_1 is not set
-DC3840_USE_USART=0
-# DC3840_UDP_DEBUG is not set
 
 #
 # Radio
@@ -519,9 +511,6 @@ OW_SENSORS_COUNT=10
 # DEBUG_HBRIDGE is not set
 # MCUF_SUPPORT is not set
 # MCUF_SERIAL_SUPPORT is not set
-MCUF_USART_0=y
-# MCUF_USART_1 is not set
-MCUF_USE_USART=0
 # MCUF_OUTPUT_SUPPORT is not set
 # BLP_SUPPORT is not set
 # LEDRG_SUPPORT is not set
@@ -568,17 +557,12 @@ CONF_ARTNET_OUTUNIVERSE=0
 # DALI_RAW_SUPPORT is not set
 # DALI_RECEIVE_SUPPORT is not set
 # DMX_SUPPORT is not set
-DMX_OUTPUT_UNIVERSE=1
-DMX_USART_0=y
-# DMX_USART_1 is not set
-DMX_USE_USART=0
 ECMD_PARSER_SUPPORT=y
 # ECMD_REMOVE_BACKSPACE_SUPPORT is not set
 # ALIASCMD_SUPPORT is not set
 # ECMD_PAM_SUPPORT is not set
 # ECMD_SCRIPT_SUPPORT is not set
 # ECMD_LOG_VIA_SYSLOG is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
 ECMD_TCP_SUPPORT=y
 ECMD_TCP_PORT=2701
 # ECMD_UDP_SUPPORT is not set
@@ -617,14 +601,7 @@ EMS_PORT=7950
 # EMS_PROTO_DEBUG is not set
 # EMS_IO_DEBUG is not set
 # EMS_ERROR_DEBUG is not set
-# FNORDLICHT_BASIC_SUPPORT is not set
-FNORDLICHT_BAUDRATE=19200
-# FNORDLICHT_USART_0 is not set
-# FNORDLICHT_USART_1 is not set
 # FNORDLICHT_SUPPORT is not set
-CONF_FNORDLICHTER=1
-# FNORDLICHT_SERVO_SUPPORT is not set
-# DEBUG_FNORDLICHT is not set
 # HTTPLOG_SUPPORT is not set
 CONF_HTTPLOG_SERVICE="volkszaehler.org"
 CONF_HTTPLOG_PATH="/httplog/httplog.php"
@@ -698,37 +675,10 @@ CONF_USTREAM_IP="205.188.234.7"
 CONF_USTREAM_PORT=80
 # DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
-YPORT_USART_0=y
-# YPORT_USART_1 is not set
-YPORT_USE_USART=0
-YPORT_PORT=7970
-YPORT_BAUDRATE=115200
-YPORT_BUFFER_LEN=32
-YPORT_FLUSH=25
-# DEBUG_YPORT is not set
 # MSR1_SUPPORT is not set
-MSR1_USART_0=y
-# MSR1_USART_1 is not set
-MSR1_USE_USART=0
-# DEBUG_MSR1 is not set
 # TO1_SUPPORT is not set
-TO1_USART_0=y
-# TO1_USART_1 is not set
-TO1_USE_USART=0
-TO1_SENSOR_COUNT=1
-# DEBUG_TO1 is not set
 # SERIAL_LINE_LOG_SUPPORT is not set
-# SERIAL_LINE_LOG_USART_0 is not set
-# SERIAL_LINE_LOG_USART_1 is not set
-SERIAL_LINE_LOG_TIMEOUT=20
-SERIAL_LINE_LOG_EOL=0A
-SERIAL_LINE_LOG_COUNT=60
-SERIAL_LINE_LOG_BAUDRATE=9600
-# SERIAL_LINE_LOG_SPACE_COMPRESSION is not set
 # NMEA_SUPPORT is not set
-NMEA_USART_0=y
-# NMEA_USART_1 is not set
-NMEA_USE_USART=0
 # STELLA_PROTOCOL_SUPPORT is not set
 UDP_STELLA_PORT=2702
 # IOUDP_PROTOCOL_SUPPORT is not set
@@ -744,13 +694,6 @@ CW_WPM=12
 # CW_RFM12_ASK_SUPPORT is not set
 # DEBUG_CW is not set
 # SGC_SUPPORT is not set
-# SGC_USART_0 is not set
-# SGC_USART_1 is not set
-SGC_BAUDRATE=9600
-# SGC_SHDN_SLEEP_ACTIVE is not set
-SGC_SLEEPMODE=0
-# SGC_TIMEOUT_COUNTER_SUPPORT is not set
-# SGC_ECMD_SEND_SUPPORT is not set
 
 #
 # Applications
@@ -959,9 +902,6 @@ CONF_TIME2PRESS_RESET=40
 CONF_TIME2PRESS_POWER=40
 CONF_TIME2PRESS_POWERL=3
 # PROJECTOR_SANYO_Z700_SUPPORT is not set
-# SANYO_Z700_USART_0 is not set
-# SANYO_Z700_USART_1 is not set
-# DEBUG_SANYO_Z700 is not set
 # FREQCOUNT_SUPPORT is not set
 # TANKLEVEL_SUPPORT is not set
 TANKLEVEL_ADC_CHANNEL=0
@@ -978,96 +918,3 @@ TANKLEVEL_RAISE_TIME=50
 TANKLEVEL_HOLD_TIME=20
 # RFM12_SUPPORT is not set
 IPV4_SUPPORT=y
-
-#
-# AVRDUDE configuration
-#
-# _2232HIO is not set
-# _89isp is not set
-# abcmini is not set
-# alf is not set
-# arduino is not set
-# atisp is not set
-# avr109 is not set
-# avr910 is not set
-# avr911 is not set
-# avrftdi is not set
-# avrisp is not set
-CONFIG_AVRDUDE_PROGRAMMER=avrisp2
-avrisp2=y
-# avrispmkII is not set
-# avrispv2 is not set
-# bascom is not set
-# blaster is not set
-# bsd is not set
-# buspirate is not set
-# butterfly is not set
-# butterfly_mk is not set
-# c2n232i is not set
-# dapa is not set
-# dasa is not set
-# dasa3 is not set
-# dragon_dw is not set
-# dragon_hvsp is not set
-# dragon_isp is not set
-# dragon_jtag is not set
-# dragon_pdi is not set
-# dragon_pp is not set
-# dt006 is not set
-# _ere_isp_avr is not set
-# _frank_stk200 is not set
-# futurlec is not set
-# jtag1 is not set
-# jtag1slow is not set
-# jtag2 is not set
-# jtag2avr32 is not set
-# jtag2dw is not set
-# jtag2fast is not set
-# jtag2isp is not set
-# jtag2pdi is not set
-# jtag2slow is not set
-# jtagkey is not set
-# jtagmkI is not set
-# jtagmkII is not set
-# jtagmkII_avr32 is not set
-# mib510 is not set
-# mkbutterfly is not set
-# pavr is not set
-# picoweb is not set
-# _pony_stk200 is not set
-# ponyser is not set
-# siprog is not set
-# sp12 is not set
-# stk200 is not set
-# stk500 is not set
-# stk500hvsp is not set
-# stk500pp is not set
-# stk500v1 is not set
-# stk500v2 is not set
-# stk600 is not set
-# stk600hvsp is not set
-# stk600pp is not set
-# usbasp is not set
-# usbtiny is not set
-# wiring is not set
-# xil is not set
-AVRDUDE_PROGRAMMER=avrisp2
-CONFIG_AVRDUDE_PORT="usb"
-AVRDUDE_PORT=usb
-# CONFIG_AVRDUDE_VERBOSE is not set
-AVRDUDE_VERBOSE=-v
-# CONFIG_AVRDUDE_NO_VERIFY is not set
-# CONFIG_AVRDUDE_ERASE_COUNTER is not set
-# AVRDUDE_BITCLOCK_4 is not set
-# AVRDUDE_BITCLOCK_1 is not set
-CONFIG_AVRDUDE_BITCLOCK=AVRDUDE_BITCLOCK_05
-AVRDUDE_BITCLOCK_05=y
-# AVRDUDE_BITCLOCK_03 is not set
-AVRDUDE_BITCLOCK="-B 0.5"
-CONFIG_AVRDUDE_EXTRA_OPTIONS=""
-CONFIG_AVRDUDE_LFUSE=CE
-AVRDUDE_LFUSE=0xCE
-CONFIG_AVRDUDE_HFUSE=D0
-AVRDUDE_HFUSE=0xD0
-CONFIG_AVRDUDE_EFUSE=FF
-AVRDUDE_EFUSE=0xFF
