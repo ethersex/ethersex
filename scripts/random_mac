@@ -1,14 +1,7 @@
 #!/bin/bash
 
-random_hex()
-{
-	local max="${1:-255}"	# integer
-	local line seed
-
-	# e.g.: 0x6f2d
-	seed="$( dd if=/dev/urandom bs=2 count=1 2>&- | hexdump | if read line; then echo 0x${line#* }; fi )"
-
-	printf "%02x" "$(( $seed % $max ))"
+function random_hex() {
+  printf "%02x" $(($RANDOM % 256 ))
 }
 
 MAC="ac:de:48:$(random_hex):$(random_hex):$(random_hex)"
