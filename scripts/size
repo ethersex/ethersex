@@ -7,6 +7,7 @@ maxper=30
 for i in ".text" ".data" ".bss"
 do
 	val[$j]=$(avr-size -A $1 | ${SED} -e "/$i/!d;s/^$i *//g;s/^\([^ ]*\).*/\1/")
+	[ -z "${val[$j]}" ] && val[$j]=0	# e.g. no .data-section
 	let j=$j+1
 done
 
