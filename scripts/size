@@ -2,14 +2,46 @@
 
 . scripts/osdefaults.sh
 
-j=0
-maxper=30
-for i in ".text" ".data" ".bss"
-do
-	val[$j]=$(avr-size -A $1 | ${SED} -e "/$i/!d;s/^$i *//g;s/^\([^ ]*\).*/\1/")
-	let j=$j+1
-done
+FILE="$1"		# compiled avr binary
 
+query_avrsize()		# get vars via 'eval'
+{
+	local file="$1"
+	local line
+
+	# defaults, if section does not exist
+	echo "avrsize_text=0"
+	echo "avrsize_data=0"
+	echo "avrsize_bss=0"
+
+	# typical output of: avr-size -A 'ethersex'
+	#
+	# ethersex  :
+	# section      size      addr
+	# .data          44   8388864
+	# .text       28224         0
+	# .bss         2189   8388908
+	# .stab       97728         0
+	# .stabstr    51966         0
+	# .comment       34         0
+	# Total      180185
+
+	avr-size -A "$file" | while read line; do {
+		set -- $line
+		case "$1" in
+			'.text') echo "avrsize_text='$2'" ;;
+			'.data') echo "avrsize_data='$2'" ;;
+			'.bss')  echo "avrsize_bss='$2'" ;;
+		esac
+	} done
+}
+
+eval $(query_avrsize "$FILE")
+val[0]="$avrsize_text"
+val[1]="$avrsize_data"
+val[2]="$avrsize_bss"
+
+maxper=30
 IMAGESIZE=$(ls -l $1.bin | ${AWK} '{ print $5 }')
 if [ "$3" != "y" ]; then
   FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | ${SED} '$!d'` + 1 )))
