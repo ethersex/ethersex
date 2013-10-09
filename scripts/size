@@ -71,9 +71,10 @@ PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
 
 echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${FLASH_PERCENT_USED}%)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
-  echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
-  echo ""
-  exit 1
+	echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
+	echo
+
+	exit 1
 else
 	echo -n "  ["
 	COUNTER=0
@@ -87,7 +88,8 @@ else
 	done
 	echo "]"
 fi
-echo ""
+
+echo
 echo -e "Program (.text + .data)\t: $(${AWK} "BEGIN {print ${val[0]}+${val[1]};}") bytes"
 echo -e "Data (.data + .bss)\t:  $(${AWK} "BEGIN {print ${val[2]}+${val[1]};}") bytes"
-echo ""
+echo
