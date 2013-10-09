@@ -51,15 +51,13 @@ query_avrsize()		# get vars via 'eval'
 
 eval $(query_avrsize "$FILE")
 
-avrsize_binary=$( stat --format='%s' "$FILE.bin" )
-IMAGESIZE="$avrsize_binary"
-
 if [ "$BOOTLOADER_SUPPORT" != "y" ]; then
 	FLASHSIZE=$( query_mcutype2flashsize "$MCU_TYPE" )
 else
 	FLASHSIZE="$BOOTLOADER_SIZE"
 fi
 
+IMAGESIZE=$( stat --format='%s' "$FILE.bin" )
 FLASH_PERCENT_USED=$(( ($IMAGESIZE * 10000) / $FLASHSIZE ))
 FLASH_PERCENT_USED="$(( $FLASH_PERCENT_USED / 100 )).$(( $FLASH_PERCENT_USED % 100 ))"
 
