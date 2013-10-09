@@ -49,6 +49,26 @@ query_avrsize()		# get vars via 'eval'
 	} done
 }
 
+show_symbol_bar()
+{
+	local symbol_bar_size=30
+	local symbol_bar_used=$(( ($IMAGESIZE * $symbol_bar_size) / $FLASHSIZE ))
+	local counter=0
+	local bar="  ["
+
+	while [ $counter -lt $symbol_bar_size ]; do {
+		if [ $counter -lt $symbol_bar_used ]; then
+			bar="$bar="
+		else
+			bar="$bar-"
+		fi
+
+		counter=$(( $counter + 1 ))
+	} done
+
+	echo "$bar]"
+}
+
 eval $(query_avrsize "$FILE")
 
 if [ "$BOOTLOADER_SUPPORT" != "y" ]; then
@@ -60,28 +80,15 @@ fi
 IMAGESIZE=$( stat --format='%s' "$FILE.bin" )
 FLASH_PERCENT_USED=$(( ($IMAGESIZE * 10000) / $FLASHSIZE ))
 FLASH_PERCENT_USED="$(( $FLASH_PERCENT_USED / 100 )).$(( $FLASH_PERCENT_USED % 100 ))"
-
-maxper=30
-PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
-
 echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${FLASH_PERCENT_USED}%)"
+
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
 	echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
 	echo
 
 	exit 1
 else
-	echo -n "  ["
-	COUNTER=0
-	while [  $COUNTER -lt $maxper ]; do
-		if [ $COUNTER -lt $PER ]; then
-			echo -n "="
-		else
-			echo -n "-"
-		fi
-		let COUNTER=COUNTER+1
-	done
-	echo "]"
+	show_symbol_bar
 fi
 
 echo
