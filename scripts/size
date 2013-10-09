@@ -7,6 +7,16 @@ MCU_TYPE="$2"		# e.g. 'atmega644'
 BOOTLOADER_SUPPORT="$3"	# e.g. 'y' = yes
 BOOTLOADER_SIZE="$4"	# e.g. 8192 = bytes
 
+query_mcutype2flashsize()
+{
+	local mcu_type="$1"
+	local hello_world="#include <avr/io.h>\nFLASHEND"
+	local imagesize=$( echo -e "$hello_world" | avr-cpp -mmcu="$mcu_type" | tail -n1 )
+
+	# e.g. 0xFFFF + 1 = 65536
+	echo $(( $imagesize + 1 ))
+}
+
 query_avrsize()		# get vars via 'eval'
 {
 	local file="$1"
@@ -47,12 +57,13 @@ val[2]="$avrsize_bss"
 avrsize_binary=$( stat --format='%s' "$FILE.bin" )
 IMAGESIZE="$avrsize_binary"
 
-maxper=30
-if [ "$3" != "y" ]; then
-  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | ${SED} '$!d'` + 1 )))
+if [ "$BOOTLOADER_SUPPORT" != "y" ]; then
+	FLASHSIZE=$( query_mcutype2flashsize "$MCU_TYPE" )
 else
-  FLASHSIZE=$4
+	FLASHSIZE="$BOOTLOADER_SIZE"
 fi
+
+maxper=30
 PERCENT=$(${AWK} "BEGIN {printf(\"%.2f\", $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);}")
 PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
 
