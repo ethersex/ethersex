@@ -63,11 +63,13 @@ else
 	FLASHSIZE="$BOOTLOADER_SIZE"
 fi
 
+FLASH_PERCENT_USED=$(( ($IMAGESIZE * 10000) / $FLASHSIZE ))
+FLASH_PERCENT_USED="$(( $FLASH_PERCENT_USED / 100 )).$(( $FLASH_PERCENT_USED % 100 ))"
+
 maxper=30
-PERCENT=$(${AWK} "BEGIN {printf(\"%.2f\", $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);}")
 PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
 
-echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${PERCENT}%)"
+echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${FLASH_PERCENT_USED}%)"
 if [ $IMAGESIZE -gt $FLASHSIZE ];then
   echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
   echo ""
