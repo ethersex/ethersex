@@ -2,7 +2,10 @@
 
 . scripts/osdefaults.sh
 
-FILE="$1"		# compiled avr binary
+FILE="$1"		# e.g. 'ethersex', compiled avr-object
+MCU_TYPE="$2"		# e.g. 'atmega644'
+BOOTLOADER_SUPPORT="$3"	# e.g. 'y' = yes
+BOOTLOADER_SIZE="$4"	# e.g. 8192 = bytes
 
 query_avrsize()		# get vars via 'eval'
 {
@@ -41,8 +44,10 @@ val[0]="$avrsize_text"
 val[1]="$avrsize_data"
 val[2]="$avrsize_bss"
 
+avrsize_binary=$( stat --format='%s' "$FILE.bin" )
+IMAGESIZE="$avrsize_binary"
+
 maxper=30
-IMAGESIZE=$(ls -l $1.bin | ${AWK} '{ print $5 }')
 if [ "$3" != "y" ]; then
   FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | ${SED} '$!d'` + 1 )))
 else
