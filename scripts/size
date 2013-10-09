@@ -50,9 +50,6 @@ query_avrsize()		# get vars via 'eval'
 }
 
 eval $(query_avrsize "$FILE")
-val[0]="$avrsize_text"
-val[1]="$avrsize_data"
-val[2]="$avrsize_bss"
 
 avrsize_binary=$( stat --format='%s' "$FILE.bin" )
 IMAGESIZE="$avrsize_binary"
@@ -90,6 +87,6 @@ else
 fi
 
 echo
-echo -e "Program (.text + .data)\t: $(${AWK} "BEGIN {print ${val[0]}+${val[1]};}") bytes"
-echo -e "Data (.data + .bss)\t:  $(${AWK} "BEGIN {print ${val[2]}+${val[1]};}") bytes"
+echo "Program (.text + .data)	: $(( $avrsize_text + $avrsize_data )) bytes"
+echo "Data (.data + .bss)	: $(( $avrsize_data + $avrsize_bss  )) bytes"
 echo
