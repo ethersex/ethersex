@@ -24,87 +24,6 @@ DEBUG_BAUDRATE
   Define baudrate for serial-line debugging. Transmission parameters
   are 8,n,1.
 
-Reroute to SYSLOG
-DEBUG_USE_SYSLOG
-  Depends on:
-   * SYSLOG support (SYSLOG_SUPPORT)
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD
-DEBUG_ECMD
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD FS20
-DEBUG_ECMD_FS20
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD IP
-DEBUG_ECMD_IP
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD MAC
-DEBUG_ECMD_MAC
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD NET
-DEBUG_ECMD_NET
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD OW LIST
-DEBUG_ECMD_OW_LIST
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD OW ROM
-DEBUG_ECMD_OW_ROM
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD PORTIO
-DEBUG_ECMD_PORTIO
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-ECMD RC5
-DEBUG_ECMD_RC5
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-NET_MAX_FRAME_LENGTH
-  Define the Maximum of bytes for the uip buffer
-
-ENC28J60
-DEBUG_ENC28J60
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
 ENC28J60 CLKOUT Prescaler (ECOCON)
 ECOCON_UNSET
   Depends on:
@@ -114,62 +33,6 @@ ECOCON_UNSET
   during network initialization. The CLKOUT pin can then
   be used to clock other devices, even the AVR itself.
   See the ENC datasheet section 2.3 for details.
-
-Interrupt
-DEBUG_INTERRUPT
-  Depends on:
-   * ENC28J60 (DEBUG_ENC28J60)
-
-  There's unfortunately no help available for this item.
-
-Networking
-DEBUG_NET
-  Depends on:
-   * ENC28J60 (DEBUG_ENC28J60)
-
-  There's unfortunately no help available for this item.
-
-Config
-DEBUG_NET_CONFIG
-  Depends on:
-   * Networking (DEBUG_NET)
-
-  There's unfortunately no help available for this item.
-
-Unknown packets
-DEBUG_UNKNOWN_PACKETS
-  Depends on:
-   * Networking (DEBUG_NET)
-
-  There's unfortunately no help available for this item.
-
-Rev. 4 Workaround
-DEBUG_REV4_WORKAROUND
-  Depends on:
-   * ENC28J60 (DEBUG_ENC28J60)
-
-  There's unfortunately no help available for this item.
-
-File System
-DEBUG_FS
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-Inode Table
-DEBUG_FS_INODETABLE
-  Depends on:
-   * File System (DEBUG_FS)
-
-  There's unfortunately no help available for this item.
-
-Mark
-DEBUG_FS_MARK
-  Depends on:
-   * File System (DEBUG_FS)
-
-  There's unfortunately no help available for this item.
 
 FS20 RF-control
 FS20_SUPPORT
@@ -217,41 +80,6 @@ DEBUG_FS20_WS300_VERBOSE
   There's unfortunately no help available for this item.
   For details see http://wiki.lochraster.org/wiki/Etherrape/Zusatzhardware/FS20.
 
-HD44780
-DEBUG_HD44780
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-HTTPD
-DEBUG_HTTPD
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-RC5
-DEBUG_RC5
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-Sendmail
-DEBUG_SENDMAIL
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-Timer
-DEBUG_TIMER
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
 IPv6 support
 IPV6_SUPPORT
   Depends on:
@@ -266,27 +94,6 @@ IP_FORWARDING_SUPPORT
 
   Forward IP packets between several interfaces, e.g. from USB to RFM12,
   Ethernet to RFM12, etc.
-
-HC595 output expansion
-HC595_SUPPORT
-  Depends on:
-   * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
-HC165 support
-HC165_SUPPORT
-  Depends on:
-   * Full-featured I/O abstraction model (Port I/O) (PORTIO_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
-Inverse output
-HC165_INVERSE_OUTPUT
-  Depends on:
-   * HC165 support (HC165_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 PS/2 keyboard
 PS2_SUPPORT
@@ -314,11 +121,6 @@ ADC_VOLTAGE_SUPPORT
 
   Enables the direct readout of ADC in volt. A VREF calibration value
   can be set by ECMD and is stored in EEPROM.
-
-FS20 RF-control
-FS20_SUPPORT
-
-  There's unfortunately no help available for this item.
 
 Send RC5 IR-codes
 RC5_SUPPORT
@@ -372,20 +174,6 @@ MCUF_SUPPORT
   - MicroControllerUnitFrame" see
   http://old.ethersex.de/index.php/Blinkenlights_MCUF
 
-Readback support
-HD44780_READBACK
-  Depends on:
-   * HD44780 module driver (HD44780_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
-Use Port C (instead of Port A)
-HD44780_USE_PORTC
-  Depends on:
-   * HD44780 module driver (HD44780_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
 YPort Support
 YPORT_SUPPORT
   Depends on:
@@ -432,14 +220,6 @@ RFM12_IP_SUPPORT
 
   For a step-by-step howto, see
   http://ethersex.de/index.php/RFM12
-
-RFM12 ARP-Proxy
-RFM12_ARP_PROXY
-  Depends on:
-   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
-   * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 RFM12 ASK (Amplitude Shift Keying) Support
 RFM12_ASK_SUPPORT
@@ -516,34 +296,6 @@ CONTROL6_SUPPORT
   e.g. example code.  There are more examples in the Ethersex wiki
   at http://old.ethersex.de/index.php/Control6
 
-TCP support
-TCP_SUPPORT
-  Depends on:
-   * Networking support (UIP_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
-UDP support
-UDP_SUPPORT
-  Depends on:
-   * Networking support (UIP_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
-UDP broadcast support
-BROADCAST_SUPPORT
-  Depends on:
-   * UDP support (UDP_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
-ICMP support
-ICMP_SUPPORT
-  Depends on:
-   * Networking support (UIP_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
 BOOTP support
 BOOTP_SUPPORT
   Depends on:
@@ -556,14 +308,6 @@ BOOTP_SUPPORT
   Most DHCP servers support BOOTP as DHCP's predecessor.
   Mind that in dnsmasq you have to enable 'bootp-dynamic' in the
   configuration file.
-
-Write BOOTP data to EEPROM
-BOOTP_TO_EEPROM_SUPPORT
-  Depends on:
-   * Build a bootloader (BOOTLOADER_SUPPORT)
-   * BOOTP support (BOOTP_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 DNS support
 DNS_SUPPORT
@@ -663,13 +407,6 @@ USB_NET_SUPPORT
   in contrib/usb_net
 
   See also http://old.ethersex.de/index.php/USB#usbnet
-
-USBnet ARP-Proxy
-USB_ARP_PROXY
-  Depends on:
-   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 System clock support
 CLOCK_SUPPORT
@@ -935,13 +672,6 @@ STELLA_LOW_PRIORITY
   The downside is that the Stella controlled lights may flicker when the
   interrupt rate is high.
 
-UDP Echo
-UDP_ECHO_NET_SUPPORT
-  Depends on:
-   * UDP support (UDP_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
 Update DNS records at dyn.metafnord.de
 DYNDNS_SUPPORT
   Depends on:
@@ -1047,13 +777,6 @@ ENC28J60_SUPPORT
  If your hardware uses the ENC28J60 IC and you want network functions, just
  answer 'y' and got forther with more configuration.
 
-Static IPv6 configuration
-IPV6_STATIC_SUPPORT
-  Depends on:
-   * IPv6 support (IPV6_SUPPORT)
-
-  There's unfortunately no help available for this item.
-
 I2C Atmel dataflash
 DATAFLASH_SUPPORT
 
@@ -1073,14 +796,6 @@ ZBUS_SUPPORT
 
   The ZBUS protocol is our own development, its no official standard.
   For details on ZBus see http://old.ethersex.de/index.php/Zbus
-
-ZBUS ARP-Proxy
-ZBUS_ARP_PROXY
-  Depends on:
-   * Ethernet (ENC28J60) support (ENC28J60_SUPPORT)
-   * ZBus Support (ZBUS_SUPPORT)
-
-  There's unfortunately no help available for this item.
 
 TCP/Telnet interface
 ECMD_TCP_SUPPORT
@@ -1237,7 +952,8 @@ DISABLE_REBOOT_SUPPORT
    * Networking support (UIP_SUPPORT)
    * ECMD support (ECMD_PARSER_SUPPORT)
 
-  Disable the commands to reboot the ethersex from remote (reset, wdreset and bootloader)
+  Disable the commands to reboot the ethersex from remote (reset, wdreset and
+  bootloader)
 
 IP Statistics
 IPSTATS_SUPPORT
@@ -1253,34 +969,6 @@ FREE_SUPPORT
    * ECMD support (ECMD_PARSER_SUPPORT)
 
   Print out memory usage.
-
-IPv6
-DEBUG_NET_IP6
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-OpenVPN
-DEBUG_OPENVPN
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-Router
-DEBUG_ROUTER
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
-
-uIP
-DEBUG_UIP
-  Depends on:
-   * Enable Debugging (DEBUG)
-
-  There's unfortunately no help available for this item.
 
 MMC/SD card reader
 SD_READER_SUPPORT
@@ -1669,38 +1357,42 @@ Stella polling (unicast response)
 STELLA_RESPONSE
   Depends on:
 
-  Allows stella to propagate its current channel values via the stella protocol. Explained in more
-  detail at the ethersex wiki.
+  Allows stella to propagate its current channel values via the stella
+  protocol. Explained in more detail at the ethersex wiki.
 
 Stella polling (broadcast response)
 STELLA_RESPONSE_BROADCAST
 
-  Send one command byte (STELLA_BROADCAST_RESPONSE) to make stella propagate all current channel values via UDP
-  broadcast. The datagram is 9 bytes long. The first is always the identifier 'S', the other bytes consist of the
+  Send one command byte (STELLA_BROADCAST_RESPONSE) to make stella propagate
+  all current channel values via UDP broadcast. The datagram is 9 bytes long.
+  The first is always the identifier 'S', the other bytes consist of the
   brightness values from channel 0 to 7.
 
 Acknowledge packets
 STELLA_RESPONSE_ACK
   Depends on:
 
-  Stella will acknowledge every command you send to it. This is not recommend if you send many commands in
-  a short time, because the response always contains the whole original message and increases ethernet traffic
-  and processor load dramaticly.
-  Caution: UDP is an unreliable service. It is not guaranteed that the acknowledge packet find the way back
-  to your client. It is also possible that the packet arrive out of order or is a duplicate from prior sessions.
+  Stella will acknowledge every command you send to it. This is not recommend
+  if you send many commands in a short time, because the response always
+  contains the whole original message and increases ethernet traffic and
+  processor load dramaticly.
+  Caution: UDP is an unreliable service. It is not guaranteed that the
+  acknowledge packet find the way back to your client. It is also possible
+  that the packet arrive out of order or is a duplicate from prior sessions.
 
 Stella Lights
 DEBUG_STELLA
   Depends on:
    * Enable Debugging (DEBUG)
 
-  Inform you about arriving stella packets, processed packets and if stella as a result send a response
+  Inform you about arriving stella packets, processed packets and if stella as
+  a result send a response
 
 EEPROM saving and loading channel values.
 STELLA_EEPROM
 
-  With additional commands (STELLA_SAVE_TO_EEPROM, STELLA_LOAD_FROM_EEPROM) you can save to eeprom and load
-  channel values from eeprom.
+  With additional commands (STELLA_SAVE_TO_EEPROM, STELLA_LOAD_FROM_EEPROM)
+  you can save to eeprom and load channel values from eeprom.
 
 Use eeprom values on device boot
 STELLA_EEPROM_BOOT
@@ -1712,16 +1404,17 @@ Fade in with default fade function
 STELLA_EEPROM_BOOT_FADE
   Depends on:
 
-  If you do not activate this option, the values from eeprom on device boot are applied instantly.
-  If you want your device to fade to those color values you can activate this option.
+  If you do not activate this option, the values from eeprom on device boot
+  are applied instantly. If you want your device to fade to those color values
+  you can activate this option.
 
 Cron test entries
 CRON_SUPPORT_TEST
   Depends on:
    * Cron daemon (CRON_SUPPORT)
 
-  Add test cronjobs. They will debug out every minute, every two hours and every 51th minute
-  if you compile-in serial debug out or syslog features.
+  Add test cronjobs. They will debug out every minute, every two hours and
+  every 51th minute if you compile-in serial debug out or syslog features.
 
 MCUF Module in Cron
 MCUF_MODUL_CRON_SUPPORT
@@ -1747,9 +1440,6 @@ MCUF_MODUL_DISPLAY_MODE_SUPPORT
   * manual   - enter the modul number
   * random   - start a random module
   * sequence - start the next module
-
-
-
 
 MCUF Module Borg-16
 MCUF_MODUL_BORG16_SUPPORT
@@ -1887,10 +1577,11 @@ CRON_STATIC_SUPPORT
   Depends on:
    * System clock support (CLOCK_SUPPORT)
 
-  Enable cron-alike service. The difference to the normal cron daemon is, that you
-  cannot change the cronjobs after compilation. Jobs are stored in the flash memory.
-  To add jobs, see cron_static/cron_static.c. You can use the normal cron and cron_static
-  at the same time.
+  Enable cron-alike service. The difference to the normal cron daemon is, that
+  you cannot change the cronjobs after compilation. Jobs are stored in the
+  flash memory.
+  To add jobs, see cron_static/cron_static.c. You can use the normal cron and
+  cron_static at the same time.
 
 ECMD Scripting
 ECMD_SCRIPT_SUPPORT
@@ -1996,8 +1687,8 @@ STELLA_MOODLIGHT
 Stella Broadcast Response UDP Port
 STELLA_BROADCAST_UDP_PORT
 
-  If you asked stella to propagate its channel values via broadcasting, this port is used
-  as UDP destination port.
+  If you asked stella to propagate its channel values via broadcasting, this
+  port is used as UDP destination port.
 
 Use GIT commit hash as Version
 USE_GIT_VERSION
@@ -2104,21 +1795,27 @@ HTTPLOG_SUPPORT
 Valid values for httplog are:
   Service: <domain of server you want to log to>, e.g. "volkszaehler.org"
   Path: <path of script you want to log to>, e.g. "/httplog/httplog.php"
-  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
-  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+  Include unix timestamp: <boolean value to add a current local timestamp as
+  a GET parameter>
+  Include uuid: <include a uuid to identify your controller board; might be
+  required to distinguish your log entries from others>
 
-A uuid (in the form of 12345678-9ABC-DEF0-1234-567890ABCDEF) can be "randomly" generated here also
-For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
+  A uuid (in the form of 12345678-9ABC-DEF0-1234-567890ABCDEF) can be
+  "randomly" generated here also.
+
+  For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
 
 Include unix timestamp
 CONF_HTTPLOG_INCLUDE_TIMESTAMP
 
-  Include unix timestamp: <boolean value to add a current local timestamp as a GET parameter>
+  Include unix timestamp: <boolean value to add a current local timestamp as
+  a GET parameter>
 
 Include uuid
 CONF_HTTPLOG_INCLUDE_UUID
 
-  Include uuid: <include a uuid to identify your controller board; might be required to distinguish your log entries from others>
+  Include uuid: <include a uuid to identify your controller board; might be
+  required to distinguish your log entries from others>
 
   For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
 
@@ -2419,21 +2116,27 @@ DMX_STORAGE_SUPPORT
 
   Part of the Ethersex Lighting Architecture
 
-  DMX Storage stores and manages DMX universes and provides routines for accessing the data with other modules.
-  Each of these modules can connect using a slot - so make sure that you have sufficient slots for each universe and each module!
+  DMX Storage stores and manages DMX universes and provides routines for
+  accessing the data with other modules.
+  Each of these modules can connect using a slot - so make sure that you
+  have sufficient slots for each universe and each module!
+
 STARBURST_SUPPORT
   Depends on:
    * DMX Storage (DMX_STORAGE_SUPPORT)
 
   Part of the Ethersex Lighting Architecture
 
-  Starburst manages different external PWM controllers which display data provided by DMX Storage.
+  Starburst manages different external PWM controllers which display data
+  provided by DMX Storage.
+
 STARBURST_PCA9685
   Depends on:
   * I2C_PCA9685_SUPPORT
   * STARBURST_SUPPORT
 
-  Module for Starburst which controls a NXP pca9685 (12-bit pwm 16-Channel). The dmx layout is as follows:
+  Module for Starburst which controls a NXP pca9685 (12-bit pwm 16-Channel).
+  The dmx layout is as follows:
   ccccmmmm....s
   m=mode (see starburst.h for available modes)
   c=channel value (0-255)
@@ -2441,14 +2144,19 @@ STARBURST_PCA9685
 
 STARBURST_PCA9685_ADDRESS
   The i2c address of your chip
+
 STARBURST_PCA9685_PRESCALER
   Prescaler for pwm (default is 30)
+
 STARBURST_PCA9685_EXTDRV
   See datasheet
+
 STARBURST_PCA9685_IVRT
   See datasheet
+
 STARBURST_PCA9685_STROBO
-  if you have the output enable pin connected to the avr you can use strobo effects (for all channels)
+  if you have the output enable pin connected to the avr you can use strobo
+  effects (for all channels)
 
 LOME6
 LOME6_SUPPORT
@@ -2470,14 +2178,16 @@ ONEWIRE_POLLING_SUPPORT
    * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
 
   If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY seconds.
-  After the discovery, new sensors will be added to the list and old/defect sensors
-  will be removed from the list.
-  Each sensor discovered will then be polled every OW_READ_DELAY seconds and the temperature
-  stored (cached). The advantage of this feature is that onewire opererates without
-  any noticeable lags compared to the 800 ms lag in normal operation mode. Also it is easier to have
-  multiple applications requesting sensor information since more request will not increase traffic on the
-  onewire bus.
-  The cons include higher memory consumption and a certain delay (max. OW_READ_DELAY).
+  After the discovery, new sensors will be added to the list and old/defect
+  sensors will be removed from the list.
+  Each sensor discovered will then be polled every OW_READ_DELAY seconds and
+  the temperature stored (cached). The advantage of this feature is that
+  onewire opererates without any noticeable lags compared to the 800 ms lag
+  in normal operation mode. Also it is easier to have multiple applications
+  requesting sensor information since more request will not increase traffic
+  on the onewire bus.
+  The cons include higher memory consumption and a certain delay (max.
+  OW_READ_DELAY).
 
 
 ECMD 1w list with values
@@ -2486,8 +2196,9 @@ ONEWIRE_ECMD_LIST_VALUES_SUPPORT
    * Onewire support (ONEWIRE_SUPPORT)
    * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
 
-  Show values (currently only temperature) on "1w list" command. This saves successive calls to get the
-  value for each sensor. Fields are separated by tab.
+  Show values (currently only temperature) on "1w list" command. This saves
+  successive calls to get the value for each sensor. Fields are separated by
+  tab.
 
 
 ECMD 1w list with power mode
@@ -2495,7 +2206,8 @@ ONEWIRE_ECMD_LIST_POWER_SUPPORT
   Depends on:
    * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
 
-  Show the power mode of each onewire node on "1w list" command. Fields are separated by tab.
+  Show the power mode of each onewire node on "1w list" command. Fields are
+  separated by tab.
   0: parasitic powered
   1: non-parasitic powered
 
@@ -2505,8 +2217,8 @@ ONEWIRE_NAMING_SUPPORT
   Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
 
-  Enable mapping of onewire rom addresses to names. Mapping table is stored in EEPROM and could be edited
-  by ECMD commands:
+  Enable mapping of onewire rom addresses to names. Mapping table is stored in
+  EEPROM and could be edited by ECMD commands:
 
   1w name list: Show current mapping table
   1w name set ID DEVICE NAME: Set table row ID to rom address DEVICE and name NAME
@@ -2525,8 +2237,8 @@ ONEWIRE_SNMP_SUPPORT
    * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
    * SNMP Support (SNMP_SUPPORT)
 
-  Make the onewire values (currently only temperature) available via SNMP. The main OID is
-  .1.3.6.1.4.1.39967.3.
+  Make the onewire values (currently only temperature) available via SNMP. The
+  main OID is .1.3.6.1.4.1.39967.3.
 
   Sub-OIDs:
   .1.3.6.1.4.1.39967.3.1.<ID>: rom address
@@ -2557,50 +2269,52 @@ OW_READ_DELAY
 Maximum sensor count
 OW_SENSORS_COUNT
 
-  How many sensors you expect in your setup. Make sure this value is high enough!
+  How many sensors you expect in your setup. Make sure this value is high
+  enough!
 
 Frequency counter
 FREQCOUNT_SUPPORT
   Incompatible with:
    * CLOCK_CPU_SUPPORT
 
-  If enabled, the frequency on the ICP1 pin is constantly sampled and stored in a
-  variable. It can then be retrieved with code or ECMD.
+  If enabled, the frequency on the ICP1 pin is constantly sampled and stored
+  in a variable. It can then be retrieved with code or ECMD.
   Frequencies can be from 2 Hz to about 50 CPU cycles to be sampled correctly
 
 Channels
 FREQCOUNT_CHANNELS
-  Number of channels the frequency counter works on. Multiple channels are multiplexed
-  with one or more 74xx251 ICs.
+  Number of channels the frequency counter works on. Multiple channels are
+  multiplexed with one or more 74xx251 ICs.
 
 Average over samples
 FREQCOUNT_AVERAGE
 
-  To improve the accuracy of the frequency counter it uses averaging. Enter the number
-  of samples you want to average over. Use a power of 2 (e.g. 4, 8, 16, 32) to reduce
-  code size and improve execution speed.
+  To improve the accuracy of the frequency counter it uses averaging. Enter the
+  number of samples you want to average over. Use a power of 2 (e.g. 4, 8, 16,
+  32) to reduce code size and improve execution speed.
 
 Optimize for frequencies >300 Hz
 FREQCOUNT_NOSLOW_SUPPORT
 
-  Disable support for frequencies lower than F_CPU / 65535. This is about 305 Hz at
-  20 MHz. This saves memory, reduces cpu load and increases the maximum frequency
-  that can be sampled reliably.
+  Disable support for frequencies lower than F_CPU / 65535. This is about
+  305 Hz at 20 MHz. This saves memory, reduces cpu load and increases the
+  maximum frequency that can be sampled reliably.
 
 Duty cycle sampling
 FREQCOUNT_DUTY_SUPPORT
 
-  Not only detect the frequency of a signal, but also measure the part of the signal
-  that has a high level. Useful for measuring PWM values. Frequency and duty cycle
-  are measured in two consecutive waves. This means you can not measure duty cycle
-  when the frequency is changing significantly.
+  Not only detect the frequency of a signal, but also measure the part of the
+  signal that has a high level. Useful for measuring PWM values. Frequency and
+  duty cycle are measured in two consecutive waves. This means you can not
+  measure duty cycle when the frequency is changing significantly.
 
 Additional moving average
 FREQCOUNT_MOVING_AVERAGE_SUPPORT
 
-  This adds a moving average on top of the regular averaging. It takes the results
-  from the regular averaging and stores them in a moving average buffer. The depth
-  of this buffer is defined with FREQCOUNT_MOVING_AVERAGE_SIZE.
+  This adds a moving average on top of the regular averaging. It takes the
+  results from the regular averaging and stores them in a moving average
+  buffer. The depth of this buffer is defined with
+  FREQCOUNT_MOVING_AVERAGE_SIZE.
 
 Moving average samples
 FREQCOUNT_MOVING_AVERAGE_SIZE
@@ -2612,9 +2326,9 @@ FREQCOUNT_MOVING_AVERAGE_SIZE
 All channels active on boot
 FREQCOUNT_BOOT_ON
 
-  Usually you have to enable each frequency counter channel with "fc on [channel]"
-  before you can read out data. With this option set all channels are automatically
-  enabled on bootup.
+  Usually you have to enable each frequency counter channel with
+  "fc on [channel]" before you can read out data. With this option set all
+  channels are automatically enabled on bootup.
 
 DMX FXSlot
 DMX_FXSLOT_SUPPORT
@@ -2644,12 +2358,14 @@ DMX_FX_WATER
 Autosave slots
 DMX_FXSLOT_AUTOSAVE_SUPPORT
 
-  If enabled, the fxslots will be saved to EEPROM whenever altered through ECMD.
+  If enabled, the fxslots will be saved to EEPROM whenever altered through
+  ECMD.
 
 Automatically restore slots
 DMX_FXSLOT_AUTORESTORE_SUPPORT
 
-  If enabled, ethersex will restore previously saved fxslots from EEPROM during boot.
+  If enabled, ethersex will restore previously saved fxslots from EEPROM
+  during boot.
 
 FS20
 RFM12_ASK_FS20_SUPPORT
@@ -2801,8 +2517,8 @@ ARTNET_SUPPORT
    * UDP support (UDP_SUPPORT)
    * NET_MAX_FRAME_LENGTH > 571
 
-  Artnet needs at least a 572 byte network buffer to work. You can set the buffer size
-  in "Network -> Network Buffer Size".
+  Artnet needs at least a 572 byte network buffer to work. You can set the
+  buffer size in "Network -> Network Buffer Size".
 
 Buffer Length
 HTTPLOG_BUFFER_LEN
@@ -2821,10 +2537,10 @@ TANKLEVEL_SUPPORT
    * Clock Support (CLOCK_SUPPORT)
    * ADC voltage suppot (ADC_VOLTAGE_SUPPORT)
 
-  This provides an application for measurement of tank levels by hydrostatic pressure.
-  You need an aquarium air pump, some kind of pipe/tube, a Freescale MPX5050DP
-  pressure sensor and an relay for the pump. Parameters are configurable by ECMD
-  and stored in EEPROM.
+  This provides an application for measurement of tank levels by hydrostatic
+  pressure. You need an aquarium air pump, some kind of pipe/tube, a Freescale
+  MPX5050DP pressure sensor and an relay for the pump. Parameters are
+  configurable by ECMD and stored in EEPROM.
 
   ECMD commands:
 
@@ -2863,9 +2579,9 @@ TANKLEVEL_SUPPORT
 
     Electrical Setup is quite simple. Connect the TANK_PUMP port with an relay
     (usually via an Transistor as current amp) and the output of the Sensor
-    with the selected ADC channel (have a look at the datasheet for power supply
-    decoupling and output filtering). Select a optimal Vref for the ADC if
-    possible.
+    with the selected ADC channel (have a look at the datasheet for power
+    supply decoupling and output filtering). Select a optimal Vref for the ADC
+    if possible.
 
 ADC channel
 TANKLEVEL_ADC_CHANNEL
@@ -2882,7 +2598,8 @@ TANKLEVEL_CRON_SUPPORT
   Depends on:
    * Static Cron Support (CRON_SUPPORT)
 
-  Start measurement at fixed time. Can be changed in services/cron/cron_static.c.
+  Start measurement at fixed time. Can be changed in
+  services/cron/cron_static.c.
 
 Inverted pump output
 TANKLEVEL_PUMP_ACTIVE_LOW
@@ -3381,8 +3098,9 @@ YPORT_FLUSH
   To reduce the number of ethernet packets, a flush interval can be set.
   The given value is a multiple of 20ms.
 
-  * If the value is > 0, the serial receive buffer is flushed, if the flush interval has elapsed,
-    a linefeed character was received or the receive buffer is filled more then 25%.
+  * If the value is > 0, the serial receive buffer is flushed, if the flush
+    interval has elapsed, a linefeed character was received or the receive
+    buffer is filled more then 25%.
 
   * If the value is = 0, the serial receive buffer is flushed immediately
 
@@ -3393,7 +3111,19 @@ DHT_SNMP_SUPPORT
   Depends on:
    * SNMP Support (SNMP_SUPPORT)
 
-  Make humidity and temperature measured by the DHT available via SNMP. Only one DHT sensor
-  is currently supported. OIDs are .5.1.0 (polling delay), .5.2.0 (temperature * 10) and
-  .5.3.0 (humidity * 10).
+  Make humidity and temperature measured by the DHT available via SNMP. Only
+  one DHT sensor is currently supported. OIDs are .5.1.0 (polling delay),
+  .5.2.0 (temperature * 10) and .5.3.0 (humidity * 10).
+
+IO: UDP Protocol
+IOUDP_PROTOCOL_SUPPORT
+  Depends on: 
+   * I/O abstraction model (Port I/O) (PORTIO_FULL_FEATURED)
+   * UDP support (UDP_SUPPORT)
+
+ Allows pins to be set via simple udp packages as well as requesting the
+ current status of pins and addionally provides the ability to register
+ a client to be informed of pin changes.
+ This module allows very fast polling and setting without much network
+ overhead. Recommended use only in a trusted network environment.
 
