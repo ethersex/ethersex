@@ -105,7 +105,7 @@ meta.m4: ${SRC} ${y_SRC} .config
 	@echo "Copying to meta.m4"
 	@if [ ! -e $@ ]; then cp $@.tmp $@; fi
 	@if ! diff $@.tmp $@ >/dev/null; then cp $@.tmp $@; fi
-	@rm -f $@.tmp
+	@$(RM) -f $@.tmp
 
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
@@ -181,8 +181,9 @@ endif
 #
 ##############################################################################
 
+DEBUG_INLINE_FILES=n
 ifeq ($(VFS_INLINE_SUPPORT),y)
-INLINE_FILES := $(shell ls embed/* | $(SED) '/\.tmp$$/d; /\.gz$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
+INLINE_FILES := $(shell ls embed/* | $(SED) '/\.tmp$$/d; /\.gz$$/d; /~$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
 ifeq ($(DEBUG_INLINE_FILES),y)
 .PRECIOUS = $(INLINE_FILES)
 endif
@@ -206,20 +207,23 @@ endif
 
 embed/%: embed/%.cpp
 	@if ! avr-cpp -xc -DF_CPU=$(FREQ) -I$(TOPDIR) -include autoconf.h $< 2> /dev/null > $@.tmp; \
-		then $(RM) $@; echo "--> Don't include $@ ($<)"; \
-	else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; \
-	  echo "--> Include $@ ($<)"; fi
+	  then $(RM) $@; echo "--> Don't include $@ ($<)"; \
+	  else $(SED) '/^$$/d; /^#[^#]/d' <$@.tmp > $@; echo "--> Include $@ ($<)";  \
+	fi
 	@$(RM) $@.tmp
 
 
 embed/%: embed/%.m4
 	@if ! $(M4) `scripts/m4-defines` $< > $@; \
-	  then $(RM) $@; echo "--> Don't include $@ ($<)";\
-		else echo "--> Include $@ ($<)";	fi
+	  then $(RM) $@; echo "--> Don't include $@ ($<)"; \
+	  else echo "--> Include $@ ($<)"; \
+	fi
 
 embed/%: embed/%.sh
-	@if ! $(CONFIG_SHELL) $< > $@; then $(RM) $@; echo "--> Don't include $@ ($<)"; \
-		else echo "--> Include $@ ($<)";	fi
+	@if ! $(CONFIG_SHELL) $< > $@; \
+	  then $(RM) $@; echo "--> Don't include $@ ($<)"; \
+	  else echo "--> Include $@ ($<)"; \
+	fi
 
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
