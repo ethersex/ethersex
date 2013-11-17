@@ -181,7 +181,6 @@ endif
 #
 ##############################################################################
 
-DEBUG_INLINE_FILES=n
 ifeq ($(VFS_INLINE_SUPPORT),y)
 INLINE_FILES := $(shell ls embed/* | $(SED) '/\.tmp$$/d; /\.gz$$/d; /~$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
 ifeq ($(DEBUG_INLINE_FILES),y)
