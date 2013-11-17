@@ -34,6 +34,7 @@ ifdef(`conf_ADC_INLINE', `<p>To see the adc channels see <a href="adc.ht">here</
 ifdef(`conf_KTY_INLINE', `<p>To see the KTY temperature see <a href="Xky.ht">here</a>.</p>')
 ifdef(`conf_ONEWIRE_INLINE', `<p>The onewire temperature values are accessible <a href="ow.ht">here</a>,
    or with a SVG-capable browser see the <a href="Xow.ht">graphical variant</a>.</p>')
+ifdef(`conf_HAT_INLINE', `<p>The humidity and temperature sensors are accessible <a href="hat.ht">here</a>.</p>')
 ifdef(`conf_RFM12_INLINE', `<p>To control <a href="rf.ht">RFM12 ASK</a>.</p>')
 ifdef(`conf_STELLA_INLINE', `<p>To control <a href="ste.ht">StellaLight</a>.</p>')
 ifdef(`conf_MOTORCURTAIN_INLINE', `<p>To control <a href="cur.ht">MotorCurtain</a>.</p>')

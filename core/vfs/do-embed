@@ -40,6 +40,10 @@ echo "The pagesize of current architecture is $PAGESZ."
 do_strip=false
 fgrep -q "#define VFS_INLINE_HTML_CLEAN_SUPPORT" autoconf.h &&  do_strip=true
 
+do_gzip=true
+fgrep -q "#define DEBUG_INLINE_DISABLE_GZ" autoconf.h &&  do_gzip=false
+fgrep -q "#define UPNP_INLINE_SUPPORT" autoconf.h && [ "${fn/#*./}" = "xml" ]  && do_gzip=false
+
 while true; do
   fn="$1"; shift
   test "x$fn" = "x" && {
@@ -52,10 +56,6 @@ while true; do
     continue
   fi
   unzipped=$(echo "$fn" | sed 's/\.gz$//')
-  do_gzip=true
-  fgrep -q "#define DEBUG_INLINE_DISABLE_GZ" autoconf.h &&  do_gzip=false
-  fgrep -q "#define UPNP_INLINE_SUPPORT" autoconf.h && [ "${fn/#*./}" = "xml" ]  && do_gzip=false
-
   if  [ "$do_gzip" = "true" ]; then
     # before zipping, squeeze unnecessary bits out
     tempfn="${fn}.temp~"

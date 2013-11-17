@@ -39,7 +39,7 @@ window.onload = function() {
 }
 </script>
 </head><body>
-<h1>Ethersex Tank Level</h1>
+<h1>Tank Level</h1>
 <table border=1 cellspacing=0>
 <tr>
 <td id="tank_ts" colspan="3"></td>

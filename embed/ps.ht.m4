@@ -3,7 +3,7 @@ ifdef({{conf_PWM_SERVO}}, {{}}, {{m4exit(1)}})dnl
 ifdef({{conf_PWM_SERVO_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <html>
 <head>
-<title>Ethersex - Camera</title>
+<title>Ethersex - PWM Servo</title>
 <link rel="stylesheet" href="Sty.c" type="text/css"/>
 <script src="scr.js" type="text/javascript"></script>
 <style>
