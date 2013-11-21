@@ -36,7 +36,8 @@
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init()
+generate_usart_init_8E2()
+//generate_usart_init()
 
 struct yport_buffer yport_send_buffer;
 struct yport_buffer yport_recv_buffer;
