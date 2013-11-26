@@ -208,7 +208,7 @@ struct artnet_dmx
   uint16_t universe;
   uint8_t lengthHi;
   uint8_t length;
-  uint8_t dataStart;
+  uint8_t dataStart[];
 };
 
 void artnet_init(void);
