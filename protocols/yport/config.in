@@ -5,6 +5,11 @@ if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		usart_process_choice YPORT
 		int    "YPort TCP Port" YPORT_PORT 7970
 		int    "YPort Baudrate" YPORT_BAUDRATE 115200
+		
+		choice '  YPort usart config'	\
+				"8N1      	YPORT_USART_CONFIG_8N1		\
+				 8E2		YPORT_USART_CONFIG_8E2"	\
+				'8N1' YPORT_USART_CONFIG
 
 		if [ "$YPORT_BUFFER_LEN" = "" ] ; then
 			YPORT_BUFFER_LEN=500
