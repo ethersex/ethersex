@@ -27,17 +27,27 @@
 #include <util/delay.h>
 #include <string.h>
 #include "core/eeprom.h"
+
+#define YPORT_USART_CONFIG_8N1 1
+#define YPORT_USART_CONFIG_8E2 2
+
 #include "config.h"
 #include "yport.h"
 #include "yport_net.h"
+
 
 #define USE_USART YPORT_USE_USART
 #define BAUD YPORT_BAUDRATE
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init_8E2()
-//generate_usart_init()
+#if YPORT_USART_CONFIG == YPORT_USART_CONFIG_8N1
+	generate_usart_init()
+#elif YPORT_USART_CONFIG == YPORT_USART_CONFIG_8E2
+	generate_usart_init_8E2()
+#else
+	#error "YPORT_USART_CONFIG not correctly defined"
+#endif
 
 struct yport_buffer yport_send_buffer;
 struct yport_buffer yport_recv_buffer;
