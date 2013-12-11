@@ -285,7 +285,7 @@ rfm12_ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
     {
       rfm12_ask_trigger(rfm12_trigger_level ^= 1, code[i] * delay);
     }
-    rfm12_ask_trigger(0, 24 * delay);
+    rfm12_ask_trigger(0, 96 * delay);
   }
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
   rfm12_epilogue();
