@@ -11,7 +11,7 @@ function dmx_init_channels(request) {
   }
   var space = document.getElementById("channels");
   var channels_source = request.responseText.split("\n");
-  var channels = channels_source.slice(1, channels_source.length - 1);
+  var channels = channels_source.slice(2, channels_source.length - 1);
 
   dmx_set_state(channels_source[0]);
   var divCount = 0;
@@ -49,6 +49,11 @@ function dmx_set_state(state) {
   }
 }
 
+function dmx_set_dimmer(val) {
+  document.getElementById("currentDimmer").innerHTML = val;
+  document.getElementById("dimmer").value = val;
+}
+
 function dmx_updatetable(request) {
   var i = 0;
 
@@ -58,9 +63,10 @@ function dmx_updatetable(request) {
   document.getElementById("upind").innerHTML = "";
 
   var channels_source = request.responseText.split("\n");
-  var channels = channels_source.slice(1,channels_source.length - 1);
+  var channels = channels_source.slice(2,channels_source.length - 1);
 
   dmx_set_state(channels_source[0]);
+  dmx_set_dimmer(channels_source[1]);
 
   for (i = 0; i < channels.length; i++) {
     document.getElementById("current"+i).innerHTML = channels[i];
@@ -74,8 +80,15 @@ function dmx_update() {
 }
 
 function dmx_set_channel(channel, val) {
+  if (channel === "dimmer") {
+    ArrAjax.ecmd('dmx set ' +currentUniverse+ ' dimmer ' + val);
+    document.getElementById("currentDimmer").innerHTML = val;
+  }
+  else
+  {
   ArrAjax.ecmd('dmx set ' +currentUniverse+ ' ' +channel+ ' ' + val);
   document.getElementById("current" + channel).innerHTML = val;
+  }
 }
 
 function dmx_toggle_state(state) {
