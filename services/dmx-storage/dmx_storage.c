@@ -177,7 +177,7 @@ dmx_storage_init()
 }
 
 void
-dmx_set_universe_state(uint8_t universe, enum dmx_universe_state state)
+set_dmx_universe_state(uint8_t universe, enum dmx_universe_state state)
 {
   if (universe < DMX_STORAGE_UNIVERSES)
   {

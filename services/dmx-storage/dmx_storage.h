@@ -135,7 +135,7 @@ enum dmx_universe_state get_dmx_universe_state(uint8_t universe);
 *	@param state
 *	@return none
 */
-void dmx_set_universe_state(uint8_t universe, enum dmx_universe_state state);
+void set_dmx_universe_state(uint8_t universe, enum dmx_universe_state state);
 
 /**
  * @brief returns the dimmer of universe

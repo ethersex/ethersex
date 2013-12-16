@@ -63,11 +63,11 @@ parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
       i++;
     if (strncmp_P(cmd + i, PSTR("off"), 3) == 0)
     {
-      dmx_set_universe_state(universe, DMX_BLACKOUT);
+      set_dmx_universe_state(universe, DMX_BLACKOUT);
     }
     else if (strncmp_P(cmd + i, PSTR("on"), 2) == 0)
     {
-      dmx_set_universe_state(universe, DMX_LIVE);
+      set_dmx_universe_state(universe, DMX_LIVE);
     }
     else if (strncmp_P(cmd + i, PSTR("dimmer"), 6) == 0)
     {
