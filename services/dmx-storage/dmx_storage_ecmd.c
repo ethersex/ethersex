@@ -51,8 +51,8 @@ parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
 {
-  uint16_t startchannel = 0, value = 0, channelcounter = 0, blankcounter = 0;
-  uint8_t universe = 0, i = 0;
+  uint16_t startchannel = 0, channelcounter = 0, blankcounter = 0;
+  uint8_t universe = 0, i = 0, value = 0;
   if (cmd[0] != 0)
   {
     while (cmd[i] == ' ')
@@ -89,8 +89,9 @@ parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
         i++;
       }
       while (cmd[i] != '\0')
-      {                         //read and write all values
-        sscanf_P(cmd + i, PSTR(" %u"), &value);
+      {
+        /* read and write all values */
+        sscanf_P(cmd + i, PSTR(" %hhu"), &value);
         if (set_dmx_channel(universe, startchannel + channelcounter, value))
           return ECMD_ERR_WRITE_ERROR;
         channelcounter++;
