@@ -67,6 +67,15 @@ get_dmx_channel(uint8_t universe, uint16_t channel)
   if (channel < DMX_STORAGE_CHANNELS
       && universe < DMX_STORAGE_UNIVERSES
       && dmx_universes[universe].universe_state == DMX_LIVE)
+    return (dmx_universes[universe].dimmer * dmx_universes[universe].channels[channel]) / 255;
+  else
+    return 0;
+}
+
+uint8_t
+get_dmx_channel_raw(uint8_t universe, uint16_t channel)
+{
+  if (channel < DMX_STORAGE_CHANNELS && universe < DMX_STORAGE_UNIVERSES)
     return dmx_universes[universe].channels[channel];
   else
     return 0;
@@ -163,11 +172,12 @@ dmx_storage_init()
       dmx_universes[universe].channels[channel] = 0;
     }
     dmx_universes[universe].universe_state = DMX_LIVE;
+    dmx_universes[universe].dimmer = 255;
   }
 }
 
 void
-dmx_set_universe_state(uint8_t universe, enum dmx_universe_state state)
+set_dmx_universe_state(uint8_t universe, enum dmx_universe_state state)
 {
   if (universe < DMX_STORAGE_UNIVERSES)
   {
@@ -176,6 +186,27 @@ dmx_set_universe_state(uint8_t universe, enum dmx_universe_state state)
       dmx_universes[universe].slots[i].slot_state = DMX_NEWVALUES;
   }
 }
+
+uint8_t
+get_dmx_universe_dimmer(uint8_t universe)
+{
+  if (universe < DMX_STORAGE_UNIVERSES)
+    return dmx_universes[universe].dimmer;
+  else
+    return 0;
+}
+
+void
+set_dmx_universe_dimmer(uint8_t universe, uint8_t value)
+{
+  if (universe < DMX_STORAGE_UNIVERSES)
+  {
+    dmx_universes[universe].dimmer = value;
+    for (uint8_t i = 0; i < DMX_STORAGE_SLOTS; i++)
+      dmx_universes[universe].slots[i].slot_state = DMX_NEWVALUES;
+  }
+}
+
 
 #endif
 /*
