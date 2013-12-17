@@ -242,10 +242,10 @@ rfm12_ask_intertechno_sl_send(uint32_t house,
 #if defined RFM12_ASK_2272_SUPPORT || defined RFM12_ASK_1527_SUPPORT
 
 #ifdef RFM12_ASK_2272_SUPPORT
-static const uint8_t ask_2272_pulse_duty_factor[4] PROGMEM = { 13, 5, 7, 11 };
+static const uint8_t ask_2272_pulse_duty_factor[5] PROGMEM = { 13, 5, 7, 11, 96 };
 #endif
 #ifdef RFM12_ASK_1527_SUPPORT
-static const uint8_t ask_1527_pulse_duty_factor[4] PROGMEM = { 9, 3, 3, 9 };
+static const uint8_t ask_1527_pulse_duty_factor[5] PROGMEM = { 9, 3, 3, 9, 25 };
 #endif
 
 static void
@@ -273,6 +273,8 @@ rfm12_ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
     }
   }
   *p = 7;                       // sync
+  
+  uint8_t last_code = pgm_read_byte(duty_factor + 4);
 
   rfm12_prologue(RFM12_MODULE_ASK);
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES |
@@ -285,7 +287,7 @@ rfm12_ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
     {
       rfm12_ask_trigger(rfm12_trigger_level ^= 1, code[i] * delay);
     }
-    rfm12_ask_trigger(0, 96 * delay);
+    rfm12_ask_trigger(0, last_code * delay);
   }
   rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX);
   rfm12_epilogue();
