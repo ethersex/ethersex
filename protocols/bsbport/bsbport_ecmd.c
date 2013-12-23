@@ -235,7 +235,7 @@ int16_t parse_cmd_bsbport_set (char *cmd, char *output, uint16_t len)
 			return  ECMD_FINAL(snprintf_P(output, len, PSTR("type unknown")));
 
 #ifdef DEBUG_BSBPORT_ECMD
-	debug_printf("ECMD set parsed data: %02x %02x %02x %02d ",data[0],data[0],data[0],datalen);
+	debug_printf("ECMD set parsed data: %02x %02x %02x %02d ",data[0],data[1],data[2],datalen);
 #endif	
 		
 		if(bsbport_set(p1,p2,p3,p4,dest,data,datalen)) return ECMD_FINAL_OK;
