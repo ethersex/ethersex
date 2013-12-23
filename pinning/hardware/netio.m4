@@ -8,7 +8,7 @@ ifdef(`conf_SD_READER', `dnl
 
 ifdef(`conf_ONEWIRE', `dnl
   /* onewire port range */
-  ONEWIRE_PORT_RANGE(PD6, PD6)
+  ONEWIRE_PORT_RANGE(PA4, PA4)
 ')dnl
 
 ifdef(`conf_STELLA', `dnl
@@ -73,13 +73,13 @@ ifdef(`conf_USTREAM', `
 ')
 
 ifdef(`conf_HD44780', `
-  pin(HD44780_RS, PD3)
-  pin(HD44780_RW, PD2)
-  pin(HD44780_EN1, PB0)
-  pin(HD44780_D4, PD4)
-  pin(HD44780_D5, PD5)
-  pin(HD44780_D6, PD6)
-  pin(HD44780_D7, PD7)
+   pin(HD44780_RS, PC0)
+   pin(HD44780_RW, PC1)
+   pin(HD44780_EN1, PC2)
+   pin(HD44780_D4, PC3)
+   pin(HD44780_D5, PC4)
+   pin(HD44780_D6, PC5)
+   pin(HD44780_D7, PC6)
 ')
 ifdef(`conf_HD44780_BACKLIGHT', `
   pin(HD44780_BL, PB1, OUTPUT)

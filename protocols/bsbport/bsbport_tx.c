@@ -115,6 +115,26 @@ bsbport_tx_periodic(void)
 			step++;
             break;
 
+		case 8 : 	//	Trinkwassertemperatur 31	3d	05	2f
+			bsbport_query(0x31,0x3d,0x05,0x2f,0x00);
+			step++;
+	        break;
+
+		case 9 : 	//	Puffertemperatur 1 05	3d	05	34
+			bsbport_query(0x05,0x3d,0x05,0x34,0x00);
+			step++;
+	        break;
+
+		case 10 : 	//	Puffertemperatur 2 05	3d	05	35
+			bsbport_query(0x05,0x3d,0x05,0x35,0x00);
+			step++;
+	        break;
+
+		case 16 : 	//	HeizungsVorlauftemperatur
+			bsbport_query(0x21,0x3d,0x05,0x18,0x00);
+			step++;
+            break;
+
 		// Ertrag
         case 3 : 	//	Tagesertrag Solarenergie 
 			bsbport_query(0x49,0x3d,0x05,0x99,0x00);
@@ -142,13 +162,39 @@ bsbport_tx_periodic(void)
 			step++;
 	        break;
 
-		case 8 : 	//	Trinkwassertemperatur 31	3d	05	2f
-			bsbport_query(0x31,0x3d,0x05,0x2f,0x00);
+		case 17 : 	//	Heizungsvorlaufsollwert 
+			bsbport_query(0x21,0x3d,0x06,0x67,0x00);
 			step++;
 	        break;
 
-		case 9 : 	//	Puffertemperatur 05	3d	05	34
-			bsbport_query(0x05,0x3d,0x05,0x34,0x00);
+		case 18 : 	//	Puffersollwert 
+			bsbport_query(0x05,0x3d,0x08,0x83,0x00);
+			step++;
+	        break;
+
+		// Status
+		case 11 : 	//	Heizkreispumpe Q2  05	3d	09	A5
+			bsbport_query(0x05,0x3d,0x09,0xA5,0x00);
+			step++;
+	        break;
+
+		case 12 : 	//	Trinkwasserpumpe Q3  05	3d	09	A3
+			bsbport_query(0x05,0x3d,0x09,0xA3,0x00);
+			step++;
+	        break;
+
+		case 13 : 	//	Relaisausgang QX3  05	3d	09	BC -> Kollektorpumpe
+			bsbport_query(0x05,0x3d,0x09,0xBC,0x00);
+			step++;
+	        break;
+
+		case 14 : 	//	Relaisausgang QX4  05	3d	09	BD -> Umschaltung Solar Puffer
+			bsbport_query(0x05,0x3d,0x09,0xBD,0x00);
+			step++;
+	        break;
+
+		case 15 : 	//	Fehlerstatus  		05	3d	00	9A 
+			bsbport_query(0x05,0x3d,0x00,0x9A,0x00);
 			step++;
 	        break;
 			
@@ -159,6 +205,6 @@ bsbport_tx_periodic(void)
 /*
   -- Ethersex META --
   header(protocols/bsbport/bsbport_tx.h)
-  timer(500, bsbport_tx_periodic())
+  timer(157, bsbport_tx_periodic())
 */
 #endif

@@ -201,7 +201,37 @@ void bsbport_calc_value(struct bsbport_msg* msg)
 	{
 		//Query has no value
 	}
-	else if(msg->data[TYPE] == ANSWER)
+	else if(msg->data[TYPE] == ANSWER && msg->data[LEN] == 0x17 && msg->data[P1] == 0x05 && msg->data[P2] == 0x3D && msg->data[P3] == 0x00 && msg->data[P4] == 0x9A)	// Msg with errorcode in byte 2 received
+	{
+#ifdef DEBUG_BSBPORT_PARSE
+	debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ",msg->data[DATA],msg->data[DATA],msg->data[DATA+1],msg->data[LEN],msg->data[TYPE]);
+#endif
+		msg->value_raw = (uint8_t)msg->data[DATA+1];	
+		msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
+		msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
+		msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+	}
+	else if(msg->data[TYPE] == ANSWER && msg->data[LEN] == 14)	// Msg with 3 Databytes received
+	{
+#ifdef DEBUG_BSBPORT_PARSE
+	debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ",msg->data[DATA],msg->data[DATA+1],msg->data[DATA+2],msg->data[LEN],msg->data[TYPE]);
+#endif
+		msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA+1]);	
+		msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
+		msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
+		msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+	}
+	else if(msg->data[TYPE] == ANSWER && msg->data[LEN] == 13)	// Msg with 2 Databytes received
+	{
+#ifdef DEBUG_BSBPORT_PARSE
+	debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ",msg->data[DATA],msg->data[DATA+1],msg->data[DATA+2],msg->data[LEN],msg->data[TYPE]);
+#endif
+		msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);	
+		msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
+		msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
+		msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+	}
+	else if(msg->data[TYPE] == ANSWER )	// Msg with unknow Databytes received
 	{
 #ifdef DEBUG_BSBPORT_PARSE
 	debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ",msg->data[DATA],msg->data[DATA+1],msg->data[DATA+2],msg->data[LEN],msg->data[TYPE]);

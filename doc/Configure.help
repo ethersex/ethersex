@@ -3391,3 +3391,13 @@ DHT_SNMP_SUPPORT
   Make humidity and temperature measured by the DHT available via SNMP. Only one DHT sensor
   is currently supported. OIDs are .5.1.0 (polling delay), .5.2.0 (temperature * 10) and
   .5.3.0 (humidity * 10).
+
+BSBPort Support
+BSBPORT_SUPPORT
+  Depends on: 
+   * TCP support (TCP_SUPPORT)
+
+  Connect to BSB (BoilerSystemBus) a protocol used by many Siemens and Brötje heatingcontrollers (ex. Brötje ISR,RVS,AVS,RGT).
+  External Hardware is needed for level adaption (>7V-13V = 1 <7V-0V = 0).
+  The BSB works with 4800Baud 8 databits odd pariy and 1 stopbit.
+
