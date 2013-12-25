@@ -30,8 +30,6 @@
 #include "bsbport_helper.h"
 #include "bsbport_tx.h"
 
-uint8_t step=0;
-
 // Low-Level sending of message to bus
 uint8_t bsbport_send(uint8_t* msg) {
 

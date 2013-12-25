@@ -20,10 +20,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <avr/io.h>
+#include "config.h"
 #include "bsbport_tx.h"
 #include "bsbport_polling.h"
 
 #ifdef BSBPORT_POLLING
+uint8_t step=0;
 // Query for values at periodic intervalls
 void
 bsbport_polling_periodic(void)
