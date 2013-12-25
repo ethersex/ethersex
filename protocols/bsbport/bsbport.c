@@ -123,7 +123,6 @@ start_sending:
   return 1;
 }
 
-
 ISR(usart(USART, _TX_vect))
 {
   if (bsbport_sendnet_buffer.sent < bsbport_sendnet_buffer.len)	/*	Frist send Bytes in Networkbuffer	*/
