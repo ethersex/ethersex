@@ -104,6 +104,8 @@ fi
 
 	bool 'Debug: Discard some packets' DEBUG_DISCARD_SOME
 	dep_bool_menu "Enable Debugging" DEBUG y
+		choice 'Debug USART channel' "$(usart_choice DEBUG)" 0
+		usart_process_choice DEBUG
 		int "UART Baudrate" DEBUG_BAUDRATE 115200
 		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
 		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG $ARCH_AVR

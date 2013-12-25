@@ -13,6 +13,11 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
     dep_bool "Inline KTY" KTY_INLINE_SUPPORT $VFS_INLINE_SUPPORT $KTY_SUPPORT
     dep_bool "Inline ADC" ADC_INLINE_SUPPORT $VFS_INLINE_SUPPORT $ADC_SUPPORT
     dep_bool "Inline OneWire" ONEWIRE_INLINE_SUPPORT $VFS_INLINE_SUPPORT $ONEWIRE_SUPPORT
+    if [ "$DHT_SUPPORT" = "y" -o "$SHT_SUPPORT" = "y" ]; then
+      dep_bool "Inline humidity & temperature sensors" HAT_INLINE_SUPPORT $VFS_INLINE_SUPPORT
+    else
+      dep_bool "Inline humidity & temperature sensors" HAT_INLINE_SUPPORT $VFS_INLINE_SUPPORT n
+    fi
     dep_bool "Inline Camera" CAMERA_INLINE_SUPPORT $VFS_INLINE_SUPPORT $VFS_DC3840_SUPPORT
     dep_bool "Inline Named Pin" NAMED_PIN_INLINE_SUPPORT $VFS_INLINE_SUPPORT $NAMED_PIN_SUPPORT
     dep_bool "Inline StellaLight" STELLA_INLINE_SUPPORT $VFS_INLINE_SUPPORT $STELLA_SUPPORT

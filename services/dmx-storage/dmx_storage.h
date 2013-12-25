@@ -52,6 +52,7 @@ struct dmx_universe
   uint8_t channels[DMX_STORAGE_CHANNELS];
   struct dmx_slot slots[DMX_STORAGE_SLOTS];
   enum dmx_universe_state universe_state;
+  uint8_t dimmer;
 };
 
 /** 
@@ -71,12 +72,19 @@ int8_t dmx_storage_connect(uint8_t universe);
 */
 void dmx_storage_disconnect(uint8_t universe, int8_t slot);
 /**
-*	@brief Get a channel of an universe of dmx-storage
+*	@brief Get a channel of an universe
 *	@param universe
 *	@param channel
-*	@return the channel value 
+*	@return the channel value
 */
 uint8_t get_dmx_channel(uint8_t universe, uint16_t channel);
+/**
+*	@brief Gets the raw value of a channel of an universe
+*	@param universe
+*	@param channel
+*	@return the channel value
+*/
+uint8_t get_dmx_channel_raw(uint8_t universe, uint16_t channel);
 /**
 *	@brief Returns a channel of an universe of dmx-storage using a slot
 *
@@ -127,7 +135,21 @@ enum dmx_universe_state get_dmx_universe_state(uint8_t universe);
 *	@param state
 *	@return none
 */
-void dmx_set_universe_state(uint8_t universe, enum dmx_universe_state state);
+void set_dmx_universe_state(uint8_t universe, enum dmx_universe_state state);
+
+/**
+ * @brief returns the dimmer of universe
+ * @param universe
+ * @return the current dimmer setting
+ */
+uint8_t get_dmx_universe_dimmer(uint8_t universe);
+
+/**
+ * @brief sets the dimmer value for universe
+ * @param universe
+ * @return none
+ */
+void set_dmx_universe_dimmer(uint8_t universe, uint8_t value);
 
 /**
 *	@brief Initializes the dmx storage module

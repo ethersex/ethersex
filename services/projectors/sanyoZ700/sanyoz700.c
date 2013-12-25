@@ -69,8 +69,8 @@ ISR(usart(USART,_RX_vect))
     (void) v;
     return;
   }
-  uint8_t data = usart(UDR);
 	#ifdef DEBUG_SANYO_Z700
+	uint8_t data = usart(UDR);
 		debug_printf("SANYO Z700 got: %c\n", data);
 	#endif
 }

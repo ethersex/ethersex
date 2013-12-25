@@ -1,43 +1,97 @@
-#!/bin/bash
+#!/bin/sh
 
 . scripts/osdefaults.sh
 
-j=0
-maxper=30
-for i in ".text" ".data" ".bss"
-do
-	val[$j]=$(avr-size -A $1 | ${SED} -e "/$i/!d;s/^$i *//g;s/^\([^ ]*\).*/\1/")
-	let j=$j+1
-done
+FILE="$1"		# e.g. 'ethersex', compiled avr-object
+MCU_TYPE="$2"		# e.g. 'atmega644'
+BOOTLOADER_SUPPORT="$3"	# e.g. 'y' = yes
+BOOTLOADER_SIZE="$4"	# e.g. 8192 = bytes
 
-IMAGESIZE=$(ls -l $1.bin | ${AWK} '{ print $5 }')
-if [ "$3" != "y" ]; then
-  FLASHSIZE=$(echo $(( `echo -e "#include <avr/io.h>\nFLASHEND" | avr-cpp -mmcu=$2 | ${SED} '$!d'` + 1 )))
-else
-  FLASHSIZE=$4
-fi
-PERCENT=$(${AWK} "BEGIN {printf(\"%.2f\", $IMAGESIZE.0 / $FLASHSIZE.0 * 100.0);}")
-PER=$(${AWK} "BEGIN {printf(\"%i\", $IMAGESIZE / $FLASHSIZE * $maxper);}")
+query_mcutype2flashsize()
+{
+	local mcu_type="$1"
+	local hello_world="#include <avr/io.h>\nFLASHEND"
+	local imagesize=$( echo -e "$hello_world" | avr-cpp -mmcu="$mcu_type" | tail -n1 )
 
-echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${PERCENT}%)"
-if [ $IMAGESIZE -gt $FLASHSIZE ];then
-  echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
-  echo ""
-  exit 1
-else
-	echo -n "  ["
-	COUNTER=0
-	while [  $COUNTER -lt $maxper ]; do
-		if [ $COUNTER -lt $PER ]; then
-			echo -n "="
+	# e.g. 0xFFFF + 1 = 65536
+	echo $(( $imagesize + 1 ))
+}
+
+query_avrsize()		# get vars via 'eval'
+{
+	local file="$1"
+	local line
+
+	# defaults, if section does not exist
+	echo "avrsize_text=0"
+	echo "avrsize_data=0"
+	echo "avrsize_bss=0"
+
+	# typical output of: avr-size -A 'ethersex'
+	#
+	# ethersex  :
+	# section      size      addr
+	# .data          44   8388864
+	# .text       28224         0
+	# .bss         2189   8388908
+	# .stab       97728         0
+	# .stabstr    51966         0
+	# .comment       34         0
+	# Total      180185
+
+	avr-size -A "$file" | while read line; do {
+		set -- $line
+		case "$1" in
+			'.text') echo "avrsize_text='$2'" ;;
+			'.data') echo "avrsize_data='$2'" ;;
+			'.bss')  echo "avrsize_bss='$2'" ;;
+		esac
+	} done
+}
+
+show_symbol_bar()
+{
+	local symbol_bar_size=30
+	local symbol_bar_used=$(( ($IMAGESIZE * $symbol_bar_size) / $FLASHSIZE ))
+	local counter=0
+	local bar="  ["
+
+	while [ $counter -lt $symbol_bar_size ]; do {
+		if [ $counter -lt $symbol_bar_used ]; then
+			bar="$bar="
 		else
-			echo -n "-"
+			bar="$bar-"
 		fi
-		let COUNTER=COUNTER+1
-	done
-	echo "]"
+
+		counter=$(( $counter + 1 ))
+	} done
+
+	echo "$bar]"
+}
+
+eval $(query_avrsize "$FILE")
+
+if [ "$BOOTLOADER_SUPPORT" != "y" ]; then
+	FLASHSIZE=$( query_mcutype2flashsize "$MCU_TYPE" )
+else
+	FLASHSIZE="$BOOTLOADER_SIZE"
 fi
-echo ""
-echo -e "Program (.text + .data)\t: $(${AWK} "BEGIN {print ${val[0]}+${val[1]};}") bytes"
-echo -e "Data (.data + .bss)\t:  $(${AWK} "BEGIN {print ${val[2]}+${val[1]};}") bytes"
-echo ""
+
+IMAGESIZE=$( wc -c <"$FILE.bin" )
+FLASH_PERCENT_USED=$(( ($IMAGESIZE * 10000) / $FLASHSIZE ))
+FLASH_PERCENT_USED="$(( $FLASH_PERCENT_USED / 100 )).$(( $FLASH_PERCENT_USED % 100 ))"
+echo "Imagesize: $IMAGESIZE/$FLASHSIZE bytes (${FLASH_PERCENT_USED}%)"
+
+if [ $IMAGESIZE -gt $FLASHSIZE ];then
+	echo "  WARNING! Your Image is too big for the selected chip. WARNING!"
+	echo
+
+	exit 1
+else
+	show_symbol_bar
+fi
+
+echo
+echo "Program (.text + .data)	: $(( $avrsize_text + $avrsize_data )) bytes"
+echo "Data (.data + .bss)	: $(( $avrsize_data + $avrsize_bss  )) bytes"
+echo

@@ -51,8 +51,8 @@ parse_cmd_dmx_get_channel(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
 {
-  uint16_t startchannel = 0, value = 0, channelcounter = 0, blankcounter = 0;
-  uint8_t universe = 0, i = 0;
+  uint16_t startchannel = 0, channelcounter = 0, blankcounter = 0;
+  uint8_t universe = 0, i = 0, value = 0;
   if (cmd[0] != 0)
   {
     while (cmd[i] == ' ')
@@ -63,11 +63,16 @@ parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
       i++;
     if (strncmp_P(cmd + i, PSTR("off"), 3) == 0)
     {
-      dmx_set_universe_state(universe, DMX_BLACKOUT);
+      set_dmx_universe_state(universe, DMX_BLACKOUT);
     }
     else if (strncmp_P(cmd + i, PSTR("on"), 2) == 0)
     {
-      dmx_set_universe_state(universe, DMX_LIVE);
+      set_dmx_universe_state(universe, DMX_LIVE);
+    }
+    else if (strncmp_P(cmd + i, PSTR("dimmer"), 6) == 0)
+    {
+      sscanf_P(cmd+i+6, PSTR("%hhu"), &value);
+      set_dmx_universe_dimmer(universe, value);
     }
     else
     {
@@ -84,8 +89,9 @@ parse_cmd_dmx_set_channels(char *cmd, char *output, uint16_t len)
         i++;
       }
       while (cmd[i] != '\0')
-      {                         //read and write all values
-        sscanf_P(cmd + i, PSTR(" %u"), &value);
+      {
+        /* read and write all values */
+        sscanf_P(cmd + i, PSTR(" %hhu"), &value);
         if (set_dmx_channel(universe, startchannel + channelcounter, value))
           return ECMD_ERR_WRITE_ERROR;
         channelcounter++;
@@ -132,8 +138,8 @@ parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
       return ECMD_ERR_PARSE_ERROR;
     cmd[0] = ECMD_STATE_MAGIC;  /* continuing call: 23 */
     cmd[1] = universe;          /* universe */
-    cmd[2] = 0;                 /* reserved for chan */
-    cmd[3] = 0;                 /* reserved for chan */
+    cmd[2] = 0xff;              /* reserved for chan */
+    cmd[3] = 0xff;              /* reserved for chan */
     if (get_dmx_universe_state(universe) == DMX_LIVE)
       strncpy_P(output, PSTR("LIVE"), 6);
     else
@@ -145,8 +151,18 @@ parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
   /* retrieve chan from *cmd. chan is 16 bit. 
    * cmd[1] in 16 bit is cmd[2] and cmd[3] in 8-bit */
   uint16_t chan = *((uint16_t *) (cmd) + 1);
-  /* request value from dmx-storage */
-  value = get_dmx_channel(universe, chan);
+  if (chan == 0xffff)
+  {
+    /* Output first channel (dimmer) */
+    value = get_dmx_universe_dimmer(universe);
+    chan = 0;
+  }
+  else
+  {
+    /* request value from dmx-storage */
+    value = get_dmx_channel_raw(universe, chan);
+    chan++;
+  }
   /* write the value to *output with leading 0 so that the output 
    * will be like this:
    * 255
@@ -167,14 +183,15 @@ parse_cmd_dmx_get_universe(char *cmd, char *output, uint16_t len)
   /* terminate string */
   output[4] = '\0';
   ret = 5;
-  if (chan < DMX_STORAGE_CHANNELS - 1)
+  if (chan < DMX_STORAGE_CHANNELS)
   {
-    chan++;
     *((uint16_t *) (cmd) + 1) = chan;
     return ECMD_AGAIN(ret);
   }
   else
+  {
     return ECMD_FINAL(ret);
+  }
 }
 #endif
 /*

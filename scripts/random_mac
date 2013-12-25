@@ -1,10 +1,18 @@
 #!/bin/bash
 
-function random_hex() {
-  printf "%02x" $(($RANDOM % 256 ))
+random_hex()
+{
+	printf "%02x" $(($RANDOM % 256 ))
 }
 
-MAC="ac:de:48:$(random_hex):$(random_hex):$(random_hex)"
+random_mac()
+{
+	local prefix="02:ca:fe"
+	# http://de.wikipedia.org/wiki/MAC-Adresse#Stolperfalle:_Kennzeichnung_.E2.80.9EPRIVATE.E2.80.9C
+	# http://de.wikipedia.org/wiki/Locally_Administered_Address
+	# prefix: 'ac:de:48' is private, dont use!
 
-echo "$1=\"$MAC\""
+	echo "$prefix:$( random_hex ):$( random_hex ):$( random_hex )"
+}
 
+echo "$1=\"$( random_mac )\""

@@ -14,7 +14,7 @@ function wol_handler(request, data) {
 }
 </script>
 </head><body>
-<h1>Ethersex Wake on LAN</h1>
+<h1>Wake on LAN</h1>
 <center>
 <p>Enter MAC address:
 <input type="text" id="mac">
