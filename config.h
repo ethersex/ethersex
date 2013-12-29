@@ -38,7 +38,6 @@
 /* global version defines */
 #define USE_BUILDDATE_VERSION 1
 #define USE_GIT_VERSION 2
-#define USE_RELEASE_VERSION 3
 
 #if VERSION_STRING_CHOICE == USE_BUILDDATE_VERSION
     #define VERSION_STRING __DATE__ " " __TIME__
@@ -46,15 +45,7 @@
 #if VERSION_STRING_CHOICE == USE_GIT_VERSION
     #define VERSION_STRING VERSION_GIT
 #else
-#if VERSION_STRING_CHOICE == USE_RELEASE_VERSION
-    #define xstr_(s) str_(s)
-    #define str_(s) #s
-    #define VERSION_MAJOR 0
-    #define VERSION_MINOR 2
-    #define VERSION_STRING xstr_(VERSION_MAJOR)"."xstr_(VERSION_MINOR)" ("VERSION_GIT")"
-#else
     #warning No Version choosen
-#endif
 #endif
 #endif
 
