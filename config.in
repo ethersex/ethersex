@@ -93,12 +93,10 @@ fi
 
 	choice 'Version String'			                    \
 		"GIT-commit-hash       USE_GIT_VERSION	        \
-		Release-Version       USE_RELEASE_VERSION	    \
 		Build-Date-Time       USE_BUILDDATE_VERSION"	\
 		'Release-Version' VERSION_STRING_CHOICE
 
-        if [ "$VERSION_STRING_CHOICE" = "USE_GIT_VERSION" ] || \
-            [ "$VERSION_STRING_CHOICE" = "USE_RELEASE_VERSION" ] ; then
+        if [ "$VERSION_STRING_CHOICE" = "USE_GIT_VERSION" ] ; then
             define_string VERSION_GIT "$(scripts/get-git-version)"
         fi
 
