@@ -1,7 +1,7 @@
 /*
 * ECMD-commands to handle reading DHT humidity & temp sensors
 *
-* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2013-14 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -22,6 +22,8 @@
 */
 
 #include <stdint.h>
+#include <stdio.h>
+#include <avr/pgmspace.h>
 
 #include "config.h"
 #include "core/util/fixedpoint.h"
@@ -32,17 +34,25 @@
 
 int16_t parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
 {
-  return ECMD_FINAL(itoa_fixedpoint(dht_global.temp,1,output));
+  uint8_t sensor = 0;
+  int ret = sscanf_P(cmd, PSTR("%hhu"), &sensor);
+  return (sensor < dht_sensors_count ?
+    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].temp,1,output)) :
+    ECMD_ERR_PARSE_ERROR);
 }
 
 int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
 {
-  return ECMD_FINAL(itoa_fixedpoint(dht_global.humid,1,output));
+  uint8_t sensor = 0;
+  int ret = sscanf_P(cmd, PSTR("%hhu"), &sensor);
+  return (sensor < dht_sensors_count ?
+    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].humid,1,output)) :
+    ECMD_ERR_PARSE_ERROR);
 }
 
 /*
   -- Ethersex META --
   block([[DHT]])
-  ecmd_feature(dht_temp, "dht temp",, Return temperature of DHT sensor)
-  ecmd_feature(dht_humid, "dht humid",, Return humidity of DHT sensor)
+  ecmd_feature(dht_temp, "dht temp", SENSORNUMBER, Return temperature of DHT sensor)
+  ecmd_feature(dht_humid, "dht humid", SENSORNUMBER, Return humidity of DHT sensor)
 */

@@ -1,5 +1,5 @@
 /*
-* Read and convert data from a DHT hygro & temp sensors
+* Configuration for DHT hygro & temp sensors
 *
 * Copyright (c) 2013-14 Erik Kunze <ethersex@erik-kunze.de>
 *
@@ -21,28 +21,19 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef DHT_H
-#define DHT_H
+static const char sensor_name_keller[] PROGMEM = "keller";
+static const char sensor_name_eg[] PROGMEM = "eg";
 
-#include <stdint.h>
+dht_sensor_t dht_sensors[] = {
+  {
+    .port = &PORTB,
+    .pin = PB3,
+    .name = sensor_name_keller
+  },
+  {
+    .port = &PORTA,
+    .pin = PA3,
+    .name = sensor_name_eg
+  }
+};
 
-#define DHT_TYPE_11 11
-#define DHT_TYPE_22 22
-
-typedef struct
-{
-  volatile uint8_t* port;
-  uint8_t pin;
-  const char* name;
-  uint16_t polling_delay;
-  int16_t temp;
-  int16_t humid;
-} dht_sensor_t;
-
-extern dht_sensor_t dht_sensors[];
-extern uint8_t dht_sensors_count;
-
-void dht_init(void);
-void dht_periodic(void);
-
-#endif /* DHT_H */
