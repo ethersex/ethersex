@@ -223,7 +223,7 @@ parse_cmd_version(char *cmd, char *output, uint16_t len)
 {
   (void) cmd;
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("Ethersex %s"), VERSION_STRING));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("ethersex " VERSION_STRING_LONG)));
 }
 
 int16_t
