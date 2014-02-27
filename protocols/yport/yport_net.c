@@ -55,8 +55,8 @@ yport_net_main(void)
     {
       yport_conn = uip_conn;
       uip_conn->wnd = YPORT_BUFFER_LEN - 1;
-	  //delete the receive buffer: 
-	  yport_recv_buffer.len = 0;
+      /* delete the receive buffer */
+      yport_recv_buffer.len = 0;
     }
     else
       /* if we already have a connection, send an error */
