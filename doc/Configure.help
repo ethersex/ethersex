@@ -204,7 +204,8 @@ YPort usart config
 YPORT_USART_CONFIG_8N1
   Select the Line Configuration for the YPort Serial Line
   8N1 stands for: 8 Bit , No Parity, 1 Stopbit
-  
+  8E1 stands for: 8 Bit , Even Parity, 1 Stopbit
+
 Cryptographic functionality
 CRYPTO_SUPPORT
   Enable cryptographic functionality in Ethersex.  You have to
