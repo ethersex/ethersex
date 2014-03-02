@@ -187,6 +187,25 @@ YPORT_SUPPORT
 
   socat PTY,link=/dev/YPort TCP:192.168.1.5:7970
 
+YPort Baudrate  
+YPORT_BAUDRATE
+  Select the Baudrate of the YPort Serial Line
+  typical values are: 
+  1200
+  2400
+  4800
+  9600
+  19200
+  38400
+  57600
+  115200
+  
+YPort usart config
+YPORT_USART_CONFIG_8N1
+  Select the Line Configuration for the YPort Serial Line
+  8N1 stands for: 8 Bit , No Parity, 1 Stopbit
+  8E2 stands for: 8 Bit , Even Parity, 2 Stopbit
+
 Cryptographic functionality
 CRYPTO_SUPPORT
   Enable cryptographic functionality in Ethersex.  You have to
