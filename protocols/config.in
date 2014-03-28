@@ -12,6 +12,7 @@ source protocols/httplog/config.in
 source protocols/irc/config.in
 source protocols/mdns_sd/config.in
 source protocols/modbus/config.in
+source protocols/mqtt/config.in
 source protocols/mysql/config.in
 source protocols/netstat/config.in
 source protocols/radio/config.in

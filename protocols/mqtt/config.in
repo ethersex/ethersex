@@ -1,0 +1,6 @@
+dep_bool_menu "MQTT client" MQTT_SUPPORT $TCP_SUPPORT
+
+	comment  "Debugging Flags"
+	dep_bool 'MQTT Debug Messages' MQTT_DEBUG $DEBUG $MQTT_SUPPORT
+	dep_bool 'MQTT Parse method Debug Messages' MQTT_PARSE_DEBUG $DEBUG $MQTT_SUPPORT
+endmenu
