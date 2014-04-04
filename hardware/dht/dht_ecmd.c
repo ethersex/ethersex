@@ -53,6 +53,6 @@ int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[DHT]])
-  ecmd_feature(dht_temp, "dht temp", SENSORNUMBER, Return temperature of DHT sensor)
-  ecmd_feature(dht_humid, "dht humid", SENSORNUMBER, Return humidity of DHT sensor)
+  ecmd_feature(dht_temp, "dht temp", [SENSORNUMBER], Return temperature of DHT sensor)
+  ecmd_feature(dht_humid, "dht humid", [SENSORNUMBER], Return humidity of DHT sensor)
 */

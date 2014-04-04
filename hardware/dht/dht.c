@@ -96,7 +96,7 @@ and 2 transitions which indicates End Of Frame. In total 84 */
 
 
 /* global variables */
-#include "dht_config.c"
+#include "dht_config.h"
 uint8_t dht_sensors_count = NELEMS(dht_sensors);
 
 
