@@ -50,9 +50,41 @@ int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
     ECMD_ERR_PARSE_ERROR);
 }
 
+int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
+{
+  int16_t ret;
+
+  /* trick: use bytes on cmd as "connection specific static variables" */
+  if (cmd[0] != ECMD_STATE_MAGIC)       /* indicator flag: real invocation:  0 */
+  {
+    cmd[0] = ECMD_STATE_MAGIC;  /* continuing call: 23 */
+    cmd[1] = 0;                 /* counter for sensors in list */
+  }
+
+  uint8_t i = cmd[1];
+
+  /* This is a special case: the while loop below printed a sensor which was
+   * last in the list, so we still need to send an 'OK' after the sensor id */
+  if (i >= dht_sensors_count)
+  {
+    return ECMD_FINAL_OK;
+  }
+
+  cmd[1] = i + 1;
+
+  ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
+
+  /* set return value that the parser has to be called again */
+  if (ret > 0)
+    ret = ECMD_AGAIN(ret);
+
+  return ECMD_FINAL(ret);
+}
+
 /*
   -- Ethersex META --
   block([[DHT]])
   ecmd_feature(dht_temp, "dht temp", [SENSORNUMBER], Return temperature of DHT sensor)
   ecmd_feature(dht_humid, "dht humid", [SENSORNUMBER], Return humidity of DHT sensor)
+  ecmd_feature(dht_list, "dht list", , Return a list of mapped sensor names)
 */

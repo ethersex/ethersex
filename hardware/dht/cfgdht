@@ -37,10 +37,8 @@ echo -e "\ndht_sensor_t dht_sensors[] = {"
 let index=0
 while [ $index -lt $num_sensors ]
 do
-	sensor_port_char=`echo ${sensor_pins[index]} | cut -c 2`
-
 	echo -e "\t{"
-	echo -e "\t\t.port = &PORT${sensor_port_char},"
+	echo -e "\t\t.port = &PORT${sensor_pins[index]:1:1},"
 	echo -e "\t\t.pin = ${sensor_pins[index]},"
 	echo -e "\t\t.name = sensor_name_${sensor_names[index]}"
 	if [ $index -lt $(($num_sensors-1)) ]; then
