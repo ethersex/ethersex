@@ -32,6 +32,7 @@
 #include "dht.h"
 #include "dht_ecmd.h"
 
+#ifdef DHT_TEMP_ECMD_SUPPORT
 int16_t parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
 {
   uint8_t sensor = 0;
@@ -40,7 +41,9 @@ int16_t parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
     ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].temp,1,output)) :
     ECMD_ERR_PARSE_ERROR);
 }
+#endif
 
+#ifdef DHT_HUMID_ECMD_SUPPORT
 int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
 {
   uint8_t sensor = 0;
@@ -49,7 +52,9 @@ int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
     ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].humid,1,output)) :
     ECMD_ERR_PARSE_ERROR);
 }
+#endif
 
+#ifdef DHT_LIST_ECMD_SUPPORT
 int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 {
   int16_t ret;
@@ -72,7 +77,15 @@ int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 
   cmd[1] = i + 1;
 
+#ifdef DHT_LIST_WITH_VALUES_CMD_SUPPORT
   ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
+  /* itoa_fixedpoint does not check for buffer length */
+  ret += itoa_fixedpoint(dht_sensors[i].temp,1,output+ret);
+  output[ret++] = '\t';
+  ret += itoa_fixedpoint(dht_sensors[i].humid,1,output+ret);
+#else
+  ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
+#endif
 
   /* set return value that the parser has to be called again */
   if (ret > 0)
@@ -80,11 +93,18 @@ int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 
   return ECMD_FINAL(ret);
 }
+#endif
 
 /*
   -- Ethersex META --
   block([[DHT]])
-  ecmd_feature(dht_temp, "dht temp", [SENSORNUMBER], Return temperature of DHT sensor)
-  ecmd_feature(dht_humid, "dht humid", [SENSORNUMBER], Return humidity of DHT sensor)
-  ecmd_feature(dht_list, "dht list", , Return a list of mapped sensor names)
+  ecmd_ifdef(DHT_TEMP_ECMD_SUPPORT)
+    ecmd_feature(dht_temp, "dht temp", [SENSORNUMBER], Return temperature of DHT sensor)
+  ecmd_endif()
+  ecmd_ifdef(DHT_HUMID_ECMD_SUPPORT)
+    ecmd_feature(dht_humid, "dht humid", [SENSORNUMBER], Return humidity of DHT sensor)
+  ecmd_endif()
+  ecmd_ifdef(DHT_LIST_ECMD_SUPPORT)
+    ecmd_feature(dht_list, "dht list", , Return a list of mapped sensor names)
+  ecmd_endif()
 */
