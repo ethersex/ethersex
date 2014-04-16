@@ -171,10 +171,10 @@ dht_read(dht_sensor_t *sensor)
 #if DHT_TYPE == DHT_TYPE_11
   t = data[2];
   t *= 10;
-  dht_sensors.temp = t;
+  sensor->temp = t;
   t = data[0];
   t *= 10;
-  dht_sensors.humid = t;
+  sensor->humid = t;
 #elif DHT_TYPE == DHT_TYPE_22
   t = data[2] << 8 | data[3];
   if (t & 0x8000)
