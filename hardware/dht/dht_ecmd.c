@@ -80,6 +80,7 @@ int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 #ifdef DHT_LIST_WITH_VALUES_CMD_SUPPORT
   ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
   /* itoa_fixedpoint does not check for buffer length */
+  output[ret++] = '\t';
   ret += itoa_fixedpoint(dht_sensors[i].temp,1,output+ret);
   output[ret++] = '\t';
   ret += itoa_fixedpoint(dht_sensors[i].humid,1,output+ret);
