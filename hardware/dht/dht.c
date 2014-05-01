@@ -129,7 +129,7 @@ dht_read(dht_sensor_t *sensor)
    * by a non-serviced interrupt. Please never enclose the for-loop
    * with an ATOMIC_BLOCK! */
 
-  uint8_t last_state = PIN_BV(DHT);
+  uint8_t last_state = _BV(pin);
   uint8_t j = 0;
   uint8_t data[5];
   for (uint8_t i = 0; i < MAXTIMINGS; i++)
