@@ -23,11 +23,11 @@
 #include "protocols/ecmd/ecmd-base.h"
 #include "httpd.h"
 
-char PROGMEM httpd_header_500_xml[] =
+static const char PROGMEM httpd_header_500_xml[] =
 "HTTP/1.1 500 Server Error\n"
 "Connection: close\n";
 
-char PROGMEM httpd_header_ct_xml[] =
+static const char PROGMEM httpd_header_ct_xml[] =
 "Content-Type: text/xml; charset=utf-8\n\n";
 
 
