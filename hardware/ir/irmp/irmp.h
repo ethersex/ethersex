@@ -70,6 +70,9 @@ typedef enum
   IRMP_PROTO_ORTEK,             /* ORTEK - Hama */
   IRMP_PROTO_TELEFUNKEN,        /* Telefunken (1560) */
   IRMP_PROTO_ROOMBA,            /* iRobot Roomba vacuum cleaner */
+  IR_RCMM32_PROTOCOL,           /* Fujitsu-Siemens (Activy remote control) */
+  IR_RCMM24_PROTOCOL,           /* Fujitsu-Siemens (Activy remote control) */
+  IR_RCMM12_PROTOCOL            /* Fujitsu-Siemens (Activy remote control) */
 } irmp_prot_e;
 
 typedef struct

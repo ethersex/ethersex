@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.14 2013/04/09 11:59:12 fm Exp $
+ * $Id: irmpprotocols.h,v 1.17 2014/02/20 14:55:17 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,8 +60,11 @@
 #define IRMP_ORTEK_PROTOCOL                     33              // ORTEK - Hama
 #define IRMP_TELEFUNKEN_PROTOCOL                34              // Telefunken (1560)
 #define IRMP_ROOMBA_PROTOCOL                    35              // iRobot Roomba vacuum cleaner
+#define IRMP_RCMM32_PROTOCOL                    36              // Fujitsu-Siemens (Activy remote control)
+#define IRMP_RCMM24_PROTOCOL                    37              // Fujitsu-Siemens (Activy keyboard)
+#define IRMP_RCMM12_PROTOCOL                    38              // Fujitsu-Siemens (Activy keyboard)
 
-#define IRMP_N_PROTOCOLS                        35              // number of supported protocols
+#define IRMP_N_PROTOCOLS                        38              // number of supported protocols
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * timing constants:
@@ -681,7 +684,34 @@ typedef uint8_t     PAUSE_LEN;
 #define ROOMBA_STOP_BIT                         0                               // has stop bit
 #define ROOMBA_LSB                              0                               // MSB...LSB
 #define ROOMBA_FLAGS                            0                               // flags
+#define ROOMBA_FRAMES                           8                               // ROOMBA sends 8 frames (this is a lie, but more comfortable)
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * RC-MM (32, 24, or 12 bit)
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define RCMM32_START_BIT_PULSE_TIME              500.0e-6                       // 500 usec pulse
+#define RCMM32_START_BIT_PAUSE_TIME              220.0e-6                       // 220 usec pause
+#define RCMM32_PULSE_TIME                        230.0e-6                       // 230 usec pulse
+#define RCMM32_00_PAUSE_TIME                     220.0e-6                       // 220 usec pause
+#define RCMM32_01_PAUSE_TIME                     380.0e-6                       // 380 usec pause
+#define RCMM32_10_PAUSE_TIME                     550.0e-6                       // 550 usec pause
+#define RCMM32_11_PAUSE_TIME                     720.0e-6                       // 720 usec pause
+
+#define RCMM32_FRAME_REPEAT_PAUSE_TIME            80.0e-3                       // frame repeat after 80 ms
+#define RCMM32_ADDRESS_OFFSET                    0                              // skip 0 bits
+#define RCMM32_ADDRESS_LEN                      16                              // read 16 address bits
+#define RCMM32_COMMAND_OFFSET                   17                              // skip 17 bits
+#define RCMM32_COMMAND_LEN                      15                              // read 15 bits
+#define RCMM32_COMPLETE_DATA_LEN                32                              // complete length
+#define RCMM32_STOP_BIT                         1                               // has stop bit
+#define RCMM32_LSB                              0                               // LSB...MSB
+#define RCMM32_FLAGS                            0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Frame Repetitions:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
 #define AUTO_FRAME_REPETITION_TIME              80.0e-3                         // SIRCS/SAMSUNG32/NUBERT: automatic repetition after 25-50ms
 
 #endif // _IRMP_PROTOCOLS_H_

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010-2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.h,v 1.16 2013/03/12 12:49:59 fm Exp $
+ * $Id: irsnd.h,v 1.17 2014/02/19 12:57:36 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -53,12 +53,16 @@
 // Do not change lines below until you have a different HW. Example is for 18F2550/18F4550
 // setup macro for PWM used PWM module
 #  if IRSND_OCx == IRSND_PIC_CCP2        
+#    define PWMon()                             TMR2=0,CCP2CON |=0b1100
+#    define PWMoff()                            CCP2CON &=(~0b1100)
 #    define IRSND_PIN                           TRISCbits.TRISC1        // RC1 = PWM2
 #    define SetDCPWM(x)                         SetDCPWM2(x)                    
 #    define ClosePWM                            ClosePWM2
 #    define OpenPWM(x)                          OpenPWM2(x) 
 #  endif
 #  if IRSND_OCx == IRSND_PIC_CCP1        
+#    define PWMon()                             TMR2=0,CCP1CON |=0b1100
+#    define PWMoff()                            CCP1CON &=(~0b1100)
 #    define IRSND_PIN                           TRISCbits.TRISC2        // RC2 = PWM1
 #    define SetDCPWM(x)                         SetDCPWM1(x)
 #    define ClosePWM                            ClosePWM1

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.82 2013/04/09 11:55:39 fm Exp $
+ * $Id: irmp.h,v 1.84 2014/02/19 12:57:36 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -79,6 +79,27 @@
 #  define IRMP_SUPPORT_ROOMBA_PROTOCOL          0
 #endif
 
+#if IRMP_SUPPORT_RC5_PROTOCOL == 1 && IRMP_SUPPORT_ORTEK_PROTOCOL == 1
+#  warning RC5 protocol conflicts wih ORTEK, please enable only one of both protocols
+#  warning ORTEK protocol disabled
+#  undef IRMP_SUPPORT_ORTEK_PROTOCOL
+#  define IRMP_SUPPORT_ORTEK_PROTOCOL           0
+#endif
+
+#if IRMP_SUPPORT_FDC_PROTOCOL == 1 && IRMP_SUPPORT_ORTEK_PROTOCOL == 1
+#  warning FDC protocol conflicts wih ORTEK, please enable only one of both protocols
+#  warning ORTEK protocol disabled
+#  undef IRMP_SUPPORT_ORTEK_PROTOCOL
+#  define IRMP_SUPPORT_ORTEK_PROTOCOL           0
+#endif
+
+#if IRMP_SUPPORT_ORTEK_PROTOCOL == 1 && IRMP_SUPPORT_NETBOX_PROTOCOL == 1
+#  warning ORTEK protocol conflicts wih NETBOX, please enable only one of both protocols
+#  warning NETBOX protocol disabled
+#  undef IRMP_SUPPORT_NETBOX_PROTOCOL
+#  define IRMP_SUPPORT_NETBOX_PROTOCOL          0
+#endif
+
 #if IRMP_SUPPORT_SIEMENS_PROTOCOL == 1 && F_INTERRUPTS < 15000
 #  warning F_INTERRUPTS too low, SIEMENS protocol disabled (should be at least 15000)
 #  undef IRMP_SUPPORT_SIEMENS_PROTOCOL
@@ -125,6 +146,12 @@
 #  warning NEC42 protocol needs also NEC protocol, NEC protocol enabled
 #  undef IRMP_SUPPORT_NEC_PROTOCOL
 #  define IRMP_SUPPORT_NEC_PROTOCOL             1
+#endif
+
+#if IRMP_SUPPORT_RCMM_PROTOCOL == 1 && F_INTERRUPTS < 20000
+#  warning F_INTERRUPTS too low, RCMM protocol disabled (should be at least 20000)
+#  undef IRMP_SUPPORT_RCMM_PROTOCOL
+#  define IRMP_SUPPORT_RCMM_PROTOCOL            0
 #endif
 
 #if F_INTERRUPTS > 20000
