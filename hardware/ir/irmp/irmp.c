@@ -33,7 +33,7 @@
 #include "irmp.h"
 
 
-#if defined(IRMP_SUPPORT_LEGO_PROTOCOL)
+#if defined(IRMP_SUPPORT_LEGO_PROTOCOL) || defined(IRMP_SUPPORT_RCMM_PROTOCOL)
 #define IRMP_HZ            20000        /* interrupts per second */
 #elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL) || defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL) || defined(IRMP_SUPPORT_RUWIDO_PROTOCOL)
 #define IRMP_HZ            15000
