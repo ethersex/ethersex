@@ -21,8 +21,8 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef DHT_H
-#define DHT_H
+#ifndef __DHT_H
+#define __DHT_H
 
 #include <stdint.h>
 
@@ -45,4 +45,4 @@ extern uint8_t dht_sensors_count;
 void dht_init(void);
 void dht_periodic(void);
 
-#endif /* DHT_H */
+#endif /* __DHT_H */
