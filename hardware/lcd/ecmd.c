@@ -177,8 +177,11 @@ int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) < 1) 
-    return ECMD_ERR_PARSE_ERROR;
-
+#ifdef HD44780_BACKLIGHT_INV
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), back_light ? "off" : "on"));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), back_light ? "on" : "off"));
+#endif
   if (!strncmp_P(cmd + 1, PSTR("on"), 2))
 #ifdef HD44780_BACKLIGHT_INV
     hd44780_backlight(0);
