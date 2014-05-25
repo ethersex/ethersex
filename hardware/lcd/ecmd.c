@@ -211,5 +211,5 @@ int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_feature(lcd_init, "lcd reinit", CURSOR BLINK, Reinitialize the display, set whether to show the cursor (CURSOR, 0 or 1) and whether the cursor shall BLINK)
   ecmd_feature(lcd_shift, "lcd shift", DIR, Shift the display to DIR (either ''left'' or ''right''))
-  ecmd_feature(lcd_backlight, "lcd backlight", STATE, switch back light STATE to ON or OFF, without STATE you get Status )
+  ecmd_feature(lcd_backlight, "lcd backlight", [STATE], get or set the state of the lcd backlight)
 */
