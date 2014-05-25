@@ -2410,11 +2410,9 @@ RFM12_ASK_FHT_SUPPORT
   http://fhz4linux.info/tiki-index.php?page=FHT+protocol
 
 Pollin/Kangtai Powerswitch (IC 2272)
-RFM12_ASK_2272_SUPPORT
+PROTO_2272_SUPPORT
   Depends on:
-   * RFM12 frequency (RFM12_FREQ_433920)
-   * RFM12 ASK (RFM12_ASK_SUPPORT)
-   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+   * Radio outlets (433MHz) (PROTO_ASK_SUPPORT)
 
   Several hardware stores and Pollin also distribute a so-called
   Funkschaltset consisting of a wireless remote control and radio
@@ -2424,8 +2422,6 @@ RFM12_ASK_2272_SUPPORT
   house code can be set via DIP five switches. This code is taken from
   the outlets. The remaining five dip switches are then available for
   the five different outlets
-
-  RFM12 frequency has to be set to 422.920MHz..
 
 Start month (1-12)
 DST_BEGIN_MONTH

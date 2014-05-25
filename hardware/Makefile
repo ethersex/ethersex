@@ -25,6 +25,7 @@ SUBSUBDIRS += hardware/pwm
 SUBSUBDIRS += hardware/sms
 SUBSUBDIRS += hardware/radio/fs20
 SUBSUBDIRS += hardware/radio/rfm12
+SUBSUBDIRS += hardware/radio/generic
 SUBSUBDIRS += hardware/sht
 SUBSUBDIRS += hardware/sram
 SUBSUBDIRS += hardware/storage/dataflash

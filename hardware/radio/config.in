@@ -1,0 +1,9 @@
+mainmenu_option next_comment
+
+  comment "Radio"
+
+  source hardware/radio/fs20/config.in
+  source hardware/radio/rfm12/rfm12_ask_config.in
+  source hardware/radio/generic/config.in
+
+endmenu
