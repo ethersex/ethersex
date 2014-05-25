@@ -178,9 +178,9 @@ int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) < 1) 
 #ifdef HD44780_BACKLIGHT_INV
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), back_light ? "off" : "on"));
+    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("off") : PSTR("on"));
 #else
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("%s"), back_light ? "on" : "off"));
+    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("on") : PSTR("off"));
 #endif
   if (!strncmp_P(cmd + 1, PSTR("on"), 2))
 #ifdef HD44780_BACKLIGHT_INV
@@ -211,5 +211,5 @@ int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_feature(lcd_init, "lcd reinit", CURSOR BLINK, Reinitialize the display, set whether to show the cursor (CURSOR, 0 or 1) and whether the cursor shall BLINK)
   ecmd_feature(lcd_shift, "lcd shift", DIR, Shift the display to DIR (either ''left'' or ''right''))
-  ecmd_feature(lcd_backlight, "lcd backlight", STATE, switch back light STATE to ON or OFF )
+  ecmd_feature(lcd_backlight, "lcd backlight", STATE, switch back light STATE to ON or OFF, without STATE you get Status )
 */
