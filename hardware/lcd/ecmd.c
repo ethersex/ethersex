@@ -22,6 +22,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -178,9 +179,9 @@ int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) < 1) 
 #ifdef HD44780_BACKLIGHT_INV
-    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("off") : PSTR("on"));
+    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("off") : PSTR("on")));
 #else
-    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("on") : PSTR("off"));
+    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("on") : PSTR("off")));
 #endif
   if (!strncmp_P(cmd + 1, PSTR("on"), 2))
 #ifdef HD44780_BACKLIGHT_INV
