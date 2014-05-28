@@ -66,6 +66,9 @@ static volatile dmx_tx_state_t dmx_tx_state = DMX_START;
  */
 void dmx_init(void) {
 
+  dmx_tx_state = DMX_START;   // init state machine
+                              // (SRAM is not reset on chip reset)
+
 #if (USE_USART == 0)
   PIN_SET(TXD0);              // set usart tx pin high (mark)
   DDR_CONFIG_OUT(TXD0);       // configure usart tx pin as output
