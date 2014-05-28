@@ -118,7 +118,7 @@ set_dmx_channels(const uint8_t * channel_data, uint8_t universe, uint16_t len)
 {
   /* if our input is bigger than our storage */
   if (len > DMX_STORAGE_CHANNELS)
-    len = DMX_STORAGE_CHANNELS - 1;
+    len = DMX_STORAGE_CHANNELS;
 #ifdef DMX_STORAGE_DEBUG
   debug_printf("DMX STOR: set dmx_channels: Universe: %d Length: %d \n",
                universe, len);
