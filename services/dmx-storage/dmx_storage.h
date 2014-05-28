@@ -108,12 +108,12 @@ uint8_t set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value);
 *
 *	After the channel has been set and the argument value is not equal to the old value
 *	the state of the universe will be changed to DMX_NEWVALUES
-*	@param *start Pointer to the head of DMX data
+*	@param *channel_data Pointer to the head of DMX data
 *	@param universe
 *	@param len Length of the data
 *	@return none
 */
-void set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len);
+void set_dmx_channels(const uint8_t * channel_data, uint8_t universe, uint16_t len);
 /**
 *	@brief Gets the current state of an universe for a specific slot (connection id)
 *	@param universe

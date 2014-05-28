@@ -114,7 +114,7 @@ set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value)
 }
 
 void
-set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len)
+set_dmx_channels(const uint8_t * channel_data, uint8_t universe, uint16_t len)
 {
   /* if our input is bigger than our storage */
   if (len > DMX_STORAGE_CHANNELS)
@@ -127,7 +127,7 @@ set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len)
   {
     for (uint16_t i = 0; i < len; i++)
     {
-      dmx_universes[universe].channels[i] = start[i];
+      dmx_universes[universe].channels[i] = channel_data[i];
 #ifdef DMX_STORAGE_DEBUG
       debug_printf("DMX STOR: Universe: %d chan: %d value %d \n", universe, i,
                    dmx_universes[universe].channels[i]);
