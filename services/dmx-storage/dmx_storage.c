@@ -28,7 +28,7 @@
 
 static struct dmx_universe dmx_universes[DMX_STORAGE_UNIVERSES];
 
-/*This function searchs for a free slot an returns the id*/
+/* This function searches for a free slot an returns the id */
 int8_t
 dmx_storage_connect(uint8_t universe)
 {

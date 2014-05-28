@@ -136,7 +136,7 @@ ntp_newdata(void)
 
   uint32_t ntp_timestamp;
   struct ntp_packet *pkt = uip_appdata;
-  /* We must save an unix timestamp */
+  /* We must save a unix timestamp */
   ntp_timestamp = NTOHL(pkt->rec.seconds) - JAN_1970;
 
 #ifdef DEBUG_NTP
