@@ -349,9 +349,18 @@ FNORD
 
   template $RFM12_SUPPORT << FNORD
     /* port the rfm12 module CS is attached to */
-    pin(SPI_CS_RFM12_0, SPI_CS_HARDWARE)
-
+    pin(SPI_CS_RFM12_0, PD5, OUTPUT)
+    dnl pin(SPI_CS_RFM12_1, PD6, OUTPUT)
+    dnl pin(SPI_CS_RFM12_2, PD7, OUTPUT)
     RFM12_USE_INT(0)
+    dnl RFM12_ASK_SENSE_USE_INT(1)
+    dnl RFM12_FS20_USE_INT(1)
+    dnl pin(STATUSLED_RFM12_TX, PD5, OUTPUT)
+    dnl pin(STATUSLED_RFM12_RX, PD6, OUTPUT)
+FNORD
+
+  template $GENERIC_ASK_SUPPORT << FNORD
+    pin(GENERIC_ASK, PA0, OUTPUT)
 FNORD
 
   template $BLP_SUPPORT << FNORD
@@ -418,12 +427,6 @@ FNORD
   template $EMS_SUPPORT << FNORD
     /* port config for EMS - pin must match USART1 TX line */
     pin(EMS_UART_TX, PD3)
-FNORD
-
-  template $RFM12_SUPPORT << FNORD
-    /* port the rfm12 module CS is attached to */
-    pin(SPI_CS_RFM12, PB0, OUTPUT)
-    RFM12_USE_INT(2)
 FNORD
 
   template $BLP_SUPPORT << FNORD
