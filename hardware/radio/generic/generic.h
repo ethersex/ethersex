@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 #define ASK_TX_ENABLE
-#define ASK_TX_DISABLE
+#define ASK_TX_DISABLE PIN_CLEAR(GENERIC_ASK)
 #define ASK_TX_TRIGGER generic_ask_trigger
 
 void generic_ask_trigger(uint8_t, uint16_t);

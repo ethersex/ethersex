@@ -2,7 +2,7 @@ mainmenu_option next_comment
 
   comment "Radio"
 
-#  source protocols/radio/fs20/config.in
+  source protocols/radio/fs20/config.in
   source protocols/radio/ask/config.in
 
 endmenu
