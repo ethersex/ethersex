@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# typesafety
+declare -a sensor_pins
+declare -a sensor_names
+
+let index=0
+while read pin name wastetonewline
+do
+	[[ "$pin" =~ ^#.* ]] && continue
+	[[ -z "$pin" ]] && continue
+
+	sensor_pins[index]=$pin
+	sensor_names[index]=$name
+
+	let index=index+1
+done
+
+let num_sensors=${#sensor_pins[@]}
+
+if [ $num_sensors -lt 1 ]; then
+	echo "Error: No sensor definitions found. Stop." > /dev/stderr
+	exit 127
+fi
+
+# echo constants for sensor names
+let index=0
+while [ $index -lt $num_sensors ]
+do
+	echo "static const char sensor_name_${sensor_names[index]}[] PROGMEM = \"${sensor_names[index]}\";"
+	let index=index+1
+done
+
+# echo sensor definitions
+echo -e "\ndht_sensor_t dht_sensors[] = {"
+
+let index=0
+while [ $index -lt $num_sensors ]
+do
+	echo -e "\t{"
+	echo -e "\t\t.port = &PORT${sensor_pins[index]:1:1},"
+	echo -e "\t\t.pin = ${sensor_pins[index]},"
+	echo -e "\t\t.name = sensor_name_${sensor_names[index]}"
+	if [ $index -lt $(($num_sensors-1)) ]; then
+		echo -e "\t},"
+	else
+		echo -e "\t}"
+	fi
+
+	let index=index+1
+done
+echo -e "};\n"
+
+exit 0

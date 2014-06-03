@@ -13,7 +13,5 @@ divert(globals_divert)
 
 divert(old_divert)')')
 
-define(`DHT_HUMIDITY', `DHT_USED()dht_global.humid')
-define(`DHT_TEMPERATURE', `DHT_USED()dht_global.temp')
-
-
+define(`DHT_HUMIDITY', `DHT_USED()dht_sensors[$1].humid')
+define(`DHT_TEMPERATURE', `DHT_USED()dht_sensors[$1].temp')

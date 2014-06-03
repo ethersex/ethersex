@@ -1,7 +1,7 @@
 /*
 * ECMD-commands to handle reading DHT humidity & temp sensors
 *
-* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2013-14 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
