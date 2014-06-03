@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmpextlog.c - external logging
  *
- * $Id: irmpextlog.c,v 1.3 2012/06/05 12:00:46 fm Exp $
+ * $Id: irmpextlog.c,v 1.4 2014/02/19 12:57:36 fm Exp $
  *
  * If you cannot use the internal UART logging routine, adapt the
  * source below for your application. The following implementation
@@ -100,8 +100,10 @@ sendextlog (unsigned char data)
 
 #endif //IRMP_EXT_LOGGING
 
+#if defined(PIC_C18)
 static void
 dummy (void)
 {
   // Only to avoid C18 compiler error
 }
+#endif

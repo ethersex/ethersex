@@ -4,7 +4,7 @@
  * for additional information please
  * see http://www.mikrocontroller.net/articles/IRMP
  *
- * Copyright (c) 2010-13 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2010-14 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -33,7 +33,7 @@
 #include "irmp.h"
 
 
-#if defined(IRMP_SUPPORT_LEGO_PROTOCOL)
+#if defined(IRMP_SUPPORT_LEGO_PROTOCOL) || defined(IRMP_SUPPORT_RCMM_PROTOCOL)
 #define IRMP_HZ            20000        /* interrupts per second */
 #elif defined(IRMP_SUPPORT_SIEMENS_PROTOCOL) || defined(IRMP_SUPPORT_RECS80_PROTOCOL) || defined(IRMP_SUPPORT_RECS80EXT_PROTOCOL) || defined(IRMP_SUPPORT_RUWIDO_PROTOCOL)
 #define IRMP_HZ            15000
@@ -212,6 +212,9 @@ static const char proto_a1tvbox[] PROGMEM = "A1TVBOX";
 static const char proto_ortek[] PROGMEM = "ORTEK";
 static const char proto_telefunken[] PROGMEM = "TELEFUNKEN";
 static const char proto_roomba[] PROGMEM = "ROOMBA";
+static const char proto_rcmm32[] PROGMEM = "RCMM32";
+static const char proto_rcmm24[] PROGMEM = "RCMM24";
+static const char proto_rcmm12[] PROGMEM = "RCMM12";
 
 
 const PGM_P const irmp_proto_names[] PROGMEM = {
@@ -251,6 +254,9 @@ const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_ortek,
   proto_telefunken,
   proto_roomba,
+  proto_rcmm32,
+  proto_rcmm24,
+  proto_rcmm12,
 };
 #endif
 
