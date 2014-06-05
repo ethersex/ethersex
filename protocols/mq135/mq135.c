@@ -32,7 +32,7 @@ uint16_t mq135_adc=0;
  * get resistence for given voltage
  */
 long mq135_getres(uint16_t adc) {	
-	return (long)(((uint16_t)adc_get_vref*MQ135_BALANCERESISTOR)/adc-MQ135_BALANCERESISTOR);
+	return (long)(((long)adc_get_vref*MQ135_BALANCERESISTOR)/adc-MQ135_BALANCERESISTOR);
 }
 
 /*
