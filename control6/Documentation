@@ -21,7 +21,7 @@ proto threads at once, which seems to run at the same time.
 Every 6control scipt must be started with `CONTROL_START' and ended with
 `CONTROL_END'. Within this body you can define various actions, which are
 started with ACTION($action_name) and ended with ACTION_END($action_name),
-here the $action_name must be replaced with an unique action identifier.
+here the $action_name must be replaced with a unique action identifier.
 
 Inside the action "tags" you add the code for the specific action. Outside of
 all actions you can write down, how the 6control script should react on

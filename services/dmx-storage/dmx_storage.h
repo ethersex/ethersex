@@ -59,34 +59,34 @@ struct dmx_universe
  *  @name Functions
  */
 /**
-*	@brief Connects a module to an universe of dmx-storage
+*	@brief Connects a module to a universe of dmx-storage
 *	@param universe
 *	@return connection id (>= 0) or -1 when all slots are full
 */
 int8_t dmx_storage_connect(uint8_t universe);
 /**
-*	@brief Disconnects a module from an universe of dmx-storage
+*	@brief Disconnects a module from a universe of dmx-storage
 *	@param universe
 *	@param slot 
 *	@return none
 */
 void dmx_storage_disconnect(uint8_t universe, int8_t slot);
 /**
-*	@brief Get a channel of an universe
+*	@brief Get a channel of a universe
 *	@param universe
 *	@param channel
 *	@return the channel value
 */
 uint8_t get_dmx_channel(uint8_t universe, uint16_t channel);
 /**
-*	@brief Gets the raw value of a channel of an universe
+*	@brief Gets the raw value of a channel of a universe
 *	@param universe
 *	@param channel
 *	@return the channel value
 */
 uint8_t get_dmx_channel_raw(uint8_t universe, uint16_t channel);
 /**
-*	@brief Returns a channel of an universe of dmx-storage using a slot
+*	@brief Returns a channel of a universe of dmx-storage using a slot
 *
 *	the same as get_dmx_channel but it will set the universe's state for the id to DMX_UNCHANGED
 *	@param universe
@@ -96,7 +96,7 @@ uint8_t get_dmx_channel_raw(uint8_t universe, uint16_t channel);
 */
 uint8_t get_dmx_channel_slot(uint8_t universe, uint16_t channel, int8_t slot);
 /**
-*	@brief Sets a channel of an universe of dmx-storage
+*	@brief Sets a channel of a universe of dmx-storage
 *	@param universe
 *	@param channel
 *	@param value
@@ -104,18 +104,19 @@ uint8_t get_dmx_channel_slot(uint8_t universe, uint16_t channel, int8_t slot);
 */
 uint8_t set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value);
 /**
-*	@brief Sets many channels of an universe of dmx-storage
+*	@brief Sets many channels of a universe of dmx-storage
 *
 *	After the channel has been set and the argument value is not equal to the old value
 *	the state of the universe will be changed to DMX_NEWVALUES
-*	@param *start Pointer to the head of DMX data
+*	@param *channel_data Pointer to the head of DMX data
 *	@param universe
+*	@param start_from_channel Index of first channel to be changed
 *	@param len Length of the data
 *	@return none
 */
-void set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len);
+void set_dmx_channels(const uint8_t * channel_data, uint8_t universe, uint16_t start_from_channel, uint16_t len);
 /**
-*	@brief Gets the current state of an universe for a specific slot (connection id)
+*	@brief Gets the current state of a universe for a specific slot (connection id)
 *	@param universe
 *	@param slot
 *	@return the state of the universe for the slot
@@ -123,14 +124,14 @@ void set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len);
 enum dmx_slot_state get_dmx_slot_state(uint8_t universe, int8_t slot);
 
 /**
-*	@brief Gets the current state of an universe
+*	@brief Gets the current state of a universe
 *	@param universe
 *	@return the state of the universe
 */
 enum dmx_universe_state get_dmx_universe_state(uint8_t universe);
 
 /**
-*	@brief Sets the state of an universe
+*	@brief Sets the state of a universe
 *	@param universe
 *	@param state
 *	@return none

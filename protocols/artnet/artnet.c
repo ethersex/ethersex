@@ -316,7 +316,7 @@ artnet_get(void)
         if (artnet_dmxDirection == 0)
         {
           uint16_t len = ((dmx->lengthHi << 8) + dmx->length);
-          set_dmx_channels(&dmx->dataStart, artnet_outputUniverse, len);
+          set_dmx_channels(&dmx->dataStart, artnet_outputUniverse, 0, len);
           if (artnet_sendPollReplyOnChange == TRUE)
           {
             artnet_pollReplyCounter++;
