@@ -72,9 +72,9 @@ parse_cmd_mq135_res(char *cmd, char *output, uint16_t len)
     return
       ECMD_FINAL(snprintf_P(output, len, PSTR("error reading from sensor")));
 #ifdef ECMD_MIRROR_REQUEST
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("mq135 ppm %d"), ret));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("mq135 ppm %u"), ret));
 #else
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%d"), ret));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%u"), ret));
 #endif
 }
 
