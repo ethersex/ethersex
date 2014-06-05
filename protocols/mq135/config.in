@@ -1,0 +1,7 @@
+ dep_bool  "MQ135 Air-Quality Support" MQ135_SUPPORT $ADC_SUPPORT $ARCH_AVR
+    if [ "$MQ135_SUPPORT" = "y" ]; then
+	int "Analoginput for MQ135" MQ135_ADCPORT 5
+        int "default ppm of CO2 for calibration" MQ135_DEFAULTPPM 392
+        int "default Ro for MQ135_DEFAULTPPM ppm of CO2" MQ135_DEFAULTRO 41763
+        int "default BalanceResistor for Rs" MQ135_BALANCERESISTOR 22000
+    fi
