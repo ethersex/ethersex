@@ -48,95 +48,105 @@ bsbport_polling_periodic(void)
 			step++;
             break;
 
-		case 8 : 	//	Trinkwassertemperatur 31	3d	05	2f
+		case 3 : 	//	Trinkwassertemperatur 31	3d	05	2f
 			bsbport_query(0x31,0x3d,0x05,0x2f,0x00);
 			step++;
 	        break;
 
-		case 9 : 	//	Puffertemperatur 1 05	3d	05	34
+		case 4 : 	//	Puffertemperatur 1 05	3d	05	34
 			bsbport_query(0x05,0x3d,0x05,0x34,0x00);
 			step++;
 	        break;
 
-		case 10 : 	//	Puffertemperatur 2 05	3d	05	35
+		case 5 : 	//	Puffertemperatur 2 05	3d	05	35
 			bsbport_query(0x05,0x3d,0x05,0x35,0x00);
 			step++;
 	        break;
 
-		case 16 : 	//	HeizungsVorlauftemperatur
+		case 6 : 	//	HeizungsVorlauftemperatur
 			bsbport_query(0x21,0x3d,0x05,0x18,0x00);
 			step++;
             break;
 
-		case 20 : 	//	Puffertemperatur 3 05	3d	05	36
+		case 7 : 	//	Puffertemperatur 3 05	3d	05	36
 			bsbport_query(0x05,0x3d,0x05,0x36,0x00);
 			step++;
 	        break;
 
 		// Ertrag
-        case 3 : 	//	Tagesertrag Solarenergie 
+        case 8 : 	//	Tagesertrag Solarenergie 
 			bsbport_query(0x49,0x3d,0x05,0x99,0x00);
 			step++;
 	        break;
 
 		// Sollwerte
-		case 4 : 	//	Kompfortsollwert 0x2d 0x3d 0x05 0x8e
+		case 9 : 	//	Kompfortsollwert 0x2d 0x3d 0x05 0x8e
 			bsbport_query(0x2d,0x3d,0x05,0x8e,0x00);
 			step++;
             break;
 
-        case 5 : 	//	Reduziertsollwert 
+        case 10 : 	//	Reduziertsollwert 
 			bsbport_query(0x2d,0x3d,0x05,0x90,0x00);
 			step++;
 	        break;
 
-		case 6 : 	//	Trinkwassersollwert 
+		case 11 : 	//	Trinkwassersollwert 
 			bsbport_query(0x31,0x3d,0x06,0xb9,0x00);
 			step++;
 	        break;
 
-		case 7 : 	//	Trinkwasserreduziertsollwert 
+		case 12 : 	//	Trinkwasserreduziertsollwert 
 			bsbport_query(0x31,0x3d,0x06,0xba,0x00);
 			step++;
 	        break;
 
-		case 17 : 	//	Heizungsvorlaufsollwert 
+		case 13 : 	//	Heizungsvorlaufsollwert 
 			bsbport_query(0x21,0x3d,0x06,0x67,0x00);
 			step++;
 	        break;
 
-		case 18 : 	//	Puffersollwert 
+		case 14 : 	//	Puffersollwert 
 			bsbport_query(0x05,0x3d,0x08,0x83,0x00);
 			step++;
 	        break;
 
-		case 19 : 	//	Kesselsollwert 
+		case 15 : 	//	Kesselsollwert 
 			bsbport_query(0x05,0x3d,0x07,0x83,0x00);
 			step++;
 	        break;
 
 		// Status
-		case 11 : 	//	Heizkreispumpe Q2  05	3d	09	A5
+		case 16 : 	//	Heizkreispumpe Q2  05	3d	09	A5
 			bsbport_query(0x05,0x3d,0x09,0xA5,0x00);
 			step++;
 	        break;
 
-		case 12 : 	//	Trinkwasserpumpe Q3  05	3d	09	A3
+		case 17 : 	//	Trinkwasserpumpe Q3  05	3d	09	A3
 			bsbport_query(0x05,0x3d,0x09,0xA3,0x00);
 			step++;
 	        break;
 
-		case 13 : 	//	Relaisausgang QX3  05	3d	09	BC -> Kollektorpumpe
+		case 18 : 	//	Relaisausgang QX1  05	3d	09	BA -> Kollektorpumpe
+			bsbport_query(0x05,0x3d,0x09,0xBA,0x00);
+			step++;
+	        break;
+
+		case 19 : 	//	Relaisausgang QX2  05	3d	09	BB -> 
+			bsbport_query(0x05,0x3d,0x09,0xBB,0x00);
+			step++;
+	        break;
+
+		case 20 : 	//	Relaisausgang QX3  05	3d	09	BC -> 
 			bsbport_query(0x05,0x3d,0x09,0xBC,0x00);
 			step++;
 	        break;
 
-		case 14 : 	//	Relaisausgang QX4  05	3d	09	BD -> Umschaltung Solar Puffer
+		case 21 : 	//	Relaisausgang QX4  05	3d	09	BD -> Umschaltung Solar Puffer
 			bsbport_query(0x05,0x3d,0x09,0xBD,0x00);
 			step++;
 	        break;
 
-		case 15 : 	//	Fehlerstatus  		05	3d	00	9A 
+		case 22 : 	//	Fehlerstatus  		05	3d	00	9A 
 			bsbport_query(0x05,0x3d,0x00,0x9A,0x00);
 			step++;
 	        break;
