@@ -22,6 +22,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
@@ -177,8 +178,11 @@ int16_t parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
 int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) < 1) 
-    return ECMD_ERR_PARSE_ERROR;
-
+#ifdef HD44780_BACKLIGHT_INV
+    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("off") : PSTR("on")));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, back_light ? PSTR("on") : PSTR("off")));
+#endif
   if (!strncmp_P(cmd + 1, PSTR("on"), 2))
 #ifdef HD44780_BACKLIGHT_INV
     hd44780_backlight(0);
@@ -208,5 +212,5 @@ int16_t parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
   ecmd_endif()
   ecmd_feature(lcd_init, "lcd reinit", CURSOR BLINK, Reinitialize the display, set whether to show the cursor (CURSOR, 0 or 1) and whether the cursor shall BLINK)
   ecmd_feature(lcd_shift, "lcd shift", DIR, Shift the display to DIR (either ''left'' or ''right''))
-  ecmd_feature(lcd_backlight, "lcd backlight", STATE, switch back light STATE to ON or OFF )
+  ecmd_feature(lcd_backlight, "lcd backlight", [STATE], get or set the state of the lcd backlight)
 */

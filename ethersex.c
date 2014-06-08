@@ -137,7 +137,7 @@ main (void)
 
   //FIXME: zum ethersex meta system hinzufügen, aber vor allem anderem initalisieren
   debug_init();
-  debug_printf("Ethersex " VERSION_STRING " (Debug mode)\n");
+  debug_printf("ethersex " VERSION_STRING_LONG " (Debug mode)\n");
 
 #ifdef DEBUG_RESET_REASON
   if (bit_is_set (mcusr_mirror, BORF))

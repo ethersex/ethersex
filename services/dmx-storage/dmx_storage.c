@@ -28,7 +28,7 @@
 
 static struct dmx_universe dmx_universes[DMX_STORAGE_UNIVERSES];
 
-/*This function searchs for a free slot an returns the id*/
+/* This function searches for a free slot an returns the id */
 int8_t
 dmx_storage_connect(uint8_t universe)
 {
@@ -114,20 +114,20 @@ set_dmx_channel(uint8_t universe, uint16_t channel, uint8_t value)
 }
 
 void
-set_dmx_channels(uint8_t * start, uint8_t universe, uint16_t len)
+set_dmx_channels(const uint8_t * channel_data, uint8_t universe, uint16_t start_from_channel, uint16_t len)
 {
   /* if our input is bigger than our storage */
-  if (len > DMX_STORAGE_CHANNELS)
-    len = DMX_STORAGE_CHANNELS - 1;
+  if (start_from_channel + len > DMX_STORAGE_CHANNELS)
+    len = DMX_STORAGE_CHANNELS - start_from_channel;
 #ifdef DMX_STORAGE_DEBUG
-  debug_printf("DMX STOR: set dmx_channels: Universe: %d Length: %d \n",
-               universe, len);
+  debug_printf("DMX STOR: set dmx_channels: Universe: %d Start %d Length: %d \n",
+               universe, start_from_channel, len);
 #endif
   if (universe < DMX_STORAGE_UNIVERSES)
   {
     for (uint16_t i = 0; i < len; i++)
     {
-      dmx_universes[universe].channels[i] = start[i];
+      dmx_universes[universe].channels[start_from_channel + i] = channel_data[i];
 #ifdef DMX_STORAGE_DEBUG
       debug_printf("DMX STOR: Universe: %d chan: %d value %d \n", universe, i,
                    dmx_universes[universe].channels[i]);

@@ -27,7 +27,5 @@
 #ifdef DMX_SUPPORT
 void dmx_init(void);
 void dmx_periodic(void);
-extern volatile uint8_t dmx_index;
-extern volatile uint8_t dmx_txlen;
 #endif /* DMX_SUPPORT */
 #endif /* _DMX_H */

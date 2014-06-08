@@ -42,13 +42,12 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
 
   /* Anzahl Stellen bestimmen */
   uint8_t digits = 1;
-  int16_t m = 10;
-  while (m <= n)
+  int16_t m = 1;
+  while (m <= n/10)
   {
     m *= 10;
     digits++;
   }
-  m /= 10;
 
   /* Vorkommastellen? */
   if (digits <= fixeddigits)

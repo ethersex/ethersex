@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2013 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpsystem.h,v 1.8 2013/01/17 07:33:13 fm Exp $
+ * $Id: irmpsystem.h,v 1.10 2014/02/19 12:57:36 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 #elif defined(TARGET_IS_BLIZZARD_RA2)                                                                                           // TI Stellaris (tested on Stellaris Launchpad with Code Composer Studio)
 #  define STELLARIS_ARM_CORTEX_M4
 #  define F_CPU (SysCtlClockGet())
-#elif defined(unix) || defined(WIN32)                                               // Unix/Linux or Windows
+#elif defined(unix) || defined(WIN32) || defined(__APPLE__)                         // Unix/Linux or Windows or Apple
 #  define UNIX_OR_WINDOWS
 #else
 #  define ATMEL_AVR                                                                 // ATMEL AVR
@@ -54,7 +54,6 @@
 #  include <stdlib.h>
 #  define F_CPU 8000000L
 #  define ANALYZE
-#  define DEBUG
 #  ifdef unix
 #    include <stdint.h>
 #  else

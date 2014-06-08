@@ -27,33 +27,33 @@ ARCH_AVR=y
 MCU=at90can128
 at90can128=y
 FREQ=16000000
+# Arduino_Duemilanove is not set
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
 # alpengluehn is not set
 # antares_I is not set
 # antares_IO is not set
 # antares_O is not set
-# Arduino_Duemilanove is not set
 HARDWARE=beteigeuze
 beteigeuze=y
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
-# netio_addon is not set
 # netio is not set
+# netio_addon is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -73,13 +73,12 @@ EEPROM_PAGESIZE=0x8
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-# USE_GIT_VERSION is not set
-VERSION_STRING_CHOICE=USE_RELEASE_VERSION
-USE_RELEASE_VERSION=y
-# USE_BUILDDATE_VERSION is not set
-VERSION_GIT="8b0ead7"
+GIT_VERSION="354cf91"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
+DEBUG_USART_0=y
+# DEBUG_USART_1 is not set
+DEBUG_USE_USART=0
 DEBUG_BAUDRATE=115200
 DEBUG_USE_SYSLOG=y
 # SOFT_UART_SUPPORT is not set
@@ -126,6 +125,7 @@ VFS_IO_INLINE_SUPPORT=y
 # KTY_INLINE_SUPPORT is not set
 ADC_INLINE_SUPPORT=y
 ONEWIRE_INLINE_SUPPORT=y
+# HAT_INLINE_SUPPORT is not set
 # CAMERA_INLINE_SUPPORT is not set
 # NAMED_PIN_INLINE_SUPPORT is not set
 # STELLA_INLINE_SUPPORT is not set
@@ -914,3 +914,113 @@ TANKLEVEL_HOLD_TIME=20
 USART_SUPPORT=y
 # RFM12_SUPPORT is not set
 IPV4_SUPPORT=y
+
+#
+# AVRDUDE configuration
+#
+# _2232HIO is not set
+# _4232h is not set
+# _89isp is not set
+# abcmini is not set
+# alf is not set
+# arduino is not set
+# _arduino_ft232r is not set
+# atisp is not set
+# avr109 is not set
+# avr910 is not set
+# avr911 is not set
+# avrftdi is not set
+# avrisp is not set
+# avrisp2 is not set
+CONFIG_AVRDUDE_PROGRAMMER=avrispmkII
+avrispmkII=y
+# avrispv2 is not set
+# bascom is not set
+# blaster is not set
+# bsd is not set
+# buspirate is not set
+# buspirate_bb is not set
+# butterfly is not set
+# butterfly_mk is not set
+# bwmega is not set
+# c2n232i is not set
+# dapa is not set
+# dasa is not set
+# dasa3 is not set
+# diecimila is not set
+# dragon_dw is not set
+# dragon_hvsp is not set
+# dragon_isp is not set
+# dragon_jtag is not set
+# dragon_pdi is not set
+# dragon_pp is not set
+# dt006 is not set
+# _ere_isp_avr is not set
+# _frank_stk200 is not set
+# ft232r is not set
+# ft245r is not set
+# futurlec is not set
+# jtag1 is not set
+# jtag1slow is not set
+# jtag2 is not set
+# jtag2avr32 is not set
+# jtag2dw is not set
+# jtag2fast is not set
+# jtag2isp is not set
+# jtag2pdi is not set
+# jtag2slow is not set
+# jtag3 is not set
+# jtag3dw is not set
+# jtag3isp is not set
+# jtag3pdi is not set
+# jtagkey is not set
+# jtagmkI is not set
+# jtagmkII is not set
+# jtagmkII_avr32 is not set
+# lm3s811 is not set
+# mib510 is not set
+# mkbutterfly is not set
+# nibobee is not set
+# _o_link is not set
+# openmoko is not set
+# pavr is not set
+# pickit2 is not set
+# picoweb is not set
+# _pony_stk200 is not set
+# ponyser is not set
+# siprog is not set
+# sp12 is not set
+# stk200 is not set
+# stk500 is not set
+# stk500hvsp is not set
+# stk500pp is not set
+# stk500v1 is not set
+# stk500v2 is not set
+# stk600 is not set
+# stk600hvsp is not set
+# stk600pp is not set
+# usbasp is not set
+# _usbasp_clone is not set
+# usbtiny is not set
+# wiring is not set
+# xil is not set
+AVRDUDE_PROGRAMMER=avrispmkII
+CONFIG_AVRDUDE_PORT="usb"
+AVRDUDE_PORT=usb
+# CONFIG_AVRDUDE_VERBOSE is not set
+AVRDUDE_VERBOSE=-v
+# CONFIG_AVRDUDE_NO_VERIFY is not set
+# CONFIG_AVRDUDE_ERASE_COUNTER is not set
+# AVRDUDE_BITCLOCK_4 is not set
+CONFIG_AVRDUDE_BITCLOCK=AVRDUDE_BITCLOCK_1
+AVRDUDE_BITCLOCK_1=y
+# AVRDUDE_BITCLOCK_05 is not set
+# AVRDUDE_BITCLOCK_03 is not set
+AVRDUDE_BITCLOCK="-B 1"
+CONFIG_AVRDUDE_EXTRA_OPTIONS=""
+CONFIG_AVRDUDE_LFUSE=FF
+AVRDUDE_LFUSE=0xFF
+CONFIG_AVRDUDE_HFUSE=DF
+AVRDUDE_HFUSE=0xDF
+CONFIG_AVRDUDE_EFUSE=FD
+AVRDUDE_EFUSE=0xFD

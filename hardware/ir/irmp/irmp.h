@@ -4,7 +4,7 @@
  * for additional information please
  * see http://www.mikrocontroller.net/articles/IRMP
  *
- * Copyright (c) 2010-13 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2010-14 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -70,6 +70,9 @@ typedef enum
   IRMP_PROTO_ORTEK,             /* ORTEK - Hama */
   IRMP_PROTO_TELEFUNKEN,        /* Telefunken (1560) */
   IRMP_PROTO_ROOMBA,            /* iRobot Roomba vacuum cleaner */
+  IR_RCMM32_PROTOCOL,           /* Fujitsu-Siemens (Activy remote control) */
+  IR_RCMM24_PROTOCOL,           /* Fujitsu-Siemens (Activy remote control) */
+  IR_RCMM12_PROTOCOL            /* Fujitsu-Siemens (Activy remote control) */
 } irmp_prot_e;
 
 typedef struct

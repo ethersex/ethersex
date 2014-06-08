@@ -1,7 +1,7 @@
 /*
-* Read and convert data from a DHT hygro & temp sensor
+* Read and convert data from a DHT hygro & temp sensors
 *
-* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2013-14 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -21,8 +21,8 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#ifndef DHT_H
-#define DHT_H
+#ifndef __DHT_H
+#define __DHT_H
 
 #include <stdint.h>
 
@@ -31,14 +31,18 @@
 
 typedef struct
 {
+  volatile uint8_t* port;
+  uint8_t pin;
+  const char* name;
   uint16_t polling_delay;
   int16_t temp;
   int16_t humid;
-} dht_global_t;
+} dht_sensor_t;
 
-extern dht_global_t dht_global;
+extern dht_sensor_t dht_sensors[];
+extern uint8_t dht_sensors_count;
 
 void dht_init(void);
 void dht_periodic(void);
 
-#endif /* DHT_H */
+#endif /* __DHT_H */

@@ -1,7 +1,7 @@
 /*
-* Read and convert data from a DHT hygro & temp sensor
+* Read and convert data from a DHT hygro & temp sensors
 *
-* Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2013-14 Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -92,36 +92,51 @@ so 40 x 2 = 80 transitions. Also we have 2 transistions DHT response
 and 2 transitions which indicates End Of Frame. In total 84 */
 #define MAXTIMINGS 84
 
+#define NELEMS(x) (sizeof(x)/sizeof(x[0]))
+
+
 /* global variables */
-dht_global_t dht_global;
+#include "dht_config.h"
+uint8_t dht_sensors_count = NELEMS(dht_sensors);
+
 
 static void
-dht_start(void)
+dht_start(dht_sensor_t *sensor)
 {
-  DDR_CONFIG_OUT(DHT);
-  PIN_CLEAR(DHT);
+  DHT_DEBUG("start %S", sensor->name);
+
+  volatile uint8_t * port = sensor->port;
+  uint8_t pin  = sensor->pin;
+
+  *(port-1) |= _BV(pin); /* OUTPUT */
+  *(port-0) &= ~_BV(pin); /* LOW LEVEL */
 }
 
 static void
-dht_read(void)
+dht_read(dht_sensor_t *sensor)
 {
-  PIN_SET(DHT);
+  DHT_DEBUG("read %S", sensor->name);
+
+  volatile uint8_t * port = sensor->port;
+  uint8_t pin  = sensor->pin;
+
+  *(port-0) |= _BV(pin); /* HIGH LEVEL */
   _delay_us(30);
-  DDR_CONFIG_IN(DHT);
+  *(port-1) &= ~_BV(pin); /* INPUT */
 
   /* Read in timingss, which takes approx. 4,5 milliseconds.
    * We do not disable interrupts, because a failed read is outweighed
    * by a non-serviced interrupt. Please never enclose the for-loop
    * with an ATOMIC_BLOCK! */
 
-  uint8_t last_state = PIN_BV(DHT);
+  uint8_t last_state = _BV(pin);
   uint8_t j = 0;
   uint8_t data[5];
   for (uint8_t i = 0; i < MAXTIMINGS; i++)
   {
     uint8_t counter = 0;
     uint8_t current_state;
-    while (last_state == (current_state = PIN_HIGH(DHT)))
+    while (last_state == (current_state = *(port-2) & _BV(pin)))
     {
       _delay_us(5);
       if (++counter == 20)
@@ -156,10 +171,10 @@ dht_read(void)
 #if DHT_TYPE == DHT_TYPE_11
   t = data[2];
   t *= 10;
-  dht_global.temp = t;
+  sensor->temp = t;
   t = data[0];
   t *= 10;
-  dht_global.humid = t;
+  sensor->humid = t;
 #elif DHT_TYPE == DHT_TYPE_22
   t = data[2] << 8 | data[3];
   if (t & 0x8000)
@@ -167,33 +182,48 @@ dht_read(void)
     t &= ~0x8000;
     t = -t;
   }
-  dht_global.temp = t;
+  sensor->temp = t;
   t = data[0] << 8 | data[1];
-  dht_global.humid = t;
+  sensor->humid = t;
 #endif
-  DHT_DEBUG("t=%d, h=%d%%", dht_global.temp, dht_global.humid);
+  DHT_DEBUG("%S t=%d, h=%d%%", sensor->name, sensor->temp, sensor->humid);
 }
 
 void
 dht_init(void)
 {
-  DDR_CONFIG_IN(DHT);
+  uint16_t delay = DHT_POLLING_INTERVAL * HZ;
 
-  dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ;
+  for (uint8_t i = 0; i < NELEMS(dht_sensors); i++)
+  {
+    DHT_DEBUG("init %S", dht_sensors[i].name);
+
+    volatile uint8_t * port = pgm_read_byte(&dht_sensors[i].port);
+    uint8_t pin  = pgm_read_byte(&dht_sensors[i].pin);
+
+    *(port-1) &= ~_BV(pin);
+    dht_sensors[i].polling_delay = delay;
+    delay += 5 * HZ;
+  }
 }
 
 void
 dht_periodic(void)
 {
-  if (dht_global.polling_delay == 0)
+  for (uint8_t i = 0; i < NELEMS(dht_sensors); i++)
   {
-    /* read sensor data */
-    dht_read();
-    dht_global.polling_delay = DHT_POLLING_INTERVAL * HZ;
-  }
-  else if (--dht_global.polling_delay == 0)
-  {
-    dht_start();
+    dht_sensor_t * sensor = &dht_sensors[i];
+
+    if (sensor->polling_delay == 0)
+    {
+      /* read sensor data */
+      dht_read(sensor);
+      sensor->polling_delay = DHT_POLLING_INTERVAL * HZ;
+    }
+    else if (--sensor->polling_delay == 0)
+    {
+      dht_start(sensor);
+    }
   }
 }
 
