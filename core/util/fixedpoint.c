@@ -41,7 +41,7 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
   }
 
   /* Number of digits to output */
-  /* if fixeddigits, then output at least fixeddigits + 1 digits */
+  /* Output at least fixeddigits + 1 digits */
   uint8_t digits = 1;
   int16_t m = 1;
   while ((m <= n / 10) || (digits < fixeddigits + 1))
