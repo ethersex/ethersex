@@ -40,55 +40,30 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
     n = -n;
   }
 
-  /* Anzahl Stellen bestimmen */
+  /* Number of digits to output */
+  /* Output at least fixeddigits + 1 digits */
   uint8_t digits = 1;
   int16_t m = 1;
-  while (m <= n/10)
+  while ((m <= n / 10) || (digits < fixeddigits + 1))
   {
     m *= 10;
     digits++;
   }
 
-  /* Vorkommastellen? */
-  if (digits <= fixeddigits)
+  while (digits > 0)
   {
-    s[len++] = '0';
-  }
-  else
-  {
-    /* Vorkommastellen ausgeben */
-    while (digits > fixeddigits)
+    uint8_t i;
+    /* Decimal point? */
+    if (digits == fixeddigits)
     {
-      uint8_t i;
-      for (i = '0'; n >= m; n -= m, i++);
-      s[len++] = i;
-      m /= 10;
-      digits--;
+      s[len++] = '.';
     }
+    for (i = '0'; n >= m; n -= m, i++);
+    s[len++] = i;
+    m /= 10;
+    digits--;
   }
 
-  /* Nachkommastellen? */
-  if (fixeddigits)
-  {
-    s[len++] = '.';
-
-    /* Mit Nullen auffüllen */
-    while (digits < fixeddigits)
-    {
-      s[len++] = '0';
-      fixeddigits--;
-    }
-
-    /* Nachkommestellen ausgeben */
-    while (fixeddigits)
-    {
-      uint8_t i;
-      for (i = '0'; n >= m; n -= m, i++);
-      s[len++] = i;
-      m /= 10;
-      fixeddigits--;
-    }
-  }
   s[len] = '\0';
 
   return len;
