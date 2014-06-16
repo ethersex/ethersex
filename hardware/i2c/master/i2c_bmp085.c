@@ -207,17 +207,17 @@ end:
     return ret;
 }
 
-void bmp085_calc(int32_t ut, int32_t up, int32_t *tval, int32_t *pval)
+void bmp085_calc(int32_t ut, int32_t up, int16_t *tval, int32_t *pval)
 {
     int32_t x1, x2, x3, b3, b5, b6, p;
     uint32_t b4, b7;
 
     // see datasheet for formula
     
-    x1 = ((int32_t)ut - cal.ac6) * cal.ac5 >> 15;
+    x1 = (ut - cal.ac6) * cal.ac5 >> 15;
     x2 = ((int32_t) cal.mc << 11) / (x1 + cal.md);
     b5 = x1 + x2;
-    *tval = (b5 + 8) >> 4;
+    *tval = ((b5 + 8) >> 4);
 
     if (pval==NULL)
         return;
@@ -255,10 +255,11 @@ void bmp085_calc(int32_t ut, int32_t up, int32_t *tval, int32_t *pval)
     return;
 }
 
-int32_t bmp085_get_temp()
+int16_t bmp085_get_temp()
 {
-    int32_t ut = 0, tval; //Needs to be initialized to 0 because bmp085_read only reads 2 bytes
-    
+    int32_t ut = 0; //Needs to be initialized to 0 because bmp085_read only reads 2 bytes
+    int16_t tval;     
+
     if (!cal.initialized)
         bmp085_readCal(I2C_BMP085_OVERSAMPLING);
     
@@ -287,7 +288,8 @@ int32_t bmp085_get_temp()
 
 int32_t bmp085_get_abs_press()
 {
-    int32_t ut = 0, tval; //See above
+    int32_t ut = 0; 
+    int16_t tval;
     int32_t up = 0, pval;
 
     if (!cal.initialized)
