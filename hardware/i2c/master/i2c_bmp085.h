@@ -59,7 +59,7 @@ uint8_t bmp085_read(uint8_t regaddr, uint8_t bytes, void* buffer);
 uint8_t bmp085_readCal(uint8_t oss);
 uint8_t bmp085_startMeas(bmp085_meas_t type);
 
-void bmp085_calc(int16_t ut, int32_t up, int16_t *tval, int32_t *pval);
+void bmp085_calc(int32_t ut, int32_t up, int16_t *tval, int32_t *pval);
 void bmp085_init(void);
 
 int16_t bmp085_get_temp();
