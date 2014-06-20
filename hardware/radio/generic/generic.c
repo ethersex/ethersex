@@ -32,11 +32,11 @@ generic_ask_trigger(uint8_t level, uint16_t us)
 {
   if (level)
   {
-    PIN_SET(GENERIC_ASK);
+    PIN_SET(GENERIC_ASK_TX);
   }
   else
   {
-    PIN_CLEAR(GENERIC_ASK);
+    PIN_CLEAR(GENERIC_ASK_TX);
   }
   for (; us > 0; us--)
     _delay_us(1);
