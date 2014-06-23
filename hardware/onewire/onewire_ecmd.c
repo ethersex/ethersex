@@ -122,8 +122,9 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 
 #endif
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
-        char temperature[6];
-        itoa_fixedpoint(ow_sensors[i].temp, 1, temperature);
+        char temperature[7];
+        itoa_fixedpoint(ow_sensors[i].temp.val,
+                        ow_sensors[i].temp.twodigits + 1, temperature);
 #endif
         ret = snprintf_P(output, len, PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -357,7 +358,9 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     /* search the sensor... */
     ow_sensor_t *sensor = ow_find_sensor(&rom);
     if (sensor != NULL)
-      ret = itoa_fixedpoint(sensor->temp, 1, output);
+      ret =
+        itoa_fixedpoint(sensor->temp.val, sensor->temp.twodigits + 1,
+                        output);
     else
       ret = snprintf_P(output, len, PSTR("sensor not in list!"));
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -434,10 +437,9 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     }
 
     debug_printf("successfully read scratchpad\n");
-    int16_t temp = ow_temp_normalize(&rom, &sp);
+    ow_temp_t temp = ow_temp_normalize(&rom, &sp);
+    ret = itoa_fixedpoint(temp.val, temp.twodigits + 1, output);
     debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
-    temp = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
-    ret = itoa_fixedpoint(temp, 1, output);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
   }
@@ -562,7 +564,8 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
   ow_sensors[pos].ow_rom_code.raw = rom.raw;
   strncpy(ow_sensors[pos].name, name, OW_NAME_LENGTH);
 #ifdef ONEWIRE_POLLING_SUPPORT
-  ow_sensors[pos].temp = 0;
+  ow_sensors[pos].temp.val = 0;
+  ow_sensors[pos].temp.twodigits = 0;
   ow_polling_interval = 1;
 #endif
 
@@ -574,7 +577,8 @@ parse_cmd_onewire_name_set(char *cmd, char *output, uint16_t len)
       ow_sensors[i].named = 0;
 #ifdef ONEWIRE_POLLING_SUPPORT
       ow_sensors[i].present = 0;
-      ow_sensors[i].temp = 0;
+      ow_sensors[i].temp.val = 0;
+      ow_sensors[i].temp.twodigits = 0;
 #endif
     }
   }
