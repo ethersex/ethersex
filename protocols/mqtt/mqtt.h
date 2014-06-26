@@ -120,6 +120,7 @@ typedef struct
 // PUBLIC FUNCTIONS
 
 void mqtt_set_connection_config(mqtt_connection_config_t const *config);
+bool mqtt_is_connected(void);
 
 // put a packet in the mqtt send queue
 // return false if there is not enough buffer space

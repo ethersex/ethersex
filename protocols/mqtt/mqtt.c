@@ -166,6 +166,7 @@ static void mqtt_init(void);
 void mqtt_periodic(void);
 
 void mqtt_set_connection_config(mqtt_connection_config_t const *config);
+bool mqtt_is_connected(void);
 
 
 /*********************
@@ -1076,6 +1077,12 @@ void
 mqtt_set_connection_config(mqtt_connection_config_t const *config)
 {
   con_config = config;
+}
+
+bool
+mqtt_is_connected(void)
+{
+  return (bool) mqtt_conn;
 }
 
 /*
