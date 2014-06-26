@@ -39,14 +39,14 @@
  *  - the close_callback will be fired on a connection close/abort
  *    (if supplied)
  *
- * make sure to only write packets when the connection is established
+ * Make sure to only write packets when the connection is established
  * (mqtt_is_connected() returns true), which is guaranteed during the
  * connack, poll, publish callbacks.
  *
- * The MQTT_SENBUFFER_LENGTH can be configured freely, however do not increase
+ * The MQTT_SENDBUFFER_LENGTH can be configured freely, however do not increase
  * its value above 256. For values >256 the state variables need to be 16 bit.
  *
- * May an explanation of the buffer layout is in order:
+ * Maybe an explanation of the buffer layout is in order:
  *
  * The send_buffer is used for multiple purposes. It may contain (in this
  * order):
@@ -66,7 +66,14 @@
  *    When new data is added the whole receive buffer segment will be copied
  *    the need amount of bytes backward.
  *
- *  *Note*:
+ *
+ *  *Limitations*:
+ *
+ *  - Only one simultaneous connection
+ *  - Only one topic per subscription message
+ *  - QoS level 0 only (for publish and subscription messages)
+ *
+ *  Note:
  *
  *  Because of the implementation, the code can actually work with incoming
  *  packets larger than MQTT_SENDBUFFER_LENGTH, but only if they arrive within
@@ -534,6 +541,8 @@ construct_zerolength_packet(uint8_t msg_type)
 // MQTTPUBREC
 // MQTTPUBREL // qos of 1 is automatically added
 // MQTTPUBCOMP
+//
+// msgid is the id of the message being ack'ed
 bool
 construct_ack_packet(uint8_t msg_type, uint16_t msgid)
 {

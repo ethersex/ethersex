@@ -131,6 +131,7 @@ bool construct_zerolength_packet(uint8_t msg_type);
 bool construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 
 
+// INTERNAL
 void mqtt_periodic(void);
 
 
