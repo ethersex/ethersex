@@ -132,7 +132,7 @@ static uint16_t timer_counter = 0;
 
 static inline void abort_connection(void);
 static inline uint8_t MQTT_LF_LENGTH(uint16_t length);
-static inline void mqtt_reset(void);
+static inline void mqtt_reset_state(void);
 static inline void make_new_message_id(void);
 static inline uint16_t minimum(uint16_t a, uint16_t b);
 
@@ -193,7 +193,7 @@ MQTT_LF_LENGTH(uint16_t length)
 
 // reset state
 static inline void
-mqtt_reset(void)
+mqtt_reset_state(void)
 {
   send_buffer_last_length = send_buffer_current_head = receive_buffer_length
     = receive_packet_length = 0;
@@ -1059,7 +1059,7 @@ mqtt_init(void)
 
     MQTTDEBUG ("initializing mqtt client\n");
 
-    mqtt_reset(); // reset state
+    mqtt_reset_state(); // reset state
     // uip_connect wants a non-constant pointer
     mqtt_conn = uip_connect((uip_ipaddr_t*) &con_config->target_ip, HTONS(1883), mqtt_main);
 
