@@ -124,12 +124,12 @@ bool mqtt_is_connected(void);
 
 // put a packet in the mqtt send queue
 // return false if there is not enough buffer space
-bool construct_publish_packet(char const *topic, const void *payload,
+bool mqtt_construct_publish_packet(char const *topic, const void *payload,
     uint16_t payload_length, bool retain);
-bool construct_subscribe_packet(char const *topic);
-bool construct_unsubscribe_packet(char const *topic);
-bool construct_zerolength_packet(uint8_t msg_type);
-bool construct_ack_packet(uint8_t msg_type, uint16_t msgid);
+bool mqtt_construct_subscribe_packet(char const *topic);
+bool mqtt_construct_unsubscribe_packet(char const *topic);
+bool mqtt_construct_zerolength_packet(uint8_t msg_type);
+bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 
 
 // INTERNAL

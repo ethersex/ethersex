@@ -32,7 +32,7 @@
  *  - call mqtt_set_connection_config(.)
  *  - the connection will be established in the next uip_poll cycle
  *  - the connack_callback will be fired (if supplied)
- *  - you may subscribe to topics using construct_subscribe_packet(.)
+ *  - you may subscribe to topics using mqtt_construct_subscribe_packet(.)
  *  - the poll_callback will be fired each uip_poll cycle (if supplied)
  *  - the publish_callback will be fired when a publish packet arrives
  *    (if supplied)
@@ -146,13 +146,13 @@ static uint8_t mqtt_buffer_write_length_field(uint8_t *buffer,
     uint16_t length);
 static bool mqtt_write_to_receive_buffer(const void *data, uint16_t length);
 
-static bool construct_connect_packet(void);
-bool construct_publish_packet(char const *topic, const void *payload,
+static bool mqtt_construct_connect_packet(void);
+bool mqtt_construct_publish_packet(char const *topic, const void *payload,
     uint16_t payload_length, bool retain);
-bool construct_subscribe_packet(char const *topic);
-bool construct_unsubscribe_packet(char const *topic);
-bool construct_zerolength_packet(uint8_t msg_type);
-bool construct_ack_packet(uint8_t msg_type, uint16_t msgid);
+bool mqtt_construct_subscribe_packet(char const *topic);
+bool mqtt_construct_unsubscribe_packet(char const *topic);
+bool mqtt_construct_zerolength_packet(uint8_t msg_type);
+bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 
 static void mqtt_handle_packet(const void *data, uint8_t llen,
     uint16_t packet_length);
@@ -342,7 +342,7 @@ mqtt_write_to_receive_buffer(const void *data, uint16_t length)
  *********************/
 
 static bool
-construct_connect_packet(void)
+mqtt_construct_connect_packet(void)
 {
   uint8_t protocol_string[9] =
     {0x00,0x06,'M','Q','I','s','d','p',MQTTPROTOCOLVERSION};
@@ -422,7 +422,7 @@ construct_connect_packet(void)
 
 
 bool
-construct_publish_packet(char const *topic, const void *payload,
+mqtt_construct_publish_packet(char const *topic, const void *payload,
     uint16_t payload_length, bool retain)
 {
   // maybe make this a parameter (at least qos=1 should already be operational)
@@ -464,7 +464,7 @@ construct_publish_packet(char const *topic, const void *payload,
 
 
 bool
-construct_subscribe_packet(char const *topic)
+mqtt_construct_subscribe_packet(char const *topic)
 {
   uint16_t length = 2   // message id
     + strlen(topic) + 2 // topic
@@ -493,7 +493,7 @@ construct_subscribe_packet(char const *topic)
 
 
 bool
-construct_unsubscribe_packet(char const *topic)
+mqtt_construct_unsubscribe_packet(char const *topic)
 {
   uint16_t length = 2    // message id
     + strlen(topic) + 2; // topic
@@ -524,7 +524,7 @@ construct_unsubscribe_packet(char const *topic)
 // MQTTPINGRESP
 // MQTTDISCONNECT
 bool
-construct_zerolength_packet(uint8_t msg_type)
+mqtt_construct_zerolength_packet(uint8_t msg_type)
 {
   if (!mqtt_buffer_free(2))
     return false;
@@ -545,7 +545,7 @@ construct_zerolength_packet(uint8_t msg_type)
 //
 // msgid is the id of the message being ack'ed
 bool
-construct_ack_packet(uint8_t msg_type, uint16_t msgid)
+mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid)
 {
   if (!mqtt_buffer_free(4))
     return false;
@@ -618,7 +618,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
     // auto subscribe
     if (con_config->auto_subscribe_topics)
       for (uint8_t i=0; con_config->auto_subscribe_topics[i] != NULL; i++)
-        construct_subscribe_packet(con_config->auto_subscribe_topics[i]);
+        mqtt_construct_subscribe_packet(con_config->auto_subscribe_topics[i]);
 
     if (con_config && con_config->connack_callback)
       con_config->connack_callback();
@@ -678,10 +678,10 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
             + packet[2 + topic_length + 1];
 
           if (qos == 1)
-            construct_ack_packet(MQTTPUBACK, msgid);
+            mqtt_construct_ack_packet(MQTTPUBACK, msgid);
 
           else if (qos == 2)
-            construct_ack_packet(MQTTPUBREC, msgid);
+            mqtt_construct_ack_packet(MQTTPUBREC, msgid);
         }
 
         MQTTDEBUG ("publish received\n");
@@ -706,7 +706,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         {
           uint16_t msgid = packet[0] * 256 + packet[1];
 
-          construct_ack_packet(MQTTPUBREL, msgid);
+          mqtt_construct_ack_packet(MQTTPUBREL, msgid);
         }
 
         break;
@@ -725,7 +725,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         {
           uint16_t msgid = packet[0] * 256 + packet[1];
 
-          construct_ack_packet(MQTTPUBCOMP, msgid);
+          mqtt_construct_ack_packet(MQTTPUBCOMP, msgid);
         }
 
         break;
@@ -742,7 +742,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
 
       case MQTTPINGREQ:
         MQTTDEBUG ("pingreq received\n");
-        construct_zerolength_packet(MQTTPINGRESP);
+        mqtt_construct_zerolength_packet(MQTTPINGRESP);
         break;
 
 
@@ -951,7 +951,7 @@ mqtt_poll(void)
     else
     {
       MQTTDEBUG ("ping request\n");
-      construct_zerolength_packet(MQTTPINGREQ);
+      mqtt_construct_zerolength_packet(MQTTPINGREQ);
 
       // reset counter, wait another keepalive period
       lastInActivity = timer_counter;
@@ -988,7 +988,7 @@ mqtt_main(void)
   {
     MQTTDEBUG ("new connection\n");
 
-    construct_connect_packet();
+    mqtt_construct_connect_packet();
 
     // init
     nextMsgId = 1;
