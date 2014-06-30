@@ -1,0 +1,13 @@
+if [ "$NET_MAX_FRAME_LENGTH" -gt 571 ]; then
+  define_bool NET_MAX_FRAME_LENGTH_GT_571 y
+else
+  define_bool NET_MAX_FRAME_LENGTH_GT_571 n
+fi
+
+dep_bool_menu "WS2801 Art-Net" WS2801_SUPPORT $NET_MAX_FRAME_LENGTH_GT_571 $UDP_SUPPORT
+  int "UDP Port" CONF_WS2801_PORT 6454
+  comment "Universe Settings"
+  int "Universe" CONF_WS2801_UNIVERSE "1"
+  comment  "Debugging Flags"
+  dep_bool 'WS2801' DEBUG_WS2801 $DEBUG
+endmenu
