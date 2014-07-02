@@ -240,20 +240,14 @@ RFM12_IP_SUPPORT
   For a step-by-step howto, see
   http://ethersex.de/index.php/RFM12
 
-RFM12 ASK (Amplitude Shift Keying) Support
-RFM12_ASK_SUPPORT
+Radio outlets (433MHz)
+PROTO_ASK_SUPPORT
   Depends on:
-   * RFM12 (FSK transmitter) support (RFM12_IP_SUPPORT)
+   * RFM12_ASK_433_SUPPORT
+   * GENERIC_ASK_SUPPORT
 
-  This ASK is very helpful for playing around with radio controlled
+  This is very helpful for playing around with radio controlled
   power switches or similar devices.
-  Due to the fact that the FM transmitting RFM12 chip is just turned
-  on or off, the modulation is ASK.
-
-RFM12 ASK SENDER (Amplitude Shift Keying) Sending Support
-RFM12_ASK_SENDER_SUPPORT
-  Depends on:
-   * RFM12 ASK (Amplitude Shift Keying) Support
 
   Enables to send commands to at least these power switching devices.
   e.g.
@@ -262,10 +256,10 @@ RFM12_ASK_SENDER_SUPPORT
     - Tevion
     - ELRO
 
-RFM12 ASK Intertechno Self Learning Support
-RFM12_ASK_INTERTECHNO_SL_SUPPORT
+Intertechno Self Learning
+PROTO_INTERTECHNO_SL_SUPPORT
   Depends on:
-   * RFM12 ASK (Amplitude Shift Keying) Support
+   * PROTO_ASK_SUPPORT Radio outlets (433MHz) support
 
    Enables the native protocol of newer Intertechno devices without
    coding wheel (self learning). This protocol allows sending an
@@ -2036,13 +2030,12 @@ MOTD_INLINE_SUPPORT
  Display the Message of the day on the VFS start page and adds
  a VFS page to change the MOTD via HTTP
 
-Inline RFM12
-RFM12_INLINE_SUPPORT
+Inline radio control
+RADIO_INLINE_SUPPORT
   Depends on:
    * VFS File Inlining (VFS_INLINE_SUPPORT)
 
-  This page is only needed and helpful for RFM12 ASK support.
-  Please see http://ethersex.de/index.php/RFM12_ASK for details.
+  Control generic or FS20 radio outlets.
 
 Inline I2C
 I2C_INLINE_SUPPORT
@@ -2410,11 +2403,9 @@ RFM12_ASK_FHT_SUPPORT
   http://fhz4linux.info/tiki-index.php?page=FHT+protocol
 
 Pollin/Kangtai Powerswitch (IC 2272)
-RFM12_ASK_2272_SUPPORT
+PROTO_2272_SUPPORT
   Depends on:
-   * RFM12 frequency (RFM12_FREQ_433920)
-   * RFM12 ASK (RFM12_ASK_SUPPORT)
-   * RFM12 ASK send (RFM12_ASK_SENDER_SUPPORT)
+   * Radio outlets (433MHz) (PROTO_ASK_SUPPORT)
 
   Several hardware stores and Pollin also distribute a so-called
   Funkschaltset consisting of a wireless remote control and radio
@@ -2424,8 +2415,6 @@ RFM12_ASK_2272_SUPPORT
   house code can be set via DIP five switches. This code is taken from
   the outlets. The remaining five dip switches are then available for
   the five different outlets
-
-  RFM12 frequency has to be set to 422.920MHz..
 
 Start month (1-12)
 DST_BEGIN_MONTH

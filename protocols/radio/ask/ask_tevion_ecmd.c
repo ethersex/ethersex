@@ -28,53 +28,33 @@
 #include <avr/pgmspace.h>
 
 #include "config.h"
-#include "core/debug.h"
 
-#include "rfm12.h"
-#include "rfm12_ask.h"
-#include "rfm12_ask_sense.h"
-
+#include "protocols/radio/ask/ask.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 
-#ifdef RFM12_ASK_EXTERNAL_FILTER_SUPPORT
 int16_t
-parse_cmd_rfm12_ask_external_filter(char *cmd, char *output, uint16_t len)
+parse_cmd_ask_tevion_send(char *cmd, char *output, uint16_t len)
 {
   (void) output;
   (void) len;
 
-  uint8_t flag;
-  int ret = sscanf_P(cmd, PSTR("%hhu"), &flag);
-  if (ret == 1 && flag == 1)
-    rfm12_ask_external_filter_init();
-  else
-    rfm12_ask_external_filter_deinit();
+  uint8_t housecode[3];
+  uint8_t command[2];
+  uint8_t delay = 99;
+  uint8_t cnt = 4;
+  int ret = sscanf_P(cmd, PSTR("%hhu,%hhu,%hhu %hhu,%hhu %hhu %hhu"),
+                     &housecode[0], &housecode[1], &housecode[2],
+                     &command[0], &command[1], &delay, &cnt);
+  if (ret < 5)
+    return ECMD_ERR_PARSE_ERROR;
 
+  ask_tevion_send(housecode, command, delay, cnt);
   return ECMD_FINAL_OK;
 }
-
-#ifdef RFM12_ASK_SENSING_SUPPORT
-int16_t
-parse_cmd_rfm12_ask_sense(char *cmd, char *output, uint16_t len)
-{
-  (void) cmd;
-  (void) output;
-  (void) len;
-
-  rfm12_ask_sense_start();
-  return ECMD_FINAL_OK;
-}
-#endif /* RFM12_ASK_SENSING_SUPPORT */
-#endif /* RFM12_ASK_EXTERNAL_FILTER_SUPPORT */
 
 /*
   -- Ethersex META --
-  block([[RFM12_ASK]])
-  ecmd_ifdef(RFM12_ASK_EXTERNAL_FILTER_SUPPORT)
-    ecmd_feature(rfm12_ask_external_filter, "rfm12 external filter",[1], Enable ext. filter pin if argument is present (disable otherwise))
-  ecmd_endif()
-  ecmd_ifdef(RFM12_ASK_SENSING_SUPPORT)
-    ecmd_feature(rfm12_ask_sense, "rfm12 ask sense",, Trigger (Tevion) ASK sensing.  Enable ext. filter pin before!)
-  ecmd_endif()
+  block([[ASK]])
+  ecmd_feature(ask_tevion_send, "ask tevion", HOUSECODE COMMAND DELAY CNT, )
 */
