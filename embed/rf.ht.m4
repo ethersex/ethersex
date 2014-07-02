@@ -7,25 +7,25 @@ ifdef({{conf_RADIO_INLINE}}, {{}}, {{m4exit(1)}})dnl
 <script src="scr.js" type="text/javascript"></script>
 <script type="text/javascript">
 
-ifdef({{conf_PROTO_ASK_2272}}, {{
+ifdef({{conf_PROTO_2272}}, {{
 function ecmd_set_rf1(type, code, delay, repeat) {
 	var url = 'ask+' + type + '+' + code + '+' + delay + '+' + repeat;
 	ArrAjax.ecmd(url);
 }
 }})
-ifdef({{conf_PROTO_ASK_TEVION}}, {{
+ifdef({{conf_PROTO_TEVION}}, {{
 function ecmd_set_rf2(type, code, cmd, delay, repeat) {
 	var url = 'ask+' + type + '+' + code + '+' + cmd + '+' + delay + '+' + repeat;
 	ArrAjax.ecmd(url);
 }
 }})
-ifdef({{conf_PROTO_ASK_1527}}, {{
+ifdef({{conf_PROTO_1527}}, {{
 function ecmd_set_rf3(type, code, delay, repeat) {
 	var url = 'ask+' + type + '+' + code + '+' + delay + '+' + repeat;
 	ArrAjax.ecmd(url);
 }
 }})
-ifdef({{conf_PROTO_ASK_INTERTECHNO}}, {{
+ifdef({{conf_PROTO_INTERTECHNO}}, {{
 function ecmd_set_rf4(command) {
    var family = document.getElementsByName("Family")[0].value;
    var group = document.getElementsByName("Group")[0].value;
@@ -65,7 +65,7 @@ ifdef({{conf_FS20_SEND}},{{
 
 
 <h1>Radio outlets (433MHz)</h1>
-ifdef({{conf_PROTO_ASK_2272}}, {{
+ifdef({{conf_PROTO_2272}}, {{
 <h2>2272 (internal + external)</h2>
 <table width="50%" border="1" style="text-align: center">
 <tr><th>Switch</th><th colspan="4">Command</th></tr>
@@ -76,7 +76,7 @@ ifdef({{conf_PROTO_ASK_2272}}, {{
 <tr><td>E</td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,64',76,10)">OFF OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,65',76,10)">ON OFF</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,68',76,10)">OFF ON</a></td><td><a href="javascript:ecmd_set_rf1(2272,'0,21,69',76,10)">ON ON</a></td></tr>
 </table>
 }})
-ifdef({{conf_PROTO_ASK_TEVION}}, {{
+ifdef({{conf_PROTO_TEVION}}, {{
 <h2>Tevion</h2>
 <table width="50%" border="1" style="text-align: center">
 <tr><th>Switch</th><th colspan="3">Command</th></tr>
@@ -87,7 +87,7 @@ ifdef({{conf_PROTO_ASK_TEVION}}, {{
 <tr><td>all</td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','169,86',99,2)">OFF</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','170,85',99,2)">ON</a></td><td><a href="javascript:ecmd_set_rf2('tevion','77,42,170','169,154',99,1)">UP</a> <a href="javascript:ecmd_set_rf2('tevion','77,42,170','170,153',99,1)">DOWN</a></td><td></td></tr>
 </table>
 }})
-ifdef({{conf_PROTO_ASK_1527}}, {{
+ifdef({{conf_PROTO_1527}}, {{
 <h2>1527</h2>
 <table width="50%" border="1" style="text-align: center">
 <tr><th>Switch</th><th colspan="4">Command</th></tr>
@@ -98,7 +98,7 @@ ifdef({{conf_PROTO_ASK_1527}}, {{
 <tr><td>all</td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,88',76,10)">OFF</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,80',76,10)">ON</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,80',76,45)">UP</a></td><td><a href="javascript:ecmd_set_rf3(1527,'37,181,88',76,45)">DOWN</a></td></tr>
 </table>
 }})
-ifdef({{conf_PROTO_ASK_INTERTECHNO}}, {{
+ifdef({{conf_PROTO_INTERTECHNO}}, {{
 <h2>Intertechno ITS-150</h2>
 <table>
 <tr><td>Familie</td><td>

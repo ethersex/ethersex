@@ -7,7 +7,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
     dep_bool "Inline configuration page" CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
     dep_bool "Inline the .config" VFS_CONFIG_INLINE_SUPPORT $CONFIG_INLINE_SUPPORT $VFS_INLINE_SUPPORT
     dep_bool "Inline message of the day" MOTD_INLINE_SUPPORT $MOTD_SUPPORT $VFS_INLINE_SUPPORT $EEPROM_SUPPORT
-    if [ "$FS20_SEND_SUPPORT" = "y" -o "PROTO_ASK_SUPPORT" = "y" ]; then
+    if [ "$FS20_SEND_SUPPORT" = "y" -o "$PROTO_ASK_SUPPORT" = "y" ]; then
       dep_bool "Inline radio control" RADIO_INLINE_SUPPORT $VFS_INLINE_SUPPORT
     else
       dep_bool "Inline radio control" RADIO_INLINE_SUPPORT $VFS_INLINE_SUPPORT n
