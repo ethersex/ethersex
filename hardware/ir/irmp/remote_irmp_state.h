@@ -28,6 +28,7 @@
 #define __REMOTE_IRMP_STATE_H
 
 #include <stdint.h>
+#include "protocols/uip/uip-conf.h"
 
 struct remote_irmp_connection_state_t
 {
