@@ -40,7 +40,7 @@ struct httpd_connection_state_t {
     unsigned eof			: 1;
 
 #ifdef HTTPD_AUTH_SUPPORT
-        uint8_t auth_state;
+    uint8_t auth_state;
 #endif /* HTTP_AUTH_SUPPORT */
 
     /* The associated connection handler function */
@@ -83,6 +83,5 @@ struct httpd_connection_state_t {
 
     } u;
 };
-
 
 #endif /* _HTTPD_STATE_H */

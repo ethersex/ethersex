@@ -1,0 +1,31 @@
+mainmenu_option next_comment
+comment "Applications"
+
+source services/appsample/config.in
+source services/bulbdial/config.in
+source services/clock/config.in
+source services/cron/config.in
+source services/dyndns/config.in
+source services/dmx-storage/config.in
+source services/dmx-fxslot/config.in
+source services/echo/config.in
+source services/wol/config.in
+source services/motd/config.in
+source services/httpd/config.in
+source services/jabber/config.in
+source services/moodlight/config.in
+source services/stella/config.in
+source services/starburst/config.in
+source services/curtain/config.in
+source services/tftp/config.in
+source services/upnp/config.in
+source services/watchcat/config.in
+source services/vnc/config.in
+source services/watchasync/config.in
+source services/glcdmenu/config.in
+source services/lome6/config.in
+source services/projectors/sanyoZ700/config.in
+source services/freqcount/config.in
+source services/tanklevel/config.in
+endmenu
+
