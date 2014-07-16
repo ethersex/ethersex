@@ -2,6 +2,6 @@ dep_bool_menu "VNC Server Support" VNC_SUPPORT $TCP_SUPPORT
 	int    "VNC TCP Port" VNC_PORT 5900
 # This module is located under core/gui
 	dep_bool 'Graphical Toolkit' GUI_SUPPORT $VNC_SUPPORT
-        comment "-- DEBUG Flags"
+        comment "Debugging Flags"
 	dep_bool 'VNC' DEBUG_VNC $DEBUG $VNC_SUPPORT
 endmenu
