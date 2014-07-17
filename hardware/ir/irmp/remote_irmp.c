@@ -29,7 +29,7 @@
 
 #include "config.h"
 #include "core/debug.h"
-#include "core/periodic.h"	/* for HZ */
+#include "core/periodic.h"      /* for HZ */
 #include "protocols/uip/uip.h"
 #include "protocols/uip/parse.h"
 #include "hardware/ir/irmp/irmp.h"
@@ -71,6 +71,9 @@ remote_irmp_init(void)
 void
 remote_irmp_main(void)
 {
+  uint8_t *p = (uint8_t *) uip_appdata;
+  uint8_t response = '-';
+
   if (uip_newdata())
   {
 #ifdef DEBUG_REMOTE_IRMP
@@ -85,9 +88,6 @@ remote_irmp_main(void)
     uip_ipaddr_copy(STATE->reply_addr, BUF->srcipaddr);
     STATE->reply_port = BUF->srcport;
 
-    uint8_t *p = (uint8_t *) uip_appdata;
-    uint8_t response = '-';
-
     if (STATE->state == REMOTE_IRMP_IDLE)
     {
       switch (*p & 0xdf)
@@ -96,7 +96,12 @@ remote_irmp_main(void)
           STATE->state = REMOTE_IRMP_SEND;
           if (uip_len == sizeof(irmp_data_t) + 1)
           {
-            irmp_write((irmp_data_t *) (p + 1));
+            irmp_data_t irmp_data;
+            irmp_data.protocol = p[1];
+            irmp_data.address  = (p[2] << 8) | p[3];
+            irmp_data.command  = (p[4] << 8) | p[5];
+            irmp_data.flags    = p[6];
+            irmp_write(&irmp_data);
             response = '+';
           }
           break;
@@ -116,7 +121,6 @@ remote_irmp_main(void)
       }
     }
 
-    p[1] = response;
     uip_slen = 2;
   }
   else if (uip_poll())
@@ -127,8 +131,13 @@ remote_irmp_main(void)
     irmp_data_t *irmp_data_p = irmp_read();
     if (irmp_data_p != 0)
     {
-      memcpy(uip_appdata, irmp_data_p, sizeof(irmp_data_t));
-      uip_slen = sizeof(irmp_data_t);
+      p[2] = irmp_data_p->protocol;
+      p[3] = irmp_data_p->address >> 8;
+      p[4] = irmp_data_p->address & 0xFF;
+      p[5] = irmp_data_p->command >> 8;
+      p[6] = irmp_data_p->command & 0xFF;
+      p[7] = irmp_data_p->flags;
+      response = '+';
     }
     else
     {
@@ -136,13 +145,13 @@ remote_irmp_main(void)
         return;
 
       IRMP_DEBUG("timeout");
-
-      uint8_t *p = (uint8_t *) uip_appdata;
-      p[0] = 'R';
-      p[1] = '-';
-      uip_slen = 8;
     }
+
+    p[0] = 'R';
+    uip_slen = 8;
   }
+
+  p[1] = response;
 
   uip_udp_conn_t reply_conn;
   uip_ipaddr_copy(reply_conn.ripaddr, STATE->reply_addr);
@@ -154,6 +163,7 @@ remote_irmp_main(void)
   router_output();
 
   uip_slen = 0;
+  uip_len = 0;
 
   STATE->state = REMOTE_IRMP_IDLE;
 }
