@@ -30,6 +30,7 @@
 #include "config.h"
 #include "core/debug.h"
 #include "core/periodic.h"      /* for HZ */
+#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/parse.h"
 #include "hardware/ir/irmp/irmp.h"
@@ -99,7 +100,7 @@ remote_irmp_main(void)
             uint8_t b;
             b = p[2]; p[2] = p[3]; p[3] = b; /* NTOHS */
             b = p[4]; p[4] = p[5]; p[5] = b; /* NTOHS */
-            irmp_write(p + 1);
+            irmp_write((irmp_data_t *) (p + 1));
             response = '+';
           }
           break;
@@ -130,10 +131,10 @@ remote_irmp_main(void)
     if (irmp_data_p != 0)
     {
       p[2] = irmp_data_p->protocol;
-      p[3] = irmp_data_p->address >> 8;
-      p[4] = irmp_data_p->address & 0xFF;
-      p[5] = irmp_data_p->command >> 8;
-      p[6] = irmp_data_p->command & 0xFF;
+      p[3] = HI8(irmp_data_p->address);
+      p[4] = LO8(irmp_data_p->address);
+      p[5] = HI8(irmp_data_p->command);
+      p[6] = LO8(irmp_data_p->command);
       p[7] = irmp_data_p->flags;
       response = '+';
     }
