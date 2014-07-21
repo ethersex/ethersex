@@ -96,12 +96,10 @@ remote_irmp_main(void)
           STATE->state = REMOTE_IRMP_SEND;
           if (uip_len == sizeof(irmp_data_t) + 1)
           {
-            irmp_data_t irmp_data;
-            irmp_data.protocol = p[1];
-            irmp_data.address  = (p[2] << 8) | p[3];
-            irmp_data.command  = (p[4] << 8) | p[5];
-            irmp_data.flags    = p[6];
-            irmp_write(&irmp_data);
+            uint8_t b;
+            b = p[2]; p[2] = p[3]; p[3] = b; /* NTOHS */
+            b = p[4]; p[4] = p[5]; p[5] = b; /* NTOHS */
+            irmp_write(p + 1);
             response = '+';
           }
           break;
