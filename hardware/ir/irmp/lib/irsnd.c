@@ -158,7 +158,6 @@
 #  define IRSND_BIT                                 IRSND_BIT_NUMBER
 #endif
 #endif
-#endif
 
 #if IRSND_SUPPORT_NIKON_PROTOCOL == 1
     typedef uint16_t    IRSND_PAUSE_LEN;

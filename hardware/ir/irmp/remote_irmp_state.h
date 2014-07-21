@@ -1,10 +1,10 @@
 /*
- * Infrared-Multiprotokoll-Decoder 
+ * Remote Infrared-Multiprotokoll-Decoder
  *
  * for additional information please
- * see http://www.mikrocontroller.net/articles/IRMP
+ * see https://www.mikrocontroller.net/articles/Remote_IRMP
  *
- * Copyright (c) 2010-14 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2014 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,12 +24,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef __IRMPP_ECMD_H
-#define __IRMPP_ECMD_H
+#ifndef __REMOTE_IRMP_STATE_H
+#define __REMOTE_IRMP_STATE_H
 
 #include <stdint.h>
+#include "protocols/uip/uip-conf.h"
 
-int16_t parse_cmd_irmp_receive(char *, char *, uint16_t);
-int16_t parse_cmd_irmp_send(char *, char *, uint16_t);
+struct remote_irmp_connection_state_t
+{
+  enum {
+    REMOTE_IRMP_IDLE = 0,
+    REMOTE_IRMP_SEND,
+    REMOTE_IRMP_RECEIVE,
+    REMOTE_IRMP_PING
+  } state;
+  uip_ipaddr_t reply_addr;
+  uint16_t reply_port;
+  uint8_t timeout;
+};
 
-#endif /* __IRMPP_ECMD_H */
+#endif /* __REMOTE_IRMP_STATE_H */

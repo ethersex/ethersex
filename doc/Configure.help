@@ -2925,7 +2925,7 @@ VFS_SD_SUPPORT
 SDHC support
 SD_SDHC_SUPPORT
 
-  Suport SDHC cards up to 32GB.
+  Support SDHC cards up to 32GB.
   Consumes ~3900 bytes of flash memory and ~100 bytes of RAM.
 
 VFAT LFN support
@@ -3127,4 +3127,12 @@ IOUDP_PROTOCOL_SUPPORT
  a client to be informed of pin changes.
  This module allows very fast polling and setting without much network
  overhead. Recommended use only in a trusted network environment.
+
+Remote IRMP
+REMOTE_IRMP_SUPPORT
+  Depends on: 
+   * IRMP IR (IRMP_SUPPORT)
+
+  Control your HiFi equipment with your smartphone.
+  For details see https://www.mikrocontroller.net/articles/Remote_IRMP
 
