@@ -3111,7 +3111,7 @@ SNMP support
 DHT_SNMP_SUPPORT
   Depends on:
    * SNMP Support (SNMP_SUPPORT)
-  
+
   Make humidity and temperature measured by the DHT available via SNMP. Only
   one DHT sensor is currently supported. OIDs are .5.1.0 (polling delay),
   .5.2.0 (temperature * 10) and .5.3.0 (humidity * 10).
@@ -3136,8 +3136,6 @@ IOUDP_PROTOCOL_SUPPORT
  a client to be informed of pin changes.
  This module allows very fast polling and setting without much network
  overhead. Recommended use only in a trusted network environment.
-<<<<<<< HEAD
-=======
 
 Remote IRMP
 REMOTE_IRMP_SUPPORT
@@ -3146,5 +3144,3 @@ REMOTE_IRMP_SUPPORT
 
   Control your HiFi equipment with your smartphone.
   For details see https://www.mikrocontroller.net/articles/Remote_IRMP
-
->>>>>>> upstream/master
