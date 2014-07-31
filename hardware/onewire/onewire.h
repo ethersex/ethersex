@@ -234,6 +234,12 @@ typedef struct
 } ow_name_t;
 #endif /* ONEWIRE_NAMING_SUPPORT */
 
+typedef struct
+{
+  int16_t val:15;
+  uint8_t twodigits:1;
+} ow_temp_t;
+
 #if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
 typedef struct
 {
@@ -261,8 +267,9 @@ typedef struct
   /* byte aligned fields */
 #ifdef ONEWIRE_POLLING_SUPPORT
   /* just storing the temperature in order to keep memory footprint as low as
-   * possible. storing temperature in deci degrees (DD) => 36.4° == 364 */
-  int16_t temp;
+   * possible. storing temperature either in decidegrees or centidegrees,
+   * depending on the sensor precision. */
+  ow_temp_t temp;
 #endif
 #ifdef ONEWIRE_NAMING_SUPPORT
   char name[OW_NAME_LENGTH];
@@ -421,13 +428,8 @@ int8_t ow_temp_read_scratchpad(ow_rom_code_t * rom,
 int8_t ow_temp_power(ow_rom_code_t * rom);
 
 
-/* return normalized temperature for device
- *
- * return values:
- * int16_t, 8.8 fixpoint value
- * 0xffff on error (eg unknown device)
- */
-int16_t ow_temp_normalize(ow_rom_code_t * rom, ow_temp_scratchpad_t * sp);
+/* return normalized temperature for device */
+ow_temp_t ow_temp_normalize(ow_rom_code_t * rom, ow_temp_scratchpad_t * sp);
 
 
 /*

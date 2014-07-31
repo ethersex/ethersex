@@ -1,9 +1,7 @@
 TOPDIR ?= ../../..
 include $(TOPDIR)/.config
 
-$(IRMP_SUPPORT)_SRC += hardware/ir/irmp/irmp.c
-$(IRMP_ECMD)_ECMD_SRC += hardware/ir/irmp/irmp_ecmd.c
-$(REMOTE_IRMP_SUPPORT)_SRC += hardware/ir/irmp/remote_irmp.c
+$(GENERIC_ASK_SUPPORT)_SRC += hardware/radio/generic/generic.c
 
 ##############################################################################
 # generic fluff

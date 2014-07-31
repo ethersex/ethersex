@@ -1,0 +1,1 @@
+dep_bool "Generic ASK (433MHz)" GENERIC_ASK_SUPPORT $ARCH_AVR

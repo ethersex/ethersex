@@ -1,0 +1,21 @@
+if [ "$RFM12_ASK_433_SUPPORT" = "y" -o "$GENERIC_ASK_SUPPORT"  = "y" ]; then
+  define_bool RADIO_HW_ASK y
+else
+  define_bool RADIO_HW_ASK n
+fi
+
+dep_bool_menu "Radio outlets (433MHz)" PROTO_ASK_SUPPORT $RADIO_HW_ASK $ARCH_AVR
+
+  choice 'Transmitter hardware' "$(
+    if [ "$RFM12_ASK_433_SUPPORT" = "y" ]; then echo -n "RFM12    ASK_HARDWARE_RFM12  "; fi
+    if [ "$GENERIC_ASK_SUPPORT"   = "y" ]; then echo -n "Generic  ASK_HARDWARE_GENERIC"; fi
+  )" "$(if [ "$RFM12_ASK_433_SUPPORT" = "y" ]; then echo -n "RFM12"; else echo -n "Generic"; fi)" ASK_HARDWARE
+
+  dep_bool "Pollin/Kangtai Powerswitch (IC 2272)" PROTO_2272_SUPPORT $PROTO_ASK_SUPPORT
+  dep_bool "Pollin Powerswitch buried (IC 1527)" PROTO_1527_SUPPORT $PROTO_ASK_SUPPORT
+  dep_bool "Tevion Powerswitch" PROTO_TEVION_SUPPORT $PROTO_ASK_SUPPORT
+  dep_bool "Intertechno ITS-150" PROTO_INTERTECHNO_SUPPORT $PROTO_ASK_SUPPORT
+  dep_bool "Intertechno Self Learning" PROTO_INTERTECHNO_SL_SUPPORT $PROTO_ASK_SUPPORT
+  dep_bool "Oase FM Master" PROTO_OASEFMMASTER_SUPPORT $PROTO_ASK_SUPPORT
+
+endmenu 

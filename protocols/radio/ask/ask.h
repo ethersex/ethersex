@@ -21,26 +21,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef __RFM12_ASK_H
-#define __RFM12_ASK_H
+#ifndef __ASK_H
+#define __ASK_H
 
 #include <stdint.h>
 
-#include "hardware/radio/rfm12/rfm12.h"
+void ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
+void ask_2272_send(uint8_t *, uint8_t, uint8_t);
+void ask_1527_send(uint8_t *, uint8_t, uint8_t);
+void ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
+void ask_intertechno_sl_send(uint32_t, uint8_t, uint8_t, int8_t);
+void ask_oase_send(uint8_t *, uint8_t, uint8_t);
 
-
-#define ASK_TX_ENABLE \
-	rfm12_prologue(RFM12_MODULE_ASK); \
-	rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | RFM12_PWRMGT_ES | RFM12_PWRMGT_EX);
-#define ASK_TX_DISABLE \
-	rfm12_trans(RFM12_CMD_PWRMGT | RFM12_PWRMGT_EX); \
-	rfm12_epilogue();
-#define ASK_TX_TRIGGER \
-	rfm12_ask_trigger
-
-void rfm12_ask_trigger(uint8_t, uint16_t);
-void rfm12_ask_external_filter_init(void);
-void rfm12_ask_external_filter_deinit(void);
-void rfm12_ask_init(void);
-
-#endif /* __RFM12_ASK_H */
+#endif /* __ASK_H */

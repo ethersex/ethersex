@@ -513,19 +513,27 @@ ow_temp_power(ow_rom_code_t * rom)
 }
 
 
-int16_t
+ow_temp_t
 ow_temp_normalize(ow_rom_code_t * rom, ow_temp_scratchpad_t * sp)
 {
+  ow_temp_t ret = { 0, 0 };
   if (rom->family == OW_FAMILY_DS1820)
-    return (int16_t) ((sp->temperature & 0xfffe) << 7) - 0x40 +
+  {
+    uint16_t temp = (int16_t) ((sp->temperature & 0xfffe) << 7) - 0x40 +
       (((sp->count_per_c - sp->count_remain) << 8) / sp->count_per_c);
+    ret.val = ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+    /* implicitly: ret.twodigits = 0; */
+  }
   else if (rom->family == OW_FAMILY_DS1822 ||
            rom->family == OW_FAMILY_DS18B20)
-    return (int16_t) (sp->temperature << 4);
-  else
-    return -1;
+  {
+    uint16_t temp = (int16_t) (sp->temperature << 4);
+    ret.val =
+      ((int8_t) HI8(temp)) * 100 + HI8(((temp & 0x00ff) * 100) + 0x80);
+    ret.twodigits = 1;
+  }
+  return ret;
 }
-
 
 /* DS2502 data functions */
 
@@ -742,7 +750,8 @@ ow_discover_sensor(void)
 #ifdef ONEWIRE_NAMING_SUPPORT
       }
 #endif
-      ow_sensors[i].temp = 0;
+      ow_sensors[i].temp.val = 0;
+      ow_sensors[i].temp.twodigits = 0;
     }
   }
   return 0;
@@ -787,12 +796,11 @@ ow_periodic(void)
         ow_sensors[i].power = ow_temp_power(&ow_sensors[i].ow_rom_code);
 #endif
 
-        int16_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
+        ow_temp_t temp = ow_temp_normalize(&ow_sensors[i].ow_rom_code, &sp);
 
 #ifdef DEBUG_OW_POLLING
-        char temperature[6];
-        itoa_fixedpoint(((int8_t) HI8(temp)) * 10 +
-            HI8(((temp & 0x00ff) * 10) + 0x80), 1, temperature);
+        char temperature[7];    /* enough for two decimal digits (124.99) */
+        itoa_fixedpoint(temp.val, temp.twodigits + 1, temperature);
 
         OW_DEBUG_POLL("temperature: %s°C on device "
             "%02x%02x%02x%02x%02x%02x%02x%02x"
@@ -816,13 +824,12 @@ ow_periodic(void)
 
         /* a value of 85.0°C will only be stored if we get it twice, to
          * eliminate communication errors */
-        if ((temp == 21760 && ow_sensors[i].conv_error) ||
-             temp != 21760 )
-          ow_sensors[i].temp =
-              ((int8_t) HI8(temp)) * 10 + HI8(((temp & 0x00ff) * 10) + 0x80);
+        uint8_t tempis85 = temp.val == (temp.twodigits ? 8500 : 850);
+        if ((tempis85 && ow_sensors[i].conv_error) || !tempis85)
+          ow_sensors[i].temp = temp;
 
         /* set a semaphore of if we had a conversion or communication error */
-        ow_sensors[i].conv_error = (temp == 21760);
+        ow_sensors[i].conv_error = tempis85;
 
   #ifdef ONEWIRE_HOOK_SUPPORT
         hook_ow_poll_call(&ow_sensors[i], OW_READY);
