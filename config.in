@@ -255,46 +255,7 @@ endmenu
 
 ###############################################################################
 
-<<<<<<< HEAD
-mainmenu_option next_comment
-comment "Protocols"
-
-source protocols/artnet/config.in
-source protocols/dali/config.in
-source protocols/dmx/config.in
-source protocols/ecmd/config.in
-source protocols/eltakoms/config.in
-source protocols/ems/config.in
-source protocols/fnordlicht/config.in
-source protocols/httplog/config.in
-source protocols/irc/config.in
-source protocols/mdns_sd/config.in
-source protocols/modbus/config.in
-source protocols/mysql/config.in
-source protocols/netstat/config.in
-source protocols/sip/config.in
-source protocols/soap/config.in
-source protocols/snmp/config.in
-source protocols/smtp/config.in
-source protocols/sms77/config.in
-source protocols/syslog/config.in
-source protocols/twitter/config.in
-source protocols/ustream/config.in
-source protocols/yport/config.in
-source protocols/bsbport/config.in
-source protocols/msr1/config.in
-source protocols/to1/config.in
-source protocols/serial_line_log/config.in
-source protocols/nmea/config.in
-source protocols/udpstella/config.in
-source protocols/udpIO/config.in
-source protocols/udpcurtain/config.in
-source protocols/cw/config.in
-source protocols/sgc/config.in
-endmenu
-=======
 source protocols/config.in
->>>>>>> upstream/master
 
 ###############################################################################
 
