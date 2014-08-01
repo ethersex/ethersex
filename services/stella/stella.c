@@ -328,7 +328,11 @@ stella_sort()
     }
 #endif
 #ifdef STELLA_USE_CIE1931
-    cal_table->channel[i].value = 255 - cie[stella_brightness[i]];
+	#ifdef STELLA_CIE1931_PROGMEM
+		cal_table->channel[i].value = 255 - pgm_read_byte_near(cie_luminance_8bit + stella_brightness[i]);
+	#else
+		cal_table->channel[i].value = 255 - cie_luminance_8bit[stella_brightness[i]];
+	#endif
 #else
     cal_table->channel[i].value = 255 - stella_brightness[i];
 #endif
