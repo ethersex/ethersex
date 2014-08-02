@@ -70,8 +70,9 @@ debug_init_uart(void)
   RS485_DISABLE_TX;
   usart_init();
 
-  /* disable the receiver we just enabled */
-  usart(UCSR, B) &= ~(_BV(usart(RXCIE)) | _BV(usart(RXEN)));
+  /* disable the receiver interrupt, if enabled.
+   * Receiver needs to stay enabled for debug/ecmd handler to work. */
+  usart(UCSR, B) &= ~(_BV(usart(RXCIE)));
 #endif
   /* open stdout/stderr */
   stdout = &debug_uart_stream;
