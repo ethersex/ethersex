@@ -251,6 +251,12 @@ stella_getValue(const uint8_t channel)
   return stella_brightness[channel];
 }
 
+inline uint8_t
+stella_getFadeValue(const uint8_t channel)
+{
+  return stella_fade[channel];
+}
+
 #ifndef TEENSY_SUPPORT
 void
 stella_loadFromEEROMFading(void)
