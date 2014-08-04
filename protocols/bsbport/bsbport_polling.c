@@ -24,7 +24,7 @@
 #include "bsbport_tx.h"
 #include "bsbport_polling.h"
 
-#ifdef BSBPORT_POLLING
+#ifdef BSBPORT_POLLING_SUPPORT
 uint8_t step=0;
 // Query for values at periodic intervalls
 void
@@ -158,6 +158,6 @@ bsbport_polling_periodic(void)
 /*
   -- Ethersex META --
   header(protocols/bsbport/bsbport_polling.h)
-  timer(150, bsbport_polling_periodic())
+  ifdef(`conf_BSBPORT_POLLING',`timer(150, `bsbport_polling_periodic()')')
 */
 #endif

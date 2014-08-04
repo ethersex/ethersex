@@ -17,7 +17,7 @@ if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		int    "BSBPort Message History Size" BSBPORT_MESSAGE_BUFFER_LEN 10
 		int    "BSBPort Message Max Length" BSBPORT_MESSAGE_MAX_LEN 25
 		int		 'BSBPORT Address' BSBPORT_OWNADDRESS 7
-		dep_bool 'BSBPORT Polling Support' BSBPORT_POLLING $BSBPORT_SUPPORT
+		dep_bool 'BSBPORT Polling Support' BSBPORT_POLLING_SUPPORT $BSBPORT_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'BSBPORT Debug Rx' DEBUG_BSBPORT_RX $BSBPORT_SUPPORT
 	dep_bool 'BSBPORT Debug Tx' DEBUG_BSBPORT_TX $BSBPORT_SUPPORT
