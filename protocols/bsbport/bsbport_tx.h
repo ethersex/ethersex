@@ -23,8 +23,11 @@
 #ifndef BSBPORT_TX_H
 #define BSBPORT_TX_H
 
-uint8_t bsbport_send(uint8_t* msg);
-uint8_t bsbport_query(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest);
-uint8_t bsbport_set(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest, uint8_t* data, uint8_t datalen);
+uint8_t bsbport_send(uint8_t * msg);
+
+uint8_t bsbport_query(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4,
+                      uint8_t dest);
+uint8_t bsbport_set(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4,
+                    uint8_t dest, uint8_t * data, uint8_t datalen);
 
 #endif /* BSBPORT_TX_H */

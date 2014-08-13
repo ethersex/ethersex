@@ -41,23 +41,24 @@
 /* We generate our own usart init module, for our usart port */
 generate_bsbport_usart_init_8O1()
 
-     struct bsbport_buffer_net bsbport_sendnet_buffer;
-     struct bsbport_buffer_net bsbport_recvnet_buffer;
-     struct bsbport_buffer_net bsbport_send_buffer;
-     struct bsbport_buffer_rx  bsbport_recv_buffer;
-     uint16_t bsbport_rx_ok;
-     uint16_t bsbport_rx_crcerror;
-	 uint16_t bsbport_rx_lenghtunder;
-	 uint16_t bsbport_rx_lenghtover;
-     uint16_t bsbport_rx_frameerror;
-     uint16_t bsbport_rx_overflow;
-     uint16_t bsbport_rx_parityerror;
-     uint16_t bsbport_rx_bufferfull;
-     uint16_t bsbport_rx_dropped;
-     uint16_t bsbport_rx_net_bufferfull;
-     uint16_t bsbport_eth_retransmit;
+struct bsbport_buffer_net bsbport_sendnet_buffer;
+struct bsbport_buffer_net bsbport_recvnet_buffer;
+struct bsbport_buffer_net bsbport_send_buffer;
+struct bsbport_buffer_rx bsbport_recv_buffer;
+uint16_t bsbport_rx_ok;
+uint16_t bsbport_rx_crcerror;
+uint16_t bsbport_rx_lenghtunder;
+uint16_t bsbport_rx_lenghtover;
+uint16_t bsbport_rx_frameerror;
+uint16_t bsbport_rx_overflow;
+uint16_t bsbport_rx_parityerror;
+uint16_t bsbport_rx_bufferfull;
+uint16_t bsbport_rx_dropped;
+uint16_t bsbport_rx_net_bufferfull;
+uint16_t bsbport_eth_retransmit;
+
 #if BSBPORT_FLUSH > 0
-     uint8_t bsbport_lf;
+uint8_t bsbport_lf;
 #endif
 
 void bsbport_init(void)
@@ -125,11 +126,11 @@ start_sending:
 
 ISR(usart(USART, _TX_vect))
 {
-  if (bsbport_sendnet_buffer.sent < bsbport_sendnet_buffer.len)	/*	Frist send Bytes in Networkbuffer	*/
+  if (bsbport_sendnet_buffer.sent < bsbport_sendnet_buffer.len) /*      Frist send Bytes in Networkbuffer       */
   {
     usart(UDR) = bsbport_sendnet_buffer.data[bsbport_sendnet_buffer.sent++];
   }
-  else if (bsbport_send_buffer.sent < bsbport_send_buffer.len)	/*	Send Bytes in OfflineBuffer	*/
+  else if (bsbport_send_buffer.sent < bsbport_send_buffer.len)  /*      Send Bytes in OfflineBuffer     */
   {
     usart(UDR) = bsbport_send_buffer.data[bsbport_send_buffer.sent++] ^ 0xFF;
   }

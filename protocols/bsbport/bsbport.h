@@ -29,10 +29,10 @@ struct bsbport_msg
 {
   uint16_t len;
   uint8_t data[BSBPORT_MESSAGE_MAX_LEN];
-  float value_temp;		// RAW interpreted as Temp (RAW/64)
-  float value_FP1;		// RAW interpreted as FixPoint Value with one digit (RAW/10)
-  float value_FP5;		// RAW interpreted as FixPoint Value with one half digit (RAW/2)
-  int16_t value_raw;	// Raw Value as Integer (RAW)
+  float value_temp;             // RAW interpreted as Temp (RAW/64)
+  float value_FP1;              // RAW interpreted as FixPoint Value with one digit (RAW/10)
+  float value_FP5;              // RAW interpreted as FixPoint Value with one half digit (RAW/2)
+  int16_t value_raw;            // Raw Value as Integer (RAW)
 };
 
 struct bsbport_buffer_msg
@@ -57,34 +57,34 @@ struct bsbport_buffer_rx
 
 enum msg_pos
 {
-	SOT = 0,
-    SRC,
-    DEST,
-    LEN,
-	TYPE,
-	P1,
-	P2,
-	P3,
-	P4,
-	DATA
+  SOT = 0,
+  SRC,
+  DEST,
+  LEN,
+  TYPE,
+  P1,
+  P2,
+  P3,
+  P4,
+  DATA
 };
 
 enum msg_types
 {
-	INFO = 2,
-    SET = 3,
-    ACK = 4,
-    QUERY = 6,
-    ANSWER = 7
+  INFO = 2,
+  SET = 3,
+  ACK = 4,
+  QUERY = 6,
+  ANSWER = 7
 };
 
 enum msg_src
 {
-        SSR = 0,
-        RGT1 = 6,
-        RGT2 = 7,
-        HK = 10,
-        All = 15
+  SSR = 0,
+  RGT1 = 6,
+  RGT2 = 7,
+  HK = 10,
+  All = 15
 };
 
 void bsbport_init(void);

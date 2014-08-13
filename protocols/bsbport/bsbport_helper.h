@@ -23,11 +23,11 @@
 #ifndef _BSBPORT_HELPER_H
 #define _BSBPORT_HELPER_H
 
-uint16_t bsbport_crc(uint8_t* buffer, uint8_t length);
-int16_t bsbport_ConvertToInt16(uint8_t* msg);
+uint16_t bsbport_crc(uint8_t * buffer, uint8_t length);
+int16_t bsbport_ConvertToInt16(uint8_t * msg);
 float bsbport_ConvertToTemp(int16_t raw);
 float bsbport_ConvertToFP1(int16_t raw);
 float bsbport_ConvertToFP5(int16_t raw);
-void bsbport_ConvertTempToData(float Temp, uint8_t* Target);
+void bsbport_ConvertTempToData(float Temp, uint8_t * Target);
 
 #endif /* _BSBPORT_HELPER_H */
