@@ -439,7 +439,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     debug_printf("successfully read scratchpad\n");
     ow_temp_t temp = ow_temp_normalize(&rom, &sp);
     ret = itoa_fixedpoint(temp.val, temp.twodigits + 1, output);
-    debug_printf("temperature: %d.%d\n", HI8(temp), LO8(temp) > 0 ? 5 : 0);
+    debug_printf("temperature: %s\n", output);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
   }
