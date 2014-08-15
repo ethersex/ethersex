@@ -81,7 +81,7 @@ no_gzip:
 }
 
 
-void
+static void
 httpd_handle_vfs_send_body (void)
 {
     vfs_fseek (STATE->u.vfs.fd, STATE->u.vfs.acked, SEEK_SET);

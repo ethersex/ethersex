@@ -117,7 +117,7 @@ httpd_handle_input(void)
     return;
   }
 
-  char *filename = uip_appdata + 5;     /* beyond slash */
+  char *filename = (char *)uip_appdata + 5;     /* beyond slash */
   ptr = strchr(filename, ' ');
 
   if (ptr == NULL)

@@ -82,14 +82,14 @@ extern const char httpd_header_end[];
 
 #include "config.h"
 #ifdef VFS_TEENSY
-#  define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+#  define PASTE_LEN(a)    sprintf_P((char *)uip_appdata + strlen(uip_appdata),	\
 				    PSTR ("%u\n"), a)
 #else
-#  define PASTE_LEN(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+#  define PASTE_LEN(a)    sprintf_P((char *)uip_appdata + strlen(uip_appdata),	\
 				    PSTR ("%lu\n"), a)
 #endif
 
-#define PASTE_LEN_P(a)    sprintf_P(uip_appdata + strlen(uip_appdata),	\
+#define PASTE_LEN_P(a)    sprintf_P((char *)uip_appdata + strlen(uip_appdata),	\
 				    PSTR ("%u\n"), strlen_P(a))
 
 /* FIXME maybe check uip_mss and emit warning on debugging console. */
