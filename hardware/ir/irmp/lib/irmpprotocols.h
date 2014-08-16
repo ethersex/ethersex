@@ -3,9 +3,9 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H or IRSND.H!
  *
- * Copyright (c) 2013 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2013-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.17 2014/02/20 14:55:17 fm Exp $
+ * $Id: irmpprotocols.h,v 1.26 2014/07/21 08:58:58 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,8 +63,13 @@
 #define IRMP_RCMM32_PROTOCOL                    36              // Fujitsu-Siemens (Activy remote control)
 #define IRMP_RCMM24_PROTOCOL                    37              // Fujitsu-Siemens (Activy keyboard)
 #define IRMP_RCMM12_PROTOCOL                    38              // Fujitsu-Siemens (Activy keyboard)
+#define IRMP_SPEAKER_PROTOCOL                   39              // Another loudspeaker protocol, similar to Nubert
+#define IRMP_LGAIR_PROTOCOL                     40              // LG air conditioner
+#define IRMP_SAMSUNG48_PROTOCOL                 41              // air conditioner with SAMSUNG protocol (48 bits)
 
-#define IRMP_N_PROTOCOLS                        38              // number of supported protocols
+#define IRMP_RADIO1_PROTOCOL                    42              // Radio protocol (experimental status), do not use it yet!
+
+#define IRMP_N_PROTOCOLS                        42              // number of supported protocols
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * timing constants:
@@ -120,7 +125,7 @@ typedef uint8_t     PAUSE_LEN;
 #define SIRCS_FLAGS                             0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * NEC & NEC42 & NEC16:
+ * NEC & NEC42 & NEC16 & LGAIR:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #define NEC_START_BIT_PULSE_TIME                9000.0e-6                       // 9000 usec pulse
@@ -145,6 +150,12 @@ typedef uint8_t     PAUSE_LEN;
 #define NEC42_COMMAND_LEN                       8                               // read 8 command bits
 #define NEC42_COMPLETE_DATA_LEN                42                               // complete length (2 x 13 + 2 x 8)
 
+#define LGAIR_ADDRESS_OFFSET                    0                               // skip 0 bits
+#define LGAIR_ADDRESS_LEN                       8                               // read 8 address bits
+#define LGAIR_COMMAND_OFFSET                    8                               // skip 8 bits (8 address)
+#define LGAIR_COMMAND_LEN                      16                               // read 16 bits (16 command)
+#define LGAIR_COMPLETE_DATA_LEN                28                               // complete length (8 address + 16 command + 4 checksum)
+
 #define NEC16_ADDRESS_OFFSET                    0                               // skip 0 bits
 #define NEC16_ADDRESS_LEN                       8                               // read 8 address bits
 #define NEC16_COMMAND_OFFSET                    8                               // skip 8 bits (8 address)
@@ -152,14 +163,14 @@ typedef uint8_t     PAUSE_LEN;
 #define NEC16_COMPLETE_DATA_LEN                 16                              // complete length
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * SAMSUNG & SAMSUNG32:
+ * SAMSUNG & SAMSUNG32 & SAMSUNG48:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #define SAMSUNG_START_BIT_PULSE_TIME            4500.0e-6                       // 4500 usec pulse
 #define SAMSUNG_START_BIT_PAUSE_TIME            4500.0e-6                       // 4500 usec pause
 #define SAMSUNG_PULSE_TIME                       550.0e-6                       //  550 usec pulse
-#define SAMSUNG_1_PAUSE_TIME                    1650.0e-6                       // 1650 usec pause
-#define SAMSUNG_0_PAUSE_TIME                     550.0e-6                       //  550 usec pause
+#define SAMSUNG_1_PAUSE_TIME                    1500.0e-6                       // 1550 usec pause
+#define SAMSUNG_0_PAUSE_TIME                     500.0e-6                       //  500 usec pause
 
 #define SAMSUNG_FRAME_REPEAT_PAUSE_TIME           25.0e-3                       // frame repeat after 25ms
 #define SAMSUNG_ADDRESS_OFFSET                   0                              // skip 0 bits
@@ -176,9 +187,16 @@ typedef uint8_t     PAUSE_LEN;
 #define SAMSUNG32_COMMAND_OFFSET                16                              // skip 16 bits
 #define SAMSUNG32_COMMAND_LEN                   16                              // read 16 command bits
 #define SAMSUNG32_COMPLETE_DATA_LEN             32                              // complete length
-#define SAMSUNG32_FRAMES                        1                               // SAMSUNG32 sends each frame 1 times
+#define SAMSUNG32_FRAMES                        2                               // SAMSUNG32 sends each frame 2 times // fm: correct?
 #define SAMSUNG32_AUTO_REPETITION_PAUSE_TIME    47.0e-3                         // repetition after 47 ms
 #define SAMSUNG32_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 47ms
+
+#define SAMSUNG48_COMMAND_OFFSET                16                              // skip 16 bits
+#define SAMSUNG48_COMMAND_LEN                   32                              // read 32 command bits
+#define SAMSUNG48_COMPLETE_DATA_LEN             48                              // complete length
+#define SAMSUNG48_FRAMES                        2                               // SAMSUNG48 sends each frame 2 times
+#define SAMSUNG48_AUTO_REPETITION_PAUSE_TIME    5.0e-3                          // repetition after 5 ms
+#define SAMSUNG48_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 47ms
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * MATSUSHITA:
@@ -335,6 +353,28 @@ typedef uint8_t     PAUSE_LEN;
 #define NUBERT_FLAGS                            0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * SPEAKER:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define SPEAKER_START_BIT_PULSE_TIME             440.0e-6                       // 1340 usec pulse
+#define SPEAKER_START_BIT_PAUSE_TIME            1250.0e-6                       //  340 usec pause
+#define SPEAKER_1_PULSE_TIME                    1250.0e-6                       // 1340 usec pulse
+#define SPEAKER_1_PAUSE_TIME                     440.0e-6                       //  340 usec pause
+#define SPEAKER_0_PULSE_TIME                     440.0e-6                       //  500 usec pulse
+#define SPEAKER_0_PAUSE_TIME                    1250.0e-6                       // 1300 usec pause
+#define SPEAKER_FRAMES                          2                               // Nubert sends 2 frames
+#define SPEAKER_AUTO_REPETITION_PAUSE_TIME        35.0e-3                       // auto repetition after 35ms
+#define SPEAKER_FRAME_REPEAT_PAUSE_TIME           35.0e-3                       // frame repeat after 45ms
+#define SPEAKER_ADDRESS_OFFSET                  0                               // skip 0 bits
+#define SPEAKER_ADDRESS_LEN                     0                               // read 0 address bits
+#define SPEAKER_COMMAND_OFFSET                  0                               // skip 0 bits
+#define SPEAKER_COMMAND_LEN                     10                              // read 10 bits
+#define SPEAKER_COMPLETE_DATA_LEN               10                              // complete length
+#define SPEAKER_STOP_BIT                        1                               // has stop bit
+#define SPEAKER_LSB                             0                               // MSB?
+#define SPEAKER_FLAGS                           0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * BANG_OLUFSEN:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
@@ -405,12 +445,23 @@ typedef uint8_t     PAUSE_LEN;
  * SIEMENS & RUWIDO:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
+
+#if 0
 #define SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME    275.0e-6                      //  275 usec pulse
 #define SIEMENS_OR_RUWIDO_START_BIT_PAUSE_TIME    550.0e-6                      //  550 usec pause
 #define SIEMENS_OR_RUWIDO_BIT_PULSE_TIME          275.0e-6                      //  275 usec short pulse
 #define SIEMENS_OR_RUWIDO_BIT_PULSE_TIME_2        550.0e-6                      //  550 usec long pulse
 #define SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME          275.0e-6                      //  275 usec short pause
 #define SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME_2        550.0e-6                      //  550 usec long pause
+#else
+#define SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME    370.0e-6                      //  370 usec pulse
+#define SIEMENS_OR_RUWIDO_START_BIT_PAUSE_TIME    550.0e-6                      //  550 usec pause
+#define SIEMENS_OR_RUWIDO_BIT_PULSE_TIME          370.0e-6                      //  370 usec short pulse
+#define SIEMENS_OR_RUWIDO_BIT_PULSE_TIME_2        680.0e-6                      //  680 usec long pulse
+#define SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME          275.0e-6                      //  275 usec short pause
+#define SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME_2        550.0e-6                      //  550 usec long pause
+#endif
+
 #define SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME 45.0e-3                       // frame repeat after 45ms
 #define SIEMENS_OR_RUWIDO_STOP_BIT                0                             // has no stop bit
 #define SIEMENS_OR_RUWIDO_LSB                     0                             // MSB...LSB
@@ -694,8 +745,8 @@ typedef uint8_t     PAUSE_LEN;
 #define RCMM32_START_BIT_PAUSE_TIME              220.0e-6                       // 220 usec pause
 #define RCMM32_PULSE_TIME                        230.0e-6                       // 230 usec pulse
 #define RCMM32_00_PAUSE_TIME                     220.0e-6                       // 220 usec pause
-#define RCMM32_01_PAUSE_TIME                     380.0e-6                       // 380 usec pause
-#define RCMM32_10_PAUSE_TIME                     550.0e-6                       // 550 usec pause
+#define RCMM32_01_PAUSE_TIME                     370.0e-6                       // 370 usec pause
+#define RCMM32_10_PAUSE_TIME                     540.0e-6                       // 540 usec pause
 #define RCMM32_11_PAUSE_TIME                     720.0e-6                       // 720 usec pause
 
 #define RCMM32_FRAME_REPEAT_PAUSE_TIME            80.0e-3                       // frame repeat after 80 ms
@@ -707,6 +758,27 @@ typedef uint8_t     PAUSE_LEN;
 #define RCMM32_STOP_BIT                         1                               // has stop bit
 #define RCMM32_LSB                              0                               // LSB...MSB
 #define RCMM32_FLAGS                            0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * RADIO1 - e.g. Tevion
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define RADIO1_START_BIT_PULSE_TIME            3000.0e-6                       // 3000 usec pulse
+#define RADIO1_START_BIT_PAUSE_TIME            7000.0e-6                       // 7000 usec pulse
+#define RADIO1_0_PULSE_TIME                     500.0e-6                       //  500 usec pulse
+#define RADIO1_0_PAUSE_TIME                    1000.0e-6                       // 1000 usec pause
+#define RADIO1_1_PULSE_TIME                    1000.0e-6                       // 1000 usec pulse
+#define RADIO1_1_PAUSE_TIME                     500.0e-6                       //  500 usec pause
+
+#define RADIO1_FRAME_REPEAT_PAUSE_TIME           25.0e-3                       // frame repeat after 25ms
+#define RADIO1_ADDRESS_OFFSET                   4                              // skip 4 bits
+#define RADIO1_ADDRESS_LEN                     16                              // read 16 address bits
+#define RADIO1_COMMAND_OFFSET                  20                              // skip 4 + 16 bits
+#define RADIO1_COMMAND_LEN                      3                              // read 3 command bits
+#define RADIO1_COMPLETE_DATA_LEN               23                              // complete length
+#define RADIO1_STOP_BIT                        1                               // has stop bit
+#define RADIO1_LSB                             1                               // LSB...MSB?
+#define RADIO1_FLAGS                           0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Frame Repetitions:

@@ -1,9 +1,9 @@
-/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irsnd.h
  *
- * Copyright (c) 2010-2013 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.h,v 1.17 2014/02/19 12:57:36 fm Exp $
+ * $Id: irsnd.h,v 1.19 2014/07/21 08:58:58 fm Exp $
  *
  * ATMEGA88 @ 8 MHz
  *
@@ -50,35 +50,46 @@
 #  endif
 
 #elif defined(PIC_C18)
-// Do not change lines below until you have a different HW. Example is for 18F2550/18F4550
-// setup macro for PWM used PWM module
-#  if IRSND_OCx == IRSND_PIC_CCP2        
-#    define PWMon()                             TMR2=0,CCP2CON |=0b1100
-#    define PWMoff()                            CCP2CON &=(~0b1100)
-#    define IRSND_PIN                           TRISCbits.TRISC1        // RC1 = PWM2
-#    define SetDCPWM(x)                         SetDCPWM2(x)                    
-#    define ClosePWM                            ClosePWM2
-#    define OpenPWM(x)                          OpenPWM2(x) 
-#  endif
-#  if IRSND_OCx == IRSND_PIC_CCP1        
-#    define PWMon()                             TMR2=0,CCP1CON |=0b1100
-#    define PWMoff()                            CCP1CON &=(~0b1100)
-#    define IRSND_PIN                           TRISCbits.TRISC2        // RC2 = PWM1
-#    define SetDCPWM(x)                         SetDCPWM1(x)
-#    define ClosePWM                            ClosePWM1
-#    define OpenPWM(x)                          OpenPWM1(x)
-#  endif
-//Setup macro for OpenTimer with defined Pre_Scaler
-#  if Pre_Scaler == 1
-#    define OpenTimer                               OpenTimer2(TIMER_INT_OFF & T2_PS_1_1); 
-#  elif Pre_Scaler == 4
-#    define OpenTimer                               OpenTimer2(TIMER_INT_OFF & T2_PS_1_4); 
-#  elif Pre_Scaler == 16
-#    define OpenTimer                               OpenTimer2(TIMER_INT_OFF & T2_PS_1_16); 
-#  else
-#    error Incorrect value for Pre_Scaler
-#  endif
-#endif // ARM_STM32
+
+# if defined(__12F1840)
+    // Do not change lines below unless you have a different HW. This example is for 12F1840
+    // setup macro for PWM used PWM module
+         
+    //~ #    define PWMon()                         TMR2=0,IRSND_PIN=1
+    //~ #    define PWMoff()                        CCP1CON &=(~0b1100)
+    //~ #    define PWMon()                         TMR2ON=1
+    //~ #    define PWMoff()                        TMR2ON=0
+    #if defined(IRSND_DEBUG) 
+        #define PWMon()                             LATA0=1
+        #define PWMoff()                            LATA0=0
+        #define IRSND_PIN                           LATA0
+    #else
+        #    define PWMon()                         TMR2=0,CCP1CON |=0b1100
+        #    define PWMoff()                        CCP1CON &=(~0b1100)
+        #    define IRSND_PIN                       RA2
+    #endif
+
+#else
+    // Do not change lines below until you have a different HW. Example is for 18F2550/18F4550
+    // setup macro for PWM used PWM module
+    #  if IRSND_OCx == IRSND_PIC_CCP2        
+    #    define PWMon()                             TMR2=0,CCP2CON |=0b1100
+    #    define PWMoff()                            CCP2CON &=(~0b1100)
+    #    define IRSND_PIN                           TRISCbits.TRISC1        // RC1 = PWM2
+    #    define SetDCPWM(x)                         SetDCPWM2(x)                    
+    #    define ClosePWM                            ClosePWM2
+    #    define OpenPWM(x)                          OpenPWM2(x) 
+    #  endif
+    #  if IRSND_OCx == IRSND_PIC_CCP1        
+    #    define PWMon()                             TMR2=0,CCP1CON |=0b1100
+    #    define PWMoff()                            CCP1CON &=(~0b1100)
+    #    define IRSND_PIN                           TRISCbits.TRISC2        // RC2 = PWM1
+    #    define SetDCPWM(x)                         SetDCPWM1(x)
+    #    define ClosePWM                            ClosePWM1
+    #    define OpenPWM(x)                          OpenPWM1(x)
+    # endif 
+# endif
+#  endif // PIC_C18
 
 #if IRSND_SUPPORT_SIEMENS_PROTOCOL == 1 && F_INTERRUPTS < 15000
 #  warning F_INTERRUPTS too low, SIEMENS protocol disabled (should be at least 15000)
