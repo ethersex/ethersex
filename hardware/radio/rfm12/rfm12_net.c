@@ -62,7 +62,7 @@ ISR(RFM12_VECTOR)               /* PCINT */
 #endif
 
   rfm12_modul_set_active(RFM12_MODULE_IP);
-  uint16_t status = rfm12_trans(RFM12_CMD_STATUS);
+  uint16_t status = rfm12_get_status();
 
   if (status & RFM12_STATUS_POR)
   {
@@ -209,7 +209,7 @@ ISR(RFM12_VECTOR)               /* PCINT */
 
     case RFM12_OFF:
     case RFM12_NEW:
-      rfm12_trans(RFM12_CMD_STATUS);    /* clear interrupt flags in RFM12 */
+      rfm12_get_status();    /* clear interrupt flags in RFM12 */
   }
   if (rfm12_status >= RFM12_TX)
     _uip_buf_lock = 8;
@@ -238,7 +238,7 @@ rfm12_net_init(void)
 #endif
 
 #ifdef DEBUG
-  uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
+  uint16_t result = rfm12_get_status();
   RFM12_DEBUG("rfm12_net/init: %x", result);
 #endif
 
@@ -269,7 +269,7 @@ rfm12_net_init(void)
   rfm12_rxstart();
 
 #ifdef DEBUG
-  result = rfm12_trans(RFM12_CMD_STATUS);
+  result = rfm12_get_status();
   RFM12_DEBUG("rfm12_net/init'd: %x", result);
 #endif
 #endif /* !RFM12_DISABLE */

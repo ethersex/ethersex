@@ -262,7 +262,7 @@ rfm12_fs20_init(void)
               RFM12_AFC_OE | RFM12_AFC_EN);
 
 #ifdef DEBUG
-  uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
+  uint16_t result = rfm12_get_status();
   RFM12_DEBUG("rfm12_fs20/init: %x", result);
 #endif
 
