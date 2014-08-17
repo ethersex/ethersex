@@ -225,16 +225,25 @@ rfm12_net_init(void)
   rfm12_prologue(RFM12_MODULE_IP);
 
   rfm12_trans(RFM12_CMD_LBDMCD | 0xE0);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_LBDMCD | 0xE0);
   rfm12_trans(RFM12BAND(CONF_RFM12_FREQ));
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12BAND(CONF_RFM12_FREQ));
   rfm12_trans(RFM12_CMD_DATAFILTER | RFM12_DATAFILTER_AL | 0x03);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_DATAFILTER | RFM12_DATAFILTER_AL | 0x03);
   rfm12_trans(RFM12_CMD_FIFORESET | 0x80 | RFM12_FIFORESET_DR);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_FIFORESET | 0x80 | RFM12_FIFORESET_DR);
   rfm12_trans(RFM12_CMD_WAKEUP);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_WAKEUP);
   rfm12_trans(RFM12_CMD_DUTYCYCLE);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_DUTYCYCLE);
   rfm12_trans(RFM12_CMD_AFC | 0xF7);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_AFC | 0xF7);
 
 #ifdef CONF_RFM12B_SUPPORT
   rfm12_trans(0xCED4);          /* Set Sync=2DD4 */
+  RFM12_DEBUG("rfm12_net/config: %04x", 0xCED4);
   rfm12_trans(0xCC16);          /* pll bandwitdh 0: max bitrate 86.2kHz */
+  RFM12_DEBUG("rfm12_net/config: %04x", 0xCC16);
 #endif
 
 #ifdef DEBUG
@@ -244,6 +253,7 @@ rfm12_net_init(void)
 
 #ifdef RFM12_DISABLE
   rfm12_trans(RFM12_CMD_PWRMGT);
+  RFM12_DEBUG("rfm12_net/config: %04x", RFM12_CMD_PWRMGT);
 #else
 #ifdef TEENSY_SUPPORT
   rfm12_trans(RFM12_CMD_FREQUENCY | RFM12FREQ(CONF_RFM12_FREQ));
