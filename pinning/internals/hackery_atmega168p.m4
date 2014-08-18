@@ -44,6 +44,7 @@
 #define _SPI2X0 SPI2X
 #define _EIMSK EIMSK
 #define _IVREG MCUCR
+#define _EICRA EICRA
 
 /* Watchdog status register */
 #define MCU_STATUS_REGISTER  MCUSR
