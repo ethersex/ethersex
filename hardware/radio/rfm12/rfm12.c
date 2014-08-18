@@ -78,7 +78,7 @@ rfm12_trans(uint16_t val)
   _SPCR0 |= (uint8_t) _BV(SPR0);
 #endif
 
-  uint16_t retval = (uint16_t) (spi_send(HI8(val)) << 8);
+  uint16_t retval = (uint16_t)spi_send(HI8(val)) << 8;
   retval += spi_send(LO8(val));
 
   /* spi clock high */
