@@ -216,10 +216,7 @@ rfm12_int_process(void)
 #ifdef HAVE_RFM12_PCINT
 ISR(RFM12_VECTOR)               /* PCINT */
 {
-  while(!PIN_HIGH(RFM12_PCINT))	/*	Loop while int is active */
-  {
-    rfm12_int_process();
-  }
+  rfm12_int_process();
 }
 #endif /* HAVE_RFM12_PCINT */
 
