@@ -125,6 +125,6 @@ uint16_t rfm12_setfreq(uint16_t);
 uint16_t rfm12_setbaud(uint16_t);
 uint16_t rfm12_setpower(uint8_t, uint8_t);
 #endif
-uint16_t rfm12_get_status(void);
+#define rfm12_get_status() rfm12_trans(RFM12_CMD_STATUS)
 
 #endif /* __RFM12_H */

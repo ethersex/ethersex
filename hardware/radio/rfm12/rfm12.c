@@ -145,9 +145,4 @@ rfm12_setpower(uint8_t power, uint8_t mod)
 }
 #endif /* !TEENSY_SUPPORT */
 
-uint16_t
-rfm12_get_status(void)
-{
-  return rfm12_trans(RFM12_CMD_STATUS);
-}
 
