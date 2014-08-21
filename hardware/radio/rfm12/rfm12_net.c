@@ -239,6 +239,7 @@ rfm12_net_init(void)
 
 #ifdef DEBUG
   uint16_t result = rfm12_get_status();
+  RFM12_DEBUG("rfm12_net/init: %x", result);
 #endif
 
 #ifdef RFM12_DISABLE
