@@ -49,11 +49,9 @@ static void rfm12_txstart_hard(void);
 
 #ifdef RFM12_INT_VECTOR
 ISR(RFM12_INT_VECTOR)
-#elif defined(RFM12_USE_POLL)
+#else
 void
 rfm12_int_process(void)
-#else
-ISR(RFM12_VECTOR)               /* PCINT */
 #endif
 {
 #ifdef HAVE_RFM12_PCINT
@@ -214,6 +212,16 @@ ISR(RFM12_VECTOR)               /* PCINT */
   if (rfm12_status >= RFM12_TX)
     _uip_buf_lock = 8;
 }
+
+#ifdef HAVE_RFM12_PCINT
+ISR(RFM12_VECTOR)               /* PCINT */
+{
+  while(!PIN_HIGH(RFM12_PCINT))	/*	Loop while int is active */
+  {
+    rfm12_int_process();
+  }
+}
+#endif /* HAVE_RFM12_PCINT */
 
 void
 rfm12_net_init(void)
@@ -479,6 +487,6 @@ rfm12_process(void)
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_net.h)
   mainloop(rfm12_process)
-  ifdef(`conf_RFM12_USE_POLL',`mainloop(rfm12_int_process)')
+  mainloop(rfm12_int_process)
   init(rfm12_net_init)
 */
