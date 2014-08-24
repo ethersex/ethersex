@@ -26,7 +26,11 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 #include "core/global.h"
+
+#ifdef DEBUG_USE_SYSLOG
+#include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
+#endif
 
 #define noinline __attribute__((noinline))
 
@@ -50,7 +54,6 @@
 #define debug_putchar(ch) debug_uart_put (ch, NULL)
 #define debug_putstr(s) debug_uart_putstr(s)
 #endif /* not DEBUG_USE_SYSLOG */
-
 #else /* not DEBUG */
 #define debug_init(...) do { } while(0)
 #define debug_printf(s, args...) do {} while(0)

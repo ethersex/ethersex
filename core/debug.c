@@ -24,9 +24,13 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/soft_uart.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/ecmd-base.h"
+
+#ifdef S1D15G10_SUPPORT
 #include "hardware/lcd/s1d15g10/s1d15g10.h"
+#endif
 
 #define noinline __attribute__((noinline))
 
@@ -46,26 +50,30 @@ debug_binary(uint8_t v)
   return binstr;
 }
 
+/* debugging via syslog has its own set of functions
+ * (see protocols/syslog/syslog_debug.c)
+ */
+#ifndef DEBUG_USE_SYSLOG
 
 static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_SETUP_WRITE);
 
-
-/* prototypes */
-void soft_uart_putchar(uint8_t c);
-
+#ifdef DEBUG_SERIAL_USART_SUPPORT
 #define USE_USART DEBUG_USE_USART
 #define BAUD DEBUG_BAUDRATE
 #include "core/usart.h"
+#endif
+
 #include "pinning.c"
 
+#ifdef DEBUG_SERIAL_USART_SUPPORT
 /* We generate our own usart init module, for our usart port */
 generate_usart_init()
-
+#endif
 
 void
 debug_init_uart(void)
 {
-#ifndef SOFT_UART_SUPPORT
+#ifdef DEBUG_SERIAL_USART_SUPPORT
   RS485_TE_SETUP;
   RS485_DISABLE_TX;
   usart_init();
@@ -93,19 +101,21 @@ debug_uart_put(char d, FILE * stream)
   #ifdef S1D15G10_SUPPORT
     lcd_putch(d);
   #endif /* S1D15G10_SUPPORT */
+
   #ifdef SOFT_UART_SUPPORT
     soft_uart_putchar(d);
   #else /* SOFT_UART_SUPPORT */
     while (!(usart(UCSR, A) & _BV(usart(UDRE))));
-
+    
     #if RS485_HAVE_TE
       /* enable interrupt usart transmit complete */
       usart(UCSR,B) |= _BV(usart(TXCIE));
       RS485_ENABLE_TX;
     #endif  /* RS485_HAVE_TE */
-
+    
     usart(UDR) = d;
   #endif /* SOFT_UART_SUPPORT */
+
   return 0;
 }
 
@@ -129,11 +139,10 @@ debug_uart_putstr(const char *d)
   }
 }
 
-
+#if defined(ECMD_PARSER_SUPPORT) && defined(DEBUG_SERIAL_USART_SUPPORT)
 void
 debug_process_uart(void)
 {
-#if defined(ECMD_PARSER_SUPPORT) && !defined(SOFT_UART_SUPPORT)
 #define LEN 60
 #define OUTPUTLEN 40
 
@@ -189,12 +198,13 @@ debug_process_uart(void)
       }
     }
   }
-#endif /* ECMD_PARSER_SUPPORT && !SOFT_UART_SUPPORT */
 }
+#endif /* ECMD_PARSER_SUPPORT && DEBUG_SERIAL_USART_SUPPORT */
 
+#endif /* DEBUG_USE_SYSLOG */
 
 /*
   -- Ethersex META --
   header(core/debug.h)
-  mainloop(debug_process_uart)
+  ifdef(`conf_ECMD_PARSER', `ifdef(`conf_DEBUG_SERIAL_USART', `mainloop(debug_process_uart)')')
 */
