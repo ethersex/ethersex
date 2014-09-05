@@ -31,7 +31,6 @@ divert(globals_divert)`
 
 #include <util/atomic.h>
 #include "hardware/onewire/onewire.h"
-#include "core/bit-macros.h"
 
 #ifdef ONEWIRE_POLLING_SUPPORT
 static int16_t
@@ -72,7 +71,7 @@ ow_read_temp(ow_rom_code_t *rom)
   if (ret == 1)
   {
     ow_temp_t temp = ow_temp_normalize(rom, &sp);
-    reval = (temp.twodigits ? temp.val / 10 : temp.val);
+    retval = (temp.twodigits ? temp.val / 10 : temp.val);
   }
 
   return retval;
