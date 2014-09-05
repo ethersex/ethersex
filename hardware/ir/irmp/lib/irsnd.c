@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * @file irsnd.c
  *
- * Copyright (c) 2010-2013 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2014 Frank Meyer - frank(at)fli4l.de
  *
  * Supported mikrocontrollers:
  *
@@ -13,7 +13,7 @@
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284, ATmega1284P
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
- * $Id: irsnd.c,v 1.72 2014/02/20 14:55:17 fm Exp $
+ * $Id: irsnd.c,v 1.81 2014/07/21 08:58:58 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,8 +174,8 @@
 #define SIRCS_1_PULSE_LEN                       (uint8_t)(F_INTERRUPTS * SIRCS_1_PULSE_TIME + 0.5)
 #define SIRCS_0_PULSE_LEN                       (uint8_t)(F_INTERRUPTS * SIRCS_0_PULSE_TIME + 0.5)
 #define SIRCS_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * SIRCS_PAUSE_TIME + 0.5)
-#define SIRCS_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * SIRCS_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
-#define SIRCS_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * SIRCS_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+#define SIRCS_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * SIRCS_AUTO_REPETITION_PAUSE_TIME + 0.5)               // use uint16_t!
+#define SIRCS_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * SIRCS_FRAME_REPEAT_PAUSE_TIME + 0.5)                  // use uint16_t!
 
 #define NEC_START_BIT_PULSE_LEN                 (uint8_t)(F_INTERRUPTS * NEC_START_BIT_PULSE_TIME + 0.5)
 #define NEC_START_BIT_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * NEC_START_BIT_PAUSE_TIME + 0.5)
@@ -183,68 +183,79 @@
 #define NEC_PULSE_LEN                           (uint8_t)(F_INTERRUPTS * NEC_PULSE_TIME + 0.5)
 #define NEC_1_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * NEC_1_PAUSE_TIME + 0.5)
 #define NEC_0_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * NEC_0_PAUSE_TIME + 0.5)
-#define NEC_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * NEC_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
+#define NEC_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * NEC_FRAME_REPEAT_PAUSE_TIME + 0.5)                    // use uint16_t!
 
 #define SAMSUNG_START_BIT_PULSE_LEN             (uint8_t)(F_INTERRUPTS * SAMSUNG_START_BIT_PULSE_TIME + 0.5)
 #define SAMSUNG_START_BIT_PAUSE_LEN             (uint8_t)(F_INTERRUPTS * SAMSUNG_START_BIT_PAUSE_TIME + 0.5)
 #define SAMSUNG_PULSE_LEN                       (uint8_t)(F_INTERRUPTS * SAMSUNG_PULSE_TIME + 0.5)
 #define SAMSUNG_1_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * SAMSUNG_1_PAUSE_TIME + 0.5)
 #define SAMSUNG_0_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * SAMSUNG_0_PAUSE_TIME + 0.5)
-#define SAMSUNG_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SAMSUNG_FRAME_REPEAT_PAUSE_TIME + 0.5)            // use uint16_t!
+#define SAMSUNG_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SAMSUNG_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
 
-#define SAMSUNG32_AUTO_REPETITION_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * SAMSUNG32_AUTO_REPETITION_PAUSE_TIME + 0.5)       // use uint16_t!
-#define SAMSUNG32_FRAME_REPEAT_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * SAMSUNG32_FRAME_REPEAT_PAUSE_TIME + 0.5)          // use uint16_t!
+#define SAMSUNG32_AUTO_REPETITION_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * SAMSUNG32_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
+#define SAMSUNG32_FRAME_REPEAT_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * SAMSUNG32_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+
+#define SAMSUNG48_AUTO_REPETITION_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * SAMSUNG48_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
+#define SAMSUNG48_FRAME_REPEAT_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * SAMSUNG48_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
 
 #define MATSUSHITA_START_BIT_PULSE_LEN          (uint8_t)(F_INTERRUPTS * MATSUSHITA_START_BIT_PULSE_TIME + 0.5)
 #define MATSUSHITA_START_BIT_PAUSE_LEN          (uint8_t)(F_INTERRUPTS * MATSUSHITA_START_BIT_PAUSE_TIME + 0.5)
 #define MATSUSHITA_PULSE_LEN                    (uint8_t)(F_INTERRUPTS * MATSUSHITA_PULSE_TIME + 0.5)
 #define MATSUSHITA_1_PAUSE_LEN                  (uint8_t)(F_INTERRUPTS * MATSUSHITA_1_PAUSE_TIME + 0.5)
 #define MATSUSHITA_0_PAUSE_LEN                  (uint8_t)(F_INTERRUPTS * MATSUSHITA_0_PAUSE_TIME + 0.5)
-#define MATSUSHITA_FRAME_REPEAT_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * MATSUSHITA_FRAME_REPEAT_PAUSE_TIME + 0.5)         // use uint16_t!
+#define MATSUSHITA_FRAME_REPEAT_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * MATSUSHITA_FRAME_REPEAT_PAUSE_TIME + 0.5)             // use uint16_t!
 
 #define KASEIKYO_START_BIT_PULSE_LEN            (uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PULSE_TIME + 0.5)
 #define KASEIKYO_START_BIT_PAUSE_LEN            (uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PAUSE_TIME + 0.5)
 #define KASEIKYO_PULSE_LEN                      (uint8_t)(F_INTERRUPTS * KASEIKYO_PULSE_TIME + 0.5)
 #define KASEIKYO_1_PAUSE_LEN                    (uint8_t)(F_INTERRUPTS * KASEIKYO_1_PAUSE_TIME + 0.5)
 #define KASEIKYO_0_PAUSE_LEN                    (uint8_t)(F_INTERRUPTS * KASEIKYO_0_PAUSE_TIME + 0.5)
-#define KASEIKYO_AUTO_REPETITION_PAUSE_LEN      (uint16_t)(F_INTERRUPTS * KASEIKYO_AUTO_REPETITION_PAUSE_TIME + 0.5)        // use uint16_t!
-#define KASEIKYO_FRAME_REPEAT_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * KASEIKYO_FRAME_REPEAT_PAUSE_TIME + 0.5)           // use uint16_t!
+#define KASEIKYO_AUTO_REPETITION_PAUSE_LEN      (uint16_t)(F_INTERRUPTS * KASEIKYO_AUTO_REPETITION_PAUSE_TIME + 0.5)            // use uint16_t!
+#define KASEIKYO_FRAME_REPEAT_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * KASEIKYO_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
 #define RECS80_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PULSE_TIME + 0.5)
 #define RECS80_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PAUSE_TIME + 0.5)
 #define RECS80_PULSE_LEN                        (uint8_t)(F_INTERRUPTS * RECS80_PULSE_TIME + 0.5)
 #define RECS80_1_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * RECS80_1_PAUSE_TIME + 0.5)
 #define RECS80_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * RECS80_0_PAUSE_TIME + 0.5)
-#define RECS80_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * RECS80_FRAME_REPEAT_PAUSE_TIME + 0.5)             // use uint16_t!
+#define RECS80_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * RECS80_FRAME_REPEAT_PAUSE_TIME + 0.5)                 // use uint16_t!
 
 #define RC5_START_BIT_LEN                       (uint8_t)(F_INTERRUPTS * RC5_BIT_TIME + 0.5)
 #define RC5_BIT_LEN                             (uint8_t)(F_INTERRUPTS * RC5_BIT_TIME + 0.5)
-#define RC5_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * RC5_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
+#define RC5_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * RC5_FRAME_REPEAT_PAUSE_TIME + 0.5)                    // use uint16_t!
 
 #define RC6_START_BIT_PULSE_LEN                 (uint8_t)(F_INTERRUPTS * RC6_START_BIT_PULSE_TIME + 0.5)
 #define RC6_START_BIT_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * RC6_START_BIT_PAUSE_TIME + 0.5)
 #define RC6_TOGGLE_BIT_LEN                      (uint8_t)(F_INTERRUPTS * RC6_TOGGLE_BIT_TIME + 0.5)
 #define RC6_BIT_LEN                             (uint8_t)(F_INTERRUPTS * RC6_BIT_TIME + 0.5)
-#define RC6_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * RC6_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
+#define RC6_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * RC6_FRAME_REPEAT_PAUSE_TIME + 0.5)                    // use uint16_t!
 
 #define DENON_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * DENON_PULSE_TIME + 0.5)
 #define DENON_1_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * DENON_1_PAUSE_TIME + 0.5)
 #define DENON_0_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * DENON_0_PAUSE_TIME + 0.5)
-#define DENON_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * DENON_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
-#define DENON_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * DENON_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+#define DENON_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * DENON_AUTO_REPETITION_PAUSE_TIME + 0.5)               // use uint16_t!
+#define DENON_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * DENON_FRAME_REPEAT_PAUSE_TIME + 0.5)                  // use uint16_t!
 
 #define THOMSON_PULSE_LEN                       (uint8_t)(F_INTERRUPTS * THOMSON_PULSE_TIME + 0.5)
 #define THOMSON_1_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * THOMSON_1_PAUSE_TIME + 0.5)
 #define THOMSON_0_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * THOMSON_0_PAUSE_TIME + 0.5)
-#define THOMSON_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * THOMSON_AUTO_REPETITION_PAUSE_TIME + 0.5)         // use uint16_t!
-#define THOMSON_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * THOMSON_FRAME_REPEAT_PAUSE_TIME + 0.5)            // use uint16_t!
+#define THOMSON_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * THOMSON_AUTO_REPETITION_PAUSE_TIME + 0.5)             // use uint16_t!
+#define THOMSON_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * THOMSON_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
 
 #define RECS80EXT_START_BIT_PULSE_LEN           (uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PULSE_TIME + 0.5)
 #define RECS80EXT_START_BIT_PAUSE_LEN           (uint8_t)(F_INTERRUPTS * RECS80EXT_START_BIT_PAUSE_TIME + 0.5)
 #define RECS80EXT_PULSE_LEN                     (uint8_t)(F_INTERRUPTS * RECS80EXT_PULSE_TIME + 0.5)
 #define RECS80EXT_1_PAUSE_LEN                   (uint8_t)(F_INTERRUPTS * RECS80EXT_1_PAUSE_TIME + 0.5)
 #define RECS80EXT_0_PAUSE_LEN                   (uint8_t)(F_INTERRUPTS * RECS80EXT_0_PAUSE_TIME + 0.5)
-#define RECS80EXT_FRAME_REPEAT_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * RECS80EXT_FRAME_REPEAT_PAUSE_TIME + 0.5)          // use uint16_t!
+#define RECS80EXT_FRAME_REPEAT_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * RECS80EXT_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+
+#define TELEFUNKEN_START_BIT_PULSE_LEN          (uint8_t)(F_INTERRUPTS * TELEFUNKEN_START_BIT_PULSE_TIME + 0.5)
+#define TELEFUNKEN_START_BIT_PAUSE_LEN          (uint8_t)(F_INTERRUPTS * TELEFUNKEN_START_BIT_PAUSE_TIME + 0.5)
+#define TELEFUNKEN_PULSE_LEN                    (uint8_t)(F_INTERRUPTS * TELEFUNKEN_PULSE_TIME + 0.5)
+#define TELEFUNKEN_1_PAUSE_LEN                  (uint8_t)(F_INTERRUPTS * TELEFUNKEN_1_PAUSE_TIME + 0.5)
+#define TELEFUNKEN_0_PAUSE_LEN                  (uint8_t)(F_INTERRUPTS * TELEFUNKEN_0_PAUSE_TIME + 0.5)
+#define TELEFUNKEN_AUTO_REPETITION_PAUSE_LEN    (uint16_t)(F_INTERRUPTS * TELEFUNKEN_AUTO_REPETITION_PAUSE_TIME + 0.5)          // use uint16_t!
+#define TELEFUNKEN_FRAME_REPEAT_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * TELEFUNKEN_FRAME_REPEAT_PAUSE_TIME + 0.5)             // use uint16_t!
 
 #define NUBERT_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * NUBERT_START_BIT_PULSE_TIME + 0.5)
 #define NUBERT_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * NUBERT_START_BIT_PAUSE_TIME + 0.5)
@@ -252,8 +263,17 @@
 #define NUBERT_1_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * NUBERT_1_PAUSE_TIME + 0.5)
 #define NUBERT_0_PULSE_LEN                      (uint8_t)(F_INTERRUPTS * NUBERT_0_PULSE_TIME + 0.5)
 #define NUBERT_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * NUBERT_0_PAUSE_TIME + 0.5)
-#define NUBERT_AUTO_REPETITION_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * NUBERT_AUTO_REPETITION_PAUSE_TIME + 0.5)          // use uint16_t!
-#define NUBERT_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * NUBERT_FRAME_REPEAT_PAUSE_TIME + 0.5)             // use uint16_t!
+#define NUBERT_AUTO_REPETITION_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * NUBERT_AUTO_REPETITION_PAUSE_TIME + 0.5)              // use uint16_t!
+#define NUBERT_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * NUBERT_FRAME_REPEAT_PAUSE_TIME + 0.5)                 // use uint16_t!
+
+#define SPEAKER_START_BIT_PULSE_LEN             (uint8_t)(F_INTERRUPTS * SPEAKER_START_BIT_PULSE_TIME + 0.5)
+#define SPEAKER_START_BIT_PAUSE_LEN             (uint8_t)(F_INTERRUPTS * SPEAKER_START_BIT_PAUSE_TIME + 0.5)
+#define SPEAKER_1_PULSE_LEN                     (uint8_t)(F_INTERRUPTS * SPEAKER_1_PULSE_TIME + 0.5)
+#define SPEAKER_1_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * SPEAKER_1_PAUSE_TIME + 0.5)
+#define SPEAKER_0_PULSE_LEN                     (uint8_t)(F_INTERRUPTS * SPEAKER_0_PULSE_TIME + 0.5)
+#define SPEAKER_0_PAUSE_LEN                     (uint8_t)(F_INTERRUPTS * SPEAKER_0_PAUSE_TIME + 0.5)
+#define SPEAKER_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * SPEAKER_AUTO_REPETITION_PAUSE_TIME + 0.5)             // use uint16_t!
+#define SPEAKER_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SPEAKER_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
 
 #define BANG_OLUFSEN_START_BIT1_PULSE_LEN       (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_START_BIT1_PULSE_TIME + 0.5)
 #define BANG_OLUFSEN_START_BIT1_PAUSE_LEN       (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_START_BIT1_PAUSE_TIME + 0.5)
@@ -266,25 +286,25 @@
 #define BANG_OLUFSEN_0_PAUSE_LEN                (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_0_PAUSE_TIME + 0.5)
 #define BANG_OLUFSEN_R_PAUSE_LEN                (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_R_PAUSE_TIME + 0.5)
 #define BANG_OLUFSEN_TRAILER_BIT_PAUSE_LEN      (uint8_t)(F_INTERRUPTS * BANG_OLUFSEN_TRAILER_BIT_PAUSE_TIME + 0.5)
-#define BANG_OLUFSEN_FRAME_REPEAT_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * BANG_OLUFSEN_FRAME_REPEAT_PAUSE_TIME + 0.5)       // use uint16_t!
+#define BANG_OLUFSEN_FRAME_REPEAT_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * BANG_OLUFSEN_FRAME_REPEAT_PAUSE_TIME + 0.5)           // use uint16_t!
 
 #define GRUNDIG_NOKIA_IR60_PRE_PAUSE_LEN        (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_PRE_PAUSE_TIME + 0.5)
 #define GRUNDIG_NOKIA_IR60_BIT_LEN              (uint8_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_BIT_TIME + 0.5)
-#define GRUNDIG_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * GRUNDIG_AUTO_REPETITION_PAUSE_TIME + 0.5)         // use uint16_t!
-#define NOKIA_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * NOKIA_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
+#define GRUNDIG_AUTO_REPETITION_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * GRUNDIG_AUTO_REPETITION_PAUSE_TIME + 0.5)             // use uint16_t!
+#define NOKIA_AUTO_REPETITION_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * NOKIA_AUTO_REPETITION_PAUSE_TIME + 0.5)               // use uint16_t!
 #define GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_LEN (uint16_t)(F_INTERRUPTS * GRUNDIG_NOKIA_IR60_FRAME_REPEAT_PAUSE_TIME + 0.5)   // use uint16_t!
 
-#define IR60_AUTO_REPETITION_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * IR60_AUTO_REPETITION_PAUSE_TIME + 0.5)            // use uint16_t!
+#define IR60_AUTO_REPETITION_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * IR60_AUTO_REPETITION_PAUSE_TIME + 0.5)                // use uint16_t!
 
 #define SIEMENS_START_BIT_LEN                   (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME + 0.5)
 #define SIEMENS_BIT_LEN                         (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_BIT_PULSE_TIME + 0.5)
-#define SIEMENS_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME + 0.5)  // use uint16_t!
+#define SIEMENS_FRAME_REPEAT_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME + 0.5)      // use uint16_t!
 
 #define RUWIDO_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_START_BIT_PULSE_TIME + 0.5)
 #define RUWIDO_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_START_BIT_PAUSE_TIME + 0.5)
 #define RUWIDO_BIT_PULSE_LEN                    (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_BIT_PULSE_TIME + 0.5)
 #define RUWIDO_BIT_PAUSE_LEN                    (uint8_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_BIT_PAUSE_TIME + 0.5)
-#define RUWIDO_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME + 0.5)  // use uint16_t!
+#define RUWIDO_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * SIEMENS_OR_RUWIDO_FRAME_REPEAT_PAUSE_TIME + 0.5)      // use uint16_t!
 
 #ifdef PIC_C18                                  // PIC C18
 #  define IRSND_FREQ_TYPE                       uint8_t
@@ -492,13 +512,33 @@ irsnd_off (void)
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRSND_USE_AS_LIB
+#if defined(__12F1840)
+extern void pwm_init(uint16_t freq);
+#include <stdio.h>
+#endif
+
 static void
 irsnd_set_freq (IRSND_FREQ_TYPE freq)
 {
 #ifndef ANALYZE
-#  if defined(PIC_C18)                                                                      // PIC C18
-         OpenPWM(freq); 
+#  if defined(PIC_C18)                                                                      // PIC C18 or XC8
+#    if defined(__12F1840)                                                                  // XC8
+         TRISA2=0;
+         PR2=freq;
+         CCP1M0=1;
+         CCP1M1=1;
+         CCP1M2=1;
+         CCP1M3=1;
+         DC1B0=1;
+         DC1B1=0;
+         CCPR1L = 0b01101001;
+         TMR2IF = 0;
+         TMR2ON=1;
+         CCP1CON &=(~0b0011); // p 197 "active high"
+#    else                                                                                   // PIC C18
+         OpenPWM(freq);
          SetDCPWM( (uint16_t) (freq * 2) + 1); // freq*2 = Duty cycles 50%
+#    endif
          PWMoff();
 #  elif defined (ARM_STM32)                                                                 // STM32
          static uint32_t      TimeBaseFreq = 0;
@@ -567,8 +607,10 @@ void
 irsnd_init (void)
 {
 #ifndef ANALYZE
-#  if defined(PIC_C18)                                                      // PIC C18
+#  if defined(PIC_C18)                                                      // PIC C18 or XC8 compiler
+#    if ! defined(__12F1840)                                                // only C18:
         OpenTimer;
+#    endif
         irsnd_set_freq (IRSND_FREQ_36_KHZ);                                 // default frequency
         IRSND_PIN = 0;                                                      // set IO to outout
         PWMoff();
@@ -582,6 +624,7 @@ irsnd_init (void)
         RCC_AHBPeriphClockCmd(IRSND_PORT_RCC, ENABLE);
 #    elif defined (ARM_STM32F10X)
         RCC_APB2PeriphClockCmd(IRSND_PORT_RCC, ENABLE);
+        // RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); // only in case of remapping, not necessary for default port-timer mapping
 #    elif defined (ARM_STM32F4XX)
         RCC_AHB1PeriphClockCmd(IRSND_PORT_RCC, ENABLE);
 #    endif
@@ -599,7 +642,7 @@ irsnd_init (void)
         GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
         GPIO_Init(IRSND_PORT, &GPIO_InitStructure);
-        GPIO_PinRemapConfig(, ENABLE);         // TODO: remapping required
+        // GPIO_PinRemapConfig(GPIO_*Remap*_TIM[IRSND_TIMER_NUMBER], ENABLE); // only in case of remapping, not necessary for default port-timer mapping
 #    endif
 
         /* TIMx clock enable */
@@ -837,6 +880,23 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_LGAIR_PROTOCOL == 1
+        case IRMP_LGAIR_PROTOCOL:
+        {
+            address = irmp_data_p->address;
+            command = irmp_data_p->command;
+
+            irsnd_buffer[0] = ( (address & 0x00FF));                                                            // AAAAAAAA
+            irsnd_buffer[1] = ( (command & 0xFF00) >> 8);                                                       // CCCCCCCC
+            irsnd_buffer[2] = ( (command & 0x00FF));                                                            // CCCCCCCC
+            irsnd_buffer[3] = (( ((command & 0xF000) >> 12) +                                                   // checksum
+                                 ((command & 0x0F00) >> 8) +
+                                 ((command & 0x00F0) >>4 ) +
+                                 ((command & 0x000F))) & 0x000F) << 4;
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1
         case IRMP_SAMSUNG_PROTOCOL:
         {
@@ -860,6 +920,22 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
             irsnd_buffer[2] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
             irsnd_buffer[3] = (command & 0x00FF);                                                               // CCCCCCCC
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_SAMSUNG48_PROTOCOL == 1
+        case IRMP_SAMSUNG48_PROTOCOL:
+        {
+            address = bitsrevervse (irmp_data_p->address, SAMSUNG_ADDRESS_LEN);
+            command = bitsrevervse (irmp_data_p->command, 16);
+
+            irsnd_buffer[0] = (address & 0xFF00) >> 8;                                                          // AAAAAAAA
+            irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
+            irsnd_buffer[2] = ((command & 0xFF00) >> 8);                                                        // CCCCCCCC
+            irsnd_buffer[3] = ~((command & 0xFF00) >> 8);                                                       // cccccccc
+            irsnd_buffer[4] = (command & 0x00FF);                                                               // CCCCCCCC
+            irsnd_buffer[5] = ~(command & 0x00FF);                                                              // cccccccc
             irsnd_busy      = TRUE;
             break;
         }
@@ -995,6 +1071,15 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_SPEAKER_PROTOCOL == 1
+        case IRMP_SPEAKER_PROTOCOL:
+        {
+            irsnd_buffer[0] = irmp_data_p->command >> 2;                                                        // CCCCCCCC
+            irsnd_buffer[1] = (irmp_data_p->command & 0x0003) << 6;                                             // CC000000
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1
         case IRMP_BANG_OLUFSEN_PROTOCOL:
         {
@@ -1008,12 +1093,22 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
 #if IRSND_SUPPORT_GRUNDIG_PROTOCOL == 1
         case IRMP_GRUNDIG_PROTOCOL:
         {
-            command = bitsrevervse (irmp_data_p->command, GRUNDIG_COMMAND_LEN);
+            command = bitsrevervse (irmp_data_p->command, TELEFUNKEN_COMMAND_LEN);
 
             irsnd_buffer[0] = 0xFF;                                                                             // S1111111 (1st frame)
             irsnd_buffer[1] = 0xC0;                                                                             // 11
             irsnd_buffer[2] = 0x80 | (command >> 2);                                                            // SCCCCCCC (2nd frame)
             irsnd_buffer[3] = (command << 6) & 0xC0;                                                            // CC
+
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_TELEFUNKEN_PROTOCOL == 1
+        case IRMP_TELEFUNKEN_PROTOCOL:
+        {
+            irsnd_buffer[0] = irmp_data_p->command >> 7;                                                        // CCCCCCCC
+            irsnd_buffer[1] = (irmp_data_p->command << 1) & 0xff;                                               // CCCCCCC
 
             irsnd_busy      = TRUE;
             break;
@@ -1282,17 +1377,9 @@ irsnd_ISR (void)
                     return irsnd_busy;
                 }
             }
-#if 0
             else if (packet_repeat_pause_counter < repeat_frame_pause_len)
-#else
-            // fm 2013-05-06: SIRCs has 2 autorepetitions and N normal repetitions.
-            // if auto_repetition_counter == 0, we have to repeat the frame according to flags
-            if (auto_repetition_counter == 0 && packet_repeat_pause_counter < repeat_frame_pause_len)
-#endif
             {
                 packet_repeat_pause_counter++;
-// fprintf (stdout, "!%d %d!\n", packet_repeat_pause_counter, repeat_frame_pause_len);
-// fflush (stdout);
 #ifdef ANALYZE
                 if (irsnd_is_on)
                 {
@@ -1409,6 +1496,24 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_LGAIR_PROTOCOL == 1
+                    case IRMP_LGAIR_PROTOCOL:
+                    {
+                        startbit_pulse_len          = NEC_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = NEC_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = NEC_PULSE_LEN;
+                        pause_1_len                 = NEC_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = NEC_PULSE_LEN;
+                        pause_0_len                 = NEC_0_PAUSE_LEN - 1;
+                        has_stop_bit                = NEC_STOP_BIT;
+                        complete_data_len           = LGAIR_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = NEC_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
 #if IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1
                     case IRMP_SAMSUNG_PROTOCOL:
                     {
@@ -1437,9 +1542,27 @@ irsnd_ISR (void)
                         pause_0_len                 = SAMSUNG_0_PAUSE_LEN - 1;
                         has_stop_bit                = SAMSUNG_STOP_BIT;
                         complete_data_len           = SAMSUNG32_COMPLETE_DATA_LEN;
-                        n_auto_repetitions          = SAMSUNG32_FRAMES;                             // 2 frames
+                        n_auto_repetitions          = SAMSUNG32_FRAMES;                             // 1 frame
                         auto_repetition_pause_len   = SAMSUNG32_AUTO_REPETITION_PAUSE_LEN;          // 47 ms pause
                         repeat_frame_pause_len      = SAMSUNG32_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_SAMSUNG48_PROTOCOL == 1
+                    case IRMP_SAMSUNG48_PROTOCOL:
+                    {
+                        startbit_pulse_len          = SAMSUNG_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = SAMSUNG_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = SAMSUNG_PULSE_LEN;
+                        pause_1_len                 = SAMSUNG_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = SAMSUNG_PULSE_LEN;
+                        pause_0_len                 = SAMSUNG_0_PAUSE_LEN - 1;
+                        has_stop_bit                = SAMSUNG_STOP_BIT;
+                        complete_data_len           = SAMSUNG48_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = SAMSUNG48_FRAMES;                             // 1 frame
+                        auto_repetition_pause_len   = SAMSUNG48_AUTO_REPETITION_PAUSE_LEN;          // 47 ms pause
+                        repeat_frame_pause_len      = SAMSUNG48_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
@@ -1512,6 +1635,24 @@ irsnd_ISR (void)
                         n_auto_repetitions          = 1;                                            // 1 frame
                         auto_repetition_pause_len   = 0;
                         repeat_frame_pause_len      = RECS80EXT_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_TELEFUNKEN_PROTOCOL == 1
+                    case IRMP_TELEFUNKEN_PROTOCOL:
+                    {
+                        startbit_pulse_len          = TELEFUNKEN_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = TELEFUNKEN_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = TELEFUNKEN_PULSE_LEN;
+                        pause_1_len                 = TELEFUNKEN_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = TELEFUNKEN_PULSE_LEN;
+                        pause_0_len                 = TELEFUNKEN_0_PAUSE_LEN - 1;
+                        has_stop_bit                = TELEFUNKEN_STOP_BIT;
+                        complete_data_len           = TELEFUNKEN_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = 1;                                            // 1 frames
+                        auto_repetition_pause_len   = 0;                                            // TELEFUNKEN_AUTO_REPETITION_PAUSE_LEN;         // xx ms pause
+                        repeat_frame_pause_len      = TELEFUNKEN_FRAME_REPEAT_PAUSE_LEN;            // 117 msec pause
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
@@ -1615,6 +1756,24 @@ irsnd_ISR (void)
                         auto_repetition_pause_len   = NUBERT_AUTO_REPETITION_PAUSE_LEN;             // 35 ms pause
                         repeat_frame_pause_len      = NUBERT_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_36_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_SPEAKER_PROTOCOL == 1
+                    case IRMP_SPEAKER_PROTOCOL:
+                    {
+                        startbit_pulse_len          = SPEAKER_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = SPEAKER_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = SPEAKER_1_PULSE_LEN;
+                        pause_1_len                 = SPEAKER_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = SPEAKER_0_PULSE_LEN;
+                        pause_0_len                 = SPEAKER_0_PAUSE_LEN - 1;
+                        has_stop_bit                = SPEAKER_STOP_BIT;
+                        complete_data_len           = SPEAKER_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = SPEAKER_FRAMES;                                // 2 frames
+                        auto_repetition_pause_len   = SPEAKER_AUTO_REPETITION_PAUSE_LEN;             // 35 ms pause
+                        repeat_frame_pause_len      = SPEAKER_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
 #endif
@@ -1873,9 +2032,15 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_NEC42_PROTOCOL == 1
                 case IRMP_NEC42_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_LGAIR_PROTOCOL == 1
+                case IRMP_LGAIR_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1
                 case IRMP_SAMSUNG_PROTOCOL:
                 case IRMP_SAMSUNG32_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_SAMSUNG48_PROTOCOL == 1
+                case IRMP_SAMSUNG48_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1
                 case IRMP_MATSUSHITA_PROTOCOL:
@@ -1889,11 +2054,17 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1
                 case IRMP_RECS80EXT_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_TELEFUNKEN_PROTOCOL == 1
+                case IRMP_TELEFUNKEN_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_DENON_PROTOCOL == 1
                 case IRMP_DENON_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_NUBERT_PROTOCOL == 1
                 case IRMP_NUBERT_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_SPEAKER_PROTOCOL == 1
+                case IRMP_SPEAKER_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1
                 case IRMP_BANG_OLUFSEN_PROTOCOL:
@@ -1921,11 +2092,11 @@ irsnd_ISR (void)
 #endif
 
 #if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_NEC16_PROTOCOL == 1 || IRSND_SUPPORT_NEC42_PROTOCOL == 1 || \
-    IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
+    IRSND_SUPPORT_LGAIR_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
-    IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
+    IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_SPEAKER_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
     IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || IRSND_SUPPORT_LEGO_PROTOCOL == 1 || IRSND_SUPPORT_THOMSON_PROTOCOL == 1 || \
-    IRSND_SUPPORT_ROOMBA_PROTOCOL == 1
+    IRSND_SUPPORT_ROOMBA_PROTOCOL == 1 || IRSND_SUPPORT_TELEFUNKEN_PROTOCOL == 1
                 {
 #if IRSND_SUPPORT_DENON_PROTOCOL == 1
                     if (irsnd_protocol == IRMP_DENON_PROTOCOL)
@@ -1957,7 +2128,7 @@ irsnd_ISR (void)
                                 if (current_bit < SAMSUNG_ADDRESS_LEN)                              // send address bits
                                 {
                                     pulse_len = SAMSUNG_PULSE_LEN;
-                                    pause_len = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ?
+                                    pause_len = (irsnd_buffer[current_bit >> 3] & (1<<(7-(current_bit & 7)))) ?
                                                     (SAMSUNG_1_PAUSE_LEN - 1) : (SAMSUNG_0_PAUSE_LEN - 1);
                                 }
                                 else if (current_bit == SAMSUNG_ADDRESS_LEN)                        // send SYNC bit (16th bit)
@@ -1970,7 +2141,7 @@ irsnd_ISR (void)
                                     uint8_t cur_bit = current_bit - 1;                              // sync skipped, offset = -1 !
 
                                     pulse_len = SAMSUNG_PULSE_LEN;
-                                    pause_len = (irsnd_buffer[cur_bit / 8] & (1<<(7-(cur_bit % 8)))) ?
+                                    pause_len = (irsnd_buffer[cur_bit >> 3] & (1<<(7-(cur_bit & 7)))) ?
                                                     (SAMSUNG_1_PAUSE_LEN - 1) : (SAMSUNG_0_PAUSE_LEN - 1);
                                 }
                             }
@@ -1983,7 +2154,7 @@ irsnd_ISR (void)
                                 if (current_bit < NEC16_ADDRESS_LEN)                                // send address bits
                                 {
                                     pulse_len = NEC_PULSE_LEN;
-                                    pause_len = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ?
+                                    pause_len = (irsnd_buffer[current_bit >> 3] & (1<<(7-(current_bit & 7)))) ?
                                                     (NEC_1_PAUSE_LEN - 1) : (NEC_0_PAUSE_LEN - 1);
                                 }
                                 else if (current_bit == NEC16_ADDRESS_LEN)                          // send SYNC bit (8th bit)
@@ -1996,7 +2167,7 @@ irsnd_ISR (void)
                                     uint8_t cur_bit = current_bit - 1;                              // sync skipped, offset = -1 !
 
                                     pulse_len = NEC_PULSE_LEN;
-                                    pause_len = (irsnd_buffer[cur_bit / 8] & (1<<(7-(cur_bit % 8)))) ?
+                                    pause_len = (irsnd_buffer[cur_bit >> 3] & (1<<(7-(cur_bit & 7)))) ?
                                                     (NEC_1_PAUSE_LEN - 1) : (NEC_0_PAUSE_LEN - 1);
                                 }
                             }
@@ -2028,7 +2199,7 @@ irsnd_ISR (void)
                                 }
                                 else if (current_bit < BANG_OLUFSEN_COMPLETE_DATA_LEN)              // send n'th bit
                                 {
-                                    uint8_t cur_bit_value = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ? 1 : 0;
+                                    uint8_t cur_bit_value = (irsnd_buffer[current_bit >> 3] & (1<<(7-(current_bit & 7)))) ? 1 : 0;
                                     pulse_len = BANG_OLUFSEN_PULSE_LEN;
 
                                     if (cur_bit_value == last_bit_value)
@@ -2044,7 +2215,7 @@ irsnd_ISR (void)
                             }
                             else
 #endif
-                            if (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8))))
+                            if (irsnd_buffer[current_bit >> 3] & (1<<(7-(current_bit & 7))))
                             {
                                 pulse_len = pulse_1_len;
                                 pause_len = pause_1_len;
@@ -2211,7 +2382,7 @@ irsnd_ISR (void)
                             {
                                 pulse_len = GRUNDIG_NOKIA_IR60_BIT_LEN;
                                 pause_len = GRUNDIG_NOKIA_IR60_BIT_LEN;
-                                first_pulse = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ? TRUE : FALSE;
+                                first_pulse = (irsnd_buffer[current_bit >> 3] & (1<<(7-(current_bit & 7)))) ? TRUE : FALSE;
                             }
                         }
                         else // if (irsnd_protocol == IRMP_RC5_PROTOCOL || irsnd_protocol == IRMP_RC6_PROTOCOL || irsnd_protocol == IRMP_RC6A_PROTOCOL ||
@@ -2271,7 +2442,7 @@ irsnd_ISR (void)
                                     }
                                 }
 #endif
-                                first_pulse = (irsnd_buffer[current_bit / 8] & (1<<(7-(current_bit % 8)))) ? TRUE : FALSE;
+                                first_pulse = (irsnd_buffer[current_bit >> 3] & (1<<(7-(current_bit & 7)))) ? TRUE : FALSE;
                             }
 
                             if (irsnd_protocol == IRMP_RC5_PROTOCOL)

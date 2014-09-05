@@ -71,9 +71,13 @@ typedef enum
   IRMP_PROTO_ORTEK,             /* ORTEK - Hama */
   IRMP_PROTO_TELEFUNKEN,        /* Telefunken (1560) */
   IRMP_PROTO_ROOMBA,            /* iRobot Roomba vacuum cleaner */
-  IR_RCMM32_PROTOCOL,           /* Fujitsu-Siemens (Activy remote control) */
-  IR_RCMM24_PROTOCOL,           /* Fujitsu-Siemens (Activy remote control) */
-  IR_RCMM12_PROTOCOL            /* Fujitsu-Siemens (Activy remote control) */
+  IRMP_PROTO_RCMM32,            /* Fujitsu-Siemens (Activy remote control) */
+  IRMP_PROTO_RCMM24,            /* Fujitsu-Siemens (Activy remote control) */
+  IRMP_PROTO_RCMM12,            /* Fujitsu-Siemens (Activy remote control) */
+  IRMP_PROTO_SPEAKER,           /* Another loudspeaker protocol, similar to Nubert */
+  IRMP_PROTO_LGAIR,             /* LG air conditioner */
+  IRMP_PROTO_SAMSUNG48,         /* air conditioner with SAMSUNG protocol (48 bits) */
+  IRMP_PROTO_RADIO1             /* Radio protocol (experimental stat */
 } irmp_prot_e;
 
 typedef struct

@@ -216,7 +216,10 @@ static const char proto_roomba[] PROGMEM = "ROOMBA";
 static const char proto_rcmm32[] PROGMEM = "RCMM32";
 static const char proto_rcmm24[] PROGMEM = "RCMM24";
 static const char proto_rcmm12[] PROGMEM = "RCMM12";
-
+static const char proto_speaker[] PROGMEM = "SPEAKER";
+static const char proto_lgair[] PROGMEM = "LGAIR";
+static const char proto_samsung48[] PROGMEM = "SAMSUNG48";
+static const char proto_radio1[] PROGMEM = "RADIO1";
 
 const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_unknown,
@@ -258,6 +261,10 @@ const PGM_P const irmp_proto_names[] PROGMEM = {
   proto_rcmm32,
   proto_rcmm24,
   proto_rcmm12,
+  proto_speaker,
+  proto_lgair,
+  proto_samsung48,
+  proto_radio1,
 };
 #endif
 
