@@ -69,11 +69,13 @@ uint8_t i2c_ds13x7_get_block(uint8_t addr, char *data, uint8_t len) {
      TWDR = (I2C_SLA_DS13X7 << 1) | TW_READ;
      if(i2c_master_transmit() != TW_MR_SLA_ACK) {ret = 4; goto end; }
 
+     len--;
      for (uint8_t i=0;i<len;i++) {
 	  if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK) { ret = 5; goto end; }
 	  *(data+i) = TWDR;
      }
-     
+     if (i2c_master_transmit() != TW_MR_DATA_NACK) { ret = 5; goto end; }
+     *(data+len) = TWDR;
      
  end:
      i2c_master_stop();
