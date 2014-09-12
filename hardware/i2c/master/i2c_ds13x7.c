@@ -26,7 +26,6 @@
 #include "config.h"
 #include "i2c_master.h"
 #include "i2c_ds13x7.h"
-#include <avr/interrupt.h>
 #include <string.h>
 
 #include "services/clock/clock.h"
@@ -34,8 +33,6 @@
 uint8_t i2c_ds13x7_set_block(uint8_t addr, char *data, uint8_t len) {
      uint8_t ret = 0;
 
-     uint8_t sreg = SREG; cli();
-     
      if (!i2c_master_select( I2C_SLA_DS13X7, TW_WRITE)) { ret=1; goto end; }
      
      TWDR = addr;
@@ -48,15 +45,12 @@ uint8_t i2c_ds13x7_set_block(uint8_t addr, char *data, uint8_t len) {
      
  end:
      i2c_master_stop();
-     SREG = sreg; 
      return ret;
 }
 
 uint8_t i2c_ds13x7_get_block(uint8_t addr, char *data, uint8_t len) {
      uint8_t ret = 0;
 
-     uint8_t sreg = SREG; cli();
-     
      if (!i2c_master_select( I2C_SLA_DS13X7, TW_WRITE)) { ret=1; goto end; }
      
      TWDR = addr;
@@ -79,7 +73,6 @@ uint8_t i2c_ds13x7_get_block(uint8_t addr, char *data, uint8_t len) {
      
  end:
      i2c_master_stop();
-     SREG = sreg; 
      return ret;
 }
 
