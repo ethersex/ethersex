@@ -1,6 +1,6 @@
 /* 
- * Copyright (c) 2009 by Dirk Tostmann <tostmann@busware.de>
- * Copyright (c) 2010 by Thomas Kaiser
+ * Copyright (c) 2009 Dirk Tostmann <tostmann@busware.de>
+ * Copyright (c) 2010 Thomas Kaiser
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
@@ -211,5 +211,5 @@ i2c_ds13x7_init(void)
 /*
   -- Ethersex META --
   header(hardware/i2c/master/i2c_ds13x7.h)
-  ifdef(`conf_CLOCK_SUPPORT',`init(i2c_ds13x7_init)')
+  ifdef(`conf_CLOCK',`init(i2c_ds13x7_init)')
 */
