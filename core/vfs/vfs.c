@@ -74,15 +74,16 @@ vfs_open(const char *filename)
 struct vfs_file_handle_t *
 vfs_create(const char *name)
 {
-  for (uint8_t i = 0; i < VFS_LAST; i++)
+  struct vfs_file_handle_t *fh = NULL;
+  for (uint8_t i = 0; fh == NULL && i < VFS_LAST; i++)
   {
     struct vfs_func_t funcs;
     memcpy_P(&funcs, &vfs_funcs[i], sizeof(struct vfs_func_t));
     if (funcs.create)
-      return funcs.create(name);
+      fh = funcs.create(name);
   }
 
-  return NULL;
+  return fh;
 }
 
 /* flag: 0=read, 1=write, 2=size */
