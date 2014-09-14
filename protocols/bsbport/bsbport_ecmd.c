@@ -104,7 +104,7 @@ parse_cmd_bsbport_get(char *cmd, char *output, uint16_t len)
   uint8_t p4 = 0;
   uint8_t src = 0;
   int16_t ret = 0;
-  char type[4];
+  char type[5];
 
   //Trim Leading spaces
   while (cmd[0] == ' ')
@@ -113,7 +113,7 @@ parse_cmd_bsbport_get(char *cmd, char *output, uint16_t len)
   }
 
   ret =
-    sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s"), &p1, &p2, &p3, &p4,
+    sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %s"), &p1, &p2, &p3, &p4,
              &src, type);
 
 #ifdef DEBUG_BSBPORT_ECMD
@@ -140,6 +140,12 @@ parse_cmd_bsbport_get(char *cmd, char *output, uint16_t len)
           ret =
             snprintf_P(output, len, PSTR("%u"),
                        bsbport_msg_buffer.msg[i].value_raw);
+        }
+        else if (strcmp_P(type, PSTR("STAT")) == 0)
+        {
+          ret =
+            snprintf_P(output, len, PSTR("%u"),
+                       (uint8_t)(bsbport_msg_buffer.msg[i].value_raw >> 8));
         }
         else if (strcmp_P(type, PSTR("TMP")) == 0)
         {
@@ -281,7 +287,7 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
   block([[BSBPORT]] commands)
   ecmd_feature(bsbport_stats, "bsbport stats",, Report statistic counters OK/CRC/Lenght/Frame/Overflow/Parity/Buffer/BufferNet/Retransmit)
   ecmd_feature(bsbport_list, "bsbport list",, List all messages currently in buffer)
-  ecmd_feature(bsbport_get, "bsbport get",P1 P2 P3 P4 SRC TYPE, Show specific message currently in buffer format value as TYPE, type is one of RAW,TMP,FP1,FP5)
-  ecmd_feature(bsbport_set, "bsbport set",P1 P2 P3 P4 DEST TYPE VALUE, Send Message to set value, type is one of RAW,SEL,TMP,FP1,FP5, DEST is optional defaults to 0)
+  ecmd_feature(bsbport_get, "bsbport get",P1 P2 P3 P4 SRC TYPE, Show specific message currently in buffer format value as TYPE, type is one of RAW,STAT,TMP,FP1,FP5)
+  ecmd_feature(bsbport_set, "bsbport set",P1 P2 P3 P4 DEST TYPE VALUE, Send Message to set value, type is one of RAW,SEL,TMP,FP1,FP5)
   ecmd_feature(bsbport_query, "bsbport query",P1 P2 P3 P4 [DEST], Send Message to query for a value, DEST is optional defaults to 0 )
 */
