@@ -229,7 +229,7 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
       data[2] = (uint8_t) (0x00FF & (uint16_t) val);
       datalen = 3;
     }
-    if (strcmp_P(type, PSTR("SEL")) == 0)
+    else if (strcmp_P(type, PSTR("SEL")) == 0)
     {
       data[0] = 0x01;
       data[1] = (uint8_t) (val);
