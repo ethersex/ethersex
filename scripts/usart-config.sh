@@ -1,6 +1,12 @@
 
 get_usart_count() {
-  USARTS=$(( $(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -C -E -dD - | sed -n 's/.* UDR\([0-9]*\).*/\1/p' | sort -n -r | sed -n 1p) + 1 ))
+  local USARTS_NUMTXT=$(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - | sed -n 's/.* UDR\([0-9]*\).*/\1/p' | sort -n -r | sed -n 1p)
+
+  if [ "x$USARTS_NUMTXT" == "x" ]; then
+	let USARTS=0
+  else
+	USARTS=$(( ${USARTS_NUMTXT} + 1 ))
+  fi
 }
 
 usart_choice() {
@@ -27,31 +33,13 @@ usart_count_used() {
   USARTS_USED=0
 
   # DEBUG and ECMD share the same channel.
-  # Possible combinations of Debug, Syslog and ECMD.
   # Result is the number of USARTS in use.
   #
-  #      Sys- De-
-  # ECMD log  bug Result
-  #  n    n    n   0
-  #  n    n    y   1
-  #  n    y    n   0 *1
-  #  n    y    y   0
-  #  y    n    n   1
-  #  y    n    y   1
-  #  y    y    n   1 *2
-  #  y    y    y   1
-  #
-  # *1 Syslog without debug should not happen, but can be achieved.
-  # *2 Again invalid syslog/debug combination, ECMD is valid.
-
-  # The two following if statements are position dependent!
-  if [ "$DEBUG" = y ] || [ "$ECMD_SERIAL_USART_SUPPORT" = y ] ; then
+  # Allow parallel usage of debug and ecmd on one port.
+  # If the user configures to different ports, we're lost.
+  if [ "$DEBUG_SERIAL_USART_SUPPORT" = y ] || [ "$ECMD_SERIAL_USART_SUPPORT" = y ] ; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
-  if [ "$ECMD_SERIAL_USART_SUPPORT" != y ] && [ "$DEBUG_USE_SYSLOG" = y ] && [ "$DEBUG" = y ] ; then
-    USARTS_USED=$(($USARTS_USED - 1))
-  fi
-
   if [ "$DC3840_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi

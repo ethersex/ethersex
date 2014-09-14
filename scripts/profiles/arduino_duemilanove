@@ -27,33 +27,34 @@ atmega168=y
 # at90can64 is not set
 # at90can128 is not set
 FREQ=16000000
-HARDWARE=Arduino_Duemilanove
-Arduino_Duemilanove=y
-# Fimser is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
-# MicroWebServer is not set
-# USBrfm12stick is not set
 # alpengluehn is not set
 # antares_I is not set
 # antares_IO is not set
 # antares_O is not set
+HARDWARE=Arduino_Duemilanove
+Arduino_Duemilanove=y
 # beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
+# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
 # lome6 is not set
-# netio is not set
+# MicroWebServer is not set
 # netio_addon is not set
+# netio_bsbport is not set
+# netio is not set
 # other is not set
-# pollin_evalboard is not set
 # pollin_evalboard_addon is not set
+# pollin_evalboard is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
+# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -73,14 +74,18 @@ EEPROM_PAGESIZE=0x4
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="02bdf58"
+GIT_VERSION="ac826dc"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
+DEBUG_OUTPUT=usart
+usart=y
+# soft_uart is not set
+DEBUG_SERIAL_USART_SUPPORT=y
+# SOFT_UART_SUPPORT is not set
+# DEBUG_USE_SYSLOG is not set
 DEBUG_USART_0=y
 DEBUG_USE_USART=0
 DEBUG_BAUDRATE=19200
-# DEBUG_USE_SYSLOG is not set
-# SOFT_UART_SUPPORT is not set
 # DEBUG_HOOK is not set
 # DEBUG_RESET_REASON is not set
 STATUSLEDS=y
@@ -675,6 +680,7 @@ CONF_USTREAM_IP="205.188.234.7"
 CONF_USTREAM_PORT=80
 # DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
+# BSBPORT_SUPPORT is not set
 # MSR1_SUPPORT is not set
 # TO1_SUPPORT is not set
 # SERIAL_LINE_LOG_SUPPORT is not set
@@ -1008,7 +1014,7 @@ CONFIG_AVRDUDE_BITCLOCK=AVRDUDE_BITCLOCK_1
 AVRDUDE_BITCLOCK_1=y
 # AVRDUDE_BITCLOCK_05 is not set
 # AVRDUDE_BITCLOCK_03 is not set
-AVRDUDE_BITCLOCK="-B 4"
+AVRDUDE_BITCLOCK="-B 1"
 CONFIG_AVRDUDE_EXTRA_OPTIONS=""
 CONFIG_AVRDUDE_LFUSE=
 AVRDUDE_LFUSE=INVALID_VALUE
