@@ -1,12 +1,11 @@
 
 get_usart_count() {
-  local USARTS_NUMTXT=$(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - | sed -n 's/.* UDR\([0-9]*\).*/\1/p' | sort -n -r | sed -n 1p)
-
-  if [ "x$USARTS_NUMTXT" == "x" ]; then
-	let USARTS=0
-  else
-	USARTS=$(( ${USARTS_NUMTXT} + 1 ))
-  fi
+  USARTS=$(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
+    awk -e "BEGIN {numusart=0};\
+     /.* UDR[0-9]* .*\$/ { num=substr(\$2, 4);\
+     num++;\
+     if ( num > numusart ) { numusart=num } };\
+     END { print numusart }")
 }
 
 usart_choice() {
