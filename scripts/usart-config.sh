@@ -1,7 +1,10 @@
+# get USART count and usage
+
+. scripts/osdefaults.sh
 
 get_usart_count() {
   USARTS=$(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
-    awk -e "BEGIN {numusart=0};\
+    ${AWK} "BEGIN {numusart=0};\
      /.* UDR[0-9]* .*\$/ { num=substr(\$2, 4);\
      num++;\
      if ( num > numusart ) { numusart=num } };\
