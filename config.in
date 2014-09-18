@@ -97,6 +97,7 @@ fi
 	dep_bool_menu "Enable Debugging" DEBUG y
 		comment "Debugging output"
 		usart_count_used
+		debug_output_choices=""
 		if [ "$DEBUG_SERIAL_USART_SUPPORT" = y \
 			-o "$ECMD_SERIAL_USART_SUPPORT" = y \
 			-o $USARTS -gt $USARTS_USED ]; then
