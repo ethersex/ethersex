@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2013-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.26 2014/07/21 08:58:58 fm Exp $
+ * $Id: irmpprotocols.h,v 1.28 2014/09/15 12:36:28 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

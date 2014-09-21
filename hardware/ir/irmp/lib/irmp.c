@@ -3,11 +3,9 @@
  *
  * Copyright (c) 2009-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.c,v 1.161 2014/07/21 08:58:58 fm Exp $
+ * $Id: irmp.c,v 1.166 2014/09/19 13:26:00 fm Exp $
  *
- * ATMEGA88 @ 8 MHz
- *
- * Supported mikrocontrollers:
+ * Supported AVR mikrocontrollers:
  *
  * ATtiny87,  ATtiny167
  * ATtiny45,  ATtiny85
@@ -145,10 +143,10 @@
 #define MATSUSHITA_0_PAUSE_LEN_MIN              ((uint8_t)(F_INTERRUPTS * MATSUSHITA_0_PAUSE_TIME * MIN_TOLERANCE_40 + 0.5) - 1)
 #define MATSUSHITA_0_PAUSE_LEN_MAX              ((uint8_t)(F_INTERRUPTS * MATSUSHITA_0_PAUSE_TIME * MAX_TOLERANCE_40 + 0.5) + 1)
 
-#define KASEIKYO_START_BIT_PULSE_LEN_MIN        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PULSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define KASEIKYO_START_BIT_PULSE_LEN_MAX        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PULSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
-#define KASEIKYO_START_BIT_PAUSE_LEN_MIN        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PAUSE_TIME * MIN_TOLERANCE_10 + 0.5) - 1)
-#define KASEIKYO_START_BIT_PAUSE_LEN_MAX        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PAUSE_TIME * MAX_TOLERANCE_10 + 0.5) + 1)
+#define KASEIKYO_START_BIT_PULSE_LEN_MIN        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PULSE_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
+#define KASEIKYO_START_BIT_PULSE_LEN_MAX        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PULSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
+#define KASEIKYO_START_BIT_PAUSE_LEN_MIN        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PAUSE_TIME * MIN_TOLERANCE_20 + 0.5) - 1)
+#define KASEIKYO_START_BIT_PAUSE_LEN_MAX        ((uint8_t)(F_INTERRUPTS * KASEIKYO_START_BIT_PAUSE_TIME * MAX_TOLERANCE_20 + 0.5) + 1)
 #define KASEIKYO_PULSE_LEN_MIN                  ((uint8_t)(F_INTERRUPTS * KASEIKYO_PULSE_TIME * MIN_TOLERANCE_50 + 0.5) - 1)
 #define KASEIKYO_PULSE_LEN_MAX                  ((uint8_t)(F_INTERRUPTS * KASEIKYO_PULSE_TIME * MAX_TOLERANCE_50 + 0.5) + 1)
 #define KASEIKYO_1_PAUSE_LEN_MIN                ((uint8_t)(F_INTERRUPTS * KASEIKYO_1_PAUSE_TIME * MIN_TOLERANCE_30 + 0.5) - 1)
@@ -498,52 +496,98 @@ static void                                     (*irmp_callback_ptr) (uint8_t);
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #if defined(UNIX_OR_WINDOWS) || IRMP_PROTOCOL_NAMES == 1
-const char *
-irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
+static const char proto_unknown[]       PROGMEM = "UNKNOWN";
+static const char proto_sircs[]         PROGMEM = "SIRCS";
+static const char proto_nec[]           PROGMEM = "NEC";
+static const char proto_samsung[]       PROGMEM = "SAMSUNG";
+static const char proto_matsushita[]    PROGMEM = "MATSUSH";
+static const char proto_kaseikyo[]      PROGMEM = "KASEIKYO";
+static const char proto_recs80[]        PROGMEM = "RECS80";
+static const char proto_rc5[]           PROGMEM = "RC5";
+static const char proto_denon[]         PROGMEM = "DENON";
+static const char proto_rc6[]           PROGMEM = "RC6";
+static const char proto_samsung32[]     PROGMEM = "SAMSG32";
+static const char proto_apple[]         PROGMEM = "APPLE";
+static const char proto_recs80ext[]     PROGMEM = "RECS80EX";
+static const char proto_nubert[]        PROGMEM = "NUBERT";
+static const char proto_bang_olufsen[]  PROGMEM = "BANG OLU";
+static const char proto_grundig[]       PROGMEM = "GRUNDIG";
+static const char proto_nokia[]         PROGMEM = "NOKIA";
+static const char proto_siemens[]       PROGMEM = "SIEMENS";
+static const char proto_fdc[]           PROGMEM = "FDC";
+static const char proto_rccar[]         PROGMEM = "RCCAR";
+static const char proto_jvc[]           PROGMEM = "JVC";
+static const char proto_rc6a[]          PROGMEM = "RC6A";
+static const char proto_nikon[]         PROGMEM = "NIKON";
+static const char proto_ruwido[]        PROGMEM = "RUWIDO";
+static const char proto_ir60[]          PROGMEM = "IR60";
+static const char proto_kathrein[]      PROGMEM = "KATHREIN";
+static const char proto_netbox[]        PROGMEM = "NETBOX";
+static const char proto_nec16[]         PROGMEM = "NEC16";
+static const char proto_nec42[]         PROGMEM = "NEC42";
+static const char proto_lego[]          PROGMEM = "LEGO";
+static const char proto_thomson[]       PROGMEM = "THOMSON";
+static const char proto_bose[]          PROGMEM = "BOSE";
+static const char proto_a1tvbox[]       PROGMEM = "A1TVBOX";
+static const char proto_ortek[]         PROGMEM = "ORTEK";
+static const char proto_telefunken[]    PROGMEM = "TELEFUNKEN";
+static const char proto_roomba[]        PROGMEM = "ROOMBA";
+static const char proto_rcmm32[]        PROGMEM = "RCMM32";
+static const char proto_rcmm24[]        PROGMEM = "RCMM24";
+static const char proto_rcmm12[]        PROGMEM = "RCMM12";
+static const char proto_speaker[]       PROGMEM = "SPEAKER";
+static const char proto_lgair[]         PROGMEM = "LGAIR";
+static const char proto_samsung48[]     PROGMEM = "SAMSG48";
+
+static const char proto_radio1[]        PROGMEM = "RADIO1";
+
+const char * const
+irmp_protocol_names[IRMP_N_PROTOCOLS + 1] PROGMEM =
 {
-    "UNKNOWN",
-    "SIRCS",
-    "NEC",
-    "SAMSUNG",
-    "MATSUSH",
-    "KASEIKYO",
-    "RECS80",
-    "RC5",
-    "DENON",
-    "RC6",
-    "SAMSG32",
-    "APPLE",
-    "RECS80EX",
-    "NUBERT",
-    "BANG OLU",
-    "GRUNDIG",
-    "NOKIA",
-    "SIEMENS",
-    "FDC",
-    "RCCAR",
-    "JVC",
-    "RC6A",
-    "NIKON",
-    "RUWIDO",
-    "IR60",
-    "KATHREIN",
-    "NETBOX",
-    "NEC16",
-    "NEC42",
-    "LEGO",
-    "THOMSON",
-    "BOSE",
-    "A1TVBOX",
-    "ORTEK",
-    "TELEFUNKEN",
-    "ROOMBA",
-    "RCMM32",
-    "RCMM24",
-    "RCMM12",
-    "SPEAKER",
-    "LGAIR",
-    "SAMSG48",
-    "RADIO1"
+    proto_unknown,
+    proto_sircs,
+    proto_nec,
+    proto_samsung,
+    proto_matsushita,
+    proto_kaseikyo,
+    proto_recs80,
+    proto_rc5,
+    proto_denon,
+    proto_rc6,
+    proto_samsung32,
+    proto_apple,
+    proto_recs80ext,
+    proto_nubert,
+    proto_bang_olufsen,
+    proto_grundig,
+    proto_nokia,
+    proto_siemens,
+    proto_fdc,
+    proto_rccar,
+    proto_jvc,
+    proto_rc6a,
+    proto_nikon,
+    proto_ruwido,
+    proto_ir60,
+    proto_kathrein,
+    proto_netbox,
+    proto_nec16,
+    proto_nec42,
+    proto_lego,
+    proto_thomson,
+    proto_bose,
+    proto_a1tvbox,
+    proto_ortek,
+    proto_telefunken,
+    proto_roomba,
+    proto_rcmm32,
+    proto_rcmm24,
+    proto_rcmm12,
+    proto_speaker,
+    proto_lgair,
+    proto_samsung48,
+
+    proto_radio1
 };
 
 #endif
@@ -552,22 +596,25 @@ irmp_protocol_names[IRMP_N_PROTOCOLS + 1] =
  *  Logging
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if IRMP_LOGGING == 1                                               // logging via UART
+#if IRMP_LOGGING == 1                                                   // logging via UART
 
 #if defined(ARM_STM32F4XX)
-#  define  STM32_GPIO_CLOCK   RCC_AHB1Periph_GPIOA                    // per UART2 an PA2
+#  define  STM32_GPIO_CLOCK   RCC_AHB1Periph_GPIOA                      // UART2 on PA2
 #  define  STM32_UART_CLOCK   RCC_APB1Periph_USART2
 #  define  STM32_GPIO_PORT    GPIOA
 #  define  STM32_GPIO_PIN     GPIO_Pin_2
 #  define  STM32_GPIO_SOURCE  GPIO_PinSource2
 #  define  STM32_UART_AF      GPIO_AF_USART2
 #  define  STM32_UART_COM     USART2
-#  define  STM32_UART_BAUD    115200                                  // mit 115200 Baud
+#  define  STM32_UART_BAUD    115200                                    // 115200 Baud
 #  include "stm32f4xx_usart.h"
+#elif defined(ARM_STM32F10X)
+#  define  STM32_UART_COM     USART3                                    // UART3 on PB10
+#  include "stm32f10x_usart.h"
 #else
-#  if IRMP_EXT_LOGGING == 1                                           // use external logging
+#  if IRMP_EXT_LOGGING == 1                                             // use external logging
 #    include "irmpextlog.h"
-#  else                                                               // normal UART log (IRMP_EXT_LOGGING == 0)
+#  else                                                                 // normal UART log (IRMP_EXT_LOGGING == 0)
 #    define BAUD                                    9600L
 #  ifndef UNIX_OR_WINDOWS
 #    include <util/setbaud.h>
@@ -662,7 +709,40 @@ irmp_uart_init (void)
     // UART enable
     USART_Cmd(STM32_UART_COM, ENABLE);
 
+#elif defined(ARM_STM32F10X)
+    GPIO_InitTypeDef GPIO_InitStructure;
+    USART_InitTypeDef USART_InitStructure;
+
+    // Clock enable vom TX Pin
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); // UART3 an PB10
+
+    // Clock enable der UART
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+
+    // UART als Alternative-Funktion mit PushPull
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+    // TX-Pin
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    // Oversampling
+    USART_OverSampling8Cmd(STM32_UART_COM, ENABLE);
+
+    // init mit Baudrate, 8Databits, 1Stopbit, keine Parität, kein RTS+CTS
+    USART_InitStructure.USART_BaudRate = 115200;
+    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+    USART_InitStructure.USART_StopBits = USART_StopBits_1;
+    USART_InitStructure.USART_Parity = USART_Parity_No;
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+    USART_InitStructure.USART_Mode = USART_Mode_Tx;
+    USART_Init(STM32_UART_COM, &USART_InitStructure);
+
+    // UART enable
+    USART_Cmd(STM32_UART_COM, ENABLE);
 #else
+
 #if (IRMP_EXT_LOGGING == 0)                                                                         // use UART
     UART0_UBRRH = UBRRH_VALUE;                                                                      // set baud rate
     UART0_UBRRL = UBRRL_VALUE;
@@ -692,7 +772,7 @@ void
 irmp_uart_putc (unsigned char ch)
 {
 #ifndef UNIX_OR_WINDOWS
-#if defined(ARM_STM32F4XX)
+#if defined(ARM_STM32F4XX) || defined(ARM_STM32F10X)
     // warten bis altes Byte gesendet wurde
     while (USART_GetFlagStatus(STM32_UART_COM, USART_FLAG_TXE) == RESET)
     {
@@ -738,81 +818,6 @@ irmp_uart_putc (unsigned char ch)
 #define DATALEN                         500                                 // log buffer size
 
 static uint8_t irmp_logging;
-
-#if 0                                                                       // old log routine
-
-static void
-irmp_log (uint8_t val)
-{
-    if (!irmp_logging) return;
-
-    static uint8_t  buf[DATALEN];                                           // logging buffer
-    static uint16_t buf_idx;                                                // number of written bits
-    static uint8_t  startcycles;                                            // current number of start-zeros
-    static uint16_t cnt;                                                    // counts sequenced highbits - to detect end
-
-    if (! val && (startcycles < STARTCYCLES) && !buf_idx)                   // prevent that single random zeros init logging
-    {
-        startcycles++;
-    }
-    else
-    {
-        startcycles = 0;
-
-        if (! val || (val && buf_idx != 0))                                 // start or continue logging on "0", "1" cannot init logging
-        {
-            if (buf_idx < DATALEN * 8)                                      // index in range?
-            {                                                               // yes
-                if (val)
-                {
-                    buf[(buf_idx / 8)] |=  (1<<(buf_idx % 8));              // set bit
-                }
-                else
-                {
-                    buf[(buf_idx / 8)] &= ~(1<<(buf_idx % 8));              // reset bit
-                }
-
-                buf_idx++;
-            }
-
-            if (val)
-            {                                                               // if high received then look at log-stop condition
-                cnt++;
-
-                if (cnt > ENDBITS)
-                {                                                           // if stop condition is true, output on uart
-                    uint16_t i;
-
-                    for (i = 0; i < STARTCYCLES; i++)
-                    {
-                        irmp_uart_putc ('0');                               // the ignored starting zeros
-                    }
-
-                    for (i = 0; i < (buf_idx - ENDBITS + 20) / 8; i++)      // transform bitset into uart chars
-                    {
-                        uint8_t d = buf[i];
-                        uint8_t j;
-
-                        for (j = 0; j < 8; j++)
-                        {
-                            irmp_uart_putc ((d & 1) + '0');
-                            d >>= 1;
-                        }
-                    }
-
-                    irmp_uart_putc ('\n');
-                    buf_idx = 0;
-                }
-            }
-            else
-            {
-                cnt = 0;
-            }
-        }
-    }
-}
-
-#else                                                                       // new log routine
 
 static void
 irmp_log (uint8_t val)
@@ -903,8 +908,6 @@ irmp_log (uint8_t val)
         }
     }
 }
-
-#endif
 
 #else
 #define irmp_log(val)
@@ -1742,7 +1745,7 @@ static IRMP_PARAMETER                       irmp_param;
 static IRMP_PARAMETER                       irmp_param2;
 #endif
 
-static volatile uint8_t                     irmp_ir_detected;
+static volatile uint8_t                     irmp_ir_detected = FALSE;
 static volatile uint8_t                     irmp_protocol;
 static volatile uint16_t                    irmp_address;
 static volatile uint16_t                    irmp_command;
@@ -2398,7 +2401,8 @@ irmp_ISR (void)
                 }
                 else
                 {                                                               // receiving first data pulse!
-                    IRMP_PARAMETER * irmp_param_p = (IRMP_PARAMETER *) 0;
+                    IRMP_PARAMETER * irmp_param_p;
+                    irmp_param_p = (IRMP_PARAMETER *) 0;
 
 #if IRMP_SUPPORT_RC5_PROTOCOL == 1 && (IRMP_SUPPORT_FDC_PROTOCOL == 1 || IRMP_SUPPORT_RCCAR_PROTOCOL == 1)
                     irmp_param2.protocol = 0;

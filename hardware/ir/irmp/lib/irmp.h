@@ -3,9 +3,7 @@
  *
  * Copyright (c) 2009-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmp.h,v 1.88 2014/07/21 08:58:58 fm Exp $
- *
- * ATMEGA88 @ 8 MHz
+ * $Id: irmp.h,v 1.89 2014/09/15 10:27:38 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,7 +183,7 @@ extern uint8_t                          irmp_ISR (const uint8_t);
 extern uint8_t                          irmp_ISR (void);
 #endif
 #if IRMP_PROTOCOL_NAMES == 1
-extern const char *                     irmp_protocol_names[IRMP_N_PROTOCOLS + 1];
+extern const char * const               irmp_protocol_names[IRMP_N_PROTOCOLS + 1] PROGMEM;
 #endif
 
 #if IRMP_USE_CALLBACK == 1
