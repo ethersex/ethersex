@@ -50,11 +50,6 @@ debug_binary(uint8_t v)
   return binstr;
 }
 
-/* debugging via syslog has its own set of functions
- * (see protocols/syslog/syslog_debug.c)
- */
-#ifndef DEBUG_USE_SYSLOG
-
 static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_SETUP_WRITE);
 
 #ifdef DEBUG_SERIAL_USART_SUPPORT
@@ -139,10 +134,13 @@ debug_uart_putstr(const char *d)
   }
 }
 
-#if defined(ECMD_PARSER_SUPPORT) && defined(DEBUG_SERIAL_USART_SUPPORT)
 void
 debug_process_uart(void)
 {
+#if defined(ECMD_SERIAL_USART_SUPPORT) && \
+  defined(DEBUG_SERIAL_USART_SUPPORT) && \
+  (DEBUG_USE_USART == ECMD_SERIAL_USART_USE_USART)
+
 #define LEN 60
 #define OUTPUTLEN 40
 
@@ -198,13 +196,12 @@ debug_process_uart(void)
       }
     }
   }
+#endif /* ECMD_SERIAL_USART_SUPPORT && DEBUG_SERIAL_USART_SUPPORT && ... */
 }
-#endif /* ECMD_PARSER_SUPPORT && DEBUG_SERIAL_USART_SUPPORT */
 
-#endif /* DEBUG_USE_SYSLOG */
 
 /*
   -- Ethersex META --
   header(core/debug.h)
-  ifdef(`conf_ECMD_PARSER', `ifdef(`conf_DEBUG_SERIAL_USART', `mainloop(debug_process_uart)')')
+  ifdef(`conf_ECMD_SERIAL_USART', `ifdef(`conf_DEBUG_SERIAL_USART', `mainloop(debug_process_uart)')')
 */

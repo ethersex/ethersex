@@ -24,7 +24,7 @@ usart_process_choice() {
   while [ $i -lt $USARTS ]; do
   	this_usart=$(eval "echo \$${1}_USART_${i}")
     if [ "$this_usart" = y ]; then
-      define_symbol "$1_USE_USART" $i
+      define_int "$1_USE_USART" $i
       break
     fi
     i=$(( $i + 1))
@@ -37,9 +37,17 @@ usart_count_used() {
   # DEBUG and ECMD share the same channel.
   # Result is the number of USARTS in use.
   #
-  # Allow parallel usage of debug and ecmd on one port.
-  # If the user configures to different ports, we're lost.
-  if [ "$DEBUG_SERIAL_USART_SUPPORT" = y ] || [ "$ECMD_SERIAL_USART_SUPPORT" = y ] ; then
+  # Allow parallel usage of debug and ecmd on one USART
+  if [ "$DEBUG_SERIAL_USART_SUPPORT" = y -a "$ECMD_SERIAL_USART_SUPPORT" = y ] ; then
+    if [ "$DEBUG_USE_USART" = "$ECMD_SERIAL_USART_USE_USART"] ; then
+      USARTS_USED=$(($USARTS_USED + 1))
+    else
+      USARTS_USED=$(($USARTS_USED + 2))
+    fi
+  elif [ "$DEBUG_SERIAL_USART_SUPPORT" = y -o "$ECMD_SERIAL_USART_SUPPORT" = y ] ; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
+  if [ "$BSBPORT_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
   if [ "$DC3840_SUPPORT" = y ]; then
