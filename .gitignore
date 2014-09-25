@@ -22,6 +22,7 @@ autoconf.h
 MCmenu
 MCradiolists
 meta.c
+meta.defines
 meta.h
 meta.m4
 pinning.c
