@@ -85,9 +85,7 @@
 // what happens if uip_send() is called after uip_abort()?
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #include "config.h"

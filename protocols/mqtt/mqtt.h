@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include "protocols/uip/uip.h"
+#include <stdint.h>
 #include <stdbool.h>
 
 
