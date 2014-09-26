@@ -64,7 +64,7 @@
  *
  *  - Receive buffer. Fragmented packets are stored and will be rebuilt here.
  *    When new data is added the whole receive buffer segment will be copied
- *    the need amount of bytes backward.
+ *    the needed amount of bytes backward.
  *
  *
  *  *Limitations*:
@@ -106,7 +106,8 @@ static uint8_t send_buffer_last_length;  // length of last packet
                                          //   (for uip-retransmit)
 static uint8_t send_buffer_current_head; // current buffer head
 static uint8_t receive_buffer_length;    // length of data for received buffer
-static uint16_t receive_packet_length;   // length of data for received buffer
+static uint16_t receive_packet_length;   // length of next expected
+                                         //   (not fully received) packet
 
 // MQTT PROTOCOL STATE
 
@@ -797,6 +798,34 @@ mqtt_parse_length_field(uint16_t *length, const void *buffer, uint16_t max_read)
 static void
 mqtt_parse(void)
 {
+  // Approach:
+  //
+  // Parse packets, one at a time, until no more data is left. If the whole
+  // packet is available at once, it will be passed on right from the incoming
+  // buffer. Otherwise, when the packet is fragmented, two situations might
+  // arise.
+  //
+  // First if the variable length field (used to determine the size of the MQTT
+  // packet) is completely received, all received data will be copied into the
+  // receive buffer (see buffer layout, receive buffer refers to a part of
+  // `send_buffer`) and the expected length of the packet is stored in
+  // `receive_packet_length`.
+  //
+  // Second, if the variable length field is not complete, the available data
+  // is copied to the recieve buffer, too, but `receive_packet_length` will be
+  // zero, indicating that the variable length field has yet to be parsed.
+  //
+  // If there is data from a fragmented packet (indicated by the receive buffer
+  // being non-empty) the data will be concatenated, the variable length field
+  // parsed (if still needed), and eventually a completed packet will be passed
+  // on.
+  //
+  // *Note*:
+  //
+  // In any error condition (not enough buffer space, inconsistent length
+  // field, etc.) the connection will be aborted.
+
+
   uint16_t remaining_length;
   uint16_t bytes_read = 0;
 
@@ -855,6 +884,8 @@ mqtt_parse(void)
       }
     }
 
+
+    // receive buffer non-empty, there is data of a fragmented packet
     // packet length already known
     else if (receive_packet_length != 0)
     {
@@ -883,6 +914,8 @@ mqtt_parse(void)
 
       else
       {
+        // the packet is still incomplete
+
         // write this new fragment to the receive buffer
         if (!mqtt_write_to_receive_buffer(uip_appdata + bytes_read,
               remaining_length))
@@ -895,7 +928,9 @@ mqtt_parse(void)
       }
     }
 
-    // packet length not known
+
+    // receive buffer non-empty, there is data of a fragmented packet
+    // packet length not known, try to parse variable length field
     else
     {
       MQTTPARSEDEBUG ("length_unknown\n");
@@ -920,7 +955,16 @@ mqtt_parse(void)
       if (llen != 0)
         receive_packet_length = packet_length;
 
-      // now just fall through the loop
+      // Now just fall through the loop.
+      //
+      // This will land in the 'fragmented packet with known length'-case, if
+      // the parsing was successful.
+      //
+      // Otherwise this will land in this case here again, and the parsing of
+      // the variable length field will be tried with an additional byte.
+      //
+      // This approach will also silently wait for new data, if the incoming
+      // buffer has been read completely.
     }
   }
 }
@@ -933,6 +977,7 @@ mqtt_parse(void)
  ********************/
 
 // periodically called function, detect and react to timeouts
+// (only called while there is a valid uip connection)
 static void
 mqtt_poll(void)
 {
