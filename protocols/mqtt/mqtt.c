@@ -117,6 +117,7 @@ static bool mqtt_ping_outstanding;
 // GENERAL STATE STRUCTURES
 
 static mqtt_connection_config_t const *mqtt_con_config = NULL;
+static mqtt_callback_config_t mqtt_callbacks[MQTT_CALLBACK_SLOTS];
 static mqtt_connection_state_t mqtt_con_state;
 static uip_conn_t *mqtt_uip_conn;
 
@@ -159,6 +160,12 @@ static uint8_t mqtt_parse_length_field(uint16_t *length, const void *buffer,
     uint16_t max_read);
 static void mqtt_parse(void);
 
+static void mqtt_fire_connack_callback(void);
+static void mqtt_fire_poll_callback(void);
+static void mqtt_fire_close_callback(void);
+static void mqtt_fire_publish_callback(char const *topic,
+    uint16_t topic_length, const void *payload, uint16_t payload_length);
+
 static void mqtt_poll(void);
 static void mqtt_main(void);
 static void mqtt_init(void);
@@ -179,9 +186,7 @@ mqtt_abort_connection(void)
 {
   uip_abort();
   mqtt_uip_conn = NULL;
-
-  if (mqtt_con_config && mqtt_con_config->close_callback)
-    mqtt_con_config->close_callback();
+  mqtt_fire_close_callback();
 }
 
 // return the length of a mqtt variable length field
@@ -619,8 +624,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
       for (uint8_t i=0; mqtt_con_config->auto_subscribe_topics[i] != NULL; i++)
         mqtt_construct_subscribe_packet(mqtt_con_config->auto_subscribe_topics[i]);
 
-    if (mqtt_con_config && mqtt_con_config->connack_callback)
-      mqtt_con_config->connack_callback();
+    mqtt_fire_connack_callback();
   }
 
 
@@ -655,20 +659,18 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
           return;
         }
 
-        if (mqtt_con_config && mqtt_con_config->publish_callback)
+        // calculate packet length for publish callback
+        const void *payload = packet + 2 + topic_length;
+        uint16_t payload_length = packet_length - (2 + topic_length);
+
+        if (qos > 0)
         {
-          const void *payload = packet + 2 + topic_length;
-          uint16_t payload_length = packet_length - (2 + topic_length);
-
-          if (qos > 0)
-          {
-            payload += 2;
-            payload_length -= 2;
-          }
-
-          mqtt_con_config->publish_callback((char*) packet + 2, topic_length,
-              payload, payload_length);
+          payload += 2;
+          payload_length -= 2;
         }
+
+        mqtt_fire_publish_callback((char*) packet + 2, topic_length,
+            payload, payload_length);
 
         // check for qos level, send ack
         if (qos > 0)
@@ -970,6 +972,47 @@ mqtt_parse(void)
 
 /********************
  *                  *
+ *    Callbacks     *
+ *                  *
+ ********************/
+
+static void
+mqtt_fire_connack_callback(void)
+{
+  for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
+    if (mqtt_callbacks[i].connack_callback != NULL)
+      mqtt_callbacks[i].connack_callback();
+}
+
+static void
+mqtt_fire_poll_callback(void)
+{
+  for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
+    if (mqtt_callbacks[i].poll_callback != NULL)
+      mqtt_callbacks[i].poll_callback();
+}
+
+static void
+mqtt_fire_close_callback(void)
+{
+  for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
+    if (mqtt_callbacks[i].close_callback != NULL)
+      mqtt_callbacks[i].close_callback();
+}
+
+static void
+mqtt_fire_publish_callback(char const *topic, uint16_t topic_length,
+    const void *payload, uint16_t payload_length)
+{
+  for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
+    if (mqtt_callbacks[i].publish_callback != NULL)
+      mqtt_callbacks[i].publish_callback(topic, topic_length,
+          payload, payload_length);
+}
+
+
+/********************
+ *                  *
  *    Main Logic    *
  *                  *
  ********************/
@@ -1002,8 +1045,7 @@ mqtt_poll(void)
     }
   }
 
-  if (mqtt_con_config && mqtt_con_config->poll_callback)
-    mqtt_con_config->poll_callback();
+  mqtt_fire_poll_callback();
 }
 
 // mqtt uip callback, manage connection state, delegate I/O
@@ -1015,8 +1057,7 @@ mqtt_main(void)
     MQTTDEBUG ("connection aborted\n");
     mqtt_uip_conn = NULL;
 
-    if (mqtt_con_config && mqtt_con_config->close_callback)
-      mqtt_con_config->close_callback();
+    mqtt_fire_close_callback();
 
     return;
   }
@@ -1120,6 +1161,39 @@ void
 mqtt_set_connection_config(mqtt_connection_config_t const *config)
 {
   mqtt_con_config = config;
+}
+
+// Register a set of callbacks
+// Return the assigned slot id, which can be used to unregister the
+// callbacks later. Return 0xff if there is no free slot.
+uint8_t
+mqtt_register_callback(mqtt_callback_config_t *callbacks)
+{
+  // search a free slot
+  for (uint8_t i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
+    if (mqtt_callbacks[i].connack_callback == NULL
+        && mqtt_callbacks[i].poll_callback == NULL
+        && mqtt_callbacks[i].close_callback == NULL
+        && mqtt_callbacks[i].publish_callback == NULL)
+    {
+      memcpy(&mqtt_callbacks[i], callbacks,
+          sizeof(mqtt_callback_config_t));
+      return i;
+    }
+  return 0xff;
+}
+
+// Unregister a set of callbacks using the previously returned slot id
+void
+mqtt_unregister_callback(uint8_t slot_id)
+{
+  if (slot_id >= MQTT_CALLBACK_SLOTS)
+    return;
+
+  mqtt_callbacks[slot_id].connack_callback = NULL;
+  mqtt_callbacks[slot_id].poll_callback = NULL;
+  mqtt_callbacks[slot_id].close_callback = NULL;
+  mqtt_callbacks[slot_id].publish_callback = NULL;
 }
 
 bool

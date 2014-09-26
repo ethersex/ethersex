@@ -1,4 +1,5 @@
 dep_bool_menu "MQTT client" MQTT_SUPPORT $TCP_SUPPORT
+	int "Number of callback slots" MQTT_CALLBACK_SLOTS 1
 
 	comment  "Debugging Flags"
 	dep_bool 'MQTT Debug Messages' MQTT_DEBUG $DEBUG $MQTT_SUPPORT

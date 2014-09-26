@@ -95,6 +95,16 @@
 
 typedef struct
 {
+  // see mqtt.c for explanation
+  void (*connack_callback)(void);
+  void (*poll_callback)(void);
+  void (*close_callback)(void);
+  void (*publish_callback)(char const *topic, uint16_t topic_length,
+    const void *payload, uint16_t payload_length);
+} mqtt_callback_config_t;
+
+typedef struct
+{
   char const *client_id;
   char const *user;
   char const *pass;
@@ -103,13 +113,6 @@ typedef struct
   bool will_retain;
   char const *will_message;
   uip_ipaddr_t target_ip;
-
-  // see mqtt.c for explanation
-  void (*connack_callback)(void);
-  void (*poll_callback)(void);
-  void (*close_callback)(void);
-  void (*publish_callback)(char const *topic, uint16_t topic_length,
-    const void *payload, uint16_t payload_length);
 
   // Pointer to an array of (char const*) of topic strings to be automatically
   // subscribed to after a connection is established. The array is assumed to
@@ -121,6 +124,8 @@ typedef struct
 // PUBLIC FUNCTIONS
 
 void mqtt_set_connection_config(mqtt_connection_config_t const *config);
+uint8_t mqtt_register_callback(mqtt_callback_config_t *callbacks);
+void mqtt_unregister_callback(uint8_t slot_id);
 bool mqtt_is_connected(void);
 
 // put a packet in the mqtt send queue
