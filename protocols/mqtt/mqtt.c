@@ -129,7 +129,7 @@ static uint16_t timer_counter = 0;
  *                  *
  ********************/
 
-static inline void abort_connection(void);
+static inline void mqtt_abort_connection(void);
 static inline uint8_t MQTT_LF_LENGTH(uint16_t length);
 static inline void mqtt_reset_state(void);
 static inline void make_new_message_id(void);
@@ -175,7 +175,7 @@ bool mqtt_is_connected(void);
  *********************/
 
 static inline void
-abort_connection(void)
+mqtt_abort_connection(void)
 {
   uip_abort();
   mqtt_conn = NULL;
@@ -591,7 +591,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
     if ((header & 0xf0) != MQTTCONNACK)
     {
       MQTTDEBUG ("expected connack packet, aborting\n");
-      abort_connection();
+      mqtt_abort_connection();
       return;
     }
 
@@ -599,7 +599,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
     if (packet_length < 2)
     {
       MQTTDEBUG ("packet length assert connack, aborting\n");
-      abort_connection();
+      mqtt_abort_connection();
       return;
     }
 
@@ -607,7 +607,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
     if (packet[1] != 0)
     {
       MQTTDEBUG ("connection request error code, aborting\n");
-      abort_connection();
+      mqtt_abort_connection();
       return;
     }
 
@@ -641,7 +641,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         if (packet_length < 2 + (qos ? 2:0))
         {
           MQTTDEBUG ("packet length assert pub1, aborting\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
 
@@ -651,7 +651,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         if (packet_length < 2 + (qos ? 2:0) + topic_length)
         {
           MQTTDEBUG ("packet length assert pub2, aborting\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
 
@@ -698,7 +698,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         if (packet_length < 2)
         {
           MQTTDEBUG ("packet length assert rec, aborting\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
 
@@ -717,7 +717,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         if (packet_length < 2)
         {
           MQTTDEBUG ("packet length assert rel, aborting\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
 
@@ -852,7 +852,7 @@ mqtt_parse(void)
               remaining_length))
         {
           MQTTPARSEDEBUG ("buffer_full1\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
         bytes_read += remaining_length;
@@ -875,7 +875,7 @@ mqtt_parse(void)
               remaining_length))
         {
           MQTTPARSEDEBUG ("buffer_full2\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
         bytes_read += remaining_length;
@@ -899,7 +899,7 @@ mqtt_parse(void)
               fragment_length))
         {
           MQTTPARSEDEBUG ("buffer_full3\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
 
@@ -919,7 +919,7 @@ mqtt_parse(void)
               remaining_length))
         {
           MQTTPARSEDEBUG ("buffer_full4\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
         bytes_read += remaining_length;
@@ -937,7 +937,7 @@ mqtt_parse(void)
       if (!mqtt_write_to_receive_buffer(uip_appdata + bytes_read, 1))
         {
           MQTTPARSEDEBUG ("buffer_full5\n");
-          abort_connection();
+          mqtt_abort_connection();
           return;
         }
       bytes_read += 1;
@@ -988,7 +988,7 @@ mqtt_poll(void)
     if (pingOutstanding)
     {
       MQTTDEBUG ("missed ping, aborting\n");
-      abort_connection();
+      mqtt_abort_connection();
       return;
     }
     else
@@ -1071,7 +1071,7 @@ mqtt_main(void)
         > MQTT_KEEPALIVE * TIMER_TICKS_PER_SECOND)
     {
       MQTTDEBUG ("connect request timed out\n");
-      abort_connection();
+      mqtt_abort_connection();
       return;
     }
   }
