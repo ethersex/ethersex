@@ -3,9 +3,7 @@
  *
  * Copyright (c) 2010-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsnd.h,v 1.19 2014/07/21 08:58:58 fm Exp $
- *
- * ATMEGA88 @ 8 MHz
+ * $Id: irsnd.h,v 1.20 2014/09/15 10:27:38 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

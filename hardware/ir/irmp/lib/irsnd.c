@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010-2014 Frank Meyer - frank(at)fli4l.de
  *
- * Supported mikrocontrollers:
+ * Supported AVR mikrocontrollers:
  *
  * ATtiny87,  ATtiny167
  * ATtiny45,  ATtiny85
@@ -13,7 +13,7 @@
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284, ATmega1284P
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
- * $Id: irsnd.c,v 1.81 2014/07/21 08:58:58 fm Exp $
+ * $Id: irsnd.c,v 1.82 2014/09/15 10:27:38 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

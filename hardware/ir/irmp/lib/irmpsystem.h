@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2009-2014 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpsystem.h,v 1.13 2014/07/21 08:58:58 fm Exp $
+ * $Id: irmpsystem.h,v 1.14 2014/09/15 10:27:38 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #  include <stm32f10x.h>
 #  define ARM_STM32
 #  define ARM_STM32F10X
+#  define F_CPU (SysCtlClockGet())
 #elif defined(STM32F4XX)                                                            // ARM STM32
 #  include <stm32f4xx.h>
 #  define ARM_STM32
@@ -95,6 +96,13 @@ typedef unsigned short                  uint16_t;
 #  define PROGMEM volatile
 #  define memcpy_P memcpy
 #  define APP_SYSTICKS_PER_SEC          32
+#elif defined(ARM_STM32F10X)
+#  include "stm32f10x_gpio.h"
+#  include "stm32f10x_rcc.h"
+#  include "stm32f10x_tim.h"
+#  include "misc.h"
+#  define PROGMEM
+#  define memcpy_P                      memcpy
 #else
 #  define PROGMEM
 #  define memcpy_P                      memcpy
