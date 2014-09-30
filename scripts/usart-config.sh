@@ -24,7 +24,7 @@ usart_process_choice() {
   while [ $i -lt $USARTS ]; do
   	this_usart=$(eval "echo \$${1}_USART_${i}")
     if [ "$this_usart" = y ]; then
-      define_int "$1_USE_USART" $i
+      define_symbol "$1_USE_USART" $i
       break
     fi
     i=$(( $i + 1))
