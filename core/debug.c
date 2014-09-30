@@ -34,22 +34,6 @@
 
 #define noinline __attribute__((noinline))
 
-
-char *
-debug_binary(uint8_t v)
-{
-  static char binstr[9];
-  uint8_t i;
-
-  binstr[8] = '\0';
-  for (i = 0; i < 8; i++)
-  {
-    binstr[7 - i] = v & 1 ? '1' : '0';
-    v = v / 2;
-  }
-  return binstr;
-}
-
 static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_SETUP_WRITE);
 
 #ifdef DEBUG_SERIAL_USART_SUPPORT
