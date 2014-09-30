@@ -39,7 +39,7 @@ usart_count_used() {
   #
   # Allow parallel usage of debug and ecmd on one USART
   if [ "$DEBUG_SERIAL_USART_SUPPORT" = y -a "$ECMD_SERIAL_USART_SUPPORT" = y ] ; then
-    if [ "$DEBUG_USE_USART" = "$ECMD_SERIAL_USART_USE_USART"] ; then
+    if [ "$DEBUG_USE_USART" = "$ECMD_SERIAL_USART_USE_USART" ] ; then
       USARTS_USED=$(($USARTS_USED + 1))
     else
       USARTS_USED=$(($USARTS_USED + 2))
