@@ -85,7 +85,7 @@ function define_bool () {
 }
 
 function define_symbol () {
-	true	# nothing to do, for the moment ...
+	eval $1=$2
 }
 
 function define_hex () {
