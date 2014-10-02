@@ -20,6 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#ifndef _DMX_STORAGE_H
+#define _DMX_STORAGE_H
+
 
 /**
 * @defgroup dmx-storage
@@ -160,3 +163,5 @@ void set_dmx_universe_dimmer(uint8_t universe, uint8_t value);
 void dmx_storage_init(void);
 
 /*@}*/
+
+#endif /* end of include guard: _DMX_STORAGE_H */
