@@ -20,10 +20,57 @@ DEBUG
   the firmware source code or enable pre-defined
   debugging-categories found in multiple submenus.
 
-DEBUG_BAUDRATE
-  Define baudrate for serial-line debugging. Transmission parameters
-  are 8,n,1.
+Debug output channel
+usart
 
+  Debug output channel choices
+  
+  Route debug messages to either USART, Soft-UART or a remote
+  syslog host. The options shown depend on other settings.
+  
+  USART
+  The MCU must provide at least one unused USART. The USART used
+  for debugging output may be shared with the ECMD-Protocol, sharing
+  with other modules is not supported.
+  
+  Software-UART
+  Debug messages may be routed to a software-based UART. The soft-UART
+  only needs one pin for TxD and no interrupts. Baudrates up to 38400
+  may be achieved. The pin to use for TxD has to be defined in the
+  hardware-description like this pin(SOFT_UART_TX, PD7, OUTPUT).
+  
+  SYSLOG
+  Debug messages may be send to a remote syslog host.
+  This option is only available if SYSLOG support in the protocols
+  section is enabled!
+
+Debug USART channel
+DEBUG_USART_0
+  Select USART unit for debug messages. Smaller AVR MCUs like the
+  ATmega328 have only a single USART unit, more complex MCUs like
+  the ATmega1284p provide two or more.
+  
+  The USART unit used for debugging output may be shared with the
+  ECMD-Protocol, sharing with other modules is not supported.  
+  
+DEBUG_BAUDRATE
+  Define baudrate for serial-line debugging.
+  Transmission parameters are fixed to 8,n,1.
+
+  Typical baudrate values are: 
+  1200
+  2400
+  4800
+  9600
+  19200
+  38400
+  57600
+  115200
+  
+  Baudrates of 115200 may be only achieved using a USART. Software-UART
+  is limited to the range of 19200 or 38400 baud (depends on clock
+  frequency).
+  
 ENC28J60 CLKOUT Prescaler (ECOCON)
 ECOCON_UNSET
   Depends on:

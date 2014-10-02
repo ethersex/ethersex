@@ -24,48 +24,45 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/soft_uart.h"
 #include "protocols/ecmd/parser.h"
 #include "protocols/ecmd/ecmd-base.h"
+
+#ifdef S1D15G10_SUPPORT
 #include "hardware/lcd/s1d15g10/s1d15g10.h"
+#endif
 
 #define noinline __attribute__((noinline))
 
-
-char *
-debug_binary(uint8_t v)
-{
-  static char binstr[9];
-  uint8_t i;
-
-  binstr[8] = '\0';
-  for (i = 0; i < 8; i++)
-  {
-    binstr[7 - i] = v & 1 ? '1' : '0';
-    v = v / 2;
-  }
-  return binstr;
-}
-
-
 static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_SETUP_WRITE);
 
-
-/* prototypes */
-void soft_uart_putchar(uint8_t c);
-
+#ifdef DEBUG_SERIAL_USART_SUPPORT
 #define USE_USART DEBUG_USE_USART
 #define BAUD DEBUG_BAUDRATE
 #include "core/usart.h"
+#endif
+
 #include "pinning.c"
 
-/* We generate our own usart init module, for our usart port */
-generate_usart_init()
+/* We generate our own usart init, for our usart port,
+ * but only if it is not shared with ecmd.
+ */
+#if ( (defined(DEBUG_SERIAL_USART_SUPPORT) && \
+       !defined(ECMD_SERIAL_USART_SUPPORT)) || \
+      (defined(DEBUG_SERIAL_USART_SUPPORT) && \
+       defined(ECMD_SERIAL_USART_SUPPORT) && \
+       (DEBUG_USE_USART != ECMD_SERIAL_USART_USE_USART)) )
+#define DEBUG_USART_NEED_INIT
+#endif
 
+#ifdef DEBUG_USART_NEED_INIT
+generate_usart_init()
+#endif
 
 void
 debug_init_uart(void)
 {
-#ifndef SOFT_UART_SUPPORT
+#ifdef DEBUG_USART_NEED_INIT
   RS485_TE_SETUP;
   RS485_DISABLE_TX;
   usart_init();
@@ -93,6 +90,7 @@ debug_uart_put(char d, FILE * stream)
   #ifdef S1D15G10_SUPPORT
     lcd_putch(d);
   #endif /* S1D15G10_SUPPORT */
+
   #ifdef SOFT_UART_SUPPORT
     soft_uart_putchar(d);
   #else /* SOFT_UART_SUPPORT */
@@ -106,6 +104,7 @@ debug_uart_put(char d, FILE * stream)
 
     usart(UDR) = d;
   #endif /* SOFT_UART_SUPPORT */
+
   return 0;
 }
 
@@ -129,11 +128,13 @@ debug_uart_putstr(const char *d)
   }
 }
 
-
 void
 debug_process_uart(void)
 {
-#if defined(ECMD_PARSER_SUPPORT) && !defined(SOFT_UART_SUPPORT)
+#if defined(ECMD_SERIAL_USART_SUPPORT) && \
+  defined(DEBUG_SERIAL_USART_SUPPORT) && \
+  (DEBUG_USE_USART == ECMD_SERIAL_USART_USE_USART)
+
 #define LEN 60
 #define OUTPUTLEN 40
 
@@ -189,12 +190,12 @@ debug_process_uart(void)
       }
     }
   }
-#endif /* ECMD_PARSER_SUPPORT && !SOFT_UART_SUPPORT */
+#endif /* ECMD_SERIAL_USART_SUPPORT && DEBUG_SERIAL_USART_SUPPORT && ... */
 }
 
 
 /*
   -- Ethersex META --
   header(core/debug.h)
-  mainloop(debug_process_uart)
+  ifdef(`conf_ECMD_SERIAL_USART', `ifdef(`conf_DEBUG_SERIAL_USART', `mainloop(debug_process_uart)')')
 */

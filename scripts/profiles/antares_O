@@ -27,33 +27,34 @@ ARCH_AVR=y
 MCU=at90can128
 at90can128=y
 FREQ=16000000
-# Arduino_Duemilanove is not set
-# Fimser is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
-# MicroWebServer is not set
-# USBrfm12stick is not set
 # alpengluehn is not set
 # antares_I is not set
 # antares_IO is not set
 HARDWARE=antares_O
 antares_O=y
+# Arduino_Duemilanove is not set
 # beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
 # etherrape is not set
+# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
 # lome6 is not set
-# netio is not set
+# MicroWebServer is not set
 # netio_addon is not set
+# netio_bsbport is not set
+# netio is not set
 # other is not set
-# pollin_evalboard is not set
 # pollin_evalboard_addon is not set
+# pollin_evalboard is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
+# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -73,14 +74,15 @@ EEPROM_PAGESIZE=0x8
 SPI_TIMEOUT=y
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="02bdf58"
+GIT_VERSION="ac826dc"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
-# DEBUG_USART_0 is not set
-DEBUG_USART_1=y
-DEBUG_USE_USART=1
-DEBUG_BAUDRATE=115200
+# usart is not set
+# soft_uart is not set
+DEBUG_OUTPUT=syslog
+syslog=y
 DEBUG_USE_SYSLOG=y
+# DEBUG_SERIAL_USART_SUPPORT is not set
 # SOFT_UART_SUPPORT is not set
 # DEBUG_HOOK is not set
 DEBUG_RESET_REASON=y
@@ -365,8 +367,9 @@ CONF_LTC1257_NUM_DEVICES=4
 # CONFIG_DC3840_RES640 is not set
 # DC3840_HIGH_COMPRESSION is not set
 # DC3840_BLACK_WHITE is not set
-# DC3840_USART_0 is not set
+DC3840_USART_0=y
 # DC3840_USART_1 is not set
+DC3840_USE_USART=0
 # DC3840_UDP_DEBUG is not set
 
 #
@@ -510,8 +513,9 @@ OW_SENSORS_COUNT=10
 # DEBUG_HBRIDGE is not set
 # MCUF_SUPPORT is not set
 # MCUF_SERIAL_SUPPORT is not set
-# MCUF_USART_0 is not set
+MCUF_USART_0=y
 # MCUF_USART_1 is not set
+MCUF_USE_USART=0
 # MCUF_OUTPUT_SUPPORT is not set
 # BLP_SUPPORT is not set
 # LEDRG_SUPPORT is not set
@@ -559,8 +563,9 @@ CONF_ARTNET_OUTUNIVERSE=0
 # DALI_RECEIVE_SUPPORT is not set
 DMX_SUPPORT=y
 DMX_OUTPUT_UNIVERSE=0
-# DMX_USART_0 is not set
+DMX_USART_0=y
 # DMX_USART_1 is not set
+DMX_USE_USART=0
 ECMD_PARSER_SUPPORT=y
 # ECMD_REMOVE_BACKSPACE_SUPPORT is not set
 # ALIASCMD_SUPPORT is not set
@@ -708,23 +713,41 @@ CONF_USTREAM_IP="205.188.234.7"
 CONF_USTREAM_PORT=80
 # DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
-# YPORT_USART_0 is not set
+YPORT_USART_0=y
 # YPORT_USART_1 is not set
+YPORT_USE_USART=0
 YPORT_PORT=7970
 YPORT_BAUDRATE=115200
 YPORT_USART_CONFIG=YPORT_USART_CONFIG_8N1
 YPORT_USART_CONFIG_8N1=y
 # YPORT_USART_CONFIG_8E2 is not set
-YPORT_BUFFER_LEN=500
+YPORT_BUFFER_LEN=32
 YPORT_FLUSH=25
 # DEBUG_YPORT is not set
+# BSBPORT_SUPPORT is not set
+# BSBPORT_USART_0 is not set
+# BSBPORT_USART_1 is not set
+BSBPORT_PORT=3000
+BSBPORT_BAUDRATE=4800
+BSBPORT_BUFFER_LEN=500
+BSBPORT_FLUSH=25
+BSBPORT_MESSAGE_BUFFER_LEN=10
+BSBPORT_MESSAGE_MAX_LEN=25
+BSBPORT_OWNADDRESS=7
+# BSBPORT_POLLING_SUPPORT is not set
+# DEBUG_BSBPORT_RX is not set
+# DEBUG_BSBPORT_TX is not set
+# DEBUG_BSBPORT_PARSE is not set
+# DEBUG_BSBPORT_ECMD is not set
 # MSR1_SUPPORT is not set
-# MSR1_USART_0 is not set
+MSR1_USART_0=y
 # MSR1_USART_1 is not set
+MSR1_USE_USART=0
 # DEBUG_MSR1 is not set
 # TO1_SUPPORT is not set
-# TO1_USART_0 is not set
+TO1_USART_0=y
 # TO1_USART_1 is not set
+TO1_USE_USART=0
 TO1_SENSOR_COUNT=1
 # DEBUG_TO1 is not set
 # SERIAL_LINE_LOG_SUPPORT is not set
@@ -736,8 +759,9 @@ SERIAL_LINE_LOG_COUNT=60
 SERIAL_LINE_LOG_BAUDRATE=9600
 # SERIAL_LINE_LOG_SPACE_COMPRESSION is not set
 # NMEA_SUPPORT is not set
-# NMEA_USART_0 is not set
+NMEA_USART_0=y
 # NMEA_USART_1 is not set
+NMEA_USE_USART=0
 # STELLA_PROTOCOL_SUPPORT is not set
 UDP_STELLA_PORT=2702
 # IOUDP_PROTOCOL_SUPPORT is not set
@@ -1075,7 +1099,7 @@ CONFIG_AVRDUDE_BITCLOCK=AVRDUDE_BITCLOCK_1
 AVRDUDE_BITCLOCK_1=y
 # AVRDUDE_BITCLOCK_05 is not set
 # AVRDUDE_BITCLOCK_03 is not set
-AVRDUDE_BITCLOCK="-B 4"
+AVRDUDE_BITCLOCK="-B 1"
 CONFIG_AVRDUDE_EXTRA_OPTIONS=""
 CONFIG_AVRDUDE_LFUSE=FF
 AVRDUDE_LFUSE=0xFF

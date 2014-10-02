@@ -84,22 +84,88 @@ fi
 
 	dep_bool "Use SPI Timeout" SPI_TIMEOUT $ARCH_AVR
 	dep_bool "Use Usart in SPI Mode" USART_SPI_SUPPORT $ARCH_AVR
-    if [ "$USART_SPI_SUPPORT" = y ]; then
-      choice '  SPI usart select' "$(usart_choice SPI)"
-      usart_process_choice SPI
-    else
-      dep_bool "Use Software-SPI" SOFT_SPI_SUPPORT $ARCH_AVR
-    fi
+	if [ "$USART_SPI_SUPPORT" = y ]; then
+		choice '  SPI usart select' "$(usart_choice SPI)"
+		usart_process_choice SPI
+	else
+		dep_bool "Use Software-SPI" SOFT_SPI_SUPPORT $ARCH_AVR
+	fi
 
 	define_string GIT_VERSION "$(scripts/get-git-version)"
 
 	bool 'Debug: Discard some packets' DEBUG_DISCARD_SOME
+
+	# general debug support
 	dep_bool_menu "Enable Debugging" DEBUG y
-		choice 'Debug USART channel' "$(usart_choice DEBUG)" 0
-		usart_process_choice DEBUG
-		int "UART Baudrate" DEBUG_BAUDRATE 115200
-		dep_bool 'Use SYSLOG instead UART' DEBUG_USE_SYSLOG $SYSLOG_SUPPORT $DEBUG
-		dep_bool 'Software Uart (Output only)' SOFT_UART_SUPPORT $DEBUG $ARCH_AVR
+		comment "Debugging output"
+		usart_count_used
+		debug_output_choices=""
+		# enable choice of USART if there is one used by either
+		# debug or ecmd or if there is at least one unused USART
+		if [ "$DEBUG_SERIAL_USART_SUPPORT" = y \
+			-o "$ECMD_SERIAL_USART_SUPPORT" = y \
+			-o $USARTS -gt $USARTS_USED ]; then
+			debug_output_choices="USART	usart "
+			debug_output_default="USART"
+		else
+			comment "USART (RS232/RS485) not available. No free usart. ($USARTS_USED/$USARTS)"
+		fi
+
+		if [ "$ARCH_AVR" = y ]; then
+			debug_output_choices+="Software-UART soft_uart "
+			test -n "$debug_output_default" || debug_output_default="Software-UART"
+		fi
+
+		# to send debug via syslog one has to enable
+		# protocols > SYSLOG_SUPPORT first
+		if [ "$SYSLOG_SUPPORT" = y ]; then
+			debug_output_choices+="SYSLOG syslog "
+			test -n "$debug_output_default" || debug_output_default="SYSLOG"
+		fi
+
+		if [ "$DEBUG" = y ] && [ -n "$debug_output_choices" ]; then
+			choice 'Debug output channel' \
+			"$debug_output_choices" \
+			"$debug_output_default" DEBUG_OUTPUT
+		fi
+
+		case "$DEBUG_OUTPUT" in
+			"usart")
+				define_bool DEBUG_SERIAL_USART_SUPPORT $DEBUG
+				define_bool SOFT_UART_SUPPORT n
+				define_bool DEBUG_USE_SYSLOG n
+				;;
+			"soft_uart")
+				define_bool SOFT_UART_SUPPORT $DEBUG $ARCH_AVR
+				define_bool DEBUG_SERIAL_USART_SUPPORT n
+				define_bool DEBUG_USE_SYSLOG n
+				;;
+			"syslog")
+				define_bool DEBUG_USE_SYSLOG $DEBUG $SYSLOG_SUPPORT
+				define_bool DEBUG_SERIAL_USART_SUPPORT n
+				define_bool SOFT_UART_SUPPORT n
+				;;
+			*)
+				define_bool DEBUG_USE_SYSLOG $DEBUG n
+				define_bool DEBUG_SERIAL_USART_SUPPORT n
+				define_bool SOFT_UART_SUPPORT n
+				;;
+		esac
+
+		if [ "$DEBUG_SERIAL_USART_SUPPORT" = y ]; then
+			choice 'Debug USART channel' "$(usart_choice DEBUG)"
+			usart_process_choice DEBUG
+			# share ECMD baud settings if the USART is shared
+			if [ "$ECMD_SERIAL_USART_SUPPORT" = y ] && \
+				[ "$DEBUG_USE_USART" = "$ECMD_SERIAL_USART_USE_USART" ] ; then
+					define_int DEBUG_BAUDRATE $ECMD_SERIAL_BAUDRATE
+					comment "USART Baudrate set to match ECMD setting ($DEBUG_BAUDRATE Baud)."
+			else
+				int "USART Baudrate" DEBUG_BAUDRATE 115200
+			fi
+		elif [ "$SOFT_UART_SUPPORT" = y ]; then
+			int "Software-UART Baudrate" DEBUG_BAUDRATE 19200
+		fi
 		comment  'Debugging Flags'
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG

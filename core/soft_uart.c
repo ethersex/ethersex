@@ -18,10 +18,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <stdio.h>
-#include "core/debug.h"
+#include <stdint.h>
+
+#include <avr/io.h>
+
 #include "config.h"
 
+#include "core/soft_uart.h"
+
+/*
+ * ref. Atmel application note AVR305
+ */
 void 
 soft_uart_putchar(uint8_t c)
 {
@@ -64,7 +71,5 @@ soft_uart_putchar(uint8_t c)
                  [port] "I" (_SFR_IO_ADDR(SOFT_UART_PORT(SOFT_UART_TX_PORT))), 
                  [pin] "I" (SOFT_UART_TX_PIN), [delay] "M" (BIT_DELAY)
                );
-  
-
 }
 
