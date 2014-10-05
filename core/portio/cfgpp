@@ -54,8 +54,6 @@ echo -e "$consts" >> $file_user_config_c
 echo "const struct PinConfiguration portio_pincfg[] PROGMEM = {" >> $file_user_config_c
 echo -e "    /*  port\tpin\tinput\treverse? */" >> $file_user_config_c
 echo -e "$eeprom" >> $file_user_config_c
-echo "    /* mark the end of the list */" >> $file_user_config_c
-echo "    { 255, 255, 255, 255, NULL}" >> $file_user_config_c
 echo "};" >> $file_user_config_c
 
 # footer for user_config.h
