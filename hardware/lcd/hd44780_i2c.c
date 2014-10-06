@@ -53,14 +53,27 @@
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 
 /* port mapping lcd -> pcf8574x pin */
-#define HD44780_PCF8574x_DB4			(0)
-#define HD44780_PCF8574x_DB5			(1)
-#define HD44780_PCF8574x_DB6			(2)
-#define HD44780_PCF8574x_DB7			(3)
-#define HD44780_PCF8574x_RS				(4)
-#define HD44780_PCF8574x_WR				(5)
-#define HD44780_PCF8574x_EN				(6)
-#define HD44780_PCF8574x_BL				(7)
+#if HD44780_I2C_TYPE == HD44780_I2C_POLLIN
+  #define HD44780_PCF8574x_DB4      (0)
+  #define HD44780_PCF8574x_DB5      (1)
+  #define HD44780_PCF8574x_DB6      (2)
+  #define HD44780_PCF8574x_DB7      (3)
+  #define HD44780_PCF8574x_RS       (4)
+  #define HD44780_PCF8574x_WR       (5)
+  #define HD44780_PCF8574x_EN       (6)
+  #define HD44780_PCF8574x_BL       (7)
+#elif HD44780_I2C_TYPE == HD44780_I2C_ARDUINO
+  #define HD44780_PCF8574x_DB4      (4)
+  #define HD44780_PCF8574x_DB5      (5)
+  #define HD44780_PCF8574x_DB6      (6)
+  #define HD44780_PCF8574x_DB7      (7)
+  #define HD44780_PCF8574x_RS       (0)
+  #define HD44780_PCF8574x_WR       (1)
+  #define HD44780_PCF8574x_EN       (2)
+  #define HD44780_PCF8574x_BL       (3)
+#else
+#error "unknown hd44780 i2c connection type!"
+#endif
 
 #define HD44780_PCF8574x_DBx_MASK		( _BV(HD44780_PCF8574x_DB4) | \
 										  _BV(HD44780_PCF8574x_DB5) | \
@@ -83,7 +96,11 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 		/* Datenbyte an PCF senden, DBx high zum lesen, EN uebertragen */
         i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data | HD44780_PCF8574x_DBx_MASK);
 		/* Datenbyte von PCF lesen, daten_nibble maskiert */
+#if HD44780_I2C_TYPE == HD44780_I2C_ARDUINO
+        data = (i2c_pcf8574x_read(HD44780_PCF8574_ADR) & HD44780_PCF8574x_DBx_MASK) >> 4;
+#elif HD44780_I2C_TYPE == HD44780_I2C_POLLIN
         data = i2c_pcf8574x_read(HD44780_PCF8574_ADR) & HD44780_PCF8574x_DBx_MASK;
+#endif
     }
     else
     {   /* Datenbyte an PCF senden, muss vor EN high Flanke geschehen */
@@ -104,7 +121,11 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 
 void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
 {
+#if HD44780_I2C_TYPE == HD44780_I2C_ARDUINO
+    lcd_data = (nibble << 4);
+#elif HD44780_I2C_TYPE == HD44780_I2C_POLLIN
     lcd_data = nibble;
+#endif
 
 	/* Wenn rs==1, dann RS setzen */
     if (rs)

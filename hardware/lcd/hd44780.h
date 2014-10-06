@@ -39,6 +39,9 @@
 #define HD44780_SERLCD 17
 #define HD44780_I2CSUPPORT 18
 
+#define HD44780_I2C_POLLIN 1
+#define HD44780_I2C_ARDUINO 2
+
 
 /*Definition for different display types
   Add some new Displays here*/
