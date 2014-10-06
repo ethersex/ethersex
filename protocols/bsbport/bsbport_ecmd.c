@@ -104,7 +104,7 @@ parse_cmd_bsbport_get(char *cmd, char *output, uint16_t len)
   uint8_t p4 = 0;
   uint8_t src = 0;
   int16_t ret = 0;
-  char type[5];
+  char type[4];
 
   //Trim Leading spaces
   while (cmd[0] == ' ')
