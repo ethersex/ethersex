@@ -17,7 +17,9 @@ dep_bool_menu "ECMD (Ethersex Command) support" ECMD_PARSER_SUPPORT
   dep_bool "Log commands via SYSLOG" ECMD_LOG_VIA_SYSLOG $ECMD_PARSER_SUPPORT $SYSLOG_SUPPORT
   comment "ECMD interfaces"
   usart_count_used
-  if [ "$ECMD_SERIAL_USART_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+  if [ "$ECMD_SERIAL_USART_SUPPORT" = y \
+    -o "$DEBUG_SERIAL_USART_SUPPORT" = y \
+    -o $USARTS -gt $USARTS_USED ]; then
     dep_bool "USART (RS232/RS485)" ECMD_SERIAL_USART_SUPPORT $ECMD_PARSER_SUPPORT
     if [ "$ECMD_SERIAL_USART_SUPPORT" = y ]; then
       choice '  Ecmd usart select' "$(usart_choice ECMD_SERIAL_USART)"
