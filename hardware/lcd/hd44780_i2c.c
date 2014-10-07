@@ -89,13 +89,13 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 										  _BV(HD44780_PCF8574x_DB5) |
 										  _BV(HD44780_PCF8574x_DB6) |
 										  _BV(HD44780_PCF8574x_DB7) );
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+        i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 		/* EN setzen */
         lcd_data |= _BV(HD44780_PCF8574x_EN);
 		/* Datenbyte an PCF senden, DBx high zum lesen, EN uebertragen */
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+        i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 		/* Datenbyte von PCF lesen, daten_nibble maskiert */
-        lcd_data = i2c_pcf8574x_read(HD44780_PCF8574_ADR);
+        lcd_data = i2c_pcf8574x_read(HD44780_PCF8574x_ADR);
         if (lcd_data & _BV(HD44780_PCF8574x_DB4)) data |= _BV(0);
         if (lcd_data & _BV(HD44780_PCF8574x_DB5)) data |= _BV(1);
         if (lcd_data & _BV(HD44780_PCF8574x_DB6)) data |= _BV(2);
@@ -103,17 +103,17 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
     }
     else
     {   /* Datenbyte an PCF senden, muss vor EN high Flanke geschehen */
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+        i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 		/* EN setzen */
         lcd_data |= _BV(HD44780_PCF8574x_EN);
 		/* Datenbyte an PCF senden, EN status uebertragen */
-        i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+        i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
     }
 
 	/* EN loeschen */
     lcd_data &= ~(_BV(HD44780_PCF8574x_EN));
 	/* Datenbyte erneut senden, EN status uebertragen */
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+    i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 
     return data;
 }
@@ -183,7 +183,7 @@ void hd44780_backlight(uint8_t state)
     else
         lcd_data &= ~(_BV(HD44780_PCF8574x_BL));
 	/* backlight status direkt uebertragen */
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data);
+    i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 }
 
 void noinline hd44780_hw_init(void)
@@ -194,6 +194,6 @@ void noinline hd44780_hw_init(void)
     lcd_data |= _BV(HD44780_PCF8574x_BL);
 #endif
 
-    i2c_pcf8574x_set(HD44780_PCF8574_ADR, lcd_data );
+    i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data );
 }
 
