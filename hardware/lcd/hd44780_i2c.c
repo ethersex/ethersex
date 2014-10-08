@@ -4,7 +4,7 @@
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * (c) by Alexander Tuschen <atuschen@web.de>
  * (c) by Mirko Taschenberger <mirkiway at gmx.de>
- * (c) by Daniel Lindner <daniel.lindner at gmx.de>
+ * (c) 2014 by Daniel Lindner <daniel.lindner at gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
