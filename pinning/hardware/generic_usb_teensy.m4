@@ -41,7 +41,7 @@ ifdef(`conf_ZBUS', `dnl
   pin(STATUSLED_ZBUS_RX, PD7)
 ')
 
-ifdef(`conf_HD44780', `dnl
+ifelse(value_HD44780_CONNECTION,`HD44780_DIREKT',`dnl
   pin(HD44780_RS, PD0)
   pin(HD44780_EN1, PD1)
   pin(HD44780_D4, PD4)

@@ -72,7 +72,7 @@ ifdef(`conf_USTREAM', `
   pin(VS1053_DREQ, PB3, INPUT)
 ')
 
-ifdef(`conf_HD44780', `
+ifelse(value_HD44780_CONNECTION,`HD44780_DIREKT',`dnl
    pin(HD44780_RS, PC0)
    pin(HD44780_RW, PC1)
    pin(HD44780_EN1, PC2)

@@ -354,6 +354,30 @@ define(`SHT_VOLTAGE_COMPENSATION', `dnl
   #define SHT_VOLTAGE_COMPENSATION_D1 SHT_VOLTAGE_COMPENSATION_D1_$1
 ')
 
+dnl Map HD44780-LCD connector to PCF8574x I2C-Expander
+dnl
+dnl HD44780_PCF8574x_MAPPING(ADR,RS,RW,EN,DB4,DB5,DB6,DB7,BL)
+dnl ADR - PCF8574x I2C address
+dnl RS, RW, EN - LCD control
+dnl DB4..DB7 - LCD data (4-Bit mode)
+dnl BL - Backlight
+dnl
+dnl Note: Map PCF8574x PORT-numbers, not Pin-Numbers.
+define(`HD44780_PCF8574x_MAPPING', `dnl
+
+/* Map HD44780 LCD to PCF8574x connection
+ */
+#define HD44780_PCF8574x_ADR ($1)
+#define HD44780_PCF8574x_RS ($2)
+#define HD44780_PCF8574x_WR ($3)
+#define HD44780_PCF8574x_EN ($4)
+#define HD44780_PCF8574x_DB4 ($5)
+#define HD44780_PCF8574x_DB5 ($6)
+#define HD44780_PCF8574x_DB6 ($7)
+#define HD44780_PCF8574x_DB7 ($8)
+#define HD44780_PCF8574x_BL ($9)
+')
+
 divert(1)
 `
 #ifndef _PINNING_HEADER

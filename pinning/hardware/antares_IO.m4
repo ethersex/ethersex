@@ -31,7 +31,7 @@ ifdef(`conf_SD_READER', `
 ')
 
 
-ifdef(`conf_HD44780', `
+ifelse(value_HD44780_CONNECTION,`HD44780_DIREKT',`dnl
   pin(HD44780_RS, PG0)
   pin(HD44780_RW, PG1)
   pin(HD44780_EN1, PG2)

@@ -73,8 +73,6 @@
 #include "core/debug.h"
 #include "hardware/i2c/master/i2c_pcf8574x.h"
 
-#include "i2c_pinning.h"
-
 /* global variables */
 uint8_t lcd_data;
 
@@ -95,11 +93,12 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 		/* Datenbyte an PCF senden, DBx high zum lesen, EN uebertragen */
         i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 		/* Datenbyte von PCF lesen, daten_nibble maskiert */
-        lcd_data = i2c_pcf8574x_read(HD44780_PCF8574x_ADR);
-        if (lcd_data & _BV(HD44780_PCF8574x_DB4)) data |= _BV(0);
-        if (lcd_data & _BV(HD44780_PCF8574x_DB5)) data |= _BV(1);
-        if (lcd_data & _BV(HD44780_PCF8574x_DB6)) data |= _BV(2);
-        if (lcd_data & _BV(HD44780_PCF8574x_DB7)) data |= _BV(3);
+        uint8_t i2c_read_data ;
+        i2c_read_data = i2c_pcf8574x_read(HD44780_PCF8574x_ADR);
+        if (i2c_read_data & _BV(HD44780_PCF8574x_DB4)) data |= _BV(0);
+        if (i2c_read_data & _BV(HD44780_PCF8574x_DB5)) data |= _BV(1);
+        if (i2c_read_data & _BV(HD44780_PCF8574x_DB6)) data |= _BV(2);
+        if (i2c_read_data & _BV(HD44780_PCF8574x_DB7)) data |= _BV(3);
     }
     else
     {   /* Datenbyte an PCF senden, muss vor EN high Flanke geschehen */
@@ -121,10 +120,7 @@ uint8_t noinline clock_rw(uint8_t read,uint8_t en)
 void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
 {
     /* compute data bits */
-    lcd_data &= ~_BV(HD44780_PCF8574x_DB4);
-    lcd_data &= ~_BV(HD44780_PCF8574x_DB5);
-    lcd_data &= ~_BV(HD44780_PCF8574x_DB6);
-    lcd_data &= ~_BV(HD44780_PCF8574x_DB7);
+    lcd_data = 0;
     if (nibble & _BV(0))
         lcd_data |= _BV(HD44780_PCF8574x_DB4);
     if (nibble & _BV(1))
@@ -137,9 +133,6 @@ void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
 	/* Wenn rs==1, dann RS setzen */
     if (rs)
         lcd_data |= _BV(HD44780_PCF8574x_RS);
-
-	/* WR loeschen = schreiben */
-    lcd_data &= ~(_BV(HD44780_PCF8574x_WR));
 
 	/* backlight status falls vorhanden uebernehmen */
 	if(back_light)
@@ -191,6 +184,7 @@ void noinline hd44780_hw_init(void)
 	/* alle ausgaenge auf 0 setzen */
     lcd_data = 0;
 #ifdef HD44780_BACKLIGHT_INV
+    back_light = 1;
     lcd_data |= _BV(HD44780_PCF8574x_BL);
 #endif
 

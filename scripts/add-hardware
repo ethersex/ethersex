@@ -213,8 +213,9 @@ template $DCF1_USE_PON_SUPPORT << FNORD
   pin(DCF1_PON, PA1, OUTPUT)
 FNORD
 
-template $HD44780_SUPPORT << FNORD
+template $HD44780_DIREKT << FNORD
     pin(HD44780_RS, PA0)
+    pin(HD44780_RW, PA1)
     pin(HD44780_EN1, PA2)
     pin(HD44780_D4, PA3)
     pin(HD44780_D5, PA4)
@@ -222,8 +223,23 @@ template $HD44780_SUPPORT << FNORD
     pin(HD44780_D7, PA6)
 FNORD
 
-template $HD44780_READBACK << FNORD
-    pin(HD44780_RW, PA1)
+template $HD44780_I2CSUPPORT << FNORD
+dnl HD44780_PCF8574x_MAPPING(ADR,RS,RW,EN,DB4,DB5,DB6,DB7,BL)
+dnl Uncomment next line for pollin compatible pinout
+dnl HD44780_PCF8574x_MAPPING(0x20, 4, 5, 6, 0, 1, 2, 3, 7)
+dnl Uncomment next line for arduino compatible pinout
+dnl HD44780_PCF8574x_MAPPING(0x27, 0, 1, 2, 4, 5, 6, 7, 3)
+FNORD
+
+template $HD44780_2WIRE << FNORD
+    pin(HD44780_2WIRE_D, PD4)
+    pin(HD44780_2WIRE_CLK, PD3)
+FNORD
+
+template $HD44780_SERLCD << FNORD
+    pin(HD44780_SER_D, PD4)
+    pin(HD44780_SER_CLK, PD3)
+    pin(HD44780_SER_EN1, PD2)
 FNORD
 
 template $HD44780_MULTIENSUPPORT << FNORD
