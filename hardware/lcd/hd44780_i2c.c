@@ -23,48 +23,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-/*
- * HD44780-Display über PCF8574 ansteuern.
- * Belegung Pollin Add-On-Board:
- *
- * Pin PCF8574		Pin am LCD
- *     4 (P0)	->	11 (DB4)
- *     5 (P1)	->	12 (DB5)
- *     6 (P2)	->	13 (DB6)
- *     7 (P3)	->	14 (DB7)
- *     9 (P4)	->	 4 (RS)
- *    10 (P5)	->	 5 (R/W)
- *    11 (P6)	->	 6 (EN)
- *    12 (P7)	->	15 (Beleuchtung)
- *
- * Die LCD-Beleuchtung an Pin 12 wird über einen 
- * PNP-Transistor geschaltet.
- * Beleuchtung an: Bit 7=0 
- * Beleuchtung aus: Bit 7=1
- * Die Address-Eingänge A0 bis A2 des PCF8574 liegen alle auf GND.
- * Die Basis-Addresse des Chips ist daher immer 0x20.
- *
- * Belegung Arduino compatible I2C-Board:
- *
- * Pin PCF8574		Pin am LCD
- *     4 (P0)	->	 4 (RS)
- *     5 (P1)	->	 5 (R/W)
- *     6 (P2)	->	 6 (EN)
- *     7 (P3)	->	15 (Beleuchtung)
- *     9 (P4)	->	11 (DB4)
- *    10 (P5)	->	12 (DB5)
- *    11 (P6)	->	13 (DB6)
- *    12 (P7)	->	14 (DB7)
- *
- * Die LCD-Beleuchtung an Pin 12 wird über einen
- * PNP-Transistor geschaltet.
- * Beleuchtung an: Bit 3=1
- * Beleuchtung aus: Bit 3=0
- * Die Address-Eingänge A0 bis A2 des PCF8574 liegen alle auf HIGH.
- * Die Basis-Addresse des Chips ist daher 0x27.
- *
- */
-
 #include <avr/io.h>
 #include <util/delay.h>
 
