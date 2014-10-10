@@ -4,7 +4,7 @@ dnl
 dnl Pin Configuration for 'pollin_evalboard'.  Edit it to fit your needs.
 dnl
 
-ifdef(`conf_HD44780', `dnl
+ifelse(value_HD44780_CONNECTION,`HD44780_DIREKT',`dnl
 pin(HD44780_RS, PB2)
 pin(HD44780_RW, PB1)
 pin(HD44780_D4, PA4)

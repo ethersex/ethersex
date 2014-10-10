@@ -19,7 +19,7 @@ mainmenu_option next_comment
                I2C(pcf8574)             HD44780_I2CSUPPORT      \
                SER_LCD(74hct164)        HD44780_SERLCD          \
                2WIRE(74hct4094)         HD44780_2WIRE"          \
-              'Direkt'                  HD44780_CONNECTION
+              'Direkt'                  CONF_HD44780_CONNECTION
     fi
 
     if [ "$HD44780_DIREKT" = "y" ]; then
@@ -28,7 +28,6 @@ mainmenu_option next_comment
       dep_bool "Backlight support" HD44780_BACKLIGHT_SUPPORT $HD44780_SUPPORT
     elif [ "$HD44780_I2CSUPPORT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
-      int "PCF8574 Address" HD44780_PCF8574_ADR 32
       define_bool I2C_MASTER_SUPPORT y
       define_bool I2C_PCF8574X_SUPPORT y
     fi
