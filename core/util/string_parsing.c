@@ -20,9 +20,10 @@
  */
 
 #include <stdint.h>
+#include <math.h>
 #include "core/util/string_parsing.h"
 
-/* Takes a character strint and an place for the value, and parses the first integer
+/* Takes a character string and an place for the value, and parses the first integer
  * after all spaces. If there isn't an integer, it will return 0,
  * otherwise the number of parsed characters, including the spaces
  */
@@ -41,6 +42,66 @@ next_uint16(char *cmd, uint16_t *value) {
         found_number = 1;
     }
 
+    return found_number ? cmd - old_cmd : 0;    
+}
+
+uint8_t 
+next_int16(char *cmd, int16_t *value) {
+    uint8_t found_number = 0, found_negative = 0;
+    char *old_cmd = cmd;
+    *value = 0;
+
+    while (*cmd == ' ') cmd++; /* Strip the spaces before */
+    if(*cmd == '-') {
+      found_negative = 1;
+      cmd++;
+    }
+    while (*cmd >= '0' && *cmd <= '9') {
+        *value = (*value) * 10 + (*cmd) - '0';
+        cmd++;
+        found_number = 1;
+    }
+    if(found_number && found_negative) *value *= -1;
+    
+    return found_number ? cmd - old_cmd : 0;    
+}
+
+/* Takes a character string and an place for the value, and parses the first number
+ * after all spaces. If there isn't an integer, it will return 0,
+ * otherwise the number of parsed characters, including the spaces
+ */
+
+uint8_t 
+next_int16_fp(char *cmd, int16_t *value, uint8_t fixeddigits) {
+    uint8_t found_number = 0, found_negative = 0, found_decimal=0,
+            count_fixed=0;
+    char *old_cmd = cmd;
+    *value = 0;
+
+    while (*cmd == ' ') cmd++; /* Strip the spaces before */
+    if(*cmd == '-') {
+      found_negative = 1;
+      cmd++;
+    }
+
+    while ((*cmd >= '0' && *cmd <= '9') || *cmd=='.') {
+      if(*cmd=='.') found_decimal = 1;
+
+      if(*cmd != '.')
+        *value = (*value) * 10 + (*cmd) - '0';
+      if(found_decimal && *cmd != '.')    /* Count numbers after decimal point */
+        count_fixed++;
+      if(count_fixed >= fixeddigits)     /* Stop parsing if fixeddigits are parsed  */
+        break;
+      cmd++;
+      found_number = 1;
+    }
+    
+    /* Fill up with zero */
+    while(count_fixed++ < fixeddigits) *value = (*value) * 10;
+    
+    if(found_number && found_negative) *value *= -1;
+    
     return found_number ? cmd - old_cmd : 0;    
 }
 
