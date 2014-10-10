@@ -3191,3 +3191,36 @@ REMOTE_IRMP_SUPPORT
 
   Control your HiFi equipment with your smartphone.
   For details see https://www.mikrocontroller.net/articles/Remote_IRMP
+
+BSBPort TCP Port
+BSBPORT_PORT
+
+  TCP port where all messages where duplicated to. Same behaviour then YPort
+
+BSBPort Baudrate
+BSBPORT_BAUDRATE
+
+  Default Baudrate of BSBPort is 4800
+
+BSBPort Message History Size
+BSBPORT_MESSAGE_BUFFER_LEN
+
+  Number of messages to keep. If history is filled old messages will get overritten.
+  Buffer can be read with ecmd bsbport list or bsbport get.
+
+BSBPort Message Max Length
+BSBPORT_MESSAGE_MAX_LEN
+
+  All messages which are longer are discarded.
+
+BSBPORT Address
+BSBPORT_OWNADDRESS
+
+  Address to use when sending messages to the bus. Duplicated addresses will get you bus errors. Normaly 0 is the central, 6 is the first RGT (Roomcontrolunit), 7 the second RGT.
+
+BSBPORT Polling Support
+BSBPORT_POLLING_SUPPORT
+  Depends on: 
+   * BSBPort Support (BSBPORT_SUPPORT)
+
+  If activated one query defined in bsbport_polling.c get executed every 3sec.
