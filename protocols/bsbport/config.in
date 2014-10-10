@@ -13,7 +13,7 @@ if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 			BSBPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
 		fi
 		int    "BSBPort Buffer Length" BSBPORT_BUFFER_LEN 32
-    int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
+		int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
 		int    "BSBPort Message History Size" BSBPORT_MESSAGE_BUFFER_LEN 10
 		int    "BSBPort Message Max Length" BSBPORT_MESSAGE_MAX_LEN 25
 		int    'BSBPORT Address' BSBPORT_OWNADDRESS 7
