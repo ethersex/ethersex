@@ -28,5 +28,6 @@
 #include <stdint.h>
 
 uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
+uint8_t n_itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t max_len);
 
 #endif
