@@ -84,15 +84,12 @@ next_int16_fp(char *cmd, int16_t *value, uint8_t fixeddigits) {
       cmd++;
     }
 
-    while ((*cmd >= '0' && *cmd <= '9') || *cmd=='.') {
+    while ((*cmd >= '0' && *cmd <= '9') || (*cmd=='.' && !found_decimal)) {
       if(*cmd=='.') found_decimal = 1;
-
-      if(*cmd != '.')
+      if(*cmd != '.' && count_fixed < fixeddigits)     /* Stop parsing if fixeddigits are parsed but consume all numbers  */)
         *value = (*value) * 10 + (*cmd) - '0';
       if(found_decimal && *cmd != '.')    /* Count numbers after decimal point */
         count_fixed++;
-      if(count_fixed >= fixeddigits)     /* Stop parsing if fixeddigits are parsed  */
-        break;
       cmd++;
       found_number = 1;
     }
